@@ -27,7 +27,7 @@
 #include <freetype/tttables.h>
 
 
-/* Generic fonts */
+/* Generic fonts families */
 static GpFontFamily* familySerif = NULL;
 static GpFontFamily* familySansSerif = NULL;
 static GpFontFamily* familyMonospace = NULL;
@@ -35,6 +35,18 @@ static int ref_familySerif = 0;
 static int ref_familySansSerif = 0;
 static int ref_familyMonospace = 0;
 
+/*
+	How font cache works
+
+	- Create any font and store it in the cache
+	- When GdipDeleteFont is called just decrease the reference count and do not delete the font
+	- All the cached fonts are released when GDI+ is shutdown
+	- When the cache is full we release the first font cached with 0 references
+*/
+
+#define MAX_CACHED_FONTS 128
+static GpCachedFont cached_fonts [MAX_CACHED_FONTS];
+static int cached_fonts_index = 0;
 
 /* Family and collections font functions */
 
@@ -505,7 +517,6 @@ GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAv
 }
 
 
-
 /* Font functions */
 
 int
@@ -576,6 +587,35 @@ gdip_font_drawstrikeout (GpGraphics *graphics, GpBrush *brush, float x, float y,
         GdipFillRectangle (graphics, brush, x, y -pos, width, size);
 }
 
+void
+gdip_release_font (GpFont* font)
+{
+	if (!font)
+		return;
+
+	cairo_font_destroy ((cairo_font_t *)font->cairofnt);
+
+	if (font->ft_library)
+		FT_Done_FreeType(font->ft_library);
+	
+	if (font->wineHfont)
+		DeleteWineFont(font->wineHfont);
+	
+	GdipFree ((void *)font);
+	printf ("%x gdip_release_font\n", font);
+}
+
+void
+gdip_release_cachedfonts ()
+{
+	int i;
+
+	/* Loop all the cached fonts */
+	for (i = 0; i < cached_fonts_index; i++)
+		gdip_release_font (cached_fonts[i].font);
+}
+
+
 GpStatus
 GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, Unit unit,  GpFont **font)
 {
@@ -584,15 +624,38 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 	GpFont *result;
 	int slant = 0;
 	int weight = FC_WEIGHT_LIGHT;
+	int i;
+	float sizeInPixels;
 	
 	if (!family || !font)
 		return InvalidParameter;
 
 	r = FcPatternGetString (family->pattern, FC_FAMILY, 0, &str);
+	
+	gdip_unitConversion (unit, UnitPixel, emSize, &sizeInPixels);
+
+	/* Is it already in the cache */
+	for (i = 0; i < cached_fonts_index; i++) {
+		if (sizeInPixels != cached_fonts[i].sizeInPixels)
+			continue;
+
+		if (style != cached_fonts[i].style)
+			continue;
+		
+		if (strcmp (str, cached_fonts[i].szFamily) != 0)
+			continue;
+
+		if (cached_fonts[i].font == NULL)
+			continue;
+
+		/* Found in cache */
+		*font = cached_fonts[i].font;
+		cached_fonts[i].refcount++;
+		return Ok;
+	}
 
 	result = (GpFont *) GdipAlloc (sizeof (GpFont));
-
-	gdip_unitConversion (unit, UnitPixel, emSize, &result->sizeInPixels);
+	result->sizeInPixels = sizeInPixels;
 
         if ((style & FontStyleBold) == FontStyleBold)
                 weight = FC_WEIGHT_BOLD;
@@ -607,6 +670,33 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 	cairo_font_reference ((cairo_font_t *)result->cairofnt);
 	result->wineHfont=CreateWineFont(str, style, emSize, unit);
 	*font=result;
+
+	if (strlen (str) > 127) /* Cannot cache this font */
+		return Ok;
+	
+	/* Cache entry */
+	if (cached_fonts_index < MAX_CACHED_FONTS) {
+		strcpy (cached_fonts[cached_fonts_index].szFamily, str);
+		cached_fonts[cached_fonts_index].sizeInPixels = sizeInPixels;
+		cached_fonts[cached_fonts_index].style = style;
+		cached_fonts[cached_fonts_index].font = result;
+		cached_fonts[cached_fonts_index].refcount = 1;
+		cached_fonts_index++;
+	} else {
+
+		/* Look for the first non-referenced font */
+		for (i = 0; i < MAX_CACHED_FONTS; i++) {
+			if (cached_fonts[i].refcount > 0)
+				continue;
+
+			gdip_release_font (cached_fonts[i].font); /* release previous cached font */
+			strcpy (cached_fonts[i].szFamily, str);
+			cached_fonts[i].sizeInPixels = sizeInPixels;
+			cached_fonts[i].style = style;
+			cached_fonts[i].font = result;
+			cached_fonts[i].refcount = 1;
+		}	
+	}
         
 	return Ok;
 }
@@ -621,21 +711,27 @@ GdipGetHfont(GpFont* font, void **Hfont)
 	return InvalidParameter;
 }
 
+
 GpStatus
 GdipDeleteFont (GpFont* font)
 {
-	if (font) {
-		cairo_font_destroy ((cairo_font_t *)font->cairofnt);
-		if (font->ft_library) {
-			FT_Done_FreeType(font->ft_library);
-		}
-		if (font->wineHfont) {
-			DeleteWineFont(font->wineHfont);
-		}
-		GdipFree ((void *)font);
-                return Ok;
+	int i;
+
+	if (!font)
+		return InvalidParameter;
+
+	/* Is is in the cache */
+	for (i = 0; i < cached_fonts_index; i++) {
+		if (font != cached_fonts[i].font)
+			continue;		
+
+		/* Found in cache */
+		cached_fonts[i].refcount--;
+		return Ok;
 	}
-        return InvalidParameter;
+
+	gdip_release_font (font);
+	return Ok;	       
 }
 
 static GpStatus

@@ -1,3 +1,7 @@
+2004-11-11  Jordi Mas <jordi@ximian.com>
+
+	* gdip.h, font.c, general.c: implements font caching
+
 2004-11-10  Peter Bartok  <pbartok@novell.com>
 	* graphics.c (MeasureOrDrawString): Enabled clipping again, cairo
 	  appears to have the required fixes for it now.

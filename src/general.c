@@ -45,6 +45,8 @@ struct startupOutput
 	void *unhook;
 };
 
+extern void gdip_release_cachedfonts ();
+
 Display *GDIP_display = 0;
 int      closeDisplay = 0;
 
@@ -118,6 +120,7 @@ GdiplusShutdown(unsigned long *token)
 	}
 	_unload_x11drv ();
         releaseCodecList ();
+	gdip_release_cachedfonts ();
 	shutdownGdipWin32();
 }
 

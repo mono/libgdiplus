@@ -764,6 +764,16 @@ typedef struct {
 	FT_Library          ft_library;
 } GpFont;
 
+ 
+typedef struct
+{
+	char		szFamily [128];
+	float		sizeInPixels;
+	GpFontStyle	style;
+	GpFont *	font;
+	int		refcount;
+} GpCachedFont;
+
 typedef struct {
         StringAlignment alignment;
         StringAlignment lineAlignment;
