@@ -1,3 +1,8 @@
+2005-01-26  Peter Bartok  <pbartok@novell.com>
+
+	* bmpcodec.c: We convert all images to 32bit, no longer need the
+	  palette
+
 2005-01-26  Geoff Norton  <gnorton@customerdna.com>
 
 	* tiffcodec.c: Use the tiff callback functions to allow

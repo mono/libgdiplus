@@ -286,7 +286,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
         img->data.Stride = (32 * img->image.width) / 8;
         img->data.Stride = (img->data.Stride + 3) & ~3;
      
-        if (colours){               
+        if (colours) {
                 img->image.palette = g_malloc (sizeof(ColorPalette) + sizeof(ARGB) * colours);
                 img->image.palette->Flags = 0;
                 img->image.palette->Count = colours;
@@ -471,6 +471,8 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	}
 
 	GdipFree(data_read);
+	g_free(img->image.palette);
+	img->image.palette = NULL;
 
 	img->data.Scan0 = pixels;
         img->data.Reserved = GBD_OWN_SCAN0;
