@@ -161,7 +161,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				GdipBitmapGetPixel (&bmpdest, x, y, &color);					
 				
 				if (color >= imgattr->key_colorlow && color <= imgattr->key_colorhigh)
-					color = color || (0xff << 24);
+					color = color & 0x00ffffff; // Alpha = 0
 					
 				GdipBitmapSetPixel (&bmpdest, x, y, color);
 			}	
