@@ -186,7 +186,205 @@ gdip_load_bmp_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
                                           SeekDelegate seeknFunc,
                                           GpImage **image)
 {
-        return NotImplemented;
+	BITMAPFILEHEADER bmfh;
+        BITMAPINFOHEADER bmi;
+        GpBitmap *img = NULL;
+        guchar *pixels = NULL, *linep = NULL;
+        int i, j, format, colours;
+        BOOL os2format = FALSE, upsidedown = TRUE;
+        int size, size_read;
+	byte* data_read;
+		
+	size = sizeof(bmfh);
+	
+	memset (data_read, 0, size);
+	size_read = getBytesFunc(data_read, size, 0);
+	if (size_read < size)
+		return InvalidParameter;
+		
+	bmfh.bfType = ((data_read[0]<<8)|data_read[1]);
+        if (bmfh.bfType != BFT_BITMAP)
+                return UnknownImageFormat;
+
+	bmfh.bfSize = (data_read[2]<<24 | data_read[3]<<16 | data_read[4]<<8 | data_read[5]);
+	bmfh.bfReserved1 = ((data_read[6]<<8)|data_read[7]);
+	bmfh.bfReserved1 = ((data_read[8]<<8)|data_read[9]);
+	bmfh.bfOffBits = (data_read[10]<<24 | data_read[11]<<16 | data_read[12]<<8 | data_read[13]);
+
+	size = sizeof(DWORD);
+	size_read = getBytesFunc(data_read, size, 0);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi.biSize = (data_read[0]<<24 | data_read[1]<<16 | data_read[2]<<8 | data_read[3]);
+
+	if (bmi.biSize > BITMAPCOREHEADER_SIZE){   /* New Windows headers can be bigger */ 
+		memset (data_read, 0, size);
+		size_read = getBytesFunc(data_read, size, 0);
+		if (size_read < size)
+			return InvalidParameter;
+		bmi.biWidth = (data_read[0]<<24 | data_read[1]<<16 | data_read[2]<<8 | data_read[3]); 
+
+		memset (data_read, 0, size);
+		size_read = getBytesFunc(data_read, size, 0);
+		if (size_read < size)
+			return InvalidParameter;
+		bmi.biHeight = (data_read[0]<<24 | data_read[1]<<16 | data_read[2]<<8 | data_read[3]); 
+ 	}
+        else  {
+		if (bmi.biSize ==  BITMAPCOREHEADER_SIZE) {
+			/* Old OS/2 format. Width and Height fields are WORDs instead of DWORDS */
+                        memset (data_read, 0, size);
+			size_read = getBytesFunc(data_read, size, 0);
+			if (size_read < size)
+				return InvalidParameter;
+			bmi.biWidth = (data_read[0]<<8 | data_read[1]);
+			bmi.biHeight = (data_read[2]<<8 | data_read[3]);
+                        os2format = TRUE;
+                }
+                else
+                        return UnknownImageFormat;
+        }
+
+	memset (data_read, 0, size);
+	size_read = getBytesFunc(data_read, size, 0);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi.biPlanes = (data_read[0]<<8 | data_read[1]); 
+	bmi.biBitCount = (data_read[2]<<8 | data_read[3]); 
+
+	memset (data_read, 0, size);
+	size_read = getBytesFunc(data_read, size, 0);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi.biCompression = (data_read[0]<<24 | data_read[1]<<16 | data_read[2]<<8 | data_read[3]); 
+		
+        if (bmi.biCompression == BI_RLE4 || bmi.biCompression == BI_RLE8)
+                return NotImplemented; /* We do not support RLE for now*/
+
+        if (bmi.biHeight < 0) { /* Negative height indicates that the bitmap is sideup*/
+                upsidedown = FALSE;
+                bmi.biHeight =  -bmi.biHeight;
+        }
+
+	memset (data_read, 0, size);
+	size_read = getBytesFunc(data_read, size, 0);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi.biSizeImage = (data_read[0]<<24 | data_read[1]<<16 | data_read[2]<<8 | data_read[3]); 
+		
+	memset (data_read, 0, size);
+	size_read = getBytesFunc(data_read, size, 0);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi.biXPelsPerMeter = (data_read[0]<<24 | data_read[1]<<16 | data_read[2]<<8 | data_read[3]); 
+	
+	memset (data_read, 0, size);
+	size_read = getBytesFunc(data_read, size, 0);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi.biYPelsPerMeter = (data_read[0]<<24 | data_read[1]<<16 | data_read[2]<<8 | data_read[3]); 
+		
+	memset (data_read, 0, size);
+	size_read = getBytesFunc(data_read, size, 0);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi.biClrUsed = (data_read[0]<<24 | data_read[1]<<16 | data_read[2]<<8 | data_read[3]); 
+		
+	memset (data_read, 0, size);
+	size_read = getBytesFunc(data_read, size, 0);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi.biClrImportant = (data_read[0]<<24 | data_read[1]<<16 | data_read[2]<<8 | data_read[3]); 
+		
+	colours =  (bmi.biClrUsed == 0 && bmi.biBitCount <= 8) ? (1 << bmi.biBitCount) : bmi.biClrUsed;
+        
+        format = gdip_get_pixelformat (bmi.biBitCount);
+                                               
+        if (format == 0)
+                return NotImplemented; /* Unsuported pixel format*/
+
+        img = gdip_bitmap_new ();
+        img->image.pixFormat = format;
+        img->image.type = imageBitmap;
+        img->image.graphics = 0;
+        img->image.width = bmi.biWidth;
+        img->image.height = bmi.biHeight;
+
+        img->data.PixelFormat = img->image.pixFormat;
+        img->data.Width = img->image.width;
+        img->data.Height = img->image.height;
+        img->data.Stride = (bmi.biBitCount * img->image.width) / 8;
+        img->data.Stride = (img->data.Stride + 3) & ~3;
+     
+        if (colours){               
+                img->image.palette = g_malloc (sizeof(ColorPalette) + sizeof(ARGB) * colours);
+                img->image.palette->Flags = 0;
+                img->image.palette->Count = colours;
+                       
+                /* Read optional colour table*/
+                if (os2format) {  /* RGBTRIPLE */
+			size = sizeof(byte)*3;
+                        for (i = 0; i < colours; i++) {
+				size_read = getBytesFunc(data_read, size, 0);
+				if (size_read < size)
+					return InvalidParameter;
+				img->image.palette->Entries[i] = (((data_read[0]&0xff)<<16) | 
+					((data_read[1]&0xff)<<8) | (data_read[2]&0xff));
+                        }
+                }
+                else { /* RGBSquads */
+			size = sizeof(byte)*4;
+                        for (i = 0; i < colours; i++) {
+                                size_read = getBytesFunc(data_read, size, 0);
+				if (size_read < size)
+					return InvalidParameter;
+                                img->image.palette->Entries[i] = (((data_read[0]&0xff)<<24)  | 
+					((data_read[1]&0xff)<<16) | ((data_read[2]&0xff)<<8) | 
+						(data_read[3]& 0xff));                       
+                        }
+                }
+        }
+        else
+                img->image.palette = NULL;                                                                      
+       
+        pixels = GdipAlloc (img->data.Stride * img->data.Height);
+
+	size = img->data.Stride;
+        if (upsidedown) { 
+		for (i = img->data.Height - 1; i >= 0; i--){ 
+			size_read = getBytesFunc(data_read, size, 0);
+			if (size_read < size)
+				return InvalidParameter;                        
+			memcpy(pixels + i*size, data_read, size);			
+		}
+        }
+        else {
+		for (i = 0; i < img->data.Height; i++) {
+			size_read = getBytesFunc(data_read, size, 0);
+			if (size_read < size)
+				return InvalidParameter;                        			
+                        memcpy(pixels + i*size, data_read, size);			
+		}
+        }
+
+        img->data.Scan0 = pixels;
+        img->data.Reserved = GBD_OWN_SCAN0;
+        img->image.surface = cairo_surface_create_for_image (pixels,
+                                                         img->cairo_format,
+                                                         img->image.width,
+                                                         img->image.height,
+                                                         img->data.Stride);
+        img->image.imageFlags =
+                ImageFlagsReadOnly |
+                ImageFlagsHasRealPixelSize |
+                ImageFlagsColorSpaceRGB;
+        img->image.horizontalResolution = 0;
+        img->image.verticalResolution = 0;
+        img->image.propItems = NULL;
+
+        *image = (GpImage *) img;
+
+        return Ok;
 }
 
 GpStatus 

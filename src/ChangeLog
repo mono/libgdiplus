@@ -1,3 +1,6 @@
+2004-04-16 Sanjay Gupta <gsanjay@novell.com>
+	* bmpcodec.c: Implemented function for loading image from stream
+
 2004-04-15 Ravindra  <rkumar@novell.com>
 
 	* general.c (gdip_cairo_set_surface_pattern): Check for null pattern
