@@ -1,3 +1,9 @@
+2005-02-20  Peter Bartok  <pbartok@novell.com>
+
+	* gdip.h: Added pixman.h include to get pixman_bits_t
+	* bitmap.h: Made stride calculations based on pixman_bits_t, to
+	  properly work on 64bit platforms as well
+
 2005-02-19  Peter Bartok  <pbartok@novell.com>
 
 	* graphics.c:

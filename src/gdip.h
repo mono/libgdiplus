@@ -22,6 +22,9 @@
 #include <unistd.h>
 
 #include "config.h"
+
+#include "pixman.h"
+
 #ifdef USE_INCLUDED_CAIRO
 #include <cairo.h>
 #else

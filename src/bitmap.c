@@ -172,7 +172,8 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 		int bpp  = gdip_get_pixel_format_components (format);
 		bpp = bpp * gdip_get_pixel_format_depth (format);
 		stride = (bpp * width) / 8;
-		stride = (stride + 3) & ~3;		
+		stride += (stride + (sizeof(pixman_bits_t)-1));
+		stride &= ~(sizeof(pixman_bits_t)-1);
 	}
 
 	if (scan0 == NULL) {
