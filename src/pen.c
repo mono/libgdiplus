@@ -127,7 +127,15 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	if (status != Ok)
 		return status;
 	
-        cairo_set_line_width (graphics->ct, (double) pen->width);
+	if (pen->width == 0) { /* we draw a pixel wide line if width is 0 */
+	  double widthx = 1.0;
+	  double widthy = 1.0;
+	  cairo_inverse_transform_distance (graphics->ct, &widthx, &widthy);
+	  cairo_set_line_width (graphics->ct, widthx);
+	}
+	else
+	  cairo_set_line_width (graphics->ct, (double) pen->width);
+
         cairo_set_miter_limit (graphics->ct, (double) pen->miter_limit);
         cairo_set_line_join (graphics->ct, convert_line_join (pen->line_join));
         cairo_set_line_cap (graphics->ct, convert_line_cap (pen->line_cap));
