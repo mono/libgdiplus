@@ -37,11 +37,11 @@ gdip_image_init(GpImage *image)
 	image->imageFlags = 0;
 	image->height = 0;
 	image->width = 0;
-	image->horizontalResolution = gdip_get_display_dpi();
+	image->horizontalResolution = gdip_get_display_dpi ();
 	image->palette = 0;
 	image->pixFormat = Format32bppArgb;
 	image->propItems = 0;
-	image->verticalResolution = gdip_get_display_dpi();
+	image->verticalResolution = gdip_get_display_dpi ();
 } 
 
 void *
@@ -93,7 +93,7 @@ GdipDisposeImage (GpImage *image)
 		gdip_bitmap_dispose ((GpBitmap *) image);
 		break;
 	case imageMetafile:
-  break;
+                break;
 	case imageUndefined:
 		break;
 	default:
@@ -378,8 +378,27 @@ GdipImageGetFrameDimensionsCount (GpImage *image, UINT *count)
 }
 
 /* GpStatus GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count); */
-/* GpStatus GdipImageGetFrameCount (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count); */
-/* GpStatus GdipImageSelectActiveFrame (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT index); */
+
+GpStatus
+GdipImageGetFrameCount(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count)
+{
+        if (!image || !dimensionGUID || !count)
+                return InvalidParameter;
+
+        *count = 1;
+        return Ok;
+
+}
+
+GpStatus
+GdipImageSelectActiveFrame(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT index)
+{
+        if (!image || !dimensionGUID)
+                return InvalidParameter;
+
+        return Ok;
+        
+}
 
 GpStatus 
 GdipImageRotateFlip (GpImage *image, RotateFlipType type)
@@ -446,6 +465,29 @@ GdipSetProperyItem (GpImage *image, GDIPCONST PropertyItem *item)
 {
 	return NotImplemented;
 }
+
+
+GpStatus
+GdipCloneImage(GpImage *image, GpImage **cloneImage)
+{
+	if (!image || !cloneImage)
+		return InvalidParameter;
+
+	switch (image->type){
+	case imageBitmap:
+                gdip_bitmap_clone ((GpBitmap *) image, (GpBitmap **) cloneImage);
+		break;
+	case imageMetafile:
+                return NotImplemented;
+        case imageUndefined:
+		break;
+	default:
+		break;
+	}
+        
+	return Ok;
+}
+
 
 ImageFormat 
 get_image_format (FILE *file)

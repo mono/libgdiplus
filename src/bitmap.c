@@ -50,6 +50,15 @@ gdip_bitmap_init (GpBitmap *bitmap)
 	bitmap->hBitmap = 0;
 }
 
+void
+gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
+{
+	*clonedbitmap = (GpBitmap *) GdipAlloc (sizeof (GpBitmap));
+        memcpy (*clonedbitmap, bitmap, sizeof (GpBitmap));
+}
+
+
+
 GpBitmap *
 gdip_bitmap_new ()
 {

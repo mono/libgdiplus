@@ -7,7 +7,7 @@
 	  'make distcheck'.
 
 2004-03-30 Jordi Mas i Hernandez <jordi@ximian.com>
-	* image.c - GdipGetImageBounds and fixesf
+	* image.c - GdipGetImageBounds and fixes
         * bitmap.c - keep the witdh, height and pixel format in sync with the image struct
 
 2004-03-30  Sanjay Gupta <gsanjay@novell.com>

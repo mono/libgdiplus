@@ -102,8 +102,8 @@ GpStatus GdipGetImagePixelFormat (GpImage *image, PixelFormat *format);
 /* GpStatus GetEncoderParameterList (GpImage *image, GDIPCONST CLSID *encoderCLSID, UINT size, EncoderParameters *buffer); */
 GpStatus GdipImageGetFrameDimensionsCount (GpImage *image, UINT *count);
 /* GpStatus GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count); */
-/* GpStatus GdipImageGetFrameCount (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count); */
-/* GpStatus GdipImageSelectActiveFrame (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT index); */
+GpStatus GdipImageGetFrameCount (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count); 
+GpStatus GdipImageSelectActiveFrame (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT index);
 GpStatus GdipImageRotateFlip (GpImage *image, RotateFlipType type);
 GpStatus GdipGetImagePalette (GpImage *image, ColorPalette *palette, int size);
 GpStatus GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette);
@@ -115,6 +115,8 @@ GpStatus GdipGetPropertyItem (GpImage *image, PROPID propID, UINT size, Property
 GpStatus GdipGetPropertySize (GpImage *image, UINT *bufferSize, UINT *propertyNumbers);
 GpStatus GdipRemoveProperyItem (GpImage *image, PROPID propID);
 GpStatus GdipSetProperyItem (GpImage *image, GDIPCONST PropertyItem *item);
+GpStatus GdipCloneImage(GpImage *image, GpImage **cloneImage);
+
 
 ImageFormat get_image_format (FILE *file);
 int gdip_getpixel_formatsize(PixelFormat pixfmt);
