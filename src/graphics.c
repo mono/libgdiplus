@@ -168,6 +168,8 @@ make_arc (GpGraphics *graphics, float x, float y, float width,
         double cos_alpha = cos (alpha);
         double cos_beta = cos (beta);
 
+        printf ("make_arc (%f, %f)\n", startAngle, endAngle);
+
         /* move to starting point */
         cairo_move_to (graphics->ct,
                        cx + rx * cos_alpha, 
@@ -200,14 +202,20 @@ make_pie (GpGraphics *graphics, float x, float y,
 
         double sin_alpha = sin (alpha);
         double cos_alpha = cos (alpha);
+        double current_x, current_y;        
 
         /* move to center */
         cairo_move_to (graphics->ct, cx, cy);
-
+        
         /* draw pie edge */
         cairo_line_to (graphics->ct,
                        cx + rx * cos_alpha, 
                        cy + ry * sin_alpha);
+
+        printf ("Drawing line from (%f, %f) to (%f, %f)\n", 
+                        cx, cy,
+                        cx + rx * cos_alpha, 
+                        cy + ry * sin_alpha);
 
         /*
          * draw the arc, if the sweep is bigger than 180, draw it
@@ -222,8 +230,14 @@ make_pie (GpGraphics *graphics, float x, float y,
                 make_arc (graphics, x, y, width, height, midAngle, endAngle);
         }
 
+        cairo_current_point (graphics->ct, &current_x, &current_y);
+        
         /* draws line back to center */
         cairo_line_to (graphics->ct, cx, cy);
+
+        printf ("Drawing line from (%f, %f) to (%f, %f)\n",
+                        current_x, current_y,
+                        cx, cy);
 }
 
 static GpPointF *
@@ -680,6 +694,9 @@ GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 	status = gdip_plot_path (graphics, path);
 
         cairo_stroke (graphics->ct);
+
+        cairo_close_path (graphics->ct);
+        
        	cairo_restore (graphics->ct);
 
         return status;
@@ -689,6 +706,8 @@ GpStatus
 GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, 
 	     float width, float height, float startAngle, float sweepAngle)
 {
+        cairo_save (graphics->ct);
+
         gdip_pen_setup (graphics, pen);
 
         make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
@@ -696,6 +715,8 @@ GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y,
         cairo_stroke (graphics->ct);
 
         cairo_close_path (graphics->ct);
+
+        cairo_restore (graphics->ct);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -704,15 +725,7 @@ GpStatus
 GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y, 
 	      int width, int height, float startAngle, float sweepAngle)
 {
-        gdip_pen_setup (graphics, pen);
-        
-        make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
-
-        cairo_stroke (graphics->ct);
-
-        cairo_close_path (graphics->ct);
-
-        return gdip_get_status (cairo_status (graphics->ct));
+        return GdipDrawPie (graphics, pen, x, y, width, height, startAngle, sweepAngle);
 }
 
 GpStatus
@@ -723,9 +736,8 @@ GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width,
         gdip_brush_setup (graphics, brush);
 
         make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
-        
+
         cairo_fill (graphics->ct);
-        cairo_stroke (graphics->ct);
 
         cairo_close_path (graphics->ct);
 
@@ -736,21 +748,9 @@ GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width,
 
 
 GpStatus
-GdipFillPieI(GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, float startAngle, float sweepAngle)
+GdipFillPieI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, float startAngle, float sweepAngle)
 {
-        cairo_save (graphics->ct);
-        gdip_brush_setup (graphics, brush);
-
-        make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
-
-        cairo_fill (graphics->ct);
-        cairo_stroke (graphics->ct);
-
-        cairo_close_path (graphics->ct);
-
-        cairo_restore (graphics->ct);
-
-        return gdip_get_status (cairo_status (graphics->ct));
+        return GdipFillPie (graphics, brush, x, y, width, height, startAngle, sweepAngle);
 }
 
 
