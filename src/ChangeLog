@@ -1,3 +1,8 @@
+2004-07-23  Sanjay Gupta <gsanjay@novell.com>
+
+	* tiffcodec.c: Corrected the sequence of writing information
+	to tiff file.
+
 2004-07-23  Ravindra <rkumar@novell.com>
 
 	* stringformat.c: Fixed GdipCloneStringFormat function and some

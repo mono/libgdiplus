@@ -137,7 +137,6 @@ GpStatus
 gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *params)
 {
 	GpBitmap *bitmap = (GpBitmap *) image;	
-	/*unsigned char **buf  = NULL;*/
 	int i, j, k, linebytes;
 	guint32 *r32 = NULL;
 	size_t npixels;
@@ -149,30 +148,22 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 		return InvalidParameter;		
 
 	dimensionCount = image->frameDimensionCount; 
-	/**buf = (unsigned char *) GdipAlloc( sizeof (unsigned char *) * dimensionCount);*/
 		
 	for (j = 0; j < dimensionCount; j++) {
 		frameCount = image->frameDimensionList [j].count;
-		/*(*buf)[j] = (unsigned char *) GdipAlloc ( sizeof (unsigned char *) * frameCount);*/
 		for (k = 0; k < frameCount; k++) {
 			data = image->frameDimensionList [j].frames [k];
 			TIFFSetField (tiff, TIFFTAG_IMAGEWIDTH, data.Width);  
 			TIFFSetField (tiff, TIFFTAG_IMAGELENGTH, data.Height); 
-			TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, 4); /* Hardcoded 32bbps*/
-			TIFFSetField (tiff, TIFFTAG_BITSPERSAMPLE, 8);  
 			TIFFSetField (tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);   
 			TIFFSetField (tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG); 
 			TIFFSetField (tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+			TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, 4); /* Hardcoded 32bbps*/
+			TIFFSetField (tiff, TIFFTAG_BITSPERSAMPLE, 8);  
+	
 			linebytes =  data.Stride;     	
+    			TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, linebytes)); 
 			
-			/*if (TIFFScanlineSize (tiff) < linebytes) 
-				buf[j][k] =(unsigned char *)_TIFFmalloc (linebytes); 
-			else 
-				buf[j][k] = (unsigned char *)_TIFFmalloc (TIFFScanlineSize (tiff)); */
-
-			TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, linebytes)); 
-			TIFFWriteDirectory (tiff);
-
 			/* We store data in ABGR format, but tiff stores it in ARGB, 
 			* so convert before writing it. 
 			*/	 
@@ -198,15 +189,12 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 						(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
 				r32++;
 			}
-	
+			
+			TIFFWriteDirectory (tiff);
 		}
 	}
 				
-	TIFFClose (tiff); 
-		
-	/*if (buf) 
-		_TIFFfree (buf);*/
-
+	TIFFClose (tiff); 		
 	return Ok;
 }
 
