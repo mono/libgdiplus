@@ -1,5 +1,9 @@
 2004-04-06  Vladimir Vukicevic  <vladimir@pobox.com>
 
+	* jpegcodec.c (gdip_save_jpeg_image_internal): 
+	remove stray JCS_GRAYSCALE setting, which was generating
+	very bizzare images.
+	
 	* jpegcodec.c, pngcodec.c: Allow reading/writing non-RGBA data.
 	The GpBitmap.data struct holds cairo-compatible data (always 32bpp
 	RGBA), whereas the GpImage.pixFormat field holds what this data is

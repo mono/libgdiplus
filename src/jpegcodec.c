@@ -503,16 +503,15 @@ gdip_save_jpeg_image_internal (FILE *fp,
         jpeg_set_colorspace (&cinfo, JCS_GRAYSCALE);
     }
 
-    cinfo.jpeg_color_space = JCS_GRAYSCALE;
-
     /* should handle encoding params here */
 
     jpeg_start_compress (&cinfo, TRUE);
 
     if (need_argb_conversion) {
-        scanline = GdipAlloc (bitmap->data.Stride);
         guchar *inptr, *outptr;
         int i, j;
+
+        scanline = GdipAlloc (bitmap->data.Stride);
 
         for (i = 0; i < bitmap->data.Height; i++) {
             inptr = bitmap->data.Scan0 + (i * bitmap->data.Stride);
