@@ -1,3 +1,7 @@
+2004-06-09 Jordi Mas <jordi@ximian.com>
+	* font.c, gdip.h: implemtents cache for generic family fonts,
+	and properly keep track of resources and deallocate them.
+
 2004-06-08  Ravindra  <rkumar@novell.com>
 
 	* graphics.c: Added notes to GdipDrawXXX functions.

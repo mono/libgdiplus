@@ -27,11 +27,21 @@
 #include <freetype/tttables.h>
 
 
+/* Generic fonts */
+static GpFontFamily* familySerif = NULL;
+static GpFontFamily* familySansSerif = NULL;
+static GpFontFamily* familyMonospace = NULL;
+static int ref_familySerif = 0;
+static int ref_familySansSerif = 0;
+static int ref_familyMonospace = 0;
+
+
 /* Family and collections font functions */
 
 GpStatus
 GdipNewInstalledFontCollection (GpFontCollection **font_collection)
-{
+{	
+	
 	FcObjectSet *os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, 0);
 	FcPattern *pat = FcPatternCreate ();
 	FcValue val;
@@ -109,8 +119,37 @@ GdipPrivateAddFontFile (GpFontCollection *font_collection,  GDIPCONST WCHAR *fil
 
 
 GpStatus 
-GdipDeleteFontFamily (GpFontFamily *FontFamily)
+GdipDeleteFontFamily (GpFontFamily *fontFamily)
 {
+	bool delete = TRUE;
+	
+	if (!fontFamily)
+		return Ok;
+		
+	if (fontFamily == familySerif) {
+		ref_familySerif--;
+		if (ref_familySerif)
+			delete = FALSE;
+	}
+	
+	if (fontFamily == familySansSerif) {
+		ref_familySansSerif--;
+		if (ref_familySansSerif)
+			delete = FALSE;
+	}	
+	
+	if (fontFamily == familyMonospace) {
+		ref_familyMonospace--;
+		if (ref_familyMonospace)
+			delete = FALSE;
+	}
+	
+	
+	if (delete) {
+		FcPatternDestroy (fontFamily->pattern);
+		GdipFree (fontFamily);
+	}
+	
 	return Ok;
 }
 
@@ -159,9 +198,12 @@ GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, int num_soug
 
 	if (font_collection->config)
 		gdip_createPrivateFontSet (font_collection);
+		
 
 	for (i = 0; i < font_collection->fontset->nfont; gpfam++, pattern++, i++) {
-		*gpfam = *pattern;
+		*gpfam = (GpFontFamily *) GdipAlloc (sizeof (GpFontFamily));
+		(*gpfam)->pattern = *pattern;
+		(*gpfam)->allocated = FALSE;
 	}
 
 	*num_found = font_collection->fontset->nfont;
@@ -174,7 +216,7 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 	glong items_read = 0;
 	glong items_written = 0;
 	unsigned char *string;
-	GpFontFamily **gpfam;
+	FcPattern **gpfam;
 	FcChar8 *str;
 	int i;
 	
@@ -199,10 +241,14 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 
 		FcConfigSubstitute (0, pat, FcMatchPattern);
 		FcDefaultSubstitute (pat);                  
-		*fontFamily =  FcFontMatch (0, pat, &rlt);
+		
+		*fontFamily = (GpFontFamily *) GdipAlloc (sizeof (GpFontFamily));
+		(*fontFamily)->pattern =  FcFontMatch (0, pat, &rlt);
+		(*fontFamily)->allocated = TRUE;
 
-		r = FcPatternGetString (*fontFamily, FC_FAMILY, 0, &str);
+		r = FcPatternGetString ((*fontFamily)->pattern, FC_FAMILY, 0, &str);
 		g_free (string);
+		FcPatternDestroy (pat);
 		return Ok;
 	}
 
@@ -212,7 +258,9 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 		FcResult r = FcPatternGetString (*gpfam, FC_FAMILY, 0, &str);
 
 		if (strcmp (string, str)==0) {
-			*fontFamily = *gpfam;
+			*fontFamily = (GpFontFamily *) GdipAlloc (sizeof (GpFontFamily));
+			(*fontFamily)->pattern = *gpfam;
+			(*fontFamily)->allocated = FALSE;
 			g_free (string);
 			return Ok;
 		}
@@ -235,7 +283,7 @@ GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], int 
 	if (!family)
 		return InvalidParameter;
 
-	r = FcPatternGetString (family, FC_FAMILY, 0, &fc_str);
+	r = FcPatternGetString (family->pattern, FC_FAMILY, 0, &fc_str);
 
 	string =  g_utf8_to_utf16 ((const gchar *)fc_str, -1, &items_read, &items_written,NULL);
 
@@ -250,27 +298,44 @@ GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], int 
 	return Ok;
 }
 
+
 GpStatus
 GdipGetGenericFontFamilySansSerif (GpFontFamily **nativeFamily)
 {
 	const WCHAR MSSansSerif[] = {'M','S',' ','S','a','n','s',' ', 'S','e','r','i','f', 0};
-    
-	return GdipCreateFontFamilyFromName (MSSansSerif, NULL, nativeFamily);    
+	
+	if (!familySansSerif) 
+		GdipCreateFontFamilyFromName (MSSansSerif, NULL, &familySansSerif);    
+	
+	ref_familySansSerif++;
+	*nativeFamily = familySansSerif;    
+	return Ok;
 }
 
 GpStatus
 GdipGetGenericFontFamilySerif (GpFontFamily **nativeFamily)
 {
 	const WCHAR Serif[] = {'S','e','r','i','f', 0};
-	return GdipCreateFontFamilyFromName (Serif, NULL, nativeFamily);
-    
+	
+	if (!familySerif)
+		GdipCreateFontFamilyFromName (Serif, NULL, &familySerif);
+	
+	ref_familySerif++;	
+	*nativeFamily = familySerif;    
+	return Ok;
 }
 
 GpStatus
 GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily)
 {
 	const WCHAR Serif[] = {'S','e','r','i','f', 0};
-	return GdipCreateFontFamilyFromName (Serif, NULL, nativeFamily);    
+	
+	if (!familyMonospace)
+		GdipCreateFontFamilyFromName (Serif, NULL, &familyMonospace);    
+		
+	ref_familyMonospace++;
+	*nativeFamily = familyMonospace;    
+	return Ok;
 }
 
 GpStatus
@@ -458,7 +523,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 	if (!family || !font)
 		return InvalidParameter;
 
-	r = FcPatternGetString (family, FC_FAMILY, 0, &str);
+	r = FcPatternGetString (family->pattern, FC_FAMILY, 0, &str);
 
 	result = (GpFont *) GdipAlloc (sizeof (GpFont));
 

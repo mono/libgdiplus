@@ -737,7 +737,12 @@ typedef struct {
         FcConfig*   config;
 } GpFontCollection;
 
-typedef FcPattern  GpFontFamily;
+
+typedef struct {
+        FcPattern*	pattern;
+	bool		allocated;
+} GpFontFamily;
+
 
 typedef struct {
         cairo_ft_font_t*    cairofnt;
