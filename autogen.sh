@@ -98,8 +98,8 @@ esac
 if grep "^AM_PROG_LIBTOOL" configure.in >/dev/null; then
   if test -z "$NO_LIBTOOLIZE" ; then 
     echo "Running libtoolize..."
-    #${LIBTOOL}ize --force --copy
-    ${LIBTOOL}ize --copy
+    ${LIBTOOL}ize --force --copy
+    #${LIBTOOL}ize --copy
   fi
 fi
 
