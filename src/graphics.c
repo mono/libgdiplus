@@ -2168,7 +2168,11 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	}
 
 	/* We ignored it above, for shorter of calculations, also, add a bit of padding */
-	MaxX+=2;
+#if 0
+	if ((fmt->formatFlags & StringFormatFlagsNoFitBlackBox) == 0) {
+		MaxX+=2;
+	}
+#endif
 	MaxY+=LineHeight-FontExtent.descent+2;
 
 #ifdef DRAWSTRING_DEBUG
