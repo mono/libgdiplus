@@ -431,7 +431,6 @@ GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrde
         
         if (s != Ok)
                 return s;
-
         else {
                 cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
                 return Ok;
@@ -441,8 +440,12 @@ GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrde
 GpStatus 
 GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order)
 {
-	GpStatus s = GdipRotateMatrix (graphics->copy_of_ctm, angle, order);
+	GpStatus s;
+	
+	GdipGetMatrixElements (graphics->copy_of_ctm, matrix);
+	s = GdipRotateMatrix (graphics->copy_of_ctm, angle, order);
 
+	GdipGetMatrixElements (graphics->copy_of_ctm, matrix);
         if (s != Ok)
                 return s;
         else {

@@ -202,22 +202,13 @@ GdipScaleMatrix (GpMatrix *matrix, float scaleX, float scaleY, GpMatrixOrder ord
         return s;
 }
 
-static GpMatrix *
-set_rotate (float angle)
-{
-        float rad = angle * DEGTORAD;
-        GpMatrix *matrix = cairo_matrix_create ();
-        cairo_matrix_set_affine (matrix, cos (rad), sin (rad), -sin (rad), cos (rad), 0, 0);
-
-        return matrix;
-}
-
 GpStatus
 GdipRotateMatrix (GpMatrix *matrix, float angle, GpMatrixOrder order)
 {
-        GpMatrix *tmp = set_rotate (angle);
-        GpStatus s = GdipMultiplyMatrix (matrix, tmp, order);
-        GdipDeleteMatrix (tmp);
+	GpMatrix tmp;
+        float rad = angle * DEGTORAD;
+        cairo_matrix_set_affine (&tmp, cos (rad), sin (rad), -sin (rad), cos (rad), 0, 0);
+        GpStatus s = GdipMultiplyMatrix (matrix, &tmp, order);
 
         return s;
 }

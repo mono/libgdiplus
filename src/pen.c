@@ -128,20 +128,21 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 		return status;
 	
 	if (pen->width <= 0) { /* we draw a pixel wide line if width is <=0 */
-	  double widthx = 1.0;
-	  double widthy = 1.0;
-	  cairo_inverse_transform_distance (graphics->ct, &widthx, &widthy);
-	  cairo_set_line_width (graphics->ct, widthx);
-	}
-	else
-	  cairo_set_line_width (graphics->ct, (double) pen->width);
-
+		double widthx = 1.0;
+		double widthy = 1.0;
+		cairo_inverse_transform_distance (graphics->ct, &widthx, &widthy);
+		cairo_set_line_width (graphics->ct, widthx);
+	} else
+		cairo_set_line_width (graphics->ct, (double) pen->width);
+	
         cairo_set_miter_limit (graphics->ct, (double) pen->miter_limit);
         cairo_set_line_join (graphics->ct, convert_line_join (pen->line_join));
         cairo_set_line_cap (graphics->ct, convert_line_cap (pen->line_cap));
 
-        if (pen->matrix != NULL)
-                cairo_set_matrix (graphics->ct, pen->matrix);
+	// The stuff below must be fixed, this is killing the existing transform on the graphics->ct
+	
+        //if (pen->matrix != NULL)
+	//cairo_set_matrix (graphics->ct, pen->matrix);
 
         if (pen->dash_count > 0) {
                 double *dash_array;
