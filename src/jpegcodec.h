@@ -32,5 +32,7 @@ gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
 ImageCodecInfo *
 gdip_getcodecinfo_jpeg ();
 
+UINT gdip_get_encoder_parameter_list_size_jpeg ();
+GpStatus gdip_fill_encoder_parameter_list_jpeg (EncoderParameters *eps, UINT size);
 
-#endif /* _PNGCODEC_H */
+#endif /* _JPEGCODEC_H */

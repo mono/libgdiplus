@@ -633,14 +633,14 @@ typedef struct {
 } GUID, Guid, CLSID;
 
 typedef struct {
-    GUID    Guid;               
-    ULONG   NumberOfValues;     
-    EncoderParameterValueType   Type;               
-    VOID*   Value; 
+    GUID    Guid;
+    ULONG   NumberOfValues;
+    EncoderParameterValueType   Type;
+    VOID*   Value;
 } EncoderParameter;
 
 typedef struct {
-    UINT Count;                      
+    UINT Count;
     EncoderParameter Parameter[1];
 } EncoderParameters;
 
@@ -1122,18 +1122,21 @@ void gdip_rect_expand_by (GpRectF *rect, GpPointF *point);
 
 cairo_surface_t *gdip_bitmap_ensure_surface (GpBitmap *bitmap);
 
+const EncoderParameter *gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid);
+
 /* Stream handling bits */
 typedef int (*GetBytesDelegate) (unsigned char *, int, BOOL);
 typedef int (*SeekDelegate) (int, int);
 typedef int (*PutBytesDelegate) (unsigned char *, int);
 
 /* CLSIDs/GUIDs */
-extern CLSID gdip_bmp_image_format_guid;
-extern CLSID gdip_jpg_image_format_guid;
-extern CLSID gdip_png_image_format_guid;
-extern CLSID gdip_gif_image_format_guid;
-extern CLSID gdip_tif_image_format_guid;
+extern GUID gdip_bmp_image_format_guid;
+extern GUID gdip_jpg_image_format_guid;
+extern GUID gdip_png_image_format_guid;
+extern GUID gdip_gif_image_format_guid;
+extern GUID gdip_tif_image_format_guid;
 
 extern GUID GdipEncoderQuality;
+extern GUID GdipEncoderCompression;
 
 #endif /* _GDIP_H */

@@ -1,4 +1,4 @@
-/* -*- Mode: c; c-basic-offset: 4; indent-tabs-mode: nil -*-
+/* -*- Mode: c; c-basic-offset: 4; indent-tabs-mode: t -*-
  *
  * jpegcodec.c : Contains function definitions for encoding decoding jpeg images
  *
@@ -478,6 +478,7 @@ gdip_save_jpeg_image_internal (FILE *fp,
     gdip_stream_jpeg_dest_mgr_ptr dest = NULL;
     JOCTET *scanline = NULL;
     int need_argb_conversion = 0;
+	const EncoderParameter *param;
 
     /* Verify that we can support this pixel format */
     switch (image->pixFormat) {
@@ -551,7 +552,28 @@ gdip_save_jpeg_image_internal (FILE *fp,
         jpeg_set_colorspace (&cinfo, JCS_GRAYSCALE);
     }
 
-    /* should handle encoding params here */
+	/* Handle encoding parameters */
+	if (params) {
+		param = gdip_find_encoder_parameter (params, &GdipEncoderQuality);
+		if (param != NULL) {
+			int quality;
+			if (param->Type == EncoderParameterValueTypeLong) {
+				quality = * (int *) param->Value;
+			} else if (param->Type == EncoderParameterValueTypeLongRange) {
+				const int *pval = (int *) param->Value;
+				quality = (pval[0] + pval[1]) / 2;
+			} else if (param->Type == EncoderParameterValueTypeByte) {
+				quality = *(unsigned char *)param->Value;
+			} else if (param->Type == EncoderParameterValueTypeShort) {
+				quality = *(short *)param->Value;
+			} else {
+				/* Should we report an error here? */
+				quality = 80;
+			}
+
+			jpeg_set_quality (&cinfo, quality, 0);
+		}
+	}
 
     jpeg_start_compress (&cinfo, TRUE);
 
@@ -651,3 +673,51 @@ gdip_save_jpeg_image_to_stream_delegate (utBytesDelegate putBytesFunc,
 }
 
 #endif
+
+/*
+ * MS Jpeg supports:
+ *   Quality (LongRange)
+ *   Transformation (Long)
+ *   LuminanceTable (Short)
+ *   ChrominanceTable (Short)
+ * For now, we're only going to export Quality.
+ */
+
+UINT
+gdip_get_encoder_parameter_list_size_jpeg ()
+{
+    /* We'll need:
+     *  4                              - count
+     *  + sizeof(EncoderParameter) * 1 - number of param structs
+     *  + sizeof(int) * 2              - param data (the two quality values)
+	 * and make sure the whole thing is 4-byte aligned (so we can index from the end)
+     */
+	UINT sz = 4 + sizeof(EncoderParameter) * 1 + sizeof(int) * 2;
+	return (sz + 3) & ~3;
+}
+
+GpStatus
+gdip_fill_encoder_parameter_list_jpeg (EncoderParameters *eps, UINT size)
+{
+	unsigned char *ucptr = (unsigned char *) eps;
+	int *iptr;
+
+	g_return_val_if_fail (eps != NULL, InvalidParameter);
+	g_return_val_if_fail (size >= gdip_get_encoder_parameter_list_size_jpeg (), InvalidParameter);
+	g_return_val_if_fail ((size & 3) == 0, InvalidParameter);
+
+	eps->Count = 1;
+
+	/* Steal the last 8 bytes from the data space to hold our range values */
+	iptr = (int *) (ucptr + size - 8);
+	iptr[0] = 0;
+	iptr[1] = 100;
+
+	eps->Parameter[0].Guid = GdipEncoderQuality;
+	eps->Parameter[0].NumberOfValues = 1;
+	eps->Parameter[0].Type = EncoderParameterValueTypeLongRange;
+	eps->Parameter[0].Value = iptr;
+
+	return Ok;
+}
+

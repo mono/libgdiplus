@@ -1,3 +1,12 @@
+2004-05-15  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* image.c, jpegcodec.c, jpegcodec.h, gdip.h: Add support for
+	EncoderParameters.  Currently, only jpeg Quality is exported (MS
+	doesn't support any params for anything but Jpeg and Tiff)
+
+	* image.c, gdip.h, gdipImage.h: Renamed some things which were
+	clsid to format_guid to avoid confusion (they're not clsids)
+
 2004-05-14  Peter Bartok <pbartok@novell.com>
 	* gdip.h: Added various missing structs and enumerations required for
 	  the new stubs.

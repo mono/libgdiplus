@@ -1,4 +1,4 @@
-/* -*- Mode: c; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 4; -*
+/* -*- Mode: c; c-basic-offset: 4; indent-tabs-mode: t; tab-width: 4; -*-
  *
  * image.c
  * 
@@ -32,21 +32,27 @@
 #include "gdip_win32.h"
 
 
-static char *clsid_to_string_hack (GDIPCONST CLSID *clsid);
+static char *guid_to_string_hack (GDIPCONST CLSID *clsid);
 
 /*
- * encoder clsid's
+ * format guids
  */
 
-CLSID gdip_bmp_image_format_guid = {0xb96b3cabU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-CLSID gdip_jpg_image_format_guid = {0xb96b3caeU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-CLSID gdip_png_image_format_guid = {0xb96b3cafU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-CLSID gdip_gif_image_format_guid = {0xb96b3cb0U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-CLSID gdip_tif_image_format_guid = {0xb96b3cb1U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-CLSID gdip_exif_image_format_guid = {0xb96b3cb2U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-CLSID gdip_wmf_image_format_guid = {0xb96b3cadU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-CLSID gdip_emf_image_format_guid = {0xb96b3cacU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-			
+GUID gdip_bmp_image_format_guid = {0xb96b3cabU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+GUID gdip_jpg_image_format_guid = {0xb96b3caeU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+GUID gdip_png_image_format_guid = {0xb96b3cafU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+GUID gdip_gif_image_format_guid = {0xb96b3cb0U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+GUID gdip_tif_image_format_guid = {0xb96b3cb1U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+GUID gdip_exif_image_format_guid = {0xb96b3cb2U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+GUID gdip_wmf_image_format_guid = {0xb96b3cadU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+GUID gdip_emf_image_format_guid = {0xb96b3cacU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+
+/*
+ * encoder param guids
+ */
+GUID GdipEncoderQuality = {0x1d5be4b5U, 0xfa4aU, 0x452dU, {0x9c, 0xdd, 0x5d, 0xb3, 0x51, 0x05, 0xe7, 0xeb}};
+GUID GdipEncoderCompression = {0xe09d739dU, 0xccd4U, 0x44eeU, {0x8e, 0xba, 0x3f, 0xbf, 0x8b, 0xe4, 0xfc, 0x58}};
+
 void 
 gdip_image_init(GpImage *image)
 {
@@ -452,7 +458,7 @@ gdip_get_imageformat_from_codec_clsid (CLSID *encoderCLSID)
 
         if (memcmp (&encoder->Clsid, encoderCLSID, sizeof (GUID)) == 0) {
             free (encoders);
-            return gdip_image_format_for_clsid (&encoder->FormatID);
+            return gdip_image_format_for_format_guid (&encoder->FormatID);
         }
     }
 
@@ -1158,7 +1164,7 @@ GdipSaveImageToDelegate_linux (GpImage *image, PutBytesDelegate putBytesFunc, GD
     if (!image || !encoderCLSID)
         return InvalidParameter;
 
-    format = gdip_image_format_for_clsid (encoderCLSID);
+    format = gdip_image_format_for_format_guid (encoderCLSID);
     if (format == INVALID)
         return UnknownImageFormat;
    
@@ -1178,64 +1184,36 @@ GdipSaveImageToDelegate_linux (GpImage *image, PutBytesDelegate putBytesFunc, GD
 }
 
 ImageFormat
-gdip_image_format_for_clsid (GDIPCONST CLSID *encoderCLSID)
+gdip_image_format_for_format_guid (GDIPCONST GUID *formatGUID)
 {
-    	if (memcmp(encoderCLSID, &gdip_bmp_image_format_guid, sizeof(CLSID)) == 0)
-        	return BMP;
-    	if (memcmp(encoderCLSID, &gdip_jpg_image_format_guid, sizeof(CLSID)) == 0)
-        	return JPEG;
-    	if (memcmp(encoderCLSID, &gdip_png_image_format_guid, sizeof(CLSID)) == 0)
-        	return PNG;
-    	if (memcmp(encoderCLSID, &gdip_gif_image_format_guid, sizeof(CLSID)) == 0)
-        	return GIF;
-	if (memcmp(encoderCLSID, &gdip_tif_image_format_guid, sizeof(CLSID)) == 0)
-        	return TIF;
-	if (memcmp(encoderCLSID, &gdip_exif_image_format_guid, sizeof(CLSID)) == 0)
-        	return EXIF;
-    	if (memcmp(encoderCLSID, &gdip_wmf_image_format_guid, sizeof(CLSID)) == 0)
-        	return WMF;
-    	if (memcmp(encoderCLSID, &gdip_emf_image_format_guid, sizeof(CLSID)) == 0)
-        	return EMF;
+	if (memcmp(formatGUID, &gdip_bmp_image_format_guid, sizeof(GUID)) == 0)
+		return BMP;
+	if (memcmp(formatGUID, &gdip_jpg_image_format_guid, sizeof(GUID)) == 0)
+		return JPEG;
+	if (memcmp(formatGUID, &gdip_png_image_format_guid, sizeof(GUID)) == 0)
+		return PNG;
+	if (memcmp(formatGUID, &gdip_gif_image_format_guid, sizeof(GUID)) == 0)
+		return GIF;
+	if (memcmp(formatGUID, &gdip_tif_image_format_guid, sizeof(GUID)) == 0)
+		return TIF;
+	if (memcmp(formatGUID, &gdip_exif_image_format_guid, sizeof(GUID)) == 0)
+		return EXIF;
+	if (memcmp(formatGUID, &gdip_wmf_image_format_guid, sizeof(GUID)) == 0)
+		return WMF;
+	if (memcmp(formatGUID, &gdip_emf_image_format_guid, sizeof(GUID)) == 0)
+		return EMF;
 
-    return INVALID;
+	return INVALID;
 }
 
 static char *
-clsid_to_string_hack (GDIPCONST CLSID *clsid)
+guid_to_string_hack (GDIPCONST GUID *guid)
 {
-    static char buf[1024];
-    snprintf (buf, 1024, "%08lx-%04x-%04x-%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x",
-              clsid->Data1, clsid->Data2, clsid->Data3,
-              clsid->Data4[0], clsid->Data4[1], clsid->Data4[2], clsid->Data4[3], clsid->Data4[4], clsid->Data4[5], clsid->Data4[6], clsid->Data4[7]);
-    return buf;
-}
-
-GpStatus
-gdip_encoder_parameter_search_int (EncoderParameters *params, GUID *guid, int *result)
-{
-    int i;
-
-    if (params == NULL)
-        return GenericError;
-
-    for (i = 0; i < params->Count; params++) {
-        if (memcmp (guid, &params->Parameter[i].Guid, sizeof(GUID)) == 0) {
-            if (params->Parameter[i].NumberOfValues != 1)
-                return GenericError;
-
-            switch (params->Parameter[i].Type) {
-                case EncoderParameterValueTypeByte:
-                case EncoderParameterValueTypeLong:
-                case EncoderParameterValueTypeShort:
-                    *result = *(int *)params->Parameter[i].Value;
-                    return Ok;
-                default:
-                    return GenericError;
-            }
-        }
-    }
-
-    return GenericError;
+	static char buf[1024];
+	snprintf (buf, 1024, "%08lx-%04x-%04x-%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x",
+		  guid->Data1, guid->Data2, guid->Data3,
+		  guid->Data4[0], guid->Data4[1], guid->Data4[2], guid->Data4[3], guid->Data4[4], guid->Data4[5], guid->Data4[6], guid->Data4[7]);
+	return buf;
 }
 
 #define CODECS_SUPPORTED 5
@@ -1341,13 +1319,38 @@ GdipGetAllPropertyItems(GpImage *image, UINT totalBufferSize, UINT numProperties
 GpStatus
 GdipGetEncoderParameterListSize(GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT *size)
 {
-	return(NotImplemented);
+	g_return_val_if_fail (clsidEncoder != NULL, InvalidParameter);
+	g_return_val_if_fail (size != NULL, InvalidParameter);
+
+	ImageFormat fmt = gdip_get_imageformat_from_codec_clsid ((CLSID *) clsidEncoder);
+
+	switch (fmt) {
+		case JPEG:
+			*size = gdip_get_encoder_parameter_list_size_jpeg ();
+			return Ok;
+		default:
+			break;
+	}
+
+	return NotImplemented;
 }
 
 GpStatus
 GdipGetEncoderParameterList(GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT size, EncoderParameters *buffer)
 {
-	return(NotImplemented);
+	g_return_val_if_fail (clsidEncoder != NULL, InvalidParameter);
+	g_return_val_if_fail (buffer != NULL, InvalidParameter);
+
+	ImageFormat fmt = gdip_get_imageformat_from_codec_clsid ((CLSID *) clsidEncoder);
+
+	switch (fmt) {
+		case JPEG:
+			return gdip_fill_encoder_parameter_list_jpeg (buffer, size);
+		default:
+			break;
+	}
+
+	return NotImplemented;
 }
 
 GpStatus
@@ -1367,4 +1370,17 @@ GpStatus
 GdipSaveAdd(GpImage *image, GDIPCONST EncoderParameters* encoderParams)
 {
 	return(NotImplemented);
+}
+
+const EncoderParameter *
+gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid)
+{
+    int i;
+
+    for (i = 0; i < eps->Count; i++) {
+        if (memcmp (&(eps->Parameter[i].Guid), guid, sizeof(GUID)) == 0)
+            return &(eps->Parameter[i]);
+    }
+
+    return NULL;
 }
