@@ -354,9 +354,9 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rect)
 {
         GpRectF recthit;
         float x = 0, y = 0, hitx, hity;
-        BOOL endrect, clean;
+        BOOL endrect, clean, found;
         GpRectF *rects = NULL, *regrect;
-        int cnt = 0, i, n;
+        int cnt = 0, i, n, posx, posy;
 
         /*
            Complement: the part not shared with the region.
@@ -369,14 +369,15 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rect)
         while (y < regrect->Height) {
 
                 /* First point of a rectangle candidate*/
-                if ((gdip_is_Point_in_RectF (x + regrect->X, y + regrect->Y, rect) == FALSE) &&
-                     gdip_is_Point_in_RectFs_inclusive (x + regrect->X, y + regrect->Y, rects, cnt) == FALSE) {
+                if ((gdip_is_Point_in_RectF_inclusive (x + regrect->X, y + regrect->Y, rect) == FALSE) &&
+                     gdip_is_Point_in_RectFs (x + regrect->X, y + regrect->Y, rects, cnt) == FALSE) {
 
                         endrect = FALSE;
                         hitx = recthit.X = x + regrect->X;
                         hity = recthit.Y = y + regrect->Y;
                         recthit.Height = recthit.Width = 0;
-                        printf ("point 0->%f, %f\n", hitx, hity);
+                        /*
+                        printf ("point 0->%f, %f\n", hitx, hity);*/
 
                         /* Try to get a rectangle going forward and then down*/
 
@@ -388,9 +389,9 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rect)
                                 /* Go from the beg to be sure that we have not a mach before*/
                                 if (recthit.Width) {
                                 for (i = regrect->X; i < recthit.X ; i++)
-                                        if (gdip_is_Point_in_RectF (i, hity, rect) == FALSE) {
+                                        if (gdip_is_Point_in_RectF_inclusive (i, hity, rect) == FALSE) {
                                                  clean = FALSE;
-                                                 printf("hit at %u\n", i);
+                                                 printf("hit at %u\n", i); 
                                                  break;
                                         }
                                  }
@@ -400,7 +401,7 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rect)
 
                                 /* Go forward */
                                 while (hitx < regrect->X + regrect->Width) {
-                                        if (gdip_is_Point_in_RectF (hitx, hity, rect) == FALSE) {
+                                        if (gdip_is_Point_in_RectF_inclusive (hitx, hity, rect) == FALSE) {
 
                                                 if (recthit.Height == 0) /* First row, it's a rect all the rest are equal*/
                                                         recthit.Width++;
@@ -415,7 +416,7 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rect)
                                 if (recthit.Height == 0) {
                                         hity++;
                                         recthit.Height++;
-                                        printf ("line len: %f\n", recthit.Width);
+                                        /*printf ("line len: %f\n", recthit.Width);*/
                                 }
                                 else {
                                         if (hitx - recthit.X == recthit.Width) {
@@ -424,8 +425,7 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rect)
                                         }
                                         else {
                                                 endrect = TRUE; /* Line length does not match previous one*/
-                                                printf ("endred->%f\n", recthit.Height);
-                                                recthit.Height--; /* discount processed line*/
+                                                /*printf ("endred->%f\n", recthit.Height);  */
                                         }
                                 }
 
@@ -436,9 +436,23 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rect)
                                 hitx = x + regrect->X;
                         }  /* while */
 
-                        printf ("store %f, %f, %f, %f\n", recthit.X, recthit.Y, recthit.Width, recthit.Height);
-                        /*Store hitrect as a part of this region*/
-                        gdip_add_rect_to_array (&rects, &cnt,  &recthit);
+                        found = TRUE;
+                        /* Is this already contained */
+                        for (posy = 0; posy < recthit.Height; posy++) {
+
+                              for (posx = 0; posx < recthit.Width; posx++) {
+                                   if (gdip_is_Point_in_RectFs_inclusive (recthit.X + posx , recthit.Y + posy, rects, cnt) == FALSE) {
+                                        found = FALSE;
+                                        break;
+                                   }
+                              }     
+                        }
+
+                        if (found == FALSE) {                        
+                                printf ("store %f, %f, %f, %f\n", recthit.X, recthit.Y, recthit.Width, recthit.Height);
+                                /*Store hitrect as a part of this region*/
+                                gdip_add_rect_to_array (&rects, &cnt,  &recthit);
+                        }
 
                 }  /* end if*/
 
@@ -473,7 +487,6 @@ GdipCombineRegionRectI (GpRegion *region, GDIPCONST GpRect *recti, CombineMode c
         printf("rect->x=%u, y=%u, w=%u, h=%u\n", recti->X, recti->Y, recti->Width, recti->Height);
 
         gdip_from_Rect_To_RectF ((GpRect *) recti, &rect);
-
         
         switch (combineMode) {
         case CombineModeExclude:
@@ -484,8 +497,7 @@ GdipCombineRegionRectI (GpRegion *region, GDIPCONST GpRect *recti, CombineMode c
                 break;
         default:
                return NotImplemented;
-
-                
+                                    
         }
 
         return Ok;
@@ -493,7 +505,7 @@ GdipCombineRegionRectI (GpRegion *region, GDIPCONST GpRect *recti, CombineMode c
 
 
 GpStatus
-GdipCombineRegionPath(GpRegion *region, GpPath *path, CombineMode combineMode)
+GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 {
 
         return NotImplemented;
@@ -501,38 +513,29 @@ GdipCombineRegionPath(GpRegion *region, GpPath *path, CombineMode combineMode)
 
 
 GpStatus
-GdipCombineRegionRegion(GpRegion *region,  GpRegion *region2, CombineMode combineMode)
+GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combineMode)
 {
-        return NotImplemented;
+        if (!region || !region2)
+                return InvalidParameter;
+
+        printf ("GdipCombineRegionRegion %x %x %u\n", region, region2, combineMode);
+        
+        switch (combineMode) {
+        case CombineModeExclude:
+                break;
+        case CombineModeComplement:
+                break;
+        default:
+               return NotImplemented;
+
+        }
+
+        return Ok;
 }
 
 
 GpStatus
-GdipTransformRegion(GpRegion *region, GpMatrix *matrix)
-{
-
-        return NotImplemented;
-}
-
-
-GpStatus
-GdipGetRegionBounds(GpRegion *region, GpGraphics *graphics, GpRectF *rect)
-{
-
-        return NotImplemented;
-}
-
-
-GpStatus
-GdipIsEmptyRegion(GpRegion *region, GpGraphics *graphics, BOOL *result)
-{
-
-        return NotImplemented;
-}
-
-
-GpStatus
-GdipIsInfiniteRegion(GpRegion *region, GpGraphics *graphics, BOOL *result)
+GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 {
 
         return NotImplemented;
@@ -540,7 +543,7 @@ GdipIsInfiniteRegion(GpRegion *region, GpGraphics *graphics, BOOL *result)
 
 
 GpStatus
-GdipIsVisibleRegionPoint(GpRegion *region, float x, float y, GpGraphics *graphics, BOOL *result)
+GdipGetRegionBounds (GpRegion *region, GpGraphics *graphics, GpRectF *rect)
 {
 
         return NotImplemented;
@@ -548,7 +551,7 @@ GdipIsVisibleRegionPoint(GpRegion *region, float x, float y, GpGraphics *graphic
 
 
 GpStatus
-GdipIsVisibleRegionPointI(GpRegion *region, int x, int y, GpGraphics *graphics, BOOL *result)
+GdipIsEmptyRegion (GpRegion *region, GpGraphics *graphics, BOOL *result)
 {
 
         return NotImplemented;
@@ -556,7 +559,7 @@ GdipIsVisibleRegionPointI(GpRegion *region, int x, int y, GpGraphics *graphics, 
 
 
 GpStatus
-GdipIsVisibleRegionRect(GpRegion *region, float x, float y, float width, float height, GpGraphics *graphics, BOOL *result)
+GdipIsInfiniteRegion (GpRegion *region, GpGraphics *graphics, BOOL *result)
 {
 
         return NotImplemented;
@@ -564,7 +567,7 @@ GdipIsVisibleRegionRect(GpRegion *region, float x, float y, float width, float h
 
 
 GpStatus
-GdipIsVisibleRegionRectI(GpRegion *region, int x, int y, int width, int height, GpGraphics *graphics, BOOL *result)
+GdipIsVisibleRegionPoint (GpRegion *region, float x, float y, GpGraphics *graphics, BOOL *result)
 {
 
         return NotImplemented;
@@ -572,7 +575,31 @@ GdipIsVisibleRegionRectI(GpRegion *region, int x, int y, int width, int height, 
 
 
 GpStatus
-GdipGetRegionScansCount(GpRegion *region, int* count, GpMatrix* matrix)
+GdipIsVisibleRegionPointI (GpRegion *region, int x, int y, GpGraphics *graphics, BOOL *result)
+{
+
+        return NotImplemented;
+}
+
+
+GpStatus
+GdipIsVisibleRegionRect (GpRegion *region, float x, float y, float width, float height, GpGraphics *graphics, BOOL *result)
+{
+
+        return NotImplemented;
+}
+
+
+GpStatus
+GdipIsVisibleRegionRectI (GpRegion *region, int x, int y, int width, int height, GpGraphics *graphics, BOOL *result)
+{
+
+        return NotImplemented;
+}
+
+
+GpStatus
+GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
 {
         if (!region || !count)
                 return InvalidParameter;
@@ -582,7 +609,7 @@ GdipGetRegionScansCount(GpRegion *region, int* count, GpMatrix* matrix)
 }
 
 GpStatus
-GdipGetRegionScans(GpRegion *region, GpRectF* rects, int* count, GpMatrix* matrix)
+GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matrix)
 {
         if (!region || !rects|| !count)
                 return InvalidParameter;
@@ -591,8 +618,7 @@ GdipGetRegionScans(GpRegion *region, GpRectF* rects, int* count, GpMatrix* matri
 
         memcpy (rects, region->rects, sizeof (GpRectF) * *count);
         *count = region->cnt;
-        return Ok;
-        
+        return Ok;              
 }
 
 

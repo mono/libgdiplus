@@ -1,3 +1,6 @@
+2004-04-09 Jordi Mas i Hernandez <jordi@ximian.com>
+	* region.c - fixes to regions 
+
 2004-04-09  Duncan Mak  <duncan@ximian.com>
 
 	* graphics-path.c (append_curve): Moved it to the top along with
