@@ -1127,6 +1127,45 @@ GdipSetPropertyItem(GpImage *image, GDIPCONST PropertyItem *item)
 	return NotImplemented; /* GdipSetPropertyItem */
 }
 
+void
+gdip_image_clone (GpImage* image, GpImage* clonedImage)
+{
+	int i = 0, j = 0, count = 0, dataCount = 0;
+	BitmapData *data, *clonedData;
+
+	clonedImage->surface = NULL;
+
+	if (image->frameDimensionCount) {
+		clonedImage->frameDimensionCount = image->frameDimensionCount;
+		clonedImage->frameDimensionList = malloc (sizeof (FrameInfo) * image->frameDimensionCount);
+
+		for (i = 0; i < image->frameDimensionCount; i++) {
+			clonedImage->frameDimensionList[i].count = image->frameDimensionList[i].count;
+			memcpy (&clonedImage->frameDimensionList[i].frameDimension, 
+				&image->frameDimensionList[i].frameDimension, sizeof (GUID));
+
+			dataCount = image->frameDimensionList[i].count;
+			data = image->frameDimensionList[i].frames;
+			clonedImage->frameDimensionList[i].frames = malloc (sizeof (BitmapData) * dataCount);
+			clonedData = clonedImage->frameDimensionList[i].frames;
+			/* Copy all BitmapData */
+			memcpy (clonedImage->frameDimensionList[i].frames, 
+				image->frameDimensionList[i].frames,  sizeof (BitmapData) * dataCount);
+
+			for (j = 0; j < dataCount; j++) {
+				if (data[j].Scan0) {
+					clonedData[j].Scan0 = malloc (data[j].Stride * data[j].Height);
+					memcpy (clonedData[j].Scan0, data[j].Scan0, data[j].Stride * data[j].Height);				
+				}
+				if ((data[j].ByteCount) > 0 && (data[j].Bytes != NULL)) {				
+					clonedData[j].Bytes = malloc (data[j].ByteCount);
+					memcpy (clonedData[j].Bytes, data[j].Bytes, data[j].ByteCount);
+				}
+			}
+		}
+	}
+}
+
 GpStatus
 GdipCloneImage(GpImage *image, GpImage **cloneImage)
 {
@@ -1136,6 +1175,7 @@ GdipCloneImage(GpImage *image, GpImage **cloneImage)
 	switch (image->type){
 		case imageBitmap:
                 	gdip_bitmap_clone ((GpBitmap *) image, (GpBitmap **) cloneImage);
+			gdip_image_clone (image, *cloneImage);
 			break;
 		case imageMetafile:
         	        return NotImplemented; /* GdipCloneImage - imageMetafile */

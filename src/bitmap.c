@@ -96,7 +96,6 @@ gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
 			memcpy (result->data.Bytes, bitmap->data.Bytes, bitmap->data.ByteCount);
 	}
 	
-	result->image.surface = NULL;
 	
 	/*TODO: We should also copy palette info when we support it*/
 }

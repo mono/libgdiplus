@@ -1236,8 +1236,8 @@ void gdip_rect_expand_by (GpRectF *rect, GpPointF *point);
 cairo_surface_t * gdip_bitmap_ensure_surface (GpBitmap *bitmap);
 
 const EncoderParameter *gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid);
-void set_pixel_bgra (byte* pixel, int index, byte b, byte g, byte r, byte a);
-void get_pixel_bgra (int pixel, byte* b, byte* g, byte* r, byte* a); 
+inline void set_pixel_bgra (byte* pixel, int index, byte b, byte g, byte r, byte a);
+inline void get_pixel_bgra (int pixel, byte* b, byte* g, byte* r, byte* a); 
 
 /* Stream handling bits */
 typedef int (*GetHeaderDelegate) (unsigned char *, int);

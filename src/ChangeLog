@@ -1,4 +1,12 @@
-2005-03-17  Jordi Mas i Hernandez  <jordi@ximian.com>
+2005-03-22 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* image.c, bitmap.c: implement gdip_image_clone to copy Image structs properly
+	and fix GdipCloneImage memory corruption problems.
+
+	* gdip.h: inline set_pixel_bgra/get_pixel_bgra functions
+
+
+2005-03-22  Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* bmpcodec.c: 
 	  - Fixes 24 bits bitmap loading
