@@ -1,5 +1,9 @@
 2005-01-26  Peter Bartok  <pbartok@novell.com>
 
+	* bmpcodec.c: Fixed R/B swap mistake
+
+2005-01-26  Peter Bartok  <pbartok@novell.com>
+
 	* bmpcodec.c: Cleaner version, also a bit faster
 
 2005-01-26  Peter Bartok  <pbartok@novell.com>

@@ -415,17 +415,17 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 					index = (line * img->data.Stride) + c*8;
 
-					pixels[index] = pixel & 0xff;			// B
+					pixels[index] = (pixel & 0xff0000) >> 16;	// R
 					pixels[index + 1] = (pixel & 0xff00) >> 8;	// G
-					pixels[index + 2] = (pixel & 0xff0000) >> 16;	// R
+					pixels[index + 2] = pixel & 0xff;			// B
 					pixels[index + 3] = 0xff;			// Alpha
 
 					pixel = palette_lookup(data_read[c] & 0xf);
 
-					pixels[index + 4] = pixel & 0xff;
-					pixels[index + 5] = (pixel & 0xff00) >> 8;
-					pixels[index + 6] = (pixel & 0xff0000) >> 16;
-					pixels[index + 7] = 0xff;
+					pixels[index + 4] = (pixel & 0xff0000) >> 16;	// R
+					pixels[index + 5] = (pixel & 0xff00) >> 8;	// G
+					pixels[index + 6] = pixel & 0xff;		// B
+					pixels[index + 7] = 0xff;			// Alpha
 				}
 				break;
 			}
@@ -438,9 +438,9 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 					index = (line * img->data.Stride) + c*4;
 
-					pixels[index] = pixel & 0xff;			// B
+					pixels[index] = (pixel & 0xff0000) >> 16;	// R
 					pixels[index + 1] = (pixel & 0xff00) >> 8;	// G
-					pixels[index + 2] = (pixel & 0xff0000) >> 16;	// R
+					pixels[index + 2] = pixel & 0xff;		// B
 					pixels[index + 3] = 0xff;			// Alpha
 				}
 				break;
@@ -455,10 +455,12 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 				while (src < loop) {
 					index = (line * img->data.Stride);
-					pixels[index + dest++] = data_read[src++];		// B
-					pixels[index + dest++] = data_read[src++];		// G
-					pixels[index + dest++] = data_read[src++];		// R
-					pixels[index + dest++] = 0xff;			// Alpha
+					pixels[index + dest++] = data_read[src + 0];		// R
+					pixels[index + dest++] = data_read[src + 1];		// G
+					pixels[index + dest++] = data_read[src + 2];		// B
+					pixels[index + dest++] = 0xff;				// Alpha
+
+					src += 3;
 				}
 				break;
 			}
