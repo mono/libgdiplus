@@ -2,7 +2,6 @@
 
 	* graphics.c (GdipFillPieI, GdipDrawPieI): Instead of having
 	another copy of the code, just use the float equivalent.
-	(GdipDrawPath): Remember to close the path.
 	(GdipDrawPie): Add restore/save pair.
 	(make_pie): This is broken right now. Added some debugging
 	messages.

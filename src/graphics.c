@@ -695,8 +695,6 @@ GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 
         cairo_stroke (graphics->ct);
 
-        cairo_close_path (graphics->ct);
-        
        	cairo_restore (graphics->ct);
 
         return status;
