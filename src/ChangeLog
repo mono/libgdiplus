@@ -1,8 +1,19 @@
 2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
 
+	* gifcodec.c, tiffcodec.c, pngcodec.c: include config.h, which
+	actually enables this code.. so that the glaring bugs as a result
+	of it never having been compiled before can be fixed. *cough*
+
+	* image.c (GdipDrawImageRectI): do correct scaling
+	if source and dest width/height don't match.
+	(GdipLoadImageFromFile): fseek back to the start
+	before passing to the loader.
+
+2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
+
 	* image.c: Changed loader calls to use correct
 	load prototypes
-	
+
 	* pngcodec.c, gifcodec.c: Implemented png and gif loading
 
 	* gdip.h: Changed ColorPalette to match GDI+; Entries is part

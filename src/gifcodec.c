@@ -9,10 +9,14 @@
  * Copyright (C) Novell, Inc. 2003-2004.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include "gifcodec.h"
 
-#ifdef HAVE_LIBGIF
+#ifdef HAVE_LIBUNGIF
 
 #include <gif_lib.h>
 
@@ -24,13 +28,19 @@ gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
     int res;
 
     GpBitmap *img = NULL;
-    ColorPalette *pal = NULL;
-    guchar *pixptr, *pixels = NULL;
+    ColorMapObject *pal = NULL;
+    guchar *pixels = NULL;
+    guchar *readptr, *writeptr;
+
+    int i, j;
 
     gif = DGifOpenFileHandle (fileno (fp));
-    if (gif == NULL) {
+    if (gif == NULL)
         goto error;
-    }
+
+    res = DGifSlurp (gif);
+    if (res != GIF_OK)
+        goto error;
 
     img = gdip_bitmap_new ();
     img->image.type = imageBitmap;
@@ -48,7 +58,7 @@ gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
         ColorPalette *pal = g_malloc (sizeof(ColorPalette) + sizeof(ARGB) * gif->SColorMap->ColorCount);
         pal->Flags = 0;
         pal->Count = gif->SColorMap->ColorCount;
-        for (int i = 0; i < gif->SColorMap->ColorCount; i++) {
+        for (i = 0; i < gif->SColorMap->ColorCount; i++) {
             pal->Entries[i] = MAKE_ARGB_RGB(gif->SColorMap->Colors[i].Red,
                                             gif->SColorMap->Colors[i].Green,
                                             gif->SColorMap->Colors[i].Blue);
@@ -64,52 +74,41 @@ gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
     img->cairo_format = CAIRO_FORMAT_ARGB32;
     img->image.pixFormat = Format32bppArgb;
 
-    img->data.Stride = gif->SWidth * 4;
     img->data.PixelFormat = img->image.pixFormat;
     img->data.Width = img->image.width;
     img->data.Height = img->image.height;
+    img->data.Stride = img->data.Width * 4;
 
-    pixels = GdipAlloc (img->data.Stride * img->data.height);
-    pixptr = pixels;
+    pixels = GdipAlloc (img->data.Stride * img->data.Height);
 
-    do {
-        res = DGifGetRecordType (gif, &rectype);
-    } while (res == GIF_OK && rectype != IMAGE_DESC_RECORD_TYPE);
-
-    if (res != GIF_OK)
-        goto error;
-
-    res = DGifGetImageDesc (gif);
-    if (res != GIF_OK)
-        goto error;
-
-    for (int i = 0; i < img->image.height; i++) {
-        guchar *readptr, *writeptr;
-        res = DGifGetLine(gif, pixptr, img->data.Width);
-        if (res != GIF_OK)
-            goto error;
-        /* Explode the line from indexed data into real data */
-        readptr = pixptr + img->image.width - 1;
-        writeptr = pixptr + (img->data.width - 1) * 4;
-        for (int j = 0; j < img->image.width; j++) {
-            guchar pix = *readptr--;
-            writeptr[0] = 255;  /* A */
-            if (pal) {
-                writeptr[1] = pal->Colors[pix].Blue;
-                writeptr[2] = pal->Colors[pix].Green;
-                writeptr[3] = pal->Colors[pix].Red;
-            } else {
-                writeptr[1] = pix;
-                writeptr[2] = pix;
-                writeptr[3] = pix;
-            }
-            writeptr -= 4;
+    readptr = gif->SavedImages->RasterBits;
+    writeptr = pixels;
+    for (i = 0; i < img->image.width * img->image.height; i++) {
+        guchar pix = *readptr++;
+        if (pal) {
+            *writeptr++ = pal->Colors[pix].Blue;
+            *writeptr++ = pal->Colors[pix].Green;
+            *writeptr++ = pal->Colors[pix].Red;
+        } else {
+            *writeptr++ = pix;
+            *writeptr++ = pix;
+            *writeptr++ = pix;
         }
-
-        pixptr += img->data.Stride;
+        *writeptr++ = 255;  /* A */
     }
 
-    *image = img;
+    img->data.Scan0 = pixels;
+    img->data.Reserved = GBD_OWN_SCAN0;
+
+    img->image.surface = cairo_surface_create_for_image (pixels, img->cairo_format,
+                                                   img->image.width, img->image.height,
+                                                   img->data.Stride);
+    img->image.horizontalResolution = gdip_get_display_dpi ();
+    img->image.verticalResolution = gdip_get_display_dpi ();
+    img->image.propItems = NULL;
+    img->image.palette = NULL;
+
+    *image = (GpImage *) img;
     return Ok;
   error:
     if (pixels)

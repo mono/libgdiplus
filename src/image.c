@@ -147,7 +147,7 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
 {
 	GpGraphics *image_graphics = 0;
 	cairo_surface_t *image_surface = 0;
-	
+
 	if (!graphics || !image)
 		return InvalidParameter;
 
@@ -169,7 +169,17 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
 	cairo_move_to (graphics->ct, x, y);
 	cairo_set_pattern (graphics->ct, image_surface);
 	cairo_rectangle (graphics->ct, x, y, width, height);
-	cairo_fill (graphics->ct);
+
+        if (width != image->width || height != image->height) {
+            cairo_scale (graphics->ct,
+                         (double) width / image->width,
+                         (double) height / image->height);
+            cairo_fill (graphics->ct);
+            cairo_default_matrix (graphics->ct);
+            
+        } else {
+            cairo_fill (graphics->ct);
+        }
 	
 	return Ok;
 }
@@ -185,7 +195,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	GpImage *result = 0;
 	GpStatus status = 0;
 	ImageFormat format;
-	unsigned char *file_name;
+	unsigned char *file_name = NULL;
 
         GError *err = NULL;
 
@@ -201,10 +211,12 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	/*printf ("image.c, file name is %s \n", file_name);*/
 	if ((fp = fopen(file_name, "rb")) == NULL) 
 		return FileNotFound;
+        g_free (file_name);
 
 	/*printf ("came outof fopen, file pointer is not null \n");*/
 	format = get_image_format (fp);
-	
+	fseek (fp, 0, SEEK_SET);
+
 	switch (format) {
 		case BMP:
 			status = gdip_load_bmp_image_from_file (fp, &result);
@@ -266,11 +278,16 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 	FILE *fp = 0;
 	GpStatus status = 0;
 	unsigned char *file_name;
+        GError *err = NULL;
 	
 	if (!image || !file || !encoderCLSID || !params)
 		return InvalidParameter;
    
-	file_name = (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, NULL);
+	file_name = (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, &err);
+        if (file_name == NULL || err != NULL) {
+            return InvalidParameter;
+        }
+
 	if ((fp = fopen(file_name, "wb")) == NULL)
 	        return GenericError;
 

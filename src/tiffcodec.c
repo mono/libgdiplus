@@ -9,7 +9,12 @@
  * Copyright (C) Novell, Inc. 2003-2004.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
+#include <byteswap.h>
 #include "tiffcodec.h"
 
 #ifdef HAVE_LIBTIFF
@@ -22,7 +27,7 @@ gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
 {
     GpBitmap *img = NULL;
     TIFF *tif = NULL;
-    guint32 *raster = NULL;
+    char *raster = NULL;
 
     tif = TIFFFdOpen(fileno (fp), "lose.tif", "r");
     if (tif) {
@@ -47,11 +52,51 @@ gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
 
             npixels = tifimg.width * tifimg.height;
             /* Note that we don't use _TIFFmalloc */
-            raster = (guint32*) GdipAlloc (npixels * sizeof (guint32));
+            raster = GdipAlloc (npixels * sizeof (guint32));
             if (raster != NULL) {
-                if (TIFFRGBAImageGet(&tifimg, raster, tifimg.width, tifimg.height)) { 
+                /* Problem: the raster data returned here has the origin at bottom left,
+                 * not top left.  The TIFF guys must be in cahoots with the OpenGL folks.
+                 *
+                 * Then, to add insult to injury, it's in ARGB format, not ABGR.
+                 */
+                if (TIFFRGBAImageGet(&tifimg, (uint32*) raster, tifimg.width, tifimg.height)) { 
+                    guchar *onerow = GdipAlloc (img->data.Stride);
+                    guint32 *r32 = (guint32*)raster;
+                    int i;
+
+                    /* flip raster */
+                    for (i = 0; i < tifimg.height / 2; i++) {
+                        memcpy (onerow, raster + (img->data.Stride * i), img->data.Stride);
+                        memcpy (raster + (img->data.Stride * i),
+                                raster + (img->data.Stride * (tifimg.height - i - 1)),
+                                img->data.Stride);
+                        memcpy (raster + (img->data.Stride * (tifimg.height - i - 1)),
+                                onerow,
+                                img->data.Stride);
+                    }
+                    /* flip bytes */
+                    for (i = 0; i < tifimg.width * tifimg.height; i++) {
+                        *r32 =
+                            (*r32 & 0xff000000) |
+                            ((*r32 & 0x00ff0000) >> 16) |
+                            (*r32 & 0x0000ff00) |
+                            ((*r32 & 0x000000ff) << 16);
+                        r32++;
+                    }
+
                     img->data.Scan0 = raster;
+                    GdipFree (onerow);
                     img->data.Reserved = GBD_OWN_SCAN0;
+
+                    img->image.surface = cairo_surface_create_for_image (raster,
+                                                                         img->cairo_format,
+                                                                         img->image.width,
+                                                                         img->image.height,
+                                                                         img->data.Stride);
+                    img->image.horizontalResolution = gdip_get_display_dpi ();
+                    img->image.verticalResolution = gdip_get_display_dpi ();
+                    img->image.propItems = NULL;
+                    img->image.palette = NULL;
                 }
             } else {
                 goto error;
@@ -67,7 +112,7 @@ gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
         goto error;
     }
 
-    *image = img;
+    *image = (GpImage *) img;
     return Ok;
 
   error:

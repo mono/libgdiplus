@@ -1,5 +1,8 @@
 2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
 
+	* testgdi.c: Make the test actually check return values,
+	so that problems can be caught during testing.
+
 	* testgdi.c: initial commit
 	
 

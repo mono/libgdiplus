@@ -9,7 +9,9 @@
  * Copyright (C) Novell, Inc. 2003-2004.
  */
 
+#if HAVE_CONFIG_H
 #include <config.h>
+#endif
 
 #include <stdio.h>
 #include "jpegcodec.h"

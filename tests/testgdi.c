@@ -34,6 +34,8 @@ static void win_deinit(win_t *win);
 static void win_draw(win_t *win);
 static void win_handle_events(win_t *win);
 
+#define CHECK_GDIP_ST(st)	do { if(st != Ok) { g_error ("got st: %d expected Ok"); } } while (0)
+
 static void
 win_draw(win_t *win)
 {
@@ -50,21 +52,39 @@ win_draw(win_t *win)
 
     unis = g_utf8_to_utf16 ("test.jpg", -1, NULL, NULL, NULL);
     st = GdipLoadImageFromFile (unis, &img);
-    if (st != Ok) {
-        printf ("st after load: %d\n", st);
-        exit(-1);
-    }
-    g_free (unis);
-
+    CHECK_GDIP_ST(st);
     st = GdipDrawImage (gp, img, 0, 0);
-    if (st != Ok) {
-        printf ("st after draw: %d\n", st);
-        exit(-1);
-    }
+    CHECK_GDIP_ST(st);
+    g_free (unis);
+    GdipDisposeImage (img);
+    img = NULL;
 
     unis = g_utf8_to_utf16 ("test.tif", -1, NULL, NULL, NULL);
     st = GdipLoadImageFromFile (unis, &img);
+    CHECK_GDIP_ST(st);
     st = GdipDrawImage (gp, img, 100, 0);
+    CHECK_GDIP_ST(st);
+    g_free (unis);
+    GdipDisposeImage (img);
+    img = NULL;
+
+    unis = g_utf8_to_utf16 ("test.gif", -1, NULL, NULL, NULL);
+    st = GdipLoadImageFromFile (unis, &img);
+    CHECK_GDIP_ST(st);
+    st = GdipDrawImage (gp, img, 200, 0);
+    CHECK_GDIP_ST(st);
+    g_free (unis);
+    GdipDisposeImage (img);
+    img = NULL;
+
+    unis = g_utf8_to_utf16 ("test.png", -1, NULL, NULL, NULL);
+    st = GdipLoadImageFromFile (unis, &img);
+    CHECK_GDIP_ST(st);
+    st = GdipDrawImage (gp, img, 0, 100);
+    CHECK_GDIP_ST(st);
+    g_free (unis);
+    GdipDisposeImage (img);
+    img = NULL;
 }
 
 int

@@ -8,7 +8,10 @@
  * Copyright (C) Novell, Inc. 2003-2004.
  */
 
+#if HAVE_CONFIG_H
 #include <config.h>
+#endif
+
 #include <png.h>
 
 #include "pngcodec.h"
@@ -88,10 +91,11 @@ gdip_load_png_image_from_file (FILE *fp, GpImage **image)
             } else if (channels == 3) {
                 png_bytep rowp = row_pointers[i];
                 for (j = 0; j < width; j++) {
-                    *rawptr++ = *rowp++; /* r */
-                    *rawptr++ = *rowp++; /* g */
-                    *rawptr++ = *rowp++; /* b */
+                    *rawptr++ = rowp[2]; /* b */
+                    *rawptr++ = rowp[1]; /* g */
+                    *rawptr++ = rowp[0]; /* r */
                     *rawptr++ = 255; /* a */
+                    rowp += 3;
                 }
             } else if (channels == 1) {
                 png_bytep rowp = row_pointers[i];
@@ -122,6 +126,16 @@ gdip_load_png_image_from_file (FILE *fp, GpImage **image)
         img->data.Height = height;
         img->data.Scan0 = rawdata;
         img->data.Reserved = GBD_OWN_SCAN0;
+
+        img->image.surface = cairo_surface_create_for_image (rawdata,
+                                                             img->cairo_format,
+                                                             img->image.width,
+                                                             img->image.height,
+                                                             img->data.Stride);
+        img->image.horizontalResolution = gdip_get_display_dpi ();
+        img->image.verticalResolution = gdip_get_display_dpi ();
+        img->image.propItems = NULL;
+        img->image.palette = NULL;
     }
 
     *image = (GpImage *) img;
