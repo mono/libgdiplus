@@ -967,7 +967,7 @@ GpStatus GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 
 GpStatus 
 GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
-                int len, GpFont *font, RectF *rc, GpStringFormat *format, GpBrush *brush)
+                int len, GpFont *font, RectF *rc, GpStringFormat *fmt, GpBrush *brush)
 {
         cairo_matrix_t saved;
         float width = 0, height = 0;
@@ -983,15 +983,20 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
 	char *string;
 	GpPoint *pPoints;
 	GpPoint *pPoint;
+        GpStringFormat *deffmt = NULL;
+        GpStringFormat *format = fmt;
 	
         if (!graphics || !stringUnicode || !font)
 		return InvalidParameter;
+
+        if (!format) {
+                GdipStringFormatGetGenericDefault(&deffmt);
+                format = deffmt;
+        }
     
         string = (char*) g_utf16_to_utf8 ((const gunichar2 *) stringUnicode,
 					  (glong)len, NULL, NULL, NULL);
 
-        printf ("DrawString: [%s], %x, %f\n", string, font, font->sizeInPixels);
-        
         cairo_save (graphics->ct);
     
         if (brush)
@@ -1006,7 +1011,6 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
         
         /* Get widths */
         gdip_measure_string_widths (font, string, &pwidths, &nwidths, &width, &height);
-        printf ("width->%f, height->%f\n", width, height);
     
         if (!format || !rc->Width) {
             
@@ -1021,6 +1025,7 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
                         gdip_font_drawstrikeout (graphics, brush, rc->X, realY, width);
                 
 		g_free (string);
+                if (!deffmt) GdipDeleteStringFormat(deffmt);
 
 		cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
 		cairo_restore (graphics->ct);
@@ -1077,10 +1082,10 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
 		/* Top */
 		break;
         case StringAlignmentCenter:
-		alignY = realY + ( (rc->Y+rc->Height - y) /2);
+		alignY = realY + ( (realY+rc->Height - y) /2);
 		break;
         case StringAlignmentFar: /* Bottom */
-		alignY = realY + (rc->Y+rc->Height) - y;
+		alignY = realY + (realY+rc->Height) - y;
 		break;
         default:
 		break;
@@ -1134,6 +1139,7 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
         g_free (string);
         free (pwidths);
         free (pPoints);
+        if (!deffmt) GdipDeleteStringFormat(deffmt);
 
         cairo_restore (graphics->ct);
         return gdip_get_status (cairo_status (graphics->ct));
