@@ -368,6 +368,7 @@ typedef struct {
         StringAlignment lineAlignment;
         HotkeyPrefix hotkeyPrefix;
         StringFormatFlags formatFlags;
+        StringTrimming  trimming;
 }GpStringFormat;
 
 /*
@@ -536,6 +537,9 @@ GpStatus GdipDeleteFont(GpFont* font);
 
 /* String format*/
 GpStatus GdipCreateStringFormat(int formatAttributes, int language, GpStringFormat  **format);
+GpStatus GdipStringFormatGetGenericDefault(GpStringFormat **format);               
+GpStatus GdipStringFormatGetGenericTypographic(GpStringFormat **format);                                                                                              
+GpStatus GdipCloneStringFormat(GDIPCONST GpStringFormat* format,  GpStringFormat** newFormat);
 GpStatus GdipDeleteStringFormat(GpStringFormat *format);
 GpStatus GdipSetStringFormatAlign(GpStringFormat *format, StringAlignment align);
 GpStatus GdipGetStringFormatAlign(GDIPCONST GpStringFormat *format, StringAlignment *align);
@@ -547,6 +551,9 @@ GpStatus GdipSetStringFormatHotkeyPrefix(GpStringFormat *format, HotkeyPrefix ho
 GpStatus GdipGetStringFormatHotkeyPrefix(GpStringFormat *format, HotkeyPrefix *hotkeyPrefix);
 GpStatus GdipSetStringFormatFlags(GpStringFormat *format, StringFormatFlags flags);
 GpStatus GdipGetStringFormatFlags(GDIPCONST GpStringFormat *format, StringFormatFlags *flags);
+GpStatus GdipSetStringFormatTrimming(GpStringFormat* format,  StringTrimming trimming);
+GpStatus GdipGetStringFormatTrimming(GDIPCONST GpStringFormat *format, StringTrimming* trimming);
+
 
       
 /* Path*/

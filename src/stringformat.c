@@ -26,23 +26,68 @@
 #include "gdip.h"
 #include "gdip_win32.h"
 
-
-void gdip_stringformat_init(GpStringFormat* format)
-{
-    format->alignment = StringAlignmentNear;
-    format->lineAlignment =  StringAlignmentNear;
-    format->hotkeyPrefix = HotkeyPrefixNone;    
-}
-
 GpStatus
 GdipCreateStringFormat(int formatAttributes, int language, GpStringFormat  **format)
 {
+    if (!format) return InvalidParameter;
+
     GpStringFormat* result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
-    gdip_stringformat_init(result);
+    result->alignment = StringAlignmentNear;
+    result->lineAlignment =  StringAlignmentNear;
+    result->hotkeyPrefix = HotkeyPrefixNone;
+    result->formatFlags = 0;
+    result->trimming = StringTrimmingNone;
     
     *format = result;
-    return Ok;    
+    return Ok;
 }
+
+GpStatus
+GdipStringFormatGetGenericDefault(GpStringFormat **format)
+{
+    if (!format) return InvalidParameter;
+
+    GpStringFormat* result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
+    result->alignment = StringAlignmentNear;
+    result->lineAlignment =  StringAlignmentNear;
+    result->hotkeyPrefix = HotkeyPrefixNone;
+    result->formatFlags = 0;
+    result->trimming = StringTrimmingCharacter;
+
+    *format = result;
+    return Ok;
+}             
+
+
+GpStatus
+GdipStringFormatGetGenericTypographic(GpStringFormat **format)
+{
+    if (!format) return InvalidParameter;
+
+    GpStringFormat* result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
+    result->alignment = StringAlignmentNear;
+    result->lineAlignment =  StringAlignmentNear;
+    result->hotkeyPrefix = HotkeyPrefixNone;
+    result->formatFlags = StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip;
+    result->trimming = StringTrimmingNone;
+
+    *format = result;
+    return Ok; 
+}
+
+GpStatus
+GdipCloneStringFormat(GDIPCONST GpStringFormat* format,  GpStringFormat** newFormat)
+{
+    if (!format|| !newFormat) return InvalidParameter;
+
+    GpStringFormat* result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
+
+    memcpy (result, format, sizeof (GpStringFormat));
+    
+    *newFormat = result;
+    return Ok; 
+}
+
 
 GpStatus
 GdipDeleteStringFormat(GpStringFormat *format)
@@ -91,17 +136,6 @@ GdipGetStringFormatLineAlign(GDIPCONST GpStringFormat *format, StringAlignment *
     return Ok;
 }
 
-GpStatus
-GdipSetStringFormatTrimming(GpStringFormat  *format, StringTrimming trimming)
-{
-     return Ok;
-}
-
-GpStatus
-GdipGetStringFormatTrimming(GDIPCONST GpStringFormat *format, StringTrimming *trimming)
-{
-     return Ok;
-}
 
 GpStatus
 GdipSetStringFormatHotkeyPrefix(GpStringFormat *format, HotkeyPrefix hotkeyPrefix)
@@ -139,6 +173,27 @@ GdipGetStringFormatFlags(GDIPCONST GpStringFormat *format, StringFormatFlags *fl
     if (!format) return InvalidParameter;
 
     *flags = format->formatFlags;
+
+    return Ok;
+}
+
+
+GpStatus
+GdipSetStringFormatTrimming(GpStringFormat* format,  StringTrimming trimming)
+{
+    if (!format) return InvalidParameter;
+
+    format->trimming = trimming;
+
+    return Ok;
+}
+
+GpStatus
+GdipGetStringFormatTrimming(GDIPCONST GpStringFormat *format, StringTrimming* trimming)
+{
+    if (!format) return InvalidParameter;
+
+    *trimming = format->trimming;
 
     return Ok;
 }
