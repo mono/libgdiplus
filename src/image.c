@@ -893,27 +893,58 @@ void
 gdip_rotate_90 (GpImage *image)
 {
 	BYTE *src, *trg, *rotated;
-	int stride, height, line, x;	
+	int line, x, stride_trg, height_trg, width_trg;
 	GpBitmap *bitmap = (GpBitmap *) image;
-	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
-	 
-	bitmap = (GpBitmap *) image;	
-        stride = bitmap->data.Stride;
-	height = bitmap->data.Height;
-	rotated = malloc (stride * height);	
+	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         	 
+
+	height_trg = bitmap->data.Width;
+	width_trg = bitmap->data.Height;
+	stride_trg = components * gdip_get_pixel_format_depth (bitmap->data.PixelFormat);
+	stride_trg = (stride_trg * width_trg) / 8;
+	stride_trg = (stride_trg + 3) & ~3;		
+	
+	rotated = malloc (stride_trg * height_trg);
 	src = (BYTE *) bitmap->data.Scan0;
 	
-	for (line = 0; line < height; line++, src += stride) {		
-		for (x = 0; x < bitmap->data.Width; x++) {		
-			trg = rotated;	
-			trg += x * stride;
-			trg += (bitmap->data.Width - 1  - line) *components;		
-			copy_pixel (src + (x*components), trg, components);			
+	for (line = 0; line < bitmap->data.Height; line++, src += bitmap->data.Stride) {		
+		for (x = 0; x < bitmap->data.Width; x++) {
+
+			if (x >= height_trg)
+				continue;			
+
+			if (line >= width_trg)
+				continue;
+
+			trg = rotated;
+			trg += x * stride_trg;
+			trg += (width_trg - 1  - line) * components;		
+			copy_pixel (src + (x * components), trg, components);			
 		}	
-	}	
-	
-	memcpy (bitmap->data.Scan0, rotated, stride * height);	
-	free (rotated);
+	}
+
+	bitmap->data.Stride = stride_trg;
+	bitmap->data.Height = image->height = height_trg;
+	bitmap->data.Width = image->width = width_trg;
+
+	if ((bitmap->data.Reserved & GBD_OWN_SCAN0) != 0) {
+		int k,j; 
+
+		/* Do the free first since the frame point can be for some codes a reference to bitmap->data*/
+		free (bitmap->data.Scan0);
+		for (j = 0; j < image->frameDimensionCount; j++) {
+			for (k = 0; k < image->frameDimensionList [j].count; k++) {
+				if (image->frameDimensionList[j].frames[k].Scan0 == bitmap->data.Scan0)  {
+					image->frameDimensionList[j].frames[k].Scan0 = rotated;
+					image->frameDimensionList[j].frames[k].Stride = stride_trg;
+					image->frameDimensionList[j].frames[k].Height = image->height = height_trg;
+					image->frameDimensionList[j].frames[k].Width = image->width = width_trg;
+				}				
+			}
+		}		
+	}
+
+	bitmap->data.Scan0 = rotated;
+	bitmap->data.Reserved |= GBD_OWN_SCAN0;	
 }
 
 void
@@ -947,29 +978,59 @@ void
 gdip_rotate_270 (GpImage *image)
 {
 	BYTE *src, *trg, *rotated;
-	int stride, height, line, x;	
+	int line, x, stride_trg, height_trg, width_trg;
 	GpBitmap *bitmap = (GpBitmap *) image;
-	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
-	 
-	bitmap = (GpBitmap *) image;	
-        stride = bitmap->data.Stride;
-	height = bitmap->data.Height;
-	rotated = malloc (stride * height);
+	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);
+
+	height_trg = bitmap->data.Width;
+	width_trg = bitmap->data.Height;
+	stride_trg = components * gdip_get_pixel_format_depth (bitmap->data.PixelFormat);
+	stride_trg = (stride_trg * width_trg) / 8;
+	stride_trg = (stride_trg + 3) & ~3;		
+
+	rotated = malloc (stride_trg * height_trg);
 	
 	src = (BYTE *) bitmap->data.Scan0;
 	
-	for (line = 0; line < height; line++, src += stride) {		
+	for (line = 0; line < bitmap->data.Height; line++, src += bitmap->data.Stride) {		
 		for (x = 0; x < bitmap->data.Width; x++) {
-		
+
+			if (x >= height_trg)
+				continue;			
+
+			if (line >= width_trg)
+				continue;
+
 			trg = rotated;	
-			trg += (height-1-x)  * stride;
+			trg += (height_trg -1 -x) * stride_trg;
 			trg += line * components;	
-			copy_pixel (src + (x*components), trg, components);			
+			copy_pixel (src + (x * components), trg, components);			
 		}	
 	}	
-	
-	memcpy (bitmap->data.Scan0, rotated, stride * height);	
-	free (rotated);
+
+	bitmap->data.Stride = stride_trg;
+	bitmap->data.Height = image->height = height_trg;
+	bitmap->data.Width = image->width = width_trg;
+
+	if ((bitmap->data.Reserved & GBD_OWN_SCAN0) != 0) {
+		int k,j; 
+
+		/* Do the free first since the frame point can be for some codes a reference to bitmap->data*/
+		free (bitmap->data.Scan0);
+		for (j = 0; j < image->frameDimensionCount; j++) {
+			for (k = 0; k < image->frameDimensionList [j].count; k++) {
+				if (image->frameDimensionList[j].frames[k].Scan0 == bitmap->data.Scan0)  {
+					image->frameDimensionList[j].frames[k].Scan0 = rotated;
+					image->frameDimensionList[j].frames[k].Stride = stride_trg;
+					image->frameDimensionList[j].frames[k].Height = image->height = height_trg;
+					image->frameDimensionList[j].frames[k].Width = image->width = width_trg;
+				}				
+			}
+		}		
+	}
+
+	bitmap->data.Scan0 = rotated;
+	bitmap->data.Reserved |= GBD_OWN_SCAN0;
 }
 
 void

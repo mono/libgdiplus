@@ -1,3 +1,7 @@
+2004-11-11  Jordi Mas  <jordi@ximian.com>
+
+	* image.c: fixes bug #69089
+
 2004-11-18  Ravindra  <rkumar@novell.com>
 
 	* graphics.c (GdipGraphicsClear): Save and restore the existing
