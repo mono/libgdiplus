@@ -1,5 +1,9 @@
 2004-09-22  Ravindra <rkumar@novell.com>
 
+	* jpegcodec.c: Set proper image flags for JPEG colorspaces.
+
+2004-09-22  Ravindra <rkumar@novell.com>
+
 	* jpegcodec.c: Added support for CMYK and YCCK colorspaces.
 	Fixes bug #50081.
 

@@ -314,14 +314,40 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
     img->image.width = cinfo.image_width;
     img->image.height = cinfo.image_height;
 
-    if (cinfo.num_components == 1) {
+    if (cinfo.num_components == 1)
         img->image.pixFormat = Format8bppIndexed;
-        img->image.imageFlags = ImageFlagsColorSpaceGRAY;
-    } else {
+    else if (cinfo.num_components == 3)
         /* libjpeg gives us RGB for many formats and
-	 * we convert ourselves to RGB when needed. */
+	 * we convert to RGB format when needed. JPEG
+	 * does not support alpha (transparency). */
         img->image.pixFormat = Format24bppRgb;
-        img->image.imageFlags = ImageFlagsColorSpaceRGB;
+    else if (cinfo.num_components == 4)
+	img->image.pixFormat = Format32bppRgb;
+
+    switch (cinfo.jpeg_color_space) {
+
+    case JCS_GRAYSCALE:
+	img->image.imageFlags = ImageFlagsColorSpaceGRAY;
+	break;
+
+    case JCS_RGB:
+	img->image.imageFlags = ImageFlagsColorSpaceRGB;
+	break;
+
+    case JCS_YCbCr:
+	img->image.imageFlags = ImageFlagsColorSpaceYCBCR;
+	break;
+
+    case JCS_YCCK:
+	img->image.imageFlags = ImageFlagsColorSpaceYCCK;
+	break;
+
+    case JCS_CMYK:
+	img->image.imageFlags = ImageFlagsColorSpaceCMYK;
+	break;
+
+    default:
+	img->image.imageFlags = ImageFlagsNone; /* Unknown Colorspace */
     }
 
     img->cairo_format = CAIRO_FORMAT_ARGB32;
@@ -375,26 +401,25 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
 
         nlines = jpeg_read_scanlines (&cinfo, lines, cinfo.rec_outbuf_height);
 
-	/* If the out color space is not RBG, we need to convert it to RBG. */
+	/* If the out colorspace is not RBG, we need to convert it to RBG. */
 	if (cinfo.out_color_space == JCS_CMYK) {
 	    int i, j;
 
 	    for (i = 0; i < cinfo.rec_outbuf_height; i++) {
-		guchar *ptr;
+		guchar *lineptr;
 
-		ptr = lines [i];
+		lineptr = lines [i];
 
 		for (j = 0; j < cinfo.output_width; j++) {
 		    JOCTET c, m, y, k;
 		    JOCTET r, g, b;
 
-		    c = ptr [0];
-		    m = ptr [1];
-		    y = ptr [2];
-		    k = ptr [3];
+		    c = lineptr [0];
+		    m = lineptr [1];
+		    y = lineptr [2];
+		    k = lineptr [3];
 		    /* Adobe photoshop seems to have a bug and inverts the CMYK data.
-		     * We might need to remove this check, if Adobe decides to fix it.
-		     */
+		     * We might need to remove this check, if Adobe decides to fix it. */
 		    if (cinfo.saw_Adobe_marker) {
 			b = (k * c) / 255;
 			g = (k * m) / 255;
@@ -406,11 +431,11 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
 			r = (255 - k) * (255 - y) / 255;
 		    }
 
-		    ptr [0] = r;
-		    ptr [1] = g;
-		    ptr [2] = b;
-		    ptr [3] = 255;
-		    ptr += 4;
+		    lineptr [0] = r;
+		    lineptr [1] = g;
+		    lineptr [2] = b;
+		    lineptr [3] = 255;
+		    lineptr += 4;
 		}
 	    }
 	}
