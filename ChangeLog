@@ -1,5 +1,7 @@
 2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
 
+	* configure.in: "libpng", not "libgpng"
+
 	* configure.in: Add checks for libungif and libpng.  Added
 	sigsetjmp check.
 
