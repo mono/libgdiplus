@@ -1,3 +1,13 @@
+2004-08-02  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Commented out cairo_clip calls from GdipDrawString,
+	as these were causing problems. Thanks to Peter for suggesting this
+	fix. This fixes, bug #60386, #60663, #61414. These bugs were actually
+	because of some problem with Cairo clipping. And, these are not 
+	reproducable with Cairo cvs, because Cairo seems to have some changes
+	which have solved the problem with clipping in Cairo.
+	Also, fixed gdip_plot_path function to handle path point types properly.
+
 2004-07-30  Ravindra <rkumar@novell.com>
 
 	* font.c: Fixed GdipGetEmHeight function.

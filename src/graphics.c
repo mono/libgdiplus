@@ -832,7 +832,8 @@ gdip_plot_path (GpGraphics *graphics, GpPath *path)
                 byte type = g_array_index (path->types, byte, i);
                 GpPointF pts [3];
 
-                switch (type) {
+		/* mask the bits so that we get only the type value not the other flags */
+                switch (type & PathPointTypePathTypeMask) {
                 case PathPointTypeStart:
                         cairo_move_to (graphics->ct, pt.X, pt.Y);
                         break;
@@ -861,6 +862,10 @@ gdip_plot_path (GpGraphics *graphics, GpPath *path)
                 default:
                         return NotImplemented;
                 }
+
+		/* close the subpath */
+		if (type & PathPointTypeCloseSubpath)
+			cairo_close_path (graphics->ct);
         }
 	return Ok;
 }
@@ -2163,9 +2168,15 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 #ifdef DRAWSTRING_DEBUG
 			printf("Setting clipping rectangle (%d, %d %dx%d)\n", rc->X, rc->Y, rc->Width, rc->Height);
 #endif
-			cairo_init_clip (graphics->ct);
+			/* Commented following clipping calls to fix DrawString bugs */
+			/* that appear with cairo-0.1.23. */
+			/* However, cairo cvs seems to have fixed something which lets */
+			/* us uncomment following clipping calls. So, probably we can */
+			/* uncomment these when we depend on new version of cairo */
+
+			/* cairo_init_clip (graphics->ct); */
 			cairo_rectangle (graphics->ct, rc->X, rc->Y, rc->Width, rc->Height);
-			cairo_clip (graphics->ct);
+			/* cairo_clip (graphics->ct); */
 			cairo_new_path (graphics->ct);
 		}
 
@@ -2315,7 +2326,9 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 Done:
 	/* We need to remove the clip region */
-	cairo_init_clip (graphics->ct);
+	/* Following line is commented to fix the DrawString bugs */
+	/* See the note at the beginning of if(draw) block. */
+	/* cairo_init_clip (graphics->ct); */
 
 	/* Cleanup */
 	free (CleanString);
@@ -2364,7 +2377,7 @@ GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int len
 }
 
 GpStatus
-GdipMeasureCharacterRanges(GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *stringFormat, int regionCount, GpRegion **regions)
+GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *format, int regionCount, GpRegion **regions)
 {
 	return NotImplemented;
 }
