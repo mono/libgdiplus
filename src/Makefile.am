@@ -1,9 +1,12 @@
 lib_LTLIBRARIES = libgdiplus.la
 
 libgdiplus_la_SOURCES = \
+	adjustablearrowcap.c	\
 	bitmap.c	\
 	brush.c		\
 	brush.h		\
+	customlinecap.c	\
+	customlinecap.h	\
 	font.c		\
 	gdip.h		\
 	gdipImage.h	\

@@ -672,7 +672,7 @@ GdipSetPenDashArray (GpPen *pen, GDIPCONST float *dash, int count)
 
         pen->dash_style = DashStyleCustom;
 
-	if (pen->dash_count != count) {
+	if (pen->dash_count != count || pen->own_dash_array == FALSE) {
 		dash_array = (float *) GdipAlloc (count * sizeof (float));
 		g_return_val_if_fail (dash_array != NULL, OutOfMemory);
 
@@ -681,6 +681,7 @@ GdipSetPenDashArray (GpPen *pen, GDIPCONST float *dash, int count)
 			GdipFree (pen->dash_array);
 		pen->dash_array = dash_array;
 		pen->dash_count = count;
+		pen->own_dash_array = TRUE;
 	}
 
 	memcpy (pen->dash_array, dash, pen->dash_count * sizeof (float));
