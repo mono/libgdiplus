@@ -11,6 +11,10 @@
 #include "gdip.h"
 #include "texturebrush.h"
 
+static void gdip_texture_setup (GpGraphics *graphics, GpBrush *brush);
+static void gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush);
+static void gdip_texture_destroy (GpBrush *brush);
+
 /*
  * we have a single copy of vtable for
  * all instances of texturebrush.
@@ -40,14 +44,40 @@ gdip_texture_new (void)
         return result;
 }
 
-/* texture internal functions */
+/* 
+ * functions to create different wrapmodes.
+ */
 void
-draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix)
+draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix, GpRect *rect)
 {
-	cairo_surface_t *texture = bitmap->image.surface;
-	cairo_surface_set_matrix (texture, matrix);
+	cairo_surface_t *original;
+	cairo_surface_t *texture;
+	GpMatrix *tempMatrix = cairo_matrix_create ();
+
+	/* Original image surface */
+	original = bitmap->image.surface;
+
+	/* texture surface to be created */
+	texture = cairo_surface_create_similar (original, bitmap->cairo_format,
+						rect->Width, rect->Height);
+
+	cairo_save (ct);
+
+	/* Draw the texture */
+	cairo_set_target_surface (ct, texture);
+	cairo_surface_set_matrix (original, tempMatrix);
+	cairo_show_surface (ct, original, rect->Width, rect->Height);
+
+	cairo_restore (ct);
+
 	cairo_surface_set_repeat (texture, 1);
+	cairo_matrix_copy (tempMatrix, matrix);
+	cairo_matrix_invert (tempMatrix);
+	cairo_surface_set_matrix (texture, tempMatrix);
 	gdip_cairo_set_surface_pattern (ct, texture);
+
+	cairo_matrix_destroy (tempMatrix);
+	cairo_surface_destroy (texture);
 }
 
 void
@@ -55,39 +85,38 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix, GpRect
 {
 	cairo_surface_t *original;
 	cairo_surface_t *texture;
-	GpMatrix *matrixCopy = cairo_matrix_create ();
-	cairo_matrix_copy (matrixCopy, matrix);
+	GpMatrix *tempMatrix = cairo_matrix_create ();
 
 	/* Original image surface */
 	original = bitmap->image.surface;
-	/* clear the repeat flag, if already set */
-	cairo_surface_set_repeat (original, 0);
 
 	/* texture surface to be created */
 	texture = cairo_surface_create_similar (original, bitmap->cairo_format,
-				2 * rect->Width, rect->Height);
+						2 * rect->Width, rect->Height);
 
 	cairo_save (ct);
 
 	/* Draw left part of the texture */
 	cairo_set_target_surface (ct, texture);
-	cairo_surface_set_matrix (original, matrixCopy);
+	cairo_surface_set_matrix (original, tempMatrix);
 	cairo_show_surface (ct, original, rect->Width, rect->Height);
 
 	/* Draw right part of the texture */
-	cairo_matrix_translate (matrixCopy, 2 * rect->Width, 0);
+	cairo_matrix_translate (tempMatrix, 2 * rect->Width, 0);
 	/* scale in -X direction to flip along X */
-	cairo_matrix_scale (matrixCopy, -1.0, 1.0);
-
-	cairo_surface_set_matrix (original, matrixCopy);
+	cairo_matrix_scale (tempMatrix, -1.0, 1.0);
+	cairo_surface_set_matrix (original, tempMatrix);
 	cairo_show_surface (ct, original, rect->Width, rect->Height);
 
 	cairo_restore (ct);
 
 	cairo_surface_set_repeat (texture, 1);
+	cairo_matrix_copy (tempMatrix, matrix);
+	cairo_matrix_invert (tempMatrix);
+	cairo_surface_set_matrix (texture, tempMatrix);
 	gdip_cairo_set_surface_pattern (ct, texture);
 
-	cairo_matrix_destroy (matrixCopy);
+	cairo_matrix_destroy (tempMatrix);
 	cairo_surface_destroy (texture);
 }
 
@@ -96,38 +125,38 @@ draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix, GpRect
 {
 	cairo_surface_t *original;
 	cairo_surface_t *texture;
-	GpMatrix *matrixCopy = cairo_matrix_create ();
-	cairo_matrix_copy (matrixCopy, matrix);
+	GpMatrix *tempMatrix = cairo_matrix_create ();
 
 	/* Original image surface */
 	original = bitmap->image.surface;
-	/* clear the repeat flag, if already set */
-	cairo_surface_set_repeat (original, 0);
 
 	/* texture surface to be created */
 	texture = cairo_surface_create_similar (original, bitmap->cairo_format,
-				rect->Width, 2 * rect->Height);
+						rect->Width, 2 * rect->Height);
 
 	cairo_save (ct);
 
 	/* Draw upper part of the texture */
 	cairo_set_target_surface (ct, texture);
-	cairo_surface_set_matrix (original, matrixCopy);
+	cairo_surface_set_matrix (original, tempMatrix);
 	cairo_show_surface (ct, original, rect->Width, rect->Height);
 
 	/* Draw lower part of the texture */
-	cairo_matrix_translate (matrixCopy, 0, 2 * rect->Height);
+	cairo_matrix_translate (tempMatrix, 0, 2 * rect->Height);
 	/* scale in -Y direction to flip along Y */
-	cairo_matrix_scale (matrixCopy, 1.0, -1.0);
-	cairo_surface_set_matrix (original, matrixCopy);
+	cairo_matrix_scale (tempMatrix, 1.0, -1.0);
+	cairo_surface_set_matrix (original, tempMatrix);
 	cairo_show_surface (ct, original, rect->Width, rect->Height);
 
 	cairo_restore (ct);
-	
+
 	cairo_surface_set_repeat (texture, 1);
+	cairo_matrix_copy (tempMatrix, matrix);
+	cairo_matrix_invert (tempMatrix);
+	cairo_surface_set_matrix (texture, tempMatrix);
 	gdip_cairo_set_surface_pattern (ct, texture);
 
-	cairo_matrix_destroy (matrixCopy);
+	cairo_matrix_destroy (tempMatrix);
 	cairo_surface_destroy (texture);
 }
 
@@ -136,64 +165,85 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix, GpRec
 {
 	cairo_surface_t *original;
 	cairo_surface_t *texture;
-	GpMatrix *matrixCopy = cairo_matrix_create ();
-	cairo_matrix_copy (matrixCopy, matrix);
+	GpMatrix *tempMatrix = cairo_matrix_create ();
 
 	/* Original image surface */
 	original = bitmap->image.surface;
-	/* clear the repeat flag, if already set */
-	cairo_surface_set_repeat (original, 0);
 
 	/* texture surface to be created */
 	texture = cairo_surface_create_similar (original, bitmap->cairo_format,
-				2 * rect->Width, 2 * rect->Height);
+						2 * rect->Width, 2 * rect->Height);
 
 	cairo_save (ct);
 
 	/* Draw upper left part of the texture */
 	cairo_set_target_surface (ct, texture);
-	cairo_surface_set_matrix (original, matrixCopy);
+	cairo_surface_set_matrix (original, tempMatrix);
 	cairo_show_surface (ct, original, rect->Width, rect->Height);
 
 	/* Draw lower left part of the texture */
-	cairo_matrix_translate (matrixCopy, 0, 2 * rect->Height);
+	cairo_matrix_translate (tempMatrix, 0, 2 * rect->Height);
 	/* scale in -Y direction to flip along Y */
-	cairo_matrix_scale (matrixCopy, 1.0, -1.0);
-	cairo_surface_set_matrix (original, matrixCopy);
+	cairo_matrix_scale (tempMatrix, 1.0, -1.0);
+	cairo_surface_set_matrix (original, tempMatrix);
 	cairo_show_surface (ct, original, rect->Width, rect->Height);
 
 	/* Draw upper right part of the texture */
-	cairo_matrix_translate (matrixCopy, 2 * rect->Width, 0);
+	cairo_matrix_translate (tempMatrix, 2 * rect->Width, 0);
 	/* scale in -X direction to flip along X */
-	cairo_matrix_scale (matrixCopy, -1.0, 1.0);
-	cairo_surface_set_matrix (original, matrixCopy);
+	cairo_matrix_scale (tempMatrix, -1.0, 1.0);
+	cairo_surface_set_matrix (original, tempMatrix);
 	cairo_show_surface (ct, original, rect->Width, rect->Height);
 
 	/* Draw lower right part of the texture */
-	cairo_matrix_translate (matrixCopy, 0, 2 * rect->Height);
+	cairo_matrix_translate (tempMatrix, 0, 2 * rect->Height);
 	/* scale in -Y direction to flip along Y */
-	cairo_matrix_scale (matrixCopy, 1.0, -1.0);
-	cairo_surface_set_matrix (original, matrixCopy);
+	cairo_matrix_scale (tempMatrix, 1.0, -1.0);
+	cairo_surface_set_matrix (original, tempMatrix);
 	cairo_show_surface (ct, original, rect->Width, rect->Height);
 
 	cairo_restore (ct);
-	
+
 	cairo_surface_set_repeat (texture, 1);
+	cairo_matrix_copy (tempMatrix, matrix);
+	cairo_matrix_invert (tempMatrix);
+	cairo_surface_set_matrix (texture, tempMatrix);
 	gdip_cairo_set_surface_pattern (ct, texture);
 
-	cairo_matrix_destroy (matrixCopy);
+	cairo_matrix_destroy (tempMatrix);
 	cairo_surface_destroy (texture);
 }
 
 void
-draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix)
+draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix, GpRect *rect)
 {
+	cairo_surface_t *original;
 	cairo_surface_t *texture;
+	GpMatrix *tempMatrix = cairo_matrix_create ();
 
-	texture = bitmap->image.surface;
+	/* Original image surface */
+	original = bitmap->image.surface;
 
-	cairo_surface_set_matrix (texture, matrix);
+	/* texture surface to be created */
+	texture = cairo_surface_create_similar (original, bitmap->cairo_format,
+						rect->Width, rect->Height);
+
+	cairo_save (ct);
+
+	/* Draw the texture */
+	cairo_set_target_surface (ct, texture);
+	cairo_surface_set_matrix (original, tempMatrix);
+	cairo_show_surface (ct, original, rect->Width, rect->Height);
+
+	cairo_restore (ct);
+
+	cairo_matrix_copy (tempMatrix, matrix);
+	cairo_matrix_invert (tempMatrix);
+	cairo_surface_set_matrix (texture, tempMatrix);
 	gdip_cairo_set_surface_pattern (ct, texture);
+
+	cairo_matrix_destroy (tempMatrix);
+	cairo_surface_destroy (texture);
 }
 
 void
@@ -214,7 +264,7 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 	switch (texture->wrapMode) {
 
 	case WrapModeTile:
-		draw_tile_texture (ct, bmp, texture->matrix);
+		draw_tile_texture (ct, bmp, texture->matrix, texture->rectangle);
 		break;
 
 	case WrapModeTileFlipX:
@@ -230,7 +280,7 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 		break;
 
 	case WrapModeClamp:
-		draw_clamp_texture (ct, bmp, texture->matrix);
+		draw_clamp_texture (ct, bmp, texture->matrix, texture->rectangle);
 		break;
 
 	default:
@@ -399,25 +449,74 @@ GdipResetTextureTransform (GpTexture *texture)
 GpStatus
 GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrder order)
 {
+	/* FIXME: How to take care of rotation here ? */
 	return GdipMultiplyMatrix (texture->matrix, matrix, order);
 }
 
 GpStatus
 GdipTranslateTextureTransform (GpTexture *texture, float dx, float dy, GpMatrixOrder order)
 {
+	/* FIXME: Creates empty space as a side effect of translation.
+	 * Mighe lead of total blank space depending on the amount of
+	 * translation. Cairo bug? We need to see.
+	 */
 	return GdipTranslateMatrix (texture->matrix, dx, dy, order);
 }
 
 GpStatus
 GdipScaleTextureTransform (GpTexture *texture, float sx, float sy, GpMatrixOrder order)
 {
+	/* FIXME: Surface dimensions do not seem to be scaling. Do we 
+	 * need to scale the surface dimensions ourselves?
+	 * It might be a Cairo bug. I need to come back here once I'm 
+	 * sure that Cairo is doing it right.
+	 */
 	return GdipScaleMatrix (texture->matrix, sx, sy, order);
 }
 
 GpStatus
 GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order)
 {
-	return GdipRotateMatrix (texture->matrix, angle, order);
+	/* Cairo uses origin (0,0) as the axis of rotation. However, we need 
+	 * to do absolute rotation. Following approach for shifting the axis
+	 * of rotation was suggested by Carl.
+	 */
+
+	GpPointF axis;
+
+	/* FIXME: Find a decent way to handle this. If wrapmode is
+	 * set after rotation, we are going to be wrong.
+	 */
+	switch (texture->wrapMode) {
+
+	case WrapModeTile:
+	case WrapModeClamp:
+		axis.X = texture->rectangle->Width/2;
+		axis.Y = texture->rectangle->Height/2;
+		break;
+
+	case WrapModeTileFlipX:
+		axis.X = texture->rectangle->Width;
+		axis.Y = texture->rectangle->Height/2;
+		break;
+
+	case WrapModeTileFlipY:
+		axis.X = texture->rectangle->Width/2;
+		axis.Y = texture->rectangle->Height;
+		break;
+
+	case WrapModeTileFlipXY:
+		axis.X = texture->rectangle->Width;
+		axis.Y = texture->rectangle->Height;
+		break;
+
+	default:
+		break;
+	}
+
+	GdipTranslateMatrix (texture->matrix, -axis.X, -axis.Y, order);
+	GdipRotateMatrix (texture->matrix, angle, order);
+	return GdipTranslateMatrix (texture->matrix, axis.X, axis.Y, order);
 }
 
 GpStatus

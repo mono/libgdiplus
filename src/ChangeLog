@@ -1,3 +1,11 @@
+2004-04-15 Ravindra  <rkumar@novell.com>
+
+	* texturebrush.h: Moved internal functions to texturebrush.c.
+	* texturebrush.c: Few fixes to handle scale/rotate functions. But,
+	we still don't get scaling/rotation right. Seems to be some problem
+	with Cairo. Checking in code now, will see this later when I'm sure
+	that Cairo is doing right.
+
 2004-04-14 Jordi Mas i Hernandez <jordi@ximian.com>
 
         * bitmap.c -  fixes biXPelsPerMeter fields

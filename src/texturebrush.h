@@ -24,13 +24,7 @@ typedef struct _Texture {
 	GpWrapMode wrapMode;
 } Texture;
 
-/* Texture brush */
-GpTexture *gdip_texture_new (void);
-void gdip_texture_init (GpTexture *brush);
-void gdip_texture_setup (GpGraphics *graphics, GpBrush *brush);
-void gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush);
-void gdip_texture_destroy (GpBrush *brush);
-
+/* Texture brush public functions */
 GpStatus GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture);
 GpStatus GdipCreateTexture2 (GpImage *image, GpWrapMode wrapMode, float x, float y, float width, float height, GpTexture **texture);
 GpStatus GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int width, int height, GpTexture **texture);
