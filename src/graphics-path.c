@@ -833,6 +833,8 @@ GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
 {
         int i, length;
 	GpPathPointType first = PathPointTypeStart;
+        GpPointF *pts;
+        byte *types;
 
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 	g_return_val_if_fail (addingPath != NULL, InvalidParameter);
@@ -842,8 +844,8 @@ GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
         if (length < 1)
                 return Ok;
         
-        GpPointF pts [length];
-        byte types [length];
+        pts = calloc(sizeof(GpPointF), length);
+        types = calloc(sizeof(byte), length);
 
         GdipGetPathPoints (addingPath, pts, length);
         GdipGetPathTypes (addingPath, types, length);
@@ -867,6 +869,9 @@ GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
 
 	for (i = 1; i < length; i++)
 		append_point (path, pts [i], types [i]);
+
+	free(pts);
+	free(types);
 
 	return Ok;
 }

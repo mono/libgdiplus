@@ -1,5 +1,10 @@
 2005-01-07  Peter Bartok  <pbartok@novell.com>
 
+	* graphics-path.c, hatchbrush.c: Applied patch submitted by 
+	  andersb@blacksun.ca to compile with gcc2, fixes bug #65708
+
+2005-01-07  Peter Bartok  <pbartok@novell.com>
+
 	* image.c (GdipDrawImageRect): Start a new path before calling
 	  cairo_translate, it seems thats what other cairo apps do, and it
 	  fixes the problem Jackson reported, where images would not show 

@@ -103,6 +103,8 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 	
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -110,9 +112,9 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -176,6 +178,8 @@ draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t f
 	
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -183,9 +187,9 @@ draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t f
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -228,6 +232,8 @@ draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_fo
 	
 	/* draw hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -235,9 +241,9 @@ draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_fo
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -285,6 +291,8 @@ draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_f
 
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -292,9 +300,9 @@ draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_f
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -346,6 +354,8 @@ draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 	
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -353,9 +363,9 @@ draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -416,6 +426,8 @@ draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_form
 
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -423,9 +435,9 @@ draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_form
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -480,6 +492,8 @@ draw_05_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -487,9 +501,9 @@ draw_05_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -547,6 +561,8 @@ draw_10_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -554,9 +570,9 @@ draw_10_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_wd, hatch_ht);
@@ -613,6 +629,8 @@ draw_20_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -620,9 +638,9 @@ draw_20_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -680,6 +698,8 @@ draw_25_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -687,9 +707,9 @@ draw_25_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_wd, hatch_ht);
@@ -748,6 +768,8 @@ draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 
 	/* draw a 10% hatch */
 	{
+		int Rb,Gb,Bb;
+
 		cairo_save (ct);
 
 		temp = cairo_surface_create_similar (cairo_current_target_surface (ct),
@@ -760,12 +782,14 @@ draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 
 		cairo_surface_set_repeat (temp, 1);
 
-		int Rb = (backcolor & 0x00FF0000) >> 16;
-		int Gb = (backcolor & 0x0000FF00) >> 8;
-		int Bb = (backcolor & 0x000000FF);
+		Rb = (backcolor & 0x00FF0000) >> 16;
+		Gb = (backcolor & 0x0000FF00) >> 8;
+		Bb = (backcolor & 0x000000FF);
 		
 		/* draw a 50% hatch */
 		{
+			int R,G,B;
+
 			cairo_save (ct);
 			
 			/* hatch is not supposed to be affected by user matrix */
@@ -779,9 +803,9 @@ draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 			cairo_fill (ct);
 			
 			/* draw two diagonal lines in the foreground */
-			int R = (forecolor & 0x00FF0000) >> 16;
-			int G = (forecolor & 0x0000FF00) >> 8;
-			int B = (forecolor & 0x000000FF);
+			R = (forecolor & 0x00FF0000) >> 16;
+			G = (forecolor & 0x0000FF00) >> 8;
+			B = (forecolor & 0x000000FF);
 			cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 			cairo_rectangle (ct, 0, 0, temp_size / 2.0, temp_size / 2.0);
@@ -848,6 +872,8 @@ draw_50_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -855,9 +881,9 @@ draw_50_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -906,6 +932,8 @@ draw_60_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -913,9 +941,9 @@ draw_60_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_wd, hatch_ht);
@@ -964,6 +992,8 @@ draw_70_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -971,9 +1001,9 @@ draw_70_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_wd, hatch_ht);
@@ -1051,6 +1081,8 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_f
 
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -1058,9 +1090,9 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_f
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -1136,6 +1168,8 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_for
 	
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -1143,9 +1177,9 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_for
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -1195,6 +1229,8 @@ draw_dashed_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_for
 	
 	/* draw one hatch that has a 45 deg line*/
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -1202,9 +1238,9 @@ draw_dashed_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_for
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_wd, hatch_ht);
@@ -1259,6 +1295,8 @@ draw_dashed_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_f
 	
 	/* draw one hatch that has two dashes near upper left and lower right corners */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -1266,9 +1304,9 @@ draw_dashed_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_f
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_wd, hatch_ht);
@@ -1320,6 +1358,8 @@ draw_dashed_vertical_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_for
 	
 	/* draw one hatch that has two dashes near upper left and lower right corners */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -1327,9 +1367,9 @@ draw_dashed_vertical_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_for
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_wd, hatch_ht);
@@ -1381,6 +1421,8 @@ draw_confetti_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t f
 	
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -1388,9 +1430,9 @@ draw_confetti_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t f
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -1442,6 +1484,8 @@ draw_zigzag_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t for
 	
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -1449,9 +1493,9 @@ draw_zigzag_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t for
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -1503,6 +1547,8 @@ draw_wave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t forma
 	
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -1510,9 +1556,9 @@ draw_wave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t forma
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_wd, hatch_ht);
@@ -1559,6 +1605,8 @@ draw_diagonal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_form
 	
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -1566,9 +1614,9 @@ draw_diagonal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_form
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -1614,6 +1662,8 @@ draw_horizontal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_fo
 	
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -1621,9 +1671,9 @@ draw_horizontal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_fo
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -1676,6 +1726,8 @@ draw_weave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 	
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -1683,9 +1735,9 @@ draw_weave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -1753,6 +1805,9 @@ draw_plaid_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 	 * equally covered by each of foreground and background colors.
 	 */
 	{
+		int Rb,Gb,Bb;
+		int Rf,Gf,Bf;
+
 		cairo_save (ct);
 
 		temp = cairo_surface_create_similar (cairo_current_target_surface (ct),
@@ -1765,13 +1820,13 @@ draw_plaid_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 
 		cairo_surface_set_repeat (temp, 1);
 
-		int Rb = (backcolor & 0x00FF0000) >> 16;
-		int Gb = (backcolor & 0x0000FF00) >> 8;
-		int Bb = (backcolor & 0x000000FF);
+		Rb = (backcolor & 0x00FF0000) >> 16;
+		Gb = (backcolor & 0x0000FF00) >> 8;
+		Bb = (backcolor & 0x000000FF);
 
-		int Rf = (forecolor & 0x00FF0000) >> 16;
-		int Gf = (forecolor & 0x0000FF00) >> 8;
-		int Bf = (forecolor & 0x000000FF);
+		Rf = (forecolor & 0x00FF0000) >> 16;
+		Gf = (forecolor & 0x0000FF00) >> 8;
+		Bf = (forecolor & 0x000000FF);
 		
 		/* draw a 50% hatch */
 		{
@@ -1844,6 +1899,8 @@ draw_divot_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 	
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -1851,9 +1908,9 @@ draw_divot_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -1903,6 +1960,8 @@ draw_solid_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_forma
 
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -1910,9 +1969,9 @@ draw_solid_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_forma
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -1965,6 +2024,8 @@ draw_shingle_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t fo
 
 	/* draw one hatch */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -1972,9 +2033,9 @@ draw_shingle_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t fo
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -2029,6 +2090,8 @@ draw_trellis_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t fo
 	
 	/* draw one hatch that has two colored squares at upper left and lower right corners */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -2036,9 +2099,9 @@ draw_trellis_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t fo
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
@@ -2084,6 +2147,9 @@ draw_sphere_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t for
 	
 	/* draw one hatch */
 	{
+		int Rb,Gb,Bb;
+		int Rf,Gf,Bf;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -2091,18 +2157,18 @@ draw_sphere_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t for
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int Rb = (backcolor & 0x00FF0000) >> 16;
-		int Gb = (backcolor & 0x0000FF00) >> 8;
-		int Bb = (backcolor & 0x000000FF);
+		Rb = (backcolor & 0x00FF0000) >> 16;
+		Gb = (backcolor & 0x0000FF00) >> 8;
+		Bb = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) Rb / 255.0, (double) Gb / 255.0, (double) Bb / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
 		cairo_fill (ct);
 
 		/* draw half circles in the foreground */
-		int Rf = (forecolor & 0x00FF0000) >> 16;
-		int Gf = (forecolor & 0x0000FF00) >> 8;
-		int Bf = (forecolor & 0x000000FF);
+		Rf = (forecolor & 0x00FF0000) >> 16;
+		Gf = (forecolor & 0x0000FF00) >> 8;
+		Bf = (forecolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) Rf / 255.0, (double) Gf / 255.0, (double) Bf / 255.0);
 
 		/* left middle */
@@ -2167,6 +2233,8 @@ draw_checker_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t fo
 	
 	/* draw one hatch that has two colored squares at upper left and lower right corners */
 	{
+		int R,G,B;
+
 		cairo_save (ct);
 
 		/* hatch is not supposed to be affected by user matrix */
@@ -2174,9 +2242,9 @@ draw_checker_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t fo
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
+		R = (backcolor & 0x00FF0000) >> 16;
+		G = (backcolor & 0x0000FF00) >> 8;
+		B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
