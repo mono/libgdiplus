@@ -390,7 +390,7 @@ GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin)
 }
 
 GpStatus
-GdipSetPenLineCap (GpPen *pen, GpLineCap lineCap)
+GdipSetPenLineCap197819 (GpPen *pen, GpLineCap lineCap)
 {
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
