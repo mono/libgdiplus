@@ -1,3 +1,8 @@
+2004-04-07  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (make_pie): Retort to make_ellipse *after* drawing
+	the line.
+
 2004-04-06  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* jpegcodec.c (gdip_save_jpeg_image_internal): implement
