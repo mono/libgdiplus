@@ -1,3 +1,7 @@
+2004-10-17  Jordi Mas <jordi@ximian.com>
+
+	* image.c: bug fix, restores pattern after image drawing
+
 2004-10-09  Ravindra <rkumar@novell.com>
 
 	* hatchbrush.h: Added 'pattern' member of cairo_pattern_t

@@ -197,10 +197,15 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
 GpStatus
 GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float width, float height)
 {
+	cairo_pattern_t * pat;
+
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (image != NULL, InvalidParameter);
 	g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
 	
+	pat = cairo_current_pattern (graphics->ct);
+	cairo_pattern_reference (pat);
+
 	/* Always to re-attach the image */	
 	if (image->surface)  {
 		cairo_surface_destroy (image->surface);
@@ -222,7 +227,8 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 		cairo_fill (graphics->ct);
 	} else 
 		cairo_fill (graphics->ct);
-	
+
+	cairo_set_pattern (graphics->ct, pat);	
 	cairo_default_matrix (graphics->ct);
 
 	return Ok;
