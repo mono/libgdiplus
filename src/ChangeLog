@@ -1,5 +1,6 @@
 2004-02-25  Jordi Mas i Hernandez <jordi@ximian.com>
     * StringFormat.c - new methods
+    * Font.c - PrivateFontCollection methods
     
 2004-02-24  Jordi Mas i Hernandez <jordi@ximian.com>
     * font.c - added metrics for font families

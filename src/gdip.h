@@ -354,6 +354,8 @@ typedef struct {
 
 typedef struct {
         FcFontSet*  fontset;
+        // Only for private collections
+        FcConfig*   config;
 } GpFontCollection;
 
 typedef FcPattern  GpFontFamily;
@@ -526,7 +528,9 @@ GpStatus GdipGetCellAscent(GDIPCONST GpFontFamily* family, GpFontStyle style, sh
 GpStatus GdipGetCellDescent(GDIPCONST GpFontFamily* family, GpFontStyle style, short* CellDescent);
 GpStatus GdipGetLineSpacing(GDIPCONST GpFontFamily* family, GpFontStyle style, short* LineSpacing);
 GpStatus GdipIsStyleAvailable(GDIPCONST GpFontFamily* family, int style, BOOL* IsStyleAvailable);
-
+GpStatus GdipNewPrivateFontCollection(GpFontCollection** fontCollection);
+GpStatus GdipDeletePrivateFontCollection(GpFontCollection** fontCollection);
+GpStatus GdipPrivateAddFontFile(GpFontCollection* fontCollection,  GDIPCONST WCHAR* filename);
 
 
 /* Font */

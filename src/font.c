@@ -36,6 +36,8 @@
 GpStatus
 GdipNewInstalledFontCollection(GpFontCollection** fontCollection)
 {
+    if (!fontCollection) return InvalidParameter;
+    
     FcObjectSet* os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, 0);
     FcPattern* pat = FcPatternCreate ();
     FcValue val;
@@ -52,10 +54,53 @@ GdipNewInstalledFontCollection(GpFontCollection** fontCollection)
     
     GpFontCollection *result = (GpFontCollection *) GdipAlloc (sizeof (GpFontCollection));
     result->fontset = col;
+    result->config = NULL;
     *fontCollection = result;
 
     return Ok;
 }
+
+GpStatus
+GdipNewPrivateFontCollection(GpFontCollection** fontCollection)
+{
+    if (!fontCollection) return InvalidParameter;
+
+    GpFontCollection *result = (GpFontCollection *) GdipAlloc (sizeof (GpFontCollection));
+    result->fontset = NULL;
+    result->config = FcConfigCreate ();
+    
+    *fontCollection = result;
+    return Ok;
+}
+
+GpStatus
+GdipDeletePrivateFontCollection(GpFontCollection** fontCollection)
+{
+    if (!fontCollection) return InvalidParameter;
+
+    if (*fontCollection) {
+        FcFontSetDestroy ((*fontCollection)->fontset);
+        FcConfigDestroy ((*fontCollection)->config);
+        GdipFree ((void *)fontCollection);
+    }
+
+    return Ok;
+}
+
+GpStatus
+GdipPrivateAddFontFile(GpFontCollection* fontCollection,  GDIPCONST WCHAR* filename)
+{
+    if (!fontCollection || !filename) return InvalidParameter;
+    
+    char* sFile = (char*)g_utf16_to_utf8 ((const gunichar2 *)filename, -1,
+            NULL, NULL, NULL);
+
+    FcConfigAppFontAddFile (fontCollection->config, sFile);
+    
+    g_free(sFile);
+    return Ok;
+}
+
 
 GpStatus 
 GdipDeleteFontFamily(GpFontFamily *FontFamily)
@@ -63,14 +108,39 @@ GdipDeleteFontFamily(GpFontFamily *FontFamily)
     return Ok;
 }
 
+void
+gdip_createPrivateFontSet(GpFontCollection* fontCollection)
+{
+    printf ("gdip_createPrivateFontSet\n");
+    
+    if (fontCollection->fontset)
+        FcFontSetDestroy(fontCollection->fontset);
+
+    FcObjectSet* os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, 0);
+    FcPattern* pat = FcPatternCreate ();
+
+    FcFontSet* col =  FcFontList (fontCollection->config, pat, os);
+    FcPatternDestroy (pat);
+    FcObjectSetDestroy (os);
+
+    fontCollection->fontset = col;
+    return Ok;
+        
+}
+
 GpStatus
 GdipGetFontCollectionFamilyCount(GpFontCollection* fontCollection, int* numFound)
 {
-    if (!fontCollection || !fontCollection->fontset || !numFound) return InvalidParameter;
-    
-    *numFound = fontCollection->fontset->nfont;
+    if (!fontCollection  || !numFound) return InvalidParameter;
 
-    printf("GdipGetFontCollectionFamilyCount %u\n", fontCollection->fontset->nfont);
+    if (fontCollection->config) gdip_createPrivateFontSet(fontCollection);
+
+    if (fontCollection->fontset)
+        *numFound = fontCollection->fontset->nfont;
+    else
+        *numFound = 0;
+
+    printf("GdipGetFontCollectionFamilyCount %u\n", *numFound);
 
     return Ok;
 }
@@ -79,6 +149,8 @@ GpStatus
 GdipGetFontCollectionFamilyList(GpFontCollection* fontCollection, int numSought, GpFontFamily** gpfamilies, int* numFound)
 {
     if (!fontCollection || !gpfamilies || !numFound) return InvalidParameter;
+
+    if (fontCollection->config) gdip_createPrivateFontSet(fontCollection);
 
     GpFontFamily** gpfam = gpfamilies;
     FcPattern** pattern =  fontCollection->fontset->fonts;
@@ -291,9 +363,9 @@ GdipIsStyleAvailable(GDIPCONST GpFontFamily* family, int style, BOOL* IsStyleAva
     if (!family || !IsStyleAvailable) return InvalidParameter;
 
     *IsStyleAvailable = TRUE;
-    return Ok;
-    
+    return Ok;    
 }
+
 
 
 /* Font functions */
