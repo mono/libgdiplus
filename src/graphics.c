@@ -1757,7 +1757,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	cairo_font_current_transform(font->cairofnt, &SavedMatrix);	// Save the matrix
 	cairo_scale_font (graphics->ct, font->sizeInPixels);
 	cairo_current_font_extents (graphics->ct, &FontExtent);		// Get the size we're looking for
-	cairo_font_set_transform(font->cairofnt, &SavedMatrix);		// Restore the matrix
+//	cairo_font_set_transform(font->cairofnt, &SavedMatrix);		// Restore the matrix
 
 	if ((LineHeight=FontExtent.ascent)<1) {
 		LineHeight=1;
@@ -2244,7 +2244,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		// Font already has been set at function entry
 		// cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);	// Set at function entry
 		// cairo_font_current_transform(font->cairofnt, &SavedMatrix);		// No need to save again, already saved at function entry
-		cairo_scale_font (graphics->ct, font->sizeInPixels);
+		// cairo_scale_font (graphics->ct, font->sizeInPixels);
 
 		if (brush) {
 			gdip_brush_setup (graphics, (GpBrush *)brush);
@@ -2396,10 +2396,11 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			}
 		}
 
-		cairo_font_set_transform(font->cairofnt, &SavedMatrix);		// Restore matrix to original values
 	}
 
 Done:
+	cairo_font_set_transform(font->cairofnt, &SavedMatrix);		// Restore matrix to original values
+
 	/* We need to remove the clip region */
 	/* Following line is commented to fix the DrawString bugs */
 	/* See the note at the beginning of if(draw) block. */
