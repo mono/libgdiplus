@@ -1,3 +1,11 @@
+2004-04-21 Peter Bartok <pbartok@novell.com>
+   * font.c: Added private GdipCreateFontFromHfont function to support
+   the System.Drawing.Font.FromHfont method.
+   * gdip_win32.c: Added import of Wine GetTextMetrics and GetTextName 
+   functions
+   * gdip_win32.h: Added some prototypes and LOGFONTA and TEXTMETRICA 
+   structures
+
 2004-04-19 Sanjay Gupta <gsanjay@novell.com>
 	* image.c: Added function call to load bmp image from stream in 
           switch case stmt.

@@ -62,6 +62,47 @@ typedef struct
     DWORD 	biClrImportant;
 } BITMAPINFOHEADER, *PBITMAPINFOHEADER, *LPBITMAPINFOHEADER;
 
+typedef struct { 
+	LONG tmHeight; 
+	LONG tmAscent; 
+	LONG tmDescent; 
+	LONG tmInternalLeading; 
+	LONG tmExternalLeading; 
+	LONG tmAveCharWidth; 
+	LONG tmMaxCharWidth; 
+	LONG tmWeight; 
+	LONG tmOverhang; 
+	LONG tmDigitizedAspectX; 
+	LONG tmDigitizedAspectY; 
+	BYTE tmFirstChar; 
+	BYTE tmLastChar; 
+	BYTE tmDefaultChar; 
+	BYTE tmBreakChar; 
+	BYTE tmItalic; 
+	BYTE tmUnderlined; 
+	BYTE tmStruckOut; 
+	BYTE tmPitchAndFamily; 
+	BYTE tmCharSet; 
+} TEXTMETRICA, *LPTEXTMETRICA, *PTEXTMETRICA;
+
+typedef struct {  /* Keep in sync with windows */
+	LONG lfHeight;
+	LONG lfWidth;
+	LONG lfEscapement;
+	LONG lfOrientation;
+	LONG lfWeight;
+	BYTE lfItalic;
+	BYTE lfUnderline;
+	BYTE lfStrikeOut;
+	BYTE lfCharSet;
+	BYTE lfOutPrecision;
+	BYTE lfClipPrecision;
+	BYTE lfQuality;
+	BYTE lfPitchAndFamily;
+	char lfFaceName[32];
+} LOGFONTA;
+
+
   /* biCompression */
 #define BI_RGB           0
 #define BI_RLE8          1
@@ -111,6 +152,9 @@ extern void (__stdcall *ReleaseDC_pfn) (void *hwnd, void * hdc);
 
 extern int (__stdcall *GetDIBits_pfn) (void *hdc, void *hbitmap, unsigned startScan, unsigned scanLines, void *bitmapBits, PBITMAPINFO pbmi, unsigned int colorUse);
 extern int (__stdcall *SetDIBits_pfn) (void *hdc, void *hbitmap, unsigned startScan, unsigned scanLines, void *bitmapBits, PBITMAPINFO pbmi, unsigned int colorUse);
+
+extern int (__stdcall *GetTextMetrics_pfn) (void *hdc, TEXTMETRICA *tm);
+extern int (__stdcall *GetTextFace_pfn) (void *hdc, int size, unsigned char *buffer);
 
 extern int (*X11DRV_ExtEscape_pfn)(void *physDev, int escape, int in_count, void *in_data, int out_count, void *out_data);
 

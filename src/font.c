@@ -503,3 +503,74 @@ GdipDeleteFont (GpFont* font)
         return InvalidParameter;
 }
 
+GpStatus
+GdipCreateFontFromHfont(void *hfont, GpFont **font, LOGFONTA *lf)
+{
+	FcResult	r;
+	GpFont		*result;
+	int		slant	= 0;
+	int		weight	= FC_WEIGHT_LIGHT;
+	int		style	= 0;
+	TEXTMETRICA	tm;
+	unsigned char	FaceName[33];
+	void		*hdc;
+	void		*oldFont;
+	
+	if (!font) {
+		return InvalidParameter;
+	}
+
+	hdc=GetDC_pfn(NULL);
+	oldFont=SelectObject_pfn(hdc, hfont);
+	if (GetTextMetrics_pfn(hdc, &tm)==0 || GetTextFace_pfn(hdc, sizeof(FaceName), FaceName)==0) {
+		return InvalidParameter;
+	}
+	SelectObject_pfn(hdc, oldFont);
+	ReleaseDC_pfn(NULL, hdc);
+
+/*	gdip_unitConversion (abs(tm.tmHeight), emSize, emSize, &result->sizeInPixels);*/
+
+	result = (GpFont *) GdipAlloc (sizeof (GpFont));
+
+	if (tm.tmHeight<0) {
+	   result->sizeInPixels=tm.tmHeight*-1;
+	} else {
+	   result->sizeInPixels=tm.tmHeight;
+	}
+
+	if (tm.tmStruckOut!=0) {
+		style |= FontStyleStrikeout;
+	}
+
+	if (tm.tmUnderlined!=0) {
+		style |= FontStyleUnderline;
+	}
+
+	if (tm.tmItalic!=0) {
+		style |= FontStyleItalic;
+		slant = FC_SLANT_ITALIC;
+	}
+
+	if (tm.tmWeight>400) {
+		style |= FontStyleBold;
+		weight = FC_WEIGHT_BOLD;
+	}
+
+	result->cairofnt  = gdip_font_create (FaceName, slant, weight);
+	result->style = style;
+	cairo_font_reference ((cairo_font_t *)result->cairofnt);
+	result->wineHfont=CreateWineFont(FaceName, style, result->sizeInPixels, UnitPixel);
+
+	/* Assign our results */
+	*font=result;
+	if (lf) {
+		lf->lfHeight=result->sizeInPixels;
+		lf->lfItalic=tm.tmItalic;
+		lf->lfStrikeOut=tm.tmStruckOut;
+		lf->lfUnderline=tm.tmUnderlined;
+		lf->lfWeight=tm.tmWeight;
+		strcpy(lf->lfFaceName, FaceName);
+	}
+
+	return Ok;
+}
