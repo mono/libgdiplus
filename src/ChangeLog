@@ -1,5 +1,14 @@
 2004-05-28  Ravindra <rkumar@novell.com>
 
+	* gdip.h: Added declarations for GdipDrawRectangles,
+	GdipDrawRectanglesI, GdipFillRectangleI, GdipFillRectangles,
+	GdipFillRectanglesI functions for Graphics.
+	* graphics.c: Implemented the functions mentioned above. Added
+	g_return_val_if_fail macro. Did some of formatting. I have
+	tested this, hope I'm not going to break anything.
+
+2004-05-28  Ravindra <rkumar@novell.com>
+
 	* graphics.c: Changed DrawLinesI and DrawLines functions not to
 	call DrawLineI and DrawLine respectively, as it results in setting
 	up pen so many times unnecessarily.
