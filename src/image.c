@@ -37,11 +37,11 @@ gdip_image_init (GpImage *image)
 	image->imageFlags = 0;
 	image->height = 0;
 	image->width = 0;
-	image->horizontalResolution = 0;
+	image->horizontalResolution = gdip_get_display_dpi();
 	image->palette = 0;
 	image->pixFormat = 0;	
 	image->propItems = 0;
-	image->verticalResolution = 0;
+	image->verticalResolution = gdip_get_display_dpi();
 }
 
 void *
@@ -56,6 +56,8 @@ gdip_image_create_Win32_HDC (GpImage *image)
 		break;
 	case imageUndefined:
 		break;
+	default:
+		break;
 	}
 	return result;
 }
@@ -63,6 +65,9 @@ gdip_image_create_Win32_HDC (GpImage *image)
 void 
 gdip_image_destroy_Win32_HDC (GpImage *image, void *hdc)
 {
+	if (!image || !hdc)
+		return;
+	
 	switch (image->type) {
 	case imageBitmap:
 		gdip_bitmap_destroy_Win32_HDC ((GpBitmap *) image, hdc);
@@ -70,6 +75,8 @@ gdip_image_destroy_Win32_HDC (GpImage *image, void *hdc)
 	case imageMetafile:
 		break;
 	case imageUndefined:
+		break;
+	default:
 		break;
 	}
 }
@@ -85,6 +92,9 @@ gdip_image_new ()
 GpStatus 
 GdipDisposeImage (GpImage *image)
 {
+	if (!image)
+		return InvalidParameter;
+
 	switch (image->type){
 	case imageBitmap:
 		gdip_bitmap_dispose ((GpBitmap *) image);
@@ -92,6 +102,8 @@ GdipDisposeImage (GpImage *image)
 	case imageMetafile:
 		break;
 	case imageUndefined:
+		break;
+	default:
 		break;
 	}
 	cairo_surface_destroy (image->surface);
@@ -104,6 +116,9 @@ GdipDisposeImage (GpImage *image)
 GpStatus 
 GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 {
+	if (!image || !graphics)
+		return InvalidParameter;
+
 	if (image->graphics == 0) {
 		image->graphics = gdip_graphics_new ();
 		if (image->type == imageBitmap) {
@@ -128,6 +143,9 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
 {
 	GpGraphics *image_graphics = 0;
 	cairo_surface_t *image_surface = 0;
+	
+	if (!graphics || !image)
+		return InvalidParameter;
 
 	if (image->type != imageBitmap)
 		return InvalidParameter;
@@ -164,7 +182,10 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	GpStatus status = 0;
 	ImageFormat format;
 	unsigned char *file_name;
-   
+
+	if (!image || !file)
+		return InvalidParameter;
+ 
 	file_name = (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, NULL);
 	/*printf ("image.c, file name is %s \n", file_name);*/
 	if ((fp = fopen(file_name, "rb")) == NULL) 
@@ -233,10 +254,15 @@ GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST C
 	FILE *fp = 0;
 	GpStatus status = 0;
 	unsigned char *file_name;
+	
+	if (!image || !file || !encoderCLSID || !params)
+		return InvalidParameter;
    
+
 	file_name = (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, NULL);
 	if ((fp = fopen(file_name, "wb")) == NULL)
-        return GenericError;
+	        return GenericError;
+
 	return NotImplemented;
 }
 
@@ -251,6 +277,9 @@ GdipGetImageBounds (GpImage *image, GpRectF *rect, GpUnit *unit)
 GpStatus 
 GdipGetImageDimension (GpImage *image, float *width, float *height)
 {
+	if (!image || !width || !height)
+		return InvalidParameter;
+
 	*width = image->width;
 	*height = image->height;
 	return Ok;
@@ -259,6 +288,9 @@ GdipGetImageDimension (GpImage *image, float *width, float *height)
 GpStatus 
 GdipGetImageType (GpImage *image, ImageType *type)
 {
+	if (!image || !type)
+		return InvalidParameter;
+
 	*type = image->type;	
 	return Ok;
 }
@@ -266,6 +298,9 @@ GdipGetImageType (GpImage *image, ImageType *type)
 GpStatus 
 GdipGetImageWidth (GpImage *image, UINT *width)
 {
+	if (!image || !width)
+		return InvalidParameter;
+
 	*width = image->width;
 	return Ok;
 }
@@ -273,6 +308,9 @@ GdipGetImageWidth (GpImage *image, UINT *width)
 GpStatus 
 GdipGetImageHeight (GpImage *image, UINT *height)
 {
+	if (!image || !height)
+		return InvalidParameter;
+
 	*height = image->height;
 	return Ok;
 }
@@ -280,6 +318,9 @@ GdipGetImageHeight (GpImage *image, UINT *height)
 GpStatus 
 GdipGetImageHorizontalResolution (GpImage *image, float *resolution)
 {
+	if (!image || !resolution)
+		return InvalidParameter;
+	
 	*resolution = image->horizontalResolution;
 	return Ok;
 }
@@ -287,6 +328,9 @@ GdipGetImageHorizontalResolution (GpImage *image, float *resolution)
 GpStatus 
 GdipGetImageVerticalResolution (GpImage *image, float *resolution)
 {
+	if (!image || !resolution)
+		return InvalidParameter;
+
 	*resolution = image->verticalResolution;
 	return Ok;
 }
@@ -294,6 +338,9 @@ GdipGetImageVerticalResolution (GpImage *image, float *resolution)
 GpStatus 
 GdipGetImageFlags (GpImage *image, UINT *flags)
 {
+	if (!image || !flags)
+		return InvalidParameter;
+
 	*flags = image->imageFlags;
 	return Ok;
 }
@@ -303,6 +350,9 @@ GdipGetImageFlags (GpImage *image, UINT *flags)
 GpStatus 
 GdipGetImagePixelFormat (GpImage *image, PixelFormat *format)
 {
+	if (!image || !format)
+		return InvalidParameter;
+	
 	*format = image->pixFormat;
 	return Ok;
 }
