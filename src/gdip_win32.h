@@ -13,6 +13,8 @@
 #include <cairo-xlib.h>
 #endif
 
+#include "gdip.h"
+
 /* sizeof (GDIOBJHDR) = 12 (2 + 2 + 4 + 4) */
 /* offsetof (DC, physDev) = 20 (12 + 4 + 4) */
 typedef struct tagGDIOBJHDR {

@@ -25,9 +25,9 @@
 #endif
 
 /* mono/io-layer/uglify.h also has these typedefs.
- * to avoid a dependency on mono we have copied all
- * the required stuff here. we don't include our defs
- * is uglify.h is included somehow.
+ * To avoid a dependency on mono we have copied all
+ * the required stuff here. We don't include our defs
+ * if uglify.h is included somehow.
  */
 #ifndef _WAPI_UGLIFY_H_		/* to avoid conflict with uglify.h */
 
