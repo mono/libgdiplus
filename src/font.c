@@ -563,7 +563,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
                 slant = FC_SLANT_ITALIC;
         
 	if (!gdip_font_create (str, slant, weight, result)) {
-		return InvalidParameter;	// FIXME -  wrong return code
+		return InvalidParameter;	/* FIXME -  wrong return code */
 	}
         result->style = style;
 	cairo_font_reference ((cairo_font_t *)result->cairofnt);
@@ -661,7 +661,7 @@ CreateFontFromHDCorHfont(void *hdcIn, void *hfont, GpFont **font, LOGFONTA *lf)
 	}
 
 	if (!gdip_font_create (FaceName, slant, weight, result)) {
-		return InvalidParameter;	// FIXME - pick right return code
+		return InvalidParameter;	/* FIXME - pick right return code */
 	}
 	
 	result->style = style;

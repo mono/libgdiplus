@@ -91,7 +91,8 @@ gdip_tiff_seek (thandle_t clientData, toff_t offSet, int whence)
 int 
 gdip_tiff_close (thandle_t clientData)
 {
-	((gdip_tiff_clientData *) clientData)->closeFunc ();
+	/* We should not close the user provided streams */
+	/* ((gdip_tiff_clientData *) clientData)->closeFunc (); */
 	return 1;
 }
 
@@ -157,7 +158,7 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 		frameCount = image->frameDimensionList [j].count;
 		for (k = 0; k < frameCount; k++) {
 			if (k > 0 || j > 0) {
-				TIFFCreateDirectory (tiff);								
+				TIFFCreateDirectory (tiff);
 			}
 			
 			if (totalPages > 1) {

@@ -380,7 +380,7 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 	
 	if (!stream) 
 		return InvalidParameter;
-		
+
 	if (from_file)
 		fp = EGifOpenFileName ((unsigned char *) stream, 0);
 	else

@@ -1,5 +1,10 @@
 2004-10-28  Ravindra <rkumar@novell.com>
 
+	* tiffcodec.c: We should not close the MemoryStreams
+	that we got from user.
+
+2004-10-28  Ravindra <rkumar@novell.com>
+
 	* bitmap.c: Fix for bug #68270. We need to initialize frames
 	for images created from MemoryStreams as well.
 
