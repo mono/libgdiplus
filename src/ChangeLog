@@ -1,3 +1,8 @@
+2004-03-22  Sanjay Gupta <gsanjay@novell.com>
+	*gdip.h: Typo error
+	*gdipImage.h: Fixed issue because of typo 
+	*image.c: Fixed issue because of typo
+
 2004-03-21  Sanjay Gupta <gsanjay@novell.com>
 	*Makefile.am: Included codec files.
 	*gdip.h: Added few structure definitions.

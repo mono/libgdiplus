@@ -228,7 +228,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	return Ok;
 }
 
-/*GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params)
+GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params)
 {
 	FILE *fp = 0;
 	GpStatus status = 0;
@@ -238,7 +238,8 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	if ((fp = fopen(file_name, "wb")) == NULL)
         return GenericError;
 	return NotImplemented;
-}*/
+}
+
 /* GpStatus GdipSaveAddImage (GpImage *image, GpImage *imageNew, GDIPCONST EncoderParameters *params); */
 
 GpStatus 

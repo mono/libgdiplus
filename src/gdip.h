@@ -372,7 +372,7 @@ typedef struct {
 typedef struct {
 	UINT Count;                      
     EncoderParameter Parameter[1];
-} EncoderParametes;
+} EncoderParameters;
 
 typedef struct {
 	PROPID	id;
