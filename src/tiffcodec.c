@@ -388,7 +388,7 @@ GpStatus
 gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
 {
 	*image = NULL;
-	return NotImplemented;
+	return UnknownImageFormat;
 }
 
 GpStatus
@@ -400,13 +400,13 @@ gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
                                            GpImage **image)
 {
 	*image = NULL;
-	return NotImplemented;
+	return UnknownImageFormat;
 }
 
 GpStatus 
 gdip_save_tiff_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params)
 {
-	return NotImplemented;
+	return UnknownImageFormat;
 }
 
 GpStatus
@@ -418,7 +418,7 @@ gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
                                          GpImage *image,
                                          GDIPCONST EncoderParameters *params)
 {
-    return NotImplemented;
+    return UnknownImageFormat;
 }
 
 #endif

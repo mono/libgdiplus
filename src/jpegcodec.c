@@ -271,7 +271,6 @@ _gdip_dest_stream_term (j_compress_ptr cinfo)
     dest->putBytesFunc (dest->buf, JPEG_BUFFER_SIZE - dest->parent.free_in_buffer);
 }
 
-
 GpStatus
 gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
                                GpImage **image)
@@ -316,27 +315,40 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
     img->image.width = cinfo.image_width;
     img->image.height = cinfo.image_height;
 
-    if (cinfo.jpeg_color_space != JCS_GRAYSCALE &&
-        cinfo.jpeg_color_space != JCS_RGB &&
-        cinfo.jpeg_color_space != JCS_YCbCr)
-    {
-        g_warning ("Unsupported JPEG color space: %d", cinfo.jpeg_color_space);
-        jpeg_destroy_decompress (&cinfo);
-        gdip_bitmap_dispose (img);
-        *image = NULL;
-        return InvalidParameter;
-    }
-
-    if (cinfo.num_components == 1) {
+    if (cinfo.num_components == 1)
         img->image.pixFormat = Format8bppIndexed;
-        img->image.imageFlags = ImageFlagsColorSpaceGRAY;
-    } else if (cinfo.num_components == 3) {
+    else if (cinfo.num_components == 3)
+        /* libjpeg gives us RGB for many formats and
+	 * we convert to RGB format when needed. JPEG
+	 * does not support alpha (transparency). */
         img->image.pixFormat = Format24bppRgb;
-        img->image.imageFlags = ImageFlagsColorSpaceRGB;
-    } else {
-        /* default to this; we assume libjpeg will be able to give us RGB */
-        img->image.pixFormat = Format24bppRgb;
-        img->image.imageFlags = ImageFlagsColorSpaceRGB;
+    else if (cinfo.num_components == 4)
+	img->image.pixFormat = Format32bppRgb;
+
+    switch (cinfo.jpeg_color_space) {
+
+    case JCS_GRAYSCALE:
+	img->image.imageFlags = ImageFlagsColorSpaceGRAY;
+	break;
+
+    case JCS_RGB:
+	img->image.imageFlags = ImageFlagsColorSpaceRGB;
+	break;
+
+    case JCS_YCbCr:
+	img->image.imageFlags = ImageFlagsColorSpaceYCBCR;
+	break;
+
+    case JCS_YCCK:
+	img->image.imageFlags = ImageFlagsColorSpaceYCCK;
+	break;
+
+    case JCS_CMYK:
+	img->image.imageFlags = ImageFlagsColorSpaceCMYK;
+	break;
+
+    default:
+	img->image.imageFlags = ImageFlagsNone; /* Unknown Colorspace */
     }
 
     img->cairo_format = CAIRO_FORMAT_ARGB32;
@@ -349,9 +361,31 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
     stride = img->data.Stride;
 
     /* Request cairo-compat output */
-    cinfo.out_color_space = JCS_RGB;
-    cinfo.out_color_components = 3;
-    cinfo.output_components = 3;
+    /* libjpeg can do only following conversions,
+     * YCbCr => GRAYSCALE, YCbCr => RGB
+     * GRAYSCALE => RGB, YCCK => CMYK.
+     * Therefore, we convert YCbCr, GRAYSCALE to RGB and
+     * YCCK to CMYK using the libjpeg. We convert CMYK
+     * to RGB ourself.
+     */
+    if (cinfo.jpeg_color_space == JCS_RGB ||
+	cinfo.jpeg_color_space == JCS_YCbCr ||
+	cinfo.jpeg_color_space == JCS_GRAYSCALE) {
+	cinfo.out_color_space = JCS_RGB;
+	cinfo.out_color_components = 3;
+    }
+    else if (cinfo.jpeg_color_space == JCS_YCCK ||
+	     cinfo.jpeg_color_space == JCS_CMYK) {
+	cinfo.out_color_space = JCS_CMYK;
+	cinfo.out_color_components = 4;
+    }
+    else {
+	g_warning ("Unsupported JPEG color space: %d", cinfo.jpeg_color_space);
+	jpeg_destroy_decompress (&cinfo);
+	gdip_bitmap_dispose (img);
+	*image = NULL;
+	return InvalidParameter;
+    }
 
     jpeg_start_decompress (&cinfo);
 
@@ -367,28 +401,70 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
         }
 
         nlines = jpeg_read_scanlines (&cinfo, lines, cinfo.rec_outbuf_height);
-        for (i = 0; i < nlines; i++) {
-            int j;
-            guchar *inptr, *outptr;
-            JOCTET r, g, b;
 
-            inptr = lines[i] + (img->image.width) * 3 - 1;
-            outptr = lines[i] + stride - 1;
-            for (j = 0; j < img->image.width; j++) {
-                /* Note the swapping of R and B, to get ARGB from what
-                 * looks like BGR data.
-                 */
-                r = *inptr--;
-                g = *inptr--;
-                b = *inptr--;
-                *outptr-- = 255;
-                *outptr-- = b;
-                *outptr-- = g;
-                *outptr-- = r;
-            }
+	/* If the out colorspace is not RBG, we need to convert it to RBG. */
+	if (cinfo.out_color_space == JCS_CMYK) {
+	    int i, j;
+
+	    for (i = 0; i < cinfo.rec_outbuf_height; i++) {
+		guchar *lineptr;
+
+		lineptr = lines [i];
+
+		for (j = 0; j < cinfo.output_width; j++) {
+		    JOCTET c, m, y, k;
+		    JOCTET r, g, b;
+
+		    c = lineptr [0];
+		    m = lineptr [1];
+		    y = lineptr [2];
+		    k = lineptr [3];
+		    /* Adobe photoshop seems to have a bug and inverts the CMYK data.
+		     * We might need to remove this check, if Adobe decides to fix it. */
+		    if (cinfo.saw_Adobe_marker) {
+			b = (k * c) / 255;
+			g = (k * m) / 255;
+			r = (k * y) / 255;
+		    }
+		    else {
+			b = (255 - k) * (255 - c) / 255;
+			g = (255 - k) * (255 - m) / 255;
+			r = (255 - k) * (255 - y) / 255;
+		    }
+
+		    lineptr [0] = r;
+		    lineptr [1] = g;
+		    lineptr [2] = b;
+		    lineptr [3] = 255;
+		    lineptr += 4;
+		}
+	    }
+	}
+	else {
+	    for (i = 0; i < nlines; i++) {
+		int j;
+		guchar *inptr, *outptr;
+		JOCTET r, g, b;
+
+		inptr = lines[i] + (img->image.width) * 3 - 1;
+		outptr = lines[i] + stride - 1;
+		for (j = 0; j < img->image.width; j++) {
+		    /* Note the swapping of R and B, to get ARGB from what
+		     * looks like BGR data.
+		     */
+		    r = *inptr--;
+		    g = *inptr--;
+		    b = *inptr--;
+		    *outptr-- = 255;
+		    *outptr-- = b;
+		    *outptr-- = g;
+		    *outptr-- = r;
+		}
+	    }
         }
     }
 
+    jpeg_finish_decompress (&cinfo);
     jpeg_destroy_decompress (&cinfo);
 
     img->data.Scan0 = destbuf;
@@ -649,13 +725,13 @@ GpStatus
 gdip_load_jpeg_image_from_file (FILE *fp, GpImage **image)
 {
     *image = NULL;
-    return NotImplemented;
+    return UnknownImageFormat;
 }
 
 GpStatus 
 gdip_save_jpeg_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params)
 {
-    return NotImplemented;
+    return UnknownImageFormat;
 }
 
 GpStatus
@@ -664,7 +740,7 @@ gdip_load_jpeg_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
                                            GpImage **image)
 {
     *image = NULL;
-    return NotImplemented;
+    return UnknownImageFormat;
 }
 
 GpStatus
@@ -672,7 +748,7 @@ gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
                                          GpImage *image,
                                          GDIPCONST EncoderParameters *params)
 {
-    return NotImplemented;
+    return UnknownImageFormat;
 }
 
 #endif

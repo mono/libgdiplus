@@ -1,3 +1,11 @@
+2004-09-22  Ravindra <rkumar@novell.com>
+
+	* gifcodec.c: Return the UnknownImageFormat status instead of
+	NotImplemented, when the required libraries are not installed.
+	* pngcodec.c: Same as above.
+	* tiffcodec.c: Same as above.
+	* jpegcodec.c: Same as above and fix for bug #50081.
+
 2004-09-15  Ravindra <rkumar@novell.com>
 
 	* graphics.c: Applied a fix from David Mitchell for bug #65963
