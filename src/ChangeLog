@@ -1,5 +1,15 @@
 2004-03-26  Duncan Mak  <duncan@ximian.com>
 
+	* graphics-path.c: Port the changes made to graphics here.
+	(append_arc): New function, modeled after make_arc for appending
+	arcs (a set of Bezier points) to the Path.
+	(GdipAddPathArc): Calculate the middle angle correctly and call
+	append_arc.
+	(GdipAddPathPie): Removed duplication, call append_arc
+	appropriately.
+
+2004-03-26  Duncan Mak  <duncan@ximian.com>
+	
 	* graphics.c (make_arc): Use the end angle instead of the sweep
 	angle.  Previously, the code was misbehaving because I used the
 	sweep angle as the end angle.

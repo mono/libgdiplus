@@ -307,9 +307,8 @@ GdipAddPathLine2 (GpPath *path, const GpPointF *points, int count)
         return Ok;
 }
 
-GpStatus
-GdipAddPathArc (GpPath *path, float x, float y, 
-                float width, float height, float startAngle, float sweepAngle)
+static void
+append_arc (GpPath *path, float x, float y, float width, float height, float startAngle, float endAngle)
 {
         float rx = width / 2;
         float ry = height / 2;
@@ -320,7 +319,7 @@ GdipAddPathArc (GpPath *path, float x, float y,
 
         /* angles in radians */        
         float alpha = startAngle * PI / 180;
-        float beta = sweepAngle * PI / 180;
+        float beta = endAngle * PI / 180;
 
         float delta = beta - alpha;
         float bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta /2);
@@ -336,12 +335,28 @@ GdipAddPathArc (GpPath *path, float x, float y,
                 PathPointTypeStart);
 
         append_bezier (path, 
-                       cx + rx * (cos_alpha - bcp * sin_alpha),
-                       cy + ry * (sin_alpha + bcp * cos_alpha),
-                       cx + rx * (cos_beta  + bcp * sin_beta),
-                       cy + ry * (sin_beta  - bcp * cos_beta),
-                       cx + rx *  cos_beta,
-                       cy + ry *  sin_beta);
+                cx + rx * (cos_alpha - bcp * sin_alpha),
+                cy + ry * (sin_alpha + bcp * cos_alpha),
+                cx + rx * (cos_beta  + bcp * sin_beta),
+                cy + ry * (sin_beta  - bcp * cos_beta),
+                cx + rx *  cos_beta,
+                cy + ry *  sin_beta);
+}
+
+GpStatus
+GdipAddPathArc (GpPath *path, float x, float y, 
+                float width, float height, float startAngle, float sweepAngle)
+{
+        float endAngle = startAngle + sweepAngle;
+        
+        if (sweepAngle < 180)
+                append_arc (path, x, y, width, height, startAngle, endAngle);
+        else {
+                float midAngle = startAngle + (sweepAngle / 2.0);
+
+                append_arc (path, x, y, width, height, startAngle, midAngle);
+                append_arc (path, x, y, width, height, midAngle, endAngle);
+        }
 
         return Ok;
 }
@@ -474,20 +489,18 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
 {
         float rx = width / 2;
         float ry = height / 2;
+
+        /* center */
         int cx = x + rx;
         int cy = y + ry;
 
+        float endAngle = startAngle + sweepAngle;        
+
         /* angles in radians */        
         float alpha = startAngle * PI / 180;
-        float beta = sweepAngle * PI / 180;
-
-        float delta = beta - alpha;
-        float bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta /2);
 
         float sin_alpha = sin (alpha);
-        float sin_beta = sin (beta);
         float cos_alpha = cos (alpha);
-        float cos_beta = cos (beta);
 
         /* move to center */
         append (path, cx, cy, PathPointTypeStart);
@@ -498,13 +511,15 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
                 PathPointTypeLine);
 
         /* draw arc */
-        append_bezier (path,
-                       cx + rx * (cos_alpha - bcp * sin_alpha),
-                       cy + ry * (sin_alpha + bcp * cos_alpha),
-                       cx + rx * (cos_beta  + bcp * sin_beta),
-                       cy + ry * (sin_beta  - bcp * cos_beta),
-                       cx + rx *  cos_beta,
-                       cy + ry *  sin_beta);
+        if (sweepAngle < 180)
+                append_arc (path, x, y, width, height, startAngle, endAngle);
+
+        else {
+                float midAngle = startAngle + (sweepAngle / 2.0);
+
+                append_arc (path, x, y, width, height, startAngle, midAngle);
+                append_arc (path, x, y, width, height, midAngle, endAngle);
+        }
         
         /* draw pie edge */
         append (path, cx, cy, PathPointTypeLine);
