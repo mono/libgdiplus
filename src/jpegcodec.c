@@ -665,7 +665,7 @@ gdip_load_jpeg_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 }
 
 GpStatus
-gdip_save_jpeg_image_to_stream_delegate (utBytesDelegate putBytesFunc,
+gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
                                          GpImage *image,
                                          GDIPCONST EncoderParameters *params)
 {
