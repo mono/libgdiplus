@@ -1,4 +1,7 @@
 2004-11-10  Peter Bartok  <pbartok@novell.com>
+	* graphics.c (MeasureOrDrawString): Cleanup of earlier fix
+
+2004-11-10  Peter Bartok  <pbartok@novell.com>
 	* graphics.c (MeasureOrDrawString): Removed some unneeded cairo
 	  calls to improve performance; added comments
 
