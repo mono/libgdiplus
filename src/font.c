@@ -350,11 +350,15 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHei
 	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
 
 	if (font) {
-		TT_VertHeader *pVert = FT_Get_Sfnt_Table (font->cairofnt->face, ft_sfnt_vhea);
+		FT_Face	face;
+
+		face = cairo_ft_font_face(font->cairofnt);
+
+		TT_VertHeader *pVert = FT_Get_Sfnt_Table (face, ft_sfnt_vhea);
 		if (pVert)
 			rslt = pVert->yMax_Extent;
-		else if (font->cairofnt->face)
-			rslt = font->cairofnt->face->units_per_EM;
+		else if (face)
+			rslt = face->units_per_EM;
 		else
 			rslt = 0;
 		GdipDeleteFont (font);
@@ -375,8 +379,12 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Cel
 
 	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
 
-	if (font) {
-		TT_HoriHeader *pHori = FT_Get_Sfnt_Table (font->cairofnt->face, ft_sfnt_hhea);
+	if (font){
+                FT_Face face;
+
+                face = cairo_ft_font_face(font->cairofnt);
+
+		TT_HoriHeader *pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
 
 		if (pHori)
 			rslt = pHori->Ascender;
@@ -401,8 +409,12 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Ce
 
 	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
 
-	if (font) {
-		TT_HoriHeader *pHori = FT_Get_Sfnt_Table (font->cairofnt->face, ft_sfnt_hhea);
+	if (font){
+                FT_Face face;
+
+                face = cairo_ft_font_face(font->cairofnt);
+
+		TT_HoriHeader *pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
 
 		if (pHori)
 			rslt = -pHori->Descender;
@@ -425,12 +437,16 @@ GdipGetLineSpacing (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Li
 
 	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
 
-	if (font) {
-		TT_HoriHeader *pHori = FT_Get_Sfnt_Table (font->cairofnt->face, ft_sfnt_hhea);
+	if (font){
+                FT_Face face;
+
+                face = cairo_ft_font_face(font->cairofnt);
+
+		TT_HoriHeader *pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
 		if (pHori)
 			rslt = pHori->Ascender + (-pHori->Descender) + pHori->Line_Gap;
-		else if (font->cairofnt->face)
-			rslt = font->cairofnt->face->height;
+		else if (face)
+			rslt = face->height;
 		else
 			rslt = 0;
 		GdipDeleteFont (font);
@@ -454,18 +470,18 @@ GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAv
 
 /* Font functions */
 
-cairo_ft_font_t *
-gdip_font_create (const unsigned char *family, int fcslant, int fcweight)
+int
+gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont *result)
 {
-	cairo_ft_font_t *ft_font = NULL;
 	cairo_font_t *font = NULL;
 	FcPattern * pat = NULL;
 	FT_Library ft_library;
 	FT_Error error;
 
 	pat = FcPatternCreate ();
-	if (pat == NULL)
-		return NULL;
+	if (pat == NULL || result == NULL) {
+		return 0;
+	}
 
 	FcPatternAddString (pat, FC_FAMILY, family);
 	FcPatternAddInteger (pat, FC_SLANT, fcslant);
@@ -474,24 +490,26 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight)
 	error = FT_Init_FreeType (&ft_library);
 	if (error) {
 		FcPatternDestroy (pat);
-		return NULL;
+		return 0;
 	}
 
 	font = cairo_ft_font_create (ft_library, pat);
-	if (font == NULL)
-		return NULL;
+	if (font == NULL) {
+		FT_Done_FreeType(ft_library);
+		FcPatternDestroy (pat);
+		return 0;
+	}
 
-	ft_font = (cairo_ft_font_t *) font;
+	result->cairofnt = font;
+	result->ft_library = ft_library;
 
-	ft_font->owns_ft_library = 1;
-
-	FT_Set_Char_Size (ft_font->face,
+	FT_Set_Char_Size (cairo_ft_font_face(font),
 			  DOUBLE_TO_26_6 (1.0),
 			  DOUBLE_TO_26_6 (1.0),
 			  0, 0);
 
 	FcPatternDestroy (pat);
-	return ft_font;
+	return 1;
 }
 
 void
@@ -544,7 +562,9 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
         if ((style & FontStyleItalic) == FontStyleItalic)        
                 slant = FC_SLANT_ITALIC;
         
-	result->cairofnt  = gdip_font_create (str, slant, weight);
+	if (!gdip_font_create (str, slant, weight, result)) {
+		return InvalidParameter;	// FIXME -  wrong return code
+	}
         result->style = style;
 	cairo_font_reference ((cairo_font_t *)result->cairofnt);
 	result->wineHfont=CreateWineFont(str, style, emSize, unit);
@@ -568,13 +588,16 @@ GdipDeleteFont (GpFont* font)
 {
 	if (font) {
 		cairo_font_destroy ((cairo_font_t *)font->cairofnt);
+		if (font->ft_library) {
+			FT_Done_FreeType(font->ft_library);
+		}
 		if (font->wineHfont) {
 			DeleteWineFont(font->wineHfont);
 		}
 		GdipFree ((void *)font);
-		return Ok;
+                return Ok;
 	}
-	return InvalidParameter;
+        return InvalidParameter;
 }
 
 static GpStatus
@@ -637,7 +660,10 @@ CreateFontFromHDCorHfont(void *hdcIn, void *hfont, GpFont **font, LOGFONTA *lf)
 		weight = FC_WEIGHT_BOLD;
 	}
 
-	result->cairofnt  = gdip_font_create (FaceName, slant, weight);
+	if (!gdip_font_create (FaceName, slant, weight, result)) {
+		return InvalidParameter;	// FIXME - pick right return code
+	}
+	
 	result->style = style;
 	cairo_font_reference ((cairo_font_t *)result->cairofnt);
 	result->wineHfont=CreateWineFont(FaceName, style, result->sizeInPixels, UnitPixel);

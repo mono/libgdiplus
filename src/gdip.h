@@ -68,26 +68,8 @@ typedef gpointer HMODULE;
 #define DOUBLE_FROM_16_16(t) ((double)(t) / 65536.0)
 
 struct cairo_matrix {
-    double m[3][2];
+	double m[3][2];
 };
-
-struct cairo_font {
-    int refcount;
-    cairo_matrix_t matrix;
-    //void *glyph_cache;
-    const struct cairo_font_backend *backend;
-};
-
-
-typedef struct {
-    cairo_font_t base;
-    FT_Library ft_library;
-    int owns_ft_library;
-    FT_Face face;
-    int owns_face;
-    FcPattern *pattern;
-} cairo_ft_font_t;
-
 /*
  * Callbacks
  */
@@ -755,10 +737,11 @@ typedef struct {
 
 
 typedef struct {
-        cairo_ft_font_t*    cairofnt;
+        cairo_font_t*       cairofnt;
         float               sizeInPixels;
         GpFontStyle         style;
         void                *wineHfont;
+	FT_Library          ft_library;
 } GpFont;
 
 
@@ -1179,8 +1162,8 @@ void GdipFree (void *ptr);
 int fcmp (double x1, double x2, double epsilon);
 float gdip_get_display_dpi();
 void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg);
-int gdpi_utf8_to_glyphs (cairo_ft_font_t* font,	 const unsigned char* utf8, double	x0,
-   double	y0, cairo_glyph_t** glyphs, size_t* nglyphs);
+int gdpi_utf8_to_glyphs (cairo_font_t* font, cairo_matrix_t matrix, const unsigned char* utf8, double	x0,
+   double y0, cairo_glyph_t** glyphs, size_t* nglyphs);
 
 void gdip_font_drawunderline (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
 void gdip_font_drawstrikeout (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
