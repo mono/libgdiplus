@@ -655,8 +655,8 @@ typedef struct {
 typedef struct {
 	cairo_t         *ct;
 	cairo_matrix_t  *copy_of_ctm;
-	void            *hdc;
-	int             hdc_busy_count;
+	Display		*display;
+	Drawable	drawable;
 	void            *image;
 	int             type; 
 	GpRegion*	clip;

@@ -41,8 +41,6 @@ gdip_graphics_init (GpGraphics *graphics)
 	graphics->copy_of_ctm = cairo_matrix_create ();
 	cairo_matrix_set_identity (graphics->copy_of_ctm);
 	cairo_identity_matrix (graphics->ct);
-	graphics->hdc = 0;
-	graphics->hdc_busy_count = 0;
 	graphics->image = 0;
 	graphics->type = gtUndefined;
         /* cairo_select_font (graphics->ct, "serif:12"); */
@@ -278,7 +276,15 @@ convert_fill_mode (GpFillMode fill_mode)
 GpStatus 
 GdipCreateFromHDC (int hDC, GpGraphics **graphics)
 {
-	return NotImplemented;
+	GpGraphics *clone = (GpGraphics *) hDC;
+
+	*graphics = gdip_graphics_new ();
+	if (!*graphics)
+		return OutOfMemory;
+
+	cairo_set_target_drawable ((*graphics)->ct, clone->display, clone->drawable);
+
+	return Ok;
 }
 
 GpStatus
@@ -317,6 +323,8 @@ GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 	cairo_set_target_drawable ((*graphics)->ct, dpy, d);
 
 	(*graphics)->type = gtX11Drawable;
+	(*graphics)->display = dpy;
+	(*graphics)->drawable = d;
 
 	return Ok;
 }

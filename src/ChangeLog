@@ -1,3 +1,14 @@
+2005-01-14  Jackson Harper  <jackson@ximian.com>
+
+	* gdip.h: Remove the hdc stuff that was used with wine. Add fields
+	for the x display and drawable so that they can be used when
+	creating a graphics object from an hdc.
+	* graphics.c (GdipCreateFromHDC): Implement, just create a new
+	graphics object and copy the drawable from the old one.
+	* graphics.c (GdipCreateFromXDrawable_linux): Copy the display and
+	drawable params to the graphics structure so they can be used in
+	CreateFromHDC.
+	
 2005-01-07  Peter Bartok  <pbartok@novell.com>
 
 	* graphics-path.c, hatchbrush.c: Applied patch submitted by 
