@@ -1,3 +1,8 @@
+2004-06-29  Jordi Mas <jordi@ximian.com>
+
+	* tiffcodec.c: fixes saving images to stream. It was giving an exception
+	before
+
 2004-06-25  Ravindra <rkumar@novell.com>
 
 	* lineargradientbrush.c: Couple of fixes and some missing bits.

@@ -70,6 +70,12 @@ gdip_tiff_read (thandle_t clientData, tdata_t buffer, tsize_t size)
 }
 
 tsize_t 
+gdip_tiff_read_none (thandle_t clientData, tdata_t buffer, tsize_t size)
+{
+	return 0;
+}
+
+tsize_t 
 gdip_tiff_write (thandle_t clientData, tdata_t buffer, tsize_t size)
 {
 	return (tsize_t)((gdip_tiff_clientData *) clientData)->putBytesFunc (buffer, size);
@@ -359,7 +365,7 @@ gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
 	clientData.closeFunc = closeFunc;
 	clientData.sizeFunc = sizeFunc;
 	
-	tiff = TIFFClientOpen("lose.tif", "w", &clientData, gdip_tiff_read, 
+	tiff = TIFFClientOpen("lose.tif", "w", &clientData, gdip_tiff_read_none, 
 			gdip_tiff_write, gdip_tiff_seek, gdip_tiff_close, 
 			gdip_tiff_size, gdip_tiff_dummy_map, gdip_tiff_dummy_unmap);
 	if (!tiff)
