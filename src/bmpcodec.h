@@ -37,4 +37,10 @@ gdip_bitmap_save_bmp (const char *name, GpBitmap *bitmap);
 void 
 gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi);
 
+GpStatus 
+gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile);
+
+void
+gdip_write_bmp_data (void *pointer, byte *data, int size, bool useFile);
+
 #endif /* _BMPCODEC_H */

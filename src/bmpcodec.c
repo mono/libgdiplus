@@ -483,7 +483,22 @@ gdip_load_bmp_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 GpStatus 
 gdip_save_bmp_image_to_file (FILE *fp, GpImage *image)
 {
-        BITMAPFILEHEADER bmfh;
+	return gdip_save_bmp_image_to_file_stream ( (void *)fp, image, TRUE);
+}
+
+GpStatus 
+gdip_save_bmp_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
+                                        GpImage *image)
+{	
+        return gdip_save_bmp_image_to_file_stream ( (void *)&putBytesFunc, image, FALSE);
+}
+
+GpStatus 
+gdip_save_bmp_image_to_file_stream (void *pointer,
+                                        GpImage *image,
+					bool useFile)
+{
+	BITMAPFILEHEADER bmfh;
         BITMAPINFOHEADER bmi;
         GpBitmap *bitmap = (GpBitmap *) image;
         int bitmapLen = bitmap->data.Stride * bitmap->data.Height;
@@ -500,10 +515,12 @@ gdip_save_bmp_image_to_file (FILE *fp, GpImage *image)
         bmfh.bfSize = (bmfh.bfOffBits + bitmapLen);
 
         bmfh.bfOffBits = (14 + 40 + colours * 4);
-        fwrite (&bmfh, sizeof (bmfh), 1, fp);
-        gdip_bitmap_fill_info_header (bitmap, &bmi);
-
-        fwrite (&bmi, sizeof (bmi), 1, fp);
+        printf("\n bmpcodec.c before first call to gdip_write_bmp_image_to_file_stream");
+	gdip_write_bmp_data (pointer, (byte *)&bmfh, sizeof (bmfh), useFile);
+        
+	gdip_bitmap_fill_info_header (bitmap, &bmi);
+	printf("\n bmpcodec.c before second call to gdip_write_bmp_image_to_file_stream");
+	gdip_write_bmp_data (pointer, (byte *)&bmi, sizeof (bmi), useFile);
 
         if (colours) {
 
@@ -511,26 +528,29 @@ gdip_save_bmp_image_to_file (FILE *fp, GpImage *image)
                 for (i = 0; bitmap->image.palette->Count; i++) {
                         color = bitmap->image.palette->Entries[i];
                         b =  color & 0xff;
-                        fwrite (&b, 1, 1, fp);
+			gdip_write_bmp_data (pointer, &b, 1, useFile);
                         b = (color >> 8) & 0xff;
-                        fwrite (&b, 1, 1, fp);
+			gdip_write_bmp_data (pointer, &b, 1, useFile);
                         b = (color >> 16) & 0xff;
-                        fwrite (&b, 1, 1, fp);
+			gdip_write_bmp_data (pointer, &b, 1, useFile);
                         b = color >> 24;
-                        fwrite (&b, 1, 1, fp);
+			gdip_write_bmp_data (pointer, &b, 1, useFile);
                 }
+		printf("\n bmpcodec.c colours written");
         }
         
         /* Writes bitmap upside down. Many tools can only process bmp stored this way*/        
         for (i = bitmap->data.Height - 1; i >= 0; i--)
-                fwrite (bitmap->data.Scan0 + i *bitmap->data.Stride, bitmap->data.Stride, 1, fp);
+		gdip_write_bmp_data (pointer, bitmap->data.Scan0 + i *bitmap->data.Stride, bitmap->data.Stride, useFile);
         return Ok;
 }
 
-GpStatus 
-gdip_save_bmp_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
-                                        GpImage *image)
+void gdip_write_bmp_data (void *pointer, byte *data, int size, bool useFile)
 {
-        return NotImplemented;
+	if (useFile)
+		fwrite (data, 1, size, (FILE*) pointer);
+	else {
+		printf("\n bmpcodec.c in gdip_write_bmp_image_to_file_stream using PutBytesDelegate");
+		((PutBytesDelegate)(&pointer))(data, size);
+	}
 }
-
