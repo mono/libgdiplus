@@ -23,7 +23,7 @@
 #ifndef CAIRO_HAS_XLIB_SURFACE
 #include <cairo-xlib.h>
 #endif
-#include <mono/io-layer/uglify.h>
+#include "uglify.h"
 
 
 /* Cairo internal extructures and defines*/

@@ -22,8 +22,8 @@ else
 	AC_MSG_ERROR("Did not find Cairo 0.1.22");
 fi
 ## XXX - FIXME - libpng12 shouldn't be required, but oh well
-GDIPLUS_LIBS="`pkg-config --libs cairo mono glib-2.0 libpng12` `freetype-config --libs`"
-GDIPLUS_CFLAGS="`pkg-config --cflags cairo mono glib-2.0 libpng12` `freetype-config --cflags`"
+GDIPLUS_LIBS="`pkg-config --libs cairo glib-2.0 libpng12` `freetype-config --libs`"
+GDIPLUS_CFLAGS="`pkg-config --cflags cairo glib-2.0 libpng12` `freetype-config --cflags`"
 
 # sigsetjmp is a macro on some platforms, so can't use AC_CHECK_FUNCS
 AC_MSG_CHECKING(for sigsetjmp)
