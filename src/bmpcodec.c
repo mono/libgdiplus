@@ -139,17 +139,28 @@ gdip_load_bmp_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 							image, FALSE);
 }
 
+#define palette_lookup(x)	img->image.palette->Entries[(x)]
+
 GpStatus 
 gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFile)
 {
 	BITMAPFILEHEADER bmfh;
         BITMAPINFOHEADER bmi;
-        GpBitmap *img = NULL;
-        guchar *pixels = NULL, *linep = NULL;
-        int i, j, format, colours;
-        BOOL os2format = FALSE, upsidedown = TRUE;
-        int size, size_read;
-	byte* data_read;
+        GpBitmap	*img = NULL;
+        guchar		*pixels = NULL;
+        guchar		*linep = NULL;
+        int		i;
+	int		j;
+	int		format;
+	int		colours;
+        BOOL		os2format = FALSE;
+	BOOL		upsidedown = TRUE;
+        int		size;
+	int		size_read;
+	byte		*data_read;
+	int		line;
+	int		loop;
+	long		pixel;
 		
 	size = sizeof(bmfh);
 	data_read = (byte*) GdipAlloc(size);
@@ -259,9 +270,6 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
         
         format = gdip_get_pixelformat (bmi.biBitCount);
                                                
-        if (format == 0)
-                return NotImplemented; /* Unsuported pixel format*/
-
         img = gdip_bitmap_new ();
         img->image.pixFormat = format;
         img->image.type = imageBitmap;
@@ -271,7 +279,9 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
         img->data.PixelFormat = img->image.pixFormat;
         img->data.Width = img->image.width;
         img->data.Height = img->image.height;
-        img->data.Stride = (bmi.biBitCount * img->image.width) / 8;
+
+	// We always assume 32 bit and translate into 32 bit from source format
+        img->data.Stride = (32 * img->image.width) / 8;
         img->data.Stride = (img->data.Stride + 3) & ~3;
      
         if (colours){               
@@ -307,46 +317,150 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
                         }
 			GdipFree(data_read);
                 }
-        }
-        else
-                img->image.palette = NULL;                                                                      
+        } else {
+                img->image.palette = NULL;
+	}
        
         pixels = GdipAlloc (img->data.Stride * img->data.Height);
+	memset(pixels, 0, img->data.Stride * img->data.Height);
 
-	size = img->data.Stride;
+	// Size contains the size of the lines on disk
+	switch (bmi.biBitCount) {
+		case 1: {
+			size = ((img->image.width + 31) & ~31) / 8;
+			loop = size - 4;
+			break;
+		}
+
+		case 4: {
+			size = ((bmi.biBitCount * img->image.width + 31) & ~31) / 8;
+			loop = ((img->image.width + 1) &~1) / 2;
+			break;
+		}
+
+		case 8: {
+			size = (((bmi.biBitCount * img->image.width) + 31) & ~31) / 8;
+			loop = img->image.width;
+			break;
+		}
+
+		default: {
+			size = (((bmi.biBitCount * img->image.width) + 31) & ~31) / 8;
+			loop = size; 
+			break;
+		}
+	}
+
 	data_read = (byte*) GdipAlloc(size);
-        if (upsidedown) { 
-		for (i = img->data.Height - 1; i >= 0; i--){ 
-			memset(data_read, 0, size);
-			size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-			if (size_read < size)
-				return InvalidParameter;                        
-			memcpy(pixels + i*size, data_read, size);			
+
+	//printf("Reading image data, upsidedown:%d, width: %d, stride:%d, loop:%d\n", upsidedown, size, img->data.Stride, loop);
+	for (i = 0; i < img->data.Height; i++){ 
+		if (upsidedown) {
+			line = img->data.Height - i - 1;
+		} else {
+			line = i;
 		}
-        }
-        else {
-		for (i = 0; i < img->data.Height; i++) {
-			memset(data_read, 0, size);
-			size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-			if (size_read < size)
-				return InvalidParameter;                        			
-                        memcpy(pixels + i*size, data_read, size);			
+
+		memset(data_read, 0, size);
+		size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
+
+		if (size_read < size) {
+			return InvalidParameter;
 		}
-        }
+
+		switch(bmi.biBitCount) {
+			case 1: {
+				int	c;
+				int	bit;
+
+				for (c = 0; c < loop; c++) {
+					for (bit = 0; bit < 8; bit++) {
+						if ((data_read[c] &  ((0x80 >> bit) & 0x1) ) == 0) {
+							pixels[(line * img->data.Stride) + (c*8 + bit) * 4] = 0xff;
+							pixels[(line * img->data.Stride) + (c*8 + bit) * 4 + 1] = 0xff;
+							pixels[(line * img->data.Stride) + (c*8 + bit) * 4 + 2] = 0xff;
+							pixels[(line * img->data.Stride) + (c*8 + bit) * 4 + 3] = 0xff;
+						} else {
+							pixels[(line * img->data.Stride) + (c*8 + bit) * 4] = 0x0;
+							pixels[(line * img->data.Stride) + (c*8 + bit) * 4 + 1] = 0x0;
+							pixels[(line * img->data.Stride) + (c*8 + bit) * 4 + 2] = 0x0;
+							pixels[(line * img->data.Stride) + (c*8 + bit) * 4 + 3] = 0xff;	// Alpha
+						}
+					}
+				}
+
+				for (bit = 0; bit < img->image.width % 8; bit++) {
+					if ((data_read[c] &  ((0x80 >> bit) & 0x1) ) == 0) {
+						pixels[(line * img->data.Stride) + (c*8 + bit) * 4] = 0xff;
+						pixels[(line * img->data.Stride) + (c*8 + bit) * 4 + 1] = 0xff;
+						pixels[(line * img->data.Stride) + (c*8 + bit) * 4 + 2] = 0xff;
+						pixels[(line * img->data.Stride) + (c*8 + bit) * 4 + 3] = 0xff;
+					} else {
+						pixels[(line * img->data.Stride) + (c*8 + bit) * 4 + 3] = 0xff;	// Alpha
+					}
+				}
+				break;
+			}
+
+			case 4: {
+				int c;
+
+				for (c = 0; c < loop; c++) {
+					pixel = palette_lookup((data_read[c] & 0xf0) >> 4);
+
+					pixels[(line * img->data.Stride) + c*8] = pixel & 0xff;			// B
+					pixels[(line * img->data.Stride) + c*8+1] = (pixel & 0xff00) >> 8;	// G
+					pixels[(line * img->data.Stride) + c*8+2] = (pixel & 0xff0000) >> 16;	// R
+					pixels[(line * img->data.Stride) + c*8+3] = 0xff;			// Alpha
+
+					pixel = palette_lookup(data_read[c] & 0xf);
+
+					pixels[(line * img->data.Stride) + c*8+4] = pixel & 0xff;
+					pixels[(line * img->data.Stride) + c*8+5] = (pixel & 0xff00) >> 8;
+					pixels[(line * img->data.Stride) + c*8+6] = (pixel & 0xff0000) >> 16;
+					pixels[(line * img->data.Stride) + c*8+7] = 0xff;
+				}
+				break;
+			}
+
+			case 8: {
+				int	c;
+
+				for (c = 0; c < loop; c++) {
+					pixel = palette_lookup(data_read[c]);
+
+					pixels[(line * img->data.Stride) + c*4] = pixel & 0xff;			// B
+					pixels[(line * img->data.Stride) + c*4+1] = (pixel & 0xff00) >> 8;	// G
+					pixels[(line * img->data.Stride) + c*4+2] = (pixel & 0xff0000) >> 16;	// R
+					pixels[(line * img->data.Stride) + c*4+3] = 0xff;			// Alpha
+				}
+				break;
+			}
+
+			case 24: {
+				int	src;
+				int	dest;
+
+				src = 0;
+				dest = 0;
+
+				while (src < loop) {
+					pixels[(line * img->data.Stride) + dest++] = data_read[src++];		// B
+					pixels[(line * img->data.Stride) + dest++] = data_read[src++];		// G
+					pixels[(line * img->data.Stride) + dest++] = data_read[src++];		// R
+					pixels[(line * img->data.Stride) + dest++] = 0xff;			// Alpha
+				}
+				break;
+			}
+
+			case 32: {
+				memcpy(pixels + line * size, data_read, size);
+				break;
+			}
+		}
+	}
 
 	GdipFree(data_read);
-
-	/*Cairo stores internally RGB24 as RGB32 */
-	if (bmi.biBitCount == 24) {
-		BYTE *dest;
-		int dest_stride;
-
-		gdip_from_RGB_to_ARGB (pixels, img->image.width, img->image.height,
-						img->data.Stride, &dest, &dest_stride);
-		GdipFree (pixels);
-		pixels = dest;
-		img->data.Stride = dest_stride;
-	}
 
 	img->data.Scan0 = pixels;
         img->data.Reserved = GBD_OWN_SCAN0;

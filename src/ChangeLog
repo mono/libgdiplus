@@ -1,3 +1,9 @@
+2005-01-20  Peter Bartok  <pbartok@novell.com>
+
+	* bmpcodec.c: Added ability to read 1, 4 and 8 bit images
+	  as well as 24 bit images, simplified readying by doing the
+	  read/assignment and RGB to ARGB in one go
+
 2005-01-20  Jackson Harper  <jackson@ximian.com>
 
 	* graphics.c:
