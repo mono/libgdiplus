@@ -1,4 +1,8 @@
-2004--7-20 Sanjay Gupta <gsanjay@novell.com>
+2004-7-21 Sanjay Gupta <gsanjay@novell.com>
+	
+	* gifcodec.c: Minor modifications.
+
+2004-7-20 Sanjay Gupta <gsanjay@novell.com>
 	
 	* gifcodec.c: Implemented saving multiple frames of an image to a 
 	gif file.

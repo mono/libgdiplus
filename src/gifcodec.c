@@ -386,17 +386,15 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 		return FileNotFound;
 		
 	dimensionCount = image->frameDimensionCount;
-	cmap = malloc (sizeof (ColorMapObject *) * dimensionCount);
+	cmap  = MakeMapObject (cmap_size, 0);
 	for (j = 0; j < dimensionCount; j++) {
 		frameCount = image->frameDimensionList [j].count;
-		/*cmap [j] = malloc (sizeof(ColorMapObject) * frameCount);*/
 		if (!memcmp (&(image->frameDimensionList [j].frameDimension), 
 				&gdip_image_frameDimension_time_guid, sizeof (CLSID)))
 			animationFlag = TRUE;
 		else
 			animationFlag = FALSE;
 
-		cmap  = MakeMapObject (cmap_size, 0);
 		for (k = 0; k < frameCount; k++) {
 			
 			data = image->frameDimensionList [j].frames [k]; 
@@ -418,12 +416,12 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 			}	
 			
 			if (QuantizeBuffer (data.Width, data.Height, &cmap_size, red, 
-					green, blue, pixels, /*(&cmap[j])[k]->Colors*/ cmap->Colors) == GIF_ERROR) 
+					green, blue, pixels, cmap->Colors) == GIF_ERROR) 
 				error = TRUE;
 			
 			/*Make info from first frame as Global color map*/
-			if (k == 0 ){
-				if ( j == 0){
+			if (k == 0){
+				if (j == 0){
 					if (EGifPutScreenDesc (fp, image->width, image->height,
 								8, 0, cmap) == GIF_ERROR) 
 						error = TRUE;
