@@ -393,34 +393,18 @@ GdipDeleteGraphics (GpGraphics *graphics)
 GpStatus 
 GdipGetDC (GpGraphics *graphics, int *hDC)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-
-	if (graphics->hdc == 0) {
-		if (graphics->image != 0) {
-			/* Create DC */
-			graphics->hdc = gdip_image_create_Win32_HDC (graphics->image);
-			if (graphics->hdc != 0) {
-				++graphics->hdc_busy_count;
-			}
-		}
+	// For our gdi+ the hDC is equivalent to the graphics handle
+	if (*hDC) {
+		*hDC = (int)graphics;
 	}
-	*hDC = (int)graphics->hdc;
 	return Ok;
 }
 
 GpStatus 
 GdipReleaseDC (GpGraphics *graphics, int hDC)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-
-	if (graphics->hdc != (void *)hDC) return InvalidParameter;
-	if (graphics->hdc_busy_count > 0) {
-		--graphics->hdc_busy_count;
-		if (graphics->hdc_busy_count == 0) {
-			/* Destroy DC */
-			gdip_image_destroy_Win32_HDC (graphics->image, (void*)hDC);
-			graphics->hdc = 0;
-		}
+	if (hDC != (int)graphics) {
+		return InvalidParameter;
 	}
 	return Ok;
 }
