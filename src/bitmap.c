@@ -89,42 +89,6 @@ gdip_bitmap_dispose (GpBitmap *bitmap)
 		GdipFree (bitmap->data.Scan0);
 }
 
-void 
-gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
-{
-	int  bitmapLen = bitmap->data.Stride * bitmap->data.Height;
-	memset (bmi, 0, sizeof (BITMAPINFOHEADER));
-	bmi->biSize = sizeof (BITMAPINFOHEADER);
-	bmi->biWidth = bitmap->data.Width;
-	bmi->biHeight = bitmap->data.Height;
-	bmi->biPlanes = 1;
-	bmi->biBitCount = PIXEL_FORMAT_BPP (bitmap->internal_format); /* This basically forces to save 32-bit bitmaps always*/
-	bmi->biCompression = BI_RGB;
-	bmi->biSizeImage =  0; /* Many tools expect this may be set to zero for BI_RGB bitmaps */
-	bmi->biXPelsPerMeter = (int) (0.5f + ((gdip_get_display_dpi() * 3937) / 100));
-	bmi->biYPelsPerMeter = (int) (0.5f + ((gdip_get_display_dpi() * 3937) / 100)); /* 1 meter is = 39.37 */       
-}                                                           
-
-void 
-gdip_bitmap_save_bmp (const char *name, GpBitmap *bitmap)
-{
-	BITMAPFILEHEADER bmfh;
-	BITMAPINFOHEADER bmi;
-	int  bitmapLen = bitmap->data.Stride * bitmap->data.Height;
-	FILE *fp;
-	
-	bmfh.bfReserved1 = bmfh.bfReserved2 = 0;
-	bmfh.bfType = BFT_BITMAP;
-	bmfh.bfOffBits = (14 + 40 + 0 * 4);
-	bmfh.bfSize = (bmfh.bfOffBits + bitmapLen);
-	fp = fopen (name, "w+b");
-	fwrite (&bmfh, 1, sizeof (bmfh), fp);
-	gdip_bitmap_fill_info_header (bitmap, &bmi);
-	bmi.biHeight = -bmi.biHeight;
-	fwrite (&bmi, 1, sizeof (bmi), fp);
-	fwrite (bitmap->data.Scan0, 1, bitmapLen, fp);
-	fclose (fp);
-}
 
 void *
 gdip_bitmap_create_Win32_HDC (GpBitmap *bitmap)

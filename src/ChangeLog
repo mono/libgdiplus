@@ -1,3 +1,7 @@
+2004-05-09 Jordi Mas i Hernandez <jordi@ximian.com>
+	* bmpcodec.c: Move BMP specific functions to bmpcodec
+	* bitmap.c: Move BMP specific functions to bmpcodec
+
 2004-05-07  Ravindra  <rkumar@novell.com>
 
 	* hatchbrush.c: Implemented 11 hatching styles.

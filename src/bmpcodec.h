@@ -31,4 +31,10 @@ gdip_save_bmp_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
 ImageCodecInfo *
 gdip_getcodecinfo_bmp ();
 
+void
+gdip_bitmap_save_bmp (const char *name, GpBitmap *bitmap);
+
+void 
+gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi);
+
 #endif /* _BMPCODEC_H */
