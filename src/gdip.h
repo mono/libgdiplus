@@ -297,6 +297,19 @@ typedef enum
 
 
 
+
+typedef enum 
+{
+    CombineModeReplace,   
+    CombineModeIntersect, 
+    CombineModeUnion,     
+    CombineModeXor,       
+    CombineModeExclude,   
+    CombineModeComplement  
+    
+} CombineMode;
+
+
 /*
  * Structures
  *
@@ -445,6 +458,11 @@ typedef struct {
 } GpFont;
 
 typedef struct {
+        int     _void;
+} GpRegion;
+
+
+typedef struct {
         StringAlignment alignment;
         StringAlignment lineAlignment;
         HotkeyPrefix hotkeyPrefix;
@@ -554,6 +572,7 @@ GpStatus GdipGetDpiX(GpGraphics *graphics, float *dpi);
 GpStatus GdipGetDpiY(GpGraphics *graphics, float *dpi);
 GpStatus GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, float startAngle, float sweepAngle);
 GpStatus GdipFillPieI(GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, float startAngle, float sweepAngle);
+GpStatus GdipGraphicsClear(GpGraphics *graphics, ARGB color);
 
 
 /* Status */
@@ -685,6 +704,30 @@ GpStatus GdipSetImageAttributesColorKeys(GpImageAttributes *imageattr, ColorAdju
 
 GpStatus GdipSetImageAttributesOutputChannelColorProfile(GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
         GDIPCONST WCHAR *colorProfileFilename);
+
+/* Region */
+GpStatus GdipCreateRegion(GpRegion **region);
+GpStatus GdipCreateRegionRect(GDIPCONST GpRectF *rect, GpRegion **region);
+GpStatus GdipCreateRegionRectI(GDIPCONST GpRect *rect, GpRegion **region);
+GpStatus GdipCreateRegionPath(GpPath *path, GpRegion **region);
+GpStatus GdipCloneRegion(GpRegion *region, GpRegion **cloneRegion);
+GpStatus GdipDeleteRegion(GpRegion *region);
+GpStatus GdipSetInfinite(GpRegion *region);
+GpStatus GdipSetEmpty(GpRegion *region);
+GpStatus GdipCombineRegionRect(GpRegion *region, GDIPCONST GpRectF *rect, CombineMode combineMode);
+GpStatus GdipCombineRegionRectI(GpRegion *region, GDIPCONST GpRect *rect, CombineMode combineMode);
+GpStatus GdipCombineRegionPath(GpRegion *region, GpPath *path, CombineMode combineMode);
+GpStatus GdipCombineRegionRegion(GpRegion *region,  GpRegion *region2, CombineMode combineMode);
+GpStatus GdipTransformRegion(GpRegion *region, GpMatrix *matrix);
+GpStatus GdipGetRegionBounds(GpRegion *region, GpGraphics *graphics, GpRectF *rect);
+GpStatus GdipIsEmptyRegion(GpRegion *region, GpGraphics *graphics, BOOL *result);
+GpStatus GdipIsInfiniteRegion(GpRegion *region, GpGraphics *graphics, BOOL *result);
+GpStatus GdipIsVisibleRegionPoint(GpRegion *region, float x, float y, GpGraphics *graphics, BOOL *result);
+GpStatus GdipIsVisibleRegionPointI(GpRegion *region, int x, int y, GpGraphics *graphics, BOOL *result);
+GpStatus GdipIsVisibleRegionRect(GpRegion *region, float x, float y, float width, float height, GpGraphics *graphics, BOOL *result);
+GpStatus GdipIsVisibleRegionRectI(GpRegion *region, int x, int y, int width, int height, GpGraphics *graphics, BOOL *result);
+
+
 
                                  
 /* Path*/

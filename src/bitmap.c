@@ -201,6 +201,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 
 	if (scan0 == NULL) {
                 scan0 = GdipAlloc (stride * height);
+                memset (scan0, 0, stride * height);
                 own_scan0 = TRUE;
         }
 	result = gdip_bitmap_new ();

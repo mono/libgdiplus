@@ -1490,13 +1490,37 @@ GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
 GpStatus 
 GdipGetDpiX (GpGraphics *graphics, float *dpi)
 {
-	*dpi = gdip_get_display_dpi ();    
+	*dpi = gdip_get_display_dpi ();
+        return Ok;
 }
 
 GpStatus 
 GdipGetDpiY (GpGraphics *graphics, float *dpi)
 {
-	*dpi = gdip_get_display_dpi ();  
+	*dpi = gdip_get_display_dpi ();
+        return Ok;
 }
+
+GpStatus
+GdipGraphicsClear(GpGraphics *graphics, ARGB color)
+{
+        double red, green, blue, alpha;
+
+        printf("clear\n");   
+
+        blue = color & 0xff;
+        green = (color >> 8) & 0xff;
+        red = (color >> 16) & 0xff;
+
+        cairo_save (graphics->ct);
+        cairo_set_rgb_color (graphics->ct,  red, green, blue);
+        cairo_fill (graphics->ct);
+        cairo_stroke (graphics->ct);
+
+        cairo_restore (graphics->ct);
+
+        return Ok;
+}
+
 
 
