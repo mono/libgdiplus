@@ -1,4 +1,4 @@
-2004-04-16 Sanjay Gupta <gsanjay@novell.com>
+2004-04-19 Sanjay Gupta <gsanjay@novell.com>
 	* bmpcodec.c: Fixed function for loading image from stream
 
 2004-04-16 Jordi Mas i Hernandez <jordi@ximian.com>
