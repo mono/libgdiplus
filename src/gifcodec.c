@@ -14,6 +14,7 @@
 #endif
 
 #include <stdio.h>
+#include "gdipImage.h"
 #include "gifcodec.h"
 
 #ifdef HAVE_LIBUNGIF
@@ -28,10 +29,6 @@ static const WCHAR gif_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ',
 static const WCHAR gif_extension[] = {'*', '.', 'G', 'I', 'F',0}; /* *.GIF */
 static const WCHAR gif_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'g', 'i', 'f', 0}; /* image/gif */
 static const WCHAR gif_format[] = {'G', 'I', 'F', 0}; /* GIF */
-
-CLSID gdip_image_frameDimension_page_guid = {0x7462dc86U, 0x6180U, 0x4c7eU, {0x8e, 0x3f, 0xee, 0x73, 0x33, 0xa7, 0xa4, 0x83}};								              
-CLSID gdip_image_frameDimension_time_guid = {0x6aedbd6dU, 0x3fb5U, 0x418aU, {0x83, 0xa6, 0x7f, 0x45, 0x22, 0x9d, 0xc8, 0x72}};										
-CLSID gdip_image_frameDimension_resolution_guid = {0x84236f7bU, 0x3bd3U, 0x428fU, {0x8d, 0xab, 0x4e, 0xa1, 0x43, 0x9c, 0xa3, 0x15}};	
 
 ImageCodecInfo *
 gdip_getcodecinfo_gif ()
@@ -57,15 +54,18 @@ GpStatus
 gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
 {
     GifFileType *gif = NULL;
-    GifRecordType rectype;
+    GifRecordType *rectype = NULL;
     int res;
 
     GpBitmap *img = NULL;
     ColorMapObject *pal = NULL;
     guchar *pixels = NULL;
     guchar *readptr, *writeptr;
-
     int i, j;
+/*	bool pageDimensionFound = FALSE;
+	bool timeDimensionFound = FALSE;
+	int pageDimensionCount = 0;
+	int timeDimensionCount = 0;*/
 
     gif = DGifOpenFileHandle (fileno (fp));
     if (gif == NULL)
@@ -81,29 +81,35 @@ gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
     img->image.width = gif->SWidth;
     img->image.height = gif->SHeight;
 
-	/* Count the no of image desc present, This will be the no of frames present 
-	 * in the image. 
+	/* ImageCount member of GifFileType structure gives info about the total no of frames
+	 * present in the image. Presently i m just attaching all the images as various pages
+	 * of an image, but need to find about the way to discover whether some images in 
+	 * SavedImage [] member of GifFileType structure belongs to frames of animated image.
+	 * My understanding is both kind of frames can be present. 
 	 * TODO : Read the extension block and determine whether its an animated gif
 	 */
 
-	do {
-	    if (DGifGetRecordType(gif, &rectype) == GIF_ERROR)
-		goto error;
-
-	    switch (rectype) {
-		case IMAGE_DESC_RECORD_TYPE:
-		    img->image.frameDimensionList[0].count++ ;
-		    break;		
-		case TERMINATE_RECORD_TYPE:
-		    break;
-		default:	    /* Should be traps by DGifGetRecordType. */
-		    break;
-	    }
-	}
-	while (rectype != IMAGE_DESC_RECORD_TYPE &&
-	       rectype != TERMINATE_RECORD_TYPE);        
-
+	img->image.frameDimensionCount = 1;
+	img->image.frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo));
+	img->image.frameDimensionList[0].count = gif->ImageCount;
 	memcpy (&(img->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
+		
+	
+	/*if (pageDimensionFound && timeDimensionFound){
+		img->image.frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo)*2);
+		img->image.frameDimensionList[0].count = pageDimensionCount;
+		memcpy (&(img->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
+		img->image.frameDimensionList[1].count = timeDimensionCount;
+		memcpy (&(img->image.frameDimensionList[1].frameDimension), &gdip_image_frameDimension_time_guid, sizeof (CLSID));
+	} else if (pageDimensionFound) {
+		img->image.frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo));
+		img->image.frameDimensionList[0].count = pageDimensionCount;
+		memcpy (&(img->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
+	} else if (timeDimensionFound) {
+		img->image.frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo));
+		img->image.frameDimensionList[0].count = timeDimensionCount;
+		memcpy (&(img->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_time_guid, sizeof (CLSID));
+	}*/
 
     /* Note that Cairo/libpixman does not have support for indexed
      * images, so we expand gifs out to 32bpp argb.
@@ -171,7 +177,7 @@ gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
 
     *image = (GpImage *) img;
     return Ok;
-  error:
+  error:	
     if (pixels)
         GdipFree (pixels);
     if (img)

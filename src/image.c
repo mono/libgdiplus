@@ -62,6 +62,8 @@ gdip_image_init(GpImage *image)
 	image->horizontalResolution = 0;
 	image->verticalResolution = 0;
 	image->format = 0;
+	image->frameDimensionCount = 0;
+	image->frameDimensionList = NULL;
 } 
 
 void *
@@ -121,6 +123,8 @@ GdipDisposeImage (GpImage *image)
 	}
 	cairo_surface_destroy (image->surface);
 	image->surface = 0;
+	if (image->frameDimensionList != NULL)
+		GdipFree (image->frameDimensionList);
 	GdipFree (image);
 	
 	return Ok;
@@ -384,6 +388,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
             break;
         case GIF:
             status = gdip_load_gif_image_from_file (fp, &result);
+		printf("\n image.c load image from gif file, status is %d ", status);
 	    result->format = GIF;
             break;
         case PNG:
@@ -407,6 +412,12 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
     if (status != Ok) {
         *image = NULL;
     } else {
+	if (result->frameDimensionCount == 0){
+		result->frameDimensionCount = 1;
+		result->frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo));
+		result->frameDimensionList[0].count = 1; /*multiple frames are already taken care of in respectic codecs*/
+		memcpy (&(result->frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
+	}
         *image = result;
     }
 
@@ -440,8 +451,6 @@ gdip_get_imageformat_from_codec_clsid (CLSID *encoderCLSID)
     free (encoders);
     return INVALID;
 }
-
-
 
 GpStatus
 GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params)
@@ -1110,6 +1119,12 @@ GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
     if (status != Ok) {
         *image = NULL;
     } else {
+	if (result->frameDimensionCount == 0){
+		result->frameDimensionCount = 1;
+		result->frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo));
+		result->frameDimensionList[0].count = 1; /*multiple frames are already taken care of in respectic codecs*/
+		memcpy (&(result->frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
+	}
         *image = result;
     }
 
