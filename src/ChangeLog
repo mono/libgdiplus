@@ -1,3 +1,8 @@
+2004-04-01  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (GdipFillClosedCurve, GdipFillClosedCurveI):
+	Implemented.
+
 2004-04-02  Ravindra <rkumar@novell.com>
 	* texturebrush.c: Implemented TileFlipXY wrapmode.
 

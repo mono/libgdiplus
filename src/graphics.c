@@ -860,11 +860,11 @@ GdipDrawClosedCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int cou
 GpStatus
 GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 {
-        GpPointF *float_points = convert_points (points, count);
+        GpPointF *pt = convert_points (points, count);
 
-        GpStatus s = GdipDrawClosedCurve (graphics, pen, float_points, count);
+        GpStatus s = GdipDrawClosedCurve (graphics, pen, pt, count);
 
-        GdipFree (float_points);
+        GdipFree (pt);
 
         return s;
 }
@@ -1025,10 +1025,33 @@ GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int co
 }
 
 GpStatus
-GdipFillClosedCurveI ()
+GdipFillClosedCurve (GpGraphics *graphics, GpBrush *brush, GpPointF *points, int count)
 {
-	printf ("GdipFillClosedCurveI not implemented\n");
-	return Ok;
+        GpPointF *tangents;
+
+        cairo_save (graphics->ct);
+
+        gdip_brush_setup (graphics, brush);
+        
+        tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count);
+        gdip_make_closed_curve (graphics, points, tangents, count);
+
+        cairo_fill (graphics->ct);
+        cairo_restore (graphics->ct);
+
+        return gdip_get_status (cairo_status (graphics->ct));
+}
+
+GpStatus
+GdipFillClosedCurveI (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count)
+{
+        GpPointF *pt  = convert_points (points, count);
+
+        GpStatus s = GdipFillClosedCurve (graphics, brush, pt, count);
+
+        GdipFree (pt);
+
+        return s;
 }
 
 int
