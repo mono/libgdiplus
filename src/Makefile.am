@@ -12,6 +12,8 @@ libgdiplus_la_SOURCES = 	\
 	graphics.c		\
 	graphics-path.c		\
 	graphics-path.h		\
+	hatchbrush.c		\
+	hatchbrush.h		\
 	image.c			\
 	matrix.c		\
 	pen.c			\

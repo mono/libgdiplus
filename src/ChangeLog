@@ -1,3 +1,10 @@
+2004-02-27  Ravindra <rkumar@novell.com>
+	* hatchbrush.c: First implementation. Implementing only
+	four hatching styles as of now. More to be added.
+	* hatchbruush.h: Defines hatch struct, hatchstyle enum
+	and also declaration for hatch brush functions.
+	* Makefile.am: Added hatchbruch.[ch] to sources.
+
 2004-02-26  Ravindra <rkumar@novell.com>
 	* graphics.c: Added cairo_save () and cairo_restore ()
 	function calls in Draw and Fill functions.
