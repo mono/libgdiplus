@@ -1,3 +1,8 @@
+2004-02-13  Jordi Mas i Hernandez <jordi@ximian.com>
+    * fonts.c fixed re-use of the same font, fixed size problems
+    * graphics.c - string format, aligment, etc
+    * stringformat.c - initial implementation
+
 2004-02-05  Duncan Mak  <duncan@ximian.com>
 
 	* gdip.h (GpRect, GpRectF): Instead of storing coordinates in

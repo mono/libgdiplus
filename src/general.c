@@ -147,3 +147,17 @@ gdip_get_status (cairo_status_t status)
                 }
         }
 }
+
+float
+gdip_get_display_dpi()
+{
+    float dpis = 72;    // We just do not want to return 0 ever
+    
+    char* display=XOpenDisplay(NULL);
+    char* val = XGetDefault(display, "Xft", "dpi");
+   	XCloseDisplay(display);
+    dpis = atof(val);
+
+    return dpis;
+}
+

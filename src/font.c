@@ -30,28 +30,6 @@
 #include <glib.h>
 
 
-/* Cairo Internal structures*/
-struct cairo_matrix {
-    double m[3][2];
-};                 
-
-struct cairo_font {
-    int refcount;
-    cairo_matrix_t matrix;
-    const struct cairo_font_backend *backend;
-};
-
-#define DOUBLE_TO_26_6(d) ((FT_F26Dot6)((d) * 64.0))
-
-typedef struct {
-    cairo_font_t base;
-    FT_Library ft_library;
-    int owns_ft_library;
-    FT_Face face;
-    int owns_face;      
-    FcPattern *pattern;
-} cairo_ft_font_t;
-
 /* Family and collections font functions */
 
 GpStatus
@@ -86,7 +64,7 @@ GdipDeleteFontFamily(GpFontCollection* fontCollection)
     
     if (fontCollection) {
           FontSetDestroy ((fontCollection)->fontset);
-          GdipFree (fontCollection);
+          GdipFree ((void *)fontCollection);
     }
 
     return Ok;
@@ -149,7 +127,7 @@ GpStatus GdipCreateFontFamilyFromName(GDIPCONST WCHAR *name, GpFontCollection *f
 
         FcConfigSubstitute (0, pat, FcMatchPattern);
         FcDefaultSubstitute (pat);                  
-        *fontFamily = FcFontMatch (0, pat, &rlt);
+        *fontFamily =  FcFontMatch (0, pat, &rlt);
 
         FcChar8* str;
         FcResult r = FcPatternGetString (*fontFamily, FC_FAMILY, 0, &str);
@@ -174,7 +152,7 @@ GpStatus GdipCreateFontFamilyFromName(GDIPCONST WCHAR *name, GpFontCollection *f
         }
     }
 
-   	g_free(string);
+    g_free(string);
     return FontFamilyNotFound;
 }
 
@@ -183,6 +161,8 @@ GpStatus
 GdipGetFamilyName(GDIPCONST GpFontFamily* family, WCHAR  name[LF_FACESIZE], int language)
 {                
     if (!family) return InvalidParameter;
+
+    return Ok;
 
     FcChar8* str;
     glong items_read = 0;
@@ -209,6 +189,7 @@ GpStatus
 GdipGetGenericFontFamilySansSerif(GpFontFamily **nativeFamily)
 {
     const WCHAR MSSansSerif[] = {'M','S',' ','S','a','n','s',' ', 'S','e','r','i','f', 0};
+    
     return GdipCreateFontFamilyFromName(MSSansSerif, NULL, nativeFamily);    
 }
 
@@ -229,7 +210,7 @@ GdipGetGenericFontFamilyMonospace(GpFontFamily **nativeFamily)
 
 /* Font functions */
 
-cairo_font_t *
+cairo_ft_font_t *
 gdip_font_create (const char *family, int fcslant, int fcweight)
 {
     cairo_ft_font_t *ft_font = NULL;
@@ -271,6 +252,19 @@ gdip_font_create (const char *family, int fcslant, int fcweight)
     return font;
 }
 
+
+extern cairo_gstate_t* gstate;
+
+/* Selects a font in Cairo without destroying it*/
+cairo_status_t
+cairo_select_font_nondestructive (cairo_gstate_t *gstate,
+			cairo_font_t *font)
+{
+    gstate->font = font;
+    return CAIRO_STATUS_SUCCESS;
+}
+
+
 GpStatus
 GdipCreateFont(GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, Unit unit,  GpFont **font)
 {
@@ -283,9 +277,12 @@ GdipCreateFont(GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, 
 
     GpFont *result = (GpFont *) GdipAlloc (sizeof (GpFont));
     int slant = 0;
-    int weight = FC_WEIGHT_MEDIUM;
+    int weight = FC_WEIGHT_LIGHT;
+    
+    result->sizeInPnts = emSize;
+    result->sizeInPixels = (emSize * gdip_get_display_dpi()) / 72; // Points to Pixels conversion
 
-    result->emSize = emSize;
+    printf("points %f, pixels %f\n", result->sizeInPnts, result->sizeInPixels);
 
     switch (style) {
         
@@ -321,7 +318,7 @@ GdipDeleteFont(GpFont* font)
 {
     if (font){        
         cairo_font_destroy(font->cairofnt);
-        GdipFree (font);
+        GdipFree ((void *)font);
     }
 }
 

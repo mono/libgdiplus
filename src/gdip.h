@@ -21,6 +21,31 @@
 #endif
 #include <mono/io-layer/uglify.h>
 
+
+
+// NOTE: This file includes some internal cairo definitions to
+// avoid to define them again you should have it in your include path
+// it is part of the standard cairo development package
+#include <cairoint.h>
+
+/* Cairo internal extructures and defines*/
+#define DOUBLE_TO_16_16(d) ((FT_Fixed)((d) * 65536.0))
+#define DOUBLE_TO_26_6(d) ((FT_F26Dot6)((d) * 64.0))
+#define DOUBLE_FROM_26_6(t) ((double)(t) / 64.0)
+#define DOUBLE_FROM_16_16(t) ((double)(t) / 65536.0)
+
+
+typedef struct {
+    cairo_font_t base;
+    FT_Library ft_library;
+    int owns_ft_library;
+    FT_Face face;
+    int owns_face;
+    FcPattern *pattern;
+} cairo_ft_font_t;
+
+
+
 /*
  * Constants
  *
@@ -198,6 +223,43 @@ typedef enum {
         WarpModePerspective = 0,
         WarpModeBilinear = 1
 } GpWarpMode, WarpMode;
+
+typedef enum {
+    StringFormatFlagsDirectionRightToLeft = 0x00000001,
+    StringFormatFlagsDirectionVertical = 0x00000002,
+    StringFormatFlagsNoFitBlackBox = 0x00000004,
+    StringFormatFlagsDisplayFormatControl = 0x00000020,
+    StringFormatFlagsNoFontFallback = 0x00000400,
+    StringFormatFlagsMeasureTrailingSpaces = 0x00000800,
+    StringFormatFlagsNoWrap = 0x00001000,
+    StringFormatFlagsLineLimit = 0x00002000,
+    StringFormatFlagsNoClip = 0x00004000
+} StringFormatFlags;
+
+
+typedef enum  {
+    StringTrimmingNone = 0,
+    StringTrimmingCharacter = 1,
+    StringTrimmingWord = 2,
+    StringTrimmingEllipsisCharacter = 3,
+    StringTrimmingEllipsisWord = 4,
+    StringTrimmingEllipsisPath = 5
+} StringTrimming;
+
+typedef enum {
+    HotkeyPrefixNone = 0,
+    HotkeyPrefixShow = 1,
+    HotkeyPrefixHide = 2
+} HotkeyPrefix;
+
+typedef enum {
+    StringAlignmentNear   = 0,
+    StringAlignmentCenter = 1,
+    StringAlignmentFar    = 2
+} StringAlignment;
+
+
+
 /*
  * Structures
  *
@@ -302,10 +364,17 @@ typedef struct {
 } GpFontFamily;
 
 typedef struct {
-        cairo_font_t*       cairofnt;
-//        char                szFamily[256];
-        float               emSize;
+        cairo_ft_font_t*    cairofnt;
+        float               sizeInPnts;
+        float               sizeInPixels;
 } GpFont;
+
+typedef struct {
+        StringAlignment alignment;
+        StringAlignment lineAlignment;
+        HotkeyPrefix hotkeyPrefix;
+        StringFormatFlags formatFlags;
+}GpStringFormat;
 
 /*
  * Functions
@@ -434,7 +503,7 @@ GpStatus GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin);
 GpStatus GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin);
 
 /* Text */
-GpStatus GdipDrawString (GpGraphics *graphics, const char *string, int len, GpFont *font, RectF *rc, void *format, GpBrush *brush);
+GpStatus GdipDrawString (GpGraphics *graphics, const char *string, int len, GpFont *font, RectF *rc, GpStringFormat *format, GpBrush *brush);
 
 /* Matrix */
 GpStatus GdipCreateMatrix (GpMatrix **matrix);
@@ -476,7 +545,19 @@ GpStatus GdipCreateFontFamilyFromName(GDIPCONST WCHAR *name, GpFontCollection *f
 GpStatus GdipDeleteFont(GpFont* font);
 
 
-
+/* String format*/
+GpStatus GdipCreateStringFormat(int formatAttributes, int language, GpStringFormat  **format);
+GpStatus GdipDeleteStringFormat(GpStringFormat *format);
+GpStatus GdipSetStringFormatAlign(GpStringFormat *format, StringAlignment align);
+GpStatus GdipGetStringFormatAlign(GDIPCONST GpStringFormat *format, StringAlignment *align);
+GpStatus GdipSetStringFormatLineAlign(GpStringFormat *format, StringAlignment align);
+GpStatus GdipGetStringFormatLineAlign(GDIPCONST GpStringFormat *format, StringAlignment *align);
+GpStatus GdipSetStringFormatTrimming(GpStringFormat  *format, StringTrimming trimming);
+GpStatus GdipGetStringFormatTrimming(GDIPCONST GpStringFormat *format, StringTrimming *trimming);
+GpStatus GdipSetStringFormatHotkeyPrefix(GpStringFormat *format, HotkeyPrefix hotkeyPrefix);
+GpStatus GdipGetStringFormatHotkeyPrefix(GpStringFormat *format, HotkeyPrefix *hotkeyPrefix);
+GpStatus GdipSetStringFormatFlags(GpStringFormat *format, StringFormatFlags flags);
+GpStatus GdipGetStringFormatFlags(GDIPCONST GpStringFormat *format, StringFormatFlags *flags);
       
 /* Path*/
 #include "graphics-path.h"
@@ -484,5 +565,9 @@ GpStatus GdipDeleteFont(GpFont* font);
 /* Memory */
 void *GdipAlloc (int size);
 void GdipFree (void *ptr);
+
+/* Utility*/
+float gdip_get_display_dpi();
+
 
 #endif /* _GDIP_H */

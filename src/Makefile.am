@@ -14,7 +14,8 @@ libgdiplus_la_SOURCES = 	\
 	matrix.c		\
 	pen.c			\
 	solidbrush.c \
-  font.c
+    font.c \
+    stringformat.c
 
 libgdiplus_la_LIBADD = $(GDIPLUS_LIBS)
 

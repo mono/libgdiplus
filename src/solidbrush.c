@@ -62,7 +62,7 @@ GdipCreateSolidFill (int color, GpBrush **brush)
 {
 	*brush = gdip_brush_new ();
 	(*brush)->color = color;
-	return NotImplemented;
+	return Ok;
 }
 
 GpStatus
