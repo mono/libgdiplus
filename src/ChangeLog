@@ -1,4 +1,8 @@
 2004-04-23 Peter Bartok <pbartok@novell.com>
+   * graphics.c: Fixed bug #57551. Hotkey prefix now properly placed
+   no matter on what line it is or how the text is aligned.
+
+2004-04-23 Peter Bartok <pbartok@novell.com>
    * graphics.c: Implemented GdipCreateFromHWND()
 
 2004-04-22  Vladimir Vukicevic  <vladimir@pobox.com>

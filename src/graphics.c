@@ -1503,7 +1503,7 @@ GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode,
                 /* Draw hotkey line*/
                 if (cur_glyphs_details->is_hotkey) {
                         gdip_font_drawunderline (graphics, brush,
-                                w + rc->X, rc->Y + font->sizeInPixels, *ppos);
+                                w + pPoint->X, pPoint->Y , *ppos);
                 }
 
                 w += *ppos;
