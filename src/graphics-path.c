@@ -320,7 +320,12 @@ GdipGetPathLastPoint (GpPath *path, GpPointF *lastPoint)
 GpStatus
 GdipAddPathLine (GpPath *path, float x1, float y1, float x2, float y2)
 {
-        append (path, x1, y1, PathPointTypeStart);
+        GpPointF pt;
+
+        GdipGetPathLastPoint (path, &pt);
+
+        if (pt.X != x1 && pt.Y != y1)
+                append (path, x1, y1, PathPointTypeStart);
         append (path, x2, y2, PathPointTypeLine);
 
         return Ok;
@@ -649,7 +654,13 @@ GdipAddStringI (GpPath *path, const char *string, int length,
 GpStatus
 GdipAddPathLineI (GpPath *path, int x1, int y1, int x2, int y2)
 {
-        append (path, x1, y1, PathPointTypeStart);
+        GpPointF pt;
+
+        GdipGetPathLastPoint (path, &pt);
+
+        if (pt.X != x1 && pt.Y != y1)
+                append (path, x1, y1, PathPointTypeStart);
+        
         append (path, x2, y2, PathPointTypeLine);
 
         return Ok;

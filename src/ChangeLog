@@ -1,3 +1,10 @@
+2004-04-14  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c (GdipAddPathLine, GdipAddPathLineI): Only append
+	a starting point if the current point is not the same as the point
+	we're appending. This removes unnecessary subpaths, and fixes
+	GdipFillPath.
+
 2004-04-13  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* jpegcodec.c (gdip_save_jpeg_image_internal): Check for pixformat
