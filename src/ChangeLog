@@ -1,5 +1,10 @@
 2005-01-26  Peter Bartok  <pbartok@novell.com>
 
+	* bmpcodec.c: Implemented 32bit support; while no 32bit BMP files
+	  exist, we will generate those internally, to support icons and cursors
+
+2005-01-26  Peter Bartok  <pbartok@novell.com>
+
 	* bmpcodec.c: 
 	  - Fixed generation of color tables (RGBA order)
 	  - Fixed monochrome image translation

@@ -416,7 +416,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 						set_pixel_bgra(pixels, index, 0x00, 0x00, 0x00, 0xff);
 					}
 				}
-				break;
+				continue;
 			}
 
 			case 4: {
@@ -433,7 +433,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 					set_pixel_bgra(pixels, index+4, (pixel & 0xff0000) >> 16, (pixel & 0xff00) >> 8, pixel & 0xff, 0xff);
 				}
-				break;
+				continue;
 			}
 
 			case 8: {
@@ -446,7 +446,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 					set_pixel_bgra(pixels, index, (pixel & 0xff0000) >> 16, (pixel & 0xff00) >> 8, pixel & 0xff, 0xff);
 				}
-				break;
+				continue;
 			}
 
 			case 24: {
@@ -463,12 +463,23 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 					src += 3;
 				}
-				break;
+				continue;
 			}
 
 			case 32: {
-				memcpy(pixels + line * size, data_read, size);
-				break;
+				int	src;
+				int	dest;
+
+				src = 0;
+				dest = 0;
+
+				while (src < loop) {
+					index = (line * img->data.Stride);
+					set_pixel_bgra(pixels, index+dest, data_read[src+0], data_read[src+1], data_read[src+2], data_read[src+3]);
+					dest += 4;
+					src += 4;
+				}
+				continue;
 			}
 		}
 	}
