@@ -1,3 +1,7 @@
+2005-02-19  Geoff Norton  <gnorton@customerdna.com>
+
+	* bitmap.c: (GdipBitmapSetPixel) Make this endian aware.
+
 2005-02-18  Miguel de Icaza  <miguel@novell.com>
 
 	* graphics.c: Implement GdipGetCompositingMode,

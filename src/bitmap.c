@@ -832,27 +832,48 @@ GdipBitmapSetPixel (GpBitmap *bitmap, int x, int y, ARGB color)
 	switch (data->PixelFormat) {
 		case Format24bppRgb:
 			v += x * 4;
+#ifdef WORDS_BIGENDIAN
+			v [3] = color & 0xff;
+			v [2] = (color >> 8) & 0xff;
+			v [1] = (color >> 16) & 0xff;
+			v [0] = 0xff;
+#else
 			v [0] = color & 0xff;
 			v [1] = (color >> 8) & 0xff;
 			v [2] = (color >> 16) & 0xff;
 			v [3] = 0xff;
+#endif
 			break;
 			
 		case Format32bppArgb:
 		case Format32bppPArgb:
 			v += x * 4;
+#ifdef WORDS_BIGENDIAN
+			v [3] = color & 0xff;
+			v [2] = (color >> 8) & 0xff;
+			v [1] = (color >> 16) & 0xff;
+			v [0] = color >> 24;
+#else
 			v [0] = color & 0xff;
 			v [1] = (color >> 8) & 0xff;
 			v [2] = (color >> 16) & 0xff;
 			v [3] = color >> 24;
+#endif
 			break;
 			
 		case Format32bppRgb:
 			v += x * 4;
+#ifdef WORDS_BIGENDIAN
+			v [3] = color & 0xff;
+			v [2] = (color >> 8) & 0xff;
+			v [1] = (color >> 16) & 0xff;
+			v [0] = 0xff;
+#else
 			v [0] = color & 0xff;
 			v [1] = (color >> 8) & 0xff;
 			v [2] = (color >> 16) & 0xff;
 			v [3] = 0xff;
+#endif
 			break;
 		default:
 			return NotImplemented;
