@@ -132,7 +132,7 @@ GpStatus GdipCreateFontFamilyFromName(GDIPCONST WCHAR *name, GpFontCollection *f
         FcChar8* str;
         FcResult r = FcPatternGetString (*fontFamily, FC_FAMILY, 0, &str);
         printf("fnt->%x, %x, %s\n", *fontFamily, rlt, str);
-     	g_free(string);  
+        g_free(string);  
         return Ok;
     }
 
@@ -253,14 +253,12 @@ gdip_font_create (const char *family, int fcslant, int fcweight)
 }
 
 
-extern cairo_gstate_t* gstate;
-
 /* Selects a font in Cairo without destroying it*/
 cairo_status_t
-cairo_select_font_nondestructive (cairo_gstate_t *gstate,
+cairo_select_font_nondestructive (cairo_t *cr,
 			cairo_font_t *font)
 {
-    gstate->font = font;
+    cr->gstate->font = font;
     return CAIRO_STATUS_SUCCESS;
 }
 
