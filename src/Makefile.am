@@ -6,6 +6,7 @@ libgdiplus_la_SOURCES = 	\
 	brush.h			\
 	font.c			\
 	gdip.h			\
+	gdipImage.h		\
 	gdip_win32.c		\
 	gdip_win32.h		\
 	general.c		\

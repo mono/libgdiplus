@@ -1,7 +1,7 @@
 AC_INIT(README)
 AC_CANONICAL_SYSTEM
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(libgdiplus,0.1)
+AM_INIT_AUTOMAKE(libgdiplus,0.2)
 
 AM_MAINTAINER_MODE
 AM_PROG_LIBTOOL
@@ -23,8 +23,8 @@ else
 fi
 GDIPLUS_LIBS=`pkg-config --libs cairo glib-2.0 mono`
 AC_SUBST(GDIPLUS_LIBS)
-AC_SUBST(GDIPLUS_CFLAGS)
 GDIPLUS_CFLAGS=`pkg-config --cflags cairo glib-2.0 mono`
+AC_SUBST(GDIPLUS_CFLAGS)
 AC_OUTPUT([
 Makefile
 libgdiplus.pc
