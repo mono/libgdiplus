@@ -31,7 +31,7 @@ void
 gdip_pen_init (GpPen *pen)
 {
         pen->color = 0;
-		pen->brush = 0;
+        pen->brush = 0;
         pen->width = 1;
         pen->miter_limit = 10;
         pen->line_join = LineJoinMiter;

@@ -56,7 +56,6 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 		width = bmp->data.Width;
 		height = bmp->data.Height;
 		format = bmp->data.PixelFormat;
-		printf ("bmp->wd: %d bmp->ht: %d bmp->format: %d\n", width, height, format);
 	} else 
 		return;
 
@@ -364,22 +363,22 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int
 
 		/* draw background */
 		int R = (backcolor & 0x00FF0000) >> 16;
-	        int G = (backcolor & 0x0000FF00) >> 8;
-	        int B = (backcolor & 0x000000FF);
-	        cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
+		int G = (backcolor & 0x0000FF00) >> 8;
+		int B = (backcolor & 0x000000FF);
+		cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
 		cairo_fill (ct);
 
 		/* draw line */
 		R = (forecolor & 0x00FF0000) >> 16;
-	        G = (forecolor & 0x0000FF00) >> 8;
-	        B = (forecolor & 0x000000FF);
-	        cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
+		G = (forecolor & 0x0000FF00) >> 8;
+		B = (forecolor & 0x000000FF);
+		cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
 
 		cairo_set_line_width (ct, line_width);
-		cairo_move_to (ct, 0, hatch_size/2.0);
-		cairo_line_to (ct, hatch_size, hatch_size/2.0);
+		cairo_move_to (ct, 0, hatch_size / 2.0);
+		cairo_line_to (ct, hatch_size, hatch_size / 2.0);
 		cairo_stroke (ct);
 
 		cairo_restore (ct);
@@ -424,22 +423,22 @@ void draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, 
 
 		/* draw background */
 		int R = (backcolor & 0x00FF0000) >> 16;
-	        int G = (backcolor & 0x0000FF00) >> 8;
-	        int B = (backcolor & 0x000000FF);
-	        cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
+		int G = (backcolor & 0x0000FF00) >> 8;
+		int B = (backcolor & 0x000000FF);
+		cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
 		cairo_fill (ct);
 
 		/* draw line */
 		R = (forecolor & 0x00FF0000) >> 16;
-	        G = (forecolor & 0x0000FF00) >> 8;
-	        B = (forecolor & 0x000000FF);
-	        cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
+		G = (forecolor & 0x0000FF00) >> 8;
+		B = (forecolor & 0x000000FF);
+		cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
 
 		cairo_set_line_width (ct, line_width);
-		cairo_move_to (ct, hatch_size/2.0, 0);
-		cairo_line_to (ct, hatch_size/2.0, hatch_size);
+		cairo_move_to (ct, hatch_size / 2.0, 0);
+		cairo_line_to (ct, hatch_size / 2.0, hatch_size);
 		cairo_stroke (ct);
 
 		cairo_restore (ct);
