@@ -669,9 +669,15 @@ gdip_save_jpeg_image_internal (FILE *fp,
             outptr = scanline;
 
             for (j = 0; j < bitmap->data.Width; j++) {
+#ifdef WORDS_BIGENDIAN
+                *outptr++ = inptr[1]; /* R */
+                *outptr++ = inptr[2]; /* G */
+                *outptr++ = inptr[3]; /* B */
+#else
                 *outptr++ = inptr[2]; /* R */
                 *outptr++ = inptr[1]; /* G */
                 *outptr++ = inptr[0]; /* B */
+#endif
                 inptr += 4;        /* skip RGB+A */
             }
 

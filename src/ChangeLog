@@ -1,3 +1,9 @@
+2005-01-26  Geoff Norton  <gnorton@customerdna.com>
+
+	* pngcodec.c:
+	  jpegcodec.c:
+	  gifcodec.c:  Make these write files properly on big endian machines
+
 2005-01-26  Peter Bartok  <pbartok@novell.com>
 
 	* bmpcodec.c: We convert all images to 32bit, no longer need the

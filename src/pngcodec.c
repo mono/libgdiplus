@@ -299,12 +299,10 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
     GpBitmap *bitmap = (GpBitmap *) image;
     gdip_stream_png_source_ptr pngsrc = NULL;
 
-    int i;
+    int i, j;
 
     int bit_depth;
     int color_type;
-
-    png_bytep *row_pointers = NULL;
 
     png_ptr = png_create_write_struct (PNG_LIBPNG_VER_STRING,
                                        NULL, NULL, NULL);
@@ -392,11 +390,6 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
                   PNG_COMPRESSION_TYPE_DEFAULT,
                   PNG_FILTER_TYPE_DEFAULT);
 
-    row_pointers = GdipAlloc(sizeof (png_bytep) * image->height);
-
-    for (i = 0; i < image->height; i++)
-        row_pointers[i] = bitmap->data.Scan0 + (bitmap->data.Stride * i);
-
     png_write_info (png_ptr, info_ptr);
 
     if (image->pixFormat != bitmap->data.PixelFormat) {
@@ -412,12 +405,33 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
 
     png_set_bgr(png_ptr);
 
-    png_write_rows (png_ptr, row_pointers, image->height);
+#ifdef WORDS_BIGENDIAN
+    guchar *row_pointer = GdipAlloc (image->width * 4);
+#endif
+
+    for (i = 0; i < image->height; i++) {
+#ifdef WORDS_BIGENDIAN
+	
+	for (j = 0; j < image->width; j++) {
+		row_pointer[j*4] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 3);
+		row_pointer[j*4+1] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 2);
+		row_pointer[j*4+2] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 1);
+		row_pointer[j*4+3] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 0);
+	}
+	png_write_row (png_ptr, row_pointer);
+#else
+    	png_write_row (png_ptr, bitmap->data.Scan0 + (bitmap->data.Stride * i));
+#endif
+    }
+
+#ifdef WORDS_BIGENDIAN
+    GdipFree (row_pointer);
+#endif
+
+
     png_write_end (png_ptr, NULL);
 
     png_destroy_write_struct (&png_ptr, &info_ptr);
-
-    GdipFree (row_pointers);
 
     if (pngsrc)
         GdipFree (pngsrc);
@@ -426,8 +440,6 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
 error:
     if (png_ptr)
         png_destroy_write_struct (&png_ptr, info_ptr ? &info_ptr : NULL);
-    if (row_pointers)
-        GdipFree(row_pointers);
     if (pngsrc)
         GdipFree (pngsrc);
 
