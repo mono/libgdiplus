@@ -2613,7 +2613,7 @@ GdipSetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMode)
 GpStatus
 GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMode)
 {
-	if (!graphics || region)
+	if (!graphics || !region)
 		return InvalidParameter;
 		
 	GdipSetEmpty (graphics->clip);
