@@ -59,30 +59,46 @@ typedef struct {
         SizeDelegate sizeFunc;
 } gdip_tiff_clientData;
 
-tsize_t gdip_tiff_read (thandle_t clientData, tdata_t buffer, tsize_t size)
+tsize_t 
+gdip_tiff_read (thandle_t clientData, tdata_t buffer, tsize_t size)
 {
 	return (tsize_t)((gdip_tiff_clientData *) clientData)->getBytesFunc (buffer, size, 0);
 }
 
-tsize_t gdip_tiff_write (thandle_t clientData, tdata_t buffer, tsize_t size)
+tsize_t 
+gdip_tiff_write (thandle_t clientData, tdata_t buffer, tsize_t size)
 {
 	return (tsize_t)((gdip_tiff_clientData *) clientData)->putBytesFunc (buffer, size);
 }
 
-toff_t gdip_tiff_seek (thandle_t clientData, toff_t offSet, int whence)
+toff_t 
+gdip_tiff_seek (thandle_t clientData, toff_t offSet, int whence)
 {
 	return (toff_t)((gdip_tiff_clientData *) clientData)->seekFunc (offSet, whence);
 }
 
-int gdip_tiff_close (thandle_t clientData)
+int 
+gdip_tiff_close (thandle_t clientData)
 {
 	((gdip_tiff_clientData *) clientData)->closeFunc ();
 	return 1;
 }
 
-toff_t gdip_tiff_size (thandle_t clientData)
+toff_t 
+gdip_tiff_size (thandle_t clientData)
 {
 	return (toff_t)((gdip_tiff_clientData *) clientData)->sizeFunc ();
+}
+
+int
+gdip_tiff_dummy_map (thandle_t clientData, tdata_t *phase, toff_t* size)
+{
+	return 0;
+}
+
+void
+gdip_tiff_dummy_unmap (thandle_t clientData, tdata_t base, toff_t size)
+{
 }
 
 ImageCodecInfo *
@@ -218,6 +234,7 @@ gdip_load_tiff_image (TIFF *tif, GpImage **image)
 								onerow, img->data.Stride);
 					}
 					/* flip bytes */
+
 					for (i = 0; i < npixels; i++) {
 						*r32 = (*r32 & 0xff000000) | ((*r32 & 0x00ff0000) >> 16) |
 								(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
@@ -312,19 +329,11 @@ gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 	clientData.seekFunc = seekFunc;
 	clientData.closeFunc = closeFunc;
 	clientData.sizeFunc = sizeFunc;
-	/*if (clientData.getBytesFunc != NULL)
-                printf("\n tiffcodec.c clientData is not null \n");
-	else 
-		printf("\n tiffcodec.c clientData is null \n");*/
-	tif = TIFFClientOpen("lose.tif", "r", &clientData, gdip_tiff_read, gdip_tiff_write, 
-				gdip_tiff_seek, gdip_tiff_close, gdip_tiff_size, NULL, NULL);
-	/*if (tif !=NULL)
-		printf ("\n tiffcodec after reading tif \n");
-	else
-	{
-		printf ("\n tiffcodec after reading tif and is NULL \n");
-		return NotImplemented;
-	}*/
+	
+	tif = TIFFClientOpen("lose.tif", "rmL", &clientData, gdip_tiff_read, 
+				gdip_tiff_write, gdip_tiff_seek, gdip_tiff_close, 
+				gdip_tiff_size, gdip_tiff_dummy_map, gdip_tiff_dummy_unmap);
+	
 	return gdip_load_tiff_image (tif, image);
 }
 
@@ -346,8 +355,9 @@ gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
 	clientData.closeFunc = closeFunc;
 	clientData.sizeFunc = sizeFunc;
 	
-	tiff = TIFFClientOpen("lose.tif", "w", &clientData, gdip_tiff_read, gdip_tiff_write, 
-				gdip_tiff_seek, gdip_tiff_close, gdip_tiff_size, NULL, NULL);
+	tiff = TIFFClientOpen("lose.tif", "wmL", &clientData, gdip_tiff_read, 
+			gdip_tiff_write, gdip_tiff_seek, gdip_tiff_close, 
+			gdip_tiff_size, gdip_tiff_dummy_map, gdip_tiff_dummy_unmap);
 	if (!tiff)
 		return InvalidParameter;		
 		

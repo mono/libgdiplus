@@ -1,3 +1,8 @@
+2006-06-21  Sanjay Gupta <gsanjay@novell.com>
+
+	* tiffcodec.c: Added dummy functions and changed the way we
+	were reading/writing tif image from/to stream.
+
 2006-06-17  Sanjay Gupta <gsanjay@novell.com>
 
 	* tiffcodec.c: ABGR 2 ARGB conversion while saving. 
