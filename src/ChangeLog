@@ -1,5 +1,14 @@
-2004-05-14  Duncan Mak  <duncan@ximian.com>
+2004-05-14  Peter Bartok <pbartok@novell.com>
+	* gdip.h: Added various missing structs and enumerations required for
+	  the new stubs.
+	* bitmap.c: Removed warning; added missing stubs
+	* font.c: Implemented GdipGetLogFontA, GdipPrivateAddMemoryFont
+	* graphics.c: Implemented GdipSetInterpolationMode, GdipGetPageScale,
+	  GdipGetPageUnit; added missing stubs
+	* imageattributes.c: Added missing stubs
+	* image.c: Added missing stubs
 
+2004-05-14  Duncan Mak  <duncan@ximian.com>
 	* gdip.h (GpPathPointType): Make all the elements use hex values
 	for consistency.
 

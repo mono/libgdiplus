@@ -39,7 +39,7 @@
 /* Pick an unlikely combination. This pixel color will be interpreted as 'transparent' 
    when mapping Wine pixels onto a cairo image. Need to do this crude hack since there
    is no bitmap alpha component in regular Win32 bitmaps */
-#define	UNALTERED_PIXEL		0x00454243
+#define	UNALTERED_PIXEL		0x00959293
 
 /*
 	Those are the only pixel formats that we really support	
@@ -120,6 +120,7 @@ gdip_bitmap_create_Win32_HDC (GpBitmap *bitmap)
 	if (hbitmap != 0) {
 		BITMAPINFO	bmi;
 		gdip_bitmap_fill_info_header (bitmap, &bmi.bmiHeader);
+
 		SetDIBits_pfn (hdc, hbitmap, 0, bitmap->data.Height, bitmap->data.Scan0, &bmi, 0);
 		holdbitmap = SelectObject_pfn (hdc, hbitmap);
 		bitmap->hBitmapDC = hdc;
@@ -236,7 +237,6 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	/*
 	 * FIXME: should get the stride based on the format of the graphics object.
 	 */
-	fprintf (stderr, "GdipCreateBitmapFromGraphics: This routine has not been checked for stride size\n");
 	while (stride % 4)
 		stride++;
 	
@@ -260,6 +260,36 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	result->data.Reserved |= GBD_OWN_SCAN0;
 	*bitmap = result;
 	return Ok;
+}
+
+GpStatus
+GdipCreateBitmapFromHBITMAP(void *hbm, void *hpal, GpBitmap** bitmap)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipCreateHBITMAPFromBitmap(GpBitmap* bitmap, void **hbmReturn, unsigned long background)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipCreateBitmapFromHICON(void *hicon, GpBitmap** bitmap)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipCreateHICONFromBitmap(GpBitmap* bitmap, void **hbmReturn)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipCreateBitmapFromResource(void *hInstance, GDIPCONST WCHAR *lpBitmapName, GpBitmap** bitmap)
+{
+	return(NotImplemented);
 }
 
 GpStatus

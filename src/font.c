@@ -529,6 +529,7 @@ CreateFontFromHDCorHfont(void *hdcIn, void *hfont, GpFont **font, LOGFONTA *lf)
 	}
 	SetMapMode_pfn(hdc, 1);
 	if (GetTextMetrics_pfn(hdc, &tm)==0 || GetTextFace_pfn(hdc, sizeof(FaceName), FaceName)==0) {
+		ReleaseDC_pfn(NULL, hdc);
 		return InvalidParameter;
 	}
 	if (!hdcIn) {
@@ -593,3 +594,79 @@ GdipCreateFontFromHfont(void *hfont, GpFont **font, LOGFONTA *lf)
 	return(CreateFontFromHDCorHfont(NULL, hfont, font, lf));
 }
 
+GpStatus
+GdipGetLogFontA(GpFont *font, GpGraphics *graphics, LOGFONTA *lf)
+{
+	void		*hdc;
+	void		*oldFont;
+	TEXTMETRICA	tm;
+	unsigned char	FaceName[33];
+
+	if (!font || !lf) {
+		return(InvalidParameter);
+	}
+
+	hdc=GetDC_pfn(NULL);
+	oldFont=SelectObject_pfn(hdc, font->wineHfont);
+
+	if (GetTextMetrics_pfn(hdc, &tm)==0 || GetTextFace_pfn(hdc, sizeof(FaceName), FaceName)==0) {
+		SelectObject_pfn(hdc, oldFont);
+		ReleaseDC_pfn(NULL, hdc);
+		return(Win32Error);
+	}
+
+	/* We assign what we know and default the rest */
+	lf->lfHeight=font->sizeInPixels;
+	lf->lfWidth=tm.tmAveCharWidth;
+	lf->lfEscapement=0;
+	lf->lfOrientation=0;
+	lf->lfWeight=tm.tmWeight;
+	lf->lfItalic=tm.tmItalic;
+	lf->lfUnderline=tm.tmUnderlined;
+	lf->lfStrikeOut=tm.tmStruckOut;
+	lf->lfCharSet=tm.tmCharSet;
+	lf->lfOutPrecision=0;		/* 0 = OUT_DEFAULT_PRECIS */
+	lf->lfClipPrecision=0;		/* 0 = CLIP_DEFAULT_PRECIS */
+	lf->lfQuality=4;		/* 4 = ANTIALIASED_QUALITY */
+	lf->lfPitchAndFamily=tm.tmPitchAndFamily;
+	strcpy(lf->lfFaceName, FaceName);
+
+	/* Clean up */
+	SelectObject_pfn(hdc, oldFont);
+	ReleaseDC_pfn(NULL, hdc);
+
+	return(Ok);
+}
+
+GpStatus
+GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memory, int length)
+{
+	char	*fontfile;
+	FILE	*f;
+
+	fontfile=tempnam(NULL, NULL);
+	if (!fontfile) {
+		return(OutOfMemory);
+	}
+
+	f=fopen(fontfile, "wb");
+	if (!f) {
+		free(fontfile);
+		return(GenericError);
+	}
+
+	if (fwrite(memory, 1, length, f)!=length) {
+		fclose(f);
+		free(fontfile);
+		return(GenericError);
+	}
+	fclose(f);
+
+	FcConfigAppFontAddFile(fontCollection->config, fontfile);
+
+	/* FIXME - May we delete our temporary font file or does 
+	   FcConfigAppFontAddFile just reference our file?  */
+
+	free(fontfile);
+	return(Ok);
+}

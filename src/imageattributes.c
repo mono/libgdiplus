@@ -97,4 +97,33 @@ GdipSetImageAttributesOutputChannelColorProfile(GpImageAttributes *imageattr, Co
         return NotImplemented;
 }
 
+GpStatus
+GdipGetImageAttributesAdjustedPalette(GpImageAttributes *imageAttr, ColorPalette *colorPalette, ColorAdjustType colorAdjustType)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipSetImageAttributesColorMatrix(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, GDIPCONST GpColorMatrix *colorMatrix, GDIPCONST GpColorMatrix *grayMatrix, GpColorMatrixFlags flags)
+{
+        return(NotImplemented);
+}
+
+GpStatus
+GdipSetImageAttributesOutputChannel(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, GpColorChannelFlags channelFlags)
+{
+        return(NotImplemented);
+}
+
+GpStatus
+GdipSetImageAttributesRemapTable(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, UINT mapSize, GDIPCONST GpColorMap *map)
+{
+        return(NotImplemented);
+}
+
+GpStatus
+GdipSetImageAttributesWrapMode(GpImageAttributes *imageAttr, WrapMode wrap, ARGB argb, BOOL clamp)
+{
+        return(NotImplemented);
+}
 

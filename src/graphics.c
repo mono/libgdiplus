@@ -1248,6 +1248,7 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 	if (!graphics || !stringUnicode || !font) {
 		return(InvalidParameter);
 	}
+
 #ifdef DRAWSTRING_DEBUG
 	printf("GdipDrawString(...) called (length=%d, fontsize=%d)\n", length, (int)font->sizeInPixels);
 #endif
@@ -2049,6 +2050,14 @@ GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 }
 
 GpStatus
+GdipSetInterpolationMode(GpGraphics *graphics, InterpolationMode interpolationMode)
+{
+	/* We accept any, but only do HighQuality */
+	return(Ok);
+}
+
+
+GpStatus
 GdipGetInterpolationMode(GpGraphics *graphics, InterpolationMode *imode)
 {
     g_return_val_if_fail (imode != NULL, InvalidParameter);
@@ -2120,3 +2129,224 @@ GdipGetSmoothingMode(GpGraphics *graphics, SmoothingMode *mode)
     return Ok;
 }
 
+GpStatus
+GdipBeginContainer(GpGraphics *graphics, GDIPCONST GpRectF* dstrect, GDIPCONST GpRectF *srcrect, GpUnit unit, GpGraphicsContainer *state)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipBeginContainer2(GpGraphics *graphics, GpGraphicsContainer* state)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipBeginContainerI(GpGraphics *graphics, GDIPCONST GpRect* dstrect, GDIPCONST GpRect *srcrect, GpUnit unit, GpGraphicsContainer *state)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipEndContainer(GpGraphics *graphics, GpGraphicsContainer state)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipFlush(GpGraphics *graphics, GpFlushIntention intention)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipSetClipGraphics(GpGraphics *graphics, GpGraphics *srcgraphics, CombineMode combineMode)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipSetClipRect(GpGraphics *graphics, float x, float y, float width, float height, CombineMode combineMode)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipSetClipRectI(GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height, CombineMode combineMode)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipSetClipPath(GpGraphics *graphics, GpPath *path, CombineMode combineMode)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipSetClipRegion(GpGraphics *graphics, GpRegion *region, CombineMode combineMode)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipSetClipHrgn(GpGraphics *graphics, void *hRgn, CombineMode combineMode)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipResetClip(GpGraphics *graphics)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipTranslateClip(GpGraphics *graphics, float dx, float dy)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipTranslateClipI(GpGraphics *graphics, UINT dx, UINT dy)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipGetClip(GpGraphics *graphics, GpRegion *region)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipGetClipBounds(GpGraphics *graphics, GpRectF *rect)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipGetClipBoundsI(GpGraphics *graphics, GpRect *rect)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipIsClipEmpty(GpGraphics *graphics, BOOL *result)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipGetVisibleClipBounds(GpGraphics *graphics, GpRectF *rect)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipGetVisibleClipBoundsI(GpGraphics *graphics, GpRect *rect)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipIsVisibleClipEmpty(GpGraphics *graphics, BOOL *result)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipIsVisiblePoint(GpGraphics *graphics, float x, float y, BOOL *result)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipIsVisiblePointI(GpGraphics *graphics, UINT x, UINT y, BOOL *result)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipIsVisibleRect(GpGraphics *graphics, float x, float y, float width, float height, BOOL *result)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipIsVisibleRectI(GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height, BOOL *result)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipSetCompositingMode(GpGraphics *graphics, GpCompositingMode compositingMode)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipGetCompositingMode(GpGraphics *graphics, GpCompositingMode *compositingMode)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipSetCompositingQuality(GpGraphics *graphics, GpCompositingQuality compositingQuality)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipGetCompositingQuality(GpGraphics *graphics, GpCompositingQuality *compositingQuality)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipGetNearestColor(GpGraphics *graphics, ARGB *argb)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipSetPageScale(GpGraphics *graphics, float scale)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipGetPageScale(GpGraphics *graphics, float *scale)
+{
+	/* FIXME - We probably want to change this once GdipSetPageScale() is implemented */
+	g_return_val_if_fail (scale != NULL, InvalidParameter);
+	*scale=1;
+	return(Ok);
+}
+
+GpStatus
+GdipSetPageUnit(GpGraphics *graphics, GpUnit unit)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipGetPageUnit(GpGraphics *graphics, GpUnit *unit)
+{
+	/* FIXME - We probably want to change this once GdipSetPageUnit() is implemented */
+	g_return_val_if_fail (unit != NULL, InvalidParameter);
+	*unit=UnitPixel;
+	return(Ok);
+}
+
+GpStatus
+GdipTransformPoints(GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPointF *points, int count)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipTransformPointsI(GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPoint *points, int count)
+{
+	return(NotImplemented);
+}

@@ -940,13 +940,13 @@ GdipGetPropertySize (GpImage *image, UINT *bufferSize, UINT *propertyNumbers)
 }
 
 GpStatus 
-GdipRemoveProperyItem (GpImage *image, PROPID propID)
+GdipRemovePropertyItem (GpImage *image, PROPID propID)
 {
 	return NotImplemented;
 }
 
 GpStatus 
-GdipSetProperyItem (GpImage *image, GDIPCONST PropertyItem *item)
+GdipSetPropertyItem(GpImage *image, GDIPCONST PropertyItem *item)
 {
     return NotImplemented; /* GdipSetPropertyItem */
 }
@@ -1332,4 +1332,39 @@ GdipGetImageEncoders (UINT numEncoders, UINT size, ImageCodecInfo *encoders)
         return Ok;
 }
 
+GpStatus
+GdipGetAllPropertyItems(GpImage *image, UINT totalBufferSize, UINT numProperties, PropertyItem *allItems)
+{
+	return(NotImplemented);
+}
 
+GpStatus
+GdipGetEncoderParameterListSize(GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT *size)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipGetEncoderParameterList(GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT size, EncoderParameters *buffer)
+{
+	return(NotImplemented);
+}
+
+GpStatus
+GdipGetImageThumbnail(GpImage *image, UINT thumbWidth, UINT thumbHeight, GpImage **thumbImage, GetThumbnailImageAbort callback, VOID *callbackData)
+{
+	/* We don't really need to implement this; we've got it handled in System.Drawing directly */
+	return(NotImplemented);
+}
+
+GpStatus
+GdipLoadImageFromFileICM(GDIPCONST WCHAR* filename, GpImage **image)
+{
+	return(GdipLoadImageFromFileICM(filename, image));
+}
+
+GpStatus
+GdipSaveAdd(GpImage *image, GDIPCONST EncoderParameters* encoderParams)
+{
+	return(NotImplemented);
+}

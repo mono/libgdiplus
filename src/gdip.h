@@ -482,6 +482,58 @@ typedef enum {
         CoordinateSpaceDevice,
 } GpCoordinateSpace;
 
+typedef enum {
+	FlushIntentionFlush=0,
+	FlushIntentionSync=1
+} GpFlushIntention;
+
+typedef enum {
+	CompositingModeSourceOver,
+	CompositingModeSourceCopy
+} GpCompositingMode;
+
+typedef enum {
+	CompositingQualityInvalid	= QualityModeInvalid,
+	CompositingQualityDefault	= QualityModeDefault,
+	CompositingQualityHighSpeed	= QualityModeLow,
+	CompositingQualityHighQuality	= QualityModeHigh,
+	CompositingQualityGammaCorrected,
+	CompositingQualityAssumeLinear
+} GpCompositingQuality;
+
+typedef enum {
+	ColorMatrixFlagsDefault		= 0,
+	ColorMatrixFlagsSkipGrays	= 1,
+	ColorMatrixFlagsAltGray		= 2
+} GpColorMatrixFlags;
+
+typedef struct {
+	float m[5][5];
+} GpColorMatrix;
+
+
+/* FIXME - This should match the GdiPlus color object */
+typedef struct {
+	ARGB	Color;
+} GpColor;
+
+typedef struct {
+	GpColor oldColor;
+	GpColor newColor;
+} GpColorMap;
+
+typedef enum {
+	ColorChannelFlagsC = 0,
+	ColorChannelFlagsM,
+	ColorChannelFlagsY,
+	ColorChannelFlagsK,
+	ColorChannelFlagsLast
+} GpColorChannelFlags;
+
+typedef struct {
+	int	unused;
+} GpGraphicsContainer;
+
 /* private enum */
 
 typedef enum {
@@ -996,7 +1048,6 @@ GpStatus GdipSetImageAttributesNoOp(GpImageAttributes *imageattr, ColorAdjustTyp
 
 GpStatus GdipSetImageAttributesColorKeys(GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
         ARGB colorLow, ARGB colorHigh);
-GpStatus GdipSetImageAttributesOutputChannel(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag);
 GpStatus GdipSetImageAttributesOutputChannelColorProfile(GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
         GDIPCONST WCHAR *colorProfileFilename);
 /* GpStatus GdipSetImageAttributesRemapTable(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, UINT mapSize, GDIPCONST ColorMap *map); */
