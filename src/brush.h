@@ -27,6 +27,20 @@ typedef struct _Brush {
 	BrushClass *vtable;
 } Brush;
 
+/* used by gradient brushes */
+typedef struct _Blend {
+	float *factors;
+	float *positions;
+	int count;
+} Blend;
+
+typedef struct _InterpolationColors {
+	ARGB* colors;
+	float *positions;
+	int count;
+} InterpolationColors;
+
+
 GpStatus GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush); 
 GpStatus GdipDeleteBrush (GpBrush *brush);
 GpStatus GdipGetBrushType (GpBrush *brush, GpBrushType *type);

@@ -19,9 +19,6 @@ typedef enum {
 	LinearGradientModeBackwardDiagonal = 3	/* angle = 135 deg */
 } LinearGradientMode;
 
-typedef struct _Blend Blend;
-typedef struct _InterpolationColors InterpolationColors;
-
 typedef struct _LineGradient {
 	GpBrush base;
 	ARGB lineColors [2];
@@ -34,7 +31,7 @@ typedef struct _LineGradient {
 	InterpolationColors *presetColors;
 	cairo_pattern_t *pattern;
 	BOOL changed;
-	BOOL isAngleScalable; /* FIXME: Not used */
+	BOOL isAngleScalable;
 	BOOL gammaCorrection; /* FIXME: Not used */
 } LineGradient;
 

@@ -1,8 +1,9 @@
 /*
  * pathgradientbrush.h
  *
- * Author:
+ * Authors:
  *	Vladimir Vukicevic (vladimir@pobox.com)
+ *	Ravindra (rkumar@novell.com)
  *
  * Copyright (C) 2004 Novell, Inc.
  */
@@ -14,45 +15,39 @@
 #include "brush.h"
 
 struct _GpPathGradient {
-    GpBrush base;
-    GpPath *boundary;
-    ARGB *boundaryColors;
-    GpPointF center;
-    ARGB centerColor;
-    GpWrapMode wrapMode;
-    GpMatrix *transform;
+	GpBrush base;
+	GpPath *boundary;
+	ARGB *boundaryColors;
+	int boundaryColorsCount;
+	GpPointF center;
+	ARGB centerColor;
+	GpPointF focusScales;
+	GpRectF *rectangle;
+	Blend *blend;
+	InterpolationColors *presetColors;
+	GpWrapMode wrapMode;
+	GpMatrix *transform;
+	BOOL changed;
+	cairo_pattern_t *pattern;
 };
 
 typedef struct _GpPathGradient GpPathGradient;
 
 GpStatus GdipCreatePathGradient (GDIPCONST GpPointF *points, int count, GpWrapMode wrapMode, GpPathGradient **polyGradient);
-
 GpStatus GdipCreatePathGradientI (GDIPCONST GpPoint *points, int count, GpWrapMode wrapMode, GpPathGradient **polyGradient);
-
 GpStatus GdipCreatePathGradientFromPath (GDIPCONST GpPath *path, GpPathGradient **polyGradient);
 
 GpStatus GdipGetPathGradientCenterColor (GpPathGradient *brush, ARGB *colors);
 GpStatus GdipSetPathGradientCenterColor (GpPathGradient *brush, ARGB colors);
 
+GpStatus GdipGetPathGradientSurroundColorCount (GpPathGradient *brush, int *count);
 GpStatus GdipGetPathGradientSurroundColorsWithCount (GpPathGradient *brush, ARGB *color, int *count);
 GpStatus GdipSetPathGradientSurroundColorsWithCount (GpPathGradient *brush, GDIPCONST ARGB *color, int *count);
 
-GpStatus GdipGetPathGradientPath (GpPathGradient *brush, GpPath *path);
-GpStatus GdipSetPathGradientPath (GpPathGradient *brush, GDIPCONST GpPath *path);
-
 GpStatus GdipGetPathGradientCenterPoint (GpPathGradient *brush, GpPointF *points);
-GpStatus GdipGetPathGradientCenterPointI (GpPathGradient *brush, GpPoint *points);
 GpStatus GdipSetPathGradientCenterPoint (GpPathGradient *brush, GDIPCONST GpPointF *points);
-GpStatus GdipSetPathGradientCenterPointI (GpPathGradient *brush, GDIPCONST GpPoint *points);
 
 GpStatus GdipGetPathGradientRect (GpPathGradient *brush, GpRectF *rect);
-GpStatus GdipGetPathGradientRectI (GpPathGradient *brush, GpRect *rect);
-
-GpStatus GdipGetPathGradientPointCount (GpPathGradient *brush, int *count);
-GpStatus GdipGetPathGradientSurroundColorCount (GpPathGradient *brush, int *count);
-
-GpStatus GdipSetPathGradientGammaCorrection (GpPathGradient *brush, BOOL useGammaCorrection);
-GpStatus GdipGetPathGradientGammaCorrection (GpPathGradient *brush, BOOL *useGammaCorrection);
 
 GpStatus GdipGetPathGradientBlendCount (GpPathGradient *brush, int *count);
 GpStatus GdipGetPathGradientBlend (GpPathGradient *brush, float *blend, float *positions, int count);
@@ -64,15 +59,19 @@ GpStatus GdipSetPathGradientPresetBlend (GpPathGradient *brush, GDIPCONST ARGB *
 
 GpStatus GdipSetPathGradientSigmaBlend (GpPathGradient *brush, float focus, float scale);
 GpStatus GdipSetPathGradientLinearBlend (GpPathGradient *brush, float focus, float scale);
+
 GpStatus GdipGetPathGradientWrapMode (GpPathGradient *brush, GpWrapMode *wrapMode);
 GpStatus GdipSetPathGradientWrapMode (GpPathGradient *brush, GpWrapMode wrapMode);
+
 GpStatus GdipGetPathGradientTransform (GpPathGradient *brush, GpMatrix *matrix);
 GpStatus GdipSetPathGradientTransform (GpPathGradient *brush, GpMatrix *matrix);
+
 GpStatus GdipResetPathGradientTransform (GpPathGradient *brush);
 GpStatus GdipMultiplyPathGradientTransform (GpPathGradient *brush, GDIPCONST GpMatrix *matrix, GpMatrixOrder order);
 GpStatus GdipTranslatePathGradientTransform (GpPathGradient *brush, float dx, float dy, GpMatrixOrder order);
 GpStatus GdipScalePathGradientTransform (GpPathGradient *brush, float sx, float sy, GpMatrixOrder order);
 GpStatus GdipRotatePathGradientTransform (GpPathGradient *brush, float angle, GpMatrixOrder order);
+
 GpStatus GdipGetPathGradientFocusScales (GpPathGradient *brush, float *xScale, float *yScale);
 GpStatus GdipSetPathGradientFocusScales (GpPathGradient *brush, float xScale, float yScale);
 

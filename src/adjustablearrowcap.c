@@ -88,6 +88,7 @@ gdip_adjust_arrowcap_destroy (GpCustomLineCap *cap)
 	return Ok;
 }
 
+/* MonoTODO: Implement this when cairo supports cairo_stroke_path API */
 GpStatus
 gdip_adjust_arrowcap_setup (GpGraphics *graphics, GpCustomLineCap *customCap)
 {

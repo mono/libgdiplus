@@ -1,3 +1,19 @@
+2004-07-14  Ravindra <rkumar@novell.com>
+
+	* adjustablearrowcap.c: Added a note.
+	* customlinecap.c: Added a note.
+	* brush.h: Moved common internal structs in here from
+	lineargradientbrush.c. These will be used by pathgradientbrush also.
+	* graphics-path.h: Corrected some function signatures.
+	* graphics-path.c: Corrected some function signatures and return
+	'NotImplemented' status instead of 'Ok' in unimplemented functions.
+	* lineargradientbrush.[ch]: Moved common internal structs from here
+	to brush.h. And, some minor corrections.
+	* pathgradientbrush.[ch]: Tested and fixed all the properties and
+	implemented all the missing functions. Now, we are missing only
+	the setup function and it can be done only after cairo supporting
+	the required pattern for this brush. Also, corrected indentation.
+
 2004-07-13  Sanjay Gupta <gsanjay@novell.cm>
 
 	* tifcodec.c: Implemented functionality to read all the frames present.

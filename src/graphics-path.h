@@ -18,13 +18,13 @@ GpStatus GdipCreatePath2 (const GpPointF *points, const byte *types, int count, 
 GpStatus GdipClonePath (GpPath *path, GpPath **clonePath);
 GpStatus GdipDeletePath (GpPath *path);
 GpStatus GdipResetPath (GpPath *path);
-GpStatus GdipGetPointCount (GpPath *path, int *count);
+GpStatus GdipGetPointCount (GDIPCONST GpPath *path, int *count);
 GpStatus GdipGetPathTypes (GpPath *path, byte *types, int count);
-GpStatus GdipGetPathPoints (GpPath *path, GpPointF *points, int count);
-GpStatus GdipGetPathPointsI (GpPath *path, GpPoint *points, int count);
+GpStatus GdipGetPathPoints (GDIPCONST GpPath *path, GpPointF *points, int count);
+GpStatus GdipGetPathPointsI (GDIPCONST GpPath *path, GpPoint *points, int count);
 GpStatus GdipGetPathFillMode (GpPath *path, GpFillMode *fillmode);
 GpStatus GdipSetPathFillMode (GpPath *path, GpFillMode fillmode);
-GpStatus GdipGetPathData (GpPath *path, GpPathData *pathData);
+GpStatus GdipGetPathData (GDIPCONST GpPath *path, GpPathData *pathData);
 GpStatus GdipStartPathFigure (GpPath *path);
 GpStatus GdipClosePathFigure (GpPath *path);
 GpStatus GdipClosePathFigures (GpPath *path);

@@ -239,7 +239,7 @@ GdipResetPath (GpPath *path)
 }
 
 GpStatus
-GdipGetPointCount (GpPath *path, int *count)
+GdipGetPointCount (GDIPCONST GpPath *path, int *count)
 {
         *count = path->count;
         return Ok;
@@ -257,7 +257,7 @@ GdipGetPathTypes (GpPath *path, byte *types, int count)
 }
 
 GpStatus
-GdipGetPathPoints (GpPath *path, GpPointF *points, int count)
+GdipGetPathPoints (GDIPCONST GpPath *path, GpPointF *points, int count)
 {
         int i;
 
@@ -271,7 +271,7 @@ GdipGetPathPoints (GpPath *path, GpPointF *points, int count)
 }
 
 GpStatus
-GdipGetPathPointsI (GpPath *path, GpPoint *points, int count)
+GdipGetPathPointsI (GDIPCONST GpPath *path, GpPoint *points, int count)
 {
         int i;
 
@@ -301,7 +301,7 @@ GdipSetPathFillMode (GpPath *path, GpFillMode fillmode)
 }
 
 GpStatus
-GdipGetPathData (GpPath *path, GpPathData *pathData)
+GdipGetPathData (GDIPCONST GpPath *path, GpPathData *pathData)
 {
         pathData->Count = path->count;
         pathData->Points = g_array_to_array (path->points);
@@ -314,21 +314,21 @@ GdipGetPathData (GpPath *path, GpPathData *pathData)
 GpStatus
 GdipStartPathFigure (GpPath *path)
 {
-        return Ok;
+	return NotImplemented;
 }
 
 /* MonoTODO */
 GpStatus
 GdipClosePathFigure (GpPath *path)
 {
-        return Ok;
+	return NotImplemented;
 }
 
 /* MonoTODO */
 GpStatus
 GdipClosePathFigures (GpPath *path)
 {
-        return Ok;
+	return NotImplemented;
 }
 
 GpStatus
@@ -712,7 +712,7 @@ GdipAddString (GpPath *path, const char *string, int length,
                 const GpFontFamily *family, int style, float emSize,
                 const GpRectF *layoutRect, const GpStringFormat *format)
 { 
-        return Ok;
+	return NotImplemented;
 }
 
 /* MonoTODO */
@@ -721,7 +721,7 @@ GdipAddStringI (GpPath *path, const char *string, int length,
                 const GpFontFamily *family, int style, float emSize,
                 const GpRect *layoutRect, const GpStringFormat *format)
 {
-        return Ok;
+	return NotImplemented;
 }
 
 GpStatus
@@ -866,21 +866,21 @@ GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count)
 GpStatus 
 GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 {
-        return Ok;
+	return NotImplemented;
 }
 
 /* MonoTODO */
 GpStatus 
 GdipWindingModeOutline (GpPath *path, GpMatrix *matrix, float flatness)
 {
-        return Ok;
+	return NotImplemented;
 }
 
 /* MonoTODO */
 GpStatus 
 GdipWidenPath (GpPath *nativePath, GpPen *pen, GpMatrix *matrix, float flatness)
 {
-        return Ok;
+	return NotImplemented;
 }
 
 /* MonoTODO */
@@ -889,7 +889,7 @@ GdipWarpPath (GpPath *nativePath, GpMatrix *matrix, const GpPointF *points, int 
               float srcx, float srcy, float srcwidth, float srcheight,
               WarpMode warpMode, float flatness)
 {
-        return Ok;
+	return NotImplemented;
 }
 
 GpStatus 
@@ -911,40 +911,40 @@ GdipTransformPath (GpPath* path, GpMatrix *matrix)
 GpStatus 
 GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
-        return Ok;
+	return NotImplemented;
 }
 
 /* MonoTODO */
 GpStatus 
 GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
-        return Ok;
+	return NotImplemented;
 }
 
 /* MonoTODO */
 GpStatus 
 GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result)
 {
-        return Ok;
+	return NotImplemented;
 }
 
 /* MonoTODO */
 GpStatus 
 GdipIsVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool *result)
 {
-        return Ok;
+	return NotImplemented;
 }
 
 /* MonoTODO */
 GpStatus 
 GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result)
 {
-        return Ok;
+	return NotImplemented;
 }
 
 /* MonoTODO */
 GpStatus 
 GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool *result)
 {
-        return Ok;
+	return NotImplemented;
 }

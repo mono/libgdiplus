@@ -40,18 +40,6 @@ static BrushClass vtable = { BrushTypeLinearGradient,
 			     gdip_linear_gradient_clone_brush,
 			     gdip_linear_gradient_destroy };
 
-struct _Blend {
-	float *factors;
-	float *positions;
-	int count;
-};
-
-struct _InterpolationColors {
-	ARGB* colors;
-	float *positions;
-	int count;
-};
- 
 void
 gdip_linear_gradient_init (GpLineGradient *linear)
 {
@@ -102,12 +90,17 @@ gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	newbrush->base = linear->base;
 	newbrush->wrapMode = linear->wrapMode;
 	GdipCloneMatrix (linear->matrix, &newbrush->matrix);
-	newbrush->rectangle = linear->rectangle;
+	if (linear->rectangle) {
+		newbrush->rectangle = (GpRectF *) GdipAlloc (sizeof (GpRectF));
+		memcpy (newbrush->rectangle, linear->rectangle, sizeof (GpRectF));
+	} else {
+		newbrush->rectangle= NULL;
+	}
 	newbrush->gammaCorrection = linear->gammaCorrection;
 	newbrush->angle = linear->angle;
 	newbrush->isAngleScalable = linear->isAngleScalable;
-	newbrush->changed = linear->changed;
 	/* cloned brush needs to have its own pattern */
+	newbrush->changed = TRUE;
 	newbrush->pattern = NULL;
 	newbrush->lineColors [0] = linear->lineColors [0];
 	newbrush->lineColors [1] = linear->lineColors [1];
@@ -119,7 +112,7 @@ gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	if (newbrush->presetColors == NULL) 
 		goto NO_PRESET;
 
-	if (linear->presetColors->count != -1) {
+	if (linear->presetColors->count > 0) {
 		newbrush->presetColors->colors = (ARGB *) GdipAlloc (linear->presetColors->count * sizeof (ARGB));
 		if (newbrush->presetColors->colors == NULL) 
 			goto NO_PRESET_COLORS;
@@ -137,7 +130,7 @@ gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	newbrush->blend = (Blend *) GdipAlloc (sizeof (Blend));
 	if (newbrush->blend == NULL)
 		goto NO_BLEND;
-	if (linear->blend->count != -1) {
+	if (linear->blend->count > 0) {
 		newbrush->blend->factors = (float *) GdipAlloc (linear->blend->count * sizeof (float));
 		if (newbrush->blend->factors == NULL) 
 			goto NO_BLEND_FACTORS;
@@ -1023,6 +1016,13 @@ GdipGetLineBlend (GpLineGradient *brush, float *blend, float *positions, int cou
 	g_return_val_if_fail (blend != NULL, InvalidParameter);
 	g_return_val_if_fail (positions != NULL, InvalidParameter);
 	g_return_val_if_fail (brush->blend->count == count, InvalidParameter);
+
+	/* If count is less than 1, we are not in a proper state 
+	 * to return blend property. By default, we have one blend
+	 * set. Therefore, count of 1 is acceptible.
+	 */
+	if (brush->blend->count < 1)
+		return WrongState;
 	
 	memcpy (blend, brush->blend->factors, count * sizeof (float));
 	memcpy (positions, brush->blend->positions, count * sizeof (float));
@@ -1122,6 +1122,12 @@ GdipGetLinePresetBlend (GpLineGradient *brush, ARGB *blend, float *positions, in
 	g_return_val_if_fail (blend != NULL, InvalidParameter);
 	g_return_val_if_fail (positions != NULL, InvalidParameter);
 	g_return_val_if_fail (brush->presetColors->count == count, InvalidParameter);
+
+	/* If count is less than 2, we are not in a proper state 
+	 * to return presetblend property.
+	 */
+	if (brush->presetColors->count < 2)
+		return WrongState;
 	
 	memcpy (blend, brush->presetColors->colors, count * sizeof (ARGB));
 	memcpy (positions, brush->presetColors->positions, count * sizeof (float));

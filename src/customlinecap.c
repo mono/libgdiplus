@@ -93,6 +93,7 @@ gdip_custom_linecap_destroy (GpCustomLineCap *cap)
 	return Ok;
 }
 
+/* MonoTODO: Implement this function when cairo supports cairo_stroke_path API */
 GpStatus
 gdip_custom_linecap_setup (GpGraphics *graphics, GpCustomLineCap *customCap)
 {
