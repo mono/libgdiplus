@@ -56,7 +56,7 @@ GUID GdipEncoderQuality = {0x1d5be4b5U, 0xfa4aU, 0x452dU, {0x9c, 0xdd, 0x5d, 0xb
 GUID GdipEncoderCompression = {0xe09d739dU, 0xccd4U, 0x44eeU, {0x8e, 0xba, 0x3f, 0xbf, 0x8b, 0xe4, 0xfc, 0x58}};
 
 void 
-gdip_image_init(GpImage *image)
+gdip_image_init (GpImage *image)
 {
 	image->type = imageUndefined;
 	image->surface = 0;
@@ -130,11 +130,11 @@ GdipDisposeImage (GpImage *image)
 			dataCount = image->frameDimensionList [i].count;
 			data = image->frameDimensionList [i].frames;
 				for (j = 0; j < dataCount; j++) {
-					if (data [j].Scan0){
+					if (data [j].Scan0) {
 						GdipFree (data [j].Scan0);
 						data [j].Scan0 = NULL;
 					}
-					if ((data [j].ByteCount) > 0 && (data [j].Bytes != NULL)){
+					if ((data [j].ByteCount) > 0 && (data [j].Bytes != NULL)) {
 						GdipFree (data [j].Bytes);
 						data [j].ByteCount = 0;
 						data [j].Bytes = NULL;
@@ -146,7 +146,7 @@ GdipDisposeImage (GpImage *image)
 	
 	/* Nothing more to be done here... We have already
 	 * cleaned the memory while looping in FrameDimension List
-	 * and hence we dont need to do anything in gdip_bitmap_dispose()
+	 * and hence we dont need to do anything in gdip_bitmap_dispose ()
 	 */
 	 GdipFree (image);
 
@@ -560,7 +560,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	if (status != Ok) {
 		*image = NULL;
 	} else {
-		if (result->frameDimensionCount == 0){
+		if (result->frameDimensionCount == 0) {
 			result->frameDimensionCount = 1;
 			result->frameDimensionList = (FrameInfo *) GdipAlloc (sizeof (FrameInfo));
 			result->frameDimensionList[0].count = 1; /*multiple frames are already taken care of in respectic codecs*/

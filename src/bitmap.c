@@ -118,13 +118,16 @@ gdip_bitmap_new ()
 void 
 gdip_bitmap_dispose (GpBitmap *bitmap)
 {
-	if (((bitmap->data.Reserved & GBD_OWN_SCAN0) != 0) && bitmap->data.Scan0 != NULL)
+	if (((bitmap->data.Reserved & GBD_OWN_SCAN0) != 0) && bitmap->data.Scan0 != NULL) {
 		GdipFree (bitmap->data.Scan0);
+		bitmap->data.Scan0 = NULL;
+	}
 
-	if ((bitmap->data.ByteCount > 0) && (bitmap->data.Bytes != NULL))
+	if ((bitmap->data.ByteCount > 0) && (bitmap->data.Bytes != NULL)) {
 		GdipFree (bitmap->data.Bytes);
+		bitmap->data.Bytes = NULL;
+	}
 }
-
 
 void *
 gdip_bitmap_create_Win32_HDC (GpBitmap *bitmap)
