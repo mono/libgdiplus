@@ -299,6 +299,7 @@ GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
 	result->cairo_format = original->cairo_format;
 	result->data = bd;
 	result->image.pixFormat = format;	/* this is only used by image codecs */
+    result->image.format = original->image.format;
 	*bitmap = result;
 	return Ok;
 }
