@@ -1,3 +1,7 @@
+2004-03-10  Ravindra  <rkumar@novell.com>
+	* hatchbrush.h: Modified few internal function signatures.
+	* hatchbrush.h: Implemented couple of hatching styles.
+
 2004-01-10  Alexandre Pigolkine <pigolkine@gmx.de>
 	* bitmap.c
 	* gdip.h	GdipBitmapData struct. Memory ownership 
