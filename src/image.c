@@ -23,7 +23,7 @@
  *   Alexandre Pigolkine(pigolkine@gmx.de)
  *   Sanjay Gupta (gsanjay@novell.com)
  *   Vladimir Vukicevic (vladimir@pobox.com)
- *
+ *   Jordi Mas (jordi@ximian.com)
  */
 
 #include <stdio.h>
@@ -33,6 +33,9 @@
 
 
 static char *guid_to_string_hack (GDIPCONST CLSID *clsid);
+void gdip_FlipX (GpImage *image);
+void gdip_rotate_180_FlipX (GpImage *image);
+
 
 /*
  * format guids
@@ -183,9 +186,15 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
     g_return_val_if_fail (image != NULL, InvalidParameter);
     g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
     
-
+    /* Always to re-attach the image */	
+    if (image->surface)  {
+       cairo_surface_destroy (image->surface);
+       image->surface = NULL;
+    }
+    
     /* Create a surface for this bitmap if one doesn't exist */
-    gdip_bitmap_ensure_surface ((GpBitmap*) image, NULL);
+    
+    gdip_bitmap_ensure_surface ((GpBitmap*) image);
 
     gdip_cairo_set_surface_pattern (graphics->ct, image->surface);
     cairo_rectangle (graphics->ct, x, y, width, height);
@@ -258,6 +267,7 @@ GdipDrawImagePointRectI (GpGraphics *graphics, GpImage *image,
 }
 
 
+
 GpStatus
 GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
                        float dstx, float dsty, float dstwidth, float dstheight,
@@ -266,44 +276,153 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
                        GDIPCONST GpImageAttributes *imageAttributes,
                        DrawImageAbort callback, void *callbackData)
 {
-    cairo_pattern_t *pattern;
-    cairo_matrix_t *mat;
-
-    g_return_val_if_fail (graphics != NULL, InvalidParameter);
-    g_return_val_if_fail (image != NULL, InvalidParameter);
-    g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
+	cairo_pattern_t *pattern;
+	cairo_matrix_t *mat = NULL;
+	void* dest, *org;
+	bool allocated = FALSE;
+	GpBitmap *bitmap = (GpBitmap *) image;
+	
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (image != NULL, InvalidParameter);
+	g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
     
-    
-    if (srcUnit != UnitPixel && srcUnit != UnitWorld) {
-        gdip_unitConversion(srcUnit, UnitPixel, dstx, &dstx);
-        gdip_unitConversion(srcUnit, UnitPixel, dsty, &dsty);
-        gdip_unitConversion(srcUnit, UnitPixel, dstwidth, &dstwidth);
-        gdip_unitConversion(srcUnit, UnitPixel, dstheight, &dstheight);
-        gdip_unitConversion(srcUnit, UnitPixel, srcx, &srcx);
-        gdip_unitConversion(srcUnit, UnitPixel, srcy, &srcy);
-        gdip_unitConversion(srcUnit, UnitPixel, srcwidth, &dstwidth);
-        gdip_unitConversion(srcUnit, UnitPixel, srcheight, &srcheight);
-    }
+	if (srcUnit != UnitPixel && srcUnit != UnitWorld) {
+		gdip_unitConversion(srcUnit, UnitPixel, dstx, &dstx);
+		gdip_unitConversion(srcUnit, UnitPixel, dsty, &dsty);
+		gdip_unitConversion(srcUnit, UnitPixel, dstwidth, &dstwidth);
+		gdip_unitConversion(srcUnit, UnitPixel, dstheight, &dstheight);
+		gdip_unitConversion(srcUnit, UnitPixel, srcx, &srcx);
+		gdip_unitConversion(srcUnit, UnitPixel, srcy, &srcy);
+		gdip_unitConversion(srcUnit, UnitPixel, srcwidth, &dstwidth);
+		gdip_unitConversion(srcUnit, UnitPixel, srcheight, &srcheight);
+	}
 
-    /* Create a surface for this bitmap if one doesn't exist */
-    gdip_bitmap_ensure_surface ((GpBitmap*) image, (GpImageAttributes *) imageAttributes);
+	org = dest = bitmap->data.Scan0; 
+	gdip_process_bitmap_attributes (bitmap,  &dest,  (GpImageAttributes *) imageAttributes, &allocated);
 
-    mat = cairo_matrix_create ();
-    cairo_matrix_scale (mat, srcwidth / dstwidth, srcheight / dstheight);
-    cairo_matrix_translate (mat, srcx - dstx, srcy - dsty);
-    cairo_surface_set_matrix (image->surface, mat);
+	/* If there was a new Scan0 allocated, it means that we need it to change
+	it's contents in order to apply the imageatributtes*/    
+	
+	if (allocated) 				
+		bitmap->data.Scan0 = dest;
+	
+	/* Always to re-attach the image */	
+	if (bitmap->image.surface)  {
+		cairo_surface_destroy (bitmap->image.surface);
+		bitmap->image.surface = NULL;
+	}
 
-    gdip_cairo_set_surface_pattern (graphics->ct, image->surface);
+	if (imageAttributes && imageAttributes->wrapmode != WrapModeClamp) {
+	
+		float img_x = srcx - dstx, img_y = srcy - dsty;
+		float img_width = bitmap->data.Width *  (dstwidth / srcwidth) , img_height = bitmap->data.Height * (dstheight / srcheight);
+		float posx, posy;
+		bool flipXOn = (imageAttributes->wrapmode == WrapModeTileFlipX) ? TRUE: FALSE;
+		bool flipYOn = (imageAttributes->wrapmode == WrapModeTileFlipY) ? TRUE: FALSE;
+		bool flipX = FALSE, flipY = FALSE;
+		GpBitmap *cur_image, *imgflipX = NULL, *imgflipY = NULL, *imgflipXY = NULL;
+		
+		if (imageAttributes->wrapmode == WrapModeTileFlipXY) 
+			flipXOn = flipYOn = TRUE;
+		
+		if (flipXOn) {			
+			gdip_bitmap_clone (bitmap, &imgflipX);
+			gdip_FlipX ((GpImage *) imgflipX);	
+			gdip_bitmap_ensure_surface (imgflipX);			
+		}
+		
+		if (flipYOn) {			
+			gdip_bitmap_clone (bitmap, &imgflipY);
+			gdip_rotate_180_FlipX ((GpImage *) imgflipY);	
+			gdip_bitmap_ensure_surface (imgflipY);			
+		}
+		
+		
+		if (flipXOn && flipYOn) {			
+			gdip_bitmap_clone (bitmap, &imgflipXY);
+			gdip_FlipX ((GpImage *)imgflipXY);	
+			gdip_rotate_180_FlipX ((GpImage *) imgflipXY);	
+			gdip_bitmap_ensure_surface (imgflipXY);			
+		}
+		
+		/* Create a surface for this bitmap if one doesn't exist */
+		gdip_bitmap_ensure_surface ((GpBitmap*) image);			
 
-    cairo_rectangle (graphics->ct, dstx, dsty, dstwidth, dstheight);
-    cairo_fill (graphics->ct);
-
-    cairo_matrix_set_identity (mat);
-    cairo_surface_set_matrix (image->surface, mat);
-
-    /* unref */
-    cairo_matrix_destroy (mat);
-    return Ok;
+		for (posy = 0; posy < dstheight; posy += img_height) {
+		
+			for (posx = 0; posx < dstwidth; posx += img_width) {
+			
+				if (flipX && flipY)
+					cur_image = imgflipXY;				
+				else			
+					if (flipX) 
+						cur_image = imgflipX;				
+					else
+						if (flipY) 
+							cur_image = imgflipY;									 
+						else 
+							cur_image = bitmap;
+				
+				mat = cairo_matrix_create ();
+				cairo_matrix_scale (mat, srcwidth / dstwidth, srcheight / dstheight);
+				cairo_matrix_translate (mat, srcx - (dstx + posx), srcy - (dsty + posy));
+				cairo_surface_set_matrix (cur_image->image.surface, mat);	
+				gdip_cairo_set_surface_pattern (graphics->ct, cur_image->image.surface);
+				
+				cairo_rectangle (graphics->ct, dstx + posx, dsty + posy, img_width, img_height);
+				cairo_fill (graphics->ct);
+				
+				cairo_matrix_set_identity (mat);
+				cairo_surface_set_matrix (cur_image->image.surface, mat);
+				cairo_matrix_destroy (mat);			
+				
+				if (flipXOn)
+					flipX = !flipX; 					
+			
+			}
+					
+			if (flipYOn)
+				flipY = !flipY; 
+		}	
+		
+		if (imgflipX)
+			GdipDisposeImage ((GpImage *) imgflipX);	
+			
+		if (imgflipY)
+			GdipDisposeImage ((GpImage *) imgflipY);
+			
+		if (imgflipXY)
+			GdipDisposeImage ((GpImage *) imgflipXY);
+		
+	}
+	else  {		
+		
+		/* Create a surface for this bitmap if one doesn't exist */
+		gdip_bitmap_ensure_surface ((GpBitmap*) image);
+		
+		mat = cairo_matrix_create ();
+		cairo_matrix_scale (mat, srcwidth / dstwidth, srcheight / dstheight);
+		cairo_matrix_translate (mat, srcx - dstx, srcy - dsty);
+		cairo_surface_set_matrix (image->surface, mat);
+		
+		gdip_cairo_set_surface_pattern (graphics->ct, image->surface);
+		
+		cairo_rectangle (graphics->ct, dstx, dsty, dstwidth, dstheight);
+		cairo_fill (graphics->ct);
+		
+		cairo_matrix_set_identity (mat);
+		cairo_surface_set_matrix (image->surface, mat);
+		
+		/* unref */
+		cairo_matrix_destroy (mat);
+	}
+	
+	if (allocated) {
+		bitmap->data.Scan0 = org;
+		free (dest);	
+	}
+	
+	return Ok;
 }
 
 GpStatus

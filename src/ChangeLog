@@ -1,4 +1,11 @@
 2004-05-25 Jordi Mas <jordi@ximian.com>
+	* bitmap.c, gdip.h, image.c, imageattributes.c:
+		- Implemented SetImageAttributesWrapMode: Tile, TileFlipY, TileFlipY
+		and TileFlipXY
+		- ImageAttributes fails to default category if nothing is setup
+		- Minor bug fixes
+	
+2004-05-25 Jordi Mas <jordi@ximian.com>
 	* bitmap.c: fixes bug in gdip_bitmap_clone. We were not cloning the 
 	bitmap data itself
 

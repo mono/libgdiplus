@@ -80,11 +80,13 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	imgattr = gdip_get_image_attribute (attr, ColorAdjustTypeBitmap);
 	
 	if (!imgattr)	
-		return;
+		return;		
+	
+	/* Fail into default*/
+	if (!imgattr->colormap_elem || !imgattr->gamma_correction || !imgattr->key_enabled) 
+		imgattr = gdip_get_image_attribute (attr, ColorAdjustTypeDefault);
 		
-	printf ("gdip_process_bitmap_attributes %u, %u\n", imgattr->colormap_elem, imgattr->gamma_correction);
-		
-	if (imgattr->colormap_elem || imgattr->gamma_correction) {
+	if (imgattr->colormap_elem || imgattr->gamma_correction || imgattr->key_enabled) {
 		scan0 = malloc (bitmap->data.Stride * bitmap->data.Height);
 		memcpy (scan0, bitmap->data.Scan0, bitmap->data.Stride * bitmap->data.Height);
 		*dest = scan0;
@@ -97,7 +99,6 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		We use get/set pixel instead of direct buffer manipulation because it's a good way of keeping the pixel 
 		logic in a single place with a very litte penalty in performance	
 	*/	
-	
 	
 	/* Color mapping */
 	if (imgattr->colormap_elem) {	
@@ -129,27 +130,28 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 			
 				BYTE r,g,b,a;					
 				
-				GdipBitmapGetPixel (&bmpdest, x, y, &color);								
+				GdipBitmapGetPixel (&bmpdest, x, y, &color);		
+			
+				a = (color & 0xff000000) >> 24;
+				r = (color & 0x00ff0000) >> 16;
+				g = (color & 0x0000ff00) >> 8;
+				b = (color & 0x000000ff);
 				
-				r = (color & 0xff000000) >> 24;
-				g = (color & 0x00ff0000) >> 16;
-				b = (color & 0x0000ff00) >> 8;
-				a = (color & 0x000000ff);
+				/* FIXME: This is not the right gamma GDI + correction algorithm */
 				
-				/* FIXME: This is not the right gamma correction algorithm */	
+				/*
 				r = (int) powf (r, (1 / imgattr->gamma_correction));			
 				g = (int) powf (g, (1 / imgattr->gamma_correction));			
 				b = (int) powf (b, (1 / imgattr->gamma_correction));			
-				a = (int) powf (a, (1 / imgattr->gamma_correction));			
+				a = (int) powf (a, (1 / imgattr->gamma_correction));*/
 				
-				color = a | (b  << 8) | (g << 16) | (r << 24);
+				color = b | (g  << 8) | (r << 16) | (a << 24);
 					
 				GdipBitmapSetPixel (&bmpdest, x, y, color);
 			}	
 		}
 		
-	}
-	
+	}	
 	
 	/* Apply transparency range */
 	if (imgattr->key_enabled) {
@@ -181,6 +183,8 @@ GdipCreateImageAttributes (GpImageAttributes **imageattr)
 	gdip_init_image_attribute (&result->brush);
 	gdip_init_image_attribute (&result->pen);
 	gdip_init_image_attribute (&result->text);
+	result->color = 0;
+	result->wrapmode = WrapModeClamp;
       
 	*imageattr = result;
 	return Ok;        
@@ -325,29 +329,38 @@ GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType 
 	return Ok;	
 }
 
+/*
+	According to Microsoft documentation:
+	clamp: This parameter has no effect in Microsoft® Windows® GDI+ version 1.0
+*/ 
 GpStatus 
-GdipSetImageAttributesWrapMode(GpImageAttributes *imageattr, WrapMode wrap, ARGB argb, BOOL clamp)
+GdipSetImageAttributesWrapMode (GpImageAttributes *imageattr, WrapMode wrap, ARGB argb, BOOL clamp)
+{
+	if (!imageattr)
+		return InvalidParameter;	
+	
+	imageattr->wrapmode = wrap;
+	imageattr->color = argb;	
+	return Ok;
+}
+
+
+GpStatus 
+GdipGetImageAttributesAdjustedPalette (GpImageAttributes *imageattr, ColorPalette *colorPalette, ColorAdjustType type)
 {
 	return NotImplemented;
 }
 
 
 GpStatus 
-GdipGetImageAttributesAdjustedPalette(GpImageAttributes *imageattr, ColorPalette *colorPalette, ColorAdjustType type)
-{
-	return NotImplemented;
-}
-
-
-GpStatus 
-GdipSetImageAttributesColorMatrix(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag,  GpColorMatrix* colorMatrix,
+GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag,  GpColorMatrix* colorMatrix,
 	GpColorMatrix* grayMatrix, GpColorMatrixFlags flags)
 {
 	return NotImplemented;
 }
 	
 GpStatus 
-GdipSetImageAttributesOutputChannel(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, GpColorChannelFlags channelFlags)
+GdipSetImageAttributesOutputChannel (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, GpColorChannelFlags channelFlags)
 {
 	return NotImplemented;
 }
