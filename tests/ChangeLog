@@ -1,3 +1,8 @@
+2004-06-11  Sanjay Gupta  <gsanjay@novell.com>
+
+	* test.bmp, test.gif, test.png: Added files to prevent seg fault.
+	* testgdi.c: Minor modification of adding print stmts.
+
 2004-04-23  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* Makefile.am: removed $(NULL), to deal with older/non-gnu make

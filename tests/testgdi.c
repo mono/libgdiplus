@@ -58,6 +58,8 @@ win_draw(win_t *win)
     g_free (unis);
     GdipDisposeImage (img);
     img = NULL;
+	
+    printf("jpg drawn \n");
 
     unis = g_utf8_to_utf16 ("test.tif", -1, NULL, NULL, NULL);
     st = GdipLoadImageFromFile (unis, &img);
@@ -68,6 +70,8 @@ win_draw(win_t *win)
     GdipDisposeImage (img);
     img = NULL;
 
+    printf("tif drawn \n");
+
     unis = g_utf8_to_utf16 ("test.gif", -1, NULL, NULL, NULL);
     st = GdipLoadImageFromFile (unis, &img);
     CHECK_GDIP_ST(st);
@@ -76,6 +80,8 @@ win_draw(win_t *win)
     g_free (unis);
     GdipDisposeImage (img);
     img = NULL;
+
+    printf("gif drawn \n");
 
     unis = g_utf8_to_utf16 ("test.png", -1, NULL, NULL, NULL);
     st = GdipLoadImageFromFile (unis, &img);
@@ -86,6 +92,8 @@ win_draw(win_t *win)
     GdipDisposeImage (img);
     img = NULL;
 
+    printf("png drawn \n");
+
     unis = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
     st = GdipLoadImageFromFile (unis, &img);
     CHECK_GDIP_ST(st);
@@ -94,6 +102,9 @@ win_draw(win_t *win)
     g_free (unis);
     GdipDisposeImage (img);
     img = NULL;
+
+    printf("bmp drawn \n");
+
 }
 
 int
