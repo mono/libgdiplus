@@ -483,6 +483,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
     img->image.surface = cairo_surface_create_for_image (destbuf, img->cairo_format,
                                                    img->image.width, img->image.height,
                                                    stride);
+
     /* win32 returns this as PartiallyScalable and ColorSpaceYCBCR; we
      * just return it as RGB (or Grayscale).
      */
