@@ -229,10 +229,11 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 				(double) width / image->width,
 				(double) height / image->height);
 		cairo_fill (graphics->ct);
-		cairo_default_matrix (graphics->ct);
 	} else 
 		cairo_fill (graphics->ct);
 	
+	cairo_default_matrix (graphics->ct);
+
 	return Ok;
 }
 
