@@ -286,8 +286,8 @@ GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
 	g_return_val_if_fail (original != NULL, InvalidParameter);
 	g_return_val_if_fail (bitmap != NULL, InvalidParameter);
 
-	g_return_val_if_fail (x + width > original->data.Width, InvalidParameter);
-	g_return_val_if_fail (y + height > original->data.Height, InvalidParameter);
+	g_return_val_if_fail (x + width <= original->data.Width, InvalidParameter);
+	g_return_val_if_fail (y + height <= original->data.Height, InvalidParameter);
 
 	bd.Scan0 = NULL;
 	st = gdip_bitmap_clone_data_rect (&original->data, &sr,
@@ -336,8 +336,8 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 	g_return_val_if_fail (destData != NULL, InvalidParameter);
 	g_return_val_if_fail (destRect != NULL, InvalidParameter);
 
-	g_return_val_if_fail (srcRect->Width != destRect->Width, InvalidParameter);
-	g_return_val_if_fail (srcRect->Height != destRect->Height, InvalidParameter);
+	g_return_val_if_fail (srcRect->Width == destRect->Width, InvalidParameter);
+	g_return_val_if_fail (srcRect->Height == destRect->Height, InvalidParameter);
 
 	g_return_val_if_fail (srcData->PixelFormat != Format32bppArgb, InvalidParameter);
 

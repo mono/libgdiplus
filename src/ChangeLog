@@ -1,3 +1,10 @@
+2004-04-23  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* bitmap.c (GdipCloneBitmapAreaI): wrong sense of assert test,
+	oops
+
+	* image.c (GdipDrawImagePoints): implemented.
+
 2004-04-23 Peter Bartok <pbartok@novell.com>
    * graphics.c: Fixed bug #57551. Hotkey prefix now properly placed
    no matter on what line it is or how the text is aligned.
