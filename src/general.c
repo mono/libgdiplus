@@ -161,3 +161,58 @@ gdip_get_display_dpi()
     return dpis;
 }
 
+void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg)
+{
+    float inchs = 0;
+    *nTrg = 0;
+
+    switch (fromUnit) {
+    case UnitDisplay:
+      inchs = nSrc / 75.0f;
+      break;
+    case UnitDocument:
+      inchs = nSrc / 300.0f;
+      break;
+    case UnitInch:
+      inchs = nSrc;
+      break;
+    case UnitMillimeter:
+      inchs = nSrc / 25.4f;
+      break;
+    case UnitPixel:
+    case UnitWorld:
+      inchs = nSrc / gdip_get_display_dpi();
+      break;
+    case UnitPoint:
+      inchs = nSrc / 72.0f;
+      break;
+    default:
+      break;
+    }
+
+    switch (toUnit) {
+    case UnitDisplay:
+      *nTrg = inchs * 75.0f;
+      break;
+    case UnitDocument:
+      *nTrg = inchs * 300.0f;
+      break;
+    case UnitInch:
+      *nTrg = inchs;
+      break;
+    case UnitMillimeter:
+      *nTrg = inchs * 25.4f;
+      break;
+    case UnitPixel:
+    case UnitWorld:
+      *nTrg = inchs * gdip_get_display_dpi();
+      break;
+    case UnitPoint:
+      *nTrg = inchs * 72.0f;
+      break;
+    default:
+      break;
+    }
+
+}
+

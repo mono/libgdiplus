@@ -914,13 +914,14 @@ GpStatus
 GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
                 int len, GpFont *font, RectF *rc, GpStringFormat *format, GpBrush *brush)
 {
-        if (!graphics || !stringUnicode || !font || !format)
+        if (!graphics || !stringUnicode || !font)
             return InvalidParameter;
     
         char* string = (char*) g_utf16_to_utf8 ((const gunichar2 *) stringUnicode,
                         (glong)len, NULL, NULL, NULL);
 
         printf("DrawString: %s, %x, %f\n", string, font, font->sizeInPixels);
+        printf("RC->x %f, y %f, width->%f, height->%f\n", rc->X, rc->Y, rc->Width, rc->Height);
 
         cairo_save (graphics->ct);
     
@@ -938,6 +939,17 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
         
         cairo_scale_font (graphics->ct, font->sizeInPixels);
 
+        if (!format || !rc->Width) {
+          cairo_move_to (graphics->ct, rc->X, rc->Y+ font->sizeInPixels);
+          cairo_show_text (graphics->ct, string);
+          g_free(string);
+          
+          cairo_select_font_nondestructive(graphics->ct, prev);
+          cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
+          cairo_restore (graphics->ct);
+          return gdip_get_status (cairo_status (graphics->ct));
+        }
+
         float width = 0, height = 0;
         float* pwidths = NULL;
         float* pPos;
@@ -951,7 +963,6 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
 
         // Get widths                                            
         gdip_measure_string_widths(font, string, &pwidths, &nwidths, &width, &height);
-        printf("RC->x %f, y %f, width->%f, height->%f\n", rc->X, rc->Y, rc->Width, rc->Height);
         printf("width->%f, height->%f\n", width, height);
 
         pPos = pwidths;
@@ -1068,5 +1079,17 @@ GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
         *y = (int) cy;
 
         return gdip_get_status (cairo_status (graphics->ct));
+}
+
+GpStatus 
+GdipGetDpiX(GpGraphics *graphics, float* dpi)
+{
+  *dpi = gdip_get_display_dpi();    
+}
+
+GpStatus 
+GdipGetDpiY(GpGraphics *graphics, float* dpi)
+{
+  *dpi = gdip_get_display_dpi();  
 }
 

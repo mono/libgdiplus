@@ -1,3 +1,8 @@
+2004-02-17  Jordi Mas i Hernandez <jordi@ximian.com>
+    * fonts.c suport for unit conversion
+    * general.c - suport for unit conversion
+    * graphics.c - single line drawing
+    
 2004-02-16  Ravindra <rkumar@novell.com>
 	* gdip.h: Moved GpStatus enum and GpGraphics struct back
 	from brush.h in here. Thanks to Duncan, for pointing this

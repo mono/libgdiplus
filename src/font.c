@@ -276,12 +276,11 @@ GdipCreateFont(GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, 
     GpFont *result = (GpFont *) GdipAlloc (sizeof (GpFont));
     int slant = 0;
     int weight = FC_WEIGHT_LIGHT;
+
+    gdip_unitConversion(unit, UnitPixel, emSize, &result->sizeInPixels);
+
+    printf("Size (units) %f, (pixels) %f\n", emSize, result->sizeInPixels);
     
-    result->sizeInPnts = emSize;
-    result->sizeInPixels = (emSize * gdip_get_display_dpi()) / 72; // Points to Pixels conversion
-
-    printf("points %f, pixels %f\n", result->sizeInPnts, result->sizeInPixels);
-
     switch (style) {
         
         case FontStyleRegular:
@@ -314,7 +313,7 @@ GdipCreateFont(GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, 
 GpStatus
 GdipDeleteFont(GpFont* font)
 {
-    if (font){        
+    if (font){
         cairo_font_destroy(font->cairofnt);
         GdipFree ((void *)font);
     }

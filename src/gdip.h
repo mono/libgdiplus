@@ -355,7 +355,6 @@ typedef struct {
 
 typedef struct {
         cairo_ft_font_t*    cairofnt;
-        float               sizeInPnts;
         float               sizeInPixels;
 } GpFont;
 
@@ -437,6 +436,9 @@ GpStatus GdipFillPolygon2 (GpGraphics *graphics, GpBrush *brush, GpPointF *point
 GpStatus GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count);
 GpStatus GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y);
 GpStatus GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y);
+GpStatus GdipGetDpiX(GpGraphics *graphics, float* dpi);
+GpStatus GdipGetDpiY(GpGraphics *graphics, float* dpi);
+
 
 /* Status */
 GpStatus gdip_get_status (cairo_status_t status);
@@ -530,6 +532,7 @@ GpStatus GdipSetStringFormatHotkeyPrefix(GpStringFormat *format, HotkeyPrefix ho
 GpStatus GdipGetStringFormatHotkeyPrefix(GpStringFormat *format, HotkeyPrefix *hotkeyPrefix);
 GpStatus GdipSetStringFormatFlags(GpStringFormat *format, StringFormatFlags flags);
 GpStatus GdipGetStringFormatFlags(GDIPCONST GpStringFormat *format, StringFormatFlags *flags);
+
       
 /* Path*/
 #include "graphics-path.h"
@@ -540,6 +543,7 @@ void GdipFree (void *ptr);
 
 /* Utility*/
 float gdip_get_display_dpi();
+void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg);
 
 
 #endif /* _GDIP_H */
