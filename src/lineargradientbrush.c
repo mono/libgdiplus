@@ -58,7 +58,6 @@ gdip_linear_gradient_init (GpLineGradient *linear)
 	linear->blend->positions = (float *) GdipAlloc (sizeof (float));
 	linear->blend->factors [0] = 1.0;
 	linear->blend->positions[0] = 0.0;
-	linear->changed = TRUE;
 	linear->pattern = NULL;
 }
 
@@ -100,7 +99,7 @@ gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	newbrush->angle = linear->angle;
 	newbrush->isAngleScalable = linear->isAngleScalable;
 	/* cloned brush needs to have its own pattern */
-	newbrush->changed = TRUE;
+	newbrush->base.changed = TRUE;
 	newbrush->pattern = NULL;
 	newbrush->lineColors [0] = linear->lineColors [0];
 	newbrush->lineColors [1] = linear->lineColors [1];
@@ -692,8 +691,14 @@ gdip_linear_gradient_setup (GpGraphics *graphics, GpBrush *brush)
 	product = cairo_matrix_create ();
 	g_return_val_if_fail (product != NULL, OutOfMemory);
 
-	/* We do setup iff brush is changed or setup has not been done yet. */
-	if (linear->changed || (linear->pattern) == NULL) {
+	/* We create the new pattern for brush, if the brush is changed
+	 * or if pattern has not been created yet.
+	 */
+	if (linear->base.changed || (linear->pattern) == NULL) {
+
+		/* destroy the existing pattern */
+		if (linear->pattern)
+			cairo_pattern_destroy (linear->pattern);
 
 		switch (linear->wrapMode) {
 
@@ -719,20 +724,19 @@ gdip_linear_gradient_setup (GpGraphics *graphics, GpBrush *brush)
 	}
 
 	if (status == Ok) {
-		if (linear->pattern == NULL)
-			return GenericError;
-		/* Use both the matrices */
-		cairo_matrix_multiply (product, linear->matrix, graphics->copy_of_ctm);
-		cairo_matrix_invert (product);
-		cairo_pattern_set_matrix (linear->pattern, product);
-		cairo_pattern_set_extend (linear->pattern, CAIRO_EXTEND_REPEAT);
-		cairo_set_pattern (ct, linear->pattern);
+		if (linear->pattern != NULL) {
+			/* Use both the matrices */
+			cairo_matrix_multiply (product, linear->matrix, graphics->copy_of_ctm);
+			cairo_matrix_invert (product);
+			cairo_pattern_set_matrix (linear->pattern, product);
+			cairo_pattern_set_extend (linear->pattern, CAIRO_EXTEND_REPEAT);
+			cairo_set_pattern (ct, linear->pattern);
 
-		status = gdip_get_status (cairo_status (ct));
+			status = gdip_get_status (cairo_status (ct));
+		}
+		else
+			status = GenericError;
 	}
-
-	if (status == Ok)
-		linear->changed = FALSE;
 
 	cairo_matrix_destroy (product);
 
@@ -1001,7 +1005,7 @@ GdipSetLineBlend (GpLineGradient *brush, GDIPCONST float *blend, GDIPCONST float
 		brush->presetColors->count = 0;
 	}
 
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 
 	return Ok;
 }
@@ -1035,7 +1039,7 @@ GdipSetLineGammaCorrection (GpLineGradient *brush, BOOL useGammaCorrection)
 {
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	brush->gammaCorrection = useGammaCorrection;
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 
 	return Ok;
 }
@@ -1108,7 +1112,7 @@ GdipSetLinePresetBlend (GpLineGradient *brush, GDIPCONST ARGB *blend, GDIPCONST 
 		brush->blend->count = 0;
 	}
 
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 	return Ok;
 }
 
@@ -1142,7 +1146,7 @@ GdipSetLineColors (GpLineGradient *brush, ARGB color1, ARGB color2)
 
 	brush->lineColors[0] = color1;
 	brush->lineColors[1] = color2;
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 	return Ok;
 }
 
@@ -1207,7 +1211,7 @@ GdipSetLineTransform (GpLineGradient *brush, GDIPCONST GpMatrix *matrix)
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
 	*(brush->matrix) = *matrix;
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 	return Ok;
 }
 
@@ -1228,7 +1232,7 @@ GdipSetLineWrapMode (GpLineGradient *brush, GpWrapMode wrapMode)
 	g_return_val_if_fail (wrapMode != WrapModeClamp, InvalidParameter);
 
 	brush->wrapMode = wrapMode;
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 	return Ok;
 }
 
@@ -1294,7 +1298,7 @@ GdipSetLineLinearBlend (GpLineGradient *brush, float focus, float scale)
 	}
 
 	brush->blend->count = count;
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 
 	return Ok;
 }
@@ -1474,7 +1478,7 @@ GdipSetLineSigmaBlend (GpLineGradient *brush, float focus, float scale)
 	}
 
 	brush->blend->count = count;
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 
 	return Ok;
 }
@@ -1488,7 +1492,7 @@ GdipMultiplyLineTransform (GpLineGradient *brush, GpMatrix *matrix, GpMatrixOrde
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
 	if ((status = GdipMultiplyMatrix (brush->matrix, matrix, order)) == Ok)
-		brush->changed = TRUE;
+		brush->base.changed = TRUE;
 	return status;
 }
 
@@ -1502,7 +1506,7 @@ GdipResetLineTransform (GpLineGradient *brush)
 	status = cairo_matrix_set_identity (brush->matrix);
 	s = gdip_get_status (status);
 	if (s == Ok)
-		brush->changed = TRUE;
+		brush->base.changed = TRUE;
 	return s;
 }
 
@@ -1520,7 +1524,7 @@ GdipRotateLineTransform (GpLineGradient *brush, float angle, GpMatrixOrder order
 	if ((status = GdipTranslateMatrix (brush->matrix, rect->Width, rect->Height, order)) == Ok)
 		if ((status = GdipRotateMatrix (brush->matrix, angle, order)) == Ok)
 			if ((status = GdipTranslateMatrix (brush->matrix, -rect->Width, -rect->Height, order)) == Ok)
-				brush->changed = TRUE;
+				brush->base.changed = TRUE;
 	return status;
 }
 
@@ -1531,7 +1535,7 @@ GdipScaleLineTransform (GpLineGradient *brush, float sx, float sy, GpMatrixOrder
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
 	if ((status = GdipScaleMatrix (brush->matrix, sx, sy, order)) == Ok)
-		brush->changed = TRUE;
+		brush->base.changed = TRUE;
 	return status;
 }
 
@@ -1542,6 +1546,6 @@ GdipTranslateLineTransform (GpLineGradient *brush, float dx, float dy, GpMatrixO
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
 	if ((status = GdipTranslateMatrix (brush->matrix, dx, dy, order)) == Ok)
-		brush->changed = TRUE;
+		brush->base.changed = TRUE;
 	return status;
 }

@@ -65,7 +65,6 @@ gdip_pathgradient_init (GpPathGradient *pg)
 	pg->rectangle->Y = 0.0;
 	pg->rectangle->Width = 0.0;
 	pg->rectangle->Height = 0.0;
-	pg->changed = TRUE;
 	pg->pattern = NULL;
 }
 
@@ -168,8 +167,8 @@ NO_PRESET:
 	return OutOfMemory;
 
 SUCCESS:
-	/* make the clone to create its own pattern */
-	newbrush->changed = TRUE;
+	/* Let the clone to create its own pattern */
+	newbrush->base.changed = TRUE;
 	newbrush->pattern = NULL;
 
 	*clonedBrush = (GpBrush *) newbrush;    
@@ -239,17 +238,28 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 	if (pgbrush->boundary == NULL)
 		return Ok;              /* do nothing */
 
-	/* we do setup only if brush is changed or if setup was not done yet */
-	if (pgbrush->changed || (pgbrush->pattern == NULL)) {
-		/* As a stub, we simply set the color to the center color */
+	/* We create the new pattern for brush, if the brush is changed
+	 * or if pattern has not been created yet.
+	 */
+	if (pgbrush->base.changed || (pgbrush->pattern) == NULL) {
+
+		/* destroy the existing pattern */
+		if (pgbrush->pattern)
+			cairo_pattern_destroy (pgbrush->pattern);
+
+		/* FIXME: To implement this function we need cairo to support
+		 * path gradients.
+		 * As a stub, we simply set the color to the center color.
+		 */
 		cairo_set_rgb_color (graphics->ct,
 				     ARGB_RED_N(pgbrush->centerColor),
 				     ARGB_GREEN_N(pgbrush->centerColor),
 				     ARGB_BLUE_N(pgbrush->centerColor));
 
-		cairo_set_alpha (graphics->ct,
-				 ARGB_ALPHA_N(pgbrush->centerColor));
+		cairo_set_alpha (graphics->ct, ARGB_ALPHA_N(pgbrush->centerColor));
+
 	}
+
 	return NotImplemented;
 }
 
@@ -370,7 +380,7 @@ GdipSetPathGradientCenterColor (GpPathGradient *brush, ARGB colors)
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
 	brush->centerColor = colors;
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 	return Ok;
 }
 
@@ -429,7 +439,7 @@ GdipSetPathGradientCenterPoint (GpPathGradient *brush, GDIPCONST GpPointF *point
 	
 	brush->center.X = point->X;
 	brush->center.Y = point->Y;
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 	return Ok;
 }
 
@@ -542,7 +552,7 @@ GdipSetPathGradientBlend (GpPathGradient *brush, GDIPCONST float *blend, GDIPCON
 	brush->presetColors->colors [0] = MAKE_ARGB_ARGB(0,0,0,0);
 	brush->presetColors->positions[0] = 0.0;
 
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 	return Ok;
 }
 
@@ -615,7 +625,7 @@ GdipSetPathGradientPresetBlend (GpPathGradient *brush, GDIPCONST ARGB *blend, GD
 		brush->blend->count = 0;
 	}
 
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 	return Ok;
 }
 
@@ -798,7 +808,7 @@ GdipSetPathGradientSigmaBlend (GpPathGradient *brush, float focus, float scale)
 	}
 
 	brush->blend->count = count;
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 
 	return Ok;
 }
@@ -869,7 +879,7 @@ GdipSetPathGradientLinearBlend (GpPathGradient *brush, float focus, float scale)
 	}
 
 	brush->blend->count = count;
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 
 	return Ok;
 }
@@ -890,7 +900,7 @@ GdipSetPathGradientWrapMode (GpPathGradient *brush, GpWrapMode wrapMode)
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
 	brush->wrapMode = wrapMode;
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 	return Ok;
 }
 
@@ -917,7 +927,7 @@ GdipSetPathGradientTransform (GpPathGradient *brush, GpMatrix *matrix)
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
 	*(brush->transform) = *matrix;
-	brush->changed = TRUE;
+	brush->base.changed = TRUE;
 	return Ok;
 }
 

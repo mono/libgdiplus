@@ -80,6 +80,7 @@ typedef struct _Hatch {
 	GpHatchStyle hatchStyle;
 	int foreColor;
 	int backColor;
+	cairo_pattern_t *pattern;
 } Hatch;
 
 /* Hatch brush functions */

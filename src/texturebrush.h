@@ -23,7 +23,6 @@ typedef struct _Texture {
 	GpRect *rectangle;
 	GpWrapMode wrapMode;
 	cairo_pattern_t *pattern;
-	BOOL changed;
 } Texture;
 
 /* Texture brush public functions */

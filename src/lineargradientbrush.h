@@ -30,7 +30,6 @@ typedef struct _LineGradient {
 	Blend *blend;
 	InterpolationColors *presetColors;
 	cairo_pattern_t *pattern;
-	BOOL changed;
 	BOOL isAngleScalable;
 	BOOL gammaCorrection; /* FIXME: Not used */
 } LineGradient;

@@ -27,7 +27,6 @@ struct _GpPathGradient {
 	InterpolationColors *presetColors;
 	GpWrapMode wrapMode;
 	GpMatrix *transform;
-	BOOL changed;
 	cairo_pattern_t *pattern;
 };
 

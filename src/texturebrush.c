@@ -48,7 +48,6 @@ gdip_texture_init (GpTexture *texture)
 	texture->matrix = cairo_matrix_create ();
 	texture->rectangle = NULL;
 	texture->pattern = NULL;
-	texture->changed = TRUE;
 }
 
 GpTexture*
@@ -410,8 +409,14 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 	product = cairo_matrix_create ();
 	g_return_val_if_fail (product != NULL, OutOfMemory);
 
-	/* We do setup iff brush is changed or setup has not been done yet. */
-	if (texture->changed || (texture->pattern) == NULL) {
+	/* We create the new pattern for brush, if the brush is changed
+	 * or if pattern has not been created yet.
+	 */
+	if (texture->base.changed || (texture->pattern) == NULL) {
+
+		/* destroy the existing pattern */
+		if (texture->pattern)
+			cairo_pattern_destroy (texture->pattern);
 
 		switch (texture->wrapMode) {
 
@@ -442,7 +447,8 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 
 	if (status == Ok) {
 		if (texture->pattern == NULL)
-			return GenericError;
+			status = GenericError;
+		else {
 
 		/* Cairo Bug: REPEAT and transformation do not go together.        */
 		/* To work around this we can create an intermediate surface first */
@@ -474,22 +480,20 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 	
 		pattern = cairo_pattern_create_for_surface (temp);
 	*/
-		pattern = texture->pattern;
+			pattern = texture->pattern;
 
-		if (pattern != NULL) {
-			/* Use both the matrices */
-			cairo_matrix_multiply (product, texture->matrix, graphics->copy_of_ctm);
-			cairo_matrix_invert (product);
-			cairo_pattern_set_matrix (pattern, product);
-			cairo_set_pattern (ct, pattern);
-			/*	cairo_pattern_destroy (pattern); */
+			if (pattern != NULL) {
+				/* Use both the matrices */
+				cairo_matrix_multiply (product, texture->matrix, graphics->copy_of_ctm);
+				cairo_matrix_invert (product);
+				cairo_pattern_set_matrix (pattern, product);
+				cairo_set_pattern (ct, pattern);
+				/*	cairo_pattern_destroy (pattern); */
+			}
+			status = gdip_get_status (cairo_status (ct));
+			/*	cairo_surface_destroy (temp); */
 		}
-		status = gdip_get_status (cairo_status (ct));
-		/*	cairo_surface_destroy (temp); */
 	}
-
-	if (status == Ok)
-		texture->changed = FALSE;
 
 	cairo_matrix_destroy (product);
 
@@ -513,9 +517,10 @@ gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush)
 	result->wrapMode = texture->wrapMode;
 	result->image = texture->image;
 	result->matrix = cairo_matrix_create ();
-	result->changed = texture->changed;
-	/* We are not cloning the pattern. Let the clone create its own pattern. */
+
+	/* Let the clone create its own pattern. */
 	result->pattern = NULL;
+	result->base.changed = TRUE;
 
 	if (result->matrix == NULL) {
 		GdipFree (result);
@@ -725,7 +730,7 @@ GdipSetTextureTransform (GpTexture *texture, GpMatrix *matrix)
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
 	*(texture->matrix) = *matrix;
-	texture->changed = TRUE;
+	texture->base.changed = TRUE;
 
 	return Ok;
 }
@@ -740,7 +745,7 @@ GdipResetTextureTransform (GpTexture *texture)
 	status = cairo_matrix_set_identity (texture->matrix);
 	s = gdip_get_status (status);
 	if (s == Ok)
-		texture->changed = TRUE;
+		texture->base.changed = TRUE;
 	return s;
 }
 
@@ -754,7 +759,7 @@ GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrde
 	/* FIXME: How to take care of rotation here ? */
 	status = GdipMultiplyMatrix (texture->matrix, matrix, order);
 	if (status == Ok)
-		texture->changed = TRUE;
+		texture->base.changed = TRUE;
 	return status;
 }
 
@@ -766,7 +771,7 @@ GdipTranslateTextureTransform (GpTexture *texture, float dx, float dy, GpMatrixO
 
 	status = GdipTranslateMatrix (texture->matrix, dx, dy, order);
 	if (status == Ok)
-		texture->changed = TRUE;
+		texture->base.changed = TRUE;
 	return status;
 }
 
@@ -778,7 +783,7 @@ GdipScaleTextureTransform (GpTexture *texture, float sx, float sy, GpMatrixOrder
 
 	status = GdipScaleMatrix (texture->matrix, sx, sy, order);
 	if (status == Ok)
-		texture->changed = TRUE;
+		texture->base.changed = TRUE;
 	return status;
 }
 
@@ -802,7 +807,7 @@ GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order
 	if ((status = GdipTranslateMatrix (texture->matrix, -axis.X, -axis.Y, order)) == Ok)
 		if ((status = GdipRotateMatrix (texture->matrix, angle, order)) == Ok)
 			if ((status = GdipTranslateMatrix (texture->matrix, axis.X, axis.Y, order)) == Ok)
-				texture->changed = TRUE;
+				texture->base.changed = TRUE;
 	return status;
 }
 
@@ -812,7 +817,7 @@ GdipSetTextureWrapMode (GpTexture *texture, GpWrapMode wrapMode)
 	g_return_val_if_fail (texture != NULL, InvalidParameter);
 
 	texture->wrapMode = wrapMode;
-	texture->changed = TRUE;
+	texture->base.changed = TRUE;
 
 	return Ok;
 }

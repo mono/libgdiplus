@@ -1,5 +1,23 @@
 2004-10-09  Ravindra <rkumar@novell.com>
 
+	* hatchbrush.h: Added 'pattern' member of cairo_pattern_t
+	type to GpHatch struct.
+	* hatchbrush.c: Added support for caching.
+
+	* lineargradientbrush.h: Removed the 'changed' member from
+	GpLineGradient struct. It is moved to GpBrush struct.
+	* lineargradientbrush.c: Added support for caching.
+
+	* pathgradientbrush.h: Removed the 'changed' member from
+	GpPathGradient struct. It is moved to GpBrush struct.
+	* pathgradientbrush.c: Added support for caching.
+
+	* texturebrush.h: Removed the 'changed' member from GpTexture
+	struct. It is moved to GpBrush struct.
+	* texturebrush.c: Added support for caching.
+
+2004-10-09  Ravindra <rkumar@novell.com>
+
 	* solidbrush.h: Added color components A,R,G,B to SolidFill
 	struct for caching.
 	* solidbrush.c: Added support for caching.
