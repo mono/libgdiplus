@@ -1,3 +1,10 @@
+2004-05-04 Sanjay Gupta <gsanjay@novell.com>
+
+	* image.c: Implemented functions GdipImageGetFrameDimensionsCount(),
+	 GdipImageGetFrameDimensionsList(), GdipImageGetFrameCount(). UNTESTED
+	* gdip.h: Modifieid GpImage structure and added FrameDimensionInfo struct.
+	* gifcodec.c: Modified to read the no of image description records present.
+
 2004-05-04 Jordi Mas i Hernandez <jordi@ximian.com>
 	* image.c: implements GdipImageRotateFlip: 90, 180, 270,
 	degree, plus FlipX and combinations

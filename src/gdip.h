@@ -549,6 +549,11 @@ typedef struct {
 } PropertyItem;
 
 typedef struct {
+	GUID frameDimension;
+	int count;
+} FrameDimensionInfo;
+
+typedef struct {
 	ImageType     	type;
 	cairo_surface_t *surface;
 	GpGraphics  	*graphics;		/* created by GdipGetImageGraphicsContext */
@@ -561,6 +566,8 @@ typedef struct {
 	PropertyItem 	*propItems;
 	float 		verticalResolution;
 	ImageFormat     format;
+	int		frameDimensionCount;
+	FrameDimensionInfo *frameDimensionList;
 } GpImage;
 
 typedef struct {

@@ -46,8 +46,7 @@ CLSID gdip_tif_image_format_guid = {0xb96b3cb1U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 
 CLSID gdip_exif_image_format_guid = {0xb96b3cb2U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 CLSID gdip_wmf_image_format_guid = {0xb96b3cadU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 CLSID gdip_emf_image_format_guid = {0xb96b3cacU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-
-
+			
 void 
 gdip_image_init(GpImage *image)
 {
@@ -642,20 +641,45 @@ GdipGetImagePixelFormat (GpImage *image, PixelFormat *format)
 GpStatus 
 GdipImageGetFrameDimensionsCount (GpImage *image, UINT *count)
 {
-	return NotImplemented;
+	if (!image)
+                return InvalidParameter;
+
+	*count = image->frameDimensionCount;
+	return Ok;
 }
 
-/* GpStatus GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count); */
+GpStatus 
+GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count)
+{
+	if (!image || !dimensionGUID || !count)
+                return InvalidParameter;
+	int i;
+	int countReturn = image->frameDimensionCount;
+	GUID guid [count];
+	if (countReturn < count)
+		countReturn = count;
+	for (i=0; i<countReturn; i++){
+		guid [i] = image->frameDimensionList[i].frameDimension;
+	}
+
+	memcpy (dimensionGUID, guid, sizeof (CLSID)*countReturn);
+	return Ok;
+}
 
 GpStatus
 GdipImageGetFrameCount(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count)
 {
-        if (!image || !dimensionGUID || !count)
+        if (!image || !dimensionGUID)
                 return InvalidParameter;
+	int i;
+	for (i=0; i<image->frameDimensionCount; i++){
+		if (memcmp(dimensionGUID, &(image->frameDimensionList[i].frameDimension), sizeof(CLSID)) == 0) {
+			*count = image->frameDimensionList[i].count;
+			return Ok;
+		}
+	}
 
-        *count = 1;
-        return Ok;
-
+        return InvalidParameter;
 }
 
 GpStatus
@@ -664,8 +688,7 @@ GdipImageSelectActiveFrame(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT i
         if (!image || !dimensionGUID)
                 return InvalidParameter;
 
-        return Ok;
-        
+        return NotImplemented;        
 }
 
 
@@ -1123,9 +1146,6 @@ GdipSaveImageToDelegate_linux (GpImage *image, PutBytesDelegate putBytesFunc, GD
 
     return status;
 }
-
-
-
 
 ImageFormat
 gdip_image_format_for_clsid (GDIPCONST CLSID *encoderCLSID)
