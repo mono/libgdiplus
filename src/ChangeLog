@@ -1,3 +1,8 @@
+2004-06-03  Ravindra  <rkumar@novell.com>
+
+	* graphics.c: Fixed GdipDeleteGraphics and 
+	gdip_graphics_attach_bitmap functions.
+
 2004-06-01  Ravindra <rkumar@novell.com>
 
 	* hatchbrush.c: Peformance improvements in some of diagonal

@@ -61,6 +61,11 @@ gdip_graphics_attach_bitmap (GpGraphics *graphics, GpBitmap *image)
 		cairo_surface_destroy (image->image.surface);
 	}
 	image->image.surface = cairo_current_target_surface (graphics->ct);
+	/* Increase the reference count of the surface. Because, this surface
+	 * is referenced by graphics->ct also. This is required for the proper
+	 * memory management of the surface.
+	 */
+	cairo_surface_reference (image->image.surface);
 	graphics->image = image;
 	graphics->type = gtMemoryBitmap;
 }
@@ -324,11 +329,17 @@ GdipDeleteGraphics (GpGraphics *graphics)
 {
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-	/* FIXME: attention to surface (image, etc.) */
-	/* printf ("GdipDeleteGraphics. graphics %p\n", graphics); */
-	cairo_matrix_destroy (graphics->copy_of_ctm);
-	cairo_destroy (graphics->ct);
+	/* We don't destroy image because we did not create one. */
+	if (graphics->copy_of_ctm)
+		cairo_matrix_destroy (graphics->copy_of_ctm);
+	graphics->copy_of_ctm = NULL;
+
+	if (graphics->ct)
+		cairo_destroy (graphics->ct);
+	graphics->ct = NULL;
+
 	GdipFree (graphics);
+
 	return Ok;
 }
 
