@@ -413,6 +413,7 @@ GdipResetWorldTransform (GpGraphics *graphics)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
 	cairo_identity_matrix (graphics->ct);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }

@@ -1,3 +1,8 @@
+2004-05-28  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (GdipResetWorldTransform): Remember to synchronize
+	graphics->copy_of_ctm with the graphics' matrix.
+
 2004-05-28  Ravindra <rkumar@novell.com>
 
 	* hatchbrush.c: Completed the remaining hatch styles.
@@ -25,7 +30,7 @@
 	up pen so many times unnecessarily.
 	* hatchbrush.c: Formatting.
 
-2004-05-27  Duncan Mak  <duncan@ximian.com>
+2004-05-27  Duncan Mak  <duncan@ximian.com>	
 
 	* matrix.c (set_translate, set_scale, set_rotate, set_shear):
 	Removed, we are not allocating a new GpMatrix * anymore.
