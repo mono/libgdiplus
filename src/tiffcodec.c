@@ -143,32 +143,42 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 	int dimensionCount = 0;
 	int frameCount = 0;
 	BitmapData data;
+	int currPage = 0; /*First page wud already have been set */
+	int totalPages = 0;
 					
 	if (!tiff)
 		return InvalidParameter;		
 
 	dimensionCount = image->frameDimensionCount; 
-		
+	for (j = 0; j < dimensionCount; j++)
+		totalPages += image->frameDimensionList [j].count;
+	
 	for (j = 0; j < dimensionCount; j++) {
 		frameCount = image->frameDimensionList [j].count;
 		for (k = 0; k < frameCount; k++) {
-			if (k > 0){
-				TIFFCreateDirectory (tiff);
-				TIFFSetField (tiff, TIFFTAG_SUBFILETYPE, FILETYPE_PAGE);
+			if (k > 0 || j > 0) {
+				TIFFCreateDirectory (tiff);								
 			}
-
+			
+			if (totalPages > 1) {
+				TIFFSetField (tiff, TIFFTAG_SUBFILETYPE, FILETYPE_PAGE);
+				TIFFSetField (tiff, TIFFTAG_PAGENUMBER, currPage++, totalPages);
+			}
 			data = image->frameDimensionList [j].frames [k];
 			TIFFSetField (tiff, TIFFTAG_IMAGEWIDTH, data.Width);  
 			TIFFSetField (tiff, TIFFTAG_IMAGELENGTH, data.Height); 
-			TIFFSetField (tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);   
-			TIFFSetField (tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG); 
-			TIFFSetField (tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-			TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, 4); /* Hardcoded 32bbps*/
 			TIFFSetField (tiff, TIFFTAG_BITSPERSAMPLE, 8);  
-				
+			TIFFSetField (tiff, TIFFTAG_COMPRESSION, COMPRESSION_NONE);  
+			TIFFSetField (tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+			TIFFSetField (tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);   
+			TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, 4); /* Hardcoded 32bbps*/
+
 			linebytes =  data.Stride;     	
     			TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, linebytes)); 
-			
+
+			TIFFSetField (tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG); 
+			TIFFSetField (tiff, TIFFTAG_EXTRASAMPLES, EXTRASAMPLE_UNSPECIFIED);
+				
 			/* We store data in ABGR format, but tiff stores it in ARGB, 
 			* so convert before writing it. 
 			*/	 

@@ -1,3 +1,8 @@
+2004-07-30  Sanjay Guota <gsanjay@novell.com>
+
+	* tiffcodec.c: Added page no information while saving a multi page
+	tiff file.
+
 2004-07-27  Sanjay Gupta <gsanjay@novell.com>
 
 	* tiffcodec.c: Fixing issues in saving multiple images to a file.
