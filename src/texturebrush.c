@@ -439,9 +439,6 @@ gdip_texture_destroy (GpBrush *brush)
 	if (texture->matrix != NULL)
 		cairo_matrix_destroy (texture->matrix);
 
-	if (texture->image->surface != NULL)
-		cairo_surface_destroy (texture->image->surface);
-
 	if (texture->rectangle != NULL)
 		GdipFree (texture->rectangle);
 
