@@ -1,3 +1,7 @@
+2004-03-31  Sachin Kumar <skumar1@novell.com>
+	* Makefile.am: Updated file to make it work for
+	  'make distcheck'.
+
 2004-03-30 Jordi Mas i Hernandez <jordi@ximian.com>
 	* image.c - GdipGetImageBounds and fixesf
         * bitmap.c - keep the witdh, height and pixel format in sync with the image struct
