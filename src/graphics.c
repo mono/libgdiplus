@@ -2363,6 +2363,11 @@ GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int len
 	return (MeasureOrDrawString (graphics, stringUnicode, length, font, rc, fmt, NULL, boundingBox, codepointsFitted, linesFilled, 0));
 }
 
+GpStatus
+GdipMeasureCharacterRanges(GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *stringFormat, int regionCount, GpRegion **regions)
+{
+	return NotImplemented;
+}
 
 GpStatus 
 GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y)

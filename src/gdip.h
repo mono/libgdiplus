@@ -624,6 +624,10 @@ typedef struct {
 } GpRegion;
 
 typedef struct {
+	int first, length;
+} CharacterRange;
+
+typedef struct {
 	cairo_t         *ct;
 	cairo_matrix_t  *copy_of_ctm;
 	void            *hdc;
@@ -772,8 +776,6 @@ typedef struct {
         void                *wineHfont;
 } GpFont;
 
-
-
 typedef struct {
         StringAlignment alignment;
         StringAlignment lineAlignment;
@@ -781,10 +783,12 @@ typedef struct {
         StringFormatFlags formatFlags;
         StringTrimming  trimming;
         DigitSubstitute substitute;
+	CharacterRange *charRanges;
         float firstTabOffset;
         float *tabStops;
         int numtabStops;
-}GpStringFormat;
+	int charRangeCount;
+} GpStringFormat;
 
 typedef struct {
         float X, Y;
@@ -800,7 +804,6 @@ typedef struct {
 	BOOL key_enabled;
 	BOOL no_op;
 } GpImageAttribute;
-
 
 typedef struct {
 	GpImageAttribute def;
@@ -1042,7 +1045,7 @@ GpStatus GdipGetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, boo
 /* Text */
 GpStatus GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *string, int len, GDIPCONST GpFont *font, GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush);
 GpStatus GdipMeasureString(GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST RectF *layoutRect, GDIPCONST GpStringFormat *stringFormat,  RectF *boundingBox, int *codepointsFitted, int *linesFilled);
-
+GpStatus GdipMeasureCharacterRanges(GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *stringFormat, int regionCount, GpRegion **regions);
 
 /* Matrix */
 GpStatus GdipCreateMatrix (GpMatrix **matrix);
@@ -1116,6 +1119,8 @@ GpStatus GdipGetStringFormatDigitSubstitution(GDIPCONST GpStringFormat *format, 
 GpStatus GdipSetStringFormatDigitSubstitution(GpStringFormat *format, int language, DigitSubstitute substitute);      
 GpStatus GdipGetStringFormatTabStopCount(GDIPCONST GpStringFormat *format, int *count);
 GpStatus GdipGetStringFormatTabStops(GDIPCONST GpStringFormat *format, int count, float *firstTabOffset, float *tabStops);
+GpStatus GdipGetStringFormatMeasurableCharacterRangeCount(GDIPCONST GpStringFormat *format, int *count);
+GpStatus GdipSetStringFormatMeasurableCharacterRanges(GpStringFormat *format, int rangeCount, GDIPCONST CharacterRange *ranges);
 
 /* ImageAttributes */
 GpStatus GdipCreateImageAttributes(GpImageAttributes **imageattr);

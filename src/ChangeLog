@@ -1,3 +1,19 @@
+2004-07-22  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Added CharacterRange stuct. Added 'charRanges' and
+	'charRangeCount' members in GpStringFormat struct. Added
+	function declarations for GdipMeasureCharacterRanges,
+	GdipGetStringFormatMeasurableCharacterRangeCount and
+	GdipSetStringFormatMeasurableCharacterRanges.
+	* graphics.c: Added stub for GdipMeasureCharacterRanges.
+	* stringformat.c: Implemented following two functions,
+	 1. GdipGetStringFormatMeasurableCharacterRangeCount and
+	 2. GdipSetStringFormatMeasurableCharacterRanges.
+	Corrected default values for substitute	and trimming in
+	GdipStringFormatGetGenericDefault function. Corrected default
+	value for substitute in	GdipStringFormatGetGenericTypographic
+	function. Also, Added null checks.
+
 2004-07-22  Sanjay Gupta <gsanjay@novell.com>
 
 	* tiffcodec.c: Implemented saving multiple pages of an image to a
