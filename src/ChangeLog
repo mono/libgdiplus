@@ -1,3 +1,10 @@
+2004-03-05  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c (GdipAddPathPath): Fix index, it should be 0,
+	not 1.
+	(GdipAddPathPolygon): Add a line back to the starting point to
+	complete the polygon if the first and last points are not the same.
+
 2004-03-04  Duncan Mak  <duncan@ximian.com>
 
 	* graphics-path.c (GdipAddPathPath): Implemented.

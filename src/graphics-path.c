@@ -361,6 +361,7 @@ GpStatus
 GdipAddPathBeziers (GpPath *path, const GpPointF *points, int count)
 {
         int i;
+        
         GpPointF *tmp = (GpPointF *) points;
         
         append_point (path, *tmp, PathPointTypeStart);
@@ -523,6 +524,13 @@ GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
         for (i = 1; i < count; i++, tmp++)
                 append_point (path, *tmp, PathPointTypeLine);
 
+        /*
+         * Add a line from the last point back to the first point if
+         * they're not the same
+         */
+        if (points [0].X != points [count].X && points [0].Y != points [count].Y)
+                append_point (path, points [0], PathPointTypeLine);
+        
         return Ok;
 }
 
@@ -532,6 +540,10 @@ GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
         int i, length;
 
         GdipGetPointCount (addingPath, &length);
+
+        if (length < 1)
+                return Ok;
+        
         GpPointF pts [length];
         byte types [length];
 
@@ -539,9 +551,9 @@ GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
         GdipGetPathTypes (addingPath, types, length);
 
         if (connect)
-                append_point (path, pts [1], PathPointTypeLine);
-        else
-                append_point (path, pts [1], PathPointTypeStart);
+                append_point (path, pts [0], PathPointTypeLine);
+        else                             
+                append_point (path, pts [0], PathPointTypeStart);
                 
 
         for (i = 1; i < length; i++)
