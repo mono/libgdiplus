@@ -1,3 +1,7 @@
+2004-05-26 Jordi Mas <jordi@ximian.com>
+	* bitmap.c, gdip.h: remove death code 
+	* gifcodec: no code changes made, reformmating to be able to work with it
+	
 2004-05-25 Jordi Mas <jordi@ximian.com>
 	* bitmap.c, gdip.h, image.c, imageattributes.c:
 		- Implemented SetImageAttributesWrapMode: Tile, TileFlipY, TileFlipY

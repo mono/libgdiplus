@@ -75,7 +75,6 @@ gdip_bitmap_init (GpBitmap *bitmap)
 	bitmap->hBitmapDC = 0;
 	bitmap->hInitialBitmap = 0;
 	bitmap->hBitmap = 0;
-	bitmap->lockRect.X = bitmap->lockRect.Y = bitmap->lockRect.Height = bitmap->lockRect.Width = 0;
 }
 
 
@@ -692,11 +691,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 		src_scan0 =  bitmap->data.Scan0;		
 	}
 		
-	bitmap->lockRect.X = srcRect->X;
-	bitmap->lockRect.Y = srcRect->Y;
-	bitmap->lockRect.Width = srcRect->Width;
-	bitmap->lockRect.Height = srcRect->Height;				
-
+	
 	/* Special case -- the entire image is requested, with
 	 * no format translation.
 	 */
@@ -807,8 +802,6 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, GdipBitmapData *bitmap_data)
 
 	/* unlock the bitmap */
 	bitmap->data.Reserved &= ~GBD_LOCKED;
-	bitmap->lockRect.X = bitmap->lockRect.Y = bitmap->lockRect.Height = bitmap->lockRect.Width = 0;
-	
 		
 	if (alocated)
 		GdipFree (src_scan0);

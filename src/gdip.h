@@ -715,7 +715,6 @@ typedef struct {
 	void *hBitmapDC;
 	void *hInitialBitmap;
 	void *hBitmap;
-	Rect lockRect;
 } GpBitmap;
 
 typedef struct {
