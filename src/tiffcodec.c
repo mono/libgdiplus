@@ -36,7 +36,7 @@ ImageCodecInfo *
 gdip_getcodecinfo_tiff ()
 {
         tiff_codec.Clsid = (CLSID) { 0x557cf405, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-        tiff_codec.FormatID = (CLSID) { 0xb96b3cb1, 0x0728, 0x11d3, { 0x9d, 0x7b, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        tiff_codec.FormatID = gdip_tif_image_format_guid;
         tiff_codec.CodecName = (const WCHAR*) tiff_codecname;
         tiff_codec.DllName = NULL;
         tiff_codec.FormatDescription = (const WCHAR*) tiff_format;

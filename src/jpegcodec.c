@@ -35,7 +35,7 @@ ImageCodecInfo *
 gdip_getcodecinfo_jpeg ()
 {
         jpeg_codec.Clsid = (CLSID) { 0x557cf401, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-        jpeg_codec.FormatID = (CLSID) { 0xb96b3cae, 0x0728, 0x11d3, { 0x9d, 0x7b, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        jpeg_codec.FormatID = gdip_jpg_image_format_guid;
         jpeg_codec.CodecName = (const WCHAR*)  jpeg_codecname;
         jpeg_codec.DllName = NULL;
         jpeg_codec.FormatDescription = (const WCHAR*) jpeg_format;

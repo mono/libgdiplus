@@ -1,3 +1,7 @@
+2004-05-13 Jordi Mas <jordi@ximian.com>
+	* bmpcodec.c, gifcodec.c, jpegcodec.c, pngcodec.c, tiffcodec.c:
+	remove redudant CLSID definitions and use global definitions
+
 2004-05-14  Ravindra <rkumar@novell.com>
 
 	* Makefile.am: Added source file entries for customlinecap and

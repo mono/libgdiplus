@@ -34,7 +34,7 @@ ImageCodecInfo *
 gdip_getcodecinfo_gif ()
 {                        
         gif_codec.Clsid = (CLSID) { 0x557cf402, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-        gif_codec.FormatID = (CLSID) { 0xb96b3cb0, 0x0728, 0x11d3, { 0x9d, 0x7b, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        gif_codec.FormatID = gdip_gif_image_format_guid;
         gif_codec.CodecName = (const WCHAR*) gif_codecname;
         gif_codec.DllName = NULL;
         gif_codec.FormatDescription = (const WCHAR*) gif_format;

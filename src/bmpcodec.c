@@ -53,7 +53,7 @@ ImageCodecInfo *
 gdip_getcodecinfo_bmp ()
 {
         bmp_codec.Clsid = (CLSID) { 0x557cf400, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-        bmp_codec.FormatID = (CLSID) { 0xb96b3cab, 0x0728, 0x11d3, { 0x9d, 0x7b, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        bmp_codec.FormatID = gdip_bmp_image_format_guid;
         bmp_codec.CodecName = (const WCHAR*) bmp_codecname;            
         bmp_codec.DllName = NULL;
         bmp_codec.FormatDescription = (const WCHAR*) bmp_format;

@@ -31,7 +31,7 @@ ImageCodecInfo *
 gdip_getcodecinfo_png ()
 {
         png_codec.Clsid = (CLSID) { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-        png_codec.FormatID = (CLSID) { 0xb96b3caf, 0x0728, 0x11d3, { 0x9d, 0x7b, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        png_codec.FormatID = gdip_png_image_format_guid;
         png_codec.CodecName = (const WCHAR*) png_codecname;
         png_codec.DllName = NULL;
         png_codec.FormatDescription = (const WCHAR*) png_format;
