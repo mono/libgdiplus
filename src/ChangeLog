@@ -1,4 +1,7 @@
 2004-02-17  Jordi Mas i Hernandez <jordi@ximian.com>
+    * fonts.c - remove unnecesary code and fixes
+
+2004-02-17  Jordi Mas i Hernandez <jordi@ximian.com>
     * fonts.c suport for unit conversion
     * general.c - suport for unit conversion
     * graphics.c - single line drawing

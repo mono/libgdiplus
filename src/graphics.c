@@ -920,7 +920,7 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
         char* string = (char*) g_utf16_to_utf8 ((const gunichar2 *) stringUnicode,
                         (glong)len, NULL, NULL, NULL);
 
-        printf("DrawString: %s, %x, %f\n", string, font, font->sizeInPixels);
+        printf("DrawString: [%s], %x, %f\n", string, font, font->sizeInPixels);
         printf("RC->x %f, y %f, width->%f, height->%f\n", rc->X, rc->Y, rc->Width, rc->Height);
 
         cairo_save (graphics->ct);
@@ -930,8 +930,7 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
         else
             cairo_set_rgb_color (graphics->ct, 0., 0., 0.);
 
-        cairo_font_t * prev = cairo_current_font(graphics->ct);
-        cairo_select_font_nondestructive (graphics->ct, font->cairofnt);
+        cairo_set_font (graphics->ct, font->cairofnt);
 
         // Save font matrix
         cairo_matrix_t saved;
@@ -944,7 +943,6 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
           cairo_show_text (graphics->ct, string);
           g_free(string);
           
-          cairo_select_font_nondestructive(graphics->ct, prev);
           cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
           cairo_restore (graphics->ct);
           return gdip_get_status (cairo_status (graphics->ct));
@@ -974,11 +972,11 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
         GdipGetStringFormatAlign(format, &align);
         GdipGetStringFormatLineAlign(format, &lineAlign);
         
-        for (nGlyp=0, w=0; nGlyp < nwidths; pPos++, nGlyp++) {
+        for (nGlyp=1, w=0; nGlyp < nwidths+1; pPos++, nGlyp++) {
 
             w+=*pPos;
           
-            if (!(nGlyp+1 < nwidths) || (w + *(pPos+1)) >rc->Width) {
+            if (!(nGlyp+1 < nwidths+1) || (w + *(pPos+1)) >rc->Width) {
               
                 switch(align){
                 case StringAlignmentNear:// Left
@@ -1048,8 +1046,7 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
                 pPoint++;
             }               
         }
-
-        cairo_select_font_nondestructive(graphics->ct, prev);
+        
         cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
         
         g_free(string);

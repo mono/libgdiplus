@@ -23,16 +23,24 @@
 #include <mono/io-layer/uglify.h>
 
 
-// NOTE: This file includes some internal cairo definitions to
-// avoid to define them again you should have it in your include path
-// it is part of the standard cairo development package
-#include <cairoint.h>
 
 /* Cairo internal extructures and defines*/
 #define DOUBLE_TO_26_6(d) ((FT_F26Dot6)((d) * 64.0))
 #define DOUBLE_FROM_26_6(t) ((double)(t) / 64.0)
 #define DOUBLE_TO_16_16(d) ((FT_Fixed)((d) * 65536.0))
 #define DOUBLE_FROM_16_16(t) ((double)(t) / 65536.0)
+
+
+
+struct cairo_matrix {
+    double m[3][2];
+};
+
+struct cairo_font {
+    int refcount;
+    cairo_matrix_t matrix;
+    const struct cairo_font_backend *backend;
+};
 
 
 typedef struct {
@@ -508,7 +516,7 @@ GpStatus GdipNewInstalledFontCollection(GpFontCollection** fontCollection);
 GpStatus GdipDeleteFontFamily(GpFontCollection* fontCollection);
 GpStatus GdipGetFontCollectionFamilyCount(GpFontCollection* fontCollection, int* numFound);
 GpStatus GdipGetFontCollectionFamilyList(GpFontCollection* fontCollection, int numSought, GpFontFamily** gpfamilies, int* numFound);
-GpStatus GdipGetFamilyName(GDIPCONST GpFontFamily* family, WCHAR  name[LF_FACESIZE], int language);
+GpStatus GdipGetFamilyName(GDIPCONST GpFontFamily* family, WCHAR name[LF_FACESIZE], int language);
 GpStatus GdipGetGenericFontFamilySansSerif(GpFontFamily **nativeFamily);
 GpStatus GdipGetGenericFontFamilySerif(GpFontFamily **nativeFamily);
 GpStatus GdipGetGenericFontFamilyMonospace(GpFontFamily **nativeFamily);

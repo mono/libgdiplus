@@ -158,11 +158,9 @@ GpStatus GdipCreateFontFamilyFromName(GDIPCONST WCHAR *name, GpFontCollection *f
 
 
 GpStatus
-GdipGetFamilyName(GDIPCONST GpFontFamily* family, WCHAR  name[LF_FACESIZE], int language)
+GdipGetFamilyName(GDIPCONST GpFontFamily* family, WCHAR name[LF_FACESIZE], int language)
 {                
     if (!family) return InvalidParameter;
-
-    return Ok;
 
     FcChar8* str;
     glong items_read = 0;
@@ -174,11 +172,11 @@ GdipGetFamilyName(GDIPCONST GpFontFamily* family, WCHAR  name[LF_FACESIZE], int 
 
     printf("GdipGetFamilyName %s, %u\n", str,items_written);
 
-    if (items_written>=sizeof(WCHAR)*(LF_FACESIZE-1))
-      items_written=sizeof(WCHAR)*(LF_FACESIZE-1);
+    if (items_written>=(LF_FACESIZE-1))
+      items_written=(LF_FACESIZE-1);
 
-    memset (name, 0, sizeof(WCHAR)*LF_FACESIZE);
-    memcpy (name, pStr, sizeof(WCHAR)*items_written);
+    memcpy (name, str, items_written*sizeof(WCHAR));
+    name[1+items_written*sizeof(WCHAR)]='\0x0';
     
     g_free(pStr);
 
@@ -253,16 +251,6 @@ gdip_font_create (const char *family, int fcslant, int fcweight)
 }
 
 
-/* Selects a font in Cairo without destroying it*/
-cairo_status_t
-cairo_select_font_nondestructive (cairo_t *cr,
-			cairo_font_t *font)
-{
-    cr->gstate->font = font;
-    return CAIRO_STATUS_SUCCESS;
-}
-
-
 GpStatus
 GdipCreateFont(GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, Unit unit,  GpFont **font)
 {
@@ -305,6 +293,7 @@ GdipCreateFont(GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, 
     }
 
     result->cairofnt  = gdip_font_create (str, slant, weight);
+    cairo_font_reference(result->cairofnt);
     *font=result;
         
     return Ok;
