@@ -1,3 +1,8 @@
+2005-02-10  Geoff Norton  <gnorton@customerdna.com>
+
+	* general.c: Drop the last usage of GDIPLUS_NOX, if we can't open
+	the display fall back to 96.0f (changed new default to 96 from 72)
+
 2005-02-06  Geoff Norton  <gnorton@customerdna.com>
 
 	* gifcodec.c: Fix a typo

@@ -151,21 +151,22 @@ gdip_get_display_dpi()
 	Display* display;
 
 	if (dpis == 0) {
-        	if (getenv ("GDIPLUS_NOX") != NULL) {
-            		dpis = 72.0f;
-        	} else {
-            		char *val;
+		char *val;
 
-			display = XOpenDisplay (0);
-			val = XGetDefault(display, "Xft", "dpi");
+		display = XOpenDisplay (0);
+		// If the display is openable lets try to read dpi from it; otherwise use a default of 96.0f
+		if (display) {
+			val = XGetDefault (display, "Xft", "dpi");
 			XCloseDisplay (display);
-            		if (val) {
-				dpis = atof(val);
-            		} else {
-				dpis = 72.0f;
-	    		}
+			if (val) {
+				dpis = atof (val);
+			} else {
+				dpis = 96.0f;
+			}
+		} else {
+			dpis = 96.0f;
 		}
-        }
+	}
 
 	return dpis;
 }
