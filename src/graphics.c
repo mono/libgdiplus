@@ -346,7 +346,7 @@ GdipDeleteGraphics (GpGraphics *graphics)
 GpStatus 
 GdipGetDC (GpGraphics *graphics, int *hDC)
 {
-	// For our gdi+ the hDC is equivalent to the graphics handle
+	/* For our gdi+ the hDC is equivalent to the graphics handle */
 	if (*hDC) {
 		*hDC = (int)graphics;
 	}
@@ -1715,11 +1715,11 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	/*
 	   Get font size information; how expensive is the cairo stuff here? 
 	*/
-	cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);	// Set our font; this will also be used for later drawing
-	cairo_font_current_transform(font->cairofnt, &SavedMatrix);	// Save the matrix
+	cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);	/* Set our font; this will also be used for later drawing */
+	cairo_font_current_transform(font->cairofnt, &SavedMatrix);	/* Save the matrix */
 	cairo_scale_font (graphics->ct, font->sizeInPixels);
-	cairo_current_font_extents (graphics->ct, &FontExtent);		// Get the size we're looking for
-//	cairo_font_set_transform(font->cairofnt, &SavedMatrix);		// Restore the matrix
+	cairo_current_font_extents (graphics->ct, &FontExtent);		/* Get the size we're looking for */
+/*	cairo_font_set_transform(font->cairofnt, &SavedMatrix);*/	/* Restore the matrix */
 
 	if ((LineHeight=FontExtent.ascent)<1) {
 		LineHeight=1;
@@ -2218,10 +2218,12 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 		/* Setup cairo */
 		/* Save the font matrix */
+#ifdef COMMENTED_OUT
 		// Font already has been set at function entry
 		// cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);	// Set at function entry
 		// cairo_font_current_transform(font->cairofnt, &SavedMatrix);		// No need to save again, already saved at function entry
 		// cairo_scale_font (graphics->ct, font->sizeInPixels);
+#endif
 
 		if (brush) {
 			gdip_brush_setup (graphics, (GpBrush *)brush);
@@ -2291,11 +2293,9 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 					if (font->style & FontStyleStrikeout) {
 						if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
-							//GdipFillRectangle (graphics, brush, CursorX, CursorY+FontExtent.descent, j, 1);
 							cairo_move_to (graphics->ct, (int)(CursorX)+0.5, (int)(CursorY+FontExtent.descent)+0.5);
 							cairo_line_to (graphics->ct, (int)(CursorX+j)+0.5, (int)(CursorY+FontExtent.descent)+0.5);
 						} else {
-							//GdipFillRectangle (graphics, brush, CursorX-FontExtent.descent, CursorY, 1, j);
 							cairo_move_to (graphics->ct, (int)(CursorX-FontExtent.descent)+0.5, (int)(CursorY)+0.5);
 							cairo_line_to (graphics->ct, (int)(CursorX-FontExtent.descent)+0.5, (int)(CursorY+j)+0.5);
 						}
@@ -2303,11 +2303,9 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 					if (font->style & FontStyleUnderline) {
 						if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
-							//GdipFillRectangle (graphics, brush, CursorX, CursorY-FontExtent.descent/2, j, 1);
 							cairo_move_to (graphics->ct, (int)(CursorX)+0.5, (int)(CursorY+FontExtent.descent/2)+0.5);
 							cairo_line_to (graphics->ct, (int)(CursorX+j)+0.5, (int)(CursorY+FontExtent.descent/2)+0.5);
 						} else {
-							//GdipFillRectangle (graphics, brush, CursorX+FontExtent.descent/2, CursorY, 1, j);
 							cairo_move_to (graphics->ct, (int)(CursorX-FontExtent.descent/2)+0.5, (int)(CursorY)+0.5);
 							cairo_line_to (graphics->ct, (int)(CursorX-FontExtent.descent/2)+0.5, (int)(CursorY+j)+0.5);
 						}
@@ -2353,7 +2351,6 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 				if (CurrentDetail->Flags & STRING_DETAIL_HOTKEY) {
 					if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
 						CursorX+=CurrentDetail->PosX;
-						//GdipFillRectangle (graphics, brush, CursorX, CursorY-FontExtent.descent/2+1, CurrentDetail->Width, 1);
 						cairo_set_line_width(graphics->ct, 1);
 
 						cairo_move_to (graphics->ct, (int)(CursorX)+0.5, (int)(CursorY-FontExtent.descent/2)+0.5);
@@ -2363,7 +2360,6 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 					} else {
 						CursorY+=CurrentDetail->PosX;
-						//GdipFillRectangle (graphics, brush, CursorX+FontExtent.descent/2-1, CursorY, 1, CurrentDetail->Width);
 						cairo_move_to (graphics->ct, (int)(CursorX+FontExtent.descent/2)-0.5, (int)(CursorY)+0.5);
 						cairo_line_to (graphics->ct, (int)(CursorX+FontExtent.descent/2)-0.5, (int)(CursorY+CurrentDetail->Width)+0.5);
 						CursorY-=CurrentDetail->PosX;
@@ -2376,7 +2372,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	}
 
 Done:
-	cairo_font_set_transform(font->cairofnt, &SavedMatrix);		// Restore matrix to original values
+	cairo_font_set_transform(font->cairofnt, &SavedMatrix);		/* Restore matrix to original values */
 
 	/* We need to remove the clip region */
 	/* Following line is commented to fix the DrawString bugs */

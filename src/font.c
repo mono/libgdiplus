@@ -19,7 +19,7 @@
  * Author:
  *          Jordi Mas i Hernandez <jordi@ximian.com>, 2004
  */
-
+#include <stdio.h>
 #include "gdip.h"
 #include <math.h>
 #include <glib.h>
@@ -797,7 +797,7 @@ GetFontMetrics(GpGraphics *graphics, GpFont *font, int *ascent, int *descent)
 		*ascent = (int)font_extent.ascent;
 	}
 
-	// Descent is negative for descent below the baseline
+	/* Descent is negative for descent below the baseline */
 	if (descent) {
 		*descent = -1 * (int)font_extent.descent;
 	}
