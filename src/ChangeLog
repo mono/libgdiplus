@@ -1,4 +1,7 @@
 2004-04-30 Jordi Mas i Hernandez <jordi@ximian.com>
+	* region.c: fixes bug at GdipSetInfinite detected by the tests
+
+2004-04-30 Jordi Mas i Hernandez <jordi@ximian.com>
 	* bitmap.c: fixes bug causing a cloned imaged not been able to
         save it.
 

@@ -211,7 +211,8 @@ GdipSetInfinite (GpRegion *region)
         rect.X = rect.Y = -4194304;
         rect.Width = rect.Height= 8388608;
 
-        return gdip_createRegion (&region, RegionTypeRectF, (void*) &rect);
+        gdip_add_rect_to_array (&region->rects, &region->cnt,  &rect);
+        return Ok;
 }
 
 
