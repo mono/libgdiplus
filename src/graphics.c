@@ -2233,10 +2233,10 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			/* us uncomment following clipping calls. So, probably we can */
 			/* uncomment these when we depend on new version of cairo */
 
-			//cairo_init_clip (graphics->ct);
-			//cairo_rectangle (graphics->ct, rc->X, rc->Y, rc->Width, rc->Height);
-			//cairo_clip (graphics->ct);
-			//cairo_new_path (graphics->ct);
+			cairo_init_clip (graphics->ct);
+			cairo_rectangle (graphics->ct, rc->X, rc->Y, rc->Width, rc->Height);
+			cairo_clip (graphics->ct);
+			cairo_new_path (graphics->ct);
 		}
 
 		/* Setup cairo */
@@ -2404,7 +2404,7 @@ Done:
 	/* We need to remove the clip region */
 	/* Following line is commented to fix the DrawString bugs */
 	/* See the note at the beginning of if(draw) block. */
-	//cairo_init_clip (graphics->ct);
+	cairo_init_clip (graphics->ct);
 
 	/* Cleanup */
 	free (CleanString);
