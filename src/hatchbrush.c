@@ -11,7 +11,7 @@
 #include "hatchbrush.h"
 
 /*
- * we have a single copy of vtable for
+ * We keep a single copy of vtable for
  * all instances of hatchbrush.
  */
 
@@ -448,11 +448,10 @@ draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int widt
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE;
 	double line_width = LINE_WIDTH;
+
 	/* start hatching from bottom left corner */
-	double x1 = 0.0;
-	double y1 = height;
-	double x2 = 0.0;
-	double y2 = height;
+	double x1 = 0.0, y1 = height;
+	double x2 = 0.0, y2 = height;
 
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
 					      format, width, height);
@@ -486,7 +485,7 @@ draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int widt
 		 * here by using other way. See, draw_horizontal_hatch function, where
 		 * we draw a very small hatch and we repeat it on a surface.
 		 */
-		while((x2 < width) || (y1 > 0)) {
+		while ((x2 < width) || (y1 > 0)) {
 			cairo_move_to (ct, x1, y1);
 			cairo_line_to (ct, x2, y2);
 			x2 += hatch_size;
@@ -509,11 +508,10 @@ draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE;
 	double line_width = LINE_WIDTH;
+
 	/* start hatching from top left corner */
-	double x1 = 0.0;
-	double y1 = 0.0;
-	double x2 = 0.0;
-	double y2 = 0.0;
+	double x1 = 0.0, y1 = 0.0;
+	double x2 = 0.0, y2 = 0.0;
 
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
 					      format, width, height);
@@ -547,7 +545,7 @@ draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 		 * here by using other way. See, draw_horizontal_hatch function, where
 		 * we draw a very small hatch and we repeat it on a surface.
 		 */
-		while((x1 < width) || (y2 < height)) {
+		while ((x1 < width) || (y2 < height)) {
 			cairo_move_to (ct, x1, y1);
 			cairo_line_to (ct, x2, y2);
 			x1 += hatch_size;
@@ -681,11 +679,10 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE;
 	double line_width = LINE_WIDTH;
+
 	/* start hatching from bottom left corner */
-	double x1 = 0.0;
-	double y1 = height;
-	double x2 = 0.0;
-	double y2 = height;
+	double x1 = 0.0, y1 = height;
+	double x2 = 0.0, y2 = height;
 
 	/*
 	 * The values used below are obtained by hit and trial to get the 
@@ -743,7 +740,7 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 		 * here by using other way. See, draw_horizontal_hatch function, where
 		 * we draw a very small hatch and we repeat it on a surface.
 		 */
-		while((x2 < width) || (y1 > 0)) {
+		while ((x2 < width) || (y1 > 0)) {
 			cairo_move_to (ct, x1, y1);
 			cairo_line_to (ct, x2, y2);
 			x2 += hatch_size;
@@ -770,11 +767,10 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE;
 	double line_width = LINE_WIDTH;
+
 	/* start hatching from top left corner */
-	double x1 = 0.0;
-	double y1 = 0.0;
-	double x2 = 0.0;
-	double y2 = 0.0;
+	double x1 = 0.0, y1 = 0.0;
+	double x2 = 0.0, y2 = 0.0;
 
 	/*
 	 * The values used below are obtained by hit and trial to get the 
@@ -832,7 +828,7 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width
 		 * here by using other way. See, draw_horizontal_hatch function, where
 		 * we draw a very small hatch and we repeat it on a surface.
 		 */
-		while((x1 < width) || (y2 < height)) {
+		while ((x1 < width) || (y2 < height)) {
 			cairo_move_to (ct, x1, y1);
 			cairo_line_to (ct, x2, y2);
 			x1 += hatch_size;
