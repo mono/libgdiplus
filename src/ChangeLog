@@ -1,3 +1,9 @@
+2005-01-28  Peter Bartok  <pbartok@novell.com>
+
+	* pathgradientbrush.c (GdipMultiplyPathGradientTransform): Don't
+	  destroy the matrix we're about to destroy. Fixes bug introduced
+	  in r39075. Patch by Peter Johanson
+
 2005-01-27  Geoff Norton  <gnorton@customerdna.com>
 
 	* tiffcodec.c: Make this endian aware for image saving as well
@@ -79,7 +85,7 @@
 	  as well as 24 bit images, simplified readying by doing the
 	  read/assignment and RGB to ARGB in one go
 
-2005-01-20  Jackson Harper  <jackson@ximian.com>
+2005-01-20  Peter Bartok  <pbartok@novell.com>
 
 	* graphics.c:
 	  - Using new macro to deal with post 0.3.0 cairo changes in font APIs

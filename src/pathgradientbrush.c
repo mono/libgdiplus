@@ -960,8 +960,6 @@ GdipMultiplyPathGradientTransform (GpPathGradient *brush, GDIPCONST GpMatrix *ma
 		return InvalidParameter;
 	}
 
-	cairo_matrix_destroy(mat);
-
 	brush->transform = mat;
 	return Ok;
 }
