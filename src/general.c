@@ -505,3 +505,30 @@ fcmp (double x1, double x2, double epsilon)
         else /* -delta <= difference <= delta */
                 return 0;  /* x1 == x2 */
 }
+
+/* This function is used by gradient brushes for calculating the erf required for 
+ * calculating the integral of the normal distribution equation.
+ */
+float gdip_erf (float x, float std, float mean)
+{
+	/* std refers to standard deviation
+	 *
+	 * ERF: http://mathworld.wolfram.com/Erf.html
+	 * 
+	 * erf (z) = (2 / sqrt (pi)) * infinite sum of [(pow (-1, n) * pow (z, 2n+1))/(n! * (2n+1))]
+	 * using Maclaurin series.
+	 */
+	float series;
+	float constant = 2.0 / sqrt (PI);
+	float z = (x - mean) / std;
+	z /= sqrt (2.0);
+
+	series = (z
+		  - pow (z, 3) / 3.0
+		  + pow (z, 5) / 10.0
+		  - pow (z, 7) / 42.0
+		  + pow (z, 9) / 216.0
+		  - pow (z, 11) / 1420.0);
+
+	return constant * series;
+}

@@ -1229,11 +1229,11 @@ GdipSetLineWrapMode (GpLineGradient *brush, GpWrapMode wrapMode)
 GpStatus
 GdipSetLineLinearBlend (GpLineGradient *brush, float focus, float scale)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-
 	float *blends;
 	float *positions;
 	int count = 3;
+
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
 	if (focus == 0 || focus == 1) {
 		count = 2;
@@ -1256,6 +1256,14 @@ GdipSetLineLinearBlend (GpLineGradient *brush, float focus, float scale)
 		brush->blend->positions = positions;
 	}
 
+	/* we clear the preset colors when setting the blend */
+	if (brush->presetColors->count != 0) {
+		GdipFree (brush->presetColors->colors);
+		GdipFree (brush->presetColors->positions);
+		brush->presetColors->count = 0;
+	}
+
+	/* set the blend colors */
 	if (focus == 0) {
 		brush->blend->positions [0] = focus;
 		brush->blend->factors [0] = scale;
@@ -1280,6 +1288,57 @@ GdipSetLineLinearBlend (GpLineGradient *brush, float focus, float scale)
 	}
 
 	brush->blend->count = count;
+	brush->changed = TRUE;
+
+	return Ok;
+}
+
+/* This is defined in general.c */
+float gdip_erf (float x, float std, float mean);
+
+GpStatus
+GdipSetLineSigmaBlend (GpLineGradient *brush, float focus, float scale)
+{
+	float *blends;
+	float *positions;
+	float pos = 0.0;
+	int count = 511; /* total no of samples */
+	int index;
+	float sigma;
+	float mean;
+	float fall_off_len = 2.0; /* curve fall off length in terms of SIGMA */
+	float delta; /* distance between two samples */
+
+	/* we get a curve not starting from 0 and not ending at 1.
+	 * so we subtract the starting value and divide by the curve
+	 * height to make it fit in the 0 to scale range
+	 */
+	float curve_bottom;
+	float curve_top;
+	float curve_height;
+
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
+	if (focus == 0 || focus == 1) {
+		count = 256;
+	}
+
+	if (brush->blend->count != count) {
+		blends = (float *) GdipAlloc (count * sizeof (float));
+		g_return_val_if_fail (blends != NULL, OutOfMemory);
+
+		positions = (float *) GdipAlloc (count * sizeof (float));
+		g_return_val_if_fail (positions != NULL, OutOfMemory);
+
+		/* free the existing values */
+		if (brush->blend->count != 0) {
+			GdipFree (brush->blend->factors);
+			GdipFree (brush->blend->positions);
+		}
+
+		brush->blend->factors = blends;
+		brush->blend->positions = positions;
+	}
 
 	/* we clear the preset colors when setting the blend */
 	if (brush->presetColors->count != 0) {
@@ -1288,15 +1347,130 @@ GdipSetLineLinearBlend (GpLineGradient *brush, float focus, float scale)
 		brush->presetColors->count = 0;
 	}
 
+	/* Set the blend colors. We use integral of the Normal Distribution,
+	 * i.e. Cumulative Distribution Function (CFD).
+	 *
+	 * Normal distribution:
+	 *
+	 * y (x) = (1 / sqrt (2 * PI * sq (sigma))) * exp (-sq (x - mu)/ (2 * sq (sigma)))
+	 *
+	 * where, y = height of normal curve, 
+	 *        sigma = standard deviation
+	 *        mu = mean
+	 * OR
+	 * y (x) = peak * exp ( - z * z / 2)
+	 * where, z = (x - mu) / sigma
+	 *
+	 * In this curve, peak would occur at mean i.e. for x = mu. This results in
+	 * a peak value of peak = (1 / sqrt (2 * PI * sq (sigma))).
+	 *
+	 * Cumulative distribution function:
+	 * Ref: http://mathworld.wolfram.com/NormalDistribution.html
+	 *
+	 * D (x) = (1 / 2) [1 + erf (z)]
+	 * where, z = (x - mu) / (sigma * sqrt (2))
+	 *
+	 */
+	if (focus == 0) {
+		/* right part of the curve with a complete fall in fall_off_len * SIGMAs */
+		sigma = 1.0 / fall_off_len;
+		mean = 0.5;
+		delta = 1.0 / 255.0;
+
+		curve_bottom = 0.5 * (1.0 - gdip_erf (1.0, sigma, mean));
+		curve_top = 0.5 * (1.0 - gdip_erf (focus, sigma, mean));
+		curve_height = curve_top - curve_bottom;
+
+		/* set the start */
+		brush->blend->positions [0] = focus;
+		brush->blend->factors [0] = scale;
+
+		for (index = 1, pos = delta; index < 255; index++, pos += delta) {
+			brush->blend->positions [index] = pos;
+			brush->blend->factors [index] = (scale / curve_height) * 
+				(0.5 * (1.0 - gdip_erf (pos, sigma, mean)) - curve_bottom);
+		}
+
+		/* set the end */
+		brush->blend->positions [count - 1] = 1.0;
+		brush->blend->factors [count - 1] = 0.0;
+	}
+
+	else if (focus == 1) {
+		/* left part of the curve with a complete rise in fall_off_len * SIGMAs */
+		sigma = 1.0 / fall_off_len;
+		mean = 0.5;
+		delta = 1.0 / 255.0;
+
+		curve_bottom = 0.5 * (1.0 + gdip_erf (0.0, sigma, mean));
+		curve_top = 0.5 * (1.0 + gdip_erf (focus, sigma, mean));
+		curve_height = curve_top - curve_bottom;
+
+		/* set the start */
+		brush->blend->positions [0] = 0.0;
+		brush->blend->factors [0] = 0.0;
+
+		for (index = 1, pos = delta; index < 255; index++, pos += delta) {
+			brush->blend->positions [index] = pos;
+			brush->blend->factors [index] = (scale / curve_height) * 
+				(0.5 * (1.0 + gdip_erf (pos, sigma, mean)) - curve_bottom);
+		}
+
+		/* set the end */
+		brush->blend->positions [count - 1] = focus;
+		brush->blend->factors [count - 1] = scale;
+	}
+
+	else {
+		/* left part of the curve with a complete fall in fall_off_len * SIGMAs */
+		sigma = focus / (2 * fall_off_len);
+		mean = focus / 2.0;
+		delta = focus / 255.0;
+
+		/* set the start */
+		brush->blend->positions [0] = 0.0;
+		brush->blend->factors [0] = 0.0;
+
+		curve_bottom = 0.5 * (1.0 + gdip_erf (0.0, sigma, mean));
+		curve_top = 0.5 * (1.0 + gdip_erf (focus, sigma, mean));
+		curve_height = curve_top - curve_bottom;
+
+		for (index = 1, pos = delta; index < 255; index++, pos += delta) {
+			brush->blend->positions [index] = pos;
+			brush->blend->factors [index] = (scale / curve_height) * 
+				(0.5 * (1.0 + gdip_erf (pos, sigma, mean)) - curve_bottom);
+		}
+
+		brush->blend->positions [index] = focus;
+		brush->blend->factors [index] = scale;
+
+		/* right part of the curve with a complete fall in fall_off_len * SIGMAs */
+		sigma = (1.0 - focus) / (2 * fall_off_len);
+		mean = (1.0 + focus) / 2.0;
+		delta = (1.0 - focus) / 255.0;
+
+		curve_bottom = 0.5 * (1.0 - gdip_erf (1.0, sigma, mean));
+		curve_top = 0.5 * (1.0 - gdip_erf (focus, sigma, mean));
+		curve_height = curve_top - curve_bottom;
+
+		index ++;
+		pos = focus + delta;
+
+		for (; index < 510; index++, pos += delta) {
+			brush->blend->positions [index] = pos;
+			brush->blend->factors [index] = (scale / curve_height) * 
+				(0.5 * (1.0 - gdip_erf (pos, sigma, mean)) - curve_bottom);
+		}
+
+		/* set the end */
+		brush->blend->positions [count - 1] = 1.0;
+		brush->blend->factors [count - 1] = 0.0;
+	}
+
+	brush->blend->count = count;
 	brush->changed = TRUE;
 
 	return Ok;
-}
-
-GpStatus
-GdipSetLineSigmaBlend (GpLineGradient *brush, float focus, float scale)
-{
-	return NotImplemented;
 }
 
 GpStatus

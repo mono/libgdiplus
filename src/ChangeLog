@@ -1,3 +1,9 @@
+2004-07-09  Ravindra <rkumar@novell.com>
+
+	* lineargradientbrush.c: Implemented GdipSetLineSigmaBlend function.
+	* general.c: Added gdip_erf function used for setting sigma blend
+	by gradient brushes.
+
 2004-07-09  Sanjay Gupta <gsanjay@novell.com>
 
 	* gdip.h: Modified FrameDimensionInfo structure to carry data related
