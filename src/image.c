@@ -291,6 +291,9 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
         case PNG:
             status = gdip_save_png_image_to_file (fp, image, params);
             break;
+        case JPEG:
+            status = gdip_save_jpeg_image_to_file (fp, image, params);
+            break;
         default:
             status = NotImplemented;
             break;
@@ -657,6 +660,39 @@ gdip_get_pixel_format_depth(PixelFormat pixfmt)
     return result;
 }
 
+int
+gdip_get_pixel_format_components(PixelFormat pixfmt)
+{
+    int result = 0;
+                                           
+    switch (pixfmt) {
+        case Format16bppArgb1555:
+        case Format32bppArgb:
+        case Format32bppPArgb:
+        case Format64bppArgb:
+        case Format64bppPArgb:
+            result = 4;
+            break;
+        case Format16bppRgb555:
+        case Format16bppRgb565:
+        case Format24bppRgb:
+        case Format32bppRgb:
+        case Format48bppRgb:
+            result = 3;
+            break;
+        case Format16bppGrayScale:
+        case Format8bppIndexed:
+        case Format4bppIndexed:
+        case Format1bppIndexed:
+            result = 1;
+            break;
+        default:
+            break;
+    }
+
+    return result;
+}
+
 
 GpStatus
 GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
@@ -677,10 +713,12 @@ GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
         case JPEG:
             status = gdip_load_jpeg_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
             break;
+        case PNG:
+            status = gdip_load_png_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
+            break;
         case BMP:
         case TIFF:
         case GIF:
-        case PNG:
         default:
             status = NotImplemented;
     }
@@ -713,6 +751,9 @@ GdipSaveImageToDelegate_linux (GpImage *image, PutBytesDelegate putBytesFunc, GD
     switch (format) {
         case PNG:
             status = gdip_save_png_image_to_stream_delegate (putBytesFunc, image, params);
+            break;
+        case JPEG:
+            status = gdip_save_jpeg_image_to_stream_delegate (putBytesFunc, image, params);
             break;
         default:
             status = NotImplemented;

@@ -1,3 +1,17 @@
+2004-04-06  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* jpegcodec.c (gdip_save_jpeg_image_internal): implement
+	jpeg saving, both files and streams.  Format options are
+	ignored for now.
+
+	* image.c (GdipSaveImageToFile,
+	(GdipSaveImageToDelegate_linux): add JPEG
+
+	* image.c (gdip_get_pixel_format_components): added function
+
+	* jpegcodec.c (gdip_load_jpeg_image_internal): add missing
+	jpeg_destroy_decompress()
+
 2004-04-06  Duncan Mak  <duncan@ximian.com>
 
 	* graphics.c (make_arc): Just follow what I did with GraphicsPath

@@ -27,7 +27,7 @@
 #define siglongjmp longjmp
 #endif
 
-#define JPEG_READ_BUFFER_SIZE	65536
+#define JPEG_BUFFER_SIZE	65536
 
 struct gdip_stdio_jpeg_source_mgr {
     struct jpeg_source_mgr parent;
@@ -41,11 +41,19 @@ struct gdip_stream_jpeg_source_mgr {
     struct jpeg_source_mgr parent;
     GetBytesDelegate getBytesFunc;
     SeekDelegate seekFunc;
-    PutBytesDelegate putBytesFunc;
 
     JOCTET *buf;
 };
 typedef struct gdip_stream_jpeg_source_mgr *gdip_stream_jpeg_source_mgr_ptr;
+
+struct gdip_stream_jpeg_dest_mgr {
+    struct jpeg_destination_mgr parent;
+
+    PutBytesDelegate putBytesFunc;
+
+    JOCTET *buf;
+};
+typedef struct gdip_stream_jpeg_dest_mgr *gdip_stream_jpeg_dest_mgr_ptr;
 
 struct gdip_jpeg_error_mgr {
     struct jpeg_error_mgr parent;
@@ -93,7 +101,7 @@ _gdip_source_stdio_fill_input_buffer (j_decompress_ptr cinfo)
     gdip_stdio_jpeg_source_mgr_ptr src = (gdip_stdio_jpeg_source_mgr_ptr) cinfo->src;
     size_t nb;
 
-    nb = fread (src->buf, 1, JPEG_READ_BUFFER_SIZE, src->infp);
+    nb = fread (src->buf, 1, JPEG_BUFFER_SIZE, src->infp);
 
     if (nb <= 0) {
         /* this is a hack learned from gdk-pixbuf */
@@ -135,7 +143,7 @@ _gdip_source_stream_fill_input_buffer (j_decompress_ptr cinfo)
     gdip_stream_jpeg_source_mgr_ptr src = (gdip_stream_jpeg_source_mgr_ptr) cinfo->src;
     size_t nb;
 
-    nb = src->getBytesFunc (src->buf, JPEG_READ_BUFFER_SIZE, 0);
+    nb = src->getBytesFunc (src->buf, JPEG_BUFFER_SIZE, 0);
     if (nb <= 0) {
         /* this is a hack learned from gdk-pixbuf */
         /* insert fake EOI marker, to try to salvage image
@@ -181,6 +189,35 @@ static void
 _gdip_source_dummy_term (j_decompress_ptr cinfo)
 {
     /* nothing */
+}
+
+static void
+_gdip_dest_stream_init (j_compress_ptr cinfo)
+{
+    gdip_stream_jpeg_dest_mgr_ptr dest = (gdip_stream_jpeg_dest_mgr_ptr) cinfo->dest;
+    dest->parent.next_output_byte = dest->buf;
+    dest->parent.free_in_buffer = JPEG_BUFFER_SIZE;
+}
+
+static BOOL
+_gdip_dest_stream_empty_output_buffer (j_compress_ptr cinfo)
+{
+    gdip_stream_jpeg_dest_mgr_ptr dest = (gdip_stream_jpeg_dest_mgr_ptr) cinfo->dest;
+
+    dest->putBytesFunc (dest->buf, JPEG_BUFFER_SIZE);
+
+    dest->parent.next_output_byte = dest->buf;
+    dest->parent.free_in_buffer = JPEG_BUFFER_SIZE;
+
+    return TRUE;
+}
+
+static void
+_gdip_dest_stream_term (j_compress_ptr cinfo)
+{
+    gdip_stream_jpeg_dest_mgr_ptr dest = (gdip_stream_jpeg_dest_mgr_ptr) cinfo->dest;
+
+    dest->putBytesFunc (dest->buf, JPEG_BUFFER_SIZE - dest->parent.free_in_buffer);
 }
 
 
@@ -312,6 +349,8 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
         }
     }
 
+    jpeg_destroy_decompress (&cinfo);
+
     img->image.surface = cairo_surface_create_for_image (destbuf, img->cairo_format,
                                                    img->image.width, img->image.height,
                                                    stride);
@@ -340,7 +379,7 @@ gdip_load_jpeg_image_from_file (FILE *fp, GpImage **image)
     gdip_stdio_jpeg_source_mgr_ptr src;
 
     src = (gdip_stdio_jpeg_source_mgr_ptr) GdipAlloc (sizeof (struct gdip_stdio_jpeg_source_mgr));
-    src->buf = GdipAlloc (JPEG_READ_BUFFER_SIZE * sizeof(JOCTET));
+    src->buf = GdipAlloc (JPEG_BUFFER_SIZE * sizeof(JOCTET));
 
     src->parent.init_source = _gdip_source_dummy_init;
     src->parent.fill_input_buffer = _gdip_source_stdio_fill_input_buffer;
@@ -369,7 +408,7 @@ gdip_load_jpeg_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
     gdip_stream_jpeg_source_mgr_ptr src;
 
     src = (gdip_stream_jpeg_source_mgr_ptr) GdipAlloc (sizeof (struct gdip_stream_jpeg_source_mgr));
-    src->buf = GdipAlloc (JPEG_READ_BUFFER_SIZE * sizeof(JOCTET));
+    src->buf = GdipAlloc (JPEG_BUFFER_SIZE * sizeof(JOCTET));
 
     src->parent.init_source = _gdip_source_dummy_init;
     src->parent.fill_input_buffer = _gdip_source_stream_fill_input_buffer;
@@ -389,10 +428,129 @@ gdip_load_jpeg_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
     return st;
 }
 
+GpStatus
+gdip_save_jpeg_image_internal (FILE *fp,
+                               PutBytesDelegate putBytesFunc,
+                               GpImage *image,
+                               GDIPCONST EncoderParameters *params)
+{
+    GpBitmap *bitmap = (GpBitmap *) image;
+    struct jpeg_compress_struct cinfo;
+    struct gdip_jpeg_error_mgr jerr;
+    gdip_stream_jpeg_dest_mgr_ptr dest = NULL;
+    JOCTET *scanline = NULL;
+    int need_argb_conversion = 0;
+
+    /* Verify that we can support this pixel format */
+    switch (image->pixFormat) {
+        case Format32bppArgb:
+        case Format32bppPArgb:
+        case Format32bppRgb:
+        case Format24bppRgb:
+            break;
+        default:
+            return InvalidParameter;
+            break;
+    }
+
+    cinfo.err = jpeg_std_error ((struct jpeg_error_mgr *) &jerr);
+    jerr.parent.error_exit = _gdip_jpeg_error_exit;
+    jerr.parent.output_message = _gdip_jpeg_output_message;
+
+    if (sigsetjmp (jerr.setjmp_buffer, 1)) {
+        /* Error occured */
+        jpeg_destroy_compress (&cinfo);
+
+        if (dest != NULL) {
+            GdipFree (dest->buf);
+            GdipFree (dest);
+        }
+        if (scanline != NULL && need_argb_conversion)
+            GdipFree (scanline);
+
+        return GenericError;
+    }
+
+    jpeg_create_compress (&cinfo);
+
+    if (fp != NULL) {
+        jpeg_stdio_dest (&cinfo, fp);
+    } else {
+        dest = GdipAlloc (sizeof (struct gdip_stream_jpeg_dest_mgr));
+        dest->parent.init_destination = _gdip_dest_stream_init;
+        dest->parent.empty_output_buffer = _gdip_dest_stream_empty_output_buffer;
+        dest->parent.term_destination = _gdip_dest_stream_term;
+
+        dest->putBytesFunc = putBytesFunc;
+        dest->buf = GdipAlloc (JPEG_BUFFER_SIZE);
+
+        cinfo.dest = (struct jpeg_destination_mgr *) dest;
+    }
+
+    cinfo.image_width = image->width;
+    cinfo.image_height = image->height;
+    if (gdip_get_pixel_format_components (image->pixFormat) == 3) {
+        cinfo.input_components = 3;
+        if (image->pixFormat == Format32bppRgb)
+            need_argb_conversion = 1;
+        else
+            need_argb_conversion = 0;
+    } else if (gdip_get_pixel_format_components (image->pixFormat) == 4) {
+        cinfo.input_components = 3;
+        need_argb_conversion = 1;
+    }
+
+    cinfo.in_color_space = JCS_RGB;
+
+    jpeg_set_defaults (&cinfo);
+
+    /* should handle encoding params here */
+
+    jpeg_start_compress (&cinfo, TRUE);
+
+    if (need_argb_conversion) {
+        scanline = GdipAlloc (bitmap->data.Stride);
+        guchar *inptr, *outptr;
+        int i, j;
+
+        for (i = 0; i < bitmap->data.Height; i++) {
+            inptr = bitmap->data.Scan0 + (i * bitmap->data.Stride);
+            outptr = scanline;
+
+            for (j = 0; j < bitmap->data.Width; j++) {
+                *outptr++ = inptr[2]; /* R */
+                *outptr++ = inptr[1]; /* G */
+                *outptr++ = inptr[0]; /* B */
+                inptr += 4;        /* skip RGB+A */
+            }
+
+            jpeg_write_scanlines (&cinfo, &scanline, 1);
+        }
+
+        GdipFree (scanline);
+    } else {
+        int i;
+        for (i = 0; i < bitmap->data.Height; i++) {
+            scanline = bitmap->data.Scan0 + (i * bitmap->data.Stride);
+            jpeg_write_scanlines (&cinfo, &scanline, 1);
+        }
+    }
+
+    jpeg_finish_compress (&cinfo);
+    jpeg_destroy_compress (&cinfo);
+
+    if (dest != NULL) {
+        GdipFree (dest->buf);
+        GdipFree (dest);
+    }
+
+    return Ok;
+}
+
 GpStatus 
 gdip_save_jpeg_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params)
 {
-    return NotImplemented;
+    return gdip_save_jpeg_image_internal (fp, NULL, image, params);
 }
 
 GpStatus
@@ -401,7 +559,7 @@ gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
                                          GDIPCONST EncoderParameters *params)
 
 {
-    return NotImplemented;
+    return gdip_save_jpeg_image_internal (NULL, putBytesFunc, image, params);
 }
 
 #else
