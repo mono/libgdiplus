@@ -224,8 +224,6 @@ make_pie (GpGraphics *graphics, float x, float y,
 
         /* draws line back to center */
         cairo_line_to (graphics->ct, cx, cy);
-
-        printf ("Center: (%f, %f)\n", cx, cy);
 }
 
 
