@@ -442,10 +442,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
 			r = (255 - k) * (255 - y) / 255;
 		    }
 
-		    lineptr [0] = r;
-		    lineptr [1] = g;
-		    lineptr [2] = b;
-		    lineptr [3] = 255;
+		    set_pixel_bgra(lineptr, 0, b, g, r, 0xff);
 		    lineptr += 4;
 		}
 	    }
@@ -456,19 +453,15 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
 		guchar *inptr, *outptr;
 		JOCTET r, g, b;
 
-		inptr = lines[i] + (img->image.width) * 3 - 1;
-		outptr = lines[i] + stride - 1;
+		inptr = lines[i] + (img->image.width) * 3;
+		outptr = lines[i] + stride;
 		for (j = 0; j < img->image.width; j++) {
 		    /* Note the swapping of R and B, to get ARGB from what
 		     * looks like BGR data.
 		     */
-		    r = *inptr--;
-		    g = *inptr--;
-		    b = *inptr--;
-		    *outptr-- = 255;
-		    *outptr-- = b;
-		    *outptr-- = g;
-		    *outptr-- = r;
+		    inptr -= 3;
+		    outptr -= 4;
+		    set_pixel_bgra(outptr, 0, inptr[2], inptr[1], inptr[0], 0xff);
 		}
 	    }
         }
