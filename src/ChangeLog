@@ -1,3 +1,6 @@
+2004-04-09 Peter Bartok <pbartok@novell.com>
+   * Makefile.am: Added region.c to list of sourcefiles
+
 2004-04-09 Jordi Mas i Hernandez <jordi@ximian.com>
 	* region.c - fixes to regions 
 

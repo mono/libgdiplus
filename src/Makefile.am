@@ -18,6 +18,7 @@ libgdiplus_la_SOURCES = \
 	image.c		\
 	matrix.c	\
 	pen.c		\
+	region.c		\
 	solidbrush.c	\
 	solidbrush.h	\
 	stringformat.c	\
