@@ -602,7 +602,6 @@ gdip_release_font (GpFont* font)
 		DeleteWineFont(font->wineHfont);
 	
 	GdipFree ((void *)font);
-	printf ("%x gdip_release_font\n", font);
 }
 
 void
