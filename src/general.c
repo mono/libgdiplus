@@ -92,7 +92,7 @@ Display *_get_wine_display ()
 GpStatus 
 GdiplusStartup(unsigned long *token, const struct startupInput *input, struct startupOutput *output)
 {
-    if (getenv ("GDIPLUS_NOX") != NULL) {
+    if (getenv ("GDIPLUS_NOX") == NULL) {
         GDIP_display = _get_wine_display ();
         if (GDIP_display == 0){
             GDIP_display = XOpenDisplay(0);

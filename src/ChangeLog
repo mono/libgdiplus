@@ -1,5 +1,8 @@
 2004-04-11  Vladimir Vukicevic  <vladimir@pobox.com>
 
+	* general.c (GdiplusStartup): I really meant $GDIPLUS_NOX
+	to mean "no X" instead of "require X".
+
 	* texturebrush.c, image.c: Use gdip_cairo_set_surface_pattern
 
 	* general.c: (gdip_cairo_set_surface_pattern) helper function
