@@ -141,8 +141,11 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	cairo_matrix_destroy (product);
 
 	/* Don't need to setup, if pen is not changed */
-	if (! pen->changed)
-		return Ok;
+	/* This leads to a bug when we are using the same */
+	/* graphics but with a different pen. See bug #66665 */
+	/* Commented following to fix #66665. */
+	/*	if (! pen->changed)
+		return Ok; */
 
 	if (pen->width <= 0) { /* we draw a pixel wide line if width is <=0 */
 		double widthx = 1.0;
@@ -162,10 +165,11 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
                 dash_array = convert_dash_array (pen->dash_array, pen->dash_count);
                 cairo_set_dash (graphics->ct, dash_array, pen->dash_count, pen->dash_offset);
                 free (dash_array);
-        }
+        } else /* Clear the dashes, if set in previous calls */
+		cairo_set_dash (graphics->ct, NULL, 0, 0);
 
 	/* We are done with using all the changes in the pen. */
-	pen->changed = FALSE;
+	/* pen->changed = FALSE; */
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
