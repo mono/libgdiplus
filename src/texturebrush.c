@@ -269,6 +269,7 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 		cairo_identity_matrix (ct);
 		cairo_set_target_surface (ct, texture);
 		cairo_set_pattern (ct, pat);
+
 		/* Draw upper left part of the texture */
 		cairo_rectangle (ct, 0, 0, rect->Width, rect->Height);
 		cairo_fill (ct);

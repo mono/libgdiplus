@@ -796,7 +796,7 @@ GdipSetPenCompoundArray (GpPen *pen, const float *compound, int count)
 
 	memcpy (pen->compound_array, compound, pen->compound_count * sizeof (float));
 
-	return NotImplemented;
+	return Ok;
 }
 
 GpStatus

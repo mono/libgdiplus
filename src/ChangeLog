@@ -1,3 +1,9 @@
+2004-06-25  Ravindra <rkumar@novell.com>
+
+	* lineargradientbrush.c: Couple of fixes and some missing bits.
+	Also implemented GdipSetLineLinearBlend function.
+	* pen.c: Changed return status of GdipSetCompoundArray to Ok.
+
 2004-06-24  Ravindra <rkumar@novell.com>
 
 	* graphics.c: Modified GdipFillXXX operations to make use of
