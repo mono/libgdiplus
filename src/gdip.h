@@ -178,8 +178,6 @@ typedef enum {
 	PixelFormatDontCare = 0
 } PixelFormat;
 
-#define PIXEL_FORMAT_BPP(pf) ((pf >> 8) & 0xff)
-
 typedef enum {
 	ImageLockModeRead = 1,
 	ImageLockModeWrite = 2,
@@ -594,7 +592,6 @@ typedef struct {
 	GpImage	image;
         int             cairo_format;
 	BitmapData	data;
-	ImageFormat     internal_format;
 	void *hBitmapDC;
 	void *hInitialBitmap;
 	void *hBitmap;
@@ -696,8 +693,11 @@ GpGraphics *gdip_graphics_new (void);
 void gdip_graphics_attach_bitmap (GpGraphics *graphics, GpBitmap *image);
 void gdip_graphics_detach_bitmap (GpGraphics *graphics, GpBitmap *image);
 
+GpStatus gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect);
 GpStatus gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect);
-GpStatus  gdip_bitmap_clone_bitmap_rect (GpBitmap *src, Rect *srcRect, GpBitmap *dest, Rect *destRect);
+
+void gdip_from_RGB_to_ARGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride);
+void gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride);
 
 /* Pen */
 void gdip_pen_init (GpPen *pen);

@@ -130,6 +130,10 @@ GdipDisposeImage (GpImage *image)
 	return Ok;
 }
 
+/*
+	Microsoft GDI+ only supports these pixel formats Format24bppRgb, Format32bppArgb, 
+	Format32bppPArgb, Format32bppRgb, Format48bppRgb, Format64bppArgb, Format64bppPArgb
+*/
 GpStatus 
 GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 {
@@ -388,7 +392,6 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
             break;
         case GIF:
             status = gdip_load_gif_image_from_file (fp, &result);
-		printf("\n image.c load image from gif file, status is %d ", status);
 	    result->format = GIF;
             break;
         case PNG:
@@ -735,7 +738,7 @@ gdip_rotate_90 (GpImage *image)
 	BYTE *src, *trg, *rotated;
 	int stride, height, line, x;	
 	GpBitmap *bitmap = (GpBitmap *) image;
-	int components = gdip_get_pixel_format_components (bitmap->internal_format);		         
+	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
 	 
 	bitmap = (GpBitmap *) image;	
         stride = bitmap->data.Stride;
@@ -762,7 +765,7 @@ gdip_rotate_180 (GpImage *image)
 	BYTE *src, *trg, *rotated;
 	int stride, height, line, x;	
 	GpBitmap *bitmap = (GpBitmap *) image;
-	int components = gdip_get_pixel_format_components (bitmap->internal_format);		         
+	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
 	 
 	bitmap = (GpBitmap *) image;	
         stride = bitmap->data.Stride;
@@ -790,7 +793,7 @@ gdip_rotate_270 (GpImage *image)
 	BYTE *src, *trg, *rotated;
 	int stride, height, line, x;	
 	GpBitmap *bitmap = (GpBitmap *) image;
-	int components = gdip_get_pixel_format_components (bitmap->internal_format);		         
+	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
 	 
 	bitmap = (GpBitmap *) image;	
         stride = bitmap->data.Stride;
@@ -819,7 +822,7 @@ gdip_FlipX (GpImage *image)
 	BYTE *src, *trg, *rotated;
 	int stride, height, line, x;	
 	GpBitmap *bitmap = (GpBitmap *) image;
-	int components = gdip_get_pixel_format_components (bitmap->internal_format);		         
+	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
 	 
 	bitmap = (GpBitmap *) image;	
         stride = bitmap->data.Stride;
@@ -1011,6 +1014,13 @@ get_image_format (char *sig_read, size_t size_read)
 	return INVALID;
 } 
 
+int 
+gdip_get_pixel_format_bpp (PixelFormat pixfmt)
+{
+	return gdip_get_pixel_format_depth (pixfmt) * gdip_get_pixel_format_components (pixfmt);
+}
+
+
 int
 gdip_get_pixel_format_depth(PixelFormat pixfmt)
 {
@@ -1059,12 +1069,12 @@ gdip_get_pixel_format_components(PixelFormat pixfmt)
         case Format32bppPArgb:
         case Format64bppArgb:
         case Format64bppPArgb:
+	case Format24bppRgb:	/* Cairo uses for bytes for 24BPP*/
+        case Format32bppRgb:	/* Cairo uses for bytes for 32BPP*/
             result = 4;
             break;
         case Format16bppRgb555:
-        case Format16bppRgb565:
-        case Format24bppRgb:
-        case Format32bppRgb:
+        case Format16bppRgb565: 
         case Format48bppRgb:
             result = 3;
             break;

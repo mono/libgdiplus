@@ -124,6 +124,7 @@ ImageFormat get_image_format (char *sig_read, size_t size_read);
 int gdip_getpixel_formatsize(PixelFormat pixfmt);
 int gdip_get_pixel_format_depth(PixelFormat pixfmt);
 int gdip_get_pixel_format_components(PixelFormat pixfmt);
+int gdip_get_pixel_format_bpp (PixelFormat pixfmt);
 ImageFormat gdip_image_format_for_clsid (GDIPCONST CLSID *encoderCLSID);
 
 

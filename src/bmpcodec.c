@@ -38,6 +38,8 @@
 
 #include <stdio.h>
 #include "bmpcodec.h"
+#include "gdip.h"
+
 
 /* Codecinfo related data*/
 static ImageCodecInfo bmp_codec;
@@ -45,6 +47,7 @@ static const WCHAR bmp_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ',
 static const WCHAR bmp_extension[] = {'*','.','B', 'M', 'P',';', '*','.', 'D','I', 'B',';', '*','.', 'R', 'L', 'E',0}; /* *.BMP;*.DIB;*.RLE */
 static const WCHAR bmp_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'b', 'm', 'p', 0}; /* image/bmp */
 static const WCHAR bmp_format[] = {'B', 'M', 'P', 0}; /* BMP */
+
 
 ImageCodecInfo *
 gdip_getcodecinfo_bmp ()
@@ -93,7 +96,7 @@ gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 	bmi->biWidth = bitmap->data.Width;
 	bmi->biHeight = bitmap->data.Height;
 	bmi->biPlanes = 1;
-	bmi->biBitCount = PIXEL_FORMAT_BPP (bitmap->internal_format); /* This basically forces to save 32-bit bitmaps always*/
+	bmi->biBitCount = 32; /*PIXEL_FORMAT_BPP (bitmap->image.pixFormat); */
 	bmi->biCompression = BI_RGB;
 	bmi->biSizeImage =  0; /* Many tools expect this may be set to zero for BI_RGB bitmaps */
 	bmi->biXPelsPerMeter = (int) (0.5f + ((gdip_get_display_dpi() * 3937) / 100));
@@ -131,8 +134,6 @@ gdip_load_bmp_image_from_file (FILE *fp, GpImage **image)
         int i, j, format, colours;
         BOOL os2format = FALSE, upsidedown = TRUE;
         byte b,g,r,a;
-	GdipBitmapData srcData, destData;
-	Rect srcRect, destRect;
 
         memset (&bmi, 0, sizeof(bmi));
         fread(&bmfh, sizeof(bmfh), 1, fp);
@@ -228,28 +229,21 @@ gdip_load_bmp_image_from_file (FILE *fp, GpImage **image)
                         fread(pixels + i*img->data.Stride, img->data.Stride, 1, fp);
         }
 	
-	img->data.Scan0 = pixels;
-        img->data.Reserved = GBD_OWN_SCAN0;        
-
-	/* We use always Format32bppArgb internally. */
-	if (format != Format32bppArgb) {
-		srcRect.X = destRect.X = srcRect.Y = destRect.Y = 0;
-		srcRect.Width = destRect.Width = img->data.Width;
-		srcRect.Height = destRect.Height = img->data.Height;
-		destData.PixelFormat = Format32bppArgb;
-		destData.Scan0 = NULL;
+	/* Cairo stores internally RGB24 as RGB32 */	
+	if (bmi.biBitCount == 24) {
+		BYTE *dest;
+		int dest_stride;
 	
-		if (gdip_bitmap_change_rect_pixel_format (&img->data, &srcRect, &destData, &destRect) == InvalidParameter) {
-			GdipFree (pixels);
-			return NotImplemented; /* Unsuported pixel format conversion. Cannot work with file*/               
-		}                       
-			
+		gdip_from_RGB_to_ARGB (pixels, img->image.width, img->image.height, img->data.Stride, &dest, &dest_stride);
+		
 		GdipFree (pixels);
-		img->data.Stride = destData.Stride;
-		img->data.Scan0 = destData.Scan0;
-	}
-	
-	img->image.surface = cairo_surface_create_for_image (pixels,
+		pixels = dest;	
+		img->data.Stride = dest_stride;
+	}	
+
+        img->data.Scan0 = pixels;
+        img->data.Reserved = GBD_OWN_SCAN0;
+        img->image.surface = cairo_surface_create_for_image (pixels,
                                                          img->cairo_format,
                                                          img->image.width,
                                                          img->image.height,
@@ -263,7 +257,7 @@ gdip_load_bmp_image_from_file (FILE *fp, GpImage **image)
         img->image.propItems = NULL;
 
         *image = (GpImage *) img;
-	
+
         return Ok;
 }
 

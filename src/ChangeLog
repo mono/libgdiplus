@@ -1,3 +1,11 @@
+2004-05-12 Jordi Mas i Hernandez <jordi@ximian.com>
+	* bitmap.c, image.c, gdpi.h:
+	- Correct support for Format24bppRgb, Format32bppArgb, Format32bppPArgb, 
+	Format32bppRgb pixel formats
+	- Fixed GdipBitmapLockBits to return the format and behavior than
+	GDI+
+	- GetPixel/SetPixel do not work when the bitmap is locked
+
 2004-05-10  Peter Bartok <pbartok@novell.com>
    * gdip_win32.c: Added ObjectList to manage Win32 object that can be
      deleted. Solves problem of asynchronous deletion of object when
