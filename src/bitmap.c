@@ -79,11 +79,18 @@ gdip_bitmap_init (GpBitmap *bitmap)
 }
 
 
+
 void
 gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
 {
-	*clonedbitmap = (GpBitmap *) GdipAlloc (sizeof (GpBitmap));
-	memcpy (*clonedbitmap, bitmap, sizeof (GpBitmap));
+	GpBitmap *result = (GpBitmap *) GdipAlloc (sizeof (GpBitmap));	
+	memcpy (result, bitmap, sizeof (GpBitmap));
+	
+	result->data.Scan0 = (GpBitmap *) malloc (bitmap->data.Stride * bitmap->data.Height);
+	memcpy (result->data.Scan0, bitmap->data.Scan0, bitmap->data.Stride * bitmap->data.Height);
+	*clonedbitmap = result;
+	
+	/*TODO: We should also copy palette info when we support it*/
 }
 
 

@@ -1,4 +1,8 @@
-2004-05-14 Jordi Mas <jordi@ximian.com>
+2004-05-25 Jordi Mas <jordi@ximian.com>
+	* bitmap.c: fixes bug in gdip_bitmap_clone. We were not cloning the 
+	bitmap data itself
+
+2004-05-24 Jordi Mas <jordi@ximian.com>
 	* bitmap.c, gdip.h, image.c, imageattributes.c: implemented
 	functions for ImageAttributtes
 
