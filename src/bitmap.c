@@ -63,6 +63,7 @@ void
 gdip_bitmap_init (GpBitmap *bitmap)
 {
 	gdip_image_init (&bitmap->image);
+
 	bitmap->image.type = imageBitmap;
 	bitmap->data.Width = 0;
 	bitmap->data.Height = 0;
