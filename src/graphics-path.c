@@ -64,6 +64,7 @@ int_to_float (const GpPoint *pts, int count)
         return p;
 }
 
+/* TODO: Do we need to use some epsilon delta for comparison? */
 static void
 append (GpPath *path, float x, float y, GpPathPointType type)
 {
@@ -72,25 +73,22 @@ append (GpPath *path, float x, float y, GpPathPointType type)
         pt.X = x;
         pt.Y = y;
 
+        GpPointF current;
+        GdipGetPathLastPoint (path, &current); 
+
+        /* if we're adding a Start and we're already at pt, then drop it  */
+        if (type == PathPointTypeStart && x == current.X && y == current.Y)
+                return;
+
         g_array_append_val (path->points, pt);
         g_byte_array_append (path->types, &t, 1);
         path->count++;
 }
 
-/* TODO: Do we need to use some epsilon delta for comparison? */
 static void
 append_point (GpPath *path, GpPointF pt, GpPathPointType type)
 {
-        if (type == PathPointTypeStart) {
-                GpPointF current;
-                GdipGetPathLastPoint (path, &current); 
-
-                /* don't move_to if we're already at pt */
-                if (pt.X == current.X && pt.Y == current.Y)
-                        return;
-        } else
-
-               append (path, pt.X, pt.Y, type);
+        append (path, pt.X, pt.Y, type);
 }
 
 static void

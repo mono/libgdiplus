@@ -1,5 +1,11 @@
 2004-04-29  Duncan Mak  <duncan@ximian.com>
 
+	* graphics-path.c (append): Moved the aforementioned logic into
+	here instead; append_point should still just only delegate to
+	append.
+
+2004-04-29  Duncan Mak  <duncan@ximian.com>
+
 	* graphics-path.c (append_point): Add some logic here. Don't
 	append a move_to (PathPointTypeStart) if we're already at the
 	point we need to be in. This fixes problems we have with filling,
