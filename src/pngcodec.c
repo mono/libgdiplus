@@ -174,28 +174,39 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
         rawdata = GdipAlloc (stride * height);
         rawptr = rawdata;
 
-        for (i = 0; i < height; i++) {
-            if (channels == 4) {
-                memcpy (rawptr, row_pointers[i], stride);
-                rawptr += stride;
-            } else if (channels == 3) {
-                png_bytep rowp = row_pointers[i];
-                for (j = 0; j < width; j++) {
-                    *rawptr++ = *rowp++;
-                    *rawptr++ = *rowp++;
-                    *rawptr++ = *rowp++;
-                    *rawptr++ = 255; /* a */
-                }
-            } else if (channels == 1) {
-                png_bytep rowp = row_pointers[i];
-                for (j = 0; j < width; j++) {
-                    png_byte pix = *rowp++;
-                    *rawptr++ = pix;
-                    *rawptr++ = pix;
-                    *rawptr++ = pix;
-                    *rawptr++ = 255;
-                }
-            }
+	switch (channels) {
+
+	case 4:
+		for (i = 0; i < height; i++) {
+			memcpy (rawptr, row_pointers[i], stride);
+			rawptr += stride;
+		}
+		break;
+
+	case 3:
+		for (i = 0; i < height; i++) {
+			png_bytep rowp = row_pointers[i];
+			for (j = 0; j < width; j++) {
+				*rawptr++ = *rowp++;
+				*rawptr++ = *rowp++;
+				*rawptr++ = *rowp++;
+				*rawptr++ = 255; /* a */
+			}
+		}
+		break;
+
+	case 1:
+		for (i = 0; i < height; i++) {
+			png_bytep rowp = row_pointers[i];
+			for (j = 0; j < width; j++) {
+				png_byte pix = *rowp++;
+				*rawptr++ = pix;
+				*rawptr++ = pix;
+				*rawptr++ = pix;
+				*rawptr++ = 255;
+			}
+		}
+		break;
         }
 
         png_destroy_read_struct (&png_ptr, &info_ptr, &end_info_ptr);
@@ -348,10 +359,10 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
         case Format32bppPArgb:
             color_type = PNG_COLOR_TYPE_RGB_ALPHA;
             break;
+           
+            break;
         case Format32bppRgb:
         case Format24bppRgb:
-            color_type = PNG_COLOR_TYPE_RGB;
-            break;
         case Format8bppIndexed:
             color_type = PNG_COLOR_TYPE_RGB; /* XXX - we should be able to write grayscale PNGs */
             break;

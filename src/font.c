@@ -349,10 +349,14 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHei
 
 	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
 
-	if (font){
+	if (font) {
 		TT_VertHeader *pVert = FT_Get_Sfnt_Table (font->cairofnt->face, ft_sfnt_vhea);
-		rslt = pVert->yMax_Extent;
-
+		if (pVert)
+			rslt = pVert->yMax_Extent;
+		else if (font->cairofnt->face)
+			rslt = font->cairofnt->face->units_per_EM;
+		else
+			rslt = 0;
 		GdipDeleteFont (font);
 	}
 
@@ -371,7 +375,7 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Cel
 
 	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
 
-	if (font){
+	if (font) {
 		TT_HoriHeader *pHori = FT_Get_Sfnt_Table (font->cairofnt->face, ft_sfnt_hhea);
 
 		if (pHori)
@@ -397,7 +401,7 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Ce
 
 	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
 
-	if (font){
+	if (font) {
 		TT_HoriHeader *pHori = FT_Get_Sfnt_Table (font->cairofnt->face, ft_sfnt_hhea);
 
 		if (pHori)
@@ -421,9 +425,14 @@ GdipGetLineSpacing (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Li
 
 	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
 
-	if (font){
+	if (font) {
 		TT_HoriHeader *pHori = FT_Get_Sfnt_Table (font->cairofnt->face, ft_sfnt_hhea);
-		rslt = pHori->Ascender + (-pHori->Descender) + pHori->Line_Gap;
+		if (pHori)
+			rslt = pHori->Ascender + (-pHori->Descender) + pHori->Line_Gap;
+		else if (font->cairofnt->face)
+			rslt = font->cairofnt->face->height;
+		else
+			rslt = 0;
 		GdipDeleteFont (font);
 	}
 
@@ -559,13 +568,13 @@ GdipDeleteFont (GpFont* font)
 {
 	if (font) {
 		cairo_font_destroy ((cairo_font_t *)font->cairofnt);
-		GdipFree ((void *)font);
 		if (font->wineHfont) {
 			DeleteWineFont(font->wineHfont);
 		}
-                return Ok;
+		GdipFree ((void *)font);
+		return Ok;
 	}
-        return InvalidParameter;
+	return InvalidParameter;
 }
 
 static GpStatus

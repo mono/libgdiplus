@@ -1,3 +1,37 @@
+2004-09-15  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Applied a fix from David Mitchell for bug #65963
+	in GdipDeleteGraphics function.
+
+2004-09-10  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Corrected a value in PathPointType enum.
+	* font.c: Fixed GdipGetEmHeight and GdipGetLineSpacing functions.
+	* image.c: In GdipDrawImageRect function, reset the cairo matrix
+	after drawing the image.
+
+2004-08-05  Ravindra <rkumar@novell.com>
+
+	* font.c: Fixed GdipDeleteFont function.
+
+2004-07-30  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Commented out cairo_clip calls from GdipDrawString,
+	as these were causing problems. Thanks to Peter for suggesting this
+	fix. This fixes, bug #60386, #60663, #61414. These bugs were actually
+	because of some problem with Cairo clipping. And, these are not 
+	reproducable with Cairo cvs, because Cairo seems to have some changes
+	which have solved the problem with clipping in Cairo.
+
+2004-07-07  Ravindra <rkumar@novell.com>
+
+	* pngcodec.c: Fixes bug #61156 and one perf improvement in
+	image loading.
+
+2004-06-29  Jordi Mas <jordi@ximian.com>
+
+	* pngcodec.c: fixes saving 24-bit images (it was saving corrupted files before)
+
 2004-06-29  Jordi Mas <jordi@ximian.com>
 
 	* tiffcodec.c: fixes saving images to stream. It was giving an exception
