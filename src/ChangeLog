@@ -1,3 +1,6 @@
+2004-03-18  Peter Bartok <pbartok@novell.com>
+   * pen.c: Fixed leak and bug that returned wrong pointer for dash array
+
 2004-03-15  Jordi Mas i Hernandez <jordi@ximian.com>
     * graphics.c - Bug fixing, suport for hotkeys, code reoganisation
     * stringformat.c - string format tab support
