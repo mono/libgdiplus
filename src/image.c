@@ -117,19 +117,8 @@ GdipDisposeImage (GpImage *image)
 	if (!image)
 		return InvalidParameter;
 
-	switch (image->type){
-		case imageBitmap:
-			gdip_bitmap_dispose ((GpBitmap *) image);
-			break;
-		case imageMetafile:
-                	break;
-		case imageUndefined:
-			break;
-		default:
-			break;
-	}
 	cairo_surface_destroy (image->surface);
-	image->surface = 0;
+	image->surface = NULL;
 	if (image->frameDimensionList != NULL){
 		int i=0, j=0;
 		int count = image->frameDimensionCount;
@@ -138,14 +127,28 @@ GdipDisposeImage (GpImage *image)
 			dataCount = image->frameDimensionList->count;
 			BitmapData *data;
 			data = image->frameDimensionList->frames;
-			for (j=0; j<dataCount; j++){
-				if (data[j].Scan0)
-					GdipFree (data[j].Scan0);
+			for (j = 0; j < dataCount; j++){
+				if (data [j].Scan0){
+					GdipFree (data [j].Scan0);
+					data [j].Scan0 = NULL;
+				}
 			}
 		}
 		GdipFree (image->frameDimensionList);
 	}
 
+	switch (image->type){
+		case imageBitmap:
+			if (((GpBitmap *) image)->data.Scan0)
+				gdip_bitmap_dispose ((GpBitmap *) image);			
+			break;
+		case imageMetafile:
+                	break;
+		case imageUndefined:
+			break;
+		default:
+			break;
+	}
 		
 	GdipFree (image);
 	

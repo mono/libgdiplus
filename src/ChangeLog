@@ -1,3 +1,8 @@
+2004-07-16  Sanjay Gupta <gsanjay@novell.com>
+
+	* image.c: Resolved a crash which was occuring because of attempting
+	to free same memory twice.
+	
 2004-07-14  Ravindra <rkumar@novell.com>
 
 	* adjustablearrowcap.c: Added a note.
