@@ -648,6 +648,7 @@ typedef struct {
         float *dash_array;
         GpUnit unit; /* Always set to UnitWorld. */
         GpMatrix *matrix;
+        BOOL changed; /* flag to mark if pen is changed and needs setup */
 } GpPen;
 
 typedef struct {

@@ -36,6 +36,7 @@ gdip_graphics_init (GpGraphics *graphics)
 	graphics->ct = cairo_create ();
 	graphics->copy_of_ctm = cairo_matrix_create ();
 	cairo_matrix_set_identity (graphics->copy_of_ctm);
+	cairo_identity_matrix (graphics->ct);
 	graphics->hdc = 0;
 	graphics->hdc_busy_count = 0;
 	graphics->image = 0;
@@ -528,10 +529,6 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
         
-	cairo_save (graphics->ct);
-
-        gdip_pen_setup (graphics, pen);
-
         /* just make an ellipse if we're going a full 360 degrees */                
         if (sweepAngle >= 360)
                 make_ellipse (graphics, x, y, width, height);
@@ -546,9 +543,10 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
                 make_arc (graphics, FALSE, x, y, width, height, midAngle, endAngle);
         }  
 
-        cairo_stroke (graphics->ct);
+	gdip_pen_setup (graphics, pen);
+	cairo_stroke (graphics->ct);
 
-	cairo_restore (graphics->ct);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -569,15 +567,13 @@ GdipDrawBezier (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-	cairo_save (graphics->ct);
-
-        gdip_pen_setup (graphics, pen);        
-        
         cairo_move_to (graphics->ct, x1, y1);
         cairo_curve_to (graphics->ct, x2, y2, x3, y3, x4, y4);
-        cairo_stroke (graphics->ct);
 
-	cairo_restore (graphics->ct);
+	gdip_pen_setup (graphics, pen);
+	cairo_stroke (graphics->ct);
+
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -602,10 +598,6 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
-
-	cairo_save (graphics->ct);
-
-        gdip_pen_setup (graphics, pen);
         
         cairo_move_to (graphics->ct, points [0].X, points [0].Y);
 
@@ -618,9 +610,10 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen,
                                 points [k].X, points [k].Y);
         }
 
-        cairo_stroke (graphics->ct);
+	gdip_pen_setup (graphics, pen);
+	cairo_stroke (graphics->ct);
 
-	cairo_restore (graphics->ct);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -638,10 +631,6 @@ GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-	cairo_save (graphics->ct);
-
-        gdip_pen_setup (graphics, pen);
-
         cairo_move_to (graphics->ct, points [0].X, points [0].Y);
 
         for (i = 0; i < count - 3; i += 3) {
@@ -653,9 +642,10 @@ GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen,
                                 points [k].X, points [k].Y);
         }
 
-        cairo_stroke (graphics->ct);
+	gdip_pen_setup (graphics, pen);
+	cairo_stroke (graphics->ct);
 
-	cairo_restore (graphics->ct);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -666,15 +656,13 @@ GdipDrawEllipse (GpGraphics *graphics, GpPen *pen,
 {
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
-
-	cairo_save (graphics->ct);
-
-        gdip_pen_setup (graphics, pen);
         
-        make_ellipse (graphics, x, y, width, height);
-        cairo_stroke (graphics->ct);
+	make_ellipse (graphics, x, y, width, height);
 
-	cairo_restore (graphics->ct);
+	gdip_pen_setup (graphics, pen);
+	cairo_stroke (graphics->ct);
+
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -693,15 +681,13 @@ GdipDrawLine (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-	cairo_save (graphics->ct);
-
-	gdip_pen_setup (graphics, pen);
-
 	cairo_move_to (graphics->ct, x1, y1);
 	cairo_line_to (graphics->ct, x2, y2);
+
+	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
-	cairo_restore (graphics->ct);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -723,16 +709,14 @@ GdipDrawLines (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 	g_return_val_if_fail (count >= 2, InvalidParameter);
 
-	cairo_save (graphics->ct);
-
-	gdip_pen_setup (graphics, pen);
-
 	cairo_move_to (graphics->ct, points [0].X, points [0].Y);
 	for (i = 1; i < count; i++)
 		cairo_line_to (graphics->ct, points [i].X, points [i].Y);
+
+	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
-	cairo_restore (graphics->ct);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -747,16 +731,14 @@ GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 	g_return_val_if_fail (count >= 2, InvalidParameter);
 
-	cairo_save (graphics->ct);
-
-	gdip_pen_setup (graphics, pen);
-
 	cairo_move_to (graphics->ct, points [0].X, points [0].Y);
 	for (i = 1; i < count; i++)
 		cairo_line_to (graphics->ct, points [i].X, points [i].Y);
+
+	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
-	cairo_restore (graphics->ct);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -813,15 +795,12 @@ GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 	
-	cairo_save (graphics->ct);
-
-        gdip_pen_setup (graphics, pen);
-
 	status = gdip_plot_path (graphics, path);
 
+        gdip_pen_setup (graphics, pen);
         cairo_stroke (graphics->ct);
 
-       	cairo_restore (graphics->ct);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return status;
 }
@@ -837,15 +816,12 @@ GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y,
 	if (sweepAngle == 0)
 		return Ok;
 
-        cairo_save (graphics->ct);
+	make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
 
-        gdip_pen_setup (graphics, pen);
+	gdip_pen_setup (graphics, pen);
+	cairo_stroke (graphics->ct);
 
-        make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
-
-        cairo_stroke (graphics->ct);
-
-        cairo_restore (graphics->ct);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -893,14 +869,12 @@ GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-	cairo_save (graphics->ct);
+	make_polygon (graphics, points, count);
 
-        gdip_pen_setup (graphics, pen);
-        
-        make_polygon (graphics, points, count);
-        cairo_stroke (graphics->ct);
+	gdip_pen_setup (graphics, pen);
+	cairo_stroke (graphics->ct);
 
-	cairo_restore (graphics->ct);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -912,14 +886,12 @@ GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-	cairo_save (graphics->ct);
+	make_polygon_from_integers (graphics, points, count);
 
-        gdip_pen_setup (graphics, pen);
-        
-        make_polygon_from_integers (graphics, points, count);
-        cairo_stroke (graphics->ct);
+	gdip_pen_setup (graphics, pen);
+	cairo_stroke (graphics->ct);
 
-	cairo_restore (graphics->ct);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -931,14 +903,12 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-	cairo_save (graphics->ct);
+	cairo_rectangle (graphics->ct, x, y, width, height);
 
-        gdip_pen_setup (graphics, pen);
+	gdip_pen_setup (graphics, pen);
+	cairo_stroke (graphics->ct);
 
-        cairo_rectangle (graphics->ct, x, y, width, height);
-        cairo_stroke (graphics->ct);
-
-	cairo_restore (graphics->ct);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -961,16 +931,14 @@ GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count)
 	g_return_val_if_fail (rects != NULL, InvalidParameter);
 	g_return_val_if_fail (count > 0, InvalidParameter);
 
-	cairo_save (graphics->ct);
-
-	gdip_pen_setup (graphics, pen);
-
 	for (i = 0; i < count; i++)
 		cairo_rectangle (graphics->ct, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height);
-	cairo_stroke (graphics->ct);
-	
-	cairo_restore (graphics->ct);
 
+	gdip_pen_setup (graphics, pen);
+	cairo_stroke (graphics->ct);
+
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+	
 	return gdip_get_status (cairo_status (graphics->ct));
 }
 
@@ -985,15 +953,13 @@ GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GpRect *rects, int count)
 	g_return_val_if_fail (rects != NULL, InvalidParameter);
 	g_return_val_if_fail (count > 0, InvalidParameter);
 
-	cairo_save (graphics->ct);
-
-	gdip_pen_setup (graphics, pen);
-
 	for (i = 0; i < count; i++)
 		cairo_rectangle (graphics->ct, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height);
+
+	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	
-	cairo_restore (graphics->ct);
+
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1059,18 +1025,16 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int co
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
-
-        cairo_save (graphics->ct);
-
-        gdip_pen_setup (graphics, pen);
         
-        tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
-        make_curve (graphics, points, tangents, count, CURVE_CLOSE);
+	tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
+	make_curve (graphics, points, tangents, count, CURVE_CLOSE);
 
-        cairo_stroke (graphics->ct);
-        cairo_restore (graphics->ct);
+	gdip_pen_setup (graphics, pen);
+	cairo_stroke (graphics->ct);
 
-        GdipFree (tangents);        
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+
+	GdipFree (tangents);        
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1126,15 +1090,13 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-        cairo_save (graphics->ct);
-        
-        gdip_pen_setup (graphics, pen);
-
         tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
         make_curve (graphics, points, tangents, count, CURVE_OPEN);
 
-        cairo_stroke (graphics->ct);
-        cairo_restore (graphics->ct);
+	gdip_pen_setup (graphics, pen);
+	cairo_stroke (graphics->ct);
+
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         GdipFree (tangents);
 

@@ -47,6 +47,7 @@ gdip_pen_init (GpPen *pen)
 	pen->compound_array = NULL;
 	pen->unit = UnitWorld;
         pen->matrix = cairo_matrix_create ();
+	pen->changed = TRUE;
 }
 
 GpPen*
@@ -124,9 +125,15 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
 	status = gdip_brush_setup (graphics, pen->brush);
+	cairo_set_matrix (graphics->ct, pen->matrix);
+
 	if (status != Ok)
 		return status;
-	
+
+	/* Don't need to setup, if pen is not changed */
+	if (! pen->changed)
+		return Ok;
+
 	if (pen->width <= 0) { /* we draw a pixel wide line if width is <=0 */
 		double widthx = 1.0;
 		double widthy = 1.0;
@@ -139,11 +146,6 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
         cairo_set_line_join (graphics->ct, convert_line_join (pen->line_join));
         cairo_set_line_cap (graphics->ct, convert_line_cap (pen->line_cap));
 
-	// The stuff below must be fixed, this is killing the existing transform on the graphics->ct
-	
-        //if (pen->matrix != NULL)
-	//cairo_set_matrix (graphics->ct, pen->matrix);
-
         if (pen->dash_count > 0) {
                 double *dash_array;
 
@@ -151,6 +153,9 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
                 cairo_set_dash (graphics->ct, dash_array, pen->dash_count, pen->dash_offset);
                 free (dash_array);
         }
+
+	/* We are done with using all the changes in the pen. */
+	pen->changed = FALSE;
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -296,6 +301,7 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 	result->compound_array = compound_array;
 	result->unit = pen->unit;
         result->matrix = matrix;
+	result->changed = pen->changed;
 
         *clonepen = result;
 
@@ -309,14 +315,20 @@ GdipDeletePen (GpPen *pen)
 
         if (pen->matrix != NULL)
                 cairo_matrix_destroy (pen->matrix);
+	pen->matrix = NULL;
 
-        if (pen->dash_count != 0 && pen->own_dash_array)
+        if (pen->dash_count != 0 && pen->own_dash_array) {
                 GdipFree (pen->dash_array);
+		pen->dash_count = 0;
+		pen->dash_array = NULL;
+	}
 
         if (pen->compound_count != 0)
                 GdipFree (pen->compound_array);
+	pen->compound_array = NULL;
 
         GdipFree (pen);
+
 	return Ok;
 }
 
@@ -326,6 +338,7 @@ GdipSetPenWidth (GpPen *pen, float width)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
         pen->width = width;
+	pen->changed = TRUE;
         return Ok;
 }
 
@@ -364,6 +377,7 @@ GdipSetPenBrushFill (GpPen *pen, GpBrush *brush)
 		pen->color = 0;
 
         pen->brush = brush;
+	pen->changed = TRUE;
 
         return Ok;
 }
@@ -399,6 +413,7 @@ GdipSetPenColor (GpPen *pen, int argb)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
         pen->color = argb;
+	pen->changed = TRUE;
 
         return Ok;
 }
@@ -419,6 +434,7 @@ GdipSetPenMiterLimit (GpPen *pen, float miterLimit)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
         pen->miter_limit = miterLimit;
+	pen->changed = TRUE;
         return Ok;
 }
 
@@ -438,6 +454,7 @@ GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
         pen->line_join = lineJoin;
+	pen->changed = TRUE;
         return Ok;
 }
 
@@ -462,6 +479,7 @@ GdipSetPenLineCap197819 (GpPen *pen, GpLineCap startCap, GpLineCap endCap, GpDas
 	 * line ends and dashcap.
 	 */
 	pen->line_cap = startCap;
+	pen->changed = TRUE;
         return Ok;
 }
 
@@ -471,6 +489,7 @@ GdipSetPenMode (GpPen *pen, GpPenAlignment penMode)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
         pen->mode = penMode;
+	pen->changed = TRUE;
         return Ok;
 }
 
@@ -500,6 +519,7 @@ GdipSetPenUnit (GpPen *pen, GpUnit unit)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
         pen->unit = unit;
+	pen->changed = TRUE;
         return Ok;
 }
 
@@ -510,6 +530,7 @@ GdipSetPenTransform (GpPen *pen, GDIPCONST GpMatrix *matrix)
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
         *(pen->matrix) = *matrix;
+	pen->changed = TRUE;
         return Ok;
 }
 
@@ -527,44 +548,73 @@ GpStatus
 GdipResetPenTransform (GpPen *pen)
 {
 	cairo_status_t status;
+	GpStatus s;
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
 	status = cairo_matrix_set_identity (pen->matrix);
+	s = gdip_get_status (status);
 
-	return gdip_get_status (status);
+	if (s == Ok)
+		pen->changed = TRUE;
+
+	return s;
 }
 
 GpStatus
 GdipMultiplyPenTransform (GpPen *pen, GpMatrix *matrix, GpMatrixOrder order)
 {
+	GpStatus status;
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-        return GdipMultiplyMatrix (pen->matrix, matrix, order);
+	status = GdipMultiplyMatrix (pen->matrix, matrix, order);
+
+	if (status == Ok)
+		pen->changed = TRUE;
+
+	return status;
 }
 
 GpStatus
 GdipTranslatePenTransform (GpPen *pen, float dx, float dy, GpMatrixOrder order)
 {
+	GpStatus status;
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-        return GdipTranslateMatrix (pen->matrix, dx, dy, order);
+	status = GdipTranslateMatrix (pen->matrix, dx, dy, order);
+
+	if (status == Ok)
+		pen->changed = TRUE;
+
+	return status;
 }
 
 GpStatus
 GdipScalePenTransform (GpPen *pen, float sx, float sy, GpMatrixOrder order)
 {
+	GpStatus status;
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-        return GdipScaleMatrix (pen->matrix, sx, sy, order);
+        status = GdipScaleMatrix (pen->matrix, sx, sy, order);
+
+	if (status == Ok)
+		pen->changed = TRUE;
+
+	return status;
 }
 
 GpStatus
 GdipRotatePenTransform (GpPen *pen, float angle, GpMatrixOrder order)
 {
+	GpStatus status;
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-        return GdipRotateMatrix (pen->matrix, angle, order);
+	status = GdipRotateMatrix (pen->matrix, angle, order);
+
+	if (status == Ok)
+		pen->changed = TRUE;
+
+	return status;
 }
 
 GpStatus
@@ -588,42 +638,44 @@ GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
 {
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-        pen->dash_style = dashStyle;
-
-        switch (dashStyle) {
-        case DashStyleSolid:
-                pen->dash_array = NULL;
+	switch (dashStyle) {
+	case DashStyleSolid:
+		pen->dash_array = NULL;
 		pen->dash_count = 0;
-                return Ok;
+		break;
 
-        case DashStyleDashDot:
-                pen->dash_array = DashDot;
-                pen->dash_count = 4;
-                return Ok;
-                
-        case DashStyleDashDotDot:
-                pen->dash_array = DashDotDot;
-                pen->dash_count = 6;
-                return Ok;
+	case DashStyleDashDot:
+		pen->dash_array = DashDot;
+		pen->dash_count = 4;
+		break;
 
-        case DashStyleDot:
-                pen->dash_array = Dot;
-                pen->dash_count = 2;
-                return Ok;
+	case DashStyleDashDotDot:
+		pen->dash_array = DashDotDot;
+		pen->dash_count = 6;
+		break;
 
-        case DashStyleDash:
-                pen->dash_array = Dash;
-                pen->dash_count = 2;
-                return Ok;
+	case DashStyleDot:
+		pen->dash_array = Dot;
+		pen->dash_count = 2;
+		break;
 
-        case DashStyleCustom:
-                pen->dash_array = Custom;
-                pen->dash_count = 1;
-                return Ok;
+	case DashStyleDash:
+		pen->dash_array = Dash;
+		pen->dash_count = 2;
+		break;
 
-        default:
-                return GenericError;
+	case DashStyleCustom:
+		pen->dash_array = Custom;
+		pen->dash_count = 1;
+		break;
+
+	default:
+		return GenericError;
         }
+
+	pen->dash_style = dashStyle;
+	pen->changed = TRUE;
+	return Ok;
 }
 
 GpStatus
@@ -641,7 +693,8 @@ GdipSetPenDashOffset (GpPen *pen, float offset)
 {
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-        pen->dash_offset = offset;
+	pen->dash_offset = offset;
+	pen->changed = TRUE;
         return Ok;
 }
 
@@ -679,8 +732,6 @@ GdipSetPenDashArray (GpPen *pen, GDIPCONST float *dash, int count)
 	g_return_val_if_fail (dash != NULL, InvalidParameter);
 	g_return_val_if_fail (count > 0, InvalidParameter);
 
-        pen->dash_style = DashStyleCustom;
-
 	if (pen->dash_count != count || pen->own_dash_array == FALSE) {
 		dash_array = (float *) GdipAlloc (count * sizeof (float));
 		g_return_val_if_fail (dash_array != NULL, OutOfMemory);
@@ -694,6 +745,8 @@ GdipSetPenDashArray (GpPen *pen, GDIPCONST float *dash, int count)
 	}
 
 	memcpy (pen->dash_array, dash, pen->dash_count * sizeof (float));
+	pen->dash_style = DashStyleCustom;
+	pen->changed = TRUE;
 
 	return Ok;
 }
@@ -754,7 +807,7 @@ GdipSetPenStartCap (GpPen *pen, GpLineCap startCap)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
 	pen->line_cap = startCap;
-
+	pen->changed = TRUE;
 	return Ok;
 }
 
