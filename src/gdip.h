@@ -200,7 +200,6 @@ typedef enum{
     FontStyleRegular    = 0,
     FontStyleBold       = 1,
     FontStyleItalic     = 2,
-    FontStyleBoldItalic = 3,
     FontStyleUnderline  = 4,
     FontStyleStrikeout  = 8
 }  GpFontStyle;
@@ -364,6 +363,7 @@ typedef FcPattern  GpFontFamily;
 typedef struct {
         cairo_ft_font_t*    cairofnt;
         float               sizeInPixels;
+        GpFontStyle         style;
 } GpFont;
 
 typedef struct {
@@ -574,6 +574,9 @@ void GdipFree (void *ptr);
 float gdip_get_display_dpi();
 void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg);
 int gdpi_utf8_to_glyphs (cairo_ft_font_t* font,	 const unsigned char* utf8, double	x0,
-		 double	y0, cairo_glyph_t** glyphs, size_t* nglyphs);
+   double	y0, cairo_glyph_t** glyphs, size_t* nglyphs);
+
+void gdip_font_drawunderline (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
+void gdip_font_drawstrikeout (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
 
 #endif /* _GDIP_H */

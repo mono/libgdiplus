@@ -1004,23 +1004,28 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
         /* Save font matrix */
         cairo_matrix_copy (&saved, (const cairo_matrix_t *)&font->cairofnt->base.matrix);
         
+        /* Get widths */
+        gdip_measure_string_widths (font, string, &pwidths, &nwidths, &width, &height);
+        printf ("width->%f, height->%f\n", width, height);
     
         if (!format || !rc->Width) {
             
 		cairo_scale_font (graphics->ct, font->sizeInPixels);
-		cairo_move_to (graphics->ct, rc->X, rc->Y+ font->sizeInPixels);
+		cairo_move_to (graphics->ct, rc->X, realY);
 		cairo_show_text (graphics->ct, string);
+
+                if ((font->style & FontStyleUnderline)==FontStyleUnderline)
+                        gdip_font_drawunderline (graphics, brush, rc->X, realY, width);
+
+                if ((font->style & FontStyleStrikeout)==FontStyleStrikeout)
+                        gdip_font_drawstrikeout (graphics, brush, rc->X, realY, width);
+                
 		g_free (string);
 
 		cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
 		cairo_restore (graphics->ct);
 		return gdip_get_status (cairo_status (graphics->ct));
         }
-
-
-        /* Get widths */
-        gdip_measure_string_widths (font, string, &pwidths, &nwidths, &width, &height);
-        printf ("width->%f, height->%f\n", width, height);
 
         ppos = pwidths;
         
@@ -1106,7 +1111,14 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
 		pUnicode += (nGlyp-nLast);
 		nLast = nGlyp;
 		cairo_move_to (graphics->ct, pPoint->X, pPoint->Y);
-		cairo_show_text (graphics->ct, spiece);                       
+		cairo_show_text (graphics->ct, spiece);
+
+                if ((font->style & FontStyleUnderline)==FontStyleUnderline)
+                        gdip_font_drawunderline (graphics, brush, pPoint->X, pPoint->Y, w);
+
+                if ((font->style & FontStyleStrikeout)==FontStyleStrikeout)
+                        gdip_font_drawstrikeout (graphics, brush, pPoint->X, pPoint->Y, w);
+                
 		g_free (spiece);
 		nLns++;
 		

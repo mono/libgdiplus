@@ -1,3 +1,7 @@
+2004-03-02  Jordi Mas i Hernandez <jordi@ximian.com>
+    * graphics.c - Implemented font strikeout and underline
+    * font.c - Implemented font strikeout and underline, allows multiple attributes
+    
 2004-03-01  Sanjay Gupta <gsanjay@novell.com>
 	* bitmap.c: Access modification in Get/Set Pixel()
 

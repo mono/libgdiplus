@@ -174,7 +174,8 @@ GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, int num_soug
 	return Ok;  
 }
 
-GpStatus GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_collection, GpFontFamily **fontFamily)
+GpStatus
+GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_collection, GpFontFamily **fontFamily)
 {
 	glong items_read = 0;
 	glong items_written = 0;
@@ -300,7 +301,6 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHei
 
 	*EmHeight = rslt;
 	return Ok;
-
 }
 
 GpStatus
@@ -324,8 +324,7 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Cel
 	}
 
 	*CellAscent = rslt;
-	return Ok;
-
+	return Ok;         
 }
 
 GpStatus
@@ -351,8 +350,7 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Ce
 	}
 
 	*CellDescent = rslt;
-	return Ok;
-
+	return Ok;         
 }
 
 GpStatus
@@ -413,8 +411,6 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight)
 		return NULL;
 	}
 
-/*    FcPatternPrint (pat); // debug */
-
 	font = cairo_ft_font_create (ft_library, pat);
 	if (font == NULL)
 		return NULL;
@@ -432,6 +428,31 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight)
 	return ft_font;
 }
 
+void
+gdip_font_drawunderline (GpGraphics *graphics, GpBrush *brush, float x, float y, float width)
+{
+        float pos, size;
+        cairo_font_extents_t extents;
+
+        cairo_current_font_extents (graphics->ct, &extents);
+        pos = 0.5 + ((extents.ascent + extents.descent) *0.1);
+        size = 0.5 + ((extents.ascent + extents.descent) *0.05);
+
+        GdipFillRectangle (graphics, brush, x, y +pos, width, size);     
+}
+
+void
+gdip_font_drawstrikeout (GpGraphics *graphics, GpBrush *brush, float x, float y, float width)
+{
+        float pos, size;
+        cairo_font_extents_t extents;
+
+        cairo_current_font_extents (graphics->ct, &extents);
+        pos = 0.5 + ((extents.ascent + extents.descent) *0.5);
+        size = 0.5 + ((extents.ascent + extents.descent) *0.05);
+
+        GdipFillRectangle (graphics, brush, x, y -pos, width, size);
+}
 
 GpStatus
 GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, Unit unit,  GpFont **font)
@@ -451,30 +472,14 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 
 	gdip_unitConversion (unit, UnitPixel, emSize, &result->sizeInPixels);
 
-	switch (style) {
-        
-        case FontStyleRegular:
-		break;        
-        case FontStyleBold:
-		weight = FC_WEIGHT_BOLD;
-		break;
-        case FontStyleItalic:
-		slant = FC_SLANT_ITALIC;
-		break;
-        case FontStyleBoldItalic:
-		weight = FC_WEIGHT_BOLD;
-		slant = FC_SLANT_ITALIC;            
-		break;            
-        case FontStyleUnderline:
-		break;
-        case FontStyleStrikeout:
-		break;
-            
-        default:
-		break;
-	}
+        if ((style & FontStyleBold) == FontStyleBold)
+                weight = FC_WEIGHT_BOLD;
 
+        if ((style & FontStyleItalic) == FontStyleItalic)        
+                slant = FC_SLANT_ITALIC;
+        
 	result->cairofnt  = gdip_font_create (str, slant, weight);
+        result->style = style;
 	cairo_font_reference ((cairo_font_t *)result->cairofnt);
 	*font=result;
         
