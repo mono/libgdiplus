@@ -229,7 +229,9 @@ AC_SUBST(SANITY_CHECKING_FEATURE)
 
 dnl ===========================================================================
 
-PKG_CHECK_MODULES(PIXMAN, libpixman >= 0.1.2)
+# PKG_CHECK_MODULES(PIXMAN, libpixman >= 0.1.2)
+PIXMAN_CFLAGS='-I$(top_srcdir)/../libpixman/src'
+PIXMAN_LIBS='$(top_builddir)/../libpixman/src/libpixman.la'
 CAIRO_CFLAGS="$CAIRO_CFLAGS $PIXMAN_CFLAGS"
 CAIRO_LIBS="$CAIRO_LIBS $PIXMAN_LIBS"
 

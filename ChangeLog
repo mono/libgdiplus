@@ -1,3 +1,9 @@
+
+Tue Jan 25 11:34:41 CET 2005 Paolo Molaro <lupus@ximian.com>
+
+	* configure.in, Makefile.am, cairo, libpixman: imported the cairo
+	sources so it's easier to track the right version.
+
 2005-01-23  Peter Bartok  <pbartok@novell.com>
 
 	* configure.in:

@@ -21,12 +21,20 @@
 #include <glib.h>
 #include <unistd.h>
 
-#include <cairo/cairo.h>
 #include "config.h"
+#ifdef USE_INCLUDED_CAIRO
+#include <cairo.h>
+#else
+#include <cairo/cairo.h>
+#endif
 #include <X11/Xlib.h>
 
 #ifdef CAIRO_HAS_FT_FONT
+#ifdef USE_INCLUDED_CAIRO
+#include <cairo-ft.h>
+#else
 #include <cairo/cairo-ft.h>
+#endif
 #endif
 
 #if HAVE_CAIRO_FT_FONT_LOCK_FACE
@@ -39,7 +47,11 @@
 
 
 #ifdef CAIRO_HAS_XLIB_SURFACE
+#ifdef USE_INCLUDED_CAIRO
+#include <cairo-xlib.h>
+#else
 #include <cairo/cairo-xlib.h>
+#endif
 #endif
 
 /* mono/io-layer/uglify.h also has these typedefs.

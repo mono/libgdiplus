@@ -1,18 +1,5 @@
-cairoincludedir = $(includedir)/cairo
-cairoinclude_HEADERS =	\
-	cairo.h		\
-	cairo-atsui.h	\
-	cairo-features.h\
-	cairo-ft.h	\
-	cairo-glitz.h	\
-	cairo-pdf.h	\
-	cairo-png.h	\
-	cairo-ps.h	\
-	cairo-quartz.h	\
-	cairo-xcb.h	\
-	cairo-xlib.h
 
-lib_LTLIBRARIES = libcairo.la
+noinst_LTLIBRARIES = libcairo.la
 
 if CAIRO_HAS_PS_SURFACE
 libcairo_ps_sources = cairo_ps_surface.c cairo-ps.h
@@ -63,6 +50,7 @@ libcairo_la_SOURCES = 		\
 	cairo_array.c		\
 	cairo_cache.c		\
 	cairo_color.c		\
+	cairo-features.h	\
 	cairo_fixed.c		\
 	cairo_font.c		\
 	cairo_gstate.c		\

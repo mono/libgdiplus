@@ -6,8 +6,8 @@ EXTRA_DIST = \
 	COPYING-MPL-1.1 \
 	cairo.pc.in
 
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = cairo.pc
+#pkgconfigdir = $(libdir)/pkgconfig
+#pkgconfig_DATA = cairo.pc
 
 # Some custom targets to make it easier to release things.
 # Use either:
