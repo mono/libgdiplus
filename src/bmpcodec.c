@@ -292,7 +292,8 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
         img->image.width = bmi.biWidth;
         img->image.height = bmi.biHeight;
 
-        img->data.PixelFormat = img->image.pixFormat;
+        //img->data.PixelFormat = img->image.pixFormat;
+        img->data.PixelFormat = Format32bppArgb;
         img->data.Width = img->image.width;
         img->data.Height = img->image.height;
 
