@@ -22,7 +22,17 @@ libgdiplus_la_SOURCES = 	\
 	solidbrush.h		\
 	stringformat.c		\
 	texturebrush.c		\
-	texturebrush.h
+	texturebrush.h		\
+	pngcodec.h		\
+	pngcodec.c		\	
+	gifcodec.h		\
+	gifcodec.c		\
+	tiffcodec.h		\
+	tiffcodec.c		\
+	bmpcodec.h		\
+	bmpcodec.c		\
+	jpegcodec.h		\
+	jpegcodec.c		
 
 libgdiplus_la_LIBADD = $(GDIPLUS_LIBS)
 

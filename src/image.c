@@ -168,46 +168,77 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	file_name = (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, NULL);
 	/*printf ("image.c, file name is %s \n", file_name);*/
 	if ((fp = fopen(file_name, "rb")) == NULL) 
-		return InvalidParameter;
+		return FileNotFound;
 
 	/*printf ("came outof fopen, file pointer is not null \n");*/
 	format = get_image_format (fp);
 	
 	switch (format) {
 		case BMP:
-			/*printf("read bitmap \n");*/
+			status = gdip_load_bmp_image_from_file (fp, result);
+			if (status != Ok)
+			{	
+				fclose(fp);
+				return status;
+			}
 			break;
 		case TIFF:
-			/*printf("read TIFF \n");*/
+			status = gdip_load_tiff_image_from_file (fp, result);
+			if (status != Ok)
+			{	
+				fclose(fp);
+				return status;
+			}
 			break;
 		case GIF:
-			/*printf("read GIF \n");*/
+			status = gdip_load_gif_image_from_file (fp, result);
+			if (status != Ok)
+			{	
+				fclose(fp);
+				return status;
+			}
 			break;
 		case PNG:
-			/*printf("read PNG \n");*/
+			status = gdip_load_png_image_from_file (fp, result);
+			if (status != Ok)
+			{	
+				fclose(fp);
+				return status;
+			}
 			break;
 		case JPEG:
-			/*printf ("read JPEG \n");*/
+			status = gdip_load_jpeg_image_from_file (fp, result);
+			if (status != Ok)
+			{	
+				fclose(fp);
+				return status;
+			}
 			break;
 		case EXIF:
 			/*printf ("read EXIF \n");*/
 		case WMF:
 		case EMF:
-		case ICON:
+		case ICON:			
 		default:
 			return NotImplemented | InvalidParameter;
 	}
 				
-	/*
-	result = gdip_image_new ();
-	*/
-	
 	fclose (fp);
 	*image = result;
 	return Ok;
 }
 
-/* GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params); */
+/*GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params)
+{
+	FILE *fp = 0;
+	GpStatus status = 0;
+	unsigned char *file_name;
+   
+	file_name = (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, NULL);
+	if ((fp = fopen(file_name, "wb")) == NULL)
+        return GenericError;
+	return NotImplemented;
+}*/
 /* GpStatus GdipSaveAddImage (GpImage *image, GpImage *imageNew, GDIPCONST EncoderParameters *params); */
 
 GpStatus 
