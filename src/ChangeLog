@@ -1,5 +1,9 @@
 2004-05-04 Ravindra <rkumar@novell.com>
 
+	* matrix.c: Added macros for checking null pointers.
+
+2004-05-04 Ravindra <rkumar@novell.com>
+
 	* pen.c: Added assert macros for checking null pointers. Also fixed
 	Get/Set/Reset PenTransform functions.
 	* graphics.c: Fixed a mistake in Clear function. Cairo takes color

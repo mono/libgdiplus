@@ -13,7 +13,11 @@
 GpStatus 
 GdipCreateMatrix (GpMatrix **matrix)
 {
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+
         *matrix = cairo_matrix_create ();
+
+	g_return_val_if_fail (*matrix != NULL, OutOfMemory);
 
         return gdip_get_status (
                 cairo_matrix_set_affine (*matrix, 1, 0, 0, 1, 0, 0));
@@ -22,7 +26,10 @@ GdipCreateMatrix (GpMatrix **matrix)
 GpStatus
 GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float dy, GpMatrix **matrix)
 {
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+
         *matrix = cairo_matrix_create ();
+	g_return_val_if_fail (*matrix != NULL, OutOfMemory);
 
         return gdip_get_status (
                 cairo_matrix_set_affine (
@@ -32,7 +39,11 @@ GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float d
 GpStatus
 GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matrix)
 {
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+
         *matrix = cairo_matrix_create ();
+	g_return_val_if_fail (*matrix != NULL, OutOfMemory);
+
         double m11 = rect->X;
         double m12 = rect->Y;
         double m21 = rect->Width;
@@ -49,7 +60,11 @@ GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matri
 GpStatus
 GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix)
 {
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+
         *matrix = cairo_matrix_create ();
+	g_return_val_if_fail (*matrix != NULL, OutOfMemory);
+
         double m11 = rect->X;
         double m12 = rect->Y;
         double m21 = rect->Width;
@@ -66,7 +81,11 @@ GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix
 GpStatus
 GdipCloneMatrix (GpMatrix *matrix, GpMatrix **cloneMatrix)
 {
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	g_return_val_if_fail (cloneMatrix != NULL, InvalidParameter);
+
         *cloneMatrix = cairo_matrix_create ();
+	g_return_val_if_fail (*cloneMatrix != NULL, OutOfMemory);
         
         return gdip_get_status (
                 cairo_matrix_copy (*cloneMatrix, matrix));
@@ -75,14 +94,18 @@ GdipCloneMatrix (GpMatrix *matrix, GpMatrix **cloneMatrix)
 GpStatus
 GdipDeleteMatrix (GpMatrix *matrix)
 {
-        if (matrix)
-                cairo_matrix_destroy (matrix);
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+
+	cairo_matrix_destroy (matrix);
+
         return Ok;
 }
 
 GpStatus
 GdipSetMatrixElements (GpMatrix *matrix, float m11, float m12, float m21, float m22, float dx, float dy)
 {
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+
         return gdip_get_status (
                 cairo_matrix_set_affine (matrix, m11, m12, m21, m22, dx, dy));
 }
@@ -91,6 +114,9 @@ GpStatus
 GdipGetMatrixElements (GpMatrix *matrix, float *matrixOut)
 {
         double a, b, c, d, tx, ty;
+
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	g_return_val_if_fail (matrixOut != NULL, InvalidParameter);
         
         cairo_matrix_get_affine (matrix, &a, &b, &c, &d, &tx, &ty);
         
@@ -108,6 +134,9 @@ GpStatus
 GdipMultiplyMatrix (GpMatrix *matrix, GpMatrix *matrix2, GpMatrixOrder order)
 {
         cairo_status_t status;
+
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	g_return_val_if_fail (matrix2 != NULL, InvalidParameter);
 
         if (order == MatrixOrderAppend)
                 status = cairo_matrix_multiply (matrix, matrix, matrix2);
@@ -198,6 +227,8 @@ GdipShearMatrix (GpMatrix *matrix, float shearX, float shearY, GpMatrixOrder ord
 GpStatus
 GdipInvertMatrix (GpMatrix *matrix)
 {
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+
         return gdip_get_status (
                 cairo_matrix_invert (matrix));
 }
@@ -207,6 +238,9 @@ GdipTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
 {
         int i;
         cairo_status_t status;
+
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	g_return_val_if_fail (pts != NULL, InvalidParameter);
         
         for (i = 0; i < count; i++, pts++) {
                 double x = pts->X;
@@ -227,6 +261,9 @@ GdipTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
 {
         int i;
         cairo_status_t status;
+
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	g_return_val_if_fail (pts != NULL, InvalidParameter);
         
         for (i = 0; i < count; i++, pts++) {
                 double x = pts->X;
@@ -246,6 +283,9 @@ GdipVectorTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
 {
         int i;
         cairo_status_t status;
+
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	g_return_val_if_fail (pts != NULL, InvalidParameter);
         
         for (i = 0; i < count; i++, pts++) {
                 double x = pts->X;
@@ -266,6 +306,9 @@ GdipVectorTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
         int i;
         cairo_status_t status;
         
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	g_return_val_if_fail (pts != NULL, InvalidParameter);
+
         for (i = 0; i < count; i++, pts++) {
                 double x = pts->X;
                 double y = pts->Y;
@@ -283,7 +326,12 @@ GdipVectorTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
 GpStatus 
 GdipIsMatrixInvertible (GpMatrix *matrix, int *result)
 {
-        cairo_status_t status = cairo_matrix_invert (matrix);
+        cairo_status_t status;
+
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	g_return_val_if_fail (result != NULL, InvalidParameter);
+
+	status = cairo_matrix_invert (matrix);
 
         if (status == CAIRO_STATUS_INVALID_MATRIX)
                 *result = 0;
@@ -311,10 +359,13 @@ matrix_equals (GpMatrix *x, GpMatrix *y)
 GpStatus
 GdipIsMatrixIdentity (GpMatrix *matrix, int *result)
 {
+	Status s;
         GpMatrix *identity = cairo_matrix_create ();
+
+	g_return_val_if_fail (identity != NULL, OutOfMemory);
         cairo_matrix_set_identity (identity);
 
-        Status s = GdipIsMatrixEqual (matrix, identity, result);
+        s = GdipIsMatrixEqual (matrix, identity, result);
         GdipDeleteMatrix (identity);
 
         return s;
@@ -323,6 +374,10 @@ GdipIsMatrixIdentity (GpMatrix *matrix, int *result)
 GpStatus
 GdipIsMatrixEqual (GpMatrix *matrix, GpMatrix *matrix2, int *result)
 {
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	g_return_val_if_fail (matrix2 != NULL, InvalidParameter);
+	g_return_val_if_fail (result != NULL, InvalidParameter);
+
         *result = matrix_equals (matrix, matrix2);
         return Ok;
 }
