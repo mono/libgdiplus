@@ -1511,11 +1511,6 @@ GdipLoadImageFromFileICM(GDIPCONST WCHAR* filename, GpImage **image)
 	return(GdipLoadImageFromFileICM(filename, image));
 }
 
-GpStatus
-GdipSaveAdd(GpImage *image, GDIPCONST EncoderParameters* encoderParams)
-{
-	return(NotImplemented);
-}
 
 const EncoderParameter *
 gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid)
@@ -1529,3 +1524,23 @@ gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid)
 	
 	return NULL;
 }
+
+/*
+	GDI+ 1.0 only supports multiple frames on an image for the
+	tiff format
+*/
+
+
+GpStatus
+GdipSaveAdd(GpImage *image, EncoderParameters* encoderParams)
+{
+	return NotImplemented;
+}
+
+GpStatus 
+GdipSaveAddImage (GpImage *image, GpImage *imageNew, EncoderParameters *params)
+{
+	return NotImplemented;
+}
+
+

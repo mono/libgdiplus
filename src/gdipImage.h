@@ -77,7 +77,9 @@ typedef enum {
 /* GpStatus GdipSaveImageToStream (GpImage *image, IStream *stream, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params); */
 GpStatus GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image); 
 GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params); 
-/* GpStatus GdipSaveAddImage (GpImage *image, GpImage *imageNew, GDIPCONST EncoderParameters *params); */
+GpStatus GdipSaveAdd (GpImage *image, EncoderParameters* encoderParams);
+GpStatus GdipSaveAddImage (GpImage *image, GpImage *imageNew, EncoderParameters *params);
+
 GpStatus GdipGetImageBounds (GpImage *image, GpRectF *rect, GpUnit *unit);
 GpStatus GdipGetImageDimension (GpImage *image, float *width, float *height);
 GpStatus GdipGetImageType (GpImage *image, ImageType *type);
