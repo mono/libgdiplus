@@ -18,8 +18,8 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  * Authors:
- *          Jordi Mas i Hernandez <jordi@ximian.com>, 2004
- *          Ravindra <rkumar@novell.com>
+ *	  Jordi Mas i Hernandez <jordi@ximian.com>, 2004
+ *	  Ravindra <rkumar@novell.com>
  *
  */
 
@@ -29,96 +29,120 @@
 GpStatus
 GdipCreateStringFormat (int formatAttributes, int language, GpStringFormat  **format)
 {
-        if (!format)
-                return InvalidParameter;
-	
-        GpStringFormat *result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
+	if (!format)
+		return InvalidParameter;
+
+	GpStringFormat *result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
 	if (!result)
 		return OutOfMemory;
 
-        result->alignment = StringAlignmentNear;
-        result->lineAlignment =  StringAlignmentNear;
-        result->hotkeyPrefix = HotkeyPrefixNone;
-        result->formatFlags = formatAttributes; 
-        result->trimming = StringTrimmingNone;
-        result->substitute = DigitSubstituteNone;
-        result->firstTabOffset = 0;
-        result->tabStops = NULL;
-        result->numtabStops = 0;
+	result->alignment = StringAlignmentNear;
+	result->lineAlignment =  StringAlignmentNear;
+	result->hotkeyPrefix = HotkeyPrefixNone;
+	result->formatFlags = formatAttributes; 
+	result->trimming = StringTrimmingNone;
+	result->substitute = DigitSubstituteNone;
+	result->firstTabOffset = 0;
+	result->tabStops = NULL;
+	result->numtabStops = 0;
 	result->charRanges = NULL;
 	result->charRangeCount = 0;
 
-        *format = result;
-        return Ok;
+	*format = result;
+	return Ok;
 }
 
 GpStatus
 GdipStringFormatGetGenericDefault (GpStringFormat **format)
 {
-        if (!format)
-                return InvalidParameter;
+	if (!format)
+		return InvalidParameter;
 
-        GpStringFormat *result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
+	GpStringFormat *result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
 	if (!result)
 		return OutOfMemory;
 
-        result->alignment = StringAlignmentNear;
-        result->lineAlignment =  StringAlignmentNear;
-        result->hotkeyPrefix = HotkeyPrefixNone;
-        result->formatFlags = 0;
-        result->trimming = StringTrimmingCharacter;
-        result->substitute = DigitSubstituteUser;
-        result->firstTabOffset = 0;
-        result->tabStops = NULL;
-        result->numtabStops = 0;
+	result->alignment = StringAlignmentNear;
+	result->lineAlignment =  StringAlignmentNear;
+	result->hotkeyPrefix = HotkeyPrefixNone;
+	result->formatFlags = 0;
+	result->trimming = StringTrimmingCharacter;
+	result->substitute = DigitSubstituteUser;
+	result->firstTabOffset = 0;
+	result->tabStops = NULL;
+	result->numtabStops = 0;
 	result->charRanges = NULL;
 	result->charRangeCount = 0;
 
-        *format = result;
-        return Ok;
-}             
+	*format = result;
+	return Ok;
+}
 
 GpStatus
 GdipStringFormatGetGenericTypographic (GpStringFormat **format)
 {
-        if (!format)
-                return InvalidParameter;
+	if (!format)
+		return InvalidParameter;
 
-        GpStringFormat *result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
+	GpStringFormat *result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
 	if (!result)
 		return OutOfMemory;
 
-        result->alignment = StringAlignmentNear;
-        result->lineAlignment =  StringAlignmentNear;
-        result->hotkeyPrefix = HotkeyPrefixNone;
-        result->formatFlags = StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip;
-        result->trimming = StringTrimmingNone;
-        result->substitute = DigitSubstituteUser;
-        result->firstTabOffset = 0;
-        result->tabStops = NULL;
-        result->numtabStops = 0;
+	result->alignment = StringAlignmentNear;
+	result->lineAlignment =  StringAlignmentNear;
+	result->hotkeyPrefix = HotkeyPrefixNone;
+	result->formatFlags = StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip;
+	result->trimming = StringTrimmingNone;
+	result->substitute = DigitSubstituteUser;
+	result->firstTabOffset = 0;
+	result->tabStops = NULL;
+	result->numtabStops = 0;
 	result->charRanges = NULL;
 	result->charRangeCount = 0;
 
-        *format = result;
-        return Ok; 
+	*format = result;
+	return Ok;
 }
 
 GpStatus
 GdipCloneStringFormat (GDIPCONST GpStringFormat *format,  GpStringFormat **newFormat)
 {
-        if (!format || !newFormat)
-                return InvalidParameter;
+	int i;
+	GpStringFormat *result;
 
-        GpStringFormat *result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
+	if (!format || !newFormat)
+		return InvalidParameter;
+
+	result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
 
 	if (!result)
 		return OutOfMemory;
 
-        memcpy (result, format, sizeof (GpStringFormat));
-    
-        *newFormat = result;
-        return Ok; 
+	*result = *format;
+
+	/* Create a copy of tab stops for the clone */
+	result->tabStops = (float *) GdipAlloc (sizeof (float) * format->numtabStops);
+	if (result->tabStops == NULL) {
+		GdipFree (result);
+		return OutOfMemory;
+	}
+
+	for (i = 0; i < format->numtabStops; i++)
+		result->tabStops [i] = format->tabStops [i];
+
+	/* Create a copy of char ranges for the clone */
+	result->charRanges = (CharacterRange *) GdipAlloc (format->charRangeCount * sizeof (CharacterRange));
+	if (result->charRanges == NULL) {
+		GdipFree (result->tabStops);
+		GdipFree (result);
+		return OutOfMemory;
+	}
+
+	for (i = 0; i < format->charRangeCount; i++)
+		result->charRanges [i] = format->charRanges [i];
+
+	*newFormat = result;
+	return Ok; 
 }
 
 GpStatus
@@ -126,7 +150,7 @@ GdipDeleteStringFormat (GpStringFormat *format)
 {
 	if (!format)
 		return InvalidParameter;
-                
+
 	if (format->tabStops)
 		GdipFree (format->tabStops);
 	format->tabStops = NULL;
@@ -142,186 +166,185 @@ GdipDeleteStringFormat (GpStringFormat *format)
 GpStatus
 GdipSetStringFormatAlign (GpStringFormat *format, StringAlignment align)
 {
-        if (!format)
-                return InvalidParameter;
+	if (!format)
+		return InvalidParameter;
 
-        format->alignment = align;    
-        return Ok;
+	format->alignment = align;
+	return Ok;
 }
 
 GpStatus
 GdipGetStringFormatAlign (GDIPCONST GpStringFormat *format, StringAlignment *align)
 {
-        if (!format || !align)
-                return InvalidParameter;
+	if (!format || !align)
+		return InvalidParameter;
 
-        *align = format->alignment;    
-        return Ok;
+	*align = format->alignment;
+	return Ok;
 }
 
 GpStatus
 GdipSetStringFormatLineAlign (GpStringFormat *format, StringAlignment align)
 {
-        if (!format)
-                return InvalidParameter;
+	if (!format)
+		return InvalidParameter;
 
-        format->lineAlignment = align;    
-        return Ok;
+	format->lineAlignment = align;
+	return Ok;
 }
 
 GpStatus
 GdipGetStringFormatLineAlign (GDIPCONST GpStringFormat *format, StringAlignment *align)
 {
-        if (!format || !align)
-                return InvalidParameter;
+	if (!format || !align)
+		return InvalidParameter;
 
-        *align = format->lineAlignment;    
-        return Ok;
+	*align = format->lineAlignment;
+	return Ok;
 }
 
 GpStatus
 GdipSetStringFormatHotkeyPrefix (GpStringFormat *format, HotkeyPrefix hotkeyPrefix)
 {
-        if (!format)
-                return InvalidParameter;
+	if (!format)
+		return InvalidParameter;
 
-        format->hotkeyPrefix = hotkeyPrefix;
-        return Ok;
+	format->hotkeyPrefix = hotkeyPrefix;
+	return Ok;
 }
 
 GpStatus
 GdipGetStringFormatHotkeyPrefix (GpStringFormat *format, HotkeyPrefix *hotkeyPrefix)
 {
-        if (!format || !hotkeyPrefix)
-                return InvalidParameter;
+	if (!format || !hotkeyPrefix)
+		return InvalidParameter;
 
-        *hotkeyPrefix = format->hotkeyPrefix;
-        return Ok;
+	*hotkeyPrefix = format->hotkeyPrefix;
+	return Ok;
 }
 
 GpStatus
 GdipSetStringFormatFlags (GpStringFormat *format, StringFormatFlags flags)
 {
-        if (!format)
-                return InvalidParameter;
+	if (!format)
+		return InvalidParameter;
 
-        format->formatFlags = flags; 
-        return Ok;    
+	format->formatFlags = flags;
+	return Ok;
 }
 
 GpStatus
 GdipGetStringFormatFlags (GDIPCONST GpStringFormat *format, StringFormatFlags *flags)
 {
-        if (!format || !flags)
-                return InvalidParameter;
+	if (!format || !flags)
+		return InvalidParameter;
 
-        *flags = format->formatFlags;
-        return Ok;
+	*flags = format->formatFlags;
+	return Ok;
 }
-
 
 GpStatus
 GdipSetStringFormatTrimming (GpStringFormat *format,  StringTrimming trimming)
 {
-        if (!format)
-                return InvalidParameter;
+	if (!format)
+		return InvalidParameter;
 
-        format->trimming = trimming;
-        return Ok;
+	format->trimming = trimming;
+	return Ok;
 }
 
 GpStatus
 GdipGetStringFormatTrimming (GDIPCONST GpStringFormat *format, StringTrimming *trimming)
 {
-        if (!format || !trimming)
-                return InvalidParameter;
+	if (!format || !trimming)
+		return InvalidParameter;
 
-        *trimming = format->trimming;
-        return Ok;
+	*trimming = format->trimming;
+	return Ok;
 }
 
 GpStatus
 GdipSetStringFormatTabStops (GpStringFormat *format, float firstTabOffset, int count, float *tabStops)
 {
-        int i;
-        float *pItemSrc = tabStops;
-        float *pItemTrg;
+	int i;
+	float *pItemSrc = tabStops;
+	float *pItemTrg;
 
-        if (!format || !tabStops)
-                return InvalidParameter;
+	if (!format || !tabStops)
+		return InvalidParameter;
 
-        if (format->tabStops)
-                free (format->tabStops);
+	if (format->tabStops)
+		free (format->tabStops);
 
-        format->firstTabOffset = firstTabOffset;
+	format->firstTabOffset = firstTabOffset;
 
-        if (count == 0) {
-                format->tabStops = NULL;
-                format->numtabStops = 0;
-                return Ok;
-        }
+	if (count == 0) {
+		format->tabStops = NULL;
+		format->numtabStops = 0;
+		return Ok;
+	}
 
-        pItemTrg = format->tabStops = malloc (sizeof(float) * count);
+	pItemTrg = format->tabStops = malloc (sizeof(float) * count);
 
-        if (!pItemTrg)
-                return OutOfMemory;
+	if (!pItemTrg)
+		return OutOfMemory;
 
-        for (i = 0; i < count; i++, pItemSrc++, pItemTrg++)
-                *pItemTrg = *pItemSrc;
-                
-        format->numtabStops = count;    
-        return Ok;        
+	for (i = 0; i < count; i++, pItemSrc++, pItemTrg++)
+		*pItemTrg = *pItemSrc;
+
+	format->numtabStops = count;
+	return Ok;
 }
 
 GpStatus
 GdipGetStringFormatDigitSubstitution (GDIPCONST GpStringFormat *format, int *language, DigitSubstitute *substitute)
 {
-        if (!format || !substitute)
-                return InvalidParameter;
+	if (!format || !substitute)
+		return InvalidParameter;
 
-        *substitute = format->substitute;
-        return Ok;                
+	*substitute = format->substitute;
+	return Ok;
 }
 
 GpStatus
 GdipSetStringFormatDigitSubstitution (GpStringFormat *format, int language, DigitSubstitute substitute)
 {
-        if (!format)
-                return InvalidParameter;
-                
-        format->substitute = substitute;
-        return Ok;                
+	if (!format)
+		return InvalidParameter;
+
+	format->substitute = substitute;
+	return Ok;
 }
 
 GpStatus
 GdipGetStringFormatTabStopCount (GDIPCONST GpStringFormat *format, int *count)
 {
-        if (!format || !count)
-                return InvalidParameter;
+	if (!format || !count)
+		return InvalidParameter;
 
-        *count = format->numtabStops;
+	*count = format->numtabStops;
 
-        return Ok;                
+	return Ok;
 }
 
 GpStatus
 GdipGetStringFormatTabStops (GDIPCONST GpStringFormat *format, int count, float *firstTabOffset, float *tabStops)
 {
-        int i;
-        float *pItemSrc = format->tabStops;
-        float *pItemTrg = tabStops;
-        int elems;
-        
-        if (!format || !firstTabOffset || !tabStops)
-                return InvalidParameter;
+	int i;
+	float *pItemSrc = format->tabStops;
+	float *pItemTrg = tabStops;
+	int elems;
 
-        elems = count<format->numtabStops ? count : format->numtabStops;        
-        for (i = 0; i < elems; i++, pItemSrc++, pItemTrg++)
-                *pItemTrg = *pItemSrc;
-                
-        *firstTabOffset = format->firstTabOffset;
-                
-        return Ok;                    
+	if (!format || !firstTabOffset || !tabStops)
+		return InvalidParameter;
+
+	elems = count<format->numtabStops ? count : format->numtabStops;
+	for (i = 0; i < elems; i++, pItemSrc++, pItemTrg++)
+		*pItemTrg = *pItemSrc;
+		
+	*firstTabOffset = format->firstTabOffset;
+
+	return Ok;
 }
 
 GpStatus
