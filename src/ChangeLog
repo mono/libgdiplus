@@ -1,3 +1,19 @@
+2004-03-26  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c: Prepare for the Curve and CloseCurve work by
+	stubbing out some functions.
+
+	* graphics.c (gdip_plot_path): Fixed the handling of paths
+	containing PathPointTypeBezier points. Previously, we were
+	resetting the index to zero at the head of each loop, so we were
+	never drawing Bezier curves correctly. Also, we need to draw the
+	curve immediately once we've , instead of doing it in
+	the next iteration (which may never come). This is an off-by-one
+	error.
+
+	* graphics-path.c (append_arc): Use floats instead of ints to hold
+	the center points, use doubles to hold the trig points.
+
 2004-03-26 Jordi Mas i Hernandez <jordi@ximian.com>
 	* image.c - dpis and parameter checking
 

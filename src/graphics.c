@@ -614,14 +614,13 @@ static GpStatus
 gdip_plot_path (GpGraphics *graphics, GpPath *path)
 {
         int length = path->count;
-        int i;
+        int i, idx = 0;
 
         for (i = 0; i < length; ++i) {
                 GpPointF pt = g_array_index (path->points, GpPointF, i);
                 byte type = g_array_index (path->types, byte, i);
                 GpPointF pts [3];
-                int idx = 0;
-                
+
                 switch (type) {
                 case PathPointTypeStart:
                         cairo_move_to (graphics->ct, pt.X, pt.Y);
@@ -632,19 +631,22 @@ gdip_plot_path (GpGraphics *graphics, GpPath *path)
                         break;
 
                 case PathPointTypeBezier:
+                        /* make sure we only add at most 3 points to pts */
                         if (idx < 3) {
                                 pts [idx] = pt;
                                 idx ++;
+                        }
 
-                        } else {
+                        /* once we've added 3 pts, we can draw the curve */
+                        if (idx == 3) {
                                 cairo_curve_to (graphics->ct,
                                                 pts [0].X, pts [0].Y,
                                                 pts [1].X, pts [1].Y,
                                                 pts [2].X, pts [2].Y);
                                 idx = 0;
                         }
+
                         break;
-                        
                 default:
                         return NotImplemented;
                 }
@@ -792,25 +794,61 @@ GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen,
 }
 
 GpStatus
+GdipDrawClosedCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
+{
+	printf ("DrawClosedCurve not implemented\n");
+	return Ok;
+}
+
+GpStatus
 GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 {
 	printf ("DrawClosedCurveI not implemented\n");
 	return Ok;
 }
-
 GpStatus
-GdipDrawCurveI ()
+GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count) 
 {
 	printf ("GdipDrawCurveI not implemented\n");
 	return Ok;
 }
 
 GpStatus
-GdipDrawCurve2I ()
+GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count) 
+{
+	printf ("GdipDrawCurveI not implemented\n");
+	return Ok;
+}
+
+GpStatus
+GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, float tension)
 {
 	printf ("GdipDrawCurve2I not implemented\n");
 	return Ok;
 }
+
+GpStatus
+GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, float tension)
+{
+	printf ("GdipDrawCurve2I not implemented\n");
+	return Ok;
+}
+
+GpStatus
+GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, float numOfSegments, float tension)
+{
+	printf ("GdipDrawCurve2I not implemented\n");
+	return Ok;
+}
+
+GpStatus
+GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count,
+                 float numOfSegments, float tension)
+{
+	printf ("GdipDrawCurve2I not implemented\n");
+	return Ok;
+}
+
 
 
 /*

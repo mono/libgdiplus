@@ -314,8 +314,8 @@ append_arc (GpPath *path, float x, float y, float width, float height, float sta
         float ry = height / 2;
         
         /* center */
-        int cx = x + rx;
-        int cy = y + ry;
+        float cx = x + rx;
+        float cy = y + ry;
 
         /* angles in radians */        
         float alpha = startAngle * PI / 180;
@@ -324,10 +324,10 @@ append_arc (GpPath *path, float x, float y, float width, float height, float sta
         float delta = beta - alpha;
         float bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta /2);
 
-        float sin_alpha = sin (alpha);
-        float sin_beta = sin (beta);
-        float cos_alpha = cos (alpha);
-        float cos_beta = cos (beta);
+        double sin_alpha = sin (alpha);
+        double sin_beta = sin (beta);
+        double cos_alpha = cos (alpha);
+        double cos_beta = cos (beta);
 
         append (path,
                 cx + rx * cos_alpha,
