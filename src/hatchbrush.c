@@ -1431,7 +1431,58 @@ draw_large_confetti_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_form
 GpStatus
 draw_zigzag_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format)
 {
-	return NotImplemented;
+	cairo_surface_t *hatch;
+	double hatch_wd = HATCH_SIZE + 2;
+	double hatch_ht = hatch_wd / 2.0;
+
+	double line_width = LINE_WIDTH;
+
+	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
+					      format, hatch_wd, hatch_ht);
+
+	g_return_val_if_fail (hatch != NULL, OutOfMemory);
+
+	cairo_surface_set_repeat (hatch, 1);
+	
+	/* draw one hatch */
+	{
+		cairo_save (ct);
+
+		/* hatch is not supposed to be affected by user matrix */
+		cairo_identity_matrix (ct);
+		cairo_set_target_surface (ct, hatch);
+
+		/* draw background */
+		int R = (backcolor & 0x00FF0000) >> 16;
+		int G = (backcolor & 0x0000FF00) >> 8;
+		int B = (backcolor & 0x000000FF);
+		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
+
+		cairo_rectangle (ct, 0, 0, hatch_wd, hatch_ht);
+		cairo_fill (ct);
+
+		/* set foreground */
+		R = (forecolor & 0x00FF0000) >> 16;
+		G = (forecolor & 0x0000FF00) >> 8;
+		B = (forecolor & 0x000000FF);
+		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
+
+		cairo_set_line_width (ct, line_width);
+
+		/* draw a 'V' shape */
+		cairo_move_to (ct, 0, 0);
+		cairo_line_to (ct, hatch_wd / 2.0, hatch_ht);
+		cairo_line_to (ct, hatch_wd, 0);
+		cairo_stroke (ct);
+
+		cairo_restore (ct);
+	}
+
+	/* set the pattern for the consequent fill or stroke */
+	gdip_cairo_set_surface_pattern (ct, hatch);
+	cairo_surface_destroy (hatch);
+
+	return Ok;
 }
 
 GpStatus
