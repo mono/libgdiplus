@@ -70,8 +70,12 @@ gdip_bitmap_init (GpBitmap *bitmap)
 	bitmap->data.PixelFormat = Format32bppArgb;
 	bitmap->data.Scan0 = 0;
 	bitmap->data.Reserved = 0;
+	bitmap->data.ByteCount = 0;
+	bitmap->data.Bytes = NULL;
+	bitmap->data.Left = 0;
+	bitmap->data.Top = 0;
 	bitmap->cairo_format = CAIRO_FORMAT_ARGB32; 
-	
+		
 	bitmap->hBitmapDC = 0;
 	bitmap->hInitialBitmap = 0;
 	bitmap->hBitmap = 0;
@@ -116,8 +120,8 @@ gdip_bitmap_dispose (GpBitmap *bitmap)
 	if (((bitmap->data.Reserved & GBD_OWN_SCAN0) != 0) && bitmap->data.Scan0 != NULL)
 		GdipFree (bitmap->data.Scan0);
 
-	if (bitmap->data.byteCount > 0 && bitmap->data.bytes != NULL)
-		GdipFree (bitmap->data.bytes);
+	if ((bitmap->data.ByteCount > 0) && (bitmap->data.Bytes != NULL))
+		GdipFree (bitmap->data.Bytes);
 }
 
 

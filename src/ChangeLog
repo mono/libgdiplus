@@ -1,3 +1,9 @@
+2004-07-26  Sanjay Gupta <gsanjay@novell.com>
+
+	* bitmap.c: Initialization of data members in gdip_bitmap_init(). 
+	* gdip.h: Corrected casing in BitmapData structure.
+	* gifcodec.c: Casing changes, because of change in gdip.h.
+
 2004-07-23  Sanjay Gupta <gsanjay@novell.com>
 
 	* tiffcodec.c: Corrected the sequence of writing information

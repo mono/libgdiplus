@@ -599,8 +599,8 @@ typedef struct {    /* Keep in sync with BitmapData.cs */
 	in a gif*/
 	unsigned int Top; 
 	unsigned int Left;
-	int	     byteCount;
-	char*	     bytes;
+	int	     ByteCount;
+	char*	     Bytes;
 } GdipBitmapData, BitmapData;
 
 typedef struct {

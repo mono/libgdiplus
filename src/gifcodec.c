@@ -240,9 +240,9 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		for (l =0; l<extBlockCount; l++) {
 			ExtensionBlock eb = si.ExtensionBlocks[l];
 			if (eb.Function == 249){
-				data.byteCount= eb.ByteCount;
-				data.bytes = (char *) GdipAlloc (data.byteCount);
-				memcpy (data.bytes, eb.Bytes, data.byteCount);
+				data.ByteCount= eb.ByteCount;
+				data.Bytes = (char *) GdipAlloc (data.ByteCount);
+				memcpy (data.Bytes, eb.Bytes, data.ByteCount);
 				timeDimension = TRUE;
 				break; /*there can be only one Graphic Control Extension before ImageData*/
 			}			
@@ -455,7 +455,7 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 	
 			/*Put Graphic control Extension*/
 			if (animationFlag) {
-				EGifPutExtension(fp, GRAPHICS_EXT_FUNC_CODE, data.byteCount, data.bytes);
+				EGifPutExtension(fp, GRAPHICS_EXT_FUNC_CODE, data.ByteCount, data.Bytes);
 			}
 
 			if (EGifPutImageDesc (fp, data.Left, data.Top, data.Width, 
