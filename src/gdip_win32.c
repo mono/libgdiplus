@@ -142,11 +142,6 @@ int __stdcall SetDIBits_gdip (void *hdc, void *hbitmap, unsigned startScan, unsi
 	return 0;
 }
 
-int __stdcall GetTextMetrics_gdip (void *hdc, TEXTMETRICA *tm)
-{
-	return 0;
-}
-
 int __stdcall GetTextFace_gdip (void *hdc, int size, unsigned char *buffer)
 {
 	return 0;
@@ -193,7 +188,6 @@ void (__stdcall *ReleaseDC_pfn) (void *hwnd, void * hdc);
 
 int (__stdcall *GetDIBits_pfn) (void *hdc, void *hbitmap, unsigned startScan, unsigned scanLines, void *bitmapBits, PBITMAPINFO pbmi, unsigned int colorUse);
 int (__stdcall *SetDIBits_pfn) (void *hdc, void *hbitmap, unsigned startScan, unsigned scanLines, void *bitmapBits, PBITMAPINFO pbmi, unsigned int colorUse);
-int (__stdcall *GetTextMetrics_pfn) (void *hdc, TEXTMETRICA *tm);
 int (__stdcall *GetTextFace_pfn) (void *hdc, int size, unsigned char *buffer);
 int (__stdcall *SetMapMode_pfn) (void *hdc, int fnMapMode);
 
@@ -233,7 +227,6 @@ void initializeGdipWin32 (void)
 		DeleteObject_pfn = dlsym (gdi32Handle,"DeleteObject");
 		SetDIBits_pfn = dlsym (gdi32Handle,"SetDIBits");
 		GetDIBits_pfn = dlsym (gdi32Handle,"GetDIBits");
-		GetTextMetrics_pfn = dlsym (gdi32Handle,"GetTextMetricsA");
 		GetTextFace_pfn = dlsym (gdi32Handle,"GetTextFaceA");
 		SetMapMode_pfn = dlsym (gdi32Handle,"SetMapMode");
 		
@@ -256,7 +249,6 @@ void initializeGdipWin32 (void)
 	CHECK_FUNCTION (GetDIBits);
 	CHECK_FUNCTION (GetDC);
 	CHECK_FUNCTION (ReleaseDC);
-	CHECK_FUNCTION (GetTextMetrics);
 	CHECK_FUNCTION (GetTextFace);
 	CHECK_FUNCTION (SetMapMode);
 	
