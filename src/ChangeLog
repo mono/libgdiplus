@@ -1,3 +1,7 @@
+2004-03-26  Ravindra  <rkumar@novell.com>
+	* texturebrush.c: Implemented TileFlipY wrapmode and fixed
+	TileFlipX wrapmode.
+
 2004-03-26  Duncan Mak  <duncan@ximian.com>
 
 	* graphics-path.c: Port the changes made to graphics here.

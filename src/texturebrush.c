@@ -231,6 +231,8 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix)
 {
 	cairo_surface_t *original;
 	cairo_surface_t *texture;
+	GpMatrix *matrixCopy = cairo_matrix_create ();
+	cairo_matrix_copy (matrixCopy, matrix);
 
 	/* Original image surface */
 	original = cairo_surface_create_for_image (bitmap->data.Scan0, bitmap->cairo_format,
@@ -244,13 +246,14 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix)
 
 	/* Draw left part of the texture */
 	cairo_set_target_surface (ct, texture);
-	cairo_surface_set_matrix (original, matrix);
+	cairo_surface_set_matrix (original, matrixCopy);
 	cairo_show_surface (ct, original, bitmap->data.Width, bitmap->data.Height);
 
 	/* Draw right part of the texture */
-	cairo_matrix_translate (matrix, 2 * bitmap->data.Width, 0);
-	cairo_matrix_scale (matrix, -1.0, 1.0);	/* scale in -X direction to flip along X */
-	cairo_surface_set_matrix (original, matrix);
+	cairo_matrix_translate (matrixCopy, 2 * bitmap->data.Width, 0);
+	/* scale in -X direction to flip along X */
+	cairo_matrix_scale (matrixCopy, -1.0, 1.0);
+	cairo_surface_set_matrix (original, matrixCopy);
 	cairo_show_surface (ct, original, bitmap->data.Width, bitmap->data.Height);
 
 	cairo_restore (ct);
@@ -258,6 +261,7 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix)
 	cairo_surface_set_repeat (texture, 1);
 	cairo_set_pattern (ct, texture);
 
+	cairo_matrix_destroy (matrixCopy);
 	cairo_surface_destroy (original);
 	cairo_surface_destroy (texture);
 }
@@ -265,7 +269,41 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix)
 void
 draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix)
 {
-	/* NotImplemented */
+	cairo_surface_t *original;
+	cairo_surface_t *texture;
+	GpMatrix *matrixCopy = cairo_matrix_create ();
+	cairo_matrix_copy (matrixCopy, matrix);
+
+	/* Original image surface */
+	original = cairo_surface_create_for_image (bitmap->data.Scan0, bitmap->cairo_format,
+				bitmap->data.Width, bitmap->data.Height, bitmap->data.Stride);
+
+	/* texture surface to be created */
+	texture = cairo_surface_create_similar (original, bitmap->cairo_format,
+				bitmap->data.Width, 2 * bitmap->data.Height);
+
+	cairo_save (ct);
+
+	/* Draw upper part of the texture */
+	cairo_set_target_surface (ct, texture);
+	cairo_surface_set_matrix (original, matrixCopy);
+	cairo_show_surface (ct, original, bitmap->data.Width, bitmap->data.Height);
+
+	/* Draw lower part of the texture */
+	cairo_matrix_translate (matrixCopy, 0, 2 * bitmap->data.Height);
+	/* scale in -Y direction to flip along Y */
+	cairo_matrix_scale (matrixCopy, 1.0, -1.0);
+	cairo_surface_set_matrix (original, matrixCopy);
+	cairo_show_surface (ct, original, bitmap->data.Width, bitmap->data.Height);
+
+	cairo_restore (ct);
+	
+	cairo_surface_set_repeat (texture, 1);
+	cairo_set_pattern (ct, texture);
+
+	cairo_matrix_destroy (matrixCopy);
+	cairo_surface_destroy (original);
+	cairo_surface_destroy (texture);
 }
 
 void
