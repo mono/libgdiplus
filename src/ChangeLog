@@ -1,3 +1,8 @@
+2004-11-05  Ravindra  <rkumar@novell.com>
+
+	* graphics-path.c: Backporting. Fixed int_to_float () function.
+	We should not increment the pointer to be returned by the function.
+
 2004-10-28  Ravindra  <rkumar@novell.com>
 
 	* tiffcodec.c (gdip_tiff_close): Don't close the stream, we
