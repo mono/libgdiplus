@@ -42,12 +42,8 @@ void gdip_texture_destroy (GpBrush *brush);
 GpStatus GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture);
 GpStatus GdipCreateTexture2 (GpImage *image, GpWrapMode wrapMode, float x, float y, float width, float height, GpTexture **texture);
 GpStatus GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int width, int height, GpTexture **texture);
-
-/* Implement these when implementing ImageAttributes.
 GpStatus GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x, float y, float width, float height, GpTexture **texture);
 GpStatus GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x, int y, int width, int height, GpTexture **texture);
-*/
- 
 GpStatus GdipGetTextureTransform (GpTexture *texture, GpMatrix *matrix);
 GpStatus GdipSetTextureTransform (GpTexture *texture, GpMatrix *matrix);
 GpStatus GdipResetTextureTransform (GpTexture *texture);
@@ -58,12 +54,5 @@ GpStatus GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOr
 GpStatus GdipSetTextureWrapMode (GpTexture *texture, GpWrapMode wrapMode);
 GpStatus GdipGetTextureWrapMode (GpTexture *texture, GpWrapMode *wrapMode);
 GpStatus GdipGetTextureImage (GpTexture *texture, GpImage **image);
-
-/* texture internal functions */
-void draw_tile_texture (cairo_t *ct, GpBitmap *bmp, GpMatrix *matrix);
-void draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bmp, GpMatrix *matrix, GpRect *rect);
-void draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bmp, GpMatrix *matrix, GpRect *rect);
-void draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bmp, GpMatrix *matrix, GpRect *rect);
-void draw_clamp_texture (cairo_t *ct, GpBitmap *bmp, GpMatrix *matrix);
 
 #endif /* _TEXTURE_H */
