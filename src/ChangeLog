@@ -1,3 +1,7 @@
+2004-04-11  Peter Bartok <pbartok@novell.com>
+   * gdip_win32.c: Added fontsize translation when creating HFONT
+   * font.c: Added private function to retrieve the HFONT handle
+
 2004-04-10  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* image.c (GdipDrawImageRectI): put back version that handles

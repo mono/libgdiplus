@@ -233,8 +233,14 @@ void _release_hdc (int hdc)
 void *
 CreateWineFont(FcChar8 *str, GpFontStyle style, float emSize, Unit unit)
 {
+	float	Height;
+
+	gdip_unitConversion(unit, UnitPoint, emSize, &Height);
+
+	Height=Height*-1;
+
 	return(CreateFont_pfn(
-		emSize,		 					/* Height */
+		Height,		 					/* Height */
 		0, 							/* Width */
 		0, 							/* Escapement */
 		0, 							/* Orientation */

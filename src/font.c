@@ -480,6 +480,16 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 }
 
 GpStatus
+GdipGetHfont(GpFont* font, void **Hfont)
+{
+	if (font) {
+		*Hfont=font->wineHfont;
+		return(Ok);
+	}
+	return InvalidParameter;
+}
+
+GpStatus
 GdipDeleteFont (GpFont* font)
 {
 	if (font){
