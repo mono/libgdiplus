@@ -56,7 +56,7 @@ GdipStringFormatGetGenericDefault(GpStringFormat **format)
         result->lineAlignment =  StringAlignmentNear;
         result->hotkeyPrefix = HotkeyPrefixNone;
         result->formatFlags = 0;
-        result->trimming = StringTrimmingCharacter;
+        result->trimming = StringTrimmingWord;
         result->substitute = DigitSubstituteNone;
         result->firstTabOffset = 0;
         result->tabStops = NULL;

@@ -1,3 +1,15 @@
+2004-05-09  Peter Bartok <pbartok@novell.com>
+   * graphics.c: Completely rewrote DrawString and MeasureString:
+                 - No longer only works for us-ascii
+                 - Now handles multiple sequential linefeeds in DrawString
+                 - Now properly calculates the bounding box size
+                 - Now handles StringFormat flags (NoWrap, Vertical, Ellipsis)
+                 - Now properly breaks lines at whitespace or characters
+                 - Now properly handles tabstops
+                 - Now properly allows multiple hotkey characters
+   * stringformat.c: Changed trimming default to TrimWord (like MS)
+   * gdip.h: Fixed DrawString prototypes, replaced DrawString support structs
+
 2004-05-09 Jordi Mas i Hernandez <jordi@ximian.com>
 	* bmpcodec.c: Move BMP specific functions to bmpcodec
 	* bitmap.c: Move BMP specific functions to bmpcodec

@@ -317,6 +317,26 @@ typedef enum {
     StringAlignmentFar    = 2
 } StringAlignment;
 
+
+/* Flags and Support structure for MeasureOrDrawString */
+#define STRING_DETAIL_TAB       (1<<0)
+#define STRING_DETAIL_LF        (1<<1)
+#define STRING_DETAIL_HOTKEY    (1<<2)
+#define STRING_DETAIL_BREAK     (1<<3)
+#define STRING_DETAIL_HIDDEN    (1<<4)
+#define STRING_DETAIL_LINESTART (1<<5)
+
+typedef struct {
+	unsigned long	Flags;
+	unsigned long	Linefeeds;
+	float		TabWidth;
+	float		PosX;		/* We call it X, even though it might become Y for vertical drawing */
+	float		PosY;		/* We call it Y, even though it might become X for vertical drawing */
+	float		Width;		/* Width of the character; height is defined in font structure */
+	int		LineLen;	/* If LineStart how many chars is the line long? */
+} GpStringDetailStruct;
+
+
 typedef enum {
 	ImageFlagsNone = 0,
 	ImageFlagsScalable = 1,
@@ -629,12 +649,6 @@ typedef struct {
 }GpStringFormat;
 
 typedef struct {
-        bool is_hotkey;
-        bool has_newline;
-        float tab_distance;
-}GpGlyphsDetails;
-
-typedef struct {
         float X, Y;
         float width;
 } GpLinePointF;
@@ -820,7 +834,7 @@ GpStatus GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin);
 GpStatus GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin);
 
 /* Text */
-GpStatus GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *string, int len, GpFont *font, RectF *rc, GpStringFormat *format, GpBrush *brush);
+GpStatus GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *string, int len, GDIPCONST GpFont *font, GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush);
 GpStatus GdipMeasureString(GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST RectF *layoutRect, GDIPCONST GpStringFormat *stringFormat,  RectF *boundingBox, int *codepointsFitted, int *linesFilled);
 
 
