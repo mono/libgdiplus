@@ -112,7 +112,9 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 	GpBitmap *bitmap = (GpBitmap *) image;	
 	unsigned char *buf = NULL;
 	int i, linebytes;
-	
+	guint32 *r32 = NULL;
+	size_t npixels;
+					
 	if (!tiff)
 		return InvalidParameter;		
 		
@@ -131,14 +133,35 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 		buf = (unsigned char *)_TIFFmalloc (TIFFScanlineSize (tiff)); 
 
 	TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, linebytes)); 
+
+	/* We store data in ABGR format, but tiff stores it in ARGB, 
+	 * so convert before writing it. 
+	 */	 
+	npixels = bitmap->image.width * bitmap->image.height;
+	r32 = bitmap->data.Scan0;
+	/* flip bytes */
+	for (i = 0; i < npixels; i++) {
+		*r32 = (*r32 & 0xff000000) | ((*r32 & 0x00ff0000) >> 16) |
+				(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
+		r32++;
+	}
 	
-        for (i = 0; i < bitmap->data.Height; i++) {
+	/*write data*/
+	for (i = 0; i < bitmap->data.Height; i++) {
 		if (TIFFWriteScanline (tiff, bitmap->data.Scan0 + i *bitmap->data.Stride, i, 0) < 0) 
 			break;
 	}
 		
-	TIFFClose (tiff); 
+	/* image data might be reused again, so convert back to ABGR*/
+	r32 = bitmap->data.Scan0;
+	for (i = 0; i < npixels; i++) {
+		*r32 = (*r32 & 0xff000000) | ((*r32 & 0x00ff0000) >> 16) |
+				(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
+		r32++;
+	}
 	
+	TIFFClose (tiff); 
+		
 	if (buf) 
 		_TIFFfree (buf);
 
@@ -195,7 +218,7 @@ gdip_load_tiff_image (TIFF *tif, GpImage **image)
 								onerow, img->data.Stride);
 					}
 					/* flip bytes */
-					for (i = 0; i < tifimg.width * tifimg.height; i++) {
+					for (i = 0; i < npixels; i++) {
 						*r32 = (*r32 & 0xff000000) | ((*r32 & 0x00ff0000) >> 16) |
 								(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
 						r32++;

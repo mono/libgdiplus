@@ -1,3 +1,10 @@
+2006-06-17  Sanjay Gupta <gsanjay@novell.com>
+
+	* tiffcodec.c: ABGR 2 ARGB conversion while saving. 
+	Default tiff format of ARGB was converted to our local format ABGR
+	while reading, but in write operation we were not converting back
+	to ARGB format and hence messy image.
+
 2004-06-17  Sanjay Gupta <gsanjay@novell.com>
 	
 	* image.c: Removed a commented line of code. Got checked in by mistake.
