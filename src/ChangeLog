@@ -1,3 +1,8 @@
+2004-04-25  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* graphics.c (GdipCreateFromXDrawable_linux): added method, so that
+	we can interface with Gtk (i.e. to draw to a DrawingArea)
+
 2004-04-24  Ravindra <rkumar@novell.com>
 
 	* graphics.c: Fixed GdipGraphicsClear() function.

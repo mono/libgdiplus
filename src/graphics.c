@@ -305,6 +305,19 @@ GdipCreateFromHWND(void *hwnd, GpGraphics **graphics)
 	return(Ok);
 }
 
+GpStatus
+GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
+{
+    g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
+    *graphics = gdip_graphics_new();
+    cairo_set_target_drawable ((*graphics)->ct, dpy, d);
+
+    (*graphics)->type = gtX11Drawable;
+
+    return Ok;
+}
+
 GpStatus 
 GdipDeleteGraphics (GpGraphics *graphics)
 {
