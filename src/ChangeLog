@@ -1,3 +1,6 @@
+2004-05-27 Jordi Mas <jordi@ximian.com>
+	* bitmap.c: added support for drawing 24-bits images tru DrawImage
+	
 2004-05-27  Sanjay Gupta <gsanjay@novell.com>
 
 	* bmpcodec.c: Fixes in function to save bmp to stream.

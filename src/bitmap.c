@@ -921,17 +921,28 @@ gdip_bitmap_ensure_surface (GpBitmap *bitmap)
 	if (bitmap->image.surface == NULL &&
 		bitmap->data.Scan0 != NULL)	{		
 		
-		if (bitmap->data.PixelFormat == Format32bppArgb) {
-			bitmap->cairo_format = CAIRO_FORMAT_ARGB32;
+		switch (bitmap->data.PixelFormat) {
+		case Format24bppRgb:
+			bitmap->image.surface = cairo_surface_create_for_image
+				(bitmap->data.Scan0,
+				 CAIRO_FORMAT_RGB24,
+				 bitmap->data.Width,
+				 bitmap->data.Height,
+				 bitmap->data.Stride);
+			break;
+		case Format32bppArgb:
+		case Format32bppRgb:
+		case Format32bppPArgb:
 			bitmap->image.surface = cairo_surface_create_for_image
 				(bitmap->data.Scan0,
 				 CAIRO_FORMAT_ARGB32,
 				 bitmap->data.Width,
 				 bitmap->data.Height,
 				 bitmap->data.Stride);
-				 
-		} else {
+			break;
+		default:
 			g_warning ("gdip_bitmap_ensure_surface: Unable to create a surface for raw bitmap data of format 0x%08x", bitmap->data.PixelFormat);
+			break;
 		}
 	}
 
