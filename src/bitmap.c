@@ -65,7 +65,7 @@ gdip_bitmap_new ()
 void 
 gdip_bitmap_dispose (GpBitmap *bitmap)
 {
-        if (bitmap->data.own_scan0 == TRUE)
+        if ((bitmap->data.Reserved & GBD_OWN_SCAN0) != 0)
                 GdipFree (bitmap->data.Scan0);
 }
 
@@ -188,7 +188,6 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
                 scan0 = GdipAlloc (stride * height);
                 own_scan0 = TRUE;
         }
-
 	result = gdip_bitmap_new ();
 	result->cairo_format = cairo_format;
 	result->data.Width = width;
@@ -196,7 +195,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 	result->data.Stride = stride;
 	result->data.PixelFormat = format;
 	result->data.Scan0 = scan0;
-        result->data.own_scan0 = own_scan0;
+	if (own_scan0) result->data.Reserved |= GBD_OWN_SCAN0;
 		
 	*bitmap = result;
 
@@ -228,7 +227,7 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	result->data.Stride = stride;
 	result->data.PixelFormat = Format32bppArgb;
 	result->data.Scan0 = GdipAlloc (bmpSize);
-	result->data.Reserved = 1;
+	result->data.Reserved |= GBD_OWN_SCAN0;
 	*bitmap = result;
 	return Ok;
 }
@@ -250,7 +249,7 @@ GdipCloneBitmapAreaI (int x, int y, int width, int height, int format, GpBitmap 
 	result->data.PixelFormat = original->data.PixelFormat;
 	result->data.Scan0 = GdipAlloc (bmpSize);
 	memmove (result->data.Scan0, original->data.Scan0, bmpSize);
-	result->data.Reserved = 1;
+	result->data.Reserved |= GBD_OWN_SCAN0;
 	
 	*bitmap = result;
 	return Ok;
@@ -279,7 +278,7 @@ ChangePixelFormat (GpBitmap *bitmap, GdipBitmapData *destData)
 	destData->Height = bitmap->data.Height;
 	destData->Stride = ( (destData->PixelFormat == Format32bppArgb ) ? 4 : 3 ) * bitmap->data.Width;
 	destData->Scan0 = GdipAlloc (destData->Stride * bitmap->data.Height);
-	destData->Reserved = 1;
+	destData->Reserved = GBD_OWN_SCAN0;
 	curSrc = bitmap->data.Scan0;
 	curDst = (char *)destData->Scan0;
 	for (i = 0; i < bitmap->data.Height; i++) {
@@ -307,7 +306,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *rc, int flags, int format, GdipBitma
 	    rc->Y == 0 && rc->Y + rc->Height == bitmap->data.Height &&
 	    format == bitmap->data.PixelFormat){
 		*result = bitmap->data;
-		result->Reserved = result->Reserved & ~1;
+		result->Reserved = result->Reserved & (~GBD_OWN_SCAN0);
 		return Ok;
 	}
 	
@@ -357,7 +356,7 @@ ____BitmapLockBits (GpBitmap *bitmap, Rect *rc, int flags, int format, int *widt
 GpStatus 
 GdipBitmapUnlockBits (GpBitmap *bitmap, GdipBitmapData *bitmap_data)
 {
-	if (bitmap_data->Reserved & 1)
+	if ((bitmap_data->Reserved & GBD_OWN_SCAN0) != 0)
 		GdipFree (bitmap_data->Scan0);
 	return Ok;
 }

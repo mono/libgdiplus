@@ -165,7 +165,9 @@ gdip_get_display_dpi()
 	Display* display=XOpenDisplay(NULL);
 	char* val = XGetDefault(display, "Xft", "dpi");
    	XCloseDisplay(display);
-	dpis = atof(val);
+	if (val) {
+		dpis = atof(val);
+	}
 	
 	return dpis;
 }

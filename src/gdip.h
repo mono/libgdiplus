@@ -288,6 +288,7 @@ typedef enum {
  * Structures
  *
  */
+#define GBD_OWN_SCAN0 0x80
 typedef struct {    /* Keep in sync with BitmapData.cs */
 	unsigned int Width;
 	unsigned int Height;
@@ -295,7 +296,6 @@ typedef struct {    /* Keep in sync with BitmapData.cs */
 	int          PixelFormat;
 	void         *Scan0;    
 	unsigned int Reserved;
-    bool         own_scan0;
 } GdipBitmapData, BitmapData;
 
 typedef struct {
