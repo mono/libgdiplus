@@ -364,7 +364,7 @@ typedef struct {
 typedef struct {
 	UINT Flags;
 	UINT Count;
-	ARGB Entries[1];
+	ARGB* Entries;
 } ColorPalette;
 
 typedef struct {

@@ -50,6 +50,7 @@ gdip_load_png_image_from_file (FILE *fp, GpImage *image)
 	bool idat_read = FALSE;
 	bool plte_read = FALSE;
 	bool reading = TRUE;
+	bool can_read_plte = FALSE;
 	PNGHeader header;
 	GpStatus status = Ok;
 	
@@ -135,11 +136,13 @@ gdip_load_png_image_from_file (FILE *fp, GpImage *image)
 				image->pixFormat = Format24bppRgb;
 			else
 				image->pixFormat = Format48bppRgb;
+			can_read_plte = TRUE;
 			break;
 		case 3:
 			if (bit_depth == 16)
 				return gdip_png_handle_error (image, InvalidParameter);
 			num_channels = 1;
+			can_read_plte = TRUE;
 			break;
 		case 4: /*image has alpha channel*/
 			if (bit_depth != 8 || bit_depth != 16)
@@ -158,6 +161,7 @@ gdip_load_png_image_from_file (FILE *fp, GpImage *image)
 				image->pixFormat = Format32bppArgb;
 			else
 				image->pixFormat = Format64bppArgb;
+			can_read_plte = TRUE;
 			break;
 		default:
 			return gdip_png_handle_error (image, InvalidParameter);
@@ -168,8 +172,21 @@ gdip_load_png_image_from_file (FILE *fp, GpImage *image)
 	pixel_depth = num_channels * bit_depth;	
 
 	header.compression_method = *(chunk_data + 10);
+	if (header.compression_method != 0) /*only deflate/inflate compression is defined*/
+		return gdip_png_handle_error (image, InvalidParameter);
+
 	header.filter_method = *(chunk_data + 11);
+	if (header.filter_method != 0) /*only adaptive filtering with five basic filter types is defined */
+		return gdip_png_handle_error (image, InvalidParameter);
+
 	header.interlace_method = *(chunk_data + 12);
+	switch (header.interlace_method){
+		case 0: /*no interlace method*/
+		case 1: /*Adam7 interlace*/
+			break;
+		default:
+            return gdip_png_handle_error (image, InvalidParameter);
+	}
 
 	while (reading ){
 		size_read = fread (chunk_length, png_size_byte, 4, fp); /*read length of next chunk*/
@@ -182,14 +199,14 @@ gdip_load_png_image_from_file (FILE *fp, GpImage *image)
 		if (size_read != 4)
 			return gdip_png_handle_error (image, InvalidParameter);
 
-		crc_calculated = crc32(0L, Z_NULL, 0); /*reinitialize the crc*/
-		crc_calculated = crc32(crc_calculated, chunk_name, 4); /*calculate CRC for the chunk name*/
+		crc_calculated = crc32 (0L, Z_NULL, 0); /*reinitialize the crc*/
+		crc_calculated = crc32 (crc_calculated, chunk_name, 4); /*calculate CRC for the chunk name*/
 
 		if (memcmp(chunk_name, png_IDAT, 4) == 0){
 			if (color_type == 3 && plte_read == FALSE) /*we came to read idat chunk
 				without reading plte chunk for a palette based image, signal error */
 				return gdip_png_handle_error (image, InvalidParameter);
-			status = gdip_read_png_idat_chunk(fp, length, &header, image, crc_calculated);
+			status = gdip_read_png_idat_chunk (fp, length, &header, image, crc_calculated);
 			if (status != Ok)
 				return status;
 			idat_read = TRUE;
@@ -199,7 +216,7 @@ gdip_load_png_image_from_file (FILE *fp, GpImage *image)
 			if (idat_read == FALSE)/* We are reading IEND chunk without reading IDAT
 									chunk, signal error*/
 				return gdip_png_handle_error (image, InvalidParameter);
-			status = gdip_read_png_iend_chunk(fp, length, &header, crc_calculated);
+			status = gdip_read_png_iend_chunk (fp, length, &header, crc_calculated);
 			if (status != Ok)
 				return gdip_png_handle_error (image, status);
 			reading = FALSE;
@@ -208,10 +225,16 @@ gdip_load_png_image_from_file (FILE *fp, GpImage *image)
 		if (memcmp(chunk_name, png_PLTE, 4) == 0){
 			if (idat_read) /*we have read idat chunk already, plte chunk is out of place*/
 				return gdip_png_handle_error (image, InvalidParameter);
-			status = gdip_read_png_plte_chunk(fp, length, &header, image, crc_calculated);
-			if (status != Ok)
-				return status;
-			plte_read = TRUE;
+			if (length > 768 || length%3 != 0 ) /*plte chunk can have only 256(2^8) entries
+				corresponding to maximum bit depth of 8. Each entry is 3 bytes one each for RGB */
+				return gdip_png_handle_error (image, InvalidParameter);
+			if (can_read_plte){
+				status = gdip_read_png_plte_chunk (fp, length, &header, image, crc_calculated);
+				if (status != Ok)
+					return status;
+				plte_read = TRUE;
+			} else 
+				return gdip_png_handle_error (image, status);
 		}
 	}
 		
@@ -276,10 +299,13 @@ gdip_read_png_plte_chunk(FILE *fp, int length, PNGHeader *header, GpImage *image
 {
 	byte *chunk_data;
 	byte chunk_crc[4];
+	byte palette_entry[3];
 	int size_read;
 	unsigned int crc_calculated;
 	unsigned int crc_obtained;
-
+	ARGB *palette_entries;
+	int num_entries, i;
+	
 	size_read = fread (chunk_data, png_size_byte, length, fp);
 	if (size_read != length)
 		return gdip_png_handle_error (image, InvalidParameter);
@@ -295,7 +321,17 @@ gdip_read_png_plte_chunk(FILE *fp, int length, PNGHeader *header, GpImage *image
 	if (crc_calculated != crc_obtained)
 		return gdip_png_handle_error(image, InvalidParameter);
 
-	return NotImplemented;
+	num_entries = length/3;
+	image->palette->Count = num_entries;
+	image->palette->Entries = (ARGB*) malloc(num_entries*sizeof(ARGB));
+	for (i=0; i<num_entries; i++, chunk_data+=3) {
+		image->palette->Entries[i] = (ARGB)(((unsigned int) (*chunk_data) << 16) +
+								((unsigned int) *(chunk_data+1) << 8) + 
+								((unsigned int) *(chunk_data+2))) ;
+	}
+	/*image->palette->Entries = &palette_entries;*/
+	
+	return Ok;
 }
 
 unsigned int gdip_png_get_uint (byte *bytep)

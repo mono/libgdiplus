@@ -1,3 +1,7 @@
+2004-03-30  Sanjay Gupta <gsanjay@novell.com>
+	*pngcodec.c Implemented one more method.
+	*gdip.h Modified ColorPalette structure.
+
 2004-03-31  Sachin Kumar <skumar1@novell.com>
 	* Makefile.am: Updated file to make it work for
 	  'make distcheck'.
