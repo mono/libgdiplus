@@ -91,6 +91,17 @@ gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 {
 	int  bitmapLen = bitmap->data.Stride * bitmap->data.Height;
 	memset (bmi, 0, sizeof (BITMAPINFOHEADER));
+#ifdef WORDS_BIGENDIAN
+	bmi->biSize = GUINT32_FROM_LE (sizeof (BITMAPINFOHEADER));
+	bmi->biWidth = GULONG_FROM_LE (bitmap->data.Width);
+	bmi->biHeight = GULONG_FROM_LE (bitmap->data.Height);
+	bmi->biPlanes = GUINT16_FROM_LE (1);
+	bmi->biBitCount = GUINT16_FROM_LE (32); /*PIXEL_FORMAT_BPP (bitmap->image.pixFormat); */
+	bmi->biCompression = GUINT32_FROM_LE (BI_RGB);
+	bmi->biSizeImage =  GUINT32_FROM_LE (0); /* Many tools expect this may be set to zero for BI_RGB bitmaps */
+	bmi->biXPelsPerMeter = GULONG_FROM_LE ((int) (0.5f + ((gdip_get_display_dpi() * 3937) / 100)));
+	bmi->biYPelsPerMeter = GULONG_FROM_LE ((int) (0.5f + ((gdip_get_display_dpi() * 3937) / 100))); /* 1 meter is = 39.37 */       
+#else
 	bmi->biSize = sizeof (BITMAPINFOHEADER);
 	bmi->biWidth = bitmap->data.Width;
 	bmi->biHeight = bitmap->data.Height;
@@ -100,6 +111,7 @@ gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 	bmi->biSizeImage =  0; /* Many tools expect this may be set to zero for BI_RGB bitmaps */
 	bmi->biXPelsPerMeter = (int) (0.5f + ((gdip_get_display_dpi() * 3937) / 100));
 	bmi->biYPelsPerMeter = (int) (0.5f + ((gdip_get_display_dpi() * 3937) / 100)); /* 1 meter is = 39.37 */       
+#endif
 }                                                           
 
 void 
@@ -533,11 +545,17 @@ gdip_save_bmp_image_to_file_stream (void *pointer,
         if (bitmap->image.palette)
                 colours = bitmap->image.palette->Count;
 
+#ifdef WORDS_BIGENDIAN
+	bmfh.bfReserved1 = bmfh.bfReserved2 = GUINT16_FROM_LE (0);
+	bmfh.bfType = GUINT16_FROM_LE (BFT_BITMAP);
+	bmfh.bfSize = GUINT32_FROM_LE (bmfh.bfOffBits + bitmapLen);
+        bmfh.bfOffBits = GUINT32_FROM_LE (14 + 40 + colours * 4);
+#else
         bmfh.bfReserved1 = bmfh.bfReserved2 = 0;
         bmfh.bfType = BFT_BITMAP;
         bmfh.bfSize = (bmfh.bfOffBits + bitmapLen);
-
         bmfh.bfOffBits = (14 + 40 + colours * 4);
+#endif
         gdip_write_bmp_data (pointer, (byte *)&bmfh, sizeof (bmfh), useFile);
         
 	gdip_bitmap_fill_info_header (bitmap, &bmi);
@@ -548,6 +566,16 @@ gdip_save_bmp_image_to_file_stream (void *pointer,
                 /* Write palette on disk on BGRA*/
                 for (i = 0; bitmap->image.palette->Count; i++) {
                         color = bitmap->image.palette->Entries[i];
+#ifdef WORDS_BIGENDIAN
+                        b = color >> 24;
+			gdip_write_bmp_data (pointer, &b, 1, useFile);
+                        b = (color >> 16) & 0xff;
+			gdip_write_bmp_data (pointer, &b, 1, useFile);
+                        b = (color >> 8) & 0xff;
+			gdip_write_bmp_data (pointer, &b, 1, useFile);
+                        b =  color & 0xff;
+			gdip_write_bmp_data (pointer, &b, 1, useFile);
+#else
                         b =  color & 0xff;
 			gdip_write_bmp_data (pointer, &b, 1, useFile);
                         b = (color >> 8) & 0xff;
@@ -556,12 +584,32 @@ gdip_save_bmp_image_to_file_stream (void *pointer,
 			gdip_write_bmp_data (pointer, &b, 1, useFile);
                         b = color >> 24;
 			gdip_write_bmp_data (pointer, &b, 1, useFile);
+#endif
                 }	
         }
         
         /* Writes bitmap upside down. Many tools can only process bmp stored this way*/        
-        for (i = bitmap->data.Height - 1; i >= 0; i--)
+#ifdef WORDS_BIGENDIAN
+	{
+		int j;
+		guchar *row_pointer = GdipAlloc (image->width * 4);
+		
+		for (i = image->height -1; i >= 0; i--) {
+			for (j = 0; j < image->width; j++) {
+				row_pointer[j*4] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 3); 
+				row_pointer[j*4+1] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 2); 
+				row_pointer[j*4+2] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 1); 
+				row_pointer[j*4+3] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 0); 
+			}
+			gdip_write_bmp_data (pointer, row_pointer, bitmap->data.Stride, useFile);
+		}
+		GdipFree (row_pointer);
+	}
+#else
+        for (i = bitmap->data.Height - 1; i >= 0; i--) {
 		gdip_write_bmp_data (pointer, bitmap->data.Scan0 + i *bitmap->data.Stride, bitmap->data.Stride, useFile);
+	}
+#endif
         return Ok;
 }
 

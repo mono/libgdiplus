@@ -1,3 +1,7 @@
+2005-01-28  Geoff Norton  <gnorton@customerdna.com>
+
+	* bmpcodec.c:  Make this endian aware for saving bitmaps.
+
 2005-01-28  Peter Bartok  <pbartok@novell.com>
 
 	* pathgradientbrush.c (GdipMultiplyPathGradientTransform): Don't
