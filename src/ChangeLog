@@ -1,5 +1,9 @@
 2004-04-13  Vladimir Vukicevic  <vladimir@pobox.com>
 
+	* jpegcodec.c (gdip_save_jpeg_image_internal): Check for pixformat
+	equal to Format24bppRgb, not 32bpp when deciding whether to do
+	argb conversion.  Fixes #56967.
+
 	* texturebrush.h: Moved WrapMode enum to gdip.h, to share
 	it with the pgbrush
 	

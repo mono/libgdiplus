@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include "jpegcodec.h"
+#include "gdipImage.h"
 
 #ifdef HAVE_LIBJPEG
 
@@ -483,7 +484,7 @@ gdip_save_jpeg_image_internal (FILE *fp,
     if (gdip_get_pixel_format_components (image->pixFormat) == 3) {
         cinfo.in_color_space = JCS_RGB;
         cinfo.input_components = 3;
-        if (image->pixFormat == Format32bppRgb)
+        if (image->pixFormat == Format24bppRgb)
             need_argb_conversion = 1;
         else
             need_argb_conversion = 0;
