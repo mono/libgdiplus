@@ -151,7 +151,8 @@ typedef struct
 #  define __stdcall 
 #endif
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__x86_64__)
+#   undef __stdcall
 #	define __stdcall
 #endif
 

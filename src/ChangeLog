@@ -1,3 +1,7 @@
+2004-12-27  Zoltan Varga  <vargaz@freemail.hu>
+
+	* gdip_win32.h: Do not define __stdcall under amd64.
+
 2004-12-16  Peter Bartok  <pbartok@novell.com>
 
 	* graphics.c:
