@@ -1,3 +1,9 @@
+2004-06-22  Ravindra <rkumar@novell.com>
+
+	* lineargradientbrush.h: Added two members 'changed' and 'pattern'
+	to GpLineGradient struct to avoid unnecessary multiple brush setup.
+	* lineargradientbrush.c: Changes related to above and some fixes.
+
 2004-06-22  Jordi Mas <jordi@ximian.com>
 
 	* gdip.h, graphics.c: implement Clip API function calls
