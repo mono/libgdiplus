@@ -105,7 +105,7 @@ convert_dash_array (float *f, int count)
         int i;
         for (i = 0; i < count; i++) {
                 retval[i] = (double) f[i];
-		}
+        }
 
         return retval;
 }
@@ -126,10 +126,10 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
         if (pen->dash_array != NULL && pen->dash_count != 0) {
                 double *dash_array;
 
-                dash_array=convert_dash_array(pen->dash_array, pen->dash_count);
+                dash_array = convert_dash_array (pen->dash_array, pen->dash_count);
                 cairo_set_dash (graphics->ct, dash_array, pen->dash_count, pen->dash_offset);
-                free(dash_array);
-			}
+                free (dash_array);
+        }
 }
 
 GpStatus 
