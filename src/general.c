@@ -175,7 +175,9 @@ gdip_get_display_dpi()
             char *val = XGetDefault(GDIP_display, "Xft", "dpi");
             if (val) {
                 dpis = atof(val);
-            }
+            } else {
+		dpis = 72.0f;
+	    }
         }
     }
 

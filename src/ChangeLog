@@ -1,3 +1,8 @@
+2004-09-27  Mart Roosmaa <roosmaa@gmail.com>
+
+	* general.c: Fallback to 72 dpis if we can not determine this
+	information. 
+
 2004-09-22  Ravindra <rkumar@novell.com>
 
 	* gifcodec.c: Return the UnknownImageFormat status instead of
