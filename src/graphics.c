@@ -49,6 +49,8 @@ gdip_graphics_init (GpGraphics *graphics)
 	cairo_select_font (graphics->ct, "serif:12", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	GdipCreateRegion (&graphics->clip);
 	graphics->bounds.X = graphics->bounds.Y = graphics->bounds.Width = graphics->bounds.Height = 0;
+	graphics->page_unit = UnitDisplay;
+	graphics->scale = 1.0f;
 }
 
 GpGraphics *
@@ -2759,40 +2761,47 @@ GdipGetNearestColor (GpGraphics *graphics, ARGB *argb)
 GpStatus
 GdipSetPageScale (GpGraphics *graphics, float scale)
 {
-	return NotImplemented;
+	if (!graphics) 
+		return InvalidParameter;
+	
+	graphics->scale = scale;	
+	return Ok;
 }
 
 GpStatus
 GdipGetPageScale (GpGraphics *graphics, float *scale)
 {
-	/* FIXME - We probably want to change this once GdipSetPageScale() is implemented */
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (scale != NULL, InvalidParameter);
 
-	*scale=1;
+	*scale = graphics->scale;
 	return Ok;
 }
 
 GpStatus
 GdipSetPageUnit (GpGraphics *graphics, GpUnit unit)
 {
-	return NotImplemented;
+	if (!graphics) 
+		return InvalidParameter;
+
+	graphics->page_unit = unit;
+	return Ok;
 }
 
 GpStatus
 GdipGetPageUnit (GpGraphics *graphics, GpUnit *unit)
 {
-	/* FIXME - We probably want to change this once GdipSetPageUnit() is implemented */
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (unit != NULL, InvalidParameter);
 
-	*unit=UnitPixel;
+	*unit = graphics->page_unit;
 	return Ok;
 }
 
 GpStatus
 GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPointF *points, int count)
 {
+		
 	return NotImplemented;
 }
 

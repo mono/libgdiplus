@@ -1,5 +1,10 @@
 2004-06-23  Jordi Mas <jordi@ximian.com>
 
+	* gdip.h, graphics.c: Implement Get/Set Unit and Scale. We will need when we implement
+	GdipTransformPoints
+
+2004-06-23  Jordi Mas <jordi@ximian.com>
+
 	* image.c: fixes bug 60601, simple images where not drawn on the right place
 
 2004-06-22  Ravindra <rkumar@novell.com>

@@ -632,6 +632,8 @@ typedef struct {
 	int             type; 
 	GpRegion*	clip;
 	GpRect		bounds;
+	GpUnit		page_unit;
+	float		scale;
 } GpGraphics;
 
 typedef struct _CustomLineCap GpCustomLineCap;
