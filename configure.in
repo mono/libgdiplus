@@ -21,9 +21,9 @@ if pkg-config --atleast-version 0.1.17 cairo; then
 else
 	AC_MSG_ERROR("Did not find Cairo 0.1.17");
 fi
-GDIPLUS_LIBS="`pkg-config --libs cairo glib-2.0` `freetype-config --libs`"
+GDIPLUS_LIBS="`pkg-config --libs cairo mono glib-2.0` `freetype-config --libs`"
 AC_SUBST(GDIPLUS_LIBS)
-GDIPLUS_CFLAGS="`pkg-config --cflags cairo glib-2.0` `freetype-config --cflags`"
+GDIPLUS_CFLAGS="`pkg-config --cflags cairo mono glib-2.0` `freetype-config --cflags`"
 AC_SUBST(GDIPLUS_CFLAGS)
 AC_OUTPUT([
 Makefile
