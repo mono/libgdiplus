@@ -1,3 +1,7 @@
+2005-02-03  Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* region.c: Call GdipSetInfinite for empty regions
+
 2005-01-28  Peter Bartok  <pbartok@novell.com>
 
 	* gdip.h, graphics.c: Switched hDC type from int to void. That's what

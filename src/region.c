@@ -121,6 +121,7 @@ gdip_createRegion (GpRegion **region, RegionType type, void *src)
                 gdip_add_rect_to_array (&result->rects, &result->cnt,  (GpRectF *)src);
                 break;
         case RegionTypeEmpty:
+		GdipSetInfinite (result); 
                 break;
        
         default:
