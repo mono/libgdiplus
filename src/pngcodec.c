@@ -28,9 +28,11 @@
 #include <config.h>
 #endif
 
-#include <png.h>
+#ifdef HAVE_LIBPNG
 
+#include <png.h>
 #include "pngcodec.h"
+
 
 #include <setjmp.h>
 
@@ -433,4 +435,50 @@ gdip_save_png_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
 {
     return gdip_save_png_image_to_file_or_stream (NULL, putBytesFunc, image, params);
 }
+
+#else
+
+#include "pngcodec.h"
+
+GpStatus 
+gdip_load_png_image_from_file (FILE *fp, GpImage **image)
+{
+	*image = NULL;
+	return NotImplemented;
+}
+
+GpStatus
+gdip_load_png_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
+                                          SeekDelegate seeknFunc,
+                                          GpImage **image)
+{
+	*image = NULL;
+	return NotImplemented;
+}
+
+
+GpStatus 
+gdip_save_png_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params)
+{
+	return NotImplemented;
+}
+
+
+GpStatus
+gdip_save_png_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
+                                        GpImage *image, GDIPCONST EncoderParameters *params)
+{
+
+	return NotImplemented;
+}
+
+
+ImageCodecInfo *
+gdip_getcodecinfo_png ()
+{
+	return NULL;
+}
+
+
+#endif
 
