@@ -1,4 +1,9 @@
-2004-11-11  Jordi Mas <jordi@ximian.com>
+2004-11-18  Ravindra  <rkumar@novell.com>
+
+	* graphics.c (GdipGraphicsClear): Save and restore the existing
+	graphics settings. Otherwise, we lose the cached brush settings.
+
+2004-11-11  Jordi Mas  <jordi@ximian.com>
 
 	* gdip.h, font.c, general.c: implements font caching
 

@@ -2507,25 +2507,31 @@ GdipGetDpiY (GpGraphics *graphics, float *dpi)
 GpStatus
 GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 {
-        double red, green, blue, alpha;
 	GpImage *image;
+	double red, green, blue, alpha;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
 	image = graphics->image;
 	g_return_val_if_fail (image != NULL, InvalidParameter);
 
-        blue = color & 0xff;
-        green = (color >> 8) & 0xff;
-        red = (color >> 16) & 0xff;
+	blue = color & 0xff;
+	green = (color >> 8) & 0xff;
+	red = (color >> 16) & 0xff;
 	alpha = (color >> 24) & 0xff;
 
-        cairo_set_rgb_color (graphics->ct, red / 255, green / 255, blue / 255);
+	/* Save the existing color/alpha/pattern settings */
+	cairo_save (graphics->ct);
+
+	cairo_set_rgb_color (graphics->ct, red / 255, green / 255, blue / 255);
 	cairo_set_alpha (graphics->ct, alpha / 255);
 	cairo_rectangle (graphics->ct, 0, 0, image->width, image->height);
-        cairo_fill (graphics->ct);
+	cairo_fill (graphics->ct);
 
-        return Ok;
+	/* Restore the color/alpha/pattern settings */
+	cairo_restore (graphics->ct);
+
+	return Ok;
 }
 
 GpStatus
