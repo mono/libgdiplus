@@ -1,5 +1,22 @@
 2004-12-16  Peter Bartok  <pbartok@novell.com>
 
+	* graphics.c:
+	  - GdipGetDC(): Removed Wine logic
+	  - GdipReleaseDC(): Removed Wine logic
+
+	* font.c:
+	  - Removed CreateFontFromHDCorHfont (Wine specific)
+	  - GdipCreateFontFromDC(): Removed Wine logic
+	  - GdipCreateFontFromHfont(): Removed Wine logic
+	  - GdipGetLogFontA(): Removed Wine logic
+	  - Added non gdi+ GetFontMetrics call to support MWF, since
+	    DrawString/MeasureString do not support retrieving the
+	    ascent/descent of a font
+
+	* gdip_win32.c: Removed references to Wine GetTextMetrics
+
+2004-12-16  Peter Bartok  <pbartok@novell.com>
+
 	* graphics.c (MeasureOrDrawstring): Removed extra padding calc
 
 2004-12-07  Geoff Norton  <gnorton@customerdna.com>
