@@ -337,14 +337,19 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int
 	 * will be same with different resolutions
 	 */
 	if (hatchStyle == HatchStyleLightHorizontal)
-		hatch_size *= 0.7; /* as per the docs it should be 50% of horizontal i.e. 0.5 */
+		hatch_size *= 0.7; 	/* As per the docs lines should be 50% closer than */
+					/* horizontal i.e. multiplication factor of 0.5    */
 	else if (hatchStyle == HatchStyleNarrowHorizontal) {
-		hatch_size *= 0.5; /* as per the docs it should be 25% of horizontal i.e. 0.25 */
-		line_width *= 1.5; /* docs say nothing about it */
+		hatch_size *= 0.5; 	/* As per the docs lines should be 75% closer than */
+					/* horizontal i.e. multiplication factor of 0.25   */
+		line_width *= 1.5; 	/* docs say nothing about line width               */
 	}
 	else if (hatchStyle == HatchStyleDarkHorizontal) {
-		hatch_size *= 0.6; /* as per the docs it should be 50% of horizontal i.e. 0.5 */
-		line_width *= 2.4; /* as per the docs it should be 200% of horizontal i.e. 2.0 */
+		hatch_size *= 0.7; 	/* As per the docs lines should be 50% closer than */
+					/* horizontal i.e. multiplication factor of 0.5    */
+		line_width *= 2.0; 	/* As per the docs line width should be twice the  */
+					/* width of horizontal i.e. multiplication factor  */
+					/* of 2.0                                          */
 	}
 
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
@@ -358,23 +363,23 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int
 		cairo_set_target_surface (ct, hatch);
 
 		/* draw background */
-		int R = (backcolor & 0x00FF0000 ) >> 16;
-	        int G = (backcolor & 0x0000FF00 ) >> 8;
-	        int B = (backcolor & 0x000000FF );
+		int R = (backcolor & 0x00FF0000) >> 16;
+	        int G = (backcolor & 0x0000FF00) >> 8;
+	        int B = (backcolor & 0x000000FF);
 	        cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
 		cairo_fill (ct);
 
 		/* draw line */
-		R = (forecolor & 0x00FF0000 ) >> 16;
-	        G = (forecolor & 0x0000FF00 ) >> 8;
-	        B = (forecolor & 0x000000FF );
+		R = (forecolor & 0x00FF0000) >> 16;
+	        G = (forecolor & 0x0000FF00) >> 8;
+	        B = (forecolor & 0x000000FF);
 	        cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
 
 		cairo_set_line_width (ct, line_width);
-		cairo_move_to (ct, 0, hatch_size/2.);
-		cairo_line_to (ct, hatch_size, hatch_size/2.);
+		cairo_move_to (ct, 0, hatch_size/2.0);
+		cairo_line_to (ct, hatch_size, hatch_size/2.0);
 		cairo_stroke (ct);
 
 		cairo_restore (ct);
@@ -387,7 +392,62 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int
 
 void draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format, GpHatchStyle hatchStyle)
 {
-	/* NotImplemented */
+	cairo_surface_t *hatch;
+	double hatch_size = HATCH_SIZE;
+	double line_width = LINE_WIDTH;
+
+	if (hatchStyle == HatchStyleLightVertical)
+		hatch_size *= 0.7; 	/* As per the docs lines should be 50% closer than */
+					/* vertical i.e. multiplication factor of 0.5      */
+	else if (hatchStyle == HatchStyleNarrowVertical) {
+		hatch_size *= 0.5; 	/* As per the docs lines should be 75% closer than */
+					/* vertical i.e. multiplication factor of 0.25     */
+		line_width *= 1.5; 	/* docs say nothing about line width               */
+	}
+	else if (hatchStyle == HatchStyleDarkVertical) {
+		hatch_size *= 0.7; 	/* As per the docs lines should be 50% closer than */
+					/* vertical i.e. multiplication factor of 0.5      */
+		line_width *= 2.0; 	/* As per the docs line width should be twice the  */
+					/* width of vertical i.e. multiplication factor of */
+					/* 2.0                                             */
+	}
+
+	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
+					      format, hatch_size, hatch_size);
+	cairo_surface_set_repeat (hatch, 1);
+	
+	/* draw one hatch */
+	{
+		cairo_save (ct);
+
+		cairo_set_target_surface (ct, hatch);
+
+		/* draw background */
+		int R = (backcolor & 0x00FF0000) >> 16;
+	        int G = (backcolor & 0x0000FF00) >> 8;
+	        int B = (backcolor & 0x000000FF);
+	        cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
+
+		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
+		cairo_fill (ct);
+
+		/* draw line */
+		R = (forecolor & 0x00FF0000) >> 16;
+	        G = (forecolor & 0x0000FF00) >> 8;
+	        B = (forecolor & 0x000000FF);
+	        cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
+
+		cairo_set_line_width (ct, line_width);
+		cairo_move_to (ct, hatch_size/2.0, 0);
+		cairo_line_to (ct, hatch_size/2.0, hatch_size);
+		cairo_stroke (ct);
+
+		cairo_restore (ct);
+	}
+
+	/* fill the whole surface with horizontal lines */
+	cairo_set_pattern (ct, hatch);
+	cairo_surface_destroy (hatch);
 }
 
 void draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)

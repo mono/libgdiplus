@@ -1,3 +1,7 @@
+2004-02-29  Ravindra <rkumar@novell.com>
+	* hatchbrush.c: Implemented four vertical hatching styles
+	and did few comment improvements.
+
 2004-02-28  Miguel de Icaza  <miguel@ximian.com>
 
 	* font.c: Coding style, ANSI-C-ification
