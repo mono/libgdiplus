@@ -127,7 +127,7 @@ GdipDisposeImage (GpImage *image)
 		default:
 			break;
 	}
-	cairo_surface_destroy (image->surface);
+//	cairo_surface_destroy (image->surface);
 	image->surface = 0;
 	if (image->frameDimensionList != NULL)
 		GdipFree (image->frameDimensionList);
@@ -1274,7 +1274,12 @@ GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
 }
 
 GpStatus
-GdipSaveImageToDelegate_linux (GpImage *image, PutBytesDelegate putBytesFunc, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params)
+GdipSaveImageToDelegate_linux (GpImage *image, GetBytesDelegate getBytesFunc,
+                                          PutBytesDelegate putBytesFunc,
+					  SeekDelegate seekFunc,
+					  CloseDelegate closeFunc,
+					  SizeDelegate sizeFunc,
+					  GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params)
 {
 	GpStatus status = 0;
     	ImageFormat format;
@@ -1303,7 +1308,8 @@ GdipSaveImageToDelegate_linux (GpImage *image, PutBytesDelegate putBytesFunc, GD
         	    	status = gdip_save_gif_image_to_stream_delegate (putBytesFunc, image, params);
             		break;
 		case TIF:
-	    		status = gdip_save_tiff_image_to_stream_delegate (putBytesFunc, image, params);
+	    		status = gdip_save_tiff_image_to_stream_delegate (getBytesFunc, putBytesFunc,
+								seekFunc, closeFunc, sizeFunc, image, params);
 	    		break;
 	        default:
         		status = NotImplemented;

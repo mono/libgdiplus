@@ -105,10 +105,44 @@ gdip_getcodecinfo_tiff ()
 	return &tiff_codec;
 }
 
+/*TODO Handle TIFF Encoder Parameters*/
 GpStatus 
-gdip_save_tiff_image (void *pointer, GpImage *image, bool useFile)
+gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *params)
 {
-	return NotImplemented;
+	GpBitmap *bitmap = (GpBitmap *) image;	
+	unsigned char *buf = NULL;
+	int i, linebytes;
+	
+	if (!tiff)
+		return InvalidParameter;		
+		
+	TIFFSetField (tiff, TIFFTAG_IMAGEWIDTH, bitmap->data.Width);  
+	TIFFSetField (tiff, TIFFTAG_IMAGELENGTH, bitmap->data.Height); 
+	TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, 4); /* Hardcoded 32bbps*/
+	TIFFSetField (tiff, TIFFTAG_BITSPERSAMPLE, 8);  
+	TIFFSetField (tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);   
+	TIFFSetField (tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG); 
+	TIFFSetField (tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+	linebytes =  bitmap->data.Stride;     	
+	
+	if (TIFFScanlineSize (tiff) < linebytes) 
+		buf =(unsigned char *)_TIFFmalloc (linebytes); 
+	else 
+		buf = (unsigned char *)_TIFFmalloc (TIFFScanlineSize (tiff)); 
+
+	TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, linebytes)); 
+	
+        for (i = 0; i < bitmap->data.Height; i++) {
+		if (TIFFWriteScanline (tiff, bitmap->data.Scan0 + i *bitmap->data.Stride, i, 0) < 0) 
+			break;
+	}
+		
+	TIFFClose (tiff); 
+	
+	if (buf) 
+		_TIFFfree (buf);
+
+	return Ok;
 }
 
 GpStatus 
@@ -227,47 +261,16 @@ gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
 	return gdip_load_tiff_image (tif, image);
 }
 
-/*TODO Handle TIFF Encoder Parameters*/
 GpStatus 
 gdip_save_tiff_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params)
 {	
 	TIFF* tiff;
-	GpBitmap *bitmap = (GpBitmap *) image;	
-	unsigned char *buf = NULL;
-	int i, linebytes;
 	
 	tiff = TIFFFdOpen (fileno (fp), "lose.tif", "w");
-	
 	if (!tiff)
 		return FileNotFound;		
 		
-	TIFFSetField (tiff, TIFFTAG_IMAGEWIDTH, bitmap->data.Width);  
-	TIFFSetField (tiff, TIFFTAG_IMAGELENGTH, bitmap->data.Height); 
-	TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, 4); /* Hardcoded 32bbps*/
-	TIFFSetField (tiff, TIFFTAG_BITSPERSAMPLE, 8);  
-	TIFFSetField (tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);   
-	TIFFSetField (tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG); 
-	TIFFSetField (tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-	linebytes =  bitmap->data.Stride;     	
-	
-	if (TIFFScanlineSize (tiff) < linebytes) 
-		buf =(unsigned char *)_TIFFmalloc (linebytes); 
-	else 
-		buf = (unsigned char *)_TIFFmalloc (TIFFScanlineSize (tiff)); 
-
-	TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, linebytes)); 
-	
-        for (i = 0; i < bitmap->data.Height; i++) {
-		if (TIFFWriteScanline (tiff, bitmap->data.Scan0 + i *bitmap->data.Stride, i, 0) < 0) 
-			break;
-	}
-		
-	TIFFClose (tiff); 
-	
-	if (buf) 
-		_TIFFfree (buf);
-
-	return Ok;
+	return gdip_save_tiff_image (tiff, image, params);
 }
 
 GpStatus
@@ -303,11 +306,29 @@ gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 }
 
 GpStatus
-gdip_save_tiff_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
+gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
+					 PutBytesDelegate putBytesFunc,
+                                         SeekDelegate seekFunc,
+					 CloseDelegate closeFunc,
+					 SizeDelegate sizeFunc,
                                          GpImage *image,
                                          GDIPCONST EncoderParameters *params)
 {
-    return NotImplemented;
+	TIFF* tiff;
+	gdip_tiff_clientData clientData;
+	
+	clientData.getBytesFunc = getBytesFunc;
+	clientData.putBytesFunc = putBytesFunc;
+	clientData.seekFunc = seekFunc;
+	clientData.closeFunc = closeFunc;
+	clientData.sizeFunc = sizeFunc;
+	
+	tiff = TIFFClientOpen("lose.tif", "w", &clientData, gdip_tiff_read, gdip_tiff_write, 
+				gdip_tiff_seek, gdip_tiff_close, gdip_tiff_size, NULL, NULL);
+	if (!tiff)
+		return InvalidParameter;		
+		
+	return gdip_save_tiff_image (tiff, image, params);
 }
 
 #else
@@ -346,7 +367,11 @@ gdip_save_tiff_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParamet
 }
 
 GpStatus
-gdip_save_tiff_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
+gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
+					 PutBytesDelegate putBytesFunc,
+                                         SeekDelegate seekFunc,
+					 CloseDelegate closeFunc,
+					 SizeDelegate sizeFunc,
                                          GpImage *image,
                                          GDIPCONST EncoderParameters *params)
 {

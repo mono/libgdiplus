@@ -29,7 +29,11 @@ gdip_save_tiff_image_to_file (FILE *fp, GpImage *image,
 			      GDIPCONST EncoderParameters *params);
 
 GpStatus
-gdip_save_tiff_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
+gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
+					 PutBytesDelegate putBytesFunc,
+                                         SeekDelegate seekFunc,
+					 CloseDelegate closeFunc,
+					 SizeDelegate sizeFunc,
                                          GpImage *image,
                                          GDIPCONST EncoderParameters *params);
 

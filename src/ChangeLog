@@ -1,4 +1,12 @@
 2004-06-16  Sanjay Gupta <gsanjay@novell.com>
+
+	* gdipImage.h: Modifed function signature 
+	GdipSaveImageToDelegate_linux().
+	* image.c : Modified call to save tiff image from stream delgate.
+	* tiffcodec.c, tiffcodec.h : Modified API signature and implemented 
+	functions to save tiff images to stream.	
+
+2004-06-16  Sanjay Gupta <gsanjay@novell.com>
                                                                                 
         * tiffcodec.c, tiffcodec.h: Implemented methods for loading tiff
         images from stream.
@@ -22,7 +30,7 @@
 
 	* gdip.h: Added function typedefs, (*CloseDelegate), (*SizeDelegate).
 	* gdipImage.h: Modifed function signature 
-	GdipLoafImageFromDelegate_linux().
+	GdipLoadImageFromDelegate_linux().
 	* image.c : Modified call to load tiff image from stream delgate.
 	* tiffcodec.c, tiffcodec.h : Modified API signature for loading tiff
 	images from stream.	

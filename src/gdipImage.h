@@ -117,7 +117,11 @@ GpStatus GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
 					  SizeDelegate sizeFunc,
                                           GpImage **image);
 GpStatus GdipSaveImageToDelegate_linux (GpImage *image,
+                                        GetBytesDelegate getBytesFunc,
                                         PutBytesDelegate putBytesFunc,
+					SeekDelegate seekFunc,
+					CloseDelegate closeFunc,
+					SizeDelegate sizeFunc,
                                         GDIPCONST CLSID *encoderCLSID,
                                         GDIPCONST EncoderParameters *params);
 					
