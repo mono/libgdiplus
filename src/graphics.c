@@ -1598,56 +1598,86 @@ GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 
 #undef DRAWSTRING_DEBUG
 
-static int
-CalculateStringSize (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, unsigned long StringDetailElements, GpStringDetailStruct *StringDetails)
+void __inline
+_install_font_matrix(cairo_matrix_t *matrix, FT_Face face)
 {
+    cairo_matrix_t normalized;
+    double scale_x, scale_y;
+    double x, y, xx, xy, yx, yy, tx, ty;
+    FT_Matrix mat;
+
+    x = 1.0;
+    y = 0.0;
+    cairo_matrix_transform_distance (matrix, &x, &y);
+    scale_x = sqrt(x*x + y*y);
+
+    x = 0.0;
+    y = 1.0;
+    cairo_matrix_transform_distance (matrix, &x, &y);
+    scale_y = sqrt(x*x + y*y);
+
+    cairo_matrix_copy (&normalized, matrix);
+
+    cairo_matrix_scale (&normalized, 1.0 / scale_x, 1.0 / scale_y);
+    cairo_matrix_get_affine (&normalized,
+                             &xx /* 00 */ , &yx /* 01 */,
+                             &xy /* 10 */, &yy /* 11 */,
+                             &tx, &ty);
+
+    mat.xx = DOUBLE_TO_16_16(xx);
+    mat.xy = -DOUBLE_TO_16_16(xy);
+    mat.yx = -DOUBLE_TO_16_16(yx);
+    mat.yy = DOUBLE_TO_16_16(yy);
+
+    FT_Set_Transform(face, &mat, NULL);
+    FT_Set_Char_Size(face,
+		     DOUBLE_TO_26_6(scale_x),
+		     DOUBLE_TO_26_6(scale_y),
+		     0, 0);
+}
+
+static int
+CalculateStringWidths (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, unsigned long StringDetailElements, GpStringDetailStruct *StringDetails)
+{
+	FT_Face			face;
+	size_t			i;
+	FT_ULong		*ucs4 = NULL;
 	cairo_font_t		*Font;
-	cairo_glyph_t		*Glyphs		= NULL;
 	GpStringDetailStruct	*CurrentDetail;
-	size_t			NumOfGlyphs;
-	float			*GlyphWidths;
-	float			TotalWidth	= 0;
-	int			i;
+	glong			NumOfGlyphs;
 	cairo_matrix_t		matrix;
 
 #ifdef DRAWSTRING_DEBUG
-	printf("CalculateStringSize(font, %s, %d, details) called\n", utf8, StringDetailElements);
+	printf("CalculateStringWidths(font, %s, %d, details) called\n", utf8, StringDetailElements);
 #endif
-	Font=(cairo_font_t *)gdiFont->cairofnt;
 
-	/* Generate Glyhps for string utf8 */
+	Font = (cairo_font_t *)gdiFont->cairofnt;
+	face = cairo_ft_font_face(Font);
+
 	cairo_font_current_transform(Font, &matrix);
 	cairo_matrix_scale(&matrix, gdiFont->sizeInPixels, gdiFont->sizeInPixels);
-	gdpi_utf8_to_glyphs (Font, matrix, utf8, 0.0, 0.0, &Glyphs, &NumOfGlyphs);
 
-	/* FIXME - This check and the StringDetailElements argument can be removed after verification of Glyph:WChar=1:1 */
-	if (StringDetailElements!=NumOfGlyphs) {
-		char *ptr=NULL;
-		printf("OH CRAP!\n");
-		*ptr='\0';	/* Abort :-) */
+	ucs4 = (FT_ULong *)g_utf8_to_ucs4 (utf8, (glong)-1, NULL, (glong *)&NumOfGlyphs, NULL);
+
+	if ((NumOfGlyphs == 0) || (ucs4 == NULL)) {
+		return 0;
 	}
 
-	if (NumOfGlyphs==0) {
-		if (Glyphs != NULL)
-			free (Glyphs);
-		return(0);
-	}
+	_install_font_matrix (&matrix, face);
 
-	/* Calculate character and total width */
 	CurrentDetail=StringDetails;
-	for (i=0; i<NumOfGlyphs-1; i++) {
-		CurrentDetail->Width=Glyphs[i+1].x-Glyphs[i].x;
-		TotalWidth+=CurrentDetail->Width;
+	for (i = 0; i < NumOfGlyphs; i++) {
+		FT_Load_Glyph (face, FT_Get_Char_Index (face, ucs4[i]), FT_LOAD_DEFAULT);
+		CurrentDetail->Width = DOUBLE_FROM_26_6 (face->glyph->advance.x);
 		CurrentDetail++;
 	}
 
-	CurrentDetail->Width=DOUBLE_FROM_26_6(cairo_ft_font_face(Font)->glyph->advance.x);
-	TotalWidth+=CurrentDetail->Width;
+	free(ucs4);
+
 	
 #ifdef DRAWSTRING_DEBUG
-	printf("CalculateStringSize: string >%s< translated into %d glyphs with total width of %f pixels\n", utf8, NumOfGlyphs, TotalWidth);
+	printf("CalculateStringWidths: string >%s< translated into %d glyphs\n", utf8, NumOfGlyphs);
 #endif
-	free (Glyphs);
 	return NumOfGlyphs;
 }
 
@@ -1834,7 +1864,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 #endif
 
 	/* Generate size array */
-	if (CalculateStringSize (font, String, StringLen, StringDetails)==0) {
+	if (CalculateStringWidths (font, String, StringLen, StringDetails)==0) {
 		/* FIXME; pick right return code */
 		g_free(String);
 		free(StringDetails);
