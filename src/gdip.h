@@ -152,12 +152,12 @@ typedef enum {
 
 
 typedef enum {
-	PixelFormatAlpha = 0x00040000,     // flag: format has alpha
-	PixelFormatCanonical = 0x00200000, // flag: unknown
-	PixelFormatExtended = 0x00100000,  // flag: 16 bits per channel (16bpp grayscale and 48/64bpp rgb)
-	PixelFormatGDI = 0x00020000,       // flag: supported by GDI
-	PixelFormatIndexed = 0x00010000,   // flag: is palette-indexed
-	PixelFormatPAlpha = 0x00080000,    // flag: alpha is pre-multiplied
+	PixelFormatAlpha = 0x00040000,     /* flag: format has alpha */
+	PixelFormatCanonical = 0x00200000, /* flag: unknown */
+	PixelFormatExtended = 0x00100000,  /* flag: 16 bits per channel (16bpp grayscale and 48/64bpp rgb) */
+	PixelFormatGDI = 0x00020000,       /* flag: supported by GDI */
+	PixelFormatIndexed = 0x00010000,   /* flag: is palette-indexed */
+	PixelFormatPAlpha = 0x00080000,    /* flag: alpha is pre-multiplied */
         
 	Format16bppArgb1555 = 0x00061007,
 	Format16bppGrayScale = 0x00101004,
