@@ -1,3 +1,7 @@
+2004-03-25  Ravindra <rkumar@novell.com>
+	* texturebrush.[ch]: Fixing texture brush. Still needs
+	some work.
+
 2004-03-24  Jordi Mas i Hernandez <jordi@ximian.com>
 	* imageattributes.c - created and first methods
 

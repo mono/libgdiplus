@@ -27,6 +27,7 @@ typedef struct _Texture GpTexture;
 typedef struct _Texture {
 	GpBrush base;
 	GpImage *image;
+	GpMatrix *matrix;
 	GpWrapMode wrapMode;
 } Texture;
 
@@ -56,5 +57,12 @@ GpStatus GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOr
 GpStatus GdipSetTextureWrapMode (GpTexture *texture, GpWrapMode wrapMode);
 GpStatus GdipGetTextureWrapMode (GpTexture *texture, GpWrapMode *wrapMode);
 GpStatus GdipGetTextureImage (GpTexture *texture, GpImage **image);
+
+/* texture internal functions */
+void draw_tile_texture (cairo_t *ct, GpBitmap *bmp, GpMatrix *matrix);
+void draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bmp, GpMatrix *matrix);
+void draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bmp, GpMatrix *matrix);
+void draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bmp, GpMatrix *matrix);
+void draw_clamp_texture (cairo_t *ct, GpBitmap *bmp, GpMatrix *matrix);
 
 #endif /* _TEXTURE_H */
