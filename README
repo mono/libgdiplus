@@ -4,7 +4,7 @@ This is part of the Mono project
 
 Requirements:
 
-	This requires Cairo to build.
+	This requires Cairo vector graphics library to build. See http://www.cairographics.org/
 
 To build:
 
