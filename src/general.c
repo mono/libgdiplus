@@ -52,12 +52,12 @@ static void * x11drvHandle = 0;
 static void _load_x11drv ()
 {
 	if (x11drvHandle == 0) {
-		x11drvHandle = dlopen ("libx11drv.dll.so", 1);
+		x11drvHandle = dlopen ("x11monodrv.dll.so", 1);
 		if (x11drvHandle == 0) {
-			x11drvHandle = dlopen ("/usr/local/lib/libx11drv.dll.so", 1);
+			x11drvHandle = dlopen ("/usr/local/lib/wine/x11monodrv.dll.so", 1);
 		}
 		if (x11drvHandle == 0) {
-			x11drvHandle = dlopen ("/usr/lib/libx11drv.dll.so", 1);
+			x11drvHandle = dlopen ("/usr/lib/x11monodrv.dll.so", 1);
 		}
 	}
 }

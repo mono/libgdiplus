@@ -31,12 +31,12 @@ static void * user32Handle = 0;
 static void _load_gdi32 (void)
 {
 	if (gdi32Handle == 0) {
-		gdi32Handle = dlopen ("libgdi32.dll.so", 1);
+		gdi32Handle = dlopen ("gdi32.dll.so", 1);
 		if (gdi32Handle == 0) {
-			gdi32Handle = dlopen ("/usr/local/lib/libgdi32.dll.so", 1);
+			gdi32Handle = dlopen ("/usr/local/lib/wine/gdi32.dll.so", 1);
 		}
 		if (gdi32Handle == 0) {
-			gdi32Handle = dlopen ("/usr/lib/libgdi32.dll.so", 1);
+			gdi32Handle = dlopen ("/usr/lib/gdi32.dll.so", 1);
 		}
 	}
 }
@@ -44,12 +44,12 @@ static void _load_gdi32 (void)
 static void _load_user32 (void)
 {
 	if (user32Handle == 0) {
-		user32Handle = dlopen ("libuser32.dll.so", 1);
+		user32Handle = dlopen ("user32.dll.so", 1);
 		if (user32Handle == 0) {
-			user32Handle = dlopen ("/usr/local/lib/libuser32.dll.so", 1);
+			user32Handle = dlopen ("/usr/local/lib/wine/user32.dll.so", 1);
 		}
 		if (user32Handle == 0) {
-			user32Handle = dlopen ("/usr/lib/libuser32.dll.so", 1);
+			user32Handle = dlopen ("/usr/lib/user32.dll.so", 1);
 		}
 	}
 }
