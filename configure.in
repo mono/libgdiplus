@@ -1,0 +1,32 @@
+AC_INIT(README)
+AC_CANONICAL_SYSTEM
+AM_CONFIG_HEADER(config.h)
+AM_INIT_AUTOMAKE(libgdiplus,0.1)
+
+AM_MAINTAINER_MODE
+AM_PROG_LIBTOOL
+
+AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
+if test "x$PKG_CONFIG" = "xno"; then
+	AC_MSG_ERROR([You need to install pkg-config])
+fi
+if pkg-config --atleast-version 2.2.3 glib-2.0; then
+	echo GLIB 2.0 installation OK
+else
+	AC_MSG_ERROR("Did not find Glib >= 2.2.3");
+fi
+
+if pkg-config --atleast-version 0.1.17 cairo; then
+	echo Cairo installation OK
+else
+	AC_MSG_ERROR("Did not find Cairo 0.1.17");
+fi
+GDIPLUS_LIBS=`pkg-config --libs cairo glib-2.0`
+AC_SUBST(GDIPLUS_LIBS)
+AC_SUBST(GDIPLUS_CFLAGS)
+GDIPLUS_CFLAGS=`pkg-config --cflags cairo glib-2.0`
+AC_OUTPUT([
+Makefile
+libgdiplus.pc
+src/Makefile])
+

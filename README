@@ -1,0 +1,7 @@
+libgdiplus: An Open Source implementation of the GDI+ API.
+This is part of the Mono project
+
+Requirements:
+
+	This requires Cairo to build.
+
