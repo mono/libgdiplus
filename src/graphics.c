@@ -2068,6 +2068,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 					/* Just cut off the text */
 					printf("End of line at index:%d\n", EndOfLine);
 #endif
+					CurrentLineStart->LineLen=EndOfLine;
 				}
 
 				/* New line */

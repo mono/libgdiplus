@@ -1,3 +1,9 @@
+2005-01-05  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c (MeasureOrDrawString): If the string doesn't fit in
+	  the bounding box and no breaks are allowed or possible, the code
+	  will now not loop anymore.
+
 2005-01-04  Peter Bartok  <pbartok@novell.com>
 
 	* graphics.c (MeasureOrDrawString): Return 0 instead of
