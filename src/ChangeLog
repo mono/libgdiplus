@@ -1,3 +1,7 @@
+2040-04-30  Ravindra  <rkumar@novell.com>
+
+	* lineargradientbrush.[ch]: Few fixes.
+
 2004-04-30 Jordi Mas i Hernandez <jordi@ximian.com>
 	* region.c: fixes bug at GdipSetInfinite detected by the tests
 
