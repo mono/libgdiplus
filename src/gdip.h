@@ -879,12 +879,8 @@ GpStatus GdipTranslateRegion(GpRegion *region, float dx, float dy);
 GpStatus GdipTranslateRegionI(GpRegion *region, int dx, int dy);
 GpStatus GdipTransformRegion(GpRegion *region, GpMatrix *matrix);
 
-
-                                 
 /* Path*/
 #include "graphics-path.h"
-
-/* Linear Gradient brush */
 
 /* for drawing curves */
 GpPointF *convert_points (const GpPoint *points, int count);

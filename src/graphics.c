@@ -1609,20 +1609,26 @@ GpStatus
 GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 {
         double red, green, blue, alpha;
+	GpImage *image;
 
-        /* FIXME: Does not work properly */
-
-        if (!graphics)
+        if (graphics == NULL)
 		return InvalidParameter;
-        
+
+	image = graphics->image;
+	if (image == NULL)
+		return InvalidParameter;
+
         blue = color & 0xff;
         green = (color >> 8) & 0xff;
         red = (color >> 16) & 0xff;
+	alpha = (color >> 24) & 0xff;
 
         cairo_save (graphics->ct);
-        cairo_set_rgb_color (graphics->ct,  red, green, blue);
+
+        cairo_set_rgb_color (graphics->ct, red, green, blue);
+	cairo_set_alpha (graphics->ct, alpha);
+	cairo_rectangle (graphics->ct, 0, 0, image->width, image->height);
         cairo_fill (graphics->ct);
-        cairo_stroke (graphics->ct);
 
         cairo_restore (graphics->ct);
 

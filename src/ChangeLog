@@ -1,3 +1,8 @@
+2004-04-24  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Fixed GdipGraphicsClear() function.
+	* gdip.h: Removed some unwanted lines.
+
 2004-04-23  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* bitmap.c (GdipCloneBitmapAreaI): wrong sense of assert test,
