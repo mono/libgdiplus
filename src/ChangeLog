@@ -1,9 +1,30 @@
+2004-02-16  Ravindra <rkumar@novell.com>
+	* gdip.h: Moved GpStatus enum and GpGraphics struct back
+	from brush.h in here. Thanks to Duncan, for pointing this
+	out.
+	* brush.h: Moved out GpStatus enum and GpGraphics struct
+	back to gdip.h.
+
 2004-02-13  Ravindra <rkumar@novell.com>
-	* brush.h: Added. Moving brushes to OO-C.
-	* solidbrush.h: Added. Moving brushes to OO-C.
-	* gdip.h: Moved out some methods to new headers.
-	* brush.c, solidbrush.c: Changes related to OO-C.
-	* pen.c: Modifications related to changes in solidbrush.
+	* brush.h: Added. For implementing brushes in OO-C, we
+	have Brush and BrushClass (vtable) structs defined here 
+	and related functions are declared.
+	* solidbrush.h: Added. For implementing brushes in OO-C,
+	we have SolidBrush struct defined here. Also, solid brush
+	functions are declared.
+	* gdip.h: Moved out brush functions to brush.h and solidbrush
+	functions to solidbrush.h. Also, moved GpStatus enum and 
+	GpGraphics struct to brush.h. (This is just to satisfy 
+	compiler).
+	* brush.c: All functions are modified to call functions from
+	vtable.
+	* solidbrush.c: new(), init(), setup(), clone() and destroy()
+	functions are modified.
+	* pen.c: gdip_pen_setup(): Modified to call gdip_brush_setup
+	irrespective of brush type.
+		GdipCreatePen2(): Added status checks. Now we set color
+	also when SolidBrush is in the question. This applies to 
+	GdipSetPenBrushFill() method also.
 	* stringformat.c: Renaming method gdip_brush_init to
 	gdip_stringformat_init. Because the method name is used
 	in brush.c.

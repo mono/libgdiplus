@@ -21,8 +21,6 @@
 #include <cairo-xlib.h>
 #endif
 #include <mono/io-layer/uglify.h>
-#include "brush.h"
-
 
 
 // NOTE: This file includes some internal cairo definitions to
@@ -67,6 +65,30 @@ typedef unsigned short WCHAR; // 16-bits unicode
  * Enums
  *
  */
+
+typedef enum {
+    Ok = 0,
+    GenericError = 1,
+    InvalidParameter = 2,
+    OutOfMemory = 3,
+    ObjectBusy = 4,
+    InsufficientBuffer = 5,
+    NotImplemented = 6,
+    Win32Error = 7,
+    WrongState = 8,
+    Aborted = 9,
+    FileNotFound = 10,
+    ValueOverflow = 11,
+    AccessDenied = 12,
+    UnknownImageFormat = 13,
+    FontFamilyNotFound = 14,
+    FontStyleNotFound = 15,
+    NotTrueTypeFont = 16,
+    UnsupportedGdiplusVersion = 17,
+    GdiplusNotInitialized = 18,
+    PropertyNotFound = 19,
+    PropertyNotSupported = 20
+} GpStatus;
 
 typedef enum  {
     MatrixOrderPrepend    = 0,
@@ -260,14 +282,17 @@ typedef struct {
         float X, Y;
 } GpPointF, PointF;
 
-typedef struct _Graphics {
+typedef struct {
 	cairo_t         *ct;
 	cairo_matrix_t  *copy_of_ctm;
 	void            *hdc;
 	int             hdc_busy_count;
 	void            *image;
 	int             type; 
-} Graphics;
+} GpGraphics;
+
+/* Brush */
+#include "brush.h"
 
 typedef cairo_matrix_t GpMatrix;
 

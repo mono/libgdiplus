@@ -38,6 +38,7 @@ gdip_brush_setup (GpGraphics *graphics, GpBrush *brush)
 void
 gdip_brush_destroy (GpBrush *brush)
 {
+	// do nothing, because we are not allocating any memory here.
 }
 
 GpStatus 
