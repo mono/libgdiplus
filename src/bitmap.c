@@ -19,7 +19,7 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  * Authors:
- *   Alexandre Pigolkine(pigolkine@gmx.de)
+ *   Alexandre Pigolkine (pigolkine@gmx.de)
  */
 
 #include <glib.h>
@@ -53,7 +53,7 @@ gdip_bitmap_init (GpBitmap *bitmap)
 GpBitmap *
 gdip_bitmap_new ()
 {
-	GpBitmap *result = (GpBitmap *) GdipAlloc (sizeof(GpBitmap));
+	GpBitmap *result = (GpBitmap *) GdipAlloc (sizeof (GpBitmap));
 	gdip_bitmap_init (result);
 	return result;
 }
@@ -266,7 +266,7 @@ ChangePixelFormat (GpBitmap *bitmap, GdipBitmapData *destData)
 	int 	i, j;
 	
 	/*
-	printf("ChangePixelFormat to %d. Src inc %d, Dest Inc %d\n", 
+	printf ("ChangePixelFormat to %d. Src inc %d, Dest Inc %d\n", 
 		destData->PixelFormat, sourcePixelIncrement, destinationPixelIncrement);
 	*/
 	if (bitmap->data.PixelFormat == destData->PixelFormat) return 0;
@@ -277,13 +277,13 @@ ChangePixelFormat (GpBitmap *bitmap, GdipBitmapData *destData)
 	}
 	destData->Width = bitmap->data.Width;
 	destData->Height = bitmap->data.Height;
-	destData->Stride = ((destData->PixelFormat == Format32bppArgb ) ? 4 : 3 ) * bitmap->data.Width;
+	destData->Stride = ( (destData->PixelFormat == Format32bppArgb ) ? 4 : 3 ) * bitmap->data.Width;
 	destData->Scan0 = GdipAlloc (destData->Stride * bitmap->data.Height);
 	destData->Reserved = 1;
 	curSrc = bitmap->data.Scan0;
 	curDst = (char *)destData->Scan0;
-	for ( i = 0; i < bitmap->data.Height; i++) {
-		for( j = 0; j < bitmap->data.Width; j++) {
+	for (i = 0; i < bitmap->data.Height; i++) {
+		for (j = 0; j < bitmap->data.Width; j++) {
 			*curDst++ = *curSrc++;
 			*curDst++ = *curSrc++;
 			*curDst++ = *curSrc++;
@@ -365,98 +365,68 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, GdipBitmapData *bitmap_data)
 GpStatus
 GdipBitmapSetPixel (GpBitmap *bitmap, int x, int y, ARGB color)
 {
-	if (bitmap == 0) {
-		printf ("Bitmap is null\n");
-		return InvalidParameter;
-	}
+	GdipBitmapData *data = &bitmap->data;
+	unsigned char *v;
 	
-	int height = bitmap->data.Height;
-	int width = bitmap->data.Width;
-	if ( x < 0 || x > width ) {
-		printf (" X coordinate is out of range");
+	if (bitmap == 0) 
 		return InvalidParameter;
-	}
-
-	if ( y < 0 || y > height ) {
-		printf (" Y coordinate is out of range");
+	
+	if (x < 0 || x > data->Width)
 		return InvalidParameter;
-	}
 
-	int location = ( x + 1 )*height + ( y + 1 )*width;
-	int location3 = location*3;
-	int location4 = location*4;
-	char* red;
-	char* blue;
-	char* green;
-	char* alpha = 255;
-	switch ( bitmap->data.PixelFormat ) {
+	if (y < 0 || y > data->Height)
+		return InvalidParameter;
+
+	v = (unsigned char *)(data->Scan0) + y * data->Stride;
+	switch (bitmap->data.PixelFormat) {
 		case Format24bppRgb:
-			red = &bitmap->data.Scan0	+ location3;
-			blue = red + 1;
-			green = blue + 1;
+			v += x * 3;
+			v [0] = (color >> 8) & 0xff;
+			v [1] = (color >> 16) & 0xff;
+			v [2] = color >> 24;
 			break;
+			
 		case Format32bppArgb:
-			alpha = &bitmap->data.Scan0	+ location4 ; 
-			red = alpha + 1; 			
-			blue = red + 1;
-			green = blue + 1;
-			*alpha = (char) (color >> 0);
+			v += x * 4;
+			v [0] = color & 0xff;
+			v [1] = (color >> 8) & 0xff;
+			v [2] = (color >> 16) & 0xff;
+			v [3] = color >> 24;
 			break;
 		default:
 			return NotImplemented;
 	} 
-
-	*red = (char) (color >> 8);
-	*green = (char) (color >> 16);
-	*blue = (char) (color >> 24);
-
 	return Ok;		
 }
 
 GpStatus
-GdipBitmapGetPixel ( GpBitmap *bitmap, int x, int y, ARGB *color)
+GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 {
-	if (bitmap == 0) {
-		printf ("Bitmap is null\n");
+	GdipBitmapData *data = &bitmap->data;
+	unsigned char *v;
+	
+	if (bitmap == 0) 
 		return InvalidParameter;
-	}
 
-	int height = bitmap->data.Height;
-	int width = bitmap->data.Width;
-	if ( x < 0 || x > width ) {
-		printf (" X coordinate is out of range");
+	if (x < 0 || x > data->Width)
 		return InvalidParameter;
-	}
 
-	if ( y < 0 || y > height ) {
-		printf (" Y coordinate is out of range");
+	if (y < 0 || y > data->Height)
 		return InvalidParameter;
-	}
 
-	int location = (x+1)*height + (y+1)*width;
-	int location3 = location*3;
-	int location4 = location*4;
-	char* red;
-	char* blue;
-	char* green;
-	char* alpha = 255;
+	v = ((unsigned char *)data->Scan0) + y * data->Stride;
 	switch (bitmap->data.PixelFormat) {
 		case Format24bppRgb:
-			red = &bitmap->data.Scan0	+ location3;
-			blue = red + 1;
-			green = blue + 1;
+			v += x * 3;
+			*color = (v [1] << 8) | (v [2] << 16) | (v [3] << 24);
 			break;
 		case Format32bppArgb:
-			alpha = &bitmap->data.Scan0	+ location4 ; 
-			red = alpha + 1; 
-			blue = red + 1;
-			green = blue + 1;
+			v += x * 4;
+			*color = (v [0]) | (v [1] << 8) | (v [2] << 16) | (v [3] << 24);
 			break;
 		default:
 			return NotImplemented;
 	} 
-	
-	*color = ( ((ARGB) (alpha) << 0 ) | ((ARGB) (red) << 8 ) | ((ARGB) (blue) << 16) | ((ARGB) (green) << 24) );
 	
 	return Ok;
 }

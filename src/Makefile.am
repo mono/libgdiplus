@@ -25,4 +25,4 @@ libgdiplus_la_SOURCES = 	\
 
 libgdiplus_la_LIBADD = $(GDIPLUS_LIBS)
 
-INCLUDES = $(GDIPLUS_CFLAGS)
+INCLUDES = $(GDIPLUS_CFLAGS) -ansi -Werror

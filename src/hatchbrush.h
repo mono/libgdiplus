@@ -94,7 +94,7 @@ GpStatus GdipGetHatchStyle (GpHatch *brush, GpHatchStyle *hatchstyle);
 GpStatus GdipGetHatchForegroundColor (GpHatch *brush, int *forecolor);
 GpStatus GdipGetHatchBackgroundColor (GpHatch *brush, int *backcolor);
 
-// functions to draw different hatches
+/* functions to draw different hatches */
 
 void draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format, GpHatchStyle hatchstyle);
 void draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format, GpHatchStyle hatchstyle);

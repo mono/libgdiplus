@@ -463,7 +463,7 @@ GpStatus GdipGetPenWidth (GpPen *pen, float *width);
 GpStatus GdipSetPenBrushFill (GpPen *pen, GpBrush *brush);
 GpStatus GdipGetPenBrushFill (GpPen *pen, GpBrush **brush);
 GpStatus GdipSetPenColor (GpPen *pen, int color);
-GpStatus GdipGetPenColor (GpPen *pen, int *color);;
+GpStatus GdipGetPenColor (GpPen *pen, int *color);
 GpStatus GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle);
 GpStatus GdipGetPenDashStyle (GpPen *pen, GpDashStyle *dashStyle);
 GpStatus GdipSetPenDashOffset (GpPen *pen, float offset);

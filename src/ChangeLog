@@ -1,5 +1,13 @@
 2004-02-28  Miguel de Icaza  <miguel@ximian.com>
 
+	* font.c: Coding style, ANSI-C-ification
+
+	* Makefile.am: Add -ansi, -pedantic and -Werror, to keep this
+	clean.
+	
+	* bitmap.c (GdipBitmapSetPixel): Optimize SetPixel, remove
+	non-ANSI-isms.
+
 	* region.c: Ansi C again.
 
 	* hatchbrush.c: ANSI C again.

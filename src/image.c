@@ -136,8 +136,8 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
 }
 
 
-//GpStatus GdipLoadImageFromStream (IStream *stream, GpImage **image);
-//GpStatus GdipSaveImageToStream (GpImage *image, IStream *stream, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params);
+/* GpStatus GdipLoadImageFromStream (IStream *stream, GpImage **image); */
+/* GpStatus GdipSaveImageToStream (GpImage *image, IStream *stream, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params); */
 
 GpStatus 
 GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
@@ -145,8 +145,8 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	return NotImplemented;
 }
 
-//GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params);
-//GpStatus GdipSaveAddImage (GpImage *image, GpImage *imageNew, GDIPCONST EncoderParameters *params);
+/* GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params); */
+/* GpStatus GdipSaveAddImage (GpImage *image, GpImage *imageNew, GDIPCONST EncoderParameters *params); */
 
 GpStatus 
 GdipGetImageBounds (GpImage *image, GpRectF *rect, GpUnit *unit)
@@ -196,7 +196,7 @@ GdipGetImageFlags (GpImage *image, UINT *flags)
 	return NotImplemented;
 }
 
-//GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format);
+/* GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format); */
 
 GpStatus 
 GdipGetImagePixelFormat (GpImage *image, PixelFormat *format)
@@ -205,8 +205,8 @@ GdipGetImagePixelFormat (GpImage *image, PixelFormat *format)
 }
 
 /*GpStatus GdipGetImageThumbnail (GpImage *image, UINT width, UINT height, GpImage **thumbImage, GetThumbnailImageAbort callback, VOID* callBackData);*/
-//GpStatus GetEncoderParameterListSize (GpImage *image, GDIPCONST CLSID *encoderCLSID, UINT *size);
-//GpStatus GetEncoderParameterList (GpImage *image, GDIPCONST CLSID *encoderCLSID, UINT size, EncoderParameters *buffer);
+/* GpStatus GetEncoderParameterListSize (GpImage *image, GDIPCONST CLSID *encoderCLSID, UINT *size); */
+/* GpStatus GetEncoderParameterList (GpImage *image, GDIPCONST CLSID *encoderCLSID, UINT size, EncoderParameters *buffer); */
 
 GpStatus 
 GdipImageGetFrameDimensionsCount (GpImage *image, UINT *count)
@@ -214,9 +214,9 @@ GdipImageGetFrameDimensionsCount (GpImage *image, UINT *count)
 	return NotImplemented;
 }
 
-//GpStatus GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count);
-//GpStatus GdipImageGetFrameCount (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count);
-//GpStatus GdipImageSelectActiveFrame (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT index);
+/* GpStatus GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count); */
+/* GpStatus GdipImageGetFrameCount (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count); */
+/* GpStatus GdipImageSelectActiveFrame (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT index); */
 
 GpStatus 
 GdipImageRotateFlip (GpImage *image, RotateFlipType type)
