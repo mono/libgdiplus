@@ -898,8 +898,8 @@ GpStatus GdipTransformRegion(GpRegion *region, GpMatrix *matrix);
 
 /* for drawing curves */
 GpPointF *convert_points (const GpPoint *points, int count);
-GpPointF *gdip_closed_curve_tangents (int terms, const GpPointF *points, int count);
-GpPointF *gdip_open_curve_tangents (int terms,  const GpPointF *points, int count);
+GpPointF *gdip_closed_curve_tangents (int terms, const GpPointF *points, int count, float tension);
+GpPointF *gdip_open_curve_tangents (int terms,  const GpPointF *points, int count, float tension);
 void gdip_calculate_coefficients (int count, int terms, float **coefficients, int *coefficients_count);
 
 /* Memory */

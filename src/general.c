@@ -358,54 +358,11 @@ convert_points (const GpPoint *point, int count)
         return retval;
 }
 
-void
-gdip_calculate_coefficients (int count, int terms, float **coefficients, int *coefficients_count)
-{
-        int i, j, m;
-        float *a, *h;        
-
-        if (count <= 2) {
-                coefficients = NULL;
-                *coefficients_count = 0;
-                return;
-        }
-
-        /* find the maxindex of the coefficients array in the general case */
-        m = (count - 1) / 2;
-
-        if (terms < CURVE_MIN_TERMS)
-                terms = CURVE_MIN_TERMS;
-
-        if (m > terms)
-                m = terms;
-
-        /* define the coefficients array a to include the index m */
-        a = (float *) GdipAlloc (sizeof (float) * (m + 1));
-
-        /* define the helper array h needed to compute the array a */        
-        h = (float *) GdipAlloc (sizeof (float) * (m + 1));
-
-        h [0] = 1;
-        h [1] = ((count % 2) == 1) ? -3 : -4;
-
-        for (i = 2; i <= m; i++)
-                h [i] = (-4) * h [i - 1] - h [i - 2];
-
-        /* now compute and return the array a */
-        for (j = 1; j <= m; j++)
-                a [j] = - h [m - j] / h [m];
-
-        GdipFree (h);
-        
-        *coefficients = a;
-        *coefficients_count = m + 1;
-}
-
 GpPointF *
-gdip_open_curve_tangents (int terms, const GpPointF *points, int count)
+gdip_open_curve_tangents (int terms, const GpPointF *points, int count, float tension)
 {
-        float *coefficients;
-        int coefficients_count, i, k, M, m, Z;
+        float coefficient = tension / 3.0;
+        int i;
 
         GpPointF *tangents = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
 
@@ -415,38 +372,28 @@ gdip_open_curve_tangents (int terms, const GpPointF *points, int count)
                 tangents [i].Y = 0;
         }
 
-
         if (count <= 2)
                 return tangents;
 
-        M = count - 1;
-        Z = 2 * M;
+        for (i = 1; i < count - 1; i++) {
+                int r = i + 1;
+                int s = i - 1;
 
-        gdip_calculate_coefficients (Z, terms, &coefficients, &coefficients_count);
-        m = coefficients_count - 1;
+                if (r >= count) r = count - 1;
+                if (s < 0) s = 0;
 
-        for (i = 1; i < M; i++) {
-                for (k = 1; k <= m; k++) {
-                        int r = i + k;
-                        int s = i - k;
-
-                        if (r >= count) r = Z - r;
-                        if (s < 0) s = -s;
-
-                        tangents [i].X += (coefficients [k] * (points [r].X - points [s].X));
-                        tangents [i].Y += (coefficients [k] * (points [r].Y - points [s].Y));
-                }
+                tangents [i].X += (coefficient * (points [r].X - points [s].X));
+                tangents [i].Y += (coefficient * (points [r].Y - points [s].Y));
         }
 
-        GdipFree (coefficients);
         return tangents;        
 }
 
 GpPointF *
-gdip_closed_curve_tangents (int terms, const GpPointF *points, int count)
+gdip_closed_curve_tangents (int terms, const GpPointF *points, int count, float tension)
 {
-        float *coefficients;
-        int coefficients_count, i, k, m;
+        float coefficient = tension / 3.0;
+        int i;
         GpPointF *tangents = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
 
         /* initialize everything to zero to begin with */
@@ -458,23 +405,17 @@ gdip_closed_curve_tangents (int terms, const GpPointF *points, int count)
         if (count <= 2)
                 return tangents;
 
-        gdip_calculate_coefficients (count, terms, &coefficients, &coefficients_count);
-        m = coefficients_count - 1;
-
         for (i = 0; i < count; i++) {
-                for (k = 0; k <= m; k++) {
-                        int r = i + k;
-                        int s = i - k;
+                int r = i + 1;
+                int s = i - 1;
 
-                        if (r >= count) r -= count;
-                        if (s < 0) s += count;
+                if (r >= count) r -= count;
+                if (s < 0) s += count;
 
-                        tangents [i].X += (coefficients [k] * (points [r].X - points [s].X));
-                        tangents [i].Y += (coefficients [k] * (points [r].Y - points [s].Y));
-                }
+                tangents [i].X += (coefficient * (points [r].X - points [s].X));
+                tangents [i].Y += (coefficient * (points [r].Y - points [s].Y));
         }
 
-        GdipFree (coefficients);
         return tangents;
 }
 

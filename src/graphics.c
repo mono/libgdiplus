@@ -900,7 +900,7 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int co
 
         gdip_pen_setup (graphics, pen);
         
-        tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count);
+        tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
         make_curve (graphics, points, tangents, count, CURVE_CLOSE);
 
         cairo_stroke (graphics->ct);
@@ -960,7 +960,7 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
         
         gdip_pen_setup (graphics, pen);
 
-        tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count);
+        tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
         make_curve (graphics, points, tangents, count, CURVE_OPEN);
 
         cairo_stroke (graphics->ct);
@@ -1120,7 +1120,7 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, in
 
         gdip_brush_setup (graphics, brush);
         
-        tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count);
+        tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
         make_curve (graphics, points, tangents, count, CURVE_CLOSE);
 
         cairo_fill (graphics->ct);

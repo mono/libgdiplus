@@ -152,6 +152,19 @@ GdipCreatePath2 (const GpPointF *points, const byte *types,
 }
 
 GpStatus
+GdipCreatePath2I (const GpPoint *points, const byte *types,
+                int count, GpFillMode fillMode, GpPath **path)
+{
+        GpPointF *pt = convert_points (points, count);
+
+        GpStatus s = GdipCreatePath2 (pt, types, count, fillMode, path);
+
+        GdipFree (pt);
+
+        return s;
+}
+
+GpStatus
 GdipClonePath (GpPath *path, GpPath **clonePath)
 {
         *clonePath = (GpPath *) GdipAlloc (sizeof (GpPath));
@@ -430,9 +443,22 @@ GdipAddPathBeziers (GpPath *path, const GpPointF *points, int count)
 GpStatus
 GdipAddPathCurve (GpPath *path, const GpPointF *points, int count)
 {
+        return GdipAddPathCurve3 (path, points, count, 0, count - 1, 0.5);
+}
+
+GpStatus
+GdipAddPathCurve2 (GpPath *path, const GpPointF *points, int count, float tension)
+{
+        return GdipAddPathCurve3 (path, points, count, 0, count - 1, tension);
+}
+
+GpStatus
+GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count, 
+        int offset, int numberOfSegments, float tension)
+{
         GpPointF *tangents;
 
-        tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count);
+        tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
 
         append_curve (path, points, tangents, count, CURVE_OPEN);
 
@@ -442,31 +468,17 @@ GdipAddPathCurve (GpPath *path, const GpPointF *points, int count)
 }
 
 GpStatus
-GdipAddPathCurve2 (GpPath *path, const GpPointF *points, int count, float tension)
-{
-        return NotImplemented;
-}
-
-GpStatus
-GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count, 
-        int offset, int numberOfSegments, float tension)
-{
-        return NotImplemented;
-}
-
-GpStatus
 GdipAddPathClosedCurve (GpPath *path, const GpPointF *points, int count)
 {
         return GdipAddPathClosedCurve2 (path, points, count, 0.5);
 }
 
-/* TODO: consider tension */
 GpStatus
 GdipAddPathClosedCurve2 (GpPath *path, const GpPointF *points, int count, float tension)
 {
         GpPointF *tangents;
 
-        tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count);
+        tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
 
         append_curve (path, points, tangents, count, CURVE_CLOSE);
 
