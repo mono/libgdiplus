@@ -1,5 +1,19 @@
 2004-04-10  Duncan Mak  <duncan@ximian.com>
 
+	* graphics.c (GdipDrawCurve):
+	(GdipDrawClosedCurve, GdipFillClosedCurve): Added all the
+	overloads, properly delegate the work to avoid code
+	duplication. Handle the case when tension = 0; in that case, we
+	draw/fill a polygon for closed curves, and just draw straight
+	lines for open curves.
+	(GdipDrawCurve3): Fixed signature, there was a missing offset
+	argument.
+
+	* gdip.h: Added open and closed curve drawing and filling
+	functions.
+
+2004-04-10  Duncan Mak  <duncan@ximian.com>	
+
 	* general.c (gdip_open_curve_tangents): Fixed some more errors in
 	the porting of the algorithm. We should be passing Z to
 	gdip_calculate_coefficients instead of count. Z = 2 * count - 1.

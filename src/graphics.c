@@ -823,8 +823,24 @@ make_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int coun
 GpStatus
 GdipDrawClosedCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 {
+        return GdipDrawClosedCurve2 (graphics, pen, points, count, 0.5f);
+}
+
+GpStatus
+GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
+{
+        return GdipDrawClosedCurve2I (graphics, pen, points, count, 0.5f);
+}
+
+GpStatus
+GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count, float tension)
+{
         GpPointF *tangents;
 
+        /* when tension is 1, draw straight lines */
+        if (tension == 1)
+                return GdipDrawPolygon (graphics, pen, points, count);
+                        
         cairo_save (graphics->ct);
 
         gdip_pen_setup (graphics, pen);
@@ -841,7 +857,7 @@ GdipDrawClosedCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int cou
 }
 
 GpStatus
-GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
+GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count, float tension)
 {
         GpPointF *pt = convert_points (points, count);
 
@@ -855,7 +871,35 @@ GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int cou
 GpStatus
 GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count) 
 {
+        return GdipDrawCurve3 (graphics, pen, points, count, 0, count - 1, 0.5f);
+}
+
+GpStatus
+GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count) 
+{
+        return GdipDrawCurve3I (graphics, pen, points, count, 0, count - 1, 0.5f);
+}
+
+GpStatus
+GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, float tension)
+{
+        return GdipDrawCurve3 (graphics, pen, points, count, 0, count - 1, tension);
+}
+
+GpStatus
+GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, float tension)
+{
+        return GdipDrawCurve3I (graphics, pen, points, count, 0, count - 1, tension);
+}
+
+GpStatus
+GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, int offset, float numOfSegments, float tension)
+{
         GpPointF *tangents;
+
+        /* draw lines if tension = 1 */
+        if (tension == 1)
+                return GdipDrawLines (graphics, pen, points, count);
 
         cairo_save (graphics->ct);
         
@@ -873,48 +917,15 @@ GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 }
 
 GpStatus
-GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count) 
+GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, int offset, float numOfSegments, float tension)
 {
         GpPointF *pf = convert_points (points, count);
 
-        GpStatus s = GdipDrawCurve (graphics, pen, pf, count);
+        GpStatus s = GdipDrawCurve3 (graphics, pen, pf, count, offset, numOfSegments, tension);
 
         GdipFree (pf);
 
         return s;
-}
-
-GpStatus
-GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, float tension)
-{
-        /* TODO: consider tension */
-        return GdipDrawCurve (graphics, pen, points, count);
-}
-
-GpStatus
-GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, float tension)
-{
-        GpPointF *pf = convert_points (points, count);
-
-        GpStatus s = GdipDrawCurve2 (graphics, pen, pf, count, tension);
-
-        GdipFree (pf);
-
-        return s;
-}
-
-GpStatus
-GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, float numOfSegments, float tension)
-{
-	printf ("GdipDrawCurve2I not implemented\n");
-	return Ok;
-}
-
-GpStatus
-GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, float numOfSegments, float tension)
-{
-	printf ("GdipDrawCurve2I not implemented\n");
-	return Ok;
 }
 
 /*
@@ -1032,7 +1043,23 @@ GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int co
 GpStatus
 GdipFillClosedCurve (GpGraphics *graphics, GpBrush *brush, GpPointF *points, int count)
 {
+        return GdipFillClosedCurve2 (graphics, brush, points, count, 0.5f);
+}
+
+GpStatus
+GdipFillClosedCurveI (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count)
+{
+        return GdipFillClosedCurve2I (graphics, brush, points, count, 0.5f);
+}
+
+GpStatus
+GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, int count, float tension)
+{
         GpPointF *tangents;
+
+        /* when tension is 1, the edges are straight lines */
+        if (tension == 1)
+                return GdipFillPolygon2 (graphics, brush, points, count);
 
         cairo_save (graphics->ct);
 
@@ -1050,11 +1077,11 @@ GdipFillClosedCurve (GpGraphics *graphics, GpBrush *brush, GpPointF *points, int
 }
 
 GpStatus
-GdipFillClosedCurveI (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count)
+GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count, float tension)
 {
         GpPointF *pt  = convert_points (points, count);
 
-        GpStatus s = GdipFillClosedCurve (graphics, brush, pt, count);
+        GpStatus s = GdipFillClosedCurve2 (graphics, brush, pt, count, tension);
 
         GdipFree (pt);
 
