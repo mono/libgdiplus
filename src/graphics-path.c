@@ -329,10 +329,17 @@ append_arc (GpPath *path, float x, float y, float width, float height, float sta
         double cos_alpha = cos (alpha);
         double cos_beta = cos (beta);
 
-        append (path,
-                cx + rx * cos_alpha,
-                cy + ry * sin_alpha,
-                PathPointTypeStart);
+        /* starting point */
+        double sx = cx + rx * cos_alpha;
+        double sy = cy + ry * sin_alpha;
+
+        /* current point */
+        GpPointF current;
+        GdipGetPathLastPoint (path, &current);
+
+        /* move to the starting pt if we're not already there */
+        if ((current.X != (float) sx) && (current.Y != (float) sy))
+                append (path, sx, sy, PathPointTypeStart);
 
         append_bezier (path, 
                 cx + rx * (cos_alpha - bcp * sin_alpha),

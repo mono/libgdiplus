@@ -1,5 +1,7 @@
 2004-04-04  Duncan Mak  <duncan@ximian.com>
 
+	* graphics-path.c (append_arc): Port the change to make_arc here.
+
 	* graphics.c (make_arc): Only call move_to when we're not already at
 	that point. This fixes FillPie, as cairo_fill implicitly closes
 	all subpaths before filling. The extraneous move_to call earlier
