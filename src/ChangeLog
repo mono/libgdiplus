@@ -1,5 +1,7 @@
 2004-02-28  Miguel de Icaza  <miguel@ximian.com>
 
+	* hatchbrush.c: ANSI C again.
+
 	* graphics.c: Clean up the mess in this file:
 
 	Turn into ANSI C: No // for comments;  No variable declarations in

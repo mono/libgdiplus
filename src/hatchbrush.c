@@ -10,8 +10,10 @@
 #include "gdip.h"
 #include "hatchbrush.h"
 
-// we have a single copy of vtable for
-// all instances of hatchbrush.
+/*
+ * we have a single copy of vtable for
+ * all instances of hatchbrush.
+ */
 
 static BrushClass vtable = { BrushTypeHatchFill, 
 			     gdip_hatch_setup, 
@@ -55,9 +57,7 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 		height = bmp->data.Height;
 		format = bmp->data.PixelFormat;
 		printf ("bmp->wd: %d bmp->ht: %d bmp->format: %d\n", width, height, format);
-	}
-	// metafile and undefined image types are not handled.
-	else 
+	} else 
 		return;
 
 	ct = graphics->ct;
@@ -67,7 +67,7 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 
 	switch (hatch->hatchStyle) {
 
-	// case HatchStyleMin:
+	/* case HatchStyleMin: */
 	case HatchStyleHorizontal:
 	case HatchStyleLightHorizontal:
 	case HatchStyleNarrowHorizontal:
@@ -90,7 +90,7 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 		draw_backward_diagonal_hatch (ct, forecol, backcol, width, height);
 		break;
 
-	// case HatchStyleCross:
+	/* case HatchStyleCross: */
 	case HatchStyleLargeGrid:
 		draw_cross_hatch (ct, forecol, backcol, width, height);
 		break;
@@ -260,7 +260,7 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 		break;
 
 	case HatchStyleSolidDiamond:
-	// case HatchStyleMax:
+	/* case HatchStyleMax: */
 		draw_solid_diamond_hatch (ct, forecol, backcol, width, height);
 		break;
 
@@ -321,7 +321,9 @@ GdipGetHatchBackgroundColor (GpHatch *brush, int *backcolor)
 	return Ok;
 }
 
-// functions to draw different hatches
+/*
+ * functions to draw different hatches
+ */
 void
 draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format, GpHatchStyle hatchStyle)
 {
@@ -329,18 +331,20 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int
 	double hatch_size = HATCH_SIZE;
 	double line_width = LINE_WIDTH;
 
-	// the values used below are obtained after the lots of hit and trial
-	// to get the results similar to that of .net. I'm not sure if results
-	// will be same with different resolutions
+	/*
+	 * the values used below are obtained after the lots of hit and trial
+	 * to get the results similar to that of .net. I'm not sure if results
+	 * will be same with different resolutions
+	 */
 	if (hatchStyle == HatchStyleLightHorizontal)
-		hatch_size *= 0.7; // as per the docs it should be 50% of horizontal i.e. 0.5
+		hatch_size *= 0.7; /* as per the docs it should be 50% of horizontal i.e. 0.5 */
 	else if (hatchStyle == HatchStyleNarrowHorizontal) {
-		hatch_size *= 0.5; // as per the docs it should be 25% of horizontal i.e. 0.25
-		line_width *= 1.5; // docs say nothing about it
+		hatch_size *= 0.5; /* as per the docs it should be 25% of horizontal i.e. 0.25 */
+		line_width *= 1.5; /* docs say nothing about it */
 	}
 	else if (hatchStyle == HatchStyleDarkHorizontal) {
-		hatch_size *= 0.6; // as per the docs it should be 50% of horizontal i.e. 0.5
-		line_width *= 2.4; // as per the docs it should be 200% of horizontal i.e. 2.0
+		hatch_size *= 0.6; /* as per the docs it should be 50% of horizontal i.e. 0.5 */
+		line_width *= 2.4; /* as per the docs it should be 200% of horizontal i.e. 2.0 */
 	}
 
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
@@ -353,7 +357,7 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int
 
 		cairo_set_target_surface (ct, hatch);
 
-		// draw background
+		/* draw background */
 		int R = (backcolor & 0x00FF0000 ) >> 16;
 	        int G = (backcolor & 0x0000FF00 ) >> 8;
 	        int B = (backcolor & 0x000000FF );
@@ -362,7 +366,7 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
 		cairo_fill (ct);
 
-		// draw line
+		/* draw line */
 		R = (forecolor & 0x00FF0000 ) >> 16;
 	        G = (forecolor & 0x0000FF00 ) >> 8;
 	        B = (forecolor & 0x000000FF );
@@ -383,175 +387,175 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int
 
 void draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format, GpHatchStyle hatchStyle)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_percentage_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, int percentage)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_light_down_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_light_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_dark_down_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_dark_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_wide_down_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_wide_upward_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_dashed_down_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_dashed_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_dashed_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_dashed_vertical_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_small_confetti_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_large_confetti_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_zigzag_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_wave_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_diagonal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_horizontal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_weave_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_plaid_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_divot_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_dotted_grid_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_dotted_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_Shingle_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_trellis_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_sphere_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_small_grid_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_small_checker_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_large_checker_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_outlined_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
 
 void draw_solid_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	// NotImplemented
+	/* NotImplemented */
 }
