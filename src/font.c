@@ -381,15 +381,17 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHei
 		FT_Face	face;
 		TT_VertHeader *pVert;
 
-		face = cairo_ft_font_face(font->cairofnt);
+		face = gdip_cairo_ft_font_lock_face(font->cairofnt);
 
 		pVert = FT_Get_Sfnt_Table(face, ft_sfnt_vhea);
-		if (pVert)
+		if (pVert) {
 			rslt = pVert->yMax_Extent;
-		else if (face)
+		} else if (face) {
 			rslt = face->units_per_EM;
-		else
+		} else {
 			rslt = 0;
+		}
+		gdip_cairo_ft_font_unlock_face(font->cairofnt);
 		GdipDeleteFont (font);
 	}
 
@@ -418,13 +420,14 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Cel
                 FT_Face face;
 		TT_HoriHeader *pHori;
 
-                face = cairo_ft_font_face(font->cairofnt);
+                face = gdip_cairo_ft_font_lock_face(font->cairofnt);
 
 		pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
 
 		if (pHori)
 			rslt = pHori->Ascender;
 
+		gdip_cairo_ft_font_lock_face(font->cairofnt);
 		GdipDeleteFont (font);
 	}
 
@@ -453,13 +456,14 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Ce
                 FT_Face face;
 		TT_HoriHeader* pHori;
 
-                face = cairo_ft_font_face(font->cairofnt);
+                face = gdip_cairo_ft_font_lock_face(font->cairofnt);
 
 		pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
 
 		if (pHori)
 			rslt = -pHori->Descender;
 
+		gdip_cairo_ft_font_unlock_face(font->cairofnt);
 		GdipDeleteFont (font);
 	}
 
@@ -488,15 +492,18 @@ GdipGetLineSpacing (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Li
                 FT_Face face;
 		TT_HoriHeader *pHori;
 
-                face = cairo_ft_font_face(font->cairofnt);
+                face = gdip_cairo_ft_font_lock_face(font->cairofnt);
 
 		pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
-		if (pHori)
+		if (pHori) {
 			rslt = pHori->Ascender + (-pHori->Descender) + pHori->Line_Gap;
-		else if (face)
+		} else if (face) {
 			rslt = face->height;
-		else
+		} else {
 			rslt = 0;
+		}
+
+		gdip_cairo_ft_font_unlock_face(font->cairofnt);
 		GdipDeleteFont (font);
 	}
 
@@ -551,10 +558,11 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont
 	result->cairofnt = font;
 	result->ft_library = ft_library;
 
-	FT_Set_Char_Size (cairo_ft_font_face(font),
+	FT_Set_Char_Size (gdip_cairo_ft_font_lock_face(font),
 			  DOUBLE_TO_26_6 (1.0),
 			  DOUBLE_TO_26_6 (1.0),
 			  0, 0);
+	gdip_cairo_ft_font_unlock_face(font);
 
 	FcPatternDestroy (pat);
 	return 1;

@@ -1,3 +1,10 @@
+2005-01-23  Peter Bartok  <pbartok@novell.com>
+
+	* configure.in:
+	  - Bumped required cairo version to *exactly* 0.3.0. After
+	  that version, there are major changes that we don't track yet.
+	  - Added detection define for post 0.3.0 suppor
+
 2005-01-18  Geoff Norton  <gnorton@customerdna.com>
 
 	* configure.in: Bump required cairo version to 0.2.0.  We dont

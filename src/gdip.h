@@ -8,8 +8,9 @@
  *      Ravindra (rkumar@novell.com)
  *  	Sanjay Gupta (gsanjay@novell.com)
  *	Vladimir Vukicevic (vladimir@pobox.com)
+ *	Geoff Norton (gnorton@customerdna.com)
  *
- * Copyright (C) Novell, Inc. 2003-2004. http://www.novell.com
+ * Copyright (C) Novell, Inc. 2003-2005. http://www.novell.com
  */
 
 #ifndef _GDIP_H
@@ -20,17 +21,25 @@
 #include <glib.h>
 #include <unistd.h>
 
-#include <cairo.h>
+#include <cairo/cairo.h>
 #include "config.h"
 #include <X11/Xlib.h>
-#ifndef CAIRO_HAS_XLIB_SURFACE
-/*
- * This check is here; because I'm assuming that people willing to try the quartz surface will
- * be running a new enough cairo that this header no longer exists (in fact they have to)
- */
-#	ifndef CAIRO_HAS_QUARTZ_SURFACE
-#		include <cairo-xlib.h>
-#	endif
+
+#ifdef CAIRO_HAS_FT_FONT
+#include <cairo/cairo-ft.h>
+#endif
+
+#if HAVE_CAIRO_FT_FONT_LOCK_FACE
+#define	gdip_cairo_ft_font_lock_face(font)	cairo_ft_font_lock_face(font)
+#define gdip_cairo_ft_font_unlock_face(font)	cairo_ft_font_unlock_face(font)
+#else
+#define	gdip_cairo_ft_font_lock_face(font)	cairo_ft_font_face(font)
+#define gdip_cairo_ft_font_unlock_face(font)
+#endif
+
+
+#ifdef CAIRO_HAS_XLIB_SURFACE
+#include <cairo/cairo-xlib.h>
 #endif
 
 /* mono/io-layer/uglify.h also has these typedefs.

@@ -303,6 +303,15 @@ GdipCreateFromHWND (void *hwnd, GpGraphics **graphics)
 
 #ifdef CAIRO_HAS_QUARTZ_SURFACE
 
+// This is a dirty hack; but it gets us around header include issues for now
+// FIXME: We need to split all the X11 stuff off into its own file(s) so that
+// different backends / font backends can be easily introduced in the future.
+void
+cairo_set_target_quartz_context(cairo_t         *cr,
+				void		*ctx,
+				int             width,
+				int             height);
+
 GpStatus
 GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **graphics)
 {
@@ -1638,7 +1647,7 @@ CalculateStringWidths (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, uns
 #endif
 
 	Font = (cairo_font_t *)gdiFont->cairofnt;
-	face = cairo_ft_font_face(Font);
+	face = gdip_cairo_ft_font_lock_face(Font);
 
 	matrix = cairo_matrix_create();
 	cairo_font_current_transform(Font, matrix);
@@ -1659,6 +1668,7 @@ CalculateStringWidths (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, uns
 		CurrentDetail++;
 	}
 
+	gdip_cairo_ft_font_unlock_face(Font);
 	cairo_matrix_destroy(matrix);
 
 	free(ucs4);

@@ -1,5 +1,15 @@
 2005-01-20  Jackson Harper  <jackson@ximian.com>
 
+	* graphics.c:
+	  - Using new macro to deal with post 0.3.0 cairo changes in font APIs
+	  - Added Geoff Norton's changes for Mac OS X support
+	* font.c: Using new macro to deal with post 0.3.0 cairo changes in font APIs
+	* gdip.h: 
+	  - Changes to match cairo 0.3.0 release
+	  - Added code for post 0.3.0 cairo support
+
+2005-01-20  Jackson Harper  <jackson@ximian.com>
+
 	* graphics.c: These are floats.
 	
 2005-01-17  Peter Bartok  <pbartok@novell.com>

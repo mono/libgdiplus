@@ -16,10 +16,10 @@ else
 	AC_MSG_ERROR("Did not find Glib >= 2.2.3");
 fi
 
-if pkg-config --atleast-version 0.2.0 cairo; then
+if pkg-config --exact-version 0.3.0 cairo; then
 	echo Cairo installation OK
 else
-	AC_MSG_ERROR("Did not find Cairo 0.2.0");
+	AC_MSG_ERROR("Did not find Cairo == 0.3.0");
 fi
 
 GDIPLUS_LIBS="`pkg-config --libs cairo glib-2.0 ` `freetype-config --libs`"
@@ -109,6 +109,9 @@ if test "$gdip_ok" = "yes"; then
   AC_DEFINE(HAVE_SIGSETJMP, 1, sigsetjmp is available)
 fi
 
+AC_CHECK_LIB(cairo, cairo_ft_font_lock_face,
+	[AC_DEFINE(HAVE_CAIRO_FT_FONT_LOCK_FACE, 1, Define if cairo_ft_font_lock_face() is available)]
+)
 
 AC_ARG_WITH(libjpeg,
 	[AC_HELP_STRING([--without-libjpeg], [disable JPEG file IO])])
