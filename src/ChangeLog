@@ -1,17 +1,31 @@
+2005-01-17  Peter Bartok  <pbartok@novell.com>
+
+       * graphics.c:
+       * lineargradientbrush.c
+       * lineargradientbrush.h:
+       * pathgradientbrush.c:
+       * matrix.c:
+       * texturebrush.c:
+       * texturebrush.h:
+       * pen.c:
+       * gdip.h: Another attempt at dealing with the cairo change making 
+	 the cairo_matrix_t type internal. I gave Jackson some wrong info
+	 in the previous attempt.
+
 2005-01-14  Jackson Harper  <jackson@ximian.com>
 
-	* graphics.c:
-	* lineargradientbrush.c
-	* lineargradientbrush.h:
-	* pathgradientbrush.c:
-	* matrix.c:
-	* texturebrush.c:
-	* texturebrush.h:
-	* pen.c:
-	* gdip.h: Current cairo in cvs has made the cairo_matrix_t
-	variable internal. These are updates to compile with current
-	cairo, all the changes should work with older versions of cairo as
-	well.
+       * graphics.c:
+       * lineargradientbrush.c
+       * lineargradientbrush.h:
+       * pathgradientbrush.c:
+       * matrix.c:
+       * texturebrush.c:
+       * texturebrush.h:
+       * pen.c:
+       * gdip.h: Current cairo in cvs has made the cairo_matrix_t
+       variable internal. These are updates to compile with current
+       cairo, all the changes should work with older versions of cairo as
+       well.
 
 2005-01-14  Jackson Harper  <jackson@ximian.com>
 

@@ -33,6 +33,8 @@ extern BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect);
 extern BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect);
 extern cairo_filter_t gdip_get_cairo_filter (InterpolationMode imode);
 
+#define	NO_CAIRO_AA
+
 void
 gdip_graphics_init (GpGraphics *graphics)
 {
@@ -41,6 +43,10 @@ gdip_graphics_init (GpGraphics *graphics)
 	graphics->copy_of_ctm = cairo_matrix_create ();
 	cairo_matrix_set_identity (graphics->copy_of_ctm);
 	cairo_identity_matrix (graphics->ct);
+
+#ifndef NO_CAIRO_AA
+        cairo_set_shape_format (graphics->ct, CAIRO_FORMAT_A1);
+#endif
 	graphics->image = 0;
 	graphics->type = gtUndefined;
         /* cairo_select_font (graphics->ct, "serif:12"); */
@@ -427,7 +433,7 @@ GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	cairo_matrix_copy (graphics->copy_of_ctm, *matrix);
+        graphics->copy_of_ctm = matrix;
         cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
         return Ok;
 }
@@ -438,7 +444,7 @@ GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	cairo_current_matrix (graphics->ct, *matrix);
+        cairo_current_matrix (graphics->ct, matrix);
         return Ok;
 }
 
@@ -449,7 +455,7 @@ GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrde
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-	s = GdipMultiplyMatrix (&graphics->copy_of_ctm, matrix, order);
+	s = GdipMultiplyMatrix (graphics->copy_of_ctm, matrix, order);
         
         if (s != Ok)
                 return s;
@@ -466,7 +472,7 @@ GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-	s = GdipRotateMatrix (&graphics->copy_of_ctm, angle, order);
+	s = GdipRotateMatrix (graphics->copy_of_ctm, angle, order);
 	
         if (s != Ok)
                 return s;
@@ -483,7 +489,7 @@ GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-	s = GdipScaleMatrix (&graphics->copy_of_ctm, sx, sy, order);
+	s = GdipScaleMatrix (graphics->copy_of_ctm, sx, sy, order);
 
         if (s != Ok)
                 return s;
@@ -500,7 +506,7 @@ GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixO
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-	s = GdipTranslateMatrix (&graphics->copy_of_ctm, dx, dy, order);
+	s = GdipTranslateMatrix (graphics->copy_of_ctm, dx, dy, order);
 
         if (s != Ok) 
                 return s;
@@ -714,11 +720,11 @@ GdipDrawLine (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-	saved = cairo_matrix_create ();
-	g_return_val_if_fail (saved != NULL, OutOfMemory);
-
+	saved = cairo_matrix_create();
 	cairo_matrix_copy (saved, graphics->copy_of_ctm);
+#ifdef NO_CAIRO_AA
 	cairo_matrix_translate (graphics->copy_of_ctm, 0.5, 0.5);
+#endif
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 	
 	/* We use graphics->copy_of_ctm matrix for path creation. We
@@ -736,8 +742,8 @@ GdipDrawLine (GpGraphics *graphics, GpPen *pen,
 	 */
 	cairo_matrix_copy (graphics->copy_of_ctm, saved);
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+	cairo_matrix_destroy(saved);
 
-	cairo_matrix_destroy (saved);
 	return gdip_get_status (cairo_status (graphics->ct));
 }
 
@@ -967,16 +973,16 @@ GpStatus
 GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
 		   float x, float y, float width, float height)
 {
-	cairo_matrix_t *saved;
+        cairo_matrix_t *saved;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-	saved = cairo_matrix_create ();
-	g_return_val_if_fail (saved != NULL, OutOfMemory);
-
-	cairo_matrix_copy (saved, graphics->copy_of_ctm);
+	saved = cairo_matrix_create();
+        cairo_matrix_copy (saved, graphics->copy_of_ctm);
+#ifdef NO_CAIRO_AA
         cairo_matrix_translate (graphics->copy_of_ctm, 0.5, 0.5);
+#endif
         cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
@@ -993,8 +999,7 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
 	 */
 	cairo_matrix_copy (graphics->copy_of_ctm, saved);
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	cairo_matrix_destroy (saved);
+	cairo_matrix_destroy(saved);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1595,7 +1600,7 @@ _install_font_matrix(cairo_matrix_t *matrix, FT_Face face)
     cairo_matrix_transform_distance (matrix, &x, &y);
     scale_y = sqrt(x*x + y*y);
 
-    normalized = cairo_matrix_create ();
+    normalized = cairo_matrix_create();
     cairo_matrix_copy (normalized, matrix);
 
     cairo_matrix_scale (normalized, 1.0 / scale_x, 1.0 / scale_y);
@@ -1614,8 +1619,7 @@ _install_font_matrix(cairo_matrix_t *matrix, FT_Face face)
 		     DOUBLE_TO_26_6(scale_x),
 		     DOUBLE_TO_26_6(scale_y),
 		     0, 0);
-
-    cairo_matrix_destroy (normalized);
+    cairo_matrix_destroy(normalized);
 }
 
 static int
@@ -1636,14 +1640,13 @@ CalculateStringWidths (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, uns
 	Font = (cairo_font_t *)gdiFont->cairofnt;
 	face = cairo_ft_font_face(Font);
 
-	matrix = cairo_matrix_create ();
+	matrix = cairo_matrix_create();
 	cairo_font_current_transform(Font, matrix);
 	cairo_matrix_scale(matrix, gdiFont->sizeInPixels, gdiFont->sizeInPixels);
 
 	ucs4 = g_utf8_to_ucs4 (utf8, (glong)-1, NULL, &NumOfGlyphs, NULL);
 
 	if ((NumOfGlyphs == 0) || (ucs4 == NULL)) {
-		cairo_matrix_destroy (matrix);
 		return 0;
 	}
 
@@ -1656,8 +1659,9 @@ CalculateStringWidths (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, uns
 		CurrentDetail++;
 	}
 
+	cairo_matrix_destroy(matrix);
+
 	free(ucs4);
-	cairo_matrix_destroy (matrix);
 
 	
 #ifdef DRAWSTRING_DEBUG
@@ -1738,15 +1742,12 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	/*
 	   Get font size information; how expensive is the cairo stuff here? 
 	*/
-	SavedMatrix = cairo_matrix_create ();
-	if (!SavedMatrix)
-		return OutOfMemory;
-
+	SavedMatrix = cairo_matrix_create();
 	cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);	/* Set our font; this will also be used for later drawing */
 	cairo_font_current_transform(font->cairofnt, SavedMatrix);	/* Save the matrix */
 	cairo_scale_font (graphics->ct, font->sizeInPixels);
 	cairo_current_font_extents (graphics->ct, &FontExtent);		/* Get the size we're looking for */
-/*	cairo_font_set_transform(font->cairofnt, &SavedMatrix);*/	/* Restore the matrix */
+/*	cairo_font_set_transform(font->cairofnt, SavedMatrix);*/	/* Restore the matrix */
 
 	if ((LineHeight=FontExtent.ascent)<1) {
 		LineHeight=1;
@@ -1843,6 +1844,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		if (format != fmt) {
 			GdipDeleteStringFormat(fmt);
 		}
+		cairo_matrix_destroy(SavedMatrix);
 		return 0;
 	}
 
@@ -1854,6 +1856,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		if (format!=fmt) {
 			GdipDeleteStringFormat (fmt);
 		}
+		cairo_matrix_destroy(SavedMatrix);
 		return OutOfMemory;
 	}
 
@@ -1870,6 +1873,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		if (format!=fmt) {
 			GdipDeleteStringFormat (fmt);
 		}
+		cairo_matrix_destroy(SavedMatrix);
 		return 0;
 	}
 	g_free (String);
@@ -2248,7 +2252,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 #ifdef COMMENTED_OUT
 		// Font already has been set at function entry
 		// cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);	// Set at function entry
-		// cairo_font_current_transform(font->cairofnt, &SavedMatrix);		// No need to save again, already saved at function entry
+		// cairo_font_current_transform(font->cairofnt, SavedMatrix);		// No need to save again, already saved at function entry
 		// cairo_scale_font (graphics->ct, font->sizeInPixels);
 #endif
 
@@ -2409,7 +2413,8 @@ Done:
 	/* Cleanup */
 	free (CleanString);
 	free (StringDetails);
-	cairo_matrix_destroy (SavedMatrix);
+
+	cairo_matrix_destroy(SavedMatrix);
 
 	if (format != fmt) {
 		GdipDeleteStringFormat (fmt);

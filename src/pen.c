@@ -138,7 +138,6 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	 * reset to its own state after stroking.
 	 */
 	product = cairo_matrix_create ();
-	g_return_val_if_fail (product != NULL, OutOfMemory);
 	cairo_matrix_multiply (product, pen->matrix, graphics->copy_of_ctm);
 	cairo_set_matrix (graphics->ct, product);
 	cairo_matrix_destroy (product);
@@ -285,7 +284,7 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 		clone_dash_array (compound_array, pen->compound_array, pen->compound_count);
 	}
 
-	if (GdipCloneMatrix (&pen->matrix, &matrix) != Ok) {
+        if (GdipCloneMatrix (pen->matrix, &matrix) != Ok) {
 		if (pen->dash_count > 0)
 			GdipFree (dashes);
 		if (pen->compound_count > 0)
@@ -305,8 +304,6 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 		return OutOfMemory;
 	}
 
-	cairo_matrix_copy (result->matrix, *matrix);
-
         result->color = pen->color;
 	result->brush = pen->brush;
         result->width = pen->width;
@@ -322,6 +319,7 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 	result->compound_count = pen->compound_count;
 	result->compound_array = compound_array;
 	result->unit = pen->unit;
+        result->matrix = matrix;
 	result->changed = pen->changed;
 
         *clonepen = result;
@@ -550,8 +548,8 @@ GdipSetPenTransform (GpPen *pen, GDIPCONST GpMatrix *matrix)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	cairo_matrix_copy (pen->matrix, *matrix);
-
+	pen->matrix = cairo_matrix_create();
+	cairo_matrix_copy(pen->matrix, matrix);
 	pen->changed = TRUE;
         return Ok;
 }
@@ -562,7 +560,7 @@ GdipGetPenTransform (GpPen *pen, GpMatrix *matrix)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	cairo_matrix_copy (*matrix, pen->matrix);
+	cairo_matrix_copy(matrix, pen->matrix);
         return Ok;
 }
 
@@ -589,7 +587,7 @@ GdipMultiplyPenTransform (GpPen *pen, GpMatrix *matrix, GpMatrixOrder order)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	status = GdipMultiplyMatrix (&pen->matrix, matrix, order);
+	status = GdipMultiplyMatrix (pen->matrix, matrix, order);
 
 	if (status == Ok)
 		pen->changed = TRUE;
@@ -603,7 +601,7 @@ GdipTranslatePenTransform (GpPen *pen, float dx, float dy, GpMatrixOrder order)
 	GpStatus status;
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-	status = GdipTranslateMatrix (&pen->matrix, dx, dy, order);
+	status = GdipTranslateMatrix (pen->matrix, dx, dy, order);
 
 	if (status == Ok)
 		pen->changed = TRUE;
@@ -617,7 +615,7 @@ GdipScalePenTransform (GpPen *pen, float sx, float sy, GpMatrixOrder order)
 	GpStatus status;
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-	status = GdipScaleMatrix (&pen->matrix, sx, sy, order);
+        status = GdipScaleMatrix (pen->matrix, sx, sy, order);
 
 	if (status == Ok)
 		pen->changed = TRUE;
@@ -631,7 +629,7 @@ GdipRotatePenTransform (GpPen *pen, float angle, GpMatrixOrder order)
 	GpStatus status;
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-	status = GdipRotateMatrix (&pen->matrix, angle, order);
+	status = GdipRotateMatrix (pen->matrix, angle, order);
 
 	if (status == Ok)
 		pen->changed = TRUE;

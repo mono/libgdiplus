@@ -19,7 +19,7 @@ typedef struct _Texture GpTexture;
 typedef struct _Texture {
 	GpBrush base;
 	GpImage *image;
-	GpMatrix matrix;
+	GpMatrix *matrix;
 	GpRect *rectangle;
 	GpWrapMode wrapMode;
 	cairo_pattern_t *pattern;
@@ -32,7 +32,7 @@ GpStatus GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y,
 GpStatus GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x, float y, float width, float height, GpTexture **texture);
 GpStatus GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x, int y, int width, int height, GpTexture **texture);
 GpStatus GdipGetTextureTransform (GpTexture *texture, GpMatrix *matrix);
-GpStatus GdipSetTextureTransform (GpTexture *texture, GpMatrix *matrix);
+GpStatus GdipSetTextureTransform (GpTexture *texture, GDIPCONST GpMatrix *matrix);
 GpStatus GdipResetTextureTransform (GpTexture *texture);
 GpStatus GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrder order);
 GpStatus GdipTranslateTextureTransform (GpTexture *texture, float dx, float dy, GpMatrixOrder order);
