@@ -522,13 +522,12 @@ GdipCreateFontFromHfont(void *hfont, GpFont **font, LOGFONTA *lf)
 
 	hdc=GetDC_pfn(NULL);
 	oldFont=SelectObject_pfn(hdc, hfont);
+	SetMapMode_pfn(hdc, 1);
 	if (GetTextMetrics_pfn(hdc, &tm)==0 || GetTextFace_pfn(hdc, sizeof(FaceName), FaceName)==0) {
 		return InvalidParameter;
 	}
 	SelectObject_pfn(hdc, oldFont);
 	ReleaseDC_pfn(NULL, hdc);
-
-/*	gdip_unitConversion (abs(tm.tmHeight), emSize, emSize, &result->sizeInPixels);*/
 
 	result = (GpFont *) GdipAlloc (sizeof (GpFont));
 

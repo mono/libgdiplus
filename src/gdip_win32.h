@@ -157,6 +157,7 @@ extern int (__stdcall *SetDIBits_pfn) (void *hdc, void *hbitmap, unsigned startS
 
 extern int (__stdcall *GetTextMetrics_pfn) (void *hdc, TEXTMETRICA *tm);
 extern int (__stdcall *GetTextFace_pfn) (void *hdc, int size, unsigned char *buffer);
+extern int (__stdcall *SetMapMode_pfn) (void *hdc, int fnMapMode);
 
 extern int (*X11DRV_ExtEscape_pfn)(void *physDev, int escape, int in_count, void *in_data, int out_count, void *out_data);
 

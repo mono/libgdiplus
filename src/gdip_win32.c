@@ -128,6 +128,11 @@ int __stdcall GetTextFace_gdip (void *hdc, int size, unsigned char *buffer)
 	return 0;
 }
 
+int __stdcall SetMapMode_gdip (void *hdc, int fnMapMode)
+{
+	return 0;
+}
+
 int X11DRV_ExtEscape_gdip (void *physDev, int escape, int in_count, void *in_data, int out_count, void *out_data)
 {
 	return 0;
@@ -166,6 +171,7 @@ int (__stdcall *GetDIBits_pfn) (void *hdc, void *hbitmap, unsigned startScan, un
 int (__stdcall *SetDIBits_pfn) (void *hdc, void *hbitmap, unsigned startScan, unsigned scanLines, void *bitmapBits, PBITMAPINFO pbmi, unsigned int colorUse);
 int (__stdcall *GetTextMetrics_pfn) (void *hdc, TEXTMETRICA *tm);
 int (__stdcall *GetTextFace_pfn) (void *hdc, int size, unsigned char *buffer);
+int (__stdcall *SetMapMode_pfn) (void *hdc, int fnMapMode);
 
 DC* (*DC_GetDCPtr_pfn) (int hdc);
 void (*GDI_ReleaseObj_pfn) (int hdc);
@@ -205,6 +211,7 @@ void initializeGdipWin32 (void)
 		GetDIBits_pfn = dlsym (gdi32Handle,"GetDIBits");
 		GetTextMetrics_pfn = dlsym (gdi32Handle,"GetTextMetricsA");
 		GetTextFace_pfn = dlsym (gdi32Handle,"GetTextFaceA");
+		SetMapMode_pfn = dlsym (gdi32Handle,"SetMapMode");
 		
 		GetDC_pfn = dlsym (user32Handle,"GetDC");
 		ReleaseDC_pfn = dlsym (user32Handle, "ReleaseDC");
@@ -227,6 +234,7 @@ void initializeGdipWin32 (void)
 	CHECK_FUNCTION (ReleaseDC);
 	CHECK_FUNCTION (GetTextMetrics);
 	CHECK_FUNCTION (GetTextFace);
+	CHECK_FUNCTION (SetMapMode);
 	
 	CHECK_FUNCTION (DC_GetDCPtr);
 	CHECK_FUNCTION (GDI_ReleaseObj);
@@ -251,7 +259,8 @@ CreateWineFont(FcChar8 *str, GpFontStyle style, float emSize, Unit unit)
 {
 	float	Height;
 
-	gdip_unitConversion(unit, UnitPoint, emSize, &Height);
+	gdip_unitConversion(unit, UnitPixel, emSize, &Height);
+/*printf("CreateWineFont(%s): Convering emSize %d to Height %d\n", str, (int)emSize, (int)Height);*/
 
 	Height=Height*-1;
 

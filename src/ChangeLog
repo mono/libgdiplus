@@ -1,3 +1,9 @@
+2004-05-05  Peter Bartok <pbartok@novell.com>
+   * gdip_win32.c: Added support for SetMapMode; fixed fontsize conversion
+     for Cairo->Wine fonts
+   * font.c: Added call to SetMapMode to have predictable units for font size
+   * gdip_win32.h: Added support for SetMapMode
+
 2004-05-04 Jordi Mas i Hernandez <jordi@ximian.com>
 	* bitmap.c: calculate strides as GDI+
 
