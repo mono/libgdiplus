@@ -178,8 +178,12 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
 
 	case 4:
 		for (i = 0; i < height; i++) {
-			memcpy (rawptr, row_pointers[i], stride);
-			rawptr += stride;
+			png_bytep rowp = row_pointers[i];
+			for (j = 0; j < width; j++) {
+				set_pixel_bgra (rawptr, 0, rowp[0], rowp[1], rowp[2], rowp[3]);
+				rowp += 4;
+				rawptr += 4;
+			}
 		}
 		break;
 
@@ -187,10 +191,9 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
 		for (i = 0; i < height; i++) {
 			png_bytep rowp = row_pointers[i];
 			for (j = 0; j < width; j++) {
-				*rawptr++ = *rowp++;
-				*rawptr++ = *rowp++;
-				*rawptr++ = *rowp++;
-				*rawptr++ = 255; /* a */
+				set_pixel_bgra (rawptr, 0, rowp[0], rowp[1], rowp[2], 0xff);
+				rowp += 3;
+				rawptr += 4;
 			}
 		}
 		break;
@@ -200,10 +203,8 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
 			png_bytep rowp = row_pointers[i];
 			for (j = 0; j < width; j++) {
 				png_byte pix = *rowp++;
-				*rawptr++ = pix;
-				*rawptr++ = pix;
-				*rawptr++ = pix;
-				*rawptr++ = 255;
+				set_pixel_bgra (rawptr, 0, pix, pix, pix, 0xff);
+				rawptr += 4;
 			}
 		}
 		break;

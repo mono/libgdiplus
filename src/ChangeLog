@@ -1,3 +1,10 @@
+2005-01-26  Geoff Norton  <gnorton@customerdna.com>
+	
+	* bmpcodec.c: Move set_pixel_bgra to gdip.h
+	* gdip.h: Add set_pixel_bgra
+	* pngcodec.c: Use set_pixel_bgra so that big endian machines can
+	load pngs and have them look right.
+
 2005-01-26  Peter Bartok  <pbartok@novell.com>
 
 	* bmpcodec.c: Since we 'upgrade' all bitmaps to 32bit, make sure we

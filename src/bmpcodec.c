@@ -140,21 +140,6 @@ gdip_load_bmp_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 }
 
 #define palette_lookup(x)	img->image.palette->Entries[(x)]
-#ifdef WORDS_BIGENDIAN
-#define set_pixel_bgra(pixel,index,b,g,r,a) do {\
-                pixel[index+0] = a; \
-                pixel[index+1] = r; \
-                pixel[index+2] = g; \
-                pixel[index+3] = b; \
-        } while (0);
-#else
-#define set_pixel_bgra(pixel,index,b,g,r,a) do {\
-                pixel[index+0] = b; \
-                pixel[index+1] = g; \
-                pixel[index+2] = r; \
-                pixel[index+3] = a; \
-        } while (0);
-#endif
 
 GpStatus 
 gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFile)
