@@ -1207,8 +1207,28 @@ gdip_prepareString(GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpStrin
         int chars = 0, len, i;
         bool format_char = FALSE;
 
-        string = src_str = (char*) g_utf16_to_utf8 ((const gunichar2 *) stringUnicode,
+	
+	if ((format->formatFlags && StringFormatFlagsDirectionRightToLeft) == StringFormatFlagsDirectionRightToLeft) {
+	
+		WCHAR *rtl, *pos_src, *pos_trg;
+	
+		rtl = pos_trg =  malloc (sizeof (WCHAR) * length);
+		pos_src = (WCHAR *) stringUnicode; pos_src += length-1;
+		
+		for (i = 0; i < length; i++, pos_src--, pos_trg++) 
+			*pos_trg = *pos_src;
+		
+		string = src_str = (char*) g_utf16_to_utf8 ((const gunichar2 *) rtl,
 					  (glong)length, NULL, NULL, NULL);
+					  
+					  
+		free (rtl);
+	}
+	else {
+	
+		string = src_str = (char*) g_utf16_to_utf8 ((const gunichar2 *) stringUnicode,
+					  (glong)length, NULL, NULL, NULL);
+	}
 
         len = (int) strlen (string); /* We want the num of non-coded utf-8 chars*/
         trg_str = *outstring = (char *) malloc (len+1);
@@ -1398,15 +1418,19 @@ GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int len
         int length;
         GpStringFormat *deffmt = NULL;
         GpStringFormat *format = (GpStringFormat *)fmt;
+	
+	if (len == 0) 
+		return Ok;
+		
+	if (!graphics || !font || !rc)
+		return InvalidParameter;
 
         if (!format) {
                 GdipStringFormatGetGenericDefault (&deffmt);
                 format = deffmt;
         }
 
-	if (!graphics || !font || !rc)
-		return InvalidParameter;
-
+	
         gdip_prepareString (stringUnicode, len, format, &string, &glyphs_details, &current_glyph_details);
 
 	/* Get widths */

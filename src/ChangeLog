@@ -1,4 +1,9 @@
 2004-05-03 Jordi Mas i Hernandez <jordi@ximian.com>
+	* bitmap.c: adds Format32bppRgb support for get/set pixel
+	* graphics.c: fixes bug 56798 (RTL support)
+
+
+2004-05-03 Jordi Mas i Hernandez <jordi@ximian.com>
 	* bitmap.c: fixes stride in GdipCloneBitmapAreaI, copy of different 
 	pixel formats, uninit data in Bitmap struct, etc.
 
