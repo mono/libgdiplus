@@ -127,7 +127,7 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	if (status != Ok)
 		return status;
 	
-	if (pen->width == 0) { /* we draw a pixel wide line if width is 0 */
+	if (pen->width <= 0) { /* we draw a pixel wide line if width is <=0 */
 	  double widthx = 1.0;
 	  double widthy = 1.0;
 	  cairo_inverse_transform_distance (graphics->ct, &widthx, &widthy);
