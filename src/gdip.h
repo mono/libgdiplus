@@ -190,6 +190,23 @@ typedef enum {
 } GpFillMode;
 
 typedef enum {
+        BrushTypeSolidColor = 0,     /* Solid Brush */
+        BrushTypeHatchFill = 1,      /* Hatch Brush */
+        BrushTypeTextureFill = 2,    /* Texture Brush */
+        BrushTypePathGradient = 3,   /* PathGradient Brush */
+        BrushTypeLinearGradient = 4  /* LinearGradient Brush */
+} GpBrushType, BrushType;
+
+typedef enum {
+	PenTypeSolidColor = BrushTypeSolidColor,
+	PenTypeHatchFill = BrushTypeHatchFill,
+	PenTypeTextureFill = BrushTypeTextureFill,
+	PenTypePathGradient = BrushTypePathGradient,
+	PenTypeLinearGradient = BrushTypeLinearGradient,
+	PenTypeUnknown = -1
+} GpPenType, PenType;
+
+typedef enum {
         DashStyleSolid = 0,      /* solid line */
         DashStyleDash = 1,       /* dashed line */
         DashStyleDot = 2,        /* dotted line */
@@ -814,6 +831,7 @@ GpStatus GdipSetPenWidth (GpPen *pen, float width);
 GpStatus GdipGetPenWidth (GpPen *pen, float *width);
 GpStatus GdipSetPenBrushFill (GpPen *pen, GpBrush *brush);
 GpStatus GdipGetPenBrushFill (GpPen *pen, GpBrush **brush);
+GpStatus GdipGetPenFillType (GpPen *pen, GpPenType *penType);
 GpStatus GdipSetPenColor (GpPen *pen, int color);
 GpStatus GdipGetPenColor (GpPen *pen, int *color);
 GpStatus GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle);

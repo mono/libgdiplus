@@ -20,6 +20,7 @@
  * 
  * Authors:
  *   Alexandre Pigolkine(pigolkine@gmx.de)
+ *   Ravindra (rkumar@novell.com)
  */
 
 #include "gdip.h"

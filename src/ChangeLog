@@ -1,3 +1,10 @@
+2004-05-13  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Added GpPenType enum and moved GpBrushType enum here
+	from brush.h. Added GdipGetPenFillType function declaration.
+	* brush.h: Moved GpBrushType enum to gdip.h.
+	* pen.c: Implemented GdipGetPenFillType function.
+
 2004-05-12  Peter Bartok  <pbartok@novell.com>
    * pngcodec: Since the code handles interlace just fine I removed the
      error condition for interlaced pictures; this fixes bug #55934

@@ -4,7 +4,7 @@
  * Author:
  *      Ravindra (rkumar@novell.com)
  *
- * Copyright (C) 2004 Novell, Inc.
+ * Copyright (C) 2004 Novell, Inc. http://www.novell.com
  */
 
 #ifndef _HATCHBRUSH_H

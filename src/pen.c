@@ -332,6 +332,20 @@ GdipGetPenBrushFill (GpPen *pen, GpBrush **brush)
 }
 
 GpStatus
+GdipGetPenFillType (GpPen *pen, GpPenType *type)
+{
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (type != NULL, InvalidParameter);
+
+	if (pen->brush != NULL)
+	  return GdipGetBrushType (pen->brush, (GpBrushType *) type); 
+
+	*type = PenTypeSolidColor;
+
+	return Ok;
+}
+
+GpStatus
 GdipSetPenColor (GpPen *pen, int argb)
 {
 	g_return_val_if_fail (pen != NULL, InvalidParameter);

@@ -4,23 +4,13 @@
  * Authors:
  *      Ravindra (rkumar@novell.com)
  *
- * Copyright (C) Novell, Inc. 2004.
+ * Copyright (C) Novell, Inc. 2004. http://www.novell.com
  */
 
 #ifndef _BRUSH_H
 #define _BRUSH_H
 
 #include "gdip.h"
-
-/* Enums */
-
-typedef enum {
-        BrushTypeSolidColor = 0,     /* Solid Brush */
-        BrushTypeHatchFill = 1,      /* Hatch Brush */
-        BrushTypeTextureFill = 2,    /* Texture Brush */
-        BrushTypePathGradient = 3,   /* PathGradient Brush */
-        BrushTypeLinearGradient = 4  /* LinearGradient Brush */
-} GpBrushType, BrushType;
 
 /* Structures */
 

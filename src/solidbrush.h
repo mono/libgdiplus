@@ -4,7 +4,7 @@
  * Authors:
  *      Ravindra (rkumar@novell.com)
  *
- * Copyright (C) Novell, Inc. 2004.
+ * Copyright (C) Novell, Inc. 2004. http://www.novell.com
  */
 
 #ifndef _SOLIDBRUSH_H

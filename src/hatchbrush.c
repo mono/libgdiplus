@@ -1,7 +1,7 @@
 /*
  * hatchbrush.c
  * 
- * Copyright (C) 2004 Novell, Inc.
+ * Copyright (C) 2004 Novell, Inc. http://www.novell.com
  * 
  * Authors:
  *   Ravindra (rkumar@novell.com)
