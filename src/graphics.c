@@ -309,14 +309,14 @@ GdipCreateFromHWND (void *hwnd, GpGraphics **graphics)
 GpStatus
 GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 {
-    g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-    *graphics = gdip_graphics_new();
-    cairo_set_target_drawable ((*graphics)->ct, dpy, d);
+	*graphics = gdip_graphics_new();
+	cairo_set_target_drawable ((*graphics)->ct, dpy, d);
 
-    (*graphics)->type = gtX11Drawable;
+	(*graphics)->type = gtX11Drawable;
 
-    return Ok;
+	return Ok;
 }
 
 GpStatus 
@@ -412,7 +412,7 @@ GdipResetWorldTransform (GpGraphics *graphics)
 {
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-	cairo_identity_matrix (graphics->ct);
+	cairo_matrix_set_identity (graphics->copy_of_ctm);
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
@@ -822,6 +822,10 @@ GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
+	/* We don't do anything, if sweep angle is zero. */
+	if (sweepAngle == 0)
+		return Ok;
+
         cairo_save (graphics->ct);
 
         gdip_pen_setup (graphics, pen);
@@ -848,6 +852,10 @@ GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
+	/* We don't do anything, if sweep angle is zero. */
+	if (sweepAngle == 0)
+		return Ok;
+
         cairo_save (graphics->ct);
 
         gdip_brush_setup (graphics, brush);
@@ -861,13 +869,11 @@ GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width,
         return gdip_get_status (cairo_status (graphics->ct));
 }
 
-
 GpStatus
 GdipFillPieI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, float startAngle, float sweepAngle)
 {
         return GdipFillPie (graphics, brush, x, y, width, height, startAngle, sweepAngle);
 }
-
 
 GpStatus
 GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)

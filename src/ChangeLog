@@ -1,3 +1,12 @@
+2004-05-31  Ravindra  <rkumar@novell.com>
+
+	* graphics.c: Fixed GdipResetWorldTransform, GdipDrawPie and
+	GdipFillPie. ResetWorldTransform should set the copy_of_ctm
+	as well as the graphics->ct matrix to identity.
+	Draw/FillPie functions do not do anything, if sweep angle is
+	zero deg. This is done to fix the crash that we face when we
+	draw/fill pie with zero deg sweep angle. And, some formatting.
+
 2004-05-28  Duncan Mak  <duncan@ximian.com>
 
 	* graphics.c (GdipResetWorldTransform): Remember to synchronize
