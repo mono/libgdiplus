@@ -117,4 +117,6 @@ GpStatus GdipRemoveProperyItem (GpImage *image, PROPID propID);
 GpStatus GdipSetProperyItem (GpImage *image, GDIPCONST PropertyItem *item);
 
 ImageFormat get_image_format (FILE *file);
+int gdip_getpixel_formatsize(PixelFormat pixfmt);
+
 #endif /* _GDIPIMAGE_H */

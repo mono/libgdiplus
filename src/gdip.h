@@ -402,7 +402,7 @@ typedef struct {
 	int 		width;
 	float 		horizontalResolution;
 	ColorPalette 	*palette;
-	int	 	pixFormat;	
+	int	 	pixFormat;
 	PropertyItem 	*propItems;
 	float 		verticalResolution;
 } GpImage;
@@ -504,6 +504,12 @@ extern Display *GDIP_display;
 
 void initializeGdipWin32 (void);
 
+/* Image
+
+   See file gdipImage.h
+*/
+
+
 /* Bitmap */
 GpStatus GdipCreateBitmapFromScan0 (int width, int height, int strideIn, int format, void *scan0, GpBitmap **bitmap);
 GpStatus GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBitmap **bitmap);
@@ -511,6 +517,7 @@ GpStatus GdipBitmapLockBits (GpBitmap *bmp, Rect *rc, int flags, int format, Gdi
 GpStatus GdipBitmapUnlockBits (GpBitmap *bmp, GdipBitmapData *bmpData);
 GpStatus GdipBitmapSetPixel ( GpBitmap *bmp, int x, int y, ARGB color);
 GpStatus GdipBitmapGetPixel ( GpBitmap *bmp, int x, int y, ARGB *color);
+
 
 /* Graphics */
 GpStatus GdipCreateFromHDC (int hDC, GpGraphics **graphics);

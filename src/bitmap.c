@@ -41,7 +41,7 @@ gdip_bitmap_init (GpBitmap *bitmap)
 	bitmap->data.Width = 0;
 	bitmap->data.Height = 0;
 	bitmap->data.Stride = 0;
-	bitmap->data.PixelFormat = 0;
+	bitmap->data.PixelFormat = Format32bppArgb;
 	bitmap->data.Scan0 = 0;
 	bitmap->data.Reserved = 0;
 	
@@ -73,7 +73,7 @@ void
 gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 {
 	int  bitmapLen = bitmap->data.Stride * bitmap->data.Height;
-	memset (bmi, 0, 40);
+	memset (bmi, 0, sizeof (BITMAPINFOHEADER));
 	bmi->biSize = sizeof (BITMAPINFOHEADER);
 	bmi->biWidth = bitmap->data.Width;
 	bmi->biHeight = -bitmap->data.Height;
@@ -196,13 +196,15 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
         }
 	result = gdip_bitmap_new ();
 	result->cairo_format = cairo_format;
-	result->data.Width = width;
-	result->data.Height = height;
-	result->data.Stride = stride;
-	result->data.PixelFormat = format;
+	result->data.Width = result->image.width = width;
+	result->data.Height = result->image.height = height;
+	result->data.PixelFormat = result->image.pixFormat = format;
 	result->data.Scan0 = scan0;
-	if (own_scan0) result->data.Reserved |= GBD_OWN_SCAN0;
-		
+        result->data.Stride = stride;
+
+	if (own_scan0)
+                result->data.Reserved |= GBD_OWN_SCAN0;
+
 	*bitmap = result;
 
 	return Ok;
@@ -228,13 +230,13 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	bmpSize = stride * height;
 	result = gdip_bitmap_new ();
 	result->cairo_format = cairo_format;
-	result->data.Width = width;
-	result->data.Height = height;
+        result->data.Width = result->image.width = width;
+	result->data.Height = result->image.height = height;
+	result->data.PixelFormat = result->image.pixFormat = Format32bppArgb;
 	result->data.Stride = stride;
-	result->data.PixelFormat = Format32bppArgb;
 	result->data.Scan0 = GdipAlloc (bmpSize);
-printf("WARNING: %s(%d) initializing bitmap to 0xff in GdipCreateBitmapFromGraphics (for SWF)\n", __FILE__, __LINE__);
-memset(result->data.Scan0, 0xff, bmpSize);
+        printf("WARNING: %s(%d) initializing bitmap to 0xff in GdipCreateBitmapFromGraphics (for SWF)\n", __FILE__, __LINE__);
+        memset(result->data.Scan0, 0xff, bmpSize);
 	result->data.Reserved |= GBD_OWN_SCAN0;
 	*bitmap = result;
 	return Ok;
@@ -251,10 +253,10 @@ GdipCloneBitmapAreaI (int x, int y, int width, int height, int format, GpBitmap 
 	 */ 
 	result = gdip_bitmap_new ();
 	result->cairo_format = original->cairo_format;
-	result->data.Width = original->data.Width;
-	result->data.Height = original->data.Height;
+	result->data.Width = result->image.width = original->data.Width;
+	result->data.Height = result->image.height = original->data.Height;
 	result->data.Stride = original->data.Stride;
-	result->data.PixelFormat = original->data.PixelFormat;
+	result->data.PixelFormat = result->image.pixFormat = original->data.PixelFormat;
 	result->data.Scan0 = GdipAlloc (bmpSize);
 	memmove (result->data.Scan0, original->data.Scan0, bmpSize);
 	result->data.Reserved |= GBD_OWN_SCAN0;
@@ -342,23 +344,6 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *rc, int flags, int format, GdipBitma
 	}
 
 	return Ok;
-}
-
-GpStatus 
-____BitmapLockBits (GpBitmap *bitmap, Rect *rc, int flags, int format, int *width, int *height, int *stride, int *fptr, int *res, int *scan0)
-{
-	GdipBitmapData d;
-	int s;
-	
-	s = GdipBitmapLockBits (bitmap, rc, flags, format, &d);
-	*width = d.Width;
-	*height = d.Height;
-	*stride = d.Stride;
-	*fptr = d.PixelFormat;
-	*res = d.Reserved;
-	*scan0 = (int)d.Scan0;
-
-	return s;
 }
 
 GpStatus 

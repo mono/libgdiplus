@@ -1,3 +1,7 @@
+2004-03-30 Jordi Mas i Hernandez <jordi@ximian.com>
+	* image.c - GdipGetImageBounds and fixesf
+        * bitmap.c - keep the witdh, height and pixel format in sync with the image struct
+
 2004-03-30  Sanjay Gupta <gsanjay@novell.com>
 	*pngcodec.c Added crc check
 	*pngcodec.h Added crc check

@@ -29,7 +29,7 @@
 #include <math.h>
 
 void 
-gdip_image_init (GpImage *image)
+gdip_image_init(GpImage *image)
 {
 	image->type = imageUndefined;
 	image->surface = 0;
@@ -39,10 +39,10 @@ gdip_image_init (GpImage *image)
 	image->width = 0;
 	image->horizontalResolution = gdip_get_display_dpi();
 	image->palette = 0;
-	image->pixFormat = Format32bppArgb;	
+	image->pixFormat = Format32bppArgb;
 	image->propItems = 0;
 	image->verticalResolution = gdip_get_display_dpi();
-}
+} 
 
 void *
 gdip_image_create_Win32_HDC (GpImage *image)
@@ -61,6 +61,7 @@ gdip_image_create_Win32_HDC (GpImage *image)
 	}
 	return result;
 }
+
 
 void 
 gdip_image_destroy_Win32_HDC (GpImage *image, void *hdc)
@@ -81,14 +82,6 @@ gdip_image_destroy_Win32_HDC (GpImage *image, void *hdc)
 	}
 }
 
-GpImage *
-gdip_image_new ()
-{
-	GpImage *result = (GpImage *) GdipAlloc (sizeof(GpImage));
-	gdip_image_init (result);
-	return result;
-}
-
 GpStatus 
 GdipDisposeImage (GpImage *image)
 {
@@ -100,7 +93,7 @@ GdipDisposeImage (GpImage *image)
 		gdip_bitmap_dispose ((GpBitmap *) image);
 		break;
 	case imageMetafile:
-		break;
+  break;
 	case imageUndefined:
 		break;
 	default:
@@ -249,7 +242,8 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	return Ok;
 }
 
-GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params)
+GpStatus
+GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params)
 {
 	FILE *fp = 0;
 	GpStatus status = 0;
@@ -258,7 +252,6 @@ GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST C
 	if (!image || !file || !encoderCLSID || !params)
 		return InvalidParameter;
    
-
 	file_name = (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, NULL);
 	if ((fp = fopen(file_name, "wb")) == NULL)
 	        return GenericError;
@@ -271,7 +264,16 @@ GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST C
 GpStatus 
 GdipGetImageBounds (GpImage *image, GpRectF *rect, GpUnit *unit)
 {
-	return NotImplemented;
+	if (!image || !rect || !unit)           
+		return InvalidParameter;
+
+        rect->X = 0;
+        rect->Y = 0;
+        rect->Height = image->height;
+        rect->Width = image->width;
+        *unit = UnitPixel;
+
+        return Ok;
 }
 
 GpStatus 
@@ -279,9 +281,17 @@ GdipGetImageDimension (GpImage *image, float *width, float *height)
 {
 	if (!image || !width || !height)
 		return InvalidParameter;
-
-	*width = image->width;
-	*height = image->height;
+        switch (image->type){
+	case imageBitmap:
+		gdip_bitmap_dispose ((GpBitmap *) image);
+		break;
+	case imageMetafile:
+  break;
+	case imageUndefined:
+		break;
+	default:
+		break;
+	}
 	return Ok;
 }
 
@@ -301,7 +311,7 @@ GdipGetImageWidth (GpImage *image, UINT *width)
 	if (!image || !width)
 		return InvalidParameter;
 
-	*width = image->width;
+ *width = image->width;
 	return Ok;
 }
 
@@ -312,7 +322,7 @@ GdipGetImageHeight (GpImage *image, UINT *height)
 		return InvalidParameter;
 
 	*height = image->height;
-	return Ok;
+ return Ok;
 }
 
 GpStatus 
@@ -352,7 +362,7 @@ GdipGetImagePixelFormat (GpImage *image, PixelFormat *format)
 {
 	if (!image || !format)
 		return InvalidParameter;
-	
+
 	*format = image->pixFormat;
 	return Ok;
 }
@@ -483,4 +493,49 @@ get_image_format (FILE *file)
 		}
 	}							
 } 
+
+
+int
+gdip_getpixel_formatsize(PixelFormat pixfmt)
+{
+        int result = 0;
+                                           
+        switch (pixfmt) {
+        case Format16bppArgb1555:
+        case Format16bppGrayScale:
+        case Format16bppRgb555:
+        case Format16bppRgb565:
+                result = 16;
+                break;
+        case Format1bppIndexed:
+                result = 1;
+                break;
+        case Format24bppRgb:
+                result = 24;
+                break;
+        case Format32bppArgb:
+        case Format32bppPArgb:
+        case Format32bppRgb:
+                result = 32;
+                break;
+        case Format48bppRgb:
+                result = 48;
+                break;
+        case Format4bppIndexed:
+                result = 4;
+                break;
+        case Format64bppArgb:
+        case Format64bppPArgb:
+                result = 64;
+                break;
+        case Format8bppIndexed:
+                result = 8;
+                break;
+        default:
+                break;
+        }
+
+        return result;
+}
+
 

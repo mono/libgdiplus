@@ -18,10 +18,6 @@
  * 
  * Author:
  *          Jordi Mas i Hernandez <jordi@ximian.com>, 2004
- *
- * TODO:
- *          - Cairo internal structs?
- *          - Use oriented C as suggested by Peter and Miguel
  */
 
 #include "gdip.h"
