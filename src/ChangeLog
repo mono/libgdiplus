@@ -1,3 +1,10 @@
+2004-05-27  Duncan Mak  <duncan@ximian.com>
+
+	* matrix.c (set_translate, set_scale, set_rotate, set_shear):
+	Removed, we are not allocating a new GpMatrix * anymore.
+	(TranslateMatrix, ScaleMatrix, RotateMatrix, ShearMatrix): All the
+	functionality of set_foo has been moved back into here.
+
 2004-05-27  Miguel de Icaza  <miguel@ximian.com>
 
 	* pen.c (gdip_pen_setup): Fix indentation, and do not set the pen

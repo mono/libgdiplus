@@ -166,38 +166,22 @@ GdipMultiplyMatrix (GpMatrix *matrix, GpMatrix *matrix2, GpMatrixOrder order)
         return gdip_get_status (status);
 }
 
-static GpMatrix *
-set_translate (float offsetX, float offsetY)
-{
-        GpMatrix *matrix = cairo_matrix_create ();
-        cairo_matrix_set_affine (matrix, 1, 0, 0, 1, offsetX, offsetY);
-        return matrix;
-}
-
 GpStatus
 GdipTranslateMatrix (GpMatrix *matrix, float offsetX, float offsetY, GpMatrixOrder order)
 {
-        GpMatrix *tmp = set_translate (offsetX, offsetY);
-        GpStatus s = GdipMultiplyMatrix (matrix, tmp, order);
-        GdipDeleteMatrix (tmp);
+        GpMatrix tmp;
+        cairo_matrix_set_affine (&tmp, 1, 0, 0, 1, offsetX, offsetY);
+        GpStatus s = GdipMultiplyMatrix (matrix, &tmp, order);
 
         return s;
-}
-
-static GpMatrix *
-set_scale (float scaleX, float scaleY)
-{
-        GpMatrix *matrix = cairo_matrix_create ();
-        cairo_matrix_set_affine (matrix, scaleX, 0, 0, scaleY, 0, 0);
-        return matrix;
 }
 
 GpStatus
 GdipScaleMatrix (GpMatrix *matrix, float scaleX, float scaleY, GpMatrixOrder order)
 {
-        GpMatrix *tmp = set_scale (scaleX, scaleY);
-        GpStatus s = GdipMultiplyMatrix (matrix, tmp, order);
-        GdipDeleteMatrix (tmp);
+        GpMatrix tmp;
+        cairo_matrix_set_affine (&tmp, scaleX, 0, 0, scaleY, 0, 0);
+        GpStatus s = GdipMultiplyMatrix (matrix, &tmp, order);        
 
         return s;
 }
@@ -213,20 +197,12 @@ GdipRotateMatrix (GpMatrix *matrix, float angle, GpMatrixOrder order)
         return s;
 }
 
-static GpMatrix *
-set_shear (float shearX, float shearY)
-{
-        GpMatrix *matrix = cairo_matrix_create ();
-        cairo_matrix_set_affine (matrix, 1, shearX, shearY, 1, 0, 0);
-        return matrix;
-}
-
 GpStatus
 GdipShearMatrix (GpMatrix *matrix, float shearX, float shearY, GpMatrixOrder order)
 {
-        GpMatrix *tmp = set_shear (shearX, shearY);
-        GpStatus s = GdipMultiplyMatrix (matrix, tmp, order);
-        GdipDeleteMatrix (tmp);
+        GpMatrix tmp;
+        cairo_matrix_set_affine (&tmp, 1, shearX, shearY, 1, 0, 0);
+        GpStatus s = GdipMultiplyMatrix (matrix, &tmp, order);
 
         return s;
 }
