@@ -215,10 +215,11 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	/*
 	 * FIXME: should get the stride based on the format of the graphics object.
 	 */
-	while (stride % 4)
+	stride *= 4;
+
+	while (stride % sizeof(pixman_bits_t))
 		stride++;
 	
-	stride *= 4;
 	bmpSize = stride * height;
 	result = gdip_bitmap_new ();
 	result->data.Width = result->image.width = width;

@@ -170,6 +170,10 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
 
         stride = width * 4;
 
+        while (stride % sizeof(pixman_bits_t))
+                stride++;
+
+
         row_pointers = png_get_rows (png_ptr, info_ptr);
         rawdata = GdipAlloc (stride * height);
         rawptr = rawdata;
