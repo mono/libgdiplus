@@ -1,6 +1,9 @@
 2004-03-18  Miguel de Icaza  <miguel@ximian.com>
 
-	* graphics.c (GdipFillPath): Implement this routine.  Factor code
+	* graphics.c (GdipDrawString): Fixed what looked like a typo X and
+	Y.  
+
+	(GdipFillPath): Implement this routine.  Factor code
 	into gdip_plot_path.
 
 	Stub out a few more routines to avoid crashes when running.

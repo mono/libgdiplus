@@ -1260,8 +1260,8 @@ GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode,
 
                 GpLinePointF point;
 
-                point.X = rc->Y;
-                point.Y = rc->X;
+                point.X = rc->X;
+                point.Y = rc->Y;
                 point.width = rc->Width;
                 
 		cairo_scale_font (graphics->ct, font->sizeInPixels);
