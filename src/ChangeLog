@@ -1,5 +1,11 @@
 2005-03-18  Peter Bartok  <pbartok@novell.com>
 
+	* graphics.c: Instead of throwing NotImpl exception, we display a 
+	  message that the function isn't implemented yet on the TransformPoints
+	  functions
+
+2005-03-18  Peter Bartok  <pbartok@novell.com>
+
 	* imageattributes.c: Instead of throwing NotImpl exception, we display a 
 	  message that the function isn't implemented yet on the SetColorMatrix 
 	  function

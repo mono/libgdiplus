@@ -3666,12 +3666,23 @@ GdipGetPageUnit (GpGraphics *graphics, GpUnit *unit)
 GpStatus
 GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPointF *points, int count)
 {
-		
-	return NotImplemented;
+        static int      called = 0;
+
+        if (!called) {
+                printf("NOT IMPLEMENTED YET:GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPointF *points, int count)\n");
+        }
+        //return NotImplemented;
+        return Ok;
 }
 
 GpStatus
 GdipTransformPointsI (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPoint *points, int count)
 {
-	return NotImplemented;
+        static int      called = 0;
+
+        if (!called) {
+                printf("NOT IMPLEMENTED YET:GdipTransformPointsI (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPoint *points, int count)\n");
+        }
+        //return NotImplemented;
+        return Ok;
 }
