@@ -197,38 +197,23 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
 GpStatus
 GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float width, float height)
 {
-	cairo_pattern_t * pat;
-
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (image != NULL, InvalidParameter);
 	g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
 	
-	pat = cairo_current_pattern (graphics->ct);
-	cairo_pattern_reference (pat);
-
-	/* Always to re-attach the image */	
-	if (image->surface)  {
-		cairo_surface_destroy (image->surface);
-		image->surface = NULL;
-	}
-
-	/* Create a surface for this bitmap if one doesn't exist */    
+	/* Create a surface for this bitmap if one doesn't exist */    	
 	gdip_bitmap_ensure_surface ((GpBitmap*) image);
 	cairo_surface_set_filter (((GpBitmap*) image)->image.surface, gdip_get_cairo_filter (graphics->interpolation));
 
-	gdip_cairo_set_surface_pattern (graphics->ct, image->surface);
 	cairo_translate (graphics->ct, x, y);
-	cairo_rectangle (graphics->ct, 0, 0, width, height);
-	
+
 	if (width != image->width || height != image->height) {
 		cairo_scale (graphics->ct,
 				(double) width / image->width,
 				(double) height / image->height);
-		cairo_fill (graphics->ct);
-	} else 
-		cairo_fill (graphics->ct);
-
-	cairo_set_pattern (graphics->ct, pat);	
+	}
+	
+	cairo_show_surface (graphics->ct, image->surface, image->width, image->height);
 	cairo_default_matrix (graphics->ct);
 
 	return Ok;
@@ -251,7 +236,7 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	height = dstPoints[2].Y - dstPoints[2].Y;
 	
 	return GdipDrawImageRect (graphics, image, x, y, width, height);
-	}
+}
 
 GpStatus
 GdipDrawImagePointsI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *dstPoints, int count)
@@ -305,7 +290,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (image != NULL, InvalidParameter);
 	g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
-    
+
 	if (srcUnit != UnitPixel && srcUnit != UnitWorld) {
 		gdip_unitConversion(srcUnit, UnitPixel, dstx, &dstx);
 		gdip_unitConversion(srcUnit, UnitPixel, dsty, &dsty);
@@ -326,8 +311,8 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	if (allocated) 				
 		bitmap->data.Scan0 = dest;
 	
-	/* Always to re-attach the image */	
-	if (bitmap->image.surface)  {
+	/* Re-attach the image if the image has attribues */
+	if ((bitmap->image.surface && imageAttributes != NULL) || bitmap->image.surface == NULL)  {
 		cairo_surface_destroy (bitmap->image.surface);
 		bitmap->image.surface = NULL;
 	}
@@ -435,6 +420,12 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		
 		/* unref */
 		cairo_matrix_destroy (mat);
+	}
+
+	/* The default surface is no longer valid*/
+	if (bitmap->image.surface && imageAttributes != NULL)  {
+		cairo_surface_destroy (bitmap->image.surface);
+		bitmap->image.surface = NULL;
 	}
 	
 	if (allocated) {

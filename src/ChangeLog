@@ -1,7 +1,10 @@
 2004-10-19  Jordi Mas <jordi@ximian.com>
 
-	* imageattributes.c: fixes alpha color setting
+	* image.c: Speeds up GdipDrawImageRect arround 10%
 
+2004-10-19  Jordi Mas <jordi@ximian.com>
+
+	* imageattributes.c: fixes alpha color setting
 
 2004-10-19  Ravindra <rkumar@novell.com>
 
