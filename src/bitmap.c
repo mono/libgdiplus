@@ -190,26 +190,38 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 	GpBitmap *result = 0;
 	int cairo_format = 0;
         bool own_scan0 = FALSE;
-
-	if (stride == 0)
-		return InvalidParameter;
+		
+	/* 	When you select CAIRO_FORMAT_RGB24 pixel formats it really uses four bytes
+	 	(RGB32). Then Scan0 is not in the format that you will expect. For now, let's use
+		32bpp in this case 	 */
+				
+	if (format == Format24bppRgb) 
+		format = Format32bppArgb;
 				
 	switch (format) {
-		case Format24bppRgb:
-			cairo_format = CAIRO_FORMAT_RGB24;	
-			break;
-		case Format32bppArgb:
-			cairo_format = CAIRO_FORMAT_ARGB32;
-			break;
+	case Format24bppRgb:
+		cairo_format = CAIRO_FORMAT_RGB24;	
+		break;
+	case Format32bppArgb:
+	case Format32bppRgb:
+		cairo_format = CAIRO_FORMAT_ARGB32;
+		break;
         case Format8bppIndexed:
         	cairo_format = CAIRO_FORMAT_A8;        
-			break;
+		break;
         case Format1bppIndexed:
         	cairo_format = CAIRO_FORMAT_A1;
-			break;
-		default:
-			*bitmap = 0;
-			return NotImplemented;
+		break;
+	default:
+		*bitmap = 0;
+		return NotImplemented;
+	}
+	
+	if (stride == 0) {
+		int bpp  = gdip_get_pixel_format_components (format);
+		bpp = bpp * gdip_get_pixel_format_depth (format);
+		stride = (bpp * width) / 8;
+		stride = (stride + 3) & ~3;		
 	}
 
 	if (scan0 == NULL) {
