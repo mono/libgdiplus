@@ -241,6 +241,15 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 	if (own_scan0)
 		result->data.Reserved |= GBD_OWN_SCAN0;
 
+	/* Initialize the image frames */
+	if (result->image.frameDimensionCount == 0) {
+		result->image.frameDimensionCount = 1;
+			result->image.frameDimensionList = (FrameInfo *) GdipAlloc (sizeof (FrameInfo));
+			result->image.frameDimensionList[0].count = 1; /*multiple frames are already taken care of in respectic codecs*/
+			memcpy (&(result->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
+			result->image.frameDimensionList[0].frames = &(((GpBitmap *) result)->data);
+		}
+
 	*bitmap = result;
 
 	return Ok;
