@@ -775,9 +775,9 @@ GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen,
 }
 
 GpStatus
-GdipDrawClosedCurveI ()
+GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 {
-	printf ("GdipDrawClosedCurveI not implemented\n");
+	printf ("DrawClosedCurveI not implemented\n");
 	return Ok;
 }
 
