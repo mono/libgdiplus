@@ -1,3 +1,12 @@
+2004-06-15  Sanjay Gupta <gsanjay@novell.com>
+
+	* gdip.h: Added function typedefs, (*CloseDelegate), (*SizeDelegate).
+	* gdipImage.h: Modifed function signature 
+	GdipLoafImageFromDelegate_linux().
+	* image.c : Modified call to load tiff image from stream delgate.
+	* tiffcodec.c, tiffcodec.h : Modified API signature for loading tiff
+	images from stream.	
+
 2004-06-14  Peter Bartok <pbartok@novell.com>
 	* general.c: Fixed internal cairo function name to be gdi
 	specific.

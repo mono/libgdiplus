@@ -111,7 +111,10 @@ GpStatus GdipSetProperyItem (GpImage *image, GDIPCONST PropertyItem *item);
 GpStatus GdipCloneImage(GpImage *image, GpImage **cloneImage);
 
 GpStatus GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
-                                          SeekDelegate seekFunc,
+                                          PutBytesDelegate putBytesFunc,
+					  SeekDelegate seekFunc,
+					  CloseDelegate closeFunc,
+					  SizeDelegate sizeFunc,
                                           GpImage **image);
 GpStatus GdipSaveImageToDelegate_linux (GpImage *image,
                                         PutBytesDelegate putBytesFunc,

@@ -228,7 +228,10 @@ gdip_save_tiff_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParamet
 
 GpStatus
 gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
+                                           PutBytesDelegate putBytesFunc,
                                            SeekDelegate seekFunc,
+					   CloseDelegate closeFunc,
+					   SizeDelegate sizeFunc,
                                            GpImage **image)
 {
 	*image = NULL;
@@ -262,7 +265,10 @@ gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
 
 GpStatus
 gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
+                                           PutBytesDelegate putBytesFunc,
                                            SeekDelegate seekFunc,
+					   CloseDelegate closeFunc,
+					   SizeDelegate sizeFunc,
                                            GpImage **image)
 {
 	*image = NULL;

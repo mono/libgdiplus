@@ -1210,7 +1210,10 @@ gdip_get_pixel_format_components(PixelFormat pixfmt)
 
 GpStatus
 GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
+				 PutBytesDelegate putBytesFunc,
                                  SeekDelegate seekFunc,
+				 CloseDelegate closeFunc,
+				 SizeDelegate sizeFunc,
                                  GpImage **image)
 {
 	GpImage *result = 0;
@@ -1240,7 +1243,8 @@ GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
 				result->format = BMP;
 			break;
 		case TIF:
-			status = gdip_load_tiff_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
+			status = gdip_load_tiff_image_from_stream_delegate (getBytesFunc, putBytesFunc,
+								seekFunc, closeFunc, sizeFunc, &result);
 			if (result != NULL)
 				result->format = TIF;
 			break;

@@ -74,6 +74,7 @@ struct cairo_matrix {
 struct cairo_font {
     int refcount;
     cairo_matrix_t matrix;
+    //void *glyph_cache;
     const struct cairo_font_backend *backend;
 };
 
@@ -1192,6 +1193,8 @@ const EncoderParameter *gdip_find_encoder_parameter (GDIPCONST EncoderParameters
 typedef int (*GetBytesDelegate) (unsigned char *, int, BOOL);
 typedef int (*SeekDelegate) (int, int);
 typedef int (*PutBytesDelegate) (unsigned char *, int);
+typedef void (*CloseDelegate) ();
+typedef long (*SizeDelegate) ();
 
 /* CLSIDs/GUIDs */
 extern GUID gdip_bmp_image_format_guid;
