@@ -93,8 +93,14 @@ gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
                                                                          img->image.width,
                                                                          img->image.height,
                                                                          img->data.Stride);
-                    img->image.horizontalResolution = gdip_get_display_dpi ();
-                    img->image.verticalResolution = gdip_get_display_dpi ();
+                    img->image.horizontalResolution = 0;
+                    img->image.verticalResolution = 0;
+
+                    img->image.imageFlags =
+                        ImageFlagsReadOnly |
+                        ImageFlagsHasRealPixelSize |
+                        ImageFlagsColorSpaceRGB;
+
                     img->image.propItems = NULL;
                     img->image.palette = NULL;
                 }

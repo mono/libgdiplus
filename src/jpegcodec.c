@@ -29,13 +29,23 @@
 
 #define JPEG_READ_BUFFER_SIZE	65536
 
-struct gdip_jpeg_source_mgr {
+struct gdip_stdio_jpeg_source_mgr {
     struct jpeg_source_mgr parent;
 
     FILE *infp;
     JOCTET *buf;
 };
-typedef struct gdip_jpeg_source_mgr *gdip_jpeg_source_mgr_ptr;
+typedef struct gdip_stdio_jpeg_source_mgr *gdip_stdio_jpeg_source_mgr_ptr;
+
+struct gdip_stream_jpeg_source_mgr {
+    struct jpeg_source_mgr parent;
+    GetBytesDelegate getBytesFunc;
+    SeekDelegate seekFunc;
+    PutBytesDelegate putBytesFunc;
+
+    JOCTET *buf;
+};
+typedef struct gdip_stream_jpeg_source_mgr *gdip_stream_jpeg_source_mgr_ptr;
 
 struct gdip_jpeg_error_mgr {
     struct jpeg_error_mgr parent;
@@ -72,7 +82,7 @@ _gdip_jpeg_output_message (j_common_ptr cinfo)
 }
 
 static void
-_gdip_source_stdio_init (j_decompress_ptr cinfo)
+_gdip_source_dummy_init (j_decompress_ptr cinfo)
 {
     /* nothing */
 }
@@ -80,7 +90,7 @@ _gdip_source_stdio_init (j_decompress_ptr cinfo)
 static bool
 _gdip_source_stdio_fill_input_buffer (j_decompress_ptr cinfo)
 {
-    gdip_jpeg_source_mgr_ptr src = (gdip_jpeg_source_mgr_ptr) cinfo->src;
+    gdip_stdio_jpeg_source_mgr_ptr src = (gdip_stdio_jpeg_source_mgr_ptr) cinfo->src;
     size_t nb;
 
     nb = fread (src->buf, 1, JPEG_READ_BUFFER_SIZE, src->infp);
@@ -104,7 +114,7 @@ _gdip_source_stdio_fill_input_buffer (j_decompress_ptr cinfo)
 static void
 _gdip_source_stdio_skip_input_data (j_decompress_ptr cinfo, long skipbytes)
 {
-    gdip_jpeg_source_mgr_ptr src = (gdip_jpeg_source_mgr_ptr) cinfo->src;
+    gdip_stdio_jpeg_source_mgr_ptr src = (gdip_stdio_jpeg_source_mgr_ptr) cinfo->src;
 
     if (skipbytes > 0) {
         if (skipbytes > (long) src->parent.bytes_in_buffer) {
@@ -119,19 +129,68 @@ _gdip_source_stdio_skip_input_data (j_decompress_ptr cinfo, long skipbytes)
     }
 }
 
+static bool
+_gdip_source_stream_fill_input_buffer (j_decompress_ptr cinfo)
+{
+    gdip_stream_jpeg_source_mgr_ptr src = (gdip_stream_jpeg_source_mgr_ptr) cinfo->src;
+    size_t nb;
+
+    nb = src->getBytesFunc (src->buf, JPEG_READ_BUFFER_SIZE, 0);
+    if (nb <= 0) {
+        /* this is a hack learned from gdk-pixbuf */
+        /* insert fake EOI marker, to try to salvage image
+         * in case of malformed/incomplete input
+         */
+        src->buf[0] = (JOCTET) 0xFF;
+        src->buf[1] = (JOCTET) JPEG_EOI;
+        nb = 2;
+    }
+
+    src->parent.next_input_byte = src->buf;
+    src->parent.bytes_in_buffer = nb;
+
+    return TRUE;
+}
+
 static void
-_gdip_source_stdio_term (j_decompress_ptr cinfo)
+_gdip_source_stream_skip_input_data (j_decompress_ptr cinfo, long skipbytes)
+{
+    gdip_stream_jpeg_source_mgr_ptr src = (gdip_stream_jpeg_source_mgr_ptr) cinfo->src;
+
+    if (skipbytes > 0) {
+        if (skipbytes > (long) src->parent.bytes_in_buffer) {
+            skipbytes -= (long) src->parent.bytes_in_buffer;
+
+            if (src->seekFunc != NULL) {
+                src->seekFunc (skipbytes, SEEK_CUR);
+            } else {
+                /* getBytes knows how to "read" into a NULL buffer */
+                while (skipbytes >= 0)
+                    skipbytes -= src->getBytesFunc (NULL, skipbytes, 0);
+            }
+
+            (void) _gdip_source_stream_fill_input_buffer (cinfo);
+        } else {
+            src->parent.next_input_byte += (size_t) skipbytes;
+            src->parent.bytes_in_buffer -= (size_t) skipbytes;
+        }
+    }
+}
+
+static void
+_gdip_source_dummy_term (j_decompress_ptr cinfo)
 {
     /* nothing */
 }
 
-GpStatus 
-gdip_load_jpeg_image_from_file (FILE *fp, GpImage **image)
+
+GpStatus
+gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
+                               GpImage **image)
 {
     GpBitmap *img = NULL;
     struct jpeg_decompress_struct cinfo;
     struct gdip_jpeg_error_mgr jerr;
-    gdip_jpeg_source_mgr_ptr src = NULL;
 
     guchar *destbuf = NULL, *destptr = NULL;
     guchar *lines[4] = {NULL, NULL, NULL, NULL};
@@ -157,21 +216,8 @@ gdip_load_jpeg_image_from_file (FILE *fp, GpImage **image)
     }
 
     jpeg_create_decompress (&cinfo);
+    cinfo.src = src;
 
-    cinfo.src = (struct jpeg_source_mgr *)
-        (*cinfo.mem->alloc_small) ((j_common_ptr) &cinfo, JPOOL_PERMANENT, sizeof (struct gdip_jpeg_source_mgr));
-    src = (gdip_jpeg_source_mgr_ptr) cinfo.src;
-    src->buf = (JOCTET *)
-        (*cinfo.mem->alloc_small) ((j_common_ptr) &cinfo, JPOOL_PERMANENT, JPEG_READ_BUFFER_SIZE * sizeof(JOCTET));
-    src->parent.init_source = _gdip_source_stdio_init;
-    src->parent.fill_input_buffer = _gdip_source_stdio_fill_input_buffer;
-    src->parent.skip_input_data = _gdip_source_stdio_skip_input_data;
-    src->parent.resync_to_restart = jpeg_resync_to_restart;
-    src->parent.bytes_in_buffer = 0;
-    src->parent.next_input_byte = NULL;
-
-    src->infp = fp;
-    
     jpeg_read_header (&cinfo, TRUE);
 
     cinfo.do_fancy_upsampling = FALSE;
@@ -269,8 +315,16 @@ gdip_load_jpeg_image_from_file (FILE *fp, GpImage **image)
     img->image.surface = cairo_surface_create_for_image (destbuf, img->cairo_format,
                                                    img->image.width, img->image.height,
                                                    stride);
-    img->image.horizontalResolution = gdip_get_display_dpi ();
-    img->image.verticalResolution = gdip_get_display_dpi ();
+    img->image.horizontalResolution = 0;
+    img->image.verticalResolution = 0;
+    /* win32 returns this as PartiallyScalable and ColorSpaceYCBCR;
+     * we just return it as RGB.  Supporting native YCbCr color spaces
+     * is probably a waste of time.
+     */
+    img->image.imageFlags =
+        ImageFlagsReadOnly |
+        ImageFlagsHasRealPixelSize |
+        ImageFlagsColorSpaceRGB;
     img->image.propItems = NULL;
     img->image.palette = NULL;
 
@@ -279,7 +333,73 @@ gdip_load_jpeg_image_from_file (FILE *fp, GpImage **image)
 }
 
 GpStatus 
-gdip_save_jpeg_image_to_file (FILE *fp, GpImage *image)
+gdip_load_jpeg_image_from_file (FILE *fp, GpImage **image)
+{
+    GpStatus st;
+
+    gdip_stdio_jpeg_source_mgr_ptr src;
+
+    src = (gdip_stdio_jpeg_source_mgr_ptr) GdipAlloc (sizeof (struct gdip_stdio_jpeg_source_mgr));
+    src->buf = GdipAlloc (JPEG_READ_BUFFER_SIZE * sizeof(JOCTET));
+
+    src->parent.init_source = _gdip_source_dummy_init;
+    src->parent.fill_input_buffer = _gdip_source_stdio_fill_input_buffer;
+    src->parent.skip_input_data = _gdip_source_stdio_skip_input_data;
+    src->parent.resync_to_restart = jpeg_resync_to_restart;
+    src->parent.term_source = _gdip_source_dummy_term;
+    src->parent.bytes_in_buffer = 0;
+    src->parent.next_input_byte = NULL;
+
+    src->infp = fp;
+
+    st = gdip_load_jpeg_image_internal ((struct jpeg_source_mgr *) src, image);
+    GdipFree (src->buf);
+    GdipFree (src);
+
+    return st;
+}
+
+GpStatus
+gdip_load_jpeg_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
+                                           SeekDelegate seekFunc,
+                                           GpImage **image)
+{
+    GpStatus st;
+
+    gdip_stream_jpeg_source_mgr_ptr src;
+
+    src = (gdip_stream_jpeg_source_mgr_ptr) GdipAlloc (sizeof (struct gdip_stream_jpeg_source_mgr));
+    src->buf = GdipAlloc (JPEG_READ_BUFFER_SIZE * sizeof(JOCTET));
+
+    src->parent.init_source = _gdip_source_dummy_init;
+    src->parent.fill_input_buffer = _gdip_source_stream_fill_input_buffer;
+    src->parent.skip_input_data = _gdip_source_stream_skip_input_data;
+    src->parent.resync_to_restart = jpeg_resync_to_restart;
+    src->parent.term_source = _gdip_source_dummy_init;
+    src->parent.bytes_in_buffer = 0;
+    src->parent.next_input_byte = NULL;
+
+    src->getBytesFunc = getBytesFunc;
+    src->seekFunc = seekFunc;
+
+    st = gdip_load_jpeg_image_internal ((struct jpeg_source_mgr *) src, image);
+    GdipFree (src->buf);
+    GdipFree (src);
+
+    return st;
+}
+
+GpStatus 
+gdip_save_jpeg_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params)
+{
+    return NotImplemented;
+}
+
+GpStatus
+gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
+                                         GpImage *image,
+                                         GDIPCONST EncoderParameters *params)
+
 {
     return NotImplemented;
 }
@@ -295,7 +415,24 @@ gdip_load_jpeg_image_from_file (FILE *fp, GpImage **image)
 }
 
 GpStatus 
-gdip_save_jpeg_image_to_file (FILE *fp, GpImage *image)
+gdip_save_jpeg_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params)
+{
+    return NotImplemented;
+}
+
+GpStatus
+gdip_load_jpeg_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
+                                           SeekDelegate seeknFunc,
+                                           GpImage **image)
+{
+    *image = NULL;
+    return NotImplemented;
+}
+
+GpStatus
+gdip_save_jpeg_image_to_stream_delegate (utBytesDelegate putBytesFunc,
+                                         GpImage *image,
+                                         GDIPCONST EncoderParameters *params)
 {
     return NotImplemented;
 }

@@ -117,8 +117,19 @@ GpStatus GdipRemoveProperyItem (GpImage *image, PROPID propID);
 GpStatus GdipSetProperyItem (GpImage *image, GDIPCONST PropertyItem *item);
 GpStatus GdipCloneImage(GpImage *image, GpImage **cloneImage);
 
+GpStatus GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
+                                          SeekDelegate seekFunc,
+                                          GpImage **image);
+GpStatus GdipSaveImageToDelegate_linux (GpImage *image,
+                                        PutBytesDelegate putBytesFunc,
+                                        GDIPCONST CLSID *encoderCLSID,
+                                        GDIPCONST EncoderParameters *params);
 
-ImageFormat get_image_format (FILE *file);
+
+ImageFormat get_image_format (char *sig_read, size_t size_read);
+
 int gdip_getpixel_formatsize(PixelFormat pixfmt);
+int gdip_get_pixel_format_depth(PixelFormat pixfmt);
+ImageFormat gdip_image_format_for_clsid (GDIPCONST CLSID *encoderCLSID);
 
 #endif /* _GDIPIMAGE_H */

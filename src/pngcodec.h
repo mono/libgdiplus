@@ -15,8 +15,16 @@
 GpStatus 
 gdip_load_png_image_from_file (FILE *fp, GpImage **image);
 
-GpStatus 
-gdip_save_png_image_to_file (FILE *fp, GpImage *image);
+GpStatus
+gdip_load_png_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
+                                          SeekDelegate seeknFunc,
+                                          GpImage **image);
 
+GpStatus 
+gdip_save_png_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params);
+
+GpStatus
+gdip_save_png_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
+                                        GpImage *image, GDIPCONST EncoderParameters *params);
 
 #endif /* _PNGCODEC_H */

@@ -326,7 +326,7 @@ typedef struct {    /* Keep in sync with BitmapData.cs */
 	unsigned int Height;
 	int          Stride;
 	int          PixelFormat;
-	void         *Scan0;    
+	void         *Scan0;
 	unsigned int Reserved;
 } GdipBitmapData, BitmapData;
 
@@ -711,9 +711,13 @@ GpStatus GdipSetImageAttributesNoOp(GpImageAttributes *imageattr, ColorAdjustTyp
 
 GpStatus GdipSetImageAttributesColorKeys(GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
         ARGB colorLow, ARGB colorHigh);
-
+GpStatus GdipSetImageAttributesOutputChannel(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag);
 GpStatus GdipSetImageAttributesOutputChannelColorProfile(GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
         GDIPCONST WCHAR *colorProfileFilename);
+/* GpStatus GdipSetImageAttributesRemapTable(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, UINT mapSize, GDIPCONST ColorMap *map); */
+/* GpStatus GdipSetImageAttributesWrapMode(GpImageAttributes *imageattr, WrapMode wrap, ARGB argb, BOOL clamp); */
+/* GpStatus GdipSetImageAttributesICMMode(GpImageAttributes *imageattr, BOOL on); */
+/* GpStatus GdipGetImageAttributesAdjustedPalette(GpImageAttributes *imageattr, ColorPalette *colorPalette, ColorAdjustType type); */
 
 /* Region */
 GpStatus GdipCreateRegion(GpRegion **region);
@@ -760,5 +764,10 @@ int gdpi_utf8_to_glyphs (cairo_ft_font_t* font,	 const unsigned char* utf8, doub
 
 void gdip_font_drawunderline (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
 void gdip_font_drawstrikeout (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
+
+/* Stream handling bits */
+typedef int (*GetBytesDelegate) (unsigned char *, int, BOOL);
+typedef int (*SeekDelegate) (int, int);
+typedef int (*PutBytesDelegate) (unsigned char *, int);
 
 #endif /* _GDIP_H */

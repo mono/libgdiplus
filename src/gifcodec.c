@@ -103,8 +103,12 @@ gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
     img->image.surface = cairo_surface_create_for_image (pixels, img->cairo_format,
                                                    img->image.width, img->image.height,
                                                    img->data.Stride);
-    img->image.horizontalResolution = gdip_get_display_dpi ();
-    img->image.verticalResolution = gdip_get_display_dpi ();
+    img->image.imageFlags =
+        ImageFlagsReadOnly |
+        ImageFlagsHasRealPixelSize |
+        ImageFlagsColorSpaceRGB;
+    img->image.horizontalResolution = 0;
+    img->image.verticalResolution = 0;
     img->image.propItems = NULL;
     img->image.palette = NULL;
 

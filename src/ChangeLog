@@ -1,3 +1,27 @@
+2004-04-06  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* gdip.h: Added stream handling delegate prototypes,
+	and some missing function protos
+
+	* gdipImage.h: stream delegate loading/saving functions
+
+	* image.c: stream loading/saving bits, implemented
+	via linux-specific delegates.  Added guids for various
+	file formats, and a gdip_image_format_for_clsid()
+	helper function
+
+	* jpegcodec.c: supports reading from a stream
+
+	* pngcodec.c: supports writing; also supports
+	reading/writing with a stream
+
+	* image.c: blit surface directly for painting images,
+	instead of creating a graphics context for it first
+
+	* gifcodec.c, jpegcodec.c, pngcodec.c, tifcodec.c:
+	Write data with the correct flags and resolution bits,
+	to (almost) match what win32 outputs
+
 2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* gifcodec.c, tiffcodec.c, pngcodec.c: include config.h, which
