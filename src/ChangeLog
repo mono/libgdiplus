@@ -1,3 +1,7 @@
+2004-03-15  Jordi Mas i Hernandez <jordi@ximian.com>
+    * graphics.c - Bug fixing, suport for hotkeys, code reoganisation
+    * stringformat.c - string format tab support
+
 2004-03-11  Peter Bartok <pbartok@novell.com>
    * bitmap.c: Added temporary hack to always initialize the bitmap scan (pixel) data (for SWF)
 

@@ -37,6 +37,10 @@ GdipCreateStringFormat(int formatAttributes, int language, GpStringFormat  **for
         result->formatFlags = 0;
         result->trimming = StringTrimmingNone;
         result->substitute = DigitSubstituteNone;
+        result->firstTabOffset = 0;
+        result->tabStops = NULL;
+        result->numtabStops = 0;
+
         *format = result;
         return Ok;
 }
@@ -54,6 +58,9 @@ GdipStringFormatGetGenericDefault(GpStringFormat **format)
         result->formatFlags = 0;
         result->trimming = StringTrimmingCharacter;
         result->substitute = DigitSubstituteNone;
+        result->firstTabOffset = 0;
+        result->tabStops = NULL;
+        result->numtabStops = 0;
 
         *format = result;
         return Ok;
@@ -71,7 +78,10 @@ GdipStringFormatGetGenericTypographic(GpStringFormat **format)
         result->hotkeyPrefix = HotkeyPrefixNone;
         result->formatFlags = StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip;
         result->trimming = StringTrimmingNone;
-        result->substitute = DigitSubstituteNone;        
+        result->substitute = DigitSubstituteNone;
+        result->firstTabOffset = 0;
+        result->tabStops = NULL;
+        result->numtabStops = 0;
 
         *format = result;
         return Ok; 
@@ -97,6 +107,9 @@ GdipDeleteStringFormat(GpStringFormat *format)
 {
         if (!format)
                 return InvalidParameter;
+                
+        if (format->tabStops)
+                free (format->tabStops);
 
         GdipFree (format);
 }
@@ -205,9 +218,33 @@ GdipGetStringFormatTrimming(GDIPCONST GpStringFormat *format, StringTrimming *tr
 GpStatus
 GdipSetStringFormatTabStops(GpStringFormat *format, float firstTabOffset, int count, float *tabStops)
 {
-        if (!format)
+        int i;
+        float *pItemSrc = tabStops;
+        float *pItemTrg;
+
+        if (!format || !tabStops)
                 return InvalidParameter;
 
+        if (format->tabStops)
+                free (format->tabStops);
+
+        format->firstTabOffset = firstTabOffset;
+
+        if (count == 0) {
+                format->tabStops = NULL;
+                format->numtabStops = 0;
+                return Ok;
+        }
+
+        pItemTrg = format->tabStops = malloc (sizeof(float) * count);
+
+        if (!pItemTrg)
+                return OutOfMemory;
+
+        for (i = 0; i < count; i++, pItemSrc++, pItemTrg++)
+                *pItemTrg = *pItemSrc;
+                
+        format->numtabStops = count;    
         return Ok;        
 }
 
@@ -237,7 +274,7 @@ GdipGetStringFormatTabStopCount(GDIPCONST GpStringFormat *format, int *count)
         if (!format || !count)
                 return InvalidParameter;
 
-        *count = 0;
+        *count = format->numtabStops;
 
         return Ok;                
 }
@@ -245,9 +282,19 @@ GdipGetStringFormatTabStopCount(GDIPCONST GpStringFormat *format, int *count)
 GpStatus
 GdipGetStringFormatTabStops(GDIPCONST GpStringFormat *format, int count, float *firstTabOffset, float *tabStops)
 {
-        if (!format)
+        int i;
+        float *pItemSrc = format->tabStops;
+        float *pItemTrg = tabStops;
+        int elems;
+        
+        if (!format || !firstTabOffset || !tabStops)
                 return InvalidParameter;
-                
-        return Ok;
 
+        elems = count<format->numtabStops ? count : format->numtabStops;        
+        for (i = 0; i < elems; i++, pItemSrc++, pItemTrg++)
+                *pItemTrg = *pItemSrc;
+                
+        *firstTabOffset = format->firstTabOffset;
+                
+        return Ok;                    
 }

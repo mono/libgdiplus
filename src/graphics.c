@@ -860,7 +860,7 @@ GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int co
 int
 gdip_measure_string_widths (GDIPCONST GpFont *font,
 			    const unsigned char *utf8,
-			    float **pwidths, int *nwidths,
+			    float **widths_glyphs, int *num_widths,
 			    float *total_width, float *total_height)
 {
 	cairo_status_t status;
@@ -872,30 +872,29 @@ gdip_measure_string_widths (GDIPCONST GpFont *font,
 	int i = 0;
 	float *ppos;
 	double x, y;
-	
+
 	*total_width = 0;
 	*total_height = 0;
-	*nwidths = 0;
-	*pwidths = NULL;
-	
+	*num_widths = 0;
+	*widths_glyphs = NULL;
+
 	ft = (cairo_ft_font_t *)font->cairofnt;
 
-	cairo_matrix_copy (&saved, (const cairo_matrix_t *)&ft->base.matrix); 
+	cairo_matrix_copy (&saved, (const cairo_matrix_t *)&ft->base.matrix);
 	cairo_matrix_scale (&ft->base.matrix, font->sizeInPixels, font->sizeInPixels);
 	gdpi_utf8_to_glyphs (font->cairofnt, utf8, 0.0, 0.0, &glyphs, &nglyphs);
 	cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
-    
 
 	if (!nglyphs)
 		return 1;
 
-	*pwidths = malloc (sizeof (float) *nglyphs);
-	*nwidths = nglyphs;
-	ppos = *pwidths;
+	*widths_glyphs = malloc (sizeof (float) *nglyphs);
+	*num_widths = nglyphs;
+	ppos = *widths_glyphs;
 
 	if (!nglyphs)
 		return 0;
-    
+
 	for (; i < nglyphs-1; i++, ppos++){
 		*ppos = glyphs[i+1].x - glyphs[i].x;
 		*total_width+= *ppos;
@@ -903,242 +902,365 @@ gdip_measure_string_widths (GDIPCONST GpFont *font,
 
 	*ppos = DOUBLE_FROM_26_6 (ft->face->glyph->advance.x);
 	*total_width+= *ppos;
+
 	return 1;
 }
 
-GpStatus GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int len, GDIPCONST GpFont *font, GDIPCONST RectF *rc,
-			    GDIPCONST GpStringFormat *stringFormat,  RectF *boundingBox, int *codepointsFitted, int *linesFilled)
+/*
+        Processes hotkeys and tabs and creates a new string and its GpGlyphsDetails information
+*/
+void
+gdip_prepareString(GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpStringFormat *format,
+                            char **outstring, GpGlyphsDetails **glyphs_details, int *current_glyph_details)
 {
+        char *src_str, *trg_str, *string;
+        GpGlyphsDetails *cur_glyphs_details;
+        float *tabStops = format->tabStops;
+        int tabs = format->numtabStops;
+        bool hotkey_found = FALSE;
+        int chars = 0, len, i;
+        bool format_char = FALSE;
 
-	float width = 0, height = 0;
-	float *pwidths = NULL;
-	float *ppos;
-	int nwidths, i, nGlyp;
-	float w = 0, x=0, y=0;
-	int nLines = 0;
-	int nMax = 0;
-	char *string;
-	
-	if (!font || !rc)
-		return InvalidParameter;
-	
-	string = (char*) g_utf16_to_utf8 ((const gunichar2 *) stringUnicode,
-					  (glong)len, NULL, NULL, NULL);
+        string = src_str = (char*) g_utf16_to_utf8 ((const gunichar2 *) stringUnicode,
+					  (glong)length, NULL, NULL, NULL);
 
-	/* Get widths */
-	gdip_measure_string_widths (font, string, &pwidths, &nwidths, &width, &height);
+        len = (int) strlen (string); /* We want the num of non-coded utf-8 chars*/
+        trg_str = *outstring = (char *) malloc (len+1);
 
-	ppos = pwidths;
+        *glyphs_details = cur_glyphs_details = (GpGlyphsDetails *) malloc (sizeof(GpGlyphsDetails) * (len + 1));
 
-	for (nGlyp = 1, w=0; nGlyp < nwidths+1; ppos++, nGlyp++) {
-		w += *ppos;
-         
-		if ((nGlyp+1 < nwidths+1) || (w + *(ppos+1)) <rc->Width)
+        if (format->hotkeyPrefix == HotkeyPrefixNone)
+                hotkey_found = TRUE;
+
+        if (len) {
+                cur_glyphs_details->is_hotkey = FALSE;
+                cur_glyphs_details->tab_distance = 0;
+        }
+
+        for (i = 0; i < len ; i++, src_str++){
+
+                if (format_char == FALSE) {
+                        cur_glyphs_details->is_hotkey = FALSE;
+                        cur_glyphs_details->tab_distance = 0;
+                }
+
+                if (*src_str == '\t'){
+                        cur_glyphs_details->is_hotkey = FALSE;
+                        if (tabs) {
+                                cur_glyphs_details->tab_distance = *tabStops;
+                                tabStops++;
+                                tabs--;
+                        }
+                        else
+                                cur_glyphs_details->tab_distance = 0;
+
+                        format_char = TRUE;
                         continue;
-                        
-		nLines++;
+                }
 
-		if (w>nMax)
-			nMax = w;
+                if (hotkey_found == FALSE && (*src_str == '&') && (i+1 < len) && (*(src_str+1) != '&')) {
+                        hotkey_found = TRUE;
+                        cur_glyphs_details->tab_distance = 0;
 
-		if (y + font->sizeInPixels >= rc->Height) /* Cannot fit more text */
+                        if (format->hotkeyPrefix == HotkeyPrefixShow)
+                                cur_glyphs_details->is_hotkey = TRUE;
+                        else
+                                cur_glyphs_details->is_hotkey = FALSE;
+
+                        format_char = TRUE;
+                        continue;
+                }
+
+                *trg_str = *src_str;
+                trg_str++;
+                chars++;
+                cur_glyphs_details++;
+                format_char = FALSE;
+        }
+
+        cur_glyphs_details->is_hotkey = FALSE;
+        cur_glyphs_details->tab_distance = 0;
+
+        *trg_str = 0;
+        *current_glyph_details = chars;
+        g_free (string);
+}
+
+void
+gdip_measure_string_pos (char* string, int len, GpGlyphsDetails *glyphs_details, GDIPCONST GpFont *font,
+        GDIPCONST RectF *rc,  GDIPCONST GpStringFormat *format,  RectF *boundingBox,
+        int *codepointsFitted, int *linesFilled,
+        GpLinePointF **pPoints)
+{
+        float width = 0, height = 0;
+        float *widths_glyphs = NULL;
+        float *ppos;
+        int num_widths = 0, i, current_glyph, max = 0, lines = 0;
+        float realY = rc->Y + font->sizeInPixels;
+        float w = 0, x=rc->X, y=realY;
+        StringAlignment align, lineAlign;
+        GpGlyphsDetails *cur_glyphs_details;
+        GpLinePointF *pPoint = NULL;
+        float alignY = realY;
+
+        /* Get widths */
+        gdip_measure_string_widths (font, string, &widths_glyphs, &num_widths, &width, &height);
+
+        /* Determine in which positions the strings have to be drawn */
+        if (pPoints)
+                *pPoints = pPoint = (GpLinePointF*) malloc (sizeof (GpLinePointF) * num_widths);
+
+        GdipGetStringFormatAlign (format, &align);
+        GdipGetStringFormatLineAlign (format, &lineAlign);
+
+        cur_glyphs_details = glyphs_details; cur_glyphs_details++;
+        for (ppos = widths_glyphs, current_glyph = 1, w = 0 ; current_glyph < num_widths+1; ppos++, current_glyph++, cur_glyphs_details++) {
+		w += *ppos;
+
+                if (w > max)
+                        max = w;
+
+		if ((current_glyph+1 < num_widths+1) && (w + *(ppos+1)) < rc->Width)
+                        continue;
+
+                if (pPoints) {
+
+        		switch (align){
+		        case StringAlignmentNear: /* left */
+			        pPoint->X = rc->X;
+	        		break;
+        		case StringAlignmentCenter:
+		        	pPoint->X = rc->X + ( (rc->Width - w)/2);
+	        		break;
+        		case StringAlignmentFar: /* Right */
+        			pPoint->X = rc->X;
+		        	pPoint->X += rc->Width - w;
+	        		break;
+        		default:
+		        	break;
+	        	}
+                        pPoint->width = w;
+                        pPoint++;
+                }
+
+		lines++;
+                y += font->sizeInPixels;
+
+		/* Cannot fit more text */
+		if (y - rc->Y + font->sizeInPixels >= rc->Height)
 			break;
-                
-		y += font->sizeInPixels;
-		w=0;		
-	}
 
-	free (pwidths);
-	g_free (string);
+		w = 0;
+        }
+
+        if (pPoints) {
+                alignY = realY; /* Default, top */
+
+                switch (lineAlign){
+                case StringAlignmentNear: /* Top */
+                        break;
+                case StringAlignmentCenter:
+                        alignY = realY + ( (realY+rc->Height - y) /2);
+        		break;
+                case StringAlignmentFar: /* Bottom */
+        		alignY = realY + (realY +rc->Height) - y;
+	        	break;
+                default:
+	        	break;
+                }
+
+                /* Setup Y coordinate for every line */
+                pPoint = *pPoints;
+                for (i = 0; i < lines; i++, pPoint++) {
+		        pPoint->Y = alignY;
+        		alignY += font->sizeInPixels;
+                }
+        }
 
 	if (boundingBox) {
-		boundingBox->X=rc->X;
-		boundingBox->Y=rc->Y;
-		boundingBox->Width=nMax;
-		boundingBox->Height=y;
+		boundingBox->X = rc->X;
+		boundingBox->Y = rc->Y;
+		boundingBox->Width = max;
+		boundingBox->Height = y;
 	}
 
-	if (linesFilled) *linesFilled = nLines;
-	if (codepointsFitted) *codepointsFitted = nGlyp;
-              
+	if (linesFilled) *linesFilled = lines;
+	if (codepointsFitted) *codepointsFitted = current_glyph;
 }
 
 
+GpStatus
+GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int len, GDIPCONST GpFont *font, GDIPCONST RectF *rc,
+			    GDIPCONST GpStringFormat *fmt,  RectF *boundingBox, int *codepointsFitted, int *linesFilled)
+{
+	float width = 0, height = 0;
+	int nLines = 0;
+	int nMax = 0;
+	char *string;
+        GpGlyphsDetails *glyphs_details = NULL;
+        int current_glyph_details;
+        int length;
+        GpStringFormat *deffmt = NULL;
+        GpStringFormat *format = (GpStringFormat *)fmt;
 
-GpStatus 
-GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
-                int len, GpFont *font, RectF *rc, GpStringFormat *fmt, GpBrush *brush)
+        if (!format) {
+                GdipStringFormatGetGenericDefault (&deffmt);
+                format = deffmt;
+        }
+
+	if (!graphics || !font || !rc)
+		return InvalidParameter;
+
+        gdip_prepareString (stringUnicode, len, format, &string, &glyphs_details, &current_glyph_details);
+
+	/* Get widths */
+        length = (int) g_utf8_strlen (string, -1);
+
+        gdip_measure_string_pos (string, len, glyphs_details, font, rc,  format,  boundingBox,
+                codepointsFitted, linesFilled, (GpLinePointF**) NULL);
+
+        if (!deffmt)
+                GdipDeleteStringFormat(deffmt);
+
+	g_free (string);
+        free (glyphs_details);
+}
+
+void
+gdip_draw_linestring(GpGraphics *graphics, GpLinePointF* point, char *str, GpBrush *brush, GpFont *font,
+        GpGlyphsDetails *glyphs_details)
+{
+        char *pos = str;
+        int i;
+        GpGlyphsDetails *cur_glyphs_detailsPos = glyphs_details;
+
+        cairo_move_to (graphics->ct, point->X, point->Y);
+        cairo_show_text (graphics->ct, str);
+
+        if ((font->style & FontStyleUnderline)==FontStyleUnderline)
+                gdip_font_drawunderline (graphics, brush, point->X, point->Y, point->width);
+
+        if ((font->style & FontStyleStrikeout)==FontStyleStrikeout)
+                gdip_font_drawstrikeout (graphics, brush, point->X, point->Y, point->width);
+}
+
+GpStatus
+GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode,
+                int lenght, GpFont *font, RectF *rc, GpStringFormat *fmt, GpBrush *brush)
 {
         cairo_matrix_t saved;
         float width = 0, height = 0;
-        float *pwidths = NULL;
-        float *ppos;
-        int nwidths, i, nGlyp;
+        float *widths_glyphs = NULL;
+        float *ppos, w;
+        int num_widths, i, current_glyph, nLast = 0;
         float realY = rc->Y + font->sizeInPixels;
-        float w = 0, x=rc->X, y=realY;
-        int nLast = 0, nLines = 0, nLns;
         const gunichar2 *pUnicode = (const gunichar2 *)  stringUnicode;
-        StringAlignment align;
-        StringAlignment lineAlign;
 	char *string;
-	GpPoint *pPoints;
-	GpPoint *pPoint;
+	GpLinePointF *pPoints, *pPoint;
         GpStringFormat *deffmt = NULL;
         GpStringFormat *format = fmt;
-	
+        GpGlyphsDetails *glyphs_details;
+        int current_glyph_details;
+        int lines, line_count, len;
+        char *curString;
+        GpGlyphsDetails *cur_glyphs_details;
+        const gunichar2 *unicode_string;
+
         if (!graphics || !stringUnicode || !font)
 		return InvalidParameter;
 
         if (!format) {
-                GdipStringFormatGetGenericDefault(&deffmt);
+                GdipStringFormatGetGenericDefault (&deffmt);
                 format = deffmt;
         }
-    
-        string = (char*) g_utf16_to_utf8 ((const gunichar2 *) stringUnicode,
-					  (glong)len, NULL, NULL, NULL);
+
+        gdip_prepareString (stringUnicode, lenght, format, &string, &glyphs_details, &current_glyph_details);
+        len = (int) g_utf8_strlen (string,-1);
+
+        if (brush)
+		gdip_brush_setup (graphics, brush);
+        else
+                cairo_set_rgb_color (graphics->ct, 0., 0., 0.);
 
         cairo_save (graphics->ct);
-    
-        if (brush)
-		gdip_brush_setup (graphics, brush);    
-        else
-		cairo_set_rgb_color (graphics->ct, 0., 0., 0.);
-
         cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);
 
         /* Save font matrix */
         cairo_matrix_copy (&saved, (const cairo_matrix_t *)&font->cairofnt->base.matrix);
-        
-        /* Get widths */
-        gdip_measure_string_widths (font, string, &pwidths, &nwidths, &width, &height);
-    
-        if (!format || !rc->Width) {
-            
-		cairo_scale_font (graphics->ct, font->sizeInPixels);
-		cairo_move_to (graphics->ct, rc->X, realY);
-		cairo_show_text (graphics->ct, string);
 
-                if ((font->style & FontStyleUnderline)==FontStyleUnderline)
-                        gdip_font_drawunderline (graphics, brush, rc->X, realY, width);
+        /* Get string widths */
+        gdip_measure_string_widths (font, string, &widths_glyphs, &num_widths, &width, &height);
 
-                if ((font->style & FontStyleStrikeout)==FontStyleStrikeout)
-                        gdip_font_drawstrikeout (graphics, brush, rc->X, realY, width);
+        if (!rc->Width) {
+
+                GpLinePointF point;
+
+                point.X = rc->Y;
+                point.Y = rc->X;
+                point.width = rc->Width;
                 
+		cairo_scale_font (graphics->ct, font->sizeInPixels);
+                gdip_draw_linestring(graphics, &point, string, brush, font, glyphs_details);
+
 		g_free (string);
-                if (!deffmt) GdipDeleteStringFormat(deffmt);
+
+                if (!deffmt)
+                        GdipDeleteStringFormat(deffmt);
 
 		cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
 		cairo_restore (graphics->ct);
 		return gdip_get_status (cairo_status (graphics->ct));
         }
 
-        ppos = pwidths;
-        
-        /* Determine in which positions the strings have to be drawn */
-        pPoints = (GpPoint*) malloc (sizeof (GpPointF) * nwidths);
-	pPoint = pPoints;
-        
-        GdipGetStringFormatAlign (format, &align);
-        GdipGetStringFormatLineAlign (format, &lineAlign);
-        
-        for (nGlyp=1, w=0; nGlyp < nwidths+1; ppos++, nGlyp++) {
-		
-		w += *ppos;
-		
-		if ((nGlyp+1 < nwidths+1) && (w + *(ppos+1)) <rc->Width)
-                        continue;
-                        
-		switch (align){
-		case StringAlignmentNear: /* left */
-			pPoint->X = rc->X;
-			break;
-		case StringAlignmentCenter:
-			pPoint->X = rc->X + ( (rc->Width+rc->X-w)/2);
-			break;
-		case StringAlignmentFar: /* Right */
-			pPoint->X = rc->X;
-			pPoint->X += rc->Width - w;
-			break;
-		default:
-			break;
-		}
-			
-		nLines++;
-			
-		/* Cannot fit more text */
-		if (y - rc->Y + font->sizeInPixels >= rc->Height) 
-			break;
-			
-		pPoint++;                
-		y += font->sizeInPixels;
-		w = 0;
-        }
-	
-        float alignY = realY; /* Default, top */
-	/* Determine vertical alignment */
+        gdip_measure_string_pos (string, len, glyphs_details, font, rc, format, (RectF *) NULL, (int *) NULL,
+                &lines, &pPoints);
 
-        switch (lineAlign){
-        case StringAlignmentNear:
-		/* Top */
-		break;
-        case StringAlignmentCenter:
-		alignY = realY + ( (realY+rc->Height - y) /2);
-		break;
-        case StringAlignmentFar: /* Bottom */
-		alignY = realY + (realY+rc->Height) - y;
-		break;
-        default:
-		break;
-        }
-	
-        /* Setup Y coordinate for every line */
-        pPoint = pPoints;                
-        for (i = 0; i < nLines; i++, pPoint++) {
-		pPoint->Y = alignY;
-		alignY += font->sizeInPixels;
-        }
-	
-        ppos = pwidths;  
+        /* Draw lines*/
+        cairo_scale_font (graphics->ct, font->sizeInPixels);
+
         pPoint = pPoints;
+        ppos = widths_glyphs;
+        pUnicode =  unicode_string = g_utf8_to_utf16 ((const gchar *)string, -1, NULL, NULL,NULL);
 
-        cairo_scale_font (graphics->ct, font->sizeInPixels);           
+        cur_glyphs_details = glyphs_details; cur_glyphs_details++;
+        for (w=0, line_count = 0, current_glyph=1, cur_glyphs_details = glyphs_details; current_glyph < num_widths+1; ppos++, current_glyph++, cur_glyphs_details++) {
 
-        /* Draw the strings */
-        for (w=0, nLns = 0, nGlyp=1; nGlyp < nwidths+1; ppos++, nGlyp++) {
-		char *spiece;
-		w += *ppos;
-         
-		if ((nGlyp+1 < nwidths+1) && (w + *(ppos+1)) <rc->Width)
-			continue;
+                /* Draw hotkey line*/
+                if (cur_glyphs_details->is_hotkey) {
+                        gdip_font_drawunderline (graphics, brush,
+                                w + rc->X, rc->Y + font->sizeInPixels, *ppos);
+                }
 
-		spiece = (char*)g_utf16_to_utf8 (pUnicode, (glong)nGlyp-nLast, NULL, NULL, NULL);
-        
-		pUnicode += (nGlyp-nLast);
-		nLast = nGlyp;
-		cairo_move_to (graphics->ct, pPoint->X, pPoint->Y);
-		cairo_show_text (graphics->ct, spiece);
+                w += *ppos;
 
-                if ((font->style & FontStyleUnderline)==FontStyleUnderline)
-                        gdip_font_drawunderline (graphics, brush, pPoint->X, pPoint->Y, w);
+                if (((current_glyph+1 < num_widths+1) && (w + *(ppos+1)) <rc->Width))
+                        continue;
 
-                if ((font->style & FontStyleStrikeout)==FontStyleStrikeout)
-                        gdip_font_drawstrikeout (graphics, brush, pPoint->X, pPoint->Y, w);
-                
-		g_free (spiece);
-		nLns++;
-		
-		if (nLns>nLines)
-			break;
-                
-		w = 0;
-		pPoint++;
+                curString = (char *) g_utf16_to_utf8 (pUnicode, (glong)current_glyph-nLast, NULL, NULL, NULL);
+                gdip_draw_linestring (graphics, pPoint, curString, brush, font,  glyphs_details);
+
+                g_free (curString);
+
+                pUnicode += (current_glyph-nLast);
+                nLast = current_glyph;
+
+                line_count++;
+
+                if (line_count > lines)
+                        break;
+
+                w = 0;
+                pPoint++;
         }
-        
+
         cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
-        
+
+        g_free( (void*)unicode_string);
         g_free (string);
-        free (pwidths);
+        free (widths_glyphs);
         free (pPoints);
+        free (glyphs_details);        
+                
         if (!deffmt) GdipDeleteStringFormat(deffmt);
 
         cairo_restore (graphics->ct);

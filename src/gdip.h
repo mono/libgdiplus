@@ -419,7 +419,21 @@ typedef struct {
         StringFormatFlags formatFlags;
         StringTrimming  trimming;
         DigitSubstitute substitute;
+        float firstTabOffset;
+        float *tabStops;
+        int numtabStops;
 }GpStringFormat;
+
+typedef struct {
+        bool is_hotkey;
+        float tab_distance;
+}GpGlyphsDetails;
+
+typedef struct {
+        float X, Y;
+        float width;
+} GpLinePointF;
+                
 
 /*
  * Functions
@@ -535,7 +549,7 @@ GpStatus GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin);
 GpStatus GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin);
 
 /* Text */
-GpStatus GdipDrawString (GpGraphics *graphics, const char *string, int len, GpFont *font, RectF *rc, GpStringFormat *format, GpBrush *brush);
+GpStatus GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *string, int len, GpFont *font, RectF *rc, GpStringFormat *format, GpBrush *brush);
 GpStatus GdipMeasureString(GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST RectF *layoutRect,
     GDIPCONST GpStringFormat *stringFormat,  RectF *boundingBox, int *codepointsFitted, int *linesFilled);
 
