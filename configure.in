@@ -119,3 +119,22 @@ libgdiplus.pc
 src/Makefile
 tests/Makefile])
 
+echo "---"
+echo "Configuration summary"
+echo ""
+echo "   * Installation prefix = $prefix"
+echo "   * Codecs supported:"
+echo ""
+echo $ECHO_N "      - TIFF: "
+test ! x$TIFF = x && echo yes || echo no 
+echo $ECHO_N "      - JPEG: "
+test ! x$JPEG = x && echo yes || echo no 
+echo $ECHO_N "      - GIF: "
+test ! x$UNGIF = x && echo yes || echo no 
+echo ""
+echo "      NOTE: if any of the above say 'no' you may install the"
+echo "            corresponding development packages for them, rerun"
+echo "            autogen.sh to include them in the build."
+echo ""
+echo "---"
+
