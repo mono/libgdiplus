@@ -318,7 +318,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
         img->image.pixFormat = Format8bppIndexed;
         img->image.imageFlags = ImageFlagsColorSpaceGRAY;
     } else {
-        /* we libjpeg gives us RGB for many formats and
+        /* libjpeg gives us RGB for many formats and
 	 * we convert ourselves to RGB when needed. */
         img->image.pixFormat = Format24bppRgb;
         img->image.imageFlags = ImageFlagsColorSpaceRGB;
