@@ -1,7 +1,21 @@
+2004-04-29  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c (append_point): Add some logic here. Don't
+	append a move_to (PathPointTypeStart) if we're already at the
+	point we need to be in. This fixes problems we have with filling,
+	as Cairo closes all subpaths before a fill op.
+	(GdipAddPathLine, GdipAddPathLineI): Removed precaution checks for
+	move_to, we're doing it once and for all in append_point.
+
+	This should fix the drawing bug Miguel sees in the GraphicsPath
+	in the test form.
+
 2004-04-29  Peter Bartok <pbartok@novell.com>
-   * gdip.h: Added flag for multiline strings
-   * graphics.cs: Fixed bug #56800, DrawString now handles \n (and
-   ignores \r, like Microsoft)
+
+	* gdip.h: Added flag for multiline strings
+
+	* graphics.cs: Fixed bug #56800, DrawString now handles \n (and
+	   ignores \r, like Microsoft)
 
 2004-04-29 Jordi Mas i Hernandez <jordi@ximian.com>
 	* image.c: fixes GdipSaveImageToFile using FormatID as parameter

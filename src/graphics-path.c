@@ -77,10 +77,20 @@ append (GpPath *path, float x, float y, GpPathPointType type)
         path->count++;
 }
 
+/* TODO: Do we need to use some epsilon delta for comparison? */
 static void
 append_point (GpPath *path, GpPointF pt, GpPathPointType type)
 {
-        append (path, pt.X, pt.Y, type);
+        if (type == PathPointTypeStart) {
+                GpPointF current;
+                GdipGetPathLastPoint (path, &current); 
+
+                /* don't move_to if we're already at pt */
+                if (pt.X == current.X && pt.Y == current.Y)
+                        return;
+        } else
+
+               append (path, pt.X, pt.Y, type);
 }
 
 static void
@@ -333,12 +343,7 @@ GdipGetPathLastPoint (GpPath *path, GpPointF *lastPoint)
 GpStatus
 GdipAddPathLine (GpPath *path, float x1, float y1, float x2, float y2)
 {
-        GpPointF pt;
-
-        GdipGetPathLastPoint (path, &pt);
-
-        if (pt.X != x1 && pt.Y != y1)
-                append (path, x1, y1, PathPointTypeStart);
+        append (path, x1, y1, PathPointTypeStart);
         append (path, x2, y2, PathPointTypeLine);
 
         return Ok;
@@ -666,12 +671,7 @@ GdipAddStringI (GpPath *path, const char *string, int length,
 GpStatus
 GdipAddPathLineI (GpPath *path, int x1, int y1, int x2, int y2)
 {
-        GpPointF pt;
-
-        GdipGetPathLastPoint (path, &pt);
-
-        if (pt.X != x1 && pt.Y != y1)
-                append (path, x1, y1, PathPointTypeStart);
+        append (path, x1, y1, PathPointTypeStart);
         
         append (path, x2, y2, PathPointTypeLine);
 
