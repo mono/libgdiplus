@@ -381,7 +381,7 @@ typedef enum {
 } _CurveType;
 
 typedef enum {
-        RegionTypeNone  = 0,
+        RegionTypeEmpty = 0,
         RegionTypeRect  = 1,
         RegionTypeRectF = 2,
         RegionTypePath  = 3
@@ -676,6 +676,7 @@ GpStatus GdipGetDpiY(GpGraphics *graphics, float *dpi);
 GpStatus GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, float startAngle, float sweepAngle);
 GpStatus GdipFillPieI(GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, float startAngle, float sweepAngle);
 GpStatus GdipGraphicsClear(GpGraphics *graphics, ARGB color);
+GpStatus GdipFillRegion(GpGraphics *graphics, GpBrush *brush, GpRegion *region);
 GpStatus GdipSetInteroplationMode(GpGraphics *graphics, InterpolationMode imode);
 GpStatus GdipGetInteroplationMode(GpGraphics *graphics, InterpolationMode *imode);
 GpStatus GdipSetTextRenderingHint(GpGraphics *graphics, TextRenderingHint mode);

@@ -1511,6 +1511,31 @@ GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y)
         return gdip_get_status (cairo_status (graphics->ct));
 }
 
+
+GpStatus
+GdipFillRegion(GpGraphics *graphics, GpBrush *brush, GpRegion *region)
+{
+        int i;
+        GpRectF *rect;
+
+        if (!graphics || !brush || !region)
+		return InvalidParameter;
+
+	cairo_save (graphics->ct);
+
+	gdip_brush_setup (graphics, brush);
+
+        for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
+
+	        cairo_rectangle (graphics->ct, rect->X, rect->Y, rect->Width, rect->Height);
+	        cairo_fill (graphics->ct);
+        }
+
+        cairo_restore (graphics->ct);
+        return gdip_get_status (cairo_status (graphics->ct));
+}
+
+
 GpStatus 
 GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
 {
@@ -1538,12 +1563,15 @@ GdipGetDpiY (GpGraphics *graphics, float *dpi)
 }
 
 GpStatus
-GdipGraphicsClear(GpGraphics *graphics, ARGB color)
+GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 {
         double red, green, blue, alpha;
 
-        printf("clear\n");   
+        /* FIXME: Does not work properly */
 
+        if (!graphics)
+		return InvalidParameter;
+        
         blue = color & 0xff;
         green = (color >> 8) & 0xff;
         red = (color >> 16) & 0xff;
@@ -1556,14 +1584,6 @@ GdipGraphicsClear(GpGraphics *graphics, ARGB color)
         cairo_restore (graphics->ct);
 
         return Ok;
-}
-
-GpStatus
-GdipSetInterpolationMode(GpGraphics *graphics, InterpolationMode imode)
-{
-    g_return_val_if_fail (imode != InterpolationModeInvalid, InvalidParameter);
-
-    return Ok;
 }
 
 GpStatus
@@ -1637,3 +1657,4 @@ GdipGetSmoothingMode(GpGraphics *graphics, SmoothingMode *mode)
     *mode = SmoothingModeDefault;
     return Ok;
 }
+

@@ -1,3 +1,8 @@
+2004-04-16 Jordi Mas i Hernandez <jordi@ximian.com>
+
+        * region.c -  more work on regions. New methods, fixes, and funtionality
+        * graphics.c - GdipFillRegion implemented
+
 2004-04-16 Ravindra <rkumar@novell.com>
 
 	* gdip.h: Included glib.h.
