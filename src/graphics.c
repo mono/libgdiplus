@@ -1611,12 +1611,10 @@ GdipGraphicsClear (GpGraphics *graphics, ARGB color)
         double red, green, blue, alpha;
 	GpImage *image;
 
-        if (graphics == NULL)
-		return InvalidParameter;
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
 	image = graphics->image;
-	if (image == NULL)
-		return InvalidParameter;
+	g_return_val_if_fail (image != NULL, InvalidParameter);
 
         blue = color & 0xff;
         green = (color >> 8) & 0xff;
