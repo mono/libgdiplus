@@ -116,11 +116,11 @@ gdip_bitmap_save_bmp (const char *name, GpBitmap *bitmap)
 	bmfh.bfOffBits = (14 + 40 + 0 * 4);
 	bmfh.bfSize = (bmfh.bfOffBits + bitmapLen);
 	fp = fopen (name, "w+b");
-	fwrite (&bmfh, 1, sizeof (bmfh), fp);
+	fwrite (&bmfh, sizeof (bmfh), 1, fp);
 	gdip_bitmap_fill_info_header (bitmap, &bmi);
 	bmi.biHeight = -bmi.biHeight;
-	fwrite (&bmi, 1, sizeof (bmi), fp);
-	fwrite (bitmap->data.Scan0, 1, bitmapLen, fp);
+	fwrite (&bmi, sizeof (bmi), 1, fp);
+	fwrite (bitmap->data.Scan0, bitmapLen, 1, fp);
 	fclose (fp);
 }
 
@@ -500,10 +500,10 @@ gdip_save_bmp_image_to_file (FILE *fp, GpImage *image)
         bmfh.bfSize = (bmfh.bfOffBits + bitmapLen);
 
         bmfh.bfOffBits = (14 + 40 + colours * 4);
-        fwrite (&bmfh, 1, sizeof (bmfh), fp);
+        fwrite (&bmfh, sizeof (bmfh), 1, fp);
         gdip_bitmap_fill_info_header (bitmap, &bmi);
 
-        fwrite (&bmi, 1, sizeof (bmi), fp);
+        fwrite (&bmi, sizeof (bmi), 1, fp);
 
         if (colours) {
 
