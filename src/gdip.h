@@ -619,12 +619,19 @@ typedef struct {
 } GpPointF, PointF;
 
 typedef struct {
+        GpRectF*        rects;
+        int             cnt;
+} GpRegion;
+
+typedef struct {
 	cairo_t         *ct;
 	cairo_matrix_t  *copy_of_ctm;
 	void            *hdc;
 	int             hdc_busy_count;
 	void            *image;
 	int             type; 
+	GpRegion*	clip;
+	GpRect		bounds;
 } GpGraphics;
 
 typedef struct _CustomLineCap GpCustomLineCap;
@@ -752,11 +759,6 @@ typedef struct {
         void                *wineHfont;
 } GpFont;
 
-
-typedef struct {
-        GpRectF*        rects;
-        int             cnt;
-} GpRegion;
 
 
 typedef struct {

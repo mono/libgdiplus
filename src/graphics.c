@@ -30,9 +30,13 @@
 #include <math.h>
 #include <glib.h>
 
+extern BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect);
+extern BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect);
+
 void
 gdip_graphics_init (GpGraphics *graphics)
 {
+	
 	graphics->ct = cairo_create ();
 	graphics->copy_of_ctm = cairo_matrix_create ();
 	cairo_matrix_set_identity (graphics->copy_of_ctm);
@@ -43,6 +47,8 @@ gdip_graphics_init (GpGraphics *graphics)
 	graphics->type = gtUndefined;
         /* cairo_select_font (graphics->ct, "serif:12"); */
 	cairo_select_font (graphics->ct, "serif:12", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+	GdipCreateRegion (&graphics->clip);
+	graphics->bounds.X = graphics->bounds.Y = graphics->bounds.Width = graphics->bounds.Height = 0;
 }
 
 GpGraphics *
@@ -334,6 +340,7 @@ GdipDeleteGraphics (GpGraphics *graphics)
 	if (graphics->copy_of_ctm)
 		cairo_matrix_destroy (graphics->copy_of_ctm);
 	graphics->copy_of_ctm = NULL;
+	GdipDeleteRegion (graphics->clip);
 
 	if (graphics->ct)
 		cairo_destroy (graphics->ct);
@@ -2447,25 +2454,55 @@ GdipEndContainer (GpGraphics *graphics, GpGraphicsContainer state)
 GpStatus
 GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 {
-	return NotImplemented;
+	/*
+		Since all the Cairo API is syncronous, there is no need for flushing
+	*/
+	return Ok;
 }
+
+/*
+	Since cairo does autoclipping and it hides the clipping rectangles from the API, the
+	best thing for now is keep track of what the user wants and let Cairo do its autoclipping
+*/
 
 GpStatus
 GdipSetClipGraphics (GpGraphics *graphics, GpGraphics *srcgraphics, CombineMode combineMode)
 {
-	return NotImplemented;
+	if (!graphics || !srcgraphics)
+		return InvalidParameter;
+		
+	GdipDeleteRegion (graphics->clip);
+	GdipCloneRegion (srcgraphics->clip, &graphics->clip);
+	
+	return Ok;
 }
 
 GpStatus
 GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float height, CombineMode combineMode)
 {
-	return NotImplemented;
+	GDIPCONST GpRectF rect = {x, y, width, height};
+	
+	if (!graphics)
+		return InvalidParameter;
+		
+	GdipSetEmpty (graphics->clip);
+	GdipCombineRegionRect (graphics->clip, &rect, combineMode);	
+
+	return Ok;
 }
 
 GpStatus
 GdipSetClipRectI (GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height, CombineMode combineMode)
 {
-	return NotImplemented;
+	GDIPCONST GpRect rect = {x, y, width, height};
+	
+	if (!graphics)
+		return InvalidParameter;
+		
+	GdipSetEmpty (graphics->clip);
+	GdipCombineRegionRectI (graphics->clip, &rect, combineMode);	
+
+	return Ok;
 }
 
 GpStatus
@@ -2477,7 +2514,13 @@ GdipSetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMode)
 GpStatus
 GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMode)
 {
-	return NotImplemented;
+	if (!graphics || region)
+		return InvalidParameter;
+		
+	GdipSetEmpty (graphics->clip);
+	GdipCombineRegionRegion (graphics->clip, region, combineMode);	
+
+	return Ok;
 }
 
 GpStatus
@@ -2489,85 +2532,198 @@ GdipSetClipHrgn (GpGraphics *graphics, void *hRgn, CombineMode combineMode)
 GpStatus
 GdipResetClip (GpGraphics *graphics)
 {
-	return NotImplemented;
+	if (!graphics)
+		return InvalidParameter;
+	
+	GdipSetInfinite (graphics->clip);
+	return Ok;
 }
 
 GpStatus
 GdipTranslateClip (GpGraphics *graphics, float dx, float dy)
 {
-	return NotImplemented;
+	return GdipTranslateRegion (graphics->clip, dx, dy);
 }
 
 GpStatus
 GdipTranslateClipI (GpGraphics *graphics, UINT dx, UINT dy)
 {
-	return NotImplemented;
+	return GdipTranslateRegionI (graphics->clip, dx, dy);
 }
 
 GpStatus
 GdipGetClip (GpGraphics *graphics, GpRegion *region)
 {
-	return NotImplemented;
+	if (!graphics || !region)
+		return InvalidParameter;
+	
+	if (region->rects)
+		free (region->rects),
+	
+	region->rects = (GpRectF *) malloc (sizeof (GpRectF) * graphics->clip->cnt);
+	memcpy (region->rects, graphics->clip->rects, sizeof (GpRectF) * graphics->clip->cnt);
+	return Ok;
 }
+
 
 GpStatus
 GdipGetClipBounds (GpGraphics *graphics, GpRectF *rect)
 {
-	return NotImplemented;
+	return GdipGetRegionBounds (graphics->clip, graphics, rect);
 }
 
 GpStatus
 GdipGetClipBoundsI (GpGraphics *graphics, GpRect *rect)
 {
-	return NotImplemented;
+	GpRectF rectF = {rect->X, rect->Y, rect->Width, rect->Height};
+	Status status;
+	
+	status =  GdipGetRegionBounds (graphics->clip, graphics, &rectF);
+	
+	if (status != Ok)
+		return status;
+	
+	graphics->bounds.X = rectF.X;
+	graphics->bounds.Y = rectF.Y;
+	graphics->bounds.Width = rectF.Width;
+	graphics->bounds.Height = rectF.Height;
+	
+	return Ok;
 }
 
 GpStatus
 GdipIsClipEmpty (GpGraphics *graphics, BOOL *result)
 {
-	return NotImplemented;
+	return GdipIsEmptyRegion (graphics->clip, graphics, result);
+}
+
+GpStatus
+GdipSetVisibleClip_linux (GpGraphics *graphics, GpRect *rect)
+{
+	if (!graphics || !rect)
+		return InvalidParameter;		
+		
+	graphics->bounds.X = rect->X;
+	graphics->bounds.Y = rect->Y;
+	graphics->bounds.Width = rect->Width;
+	graphics->bounds.Height = rect->Height;
+	
+	return Ok;
 }
 
 GpStatus
 GdipGetVisibleClipBounds (GpGraphics *graphics, GpRectF *rect)
 {
-	return NotImplemented;
+	if (!graphics || !rect)
+		return InvalidParameter;
+		
+	rect->X = graphics->bounds.X;
+	rect->Y = graphics->bounds.Y;
+	rect->Width = graphics->bounds.Width;
+	rect->Height = graphics->bounds.Height;
+	
+	return Ok;
 }
 
 GpStatus
 GdipGetVisibleClipBoundsI (GpGraphics *graphics, GpRect *rect)
-{
-	return NotImplemented;
+{	
+	GpRectF rectF;
+	
+	if (!graphics || !rect)
+		return InvalidParameter;
+	
+	GdipGetVisibleClipBounds (graphics, &rectF);
+	
+	rect->X = rectF.X;
+	rect->Y = rectF.Y;
+	rect->Width = rectF.Width;
+	rect->Height = rectF.Height;
+	
+	return Ok;
 }
 
 GpStatus
 GdipIsVisibleClipEmpty (GpGraphics *graphics, BOOL *result)
 {
-	return NotImplemented;
+	if (!graphics || !result)
+		return InvalidParameter;
+		
+	if (graphics->bounds.Width == 0 || graphics->bounds.Height == 0)
+		*result = TRUE;
+	else
+		*result = FALSE;
+		
+	return Ok;
+	
 }
+
 
 GpStatus
 GdipIsVisiblePoint (GpGraphics *graphics, float x, float y, BOOL *result)
 {
-	return NotImplemented;
+	GpRectF rectF;
+	
+	if (!graphics || !result)
+		return InvalidParameter;
+		
+	rectF.X = graphics->bounds.X;
+	rectF.Y = graphics->bounds.Y;
+	rectF.Width = graphics->bounds.Width;
+	rectF.Height = graphics->bounds.Height;	
+
+        *result = gdip_is_Point_in_RectF_inclusive (x, y, &rectF);
+
+        return Ok;
 }
 
 GpStatus
 GdipIsVisiblePointI (GpGraphics *graphics, UINT x, UINT y, BOOL *result)
 {
-	return NotImplemented;
+	return GdipIsVisiblePoint (graphics, (float) x, (float) y, result);
 }
 
 GpStatus
 GdipIsVisibleRect (GpGraphics *graphics, float x, float y, float width, float height, BOOL *result)
 {
-	return NotImplemented;
+	BOOL found = FALSE;
+	float posy, posx;
+	GpRectF recthit, boundsF;
+
+	if (!graphics || !result)
+		return InvalidParameter;
+
+	if (width ==0 || height ==0) {
+		*result = FALSE;
+		return Ok;
+	}
+	
+	boundsF.X = graphics->bounds.X;
+	boundsF.Y = graphics->bounds.Y;
+	boundsF.Width = graphics->bounds.Width;
+	boundsF.Height = graphics->bounds.Height;	
+
+	recthit.X = x; recthit.Y = y;
+	recthit.Width = width; recthit.Height = height;
+
+	/* Any point of intersection ?*/
+	for (posy = 0; posy < recthit.Height+1; posy++) {	
+		for (posx = 0; posx < recthit.Width +1; posx++) {
+			if (gdip_is_Point_in_RectF_inclusive (recthit.X + posx , recthit.Y + posy, &boundsF) == TRUE) {
+				found = TRUE;
+				break;
+			}
+		}
+	}
+	
+	*result = found;
+	return Ok;
 }
 
 GpStatus
 GdipIsVisibleRectI (GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height, BOOL *result)
 {
-	return NotImplemented;
+	return GdipIsVisibleRect (graphics, x, y, width, height, result);
 }
 
 GpStatus

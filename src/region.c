@@ -971,7 +971,6 @@ GdipIsInfiniteRegion (GpRegion *region, GpGraphics *graphics, BOOL *result)
 GpStatus
 GdipIsVisibleRegionPoint (GpRegion *region, float x, float y, GpGraphics *graphics, BOOL *result)
 {
-        GpRectF rect;
 
         if (!region || !result)
                 return InvalidParameter;
@@ -985,7 +984,6 @@ GdipIsVisibleRegionPoint (GpRegion *region, float x, float y, GpGraphics *graphi
 GpStatus
 GdipIsVisibleRegionPointI (GpRegion *region, int x, int y, GpGraphics *graphics, BOOL *result)
 {
-        GpRectF rect;
         float xf, yf;
 
         if (!region || !result)
