@@ -112,6 +112,7 @@ GdipDeleteStringFormat(GpStringFormat *format)
                 free (format->tabStops);
 
         GdipFree (format);
+        return Ok;
 }
 
 GpStatus

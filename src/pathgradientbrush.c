@@ -112,6 +112,18 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 
     pgbrush = (GpPathGradient *) brush;
 
+    if (pgbrush->boundary == NULL)
+        return Ok;              /* do nothing */
+
+    /* As a stub, we simply set the color to the center color */
+    cairo_set_rgb_color (graphics->ct,
+                         ARGB_RED_N(pgbrush->centerColor),
+                         ARGB_GREEN_N(pgbrush->centerColor),
+                         ARGB_BLUE_N(pgbrush->centerColor));
+
+    cairo_set_alpha (graphics->ct,
+                     ARGB_ALPHA_N(pgbrush->centerColor));
+
     return Ok;
 }
 

@@ -444,7 +444,7 @@ gdip_save_bmp_image_to_file (FILE *fp, GpImage *image)
         /* Writes bitmap upside down. Many tools can only process bmp stored this way*/        
         for (i = bitmap->data.Height - 1; i >= 0; i--)
                 fwrite (bitmap->data.Scan0 + i *bitmap->data.Stride, bitmap->data.Stride, 1, fp);
-
+        return Ok;
 }
 
 GpStatus 

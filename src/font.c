@@ -492,12 +492,14 @@ GdipGetHfont(GpFont* font, void **Hfont)
 GpStatus
 GdipDeleteFont (GpFont* font)
 {
-	if (font){
+	if (font) {
 		cairo_font_destroy ((cairo_font_t *)font->cairofnt);
 		GdipFree ((void *)font);
 		if (font->wineHfont) {
 			DeleteWineFont(font->wineHfont);
 		}
+                return Ok;
 	}
+        return InvalidParameter;
 }
 

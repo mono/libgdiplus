@@ -128,5 +128,6 @@ void _release_hdc (int hdc);
 void * CreateWineFont(FcChar8 *str, GpFontStyle style, float emSize, Unit unit);
 void DeleteWineFont(void *hFont);
 
+void gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi);
 
 #endif /* _GDIP_WIN32_H */

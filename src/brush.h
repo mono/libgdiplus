@@ -43,4 +43,9 @@ GpStatus GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush);
 GpStatus GdipDeleteBrush (GpBrush *brush);
 GpStatus GdipGetBrushType (GpBrush *brush, GpBrushType *type);
 
+/* private */
+void gdip_brush_init (GpBrush *brush, BrushClass* vtable);
+GpStatus gdip_brush_setup (GpGraphics *graphics, GpBrush *brush);
+GpStatus gdip_brush_destroy (GpBrush *brush);
+
 #endif /* _BRUSH_H */

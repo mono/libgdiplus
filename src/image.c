@@ -149,7 +149,7 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
 GpStatus
 GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float width, float height)
 {
-    g_return_if_fail (image->surface != NULL);
+    g_return_val_if_fail (image->surface != NULL, InvalidParameter);
 
     if (!graphics || !image)
         return InvalidParameter;
@@ -657,50 +657,6 @@ get_image_format (char *sig_read, size_t size_read)
 	return INVALID;
 } 
 
-
-int
-gdip_getpixel_formatsize(PixelFormat pixfmt)
-{
-        int result = 0;
-                                           
-        switch (pixfmt) {
-        case Format16bppArgb1555:
-        case Format16bppGrayScale:
-        case Format16bppRgb555:
-        case Format16bppRgb565:
-                result = 16;
-                break;
-        case Format1bppIndexed:
-                result = 1;
-                break;
-        case Format24bppRgb:
-                result = 24;
-                break;
-        case Format32bppArgb:
-        case Format32bppPArgb:
-        case Format32bppRgb:
-                result = 32;
-                break;
-        case Format48bppRgb:
-                result = 48;
-                break;
-        case Format4bppIndexed:
-                result = 4;
-                break;
-        case Format64bppArgb:
-        case Format64bppPArgb:
-                result = 64;
-                break;
-        case Format8bppIndexed:
-                result = 8;
-                break;
-        default:
-                break;
-        }
-
-        return result;
-}
-
 int
 gdip_get_pixel_format_depth(PixelFormat pixfmt)
 {
@@ -873,7 +829,7 @@ static char *
 clsid_to_string_hack (GDIPCONST CLSID *clsid)
 {
     static char buf[1024];
-    snprintf (buf, 1024, "%08x-%04x-%04x-%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x",
+    snprintf (buf, 1024, "%08lx-%04x-%04x-%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x",
               clsid->Data1, clsid->Data2, clsid->Data3,
               clsid->Data4[0], clsid->Data4[1], clsid->Data4[2], clsid->Data4[3], clsid->Data4[4], clsid->Data4[5], clsid->Data4[6], clsid->Data4[7]);
     return buf;

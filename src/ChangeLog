@@ -1,3 +1,24 @@
+2004-04-19  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* bitmap.c: Implemented new LockBits/UnlockBits that's consistent
+	with MS semantics, and that can do conversions.  (Also some random
+	whitespace cleanup, mainly as I touched functions.)
+
+	* gdip.h: Some ARGB access macros, also a cleanup of the PixelFormat
+	enum (there is a method to the madness).  Some missing prototypes also.
+
+	* image.c: Got rid of unused gdip_getpixel_formatsize (it can be inferred
+	from the pixel format).
+
+	* pathgradientbrush.c: Sets the cairo rgb color to the center color of the
+	gradient.  Not pretty, but better than nothing.
+	
+	* Makefile.am: Added -Wall -Wno-unused -Wno-format.  Lots of
+	functions that should have been returning values weren't,
+	functions used without prototypes, etc.  Touched files to fix
+	missing return issues: bmpcodec.c, brush.h, font.c, gdip_win32.h,
+	general.c, graphics.c, hatchbrush.c, imageattributes.c,
+
 2004-04-19 Sanjay Gupta <gsanjay@novell.com>
 	* bmpcodec.c: Fixed function for loading image from stream
 

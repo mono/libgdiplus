@@ -960,6 +960,8 @@ gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush)
 	result->backColor = hatch->backColor;
 
 	*clonedBrush = (GpBrush *) result;
+
+        return Ok;
 }
 
 GpStatus

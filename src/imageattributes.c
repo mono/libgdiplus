@@ -52,12 +52,14 @@ GdipCloneImageAttributes(GDIPCONST GpImageAttributes *imageattr, GpImageAttribut
 
 }
 
-GpStatus GdipDisposeImageAttributes(GpImageAttributes *imageattr)
+GpStatus
+GdipDisposeImageAttributes(GpImageAttributes *imageattr)
 {
         if (!imageattr)
                 return InvalidParameter;
 
         GdipFree (imageattr);
+        return Ok;
 }
 
 GpStatus

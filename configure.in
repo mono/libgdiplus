@@ -31,8 +31,8 @@ AC_TRY_LINK([#include <setjmp.h>], [
 sigjmp_buf env;
 sigsetjmp(env, 0);
 ], gdip_ok=yes, gdip_ok=no)
-AC_MSG_RESULT(gdip_ok)
-if test "gdip_ok" = "yes"; then
+AC_MSG_RESULT($gdip_ok)
+if test "$gdip_ok" = "yes"; then
   AC_DEFINE(HAVE_SIGSETJMP, 1, sigsetjmp is available)
 fi
 

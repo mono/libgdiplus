@@ -7,6 +7,7 @@
  *      Miguel de Icaza (miguel@ximian.com)
  *      Ravindra (rkumar@novell.com)
  *  	Sanjay Gupta (gsanjay@novell.com)
+ *	Vladimir Vukicevic (vladimir@pobox.com)
  *
  * Copyright (C) Novell, Inc. 2003-2004.
  */
@@ -78,8 +79,19 @@ typedef unsigned int UINT;
 typedef unsigned int ARGB;
 typedef int PROPID;
 
-#define MAKE_ARGB_RGB (r,g,b)  (((r&0xff) << 16) | ((g&0xff) << 8) | (b&0xff))
-#define MAKE_ARGB_ARGB (a,r,g,b)  (((a&0xff) << 24) | ((r&0xff) << 16) | ((g&0xff) << 8) | (b&0xff))
+#define MAKE_ARGB_RGB(r,g,b)  (((r&0xff) << 16) | ((g&0xff) << 8) | (b&0xff))
+#define MAKE_ARGB_ARGB(a,r,g,b)  (((a&0xff) << 24) | ((r&0xff) << 16) | ((g&0xff) << 8) | (b&0xff))
+
+#define ARGB_RED(argb) ((argb>>16)&0xff)
+#define ARGB_GREEN(argb) ((argb>>8)&0xff)
+#define ARGB_BLUE(argb) ((argb>>0)&0xff)
+#define ARGB_ALPHA(argb) ((argb>>24)&0xff)
+
+/* _N: normalize to 0.0 .. 1.0 */
+#define ARGB_RED_N(argb) ((double)((argb>>16)&0xff)/255.0)
+#define ARGB_GREEN_N(argb) ((double)((argb>>8)&0xff)/255.0)
+#define ARGB_BLUE_N(argb) ((double)((argb>>0)&0xff)/255.0)
+#define ARGB_ALPHA_N(argb) ((double)((argb>>24)&0xff)/255.0)
 
 /*
  * Enums
@@ -132,37 +144,46 @@ typedef enum {
         DigitSubstituteTraditional = 3
 } DigitSubstitute;
 
-typedef enum {
-	Alpha = 262144,
-	Canonical = 2097152,
-	DontCare = 0,
-	Extended = 1048576,
-	Format16bppArgb1555 = 397319,
-	Format16bppGrayScale = 1052676,
-	Format16bppRgb555 = 135173,
-	Format16bppRgb565 = 135174,
-	Format1bppIndexed = 196865,
-	Format24bppRgb = 137224,
-	Format32bppArgb = 2498570,
-	Format32bppPArgb = 925707,
-	Format32bppRgb = 139273,
-	Format48bppRgb = 1060876, 
-	Format4bppIndexed = 197634,
-	Format64bppArgb = 3424269,
-	Format64bppPArgb = 1851406,
-	Format8bppIndexed = 198659,
-	Gdi = 131072,
-	Indexed = 65536,
-	Max = 15,
-	PAlpha = 524288,
-	Undefined = 0
-} PixelFormat;
+/* The pixel format spec is:
+ * [0-7 format index] [8-15 pixel size, bits] [16-23 flags] [24-31 reserved]
+ * so,
+ * (ID | (bpp << 8) | flags)
+ */
+
 
 typedef enum {
-	ReadOnly = 1,
-	ReadWrite = 3,
-	UserInputBuffer = 4,
-	WriteOnly = 2
+	PixelFormatAlpha = 0x00040000,     // flag: format has alpha
+	PixelFormatCanonical = 0x00200000, // flag: unknown
+	PixelFormatExtended = 0x00100000,  // flag: 16 bits per channel (16bpp grayscale and 48/64bpp rgb)
+	PixelFormatGDI = 0x00020000,       // flag: supported by GDI
+	PixelFormatIndexed = 0x00010000,   // flag: is palette-indexed
+	PixelFormatPAlpha = 0x00080000,    // flag: alpha is pre-multiplied
+        
+	Format16bppArgb1555 = 0x00061007,
+	Format16bppGrayScale = 0x00101004,
+	Format16bppRgb555 = 0x00021005,
+	Format16bppRgb565 = 0x00021006,
+	Format1bppIndexed = 0x0030101,
+	Format24bppRgb = 0x00021808,
+	Format32bppArgb = 0x0026200a,
+	Format32bppPArgb = 0x000e200b,
+	Format32bppRgb = 0x00022009,
+	Format48bppRgb = 0x0010300c,
+	Format4bppIndexed = 0x00030402,
+	Format64bppArgb = 0x0034400d,
+	Format64bppPArgb = 0x001c400e,
+	Format8bppIndexed = 0x00030803,
+
+	PixelFormatUndefined = 0,
+	PixelFormatDontCare = 0
+} PixelFormat;
+
+#define PIXEL_FORMAT_BPP(pf) ((pf >> 8) & 0xff)
+
+typedef enum {
+	ImageLockModeRead = 1,
+	ImageLockModeWrite = 2,
+	ImageLockModeUserInputBuf = 4
 } ImageLockMode;
 
 typedef enum {
@@ -391,7 +412,11 @@ typedef enum {
  * Structures
  *
  */
-#define GBD_OWN_SCAN0 0x80
+
+#define GBD_OWN_SCAN0	(1<<8)
+#define GBD_READ_ONLY	(1<<9)
+#define GBD_LOCKED	(1<<10)
+
 typedef struct {    /* Keep in sync with BitmapData.cs */
 	unsigned int Width;
 	unsigned int Height;
@@ -505,6 +530,7 @@ typedef struct {
 	void *hBitmapDC;
 	void *hInitialBitmap;
 	void *hBitmap;
+	Rect lockRect;
 } GpBitmap;
 
 typedef struct {
@@ -579,6 +605,7 @@ void gdip_image_destroy_Win32_HDC (GpImage *image, void *hdc);
 void gdip_bitmap_init  (GpBitmap *bitmap);
 GpBitmap *gdip_bitmap_new   (void);
 void gdip_bitmap_dispose (GpBitmap *bitmap);
+void gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap);
 
 void *gdip_bitmap_create_Win32_HDC (GpBitmap *bitmap);
 void gdip_bitmap_destroy_Win32_HDC (GpBitmap *bitmap, void *hdc);
@@ -669,6 +696,7 @@ GpStatus GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GpPointF *points
 GpStatus GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count, GpFillMode fillMode);
 GpStatus GdipFillPolygon2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, int count);
 GpStatus GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count);
+GpStatus GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path);
 GpStatus GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y);
 GpStatus GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y);
 GpStatus GdipGetDpiX(GpGraphics *graphics, float *dpi);

@@ -1359,6 +1359,8 @@ GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int len
 
 	g_free (string);
         free (glyphs_details);
+
+        return Ok;
 }
 
 void

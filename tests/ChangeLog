@@ -1,3 +1,9 @@
+2004-04-19  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* Makefile.am: Added testbits.c
+
+	* testbits.c: Test LockBits functionality
+
 2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* testgdi.c: Make the test actually check return values,

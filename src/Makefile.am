@@ -40,4 +40,4 @@ libgdiplus_la_SOURCES = \
 
 libgdiplus_la_LIBADD = $(GDIPLUS_LIBS)
 
-INCLUDES = $(GDIPLUS_CFLAGS) -Werror
+INCLUDES = $(GDIPLUS_CFLAGS) -Wall -Werror -Wno-unused -Wno-format

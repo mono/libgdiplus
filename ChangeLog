@@ -1,3 +1,7 @@
+2004-04-17  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* configure.in: fixed gdip_ok -> $gdip_ok in sigsetjmp check
+
 2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* configure.in: "libpng", not "libgpng"

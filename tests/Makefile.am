@@ -15,7 +15,7 @@ LDADDS =					\
 	$(GDIPLUS_LIBS)
 
 noinst_PROGRAMS =			\
-	testgdi
+	testgdi testbits
 
 testgdi_DEPENDENCIES = $(TEST_DEPS)
 testgdi_LDADD = $(LDADDS)
@@ -23,5 +23,15 @@ testgdi_LDADD = $(LDADDS)
 testgdi_SOURCES =		\
 	testgdi.c
 
+testbits_DEPENDENCIES = $(TEST_DEPS)
+testbits_LDADD = $(LDADDS)
+
+testbits_SOURCES =		\
+	testbits.c
+
 EXTRA_DIST =			\
-	testgdi.c
+	$(testgdi_SOURCES)	\
+	$(testbits_SOURCES)	\
+	$(NULL)
+
+
