@@ -1,3 +1,17 @@
+2004-11-09  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c
+	(MeasureOrDrawString): Added check to prevent crash if bogus data is
+	returned from freetype.
+	(MeasureOrDrawString): Instead of calling GdipFillRectangle we call
+	cairo directly to draw underlines and strikeouts
+
+	(GdipDrawLine): Jackson's matrix patch to align pixels and 
+	effectively avoid AA lines
+
+	(GdipDrawRectangle): Same patch as for GdipDrawLine
+
+
 2004-11-04  Miguel de Icaza  <miguel@ximian.com>
 
 	* graphics.c (CalculateStringSize): Free leaked Glyphs.
