@@ -1,5 +1,20 @@
 2005-01-14  Jackson Harper  <jackson@ximian.com>
 
+	* graphics.c:
+	* lineargradientbrush.c
+	* lineargradientbrush.h:
+	* pathgradientbrush.c:
+	* matrix.c:
+	* texturebrush.c:
+	* texturebrush.h:
+	* pen.c:
+	* gdip.h: Current cairo in cvs has made the cairo_matrix_t
+	variable internal. These are updates to compile with current
+	cairo, all the changes should work with older versions of cairo as
+	well.
+
+2005-01-14  Jackson Harper  <jackson@ximian.com>
+
 	* gdip.h: Remove the hdc stuff that was used with wine. Add fields
 	for the x display and drawable so that they can be used when
 	creating a graphics object from an hdc.

@@ -945,18 +945,25 @@ GdipResetPathGradientTransform (GpPathGradient *brush)
 GpStatus
 GdipMultiplyPathGradientTransform (GpPathGradient *brush, GDIPCONST GpMatrix *matrix, GpMatrixOrder order)
 {
-	cairo_matrix_t mat;
+	cairo_matrix_t *mat;
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	if (order == MatrixOrderPrepend)
-		cairo_matrix_multiply (&mat, matrix, brush->transform);
-	else if (order == MatrixOrderAppend)
-		cairo_matrix_multiply (&mat, brush->transform, matrix);
-	else
-		return InvalidParameter;
+	mat = cairo_matrix_create ();
+	g_return_val_if_fail (mat != NULL, OutOfMemory);
 
-	*(brush->transform) = mat;
+	if (order == MatrixOrderPrepend)
+		cairo_matrix_multiply (mat, *matrix, *brush->transform);
+	else if (order == MatrixOrderAppend)
+		cairo_matrix_multiply (mat, *brush->transform, *matrix);
+	else {
+		cairo_matrix_destroy (mat);
+		return InvalidParameter;
+	}
+
+	cairo_matrix_copy (*brush->transform, mat);
+	cairo_matrix_destroy (mat);
+
 	return Ok;
 }
 
@@ -966,13 +973,22 @@ GdipTranslatePathGradientTransform (GpPathGradient *brush, float dx, float dy, G
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
 	if (order == MatrixOrderAppend) {
-		cairo_matrix_translate (brush->transform, dx, dy);
+		cairo_matrix_translate (*brush->transform, dx, dy);
 	} else if (order == MatrixOrderPrepend) {
-		cairo_matrix_t mat, matres;
-		cairo_matrix_set_identity (&mat);
-		cairo_matrix_translate (&mat, dx, dy);
-		cairo_matrix_multiply (&matres, &mat, brush->transform);
-		*(brush->transform) = matres;
+		cairo_matrix_t *mat, *matres;
+
+		mat = cairo_matrix_create ();
+		matres = cairo_matrix_create ();
+		g_return_val_if_fail (mat != NULL, OutOfMemory);
+		g_return_val_if_fail (matres != NULL, OutOfMemory);
+
+		cairo_matrix_set_identity (mat);
+		cairo_matrix_translate (mat, dx, dy);
+		cairo_matrix_multiply (matres, mat, *brush->transform);
+
+		cairo_matrix_copy (*brush->transform, matres);
+		cairo_matrix_destroy (mat);
+		cairo_matrix_destroy (matres);
 	} else {
 		return InvalidParameter;
 	}
@@ -986,13 +1002,22 @@ GdipScalePathGradientTransform (GpPathGradient *brush, float sx, float sy, GpMat
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
 	if (order == MatrixOrderAppend) {
-		cairo_matrix_scale (brush->transform, sx, sy);
+		cairo_matrix_scale (*brush->transform, sx, sy);
 	} else if (order == MatrixOrderPrepend) {
-		cairo_matrix_t mat, matres;
-		cairo_matrix_set_identity (&mat);
-		cairo_matrix_scale (&mat, sx, sy);
-		cairo_matrix_multiply (&matres, &mat, brush->transform);
-		*(brush->transform) = matres;
+		cairo_matrix_t *mat, *matres;
+
+		mat = cairo_matrix_create ();
+		matres = cairo_matrix_create ();
+		g_return_val_if_fail (mat != NULL, OutOfMemory);
+		g_return_val_if_fail (matres != NULL, OutOfMemory);
+
+		cairo_matrix_set_identity (mat);
+		cairo_matrix_scale (mat, sx, sy);
+		cairo_matrix_multiply (matres, mat, *brush->transform);
+
+		cairo_matrix_copy (*brush->transform, matres);
+		cairo_matrix_destroy (mat);
+		cairo_matrix_destroy (matres);
 	} else {
 		return InvalidParameter;
 	}
@@ -1006,13 +1031,22 @@ GdipRotatePathGradientTransform (GpPathGradient *brush, float angle, GpMatrixOrd
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
 	if (order == MatrixOrderAppend) {
-		cairo_matrix_rotate (brush->transform, angle * DEGTORAD);
+		cairo_matrix_rotate (*brush->transform, angle * DEGTORAD);
 	} else if (order == MatrixOrderPrepend) {
-		cairo_matrix_t mat, matres;
-		cairo_matrix_set_identity (&mat);
-		cairo_matrix_rotate (&mat, angle * DEGTORAD);
-		cairo_matrix_multiply (&matres, &mat, brush->transform);
-		*(brush->transform) = matres;
+		cairo_matrix_t *mat, *matres;
+
+		mat = cairo_matrix_create ();
+		matres = cairo_matrix_create ();
+		g_return_val_if_fail (mat != NULL, OutOfMemory);
+		g_return_val_if_fail (matres != NULL, OutOfMemory);
+
+		cairo_matrix_set_identity (mat);
+		cairo_matrix_rotate (mat, angle * DEGTORAD);
+		cairo_matrix_multiply (matres, mat, *brush->transform);
+
+		cairo_matrix_copy (*brush->transform, matres);
+		cairo_matrix_destroy (mat);
+		cairo_matrix_destroy (matres);
 	} else {
 		return InvalidParameter;
 	}

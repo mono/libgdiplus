@@ -630,7 +630,7 @@ typedef struct {
 typedef struct _CustomLineCap GpCustomLineCap;
 typedef struct _AdjustableArrowCap GpAdjustableArrowCap;
 typedef struct _Brush GpBrush;
-typedef cairo_matrix_t GpMatrix;
+typedef cairo_matrix_t *GpMatrix;
 
 typedef struct {
 	int color;
@@ -648,7 +648,7 @@ typedef struct {
 	BOOL own_dash_array; /* flag to mark if pen maintains its own array or global array */
         float *dash_array;
         GpUnit unit; /* Always set to UnitWorld. */
-        GpMatrix *matrix;
+        GpMatrix matrix;
         BOOL changed; /* flag to mark if pen is changed and needs setup */
 } GpPen;
 

@@ -19,7 +19,7 @@ typedef struct _Texture GpTexture;
 typedef struct _Texture {
 	GpBrush base;
 	GpImage *image;
-	GpMatrix *matrix;
+	GpMatrix matrix;
 	GpRect *rectangle;
 	GpWrapMode wrapMode;
 	cairo_pattern_t *pattern;

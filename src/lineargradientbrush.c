@@ -88,7 +88,11 @@ gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 
 	newbrush->base = linear->base;
 	newbrush->wrapMode = linear->wrapMode;
-	GdipCloneMatrix (linear->matrix, &newbrush->matrix);
+
+	newbrush->matrix = cairo_matrix_create ();
+	g_return_val_if_fail (newbrush->matrix != NULL, OutOfMemory);
+	cairo_matrix_copy (newbrush->matrix, linear->matrix);
+
 	if (linear->rectangle) {
 		newbrush->rectangle = (GpRectF *) GdipAlloc (sizeof (GpRectF));
 		memcpy (newbrush->rectangle, linear->rectangle, sizeof (GpRectF));
@@ -154,7 +158,7 @@ gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
  NO_PRESET_COLORS:
 	GdipFree (newbrush->presetColors);
  NO_PRESET:
-	GdipDeleteMatrix (newbrush->matrix);
+	cairo_matrix_destroy (newbrush->matrix);
 	GdipFree (newbrush);
 	return OutOfMemory;
 
@@ -287,8 +291,8 @@ create_tile_linear (cairo_t *ct, GpLineGradient *linear)
 {
 	cairo_surface_t *gradient;
 	cairo_pattern_t *pat;
-	GpMatrix *tempMatrix;
-	GpMatrix *currMatrix;
+	GpMatrix tempMatrix;
+	GpMatrix currMatrix;
 	GpRectF *rect = linear->rectangle;
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
@@ -369,8 +373,8 @@ create_tile_flipX_linear (cairo_t *ct, GpLineGradient *linear)
 {
 	cairo_surface_t *gradient;
 	cairo_pattern_t *pat;
-	GpMatrix *tempMatrix;
-	GpMatrix *currMatrix;
+	GpMatrix tempMatrix;
+	GpMatrix currMatrix;
 	GpRectF *rect = linear->rectangle;
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
@@ -461,8 +465,8 @@ create_tile_flipY_linear (cairo_t *ct, GpLineGradient *linear)
 {
 	cairo_surface_t *gradient;
 	cairo_pattern_t *pat;
-	GpMatrix *tempMatrix;
-	GpMatrix *currMatrix;
+	GpMatrix tempMatrix;
+	GpMatrix currMatrix;
 	GpRectF *rect = linear->rectangle;
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
@@ -553,8 +557,8 @@ create_tile_flipXY_linear (cairo_t *ct, GpLineGradient *linear)
 {
 	cairo_surface_t *gradient;
 	cairo_pattern_t *pat;
-	GpMatrix *tempMatrix;
-	GpMatrix *currMatrix;
+	GpMatrix tempMatrix;
+	GpMatrix currMatrix;
 
 	GpRectF *rect = linear->rectangle;
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
@@ -677,7 +681,7 @@ gdip_linear_gradient_setup (GpGraphics *graphics, GpBrush *brush)
 	cairo_t *ct;
 	GpLineGradient *linear;
 	cairo_pattern_t *pattern;
-	GpMatrix *product;
+	GpMatrix product;
 	GpStatus status = Ok;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
@@ -1202,7 +1206,7 @@ GdipGetLineTransform (GpLineGradient *brush, GpMatrix *matrix)
 	if (brush->presetColors->count >= 2)
 		return WrongState;
 
-	*matrix = *(brush->matrix);
+	cairo_matrix_copy (*matrix, brush->matrix);
 
 	return Ok;
 }
@@ -1213,7 +1217,8 @@ GdipSetLineTransform (GpLineGradient *brush, GDIPCONST GpMatrix *matrix)
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	*(brush->matrix) = *matrix;
+	cairo_matrix_copy (brush->matrix, *matrix);
+
 	brush->base.changed = TRUE;
 	return Ok;
 }
@@ -1494,7 +1499,7 @@ GdipMultiplyLineTransform (GpLineGradient *brush, GpMatrix *matrix, GpMatrixOrde
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	if ((status = GdipMultiplyMatrix (brush->matrix, matrix, order)) == Ok)
+	if ((status = GdipMultiplyMatrix (&brush->matrix, matrix, order)) == Ok)
 		brush->base.changed = TRUE;
 	return status;
 }
@@ -1524,9 +1529,9 @@ GdipRotateLineTransform (GpLineGradient *brush, float angle, GpMatrixOrder order
 	rect = brush->rectangle;
 
 	/* Absolute rotation */
-	if ((status = GdipTranslateMatrix (brush->matrix, rect->Width, rect->Height, order)) == Ok)
-		if ((status = GdipRotateMatrix (brush->matrix, angle, order)) == Ok)
-			if ((status = GdipTranslateMatrix (brush->matrix, -rect->Width, -rect->Height, order)) == Ok)
+	if ((status = GdipTranslateMatrix (&brush->matrix, rect->Width, rect->Height, order)) == Ok)
+		if ((status = GdipRotateMatrix (&brush->matrix, angle, order)) == Ok)
+			if ((status = GdipTranslateMatrix (&brush->matrix, -rect->Width, -rect->Height, order)) == Ok)
 				brush->base.changed = TRUE;
 	return status;
 }
@@ -1537,7 +1542,7 @@ GdipScaleLineTransform (GpLineGradient *brush, float sx, float sy, GpMatrixOrder
 	GpStatus status;
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
-	if ((status = GdipScaleMatrix (brush->matrix, sx, sy, order)) == Ok)
+	if ((status = GdipScaleMatrix (&brush->matrix, sx, sy, order)) == Ok)
 		brush->base.changed = TRUE;
 	return status;
 }
@@ -1548,7 +1553,7 @@ GdipTranslateLineTransform (GpLineGradient *brush, float dx, float dy, GpMatrixO
 	GpStatus status;
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
-	if ((status = GdipTranslateMatrix (brush->matrix, dx, dy, order)) == Ok)
+	if ((status = GdipTranslateMatrix (&brush->matrix, dx, dy, order)) == Ok)
 		brush->base.changed = TRUE;
 	return status;
 }
