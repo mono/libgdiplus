@@ -872,7 +872,12 @@ GpStatus GdipIsVisibleRegionRect(GpRegion *region, float x, float y, float width
 GpStatus GdipIsVisibleRegionRectI(GpRegion *region, int x, int y, int width, int height, GpGraphics *graphics, BOOL *result);
 GpStatus GdipGetRegionScansCount(GpRegion *region, int* count, GpMatrix* matrix);
 GpStatus GdipGetRegionScans(GpRegion *region, GpRectF* rects, int* count, GpMatrix* matrix);
-
+GpStatus GdipIsEqualRegion(GpRegion *region, GpRegion *region2, GpGraphics *graphics, BOOL *result);
+GpStatus GdipGetRegionDataSize(GpRegion *region, UINT * bufferSize);
+GpStatus GdipGetRegionData(GpRegion *region, BYTE * buffer, UINT bufferSize, UINT *sizeFilled);
+GpStatus GdipTranslateRegion(GpRegion *region, float dx, float dy);
+GpStatus GdipTranslateRegionI(GpRegion *region, int dx, int dy);
+GpStatus GdipTransformRegion(GpRegion *region, GpMatrix *matrix);
 
 
                                  

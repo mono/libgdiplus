@@ -1433,7 +1433,7 @@ GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode,
                 GpLinePointF point;
 
                 point.X = rc->X;
-                point.Y = rc->Y;
+                point.Y = realY;
                 point.width = rc->Width;
                 
 		cairo_scale_font (graphics->ct, font->sizeInPixels);
@@ -1522,6 +1522,9 @@ GdipFillRegion(GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 
         if (!graphics || !brush || !region)
 		return InvalidParameter;
+
+        if (!region->rects || region->cnt==0)
+                return Ok;
 
 	cairo_save (graphics->ct);
 
