@@ -175,7 +175,9 @@ gdip_get_display_dpi()
             char *val = XGetDefault(GDIP_display, "Xft", "dpi");
             if (val) {
                 dpis = atof(val);
-            }
+            } else {
+		dpis = 72.0f;
+	    }
         }
     }
 
@@ -295,17 +297,19 @@ _install_font_matrix(cairo_matrix_t *matrix, FT_Face face)
 }
 
 int
-gdpi_utf8_to_glyphs (cairo_ft_font_t	*font,
+gdpi_utf8_to_glyphs (cairo_font_t	*font,
+                 cairo_matrix_t		matrix,
 		 const unsigned char	*utf8,
 		 double			x0,
 		 double			y0,
 		 cairo_glyph_t		**glyphs,
 		 size_t			*nglyphs)
 {
-    FT_Face face = font->face;
-    double x = 0., y = 0.;
-    size_t i;
-    FT_ULong *ucs4 = NULL;
+    FT_Face face = cairo_ft_font_face(font);
+    double		x = 0.0;
+    double		y = 0.0;
+    size_t		i;
+    FT_ULong		*ucs4 = NULL;
 
     ucs4 = (FT_ULong *)g_utf8_to_ucs4 (utf8, (glong)-1, NULL, (glong *)nglyphs, NULL);
 
@@ -319,7 +323,7 @@ gdpi_utf8_to_glyphs (cairo_ft_font_t	*font,
         return 0;
     }
 
-    _install_font_matrix (&font->base.matrix, face);
+    _install_font_matrix (&matrix, face);
 
     for (i = 0; i < *nglyphs; i++)
     {

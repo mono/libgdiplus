@@ -1,3 +1,81 @@
+2004-10-28  Ravindra  <rkumar@novell.com>
+
+	* tiffcodec.c (gdip_tiff_close): Don't close the stream, we
+	should not close the user provided stream. 
+
+2004-10-28  Miguel de Icaza  <miguel@ximian.com>
+
+	* graphics.c (GdipSetClipRegion): Fix the test, it should test for
+	either value being null.
+
+2004-10-19  Jordi Mas <jordi@ximian.com>
+  
+  	* image.c: Speeds up GdipDrawImageRect arround 10%
+	
+2004-10-19  Ravindra <rkumar@novell.com>
+
+	* jpegcodec.c: Backporting. Fixed bug #68117. Retrieves the
+	proper resolution info from a Jpeg image.
+
+2004-10-05  Ravindra <rkumar@novell.com>
+
+	* pen.c: Backporting. Fix for the bug #66665. Using a dirty
+	bit on pen to avoid multiple setups has a flaw. It does not
+	work well when we use the different pens with the same
+	graphics.
+
+2004-09-27  Mart Roosmaa <roosmaa@gmail.com>
+
+	* general.c: Fallback to 72 dpis if we can not determine this
+	information. 
+
+2004-09-22  Ravindra <rkumar@novell.com>
+
+	* gifcodec.c: Return the UnknownImageFormat status instead of
+	NotImplemented, when the required libraries are not installed.
+	* pngcodec.c: Same as above.
+	* tiffcodec.c: Same as above.
+	* jpegcodec.c: Same as above and fix for bug #50081.
+
+2004-09-15  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Applied a fix from David Mitchell for bug #65963
+	in GdipDeleteGraphics function.
+
+2004-09-10  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Corrected a value in PathPointType enum.
+	* font.c: Fixed GdipGetEmHeight and GdipGetLineSpacing functions.
+	* image.c: In GdipDrawImageRect function, reset the cairo matrix
+	after drawing the image.
+
+2004-08-05  Ravindra <rkumar@novell.com>
+
+	* font.c: Fixed GdipDeleteFont function.
+
+2004-07-30  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Commented out cairo_clip calls from GdipDrawString,
+	as these were causing problems. Thanks to Peter for suggesting this
+	fix. This fixes, bug #60386, #60663, #61414. These bugs were actually
+	because of some problem with Cairo clipping. And, these are not 
+	reproducable with Cairo cvs, because Cairo seems to have some changes
+	which have solved the problem with clipping in Cairo.
+
+2004-07-07  Ravindra <rkumar@novell.com>
+
+	* pngcodec.c: Fixes bug #61156 and one perf improvement in
+	image loading.
+
+2004-06-29  Jordi Mas <jordi@ximian.com>
+
+	* pngcodec.c: fixes saving 24-bit images (it was saving corrupted files before)
+
+2004-06-29  Jordi Mas <jordi@ximian.com>
+
+	* tiffcodec.c: fixes saving images to stream. It was giving an exception
+	before
+
 2004-06-25  Ravindra <rkumar@novell.com>
 
 	* lineargradientbrush.c: Couple of fixes and some missing bits.

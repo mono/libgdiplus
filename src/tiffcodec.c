@@ -33,7 +33,11 @@
 #endif
 
 #include <stdio.h>
+
+#ifdef HAVE_BYTESWAP_H
 #include <byteswap.h>
+#endif
+
 #include "tiffcodec.h"
 
 #ifdef HAVE_LIBTIFF
@@ -66,6 +70,12 @@ gdip_tiff_read (thandle_t clientData, tdata_t buffer, tsize_t size)
 }
 
 tsize_t 
+gdip_tiff_read_none (thandle_t clientData, tdata_t buffer, tsize_t size)
+{
+	return 0;
+}
+
+tsize_t 
 gdip_tiff_write (thandle_t clientData, tdata_t buffer, tsize_t size)
 {
 	return (tsize_t)((gdip_tiff_clientData *) clientData)->putBytesFunc (buffer, size);
@@ -80,7 +90,8 @@ gdip_tiff_seek (thandle_t clientData, toff_t offSet, int whence)
 int 
 gdip_tiff_close (thandle_t clientData)
 {
-	((gdip_tiff_clientData *) clientData)->closeFunc ();
+	/* We should not close the user provided streams */
+	/* ((gdip_tiff_clientData *) clientData)->closeFunc (); */
 	return 1;
 }
 
@@ -355,7 +366,7 @@ gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
 	clientData.closeFunc = closeFunc;
 	clientData.sizeFunc = sizeFunc;
 	
-	tiff = TIFFClientOpen("lose.tif", "w", &clientData, gdip_tiff_read, 
+	tiff = TIFFClientOpen("lose.tif", "w", &clientData, gdip_tiff_read_none, 
 			gdip_tiff_write, gdip_tiff_seek, gdip_tiff_close, 
 			gdip_tiff_size, gdip_tiff_dummy_map, gdip_tiff_dummy_unmap);
 	if (!tiff)
@@ -378,7 +389,7 @@ GpStatus
 gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
 {
 	*image = NULL;
-	return NotImplemented;
+	return UnknownImageFormat;
 }
 
 GpStatus
@@ -390,13 +401,13 @@ gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
                                            GpImage **image)
 {
 	*image = NULL;
-	return NotImplemented;
+	return UnknownImageFormat;
 }
 
 GpStatus 
 gdip_save_tiff_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params)
 {
-	return NotImplemented;
+	return UnknownImageFormat;
 }
 
 GpStatus
@@ -408,7 +419,7 @@ gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
                                          GpImage *image,
                                          GDIPCONST EncoderParameters *params)
 {
-    return NotImplemented;
+    return UnknownImageFormat;
 }
 
 #endif
