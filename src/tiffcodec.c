@@ -386,7 +386,7 @@ gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 	clientData.closeFunc = closeFunc;
 	clientData.sizeFunc = sizeFunc;
 	
-	tif = TIFFClientOpen("lose.tif", "r", &clientData, gdip_tiff_read, 
+	tif = TIFFClientOpen("lose.tif", "r", (thandle_t) &clientData, gdip_tiff_read, 
 				gdip_tiff_write, gdip_tiff_seek, gdip_tiff_close, 
 				gdip_tiff_size, gdip_tiff_dummy_map, gdip_tiff_dummy_unmap);
 	
@@ -411,7 +411,7 @@ gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
 	clientData.closeFunc = closeFunc;
 	clientData.sizeFunc = sizeFunc;
 	
-	tiff = TIFFClientOpen("lose.tif", "w", &clientData, gdip_tiff_read_none, 
+	tiff = TIFFClientOpen("lose.tif", "w", (thandle_t) &clientData, gdip_tiff_read_none, 
 			gdip_tiff_write, gdip_tiff_seek, gdip_tiff_close, 
 			gdip_tiff_size, gdip_tiff_dummy_map, gdip_tiff_dummy_unmap);
 	if (!tiff)

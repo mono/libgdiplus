@@ -1,3 +1,8 @@
+2005-01-06  Miguel de Icaza  <miguel@ximian.com>
+
+	* tiffcodec.c: Cast the third argument to thandle_t to supress
+	errors on certain distros.  Fixes 70456
+
 2005-01-05  Peter Bartok  <pbartok@novell.com>
 
 	* graphics.c (MeasureOrDrawString): If the string doesn't fit in
