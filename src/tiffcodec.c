@@ -49,6 +49,42 @@ static const WCHAR tiff_extension[] = {'*', '.', 'T', 'I', 'F',';', '*', '.', 'T
 static const WCHAR tiff_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 't', 'i', 'f', 'f', 0}; /* image/gif */
 static const WCHAR tiff_format[] = {'T', 'I', 'F', 'F', 0}; /* TIFF */
 
+/*Wrapper functions and client data strucutre for delegate functions from StreamHelper class of 
+System.Drawing Namespace*/
+typedef struct {
+	GetBytesDelegate getBytesFunc;
+        PutBytesDelegate putBytesFunc;
+	SeekDelegate seekFunc;
+        CloseDelegate closeFunc;
+        SizeDelegate sizeFunc;
+} gdip_tiff_clientData;
+
+tsize_t gdip_tiff_read (thandle_t clientData, tdata_t buffer, tsize_t size)
+{
+	return (tsize_t)((gdip_tiff_clientData *) clientData)->getBytesFunc (buffer, size, 0);
+}
+
+tsize_t gdip_tiff_write (thandle_t clientData, tdata_t buffer, tsize_t size)
+{
+	return (tsize_t)((gdip_tiff_clientData *) clientData)->putBytesFunc (buffer, size);
+}
+
+toff_t gdip_tiff_seek (thandle_t clientData, toff_t offSet, int whence)
+{
+	return (toff_t)((gdip_tiff_clientData *) clientData)->seekFunc (offSet, whence);
+}
+
+int gdip_tiff_close (thandle_t clientData)
+{
+	((gdip_tiff_clientData *) clientData)->closeFunc ();
+	return 1;
+}
+
+toff_t gdip_tiff_size (thandle_t clientData)
+{
+	return (toff_t)((gdip_tiff_clientData *) clientData)->sizeFunc ();
+}
+
 ImageCodecInfo *
 gdip_getcodecinfo_tiff ()
 {
@@ -70,86 +106,85 @@ gdip_getcodecinfo_tiff ()
 }
 
 GpStatus 
-gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
+gdip_save_tiff_image (void *pointer, GpImage *image, bool useFile)
+{
+	return NotImplemented;
+}
+
+GpStatus 
+gdip_load_tiff_image (TIFF *tif, GpImage **image)
 {
 	GpBitmap *img = NULL;
-	TIFF *tif = NULL;
 	char *raster = NULL;
 
-	tif = TIFFFdOpen(fileno (fp), "lose.tif", "r");
 	if (tif) {
-	TIFFRGBAImage tifimg;
-	char emsg[1024];
+		TIFFRGBAImage tifimg;
+		char emsg[1024];
 
-	if (TIFFRGBAImageBegin (&tifimg, tif, 0, emsg)) {
-		size_t npixels;
+		if (TIFFRGBAImageBegin (&tifimg, tif, 0, emsg)) {
+			size_t npixels;
 
-		img = gdip_bitmap_new ();
-		img->image.type = imageBitmap;
-		img->image.graphics = 0;
-		img->image.width = tifimg.width;
-		img->image.height = tifimg.height;
-		/* libtiff expands stuff out to ARGB32 for us if we use this interface */
-		img->image.pixFormat = Format32bppArgb;
-		img->cairo_format = CAIRO_FORMAT_ARGB32;
-		img->data.Stride = tifimg.width * 4;
-		img->data.PixelFormat = img->image.pixFormat;
-		img->data.Width = img->image.width;
-		img->data.Height = img->image.height;
-		
-		npixels = tifimg.width * tifimg.height;
-		/* Note that we don't use _TIFFmalloc */
-		raster = GdipAlloc (npixels * sizeof (guint32));
-		if (raster != NULL) {
-			/* Problem: the raster data returned here has the origin at bottom left,
-			* not top left.  The TIFF guys must be in cahoots with the OpenGL folks.
-			*
-			* Then, to add insult to injury, it's in ARGB format, not ABGR.
-			*/
-			if (TIFFRGBAImageGet (&tifimg, (uint32*) raster, tifimg.width, tifimg.height)) { 
-				guchar *onerow = GdipAlloc (img->data.Stride);
-				guint32 *r32 = (guint32*)raster;
-				int i;
+			img = gdip_bitmap_new ();
+			img->image.type = imageBitmap;
+			img->image.graphics = 0;
+			img->image.width = tifimg.width;
+			img->image.height = tifimg.height;
+			/* libtiff expands stuff out to ARGB32 for us if we use this interface */
+			img->image.pixFormat = Format32bppArgb;
+			img->cairo_format = CAIRO_FORMAT_ARGB32;
+			img->data.Stride = tifimg.width * 4;
+			img->data.PixelFormat = img->image.pixFormat;
+			img->data.Width = img->image.width;
+			img->data.Height = img->image.height;
+			
+			npixels = tifimg.width * tifimg.height;
+			/* Note that we don't use _TIFFmalloc */
+			raster = GdipAlloc (npixels * sizeof (guint32));
+			if (raster != NULL) {
+				/* Problem: the raster data returned here has the origin at bottom left,
+				* not top left.  The TIFF guys must be in cahoots with the OpenGL folks.
+				*
+				* Then, to add insult to injury, it's in ARGB format, not ABGR.
+				*/
+				if (TIFFRGBAImageGet (&tifimg, (uint32*) raster, tifimg.width, tifimg.height)) { 
+					guchar *onerow = GdipAlloc (img->data.Stride);
+					guint32 *r32 = (guint32*)raster;
+					int i;
 				
-				/* flip raster */
-				for (i = 0; i < tifimg.height / 2; i++) {
-					memcpy (onerow, raster + (img->data.Stride * i), img->data.Stride);
-					memcpy (raster + (img->data.Stride * i),
-						raster + (img->data.Stride * (tifimg.height - i - 1)),
-						img->data.Stride);
-					memcpy (raster + (img->data.Stride * (tifimg.height - i - 1)),
-						onerow,
-						img->data.Stride);
-				}
-				/* flip bytes */
-				for (i = 0; i < tifimg.width * tifimg.height; i++) {
-					*r32 =
-						(*r32 & 0xff000000) |
-						((*r32 & 0x00ff0000) >> 16) |
-						(*r32 & 0x0000ff00) |
-						((*r32 & 0x000000ff) << 16);
-					r32++;
-				}
+					/* flip raster */
+					for (i = 0; i < tifimg.height / 2; i++) {
+						memcpy (onerow, raster + (img->data.Stride * i), img->data.Stride);
+						memcpy (raster + (img->data.Stride * i),
+							raster + (img->data.Stride * (tifimg.height - i - 1)),
+								img->data.Stride);
+						memcpy (raster + (img->data.Stride * (tifimg.height - i - 1)),
+								onerow, img->data.Stride);
+					}
+					/* flip bytes */
+					for (i = 0; i < tifimg.width * tifimg.height; i++) {
+						*r32 = (*r32 & 0xff000000) | ((*r32 & 0x00ff0000) >> 16) |
+								(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
+						r32++;
+					}
 				
-				img->data.Scan0 = raster;
-				GdipFree (onerow);
-				img->data.Reserved = GBD_OWN_SCAN0;
+					img->data.Scan0 = raster;
+					GdipFree (onerow);
+					img->data.Reserved = GBD_OWN_SCAN0;
 				
-				img->image.surface = cairo_surface_create_for_image (raster,
+					img->image.surface = cairo_surface_create_for_image (raster,
 											img->cairo_format,
 											img->image.width,
 											img->image.height,
 											img->data.Stride);
-				img->image.horizontalResolution = 0;
-				img->image.verticalResolution = 0;
+					img->image.horizontalResolution = 0;
+					img->image.verticalResolution = 0;
 				
-				img->image.imageFlags =
-				ImageFlagsReadOnly |
-				ImageFlagsHasRealPixelSize |
-				ImageFlagsColorSpaceRGB;
+					img->image.imageFlags = ImageFlagsReadOnly |
+								ImageFlagsHasRealPixelSize |
+								ImageFlagsColorSpaceRGB;
 				
-				img->image.propItems = NULL;
-				img->image.palette = NULL;
+					img->image.propItems = NULL;
+					img->image.palette = NULL;
 				}
 			} else {
 				goto error;
@@ -181,6 +216,15 @@ error:
 		
 	*image = NULL;
 	return InvalidParameter;
+}
+
+GpStatus 
+gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
+{
+	TIFF *tif = NULL;
+	
+	tif = TIFFFdOpen (fileno (fp), "lose.tif", "r");
+	return gdip_load_tiff_image (tif, image);
 }
 
 /*TODO Handle TIFF Encoder Parameters*/
@@ -234,8 +278,28 @@ gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 					   SizeDelegate sizeFunc,
                                            GpImage **image)
 {
-	*image = NULL;
-	return NotImplemented;
+	TIFF *tif = NULL;
+	gdip_tiff_clientData clientData;
+	
+	clientData.getBytesFunc = getBytesFunc;
+	clientData.putBytesFunc = putBytesFunc;
+	clientData.seekFunc = seekFunc;
+	clientData.closeFunc = closeFunc;
+	clientData.sizeFunc = sizeFunc;
+	/*if (clientData.getBytesFunc != NULL)
+                printf("\n tiffcodec.c clientData is not null \n");
+	else 
+		printf("\n tiffcodec.c clientData is null \n");*/
+	tif = TIFFClientOpen("lose.tif", "r", &clientData, gdip_tiff_read, gdip_tiff_write, 
+				gdip_tiff_seek, gdip_tiff_close, gdip_tiff_size, NULL, NULL);
+	/*if (tif !=NULL)
+		printf ("\n tiffcodec after reading tif \n");
+	else
+	{
+		printf ("\n tiffcodec after reading tif and is NULL \n");
+		return NotImplemented;
+	}*/
+	return gdip_load_tiff_image (tif, image);
 }
 
 GpStatus

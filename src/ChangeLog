@@ -1,3 +1,8 @@
+2004-06-16  Sanjay Gupta <gsanjay@novell.com>
+                                                                                
+        * tiffcodec.c, tiffcodec.h: Implemented methods for loading tiff
+        images from stream.
+                                                                                
 2004-06-16  Ravindra <rkumar@novell.com>
 
 	* graphics.c: Removed unnecessary calls to cairo_save and

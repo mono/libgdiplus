@@ -36,4 +36,4 @@ gdip_save_tiff_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
 ImageCodecInfo *
 gdip_getcodecinfo_tiff ();
 
-#endif /* _PNGCODEC_H */
+#endif /* _TIFFCODEC_H */
