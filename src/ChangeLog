@@ -1,10 +1,8 @@
 2004-04-06  Duncan Mak  <duncan@ximian.com>
 
-	* graphics.c (make_arc): use fequals instead of ==.
-
-	* gdip.h (EPSILON): define it here to be used by floating point
-	comparisons.
-	(fequals): A macro for comparing 2 FP numbers with EPSILON.
+	* graphics.c (make_arc): Just follow what I did with GraphicsPath
+	and use a boolean flag instead of doing FP comparison. It's not
+	worth it.
 
 2004-04-06  Vladimir Vukicevic  <vladimir@pobox.com>
 

@@ -146,7 +146,7 @@ make_polygon_from_integers (GpGraphics *graphics, GpPoint *points, int count)
  *      http://www.stillhq.com/ctpfaq/2002/03/c1088.html#AEN1212
  */
 static void
-make_arc (GpGraphics *graphics, float x, float y, float width,
+make_arc (GpGraphics *graphics, bool start, float x, float y, float width,
           float height, float startAngle, float endAngle)
 {       
         float rx = width / 2;
@@ -172,12 +172,8 @@ make_arc (GpGraphics *graphics, float x, float y, float width,
         double sx = cx + rx * cos_alpha;
         double sy = cy + ry * sin_alpha;
 
-        /* current point */
-        double nx, ny;
-        cairo_current_point (graphics->ct, &nx, &ny);
-
-        /* move to starting point if we're not there already */
-        if ((fequals (nx, sx) && fequals (ny, sy))
+        /* don't move to starting point if we're continuing an existing curve */
+        if (start)
                 cairo_move_to (graphics->ct, sx, sy);
 
         cairo_curve_to (graphics->ct,
@@ -225,12 +221,12 @@ make_pie (GpGraphics *graphics, float x, float y,
          * twice, using a middle angle.
          */
         if (sweepAngle < 180)
-                make_arc (graphics, x, y, width, height, startAngle, endAngle);
+                make_arc (graphics, TRUE, x, y, width, height, startAngle, endAngle);
         else {
                 float midAngle = startAngle + (sweepAngle / 2.0);
 
-                make_arc (graphics, x, y, width, height, startAngle, midAngle);
-                make_arc (graphics, x, y, width, height, midAngle, endAngle);
+                make_arc (graphics, TRUE, x, y, width, height, startAngle, midAngle);
+                make_arc (graphics, FALSE, x, y, width, height, midAngle, endAngle);
         }
 
         /* draws line back to center */
@@ -428,13 +424,13 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
                 make_ellipse (graphics, x, y, width, height);
 
         else if (sweepAngle < 180)
-                make_arc (graphics, x, y, width, height, startAngle, endAngle);
+                make_arc (graphics, TRUE, x, y, width, height, startAngle, endAngle);
 
         else {
                 float midAngle = startAngle + (sweepAngle / 2.0);
 
-                make_arc (graphics, x, y, width, height, startAngle, midAngle);
-                make_arc (graphics, x, y, width, height, midAngle, endAngle);
+                make_arc (graphics, TRUE, x, y, width, height, startAngle, midAngle);
+                make_arc (graphics, FALSE, x, y, width, height, midAngle, endAngle);
         }  
 
         cairo_stroke (graphics->ct);

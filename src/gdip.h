@@ -64,7 +64,6 @@ typedef struct {
 #define GDIPCONST const
 #define CURVE_MIN_TERMS 1
 #define CURVE_MAX_TERMS 7
-#define EPSILON 0.00001
 
 typedef unsigned char byte;
 typedef int bool;
@@ -75,7 +74,6 @@ typedef int PROPID;
 
 #define MAKE_ARGB_RGB (r,g,b)  (((r&0xff) << 16) | ((g&0xff) << 8) | (b&0xff))
 #define MAKE_ARGB_ARGB (a,r,g,b)  (((a&0xff) << 24) | ((r&0xff) << 16) | ((g&0xff) << 8) | (b&0xff))
-#define fequals (a, b) (fabs (a - b) < EPSILON)
 
 /*
  * Enums
