@@ -619,8 +619,6 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 	if ((fp = fopen(file_name, "wb")) == NULL)
 		return GenericError;
 		
-	printf ("format %u\n", format);
-		
 	g_free (file_name);
 	
 	switch (format) {
