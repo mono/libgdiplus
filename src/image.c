@@ -182,9 +182,10 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
     g_return_val_if_fail (graphics != NULL, InvalidParameter);
     g_return_val_if_fail (image != NULL, InvalidParameter);
     g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
+    
 
     /* Create a surface for this bitmap if one doesn't exist */
-    gdip_bitmap_ensure_surface ((GpBitmap*) image);
+    gdip_bitmap_ensure_surface ((GpBitmap*) image, NULL);
 
     gdip_cairo_set_surface_pattern (graphics->ct, image->surface);
     cairo_rectangle (graphics->ct, x, y, width, height);
@@ -271,7 +272,8 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
     g_return_val_if_fail (graphics != NULL, InvalidParameter);
     g_return_val_if_fail (image != NULL, InvalidParameter);
     g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
-
+    
+    
     if (srcUnit != UnitPixel && srcUnit != UnitWorld) {
         gdip_unitConversion(srcUnit, UnitPixel, dstx, &dstx);
         gdip_unitConversion(srcUnit, UnitPixel, dsty, &dsty);
@@ -284,7 +286,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
     }
 
     /* Create a surface for this bitmap if one doesn't exist */
-    gdip_bitmap_ensure_surface ((GpBitmap*) image);
+    gdip_bitmap_ensure_surface ((GpBitmap*) image, (GpImageAttributes *) imageAttributes);
 
     mat = cairo_matrix_create ();
     cairo_matrix_scale (mat, srcwidth / dstwidth, srcheight / dstheight);

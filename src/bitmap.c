@@ -914,15 +914,29 @@ GdipBitmapSetResolution (GpBitmap *bitmap, float xdpi, float ydpi)
 }
 
 cairo_surface_t *
-gdip_bitmap_ensure_surface (GpBitmap *bitmap)
+gdip_bitmap_ensure_surface (GpBitmap *bitmap, GpImageAttributes *imageAttributes)
 {
+
+	/* If we apply ImageAttributes, we need to re-attach the image */	
+	if (bitmap->image.surface || imageAttributes)  {
+		
+		cairo_surface_destroy (bitmap->image.surface);
+		bitmap->image.surface = NULL;
+	}
+
+
 	if (bitmap->image.surface == NULL &&
-		bitmap->data.Scan0 != NULL)
-	{
+		bitmap->data.Scan0 != NULL)	{
+		
+		void* dest = bitmap->data.Scan0;
+		bool allocated = FALSE;
+			
+		gdip_process_bitmap_attributes (bitmap,  &dest, imageAttributes, &allocated);
+		
 		if (bitmap->data.PixelFormat == Format32bppArgb) {
 			bitmap->cairo_format = CAIRO_FORMAT_ARGB32;
 			bitmap->image.surface = cairo_surface_create_for_image
-				(bitmap->data.Scan0,
+				(dest,
 				 CAIRO_FORMAT_ARGB32,
 				 bitmap->data.Width,
 				 bitmap->data.Height,
@@ -930,6 +944,9 @@ gdip_bitmap_ensure_surface (GpBitmap *bitmap)
 		} else {
 			g_warning ("gdip_bitmap_ensure_surface: Unable to create a surface for raw bitmap data of format 0x%08x", bitmap->data.PixelFormat);
 		}
+		
+		if (allocated)
+			free (dest);
 	}
 
 	return bitmap->image.surface;

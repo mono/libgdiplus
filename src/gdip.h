@@ -771,9 +771,23 @@ typedef struct {
 } GpLinePointF;
 
 typedef struct {
-        int i;
-} GpImageAttributes;
+	GpColorMap *colormap;
+	int colormap_elem;
+	float gamma_correction;	
+	ARGB key_colorlow;
+	ARGB key_colorhigh;
+	BOOL key_enabled;
+	BOOL no_op;
+} GpImageAttribute;
 
+
+typedef struct {
+	GpImageAttribute def;
+	GpImageAttribute bitmap;
+	GpImageAttribute brush;
+	GpImageAttribute pen;
+	GpImageAttribute text;
+} GpImageAttributes;
 
 typedef struct {
         CLSID Clsid;
@@ -791,6 +805,7 @@ typedef struct {
         const BYTE* SigPattern;
         const BYTE* SigMask;
 } ImageCodecInfo;
+
                 
 /*
  * Functions
@@ -830,6 +845,7 @@ void initializeGdipWin32 (void);
 void shutdownGdipWin32 (void);
 void initCodecList (void);
 void releaseCodecList (void);
+void gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, bool *allocated);
 
 
 /* Bitmap */
@@ -1076,19 +1092,19 @@ GpStatus GdipGetStringFormatTabStops(GDIPCONST GpStringFormat *format, int count
 GpStatus GdipCreateImageAttributes(GpImageAttributes **imageattr);
 GpStatus GdipCloneImageAttributes(GDIPCONST GpImageAttributes *imageattr, GpImageAttributes **cloneImageattr);
 GpStatus GdipDisposeImageAttributes(GpImageAttributes *imageattr);
-
 GpStatus GdipSetImageAttributesThreshold(GpImageAttributes *imageattr,  ColorAdjustType type, BOOL enableFlag, float threshold);
 GpStatus GdipSetImageAttributesGamma(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, float gamma);
 GpStatus GdipSetImageAttributesNoOp(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag);
-
 GpStatus GdipSetImageAttributesColorKeys(GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
         ARGB colorLow, ARGB colorHigh);
 GpStatus GdipSetImageAttributesOutputChannelColorProfile(GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
         GDIPCONST WCHAR *colorProfileFilename);
-/* GpStatus GdipSetImageAttributesRemapTable(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, UINT mapSize, GDIPCONST ColorMap *map); */
-/* GpStatus GdipSetImageAttributesWrapMode(GpImageAttributes *imageattr, WrapMode wrap, ARGB argb, BOOL clamp); */
-/* GpStatus GdipSetImageAttributesICMMode(GpImageAttributes *imageattr, BOOL on); */
-/* GpStatus GdipGetImageAttributesAdjustedPalette(GpImageAttributes *imageattr, ColorPalette *colorPalette, ColorAdjustType type); */
+GpStatus GdipSetImageAttributesRemapTable(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, UINT mapSize, GDIPCONST GpColorMap *map);
+GpStatus GdipSetImageAttributesWrapMode(GpImageAttributes *imageattr, WrapMode wrap, ARGB argb, BOOL clamp); 
+GpStatus GdipGetImageAttributesAdjustedPalette(GpImageAttributes *imageattr, ColorPalette *colorPalette, ColorAdjustType type); 
+GpStatus GdipSetImageAttributesColorMatrix(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag,  GpColorMatrix* colorMatrix,
+	GpColorMatrix* grayMatrix, GpColorMatrixFlags flags);
+GpStatus GdipSetImageAttributesOutputChannel(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, GpColorChannelFlags channelFlags);
 
 /* Region */
 GpStatus GdipCreateRegion(GpRegion **region);
@@ -1155,7 +1171,8 @@ cairo_status_t gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s);
 
 void gdip_rect_expand_by (GpRectF *rect, GpPointF *point);
 
-cairo_surface_t *gdip_bitmap_ensure_surface (GpBitmap *bitmap);
+cairo_surface_t *
+gdip_bitmap_ensure_surface (GpBitmap *bitmap, GpImageAttributes *imageAttributes);
 
 const EncoderParameter *gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid);
 
