@@ -24,7 +24,6 @@
 #include <mono/io-layer/uglify.h>
 
 
-
 /* Cairo internal extructures and defines*/
 #define DOUBLE_TO_26_6(d) ((FT_F26Dot6)((d) * 64.0))
 #define DOUBLE_FROM_26_6(t) ((double)(t) / 64.0)
@@ -70,6 +69,7 @@ typedef int bool;
 typedef unsigned short WCHAR; /* 16-bits unicode */
 typedef unsigned int UINT;
 typedef unsigned int ARGB;
+typedef int PROPID;
 
 /*
  * Enums
@@ -266,6 +266,24 @@ typedef enum {
     StringAlignmentFar    = 2
 } StringAlignment;
 
+typedef enum {
+	ImageFlagsNone = 0,
+	ImageFlagsScalable = 1,
+	ImageFlagsHasAlpha = 2,
+	ImageFlagsHasTranslucent = 4,
+	ImageFlagsPartiallyScalable = 8,
+	ImageFlagsColorSpaceRGB = 16,
+	ImageFlagsColorSpaceCMYK = 32,
+	ImageFlagsColorSpaceGRAY = 64,
+	ImageFlagsColorSpaceYCBCR = 128,
+	ImageFlagsColorSpaceYCCK = 256,
+	ImageFlagsHasRealDPI = 4096,
+	ImageFlagsHasRealPixelSize = 8192,
+	ImageFlagsReadOnly = 65536,
+	ImageFlagsCaching = 131072
+} ImageFlags;
+
+
 /*
  * Structures
  *
@@ -332,9 +350,30 @@ typedef struct {
 } GpState;
 
 typedef struct {
-	ImageType     type;
-	cairo_surface_t   *surface;
-	GpGraphics  *graphics;		/* created by GdipGetImageGraphicsContext */
+	UINT Flags;
+	UINT Count;
+	ARGB Entries[1];
+} ColorPalette;
+
+typedef struct {
+	PROPID	id;
+	ULONG 	length;
+	WORD 	type;
+	VOID*	value;
+} PropertyItem;
+
+typedef struct {
+	ImageType     	type;
+	cairo_surface_t *surface;
+	GpGraphics  	*graphics;		/* created by GdipGetImageGraphicsContext */
+	int 		imageFlags;
+	int 		height;
+	int 		width;
+	float 		horizontalResolution;
+	ColorPalette 	*palette;
+	int	 	pixFormat;	
+	PropertyItem 	*propItems;
+	float 		verticalResolution;
 } GpImage;
 
 typedef struct {

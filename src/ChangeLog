@@ -1,3 +1,9 @@
+2004-03-07 Sanjay Gupta <gsanjay@novell.com>
+	* gdip.h: Included ImageFlag enum and moved certain enums from
+	gdipImage.h
+	* gdipImage.h: Moved few enums to gdip.h
+	* image.c: Implemented few functions
+
 2004-03-06  Ravindra  <rkumar@novell.com>
 	* pen.c: Indentation.
 	* solidbrush.c: Coding style.

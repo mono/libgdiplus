@@ -20,10 +20,11 @@
  * 
  * Authors:
  *   Alexandre Pigolkine(pigolkine@gmx.de)
+ *   Sanjay Gupta (gsanjay@novell.com)
  *
  */
 
-#include "gdip.h"
+#include <stdio.h>
 #include "gdipImage.h"
 #include <math.h>
 
@@ -33,6 +34,14 @@ gdip_image_init (GpImage *image)
 	image->type = imageUndefined;
 	image->surface = 0;
 	image->graphics = 0;
+	image->imageFlags = 0;
+	image->height = 0;
+	image->width = 0;
+	image->horizontalResolution = 0;
+	image->palette = 0;
+	image->pixFormat = 0;	
+	image->propItems = 0;
+	image->verticalResolution = 0;
 }
 
 void *
@@ -63,6 +72,14 @@ gdip_image_destroy_Win32_HDC (GpImage *image, void *hdc)
 	case imageUndefined:
 		break;
 	}
+}
+
+GpImage *
+gdip_image_new ()
+{
+	GpImage *result = (GpImage *) GdipAlloc (sizeof(GpImage));
+	gdip_image_init (result);
+	return result;
 }
 
 GpStatus 
@@ -142,7 +159,52 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
 GpStatus 
 GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 {
-	return NotImplemented;
+	FILE *fp = 0;
+	GpImage *result = 0;
+	GpStatus status = 0;
+	ImageFormat format;
+	unsigned char *file_name;
+   
+	file_name = (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, NULL);
+	/*printf ("image.c, file name is %s \n", file_name);*/
+	if ((fp = fopen(file_name, "rb")) == NULL) 
+		return InvalidParameter;
+
+	/*printf ("came outof fopen, file pointer is not null \n");*/
+	format = get_image_format (fp);
+	
+	switch (format) {
+		case BMP:
+			/*printf("read bitmap \n");*/
+			break;
+		case TIFF:
+			/*printf("read TIFF \n");*/
+			break;
+		case GIF:
+			/*printf("read GIF \n");*/
+			break;
+		case PNG:
+			/*printf("read PNG \n");*/
+			break;
+		case JPEG:
+			/*printf ("read JPEG \n");*/
+			break;
+		case EXIF:
+			/*printf ("read EXIF \n");*/
+		case WMF:
+		case EMF:
+		case ICON:
+		default:
+			return NotImplemented | InvalidParameter;
+	}
+				
+	/*
+	result = gdip_image_new ();
+	*/
+	
+	fclose (fp);
+	*image = result;
+	return Ok;
 }
 
 /* GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params); */
@@ -157,43 +219,51 @@ GdipGetImageBounds (GpImage *image, GpRectF *rect, GpUnit *unit)
 GpStatus 
 GdipGetImageDimension (GpImage *image, float *width, float *height)
 {
-	return NotImplemented;
+	*width = image->width;
+	*height = image->height;
+	return Ok;
 }
 
 GpStatus 
 GdipGetImageType (GpImage *image, ImageType *type)
 {
-	return NotImplemented;
+	*type = image->type;	
+	return Ok;
 }
 
 GpStatus 
 GdipGetImageWidth (GpImage *image, UINT *width)
 {
-	return NotImplemented;
+	*width = image->width;
+	return Ok;
 }
 
 GpStatus 
-GdipGetImageHeight (GpImage *image, UINT *heigth)
+GdipGetImageHeight (GpImage *image, UINT *height)
 {
-	return NotImplemented;
+	*height = image->height;
+	return Ok;
 }
 
 GpStatus 
 GdipGetImageHorizontalResolution (GpImage *image, float *resolution)
 {
-	return NotImplemented;
+	*resolution = image->horizontalResolution;
+	return Ok;
 }
 
 GpStatus 
 GdipGetImageVerticalResolution (GpImage *image, float *resolution)
 {
-	return NotImplemented;
+	*resolution = image->verticalResolution;
+	return Ok;
 }
 
 GpStatus 
 GdipGetImageFlags (GpImage *image, UINT *flags)
 {
-	return NotImplemented;
+	*flags = image->imageFlags;
+	return Ok;
 }
 
 /* GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format); */
@@ -201,7 +271,8 @@ GdipGetImageFlags (GpImage *image, UINT *flags)
 GpStatus 
 GdipGetImagePixelFormat (GpImage *image, PixelFormat *format)
 {
-	return NotImplemented;
+	*format = image->pixFormat;
+	return Ok;
 }
 
 /*GpStatus GdipGetImageThumbnail (GpImage *image, UINT width, UINT height, GpImage **thumbImage, GetThumbnailImageAbort callback, VOID* callBackData);*/
@@ -284,4 +355,50 @@ GdipSetProperyItem (GpImage *image, GDIPCONST PropertyItem *item)
 	return NotImplemented;
 }
 
+ImageFormat 
+get_image_format (FILE *file)
+{
+	int index, sig_len, sig_num, inner_index;
+	size_t size_read;
+	char sig_read[10];
+	char png[] = { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, '\0'};
+	char *signature[]  = { "BM", "MM", "II", "GIF", png, "\xff\xd8", "\xff\xd8\xff\xe1", "", "", ""};
+	/*printf ("came in get_image_format \n");*/
+	size_read = fread (sig_read, sizeof(char), 10, file);
+	if (size_read != 10)
+		return INVALID;
+	/*printf("sig_read is %s \n", sig_read);*/
+	/*printf ("size read is %d \n", size_read); */
+	for (index = 0; index < 10; index ++) {
+		if ((signature[index][0] == sig_read[0]) && (signature[index][1] == sig_read[1])) {
+			switch (index) {
+				case 0 :	
+					return BMP;
+				case 1:
+				case 2:
+					return TIFF;
+				case 3:
+					if (signature[index][2] == sig_read[2]) 
+						return GIF;
+					else
+						return INVALID;
+				case 4:
+					if (strncmp(signature[index], sig_read, 8) == 0) 
+						return PNG;						
+					else
+						return INVALID;					
+				case 5:		
+				case 6: if (strncmp(sig_read + 2, "\xff\e1", 2) == 0)
+						if (strncmp(sig_read + 6, "Exif", 4) == 0)
+							return EXIF;
+					return JPEG;
+				case 7:
+				case 8:
+				case 9:
+				default:
+					return INVALID;
+			}	
+		}
+	}							
+} 
 

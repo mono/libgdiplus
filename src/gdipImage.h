@@ -11,14 +11,14 @@
 #define _GDIPIMAGE_H
 
 
-#include <gdip.h>
-#include <gdip_win32.h>
+#include "gdip.h"
+#include "gdip_win32.h"
+#include <stdio.h>
 
 /*typedef bool BOOL;
 typedef BOOL (CALLBACK * ImageAbort) (VOID *);
 typedef ImageAbort GetThumbnailImageAbort; */
 
-typedef int PROPID;
 
 /*
  * Enumerations
@@ -52,23 +52,23 @@ typedef enum {
 	Rotate270FlipXY		= Rotate90FlipNone
 } RotateFlipType; 
 
+typedef enum {
+	BMP,
+	TIFF,
+	GIF,
+	PNG,
+	JPEG,
+	EXIF,
+	WMF,
+	EMF,
+	ICON,
+	INVALID
+} ImageFormat;
+
 /*
  * Strutures
  *
  */
-typedef struct {
-	UINT Flags;
-	UINT Count;
-	ARGB Entries[1];
-} ColorPalette;
-
-typedef struct {
-	PROPID	id;
-	ULONG 	length;
-	WORD 	type;
-	VOID*	value;
-} PropertyItem;
-
 
 
 /*
@@ -111,5 +111,5 @@ GpStatus GdipGetPropertySize (GpImage *image, UINT *bufferSize, UINT *propertyNu
 GpStatus GdipRemoveProperyItem (GpImage *image, PROPID propID);
 GpStatus GdipSetProperyItem (GpImage *image, GDIPCONST PropertyItem *item);
 
-
+ImageFormat get_image_format (FILE *file);
 #endif /* _GDIPIMAGE_H */
