@@ -1,3 +1,6 @@
+2004-03-24  Jordi Mas i Hernandez <jordi@ximian.com>
+	* imageattributes.c - created and first methods
+
 2004-03-23  Peter Bartok <pbartok@novell.com>
    * gdip_win32.h: Added definitions for Wine X11DRV_ExtEscape function;
                    removed definition and reference to internal wine structures

@@ -283,6 +283,18 @@ typedef enum {
 	ImageFlagsCaching = 131072
 } ImageFlags;
 
+typedef enum 
+{
+    ColorAdjustTypeDefault,
+    ColorAdjustTypeBitmap,
+    ColorAdjustTypeBrush,
+    ColorAdjustTypePen,
+    ColorAdjustTypeText,
+    ColorAdjustTypeCount,
+    ColorAdjustTypeAny     
+} ColorAdjustType;
+
+
 
 /*
  * Structures
@@ -452,6 +464,12 @@ typedef struct {
         float X, Y;
         float width;
 } GpLinePointF;
+
+typedef struct {
+        int i;
+} GpImageAttributes;
+
+
                 
 
 /*
@@ -648,6 +666,22 @@ GpStatus GdipSetStringFormatDigitSubstitution(GpStringFormat *format, int langua
 GpStatus GdipGetStringFormatTabStopCount(GDIPCONST GpStringFormat *format, int *count);
 GpStatus GdipGetStringFormatTabStops(GDIPCONST GpStringFormat *format, int count, float *firstTabOffset, float *tabStops);
 
+/* ImageAttributes */
+GpStatus GdipCreateImageAttributes(GpImageAttributes **imageattr);
+GpStatus GdipCloneImageAttributes(GDIPCONST GpImageAttributes *imageattr, GpImageAttributes **cloneImageattr);
+GpStatus GdipDisposeImageAttributes(GpImageAttributes *imageattr);
+
+GpStatus GdipSetImageAttributesThreshold(GpImageAttributes *imageattr,  ColorAdjustType type, BOOL enableFlag, float threshold);
+GpStatus GdipSetImageAttributesGamma(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, float gamma);
+GpStatus GdipSetImageAttributesNoOp(GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag);
+
+GpStatus GdipSetImageAttributesColorKeys(GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
+        ARGB colorLow, ARGB colorHigh);
+
+GpStatus GdipSetImageAttributesOutputChannelColorProfile(GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
+        GDIPCONST WCHAR *colorProfileFilename);
+
+                                 
 /* Path*/
 #include "graphics-path.h"
 

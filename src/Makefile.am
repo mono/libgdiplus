@@ -32,6 +32,7 @@ libgdiplus_la_SOURCES = 	\
 	bmpcodec.h		\
 	bmpcodec.c		\
 	jpegcodec.h		\
+        imageattributes.c	\
 	jpegcodec.c		
 
 libgdiplus_la_LIBADD = $(GDIPLUS_LIBS)
