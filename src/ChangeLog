@@ -1,3 +1,8 @@
+2004-10-19  Ravindra <rkumar@novell.com>
+
+	* jpegcodec.c: Fixed bug #68117. Retrieves the proper
+	resolution info from Jpeg image.
+
 2004-10-17  Jordi Mas <jordi@ximian.com>
 
 	* image.c: bug fix, restores pattern after image drawing
