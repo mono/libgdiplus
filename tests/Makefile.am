@@ -31,7 +31,7 @@ testbits_SOURCES =		\
 
 EXTRA_DIST =			\
 	$(testgdi_SOURCES)	\
-	$(testbits_SOURCES)	\
-	$(NULL)
+	$(testbits_SOURCES)
+
 
 

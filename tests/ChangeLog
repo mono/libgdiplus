@@ -1,3 +1,7 @@
+2004-04-23  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* Makefile.am: removed $(NULL), to deal with older/non-gnu make
+
 2004-04-19  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* Makefile.am: Added testbits.c
