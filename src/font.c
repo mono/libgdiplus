@@ -503,8 +503,8 @@ GdipDeleteFont (GpFont* font)
         return InvalidParameter;
 }
 
-GpStatus
-GdipCreateFontFromHfont(void *hfont, GpFont **font, LOGFONTA *lf)
+static GpStatus
+CreateFontFromHDCorHfont(void *hdcIn, void *hfont, GpFont **font, LOGFONTA *lf)
 {
 	FcResult	r;
 	GpFont		*result;
@@ -520,14 +520,21 @@ GdipCreateFontFromHfont(void *hfont, GpFont **font, LOGFONTA *lf)
 		return InvalidParameter;
 	}
 
-	hdc=GetDC_pfn(NULL);
-	oldFont=SelectObject_pfn(hdc, hfont);
+	if (!hdcIn) {
+		hdc=GetDC_pfn(NULL);
+		oldFont=SelectObject_pfn(hdc, hfont);
+	} else {
+		hdc=hdcIn;
+		oldFont=0;	/* Make the compiler happy, we don't care about oldFont in this path */
+	}
 	SetMapMode_pfn(hdc, 1);
 	if (GetTextMetrics_pfn(hdc, &tm)==0 || GetTextFace_pfn(hdc, sizeof(FaceName), FaceName)==0) {
 		return InvalidParameter;
 	}
-	SelectObject_pfn(hdc, oldFont);
-	ReleaseDC_pfn(NULL, hdc);
+	if (!hdcIn) {
+		SelectObject_pfn(hdc, oldFont);
+		ReleaseDC_pfn(NULL, hdc);
+	}
 
 	result = (GpFont *) GdipAlloc (sizeof (GpFont));
 
@@ -573,3 +580,16 @@ GdipCreateFontFromHfont(void *hfont, GpFont **font, LOGFONTA *lf)
 
 	return Ok;
 }
+
+GpStatus
+GdipCreateFontFromDC(void *hdc, GpFont **font)
+{
+	return(CreateFontFromHDCorHfont(hdc, NULL, font, NULL));
+}
+
+GpStatus
+GdipCreateFontFromHfont(void *hfont, GpFont **font, LOGFONTA *lf)
+{
+	return(CreateFontFromHDCorHfont(NULL, hfont, font, lf));
+}
+
