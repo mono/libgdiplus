@@ -61,11 +61,13 @@ gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
     ColorMapObject *pal = NULL;
     guchar *pixels = NULL;
     guchar *readptr, *writeptr;
-    int i, j;
-/*	bool pageDimensionFound = FALSE;
+    int i, j, l;
+	int imgCount;
+	int extBlockCount;
+	bool pageDimensionFound = FALSE;
 	bool timeDimensionFound = FALSE;
 	int pageDimensionCount = 0;
-	int timeDimensionCount = 0;*/
+	int timeDimensionCount = 0;
 
     gif = DGifOpenFileHandle (fileno (fp));
     if (gif == NULL)
@@ -82,34 +84,49 @@ gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
     img->image.height = gif->SHeight;
 
 	/* ImageCount member of GifFileType structure gives info about the total no of frames
-	 * present in the image. Presently i m just attaching all the images as various pages
-	 * of an image, but need to find about the way to discover whether some images in 
-	 * SavedImage [] member of GifFileType structure belongs to frames of animated image.
-	 * My understanding is both kind of frames can be present. 
-	 * TODO : Read the extension block and determine whether its an animated gif
+	 * present in the image. 
+	 * I am assuming that if there is an ExtensionBlock strucutre present in SavedImage structure 
+	 * which has its Function member set to value 249 (Graphic Control Block) 
+	 * then only its an animated gif.
 	 */
-
-	img->image.frameDimensionCount = 1;
-	img->image.frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo));
-	img->image.frameDimensionList[0].count = gif->ImageCount;
-	memcpy (&(img->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
-		
+	imgCount = gif->ImageCount;
+	for (i=0; i<imgCount; i++) {
+		SavedImage si = gif->SavedImages[i];
+		extBlockCount = si.ExtensionBlockCount;
+		for (l =0; l<extBlockCount; l++) {
+			ExtensionBlock eb = si.ExtensionBlocks[l];
+			if (eb.Function == 249){
+				if (!timeDimensionFound)
+					timeDimensionFound = TRUE;
+				timeDimensionCount++;
+				break; /*there can be only one Graphic Control Extension before ImageData*/
+			}			
+		}
+	}
 	
-	/*if (pageDimensionFound && timeDimensionFound){
+	if (timeDimensionCount < imgCount){
+		pageDimensionFound = TRUE;
+		pageDimensionCount = imgCount - timeDimensionCount;
+	}
+		
+	if (pageDimensionFound && timeDimensionFound){
+		img->image.frameDimensionCount = 2;
 		img->image.frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo)*2);
 		img->image.frameDimensionList[0].count = pageDimensionCount;
 		memcpy (&(img->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
 		img->image.frameDimensionList[1].count = timeDimensionCount;
 		memcpy (&(img->image.frameDimensionList[1].frameDimension), &gdip_image_frameDimension_time_guid, sizeof (CLSID));
 	} else if (pageDimensionFound) {
+		img->image.frameDimensionCount = 1;
 		img->image.frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo));
 		img->image.frameDimensionList[0].count = pageDimensionCount;
 		memcpy (&(img->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
 	} else if (timeDimensionFound) {
+		img->image.frameDimensionCount = 1;
 		img->image.frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo));
 		img->image.frameDimensionList[0].count = timeDimensionCount;
 		memcpy (&(img->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_time_guid, sizeof (CLSID));
-	}*/
+	}
 
     /* Note that Cairo/libpixman does not have support for indexed
      * images, so we expand gifs out to 32bpp argb.

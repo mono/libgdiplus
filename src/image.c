@@ -388,7 +388,6 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
             break;
         case GIF:
             status = gdip_load_gif_image_from_file (fp, &result);
-		printf("\n image.c load image from gif file, status is %d ", status);
 	    result->format = GIF;
             break;
         case PNG:
