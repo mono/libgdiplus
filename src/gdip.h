@@ -9,7 +9,7 @@
  *  	Sanjay Gupta (gsanjay@novell.com)
  *	Vladimir Vukicevic (vladimir@pobox.com)
  *
- * Copyright (C) Novell, Inc. 2003-2004.
+ * Copyright (C) Novell, Inc. 2003-2004. http://www.novell.com
  */
 
 #ifndef _GDIP_H
@@ -207,6 +207,11 @@ typedef enum {
 } GpPenType, PenType;
 
 typedef enum {
+        PenAlignmentCenter = 0,
+        PenAlignmentInset = 1
+} GpPenAlignment, PenAlignment;
+
+typedef enum {
         DashStyleSolid = 0,      /* solid line */
         DashStyleDash = 1,       /* dashed line */
         DashStyleDot = 2,        /* dotted line */
@@ -216,11 +221,35 @@ typedef enum {
 } GpDashStyle;
 
 typedef enum {
+	DashCapFlat = 0,
+	DashCapRound = 2,
+	DashCapTriangle = 3
+} GpDashCap;
+
+typedef enum {
         LineJoinMiter = 0,       /* sharp corner */
         LineJoinBevel = 1,       /* round corner */
         LineJoinRound = 2,       /* circular, smooth, circular arc */
         LineJoinMiterClipped = 3 /* miter, sharp or beveled corner */
 } GpLineJoin;
+
+typedef enum {
+	LineCapFlat = 0,
+	LineCapSquare = 1,
+	LineCapRound = 2,
+	LineCapTriangle = 3,
+	LineCapNoAnchor = 0x10,
+	LineCapSquareAnchor = 0x11,
+	LineCapRoundAnchor = 0x12,
+	LineCapDiamondAnchor = 0x13,
+	LineCapArrowAnchor = 0x14,
+	LineCapCustom = 0xff
+} GpLineCap;
+
+typedef enum {
+	CustomLineCapTypeDefault = 0,
+	CustomLineCapTypeAdjustableArrow = 1
+} CustomLineCapType;
 
 typedef enum  {
 	imageUndefined,
@@ -247,33 +276,13 @@ typedef enum {
 	gtMemoryBitmap
 } GraphicsType;
 
-typedef enum {
-    LineCapFlat = 0,
-    LineCapSquare = 1,
-    LineCapRound = 2,
-    LineCapTriangle = 3,
-    LineCapNoAnchor = 0x10,
-    LineCapSquareAnchor = 0x11,
-    LineCapRoundAnchor = 0x12,
-    LineCapDiamondAnchor = 0x13,
-    LineCapArrowAnchor = 0x14,
-    LineCapCustom = 0xff
-} GpLineCap;
-
-              
 typedef enum{
-    
     FontStyleRegular    = 0,
     FontStyleBold       = 1,
     FontStyleItalic     = 2,
     FontStyleUnderline  = 4,
     FontStyleStrikeout  = 8
 }  GpFontStyle;
-
-typedef enum {
-        PenAlignmentCenter = 0,
-        PenAlignmentInset = 1
-} GpPenAlignment, PenAlignment;
 
 typedef enum {
         PathPointTypeStart = 0,
@@ -530,25 +539,27 @@ typedef struct {
 	int             type; 
 } GpGraphics;
 
-/* Brush */
-#include "brush.h"
-
+typedef struct _CustomLineCap GpCustomLineCap;
+typedef struct _AdjustableArrowCap GpAdjustableArrowCap;
+typedef struct _Brush GpBrush;
 typedef cairo_matrix_t GpMatrix;
 
 typedef struct {
 	int color;
-        GpBrush *brush; 
+        GpBrush *brush;
 	float width;
         float miter_limit;
         GpLineJoin line_join;
         GpDashStyle dash_style;
-        GpLineCap line_cap;
+	GpLineCap line_cap;  /* Cairo supports only same kind of end caps for both the ends. */
+	int compound_count;
+	float *compound_array;
         GpPenAlignment mode;
         float dash_offset;
         int dash_count;
-	int own_dash_array;
+	BOOL own_dash_array; /* flag to mark if pen maintains its own array or global array */
         float *dash_array;
-        GpUnit unit;
+        GpUnit unit; /* Always set to UnitWorld. */
         GpMatrix *matrix;
 } GpPen;
 
@@ -838,24 +849,63 @@ GpStatus GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle);
 GpStatus GdipGetPenDashStyle (GpPen *pen, GpDashStyle *dashStyle);
 GpStatus GdipSetPenDashOffset (GpPen *pen, float offset);
 GpStatus GdipGetPenDashOffset (GpPen *pen, float *offset);
-GpStatus GdipSetPenDashCount (GpPen *pen, int count);
 GpStatus GdipGetPenDashCount (GpPen *pen, int *count);
-GpStatus GdipSetPenDashArray (GpPen *pen, float *dash, int count);
-GpStatus GdipGetPenDashArray (GpPen *pen, float **dash, int *count);
-GpStatus GdipSetPenDashCompoundArray (GpPen *pen, float *dash, int count);
-GpStatus GdipGetPenDashCompoundArray (GpPen *pen, float **dash, int *count);
-GpStatus GdipGetPenDashCompoundCount (GpPen *pen, int *count);
+GpStatus GdipSetPenDashArray (GpPen *pen, GDIPCONST float *dash, int count);
+GpStatus GdipGetPenDashArray (GpPen *pen, float *dash, int count);
+GpStatus GdipSetPenCompoundArray (GpPen *pen, GDIPCONST float *dash, int count);
+GpStatus GdipGetPenCompoundArray (GpPen *pen, float *dash, int count);
+GpStatus GdipGetPenCompoundCount (GpPen *pen, int *count);
 GpStatus GdipSetPenMode (GpPen *pen, GpPenAlignment penMode);
 GpStatus GdipGetPenMode (GpPen *pen, GpPenAlignment *penMode);
-GpStatus GdipSetPenUnit (GpPen *pen, GpUnit unit);
-GpStatus GdipGetPenUnit (GpPen *pen, GpUnit *unit);
 GpStatus GdipDeletePen (GpPen *pen);
 GpStatus GdipSetPenMiterLimit (GpPen *pen, float miterLimit);
 GpStatus GdipGetPenMiterLimit (GpPen *pen, float *miterLimit);
-GpStatus GdipSetPenLineCap (GpPen *pen, GpLineCap lineCap);
-GpStatus GdipGetPenLineCap (GpPen *pen, GpLineCap *lineCap);
+GpStatus GdipSetPenLineCap197819 (GpPen *pen, GpLineCap startCap, GpLineCap endCap, GpDashCap dashCap);
+GpStatus GdipSetPenStartCap (GpPen *pen, GpLineCap startCap);
+GpStatus GdipGetPenStartCap (GpPen *pen, GpLineCap *startCap);
+GpStatus GdipSetPenEndCap (GpPen *pen, GpLineCap endCap);
+GpStatus GdipGetPenEndCap (GpPen *pen, GpLineCap *endCap);
+GpStatus GdipSetPenDashCap197819 (GpPen *pen, GpDashCap dashCap);
+GpStatus GdipGetPenDashCap197819 (GpPen *pen, GpDashCap *dashCap);
 GpStatus GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin);
 GpStatus GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin);
+GpStatus GdipSetPenCustomStartCap (GpPen *pen, GpCustomLineCap *customCap);
+GpStatus GdipGetPenCustomStartCap (GpPen *pen, GpCustomLineCap **customCap);
+GpStatus GdipSetPenCustomEndCap (GpPen *pen, GpCustomLineCap *customCap);
+GpStatus GdipGetPenCustomEndCap (GpPen *pen, GpCustomLineCap **customCap);
+GpStatus GdipSetPenTransform (GpPen *pen, GDIPCONST GpMatrix *matrix);
+GpStatus GdipGetPenTransform (GpPen *pen, GpMatrix *matrix);
+GpStatus GdipResetPenTransform (GpPen *pen);
+GpStatus GdipMultiplyPenTransform (GpPen *pen, GpMatrix *matrix, GpMatrixOrder order);
+GpStatus GdipTranslatePenTransform (GpPen *pen, float dx, float dy, GpMatrixOrder order);
+GpStatus GdipScalePenTransform (GpPen *pen, float sx, float sy, GpMatrixOrder order);
+GpStatus GdipRotatePenTransform (GpPen *pen, float angle, GpMatrixOrder order);
+
+/* CustomLineCap functions */
+GpStatus GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap, float baseInset, GpCustomLineCap **customCap);
+GpStatus GdipDeleteCustomLineCap (GpCustomLineCap *customCap);
+GpStatus GdipCloneCustomLineCap (GpCustomLineCap *customCap, GpCustomLineCap **clonedCap);
+GpStatus GdipSetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap startCap, GpLineCap endCap);
+GpStatus GdipGetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap *startCap, GpLineCap *endCap);
+GpStatus GdipSetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin lineJoin);
+GpStatus GdipGetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin *lineJoin);
+GpStatus GdipSetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap baseCap);
+GpStatus GdipGetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap *baseCap);
+GpStatus GdipSetCustomLineCapBaseInset (GpCustomLineCap *customCap, float inset);
+GpStatus GdipGetCustomLineCapBaseInset (GpCustomLineCap *customCap, float *inset);
+GpStatus GdipSetCustomLineCapWidthScale (GpCustomLineCap *customCap, float widthScale);
+GpStatus GdipGetCustomLineCapWidthScale (GpCustomLineCap *customCap, float *widthScale);
+
+/* AdjustableArrowCap functions */
+GpStatus GdipCreateAdjustableArrowCap (float height, float width, bool isFilled, GpAdjustableArrowCap **arrowCap);
+GpStatus GdipSetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, float height);
+GpStatus GdipGetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, float *height);
+GpStatus GdipSetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, float width);
+GpStatus GdipGetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, float *width);
+GpStatus GdipSetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, float middleInset);
+GpStatus GdipGetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, float *middleInset);
+GpStatus GdipSetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, bool isFilled);
+GpStatus GdipGetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, bool *isFilled);
 
 /* Text */
 GpStatus GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *string, int len, GDIPCONST GpFont *font, GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush);

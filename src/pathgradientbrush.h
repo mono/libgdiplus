@@ -11,6 +11,7 @@
 #define _PATHGRADIENTBRUSH_
 
 #include "gdip.h"
+#include "brush.h"
 
 struct _GpPathGradient {
     GpBrush base;

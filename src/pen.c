@@ -21,6 +21,7 @@
  * Authors:
  *   Alexandre Pigolkine(pigolkine@gmx.de)
  *   Duncan Mak (duncan@ximian.com)
+ *   Ravindra (rkumar@novell.com)
  *
  */
 
@@ -40,8 +41,10 @@ gdip_pen_init (GpPen *pen)
 	pen->mode = PenAlignmentCenter;
 	pen->dash_offset = 0;
 	pen->dash_count = 0;
-	pen->own_dash_array = 0;
-	pen->dash_array = 0;
+	pen->own_dash_array = FALSE;
+	pen->dash_array = NULL;
+	pen->compound_count = 0;
+	pen->compound_array = NULL;
 	pen->unit = UnitWorld;
         pen->matrix = cairo_matrix_create ();
 }
@@ -132,7 +135,7 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
         if (pen->matrix != NULL)
                 cairo_set_matrix (graphics->ct, pen->matrix);
 
-        if (pen->dash_array != NULL && pen->dash_count != 0) {
+        if (pen->dash_count > 0) {
                 double *dash_array;
 
                 dash_array = convert_dash_array (pen->dash_array, pen->dash_count);
@@ -221,20 +224,52 @@ GpStatus
 GdipClonePen (GpPen *pen, GpPen **clonepen)
 {
         GpPen *result;
-        int count;
-        GpMatrix *matrix;       /* copy of pen->matrix */
+        GpMatrix *matrix;               /* copy of pen->matrix */
+        float *dashes;                  /* copy off pen->dash_array */
+        float *compound_array = NULL;   /* copy off pen->compound_array */
 
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (clonepen != NULL, InvalidParameter);
 
-	count = pen->dash_count;
-        float dashes [count];   /* copy off pen->dash_array */
+	/* we make a copy of dash array only if it is owned by pen, i.e. it is not
+	 * our global array.
+	 */
+	if (pen->dash_count > 0 && pen->own_dash_array) {
+		dashes = (float *) GdipAlloc (pen->dash_count * sizeof (float));
+		g_return_val_if_fail (dashes != NULL, OutOfMemory);
+		clone_dash_array (dashes, pen->dash_array, pen->dash_count);
+	} else
+		dashes = pen->dash_array;
+
+	if (pen->compound_count > 0) {
+		compound_array = (float *) GdipAlloc (pen->compound_count * sizeof (float));
+		if (compound_array == NULL) {
+			if (pen->dash_count > 0)
+				GdipFree (dashes);
+			return OutOfMemory;
+		}
+		clone_dash_array (compound_array, pen->compound_array, pen->compound_count);
+	}
+
+        if (GdipCloneMatrix (pen->matrix, &matrix) != Ok) {
+		if (pen->dash_count > 0)
+			GdipFree (dashes);
+		if (pen->compound_count > 0)
+			GdipFree (compound_array);
+
+		return OutOfMemory;
+	}
 
 	result = gdip_pen_new ();
-	g_return_val_if_fail (result != NULL, OutOfMemory);
+	if (result == NULL) {
+		GdipDeleteMatrix (matrix);
+		if (pen->dash_count > 0)
+			GdipFree (dashes);
+		if (pen->compound_count > 0)
+			GdipFree (compound_array);
 
-        GdipCloneMatrix (pen->matrix, &matrix);
-        clone_dash_array (dashes, pen->dash_array, count);
+		return OutOfMemory;
+	}
 
         result->color = pen->color;
 	result->brush = pen->brush;
@@ -246,8 +281,10 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 	result->mode = pen->mode;
         result->dash_offset = pen->dash_offset;
 	result->dash_count = pen->dash_count;
-	result->own_dash_array = 0;
+	result->own_dash_array = pen->own_dash_array;
 	result->dash_array = dashes;
+	result->compound_count = pen->compound_count;
+	result->compound_array = compound_array;
 	result->unit = pen->unit;
         result->matrix = matrix;
 
@@ -255,7 +292,6 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 
         return Ok;
 }       
-
 
 GpStatus 
 GdipDeletePen (GpPen *pen)
@@ -265,9 +301,12 @@ GdipDeletePen (GpPen *pen)
         if (pen->matrix != NULL)
                 cairo_matrix_destroy (pen->matrix);
 
-        if (pen->dash_array != NULL && pen->own_dash_array)
-                free (pen->dash_array);
-        
+        if (pen->dash_count != 0 && pen->own_dash_array)
+                GdipFree (pen->dash_array);
+
+        if (pen->compound_count != 0)
+                GdipFree (pen->compound_array);
+
         GdipFree (pen);
 	return Ok;
 }
@@ -338,7 +377,7 @@ GdipGetPenFillType (GpPen *pen, GpPenType *type)
 	g_return_val_if_fail (type != NULL, InvalidParameter);
 
 	if (pen->brush != NULL)
-	  return GdipGetBrushType (pen->brush, (GpBrushType *) type); 
+	  return GdipGetBrushType (pen->brush, (GpBrushType *) type);
 
 	*type = PenTypeSolidColor;
 
@@ -404,21 +443,16 @@ GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin)
 }
 
 GpStatus
-GdipSetPenLineCap197819 (GpPen *pen, GpLineCap lineCap)
+GdipSetPenLineCap197819 (GpPen *pen, GpLineCap startCap, GpLineCap endCap, GpDashCap dashCap)
 {
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-        pen->line_cap = lineCap;
-        return Ok;
-}
-
-GpStatus
-GdipGetPenLineCap (GpPen *pen, GpLineCap *lineCap)
-{
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (lineCap != NULL, InvalidParameter);
-
-        *lineCap = pen->line_cap;
+	/* FIXME:
+	 * Cairo supports only one cap for a line. We use startcap for that.
+	 * Use end cap and dash cap when Cairo supports different caps for the
+	 * line ends and dashcap.
+	 */
+	pen->line_cap = startCap;
         return Ok;
 }
 
@@ -550,6 +584,7 @@ GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
         switch (dashStyle) {
         case DashStyleSolid:
                 pen->dash_array = NULL;
+		pen->dash_count = 0;
                 return Ok;
 
         case DashStyleDashDot:
@@ -611,44 +646,46 @@ GdipGetPenDashCount (GpPen *pen, int *count)
         return Ok;
 }
 
-GpStatus
-GdipSetPenDashCount (GpPen *pen, int count)
-{
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-
-        pen->dash_count = count;
-        return Ok;
-}
-
 /*
- * This is the DashPattern property in Pen
+ * This is the DashPattern property in Pen.
  */
 GpStatus
-GdipGetPenDashArray (GpPen *pen, float **dash, int *count)
+GdipGetPenDashArray (GpPen *pen, float *dash, int count)
 {
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (dash != NULL, InvalidParameter);
-	g_return_val_if_fail (count != NULL, InvalidParameter);
+	g_return_val_if_fail (count == pen->dash_count, InvalidParameter);
 
-        *dash = pen->dash_array;
-        *count = pen->dash_count;
+	memcpy (dash, pen->dash_array, count * sizeof (float));
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus
-GdipSetPenDashArray (GpPen *pen, float *dash, int count)
+GdipSetPenDashArray (GpPen *pen, GDIPCONST float *dash, int count)
 {
+	float *dash_array;
+
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (dash != NULL, InvalidParameter);
+	g_return_val_if_fail (count > 0, InvalidParameter);
 
-        if (count == 0 || dash == NULL)
-                return Ok;
+        pen->dash_style = DashStyleCustom;
 
-        GdipSetPenDashStyle (pen, DashStyleCustom);
-        pen->dash_array = dash;
-        pen->dash_count = count;
+	if (pen->dash_count != count) {
+		dash_array = (float *) GdipAlloc (count * sizeof (float));
+		g_return_val_if_fail (dash_array != NULL, OutOfMemory);
 
-        return Ok;
+		/* free the existing values */
+		if (pen->dash_count != 0)
+			GdipFree (pen->dash_array);
+		pen->dash_array = dash_array;
+		pen->dash_count = count;
+	}
+
+	memcpy (pen->dash_array, dash, pen->dash_count * sizeof (float));
+
+	return Ok;
 }
 
 /*
@@ -658,22 +695,114 @@ GpStatus
 GdipGetPenCompoundCount (GpPen *pen, int *count)
 {
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (count != NULL, InvalidParameter);
+
+	*count = pen->compound_count;
+	return Ok;
+}
+
+GpStatus
+GdipSetPenCompoundArray (GpPen *pen, const float *compound, int count)
+{
+	float *compound_array;
+
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (compound != NULL, InvalidParameter);
+	g_return_val_if_fail (count > 0, InvalidParameter);
+
+	if (pen->compound_count != count) {
+		compound_array = (float *) GdipAlloc (count * sizeof (float));
+		g_return_val_if_fail (compound_array != NULL, OutOfMemory);
+
+		/* free the existing values */
+		if (pen->compound_count != 0)
+			GdipFree (pen->compound_array);
+		pen->compound_array = compound_array;
+		pen->compound_count = count;
+	}
+
+	memcpy (pen->compound_array, compound, pen->compound_count * sizeof (float));
 
 	return NotImplemented;
 }
 
 GpStatus
-GdipSetPenCompoundArray (GpPen *pen, const float *dash, int count)
+GdipGetPenCompoundArray (GpPen *pen, float *compound, int count)
+{
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (compound != NULL, InvalidParameter);
+	g_return_val_if_fail (count == pen->compound_count, InvalidParameter);
+
+	memcpy (compound, pen->compound_array, count * sizeof (float));
+
+	return Ok;
+}
+
+GpStatus
+GdipSetPenStartCap (GpPen *pen, GpLineCap startCap)
 {
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
+	pen->line_cap = startCap;
+
+	return Ok;
+}
+
+GpStatus
+GdipGetPenStartCap (GpPen *pen, GpLineCap *startCap)
+{
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (startCap != NULL, InvalidParameter);
+
+	*startCap = pen->line_cap;
+
+	return Ok;
+}
+
+GpStatus
+GdipSetPenEndCap (GpPen *pen, GpLineCap endCap)
+{
 	return NotImplemented;
 }
 
 GpStatus
-GdipGetPenCompoundArray (GpPen *pen, float **dash, int count)
+GdipGetPenEndCap (GpPen *pen, GpLineCap *endCap)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	return NotImplemented;
+}
 
+GpStatus
+GdipSetPenDashCap197819 (GpPen *pen, GpDashCap dashCap)
+{
+	return NotImplemented;
+}
+
+GpStatus
+GdipGetPenDashCap197819 (GpPen *pen, GpDashCap *dashCap)
+{
+	return NotImplemented;
+}
+
+GpStatus
+GdipSetPenCustomStartCap (GpPen *pen, GpCustomLineCap *customCap)
+{
+	return NotImplemented;
+}
+
+GpStatus
+GdipGetPenCustomStartCap (GpPen *pen, GpCustomLineCap **customCap)
+{
+	return NotImplemented;
+}
+
+GpStatus
+GdipSetPenCustomEndCap (GpPen *pen, GpCustomLineCap *customCap)
+{
+	return NotImplemented;
+}
+
+GpStatus
+GdipGetPenCustomEndCap (GpPen *pen, GpCustomLineCap **customCap)
+{
 	return NotImplemented;
 }

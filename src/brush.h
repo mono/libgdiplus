@@ -14,8 +14,6 @@
 
 /* Structures */
 
-typedef struct _Brush GpBrush;
-
 typedef struct _BrushClass {
 
 	/* Brush virtual functions */

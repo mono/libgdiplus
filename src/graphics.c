@@ -26,6 +26,7 @@
 
 #include "gdip.h"
 #include "gdip_win32.h"
+#include "brush.h"
 #include <math.h>
 #include <glib.h>
 
