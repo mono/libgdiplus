@@ -21,22 +21,23 @@ typedef struct tagGDIOBJHDR {
 	short 	wMagic;
 	long 	dwCount;
 	void*	funcs;
-	void* hdcs;
+	void* 	hdcs;
 } GDIOBJHDR;
 
-typedef struct tagX11DRV_PDEVICE
+/* x11drv GDI escapes */
+#define X11DRV_ESCAPE 6789
+enum x11drv_escape_codes
 {
-    void*         hdc;
-    void          *dc;          /* direct pointer to DC, should go away */
-    GC            gc;          /* X Window GC */
-    Drawable      drawable;
-} X11DRV_PDEVICE;
+    X11DRV_GET_DISPLAY,			/* get X11 display for a DC */
+    X11DRV_GET_DRAWABLE,		/* get current drawable for a DC */
+    X11DRV_GET_FONT,			/* get current X font for a DC */
+};
 
 typedef struct tagDC {
     GDIOBJHDR    	header;
     void*        	hSelf;          /* Handle to this DC */
-    void 		 	*funcs; 		/* DC function table */
-    X11DRV_PDEVICE 	*physDev;       /* Physical device (driver-specific) */
+    void 		*funcs; 	/* DC function table */
+    void 		*physDev;       /* Physical device (driver-specific) */
 } DC;
 
 typedef struct {
@@ -107,6 +108,8 @@ extern void (__stdcall *ReleaseDC_pfn) (void *hwnd, void * hdc);
 
 extern int (__stdcall *GetDIBits_pfn) (void *hdc, void *hbitmap, unsigned startScan, unsigned scanLines, void *bitmapBits, PBITMAPINFO pbmi, unsigned int colorUse);
 extern int (__stdcall *SetDIBits_pfn) (void *hdc, void *hbitmap, unsigned startScan, unsigned scanLines, void *bitmapBits, PBITMAPINFO pbmi, unsigned int colorUse);
+
+extern int (*X11DRV_ExtEscape_pfn)(void *physDev, int escape, int in_count, void *in_data, int out_count, void *out_data);
 
 
 DC *_get_DC_by_HDC (int hDC);

@@ -1,3 +1,11 @@
+2004-03-23  Peter Bartok <pbartok@novell.com>
+   * gdip_win32.h: Added definitions for Wine X11DRV_ExtEscape function;
+                   removed definition and reference to internal wine structures
+   * gdip_win32.c: Added import of X11DRV_ExtEscape to allow pulling the X11 Drawable without
+                   knowledge of internal structures
+   * graphics.c: Now uses the X11DRV_ExtEscape function to retrieve the drawable from Wine
+   * general.c: Made x11drvHandle accessible for other source files (needed for X11DRV_ExtEscape)
+
 2004-03-23  Ravindra  <rkumar@novell.com>
 	* gdip.h: Changed file format to Unix.
 

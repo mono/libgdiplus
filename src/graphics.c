@@ -236,13 +236,16 @@ convert_fill_mode (GpFillMode fill_mode)
 GpStatus 
 GdipCreateFromHDC (int hDC, GpGraphics **graphics)
 {
-	DC* dc = _get_DC_by_HDC (hDC);
+	DC* 		dc = _get_DC_by_HDC (hDC);
+	Drawable	drawable;
+	unsigned long	drvCommand=X11DRV_GET_DRAWABLE;
 	
 	/* printf ("GdipCreateFromHDC. in %d, DC %p\n", hDC, dc); */
 	if (dc == 0) return NotImplemented;
 	
 	*graphics = gdip_graphics_new ();
-	cairo_set_target_drawable ( (*graphics)->ct, GDIP_display, dc->physDev->drawable);
+	X11DRV_ExtEscape_pfn(dc->physDev, X11DRV_ESCAPE, sizeof(drvCommand), &drvCommand, sizeof(drawable), &drawable);
+	cairo_set_target_drawable ( (*graphics)->ct, GDIP_display, drawable);
 	_release_hdc (hDC);
 	(*graphics)->hdc = (void*)hDC;
 	(*graphics)->type = gtX11Drawable;

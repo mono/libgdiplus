@@ -117,6 +117,11 @@ int __stdcall SetDIBits_gdip (void *hdc, void *hbitmap, unsigned startScan, unsi
 	return 0;
 }
 
+int X11DRV_ExtEscape_gdip (void *physDev, int escape, int in_count, void *in_data, int out_count, void *out_data)
+{
+	return 0;
+}
+
 void* (__stdcall *CreateCompatibleDC_pfn) (void * hdc);
 void* (__stdcall *CreateCompatibleBitmap_pfn) (void * hdc, int width, int height);
 void* (__stdcall *GetDC_pfn) (void * hwnd);
@@ -132,6 +137,10 @@ int (__stdcall *SetDIBits_pfn) (void *hdc, void *hbitmap, unsigned startScan, un
 
 DC* (*DC_GetDCPtr_pfn) (int hdc);
 void (*GDI_ReleaseObj_pfn) (int hdc);
+
+int (*X11DRV_ExtEscape_pfn)(void *physDev, int escape, int in_count, void *in_data, int out_count, void *out_data);
+
+extern void *x11drvHandle;
 
 #define CHECK_FUNCTION(name) if (name##_pfn == 0) name##_pfn = name##_gdip;
 void initializeGdipWin32 (void)
@@ -161,6 +170,8 @@ void initializeGdipWin32 (void)
 		
 		DC_GetDCPtr_pfn = dlsym(gdi32Handle,"DC_GetDCPtr");
 		GDI_ReleaseObj_pfn = dlsym(gdi32Handle,"GDI_ReleaseObj");
+
+		X11DRV_ExtEscape_pfn = dlsym(x11drvHandle,"X11DRV_ExtEscape");
 	}
 	CHECK_FUNCTION (CreateCompatibleDC);
 	CHECK_FUNCTION (CreateCompatibleBitmap);
@@ -174,6 +185,8 @@ void initializeGdipWin32 (void)
 	
 	CHECK_FUNCTION (DC_GetDCPtr);
 	CHECK_FUNCTION (GDI_ReleaseObj);
+
+	CHECK_FUNCTION (X11DRV_ExtEscape);
 }
 
 DC *_get_DC_by_HDC (int hDC)
