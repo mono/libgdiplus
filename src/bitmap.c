@@ -573,7 +573,7 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 
 
 /* Format24bppRgb is internally stored by Cairo as a four bytes. Convert it to 3-byte (RGB) */	
-void
+int
 gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride)
 {
 	int x, y, len, r, g, b, a;
@@ -586,7 +586,10 @@ gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest
 	*dest_stride = (*dest_stride * width) / 8;
 	*dest_stride = (*dest_stride + 3) & ~3;		
 	
-	result = GdipAlloc (*dest_stride * height);	
+	result = GdipAlloc (*dest_stride * height);
+	if (result == NULL)
+		return OutOfMemory;
+	
 	memset (result, 0, *dest_stride * height);
 	
 	for (y = 0, pos_src = src, pos_dest = result; y < height; y++, pos_src += stride, pos_dest += *dest_stride) {		
@@ -597,7 +600,8 @@ gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest
 		}
 	}
 	
-	*dest = result;	
+	*dest = result;
+	return Ok;
 }
 
 

@@ -899,8 +899,8 @@ void gdip_graphics_detach_bitmap (GpGraphics *graphics, GpBitmap *image);
 GpStatus gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect);
 GpStatus gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect);
 
-void gdip_from_RGB_to_ARGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride);
-void gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride);
+int gdip_from_RGB_to_ARGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride);
+int gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride);
 
 /* Pen */
 void gdip_pen_init (GpPen *pen);
