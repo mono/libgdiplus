@@ -1,3 +1,8 @@
+2005-02-16  Miguel de Icaza  <miguel@novell.com>
+
+	* bitmap.c: Handle the case where GdipAlloc returns NULL,
+	propagate the error everywhere.
+
 2005-02-10  Geoff Norton  <gnorton@customerdna.com>
 
 	* general.c: Drop the last usage of GDIPLUS_NOX, if we can't open

@@ -160,6 +160,9 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 	}
 
 	result = gdip_bitmap_new ();
+	if (result == NULL)
+		return OutOfMemory;
+			
 	result->data.Width = result->image.width = width;
 	result->data.Height = result->image.height = height;
 	result->data.PixelFormat = result->image.pixFormat = format;
@@ -174,6 +177,9 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 
 	if (scan0 == NULL) {
 		scan0 = GdipAlloc (stride * height);
+		if (scan0 == NULL)
+			return OutOfMemory;
+		
 		memset (scan0, 0, stride * height);
 		own_scan0 = TRUE;
 	}
@@ -220,6 +226,10 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	result->data.Stride = stride;
 
 	result->data.Scan0 = GdipAlloc (bmpSize);
+	if (result->data.Scan0 == NULL){
+		GdipFree (result);
+		return OutOfMemory;
+	}
 
 	result->data.Reserved |= GBD_OWN_SCAN0;
 	*bitmap = result;
@@ -280,6 +290,11 @@ GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
 		return st;
 
 	result = gdip_bitmap_new ();
+	if (result == NULL){
+		GdipFree (bd.Scan0);
+		return OutOfMemory;
+	}
+	
 	result->cairo_format = original->cairo_format;
 	memcpy (&result->data, &bd, sizeof (GdipBitmapData));
 	result->image.pixFormat = format;	/* this is only used by image codecs */
@@ -338,8 +353,13 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 
 	
 	if (destData->Scan0 == NULL) {
+		GpBitmap *data = GdipAlloc (destData->Stride * destRect->Height);
+
+		if (data == NULL)
+			return OutOfMemory;
+		
 		destData->Stride = (((( destRect->Width * dest_components * dest_deph) /8)  + 3) & ~3);
-		destData->Scan0 = GdipAlloc (destData->Stride * destRect->Height);
+		destData->Scan0 = data;
 		destData->Width = destRect->Width;
 		destData->Height = destRect->Height;
 		destData->PixelFormat = srcData->PixelFormat;
@@ -439,7 +459,9 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 
 			/* Allocate the output buffer */
 			outBuffer = GdipAlloc (outStride * destRect->Height);
-
+			if (outBuffer == NULL)
+				return OutOfMemory;
+			
 			destData->Width = destRect->Width;
 			destData->Height = destRect->Height;
 			destData->Stride = outStride;
@@ -480,7 +502,9 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 
 			/* Allocate the output buffer */
 			outBuffer = GdipAlloc (outStride * destRect->Height);
-
+			if (outBuffer == NULL)
+				return OutOfMemory;
+			
 			destData->Width = destRect->Width;
 			destData->Height = destRect->Height;
 			destData->Stride = outStride;
@@ -578,7 +602,7 @@ gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest
 
 
 /* Format24bppRgb is internally stored by Cairo as a four bytes. Convert it to 3-byte (RGB) */	
-void
+int
 gdip_from_RGB_to_ARGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride)
 {
 	int x, y, len, r, g, b, a;
@@ -591,7 +615,10 @@ gdip_from_RGB_to_ARGB (BYTE *src, int width, int height, int stride, BYTE **dest
 	*dest_stride = (*dest_stride * width) / 8;
 	*dest_stride = (*dest_stride + 3) & ~3;		
 	
-	result = GdipAlloc (*dest_stride * height);	
+	result = GdipAlloc (*dest_stride * height);
+	if (result == NULL)
+		return OutOfMemory;
+	
 	memset (result, 0, *dest_stride * height);
 	
 	for (y = 0, pos_src = src, pos_dest = result; y < height; y++, pos_src += stride, pos_dest += *dest_stride) {		
@@ -603,7 +630,8 @@ gdip_from_RGB_to_ARGB (BYTE *src, int width, int height, int stride, BYTE **dest
 		}
 	}
 	
-	*dest = result;	
+	*dest = result;
+	return Ok;
 }
 
 
@@ -613,7 +641,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 {
 	int src_stride;
 	BYTE *src_scan0, *pos;
-	BOOL alocated = FALSE;
+	BOOL allocated = FALSE;
 
 	g_return_val_if_fail (bitmap != NULL, InvalidParameter);
 	g_return_val_if_fail (srcRect != NULL, InvalidParameter);
@@ -637,10 +665,11 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 		return NotImplemented;	
 	
 	if (format == Format24bppRgb) {
-		gdip_from_ARGB_to_RGB (bitmap->data.Scan0, bitmap->data.Width, bitmap->data.Height, 
-			bitmap->data.Stride, &src_scan0, &src_stride);
+		if (gdip_from_ARGB_to_RGB (bitmap->data.Scan0, bitmap->data.Width, bitmap->data.Height, 
+					   bitmap->data.Stride, &src_scan0, &src_stride) != Ok)
+			return OutOfMemory;
 			
-		alocated = TRUE;		
+		allocated = TRUE;		
 	}
 	else {
 		src_stride = bitmap->data.Stride;
@@ -660,6 +689,12 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 		result->Stride = src_stride;
 		result->PixelFormat = format;
 		result->Scan0 = GdipAlloc (src_stride * bitmap->data.Height);
+		if (result->Scan0 == NULL)
+			return OutOfMemory;
+
+		if (allocated)
+			GdipFree (src_scan0);
+		
 		memcpy (result->Scan0, src_scan0, src_stride * bitmap->data.Height);
 		
 	} else {
@@ -700,7 +735,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 	result->Reserved |= GBD_OWN_SCAN0;
 	bitmap->data.Reserved |= GBD_LOCKED;
 	
-	if (alocated)
+	if (allocated)
 		GdipFree (src_scan0);
 	
 	return Ok;
@@ -711,7 +746,7 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, GdipBitmapData *bitmap_data)
 {
 	int src_stride;
 	BYTE *src_scan0, *pos;
-	BOOL alocated = FALSE;
+	BOOL allocated = FALSE;
 	
 	g_return_val_if_fail (bitmap != NULL, InvalidParameter);
 	g_return_val_if_fail (bitmap_data != NULL, InvalidParameter);
@@ -721,10 +756,11 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, GdipBitmapData *bitmap_data)
 		return InvalidParameter;
 		
 	if (bitmap_data->PixelFormat == Format24bppRgb) {
-		gdip_from_RGB_to_ARGB (bitmap_data->Scan0, bitmap_data->Width, bitmap_data->Height, 
-			bitmap_data->Stride, &src_scan0, &src_stride);
+		if (gdip_from_RGB_to_ARGB (bitmap_data->Scan0, bitmap_data->Width, bitmap_data->Height, 
+					   bitmap_data->Stride, &src_scan0, &src_stride) != Ok)
+			return OutOfMemory;
 	
-		alocated = TRUE;		
+		allocated = TRUE;		
 	}
 	else {
 		src_stride = bitmap_data->Stride;
@@ -760,7 +796,7 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, GdipBitmapData *bitmap_data)
 	/* unlock the bitmap */
 	bitmap->data.Reserved &= ~GBD_LOCKED;
 		
-	if (alocated)
+	if (allocated)
 		GdipFree (src_scan0);
 	
 	return Ok;
