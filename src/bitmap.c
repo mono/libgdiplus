@@ -93,6 +93,14 @@ gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
 	result->data.Scan0 = (GpBitmap *) malloc (bitmap->data.Stride * bitmap->data.Height);
 	memcpy (result->data.Scan0, bitmap->data.Scan0, bitmap->data.Stride * bitmap->data.Height);
 	*clonedbitmap = result;
+
+	if (bitmap->data.ByteCount > 0 && bitmap->data.Bytes != NULL){
+		result->data.Bytes = malloc (bitmap->data.ByteCount);
+		if (result->data.Bytes == NULL)
+			bitmap->data.ByteCount = 0;
+		else
+			memcpy (result->data.Bytes, bitmap->data.Bytes, bitmap->data.ByteCount);
+	}
 	
 	result->image.surface = NULL;
 	
