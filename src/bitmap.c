@@ -302,8 +302,8 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *rc, int flags, int format, GdipBitma
 	}
 
 	/* Special case: the entire image is requested */
-	if (rc->left == 0 && rc->right == bitmap->data.Width &&
-	    rc->top == 0 && rc->bottom == bitmap->data.Height &&
+	if (rc->X == 0 && rc->X + rc->Width == bitmap->data.Width &&
+	    rc->Y == 0 && rc->Y + rc->Height == bitmap->data.Height &&
 	    format == bitmap->data.PixelFormat){
 		*result = bitmap->data;
 		result->Reserved = result->Reserved & ~1;

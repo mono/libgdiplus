@@ -1,3 +1,20 @@
+2004-02-05  Duncan Mak  <duncan@ximian.com>
+
+	* gdip.h (GpRect, GpRectF): Instead of storing coordinates in
+	terms of top, left, right, bottom, changed it to use X, Y, Width
+	and Height instead. This matches the requirements for GDI+ (Flat
+	API and the C++ wrapper) as well as System.Drawing.
+
+	* bitmap.c (GdipBitmapLockBits): 
+	* matrix.c (GdipCreateMatrix3, GdipCreateMatrix3I): 
+	* graphics-path.c
+	(GdipAddPathRectangles, GdipAddPathRectanglesI): Use X,
+	Y, Width, Height coordinates instead of the old system.
+
+2004-02-05  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c: Fixed indentation.
+
 2004-02-05  Jordi Mas i Hernandez <jordi@ximian.com>
 	* font.c - first implementation
 

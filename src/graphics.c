@@ -799,32 +799,33 @@ GpStatus
 GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
                 int len, GpFont *font, RectF *rc, void *format, GpBrush *brush)
 {
-
-    if (!graphics || !stringUnicode || !font) return InvalidParameter;
+        if (!graphics || !stringUnicode || !font) 
+                return InvalidParameter;
     
-	glong            items_read = 0;
-	glong            items_written = 0;  
+	glong items_read = 0;
+	glong items_written = 0;  
 
-    char* string = (char*)g_utf16_to_utf8 ((const gunichar2 *)stringUnicode, (glong)len,
-			&items_read, &items_written, NULL);
+        char* string = (char*) g_utf16_to_utf8 ((const gunichar2 *) stringUnicode,
+                        (glong)len, &items_read, &items_written, NULL);
 
-    cairo_save (graphics->ct);
+        cairo_save (graphics->ct);
     
-    if (brush)
-        gdip_brush_setup (graphics, brush);
-    else
-        cairo_set_rgb_color (graphics->ct, 0., 0., 0.);
+        if (brush)
+                gdip_brush_setup (graphics, brush);
     
-	cairo_move_to (graphics->ct, rc->left, rc->top + font->emSize);
-
-    cairo_set_font (graphics->ct, font->cairofnt);                                          	
-    cairo_scale_font (graphics->ct, font->emSize);
+        else
+                cairo_set_rgb_color (graphics->ct, 0., 0., 0.);
     
-	cairo_show_text (graphics->ct, string);
-	g_free(string);
+        cairo_move_to (graphics->ct, rc->left, rc->top + font->emSize);
 
-    cairo_restore (graphics->ct);        
-	return gdip_get_status (cairo_status (graphics->ct));
+        cairo_set_font (graphics->ct, font->cairofnt);
+        cairo_scale_font (graphics->ct, font->emSize);
+    
+        cairo_show_text (graphics->ct, string);
+        g_free(string);
+
+        cairo_restore (graphics->ct);
+        return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus 

@@ -213,11 +213,11 @@ typedef struct {    // Keep in sync with BitmapData.cs
 } GdipBitmapData, BitmapData;
 
 typedef struct {
-	int left, top, right, bottom;
+	int X, Y, Width, Height;
 } GpRect, Rect;
 
 typedef struct {
-	float left, top, right, bottom;
+	float X, Y, Width, Height;
 } GpRectF, RectF;
 
 typedef struct {

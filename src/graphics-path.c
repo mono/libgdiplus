@@ -419,10 +419,10 @@ GdipAddPathRectangles (GpPath *path, const GpRectF *rects, int count)
 {
         int i;
         for (i = 0; i < count; i++, rects++) {
-                float x = rects->left;
-                float y = rects->top;
-                float width = rects->right - rects->left;
-                float height = rects->bottom - rects->top;
+                float x = rects->X;
+                float y = rects->Y;
+                float width = rects->Width;
+                float height = rects->Height;
                 GdipAddPathRectangle (path, x, y, width, height);
         }
         
@@ -649,10 +649,10 @@ GdipAddPathRectanglesI (GpPath *path, const GpRect *rects, int count)
 {
         int i;
         for (i = 0; i < count; i++, rects++) {
-                float x = (float) rects->left;
-                float y = (float) rects->top;
-                float width =  (float) (rects->right - rects->left);
-                float height =  (float) (rects->bottom - rects->top);
+                float x = (float) rects->X;
+                float y = (float) rects->Y;
+                float width =  (float) rects->Width;
+                float height =  (float) rects->Height;
                 GdipAddPathRectangle (path, x, y, width, height);
         }
 

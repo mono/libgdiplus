@@ -33,10 +33,10 @@ GpStatus
 GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matrix)
 {
         *matrix = cairo_matrix_create ();
-        double m11 = rect->left;
-        double m12 = rect->top;
-        double m21 = (rect->right) - (rect->left); /* width */
-        double m22 = (rect->bottom) - (rect->top); /* height */
+        double m11 = rect->X;
+        double m12 = rect->Y;
+        double m21 = rect->Width;
+        double m22 = rect->Height;
         double dx = dstplg->X;
         double dy = dstplg->Y;
 
@@ -50,10 +50,10 @@ GpStatus
 GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix)
 {
         *matrix = cairo_matrix_create ();
-        double m11 = rect->left;
-        double m12 = rect->top;
-        double m21 = (rect->right) - (rect->left); /* width */
-        double m22 = (rect->bottom) - (rect->top); /* height */
+        double m11 = rect->X;
+        double m12 = rect->Y;
+        double m21 = rect->Width;
+        double m22 = rect->Height;
         double dx = dstplg->X;
         double dy = dstplg->Y;
         
