@@ -1,3 +1,16 @@
+2004-04-10  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* image.c (GdipDrawImageRectI): put back version that handles
+	scaling correctly and doesn't create an extra graphics context
+	unnecessarily.
+
+	* graphics.c (gdip_graphics_attach_bitmap): set the surface on a
+	GpBitmap after setting it as the cairo target; each GpBitmap
+	should always have an associated cairo surface. (fixes #56803)
+
+	* image.c (gdip_image_init): can't call get_display_dpi(), because
+	we might not have an X display at all.
+
 2004-04-10 Peter Bartok <pbartok@novell.com>
    * bitmap.c: Removed the hack that set the Win32 bitmap to white.
      Instead it now simulates alpha blending and merges the Win32

@@ -56,6 +56,10 @@ gdip_graphics_attach_bitmap (GpGraphics *graphics, GpBitmap *image)
 {
 	cairo_set_target_image (graphics->ct, image->data.Scan0, image->cairo_format,
 				image->data.Width, image->data.Height, image->data.Stride);
+	if (image->image.surface) {
+		cairo_surface_destroy (image->image.surface);
+	}
+	image->image.surface = cairo_current_target_surface (graphics->ct);
 	graphics->image = image;
 	graphics->type = gtMemoryBitmap;
 }

@@ -39,11 +39,11 @@ gdip_image_init(GpImage *image)
 	image->imageFlags = 0;
 	image->height = 0;
 	image->width = 0;
-	image->horizontalResolution = gdip_get_display_dpi ();
 	image->palette = 0;
 	image->pixFormat = Format32bppArgb;
 	image->propItems = 0;
-	image->verticalResolution = gdip_get_display_dpi ();
+	image->horizontalResolution = 0;
+	image->verticalResolution = 0;
 } 
 
 void *
@@ -147,36 +147,8 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, int x, int y, int width
 GpStatus
 GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int width, int height)
 {
-   GpGraphics *image_graphics = 0;
-   cairo_surface_t *image_surface = 0;
+    g_return_if_fail (image->surface != NULL);
 
-   if (image->type != imageBitmap)
-      return InvalidParameter;
-
-   /* printf("GdipDrawImageRectI. %p (type %d), %p, (%d,%d) (%d,%d)\n", graphics, graphics->type, image, x, y, width, height); */
-
-   GdipGetImageGraphicsContext (image, &image_graphics);
-   if (image_graphics == 0) {
-      printf("GdipDrawImageRectI. Error : cannot get graphics\n");
-      return GenericError;
-   }
-   image_surface = cairo_current_target_surface (image_graphics->ct);
-   if (image_surface == 0) {
-      printf("GdipDrawImageRectI. Error : cannot get surface\n");
-      return GenericError;
-   }
-   cairo_move_to (graphics->ct, x, y);
-   cairo_set_pattern (graphics->ct, image_surface);
-   cairo_rectangle (graphics->ct, x, y, width, height);
-   cairo_fill (graphics->ct);
-
-   return Ok;
-}
-
-#if 0
-GpStatus
-GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int width, int height)
-{
     /* cairo_pattern_t *image_pattern = NULL; */
 
     if (!graphics || !image)
@@ -196,7 +168,6 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
                      (double) height / image->height);
         cairo_fill (graphics->ct);
         cairo_default_matrix (graphics->ct);
-        
     } else {
         cairo_fill (graphics->ct);
     }
@@ -205,8 +176,6 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
 
     return Ok;
 }
-#endif
-
 
 GpStatus
 GdipLoadImageFromStream (void *stream, GpImage **image)
