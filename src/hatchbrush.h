@@ -100,7 +100,7 @@ void draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width
 void draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format, GpHatchStyle hatchstyle);
 void draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
 void draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
+void draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format);
 void draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
 void draw_percentage_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, int percentage);
 void draw_light_down_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);

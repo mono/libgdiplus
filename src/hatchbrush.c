@@ -91,7 +91,7 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 
 	/* case HatchStyleCross: */
 	case HatchStyleLargeGrid:
-		draw_cross_hatch (ct, forecol, backcol, width, height);
+		draw_cross_hatch (ct, forecol, backcol, width, height, format);
 		break;
 
 	case HatchStyleDiagonalCross:
@@ -459,9 +459,53 @@ void draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, in
 	/* NotImplemented */
 }
 
-void draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
+void draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format)
 {
-	/* NotImplemented */
+	cairo_surface_t *hatch;
+	double hatch_size = HATCH_SIZE;
+	double line_width = LINE_WIDTH;
+
+	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
+					      format, hatch_size, hatch_size);
+	cairo_surface_set_repeat (hatch, 1);
+	
+	/* draw one hatch */
+	{
+		cairo_save (ct);
+
+		cairo_set_target_surface (ct, hatch);
+
+		/* draw background */
+		int R = (backcolor & 0x00FF0000) >> 16;
+		int G = (backcolor & 0x0000FF00) >> 8;
+		int B = (backcolor & 0x000000FF);
+		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
+
+		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
+		cairo_fill (ct);
+
+		/* draw line */
+		R = (forecolor & 0x00FF0000) >> 16;
+		G = (forecolor & 0x0000FF00) >> 8;
+		B = (forecolor & 0x000000FF);
+		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
+
+		cairo_set_line_width (ct, line_width);
+		/* draw a horizontal line */
+		cairo_move_to (ct, 0, hatch_size / 2.0);
+		cairo_line_to (ct, hatch_size, hatch_size / 2.0);
+
+		/* draw a vertical line */
+		cairo_move_to (ct, hatch_size / 2.0, 0);
+		cairo_line_to (ct, hatch_size / 2.0, hatch_size);
+		cairo_stroke (ct);
+
+		cairo_restore (ct);
+	}
+
+	/* fill the whole surface with horizontal lines */
+	cairo_set_pattern (ct, hatch);
+	cairo_surface_destroy (hatch);
 }
 
 void draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)

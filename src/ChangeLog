@@ -1,4 +1,8 @@
 2004-03-08  Ravindra  <rkumar@novell.com>
+	* hatchbrush.c: Implemented cross hatch style.
+	* hatchbrush.h: Modified a function signature.
+
+2004-03-08  Ravindra  <rkumar@novell.com>
 	* solidbrush.c: cairo_set_rgb_color bug fix.
 	* hatchbrush.c: cairo_set_rgb_color bug fix.
 
