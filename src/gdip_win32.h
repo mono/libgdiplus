@@ -9,8 +9,16 @@
 #define _GDIP_WIN32_H
 
 #include <cairo.h>
+#include "config.h"
+#include <X11/Xlib.h>
 #ifndef CAIRO_HAS_XLIB_SURFACE
-#include <cairo-xlib.h>
+/*
+ * This check is here; because I'm assuming that people willing to try the quartz surface will
+ * be running a new enough cairo that this header no longer exists (in fact they have to)
+ */
+#       ifndef CAIRO_HAS_QUARTZ_SURFACE
+#               include <cairo-xlib.h>
+#       endif
 #endif
 
 #include "gdip.h"
@@ -141,6 +149,10 @@ typedef struct
 #  define __stdcall __attribute__((__stdcall__))
 #else
 #  define __stdcall 
+#endif
+
+#ifdef __APPLE__
+#	define __stdcall
 #endif
 
 extern void* (__stdcall *CreateCompatibleDC_pfn) (void * hdc);

@@ -274,6 +274,8 @@ convert_fill_mode (GpFillMode fill_mode)
 }
 
 
+#ifdef CAIRO_HAS_XLIB_SURFACE
+
 GpStatus 
 GdipCreateFromHDC (int hDC, GpGraphics **graphics)
 {
@@ -332,6 +334,27 @@ GdipCreateFromHWND (void *hwnd, GpGraphics **graphics)
 	return Ok;
 }
 
+#endif
+
+#ifdef CAIRO_HAS_QUARTZ_SURFACE
+
+GpStatus
+GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **graphics)
+{
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
+	*graphics = gdip_graphics_new();
+	cairo_set_target_quartz_context ((*graphics)->ct, ctx, width, height);
+
+	(*graphics)->type = gtOSXDrawable;
+
+	return Ok;
+}
+
+#endif
+
+#ifdef CAIRO_HAS_XLIB_SURFACE
+
 GpStatus
 GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 {
@@ -344,6 +367,8 @@ GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 
 	return Ok;
 }
+
+#endif
 
 GpStatus 
 GdipDeleteGraphics (GpGraphics *graphics)
