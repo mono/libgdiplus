@@ -90,12 +90,14 @@ gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 	memset (bmi, 0, sizeof (BITMAPINFOHEADER));
 	bmi->biSize = sizeof (BITMAPINFOHEADER);
 	bmi->biWidth = bitmap->data.Width;
-	bmi->biHeight = -bitmap->data.Height;
+	bmi->biHeight = bitmap->data.Height;
 	bmi->biPlanes = 1;
-	bmi->biBitCount = 32;
+	bmi->biBitCount = gdip_getpixel_formatsize (bitmap->image.pixFormat);
 	bmi->biCompression = BI_RGB;
-	bmi->biSizeImage = bitmapLen; 
-}
+        bmi->biSizeImage =  0; /* Many tools expect this may be set to zero for BI_RGB bitmaps */
+        bmi->biXPelsPerMeter = (int) (0.5f + ((gdip_get_display_dpi() * 3937) / 100));
+        bmi->biYPelsPerMeter = (int) (0.5f + ((gdip_get_display_dpi() * 3937) / 100)); /* 1 meter is = 39.37 */       
+}                                                           
 
 void 
 gdip_bitmap_save_bmp (const char *name, GpBitmap *bitmap)

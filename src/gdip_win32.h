@@ -68,6 +68,9 @@ typedef struct
 #define BI_RLE4          2
 #define BI_BITFIELDS     3
 
+#define BITMAPINFOHEADER_SIZE   40
+#define BITMAPCOREHEADER_SIZE   12
+
 typedef struct {
 	BITMAPINFOHEADER bmiHeader;
 	RGBQUAD	bmiColors[1];

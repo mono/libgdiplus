@@ -1,3 +1,14 @@
+2004-04-14 Jordi Mas i Hernandez <jordi@ximian.com>
+
+        * bitmap.c -  fixes biXPelsPerMeter fields
+
+	* bmpcodec.c -  fixes strides, fixes new WinNT BMP headers,
+        support for OS/2 bitmaps, 8 and 24 bits, upside bitmaps, gets
+        different pixelformats correct loading/saving, reformatted to 8
+        tabs, support for load/save palette if present (RGBTRIPLE and
+        SQUADS), fixes bitmap writting to allow to work with more tools
+        (saving it upside down), etc.
+
 2004-04-14  Duncan Mak  <duncan@ximian.com>
 
 	* graphics-path.c (GdipAddPathLine, GdipAddPathLineI): Only append
