@@ -610,6 +610,12 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
     if (file_name == NULL || err != NULL) {
         return InvalidParameter;
     }
+    
+    if (format == GIF) { /* gif library has to open the file itself*/
+        status = gdip_save_gif_image_to_file (file_name, image);
+        g_free (file_name);
+        return status;
+    }
 
     if ((fp = fopen(file_name, "wb")) == NULL)
         return GenericError;
@@ -1253,9 +1259,15 @@ GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
 	    result->format = BMP;
             break;
         case TIF:
+            status = NotImplemented;
+            break;
         case GIF:
+            status = gdip_load_gif_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
+            result->format = BMP;            
+            break;
         default:
             status = NotImplemented;
+            break;
     }
 
     if (status != Ok) {
@@ -1286,6 +1298,7 @@ GdipSaveImageToDelegate_linux (GpImage *image, PutBytesDelegate putBytesFunc, GD
         return InvalidParameter;
 
     format = gdip_image_format_for_format_guid (encoderCLSID);
+    
     if (format == INVALID)
         return UnknownImageFormat;
    
@@ -1295,6 +1308,9 @@ GdipSaveImageToDelegate_linux (GpImage *image, PutBytesDelegate putBytesFunc, GD
             break;
         case JPEG:
             status = gdip_save_jpeg_image_to_stream_delegate (putBytesFunc, image, params);
+            break;
+        case GIF:
+            status = gdip_save_gif_image_to_stream_delegate (putBytesFunc, image, params);
             break;
         default:
             status = NotImplemented;

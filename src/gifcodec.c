@@ -1,5 +1,4 @@
 /* 
- *
  * gifcodec.c : Contains function definitions for encoding decoding gif images
  *
  * Copyright (C) Novell, Inc. 2003-2004.
@@ -20,8 +19,9 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * Authors:
- *  	Sanjay Gupta (gsanjay@novell.com)
+ *	Sanjay Gupta (gsanjay@novell.com)
  *	Vladimir Vukicevic (vladimir@pobox.com)
+ *	Jordi Mas (jordi@ximian.com)
  *
  * Copyright (C) Novell, Inc. 2003-2004.
  */
@@ -38,6 +38,13 @@
 
 #include <gif_lib.h>
 
+/* Data structure used for callback */
+typedef struct
+{
+	GetBytesDelegate getBytesFunc;
+	SeekDelegate seekFunc;
+	
+} gif_callback_data;
 
 /* Codecinfo related data*/
 static ImageCodecInfo gif_codec;
@@ -46,6 +53,9 @@ static const WCHAR gif_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ',
 static const WCHAR gif_extension[] = {'*', '.', 'G', 'I', 'F',0}; /* *.GIF */
 static const WCHAR gif_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'g', 'i', 'f', 0}; /* image/gif */
 static const WCHAR gif_format[] = {'G', 'I', 'F', 0}; /* GIF */
+
+GpStatus  gdip_load_gif_image (void *stream, GpImage **image, bool from_file);
+GpStatus  gdip_save_gif_image (void *stream, GpImage *image, bool from_file);
 
 ImageCodecInfo *
 gdip_getcodecinfo_gif ()
@@ -67,8 +77,41 @@ gdip_getcodecinfo_gif ()
 	return &gif_codec;
 }
 
+
+/* Read callback function for the gif libbrary*/
+static int 
+gdip_gif_inputfunc (GifFileType *gif, GifByteType *data, int len) 
+{
+	int read = 0;	
+	gif_callback_data *gcd = (gif_callback_data*) gif->UserData;
+	
+	read = gcd->getBytesFunc (data, len, 0);
+	return read;
+}
+
+
 GpStatus 
 gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
+{
+	return gdip_load_gif_image (fp, image, TRUE);
+}
+
+GpStatus
+gdip_load_gif_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
+                                           SeekDelegate seekFunc,
+                                           GpImage **image)
+{
+	gif_callback_data gif_data;
+	
+	gif_data.getBytesFunc = getBytesFunc;
+	gif_data.seekFunc = seekFunc;
+	
+	return gdip_load_gif_image (&gif_data, image, FALSE);	
+}
+
+
+GpStatus 
+gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 {
 	GifFileType *gif = NULL;
 	GifRecordType *rectype = NULL;
@@ -86,7 +129,11 @@ gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
 	int pageDimensionCount = 0;
 	int timeDimensionCount = 0;
 
-	gif = DGifOpenFileHandle (fileno (fp));
+	if (from_file) 
+		gif = DGifOpenFileHandle (fileno ((FILE*)stream));
+	else 		
+		gif = DGifOpen (stream, &gdip_gif_inputfunc);
+	
 	if (gif == NULL)
 		goto error;
 
@@ -215,18 +262,113 @@ gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
 	if (pixels)
 	GdipFree (pixels);
 	if (img)
-	gdip_bitmap_dispose (img);
+		gdip_bitmap_dispose (img);
 	if (gif)
-	DGifCloseFile (gif);
+		DGifCloseFile (gif);
 	*image = NULL;
 	return InvalidParameter;
 }
 
-GpStatus 
-gdip_save_gif_image_to_file (FILE *fp, GpImage *image)
+/* Write callback function for the gif libbrary*/
+static int 
+gdip_gif_outputfunc (GifFileType *gif,  const GifByteType *data, int len) 
 {
-	return NotImplemented;
+	int written = 0;	
+	PutBytesDelegate putBytesFunc = (PutBytesDelegate) gif->UserData;
+	
+	written = putBytesFunc ((void *)data, len);
+	return written;
 }
+
+
+GpStatus 
+gdip_save_gif_image_to_file (unsigned char *filename, GpImage *image)
+{
+	return gdip_save_gif_image ( (void *)filename, image, TRUE);
+}
+
+GpStatus
+gdip_save_gif_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
+                                         GpImage *image,
+                                         GDIPCONST EncoderParameters *params)
+{
+	return gdip_save_gif_image ( (void *)putBytesFunc, image, FALSE);
+}
+
+
+GpStatus 
+gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
+{
+	GifFileType *fp;
+	int i, row, x, y, size;
+	ColorMapObject *color_map;
+	GpBitmap *bitmap = (GpBitmap *) image;
+	GifByteType *red, *green, *blue, *pixels;
+	GifByteType *ptr_red, *ptr_green, *ptr_blue, *ptr_pixels;
+	ARGB color;	
+	int cmap_size = 256;	
+	ColorMapObject* cmap = NULL;	
+	BOOL error = FALSE;
+	
+	if (!stream) 
+		return InvalidParameter;
+		
+	if (from_file)
+		fp = EGifOpenFileName ((unsigned char *) stream, 0);
+	else
+		fp = EGifOpen (stream, gdip_gif_outputfunc);
+		
+	if (!fp)
+		return FileNotFound;
+		
+	size = bitmap->data.Height * bitmap->data.Width;
+	ptr_red = red = malloc (sizeof (GifByteType)* size);
+	ptr_green = green = malloc (sizeof (GifByteType)* size);
+	ptr_blue = blue = malloc (sizeof (GifByteType)* size);
+	ptr_pixels = pixels = malloc (sizeof (GifByteType)* bitmap->data.Height * bitmap->data.Stride);
+	cmap = MakeMapObject (cmap_size, 0);	
+	
+	for (y = 0; y <bitmap->data.Height; y++) {	
+		for (x = 0; x <bitmap->data.Width; x++) {
+		
+			GdipBitmapGetPixel (bitmap, x, y, &color);		
+			
+			*ptr_red++ = (color & 0x00ff0000) >> 16;
+			*ptr_green++ = (color & 0x0000ff00) >> 8;
+			*ptr_blue++ =  (color & 0x000000ff);
+		}	
+	}	
+
+	if (QuantizeBuffer (bitmap->data.Width, bitmap->data.Height, &cmap_size,
+		red, green, blue, pixels, cmap->Colors) == GIF_ERROR) 
+		error = TRUE;
+	
+	if (EGifPutScreenDesc (fp, bitmap->data.Width, bitmap->data.Height,
+		8, 0, cmap) == GIF_ERROR) 
+		error = TRUE;
+	
+	if (EGifPutImageDesc (fp, 0, 0, bitmap->data.Width, bitmap->data.Height,
+		FALSE, NULL) == GIF_ERROR) 
+		error = TRUE;
+	
+	for (i = 0;  i < bitmap->data.Height;  ++i) {
+		if (EGifPutLine (fp, ptr_pixels, bitmap->data.Width) == GIF_ERROR) {
+			error = TRUE;
+			break;
+		}
+		ptr_pixels += bitmap->data.Width;
+	}
+
+	EGifCloseFile (fp);	
+	free (red);
+	free (green);
+	free (blue);	
+	free (pixels);		
+	free (cmap);
+
+	return (error == FALSE) ? Ok : GenericError;
+}
+
 
 #else
 
@@ -251,5 +393,12 @@ gdip_save_gif_image_to_file (FILE *fp, GpImage *image)
 	return NotImplemented;
 }
 
+GpStatus
+gdip_save_gif_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
+                                         GpImage *image,
+                                         GDIPCONST EncoderParameters *params)
+{
+	return NotImplemented;
+}
 
 #endif
