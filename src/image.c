@@ -147,6 +147,36 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, int x, int y, int width
 GpStatus
 GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int width, int height)
 {
+   GpGraphics *image_graphics = 0;
+   cairo_surface_t *image_surface = 0;
+
+   if (image->type != imageBitmap)
+      return InvalidParameter;
+
+   /* printf("GdipDrawImageRectI. %p (type %d), %p, (%d,%d) (%d,%d)\n", graphics, graphics->type, image, x, y, width, height); */
+
+   GdipGetImageGraphicsContext (image, &image_graphics);
+   if (image_graphics == 0) {
+      printf("GdipDrawImageRectI. Error : cannot get graphics\n");
+      return GenericError;
+   }
+   image_surface = cairo_current_target_surface (image_graphics->ct);
+   if (image_surface == 0) {
+      printf("GdipDrawImageRectI. Error : cannot get surface\n");
+      return GenericError;
+   }
+   cairo_move_to (graphics->ct, x, y);
+   cairo_set_pattern (graphics->ct, image_surface);
+   cairo_rectangle (graphics->ct, x, y, width, height);
+   cairo_fill (graphics->ct);
+
+   return Ok;
+}
+
+#if 0
+GpStatus
+GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int width, int height)
+{
     /* cairo_pattern_t *image_pattern = NULL; */
 
     if (!graphics || !image)
@@ -175,6 +205,7 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
 
     return Ok;
 }
+#endif
 
 
 GpStatus

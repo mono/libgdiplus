@@ -22,6 +22,7 @@
  *   Alexandre Pigolkine(pigolkine@gmx.de)
  */
 
+#include "gdip.h"
 #include "gdip_win32.h"
 #include <dlfcn.h>
 
@@ -122,6 +123,25 @@ int X11DRV_ExtEscape_gdip (void *physDev, int escape, int in_count, void *in_dat
 	return 0;
 }
 
+void * __stdcall CreateFont_gdip( int Height,
+			  int Width,
+			  int Orientation,
+			  int Escapement,
+			  int Weight, 
+			  unsigned long Italic,
+			  unsigned long Underline,
+			  unsigned long Strikeout,
+			  unsigned long Charset,
+			  unsigned long OutputPrecision,
+			  unsigned long ClipPrecision,
+			  unsigned long Quality,
+			  unsigned long PitchAndFamily,
+			  unsigned char *Face)
+{
+	return 0;
+}
+
+
 void* (__stdcall *CreateCompatibleDC_pfn) (void * hdc);
 void* (__stdcall *CreateCompatibleBitmap_pfn) (void * hdc, int width, int height);
 void* (__stdcall *GetDC_pfn) (void * hwnd);
@@ -139,6 +159,13 @@ DC* (*DC_GetDCPtr_pfn) (int hdc);
 void (*GDI_ReleaseObj_pfn) (int hdc);
 
 int (*X11DRV_ExtEscape_pfn)(void *physDev, int escape, int in_count, void *in_data, int out_count, void *out_data);
+
+void* (__stdcall *CreateFont_pfn)(int Height, int Width, int Orientation, int Escapement, 
+				int Weight, unsigned long Italic, unsigned long Underline, 
+				unsigned long Strikeout, unsigned long Charset, 
+				unsigned long OutputPrecision, unsigned long ClipPrecision, 
+				unsigned long Quality, unsigned long PitchAndFamily, 
+				unsigned char *Face);
 
 extern void *x11drvHandle;
 
@@ -172,6 +199,8 @@ void initializeGdipWin32 (void)
 		GDI_ReleaseObj_pfn = dlsym(gdi32Handle,"GDI_ReleaseObj");
 
 		X11DRV_ExtEscape_pfn = dlsym(x11drvHandle,"X11DRV_ExtEscape");
+
+		CreateFont_pfn = dlsym(gdi32Handle,"CreateFontA");
 	}
 	CHECK_FUNCTION (CreateCompatibleDC);
 	CHECK_FUNCTION (CreateCompatibleBitmap);
@@ -187,6 +216,8 @@ void initializeGdipWin32 (void)
 	CHECK_FUNCTION (GDI_ReleaseObj);
 
 	CHECK_FUNCTION (X11DRV_ExtEscape);
+
+	CHECK_FUNCTION (CreateFont);
 }
 
 DC *_get_DC_by_HDC (int hDC)
@@ -197,4 +228,36 @@ DC *_get_DC_by_HDC (int hDC)
 void _release_hdc (int hdc)
 {
 	GDI_ReleaseObj_pfn (hdc);
+}
+
+void *
+CreateWineFont(FcChar8 *str, GpFontStyle style, float emSize, Unit unit)
+{
+	return(CreateFont_pfn(
+		emSize,		 					/* Height */
+		0, 							/* Width */
+		0, 							/* Escapement */
+		0, 							/* Orientation */
+		((style & FontStyleBold)==FontStyleBold) ? 700 : 400,	/* Weight */
+		((style & FontStyleItalic)==FontStyleItalic) ? 1 : 0,	/* Italic */
+		((style & FontStyleUnderline)==FontStyleUnderline)?1:0,	/* Underline */
+		((style & FontStyleStrikeout)==FontStyleStrikeout)?1:0,	/* Strikeout */
+		1,							/* Charset (1=default) */
+		0,							/* Output precision (0=default) */
+		0,							/* Clip precision (0=default) */
+		0,							/* Quality (0=default) */
+		0,							/* PitchAndFamily (0 default/dontcare) */
+		str));							/* Face */
+}
+
+void
+DeleteWineFont(void *hFont)
+{
+#if 0
+	DeleteObject_pfn(hFont);
+#else
+	if (DeleteObject_pfn(hFont)==0) {
+		printf("%s(%d): DeleteObject (hFont) failed!\n", __FILE__, __LINE__);
+	}
+#endif
 }

@@ -1,3 +1,26 @@
+2004-04-10 Peter Bartok <pbartok@novell.com>
+   * bitmap.c: Removed the hack that set the Win32 bitmap to white.
+     Instead it now simulates alpha blending and merges the Win32
+     bitmap onto the cairo image surface. This makes drawing between
+     cairo and Wine/Win32 fully compatible, albeit with two 
+     drawbacks: First, the copying of the bitmap is done pixel by
+     pixel, and second, the color value of UNALTERED_PIXEL in
+     a Win32 bitmap will be treated as transparent.
+
+   * image.c: Removed the 'improved' GdipDrawImageRectI function. I lost a
+     whole day tracking down why SWF stopped working. The 'improved'
+     version doesn't seem to work (yet). Left the broken version
+     with an #if 0 for future fixing.
+
+   * gdip_win32.c: Added functions to create/delete HFONT handles tracking
+     the cairo fonts.
+
+   * gdip_win32.h: Added prototypes
+
+   * font.c: Now also creates/deletes Wine font tracking the cairo font
+
+   * gdip.h: Added HFONT element to GpFont structure
+
 2004-04-10  Duncan Mak  <duncan@ximian.com>
 
 	* graphics.c (GdipDrawCurve):

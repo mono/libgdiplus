@@ -468,6 +468,7 @@ typedef struct {
         cairo_ft_font_t*    cairofnt;
         float               sizeInPixels;
         GpFontStyle         style;
+        void                *wineHfont;
 } GpFont;
 
 
@@ -517,9 +518,6 @@ void gdip_bitmap_dispose (GpBitmap *bitmap);
 
 void *gdip_bitmap_create_Win32_HDC (GpBitmap *bitmap);
 void gdip_bitmap_destroy_Win32_HDC (GpBitmap *bitmap, void *hdc);
-
-void *_get_gdi32Handle (void);
-void *_get_user32Handle (void);
 
 void gdip_graphics_init (GpGraphics *graphics);
 GpGraphics *gdip_graphics_new (void);

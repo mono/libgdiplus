@@ -473,6 +473,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 	result->cairofnt  = gdip_font_create (str, slant, weight);
         result->style = style;
 	cairo_font_reference ((cairo_font_t *)result->cairofnt);
+	result->wineHfont=CreateWineFont(str, style, emSize, unit);
 	*font=result;
         
 	return Ok;
@@ -484,6 +485,9 @@ GdipDeleteFont (GpFont* font)
 	if (font){
 		cairo_font_destroy ((cairo_font_t *)font->cairofnt);
 		GdipFree ((void *)font);
+		if (font->wineHfont) {
+			DeleteWineFont(font->wineHfont);
+		}
 	}
 }
 
