@@ -722,6 +722,59 @@ GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y,
 }
 
 GpStatus
+GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, float startAngle, float sweepAngle)
+{           
+        cairo_save (graphics->ct);
+        gdip_brush_setup (graphics, brush);
+
+        float delta = sweepAngle - startAngle;
+
+        if (delta < 180)
+                make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
+        else {
+                make_pie (graphics, x, y, width, height, startAngle, startAngle + 180);
+                make_pie (graphics, x, y, width, height, startAngle + 180, sweepAngle);
+        }
+
+        cairo_fill (graphics->ct);
+        cairo_stroke (graphics->ct);
+
+        cairo_close_path (graphics->ct);
+
+        cairo_restore (graphics->ct);
+
+        return gdip_get_status (cairo_status (graphics->ct));
+
+}
+
+
+GpStatus
+GdipFillPieI(GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, float startAngle, float sweepAngle)
+{
+        cairo_save (graphics->ct);
+        gdip_brush_setup (graphics, brush);
+
+        float delta = sweepAngle - startAngle;
+
+        if (delta < 180)
+                make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
+        else {
+                make_pie (graphics, x, y, width, height, startAngle, startAngle + 180);
+                make_pie (graphics, x, y, width, height, startAngle + 180, sweepAngle);
+        }
+
+        cairo_fill (graphics->ct);
+        cairo_stroke (graphics->ct);
+
+        cairo_close_path (graphics->ct);
+
+        cairo_restore (graphics->ct);
+
+        return gdip_get_status (cairo_status (graphics->ct));
+}
+
+
+GpStatus
 GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 {
 	cairo_save (graphics->ct);
@@ -912,13 +965,6 @@ GpStatus
 GdipFillClosedCurveI ()
 {
 	printf ("GdipFillClosedCurveI not implemented\n");
-	return Ok;
-}
-
-GpStatus
-GdipFillPie ()
-{
-	printf ("GdipFillPie not implemented\n");
 	return Ok;
 }
 
@@ -1364,4 +1410,5 @@ GdipGetDpiY (GpGraphics *graphics, float *dpi)
 {
 	*dpi = gdip_get_display_dpi ();  
 }
+
 

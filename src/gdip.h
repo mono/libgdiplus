@@ -527,8 +527,10 @@ GpStatus GdipFillPolygon2 (GpGraphics *graphics, GpBrush *brush, GpPointF *point
 GpStatus GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count);
 GpStatus GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y);
 GpStatus GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y);
-GpStatus GdipGetDpiX(GpGraphics *graphics, float* dpi);
-GpStatus GdipGetDpiY(GpGraphics *graphics, float* dpi);
+GpStatus GdipGetDpiX(GpGraphics *graphics, float *dpi);
+GpStatus GdipGetDpiY(GpGraphics *graphics, float *dpi);
+GpStatus GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, float startAngle, float sweepAngle);
+GpStatus GdipFillPieI(GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, float startAngle, float sweepAngle);
 
 
 /* Status */
