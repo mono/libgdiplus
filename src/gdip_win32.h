@@ -21,6 +21,7 @@ typedef struct tagGDIOBJHDR {
 	short 	wMagic;
 	long 	dwCount;
 	void*	funcs;
+	void* hdcs;
 } GDIOBJHDR;
 
 typedef struct tagX11DRV_PDEVICE
