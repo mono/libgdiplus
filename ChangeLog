@@ -1,5 +1,8 @@
 2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
 
+	* configure.in: Add checks for libungif and libpng.  Added
+	sigsetjmp check.
+
 	* configure.in: Added checks for libtiff and libjpeg.  Cribbed
 	from gtk.  Also added in test/Makefile target.
 

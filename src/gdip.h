@@ -72,6 +72,9 @@ typedef unsigned int UINT;
 typedef unsigned int ARGB;
 typedef int PROPID;
 
+#define MAKE_ARGB_RGB (r,g,b)  (((r&0xff) << 16) | ((g&0xff) << 8) | (b&0xff))
+#define MAKE_ARGB_ARGB (a,r,g,b)  (((a&0xff) << 24) | ((r&0xff) << 16) | ((g&0xff) << 8) | (b&0xff))
+
 /*
  * Enums
  *
@@ -381,7 +384,7 @@ typedef struct {
 typedef struct {
 	UINT Flags;
 	UINT Count;
-	ARGB* Entries;
+	ARGB Entries[1];
 } ColorPalette;
 
 typedef struct {

@@ -3,6 +3,7 @@
  *
  * Authors:
  *  	Sanjay Gupta (gsanjay@novell.com)
+ *	Vladimir Vukicevic (vladimir@pobox.com)
  *
  * Copyright (C) Novell, Inc. 2003-2004.
  */
@@ -12,7 +13,7 @@
 #include "gdip.h"
 
 GpStatus 
-gdip_load_gif_image_from_file (FILE *fp, GpImage *image);
+gdip_load_gif_image_from_file (FILE *fp, GpImage **image);
 
 GpStatus 
 gdip_save_gif_image_to_file (FILE *fp, GpImage *image);

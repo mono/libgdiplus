@@ -21,13 +21,28 @@ if pkg-config --atleast-version 0.1.17 cairo; then
 else
 	AC_MSG_ERROR("Did not find Cairo 0.1.17");
 fi
-GDIPLUS_LIBS="`pkg-config --libs cairo mono glib-2.0` `freetype-config --libs`"
-GDIPLUS_CFLAGS="`pkg-config --cflags cairo mono glib-2.0` `freetype-config --cflags`"
+## XXX - FIXME - libpng12 shouldn't be required, but oh well
+GDIPLUS_LIBS="`pkg-config --libs cairo mono glib-2.0 libpng12` `freetype-config --libs`"
+GDIPLUS_CFLAGS="`pkg-config --cflags cairo mono glib-2.0 libgpng12` `freetype-config --cflags`"
+
+# sigsetjmp is a macro on some platforms, so can't use AC_CHECK_FUNCS
+AC_MSG_CHECKING(for sigsetjmp)
+AC_TRY_LINK([#include <setjmp.h>], [
+sigjmp_buf env;
+sigsetjmp(env, 0);
+], gdip_ok=yes, gdip_ok=no)
+AC_MSG_RESULT(gdip_ok)
+if test "gdip_ok" = "yes"; then
+  AC_DEFINE(HAVE_SIGSETJMP, 1, sigsetjmp is available)
+fi
+
 
 AC_ARG_WITH(libjpeg,
 	[AC_HELP_STRING([--without-libjpeg], [disable JPEG file IO])])
 AC_ARG_WITH(libtiff,
 	[AC_HELP_STRING([--without-libtiff], [disable TIFF file IO])])
+AC_ARG_WITH(libungif,
+	[AC_HELP_STRING([--without-libungif], [disable GIF file IO])])
 
 dnl Test for libtiff
   if test x$with_libtiff != xno && test -z "$LIBTIFF"; then
@@ -79,6 +94,20 @@ dnl Test for libjpeg
 if test x$JPEG != x; then
   GDIPLUS_LIBS="$GDIPLUS_LIBS $LIBJPEG"
   AC_DEFINE(HAVE_LIBJPEG, 1, Define if jpeg support is available)
+fi
+
+dnl Test for libungif
+  if test x$with_libungif != xno && test -z "$LIBUNGIF"; then
+    AC_CHECK_LIB(ungif, DGifOpenFileName,
+      [AC_CHECK_HEADER(gif_lib.h,
+        UNGIF='ungif'; LIBUNGIF='-lungif',
+	AC_MSG_WARN(*** GIF loader will not be built (ungiflibrary not found) ***))],
+      AC_MSG_WARN(*** GIF loader will not be built (ungiflibrary not found) ***))
+  fi
+
+if test x$UNGIF != x; then
+  GDIPLUS_LIBS="$GDIPLUS_LIBS $LIBUNGIF"
+  AC_DEFINE(HAVE_LIBUNGIF, 1, Define if gif support is available)
 fi
 
 AC_SUBST(GDIPLUS_LIBS)

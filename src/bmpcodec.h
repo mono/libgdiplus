@@ -12,7 +12,7 @@
 #include "gdip.h"
 
 GpStatus 
-gdip_load_bmp_image_from_file (FILE *fp, GpImage *image);
+gdip_load_bmp_image_from_file (FILE *fp, GpImage **image);
 
 GpStatus 
 gdip_save_bmp_image_to_file (FILE *fp, GpImage *image);

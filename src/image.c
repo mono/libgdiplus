@@ -207,7 +207,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	
 	switch (format) {
 		case BMP:
-			status = gdip_load_bmp_image_from_file (fp, result);
+			status = gdip_load_bmp_image_from_file (fp, &result);
 			if (status != Ok)
 			{	
 				fclose(fp);
@@ -223,7 +223,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 			}
 			break;
 		case GIF:
-			status = gdip_load_gif_image_from_file (fp, result);
+			status = gdip_load_gif_image_from_file (fp, &result);
 			if (status != Ok)
 			{	
 				fclose(fp);
@@ -231,7 +231,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 			}
 			break;
 		case PNG:
-			status = gdip_load_png_image_from_file (fp, result);
+			status = gdip_load_png_image_from_file (fp, &result);
 			if (status != Ok)
 			{	
 				fclose(fp);

@@ -11,13 +11,13 @@
 #include "bmpcodec.h"
 
 GpStatus 
-gdip_load_png_bmp_from_file (FILE *fp, GpImage *image)
+gdip_load_bmp_image_from_file (FILE *fp, GpImage **image)
 {
     return NotImplemented;
 }
 
 GpStatus 
-gdip_load_bmp_image_from_file (FILE *fp, GpImage *image)
+gdip_save_bmp_image_to_file (FILE *fp, GpImage *image)
 {
     return NotImplemented;
 }

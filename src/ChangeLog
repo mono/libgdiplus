@@ -1,5 +1,19 @@
 2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
 
+	* image.c: Changed loader calls to use correct
+	load prototypes
+	
+	* pngcodec.c, gifcodec.c: Implemented png and gif loading
+
+	* gdip.h: Changed ColorPalette to match GDI+; Entries is part
+	of the allocated struct, not a separate pointer.  Also
+	added some ARGB convenience macros.
+
+	* bmpcodec.c, bmpcodec.h: Updated load prototypes to match
+	usage
+
+2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
+
 	* src/image.c, src/gdip.h: Added GdipDrawImage/DrawImageRect
 
 	* src/jpegcodec.c, src/tiffcodec.c: Implemented loading jpeg and
