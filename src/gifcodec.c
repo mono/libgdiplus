@@ -38,6 +38,9 @@
 
 #include <gif_lib.h>
 
+/* giflib declares this incorrectly as EgifOpen */
+extern GifFileType *EGifOpen(void *userData, OutputFunc writeFunc);
+
 /* Data structure used for callback */
 typedef struct
 {
