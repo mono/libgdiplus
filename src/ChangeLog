@@ -1,3 +1,17 @@
+2004-04-11  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* texturebrush.c, image.c: Use gdip_cairo_set_surface_pattern
+
+	* general.c: (gdip_cairo_set_surface_pattern) helper function
+	to create a new pattern from a surface and set it.
+	(GdiplusStartup): Don't acquire an X display if GDIPLUS_NOX is set
+	(gdip_get_display_dpi): use GDIP_display instead of creating a new
+	XDisplay
+
+2004-04-10  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* gdip.h, graphics.c: Added lots of Get/Set stuffs.
+
 2004-04-12  Ravindra  <rkumar@novell.com>
 
 	* texturebrush.h: Internal functions should not appear here. 

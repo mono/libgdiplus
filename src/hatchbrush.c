@@ -373,7 +373,7 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 	}
 
 	/* set the pattern for the consequent fill or stroke */
-	cairo_set_pattern (ct, hatch);
+        gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
 }
 
@@ -438,7 +438,7 @@ draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t f
 	}
 
 	/* set the pattern for the consequent fill or stroke */
-	cairo_set_pattern (ct, hatch);
+	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
 }
 
@@ -498,7 +498,7 @@ draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int widt
 	}
 
 	/* set the pattern for the consequent fill or stroke */
-	cairo_set_pattern (ct, hatch);
+	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
 }
 
@@ -558,7 +558,7 @@ draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 	}
 
 	/* set the pattern for the consequent fill or stroke */
-	cairo_set_pattern (ct, hatch);
+	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
 }
 
@@ -609,7 +609,7 @@ draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 	}
 
 	/* set the pattern for the consequent fill or stroke */
-	cairo_set_pattern (ct, hatch);
+	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
 }
 
@@ -659,7 +659,7 @@ draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_form
 	}
 
 	/* set the pattern for the consequent fill or stroke */
-	cairo_set_pattern (ct, hatch);
+	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
 }
 
@@ -753,7 +753,7 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 	}
 
 	/* set the pattern for the consequent fill or stroke */
-	cairo_set_pattern (ct, hatch);
+	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
 }
 
@@ -841,7 +841,7 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width
 	}
 
 	/* set the pattern for the consequent fill or stroke */
-	cairo_set_pattern (ct, hatch);
+	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
 }
 

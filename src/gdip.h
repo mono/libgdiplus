@@ -309,6 +309,57 @@ typedef enum
     
 } CombineMode;
 
+typedef enum
+{
+    QualityModeInvalid = -1,
+    QualityModeDefault = 0,
+    QualityModeLow = 1,
+    QualityModeHigh = 2
+} QualityMode;
+
+typedef enum
+{
+    InterpolationModeInvalid = QualityModeInvalid,
+    InterpolationModeDefault = QualityModeDefault,
+    InterpolationModeLowQuality = QualityModeLow,
+    InterpolationModeHighQuality = QualityModeHigh,
+    InterpolationModeBilinear,
+    InterpolationModeBicubic,
+    InterpolationModeNearestNeighbor,
+    InterpolationModeHighQualityBilinear,
+    InterpolationModeHighQualityBicubic
+} InterpolationMode;
+
+typedef enum
+{
+    TextRenderingHintSystemDefault = 0,
+    TextRenderingHintSingleBitPerPixelGridFit,
+    TextRenderingHintSingleBitPerPixel,
+    TextRenderingHintAntiAliasGridFit,
+    TextRenderingHintAntiAlias,
+    TextRenderingHintClearTypeGridFit
+} TextRenderingHint;
+
+typedef enum
+{
+    PixelOffsetModeInvalid = QualityModeInvalid,
+    PixelOffsetModeDefault = QualityModeDefault,
+    PixelOffsetModeHighSpeed = QualityModeLow,
+    PixelOffsetModeHighQuality = QualityModeHigh,
+    PixelOffsetModeNone,
+    PixelOffsetModeHalf
+} PixelOffsetMode;
+
+typedef enum
+{
+    SmoothingModeInvalid = QualityModeInvalid,
+    SmoothingModeDefault = QualityModeDefault,
+    SmoothingModeHighSpeed = QualityModeLow,
+    SmoothingModeHighQuality = QualityModeHigh,
+    SmoothingModeNone,
+    SmoothingModeAntiAlias
+} SmoothingMode;
+
 /* private enum */
 
 typedef enum {
@@ -436,7 +487,7 @@ typedef struct {
 
 typedef struct {
 	GpImage	image;
-	int cairo_format;
+        int             cairo_format;
 	BitmapData	data;
 	void *hBitmapDC;
 	void *hInitialBitmap;
@@ -604,7 +655,16 @@ GpStatus GdipGetDpiY(GpGraphics *graphics, float *dpi);
 GpStatus GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, float startAngle, float sweepAngle);
 GpStatus GdipFillPieI(GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, float startAngle, float sweepAngle);
 GpStatus GdipGraphicsClear(GpGraphics *graphics, ARGB color);
-
+GpStatus GdipSetInteroplationMode(GpGraphics *graphics, InterpolationMode imode);
+GpStatus GdipGetInteroplationMode(GpGraphics *graphics, InterpolationMode *imode);
+GpStatus GdipSetTextRenderingHint(GpGraphics *graphics, TextRenderingHint mode);
+GpStatus GdipGetTextRenderingHint(GpGraphics *graphics, TextRenderingHint *mode);
+GpStatus GdipSetPixelOffsetMode(GpGraphics *graphics, PixelOffsetMode pixelOffsetMode);
+GpStatus GdipGetPixelOffsetMode(GpGraphics *graphics, PixelOffsetMode *pixelOffsetMode);
+GpStatus GdipSetTextContrast(GpGraphics *graphics, UINT contrast);
+GpStatus GdipGetTextContrast(GpGraphics *graphics, UINT *contrast);
+GpStatus GdipSetSmoothingMode(GpGraphics *graphics, SmoothingMode mode);
+GpStatus GdipGetSmoothingMode(GpGraphics *graphics, SmoothingMode *mode);
 
 /* Status */
 GpStatus gdip_get_status (cairo_status_t status);
@@ -644,8 +704,7 @@ GpStatus GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin);
 
 /* Text */
 GpStatus GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *string, int len, GpFont *font, RectF *rc, GpStringFormat *format, GpBrush *brush);
-GpStatus GdipMeasureString(GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST RectF *layoutRect,
-    GDIPCONST GpStringFormat *stringFormat,  RectF *boundingBox, int *codepointsFitted, int *linesFilled);
+GpStatus GdipMeasureString(GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST RectF *layoutRect, GDIPCONST GpStringFormat *stringFormat,  RectF *boundingBox, int *codepointsFitted, int *linesFilled);
 
 
 /* Matrix */
@@ -770,6 +829,8 @@ GpStatus GdipGetRegionScans(GpRegion *region, GpRectF* rects, int* count, GpMatr
 /* Path*/
 #include "graphics-path.h"
 
+/* Linear Gradient brush */
+
 /* for drawing curves */
 GpPointF *convert_points (const GpPoint *points, int count);
 GpPointF *gdip_closed_curve_tangents (int terms, const GpPointF *points, int count);
@@ -788,6 +849,8 @@ int gdpi_utf8_to_glyphs (cairo_ft_font_t* font,	 const unsigned char* utf8, doub
 
 void gdip_font_drawunderline (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
 void gdip_font_drawstrikeout (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
+
+void gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s);
 
 /* Stream handling bits */
 typedef int (*GetBytesDelegate) (unsigned char *, int, BOOL);

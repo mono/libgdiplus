@@ -18,7 +18,7 @@
 
 #include <setjmp.h>
 
-#ifndef HAVE_SIGSETJMP
+#if !defined(HAVE_SIGSETJMP) && !defined(sigsetjmp)
 #define sigjmp_buf jmp_buf
 #define sigsetjmp(jb, x) setjmp(jb)
 #define siglongjmp longjmp

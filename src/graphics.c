@@ -1558,5 +1558,82 @@ GdipGraphicsClear(GpGraphics *graphics, ARGB color)
         return Ok;
 }
 
+GpStatus
+GdipSetInterpolationMode(GpGraphics *graphics, InterpolationMode imode)
+{
+    g_return_val_if_fail (imode != InterpolationModeInvalid, InvalidParameter);
 
+    return Ok;
+}
 
+GpStatus
+GdipGetInterpolationMode(GpGraphics *graphics, InterpolationMode *imode)
+{
+    g_return_val_if_fail (imode != NULL, InvalidParameter);
+
+    *imode = InterpolationModeHighQuality;
+    return Ok;
+}
+
+GpStatus
+GdipSetTextRenderingHint(GpGraphics *graphics, TextRenderingHint mode)
+{
+    return Ok;
+}
+
+GpStatus
+GdipGetTextRenderingHint(GpGraphics *graphics, TextRenderingHint *mode)
+{
+    g_return_val_if_fail (mode != NULL, InvalidParameter);
+
+    *mode = TextRenderingHintSystemDefault;
+    return Ok;
+}
+
+GpStatus
+GdipSetPixelOffsetMode(GpGraphics *graphics, PixelOffsetMode pixelOffsetMode)
+{
+    g_return_val_if_fail (pixelOffsetMode != PixelOffsetModeInvalid, InvalidParameter);
+
+    return Ok;
+}
+
+GpStatus
+GdipGetPixelOffsetMode(GpGraphics *graphics, PixelOffsetMode *pixelOffsetMode)
+{
+    g_return_val_if_fail (pixelOffsetMode != NULL, InvalidParameter);
+
+    *pixelOffsetMode = PixelOffsetModeDefault;
+    return Ok;
+}
+
+GpStatus
+GdipSetTextContrast(GpGraphics *graphics, UINT contrast)
+{
+    g_return_val_if_fail (contrast >= 0 && contrast <= 14, InvalidParameter);
+    return Ok;
+}
+
+GpStatus
+GdipGetTextContrast(GpGraphics *graphics, UINT *contrast)
+{
+    *contrast = 4;              /* default */
+    return Ok;
+}
+
+GpStatus
+GdipSetSmoothingMode(GpGraphics *graphics, SmoothingMode mode)
+{
+    g_return_val_if_fail (mode != SmoothingModeInvalid, InvalidParameter);
+
+    return Ok;
+}
+
+GpStatus
+GdipGetSmoothingMode(GpGraphics *graphics, SmoothingMode *mode)
+{
+    g_return_val_if_fail (mode != NULL, InvalidParameter);
+
+    *mode = SmoothingModeDefault;
+    return Ok;
+}

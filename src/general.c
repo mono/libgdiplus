@@ -92,11 +92,15 @@ Display *_get_wine_display ()
 GpStatus 
 GdiplusStartup(unsigned long *token, const struct startupInput *input, struct startupOutput *output)
 {
-	GDIP_display = _get_wine_display ();
-	if (GDIP_display == 0){
-		GDIP_display = XOpenDisplay(0);
-		closeDisplay = 1;
-	}
+    if (getenv ("GDIPLUS_NOX") != NULL) {
+        GDIP_display = _get_wine_display ();
+        if (GDIP_display == 0){
+            GDIP_display = XOpenDisplay(0);
+            closeDisplay = 1;
+        }
+    } else {
+        GDIP_display = 0;
+    }
 
 	/* printf ("GdiplusStartup. GDIP_Display %p\n", GDIP_display); */
 	initializeGdipWin32 ();
@@ -107,7 +111,7 @@ GdiplusStartup(unsigned long *token, const struct startupInput *input, struct st
 void 
 GdiplusShutdown(unsigned long *token)
 {
-	if (closeDisplay) {
+	if (closeDisplay && GDIP_display) {
 		XCloseDisplay(GDIP_display);
 	}
 	_unload_x11drv ();
@@ -158,16 +162,20 @@ gdip_get_status (cairo_status_t status)
 float
 gdip_get_display_dpi()
 {
-	float dpis = 72;    /* We just do not want to return 0 ever */
-	
-	Display* display=XOpenDisplay(NULL);
-	char* val = XGetDefault(display, "Xft", "dpi");
-   	XCloseDisplay(display);
-	if (val) {
-		dpis = atof(val);
-	}
-	
-	return dpis;
+    static float dpis = 0;
+
+    if (dpis == 0) {
+        if (GDIP_display == NULL) {
+            dpis = 72.0f;
+        } else {
+            char *val = XGetDefault(GDIP_display, "Xft", "dpi");
+            if (val) {
+                dpis = atof(val);
+            }
+        }
+    }
+
+    return dpis;
 }
 
 void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg)
@@ -469,3 +477,11 @@ gdip_closed_curve_tangents (int terms, const GpPointF *points, int count)
         return tangents;
 }
 
+void
+gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s)
+{
+    cairo_pattern_t *pat;
+    pat = cairo_pattern_create_for_surface (s);
+    cairo_set_pattern (t, pat);
+    cairo_pattern_destroy (pat);
+}

@@ -30,6 +30,8 @@
 #include "gdipImage.h"
 #include <math.h>
 
+static char *clsid_to_string_hack (GDIPCONST CLSID *clsid);
+
 void 
 gdip_image_init(GpImage *image)
 {
@@ -149,8 +151,6 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
 {
     g_return_if_fail (image->surface != NULL);
 
-    /* cairo_pattern_t *image_pattern = NULL; */
-
     if (!graphics || !image)
         return InvalidParameter;
 
@@ -158,8 +158,7 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
         return InvalidParameter;
     
     cairo_move_to (graphics->ct, x, y);
-    /* image_pattern = cairo_pattern_create_for_surface (image->surface); */
-    cairo_set_pattern (graphics->ct, image->surface);
+    gdip_cairo_set_surface_pattern (graphics->ct, image->surface);
     cairo_rectangle (graphics->ct, x, y, width, height);
 
     if (width != image->width || height != image->height) {
@@ -171,8 +170,6 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
     } else {
         cairo_fill (graphics->ct);
     }
-
-    /* cairo_pattern_destroy (image_pattern); */
 
     return Ok;
 }
@@ -186,6 +183,7 @@ GdipLoadImageFromStream (void *stream, GpImage **image)
 GpStatus
 GdipSaveImageToStream (GpImage *image, void *stream, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params)
 {
+    fprintf (stderr, "GdipSaveImageToStream: Not Implemented!\n");
     return NotImplemented;
 }
 
@@ -210,8 +208,6 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
         *image = NULL;
         return InvalidParameter;
     }
-
-    fprintf (stderr, "GdipLoadImageFromFile: %s\n", file_name);
 
     fp = fopen(file_name, "rb");
     g_free (file_name);
@@ -253,8 +249,6 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
     } else {
         *image = result;
     }
-
-    fprintf (stderr, "GdipLoadImageFromFile: status: %d\n", status);
 
     return status;
 }
@@ -792,4 +786,14 @@ gdip_image_format_for_clsid (GDIPCONST CLSID *encoderCLSID)
         return TIFF;
 
     return INVALID;
+}
+
+static char *
+clsid_to_string_hack (GDIPCONST CLSID *clsid)
+{
+    static char buf[1024];
+    snprintf (buf, 1024, "%08x-%04x-%04x-%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x",
+              clsid->Data1, clsid->Data2, clsid->Data3,
+              clsid->Data4[0], clsid->Data4[1], clsid->Data4[2], clsid->Data4[3], clsid->Data4[4], clsid->Data4[5], clsid->Data4[6], clsid->Data4[7]);
+    return buf;
 }

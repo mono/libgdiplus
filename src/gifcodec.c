@@ -71,9 +71,9 @@ gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
 
     pal = gif->SColorMap;
 
-    img->cairo_format = CAIRO_FORMAT_ARGB32;
     img->image.pixFormat = Format32bppArgb;
 
+    img->cairo_format = CAIRO_FORMAT_ARGB32;
     img->data.PixelFormat = img->image.pixFormat;
     img->data.Width = img->image.width;
     img->data.Height = img->image.height;

@@ -47,7 +47,7 @@ draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix)
 	cairo_surface_t *texture = bitmap->image.surface;
 	cairo_surface_set_matrix (texture, matrix);
 	cairo_surface_set_repeat (texture, 1);
-	cairo_set_pattern (ct, texture);
+	gdip_cairo_set_surface_pattern (ct, texture);
 }
 
 void
@@ -85,7 +85,7 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix, GpRect
 	cairo_restore (ct);
 
 	cairo_surface_set_repeat (texture, 1);
-	cairo_set_pattern (ct, texture);
+	gdip_cairo_set_surface_pattern (ct, texture);
 
 	cairo_matrix_destroy (matrixCopy);
 	cairo_surface_destroy (texture);
@@ -125,7 +125,7 @@ draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix, GpRect
 	cairo_restore (ct);
 	
 	cairo_surface_set_repeat (texture, 1);
-	cairo_set_pattern (ct, texture);
+	gdip_cairo_set_surface_pattern (ct, texture);
 
 	cairo_matrix_destroy (matrixCopy);
 	cairo_surface_destroy (texture);
@@ -179,7 +179,7 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix, GpRec
 	cairo_restore (ct);
 	
 	cairo_surface_set_repeat (texture, 1);
-	cairo_set_pattern (ct, texture);
+	gdip_cairo_set_surface_pattern (ct, texture);
 
 	cairo_matrix_destroy (matrixCopy);
 	cairo_surface_destroy (texture);
@@ -193,7 +193,7 @@ draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpMatrix *matrix)
 	texture = bitmap->image.surface;
 
 	cairo_surface_set_matrix (texture, matrix);
-	cairo_set_pattern (ct, texture);
+	gdip_cairo_set_surface_pattern (ct, texture);
 }
 
 void
