@@ -6,6 +6,10 @@
 
 2005-01-26  Geoff Norton  <gnorton@customerdna.com>
 
+	* tiffcodec.c: Fix problem with file callback writer.
+
+2005-01-26  Geoff Norton  <gnorton@customerdna.com>
+
 	* pngcodec.c:
 	  jpegcodec.c:
 	  gifcodec.c:  Make these write files properly on big endian machines

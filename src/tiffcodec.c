@@ -79,7 +79,7 @@ gdip_tiff_fileread_none (thandle_t clientData, tdata_t buffer, tsize_t size)
 tsize_t 
 gdip_tiff_filewrite (thandle_t clientData, tdata_t buffer, tsize_t size)
 {
-	return (tsize_t)fwrite (buffer, size, 1, (FILE*)clientData);
+	return (tsize_t)fwrite (buffer, 1, size, (FILE*)clientData);
 }
 
 toff_t 
