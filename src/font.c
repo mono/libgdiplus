@@ -753,33 +753,28 @@ GdipGetLogFontA(GpFont *font, GpGraphics *graphics, void *lf)
 GpStatus
 GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memory, int length)
 {
-	char	*fontfile;
-	FILE	*f;
+	char	fontfile[256];
+	int	f;
 
-	fontfile=tempnam(NULL, NULL);
-	if (!fontfile) {
-		return(OutOfMemory);
-	}
+	strcpy(fontfile, "/tmp/ffXXXXXX");
 
-	f=fopen(fontfile, "wb");
-	if (!f) {
-		free(fontfile);
+	f = mkstemp(fontfile);
+	if (f == -1) {
 		return(GenericError);
 	}
 
-	if (fwrite(memory, 1, length, f)!=length) {
-		fclose(f);
-		free(fontfile);
+	if (write(f, memory, length)!=length) {
+		close(f);
 		return(GenericError);
 	}
-	fclose(f);
+	close(f);
 
 	FcConfigAppFontAddFile(fontCollection->config, fontfile);
 
 	/* FIXME - May we delete our temporary font file or does 
 	   FcConfigAppFontAddFile just reference our file?  */
+	/* unlink(fontfile); */
 
-	free(fontfile);
 	return(Ok);
 }
 

@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <glib.h>
+#include <unistd.h>
 
 #include <cairo.h>
 #include "config.h"

@@ -154,8 +154,10 @@ gdip_get_display_dpi()
         	if (getenv ("GDIPLUS_NOX") != NULL) {
             		dpis = 72.0f;
         	} else {
+            		char *val;
+
 			display = XOpenDisplay (0);
-            		char *val = XGetDefault(display, "Xft", "dpi");
+			val = XGetDefault(display, "Xft", "dpi");
 			XCloseDisplay (display);
             		if (val) {
 				dpis = atof(val);

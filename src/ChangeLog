@@ -1,3 +1,10 @@
+2005-01-07  Peter Bartok  <pbartok@novell.com>
+
+	* font.c: replaced tempnam() with mkstemp() as requested by
+	  tempnam() documentation
+	* general.c: Removed c++ - ism
+	* gdip.h: Added unistd.h for functions used in font.c
+
 2005-01-06  Miguel de Icaza  <miguel@ximian.com>
 
 	* tiffcodec.c: Cast the third argument to thandle_t to supress
