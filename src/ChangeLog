@@ -1,3 +1,6 @@
+2004-04-02  Ravindra <rkumar@novell.com>
+	* texturebrush.c: Implemented TileFlipXY wrapmode.
+
 2004-04-01  Duncan Mak  <duncan@ximian.com>
 
 	Implemented drawing ClosedCurves in Graphics and GraphicsPath. 
