@@ -864,40 +864,6 @@ _cairo_ft_font_glyph_extents2 (void			*abstract_font,
 }
 
 
-static void
-_utf8_to_ucs4 (char const *utf8,
-               FT_ULong **ucs4,
-               size_t *nchars)
-{
-
-    int len = 0, step = 0;
-    size_t n = 0, alloc = 0;
-    FcChar32 u = 0;
-
-    if (ucs4 == NULL || nchars == NULL)
-        return;
-
-    len = strlen (utf8);
-    alloc = len;
-    *ucs4 = malloc (sizeof (FT_ULong) * alloc);
-    if (*ucs4 == NULL)
-        return;
-
-    while (len && (step = FcUtf8ToUcs4(utf8, &u, len)) > 0)
-    {
-        if (n == alloc)
-        {
-            alloc *= 2;
-            *ucs4 = realloc (*ucs4, sizeof (FT_ULong) * alloc);
-            if (*ucs4 == NULL)
-                return;
-        }
-        (*ucs4)[n++] = u;
-        len -= step;
-        utf8 += step;
-    }
-    *nchars = alloc;
-}
 
 
 static void
@@ -944,7 +910,7 @@ _utf8_to_glyphs (cairo_ft_font_t	*font,
     size_t i;
     FT_ULong *ucs4 = NULL;
 
-    _utf8_to_ucs4 (utf8, &ucs4, nglyphs);
+    ucs4 = (FT_ULong *)g_utf8_to_ucs4 (utf8, (glong)-1, NULL, (glong *)nglyphs, NULL);
 
     if (ucs4 == NULL)
         return 0;
@@ -952,7 +918,7 @@ _utf8_to_glyphs (cairo_ft_font_t	*font,
     *glyphs = (cairo_glyph_t *) malloc ((*nglyphs) * (sizeof (cairo_glyph_t)));
     if (*glyphs == NULL)
     {
-        free (ucs4);
+        g_free (ucs4);
         return 0;
     }
 
@@ -970,14 +936,12 @@ _utf8_to_glyphs (cairo_ft_font_t	*font,
         y -= DOUBLE_FROM_26_6 (face->glyph->advance.y);
     }
 
-    free (ucs4);
+    g_free (ucs4);
     return 1;
 }
 
 
-
-
-int
+                 int
 gdip_measure_string_widths (GpFont *font,
                                 const unsigned char* utf8,
                                 float** pwidths, int *nwidths,
@@ -1153,8 +1117,6 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
 
         // Draw the strings
         while (1){
-
-            printf("XXX %f %f %f\n",   w, w + *pPos ,rc->Width);
 
             if ((w + *(pPos+1)) >rc->Width ||  bContinua==FALSE) {
 
