@@ -1,3 +1,7 @@
+2004-06-14  Peter Bartok <pbartok@novell.com>
+	* general.c: Fixed internal cairo function name to be gdi
+	specific.
+
 2004-06-10  Sanjay Gupta <gsanjay@novell.com>
 
 	* gifcodec.c: Minor error handling.

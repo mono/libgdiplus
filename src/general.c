@@ -247,7 +247,7 @@ void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg)
 
 /* Compute the amount that each basis vector is scaled by. */
 cairo_status_t
-_cairo_matrix_compute_scale_factors (cairo_matrix_t *matrix, double *sx, double *sy)
+_gdip_cairo_matrix_compute_scale_factors (cairo_matrix_t *matrix, double *sx, double *sy)
 {
     double x, y;
 
@@ -272,7 +272,7 @@ _install_font_matrix(cairo_matrix_t *matrix, FT_Face face)
     double xx, xy, yx, yy, tx, ty;
     FT_Matrix mat;
 
-    _cairo_matrix_compute_scale_factors (matrix, &scale_x, &scale_y);
+    _gdip_cairo_matrix_compute_scale_factors (matrix, &scale_x, &scale_y);
 
     cairo_matrix_copy (&normalized, matrix);
 
