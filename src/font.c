@@ -58,15 +58,9 @@ GdipNewInstalledFontCollection(GpFontCollection** fontCollection)
 }
 
 GpStatus 
-GdipDeleteFontFamily(GpFontCollection* fontCollection)
+GdipDeleteFontFamily(GpFontFamily *FontFamily)
 {
     printf ("GdipDeleteFontFamily\n");   
-    
-    if (fontCollection) {
-          FontSetDestroy ((fontCollection)->fontset);
-          GdipFree ((void *)fontCollection);
-    }
-
     return Ok;
 }
 
@@ -77,7 +71,7 @@ GdipGetFontCollectionFamilyCount(GpFontCollection* fontCollection, int* numFound
     
     *numFound = fontCollection->fontset->nfont;
 
-    printf("GdipDeletePrivateFontCollection %u\n", fontCollection->fontset->nfont);
+    printf("GdipGetFontCollectionFamilyCount %u\n", fontCollection->fontset->nfont);
 
     return Ok;
 }
@@ -94,7 +88,7 @@ GdipGetFontCollectionFamilyList(GpFontCollection* fontCollection, int numSought,
     int i;
     
     for (i=0; i < fontCollection->fontset->nfont; gpfam++, pattern++, i++){
-      *gpfam = *pattern;      
+      *gpfam = *pattern;
     }
 
     *numFound = fontCollection->fontset->nfont;
@@ -175,8 +169,8 @@ GdipGetFamilyName(GDIPCONST GpFontFamily* family, WCHAR name[LF_FACESIZE], int l
     if (items_written>=(LF_FACESIZE-1))
       items_written=(LF_FACESIZE-1);
 
-    memcpy (name, str, items_written*sizeof(WCHAR));
-    name[1+items_written*sizeof(WCHAR)]='\0x0';
+    memcpy (name, pStr, items_written*sizeof(WCHAR));
+    name[1+items_written*sizeof(WCHAR)]=0;
     
     g_free(pStr);
 
@@ -247,7 +241,7 @@ gdip_font_create (const char *family, int fcslant, int fcweight)
                       0, 0);
 
     FcPatternDestroy (pat);
-    return font;
+    return ft_font;
 }
 
 
@@ -293,7 +287,7 @@ GdipCreateFont(GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, 
     }
 
     result->cairofnt  = gdip_font_create (str, slant, weight);
-    cairo_font_reference(result->cairofnt);
+    cairo_font_reference((cairo_font_t *)result->cairofnt);
     *font=result;
         
     return Ok;
@@ -303,7 +297,7 @@ GpStatus
 GdipDeleteFont(GpFont* font)
 {
     if (font){
-        cairo_font_destroy(font->cairofnt);
+        cairo_font_destroy((cairo_font_t *)font->cairofnt);
         GdipFree ((void *)font);
     }
 }

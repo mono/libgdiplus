@@ -356,9 +356,7 @@ typedef struct {
         FcFontSet*  fontset;
 } GpFontCollection;
 
-typedef struct {
-      FcPattern*  pattern;
-} GpFontFamily;
+typedef FcPattern  GpFontFamily;
 
 typedef struct {
         cairo_ft_font_t*    cairofnt;
@@ -512,13 +510,13 @@ GpStatus GdipIsMatrixEqual (GpMatrix *matrix, GpMatrix *matrix2, int *result);
 
 /* Font Family*/         
 GpStatus GdipNewInstalledFontCollection(GpFontCollection** fontCollection);
-GpStatus GdipDeleteFontFamily(GpFontCollection* fontCollection);
 GpStatus GdipGetFontCollectionFamilyCount(GpFontCollection* fontCollection, int* numFound);
 GpStatus GdipGetFontCollectionFamilyList(GpFontCollection* fontCollection, int numSought, GpFontFamily** gpfamilies, int* numFound);
 GpStatus GdipGetFamilyName(GDIPCONST GpFontFamily* family, WCHAR name[LF_FACESIZE], int language);
 GpStatus GdipGetGenericFontFamilySansSerif(GpFontFamily **nativeFamily);
 GpStatus GdipGetGenericFontFamilySerif(GpFontFamily **nativeFamily);
 GpStatus GdipGetGenericFontFamilyMonospace(GpFontFamily **nativeFamily);
+GpStatus GdipDeleteFontFamily(GpFontFamily *FontFamily);
 
 /* Font */
 GpStatus GdipCreateFont(GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, Unit unit,  GpFont **font);

@@ -930,7 +930,7 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
         else
             cairo_set_rgb_color (graphics->ct, 0., 0., 0.);
 
-        cairo_set_font (graphics->ct, font->cairofnt);
+        cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);
 
         // Save font matrix
         cairo_matrix_t saved;
