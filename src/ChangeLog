@@ -1,3 +1,7 @@
+2004-07-13  Sanjay Gupta <gsanjay@novell.cm>
+
+	* tifcodec.c: Implemented functionality to read all the frames present.
+
 2004-07-12  Ravindra <rkumar@novell.com>
 
 	* gdip.h: Added 'interpolation' member in GpGraphics struct.

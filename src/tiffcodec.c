@@ -38,6 +38,7 @@
 #include <byteswap.h>
 #endif
 
+#include "gdipImage.h"
 #include "tiffcodec.h"
 
 #ifdef HAVE_LIBTIFF
@@ -199,93 +200,119 @@ gdip_load_tiff_image (TIFF *tif, GpImage **image)
 {
 	GpBitmap *img = NULL;
 	char *raster = NULL;
+	int dirCount = 0;
+	int j=0;
+	BitmapData data;
 
 	if (tif) {
+		/*Count the no of image frames present in input*/
+		do {
+			dirCount++;
+		} while (TIFFReadDirectory (tif));
+		
+		img = gdip_bitmap_new ();
+		img->image.type = imageBitmap;
+		img->image.graphics = 0;
+		/* libtiff expands stuff out to ARGB32 for us if we use this interface */
+		img->image.pixFormat = Format32bppArgb;
+		img->cairo_format = CAIRO_FORMAT_ARGB32;
+
+		img->image.frameDimensionCount = 1;
+		img->image.frameDimensionList = (FrameInfo *) GdipAlloc (sizeof (FrameInfo));
+		img->image.frameDimensionList [0].count = dirCount;
+		memcpy (&(img->image.frameDimensionList [0].frameDimension), 
+				&gdip_image_frameDimension_page_guid, sizeof (CLSID));
+		img->image.frameDimensionList [0].frames = (BitmapData *)
+						GdipAlloc (sizeof (BitmapData) * dirCount);
+
 		TIFFRGBAImage tifimg;
 		char emsg[1024];
 
-		if (TIFFRGBAImageBegin (&tifimg, tif, 0, emsg)) {
-			size_t npixels;
-
-			img = gdip_bitmap_new ();
-			img->image.type = imageBitmap;
-			img->image.graphics = 0;
-			img->image.width = tifimg.width;
-			img->image.height = tifimg.height;
-			/* libtiff expands stuff out to ARGB32 for us if we use this interface */
-			img->image.pixFormat = Format32bppArgb;
-			img->cairo_format = CAIRO_FORMAT_ARGB32;
-			img->data.Stride = tifimg.width * 4;
-			img->data.PixelFormat = img->image.pixFormat;
-			img->data.Width = img->image.width;
-			img->data.Height = img->image.height;
+		/*loop within all the directories and extract the frame info*/
+		for (j = 0; j < dirCount; j++) {
+			if (!TIFFSetDirectory (tif, j))
+				goto error;
 			
-			npixels = tifimg.width * tifimg.height;
-			/* Note that we don't use _TIFFmalloc */
-			raster = GdipAlloc (npixels * sizeof (guint32));
-			if (raster != NULL) {
-				/* Problem: the raster data returned here has the origin at bottom left,
-				* not top left.  The TIFF guys must be in cahoots with the OpenGL folks.
-				*
-				* Then, to add insult to injury, it's in ARGB format, not ABGR.
-				*/
-				if (TIFFRGBAImageGet (&tifimg, (uint32*) raster, tifimg.width, tifimg.height)) { 
-					guchar *onerow = GdipAlloc (img->data.Stride);
-					guint32 *r32 = (guint32*)raster;
-					int i;
-				
-					/* flip raster */
-					for (i = 0; i < tifimg.height / 2; i++) {
-						memcpy (onerow, raster + (img->data.Stride * i), img->data.Stride);
-						memcpy (raster + (img->data.Stride * i),
-							raster + (img->data.Stride * (tifimg.height - i - 1)),
-								img->data.Stride);
-						memcpy (raster + (img->data.Stride * (tifimg.height - i - 1)),
-								onerow, img->data.Stride);
-					}
-					/* flip bytes */
+			if (TIFFRGBAImageBegin (&tifimg, tif, 0, emsg)) {
+				size_t npixels;
 
-					for (i = 0; i < npixels; i++) {
-						*r32 = (*r32 & 0xff000000) | ((*r32 & 0x00ff0000) >> 16) |
-								(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
-						r32++;
-					}
+				data.Stride = tifimg.width * 4;
+				data.PixelFormat = img->image.pixFormat;
+				data.Width = tifimg.width;
+				data.Height = tifimg.height;
+				data.Reserved = GBD_OWN_SCAN0;
+			
+				npixels = tifimg.width * tifimg.height;
+				/* Note that we don't use _TIFFmalloc */
+				raster = GdipAlloc (npixels * sizeof (guint32));
+				if (raster != NULL) {
+					/* Problem: the raster data returned here has the origin at bottom left,
+					* not top left.  The TIFF guys must be in cahoots with the OpenGL folks.
+					*
+					* Then, to add insult to injury, it's in ARGB format, not ABGR.
+					*/
+					if (TIFFRGBAImageGet (&tifimg, (uint32*) raster, tifimg.width, tifimg.height)) { 
+						guchar *onerow = GdipAlloc (data.Stride);
+						guint32 *r32 = (guint32*)raster;
+						int i;
 				
-					img->data.Scan0 = raster;
-					GdipFree (onerow);
-					img->data.Reserved = GBD_OWN_SCAN0;
+						/* flip raster */
+						for (i = 0; i < tifimg.height / 2; i++) {
+							memcpy (onerow, raster + (data.Stride * i), data.Stride);
+							memcpy (raster + (data.Stride * i), 
+									raster + (data.Stride * (tifimg.height - i - 1)),
+													data.Stride);
+							memcpy (raster + (data.Stride * (tifimg.height - i - 1)),
+												onerow, data.Stride);
+						}
+						/* flip bytes */
+
+						for (i = 0; i < npixels; i++) {
+							*r32 = (*r32 & 0xff000000) | ((*r32 & 0x00ff0000) >> 16) |
+									(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
+							r32++;
+						}	
+						
+						GdipFree (onerow);
+
+						data.Scan0 = raster;
+						img->image.frameDimensionList [0].frames [j] = data;
+					} else {
+						goto error;
+					} /*end if (TIFFRGBAImageGet */					
+				} else {
+					goto error;
+				} /*end if (raster != NULL) */
 				
-					img->image.surface = cairo_surface_create_for_image (raster,
-											img->cairo_format,
-											img->image.width,
-											img->image.height,
-											img->data.Stride);
-					img->image.horizontalResolution = 0;
-					img->image.verticalResolution = 0;
-				
-					img->image.imageFlags = ImageFlagsReadOnly |
-								ImageFlagsHasRealPixelSize |
-								ImageFlagsColorSpaceRGB;
-				
-					img->image.propItems = NULL;
-					img->image.palette = NULL;
-				}
+				TIFFRGBAImageEnd (&tifimg);				
 			} else {
 				goto error;
-			}
+			} /*end if (TIFFRGBAImageBegin())*/
+
+		} /*End For Loop for reading directories */
 		
-			TIFFRGBAImageEnd (&tifimg);
-		} else {
-			goto error;
-		}
-	
 		TIFFClose (tif);
+	
+		img->data = img->image.frameDimensionList [0].frames [0];
+		img->image.width = img->data.Width;
+		img->image.height = img->data.Height;
+		img->image.surface = cairo_surface_create_for_image (img->data.Scan0, 
+						img->cairo_format, img->image.width, 
+						img->image.height, img->data.Stride);
+		img->image.horizontalResolution = 0;
+		img->image.verticalResolution = 0;
+			
+		img->image.imageFlags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | 
+								ImageFlagsColorSpaceRGB;
+				
+		img->image.propItems = NULL;
+		img->image.palette = NULL;
+
+		*image = (GpImage *) img;
+		return Ok;
 	} else {
 		goto error;
-	}
-
-	*image = (GpImage *) img;
-	return Ok;
+	} /*end if (tif) */
 
 error:
 	
