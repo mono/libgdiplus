@@ -11,3 +11,5 @@ libgdiplus.pc
 libtool
 ltmain.sh
 stamp-h1
+Makefile
+Makefile.in

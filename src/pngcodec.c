@@ -54,7 +54,7 @@ gdip_load_png_image_from_file (FILE *fp, GpImage *image)
 	PNGHeader header;
 	GpStatus status = Ok;
 	
-	image = (GpImage *) gdip_image_new ();
+/*	image = (GpImage *) gdip_image_new (); */
 	if (image == NULL)
 		return OutOfMemory;
 

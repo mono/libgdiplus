@@ -1,3 +1,15 @@
+2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* src/image.c, src/gdip.h: Added GdipDrawImage/DrawImageRect
+
+	* src/jpegcodec.c, src/tiffcodec.c: Implemented loading jpeg and
+	tiff images.  Need to test these out on windows, to see exactly
+	what formats stuff gets retruned in, but I think we should be ok
+	for the most common cases.  No file saving yet.
+	
+	* src/bmpcodec.c, src/gifcodec.c, src/pngcodec.c:
+	Remove calls to bogus (and undefined) gdip_image_new()
+
 2004-04-04  Duncan Mak  <duncan@ximian.com>
 
 	* graphics.c (make_curve): Renamed from

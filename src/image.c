@@ -125,13 +125,24 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 }
 
 GpStatus 
-GdipDrawImageI (GpGraphics *graphics, GpImage *image, int x, int y)
+GdipDrawImage (GpGraphics *graphics, GpImage *image, int x, int y)
 {
-	printf("GdipDrawImageI. %p (type %d), %p, (%d,%d)\n", graphics, graphics->type, image, x, y);
-	return NotImplemented;
+    return GdipDrawImageRectI (graphics, image, x, y, image->width, image->height);
 }
 
 GpStatus 
+GdipDrawImageI (GpGraphics *graphics, GpImage *image, int x, int y)
+{
+    return GdipDrawImageRectI (graphics, image, x, y, image->width, image->height);
+}
+
+GpStatus
+GdipDrawImageRect (GpGraphics *graphics, GpImage *image, int x, int y, int width, int height)
+{
+    return GdipDrawImageRectI (graphics, image, x, y, width, height);
+}
+
+GpStatus
 GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int width, int height)
 {
 	GpGraphics *image_graphics = 0;
@@ -176,10 +187,17 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	ImageFormat format;
 	unsigned char *file_name;
 
+        GError *err = NULL;
+
 	if (!image || !file)
 		return InvalidParameter;
  
-	file_name = (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, NULL);
+	file_name = (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, &err);
+        if (file_name == NULL || err != NULL) {
+            *image = NULL;
+            return InvalidParameter;
+        }
+
 	/*printf ("image.c, file name is %s \n", file_name);*/
 	if ((fp = fopen(file_name, "rb")) == NULL) 
 		return FileNotFound;
@@ -197,7 +215,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 			}
 			break;
 		case TIFF:
-			status = gdip_load_tiff_image_from_file (fp, result);
+			status = gdip_load_tiff_image_from_file (fp, &result);
 			if (status != Ok)
 			{	
 				fclose(fp);
@@ -221,7 +239,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 			}
 			break;
 		case JPEG:
-			status = gdip_load_jpeg_image_from_file (fp, result);
+			status = gdip_load_jpeg_image_from_file (fp, &result);
 			if (status != Ok)
 			{	
 				fclose(fp);

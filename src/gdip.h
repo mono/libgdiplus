@@ -552,6 +552,10 @@ GpStatus GdipDrawBezierI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int 
 GpStatus GdipDrawBeziers (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count);
 GpStatus GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count);
 GpStatus GdipDrawEllipse (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height);
+GpStatus GdipDrawImage (GpGraphics *graphics, GpImage *image, int x, int y);
+GpStatus GdipDrawImageI (GpGraphics *graphics, GpImage *image, int x, int y);
+GpStatus GdipDrawImageRect (GpGraphics *graphics, GpImage *image, int x, int y, int width, int height);
+GpStatus GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int width, int height);
 GpStatus GdipDrawLine (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2);
 GpStatus GdipDrawLineI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2);
 GpStatus GdipDrawLines (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count);

@@ -22,11 +22,71 @@ else
 	AC_MSG_ERROR("Did not find Cairo 0.1.17");
 fi
 GDIPLUS_LIBS="`pkg-config --libs cairo mono glib-2.0` `freetype-config --libs`"
-AC_SUBST(GDIPLUS_LIBS)
 GDIPLUS_CFLAGS="`pkg-config --cflags cairo mono glib-2.0` `freetype-config --cflags`"
+
+AC_ARG_WITH(libjpeg,
+	[AC_HELP_STRING([--without-libjpeg], [disable JPEG file IO])])
+AC_ARG_WITH(libtiff,
+	[AC_HELP_STRING([--without-libtiff], [disable TIFF file IO])])
+
+dnl Test for libtiff
+  if test x$with_libtiff != xno && test -z "$LIBTIFF"; then
+    AC_CHECK_LIB(tiff, TIFFReadScanline,
+      [AC_CHECK_HEADER(tiffio.h,
+        TIFF='tiff'; LIBTIFF='-ltiff',
+        AC_MSG_WARN(*** TIFF loader will not be built (TIFF header files not found) ***))],
+      [AC_CHECK_LIB(tiff, TIFFWriteScanline,
+        [AC_CHECK_HEADER(tiffio.h,
+          TIFF='tiff'; LIBTIFF='-ltiff -ljpeg -lz',
+          AC_MSG_WARN(*** TIFF loader will not be built (TIFF header files not found) ***))],
+        [AC_CHECK_LIB(tiff34, TIFFFlushData,
+          [AC_CHECK_HEADER(tiffio.h,
+            TIFF='tiff'; LIBTIFF='-ltiff34 -ljpeg -lz',
+            AC_MSG_WARN(*** TIFF loader will not be built (TIFF header files not found) ***))],
+        AC_MSG_WARN(*** TIFF plug-in will not be built (TIFF library not found) ***), -ljpeg -lz -lm)], -ljpeg -lz -lm)], -lm)
+  fi
+
+if test x$TIFF != x; then
+  GDIPLUS_LIBS="$GDIPLUS_LIBS $LIBTIFF"
+  AC_DEFINE(HAVE_LIBTIFF, 1, Define if tiff support is available)
+fi
+
+dnl Test for libjpeg
+  if test x$with_libjpeg != xno && test -z "$LIBJPEG"; then
+    AC_CHECK_LIB(jpeg, jpeg_destroy_decompress,
+      jpeg_ok=yes,
+      jpeg_ok=no
+      AC_MSG_WARN(*** JPEG loader will not be built (JPEG library not found) ***))
+    if test "$jpeg_ok" = yes; then
+      AC_MSG_CHECKING([for jpeglib.h])
+      AC_TRY_CPP(
+[#include <stdio.h>
+#undef PACKAGE
+#undef VERSION
+#undef HAVE_STDLIB_H
+#include <jpeglib.h>],
+        jpeg_ok=yes,
+        jpeg_ok=no)
+      AC_MSG_RESULT($jpeg_ok)
+      if test "$jpeg_ok" = yes; then
+        JPEG='jpeg'; LIBJPEG='-ljpeg'
+      else
+        AC_MSG_WARN(*** JPEG loader will not be built (JPEG header file not found) ***)
+      fi
+    fi
+  fi
+
+if test x$JPEG != x; then
+  GDIPLUS_LIBS="$GDIPLUS_LIBS $LIBJPEG"
+  AC_DEFINE(HAVE_LIBJPEG, 1, Define if jpeg support is available)
+fi
+
+AC_SUBST(GDIPLUS_LIBS)
 AC_SUBST(GDIPLUS_CFLAGS)
+
 AC_OUTPUT([
 Makefile
 libgdiplus.pc
-src/Makefile])
+src/Makefile
+tests/Makefile])
 

@@ -13,7 +13,11 @@
 GpStatus 
 gdip_load_png_bmp_from_file (FILE *fp, GpImage *image)
 {
-	image = (GpImage *) gdip_image_new ();
-	image->type = imageBitmap;
-	return NotImplemented;
+    return NotImplemented;
+}
+
+GpStatus 
+gdip_load_bmp_image_from_file (FILE *fp, GpImage *image)
+{
+    return NotImplemented;
 }

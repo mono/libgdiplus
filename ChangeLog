@@ -1,3 +1,8 @@
+2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* configure.in: Added checks for libtiff and libjpeg.  Cribbed
+	from gtk.  Also added in test/Makefile target.
+
 2004-01-31  Miguel de Icaza  <miguel@ximian.com>
 
 	* Initial release, split from the Mono's MCS package.

@@ -13,7 +13,5 @@
 GpStatus 
 gdip_load_gif_image_from_file (FILE *fp, GpImage *image)
 {
-	image = (GpImage *) gdip_image_new ();
-	image->type = imageBitmap;
 	return NotImplemented;
 }
