@@ -328,7 +328,7 @@ typedef enum {
         PathPointTypePathDashMode = 0x10,
         PathPointTypePathMarker = 0x20,
         PathPointTypeCloseSubpath = 0x80,
-        PathPointTypeBezier3 = 0x30
+        PathPointTypeBezier3 = 0x03
 } GpPathPointType, PathPointType;
 
 typedef enum {

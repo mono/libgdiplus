@@ -1,3 +1,10 @@
+2004-09-10  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Corrected a value in PathPointType enum.
+	* font.c: Fixed GdipGetEmHeight and GdipGetLineSpacing functions.
+	* image.c: In GdipDrawImageRect function, reset the cairo matrix
+	after drawing the image.
+
 2004-08-05  Ravindra <rkumar@novell.com>
 
 	* font.c: Fixed GdipDeleteFont function.
