@@ -557,10 +557,10 @@ GdipDeleteFont (GpFont* font)
 {
 	if (font) {
 		cairo_font_destroy ((cairo_font_t *)font->cairofnt);
-		GdipFree ((void *)font);
 		if (font->wineHfont) {
 			DeleteWineFont(font->wineHfont);
 		}
+		GdipFree ((void *)font);
                 return Ok;
 	}
         return InvalidParameter;
