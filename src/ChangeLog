@@ -1,4 +1,8 @@
 2004-11-10  Peter Bartok  <pbartok@novell.com>
+	* graphics.c (MeasureOrDrawString): Removed some unneeded cairo
+	  calls to improve performance; added comments
+
+2004-11-10  Peter Bartok  <pbartok@novell.com>
 	* general.c: 
 	- Removed _install_font_matrix(), now in graphics.c
 	- Removed _gdip_cairo_matrix_compute_scale_factors(), now part of
