@@ -914,15 +914,9 @@ GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width,
 	if (sweepAngle == 0)
 		return Ok;
 
-        cairo_save (graphics->ct);
-
         gdip_brush_setup (graphics, brush);
-
         make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
-
         cairo_fill (graphics->ct);
-
-        cairo_restore (graphics->ct);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1247,13 +1241,9 @@ GdipFillEllipse (GpGraphics *graphics, GpBrush *brush,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
-	cairo_save (graphics->ct);
-
         gdip_brush_setup (graphics, brush);
         make_ellipse (graphics, x, y, width, height);
         cairo_fill (graphics->ct);
-
-	cairo_restore (graphics->ct);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1272,13 +1262,9 @@ GdipFillRectangle (GpGraphics *graphics, GpBrush *brush,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
-	cairo_save (graphics->ct);
-
 	gdip_brush_setup (graphics, brush);
 	cairo_rectangle (graphics->ct, x, y, width, height);
 	cairo_fill (graphics->ct);
-
-	cairo_restore (graphics->ct);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1301,15 +1287,11 @@ GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GpRectF *rects, int co
 	g_return_val_if_fail (rects != NULL, InvalidParameter);
 	g_return_val_if_fail (count > 0, InvalidParameter);
 
-	cairo_save (graphics->ct);
-
 	gdip_brush_setup (graphics, brush);
 
 	for (i = 0; i < count; i++)
 		cairo_rectangle (graphics->ct, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height);
 	cairo_fill (graphics->ct);
-	
-	cairo_restore (graphics->ct);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1325,15 +1307,11 @@ GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GpRect *rects, int co
 	g_return_val_if_fail (rects != NULL, InvalidParameter);
 	g_return_val_if_fail (count > 0, InvalidParameter);
 
-	cairo_save (graphics->ct);
-
 	gdip_brush_setup (graphics, brush);
 
 	for (i = 0; i < count; i++)
 		cairo_rectangle (graphics->ct, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height);
 	cairo_fill (graphics->ct);
-	
-	cairo_restore (graphics->ct);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1346,8 +1324,6 @@ GdipFillPolygon (GpGraphics *graphics, GpBrush *brush,
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-	cairo_save (graphics->ct);
-
         gdip_brush_setup (graphics, brush);
         make_polygon (graphics, points, count);
 
@@ -1356,8 +1332,6 @@ GdipFillPolygon (GpGraphics *graphics, GpBrush *brush,
                 convert_fill_mode (fillMode));
 
         cairo_fill (graphics->ct);
-
-	cairo_restore (graphics->ct);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1370,14 +1344,9 @@ GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 
-	cairo_save (graphics->ct);
-
 	gdip_brush_setup (graphics, brush);
-
 	status = gdip_plot_path (graphics, path);
-	
 	cairo_fill (graphics->ct);
-	cairo_restore (graphics->ct);
 
 	if (status != Ok)
 		return status;
@@ -1393,18 +1362,10 @@ GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush,
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-	cairo_save (graphics->ct);
-
         gdip_brush_setup (graphics, brush);
         make_polygon_from_integers (graphics, points, count);
-
-        cairo_set_fill_rule (
-                graphics->ct,
-                convert_fill_mode (fillMode));
-        
+	cairo_set_fill_rule (graphics->ct, convert_fill_mode (fillMode));
         cairo_fill (graphics->ct);
-
-	cairo_restore (graphics->ct);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1446,19 +1407,15 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, in
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-        cairo_save (graphics->ct);
+	gdip_brush_setup (graphics, brush);
 
-        gdip_brush_setup (graphics, brush);
-        
-        tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
-        make_curve (graphics, points, tangents, count, CURVE_CLOSE);
+	tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
+	make_curve (graphics, points, tangents, count, CURVE_CLOSE);
+	cairo_fill (graphics->ct);
 
-        cairo_fill (graphics->ct);
-        cairo_restore (graphics->ct);
+	GdipFree (tangents);
 
-        GdipFree (tangents);
-
-        return gdip_get_status (cairo_status (graphics->ct));
+	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus
@@ -2300,17 +2257,13 @@ GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
         if (!region->rects || region->cnt==0)
                 return Ok;
 
-	cairo_save (graphics->ct);
-
 	gdip_brush_setup (graphics, brush);
 
         for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
-
-	        cairo_rectangle (graphics->ct, rect->X, rect->Y, rect->Width, rect->Height);
-	        cairo_fill (graphics->ct);
+		cairo_rectangle (graphics->ct, rect->X, rect->Y, rect->Width, rect->Height);
+		cairo_fill (graphics->ct);
         }
 
-        cairo_restore (graphics->ct);
         return gdip_get_status (cairo_status (graphics->ct));
 }
 
@@ -2367,14 +2320,10 @@ GdipGraphicsClear (GpGraphics *graphics, ARGB color)
         red = (color >> 16) & 0xff;
 	alpha = (color >> 24) & 0xff;
 
-        cairo_save (graphics->ct);
-
         cairo_set_rgb_color (graphics->ct, red / 255, green / 255, blue / 255);
 	cairo_set_alpha (graphics->ct, alpha / 255);
 	cairo_rectangle (graphics->ct, 0, 0, image->width, image->height);
         cairo_fill (graphics->ct);
-
-        cairo_restore (graphics->ct);
 
         return Ok;
 }
@@ -2385,7 +2334,6 @@ GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode interpolationM
 	/* We accept any, but only do HighQuality */
 	return Ok;
 }
-
 
 GpStatus
 GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *imode)

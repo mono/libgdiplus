@@ -1,3 +1,8 @@
+2004-06-16  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Removed unnecessary calls to cairo_save and
+	cairo_restore from GdipFillXXX functions.
+
 2004-06-15  Ravindra <rkumar@novell.com>
 
 	* texturebrush.h: Added two members 'changed & pattern' to GpTexture
