@@ -1,5 +1,12 @@
 2005-01-07  Peter Bartok  <pbartok@novell.com>
 
+	* image.c (GdipDrawImageRect): Start a new path before calling
+	  cairo_translate, it seems thats what other cairo apps do, and it
+	  fixes the problem Jackson reported, where images would not show 
+	  after text was drawn
+
+2005-01-07  Peter Bartok  <pbartok@novell.com>
+
 	* font.c: replaced tempnam() with mkstemp() as requested by
 	  tempnam() documentation
 	* general.c: Removed c++ - ism

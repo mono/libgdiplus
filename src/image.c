@@ -165,6 +165,8 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	g_return_val_if_fail (image != NULL, InvalidParameter);
 	g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
 	
+	cairo_new_path(graphics->ct);
+
 	/* Create a surface for this bitmap if one doesn't exist */    	
 	gdip_bitmap_ensure_surface ((GpBitmap*) image);
 	cairo_surface_set_filter (((GpBitmap*) image)->image.surface, gdip_get_cairo_filter (graphics->interpolation));
