@@ -119,15 +119,22 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	
 	GpBitmap *img = NULL;
 	ColorMapObject *pal = NULL;
+	ColorMapObject *localPalObj = NULL;
+	ColorPalette *localPal = NULL;
 	guchar *pixels = NULL;
 	guchar *readptr, *writeptr;
-	int i, j, l;
+	int i, j, l, pixelLength;
 	int imgCount;
 	int extBlockCount;
 	bool pageDimensionFound = FALSE;
 	bool timeDimensionFound = FALSE;
 	int pageDimensionCount = 0;
 	int timeDimensionCount = 0;
+	bool timeDimension = FALSE;
+	int timeCounter = 0;
+	int pageCounter = 0;
+	BitmapData data;
+	GifImageDesc imgDesc;
 
 	if (from_file) 
 		gif = DGifOpenFileHandle (fileno ((FILE*)stream));
@@ -175,21 +182,25 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		
 	if (pageDimensionFound && timeDimensionFound){
 		img->image.frameDimensionCount = 2;
-		img->image.frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo)*2);
+		img->image.frameDimensionList = (FrameInfo *) GdipAlloc (sizeof (FrameInfo)*2);
 		img->image.frameDimensionList[0].count = pageDimensionCount;
 		memcpy (&(img->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
+		img->image.frameDimensionList[0].frames = (BitmapData *) GdipAlloc (sizeof (BitmapData)*pageDimensionCount);
 		img->image.frameDimensionList[1].count = timeDimensionCount;
 		memcpy (&(img->image.frameDimensionList[1].frameDimension), &gdip_image_frameDimension_time_guid, sizeof (CLSID));
+		img->image.frameDimensionList[1].frames = (BitmapData *) GdipAlloc (sizeof (BitmapData)*timeDimensionCount);
 	} else if (pageDimensionFound) {
 		img->image.frameDimensionCount = 1;
-		img->image.frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo));
+		img->image.frameDimensionList = (FrameInfo *) GdipAlloc (sizeof (FrameInfo));
 		img->image.frameDimensionList[0].count = pageDimensionCount;
 		memcpy (&(img->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
+		img->image.frameDimensionList[0].frames = (BitmapData *) GdipAlloc (sizeof (BitmapData)*pageDimensionCount);
 	} else if (timeDimensionFound) {
 		img->image.frameDimensionCount = 1;
-		img->image.frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo));
+		img->image.frameDimensionList = (FrameInfo *) GdipAlloc (sizeof (FrameInfo));
 		img->image.frameDimensionList[0].count = timeDimensionCount;
 		memcpy (&(img->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_time_guid, sizeof (CLSID));
+		img->image.frameDimensionList[0].frames = (BitmapData *) GdipAlloc (sizeof (BitmapData)*timeDimensionCount);
 	}
 
 	/* Note that Cairo/libpixman does not have support for indexed
@@ -218,39 +229,92 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	img->image.pixFormat = Format32bppArgb;
 	
 	img->cairo_format = CAIRO_FORMAT_ARGB32;
-	img->data.PixelFormat = img->image.pixFormat;
-	img->data.Width = img->image.width;
-	img->data.Height = img->image.height;
-	img->data.Stride = img->data.Width * 4;
-	
-	pixels = GdipAlloc (img->data.Stride * img->data.Height);
-	
-	readptr = gif->SavedImages->RasterBits;
-	writeptr = pixels;
-	for (i = 0; i < img->image.width * img->image.height; i++) {
-		guchar pix = *readptr++;
-		if (pal) {
-		*writeptr++ = pal->Colors[pix].Blue;
-		*writeptr++ = pal->Colors[pix].Green;
-		*writeptr++ = pal->Colors[pix].Red;
-		} else {
-		*writeptr++ = pix;
-		*writeptr++ = pix;
-		*writeptr++ = pix;
-		}
-		*writeptr++ = 255;  /* A */
-	}
 
-	img->data.Scan0 = pixels;
-	img->data.Reserved = GBD_OWN_SCAN0;
+	/* 
+	 * Now populate the frames associated with each frame dimension
+	 */
+	imgCount = gif->ImageCount;
+	for (i=0; i<imgCount; i++) {
+		SavedImage si = gif->SavedImages[i];
+		extBlockCount = si.ExtensionBlockCount;
+		for (l =0; l<extBlockCount; l++) {
+			ExtensionBlock eb = si.ExtensionBlocks[l];
+			if (eb.Function == 249){
+				timeDimension = TRUE;
+				break; /*there can be only one Graphic Control Extension before ImageData*/
+			}			
+		}
+		
+		/* copy the local color map if there is one*/
+		localPalObj= si.ImageDesc.ColorMap;
+		if (localPalObj != NULL) {
+			localPal = g_malloc (sizeof(ColorPalette) + sizeof(ARGB) * localPalObj->ColorCount);
+			localPal->Flags = 0;
+			localPal->Count = localPalObj->ColorCount;
+			for (j = 0; j < localPalObj->ColorCount; j++) {
+				localPal->Entries[j] = MAKE_ARGB_RGB(localPalObj->Colors[j].Red,
+								localPalObj->Colors[j].Green,
+								localPalObj->Colors[j].Blue);
+			}
+		}
+
+                data.PixelFormat = img->image.pixFormat;
+		imgDesc = si.ImageDesc;
+		data.Width = imgDesc.Width;
+		data.Height = imgDesc.Height;
+		data.Stride = data.Width * 4;
 	
-	img->image.surface = cairo_surface_create_for_image (pixels, img->cairo_format,
+		pixels = GdipAlloc (data.Stride * data.Height);
+	
+		readptr = si.RasterBits;
+		writeptr = pixels;
+		pixelLength = data.Width * data.Height;
+		/*
+		 * While loading images, local color map if present takes precedence
+		 * over global color map.
+		 */
+		for (j = 0; j < pixelLength; j++) {
+			guchar pix = *readptr++;
+			if (localPalObj) {
+				*writeptr++ = localPalObj->Colors[pix].Blue;
+				*writeptr++ = localPalObj->Colors[pix].Green;
+				*writeptr++ = localPalObj->Colors[pix].Red;
+			} else if (pal) {
+				*writeptr++ = pal->Colors[pix].Blue;
+				*writeptr++ = pal->Colors[pix].Green;
+				*writeptr++ = pal->Colors[pix].Red;
+			} else {
+				*writeptr++ = pix;
+				*writeptr++ = pix;
+				*writeptr++ = pix;
+			}
+			*writeptr++ = 255; /* A */
+		}
+
+		data.Scan0 = pixels;
+		data.Reserved = GBD_OWN_SCAN0;
+
+		if (pageDimensionFound && timeDimensionFound){
+			if (timeDimension)
+				img->image.frameDimensionList [1].frames [timeCounter ++] = data;
+			else
+				img->image.frameDimensionList [0].frames [pageCounter ++] = data;
+		} else if (pageDimensionFound){
+			img->image.frameDimensionList[0].frames [pageCounter++] = data;
+		} else if (timeDimensionFound){
+			img->image.frameDimensionList[0].frames [timeCounter++] = data;
+		}
+		
+		/*printf("\n gifcodec.c pageCounter is %d", pageCounter);
+		printf("\n gifcodec.c timeCounter is %d", timeCounter);*/
+	}
+	
+	img->data = img->image.frameDimensionList[0].frames[0];
+	
+	img->image.surface = cairo_surface_create_for_image (img->data.Scan0, img->cairo_format,
 							img->image.width, img->image.height,
 							img->data.Stride);
-	img->image.imageFlags =
-	ImageFlagsReadOnly |
-	ImageFlagsHasRealPixelSize |
-	ImageFlagsColorSpaceRGB;
+	img->image.imageFlags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB;
 	img->image.horizontalResolution = 0;
 	img->image.verticalResolution = 0;
 	img->image.propItems = NULL;
@@ -260,7 +324,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	return Ok;
 	error:	
 	if (pixels)
-	GdipFree (pixels);
+		GdipFree (pixels);
 	if (img)
 		gdip_bitmap_dispose (img);
 	if (gif)

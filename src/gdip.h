@@ -700,7 +700,9 @@ typedef struct {
 typedef struct {
 	GUID frameDimension;
 	int count;
-} FrameDimensionInfo;
+	BitmapData *frames;
+/*} FrameDimensionInfo;*/
+} FrameInfo;
 
 typedef struct {
 	ImageType     	type;
@@ -716,16 +718,16 @@ typedef struct {
 	float 		verticalResolution;
 	ImageFormat     format;
 	int		frameDimensionCount;
-	FrameDimensionInfo *frameDimensionList;
+	FrameInfo	*frameDimensionList;
 } GpImage;
 
 typedef struct {
-	GpImage	image;
+	GpImage		image;
         int             cairo_format;
 	BitmapData	data;
-	void *hBitmapDC;
-	void *hInitialBitmap;
-	void *hBitmap;
+	void		*hBitmapDC;
+	void		*hInitialBitmap;
+	void		*hBitmap;	
 } GpBitmap;
 
 typedef struct {

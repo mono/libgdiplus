@@ -1,3 +1,12 @@
+2004-07-09  Sanjay Gupta <gsanjay@novell.com>
+
+	* gdip.h: Modified FrameDimensionInfo structure to carry data related
+	to various frames of a multi frame image. The structure is now
+	renamed to FrameInfo.
+	* gifcodec.c: Implemented functionality to read all the frames present.
+	* image.c: Implemented SelectActiveFrame() method. Modified associated
+	memory disallocation and changes while reading single frame image.
+
 2004-07-07  Ravindra <rkumar@novell.com>
 
 	* pngcodec.c: Fixes saving RGB file and one perf improvement in

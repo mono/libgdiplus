@@ -129,8 +129,23 @@ GdipDisposeImage (GpImage *image)
 	}
 	cairo_surface_destroy (image->surface);
 	image->surface = 0;
-	if (image->frameDimensionList != NULL)
+	if (image->frameDimensionList != NULL){
+		int i=0, j=0;
+		int count = image->frameDimensionCount;
+		for (i=0; i<count; i++){
+			int dataCount =0;
+			dataCount = image->frameDimensionList->count;
+			BitmapData *data;
+			data = image->frameDimensionList->frames;
+			for (j=0; j<dataCount; j++){
+				if (data[j].Scan0)
+					GdipFree (data[j].Scan0);
+			}
+		}
 		GdipFree (image->frameDimensionList);
+	}
+
+		
 	GdipFree (image);
 	
 	return Ok;
@@ -540,9 +555,10 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	} else {
 		if (result->frameDimensionCount == 0){
 			result->frameDimensionCount = 1;
-			result->frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo));
+			result->frameDimensionList = (FrameInfo *) GdipAlloc (sizeof (FrameInfo));
 			result->frameDimensionList[0].count = 1; /*multiple frames are already taken care of in respectic codecs*/
 			memcpy (&(result->frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
+			result->frameDimensionList[0].frames = &(((GpBitmap *) result)->data);
 		}
 		*image = result;
 	}
@@ -821,12 +837,25 @@ GdipImageGetFrameCount(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* coun
 GpStatus
 GdipImageSelectActiveFrame(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT index)
 {
-        if (!image || !dimensionGUID)
+        if (!image || !dimensionGUID || (index <0))
                 return InvalidParameter;
-
-        return NotImplemented;        
+	
+	int i=0;
+	for (i=0; i<image->frameDimensionCount; i++) {
+		if (memcmp(dimensionGUID, &(image->frameDimensionList[i].frameDimension), sizeof(CLSID)) == 0) {
+			if (image->frameDimensionList[i].count >= index){
+				GpBitmap *bitmap = (GpBitmap *) image;
+				bitmap->data = image->frameDimensionList[i].frames[index];
+				//printf ("\n image.c selected frame is %d returning ok", index);
+				return Ok;
+			} else {
+				return InvalidParameter;
+				//printf ("\n image.c not selected frame is %d and returning error", index);
+			}
+		}
+	}
+        return InvalidParameter;        
 }
-
 
 void copy_pixel (BYTE *src, BYTE *trg, int components)
 {
@@ -1264,9 +1293,10 @@ GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
 	} else {
 		if (result->frameDimensionCount == 0){
 			result->frameDimensionCount = 1;
-			result->frameDimensionList = (FrameDimensionInfo *) GdipAlloc (sizeof (FrameDimensionInfo));
+			result->frameDimensionList = (FrameInfo *) GdipAlloc (sizeof (FrameInfo));
 			result->frameDimensionList[0].count = 1; /*multiple frames are already taken care of in respectic codecs*/
 			memcpy (&(result->frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
+			result->frameDimensionList[0].frames = &(((GpBitmap *) result)->data);
 		}
 		*image = result;
 	}
