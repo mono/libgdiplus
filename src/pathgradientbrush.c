@@ -260,7 +260,7 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 
 	}
 
-	return NotImplemented;
+	return Ok;
 }
 
 GpPointF

@@ -1,3 +1,16 @@
+2005-02-18  Miguel de Icaza  <miguel@novell.com>
+
+	* graphics.c: Implement GdipGetCompositingMode,
+	GdipSetCompositingMode, GdipGetCompositingQuality,
+	GdipSetCompositingQuality: The quality ones dont do anything. 
+	
+	* solidbrush.c: Setup the alpha channel, only if the composite
+	mode is set to ComposintingModeSourceOver (the default) that does
+	alpha blending.
+
+	* pen.c (GdipGetPenEndCap, GdipSetPenEndCap): Avoid crashing,
+	even if we dont do anything with them yet.
+
 2005-02-16  Peter Bartok  <pbartok@novell.com>
 
 	* bitmap.c (gdip_bitmap_clone_data_rect): Patch suggested by 

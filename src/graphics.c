@@ -58,6 +58,8 @@ gdip_graphics_init (GpGraphics *graphics)
 	graphics->interpolation = InterpolationModeDefault;
 	graphics->last_pen = NULL;
 	graphics->last_brush = NULL;
+	graphics->composite_quality = CompositingQualityDefault;
+	graphics->composite_mode = CompositingModeSourceOver;
 }
 
 GpGraphics *
@@ -2946,25 +2948,31 @@ GdipIsVisibleRectI (GpGraphics *graphics, UINT x, UINT y, UINT width, UINT heigh
 GpStatus
 GdipSetCompositingMode (GpGraphics *graphics, GpCompositingMode compositingMode)
 {
-	return NotImplemented;
+	graphics->composite_mode = compositingMode;
+	return Ok;
 }
 
 GpStatus
 GdipGetCompositingMode (GpGraphics *graphics, GpCompositingMode *compositingMode)
 {
-	return NotImplemented;
+	*compositingMode = graphics->composite_mode;
+	return Ok;
 }
 
 GpStatus
 GdipSetCompositingQuality (GpGraphics *graphics, GpCompositingQuality compositingQuality)
 {
-	return NotImplemented;
+	/* In Cairo there is no way of setting this, always use high quality */
+
+	graphics->composite_quality = compositingQuality;
+	return Ok;
 }
 
 GpStatus
 GdipGetCompositingQuality (GpGraphics *graphics, GpCompositingQuality *compositingQuality)
 {
-	return NotImplemented;
+	*compositingQuality = graphics->composite_quality;
+	return Ok;
 }
 
 GpStatus

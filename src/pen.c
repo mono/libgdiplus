@@ -845,13 +845,27 @@ GdipGetPenStartCap (GpPen *pen, GpLineCap *startCap)
 GpStatus
 GdipSetPenEndCap (GpPen *pen, GpLineCap endCap)
 {
-	return NotImplemented;
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+
+	/*
+	 * This is currently ignored, as Cairo does not support
+	 * having a different start and end Cap
+	 */
+	pen->end_cap = endCap;
+	pen->changed = TRUE;
+
+	return Ok;
 }
 
 GpStatus
 GdipGetPenEndCap (GpPen *pen, GpLineCap *endCap)
 {
-	return NotImplemented;
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (endCap != NULL, InvalidParameter);
+
+	*endCap = pen->end_cap;
+
+	return Ok;
 }
 
 GpStatus

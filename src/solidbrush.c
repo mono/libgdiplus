@@ -85,7 +85,13 @@ gdip_solidfill_setup (GpGraphics *graphics, GpBrush *brush)
 	}
 
 	cairo_set_rgb_color (graphics->ct, solid->R, solid->G, solid->B);
-	cairo_set_alpha (graphics->ct, solid->A);
+
+	/*
+	 * Controls whether to use the alpha component in the color
+	 * or not.
+	 */
+	if (graphics->composite_mode == CompositingModeSourceOver)
+		cairo_set_alpha (graphics->ct, solid->A);
 
 	return Ok;
 }

@@ -671,6 +671,7 @@ typedef struct {
         GpLineJoin line_join;
         GpDashStyle dash_style;
 	GpLineCap line_cap;  /* Cairo supports only same kind of end caps for both the ends. */
+	GpLineCap end_cap;
 	int compound_count;
 	float *compound_array;
         GpPenAlignment mode;
@@ -697,6 +698,9 @@ typedef struct {
 	InterpolationMode interpolation;
 	GpPen*		last_pen;	/* caching pen and brush to avoid unnecessary sets */
 	GpBrush*	last_brush;
+	
+	GpCompositingMode    composite_mode;
+	GpCompositingQuality composite_quality;
 } GpGraphics;
 
 typedef struct {
