@@ -529,9 +529,25 @@ GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
 GpStatus
 GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
 {
-        /* XXX:need to understand the connect argument */
+        int i, length;
 
-        return NotImplemented;
+        GdipGetPointCount (addingPath, &length);
+        GpPointF pts [length];
+        byte types [length];
+
+        GdipGetPathPoints (addingPath, pts, length);
+        GdipGetPathTypes (addingPath, types, length);
+
+        if (connect)
+                append_point (path, pts [1], PathPointTypeLine);
+        else
+                append_point (path, pts [1], PathPointTypeStart);
+                
+
+        for (i = 1; i < length; i++)
+                append_point (path, pts [i], types [i]);
+
+        return Ok;
 }
 
 /* XXX: This one is really hard. They really translate a string into

@@ -1,3 +1,7 @@
+2004-03-04  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c (GdipAddPathPath): Implemented.
+
 2004-03-04  Jordi Mas i Hernandez <jordi@ximian.com>
     * stringformat.c - DigitSubstitution and TabStob methods
 
