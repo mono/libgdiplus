@@ -39,7 +39,7 @@ gdip_image_init (GpImage *image)
 	image->width = 0;
 	image->horizontalResolution = gdip_get_display_dpi();
 	image->palette = 0;
-	image->pixFormat = 0;	
+	image->pixFormat = Format32bppArgb;	
 	image->propItems = 0;
 	image->verticalResolution = gdip_get_display_dpi();
 }
@@ -386,7 +386,7 @@ GdipGetImagePalette (GpImage *image, ColorPalette *palette, int size)
 GpStatus 
 GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette)
 {
-	return NotImplemented;
+	return Ok;
 }
 
 GpStatus 
