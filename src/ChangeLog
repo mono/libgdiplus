@@ -1,3 +1,21 @@
+2004-11-10  Peter Bartok  <pbartok@novell.com>
+	* general.c: 
+	- Removed _install_font_matrix(), now in graphics.c
+	- Removed _gdip_cairo_matrix_compute_scale_factors(), now part of
+	  the new _install_font_matrix()
+	- Removed gdip_utf8_to_glyphs(), now combined with 
+	  CalculateStringWidths
+
+	* graphics.c:
+	- Renamed CalculateStringSize to CalculateStringWidths
+	- Streamlined CalculateStringSize, combined with gdip_utf8_to_glyphs
+	- Removed unused parts of gdip_utf8_to_glyphs() and
+	  CalculateStringSize
+	- Dropped unneeded allocation of glyph memory
+
+	* gdip.h:
+	- Removed gdip_utf8_to_glyphs prototype
+
 2004-11-09  Peter Bartok  <pbartok@novell.com>
 
 	* graphics.c
