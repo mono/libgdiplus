@@ -43,4 +43,10 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
 void
 gdip_write_bmp_data (void *pointer, byte *data, int size, bool useFile);
 
+GpStatus 
+gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFile);
+
+int
+gdip_read_bmp_data (void *pointer, byte *data, int size, bool useFile);
+
 #endif /* _BMPCODEC_H */

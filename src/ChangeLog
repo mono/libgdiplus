@@ -1,3 +1,9 @@
+2004-05-27  Sanjay Gupta <gsanjay@novell.com>
+
+	* bmpcodec.c: Abstracted reading bmp from file and stream 
+	to single function.
+	* bmpcodec.h: Added function declarations for above implementation.
+
 2004-05-27 Jordi Mas <jordi@ximian.com>
 	* bitmap.c: added support for drawing 24-bits images tru DrawImage
 	
