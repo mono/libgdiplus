@@ -1,4 +1,14 @@
+2004-02-28  Miguel de Icaza  <miguel@ximian.com>
+
+	* graphics.c: Clean up the mess in this file:
+
+	Turn into ANSI C: No // for comments;  No variable declarations in
+	the middle of a file.
+
+	Fix the coding style (spacing, indentation).
+
 2004-02-28  Sanjay Gupta <gsanjay@novell.com>
+	
 	* bitmap.c: Implemented GetPixel and SetPixel method.
 	* gdip.h: Added declaration for GetPixel and SetPixel method.
 	* gdipImage.h: Removed typedef for ARGB

@@ -19,7 +19,7 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  * Authors:
- *   Alexandre Pigolkine(pigolkine@gmx.de)
+ *   Alexandre Pigolkine (pigolkine@gmx.de)
  *   Duncan Mak (duncan@ximian.com)
  *
  */
@@ -188,7 +188,7 @@ make_pie (GpGraphics *graphics, float x, float y,
 
 static void
 make_arc (GpGraphics *graphics, float x, float y, float width,
-                float height, float startAngle, float sweepAngle)
+	  float height, float startAngle, float sweepAngle)
 {        
         float rx = width / 2;
         float ry = height / 2;
@@ -242,7 +242,7 @@ GdipCreateFromHDC (int hDC, GpGraphics **graphics)
 	if (dc == 0) return NotImplemented;
 	
 	*graphics = gdip_graphics_new ();
-	cairo_set_target_drawable ((*graphics)->ct, GDIP_display, dc->physDev->drawable);
+	cairo_set_target_drawable ( (*graphics)->ct, GDIP_display, dc->physDev->drawable);
 	_release_hdc (hDC);
 	(*graphics)->hdc = (void*)hDC;
 	(*graphics)->type = gtX11Drawable;
@@ -313,7 +313,7 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 }
 
 GpStatus 
-GdipSaveGraphics(GpGraphics *graphics, unsigned int *state)
+GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 {
 	if (current_stack_pos < MAX_GRAPHICS_STATE_STACK) {
 		saved_stack[current_stack_pos].matrix = cairo_matrix_create ();
@@ -326,6 +326,7 @@ GdipSaveGraphics(GpGraphics *graphics, unsigned int *state)
 	}
 	return Ok;
 }
+
 GpStatus
 GdipResetWorldTransform (GpGraphics *graphics)
 {
@@ -396,8 +397,8 @@ GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixO
 
 GpStatus
 GdipDrawArc (GpGraphics *graphics, GpPen *pen, 
-                float x, float y, float width, float height, 
-                float startAngle, float sweepAngle)
+	     float x, float y, float width, float height, 
+	     float startAngle, float sweepAngle)
 {
 	cairo_save (graphics->ct);
 
@@ -407,7 +408,6 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
 
         if (delta < 180)
                 make_arc (graphics, x, y, width, height, startAngle, sweepAngle);
-
         else {
                 make_arc (graphics, x, y, width, height, startAngle, startAngle + 180);
                 make_arc (graphics, x, y, width, height, startAngle + 180, sweepAngle);
@@ -422,8 +422,8 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
 
 GpStatus
 GdipDrawArcI (GpGraphics *graphics, GpPen *pen, 
-                int x, int y, int width, int height, 
-                float startAngle, float sweepAngle)
+	      int x, int y, int width, int height, 
+	      float startAngle, float sweepAngle)
 {
 	cairo_save (graphics->ct);
 
@@ -465,16 +465,16 @@ GdipDrawBezier (GpGraphics *graphics, GpPen *pen,
 }
 
 GpStatus GdipDrawBezierI (GpGraphics *graphics, GpPen *pen, 
-                int x1, int y1, int x2, int y2,
-                int x3, int y3, int x4, int y4)
+			  int x1, int y1, int x2, int y2,
+			  int x3, int y3, int x4, int y4)
 {
         return GdipDrawBezier (graphics, pen,
-                        x1, y1, x2, y2, x3, y3, x4, y4);
+			       x1, y1, x2, y2, x3, y3, x4, y4);
 }
 
 GpStatus 
 GdipDrawBeziers (GpGraphics *graphics, GpPen *pen,
-                GpPointF *points, int count)
+		 GpPointF *points, int count)
 {
         int i, j, k;
         
@@ -505,7 +505,7 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen,
 
 GpStatus
 GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen,
-                GpPoint *points, int count)
+		  GpPoint *points, int count)
 {
         int i, j, k;
         
@@ -536,7 +536,7 @@ GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen,
 
 GpStatus 
 GdipDrawEllipse (GpGraphics *graphics, GpPen *pen, 
-                float x, float y, float width, float height)
+		 float x, float y, float width, float height)
 {
 	cairo_save (graphics->ct);
 
@@ -552,14 +552,14 @@ GdipDrawEllipse (GpGraphics *graphics, GpPen *pen,
 
 GpStatus
 GdipDrawEllipseI (GpGraphics *graphics, GpPen *pen,
-                int x, int y, int width, int height)
+		  int x, int y, int width, int height)
 {
         return GdipDrawEllipse (graphics, pen, x, y, width, height);
 }
 
 GpStatus
 GdipDrawLine (GpGraphics *graphics, GpPen *pen,
-                float x1, float y1, float x2, float y2)
+	      float x1, float y1, float x2, float y2)
 {
 	cairo_save (graphics->ct);
 
@@ -576,7 +576,7 @@ GdipDrawLine (GpGraphics *graphics, GpPen *pen,
 
 GpStatus 
 GdipDrawLineI (GpGraphics *graphics, GpPen *pen, 
-                int x1, int y1, int x2, int y2)
+	       int x1, int y1, int x2, int y2)
 {
         return GdipDrawLine (graphics, pen, x1, y1, x2, y2);
 }
@@ -590,8 +590,8 @@ GdipDrawLines (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
         for (i = 0; i < count - 1; i++) {
                 j = i + 1;
                 s = GdipDrawLine (graphics, pen, 
-                                points [i].X, points [i].Y,
-                                points [j].X, points [j].Y);
+				  points [i].X, points [i].Y,
+				  points [j].X, points [j].Y);
 
                 if (s != Ok) return s;
         }
@@ -609,8 +609,8 @@ GdipDrawLinesI (GpGraphics *graphics, GpPen *pen,
         for (i = 0; i < count - 1; i++) {
                 j = i + 1;
                 s = GdipDrawLineI (graphics, pen, 
-                                points [i].X, points [i].Y,
-                                points [j].X, points [j].Y);
+				   points [i].X, points [i].Y,
+				   points [j].X, points [j].Y);
 
                 if (s != Ok) return s;
         }
@@ -671,7 +671,7 @@ GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 
 GpStatus
 GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, 
-                float width, float height, float startAngle, float sweepAngle)
+	     float width, float height, float startAngle, float sweepAngle)
 {
         gdip_pen_setup (graphics, pen);
 
@@ -693,7 +693,7 @@ GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y,
 
 GpStatus
 GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y, 
-                int width, int height, float startAngle, float sweepAngle)
+	      int width, int height, float startAngle, float sweepAngle)
 {
         gdip_pen_setup (graphics, pen);
         
@@ -745,7 +745,7 @@ GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 
 GpStatus
 GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
-                float x, float y, float width, float height)
+		   float x, float y, float width, float height)
 {
 	cairo_save (graphics->ct);
 
@@ -761,14 +761,14 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
 
 GpStatus
 GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen,
-                int x, int y, int width, int height)
+		    int x, int y, int width, int height)
 {
         return GdipDrawRectangle (graphics, pen, x, y, width, height);
 }
 
 GpStatus
 GdipFillEllipse (GpGraphics *graphics, GpBrush *brush,
-                float x, float y, float width, float height)
+		 float x, float y, float width, float height)
 {
 	cairo_save (graphics->ct);
 
@@ -783,14 +783,14 @@ GdipFillEllipse (GpGraphics *graphics, GpBrush *brush,
 
 GpStatus
 GdipFillEllipseI (GpGraphics *graphics, GpBrush *brush,
-                int x, int y, int width, int height)
+		  int x, int y, int width, int height)
 {
         return GdipFillEllipse (graphics, brush, x, y, width, height);
 }
 
 GpStatus 
 GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, 
-                float x, float y, float width, float height)
+		   float x, float y, float width, float height)
 {
 	cairo_save (graphics->ct);
 
@@ -805,7 +805,7 @@ GdipFillRectangle (GpGraphics *graphics, GpBrush *brush,
 
 GpStatus
 GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, 
-                GpPointF *points, int count, GpFillMode fillMode)
+		 GpPointF *points, int count, GpFillMode fillMode)
 {
 	cairo_save (graphics->ct);
 
@@ -825,7 +825,7 @@ GdipFillPolygon (GpGraphics *graphics, GpBrush *brush,
 
 GpStatus
 GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, 
-                GpPoint *points, int count, GpFillMode fillMode)
+		  GpPoint *points, int count, GpFillMode fillMode)
 {
 	cairo_save (graphics->ct);
 
@@ -858,102 +858,108 @@ GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int co
 
 
 int
-gdip_measure_string_widths (GpFont *font,
-                                const unsigned char* utf8,
-                                float** pwidths, int *nwidths,
-                                float* totalwidth, float* totalheight)
+gdip_measure_string_widths (GDIPCONST GpFont *font,
+			    const unsigned char *utf8,
+			    float **pwidths, int *nwidths,
+			    float *total_width, float *total_height)
 {
-    cairo_status_t status;
-    int i = 0;
-    FT_GlyphSlot glyphslot;
-    cairo_glyph_t* glyphs = NULL;
-    size_t nglyphs;
-    *totalwidth = 0;
-    *totalheight = 0;
-    *nwidths = 0;
-    *pwidths = NULL;
-    cairo_ft_font_t* ft = (cairo_ft_font_t *)font->cairofnt;
+	cairo_status_t status;
+	FT_GlyphSlot glyphslot;
+	cairo_glyph_t *glyphs = NULL;
+	cairo_matrix_t saved;
+	cairo_ft_font_t *ft;
+	size_t nglyphs;
+	int i = 0;
+	float *ppos;
+	double x, y;
+	
+	*total_width = 0;
+	*total_height = 0;
+	*nwidths = 0;
+	*pwidths = NULL;
+	
+	ft = (cairo_ft_font_t *)font->cairofnt;
 
-    cairo_matrix_t saved;
-    cairo_matrix_copy (&saved, (const cairo_matrix_t *)&ft->base.matrix); 
-    cairo_matrix_scale (&ft->base.matrix, font->sizeInPixels, font->sizeInPixels);
-    gdpi_utf8_to_glyphs (font->cairofnt, utf8, 0.0, 0.0, &glyphs, &nglyphs);
-    cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
+	cairo_matrix_copy (&saved, (const cairo_matrix_t *)&ft->base.matrix); 
+	cairo_matrix_scale (&ft->base.matrix, font->sizeInPixels, font->sizeInPixels);
+	gdpi_utf8_to_glyphs (font->cairofnt, utf8, 0.0, 0.0, &glyphs, &nglyphs);
+	cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
     
 
-    if (!nglyphs) return 1;
+	if (!nglyphs)
+		return 1;
 
-    *pwidths = malloc (sizeof(float) *nglyphs);
-    *nwidths = nglyphs;
-    float *pPos = *pwidths;
+	*pwidths = malloc (sizeof (float) *nglyphs);
+	*nwidths = nglyphs;
+	ppos = *pwidths;
 
-    if (!nglyphs) return 0;
+	if (!nglyphs)
+		return 0;
     
-    double x, y;
-    
+	for (; i < nglyphs-1; i++, ppos++){
+		*ppos = glyphs[i+1].x - glyphs[i].x;
+		*total_width= *ppos;
+	}
 
-    for (; i < nglyphs-1; i++, pPos++){
-        *pPos = glyphs[i+1].x - glyphs[i].x;
-        *totalwidth= *pPos;
-    }
-
-    *pPos = DOUBLE_FROM_26_6 (ft->face->glyph->advance.x);
-    *totalwidth= *pPos;
-    return 1;
+	*ppos = DOUBLE_FROM_26_6 (ft->face->glyph->advance.x);
+	*total_width= *ppos;
+	return 1;
 }
 
-GpStatus GdipMeasureString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int len, GDIPCONST GpFont *font, GDIPCONST RectF *rc,
-    GDIPCONST GpStringFormat *stringFormat,  RectF *boundingBox, int *codepointsFitted, int *linesFilled)
+GpStatus GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int len, GDIPCONST GpFont *font, GDIPCONST RectF *rc,
+			    GDIPCONST GpStringFormat *stringFormat,  RectF *boundingBox, int *codepointsFitted, int *linesFilled)
 {
-    if (!font || !rc)
-        return InvalidParameter;
 
-    float width = 0, height = 0;
-    float* pwidths = NULL;
-    float* pPos;
-    int nwidths, i, nGlyp;
-    float w = 0, x=0, y=0;
-    int nLines = 0;
-    int nMax = 0;
+	float width = 0, height = 0;
+	float *pwidths = NULL;
+	float *ppos;
+	int nwidths, i, nGlyp;
+	float w = 0, x=0, y=0;
+	int nLines = 0;
+	int nMax = 0;
+	char *string;
+	
+	if (!font || !rc)
+		return InvalidParameter;
+	
+	string = (char*) g_utf16_to_utf8 ((const gunichar2 *) stringUnicode,
+					  (glong)len, NULL, NULL, NULL);
 
-    char* string = (char*) g_utf16_to_utf8 ((const gunichar2 *) stringUnicode,
-            (glong)len, NULL, NULL, NULL);
+	/* Get widths */
+	gdip_measure_string_widths (font, string, &pwidths, &nwidths, &width, &height);
 
-    // Get widths
-    gdip_measure_string_widths(font, string, &pwidths, &nwidths, &width, &height);
+	ppos = pwidths;
 
-    pPos = pwidths;
-
-    for (nGlyp=1, w=0; nGlyp < nwidths+1; pPos++, nGlyp++) {        
-        w+=*pPos;
+	for (nGlyp = 1, w=0; nGlyp < nwidths+1; ppos++, nGlyp++) {
+		w += *ppos;
          
-        if (!(nGlyp+1 < nwidths+1) || (w + *(pPos+1)) >rc->Width) {
+		if (!(nGlyp+1 < nwidths+1) || (w + *(ppos+1)) >rc->Width) {
+			nLines++;
 
-            nLines++;
+			if (w>nMax)
+				nMax = w;
 
-            if (w>nMax) nMax = w;
-
-            if (y + font->sizeInPixels >= rc->Height) // Cannot fit more text
-                break;
+			if (y + font->sizeInPixels >= rc->Height) /* Cannot fit more text */
+				break;
                 
-            y+=font->sizeInPixels;
-            w=0;
-        }
-    }
+			y += font->sizeInPixels;
+			w=0;
+		}
+	}
 
-    free(pwidths);
-    g_free(string);
+	free (pwidths);
+	g_free (string);
 
-    if (boundingBox) {
-        boundingBox->X=rc->X;
-        boundingBox->Y=rc->Y;
-        boundingBox->Width=nMax;
-        boundingBox->Height=y;
-        printf("**boundingBox->x %f, y %f, width->%f, height->%f\n", boundingBox->X, boundingBox->Y, boundingBox->Width, boundingBox->Height);
-    }
+	if (boundingBox) {
+		boundingBox->X=rc->X;
+		boundingBox->Y=rc->Y;
+		boundingBox->Width=nMax;
+		boundingBox->Height=y;
+		printf ("**boundingBox->x %f, y %f, width->%f, height->%f\n", boundingBox->X, boundingBox->Y, boundingBox->Width, boundingBox->Height);
+	}
 
-    if (linesFilled) *linesFilled = nLines;
-    if (codepointsFitted) *codepointsFitted = nGlyp;
+	if (linesFilled) *linesFilled = nLines;
+	if (codepointsFitted) *codepointsFitted = nGlyp;
               
 }
 
@@ -963,154 +969,160 @@ GpStatus
 GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
                 int len, GpFont *font, RectF *rc, GpStringFormat *format, GpBrush *brush)
 {
+        cairo_matrix_t saved;
+        float width = 0, height = 0;
+        float *pwidths = NULL;
+        float *ppos;
+        int nwidths, i, nGlyp;
+        float realY = rc->Y + font->sizeInPixels;
+        float w = 0, x=rc->X, y=realY;
+        int nLast = 0, nLines = 0, nLns;
+        const gunichar2 *pUnicode = (const gunichar2 *)  stringUnicode;
+        StringAlignment align;
+        StringAlignment lineAlign;
+	char *string;
+	GpPoint *pPoints;
+	GpPoint *pPoint;
+	
         if (!graphics || !stringUnicode || !font)
-            return InvalidParameter;
+		return InvalidParameter;
     
-        char* string = (char*) g_utf16_to_utf8 ((const gunichar2 *) stringUnicode,
-                        (glong)len, NULL, NULL, NULL);
+        string = (char*) g_utf16_to_utf8 ((const gunichar2 *) stringUnicode,
+					  (glong)len, NULL, NULL, NULL);
 
-        printf("DrawString: [%s], %x, %f\n", string, font, font->sizeInPixels);
-        printf("RC->x %f, y %f, width->%f, height->%f\n", rc->X, rc->Y, rc->Width, rc->Height);
+        printf ("DrawString: [%s], %x, %f\n", string, font, font->sizeInPixels);
+        printf ("RC->x %f, y %f, width->%f, height->%f\n", rc->X, rc->Y, rc->Width, rc->Height);
 
         cairo_save (graphics->ct);
     
         if (brush)
-            gdip_brush_setup (graphics, brush);    
+		gdip_brush_setup (graphics, brush);    
         else
-            cairo_set_rgb_color (graphics->ct, 0., 0., 0.);
+		cairo_set_rgb_color (graphics->ct, 0., 0., 0.);
 
         cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);
 
-        // Save font matrix
-        cairo_matrix_t saved;
+        /* Save font matrix */
         cairo_matrix_copy (&saved, (const cairo_matrix_t *)&font->cairofnt->base.matrix);
         
     
         if (!format || !rc->Width) {
             
-            cairo_scale_font (graphics->ct, font->sizeInPixels);
-            cairo_move_to (graphics->ct, rc->X, rc->Y+ font->sizeInPixels);
-            cairo_show_text (graphics->ct, string);
-            g_free(string);
+		cairo_scale_font (graphics->ct, font->sizeInPixels);
+		cairo_move_to (graphics->ct, rc->X, rc->Y+ font->sizeInPixels);
+		cairo_show_text (graphics->ct, string);
+		g_free (string);
           
-            cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
-            cairo_restore (graphics->ct);
-            return gdip_get_status (cairo_status (graphics->ct));
+		cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
+		cairo_restore (graphics->ct);
+		return gdip_get_status (cairo_status (graphics->ct));
         }
 
-        float width = 0, height = 0;
-        float* pwidths = NULL;
-        float* pPos;
-        int nwidths, i, nGlyp;
-        float realY = rc->Y + font->sizeInPixels;
-        float w = 0, x=rc->X, y=realY;
-        int nLast = 0, nLines = 0;
-        const gunichar2* pUnicode = (const gunichar2 *)  stringUnicode;
-        StringAlignment align;
-        StringAlignment lineAlign;
 
-        // Get widths                                            
-        gdip_measure_string_widths(font, string, &pwidths, &nwidths, &width, &height);
-        printf("width->%f, height->%f\n", width, height);
+        /* Get widths */
+        gdip_measure_string_widths (font, string, &pwidths, &nwidths, &width, &height);
+        printf ("width->%f, height->%f\n", width, height);
 
-        pPos = pwidths;
+        ppos = pwidths;
         
-        // Determine in which positions the strings have to be drawn
-        GpPoint* pPoints = (GpPoint*) malloc(sizeof(GpPointF) * nwidths);
-        GpPoint* pPoint = pPoints;
+        /* Determine in which positions the strings have to be drawn */
+        pPoints = (GpPoint*) malloc (sizeof (GpPointF) * nwidths);
+	pPoint = pPoints;
         
-        GdipGetStringFormatAlign(format, &align);
-        GdipGetStringFormatLineAlign(format, &lineAlign);
+        GdipGetStringFormatAlign (format, &align);
+        GdipGetStringFormatLineAlign (format, &lineAlign);
         
-        for (nGlyp=1, w=0; nGlyp < nwidths+1; pPos++, nGlyp++) {
-
-            w+=*pPos;
-          
-            if (!(nGlyp+1 < nwidths+1) || (w + *(pPos+1)) >rc->Width) {
-              
-                switch(align){
-                case StringAlignmentNear:// Left
-                    pPoint->X = rc->X;
-                    break;
-                case StringAlignmentCenter:
-                    pPoint->X = rc->X + ((rc->Width+rc->X-w)/2);
-                    break;
-                case StringAlignmentFar: // Right
-                    pPoint->X = rc->X;
-                    pPoint->X += rc->Width - w;
-                    break;
-                default:
-                    break;
-                }
-
-                nLines++;
-
-                if (y - rc->Y + font->sizeInPixels >= rc->Height) // Cannot fit more text
-                    break;
-
-                pPoint++;                
-                y+=font->sizeInPixels;
-                w=0;
-            }
+        for (nGlyp=1, w=0; nGlyp < nwidths+1; ppos++, nGlyp++) {
+		
+		w += *ppos;
+		
+		if (!(nGlyp+1 < nwidths+1) || (w + *(ppos+1)) >rc->Width){
+			switch (align){
+			case StringAlignmentNear: /* left */
+				pPoint->X = rc->X;
+				break;
+			case StringAlignmentCenter:
+				pPoint->X = rc->X + ( (rc->Width+rc->X-w)/2);
+				break;
+			case StringAlignmentFar: /* Right */
+				pPoint->X = rc->X;
+				pPoint->X += rc->Width - w;
+				break;
+			default:
+				break;
+			}
+			
+			nLines++;
+			
+			/* Cannot fit more text */
+			if (y - rc->Y + font->sizeInPixels >= rc->Height) 
+				break;
+			
+			pPoint++;                
+			y += font->sizeInPixels;
+			w = 0;
+		}
         }
+	
+        float alignY = realY; /* Default, top */
+	
+        /* Determine vertical alignment */
 
-        float alignY = realY; // Default, top
-
-        // Determine vertical alignment
-        switch(lineAlign){
-        case StringAlignmentNear:// Top
-            break;
+        switch (lineAlign){
+        case StringAlignmentNear:
+		/* Top */
+		break;
         case StringAlignmentCenter:
-            alignY = realY + ((rc->Y+rc->Height - y) /2);
-            break;
-        case StringAlignmentFar: // Bottom
-            alignY = realY + (rc->Y+rc->Height) - y;
-            break;
+		alignY = realY + ( (rc->Y+rc->Height - y) /2);
+		break;
+        case StringAlignmentFar: /* Bottom */
+		alignY = realY + (rc->Y+rc->Height) - y;
+		break;
         default:
-            break;
+		break;
         }
-
-        // Setup Y coordinate for every line
+	
+        /* Setup Y coordinate for every line */
         pPoint = pPoints;                
-        for (i =0; i < nLines; i++, pPoint++) {            
-            pPoint->Y = alignY;
-            alignY+=font->sizeInPixels;
+        for (i = 0; i < nLines; i++, pPoint++) {
+		pPoint->Y = alignY;
+		alignY += font->sizeInPixels;
         }
-
-        pPos = pwidths;  
+	
+        ppos = pwidths;  
         pPoint = pPoints;
-        int nLns;
 
         cairo_scale_font (graphics->ct, font->sizeInPixels);           
 
-        // Draw the strings
-        for (w=0, nLns=0, nGlyp=1; nGlyp < nwidths+1; pPos++, nGlyp++) {
-
-          w+=*pPos;
+        /* Draw the strings */
+        for (w=0, nLns = 0, nGlyp=1; nGlyp < nwidths+1; ppos++, nGlyp++) {
+		char *spiece;
+		w += *ppos;
          
-          if (!(nGlyp+1 < nwidths+1) || (w + *(pPos+1)) >rc->Width) {
+		if ((nGlyp+1 < nwidths+1) || (w + *(ppos+1)) >rc->Width)
+			continue;
 
-                char* spiece = (char*)g_utf16_to_utf8 (pUnicode, (glong)nGlyp-nLast, NULL, NULL, NULL);
+		spiece = (char*)g_utf16_to_utf8 (pUnicode, (glong)nGlyp-nLast, NULL, NULL, NULL);
         
-                pUnicode+=(nGlyp-nLast);
-                nLast = nGlyp;                
-                cairo_move_to (graphics->ct, pPoint->X, pPoint->Y);
-                cairo_show_text (graphics->ct, spiece);                       
-                g_free(spiece);
-                nLns++;
-
-                if (nLns>nLines) break;
+		pUnicode += (nGlyp-nLast);
+		nLast = nGlyp;
+		cairo_move_to (graphics->ct, pPoint->X, pPoint->Y);
+		cairo_show_text (graphics->ct, spiece);                       
+		g_free (spiece);
+		nLns++;
+		
+		if (nLns>nLines)
+			break;
                 
-                w=0;
-                pPoint++;
-            }               
+		w = 0;
+		pPoint++;
         }
         
         cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
         
-        g_free(string);
-        free(pwidths);
-        free(pPoints);
+        g_free (string);
+        free (pwidths);
+        free (pPoints);
 
         cairo_restore (graphics->ct);
         return gdip_get_status (cairo_status (graphics->ct));
@@ -1138,14 +1150,14 @@ GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
 }
 
 GpStatus 
-GdipGetDpiX(GpGraphics *graphics, float* dpi)
+GdipGetDpiX (GpGraphics *graphics, float *dpi)
 {
-  *dpi = gdip_get_display_dpi();    
+	*dpi = gdip_get_display_dpi ();    
 }
 
 GpStatus 
-GdipGetDpiY(GpGraphics *graphics, float* dpi)
+GdipGetDpiY (GpGraphics *graphics, float *dpi)
 {
-  *dpi = gdip_get_display_dpi();  
+	*dpi = gdip_get_display_dpi ();  
 }
 
