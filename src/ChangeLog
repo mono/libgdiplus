@@ -7,9 +7,9 @@
 	containing PathPointTypeBezier points. Previously, we were
 	resetting the index to zero at the head of each loop, so we were
 	never drawing Bezier curves correctly. Also, we need to draw the
-	curve immediately once we've , instead of doing it in
-	the next iteration (which may never come). This is an off-by-one
-	error.
+	curve immediately once we've stored 3 points, instead of waiting
+	till the next iteration (which may never come). This is an
+	off-by-one error.
 
 	* graphics-path.c (append_arc): Use floats instead of ints to hold
 	the center points, use doubles to hold the trig points.
