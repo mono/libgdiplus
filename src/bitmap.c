@@ -357,7 +357,7 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 	if (destData->Scan0 == NULL) {
 		GpBitmap *data;
 
-		destData->Stride = (((( destRect->Width * dest_components * dest_deph) /8)  + 3) & ~3);
+		destData->Stride = (((( destRect->Width * dest_components * dest_deph) /8)  + (sizeof(pixman_bits_t)-1)) & ~(sizeof(pixman_bits_t)-1));
 
 		data = GdipAlloc (destData->Stride * destRect->Height);
 		if (data == NULL) {
@@ -459,7 +459,7 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 
 		if (destData->Scan0 == NULL) {
 			outStride = bytesPerPixel * destRect->Width;
-			while (outStride % 4)
+			while (outStride % sizeof(pixman_bits_t))
 				outStride++;		/* dword-align each row */
 
 			/* Allocate the output buffer */
@@ -502,7 +502,7 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 
 		if (destData->Scan0 == NULL) {
 			outStride = destBytesPerPixel * destRect->Width;
-			while (outStride % 4)
+			while (outStride % sizeof(pixman_bits_t))
 				outStride++;		/* dword-align each row */
 
 			/* Allocate the output buffer */
@@ -589,7 +589,7 @@ gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest
 	
 	*dest_stride = dest_components * 8;
 	*dest_stride = (*dest_stride * width) / 8;
-	*dest_stride = (*dest_stride + 3) & ~3;		
+	*dest_stride = (*dest_stride + (sizeof(pixman_bits_t)-1)) & ~(sizeof(pixman_bits_t)-1);		
 	
 	result = GdipAlloc (*dest_stride * height);
 	if (result == NULL)
@@ -622,7 +622,7 @@ gdip_from_RGB_to_ARGB (BYTE *src, int width, int height, int stride, BYTE **dest
 	
 	*dest_stride = dest_components * 8;
 	*dest_stride = (*dest_stride * width) / 8;
-	*dest_stride = (*dest_stride + 3) & ~3;		
+	*dest_stride = (*dest_stride + (sizeof(pixman_bits_t)-1)) & ~(sizeof(pixman_bits_t)-1);		
 	
 	result = GdipAlloc (*dest_stride * height);
 	if (result == NULL)
