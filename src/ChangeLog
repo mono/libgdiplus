@@ -1,3 +1,8 @@
+2004-09-15  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Applied a fix from David Mitchell for bug #65963
+	in GdipDeleteGraphics function.
+
 2004-09-10  Ravindra <rkumar@novell.com>
 
 	* gdip.h: Corrected a value in PathPointType enum.
