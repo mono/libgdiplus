@@ -28,16 +28,18 @@ GpStatus
 gdip_save_png_image_to_file (FILE *fp, GpImage *image);
 
 GpStatus
-gdip_png_handle_error(GpImage *image, GpStatus status);
+gdip_png_handle_error (GpImage *image, GpStatus status);
 
 GpStatus
-gdip_read_png_idat_chunk(FILE *fp, int length, PNGHeader *header, GpImage *image);
+gdip_read_png_idat_chunk (FILE *fp, int length, PNGHeader *header, GpImage *image, unsigned int crc);
 
 GpStatus
-gdip_read_png_iend_chunk(FILE *fp, int length, PNGHeader *header);
+gdip_read_png_iend_chunk (FILE *fp, int length, PNGHeader *header, unsigned int crc);
 
 GpStatus
-gdip_read_png_plte_chunk(FILE *fp, int length, PNGHeader *header, GpImage *image);
+gdip_read_png_plte_chunk (FILE *fp, int length, PNGHeader *header, GpImage *image, unsigned int crc);
+
+unsigned int gdip_png_get_uint (byte *bytep);
 
 
 #endif /* _PNGCODEC_H */

@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include "pngcodec.h"
+#include <zlib.h>
 
 byte png_IHDR[5] = { 73,  72,  68,  82, '\0'};
 byte png_IDAT[5] = { 73,  68,  65,  84, '\0'};
@@ -28,12 +29,16 @@ byte png_tIME[5] = {116,  73,  77,  69, '\0'};
 byte png_tRNS[5] = {116,  82,  78,  83, '\0'};
 byte png_zTXt[5] = {122,  84,  88, 116, '\0'};
 
+size_t png_size_byte = sizeof(byte);
+
 GpStatus 
 gdip_load_png_image_from_file (FILE *fp, GpImage *image)
 {
 	size_t size_read;
 	int seek;
 	unsigned int length;
+	unsigned int crc_obtained;
+	unsigned int crc_calculated;
 	byte chunk_length[4];
 	byte chunk_name[4];
 	byte *chunk_data;
@@ -47,7 +52,7 @@ gdip_load_png_image_from_file (FILE *fp, GpImage *image)
 	bool reading = TRUE;
 	PNGHeader header;
 	GpStatus status = Ok;
-
+	
 	image = (GpImage *) gdip_image_new ();
 	if (image == NULL)
 		return OutOfMemory;
@@ -57,40 +62,46 @@ gdip_load_png_image_from_file (FILE *fp, GpImage *image)
 	if (seek) 
 		return gdip_png_handle_error (image, InvalidParameter);
 	
-	size_read = fread (chunk_length, sizeof(byte), 4, fp); /*read length of IHDR chunk*/
+	size_read = fread (chunk_length, png_size_byte, 4, fp); /*read length of IHDR chunk*/
 	if (size_read != 4)
 		return gdip_png_handle_error (image, InvalidParameter);
 
-	length = ((unsigned int)(*chunk_length) << 24) +
-      ((unsigned int)(*(chunk_length + 1)) << 16) +
-      ((unsigned int)(*(chunk_length + 2)) << 8) +
-      (unsigned int)(*(chunk_length + 3));
+	length = gdip_png_get_uint (chunk_length);
 
 	if (length != 13) /*length of header chunk should be 13*/
 		return gdip_png_handle_error (image, InvalidParameter);
 
-	size_read = fread (chunk_name, sizeof(byte), 4, fp);
+	size_read = fread (chunk_name, png_size_byte, 4, fp);
 	if (size_read != 4)
 		return gdip_png_handle_error (image, InvalidParameter);
+
+	crc_calculated = crc32(0L, Z_NULL, 0);
 
 	if (memcmp(chunk_name, png_IHDR, 4) != 0)
 		return gdip_png_handle_error (image, InvalidParameter);
 
+	crc_calculated = crc32(crc_calculated, chunk_name, 4);
+
 	/*read 13 bytes of image header*/
 	/*chunk_data = new chunk_data[13];*/
-	size_read = fread (chunk_data, sizeof(byte), 13, fp);
+	size_read = fread (chunk_data, png_size_byte, 13, fp);
 	if (size_read != 13)
 		return gdip_png_handle_error (image, InvalidParameter);
 
-	header.width = image->width = ((unsigned int)(*chunk_data) << 24) +
-      ((unsigned int)(*(chunk_data + 1)) << 16) +
-      ((unsigned int)(*(chunk_data + 2)) << 8) +
-      (unsigned int)(*(chunk_data + 3));
+	crc_calculated = crc32(crc_calculated, chunk_data, size_read);
 
-	header.height = image->height = ((unsigned int)(*chunk_data + 4) << 24) +
-      ((unsigned int)(*(chunk_data + 5)) << 16) +
-      ((unsigned int)(*(chunk_data + 6)) << 8) +
-      (unsigned int)(*(chunk_data + 7));
+	size_read = fread (chunk_crc, png_size_byte, 4, fp); /*read the crc*/
+	if (size_read != 4)
+		return gdip_png_handle_error (image, InvalidParameter);
+
+	crc_obtained = gdip_png_get_uint(chunk_crc);
+
+	if (crc_calculated != crc_obtained)
+		return gdip_png_handle_error(image, InvalidParameter);
+
+	header.width = image->width = gdip_png_get_uint (chunk_data);
+
+	header.height = image->height = gdip_png_get_uint (chunk_data+4);
 
 	/* Read bit depth valid values are 1, 2, 4, 8, and 16 */
 	bit_depth = *(chunk_data + 8);
@@ -160,25 +171,27 @@ gdip_load_png_image_from_file (FILE *fp, GpImage *image)
 	header.filter_method = *(chunk_data + 11);
 	header.interlace_method = *(chunk_data + 12);
 
-	while (reading && status == Ok ){
-		size_read = fread (chunk_length, sizeof(byte), 4, fp); /*read length of next chunk*/
+	while (reading ){
+		size_read = fread (chunk_length, png_size_byte, 4, fp); /*read length of next chunk*/
 		if (size_read != 4)
 			return gdip_png_handle_error (image, InvalidParameter);
 
-		length = ((unsigned int)(*chunk_length) << 24) +
-		((unsigned int)(*(chunk_length + 1)) << 16) +
-		((unsigned int)(*(chunk_length + 2)) << 8) +
-		(unsigned int)(*(chunk_length + 3));
+		length = gdip_png_get_uint (chunk_length);
 
-		size_read = fread (chunk_name, sizeof(byte), 4, fp);
+		size_read = fread (chunk_name, png_size_byte, 4, fp);
 		if (size_read != 4)
 			return gdip_png_handle_error (image, InvalidParameter);
+
+		crc_calculated = crc32(0L, Z_NULL, 0); /*reinitialize the crc*/
+		crc_calculated = crc32(crc_calculated, chunk_name, 4); /*calculate CRC for the chunk name*/
 
 		if (memcmp(chunk_name, png_IDAT, 4) == 0){
 			if (color_type == 3 && plte_read == FALSE) /*we came to read idat chunk
 				without reading plte chunk for a palette based image, signal error */
 				return gdip_png_handle_error (image, InvalidParameter);
-			status = gdip_read_png_idat_chunk(fp, length, &header, image);
+			status = gdip_read_png_idat_chunk(fp, length, &header, image, crc_calculated);
+			if (status != Ok)
+				return status;
 			idat_read = TRUE;
 		}
 
@@ -186,14 +199,18 @@ gdip_load_png_image_from_file (FILE *fp, GpImage *image)
 			if (idat_read == FALSE)/* We are reading IEND chunk without reading IDAT
 									chunk, signal error*/
 				return gdip_png_handle_error (image, InvalidParameter);
-			status = gdip_read_png_iend_chunk(fp, length, &header);
+			status = gdip_read_png_iend_chunk(fp, length, &header, crc_calculated);
+			if (status != Ok)
+				return gdip_png_handle_error (image, status);
 			reading = FALSE;
 		}
 
 		if (memcmp(chunk_name, png_PLTE, 4) == 0){
 			if (idat_read) /*we have read idat chunk already, plte chunk is out of place*/
 				return gdip_png_handle_error (image, InvalidParameter);
-			status = gdip_read_png_plte_chunk(fp, length, &header, image);
+			status = gdip_read_png_plte_chunk(fp, length, &header, image, crc_calculated);
+			if (status != Ok)
+				return status;
 			plte_read = TRUE;
 		}
 	}
@@ -209,22 +226,83 @@ gdip_png_handle_error(GpImage *image, GpStatus status)
 }
 
 GpStatus
-gdip_read_png_idat_chunk(FILE *fp, int length, PNGHeader *header, GpImage *image)
+gdip_read_png_idat_chunk(FILE *fp, int length, PNGHeader *header, GpImage *image, unsigned int crc)
 {
+	byte *chunk_data;
+	byte chunk_crc[4];
+	int size_read;
+	unsigned int crc_calculated;
+	unsigned int crc_obtained;
+
+	size_read = fread (chunk_data, png_size_byte, length, fp);
+	if (size_read != length)
+		return gdip_png_handle_error (image, InvalidParameter);
+
+	crc_calculated = crc32(crc, chunk_data, size_read);
+
+	size_read = fread (chunk_crc, png_size_byte, 4, fp); /*read the crc*/
+	if (size_read != 4)
+		return gdip_png_handle_error (image, InvalidParameter);
+
+	crc_obtained = gdip_png_get_uint(chunk_crc);
+
+	if (crc_calculated != crc_obtained)
+		return gdip_png_handle_error(image, InvalidParameter);
+
 	return NotImplemented;
 }
 
 GpStatus
-gdip_read_png_iend_chunk(FILE *fp, int length, PNGHeader *header)
+gdip_read_png_iend_chunk(FILE *fp, int length, PNGHeader *header, unsigned int crc)
 {
-	/*everything has been read, nothing to be done more*/
+	byte chunk_crc[4];
+	int size_read;
+	unsigned int crc_obtained;
+
+	size_read = fread (chunk_crc, png_size_byte, 4, fp); /*read the crc*/
+	if (size_read != 4)
+		return InvalidParameter;
+
+	crc_obtained = gdip_png_get_uint(chunk_crc);
+
+	if (crc != crc_obtained)
+		return InvalidParameter;
+	
 	return Ok;
 }
 
 GpStatus
-gdip_read_png_plte_chunk(FILE *fp, int length, PNGHeader *header, GpImage *image)
+gdip_read_png_plte_chunk(FILE *fp, int length, PNGHeader *header, GpImage *image, unsigned int crc)
 {
+	byte *chunk_data;
+	byte chunk_crc[4];
+	int size_read;
+	unsigned int crc_calculated;
+	unsigned int crc_obtained;
+
+	size_read = fread (chunk_data, png_size_byte, length, fp);
+	if (size_read != length)
+		return gdip_png_handle_error (image, InvalidParameter);
+
+	crc_calculated = crc32(crc, chunk_data, size_read);
+
+	size_read = fread (chunk_crc, png_size_byte, 4, fp); /*read the crc*/
+	if (size_read != 4)
+		return gdip_png_handle_error (image, InvalidParameter);
+
+	crc_obtained = gdip_png_get_uint(chunk_crc);
+
+	if (crc_calculated != crc_obtained)
+		return gdip_png_handle_error(image, InvalidParameter);
+
 	return NotImplemented;
 }
 
+unsigned int gdip_png_get_uint (byte *bytep)
+{
+	return ((unsigned int)(*bytep) << 24) + 
+			((unsigned int)(*(bytep + 1)) << 16) +
+			((unsigned int)(*(bytep + 2)) << 8) +
+			(unsigned int)(*(bytep + 3));
+}
 
