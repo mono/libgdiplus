@@ -359,7 +359,13 @@ GpStatus
 GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag,  GpColorMatrix* colorMatrix,
 	GpColorMatrix* grayMatrix, GpColorMatrixFlags flags)
 {
-	return NotImplemented;
+	static int	called = 0;
+
+	if (!called) {
+		printf("NOT IMPLEMENTED YET: GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag,  GpColorMatrix* colorMatrix, GpColorMatrix* grayMatrix, GpColorMatrixFlags flags)\n");
+	}
+	//return NotImplemented;
+	return Ok;
 }
 	
 GpStatus 
