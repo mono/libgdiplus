@@ -1,5 +1,10 @@
 2005-01-26  Geoff Norton  <gnorton@customerdna.com>
 
+	* tiffcodec.c: Use the tiff callback functions to allow
+	tiff reading to work on Mac.
+
+2005-01-26  Geoff Norton  <gnorton@customerdna.com>
+
 	* gifcodec.c: Use set_pixel_bgra so that big endian machines can
 	load gif and have them look right.
 

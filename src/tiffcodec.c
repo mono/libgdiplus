@@ -65,6 +65,62 @@ typedef struct {
 } gdip_tiff_clientData;
 
 tsize_t 
+gdip_tiff_fileread (thandle_t clientData, tdata_t buffer, tsize_t size)
+{
+	return (tsize_t)fread(buffer, 1, size, (FILE*)clientData);
+}
+
+tsize_t 
+gdip_tiff_fileread_none (thandle_t clientData, tdata_t buffer, tsize_t size)
+{
+	return 0;
+}
+
+tsize_t 
+gdip_tiff_filewrite (thandle_t clientData, tdata_t buffer, tsize_t size)
+{
+	return (tsize_t)fwrite (buffer, size, 1, (FILE*)clientData);
+}
+
+toff_t 
+gdip_tiff_fileseek (thandle_t clientData, toff_t offSet, int whence)
+{
+	int seek_ok = fseek ((FILE*)clientData, offSet, whence);
+	if (seek_ok == 0)
+		return offSet;
+
+	return -1;
+}
+
+int 
+gdip_tiff_fileclose (thandle_t clientData)
+{
+	// This is a TIFF cleanup function; but we own the FILE* and close it in image.c so this is a null op
+	return 0;
+}
+
+toff_t 
+gdip_tiff_filesize (thandle_t clientData)
+{
+	long cur_pos = ftell ((FILE*)clientData);
+	fseek ((FILE*)clientData, 0, SEEK_END);
+	long ret = ftell ((FILE*)clientData);
+	fseek ((FILE*)clientData, cur_pos, SEEK_SET);
+	return (toff_t)ret;
+}
+
+int
+gdip_tiff_filedummy_map (thandle_t clientData, tdata_t *phase, toff_t* size)
+{
+	return 0;
+}
+
+void
+gdip_tiff_filedummy_unmap (thandle_t clientData, tdata_t base, toff_t size)
+{
+}
+
+tsize_t 
 gdip_tiff_read (thandle_t clientData, tdata_t buffer, tsize_t size)
 {
 	return (tsize_t)((gdip_tiff_clientData *) clientData)->getBytesFunc (buffer, size, 0);
@@ -353,7 +409,9 @@ gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
 {
 	TIFF *tif = NULL;
 	
-	tif = TIFFFdOpen (fileno (fp), "lose.tif", "r");
+	tif = TIFFClientOpen("lose.tif", "r", (thandle_t) fp, gdip_tiff_fileread, 
+				gdip_tiff_filewrite, gdip_tiff_fileseek, gdip_tiff_fileclose, 
+				gdip_tiff_filesize, gdip_tiff_filedummy_map, gdip_tiff_filedummy_unmap);
 	return gdip_load_tiff_image (tif, image);
 }
 
@@ -362,7 +420,9 @@ gdip_save_tiff_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParamet
 {	
 	TIFF* tiff;
 	
-	tiff = TIFFFdOpen (fileno (fp), "lose.tif", "w");
+	tiff = TIFFClientOpen("lose.tif", "w", (thandle_t) fp, gdip_tiff_fileread, 
+				gdip_tiff_filewrite, gdip_tiff_fileseek, gdip_tiff_fileclose, 
+				gdip_tiff_filesize, gdip_tiff_filedummy_map, gdip_tiff_filedummy_unmap);
 	if (!tiff)
 		return FileNotFound;		
 		
