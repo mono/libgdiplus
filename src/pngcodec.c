@@ -18,6 +18,35 @@
 
 #include <setjmp.h>
 
+
+/* Codecinfo related data*/
+static ImageCodecInfo png_codec;
+static const WCHAR png_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'P', 'N', 'G', 0}; /* Built-in PNG */
+static const WCHAR png_extension[] = {'*', '.', 'P', 'N', 'G', 0}; /* *.PNG */
+static const WCHAR png_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'p', 'n', 'g', 0}; /* image/png */
+static const WCHAR png_format[] = {'P', 'N', 'G', 0}; /* PNG */
+
+
+ImageCodecInfo *
+gdip_getcodecinfo_png ()
+{
+        png_codec.Clsid = (CLSID) { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        png_codec.FormatID = (CLSID) { 0xb96b3caf, 0x0728, 0x11d3, { 0x9d, 0x7b, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        png_codec.CodecName = (const WCHAR*) png_codecname;
+        png_codec.DllName = NULL;
+        png_codec.FormatDescription = (const WCHAR*) png_format;
+        png_codec.FilenameExtension = (const WCHAR*) png_extension;
+        png_codec.MimeType = (const WCHAR*) png_mimetype;
+        png_codec.Flags = Encoder | Decoder | SupportBitmap | Builtin;
+        png_codec.Version = 1;
+        png_codec.SigCount = 0;
+        png_codec.SigSize = 0;
+        png_codec.SigPattern = 0;
+        png_codec.SigMask = 0;
+
+        return &png_codec;
+}
+
 #if !defined(HAVE_SIGSETJMP) && !defined(sigsetjmp)
 #define sigjmp_buf jmp_buf
 #define sigsetjmp(jb, x) setjmp(jb)

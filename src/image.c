@@ -29,6 +29,8 @@
 #include <stdio.h>
 #include "gdipImage.h"
 #include <math.h>
+#include "gdip_win32.h"
+
 
 static char *clsid_to_string_hack (GDIPCONST CLSID *clsid);
 
@@ -977,3 +979,99 @@ gdip_encoder_parameter_search_int (EncoderParameters *params, GUID *guid, int *r
 
     return GenericError;
 }
+
+#define CODECS_SUPPORTED 5
+static BYTE *g_codeclist;
+static int g_codecs = 0; /* Available codecs */
+
+
+void initCodecList (void)
+{
+        BYTE *pos;
+        
+        g_codeclist = pos = malloc (sizeof (ImageCodecInfo) * CODECS_SUPPORTED);
+
+        /* BMP codec - built-in */
+        memcpy (pos, gdip_getcodecinfo_bmp(), sizeof (ImageCodecInfo));
+        pos += sizeof (ImageCodecInfo);
+        g_codecs++;
+
+        /* JPEG codec */
+        if (gdip_getcodecinfo_jpeg ()) {
+                memcpy (pos, gdip_getcodecinfo_jpeg(), sizeof (ImageCodecInfo));
+                pos += sizeof (ImageCodecInfo);
+                g_codecs++;
+        }
+
+        /* GIF codec */
+        if (gdip_getcodecinfo_gif ()) {
+                memcpy (pos, gdip_getcodecinfo_gif (), sizeof (ImageCodecInfo));
+                pos += sizeof (ImageCodecInfo);
+                g_codecs++;
+        }
+
+        /* TIFF codec */
+        if (gdip_getcodecinfo_tiff ()) {
+                memcpy (pos, gdip_getcodecinfo_tiff (), sizeof (ImageCodecInfo));
+                pos += sizeof (ImageCodecInfo);
+                g_codecs++;
+        }
+
+        /* PNG codec */
+        if (gdip_getcodecinfo_png ()) {
+                memcpy (pos, gdip_getcodecinfo_png (), sizeof (ImageCodecInfo));
+                pos += sizeof (ImageCodecInfo);
+                g_codecs++;
+        }
+}
+
+void releaseCodecList (void)
+{
+        if (g_codeclist)
+                free (g_codeclist);
+}
+
+
+GpStatus
+GdipGetImageDecodersSize (int *numDecoders, int *size)
+{       
+        if (!numDecoders || !size)
+                return InvalidParameter;
+
+        *numDecoders = g_codecs;
+        *size = sizeof (ImageCodecInfo) * g_codecs;
+        return Ok;
+}
+
+GpStatus
+GdipGetImageDecoders (int numDecoders, int size, ImageCodecInfo *decoders)
+{
+        if (!decoders)
+                return InvalidParameter;
+                                       
+        memcpy (decoders, g_codeclist, size);
+        return Ok;
+}
+
+GpStatus
+GdipGetImageEncodersSize (int *numEncoders, int *size)
+{
+        if (!numEncoders || !size)
+                return InvalidParameter;
+
+        *numEncoders = g_codecs;
+        *size = sizeof (ImageCodecInfo) * g_codecs;
+        return Ok;
+}
+
+GpStatus
+GdipGetImageEncoders (UINT numEncoders, UINT size, ImageCodecInfo *encoders)
+{
+        if (!encoders)
+                return InvalidParameter;
+                
+        memcpy (encoders, g_codeclist, size);
+        return Ok;
+}
+
+

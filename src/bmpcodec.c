@@ -39,6 +39,35 @@
 #include <stdio.h>
 #include "bmpcodec.h"
 
+
+/* Codecinfo related data*/
+static ImageCodecInfo bmp_codec;
+static const WCHAR bmp_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'B', 'M', 'P', 0}; /* Built-in BMP */
+static const WCHAR bmp_extension[] = {'*','.','B', 'M', 'P',';', '*','.', 'D','I', 'B',';', '*','.', 'R', 'L', 'E',0}; /* *.BMP;*.DIB;*.RLE */
+static const WCHAR bmp_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'b', 'm', 'p', 0}; /* image/bmp */
+static const WCHAR bmp_format[] = {'B', 'M', 'P', 0}; /* BMP */
+
+
+ImageCodecInfo *
+gdip_getcodecinfo_bmp ()
+{
+        bmp_codec.Clsid = (CLSID) { 0x557cf400, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        bmp_codec.FormatID = (CLSID) { 0xb96b3cab, 0x0728, 0x11d3, { 0x9d, 0x7b, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        bmp_codec.CodecName = (const WCHAR*) bmp_codecname;            
+        bmp_codec.DllName = NULL;
+        bmp_codec.FormatDescription = (const WCHAR*) bmp_format;
+        bmp_codec.FilenameExtension = (const WCHAR*) bmp_extension;
+        bmp_codec.MimeType = (const WCHAR*) bmp_mimetype;
+        bmp_codec.Flags = Encoder | Decoder | SupportBitmap | Builtin;
+        bmp_codec.Version = 1;
+        bmp_codec.SigCount = 0;
+        bmp_codec.SigSize = 0;
+        bmp_codec.SigPattern = 0;
+        bmp_codec.SigMask = 0;
+
+        return &bmp_codec; 
+}
+
 int
 gdip_get_pixelformat (WORD bitcount)
 {

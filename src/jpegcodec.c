@@ -22,6 +22,36 @@
 #include <setjmp.h>
 #include <jpeglib.h>
 
+/* Codecinfo related data*/
+static ImageCodecInfo jpeg_codec;
+static const WCHAR jpeg_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'J', 'P', 'E', 'G', 0}; /* Built-in PNG */
+static const WCHAR jpeg_extension[] = {'*', '.', 'J', 'P','G', ';','*', '.', 'J','P', 'E', 'G', ';', '*',
+        '.', 'J', 'P', 'E', ';', '*', '.', 'J', 'F','I','F', 0}; /* JPG;*.JPEG;*.JPE;*.JFIF */
+static const WCHAR jpeg_mimetype[] = {'i', 'm', 'a','g', 'e','/', 'j', 'p', 'e', 'g', 0}; /* image/png */
+static const WCHAR jpeg_format[] = {'J', 'P', 'E', 'G', 0}; /* JPEG */
+
+
+ImageCodecInfo *
+gdip_getcodecinfo_jpeg ()
+{
+        jpeg_codec.Clsid = (CLSID) { 0x557cf401, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        jpeg_codec.FormatID = (CLSID) { 0xb96b3cae, 0x0728, 0x11d3, { 0x9d, 0x7b, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        jpeg_codec.CodecName = (const WCHAR*)  jpeg_codecname;
+        jpeg_codec.DllName = NULL;
+        jpeg_codec.FormatDescription = (const WCHAR*) jpeg_format;
+        jpeg_codec.FilenameExtension = (const WCHAR*) jpeg_extension;
+        jpeg_codec.MimeType = (const WCHAR*) jpeg_mimetype;
+        jpeg_codec.Flags = Encoder | Decoder | SupportBitmap | Builtin;
+        jpeg_codec.Version = 1;
+        jpeg_codec.SigCount = 0;
+        jpeg_codec.SigSize = 0;
+        jpeg_codec.SigPattern = 0;
+        jpeg_codec.SigMask = 0;
+
+        return &jpeg_codec;
+}
+
+
 #if !defined(HAVE_SIGSETJMP) && !defined(sigsetjmp)
 #define sigjmp_buf jmp_buf
 #define sigsetjmp(jb, x) setjmp(jb)
@@ -62,6 +92,7 @@ struct gdip_jpeg_error_mgr {
     GError **error;
 };
 typedef struct gdip_jpeg_error_mgr *gdip_jpeg_error_mgr_ptr;
+
 
 static void
 _gdip_jpeg_error_exit (j_common_ptr cinfo)
@@ -566,6 +597,13 @@ gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
 #else
 
 /* No libjpeg */
+
+ImageCodecInfo *
+gdip_getcodecinfo_jpeg ()
+{
+        return NULL;
+}
+
 GpStatus
 gdip_load_jpeg_image_from_file (FILE *fp, GpImage **image)
 {

@@ -90,6 +90,7 @@ Display *_get_wine_display ()
 	return result;
 }
 
+
 GpStatus 
 GdiplusStartup(unsigned long *token, const struct startupInput *input, struct startupOutput *output)
 {
@@ -103,8 +104,8 @@ GdiplusStartup(unsigned long *token, const struct startupInput *input, struct st
         GDIP_display = 0;
     }
 
-	/* printf ("GdiplusStartup. GDIP_Display %p\n", GDIP_display); */
-	initializeGdipWin32 ();
+        initCodecList (); 
+        initializeGdipWin32 ();
 	*token = 1;
 	return Ok;
 }
@@ -116,6 +117,7 @@ GdiplusShutdown(unsigned long *token)
 		XCloseDisplay(GDIP_display);
 	}
 	_unload_x11drv ();
+        releaseCodecList ();
 }
 
 

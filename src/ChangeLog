@@ -1,4 +1,14 @@
-2004--04-27  Ravindra <rkumar@novell.com>
+2004-04-28 Jordi Mas i Hernandez <jordi@ximian.com>
+	* bmpcodec.c: added codecInfo
+	* gdip_win32.h: added ImageCodecInfo struct
+	* general.c: init codecinfo
+	* gifcodec.c: added codecInfo
+	* image.c: added GDI+ encoder/decoder functions
+	* jpegcodec.c: added codecInfo
+	* pngcodec.c: added codecInfo
+	* tiffcodec.c: added codecInfo
+
+2004-04-27  Ravindra <rkumar@novell.com>
 
 	* lineargradientbrush.[ch]: First implementation of
 	lineargradientbrush.

@@ -22,6 +22,37 @@
 /* Thankfully, libtiff sucks far less than libjpeg */
 #include <tiffio.h>
 
+
+/* Codecinfo related data*/
+static ImageCodecInfo tiff_codec;
+static const WCHAR tiff_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'T', 'I', 'F', 'F',
+        0}; /* Built-in TIFF */
+static const WCHAR tiff_extension[] = {'*', '.', 'T', 'I', 'F',';', '*', '.', 'T', 'I', 'F','F', 0}; /* *.TIF;*.TIFF */
+static const WCHAR tiff_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 't', 'i', 'f', 'f', 0}; /* image/gif */
+static const WCHAR tiff_format[] = {'T', 'I', 'F', 'F', 0}; /* TIFF */
+
+
+ImageCodecInfo *
+gdip_getcodecinfo_tiff ()
+{
+        tiff_codec.Clsid = (CLSID) { 0x557cf405, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        tiff_codec.FormatID = (CLSID) { 0xb96b3cb1, 0x0728, 0x11d3, { 0x9d, 0x7b, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        tiff_codec.CodecName = (const WCHAR*) tiff_codecname;
+        tiff_codec.DllName = NULL;
+        tiff_codec.FormatDescription = (const WCHAR*) tiff_format;
+        tiff_codec.FilenameExtension = (const WCHAR*) tiff_extension;
+        tiff_codec.MimeType = (const WCHAR*) tiff_mimetype;
+        tiff_codec.Flags = Encoder | Decoder | SupportBitmap | Builtin;
+        tiff_codec.Version = 1;
+        tiff_codec.SigCount = 0;
+        tiff_codec.SigSize = 0;
+        tiff_codec.SigPattern = 0;
+        tiff_codec.SigMask = 0;
+
+        return &tiff_codec;
+}
+
+
 GpStatus 
 gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
 {
@@ -142,6 +173,12 @@ gdip_save_tiff_image_to_file (FILE *fp, GpImage *image)
 #else
 
 /* no libtiff */
+
+ImageCodecInfo *
+gdip_getcodecinfo_tiff ()
+{
+        return NULL;
+}
 
 GpStatus 
 gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)

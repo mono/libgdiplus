@@ -11,10 +11,16 @@
 #ifndef _GIFCODEC_H
 #define _GIFCODEC_H
 #include "gdip.h"
+#include "gdip_win32.h"
 
 GpStatus 
 gdip_load_gif_image_from_file (FILE *fp, GpImage **image);
 
 GpStatus 
 gdip_save_gif_image_to_file (FILE *fp, GpImage *image);
+
+
+ImageCodecInfo *
+gdip_getcodecinfo_gif ();
+
 #endif /* _GIFCODEC_H */

@@ -32,8 +32,6 @@
 #define DOUBLE_TO_16_16(d) ((FT_Fixed)((d) * 65536.0))
 #define DOUBLE_FROM_16_16(t) ((double)(t) / 65536.0)
 
-
-
 struct cairo_matrix {
     double m[3][2];
 };
@@ -143,6 +141,8 @@ typedef enum {
         DigitSubstituteNational = 2,
         DigitSubstituteTraditional = 3
 } DigitSubstitute;
+
+
 
 /* The pixel format spec is:
  * [0-7 format index] [8-15 pixel size, bits] [16-23 flags] [24-31 reserved]
@@ -419,6 +419,20 @@ typedef enum
     EncoderParameterValueTypeRationalRange = 8
 } EncoderParameterValueType;
 
+typedef enum 
+{
+        BlockingDecode = 32,
+        Builtin = 65536,
+        Decoder = 2,
+        Encoder = 1,
+        SeekableEncode = 16,
+        SupportBitmap = 4,
+        SupportVector = 8,
+        System = 131072,
+        User = 262144
+} ImageCodecFlags;
+
+
 /* private enum */
 
 typedef enum {
@@ -649,6 +663,8 @@ void gdip_pen_setup (GpGraphics *graphics, GpPen *pen);
 extern Display *GDIP_display;
 
 void initializeGdipWin32 (void);
+void initCodecList (void);
+void releaseCodecList (void);
 
 /* Image
 
@@ -904,6 +920,15 @@ GpStatus GdipGetRegionData(GpRegion *region, BYTE * buffer, UINT bufferSize, UIN
 GpStatus GdipTranslateRegion(GpRegion *region, float dx, float dy);
 GpStatus GdipTranslateRegionI(GpRegion *region, int dx, int dy);
 GpStatus GdipTransformRegion(GpRegion *region, GpMatrix *matrix);
+
+/* Encoders / Decoders */
+
+/*
+GpStatus GdipGetImageDecodersSize (int *numDecoders, int *size);
+GpStatus GdipGetImageDecoders (int numDecoders, int size, vImageCodecInfo *decoders);
+GpStatus GdipGetImageEncodersSize (int *numEncoders, int *size);
+GpStatus GdipGetImageEncoders (UINT numEncoders, UINT size, ImageCodecInfo *encoders);
+*/
 
 /* Path*/
 #include "graphics-path.h"

@@ -28,4 +28,7 @@ GpStatus
 gdip_save_bmp_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
                                         GpImage *image);
 
+ImageCodecInfo *
+gdip_getcodecinfo_bmp ();
+
 #endif /* _BMPCODEC_H */

@@ -11,6 +11,7 @@
 #ifndef _PNGCODEC_H
 #define _PNGCODEC_H
 #include "gdip.h"
+#include "gdip_win32.h"
 
 GpStatus 
 gdip_load_png_image_from_file (FILE *fp, GpImage **image);
@@ -26,5 +27,8 @@ gdip_save_png_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParamete
 GpStatus
 gdip_save_png_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
                                         GpImage *image, GDIPCONST EncoderParameters *params);
+
+ImageCodecInfo *
+gdip_getcodecinfo_png ();                                        
 
 #endif /* _PNGCODEC_H */

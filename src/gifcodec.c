@@ -20,6 +20,36 @@
 
 #include <gif_lib.h>
 
+
+/* Codecinfo related data*/
+static ImageCodecInfo gif_codec;
+static const WCHAR gif_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'G', 'I', 'F', ' ', 'C', 
+        'o', 'd', 'e', 'c',   0}; /* Built-in GIF Codec */
+static const WCHAR gif_extension[] = {'*', '.', 'G', 'I', 'F',0}; /* *.GIF */
+static const WCHAR gif_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'g', 'i', 'f', 0}; /* image/gif */
+static const WCHAR gif_format[] = {'G', 'I', 'F', 0}; /* GIF */
+
+
+ImageCodecInfo *
+gdip_getcodecinfo_gif ()
+{                        
+        gif_codec.Clsid = (CLSID) { 0x557cf402, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        gif_codec.FormatID = (CLSID) { 0xb96b3cb0, 0x0728, 0x11d3, { 0x9d, 0x7b, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+        gif_codec.CodecName = (const WCHAR*) gif_codecname;
+        gif_codec.DllName = NULL;
+        gif_codec.FormatDescription = (const WCHAR*) gif_format;
+        gif_codec.FilenameExtension = (const WCHAR*) gif_extension;
+        gif_codec.MimeType = (const WCHAR*) gif_mimetype;
+        gif_codec.Flags = Encoder | Decoder | SupportBitmap | Builtin;
+        gif_codec.Version = 1;
+        gif_codec.SigCount = 0;
+        gif_codec.SigSize = 0;
+        gif_codec.SigPattern = 0;
+        gif_codec.SigMask = 0;
+
+        return &gif_codec;
+}
+
 GpStatus 
 gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
 {
@@ -135,6 +165,12 @@ gdip_save_gif_image_to_file (FILE *fp, GpImage *image)
 
 /* No libgif */
 
+ImageCodecInfo *
+gdip_getcodecinfo_gif ()
+{
+        return NULL;
+}
+
 GpStatus 
 gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
 {
@@ -147,5 +183,6 @@ gdip_save_gif_image_to_file (FILE *fp, GpImage *image)
 {
     return NotImplemented;
 }
+
 
 #endif
