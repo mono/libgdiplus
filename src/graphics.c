@@ -168,10 +168,6 @@ make_arc (GpGraphics *graphics, float x, float y, float width,
         double cos_alpha = cos (alpha);
         double cos_beta = cos (beta);
 
-        /* just make an ellipse if we're going a full 2 PI (360 degrees) */
-        if (delta >= 2 * PI)
-                return make_ellipse (graphics, x, y, width, height);
-
         /* move to starting point */
         cairo_move_to (graphics->ct,
                        cx + rx * cos_alpha, 
@@ -208,6 +204,10 @@ make_pie (GpGraphics *graphics, float x, float y,
 
         printf ("Center: (%f, %f)\n", cx, cy);
 
+        /* just make an ellipse if we're going a full 2 PI (360 degrees) */
+        if (sweepAngle >= 360)
+                return make_ellipse (graphics, x, y, width, height);
+
         /* move to center */
         cairo_move_to (graphics->ct, cx, cy);
         
@@ -242,8 +242,6 @@ make_pie (GpGraphics *graphics, float x, float y,
         printf ("Drawing line from (%f, %f) to (%f, %f)\n",
                         current_x, current_y,
                         cx, cy);
-
-        cairo_close_path (graphics->ct);
 }
 
 static GpPointF *
@@ -447,7 +445,11 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
 
         gdip_pen_setup (graphics, pen);
 
-        if (sweepAngle < 180)
+        /* just make an ellipse if we're going a full 360 degrees */                
+        if (sweepAngle >= 360)
+                make_ellipse (graphics, x, y, width, height);
+
+        else if (sweepAngle < 180)
                 make_arc (graphics, x, y, width, height, startAngle, endAngle);
 
         else {
