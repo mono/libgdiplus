@@ -982,6 +982,7 @@ void *GdipAlloc (int size);
 void GdipFree (void *ptr);
 
 /* Utility*/
+int fcmp (double x1, double x2, double epsilon);
 float gdip_get_display_dpi();
 void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg);
 int gdpi_utf8_to_glyphs (cairo_ft_font_t* font,	 const unsigned char* utf8, double	x0,

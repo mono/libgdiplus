@@ -64,21 +64,26 @@ int_to_float (const GpPoint *pts, int count)
         return p;
 }
 
-/* TODO: Do we need to use some epsilon delta for comparison? */
 static void
 append (GpPath *path, float x, float y, GpPathPointType type)
 {
         byte t = (byte) type;
         GpPointF pt;
+        int count;
+
+        GdipGetPointCount (path, &count);
         pt.X = x;
         pt.Y = y;
 
-        GpPointF current;
-        GdipGetPathLastPoint (path, &current); 
-
         /* if we're adding a Start and we're already at pt, then drop it  */
-        if (type == PathPointTypeStart && x == current.X && y == current.Y)
-                return;
+        if (type == PathPointTypeStart && count > 0) {
+                GpPointF current;
+                GdipGetPathLastPoint (path, &current);
+
+                if ((fcmp (x, current.X, FLT_EPSILON) == 0)
+                        && (fcmp (y, current.Y, FLT_EPSILON) == 0))
+                                return;
+        }
 
         g_array_append_val (path->points, pt);
         g_byte_array_append (path->types, &t, 1);
