@@ -1,5 +1,10 @@
 2005-01-26  Geoff Norton  <gnorton@customerdna.com>
 
+	* gifcodec.c: Use set_pixel_bgra so that big endian machines can
+	load gif and have them look right.
+
+2005-01-26  Geoff Norton  <gnorton@customerdna.com>
+
 	* jpgcodec.c: Use set_pixel_bgra so that big endian machines can
 	load jpgs and have them look right.
 

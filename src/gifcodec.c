@@ -82,6 +82,12 @@ gdip_getcodecinfo_gif ()
 
 /* Read callback function for the gif libbrary*/
 static int 
+gdip_gif_fileinputfunc (GifFileType *gif, GifByteType *data, int len) 
+{
+	return fread (data, 1, len, (FILE*) gif->UserData);
+}
+
+static int 
 gdip_gif_inputfunc (GifFileType *gif, GifByteType *data, int len) 
 {
 	int read = 0;	
@@ -137,7 +143,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	GifImageDesc imgDesc;
 
 	if (from_file) 
-		gif = DGifOpenFileHandle (fileno ((FILE*)stream));
+		gif = DGifOpen(stream, &gdip_gif_fileinputfunc);
 	else 		
 		gif = DGifOpen (stream, &gdip_gif_inputfunc);
 	
@@ -280,19 +286,13 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		for (j = 0; j < pixelLength; j++) {
 			guchar pix = *readptr++;
 			if (localPalObj) {
-				*writeptr++ = localPalObj->Colors[pix].Blue;
-				*writeptr++ = localPalObj->Colors[pix].Green;
-				*writeptr++ = localPalObj->Colors[pix].Red;
+				set_pixel_bgra(writeptr, 0, localPalObj->Colors[pix].Blue, localPalObj->Colors[pix].Green, localPalObj->Colors[pix].Red, 0xff);
 			} else if (pal) {
-				*writeptr++ = pal->Colors[pix].Blue;
-				*writeptr++ = pal->Colors[pix].Green;
-				*writeptr++ = pal->Colors[pix].Red;
+				set_pixel_bgra(writeptr, 0, pal->Colors[pix].Blue, pal->Colors[pix].Green, pal->Colors[pix].Red, 0xff);
 			} else {
-				*writeptr++ = pix;
-				*writeptr++ = pix;
-				*writeptr++ = pix;
+				set_pixel_bgra(writeptr, 0, pix, pix, pix, 0xff);
 			}
-			*writeptr++ = 255; /* A */
+			writeptr += 4;
 		}
 
 		data.Scan0 = pixels;
