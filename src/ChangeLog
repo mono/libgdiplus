@@ -1,3 +1,8 @@
+2005-02-16  Peter Bartok  <pbartok@novell.com>
+
+	* bitmap.c (gdip_bitmap_clone_data_rect): Patch suggested by 
+	  Scott Mohekey, preventing use of uninitialized variable
+
 2005-02-16  Miguel de Icaza  <miguel@novell.com>
 
 	* bitmap.c: Handle the case where GdipAlloc returns NULL,

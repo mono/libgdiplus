@@ -353,12 +353,15 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 
 	
 	if (destData->Scan0 == NULL) {
-		GpBitmap *data = GdipAlloc (destData->Stride * destRect->Height);
+		GpBitmap *data;
 
-		if (data == NULL)
-			return OutOfMemory;
-		
 		destData->Stride = (((( destRect->Width * dest_components * dest_deph) /8)  + 3) & ~3);
+
+		data = GdipAlloc (destData->Stride * destRect->Height);
+		if (data == NULL) {
+			return OutOfMemory;
+		}
+		
 		destData->Scan0 = data;
 		destData->Width = destRect->Width;
 		destData->Height = destRect->Height;
