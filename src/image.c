@@ -132,15 +132,23 @@ GdipDisposeImage (GpImage *image)
 					GdipFree (data [j].Scan0);
 					data [j].Scan0 = NULL;
 				}
+				if ((data [j].ByteCount) > 0 && (data [j].Bytes != NULL)){
+					GdipFree (data [j].Bytes);
+					data [j].ByteCount = 0;
+					data [j].Bytes = NULL;
+				}
+
 			}
+			GdipFree (image->frameDimensionList->frames);
 		}
 		GdipFree (image->frameDimensionList);
 	}
 
 	switch (image->type){
 		case imageBitmap:
-			if (((GpBitmap *) image)->data.Scan0)
-				gdip_bitmap_dispose ((GpBitmap *) image);			
+			/*Nothing to be done here... We have already
+			cleaned the memory while looping in FrameDimension List
+			and hence we dont need to do anything in gdip_bitmap_dispose()*/			
 			break;
 		case imageMetafile:
                 	break;

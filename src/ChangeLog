@@ -1,5 +1,9 @@
 2004-07-26  Sanjay Gupta <gsanjay@novell.com>
 
+	* image.c: Some memory management.
+
+2004-07-26  Sanjay Gupta <gsanjay@novell.com>
+
 	* bitmap.c: Initialization of data members in gdip_bitmap_init(). 
 	* gdip.h: Corrected casing in BitmapData structure.
 	* gifcodec.c: Casing changes, because of change in gdip.h.
