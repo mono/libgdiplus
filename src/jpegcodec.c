@@ -314,6 +314,16 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
     img->image.graphics = 0;
     img->image.width = cinfo.image_width;
     img->image.height = cinfo.image_height;
+    if (cinfo.density_unit == 1) { /* dpi */
+        img->image.horizontalResolution = cinfo.X_density;
+        img->image.verticalResolution = cinfo.Y_density;
+    } else if (cinfo.density_unit == 2) { /* dots/cm */
+        img->image.horizontalResolution = cinfo.X_density * 2.54;
+        img->image.verticalResolution = cinfo.Y_density * 2.54;
+    } else { /* unknown density */
+        img->image.horizontalResolution = 0;
+        img->image.verticalResolution = 0;
+    }
 
     if (cinfo.num_components == 1)
         img->image.pixFormat = Format8bppIndexed;
@@ -473,8 +483,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
     img->image.surface = cairo_surface_create_for_image (destbuf, img->cairo_format,
                                                    img->image.width, img->image.height,
                                                    stride);
-    img->image.horizontalResolution = 0;
-    img->image.verticalResolution = 0;
+
     /* win32 returns this as PartiallyScalable and ColorSpaceYCBCR; we
      * just return it as RGB (or Grayscale).
      */
