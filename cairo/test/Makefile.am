@@ -37,7 +37,7 @@ check_PROGRAMS = $(TESTS)
 # not be the most portable approach, but it is pragmatic and I'm
 # willing to do something cleaner as soon as it causes someone a
 # problem.
-INCLUDES = -D_GNU_SOURCE -I$(srcdir) $(CAIRO_CFLAGS) -I$(srcdir)/../src
+INCLUDES = -D_GNU_SOURCE -I$(srcdir) $(CAIRO_CFLAGS) -I../src -I$(srcdir)/../src
 
 AM_LDFLAGS = $(CAIRO_LIBS) ../src/libcairo.la
 

@@ -1,3 +1,7 @@
+2005-03-22  Raja R Harinath  <rharinath@novell.com>
+
+	* test/Makefile.am (INCLUDES): Work with srcdir != builddir.
+
 2005-01-26  Peter Bartok  <pbartok@novell.com>
 
 	* configure.in: Set default for pdb backend to disabled, to
