@@ -257,10 +257,11 @@ GdipCreateFromHDC (int hDC, GpGraphics **graphics)
 	
 	/* printf ("GdipCreateFromHDC. in %d, DC %p\n", hDC, dc); */
 	if (dc == 0) return NotImplemented;
-	
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
 	*graphics = gdip_graphics_new ();
-	X11DRV_ExtEscape_pfn(dc->physDev, X11DRV_ESCAPE, sizeof(drvCommand), &drvCommand, sizeof(drawable), &drawable);
-	cairo_set_target_drawable ( (*graphics)->ct, GDIP_display, drawable);
+	X11DRV_ExtEscape_pfn (dc->physDev, X11DRV_ESCAPE, sizeof(drvCommand), &drvCommand, sizeof(drawable), &drawable);
+	cairo_set_target_drawable ((*graphics)->ct, GDIP_display, drawable);
 	_release_hdc (hDC);
 	(*graphics)->hdc = (void*)hDC;
 	(*graphics)->type = gtX11Drawable;
@@ -269,41 +270,40 @@ GdipCreateFromHDC (int hDC, GpGraphics **graphics)
 }
 
 GpStatus
-GdipCreateFromHWND(void *hwnd, GpGraphics **graphics)
+GdipCreateFromHWND (void *hwnd, GpGraphics **graphics)
 {
 	DC		*dc;
 	void		*hdc;
 	Drawable	drawable;
 	unsigned long	drvCommand=X11DRV_GET_DRAWABLE;
 
-	if (hwnd==0) {
-		return(InvalidParameter);
-	}
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (hwnd != NULL, InvalidParameter);
 
 	/* Get the a HDC for the hwnd */
-	hdc=GetDC_pfn(hwnd);
+	hdc=GetDC_pfn (hwnd);
 	if (hdc==0) {
-		return(NotImplemented);
+		return NotImplemented;
 	}
 
-	*graphics=gdip_graphics_new();
+	*graphics=gdip_graphics_new ();
 
 	/* Figure out the drawable */
-	dc=_get_DC_by_HDC((int)hdc);
+	dc=_get_DC_by_HDC ((int)hdc);
 	if (dc==0) {
-		return(Win32Error);
+		return Win32Error;
 	}
-	X11DRV_ExtEscape_pfn(dc->physDev, X11DRV_ESCAPE, sizeof(drvCommand), &drvCommand, sizeof(drawable), &drawable);
-	cairo_set_target_drawable ( (*graphics)->ct, GDIP_display, drawable);
+	X11DRV_ExtEscape_pfn (dc->physDev, X11DRV_ESCAPE, sizeof(drvCommand), &drvCommand, sizeof(drawable), &drawable);
+	cairo_set_target_drawable ((*graphics)->ct, GDIP_display, drawable);
 	(*graphics)->type = gtX11Drawable;
 
 	/* Release the Wine object lock */
-	_release_hdc((int)hdc);	
+	_release_hdc ((int)hdc);	
 
 	/* Release our HDC */
-	ReleaseDC_pfn(hwnd, hdc);
+	ReleaseDC_pfn (hwnd, hdc);
 
-	return(Ok);
+	return Ok;
 }
 
 GpStatus
@@ -322,6 +322,8 @@ GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 GpStatus 
 GdipDeleteGraphics (GpGraphics *graphics)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
 	/* FIXME: attention to surface (image, etc.) */
 	/* printf ("GdipDeleteGraphics. graphics %p\n", graphics); */
 	cairo_matrix_destroy (graphics->copy_of_ctm);
@@ -333,6 +335,8 @@ GdipDeleteGraphics (GpGraphics *graphics)
 GpStatus 
 GdipGetDC (GpGraphics *graphics, int *hDC)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
 	if (graphics->hdc == 0) {
 		if (graphics->image != 0) {
 			/* Create DC */
@@ -349,6 +353,8 @@ GdipGetDC (GpGraphics *graphics, int *hDC)
 GpStatus 
 GdipReleaseDC (GpGraphics *graphics, int hDC)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
 	if (graphics->hdc != (void *)hDC) return InvalidParameter;
 	if (graphics->hdc_busy_count > 0) {
 		--graphics->hdc_busy_count;
@@ -370,6 +376,8 @@ int current_stack_pos = 0;
 GpStatus 
 GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
 	if (graphicsState < MAX_GRAPHICS_STATE_STACK) {
 		cairo_matrix_copy (graphics->copy_of_ctm, saved_stack[graphicsState].matrix);
 		cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
@@ -384,6 +392,9 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 GpStatus 
 GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (state != NULL, InvalidParameter);
+
 	if (current_stack_pos < MAX_GRAPHICS_STATE_STACK) {
 		saved_stack[current_stack_pos].matrix = cairo_matrix_create ();
 		cairo_matrix_copy (saved_stack[current_stack_pos].matrix, graphics->copy_of_ctm);
@@ -399,19 +410,19 @@ GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 GpStatus
 GdipResetWorldTransform (GpGraphics *graphics)
 {
-        GpStatus s = cairo_matrix_set_identity (graphics->copy_of_ctm);
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-        if (s != Ok)
-                return s;
-        else {
-                cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-                return Ok;
-        }
+	cairo_identity_matrix (graphics->ct);
+
+	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus
 GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+
         *(graphics->copy_of_ctm) = *(matrix);
         cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
         return Ok;
@@ -420,6 +431,9 @@ GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 GpStatus 
 GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+
         cairo_current_matrix (graphics->ct, matrix);
         return Ok;
 }
@@ -427,7 +441,11 @@ GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 GpStatus
 GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrder order)
 {
-        Status s = GdipMultiplyMatrix (graphics->copy_of_ctm, matrix, order);
+        Status s;
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
+	s = GdipMultiplyMatrix (graphics->copy_of_ctm, matrix, order);
         
         if (s != Ok)
                 return s;
@@ -440,7 +458,11 @@ GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrde
 GpStatus 
 GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order)
 {
-	GpStatus s = GdipRotateMatrix (graphics->copy_of_ctm, angle, order);
+	GpStatus s;
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
+	s = GdipRotateMatrix (graphics->copy_of_ctm, angle, order);
 	
         if (s != Ok)
                 return s;
@@ -453,7 +475,11 @@ GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order
 GpStatus
 GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder order)
 {
-        GpStatus s = GdipScaleMatrix (graphics->copy_of_ctm, sx, sy, order);
+        GpStatus s;
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
+	s = GdipScaleMatrix (graphics->copy_of_ctm, sx, sy, order);
 
         if (s != Ok)
                 return s;
@@ -466,7 +492,11 @@ GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder
 GpStatus 
 GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixOrder order)
 {
-        GpStatus s = GdipTranslateMatrix (graphics->copy_of_ctm, dx, dy, order);
+        GpStatus s;
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
+	s = GdipTranslateMatrix (graphics->copy_of_ctm, dx, dy, order);
 
         if (s != Ok) 
                 return s;
@@ -482,6 +512,9 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
 	     float startAngle, float sweepAngle)
 {
         float endAngle = startAngle + sweepAngle;
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
         
 	cairo_save (graphics->ct);
 
@@ -521,6 +554,9 @@ GdipDrawBezier (GpGraphics *graphics, GpPen *pen,
                 float x1, float y1, float x2, float y2,
                 float x3, float y3, float x4, float y4)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+
 	cairo_save (graphics->ct);
 
         gdip_pen_setup (graphics, pen);        
@@ -550,6 +586,10 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen,
         
         if (count == 0)
                 return Ok;
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (points != NULL, InvalidParameter);
 
 	cairo_save (graphics->ct);
 
@@ -582,6 +622,10 @@ GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen,
         if (count == 0)
                 return Ok;
 
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (points != NULL, InvalidParameter);
+
 	cairo_save (graphics->ct);
 
         gdip_pen_setup (graphics, pen);
@@ -608,6 +652,9 @@ GpStatus
 GdipDrawEllipse (GpGraphics *graphics, GpPen *pen, 
 		 float x, float y, float width, float height)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+
 	cairo_save (graphics->ct);
 
         gdip_pen_setup (graphics, pen);
@@ -631,6 +678,9 @@ GpStatus
 GdipDrawLine (GpGraphics *graphics, GpPen *pen,
 	      float x1, float y1, float x2, float y2)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+
 	cairo_save (graphics->ct);
 
 	gdip_pen_setup (graphics, pen);
@@ -654,19 +704,21 @@ GdipDrawLineI (GpGraphics *graphics, GpPen *pen,
 GpStatus 
 GdipDrawLines (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 {
-	GpStatus s;
-	int i, j;
+	int i;
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (points != NULL, InvalidParameter);
+	g_return_val_if_fail (count >= 2, InvalidParameter);
 
 	cairo_save (graphics->ct);
 
 	gdip_pen_setup (graphics, pen);
 
-	for (i = 0; i < count - 1; i++) {
-		j = i + 1;
-		cairo_move_to (graphics->ct, points [i].X, points [i].Y);
-		cairo_line_to (graphics->ct, points [j].X, points [j].Y);
-		cairo_stroke (graphics->ct);
-	}
+	cairo_move_to (graphics->ct, points [0].X, points [0].Y);
+	for (i = 1; i < count; i++)
+		cairo_line_to (graphics->ct, points [i].X, points [i].Y);
+	cairo_stroke (graphics->ct);
 
 	cairo_restore (graphics->ct);
 
@@ -676,19 +728,21 @@ GdipDrawLines (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 GpStatus 
 GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 {
-	GpStatus s;
-	int i, j;
+	int i;
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (points != NULL, InvalidParameter);
+	g_return_val_if_fail (count >= 2, InvalidParameter);
 
 	cairo_save (graphics->ct);
 
 	gdip_pen_setup (graphics, pen);
 
-	for (i = 0; i < count - 1; i++) {
-		j = i + 1;
-		cairo_move_to (graphics->ct, points [i].X, points [i].Y);
-		cairo_line_to (graphics->ct, points [j].X, points [j].Y);
-		cairo_stroke (graphics->ct);
-	}
+	cairo_move_to (graphics->ct, points [0].X, points [0].Y);
+	for (i = 1; i < count; i++)
+		cairo_line_to (graphics->ct, points [i].X, points [i].Y);
+	cairo_stroke (graphics->ct);
 
 	cairo_restore (graphics->ct);
 
@@ -743,6 +797,9 @@ GpStatus
 GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 {
 	GpStatus status;
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (path != NULL, InvalidParameter);
 	
 	cairo_save (graphics->ct);
 
@@ -761,6 +818,9 @@ GpStatus
 GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, 
 	     float width, float height, float startAngle, float sweepAngle)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+
         cairo_save (graphics->ct);
 
         gdip_pen_setup (graphics, pen);
@@ -784,6 +844,9 @@ GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y,
 GpStatus
 GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, float startAngle, float sweepAngle)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
         cairo_save (graphics->ct);
 
         gdip_brush_setup (graphics, brush);
@@ -808,6 +871,10 @@ GdipFillPieI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int
 GpStatus
 GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (points != NULL, InvalidParameter);
+
 	cairo_save (graphics->ct);
 
         gdip_pen_setup (graphics, pen);
@@ -823,6 +890,10 @@ GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 GpStatus
 GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (points != NULL, InvalidParameter);
+
 	cairo_save (graphics->ct);
 
         gdip_pen_setup (graphics, pen);
@@ -839,6 +910,9 @@ GpStatus
 GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
 		   float x, float y, float width, float height)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+
 	cairo_save (graphics->ct);
 
         gdip_pen_setup (graphics, pen);
@@ -856,6 +930,54 @@ GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen,
 		    int x, int y, int width, int height)
 {
         return GdipDrawRectangle (graphics, pen, x, y, width, height);
+}
+
+GpStatus
+GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count)
+{
+	GpStatus s;
+	int i;
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (rects != NULL, InvalidParameter);
+	g_return_val_if_fail (count > 0, InvalidParameter);
+
+	cairo_save (graphics->ct);
+
+	gdip_pen_setup (graphics, pen);
+
+	for (i = 0; i < count; i++)
+		cairo_rectangle (graphics->ct, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height);
+	cairo_stroke (graphics->ct);
+	
+	cairo_restore (graphics->ct);
+
+	return gdip_get_status (cairo_status (graphics->ct));
+}
+
+GpStatus
+GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GpRect *rects, int count)
+{
+	GpStatus s;
+	int i;
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (rects != NULL, InvalidParameter);
+	g_return_val_if_fail (count > 0, InvalidParameter);
+
+	cairo_save (graphics->ct);
+
+	gdip_pen_setup (graphics, pen);
+
+	for (i = 0; i < count; i++)
+		cairo_rectangle (graphics->ct, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height);
+	cairo_stroke (graphics->ct);
+	
+	cairo_restore (graphics->ct);
+
+	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 static void
@@ -915,7 +1037,11 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int co
         /* when tension is 0, draw straight lines */
         if (tension == 0)
                 return GdipDrawPolygon (graphics, pen, points, count);
-                        
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (points != NULL, InvalidParameter);
+
         cairo_save (graphics->ct);
 
         gdip_pen_setup (graphics, pen);
@@ -934,6 +1060,8 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int co
 GpStatus
 GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count, float tension)
 {
+	g_return_val_if_fail (points != NULL, InvalidParameter);
+
         GpPointF *pt = convert_points (points, count);
 
         GpStatus s = GdipDrawClosedCurve (graphics, pen, pt, count);
@@ -976,6 +1104,10 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
         if (tension == 0)
                 return GdipDrawLines (graphics, pen, points, count);
 
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (points != NULL, InvalidParameter);
+
         cairo_save (graphics->ct);
         
         gdip_pen_setup (graphics, pen);
@@ -994,6 +1126,8 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
 GpStatus
 GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, int offset, float numOfSegments, float tension)
 {
+	g_return_val_if_fail (points != NULL, InvalidParameter);
+
         GpPointF *pf = convert_points (points, count);
 
         GpStatus s = GdipDrawCurve3 (graphics, pen, pf, count, offset, numOfSegments, tension);
@@ -1010,6 +1144,9 @@ GpStatus
 GdipFillEllipse (GpGraphics *graphics, GpBrush *brush,
 		 float x, float y, float width, float height)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
 	cairo_save (graphics->ct);
 
         gdip_brush_setup (graphics, brush);
@@ -1032,6 +1169,9 @@ GpStatus
 GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, 
 		   float x, float y, float width, float height)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
 	cairo_save (graphics->ct);
 
 	gdip_brush_setup (graphics, brush);
@@ -1043,10 +1183,69 @@ GdipFillRectangle (GpGraphics *graphics, GpBrush *brush,
         return gdip_get_status (cairo_status (graphics->ct));
 }
 
+GpStatus 
+GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush, 
+		   int x, int y, int width, int height)
+{
+	return GdipFillRectangle (graphics, brush, x, y, width, height);
+}
+
+GpStatus 
+GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GpRectF *rects, int count)
+{
+	GpStatus s;
+	int i;
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	g_return_val_if_fail (rects != NULL, InvalidParameter);
+	g_return_val_if_fail (count > 0, InvalidParameter);
+
+	cairo_save (graphics->ct);
+
+	gdip_brush_setup (graphics, brush);
+
+	for (i = 0; i < count; i++)
+		cairo_rectangle (graphics->ct, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height);
+	cairo_fill (graphics->ct);
+	
+	cairo_restore (graphics->ct);
+
+	return gdip_get_status (cairo_status (graphics->ct));
+}
+
+GpStatus 
+GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GpRect *rects, int count)
+{
+	GpStatus s;
+	int i;
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	g_return_val_if_fail (rects != NULL, InvalidParameter);
+	g_return_val_if_fail (count > 0, InvalidParameter);
+
+	cairo_save (graphics->ct);
+
+	gdip_brush_setup (graphics, brush);
+
+	for (i = 0; i < count; i++)
+		cairo_rectangle (graphics->ct, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height);
+	cairo_fill (graphics->ct);
+	
+	cairo_restore (graphics->ct);
+
+	return gdip_get_status (cairo_status (graphics->ct));
+}
+
 GpStatus
 GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, 
 		 GpPointF *points, int count, GpFillMode fillMode)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	g_return_val_if_fail (points != NULL, InvalidParameter);
+
 	cairo_save (graphics->ct);
 
         gdip_brush_setup (graphics, brush);
@@ -1067,7 +1266,10 @@ GpStatus
 GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 {
 	GpStatus status;
-	
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	g_return_val_if_fail (path != NULL, InvalidParameter);
+
 	cairo_save (graphics->ct);
 
 	gdip_brush_setup (graphics, brush);
@@ -1087,6 +1289,10 @@ GpStatus
 GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, 
 		  GpPoint *points, int count, GpFillMode fillMode)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	g_return_val_if_fail (points != NULL, InvalidParameter);
+
 	cairo_save (graphics->ct);
 
         gdip_brush_setup (graphics, brush);
@@ -1136,6 +1342,10 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, in
         if (tension == 0)
                 return GdipFillPolygon2 (graphics, brush, points, count);
 
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	g_return_val_if_fail (points != NULL, InvalidParameter);
+
         cairo_save (graphics->ct);
 
         gdip_brush_setup (graphics, brush);
@@ -1154,6 +1364,8 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, in
 GpStatus
 GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count, float tension)
 {
+	g_return_val_if_fail (points != NULL, InvalidParameter);
+
         GpPointF *pt  = convert_points (points, count);
 
         GpStatus s = GdipFillClosedCurve2 (graphics, brush, pt, count, tension);
@@ -1167,7 +1379,7 @@ GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, in
 #undef DRAWSTRING_DEBUG
 
 static int
-CalculateStringSize(GDIPCONST GpFont *gdiFont, const unsigned char *utf8, unsigned long StringDetailElements, GpStringDetailStruct *StringDetails)
+CalculateStringSize (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, unsigned long StringDetailElements, GpStringDetailStruct *StringDetails)
 {
 	cairo_matrix_t		SavedMatrix;
 	cairo_ft_font_t		*Font;
@@ -1184,10 +1396,10 @@ CalculateStringSize(GDIPCONST GpFont *gdiFont, const unsigned char *utf8, unsign
 	Font=(cairo_ft_font_t *)gdiFont->cairofnt;
 
 	/* Generate Glyhps for string utf8 */
-	cairo_matrix_copy(&SavedMatrix, (const cairo_matrix_t *)&Font->base.matrix);
-	cairo_matrix_scale(&Font->base.matrix, gdiFont->sizeInPixels, gdiFont->sizeInPixels);
-	gdpi_utf8_to_glyphs(Font, utf8, 0.0, 0.0, &Glyphs, &NumOfGlyphs);
-	cairo_matrix_copy(&Font->base.matrix, (const cairo_matrix_t *)&SavedMatrix);
+	cairo_matrix_copy (&SavedMatrix, (const cairo_matrix_t *)&Font->base.matrix);
+	cairo_matrix_scale (&Font->base.matrix, gdiFont->sizeInPixels, gdiFont->sizeInPixels);
+	gdpi_utf8_to_glyphs (Font, utf8, 0.0, 0.0, &Glyphs, &NumOfGlyphs);
+	cairo_matrix_copy (&Font->base.matrix, (const cairo_matrix_t *)&SavedMatrix);
 
 	/* FIXME - This check and the StringDetailElements argument can be removed after verification of Glyph:WChar=1:1 */
 	if (StringDetailElements!=NumOfGlyphs) {
@@ -1214,11 +1426,11 @@ CalculateStringSize(GDIPCONST GpFont *gdiFont, const unsigned char *utf8, unsign
 #ifdef DRAWSTRING_DEBUG
 	printf("CalculateStringSize: string >%s< translated into %d glyphs with total width of %f pixels\n", utf8, NumOfGlyphs, TotalWidth);
 #endif
-	return(NumOfGlyphs);
+	return NumOfGlyphs;
 }
 
 GpStatus
-MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush, RectF *boundingBox, int *codepointsFitted, int *linesFilled, int draw)
+MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush, RectF *boundingBox, int *codepointsFitted, int *linesFilled, int draw)
 {
 	unsigned char		*String;		/* Holds the UTF8 version of our sanitized string */
 	WCHAR			*CleanString;		/* Holds the unicode version of our sanitized string */
@@ -1261,7 +1473,7 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 
 	/* Check and set any defaults */
 	if (!format) {
-		GdipStringFormatGetGenericDefault((GpStringFormat **)&fmt);
+		GdipStringFormatGetGenericDefault ((GpStringFormat **)&fmt);
 	} else {
 		fmt=(GpStringFormat *)format;
 	}
@@ -1270,32 +1482,32 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 
 	/* Prepare our various buffers and variables */
 	StringLen=length;
-	StringDetails=calloc(StringLen+1, sizeof(GpStringDetailStruct));
-	CleanString=malloc(sizeof(WCHAR)*(StringLen+1));
+	StringDetails=calloc (StringLen+1, sizeof(GpStringDetailStruct));
+	CleanString=malloc (sizeof(WCHAR)*(StringLen+1));
 
 	if (!CleanString || !StringDetails) {
 		if (CleanString) {
-			free(CleanString);
+			free (CleanString);
 		}
 		if (StringDetails) {
-			free(StringDetails);
+			free (StringDetails);
 		}
 		if (format!=fmt) {
-			GdipDeleteStringFormat(fmt);
+			GdipDeleteStringFormat (fmt);
 		}
-		return(OutOfMemory);
+		return OutOfMemory;
 	}
 
 	/*
 	   Get font size information; how expensive is the cairo stuff here? 
 	*/
-	cairo_save(graphics->ct);
-	cairo_set_font(graphics->ct, (cairo_font_t*) font->cairofnt);
-	cairo_matrix_copy(&SavedMatrix, (const cairo_matrix_t *)&font->cairofnt->base.matrix);
-	cairo_scale_font(graphics->ct, font->sizeInPixels);
-	cairo_current_font_extents(graphics->ct, &FontExtent);
-	cairo_matrix_copy(&font->cairofnt->base.matrix, (const cairo_matrix_t *)&SavedMatrix);
-	cairo_restore(graphics->ct);
+	cairo_save (graphics->ct);
+	cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);
+	cairo_matrix_copy (&SavedMatrix, (const cairo_matrix_t *)&font->cairofnt->base.matrix);
+	cairo_scale_font (graphics->ct, font->sizeInPixels);
+	cairo_current_font_extents (graphics->ct, &FontExtent);
+	cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&SavedMatrix);
+	cairo_restore (graphics->ct);
 	LineHeight=FontExtent.ascent;
 #ifdef DRAWSTRING_DEBUG
 	printf("Font extents: ascent:%d, descent: %d, height:%d, maxXadvance:%d, maxYadvance:%d\n", (int)FontExtent.ascent, (int)FontExtent.descent, (int)FontExtent.height, (int)FontExtent.max_x_advance, (int)FontExtent.max_y_advance);
@@ -1382,14 +1594,14 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 	}
 
 	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
-	String=g_utf16_to_utf8((const gunichar2 *)CleanString, (glong)StringLen, NULL, NULL, NULL);
+	String=g_utf16_to_utf8 ((const gunichar2 *)CleanString, (glong)StringLen, NULL, NULL, NULL);
 	if (!String) {
-		free(CleanString);
-		free(StringDetails);
+		free (CleanString);
+		free (StringDetails);
 		if (format!=fmt) {
-			GdipDeleteStringFormat(fmt);
+			GdipDeleteStringFormat (fmt);
 		}
-		return(OutOfMemory);
+		return OutOfMemory;
 	}
 
 #ifdef DRAWSTRING_DEBUG
@@ -1397,17 +1609,17 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 #endif
 
 	/* Generate size array */
-	if (CalculateStringSize(font, String, StringLen, StringDetails)==0) {
+	if (CalculateStringSize (font, String, StringLen, StringDetails)==0) {
 		// FIXME; pick right return code
 		g_free(String);
 		free(StringDetails);
 		free(CleanString);
 		if (format!=fmt) {
-			GdipDeleteStringFormat(fmt);
+			GdipDeleteStringFormat (fmt);
 		}
-		return(InvalidParameter);
+		return InvalidParameter;
 	}
-	g_free(String);
+	g_free (String);
 
 	CursorX=0;
 	CursorY=0;
@@ -1538,11 +1750,11 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 				/* Find end of line, index i is the first char no longer visible on the line */
 				EndOfLine=i;
 				if ((fmt->formatFlags & StringFormatFlagsNoWrap)==0) {
-					while(EndOfLine<StringLen && ((StringDetails[EndOfLine].Flags & STRING_DETAIL_LF)==0)) {
+					while (EndOfLine<StringLen && ((StringDetails[EndOfLine].Flags & STRING_DETAIL_LF)==0)) {
 						EndOfLine++;
 					}
 				} else {
-					while(EndOfLine<StringLen && ((StringDetails[EndOfLine].Flags & (STRING_DETAIL_LF | STRING_DETAIL_BREAK))==0)) {
+					while (EndOfLine<StringLen && ((StringDetails[EndOfLine].Flags & (STRING_DETAIL_LF | STRING_DETAIL_BREAK))==0)) {
 						EndOfLine++;
 					}
 					if (EndOfLine<StringLen) {
@@ -1595,7 +1807,7 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 
 					/* Find end of line, index i is the first char no longer visible on the line */
 					EndOfLine=i;
-					while(EndOfLine<StringLen && ((StringDetails[EndOfLine].Flags & (STRING_DETAIL_LF | STRING_DETAIL_BREAK))==0)) {
+					while (EndOfLine<StringLen && ((StringDetails[EndOfLine].Flags & (STRING_DETAIL_LF | STRING_DETAIL_BREAK))==0)) {
 						EndOfLine++;
 					}
 
@@ -1620,7 +1832,7 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 							LineWidth+=StringDetails[k].Width;
 							k--;
 						}
-						memcpy(&CleanString[j], &CleanString[k+1], sizeof(WCHAR)*(EndOfLine-k-1));
+						memcpy (&CleanString[j], &CleanString[k+1], sizeof(WCHAR)*(EndOfLine-k-1));
 
 						CurrentLineStart->LineLen+=EndOfLine-k-1;
 					} 
@@ -1756,30 +1968,30 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 	}
 
 	if (draw) {
-		cairo_save(graphics->ct);
+		cairo_save (graphics->ct);
 
 		/* Set our clipping rectangle */
 		if ((rc->Width!=0) && (rc->Height!=0) && ((fmt->formatFlags & StringFormatFlagsNoClip)==0)) {
 #ifdef DRAWSTRING_DEBUG
 			printf("Setting clipping rectangle (%d, %d %dx%d)\n", rc->X, rc->Y, rc->Width, rc->Height);
 #endif
-			cairo_init_clip(graphics->ct);
-			cairo_rectangle(graphics->ct, rc->X, rc->Y, rc->Width, rc->Height);
-			cairo_clip(graphics->ct);
-			cairo_new_path(graphics->ct);
+			cairo_init_clip (graphics->ct);
+			cairo_rectangle (graphics->ct, rc->X, rc->Y, rc->Width, rc->Height);
+			cairo_clip (graphics->ct);
+			cairo_new_path (graphics->ct);
 		}
 
 		/* Setup cairo */
 		/* Save the font matrix */
-		cairo_set_font(graphics->ct, (cairo_font_t*) font->cairofnt);
-		cairo_matrix_copy(&SavedMatrix, (const cairo_matrix_t *)&font->cairofnt->base.matrix);
+		cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);
+		cairo_matrix_copy (&SavedMatrix, (const cairo_matrix_t *)&font->cairofnt->base.matrix);
 
 		if (brush) {
-			gdip_brush_setup(graphics, (GpBrush *)brush);
+			gdip_brush_setup (graphics, (GpBrush *)brush);
 		} else {
-			cairo_set_rgb_color(graphics->ct, 0., 0., 0.);
+			cairo_set_rgb_color (graphics->ct, 0., 0., 0.);
 		}
-		cairo_scale_font(graphics->ct, font->sizeInPixels);
+		cairo_scale_font (graphics->ct, font->sizeInPixels);
 
 		for (i=0; i<StringLen; i++) {
 			if (StringDetails[i].Flags & STRING_DETAIL_LINESTART) {
@@ -1792,7 +2004,7 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 					continue;
 				}
 
-				String=g_utf16_to_utf8((const gunichar2 *)(CleanString+i), (glong)StringDetails[i].LineLen, NULL, NULL, NULL);
+				String=g_utf16_to_utf8 ((const gunichar2 *)(CleanString+i), (glong)StringDetails[i].LineLen, NULL, NULL, NULL);
 #ifdef DRAWSTRING_DEBUG
 				printf("Displaying line >%s<\n", String);
 #endif
@@ -1809,8 +2021,8 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 						case StringAlignmentCenter: CursorY=rc->Y+(rc->Height-MaxY)/2+StringDetails[i].PosY+LineHeight; break;
 						case StringAlignmentFar: CursorY=rc->Y+rc->Height-MaxY+StringDetails[i].PosY+LineHeight; break;
 					}
-					cairo_move_to(graphics->ct, CursorX, CursorY);
-					cairo_show_text(graphics->ct, String);
+					cairo_move_to (graphics->ct, CursorX, CursorY);
+					cairo_show_text (graphics->ct, String);
 				} else {
 					switch (AlignHorz) {
 						case StringAlignmentNear: CursorY=rc->Y; break;
@@ -1825,17 +2037,17 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 					}
 
 					/* Rotate text for vertical drawing */
-					cairo_save(graphics->ct);
-					cairo_move_to(graphics->ct, CursorX, CursorY);
-					cairo_rotate(graphics->ct, PI/2);
-					cairo_show_text(graphics->ct, String);
-					cairo_restore(graphics->ct);
+					cairo_save (graphics->ct);
+					cairo_move_to (graphics->ct, CursorX, CursorY);
+					cairo_rotate (graphics->ct, PI/2);
+					cairo_show_text (graphics->ct, String);
+					cairo_restore (graphics->ct);
 				}
 
 #ifdef DRAWSTRING_DEBUG
 				printf("Drawing %d chars at %d x %d (width=%f pixels)\n", StringDetails[i].LineLen, (int)CursorX, (int)CursorY, StringDetails[i+StringDetails[i].LineLen-1].PosX);
 #endif
-				g_free(String);
+				g_free (String);
 
 				if (font->style & (FontStyleUnderline | FontStyleStrikeout)) {
 					/* Calculate the width of the line */
@@ -1843,17 +2055,17 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 
 					if (font->style & FontStyleStrikeout) {
 						if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
-							GdipFillRectangle(graphics, brush, CursorX, CursorY+FontExtent.descent, j, 1);
+							GdipFillRectangle (graphics, brush, CursorX, CursorY+FontExtent.descent, j, 1);
 						} else {
-							GdipFillRectangle(graphics, brush, CursorX-FontExtent.descent, CursorY, 1, j);
+							GdipFillRectangle (graphics, brush, CursorX-FontExtent.descent, CursorY, 1, j);
 						}
 					}
 
 					if (font->style & FontStyleUnderline) {
 						if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
-							GdipFillRectangle(graphics, brush, CursorX, CursorY-FontExtent.descent/2, j, 1);
+							GdipFillRectangle (graphics, brush, CursorX, CursorY-FontExtent.descent/2, j, 1);
 						} else {
-							GdipFillRectangle(graphics, brush, CursorX+FontExtent.descent/2, CursorY, 1, j);
+							GdipFillRectangle (graphics, brush, CursorX+FontExtent.descent/2, CursorY, 1, j);
 						}
 					}
 				}
@@ -1897,11 +2109,11 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 				if (CurrentDetail->Flags & STRING_DETAIL_HOTKEY) {
 					if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
 						CursorX+=CurrentDetail->PosX;
-						GdipFillRectangle(graphics, brush, CursorX, CursorY-FontExtent.descent/2+1, CurrentDetail->Width, 1);
+						GdipFillRectangle (graphics, brush, CursorX, CursorY-FontExtent.descent/2+1, CurrentDetail->Width, 1);
 						CursorX-=CurrentDetail->PosX;
 					} else {
 						CursorY+=CurrentDetail->PosX;
-						GdipFillRectangle(graphics, brush, CursorX+FontExtent.descent/2-1, CursorY, 1, CurrentDetail->Width);
+						GdipFillRectangle (graphics, brush, CursorX+FontExtent.descent/2-1, CursorY, 1, CurrentDetail->Width);
 						CursorY-=CurrentDetail->PosX;
 					}
 				}
@@ -1909,64 +2121,66 @@ MeasureOrDrawString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int le
 			}
 		}
 
-		cairo_matrix_copy(&font->cairofnt->base.matrix, (const cairo_matrix_t *)&SavedMatrix);
-		cairo_restore(graphics->ct);
+		cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&SavedMatrix);
+		cairo_restore (graphics->ct);
 	}
 
 Done:
 	/* We need to remove the clip region */
-	cairo_init_clip(graphics->ct);
+	cairo_init_clip (graphics->ct);
 
 	/* Cleanup */
-	free(CleanString);
-	free(StringDetails);
+	free (CleanString);
+	free (StringDetails);
 
-	if (format!=fmt) {
-		GdipDeleteStringFormat(fmt);
+	if (format != fmt) {
+		GdipDeleteStringFormat (fmt);
 	}
 
-	return(Ok);
+	return Ok;
 }
 
 GpStatus
 GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, GDIPCONST RectF *rc, GDIPCONST GpStringFormat *fmt, GpBrush *brush)
 {
-	if (length==0) {
-		return(Ok);
+	if (length == 0) {
+		return Ok;
 	}
-	return(MeasureOrDrawString(graphics, stringUnicode, length, font, rc, fmt, brush, NULL, NULL, NULL, 1));
+	return (MeasureOrDrawString (graphics, stringUnicode, length, font, rc, fmt, brush, NULL, NULL, NULL, 1));
 }
 
 GpStatus
 GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, GDIPCONST RectF *rc, GDIPCONST GpStringFormat *fmt,  RectF *boundingBox, int *codepointsFitted, int *linesFilled)
 {
-	if (length==0) {
+	if (length == 0) {
 		if (boundingBox) {
 			if (rc) {
-				boundingBox->X=rc->X;
-				boundingBox->Y=rc->Y;
+				boundingBox->X = rc->X;
+				boundingBox->Y = rc->Y;
 			} else {
-				boundingBox->X=0;
-				boundingBox->Y=0;
+				boundingBox->X = 0;
+				boundingBox->Y = 0;
 			}
-			boundingBox->Width=0;
-			boundingBox->Height=0;
+			boundingBox->Width = 0;
+			boundingBox->Height = 0;
 		}
 		if (linesFilled) {
-			*linesFilled=0;
+			*linesFilled = 0;
 		}
 		if (codepointsFitted) {
-			*codepointsFitted=0;
+			*codepointsFitted = 0;
 		}
-		return(Ok);
+		return Ok;
 	}
-	return(MeasureOrDrawString(graphics, stringUnicode, length, font, rc, fmt, NULL, boundingBox, codepointsFitted, linesFilled, 0));
+	return (MeasureOrDrawString (graphics, stringUnicode, length, font, rc, fmt, NULL, boundingBox, codepointsFitted, linesFilled, 0));
 }
 
 
 GpStatus 
 GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
         cairo_move_to (graphics->ct, x, y);
         cairo_close_path (graphics->ct);
 
@@ -1975,7 +2189,7 @@ GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y)
 
 
 GpStatus
-GdipFillRegion(GpGraphics *graphics, GpBrush *brush, GpRegion *region)
+GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 {
         int i;
         GpRectF *rect;
@@ -2005,6 +2219,10 @@ GpStatus
 GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
 {
         double cx, cy;
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (x != NULL, InvalidParameter);
+	g_return_val_if_fail (y != NULL, InvalidParameter);
+
         cairo_current_point (graphics->ct, &cx, &cy);
 
         *x = (int) cx;
@@ -2016,6 +2234,9 @@ GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
 GpStatus 
 GdipGetDpiX (GpGraphics *graphics, float *dpi)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (dpi != NULL, InvalidParameter);
+
 	*dpi = gdip_get_display_dpi ();
         return Ok;
 }
@@ -2023,6 +2244,9 @@ GdipGetDpiX (GpGraphics *graphics, float *dpi)
 GpStatus 
 GdipGetDpiY (GpGraphics *graphics, float *dpi)
 {
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (dpi != NULL, InvalidParameter);
+
 	*dpi = gdip_get_display_dpi ();
         return Ok;
 }
@@ -2056,303 +2280,320 @@ GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 }
 
 GpStatus
-GdipSetInterpolationMode(GpGraphics *graphics, InterpolationMode interpolationMode)
+GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode interpolationMode)
 {
 	/* We accept any, but only do HighQuality */
-	return(Ok);
+	return Ok;
 }
 
 
 GpStatus
-GdipGetInterpolationMode(GpGraphics *graphics, InterpolationMode *imode)
+GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *imode)
 {
-    g_return_val_if_fail (imode != NULL, InvalidParameter);
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (imode != NULL, InvalidParameter);
 
-    *imode = InterpolationModeHighQuality;
-    return Ok;
+	*imode = InterpolationModeHighQuality;
+	return Ok;
 }
 
 GpStatus
-GdipSetTextRenderingHint(GpGraphics *graphics, TextRenderingHint mode)
+GdipSetTextRenderingHint (GpGraphics *graphics, TextRenderingHint mode)
 {
-    return Ok;
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
+	return Ok;
 }
 
 GpStatus
 GdipGetTextRenderingHint(GpGraphics *graphics, TextRenderingHint *mode)
 {
-    g_return_val_if_fail (mode != NULL, InvalidParameter);
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (mode != NULL, InvalidParameter);
 
-    *mode = TextRenderingHintSystemDefault;
-    return Ok;
+	*mode = TextRenderingHintSystemDefault;
+	return Ok;
 }
 
 GpStatus
-GdipSetPixelOffsetMode(GpGraphics *graphics, PixelOffsetMode pixelOffsetMode)
+GdipSetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode pixelOffsetMode)
 {
-    g_return_val_if_fail (pixelOffsetMode != PixelOffsetModeInvalid, InvalidParameter);
-
-    return Ok;
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pixelOffsetMode != PixelOffsetModeInvalid, InvalidParameter);
+	
+	return Ok;
 }
 
 GpStatus
-GdipGetPixelOffsetMode(GpGraphics *graphics, PixelOffsetMode *pixelOffsetMode)
+GdipGetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode *pixelOffsetMode)
 {
-    g_return_val_if_fail (pixelOffsetMode != NULL, InvalidParameter);
-
-    *pixelOffsetMode = PixelOffsetModeDefault;
-    return Ok;
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (pixelOffsetMode != NULL, InvalidParameter);
+	
+	*pixelOffsetMode = PixelOffsetModeDefault;
+	return Ok;
 }
 
 GpStatus
-GdipSetTextContrast(GpGraphics *graphics, UINT contrast)
+GdipSetTextContrast (GpGraphics *graphics, UINT contrast)
 {
-    g_return_val_if_fail (contrast >= 0 && contrast <= 14, InvalidParameter);
-    return Ok;
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (contrast >= 0 && contrast <= 14, InvalidParameter);
+
+	return Ok;
 }
 
 GpStatus
-GdipGetTextContrast(GpGraphics *graphics, UINT *contrast)
+GdipGetTextContrast (GpGraphics *graphics, UINT *contrast)
 {
-    *contrast = 4;              /* default */
-    return Ok;
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (contrast != NULL, InvalidParameter);
+
+	*contrast = 4;              /* default */
+	return Ok;
 }
 
 GpStatus
-GdipSetSmoothingMode(GpGraphics *graphics, SmoothingMode mode)
+GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 {
-    g_return_val_if_fail (mode != SmoothingModeInvalid, InvalidParameter);
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (mode != SmoothingModeInvalid, InvalidParameter);
 
-    return Ok;
+	return Ok;
 }
 
 GpStatus
-GdipGetSmoothingMode(GpGraphics *graphics, SmoothingMode *mode)
+GdipGetSmoothingMode (GpGraphics *graphics, SmoothingMode *mode)
 {
-    g_return_val_if_fail (mode != NULL, InvalidParameter);
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (mode != NULL, InvalidParameter);
 
-    *mode = SmoothingModeDefault;
-    return Ok;
+	*mode = SmoothingModeDefault;
+	return Ok;
 }
 
 GpStatus
-GdipBeginContainer(GpGraphics *graphics, GDIPCONST GpRectF* dstrect, GDIPCONST GpRectF *srcrect, GpUnit unit, GpGraphicsContainer *state)
+GdipBeginContainer (GpGraphics *graphics, GDIPCONST GpRectF* dstrect, GDIPCONST GpRectF *srcrect, GpUnit unit, GpGraphicsContainer *state)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipBeginContainer2(GpGraphics *graphics, GpGraphicsContainer* state)
+GdipBeginContainer2 (GpGraphics *graphics, GpGraphicsContainer* state)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipBeginContainerI(GpGraphics *graphics, GDIPCONST GpRect* dstrect, GDIPCONST GpRect *srcrect, GpUnit unit, GpGraphicsContainer *state)
+GdipBeginContainerI (GpGraphics *graphics, GDIPCONST GpRect* dstrect, GDIPCONST GpRect *srcrect, GpUnit unit, GpGraphicsContainer *state)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipEndContainer(GpGraphics *graphics, GpGraphicsContainer state)
+GdipEndContainer (GpGraphics *graphics, GpGraphicsContainer state)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipFlush(GpGraphics *graphics, GpFlushIntention intention)
+GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipSetClipGraphics(GpGraphics *graphics, GpGraphics *srcgraphics, CombineMode combineMode)
+GdipSetClipGraphics (GpGraphics *graphics, GpGraphics *srcgraphics, CombineMode combineMode)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipSetClipRect(GpGraphics *graphics, float x, float y, float width, float height, CombineMode combineMode)
+GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float height, CombineMode combineMode)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipSetClipRectI(GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height, CombineMode combineMode)
+GdipSetClipRectI (GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height, CombineMode combineMode)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipSetClipPath(GpGraphics *graphics, GpPath *path, CombineMode combineMode)
+GdipSetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMode)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipSetClipRegion(GpGraphics *graphics, GpRegion *region, CombineMode combineMode)
+GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMode)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipSetClipHrgn(GpGraphics *graphics, void *hRgn, CombineMode combineMode)
+GdipSetClipHrgn (GpGraphics *graphics, void *hRgn, CombineMode combineMode)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipResetClip(GpGraphics *graphics)
+GdipResetClip (GpGraphics *graphics)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipTranslateClip(GpGraphics *graphics, float dx, float dy)
+GdipTranslateClip (GpGraphics *graphics, float dx, float dy)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipTranslateClipI(GpGraphics *graphics, UINT dx, UINT dy)
+GdipTranslateClipI (GpGraphics *graphics, UINT dx, UINT dy)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipGetClip(GpGraphics *graphics, GpRegion *region)
+GdipGetClip (GpGraphics *graphics, GpRegion *region)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipGetClipBounds(GpGraphics *graphics, GpRectF *rect)
+GdipGetClipBounds (GpGraphics *graphics, GpRectF *rect)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipGetClipBoundsI(GpGraphics *graphics, GpRect *rect)
+GdipGetClipBoundsI (GpGraphics *graphics, GpRect *rect)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipIsClipEmpty(GpGraphics *graphics, BOOL *result)
+GdipIsClipEmpty (GpGraphics *graphics, BOOL *result)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipGetVisibleClipBounds(GpGraphics *graphics, GpRectF *rect)
+GdipGetVisibleClipBounds (GpGraphics *graphics, GpRectF *rect)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipGetVisibleClipBoundsI(GpGraphics *graphics, GpRect *rect)
+GdipGetVisibleClipBoundsI (GpGraphics *graphics, GpRect *rect)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipIsVisibleClipEmpty(GpGraphics *graphics, BOOL *result)
+GdipIsVisibleClipEmpty (GpGraphics *graphics, BOOL *result)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipIsVisiblePoint(GpGraphics *graphics, float x, float y, BOOL *result)
+GdipIsVisiblePoint (GpGraphics *graphics, float x, float y, BOOL *result)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipIsVisiblePointI(GpGraphics *graphics, UINT x, UINT y, BOOL *result)
+GdipIsVisiblePointI (GpGraphics *graphics, UINT x, UINT y, BOOL *result)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipIsVisibleRect(GpGraphics *graphics, float x, float y, float width, float height, BOOL *result)
+GdipIsVisibleRect (GpGraphics *graphics, float x, float y, float width, float height, BOOL *result)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipIsVisibleRectI(GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height, BOOL *result)
+GdipIsVisibleRectI (GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height, BOOL *result)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipSetCompositingMode(GpGraphics *graphics, GpCompositingMode compositingMode)
+GdipSetCompositingMode (GpGraphics *graphics, GpCompositingMode compositingMode)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipGetCompositingMode(GpGraphics *graphics, GpCompositingMode *compositingMode)
+GdipGetCompositingMode (GpGraphics *graphics, GpCompositingMode *compositingMode)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipSetCompositingQuality(GpGraphics *graphics, GpCompositingQuality compositingQuality)
+GdipSetCompositingQuality (GpGraphics *graphics, GpCompositingQuality compositingQuality)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipGetCompositingQuality(GpGraphics *graphics, GpCompositingQuality *compositingQuality)
+GdipGetCompositingQuality (GpGraphics *graphics, GpCompositingQuality *compositingQuality)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipGetNearestColor(GpGraphics *graphics, ARGB *argb)
+GdipGetNearestColor (GpGraphics *graphics, ARGB *argb)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipSetPageScale(GpGraphics *graphics, float scale)
+GdipSetPageScale (GpGraphics *graphics, float scale)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipGetPageScale(GpGraphics *graphics, float *scale)
+GdipGetPageScale (GpGraphics *graphics, float *scale)
 {
 	/* FIXME - We probably want to change this once GdipSetPageScale() is implemented */
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (scale != NULL, InvalidParameter);
+
 	*scale=1;
-	return(Ok);
+	return Ok;
 }
 
 GpStatus
-GdipSetPageUnit(GpGraphics *graphics, GpUnit unit)
+GdipSetPageUnit (GpGraphics *graphics, GpUnit unit)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipGetPageUnit(GpGraphics *graphics, GpUnit *unit)
+GdipGetPageUnit (GpGraphics *graphics, GpUnit *unit)
 {
 	/* FIXME - We probably want to change this once GdipSetPageUnit() is implemented */
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (unit != NULL, InvalidParameter);
+
 	*unit=UnitPixel;
-	return(Ok);
+	return Ok;
 }
 
 GpStatus
-GdipTransformPoints(GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPointF *points, int count)
+GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPointF *points, int count)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }
 
 GpStatus
-GdipTransformPointsI(GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPoint *points, int count)
+GdipTransformPointsI (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPoint *points, int count)
 {
-	return(NotImplemented);
+	return NotImplemented;
 }

@@ -905,6 +905,8 @@ GpStatus GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GpPointF *points, in
 GpStatus GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count);
 GpStatus GdipDrawRectangle (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height);
 GpStatus GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height);
+GpStatus GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count);
+GpStatus GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GpRect *rects, int count);
 GpStatus GdipFillClosedCurve (GpGraphics *graphics, GpBrush *brush, GpPointF *points, int count);
 GpStatus GdipFillClosedCurveI (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count);
 GpStatus GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, int count, float tension);
@@ -912,6 +914,9 @@ GpStatus GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GpPoint *p
 GpStatus GdipFillEllipse (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height);
 GpStatus GdipFillEllipseI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height);
 GpStatus GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, float x1, float y1, float x2, float y2);
+GpStatus GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush, int x1, int y1, int x2, int y2);
+GpStatus GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GpRectF *rects, int count);
+GpStatus GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GpRect *rects, int count);
 GpStatus GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GpPointF *points, int count, GpFillMode fillMode);
 GpStatus GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count, GpFillMode fillMode);
 GpStatus GdipFillPolygon2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, int count);
