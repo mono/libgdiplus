@@ -486,7 +486,7 @@ GpStatus
 GdipDeleteFont (GpFont* font)
 {
 	if (font){
-		cairo_fontp_destroy ((cairo_font_t *)font->cairofnt);
+		cairo_font_destroy ((cairo_font_t *)font->cairofnt);
 		GdipFree ((void *)font);
 	}
 }
