@@ -62,6 +62,7 @@ gdip_image_init(GpImage *image)
 	image->propItems = 0;
 	image->horizontalResolution = 0;
 	image->verticalResolution = 0;
+	image->format = 0;
 } 
 
 void *

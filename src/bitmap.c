@@ -26,6 +26,7 @@
 #include <glib.h>
 #include "gdip.h"
 #include "gdip_win32.h"
+#include "gdipImage.h"
 #include <string.h>
 #include <unistd.h>
 
@@ -57,6 +58,7 @@ gdip_bitmap_init (GpBitmap *bitmap)
 	bitmap->hBitmapDC = 0;
 	bitmap->hInitialBitmap = 0;
 	bitmap->hBitmap = 0;
+	bitmap->lockRect.X = bitmap->lockRect.Y = bitmap->lockRect.Height = bitmap->lockRect.Width = 0;
 }
 
 void
@@ -290,16 +292,19 @@ GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
 	g_return_val_if_fail (y + height <= original->data.Height, InvalidParameter);
 
 	bd.Scan0 = NULL;
-	st = gdip_bitmap_clone_data_rect (&original->data, &sr,
-									  &bd, &dr);
+	bd.PixelFormat = format;
+	st = gdip_bitmap_clone_data_rect (&original->data, &sr, &bd, &dr);
 	if (st != Ok)
 		return st;
 
 	result = gdip_bitmap_new ();
 	result->cairo_format = original->cairo_format;
-	result->data = bd;
+	memcpy (&result->data, &bd, sizeof (GdipBitmapData));
 	result->image.pixFormat = format;	/* this is only used by image codecs */
-    result->image.format = original->image.format;
+	result->image.format = original->image.format;
+	result->image.height = result->data.Height;
+	result->image.width = result->data.Width;
+		
 	*bitmap = result;
 	return Ok;
 }
@@ -332,6 +337,8 @@ gdip_copy_strides (void *dst, int dstStride, void *src, int srcStride, int realB
 static GpStatus
 gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect)
 {
+	int dest_components, dest_deph; 
+	
 	g_return_val_if_fail (srcData != NULL, InvalidParameter);
 	g_return_val_if_fail (srcRect != NULL, InvalidParameter);
 	g_return_val_if_fail (destData != NULL, InvalidParameter);
@@ -340,10 +347,14 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 	g_return_val_if_fail (srcRect->Width == destRect->Width, InvalidParameter);
 	g_return_val_if_fail (srcRect->Height == destRect->Height, InvalidParameter);
 
-	g_return_val_if_fail (srcData->PixelFormat != Format32bppArgb, InvalidParameter);
+	g_return_val_if_fail (srcData->PixelFormat == destData->PixelFormat, InvalidParameter);
 
+	dest_components = gdip_get_pixel_format_components (destData->PixelFormat);	
+	dest_deph = gdip_get_pixel_format_depth (destData->PixelFormat);
+
+	
 	if (destData->Scan0 == NULL) {
-		destData->Stride = destRect->Width * 4;
+		destData->Stride = (((( destRect->Width * dest_components * dest_deph) /8)  + 3) & ~3);
 		destData->Scan0 = GdipAlloc (destData->Stride * destRect->Height);
 		destData->Width = destRect->Width;
 		destData->Height = destRect->Height;
@@ -352,9 +363,8 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 	}
 
 	gdip_copy_strides (destData->Scan0, destData->Stride,
-					   srcData->Scan0 + (srcData->Stride * srcRect->Y) + (4 * srcRect->X), srcData->Stride,
-					   srcRect->Width * 4,
-					   srcRect->Height);
+		srcData->Scan0 + (srcData->Stride * srcRect->Y) + (gdip_get_pixel_format_components (srcData->PixelFormat) 
+		* srcRect->X), srcData->Stride,   destRect->Width * dest_components,  destRect->Height);
 
 	return Ok;
 }
@@ -701,7 +711,7 @@ GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 	GdipBitmapData *data = &bitmap->data;
 	unsigned char *v;
 	
-	if (bitmap == 0) 
+	if (bitmap == NULL || color == NULL) 
 		return InvalidParameter;
 
 	if (x < 0 || x > data->Width)
