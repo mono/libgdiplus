@@ -7,6 +7,11 @@
 	* gdip_win32.h: Removed the mono dependency uglify.h.
 	It was also breaking the build.
 
+2004-05-19  Miguel de Icaza  <miguel@ximian.com>
+
+	* gdip.h: Removed the dependency on Mono for uglify.h by
+	copying here all the required things from mono/io-layer/uglify.h.
+
 2004-05-15  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* image.c, jpegcodec.c, jpegcodec.h, gdip.h: Add support for
