@@ -1,3 +1,8 @@
+2005-03-18  Peter Bartok  <pbartok@novell.com>
+
+	* gifcodec.c: Fixed prototype for no gif lib codepath; was missed with
+	  GCC4 changes
+
 2005-03-17  Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* pngcodec.c: fixes warnings for GCC4
