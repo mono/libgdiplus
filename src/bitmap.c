@@ -737,6 +737,7 @@ GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 		case Format32bppArgb:
 			v += x * 4;
 			*color = (v [0]) | (v [1] << 8) | (v [2] << 16) | (v [3] << 24);
+			break;
 		case Format32bppRgb:
 			v += x * 4;
 			*color = (v [0]) | (v [1] << 8) | (v [2] << 16);
