@@ -838,7 +838,7 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int co
         GpPointF *tangents;
 
         /* when tension is 1, draw straight lines */
-        if (tension == 1)
+        if (tension == 0)
                 return GdipDrawPolygon (graphics, pen, points, count);
                         
         cairo_save (graphics->ct);
@@ -898,7 +898,7 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
         GpPointF *tangents;
 
         /* draw lines if tension = 1 */
-        if (tension == 1)
+        if (tension == 0)
                 return GdipDrawLines (graphics, pen, points, count);
 
         cairo_save (graphics->ct);
@@ -1058,7 +1058,7 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, in
         GpPointF *tangents;
 
         /* when tension is 1, the edges are straight lines */
-        if (tension == 1)
+        if (tension == 0)
                 return GdipFillPolygon2 (graphics, brush, points, count);
 
         cairo_save (graphics->ct);
