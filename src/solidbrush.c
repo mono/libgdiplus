@@ -25,8 +25,10 @@
 #include "gdip.h"
 #include "solidbrush.h"
 
-// we have a single copy of vtable for
-// all instances of solidbrush.
+/*
+ * we have a single copy of vtable for
+ * all instances of solidbrush.
+ */
 
 static BrushClass vtable = { BrushTypeSolidColor,
 			     gdip_solidfill_setup, 
