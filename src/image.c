@@ -127,7 +127,7 @@ GdipDisposeImage (GpImage *image)
 		default:
 			break;
 	}
-//	cairo_surface_destroy (image->surface);
+	cairo_surface_destroy (image->surface);
 	image->surface = 0;
 	if (image->frameDimensionList != NULL)
 		GdipFree (image->frameDimensionList);

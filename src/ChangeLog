@@ -1,3 +1,7 @@
+2004-06-17  Sanjay Gupta <gsanjay@novell.com>
+	
+	* image.c: Removed a commented line of code. Got checked in by mistake.
+
 2004-06-16  Sanjay Gupta <gsanjay@novell.com>
 
 	* gdipImage.h: Modifed function signature 
