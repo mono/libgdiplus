@@ -148,8 +148,6 @@ GdipGetFontCollectionFamilyCount (GpFontCollection *font_collection, int *numFou
 	else
 		*numFound = 0;
 
-	printf ("GdipGetFontCollectionFamilyCount %u\n", *numFound);
-
 	return Ok;
 }
 
@@ -208,7 +206,6 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 		*fontFamily =  FcFontMatch (0, pat, &rlt);
 
 		r = FcPatternGetString (*fontFamily, FC_FAMILY, 0, &str);
-		printf ("fnt->%x, %x, %s\n", *fontFamily, rlt, str);
 		g_free (string);
 		return Ok;
 	}
@@ -219,7 +216,6 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 		FcResult r = FcPatternGetString (*gpfam, FC_FAMILY, 0, &str);
 
 		if (strcmp (string, str)==0) {
-			printf ("found %s\n", string);
 			*fontFamily = *gpfam;
 			g_free (string);
 			return Ok;
