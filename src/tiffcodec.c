@@ -230,7 +230,6 @@ gdip_load_tiff_image (TIFF *tif, GpImage **image)
 		
 		img = gdip_bitmap_new ();
 		img->image.type = imageBitmap;
-		img->image.graphics = 0;
 		/* libtiff expands stuff out to ARGB32 for us if we use this interface */
 		img->image.pixFormat = Format32bppArgb;
 		img->cairo_format = CAIRO_FORMAT_ARGB32;

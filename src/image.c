@@ -60,7 +60,6 @@ gdip_image_init(GpImage *image)
 {
 	image->type = imageUndefined;
 	image->surface = 0;
-	image->graphics = 0;
 	image->imageFlags = 0;
 	image->height = 0;
 	image->width = 0;
@@ -144,19 +143,10 @@ GdipDisposeImage (GpImage *image)
 		GdipFree (image->frameDimensionList);
 	}
 
-	switch (image->type){
-		case imageBitmap:
-			/*Nothing to be done here... We have already
-			cleaned the memory while looping in FrameDimension List
-			and hence we dont need to do anything in gdip_bitmap_dispose()*/			
-			break;
-		case imageMetafile:
-                	break;
-		case imageUndefined:
-			break;
-		default:
-			break;
-	}
+	/* Nothing more to be done here... We have already
+	 * cleaned the memory while looping in FrameDimension List
+	 * and hence we dont need to do anything in gdip_bitmap_dispose()
+	 */
 		
 	GdipFree (image);
 	
@@ -170,18 +160,19 @@ GdipDisposeImage (GpImage *image)
 GpStatus 
 GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 {
+	GpGraphics *gfx;
 	if (!image || !graphics)
 		return InvalidParameter;
 
-	if (image->graphics == 0) {
-		image->graphics = gdip_graphics_new ();
-		if (image->type == imageBitmap) {
-			gdip_graphics_attach_bitmap (image->graphics, (GpBitmap *) image);
-		}
-		else if (image->type == imageMetafile) {
-		}
+	gfx = gdip_graphics_new ();
+	if (image->type == imageBitmap) {
+		gdip_graphics_attach_bitmap (gfx, (GpBitmap *) image);
 	}
-	*graphics = image->graphics;
+	else if (image->type == imageMetafile) {
+	}
+
+	*graphics = gfx;
+
 	return Ok;
 }
 
@@ -685,17 +676,10 @@ GdipGetImageDimension (GpImage *image, float *width, float *height)
 {
 	if (!image || !width || !height)
 		return InvalidParameter;
-        switch (image->type){
-		case imageBitmap:
-			gdip_bitmap_dispose ((GpBitmap *) image);
-			break;
-		case imageMetafile:
-			break;
-		case imageUndefined:
-			break;
-		default:
-			break;
-	}
+
+	*width = image->width;
+	*height = image->height;
+
 	return Ok;
 }
 
@@ -819,10 +803,11 @@ GdipImageGetFrameDimensionsCount (GpImage *image, UINT *count)
 GpStatus 
 GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count)
 {
-	if (!image || !dimensionGUID || !count)
+	if (!image || !dimensionGUID)
 		return InvalidParameter;
 	int i;
 	int countReturn = image->frameDimensionCount;
+
 	GUID guid [count];
 	if (countReturn < count)
 		countReturn = count;

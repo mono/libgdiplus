@@ -213,7 +213,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
 
         img = gdip_bitmap_new ();
         img->image.type = imageBitmap;
-        img->image.graphics = 0;
         img->image.width = width;
         img->image.height = height;
 

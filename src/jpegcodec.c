@@ -312,7 +312,6 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
     cinfo.do_block_smoothing = FALSE;
 
     img->image.type = imageBitmap;
-    img->image.graphics = 0;
     img->image.width = cinfo.image_width;
     img->image.height = cinfo.image_height;
 

@@ -707,13 +707,11 @@ typedef struct {
 	GUID frameDimension;
 	int count;
 	BitmapData *frames;
-/*} FrameDimensionInfo;*/
 } FrameInfo;
 
 typedef struct {
 	ImageType     	type;
 	cairo_surface_t *surface;
-	GpGraphics  	*graphics;		/* created by GdipGetImageGraphicsContext */
 	int 		imageFlags;
 	int 		height;
 	int 		width;

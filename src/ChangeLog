@@ -1,7 +1,21 @@
+2004-09-16  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Removed the redundant graphics member from GpImage struct.
+	* bmpcodec.c: Removed the unnecessary usage of GpImage->graphics.
+	* gifcodec.c: Same as above.
+	* graphics.c: Same as above.
+	* jpegcodec.c: Same as above.
+	* pngcodec.c: Same as above.
+	* tiffcodec.c: Same as above.
+	* image.c: Same as above and removed some commented code. Fixed
+	GdipGetImageDimensions and GdipImageGetFrameDimensionsList
+	functions. Applied a fix from David Mitchell for bug #66055 in
+	GdipGetImageGraphicsContext function.
+
 2004-09-15  Ravindra <rkumar@novell.com>
 
-	* graphics.c: Applied a fix for bug #65963 in GdipDeleteGraphics
-	function from David Mitchell.
+	* graphics.c: Applied a fix from David Mitchell for bug #65963
+	in GdipDeleteGraphics function.
 
 2004-09-10  Ravindra <rkumar@novell.com>
 

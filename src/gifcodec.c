@@ -150,7 +150,6 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 
 	img = gdip_bitmap_new ();
 	img->image.type = imageBitmap;
-	img->image.graphics = 0;
 	img->image.width = gif->SWidth;
 	img->image.height = gif->SHeight;
 
