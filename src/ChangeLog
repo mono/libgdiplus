@@ -1,3 +1,8 @@
+2004-06-22  Ravindra <rkumar@novell.com>
+
+	* texturebrush.c: We need to reset the 'changed' flag after doing
+	brush setup.
+
 2006-06-21  Sanjay Gupta <gsanjay@novell.com>
 
 	* tiffcodec.c: Added dummy functions and changed the way we

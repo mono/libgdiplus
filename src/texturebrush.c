@@ -486,6 +486,10 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 		status = gdip_get_status (cairo_status (ct));
 		/*	cairo_surface_destroy (temp); */
 	}
+
+	if (status == Ok)
+		texture->changed = FALSE;
+
 	cairo_matrix_destroy (product);
 
 	return status;
