@@ -1034,7 +1034,6 @@ GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count)
         Status s;
 
 	g_return_val_if_fail (points != NULL, InvalidParameter);
-	g_return_val_if_fail (count > 0, InvalidParameter);
 
 	tmp = int_to_float (points, count);
 
