@@ -259,111 +259,101 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
 
     cinfo.do_fancy_upsampling = FALSE;
     cinfo.do_block_smoothing = FALSE;
-    jpeg_start_decompress (&cinfo);
 
     img->image.type = imageBitmap;
     img->image.graphics = 0;
-    img->image.width = cinfo.output_width;
-    img->image.height = cinfo.output_height;
+    img->image.width = cinfo.image_width;
+    img->image.height = cinfo.image_height;
 
-    if (cinfo.out_color_space != JCS_GRAYSCALE &&
-        cinfo.out_color_space != JCS_RGB)
+    if (cinfo.jpeg_color_space != JCS_GRAYSCALE &&
+        cinfo.jpeg_color_space != JCS_RGB &&
+        cinfo.jpeg_color_space != JCS_YCbCr)
     {
-        g_warning ("Unsupported JPEG color space: %d", cinfo.out_color_space);
+        g_warning ("Unsupported JPEG color space: %d", cinfo.jpeg_color_space);
         jpeg_destroy_decompress (&cinfo);
         gdip_bitmap_dispose (img);
         *image = NULL;
         return InvalidParameter;
     }
 
-    if (cinfo.out_color_components == 1) {
-        img->image.pixFormat = Alpha;
-        img->cairo_format = CAIRO_FORMAT_A8;
-        img->data.Stride = cinfo.out_color_components * cinfo.output_width;
-        img->data.PixelFormat = img->image.pixFormat;
-    } else if (cinfo.out_color_components == 3) {
-        /* We need to expand the data out to 32bpp for cairo */
-        img->image.pixFormat = Format32bppArgb;
-        img->cairo_format = CAIRO_FORMAT_ARGB32;
-        img->data.Stride = 4 * cinfo.output_width;
-        img->data.PixelFormat = img->image.pixFormat;
-    } else if (cinfo.out_color_components == 4) {
-        img->image.pixFormat = Format32bppArgb;
-        img->cairo_format = CAIRO_FORMAT_ARGB32;
-        img->data.Stride = cinfo.out_color_components * cinfo.output_width;
-        img->data.PixelFormat = img->image.pixFormat;
+    if (cinfo.num_components == 1) {
+        img->image.pixFormat = Format8bppIndexed;
+        img->image.imageFlags = ImageFlagsColorSpaceGRAY;
+    } else if (cinfo.num_components == 3) {
+        img->image.pixFormat = Format24bppRgb;
+        img->image.imageFlags = ImageFlagsColorSpaceRGB;
     } else {
-        g_warning ("Unsupported JPEG out_color_components: %d", cinfo.out_color_components);
-        jpeg_destroy_decompress (&cinfo);
-        gdip_bitmap_dispose (img);
-        *image = NULL;
-        return InvalidParameter;
+        /* default to this; we assume libjpeg will be able to give us RGB */
+        img->image.pixFormat = Format24bppRgb;
+        img->image.imageFlags = ImageFlagsColorSpaceRGB;
     }
+
+    img->cairo_format = CAIRO_FORMAT_ARGB32;
+    img->data.Stride = 4 * cinfo.image_width;
+    img->data.PixelFormat = Format32bppArgb;
 
     img->data.Width = img->image.width;
     img->data.Height = img->image.height;
 
     stride = img->data.Stride;
 
-    destbuf = GdipAlloc (stride * cinfo.output_height);
-    destptr = destbuf;
-
-    img->data.Scan0 = destbuf;
-    img->data.Reserved = GBD_OWN_SCAN0;
+    /* Request cairo-compat output */
+    cinfo.out_color_space = JCS_RGB;
+    cinfo.out_color_components = 3;
+    cinfo.output_components = 3;
 
     jpeg_start_decompress (&cinfo);
 
+    destbuf = GdipAlloc (stride * cinfo.output_height);
+    destptr = destbuf;
+
     while (cinfo.output_scanline < cinfo.output_height) {
         int i;
+        int nlines;
         for (i = 0; i < cinfo.rec_outbuf_height; i++) {
             lines[i] = destptr;
             destptr += stride;
         }
 
-        jpeg_read_scanlines (&cinfo, lines, cinfo.rec_outbuf_height);
+        nlines = jpeg_read_scanlines (&cinfo, lines, cinfo.rec_outbuf_height);
+        for (i = 0; i < nlines; i++) {
+            int j;
+            guchar *inptr, *outptr;
+            JOCTET r, g, b;
 
-        /* if we have RGB data, we need to expand this out to ARGB */
-        if (cinfo.out_color_components == 3) {
-            for (i = 0; i < cinfo.rec_outbuf_height; i++) {
-                int j;
-                guchar *inptr, *outptr;
-                JOCTET r, g, b;
-
-                inptr = lines[i] + (img->image.width) * 3 - 1;
-                outptr = lines[i] + stride - 1;
-                for (j = 0; j < img->image.width; j++) {
-                    /* Note the swapping of R and B, to get ARGB from what
-                     * looks like BGR data.
-                     * We really need to do some tests to see what this stuff
-                     * looks like inside windows.
-                     */
-                    r = *inptr--;
-                    g = *inptr--;
-                    b = *inptr--;
-                    *outptr-- = 255;
-                    *outptr-- = b;
-                    *outptr-- = g;
-                    *outptr-- = r;
-                }
+            inptr = lines[i] + (img->image.width) * 3 - 1;
+            outptr = lines[i] + stride - 1;
+            for (j = 0; j < img->image.width; j++) {
+                /* Note the swapping of R and B, to get ARGB from what
+                 * looks like BGR data.
+                 */
+                r = *inptr--;
+                g = *inptr--;
+                b = *inptr--;
+                *outptr-- = 255;
+                *outptr-- = b;
+                *outptr-- = g;
+                *outptr-- = r;
             }
         }
     }
 
     jpeg_destroy_decompress (&cinfo);
 
+    img->data.Scan0 = destbuf;
+    img->data.Reserved = GBD_OWN_SCAN0;
+
     img->image.surface = cairo_surface_create_for_image (destbuf, img->cairo_format,
                                                    img->image.width, img->image.height,
                                                    stride);
     img->image.horizontalResolution = 0;
     img->image.verticalResolution = 0;
-    /* win32 returns this as PartiallyScalable and ColorSpaceYCBCR;
-     * we just return it as RGB.  Supporting native YCbCr color spaces
-     * is probably a waste of time.
+    /* win32 returns this as PartiallyScalable and ColorSpaceYCBCR; we
+     * just return it as RGB (or Grayscale).
      */
-    img->image.imageFlags =
+    img->image.imageFlags |=
         ImageFlagsReadOnly |
-        ImageFlagsHasRealPixelSize |
-        ImageFlagsColorSpaceRGB;
+        ImageFlagsHasRealPixelSize;
     img->image.propItems = NULL;
     img->image.palette = NULL;
 
@@ -447,6 +437,7 @@ gdip_save_jpeg_image_internal (FILE *fp,
         case Format32bppPArgb:
         case Format32bppRgb:
         case Format24bppRgb:
+        case Format8bppIndexed: /* assume this is grayscale */
             break;
         default:
             return InvalidParameter;
@@ -490,19 +481,29 @@ gdip_save_jpeg_image_internal (FILE *fp,
     cinfo.image_width = image->width;
     cinfo.image_height = image->height;
     if (gdip_get_pixel_format_components (image->pixFormat) == 3) {
+        cinfo.in_color_space = JCS_RGB;
         cinfo.input_components = 3;
         if (image->pixFormat == Format32bppRgb)
             need_argb_conversion = 1;
         else
             need_argb_conversion = 0;
     } else if (gdip_get_pixel_format_components (image->pixFormat) == 4) {
+        cinfo.in_color_space = JCS_RGB;
         cinfo.input_components = 3;
         need_argb_conversion = 1;
+    } else if (gdip_get_pixel_format_components (image->pixFormat) == 1) {
+        cinfo.in_color_space = JCS_RGB;
+        cinfo.input_components = 1;
+        need_argb_conversion = 1; /* do this conversion */
     }
 
-    cinfo.in_color_space = JCS_RGB;
-
     jpeg_set_defaults (&cinfo);
+
+    if (gdip_get_pixel_format_components (image->pixFormat) == 1) {
+        jpeg_set_colorspace (&cinfo, JCS_GRAYSCALE);
+    }
+
+    cinfo.jpeg_color_space = JCS_GRAYSCALE;
 
     /* should handle encoding params here */
 

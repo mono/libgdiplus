@@ -1,3 +1,11 @@
+2004-04-06  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* jpegcodec.c, pngcodec.c: Allow reading/writing non-RGBA data.
+	The GpBitmap.data struct holds cairo-compatible data (always 32bpp
+	RGBA), whereas the GpImage.pixFormat field holds what this data is
+	actually supposed to be (i.e. grayscale).  Still no support for
+	colormapped images.
+
 2004-04-07  Duncan Mak  <duncan@ximian.com>
 
 	* graphics.c (make_pie): Retort to make_ellipse *after* drawing

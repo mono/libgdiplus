@@ -142,7 +142,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
                     *rawptr++ = *rowp++;
                     *rawptr++ = *rowp++;
                     *rawptr++ = 255; /* a */
-                    rowp += 3;
                 }
             } else if (channels == 1) {
                 png_bytep rowp = row_pointers[i];
@@ -161,14 +160,12 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
         img = gdip_bitmap_new ();
         img->image.type = imageBitmap;
         img->image.graphics = 0;
-        img->image.width = width;;
-        img->image.height = height;;
+        img->image.width = width;
+        img->image.height = height;
 
-        img->image.pixFormat = Format32bppArgb;
         img->cairo_format = CAIRO_FORMAT_ARGB32;
-
         img->data.Stride = stride;
-        img->data.PixelFormat = img->image.pixFormat;
+        img->data.PixelFormat = Format32bppArgb;
         img->data.Width = width;
         img->data.Height = height;
         img->data.Scan0 = rawdata;
@@ -179,10 +176,19 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
                                                              img->image.width,
                                                              img->image.height,
                                                              img->data.Stride);
-        img->image.imageFlags =
+        if (channels == 3) {
+            img->image.pixFormat = Format24bppRgb;
+            img->image.imageFlags = ImageFlagsColorSpaceRGB;
+        } else if (channels == 4) {
+            img->image.pixFormat = Format32bppArgb;
+            img->image.imageFlags = ImageFlagsColorSpaceRGB;
+        } else if (channels == 1) {
+            img->image.pixFormat = Format8bppIndexed;
+            img->image.imageFlags = ImageFlagsColorSpaceGRAY;
+        }
+        img->image.imageFlags |=
             ImageFlagsReadOnly |
-            ImageFlagsHasRealPixelSize |
-            ImageFlagsColorSpaceRGB;
+            ImageFlagsHasRealPixelSize;
         img->image.horizontalResolution = 0;
         img->image.verticalResolution = 0;
         img->image.propItems = NULL;
@@ -274,6 +280,7 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
         case Format32bppPArgb:
         case Format32bppRgb:
         case Format24bppRgb:
+        case Format8bppIndexed:
             bit_depth = 8;
             break;
         /* We're not going to even try to save these images, for now */
@@ -284,7 +291,6 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
         case Format16bppGrayScale:
         case Format16bppRgb555:
         case Format16bppRgb565:
-        case Format8bppIndexed:
         case Format4bppIndexed:
         case Format1bppIndexed:
         default:
@@ -303,6 +309,9 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
         case Format24bppRgb:
             color_type = PNG_COLOR_TYPE_RGB;
             break;
+        case Format8bppIndexed:
+            color_type = PNG_COLOR_TYPE_RGB; /* XXX - we should be able to write grayscale PNGs */
+            break;
         case Format64bppArgb:
         case Format64bppPArgb:
         case Format48bppRgb:
@@ -310,7 +319,6 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
         case Format16bppGrayScale:
         case Format16bppRgb555:
         case Format16bppRgb565:
-        case Format8bppIndexed:
         case Format4bppIndexed:
         case Format1bppIndexed:
         default:
@@ -319,8 +327,6 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
     }
     if (color_type == -1)
         goto error;
-
-    bit_depth = gdip_get_pixel_format_depth(image->pixFormat);
 
     png_set_IHDR (png_ptr, info_ptr,
                   image->width,
@@ -336,9 +342,23 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
     for (i = 0; i < image->height; i++)
         row_pointers[i] = bitmap->data.Scan0 + (bitmap->data.Stride * i);
 
-    png_set_rows (png_ptr, info_ptr, row_pointers);
+    png_write_info (png_ptr, info_ptr);
 
-    png_write_png (png_ptr, info_ptr, PNG_TRANSFORM_BGR, NULL);
+    if (image->pixFormat != bitmap->data.PixelFormat) {
+        if (image->pixFormat == Format24bppRgb ||
+            image->pixFormat == Format32bppRgb)
+        {
+            png_set_filler (png_ptr, 0, PNG_FILLER_AFTER);
+        } else if (image->pixFormat == Format8bppIndexed)
+        {
+            png_set_filler (png_ptr, 0, PNG_FILLER_AFTER);
+        }
+    }
+
+    png_set_bgr(png_ptr);
+
+    png_write_rows (png_ptr, row_pointers, image->height);
+    png_write_end (png_ptr, NULL);
 
     png_destroy_write_struct (&png_ptr, &info_ptr);
 
