@@ -528,8 +528,12 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
-        
-        /* just make an ellipse if we're going a full 360 degrees */                
+
+	/* We use graphics->copy_of_ctm matrix for path creation. We should
+	 * have it set already.
+	 */
+
+        /* just make an ellipse if we're going a full 360 degrees */
         if (sweepAngle >= 360)
                 make_ellipse (graphics, x, y, width, height);
 
@@ -543,9 +547,13 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
                 make_arc (graphics, FALSE, x, y, width, height, midAngle, endAngle);
         }  
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
@@ -567,12 +575,19 @@ GdipDrawBezier (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
         cairo_move_to (graphics->ct, x1, y1);
         cairo_curve_to (graphics->ct, x2, y2, x3, y3, x4, y4);
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
@@ -598,7 +613,10 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
-        
+
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */        
         cairo_move_to (graphics->ct, points [0].X, points [0].Y);
 
         for (i = 0; i < count - 3; i += 3) {
@@ -610,9 +628,13 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen,
                                 points [k].X, points [k].Y);
         }
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
@@ -631,6 +653,9 @@ GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
         cairo_move_to (graphics->ct, points [0].X, points [0].Y);
 
         for (i = 0; i < count - 3; i += 3) {
@@ -642,9 +667,13 @@ GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen,
                                 points [k].X, points [k].Y);
         }
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
@@ -656,12 +685,19 @@ GdipDrawEllipse (GpGraphics *graphics, GpPen *pen,
 {
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
-        
+
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	make_ellipse (graphics, x, y, width, height);
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
@@ -681,12 +717,19 @@ GdipDrawLine (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	cairo_move_to (graphics->ct, x1, y1);
 	cairo_line_to (graphics->ct, x2, y2);
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
@@ -709,13 +752,20 @@ GdipDrawLines (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 	g_return_val_if_fail (count >= 2, InvalidParameter);
 
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	cairo_move_to (graphics->ct, points [0].X, points [0].Y);
 	for (i = 1; i < count; i++)
 		cairo_line_to (graphics->ct, points [i].X, points [i].Y);
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
@@ -731,13 +781,20 @@ GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 	g_return_val_if_fail (count >= 2, InvalidParameter);
 
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	cairo_move_to (graphics->ct, points [0].X, points [0].Y);
 	for (i = 1; i < count; i++)
 		cairo_line_to (graphics->ct, points [i].X, points [i].Y);
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
@@ -794,12 +851,19 @@ GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (path != NULL, InvalidParameter);
-	
+
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	status = gdip_plot_path (graphics, path);
 
-        gdip_pen_setup (graphics, pen);
+        /* We do pen setup just before stroking. */
+	gdip_pen_setup (graphics, pen);
         cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return status;
@@ -816,11 +880,18 @@ GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y,
 	if (sweepAngle == 0)
 		return Ok;
 
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
@@ -869,11 +940,18 @@ GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	make_polygon (graphics, points, count);
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
@@ -886,11 +964,18 @@ GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	make_polygon_from_integers (graphics, points, count);
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
@@ -903,11 +988,18 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	cairo_rectangle (graphics->ct, x, y, width, height);
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
@@ -931,12 +1023,19 @@ GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count)
 	g_return_val_if_fail (rects != NULL, InvalidParameter);
 	g_return_val_if_fail (count > 0, InvalidParameter);
 
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	for (i = 0; i < count; i++)
 		cairo_rectangle (graphics->ct, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height);
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 	
 	return gdip_get_status (cairo_status (graphics->ct));
@@ -953,12 +1052,19 @@ GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GpRect *rects, int count)
 	g_return_val_if_fail (rects != NULL, InvalidParameter);
 	g_return_val_if_fail (count > 0, InvalidParameter);
 
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	for (i = 0; i < count; i++)
 		cairo_rectangle (graphics->ct, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height);
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
@@ -1026,12 +1132,19 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int co
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
         
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
 	make_curve (graphics, points, tangents, count, CURVE_CLOSE);
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	GdipFree (tangents);        
@@ -1090,12 +1203,19 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
         tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
         make_curve (graphics, points, tangents, count, CURVE_OPEN);
 
+	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by pen setup.
+	 */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         GdipFree (tangents);

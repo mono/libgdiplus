@@ -121,14 +121,24 @@ GpStatus
 gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 {
 	GpStatus status;
+	cairo_matrix_t *product;
+
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
 	status = gdip_brush_setup (graphics, pen->brush);
-	cairo_set_matrix (graphics->ct, pen->matrix);
-
 	if (status != Ok)
 		return status;
+
+	/* Here we use product of pen->matrix and graphics->copy_of_ctm.
+	 * This gives us absolute results with respect to graphics. We
+	 * do following irrespective of the pen->changed state since we
+	 * need to set the product matrix for subsequent stroke operations.
+	 */
+	product = cairo_matrix_create ();
+	cairo_matrix_multiply (product, pen->matrix, graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, product);
+	cairo_matrix_destroy (product);
 
 	/* Don't need to setup, if pen is not changed */
 	if (! pen->changed)
