@@ -19,7 +19,6 @@ typedef BOOL (CALLBACK * ImageAbort) (VOID *);
 typedef ImageAbort GetThumbnailImageAbort; */
 
 typedef int PROPID;
-//typedef unsigned int ARGB;
 
 /*
  * Enumerations
@@ -78,11 +77,11 @@ typedef struct {
  */
 
 /* Image */
-//GpStatus GdipLoadImageFromStream (IStream *stream, GpImage **image);
-//GpStatus GdipSaveImageToStream (GpImage *image, IStream *stream, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params);
+/* GpStatus GdipLoadImageFromStream (IStream *stream, GpImage **image); */
+/* GpStatus GdipSaveImageToStream (GpImage *image, IStream *stream, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params); */
 GpStatus GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image); 
-//GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params);
-//GpStatus GdipSaveAddImage (GpImage *image, GpImage *imageNew, GDIPCONST EncoderParameters *params);
+/* GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params); */
+/* GpStatus GdipSaveAddImage (GpImage *image, GpImage *imageNew, GDIPCONST EncoderParameters *params); */
 GpStatus GdipGetImageBounds (GpImage *image, GpRectF *rect, GpUnit *unit);
 GpStatus GdipGetImageDimension (GpImage *image, float *width, float *height);
 GpStatus GdipGetImageType (GpImage *image, ImageType *type);
@@ -91,15 +90,15 @@ GpStatus GdipGetImageHeight (GpImage *image, UINT *heigth);
 GpStatus GdipGetImageHorizontalResolution (GpImage *image, float *resolution);
 GpStatus GdipGetImageVerticalResolution (GpImage *image, float *resolution);
 GpStatus GdipGetImageFlags (GpImage *image, UINT *flags);
-//GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format);
+/* GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format); */
 GpStatus GdipGetImagePixelFormat (GpImage *image, PixelFormat *format);
 /*GpStatus GdipGetImageThumbnail (GpImage *image, UINT width, UINT height, GpImage **thumbImage, GetThumbnailImageAbort callback, VOID* callBackData);*/
-//GpStatus GetEncoderParameterListSize (GpImage *image, GDIPCONST CLSID *encoderCLSID, UINT *size);
-//GpStatus GetEncoderParameterList (GpImage *image, GDIPCONST CLSID *encoderCLSID, UINT size, EncoderParameters *buffer);
+/* GpStatus GetEncoderParameterListSize (GpImage *image, GDIPCONST CLSID *encoderCLSID, UINT *size); */
+/* GpStatus GetEncoderParameterList (GpImage *image, GDIPCONST CLSID *encoderCLSID, UINT size, EncoderParameters *buffer); */
 GpStatus GdipImageGetFrameDimensionsCount (GpImage *image, UINT *count);
-//GpStatus GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count);
-//GpStatus GdipImageGetFrameCount (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count);
-//GpStatus GdipImageSelectActiveFrame (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT index);
+/* GpStatus GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count); */
+/* GpStatus GdipImageGetFrameCount (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count); */
+/* GpStatus GdipImageSelectActiveFrame (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT index); */
 GpStatus GdipImageRotateFlip (GpImage *image, RotateFlipType type);
 GpStatus GdipGetImagePalette (GpImage *image, ColorPalette *palette, int size);
 GpStatus GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette);

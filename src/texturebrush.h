@@ -40,9 +40,12 @@ void gdip_texture_destroy (GpBrush *brush);
 GpStatus GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture);
 GpStatus GdipCreateTexture2 (GpImage *image, GpWrapMode wrapMode, float x, float y, float width, float height, GpTexture **texture);
 GpStatus GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int width, int height, GpTexture **texture);
-// Implement these when implementing ImageAttributes.
-// GpStatus GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x, float y, float width, float height, GpTexture **texture);
-// GpStatus GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x, int y, int width, int height, GpTexture **texture);
+
+/* Implement these when implementing ImageAttributes.
+GpStatus GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x, float y, float width, float height, GpTexture **texture);
+GpStatus GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x, int y, int width, int height, GpTexture **texture);
+*/
+ 
 GpStatus GdipGetTextureTransform (GpTexture *texture, GpMatrix *matrix);
 GpStatus GdipSetTextureTransform (GpTexture *texture, GpMatrix *matrix);
 GpStatus GdipResetTextureTransform (GpTexture *texture);

@@ -67,7 +67,7 @@ typedef struct {
 
 typedef unsigned char byte;
 typedef int bool;
-typedef unsigned short WCHAR; // 16-bits unicode
+typedef unsigned short WCHAR; /* 16-bits unicode */
 typedef unsigned int UINT;
 typedef unsigned int ARGB;
 
@@ -264,7 +264,7 @@ typedef enum {
  * Structures
  *
  */
-typedef struct {    // Keep in sync with BitmapData.cs
+typedef struct {    /* Keep in sync with BitmapData.cs */
 	unsigned int Width;
 	unsigned int Height;
 	int          Stride;
@@ -355,7 +355,7 @@ typedef struct {
 
 typedef struct {
         FcFontSet*  fontset;
-        // Only for private collections
+        /* Only for private collections */
         FcConfig*   config;
 } GpFontCollection;
 
