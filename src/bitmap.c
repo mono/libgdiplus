@@ -21,6 +21,7 @@
  * Authors:
  *   Alexandre Pigolkine (pigolkine@gmx.de)
  *   Vladimir Vukicevic (vladimir@pobox.com)
+ *   Jordi Mas (jordi@ximian.com)
  */
 
 #include <glib.h>
@@ -34,8 +35,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-static GpStatus gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect);
-static GpStatus gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect);
+
 
 /* Pick an unlikely combination. This pixel color will be interpreted as 'transparent' 
    when mapping Wine pixels onto a cairo image. Need to do this crude hack since there
@@ -47,14 +47,15 @@ gdip_bitmap_init (GpBitmap *bitmap)
 {
 	gdip_image_init (&bitmap->image);
 	bitmap->image.type = imageBitmap;
-	bitmap->cairo_format = 0;
 	bitmap->data.Width = 0;
 	bitmap->data.Height = 0;
 	bitmap->data.Stride = 0;
 	bitmap->data.PixelFormat = Format32bppArgb;
 	bitmap->data.Scan0 = 0;
 	bitmap->data.Reserved = 0;
-	
+	bitmap->cairo_format =  CAIRO_FORMAT_ARGB32; /* We always use this format when drawing into  Cairo. We hardcoded this value here*/
+		
+	bitmap->internal_format	= Format32bppArgb; /* Real internal format of Scan0 */
 	bitmap->hBitmapDC = 0;
 	bitmap->hInitialBitmap = 0;
 	bitmap->hBitmap = 0;
@@ -67,7 +68,6 @@ gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
 	*clonedbitmap = (GpBitmap *) GdipAlloc (sizeof (GpBitmap));
 	memcpy (*clonedbitmap, bitmap, sizeof (GpBitmap));
 }
-
 
 
 GpBitmap *
@@ -98,7 +98,7 @@ gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 	bmi->biWidth = bitmap->data.Width;
 	bmi->biHeight = bitmap->data.Height;
 	bmi->biPlanes = 1;
-	bmi->biBitCount = PIXEL_FORMAT_BPP(bitmap->image.pixFormat);
+	bmi->biBitCount = PIXEL_FORMAT_BPP (bitmap->internal_format); /* This basically forces to save 32-bit bitmaps always*/
 	bmi->biCompression = BI_RGB;
 	bmi->biSizeImage =  0; /* Many tools expect this may be set to zero for BI_RGB bitmaps */
 	bmi->biXPelsPerMeter = (int) (0.5f + ((gdip_get_display_dpi() * 3937) / 100));
@@ -188,50 +188,37 @@ GpStatus
 GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *scan0, GpBitmap **bitmap)
 {
 	GpBitmap *result = 0;
-	int cairo_format = 0;
-        bool own_scan0 = FALSE;
-		
-	/* 	When you select CAIRO_FORMAT_RGB24 pixel formats it really uses four bytes
-	 	(RGB32). Then Scan0 is not in the format that you will expect. For now, let's use
-		32bpp in this case 	 */
-				
-	if (format == Format24bppRgb) 
-		format = Format32bppArgb;
-				
-	switch (format) {
-	case Format24bppRgb:
-		cairo_format = CAIRO_FORMAT_RGB24;	
-		break;
-	case Format32bppArgb:
-	case Format32bppRgb:
-		cairo_format = CAIRO_FORMAT_ARGB32;
-		break;
-        case Format8bppIndexed:
-        	cairo_format = CAIRO_FORMAT_A8;        
-		break;
-        case Format1bppIndexed:
-        	cairo_format = CAIRO_FORMAT_A1;
-		break;
-	default:
-		*bitmap = 0;
-		return NotImplemented;
-	}
+	bool own_scan0 = FALSE;
 	
-	if (stride == 0) {
-		int bpp  = gdip_get_pixel_format_components (format);
-		bpp = bpp * gdip_get_pixel_format_depth (format);
-		stride = (bpp * width) / 8;
-		stride = (stride + 3) & ~3;		
-	}
+	result = gdip_bitmap_new ();
+	gdip_bitmap_init (result);	
 
+	/* We are going to allocate a buffer for our internal format*/
 	if (scan0 == NULL) {
+	
+		if (stride == 0) {
+			int bpp  = gdip_get_pixel_format_components (result->internal_format);
+			bpp = bpp * gdip_get_pixel_format_depth (result->internal_format);
+			stride = (bpp * width) / 8;
+			stride = (stride + 3) & ~3;		
+		}	
+		
 		scan0 = GdipAlloc (stride * height);
 		memset (scan0, 0, stride * height);
 		own_scan0 = TRUE;
 	}
-
-	result = gdip_bitmap_new ();
-	result->cairo_format = cairo_format;
+	else {
+		/*
+			TODO: If Scan0 is allocated it may contain data. If the pixelformat!=32
+			it has to be converted and more likely re-allocated since we need at least
+			and extra byte per pixel. In this case, when we do not allocate the buffer
+			we will need to keep two buffers, one in 32bbps and the Scan0 allocated by
+			
+		*/		
+		GdipFree (result);
+		return NotImplemented;	
+	}
+	
 	result->data.Width = result->image.width = width;
 	result->data.Height = result->image.height = height;
 	result->data.PixelFormat = result->image.pixFormat = format;
@@ -251,10 +238,12 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 {
 	GpBitmap 		*result = 0;
 	int 			bmpSize = 0;
-	int 			cairo_format = 0;
 	int 			stride = width;
 	unsigned long	*ptr;
 	unsigned char	*endptr;
+	
+	if (!graphics || !bitmap)
+		return InvalidParameter;
 
 	/*
 	 * FIXME: should get the stride based on the format of the graphics object.
@@ -264,10 +253,11 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 		stride++;
 	
 	stride *= 4;
-	cairo_format = CAIRO_FORMAT_ARGB32;	
+		
 	bmpSize = stride * height;
 	result = gdip_bitmap_new ();
-	result->cairo_format = cairo_format;
+	gdip_bitmap_init (result);
+	
 	result->data.Width = result->image.width = width;
 	result->data.Height = result->image.height = height;
 	result->data.PixelFormat = result->image.pixFormat = Format32bppArgb;
@@ -292,31 +282,31 @@ GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
 					  GpBitmap *original, GpBitmap **bitmap)
 {
 	GpBitmap *result = 0;
-	GdipBitmapData bd;
 	Rect sr = { x, y, width, height };
 	Rect dr = { 0, 0, width, height };
 	GpStatus st;
-
+	
 	g_return_val_if_fail (original != NULL, InvalidParameter);
 	g_return_val_if_fail (bitmap != NULL, InvalidParameter);
 
 	g_return_val_if_fail (x + width <= original->data.Width, InvalidParameter);
 	g_return_val_if_fail (y + height <= original->data.Height, InvalidParameter);
 
-	bd.Scan0 = NULL;
-	bd.PixelFormat = format;
-	st = gdip_bitmap_clone_data_rect (&original->data, &sr, &bd, &dr);
-	if (st != Ok)
-		return st;
-
 	result = gdip_bitmap_new ();
-	result->cairo_format = original->cairo_format;
-	memcpy (&result->data, &bd, sizeof (GdipBitmapData));
-	result->image.pixFormat = format;	/* this is only used by image codecs */
-	result->image.format = original->image.format;
+	gdip_bitmap_init (result);
+	
+	result->image.pixFormat  = result->data.PixelFormat = format;
+	result->image.format = original->image.format;	/* this is only used by image codecs */
+	
+	st = gdip_bitmap_clone_bitmap_rect (original, &sr, result, &dr);
+	if (st != Ok) {
+		GdipDisposeImage ((GpImage *)result);
+		return st;
+	} 
+
 	result->image.height = result->data.Height;
 	result->image.width = result->data.Width;
-		
+	
 	*bitmap = result;
 	return Ok;
 }
@@ -346,38 +336,36 @@ gdip_copy_strides (void *dst, int dstStride, void *src, int srcStride, int realB
  * dest rects must be the same width/height.
  */
 
-static GpStatus
-gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect)
+GpStatus
+gdip_bitmap_clone_bitmap_rect (GpBitmap *src, Rect *srcRect, GpBitmap *dest, Rect *destRect)
 {
 	int dest_components, dest_deph; 
-	
-	g_return_val_if_fail (srcData != NULL, InvalidParameter);
+		
+	g_return_val_if_fail (src != NULL, InvalidParameter);
 	g_return_val_if_fail (srcRect != NULL, InvalidParameter);
-	g_return_val_if_fail (destData != NULL, InvalidParameter);
+	g_return_val_if_fail (dest != NULL, InvalidParameter);
 	g_return_val_if_fail (destRect != NULL, InvalidParameter);
 
 	g_return_val_if_fail (srcRect->Width == destRect->Width, InvalidParameter);
 	g_return_val_if_fail (srcRect->Height == destRect->Height, InvalidParameter);
-
-	g_return_val_if_fail (srcData->PixelFormat == destData->PixelFormat, InvalidParameter);
-
-	dest_components = gdip_get_pixel_format_components (destData->PixelFormat);	
-	dest_deph = gdip_get_pixel_format_depth (destData->PixelFormat);
-
 	
-	if (destData->Scan0 == NULL) {
-		destData->Stride = (((( destRect->Width * dest_components * dest_deph) /8)  + 3) & ~3);
-		destData->Scan0 = GdipAlloc (destData->Stride * destRect->Height);
-		destData->Width = destRect->Width;
-		destData->Height = destRect->Height;
-		destData->PixelFormat = srcData->PixelFormat;
-		destData->Reserved = GBD_OWN_SCAN0;
-	}
-
-	gdip_copy_strides (destData->Scan0, destData->Stride,
-		srcData->Scan0 + (srcData->Stride * srcRect->Y) + (gdip_get_pixel_format_components (srcData->PixelFormat) 
-		* srcRect->X), srcData->Stride,   destRect->Width * dest_components,  destRect->Height);
-
+	dest_components = gdip_get_pixel_format_components (dest->internal_format);	
+	dest_deph = gdip_get_pixel_format_depth (dest->internal_format);
+	
+ 	if (dest->data.Scan0 == NULL) {
+		dest->data.Stride = (((( destRect->Width * dest_components * dest_deph) /8)  + 3) & ~3);
+		dest->data.Scan0 = GdipAlloc (dest->data.Stride * destRect->Height);
+		dest->data.Width = destRect->Width;
+		dest->data.Height = destRect->Height;
+		dest->data.Reserved = GBD_OWN_SCAN0;
+ 	} 
+	
+	/* Since the buffers internally are 32bbp, we always copy strides*/
+	
+	gdip_copy_strides (dest->data.Scan0, dest->data.Stride,
+		src->data.Scan0 + (src->data.Stride * srcRect->Y) + (gdip_get_pixel_format_components (src->internal_format) 
+		* srcRect->X), src->data.Stride,  destRect->Width * dest_components,  destRect->Height);
+		
 	return Ok;
 }
 
@@ -432,13 +420,13 @@ gdip_is_pixel_format_conversion_valid (PixelFormat src, PixelFormat dest)
  * destRect - destination rectangle in output.
  */
 
-static GpStatus
+GpStatus
 gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect)
 {
 	gpointer outBuffer = NULL;
 	gint outStride = 0;
 	PixelFormat srcFormat, destFormat;
-
+	
 	g_return_val_if_fail (srcData != NULL, InvalidParameter);
 	g_return_val_if_fail (srcRect != NULL, InvalidParameter);
 	g_return_val_if_fail (destData != NULL, InvalidParameter);
@@ -579,7 +567,7 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 GpStatus 
 GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, GdipBitmapData *result)
 {
-    g_return_val_if_fail (bitmap != NULL, InvalidParameter);
+	g_return_val_if_fail (bitmap != NULL, InvalidParameter);
 	g_return_val_if_fail (srcRect != NULL, InvalidParameter);
 	g_return_val_if_fail (flags != 0, InvalidParameter);
 	g_return_val_if_fail (result != NULL, InvalidParameter);
@@ -602,7 +590,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 	 */
 	if (srcRect->X == 0 && srcRect->Width == bitmap->data.Width &&
 	    srcRect->Y == 0 && srcRect->Height == bitmap->data.Height &&
-	    format == bitmap->data.PixelFormat)
+	    format == bitmap->internal_format)
 	{
 		/* if the image is read-only, then we just give the
 		 * user a copy of our internal buffer, and expect them
@@ -631,6 +619,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 		convert.Scan0 = NULL;
 		Rect destRect = {0, 0, srcRect->Width, srcRect->Height};
 
+		/* TODO: Take into account internal_format*/
 		if (gdip_bitmap_change_rect_pixel_format (&(bitmap->data), srcRect, &convert, &destRect) != Ok) {
 			/* Unlock before return */
 			bitmap->data.Reserved &= ~GBD_LOCKED;
@@ -696,32 +685,14 @@ GdipBitmapSetPixel (GpBitmap *bitmap, int x, int y, ARGB color)
 		return InvalidParameter;
 
 	v = (unsigned char *)(data->Scan0) + y * data->Stride;
-	switch (data->PixelFormat) {
-		case Format24bppRgb:
-			v += x * 3;
-			v [0] = (color >> 8) & 0xff;
-			v [1] = (color >> 16) & 0xff;
-			v [2] = color >> 24;
-			break;
-			
-		case Format32bppArgb:
-			v += x * 4;
-			v [0] = color & 0xff;
-			v [1] = (color >> 8) & 0xff;
-			v [2] = (color >> 16) & 0xff;
-			v [3] = color >> 24;
-			break;
-			
-		case Format32bppRgb:
-			v += x * 4;
-			v [0] = color & 0xff;
-			v [1] = (color >> 8) & 0xff;
-			v [2] = (color >> 16) & 0xff;
-			v [3] = 0xff;
-			break;
-		default:
-			return NotImplemented;
-	} 
+	
+	/* Pixels are stored always as 32ARGB*/
+	v += x * 4;
+	v [0] = color & 0xff;
+	v [1] = (color >> 8) & 0xff;
+	v [2] = (color >> 16) & 0xff;
+	v [3] = color >> 24;
+	 
 	return Ok;		
 }
 
@@ -741,22 +712,10 @@ GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 		return InvalidParameter;
 
 	v = ((unsigned char *)data->Scan0) + y * data->Stride;
-	switch (data->PixelFormat) {
-		case Format24bppRgb:
-			v += x * 3;
-			*color = (v [1] << 8) | (v [2] << 16) | (v [3] << 24);
-			break;
-		case Format32bppArgb:
-			v += x * 4;
-			*color = (v [0]) | (v [1] << 8) | (v [2] << 16) | (v [3] << 24);
-			break;
-		case Format32bppRgb:
-			v += x * 4;
-			*color = (v [0]) | (v [1] << 8) | (v [2] << 16);
-			break;
-		default:
-			return NotImplemented;
-	} 
+	
+	/* Pixels are stored always a 32ARGB*/
+	v += x * 4;
+	*color = (v [0]) | (v [1] << 8) | (v [2] << 16) | (v [3] << 24);
 	
 	return Ok;
 }

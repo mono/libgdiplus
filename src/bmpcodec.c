@@ -39,14 +39,12 @@
 #include <stdio.h>
 #include "bmpcodec.h"
 
-
 /* Codecinfo related data*/
 static ImageCodecInfo bmp_codec;
 static const WCHAR bmp_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'B', 'M', 'P', 0}; /* Built-in BMP */
 static const WCHAR bmp_extension[] = {'*','.','B', 'M', 'P',';', '*','.', 'D','I', 'B',';', '*','.', 'R', 'L', 'E',0}; /* *.BMP;*.DIB;*.RLE */
 static const WCHAR bmp_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'b', 'm', 'p', 0}; /* image/bmp */
 static const WCHAR bmp_format[] = {'B', 'M', 'P', 0}; /* BMP */
-
 
 ImageCodecInfo *
 gdip_getcodecinfo_bmp ()
@@ -95,6 +93,8 @@ gdip_load_bmp_image_from_file (FILE *fp, GpImage **image)
         int i, j, format, colours;
         BOOL os2format = FALSE, upsidedown = TRUE;
         byte b,g,r,a;
+	GdipBitmapData srcData, destData;
+	Rect srcRect, destRect;
 
         memset (&bmi, 0, sizeof(bmi));
         fread(&bmfh, sizeof(bmfh), 1, fp);
@@ -189,10 +189,29 @@ gdip_load_bmp_image_from_file (FILE *fp, GpImage **image)
                 for (i = 0; i < img->data.Height; i++) 
                         fread(pixels + i*img->data.Stride, img->data.Stride, 1, fp);
         }
+	
+	img->data.Scan0 = pixels;
+        img->data.Reserved = GBD_OWN_SCAN0;        
 
-        img->data.Scan0 = pixels;
-        img->data.Reserved = GBD_OWN_SCAN0;
-        img->image.surface = cairo_surface_create_for_image (pixels,
+	/* We use always Format32bppArgb internally. */
+	if (format != Format32bppArgb) {
+		srcRect.X = destRect.X = srcRect.Y = destRect.Y = 0;
+		srcRect.Width = destRect.Width = img->data.Width;
+		srcRect.Height = destRect.Height = img->data.Height;
+		destData.PixelFormat = Format32bppArgb;
+		destData.Scan0 = NULL;
+	
+		if (gdip_bitmap_change_rect_pixel_format (&img->data, &srcRect, &destData, &destRect) == InvalidParameter) {
+			GdipFree (pixels);
+			return NotImplemented; /* Unsuported pixel format conversion. Cannot work with file*/               
+		}                       
+			
+		GdipFree (pixels);
+		img->data.Stride = destData.Stride;
+		img->data.Scan0 = destData.Scan0;
+	}
+	
+	img->image.surface = cairo_surface_create_for_image (pixels,
                                                          img->cairo_format,
                                                          img->image.width,
                                                          img->image.height,
@@ -206,7 +225,7 @@ gdip_load_bmp_image_from_file (FILE *fp, GpImage **image)
         img->image.propItems = NULL;
 
         *image = (GpImage *) img;
-
+	
         return Ok;
 }
 

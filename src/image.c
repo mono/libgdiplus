@@ -388,6 +388,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
             break;
         case GIF:
             status = gdip_load_gif_image_from_file (fp, &result);
+		printf("\n image.c load image from gif file, status is %d ", status);
 	    result->format = GIF;
             break;
         case PNG:
@@ -734,7 +735,7 @@ gdip_rotate_90 (GpImage *image)
 	BYTE *src, *trg, *rotated;
 	int stride, height, line, x;	
 	GpBitmap *bitmap = (GpBitmap *) image;
-	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
+	int components = gdip_get_pixel_format_components (bitmap->internal_format);		         
 	 
 	bitmap = (GpBitmap *) image;	
         stride = bitmap->data.Stride;
@@ -761,7 +762,7 @@ gdip_rotate_180 (GpImage *image)
 	BYTE *src, *trg, *rotated;
 	int stride, height, line, x;	
 	GpBitmap *bitmap = (GpBitmap *) image;
-	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
+	int components = gdip_get_pixel_format_components (bitmap->internal_format);		         
 	 
 	bitmap = (GpBitmap *) image;	
         stride = bitmap->data.Stride;
@@ -789,7 +790,7 @@ gdip_rotate_270 (GpImage *image)
 	BYTE *src, *trg, *rotated;
 	int stride, height, line, x;	
 	GpBitmap *bitmap = (GpBitmap *) image;
-	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
+	int components = gdip_get_pixel_format_components (bitmap->internal_format);		         
 	 
 	bitmap = (GpBitmap *) image;	
         stride = bitmap->data.Stride;
@@ -818,7 +819,7 @@ gdip_FlipX (GpImage *image)
 	BYTE *src, *trg, *rotated;
 	int stride, height, line, x;	
 	GpBitmap *bitmap = (GpBitmap *) image;
-	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
+	int components = gdip_get_pixel_format_components (bitmap->internal_format);		         
 	 
 	bitmap = (GpBitmap *) image;	
         stride = bitmap->data.Stride;
