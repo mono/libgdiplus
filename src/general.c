@@ -63,7 +63,7 @@ static void _load_x11drv ()
 		full = malloc (strlen (path) + 30);
 		strcpy (full, path);
 		strcat (full, "/");
-		strcat (full, x11drvHandle);
+		strcat (full, "x11drv.dll.so");
 		
 		x11drvHandle = dlopen (full, 1);
 		free (full);
