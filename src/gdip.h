@@ -622,6 +622,7 @@ typedef struct {
 
 typedef struct {
         bool is_hotkey;
+        bool has_newline;
         float tab_distance;
 }GpGlyphsDetails;
 

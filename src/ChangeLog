@@ -1,3 +1,8 @@
+2004-04-29  Peter Bartok <pbartok@novell.com>
+   * gdip.h: Added flag for multiline strings
+   * graphics.cs: Fixed bug #56800, DrawString now handles \n (and
+   ignores \r, like Microsoft)
+
 2004-04-29 Jordi Mas i Hernandez <jordi@ximian.com>
 	* image.c: fixes GdipSaveImageToFile using FormatID as parameter
         instead of the coded Clsid

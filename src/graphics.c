@@ -1220,6 +1220,7 @@ gdip_prepareString(GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpStrin
 
         if (len) {
                 cur_glyphs_details->is_hotkey = FALSE;
+                cur_glyphs_details->has_newline = FALSE;
                 cur_glyphs_details->tab_distance = 0;
         }
 
@@ -1227,10 +1228,18 @@ gdip_prepareString(GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpStrin
 
                 if (format_char == FALSE) {
                         cur_glyphs_details->is_hotkey = FALSE;
+                        cur_glyphs_details->has_newline = FALSE;
                         cur_glyphs_details->tab_distance = 0;
                 }
 
-                if (*src_str == '\t'){
+                if (*src_str == '\n'){
+                        cur_glyphs_details->has_newline = TRUE;
+                        format_char=TRUE;
+                        continue;
+                } else if (*src_str == '\r'){
+                        /* We ignore \r, like Microsoft */
+                        continue;
+                } else if (*src_str == '\t'){
                         cur_glyphs_details->is_hotkey = FALSE;
                         if (tabs) {
                                 cur_glyphs_details->tab_distance = *tabStops;
@@ -1265,6 +1274,7 @@ gdip_prepareString(GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpStrin
         }
 
         cur_glyphs_details->is_hotkey = FALSE;
+        cur_glyphs_details->has_newline = FALSE;
         cur_glyphs_details->tab_distance = 0;
 
         *trg_str = 0;
@@ -1306,7 +1316,7 @@ gdip_measure_string_pos (char* string, int len, GpGlyphsDetails *glyphs_details,
                 if (w > max)
                         max = w;
 
-		if ((current_glyph+1 < num_widths+1) && (w + *(ppos+1)) < rc->Width)
+		if ((current_glyph+1 < num_widths+1) && ((w + *(ppos+1)) < rc->Width) && (cur_glyphs_details->has_newline==FALSE))
                         continue;
 
                 if (pPoints) {
@@ -1521,7 +1531,7 @@ GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode,
 
                 w += *ppos;
 
-                if (((current_glyph+1 < num_widths+1) && (w + *(ppos+1)) <rc->Width))
+                if ((current_glyph+1 < num_widths+1) && ((w + *(ppos+1)) <rc->Width) && ((cur_glyphs_details+1)->has_newline==FALSE))
                         continue;
 
                 curString = (char *) g_utf16_to_utf8 (pUnicode, (glong)current_glyph-nLast, NULL, NULL, NULL);
