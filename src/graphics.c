@@ -654,38 +654,45 @@ GdipDrawLineI (GpGraphics *graphics, GpPen *pen,
 GpStatus 
 GdipDrawLines (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 {
-        GpStatus s;
-        int i, j;
+	GpStatus s;
+	int i, j;
 
-        for (i = 0; i < count - 1; i++) {
-                j = i + 1;
-                s = GdipDrawLine (graphics, pen, 
-				  points [i].X, points [i].Y,
-				  points [j].X, points [j].Y);
+	cairo_save (graphics->ct);
 
-                if (s != Ok) return s;
-        }
+	gdip_pen_setup (graphics, pen);
 
-        return gdip_get_status (cairo_status (graphics->ct));
+	for (i = 0; i < count - 1; i++) {
+		j = i + 1;
+		cairo_move_to (graphics->ct, points [i].X, points [i].Y);
+		cairo_line_to (graphics->ct, points [j].X, points [j].Y);
+		cairo_stroke (graphics->ct);
+	}
+
+	cairo_restore (graphics->ct);
+
+	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus 
-GdipDrawLinesI (GpGraphics *graphics, GpPen *pen,
-                GpPoint *points, int count)
+GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 {
-        GpStatus s;
-        int i, j;
+	GpStatus s;
+	int i, j;
 
-        for (i = 0; i < count - 1; i++) {
-                j = i + 1;
-                s = GdipDrawLineI (graphics, pen, 
-				   points [i].X, points [i].Y,
-				   points [j].X, points [j].Y);
+	cairo_save (graphics->ct);
 
-                if (s != Ok) return s;
-        }
+	gdip_pen_setup (graphics, pen);
 
-        return Ok;
+	for (i = 0; i < count - 1; i++) {
+		j = i + 1;
+		cairo_move_to (graphics->ct, points [i].X, points [i].Y);
+		cairo_line_to (graphics->ct, points [j].X, points [j].Y);
+		cairo_stroke (graphics->ct);
+	}
+
+	cairo_restore (graphics->ct);
+
+	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 static GpStatus

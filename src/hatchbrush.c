@@ -1580,7 +1580,7 @@ draw_diagonal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_form
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 		cairo_set_line_width (ct, line_width);
 
-		/* draw one full diagonal and half of another diagonal. */
+		/* draw one full diagonal line and half of another diagonal line */
 		cairo_move_to (ct, 0, hatch_size);
 		cairo_line_to (ct, hatch_size, 0);
 		cairo_move_to (ct, hatch_size / 2.0, hatch_size / 2.0);
@@ -1591,7 +1591,7 @@ draw_diagonal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_form
 	}
 
 	/* set the pattern for the consequent fill or stroke */
-        gdip_cairo_set_surface_pattern (ct, hatch);
+	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
 
 	return Ok;
@@ -1652,7 +1652,7 @@ draw_horizontal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_fo
 	}
 
 	/* set the pattern for the consequent fill or stroke */
-        gdip_cairo_set_surface_pattern (ct, hatch);
+	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
 
 	return Ok;
@@ -1707,7 +1707,7 @@ draw_weave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 		cairo_line_to (ct, hatch_size / 2.0, 0);
 		/* this makes up one of the lower connectors also */
 		cairo_line_to (ct, hatch_size, hatch_size / 2.0);
-		/* complete the 'C' shape */
+		/* complete the diagonal 'C' shape */
 		cairo_move_to (ct, 3 * hatch_size / 4.0, hatch_size / 4.0);
 		cairo_line_to (ct, 0, hatch_size);
 
@@ -1728,7 +1728,7 @@ draw_weave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 	}
 
 	/* set the pattern for the consequent fill or stroke */
-        gdip_cairo_set_surface_pattern (ct, hatch);
+	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
 
 	return Ok;
@@ -1883,7 +1883,7 @@ draw_divot_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 	}
 
 	/* set the pattern for the consequent fill or stroke */
-        gdip_cairo_set_surface_pattern (ct, hatch);
+	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
 
 	return Ok;
@@ -2065,7 +2065,7 @@ draw_trellis_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t fo
 	}
 
 	/* set the pattern for the consequent fill or stroke */
-        gdip_cairo_set_surface_pattern (ct, hatch);
+	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
 
 	return Ok;
