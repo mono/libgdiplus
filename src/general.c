@@ -53,6 +53,7 @@ GdiplusStartup(unsigned long *token, const struct startupInput *input, struct st
 {
         initCodecList (); 
 	*token = 1;
+	gdip_get_display_dpi();
 	return Ok;
 }
 

@@ -36,6 +36,7 @@
 
 #include "cairoint.h"
 #include "cairo-xlib.h"
+#include <pthread.h>
 
 void
 cairo_set_target_drawable (cairo_t	*cr,
@@ -957,16 +958,18 @@ static const cairo_cache_backend_t _xlib_glyphset_cache_backend = {
 static glyphset_cache_t *
 _xlib_glyphset_caches = NULL;
 
+static pthread_mutex_t glyphcachelock = PTHREAD_MUTEX_INITIALIZER;
+
 static void
 _lock_xlib_glyphset_caches (void)
 {
-    /* FIXME: implement locking */
+    pthread_mutex_lock(&glyphcachelock);
 }
 
 static void
 _unlock_xlib_glyphset_caches (void)
 {
-    /* FIXME: implement locking */
+    pthread_mutex_unlock(&glyphcachelock);
 }
 
 static glyphset_cache_t *

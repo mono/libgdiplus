@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2004 Ximian
+ * Copyright (c) 2004-2005 Novell, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -24,6 +25,7 @@
 #include <math.h>
 #include <glib.h>
 #include <freetype/tttables.h>
+#include <pthread.h>
 
 
 /* Generic fonts families */
@@ -46,6 +48,10 @@ static int ref_familyMonospace = 0;
 #define MAX_CACHED_FONTS 128
 static GpCachedFont cached_fonts [MAX_CACHED_FONTS];
 static int cached_fonts_index = 0;
+static pthread_mutex_t	fontcache_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+#define	LOCK_FONTCACHE		pthread_mutex_lock(&fontcache_mutex)
+#define	UNLOCK_FONTCACHE	pthread_mutex_unlock(&fontcache_mutex)
 
 /* Family and collections font functions */
 
@@ -614,8 +620,12 @@ gdip_release_cachedfonts ()
 	int i;
 
 	/* Loop all the cached fonts */
-	for (i = 0; i < cached_fonts_index; i++)
+	
+	LOCK_FONTCACHE;
+	for (i = 0; i < cached_fonts_index; i++) {
 		gdip_release_font (cached_fonts[i].font);
+	}
+	UNLOCK_FONTCACHE;
 }
 
 
@@ -637,7 +647,9 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 	
 	gdip_unitConversion (unit, UnitPixel, emSize, &sizeInPixels);
 
+	
 	/* Is it already in the cache */
+	LOCK_FONTCACHE;
 	for (i = 0; i < cached_fonts_index; i++) {
 		if (sizeInPixels != cached_fonts[i].sizeInPixels)
 			continue;
@@ -654,8 +666,10 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 		/* Found in cache */
 		*font = cached_fonts[i].font;
 		cached_fonts[i].refcount++;
+		UNLOCK_FONTCACHE;
 		return Ok;
 	}
+	UNLOCK_FONTCACHE;
 
 	result = (GpFont *) GdipAlloc (sizeof (GpFont));
 	result->sizeInPixels = sizeInPixels;
@@ -677,6 +691,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 		return Ok;
 	
 	/* Cache entry */
+	LOCK_FONTCACHE;
 	if (cached_fonts_index < MAX_CACHED_FONTS) {
 		strcpy (cached_fonts[cached_fonts_index].szFamily, (const char *)str);
 		cached_fonts[cached_fonts_index].sizeInPixels = sizeInPixels;
@@ -699,6 +714,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 			cached_fonts[i].refcount = 1;
 		}	
 	}
+	UNLOCK_FONTCACHE;
         
 	return Ok;
 }
@@ -723,14 +739,17 @@ GdipDeleteFont (GpFont* font)
 		return InvalidParameter;
 
 	/* Is is in the cache */
+	LOCK_FONTCACHE;
 	for (i = 0; i < cached_fonts_index; i++) {
 		if (font != cached_fonts[i].font)
 			continue;		
 
 		/* Found in cache */
 		cached_fonts[i].refcount--;
+		UNLOCK_FONTCACHE;
 		return Ok;
 	}
+	UNLOCK_FONTCACHE;
 
 	gdip_release_font (font);
 	return Ok;	       

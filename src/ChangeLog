@@ -1,3 +1,9 @@
+2005-03-30 Peter Bartok  <pbartok@novell.com>
+
+	* font.c: Added locking for font cache
+	* general.c: Grab DPIs on startup, avoid potential race condition 
+	  with multiple threads using gdiplus and trying to get dpi
+
 2005-03-29 Peter Bartok  <pbartok@novell.com>
 
 	* bitmap.c: Removed set_pixel_bgra() and get_pixel_bgra() functions,

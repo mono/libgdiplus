@@ -25,6 +25,7 @@
 #include "cairoint.h"
 #include "cairo-ft.h"
 
+#include <pthread.h>
 #include <fontconfig/fontconfig.h>
 #include <fontconfig/fcfreetype.h>
 
@@ -223,8 +224,9 @@ _ft_font_cache_create_entry (void *cache,
     cairo_ft_cache_entry_t *entry;
 
     entry = malloc (sizeof (cairo_ft_cache_entry_t));
-    if (entry == NULL)
+    if (entry == NULL) {
 	return CAIRO_STATUS_NO_MEMORY;
+    }
 
     entry->key.pattern = FcPatternDuplicate (k->pattern);
     if (!entry->key.pattern) {
@@ -267,17 +269,18 @@ static const cairo_cache_backend_t _ft_font_cache_backend = {
 };
 
 static ft_cache_t *_global_ft_cache = NULL;
+static pthread_mutex_t ftcachelock = PTHREAD_MUTEX_INITIALIZER;
 
 static void
 _lock_global_ft_cache (void)
 {
-    /* FIXME: Perform locking here. */
+    pthread_mutex_lock(&ftcachelock);
 }
 
 static void
 _unlock_global_ft_cache (void)
 {
-    /* FIXME: Perform locking here. */
+    pthread_mutex_unlock(&ftcachelock);
 }
 
 static cairo_cache_t *

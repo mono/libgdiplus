@@ -1,3 +1,9 @@
+2005-03-30  Peter Bartok  <pbartok@novell.com>
+
+	* src/cairo_font.c: Implemented locking
+	* src/cairo_ft_font.c: Implemented locking
+	* src/cairo_xlib_surface.c: Implemented locking
+
 2005-03-22  Raja R Harinath  <rharinath@novell.com>
 
 	* test/Makefile.am (INCLUDES): Work with srcdir != builddir.

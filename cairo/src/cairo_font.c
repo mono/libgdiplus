@@ -35,6 +35,7 @@
  */
 
 #include "cairoint.h"
+#include <pthread.h>
 
 /* First we implement a global font cache for named fonts. */
 
@@ -151,16 +152,18 @@ static const cairo_cache_backend_t cairo_font_cache_backend = {
     _font_cache_destroy_cache
 };
 
+static pthread_mutex_t fontcachelock = PTHREAD_MUTEX_INITIALIZER;
+
 static void
 _lock_global_font_cache (void)
 {
-    /* FIXME: implement locking. */
+    pthread_mutex_lock(&fontcachelock);
 }
 
 static void
 _unlock_global_font_cache (void)
 {
-    /* FIXME: implement locking. */
+    pthread_mutex_unlock(&fontcachelock);
 }
 
 static cairo_cache_t *
@@ -481,16 +484,18 @@ static const cairo_cache_backend_t cairo_image_cache_backend = {
     _image_glyph_cache_destroy_cache
 };
 
+static pthread_mutex_t imgcachelock = PTHREAD_MUTEX_INITIALIZER;
+
 void
 _cairo_lock_global_image_glyph_cache()
 {
-    /* FIXME: implement locking. */
+    pthread_mutex_lock(&imgcachelock);
 }
 
 void
 _cairo_unlock_global_image_glyph_cache()
 {
-    /* FIXME: implement locking. */
+    pthread_mutex_unlock(&imgcachelock);
 }
 
 static cairo_cache_t *
