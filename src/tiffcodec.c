@@ -137,60 +137,75 @@ GpStatus
 gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *params)
 {
 	GpBitmap *bitmap = (GpBitmap *) image;	
-	unsigned char *buf = NULL;
-	int i, linebytes;
+	/*unsigned char **buf  = NULL;*/
+	int i, j, k, linebytes;
 	guint32 *r32 = NULL;
 	size_t npixels;
+	int dimensionCount = 0;
+	int frameCount = 0;
+	BitmapData data;
 					
 	if (!tiff)
 		return InvalidParameter;		
-		
-	TIFFSetField (tiff, TIFFTAG_IMAGEWIDTH, bitmap->data.Width);  
-	TIFFSetField (tiff, TIFFTAG_IMAGELENGTH, bitmap->data.Height); 
-	TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, 4); /* Hardcoded 32bbps*/
-	TIFFSetField (tiff, TIFFTAG_BITSPERSAMPLE, 8);  
-	TIFFSetField (tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);   
-	TIFFSetField (tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG); 
-	TIFFSetField (tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-	linebytes =  bitmap->data.Stride;     	
-	
-	if (TIFFScanlineSize (tiff) < linebytes) 
-		buf =(unsigned char *)_TIFFmalloc (linebytes); 
-	else 
-		buf = (unsigned char *)_TIFFmalloc (TIFFScanlineSize (tiff)); 
 
-	TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, linebytes)); 
-
-	/* We store data in ABGR format, but tiff stores it in ARGB, 
-	 * so convert before writing it. 
-	 */	 
-	npixels = bitmap->image.width * bitmap->image.height;
-	r32 = bitmap->data.Scan0;
-	/* flip bytes */
-	for (i = 0; i < npixels; i++) {
-		*r32 = (*r32 & 0xff000000) | ((*r32 & 0x00ff0000) >> 16) |
-				(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
-		r32++;
-	}
-	
-	/*write data*/
-	for (i = 0; i < bitmap->data.Height; i++) {
-		if (TIFFWriteScanline (tiff, bitmap->data.Scan0 + i *bitmap->data.Stride, i, 0) < 0) 
-			break;
-	}
+	dimensionCount = image->frameDimensionCount; 
+	/**buf = (unsigned char *) GdipAlloc( sizeof (unsigned char *) * dimensionCount);*/
 		
-	/* image data might be reused again, so convert back to ABGR*/
-	r32 = bitmap->data.Scan0;
-	for (i = 0; i < npixels; i++) {
-		*r32 = (*r32 & 0xff000000) | ((*r32 & 0x00ff0000) >> 16) |
-				(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
-		r32++;
-	}
+	for (j = 0; j < dimensionCount; j++) {
+		frameCount = image->frameDimensionList [j].count;
+		/*(*buf)[j] = (unsigned char *) GdipAlloc ( sizeof (unsigned char *) * frameCount);*/
+		for (k = 0; k < frameCount; k++) {
+			data = image->frameDimensionList [j].frames [k];
+			TIFFSetField (tiff, TIFFTAG_IMAGEWIDTH, data.Width);  
+			TIFFSetField (tiff, TIFFTAG_IMAGELENGTH, data.Height); 
+			TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, 4); /* Hardcoded 32bbps*/
+			TIFFSetField (tiff, TIFFTAG_BITSPERSAMPLE, 8);  
+			TIFFSetField (tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);   
+			TIFFSetField (tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG); 
+			TIFFSetField (tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+			linebytes =  data.Stride;     	
+			
+			/*if (TIFFScanlineSize (tiff) < linebytes) 
+				buf[j][k] =(unsigned char *)_TIFFmalloc (linebytes); 
+			else 
+				buf[j][k] = (unsigned char *)_TIFFmalloc (TIFFScanlineSize (tiff)); */
+
+			TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, linebytes)); 
+			TIFFWriteDirectory (tiff);
+
+			/* We store data in ABGR format, but tiff stores it in ARGB, 
+			* so convert before writing it. 
+			*/	 
+			npixels = data.Width * data.Height;
+			r32 = data.Scan0;
+			/* flip bytes */
+			for (i = 0; i < npixels; i++) {
+				*r32 = (*r32 & 0xff000000) | ((*r32 & 0x00ff0000) >> 16) |
+						(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
+				r32++;
+			}
+			
+			/*write data*/
+			for (i = 0; i < data.Height; i++) {
+				if (TIFFWriteScanline (tiff, data.Scan0 + i * data.Stride, i, 0) < 0) 
+					break;
+			}
+				
+			/* image data might be reused again, so convert back to ABGR*/
+			r32 = data.Scan0;
+			for (i = 0; i < npixels; i++) {
+				*r32 = (*r32 & 0xff000000) | ((*r32 & 0x00ff0000) >> 16) |
+						(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
+				r32++;
+			}
 	
+		}
+	}
+				
 	TIFFClose (tiff); 
 		
-	if (buf) 
-		_TIFFfree (buf);
+	/*if (buf) 
+		_TIFFfree (buf);*/
 
 	return Ok;
 }
