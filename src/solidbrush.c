@@ -58,7 +58,7 @@ gdip_solidfill_setup (GpGraphics *graphics, GpBrush *brush)
         int R = (solid->color & 0x00FF0000) >> 16;
         int G = (solid->color & 0x0000FF00) >> 8;
         int B = (solid->color & 0x000000FF);
-        cairo_set_rgb_color (graphics->ct, (double) R, (double) G, (double) B);
+        cairo_set_rgb_color (graphics->ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 }
 
 void

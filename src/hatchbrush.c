@@ -344,7 +344,7 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int
 		line_width *= 1.5; 	/* docs say nothing about line width               */
 	}
 	else if (hatchStyle == HatchStyleDarkHorizontal) {
-		hatch_size *= 0.7; 	/* As per the docs lines should be 50% closer than */
+		hatch_size *= 0.6; 	/* As per the docs lines should be 50% closer than */
 					/* horizontal i.e. multiplication factor of 0.5    */
 		line_width *= 2.0; 	/* As per the docs line width should be twice the  */
 					/* width of horizontal i.e. multiplication factor  */
@@ -365,7 +365,7 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int
 		int R = (backcolor & 0x00FF0000) >> 16;
 		int G = (backcolor & 0x0000FF00) >> 8;
 		int B = (backcolor & 0x000000FF);
-		cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
+		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
 		cairo_fill (ct);
@@ -374,7 +374,7 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int
 		R = (forecolor & 0x00FF0000) >> 16;
 		G = (forecolor & 0x0000FF00) >> 8;
 		B = (forecolor & 0x000000FF);
-		cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
+		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_set_line_width (ct, line_width);
 		cairo_move_to (ct, 0, hatch_size / 2.0);
@@ -404,7 +404,7 @@ void draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, 
 		line_width *= 1.5; 	/* docs say nothing about line width               */
 	}
 	else if (hatchStyle == HatchStyleDarkVertical) {
-		hatch_size *= 0.7; 	/* As per the docs lines should be 50% closer than */
+		hatch_size *= 0.6; 	/* As per the docs lines should be 50% closer than */
 					/* vertical i.e. multiplication factor of 0.5      */
 		line_width *= 2.0; 	/* As per the docs line width should be twice the  */
 					/* width of vertical i.e. multiplication factor of */
@@ -425,7 +425,7 @@ void draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, 
 		int R = (backcolor & 0x00FF0000) >> 16;
 		int G = (backcolor & 0x0000FF00) >> 8;
 		int B = (backcolor & 0x000000FF);
-		cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
+		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
 		cairo_fill (ct);
@@ -434,7 +434,7 @@ void draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, 
 		R = (forecolor & 0x00FF0000) >> 16;
 		G = (forecolor & 0x0000FF00) >> 8;
 		B = (forecolor & 0x000000FF);
-		cairo_set_rgb_color (ct, (double) R, (double) G, (double) B);
+		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_set_line_width (ct, line_width);
 		cairo_move_to (ct, hatch_size / 2.0, 0);
