@@ -1,3 +1,12 @@
+2004-10-09  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Added 'last_pen' and 'last_brush' members to
+	GpGraphics struct for caching.
+	* brush.h: Added a boolean type 'changed' member to GpBrush.
+	* brush.c: Added caching, to avoid multiple brush setups.
+	* graphics.c: Initialization of cached pen and brush. Removed
+	unwanted calls to cairo_save/cairo_restore.
+
 2004-10-08  Ravindra <rkumar@novell.com>
 
 	* image.c: Fixed GdipDisposeImage function.

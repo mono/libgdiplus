@@ -53,6 +53,8 @@ gdip_graphics_init (GpGraphics *graphics)
 	graphics->page_unit = UnitDisplay;
 	graphics->scale = 1.0f;
 	graphics->interpolation = InterpolationModeDefault;
+	graphics->last_pen = NULL;
+	graphics->last_brush = NULL;
 }
 
 GpGraphics *
@@ -2160,8 +2162,6 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	}
 
 	if (draw) {
-		cairo_save (graphics->ct);
-
 		/* Set our clipping rectangle */
 		if ((rc->Width!=0) && (rc->Height!=0) && ((fmt->formatFlags & StringFormatFlagsNoClip)==0)) {
 #ifdef DRAWSTRING_DEBUG
@@ -2320,7 +2320,6 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		}
 
 		cairo_font_set_transform(font->cairofnt, &SavedMatrix);
-		cairo_restore (graphics->ct);
 	}
 
 Done:
@@ -2336,7 +2335,6 @@ Done:
 	if (format != fmt) {
 		GdipDeleteStringFormat (fmt);
 	}
-
 	return Ok;
 }
 

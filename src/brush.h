@@ -25,6 +25,7 @@ typedef struct _BrushClass {
 
 typedef struct _Brush {
 	BrushClass *vtable;
+	BOOL changed;
 } Brush;
 
 /* used by gradient brushes */

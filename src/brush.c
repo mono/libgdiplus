@@ -30,12 +30,33 @@ void
 gdip_brush_init (GpBrush *brush, BrushClass* vtable)
 {
 	brush->vtable = vtable;
+
+	/* Set the changed state to true, so that we don't miss the
+	 * first setup of the brush.
+	 */
+	brush->changed = TRUE;
 }
 
 GpStatus
 gdip_brush_setup (GpGraphics *graphics, GpBrush *brush)
 {
-	return brush->vtable->setup (graphics, brush);
+	/* Don't need to setup, if brush is the same as the cached brush and
+	 * it is not changed. Just comparing pointers may not be sufficient
+	 * to say that the brushes are same. It is possible to have different
+	 * brush on the same memory, but probability is very low. We would
+	 * need a function to check the equality of the brushes in that case.
+	 */
+	if (brush == graphics->last_brush && !brush->changed)
+		return Ok;
+	else {
+		GpStatus status = brush->vtable->setup (graphics, brush);
+		if (status == Ok) {
+			brush->changed = FALSE;
+			graphics->last_brush = brush;
+		}
+
+		return status;
+	}
 }
 
 GpStatus

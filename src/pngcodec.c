@@ -252,6 +252,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
         GdipFree (pngsrc);
 
     *image = (GpImage *) img;
+
     return Ok;
 
   error:

@@ -610,20 +610,6 @@ typedef struct {
 	int first, length;
 } CharacterRange;
 
-typedef struct {
-	cairo_t         *ct;
-	cairo_matrix_t  *copy_of_ctm;
-	void            *hdc;
-	int             hdc_busy_count;
-	void            *image;
-	int             type; 
-	GpRegion*	clip;
-	GpRect		bounds;
-	GpUnit		page_unit;
-	float		scale;
-	InterpolationMode interpolation;
-} GpGraphics;
-
 typedef struct _CustomLineCap GpCustomLineCap;
 typedef struct _AdjustableArrowCap GpAdjustableArrowCap;
 typedef struct _Brush GpBrush;
@@ -648,6 +634,22 @@ typedef struct {
         GpMatrix *matrix;
         BOOL changed; /* flag to mark if pen is changed and needs setup */
 } GpPen;
+
+typedef struct {
+	cairo_t         *ct;
+	cairo_matrix_t  *copy_of_ctm;
+	void            *hdc;
+	int             hdc_busy_count;
+	void            *image;
+	int             type; 
+	GpRegion*	clip;
+	GpRect		bounds;
+	GpUnit		page_unit;
+	float		scale;
+	InterpolationMode interpolation;
+	GpPen*		last_pen;	/* caching pen and brush to avoid unnecessary sets */
+	GpBrush*	last_brush;
+} GpGraphics;
 
 typedef struct {
 	cairo_matrix_t		*matrix;
