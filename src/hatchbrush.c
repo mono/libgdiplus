@@ -292,7 +292,7 @@ draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 
 	g_return_val_if_fail (hatch != NULL, OutOfMemory);
 
-	/* draw hatch */
+	/* draw one hatch */
 	{
 		cairo_save (ct);
 
@@ -782,8 +782,11 @@ draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 		temp = cairo_surface_create_similar (cairo_current_target_surface (ct),
 						     format, temp_size, temp_size);
 		
-		g_return_val_if_fail (temp != NULL, OutOfMemory);
-		
+		if (temp == NULL) {
+		  cairo_surface_destroy (hatch);
+		  return OutOfMemory;
+		}
+
 		cairo_surface_set_repeat (temp, 1);
 
 		int Rb = (backcolor & 0x00FF0000) >> 16;
@@ -817,7 +820,7 @@ draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 			cairo_fill (ct);
 
 			cairo_restore (ct);
-		}
+		} /* 50% hatch*/
 
 		/* set the pattern for the consequent fill or stroke */
 		gdip_cairo_set_surface_pattern (ct, temp);
@@ -852,7 +855,7 @@ draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 		cairo_fill (ct);
 
 		cairo_restore (ct);
-	}
+	} /* 10% hatch */
 
 	/* set the pattern for the consequent fill or stroke */
 	gdip_cairo_set_surface_pattern (ct, hatch);
@@ -1081,7 +1084,7 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 
 	g_return_val_if_fail (hatch != NULL, OutOfMemory);
 
-	/* draw hatch */
+	/* draw one hatch */
 	{
 		cairo_save (ct);
 
@@ -1175,7 +1178,7 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width
 
 	g_return_val_if_fail (hatch != NULL, OutOfMemory);
 	
-	/* draw hatch */
+	/* draw one hatch */
 	{
 		cairo_save (ct);
 
@@ -1432,9 +1435,60 @@ draw_zigzag_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int hei
 }
 
 GpStatus
-draw_wave_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
+draw_wave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format)
 {
-	return NotImplemented;
+	cairo_surface_t *hatch;
+	double hatch_wd = HATCH_SIZE + 2;
+	double hatch_ht = hatch_wd / 2.0;
+
+	double line_width = LINE_WIDTH;
+
+	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
+					      format, hatch_wd, hatch_ht);
+
+	g_return_val_if_fail (hatch != NULL, OutOfMemory);
+
+	cairo_surface_set_repeat (hatch, 1);
+	
+	/* draw one hatch */
+	{
+		cairo_save (ct);
+
+		/* hatch is not supposed to be affected by user matrix */
+		cairo_identity_matrix (ct);
+		cairo_set_target_surface (ct, hatch);
+
+		/* draw background */
+		int R = (backcolor & 0x00FF0000) >> 16;
+		int G = (backcolor & 0x0000FF00) >> 8;
+		int B = (backcolor & 0x000000FF);
+		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
+
+		cairo_rectangle (ct, 0, 0, hatch_wd, hatch_ht);
+		cairo_fill (ct);
+
+		/* set foreground */
+		R = (forecolor & 0x00FF0000) >> 16;
+		G = (forecolor & 0x0000FF00) >> 8;
+		B = (forecolor & 0x000000FF);
+		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
+
+		cairo_set_line_width (ct, line_width);
+
+		/* draw a horizontal 'S' shape */
+		cairo_move_to (ct, 1.0, hatch_ht / 2.0);
+		cairo_curve_to (ct, 1.0, hatch_ht / 2.0, hatch_wd / 4.0, hatch_ht, hatch_wd / 2.0, hatch_ht / 2.0);
+		cairo_curve_to (ct, hatch_wd / 2.0, hatch_ht / 2.0, 3 * hatch_wd / 4.0, 1.0, hatch_wd - 1.0, hatch_ht / 2.0);
+		cairo_stroke (ct);
+
+		cairo_restore (ct);
+	}
+
+	/* set the pattern for the consequent fill or stroke */
+        gdip_cairo_set_surface_pattern (ct, hatch);
+	cairo_surface_destroy (hatch);
+
+	return Ok;
 }
 
 GpStatus
@@ -1512,9 +1566,98 @@ draw_weave_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int heig
 }
 
 GpStatus
-draw_plaid_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
+draw_plaid_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format)
 {
-	return NotImplemented;
+	cairo_surface_t *hatch, *temp;
+	double hatch_size = HATCH_SIZE + 1;
+	double temp_size = 2;
+
+	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
+					      format, hatch_size, hatch_size);
+
+	g_return_val_if_fail (hatch != NULL, OutOfMemory);
+
+	cairo_surface_set_repeat (hatch, 1);
+
+	/* draw one hatch that has 50% of area as 50% hatch and remaining area
+	 * equally covered by each of foreground and background colors.
+	 */
+	{
+		cairo_save (ct);
+
+		temp = cairo_surface_create_similar (cairo_current_target_surface (ct),
+						     format, temp_size, temp_size);
+		
+		if (temp == NULL) {
+		  cairo_surface_destroy (hatch);
+		  return OutOfMemory;
+		}
+
+		cairo_surface_set_repeat (temp, 1);
+
+		int Rb = (backcolor & 0x00FF0000) >> 16;
+		int Gb = (backcolor & 0x0000FF00) >> 8;
+		int Bb = (backcolor & 0x000000FF);
+
+		int Rf = (forecolor & 0x00FF0000) >> 16;
+		int Gf = (forecolor & 0x0000FF00) >> 8;
+		int Bf = (forecolor & 0x000000FF);
+		
+		/* draw a 50% hatch */
+		{
+			cairo_save (ct);
+			
+			/* hatch is not supposed to be affected by user matrix */
+			cairo_identity_matrix (ct);
+			cairo_set_target_surface (ct, temp);
+			
+			/* draw background */
+			cairo_set_rgb_color (ct, (double) Rb / 255.0, (double) Gb / 255.0, (double) Bb / 255.0);
+			
+			cairo_rectangle (ct, 0, 0, temp_size, temp_size);
+			cairo_fill (ct);
+			
+			/* draw two diagonal lines in the foreground */
+			cairo_set_rgb_color (ct, (double) Rf / 255.0, (double) Gf / 255.0, (double) Bf / 255.0);
+			
+			cairo_rectangle (ct, 0, 0, temp_size / 2.0, temp_size / 2.0);
+			cairo_fill (ct);
+			
+			cairo_rectangle (ct, temp_size / 2.0, temp_size / 2.0, temp_size, temp_size);
+			cairo_fill (ct);
+
+			cairo_restore (ct);
+		} /* 50% hatch*/
+
+		/* set the pattern for the consequent fill or stroke */
+		gdip_cairo_set_surface_pattern (ct, temp);
+		cairo_surface_destroy (temp);
+
+		/* hatch is not supposed to be affected by user matrix */
+		cairo_identity_matrix (ct);
+		/* temp hatch is used as background, so we get 50% hatch */
+		cairo_set_target_surface (ct, hatch);
+		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
+		cairo_fill (ct);
+
+		/* draw two rectangle in the foregound to make up 50% of plaid */
+		/* foreground is filled with 25% of background color and 25% of foreground color */
+		cairo_set_rgb_color (ct, (double) Rf / 255.0, (double) Gf / 255.0, (double) Bf / 255.0);
+		cairo_rectangle (ct, 0, hatch_size / 2.0, hatch_size / 2.0, hatch_size / 2.0);
+		cairo_fill (ct);
+
+		cairo_set_rgb_color (ct, (double) Rb / 255.0, (double) Gb / 255.0, (double) Bb / 255.0);
+		cairo_rectangle (ct, hatch_size / 2.0, hatch_size / 2.0, hatch_size / 2.0, hatch_size / 2.0);
+		cairo_fill (ct);
+
+		cairo_restore (ct);
+	}
+
+	/* set the pattern for the consequent fill or stroke */
+	gdip_cairo_set_surface_pattern (ct, hatch);
+	cairo_surface_destroy (hatch);
+	
+	return Ok;
 }
 
 GpStatus
@@ -1613,7 +1756,7 @@ draw_sphere_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t for
 
 	cairo_surface_set_repeat (hatch, 1);
 	
-	/* draw one hatch that has two colored squares at upper left and lower right corners */
+	/* draw one hatch */
 	{
 		cairo_save (ct);
 
@@ -1870,7 +2013,7 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 		return draw_zigzag_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleWave:
-		return draw_wave_hatch (ct, forecol, backcol, width, height);
+		return draw_wave_hatch (ct, forecol, backcol, format);
 
 	case HatchStyleDiagonalBrick:
 		return draw_diagonal_brick_hatch (ct, forecol, backcol, format);
@@ -1882,7 +2025,7 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 		return draw_weave_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStylePlaid:
-		return draw_plaid_hatch (ct, forecol, backcol, width, height);
+		return draw_plaid_hatch (ct, forecol, backcol, format);
 
 	case HatchStyleDivot:
 		return draw_divot_hatch (ct, forecol, backcol, width, height);
