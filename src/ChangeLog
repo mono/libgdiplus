@@ -1,3 +1,7 @@
+2005-01-27  Geoff Norton  <gnorton@customerdna.com>
+
+	* tiffcodec.c: Make this endian aware for image saving as well
+
 2005-01-26  Peter Bartok  <pbartok@novell.com>
 
 	* pngcodec.c (gdip_save_png_image_to_file_or_stream): Moved definition 

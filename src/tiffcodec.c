@@ -194,7 +194,7 @@ GpStatus
 gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *params)
 {
 	GpBitmap *bitmap = (GpBitmap *) image;	
-	int i, j, k, linebytes;
+	int i, j, k, l, linebytes;
 	guint32 *r32 = NULL;
 	size_t npixels;
 	int dimensionCount = 0;
@@ -211,8 +211,8 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 		totalPages += image->frameDimensionList [j].count;
 	
 	for (j = 0; j < dimensionCount; j++) {
-		frameCount = image->frameDimensionList [j].count;
-		for (k = 0; k < frameCount; k++) {
+                frameCount = image->frameDimensionList [j].count;
+                for (k = 0; k < frameCount; k++) {
 			if (k > 0 || j > 0) {
 				TIFFCreateDirectory (tiff);
 			}
@@ -236,32 +236,27 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 			TIFFSetField (tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG); 
 			TIFFSetField (tiff, TIFFTAG_EXTRASAMPLES, EXTRASAMPLE_UNSPECIFIED);
 				
-			/* We store data in ABGR format, but tiff stores it in ARGB, 
-			* so convert before writing it. 
-			*/	 
-			npixels = data.Width * data.Height;
-			r32 = data.Scan0;
-			/* flip bytes */
-			for (i = 0; i < npixels; i++) {
-				*r32 = (*r32 & 0xff000000) | ((*r32 & 0x00ff0000) >> 16) |
-						(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
-				r32++;
+			{
+				guchar *row_pointer = GdipAlloc (image->width * 4);
+
+				for (i = 0; i < image->height; i++) {
+					for (l = 0; l < image->width; l++) {
+#ifdef WORDS_BIGENDIAN
+						row_pointer[l*4+0] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 1);
+						row_pointer[l*4+1] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 2);
+						row_pointer[l*4+2] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 3);
+						row_pointer[l*4+3] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 0);
+#else
+						row_pointer[l*4+0] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 2);
+						row_pointer[l*4+1] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 1);
+						row_pointer[l*4+2] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 0);
+						row_pointer[l*4+3] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 3);
+#endif
+					}
+					TIFFWriteScanline (tiff, row_pointer, i, 0);
+				}
+				GdipFree (row_pointer);
 			}
-			
-			/*write data*/
-			for (i = 0; i < data.Height; i++) {
-				if (TIFFWriteScanline (tiff, data.Scan0 + i * data.Stride, i, 0) < 0) 
-					break;
-			}
-				
-			/* image data might be reused again, so convert back to ABGR*/
-			r32 = data.Scan0;
-			for (i = 0; i < npixels; i++) {
-				*r32 = (*r32 & 0xff000000) | ((*r32 & 0x00ff0000) >> 16) |
-						(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
-				r32++;
-			}
-			
 			TIFFWriteDirectory (tiff);			
 		}
 	}
@@ -420,9 +415,8 @@ gdip_save_tiff_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParamet
 {	
 	TIFF* tiff;
 	
-	tiff = TIFFClientOpen("lose.tif", "w", (thandle_t) fp, gdip_tiff_fileread, 
-				gdip_tiff_filewrite, gdip_tiff_fileseek, gdip_tiff_fileclose, 
-				gdip_tiff_filesize, gdip_tiff_filedummy_map, gdip_tiff_filedummy_unmap);
+	tiff = TIFFFdOpen (fileno (fp), "lose.tif", "w");
+
 	if (!tiff)
 		return FileNotFound;		
 		
