@@ -2233,7 +2233,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		/* Set our clipping rectangle */
 		if ((rc->Width!=0) && (rc->Height!=0) && ((fmt->formatFlags & StringFormatFlagsNoClip)==0)) {
 #ifdef DRAWSTRING_DEBUG
-			printf("Setting clipping rectangle (%d, %d %dx%d)\n", rc->X, rc->Y, rc->Width, rc->Height);
+			printf("Setting clipping rectangle (%f, %f %fx%f)\n", rc->X, rc->Y, rc->Width, rc->Height);
 #endif
 			/* Commented following clipping calls to fix DrawString bugs */
 			/* that appear with cairo-0.1.23. */
