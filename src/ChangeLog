@@ -1,3 +1,6 @@
+2004-03-03  Jordi Mas i Hernandez <jordi@ximian.com>
+    * stringformat.c - coding style
+
 2004-03-02  Jordi Mas i Hernandez <jordi@ximian.com>
     * graphics.c - Implemented font strikeout and underline
     * font.c - Implemented font strikeout and underline, allows multiple attributes
