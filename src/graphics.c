@@ -861,7 +861,7 @@ GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
         
         gdip_pen_setup (graphics, pen);
 
-        tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count);
+        tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count);
         make_curve (graphics, points, tangents, count, CURVE_OPEN);
 
         cairo_stroke (graphics->ct);
@@ -887,15 +887,20 @@ GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 GpStatus
 GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, float tension)
 {
-	printf ("GdipDrawCurve2I not implemented\n");
-	return Ok;
+        /* TODO: consider tension */
+        return GdipDrawCurve (graphics, pen, points, count);
 }
 
 GpStatus
-GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, float tension)
+GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, float tension)
 {
-	printf ("GdipDrawCurve2I not implemented\n");
-	return Ok;
+        GpPointF *pf = convert_points (points, count);
+
+        GpStatus s = GdipDrawCurve2 (graphics, pen, pf, count, tension);
+
+        GdipFree (pf);
+
+        return s;
 }
 
 GpStatus
@@ -906,7 +911,7 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, f
 }
 
 GpStatus
-GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, float numOfSegments, float tension)
+GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, float numOfSegments, float tension)
 {
 	printf ("GdipDrawCurve2I not implemented\n");
 	return Ok;

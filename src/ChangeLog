@@ -1,3 +1,17 @@
+2004-04-10  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (GdipDrawCurve): Doh! Use the ask for tangents for
+	open curves, not closed curves.
+
+	* graphics-path.c (GdipResetPath): Don't set them to NULL. That
+	wouldn't work, doofus.
+
+	* graphics.c (GdipDrawCurve2I): Fixed function signature and use
+	convert_points to  pass the work onto GdipDrawCurve2.
+	(GdipDrawCurve3I): Fixed function signature.
+
+	* general.c (gdip_open_curve_tangents): Fix typo.
+
 2004-04-09 Peter Bartok <pbartok@novell.com>
    * Makefile.am: Added region.c to list of sourcefiles
 

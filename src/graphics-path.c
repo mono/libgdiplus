@@ -101,10 +101,11 @@ append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int coun
 
         if (type == CURVE_OPEN)
                 length = count - 1;
-        
+
         append_point (path, points [0], PathPointTypeStart);
 
         for (i = 1; i <= length; i++) {
+
                 int j = i - 1;
                 int k = (i < count) ? i : 0;
 
@@ -180,8 +181,8 @@ GdipDeletePath (GpPath *path)
 GpStatus
 GdipResetPath (GpPath *path)
 {
-        path->points = NULL;
-        path->types = NULL;
+        path->points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
+        path->types = g_byte_array_new ();
         path->count = 0;
         
         return Ok;
@@ -427,6 +428,7 @@ GdipAddPathCurve (GpPath *path, const GpPointF *points, int count)
         GpPointF *tangents;
 
         tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count);
+
         append_curve (path, points, tangents, count, CURVE_OPEN);
 
         GdipFree (tangents);
@@ -460,6 +462,7 @@ GdipAddPathClosedCurve2 (GpPath *path, const GpPointF *points, int count, float 
         GpPointF *tangents;
 
         tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count);
+
         append_curve (path, points, tangents, count, CURVE_CLOSE);
 
         GdipFree (tangents);

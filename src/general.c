@@ -409,7 +409,7 @@ gdip_open_curve_tangents (int terms, const GpPointF *points, int count)
         if (count <= 2)
                 return tangents;
 
-        M = count - 1;
+        m = count - 1;
         Z = 2 * M;
 
         gdip_calculate_coefficients (count, terms, &coefficients, &coefficients_count);
