@@ -111,7 +111,7 @@ gdip_bitmap_create_Win32_HDC (GpBitmap *bitmap)
 	void * hdc = CreateCompatibleDC_pfn (0);
 	void * hbitmap = 0, * holdbitmap = 0;
 	void * hdcDesc = GetDC_pfn (0);
-			
+	
 	hbitmap = CreateCompatibleBitmap_pfn (hdcDesc, bitmap->data.Width, bitmap->data.Height);
 	if (hbitmap != 0) {
 		BITMAPINFO	bmi;

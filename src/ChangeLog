@@ -1,3 +1,12 @@
+2004-03-03  Miguel de Icaza  <miguel@ximian.com>
+
+	* gdip_win32.c (_load_gdi32, _load_user32): Use the
+	_WINE_SHAREDLIB_PATH environment variable to locate our dynamic
+	libraries. 
+
+	* general.c (_load_x11drv): Load the library from the special
+	location provided by the Wine init function.
+
 2004-03-03  Jordi Mas i Hernandez <jordi@ximian.com>
     * stringformat.c - coding style
 

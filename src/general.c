@@ -52,13 +52,21 @@ static void * x11drvHandle = 0;
 static void _load_x11drv ()
 {
 	if (x11drvHandle == 0) {
-		x11drvHandle = dlopen ("x11monodrv.dll.so", 1);
-		if (x11drvHandle == 0) {
-			x11drvHandle = dlopen ("/usr/local/lib/wine/x11monodrv.dll.so", 1);
+		char *path = getenv ("_WINE_SHAREDLIB_PATH");
+		char *full;
+		
+		if (path == NULL){
+			printf ("You are trying to initialize Wine, but the Wine init function has not been called\n");
+			return;
 		}
-		if (x11drvHandle == 0) {
-			x11drvHandle = dlopen ("/usr/lib/x11monodrv.dll.so", 1);
-		}
+
+		full = malloc (strlen (path) + 30);
+		strcpy (full, path);
+		strcat (full, "/");
+		strcat (full, x11drvHandle);
+		
+		x11drvHandle = dlopen (full, 1);
+		free (full);
 	}
 }
 
@@ -85,6 +93,7 @@ Display *_get_wine_display ()
 GpStatus 
 GdiplusStartup(unsigned long *token, const struct startupInput *input, struct startupOutput *output)
 {
+	printf ("****************** Starting up\n");
 	GDIP_display = _get_wine_display ();
 	if (GDIP_display == 0){
 		GDIP_display = XOpenDisplay(0);

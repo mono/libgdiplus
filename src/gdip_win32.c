@@ -28,41 +28,40 @@
 static void * gdi32Handle = 0;
 static void * user32Handle = 0;
 
-static void _load_gdi32 (void)
+static void _load_gdi32 (char *base)
 {
 	if (gdi32Handle == 0) {
-		gdi32Handle = dlopen ("gdi32.dll.so", 1);
-		if (gdi32Handle == 0) {
-			gdi32Handle = dlopen ("/usr/local/lib/wine/gdi32.dll.so", 1);
-		}
-		if (gdi32Handle == 0) {
-			gdi32Handle = dlopen ("/usr/lib/gdi32.dll.so", 1);
-		}
+		char *full = malloc (strlen (base) + 30);
+		strcpy (full, base);
+		strcat (full, "/");
+		strcat (full, "gdi32.dll.so");
+	
+		gdi32Handle = dlopen (full, 1);
+		free (full);
 	}
 }
 
-static void _load_user32 (void)
+static void _load_user32 (char *base)
 {
 	if (user32Handle == 0) {
-		user32Handle = dlopen ("user32.dll.so", 1);
-		if (user32Handle == 0) {
-			user32Handle = dlopen ("/usr/local/lib/wine/user32.dll.so", 1);
-		}
-		if (user32Handle == 0) {
-			user32Handle = dlopen ("/usr/lib/user32.dll.so", 1);
-		}
+		char *full = malloc (strlen (base) + 30);
+		strcpy (full, base);
+		strcat (full, "/");
+		strcat (full, "user32.dll.so");
+	
+		user32Handle = dlopen (full, 1);
 	}
 }
 
-void *_get_gdi32Handle (void)
+static void *_get_gdi32Handle (char *base)
 {
-	_load_gdi32 ();
+	_load_gdi32 (base);
 	return gdi32Handle;
 }
 
-void *_get_user32Handle (void)
+static void *_get_user32Handle (char *base)
 {
-	_load_user32 ();
+	_load_user32 (base);
 	return user32Handle;
 }
 
@@ -137,10 +136,18 @@ void (*GDI_ReleaseObj_pfn) (int hdc);
 #define CHECK_FUNCTION(name) if (name##_pfn == 0) name##_pfn = name##_gdip;
 void initializeGdipWin32 (void)
 {
-	void * gdi32Handle = _get_gdi32Handle ();
-	void * user32Handle = _get_user32Handle ();
-	
-	if (gdi32Handle != 0 && user32Handle != 0) {
+	void * gdi32Handle;
+	void * user32Handle;
+	char *env = getenv ("_WINE_SHAREDLIB_PATH");
+	if (env != NULL){
+		gdi32Handle = _get_gdi32Handle (env);
+		user32Handle = _get_user32Handle (env);
+
+		if (gdi32Handle == 0 || user32Handle == 0){
+			printf ("You got a broken Wine installation: I got Wine, but I can not locate the libraries");
+			exit (0);
+		}
+		
 		CreateCompatibleDC_pfn = dlsym (gdi32Handle,"CreateCompatibleDC");
 		CreateCompatibleBitmap_pfn = dlsym (gdi32Handle,"CreateCompatibleBitmap");
 		SelectObject_pfn = dlsym (gdi32Handle,"SelectObject");
