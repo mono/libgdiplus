@@ -1195,7 +1195,7 @@ const EncoderParameter *gdip_find_encoder_parameter (GDIPCONST EncoderParameters
 
 /* Stream handling bits */
 typedef int (*GetBytesDelegate) (unsigned char *, int, BOOL);
-typedef int (*SeekDelegate) (int, int);
+typedef long (*SeekDelegate) (int, int);
 typedef int (*PutBytesDelegate) (unsigned char *, int);
 typedef void (*CloseDelegate) ();
 typedef long (*SizeDelegate) ();

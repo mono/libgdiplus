@@ -1,3 +1,8 @@
+2004-06-24  Sanjay Gupta <gsanjay@novell.com>
+
+	* gdip.h: Changed function signature for SeekDelegate function.
+	* tiffcodec.c: Minor modification in passing flags to libtiff.
+
 2004-06-23  Jordi Mas <jordi@ximian.com>
 
 	* gdip.h, graphics.c: Implement Get/Set Unit and Scale. We will need when we implement
