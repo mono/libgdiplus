@@ -1,3 +1,8 @@
+2004-06-01  Ravindra <rkumar@novell.com>
+
+	* hatchbrush.c: Peformance improvements in some of diagonal
+	hatch styles. These were quite slow earlier.
+
 2004-05-31  Ravindra  <rkumar@novell.com>
 
 	* graphics.c: Fixed GdipResetWorldTransform, GdipDrawPie and

@@ -211,20 +211,18 @@ draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t f
 }
 
 GpStatus
-draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format)
+draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format)
 {
 	cairo_surface_t *hatch;
-	double hatch_size = HATCH_SIZE;
+	double hatch_size = HATCH_SIZE + 1;
 	double line_width = LINE_WIDTH;
 
-	/* start hatching from bottom left corner */
-	double x1 = 0.0, y1 = height;
-	double x2 = 0.0, y2 = height;
-
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
-					      format, width, height);
+					      format, hatch_size, hatch_size);
 
 	g_return_val_if_fail (hatch != NULL, OutOfMemory);
+
+	cairo_surface_set_repeat (hatch, 1);
 	
 	/* draw hatch */
 	{
@@ -240,7 +238,7 @@ draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int widt
 		int B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
-		cairo_rectangle (ct, 0, 0, width, height);
+		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
 		cairo_fill (ct);
 
 		/* draw forward diagonal lines in the foreground */
@@ -251,19 +249,12 @@ draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int widt
 
 		cairo_set_line_width (ct, line_width);
 
-		/* FIXME:
-		 * This way of drawing hatch is very slow, but its results are better
-		 * than the other way of drawing hatch. We do not get proper results 
-		 * here by using other way. See, draw_horizontal_hatch function, where
-		 * we draw a very small hatch and we repeat it on a surface.
-		 */
-		while ((x2 < width) || (y1 > 0)) {
-			cairo_move_to (ct, x1, y1);
-			cairo_line_to (ct, x2, y2);
-			x2 += hatch_size;
-			y1 -= hatch_size;
-		}
-
+		cairo_move_to (ct, 0, hatch_size / 2.0);
+		cairo_line_to (ct, hatch_size / 2.0, hatch_size);
+ 
+		cairo_move_to (ct, hatch_size / 2.0, 0);
+		cairo_line_to (ct, hatch_size, hatch_size / 2.0);
+ 
 		cairo_stroke (ct);
 
 		cairo_restore (ct);
@@ -277,20 +268,18 @@ draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int widt
 }
 
 GpStatus
-draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format)
+draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format)
 {
 	cairo_surface_t *hatch;
-	double hatch_size = HATCH_SIZE;
+	double hatch_size = HATCH_SIZE + 1;
 	double line_width = LINE_WIDTH;
 
-	/* start hatching from top left corner */
-	double x1 = 0.0, y1 = 0.0;
-	double x2 = 0.0, y2 = 0.0;
-
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
-					      format, width, height);
+					      format, hatch_size, hatch_size);
 
 	g_return_val_if_fail (hatch != NULL, OutOfMemory);
+
+	cairo_surface_set_repeat (hatch, 1);
 
 	/* draw one hatch */
 	{
@@ -306,7 +295,7 @@ draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 		int B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
-		cairo_rectangle (ct, 0, 0, width, height);
+		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
 		cairo_fill (ct);
 
 		/* draw backward diagonal lines in the foreground */
@@ -317,18 +306,11 @@ draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 
 		cairo_set_line_width (ct, line_width);
 
-		/* FIXME:
-		 * This way of drawing hatch is very slow, but its results are better
-		 * than the other way of drawing hatch. We do not get proper results 
-		 * here by using other way. See, draw_horizontal_hatch function, where
-		 * we draw a very small hatch and we repeat it on a surface.
-		 */
-		while ((x1 < width) || (y2 < height)) {
-			cairo_move_to (ct, x1, y1);
-			cairo_line_to (ct, x2, y2);
-			x1 += hatch_size;
-			y2 += hatch_size;
-		}
+		cairo_move_to (ct, hatch_size / 2.0, 0);
+		cairo_line_to (ct, 0, hatch_size / 2.0);
+
+		cairo_move_to (ct, hatch_size, hatch_size / 2.0);
+		cairo_line_to (ct, hatch_size / 2.0, hatch_size);
 
 		cairo_stroke (ct);
 
@@ -1024,26 +1006,22 @@ draw_70_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 }
 
 GpStatus
-draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format, GpHatchStyle hatchStyle)
+draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatchStyle hatchStyle)
 {
 	/* FIXME:
 	 * Lines drawn in this hatch are not supposed to be antialiased as per
 	 * MS docs. Find a way to stop cairo antialiasing to conform to MS docs.
 	 */
 	cairo_surface_t *hatch;
-	double hatch_size = HATCH_SIZE;
+	double hatch_size = HATCH_SIZE + 1;
 	double line_width = LINE_WIDTH;
-
-	/* start hatching from bottom left corner */
-	double x1 = 0.0, y1 = height;
-	double x2 = 0.0, y2 = height;
 
 	/*
 	 * The values used below are obtained by hit and trial to get the 
 	 * results similar to that of MS.
 	 */
 	if (hatchStyle == HatchStyleLightDownwardDiagonal) {
-		hatch_size *= 0.7; 	/* As per the docs lines should be 50% closer than */
+		hatch_size *= 0.5; 	/* As per the docs lines should be 50% closer than */
 					/* forward diagonal i.e. multiplication factor of  */
 					/* 0.5                                             */
 		line_width *= 0.7;
@@ -1057,15 +1035,17 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 		hatch_size *= 0.5; 	/* As per the docs lines should be 50% closer than */
 					/* forward diagonal i.e. multiplication factor of  */
                                         /* 0.5                                             */
-		/*line_width *= 2.0;*/ 	/* As per the docs line width should be twice the  */
+		line_width *= 1.5; 	/* As per the docs line width should be twice the  */
 					/* width of forward diagonal i.e. multiplication   */
 					/* factor of 2.0                                   */
 	}
 
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
-					      format, width, height);
+					      format, hatch_size, hatch_size);
 
 	g_return_val_if_fail (hatch != NULL, OutOfMemory);
+
+	cairo_surface_set_repeat (hatch, 1);
 
 	/* draw one hatch */
 	{
@@ -1081,7 +1061,7 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 		int B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
-		cairo_rectangle (ct, 0, 0, width, height);
+		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
 		cairo_fill (ct);
 
 		/* draw diagonal line in the foreground */
@@ -1092,18 +1072,11 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 
 		cairo_set_line_width (ct, line_width);
 
-		/* FIXME:
-		 * This way of drawing hatch is very slow, but its results are better
-		 * than the other way of drawing hatch. We do not get proper results 
-		 * here by using other way. See, draw_horizontal_hatch function, where
-		 * we draw a very small hatch and we repeat it on a surface.
-		 */
-		while ((x2 < width) || (y1 > 0)) {
-			cairo_move_to (ct, x1, y1);
-			cairo_line_to (ct, x2, y2);
-			x2 += hatch_size;
-			y1 -= hatch_size;
-		}
+		cairo_move_to (ct, 0, hatch_size / 2.0);
+		cairo_line_to (ct, hatch_size / 2.0, hatch_size);
+ 
+		cairo_move_to (ct, hatch_size / 2.0, 0);
+		cairo_line_to (ct, hatch_size, hatch_size / 2.0);
 
 		cairo_stroke (ct);
 
@@ -1118,26 +1091,22 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 }
 
 GpStatus
-draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format, GpHatchStyle hatchStyle)
+draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatchStyle hatchStyle)
 {
 	/* FIXME:
 	 * Lines drawn in this hatch are not supposed to be antialiased as per
 	 * MS docs. Find a way to stop cairo antialiasing to conform to MS docs.
 	 */
 	cairo_surface_t *hatch;
-	double hatch_size = HATCH_SIZE;
+	double hatch_size = HATCH_SIZE + 1;
 	double line_width = LINE_WIDTH;
-
-	/* start hatching from top left corner */
-	double x1 = 0.0, y1 = 0.0;
-	double x2 = 0.0, y2 = 0.0;
 
 	/*
 	 * The values used below are obtained by hit and trial to get the 
 	 * results similar to that of MS.
 	 */
 	if (hatchStyle == HatchStyleLightUpwardDiagonal) {
-		hatch_size *= 0.7; 	/* As per the docs lines should be 50% closer than */
+		hatch_size *= 0.5; 	/* As per the docs lines should be 50% closer than */
 					/* backward diagonal i.e. multiplication factor of */
 					/* 0.5                                             */
 		line_width *= 0.7;
@@ -1151,15 +1120,17 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width
 		hatch_size *= 0.5; 	/* As per the docs lines should be 50% closer than */
 					/* backward diagonal i.e. multiplication factor of */
                                         /* 0.5                                             */
-		/*line_width *= 2.0;*/ 	/* As per the docs line width should be twice the  */
+		line_width *= 1.5; 	/* As per the docs line width should be twice the  */
 					/* width of backward diagonal i.e. multiplication  */
 					/* factor of 2.0                                   */
 	}
 
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
-					      format, width, height);
+					      format, hatch_size, hatch_size);
 
 	g_return_val_if_fail (hatch != NULL, OutOfMemory);
+
+	cairo_surface_set_repeat (hatch, 1);
 	
 	/* draw one hatch */
 	{
@@ -1175,7 +1146,7 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width
 		int B = (backcolor & 0x000000FF);
 		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
-		cairo_rectangle (ct, 0, 0, width, height);
+		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
 		cairo_fill (ct);
 
 		/* draw diagonal line in the foreground */
@@ -1186,18 +1157,11 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width
 
 		cairo_set_line_width (ct, line_width);
 
-		/* FIXME:
-		 * This way of drawing hatch is very slow, but its results are better
-		 * than the other way of drawing hatch. We do not get proper results 
-		 * here by using other way. See, draw_horizontal_hatch function, where
-		 * we draw a very small hatch and we repeat it on a surface.
-		 */
-		while ((x1 < width) || (y2 < height)) {
-			cairo_move_to (ct, x1, y1);
-			cairo_line_to (ct, x2, y2);
-			x1 += hatch_size;
-			y2 += hatch_size;
-		}
+		cairo_move_to (ct, hatch_size / 2.0, 0);
+		cairo_line_to (ct, 0, hatch_size / 2.0);
+
+		cairo_move_to (ct, hatch_size, hatch_size / 2.0);
+		cairo_line_to (ct, hatch_size / 2.0, hatch_size);
 
 		cairo_stroke (ct);
 
@@ -2291,10 +2255,10 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 		return draw_veritcal_hatch (ct, forecol, backcol, format, hatch->hatchStyle);
 
 	case HatchStyleForwardDiagonal:
-		return draw_forward_diagonal_hatch (ct, forecol, backcol, width, height, format);
+		return draw_forward_diagonal_hatch (ct, forecol, backcol, format);
 
 	case HatchStyleBackwardDiagonal:
-		return draw_backward_diagonal_hatch (ct, forecol, backcol, width, height, format);
+		return draw_backward_diagonal_hatch (ct, forecol, backcol, format);
 
 	/* case HatchStyleCross: */
 	case HatchStyleLargeGrid:
@@ -2346,12 +2310,12 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 	case HatchStyleLightDownwardDiagonal:
 	case HatchStyleDarkDownwardDiagonal:
 	case HatchStyleWideDownwardDiagonal:
-		return draw_downward_diagonal_hatch (ct, forecol, backcol, width, height, format, hatch->hatchStyle);
+		return draw_downward_diagonal_hatch (ct, forecol, backcol, format, hatch->hatchStyle);
 
 	case HatchStyleLightUpwardDiagonal:
 	case HatchStyleDarkUpwardDiagonal:
 	case HatchStyleWideUpwardDiagonal:
-		return draw_upward_diagonal_hatch (ct, forecol, backcol, width, height, format, hatch->hatchStyle);
+		return draw_upward_diagonal_hatch (ct, forecol, backcol, format, hatch->hatchStyle);
 
 	case HatchStyleDashedDownwardDiagonal:
 	case HatchStyleDashedUpwardDiagonal:
