@@ -118,6 +118,7 @@ GdiplusShutdown(unsigned long *token)
 	}
 	_unload_x11drv ();
         releaseCodecList ();
+	shutdownGdipWin32();
 }
 
 

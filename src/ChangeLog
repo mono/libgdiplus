@@ -1,3 +1,14 @@
+2004-05-10  Peter Bartok <pbartok@novell.com>
+   * gdip_win32.c: Added ObjectList to manage Win32 object that can be
+     deleted. Solves problem of asynchronous deletion of object when
+     GC kicks in. While we could also use Control.BeginInvoke this method
+     allows us to keep private gdip handles away from System.Drawing.
+     Currently handles fonts but any other object that could be subject
+     to GC should also be managed through the ObjectList code.
+   * gdip.h: Added prototype
+   * general.c: Shutdown code now also calls the new gdip_win32 shutdown
+     function.
+
 2004-05-10  Duncan Mak  <duncan@ximian.com>
 
 	* gdip.h (fcmp): Added.

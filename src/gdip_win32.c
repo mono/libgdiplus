@@ -22,12 +22,36 @@
  *   Alexandre Pigolkine(pigolkine@gmx.de)
  */
 
+#include <pthread.h>
 #include "gdip.h"
 #include "gdip_win32.h"
 #include <dlfcn.h>
 
-static void * gdi32Handle = 0;
-static void * user32Handle = 0;
+static void 		*gdi32Handle		= 0;
+static void 		*user32Handle		= 0;
+
+/*
+   We maintain a list of win32 objects that require cleanup
+   Since the deletion of an object may happen in a separate
+   GC thread instead of the GUI thread we may not delete the
+   object at that point. Instead, we remember the object that
+   requires deletion in the 'ObjectList' and call DeleteObject()
+   the next time we create a new GUI object. The assumption is
+   that creation of objects always happens in the GUI thread.
+
+   Any other Win32 objects that are subject to GC should also
+   be managed through this interface.
+*/
+
+static void 		**ObjectList		= NULL;
+static unsigned long 	ObjectListCount		= 0;
+static unsigned long 	ObjectListAllocated	= 0;
+static pthread_mutex_t	ObjectListMutex		= PTHREAD_MUTEX_INITIALIZER;
+
+static void ObjectListInit(void);
+static void ObjectListShutdown(void);
+int ObjectListAdd(void *Object);
+int ObjectListDelete(void);
 
 static void _load_gdi32 (char *base)
 {
@@ -242,6 +266,13 @@ void initializeGdipWin32 (void)
 	CHECK_FUNCTION (X11DRV_ExtEscape);
 
 	CHECK_FUNCTION (CreateFont);
+
+	ObjectListInit();
+}
+
+void shutdownGdipWin32(void)
+{
+	ObjectListShutdown();
 }
 
 DC *_get_DC_by_HDC (int hDC)
@@ -264,6 +295,9 @@ CreateWineFont(FcChar8 *str, GpFontStyle style, float emSize, Unit unit)
 
 	Height=Height*-1;
 
+	/* Perform some potential cleanup tasks */
+	ObjectListDelete();
+
 	return(CreateFont_pfn(
 		Height,		 					/* Height */
 		0, 							/* Width */
@@ -284,11 +318,80 @@ CreateWineFont(FcChar8 *str, GpFontStyle style, float emSize, Unit unit)
 void
 DeleteWineFont(void *hFont)
 {
-#if 0
-	DeleteObject_pfn(hFont);
-#else
-	if (DeleteObject_pfn(hFont)==0) {
-		printf("%s(%d): DeleteObject (hFont) failed!\n", __FILE__, __LINE__);
-	}
-#endif
+	ObjectListAdd(hFont);
 }
+
+static void
+ObjectListInit(void)
+{
+	pthread_mutex_init(&ObjectListMutex, NULL);
+}
+
+static void
+ObjectListShutdown(void)
+{
+	unsigned long	i;
+
+        pthread_mutex_lock(&ObjectListMutex);
+
+        for (i=0; i<ObjectListCount; i++) {
+                if (ObjectList[i]!=NULL) {
+			DeleteObject_pfn(ObjectList[i]);
+			ObjectList[i]=NULL;
+                }
+        }
+	pthread_mutex_unlock(&ObjectListMutex);
+	pthread_mutex_destroy(&ObjectListMutex);
+}
+
+int
+ObjectListAdd(void *Object)
+{
+        unsigned long   i;
+
+        /* Multiple threads can access this, need protection */
+        pthread_mutex_lock(&ObjectListMutex);
+
+        /* First check if we have free slot */
+        for (i=0; i<ObjectListCount; i++) {
+                if (ObjectList[i]==NULL) {
+                        ObjectList[i]=Object;
+                        pthread_mutex_unlock(&ObjectListMutex);
+                        return(1);
+                }
+        }
+
+        if (ObjectListCount+1>=ObjectListAllocated) {
+                ObjectList=realloc(ObjectList, sizeof(void *)*(ObjectListAllocated+50));
+                if (!ObjectList) {
+                        ObjectListCount=0;
+                        ObjectListAllocated=0;
+                        pthread_mutex_unlock(&ObjectListMutex);
+                        return(0);
+                }
+		memset(ObjectList+ObjectListAllocated, 0, sizeof(void *)*50);
+                ObjectListAllocated+=50;
+        }
+        ObjectList[ObjectListCount++]=Object;
+	pthread_mutex_unlock(&ObjectListMutex);
+        return(1);
+}
+
+int
+ObjectListDelete(void)
+{
+        unsigned long   i;
+
+        /* Multiple threads might access this, need protection */
+        pthread_mutex_lock(&ObjectListMutex);
+
+        for (i=0; i<ObjectListCount; i++) {
+                if (ObjectList[i]!=NULL) {
+			DeleteObject_pfn(ObjectList[i]);
+			ObjectList[i]=NULL;
+                }
+        }
+	pthread_mutex_unlock(&ObjectListMutex);
+        return(1);
+}
+

@@ -707,6 +707,7 @@ GpStatus gdip_pen_setup (GpGraphics *graphics, GpPen *pen);
 extern Display *GDIP_display;
 
 void initializeGdipWin32 (void);
+void shutdownGdipWin32 (void);
 void initCodecList (void);
 void releaseCodecList (void);
 
