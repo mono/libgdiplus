@@ -492,7 +492,7 @@ typedef enum
 typedef enum {
         CoordinateSpaceWorld,
         CoordinateSpacePage,
-        CoordinateSpaceDevice,
+        CoordinateSpaceDevice
 } GpCoordinateSpace;
 
 typedef enum {

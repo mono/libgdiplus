@@ -1,5 +1,10 @@
 2004-10-29  Jordi Mas <jordi@ximian.com>
 
+	* font.c gdip.h gdip_win32.h gifcodec.c graphics.c matrix.c  pathgradientbrush.c 
+	texturebrush.c tiffcodec.c: fixes issues with strict C compilers
+
+2004-10-29  Jordi Mas <jordi@ximian.com>
+
 	* bitmap.c font.c graphics-path.c graphics.c image.c imageattributes.c 
 	lineargradientbrush.c stringformat.c: fixes issues with strict C compilers
 

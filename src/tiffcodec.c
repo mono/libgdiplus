@@ -224,6 +224,10 @@ gdip_load_tiff_image (TIFF *tif, GpImage **image)
 	BitmapData data;
 
 	if (tif) {
+
+		TIFFRGBAImage tifimg;
+		char emsg[1024];
+
 		/*Count the no of image frames present in input*/
 		do {
 			dirCount++;
@@ -242,9 +246,6 @@ gdip_load_tiff_image (TIFF *tif, GpImage **image)
 				&gdip_image_frameDimension_page_guid, sizeof (CLSID));
 		img->image.frameDimensionList [0].frames = (BitmapData *)
 						GdipAlloc (sizeof (BitmapData) * dirCount);
-
-		TIFFRGBAImage tifimg;
-		char emsg[1024];
 
 		/*loop within all the directories and extract the frame info*/
 		for (j = 0; j < dirCount; j++) {

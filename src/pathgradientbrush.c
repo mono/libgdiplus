@@ -286,11 +286,14 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, int count, GpWrapMode wrapMo
 {
 	int i;
 	GpPathData pdata;
+	GpPathGradient *gp;
+	GpPath *gppath = NULL;
+
 	g_return_val_if_fail (polyGradient != NULL, InvalidParameter);
 	g_return_val_if_fail (count >= 2, InvalidParameter);
 
-	GpPathGradient *gp = gdip_pathgradient_new ();
-	GpPath *gppath = NULL;
+	gp = gdip_pathgradient_new ();
+	
 	GdipCreatePath (FillModeAlternate, /* ??? */
 			&gppath);
 	GdipAddPathLine2 (gppath, points, count);

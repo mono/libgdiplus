@@ -376,6 +376,8 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 	int dimensionCount;
 	int frameCount;
 	int j,k;
+	int sizeAlloc;
+	unsigned char * v;
 	BOOL animationFlag = FALSE;
 	
 	if (!stream) 
@@ -404,13 +406,13 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 			
 			data = image->frameDimensionList [j].frames [k]; 
 			size = data.Height * data.Width;
-			int sizeAlloc = sizeof (GifByteType)* size;
+			sizeAlloc = sizeof (GifByteType)* size;
 			ptr_red  = red = GdipAlloc (sizeAlloc);
 			ptr_green = green = GdipAlloc (sizeAlloc);
 			ptr_blue = blue = GdipAlloc (sizeAlloc);
 			ptr_pixels = pixels = GdipAlloc (sizeAlloc);
 
-			unsigned char * v;
+			
 			for (y = 0; y < data.Height; y++) {	
 				v = ((unsigned char *)data.Scan0) + y * data.Stride;
 				for (x = 0; x < data.Width; x++) {

@@ -351,10 +351,11 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHei
 
 	if (font) {
 		FT_Face	face;
+		TT_VertHeader *pVert;
 
 		face = cairo_ft_font_face(font->cairofnt);
 
-		TT_VertHeader *pVert = FT_Get_Sfnt_Table (face, ft_sfnt_vhea);
+		pVert = FT_Get_Sfnt_Table (face, ft_sfnt_vhea);
 		if (pVert)
 			rslt = pVert->yMax_Extent;
 		else if (face)
@@ -381,10 +382,11 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Cel
 
 	if (font){
                 FT_Face face;
+		TT_HoriHeader *pHori;
 
                 face = cairo_ft_font_face(font->cairofnt);
 
-		TT_HoriHeader *pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
+		pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
 
 		if (pHori)
 			rslt = pHori->Ascender;
@@ -411,10 +413,11 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Ce
 
 	if (font){
                 FT_Face face;
+		TT_HoriHeader* pHori;
 
                 face = cairo_ft_font_face(font->cairofnt);
 
-		TT_HoriHeader *pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
+		pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
 
 		if (pHori)
 			rslt = -pHori->Descender;
@@ -439,10 +442,11 @@ GdipGetLineSpacing (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Li
 
 	if (font){
                 FT_Face face;
+		TT_HoriHeader *pHori;
 
                 face = cairo_ft_font_face(font->cairofnt);
 
-		TT_HoriHeader *pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
+		pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
 		if (pHori)
 			rslt = pHori->Ascender + (-pHori->Descender) + pHori->Line_Gap;
 		else if (face)

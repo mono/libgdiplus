@@ -31,7 +31,7 @@ enum x11drv_escape_codes
 {
     X11DRV_GET_DISPLAY,			/* get X11 display for a DC */
     X11DRV_GET_DRAWABLE,		/* get current drawable for a DC */
-    X11DRV_GET_FONT,			/* get current X font for a DC */
+    X11DRV_GET_FONT			/* get current X font for a DC */
 };
 
 typedef struct tagDC {

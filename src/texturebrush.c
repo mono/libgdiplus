@@ -791,6 +791,7 @@ GpStatus
 GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order)
 {
 	GpStatus status;
+	GpPointF axis;
 
 	g_return_val_if_fail (texture != NULL, InvalidParameter);
 
@@ -799,7 +800,6 @@ GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order
 	 * of rotation was suggested by Carl.
 	 */
 
-	GpPointF axis;
 	/* Our pattern size is 2*(texture->rect) hence its centre is following */
 	axis.X = texture->rectangle->Width;
 	axis.Y = texture->rectangle->Height;

@@ -55,19 +55,24 @@ GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float d
 GpStatus
 GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matrix)
 {
+	double m11, m12, m21, m22, dx, dy;
+	Status s;
+
+	g_return_val_if_fail (rect != NULL, InvalidParameter);
+	g_return_val_if_fail (dstplg != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
         *matrix = cairo_matrix_create ();
 	g_return_val_if_fail (*matrix != NULL, OutOfMemory);
 
-        double m11 = rect->X;
-        double m12 = rect->Y;
-        double m21 = rect->Width;
-        double m22 = rect->Height;
-        double dx = dstplg->X;
-        double dy = dstplg->Y;
+	m11 = rect->X;
+	m12 = rect->Y;
+	m21 = rect->Width;
+	m22 = rect->Height;
+	dx = dstplg->X;
+	dy = dstplg->Y;
 
-        Status s = cairo_matrix_set_affine (
+	s = cairo_matrix_set_affine (
                         *matrix, m11, m12, m21, m22, dx, dy);
 
         return gdip_get_status (s);
@@ -76,19 +81,24 @@ GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matri
 GpStatus
 GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix)
 {
+	double m11, m12, m21, m22, dx, dy;
+	Status s;
+
+	g_return_val_if_fail (rect != NULL, InvalidParameter);
+	g_return_val_if_fail (dstplg != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
         *matrix = cairo_matrix_create ();
 	g_return_val_if_fail (*matrix != NULL, OutOfMemory);
 
-        double m11 = rect->X;
-        double m12 = rect->Y;
-        double m21 = rect->Width;
-        double m22 = rect->Height;
-        double dx = dstplg->X;
-        double dy = dstplg->Y;
+	m11 = rect->X;
+	m12 = rect->Y;
+	m21 = rect->Width;
+	m22 = rect->Height;
+	dx = dstplg->X;
+	dy = dstplg->Y;
         
-        Status s = cairo_matrix_set_affine (
+	s = cairo_matrix_set_affine (
                         *matrix, m11, m12, m21, m22, dx, dy);
 
         return gdip_get_status (s);
@@ -170,8 +180,10 @@ GpStatus
 GdipTranslateMatrix (GpMatrix *matrix, float offsetX, float offsetY, GpMatrixOrder order)
 {
         GpMatrix tmp;
+	GpStatus s;
+
         cairo_matrix_set_affine (&tmp, 1, 0, 0, 1, offsetX, offsetY);
-        GpStatus s = GdipMultiplyMatrix (matrix, &tmp, order);
+	s = GdipMultiplyMatrix (matrix, &tmp, order);
 
         return s;
 }
@@ -180,8 +192,10 @@ GpStatus
 GdipScaleMatrix (GpMatrix *matrix, float scaleX, float scaleY, GpMatrixOrder order)
 {
         GpMatrix tmp;
+	GpStatus s;
+
         cairo_matrix_set_affine (&tmp, scaleX, 0, 0, scaleY, 0, 0);
-        GpStatus s = GdipMultiplyMatrix (matrix, &tmp, order);        
+	s = GdipMultiplyMatrix (matrix, &tmp, order);        
 
         return s;
 }
@@ -190,9 +204,10 @@ GpStatus
 GdipRotateMatrix (GpMatrix *matrix, float angle, GpMatrixOrder order)
 {
 	GpMatrix tmp;
+	GpStatus s;
         float rad = angle * DEGTORAD;
         cairo_matrix_set_affine (&tmp, cos (rad), sin (rad), -sin (rad), cos (rad), 0, 0);
-        GpStatus s = GdipMultiplyMatrix (matrix, &tmp, order);
+	s = GdipMultiplyMatrix (matrix, &tmp, order);
 
         return s;
 }
@@ -201,8 +216,9 @@ GpStatus
 GdipShearMatrix (GpMatrix *matrix, float shearX, float shearY, GpMatrixOrder order)
 {
         GpMatrix tmp;
+	GpStatus s;
         cairo_matrix_set_affine (&tmp, 1, shearX, shearY, 1, 0, 0);
-        GpStatus s = GdipMultiplyMatrix (matrix, &tmp, order);
+	s = GdipMultiplyMatrix (matrix, &tmp, order);
 
         return s;
 }

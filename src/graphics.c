@@ -242,8 +242,10 @@ make_pie (GpGraphics *graphics, float x, float y,
                        cy + ry * sin_alpha);
 
        /* just make an ellipse if we're going a full 2 PI (360 degrees) */
-        if (sweepAngle >= 360)
-                return make_ellipse (graphics, x, y, width, height);
+        if (sweepAngle >= 360) {
+		make_ellipse (graphics, x, y, width, height);
+		return;
+	}
 
         /*
          * draw the arc, if the sweep is bigger than 180, draw it
