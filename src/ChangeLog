@@ -3,6 +3,13 @@
 
 2004-04-01  Duncan Mak  <duncan@ximian.com>
 
+	* graphics.c (convert_points): New helper function to turn a list
+	of GpPoints into GpPointFs.
+	(GdipDrawClosedCurveI): Implemented using convert_points, then
+	just call GdipDrawClosedCurve.
+
+2004-04-01  Duncan Mak  <duncan@ximian.com>	
+
 	Implemented drawing ClosedCurves in Graphics and GraphicsPath. 
 
 	These functions are implemented with the help of Prof. Rasala at

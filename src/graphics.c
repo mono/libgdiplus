@@ -226,6 +226,20 @@ make_pie (GpGraphics *graphics, float x, float y,
         cairo_line_to (graphics->ct, cx, cy);
 }
 
+static GpPointF *
+convert_points (GpPoint *point, int count)
+{
+        int i;
+        GpPointF *retval = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
+
+        for (i = 0; i < count; i++) {
+                retval [i].X = (float) point [i].X;
+                retval [i].Y = (float) point [i].Y;
+        }
+
+        return retval;
+}
+
 
 static cairo_fill_rule_t
 convert_fill_mode (GpFillMode fill_mode)
@@ -846,9 +860,15 @@ GdipDrawClosedCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int cou
 GpStatus
 GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 {
-	printf ("DrawClosedCurveI not implemented\n");
-	return Ok;
+        GpPointF *float_points = convert_points (points, count);
+
+        GpStatus s = GdipDrawClosedCurve (graphics, pen, float_points, count);
+
+        GdipFree (float_points);
+
+        return s;
 }
+
 GpStatus
 GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count) 
 {
