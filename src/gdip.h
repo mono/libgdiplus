@@ -106,14 +106,21 @@ typedef enum  {
 } MatrixOrder, GpMatrixOrder;
 
 typedef enum {
-    UnitWorld	 = 0,      
-    UnitDisplay	 = 1,    
-    UnitPixel	 = 2,      
-    UnitPoint	 = 3,     
-    UnitInch	 = 4,       
-    UnitDocument = 5,   
-    UnitMillimeter = 6 
+    UnitWorld	 = 0,
+    UnitDisplay	 = 1,
+    UnitPixel	 = 2,
+    UnitPoint	 = 3,
+    UnitInch	 = 4,
+    UnitDocument = 5,
+    UnitMillimeter = 6
 } GpUnit, Unit;
+
+typedef enum {
+        DigitSubstituteUser = 0,
+        DigitSubstituteNone = 1,
+        DigitSubstituteNational = 2,
+        DigitSubstituteTraditional = 3
+} DigitSubstitute;
 
 typedef enum {
 	Alpha = 262144,
@@ -372,6 +379,7 @@ typedef struct {
         HotkeyPrefix hotkeyPrefix;
         StringFormatFlags formatFlags;
         StringTrimming  trimming;
+        DigitSubstitute substitute;
 }GpStringFormat;
 
 /*
@@ -560,9 +568,12 @@ GpStatus GdipSetStringFormatFlags(GpStringFormat *format, StringFormatFlags flag
 GpStatus GdipGetStringFormatFlags(GDIPCONST GpStringFormat *format, StringFormatFlags *flags);
 GpStatus GdipSetStringFormatTrimming(GpStringFormat* format,  StringTrimming trimming);
 GpStatus GdipGetStringFormatTrimming(GDIPCONST GpStringFormat *format, StringTrimming* trimming);
+GpStatus GdipSetStringFormatTabStops(GpStringFormat *format, float firstTabOffset, int count, float *tabStops);
+GpStatus GdipGetStringFormatDigitSubstitution(GDIPCONST GpStringFormat *format, int *language, DigitSubstitute *substitute);
+GpStatus GdipSetStringFormatDigitSubstitution(GpStringFormat *format, int language, DigitSubstitute substitute);      
+GpStatus GdipGetStringFormatTabStopCount(GDIPCONST GpStringFormat *format, int *count);
+GpStatus GdipGetStringFormatTabStops(GDIPCONST GpStringFormat *format, int count, float *firstTabOffset, float *tabStops);
 
-
-      
 /* Path*/
 #include "graphics-path.h"
 

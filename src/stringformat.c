@@ -36,7 +36,7 @@ GdipCreateStringFormat(int formatAttributes, int language, GpStringFormat  **for
         result->hotkeyPrefix = HotkeyPrefixNone;
         result->formatFlags = 0;
         result->trimming = StringTrimmingNone;
-    
+        result->substitute = DigitSubstituteNone;
         *format = result;
         return Ok;
 }
@@ -53,6 +53,7 @@ GdipStringFormatGetGenericDefault(GpStringFormat **format)
         result->hotkeyPrefix = HotkeyPrefixNone;
         result->formatFlags = 0;
         result->trimming = StringTrimmingCharacter;
+        result->substitute = DigitSubstituteNone;
 
         *format = result;
         return Ok;
@@ -70,6 +71,7 @@ GdipStringFormatGetGenericTypographic(GpStringFormat **format)
         result->hotkeyPrefix = HotkeyPrefixNone;
         result->formatFlags = StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip;
         result->trimming = StringTrimmingNone;
+        result->substitute = DigitSubstituteNone;        
 
         *format = result;
         return Ok; 
@@ -200,3 +202,52 @@ GdipGetStringFormatTrimming(GDIPCONST GpStringFormat *format, StringTrimming *tr
         return Ok;
 }
 
+GpStatus
+GdipSetStringFormatTabStops(GpStringFormat *format, float firstTabOffset, int count, float *tabStops)
+{
+        if (!format)
+                return InvalidParameter;
+
+        return Ok;        
+}
+
+GpStatus
+GdipGetStringFormatDigitSubstitution(GDIPCONST GpStringFormat *format, int *language, DigitSubstitute *substitute)
+{
+        if (!format)
+                return InvalidParameter;
+
+        *substitute = format->substitute;
+        return Ok;                
+}
+
+GpStatus
+GdipSetStringFormatDigitSubstitution(GpStringFormat *format, int language, DigitSubstitute substitute)
+{
+        if (!format)
+                return InvalidParameter;
+                
+        format->substitute = substitute;
+        return Ok;                
+}
+
+GpStatus
+GdipGetStringFormatTabStopCount(GDIPCONST GpStringFormat *format, int *count)
+{
+        if (!format || !count)
+                return InvalidParameter;
+
+        *count = 0;
+
+        return Ok;                
+}
+
+GpStatus
+GdipGetStringFormatTabStops(GDIPCONST GpStringFormat *format, int count, float *firstTabOffset, float *tabStops)
+{
+        if (!format)
+                return InvalidParameter;
+                
+        return Ok;
+
+}
