@@ -168,7 +168,9 @@ make_arc (GpGraphics *graphics, float x, float y, float width,
         double cos_alpha = cos (alpha);
         double cos_beta = cos (beta);
 
-        printf ("make_arc (%f, %f)\n", startAngle, endAngle);
+        /* just make an ellipse if we're going a full 2 PI (360 degrees) */
+        if (delta >= 2 * PI)
+                return make_ellipse (graphics, x, y, width, height);
 
         /* move to starting point */
         cairo_move_to (graphics->ct,
@@ -202,7 +204,9 @@ make_pie (GpGraphics *graphics, float x, float y,
 
         double sin_alpha = sin (alpha);
         double cos_alpha = cos (alpha);
-        double current_x, current_y;        
+        double current_x, current_y;
+
+        printf ("Center: (%f, %f)\n", cx, cy);
 
         /* move to center */
         cairo_move_to (graphics->ct, cx, cy);
@@ -238,6 +242,8 @@ make_pie (GpGraphics *graphics, float x, float y,
         printf ("Drawing line from (%f, %f) to (%f, %f)\n",
                         current_x, current_y,
                         cx, cy);
+
+        cairo_close_path (graphics->ct);
 }
 
 static GpPointF *
@@ -712,8 +718,6 @@ GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y,
 
         cairo_stroke (graphics->ct);
 
-        cairo_close_path (graphics->ct);
-
         cairo_restore (graphics->ct);
 
         return gdip_get_status (cairo_status (graphics->ct));
@@ -736,8 +740,6 @@ GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width,
         make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
 
         cairo_fill (graphics->ct);
-
-        cairo_close_path (graphics->ct);
 
         cairo_restore (graphics->ct);
 

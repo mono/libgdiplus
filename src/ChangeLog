@@ -1,5 +1,11 @@
 2004-04-02  Duncan Mak  <duncan@ximian.com>
 
+	* graphics.c (make_arc): If the delta is greater than or equal to
+	2 PI radians (360 degrees), then we're effectively drawing an
+	ellipse, so make it do so.
+
+2004-04-02  Duncan Mak  <duncan@ximian.com>
+
 	* graphics.c (GdipFillPieI, GdipDrawPieI): Instead of having
 	another copy of the code, just use the float equivalent.
 	(GdipDrawPie): Add restore/save pair.
