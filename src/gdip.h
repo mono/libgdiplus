@@ -6,6 +6,7 @@
  *      Duncan Mak (duncan@ximian.com)
  *      Miguel de Icaza (miguel@ximian.com)
  *      Ravindra (rkumar@novell.com)
+ *  	Sanjay Gupta (gsanjay@novell.com)
  *
  * Copyright (C) Novell, Inc. 2003-2004.
  */
@@ -67,7 +68,7 @@ typedef struct {
 typedef unsigned char byte;
 typedef int bool;
 typedef unsigned short WCHAR; // 16-bits unicode
-
+typedef unsigned int UINT;
 
 /*
  * Enums
@@ -257,8 +258,6 @@ typedef enum {
     StringAlignmentCenter = 1,
     StringAlignmentFar    = 2
 } StringAlignment;
-
-
 
 /*
  * Structures
@@ -552,6 +551,5 @@ void GdipFree (void *ptr);
 /* Utility*/
 float gdip_get_display_dpi();
 void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg);
-
 
 #endif /* _GDIP_H */

@@ -1,3 +1,8 @@
+2004-02-21  Sanjay Gupta <gsanjay@novell.com>
+	* gdip.h: Added typedef for UINT
+	* Image.h: Added function stubs for image functions
+	* gdipImage.h: Added new file containing image function declaration
+
 2004-02-17  Jordi Mas i Hernandez <jordi@ximian.com>
     * fonts.c - remove unnecesary code and fixes
 
