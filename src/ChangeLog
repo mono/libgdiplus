@@ -1,3 +1,8 @@
+2004-04-07  Ravindra  <rkumar@novell.com>
+
+	* texturebrush.[ch]: Added the missing functionality of clipping
+	a rectangle out of image provided.
+
 2004-04-06  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* jpegcodec.c (gdip_save_jpeg_image_internal): 
