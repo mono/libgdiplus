@@ -18,9 +18,11 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * Author: Duncan Mak (duncan@ximian.com)
+ * Authors:
+ *      Duncan Mak (duncan@ximian.com)
+ *      Ravindra (rkumar@novell.com)
  *
- * Copyright (C) 2003, Novell Inc.
+ * Copyright (C) 2003, Novell Inc. (http://www.novell.com)
  *
  */
  
@@ -160,16 +162,16 @@ append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int coun
 }
 
 GpStatus
-GdipCreatePath (GpFillMode brushMode, GpPath **path)
+GdipCreatePath (GpFillMode fillMode, GpPath **path)
 {
-        *path = (GpPath *) GdipAlloc (sizeof (GpPath));
+	*path = (GpPath *) GdipAlloc (sizeof (GpPath));
 
-        (*path)->fill_mode = brushMode;
-        (*path)->points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
-        (*path)->types = g_byte_array_new ();
-        (*path)->count = 0;
+	(*path)->fill_mode = fillMode;
+	(*path)->points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
+	(*path)->types = g_byte_array_new ();
+	(*path)->count = 0;
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus
@@ -216,26 +218,33 @@ GdipClonePath (GpPath *path, GpPath **clonePath)
 GpStatus
 GdipDeletePath (GpPath *path)
 {
-        if (path->count != 0) {
-                if (path->points != NULL)
-                        g_array_free (path->points, TRUE);
-                
-                if (path->types != NULL)
-                        g_byte_array_free (path->types, TRUE);
-        }
-        
-        GdipFree (path);
-        return Ok;
+	if (path->points != NULL)
+		g_array_free (path->points, TRUE);
+	path->points = NULL;
+
+	if (path->types != NULL)
+		g_byte_array_free (path->types, TRUE);
+	path->types = NULL;
+
+	GdipFree (path);
+	return Ok;
 }
 
 GpStatus
 GdipResetPath (GpPath *path)
 {
-        path->points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
-        path->types = g_byte_array_new ();
-        path->count = 0;
-        
-        return Ok;
+	if (path->points != NULL)
+		g_array_free (path->points, TRUE);
+
+	if (path->types != NULL)
+		g_byte_array_free (path->types, TRUE);
+
+	path->count = 0;
+	path->points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
+	path->types = g_byte_array_new ();
+	path->fill_mode = FillModeAlternate;
+
+	return Ok;
 }
 
 GpStatus
@@ -317,11 +326,18 @@ GdipStartPathFigure (GpPath *path)
 	return NotImplemented;
 }
 
-/* MonoTODO */
 GpStatus
 GdipClosePathFigure (GpPath *path)
 {
-	return NotImplemented;
+        byte current = g_array_index (path->types, byte, path->count - 1);
+
+        g_byte_array_remove_index (path->types, path->count - 1);
+
+        current |= PathPointTypeCloseSubpath;
+
+        g_byte_array_append (path->types, &current, 1);
+
+        return Ok;
 }
 
 /* MonoTODO */
@@ -334,9 +350,9 @@ GdipClosePathFigures (GpPath *path)
 GpStatus
 GdipSetPathMarker (GpPath *path)
 {
-        byte current = g_array_index (path->types, byte, path->count);
+        byte current = g_array_index (path->types, byte, path->count - 1);
 
-        g_byte_array_remove_index (path->types, path->count);
+        g_byte_array_remove_index (path->types, path->count - 1);
 
         current |= PathPointTypePathMarker;
 
@@ -390,14 +406,14 @@ GdipReversePath (GpPath *path)
 GpStatus
 GdipGetPathLastPoint (GpPath *path, GpPointF *lastPoint)
 {
-        *lastPoint = g_array_index (path->points, GpPointF, path->count);
+        *lastPoint = g_array_index (path->points, GpPointF, path->count - 1);
         return Ok;
 }
 
 GpStatus
 GdipAddPathLine (GpPath *path, float x1, float y1, float x2, float y2)
 {
-        append (path, x1, y1, PathPointTypeStart);
+        append (path, x1, y1, PathPointTypeLine);
         append (path, x2, y2, PathPointTypeLine);
 
         return Ok;

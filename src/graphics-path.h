@@ -3,6 +3,7 @@
  *
  * Author:
  *      Duncan Mak (duncan@ximian.com)
+ *      Ravindra (rkumar@novell.com)
  *
  * Copyright (C) Novell, Inc. 2003.
  */
@@ -77,6 +78,20 @@ GpStatus GdipIsVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphi
 GpStatus GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result);
 GpStatus GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool *result);
 
+/* Functions for Graphics Path Iterator */
+GpStatus GdipCreatePathIter (GpPathIterator **iterator, GpPath *path);
+GpStatus GdipPathIterGetCount (GpPathIterator *iterator, int *count);
+GpStatus GdipPathIterGetSubpathCount (GpPathIterator *iterator, int *count);
+GpStatus GdipDeletePathIter (GpPathIterator *iterator);
+GpStatus GdipPathIterCopyData (GpPathIterator *iterator, int *resultCount, GpPointF *points, byte *types, int startIndex, int endIndex);
+GpStatus GdipPathIterEnumerate (GpPathIterator *iterator, int *resultCount, GpPointF *points, byte *types, int count);
+GpStatus GdipPathIterHasCurve (GpPathIterator *iterator, BOOL *curve);
+GpStatus GdipPathIterNextMarkerPath (GpPathIterator *iterator, int *resultCount, GpPath *path);
+GpStatus GdipPathIterNextMarker (GpPathIterator *iterator, int *resultCount, int *startIndex, int *endIndex);
+GpStatus GdipPathIterNextPathType (GpPathIterator *iterator, int *resultCount, byte *pathType, int *startIndex, int *endIndex);
+GpStatus GdipPathIterNextSubpathPath (GpPathIterator *iterator, int *resultCount, GpPath *path, BOOL *isClosed);
+GpStatus GdipPathIterNextSubpath (GpPathIterator *iterator, int *resultCount, int *startIndex, int *endIndex, BOOL *isClosed);
+GpStatus GdipPathIterRewind (GpPathIterator *iterator);
 
 
 #endif /* _GRAPHICS_PATH_H_ */

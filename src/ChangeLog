@@ -1,3 +1,14 @@
+2004-07-16  Ravindra <rkumar@novell.com>
+
+	* Makefile.am: Added graphics-pathiterator.c to the sources list.
+	* gdip.h: Corrected GpPathPointEnum and added GpPathIterator stuct.
+	* graphics-path.c: Fixed GdipDeletePath, GdipResetPath,
+	GdipSetPathMarker, GdipGetPathLastPoint, GdipAddPathLine and
+	implemented GdipClosePathFigure and some formatting.
+	* graphics-path.h: Added function declarations for graphics-path
+	iterator.
+	* graphics-pathiterator.c: First implementation.
+
 2004-07-16  Sanjay Gupta <gsanjay@novell.com>
 
 	* image.c: Resolved a crash which was occuring because of attempting
