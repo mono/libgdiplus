@@ -1,3 +1,7 @@
+2004-08-05  Ravindra <rkumar@novell.com>
+
+	* font.c: Fixed GdipDeleteFont function.
+
 2004-07-30  Ravindra <rkumar@novell.com>
 
 	* graphics.c: Commented out cairo_clip calls from GdipDrawString,
