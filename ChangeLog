@@ -1,3 +1,7 @@
+2004-05-05  Ravindra  <rkumar@novell.com>
+
+	* configure.in: We need cairo 0.1.22 version.
+
 2004-04-17  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* configure.in: fixed gdip_ok -> $gdip_ok in sigsetjmp check

@@ -16,10 +16,10 @@ else
 	AC_MSG_ERROR("Did not find Glib >= 2.2.3");
 fi
 
-if pkg-config --atleast-version 0.1.17 cairo; then
+if pkg-config --atleast-version 0.1.22 cairo; then
 	echo Cairo installation OK
 else
-	AC_MSG_ERROR("Did not find Cairo 0.1.17");
+	AC_MSG_ERROR("Did not find Cairo 0.1.22");
 fi
 ## XXX - FIXME - libpng12 shouldn't be required, but oh well
 GDIPLUS_LIBS="`pkg-config --libs cairo mono glib-2.0 libpng12` `freetype-config --libs`"
