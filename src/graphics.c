@@ -177,7 +177,7 @@ make_arc (GpGraphics *graphics, float x, float y, float width,
         cairo_current_point (graphics->ct, &nx, &ny);
 
         /* move to starting point if we're not there already */
-        if (nx != sx && ny != sy)
+        if ((fequals (nx, sx) && fequals (ny, sy))
                 cairo_move_to (graphics->ct, sx, sy);
 
         cairo_curve_to (graphics->ct,

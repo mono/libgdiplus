@@ -1,3 +1,11 @@
+2004-04-06  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (make_arc): use fequals instead of ==.
+
+	* gdip.h (EPSILON): define it here to be used by floating point
+	comparisons.
+	(fequals): A macro for comparing 2 FP numbers with EPSILON.
+
 2004-04-06  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* gdip.h: Added stream handling delegate prototypes,
