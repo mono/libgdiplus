@@ -54,11 +54,10 @@ static void _load_x11drv ()
 	if (x11drvHandle == 0) {
 		char *path = getenv ("_WINE_SHAREDLIB_PATH");
 		char *full;
-		
-		if (path == NULL){
-			printf ("You are trying to initialize Wine, but the Wine init function has not been called\n");
+
+		/* We are called also without Wine */
+		if (path == NULL)
 			return;
-		}
 
 		full = malloc (strlen (path) + 30);
 		strcpy (full, path);
