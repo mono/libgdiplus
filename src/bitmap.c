@@ -334,9 +334,11 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 
 	g_return_val_if_fail (srcRect->Width == destRect->Width, InvalidParameter);
 	g_return_val_if_fail (srcRect->Height == destRect->Height, InvalidParameter);
-
-	g_return_val_if_fail (srcData->PixelFormat == destData->PixelFormat, InvalidParameter);
-
+	
+	if (!gdip_is_a_supported_pixelformat (srcData->PixelFormat) ||
+		!gdip_is_a_supported_pixelformat (destData->PixelFormat))
+			return NotImplemented;
+	
 	dest_components = gdip_get_pixel_format_components (destData->PixelFormat);	
 	dest_deph = gdip_get_pixel_format_depth (destData->PixelFormat);
 
