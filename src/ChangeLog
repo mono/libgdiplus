@@ -1,3 +1,8 @@
+2004-04-29 Jordi Mas i Hernandez <jordi@ximian.com>
+	* image.c: fixes GdipSaveImageToFile using FormatID as parameter
+        instead of the coded Clsid
+
+
 2004-04-28 Jordi Mas i Hernandez <jordi@ximian.com>
 	* bmpcodec.c: added codecInfo
 	* gdip_win32.h: added ImageCodecInfo struct

@@ -102,22 +102,7 @@ typedef struct {  /* Keep in sync with windows */
 	char lfFaceName[32];
 } LOGFONTA;
 
-typedef struct {
-        CLSID Clsid;
-        GUID  FormatID;
 
-        const WCHAR* CodecName;
-        const WCHAR* DllName;
-        const WCHAR* FormatDescription;
-        const WCHAR* FilenameExtension;
-        const WCHAR* MimeType;
-        DWORD Flags;
-        DWORD Version;
-        DWORD SigCount;
-        DWORD SigSize;
-        const BYTE* SigPattern;
-        const BYTE* SigMask;
-} ImageCodecInfo;
 
 
   /* biCompression */

@@ -413,6 +413,36 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
     return status;
 }
 
+
+ImageFormat 
+gdip_get_imageformat_from_codec_clsid (CLSID *encoderCLSID)
+{
+    int numEncoders, size, cnt;
+    ImageCodecInfo *encoders, *encoder;
+
+    GdipGetImageEncodersSize (&numEncoders, &size);
+
+    if (numEncoders == 0)
+        return INVALID;
+
+    encoders = malloc (size);
+    
+    GdipGetImageEncoders (numEncoders, size, encoders);
+
+    for (cnt = 0, encoder = encoders; cnt < numEncoders; encoder++) {
+
+        if (memcmp (&encoder->Clsid, encoderCLSID, sizeof (GUID)) == 0) {
+            free (encoders);
+            return gdip_image_format_for_clsid (&encoder->FormatID);
+        }
+    }
+
+    free (encoders);
+    return INVALID;
+}
+
+
+
 GpStatus
 GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params)
 {
@@ -428,7 +458,7 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
     if (!image || !file || !encoderCLSID)
         return InvalidParameter;
 	
-    format = gdip_image_format_for_clsid (encoderCLSID);
+    format = gdip_get_imageformat_from_codec_clsid ( (CLSID *)encoderCLSID);
     if (format == INVALID)
         return UnknownImageFormat;
    

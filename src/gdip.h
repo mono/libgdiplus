@@ -633,6 +633,24 @@ typedef struct {
 typedef struct {
         int i;
 } GpImageAttributes;
+
+
+typedef struct {
+        CLSID Clsid;
+        GUID  FormatID;
+
+        const WCHAR* CodecName;
+        const WCHAR* DllName;
+        const WCHAR* FormatDescription;
+        const WCHAR* FilenameExtension;
+        const WCHAR* MimeType;
+        DWORD Flags;
+        DWORD Version;
+        DWORD SigCount;
+        DWORD SigSize;
+        const BYTE* SigPattern;
+        const BYTE* SigMask;
+} ImageCodecInfo;
                 
 /*
  * Functions
@@ -921,14 +939,13 @@ GpStatus GdipTranslateRegion(GpRegion *region, float dx, float dy);
 GpStatus GdipTranslateRegionI(GpRegion *region, int dx, int dy);
 GpStatus GdipTransformRegion(GpRegion *region, GpMatrix *matrix);
 
-/* Encoders / Decoders */
 
-/*
+/* Encoders / Decoders */
 GpStatus GdipGetImageDecodersSize (int *numDecoders, int *size);
-GpStatus GdipGetImageDecoders (int numDecoders, int size, vImageCodecInfo *decoders);
+GpStatus GdipGetImageDecoders (int numDecoders, int size, ImageCodecInfo *decoders);
 GpStatus GdipGetImageEncodersSize (int *numEncoders, int *size);
 GpStatus GdipGetImageEncoders (UINT numEncoders, UINT size, ImageCodecInfo *encoders);
-*/
+
 
 /* Path*/
 #include "graphics-path.h"
