@@ -1,3 +1,10 @@
+2005-02-19  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c:
+	  - Setting the appropriate cairo operator when GdipSetCompositingMode
+	    is called.
+	  - Added (very hacked) GdipMeasureCharRanges()
+
 2005-02-19  Geoff Norton  <gnorton@customerdna.com>
 
 	* bitmap.c: (GdipBitmapSetPixel) Make this endian aware.

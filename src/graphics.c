@@ -2469,10 +2469,637 @@ GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int len
 	return (MeasureOrDrawString (graphics, stringUnicode, length, font, rc, fmt, NULL, boundingBox, codepointsFitted, linesFilled, 0));
 }
 
+static
 GpStatus
-GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *format, int regionCount, GpRegion **regions)
+MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, RectF *boundingBox, int *lineHeight, GpStringDetailStruct** strDetails)
 {
-	return NotImplemented;
+	unsigned char		*String;		/* Holds the UTF8 version of our sanitized string */
+	WCHAR			*CleanString;		/* Holds the unicode version of our sanitized string */
+	unsigned long		StringLen;		/* Length of CleanString */
+	cairo_matrix_t		*SavedMatrix;		
+	GDIPCONST WCHAR		*Src;
+	WCHAR	 		*Dest;
+	GpStringFormat		*fmt;
+	unsigned long		i;
+	unsigned long		j;
+	GpStringDetailStruct	*StringDetails;		/* Contains rendering details */
+	GpStringDetailStruct	*CurrentDetail;
+	GpStringDetailStruct	*CurrentLineStart;	/* For rendering engine, to bump LineLen */
+	float			*TabStops;
+	int			NumOfTabStops;
+	int			CurrentTab;
+	int			WrapPoint;		/* Array index of wrap character */
+	int			WrapX;			/* Width of text at wrap character */
+	float			CursorX;		/* Current X position of drawing cursor */
+	float			CursorY;		/* Current Y position of drawing cursor */
+	int			MaxX;			/* Largest X of cursor */
+	int			MaxXatY;		/* Y coordinate of line with largest X, needed for MaxX resetting on wrap */
+	int			MaxY;			/* Largest Y of cursor */
+	int			FrameWidth;		/* rc->Width (or rc->Height if vertical) */
+	int			FrameHeight;		/* rc->Height (or rc->Width if vertical) */
+	int			AlignHorz;		/* Horizontal Alignment mode */
+	int			AlignVert;		/* Vertical Alignment mode */
+	int			LineHeight;		/* Height of a line with given font */
+	bool			HaveHotkeys=FALSE;	/* True if we find hotkey */
+	cairo_font_extents_t	FontExtent;		/* Info about our font */
+
+	/* Sanity; should we check for length==0? */
+	if (!graphics || !stringUnicode || !font) {
+		return(InvalidParameter);
+	}
+
+#ifdef DRAWSTRING_DEBUG
+	printf("GdipDrawString(...) called (length=%d, fontsize=%d)\n", length, (int)font->sizeInPixels);
+#endif
+
+	/* Check and set any defaults */
+	if (!format) {
+		GdipStringFormatGetGenericDefault ((GpStringFormat **)&fmt);
+	} else {
+		fmt=(GpStringFormat *)format;
+	}
+	TabStops=fmt->tabStops;
+	NumOfTabStops=fmt->numtabStops;
+
+	/* Prepare our various buffers and variables */
+	StringLen=length;
+	StringDetails=calloc (StringLen+1, sizeof(GpStringDetailStruct));
+	CleanString=malloc (sizeof(WCHAR)*(StringLen+1));
+
+	if (!CleanString || !StringDetails) {
+		if (CleanString) {
+			free (CleanString);
+		}
+		if (StringDetails) {
+			free (StringDetails);
+		}
+		if (format!=fmt) {
+			GdipDeleteStringFormat (fmt);
+		}
+		return OutOfMemory;
+	}
+
+	/*
+	   Get font size information; how expensive is the cairo stuff here? 
+	*/
+	SavedMatrix = cairo_matrix_create();
+	cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);	// Set our font; this will also be used for later drawing
+	cairo_font_current_transform(font->cairofnt, SavedMatrix);	// Save the matrix
+	cairo_scale_font (graphics->ct, font->sizeInPixels);
+	cairo_current_font_extents (graphics->ct, &FontExtent);		// Get the size we're looking for
+//	cairo_font_set_transform(font->cairofnt, SavedMatrix);		// Restore the matrix
+
+	if ((LineHeight=FontExtent.ascent)<1) {
+		LineHeight=1;
+	}
+
+#ifdef DRAWSTRING_DEBUG
+	printf("Font extents: ascent:%d, descent: %d, height:%d, maxXadvance:%d, maxYadvance:%d\n", (int)FontExtent.ascent, (int)FontExtent.descent, (int)FontExtent.height, (int)FontExtent.max_x_advance, (int)FontExtent.max_y_advance);
+#endif
+
+	/* Sanitize string, remove formatting chars and build description array */
+#ifdef DRAWSTRING_DEBUG
+	printf("GdipDrawString(...) Sanitizing string, StringLen=%d\n", StringLen);
+#endif
+	Src=stringUnicode;
+	Dest=CleanString;
+	CurrentDetail=StringDetails;
+	CurrentTab=0;
+	for (i=0; i<StringLen; i++) {
+		switch(*Src) {
+			case '\r': { /* CR */
+				Src++;
+				continue;
+			}
+
+			case '\t': { /* Tab */
+				if (CurrentTab<NumOfTabStops) {
+					CurrentDetail->Flags |= STRING_DETAIL_TAB;
+					CurrentDetail->TabWidth=TabStops[CurrentTab];
+					CurrentTab++;
+					CurrentDetail++;
+				}
+				Src++;
+				continue;
+			}
+
+			case '\n': { /* LF */
+				CurrentDetail->Flags |= STRING_DETAIL_LF;
+				CurrentDetail->Linefeeds++;
+				Src++;
+				continue;
+			}
+
+			case '&': {
+				/* We print *all* chars if no hotkeys */
+				if (fmt->hotkeyPrefix==HotkeyPrefixNone) {
+					break;
+				}
+
+				Src++;
+				if (*Src=='&') {
+					/* We skipped the first '&', the break will 
+					   make us drop to copying the second */
+					break;
+				}
+				CurrentDetail->Flags |= STRING_DETAIL_HOTKEY;
+				HaveHotkeys=TRUE;
+				continue;
+			}
+
+			/* Boy, this must be slow, FIXME somehow */
+			default: {
+				if (fmt->trimming!=StringTrimmingCharacter) {
+					break;
+				}
+				/* Fall through */
+			}
+
+			case ' ': {
+				/* Mark where we can break for a new line */
+				CurrentDetail->Flags |= STRING_DETAIL_BREAK;
+				break;
+			}
+
+		}
+		*Dest=*Src;
+		Src++;
+		Dest++;
+		CurrentDetail++;
+	}
+	*Dest='\0';
+	
+	/* Recalculate StringLen; we may have shortened String */
+	Dest=CleanString;
+	StringLen=0;
+	while (*Dest!=0) {
+		StringLen++;
+		Dest++;
+	}
+
+	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
+	String=g_utf16_to_utf8 ((const gunichar2 *)CleanString, (glong)StringLen, NULL, NULL, NULL);
+	if (!String) {
+		free (CleanString);
+		free (StringDetails);
+		if (format!=fmt) {
+			GdipDeleteStringFormat (fmt);
+		}
+		return OutOfMemory;
+	}
+
+#ifdef DRAWSTRING_DEBUG
+	printf("Sanitized string: >%s<, length %d (utf8-length:%d)\n", String, StringLen, strlen(String));
+#endif
+
+	/* Generate size array */
+	if (CalculateStringWidths (font, String, StringLen, StringDetails)==0) {
+		/* FIXME; pick right return code */
+		g_free(String);
+		free(StringDetails);
+		free(CleanString);
+		if (format!=fmt) {
+			GdipDeleteStringFormat (fmt);
+		}
+		return InvalidParameter;
+	}
+	g_free (String);
+
+	CursorX=rc->X;
+	CursorY=rc->Y;
+	MaxX=0;
+	MaxXatY=0;
+	MaxY=0;
+	CurrentLineStart=StringDetails;
+	CurrentDetail=StringDetails;
+	CurrentDetail->Flags |= STRING_DETAIL_LINESTART;
+	WrapPoint=-1;
+	WrapX=0;
+
+	if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
+		FrameWidth=rc->Height;
+		FrameHeight=rc->Width;
+	} else {
+		FrameWidth=rc->Width;
+		FrameHeight=rc->Height;
+	}
+
+#ifdef DRAWSTRING_DEBUG
+	printf("Frame %d x %d\n", FrameWidth, FrameHeight);
+#endif
+	for (i=0; i<StringLen; i++) {
+		/* Handle tabs and new lines */
+		if (CurrentDetail->Flags & STRING_DETAIL_TAB) {
+			CursorX+=CurrentDetail->TabWidth;
+		}
+		if (CurrentDetail->Flags & STRING_DETAIL_LF) {
+			CursorX=0;
+			CursorY+=CurrentDetail->Linefeeds*LineHeight;
+			CurrentDetail->Flags|=STRING_DETAIL_LINESTART;
+			CurrentLineStart=CurrentDetail;
+#ifdef DRAWSTRING_DEBUG
+			{
+				int j;
+
+				for (j=0; j<CurrentDetail->Linefeeds; j++) {
+					printf("<LF>\n");
+				}
+			}
+#endif
+		}
+
+#ifdef DRAWSTRING_DEBUG
+		printf("[%3d] X: %3d, Y:%3d, '%c'  | ", i, (int)CursorX, (int)CursorY, CleanString[i]>=32 ? CleanString[i] : '?');
+#endif
+		/* Remember where to wrap next, but only if wrapping allowed */
+		if (((fmt->formatFlags & StringFormatFlagsNoWrap)==0) && (CurrentDetail->Flags & STRING_DETAIL_BREAK)) {
+			WrapPoint=i+1;	/* We skip the break char itself, keeping it at the end of the old line */
+
+			if (CursorX>MaxX) {
+				WrapX=CursorX;
+			} else {
+				WrapX=MaxX;
+			}
+#ifdef DRAWSTRING_DEBUG
+			printf("<W>");
+#endif
+		}
+
+		/* New line voids any previous wrap point */
+		if (CurrentDetail->Flags & STRING_DETAIL_LINESTART) {
+			WrapPoint=-1;
+		}
+
+		CurrentDetail->PosX=CursorX;
+		CurrentDetail->PosY=CursorY;
+
+		/* Advance cursor */
+		CursorX+=CurrentDetail->Width;
+		if (MaxX<CursorX) {
+			MaxX=CursorX;
+			MaxXatY=CursorY;
+		}
+
+		/* Time for a new line? Go back to last WrapPoint and wrap */
+		if (FrameWidth && CursorX>FrameWidth) {
+			if (WrapPoint!=-1) {
+				/** Re-Calculate line lengths **/
+				/* Old line */
+				CurrentLineStart->LineLen-=i-WrapPoint;
+				if (MaxXatY==CursorY) {
+					MaxX=WrapX;
+				}
+
+				/* Remove the trailing space from being counted if we're not supposed to */
+				if (((fmt->formatFlags & StringFormatFlagsMeasureTrailingSpaces)==0) && (WrapPoint>0)) {
+					if (CleanString[WrapPoint-1]==' ') {
+						if (MaxXatY==CursorY) {
+							MaxX-=StringDetails[WrapPoint-1].Width;
+						}
+						StringDetails[WrapPoint-1].Width=0;
+						CurrentLineStart->LineLen--;
+					}
+				}
+
+				/* New line */
+				CurrentLineStart=&(StringDetails[WrapPoint]);
+				CurrentLineStart->Flags|=STRING_DETAIL_LINESTART;
+				CurrentLineStart->LineLen=0;
+
+				/* Generate CursorX/Y for new line */
+				CursorY+=LineHeight;
+				CursorX=CurrentLineStart->Width;
+
+				i=WrapPoint;
+#ifdef DRAWSTRING_DEBUG
+				printf("\n<Forcing break at index %d, CursorX:%f, LineLen:%d>\n", WrapPoint, CursorX, CurrentLineStart->LineLen);
+#endif
+				CurrentDetail=&(StringDetails[WrapPoint]);
+				CurrentDetail->PosX=0;
+				CurrentDetail->PosY=CursorY;
+				WrapPoint=-1;
+			} else {
+				/*
+				   This line is too long and has no wrap points, check if we need to insert ellipsis.
+				   To keep at least a bit of performance, we cheat - we don't actually calculate the
+				   size of the elipsis chars but assume that they're always smaller than any other
+				   character. And we don't try to hard to fit as many chars as possible.
+				*/
+
+				int	EndOfLine;
+
+#ifdef DRAWSTRING_DEBUG
+				printf("No wrappoint (yet) set\n");
+#endif
+				/* Find end of line, index i is the first char no longer visible on the line */
+				EndOfLine=i;
+				if ((fmt->formatFlags & StringFormatFlagsNoWrap)==0) {
+					while (EndOfLine<StringLen && ((StringDetails[EndOfLine].Flags & STRING_DETAIL_LF)==0)) {
+						EndOfLine++;
+					}
+				} else {
+					while (EndOfLine<StringLen && ((StringDetails[EndOfLine].Flags & (STRING_DETAIL_LF | STRING_DETAIL_BREAK))==0)) {
+						EndOfLine++;
+					}
+					if (EndOfLine<StringLen) {
+						if (StringDetails[EndOfLine].Flags & STRING_DETAIL_BREAK) {
+							EndOfLine++;
+						}
+					}
+				}
+
+				if ((fmt->trimming==StringTrimmingEllipsisWord) || (fmt->trimming==StringTrimmingEllipsisCharacter)) {
+					if (CurrentLineStart->LineLen>3) {
+						if (fmt->trimming==StringTrimmingEllipsisCharacter) {
+							CleanString[i-1]='.';
+							CleanString[i-2]='.';
+							CleanString[i-3]='.';
+						} else {
+							int	found=0;
+
+							j=i;
+							while(j>(i-CurrentLineStart->LineLen)) {
+								if (CleanString[j]==' ') {
+									CleanString[j]='.';
+									CurrentLineStart->LineLen-=i-j-1;
+
+									if ((j+1)<EndOfLine) {
+										CleanString[j+1]='.';
+										CurrentLineStart->LineLen++;
+									}
+
+									if ((j+2)<EndOfLine) {
+										CleanString[j+2]='.';
+										CurrentLineStart->LineLen++;
+									}
+									found=1;
+									break;
+								}
+								j--;
+							}
+
+							if (!found) {
+								CleanString[i-1]='.';
+								CleanString[i-2]='.';
+								CleanString[i-3]='.';
+							}
+						}
+					}
+				} else if (fmt->trimming==StringTrimmingEllipsisPath) {
+					int	k;
+					float	LineWidth;
+
+					/* Find end of line, index i is the first char no longer visible on the line */
+					EndOfLine=i;
+					while (EndOfLine<StringLen && ((StringDetails[EndOfLine].Flags & (STRING_DETAIL_LF | STRING_DETAIL_BREAK))==0)) {
+						EndOfLine++;
+					}
+
+					/* Whack the center, make sure we've got space in the string */
+					if (CurrentLineStart->LineLen>3) {
+						j=i-(CurrentLineStart->LineLen/2);
+						CleanString[j-1]='.';
+						CleanString[j]='.';
+						CleanString[j+1]='.';
+
+						/* Have just enough to include our ellipsis */
+						LineWidth=0;
+						for (k=i-CurrentLineStart->LineLen; k<(j+1); k++) {
+							LineWidth+=StringDetails[k].Width;
+						}
+						CurrentLineStart->LineLen=i-j+3;	/* 3=ellipsis */
+
+						/* Now figure out how many chars from the end of the string we have to copy */
+						j+=2;	/* Points to the char behind the last ellipsis */
+						k=EndOfLine-1;
+						while ((LineWidth+StringDetails[k].Width)<FrameWidth) {
+							LineWidth+=StringDetails[k].Width;
+							k--;
+						}
+						memcpy (&CleanString[j], &CleanString[k+1], sizeof(WCHAR)*(EndOfLine-k-1));
+
+						CurrentLineStart->LineLen+=EndOfLine-k-1;
+					} 
+					
+#ifdef DRAWSTRING_DEBUG
+				} else {
+					/* Just cut off the text */
+					printf("End of line at index:%d\n", EndOfLine);
+#endif
+				}
+
+				/* New line */
+				CurrentLineStart=&(StringDetails[EndOfLine]);
+				CurrentLineStart->Flags|=STRING_DETAIL_LINESTART;
+				CurrentLineStart->LineLen=0;
+
+				/* Generate CursorX/Y for new line */
+				CursorY+=LineHeight;
+				CursorX=CurrentLineStart->Width;
+
+				i=EndOfLine;
+
+				CurrentDetail=&(StringDetails[EndOfLine]);
+				CurrentDetail->PosX=0;
+				CurrentDetail->PosY=CursorY;
+			}
+		}
+
+
+		/* Still visible? */
+		if ((FrameWidth && CursorX>FrameWidth) || (FrameHeight && ((CursorY>FrameHeight) || ((fmt->formatFlags & StringFormatFlagsLineLimit) && (CursorY+LineHeight)>FrameHeight)))) {
+			CurrentDetail->Flags|=STRING_DETAIL_HIDDEN;
+#ifdef DRAWSTRING_DEBUG
+			if (CurrentDetail->Flags & STRING_DETAIL_LINESTART) {
+				printf("<LSTART-H>");
+			} else {
+				printf("<H>");
+			}
+#endif
+		} else {
+			if (MaxY<CursorY) {
+				MaxY=CursorY;
+			}
+		}
+
+#ifdef DRAWSTRING_DEBUG
+		if (i % 3 == 2) {
+			printf("\n");
+		}
+#endif
+
+		printf ("curr details: x: %f y: %f wd: %f\n", CurrentDetail->PosX, CurrentDetail->PosY,CurrentDetail->Width);
+		CurrentDetail++;
+		CurrentLineStart->LineLen++;
+	}
+
+	/* We ignored it above, for shorter of calculations, also, add a bit of padding */
+	MaxX+=2;
+	MaxY+=LineHeight-FontExtent.descent+2;
+
+#ifdef DRAWSTRING_DEBUG
+	printf("\n");
+
+	printf("Bounding box: %d x %d\n", MaxX, MaxY);
+
+	printf("Line layout [Total len %d]:\n", StringLen);
+	for (i=0; i<StringLen; i++) {
+		if (StringDetails[i].Flags & STRING_DETAIL_LF) {
+			for (j=0; j<StringDetails[i].Linefeeds; j++) {
+				printf("\n");
+			}
+		}
+		if (StringDetails[i].Flags & STRING_DETAIL_LINESTART) {
+			printf("[Len %2d %dx%d] ", StringDetails[i].LineLen, (int)StringDetails[i].PosX, (int)StringDetails[i].PosY);
+			for (j=0; j<StringDetails[i].LineLen; j++) {
+				printf("%c", CleanString[i+j]);
+			}
+			i+=j-1;
+			printf("\n");
+		}
+	}
+#endif
+
+	/* Prepare alignment handling */
+	AlignHorz=fmt->alignment;
+	if (fmt->formatFlags & StringFormatFlagsDirectionRightToLeft) {
+		if (fmt->alignment==StringAlignmentNear) {
+			AlignHorz=StringAlignmentFar;
+		} else if (fmt->alignment==StringAlignmentFar) {
+			AlignHorz=StringAlignmentNear;
+		}
+	}
+	AlignVert=fmt->lineAlignment;
+
+#if 0
+	/* Alignment sanity checks, not sure about these, might not match MS */
+	if (MaxX>rc->Width) {
+		AlignHorz=StringAlignmentNear;
+	}
+
+	if (MaxY>rc->Height) {
+		AlignVert=StringAlignmentNear;
+	}
+#endif
+
+	/*
+	   At this point we know our bounding box, what characters
+	   are to be displayed and where every character goes
+	*/
+	if (boundingBox) {
+		boundingBox->X=rc->X;
+		boundingBox->Y=rc->Y;
+		if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
+			boundingBox->Width=MaxY;
+			boundingBox->Height=MaxX;
+		} else {
+			boundingBox->Width=MaxX;
+			boundingBox->Height=MaxY;
+		}
+		if (rc->Width>0 && boundingBox->Width>rc->Width) {
+			boundingBox->Width=rc->Width;
+		}
+		if (rc->Height>0 && boundingBox->Height>rc->Height) {
+			boundingBox->Height=rc->Height;
+		}
+	}
+
+	cairo_font_set_transform(font->cairofnt, SavedMatrix);		// Restore matrix to original values
+	cairo_matrix_destroy(SavedMatrix);
+
+	/* Cleanup */
+	free (CleanString);
+
+	if (format != fmt) {
+		GdipDeleteStringFormat (fmt);
+	}
+
+	*lineHeight = LineHeight;
+	*strDetails = StringDetails;
+
+	return Ok;
+}
+
+GpStatus
+GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
+			    GDIPCONST GpFont *font, GDIPCONST GpRectF *layoutRect,
+			    GDIPCONST GpStringFormat *format, int regionCount, GpRegion **regions)
+{
+	int			i, j, start, end;
+	int			lineHeight;
+	CharacterRange		range;
+	GpStatus		status;
+	GpStringDetailStruct*	strDetails;
+	RectF			boundingBox;
+	RectF			charRect;
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (stringUnicode != NULL, InvalidParameter);
+	g_return_val_if_fail (length != 0, InvalidParameter);
+	g_return_val_if_fail (font != NULL, InvalidParameter);
+	g_return_val_if_fail (layoutRect != NULL, InvalidParameter);
+	g_return_val_if_fail (format != NULL, InvalidParameter);
+	g_return_val_if_fail (regions != NULL, InvalidParameter);
+	g_return_val_if_fail (regionCount == format->charRangeCount, InvalidParameter);
+
+	/* No char range or bounding rect is set for measurements */
+	if (format->charRangeCount == 0 || layoutRect->Width == 0 || layoutRect->Height == 0)
+		return Ok;
+
+	/* string measurements */
+	status = MeasureString (graphics, stringUnicode, length, font, layoutRect,
+				format, &boundingBox, &lineHeight, &strDetails);
+
+	if (status != Ok)
+		return status;
+
+	/* Create a region for every char range */
+	for (i = 0; i < format->charRangeCount; i++) {
+		range = format->charRanges [i];
+
+		if (range.length > 0)
+			start = range.first;
+		else
+			start = range.first + range.length;
+
+		end = start + range.length;
+
+		/* sanity check on charRange. negative lengths are allowed */
+		if (range.first < 0)
+			return InvalidParameter;
+
+		if (start < 0 || end > length)
+			return InvalidParameter;
+
+		/* calculate the regions */
+		for (j = start; j < end; j++) {
+			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+				charRect.X = strDetails [j].PosY;
+				charRect.Y = strDetails [j].PosX;
+				charRect.Width = lineHeight;
+				charRect.Height = strDetails [j].Width;
+			}
+			else {
+				charRect.X = strDetails [j].PosX;
+				charRect.Y = strDetails [j].PosY;
+				charRect.Width = strDetails [j].Width;
+				charRect.Height = lineHeight;
+			}
+			status = GdipCombineRegionRect (regions [i], &charRect, CombineModeUnion);
+			if (status == Ok)
+				continue;
+			else
+				break;
+		}
+		if (status == Ok)
+			continue;
+		else
+			break;
+	}
+
+	free (strDetails);
+
+	return Ok;
 }
 
 GpStatus 
@@ -2949,6 +3576,18 @@ GpStatus
 GdipSetCompositingMode (GpGraphics *graphics, GpCompositingMode compositingMode)
 {
 	graphics->composite_mode = compositingMode;
+
+	switch (compositingMode) {
+		case CompositingModeSourceOver: {
+			cairo_set_operator(graphics->ct, CAIRO_OPERATOR_OVER);
+			break;
+		}
+
+		case CompositingModeSourceCopy: {
+			cairo_set_operator(graphics->ct, CAIRO_OPERATOR_SRC);
+			break;
+		}
+	}
 	return Ok;
 }
 
