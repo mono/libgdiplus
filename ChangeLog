@@ -1,3 +1,7 @@
+2005-03-22  Raja R Harinath  <rharinath@novell.com>
+
+	* configure.in (CAIRO_CFLAGS): Work with builddir != srcdir.
+
 2005-01-26  Geoff Norton  <gnorton@customerdna.com>
 
 	* configure.in: Add AC_C_BIGENDIAN check to define WORDS_BIGENDIAN where needed
