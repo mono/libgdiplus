@@ -785,6 +785,10 @@ draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 		g_return_val_if_fail (temp != NULL, OutOfMemory);
 		
 		cairo_surface_set_repeat (temp, 1);
+
+		int Rb = (backcolor & 0x00FF0000) >> 16;
+		int Gb = (backcolor & 0x0000FF00) >> 8;
+		int Bb = (backcolor & 0x000000FF);
 		
 		/* draw a 50% hatch */
 		{
@@ -795,18 +799,15 @@ draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 			cairo_set_target_surface (ct, temp);
 			
 			/* draw background */
-			int R = (backcolor & 0x00FF0000) >> 16;
-			int G = (backcolor & 0x0000FF00) >> 8;
-			int B = (backcolor & 0x000000FF);
-			cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
+			cairo_set_rgb_color (ct, (double) Rb / 255.0, (double) Gb / 255.0, (double) Bb / 255.0);
 			
 			cairo_rectangle (ct, 0, 0, temp_size, temp_size);
 			cairo_fill (ct);
 			
 			/* draw two diagonal lines in the foreground */
-			R = (forecolor & 0x00FF0000) >> 16;
-			G = (forecolor & 0x0000FF00) >> 8;
-			B = (forecolor & 0x000000FF);
+			int R = (forecolor & 0x00FF0000) >> 16;
+			int G = (forecolor & 0x0000FF00) >> 8;
+			int B = (forecolor & 0x000000FF);
 			cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 			
 			cairo_rectangle (ct, 0, 0, temp_size / 2.0, temp_size / 2.0);
@@ -830,10 +831,7 @@ draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 		cairo_fill (ct);
 
 		/* foreground is filled with 10% hatch of background color */
-		int R = (backcolor & 0x00FF0000) >> 16;
-		int G = (backcolor & 0x0000FF00) >> 8;
-		int B = (backcolor & 0x000000FF);
-		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
+		cairo_set_rgb_color (ct, (double) Rb / 255.0, (double) Gb / 255.0, (double) Bb / 255.0);
 
 		/* 0.5 is added for pixel adjustment. It's ugly but it makes output better. */
 		/* draw four semi circles in the foregound to make dots */
@@ -1601,9 +1599,85 @@ draw_trellis_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int he
 }
 
 GpStatus
-draw_sphere_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
+draw_sphere_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format)
 {
-	return NotImplemented;
+	cairo_surface_t *hatch;
+	double hatch_size = 12;
+	double line_width = LINE_WIDTH;
+	double rad = hatch_size / 4.0 + 0.5;
+
+	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
+					      format, hatch_size, hatch_size);
+
+	g_return_val_if_fail (hatch != NULL, OutOfMemory);
+
+	cairo_surface_set_repeat (hatch, 1);
+	
+	/* draw one hatch that has two colored squares at upper left and lower right corners */
+	{
+		cairo_save (ct);
+
+		/* hatch is not supposed to be affected by user matrix */
+		cairo_identity_matrix (ct);
+		cairo_set_target_surface (ct, hatch);
+
+		/* draw background */
+		int Rb = (backcolor & 0x00FF0000) >> 16;
+		int Gb = (backcolor & 0x0000FF00) >> 8;
+		int Bb = (backcolor & 0x000000FF);
+		cairo_set_rgb_color (ct, (double) Rb / 255.0, (double) Gb / 255.0, (double) Bb / 255.0);
+
+		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
+		cairo_fill (ct);
+
+		/* draw half circles in the foreground */
+		int Rf = (forecolor & 0x00FF0000) >> 16;
+		int Gf = (forecolor & 0x0000FF00) >> 8;
+		int Bf = (forecolor & 0x000000FF);
+		cairo_set_rgb_color (ct, (double) Rf / 255.0, (double) Gf / 255.0, (double) Bf / 255.0);
+
+		/* left middle */
+		cairo_arc (ct, 0, hatch_size / 2.0, rad, - PI / 2.0, PI / 2.0);
+		cairo_fill (ct);
+
+		/* top middle */
+		cairo_arc (ct, hatch_size / 2.0, 0, rad, 0, PI);
+		cairo_fill (ct);
+
+		/* bottom middle */
+		cairo_arc (ct, hatch_size / 2.0, hatch_size, rad, - PI, 0);
+		cairo_fill (ct);
+
+		/* right middle */
+		cairo_arc (ct, hatch_size, hatch_size / 2.0, rad, PI / 2.0, - PI / 2.0);
+		cairo_fill (ct);
+
+		/* draw lines to mark sphere shining */
+		cairo_set_rgb_color (ct, (double) Rb / 255.0, (double) Gb / 255.0, (double) Bb / 255.0);
+		cairo_set_line_width (ct, line_width);
+
+		/* left middle */
+		cairo_move_to (ct, 0, hatch_size / 2.0 - rad / 2.0);
+		cairo_line_to (ct, rad / 2.0, hatch_size / 2.0 - rad / 2.0);
+
+		/* right middle */
+		cairo_move_to (ct, hatch_size, hatch_size / 2.0 - rad / 2.0);
+		cairo_line_to (ct, hatch_size - rad / 2.0, hatch_size / 2.0 - rad / 2.0);
+
+		/* bottom middle */
+		cairo_move_to (ct, hatch_size / 2.0 - rad / 2.0, hatch_size - rad / 2.0);
+		cairo_line_to (ct, hatch_size / 2.0 + rad / 2.0, hatch_size - rad / 2.0);
+
+		cairo_stroke (ct);
+
+		cairo_restore (ct);
+	}
+
+	/* set the pattern for the consequent fill or stroke */
+        gdip_cairo_set_surface_pattern (ct, hatch);
+	cairo_surface_destroy (hatch);
+
+	return Ok;
 }
 
 GpStatus
@@ -1820,7 +1894,7 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 		return draw_trellis_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleSphere:
-		return draw_sphere_hatch (ct, forecol, backcol, width, height);
+	  return draw_sphere_hatch (ct, forecol, backcol, format);
 
 	case HatchStyleSmallCheckerBoard:
 	case HatchStyleLargeCheckerBoard:
