@@ -85,6 +85,15 @@ win_draw(win_t *win)
     g_free (unis);
     GdipDisposeImage (img);
     img = NULL;
+
+    unis = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
+    st = GdipLoadImageFromFile (unis, &img);
+    CHECK_GDIP_ST(st);
+    st = GdipDrawImage (gp, img, 200, 100);
+    CHECK_GDIP_ST(st);
+    g_free (unis);
+    GdipDisposeImage (img);
+    img = NULL;
 }
 
 int

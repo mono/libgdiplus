@@ -288,6 +288,9 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
     g_free (file_name);
     
     switch (format) {
+        case BMP:
+            status = gdip_save_bmp_image_to_file (fp, image);
+            break;
         case PNG:
             status = gdip_save_png_image_to_file (fp, image, params);
             break;
