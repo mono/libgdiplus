@@ -1,3 +1,8 @@
+2004-07-07  Ravindra <rkumar@novell.com>
+
+	* pngcodec.c: Fixes saving RGB file and one perf improvement in
+	image loading. Fixes bug #61156.
+
 2004-06-29  Jordi Mas <jordi@ximian.com>
 
 	* pngcodec.c: fixes saving 24-bit images (it was saving corrupted files before)
