@@ -1,3 +1,13 @@
+2004-06-15  Ravindra <rkumar@novell.com>
+
+	* texturebrush.h: Added two members 'changed & pattern' to GpTexture
+	struct to avoid unnecessary texture setup.
+	* texturebrush.c: Fixed the code to avoid the seam. Setup related
+	enhancement. Replaced cairo_show_surface by cairo_fill for creating
+	pattern. This was required to fix the problem with Graphics.DrawXXX,
+	as DrawXXX functions stopped working for texturebrush because of 
+	transformation matrix fix in pen.c (my previous checkin).
+
 2004-06-15  Sanjay Gupta <gsanjay@novell.com>
 
 	* gdip.h: Added function typedefs, (*CloseDelegate), (*SizeDelegate).

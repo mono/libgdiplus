@@ -22,6 +22,8 @@ typedef struct _Texture {
 	GpMatrix *matrix;
 	GpRect *rectangle;
 	GpWrapMode wrapMode;
+	cairo_pattern_t *pattern;
+	BOOL changed;
 } Texture;
 
 /* Texture brush public functions */
