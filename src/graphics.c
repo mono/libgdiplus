@@ -1809,6 +1809,16 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		Dest++;
 	}
 
+	/* Don't bother doing anything else if the length is 0 */
+	if (StringLen == 0) {
+		free(CleanString);
+		free(StringDetails);
+		if (format != fmt) {
+			GdipDeleteStringFormat(fmt);
+		}
+		return 0;
+	}
+
 	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
 	String=g_utf16_to_utf8 ((const gunichar2 *)CleanString, (glong)StringLen, NULL, NULL, NULL);
 	if (!String) {
@@ -1833,7 +1843,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		if (format!=fmt) {
 			GdipDeleteStringFormat (fmt);
 		}
-		return InvalidParameter;
+		return 0;
 	}
 	g_free (String);
 

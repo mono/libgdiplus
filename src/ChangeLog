@@ -1,3 +1,10 @@
+2005-01-04  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c (MeasureOrDrawString): Return 0 instead of
+	  InvalidParameter if the string being measured has zero length, this
+	  matches MS behaviour; also added earlier check for zero length 
+	  to avoid utf conversion overhead.
+
 2005-01-02  Jordi Mas  <jordi@ximian.com>
 
 	* graphics.c, font.c, general.c, bmpcodec.h, image.c,
