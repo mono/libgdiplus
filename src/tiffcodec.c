@@ -90,7 +90,8 @@ gdip_tiff_seek (thandle_t clientData, toff_t offSet, int whence)
 int 
 gdip_tiff_close (thandle_t clientData)
 {
-	((gdip_tiff_clientData *) clientData)->closeFunc ();
+	/* We should not close the user provided streams */
+	/* ((gdip_tiff_clientData *) clientData)->closeFunc (); */
 	return 1;
 }
 
