@@ -168,10 +168,17 @@ make_arc (GpGraphics *graphics, float x, float y, float width,
         double cos_alpha = cos (alpha);
         double cos_beta = cos (beta);
 
-        /* move to starting point */
-        cairo_move_to (graphics->ct,
-                       cx + rx * cos_alpha, 
-                       cy + ry * sin_alpha);
+        /* starting point */
+        double sx = cx + rx * cos_alpha;
+        double sy = cy + ry * sin_alpha;
+
+        /* current point */
+        double nx, ny;
+        cairo_current_point (graphics->ct, &nx, &ny);
+
+        /* move to starting point if we're not there already */
+        if (nx != sx && ny != sy)
+                cairo_move_to (graphics->ct, sx, sy);
 
         cairo_curve_to (graphics->ct,
                         cx + rx * (cos_alpha - bcp * sin_alpha),

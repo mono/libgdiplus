@@ -1,3 +1,10 @@
+2004-04-04  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (make_arc): Only call move_to when we're not already at
+	that point. This fixes FillPie, as cairo_fill implicitly closes
+	all subpaths before filling. The extraneous move_to call earlier
+	was causing Cairo to close early.
+
 2004-04-02  Duncan Mak  <duncan@ximian.com>
 
 	* graphics.c (make_pie, GdipDrawArc): If the delta is greater than
