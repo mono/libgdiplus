@@ -80,6 +80,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	GpBitmap bmpdest;
 	int x,y, cnt;
 	ARGB color;	
+	byte *color_p = (byte *)&color;
 	
 	*allocated = FALSE;
 	
@@ -188,7 +189,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				int r_new,g_new,b_new,a_new;
 				
 				GdipBitmapGetPixel (&bmpdest, x, y, &color);
-				get_pixel_bgra (color, &b, &g, &r, &a);
+				get_pixel_bgra (color, b, g, r, a);
 
 				r_new = (r * imgattr->colormatrix->m[0][0] + g * imgattr->colormatrix->m[1][0] + b * imgattr->colormatrix->m[2][0] +
 					a * imgattr->colormatrix->m[3][0] + (255 * imgattr->colormatrix->m[4][0]));
@@ -207,7 +208,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				if (b_new > 0xff) b_new = 0xff;
 				if (a_new > 0xff) a_new = 0xff;
 
-				set_pixel_bgra ((byte *)&color, 0, (byte) b_new, (byte) g_new, (byte) r_new, (byte) a_new);
+				set_pixel_bgra (color_p, 0, (byte) b_new, (byte) g_new, (byte) r_new, (byte) a_new);
 				GdipBitmapSetPixel (&bmpdest, x, y, color);
 			}	
 		}

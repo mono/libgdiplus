@@ -970,38 +970,3 @@ gdip_bitmap_ensure_surface (GpBitmap *bitmap)
 
 	return bitmap->image.surface;
 }
-
-#ifdef WORDS_BIGENDIAN
-void set_pixel_bgra (byte* pixel, int index, byte b, byte g, byte r, byte a)
-{
-	pixel[index+0] = a;
-	pixel[index+1] = r;
-	pixel[index+2] = g;
-	pixel[index+3] = b;
-} 
-
-void get_pixel_bgra (int pixel, byte* b, byte* g, byte* r, byte* a)
-{
-	*b = (pixel & 0xff000000) >> 24;
-	*g = (pixel & 0x00ff0000) >> 16;
-	*r = (pixel & 0x0000ff00) >> 8;
-	*a = (pixel & 0x000000ff);
-}
-
-#else
-void set_pixel_bgra (byte* pixel, int index, byte b, byte g, byte r, byte a)
-{
-	pixel[index+0] = b;
-	pixel[index+1] = g;
-	pixel[index+2] = r;
-	pixel[index+3] = a;
-}
-
-void get_pixel_bgra (int pixel, byte* b, byte* g, byte* r, byte* a)
-{
-	*a = ((pixel & 0xff000000) >> 24);
-	*r = ((pixel & 0x00ff0000) >> 16);
-	*g = ((pixel & 0x0000ff00) >> 8);
-	*b = (pixel & 0x000000ff);      
-}
-#endif

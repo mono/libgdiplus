@@ -1,3 +1,13 @@
+2005-03-29 Peter Bartok  <pbartok@novell.com>
+
+	* bitmap.c: Removed set_pixel_bgra() and get_pixel_bgra() functions,
+	  re-made them as macros, since inlining only works for static functions
+	* gdip.h: Added set/get_pixel_bgra macros; removed prototypes
+	* imageattributes.c: Fixed code to work with set/get_pixel_bgra macros
+	* bmpcodec.c: Added code to deal with the (wrong) assumption that 
+	  Stream.Read will always return the number of bytes requested if the
+	  stream end has not been hit (related to bug #72588)
+
 2005-03-22 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* image.c, bitmap.c: implement gdip_image_clone to copy Image structs properly

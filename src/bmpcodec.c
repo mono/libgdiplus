@@ -549,10 +549,28 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 int 
 gdip_read_bmp_data (void *pointer, byte *data, int size, bool useFile)
 {
-	if (useFile)
+	if (useFile) {
 		return fread (data, 1, size, (FILE*) pointer);
-	else
-		return ((GetBytesDelegate)(pointer))(data, size, 0);
+	} else {
+		// Streams are not required to return the number of bytes
+		// requested, they could return less yet our code seems to assume
+		// it will always get what it's asking for; lets loop until we
+		// get what was requested or we get an error
+		int got;
+		int total;
+
+		total = 0;
+		
+		do {
+			got = ((GetBytesDelegate)(pointer))(data + total, size - total, 0);
+			if (got < 1) {	// 0 = end of stream, -1 = error
+				return total;
+			}
+			total += got;
+		} while (total < size);
+
+		return total;
+	}
 }
 
 GpStatus 
