@@ -356,7 +356,8 @@ GdipDeleteGraphics (GpGraphics *graphics)
 		cairo_destroy (graphics->ct);
 	graphics->ct = NULL;
 
-	((GpImage*) graphics->image)->graphics = NULL;
+	if (graphics->image)
+		((GpImage*) graphics->image)->graphics = NULL;
 
 	GdipFree (graphics);
 
