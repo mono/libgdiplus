@@ -163,6 +163,45 @@ gdip_get_status (cairo_status_t status)
         }
 }
 
+/* Converts the given interpolation value to cairo_filter_t */
+cairo_filter_t
+gdip_get_cairo_filter (InterpolationMode imode)
+{
+	cairo_filter_t filter;
+
+	switch (imode) {
+
+	case InterpolationModeHighQuality:
+	case InterpolationModeHighQualityBilinear:
+	case InterpolationModeHighQualityBicubic:
+		filter = CAIRO_FILTER_BEST;
+		break;
+
+	case InterpolationModeNearestNeighbor:
+		filter = CAIRO_FILTER_NEAREST;
+		break;
+
+	case InterpolationModeBilinear:
+		filter = CAIRO_FILTER_BILINEAR;
+		break;
+
+	case InterpolationModeBicubic:
+		filter = CAIRO_FILTER_GAUSSIAN;
+		break;
+		
+	case InterpolationModeLowQuality:
+		filter = CAIRO_FILTER_FAST;
+		break;
+
+	case InterpolationModeDefault:
+	default:
+		filter = CAIRO_FILTER_GOOD;
+		break;
+	}
+
+	return filter;
+}
+
 float
 gdip_get_display_dpi()
 {

@@ -634,6 +634,7 @@ typedef struct {
 	GpRect		bounds;
 	GpUnit		page_unit;
 	float		scale;
+	InterpolationMode interpolation;
 } GpGraphics;
 
 typedef struct _CustomLineCap GpCustomLineCap;

@@ -99,7 +99,10 @@ GpBitmap *
 gdip_bitmap_new ()
 {
 	GpBitmap *result = (GpBitmap *) GdipAlloc (sizeof (GpBitmap));
-	gdip_bitmap_init (result);
+
+	if (result)
+		gdip_bitmap_init (result);
+
 	return result;
 }
 

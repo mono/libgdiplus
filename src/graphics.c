@@ -32,6 +32,7 @@
 
 extern BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect);
 extern BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect);
+extern cairo_filter_t gdip_get_cairo_filter (InterpolationMode imode);
 
 void
 gdip_graphics_init (GpGraphics *graphics)
@@ -51,13 +52,17 @@ gdip_graphics_init (GpGraphics *graphics)
 	graphics->bounds.X = graphics->bounds.Y = graphics->bounds.Width = graphics->bounds.Height = 0;
 	graphics->page_unit = UnitDisplay;
 	graphics->scale = 1.0f;
+	graphics->interpolation = InterpolationModeDefault;
 }
 
 GpGraphics *
 gdip_graphics_new ()
 {
 	GpGraphics *result = (GpGraphics *) GdipAlloc (sizeof (GpGraphics));
-	gdip_graphics_init (result);
+
+	if (result)
+		gdip_graphics_init (result);
+
 	return result;
 }
 
@@ -69,7 +74,10 @@ gdip_graphics_attach_bitmap (GpGraphics *graphics, GpBitmap *image)
 	if (image->image.surface) {
 		cairo_surface_destroy (image->image.surface);
 	}
+
 	image->image.surface = cairo_current_target_surface (graphics->ct);
+	cairo_surface_set_filter (image->image.surface, gdip_get_cairo_filter (graphics->interpolation));
+
 	/* Increase the reference count of the surface. Because, this surface
 	 * is referenced by graphics->ct also. This is required for the proper
 	 * memory management of the surface.
@@ -2430,7 +2438,9 @@ GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 GpStatus
 GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode interpolationMode)
 {
-	/* We accept any, but only do HighQuality */
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
+	graphics->interpolation = interpolationMode;
 	return Ok;
 }
 
@@ -2440,7 +2450,7 @@ GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *imode)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (imode != NULL, InvalidParameter);
 
-	*imode = InterpolationModeHighQuality;
+	*imode = graphics->interpolation;
 	return Ok;
 }
 

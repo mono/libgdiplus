@@ -34,6 +34,7 @@
 static char *guid_to_string_hack (GDIPCONST CLSID *clsid);
 void gdip_FlipX (GpImage *image);
 void gdip_rotate_180_FlipX (GpImage *image);
+cairo_filter_t gdip_get_cairo_filter (InterpolationMode imode);
 
 /*
  * format guids
@@ -206,7 +207,8 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 
 	/* Create a surface for this bitmap if one doesn't exist */    
 	gdip_bitmap_ensure_surface ((GpBitmap*) image);
-	
+	cairo_surface_set_filter (((GpBitmap*) image)->image.surface, gdip_get_cairo_filter (graphics->interpolation));
+
 	gdip_cairo_set_surface_pattern (graphics->ct, image->surface);
 	cairo_translate (graphics->ct, x, y);
 	cairo_rectangle (graphics->ct, 0, 0, width, height);
@@ -353,7 +355,8 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		}
 		
 		/* Create a surface for this bitmap if one doesn't exist */
-		gdip_bitmap_ensure_surface ((GpBitmap*) image);			
+		gdip_bitmap_ensure_surface ((GpBitmap*) image);
+		cairo_surface_set_filter (((GpBitmap*) image)->image.surface, gdip_get_cairo_filter (graphics->interpolation));
 
 		for (posy = 0; posy < dstheight; posy += img_height) {
 		
@@ -406,6 +409,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		
 		/* Create a surface for this bitmap if one doesn't exist */
 		gdip_bitmap_ensure_surface ((GpBitmap*) image);
+		cairo_surface_set_filter (((GpBitmap*) image)->image.surface, gdip_get_cairo_filter (graphics->interpolation));
 		
 		mat = cairo_matrix_create ();
 		cairo_matrix_scale (mat, srcwidth / dstwidth, srcheight / dstheight);
@@ -846,11 +850,11 @@ GdipImageSelectActiveFrame(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT i
 			if (image->frameDimensionList[i].count >= index){
 				GpBitmap *bitmap = (GpBitmap *) image;
 				bitmap->data = image->frameDimensionList[i].frames[index];
-				//printf ("\n image.c selected frame is %d returning ok", index);
+				/*printf ("\n image.c selected frame is %d returning ok", index);*/
 				return Ok;
 			} else {
 				return InvalidParameter;
-				//printf ("\n image.c not selected frame is %d and returning error", index);
+				/*printf ("\n image.c not selected frame is %d and returning error", index);*/
 			}
 		}
 	}

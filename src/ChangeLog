@@ -1,3 +1,16 @@
+2004-07-12  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Added 'interpolation' member in GpGraphics struct.
+	Fixing bug #61400.
+	* bitmap.c: Check for null before initializing the GpBitmap.
+	* general.c: Added a helper function for converting an
+	InterpolationMode value to cairo_filter_t. Fixing bug #61400.
+	* graphics.c: Set the cairo filter on the surface as per the
+	interpolation mode set. Fixed GdipSet/GetInterpolationMode
+	functions. Fixing bug #61400.
+	* image.c: Set the cairo filter on the surface as per the
+	interpolation mode set. Fixing bug #61400.
+
 2004-07-09  Ravindra <rkumar@novell.com>
 
 	* lineargradientbrush.c: Implemented GdipSetLineSigmaBlend function.
