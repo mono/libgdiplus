@@ -23,8 +23,34 @@
 #ifndef CAIRO_HAS_XLIB_SURFACE
 #include <cairo-xlib.h>
 #endif
-#include "uglify.h"
 
+typedef const gunichar2 *LPCTSTR;
+typedef gunichar2 *LPTSTR;
+typedef guint8 BYTE;
+typedef guint8 *LPBYTE;
+typedef guint16 WORD;
+typedef guint32 DWORD;
+typedef gpointer PVOID;
+typedef gpointer LPVOID;
+typedef gboolean BOOL;
+typedef guint32 *LPDWORD;
+typedef gint32 LONG;
+typedef guint32 ULONG;
+typedef gint32 *PLONG;
+typedef guint64 LONGLONG;
+typedef gunichar2 TCHAR;
+typedef size_t SIZE_T;
+
+typedef gpointer HANDLE;
+typedef gpointer *LPHANDLE;
+typedef guint32 SOCKET;
+typedef gpointer HMODULE;
+#define CONST const
+#define VOID void
+
+#define IN
+#define OUT
+#define WINAPI
 
 /* Cairo internal extructures and defines*/
 #define DOUBLE_TO_26_6(d) ((FT_F26Dot6)((d) * 64.0))
