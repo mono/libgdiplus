@@ -16,6 +16,8 @@ libgdiplus_la_SOURCES = \
 	hatchbrush.c	\
 	hatchbrush.h	\
 	image.c		\
+	lineargradientbrush.c \
+	lineargradientbrush.h \
 	matrix.c	\
 	pen.c		\
 	pathgradientbrush.c \
