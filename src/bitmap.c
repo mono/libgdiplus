@@ -113,8 +113,11 @@ gdip_bitmap_new ()
 void 
 gdip_bitmap_dispose (GpBitmap *bitmap)
 {
-	if ((bitmap->data.Reserved & GBD_OWN_SCAN0) != 0)
+	if (((bitmap->data.Reserved & GBD_OWN_SCAN0) != 0) && bitmap->data.Scan0 != NULL)
 		GdipFree (bitmap->data.Scan0);
+
+	if (bitmap->data.byteCount > 0 && bitmap->data.bytes != NULL)
+		GdipFree (bitmap->data.bytes);
 }
 
 

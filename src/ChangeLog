@@ -1,3 +1,14 @@
+2004-07-22  Sanjay Gupta <gsanjay@novell.com>
+
+	* gdip.h: Modified GdipBitmapData structure to hold information 
+	about position and graphic control extension for a gif frame.
+	* bitmap.c: Modified gdip_bitmap_dispose ().
+	* gifcodec.c: Corrected memory handling while saving frames to 
+	a gif file, implemented reading and writing Graphic Control 
+	Extension data and added a cool hack from Raja, which reduced 
+	size of our gif file. (30% saving in size on my sample file with 
+	new implementation).
+
 2004-07-22  Ravindra <rkumar@novell.com>
 
 	* gdip.h: Added CharacterRange stuct. Added 'charRanges' and

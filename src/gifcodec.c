@@ -240,6 +240,9 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		for (l =0; l<extBlockCount; l++) {
 			ExtensionBlock eb = si.ExtensionBlocks[l];
 			if (eb.Function == 249){
+				data.byteCount= eb.ByteCount;
+				data.bytes = (char *) GdipAlloc (data.byteCount);
+				memcpy (data.bytes, eb.Bytes, data.byteCount);
 				timeDimension = TRUE;
 				break; /*there can be only one Graphic Control Extension before ImageData*/
 			}			
@@ -263,6 +266,8 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		data.Width = imgDesc.Width;
 		data.Height = imgDesc.Height;
 		data.Stride = data.Width * 4;
+		data.Top = imgDesc.Top;
+		data.Left = imgDesc.Left;
 	
 		pixels = GdipAlloc (data.Stride * data.Height);
 	
@@ -366,7 +371,7 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 	GifByteType *ptr_red, *ptr_green, *ptr_blue, *ptr_pixels;
 	ARGB color = 0;	
 	int cmap_size = 256;	
-	ColorMapObject* cmap = NULL;	
+	ColorMapObject *cmap = NULL;	
 	BOOL error = FALSE;
 	BitmapData data;
 	int dimensionCount;
@@ -386,7 +391,6 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 		return FileNotFound;
 		
 	dimensionCount = image->frameDimensionCount;
-	cmap  = MakeMapObject (cmap_size, 0);
 	for (j = 0; j < dimensionCount; j++) {
 		frameCount = image->frameDimensionList [j].count;
 		if (!memcmp (&(image->frameDimensionList [j].frameDimension), 
@@ -396,19 +400,24 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 			animationFlag = FALSE;
 
 		for (k = 0; k < frameCount; k++) {
+			cmap_size = 256;
+			cmap  = MakeMapObject (cmap_size, 0);
 			
 			data = image->frameDimensionList [j].frames [k]; 
 			size = data.Height * data.Width;
 			int sizeAlloc = sizeof (GifByteType)* size;
-			ptr_red = red = malloc (sizeAlloc);
-			ptr_green = green = malloc (sizeAlloc);
-			ptr_blue = blue = malloc (sizeAlloc);
-			ptr_pixels = pixels = malloc (sizeAlloc);
-						
+			ptr_red  = red = GdipAlloc (sizeAlloc);
+			ptr_green = green = GdipAlloc (sizeAlloc);
+			ptr_blue = blue = GdipAlloc (sizeAlloc);
+			ptr_pixels = pixels = GdipAlloc (sizeAlloc);
+
+			unsigned char * v;
 			for (y = 0; y < data.Height; y++) {	
+				v = ((unsigned char *)data.Scan0) + y * data.Stride;
 				for (x = 0; x < data.Width; x++) {
-					GdipBitmapGetPixel (bitmap, x, y, &color);
-									
+					v += 4;
+					color = (v [0]) | (v [1] << 8) | (v [2] << 16) | (v [3] << 24);
+										
 					*ptr_red++ = (color & 0x00ff0000) >> 16;
 					*ptr_green++ = (color & 0x0000ff00) >> 8;
 					*ptr_blue++ =  (color & 0x000000ff);
@@ -419,6 +428,9 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 					green, blue, pixels, cmap->Colors) == GIF_ERROR) 
 				error = TRUE;
 			
+			cmap->BitsPerPixel = BitSize (cmap_size);
+			cmap->ColorCount = 1 << cmap->BitsPerPixel;
+
 			/*Make info from first frame as Global color map*/
 			if (k == 0){
 				if (j == 0){
@@ -443,16 +455,11 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 	
 			/*Put Graphic control Extension*/
 			if (animationFlag) {
-				static unsigned char extStr [4] = 
-							{ 0x06, 0x00, 0x00, 0xff};
-				extStr [1] = 1 % 256;
-				extStr [2] = 1 / 256;
-				
-				EGifPutExtension(fp, GRAPHICS_EXT_FUNC_CODE, 4, extStr);
+				EGifPutExtension(fp, GRAPHICS_EXT_FUNC_CODE, data.byteCount, data.bytes);
 			}
 
-			if (EGifPutImageDesc (fp, 0, 0, data.Width, data.Height,
-					FALSE, cmap) == GIF_ERROR) 
+			if (EGifPutImageDesc (fp, data.Left, data.Top, data.Width, 
+						data.Height, FALSE, cmap) == GIF_ERROR) 
 				error = TRUE;
 	
 			for (i = 0;  i < data.Height;  ++i) {
@@ -462,15 +469,16 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 				}
 				ptr_pixels += data.Width;
 			}
+
+			FreeMapObject (cmap);
+			GdipFree (red);
+			GdipFree (green);
+			GdipFree (blue);	
+			GdipFree (pixels);		
 		}
 	}
 	
 	EGifCloseFile (fp);	
-	free (red);
-	free (green);
-	free (blue);	
-	free (pixels);		
-	free (cmap);
 	
 	return (error == FALSE) ? Ok : GenericError;
 }

@@ -178,14 +178,11 @@ typedef enum {
         DigitSubstituteTraditional = 3
 } DigitSubstitute;
 
-
-
 /* The pixel format spec is:
  * [0-7 format index] [8-15 pixel size, bits] [16-23 flags] [24-31 reserved]
  * so,
  * (ID | (bpp << 8) | flags)
  */
-
 
 typedef enum {
 	PixelFormatAlpha = 0x00040000,     /* flag: format has alpha */
@@ -396,7 +393,6 @@ typedef struct {
 	int		LineLen;	/* If LineStart how many chars is the line long? */
 } GpStringDetailStruct;
 
-
 typedef enum {
 	ImageFlagsNone = 0,
 	ImageFlagsScalable = 1,
@@ -433,7 +429,6 @@ typedef enum
     CombineModeXor              = 3,       
     CombineModeExclude          = 4,   
     CombineModeComplement       = 5  
-    
 } CombineMode;
 
 typedef enum
@@ -600,6 +595,12 @@ typedef struct {    /* Keep in sync with BitmapData.cs */
 	int          PixelFormat;
 	void         *Scan0;
 	unsigned int Reserved;
+	/*Added to keep track of position for displaying next frame
+	in a gif*/
+	unsigned int Top; 
+	unsigned int Left;
+	int	     byteCount;
+	char*	     bytes;
 } GdipBitmapData, BitmapData;
 
 typedef struct {
