@@ -1,3 +1,8 @@
+2005-01-18  Geoff Norton  <gnorton@customerdna.com>
+
+	* configure.in: Bump required cairo version to 0.2.0.  We dont
+	support 0.1.x anymore
+
 2004-07-04  Peter Bartok <pbartok@novell.com>
 	* configure.in: Added fix for bug #60787, added dependency definitons 
 	for pthreads (Mark Recht [recht at netbsd.org] verified the fix)
