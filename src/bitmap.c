@@ -177,8 +177,13 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 		cairo_format = CAIRO_FORMAT_RGB24;	
 	break;
 	case Format32bppArgb:
-		cairo_format = CAIRO_FORMAT_ARGB32;	
-	break;
+		cairo_format = CAIRO_FORMAT_ARGB32;
+        case Format8bppIndexed:
+        	cairo_format = CAIRO_FORMAT_A8;        
+        break;
+        case Format1bppIndexed:
+        	cairo_format = CAIRO_FORMAT_A1;
+        break;
 	default:
 		*bitmap = 0;
 		return NotImplemented;
