@@ -406,28 +406,25 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
     png_set_bgr(png_ptr);
 
 #ifdef WORDS_BIGENDIAN
-    guchar *row_pointer = GdipAlloc (image->width * 4);
-#endif
+    {
+	    guchar *row_pointer = GdipAlloc (image->width * 4);
 
-    for (i = 0; i < image->height; i++) {
-#ifdef WORDS_BIGENDIAN
-	
-	for (j = 0; j < image->width; j++) {
-		row_pointer[j*4] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 3);
-		row_pointer[j*4+1] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 2);
-		row_pointer[j*4+2] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 1);
-		row_pointer[j*4+3] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 0);
-	}
-	png_write_row (png_ptr, row_pointer);
-#else
-    	png_write_row (png_ptr, bitmap->data.Scan0 + (bitmap->data.Stride * i));
-#endif
+	    for (i = 0; i < image->height; i++) {
+		for (j = 0; j < image->width; j++) {
+			row_pointer[j*4] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 3);
+			row_pointer[j*4+1] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 2);
+			row_pointer[j*4+2] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 1);
+			row_pointer[j*4+3] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 0);
+		}
+		png_write_row (png_ptr, row_pointer);
+	    }
+	    GdipFree (row_pointer);
     }
-
-#ifdef WORDS_BIGENDIAN
-    GdipFree (row_pointer);
+#else
+    for (i = 0; i < image->height; i++) {
+    	png_write_row (png_ptr, bitmap->data.Scan0 + (bitmap->data.Stride * i));
+    }
 #endif
-
 
     png_write_end (png_ptr, NULL);
 
