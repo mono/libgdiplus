@@ -36,6 +36,9 @@
 #ifdef HAVE_LIBJPEG
 
 #include <setjmp.h>
+
+/* pkgsrc */
+#undef HAVE_STDLIB_H
 #include <jpeglib.h>
 
 /* Codecinfo related data*/

@@ -33,7 +33,11 @@
 #endif
 
 #include <stdio.h>
+
+#ifdef HAVE_BYTESWAP_H
 #include <byteswap.h>
+#endif
+
 #include "tiffcodec.h"
 
 #ifdef HAVE_LIBTIFF
