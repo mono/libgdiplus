@@ -1574,25 +1574,24 @@ GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 static int
 CalculateStringSize (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, unsigned long StringDetailElements, GpStringDetailStruct *StringDetails)
 {
-	cairo_matrix_t		SavedMatrix;
-	cairo_ft_font_t		*Font;
+	cairo_font_t		*Font;
 	cairo_glyph_t		*Glyphs		= NULL;
 	GpStringDetailStruct	*CurrentDetail;
 	size_t			NumOfGlyphs;
 	float			*GlyphWidths;
 	float			TotalWidth	= 0;
 	int			i;
+	cairo_matrix_t		matrix;
 
 #ifdef DRAWSTRING_DEBUG
 	printf("CalculateStringSize(font, %s, %d, details) called\n", utf8, StringDetailElements);
 #endif
-	Font=(cairo_ft_font_t *)gdiFont->cairofnt;
+	Font=(cairo_font_t *)gdiFont->cairofnt;
 
 	/* Generate Glyhps for string utf8 */
-	cairo_matrix_copy (&SavedMatrix, (const cairo_matrix_t *)&Font->base.matrix);
-	cairo_matrix_scale (&Font->base.matrix, gdiFont->sizeInPixels, gdiFont->sizeInPixels);
-	gdpi_utf8_to_glyphs (Font, utf8, 0.0, 0.0, &Glyphs, &NumOfGlyphs);
-	cairo_matrix_copy (&Font->base.matrix, (const cairo_matrix_t *)&SavedMatrix);
+	cairo_font_current_transform(Font, &matrix);
+	cairo_matrix_scale(&matrix, gdiFont->sizeInPixels, gdiFont->sizeInPixels);
+	gdpi_utf8_to_glyphs (Font, matrix, utf8, 0.0, 0.0, &Glyphs, &NumOfGlyphs);
 
 	/* FIXME - This check and the StringDetailElements argument can be removed after verification of Glyph:WChar=1:1 */
 	if (StringDetailElements!=NumOfGlyphs) {
@@ -1613,7 +1612,7 @@ CalculateStringSize (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, unsig
 		CurrentDetail++;
 	}
 
-	CurrentDetail->Width=DOUBLE_FROM_26_6(Font->face->glyph->advance.x);
+	CurrentDetail->Width=DOUBLE_FROM_26_6(cairo_ft_font_face(Font)->glyph->advance.x);
 	TotalWidth+=CurrentDetail->Width;
 	
 #ifdef DRAWSTRING_DEBUG
@@ -1696,10 +1695,10 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	*/
 	cairo_save (graphics->ct);
 	cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);
-	cairo_matrix_copy (&SavedMatrix, (const cairo_matrix_t *)&font->cairofnt->base.matrix);
+	cairo_font_current_transform(font->cairofnt, &SavedMatrix);
 	cairo_scale_font (graphics->ct, font->sizeInPixels);
 	cairo_current_font_extents (graphics->ct, &FontExtent);
-	cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&SavedMatrix);
+	cairo_font_set_transform(font->cairofnt, &SavedMatrix);
 	cairo_restore (graphics->ct);
 	LineHeight=FontExtent.ascent;
 #ifdef DRAWSTRING_DEBUG
@@ -2183,7 +2182,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		/* Setup cairo */
 		/* Save the font matrix */
 		cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);
-		cairo_matrix_copy (&SavedMatrix, (const cairo_matrix_t *)&font->cairofnt->base.matrix);
+		cairo_font_current_transform(font->cairofnt, &SavedMatrix);
 
 		if (brush) {
 			gdip_brush_setup (graphics, (GpBrush *)brush);
@@ -2320,7 +2319,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			}
 		}
 
-		cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&SavedMatrix);
+		cairo_font_set_transform(font->cairofnt, &SavedMatrix);
 		cairo_restore (graphics->ct);
 	}
 
