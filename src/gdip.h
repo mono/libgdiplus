@@ -1183,8 +1183,6 @@ void GdipFree (void *ptr);
 int fcmp (double x1, double x2, double epsilon);
 float gdip_get_display_dpi();
 void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg);
-int gdpi_utf8_to_glyphs (cairo_font_t* font, cairo_matrix_t matrix, const unsigned char* utf8, double	x0,
-   double y0, cairo_glyph_t** glyphs, size_t* nglyphs);
 
 void gdip_font_drawunderline (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
 void gdip_font_drawstrikeout (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
