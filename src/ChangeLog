@@ -1,3 +1,8 @@
+2004-12-30  Miguel de Icaza  <miguel@ximian.com>
+
+	* bitmap.c (gdip_bitmap_clone): Also clone the ->Bytes array which
+	is fileld in by gifcodec.c and image.c as well
+
 2004-12-28  Zoltan Varga  <vargaz@freemail.hu>
 
 	* graphics.c (CalculateStringWidths): Fix 64 bit issues.
