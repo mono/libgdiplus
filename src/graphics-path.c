@@ -94,14 +94,21 @@ append (GpPath *path, float x, float y, GpPathPointType type)
 
         /* if we're adding a Start and we're already at pt, then drop it  */
         if (type == PathPointTypeStart && count > 0) {
+
                 GpPointF current;
                 GdipGetPathLastPoint (path, &current);
+
+                /* if we closed a subpath, then append anyway */
+                byte type = g_array_index (path->types, byte, path->count);
+                if (type & PathPointTypeCloseSubpath)
+                        goto append;
 
                 if ((fcmp (x, current.X, FLT_EPSILON) == 0)
                         && (fcmp (y, current.Y, FLT_EPSILON) == 0))
                                 return;
         }
 
+append:
         g_array_append_val (path->points, pt);
         g_byte_array_append (path->types, &t, 1);
         path->count++;
@@ -303,34 +310,61 @@ GdipGetPathData (GpPath *path, GpPathData *pathData)
         return Ok;
 }
 
+/* MonoTODO */
 GpStatus
 GdipStartPathFigure (GpPath *path)
 {
-        return NotImplemented;
+        return Ok;
 }
 
+/* MonoTODO */
 GpStatus
 GdipClosePathFigure (GpPath *path)
 {
-        return NotImplemented;
+        return Ok;
 }
 
+/* MonoTODO */
 GpStatus
 GdipClosePathFigures (GpPath *path)
 {
-        return NotImplemented;
+        return Ok;
 }
 
 GpStatus
 GdipSetPathMarker (GpPath *path)
 {
-        return NotImplemented;
+        byte current = g_array_index (path->types, byte, path->count);
+
+        g_byte_array_remove_index (path->types, path->count);
+
+        current |= PathPointTypePathMarker;
+
+        g_byte_array_append (path->types, &current, 1);
+
+        return Ok;
 }
 
 GpStatus
 GdipClearPathMarkers (GpPath *path)
 {
-        return NotImplemented;
+        int i;
+        GByteArray *cleared = g_byte_array_new ();
+
+        for (i = 0; i < path->count; i++) {
+                byte current = g_array_index (path->types, byte, i);
+
+                /* take out the marker if there is one */
+                if (current & PathPointTypePathMarker)
+                        current &= ~PathPointTypePathMarker;
+                
+                g_byte_array_append (cleared, &current, 1);                        
+        }
+
+        /* replace the existing with the cleared array */
+        path->types = cleared;
+
+        return Ok;
 }
 
 GpStatus
@@ -672,20 +706,22 @@ GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
 
 /* XXX: This one is really hard. They really translate a string into
 bezier points and what not */
+/* MonoTODO */
 GpStatus 
 GdipAddString (GpPath *path, const char *string, int length, 
                 const GpFontFamily *family, int style, float emSize,
                 const GpRectF *layoutRect, const GpStringFormat *format)
 { 
-        return NotImplemented; 
+        return Ok;
 }
 
+/* MonoTODO */
 GpStatus
 GdipAddStringI (GpPath *path, const char *string, int length,
                 const GpFontFamily *family, int style, float emSize,
                 const GpRect *layoutRect, const GpStringFormat *format)
 {
-        return NotImplemented;
+        return Ok;
 }
 
 GpStatus
@@ -741,26 +777,26 @@ GdipAddPathBeziersI (GpPath *path, const GpPoint *points, int count)
 GpStatus
 GdipAddPathCurveI (GpPath *path, const GpPoint *points, int count)
 {
-        GpPointF *pt = convert_points (points, count);
-
-        Status s = GdipAddPathCurve (path, pt, count);
-
-        GdipFree (pt);
-
-        return s;
+        return GdipAddPathCurve3I (path, points, count, 0, count - 1, 0.5);;
 }
 
 GpStatus
 GdipAddPathCurve2I (GpPath *path, const GpPoint *points, int count, float tension)
 {
-        return NotImplemented;
+        return GdipAddPathCurve3I (path, points, count, 0, count - 1, tension);
 }
 
 GpStatus
 GdipAddPathCurve3I (GpPath *path, const GpPoint *points,
                     int count, int offset, int numberOfSegments, float tension)
 {
-        return NotImplemented;
+        GpPointF *pt = convert_points (points, count);
+
+        Status s = GdipAddPathCurve3 (path, pt, count, offset, numberOfSegments, tension);
+
+        GdipFree (pt);
+
+        return s;
 }
 
 GpStatus
@@ -826,30 +862,34 @@ GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count)
         return s;
 }
 
+/* MonoTODO */
 GpStatus 
 GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 {
-        return NotImplemented;
+        return Ok;
 }
 
+/* MonoTODO */
 GpStatus 
 GdipWindingModeOutline (GpPath *path, GpMatrix *matrix, float flatness)
 {
-        return NotImplemented;
+        return Ok;
 }
 
+/* MonoTODO */
 GpStatus 
 GdipWidenPath (GpPath *nativePath, GpPen *pen, GpMatrix *matrix, float flatness)
 {
-        return NotImplemented;
+        return Ok;
 }
 
+/* MonoTODO */
 GpStatus 
 GdipWarpPath (GpPath *nativePath, GpMatrix *matrix, const GpPointF *points, int count, 
-              float src, float srcy, float srcwidth, float srcheight,
+              float srcx, float srcy, float srcwidth, float srcheight,
               WarpMode warpMode, float flatness)
 {
-        return NotImplemented;
+        return Ok;
 }
 
 GpStatus 
@@ -867,38 +907,44 @@ GdipTransformPath (GpPath* path, GpMatrix *matrix)
         return s;
 }
 
+/* MonoTODO */
 GpStatus 
 GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
-        return NotImplemented;
+        return Ok;
 }
 
+/* MonoTODO */
 GpStatus 
 GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
-        return NotImplemented;
+        return Ok;
 }
 
+/* MonoTODO */
 GpStatus 
 GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result)
 {
-        return NotImplemented;
+        return Ok;
 }
 
+/* MonoTODO */
 GpStatus 
 GdipIsVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool *result)
 {
-        return NotImplemented;
+        return Ok;
 }
 
+/* MonoTODO */
 GpStatus 
 GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result)
 {
-        return NotImplemented;
+        return Ok;
 }
 
+/* MonoTODO */
 GpStatus 
 GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool *result)
 {
-        return NotImplemented;
+        return Ok;
 }

@@ -285,14 +285,14 @@ typedef enum{
 }  GpFontStyle;
 
 typedef enum {
-        PathPointTypeStart = 0,
-        PathPointTypeLine = 1,
-        PathPointTypeBezier = 3,
-        PathPointTypePathTypeMask = 0x7,
+        PathPointTypeStart = 0x00,
+        PathPointTypeLine = 0x01,
+        PathPointTypeBezier = 0x03,
+        PathPointTypePathTypeMask = 0x07,
         PathPointTypePathDashMode = 0x10,
         PathPointTypePathMarker = 0x20,
         PathPointTypeCloseSubpath = 0x80,
-        PathPointTypeBezier3 = 3
+        PathPointTypeBezier3 = 0x30
 } GpPathPointType, PathPointType;
 
 typedef enum {

@@ -1,3 +1,26 @@
+2004-05-14  Duncan Mak  <duncan@ximian.com>
+
+	* gdip.h (GpPathPointType): Make all the elements use hex values
+	for consistency.
+
+	* graphics-path.c (append): Handle the CloseSubpath flag. This is
+	needed for SetPathMarker.
+
+	* graphics-path.c (GdipClearPathMarkers, GdipSetPathMarker):
+	Implemented.
+	(GdipAddPathCurveI, GdipAddPathCurve2I, GdipAddPathCurve3I):
+	Implemented. The float versions were committed a long time ago,
+	but I forgot to do the same to the integer overrides.
+
+	* graphics-path.c
+	(GdipStartPathFigure, GdipClosePathFigure, GdipClosePathFigures)
+	(GdipAddString, GdipWindingModeOutline): 
+	(GdipFlattenPath, GdipWidenPath, GdipWarpPath)
+	(GdipGetPathWorldBounds, GdipIsVisiblePathPoint) 
+	(GdipIsOutlineVisiblePathPoint): 
+	Stubbed, they all now return Ok, but we have a MonoTODO comment to
+	remind us to implement them.	
+
 2004-05-14 Jordi Mas <jordi@ximian.com>
 	*  adjustablearrowcap.c ,customlinecap.c, gifcodec.c, graphics-path,
 	hatchbrush.c, jpegcodec.c, lineargradientbrush.c, matrix.c, 
