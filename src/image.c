@@ -460,7 +460,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	GpImage *result = 0;
 	GpStatus status = 0;
 	ImageFormat format;
-	unsigned char *file_name = NULL;
+	char *file_name = NULL;
 	char format_peek[10];
 	int format_peek_sz;
 	
@@ -469,7 +469,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	if (!image || !file)
 		return InvalidParameter;
 	
-	file_name = (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, &err);
+	file_name = (char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, &err);
 	if (file_name == NULL || err != NULL) {
 		*image = NULL;
 		return InvalidParameter;
@@ -567,7 +567,7 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 {
 	FILE *fp = 0;
 	GpStatus status = 0;
-	unsigned char *file_name;
+	char *file_name;
 	GError *err = NULL;
 	ImageFormat format;
 	
@@ -581,7 +581,7 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 	if (format == INVALID)
 		return UnknownImageFormat;
 	
-	file_name = (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, &err);
+	file_name = (char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, &err);
 	if (file_name == NULL || err != NULL) 
 		return InvalidParameter;
 	
@@ -1282,11 +1282,11 @@ GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 	GpStatus status = 0;
 	ImageFormat format;
 	
-	char format_peek[10];
+	byte format_peek[10];
 	int format_peek_sz;
 	
 	format_peek_sz = getHeaderFunc (format_peek, 10);
-	format = get_image_format (format_peek, format_peek_sz);
+	format = get_image_format ((char *)format_peek, format_peek_sz);
 	
 	switch (format) {
 		case JPEG:

@@ -280,7 +280,7 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 	for (i=0; i < font_collection->fontset->nfont; gpfam++, i++){
 		FcResult r = FcPatternGetString (*gpfam, FC_FAMILY, 0, &str);
 
-		if (strcmp (string, str)==0) {
+		if (strcmp ((char *)string, (const char *)str)==0) {
 			gdip_createFontFamily (fontFamily);
 			(*fontFamily)->pattern = *gpfam;
 			(*fontFamily)->allocated = FALSE;
@@ -645,7 +645,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 		if (style != cached_fonts[i].style)
 			continue;
 		
-		if (strcmp (str, cached_fonts[i].szFamily) != 0)
+		if (strcmp ((char *)str, (const char *)cached_fonts[i].szFamily) != 0)
 			continue;
 
 		if (cached_fonts[i].font == NULL)
@@ -673,12 +673,12 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 	cairo_font_reference ((cairo_font_t *)result->cairofnt);
 	*font=result;
 
-	if (strlen (str) > 127) /* Cannot cache this font */
+	if (strlen ((const char *)str) > 127) /* Cannot cache this font */
 		return Ok;
 	
 	/* Cache entry */
 	if (cached_fonts_index < MAX_CACHED_FONTS) {
-		strcpy (cached_fonts[cached_fonts_index].szFamily, str);
+		strcpy (cached_fonts[cached_fonts_index].szFamily, (const char *)str);
 		cached_fonts[cached_fonts_index].sizeInPixels = sizeInPixels;
 		cached_fonts[cached_fonts_index].style = style;
 		cached_fonts[cached_fonts_index].font = result;
@@ -692,7 +692,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 				continue;
 
 			gdip_release_font (cached_fonts[i].font); /* release previous cached font */
-			strcpy (cached_fonts[i].szFamily, str);
+			strcpy (cached_fonts[i].szFamily, (const char *)str);
 			cached_fonts[i].sizeInPixels = sizeInPixels;
 			cached_fonts[i].style = style;
 			cached_fonts[i].font = result;
@@ -761,12 +761,12 @@ GdipGetLogFontA(GpFont *font, GpGraphics *graphics, void *lf)
 GpStatus
 GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memory, int length)
 {
-	char	fontfile[256];
+	FcChar8 fontfile[256];
 	int	f;
 
-	strcpy(fontfile, "/tmp/ffXXXXXX");
+	strcpy((char *) fontfile, "/tmp/ffXXXXXX");
 
-	f = mkstemp(fontfile);
+	f = mkstemp((char*)fontfile);
 	if (f == -1) {
 		return(GenericError);
 	}

@@ -626,7 +626,7 @@ typedef struct {    /* Keep in sync with BitmapData.cs */
 	unsigned int Height;
 	int          Stride;
 	int          PixelFormat;
-	void         *Scan0;
+	byte* 	     Scan0;
 	unsigned int Reserved;
 	/*Added to keep track of position for displaying next frame
 	in a gif*/

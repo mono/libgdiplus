@@ -76,7 +76,7 @@ gdip_graphics_new ()
 void
 gdip_graphics_attach_bitmap (GpGraphics *graphics, GpBitmap *image)
 {
-	cairo_set_target_image (graphics->ct, image->data.Scan0, image->cairo_format,
+	cairo_set_target_image (graphics->ct, (char *)image->data.Scan0, image->cairo_format,
 				image->data.Width, image->data.Height, image->data.Stride);
 	if (image->image.surface) {
 		cairo_surface_destroy (image->image.surface);
@@ -305,9 +305,9 @@ GdipCreateFromHWND (void *hwnd, GpGraphics **graphics)
 
 #ifdef CAIRO_HAS_QUARTZ_SURFACE
 
-// This is a dirty hack; but it gets us around header include issues for now
-// FIXME: We need to split all the X11 stuff off into its own file(s) so that
-// different backends / font backends can be easily introduced in the future.
+/* This is a dirty hack; but it gets us around header include issues for now
+ FIXME: We need to split all the X11 stuff off into its own file(s) so that
+ different backends / font backends can be easily introduced in the future. */
 void
 cairo_set_target_quartz_context(cairo_t         *cr,
 				void		*ctx,
@@ -1655,7 +1655,7 @@ CalculateStringWidths (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, uns
 	cairo_font_current_transform(Font, matrix);
 	cairo_matrix_scale(matrix, gdiFont->sizeInPixels, gdiFont->sizeInPixels);
 
-	ucs4 = g_utf8_to_ucs4 (utf8, (glong)-1, NULL, &NumOfGlyphs, NULL);
+	ucs4 = g_utf8_to_ucs4 ((const gchar *) utf8, (glong)-1, NULL, &NumOfGlyphs, NULL);
 
 	if ((NumOfGlyphs == 0) || (ucs4 == NULL)) {
 		return 0;
@@ -1861,7 +1861,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	}
 
 	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
-	String=g_utf16_to_utf8 ((const gunichar2 *)CleanString, (glong)StringLen, NULL, NULL, NULL);
+	String= (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)CleanString, (glong)StringLen, NULL, NULL, NULL);
 	if (!String) {
 		free (CleanString);
 		free (StringDetails);
@@ -2261,12 +2261,6 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 		/* Setup cairo */
 		/* Save the font matrix */
-#ifdef COMMENTED_OUT
-		// Font already has been set at function entry
-		// cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);	// Set at function entry
-		// cairo_font_current_transform(font->cairofnt, SavedMatrix);		// No need to save again, already saved at function entry
-		// cairo_scale_font (graphics->ct, font->sizeInPixels);
-#endif
 
 		if (brush) {
 			gdip_brush_setup (graphics, (GpBrush *)brush);
@@ -2285,7 +2279,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 					continue;
 				}
 
-				String=g_utf16_to_utf8 ((const gunichar2 *)(CleanString+i), (glong)StringDetails[i].LineLen, NULL, NULL, NULL);
+				String= (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)(CleanString+i), (glong)StringDetails[i].LineLen, NULL, NULL, NULL);
 #ifdef DRAWSTRING_DEBUG
 				printf("Displaying line >%s<\n", String);
 #endif
@@ -2543,11 +2537,11 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 	   Get font size information; how expensive is the cairo stuff here? 
 	*/
 	SavedMatrix = cairo_matrix_create();
-	cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);	// Set our font; this will also be used for later drawing
-	cairo_font_current_transform(font->cairofnt, SavedMatrix);	// Save the matrix
+	cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);	/* Set our font; this will also be used for later drawing */
+	cairo_font_current_transform(font->cairofnt, SavedMatrix);	/* Save the matrix */
 	cairo_scale_font (graphics->ct, font->sizeInPixels);
-	cairo_current_font_extents (graphics->ct, &FontExtent);		// Get the size we're looking for
-//	cairo_font_set_transform(font->cairofnt, SavedMatrix);		// Restore the matrix
+	cairo_current_font_extents (graphics->ct, &FontExtent);		/* Get the size we're looking for */
+
 
 	if ((LineHeight=FontExtent.ascent)<1) {
 		LineHeight=1;
@@ -2638,7 +2632,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 	}
 
 	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
-	String=g_utf16_to_utf8 ((const gunichar2 *)CleanString, (glong)StringLen, NULL, NULL, NULL);
+	String=(unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)CleanString, (glong)StringLen, NULL, NULL, NULL);
 	if (!String) {
 		free (CleanString);
 		free (StringDetails);
@@ -3004,7 +2998,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 		}
 	}
 
-	cairo_font_set_transform(font->cairofnt, SavedMatrix);		// Restore matrix to original values
+	cairo_font_set_transform(font->cairofnt, SavedMatrix);		/* Restore matrix to original values */
 	cairo_matrix_destroy(SavedMatrix);
 
 	/* Cleanup */
@@ -3326,10 +3320,13 @@ GdipSetClipGraphics (GpGraphics *graphics, GpGraphics *srcgraphics, CombineMode 
 GpStatus
 GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float height, CombineMode combineMode)
 {
-	GDIPCONST GpRectF rect = {x, y, width, height};
+	GpRectF rect;
 	
 	if (!graphics)
 		return InvalidParameter;
+
+	rect.X = x; rect.Y = y;
+	rect.Width = width; rect.Height = height;
 		
 	GdipSetEmpty (graphics->clip);
 	GdipCombineRegionRect (graphics->clip, &rect, combineMode);	
@@ -3340,10 +3337,13 @@ GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float heig
 GpStatus
 GdipSetClipRectI (GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height, CombineMode combineMode)
 {
-	GDIPCONST GpRect rect = {x, y, width, height};
+	GpRect rect;
 	
 	if (!graphics)
 		return InvalidParameter;
+	
+	rect.X = x; rect.Y = y;
+	rect.Width = width; rect.Height = height;
 		
 	GdipSetEmpty (graphics->clip);
 	GdipCombineRegionRectI (graphics->clip, &rect, combineMode);	
@@ -3421,8 +3421,11 @@ GdipGetClipBounds (GpGraphics *graphics, GpRectF *rect)
 GpStatus
 GdipGetClipBoundsI (GpGraphics *graphics, GpRect *rect)
 {
-	GpRectF rectF = {rect->X, rect->Y, rect->Width, rect->Height};
+	GpRectF rectF;
 	Status status;
+
+	rectF.X = rect->X; rectF.Y = rect->Y;
+	rectF.Width = rect->Width; rectF.Height = rect->Height;
 	
 	status =  GdipGetRegionBounds (graphics->clip, graphics, &rectF);
 	

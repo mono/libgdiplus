@@ -142,6 +142,9 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	BitmapData data;
 	GifImageDesc imgDesc;
 
+	data.ByteCount = 0;
+	data.Bytes = NULL;	
+
 	if (from_file) 
 		gif = DGifOpen(stream, &gdip_gif_fileinputfunc);
 	else 		
@@ -312,7 +315,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	
 	img->data = img->image.frameDimensionList[0].frames[0];
 	
-	img->image.surface = cairo_surface_create_for_image (img->data.Scan0, img->cairo_format,
+	img->image.surface = cairo_surface_create_for_image ((char *)img->data.Scan0, img->cairo_format,
 							img->image.width, img->image.height,
 							img->data.Stride);
 	img->image.imageFlags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB;
@@ -347,7 +350,7 @@ gdip_gif_outputfunc (GifFileType *gif,  const GifByteType *data, int len)
 
 
 GpStatus 
-gdip_save_gif_image_to_file (unsigned char *filename, GpImage *image)
+gdip_save_gif_image_to_file (char *filename, GpImage *image)
 {
 	return gdip_save_gif_image ( (void *)filename, image, TRUE);
 }
@@ -384,7 +387,7 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 		return InvalidParameter;
 
 	if (from_file)
-		fp = EGifOpenFileName ((unsigned char *) stream, 0);
+		fp = EGifOpenFileName (stream, 0);
 	else
 		fp = EGifOpen (stream, gdip_gif_outputfunc);
 		

@@ -345,7 +345,7 @@ gdip_load_tiff_image (TIFF *tif, GpImage **image)
 						
 						GdipFree (onerow);
 
-						data.Scan0 = raster;
+						data.Scan0 = (byte *)raster;
 						img->image.frameDimensionList [0].frames [j] = data;
 					} else {
 						goto error;
@@ -366,7 +366,7 @@ gdip_load_tiff_image (TIFF *tif, GpImage **image)
 		img->data = img->image.frameDimensionList [0].frames [0];
 		img->image.width = img->data.Width;
 		img->image.height = img->data.Height;
-		img->image.surface = cairo_surface_create_for_image (img->data.Scan0, 
+		img->image.surface = cairo_surface_create_for_image ((char *)img->data.Scan0, 
 						img->cairo_format, img->image.width, 
 						img->image.height, img->data.Stride);
 		img->image.horizontalResolution = 0;

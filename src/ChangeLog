@@ -1,3 +1,19 @@
+2005-03-17  Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* pngcodec.c: fixes warnings for GCC4
+	* gdip.h: fixes warnings for GCC4
+	* graphics.c: fixes warnings for GCC4
+	* font.c: fixes warnings for GCC4
+	* bmpcodec.c: fixes warnings for GCC4
+	* image.c: fixes warnings for GCC4
+	* jpegcodec.c: fixes warnings for GCC4
+	* tiffcodec.c: fixes warnings for GCC4
+	* gifcodec.c: fixes warnings for GCC4
+	* texturebrush.c: fixes warnings for GCC4
+	* gifcodec.h: fixes warnings for GCC4
+	* bitmap.c: fixes warnings for GCC4
+	* pngcodec.c: fixes warnings for GCC4
+
 2005-03-17  Peter Bartok  <pbartok@novell.com>
 
 	* image.c (iGdipLoadImageFromDelegate_linux): Now calls GetHeader 

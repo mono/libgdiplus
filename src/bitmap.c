@@ -84,7 +84,7 @@ gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
 	GpBitmap *result = (GpBitmap *) GdipAlloc (sizeof (GpBitmap));	
 	memcpy (result, bitmap, sizeof (GpBitmap));
 	
-	result->data.Scan0 = (GpBitmap *) malloc (bitmap->data.Stride * bitmap->data.Height);
+	result->data.Scan0 = malloc (bitmap->data.Stride * bitmap->data.Height);
 	memcpy (result->data.Scan0, bitmap->data.Scan0, bitmap->data.Stride * bitmap->data.Height);
 	*clonedbitmap = result;
 
@@ -355,7 +355,7 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 
 	
 	if (destData->Scan0 == NULL) {
-		GpBitmap *data;
+		byte *data;
 
 		destData->Stride = (((( destRect->Width * dest_components * dest_deph) /8)  + (sizeof(pixman_bits_t)-1)) & ~(sizeof(pixman_bits_t)-1));
 
@@ -947,7 +947,7 @@ gdip_bitmap_ensure_surface (GpBitmap *bitmap)
 		switch (bitmap->data.PixelFormat) {
 		case Format24bppRgb:
 			bitmap->image.surface = cairo_surface_create_for_image
-				(bitmap->data.Scan0,
+				((char *)bitmap->data.Scan0,
 				 CAIRO_FORMAT_RGB24,
 				 bitmap->data.Width,
 				 bitmap->data.Height,
@@ -957,7 +957,7 @@ gdip_bitmap_ensure_surface (GpBitmap *bitmap)
 		case Format32bppRgb:
 		case Format32bppPArgb:
 			bitmap->image.surface = cairo_surface_create_for_image
-				(bitmap->data.Scan0,
+				((char *)bitmap->data.Scan0,
 				 CAIRO_FORMAT_ARGB32,
 				 bitmap->data.Width,
 				 bitmap->data.Height,

@@ -87,7 +87,9 @@ static void
 append (GpPath *path, float x, float y, GpPathPointType type)
 {
         byte t = (byte) type;
-	GpPointF pt = {x, y};
+	GpPointF pt;
+
+	pt.X = x; pt.Y = y;
 
 	if (path->start_new_fig)
 		t = PathPointTypeStart;

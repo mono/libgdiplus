@@ -488,7 +488,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 	img->data.Scan0 = pixels;
         img->data.Reserved = GBD_OWN_SCAN0;
-        img->image.surface = cairo_surface_create_for_image (pixels,
+        img->image.surface = cairo_surface_create_for_image ((char *)pixels,
                                                          img->cairo_format,
                                                          img->image.width,
                                                          img->image.height,
