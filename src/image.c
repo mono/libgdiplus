@@ -1,4 +1,4 @@
-/* -*- Mode: c; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 4; -*-
+/* -*- Mode: c; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 4; -*
  *
  * image.c
  * 
@@ -668,10 +668,187 @@ GdipImageSelectActiveFrame(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT i
         
 }
 
+
+void copy_pixel (BYTE *src, BYTE *trg, int components)
+{
+	memcpy (trg, src, components);
+}
+
+void
+gdip_rotate_180_FlipX (GpImage *image)
+{
+	BYTE *src, *trg, *line;
+	int stride, height, i;	
+	GpBitmap *bitmap = (GpBitmap *) image;
+	
+	stride = bitmap->data.Stride;
+	height = bitmap->data.Height;
+	line = malloc (stride);		
+	src = (BYTE *) bitmap->data.Scan0;
+	trg = (BYTE *) bitmap->data.Scan0;
+	trg +=  (height-1) * stride;
+	
+	for (i = 0; i < (height /2); i++, src += stride, trg -= stride) {			
+		memcpy (line, trg, stride);	/* Save target line*/		
+		memcpy (trg, src, stride);	/* Copy src to trg*/		
+		memcpy (src, line, stride);	/* Copy trg to src*/		
+	}
+	
+	free (line);
+}
+
+void
+gdip_rotate_90 (GpImage *image)
+{
+	BYTE *src, *trg, *rotated;
+	int stride, height, line, x;	
+	GpBitmap *bitmap = (GpBitmap *) image;
+	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
+	 
+	bitmap = (GpBitmap *) image;	
+        stride = bitmap->data.Stride;
+	height = bitmap->data.Height;
+	rotated = malloc (stride * height);	
+	src = (BYTE *) bitmap->data.Scan0;
+	
+	for (line = 0; line < height; line++, src += stride) {		
+		for (x = 0; x < bitmap->data.Width; x++) {		
+			trg = rotated;	
+			trg += x * stride;
+			trg += (bitmap->data.Width - 1  - line) *components;		
+			copy_pixel (src + (x*components), trg, components);			
+		}	
+	}	
+	
+	memcpy (bitmap->data.Scan0, rotated, stride * height);	
+	free (rotated);
+}
+
+void
+gdip_rotate_180 (GpImage *image)
+{
+	BYTE *src, *trg, *rotated;
+	int stride, height, line, x;	
+	GpBitmap *bitmap = (GpBitmap *) image;
+	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
+	 
+	bitmap = (GpBitmap *) image;	
+        stride = bitmap->data.Stride;
+	height = bitmap->data.Height;
+	rotated = malloc (stride * height);	
+	src = (BYTE *) bitmap->data.Scan0;
+	
+	for (line = 0; line < height; line++, src += stride) {		
+		for (x = 0; x < bitmap->data.Width; x++) {		
+			trg = rotated;	
+			trg += (bitmap->data.Height - 1  - line) * stride;
+			trg += (bitmap->data.Width - 1  - x) * components;		
+			copy_pixel (src + (x*components), trg, components);			
+		}	
+	}	
+	
+	memcpy (bitmap->data.Scan0, rotated, stride * height);	
+	free (rotated);
+}
+
+
+void
+gdip_rotate_270 (GpImage *image)
+{
+	BYTE *src, *trg, *rotated;
+	int stride, height, line, x;	
+	GpBitmap *bitmap = (GpBitmap *) image;
+	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
+	 
+	bitmap = (GpBitmap *) image;	
+        stride = bitmap->data.Stride;
+	height = bitmap->data.Height;
+	rotated = malloc (stride * height);
+	
+	src = (BYTE *) bitmap->data.Scan0;
+	
+	for (line = 0; line < height; line++, src += stride) {		
+		for (x = 0; x < bitmap->data.Width; x++) {
+		
+			trg = rotated;	
+			trg += (height-1-x)  * stride;
+			trg += line * components;	
+			copy_pixel (src + (x*components), trg, components);			
+		}	
+	}	
+	
+	memcpy (bitmap->data.Scan0, rotated, stride * height);	
+	free (rotated);
+}
+
+void
+gdip_FlipX (GpImage *image)
+{
+	BYTE *src, *trg, *rotated;
+	int stride, height, line, x;	
+	GpBitmap *bitmap = (GpBitmap *) image;
+	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
+	 
+	bitmap = (GpBitmap *) image;	
+        stride = bitmap->data.Stride;
+	height = bitmap->data.Height;
+	rotated = malloc (stride * height);
+	
+	src = (BYTE *) bitmap->data.Scan0;
+	
+	for (line = 0; line < height; line++, src += stride) {		
+		for (x = 0; x < bitmap->data.Width; x++) {
+		
+			trg = rotated;	
+			trg += (bitmap->data.Width-1-x)  * components;
+			trg += line * stride;	
+			copy_pixel (src + (x*components), trg, components);			
+		}	
+	}	
+	
+	memcpy (bitmap->data.Scan0, rotated, stride * height);	
+	free (rotated);
+}
+
 GpStatus 
 GdipImageRotateFlip (GpImage *image, RotateFlipType type)
 {
-	return NotImplemented;
+	if (!image)
+		return InvalidParameter;
+
+	switch (type) {
+	
+	case RotateNoneFlipNone:
+		break;
+	case Rotate90FlipNone:
+		gdip_rotate_90 (image);
+		break;
+	case Rotate180FlipNone:
+		gdip_rotate_180 (image);
+		break;
+	case Rotate270FlipNone:	
+		gdip_rotate_270 (image);
+		break;
+	case RotateNoneFlipX:
+		gdip_FlipX (image);
+		break;
+	case Rotate90FlipX:
+		gdip_rotate_90 (image);
+		gdip_FlipX (image);
+		break;
+	case Rotate180FlipX:
+		gdip_rotate_180_FlipX (image);
+		break;
+	case Rotate270FlipX:
+		gdip_rotate_270 (image);
+		gdip_FlipX (image);
+		break;
+		
+	default:
+		return NotImplemented;
+	}	
+	
+	return Ok;
 }
 
 GpStatus 

@@ -1,3 +1,8 @@
+2004-05-04 Jordi Mas i Hernandez <jordi@ximian.com>
+	* image.c: implements GdipImageRotateFlip: 90, 180, 270,
+	degree, plus FlipX and combinations
+	
+	
 2004-05-04 Ravindra <rkumar@novell.com>
 
 	* matrix.c: Added macros for checking null pointers.
