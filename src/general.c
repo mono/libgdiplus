@@ -325,3 +325,89 @@ gdpi_utf8_to_glyphs (cairo_ft_font_t	*font,
     return 1;
 }
 
+
+/* Curve handling
+ *
+ * See Richard Rasala, Explicit Cubic Spline Interpolation Formulas, in
+ *     Andrew S. Glassner, Graphics Gems, Academic Press, 1990, 579-584.
+ *
+ * and the Tangent class in JPT (http://www.ccs.neu.edu/jpt/jpt_2_3/index.htm)
+ *
+ */
+void
+gdip_calculate_coefficients (int count, int terms, float **coefficients, int *coefficients_count)
+{
+        int i, j, m;
+        float *a, *h;        
+
+        if (count <= 2) {
+                coefficients = NULL;
+                *coefficients_count = 0;
+                return;
+        }
+
+        /* find the maxindex of the coefficients array in the general case */
+        m = (count - 1) / 2;
+
+        if (terms < CURVE_MIN_TERMS)
+                terms = CURVE_MIN_TERMS;
+
+        if (m > terms)
+                m = terms;
+
+        /* define the coefficients array a to include the index m */
+        a = (float *) GdipAlloc (sizeof (float) * (m + 1));
+
+        /* define the helper array h needed to compute the array a */        
+        h = (float *) GdipAlloc (sizeof (float) * (m + 1));
+
+        h [0] = 1;
+        h [1] = ((count % 2) == 1) ? -3 : -4;
+
+        for (i = 2; i <= m; i++)
+                h [i] = (-4) * h [i - 1] - h [i - 2];
+
+        /* now compute and return the array a */
+        for (j = 1; j <= m; j++)
+                a [j] = - h [m - j] / h [m];
+
+        GdipFree (h);
+        
+        *coefficients = a;
+        *coefficients_count = m + 1;
+}
+
+GpPointF *
+gdip_closed_curve_tangents (int terms, const GpPointF *points, const int count)
+{
+        float *coefficients;
+        int coefficients_count, i, k, m;
+        GpPointF *tangents = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
+
+        /* initialize everything to zero to begin with */
+        for (i = 0; i < count; i++) {
+                tangents [i].X = 0;
+                tangents [i].Y = 0;
+        }
+
+        if (count <= 2)
+                return tangents;
+
+        gdip_calculate_coefficients (count, terms, &coefficients, &coefficients_count);
+        m = coefficients_count - 1;
+
+        for (i = 0; i < count; i++) {
+                for (k = 0; k <= m; k++) {
+                        int r = i + k;
+                        int s = i - k;
+
+                        if (r >= count) r -= count;
+                        if (s < 0) s += count;
+
+                        tangents [i].X += (coefficients [k] * (points [r].X - points [s].X));
+                        tangents [i].Y += (coefficients [k] * (points [r].Y - points [s].Y));
+                }
+        }
+
+        return tangents;
+}

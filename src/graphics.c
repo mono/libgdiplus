@@ -793,11 +793,54 @@ GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen,
         return GdipDrawRectangle (graphics, pen, x, y, width, height);
 }
 
+static void
+gdip_make_closed_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int count)
+{
+        int i;
+
+        if (count <= 0)
+                return;
+
+        cairo_move_to (graphics->ct,
+                        points [0].X, points [0].Y);
+
+        for (i = 1; i <= count; i++) {
+                int j = i - 1;
+                int k = (i < count) ? i : 0;
+
+                double x1 = points [j].X + tangents [j].X;
+                double y1 = points [j].Y + tangents [j].Y;
+
+                double x2 = points [k].X - tangents [k].X;
+                double y2 = points [k].Y - tangents [k].Y;
+
+                double x3 = points [k].X;
+                double y3 = points [k].Y;
+
+                cairo_curve_to (
+                        graphics->ct,
+                        x1, y1, x2, y2, x3, y3);
+        }
+
+        cairo_close_path (graphics->ct);
+}
+
 GpStatus
 GdipDrawClosedCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 {
-	printf ("DrawClosedCurve not implemented\n");
-	return Ok;
+        GpPointF *tangents;
+
+        cairo_save (graphics->ct);
+
+        gdip_pen_setup (graphics, pen);
+        
+        tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count);
+        gdip_make_closed_curve (graphics, points, tangents, count);
+
+        cairo_stroke (graphics->ct);
+        cairo_restore (graphics->ct);
+
+        return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus
@@ -848,8 +891,6 @@ GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count,
 	printf ("GdipDrawCurve2I not implemented\n");
 	return Ok;
 }
-
-
 
 /*
  * Fills

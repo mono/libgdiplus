@@ -413,10 +413,43 @@ GdipAddPathClosedCurve (GpPath *path, const GpPointF *points, int count)
         return GdipAddPathClosedCurve2 (path, points, count, 0.5);
 }
 
+static void
+gdip_append_closed_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int count)
+{
+        int i;
+
+        if (count <= 0)
+                return;
+
+        append_point (path, points [0], PathPointTypeStart);
+
+        for (i = 1; i <= count; i++) {
+                int j = i - 1;
+                int k = (i < count) ? i : 0;
+
+                double x1 = points [j].X + tangents [j].X;
+                double y1 = points [j].Y + tangents [j].Y;
+
+                double x2 = points [k].X - tangents [k].X;
+                double y2 = points [k].Y - tangents [k].Y;
+
+                double x3 = points [k].X;
+                double y3 = points [k].Y;
+
+                append_bezier (path, x1, y1, x2, y2, x3, y3);
+        }
+}
+
+/* TODO: consider tension */
 GpStatus
 GdipAddPathClosedCurve2 (GpPath *path, const GpPointF *points, int count, float tension)
 {
-        return NotImplemented;
+        GpPointF *tangents;
+
+        tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count);
+        gdip_append_closed_curve (path, points, tangents, count);
+
+        return Ok;
 }
 
 GpStatus

@@ -62,7 +62,8 @@ typedef struct {
 #define DEGTORAD PI / 180.0
 #define LF_FACESIZE 32
 #define GDIPCONST const
-
+#define CURVE_MIN_TERMS 1
+#define CURVE_MAX_TERMS 7
 
 typedef unsigned char byte;
 typedef int bool;
@@ -468,10 +469,7 @@ typedef struct {
 typedef struct {
         int i;
 } GpImageAttributes;
-
-
                 
-
 /*
  * Functions
  * 
@@ -691,6 +689,10 @@ GpStatus GdipSetImageAttributesOutputChannelColorProfile(GpImageAttributes *imag
                                  
 /* Path*/
 #include "graphics-path.h"
+
+/* for drawing curves */
+GpPointF *gdip_closed_curve_tangents (int terms, const GpPointF *points, const int count);
+void gdip_calculate_coefficients (int count, int terms, float **coefficients, int *coefficients_count);
 
 /* Memory */
 void *GdipAlloc (int size);

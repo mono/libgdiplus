@@ -1,3 +1,34 @@
+2004-04-01  Duncan Mak  <duncan@ximian.com>
+
+	Implemented drawing ClosedCurves in Graphics and GraphicsPath. 
+
+	These functions are implemented with the help of Prof. Rasala at
+	Northeastern University. The algorithm is described in:
+
+	     Richard Rasala, Explicit Cubic Spline Interpolation Formulas,
+	     in Andrew S. Glassner, Graphics Gems, Academic Press, 1990,
+	     579-584.
+
+	Remaining TODO: Finish open curves and consider tension.
+	
+	* graphics.c (gdip_make_closed_curve): Translates vertices
+	and tangents for cairo_curve_to.
+	(GdipDrawClosedCurve): Implemented.
+
+	* graphics-path.c (gdip_append_closed_curve): Translates vertices
+	and tangents into append_bezier.
+	(GdipAddPathClosedCurve2): Implemented.
+
+2004-04-01  Duncan Mak  <duncan@ximian.com>	
+
+	* gdip.h: Added the new functions for calculating tangents.
+	(CURVE_MIN_TERMS, CURVE_MAX_TERMS): Constants used in tangent
+	calculations.
+
+	* general.c (gdip_calculate_coefficients) 
+	(gdip_closed_curve_tangents): Two helper functions for drawing
+	closed curves.
+
 2004-03-30  Sanjay Gupta <gsanjay@novell.com>
 	*pngcodec.c Implemented one more method.
 	*gdip.h Modified ColorPalette structure.
