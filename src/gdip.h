@@ -98,10 +98,10 @@ typedef ImageAbort GetThumbnailImageAbort;
 
 typedef unsigned char byte;
 typedef int bool;
-typedef unsigned short WCHAR; /* 16-bits unicode */
-typedef unsigned int UINT;
-typedef unsigned int ARGB;
-typedef int PROPID;
+typedef guint16 WCHAR; /* 16-bits unicode */
+typedef guint32 UINT;
+typedef guint32 ARGB;
+typedef gint32 PROPID;
 
 #define MAKE_ARGB_RGB(r,g,b)  (((r&0xff) << 16) | ((g&0xff) << 8) | (b&0xff))
 #define MAKE_ARGB_ARGB(a,r,g,b)  (((a&0xff) << 24) | ((r&0xff) << 16) | ((g&0xff) << 8) | (b&0xff))
@@ -671,10 +671,10 @@ typedef struct {
 } ColorPalette;
 
 typedef struct {
-    unsigned long  Data1;
-    unsigned short Data2;
-    unsigned short Data3;
-    byte           Data4 [8];
+    DWORD Data1;
+    WORD  Data2;
+    WORD  Data3;
+    byte  Data4 [8];
 } GUID, Guid, CLSID;
 
 typedef struct {

@@ -1,4 +1,11 @@
+2004-12-28  Zoltan Varga  <vargaz@freemail.hu>
+
+	* graphics.c (CalculateStringWidths): Fix 64 bit issues.
+
 2004-12-27  Zoltan Varga  <vargaz@freemail.hu>
+
+	* gdip.h: Make the members of various structures the same size as 
+	their managed counterparts on 64 bit platforms.
 
 	* gdip_win32.h: Do not define __stdcall under amd64.
 

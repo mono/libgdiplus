@@ -1650,7 +1650,7 @@ CalculateStringWidths (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, uns
 {
 	FT_Face			face;
 	size_t			i;
-	FT_ULong		*ucs4 = NULL;
+	gunichar		*ucs4 = NULL;
 	cairo_font_t		*Font;
 	GpStringDetailStruct	*CurrentDetail;
 	glong			NumOfGlyphs;
@@ -1666,7 +1666,7 @@ CalculateStringWidths (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, uns
 	cairo_font_current_transform(Font, &matrix);
 	cairo_matrix_scale(&matrix, gdiFont->sizeInPixels, gdiFont->sizeInPixels);
 
-	ucs4 = (FT_ULong *)g_utf8_to_ucs4 (utf8, (glong)-1, NULL, (glong *)&NumOfGlyphs, NULL);
+	ucs4 = g_utf8_to_ucs4 (utf8, (glong)-1, NULL, &NumOfGlyphs, NULL);
 
 	if ((NumOfGlyphs == 0) || (ucs4 == NULL)) {
 		return 0;
