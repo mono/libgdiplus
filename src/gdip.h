@@ -214,6 +214,19 @@ typedef enum  {
 } ImageType;
 
 typedef enum {
+	BMP,
+	TIF,
+	GIF,
+	PNG,
+	JPEG,
+	EXIF,
+	WMF,
+	EMF,
+	ICON,
+	INVALID
+} ImageFormat;
+
+typedef enum {
 	gtUndefined,
 	gtX11Drawable,
 	gtMemoryBitmap
@@ -521,6 +534,7 @@ typedef struct {
 	int	 	pixFormat;
 	PropertyItem 	*propItems;
 	float 		verticalResolution;
+	ImageFormat     format;
 } GpImage;
 
 typedef struct {

@@ -32,6 +32,20 @@
 
 static char *clsid_to_string_hack (GDIPCONST CLSID *clsid);
 
+/*
+ * encoder clsid's
+ */
+
+CLSID gdip_bmp_image_format_guid = {0xb96b3cabU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+CLSID gdip_jpg_image_format_guid = {0xb96b3caeU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+CLSID gdip_png_image_format_guid = {0xb96b3cafU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+CLSID gdip_gif_image_format_guid = {0xb96b3cb0U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+CLSID gdip_tif_image_format_guid = {0xb96b3cb1U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+CLSID gdip_exif_image_format_guid = {0xb96b3cb2U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+CLSID gdip_wmf_image_format_guid = {0xb96b3cadU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+CLSID gdip_emf_image_format_guid = {0xb96b3cacU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+
+
 void 
 gdip_image_init(GpImage *image)
 {
@@ -301,18 +315,23 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
     switch (format) {
         case BMP:
             status = gdip_load_bmp_image_from_file (fp, &result);
+	    result->format = BMP;
             break;
-        case TIFF:
+        case TIF:
             status = gdip_load_tiff_image_from_file (fp, &result);
+	    result->format = TIF;
             break;
         case GIF:
             status = gdip_load_gif_image_from_file (fp, &result);
+	    result->format = GIF;
             break;
         case PNG:
             status = gdip_load_png_image_from_file (fp, &result);
+	    result->format = PNG;
             break;
         case JPEG:
             status = gdip_load_jpeg_image_from_file (fp, &result);
+	    result->format = JPEG;
             break;
         case EXIF:
         case WMF:
@@ -347,7 +366,7 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 
     if (!image || !file || !encoderCLSID)
         return InvalidParameter;
-
+	
     format = gdip_image_format_for_clsid (encoderCLSID);
     if (format == INVALID)
         return UnknownImageFormat;
@@ -477,7 +496,42 @@ GdipGetImageFlags (GpImage *image, UINT *flags)
 	return Ok;
 }
 
-/* GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format); */
+GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format)
+{
+	byte* guid;
+
+	if (!image || !format)
+		return InvalidParameter;
+	
+	switch (image->format) {
+        	case BMP:
+	        	memcpy(format, &gdip_bmp_image_format_guid, 16);
+			return Ok;
+		case TIF:
+            		memcpy(format, &gdip_tif_image_format_guid, 16);
+			return Ok;
+		case GIF:
+	        	memcpy(format, &gdip_gif_image_format_guid, 16);
+			return Ok;
+		case PNG:
+	        	memcpy(format, &gdip_png_image_format_guid, 16);
+			return Ok;
+		case JPEG:
+            		memcpy(format, &gdip_jpg_image_format_guid, 16);
+			return Ok;
+		case EXIF:
+	        	memcpy(format, &gdip_exif_image_format_guid, 16);
+			return Ok;
+		case WMF:
+            		memcpy(format, &gdip_wmf_image_format_guid, 16);
+			return Ok;
+		case EMF:
+	        	memcpy(format, &gdip_emf_image_format_guid, 16);
+			return Ok;
+        	default:
+            		return InvalidParameter;
+    	}
+}
 
 GpStatus 
 GdipGetImagePixelFormat (GpImage *image, PixelFormat *format)
@@ -629,7 +683,7 @@ get_image_format (char *sig_read, size_t size_read)
 					return BMP;
 				case 1:
 				case 2:
-					return TIFF;
+					return TIF;
 				case 3:
 					if (signature[index][2] == sig_read[2]) 
 						return GIF;
@@ -745,14 +799,17 @@ GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
     switch (format) {
         case JPEG:
             status = gdip_load_jpeg_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
+	    result->format = JPEG;
             break;
         case PNG:
             status = gdip_load_png_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
+	    result->format = PNG;
             break;
         case BMP:
             status = gdip_load_bmp_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
+	    result->format = BMP;
             break;
-        case TIFF:
+        case TIF:
         case GIF:
         default:
             status = NotImplemented;
@@ -799,29 +856,27 @@ GdipSaveImageToDelegate_linux (GpImage *image, PutBytesDelegate putBytesFunc, GD
 }
 
 
-/*
- * encoder clsid's
- */
 
-CLSID gdip_bmp_image_format_guid = {0xb96b3cabU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-CLSID gdip_jpg_image_format_guid = {0xb96b3caeU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-CLSID gdip_png_image_format_guid = {0xb96b3cafU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-CLSID gdip_gif_image_format_guid = {0xb96b3cb0U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-CLSID gdip_tif_image_format_guid = {0xb96b3cb1U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 
 ImageFormat
 gdip_image_format_for_clsid (GDIPCONST CLSID *encoderCLSID)
 {
-    if (memcmp(encoderCLSID, &gdip_bmp_image_format_guid, sizeof(CLSID)) == 0)
-        return BMP;
-    if (memcmp(encoderCLSID, &gdip_jpg_image_format_guid, sizeof(CLSID)) == 0)
-        return JPEG;
-    if (memcmp(encoderCLSID, &gdip_png_image_format_guid, sizeof(CLSID)) == 0)
-        return PNG;
-    if (memcmp(encoderCLSID, &gdip_gif_image_format_guid, sizeof(CLSID)) == 0)
-        return GIF;
-    if (memcmp(encoderCLSID, &gdip_tif_image_format_guid, sizeof(CLSID)) == 0)
-        return TIFF;
+    	if (memcmp(encoderCLSID, &gdip_bmp_image_format_guid, sizeof(CLSID)) == 0)
+        	return BMP;
+    	if (memcmp(encoderCLSID, &gdip_jpg_image_format_guid, sizeof(CLSID)) == 0)
+        	return JPEG;
+    	if (memcmp(encoderCLSID, &gdip_png_image_format_guid, sizeof(CLSID)) == 0)
+        	return PNG;
+    	if (memcmp(encoderCLSID, &gdip_gif_image_format_guid, sizeof(CLSID)) == 0)
+        	return GIF;
+	if (memcmp(encoderCLSID, &gdip_tif_image_format_guid, sizeof(CLSID)) == 0)
+        	return TIF;
+	if (memcmp(encoderCLSID, &gdip_exif_image_format_guid, sizeof(CLSID)) == 0)
+        	return EXIF;
+    	if (memcmp(encoderCLSID, &gdip_wmf_image_format_guid, sizeof(CLSID)) == 0)
+        	return WMF;
+    	if (memcmp(encoderCLSID, &gdip_emf_image_format_guid, sizeof(CLSID)) == 0)
+        	return EMF;
 
     return INVALID;
 }

@@ -57,19 +57,6 @@ typedef enum {
 	Rotate270FlipXY		= Rotate90FlipNone
 } RotateFlipType; 
 
-typedef enum {
-	BMP,
-	TIFF,
-	GIF,
-	PNG,
-	JPEG,
-	EXIF,
-	WMF,
-	EMF,
-	ICON,
-	INVALID
-} ImageFormat;
-
 /*
  * Strutures
  *
