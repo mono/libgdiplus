@@ -1,3 +1,17 @@
+2004-04-09  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c (append_curve): Moved it to the top along with
+	the other append helper functions.
+	(GdipAddPathCurve, GdipAddPathCurveI): Implemented using
+	gdip_open_curve_tangents.
+	(GdipAddString): Fixed signature.
+
+	* general.c (gdip_open_curve_tangents): Implemented.o
+	(gdip_closed_curve_tangents): Fixed memory leak here.
+
+	* gdip.h (gdip_open_curve_tangents): Add here. To be shared
+	between graphics.c and graphics-path.c.
+
 2004-04-08 Jordi Mas i Hernandez <jordi@ximian.com>
 	* region.c - Started regions implementation
         * gdip.h - signature changes

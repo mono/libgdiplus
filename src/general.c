@@ -395,7 +395,41 @@ gdip_calculate_coefficients (int count, int terms, float **coefficients, int *co
 GpPointF *
 gdip_open_curve_tangents (int terms, const GpPointF *points, int count)
 {
-        return NULL;
+        float *coefficients;
+        int coefficients_count, i, k, M, m, Z;
+
+        GpPointF *tangents = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
+
+        /* initialize everything to zero to begin with */
+        for (i = 0; i < count; i++) {
+                tangents [i].X = 0;
+                tangents [i].Y = 0;
+        }
+
+        if (count <= 2)
+                return tangents;
+
+        M = count - 1;
+        Z = 2 * M;
+
+        gdip_calculate_coefficients (count, terms, &coefficients, &coefficients_count);
+        m = coefficients_count - 1;
+
+        for (i = 1; i < M; i++) {
+                for (k = 1; k <= m; k++) {
+                        int r = i + k;
+                        int s = i - k;
+
+                        if (r >= count) r = Z - r;
+                        if (s < 0) s = -s;
+
+                        tangents [i].X += (coefficients [k] * (points [r].X - points [s].X));
+                        tangents [i].Y += (coefficients [k] * (points [r].Y - points [s].Y));
+                }
+        }
+
+        GdipFree (coefficients);
+        return tangents;        
 }
 
 GpPointF *
@@ -430,6 +464,7 @@ gdip_closed_curve_tangents (int terms, const GpPointF *points, int count)
                 }
         }
 
+        GdipFree (coefficients);
         return tangents;
 }
 

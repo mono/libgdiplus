@@ -91,6 +91,36 @@ append_bezier (GpPath *path, float x1, float y1, float x2, float y2, float x3, f
         append (path, x3, y3, PathPointTypeBezier3);
 }
 
+static void
+append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int count, _CurveType type)
+{
+        int i, length = count;
+
+        if (count <= 0)
+                return;
+
+        if (type == CURVE_OPEN)
+                length = count - 1;
+        
+        append_point (path, points [0], PathPointTypeStart);
+
+        for (i = 1; i <= length; i++) {
+                int j = i - 1;
+                int k = (i < count) ? i : 0;
+
+                double x1 = points [j].X + tangents [j].X;
+                double y1 = points [j].Y + tangents [j].Y;
+
+                double x2 = points [k].X - tangents [k].X;
+                double y2 = points [k].Y - tangents [k].Y;
+
+                double x3 = points [k].X;
+                double y3 = points [k].Y;
+
+                append_bezier (path, x1, y1, x2, y2, x3, y3);
+        }
+}
+
 GpStatus
 GdipCreatePath (GpFillMode brushMode, GpPath **path)
 {
@@ -394,7 +424,14 @@ GdipAddPathBeziers (GpPath *path, const GpPointF *points, int count)
 GpStatus
 GdipAddPathCurve (GpPath *path, const GpPointF *points, int count)
 {
-        return NotImplemented;
+        GpPointF *tangents;
+
+        tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count);
+        append_curve (path, points, tangents, count, CURVE_OPEN);
+
+        GdipFree (tangents);
+
+        return Ok;
 }
 
 GpStatus
@@ -414,36 +451,6 @@ GpStatus
 GdipAddPathClosedCurve (GpPath *path, const GpPointF *points, int count)
 {
         return GdipAddPathClosedCurve2 (path, points, count, 0.5);
-}
-
-static void
-append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int count, _CurveType type)
-{
-        int i, length = count;
-
-        if (count <= 0)
-                return;
-
-        if (type == CURVE_OPEN)
-                length = count - 1;
-        
-        append_point (path, points [0], PathPointTypeStart);
-
-        for (i = 1; i <= length; i++) {
-                int j = i - 1;
-                int k = (i < count) ? i : 0;
-
-                double x1 = points [j].X + tangents [j].X;
-                double y1 = points [j].Y + tangents [j].Y;
-
-                double x2 = points [k].X - tangents [k].X;
-                double y2 = points [k].Y - tangents [k].Y;
-
-                double x3 = points [k].X;
-                double y3 = points [k].Y;
-
-                append_bezier (path, x1, y1, x2, y2, x3, y3);
-        }
 }
 
 /* TODO: consider tension */
@@ -620,27 +627,21 @@ GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
 
 /* XXX: This one is really hard. They really translate a string into
 bezier points and what not */
-/*
- * GpStatus 
- * GdipAddString (GpPath *path, const char *string, int length, 
- *                const GpFontFamily *family, int style, float emSize,
-const GpRectF *layoutRect,
- *                const GpStringFormat *format)
- * { 
- *         return NotImplemented; 
- * }
- */
+GpStatus 
+GdipAddString (GpPath *path, const char *string, int length, 
+                const GpFontFamily *family, int style, float emSize,
+                const GpRectF *layoutRect, const GpStringFormat *format)
+{ 
+        return NotImplemented; 
+}
 
-/*
- * GpStatus
- * GdipAddString (GpPath *path, const char *string, int length,
- *                const GpFontFamily *family, int style, float emSize,
-const GpRect *layoutRect,
- *                const GpStringFormat *format)
- * {
- *          return NotImplemented;
- * }
- */
+GpStatus
+GdipAddStringI (GpPath *path, const char *string, int length,
+                const GpFontFamily *family, int style, float emSize,
+                const GpRect *layoutRect, const GpStringFormat *format)
+{
+        return NotImplemented;
+}
 
 GpStatus
 GdipAddPathLineI (GpPath *path, int x1, int y1, int x2, int y2)
@@ -694,7 +695,13 @@ GdipAddPathBeziersI (GpPath *path, const GpPoint *points, int count)
 GpStatus
 GdipAddPathCurveI (GpPath *path, const GpPoint *points, int count)
 {
-        return GdipAddPathCurve2I (path, points, count, 0.5);
+        GpPointF *pt = convert_points (points, count);
+
+        Status s = GdipAddPathCurve (path, pt, count);
+
+        GdipFree (pt);
+
+        return s;
 }
 
 GpStatus

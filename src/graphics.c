@@ -816,7 +816,8 @@ make_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int coun
                         x1, y1, x2, y2, x3, y3);
         }
 
-        cairo_close_path (graphics->ct);
+        if (type == CURVE_CLOSE)
+                cairo_close_path (graphics->ct);
 }
 
 GpStatus
@@ -854,15 +855,33 @@ GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int cou
 GpStatus
 GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count) 
 {
-	printf ("GdipDrawCurveI not implemented\n");
-	return Ok;
+        GpPointF *tangents;
+
+        cairo_save (graphics->ct);
+        
+        gdip_pen_setup (graphics, pen);
+
+        tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count);
+        make_curve (graphics, points, tangents, count, CURVE_OPEN);
+
+        cairo_stroke (graphics->ct);
+        cairo_restore (graphics->ct);
+
+        GdipFree (tangents);
+
+        return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus
 GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count) 
 {
-	printf ("GdipDrawCurveI not implemented\n");
-	return Ok;
+        GpPointF *pf = convert_points (points, count);
+
+        GpStatus s = GdipDrawCurve (graphics, pen, pf, count);
+
+        GdipFree (pf);
+
+        return s;
 }
 
 GpStatus
@@ -887,8 +906,7 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, f
 }
 
 GpStatus
-GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count,
-                 float numOfSegments, float tension)
+GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, float numOfSegments, float tension)
 {
 	printf ("GdipDrawCurve2I not implemented\n");
 	return Ok;
