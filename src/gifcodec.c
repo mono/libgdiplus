@@ -218,7 +218,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 						gif->SColorMap->Colors[i].Green,
 						gif->SColorMap->Colors[i].Blue);
 		}
-	
+		
 		img->image.palette = pal;
 	}
 	img->image.pixFormat = Format8bppIndexed;
@@ -303,10 +303,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 			img->image.frameDimensionList[0].frames [pageCounter++] = data;
 		} else if (timeDimensionFound){
 			img->image.frameDimensionList[0].frames [timeCounter++] = data;
-		}
-		
-		/*printf("\n gifcodec.c pageCounter is %d", pageCounter);
-		printf("\n gifcodec.c timeCounter is %d", timeCounter);*/
+		}				
 	}
 	
 	img->data = img->image.frameDimensionList[0].frames[0];
@@ -364,14 +361,18 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 {
 	GifFileType *fp;
 	int i, row, x, y, size;
-	ColorMapObject *color_map;
 	GpBitmap *bitmap = (GpBitmap *) image;
-	GifByteType *red, *green, *blue, *pixels;
+	GifByteType *red = NULL, *green = NULL, *blue = NULL, *pixels = NULL;
 	GifByteType *ptr_red, *ptr_green, *ptr_blue, *ptr_pixels;
-	ARGB color;	
+	ARGB color = 0;	
 	int cmap_size = 256;	
 	ColorMapObject* cmap = NULL;	
 	BOOL error = FALSE;
+	BitmapData data;
+	int dimensionCount;
+	int frameCount;
+	int j,k;
+	BOOL animationFlag = FALSE;
 	
 	if (!stream) 
 		return InvalidParameter;
@@ -384,51 +385,95 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 	if (!fp)
 		return FileNotFound;
 		
-	size = bitmap->data.Height * bitmap->data.Width;
-	ptr_red = red = malloc (sizeof (GifByteType)* size);
-	ptr_green = green = malloc (sizeof (GifByteType)* size);
-	ptr_blue = blue = malloc (sizeof (GifByteType)* size);
-	ptr_pixels = pixels = malloc (sizeof (GifByteType)* bitmap->data.Height * bitmap->data.Stride);
-	cmap = MakeMapObject (cmap_size, 0);	
-	
-	for (y = 0; y <bitmap->data.Height; y++) {	
-		for (x = 0; x <bitmap->data.Width; x++) {
-		
-			GdipBitmapGetPixel (bitmap, x, y, &color);		
+	dimensionCount = image->frameDimensionCount;
+	cmap = malloc (sizeof (ColorMapObject *) * dimensionCount);
+	for (j = 0; j < dimensionCount; j++) {
+		frameCount = image->frameDimensionList [j].count;
+		/*cmap [j] = malloc (sizeof(ColorMapObject) * frameCount);*/
+		if (!memcmp (&(image->frameDimensionList [j].frameDimension), 
+				&gdip_image_frameDimension_time_guid, sizeof (CLSID)))
+			animationFlag = TRUE;
+		else
+			animationFlag = FALSE;
+
+		cmap  = MakeMapObject (cmap_size, 0);
+		for (k = 0; k < frameCount; k++) {
 			
-			*ptr_red++ = (color & 0x00ff0000) >> 16;
-			*ptr_green++ = (color & 0x0000ff00) >> 8;
-			*ptr_blue++ =  (color & 0x000000ff);
-		}	
-	}	
+			data = image->frameDimensionList [j].frames [k]; 
+			size = data.Height * data.Width;
+			int sizeAlloc = sizeof (GifByteType)* size;
+			ptr_red = red = malloc (sizeAlloc);
+			ptr_green = green = malloc (sizeAlloc);
+			ptr_blue = blue = malloc (sizeAlloc);
+			ptr_pixels = pixels = malloc (sizeAlloc);
+						
+			for (y = 0; y < data.Height; y++) {	
+				for (x = 0; x < data.Width; x++) {
+					GdipBitmapGetPixel (bitmap, x, y, &color);
+									
+					*ptr_red++ = (color & 0x00ff0000) >> 16;
+					*ptr_green++ = (color & 0x0000ff00) >> 8;
+					*ptr_blue++ =  (color & 0x000000ff);
+				}	
+			}	
+			
+			if (QuantizeBuffer (data.Width, data.Height, &cmap_size, red, 
+					green, blue, pixels, /*(&cmap[j])[k]->Colors*/ cmap->Colors) == GIF_ERROR) 
+				error = TRUE;
+			
+			/*Make info from first frame as Global color map*/
+			if (k == 0 ){
+				if ( j == 0){
+					if (EGifPutScreenDesc (fp, image->width, image->height,
+								8, 0, cmap) == GIF_ERROR) 
+						error = TRUE;
+				}
 
-	if (QuantizeBuffer (bitmap->data.Width, bitmap->data.Height, &cmap_size,
-		red, green, blue, pixels, cmap->Colors) == GIF_ERROR) 
-		error = TRUE;
+				/*Uses information obtained from util directory of libungif 
+				originally written by Gershon Elber*/
+				if (animationFlag) {
+					/*Put application extension code*/
+					unsigned char extStr [3];
+					extStr [0] = 1 % 256;
+					extStr [1] = 1 / 256;
+					extStr [2] = 0;
+
+					EGifPutExtension (fp, APPLICATION_EXT_FUNC_CODE,
+										3, extStr);
+				}
+			}
 	
-	if (EGifPutScreenDesc (fp, bitmap->data.Width, bitmap->data.Height,
-		8, 0, cmap) == GIF_ERROR) 
-		error = TRUE;
+			/*Put Graphic control Extension*/
+			if (animationFlag) {
+				static unsigned char extStr [4] = 
+							{ 0x06, 0x00, 0x00, 0xff};
+				extStr [1] = 1 % 256;
+				extStr [2] = 1 / 256;
+				
+				EGifPutExtension(fp, GRAPHICS_EXT_FUNC_CODE, 4, extStr);
+			}
+
+			if (EGifPutImageDesc (fp, 0, 0, data.Width, data.Height,
+					FALSE, cmap) == GIF_ERROR) 
+				error = TRUE;
 	
-	if (EGifPutImageDesc (fp, 0, 0, bitmap->data.Width, bitmap->data.Height,
-		FALSE, NULL) == GIF_ERROR) 
-		error = TRUE;
-	
-	for (i = 0;  i < bitmap->data.Height;  ++i) {
-		if (EGifPutLine (fp, ptr_pixels, bitmap->data.Width) == GIF_ERROR) {
-			error = TRUE;
-			break;
+			for (i = 0;  i < data.Height;  ++i) {
+				if (EGifPutLine (fp, ptr_pixels, data.Width) == GIF_ERROR) {
+					error = TRUE;
+					break;
+				}
+				ptr_pixels += data.Width;
+			}
 		}
-		ptr_pixels += bitmap->data.Width;
 	}
-
+	
 	EGifCloseFile (fp);	
 	free (red);
 	free (green);
 	free (blue);	
 	free (pixels);		
 	free (cmap);
-
+	
 	return (error == FALSE) ? Ok : GenericError;
 }
 

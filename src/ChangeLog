@@ -1,3 +1,8 @@
+2004--7-20 Sanjay Gupta <gsanjay@novell.com>
+	
+	* gifcodec.c: Implemented saving multiple frames of an image to a 
+	gif file.
+
 2004-07-16  Ravindra <rkumar@novell.com>
 
 	* Makefile.am: Added graphics-pathiterator.c to the sources list.
