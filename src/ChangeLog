@@ -1,3 +1,6 @@
+2004-03-01  Sanjay Gupta <gsanjay@novell.com>
+	* bitmap.c: Access modification in Get/Set Pixel()
+
 2004-02-29  Ravindra <rkumar@novell.com>
 	* hatchbrush.c: Implemented four vertical hatching styles
 	and did few comment improvements.

@@ -378,7 +378,7 @@ GdipBitmapSetPixel (GpBitmap *bitmap, int x, int y, ARGB color)
 		return InvalidParameter;
 
 	v = (unsigned char *)(data->Scan0) + y * data->Stride;
-	switch (bitmap->data.PixelFormat) {
+	switch (data->PixelFormat) {
 		case Format24bppRgb:
 			v += x * 3;
 			v [0] = (color >> 8) & 0xff;
@@ -415,7 +415,7 @@ GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 		return InvalidParameter;
 
 	v = ((unsigned char *)data->Scan0) + y * data->Stride;
-	switch (bitmap->data.PixelFormat) {
+	switch (data->PixelFormat) {
 		case Format24bppRgb:
 			v += x * 3;
 			*color = (v [1] << 8) | (v [2] << 16) | (v [3] << 24);
