@@ -870,7 +870,7 @@ int gdpi_utf8_to_glyphs (cairo_ft_font_t* font,	 const unsigned char* utf8, doub
 void gdip_font_drawunderline (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
 void gdip_font_drawstrikeout (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
 
-void gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s);
+cairo_status_t gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s);
 
 void gdip_rect_expand_by (GpRectF *rect, GpPointF *point);
 

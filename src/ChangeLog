@@ -1,5 +1,11 @@
 2004-04-15 Ravindra  <rkumar@novell.com>
 
+	* general.c (gdip_cairo_set_surface_pattern): Check for null pattern
+	and return the status.
+	* gdip.h (gdip_cairo_set_surface_pattern): Return status.
+
+2004-04-15 Ravindra  <rkumar@novell.com>
+
 	* hatchbrush.h: Moved internal functions to hatchbrush.c.
 	* hatchbrush.c: Moved some internal functions around.
 

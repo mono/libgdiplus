@@ -477,13 +477,17 @@ gdip_closed_curve_tangents (int terms, const GpPointF *points, int count)
         return tangents;
 }
 
-void
+cairo_status_t
 gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s)
 {
     cairo_pattern_t *pat;
     pat = cairo_pattern_create_for_surface (s);
+    if (pat == NULL)
+	return CAIRO_STATUS_NO_MEMORY;
     cairo_set_pattern (t, pat);
     cairo_pattern_destroy (pat);
+
+    return cairo_status (t);
 }
 
 void
