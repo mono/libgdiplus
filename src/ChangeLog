@@ -1,4 +1,10 @@
-2004-05-13 Jordi Mas <jordi@ximian.com>
+2004-05-14 Jordi Mas <jordi@ximian.com>
+	*  adjustablearrowcap.c ,customlinecap.c, gifcodec.c, graphics-path,
+	hatchbrush.c, jpegcodec.c, lineargradientbrush.c, matrix.c, 
+	pathgradientbrush.c, pngcodec.c,texturebrush.c,tiffcodec.c:
+	added missing licenses.
+
+2004-05-14 Jordi Mas <jordi@ximian.com>
 	* bmpcodec.c, gifcodec.c, jpegcodec.c, pngcodec.c, tiffcodec.c:
 	remove redudant CLSID definitions and use global definitions
 
