@@ -1,3 +1,7 @@
+2004-04-08 Jordi Mas i Hernandez <jordi@ximian.com>
+	* region.c - Started regions implementation
+        * gdip.h - signature changes
+
 2004-04-07  Ravindra  <rkumar@novell.com>
 
 	* texturebrush.[ch]: Added the missing functionality of clipping

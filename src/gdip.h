@@ -300,12 +300,12 @@ typedef enum
 
 typedef enum 
 {
-    CombineModeReplace,   
-    CombineModeIntersect, 
-    CombineModeUnion,     
-    CombineModeXor,       
-    CombineModeExclude,   
-    CombineModeComplement  
+    CombineModeReplace          = 0,   
+    CombineModeIntersect        = 1, 
+    CombineModeUnion            = 2,     
+    CombineModeXor              = 3,       
+    CombineModeExclude          = 4,   
+    CombineModeComplement       = 5  
     
 } CombineMode;
 
@@ -313,8 +313,15 @@ typedef enum
 
 typedef enum {
         CURVE_OPEN,
-        CURVE_CLOSE
+        CURVE_CLOSE 
 } _CurveType;
+
+typedef enum {
+        RegionTypeNone  = 0,
+        RegionTypeRect  = 1,
+        RegionTypeRectF = 2,
+        RegionTypePath  = 3
+} RegionType;
 
 /*
  * Structures
@@ -463,8 +470,10 @@ typedef struct {
         GpFontStyle         style;
 } GpFont;
 
+
 typedef struct {
-        int     _void;
+        GpRectF*        rects;
+        int             cnt;
 } GpRegion;
 
 
@@ -740,6 +749,8 @@ GpStatus GdipIsVisibleRegionPoint(GpRegion *region, float x, float y, GpGraphics
 GpStatus GdipIsVisibleRegionPointI(GpRegion *region, int x, int y, GpGraphics *graphics, BOOL *result);
 GpStatus GdipIsVisibleRegionRect(GpRegion *region, float x, float y, float width, float height, GpGraphics *graphics, BOOL *result);
 GpStatus GdipIsVisibleRegionRectI(GpRegion *region, int x, int y, int width, int height, GpGraphics *graphics, BOOL *result);
+GpStatus GdipGetRegionScansCount(GpRegion *region, int* count, GpMatrix* matrix);
+GpStatus GdipGetRegionScans(GpRegion *region, GpRectF* rects, int* count, GpMatrix* matrix);
 
 
 
