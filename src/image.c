@@ -800,12 +800,15 @@ GdipImageGetFrameDimensionsCount (GpImage *image, UINT *count)
 GpStatus 
 GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count)
 {
+	int i;
+	int countReturn;
+	GUID guid [count];
+
 	if (!image || !dimensionGUID)
 		return InvalidParameter;
-	int i;
-	int countReturn = image->frameDimensionCount;
 
-	GUID guid [count];
+	countReturn = image->frameDimensionCount;
+	
 	if (countReturn < count)
 		countReturn = count;
 	for (i=0; i<countReturn; i++){
@@ -819,9 +822,11 @@ GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count
 GpStatus
 GdipImageGetFrameCount(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count)
 {
+	int i;
+
 	if (!image || !dimensionGUID)
 		return InvalidParameter;
-	int i;
+
 	for (i=0; i<image->frameDimensionCount; i++){
 		if (memcmp(dimensionGUID, &(image->frameDimensionList[i].frameDimension), sizeof(CLSID)) == 0) {
 			*count = image->frameDimensionList[i].count;
@@ -835,10 +840,11 @@ GdipImageGetFrameCount(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* coun
 GpStatus
 GdipImageSelectActiveFrame(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT index)
 {
+	int i=0;
+
         if (!image || !dimensionGUID || (index <0))
                 return InvalidParameter;
-	
-	int i=0;
+		
 	for (i=0; i<image->frameDimensionCount; i++) {
 		if (memcmp(dimensionGUID, &(image->frameDimensionList[i].frameDimension), sizeof(CLSID)) == 0) {
 			if (image->frameDimensionList[i].count >= index){
@@ -1482,10 +1488,12 @@ GdipGetAllPropertyItems(GpImage *image, UINT totalBufferSize, UINT numProperties
 GpStatus
 GdipGetEncoderParameterListSize(GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT *size)
 {
+	ImageFormat fmt;
+
 	g_return_val_if_fail (clsidEncoder != NULL, InvalidParameter);
 	g_return_val_if_fail (size != NULL, InvalidParameter);
 
-	ImageFormat fmt = gdip_get_imageformat_from_codec_clsid ((CLSID *) clsidEncoder);
+	fmt = gdip_get_imageformat_from_codec_clsid ((CLSID *) clsidEncoder);
 
 	switch (fmt) {
 		case JPEG:
@@ -1504,10 +1512,12 @@ GdipGetEncoderParameterListSize(GpImage *image, GDIPCONST CLSID *clsidEncoder, U
 GpStatus
 GdipGetEncoderParameterList(GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT size, EncoderParameters *buffer)
 {
+	ImageFormat fmt;
+
 	g_return_val_if_fail (clsidEncoder != NULL, InvalidParameter);
 	g_return_val_if_fail (buffer != NULL, InvalidParameter);
 
-	ImageFormat fmt = gdip_get_imageformat_from_codec_clsid ((CLSID *) clsidEncoder);
+	fmt = gdip_get_imageformat_from_codec_clsid ((CLSID *) clsidEncoder);
 
 	switch (fmt) {
 		case JPEG:

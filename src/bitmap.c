@@ -585,7 +585,6 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 				 destBytesPerPixel * destRect->Width,
 				 destRect->Height);
 			if (add_alpha) {
-				g_assert (gdip_get_pixel_format_bpp (destFormat) == 32);
 				unsigned int *ptr = (unsigned int *) outBuffer;
 				int i;
 				for (i = 0; i < destRect->Height * (outStride / sizeof(unsigned int)); i++)
@@ -732,10 +731,11 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 	} else {
 		/* the user wants a subrect and/or wants a pixel format conversion */
 		GdipBitmapData convert;
-		convert.PixelFormat = format;
-		convert.Scan0 = NULL;
 		Rect destRect = {0, 0, srcRect->Width, srcRect->Height};
 		GdipBitmapData src;
+
+		convert.PixelFormat = format;
+		convert.Scan0 = NULL;
 		
 		memcpy (&src, &bitmap->data, sizeof (GdipBitmapData));
 		src.Scan0 = src_scan0;

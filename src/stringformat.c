@@ -29,10 +29,13 @@
 GpStatus
 GdipCreateStringFormat (int formatAttributes, int language, GpStringFormat  **format)
 {
+	GpStringFormat *result;
+
 	if (!format)
 		return InvalidParameter;
 
-	GpStringFormat *result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
+	result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
+
 	if (!result)
 		return OutOfMemory;
 
@@ -55,10 +58,13 @@ GdipCreateStringFormat (int formatAttributes, int language, GpStringFormat  **fo
 GpStatus
 GdipStringFormatGetGenericDefault (GpStringFormat **format)
 {
+	GpStringFormat *result;
+
 	if (!format)
 		return InvalidParameter;
 
-	GpStringFormat *result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
+	result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
+
 	if (!result)
 		return OutOfMemory;
 
@@ -81,10 +87,13 @@ GdipStringFormatGetGenericDefault (GpStringFormat **format)
 GpStatus
 GdipStringFormatGetGenericTypographic (GpStringFormat **format)
 {
+	GpStringFormat *result;
+	
 	if (!format)
 		return InvalidParameter;
 
-	GpStringFormat *result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
+	result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
+
 	if (!result)
 		return OutOfMemory;
 

@@ -661,7 +661,7 @@ CreateFontFromHDCorHfont(void *hdcIn, void *hfont, GpFont **font, LOGFONTA *lf)
 	}
 
 	if (!gdip_font_create (FaceName, slant, weight, result)) {
-		return InvalidParameter;	/* FIXME - pick right return code */
+		return InvalidParameter;	/*  FIXME - pick right return code */
 	}
 	
 	result->style = style;

@@ -1048,6 +1048,8 @@ GpStatus
 GdipGetLineGammaCorrection (GpLineGradient *brush, BOOL *useGammaCorrection)
 {
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	g_return_val_if_fail (useGammaCorrection != NULL, InvalidParameter);
+
 	*useGammaCorrection = brush->gammaCorrection;
 
 	return Ok;
@@ -1057,6 +1059,7 @@ GpStatus
 GdipGetLinePresetBlendCount (GpLineGradient *brush, int *count)
 {
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	g_return_val_if_fail (count != NULL, InvalidParameter);
 
 	/* If count is less than 2, we are not in a proper state 
 	 * to return presetblend property.

@@ -161,7 +161,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				GdipBitmapGetPixel (&bmpdest, x, y, &color);					
 				
 				if (color >= imgattr->key_colorlow && color <= imgattr->key_colorhigh)
-					color = color & 0x00ffffff; // Alpha = 0
+					color = color & 0x00ffffff; /* Alpha = 0 */
 					
 				GdipBitmapSetPixel (&bmpdest, x, y, color);
 			}	
@@ -174,10 +174,12 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 GpStatus
 GdipCreateImageAttributes (GpImageAttributes **imageattr)
 {
+	GpImageAttributes *result;
+
 	if (!imageattr)
 		return InvalidParameter;
 
-	GpImageAttributes *result = (GpImageAttributes *) GdipAlloc (sizeof (GpImageAttributes));
+	result = (GpImageAttributes *) GdipAlloc (sizeof (GpImageAttributes));
 	gdip_init_image_attribute (&result->def);
 	gdip_init_image_attribute (&result->bitmap);
 	gdip_init_image_attribute (&result->brush);
@@ -194,10 +196,12 @@ GdipCreateImageAttributes (GpImageAttributes **imageattr)
 GpStatus
 GdipCloneImageAttributes (GDIPCONST GpImageAttributes *imageattr, GpImageAttributes **cloneImageattr)
 {
+	GpImageAttributes *result;
+
 	if (!imageattr || !cloneImageattr)
 		return InvalidParameter;
 
-	GpImageAttributes *result = (GpImageAttributes *) GdipAlloc (sizeof (GpImageAttributes));
+	result = (GpImageAttributes *) GdipAlloc (sizeof (GpImageAttributes));
 
 	memcpy (result, imageattr, sizeof (GpStringFormat));
 

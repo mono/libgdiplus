@@ -1154,11 +1154,14 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int co
 GpStatus
 GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count, float tension)
 {
+	GpPointF *pt;
+	GpStatus s;
+
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-        GpPointF *pt = convert_points (points, count);
+	pt = convert_points (points, count);
 
-        GpStatus s = GdipDrawClosedCurve (graphics, pen, pt, count);
+	s = GdipDrawClosedCurve (graphics, pen, pt, count);
 
         GdipFree (pt);
 
@@ -1225,11 +1228,14 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
 GpStatus
 GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, int offset, float numOfSegments, float tension)
 {
+	GpPointF *pf;
+	GpStatus s;
+
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-        GpPointF *pf = convert_points (points, count);
+	pf = convert_points (points, count);
 
-        GpStatus s = GdipDrawCurve3 (graphics, pen, pf, count, offset, numOfSegments, tension);
+	s = GdipDrawCurve3 (graphics, pen, pf, count, offset, numOfSegments, tension);
 
         GdipFree (pf);
 
@@ -1529,11 +1535,14 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, in
 GpStatus
 GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count, float tension)
 {
+	GpPointF *pt;
+        GpStatus s;
+	
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-        GpPointF *pt  = convert_points (points, count);
+	pt  = convert_points (points, count);
 
-        GpStatus s = GdipFillClosedCurve2 (graphics, brush, pt, count, tension);
+	s = GdipFillClosedCurve2 (graphics, brush, pt, count, tension);
 
         GdipFree (pt);
 

@@ -170,6 +170,9 @@ GpStatus
 GdipCreatePath2 (const GpPointF *points, const byte *types,
                 int count, GpFillMode fillMode, GpPath **path)
 {
+	GArray *pts;
+	GByteArray *t;
+
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 	g_return_val_if_fail (types != NULL, InvalidParameter);
@@ -179,8 +182,8 @@ GdipCreatePath2 (const GpPointF *points, const byte *types,
 	 * invalid. Some cases are like last type being PathPointTypeStart or
 	 * PathPointTypeCloseSubpath etc.
 	 */
-        GArray *pts = array_to_g_array (points, count);
-        GByteArray *t = array_to_g_byte_array (types, count);
+	pts = array_to_g_array (points, count);
+	t = array_to_g_byte_array (types, count);
         
         *path = (GpPath *) GdipAlloc (sizeof (GpPath));
         (*path)->fill_mode = fillMode;
@@ -195,11 +198,14 @@ GpStatus
 GdipCreatePath2I (const GpPoint *points, const byte *types,
                 int count, GpFillMode fillMode, GpPath **path)
 {
+	GpPointF *pt;
+        GpStatus s;
+
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-        GpPointF *pt = convert_points (points, count);
-
-        GpStatus s = GdipCreatePath2 (pt, types, count, fillMode, path);
+	pt = convert_points (points, count);
+	
+	s = GdipCreatePath2 (pt, types, count, fillMode, path);
 
         GdipFree (pt);
 
@@ -451,9 +457,11 @@ GdipClearPathMarkers (GpPath *path)
 {
         int i;
 	byte current;
+	GByteArray *cleared;
+
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 
-        GByteArray *cleared = g_byte_array_new ();
+	cleared = g_byte_array_new ();
 
         for (i = 0; i < path->count; i++) {
                 current = g_array_index (path->types, byte, i);
@@ -476,12 +484,15 @@ GpStatus
 GdipReversePath (GpPath *path)
 {
 	int length, i;
+	GByteArray *types;
+	GArray *points;
+
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 
 	length = path->count;
 
-        GByteArray *types = g_byte_array_sized_new (length);
-        GArray *points = g_array_sized_new (FALSE, TRUE, sizeof (GpPointF), length);
+	types = g_byte_array_sized_new (length);
+	points = g_array_sized_new (FALSE, TRUE, sizeof (GpPointF), length);
 
         for (i = length; i > 0; i--) {
                 byte t = g_array_index (path->types, byte, i);
@@ -915,10 +926,13 @@ GdipAddPathBezierI (GpPath *path, int x1, int y1, int x2, int y2, int x3, int y3
 GpStatus
 GdipAddPathBeziersI (GpPath *path, const GpPoint *points, int count)
 {
+	GpPointF *tmp;
+        Status s;
+
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-        GpPointF *tmp = int_to_float (points, count);
-        Status s = GdipAddPathBeziers (path, tmp, count);
+	tmp = int_to_float (points, count);
+	s = GdipAddPathBeziers (path, tmp, count);
 
         GdipFree (tmp);
 
@@ -941,11 +955,14 @@ GpStatus
 GdipAddPathCurve3I (GpPath *path, const GpPoint *points,
                     int count, int offset, int numberOfSegments, float tension)
 {
+        GpPointF *pt;
+        Status s;
+
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-        GpPointF *pt = convert_points (points, count);
+	pt = convert_points (points, count);
 
-        Status s = GdipAddPathCurve3 (path, pt, count, offset, numberOfSegments, tension);
+	s = GdipAddPathCurve3 (path, pt, count, offset, numberOfSegments, tension);
 
         GdipFree (pt);
 
@@ -961,11 +978,14 @@ GdipAddPathClosedCurveI (GpPath *path, const GpPoint *points, int count)
 GpStatus
 GdipAddPathClosedCurve2I (GpPath *path, const GpPoint *points, int count, float tension)
 {
+	GpPointF *pt;
+	Status s;
+
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-        GpPointF *pt = convert_points (points, count);
+	pt = convert_points (points, count);
 
-        Status s = GdipAddPathClosedCurve2 (path, pt, count, tension);
+	s = GdipAddPathClosedCurve2 (path, pt, count, tension);
 
         GdipFree (pt);
 
@@ -1010,11 +1030,14 @@ GdipAddPathPieI (GpPath *path, int x, int y, int width, int height, float startA
 GpStatus
 GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count)
 {
+	GpPointF *tmp;	
+        Status s;
+
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-        GpPointF *tmp = int_to_float (points, count);
+	tmp = int_to_float (points, count);
 
-        Status s = GdipAddPathPolygon (path, tmp, count);
+	s = GdipAddPathPolygon (path, tmp, count);
 
         GdipFree (tmp);
 
@@ -1054,12 +1077,16 @@ GdipWarpPath (GpPath *nativePath, GpMatrix *matrix, const GpPointF *points, int 
 GpStatus 
 GdipTransformPath (GpPath* path, GpMatrix *matrix)
 {
+        PointF *points;
+	int count;
+        Status s;
+
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 
-        PointF *points = g_array_to_array (path->points);
-        int count = path->count;
+	points = g_array_to_array (path->points);
+	count = path->count;
 
-        Status s = GdipTransformMatrixPoints (matrix, points, count);
+	s = GdipTransformMatrixPoints (matrix, points, count);
 
         path->points = array_to_g_array (points, count);
 
