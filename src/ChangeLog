@@ -1,3 +1,12 @@
+2004-05-20  Ravindra  <rkumar@novell.com>
+
+	* hatchbrush.c: Implemented SolidDiamond hatch style.
+	* pen.c: Minor fix in GdipSetPenDashArray function.
+	* gdip.h: Added a comment and inserted #ifndef around
+	uglify typedefs.
+	* gdip_win32.h: Removed the mono dependency uglify.h.
+	It was also breaking the build.
+
 2004-05-15  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* image.c, jpegcodec.c, jpegcodec.h, gdip.h: Add support for

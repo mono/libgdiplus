@@ -676,8 +676,8 @@ GdipSetPenDashArray (GpPen *pen, GDIPCONST float *dash, int count)
 		dash_array = (float *) GdipAlloc (count * sizeof (float));
 		g_return_val_if_fail (dash_array != NULL, OutOfMemory);
 
-		/* free the existing values */
-		if (pen->dash_count != 0)
+		/* free the existing values, if we own them */
+		if (pen->dash_count != 0 && pen->own_dash_array == TRUE)
 			GdipFree (pen->dash_array);
 		pen->dash_array = dash_array;
 		pen->dash_count = count;

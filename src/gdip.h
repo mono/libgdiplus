@@ -24,6 +24,13 @@
 #include <cairo-xlib.h>
 #endif
 
+/* mono/io-layer/uglify.h also has these typedefs.
+ * to avoid a dependency on mono we have copied all
+ * the required stuff here. we don't include our defs
+ * is uglify.h is included somehow.
+ */
+#ifndef _WAPI_UGLIFY_H_		/* to avoid conflict with uglify.h */
+
 typedef const gunichar2 *LPCTSTR;
 typedef gunichar2 *LPTSTR;
 typedef guint8 BYTE;
@@ -51,6 +58,8 @@ typedef gpointer HMODULE;
 #define IN
 #define OUT
 #define WINAPI
+
+#endif 		/* to avoid conflict with uglify.h */
 
 /* Cairo internal extructures and defines*/
 #define DOUBLE_TO_26_6(d) ((FT_F26Dot6)((d) * 64.0))

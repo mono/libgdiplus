@@ -947,9 +947,64 @@ draw_divot_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int heig
 }
 
 GpStatus
-draw_solid_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatchStyle hatchStyle)
+draw_solid_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format)
 {
-	return NotImplemented;
+	cairo_surface_t *hatch;
+	double hatch_size = HATCH_SIZE + 1;
+	double line_width = LINE_WIDTH;
+
+	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
+					      format, hatch_size, hatch_size);
+
+	g_return_val_if_fail (hatch != NULL, OutOfMemory);
+
+	cairo_surface_set_repeat (hatch, 1);
+
+	/* draw one hatch */
+	{
+		cairo_save (ct);
+
+		cairo_set_target_surface (ct, hatch);
+
+		/* draw background */
+		int R = (backcolor & 0x00FF0000) >> 16;
+		int G = (backcolor & 0x0000FF00) >> 8;
+		int B = (backcolor & 0x000000FF);
+		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
+
+		cairo_rectangle (ct, 0, 0, hatch_size, hatch_size);
+		cairo_fill (ct);
+
+		/* draw two triangles in the foreground with left and right sides as their bases */
+		R = (forecolor & 0x00FF0000) >> 16;
+		G = (forecolor & 0x0000FF00) >> 8;
+		B = (forecolor & 0x000000FF);
+		cairo_set_rgb_color (ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
+
+		cairo_set_line_width (ct, line_width);
+
+		/* draw left triangle */
+		cairo_move_to (ct, 0, 0.5);
+		cairo_line_to (ct, hatch_size / 2.0 - 0.5, hatch_size / 2.0);
+		cairo_line_to (ct, 0, hatch_size - 0.5);
+		cairo_line_to (ct, 0, 0.5);
+		cairo_fill (ct);
+
+		/* draw right triangle */
+		cairo_move_to (ct, hatch_size, 0.5);
+		cairo_line_to (ct, hatch_size / 2.0 + 0.5, hatch_size / 2.0);
+		cairo_line_to (ct, hatch_size, hatch_size - 0.5);
+		cairo_line_to (ct, hatch_size, 0.5);
+		cairo_fill (ct);
+
+		cairo_restore (ct);
+	}
+
+	/* set the pattern for the consequent fill or stroke */
+	gdip_cairo_set_surface_pattern (ct, hatch);
+	cairo_surface_destroy (hatch);
+
+	return Ok;
 }
 
 GpStatus
@@ -1190,7 +1245,7 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 
 	/* case HatchStyleMax: */
 	case HatchStyleSolidDiamond:
-		return draw_solid_diamond_hatch (ct, forecol, backcol, format, hatch->hatchStyle);
+		return draw_solid_diamond_hatch (ct, forecol, backcol, format);
 
 	default:
 		return InvalidParameter;

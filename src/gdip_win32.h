@@ -12,7 +12,6 @@
 #ifndef CAIRO_HAS_XLIB_SURFACE
 #include <cairo-xlib.h>
 #endif
-#include <mono/io-layer/uglify.h>
 
 /* sizeof (GDIOBJHDR) = 12 (2 + 2 + 4 + 4) */
 /* offsetof (DC, physDev) = 20 (12 + 4 + 4) */
