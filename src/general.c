@@ -216,3 +216,84 @@ void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg)
 
 }
 
+
+
+
+/*
+    Functionality to be replaced by Cairo when available from
+    the standard API
+*/
+
+static void
+_install_font_matrix(cairo_matrix_t *matrix, FT_Face face)
+{
+    cairo_matrix_t normalized;
+    double scale_x, scale_y;
+    double xx, xy, yx, yy, tx, ty;
+    FT_Matrix mat;
+
+    _cairo_matrix_compute_scale_factors (matrix, &scale_x, &scale_y);
+
+    cairo_matrix_copy (&normalized, matrix);
+
+    cairo_matrix_scale (&normalized, 1.0 / scale_x, 1.0 / scale_y);
+    cairo_matrix_get_affine (&normalized,
+                             &xx /* 00 */ , &yx /* 01 */,
+                             &xy /* 10 */, &yy /* 11 */,
+                             &tx, &ty);
+
+    mat.xx = DOUBLE_TO_16_16(xx);
+    mat.xy = -DOUBLE_TO_16_16(xy);
+    mat.yx = -DOUBLE_TO_16_16(yx);
+    mat.yy = DOUBLE_TO_16_16(yy);
+
+    FT_Set_Transform(face, &mat, NULL);
+    FT_Set_Char_Size(face,
+		     DOUBLE_TO_26_6(scale_x),
+		     DOUBLE_TO_26_6(scale_y),
+		     0, 0);
+}
+
+int
+gdpi_utf8_to_glyphs (cairo_ft_font_t	*font,
+		 const unsigned char	*utf8,
+		 double			x0,
+		 double			y0,
+		 cairo_glyph_t		**glyphs,
+		 size_t			*nglyphs)
+{
+    FT_Face face = font->face;
+    double x = 0., y = 0.;
+    size_t i;
+    FT_ULong *ucs4 = NULL;
+
+    ucs4 = (FT_ULong *)g_utf8_to_ucs4 (utf8, (glong)-1, NULL, (glong *)nglyphs, NULL);
+
+    if (ucs4 == NULL)
+        return 0;
+
+    *glyphs = (cairo_glyph_t *) malloc ((*nglyphs) * (sizeof (cairo_glyph_t)));
+    if (*glyphs == NULL)
+    {
+        g_free (ucs4);
+        return 0;
+    }
+
+    _install_font_matrix (&font->base.matrix, face);
+
+    for (i = 0; i < *nglyphs; i++)
+    {
+        (*glyphs)[i].index = FT_Get_Char_Index (face, ucs4[i]);
+        (*glyphs)[i].x = x0 + x;
+        (*glyphs)[i].y = y0 + y;
+
+        FT_Load_Glyph (face, (*glyphs)[i].index, FT_LOAD_DEFAULT);
+
+        x += DOUBLE_FROM_26_6 (face->glyph->advance.x);
+        y -= DOUBLE_FROM_26_6 (face->glyph->advance.y);
+    }
+
+    g_free (ucs4);
+    return 1;
+}
+

@@ -483,6 +483,9 @@ GpStatus GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin);
 
 /* Text */
 GpStatus GdipDrawString (GpGraphics *graphics, const char *string, int len, GpFont *font, RectF *rc, GpStringFormat *format, GpBrush *brush);
+GpStatus GdipMeasureString(GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST RectF *layoutRect,
+    GDIPCONST GpStringFormat *stringFormat,  RectF *boundingBox, int *codepointsFitted, int *linesFilled);
+
 
 /* Matrix */
 GpStatus GdipCreateMatrix (GpMatrix **matrix);
@@ -549,5 +552,7 @@ void GdipFree (void *ptr);
 /* Utility*/
 float gdip_get_display_dpi();
 void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg);
+int gdpi_utf8_to_glyphs (cairo_ft_font_t* font,	 const unsigned char* utf8, double	x0,
+		 double	y0, cairo_glyph_t** glyphs, size_t* nglyphs);
 
 #endif /* _GDIP_H */

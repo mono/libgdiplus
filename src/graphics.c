@@ -796,80 +796,6 @@ GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int co
 
 
 
-static void
-_install_font_matrix(cairo_matrix_t *matrix, FT_Face face)
-{
-    cairo_matrix_t normalized;
-    double scale_x, scale_y;
-    double xx, xy, yx, yy, tx, ty;
-    FT_Matrix mat;
-    
-    _cairo_matrix_compute_scale_factors (matrix, &scale_x, &scale_y);
-
-    cairo_matrix_copy (&normalized, matrix);
-
-    cairo_matrix_scale (&normalized, 1.0 / scale_x, 1.0 / scale_y);
-    cairo_matrix_get_affine (&normalized,
-                             &xx /* 00 */ , &yx /* 01 */,
-                             &xy /* 10 */, &yy /* 11 */,
-                             &tx, &ty);
-
-    mat.xx = DOUBLE_TO_16_16(xx);
-    mat.xy = -DOUBLE_TO_16_16(xy);
-    mat.yx = -DOUBLE_TO_16_16(yx);
-    mat.yy = DOUBLE_TO_16_16(yy);
-
-    FT_Set_Transform(face, &mat, NULL);
-    FT_Set_Char_Size(face,
-		     DOUBLE_TO_26_6(scale_x),
-		     DOUBLE_TO_26_6(scale_y),
-		     0, 0);
-}
-
-static int
-_utf8_to_glyphs (cairo_ft_font_t	*font,
-		 const unsigned char	*utf8,
-		 double			x0,
-		 double			y0,
-		 cairo_glyph_t		**glyphs,
-		 size_t			*nglyphs)
-{
-    FT_Face face = font->face;
-    double x = 0., y = 0.;
-    size_t i;
-    FT_ULong *ucs4 = NULL;
-
-    ucs4 = (FT_ULong *)g_utf8_to_ucs4 (utf8, (glong)-1, NULL, (glong *)nglyphs, NULL);
-
-    if (ucs4 == NULL)
-        return 0;
-
-    *glyphs = (cairo_glyph_t *) malloc ((*nglyphs) * (sizeof (cairo_glyph_t)));
-    if (*glyphs == NULL)
-    {
-        g_free (ucs4);
-        return 0;
-    }
-
-    _install_font_matrix (&font->base.matrix, face);
-
-    for (i = 0; i < *nglyphs; i++)
-    {
-        (*glyphs)[i].index = FT_Get_Char_Index (face, ucs4[i]);
-        (*glyphs)[i].x = x0 + x;
-        (*glyphs)[i].y = y0 + y;
-
-        FT_Load_Glyph (face, (*glyphs)[i].index, FT_LOAD_DEFAULT);
-
-        x += DOUBLE_FROM_26_6 (face->glyph->advance.x);
-        y -= DOUBLE_FROM_26_6 (face->glyph->advance.y);
-    }
-
-    g_free (ucs4);
-    return 1;
-}
-
-
 int
 gdip_measure_string_widths (GpFont *font,
                                 const unsigned char* utf8,
@@ -885,8 +811,14 @@ gdip_measure_string_widths (GpFont *font,
     *totalheight = 0;
     *nwidths = 0;
     *pwidths = NULL;
+    cairo_ft_font_t* ft = (cairo_ft_font_t *)font->cairofnt;
 
-    _utf8_to_glyphs (font->cairofnt, utf8, 0.0, 0.0, &glyphs, &nglyphs);
+    cairo_matrix_t saved;
+    cairo_matrix_copy (&saved, (const cairo_matrix_t *)&ft->base.matrix); 
+    cairo_matrix_scale (&ft->base.matrix, font->sizeInPixels, font->sizeInPixels);
+    gdpi_utf8_to_glyphs (font->cairofnt, utf8, 0.0, 0.0, &glyphs, &nglyphs);
+    cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
+    
 
     if (!nglyphs) return 1;
 
@@ -897,7 +829,7 @@ gdip_measure_string_widths (GpFont *font,
     if (!nglyphs) return 0;
     
     double x, y;
-    cairo_ft_font_t* ft = (cairo_ft_font_t *)font->cairofnt;
+    
 
     for (; i < nglyphs-1; i++, pPos++){
         *pPos = glyphs[i+1].x - glyphs[i].x;
@@ -908,6 +840,62 @@ gdip_measure_string_widths (GpFont *font,
     *totalwidth= *pPos;
     return 1;
 }
+
+GpStatus GdipMeasureString(GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int len, GDIPCONST GpFont *font, GDIPCONST RectF *rc,
+    GDIPCONST GpStringFormat *stringFormat,  RectF *boundingBox, int *codepointsFitted, int *linesFilled)
+{
+    if (!font || !rc)
+        return InvalidParameter;
+
+    float width = 0, height = 0;
+    float* pwidths = NULL;
+    float* pPos;
+    int nwidths, i, nGlyp;
+    float w = 0, x=0, y=0;
+    int nLines = 0;
+    int nMax = 0;
+
+    char* string = (char*) g_utf16_to_utf8 ((const gunichar2 *) stringUnicode,
+            (glong)len, NULL, NULL, NULL);
+
+    // Get widths
+    gdip_measure_string_widths(font, string, &pwidths, &nwidths, &width, &height);
+
+    pPos = pwidths;
+
+    for (nGlyp=1, w=0; nGlyp < nwidths+1; pPos++, nGlyp++) {        
+        w+=*pPos;
+         
+        if (!(nGlyp+1 < nwidths+1) || (w + *(pPos+1)) >rc->Width) {
+
+            nLines++;
+
+            if (w>nMax) nMax = w;
+
+            if (y + font->sizeInPixels >= rc->Height) // Cannot fit more text
+                break;
+                
+            y+=font->sizeInPixels;
+            w=0;
+        }
+    }
+
+    free(pwidths);
+    g_free(string);
+
+    if (boundingBox) {
+        boundingBox->X=rc->X;
+        boundingBox->Y=rc->Y;
+        boundingBox->Width=nMax;
+        boundingBox->Height=y;
+        printf("**boundingBox->x %f, y %f, width->%f, height->%f\n", boundingBox->X, boundingBox->Y, boundingBox->Width, boundingBox->Height);
+    }
+
+    if (linesFilled) *linesFilled = nLines;
+    if (codepointsFitted) *codepointsFitted = nGlyp;
+              
+}
+
 
 
 GpStatus 
@@ -936,16 +924,17 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
         cairo_matrix_t saved;
         cairo_matrix_copy (&saved, (const cairo_matrix_t *)&font->cairofnt->base.matrix);
         
-        cairo_scale_font (graphics->ct, font->sizeInPixels);
-
+    
         if (!format || !rc->Width) {
-          cairo_move_to (graphics->ct, rc->X, rc->Y+ font->sizeInPixels);
-          cairo_show_text (graphics->ct, string);
-          g_free(string);
+            
+            cairo_scale_font (graphics->ct, font->sizeInPixels);
+            cairo_move_to (graphics->ct, rc->X, rc->Y+ font->sizeInPixels);
+            cairo_show_text (graphics->ct, string);
+            g_free(string);
           
-          cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
-          cairo_restore (graphics->ct);
-          return gdip_get_status (cairo_status (graphics->ct));
+            cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
+            cairo_restore (graphics->ct);
+            return gdip_get_status (cairo_status (graphics->ct));
         }
 
         float width = 0, height = 0;
@@ -993,10 +982,14 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
                     break;
                 }
 
+                nLines++;
+
+                if (y - rc->Y + font->sizeInPixels >= rc->Height) // Cannot fit more text
+                    break;
+
                 pPoint++;                
                 y+=font->sizeInPixels;
                 w=0;
-                nLines++;
             }
         }
 
@@ -1025,23 +1018,28 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
 
         pPos = pwidths;  
         pPoint = pPoints;
+        int nLns;
+
+        cairo_scale_font (graphics->ct, font->sizeInPixels);           
 
         // Draw the strings
-        for (w=0, nGlyp=1; nGlyp < nwidths+1; pPos++, nGlyp++) {
+        for (w=0, nLns=0, nGlyp=1; nGlyp < nwidths+1; pPos++, nGlyp++) {
 
           w+=*pPos;
          
           if (!(nGlyp+1 < nwidths+1) || (w + *(pPos+1)) >rc->Width) {
 
                 char* spiece = (char*)g_utf16_to_utf8 (pUnicode, (glong)nGlyp-nLast, NULL, NULL, NULL);
-                printf("piece->%s!\n", spiece);
-
+        
                 pUnicode+=(nGlyp-nLast);
                 nLast = nGlyp;                
                 cairo_move_to (graphics->ct, pPoint->X, pPoint->Y);
                 cairo_show_text (graphics->ct, spiece);                       
                 g_free(spiece);
+                nLns++;
 
+                if (nLns>nLines) break;
+                
                 w=0;
                 pPoint++;
             }               

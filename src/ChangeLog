@@ -1,3 +1,6 @@
+2004-02-23  Jordi Mas i Hernandez <jordi@ximian.com>
+    * graphics.c - added GdipMeasureString
+    
 2004-02-22  Ravindra <rkumar@novell.com>
 	* texturebrush.c: First implementation. Needs some fixing.
 	* texturebrush.h: Defines texture struct, wrapmode enum and
