@@ -1,3 +1,14 @@
+2004-04-22  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* bitmap.c (GdipCloneBitmapAreaI): implemented with format
+	conversion
+
+	* image.c (GdipDrawImageRect): use gdip_bitmap_ensure_surface
+	to create a surface if it's missing.  Fixes 57323
+
+	* bitmap.c (gdip_bitmap_ensure_surface): added as a way to access
+	a bitmap image's surface, creating it if it's missing
+
 2004-04-21 Peter Bartok <pbartok@novell.com>
    * font.c: Added private GdipCreateFontFromHfont function to support
    the System.Drawing.Font.FromHfont method.
@@ -17,6 +28,9 @@
         * gdip.h - new region functions
 
 2004-04-19  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* graphics-path.c (GdipAddPathStringI): renamed GdipPathString ->
+	GdipAddPathString (the real name); still NotImplemented
 
 	* bitmap.c: Implemented new LockBits/UnlockBits that's consistent
 	with MS semantics, and that can do conversions.  (Also some random

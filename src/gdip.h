@@ -909,6 +909,8 @@ cairo_status_t gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s);
 
 void gdip_rect_expand_by (GpRectF *rect, GpPointF *point);
 
+cairo_surface_t *gdip_bitmap_ensure_surface (GpBitmap *bitmap);
+
 /* Stream handling bits */
 typedef int (*GetBytesDelegate) (unsigned char *, int, BOOL);
 typedef int (*SeekDelegate) (int, int);

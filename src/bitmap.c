@@ -33,6 +33,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+static GpStatus gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect);
+static GpStatus gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect);
+
 /* Pick an unlikely combination. This pixel color will be interpreted as 'transparent' 
    when mapping Wine pixels onto a cairo image. Need to do this crude hack since there
    is no bitmap alpha component in regular Win32 bitmaps */
@@ -271,26 +274,41 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 }
 
 GpStatus
-GdipCloneBitmapAreaI (int x, int y, int width, int height, int format, GpBitmap *original, GpBitmap **bitmap)
+GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
+					  GpBitmap *original, GpBitmap **bitmap)
 {
 	GpBitmap *result = 0;
-	int bmpSize = original->data.Height * original->data.Stride;
+	GdipBitmapData bd;
+	Rect sr = { x, y, width, height };
+	Rect dr = { 0, 0, width, height };
+	GpStatus st;
 
-	/*
-	 * FIXME: Convert format if needed and copy only specified rectangle
-	 */ 
+	g_return_val_if_fail (original != NULL, InvalidParameter);
+	g_return_val_if_fail (bitmap != NULL, InvalidParameter);
+
+	g_return_val_if_fail (x + width > original->data.Width, InvalidParameter);
+	g_return_val_if_fail (y + height > original->data.Height, InvalidParameter);
+
+	bd.Scan0 = NULL;
+	st = gdip_bitmap_clone_data_rect (&original->data, &sr,
+									  &bd, &dr);
+	if (st != Ok)
+		return st;
+
 	result = gdip_bitmap_new ();
 	result->cairo_format = original->cairo_format;
-	result->data.Width = result->image.width = original->data.Width;
-	result->data.Height = result->image.height = original->data.Height;
-	result->data.Stride = original->data.Stride;
-	result->data.PixelFormat = result->image.pixFormat = original->data.PixelFormat;
-	result->data.Scan0 = GdipAlloc (bmpSize);
-	memmove (result->data.Scan0, original->data.Scan0, bmpSize);
-	result->data.Reserved |= GBD_OWN_SCAN0;
-	
+	result->data = bd;
+	result->image.pixFormat = format;	/* this is only used by image codecs */
 	*bitmap = result;
 	return Ok;
+}
+
+GpStatus
+GdipCloneBitmapArea (float x, float y, float w, float h, PixelFormat format,
+					 GpBitmap *original, GpBitmap **bitmap)
+{
+	return GdipCloneBitmapAreaI ((int) x, (int) y, (int) w, (int) h, format,
+								 original, bitmap);
 }
 
 static void
@@ -302,6 +320,42 @@ gdip_copy_strides (void *dst, int dstStride, void *src, int srcStride, int realB
 		dst += dstStride;
 		src += srcStride;
 	}
+}
+
+/*
+ * Copy srcRect region in srcData to destRect region in destData.  No conversion is done.  Assumes
+ * BitmapData is straight from a GpBitmap, i.e. its format is always PixelFormat32bppArgb.  src and
+ * dest rects must be the same width/height.
+ */
+
+static GpStatus
+gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect)
+{
+	g_return_val_if_fail (srcData != NULL, InvalidParameter);
+	g_return_val_if_fail (srcRect != NULL, InvalidParameter);
+	g_return_val_if_fail (destData != NULL, InvalidParameter);
+	g_return_val_if_fail (destRect != NULL, InvalidParameter);
+
+	g_return_val_if_fail (srcRect->Width != destRect->Width, InvalidParameter);
+	g_return_val_if_fail (srcRect->Height != destRect->Height, InvalidParameter);
+
+	g_return_val_if_fail (srcData->PixelFormat != Format32bppArgb, InvalidParameter);
+
+	if (destData->Scan0 == NULL) {
+		destData->Stride = destRect->Width * 4;
+		destData->Scan0 = GdipAlloc (destData->Stride * destRect->Height);
+		destData->Width = destRect->Width;
+		destData->Height = destRect->Height;
+		destData->PixelFormat = srcData->PixelFormat;
+		destData->Reserved = GBD_OWN_SCAN0;
+	}
+
+	gdip_copy_strides (destData->Scan0, destData->Stride,
+					   srcData->Scan0 + (srcData->Stride * srcRect->Y) + (4 * srcRect->X), srcData->Stride,
+					   srcRect->Width * 4,
+					   srcRect->Height);
+
+	return Ok;
 }
 
 /*
@@ -321,9 +375,9 @@ gdip_copy_strides (void *dst, int dstStride, void *src, int srcStride, int realB
  */
 
 static int
-gdip_is_pixel_format_conversion_valid (PixelFormat src, PixelFormat dst)
+gdip_is_pixel_format_conversion_valid (PixelFormat src, PixelFormat dest)
 {
-	if (src == dst)
+	if (src == dest)
 		return 1;
 
 	/* non-GDI supported formats can't be converted */
@@ -339,7 +393,7 @@ gdip_is_pixel_format_conversion_valid (PixelFormat src, PixelFormat dst)
 		 * ones we really can do for now
 		 */
 		/* We can't handle converting to/from the 565/555/1555 ones */
-		if ((src & 0xff00) == 16 || (dst & 0xff00) == 16)
+		if ((src & 0xff00) == 16 || (dest & 0xff00) == 16)
 			return 0;
 		return 1;
 	}
@@ -352,11 +406,11 @@ gdip_is_pixel_format_conversion_valid (PixelFormat src, PixelFormat dst)
  * srcRect - rectangle of input data to place in destData
  * destData - where to place output; only the PixelFormat field is needed,
  *            which specifies the output type.
- * dstRect - destination rectangle in output.
+ * destRect - destination rectangle in output.
  */
 
 static GpStatus
-ChangeRectPixelFormat (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect)
+gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect)
 {
 	gpointer outBuffer = NULL;
 	gint outStride = 0;
@@ -552,9 +606,9 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 		GdipBitmapData convert;
 		convert.PixelFormat = format;
 		convert.Scan0 = NULL;
-		Rect dstRect = {0, 0, srcRect->Width, srcRect->Height};
+		Rect destRect = {0, 0, srcRect->Width, srcRect->Height};
 
-		if (ChangeRectPixelFormat (&(bitmap->data), srcRect, &convert, &dstRect) != Ok) {
+		if (gdip_bitmap_change_rect_pixel_format (&(bitmap->data), srcRect, &convert, &destRect) != Ok) {
 			/* Unlock before return */
 			bitmap->data.Reserved &= ~GBD_LOCKED;
 			return InvalidParameter;
@@ -588,9 +642,9 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, GdipBitmapData *bitmap_data)
 		bitmap_data->Reserved & GBD_OWN_SCAN0)
 	{
 		Rect r = {0, 0, bitmap_data->Width, bitmap_data->Height};
-		if (ChangeRectPixelFormat (bitmap_data, &r, &(bitmap->data), &(bitmap->lockRect))) {
+		if (gdip_bitmap_change_rect_pixel_format (bitmap_data, &r, &(bitmap->data), &(bitmap->lockRect))) {
 			/* uhh */
-			g_warning ("ChangeRectPixelFormat failed in UnlockBits!");
+			g_warning ("gdip_bitmap_change_rect_pixel_format failed in UnlockBits!");
 		}
 	}
 
@@ -672,4 +726,37 @@ GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 	return Ok;
 }
 
+GpStatus
+GdipBitmapSetResolution (GpBitmap *bitmap, float xdpi, float ydpi)
+{
+	g_return_val_if_fail (bitmap != NULL, InvalidParameter);
 
+	bitmap->image.horizontalResolution = xdpi;
+	bitmap->image.verticalResolution = ydpi;
+
+	bitmap->image.imageFlags |= ImageFlagsHasRealDPI;
+
+	return Ok;
+}
+
+cairo_surface_t *
+gdip_bitmap_ensure_surface (GpBitmap *bitmap)
+{
+	if (bitmap->image.surface == NULL &&
+		bitmap->data.Scan0 != NULL)
+	{
+		if (bitmap->data.PixelFormat == Format32bppArgb) {
+			bitmap->cairo_format = CAIRO_FORMAT_ARGB32;
+			bitmap->image.surface = cairo_surface_create_for_image
+				(bitmap->data.Scan0,
+				 CAIRO_FORMAT_ARGB32,
+				 bitmap->data.Width,
+				 bitmap->data.Height,
+				 bitmap->data.Stride);
+		} else {
+			g_warning ("gdip_bitmap_ensure_surface: Unable to create a surface for raw bitmap data of format 0x%08x", bitmap->data.PixelFormat);
+		}
+	}
+
+	return bitmap->image.surface;
+}

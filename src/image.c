@@ -149,14 +149,13 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
 GpStatus
 GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float width, float height)
 {
-    g_return_val_if_fail (image->surface != NULL, InvalidParameter);
+    g_return_val_if_fail (graphics != NULL, InvalidParameter);
+    g_return_val_if_fail (image != NULL, InvalidParameter);
+    g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
 
-    if (!graphics || !image)
-        return InvalidParameter;
+    /* Create a surface for this bitmap if one doesn't exist */
+    gdip_bitmap_ensure_surface ((GpBitmap*) image);
 
-    if (image->type != imageBitmap)
-        return InvalidParameter;
-    
     cairo_move_to (graphics->ct, x, y);
     gdip_cairo_set_surface_pattern (graphics->ct, image->surface);
     cairo_rectangle (graphics->ct, x, y, width, height);
