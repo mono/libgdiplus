@@ -193,7 +193,8 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	gdip_bitmap_ensure_surface ((GpBitmap*) image);
 	
 	gdip_cairo_set_surface_pattern (graphics->ct, image->surface);
-	cairo_rectangle (graphics->ct, x, y, width, height);
+	cairo_translate (graphics->ct, x, y);
+	cairo_rectangle (graphics->ct, 0, 0, width, height);
 	
 	if (width != image->width || height != image->height) {
 		cairo_scale (graphics->ct,
