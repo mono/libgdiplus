@@ -41,7 +41,6 @@
 /* Thankfully, libtiff sucks far less than libjpeg */
 #include <tiffio.h>
 
-
 /* Codecinfo related data*/
 static ImageCodecInfo tiff_codec;
 static const WCHAR tiff_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'T', 'I', 'F', 'F',
@@ -49,7 +48,6 @@ static const WCHAR tiff_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' '
 static const WCHAR tiff_extension[] = {'*', '.', 'T', 'I', 'F',';', '*', '.', 'T', 'I', 'F','F', 0}; /* *.TIF;*.TIFF */
 static const WCHAR tiff_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 't', 'i', 'f', 'f', 0}; /* image/gif */
 static const WCHAR tiff_format[] = {'T', 'I', 'F', 'F', 0}; /* TIFF */
-
 
 ImageCodecInfo *
 gdip_getcodecinfo_tiff ()
@@ -70,7 +68,6 @@ gdip_getcodecinfo_tiff ()
 	
 	return &tiff_codec;
 }
-
 
 GpStatus 
 gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
@@ -186,8 +183,9 @@ error:
 	return InvalidParameter;
 }
 
+/*TODO Handle TIFF Encoder Parameters*/
 GpStatus 
-gdip_save_tiff_image_to_file (FILE *fp, GpImage *image)
+gdip_save_tiff_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params)
 {	
 	TIFF* tiff;
 	GpBitmap *bitmap = (GpBitmap *) image;	
@@ -226,7 +224,23 @@ gdip_save_tiff_image_to_file (FILE *fp, GpImage *image)
 		_TIFFfree (buf);
 
 	return Ok;
-	
+}
+
+GpStatus
+gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
+                                           SeekDelegate seekFunc,
+                                           GpImage **image)
+{
+	*image = NULL;
+	return NotImplemented;
+}
+
+GpStatus
+gdip_save_tiff_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
+                                         GpImage *image,
+                                         GDIPCONST EncoderParameters *params)
+{
+    return NotImplemented;
 }
 
 #else
@@ -246,10 +260,27 @@ gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
 	return NotImplemented;
 }
 
+GpStatus
+gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
+                                           SeekDelegate seekFunc,
+                                           GpImage **image)
+{
+	*image = NULL;
+	return NotImplemented;
+}
+
 GpStatus 
-gdip_save_tiff_image_to_file (FILE *fp, GpImage *image)
+gdip_save_tiff_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params)
 {
 	return NotImplemented;
+}
+
+GpStatus
+gdip_save_tiff_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
+                                         GpImage *image,
+                                         GDIPCONST EncoderParameters *params)
+{
+    return NotImplemented;
 }
 
 #endif

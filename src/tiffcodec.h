@@ -16,8 +16,19 @@
 GpStatus 
 gdip_load_tiff_image_from_file (FILE *fp, GpImage **image);
 
+GpStatus
+gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
+                                           SeekDelegate seekFunc,
+                                           GpImage **image);
+
 GpStatus 
-gdip_save_tiff_image_to_file (FILE *fp, GpImage *image);
+gdip_save_tiff_image_to_file (FILE *fp, GpImage *image,
+			      GDIPCONST EncoderParameters *params);
+
+GpStatus
+gdip_save_tiff_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
+                                         GpImage *image,
+                                         GDIPCONST EncoderParameters *params);
 
 ImageCodecInfo *
 gdip_getcodecinfo_tiff ();

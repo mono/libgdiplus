@@ -80,7 +80,6 @@ gdip_getcodecinfo_gif ()
 	return &gif_codec;
 }
 
-
 /* Read callback function for the gif libbrary*/
 static int 
 gdip_gif_inputfunc (GifFileType *gif, GifByteType *data, int len) 
@@ -91,7 +90,6 @@ gdip_gif_inputfunc (GifFileType *gif, GifByteType *data, int len)
 	read = gcd->getBytesFunc (data, len, 0);
 	return read;
 }
-
 
 GpStatus 
 gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
@@ -111,7 +109,6 @@ gdip_load_gif_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 	
 	return gdip_load_gif_image (&gif_data, image, FALSE);	
 }
-
 
 GpStatus 
 gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
@@ -298,7 +295,6 @@ gdip_save_gif_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
 	return gdip_save_gif_image ( (void *)putBytesFunc, image, FALSE);
 }
 
-
 GpStatus 
 gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 {
@@ -372,7 +368,6 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 	return (error == FALSE) ? Ok : GenericError;
 }
 
-
 #else
 
 /* No libgif */
@@ -409,6 +404,7 @@ gdip_load_gif_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
                                            SeekDelegate seekFunc,
                                            GpImage **image)
 {
+	*image = NULL;
 	return NotImplemented;
 }
 

@@ -1,3 +1,13 @@
+2004-06-10  Sanjay Gupta <gsanjay@novell.com>
+
+	* gifcodec.c: Minor error handling.
+	* tiffcodec.c, tiffcodec.h: Added function stubs for loading 
+	and saving images from/to streams. Also modified API to include 
+ 	encoder parameter.
+	* image.c: Minor indentation fixes, fixed incorrect image format
+	assignment in loading images from stream, error handling and 
+	including call to load/save tiff images from stream.
+	
 2004-06-10 Jordi Mas <jordi@ximian.com>
 
 	* gifcodec.c: fixes the stubs signatures when libgif is not installed
