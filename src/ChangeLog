@@ -1,3 +1,9 @@
+2004-02-22  Ravindra <rkumar@novell.com>
+	* texturebrush.c: First implementation. Needs some fixing.
+	* texturebrush.h: Defines texture struct, wrapmode enum and
+	also declaration for texture functions.
+	* Makefile.am: Added texturebruch.[ch] to sources.
+
 2004-02-21  Sanjay Gupta <gsanjay@novell.com>
 	* gdip.h: Added typedef for UINT
 	* Image.h: Added function stubs for image functions
