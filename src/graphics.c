@@ -1753,13 +1753,12 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	/*
 	   Get font size information; how expensive is the cairo stuff here? 
 	*/
-	cairo_save (graphics->ct);
-	cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);
-	cairo_font_current_transform(font->cairofnt, &SavedMatrix);
+	cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);	// Set our font; this will also be used for later drawing
+	cairo_font_current_transform(font->cairofnt, &SavedMatrix);	// Save the matrix
 	cairo_scale_font (graphics->ct, font->sizeInPixels);
-	cairo_current_font_extents (graphics->ct, &FontExtent);
-	cairo_font_set_transform(font->cairofnt, &SavedMatrix);
-	cairo_restore (graphics->ct);
+	cairo_current_font_extents (graphics->ct, &FontExtent);		// Get the size we're looking for
+	cairo_font_set_transform(font->cairofnt, &SavedMatrix);		// Restore the matrix
+
 	if ((LineHeight=FontExtent.ascent)<1) {
 		LineHeight=1;
 	}
@@ -2234,23 +2233,24 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			/* us uncomment following clipping calls. So, probably we can */
 			/* uncomment these when we depend on new version of cairo */
 
-			/* cairo_init_clip (graphics->ct); */
-			cairo_rectangle (graphics->ct, rc->X, rc->Y, rc->Width, rc->Height);
-			/* cairo_clip (graphics->ct); */
-			cairo_new_path (graphics->ct);
+			//cairo_init_clip (graphics->ct);
+			//cairo_rectangle (graphics->ct, rc->X, rc->Y, rc->Width, rc->Height);
+			//cairo_clip (graphics->ct);
+			//cairo_new_path (graphics->ct);
 		}
 
 		/* Setup cairo */
 		/* Save the font matrix */
-		cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);
-		cairo_font_current_transform(font->cairofnt, &SavedMatrix);
+		// Font already has been set at function entry
+		// cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);	// Set at function entry
+		// cairo_font_current_transform(font->cairofnt, &SavedMatrix);		// No need to save again, already saved at function entry
+		cairo_scale_font (graphics->ct, font->sizeInPixels);
 
 		if (brush) {
 			gdip_brush_setup (graphics, (GpBrush *)brush);
 		} else {
 			cairo_set_rgb_color (graphics->ct, 0., 0., 0.);
 		}
-		cairo_scale_font (graphics->ct, font->sizeInPixels);
 
 		for (i=0; i<StringLen; i++) {
 			if (StringDetails[i].Flags & STRING_DETAIL_LINESTART) {
@@ -2396,14 +2396,14 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			}
 		}
 
-		cairo_font_set_transform(font->cairofnt, &SavedMatrix);
+		cairo_font_set_transform(font->cairofnt, &SavedMatrix);		// Restore matrix to original values
 	}
 
 Done:
 	/* We need to remove the clip region */
 	/* Following line is commented to fix the DrawString bugs */
 	/* See the note at the beginning of if(draw) block. */
-	/* cairo_init_clip (graphics->ct); */
+	//cairo_init_clip (graphics->ct);
 
 	/* Cleanup */
 	free (CleanString);
