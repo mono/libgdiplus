@@ -10,8 +10,10 @@
 #include "gdip.h"
 #include "texturebrush.h"
 
-// we have a single copy of vtable for
-// all instances of texturebrush.
+/*
+ * we have a single copy of vtable for
+ * all instances of texturebrush.
+ */
 
 static BrushClass vtable = { BrushTypeTextureFill, 
 			     gdip_texture_setup, 
@@ -86,8 +88,10 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 {
         *texture = gdip_texture_new ();
         (*texture)->wrapMode = wrapMode;
-	// Followin API is yet to be implemented in cairo
-	//cairo_surface_clip_rectangle (image->surface, x, y, width, height);
+	/*
+	 * Followin API is yet to be implemented in cairo
+	 * cairo_surface_clip_rectangle (image->surface, x, y, width, height);
+	 */
 	cairo_surface_set_matrix (image->surface, cairo_matrix_create ());
         (*texture)->image = image;
 
@@ -202,7 +206,8 @@ GdipGetTextureImage (GpTexture *texture, GpImage **image)
 /*
  * MonoTODO: Implement these when ImageAttributes is implemented.
  *
-// Texture brush functions
+ * Texture brush functions
+ *
 GpStatus
 GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x, float y, float width, float height, GpTexture **texture)
 {
