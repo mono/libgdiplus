@@ -898,11 +898,11 @@ gdip_measure_string_widths (GDIPCONST GpFont *font,
     
 	for (; i < nglyphs-1; i++, ppos++){
 		*ppos = glyphs[i+1].x - glyphs[i].x;
-		*total_width= *ppos;
+		*total_width+= *ppos;
 	}
 
 	*ppos = DOUBLE_FROM_26_6 (ft->face->glyph->advance.x);
-	*total_width= *ppos;
+	*total_width+= *ppos;
 	return 1;
 }
 
@@ -933,18 +933,19 @@ GpStatus GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 	for (nGlyp = 1, w=0; nGlyp < nwidths+1; ppos++, nGlyp++) {
 		w += *ppos;
          
-		if (!(nGlyp+1 < nwidths+1) || (w + *(ppos+1)) >rc->Width) {
-			nLines++;
+		if ((nGlyp+1 < nwidths+1) || (w + *(ppos+1)) <rc->Width)
+                        continue;
+                        
+		nLines++;
 
-			if (w>nMax)
-				nMax = w;
+		if (w>nMax)
+			nMax = w;
 
-			if (y + font->sizeInPixels >= rc->Height) /* Cannot fit more text */
-				break;
+		if (y + font->sizeInPixels >= rc->Height) /* Cannot fit more text */
+			break;
                 
-			y += font->sizeInPixels;
-			w=0;
-		}
+		y += font->sizeInPixels;
+		w=0;		
 	}
 
 	free (pwidths);
@@ -955,7 +956,6 @@ GpStatus GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 		boundingBox->Y=rc->Y;
 		boundingBox->Width=nMax;
 		boundingBox->Height=y;
-		printf ("**boundingBox->x %f, y %f, width->%f, height->%f\n", boundingBox->X, boundingBox->Y, boundingBox->Width, boundingBox->Height);
 	}
 
 	if (linesFilled) *linesFilled = nLines;
@@ -991,8 +991,7 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
 					  (glong)len, NULL, NULL, NULL);
 
         printf ("DrawString: [%s], %x, %f\n", string, font, font->sizeInPixels);
-        printf ("RC->x %f, y %f, width->%f, height->%f\n", rc->X, rc->Y, rc->Width, rc->Height);
-
+        
         cairo_save (graphics->ct);
     
         if (brush)
@@ -1012,7 +1011,7 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
 		cairo_move_to (graphics->ct, rc->X, rc->Y+ font->sizeInPixels);
 		cairo_show_text (graphics->ct, string);
 		g_free (string);
-          
+
 		cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
 		cairo_restore (graphics->ct);
 		return gdip_get_status (cairo_status (graphics->ct));
@@ -1036,37 +1035,37 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
 		
 		w += *ppos;
 		
-		if (!(nGlyp+1 < nwidths+1) || (w + *(ppos+1)) >rc->Width){
-			switch (align){
-			case StringAlignmentNear: /* left */
-				pPoint->X = rc->X;
-				break;
-			case StringAlignmentCenter:
-				pPoint->X = rc->X + ( (rc->Width+rc->X-w)/2);
-				break;
-			case StringAlignmentFar: /* Right */
-				pPoint->X = rc->X;
-				pPoint->X += rc->Width - w;
-				break;
-			default:
-				break;
-			}
-			
-			nLines++;
-			
-			/* Cannot fit more text */
-			if (y - rc->Y + font->sizeInPixels >= rc->Height) 
-				break;
-			
-			pPoint++;                
-			y += font->sizeInPixels;
-			w = 0;
+		if ((nGlyp+1 < nwidths+1) && (w + *(ppos+1)) <rc->Width)
+                        continue;
+                        
+		switch (align){
+		case StringAlignmentNear: /* left */
+			pPoint->X = rc->X;
+			break;
+		case StringAlignmentCenter:
+			pPoint->X = rc->X + ( (rc->Width+rc->X-w)/2);
+			break;
+		case StringAlignmentFar: /* Right */
+			pPoint->X = rc->X;
+			pPoint->X += rc->Width - w;
+			break;
+		default:
+			break;
 		}
+			
+		nLines++;
+			
+		/* Cannot fit more text */
+		if (y - rc->Y + font->sizeInPixels >= rc->Height) 
+			break;
+			
+		pPoint++;                
+		y += font->sizeInPixels;
+		w = 0;
         }
 	
         float alignY = realY; /* Default, top */
-	
-        /* Determine vertical alignment */
+	/* Determine vertical alignment */
 
         switch (lineAlign){
         case StringAlignmentNear:
@@ -1099,7 +1098,7 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
 		char *spiece;
 		w += *ppos;
          
-		if ((nGlyp+1 < nwidths+1) || (w + *(ppos+1)) >rc->Width)
+		if ((nGlyp+1 < nwidths+1) && (w + *(ppos+1)) <rc->Width)
 			continue;
 
 		spiece = (char*)g_utf16_to_utf8 (pUnicode, (glong)nGlyp-nLast, NULL, NULL, NULL);

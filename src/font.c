@@ -252,7 +252,6 @@ GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], int 
 	memcpy (name, string, items_written * sizeof (WCHAR));
 	name [1+items_written*sizeof (WCHAR)]=0;
 
-	printf ("I believe there is a leak here on fc_str\n");
 	g_free (string);
 
 	return Ok;
