@@ -384,23 +384,28 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
     switch (format) {
         case BMP:
             status = gdip_load_bmp_image_from_file (fp, &result);
-	    result->format = BMP;
+	    if (result != NULL)
+		    result->format = BMP;
             break;
         case TIF:
             status = gdip_load_tiff_image_from_file (fp, &result);
-	    result->format = TIF;
+	    if (result != NULL)
+		    result->format = TIF;
             break;
         case GIF:
             status = gdip_load_gif_image_from_file (fp, &result);
-	    result->format = GIF;
+	    if (result != NULL)
+		    result->format = GIF;
             break;
         case PNG:
             status = gdip_load_png_image_from_file (fp, &result);
-	    result->format = PNG;
+	    if (result != NULL)
+		    result->format = PNG;
             break;
         case JPEG:
             status = gdip_load_jpeg_image_from_file (fp, &result);
-	    result->format = JPEG;
+	    if (result != NULL)
+		    result->format = JPEG;
             break;
         case EXIF:
         case WMF:
