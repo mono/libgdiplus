@@ -13,7 +13,8 @@ libgdiplus_la_SOURCES = 	\
 	image.c			\
 	matrix.c		\
 	pen.c			\
-	solidbrush.c
+	solidbrush.c \
+  font.c
 
 libgdiplus_la_LIBADD = $(GDIPLUS_LIBS)
 

@@ -30,10 +30,10 @@ gdip_brush_setup (GpGraphics *graphics, GpBrush *brush)
         GpBrushType type;
         GdipGetBrushType (brush, &type);
 
-        if (type == BrushTypeSolidColor) {
+        //if (type == BrushTypeSolidColor) {
                 GpSolidFill *solid = brush;
                 gdip_solidfill_setup (graphics, solid);
-        }
+        //}
 }
 
 GpBrush *

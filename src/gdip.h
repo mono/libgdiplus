@@ -27,9 +27,14 @@
  */
 #define PI 3.14159265358979323846
 #define DEGTORAD PI / 180.0
+#define LF_FACESIZE 32
+#define GDIPCONST const
+
 
 typedef unsigned char byte;
 typedef int bool;
+typedef unsigned short WCHAR; // 16-bits unicode
+
 
 /*
  * Enums
@@ -154,6 +159,17 @@ typedef enum {
     LineCapCustom = 0xff
 } GpLineCap;
 
+              
+typedef enum{
+    
+    FontStyleRegular    = 0,
+    FontStyleBold       = 1,
+    FontStyleItalic     = 2,
+    FontStyleBoldItalic = 3,
+    FontStyleUnderline  = 4,
+    FontStyleStrikeout  = 8
+}  GpFontStyle;
+
 typedef enum {
         PenAlignmentCenter = 0,
         PenAlignmentInset = 1
@@ -186,14 +202,14 @@ typedef enum {
  * Structures
  *
  */
-typedef struct {
+typedef struct {    // Keep in sync with BitmapData.cs
 	unsigned int Width;
 	unsigned int Height;
 	int          Stride;
 	int          PixelFormat;
-        bool         own_scan0;
-	void         *Scan0;
+	void         *Scan0;    
 	unsigned int Reserved;
+    bool         own_scan0;
 } GdipBitmapData, BitmapData;
 
 typedef struct {
@@ -276,6 +292,20 @@ typedef struct {
         PointF *Points;
         byte *Types;
 } GpPathData;
+
+typedef struct {
+        FcFontSet*  fontset;
+} GpFontCollection;
+
+typedef struct {
+      FcPattern*  pattern;
+} GpFontFamily;
+
+typedef struct {
+        cairo_font_t*       cairofnt;
+//        char                szFamily[256];
+        float               emSize;
+} GpFont;
 
 /*
  * Functions
@@ -404,7 +434,7 @@ GpStatus GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin);
 GpStatus GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin);
 
 /* Text */
-GpStatus GdipDrawString (GpGraphics *graphics, const char *string, int len, void *font, RectF *rc, void *format, GpBrush *brush);
+GpStatus GdipDrawString (GpGraphics *graphics, const char *string, int len, GpFont *font, RectF *rc, void *format, GpBrush *brush);
 
 /* Matrix */
 GpStatus GdipCreateMatrix (GpMatrix **matrix);
@@ -429,6 +459,25 @@ GpStatus GdipIsMatrixInvertible (GpMatrix *matrix, int *result);
 GpStatus GdipIsMatrixIdentity (GpMatrix *matrix, int *result);
 GpStatus GdipIsMatrixEqual (GpMatrix *matrix, GpMatrix *matrix2, int *result);
 
+
+/* Font Family*/         
+GpStatus GdipNewInstalledFontCollection(GpFontCollection** fontCollection);
+GpStatus GdipDeleteFontFamily(GpFontCollection* fontCollection);
+GpStatus GdipGetFontCollectionFamilyCount(GpFontCollection* fontCollection, int* numFound);
+GpStatus GdipGetFontCollectionFamilyList(GpFontCollection* fontCollection, int numSought, GpFontFamily** gpfamilies, int* numFound);
+GpStatus GdipGetFamilyName(GDIPCONST GpFontFamily* family, WCHAR  name[LF_FACESIZE], int language);
+GpStatus GdipGetGenericFontFamilySansSerif(GpFontFamily **nativeFamily);
+GpStatus GdipGetGenericFontFamilySerif(GpFontFamily **nativeFamily);
+GpStatus GdipGetGenericFontFamilyMonospace(GpFontFamily **nativeFamily);
+
+/* Font */
+GpStatus GdipCreateFont(GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, Unit unit,  GpFont **font);
+GpStatus GdipCreateFontFamilyFromName(GDIPCONST WCHAR *name, GpFontCollection *fontCollection, GpFontFamily **FontFamily);
+GpStatus GdipDeleteFont(GpFont* font);
+
+
+
+      
 /* Path*/
 #include "graphics-path.h"
 
