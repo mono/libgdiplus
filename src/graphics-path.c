@@ -308,7 +308,7 @@ GdipAddPathLine2 (GpPath *path, const GpPointF *points, int count)
 }
 
 static void
-append_arc (GpPath *path, float x, float y, float width, float height, float startAngle, float endAngle)
+append_arc (GpPath *path, bool start, float x, float y, float width, float height, float startAngle, float endAngle)
 {
         float rx = width / 2;
         float ry = height / 2;
@@ -322,7 +322,7 @@ append_arc (GpPath *path, float x, float y, float width, float height, float sta
         float beta = endAngle * PI / 180;
 
         float delta = beta - alpha;
-        float bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta /2);
+        float bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta / 2);
 
         double sin_alpha = sin (alpha);
         double sin_beta = sin (beta);
@@ -333,12 +333,8 @@ append_arc (GpPath *path, float x, float y, float width, float height, float sta
         double sx = cx + rx * cos_alpha;
         double sy = cy + ry * sin_alpha;
 
-        /* current point */
-        GpPointF current;
-        GdipGetPathLastPoint (path, &current);
-
-        /* move to the starting pt if we're not already there */
-        if ((current.X != (float) sx) && (current.Y != (float) sy))
+        /* move to the starting point if we're not continuing a curve */
+        if (start)
                 append (path, sx, sy, PathPointTypeStart);
 
         append_bezier (path, 
@@ -357,12 +353,12 @@ GdipAddPathArc (GpPath *path, float x, float y,
         float endAngle = startAngle + sweepAngle;
         
         if (sweepAngle < 180)
-                append_arc (path, x, y, width, height, startAngle, endAngle);
+                append_arc (path, TRUE, x, y, width, height, startAngle, endAngle);
         else {
                 float midAngle = startAngle + (sweepAngle / 2.0);
 
-                append_arc (path, x, y, width, height, startAngle, midAngle);
-                append_arc (path, x, y, width, height, midAngle, endAngle);
+                append_arc (path, TRUE, x, y, width, height, startAngle, midAngle);
+                append_arc (path, FALSE, x, y, width, height, midAngle, endAngle);
         }
 
         return Ok;
@@ -552,13 +548,13 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
 
         /* draw arc */
         if (sweepAngle < 180)
-                append_arc (path, x, y, width, height, startAngle, endAngle);
+                append_arc (path, TRUE, x, y, width, height, startAngle, endAngle);
 
         else {
                 float midAngle = startAngle + (sweepAngle / 2.0);
 
-                append_arc (path, x, y, width, height, startAngle, midAngle);
-                append_arc (path, x, y, width, height, midAngle, endAngle);
+                append_arc (path, TRUE, x, y, width, height, startAngle, midAngle);
+                append_arc (path, FALSE, x, y, width, height, midAngle, endAngle);
         }
         
         /* draw pie edge */

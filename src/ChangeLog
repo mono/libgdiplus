@@ -1,11 +1,15 @@
 2004-04-04  Duncan Mak  <duncan@ximian.com>
 
-	* graphics-path.c (append_arc): Port the change to make_arc here.
+	* graphics-path.c (append_arc): Added a new boolean argument. to
+	determine if we're continuing an existing curve.
+
+2004-04-04  Duncan Mak  <duncan@ximian.com>	
 
 	* graphics.c (make_arc): Only call move_to when we're not already at
 	that point. This fixes FillPie, as cairo_fill implicitly closes
 	all subpaths before filling. The extraneous move_to call earlier
 	was causing Cairo to close early.
+	(make_pie): Removed the debug messages.	
 
 2004-04-02  Duncan Mak  <duncan@ximian.com>
 

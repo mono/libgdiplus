@@ -207,9 +207,6 @@ make_pie (GpGraphics *graphics, float x, float y,
 
         double sin_alpha = sin (alpha);
         double cos_alpha = cos (alpha);
-        double current_x, current_y;
-
-        printf ("Center: (%f, %f)\n", cx, cy);
 
         /* just make an ellipse if we're going a full 2 PI (360 degrees) */
         if (sweepAngle >= 360)
@@ -222,11 +219,6 @@ make_pie (GpGraphics *graphics, float x, float y,
         cairo_line_to (graphics->ct,
                        cx + rx * cos_alpha, 
                        cy + ry * sin_alpha);
-
-        printf ("Drawing line from (%f, %f) to (%f, %f)\n", 
-                        cx, cy,
-                        cx + rx * cos_alpha, 
-                        cy + ry * sin_alpha);
 
         /*
          * draw the arc, if the sweep is bigger than 180, draw it
@@ -241,14 +233,8 @@ make_pie (GpGraphics *graphics, float x, float y,
                 make_arc (graphics, x, y, width, height, midAngle, endAngle);
         }
 
-        cairo_current_point (graphics->ct, &current_x, &current_y);
-        
         /* draws line back to center */
         cairo_line_to (graphics->ct, cx, cy);
-
-        printf ("Drawing line from (%f, %f) to (%f, %f)\n",
-                        current_x, current_y,
-                        cx, cy);
 }
 
 static GpPointF *
