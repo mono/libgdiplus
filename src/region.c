@@ -63,6 +63,32 @@ gdip_is_Point_in_RectF (float x, float y, GpRectF* rect)
 }
 
 BOOL
+gdip_is_Point_in_RectF_Visible (float x, float y, GpRectF* rect)
+{
+        if ((x >= rect->X && x < (rect->X + rect->Width))
+                && (y >= rect->Y && y < (rect->Y + rect->Height)))
+                return TRUE;
+        else
+                return FALSE;
+}
+
+BOOL
+gdip_is_Point_in_RectFs_Visible (float x, float y, GpRectF* r, int cnt)
+{
+        GpRectF* rect = r;
+        int i;
+
+        for (i = 0; i < cnt; i++, rect++) {
+                if (gdip_is_Point_in_RectF_Visible (x, y, rect)) {
+                        return TRUE;
+                }
+        }
+
+        return FALSE;
+}
+
+
+BOOL
 gdip_is_Point_in_RectFs (float x, float y, GpRectF* r, int cnt)
 {
         GpRectF* rect = r;
@@ -975,7 +1001,7 @@ GdipIsVisibleRegionPoint (GpRegion *region, float x, float y, GpGraphics *graphi
         if (!region || !result)
                 return InvalidParameter;
 
-        *result = gdip_is_Point_in_RectFs_inclusive (x, y, region->rects, region->cnt);
+        *result = gdip_is_Point_in_RectFs_Visible (x, y, region->rects, region->cnt);
 
         return Ok;
 }
@@ -1015,14 +1041,14 @@ GdipIsVisibleRegionRect (GpRegion *region, float x, float y, float width, float 
         recthit.Width = width; recthit.Height = height;
 
         /* Any point of intersection ?*/
-        for (posy = 0; posy < recthit.Height+1; posy++) {
+        for (posy = 0; posy < recthit.Height && found == FALSE; posy++) {
 
-                for (posx = 0; posx < recthit.Width +1; posx++) {
-                        if (gdip_is_Point_in_RectFs_inclusive (recthit.X + posx , recthit.Y + posy, region->rects, region->cnt) == TRUE) {
+                for (posx = 0; posx < recthit.Width ; posx++) {
+                        if (gdip_is_Point_in_RectFs_Visible (recthit.X + posx , recthit.Y + posy, region->rects, region->cnt) == TRUE) {
                                 found = TRUE;
                                 break;
                         }
-                }
+		}                
         }
         
         *result = found;

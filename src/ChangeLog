@@ -1,3 +1,7 @@
+2005-02-24  Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* region.c: Fixes IsVisible methods
+
 2005-02-22  AJ Frantz  <eckzow@gmail.com>
 
 	* bitmap.c: 64bit stride fixes.
