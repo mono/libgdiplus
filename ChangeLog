@@ -1,9 +1,3 @@
-2004-12-07  Geoff Norton  <gnorton@customerdna.com>
-
-	* src/graphics.c
-	  src/gdip_win32.h
-	  src/gdip.h: Initial support for the Quartz backend to cairo. 
-
 2004-07-04  Peter Bartok <pbartok@novell.com>
 	* configure.in: Added fix for bug #60787, added dependency definitons 
 	for pthreads (Mark Recht [recht at netbsd.org] verified the fix)

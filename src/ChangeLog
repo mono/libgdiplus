@@ -1,3 +1,7 @@
+2004-12-07  Geoff Norton  <gnorton@customerdna.com>
+
+        * graphics.c, gdip_win32.h, gdip.h: Initial support for the Quartz backend to cairo.
+
 2004-11-29  Jordi Mas  <jordi@ximian.com>
 
 	* image.c: fixes bug #69089
