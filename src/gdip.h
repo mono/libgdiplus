@@ -43,22 +43,6 @@
 #define	gdip_cairo_ft_font_lock_face(font)	cairo_ft_font_face(font)
 #define gdip_cairo_ft_font_unlock_face(font)
 
-#ifdef WORDS_BIGENDIAN
-#define set_pixel_bgra(pixel,index,b,g,r,a) do {\
-                pixel[index+0] = a; \
-                pixel[index+1] = r; \
-                pixel[index+2] = g; \
-                pixel[index+3] = b; \
-        } while (0);
-#else
-#define set_pixel_bgra(pixel,index,b,g,r,a) do {\
-                pixel[index+0] = b; \
-                pixel[index+1] = g; \
-                pixel[index+2] = r; \
-                pixel[index+3] = a; \
-        } while (0);
-#endif
-
 #ifdef CAIRO_HAS_XLIB_SURFACE
 #ifdef USE_INCLUDED_CAIRO
 #include <cairo-xlib.h>
@@ -856,6 +840,8 @@ typedef struct {
 	ARGB key_colorhigh;
 	BOOL key_enabled;
 	BOOL no_op;
+	GpColorMatrix *colormatrix;
+	BOOL colormatrix_enabled;
 } GpImageAttribute;
 
 typedef struct {
@@ -1250,6 +1236,8 @@ void gdip_rect_expand_by (GpRectF *rect, GpPointF *point);
 cairo_surface_t * gdip_bitmap_ensure_surface (GpBitmap *bitmap);
 
 const EncoderParameter *gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid);
+void set_pixel_bgra (byte* pixel, int index, byte b, byte g, byte r, byte a);
+void get_pixel_bgra (int pixel, byte* b, byte* g, byte* r, byte* a); 
 
 /* Stream handling bits */
 typedef int (*GetHeaderDelegate) (unsigned char *, int);

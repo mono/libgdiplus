@@ -179,38 +179,49 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	data_read = (byte*) GdipAlloc(size);
 	memset (data_read, 0, size);
 	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size)
+	if (size_read < size) {
+		GdipFree(data_read);
 		return InvalidParameter;
+	}
 	
 	bmfh.bfType = ((data_read[1]<<8)|data_read[0]);
-	if (bmfh.bfType != BFT_BITMAP )
+	if (bmfh.bfType != BFT_BITMAP) {
+		GdipFree(data_read);
 		return UnknownImageFormat;
+	}
 
 	bmfh.bfSize = (data_read[5]<<24 | data_read[4]<<16 | data_read[3]<<8 | data_read[2]);
 	bmfh.bfReserved1 = ((data_read[7]<<8)|data_read[6]);
 	bmfh.bfReserved1 = ((data_read[9]<<8)|data_read[8]);
 	bmfh.bfOffBits = (data_read[13]<<24 | data_read[12]<<16 | data_read[11]<<8 | data_read[10]);
-
 	GdipFree(data_read);
 
 	size = sizeof(DWORD);
 	data_read = (byte*)GdipAlloc(size);
 	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size)
+
+	if (size_read < size) {
+		GdipFree(data_read);
 		return InvalidParameter;
+	}
+
 	bmi.biSize = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	if (bmi.biSize > BITMAPCOREHEADER_SIZE){   /* New Windows headers can be bigger */ 
 		memset (data_read, 0, size);
 		size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-		if (size_read < size)
+		if (size_read < size) {
+			GdipFree(data_read);
 			return InvalidParameter;
+		}
 		bmi.biWidth = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 		memset (data_read, 0, size);
 		size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-		if (size_read < size)
+		if (size_read < size) {
+			GdipFree(data_read);
 			return InvalidParameter;
+		}
 		bmi.biHeight = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
  	}
         else  {
@@ -218,31 +229,41 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 			/* Old OS/2 format. Width and Height fields are WORDs instead of DWORDS */
                         memset (data_read, 0, size);
 			size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-			if (size_read < size)
+			if (size_read < size) {
+				GdipFree(data_read);
 				return InvalidParameter;
+			}
 			bmi.biWidth = (data_read[1]<<8 | data_read[0]);
 			bmi.biHeight = (data_read[3]<<8 | data_read[2]);
                         os2format = TRUE;
                 }
-                else
+                else {
+			GdipFree(data_read);
                         return UnknownImageFormat;
+		}
         }
 
 	memset (data_read, 0, size);
 	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size)
+	if (size_read < size) {
+		GdipFree(data_read);
 		return InvalidParameter;
+	}
 	bmi.biPlanes = (data_read[1]<<8 | data_read[0]); 
 	bmi.biBitCount = (data_read[3]<<8 | data_read[2]); 
 
 	memset (data_read, 0, size);
 	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size)
+	if (size_read < size) {
+		GdipFree(data_read);
 		return InvalidParameter;
+	}
 	bmi.biCompression = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 		
-        if (bmi.biCompression == BI_RLE4 || bmi.biCompression == BI_RLE8)
+        if (bmi.biCompression == BI_RLE4 || bmi.biCompression == BI_RLE8) {
+		GdipFree(data_read);
                 return NotImplemented; /* We do not support RLE for now*/
+	}
 
         if (bmi.biHeight < 0) { /* Negative height indicates that the bitmap is sideup*/
                 upsidedown = FALSE;
@@ -251,32 +272,43 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 	memset (data_read, 0, size);
 	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size)
+	if (size_read < size) {
+		GdipFree(data_read);
 		return InvalidParameter;
+	}
 	bmi.biSizeImage = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 		
 	memset (data_read, 0, size);
 	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size)
+	if (size_read < size) {
+		GdipFree(data_read);
 		return InvalidParameter;
+	}
 	bmi.biXPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 	
 	memset (data_read, 0, size);
 	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size)
+	if (size_read < size) {
+		GdipFree(data_read);
 		return InvalidParameter;
+	}
 	bmi.biYPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 		
 	memset (data_read, 0, size);
 	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size)
+	if (size_read < size) {
+		GdipFree(data_read);
 		return InvalidParameter;
+	}
 	bmi.biClrUsed = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 		
 	memset (data_read, 0, size);
 	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size)
+	if (size_read < size) {
+		GdipFree(data_read);
 		return InvalidParameter;
+	}
+
 	bmi.biClrImportant = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 		
 	colours =  (bmi.biClrUsed == 0 && bmi.biBitCount <= 8) ? (1 << bmi.biBitCount) : bmi.biClrUsed;
@@ -284,22 +316,22 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
         format = gdip_get_pixelformat (bmi.biBitCount);
                                                
         img = gdip_bitmap_new ();
-        img->image.pixFormat = format;
         img->image.type = imageBitmap;
         img->image.width = bmi.biWidth;
         img->image.height = bmi.biHeight;
 
-        //img->data.PixelFormat = img->image.pixFormat;
-        img->data.PixelFormat = Format32bppArgb;
+        img->image.pixFormat = img->data.PixelFormat = Format32bppArgb;
         img->data.Width = img->image.width;
         img->data.Height = img->image.height;
 
 	// We always assume 32 bit and translate into 32 bit from source format
         img->data.Stride = (32 * img->image.width) / 8;
         img->data.Stride = (img->data.Stride + 3) & ~3;
+
+	GdipFree(data_read);
      
         if (colours) {
-                img->image.palette = g_malloc (sizeof(ColorPalette) + sizeof(ARGB) * colours);
+                img->image.palette = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * colours);
                 img->image.palette->Flags = 0;
                 img->image.palette->Count = colours;
                        
@@ -311,6 +343,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 				memset(data_read, 0, size);
 				size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
 				if (size_read < size) {
+					GdipFree(data_read);
 					return InvalidParameter;
 				}
 				img->image.palette->Entries[i] = 
@@ -365,6 +398,12 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 			break;
 		}
 
+		case 24: {
+			size = (((bmi.biBitCount * img->image.width) + 31) & ~31) / 8;
+			loop = img->image.width * 3;
+			break;
+		}
+
 		default: {
 			size = (((bmi.biBitCount * img->image.width) + 31) & ~31) / 8;
 			loop = size; 
@@ -374,7 +413,6 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 	data_read = (byte*) GdipAlloc(size);
 
-	//printf("Reading image data, upsidedown:%d, size: %d, stride:%d, loop:%d\n", upsidedown, size, img->data.Stride, loop);
 	for (i = 0; i < img->data.Height; i++){ 
 		if (upsidedown) {
 			line = img->data.Height - i - 1;
@@ -385,6 +423,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 		size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
 
 		if (size_read < size) {
+			GdipFree(data_read);
 			return InvalidParameter;
 		}
 
@@ -458,7 +497,6 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 					index = (line * img->data.Stride);
 					set_pixel_bgra(pixels, index+dest, data_read[src+0], data_read[src+1], data_read[src+2], 0xff);
 					dest += 4;
-
 					src += 3;
 				}
 				continue;
@@ -483,8 +521,11 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	}
 
 	GdipFree(data_read);
-	g_free(img->image.palette);
-	img->image.palette = NULL;
+
+	if (img->image.palette) {
+		GdipFree(img->image.palette);
+		img->image.palette = NULL;
+	}
 
 	img->data.Scan0 = pixels;
         img->data.Reserved = GBD_OWN_SCAN0;
@@ -502,7 +543,6 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
         img->image.propItems = NULL;
 
         *image = (GpImage *) img;
-
         return Ok;
 }
 
@@ -548,13 +588,14 @@ gdip_save_bmp_image_to_file_stream (void *pointer,
 #ifdef WORDS_BIGENDIAN
 	bmfh.bfReserved1 = bmfh.bfReserved2 = GUINT16_FROM_LE (0);
 	bmfh.bfType = GUINT16_FROM_LE (BFT_BITMAP);
-	bmfh.bfSize = GUINT32_FROM_LE (bmfh.bfOffBits + bitmapLen);
-        bmfh.bfOffBits = GUINT32_FROM_LE (14 + 40 + colours * 4);
+	bmfh.bfOffBits = GUINT32_FROM_LE (14 + 40 + colours * 4);
+	bmfh.bfSize = GUINT32_FROM_LE (bmfh.bfOffBits + bitmapLen);        
 #else
         bmfh.bfReserved1 = bmfh.bfReserved2 = 0;
         bmfh.bfType = BFT_BITMAP;
-        bmfh.bfSize = (bmfh.bfOffBits + bitmapLen);
         bmfh.bfOffBits = (14 + 40 + colours * 4);
+        bmfh.bfSize = (bmfh.bfOffBits + bitmapLen);
+
 #endif
         gdip_write_bmp_data (pointer, (byte *)&bmfh, sizeof (bmfh), useFile);
         
@@ -606,6 +647,7 @@ gdip_save_bmp_image_to_file_stream (void *pointer,
 		GdipFree (row_pointer);
 	}
 #else
+	
         for (i = bitmap->data.Height - 1; i >= 0; i--) {
 		gdip_write_bmp_data (pointer, bitmap->data.Scan0 + i *bitmap->data.Stride, bitmap->data.Stride, useFile);
 	}

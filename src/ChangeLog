@@ -1,3 +1,18 @@
+2005-03-17  Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* bmpcodec.c: 
+	  - Fixes 24 bits bitmap loading
+	  - Fixes leaks when exiting on error conditions
+	  - Sets the img->image.pixFormat propertly
+	  - Sets bmfh.bfOffBits when saving *before* start using it
+
+	* imageattributes.c
+	  - Implements colour matrix processing and GdipSetImageAttributesColorMatrix
+
+	* bitmap.c:
+	  - Fixes stride calculation (was causing many problems)
+	  - Moves set_pixel_bgra into bitmap.c and creates get_pixel_bgra
+
 2005-03-18  Peter Bartok  <pbartok@novell.com>
 
 	* graphics.c: Instead of throwing NotImpl exception, we display a 

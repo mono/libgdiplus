@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004 Ximian
+ * Copyright (c) 2004-2005 Ximian
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -17,7 +17,7 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  * Author:
- *          Jordi Mas i Hernandez <jordi@ximian.com>, 2004
+ *          Jordi Mas i Hernandez <jordi@ximian.com>, 2004-2005
  *
  */
 
@@ -33,13 +33,22 @@ gdip_init_image_attribute (GpImageAttribute* attr)
 	attr->key_colorlow = 0;
 	attr->key_colorhigh = 0;
 	attr->key_enabled = FALSE;	
+	attr->colormatrix = NULL;
+	attr->colormatrix_enabled = FALSE;
 }
 
 void
 gdip_dispose_image_attribute (GpImageAttribute* attr)
 {
-	if (attr->colormap)
+	if (attr->colormap) {
 		free (attr->colormap);
+		attr->colormap = NULL;
+	}
+
+	if (attr->colormatrix) {
+		free (attr->colormatrix);
+		attr->colormatrix = NULL;
+	}
 }
 
 
@@ -65,6 +74,7 @@ gdip_get_image_attribute (GpImageAttributes* attr, ColorAdjustType type)
 void
 gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, bool *allocated)
 { 
+
 	GpImageAttribute *imgattr;
 	void *scan0;
 	GpBitmap bmpdest;
@@ -85,7 +95,8 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	if (!imgattr->colormap_elem || !imgattr->gamma_correction || !imgattr->key_enabled) 
 		imgattr = gdip_get_image_attribute (attr, ColorAdjustTypeDefault);
 		
-	if (imgattr->colormap_elem || imgattr->gamma_correction || imgattr->key_enabled) {
+	if (imgattr->colormap_elem || imgattr->gamma_correction || imgattr->key_enabled
+		|| (imgattr->colormatrix_enabled && imgattr->colormatrix)) {
 		scan0 = malloc (bitmap->data.Stride * bitmap->data.Height);
 		memcpy (scan0, bitmap->data.Scan0, bitmap->data.Stride * bitmap->data.Height);
 		*dest = scan0;
@@ -167,6 +178,41 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		}
 	
 	}
+
+	/* Apply Color Matrix */
+	if (imgattr->colormatrix_enabled && imgattr->colormatrix) {		
+		for (y = 0; y <bitmap->data.Height; y++) {	
+			for (x = 0; x <bitmap->data.Width; x++) {
+
+				byte r,g,b,a;
+				int r_new,g_new,b_new,a_new;
+				
+				GdipBitmapGetPixel (&bmpdest, x, y, &color);
+				get_pixel_bgra (color, &b, &g, &r, &a);
+
+				r_new = (r * imgattr->colormatrix->m[0][0] + g * imgattr->colormatrix->m[1][0] + b * imgattr->colormatrix->m[2][0] +
+					a * imgattr->colormatrix->m[3][0] + (255 * imgattr->colormatrix->m[4][0]));
+
+				g_new = (r * imgattr->colormatrix->m[0][1] + g * imgattr->colormatrix->m[1][1] + b * imgattr->colormatrix->m[2][1] +
+					a * imgattr->colormatrix->m[3][1] + (255 * imgattr->colormatrix->m[4][1]));
+
+				b_new = (r * imgattr->colormatrix->m[0][2] + g * imgattr->colormatrix->m[1][2] + b * imgattr->colormatrix->m[2][2] +
+					a * imgattr->colormatrix->m[3][2] + (255 * imgattr->colormatrix->m[4][2]));
+
+				a_new = (r * imgattr->colormatrix->m[0][3] + g * imgattr->colormatrix->m[1][3] + b * imgattr->colormatrix->m[2][3] +
+					a * imgattr->colormatrix->m[3][3] + (255 * imgattr->colormatrix->m[4][3]));
+			
+				if (r_new > 0xff) r_new = 0xff;
+				if (g_new > 0xff) g_new = 0xff;
+				if (b_new > 0xff) b_new = 0xff;
+				if (a_new > 0xff) a_new = 0xff;
+
+				set_pixel_bgra ((byte *)&color, 0, (byte) b_new, (byte) g_new, (byte) r_new, (byte) a_new);
+				GdipBitmapSetPixel (&bmpdest, x, y, color);
+			}	
+		}
+	
+	}
 }
 
 
@@ -202,7 +248,7 @@ GdipCloneImageAttributes (GDIPCONST GpImageAttributes *imageattr, GpImageAttribu
 
 	result = (GpImageAttributes *) GdipAlloc (sizeof (GpImageAttributes));
 
-	memcpy (result, imageattr, sizeof (GpStringFormat));
+	memcpy (result, imageattr, sizeof (GpImageAttributes));
 
 	*cloneImageattr = result;
 	return Ok; 
@@ -359,12 +405,24 @@ GpStatus
 GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag,  GpColorMatrix* colorMatrix,
 	GpColorMatrix* grayMatrix, GpColorMatrixFlags flags)
 {
-	static int	called = 0;
+	GpImageAttribute *imgattr;
+	
+	if (!imageattr)
+		return InvalidParameter;
+		
+	imgattr = gdip_get_image_attribute (imageattr, type);
+	
+	if (!imgattr)
+		return InvalidParameter;
 
-	if (!called) {
-		printf("NOT IMPLEMENTED YET: GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag,  GpColorMatrix* colorMatrix, GpColorMatrix* grayMatrix, GpColorMatrixFlags flags)\n");
+	if (colorMatrix) {
+		if (imgattr->colormatrix == NULL)
+			imgattr->colormatrix =  malloc (sizeof (GpColorMatrix));
+
+		memcpy (imgattr->colormatrix, colorMatrix, sizeof (GpColorMatrix));
 	}
-	//return NotImplemented;
+
+	imgattr->colormatrix_enabled = enableFlag;	
 	return Ok;
 }
 	
