@@ -1,3 +1,9 @@
+2005-01-28  Peter Bartok  <pbartok@novell.com>
+
+	* gdip.h, graphics.c: Switched hDC type from int to void. That's what
+	  MS has for them, and also, it is required to compile on 64bit 
+	  platforms (fixes bug #71823)
+
 2005-01-28  Geoff Norton  <gnorton@customerdna.com>
 
 	* bmpcodec.c:  Make this endian aware for saving bitmaps.

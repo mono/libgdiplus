@@ -922,10 +922,10 @@ GpStatus GdipBitmapGetPixel ( GpBitmap *bmp, int x, int y, ARGB *color);
 
 
 /* Graphics */
-GpStatus GdipCreateFromHDC (int hDC, GpGraphics **graphics);
+GpStatus GdipCreateFromHDC (void *hDC, GpGraphics **graphics);
 GpStatus GdipDeleteGraphics (GpGraphics *graphics);
-GpStatus GdipGetDC (GpGraphics *graphics, int *hDC);
-GpStatus GdipReleaseDC (GpGraphics *graphics, int hDC);
+GpStatus GdipGetDC (GpGraphics *graphics, void **hDC);
+GpStatus GdipReleaseDC (GpGraphics *graphics, void *hDC);
 GpStatus GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState);
 GpStatus GdipSaveGraphics(GpGraphics *graphics, unsigned int * state);
 GpStatus GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order);

@@ -280,7 +280,7 @@ convert_fill_mode (GpFillMode fill_mode)
 #ifdef CAIRO_HAS_XLIB_SURFACE
 
 GpStatus 
-GdipCreateFromHDC (int hDC, GpGraphics **graphics)
+GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 {
 	GpGraphics *clone = (GpGraphics *) hDC;
 
@@ -367,19 +367,19 @@ GdipDeleteGraphics (GpGraphics *graphics)
 }
 
 GpStatus 
-GdipGetDC (GpGraphics *graphics, int *hDC)
+GdipGetDC (GpGraphics *graphics, void **hDC)
 {
 	/* For our gdi+ the hDC is equivalent to the graphics handle */
 	if (*hDC) {
-		*hDC = (int)graphics;
+		*hDC = (void *)graphics;
 	}
 	return Ok;
 }
 
 GpStatus 
-GdipReleaseDC (GpGraphics *graphics, int hDC)
+GdipReleaseDC (GpGraphics *graphics, void *hDC)
 {
-	if (hDC != (int)graphics) {
+	if (hDC != (void *)graphics) {
 		return InvalidParameter;
 	}
 	return Ok;
