@@ -21,7 +21,9 @@
  * Authors:
  *   Alexandre Pigolkine(pigolkine@gmx.de)
  */
+
 #include "gdip.h"
+#include "brush.h"
 
 void
 gdip_brush_init (GpBrush *brush, BrushClass* vtable)
@@ -29,30 +31,29 @@ gdip_brush_init (GpBrush *brush, BrushClass* vtable)
 	brush->vtable = vtable;
 }
 
-void
+GpStatus
 gdip_brush_setup (GpGraphics *graphics, GpBrush *brush)
 {
-	brush->vtable->setup (graphics, brush);
+	return brush->vtable->setup (graphics, brush);
 }
 
-void
+GpStatus
 gdip_brush_destroy (GpBrush *brush)
 {
 	/* do nothing, because we are not allocating any memory here. */
+	return Ok;
 }
 
 GpStatus 
 GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush)
 {
-	brush->vtable->clone_brush (brush, clonedBrush);
-	return Ok;
+	return brush->vtable->clone_brush (brush, clonedBrush);
 }
 
 GpStatus 
 GdipDeleteBrush (GpBrush *brush)
 {
-	brush->vtable->destroy (brush);
-	return Ok;
+	return brush->vtable->destroy (brush);
 }
 
 GpStatus

@@ -21,13 +21,7 @@ typedef struct _SolidFill {
 	int color;
 } SolidFill;
 
-/* Solid fill */
-GpSolidFill *gdip_solidfill_new (void);
-void gdip_solidfill_init (GpSolidFill *brush);
-void gdip_solidfill_setup (GpGraphics *graphics, GpBrush *brush);
-void gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush);
-void gdip_solidfill_destroy (GpBrush *brush);
-
+/* Solid brush function */
 GpStatus GdipCreateSolidFill (int color, GpSolidFill **brush);
 GpStatus GdipGetSolidFillColor (GpSolidFill *brush, int *color);
 GpStatus GdipSetSolidFillColor (GpSolidFill *brush, int color);

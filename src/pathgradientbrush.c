@@ -11,9 +11,9 @@
 
 #include "pathgradientbrush.h"
 
-static void gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush);
-static void gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush);
-static void gdip_pgrad_destroy (GpBrush *brush);
+static GpStatus gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush);
+static GpStatus gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush);
+static GpStatus gdip_pgrad_destroy (GpBrush *brush);
 
 static BrushClass pathgradient_vtable = { BrushTypePathGradient,
                                           gdip_pgrad_setup,
@@ -38,16 +38,25 @@ gdip_pathgradient_new (void)
 {
     GpPathGradient *result = (GpPathGradient *) GdipAlloc (sizeof (GpPathGradient));
 
-    gdip_pathgradient_init (result);
+    if (result)
+        gdip_pathgradient_init (result);
 
     return result;
 }
 
-void
+GpStatus
 gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 {
-    GpPathGradient *pgbrush = (GpPathGradient *) brush;
-    GpPathGradient *newbrush = (GpPathGradient *) GdipAlloc (sizeof (GpPathGradient));
+    GpPathGradient *pgbrush;
+    GpPathGradient *newbrush;
+
+    g_return_val_if_fail (brush != NULL, InvalidParameter);
+
+    newbrush = (GpPathGradient *) GdipAlloc (sizeof (GpPathGradient));
+
+    g_return_val_if_fail (newbrush != NULL, OutOfMemory);
+
+    pgbrush = (GpPathGradient *) brush;
 
     newbrush->base = pgbrush->base;
     if (pgbrush->boundary) {
@@ -68,12 +77,19 @@ gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
     GdipCloneMatrix (pgbrush->transform, &newbrush->transform);
 
     GpPathGradient **pgbrushClone = (GpPathGradient **) clonedBrush;
+
+    return Ok;
 }
 
-void
+GpStatus
 gdip_pgrad_destroy (GpBrush *brush)
 {
-    GpPathGradient *pgbrush = (GpPathGradient *) brush;
+    GpPathGradient *pgbrush;
+
+    g_return_val_if_fail (brush != NULL, InvalidParameter);
+
+    pgbrush = (GpPathGradient *) brush;
+
     if (pgbrush->boundary)
         GdipDeletePath (pgbrush->boundary);
 
@@ -82,12 +98,21 @@ gdip_pgrad_destroy (GpBrush *brush)
 
     if (pgbrush->transform)
         GdipDeleteMatrix (pgbrush->transform);
+
+    return Ok;
 }
 
-void
+GpStatus
 gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 {
-    GpPathGradient *pgbrush = (GpPathGradient *) brush;
+    GpPathGradient *pgbrush;
+
+    g_return_val_if_fail (graphics != NULL, InvalidParameter);
+    g_return_val_if_fail (brush != NULL, InvalidParameter);
+
+    pgbrush = (GpPathGradient *) brush;
+
+    return Ok;
 }
 
 GpStatus

@@ -1,3 +1,13 @@
+2004-04-16 Ravindra <rkumar@novell.com>
+
+	* gdip.h: Included glib.h.
+	* brush.h, solidbrush.h: Removed internal functions and added
+	return type to vtable functions.
+	* brush.c: Now we return status from internal functions also.
+	* texturebrush.c, hatchbrush.c, solidbrush.c, pathgradientbrush.c: 
+	Now we return status from internal functions also and do check for
+	null pointers.
+
 2004-04-16 Sanjay Gupta <gsanjay@novell.com>
 	* bmpcodec.c: Implemented function for loading image from stream
 

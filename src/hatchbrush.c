@@ -10,9 +10,9 @@
 #include "gdip.h"
 #include "hatchbrush.h"
 
-static void gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush);
-static void gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush);
-static void gdip_hatch_destroy (GpBrush *brush);
+static GpStatus gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush);
+static GpStatus gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush);
+static GpStatus gdip_hatch_destroy (GpBrush *brush);
 
 /*
  * We keep a single copy of vtable for
@@ -36,7 +36,8 @@ gdip_hatch_new (void)
 {
         GpHatch *result = (GpHatch *) GdipAlloc (sizeof (GpHatch));
 
-        gdip_hatch_init (result);
+	if (result)
+	        gdip_hatch_init (result);
 
         return result;
 }
@@ -47,7 +48,7 @@ gdip_hatch_new (void)
 #define HATCH_SIZE 7
 #define LINE_WIDTH 1
 
-void
+GpStatus
 draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatchStyle hatchStyle)
 {
 	cairo_surface_t *hatch;
@@ -77,6 +78,9 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
 					      format, hatch_size, hatch_size);
+
+	g_return_val_if_fail (hatch != NULL, OutOfMemory);
+
 	cairo_surface_set_repeat (hatch, 1);
 	
 	/* draw one hatch */
@@ -111,9 +115,11 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 	/* set the pattern for the consequent fill or stroke */
         gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
+
+	return Ok;
 }
 
-void
+GpStatus
 draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatchStyle hatchStyle)
 {
 	cairo_surface_t *hatch;
@@ -142,6 +148,9 @@ draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t f
 
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
 					      format, hatch_size, hatch_size);
+
+	g_return_val_if_fail (hatch != NULL, OutOfMemory);
+
 	cairo_surface_set_repeat (hatch, 1);
 	
 	/* draw one hatch */
@@ -176,9 +185,11 @@ draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t f
 	/* set the pattern for the consequent fill or stroke */
 	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
+
+	return Ok;
 }
 
-void
+GpStatus
 draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format)
 {
 	cairo_surface_t *hatch;
@@ -191,6 +202,8 @@ draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int widt
 
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
 					      format, width, height);
+
+	g_return_val_if_fail (hatch != NULL, OutOfMemory);
 	
 	/* draw hatch */
 	{
@@ -236,9 +249,11 @@ draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int widt
 	/* set the pattern for the consequent fill or stroke */
 	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
+
+	return Ok;
 }
 
-void
+GpStatus
 draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height,cairo_format_t format)
 {
 	cairo_surface_t *hatch;
@@ -251,7 +266,9 @@ draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
 					      format, width, height);
-	
+
+	g_return_val_if_fail (hatch != NULL, OutOfMemory);
+
 	/* draw hatch */
 	{
 		cairo_save (ct);
@@ -296,9 +313,11 @@ draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 	/* set the pattern for the consequent fill or stroke */
 	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
+
+	return Ok;
 }
 
-void
+GpStatus
 draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format)
 {
 	cairo_surface_t *hatch;
@@ -307,6 +326,9 @@ draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
 					      format, hatch_size, hatch_size);
+
+	g_return_val_if_fail (hatch != NULL, OutOfMemory);
+
 	cairo_surface_set_repeat (hatch, 1);
 	
 	/* draw one hatch */
@@ -347,9 +369,11 @@ draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 	/* set the pattern for the consequent fill or stroke */
 	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
+
+	return Ok;
 }
 
-void
+GpStatus
 draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format)
 {
 	cairo_surface_t *hatch;
@@ -358,6 +382,9 @@ draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_form
 
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
 					      format, hatch_size, hatch_size);
+
+	g_return_val_if_fail (hatch != NULL, OutOfMemory);
+
 	cairo_surface_set_repeat (hatch, 1);
 
 	/* draw one hatch */
@@ -397,15 +424,17 @@ draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_form
 	/* set the pattern for the consequent fill or stroke */
 	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
+
+	return Ok;
 }
 
-void
+GpStatus
 draw_percentage_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, int percentage)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format, GpHatchStyle hatchStyle)
 {
 	/* FIXME:
@@ -446,6 +475,8 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
 					      format, width, height);
+
+	g_return_val_if_fail (hatch != NULL, OutOfMemory);
 
 	/* draw hatch */
 	{
@@ -491,9 +522,11 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int wid
 	/* set the pattern for the consequent fill or stroke */
 	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
+
+	return Ok;
 }
 
-void
+GpStatus
 draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format, GpHatchStyle hatchStyle)
 {
 	/* FIXME:
@@ -534,6 +567,8 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width
 
 	hatch = cairo_surface_create_similar (cairo_current_target_surface (ct),
 					      format, width, height);
+
+	g_return_val_if_fail (hatch != NULL, OutOfMemory);
 	
 	/* draw hatch */
 	{
@@ -579,169 +614,183 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width
 	/* set the pattern for the consequent fill or stroke */
 	gdip_cairo_set_surface_pattern (ct, hatch);
 	cairo_surface_destroy (hatch);
+
+	return Ok;
 }
 
-void
+GpStatus
 draw_dashed_down_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_dashed_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_dashed_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_dashed_vertical_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_small_confetti_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_large_confetti_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_zigzag_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_wave_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_diagonal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_horizontal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_weave_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_plaid_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_divot_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_dotted_grid_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_dotted_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_shingle_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_trellis_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_sphere_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_small_grid_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_small_checker_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_large_checker_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_outlined_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 draw_solid_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height)
 {
-	/* NotImplemented */
+	return NotImplemented;
 }
 
-void
+GpStatus
 gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 {
-	GpHatch *hatch = (GpHatch *) brush;
+	GpHatch *hatch;
 	GpImage *img;
 	GpBitmap *bmp;
 	cairo_t *ct;
 	unsigned int width;
 	unsigned int height;
-	int forecol = hatch->foreColor;
-	int backcol = hatch->backColor;
+	int forecol;
+	int backcol;
 	cairo_format_t format;
 
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
 	img = graphics->image;
+
+	g_return_val_if_fail (img != NULL, InvalidParameter);
+
+	hatch = (GpHatch *) brush;
+	forecol = hatch->foreColor;
+	backcol = hatch->backColor;
+
 	if (img->type == imageBitmap) {
 		bmp = (GpBitmap *) img;
 		width = bmp->data.Width;
 		height = bmp->data.Height;
 		format = bmp->data.PixelFormat;
 	} else 
-		return;
+		return NotImplemented;
 
 	ct = graphics->ct;
+
+	g_return_val_if_fail (ct != NULL, InvalidParameter);
 
 	switch (hatch->hatchStyle) {
 
@@ -750,196 +799,160 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 	case HatchStyleLightHorizontal:
 	case HatchStyleNarrowHorizontal:
 	case HatchStyleDarkHorizontal:
-		draw_horizontal_hatch (ct, forecol, backcol, format, hatch->hatchStyle);
-		break;
+		return draw_horizontal_hatch (ct, forecol, backcol, format, hatch->hatchStyle);
 
 	case HatchStyleVertical:
 	case HatchStyleLightVertical:
 	case HatchStyleNarrowVertical:
 	case HatchStyleDarkVertical:
-		draw_veritcal_hatch (ct, forecol, backcol, format, hatch->hatchStyle);
-		break;
+		return draw_veritcal_hatch (ct, forecol, backcol, format, hatch->hatchStyle);
 
 	case HatchStyleForwardDiagonal:
-		draw_forward_diagonal_hatch (ct, forecol, backcol, width, height, format);
-		break;
+		return draw_forward_diagonal_hatch (ct, forecol, backcol, width, height, format);
 
 	case HatchStyleBackwardDiagonal:
-		draw_backward_diagonal_hatch (ct, forecol, backcol, width, height, format);
-		break;
+		return draw_backward_diagonal_hatch (ct, forecol, backcol, width, height, format);
 
 	/* case HatchStyleCross: */
 	case HatchStyleLargeGrid:
-		draw_cross_hatch (ct, forecol, backcol, format);
-		break;
+		return draw_cross_hatch (ct, forecol, backcol, format);
 
 	case HatchStyleDiagonalCross:
-		draw_diagonal_cross_hatch (ct, forecol, backcol, format);
-		break;
+		return draw_diagonal_cross_hatch (ct, forecol, backcol, format);
 
 	case HatchStyle05Percent:
-		draw_percentage_hatch (ct, forecol, backcol, width, height, 5);
-		break;
+		return draw_percentage_hatch (ct, forecol, backcol, width, height, 5);
 
 	case HatchStyle10Percent:
-		draw_percentage_hatch (ct, forecol, backcol, width, height, 10);
-		break;
+		return draw_percentage_hatch (ct, forecol, backcol, width, height, 10);
 
 	case HatchStyle20Percent:
-		draw_percentage_hatch (ct, forecol, backcol, width, height, 20);
-		break;
+		return draw_percentage_hatch (ct, forecol, backcol, width, height, 20);
 
 	case HatchStyle25Percent:
-		draw_percentage_hatch (ct, forecol, backcol, width, height, 25);
-		break;
+		return draw_percentage_hatch (ct, forecol, backcol, width, height, 25);
 
 	case HatchStyle30Percent:
-		draw_percentage_hatch (ct, forecol, backcol, width, height, 30);
-		break;
+		return draw_percentage_hatch (ct, forecol, backcol, width, height, 30);
 
 	case HatchStyle40Percent:
-		draw_percentage_hatch (ct, forecol, backcol, width, height, 40);
-		break;
+		return draw_percentage_hatch (ct, forecol, backcol, width, height, 40);
 
 	case HatchStyle50Percent:
-		draw_percentage_hatch (ct, forecol, backcol, width, height, 50);
-		break;
+		return draw_percentage_hatch (ct, forecol, backcol, width, height, 50);
 
 	case HatchStyle60Percent:
-		draw_percentage_hatch (ct, forecol, backcol, width, height, 60);
-		break;
+		return draw_percentage_hatch (ct, forecol, backcol, width, height, 60);
 
 	case HatchStyle70Percent:
-		draw_percentage_hatch (ct, forecol, backcol, width, height, 70);
-		break;
+		return draw_percentage_hatch (ct, forecol, backcol, width, height, 70);
 
 	case HatchStyle75Percent:
-		draw_percentage_hatch (ct, forecol, backcol, width, height, 75);
-		break;
+		return draw_percentage_hatch (ct, forecol, backcol, width, height, 75);
 
 	case HatchStyle80Percent:
-		draw_percentage_hatch (ct, forecol, backcol, width, height, 80);
-		break;
+		return draw_percentage_hatch (ct, forecol, backcol, width, height, 80);
 
 	case HatchStyle90Percent:
-		draw_percentage_hatch (ct, forecol, backcol, width, height, 90);
-		break;
+		return draw_percentage_hatch (ct, forecol, backcol, width, height, 90);
 
 	case HatchStyleLightDownwardDiagonal:
 	case HatchStyleDarkDownwardDiagonal:
 	case HatchStyleWideDownwardDiagonal:
-		draw_downward_diagonal_hatch (ct, forecol, backcol, width, height, format, hatch->hatchStyle);
-		break;
+		return draw_downward_diagonal_hatch (ct, forecol, backcol, width, height, format, hatch->hatchStyle);
 
 	case HatchStyleLightUpwardDiagonal:
 	case HatchStyleDarkUpwardDiagonal:
 	case HatchStyleWideUpwardDiagonal:
-		draw_upward_diagonal_hatch (ct, forecol, backcol, width, height, format, hatch->hatchStyle);
-		break;
+		return draw_upward_diagonal_hatch (ct, forecol, backcol, width, height, format, hatch->hatchStyle);
 
 	case HatchStyleDashedDownwardDiagonal:
-		draw_dashed_down_diagonal_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_dashed_down_diagonal_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleDashedUpwardDiagonal:
-		draw_dashed_upward_diagonal_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_dashed_upward_diagonal_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleDashedHorizontal:
-		draw_dashed_horizontal_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_dashed_horizontal_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleDashedVertical:
-		draw_dashed_vertical_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_dashed_vertical_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleSmallConfetti:
-		draw_small_confetti_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_small_confetti_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleLargeConfetti:
-		draw_large_confetti_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_large_confetti_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleZigZag:
-		draw_zigzag_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_zigzag_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleWave:
-		draw_wave_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_wave_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleDiagonalBrick:
-		draw_diagonal_brick_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_diagonal_brick_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleHorizontalBrick:
-		draw_horizontal_brick_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_horizontal_brick_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleWeave:
-		draw_weave_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_weave_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStylePlaid:
-		draw_plaid_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_plaid_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleDivot:
-		draw_divot_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_divot_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleDottedGrid:
-		draw_dotted_grid_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_dotted_grid_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleDottedDiamond:
-		draw_dotted_diamond_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_dotted_diamond_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleShingle:
-		draw_shingle_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_shingle_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleTrellis:
-		draw_trellis_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_trellis_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleSphere:
-		draw_sphere_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_sphere_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleSmallGrid:
-		draw_small_grid_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_small_grid_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleSmallCheckerBoard:
-		draw_small_checker_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_small_checker_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleLargeCheckerBoard:
-		draw_large_checker_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_large_checker_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleOutlinedDiamond:
-		draw_outlined_diamond_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_outlined_diamond_hatch (ct, forecol, backcol, width, height);
 
 	case HatchStyleSolidDiamond:
 	/* case HatchStyleMax: */
-		draw_solid_diamond_hatch (ct, forecol, backcol, width, height);
-		break;
+		return draw_solid_diamond_hatch (ct, forecol, backcol, width, height);
 
 	default:
-		break;
+		return InvalidParameter;
 	}
 }
 
-void
+GpStatus
 gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush)
 {
-	GpHatch *result = (GpHatch *) GdipAlloc (sizeof (GpHatch));
-	GpHatch *hatch = (GpHatch *) brush;
+	GpHatch *result;
+	GpHatch *hatch;
+
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
+	hatch = (GpHatch *) brush;
+	result = (GpHatch *) GdipAlloc (sizeof (GpHatch));
+	
+	g_return_val_if_fail (result != NULL, OutOfMemory);
 
 	result->base = hatch->base;
 	result->hatchStyle = hatch->hatchStyle;
@@ -949,16 +962,23 @@ gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush)
 	*clonedBrush = (GpBrush *) result;
 }
 
-void
+GpStatus
 gdip_hatch_destroy (GpBrush *brush)
 {
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
 	GdipFree (brush);
+
+	return Ok;
 }
 
 GpStatus
 GdipCreateHatchBrush (GpHatchStyle hatchstyle, int forecolor, int backcolor, GpHatch **brush)
 {
         *brush = gdip_hatch_new ();
+
+	g_return_val_if_fail (brush != NULL, OutOfMemory);
+
         (*brush)->hatchStyle = hatchstyle;
         (*brush)->foreColor = forecolor;
         (*brush)->backColor = backcolor;
@@ -969,6 +989,8 @@ GdipCreateHatchBrush (GpHatchStyle hatchstyle, int forecolor, int backcolor, GpH
 GpStatus
 GdipGetHatchStyle (GpHatch *brush, GpHatchStyle *hatchstyle)
 {
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
 	*hatchstyle = brush->hatchStyle;
 	return Ok;
 }
@@ -976,6 +998,8 @@ GdipGetHatchStyle (GpHatch *brush, GpHatchStyle *hatchstyle)
 GpStatus
 GdipGetHatchForegroundColor (GpHatch *brush, int *forecolor)
 {
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
 	*forecolor = brush->foreColor;
 	return Ok;
 }
@@ -983,6 +1007,8 @@ GdipGetHatchForegroundColor (GpHatch *brush, int *forecolor)
 GpStatus
 GdipGetHatchBackgroundColor (GpHatch *brush, int *backcolor)
 {
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
 	*backcolor = brush->backColor;
 	return Ok;
 }

@@ -25,6 +25,10 @@
 #include "gdip.h"
 #include "solidbrush.h"
 
+static GpStatus gdip_solidfill_setup (GpGraphics *graphics, GpBrush *brush);
+static GpStatus gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush);
+static GpStatus gdip_solidfill_destroy (GpBrush *brush);
+
 /*
  * we have a single copy of vtable for
  * all instances of solidbrush.
@@ -47,42 +51,68 @@ gdip_solidfill_new (void)
 {
 	GpSolidFill *result = (GpSolidFill *) GdipAlloc (sizeof (GpSolidFill));
 	
-	gdip_solidfill_init (result);
+	if (result)
+		gdip_solidfill_init (result);
+
 	return result;
 }
 
-void
+GpStatus
 gdip_solidfill_setup (GpGraphics *graphics, GpBrush *brush)
 {
-	GpSolidFill *solid = (GpSolidFill *) brush;
+	GpSolidFill *solid;
+
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
+	solid = (GpSolidFill *) brush;
         int R = (solid->color & 0x00FF0000) >> 16;
         int G = (solid->color & 0x0000FF00) >> 8;
         int B = (solid->color & 0x000000FF);
         cairo_set_rgb_color (graphics->ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
+
+	return Ok;
 }
 
-void
+GpStatus
 gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush)
 {
-	GpSolidFill *result = (GpSolidFill *) GdipAlloc (sizeof (GpSolidFill));
-	GpSolidFill *solid = (GpSolidFill *) brush;
+	GpSolidFill *result;
+	GpSolidFill *solid;
+
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
+	result = (GpSolidFill *) GdipAlloc (sizeof (GpSolidFill));
+
+	g_return_val_if_fail (result != NULL, OutOfMemory);
+
+	solid = (GpSolidFill *) brush;
 
 	result->base = solid->base;
         result->color = solid->color;
 
 	*clonedBrush = (GpBrush *) result;
+
+	return Ok;
 }
 
-void 
+GpStatus
 gdip_solidfill_destroy (GpBrush *brush)
 {
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
 	GdipFree (brush);
+
+	return Ok;
 }
 
 GpStatus 
 GdipCreateSolidFill (int color, GpSolidFill **brush)
 {
 	*brush = gdip_solidfill_new ();
+
+	g_return_val_if_fail (*brush != NULL, OutOfMemory);
+
 	(*brush)->color = color;
 	return Ok;
 }
@@ -90,6 +120,8 @@ GdipCreateSolidFill (int color, GpSolidFill **brush)
 GpStatus
 GdipSetSolidFillColor (GpSolidFill *brush, int color)
 {
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
         brush->color = color;
         return Ok;
 }
@@ -97,6 +129,8 @@ GdipSetSolidFillColor (GpSolidFill *brush, int color)
 GpStatus
 GdipGetSolidFillColor (GpSolidFill *brush, int *color)
 {
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
         *color = brush->color;
         return Ok;
 }

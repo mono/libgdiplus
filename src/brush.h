@@ -30,19 +30,14 @@ typedef struct _BrushClass {
 
 	/* Brush virtual functions */
         GpBrushType type;
-	void (*setup) (GpGraphics *graphics, GpBrush *brush);
-	void (*clone_brush) (GpBrush *brush, GpBrush **clonedBrush);
-	void (*destroy) (GpBrush *brush);
+	GpStatus (*setup) (GpGraphics *graphics, GpBrush *brush);
+	GpStatus (*clone_brush) (GpBrush *brush, GpBrush **clonedBrush);
+	GpStatus (*destroy) (GpBrush *brush);
 } BrushClass;
 
 typedef struct _Brush {
 	BrushClass *vtable;
 } Brush;
-
-void gdip_brush_init (GpBrush *brush, BrushClass* vtable);
-void gdip_brush_setup (GpGraphics *graphics, GpBrush *brush);
-void clone_brush (GpBrush *brush, GpBrush **clonedBrush);
-void gdip_brush_destroy (GpBrush *brush);
 
 GpStatus GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush); 
 GpStatus GdipDeleteBrush (GpBrush *brush);
