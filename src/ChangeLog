@@ -1,3 +1,9 @@
+2004--04-27  Ravindra <rkumar@novell.com>
+
+	* lineargradientbrush.[ch]: First implementation of
+	lineargradientbrush.
+	* Makefile.am: Added lineargradientbrush sources to the list.
+
 2004-04-27  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* gdip.h: Added EncoderParameterValueType enum
