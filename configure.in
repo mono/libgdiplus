@@ -6,6 +6,8 @@ AM_INIT_AUTOMAKE(libgdiplus,1.1.3)
 AM_MAINTAINER_MODE
 AM_PROG_LIBTOOL
 
+AC_C_BIGENDIAN
+
 AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
 if test "x$PKG_CONFIG" = "xno"; then
 	AC_MSG_ERROR([You need to install pkg-config])

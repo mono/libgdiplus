@@ -1,3 +1,7 @@
+2005-01-26  Geoff Norton  <gnorton@customerdna.com>
+
+	* bmpcodec.c: Swap from RGBA to ABGR on big endian systems.
+
 2005-01-26  Peter Bartok  <pbartok@novell.com>
 
 	* bmpcodec.c: Fixed R/B swap mistake

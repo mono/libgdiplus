@@ -140,6 +140,21 @@ gdip_load_bmp_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 }
 
 #define palette_lookup(x)	img->image.palette->Entries[(x)]
+#ifdef WORDS_BIGENDIAN
+#define set_pixel_bgra(pixel,index,b,g,r,a) do {\
+                pixel[index+0] = a; \
+                pixel[index+1] = r; \
+                pixel[index+2] = g; \
+                pixel[index+3] = b; \
+        } while (0);
+#else
+#define set_pixel_bgra(pixel,index,b,g,r,a) do {\
+                pixel[index+0] = b; \
+                pixel[index+1] = g; \
+                pixel[index+2] = r; \
+                pixel[index+3] = a; \
+        } while (0);
+#endif
 
 GpStatus 
 gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFile)
@@ -379,15 +394,9 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 						index = (line * img->data.Stride) + (c*8 + bit) * 4;
 
 						if ((data_read[c] &  ((0x80 >> bit) & 0x1) ) == 0) {
-							pixels[index] = 0xff;
-							pixels[index + 1] = 0xff;
-							pixels[index + 2] = 0xff;
-							pixels[index + 3] = 0xff;
+							set_pixel_bgra(pixels, index, 0xff, 0xff, 0xff, 0xff);
 						} else {
-							pixels[index] = 0x0;
-							pixels[index + 1] = 0x0;
-							pixels[index + 2] = 0x0;
-							pixels[index + 3] = 0xff;	// Alpha
+							set_pixel_bgra(pixels, index, 0x00, 0x00, 0x00, 0xff);
 						}
 					}
 				}
@@ -396,12 +405,9 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 					index = (line * img->data.Stride) + (c*8 + bit) * 4;
 
 					if ((data_read[c] &  ((0x80 >> bit) & 0x1) ) == 0) {
-						pixels[index] = 0xff;
-						pixels[index + 1] = 0xff;
-						pixels[index + 2] = 0xff;
-						pixels[index + 3] = 0xff;
+						set_pixel_bgra(pixels, index, 0xff, 0xff, 0xff, 0xff);
 					} else {
-						pixels[index + 3] = 0xff;	// Alpha
+						set_pixel_bgra(pixels, index, 0x00, 0x00, 0x00, 0xff);
 					}
 				}
 				break;
@@ -415,17 +421,11 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 					index = (line * img->data.Stride) + c*8;
 
-					pixels[index] = (pixel & 0xff0000) >> 16;	// R
-					pixels[index + 1] = (pixel & 0xff00) >> 8;	// G
-					pixels[index + 2] = pixel & 0xff;			// B
-					pixels[index + 3] = 0xff;			// Alpha
+					set_pixel_bgra(pixels, index, (pixel & 0xff0000) >> 16, (pixel & 0xff00) >> 8, pixel & 0xff, 0xff);
 
 					pixel = palette_lookup(data_read[c] & 0xf);
 
-					pixels[index + 4] = (pixel & 0xff0000) >> 16;	// R
-					pixels[index + 5] = (pixel & 0xff00) >> 8;	// G
-					pixels[index + 6] = pixel & 0xff;		// B
-					pixels[index + 7] = 0xff;			// Alpha
+					set_pixel_bgra(pixels, index+4, (pixel & 0xff0000) >> 16, (pixel & 0xff00) >> 8, pixel & 0xff, 0xff);
 				}
 				break;
 			}
@@ -438,10 +438,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 					index = (line * img->data.Stride) + c*4;
 
-					pixels[index] = (pixel & 0xff0000) >> 16;	// R
-					pixels[index + 1] = (pixel & 0xff00) >> 8;	// G
-					pixels[index + 2] = pixel & 0xff;		// B
-					pixels[index + 3] = 0xff;			// Alpha
+					set_pixel_bgra(pixels, index, (pixel & 0xff0000) >> 16, (pixel & 0xff00) >> 8, pixel & 0xff, 0xff);
 				}
 				break;
 			}
@@ -455,10 +452,8 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 				while (src < loop) {
 					index = (line * img->data.Stride);
-					pixels[index + dest++] = data_read[src + 0];		// R
-					pixels[index + dest++] = data_read[src + 1];		// G
-					pixels[index + dest++] = data_read[src + 2];		// B
-					pixels[index + dest++] = 0xff;				// Alpha
+					set_pixel_bgra(pixels, index+dest, data_read[src+0], data_read[src+1], data_read[src+2], 0xff);
+					dest += 4;
 
 					src += 3;
 				}

@@ -37,13 +37,8 @@
 #endif
 #endif
 
-#if HAVE_CAIRO_FT_FONT_LOCK_FACE
-#define	gdip_cairo_ft_font_lock_face(font)	cairo_ft_font_lock_face(font)
-#define gdip_cairo_ft_font_unlock_face(font)	cairo_ft_font_unlock_face(font)
-#else
 #define	gdip_cairo_ft_font_lock_face(font)	cairo_ft_font_face(font)
 #define gdip_cairo_ft_font_unlock_face(font)
-#endif
 
 
 #ifdef CAIRO_HAS_XLIB_SURFACE

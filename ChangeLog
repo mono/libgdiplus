@@ -1,3 +1,6 @@
+2005-01-26  Geoff Norton  <gnorton@customerdna.com>
+
+	* configure.in: Add AC_C_BIGENDIAN check to define WORDS_BIGENDIAN where needed
 
 Tue Jan 25 11:34:41 CET 2005 Paolo Molaro <lupus@ximian.com>
 
