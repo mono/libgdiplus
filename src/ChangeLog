@@ -1,3 +1,9 @@
+2004-06-24  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Modified GdipFillXXX operations to make use of
+	the matrix set by brush setup. Also, moved all the GdipFillXXX
+	functions to one place.
+
 2004-06-24  Sanjay Gupta <gsanjay@novell.com>
 
 	* gdip.h: Changed function signature for SeekDelegate function.

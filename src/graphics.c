@@ -528,6 +528,10 @@ GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixO
         }
 }
 
+/*
+ * Draw operations.
+ */
+
 GpStatus
 GdipDrawArc (GpGraphics *graphics, GpPen *pen, 
 	     float x, float y, float width, float height, 
@@ -625,7 +629,7 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen,
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
-	 */        
+	 */
         cairo_move_to (graphics->ct, points [0].X, points [0].Y);
 
         for (i = 0; i < count - 3; i += 3) {
@@ -911,29 +915,6 @@ GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y,
 	      int width, int height, float startAngle, float sweepAngle)
 {
         return GdipDrawPie (graphics, pen, x, y, width, height, startAngle, sweepAngle);
-}
-
-GpStatus
-GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, float startAngle, float sweepAngle)
-{
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-
-	/* We don't do anything, if sweep angle is zero. */
-	if (sweepAngle == 0)
-		return Ok;
-
-        gdip_brush_setup (graphics, brush);
-        make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
-        cairo_fill (graphics->ct);
-
-        return gdip_get_status (cairo_status (graphics->ct));
-}
-
-GpStatus
-GdipFillPieI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, float startAngle, float sweepAngle)
-{
-        return GdipFillPie (graphics, brush, x, y, width, height, startAngle, sweepAngle);
 }
 
 GpStatus
@@ -1250,11 +1231,21 @@ GdipFillEllipse (GpGraphics *graphics, GpBrush *brush,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
-        gdip_brush_setup (graphics, brush);
-        make_ellipse (graphics, x, y, width, height);
-        cairo_fill (graphics->ct);
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
+	make_ellipse (graphics, x, y, width, height);
 
-        return gdip_get_status (cairo_status (graphics->ct));
+	/* We do brush setup just before filling. */
+	gdip_brush_setup (graphics, brush);
+	cairo_fill (graphics->ct);
+
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by brush setup.
+	 */
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+
+	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus
@@ -1271,11 +1262,21 @@ GdipFillRectangle (GpGraphics *graphics, GpBrush *brush,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
-	gdip_brush_setup (graphics, brush);
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	cairo_rectangle (graphics->ct, x, y, width, height);
+
+	/* We do brush setup just before filling. */
+	gdip_brush_setup (graphics, brush);
 	cairo_fill (graphics->ct);
 
-        return gdip_get_status (cairo_status (graphics->ct));
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by brush setup.
+	 */
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+
+	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus 
@@ -1296,11 +1297,20 @@ GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GpRectF *rects, int co
 	g_return_val_if_fail (rects != NULL, InvalidParameter);
 	g_return_val_if_fail (count > 0, InvalidParameter);
 
-	gdip_brush_setup (graphics, brush);
-
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	for (i = 0; i < count; i++)
 		cairo_rectangle (graphics->ct, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height);
+
+	/* We do brush setup just before filling. */
+	gdip_brush_setup (graphics, brush);
 	cairo_fill (graphics->ct);
+
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by brush setup.
+	 */
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1316,13 +1326,55 @@ GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GpRect *rects, int co
 	g_return_val_if_fail (rects != NULL, InvalidParameter);
 	g_return_val_if_fail (count > 0, InvalidParameter);
 
-	gdip_brush_setup (graphics, brush);
-
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	for (i = 0; i < count; i++)
 		cairo_rectangle (graphics->ct, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height);
+
+	/* We do brush setup just before filling. */
+	gdip_brush_setup (graphics, brush);
 	cairo_fill (graphics->ct);
 
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by brush setup.
+	 */
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+
 	return gdip_get_status (cairo_status (graphics->ct));
+}
+
+GpStatus
+GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, float startAngle, float sweepAngle)
+{
+	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
+	/* We don't do anything, if sweep angle is zero. */
+	if (sweepAngle == 0)
+		return Ok;
+
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
+	make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
+
+	/* We do brush setup just before filling. */
+	gdip_brush_setup (graphics, brush);
+	cairo_fill (graphics->ct);
+
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by brush setup.
+	 */
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+
+	return gdip_get_status (cairo_status (graphics->ct));
+}
+
+GpStatus
+GdipFillPieI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, float startAngle, float sweepAngle)
+{
+        return GdipFillPie (graphics, brush, x, y, width, height, startAngle, sweepAngle);
 }
 
 GpStatus
@@ -1333,16 +1385,22 @@ GdipFillPolygon (GpGraphics *graphics, GpBrush *brush,
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-        gdip_brush_setup (graphics, brush);
-        make_polygon (graphics, points, count);
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
+	make_polygon (graphics, points, count);
+	cairo_set_fill_rule (graphics->ct, convert_fill_mode (fillMode));
 
-        cairo_set_fill_rule (
-                graphics->ct,
-                convert_fill_mode (fillMode));
+	/* We do brush setup just before filling. */
+	gdip_brush_setup (graphics, brush);
+	cairo_fill (graphics->ct);
 
-        cairo_fill (graphics->ct);
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by brush setup.
+	 */
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
-        return gdip_get_status (cairo_status (graphics->ct));
+	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus
@@ -1353,14 +1411,21 @@ GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 
-	gdip_brush_setup (graphics, brush);
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	status = gdip_plot_path (graphics, path);
+
+	/* We do brush setup just before filling. */
+	gdip_brush_setup (graphics, brush);
 	cairo_fill (graphics->ct);
 
-	if (status != Ok)
-		return status;
-	
-	return gdip_get_status (cairo_status (graphics->ct));
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by brush setup.
+	 */
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+
+	return status;
 }
 
 GpStatus
@@ -1371,12 +1436,22 @@ GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush,
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-        gdip_brush_setup (graphics, brush);
-        make_polygon_from_integers (graphics, points, count);
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
+	make_polygon_from_integers (graphics, points, count);
 	cairo_set_fill_rule (graphics->ct, convert_fill_mode (fillMode));
-        cairo_fill (graphics->ct);
 
-        return gdip_get_status (cairo_status (graphics->ct));
+	/* We do brush setup just before filling. */
+	gdip_brush_setup (graphics, brush);
+	cairo_fill (graphics->ct);
+
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by brush setup.
+	 */
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+
+	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus
@@ -1416,11 +1491,20 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, in
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-	gdip_brush_setup (graphics, brush);
-
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
 	tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
 	make_curve (graphics, points, tangents, count, CURVE_CLOSE);
+
+	/* We do brush setup just before filling. */
+	gdip_brush_setup (graphics, brush);
 	cairo_fill (graphics->ct);
+
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by brush setup.
+	 */
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	GdipFree (tangents);
 
@@ -1439,6 +1523,36 @@ GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, in
         GdipFree (pt);
 
         return s;
+}
+
+GpStatus
+GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
+{
+        int i;
+        GpRectF *rect;
+
+        if (!graphics || !brush || !region)
+		return InvalidParameter;
+
+        if (!region->rects || region->cnt==0)
+                return Ok;
+
+	/* We use graphics->copy_of_ctm matrix for path creation. We
+	 * should have it set already.
+	 */
+        for (i = 0, rect = region->rects; i < region->cnt; i++, rect++)
+		cairo_rectangle (graphics->ct, rect->X, rect->Y, rect->Width, rect->Height);
+
+	/* We do brush setup just before filling. */
+	gdip_brush_setup (graphics, brush);
+	cairo_fill (graphics->ct);
+
+	/* Set the matrix back to graphics->copy_of_ctm for other functions.
+	 * This overwrites the matrix set by brush setup.
+	 */
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+
+	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 
@@ -1634,7 +1748,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 				if (fmt->trimming!=StringTrimmingCharacter) {
 					break;
 				}
-				// Fall through
+				/* Fall through */
 			}
 
 			case ' ': {
@@ -1676,7 +1790,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 	/* Generate size array */
 	if (CalculateStringSize (font, String, StringLen, StringDetails)==0) {
-		// FIXME; pick right return code
+		/* FIXME; pick right return code */
 		g_free(String);
 		free(StringDetails);
 		free(CleanString);
@@ -2252,30 +2366,6 @@ GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y)
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
-
-
-GpStatus
-GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
-{
-        int i;
-        GpRectF *rect;
-
-        if (!graphics || !brush || !region)
-		return InvalidParameter;
-
-        if (!region->rects || region->cnt==0)
-                return Ok;
-
-	gdip_brush_setup (graphics, brush);
-
-        for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
-		cairo_rectangle (graphics->ct, rect->X, rect->Y, rect->Width, rect->Height);
-		cairo_fill (graphics->ct);
-        }
-
-        return gdip_get_status (cairo_status (graphics->ct));
-}
-
 
 GpStatus 
 GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
