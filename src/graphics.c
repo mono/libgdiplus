@@ -2155,9 +2155,13 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 #ifdef DRAWSTRING_DEBUG
 			printf("Setting clipping rectangle (%d, %d %dx%d)\n", rc->X, rc->Y, rc->Width, rc->Height);
 #endif
-			cairo_init_clip (graphics->ct);
+			/* Commented following clipping lines to fix DrawString bugs */
+			/* cairo cvs seems to have fixed something which lets us */
+			/* uncomment following clipping lines */
+	 
+			/* cairo_init_clip (graphics->ct); */
 			cairo_rectangle (graphics->ct, rc->X, rc->Y, rc->Width, rc->Height);
-			cairo_clip (graphics->ct);
+			/* cairo_clip (graphics->ct); */
 			cairo_new_path (graphics->ct);
 		}
 
@@ -2307,7 +2311,8 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 Done:
 	/* We need to remove the clip region */
-	cairo_init_clip (graphics->ct);
+	/* Following line is commented to fix the DrawString bugs */
+	/* cairo_init_clip (graphics->ct); */
 
 	/* Cleanup */
 	free (CleanString);
