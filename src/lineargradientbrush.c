@@ -559,10 +559,11 @@ GdipGetLineBlendCount (GpLineGradient *brush, int *count)
 {
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
-	/* If count is less than 2, we are not in a proper state 
-	 * to return blend property.
+	/* If count is less than 1, we are not in a proper state 
+	 * to return blend property. By default, we have one blend
+	 * set. Therefore, count of 1 is acceptible.
 	 */
-	if (brush->blend->count < 2)
+	if (brush->blend->count < 1)
 		return WrongState;
 
 	*count = brush->blend->count;
@@ -625,7 +626,6 @@ GdipGetLineBlend (GpLineGradient *brush, float *blend, float *positions, int cou
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (blend != NULL, InvalidParameter);
 	g_return_val_if_fail (positions != NULL, InvalidParameter);
-	g_return_val_if_fail (count >= 2, InvalidParameter);
 	g_return_val_if_fail (brush->blend->count == count, InvalidParameter);
 	
 	memcpy (blend, brush->blend->factors, count * sizeof (float));
@@ -780,7 +780,7 @@ GdipGetLineRect (GpLineGradient *brush, GpRectF *rect)
 }
 
 GpStatus
-GdipGetLineTransform (GpLineGradient *brush, GpMatrix **matrix)
+GdipGetLineTransform (GpLineGradient *brush, GpMatrix *matrix)
 {
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
@@ -791,18 +791,18 @@ GdipGetLineTransform (GpLineGradient *brush, GpMatrix **matrix)
 	if (brush->presetColors->count >= 2)
 		return WrongState;
 
-	*matrix = brush->matrix;
+	*matrix = *(brush->matrix);
 
 	return Ok;
 }
 
 GpStatus
-GdipSetLineTransform (GpLineGradient *brush, GpMatrix *matrix)
+GdipSetLineTransform (GpLineGradient *brush, GDIPCONST GpMatrix *matrix)
 {
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	brush->matrix = matrix;
+	*(brush->matrix) = *matrix;
 	return Ok;
 }
 

@@ -600,7 +600,7 @@ GdipGetTextureTransform (GpTexture *texture, GpMatrix *matrix)
 	g_return_val_if_fail (texture != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	matrix = texture->matrix;
+	*matrix = *(texture->matrix);
 	return Ok;
 }
 
@@ -610,16 +610,17 @@ GdipSetTextureTransform (GpTexture *texture, GpMatrix *matrix)
 	g_return_val_if_fail (texture != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	texture->matrix = matrix;
+	*(texture->matrix) = *matrix;
 	return Ok;
 }
 
 GpStatus
 GdipResetTextureTransform (GpTexture *texture)
 {
+	cairo_status_t status;
 	g_return_val_if_fail (texture != NULL, InvalidParameter);
 
-	cairo_status_t status = cairo_matrix_set_identity (texture->matrix);
+	status = cairo_matrix_set_identity (texture->matrix);
 	return gdip_get_status (status);
 }
 

@@ -677,18 +677,13 @@ void gdip_graphics_detach_bitmap (GpGraphics *graphics, GpBitmap *image);
 /* Pen */
 void gdip_pen_init (GpPen *pen);
 GpPen *gdip_pen_new (void);
-void gdip_pen_setup (GpGraphics *graphics, GpPen *pen);
+GpStatus gdip_pen_setup (GpGraphics *graphics, GpPen *pen);
 
 extern Display *GDIP_display;
 
 void initializeGdipWin32 (void);
 void initCodecList (void);
 void releaseCodecList (void);
-
-/* Image
-
-   See file gdipImage.h
-*/
 
 
 /* Bitmap */

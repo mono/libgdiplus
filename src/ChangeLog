@@ -1,7 +1,16 @@
+2004-05-04 Ravindra <rkumar@novell.com>
+
+	* pen.c: Added assert macros for checking null pointers. Also fixed
+	Get/Set/Reset PenTransform functions.
+	* graphics.c: Fixed a mistake in Clear function. Cairo takes color
+	values in the range [0.0, 1.0], instead of [0, 255].
+	* gdip.h: Added return type to gdip_pen_setup function.
+	* lineargradientbrush.[ch]: Fixed Get/Set LineTranform functions.
+	* texturebrush.c: Fixed Get/Set TextureTransform functions.
+
 2004-05-03 Jordi Mas i Hernandez <jordi@ximian.com>
 	* bitmap.c: adds Format32bppRgb support for get/set pixel
 	* graphics.c: fixes bug 56798 (RTL support)
-
 
 2004-05-03 Jordi Mas i Hernandez <jordi@ximian.com>
 	* bitmap.c: fixes stride in GdipCloneBitmapAreaI, copy of different 

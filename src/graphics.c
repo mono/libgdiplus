@@ -1670,8 +1670,8 @@ GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 
         cairo_save (graphics->ct);
 
-        cairo_set_rgb_color (graphics->ct, red, green, blue);
-	cairo_set_alpha (graphics->ct, alpha);
+        cairo_set_rgb_color (graphics->ct, red / 255, green / 255, blue / 255);
+	cairo_set_alpha (graphics->ct, alpha / 255);
 	cairo_rectangle (graphics->ct, 0, 0, image->width, image->height);
         cairo_fill (graphics->ct);
 
