@@ -1,3 +1,7 @@
+2004-06-10 Jordi Mas <jordi@ximian.com>
+
+	* gifcodec.c: fixes the stubs signatures when libgif is not installed
+ 
 2004-06-09 Jordi Mas <jordi@ximian.com>
 	* font.c, gdip.h: implemtents cache for generic family fonts,
 	and properly keep track of resources and deallocate them.
