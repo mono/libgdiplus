@@ -336,7 +336,20 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
         }
 
 	GdipFree(data_read);
-        img->data.Scan0 = pixels;
+
+	/*Cairo stores internally RGB24 as RGB32 */
+	if (bmi.biBitCount == 24) {
+		BYTE *dest;
+		int dest_stride;
+
+		gdip_from_RGB_to_ARGB (pixels, img->image.width, img->image.height,
+						img->data.Stride, &dest, &dest_stride);
+		GdipFree (pixels);
+		pixels = dest;
+		img->data.Stride = dest_stride;
+	}
+
+	img->data.Scan0 = pixels;
         img->data.Reserved = GBD_OWN_SCAN0;
         img->image.surface = cairo_surface_create_for_image (pixels,
                                                          img->cairo_format,
