@@ -1,5 +1,10 @@
 2005-03-18  Peter Bartok  <pbartok@novell.com>
 
+	* graphics-path.c: Instead of throwing NotImpl exception, we display a 
+	  message that the function isn't implemented yet on the Bounds functions
+
+2005-03-18  Peter Bartok  <pbartok@novell.com>
+
 	* gifcodec.c: Fixed prototype for no gif lib codepath; was missed with
 	  GCC4 changes
 

@@ -1106,40 +1106,76 @@ GdipTransformPath (GpPath* path, GpMatrix *matrix)
 GpStatus 
 GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
-	return NotImplemented;
+	static int called = 0;
+
+	if (!called) {
+		printf("NOT IMPLEMENTED: GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, const GpPen *pen)\n");
+		called = 1;
+	}
+	return Ok;
 }
 
 /* MonoTODO */
 GpStatus 
 GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
-	return NotImplemented;
+	static int called = 0;
+
+	if (!called) {
+		printf("NOT IMPLEMENTED: GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, const GpPen *pen)\n");
+		called = 1;
+	}
+	return Ok;
 }
 
 /* MonoTODO */
 GpStatus 
 GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result)
 {
-	return NotImplemented;
+	static int called = 0;
+
+	if (!called) {
+		printf("NOT IMPLEMENTED: GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result)\n");
+		called = 1;
+	}
+	return Ok;
 }
 
 /* MonoTODO */
 GpStatus 
 GdipIsVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool *result)
 {
-	return NotImplemented;
+	static int called = 0;
+
+	if (!called) {
+		printf("NOT IMPLEMENTED: GdipIsVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool *result)\n");
+		called = 1;
+	}
+	return Ok;
 }
 
 /* MonoTODO */
 GpStatus 
 GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result)
 {
-	return NotImplemented;
+	static int called = 0;
+
+	if (!called) {
+		printf("NOT IMPLEMENTED: GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result)\n");
+		called = 1;
+	}
+	return Ok;
 }
 
 /* MonoTODO */
 GpStatus 
 GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool *result)
 {
-	return NotImplemented;
+	static int called = 0;
+
+	if (!called) {
+		printf("NOT IMPLEMENTED: GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool *result)\n");
+		called = 1;
+	}
+	return Ok;
 }
