@@ -490,7 +490,7 @@ GpStatus
 gdip_save_bmp_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
                                         GpImage *image)
 {	
-        return gdip_save_bmp_image_to_file_stream ( (void *)&putBytesFunc, image, FALSE);
+        return gdip_save_bmp_image_to_file_stream ( (void *)putBytesFunc, image, FALSE);
 }
 
 GpStatus 
@@ -515,11 +515,9 @@ gdip_save_bmp_image_to_file_stream (void *pointer,
         bmfh.bfSize = (bmfh.bfOffBits + bitmapLen);
 
         bmfh.bfOffBits = (14 + 40 + colours * 4);
-        printf("\n bmpcodec.c before first call to gdip_write_bmp_image_to_file_stream");
-	gdip_write_bmp_data (pointer, (byte *)&bmfh, sizeof (bmfh), useFile);
+        gdip_write_bmp_data (pointer, (byte *)&bmfh, sizeof (bmfh), useFile);
         
 	gdip_bitmap_fill_info_header (bitmap, &bmi);
-	printf("\n bmpcodec.c before second call to gdip_write_bmp_image_to_file_stream");
 	gdip_write_bmp_data (pointer, (byte *)&bmi, sizeof (bmi), useFile);
 
         if (colours) {
@@ -535,8 +533,7 @@ gdip_save_bmp_image_to_file_stream (void *pointer,
 			gdip_write_bmp_data (pointer, &b, 1, useFile);
                         b = color >> 24;
 			gdip_write_bmp_data (pointer, &b, 1, useFile);
-                }
-		printf("\n bmpcodec.c colours written");
+                }	
         }
         
         /* Writes bitmap upside down. Many tools can only process bmp stored this way*/        
@@ -549,8 +546,6 @@ void gdip_write_bmp_data (void *pointer, byte *data, int size, bool useFile)
 {
 	if (useFile)
 		fwrite (data, 1, size, (FILE*) pointer);
-	else {
-		printf("\n bmpcodec.c in gdip_write_bmp_image_to_file_stream using PutBytesDelegate");
-		((PutBytesDelegate)(&pointer))(data, size);
-	}
+	else 	
+		((PutBytesDelegate)(pointer))(data, size);	
 }
