@@ -1,3 +1,7 @@
+2004-03-28  Sanjay Gupta <gsanjay@novell.com>
+	* pngcodec.c implementing png encoder
+	* pngcodec.h implementing png encoder
+
 2004-03-26  Duncan Mak  <duncan@ximian.com>
 
 	* graphics.c: Prepare for the Curve and CloseCurve work by

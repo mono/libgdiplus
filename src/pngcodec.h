@@ -11,9 +11,33 @@
 #define _PNGCODEC_H
 #include "gdip.h"
 
+typedef struct {
+	unsigned int width;
+	unsigned int height;
+	byte bit_depth;
+	byte color_type;
+	byte compression_method;
+	byte filter_method;
+	byte interlace_method;
+} PNGHeader;
+
 GpStatus 
 gdip_load_png_image_from_file (FILE *fp, GpImage *image);
 
 GpStatus 
 gdip_save_png_image_to_file (FILE *fp, GpImage *image);
+
+GpStatus
+gdip_png_handle_error(GpImage *image, GpStatus status);
+
+GpStatus
+gdip_read_png_idat_chunk(FILE *fp, int length, PNGHeader *header, GpImage *image);
+
+GpStatus
+gdip_read_png_iend_chunk(FILE *fp, int length, PNGHeader *header);
+
+GpStatus
+gdip_read_png_plte_chunk(FILE *fp, int length, PNGHeader *header, GpImage *image);
+
+
 #endif /* _PNGCODEC_H */
