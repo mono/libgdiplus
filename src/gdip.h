@@ -407,6 +407,18 @@ typedef enum
     SmoothingModeAntiAlias
 } SmoothingMode;
 
+typedef enum
+{
+    EncoderParameterValueTypeByte = 1,
+    EncoderParameterValueTypeASCII = 2,
+    EncoderParameterValueTypeShort = 3,
+    EncoderParameterValueTypeLong = 4,
+    EncoderParameterValueTypeRational = 5,
+    EncoderParameterValueTypeLongRange = 6,
+    EncoderParameterValueTypeUndefined = 7,
+    EncoderParameterValueTypeRationalRange = 8
+} EncoderParameterValueType;
+
 /* private enum */
 
 typedef enum {
@@ -504,14 +516,14 @@ typedef struct {
 } GUID, Guid, CLSID;
 
 typedef struct {
-	GUID    Guid;               
+    GUID    Guid;               
     ULONG   NumberOfValues;     
-    ULONG   Type;               
+    EncoderParameterValueType   Type;               
     VOID*   Value; 
 } EncoderParameter;
 
 typedef struct {
-	UINT Count;                      
+    UINT Count;                      
     EncoderParameter Parameter[1];
 } EncoderParameters;
 
@@ -925,5 +937,14 @@ cairo_surface_t *gdip_bitmap_ensure_surface (GpBitmap *bitmap);
 typedef int (*GetBytesDelegate) (unsigned char *, int, BOOL);
 typedef int (*SeekDelegate) (int, int);
 typedef int (*PutBytesDelegate) (unsigned char *, int);
+
+/* CLSIDs/GUIDs */
+extern CLSID gdip_bmp_image_format_guid;
+extern CLSID gdip_jpg_image_format_guid;
+extern CLSID gdip_png_image_format_guid;
+extern CLSID gdip_gif_image_format_guid;
+extern CLSID gdip_tif_image_format_guid;
+
+extern GUID GdipEncoderQuality;
 
 #endif /* _GDIP_H */

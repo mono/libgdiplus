@@ -1,3 +1,11 @@
+2004-04-27  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* gdip.h: Added EncoderParameterValueType enum
+
+	* image.c (GdipDrawImageRectRect, GdipDrawImagePoints): implemented.
+	(gdip_encoder_parameter_search_int): start of some encoder
+	parameter stuff
+
 2004-04-26  Duncan Mak  <duncan@ximian.com>
 
 	* general.c (gdip_open_curve_tangents):

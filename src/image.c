@@ -1,4 +1,4 @@
-/* -*- Mode: c; c-basic-offset: 4; indent-tabs-mode: nil; -*-
+/* -*- Mode: c; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 4; -*-
  *
  * image.c
  * 
@@ -170,7 +170,6 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
     /* Create a surface for this bitmap if one doesn't exist */
     gdip_bitmap_ensure_surface ((GpBitmap*) image);
 
-    cairo_move_to (graphics->ct, x, y);
     gdip_cairo_set_surface_pattern (graphics->ct, image->surface);
     cairo_rectangle (graphics->ct, x, y, width, height);
 
@@ -187,16 +186,40 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
     return Ok;
 }
 
+/* points are upper left, upper right, lower left. fourth point is extrapolated. */
 GpStatus
 GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *dstPoints, int count)
 {
-    return NotImplemented; /* GdipDrawImagePoints */
+    float x, y, width, height;
+
+    g_return_val_if_fail (graphics != NULL, InvalidParameter);
+    g_return_val_if_fail (image != NULL, InvalidParameter);
+    g_return_val_if_fail (dstPoints != NULL, InvalidParameter);
+    g_return_val_if_fail (count != 3, InvalidParameter);
+
+    x = dstPoints[0].X;
+    y = dstPoints[0].Y;
+    width = dstPoints[1].X - dstPoints[0].X;
+    height = dstPoints[2].Y - dstPoints[2].Y;
+
+    return GdipDrawImageRect (graphics, image, x, y, width, height);
 }
 
 GpStatus
 GdipDrawImagePointsI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *dstPoints, int count)
 {
-    return NotImplemented; /* GdipDrawImagePointsI */
+    GpPointF points[3];
+    int i;
+
+    g_return_val_if_fail (dstPoints != NULL, InvalidParameter);
+    g_return_val_if_fail (count != 3, InvalidParameter);
+
+    for (i = 0; i < 3; i++) {
+        points[i].X = dstPoints[i].X;
+        points[i].Y = dstPoints[i].Y;
+    }
+
+    return GdipDrawImagePoints (graphics, image, points, 3);
 }
 
 GpStatus
@@ -226,7 +249,43 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
                        GDIPCONST GpImageAttributes *imageAttributes,
                        DrawImageAbort callback, void *callbackData)
 {
-    return NotImplemented; /* GdipDrawImageRectRect */
+    cairo_pattern_t *pattern;
+    cairo_matrix_t *mat;
+
+    g_return_val_if_fail (graphics != NULL, InvalidParameter);
+    g_return_val_if_fail (image != NULL, InvalidParameter);
+    g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
+
+    if (srcUnit != UnitPixel && srcUnit != UnitWorld) {
+        gdip_unitConversion(srcUnit, UnitPixel, dstx, &dstx);
+        gdip_unitConversion(srcUnit, UnitPixel, dsty, &dsty);
+        gdip_unitConversion(srcUnit, UnitPixel, dstwidth, &dstwidth);
+        gdip_unitConversion(srcUnit, UnitPixel, dstheight, &dstheight);
+        gdip_unitConversion(srcUnit, UnitPixel, srcx, &srcx);
+        gdip_unitConversion(srcUnit, UnitPixel, srcy, &srcy);
+        gdip_unitConversion(srcUnit, UnitPixel, srcwidth, &dstwidth);
+        gdip_unitConversion(srcUnit, UnitPixel, srcheight, &srcheight);
+    }
+
+    /* Create a surface for this bitmap if one doesn't exist */
+    gdip_bitmap_ensure_surface ((GpBitmap*) image);
+
+    mat = cairo_matrix_create ();
+    cairo_matrix_scale (mat, srcwidth / dstwidth, srcheight / dstheight);
+    cairo_matrix_translate (mat, srcx - dstx, srcy - dsty);
+    cairo_surface_set_matrix (image->surface, mat);
+
+    gdip_cairo_set_surface_pattern (graphics->ct, image->surface);
+
+    cairo_rectangle (graphics->ct, dstx, dsty, dstwidth, dstheight);
+    cairo_fill (graphics->ct);
+
+    cairo_matrix_set_identity (mat);
+    cairo_surface_set_matrix (image->surface, mat);
+
+    /* unref */
+    cairo_matrix_destroy (mat);
+    return Ok;
 }
 
 GpStatus
@@ -889,4 +948,32 @@ clsid_to_string_hack (GDIPCONST CLSID *clsid)
               clsid->Data1, clsid->Data2, clsid->Data3,
               clsid->Data4[0], clsid->Data4[1], clsid->Data4[2], clsid->Data4[3], clsid->Data4[4], clsid->Data4[5], clsid->Data4[6], clsid->Data4[7]);
     return buf;
+}
+
+GpStatus
+gdip_encoder_parameter_search_int (EncoderParameters *params, GUID *guid, int *result)
+{
+    int i;
+
+    if (params == NULL)
+        return GenericError;
+
+    for (i = 0; i < params->Count; params++) {
+        if (memcmp (guid, &params->Parameter[i].Guid, sizeof(GUID)) == 0) {
+            if (params->Parameter[i].NumberOfValues != 1)
+                return GenericError;
+
+            switch (params->Parameter[i].Type) {
+                case EncoderParameterValueTypeByte:
+                case EncoderParameterValueTypeLong:
+                case EncoderParameterValueTypeShort:
+                    *result = *(int *)params->Parameter[i].Value;
+                    return Ok;
+                default:
+                    return GenericError;
+            }
+        }
+    }
+
+    return GenericError;
 }
