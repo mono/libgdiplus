@@ -1,3 +1,8 @@
+2005-03-15  Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: Fixes GdipSetWorldTransform. We should copy the passed matrix 
+	not to point to it
+
 2005-02-24  Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* region.c: Fixes IsVisible methods

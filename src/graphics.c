@@ -444,7 +444,7 @@ GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-        graphics->copy_of_ctm = matrix;
+	cairo_matrix_copy (graphics->copy_of_ctm, matrix);
         cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
         return Ok;
 }
