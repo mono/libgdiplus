@@ -1,3 +1,8 @@
+2004-11-05  Ravindra  <rkumar@novell.com>
+
+	* graphics-path.c: Fixed int_to_float () function. We should not
+	increase the pointer that is to be returned.
+
 2004-10-29  Jordi Mas <jordi@ximian.com>
 
 	* font.c gdip.h gdip_win32.h gifcodec.c graphics.c matrix.c  pathgradientbrush.c 

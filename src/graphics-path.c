@@ -75,9 +75,9 @@ int_to_float (const GpPoint *pts, int count)
         GpPoint *tmp = (GpPoint *) pts;
         int i;
 
-        for (i = 0; i < count; i++, p++, tmp++) {
-                p->X = (float) tmp->X;
-                p->Y = (float) tmp->Y;
+        for (i = 0; i < count; i++) {
+                p[i].X = (float) tmp[i].X;
+                p[i].Y = (float) tmp[i].Y;
         }
 
         return p;
@@ -1034,6 +1034,7 @@ GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count)
         Status s;
 
 	g_return_val_if_fail (points != NULL, InvalidParameter);
+	g_return_val_if_fail (count > 0, InvalidParameter);
 
 	tmp = int_to_float (points, count);
 
