@@ -1,4 +1,7 @@
 2004-05-28 Jordi Mas <jordi@ximian.com>
+	* tiffcodec.c, image.c: added support for saving TIFF files
+
+2004-05-28 Jordi Mas <jordi@ximian.com>
 	* bitmap.c, image.c, tiffcodec.c: reformmated using Mono code style. No code
 	changes made
 

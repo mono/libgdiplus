@@ -617,7 +617,10 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 	}
 	
 	if ((fp = fopen(file_name, "wb")) == NULL)
-	return GenericError;
+		return GenericError;
+		
+	printf ("format %u\n", format);
+		
 	g_free (file_name);
 	
 	switch (format) {
@@ -629,6 +632,9 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 		break;
 	case JPEG:
 		status = gdip_save_jpeg_image_to_file (fp, image, params);
+		break;
+	case TIF:
+		status = gdip_save_tiff_image_to_file (fp, image);
 		break;
 	default:
 		status = NotImplemented;
@@ -1525,4 +1531,3 @@ gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid)
 	
 	return NULL;
 }
-

@@ -23,6 +23,7 @@
  * Authors:
  *  	Sanjay Gupta (gsanjay@novell.com)
  *	Vladimir Vukicevic (vladimir@pobox.com)
+ *	Jordi Mas (jordi@ximian.com)
  *
  * Copyright (C) Novell, Inc. 2003-2004.
  */
@@ -187,8 +188,45 @@ error:
 
 GpStatus 
 gdip_save_tiff_image_to_file (FILE *fp, GpImage *image)
-{
-	return NotImplemented;
+{	
+	TIFF* tiff;
+	GpBitmap *bitmap = (GpBitmap *) image;	
+	unsigned char *buf = NULL;
+	int i, linebytes;
+	
+	tiff = TIFFFdOpen (fileno (fp), "lose.tif", "w");
+	
+	if (!tiff)
+		return FileNotFound;		
+		
+	TIFFSetField (tiff, TIFFTAG_IMAGEWIDTH, bitmap->data.Width);  
+	TIFFSetField (tiff, TIFFTAG_IMAGELENGTH, bitmap->data.Height); 
+	TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, 4); /* Hardcoded 32bbps*/
+	TIFFSetField (tiff, TIFFTAG_BITSPERSAMPLE, 8);  
+	TIFFSetField (tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);   
+	TIFFSetField (tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG); 
+	TIFFSetField (tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+	linebytes =  bitmap->data.Stride;     	
+	
+	if (TIFFScanlineSize (tiff) < linebytes) 
+		buf =(unsigned char *)_TIFFmalloc (linebytes); 
+	else 
+		buf = (unsigned char *)_TIFFmalloc (TIFFScanlineSize (tiff)); 
+
+	TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, linebytes)); 
+	
+        for (i = 0; i < bitmap->data.Height; i++) {
+		if (TIFFWriteScanline (tiff, bitmap->data.Scan0 + i *bitmap->data.Stride, i, 0) < 0) 
+			break;
+	}
+		
+	TIFFClose (tiff); 
+	
+	if (buf) 
+		_TIFFfree (buf);
+
+	return Ok;
+	
 }
 
 #else
