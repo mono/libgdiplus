@@ -150,10 +150,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
         channels = png_get_channels (png_ptr, info_ptr);
         interlace = png_get_interlace_type (png_ptr, info_ptr);
 
-        /* Don't even bother with interlaced png files, ugh */
-        if (interlace != 0)
-            goto error;
-
         stride = width * 4;
 
         row_pointers = png_get_rows (png_ptr, info_ptr);
