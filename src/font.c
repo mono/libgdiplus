@@ -349,10 +349,8 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHei
 
 	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
 
-	if (font){
-		TT_VertHeader *pVert = FT_Get_Sfnt_Table (font->cairofnt->face, ft_sfnt_vhea);
-		rslt = pVert->yMax_Extent;
-
+	if (font) {
+		rslt = font->cairofnt->face->units_per_EM;
 		GdipDeleteFont (font);
 	}
 
