@@ -350,7 +350,13 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHei
 	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
 
 	if (font) {
-		rslt = font->cairofnt->face->units_per_EM;
+		TT_VertHeader *pVert = FT_Get_Sfnt_Table (font->cairofnt->face, ft_sfnt_vhea);
+		if (pVert)
+			rslt = pVert->yMax_Extent;
+		else if (font->cairofnt->face)
+			rslt = font->cairofnt->face->units_per_EM;
+		else
+			rslt = 0;
 		GdipDeleteFont (font);
 	}
 
@@ -421,7 +427,12 @@ GdipGetLineSpacing (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Li
 
 	if (font){
 		TT_HoriHeader *pHori = FT_Get_Sfnt_Table (font->cairofnt->face, ft_sfnt_hhea);
-		rslt = pHori->Ascender + (-pHori->Descender) + pHori->Line_Gap;
+		if (pHori)
+			rslt = pHori->Ascender + (-pHori->Descender) + pHori->Line_Gap;
+		else if (font->cairofnt->face)
+			rslt = font->cairofnt->face->height;
+		else
+			rslt = 0;
 		GdipDeleteFont (font);
 	}
 

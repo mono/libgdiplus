@@ -1,3 +1,7 @@
+2004-08-17  Ravindra <rkumar@novell.com>
+
+	* font.c: Fix for bug #63098.
+
 2004-08-05  Ravindra <rkumar@novell.com>
 
 	* font.c: Fixed GdipDeleteFont function.
