@@ -1614,6 +1614,8 @@ CalculateStringSize (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, unsig
 	}
 
 	if (NumOfGlyphs==0) {
+		if (Glyphs != NULL)
+			free (Glyphs);
 		return(0);
 	}
 
@@ -1631,6 +1633,7 @@ CalculateStringSize (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, unsig
 #ifdef DRAWSTRING_DEBUG
 	printf("CalculateStringSize: string >%s< translated into %d glyphs with total width of %f pixels\n", utf8, NumOfGlyphs, TotalWidth);
 #endif
+	free (Glyphs);
 	return NumOfGlyphs;
 }
 
