@@ -1,3 +1,8 @@
+2005-01-26  Peter Bartok  <pbartok@novell.com>
+
+	* configure.in: Set default for pdb backend to disabled, to
+	  avoid problems on the Mac
+
 2005-01-21  Carl Worth  <cworth@cworth.org>
 
 	* configure.in: Increment CAIRO_VERSION to 0.3.0

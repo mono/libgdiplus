@@ -142,7 +142,7 @@ dnl ===========================================================================
 
 AC_ARG_ENABLE(pdf,
   [  --disable-pdf           Disable cairo's PDF backend],
-  [use_pdf=$enableval], [use_pdf=yes])
+  [use_pdf=$enableval], [use_pdf=no])
 
 if test "x$use_pdf" != "xyes"; then
   PDF_SURFACE_FEATURE=CAIRO_HAS_NO_PDF_SURFACE
