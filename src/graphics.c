@@ -237,21 +237,6 @@ make_pie (GpGraphics *graphics, float x, float y,
         cairo_line_to (graphics->ct, cx, cy);
 }
 
-static GpPointF *
-convert_points (GpPoint *point, int count)
-{
-        int i;
-        GpPointF *retval = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
-
-        for (i = 0; i < count; i++) {
-                retval [i].X = (float) point [i].X;
-                retval [i].Y = (float) point [i].Y;
-        }
-
-        return retval;
-}
-
-
 static cairo_fill_rule_t
 convert_fill_mode (GpFillMode fill_mode)
 {
@@ -803,17 +788,21 @@ GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen,
 }
 
 static void
-gdip_make_closed_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int count)
+make_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int count, _CurveType type)
 {
-        int i;
+        int i, length = count;
 
         if (count <= 0)
                 return;
 
+        /* don't close to the curve if it's an open curve */
+        if (type == CURVE_OPEN)
+                length = count - 1;
+        
         cairo_move_to (graphics->ct,
                         points [0].X, points [0].Y);
 
-        for (i = 1; i <= count; i++) {
+        for (i = 1; i <= length; i++) {
                 int j = i - 1;
                 int k = (i < count) ? i : 0;
 
@@ -844,10 +833,12 @@ GdipDrawClosedCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int cou
         gdip_pen_setup (graphics, pen);
         
         tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count);
-        gdip_make_closed_curve (graphics, points, tangents, count);
+        make_curve (graphics, points, tangents, count, CURVE_CLOSE);
 
         cairo_stroke (graphics->ct);
         cairo_restore (graphics->ct);
+
+        GdipFree (tangents);        
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1029,10 +1020,12 @@ GdipFillClosedCurve (GpGraphics *graphics, GpBrush *brush, GpPointF *points, int
         gdip_brush_setup (graphics, brush);
         
         tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count);
-        gdip_make_closed_curve (graphics, points, tangents, count);
+        make_curve (graphics, points, tangents, count, CURVE_CLOSE);
 
         cairo_fill (graphics->ct);
         cairo_restore (graphics->ct);
+
+        GdipFree (tangents);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }

@@ -417,16 +417,19 @@ GdipAddPathClosedCurve (GpPath *path, const GpPointF *points, int count)
 }
 
 static void
-gdip_append_closed_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int count)
+append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int count, _CurveType type)
 {
-        int i;
+        int i, length = count;
 
         if (count <= 0)
                 return;
 
+        if (type == CURVE_OPEN)
+                length = count - 1;
+        
         append_point (path, points [0], PathPointTypeStart);
 
-        for (i = 1; i <= count; i++) {
+        for (i = 1; i <= length; i++) {
                 int j = i - 1;
                 int k = (i < count) ? i : 0;
 
@@ -450,7 +453,9 @@ GdipAddPathClosedCurve2 (GpPath *path, const GpPointF *points, int count, float 
         GpPointF *tangents;
 
         tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count);
-        gdip_append_closed_curve (path, points, tangents, count);
+        append_curve (path, points, tangents, count, CURVE_CLOSE);
+
+        GdipFree (tangents);
 
         return Ok;
 }
@@ -714,7 +719,13 @@ GdipAddPathClosedCurveI (GpPath *path, const GpPoint *points, int count)
 GpStatus
 GdipAddPathClosedCurve2I (GpPath *path, const GpPoint *points, int count, float tension)
 {
-        return NotImplemented;
+        GpPointF *pt = convert_points (points, count);
+
+        Status s = GdipAddPathClosedCurve2 (path, pt, count, tension);
+
+        GdipFree (pt);
+
+        return s;
 }
 
 GpStatus

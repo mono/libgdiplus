@@ -334,6 +334,21 @@ gdpi_utf8_to_glyphs (cairo_ft_font_t	*font,
  * and the Tangent class in JPT (http://www.ccs.neu.edu/jpt/jpt_2_3/index.htm)
  *
  */
+
+GpPointF *
+convert_points (const GpPoint *point, int count)
+{
+        int i;
+        GpPointF *retval = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
+
+        for (i = 0; i < count; i++) {
+                retval [i].X = (float) point [i].X;
+                retval [i].Y = (float) point [i].Y;
+        }
+
+        return retval;
+}
+
 void
 gdip_calculate_coefficients (int count, int terms, float **coefficients, int *coefficients_count)
 {
@@ -378,7 +393,13 @@ gdip_calculate_coefficients (int count, int terms, float **coefficients, int *co
 }
 
 GpPointF *
-gdip_closed_curve_tangents (int terms, const GpPointF *points, const int count)
+gdip_open_curve_tangents (int terms, const GpPointF *points, int count)
+{
+        return NULL;
+}
+
+GpPointF *
+gdip_closed_curve_tangents (int terms, const GpPointF *points, int count)
 {
         float *coefficients;
         int coefficients_count, i, k, m;
@@ -411,3 +432,4 @@ gdip_closed_curve_tangents (int terms, const GpPointF *points, const int count)
 
         return tangents;
 }
+

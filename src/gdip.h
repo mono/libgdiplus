@@ -295,9 +295,6 @@ typedef enum
     ColorAdjustTypeAny     
 } ColorAdjustType;
 
-
-
-
 typedef enum 
 {
     CombineModeReplace,   
@@ -309,6 +306,12 @@ typedef enum
     
 } CombineMode;
 
+/* private enum */
+
+typedef enum {
+        CURVE_OPEN,
+        CURVE_CLOSE
+} _CurveType;
 
 /*
  * Structures
@@ -734,7 +737,8 @@ GpStatus GdipIsVisibleRegionRectI(GpRegion *region, int x, int y, int width, int
 #include "graphics-path.h"
 
 /* for drawing curves */
-GpPointF *gdip_closed_curve_tangents (int terms, const GpPointF *points, const int count);
+GpPointF *convert_points (const GpPoint *points, int count);
+GpPointF *gdip_closed_curve_tangents (int terms, const GpPointF *points, int count);
 void gdip_calculate_coefficients (int count, int terms, float **coefficients, int *coefficients_count);
 
 /* Memory */

@@ -1,5 +1,23 @@
 2004-04-04  Duncan Mak  <duncan@ximian.com>
 
+	* graphics.c (make_curve): Renamed from
+	gdip_make_closed_curve. Added a new _CurveType argument.
+	(convert_points): Moved to general.c, as it's used in
+	graphics-path.c as well.
+
+	* graphics-path.c (append_curve): Add a _CurveType
+	argument. Renamed from gdip_append_closed_curve for consistency.
+	(GdipAddPathClosedCurve2I): Hook it up.
+
+	* general.c (convert_points): Moved here from graphics.c
+	(gdip_open_curve_tangents): Declare here. No code yet, need to
+	investigate end tangents.
+
+	* gdip.h (_CurveType): New (private) enum for distinguishing open
+	and close curves.
+
+2004-04-04  Duncan Mak  <duncan@ximian.com>	
+
 	* graphics-path.c (append_arc): Added a new boolean argument. to
 	determine if we're continuing an existing curve.
 
