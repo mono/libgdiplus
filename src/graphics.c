@@ -877,7 +877,7 @@ gdip_measure_string_widths (GpFont *font,
                                 float* totalwidth, float* totalheight)
 {
     cairo_status_t status;
-    int i;
+    int i = 0;
     FT_GlyphSlot glyphslot;
     cairo_glyph_t* glyphs = NULL;
     size_t nglyphs;
@@ -888,6 +888,8 @@ gdip_measure_string_widths (GpFont *font,
 
     _utf8_to_glyphs (font->cairofnt, utf8, 0.0, 0.0, &glyphs, &nglyphs);
 
+    if (!nglyphs) return 1;
+
     *pwidths = malloc (sizeof(float) *nglyphs);
     *nwidths = nglyphs;
     float *pPos = *pwidths;
@@ -897,11 +899,13 @@ gdip_measure_string_widths (GpFont *font,
     double x, y;
     cairo_ft_font_t* ft = (cairo_ft_font_t *)font->cairofnt;
 
-    for (i = 0; i < nglyphs; i++, pPos++)
-        *pPos = (i==0) ? glyphs[i].x : glyphs[i].x - glyphs[i-1].x;
+    for (; i < nglyphs-1; i++, pPos++){
+        *pPos = glyphs[i+1].x - glyphs[i].x;
+        *totalwidth= *pPos;
+    }
 
-    *totalwidth= glyphs[i].x + DOUBLE_FROM_26_6 (ft->face->glyph->advance.x);
-
+    *pPos = DOUBLE_FROM_26_6 (ft->face->glyph->advance.x);
+    *totalwidth= *pPos;
     return 1;
 }
 
@@ -937,8 +941,7 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
         float width = 0, height = 0;
         float* pwidths = NULL;
         float* pPos;
-        int nwidths, i;
-        int nGlyp=0;
+        int nwidths, i, nGlyp;
         float realY = rc->Y + font->sizeInPixels;
         float w = 0, x=rc->X, y=realY;
         int nLast = 0, nLines = 0;
@@ -952,19 +955,20 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
         printf("width->%f, height->%f\n", width, height);
 
         pPos = pwidths;
-        bool bContinua = TRUE;
-
+        
         // Determine in which positions the strings have to be drawn
         GpPoint* pPoints = (GpPoint*) malloc(sizeof(GpPointF) * nwidths);
         GpPoint* pPoint = pPoints;
         
         GdipGetStringFormatAlign(format, &align);
         GdipGetStringFormatLineAlign(format, &lineAlign);
+        
+        for (nGlyp=0, w=0; nGlyp < nwidths; pPos++, nGlyp++) {
 
-        w=*pPos;
-        while (1){
-
-            if ((w + *(pPos+1)) >rc->Width ||  bContinua==FALSE) {
+            w+=*pPos;
+          
+            if (!(nGlyp+1 < nwidths) || (w + *(pPos+1)) >rc->Width) {
+              
                 switch(align){
                 case StringAlignmentNear:// Left
                     pPoint->X = rc->X;
@@ -974,7 +978,7 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
                     break;
                 case StringAlignmentFar: // Right
                     pPoint->X = rc->X;
-                    pPoint->X += (w < rc->Width) ? (rc->Width - w) : 0;
+                    pPoint->X += rc->Width - w;
                     break;
                 default:
                     break;
@@ -985,14 +989,6 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
                 w=0;
                 nLines++;
             }
-
-            if (bContinua==FALSE) break;
-
-            pPos++;
-            w+=*pPos;
-            nGlyp++;
-
-            if (nGlyp >= nwidths) bContinua = FALSE;
         }
 
         float alignY = realY; // Default, top
@@ -1018,19 +1014,18 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
             alignY+=font->sizeInPixels;
         }
 
-        bContinua = TRUE;
-        pPos = pwidths;
-        w = *pPos;
-        nGlyp=0;
+        pPos = pwidths;  
         pPoint = pPoints;
 
         // Draw the strings
-        while (1){
+        for (w=0, nGlyp=1; nGlyp < nwidths+1; pPos++, nGlyp++) {
 
-            if ((w + *(pPos+1)) >rc->Width ||  bContinua==FALSE) {
+          w+=*pPos;
+         
+          if (!(nGlyp+1 < nwidths+1) || (w + *(pPos+1)) >rc->Width) {
 
                 char* spiece = (char*)g_utf16_to_utf8 (pUnicode, (glong)nGlyp-nLast, NULL, NULL, NULL);
-                printf("piece->%s\n", spiece);
+                printf("piece->%s!\n", spiece);
 
                 pUnicode+=(nGlyp-nLast);
                 nLast = nGlyp;                
@@ -1040,21 +1035,11 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
 
                 w=0;
                 pPoint++;
-            }
-
-            if (bContinua==FALSE) break;
-
-            pPos++;
-            w+=*pPos;
-            nGlyp++;
-
-            if (nGlyp >= nwidths) bContinua = FALSE;
-        
+            }               
         }
 
         cairo_select_font_nondestructive(graphics->ct, prev);
         cairo_matrix_copy (&font->cairofnt->base.matrix, (const cairo_matrix_t *)&saved);
-
         
         g_free(string);
         free(pwidths);
