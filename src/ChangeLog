@@ -1,5 +1,9 @@
 2004-06-29  Jordi Mas <jordi@ximian.com>
 
+	* pngcodec.c: fixes saving 24-bit images (it was saving corrupted files before)
+
+2004-06-29  Jordi Mas <jordi@ximian.com>
+
 	* tiffcodec.c: fixes saving images to stream. It was giving an exception
 	before
 

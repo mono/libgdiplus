@@ -346,11 +346,11 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
     switch (image->pixFormat) {
         case Format32bppArgb:
         case Format32bppPArgb:
+	case Format32bppRgb: /*Cairo stores internally RGB24 as RGB32 */
+        case Format24bppRgb:        
             color_type = PNG_COLOR_TYPE_RGB_ALPHA;
             break;
-        case Format32bppRgb:
-        case Format24bppRgb:
-            color_type = PNG_COLOR_TYPE_RGB;
+           
             break;
         case Format8bppIndexed:
             color_type = PNG_COLOR_TYPE_RGB; /* XXX - we should be able to write grayscale PNGs */
