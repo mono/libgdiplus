@@ -178,6 +178,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 	break;
 	case Format32bppArgb:
 		cairo_format = CAIRO_FORMAT_ARGB32;
+        break;
         case Format8bppIndexed:
         	cairo_format = CAIRO_FORMAT_A8;        
         break;
