@@ -50,6 +50,7 @@ GUID gdip_exif_image_format_guid = {0xb96b3cb2U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 
 GUID gdip_wmf_image_format_guid = {0xb96b3cadU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 GUID gdip_emf_image_format_guid = {0xb96b3cacU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 
+
 /*
  * encoder param guids
  */
@@ -1288,36 +1289,41 @@ GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
 GpStatus
 GdipSaveImageToDelegate_linux (GpImage *image, PutBytesDelegate putBytesFunc, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params)
 {
-    GpStatus status = 0;
-    ImageFormat format;
+	GpStatus status = 0;
+    	ImageFormat format;
 
-    if (image->type != imageBitmap)
-        return InvalidParameter;
+    	if (image->type != imageBitmap)
+        	return InvalidParameter;
 
-    if (!image || !encoderCLSID)
-        return InvalidParameter;
+    	if (!image || !encoderCLSID)
+        	return InvalidParameter;
 
-    format = gdip_image_format_for_format_guid (encoderCLSID);
-    
-    if (format == INVALID)
-        return UnknownImageFormat;
-   
-    switch (format) {
-        case PNG:
-            status = gdip_save_png_image_to_stream_delegate (putBytesFunc, image, params);
-            break;
-        case JPEG:
-            status = gdip_save_jpeg_image_to_stream_delegate (putBytesFunc, image, params);
-            break;
-        case GIF:
-            status = gdip_save_gif_image_to_stream_delegate (putBytesFunc, image, params);
-            break;
-        default:
-            status = NotImplemented;
-            break;
-    }
+    	format = gdip_get_imageformat_from_codec_clsid ((CLSID *)encoderCLSID);
+    	if (format == INVALID)
+        	return UnknownImageFormat;
 
-    return status;
+    	switch (format) {
+		case BMP:
+	    		status = gdip_save_bmp_image_to_stream_delegate (putBytesFunc, image);
+	    		break;
+        	case PNG:
+            		status = gdip_save_png_image_to_stream_delegate (putBytesFunc, image, params);
+            		break;
+        	case JPEG:
+            		status = gdip_save_jpeg_image_to_stream_delegate (putBytesFunc, image, params);
+            		break;
+	        case GIF:
+        	    	status = gdip_save_gif_image_to_stream_delegate (putBytesFunc, image, params);
+            		break;
+		case TIF:
+	    		status = NotImplemented;
+	    		break;
+	        default:
+        		status = NotImplemented;
+	            	break;
+    	}
+
+    	return status;
 }
 
 ImageFormat
