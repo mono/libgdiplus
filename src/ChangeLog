@@ -1,3 +1,23 @@
+2004-04-13  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* texturebrush.h: Moved WrapMode enum to gdip.h, to share
+	it with the pgbrush
+	
+	* general.c (gdip_rect_expand_by): Helper function to
+	build bounding rects
+
+	* gdip.h: Bunch of new prototypes
+	
+	* pathgradientbrush.c: Stub implementations of this.  Real version
+	will probably require me to add gouraud triangle shading to cairo,
+	which will happen Real Soon Now.
+
+2004-04-12  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* gdip.h, image.c: I misread the *I methods.  Implement
+	them correctly, keeping the corrent int/float distinction.
+	Also added a bunch of GdipDrawImage* stubs.
+
 2004-04-11  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* general.c (GdiplusStartup): I really meant $GDIPLUS_NOX

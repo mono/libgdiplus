@@ -485,3 +485,30 @@ gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s)
     cairo_set_pattern (t, pat);
     cairo_pattern_destroy (pat);
 }
+
+void
+gdip_rect_expand_by (GpRectF *rect, GpPointF *point)
+{
+    /* This method is somewhat stupid, because GpRect is x,y width,height,
+     * instead of x0,y0 x1,y1.
+     */
+    float x0 = rect->X;
+    float y0 = rect->Y;
+    float x1 = x0 + rect->Width;
+    float y1 = y0 + rect->Height;
+
+    if (point->X < x0)
+        x0 = point->X;
+    else if (point->X > x1)
+        x1 = point->X;
+
+    if (point->Y < y0)
+        y0 = point->Y;
+    else if (point->Y > y1)
+        y1 = point->Y;
+
+    rect->X = x0;
+    rect->Y = y0;
+    rect->Width = (x1 - x0);
+    rect->Height = (y1 - y0);
+}

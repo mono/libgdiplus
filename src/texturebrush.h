@@ -12,14 +12,6 @@
 
 #include "brush.h"
 
-typedef enum {
-	WrapModeTile = 0,
-	WrapModeTileFlipX = 1,
-	WrapModeTileFlipY = 2,
-	WrapModeTileFlipXY = 3,
-	WrapModeClamp = 4
-} GpWrapMode, WrapMode;
-
 /* Structures */
 
 typedef struct _Texture GpTexture;

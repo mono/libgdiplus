@@ -129,25 +129,25 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 }
 
 GpStatus 
-GdipDrawImage (GpGraphics *graphics, GpImage *image, int x, int y)
+GdipDrawImageI (GpGraphics *graphics, GpImage *image, int x, int y)
 {
-    return GdipDrawImageRectI (graphics, image, x, y, image->width, image->height);
+    return GdipDrawImageRect (graphics, image, x, y, image->width, image->height);
 }
 
 GpStatus 
-GdipDrawImageI (GpGraphics *graphics, GpImage *image, int x, int y)
+GdipDrawImage (GpGraphics *graphics, GpImage *image, float x, float y)
 {
-    return GdipDrawImageRectI (graphics, image, x, y, image->width, image->height);
-}
-
-GpStatus
-GdipDrawImageRect (GpGraphics *graphics, GpImage *image, int x, int y, int width, int height)
-{
-    return GdipDrawImageRectI (graphics, image, x, y, width, height);
+    return GdipDrawImageRect (graphics, image, x, y, image->width, image->height);
 }
 
 GpStatus
 GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int width, int height)
+{
+    return GdipDrawImageRect (graphics, image, x, y, width, height);
+}
+
+GpStatus
+GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float width, float height)
 {
     g_return_if_fail (image->surface != NULL);
 
@@ -175,16 +175,97 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
 }
 
 GpStatus
+GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *dstPoints, int count)
+{
+    return NotImplemented; /* GdipDrawImagePoints */
+}
+
+GpStatus
+GdipDrawImagePointsI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *dstPoints, int count)
+{
+    return NotImplemented; /* GdipDrawImagePointsI */
+}
+
+GpStatus
+GdipDrawImagePointRect (GpGraphics *graphics, GpImage *image,
+                        float x, float y,
+                        float srcx, float srcy, float srcwidth, float srcheight,
+                        GpUnit srcUnit)
+{
+    return NotImplemented; /* GdipDrawImagePointRect */
+}
+
+GpStatus
+GdipDrawImagePointRectI (GpGraphics *graphics, GpImage *image,
+                         int x, int y,
+                         int srcx, int srcy, int srcwidth, int srcheight,
+                         GpUnit srcUnit)
+{
+    return GdipDrawImagePointRect (graphics, image, x, y, srcx, srcy, srcwidth, srcheight, srcUnit);
+}
+
+
+GpStatus
+GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
+                       float dstx, float dsty, float dstwidth, float dstheight,
+                       float srcx, float srcy, float srcwidth, float srcheight,
+                       GpUnit srcUnit,
+                       GDIPCONST GpImageAttributes *imageAttributes,
+                       DrawImageAbort callback, void *callbackData)
+{
+    return NotImplemented; /* GdipDrawImageRectRect */
+}
+
+GpStatus
+GdipDrawImageRectRectI (GpGraphics *graphics, GpImage *image,
+                        int dstx, int dsty, int dstwidth, int dstheight,
+                        int srcx, int srcy, int srcwidth, int srcheight,
+                        GpUnit srcUnit,
+                        GDIPCONST GpImageAttributes *imageAttributes,
+                        DrawImageAbort callback, void *callbackData)
+{
+    return GdipDrawImageRectRect (graphics, image, dstx, dsty, dstwidth, dstheight,
+                                  srcx, srcy, srcwidth, srcheight,
+                                  srcUnit,
+                                  imageAttributes, callback, callbackData);
+}
+
+GpStatus
+GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image,
+                         GDIPCONST GpPointF *points, int count,
+                         float srcx, float srcy, float srcwidth, float srcheight,
+                         GpUnit srcUnit,
+                         GDIPCONST GpImageAttributes *imageAttributes,
+                         DrawImageAbort callback, void *callbackData)
+{
+    return NotImplemented; /* GdipDrawImagePointsRect */
+}
+
+GpStatus
+GdipDrawImagePointsRectI (GpGraphics *graphics, GpImage *image,
+                          GDIPCONST GpPoint *points, int count,
+                          int srcx, int srcy, int srcwidth, int srcheight,
+                          GpUnit srcUnit,
+                          GDIPCONST GpImageAttributes *imageAttributes,
+                          DrawImageAbort callback, void *callbackData)
+{
+    return NotImplemented; /* GdipDrawImagePointsRectI */
+}
+
+
+/*
+ * These two will never be implemented, as 'stream' is a COM IStream
+ */
+GpStatus
 GdipLoadImageFromStream (void *stream, GpImage **image)
 {
-    return NotImplemented;
+    return NotImplemented; /* GdipLoadImageFromStream - not supported */
 }
 
 GpStatus
 GdipSaveImageToStream (GpImage *image, void *stream, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params)
 {
-    fprintf (stderr, "GdipSaveImageToStream: Not Implemented!\n");
-    return NotImplemented;
+    return NotImplemented; /* GdipSaveImageToStream - not supported */
 }
 
 GpStatus 
@@ -505,7 +586,7 @@ GdipRemoveProperyItem (GpImage *image, PROPID propID)
 GpStatus 
 GdipSetProperyItem (GpImage *image, GDIPCONST PropertyItem *item)
 {
-	return NotImplemented;
+    return NotImplemented; /* GdipSetPropertyItem */
 }
 
 
@@ -520,7 +601,7 @@ GdipCloneImage(GpImage *image, GpImage **cloneImage)
                 gdip_bitmap_clone ((GpBitmap *) image, (GpBitmap **) cloneImage);
 		break;
 	case imageMetafile:
-                return NotImplemented;
+                return NotImplemented; /* GdipCloneImage - imageMetafile */
         case imageUndefined:
 		break;
 	default:

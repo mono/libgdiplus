@@ -52,7 +52,12 @@ typedef struct {
     FcPattern *pattern;
 } cairo_ft_font_t;
 
-
+/*
+ * Callbacks
+ */
+typedef int (*ImageAbort) (void *);
+typedef ImageAbort DrawImageAbort;
+typedef ImageAbort GetThumbnailImageAbort;
 
 /*
  * Constants
@@ -237,6 +242,14 @@ typedef enum {
 } GpWarpMode, WarpMode;
 
 typedef enum {
+	WrapModeTile = 0,
+	WrapModeTileFlipX = 1,
+	WrapModeTileFlipY = 2,
+	WrapModeTileFlipXY = 3,
+	WrapModeClamp = 4
+} GpWrapMode, WrapMode;
+
+typedef enum {
     StringFormatFlagsDirectionRightToLeft = 0x00000001,
     StringFormatFlagsDirectionVertical = 0x00000002,
     StringFormatFlagsNoFitBlackBox = 0x00000004,
@@ -247,7 +260,6 @@ typedef enum {
     StringFormatFlagsLineLimit = 0x00002000,
     StringFormatFlagsNoClip = 0x00004000
 } StringFormatFlags;
-
 
 typedef enum  {
     StringTrimmingNone = 0,
@@ -623,10 +635,18 @@ GpStatus GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points
 GpStatus GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count, float tension);
 GpStatus GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count, float tension);
 GpStatus GdipDrawEllipse (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height);
-GpStatus GdipDrawImage (GpGraphics *graphics, GpImage *image, int x, int y);
+GpStatus GdipDrawImage (GpGraphics *graphics, GpImage *image, float x, float y);
 GpStatus GdipDrawImageI (GpGraphics *graphics, GpImage *image, int x, int y);
-GpStatus GdipDrawImageRect (GpGraphics *graphics, GpImage *image, int x, int y, int width, int height);
+GpStatus GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float width, float height);
 GpStatus GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int width, int height);
+GpStatus GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *dstPoints, int count);
+GpStatus GdipDrawImagePointsI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *dstPoints, int count);
+GpStatus GdipDrawImagePointRect (GpGraphics *graphics, GpImage *image, float x, float y, float srcx, float srcy, float srcwidth, float srcheight, GpUnit srcUnit);
+GpStatus GdipDrawImagePointRectI (GpGraphics *graphics, GpImage *image, int x, int y, int srcx, int srcy, int srcwidth, int srcheight, GpUnit srcUnit);
+GpStatus GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image, float dstx, float dsty, float dstwidth, float dstheight, float srcx, float srcy, float srcwidth, float srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes, DrawImageAbort callback, void *callbackData);
+GpStatus GdipDrawImageRectRectI (GpGraphics *graphics, GpImage *image, int dstx, int dsty, int dstwidth, int dstheight, int srcx, int srcy, int srcwidth, int srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes, DrawImageAbort callback, void *callbackData);
+GpStatus GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *points, int count, float srcx, float srcy, float srcwidth, float srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes, DrawImageAbort callback, void *callbackData);
+GpStatus GdipDrawImagePointsRectI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *points, int count, int srcx, int srcy, int srcwidth, int srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes, DrawImageAbort callback, void *callbackData);
 GpStatus GdipDrawLine (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2);
 GpStatus GdipDrawLineI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2);
 GpStatus GdipDrawLines (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count);
@@ -851,6 +871,8 @@ void gdip_font_drawunderline (GpGraphics *graphics, GpBrush *brush, float x, flo
 void gdip_font_drawstrikeout (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
 
 void gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s);
+
+void gdip_rect_expand_by (GpRectF *rect, GpPointF *point);
 
 /* Stream handling bits */
 typedef int (*GetBytesDelegate) (unsigned char *, int, BOOL);

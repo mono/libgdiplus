@@ -18,7 +18,9 @@ libgdiplus_la_SOURCES = \
 	image.c		\
 	matrix.c	\
 	pen.c		\
-	region.c		\
+	pathgradientbrush.c \
+	pathgradientbrush.h \
+	region.c	\
 	solidbrush.c	\
 	solidbrush.h	\
 	stringformat.c	\
@@ -38,4 +40,4 @@ libgdiplus_la_SOURCES = \
 
 libgdiplus_la_LIBADD = $(GDIPLUS_LIBS)
 
-INCLUDES = $(GDIPLUS_CFLAGS) -ansi -Werror
+INCLUDES = $(GDIPLUS_CFLAGS) -Werror
