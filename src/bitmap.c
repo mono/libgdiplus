@@ -643,7 +643,7 @@ gdip_from_RGB_to_ARGB (BYTE *src, int width, int height, int stride, BYTE **dest
 			pos_dest[0 + (dest_components * x)] = pos_src[0 + (src_components * x)];
 			pos_dest[1 + (dest_components * x)] = pos_src[1 + (src_components * x)];
 			pos_dest[2 + (dest_components * x)] = pos_src[2 + (src_components * x)];
-			pos_dest[3] = 0xff;
+			pos_dest[3 + (dest_components * x)] = 0xff;
 		}
 	}
 	

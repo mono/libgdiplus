@@ -1,3 +1,7 @@
+2004-06-04  Sanjay Gupta <gsanjay@novell.com>
+
+	* bitmap.c: Resolved issue with saving of 24 bit bmps.
+
 2004-06-03  Ravindra  <rkumar@novell.com>
 
 	* graphics.c: Fixed GdipDeleteGraphics and 
