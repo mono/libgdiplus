@@ -1,3 +1,7 @@
+2004-07-27  Sanjay Gupta <gsanjay@novell.com>
+
+	* tiffcodec.c: Fixing issues in saving multiple images to a file.
+
 2004-07-26  Sanjay Gupta <gsanjay@novell.com>
 
 	* image.c: Some memory management.

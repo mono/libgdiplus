@@ -152,6 +152,11 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 	for (j = 0; j < dimensionCount; j++) {
 		frameCount = image->frameDimensionList [j].count;
 		for (k = 0; k < frameCount; k++) {
+			if (k > 0){
+				TIFFCreateDirectory (tiff);
+				TIFFSetField (tiff, TIFFTAG_SUBFILETYPE, FILETYPE_PAGE);
+			}
+
 			data = image->frameDimensionList [j].frames [k];
 			TIFFSetField (tiff, TIFFTAG_IMAGEWIDTH, data.Width);  
 			TIFFSetField (tiff, TIFFTAG_IMAGELENGTH, data.Height); 
@@ -160,7 +165,7 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 			TIFFSetField (tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
 			TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, 4); /* Hardcoded 32bbps*/
 			TIFFSetField (tiff, TIFFTAG_BITSPERSAMPLE, 8);  
-	
+				
 			linebytes =  data.Stride;     	
     			TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, linebytes)); 
 			
@@ -190,7 +195,7 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 				r32++;
 			}
 			
-			TIFFWriteDirectory (tiff);
+			TIFFWriteDirectory (tiff);			
 		}
 	}
 				
