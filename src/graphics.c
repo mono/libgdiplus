@@ -267,6 +267,44 @@ GdipCreateFromHDC (int hDC, GpGraphics **graphics)
 	return Ok;
 }
 
+GpStatus
+GdipCreateFromHWND(void *hwnd, GpGraphics **graphics)
+{
+	DC		*dc;
+	void		*hdc;
+	Drawable	drawable;
+	unsigned long	drvCommand=X11DRV_GET_DRAWABLE;
+
+	if (hwnd==0) {
+		return(InvalidParameter);
+	}
+
+	/* Get the a HDC for the hwnd */
+	hdc=GetDC_pfn(hwnd);
+	if (hdc==0) {
+		return(NotImplemented);
+	}
+
+	*graphics=gdip_graphics_new();
+
+	/* Figure out the drawable */
+	dc=_get_DC_by_HDC((int)hdc);
+	if (dc==0) {
+		return(Win32Error);
+	}
+	X11DRV_ExtEscape_pfn(dc->physDev, X11DRV_ESCAPE, sizeof(drvCommand), &drvCommand, sizeof(drawable), &drawable);
+	cairo_set_target_drawable ( (*graphics)->ct, GDIP_display, drawable);
+	(*graphics)->type = gtX11Drawable;
+
+	/* Release the Wine object lock */
+	_release_hdc((int)hdc);	
+
+	/* Release our HDC */
+	ReleaseDC_pfn(hwnd, hdc);
+
+	return(Ok);
+}
+
 GpStatus 
 GdipDeleteGraphics (GpGraphics *graphics)
 {

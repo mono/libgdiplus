@@ -1,3 +1,6 @@
+2004-04-23 Peter Bartok <pbartok@novell.com>
+   * graphics.c: Implemented GdipCreateFromHWND()
+
 2004-04-22  Vladimir Vukicevic  <vladimir@pobox.com>
 
 	* bitmap.c (GdipCloneBitmapAreaI): implemented with format
