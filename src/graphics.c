@@ -411,7 +411,7 @@ GdipResetWorldTransform (GpGraphics *graphics)
 GpStatus
 GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 {
-        graphics->copy_of_ctm = matrix;
+        *(graphics->copy_of_ctm) = *(matrix);
         cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
         return Ok;
 }
@@ -447,6 +447,19 @@ GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order
         else {
                 cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
                 return Ok;
+        }
+}
+
+GpStatus
+GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder order)
+{
+        GpStatus s = GdipScaleMatrix (graphics->copy_of_ctm, sx, sy, order);
+
+        if (s != Ok)
+                return s;
+        else {
+                cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+                return s;
         }
 }
 

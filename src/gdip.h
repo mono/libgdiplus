@@ -450,6 +450,11 @@ typedef enum
         User = 262144
 } ImageCodecFlags;
 
+typedef enum {
+        CoordinateSpaceWorld,
+        CoordinateSpacePage,
+        CoordinateSpaceDevice,
+} GpCoordinateSpace;
 
 /* private enum */
 
