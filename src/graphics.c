@@ -440,12 +440,8 @@ GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrde
 GpStatus 
 GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order)
 {
-	GpStatus s;
+	GpStatus s = GdipRotateMatrix (graphics->copy_of_ctm, angle, order);
 	
-	GdipGetMatrixElements (graphics->copy_of_ctm, matrix);
-	s = GdipRotateMatrix (graphics->copy_of_ctm, angle, order);
-
-	GdipGetMatrixElements (graphics->copy_of_ctm, matrix);
         if (s != Ok)
                 return s;
         else {
