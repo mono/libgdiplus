@@ -816,7 +816,7 @@ GdipDrawString (GpGraphics *graphics, const char *stringUnicode,
         else
                 cairo_set_rgb_color (graphics->ct, 0., 0., 0.);
     
-        cairo_move_to (graphics->ct, rc->left, rc->top + font->emSize);
+        cairo_move_to (graphics->ct, rc->X, rc->Y + font->emSize);
 
         cairo_set_font (graphics->ct, font->cairofnt);
         cairo_scale_font (graphics->ct, font->emSize);

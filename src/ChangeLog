@@ -6,7 +6,8 @@
 	API and the C++ wrapper) as well as System.Drawing.
 
 	* bitmap.c (GdipBitmapLockBits): 
-	* matrix.c (GdipCreateMatrix3, GdipCreateMatrix3I): 
+	* matrix.c (GdipCreateMatrix3, GdipCreateMatrix3I):
+	* graphics.c (GdipDrawString): 	
 	* graphics-path.c
 	(GdipAddPathRectangles, GdipAddPathRectanglesI): Use X,
 	Y, Width, Height coordinates instead of the old system.
