@@ -1,3 +1,9 @@
+2005-01-26  Peter Bartok  <pbartok@novell.com>
+
+	* bmpcodec.c: 
+	  - Fixed generation of color tables (RGBA order)
+	  - Fixed monochrome image translation
+
 2005-01-26  Geoff Norton  <gnorton@customerdna.com>
 
 	* bmpcodec.c: Swap from RGBA to ABGR on big endian systems.

@@ -312,10 +312,13 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
                         for (i = 0; i < colours; i++) {
 				memset(data_read, 0, size);
 				size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-				if (size_read < size)
+				if (size_read < size) {
 					return InvalidParameter;
-				img->image.palette->Entries[i] = (((data_read[2]&0xff)<<16) | 
-					((data_read[1]&0xff)<<8) | (data_read[0]&0xff));
+				}
+				img->image.palette->Entries[i] = 
+					(((data_read[0]&0xff)<<16) | 	// R
+					((data_read[1]&0xff)<<8) | 	// G
+					(data_read[2]&0xff));		// B
                         }
 			GdipFree(data_read);
                 }
@@ -323,13 +326,16 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 			size = sizeof(byte)*4;
 			data_read = (byte*) GdipAlloc(size);
                         for (i = 0; i < colours; i++) {
-				memset(data_read, 0, size);
                                 size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-				if (size_read < size)
+				if (size_read < size) {
 					return InvalidParameter;
-                                img->image.palette->Entries[i] = (((data_read[3]&0xff)<<24)  | 
-					((data_read[2]&0xff)<<16) | ((data_read[1]&0xff)<<8) | 
-						(data_read[0]& 0xff));                       
+				}
+
+                                img->image.palette->Entries[i] = 
+					(((data_read[0]&0xff)<<16)  | 	// R
+					((data_read[1]&0xff)<<8) | 	// G
+					((data_read[2]&0xff)) | 	// B
+					((data_read[3]& 0xff)<<24));	// Alpha
                         }
 			GdipFree(data_read);
                 }
@@ -338,13 +344,14 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	}
        
         pixels = GdipAlloc (img->data.Stride * img->data.Height);
-	memset(pixels, 0, img->data.Stride * img->data.Height);
 
 	// Size contains the size of the lines on disk
 	switch (bmi.biBitCount) {
 		case 1: {
 			size = ((img->image.width + 31) & ~31) / 8;
-			loop = size - 4;
+			loop = img->image.width / 8;
+			// we assume 0s for 1 bit, only setting 1s
+			memset(pixels, 0, img->data.Stride * img->data.Height);
 			break;
 		}
 
@@ -369,7 +376,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 	data_read = (byte*) GdipAlloc(size);
 
-	//printf("Reading image data, upsidedown:%d, width: %d, stride:%d, loop:%d\n", upsidedown, size, img->data.Stride, loop);
+	//printf("Reading image data, upsidedown:%d, size: %d, stride:%d, loop:%d\n", upsidedown, size, img->data.Stride, loop);
 	for (i = 0; i < img->data.Height; i++){ 
 		if (upsidedown) {
 			line = img->data.Height - i - 1;
@@ -377,7 +384,6 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 			line = i;
 		}
 
-		memset(data_read, 0, size);
 		size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
 
 		if (size_read < size) {
@@ -393,7 +399,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 					for (bit = 0; bit < 8; bit++) {
 						index = (line * img->data.Stride) + (c*8 + bit) * 4;
 
-						if ((data_read[c] &  ((0x80 >> bit) & 0x1) ) == 0) {
+						if (((data_read[c] << bit) & 0x80) != 0) {
 							set_pixel_bgra(pixels, index, 0xff, 0xff, 0xff, 0xff);
 						} else {
 							set_pixel_bgra(pixels, index, 0x00, 0x00, 0x00, 0xff);
@@ -404,7 +410,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 				for (bit = 0; bit < img->image.width % 8; bit++) {
 					index = (line * img->data.Stride) + (c*8 + bit) * 4;
 
-					if ((data_read[c] &  ((0x80 >> bit) & 0x1) ) == 0) {
+					if (((data_read[c] << bit) & 0x80) != 0) {
 						set_pixel_bgra(pixels, index, 0xff, 0xff, 0xff, 0xff);
 					} else {
 						set_pixel_bgra(pixels, index, 0x00, 0x00, 0x00, 0xff);
