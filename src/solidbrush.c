@@ -62,15 +62,30 @@ GpStatus
 gdip_solidfill_setup (GpGraphics *graphics, GpBrush *brush)
 {
 	GpSolidFill *solid;
+	int A, R, G, B;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
 	solid = (GpSolidFill *) brush;
-        int R = (solid->color & 0x00FF0000) >> 16;
-        int G = (solid->color & 0x0000FF00) >> 8;
-        int B = (solid->color & 0x000000FF);
-        cairo_set_rgb_color (graphics->ct, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
+
+	/* We extract the ARGB components of the color, only if the
+	 * brush is changed.
+	 */
+	if (solid->base.changed) {
+		A = (solid->color & 0xFF000000) >> 24;
+		R = (solid->color & 0x00FF0000) >> 16;
+		G = (solid->color & 0x0000FF00) >> 8;
+		B = (solid->color & 0x000000FF);
+
+		solid->A = (double) A / 255.0;
+		solid->R = (double) R / 255.0;
+		solid->G = (double) G / 255.0;
+		solid->B = (double) B / 255.0;
+	}
+
+	cairo_set_rgb_color (graphics->ct, solid->R, solid->G, solid->B);
+	cairo_set_alpha (graphics->ct, solid->A);
 
 	return Ok;
 }
@@ -91,6 +106,7 @@ gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush)
 
 	result->base = solid->base;
         result->color = solid->color;
+	result->base.changed = TRUE;
 
 	*clonedBrush = (GpBrush *) result;
 
@@ -124,6 +140,8 @@ GdipSetSolidFillColor (GpSolidFill *brush, int color)
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
         brush->color = color;
+	brush->base.changed = TRUE;
+
         return Ok;
 }
 

@@ -19,6 +19,11 @@ typedef struct _SolidFill GpSolidFill;
 typedef struct _SolidFill {
 	GpBrush base;
 	int color;
+	/* We cache the color components */
+	double A;
+	double R;
+	double G;
+	double B;
 } SolidFill;
 
 /* Solid brush function */

@@ -1,5 +1,12 @@
 2004-10-09  Ravindra <rkumar@novell.com>
 
+	* solidbrush.h: Added color components A,R,G,B to SolidFill
+	struct for caching.
+	* solidbrush.c: Added support for caching.
+	* pen.c: Added support for caching.
+
+2004-10-09  Ravindra <rkumar@novell.com>
+
 	* gdip.h: Added 'last_pen' and 'last_brush' members to
 	GpGraphics struct for caching.
 	* brush.h: Added a boolean type 'changed' member to GpBrush.

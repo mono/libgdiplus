@@ -132,20 +132,24 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 
 	/* Here we use product of pen->matrix and graphics->copy_of_ctm.
 	 * This gives us absolute results with respect to graphics. We
-	 * do following irrespective of the pen->changed state since we
-	 * need to set the product matrix for subsequent stroke operations.
+	 * do following irrespective of the pen->changed state since graphics
+	 * has its own matrix and we need to multiply that with pen->matrix
+	 * every time we perform stroke operations. Graphics matrix gets
+	 * reset to its own state after stroking.
 	 */
 	product = cairo_matrix_create ();
 	cairo_matrix_multiply (product, pen->matrix, graphics->copy_of_ctm);
 	cairo_set_matrix (graphics->ct, product);
 	cairo_matrix_destroy (product);
 
-	/* Don't need to setup, if pen is not changed */
-	/* This leads to a bug when we are using the same */
-	/* graphics but with a different pen. See bug #66665 */
-	/* Commented following to fix #66665. */
-	/*	if (! pen->changed)
-		return Ok; */
+	/* Don't need to setup, if pen is the same as the cached pen and
+	 * it is not changed. Just comparing pointers may not be sufficient
+	 * to say that the pens are same. It is possible to have different
+	 * pen on the same memory, but probability is very low. We would
+	 * need a function to check the equality of the pens in that case.
+	 */
+	if (pen == graphics->last_pen && !pen->changed)
+		return Ok;
 
 	if (pen->width <= 0) { /* we draw a pixel wide line if width is <=0 */
 		double widthx = 1.0;
@@ -154,7 +158,7 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 		cairo_set_line_width (graphics->ct, widthx);
 	} else
 		cairo_set_line_width (graphics->ct, (double) pen->width);
-	
+
         cairo_set_miter_limit (graphics->ct, (double) pen->miter_limit);
         cairo_set_line_join (graphics->ct, convert_line_join (pen->line_join));
         cairo_set_line_cap (graphics->ct, convert_line_cap (pen->line_cap));
@@ -169,13 +173,14 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 		cairo_set_dash (graphics->ct, NULL, 0, 0);
 
 	/* We are done with using all the changes in the pen. */
-	/* pen->changed = FALSE; */
+	pen->changed = FALSE;
+	graphics->last_pen = pen;
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus 
-GdipCreatePen1(int argb, float width, GpUnit unit, GpPen **pen)
+GdipCreatePen1 (int argb, float width, GpUnit unit, GpPen **pen)
 {
         GpStatus s;
 	GpSolidFill *solidBrush;
