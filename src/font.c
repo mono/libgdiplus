@@ -733,140 +733,40 @@ GdipDeleteFont (GpFont* font)
 	return Ok;	       
 }
 
-static GpStatus
-CreateFontFromHDCorHfont(void *hdcIn, void *hfont, GpFont **font, LOGFONTA *lf)
-{
-	FcResult	r;
-	GpFont		*result;
-	int		slant	= 0;
-	int		weight	= FC_WEIGHT_LIGHT;
-	int		style	= 0;
-	TEXTMETRICA	tm;
-	unsigned char	FaceName[33];
-	void		*hdc;
-	void		*oldFont;
-	
-	if (!font) {
-		return InvalidParameter;
-	}
-
-	if (!hdcIn) {
-		hdc=GetDC_pfn(NULL);
-		oldFont=SelectObject_pfn(hdc, hfont);
-	} else {
-		hdc=hdcIn;
-		oldFont=0;	/* Make the compiler happy, we don't care about oldFont in this path */
-	}
-	SetMapMode_pfn(hdc, 1);
-	if (GetTextMetrics_pfn(hdc, &tm)==0 || GetTextFace_pfn(hdc, sizeof(FaceName), FaceName)==0) {
-		ReleaseDC_pfn(NULL, hdc);
-		return InvalidParameter;
-	}
-	if (!hdcIn) {
-		SelectObject_pfn(hdc, oldFont);
-		ReleaseDC_pfn(NULL, hdc);
-	}
-
-	result = (GpFont *) GdipAlloc (sizeof (GpFont));
-
-	if (tm.tmHeight<0) {
-	   result->sizeInPixels=tm.tmHeight*-1;
-	} else {
-	   result->sizeInPixels=tm.tmHeight;
-	}
-
-	if (tm.tmStruckOut!=0) {
-		style |= FontStyleStrikeout;
-	}
-
-	if (tm.tmUnderlined!=0) {
-		style |= FontStyleUnderline;
-	}
-
-	if (tm.tmItalic!=0) {
-		style |= FontStyleItalic;
-		slant = FC_SLANT_ITALIC;
-	}
-
-	if (tm.tmWeight>400) {
-		style |= FontStyleBold;
-		weight = FC_WEIGHT_BOLD;
-	}
-
-	if (!gdip_font_create (FaceName, slant, weight, result)) {
-		return InvalidParameter;	/*  FIXME - pick right return code */
-	}
-	
-	result->style = style;
-	cairo_font_reference ((cairo_font_t *)result->cairofnt);
-	result->wineHfont=CreateWineFont(FaceName, style, result->sizeInPixels, UnitPixel);
-
-	/* Assign our results */
-	*font=result;
-	if (lf) {
-		lf->lfHeight=result->sizeInPixels;
-		lf->lfItalic=tm.tmItalic;
-		lf->lfStrikeOut=tm.tmStruckOut;
-		lf->lfUnderline=tm.tmUnderlined;
-		lf->lfWeight=tm.tmWeight;
-		strcpy(lf->lfFaceName, FaceName);
-	}
-
-	return Ok;
-}
-
 GpStatus
 GdipCreateFontFromDC(void *hdc, GpFont **font)
 {
-	return(CreateFontFromHDCorHfont(hdc, NULL, font, NULL));
+	return(NotImplemented);
 }
 
 GpStatus
 GdipCreateFontFromHfont(void *hfont, GpFont **font, LOGFONTA *lf)
 {
-	return(CreateFontFromHDCorHfont(NULL, hfont, font, lf));
+	return(NotImplemented);
 }
 
 GpStatus
 GdipGetLogFontA(GpFont *font, GpGraphics *graphics, LOGFONTA *lf)
 {
-	void		*hdc;
-	void		*oldFont;
-	TEXTMETRICA	tm;
-	unsigned char	FaceName[33];
-
 	if (!font || !lf) {
 		return(InvalidParameter);
 	}
 
-	hdc=GetDC_pfn(NULL);
-	oldFont=SelectObject_pfn(hdc, font->wineHfont);
-
-	if (GetTextMetrics_pfn(hdc, &tm)==0 || GetTextFace_pfn(hdc, sizeof(FaceName), FaceName)==0) {
-		SelectObject_pfn(hdc, oldFont);
-		ReleaseDC_pfn(NULL, hdc);
-		return(Win32Error);
-	}
-
-	/* We assign what we know and default the rest */
-	lf->lfHeight=font->sizeInPixels;
-	lf->lfWidth=tm.tmAveCharWidth;
+	/* FIXME - Grab the numbers from cairo */
+	lf->lfHeight=0;
+	lf->lfWidth=0;
 	lf->lfEscapement=0;
 	lf->lfOrientation=0;
-	lf->lfWeight=tm.tmWeight;
-	lf->lfItalic=tm.tmItalic;
-	lf->lfUnderline=tm.tmUnderlined;
-	lf->lfStrikeOut=tm.tmStruckOut;
-	lf->lfCharSet=tm.tmCharSet;
+	lf->lfWeight=0;
+	lf->lfItalic=0;
+	lf->lfUnderline=0;
+	lf->lfStrikeOut=0;
+	lf->lfCharSet=0;
 	lf->lfOutPrecision=0;		/* 0 = OUT_DEFAULT_PRECIS */
 	lf->lfClipPrecision=0;		/* 0 = CLIP_DEFAULT_PRECIS */
 	lf->lfQuality=4;		/* 4 = ANTIALIASED_QUALITY */
-	lf->lfPitchAndFamily=tm.tmPitchAndFamily;
-	strcpy(lf->lfFaceName, FaceName);
-
-	/* Clean up */
-	SelectObject_pfn(hdc, oldFont);
-	ReleaseDC_pfn(NULL, hdc);
+	lf->lfPitchAndFamily=0;
+	strcpy(lf->lfFaceName, "");
 
 	return(Ok);
 }
@@ -902,4 +802,26 @@ GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memor
 
 	free(fontfile);
 	return(Ok);
+}
+
+
+bool
+GetFontMetrics(GpGraphics *graphics, GpFont *font, int *ascent, int *descent)
+{
+	cairo_font_extents_t	font_extent;
+
+	cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);
+	cairo_scale_font (graphics->ct, font->sizeInPixels);
+	cairo_current_font_extents (graphics->ct, &font_extent);
+
+	if (ascent) {
+		*ascent = (int)font_extent.ascent;
+	}
+
+	// Descent is negative for descent below the baseline
+	if (descent) {
+		*descent = -1 * (int)font_extent.descent;
+	}
+
+	return TRUE;
 }
