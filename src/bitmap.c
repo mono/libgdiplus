@@ -227,6 +227,8 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	result->data.Stride = stride;
 	result->data.PixelFormat = Format32bppArgb;
 	result->data.Scan0 = GdipAlloc (bmpSize);
+printf("WARNING: %s(%d) initializing bitmap to 0xff in GdipCreateBitmapFromGraphics (for SWF)\n", __FILE__, __LINE__);
+memset(result->data.Scan0, 0xff, bmpSize);
 	result->data.Reserved |= GBD_OWN_SCAN0;
 	*bitmap = result;
 	return Ok;
