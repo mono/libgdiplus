@@ -4,7 +4,9 @@ This is part of the Mono project
 
 Requirements:
 
-	This requires Cairo vector graphics library to build. See http://www.cairographics.org/
+	This requires the libraries used by the Cairo vector graphics library
+	to build (freetype2, fontconfig, Xft2 and libpng, basically).
+	See cairo/REAME. Note that libpixman is included in this package already.
 
 To build:
 
