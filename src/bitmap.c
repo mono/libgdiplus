@@ -982,10 +982,10 @@ void set_pixel_bgra (byte* pixel, int index, byte b, byte g, byte r, byte a)
 
 void get_pixel_bgra (int pixel, byte* b, byte* g, byte* r, byte* a)
 {
-	*b = (color & 0xff000000) >> 24;
-	*g = (color & 0x00ff0000) >> 16;
-	*r = (color & 0x0000ff00) >> 8;
-	*a = (color & 0x000000ff);
+	*b = (pixel & 0xff000000) >> 24;
+	*g = (pixel & 0x00ff0000) >> 16;
+	*r = (pixel & 0x0000ff00) >> 8;
+	*a = (pixel & 0x000000ff);
 }
 
 #else
