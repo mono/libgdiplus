@@ -27,7 +27,7 @@
 #include "gdip_win32.h"
 
 
-void gdip_brush_init(GpStringFormat* format)
+void gdip_stringformat_init(GpStringFormat* format)
 {
     format->alignment = StringAlignmentNear;
     format->lineAlignment =  StringAlignmentNear;
@@ -38,7 +38,7 @@ GpStatus
 GdipCreateStringFormat(int formatAttributes, int language, GpStringFormat  **format)
 {
     GpStringFormat* result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
-    gdip_brush_init(result);
+    gdip_stringformat_init(result);
     
     *format = result;
     return Ok;    

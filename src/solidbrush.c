@@ -23,18 +23,28 @@
  */
 
 #include "gdip.h"
+#include "solidbrush.h"
+
+// we have a single copy of vtable for
+// all instances of solidbrush.
+
+static BrushClass vtable = { BrushTypeSolidColor,
+			     gdip_solidfill_setup, 
+			     gdip_solidfill_clone,
+			     gdip_solidfill_destroy };
 
 void 
 gdip_solidfill_init (GpSolidFill *brush)
 {
+	gdip_brush_init (&brush->base, &vtable);
 	brush->color = 0;
-        brush->type = BrushTypeSolidColor;
 }
 
 GpSolidFill *
 gdip_solidfill_new (void)
 {
-	GpSolidFill *result = (GpSolidFill *) gdip_brush_new ();
+	GpSolidFill *result = (GpSolidFill *) GdipAlloc (sizeof (GpSolidFill));
+	
 	gdip_solidfill_init (result);
 	return result;
 }
@@ -42,25 +52,35 @@ gdip_solidfill_new (void)
 void
 gdip_solidfill_setup (GpGraphics *graphics, GpBrush *brush)
 {
-        int R = (brush->color & 0x00FF0000 ) >> 16;
-        int G = (brush->color & 0x0000FF00 ) >> 8;
-        int B = (brush->color & 0x000000FF );
+	GpSolidFill *solid = (GpSolidFill *) brush;
+        int R = (solid->color & 0x00FF0000 ) >> 16;
+        int G = (solid->color & 0x0000FF00 ) >> 8;
+        int B = (solid->color & 0x000000FF );
         cairo_set_rgb_color (graphics->ct, (double) R, (double) G, (double) B);
 }
 
-GpStatus
+void
 gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush)
 {
-        *clonedBrush = gdip_brush_new ();
-        (*clonedBrush)->color = brush->color;
+	GpSolidFill *result = (GpSolidFill *) GdipAlloc (sizeof (GpSolidFill));
+	GpSolidFill *solid = (GpSolidFill *) brush;
 
-        return Ok;
+	result->base = solid->base;
+        result->color = solid->color;
+
+	*clonedBrush = (GpBrush *) result;
+}
+
+void 
+gdip_solidfill_destroy (GpBrush *brush)
+{
+	GdipFree (brush);
 }
 
 GpStatus 
-GdipCreateSolidFill (int color, GpBrush **brush)
+GdipCreateSolidFill (int color, GpSolidFill **brush)
 {
-	*brush = gdip_brush_new ();
+	*brush = gdip_solidfill_new ();
 	(*brush)->color = color;
 	return Ok;
 }
@@ -69,7 +89,6 @@ GpStatus
 GdipSetSolidFillColor (GpSolidFill *brush, int color)
 {
         brush->color = color;
-
         return Ok;
 }
 
@@ -77,6 +96,5 @@ GpStatus
 GdipGetSolidFillColor (GpSolidFill *brush, int *color)
 {
         *color = brush->color;
-
         return Ok;
 }

@@ -5,8 +5,9 @@
  *      Alexandre Pigolkine (pigolkine@gmx.de)
  *      Duncan Mak (duncan@ximian.com)
  *      Miguel de Icaza (miguel@ximian.com)
+ *      Ravindra (rkumar@novell.com)
  *
- * Copyright (C) Novell, Inc. 2003.
+ * Copyright (C) Novell, Inc. 2003-2004.
  */
 
 #ifndef _GDIP_H
@@ -20,6 +21,7 @@
 #include <cairo-xlib.h>
 #endif
 #include <mono/io-layer/uglify.h>
+#include "brush.h"
 
 
 
@@ -65,30 +67,6 @@ typedef unsigned short WCHAR; // 16-bits unicode
  * Enums
  *
  */
-
-typedef enum {
-    Ok = 0,
-    GenericError = 1,
-    InvalidParameter = 2,
-    OutOfMemory = 3,
-    ObjectBusy = 4,
-    InsufficientBuffer = 5,
-    NotImplemented = 6,
-    Win32Error = 7,
-    WrongState = 8,
-    Aborted = 9,
-    FileNotFound = 10,
-    ValueOverflow = 11,
-    AccessDenied = 12,
-    UnknownImageFormat = 13,
-    FontFamilyNotFound = 14,
-    FontStyleNotFound = 15,
-    NotTrueTypeFont = 16,
-    UnsupportedGdiplusVersion = 17,
-    GdiplusNotInitialized = 18,
-    PropertyNotFound = 19,
-    PropertyNotSupported = 20
-} GpStatus;
 
 typedef enum  {
     MatrixOrderPrepend    = 0,
@@ -201,14 +179,6 @@ typedef enum {
 } GpPenAlignment, PenAlignment;
 
 typedef enum {
-        BrushTypeSolidColor = 0,
-        BrushTypeHatchFill = 1,
-        BrushTypeTextureFill = 2,
-        BrushTypePathGradient = 3,
-        BrushTypeLinearGradient = 4
-} GpBrushType, BrushType;
-
-typedef enum {
         PathPointTypeStart = 0,
         PathPointTypeLine = 1,
         PathPointTypeBezier = 3,
@@ -290,21 +260,16 @@ typedef struct {
         float X, Y;
 } GpPointF, PointF;
 
-typedef struct {
+typedef struct _Graphics {
 	cairo_t         *ct;
 	cairo_matrix_t  *copy_of_ctm;
 	void            *hdc;
 	int             hdc_busy_count;
 	void            *image;
 	int             type; 
-} GpGraphics;
+} Graphics;
 
 typedef cairo_matrix_t GpMatrix;
-
-typedef struct {
-	int color;
-        GpBrushType type;
-} GpBrush, GpSolidFill;
 
 typedef struct {
 	int color;
@@ -399,16 +364,6 @@ GpGraphics *gdip_graphics_new (void);
 void gdip_graphics_attach_bitmap (GpGraphics *graphics, GpBitmap *image);
 void gdip_graphics_detach_bitmap (GpGraphics *graphics, GpBitmap *image);
 
-/* Brush */
-void gdip_brush_setup (GpGraphics *graphics, GpBrush *brush);
-GpBrush *gdip_brush_new (void);
-
-/* Solid fill */
-void gdip_solidfill_init (GpSolidFill *brush);
-void gdip_solidfill_setup (GpGraphics *graphics, GpBrush *brush);
-GpStatus gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush);
-GpSolidFill *gdip_solidfill_new (void);
-
 /* Pen */
 void gdip_pen_init (GpPen *pen);
 GpPen *gdip_pen_new (void);
@@ -460,14 +415,6 @@ GpStatus GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y);
 
 /* Status */
 GpStatus gdip_get_status (cairo_status_t status);
-
-/* Brush */
-GpStatus GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush);
-GpStatus GdipDeleteBrush (GpBrush *brush);
-GpStatus GdipGetBrushType (GpBrush *brush, GpBrushType *brushType);
-
-/* Solidfill Brush */
-GpStatus GdipGetSolidFillColor (GpSolidFill *brush, int *color);
 
 /* Pen */
 GpStatus GdipCreatePen1 (int argb, float width, GpUnit unit, GpPen **pen);

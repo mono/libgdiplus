@@ -25,6 +25,7 @@
  */
 
 #include "gdip.h"
+#include "solidbrush.h"
 
 void 
 gdip_pen_init (GpPen *pen)
@@ -111,11 +112,8 @@ convert_dash_array (float *f, int count)
 void 
 gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 {
-        int R = (pen->color & 0x00FF0000 ) >> 16;
-        int G = (pen->color & 0x0000FF00 ) >> 8;
-        int B = (pen->color & 0x000000FF );
-
-        cairo_set_rgb_color (graphics->ct, (double) R, (double) G, (double) B);
+	gdip_brush_setup (graphics, pen->brush);
+	
         cairo_set_line_width (graphics->ct, (double) pen->width);
         cairo_set_miter_limit (graphics->ct, (double) pen->miter_limit);
         cairo_set_line_join (graphics->ct, convert_line_join (pen->line_join));
@@ -133,27 +131,36 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 GpStatus 
 GdipCreatePen1(int argb, float width, GpUnit unit, GpPen **pen)
 {
+        GpStatus s;
+	GpSolidFill *solidBrush;
         *pen = gdip_pen_new ();
         (*pen)->color = argb;
         (*pen)->width = width;
-        return Ok; 
+	s = GdipCreateSolidFill (argb, &solidBrush);
+        (*pen)->brush = (GpBrush*) solidBrush;
+        return s;
 }
 
 GpStatus
 GdipCreatePen2 (GpBrush *brush, float width, GpUnit unit, GpPen **pen)
 {
         int color;
+        GpStatus s;
         GpBrushType type;        
         *pen = gdip_pen_new ();
         (*pen)->width = width;
+	(*pen)->brush = brush;
 
-        GdipGetBrushType (brush, &type);
+        s = GdipGetBrushType (brush, &type);
+	if (s != Ok)
+		return s;
 
         switch (type) {
 
         case BrushTypeSolidColor:
-
-                GdipGetSolidFillColor (brush, &color);                
+                s = GdipGetSolidFillColor ((GpSolidFill*) brush, &color);
+		if (s != Ok)
+			return s;
                 (*pen)->color = color;
                 return Ok;
 
@@ -161,6 +168,8 @@ GdipCreatePen2 (GpBrush *brush, float width, GpUnit unit, GpPen **pen)
         case BrushTypeTextureFill:
         case BrushTypePathGradient:
         case BrushTypeLinearGradient:
+		return Ok;
+
         default:
                 return GenericError;
         }
@@ -242,12 +251,20 @@ GdipSetPenBrushFill (GpPen *pen, GpBrush *brush)
         GpStatus s;
         pen->brush = brush;
         int color;
-        s = GdipGetSolidFillColor (brush, &color);
+        GpBrushType type;
+        s = GdipGetBrushType (brush, &type);
+	if (s != Ok)
+		return s;
 
-        if (s != Ok)
-                return s;
-        
-        pen->color = color;
+        if (type == BrushTypeSolidColor) {
+        	s = GdipGetSolidFillColor ((GpSolidFill*) brush, &color);
+	        if (s != Ok)
+	                return s;
+        	pen->color = color;
+        }
+	else
+		pen->color = 0;
+
         return Ok;
 }
 

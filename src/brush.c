@@ -21,51 +21,42 @@
  * Authors:
  *   Alexandre Pigolkine(pigolkine@gmx.de)
  */
-
 #include "gdip.h"
 
-void 
-gdip_brush_setup (GpGraphics *graphics, GpBrush *brush)
+void
+gdip_brush_init (GpBrush *brush, BrushClass* vtable)
 {
-        GpBrushType type;
-        GdipGetBrushType (brush, &type);
-
-        //if (type == BrushTypeSolidColor) {
-                GpSolidFill *solid = brush;
-                gdip_solidfill_setup (graphics, solid);
-        //}
+	brush->vtable = vtable;
 }
 
-GpBrush *
-gdip_brush_new (void)
+void
+gdip_brush_setup (GpGraphics *graphics, GpBrush *brush)
 {
-        GpBrush *result = (GpBrush *) GdipAlloc (sizeof (GpBrush));
+	brush->vtable->setup (graphics, brush);
+}
 
-        return result;
+void
+gdip_brush_destroy (GpBrush *brush)
+{
 }
 
 GpStatus 
 GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush)
 {
-	GpBrushType type;
-        GdipGetBrushType (brush, &type);
-
-        if (type == BrushTypeSolidColor)
-                return gdip_solidfill_clone (brush, clonedBrush);
-        else
-                return NotImplemented;
+	brush->vtable->clone_brush (brush, clonedBrush);
+	return Ok;
 }
 
 GpStatus 
 GdipDeleteBrush (GpBrush *brush)
 {
-        GdipFree (brush);
+	brush->vtable->destroy (brush);
 	return Ok;
 }
 
 GpStatus
 GdipGetBrushType (GpBrush *brush, GpBrushType *type)
 {
-        *type = brush->type;
+        *type = brush->vtable->type;
         return Ok;
 }

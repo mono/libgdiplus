@@ -1,3 +1,13 @@
+2004-02-13  Ravindra <rkumar@novell.com>
+	* brush.h: Added. Moving brushes to OO-C.
+	* solidbrush.h: Added. Moving brushes to OO-C.
+	* gdip.h: Moved out some methods to new headers.
+	* brush.c, solidbrush.c: Changes related to OO-C.
+	* pen.c: Modifications related to changes in solidbrush.
+	* stringformat.c: Renaming method gdip_brush_init to
+	gdip_stringformat_init. Because the method name is used
+	in brush.c.
+
 2004-02-13  Jordi Mas i Hernandez <jordi@ximian.com>
     * fonts.c fixed re-use of the same font, fixed size problems
     * graphics.c - string format, aligment, etc
