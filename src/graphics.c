@@ -146,70 +146,29 @@ make_polygon_from_integers (GpGraphics *graphics, GpPoint *points, int count)
  *      http://www.stillhq.com/ctpfaq/2002/03/c1088.html#AEN1212
  */
 static void
-make_pie (GpGraphics *graphics, float x, float y, 
-          float width, float height, float startAngle, float sweepAngle)
-{
-        float rx = width / 2;
-        float ry = height / 2;
-        int cx = x + rx;
-        int cy = y + ry;
-
-        /* angles in radians */        
-        float alpha = startAngle * PI / 180;
-        float beta = sweepAngle * PI / 180;
-
-        float delta = beta - alpha;
-        float bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta /2);
-
-        float sin_alpha = sin (alpha);
-        float sin_beta = sin (beta);
-        float cos_alpha = cos (alpha);
-        float cos_beta = cos (beta);
-
-        /* move to center */
-        cairo_move_to (graphics->ct, cx, cy);
-
-        /* draw pie edge */
-        cairo_line_to (graphics->ct,
-                       cx + rx * cos_alpha, 
-                       cy + ry * sin_alpha);
-        
-        cairo_curve_to (graphics->ct,
-                        cx + rx * (cos_alpha - bcp * sin_alpha),
-                        cy + ry * (sin_alpha + bcp * cos_alpha),
-                        cx + rx * (cos_beta  + bcp * sin_beta),
-                        cy + ry * (sin_beta  - bcp * cos_beta),
-                        cx + rx *  cos_beta,
-                        cy + ry *  sin_beta);
-
-        /* draws line back to center */
-        cairo_close_path (graphics->ct);
-}
-
-static void
 make_arc (GpGraphics *graphics, float x, float y, float width,
-	  float height, float startAngle, float sweepAngle)
-{        
+          float height, float startAngle, float endAngle)
+{       
         float rx = width / 2;
         float ry = height / 2;
         
         /* center */
-        int cx = x + rx;
-        int cy = y + ry;
+        float cx = x + rx;
+        float cy = y + ry;
 
         /* angles in radians */        
         float alpha = startAngle * PI / 180;
-        float beta = sweepAngle * PI / 180;
+        float beta = endAngle * PI / 180;
 
         float delta = beta - alpha;
         float bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta /2);
 
-        float sin_alpha = sin (alpha);
-        float sin_beta = sin (beta);
-        float cos_alpha = cos (alpha);
-        float cos_beta = cos (beta);
+        double sin_alpha = sin (alpha);
+        double sin_beta = sin (beta);
+        double cos_alpha = cos (alpha);
+        double cos_beta = cos (beta);
 
-        /* move to pie edge */
+        /* move to starting point */
         cairo_move_to (graphics->ct,
                        cx + rx * cos_alpha, 
                        cy + ry * sin_alpha);
@@ -222,6 +181,53 @@ make_arc (GpGraphics *graphics, float x, float y, float width,
                         cx + rx *  cos_beta,
                         cy + ry *  sin_beta);
 }
+
+static void
+make_pie (GpGraphics *graphics, float x, float y, 
+          float width, float height, float startAngle, float sweepAngle)
+{
+        float rx = width / 2;
+        float ry = height / 2;
+
+        /* center */
+        float cx = x + rx;
+        float cy = y + ry;
+
+        float endAngle = startAngle + sweepAngle;
+
+        /* angles in radians */        
+        float alpha = startAngle * PI / 180;
+
+        double sin_alpha = sin (alpha);
+        double cos_alpha = cos (alpha);
+
+        /* move to center */
+        cairo_move_to (graphics->ct, cx, cy);
+
+        /* draw pie edge */
+        cairo_line_to (graphics->ct,
+                       cx + rx * cos_alpha, 
+                       cy + ry * sin_alpha);
+
+        /*
+         * draw the arc, if the sweep is bigger than 180, draw it
+         * twice, using a middle angle.
+         */
+        if (sweepAngle < 180)
+                make_arc (graphics, x, y, width, height, startAngle, endAngle);
+        else {
+                float midAngle = startAngle + (sweepAngle / 2.0);
+
+                make_arc (graphics, x, y, width, height, startAngle, midAngle);
+                make_arc (graphics, x, y, width, height, midAngle, endAngle);
+        }
+
+        /* draws line back to center */
+        cairo_line_to (graphics->ct, cx, cy);
+
+        printf ("Center: (%f, %f)\n", cx, cy);
+}
+
 
 static cairo_fill_rule_t
 convert_fill_mode (GpFillMode fill_mode)
@@ -403,18 +409,21 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
 	     float x, float y, float width, float height, 
 	     float startAngle, float sweepAngle)
 {
+        float endAngle = startAngle + sweepAngle;
+        
 	cairo_save (graphics->ct);
 
         gdip_pen_setup (graphics, pen);
 
-        float delta = sweepAngle - startAngle;
+        if (sweepAngle < 180)
+                make_arc (graphics, x, y, width, height, startAngle, endAngle);
 
-        if (delta < 180)
-                make_arc (graphics, x, y, width, height, startAngle, sweepAngle);
         else {
-                make_arc (graphics, x, y, width, height, startAngle, startAngle + 180);
-                make_arc (graphics, x, y, width, height, startAngle + 180, sweepAngle);
-        }
+                float midAngle = startAngle + (sweepAngle / 2.0);
+
+                make_arc (graphics, x, y, width, height, startAngle, midAngle);
+                make_arc (graphics, x, y, width, height, midAngle, endAngle);
+        }  
 
         cairo_stroke (graphics->ct);
 
@@ -428,25 +437,7 @@ GdipDrawArcI (GpGraphics *graphics, GpPen *pen,
 	      int x, int y, int width, int height, 
 	      float startAngle, float sweepAngle)
 {
-	cairo_save (graphics->ct);
-
-        gdip_pen_setup (graphics, pen);
-
-        float delta = sweepAngle - startAngle;
-
-        if (delta < 180)
-                make_arc (graphics, x, y, width, height, startAngle, sweepAngle);
-
-        else {
-                make_arc (graphics, x, y, width, height, startAngle, startAngle + 180);
-                make_arc (graphics, x, y, width, height, startAngle + 180, sweepAngle);
-        }
-
-        cairo_stroke (graphics->ct);
-
-	cairo_restore (graphics->ct);
-
-        return gdip_get_status (cairo_status (graphics->ct));
+        return GdipDrawArc (graphics, pen, x, y, width, height, startAngle, sweepAngle);
 }
 
 GpStatus 
@@ -686,14 +677,7 @@ GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y,
 {
         gdip_pen_setup (graphics, pen);
 
-        float delta = sweepAngle - startAngle;
-
-        if (delta < 180)
-                make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
-        else {
-                make_pie (graphics, x, y, width, height, startAngle, startAngle + 180);
-                make_pie (graphics, x, y, width, height, startAngle + 180, sweepAngle);
-        }
+        make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
 
         cairo_stroke (graphics->ct);
 
@@ -708,14 +692,7 @@ GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y,
 {
         gdip_pen_setup (graphics, pen);
         
-        float delta = sweepAngle - startAngle;
-        
-        if (delta < 180)
-                make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
-        else {
-                make_pie (graphics, x, y, width, height, startAngle, startAngle + 180);
-                make_pie (graphics, x, y, width, height, startAngle + 180, sweepAngle);
-        }
+        make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
 
         cairo_stroke (graphics->ct);
 
@@ -726,19 +703,13 @@ GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y,
 
 GpStatus
 GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, float startAngle, float sweepAngle)
-{           
+{
         cairo_save (graphics->ct);
+
         gdip_brush_setup (graphics, brush);
 
-        float delta = sweepAngle - startAngle;
-
-        if (delta < 180)
-                make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
-        else {
-                make_pie (graphics, x, y, width, height, startAngle, startAngle + 180);
-                make_pie (graphics, x, y, width, height, startAngle + 180, sweepAngle);
-        }
-
+        make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
+        
         cairo_fill (graphics->ct);
         cairo_stroke (graphics->ct);
 
@@ -747,7 +718,6 @@ GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width,
         cairo_restore (graphics->ct);
 
         return gdip_get_status (cairo_status (graphics->ct));
-
 }
 
 
@@ -757,14 +727,7 @@ GdipFillPieI(GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int 
         cairo_save (graphics->ct);
         gdip_brush_setup (graphics, brush);
 
-        float delta = sweepAngle - startAngle;
-
-        if (delta < 180)
-                make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
-        else {
-                make_pie (graphics, x, y, width, height, startAngle, startAngle + 180);
-                make_pie (graphics, x, y, width, height, startAngle + 180, sweepAngle);
-        }
+        make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
 
         cairo_fill (graphics->ct);
         cairo_stroke (graphics->ct);

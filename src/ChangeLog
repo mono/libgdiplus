@@ -1,3 +1,19 @@
+2004-03-26  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (make_arc): Use the end angle instead of the sweep
+	angle.  Previously, the code was misbehaving because I used the
+	sweep angle as the end angle.
+	(make_pie, DrawArc): Determine the middle angle correctly in cases
+	where the delta > 180. Even though this sounds simple, it took a
+	long time for me to figure out.
+	(make_pie): Simplifed things a bit. Instead of replicating most of
+	the arc-drawing algorithm here, use of make_arc instead. This reduced
+	some of the duplicates in the code.
+	(DrawArcI): I'm tired on maintaining so many copies of the same
+	code, so just call DrawArc now.
+
+	With this patch, we should be drawing Arcs and Pies correctly.
+	
 2004-03-25  Ravindra <rkumar@novell.com>
 	* texturebrush.[ch]: Fixing texture brush. Still needs
 	some work.
