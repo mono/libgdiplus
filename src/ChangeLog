@@ -1,3 +1,8 @@
+2004-02-28  Sanjay Gupta <gsanjay@novell.com>
+	* bitmap.c: Implemented GetPixel and SetPixel method.
+	* gdip.h: Added declaration for GetPixel and SetPixel method.
+	* gdipImage.h: Removed typedef for ARGB
+
 2004-02-27  Ravindra <rkumar@novell.com>
 	* hatchbrush.c: First implementation. Implementing only
 	four hatching styles as of now. More to be added.

@@ -171,7 +171,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 
 	if (stride == 0)
 		return InvalidParameter;
-			
+				
 	switch (format) {
 	case Format24bppRgb:
 		cairo_format = CAIRO_FORMAT_RGB24;	
@@ -199,6 +199,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
         result->data.own_scan0 = own_scan0;
 		
 	*bitmap = result;
+
 	return Ok;
 }
 
@@ -360,4 +361,104 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, GdipBitmapData *bitmap_data)
 		GdipFree (bitmap_data->Scan0);
 	return Ok;
 }
+
+GpStatus
+GdipBitmapSetPixel (GpBitmap *bitmap, int x, int y, ARGB color)
+{
+	if (bitmap == 0) {
+		printf ("Bitmap is null\n");
+		return InvalidParameter;
+	}
+	
+	int height = bitmap->data.Height;
+	int width = bitmap->data.Width;
+	if ( x < 0 || x > width ) {
+		printf (" X coordinate is out of range");
+		return InvalidParameter;
+	}
+
+	if ( y < 0 || y > height ) {
+		printf (" Y coordinate is out of range");
+		return InvalidParameter;
+	}
+
+	int location = ( x + 1 )*height + ( y + 1 )*width;
+	int location3 = location*3;
+	int location4 = location*4;
+	char* red;
+	char* blue;
+	char* green;
+	char* alpha = 255;
+	switch ( bitmap->data.PixelFormat ) {
+		case Format24bppRgb:
+			red = &bitmap->data.Scan0	+ location3;
+			blue = red + 1;
+			green = blue + 1;
+			break;
+		case Format32bppArgb:
+			alpha = &bitmap->data.Scan0	+ location4 ; 
+			red = alpha + 1; 			
+			blue = red + 1;
+			green = blue + 1;
+			*alpha = (char) (color >> 0);
+			break;
+		default:
+			return NotImplemented;
+	} 
+
+	*red = (char) (color >> 8);
+	*green = (char) (color >> 16);
+	*blue = (char) (color >> 24);
+
+	return Ok;		
+}
+
+GpStatus
+GdipBitmapGetPixel ( GpBitmap *bitmap, int x, int y, ARGB *color)
+{
+	if (bitmap == 0) {
+		printf ("Bitmap is null\n");
+		return InvalidParameter;
+	}
+
+	int height = bitmap->data.Height;
+	int width = bitmap->data.Width;
+	if ( x < 0 || x > width ) {
+		printf (" X coordinate is out of range");
+		return InvalidParameter;
+	}
+
+	if ( y < 0 || y > height ) {
+		printf (" Y coordinate is out of range");
+		return InvalidParameter;
+	}
+
+	int location = (x+1)*height + (y+1)*width;
+	int location3 = location*3;
+	int location4 = location*4;
+	char* red;
+	char* blue;
+	char* green;
+	char* alpha = 255;
+	switch (bitmap->data.PixelFormat) {
+		case Format24bppRgb:
+			red = &bitmap->data.Scan0	+ location3;
+			blue = red + 1;
+			green = blue + 1;
+			break;
+		case Format32bppArgb:
+			alpha = &bitmap->data.Scan0	+ location4 ; 
+			red = alpha + 1; 
+			blue = red + 1;
+			green = blue + 1;
+			break;
+		default:
+			return NotImplemented;
+	} 
+	
+	*color = ( ((ARGB) (alpha) << 0 ) | ((ARGB) (red) << 8 ) | ((ARGB) (blue) << 16) | ((ARGB) (green) << 24) );
+	
+	return Ok;
+}
+
 

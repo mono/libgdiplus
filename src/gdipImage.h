@@ -19,7 +19,7 @@ typedef BOOL (CALLBACK * ImageAbort) (VOID *);
 typedef ImageAbort GetThumbnailImageAbort; */
 
 typedef int PROPID;
-typedef unsigned int ARGB;
+//typedef unsigned int ARGB;
 
 /*
  * Enumerations

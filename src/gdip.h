@@ -69,6 +69,7 @@ typedef unsigned char byte;
 typedef int bool;
 typedef unsigned short WCHAR; // 16-bits unicode
 typedef unsigned int UINT;
+typedef unsigned int ARGB;
 
 /*
  * Enums
@@ -410,6 +411,8 @@ GpStatus GdipCreateBitmapFromScan0 (int width, int height, int strideIn, int for
 GpStatus GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBitmap **bitmap);
 GpStatus GdipBitmapLockBits (GpBitmap *bmp, Rect *rc, int flags, int format, GdipBitmapData *result);
 GpStatus GdipBitmapUnlockBits (GpBitmap *bmp, GdipBitmapData *bmpData);
+GpStatus GdipBitmapSetPixel ( GpBitmap *bmp, int x, int y, ARGB color);
+GpStatus GdipBitmapGetPixel ( GpBitmap *bmp, int x, int y, ARGB *color);
 
 /* Graphics */
 GpStatus GdipCreateFromHDC (int hDC, GpGraphics **graphics);
