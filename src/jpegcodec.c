@@ -271,7 +271,6 @@ _gdip_dest_stream_term (j_compress_ptr cinfo)
     dest->putBytesFunc (dest->buf, JPEG_BUFFER_SIZE - dest->parent.free_in_buffer);
 }
 
-
 GpStatus
 gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
                                GpImage **image)
@@ -315,25 +314,12 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
     img->image.width = cinfo.image_width;
     img->image.height = cinfo.image_height;
 
-    if (cinfo.jpeg_color_space != JCS_GRAYSCALE &&
-        cinfo.jpeg_color_space != JCS_RGB &&
-        cinfo.jpeg_color_space != JCS_YCbCr)
-    {
-        g_warning ("Unsupported JPEG color space: %d", cinfo.jpeg_color_space);
-        jpeg_destroy_decompress (&cinfo);
-        gdip_bitmap_dispose (img);
-        *image = NULL;
-        return InvalidParameter;
-    }
-
     if (cinfo.num_components == 1) {
         img->image.pixFormat = Format8bppIndexed;
         img->image.imageFlags = ImageFlagsColorSpaceGRAY;
-    } else if (cinfo.num_components == 3) {
-        img->image.pixFormat = Format24bppRgb;
-        img->image.imageFlags = ImageFlagsColorSpaceRGB;
     } else {
-        /* default to this; we assume libjpeg will be able to give us RGB */
+        /* we libjpeg gives us RGB for many formats and
+	 * we convert ourselves to RGB when needed. */
         img->image.pixFormat = Format24bppRgb;
         img->image.imageFlags = ImageFlagsColorSpaceRGB;
     }
@@ -348,9 +334,31 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
     stride = img->data.Stride;
 
     /* Request cairo-compat output */
-    cinfo.out_color_space = JCS_RGB;
-    cinfo.out_color_components = 3;
-    cinfo.output_components = 3;
+    /* libjpeg can do only following conversions,
+     * YCbCr => GRAYSCALE, YCbCr => RGB
+     * GRAYSCALE => RGB, YCCK => CMYK.
+     * Therefore, we convert YCbCr, GRAYSCALE to RGB and
+     * YCCK to CMYK using the libjpeg. We convert CMYK
+     * to RGB ourself.
+     */
+    if (cinfo.jpeg_color_space == JCS_RGB ||
+	cinfo.jpeg_color_space == JCS_YCbCr ||
+	cinfo.jpeg_color_space == JCS_GRAYSCALE) {
+	cinfo.out_color_space = JCS_RGB;
+	cinfo.out_color_components = 3;
+    }
+    else if (cinfo.jpeg_color_space == JCS_YCCK ||
+	     cinfo.jpeg_color_space == JCS_CMYK) {
+	cinfo.out_color_space = JCS_CMYK;
+	cinfo.out_color_components = 4;
+    }
+    else {
+	g_warning ("Unsupported JPEG color space: %d", cinfo.jpeg_color_space);
+	jpeg_destroy_decompress (&cinfo);
+	gdip_bitmap_dispose (img);
+	*image = NULL;
+	return InvalidParameter;
+    }
 
     jpeg_start_decompress (&cinfo);
 
@@ -366,28 +374,71 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
         }
 
         nlines = jpeg_read_scanlines (&cinfo, lines, cinfo.rec_outbuf_height);
-        for (i = 0; i < nlines; i++) {
-            int j;
-            guchar *inptr, *outptr;
-            JOCTET r, g, b;
 
-            inptr = lines[i] + (img->image.width) * 3 - 1;
-            outptr = lines[i] + stride - 1;
-            for (j = 0; j < img->image.width; j++) {
-                /* Note the swapping of R and B, to get ARGB from what
-                 * looks like BGR data.
-                 */
-                r = *inptr--;
-                g = *inptr--;
-                b = *inptr--;
-                *outptr-- = 255;
-                *outptr-- = b;
-                *outptr-- = g;
-                *outptr-- = r;
-            }
+	/* If the out color space is not RBG, we need to convert it to RBG. */
+	if (cinfo.out_color_space == JCS_CMYK) {
+	    int i, j;
+
+	    for (i = 0; i < cinfo.rec_outbuf_height; i++) {
+		guchar *ptr;
+
+		ptr = lines [i];
+
+		for (j = 0; j < cinfo.output_width; j++) {
+		    JOCTET c, m, y, k;
+		    JOCTET r, g, b;
+
+		    c = ptr [0];
+		    m = ptr [1];
+		    y = ptr [2];
+		    k = ptr [3];
+		    /* Adobe photoshop seems to have a bug and inverts the CMYK data.
+		     * We might need to remove this check, if Adobe decides to fix it.
+		     */
+		    if (cinfo.saw_Adobe_marker) {
+			b = (k * c) / 255;
+			g = (k * m) / 255;
+			r = (k * y) / 255;
+		    }
+		    else {
+			b = (255 - k) * (255 - c) / 255;
+			g = (255 - k) * (255 - m) / 255;
+			r = (255 - k) * (255 - y) / 255;
+		    }
+
+		    ptr [0] = r;
+		    ptr [1] = g;
+		    ptr [2] = b;
+		    ptr [3] = 255;
+		    ptr += 4;
+		}
+	    }
+	}
+	else {
+	    for (i = 0; i < nlines; i++) {
+		int j;
+		guchar *inptr, *outptr;
+		JOCTET r, g, b;
+
+		inptr = lines[i] + (img->image.width) * 3 - 1;
+		outptr = lines[i] + stride - 1;
+		for (j = 0; j < img->image.width; j++) {
+		    /* Note the swapping of R and B, to get ARGB from what
+		     * looks like BGR data.
+		     */
+		    r = *inptr--;
+		    g = *inptr--;
+		    b = *inptr--;
+		    *outptr-- = 255;
+		    *outptr-- = b;
+		    *outptr-- = g;
+		    *outptr-- = r;
+		}
+	    }
         }
     }
 
+    jpeg_finish_decompress (&cinfo);
     jpeg_destroy_decompress (&cinfo);
 
     img->data.Scan0 = destbuf;
