@@ -751,6 +751,8 @@ GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
             status = gdip_load_png_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
             break;
         case BMP:
+            status = gdip_load_bmp_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
+            break;
         case TIFF:
         case GIF:
         default:

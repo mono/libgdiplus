@@ -1,3 +1,7 @@
+2004-04-19 Sanjay Gupta <gsanjay@novell.com>
+	* image.c: Added function call to load bmp image from stream in 
+          switch case stmt.
+
 2004-04-20 Jordi Mas i Hernandez <jordi@ximian.com>
 
         * region.c -  more work on regions. New methods, fixes, and funtionality
