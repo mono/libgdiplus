@@ -732,10 +732,11 @@ typedef struct {
 } GpBitmap;
 
 typedef struct {
-        GpFillMode fill_mode;
-        int count;
-        GByteArray *types;
-        GArray *points;
+	GpFillMode fill_mode;
+	int count;
+	GByteArray *types;
+	GArray *points;
+	BOOL start_new_fig; /* Flag to keep track if we need to start a new figure */
 } GpPath;
 
 typedef struct {
@@ -746,6 +747,9 @@ typedef struct {
 
 typedef struct {
 	GpPath *path;
+	int markerPosition; /* The start position of next marker, index of (marker type) + 1  */
+	int subpathPosition; /* The start position of next subpath, index of (start type) */
+	int pathTypePosition; /* The position to get the next path type inside a subpath */
 } GpPathIterator;
 
 typedef struct {

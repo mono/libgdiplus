@@ -1,3 +1,16 @@
+2004-07-21  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Added position members to GpPathIterator stuct.
+	Added start_new_fig flag to GpPath struct.
+	* graphics-path.c: Fixed and implemented various functions.
+	Added null checks and some code formatting.
+	 Fixed: (append) (GdipClonePath) (GdipAddPathClosedCurve2)
+	  (GdipAddPathRectangle) (GdipAddPathRectangles)
+	  (GdipAddPathRectanglesI) (GdipAddPathEllipse) (GdipAddPathPath).
+	 Implemented: (GdipStartPathFigure) (GdipClosePathFigures).
+	* graphics-pathiterator.c: Some fixes and implemented missing
+	subpath functions.
+
 2004-7-21 Sanjay Gupta <gsanjay@novell.com>
 	
 	* gifcodec.c: Minor modifications.
