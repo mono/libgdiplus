@@ -749,6 +749,10 @@ typedef struct {
 typedef struct {
         FcPattern*	pattern;
 	bool		allocated;
+	short 		height;
+	short 		linespacing;
+	short		celldescent;
+	short		cellascent;
 } GpFontFamily;
 
 

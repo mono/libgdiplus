@@ -38,6 +38,19 @@ static int ref_familyMonospace = 0;
 
 /* Family and collections font functions */
 
+void
+gdip_createFontFamily (GpFontFamily **family)
+{
+	GpFontFamily *result;
+
+	result = (GpFontFamily *) GdipAlloc (sizeof (GpFontFamily));
+	result->height = -1;
+	result->linespacing = -1;
+	result->celldescent = -1;
+	result->cellascent = -1;
+	*family = result;
+}
+
 GpStatus
 GdipNewInstalledFontCollection (GpFontCollection **font_collection)
 {	
@@ -142,8 +155,7 @@ GdipDeleteFontFamily (GpFontFamily *fontFamily)
 		ref_familyMonospace--;
 		if (ref_familyMonospace)
 			delete = FALSE;
-	}
-	
+	}	
 	
 	if (delete) {
 		FcPatternDestroy (fontFamily->pattern);
@@ -201,7 +213,7 @@ GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, int num_soug
 		
 
 	for (i = 0; i < font_collection->fontset->nfont; gpfam++, pattern++, i++) {
-		*gpfam = (GpFontFamily *) GdipAlloc (sizeof (GpFontFamily));
+		gdip_createFontFamily (gpfam);
 		(*gpfam)->pattern = *pattern;
 		(*gpfam)->allocated = FALSE;
 	}
@@ -242,7 +254,7 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 		FcConfigSubstitute (0, pat, FcMatchPattern);
 		FcDefaultSubstitute (pat);                  
 		
-		*fontFamily = (GpFontFamily *) GdipAlloc (sizeof (GpFontFamily));
+		gdip_createFontFamily (fontFamily);
 		(*fontFamily)->pattern =  FcFontMatch (0, pat, &rlt);
 		(*fontFamily)->allocated = TRUE;
 
@@ -258,7 +270,7 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 		FcResult r = FcPatternGetString (*gpfam, FC_FAMILY, 0, &str);
 
 		if (strcmp (string, str)==0) {
-			*fontFamily = (GpFontFamily *) GdipAlloc (sizeof (GpFontFamily));
+			gdip_createFontFamily (fontFamily);
 			(*fontFamily)->pattern = *gpfam;
 			(*fontFamily)->allocated = FALSE;
 			g_free (string);
@@ -347,6 +359,11 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHei
 	if (!family || !EmHeight)
 		return InvalidParameter;
 
+	if (family->height != -1) {
+		*EmHeight = family->height;
+		return Ok;
+	}
+
 	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
 
 	if (font) {
@@ -355,7 +372,7 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHei
 
 		face = cairo_ft_font_face(font->cairofnt);
 
-		pVert = FT_Get_Sfnt_Table (face, ft_sfnt_vhea);
+		pVert = FT_Get_Sfnt_Table(face, ft_sfnt_vhea);
 		if (pVert)
 			rslt = pVert->yMax_Extent;
 		else if (face)
@@ -366,6 +383,7 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHei
 	}
 
 	*EmHeight = rslt;
+	((GpFontFamily *)family)->height = rslt;
 	return Ok;
 }
 
@@ -377,6 +395,11 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Cel
 
 	if (!family || !CellAscent)
 		return InvalidParameter;
+
+	if (family->cellascent != -1) {
+		*CellAscent = family->cellascent;
+		return Ok;
+	}
 
 	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
 
@@ -395,6 +418,7 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Cel
 	}
 
 	*CellAscent = rslt;
+	((GpFontFamily *)family)->cellascent = rslt;
 	return Ok;         
 }
 
@@ -407,7 +431,10 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Ce
 	if (!family || !CellDescent)
 		return InvalidParameter;
 
-	*CellDescent = 0;
+	if (family->celldescent != -1) {
+		*CellDescent = family->celldescent;
+		return Ok;
+	}
 
 	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
 
@@ -426,6 +453,7 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Ce
 	}
 
 	*CellDescent = rslt;
+	((GpFontFamily *)family)->celldescent = rslt;
 	return Ok;         
 }
 
@@ -437,6 +465,11 @@ GdipGetLineSpacing (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Li
 
 	if (!family || !LineSpacing)
 		return InvalidParameter;
+
+	if (family->linespacing != -1) {
+		*LineSpacing = family->linespacing;
+		return Ok;
+	}
 
 	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
 
@@ -457,6 +490,7 @@ GdipGetLineSpacing (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Li
 	}
 
 	*LineSpacing = rslt;
+	((GpFontFamily *)family)->linespacing = rslt;
 	return Ok;
 }
 
