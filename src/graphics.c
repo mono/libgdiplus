@@ -618,15 +618,11 @@ GdipDrawLinesI (GpGraphics *graphics, GpPen *pen,
         return Ok;
 }
 
-GpStatus
-GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
+static GpStatus
+gdip_plot_path (GpGraphics *graphics, GpPath *path)
 {
         int length = path->count;
         int i;
-
-	cairo_save (graphics->ct);
-
-        gdip_pen_setup (graphics, pen);
 
         for (i = 0; i < length; ++i) {
                 GpPointF pt = g_array_index (path->points, GpPointF, i);
@@ -661,12 +657,24 @@ GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
                         return NotImplemented;
                 }
         }
+	return Ok;
+}
+
+GpStatus
+GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
+{
+	GpStatus status;
+	
+	cairo_save (graphics->ct);
+
+        gdip_pen_setup (graphics, pen);
+
+	status = gdip_plot_path (graphics, path);
 
         cairo_stroke (graphics->ct);
-
        	cairo_restore (graphics->ct);
 
-        return Ok;
+        return status;
 }
 
 GpStatus
@@ -767,6 +775,31 @@ GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen,
 }
 
 GpStatus
+GdipDrawClosedCurveI ()
+{
+	printf ("GdipDrawClosedCurveI not implemented\n");
+	return Ok;
+}
+
+GpStatus
+GdipDrawCurveI ()
+{
+	printf ("GdipDrawCurveI not implemented\n");
+	return Ok;
+}
+
+GpStatus
+GdipDrawCurve2I ()
+{
+	printf ("GdipDrawCurve2I not implemented\n");
+	return Ok;
+}
+
+
+/*
+ * Fills
+ */
+GpStatus
 GdipFillEllipse (GpGraphics *graphics, GpBrush *brush,
 		 float x, float y, float width, float height)
 {
@@ -824,6 +857,26 @@ GdipFillPolygon (GpGraphics *graphics, GpBrush *brush,
 }
 
 GpStatus
+GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
+{
+	GpStatus status;
+	
+	cairo_save (graphics->ct);
+
+	gdip_brush_setup (graphics, brush);
+
+	status = gdip_plot_path (graphics, path);
+	
+	cairo_fill (graphics->ct);
+	cairo_restore (graphics->ct);
+
+	if (status != Ok)
+		return status;
+	
+	return gdip_get_status (cairo_status (graphics->ct));
+}
+
+GpStatus
 GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, 
 		  GpPoint *points, int count, GpFillMode fillMode)
 {
@@ -855,7 +908,19 @@ GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int co
         return GdipFillPolygonI (graphics, brush, points, count, FillModeAlternate);
 }
 
+GpStatus
+GdipFillClosedCurveI ()
+{
+	printf ("GdipFillClosedCurveI not implemented\n");
+	return Ok;
+}
 
+GpStatus
+GdipFillPie ()
+{
+	printf ("GdipFillPie not implemented\n");
+	return Ok;
+}
 
 int
 gdip_measure_string_widths (GDIPCONST GpFont *font,
