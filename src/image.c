@@ -113,44 +113,44 @@ gdip_image_destroy_Win32_HDC (GpImage *image, void *hdc)
 GpStatus 
 GdipDisposeImage (GpImage *image)
 {
+	int i = 0, j = 0, count = 0, dataCount = 0;
+	BitmapData *data;
+
 	if (!image)
 		return InvalidParameter;
 
-	cairo_surface_destroy (image->surface);
+	if (image->surface)
+		cairo_surface_destroy (image->surface);
 	image->surface = NULL;
-	if (image->frameDimensionList != NULL){
-		int i=0, j=0;
-		int count = image->frameDimensionCount;
-		for (i=0; i<count; i++){
-			int dataCount =0;
-			dataCount = image->frameDimensionList->count;
-			BitmapData *data;
-			data = image->frameDimensionList->frames;
-			for (j = 0; j < dataCount; j++){
-				if (data [j].Scan0){
-					GdipFree (data [j].Scan0);
-					data [j].Scan0 = NULL;
-				}
-				if ((data [j].ByteCount) > 0 && (data [j].Bytes != NULL)){
-					GdipFree (data [j].Bytes);
-					data [j].ByteCount = 0;
-					data [j].Bytes = NULL;
-				}
 
-			}
-			GdipFree (image->frameDimensionList->frames);
+	count = image->frameDimensionCount;
+
+	if (count > 0 && image->frameDimensionList != NULL) {
+		for (i = 0; i < count; i++) {
+			dataCount = image->frameDimensionList [i].count;
+			data = image->frameDimensionList [i].frames;
+				for (j = 0; j < dataCount; j++) {
+					if (data [j].Scan0){
+						GdipFree (data [j].Scan0);
+						data [j].Scan0 = NULL;
+					}
+					if ((data [j].ByteCount) > 0 && (data [j].Bytes != NULL)){
+						GdipFree (data [j].Bytes);
+						data [j].ByteCount = 0;
+						data [j].Bytes = NULL;
+					}
+				}
 		}
 		GdipFree (image->frameDimensionList);
 	}
-
+	
 	/* Nothing more to be done here... We have already
 	 * cleaned the memory while looping in FrameDimension List
 	 * and hence we dont need to do anything in gdip_bitmap_dispose()
 	 */
-		
-	GdipFree (image);
-	
-	return Ok;
+	 GdipFree (image);
+
+	 return Ok;
 }
 
 /*
