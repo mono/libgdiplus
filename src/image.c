@@ -1270,7 +1270,8 @@ gdip_get_pixel_format_components(PixelFormat pixfmt)
 }
 
 GpStatus
-GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
+GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
+				 GetBytesDelegate getBytesFunc,
 				 PutBytesDelegate putBytesFunc,
                                  SeekDelegate seekFunc,
 				 CloseDelegate closeFunc,
@@ -1284,7 +1285,7 @@ GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
 	char format_peek[10];
 	int format_peek_sz;
 	
-	format_peek_sz = getBytesFunc (format_peek, 10, 1);
+	format_peek_sz = getHeaderFunc (format_peek, 10);
 	format = get_image_format (format_peek, format_peek_sz);
 	
 	switch (format) {

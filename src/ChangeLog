@@ -1,3 +1,12 @@
+2005-03-17  Peter Bartok  <pbartok@novell.com>
+
+	* image.c (iGdipLoadImageFromDelegate_linux): Now calls GetHeader 
+	  delegate for determining the image type, instead of GetBytes, to
+	  allow usage with non-seekable streams
+	* gdipImage.h: Changed GdipLoadImageFromDelegate_linux() prototype to
+	  include the new StreamGetHeader method
+	* gdip.h: Added definition for new GetHeader delegate
+
 2005-03-15  Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* graphics.c: Fixes GdipSetWorldTransform. We should copy the passed matrix 

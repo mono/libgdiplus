@@ -109,7 +109,8 @@ GpStatus GdipRemoveProperyItem (GpImage *image, PROPID propID);
 GpStatus GdipSetProperyItem (GpImage *image, GDIPCONST PropertyItem *item);
 GpStatus GdipCloneImage(GpImage *image, GpImage **cloneImage);
 
-GpStatus GdipLoadImageFromDelegate_linux (GetBytesDelegate getBytesFunc,
+GpStatus GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
+					  GetBytesDelegate getBytesFunc,
                                           PutBytesDelegate putBytesFunc,
 					  SeekDelegate seekFunc,
 					  CloseDelegate closeFunc,

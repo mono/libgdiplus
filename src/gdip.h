@@ -1252,6 +1252,7 @@ cairo_surface_t * gdip_bitmap_ensure_surface (GpBitmap *bitmap);
 const EncoderParameter *gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid);
 
 /* Stream handling bits */
+typedef int (*GetHeaderDelegate) (unsigned char *, int);
 typedef int (*GetBytesDelegate) (unsigned char *, int, BOOL);
 typedef long (*SeekDelegate) (int, int);
 typedef int (*PutBytesDelegate) (unsigned char *, int);
