@@ -1,5 +1,10 @@
 2004-04-15 Ravindra  <rkumar@novell.com>
 
+	* hatchbrush.h: Moved internal functions to hatchbrush.c.
+	* hatchbrush.c: Moved some internal functions around.
+
+2004-04-15 Ravindra  <rkumar@novell.com>
+
 	* texturebrush.h: Moved internal functions to texturebrush.c.
 	* texturebrush.c: Few fixes to handle scale/rotate functions. But,
 	we still don't get scaling/rotation right. Seems to be some problem

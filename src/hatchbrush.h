@@ -82,51 +82,11 @@ typedef struct _Hatch {
 	int backColor;
 } Hatch;
 
-/* Hatch brush */
-GpHatch *gdip_hatch_new (void);
-void gdip_hatch_init (GpHatch *hatch);
-void gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush);
-void gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush);
-void gdip_hatch_destroy (GpBrush *brush);
+/* Hatch brush functions */
 
 GpStatus GdipCreateHatchBrush (GpHatchStyle hatchstyle, int forecolor, int backcolor, GpHatch **brush);
 GpStatus GdipGetHatchStyle (GpHatch *brush, GpHatchStyle *hatchstyle);
 GpStatus GdipGetHatchForegroundColor (GpHatch *brush, int *forecolor);
 GpStatus GdipGetHatchBackgroundColor (GpHatch *brush, int *backcolor);
-
-/* functions to draw different hatches */
-
-void draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatchStyle hatchstyle);
-void draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatchStyle hatchstyle);
-void draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format);
-void draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format);
-void draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format);
-void draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format);
-void draw_percentage_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, int percentage);
-void draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format, GpHatchStyle hatchStyle);
-void draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height, cairo_format_t format, GpHatchStyle hatchStyle);
-void draw_dashed_down_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_dashed_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_dashed_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_dashed_vertical_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_small_confetti_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_large_confetti_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_zigzag_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_wave_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_diagonal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_horizontal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_weave_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_plaid_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_divot_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_dotted_grid_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_dotted_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_Shingle_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_trellis_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_sphere_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_small_grid_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_small_checker_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_large_checker_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_outlined_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
-void draw_solid_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, int width, int height);
 
 #endif /* _HATCHBRUSH_H */
