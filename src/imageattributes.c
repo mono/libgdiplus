@@ -22,7 +22,6 @@
  */
 
 #include "gdip.h"
-#include "gdip_win32.h"
 #include <math.h>
 
 void

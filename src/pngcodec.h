@@ -11,7 +11,6 @@
 #ifndef _PNGCODEC_H
 #define _PNGCODEC_H
 #include "gdip.h"
-#include "gdip_win32.h"
 
 GpStatus 
 gdip_load_png_image_from_file (FILE *fp, GpImage **image);

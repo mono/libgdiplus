@@ -12,7 +12,6 @@
 
 
 #include "gdip.h"
-#include "gdip_win32.h"
 #include <stdio.h>
 #include "bmpcodec.h"
 #include "pngcodec.h"

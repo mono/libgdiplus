@@ -24,7 +24,6 @@
  */
 
 #include "gdip.h"
-#include "gdip_win32.h"
 
 GpStatus
 GdipCreateStringFormat (int formatAttributes, int language, GpStringFormat  **format)

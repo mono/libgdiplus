@@ -11,7 +11,6 @@
 #ifndef _JPEGCODEC_H
 #define _JPEGCODEC_H
 #include "gdip.h"
-#include "gdip_win32.h"
 
 GpStatus 
 gdip_load_jpeg_image_from_file (FILE *fp, GpImage **image);

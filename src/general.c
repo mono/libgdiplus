@@ -47,67 +47,11 @@ struct startupOutput
 
 extern void gdip_release_cachedfonts ();
 
-Display *GDIP_display = 0;
-int      closeDisplay = 0;
-
-void * x11drvHandle = 0;
-
-static void _load_x11drv ()
-{
-	if (x11drvHandle == 0) {
-		char *path = getenv ("_WINE_SHAREDLIB_PATH");
-		char *full;
-
-		/* We are called also without Wine */
-		if (path == NULL)
-			return;
-
-		full = malloc (strlen (path) + 30);
-		strcpy (full, path);
-		strcat (full, "/");
-		strcat (full, "x11drv.dll.so");
-		
-		x11drvHandle = dlopen (full, 1);
-		free (full);
-	}
-}
-
-static void _unload_x11drv ()
-{
-	if (x11drvHandle != 0) {
-		dlclose (x11drvHandle);
-	}
-}
-
-Display *_get_wine_display ()
-{
-	Display * result = 0;
-	_load_x11drv ();
-	if (x11drvHandle != 0) {
-		Display **addr = dlsym(x11drvHandle,"gdi_display");
-		if (addr) {
-			result = *addr;
-		}
-	}
-	return result;
-}
-
 
 GpStatus 
 GdiplusStartup(unsigned long *token, const struct startupInput *input, struct startupOutput *output)
 {
-    if (getenv ("GDIPLUS_NOX") == NULL) {
-        GDIP_display = _get_wine_display ();
-        if (GDIP_display == 0){
-            GDIP_display = XOpenDisplay(0);
-            closeDisplay = 1;
-        }
-    } else {
-        GDIP_display = 0;
-    }
-
         initCodecList (); 
-        initializeGdipWin32 ();
 	*token = 1;
 	return Ok;
 }
@@ -115,13 +59,8 @@ GdiplusStartup(unsigned long *token, const struct startupInput *input, struct st
 void 
 GdiplusShutdown(unsigned long *token)
 {
-	if (closeDisplay && GDIP_display) {
-		XCloseDisplay(GDIP_display);
-	}
-	_unload_x11drv ();
-        releaseCodecList ();
+	releaseCodecList ();
 	gdip_release_cachedfonts ();
-	shutdownGdipWin32();
 }
 
 
@@ -208,22 +147,25 @@ gdip_get_cairo_filter (InterpolationMode imode)
 float
 gdip_get_display_dpi()
 {
-    static float dpis = 0;
+	static float dpis = 0;
+	Display* display;
 
-    if (dpis == 0) {
-        if (GDIP_display == NULL) {
-            dpis = 72.0f;
-        } else {
-            char *val = XGetDefault(GDIP_display, "Xft", "dpi");
-            if (val) {
-                dpis = atof(val);
-            } else {
-		dpis = 72.0f;
-	    }
+	if (dpis == 0) {
+        	if (getenv ("GDIPLUS_NOX") != NULL) {
+            		dpis = 72.0f;
+        	} else {
+			display = XOpenDisplay (0);
+            		char *val = XGetDefault(display, "Xft", "dpi");
+			XCloseDisplay (display);
+            		if (val) {
+				dpis = atof(val);
+            		} else {
+				dpis = 72.0f;
+	    		}
+		}
         }
-    }
 
-    return dpis;
+	return dpis;
 }
 
 void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg)

@@ -1,3 +1,13 @@
+2005-01-02  Jordi Mas  <jordi@ximian.com>
+
+	* graphics.c, font.c, general.c, bmpcodec.h, image.c,
+	region.c, jpegcodec.h, imageattributes.c, gdipImage.h,
+	tiffcodec.h,  gifcodec.h,bitmap.c, stringformat.c,
+	pngcodec.h, Makefile.am, gdip.h: removes old Wine
+	glue code
+
+	* gdip_win32.c, gdip_win32.h: remove it
+
 2004-12-30  Miguel de Icaza  <miguel@ximian.com>
 
 	* bitmap.c (gdip_bitmap_clone): Also clone the ->Bytes array which

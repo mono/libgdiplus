@@ -26,7 +26,6 @@
 
 #include <glib.h>
 #include "gdip.h"
-#include "gdip_win32.h"
 #include "gdipImage.h"
 #include <string.h>
 #include <unistd.h>
@@ -35,11 +34,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-
-/* Pick an unlikely combination. This pixel color will be interpreted as 'transparent' 
-   when mapping Wine pixels onto a cairo image. Need to do this crude hack since there
-   is no bitmap alpha component in regular Win32 bitmaps */
-#define	UNALTERED_PIXEL		0x00959293
 
 /*
 	Those are the only pixel formats that we really support	
@@ -137,64 +131,6 @@ gdip_bitmap_dispose (GpBitmap *bitmap)
 	}
 }
 
-void *
-gdip_bitmap_create_Win32_HDC (GpBitmap *bitmap)
-{
-	void * result = 0;
-	void * hdc = CreateCompatibleDC_pfn (0);
-	void * hbitmap = 0, * holdbitmap = 0;
-	void * hdcDesc = GetDC_pfn (0);
-	
-	hbitmap = CreateCompatibleBitmap_pfn (hdcDesc, bitmap->data.Width, bitmap->data.Height);
-	if (hbitmap != 0) {
-		BITMAPINFO	bmi;
-		gdip_bitmap_fill_info_header (bitmap, &bmi.bmiHeader);
-
-		SetDIBits_pfn (hdc, hbitmap, 0, bitmap->data.Height, bitmap->data.Scan0, &bmi, 0);
-		holdbitmap = SelectObject_pfn (hdc, hbitmap);
-		bitmap->hBitmapDC = hdc;
-		bitmap->hInitialBitmap = holdbitmap;
-		bitmap->hBitmap = hbitmap;
-		result = hdc;
-	} else {
-		DeleteDC_pfn (hdc);
-	}
-	ReleaseDC_pfn (0, hdcDesc);
-	return result;
-}
-
-void 
-gdip_bitmap_destroy_Win32_HDC (GpBitmap *bitmap, void *hdc)
-{
-	if (bitmap->hBitmapDC == hdc) {
-		
-		BITMAPINFO	bmi;
-		int res = 0;
-		unsigned long *array, *end;
-			
-		SelectObject_pfn (bitmap->hBitmapDC, bitmap->hInitialBitmap);
-			
-		gdip_bitmap_fill_info_header (bitmap, &bmi.bmiHeader);
-		res = GetDIBits_pfn (bitmap->hBitmapDC, bitmap->hBitmap, 0, bitmap->data.Height, bitmap->data.Scan0, &bmi, 0);
-
-		if (bitmap->cairo_format == CAIRO_FORMAT_ARGB32) {
-			array = bitmap->data.Scan0;
-			end = array + (bmi.bmiHeader.biSizeImage >> 2);
-			while (array < end) {
-				if (*array!=UNALTERED_PIXEL) {
-					*array |= 0xff000000;
-				}
-				++array;
-			}
-		}
-
-		DeleteObject_pfn (bitmap->hBitmap);
-		DeleteDC_pfn (bitmap->hBitmapDC);
-		bitmap->hBitmapDC = 0;
-		bitmap->hInitialBitmap = 0;
-		bitmap->hBitmap = 0;
-	}
-}
 
 GpStatus 
 GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *scan0, GpBitmap **bitmap)
@@ -269,9 +205,6 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	GpBitmap 		*result = 0;
 	int 			bmpSize = 0;
 	int 			stride = width;
-	unsigned long	*ptr;
-	unsigned char	*endptr;
-
 	/*
 	 * FIXME: should get the stride based on the format of the graphics object.
 	 */
@@ -287,13 +220,6 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	result->data.Stride = stride;
 
 	result->data.Scan0 = GdipAlloc (bmpSize);
-
-	ptr=result->data.Scan0;
-	endptr=result->data.Scan0+bmpSize;
-	while ((unsigned char *)ptr<endptr) {
-		ptr[0]=UNALTERED_PIXEL;
-		ptr++;
-	}
 
 	result->data.Reserved |= GBD_OWN_SCAN0;
 	*bitmap = result;

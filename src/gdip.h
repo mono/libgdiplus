@@ -570,6 +570,13 @@ typedef enum {
         RegionTypePath  = 3
 } RegionType;
 
+typedef enum {
+	X11DRV_GET_DISPLAY,			/* get X11 display for a DC */
+	X11DRV_GET_DRAWABLE,		/* get current drawable for a DC */
+	X11DRV_GET_FONT			/* get current X font for a DC */
+} x11drv_escape_codes;
+
+
 /*
  * Structures
  *
@@ -846,16 +853,11 @@ typedef struct {
  * 
  */
 void gdip_image_init              (GpImage *image);
-void *gdip_image_create_Win32_HDC (GpImage *image);
-void gdip_image_destroy_Win32_HDC (GpImage *image, void *hdc);
 
 void gdip_bitmap_init  (GpBitmap *bitmap);
 GpBitmap *gdip_bitmap_new   (void);
 void gdip_bitmap_dispose (GpBitmap *bitmap);
 void gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap);
-
-void *gdip_bitmap_create_Win32_HDC (GpBitmap *bitmap);
-void gdip_bitmap_destroy_Win32_HDC (GpBitmap *bitmap, void *hdc);
 
 void gdip_graphics_init (GpGraphics *graphics);
 GpGraphics *gdip_graphics_new (void);
@@ -873,10 +875,6 @@ void gdip_pen_init (GpPen *pen);
 GpPen *gdip_pen_new (void);
 GpStatus gdip_pen_setup (GpGraphics *graphics, GpPen *pen);
 
-extern Display *GDIP_display;
-
-void initializeGdipWin32 (void);
-void shutdownGdipWin32 (void);
 void initCodecList (void);
 void releaseCodecList (void);
 void gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, bool *allocated);

@@ -25,7 +25,6 @@
  */
 
 #include "gdip.h"
-#include "gdip_win32.h"
 #include "brush.h"
 #include <math.h>
 #include <glib.h>
@@ -279,59 +278,13 @@ convert_fill_mode (GpFillMode fill_mode)
 GpStatus 
 GdipCreateFromHDC (int hDC, GpGraphics **graphics)
 {
-	DC* 		dc = _get_DC_by_HDC (hDC);
-	Drawable	drawable;
-	unsigned long	drvCommand=X11DRV_GET_DRAWABLE;
-	
-	/* printf ("GdipCreateFromHDC. in %d, DC %p\n", hDC, dc); */
-	if (dc == 0) return NotImplemented;
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-
-	*graphics = gdip_graphics_new ();
-	X11DRV_ExtEscape_pfn (dc->physDev, X11DRV_ESCAPE, sizeof(drvCommand), &drvCommand, sizeof(drawable), &drawable);
-	cairo_set_target_drawable ((*graphics)->ct, GDIP_display, drawable);
-	_release_hdc (hDC);
-	(*graphics)->hdc = (void*)hDC;
-	(*graphics)->type = gtX11Drawable;
-	/* printf ("GdipCreateFromHDC. graphics %p, ct %p\n", (*graphics), (*graphics)->ct); */
-	return Ok;
+	return NotImplemented;
 }
 
 GpStatus
 GdipCreateFromHWND (void *hwnd, GpGraphics **graphics)
 {
-	DC		*dc;
-	void		*hdc;
-	Drawable	drawable;
-	unsigned long	drvCommand=X11DRV_GET_DRAWABLE;
-
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (hwnd != NULL, InvalidParameter);
-
-	/* Get the a HDC for the hwnd */
-	hdc=GetDC_pfn (hwnd);
-	if (hdc==0) {
-		return NotImplemented;
-	}
-
-	*graphics=gdip_graphics_new ();
-
-	/* Figure out the drawable */
-	dc=_get_DC_by_HDC ((int)hdc);
-	if (dc==0) {
-		return Win32Error;
-	}
-	X11DRV_ExtEscape_pfn (dc->physDev, X11DRV_ESCAPE, sizeof(drvCommand), &drvCommand, sizeof(drawable), &drawable);
-	cairo_set_target_drawable ((*graphics)->ct, GDIP_display, drawable);
-	(*graphics)->type = gtX11Drawable;
-
-	/* Release the Wine object lock */
-	_release_hdc ((int)hdc);	
-
-	/* Release our HDC */
-	ReleaseDC_pfn (hwnd, hdc);
-
-	return Ok;
+	return NotImplemented;
 }
 
 #endif

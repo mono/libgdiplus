@@ -10,8 +10,6 @@ libgdiplus_la_SOURCES = \
 	font.c		\
 	gdip.h		\
 	gdipImage.h	\
-	gdip_win32.c	\
-	gdip_win32.h	\
 	general.c	\
 	graphics.c	\
 	graphics-path.c	\

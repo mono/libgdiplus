@@ -22,7 +22,6 @@
  */
 
 #include "gdip.h"
-#include "gdip_win32.h"
 
 void
 gdip_from_Rect_To_RectF (GpRect* rect, GpRectF* rectf)

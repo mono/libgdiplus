@@ -21,7 +21,6 @@
  */
 
 #include "gdip.h"
-#include "gdip_win32.h"
 #include <math.h>
 #include <glib.h>
 #include <freetype/tttables.h>
@@ -598,10 +597,7 @@ gdip_release_font (GpFont* font)
 	if (font->ft_library)
 		FT_Done_FreeType(font->ft_library);
 	
-	if (font->wineHfont)
-		DeleteWineFont(font->wineHfont);
-	
-	GdipFree ((void *)font);
+	GdipFree ((void *)font);	
 }
 
 void
@@ -667,7 +663,6 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 	}
         result->style = style;
 	cairo_font_reference ((cairo_font_t *)result->cairofnt);
-	result->wineHfont=CreateWineFont(str, style, emSize, unit);
 	*font=result;
 
 	if (strlen (str) > 127) /* Cannot cache this font */
@@ -740,35 +735,19 @@ GdipCreateFontFromDC(void *hdc, GpFont **font)
 }
 
 GpStatus
-GdipCreateFontFromHfont(void *hfont, GpFont **font, LOGFONTA *lf)
+GdipCreateFontFromHfont(void *hfont, GpFont **font, void *lf)
 {
 	return(NotImplemented);
 }
 
 GpStatus
-GdipGetLogFontA(GpFont *font, GpGraphics *graphics, LOGFONTA *lf)
+GdipGetLogFontA(GpFont *font, GpGraphics *graphics, void *lf)
 {
 	if (!font || !lf) {
 		return(InvalidParameter);
 	}
-
-	/* FIXME - Grab the numbers from cairo */
-	lf->lfHeight=0;
-	lf->lfWidth=0;
-	lf->lfEscapement=0;
-	lf->lfOrientation=0;
-	lf->lfWeight=0;
-	lf->lfItalic=0;
-	lf->lfUnderline=0;
-	lf->lfStrikeOut=0;
-	lf->lfCharSet=0;
-	lf->lfOutPrecision=0;		/* 0 = OUT_DEFAULT_PRECIS */
-	lf->lfClipPrecision=0;		/* 0 = CLIP_DEFAULT_PRECIS */
-	lf->lfQuality=4;		/* 4 = ANTIALIASED_QUALITY */
-	lf->lfPitchAndFamily=0;
-	strcpy(lf->lfFaceName, "");
-
-	return(Ok);
+	
+	return NotImplemented;
 }
 
 GpStatus

@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include "gdipImage.h"
 #include <math.h>
-#include "gdip_win32.h"
+
 
 static char *guid_to_string_hack (GDIPCONST CLSID *clsid);
 void gdip_FlipX (GpImage *image);
@@ -73,42 +73,6 @@ gdip_image_init (GpImage *image)
 	image->frameDimensionList = NULL;
 } 
 
-void *
-gdip_image_create_Win32_HDC (GpImage *image)
-{
-	void *result = 0;
-	switch (image->type) {
-		case imageBitmap:
-			result = gdip_bitmap_create_Win32_HDC ((GpBitmap *) image);
-			break;
-		case imageMetafile:
-			break;
-		case imageUndefined:
-			break;
-		default:
-			break;
-	}
-	return result;
-}
-
-void 
-gdip_image_destroy_Win32_HDC (GpImage *image, void *hdc)
-{
-	if (!image || !hdc)
-		return;
-	
-	switch (image->type) {
-		case imageBitmap:
-			gdip_bitmap_destroy_Win32_HDC ((GpBitmap *) image, hdc);
-			break;
-		case imageMetafile:
-			break;
-		case imageUndefined:
-			break;
-		default:
-			break;
-	}
-}
 
 GpStatus 
 GdipDisposeImage (GpImage *image)
