@@ -1,3 +1,6 @@
+2004-02-24  Jordi Mas i Hernandez <jordi@ximian.com>
+    * font.c - added metrics for font families
+    
 2004-02-23  Jordi Mas i Hernandez <jordi@ximian.com>
     * graphics.c - added GdipMeasureString
     

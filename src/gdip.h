@@ -519,7 +519,14 @@ GpStatus GdipGetFamilyName(GDIPCONST GpFontFamily* family, WCHAR name[LF_FACESIZ
 GpStatus GdipGetGenericFontFamilySansSerif(GpFontFamily **nativeFamily);
 GpStatus GdipGetGenericFontFamilySerif(GpFontFamily **nativeFamily);
 GpStatus GdipGetGenericFontFamilyMonospace(GpFontFamily **nativeFamily);
-GpStatus GdipDeleteFontFamily(GpFontFamily *FontFamily);
+GpStatus GdipDeleteFontFamily(GpFontFamily *FontFamily);    
+GpStatus GdipGetEmHeight(GDIPCONST GpFontFamily* family, GpFontStyle style, short* EmHeight);
+GpStatus GdipGetCellAscent(GDIPCONST GpFontFamily* family, GpFontStyle style, short* CellAscent);
+GpStatus GdipGetCellDescent(GDIPCONST GpFontFamily* family, GpFontStyle style, short* CellDescent);
+GpStatus GdipGetLineSpacing(GDIPCONST GpFontFamily* family, GpFontStyle style, short* LineSpacing);
+GpStatus GdipIsStyleAvailable(GDIPCONST GpFontFamily* family, int style, BOOL* IsStyleAvailable);
+
+
 
 /* Font */
 GpStatus GdipCreateFont(GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, Unit unit,  GpFont **font);

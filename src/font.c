@@ -28,6 +28,7 @@
 #include "gdip_win32.h"
 #include <math.h>
 #include <glib.h>
+#include <freetype/tttables.h>
 
 
 /* Family and collections font functions */
@@ -35,7 +36,6 @@
 GpStatus
 GdipNewInstalledFontCollection(GpFontCollection** fontCollection)
 {
-    printf ("GdipNewInstalledFontCollection\n");
     FcObjectSet* os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, 0);
     FcPattern* pat = FcPatternCreate ();
     FcValue val;
@@ -60,7 +60,6 @@ GdipNewInstalledFontCollection(GpFontCollection** fontCollection)
 GpStatus 
 GdipDeleteFontFamily(GpFontFamily *FontFamily)
 {
-    printf ("GdipDeleteFontFamily\n");   
     return Ok;
 }
 
@@ -79,8 +78,6 @@ GdipGetFontCollectionFamilyCount(GpFontCollection* fontCollection, int* numFound
 GpStatus
 GdipGetFontCollectionFamilyList(GpFontCollection* fontCollection, int numSought, GpFontFamily** gpfamilies, int* numFound)
 {
-    printf("GdipGetFontCollectionFamilyList\n");
-
     if (!fontCollection || !gpfamilies || !numFound) return InvalidParameter;
 
     GpFontFamily** gpfam = gpfamilies;
@@ -97,8 +94,6 @@ GdipGetFontCollectionFamilyList(GpFontCollection* fontCollection, int numSought,
 
 GpStatus GdipCreateFontFamilyFromName(GDIPCONST WCHAR *name, GpFontCollection *fontCollection, GpFontFamily **fontFamily)
 {
-    printf("GdipCreateFontFamilyFromName\n");
-
     if (!name || !fontFamily) return InvalidParameter;
 
     glong items_read = 0;
@@ -126,7 +121,7 @@ GpStatus GdipCreateFontFamilyFromName(GDIPCONST WCHAR *name, GpFontCollection *f
         FcChar8* str;
         FcResult r = FcPatternGetString (*fontFamily, FC_FAMILY, 0, &str);
         printf("fnt->%x, %x, %s\n", *fontFamily, rlt, str);
-        g_free(string);  
+        g_free(string);
         return Ok;
     }
 
@@ -164,8 +159,6 @@ GdipGetFamilyName(GDIPCONST GpFontFamily* family, WCHAR name[LF_FACESIZE], int l
 
     gunichar2* pStr =  g_utf8_to_utf16 ((const gchar *)str, -1,	&items_read, &items_written,NULL);
 
-    printf("GdipGetFamilyName %s, %u\n", str,items_written);
-
     if (items_written>=(LF_FACESIZE-1))
       items_written=(LF_FACESIZE-1);
 
@@ -199,6 +192,109 @@ GdipGetGenericFontFamilyMonospace(GpFontFamily **nativeFamily)
     const WCHAR Serif[] = {'S','e','r','i','f', 0};
     return GdipCreateFontFamilyFromName(Serif, NULL, nativeFamily);    
 }
+
+GpStatus
+GdipGetEmHeight(GDIPCONST GpFontFamily* family, GpFontStyle style, short* EmHeight)
+{
+    if (!family || !EmHeight) return InvalidParameter;
+
+    short rslt = 0;
+    GpFont* font = NULL;
+
+    GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
+
+    if (font){
+        TT_VertHeader* pVert = FT_Get_Sfnt_Table(font->cairofnt->face, ft_sfnt_vhea);
+        rslt = pVert->yMax_Extent;
+
+        GdipDeleteFont (font);
+    }
+
+    *EmHeight = rslt;
+    return Ok;
+
+}
+
+GpStatus
+GdipGetCellAscent(GDIPCONST GpFontFamily* family, GpFontStyle style, short* CellAscent)
+{
+    if (!family || !CellAscent) return InvalidParameter;
+
+    short rslt = 0;
+    GpFont* font = NULL;
+
+    GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
+
+    if (font){
+        TT_HoriHeader* pHori = FT_Get_Sfnt_Table(font->cairofnt->face, ft_sfnt_hhea);
+
+        if (pHori)
+            rslt = pHori->Ascender;
+
+        GdipDeleteFont (font);
+    }
+
+    *CellAscent = rslt;
+    return Ok;
+
+}
+
+GpStatus
+GdipGetCellDescent(GDIPCONST GpFontFamily* family, GpFontStyle style, short* CellDescent)
+{
+    if (!family || !CellDescent) return InvalidParameter;
+
+    short rslt = 0;
+    GpFont* font = NULL;
+
+    *CellDescent = 0;
+
+    GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
+
+    if (font){
+        TT_HoriHeader* pHori = FT_Get_Sfnt_Table(font->cairofnt->face, ft_sfnt_hhea);
+
+        if (pHori)
+            rslt = -pHori->Descender;
+
+        GdipDeleteFont (font);
+    }
+
+    *CellDescent = rslt;
+    return Ok;
+
+}
+
+GpStatus
+GdipGetLineSpacing(GDIPCONST GpFontFamily* family, GpFontStyle style, short* LineSpacing)
+{
+    if (!family || !LineSpacing) return InvalidParameter;
+
+    short rslt = 0;
+    GpFont* font = NULL;
+
+    GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
+
+    if (font){
+        TT_HoriHeader* pHori = FT_Get_Sfnt_Table(font->cairofnt->face, ft_sfnt_hhea);
+        rslt = pHori->Ascender + (-pHori->Descender) + pHori->Line_Gap;
+        GdipDeleteFont (font);
+    }
+
+    *LineSpacing = rslt;
+    return Ok;
+}
+
+GpStatus
+GdipIsStyleAvailable(GDIPCONST GpFontFamily* family, int style, BOOL* IsStyleAvailable)
+{
+    if (!family || !IsStyleAvailable) return InvalidParameter;
+
+    *IsStyleAvailable = TRUE;
+    return Ok;
+    
+}
+
 
 /* Font functions */
 
@@ -248,8 +344,6 @@ gdip_font_create (const char *family, int fcslant, int fcweight)
 GpStatus
 GdipCreateFont(GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, Unit unit,  GpFont **font)
 {
-    printf("GdipCreateFont\n");
-
     if (!family || !font) return InvalidParameter;
 
     FcChar8* str;
@@ -261,8 +355,6 @@ GdipCreateFont(GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, 
 
     gdip_unitConversion(unit, UnitPixel, emSize, &result->sizeInPixels);
 
-    printf("Size (units) %f, (pixels) %f\n", emSize, result->sizeInPixels);
-    
     switch (style) {
         
         case FontStyleRegular:
@@ -301,5 +393,4 @@ GdipDeleteFont(GpFont* font)
         GdipFree ((void *)font);
     }
 }
-
 
