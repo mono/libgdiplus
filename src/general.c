@@ -406,13 +406,14 @@ gdip_open_curve_tangents (int terms, const GpPointF *points, int count)
                 tangents [i].Y = 0;
         }
 
+
         if (count <= 2)
                 return tangents;
 
-        m = count - 1;
+        M = count - 1;
         Z = 2 * M;
 
-        gdip_calculate_coefficients (count, terms, &coefficients, &coefficients_count);
+        gdip_calculate_coefficients (Z, terms, &coefficients, &coefficients_count);
         m = coefficients_count - 1;
 
         for (i = 1; i < M; i++) {

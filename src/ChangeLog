@@ -1,5 +1,11 @@
 2004-04-10  Duncan Mak  <duncan@ximian.com>
 
+	* general.c (gdip_open_curve_tangents): Fixed some more errors in
+	the porting of the algorithm. We should be passing Z to
+	gdip_calculate_coefficients instead of count. Z = 2 * count - 1.
+
+2004-04-10  Duncan Mak  <duncan@ximian.com>	
+
 	* graphics.c (GdipDrawCurve): Doh! Use the ask for tangents for
 	open curves, not closed curves.
 
