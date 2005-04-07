@@ -423,9 +423,9 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 					color = (v [0]) | (v [1] << 8) | (v [2] << 16) | (v [3] << 24);
 										
 #ifdef WORDS_BIGENDIAN
-					*ptr_red++ = (color & 0x0000ff00) >> 8;
-					*ptr_green++ = (color & 0x00ff0000) >> 16;
-					*ptr_blue++ =  (color & 0xff000000) >> 24;
+					*ptr_red++ = (color >> 8) & 0xff;
+					*ptr_green++ = (color >> 16) & 0xff;
+					*ptr_blue++ =  (color >> 24) & 0xff;
 #else
 					*ptr_red++ = (color & 0x00ff0000) >> 16;
 					*ptr_green++ = (color & 0x0000ff00) >> 8;

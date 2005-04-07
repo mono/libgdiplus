@@ -1,3 +1,7 @@
+2005-04-07 Neale Ferguson <NealeFerguson@earthlink.net>
+
+	* gifcodec.c: Eliminate warning message and optimize breakdown of RGB field.
+
 2005-03-30 Peter Bartok  <pbartok@novell.com>
 
 	* font.c: Added locking for font cache
