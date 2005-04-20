@@ -2277,34 +2277,18 @@ GpStatus
 gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 {
 	GpHatch *hbr;
-	GpImage *img;
-	GpBitmap *bmp;
 	cairo_t *ct;
-	unsigned int width;
-	unsigned int height;
 	int forecol;
 	int backcol;
-	cairo_format_t format;
+	cairo_format_t format = CAIRO_FORMAT_ARGB32;
 	GpStatus status = Ok;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
-	img = graphics->image;
-
-	g_return_val_if_fail (img != NULL, InvalidParameter);
-
 	hbr = (GpHatch *) brush;
 	forecol = hbr->foreColor;
 	backcol = hbr->backColor;
-
-	if (img->type == imageBitmap) {
-		bmp = (GpBitmap *) img;
-		width = bmp->data.Width;
-		height = bmp->data.Height;
-		format = bmp->data.PixelFormat;
-	} else 
-		return NotImplemented;
 
 	ct = graphics->ct;
 
