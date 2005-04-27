@@ -334,6 +334,11 @@ GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **grap
 GpStatus
 GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 {
+	XImage *ximage;
+	Window root_ignore;
+	GpRect bounds;
+	int bwidth_ignore, depth_ignore;
+
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
 	*graphics = gdip_graphics_new();
@@ -343,6 +348,10 @@ GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 	(*graphics)->display = dpy;
 	(*graphics)->drawable = d;
 
+	XGetGeometry (dpy, d, &root_ignore, &bounds.X, &bounds.Y,
+		&bounds.Width, &bounds.Height, &bwidth_ignore, &depth_ignore);
+
+	GdipSetVisibleClip_linux (*graphics, &bounds);
 	return Ok;
 }
 
@@ -3146,13 +3155,9 @@ GdipGetDpiY (GpGraphics *graphics, float *dpi)
 GpStatus
 GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 {
-	GpImage *image;
 	double red, green, blue, alpha;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-
-	image = graphics->image;
-	g_return_val_if_fail (image != NULL, InvalidParameter);
 
 	blue = color & 0xff;
 	green = (color >> 8) & 0xff;
@@ -3164,7 +3169,7 @@ GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 
 	cairo_set_rgb_color (graphics->ct, red / 255, green / 255, blue / 255);
 	cairo_set_alpha (graphics->ct, alpha / 255);
-	cairo_rectangle (graphics->ct, 0, 0, image->width, image->height);
+	cairo_rectangle (graphics->ct, 0, 0, graphics->bounds.Width, graphics->bounds.Height);
 	cairo_fill (graphics->ct);
 
 	/* Restore the color/alpha/pattern settings */
@@ -3456,7 +3461,6 @@ GdipSetVisibleClip_linux (GpGraphics *graphics, GpRect *rect)
 	graphics->bounds.Y = rect->Y;
 	graphics->bounds.Width = rect->Width;
 	graphics->bounds.Height = rect->Height;
-	
 	return Ok;
 }
 

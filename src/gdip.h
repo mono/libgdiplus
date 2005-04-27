@@ -1023,6 +1023,7 @@ GpStatus GdipSetTextContrast(GpGraphics *graphics, UINT contrast);
 GpStatus GdipGetTextContrast(GpGraphics *graphics, UINT *contrast);
 GpStatus GdipSetSmoothingMode(GpGraphics *graphics, SmoothingMode mode);
 GpStatus GdipGetSmoothingMode(GpGraphics *graphics, SmoothingMode *mode);
+GpStatus GdipSetVisibleClip_linux (GpGraphics *graphics, GpRect *rect);
 
 /* Status */
 GpStatus gdip_get_status (cairo_status_t status);

@@ -1,3 +1,10 @@
+2005-04-27 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c:
+		- Set bounds when using a X Drawable
+		- Fixes GdipGraphicsClear to make it work with X Drawables
+	* gdip.h: define new function
+
 2005-04-20  Jackson Harper  <jackson@ximian.com>
 
 	* hatchbrush.c: Don't require that hatch brushes be created on a
