@@ -348,8 +348,9 @@ GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 	(*graphics)->display = dpy;
 	(*graphics)->drawable = d;
 
-	XGetGeometry (dpy, d, &root_ignore, &bounds.X, &bounds.Y,
-		&bounds.Width, &bounds.Height, &bwidth_ignore, &depth_ignore);
+	XGetGeometry (dpy, d, &root_ignore, &bounds.X,  &bounds.Y,
+		(unsigned int *)&bounds.Width, (unsigned int *)&bounds.Height, 
+		(unsigned int *)&bwidth_ignore, (unsigned int *)&depth_ignore);
 
 	GdipSetVisibleClip_linux (*graphics, &bounds);
 	return Ok;
