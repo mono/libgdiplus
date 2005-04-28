@@ -274,6 +274,9 @@ gdip_load_tiff_image (TIFF *tif, GpImage **image)
 	int j=0;
 	BitmapData data;
 
+	data.ByteCount = 0;
+	data.Bytes = NULL;
+
 	if (tif) {
 
 		TIFFRGBAImage tifimg;
