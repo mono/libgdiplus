@@ -1,3 +1,11 @@
+2005-05-05 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c:
+		- Empty the region before working with it
+		- Move printf into debug bloc
+	* region.c:
+		- Fixes infinite regions
+
 2005-04-28 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* tiffcodec.c: Inits Byte and ByteCount to avoid releasing not allocated

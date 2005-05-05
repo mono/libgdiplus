@@ -127,10 +127,22 @@ gdip_is_Point_in_RectFs_inclusive (float x, float y, GpRectF* r, int cnt)
         return FALSE;
 }                                                
 
+bool
+gdip_is_InfiniteRegion (GpRegion *region)
+{             
+	if (region->cnt != 1)
+              return FALSE;      
+
+	if (region->rects->X == -4194304 && region->rects->Y == -4194304 &&
+		region->rects->Width == 8388608 &&  region->rects->Height == 8388608)
+		return TRUE;
+
+	return FALSE;
+}
 
 GpStatus
 gdip_createRegion (GpRegion **region, RegionType type, void *src)
-{
+{	
         GpRegion *result;
         GpRectF rect;
 
@@ -865,6 +877,9 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
         if (!region || !rect)
                 return InvalidParameter;
 
+	if (gdip_is_InfiniteRegion (region))
+		return Ok;
+
         switch (combineMode) {
         case CombineModeExclude:
                 gdip_combine_exclude (region, (GpRectF *) rect, 1);
@@ -916,6 +931,9 @@ GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combi
 {
         if (!region || !region2)
                 return InvalidParameter;
+
+	if (gdip_is_InfiniteRegion (region) || gdip_is_InfiniteRegion(region2))
+		return Ok;
 
         switch (combineMode) {
         case CombineModeExclude:
@@ -979,17 +997,7 @@ GdipIsInfiniteRegion (GpRegion *region, GpGraphics *graphics, BOOL *result)
       if (!region || !graphics || !result)
                 return InvalidParameter;
 
-      if (region->cnt != 1) {
-              *result = FALSE;
-              return Ok;
-      }
-
-      if (region->rects->X == -4194304 && region->rects->Y == -4194304 &&
-                region->rects->Width == 8388608 &&  region->rects->Height == 8388608)
-                *result = TRUE;
-      else
-                *result = FALSE;
-
+      *result = gdip_is_InfiniteRegion (region);
       return Ok;
 }
 

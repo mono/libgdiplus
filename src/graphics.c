@@ -2930,9 +2930,8 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 		if (i % 3 == 2) {
 			printf("\n");
 		}
-#endif
-
 		printf ("curr details: x: %f y: %f wd: %f\n", CurrentDetail->PosX, CurrentDetail->PosY,CurrentDetail->Width);
+#endif
 		CurrentDetail++;
 		CurrentLineStart->LineLen++;
 	}
@@ -3060,6 +3059,7 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 	/* Create a region for every char range */
 	for (i = 0; i < format->charRangeCount; i++) {
 		range = format->charRanges [i];
+		GdipSetEmpty (regions [i]); 
 
 		if (range.length > 0)
 			start = range.first;
