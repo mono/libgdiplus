@@ -94,7 +94,7 @@ GdipDisposeImage (GpImage *image)
 			dataCount = image->frameDimensionList [i].count;
 			data = image->frameDimensionList [i].frames;
 				for (j = 0; j < dataCount; j++) {
-					if (data [j].Scan0) {
+					if (((data [j].Reserved & GBD_OWN_SCAN0) != 0) && data [j].Scan0 != NULL) {
 						GdipFree (data [j].Scan0);
 						data [j].Scan0 = NULL;
 					}
