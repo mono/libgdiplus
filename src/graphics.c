@@ -247,7 +247,7 @@ make_pie (GpGraphics *graphics, float x, float y,
                        cy + ry * sin_alpha);
 
        /* just make an ellipse if we're going a full 2 PI (360 degrees) */
-        if (sweepAngle >= 360) {
+        if (abs (sweepAngle) >= 360) {
 		make_ellipse (graphics, x, y, width, height);
 		return;
 	}
@@ -256,7 +256,7 @@ make_pie (GpGraphics *graphics, float x, float y,
          * draw the arc, if the sweep is bigger than 180, draw it
          * twice, using a middle angle.
          */
-        if (sweepAngle < 180)
+        if (abs (sweepAngle) < 180)
                 make_arc (graphics, TRUE, x, y, width, height, startAngle, endAngle);
         else {
                 float midAngle = startAngle + (sweepAngle / 2.0);
@@ -556,10 +556,10 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
 	 */
 
         /* just make an ellipse if we're going a full 360 degrees */
-        if (sweepAngle >= 360)
+        if (abs (sweepAngle) >= 360)
                 make_ellipse (graphics, x, y, width, height);
 
-        else if (sweepAngle < 180)
+        else if (abs (sweepAngle) < 180)
                 make_arc (graphics, TRUE, x, y, width, height, startAngle, endAngle);
 
         else {

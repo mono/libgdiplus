@@ -1,3 +1,16 @@
+2005-05-09  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c (make_pie, GdipDrawArc): when evaluating angles,
+	always use abs(). This fixes the drawing of arcs and pies when the
+	sweep angle is negative.
+
+	Bug #63360 has also been fixed. This was a bug reported by
+	Ravindra in August '04 about a hang when "the difference between
+	width and height of rectangle is 1 and angles sum is close to
+	360". My change doesn't affect this bug. #63360 didn't hang in
+	libgdiplus 1.1.7 as is, so it was actually fixed by the Cairo
+	guys.
+	
 2005-05-06 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* image.c: Only free memory blocks that are owned by us
