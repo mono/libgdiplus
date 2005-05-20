@@ -1,3 +1,11 @@
+2005-05-20  Duncan Mak  <duncan@novell.com>
+
+	* graphics-path.c (GdipAddPathArc): Added a special case for
+	drawing ellipses, and remember to use abs() with 'sweepAngle' to
+	ensure correctness when the angle is negative.
+
+	This is basically a port of the previous commit.
+
 2005-05-09  Duncan Mak  <duncan@novell.com>
 
 	* graphics.c (make_pie, GdipDrawArc): when evaluating angles,
