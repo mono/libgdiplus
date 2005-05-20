@@ -792,9 +792,10 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
                 PathPointTypeLine);
 
         /* draw arc */
+        if (abs (sweepAngle) >= 360)
+                return GdipAddPathEllipse (path, x, y, width, height);
         if (abs (sweepAngle) < 180)
                 append_arc (path, TRUE, x, y, width, height, startAngle, endAngle);
-
         else {
                 float midAngle = startAngle + (sweepAngle / 2.0);
 
