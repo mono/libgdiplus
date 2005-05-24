@@ -575,7 +575,7 @@ append_arc (GpPath *path, bool start, float x, float y, float width, float heigh
 
         /* move to the starting point if we're not continuing a curve */
         if (start)
-                append (path, sx, sy, PathPointTypeStart);
+                append (path, sx, sy, PathPointTypeLine);
 
         append_bezier (path, 
                 cx + rx * (cos_alpha - bcp * sin_alpha),
@@ -590,19 +590,23 @@ GpStatus
 GdipAddPathArc (GpPath *path, float x, float y, 
                 float width, float height, float startAngle, float sweepAngle)
 {
-        float endAngle = startAngle + sweepAngle;
+	float endAngle = startAngle + sweepAngle;
+	int i, sign = (endAngle > 0) ? 1 : -1;	
+
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 
 	if (abs (sweepAngle) >= 360)
 		return GdipAddPathEllipse (path, x, y, width, height);
-        if (abs (sweepAngle) < 180)
-                append_arc (path, TRUE, x, y, width, height, startAngle, endAngle);
-        else {
-                float midAngle = startAngle + (sweepAngle / 2.0);
 
-                append_arc (path, TRUE, x, y, width, height, startAngle, midAngle);
-                append_arc (path, FALSE, x, y, width, height, midAngle, endAngle);
-        }
+	/* draw the arcs */
+	for (i = 0; i < abs (endAngle); i += 90) {
+		append_arc (path,
+			    (i == 0) ? TRUE : FALSE,  /* only move to the starting pt in the 1st iteration */
+			    x, y, width, height,      /* bounding rectangle */
+			    i * sign,		      /* start angle */
+			    (i + 90 < abs (endAngle)) ? (i + 90) * sign : endAngle); /* sweep angle,
+											at most up to 90 degrees  */
+	}	
 
         return Ok;
 }
@@ -775,6 +779,8 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
 
         float endAngle = startAngle + sweepAngle;        
 
+	int i, sign = (endAngle > 0) ? 1 : -1;
+	
         /* angles in radians */        
         float alpha = startAngle * PI / 180;
 
@@ -785,7 +791,6 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
 
         /* move to center */
         append (path, cx, cy, PathPointTypeStart);
-        
 
         /* draw pie edge */
         append (path, cx + rx * cos_alpha, cy + ry * sin_alpha,
@@ -794,14 +799,16 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
         /* draw arc */
         if (abs (sweepAngle) >= 360)
                 return GdipAddPathEllipse (path, x, y, width, height);
-        if (abs (sweepAngle) < 180)
-                append_arc (path, TRUE, x, y, width, height, startAngle, endAngle);
-        else {
-                float midAngle = startAngle + (sweepAngle / 2.0);
 
-                append_arc (path, TRUE, x, y, width, height, startAngle, midAngle);
-                append_arc (path, FALSE, x, y, width, height, midAngle, endAngle);
-        }
+	/* draw the arcs */
+	for (i = 0; i < abs (endAngle); i += 90) {
+		append_arc (path,
+			    (i == 0) ? TRUE : FALSE,  /* only move to the starting pt in the 1st iteration */
+			    x, y, width, height,      /* bounding rectangle */
+			    i * sign,		      /* start angle */
+			    (i + 90 < abs (endAngle)) ? (i + 90) * sign : endAngle); /* sweep angle,
+											at most up to 90 degrees  */
+	}	
         
         /* draw pie edge */
         append (path, cx, cy, PathPointTypeLine);

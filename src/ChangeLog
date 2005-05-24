@@ -1,3 +1,19 @@
+2005-05-24  Duncan Mak  <duncan@novell.com>
+
+	* graphics-path.c (append_arc): Append PathPointTypeLine instead
+	of PathPointTypeStart, so that arcs will be joint properly. This
+	fixes bug #75015. Thanks to Elliot Paquette for reporting and
+	fixing this bug.
+
+2005-05-24  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c (make_pie, GdipDrawArc): 
+	* graphics-path.cs (GdipAddPathArc, GdipAddPathPie): Rewrote the
+	code for calculating arcs: instead of drawing two arcs via a
+	mid-point, draw multiple arcs at intervals of 90 degrees. This
+	results in prettier arcs/pies and a better match to the output
+	produced by MS.
+
 2005-05-20  Duncan Mak  <duncan@novell.com>
 
 	* graphics-path.c (GdipAddPathArc): Added a special case for

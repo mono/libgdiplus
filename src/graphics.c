@@ -232,6 +232,8 @@ make_pie (GpGraphics *graphics, float x, float y,
 
         float endAngle = startAngle + sweepAngle;
 
+	int i, sign = (endAngle > 0) ? 1 : -1;	
+
         /* angles in radians */        
         float alpha = startAngle * PI / 180;
 
@@ -252,18 +254,15 @@ make_pie (GpGraphics *graphics, float x, float y,
 		return;
 	}
 
-        /*
-         * draw the arc, if the sweep is bigger than 180, draw it
-         * twice, using a middle angle.
-         */
-        if (abs (sweepAngle) < 180)
-                make_arc (graphics, TRUE, x, y, width, height, startAngle, endAngle);
-        else {
-                float midAngle = startAngle + (sweepAngle / 2.0);
-
-                make_arc (graphics, TRUE, x, y, width, height, startAngle, midAngle);
-                make_arc (graphics, FALSE, x, y, width, height, midAngle, endAngle);
-        }
+	/* draw the arcs */
+	for (i = 0; i < abs (endAngle); i += 90) {
+		make_arc (graphics,
+			  (i == 0) ? TRUE : FALSE,    /* only move to the starting pt in the 1st iteration */
+			  x, y, width, height,	      /* bounding rectangle */
+			  i * sign,		      /* start angle */
+			  (i + 90 < abs (endAngle)) ? (i + 90) * sign : endAngle); /* sweep angle,
+										      at most up to 90 degrees  */
+	}
 
         /* draws line back to center */
         cairo_line_to (graphics->ct, cx, cy);
@@ -558,16 +557,19 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
         /* just make an ellipse if we're going a full 360 degrees */
         if (abs (sweepAngle) >= 360)
                 make_ellipse (graphics, x, y, width, height);
+	else {
+		int i, sign = (endAngle > 0) ? 1 : -1;
 
-        else if (abs (sweepAngle) < 180)
-                make_arc (graphics, TRUE, x, y, width, height, startAngle, endAngle);
-
-        else {
-                float midAngle = startAngle + (sweepAngle / 2.0);
-
-                make_arc (graphics, TRUE, x, y, width, height, startAngle, midAngle);
-                make_arc (graphics, FALSE, x, y, width, height, midAngle, endAngle);
-        }  
+		/* draw the arcs */
+		for (i = 0; i < abs (endAngle); i += 90) {
+			make_arc (graphics,
+				  (i == 0) ? TRUE : FALSE,    /* only move to the starting pt in the 1st iteration */
+				  x, y, width, height,	      /* bounding rectangle */
+				  i * sign,		      /* start angle */
+				  (i + 90 < abs (endAngle)) ? (i + 90) * sign : endAngle); /* sweep angle,
+											      at most up to 90 degrees  */
+		}
+	}
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
