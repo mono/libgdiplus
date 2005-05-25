@@ -138,9 +138,8 @@ GdipPrivateAddFontFile (GpFontCollection *font_collection,  GDIPCONST WCHAR *fil
 	if (!font_collection || !filename)
 		return InvalidParameter;
     
-	file = (unsigned char*) g_utf16_to_utf8 ((const gunichar2 *)filename, -1,
-						 NULL, NULL, NULL);
-	
+	file = (unsigned char*) ucs2_to_utf8 ((const gunichar2 *)filename);
+
 	FcConfigAppFontAddFile (font_collection->config, file);
     
 	g_free (file);
@@ -221,13 +220,12 @@ GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, int num_soug
 	GpFontFamily **gpfam = gpfamilies;
 	FcPattern **pattern =  font_collection->fontset->fonts;
 	int i;
-	
+
 	if (!font_collection || !gpfamilies || !num_found)
 		return InvalidParameter;
 
 	if (font_collection->config)
 		gdip_createPrivateFontSet (font_collection);
-		
 
 	for (i = 0; i < font_collection->fontset->nfont; gpfam++, pattern++, i++) {
 		gdip_createFontFamily (gpfam);
@@ -242,8 +240,6 @@ GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, int num_soug
 GpStatus
 GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_collection, GpFontFamily **fontFamily)
 {
-	glong items_read = 0;
-	glong items_written = 0;
 	unsigned char *string;
 	FcPattern **gpfam;
 	FcChar8 *str;
@@ -252,8 +248,7 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 	if (!name || !fontFamily)
 		return InvalidParameter;
 
-	string = (unsigned char*)g_utf16_to_utf8 ((const gunichar2 *)name, -1,
-						  &items_read, &items_written, NULL);
+	string = (unsigned char*)ucs2_to_utf8 ((const gunichar2 *)name);
 
 	if (!font_collection) {
 		FcChar8 *str;
@@ -299,13 +294,10 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 	return FontFamilyNotFound;
 }
 
-
 GpStatus
 GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], int language)
 {                
 	FcChar8 *fc_str;
-	glong items_read = 0;
-	glong items_written = 0;
 	FcResult r;
 	gunichar2 *string;
 	
@@ -314,16 +306,7 @@ GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], int 
 
 	r = FcPatternGetString (family->pattern, FC_FAMILY, 0, &fc_str);
 
-	string =  g_utf8_to_utf16 ((const gchar *)fc_str, -1, &items_read, &items_written,NULL);
-
-	if (items_written>= (LF_FACESIZE-1))
-		items_written= (LF_FACESIZE-1);
-
-	memcpy (name, string, items_written * sizeof (WCHAR));
-	name [1+items_written*sizeof (WCHAR)]=0;
-
-	g_free (string);
-
+	utf8_to_ucs2((const gchar *)fc_str, (gunichar2 *)name, LF_FACESIZE);
 	return Ok;
 }
 

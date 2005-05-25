@@ -464,16 +464,14 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	char format_peek[10];
 	int format_peek_sz;
 	
-	GError *err = NULL;
-	
 	if (!image || !file)
 		return InvalidParameter;
 	
-	file_name = (char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, &err);
-	if (file_name == NULL || err != NULL) {
+	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)file);
+	if (file_name == NULL) {
 		*image = NULL;
 		return InvalidParameter;
-		}
+	}
 	
 	fp = fopen(file_name, "rb");
 	g_free (file_name);
@@ -568,7 +566,6 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 	FILE *fp = 0;
 	GpStatus status = 0;
 	char *file_name;
-	GError *err = NULL;
 	ImageFormat format;
 	
 	if (image->type != imageBitmap)
@@ -581,8 +578,8 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 	if (format == INVALID)
 		return UnknownImageFormat;
 	
-	file_name = (char *) g_utf16_to_utf8 ((const gunichar2 *)file, -1, NULL, NULL, &err);
-	if (file_name == NULL || err != NULL) 
+	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)file);
+	if (file_name == NULL)
 		return InvalidParameter;
 	
 	if (format == GIF) { /* gif library has to open the file itself*/

@@ -1873,7 +1873,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	}
 
 	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
-	String= (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)CleanString, (glong)StringLen, NULL, NULL, NULL);
+	String = (unsigned char *) ucs2_to_utf8 ((const gunichar2 *)CleanString);
 	if (!String) {
 		free (CleanString);
 		free (StringDetails);
@@ -2291,7 +2291,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 					continue;
 				}
 
-				String= (unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)(CleanString+i), (glong)StringDetails[i].LineLen, NULL, NULL, NULL);
+				String= (unsigned char *) ucs2_to_utf8 ((const gunichar2 *)(CleanString+i));
 #ifdef DRAWSTRING_DEBUG
 				printf("Displaying line >%s<\n", String);
 #endif
@@ -2644,7 +2644,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 	}
 
 	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
-	String=(unsigned char *) g_utf16_to_utf8 ((const gunichar2 *)CleanString, (glong)StringLen, NULL, NULL, NULL);
+	String=(unsigned char *) ucs2_to_utf8 ((const gunichar2 *)CleanString);
 	if (!String) {
 		free (CleanString);
 		free (StringDetails);

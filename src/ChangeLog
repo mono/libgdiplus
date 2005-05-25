@@ -1,3 +1,8 @@
+2005-05-25  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c, font.c, image.c, general.c, gdip.h: Replaced UTF8/UTF16 
+	  conversion with UCS2/UTF8 conversion (The MS APIs do not use UTF16)
+
 2005-05-24  Duncan Mak  <duncan@novell.com>
 
 	* graphics-path.c (append_arc): Append PathPointTypeLine instead

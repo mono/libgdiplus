@@ -1265,6 +1265,9 @@ void gdip_rect_expand_by (GpRectF *rect, GpPointF *point);
 cairo_surface_t * gdip_bitmap_ensure_surface (GpBitmap *bitmap);
 
 const EncoderParameter *gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid);
+gchar *ucs2_to_utf8(const gunichar2 *ucs2);
+bool utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len);
+
 
 /* Stream handling bits */
 typedef int (*GetHeaderDelegate) (unsigned char *, int);

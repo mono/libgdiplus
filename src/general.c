@@ -422,3 +422,78 @@ float gdip_erf (float x, float std, float mean)
 
 	return constant * series;
 }
+
+gchar *
+ucs2_to_utf8(const gunichar2 *ucs2) {
+	unsigned int	ch;
+	unsigned int	len;
+	const gunichar2	*ptr;
+	gunichar	*dest;
+	gunichar	*uni;
+	gchar		*utf8;
+
+	// Count length
+	ptr = ucs2;
+	len = 0;
+	while (*ptr != 0) {
+		ptr++;
+		len++;
+	}
+
+	uni = malloc((len + 1) * sizeof(gunichar));
+	if (uni == NULL) {
+		return NULL;
+	}
+
+	dest = uni;
+	ptr = ucs2;
+	while (*ptr != 0) {
+		if (*ptr < 0xd800 || *ptr >= 0xe000) {
+			*dest = *ptr;
+			dest++;
+		}
+		ptr++;
+	}
+	*dest = 0;
+	dest++;
+	
+	utf8 = (gchar *) g_ucs4_to_utf8 ((const gunichar *)uni, -1, NULL, NULL, NULL);
+
+	free(uni);
+
+	return utf8;
+}
+
+bool
+utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) {
+	int 		i;
+	glong		items_read;
+	glong		count;
+	gunichar	*ucs4;
+	unsigned char	*ptr;
+
+	items_read = 0;
+	count = 0;
+
+	ucs2_len--;	// Space for null terminator
+
+	ucs4 = g_utf8_to_ucs4(utf8, -1, &items_read, &count, NULL);
+	if (ucs4 == NULL) {
+		return FALSE;
+	}
+
+	ptr = (unsigned char *)ucs2;
+	for (i = 0; (i < count) && (i < ucs2_len); i++) {
+		if (ucs4[i] < 0x1000 && !(ucs4[i] >= 0xd800 && ucs4[i] < 0xe000)) {
+			ptr[0] = (unsigned char)ucs4[i];
+			ptr[1] = (unsigned char)(ucs4[i] >> 8);
+			ptr += 2;
+		}	// we're simply ignoring any chars that don't fit into ucs2
+	}
+	ucs2[ptr - (unsigned char *)ucs2] = 0;	// terminate
+
+	// free the intermediate ucs4 string
+	g_free(ucs4);
+
+	return TRUE;
+}
