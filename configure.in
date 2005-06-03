@@ -272,17 +272,16 @@ echo "   * Installation prefix = $prefix"
 echo "   * Codecs supported:"
 echo ""
 echo $ECHO_N "      - TIFF: "
-test ! x$TIFF = x && echo yes || echo no 
+test ! x$TIFF = x && echo yes || echo no (Get it from http://www.libtiff.org/)
 echo $ECHO_N "      - JPEG: "
-test ! x$JPEG = x && echo yes || echo no 
+test ! x$JPEG = x && echo yes || echo no (Get it from http://freshmeat.net/projects/libjpeg)
 echo $ECHO_N "      - GIF: "
-test ! x$UNGIF = x && echo yes || echo no 
+test ! x$UNGIF = x && echo yes || echo no (See http://sourceforge.net/projects/libungif)
 echo $ECHO_N "      - PNG: "
-test ! x$PNG = x && echo yes || echo no 
+test ! x$PNG = x && echo yes || echo no (See http://www.libpng.org/pub/png/libpng.html)
 echo ""
 echo "      NOTE: if any of the above say 'no' you may install the"
 echo "            corresponding development packages for them, rerun"
 echo "            autogen.sh to include them in the build."
 echo ""
 echo "---"
-

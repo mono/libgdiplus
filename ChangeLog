@@ -1,3 +1,8 @@
+2005-06-02  Peter Bartok  <pbartok@novell.com>
+
+	* configure.in: Added URLs to help people find the image 
+	  libraries (suggested by Gonzalo)
+
 2005-05-03  Ben Maurer  <bmaurer@ximian.com>
 
 	* configure.in: 1.1.7
