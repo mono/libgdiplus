@@ -206,6 +206,9 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 	if (!tiff)
 		return InvalidParameter;		
 
+	if (gdip_is_an_indexed_pixelformat (bitmap->data.PixelFormat))
+		return NotImplemented; /* for now */
+
 	dimensionCount = image->frameDimensionCount; 
 	for (j = 0; j < dimensionCount; j++)
 		totalPages += image->frameDimensionList [j].count;

@@ -22,6 +22,7 @@
  *	Sanjay Gupta (gsanjay@novell.com)
  *	Vladimir Vukicevic (vladimir@pobox.com)
  *	Jordi Mas (jordi@ximian.com)
+ *	Jonathan Gilbert (logic@deltaq.org)
  *
  * Copyright (C) Novell, Inc. 2003-2004.
  */
@@ -211,11 +212,6 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		img->image.frameDimensionList[0].frames = (BitmapData *) GdipAlloc (sizeof (BitmapData)*timeDimensionCount);
 	}
 
-	/* Note that Cairo/libpixman does not have support for indexed
-	* images, so we expand gifs out to 32bpp argb.
-	* This is unfortunate.
-	*/
-	#if 0
 	/* Copy the palette over, if there is one */
 	if (gif->SColorMap != NULL) {
 		ColorPalette *pal = g_malloc (sizeof(ColorPalette) + sizeof(ARGB) * gif->SColorMap->ColorCount);
@@ -229,14 +225,23 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		
 		img->image.palette = pal;
 	}
+	else {
+		/* Assume a grayscale image. */
+		img->image.palette = g_malloc (sizeof(ColorPalette) + 256 * sizeof(ARGB));
+
+		img->image.palette->Flags = PaletteFlagsGrayScale;
+		img->image.palette->Count = 256; /* FIXME: what about other bit depths? does GIF support them? does anybody use them? */
+
+		for (i=0; i < 256; i++) {
+			img->image.palette->Entries[i] = MAKE_ARGB_RGB(i, i, i);
+		}
+	}
+
 	img->image.pixFormat = Format8bppIndexed;
-	#endif
 
 	pal = gif->SColorMap;
 	
-	img->image.pixFormat = Format32bppArgb;
-	
-	img->cairo_format = CAIRO_FORMAT_ARGB32;
+	img->cairo_format = CAIRO_FORMAT_A8;
 
 	/* 
 	 * Now populate the frames associated with each frame dimension
@@ -273,7 +278,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		imgDesc = si.ImageDesc;
 		data.Width = imgDesc.Width;
 		data.Height = imgDesc.Height;
-		data.Stride = data.Width * 4;
+		data.Stride = (data.Width + sizeof(pixman_bits_t) - 1) & ~(sizeof(pixman_bits_t) - 1);
 		data.Top = imgDesc.Top;
 		data.Left = imgDesc.Left;
 	
@@ -283,19 +288,15 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		writeptr = pixels;
 		pixelLength = data.Width * data.Height;
 		/*
-		 * While loading images, local color map if present takes precedence
-		 * over global color map.
+		 * FIXME: While loading images, local color map if present takes precedence
+		 * over global color map. However, the palette is stored by the outer
+		 * GpImage, not BitmapData, so GDI+ apparently can't have a separate
+		 * palette for each frame. Convert files that would need one to ARGB 32-bit?
 		 */
-		for (j = 0; j < pixelLength; j++) {
-			guchar pix = *readptr++;
-			if (localPalObj) {
-				set_pixel_bgra(writeptr, 0, localPalObj->Colors[pix].Blue, localPalObj->Colors[pix].Green, localPalObj->Colors[pix].Red, 0xff);
-			} else if (pal) {
-				set_pixel_bgra(writeptr, 0, pal->Colors[pix].Blue, pal->Colors[pix].Green, pal->Colors[pix].Red, 0xff);
-			} else {
-				set_pixel_bgra(writeptr, 0, pix, pix, pix, 0xff);
-			}
-			writeptr += 4;
+		for (j = 0; j < data.Height; j++) {
+			memcpy(writeptr, readptr, data.Width);
+			readptr += data.Width;
+			writeptr += data.Stride;
 		}
 
 		data.Scan0 = pixels;
@@ -314,15 +315,11 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	}
 	
 	img->data = img->image.frameDimensionList[0].frames[0];
-	
-	img->image.surface = cairo_surface_create_for_image ((char *)img->data.Scan0, img->cairo_format,
-							img->image.width, img->image.height,
-							img->data.Stride);
+
 	img->image.imageFlags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB;
 	img->image.horizontalResolution = 0;
 	img->image.verticalResolution = 0;
 	img->image.propItems = NULL;
-	img->image.palette = NULL;
 	
 	*image = (GpImage *) img;
 	return Ok;
@@ -350,7 +347,7 @@ gdip_gif_outputfunc (GifFileType *gif,  const GifByteType *data, int len)
 
 
 GpStatus 
-gdip_save_gif_image_to_file (char *filename, GpImage *image)
+gdip_save_gif_image_to_file (unsigned char *filename, GpImage *image)
 {
 	return gdip_save_gif_image ( (void *)filename, image, TRUE);
 }
@@ -369,6 +366,7 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 	GifFileType *fp;
 	int i, row, x, y, size;
 	GpBitmap *bitmap = (GpBitmap *) image;
+	ColorPalette *palette = image->palette;
 	GifByteType *red = NULL, *green = NULL, *blue = NULL, *pixels = NULL;
 	GifByteType *ptr_red, *ptr_green, *ptr_blue, *ptr_pixels;
 	ARGB color = 0;	
@@ -404,39 +402,134 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 			animationFlag = FALSE;
 
 		for (k = 0; k < frameCount; k++) {
-			cmap_size = 256;
-			cmap  = MakeMapObject (cmap_size, 0);
-			
 			data = image->frameDimensionList [j].frames [k]; 
+
 			size = data.Height * data.Width;
 			sizeAlloc = sizeof (GifByteType)* size;
-			ptr_red  = red = GdipAlloc (sizeAlloc);
-			ptr_green = green = GdipAlloc (sizeAlloc);
-			ptr_blue = blue = GdipAlloc (sizeAlloc);
-			ptr_pixels = pixels = GdipAlloc (sizeAlloc);
+
+			if (gdip_is_an_indexed_pixelformat (data.PixelFormat)) {
+				unsigned char w;
+
+				switch (data.PixelFormat)
+				{
+					case Format1bppIndexed: cmap_size =   2; break;
+					case Format4bppIndexed: cmap_size =  16; break;
+					case Format8bppIndexed: cmap_size = 256; break;
+				}
+
+				cmap = MakeMapObject (cmap_size, 0);
+
+				ptr_pixels = pixels = GdipAlloc (sizeAlloc);
+
+				for (i = 0; (i < cmap_size) && (i < palette->Count); i++) {
+					v = (unsigned char *)&palette->Entries[i];
+
+#ifdef WORDS_BIGENDIAN
+					cmap->Colors[i].Red =   v[1];
+					cmap->Colors[i].Green = v[2];
+					cmap->Colors[i].Blue =  v[3];
+#else
+					cmap->Colors[i].Red =   v[2];
+					cmap->Colors[i].Green = v[1];
+					cmap->Colors[i].Blue =  v[0];
+#endif /* WORDS_BIGENDIAN */
+				}
+
+				switch (data.PixelFormat)
+				{
+					case Format1bppIndexed:
+						for (y = 0; y < data.Height; y++) {
+							v = ((unsigned char *)data.Scan0) + y * data.Stride;
+							for (x = 0; x + 7 < data.Width; x += 8) {
+								w = *v;
+
+								*(ptr_pixels++) = ((w & 0x80) != 0);
+								*(ptr_pixels++) = ((w & 0x40) != 0);
+								*(ptr_pixels++) = ((w & 0x20) != 0);
+								*(ptr_pixels++) = ((w & 0x10) != 0);
+								*(ptr_pixels++) = ((w & 0x08) != 0);
+								*(ptr_pixels++) = ((w & 0x04) != 0);
+								*(ptr_pixels++) = ((w & 0x02) != 0);
+								*(ptr_pixels++) = ((w & 0x01) != 0);
+								
+								v++;
+							}
+
+							w = *v;
+
+							switch (data.Width & 7) /* every 'case' here flows into the next */
+							{
+								case 7: ptr_pixels[6] = ((w & 0x02) != 0);
+								case 6: ptr_pixels[5] = ((w & 0x04) != 0);
+								case 5: ptr_pixels[4] = ((w & 0x08) != 0);
+								case 4: ptr_pixels[3] = ((w & 0x10) != 0);
+								case 3: ptr_pixels[2] = ((w & 0x20) != 0);
+								case 2: ptr_pixels[1] = ((w & 0x40) != 0);
+								case 1: ptr_pixels[0] = ((w & 0x80) != 0);
+							}
+
+							ptr_pixels += (data.Width & 7);
+						}
+						break;
+					case Format4bppIndexed:
+						for (y = 0; y < data.Height; y++) {
+							v = ((unsigned char *)data.Scan0) + y * data.Stride;
+							for (x = 0; x + 1 < data.Width; x += 2) {
+								w = *v;
+
+								*(ptr_pixels++) = ((w >> 4) & 0xF);
+								*(ptr_pixels++) = ( w       & 0xF);
+								
+								v++;
+							}
+
+							if ((data.Width & 1) != 0) {
+								*(ptr_pixels++) = ((*v >> 4) & 0xF);
+							}
+						}
+						break;
+					case Format8bppIndexed:
+						for (y = 0; y < data.Height; y++) {
+							memcpy(pixels + y * data.Width,
+							       ((unsigned char *)data.Scan0) + y * data.Stride,
+							       data.Width);
+						}
+						break;
+				}
+
+				ptr_pixels = pixels;
+			}
+			else {
+				cmap_size = 256;
+				cmap  = MakeMapObject (cmap_size, 0);
+			
+				ptr_red  = red = GdipAlloc (sizeAlloc);
+				ptr_green = green = GdipAlloc (sizeAlloc);
+				ptr_blue = blue = GdipAlloc (sizeAlloc);
+				ptr_pixels = pixels = GdipAlloc (sizeAlloc);
 
 			
-			for (y = 0; y < data.Height; y++) {	
-				v = ((unsigned char *)data.Scan0) + y * data.Stride;
-				for (x = 0; x < data.Width; x++) {
-					v += 4;
-					color = (v [0]) | (v [1] << 8) | (v [2] << 16) | (v [3] << 24);
-										
+				for (y = 0; y < data.Height; y++) {	
+					v = ((unsigned char *)data.Scan0) + y * data.Stride;
+					for (x = 0; x < data.Width; x++) {
 #ifdef WORDS_BIGENDIAN
-					*ptr_red++ = (color >> 8) & 0xff;
-					*ptr_green++ = (color >> 16) & 0xff;
-					*ptr_blue++ =  (color >> 24) & 0xff;
+						*ptr_red++ =   v[1];
+						*ptr_green++ = v[2];
+						*ptr_blue++ =  v[3];
 #else
-					*ptr_red++ = (color & 0x00ff0000) >> 16;
-					*ptr_green++ = (color & 0x0000ff00) >> 8;
-					*ptr_blue++ =  (color & 0x000000ff);
+						*ptr_red++ =   v[2];
+						*ptr_green++ = v[1];
+						*ptr_blue++ =  v[0];
 #endif
+
+						v += 4;
+					}	
 				}	
-			}	
 			
-			if (QuantizeBuffer (data.Width, data.Height, &cmap_size, red, 
-					green, blue, pixels, cmap->Colors) == GIF_ERROR) 
-				error = TRUE;
+				if (QuantizeBuffer (data.Width, data.Height, &cmap_size, red, 
+						green, blue, pixels, cmap->Colors) == GIF_ERROR) 
+					error = TRUE;
+			}
 			
 			cmap->BitsPerPixel = BitSize (cmap_size);
 			cmap->ColorCount = 1 << cmap->BitsPerPixel;
@@ -481,10 +574,13 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 			}
 
 			FreeMapObject (cmap);
-			GdipFree (red);
-			GdipFree (green);
-			GdipFree (blue);	
-			GdipFree (pixels);		
+			if (red != NULL)
+				GdipFree (red);
+			if (green != NULL)
+				GdipFree (green);
+			if (blue != NULL)
+				GdipFree (blue);
+			GdipFree (pixels);
 		}
 	}
 	

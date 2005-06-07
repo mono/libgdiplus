@@ -1,3 +1,91 @@
+2005-05-30  Jonathan Gilbert  <logic@deltaq.org>
+
+	* bitmap.c: Added indexed pixel formats to
+	  gdip_is_a_supported_pixelformat().
+	* bitmap.c: Added gdip_is_an_indexed_pixelformat(). Added its
+	  prototype to gdip.h; not sure if this is the correct place.
+	* bitmap.c: Added support for PixelFormat.Format4bppIndexed to
+	  GdipCreateBitmapFromScan0 (maps to CAIRO_FORMAT_A8, like
+	  PixelFormat.Format8bppIndexed). Palettes will be created
+	  as needed. Bitmaps with a 4bpp indexed pixel format will be
+	  given 256-entry ColorPalette structures, as the cairo_format
+	  indicates 8-bit data.
+	* bitmap.c: GdipCreateBitmapFromScan0 now computes stride for
+	  indexed pixel formats differently, and does not convert
+	  indexed pixel formats to 32-bit RGB. It also makes images with
+	  32-bit pixel formats initially black instead of initially
+	  transparent and fills the palette with the default values for
+	  1-, 4- and 8-bpp indexed images.
+	* bitmap.c: Added support for indexed images to
+	  gdip_bitmap_clone_data_rect().
+	* bitmap.c: Rewrote GdipBitmapLockBits () to be maintainable
+	  while supporting indexed pixel formats. Added
+	  gdip_can_window_without_copy (), gdip_is_a_32bit_pixelformat (),
+	  gdip_make_alpha_opaque () and gdip_is_an_alpha_pixelformat ().
+	* bitmap.c: Moved gdip_from_ARGB_to_RGB () and
+	  gdip_from_RGB_to_ARGB () above gdip_bitmap_change_rect_pixel_format (),
+	  so that gdip_bitmap_change_rect_pixel_format () can call them.
+	* bitmap.c: Added struct StreamingState and methods
+	  gdip_init_pixel_stream (), gdip_pixel_stream_has_next (),
+	  gdip_pixel_stream_get_next () and gdip_pixel_stream_set_next () to
+	  work with Bitmaps of various formats in an abstract way.
+	  gdip_pixel_stream_get_next () returns and
+	  gdip_pixel_stream_set_next () accepts 32-bit ARGB values for 15,
+	  16, 24, 32, 48 and 64 bit formats and palette indices for 1, 4 and
+	  8 bit formats. gdip_pixel_stream_get_next () and
+	  gdip_pixel_stream_set_next () cannot be mixed; call either one or
+	  the other on a given stream, but never both.
+	* bitmap.c: Rewrote gdip_bitmap_change_rect_pixel_format to use
+	  pixel streams, which adds support for indexed pixel formats and
+	  increases maintainability.
+	* bitmap.c: Added check to GdipBitmapSetPixel ensuring that
+	  the bitmap is not indexed (despite what MSDN says, in
+	  practice Microsoft's implementation rejects SetPixel on
+	  indexed Bitmaps).
+	* bitmap.c: Added gdip_convert_indexed_to_rgb (), which will
+	  be used by the functions implementing DrawImage, since
+	  gdip_bitmap_ensure_surface () is not compatible with indexed
+	  image data.
+	* image.c: Added support for indexed pixel formats in
+	  GdipDrawImageRect and GdipDrawImageRectRect. The support is
+	  for the image being drawn to be indexed, not the image
+	  being drawn on. :-)
+	* image.c: Implemented GdipGetImagePalette (),
+	  GdipSetImagePalette () and GdipGetImagePaletteSize ().
+	* bmpcodec.c: Corrected gdip_bitmap_fill_info_header ()'s
+	  interpretation of pixel bit widths.
+	* bmpcodec.c: Added include directive for gdipImage.h, for
+	  utility function gdip_get_pixel_format_bpp ().
+	* bmpcodec.c: Updated gdip_bitmap_save_bmp () to save the
+	  palette for indexed bitmaps. Also modified the save function
+	  to not swap bytes for indexed pixel formats on big-endian
+	  architectures.
+	* bmpcodec.c: Updated gdip_read_bmp_image_from_file_stream ()
+	  to maintain 1, 4 and 8 bpp indexed data instead of converting
+	  it on-the-fly to 32 bpp RGB data.
+	* bmpcodec.c: Updated gdip_get_pixelformat () to translate
+	  a bit width of 1 into Format1bppIndexed.
+	* bmpcodec.c: Added support for decoding 4- and 8-bit RLE
+	  bitmaps.
+	* gifcodec.c: Updated gdip_save_gif_image () to support saving
+	  indexed images. Also, an off-by-one error in the 32-bit ARGB
+	  side of the encoder was corrected (the image was translated
+	  left one pixel).
+	* jpegcodec.c: Updated gdip_save_jpeg_image_internal () to
+	  reject 8bpp indexed images that are not grayscale (the
+	  previous behaviour was to assume all 8bpp indexed images
+	  are grayscale).
+	* tiffcodec.c: Updated gdip_save_tiff_image () to reject
+	  indexed images as NotImplemented, for now at least.
+	* pngcodec.c: Updated gdip_load_png_image_from_file_or_stream ()
+	  to handle 1-, 4- and 8-bit PNG files separately, without
+	  upsampling the data to 32-bit RBG.
+	* gdip.h: Fixed the set_pixel_bgra () macro; a lack of
+	  parentheses and no cast down to 'unsigned char' was making
+	  expressions like set_pixel_bgra (&array[i], ...) fail to
+	  compile, and it wasn't a proper statement; it could not be used
+	  in a construct like "if (...) set_pixel_bgra(...); else ...;".
+
 2005-05-25  Peter Bartok  <pbartok@novell.com>
 
 	* graphics.c, font.c, image.c, general.c, gdip.h: Replaced UTF8/UTF16 
