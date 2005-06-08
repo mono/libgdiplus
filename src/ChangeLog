@@ -1,3 +1,9 @@
+2005-06-07  Geoff Norton  <gnorton@customerdna.com>
+
+	* bmpcodec.c: 
+	* image.c: Fix some (un)signed mismatch issues so that gdiplus
+	will compile on gcc 4.0 again with -Werror
+
 2005-05-30  Jonathan Gilbert  <logic@deltaq.org>
 
 	* bitmap.c: Added indexed pixel formats to

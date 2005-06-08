@@ -619,7 +619,7 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 		return InvalidParameter;
 	
 	if (format == GIF) { /* gif library has to open the file itself*/
-		status = gdip_save_gif_image_to_file (file_name, image);
+		status = gdip_save_gif_image_to_file ((unsigned char *)file_name, image);
 		g_free (file_name);
 		return status;
 	}
