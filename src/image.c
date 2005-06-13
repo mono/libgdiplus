@@ -24,7 +24,6 @@
  *   Sanjay Gupta (gsanjay@novell.com)
  *   Vladimir Vukicevic (vladimir@pobox.com)
  *   Jordi Mas (jordi@ximian.com)
- *   Jonathan Gilbert (logic@deltaq.org)
  */
 
 #include <stdio.h>
@@ -168,24 +167,8 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	
 	cairo_new_path(graphics->ct);
 
-	if (gdip_is_an_indexed_pixelformat (((GpBitmap*) image)->data.PixelFormat)) {
-		/* Unable to create a surface for the bitmap; it is an indexed image.
-		 * Instead, it will first be converted to 32-bit RGB.
-		 */
-		GpStatus status = OutOfMemory;
-
-		GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb ((GpBitmap *) image);
-
-		if (rgb_bitmap != NULL) {
-			status = GdipDrawImageRect(graphics, (GpImage *)rgb_bitmap, x, y, width, height);
-			GdipDisposeImage((GpImage *)rgb_bitmap);
-		}
-
-		return status;
-	}
-
-	/* Create a surface for this bitmap if one doesn't exist */
-	gdip_bitmap_ensure_surface ((GpBitmap *) image);
+	/* Create a surface for this bitmap if one doesn't exist */    	
+	gdip_bitmap_ensure_surface ((GpBitmap*) image);
 	cairo_surface_set_filter (((GpBitmap*) image)->image.surface, gdip_get_cairo_filter (graphics->interpolation));
 
 	cairo_translate (graphics->ct, x, y);
@@ -273,25 +256,6 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (image != NULL, InvalidParameter);
 	g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
-
-	if (gdip_is_an_indexed_pixelformat (((GpBitmap *)image)->data.PixelFormat)) {
-                /* Unable to create a surface for the bitmap; it is an indexed image.
-                 * Instead, it will first be converted to 32-bit RGB.
-                 */
-		GpStatus status = OutOfMemory;
-
-		GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb ((GpBitmap *)image);
-
-		if (rgb_bitmap != NULL) {
-			status = GdipDrawImageRectRect (graphics, (GpImage *)rgb_bitmap,
-				dstx, dsty, dstwidth, dstheight,
-				srcx, srcy, srcwidth, srcheight,
-				srcUnit, imageAttributes, callback, callbackData);
-			GdipDisposeImage ((GpImage *)rgb_bitmap);
-		}
-
-		return status;
-	}
 
 	if (srcUnit != UnitPixel && srcUnit != UnitWorld) {
 		gdip_unitConversion(srcUnit, UnitPixel, dstx, &dstx);
@@ -619,7 +583,7 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 		return InvalidParameter;
 	
 	if (format == GIF) { /* gif library has to open the file itself*/
-		status = gdip_save_gif_image_to_file ((unsigned char *)file_name, image);
+		status = gdip_save_gif_image_to_file (file_name, image);
 		g_free (file_name);
 		return status;
 	}
@@ -1103,67 +1067,19 @@ GdipImageRotateFlip (GpImage *image, RotateFlipType type)
 GpStatus 
 GdipGetImagePalette (GpImage *image, ColorPalette *palette, int size)
 {
-	int palette_entries;
-	int bytes_needed;
-
-	if ((image == NULL) || (palette == NULL))
-		return InvalidParameter;
-
-	if (image->palette == NULL)
-		return InvalidParameter;
-
-	palette_entries = image->palette->Count;
-
-	if ((image->type == imageBitmap) && (((GpBitmap *)image)->data.PixelFormat == Format4bppIndexed))
-		palette_entries = 16;
-
-	bytes_needed = palette_entries * sizeof(ARGB) + sizeof(ColorPalette) - sizeof(ARGB);
-
-	if (bytes_needed > size)
-		return InvalidParameter;
-
-	memcpy(palette, image->palette, bytes_needed);
-	return Ok;
+	return NotImplemented;
 }
 
 GpStatus 
 GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette)
 {
-	int entries_to_copy;
-
-	if ((image == NULL) || (palette == NULL))
-		return InvalidParameter;
-
-	if (image->palette == NULL)
-		return InvalidParameter;
-
-	entries_to_copy = image->palette->Count;
-	if (entries_to_copy > palette->Count)
-		entries_to_copy = palette->Count;
-
-	memcpy(image->palette->Entries, palette->Entries, entries_to_copy * sizeof(ARGB));
 	return Ok;
 }
 
 GpStatus 
 GdipGetImagePaletteSize (GpImage *image, int* size)
 {
-        int palette_entries;
-        int bytes_needed;
-
-        if ((image == NULL) || (size == NULL))
-                return InvalidParameter;
-
-        if (image->palette == NULL)
-                return InvalidParameter;
-
-        palette_entries = image->palette->Count;
-
-        if ((image->type == imageBitmap) && (((GpBitmap *)image)->data.PixelFormat == Format4bppIndexed))
-                palette_entries = 16;
-
-        *size = palette_entries * sizeof(ARGB) + sizeof(ColorPalette) - sizeof(ARGB);
-	return Ok;
+	return NotImplemented;
 }
 
 GpStatus 

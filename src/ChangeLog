@@ -1,3 +1,8 @@
+2005-06-13  Peter Bartok  <pbartok@novell.com>
+
+	* Rolled back last two checkins, to r45601, pre palette patch, due
+	  to the regression caused with Icons (bug #75254)
+
 2005-06-07  Geoff Norton  <gnorton@customerdna.com>
 
 	* bmpcodec.c: 
