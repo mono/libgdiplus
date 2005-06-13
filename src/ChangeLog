@@ -1,5 +1,11 @@
 2005-06-13  Peter Bartok  <pbartok@novell.com>
 
+	* bitmap.c, image.c, gdip.h, bmpcodec.c, jpegcodec.c, tiffcodec.c,
+	  gifcodec.c, gifcodec.h, pngcodec.c, pngcodec.h: Re-applied two 
+	  previous changes, since #75254 is now fixed
+
+2005-06-13  Peter Bartok  <pbartok@novell.com>
+
 	* Rolled back last two checkins, to r45601, pre palette patch, due
 	  to the regression caused with Icons (bug #75254)
 

@@ -567,7 +567,10 @@ gdip_save_jpeg_image_internal (FILE *fp,
         case Format32bppPArgb:
         case Format32bppRgb:
         case Format24bppRgb:
-        case Format8bppIndexed: /* assume this is grayscale */
+	    break;
+        case Format8bppIndexed: /* check that this is grayscale */
+	    if ((image->palette->Flags & PaletteFlagsGrayScale) == 0)
+		return InvalidParameter;
             break;
         default:
             return InvalidParameter;

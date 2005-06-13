@@ -21,6 +21,7 @@
  * Authors:
  *  	Sanjay Gupta (gsanjay@novell.com)
  *	Vladimir Vukicevic <vladimir@pobox.com>
+ *      Jonathan Gilbert (logic@deltaq.org)
  *
  */
 
@@ -147,9 +148,146 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
         png_set_read_fn (png_ptr, pngsrc, _gdip_png_stream_read_data);
     }
 
-    png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_BGR | PNG_TRANSFORM_EXPAND, NULL);
+    png_read_png(png_ptr, info_ptr, 0, NULL);
 
-    {
+    if ((png_get_bit_depth (png_ptr, info_ptr) <= 8)
+     && (png_get_channels (png_ptr, info_ptr) == 1)
+     && ((png_get_color_type (png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE)
+      || (png_get_color_type (png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY))) {
+	int width;
+	int height;
+	int bit_depth;
+	int source_stride, dest_stride;
+	png_bytep *row_pointers;
+	guchar *rawptr;
+	int num_colours;
+	int palette_entries;
+	ColorPalette *palette;
+	ImageFlags colourspace_flag;
+	int i, j;
+
+	width = png_get_image_width (png_ptr, info_ptr);
+	height = png_get_image_height (png_ptr, info_ptr);
+	bit_depth = png_get_bit_depth (png_ptr, info_ptr);
+
+	source_stride = (width * bit_depth + 7) / 8;
+	dest_stride = (source_stride + sizeof(pixman_bits_t) - 1) & ~(sizeof(pixman_bits_t) - 1);
+
+	/* Copy image data. */
+	row_pointers = png_get_rows (png_ptr, info_ptr);
+
+	if (bit_depth == 2) { /* upsample to 4bpp */
+		dest_stride = ((width + 1) / 2 + sizeof(pixman_bits_t) - 1) & ~(sizeof(pixman_bits_t) - 1);
+
+		rawdata = GdipAlloc(dest_stride * height);
+		for (i=0; i < height; i++) {
+			png_bytep row = row_pointers[i];
+			rawptr = rawdata + i * dest_stride;
+
+			for (j=0; j < source_stride; j++) {
+				int four_pixels = row[j];
+
+				int first_two = 0x0F & (four_pixels >> 4);
+				int second_two = 0x0F & four_pixels;
+
+				first_two = (first_two & 0x03) | ((first_two & 0x0C) << 2);
+				second_two = (second_two & 0x03) | ((second_two & 0x0C) << 2);
+
+				rawptr[j * 2 + 0] = first_two;
+				rawptr[j * 2 + 1] = second_two;
+			}
+		}
+	}
+	else {
+		rawdata = GdipAlloc(dest_stride * height);
+		for (i=0; i < height; i++)
+			memcpy(rawdata + i * dest_stride, row_pointers[i], source_stride);
+	}
+
+	/* Copy palette. */
+	num_colours = 1 << bit_depth;
+	if (bit_depth == 4)
+		num_colours = 256;
+
+	palette = GdipAlloc (sizeof(ColorPalette) + num_colours * sizeof(ARGB));
+
+	palette->Flags = 0;
+	palette->Count = num_colours;
+
+        if (png_get_color_type (png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY) {
+		/* A gray-scale image; generate a palette fading from black to white. */
+        	colourspace_flag = ImageFlagsColorSpaceGRAY;
+		palette->Flags = PaletteFlagsGrayScale;
+
+		for (i=0; i < num_colours; i++) {
+			int intensity = i * 255 / (num_colours - 1);
+
+			set_pixel_bgra (&palette->Entries[i], 0,
+				intensity,
+				intensity,
+				intensity,
+				0xFF); /* alpha */
+		}
+	}
+	else {
+		/* Copy the palette data into the GDI+ structure. */
+		colourspace_flag = ImageFlagsColorSpaceRGB;
+
+		palette_entries = num_colours;
+		if (palette_entries > info_ptr->num_palette)
+			palette_entries = info_ptr->num_palette;
+
+		for (i=0; i < palette_entries; i++)
+			set_pixel_bgra (&palette->Entries[i], 0,
+				info_ptr->palette[i].blue,
+				info_ptr->palette[i].green,
+				info_ptr->palette[i].red,
+				0xFF); /* alpha */
+	}
+
+	/* Make sure transparency is respected. */
+	if (info_ptr->num_trans > 0) {
+		palette->Flags |= PaletteFlagsHasAlpha;
+
+		for (i=0; i < info_ptr->num_trans; i++) {
+			int transparent_index = info_ptr->trans[i];
+
+			if (transparent_index < num_colours)
+				palette->Entries[i] = 0; /* 0 has an alpha value of 0x00 */
+		}
+	}
+
+        png_destroy_read_struct (&png_ptr, &info_ptr, &end_info_ptr);
+
+        img = gdip_bitmap_new ();
+        img->image.type = imageBitmap;
+        img->image.width = width;
+        img->image.height = height;
+
+        img->cairo_format = CAIRO_FORMAT_ARGB32;
+        img->data.Stride = dest_stride;
+        img->data.Width = width;
+        img->data.Height = height;
+        img->data.Scan0 = rawdata;
+        img->data.Reserved = GBD_OWN_SCAN0;
+
+	switch (bit_depth)
+	{
+		case 1: img->image.pixFormat = img->data.PixelFormat = Format1bppIndexed; img->cairo_format = CAIRO_FORMAT_A1; break;
+		case 4: img->image.pixFormat = img->data.PixelFormat = Format4bppIndexed; img->cairo_format = CAIRO_FORMAT_A8; break;
+		case 8: img->image.pixFormat = img->data.PixelFormat = Format8bppIndexed; img->cairo_format = CAIRO_FORMAT_A8; break;
+	}
+
+        img->image.imageFlags =
+	    colourspace_flag | /* assigned when the palette is loaded */
+            ImageFlagsReadOnly |
+            ImageFlagsHasRealPixelSize;
+        img->image.horizontalResolution = 0;
+        img->image.verticalResolution = 0;
+        img->image.propItems = NULL;
+        img->image.palette = palette;
+    }
+    else {
         int width;
         int height;
         guchar bit_depth;
@@ -168,6 +306,16 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
         channels = png_get_channels (png_ptr, info_ptr);
         interlace = png_get_interlace_type (png_ptr, info_ptr);
 
+	/* According to the libpng manual, this sequence is equivalent to
+	 * using the PNG_TRANSFORM_EXPAND flag in png_read_png.
+	 */
+	if (color_type == PNG_COLOR_TYPE_PALETTE)
+		png_set_palette_to_rgb (png_ptr);
+	if ((color_type == PNG_COLOR_TYPE_GRAY) && (bit_depth < 8))
+		png_set_gray_1_2_4_to_8(png_ptr);
+	if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
+		png_set_tRNS_to_alpha(png_ptr);
+
         stride = width * 4;
 
         while (stride % sizeof(pixman_bits_t))
@@ -184,7 +332,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
 		for (i = 0; i < height; i++) {
 			png_bytep rowp = row_pointers[i];
 			for (j = 0; j < width; j++) {
-				set_pixel_bgra (rawptr, 0, rowp[0], rowp[1], rowp[2], rowp[3]);
+				set_pixel_bgra (rawptr, 0, rowp[2], rowp[1], rowp[0], rowp[3]);
 				rowp += 4;
 				rawptr += 4;
 			}
@@ -195,7 +343,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
 		for (i = 0; i < height; i++) {
 			png_bytep rowp = row_pointers[i];
 			for (j = 0; j < width; j++) {
-				set_pixel_bgra (rawptr, 0, rowp[0], rowp[1], rowp[2], 0xff);
+				set_pixel_bgra (rawptr, 0, rowp[2], rowp[1], rowp[0], 0xff);
 				rowp += 3;
 				rawptr += 4;
 			}
@@ -340,6 +488,12 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
         case Format8bppIndexed:
             bit_depth = 8;
             break;
+	case Format4bppIndexed:
+	    bit_depth = 4;
+	    break;
+	case Format1bppIndexed:
+	    bit_depth = 1;
+	    break;
         /* We're not going to even try to save these images, for now */
         case Format64bppArgb:
         case Format64bppPArgb:
@@ -348,8 +502,6 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
         case Format16bppGrayScale:
         case Format16bppRgb555:
         case Format16bppRgb565:
-        case Format4bppIndexed:
-        case Format1bppIndexed:
         default:
             bit_depth = -1;
             break;
@@ -366,9 +518,13 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
             break;
         case Format32bppRgb:
         case Format24bppRgb:
-        case Format8bppIndexed:
             color_type = PNG_COLOR_TYPE_RGB; /* XXX - we should be able to write grayscale PNGs */
             break;
+        case Format8bppIndexed:
+        case Format4bppIndexed:
+        case Format1bppIndexed:
+ 	    color_type = PNG_COLOR_TYPE_PALETTE;
+	    break;
         case Format64bppArgb:
         case Format64bppPArgb:
         case Format48bppRgb:
@@ -376,8 +532,6 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
         case Format16bppGrayScale:
         case Format16bppRgb555:
         case Format16bppRgb565:
-        case Format4bppIndexed:
-        case Format1bppIndexed:
         default:
             color_type = -1;
             break;
@@ -394,6 +548,28 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
                   PNG_COMPRESSION_TYPE_DEFAULT,
                   PNG_FILTER_TYPE_DEFAULT);
 
+    if (gdip_is_an_indexed_pixelformat (bitmap->data.PixelFormat)) {
+	png_color palette[256];
+
+	int palette_entries = image->palette->Count;
+	if (bitmap->data.PixelFormat == Format4bppIndexed)
+		palette_entries = 16;
+
+	for (i=0; i < palette_entries; i++) {
+		ARGB entry = image->palette->Entries[i];
+
+		int dummy;
+
+		get_pixel_bgra(entry,
+			palette[i].blue,
+			palette[i].green,
+			palette[i].red,
+			dummy);
+	}
+
+	png_set_PLTE (png_ptr, info_ptr, palette, palette_entries);
+    }
+
     png_write_info (png_ptr, info_ptr);
 
     if (image->pixFormat != bitmap->data.PixelFormat) {
@@ -409,11 +585,16 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
 
     png_set_bgr(png_ptr);
 
+    if (gdip_is_an_indexed_pixelformat (bitmap->data.PixelFormat)) {
+	for (i = 0; i < image->height; i++) {
+		png_write_row (png_ptr, bitmap->data.Scan0 + i * bitmap->data.Stride);
+	}
+    }
+    else {
 #ifdef WORDS_BIGENDIAN
-    {
-	    guchar *row_pointer = GdipAlloc (image->width * 4);
+	guchar *row_pointer = GdipAlloc (image->width * 4);
 
-	    for (i = 0; i < image->height; i++) {
+	for (i = 0; i < image->height; i++) {
 		for (j = 0; j < image->width; j++) {
 			row_pointer[j*4] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 3);
 			row_pointer[j*4+1] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 2);
@@ -421,14 +602,14 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
 			row_pointer[j*4+3] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 0);
 		}
 		png_write_row (png_ptr, row_pointer);
-	    }
-	    GdipFree (row_pointer);
-    }
+	}
+	GdipFree (row_pointer);
 #else
-    for (i = 0; i < image->height; i++) {
-    	png_write_row (png_ptr, bitmap->data.Scan0 + (bitmap->data.Stride * i));
-    }
+	for (i = 0; i < image->height; i++) {
+		png_write_row (png_ptr, bitmap->data.Scan0 + (bitmap->data.Stride * i));
+	}
 #endif
+    }
 
     png_write_end (png_ptr, NULL);
 
