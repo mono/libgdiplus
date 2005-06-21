@@ -1,3 +1,8 @@
+2005-06-21  Geoff Norton  <gnorton@customerdna.com>
+
+	* graphics.c (GdipCreateFromQuartz_macosx): Set the size of the
+	context in the bounds structure.  Fixes #75326
+
 2005-06-13  Peter Bartok  <pbartok@novell.com>
 
 	* bitmap.c, image.c, gdip.h, bmpcodec.c, jpegcodec.c, tiffcodec.c,

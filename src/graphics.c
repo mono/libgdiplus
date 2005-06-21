@@ -320,6 +320,9 @@ GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **grap
 
 	*graphics = gdip_graphics_new();
 	cairo_set_target_quartz_context ((*graphics)->ct, ctx, width, height);
+	
+	(*graphics)->bounds.Width = width;
+	(*graphics)->bounds.Height = height;
 
 	(*graphics)->type = gtOSXDrawable;
 
