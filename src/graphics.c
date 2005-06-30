@@ -1714,7 +1714,6 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	GpStringDetailStruct	*CurrentLineStart;	/* For rendering engine, to bump LineLen */
 	float			*TabStops;
 	int			NumOfTabStops;
-	int			CurrentTab;
 	int			WrapPoint;		/* Array index of wrap character */
 	int			WrapX;			/* Width of text at wrap character */
 	float			CursorX;		/* Current X position of drawing cursor */
@@ -1791,7 +1790,6 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	Src=stringUnicode;
 	Dest=CleanString;
 	CurrentDetail=StringDetails;
-	CurrentTab=0;
 	for (i=0; i<StringLen; i++) {
 		switch(*Src) {
 			case '\r': { /* CR */
@@ -1800,11 +1798,8 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			}
 
 			case '\t': { /* Tab */
-				if (CurrentTab<NumOfTabStops) {
+				if (NumOfTabStops > 0) {
 					CurrentDetail->Flags |= STRING_DETAIL_TAB;
-					CurrentDetail->TabWidth=TabStops[CurrentTab];
-					CurrentTab++;
-					CurrentDetail++;
 				}
 				Src++;
 				continue;
@@ -1876,7 +1871,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	}
 
 	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
-	String = (unsigned char *) ucs2_to_utf8 ((const gunichar2 *)CleanString);
+	String = (unsigned char *) ucs2_to_utf8 ((const gunichar2 *)CleanString, -1);
 	if (!String) {
 		free (CleanString);
 		free (StringDetails);
@@ -1930,13 +1925,24 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	for (i=0; i<StringLen; i++) {
 		/* Handle tabs and new lines */
 		if (CurrentDetail->Flags & STRING_DETAIL_TAB) {
-			CursorX+=CurrentDetail->TabWidth;
+			float	tab_pos;
+			int	tab_index;
+
+			tab_pos = fmt->firstTabOffset;
+			tab_index = 0;
+			while (CursorX > tab_pos) {
+				tab_pos += TabStops[tab_index % NumOfTabStops];
+				tab_index++;
+			}
+			CursorX = tab_pos;
+			CurrentLineStart = CurrentDetail;
+			CurrentDetail->Flags |= STRING_DETAIL_LINESTART;
 		}
 		if (CurrentDetail->Flags & STRING_DETAIL_LF) {
-			CursorX=0;
-			CursorY+=CurrentDetail->Linefeeds*LineHeight;
-			CurrentDetail->Flags|=STRING_DETAIL_LINESTART;
-			CurrentLineStart=CurrentDetail;
+			CursorX = 0;
+			CursorY += CurrentDetail->Linefeeds*LineHeight;
+			CurrentDetail->Flags |= STRING_DETAIL_LINESTART;
+			CurrentLineStart = CurrentDetail;
 #ifdef DRAWSTRING_DEBUG
 			{
 				int j;
@@ -2170,6 +2176,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 #endif
 
 		CurrentDetail++;
+
 		CurrentLineStart->LineLen++;
 	}
 
@@ -2294,16 +2301,16 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 					continue;
 				}
 
-				String= (unsigned char *) ucs2_to_utf8 ((const gunichar2 *)(CleanString+i));
+				String= (unsigned char *) ucs2_to_utf8 ((const gunichar2 *)(CleanString+i), StringDetails[i].LineLen);
 #ifdef DRAWSTRING_DEBUG
-				printf("Displaying line >%s<\n", String);
+				printf("Displaying line >%s< (%d chars)\n", String, StringDetails[i].LineLen);
 #endif
 
 				if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
 					switch (AlignHorz) {
-						case StringAlignmentNear: CursorX=rc->X; break;
-						case StringAlignmentCenter: CursorX=rc->X+(rc->Width-StringDetails[i+StringDetails[i].LineLen-1].PosX-StringDetails[i+StringDetails[i].LineLen-1].Width)/2; break;
-						case StringAlignmentFar: CursorX=rc->X+rc->Width-StringDetails[i+StringDetails[i].LineLen-1].PosX-StringDetails[i+StringDetails[i].LineLen-1].Width; break;
+						case StringAlignmentNear: CursorX=rc->X + StringDetails[i].PosX; break;
+						case StringAlignmentCenter: CursorX=rc->X + StringDetails[i].PosX+(rc->Width-StringDetails[i+StringDetails[i].LineLen-1].PosX-StringDetails[i+StringDetails[i].LineLen-1].Width)/2; break;
+						case StringAlignmentFar: CursorX=rc->X + StringDetails[i].PosX+rc->Width-StringDetails[i+StringDetails[i].LineLen-1].PosX-StringDetails[i+StringDetails[i].LineLen-1].Width; break;
 					}
 
 					switch (AlignVert) {
@@ -2321,9 +2328,9 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 					}
 
 					switch (AlignVert) {
-						case StringAlignmentNear: CursorX=rc->X+StringDetails[i].PosY; break;
-						case StringAlignmentCenter: CursorX=rc->X+(rc->Width-MaxY)/2+StringDetails[i].PosY; break;
-						case StringAlignmentFar: CursorX=rc->X+rc->Width-MaxY+StringDetails[i].PosY; break;
+						case StringAlignmentNear: CursorX=rc->X + StringDetails[i].PosX+StringDetails[i].PosY; break;
+						case StringAlignmentCenter: CursorX=rc->X + StringDetails[i].PosX+(rc->Width-MaxY)/2+StringDetails[i].PosY; break;
+						case StringAlignmentFar: CursorX=rc->X + StringDetails[i].PosX+rc->Width-MaxY+StringDetails[i].PosY; break;
 					}
 
 					/* Rotate text for vertical drawing */
@@ -2496,7 +2503,6 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 	GpStringDetailStruct	*CurrentLineStart;	/* For rendering engine, to bump LineLen */
 	float			*TabStops;
 	int			NumOfTabStops;
-	int			CurrentTab;
 	int			WrapPoint;		/* Array index of wrap character */
 	int			WrapX;			/* Width of text at wrap character */
 	float			CursorX;		/* Current X position of drawing cursor */
@@ -2573,7 +2579,6 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 	Src=stringUnicode;
 	Dest=CleanString;
 	CurrentDetail=StringDetails;
-	CurrentTab=0;
 	for (i=0; i<StringLen; i++) {
 		switch(*Src) {
 			case '\r': { /* CR */
@@ -2582,11 +2587,8 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 			}
 
 			case '\t': { /* Tab */
-				if (CurrentTab<NumOfTabStops) {
+				if (NumOfTabStops > 0) {
 					CurrentDetail->Flags |= STRING_DETAIL_TAB;
-					CurrentDetail->TabWidth=TabStops[CurrentTab];
-					CurrentTab++;
-					CurrentDetail++;
 				}
 				Src++;
 				continue;
@@ -2647,7 +2649,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 	}
 
 	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
-	String=(unsigned char *) ucs2_to_utf8 ((const gunichar2 *)CleanString);
+	String=(unsigned char *) ucs2_to_utf8 ((const gunichar2 *)CleanString, -1);
 	if (!String) {
 		free (CleanString);
 		free (StringDetails);
@@ -2699,7 +2701,18 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 	for (i=0; i<StringLen; i++) {
 		/* Handle tabs and new lines */
 		if (CurrentDetail->Flags & STRING_DETAIL_TAB) {
-			CursorX+=CurrentDetail->TabWidth;
+			float	tab_pos;
+			int	tab_index;
+
+			tab_pos = fmt->firstTabOffset;
+			tab_index = 0;
+			while (CursorX > tab_pos) {
+				tab_pos += TabStops[tab_index % NumOfTabStops];
+				tab_index++;
+			}
+			CursorX = tab_pos;
+			CurrentLineStart = CurrentDetail;
+			CurrentDetail->Flags |= STRING_DETAIL_LINESTART;
 		}
 		if (CurrentDetail->Flags & STRING_DETAIL_LF) {
 			CursorX=0;

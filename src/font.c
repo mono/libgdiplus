@@ -138,7 +138,7 @@ GdipPrivateAddFontFile (GpFontCollection *font_collection,  GDIPCONST WCHAR *fil
 	if (!font_collection || !filename)
 		return InvalidParameter;
     
-	file = (unsigned char*) ucs2_to_utf8 ((const gunichar2 *)filename);
+	file = (unsigned char*) ucs2_to_utf8 ((const gunichar2 *)filename, -1);
 
 	FcConfigAppFontAddFile (font_collection->config, file);
     
@@ -248,7 +248,7 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 	if (!name || !fontFamily)
 		return InvalidParameter;
 
-	string = (unsigned char*)ucs2_to_utf8 ((const gunichar2 *)name);
+	string = (unsigned char*)ucs2_to_utf8 ((const gunichar2 *)name, -1);
 
 	if (!font_collection) {
 		FcChar8 *str;

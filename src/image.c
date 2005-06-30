@@ -503,7 +503,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	if (!image || !file)
 		return InvalidParameter;
 	
-	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)file);
+	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)file, -1);
 	if (file_name == NULL) {
 		*image = NULL;
 		return InvalidParameter;
@@ -614,7 +614,7 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 	if (format == INVALID)
 		return UnknownImageFormat;
 	
-	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)file);
+	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)file, -1);
 	if (file_name == NULL)
 		return InvalidParameter;
 	

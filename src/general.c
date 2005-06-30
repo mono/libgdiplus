@@ -423,31 +423,40 @@ float gdip_erf (float x, float std, float mean)
 	return constant * series;
 }
 
+/*
+ convert a ucs2 string to utf8
+ length = number of characters to convert, -1 to indicate the whole string
+*/
+
 gchar *
-ucs2_to_utf8(const gunichar2 *ucs2) {
+ucs2_to_utf8(const gunichar2 *ucs2, int length) {
 	unsigned int	ch;
-	unsigned int	len;
 	const gunichar2	*ptr;
+	const gunichar2	*end;
 	gunichar	*dest;
 	gunichar	*uni;
 	gchar		*utf8;
 
 	// Count length
-	ptr = ucs2;
-	len = 0;
-	while (*ptr != 0) {
-		ptr++;
-		len++;
+	if (length == -1) {
+		ptr = ucs2;
+		length = 0;
+		while (*ptr != 0) {
+			ptr++;
+			length++;
+		}
 	}
 
-	uni = malloc((len + 1) * sizeof(gunichar));
+
+	uni = malloc((length + 1) * sizeof(gunichar));
 	if (uni == NULL) {
 		return NULL;
 	}
 
 	dest = uni;
 	ptr = ucs2;
-	while (*ptr != 0) {
+	end = ptr + length;
+	while (ptr != end) {
 		if (*ptr < 0xd800 || *ptr >= 0xe000) {
 			*dest = *ptr;
 			dest++;

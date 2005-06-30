@@ -425,7 +425,6 @@ typedef enum {
 typedef struct {
 	unsigned long	Flags;
 	unsigned long	Linefeeds;
-	float		TabWidth;
 	float		PosX;		/* We call it X, even though it might become Y for vertical drawing */
 	float		PosY;		/* We call it Y, even though it might become X for vertical drawing */
 	float		Width;		/* Width of the character; height is defined in font structure */
@@ -1269,7 +1268,7 @@ BOOL gdip_is_an_indexed_pixelformat (PixelFormat pixfmt);
 GpBitmap * gdip_convert_indexed_to_rgb (GpBitmap *bitmap);
 
 const EncoderParameter *gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid);
-gchar *ucs2_to_utf8(const gunichar2 *ucs2);
+gchar *ucs2_to_utf8(const gunichar2 *ucs2, int length);
 bool utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len);
 
 

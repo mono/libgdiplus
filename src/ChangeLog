@@ -1,3 +1,16 @@
+2005-06-30  Peter Bartok  <pbartok@novell.com>
+
+	* general.c (ucs2_to_utf8): Added argument to allow specifying the
+	  string length (to allow converting substrings)
+	* graphics.c (MeasureOrDrawString, MeasureString): Fixed handling
+	  of Tabs, now properly advances to the next valid tab stop, if
+	  tabs are specified.
+	* font.c, image.c: Changed usage of ucs2_to_utf8 to match new prototype
+	* gdip.h:
+	- Removed TabWidth from GpStringDetailStruct, was obsoleted by
+	  tab-redo
+	- Changed prototype of ucs2_to_utf8(), added length argument
+
 2005-06-21  Geoff Norton  <gnorton@customerdna.com>
 
 	* graphics.c (GdipCreateFromQuartz_macosx): Set the size of the
