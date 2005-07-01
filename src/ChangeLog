@@ -1,3 +1,8 @@
+2005-07-01  Jonathan Gilbert  <logic@deltaq.org>
+	* bitmap.c: Fixed bug in GdipCreateBitmapFromScan0's default palette
+	  initialization. Corrected GdipBitmapGetPixel to permit the operation
+	  on indexed bitmaps (uses pixel streams :-).
+
 2005-06-30  Peter Bartok  <pbartok@novell.com>
 
 	* general.c (ucs2_to_utf8): Added argument to allow specifying the

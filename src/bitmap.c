@@ -308,7 +308,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 		}
 
 		for (i=0; i < palette_entries; i++) {
-			set_pixel_bgra (result->image.palette, i * 4,
+			set_pixel_bgra (result->image.palette->Entries, i * 4,
 				0xFF & (default_palette[i] >> 16),
 				0xFF & (default_palette[i] >>  8),
 				0xFF &  default_palette[i]       ,
@@ -1537,39 +1537,59 @@ GpStatus
 GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 {
 	GdipBitmapData *data = &bitmap->data;
-	unsigned char *v;
 	
 	if (bitmap == NULL || color == NULL) 
 		return InvalidParameter;
 
-	if (x < 0 || x > data->Width)
+	if (x < 0 || x >= data->Width)
 		return InvalidParameter;
 
-	if (y < 0 || y > data->Height)
+	if (y < 0 || y >= data->Height)
 		return InvalidParameter;
 
-	if (gdip_is_an_indexed_pixelformat (data->PixelFormat))
-		return InvalidParameter;
-		
 	/* BMP Locked */
 	if (bitmap->data.Reserved & GBD_LOCKED)
 		return InvalidParameter;
 		
-	v = ((unsigned char *)data->Scan0) + y * data->Stride;
-	switch (data->PixelFormat)
-	{
-		case Format24bppRgb:
-		case Format32bppArgb:
-		case Format32bppPArgb:
-		case Format32bppRgb:
-		{
-			ARGB *scan = (ARGB *)v;
+	if (gdip_is_an_indexed_pixelformat (data->PixelFormat)) {
+		StreamingState pixel_stream;
+		GpStatus status;
+		unsigned int palette_index;
 
-			*color = scan[x];
-			break;
+		if (bitmap->image.palette == NULL)
+			return InvalidParameter;
+
+		status = gdip_init_pixel_stream (&pixel_stream, data, x, y, 1, 1);
+
+		if (status != Ok)
+			return status;
+
+		palette_index = gdip_pixel_stream_get_next (&pixel_stream);
+
+		if (palette_index >= bitmap->image.palette->Count)
+			return InvalidParameter;
+
+		*color = bitmap->image.palette->Entries[palette_index];
+	}
+	else {
+		unsigned char *v;
+
+		v = ((unsigned char *)data->Scan0) + y * data->Stride;
+		switch (data->PixelFormat)
+		{
+			case Format24bppRgb:
+			case Format32bppArgb:
+			case Format32bppPArgb:
+			case Format32bppRgb:
+			{
+				ARGB *scan = (ARGB *)v;
+
+				*color = scan[x];
+				break;
+			}
+			default:
+				return NotImplemented;
 		}
-		default:
-			return NotImplemented;
 	} 
 	
 	return Ok;
