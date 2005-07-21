@@ -27,7 +27,6 @@
 	  tab-redo
 	- Changed prototype of ucs2_to_utf8(), added length argument
 
->>>>>>> .r47508
 2005-06-21  Geoff Norton  <gnorton@customerdna.com>
 
 	* graphics.c (GdipCreateFromQuartz_macosx): Set the size of the
