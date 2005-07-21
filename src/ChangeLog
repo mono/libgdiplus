@@ -1,4 +1,15 @@
+2005-07-21  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c (make_pie): Fix #75475. Use sweepAngle (instead of
+	endAngle) when drawing the arcs.
+
+	"The arc always starts at 0. For the fill method the effect is that
+	a pie ending at 360 will fill the whole circle..."	
+
+	Patch from Patrick Michel <PBMichel@web.de>.
+	
 2005-07-01  Jonathan Gilbert  <logic@deltaq.org>
+
 	* bitmap.c: Fixed bug in GdipCreateBitmapFromScan0's default palette
 	  initialization. Corrected GdipBitmapGetPixel to permit the operation
 	  on indexed bitmaps (uses pixel streams :-).
@@ -16,6 +27,7 @@
 	  tab-redo
 	- Changed prototype of ucs2_to_utf8(), added length argument
 
+>>>>>>> .r47508
 2005-06-21  Geoff Norton  <gnorton@customerdna.com>
 
 	* graphics.c (GdipCreateFromQuartz_macosx): Set the size of the

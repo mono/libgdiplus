@@ -232,7 +232,7 @@ make_pie (GpGraphics *graphics, float x, float y,
 
         float endAngle = startAngle + sweepAngle;
 
-	int i, sign = (endAngle > 0) ? 1 : -1;	
+	int i, sign = (sweepAngle > 0) ? 1 : -1;	
 
         /* angles in radians */        
         float alpha = startAngle * PI / 180;
@@ -255,13 +255,14 @@ make_pie (GpGraphics *graphics, float x, float y,
 	}
 
 	/* draw the arcs */
-	for (i = 0; i < abs (endAngle); i += 90) {
+	for (i = 0; i < abs (sweepAngle); i += 90) {
 		make_arc (graphics,
 			  (i == 0) ? TRUE : FALSE,    /* only move to the starting pt in the 1st iteration */
 			  x, y, width, height,	      /* bounding rectangle */
-			  i * sign,		      /* start angle */
-			  (i + 90 < abs (endAngle)) ? (i + 90) * sign : endAngle); /* sweep angle,
-										      at most up to 90 degrees  */
+			  startAngle + i * sign,      /* start angle */
+			  (i + 90 < abs (sweepAngle)) ?
+			  startAngle + (i + 90) * sign : endAngle); /* sweep angle at most up to 90 degrees  */
+		
 	}
 
         /* draws line back to center */
