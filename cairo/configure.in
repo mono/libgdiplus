@@ -389,10 +389,9 @@ Makefile
 src/Makefile
 src/cairo-features.h
 test/Makefile
-doc/Makefile
-doc/public/Makefile
 ])
-
+#doc/Makefile
+#doc/public/Makefile
 dnl ===========================================================================
 
 echo ""

@@ -1,4 +1,5 @@
-SUBDIRS = src test doc
+SUBDIRS = src test 
+#doc
 
 EXTRA_DIST = \
 	COPYING \
@@ -6,8 +7,8 @@ EXTRA_DIST = \
 	COPYING-MPL-1.1 \
 	cairo.pc.in
 
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = cairo.pc
+#pkgconfigdir = $(libdir)/pkgconfig
+#pkgconfig_DATA = cairo.pc
 
 DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc
 

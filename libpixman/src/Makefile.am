@@ -1,5 +1,6 @@
-lib_LTLIBRARIES = libpixman.la
-include_HEADERS = pixman.h
+#lib_LTLIBRARIES = libpixman.la
+#include_HEADERS = pixman.h
+noinst_LTLIBRARIES = libpixman.la
 
 libpixman_la_SOURCES = \
 	pixman.h \

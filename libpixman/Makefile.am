@@ -7,8 +7,8 @@ EXTRA_DIST = \
 	ChangeLog.slim \
 	libpixman.pc.in
 
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = libpixman.pc
+#pkgconfigdir = $(libdir)/pkgconfig
+#pkgconfig_DATA = libpixman.pc
 
 # Some custom targets to make it easier to release things.
 # Use either:

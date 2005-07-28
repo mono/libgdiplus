@@ -61,21 +61,22 @@ endif
 FONTCONFIG_LIBS=@FONTCONFIG_LIBS@
 XRENDER_LIBS=@XRENDER_LIBS@
 
-cairoincludedir = $(includedir)/cairo
-cairoinclude_HEADERS =			\
-	cairo.h				\
-	cairo-features.h		\
-	$(libcairo_atsui_headers)	\
-	$(libcairo_ft_headers)		\
-	$(libcairo_glitz_headers)	\
-	$(libcairo_pdf_headers)		\
-	$(libcairo_ps_headers)		\
-	$(libcairo_quartz_headers)	\
-	$(libcairo_win32_headers)	\
-	$(libcairo_xcb_headers)		\
-	$(libcairo_xlib_headers)
+#cairoincludedir = $(includedir)/cairo
+#cairoinclude_HEADERS =			
+#	cairo.h				
+#	cairo-features.h		
+#	$(libcairo_atsui_headers)	
+#	$(libcairo_ft_headers)		
+#	$(libcairo_glitz_headers)	
+#	$(libcairo_pdf_headers)		
+#	$(libcairo_ps_headers)		
+#	$(libcairo_quartz_headers)	
+#	$(libcairo_win32_headers)	
+#	$(libcairo_xcb_headers)		
+#	$(libcairo_xlib_headers)
 
-lib_LTLIBRARIES = libcairo.la
+#lib_LTLIBRARIES = libcairo.la
+noinst_LTLIBRARIES = libcairo.la
 
 libcairo_la_SOURCES =				\
 	cairo.c					\
