@@ -1,0 +1,174 @@
+<!-- ##### SECTION Title ##### -->
+cairo_matrix_t
+
+<!-- ##### SECTION Short_Description ##### -->
+
+  Transformation matrices
+
+<!-- ##### SECTION Long_Description ##### -->
+
+  <para><indexterm><primary>types</primary><secondary>cairo_matrix</secondary></indexterm><indexterm><primary/></indexterm>
+    <structname>cairo_matrix_t</structname> is used throughout
+    Cairo to represents between different coordinates spaces.
+    A <structname>cairo_matrix</structname> holds an affine
+    transformation, such as a scale, rotation, or shear, or a
+    combination of those. Mathematically, the effect of an affine
+    transformation on a point (<literal>x</literal>,<literal>y</literal>) is given by:
+  </para>
+  <programlisting>
+    x_new = x * a + y * c + tx;
+    y_new = x * b + y * d + ty;
+  </programlisting>
+  <para>
+    The parameters <literal>a</literal>, <literal>b</literal>,
+    <literal>c</literal>, <literal>d</literal>, <literal>tx</literal>,
+    <literal>ty</literal> can be retrieved with
+    cairo_matrix_get_affine() and set with cairo_matrix_get_affine().
+  </para>
+  <para>
+    The primary use of transformation matrices in Cairo is as the
+    current transformation matrix in a #cairo_t. The current
+    transformation matrix gives the transformation from user space
+    coordinates to device coordinates. See cairo_set_matrix(),
+    cairo_current_matrix().
+  </para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+    
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### STRUCT cairo_matrix_t ##### -->
+<para>
+
+</para>
+
+@xx: 
+@yx: 
+@xy: 
+@yy: 
+@x0: 
+@y0: 
+
+<!-- ##### FUNCTION cairo_matrix_init ##### -->
+<para>
+
+</para>
+
+@matrix: 
+@xx: 
+@yx: 
+@xy: 
+@yy: 
+@x0: 
+@y0: 
+
+
+<!-- ##### FUNCTION cairo_matrix_init_identity ##### -->
+<para>
+
+</para>
+
+@matrix: 
+
+
+<!-- ##### FUNCTION cairo_matrix_init_translate ##### -->
+<para>
+
+</para>
+
+@matrix: 
+@tx: 
+@ty: 
+
+
+<!-- ##### FUNCTION cairo_matrix_init_scale ##### -->
+<para>
+
+</para>
+
+@matrix: 
+@sx: 
+@sy: 
+
+
+<!-- ##### FUNCTION cairo_matrix_init_rotate ##### -->
+<para>
+
+</para>
+
+@matrix: 
+@radians: 
+
+
+<!-- ##### FUNCTION cairo_matrix_translate ##### -->
+<para>
+
+</para>
+
+@matrix: 
+@tx: 
+@ty: 
+
+
+<!-- ##### FUNCTION cairo_matrix_scale ##### -->
+<para>
+
+</para>
+
+@matrix: 
+@sx: 
+@sy: 
+
+
+<!-- ##### FUNCTION cairo_matrix_rotate ##### -->
+<para>
+
+</para>
+
+@matrix: 
+@radians: 
+
+
+<!-- ##### FUNCTION cairo_matrix_invert ##### -->
+<para>
+
+</para>
+
+@matrix: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_matrix_multiply ##### -->
+<para>
+
+</para>
+
+@result: 
+@a: 
+@b: 
+
+
+<!-- ##### FUNCTION cairo_matrix_transform_distance ##### -->
+<para>
+
+</para>
+
+@matrix: 
+@dx: 
+@dy: 
+
+
+<!-- ##### FUNCTION cairo_matrix_transform_point ##### -->
+<para>
+
+</para>
+
+@matrix: 
+@x: 
+@y: 
+
+

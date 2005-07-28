@@ -1,0 +1,8 @@
+.deps
+.libs
+Makefile
+Makefile.in
+*.la
+*.lo
+*.loT
+cairo-features.h

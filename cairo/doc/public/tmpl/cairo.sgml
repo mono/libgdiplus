@@ -1,0 +1,1116 @@
+<!-- ##### SECTION Title ##### -->
+cairo_t
+
+<!-- ##### SECTION Short_Description ##### -->
+Drawing contexts.
+
+<!-- ##### SECTION Long_Description ##### -->
+
+  <para>
+    #cairo_t is the main object used when drawing with Cairo. To
+    draw with Cairo, you create a #cairo_t, set the target surface,
+    and drawing options for the #cairo_t, create shapes with
+    functions like cairo_move_to() and cairo_line_to(), and then
+    draw ships with cairo_stroke() or cairo_fill().
+  </para>
+  <para>
+    #cairo_t<!-- -->'s can be pushed to a stack via cairo_save().
+    They may then safely be changed, without loosing the current state.
+    Use cairo_restore() to restore to the saved state.
+  </para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### TYPEDEF cairo_t ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### FUNCTION cairo_create ##### -->
+<para>
+
+</para>
+
+@target: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_reference ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_destroy ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_save ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_restore ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### ENUM cairo_content_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_CONTENT_COLOR: 
+@CAIRO_CONTENT_ALPHA: 
+@CAIRO_CONTENT_COLOR_ALPHA: 
+
+<!-- ##### MACRO CAIRO_CONTENT_VALID ##### -->
+<para>
+
+</para>
+
+@content: 
+
+
+<!-- ##### ENUM cairo_format_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_FORMAT_ARGB32: 
+@CAIRO_FORMAT_RGB24: 
+@CAIRO_FORMAT_A8: 
+@CAIRO_FORMAT_A1: 
+
+<!-- ##### MACRO CAIRO_FORMAT_VALID ##### -->
+<para>
+
+</para>
+
+@format: 
+
+
+<!-- ##### ENUM cairo_operator_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_OPERATOR_CLEAR: 
+@CAIRO_OPERATOR_SOURCE: 
+@CAIRO_OPERATOR_OVER: 
+@CAIRO_OPERATOR_IN: 
+@CAIRO_OPERATOR_OUT: 
+@CAIRO_OPERATOR_ATOP: 
+@CAIRO_OPERATOR_DEST: 
+@CAIRO_OPERATOR_DEST_OVER: 
+@CAIRO_OPERATOR_DEST_IN: 
+@CAIRO_OPERATOR_DEST_OUT: 
+@CAIRO_OPERATOR_DEST_ATOP: 
+@CAIRO_OPERATOR_XOR: 
+@CAIRO_OPERATOR_ADD: 
+@CAIRO_OPERATOR_SATURATE: 
+
+<!-- ##### FUNCTION cairo_set_operator ##### -->
+<para>
+
+</para>
+
+@cr: 
+@op: 
+
+
+<!-- ##### FUNCTION cairo_set_source_rgb ##### -->
+<para>
+
+</para>
+
+@cr: 
+@red: 
+@green: 
+@blue: 
+
+
+<!-- ##### FUNCTION cairo_set_source_rgba ##### -->
+<para>
+
+</para>
+
+@cr: 
+@red: 
+@green: 
+@blue: 
+@alpha: 
+
+
+<!-- ##### FUNCTION cairo_set_source ##### -->
+<para>
+
+</para>
+
+@cr: 
+@source: 
+
+
+<!-- ##### FUNCTION cairo_set_source_surface ##### -->
+<para>
+
+</para>
+
+@cr: 
+@surface: 
+@x: 
+@y: 
+
+
+<!-- ##### FUNCTION cairo_set_tolerance ##### -->
+<para>
+
+</para>
+
+@cr: 
+@tolerance: 
+
+
+<!-- ##### ENUM cairo_fill_rule_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_FILL_RULE_WINDING: 
+@CAIRO_FILL_RULE_EVEN_ODD: 
+
+<!-- ##### FUNCTION cairo_set_fill_rule ##### -->
+<para>
+
+</para>
+
+@cr: 
+@fill_rule: 
+
+
+<!-- ##### FUNCTION cairo_set_line_width ##### -->
+<para>
+
+</para>
+
+@cr: 
+@width: 
+
+
+<!-- ##### ENUM cairo_line_cap_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_LINE_CAP_BUTT: 
+@CAIRO_LINE_CAP_ROUND: 
+@CAIRO_LINE_CAP_SQUARE: 
+
+<!-- ##### FUNCTION cairo_set_line_cap ##### -->
+<para>
+
+</para>
+
+@cr: 
+@line_cap: 
+
+
+<!-- ##### ENUM cairo_line_join_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_LINE_JOIN_MITER: 
+@CAIRO_LINE_JOIN_ROUND: 
+@CAIRO_LINE_JOIN_BEVEL: 
+
+<!-- ##### FUNCTION cairo_set_line_join ##### -->
+<para>
+
+</para>
+
+@cr: 
+@line_join: 
+
+
+<!-- ##### FUNCTION cairo_set_dash ##### -->
+<para>
+
+</para>
+
+@cr: 
+@dashes: 
+@ndash: 
+@offset: 
+
+
+<!-- ##### FUNCTION cairo_set_miter_limit ##### -->
+<para>
+
+</para>
+
+@cr: 
+@limit: 
+
+
+<!-- ##### FUNCTION cairo_translate ##### -->
+<para>
+
+</para>
+
+@cr: 
+@tx: 
+@ty: 
+
+
+<!-- ##### FUNCTION cairo_scale ##### -->
+<para>
+
+</para>
+
+@cr: 
+@sx: 
+@sy: 
+
+
+<!-- ##### FUNCTION cairo_rotate ##### -->
+<para>
+
+</para>
+
+@cr: 
+@angle: 
+
+
+<!-- ##### FUNCTION cairo_transform ##### -->
+<para>
+
+</para>
+
+@cr: 
+@matrix: 
+
+
+<!-- ##### FUNCTION cairo_set_matrix ##### -->
+<para>
+
+</para>
+
+@cr: 
+@matrix: 
+
+
+<!-- ##### FUNCTION cairo_identity_matrix ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_user_to_device ##### -->
+<para>
+
+</para>
+
+@cr: 
+@x: 
+@y: 
+
+
+<!-- ##### FUNCTION cairo_user_to_device_distance ##### -->
+<para>
+
+</para>
+
+@cr: 
+@dx: 
+@dy: 
+
+
+<!-- ##### FUNCTION cairo_device_to_user ##### -->
+<para>
+
+</para>
+
+@cr: 
+@x: 
+@y: 
+
+
+<!-- ##### FUNCTION cairo_device_to_user_distance ##### -->
+<para>
+
+</para>
+
+@cr: 
+@dx: 
+@dy: 
+
+
+<!-- ##### FUNCTION cairo_new_path ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_move_to ##### -->
+<para>
+
+</para>
+
+@cr: 
+@x: 
+@y: 
+
+
+<!-- ##### FUNCTION cairo_line_to ##### -->
+<para>
+
+</para>
+
+@cr: 
+@x: 
+@y: 
+
+
+<!-- ##### FUNCTION cairo_curve_to ##### -->
+<para>
+
+</para>
+
+@cr: 
+@x1: 
+@y1: 
+@x2: 
+@y2: 
+@x3: 
+@y3: 
+
+
+<!-- ##### FUNCTION cairo_arc ##### -->
+<para>
+
+</para>
+
+@cr: 
+@xc: 
+@yc: 
+@radius: 
+@angle1: 
+@angle2: 
+
+
+<!-- ##### FUNCTION cairo_arc_negative ##### -->
+<para>
+
+</para>
+
+@cr: 
+@xc: 
+@yc: 
+@radius: 
+@angle1: 
+@angle2: 
+
+
+<!-- ##### FUNCTION cairo_rel_move_to ##### -->
+<para>
+
+</para>
+
+@cr: 
+@dx: 
+@dy: 
+
+
+<!-- ##### FUNCTION cairo_rel_line_to ##### -->
+<para>
+
+</para>
+
+@cr: 
+@dx: 
+@dy: 
+
+
+<!-- ##### FUNCTION cairo_rel_curve_to ##### -->
+<para>
+
+</para>
+
+@cr: 
+@dx1: 
+@dy1: 
+@dx2: 
+@dy2: 
+@dx3: 
+@dy3: 
+
+
+<!-- ##### FUNCTION cairo_rectangle ##### -->
+<para>
+
+</para>
+
+@cr: 
+@x: 
+@y: 
+@width: 
+@height: 
+
+
+<!-- ##### FUNCTION cairo_close_path ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_paint ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_paint_with_alpha ##### -->
+<para>
+
+</para>
+
+@cr: 
+@alpha: 
+
+
+<!-- ##### FUNCTION cairo_mask ##### -->
+<para>
+
+</para>
+
+@cr: 
+@pattern: 
+
+
+<!-- ##### FUNCTION cairo_mask_surface ##### -->
+<para>
+
+</para>
+
+@cr: 
+@surface: 
+@surface_x: 
+@surface_y: 
+
+
+<!-- ##### FUNCTION cairo_stroke ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_stroke_preserve ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_fill ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_fill_preserve ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_copy_page ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_show_page ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_in_stroke ##### -->
+<para>
+
+</para>
+
+@cr: 
+@x: 
+@y: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_in_fill ##### -->
+<para>
+
+</para>
+
+@cr: 
+@x: 
+@y: 
+@Returns: 
+
+
+<!-- ##### TYPEDEF cairo_bool_t ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### FUNCTION cairo_stroke_extents ##### -->
+<para>
+
+</para>
+
+@cr: 
+@x1: 
+@y1: 
+@x2: 
+@y2: 
+
+
+<!-- ##### FUNCTION cairo_fill_extents ##### -->
+<para>
+
+</para>
+
+@cr: 
+@x1: 
+@y1: 
+@x2: 
+@y2: 
+
+
+<!-- ##### FUNCTION cairo_clip ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_clip_preserve ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### FUNCTION cairo_reset_clip ##### -->
+<para>
+
+</para>
+
+@cr: 
+
+
+<!-- ##### STRUCT cairo_glyph_t ##### -->
+<para>
+
+</para>
+
+@index: 
+@x: 
+@y: 
+
+<!-- ##### ENUM cairo_font_slant_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_FONT_SLANT_NORMAL: 
+@CAIRO_FONT_SLANT_ITALIC: 
+@CAIRO_FONT_SLANT_OBLIQUE: 
+
+<!-- ##### ENUM cairo_font_weight_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_FONT_WEIGHT_NORMAL: 
+@CAIRO_FONT_WEIGHT_BOLD: 
+
+<!-- ##### FUNCTION cairo_select_font_face ##### -->
+<para>
+
+</para>
+
+@cr: 
+@family: 
+@slant: 
+@weight: 
+
+
+<!-- ##### FUNCTION cairo_set_font_size ##### -->
+<para>
+
+</para>
+
+@cr: 
+@size: 
+
+
+<!-- ##### FUNCTION cairo_set_font_matrix ##### -->
+<para>
+
+</para>
+
+@cr: 
+@matrix: 
+
+
+<!-- ##### FUNCTION cairo_get_font_matrix ##### -->
+<para>
+
+</para>
+
+@cr: 
+@matrix: 
+
+
+<!-- ##### FUNCTION cairo_set_font_options ##### -->
+<para>
+
+</para>
+
+@cr: 
+@options: 
+
+
+<!-- ##### FUNCTION cairo_get_font_options ##### -->
+<para>
+
+</para>
+
+@cr: 
+@options: 
+
+
+<!-- ##### FUNCTION cairo_show_text ##### -->
+<para>
+
+</para>
+
+@cr: 
+@utf8: 
+
+
+<!-- ##### FUNCTION cairo_show_glyphs ##### -->
+<para>
+
+</para>
+
+@cr: 
+@glyphs: 
+@num_glyphs: 
+
+
+<!-- ##### FUNCTION cairo_get_font_face ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_font_extents ##### -->
+<para>
+
+</para>
+
+@cr: 
+@extents: 
+
+
+<!-- ##### FUNCTION cairo_set_font_face ##### -->
+<para>
+
+</para>
+
+@cr: 
+@font_face: 
+
+
+<!-- ##### FUNCTION cairo_text_extents ##### -->
+<para>
+
+</para>
+
+@cr: 
+@utf8: 
+@extents: 
+
+
+<!-- ##### FUNCTION cairo_glyph_extents ##### -->
+<para>
+
+</para>
+
+@cr: 
+@glyphs: 
+@num_glyphs: 
+@extents: 
+
+
+<!-- ##### FUNCTION cairo_text_path ##### -->
+<para>
+
+</para>
+
+@cr: 
+@utf8: 
+
+
+<!-- ##### FUNCTION cairo_glyph_path ##### -->
+<para>
+
+</para>
+
+@cr: 
+@glyphs: 
+@num_glyphs: 
+
+
+<!-- ##### FUNCTION cairo_get_operator ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_get_source ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_get_tolerance ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_get_current_point ##### -->
+<para>
+
+</para>
+
+@cr: 
+@x: 
+@y: 
+
+
+<!-- ##### FUNCTION cairo_get_fill_rule ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_get_line_width ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_get_line_cap ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_get_line_join ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_get_miter_limit ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_get_matrix ##### -->
+<para>
+
+</para>
+
+@cr: 
+@matrix: 
+<!-- # Unused Parameters # -->
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_get_target ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_copy_path ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_copy_path_flat ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_append_path ##### -->
+<para>
+
+</para>
+
+@cr: 
+@path: 
+
+
+<!-- ##### ENUM cairo_path_data_type_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_PATH_MOVE_TO: 
+@CAIRO_PATH_LINE_TO: 
+@CAIRO_PATH_CURVE_TO: 
+@CAIRO_PATH_CLOSE_PATH: 
+
+<!-- ##### STRUCT cairo_path_t ##### -->
+<para>
+
+</para>
+
+@status: 
+@data: 
+@num_data: 
+
+<!-- ##### FUNCTION cairo_path_destroy ##### -->
+<para>
+
+</para>
+
+@path: 
+
+
+<!-- ##### ENUM cairo_status_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_STATUS_SUCCESS: 
+@CAIRO_STATUS_NO_MEMORY: 
+@CAIRO_STATUS_INVALID_RESTORE: 
+@CAIRO_STATUS_INVALID_POP_GROUP: 
+@CAIRO_STATUS_NO_CURRENT_POINT: 
+@CAIRO_STATUS_INVALID_MATRIX: 
+@CAIRO_STATUS_INVALID_STATUS: 
+@CAIRO_STATUS_NULL_POINTER: 
+@CAIRO_STATUS_INVALID_STRING: 
+@CAIRO_STATUS_INVALID_PATH_DATA: 
+@CAIRO_STATUS_READ_ERROR: 
+@CAIRO_STATUS_WRITE_ERROR: 
+@CAIRO_STATUS_SURFACE_FINISHED: 
+@CAIRO_STATUS_SURFACE_TYPE_MISMATCH: 
+@CAIRO_STATUS_PATTERN_TYPE_MISMATCH: 
+@CAIRO_STATUS_INVALID_CONTENT: 
+@CAIRO_STATUS_INVALID_FORMAT: 
+@CAIRO_STATUS_INVALID_VISUAL: 
+
+<!-- ##### FUNCTION cairo_status ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
+<!-- ##### MACRO cairo_status_string ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### FUNCTION cairo_status_to_string ##### -->
+<para>
+
+</para>
+
+@status: 
+@Returns: 
+
+
+<!-- ##### ENUM cairo_filter_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_FILTER_FAST: 
+@CAIRO_FILTER_GOOD: 
+@CAIRO_FILTER_BEST: 
+@CAIRO_FILTER_NEAREST: 
+@CAIRO_FILTER_BILINEAR: 
+@CAIRO_FILTER_GAUSSIAN: 
+
+<!-- ##### FUNCTION cairo_image_surface_create ##### -->
+<para>
+
+</para>
+
+@format: 
+@width: 
+@height: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_image_surface_create_for_data ##### -->
+<para>
+
+</para>
+
+@data: 
+@format: 
+@width: 
+@height: 
+@stride: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_image_surface_get_width ##### -->
+<para>
+
+</para>
+
+@surface: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_image_surface_get_height ##### -->
+<para>
+
+</para>
+
+@surface: 
+@Returns: 
+
+
+<!-- ##### USER_FUNCTION cairo_destroy_func_t ##### -->
+<para>
+
+</para>
+
+@data: 
+
+
+<!-- ##### STRUCT cairo_user_data_key_t ##### -->
+<para>
+
+</para>
+
+@unused: 
+
+<!-- ##### USER_FUNCTION cairo_read_func_t ##### -->
+<para>
+
+</para>
+
+@closure: 
+@data: 
+@length: 
+@Returns: 
+
+
+<!-- ##### USER_FUNCTION cairo_write_func_t ##### -->
+<para>
+
+</para>
+
+@closure: 
+@data: 
+@length: 
+@Returns: 
+
+
