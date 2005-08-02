@@ -27,33 +27,23 @@
 #include "gdip.h"
 
 GpStatus 
-GdipCreateMatrix (GpMatrix **matrix)
+GdipCreateMatrix (GpMatrix *matrix)
 {
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-
-        *matrix = cairo_matrix_create ();
-
-	g_return_val_if_fail (*matrix != NULL, OutOfMemory);
-
-        return gdip_get_status (
-                cairo_matrix_set_affine (*matrix, 1, 0, 0, 1, 0, 0));
+	cairo_matrix_init (matrix, 1, 0, 0, 1, 0, 0);
+	return Ok;
 }
 
 GpStatus
-GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float dy, GpMatrix **matrix)
+GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float dy, GpMatrix *matrix)
 {
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-
-        *matrix = cairo_matrix_create ();
-	g_return_val_if_fail (matrix != NULL, OutOfMemory);
-
-        return gdip_get_status (
-                cairo_matrix_set_affine (
-                        *matrix, m11, m12, m21, m22, dx, dy));
+	cairo_matrix_init (matrix, m11, m12, m21, m22, dx, dy);
+	return Ok;
 }
 
 GpStatus
-GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matrix)
+GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix *matrix)
 {
 	double m11, m12, m21, m22, dx, dy;
 	Status s;
@@ -61,9 +51,6 @@ GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matri
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 	g_return_val_if_fail (dstplg != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-
-        *matrix = cairo_matrix_create ();
-	g_return_val_if_fail (matrix != NULL, OutOfMemory);
 
 	m11 = rect->X;
 	m12 = rect->Y;
@@ -72,14 +59,13 @@ GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matri
 	dx = dstplg->X;
 	dy = dstplg->Y;
 
-	s = cairo_matrix_set_affine (
-                        *matrix, m11, m12, m21, m22, dx, dy);
+	cairo_matrix_init (matrix, m11, m12, m21, m22, dx, dy);
 
-        return gdip_get_status (s);
+	return Ok;
 }
 
 GpStatus
-GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix)
+GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix *matrix)
 {
 	double m11, m12, m21, m22, dx, dy;
 	Status s;
@@ -87,9 +73,6 @@ GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 	g_return_val_if_fail (dstplg != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-
-        *matrix = cairo_matrix_create ();
-	g_return_val_if_fail (matrix != NULL, OutOfMemory);
 
 	m11 = rect->X;
 	m12 = rect->Y;
@@ -98,32 +81,27 @@ GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix
 	dx = dstplg->X;
 	dy = dstplg->Y;
         
-	s = cairo_matrix_set_affine (
-                        *matrix, m11, m12, m21, m22, dx, dy);
+	cairo_matrix_init (matrix, m11, m12, m21, m22, dx, dy);
 
-        return gdip_get_status (s);
+        return Ok;
 }
 
 GpStatus
-GdipCloneMatrix (GpMatrix *matrix, GpMatrix **cloneMatrix)
+GdipCloneMatrix (GpMatrix *matrix, GpMatrix *cloneMatrix)
 {
 
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 	g_return_val_if_fail (cloneMatrix != NULL, InvalidParameter);
 
-	*cloneMatrix = cairo_matrix_create();
-	g_return_val_if_fail (cloneMatrix != NULL, OutOfMemory);
-
-        return gdip_get_status (
-                cairo_matrix_copy (*cloneMatrix, matrix));
+        gdip_cairo_matrix_copy (cloneMatrix, matrix);
+	
+	return Ok;
 }
 
 GpStatus
 GdipDeleteMatrix (GpMatrix *matrix)
 {
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-
-	cairo_matrix_destroy (matrix);
 
         return Ok;
 }
@@ -132,9 +110,10 @@ GpStatus
 GdipSetMatrixElements (GpMatrix *matrix, float m11, float m12, float m21, float m22, float dx, float dy)
 {
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-
-        return gdip_get_status (
-                cairo_matrix_set_affine (matrix, m11, m12, m21, m22, dx, dy));
+       
+	cairo_matrix_init (matrix, m11, m12, m21, m22, dx, dy);
+	
+	return Ok;
 }
 
 GpStatus 
@@ -145,14 +124,14 @@ GdipGetMatrixElements (GpMatrix *matrix, float *matrixOut)
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 	g_return_val_if_fail (matrixOut != NULL, InvalidParameter);
         
-        cairo_matrix_get_affine (matrix, &a, &b, &c, &d, &tx, &ty);
-        
-        matrixOut[0] = (float) a;
-        matrixOut[1] = (float) b;
-        matrixOut[2] = (float) c;
-        matrixOut[3] = (float) d;
-        matrixOut[4] = (float) tx;
-        matrixOut[5] = (float) ty;
+        //cairo_matrix_get_affine (matrix, &a, &b, &c, &d, &tx, &ty);
+
+        matrixOut[0] = (float) matrix->xx;
+        matrixOut[1] = (float) matrix->xy;
+        matrixOut[2] = (float) matrix->yx;
+        matrixOut[3] = (float) matrix->yy;
+        matrixOut[4] = (float) matrix->x0;
+        matrixOut[5] = (float) matrix->y0;
 
         return Ok;
 }
@@ -166,27 +145,25 @@ GdipMultiplyMatrix (GpMatrix *matrix, GpMatrix *matrix2, GpMatrixOrder order)
 	g_return_val_if_fail (matrix2 != NULL, InvalidParameter);
 
         if (order == MatrixOrderAppend)
-                status = cairo_matrix_multiply (matrix, matrix, matrix2);
+                cairo_matrix_multiply (matrix, matrix, matrix2);
 
         else if (order == MatrixOrderPrepend)
-                status = cairo_matrix_multiply (matrix, matrix2, matrix);
+                cairo_matrix_multiply (matrix, matrix2, matrix);
         
         else
                 return GenericError;
 
-        return gdip_get_status (status);
+	return Ok;
 }
 
 GpStatus
 GdipTranslateMatrix (GpMatrix *matrix, float offsetX, float offsetY, GpMatrixOrder order)
 {
-        cairo_matrix_t *tmp;
+        cairo_matrix_t tmp;
 	GpStatus s;
 
-	tmp = cairo_matrix_create();
-        cairo_matrix_set_affine (tmp, 1, 0, 0, 1, offsetX, offsetY);
-	s = GdipMultiplyMatrix (matrix, tmp, order);
-	cairo_matrix_destroy(tmp);
+        cairo_matrix_init (&tmp, 1, 0, 0, 1, offsetX, offsetY);
+	s = GdipMultiplyMatrix (matrix, &tmp, order);
 
         return s;
 }
@@ -194,13 +171,11 @@ GdipTranslateMatrix (GpMatrix *matrix, float offsetX, float offsetY, GpMatrixOrd
 GpStatus
 GdipScaleMatrix (GpMatrix *matrix, float scaleX, float scaleY, GpMatrixOrder order)
 {
-        GpMatrix *tmp;
+        GpMatrix tmp;
 	GpStatus s;
 
-	tmp = cairo_matrix_create();
-        cairo_matrix_set_affine (tmp, scaleX, 0, 0, scaleY, 0, 0);
-	s = GdipMultiplyMatrix (matrix, tmp, order);        
-	cairo_matrix_destroy(tmp);
+        cairo_matrix_init (&tmp, scaleX, 0, 0, scaleY, 0, 0);
+	s = GdipMultiplyMatrix (matrix, &tmp, order);        
 
         return s;
 }
@@ -208,14 +183,13 @@ GdipScaleMatrix (GpMatrix *matrix, float scaleX, float scaleY, GpMatrixOrder ord
 GpStatus
 GdipRotateMatrix (GpMatrix *matrix, float angle, GpMatrixOrder order)
 {
-	cairo_matrix_t *tmp;
+	cairo_matrix_t tmp;
 	GpStatus s;
         float rad = angle * DEGTORAD;
 
-	tmp = cairo_matrix_create();
-        cairo_matrix_set_affine (tmp, cos (rad), sin (rad), -sin (rad), cos (rad), 0, 0);
-	s = GdipMultiplyMatrix (matrix, tmp, order);
-	cairo_matrix_destroy(tmp);
+        cairo_matrix_init (&tmp, cos (rad), sin (rad), -sin (rad), cos (rad), 0, 0);
+	s = GdipMultiplyMatrix (matrix, &tmp, order);
+
 
         return s;
 }
@@ -223,13 +197,11 @@ GdipRotateMatrix (GpMatrix *matrix, float angle, GpMatrixOrder order)
 GpStatus
 GdipShearMatrix (GpMatrix *matrix, float shearX, float shearY, GpMatrixOrder order)
 {
-        cairo_matrix_t *tmp;
+        cairo_matrix_t tmp;
 	GpStatus s;
 
-	tmp = cairo_matrix_create();
-        cairo_matrix_set_affine (tmp, 1, shearX, shearY, 1, 0, 0);
-	s = GdipMultiplyMatrix (matrix, tmp, order);
-	cairo_matrix_destroy(tmp);
+        cairo_matrix_init (&tmp, 1, shearX, shearY, 1, 0, 0);
+	s = GdipMultiplyMatrix (matrix, &tmp, order);
 
         return s;
 }
@@ -255,9 +227,7 @@ GdipTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
         for (i = 0; i < count; i++, pts++) {
                 double x = pts->X;
                 double y = pts->Y;
-                status = cairo_matrix_transform_point (matrix, &x, &y);
-                if (status != CAIRO_STATUS_SUCCESS)
-                        return gdip_get_status (status);
+                cairo_matrix_transform_point (matrix, &x, &y);
 
                 pts->X = (float) x;
                 pts->Y = (float) y;
@@ -278,9 +248,8 @@ GdipTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
         for (i = 0; i < count; i++, pts++) {
                 double x = pts->X;
                 double y = pts->Y;
-                status = cairo_matrix_transform_point (matrix, &x, &y);
-                if (status != CAIRO_STATUS_SUCCESS)
-                        return gdip_get_status (status);
+                cairo_matrix_transform_point (matrix, &x, &y);
+
                 pts->X = (int) x;
                 pts->Y = (int) y;
         }
@@ -300,9 +269,8 @@ GdipVectorTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
         for (i = 0; i < count; i++, pts++) {
                 double x = pts->X;
                 double y = pts->Y;
-                status = cairo_matrix_transform_distance (matrix, &x, &y);
-                if (status != CAIRO_STATUS_SUCCESS)
-                        return gdip_get_status (status);
+                cairo_matrix_transform_distance (matrix, &x, &y);
+
                 pts->X = (float) x;
                 pts->Y = (float) y;
         }
@@ -322,9 +290,7 @@ GdipVectorTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
         for (i = 0; i < count; i++, pts++) {
                 double x = pts->X;
                 double y = pts->Y;
-                status = cairo_matrix_transform_distance (matrix, &x, &y);
-                if (status != CAIRO_STATUS_SUCCESS)
-                        return gdip_get_status (status);
+                cairo_matrix_transform_distance (matrix, &x, &y);
 
                 pts->X = (int) x;
                 pts->Y = (int) y;
@@ -353,30 +319,23 @@ GdipIsMatrixInvertible (GpMatrix *matrix, int *result)
 static bool
 matrix_equals (GpMatrix *x, GpMatrix *y)
 {
-        double ax, bx, cx, dx, ex, fx;
-        double ay, by, cy, dy, ey, fy;
-
-        cairo_matrix_get_affine (x, &ax, &bx, &cx, &dx, &ex, &fx);
-        cairo_matrix_get_affine (y, &ay, &by, &cy, &dy, &ey, &fy);
-
-        if ((ax != ay) || (bx != by) || (cx != cy) ||
-            (dx != dy) || (ex != ey) || (fx != fy))
-                return FALSE;
-
-        return TRUE;
+	if ((x->xx != y->xy) || (x->yx != y->yx) || (x->xy != y->xy) ||
+	    (x->yy != y->yy) || (x->x0 != y->x0) || (x->y0 != y->y0))
+	  return FALSE;
+	
+	return TRUE;
+	
 }
 
 GpStatus
 GdipIsMatrixIdentity (GpMatrix *matrix, int *result)
 {
 	Status s;
-        GpMatrix *identity = cairo_matrix_create ();
+        GpMatrix identity;
 
-	g_return_val_if_fail (identity != NULL, OutOfMemory);
-        cairo_matrix_set_identity (identity);
+        cairo_matrix_init_identity (&identity);
 
-        s = GdipIsMatrixEqual (matrix, identity, result);
-        cairo_matrix_destroy(identity);
+        s = GdipIsMatrixEqual (matrix, &identity, result);
 
         return s;
 }

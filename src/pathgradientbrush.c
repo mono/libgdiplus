@@ -107,7 +107,7 @@ gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	newbrush->center = pgbrush->center;
 	newbrush->centerColor = pgbrush->centerColor;
 	newbrush->wrapMode = pgbrush->wrapMode;
-	GdipCloneMatrix (pgbrush->transform, &newbrush->transform);
+	GdipCloneMatrix (&pgbrush->transform, &newbrush->transform);
 
 	if (pgbrush->rectangle) {
 		newbrush->rectangle = (GpRectF *) GdipAlloc (sizeof (GpRectF));
@@ -162,7 +162,7 @@ NO_PRESET_POSITIONS:
 NO_PRESET_COLORS:
 	GdipFree (newbrush->presetColors);
 NO_PRESET:
-	GdipDeleteMatrix (newbrush->transform);
+	GdipDeleteMatrix (&newbrush->transform);
 	GdipFree (newbrush);
 	return OutOfMemory;
 
@@ -200,10 +200,6 @@ gdip_pgrad_destroy (GpBrush *brush)
 	if (pgbrush->pattern)
 		cairo_pattern_destroy (pgbrush->pattern);
 	pgbrush->pattern = NULL;
-
-	if (pgbrush->transform)
-		GdipDeleteMatrix (pgbrush->transform);
-	pgbrush->transform = NULL;
 
 	if (pgbrush->blend)
 		if (pgbrush->blend->count > 0) {
@@ -251,13 +247,11 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 		 * path gradients.
 		 * As a stub, we simply set the color to the center color.
 		 */
-		cairo_set_rgb_color (graphics->ct,
-				     ARGB_RED_N(pgbrush->centerColor),
-				     ARGB_GREEN_N(pgbrush->centerColor),
-				     ARGB_BLUE_N(pgbrush->centerColor));
-
-		cairo_set_alpha (graphics->ct, ARGB_ALPHA_N(pgbrush->centerColor));
-
+		cairo_set_source_rgba (graphics->ct,
+				      ARGB_RED_N(pgbrush->centerColor),
+				      ARGB_GREEN_N(pgbrush->centerColor),
+				      ARGB_BLUE_N(pgbrush->centerColor),
+				      ARGB_ALPHA_N(pgbrush->centerColor));
 	}
 
 	return Ok;
@@ -919,7 +913,7 @@ GdipGetPathGradientTransform (GpPathGradient *brush, GpMatrix *matrix)
 	if (brush->presetColors->count >= 2)
 		return WrongState;
 
-	cairo_matrix_copy(matrix, brush->transform);
+	gdip_cairo_matrix_copy(matrix, &brush->transform);
 	return Ok;
 }
 
@@ -929,7 +923,7 @@ GdipSetPathGradientTransform (GpPathGradient *brush, GpMatrix *matrix)
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	brush->transform = matrix;
+	gdip_cairo_matrix_copy(&brush->transform, matrix);
 	brush->base.changed = TRUE;
 	return Ok;
 }
@@ -938,29 +932,26 @@ GpStatus
 GdipResetPathGradientTransform (GpPathGradient *brush)
 {
     g_return_val_if_fail (brush != NULL, InvalidParameter);
-    cairo_matrix_set_identity ((cairo_matrix_t *) brush->transform);
+    cairo_matrix_init_identity (&((cairo_matrix_t) brush->transform));
     return Ok;
 }
 
 GpStatus
 GdipMultiplyPathGradientTransform (GpPathGradient *brush, GDIPCONST GpMatrix *matrix, GpMatrixOrder order)
 {
-	cairo_matrix_t *mat;
+	cairo_matrix_t mat;
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	mat = cairo_matrix_create();
-
 	if (order == MatrixOrderPrepend)
-		cairo_matrix_multiply (mat, matrix, brush->transform);
+		cairo_matrix_multiply (&mat, matrix, &brush->transform);
 	else if (order == MatrixOrderAppend)
-		cairo_matrix_multiply (mat, brush->transform, matrix);
+		cairo_matrix_multiply (&mat, &brush->transform, matrix);
 	else {
-		cairo_matrix_destroy(mat);
 		return InvalidParameter;
 	}
 
-	brush->transform = mat;
+	gdip_cairo_matrix_copy (&brush->transform, &mat);
 	return Ok;
 }
 
@@ -970,19 +961,15 @@ GdipTranslatePathGradientTransform (GpPathGradient *brush, float dx, float dy, G
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
 	if (order == MatrixOrderAppend) {
-		cairo_matrix_translate (brush->transform, dx, dy);
+		cairo_matrix_translate (&brush->transform, dx, dy);
 	} else if (order == MatrixOrderPrepend) {
-		cairo_matrix_t *mat, *matres;
+		cairo_matrix_t mat, matres;
 
-		mat = cairo_matrix_create();
-		matres = cairo_matrix_create();
+		cairo_matrix_init_identity (&mat);
+		cairo_matrix_translate (&mat, dx, dy);
+		cairo_matrix_multiply (&matres, &mat, &brush->transform);
+		gdip_cairo_matrix_copy (&brush->transform, &matres);
 
-		cairo_matrix_set_identity (mat);
-		cairo_matrix_translate (mat, dx, dy);
-		cairo_matrix_multiply (matres, mat, brush->transform);
-		brush->transform = matres;
-
-		cairo_matrix_destroy(mat);
 	} else {
 		return InvalidParameter;
 	}
@@ -996,19 +983,15 @@ GdipScalePathGradientTransform (GpPathGradient *brush, float sx, float sy, GpMat
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
 	if (order == MatrixOrderAppend) {
-		cairo_matrix_scale (brush->transform, sx, sy);
+		cairo_matrix_scale (&brush->transform, sx, sy);
 	} else if (order == MatrixOrderPrepend) {
-		cairo_matrix_t *mat, *matres;
+		cairo_matrix_t mat, matres;
 
-		mat = cairo_matrix_create();
-		matres = cairo_matrix_create();
+		cairo_matrix_init_identity (&mat);
+		cairo_matrix_scale (&mat, sx, sy);
+		cairo_matrix_multiply (&matres, &mat, &brush->transform);
+		gdip_cairo_matrix_copy (&brush->transform, &matres);
 
-		cairo_matrix_set_identity (mat);
-		cairo_matrix_scale (mat, sx, sy);
-		cairo_matrix_multiply (matres, mat, brush->transform);
-		brush->transform = matres;
-
-		cairo_matrix_destroy(mat);
 	} else {
 		return InvalidParameter;
 	}
@@ -1022,19 +1005,15 @@ GdipRotatePathGradientTransform (GpPathGradient *brush, float angle, GpMatrixOrd
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
 	if (order == MatrixOrderAppend) {
-		cairo_matrix_rotate (brush->transform, angle * DEGTORAD);
+		cairo_matrix_rotate (&brush->transform, angle * DEGTORAD);
 	} else if (order == MatrixOrderPrepend) {
-		cairo_matrix_t *mat, *matres;
+		cairo_matrix_t mat, matres;
 
-		mat = cairo_matrix_create();
-		matres = cairo_matrix_create();
+		cairo_matrix_init_identity (&mat);
+		cairo_matrix_rotate (&mat, angle * DEGTORAD);
+		cairo_matrix_multiply (&matres, &mat, &brush->transform);
+		gdip_cairo_matrix_copy (&brush->transform, &matres);
 
-		cairo_matrix_set_identity (mat);
-		cairo_matrix_rotate (mat, angle * DEGTORAD);
-		cairo_matrix_multiply (matres, mat, brush->transform);
-		brush->transform = matres;
-
-		cairo_matrix_destroy(mat);
 	} else {
 		return InvalidParameter;
 	}

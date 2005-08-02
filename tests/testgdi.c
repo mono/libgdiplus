@@ -1,5 +1,5 @@
 /* -*- Mode: c; c-basic-offset: 4; indent-tabs-mode: nil -*-
- * 
+ *
  * testgdi.c : simple test hack
  *
  * Authors:
@@ -17,17 +17,17 @@
 
 #include <cairo.h>
 
-
 #include "gdip.h"
 
 typedef struct win {
-    Display *dpy;
-    int scr;
-    Window win;
-    GC gc;
-    int width, height;
-    KeyCode quit_code;
-} win_t;
+	Display *dpy;
+	int scr;
+	Window win;
+	GC gc;
+	int width, height;
+	KeyCode quit_code;
+}
+win_t;
 
 static void win_init(win_t *win);
 static void win_deinit(win_t *win);
@@ -39,164 +39,166 @@ static void win_handle_events(win_t *win);
 static void
 win_draw(win_t *win)
 {
-    GpGraphics *gp;
-    GpStatus st;
-    GpImage *img;
-    gunichar2 *unis;
+	GpGraphics *gp;
+	GpStatus st;
+	GpImage *img;
+	gunichar2 *unis;
+	cairo_surface_t *surface;
 
-    XClearWindow(win->dpy, win->win);
+	XClearWindow(win->dpy, win->win);
 
-    gp = gdip_graphics_new ();
+	surface = cairo_xlib_surface_create(win->dpy, win->win,
+					    DefaultVisual(win->dpy, DefaultScreen(win->dpy)),
+					    win->width, win->height);
 
-    cairo_set_target_drawable (gp->ct, win->dpy, win->win);
+	gp = gdip_graphics_new (surface);
+       		
+	unis = g_utf8_to_utf16 ("test.jpg", -1, NULL, NULL, NULL);
+	st = GdipLoadImageFromFile (unis, &img);
+	CHECK_GDIP_ST(st);
+	st = GdipDrawImage (gp, img, 0, 0);
+	CHECK_GDIP_ST(st);
+	g_free (unis);
+	GdipDisposeImage (img);
+	img = NULL;
 
-    unis = g_utf8_to_utf16 ("test.jpg", -1, NULL, NULL, NULL);
-    st = GdipLoadImageFromFile (unis, &img);
-    CHECK_GDIP_ST(st);
-    st = GdipDrawImage (gp, img, 0, 0);
-    CHECK_GDIP_ST(st);
-    g_free (unis);
-    GdipDisposeImage (img);
-    img = NULL;
-	
-    printf("jpg drawn \n");
+	printf("jpg drawn \n");
 
-    unis = g_utf8_to_utf16 ("test.tif", -1, NULL, NULL, NULL);
-    st = GdipLoadImageFromFile (unis, &img);
-    CHECK_GDIP_ST(st);
-    st = GdipDrawImage (gp, img, 100, 0);
-    CHECK_GDIP_ST(st);
-    g_free (unis);
-    GdipDisposeImage (img);
-    img = NULL;
+	unis = g_utf8_to_utf16 ("test.tif", -1, NULL, NULL, NULL);
+	st = GdipLoadImageFromFile (unis, &img);
+	CHECK_GDIP_ST(st);
+	st = GdipDrawImage (gp, img, 100, 0);
+	CHECK_GDIP_ST(st);
+	g_free (unis);
+	GdipDisposeImage (img);
+	img = NULL;
 
-    printf("tif drawn \n");
+	printf("tif drawn \n");
 
-    unis = g_utf8_to_utf16 ("test.gif", -1, NULL, NULL, NULL);
-    st = GdipLoadImageFromFile (unis, &img);
-    CHECK_GDIP_ST(st);
-    st = GdipDrawImage (gp, img, 200, 0);
-    CHECK_GDIP_ST(st);
-    g_free (unis);
-    GdipDisposeImage (img);
-    img = NULL;
+	unis = g_utf8_to_utf16 ("test.gif", -1, NULL, NULL, NULL);
+	st = GdipLoadImageFromFile (unis, &img);
+	CHECK_GDIP_ST(st);
+	st = GdipDrawImage (gp, img, 200, 0);
+	CHECK_GDIP_ST(st);
+	g_free (unis);
+	GdipDisposeImage (img);
+	img = NULL;
 
-    printf("gif drawn \n");
+	printf("gif drawn \n");
 
-    unis = g_utf8_to_utf16 ("test.png", -1, NULL, NULL, NULL);
-    st = GdipLoadImageFromFile (unis, &img);
-    CHECK_GDIP_ST(st);
-    st = GdipDrawImage (gp, img, 0, 100);
-    CHECK_GDIP_ST(st);
-    g_free (unis);
-    GdipDisposeImage (img);
-    img = NULL;
+	unis = g_utf8_to_utf16 ("test.png", -1, NULL, NULL, NULL);
+	st = GdipLoadImageFromFile (unis, &img);
+	CHECK_GDIP_ST(st);
+	st = GdipDrawImage (gp, img, 0, 100);
+	CHECK_GDIP_ST(st);
+	g_free (unis);
+	GdipDisposeImage (img);
+	img = NULL;
 
-    printf("png drawn \n");
+	printf("png drawn \n");
 
-    unis = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-    st = GdipLoadImageFromFile (unis, &img);
-    CHECK_GDIP_ST(st);
-    st = GdipDrawImage (gp, img, 200, 100);
-    CHECK_GDIP_ST(st);
-    g_free (unis);
-    GdipDisposeImage (img);
-    img = NULL;
+	unis = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
+	st = GdipLoadImageFromFile (unis, &img);
+	CHECK_GDIP_ST(st);
+	st = GdipDrawImage (gp, img, 200, 100);
+	CHECK_GDIP_ST(st);
+	g_free (unis);
+	GdipDisposeImage (img);
+	img = NULL;
 
-    printf("bmp drawn \n");
+	printf("bmp drawn \n");
 
 }
 
 int
-main(int argc, char *argv[])
+  main(int argc, char *argv[])
 {
-    win_t win;
+	win_t win;
 
-    win.dpy = XOpenDisplay(0);
+	win.dpy = XOpenDisplay(0);
 
-    if (win.dpy == NULL) {
-	fprintf(stderr, "Failed to open display\n");
-	return 1;
-    }
+	if (win.dpy == NULL) {
+		fprintf(stderr, "Failed to open display\n");
+		return 1;
+	}
 
-    win_init(&win);
+	win_init(&win);
 
-    win_draw(&win);
+	win_draw(&win);
 
-    win_handle_events(&win);
+	win_handle_events(&win);
 
-    win_deinit(&win);
+	win_deinit(&win);
 
-    XCloseDisplay(win.dpy);
+	XCloseDisplay(win.dpy);
 
-    return 0;
-}
-
-
-static void
-win_init(win_t *win)
-{
-    Window root;
-
-    win->width = 400;
-    win->height = 400;
-
-    root = DefaultRootWindow(win->dpy);
-    win->scr = DefaultScreen(win->dpy);
-
-    win->win = XCreateSimpleWindow(win->dpy, root, 0, 0,
-				   win->width, win->height, 0,
-				   BlackPixel(win->dpy, win->scr), BlackPixel(win->dpy, win->scr));
-
-    win->quit_code = XKeysymToKeycode(win->dpy, XStringToKeysym("Q"));
-
-    XSelectInput(win->dpy, win->win,
-		 KeyPressMask
-		 |StructureNotifyMask
-		 |ExposureMask);
-
-    XMapWindow(win->dpy, win->win);
+	return 0;
 }
 
 static void
-win_deinit(win_t *win)
+  win_init(win_t *win)
 {
-    XDestroyWindow(win->dpy, win->win);
+	Window root;
+
+	win->width = 400;
+	win->height = 400;
+
+	root = DefaultRootWindow(win->dpy);
+	win->scr = DefaultScreen(win->dpy);
+
+	win->win = XCreateSimpleWindow(win->dpy, root, 0, 0,
+				       win->width, win->height, 0,
+				       BlackPixel(win->dpy, win->scr), BlackPixel(win->dpy, win->scr));
+
+	win->quit_code = XKeysymToKeycode(win->dpy, XStringToKeysym("Q"));
+
+	XSelectInput(win->dpy, win->win,
+		     KeyPressMask
+		     |StructureNotifyMask
+		     |ExposureMask);
+
+	XMapWindow(win->dpy, win->win);
 }
 
 static void
-win_handle_events(win_t *win)
+  win_deinit(win_t *win)
 {
-    XEvent xev;
+	XDestroyWindow(win->dpy, win->win);
+}
 
-    while (1) {
-	XNextEvent(win->dpy, &xev);
-	switch(xev.type) {
-	case KeyPress:
-	{
-	    XKeyEvent *kev = &xev.xkey;
-	    
-	    if (kev->keycode == win->quit_code) {
-		return;
-	    }
-	}
-	break;
-	case ConfigureNotify:
-	{
-	    XConfigureEvent *cev = &xev.xconfigure;
+static void
+  win_handle_events(win_t *win)
+{
+	XEvent xev;
 
-	    win->width = cev->width;
-	    win->height = cev->height;
-	}
-	break;
-	case Expose:
-	{
-	    XExposeEvent *eev = &xev.xexpose;
+	while (1) {
+		XNextEvent(win->dpy, &xev);
+		switch(xev.type) {
+		 case KeyPress:
+			{
+				XKeyEvent *kev = &xev.xkey;
 
-	    if (eev->count == 0)
-		win_draw(win);
+				if (kev->keycode == win->quit_code) {
+					return;
+				}
+			}
+			break;
+		 case ConfigureNotify:
+			{
+				XConfigureEvent *cev = &xev.xconfigure;
+
+				win->width = cev->width;
+				win->height = cev->height;
+			}
+			break;
+		 case Expose:
+			{
+				XExposeEvent *eev = &xev.xexpose;
+
+				if (eev->count == 0)
+				  win_draw(win);
+			}
+			break;
+		}
 	}
-	break;
-	}
-    }
 }

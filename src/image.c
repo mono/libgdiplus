@@ -126,10 +126,17 @@ GpStatus
 GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 {
 	GpGraphics *gfx;
+	cairo_surface_t *surface;
+	
 	if (!image || !graphics)
 		return InvalidParameter;
-
-	gfx = gdip_graphics_new ();
+	
+	// we need to look into this
+	surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+					     image->width, image->height);
+ 
+	
+	gfx = gdip_graphics_new (surface);
 	if (image->type == imageBitmap) {
 		gdip_graphics_attach_bitmap (gfx, (GpBitmap *) image);
 	}
@@ -162,6 +169,8 @@ GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int widt
 GpStatus
 GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float width, float height)
 {
+	cairo_pattern_t *pattern;
+	
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (image != NULL, InvalidParameter);
 	g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
@@ -186,9 +195,11 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 
 	/* Create a surface for this bitmap if one doesn't exist */
 	gdip_bitmap_ensure_surface ((GpBitmap *) image);
-	cairo_surface_set_filter (((GpBitmap*) image)->image.surface, gdip_get_cairo_filter (graphics->interpolation));
+	pattern = cairo_pattern_create_for_surface (((GpBitmap*) image)->image.surface);
+	cairo_pattern_set_filter (pattern,
+				  gdip_get_cairo_filter (graphics->interpolation));
 
-	cairo_translate (graphics->ct, x, y);
+	//cairo_translate (graphics->ct, x, y);
 
 	if (width != image->width || height != image->height) {
 		cairo_scale (graphics->ct,
@@ -196,9 +207,13 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 				(double) height / image->height);
 	}
 	
-	cairo_show_surface (graphics->ct, image->surface, image->width, image->height);
-	cairo_default_matrix (graphics->ct);
-
+	cairo_set_source_surface (graphics->ct, image->surface, image->width, image->height);
+	cairo_identity_matrix (graphics->ct);
+	cairo_translate (graphics->ct, x, y);
+	cairo_paint (graphics->ct);
+	
+	cairo_pattern_destroy (pattern);
+	
 	return Ok;
 }
 
@@ -265,7 +280,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
                        DrawImageAbort callback, void *callbackData)
 {
 	cairo_pattern_t *pattern;
-	cairo_matrix_t *mat = NULL;
+	cairo_matrix_t mat;
 	void* dest, *org;
 	bool allocated = FALSE;
 	GpBitmap *bitmap = (GpBitmap *) image;
@@ -352,7 +367,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		
 		/* Create a surface for this bitmap if one doesn't exist */
 		gdip_bitmap_ensure_surface ((GpBitmap*) image);
-		cairo_surface_set_filter (((GpBitmap*) image)->image.surface, gdip_get_cairo_filter (graphics->interpolation));
+		cairo_pattern_set_filter (cairo_pattern_create_for_surface(((GpBitmap*) image)->image.surface), gdip_get_cairo_filter (graphics->interpolation));
 
 		for (posy = 0; posy < dstheight; posy += img_height) {
 		
@@ -369,18 +384,16 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 						else 
 							cur_image = bitmap;
 				
-				mat = cairo_matrix_create ();
-				cairo_matrix_scale (mat, srcwidth / dstwidth, srcheight / dstheight);
-				cairo_matrix_translate (mat, srcx - (dstx + posx), srcy - (dsty + posy));
-				cairo_surface_set_matrix (cur_image->image.surface, mat);	
+				cairo_matrix_scale (&mat, srcwidth / dstwidth, srcheight / dstheight);
+				cairo_matrix_translate (&mat, srcx - (dstx + posx), srcy - (dsty + posy));
+				cairo_pattern_set_matrix (cairo_pattern_create_for_surface (cur_image->image.surface), &mat);
 				gdip_cairo_set_surface_pattern (graphics->ct, cur_image->image.surface);
 				
 				cairo_rectangle (graphics->ct, dstx + posx, dsty + posy, img_width, img_height);
 				cairo_fill (graphics->ct);
 				
-				cairo_matrix_set_identity (mat);
-				cairo_surface_set_matrix (cur_image->image.surface, mat);
-				cairo_matrix_destroy (mat);			
+				cairo_matrix_init_identity (&mat);
+				cairo_pattern_set_matrix (cairo_pattern_create_for_surface (cur_image->image.surface), &mat);
 				
 				if (flipXOn)
 					flipX = !flipX; 					
@@ -405,23 +418,19 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		
 		/* Create a surface for this bitmap if one doesn't exist */
 		gdip_bitmap_ensure_surface ((GpBitmap*) image);
-		cairo_surface_set_filter (((GpBitmap*) image)->image.surface, gdip_get_cairo_filter (graphics->interpolation));
+		cairo_pattern_set_filter (cairo_pattern_create_for_surface (((GpBitmap*) image)->image.surface) , gdip_get_cairo_filter (graphics->interpolation));
 		
-		mat = cairo_matrix_create ();
-		cairo_matrix_scale (mat, srcwidth / dstwidth, srcheight / dstheight);
-		cairo_matrix_translate (mat, srcx - dstx, srcy - dsty);
-		cairo_surface_set_matrix (image->surface, mat);
+		cairo_matrix_scale (&mat, srcwidth / dstwidth, srcheight / dstheight);
+		cairo_matrix_translate (&mat, srcx - dstx, srcy - dsty);
+		cairo_pattern_set_matrix (cairo_pattern_create_for_surface (image->surface), &mat);
 		
 		gdip_cairo_set_surface_pattern (graphics->ct, image->surface);
 		
 		cairo_rectangle (graphics->ct, dstx, dsty, dstwidth, dstheight);
 		cairo_fill (graphics->ct);
 		
-		cairo_matrix_set_identity (mat);
-		cairo_surface_set_matrix (image->surface, mat);
-		
-		/* unref */
-		cairo_matrix_destroy (mat);
+		cairo_matrix_init_identity (&mat);
+		cairo_pattern_set_matrix (cairo_pattern_create_for_surface (image->surface), &mat);
 	}
 
 	/* The default surface is no longer valid*/

@@ -41,8 +41,9 @@
 #endif
 #endif
 
-#define	gdip_cairo_ft_font_lock_face(font)	cairo_ft_font_face(font)
-#define gdip_cairo_ft_font_unlock_face(font)
+//#define	gdip_cairo_ft_font_lock_face(font)	cairo_ft_font_face(font)
+//#define gdip_cairo_ft_font_unlock_face(font)
+#define gdip_cairo_matrix_copy(m1, m2) memcpy (m1, m2, sizeof (cairo_matrix_t))
 
 #ifdef WORDS_BIGENDIAN
 #define set_pixel_bgra(pixel,index,b,g,r,a) do { \
@@ -695,13 +696,13 @@ typedef struct {
 	BOOL own_dash_array; /* flag to mark if pen maintains its own array or global array */
         float *dash_array;
         GpUnit unit; /* Always set to UnitWorld. */
-        GpMatrix *matrix;
+        GpMatrix matrix;
         BOOL changed; /* flag to mark if pen is changed and needs setup */
 } GpPen;
 
 typedef struct {
 	cairo_t         *ct;
-	cairo_matrix_t	*copy_of_ctm;
+	cairo_matrix_t	copy_of_ctm;
 	Display		*display;
 	Drawable	drawable;
 	void            *image;
@@ -719,7 +720,7 @@ typedef struct {
 } GpGraphics;
 
 typedef struct {
-	cairo_matrix_t		*matrix;
+	cairo_matrix_t		matrix;
 } GpState;
 
 typedef struct {
@@ -824,7 +825,7 @@ typedef struct {
 
 
 typedef struct {
-        cairo_font_t*       cairofnt;
+        cairo_font_face_t*  cairofnt;
         float               sizeInPixels;
         GpFontStyle         style;
         void                *wineHfont;
@@ -912,8 +913,8 @@ GpBitmap *gdip_bitmap_new   (void);
 void gdip_bitmap_dispose (GpBitmap *bitmap);
 void gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap);
 
-void gdip_graphics_init (GpGraphics *graphics);
-GpGraphics *gdip_graphics_new (void);
+void gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface);
+GpGraphics *gdip_graphics_new (cairo_surface_t *surface);
 void gdip_graphics_attach_bitmap (GpGraphics *graphics, GpBitmap *image);
 void gdip_graphics_detach_bitmap (GpGraphics *graphics, GpBitmap *image);
 
@@ -1107,11 +1108,11 @@ GpStatus GdipMeasureString(GpGraphics *graphics, GDIPCONST WCHAR *string, int le
 GpStatus GdipMeasureCharacterRanges(GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *stringFormat, int regionCount, GpRegion **regions);
 
 /* Matrix */
-GpStatus GdipCreateMatrix (GpMatrix **matrix);
-GpStatus GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float dy, GpMatrix **matrix);
-GpStatus GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matrix);
-GpStatus GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix);
-GpStatus GdipCloneMatrix (GpMatrix *matrix, GpMatrix **cloneMatrix);
+GpStatus GdipCreateMatrix (GpMatrix *matrix);
+GpStatus GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float dy, GpMatrix *matrix);
+GpStatus GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix *matrix);
+GpStatus GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix *matrix);
+GpStatus GdipCloneMatrix (GpMatrix *matrix, GpMatrix *cloneMatrix);
 GpStatus GdipDeleteMatrix (GpMatrix *matrix);
 GpStatus GdipSetMatrixElements (GpMatrix *matrix, float m11, float m12, float m21, float m22, float dx, float dy);
 GpStatus GdipMultiplyMatrix (GpMatrix *matrix, GpMatrix *matrix2, GpMatrixOrder order);
