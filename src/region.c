@@ -686,7 +686,6 @@ gdip_combine_exclude (GpRegion *region, GpRectF *recttrg, int cnttrg)
 }
                                             
 
-
 /* Union */
 void
 gdip_combine_union (GpRegion *region, GpRectF *recttrg, int cnttrg)
@@ -696,7 +695,7 @@ gdip_combine_union (GpRegion *region, GpRectF *recttrg, int cnttrg)
         int allcnt = 0, cnt = 0, i;
         float posx, posy;
         float x = 0, y = 0, hitx, hity, step;
-        BOOL endrect, clean, found, done;
+        BOOL endrect, clean, found, done, hit;
     
         /* All the src and trg rects in a single array*/
         for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) 
@@ -714,9 +713,10 @@ gdip_combine_union (GpRegion *region, GpRectF *recttrg, int cnttrg)
     
         while (y < rectwhole.Height+1) {
 
+		hit = FALSE;
+
                 /* First point of a rectangle candidate*/
-                if ((gdip_is_Point_in_RectFs_inclusive (x + rectwhole.X, y + rectwhole.Y, allrects, allcnt) == TRUE) &&
-                        gdip_is_Point_in_RectFs (x + rectwhole.X, y + rectwhole.Y, rects, cnt) == FALSE) {
+                if ((gdip_is_Point_in_RectFs_inclusive (x + rectwhole.X, y + rectwhole.Y, allrects, allcnt) == TRUE)) {
 
                         endrect = FALSE;
                         hitx = recthit.X = x + rectwhole.X;
@@ -751,12 +751,10 @@ gdip_combine_union (GpRegion *region, GpRectF *recttrg, int cnttrg)
                                                 if (recthit.Height == 0) {/* First row, it's a rect all the rest are equal*/
                                                         recthit.Width++;
                                                 }
-
                                                  hitx++;                                                       
                                         }
                                         else
                                                 break;
-
                                 }
 
                                     
@@ -805,7 +803,6 @@ gdip_combine_union (GpRegion *region, GpRectF *recttrg, int cnttrg)
                                                                              
                         /* Is this already contained */
                         for (posy = 0; posy < recthit.Height+1; posy++) {
-
                                 for (posx = 0; posx < recthit.Width +1; posx++) {
                                         if (gdip_is_Point_in_RectFs_inclusive (recthit.X + posx , recthit.Y + posy, rects, cnt) == FALSE) {
                                                 found = FALSE;
@@ -814,12 +811,19 @@ gdip_combine_union (GpRegion *region, GpRectF *recttrg, int cnttrg)
                                 }
                         }      
                         
-                        if (found == FALSE) 
-                                gdip_add_rect_to_array (&rects, &cnt,  &recthit);
-                                     
+                        if (found == FALSE) {
+				gdip_add_rect_to_array (&rects, &cnt,  &recthit);                                     
+				hit = TRUE;
+			}
                         
                 }  /*if ((gdip_is_Point_in_RectFs_i...*/
-                
+
+		if (hit == TRUE) {
+			y += recthit.Height; 
+			x = 0;
+			continue;
+		}
+
                 if (x < rectwhole.Width +1)
                         x++;
                 else {
