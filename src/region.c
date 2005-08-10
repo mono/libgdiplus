@@ -446,107 +446,6 @@ gdip_combine_complement (GpRegion *region, GpRectF *recttrg, int cnttrg)
 
 
 
-/* CombineIntersect */
-void
-gdip_combine_intersect (GpRegion *region, GpRectF *recttrg, int cnttrg)
-{
-        GpRectF recthit;
-        float x, y, hitx, hity;
-        BOOL endrect, clean;
-        GpRectF *rects = NULL;
-        int cnt = 0, i, reg;
-        GpRectF *rect = recttrg;                                                     
-
-        /*
-           Intersect: the part of the second region shared with the first region.
-           Scans the region to be combined and store the rects not present in the region
-        */
-
-        for (reg = 0; reg < cnttrg; reg++, rect++) {
-
-                x = y = 0;     
-
-                while (y < rect->Height) {
-
-                        /* First point of a rectangle candidate*/
-                        if ((gdip_is_Point_in_RectFs (x + rect->X, y + rect->Y, region->rects, region->cnt) == TRUE) &&
-                                gdip_is_Point_in_RectFs_inclusive (x + rect->X, y + rect->Y, rects, cnt) == FALSE) {
-
-                                endrect = FALSE;
-                                hitx = recthit.X = x + rect->X;
-                                hity = recthit.Y = y + rect->Y;
-                                recthit.Height = recthit.Width = 0;
-                             
-                                /* Try to get a rectangle going forward and then down*/
-
-                                /* Go Down */
-                                while (hity < (rect->Y + rect->Height) && endrect == FALSE) {
-
-                                        clean = TRUE;
-
-                                        /* Go from the beg to be sure that we have not a mach before*/
-                                        if (recthit.Width) {
-                                        for (i = rect->X; i < recthit.X ; i++)
-                                                if (gdip_is_Point_in_RectFs (i, hity, region->rects, region->cnt) == TRUE) {
-                                                        clean = FALSE;
-                                                        break;
-                                                }
-                                        }
-
-                                        if (clean == FALSE)
-                                                break;
-
-                                        /* Go forward */
-                                        while (hitx < rect->X + rect->Width) {
-                                                if (gdip_is_Point_in_RectFs (hitx, hity, region->rects, region->cnt) == TRUE) {
-
-                                                        if (recthit.Height == 0) /* First row, it's a rect all the rest are equal*/
-                                                                recthit.Width++;
-
-                                                        hitx++;
-                                                }
-                                                else
-                                                        break;
-                                        }
-
-                                        if (recthit.Height == 0) {
-                                                hity++;
-                                                recthit.Height++;
-                                        }
-                                        else {
-                                                if (hitx - recthit.X == recthit.Width) {
-                                                        hity++;
-                                                        recthit.Height++;
-                                                }
-                                                else
-                                                        endrect = TRUE; /* Line length does not match previous one*/
-                                        }
-
-
-                                        hitx = x + rect->X;
-                                }  /* while */
-
-                                /*Store hitrect as a part of this region*/
-                                gdip_add_rect_to_array (&rects, &cnt,  &recthit);
-
-                        }  /* end if*/
-
-                        if (x < rect->Width)
-                                x++;
-                        else {
-                                y++;
-                                x = 0;
-                        }
-                }
-        } /*for */  
-
-        if (region->rects)        
-                free (region->rects);
-                
-        region->rects = rects;
-        region->cnt = cnt;
-}
-
 /* Exclude */
 void
 gdip_combine_exclude (GpRegion *region, GpRectF *recttrg, int cnttrg)
@@ -837,6 +736,49 @@ gdip_combine_union (GpRegion *region, GpRectF *recttrg, int cnttrg)
 
         region->rects = rects;
         region->cnt = cnt;        
+}
+
+/* Intersect */
+void
+gdip_combine_intersect (GpRegion *region, GpRectF *rtrg, int cnttrg)
+{
+	GpRectF *rectsrc;
+	int src, trg;
+	GpRectF rectcur;
+	GpRegion regunion;
+	GpRectF *recttrg;
+
+	regunion.rects = NULL;
+	regunion.cnt = 0;
+
+	for (rectsrc = region->rects, src = 0; src < region->cnt; src++, rectsrc++) {
+		for (recttrg = rtrg, trg = 0; trg < cnttrg; trg++, recttrg++) {
+			/* Intersects With */
+			if (rectsrc->X >= recttrg->X + recttrg->Width ||
+				rectsrc->X + rectsrc->Width <= recttrg->X ||
+				rectsrc->Y >= recttrg->Y + recttrg->Height ||
+				rectsrc->Y + rectsrc->Width <= recttrg->Y) {
+				continue;
+			}			
+			/* Area that intersects */
+			rectcur.X = rectsrc->X > recttrg->X ? rectsrc->X : recttrg->X;
+			rectcur.Y = rectsrc->Y > recttrg->Y ? rectsrc->Y : recttrg->Y;
+			rectcur.Width = rectsrc->X + rectsrc->Width < recttrg->X + recttrg->Width ? 
+				rectsrc->X + rectsrc->Width - rectcur.X : recttrg->X + recttrg->Width - rectcur.X;
+
+			rectcur.Height = rectsrc->Y + rectsrc->Height < recttrg->Y + recttrg->Height ? 
+				rectsrc->Y + rectsrc->Height - rectcur.Y : recttrg->Y + recttrg->Height - rectcur.Y;
+
+			/* Combine with previous areas that intersect with rect */
+			gdip_combine_union (&regunion, &rectcur, 1);
+		}
+	}
+
+	if (region->rects)        
+		free (region->rects);
+
+	region->rects = regunion.rects;
+	region->cnt = regunion.cnt;
 }
 
 /* Xor */

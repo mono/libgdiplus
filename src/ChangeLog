@@ -1,3 +1,7 @@
+2005-08-10 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* region.c: Rewritten gdip_combine_intersect method
+
 2005-08-09 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* region.c: Optimise union operation
