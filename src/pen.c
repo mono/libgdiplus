@@ -47,6 +47,7 @@ gdip_pen_init (GpPen *pen)
 	pen->compound_array = NULL;
 	pen->unit = UnitWorld;
 	pen->changed = TRUE;
+	cairo_matrix_init_identity (&pen->matrix);
 }
 
 GpPen*
@@ -125,6 +126,8 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
+	cairo_matrix_init_identity (&product);
+	
 	status = gdip_brush_setup (graphics, pen->brush);
 	if (status != Ok)
 		return status;
@@ -138,6 +141,8 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	 */
 	cairo_matrix_multiply (&product, &pen->matrix, &graphics->copy_of_ctm);
 	cairo_set_matrix (graphics->ct, &product);
+	printf ("--- %s\n",cairo_status_to_string  (cairo_status (graphics->ct)));	
+
 
 	/* Don't need to setup, if pen is the same as the cached pen and
 	 * it is not changed. Just comparing pointers may not be sufficient

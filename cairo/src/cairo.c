@@ -783,10 +783,10 @@ cairo_set_matrix (cairo_t	       *cr,
 	_cairo_set_error (cr, cr->status);
 	return;
     }
-
     cr->status = _cairo_gstate_set_matrix (cr->gstate, matrix);
-    if (cr->status)
+    if (cr->status) {
 	_cairo_set_error (cr, cr->status);
+    }
 }
 
 /**

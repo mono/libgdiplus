@@ -587,15 +587,14 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
 				  (i == 0) ? TRUE : FALSE,    /* only move to the starting pt in the 1st iteration */
 				  x, y, width, height,	      /* bounding rectangle */
 				  i * sign,		      /* start angle */
-				  (i + 90 < abs (endAngle)) ? (i + 90) * sign : endAngle); /* sweep angle,
-											      at most up to 90 degrees  */
+				  (i + 90 < abs (endAngle)) ? (i + 90) * sign : endAngle); /* sweep angle,  at most up to 90 degrees  */
 		}
 	}
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
-	//cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	cairo_stroke (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -630,7 +629,7 @@ GdipDrawBezier (GpGraphics *graphics, GpPen *pen,
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -678,7 +677,7 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen,
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -718,7 +717,7 @@ GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen,
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -743,7 +742,7 @@ GdipDrawEllipse (GpGraphics *graphics, GpPen *pen,
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -784,7 +783,7 @@ GdipDrawLine (GpGraphics *graphics, GpPen *pen,
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 	
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
@@ -824,7 +823,7 @@ GdipDrawLines (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -854,7 +853,7 @@ GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -929,7 +928,7 @@ GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
         /* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
         cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -958,7 +957,7 @@ GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y,
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -990,7 +989,7 @@ GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -1015,7 +1014,7 @@ GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -1039,7 +1038,7 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
         cairo_matrix_translate (&graphics->copy_of_ctm, 0.5, 0.5);
 #endif
         cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
-
+	
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
@@ -1048,7 +1047,6 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
 	
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -1086,7 +1084,7 @@ GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count)
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -1116,7 +1114,7 @@ GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GpRect *rects, int count)
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -1197,7 +1195,7 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int co
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -1272,7 +1270,7 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
 	cairo_stroke (graphics->ct);
-	cairo_paint (graphics->ct);
+	//cairo_paint (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
@@ -2455,7 +2453,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 				CurrentDetail++;
 			}
 		}
-		cairo_paint (graphics->ct);
+		//cairo_paint (graphics->ct);
 
 	}
 

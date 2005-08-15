@@ -52,7 +52,26 @@ win_draw(win_t *win)
 					    win->width, win->height);
 
 	gp = gdip_graphics_new (surface);
-       		
+	
+        {	
+		GpPen *pen;
+		GpBrush *brush;
+		int a = 255;
+		int r = 255;
+		int g = 0;
+		int b = 0;
+		
+		GdipCreatePen1 (a << 24 | r << 16 | g << 8 | b,
+				10, UnitPixel, &pen);
+		
+		GdipDrawRectangle (gp, pen, 10, 10, 60, 60);
+		GdipDrawLine (gp, pen, 0, 0, 100, 100);
+		return;
+	}
+	
+	
+	
+	
 	unis = g_utf8_to_utf16 ("test.jpg", -1, NULL, NULL, NULL);
 	st = GdipLoadImageFromFile (unis, &img);
 	CHECK_GDIP_ST(st);
