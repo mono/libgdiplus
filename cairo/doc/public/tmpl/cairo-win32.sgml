@@ -1,0 +1,64 @@
+<!-- ##### SECTION Title ##### -->
+Microsoft Windows Backend
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### FUNCTION cairo_win32_surface_create ##### -->
+<para>
+
+</para>
+
+@hdc: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_win32_font_face_create_for_logfontw ##### -->
+<para>
+
+</para>
+
+@logfont: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_win32_scaled_font_select_font ##### -->
+<para>
+
+</para>
+
+@scaled_font: 
+@hdc: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_win32_scaled_font_done_font ##### -->
+<para>
+
+</para>
+
+@scaled_font: 
+
+
+<!-- ##### FUNCTION cairo_win32_scaled_font_get_metrics_factor ##### -->
+<para>
+
+</para>
+
+@scaled_font: 
+@Returns: 
+
+

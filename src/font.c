@@ -355,8 +355,10 @@ gdip_cairo_ft_font_lock_face (cairo_font_face_t *cairofnt)
 {
 	cairo_scaled_font_t *scaled_ft;
 	cairo_matrix_t matrix1, matrix2;
-        cairo_font_options_t *options = NULL;
+        cairo_font_options_t *options;
 	
+	options = cairo_font_options_create ();
+		
 	scaled_ft = cairo_scaled_font_create (cairofnt,
 					      &matrix1,
 					      &matrix2,
@@ -370,6 +372,8 @@ gdip_cairo_ft_font_unlock_face (cairo_font_face_t *cairofnt)
 	cairo_scaled_font_t *scaled_ft;
 	cairo_matrix_t matrix1, matrix2;
 	cairo_font_options_t *options = NULL;
+
+	options = cairo_font_options_create ();	
 	
 	scaled_ft = cairo_scaled_font_create (cairofnt,
 					      &matrix1,
@@ -557,6 +561,8 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont
 		return 0;
 	}
 
+	FcDefaultSubstitute (pat);	
+	
 	FcPatternAddString (pat, FC_FAMILY, family);
 	FcPatternAddInteger (pat, FC_SLANT, fcslant);
 	FcPatternAddInteger (pat, FC_WEIGHT, fcweight);
@@ -567,15 +573,8 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont
 		return 0;
 	}
 
-	//font = cairo_ft_font_create (ft_library, pat);
-	
-	if (pat) {
-		printf("Pattern is set up with: %s %d %d\n", family, fcslant, fcweight);
-	}
-	
 	font = cairo_ft_font_face_create_for_pattern (pat);
 	if (font == NULL) {
-		printf("THE BIIIIIIIIIIIIIG ERROR!!!\n");
 		FT_Done_FreeType(ft_library);
 		FcPatternDestroy (pat);
 		return 0;
@@ -690,7 +689,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 		return Ok;
 	}
 	UNLOCK_FONTCACHE;
-
+		
 	result = (GpFont *) GdipAlloc (sizeof (GpFont));
 	result->sizeInPixels = sizeInPixels;
 
@@ -699,14 +698,15 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 
         if ((style & FontStyleItalic) == FontStyleItalic)        
                 slant = FC_SLANT_ITALIC;
-        	
+
 	if (!gdip_font_create (str, slant, weight, result)) {
 		return InvalidParameter;	/* FIXME -  wrong return code */
-	}
+	}	
+
         result->style = style;
 	cairo_font_face_reference ((cairo_font_face_t *)result->cairofnt);
-	*font=result;
-
+	*font=result;	
+	
 	if (strlen ((const char *)str) > 127) /* Cannot cache this font */
 		return Ok;
 	

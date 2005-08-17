@@ -1,0 +1,26 @@
+{
+   cairo's write_png triggers apparent bugs in libpng/libz
+   Memcheck:Cond
+   obj:/usr/lib/libz.so.1.2.2.2
+   obj:/usr/lib/libz.so.1.2.2.2
+   fun:deflate
+   fun:png_write_finish_row
+   fun:png_write_filtered_row
+   fun:png_write_find_filter
+   fun:png_write_row
+   fun:png_write_image
+   fun:write_png
+ }
+{
+   cairo's write_png_argb32 triggers apparent bugs in libpng/libz
+   Memcheck:Cond
+   obj:/usr/lib/libz.so.1.2.2.2
+   obj:/usr/lib/libz.so.1.2.2.2
+   fun:deflate
+   fun:png_write_finish_row
+   fun:png_write_filtered_row
+   fun:png_write_find_filter
+   fun:png_write_row
+   fun:png_write_image
+   fun:write_png_argb32
+ }

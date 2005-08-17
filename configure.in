@@ -23,7 +23,7 @@ AC_ARG_WITH(cairo, [  --with-cairo=included,installed],[cairo_v=$with_cairo],[ca
 
 if test $cairo_v = "included";
 then
-	AC_CONFIG_SUBDIRS(libpixman)
+	#AC_CONFIG_SUBDIRS(libpixman)
 	AC_CONFIG_SUBDIRS(cairo)
 	#libpixman.la already included in cairo
 	#CAIRO_LIBS='$(top_builddir)/libpixman/src/libpixman.la $(top_builddir)/cairo/src/libcairo.la'

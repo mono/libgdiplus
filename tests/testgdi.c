@@ -19,6 +19,8 @@
 
 #include "gdip.h"
 
+#include <freetype/tttables.h>
+
 typedef struct win {
 	Display *dpy;
 	int scr;
@@ -53,6 +55,13 @@ win_draw(win_t *win)
 
 	gp = gdip_graphics_new (surface);
 
+	{
+		GpFont *result;
+		result = (GpFont *) GdipAlloc (sizeof (GpFont));
+		result->sizeInPixels = 50;		
+		gdip_font_create ("Vera",  FC_SLANT_ITALIC, FC_WEIGHT_BOLD, result);
+	
+	}
         {	
 		GpPen *pen;
 		GpBrush *brush;

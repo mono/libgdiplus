@@ -199,7 +199,7 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	cairo_pattern_set_filter (pattern,
 				  gdip_get_cairo_filter (graphics->interpolation));
 
-	//cairo_translate (graphics->ct, x, y);
+	cairo_translate (graphics->ct, x, y);
 
 	if (width != image->width || height != image->height) {
 		cairo_scale (graphics->ct,
@@ -207,9 +207,9 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 				(double) height / image->height);
 	}
 	
-	cairo_set_source_surface (graphics->ct, image->surface, image->width, image->height);
+	cairo_set_source_surface (graphics->ct, image->surface, x, y);
 	cairo_identity_matrix (graphics->ct);
-	cairo_translate (graphics->ct, x, y);
+	//cairo_translate (graphics->ct, x, y);
 	cairo_paint (graphics->ct);
 	
 	cairo_pattern_destroy (pattern);

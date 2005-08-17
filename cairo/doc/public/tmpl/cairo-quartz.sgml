@@ -1,0 +1,30 @@
+<!-- ##### SECTION Title ##### -->
+Quartz Backend
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### FUNCTION cairo_quartz_surface_create ##### -->
+<para>
+
+</para>
+
+@context: 
+@width: 
+@height: 
+@Returns: 
+
+

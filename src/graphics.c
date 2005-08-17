@@ -55,9 +55,7 @@ gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 	graphics->type = gtUndefined;
         /* cairo_select_font_face (graphics->ct, "serif:12"); */
 	cairo_select_font_face (graphics->ct, "serif:12", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-	printf("one\n");	
 	GdipCreateRegion (&graphics->clip);
-	printf("two\n");	
 	graphics->bounds.X = graphics->bounds.Y = graphics->bounds.Width = graphics->bounds.Height = 0;
 	graphics->page_unit = UnitDisplay;
 	graphics->scale = 1.0f;
