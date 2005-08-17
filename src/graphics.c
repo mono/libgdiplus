@@ -43,7 +43,9 @@ gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 {
 	
 	graphics->ct = cairo_create (surface);
-	cairo_matrix_init_identity (&graphics->copy_of_ctm);
+	graphics->copy_of_ctm = NULL;	
+	GdipCreateMatrix (&graphics->copy_of_ctm);
+	cairo_matrix_init_identity (graphics->copy_of_ctm);
 	cairo_identity_matrix (graphics->ct);
 
 #ifndef NO_CAIRO_AA
@@ -53,7 +55,9 @@ gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 	graphics->type = gtUndefined;
         /* cairo_select_font_face (graphics->ct, "serif:12"); */
 	cairo_select_font_face (graphics->ct, "serif:12", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+	printf("one\n");	
 	GdipCreateRegion (&graphics->clip);
+	printf("two\n");	
 	graphics->bounds.X = graphics->bounds.Y = graphics->bounds.Width = graphics->bounds.Height = 0;
 	graphics->page_unit = UnitDisplay;
 	graphics->scale = 1.0f;
@@ -62,6 +66,7 @@ gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 	graphics->last_brush = NULL;
 	graphics->composite_quality = CompositingQualityDefault;
 	graphics->composite_mode = CompositingModeSourceOver;
+	
 }
 
 GpGraphics *
@@ -430,8 +435,8 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
 	if (graphicsState < MAX_GRAPHICS_STATE_STACK) {
-		gdip_cairo_matrix_copy (&graphics->copy_of_ctm, &saved_stack[graphicsState].matrix);
-		cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+		gdip_cairo_matrix_copy (graphics->copy_of_ctm, saved_stack[graphicsState].matrix);
+		cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 		current_stack_pos = graphicsState;
 	}
 	else {
@@ -447,7 +452,7 @@ GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 	g_return_val_if_fail (state != NULL, InvalidParameter);
 
 	if (current_stack_pos < MAX_GRAPHICS_STATE_STACK) {
-		gdip_cairo_matrix_copy (&saved_stack[current_stack_pos].matrix, &graphics->copy_of_ctm);
+		gdip_cairo_matrix_copy (saved_stack[current_stack_pos].matrix, graphics->copy_of_ctm);
 		*state = current_stack_pos;
 		++current_stack_pos;
 	}
@@ -462,8 +467,8 @@ GdipResetWorldTransform (GpGraphics *graphics)
 {
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-	cairo_matrix_init_identity (&graphics->copy_of_ctm);
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_matrix_init_identity (graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -474,8 +479,8 @@ GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	gdip_cairo_matrix_copy (&graphics->copy_of_ctm, &matrix);
-        cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	gdip_cairo_matrix_copy (graphics->copy_of_ctm, matrix);
+        cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
         return Ok;
 }
 
@@ -496,12 +501,12 @@ GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrde
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-	s = GdipMultiplyMatrix (&graphics->copy_of_ctm, matrix, order);
+	s = GdipMultiplyMatrix (graphics->copy_of_ctm, matrix, order);
         
         if (s != Ok)
                 return s;
         else {
-                cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+                cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
                 return Ok;
         }
 }
@@ -513,12 +518,12 @@ GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-	s = GdipRotateMatrix (&graphics->copy_of_ctm, angle, order);
+	s = GdipRotateMatrix (graphics->copy_of_ctm, angle, order);
 	
         if (s != Ok)
                 return s;
         else {
-                cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+                cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
                 return Ok;
         }
 }
@@ -530,12 +535,12 @@ GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-	s = GdipScaleMatrix (&graphics->copy_of_ctm, sx, sy, order);
+	s = GdipScaleMatrix (graphics->copy_of_ctm, sx, sy, order);
 
         if (s != Ok)
                 return s;
         else {
-                cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+                cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
                 return s;
         }
 }
@@ -547,12 +552,12 @@ GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixO
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-	s = GdipTranslateMatrix (&graphics->copy_of_ctm, dx, dy, order);
+	s = GdipTranslateMatrix (graphics->copy_of_ctm, dx, dy, order);
 
         if (s != Ok) 
                 return s;
         else {
-                cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+                cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
                 return Ok;
         }
 }
@@ -599,7 +604,7 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -634,7 +639,7 @@ GdipDrawBezier (GpGraphics *graphics, GpPen *pen,
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -682,7 +687,7 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen,
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -722,7 +727,7 @@ GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen,
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -747,7 +752,7 @@ GdipDrawEllipse (GpGraphics *graphics, GpPen *pen,
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -768,11 +773,11 @@ GdipDrawLine (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-	gdip_cairo_matrix_copy (&saved, &graphics->copy_of_ctm);
+	gdip_cairo_matrix_copy (&saved, graphics->copy_of_ctm);
 #ifdef NO_CAIRO_AA
-	cairo_matrix_translate (&graphics->copy_of_ctm, 0.5, 0.5);
+	cairo_matrix_translate (graphics->copy_of_ctm, 0.5, 0.5);
 #endif
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 	
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -789,8 +794,8 @@ GdipDrawLine (GpGraphics *graphics, GpPen *pen,
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	gdip_cairo_matrix_copy (&graphics->copy_of_ctm, &saved);
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	gdip_cairo_matrix_copy (graphics->copy_of_ctm, &saved);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 
 	return gdip_get_status (cairo_status (graphics->ct));
@@ -828,7 +833,7 @@ GdipDrawLines (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -858,7 +863,7 @@ GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -933,7 +938,7 @@ GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return status;
 }
@@ -962,7 +967,7 @@ GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y,
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -994,7 +999,7 @@ GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1019,7 +1024,7 @@ GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1033,11 +1038,11 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-        gdip_cairo_matrix_copy (&saved, &graphics->copy_of_ctm);
+        gdip_cairo_matrix_copy (&saved, graphics->copy_of_ctm);
 #ifdef NO_CAIRO_AA
-        cairo_matrix_translate (&graphics->copy_of_ctm, 0.5, 0.5);
+        cairo_matrix_translate (graphics->copy_of_ctm, 0.5, 0.5);
 #endif
-        cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+        cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 	
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -1051,8 +1056,8 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	gdip_cairo_matrix_copy (&graphics->copy_of_ctm, &saved);
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	gdip_cairo_matrix_copy (graphics->copy_of_ctm, &saved);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1089,7 +1094,7 @@ GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count)
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 	
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1119,7 +1124,7 @@ GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GpRect *rects, int count)
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1200,7 +1205,7 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int co
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	GdipFree (tangents);        
 
@@ -1275,7 +1280,7 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
         GdipFree (tangents);
 
@@ -1321,7 +1326,7 @@ GdipFillEllipse (GpGraphics *graphics, GpBrush *brush,
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by brush setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1352,7 +1357,7 @@ GdipFillRectangle (GpGraphics *graphics, GpBrush *brush,
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by brush setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1388,7 +1393,7 @@ GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GpRectF *rects, int co
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by brush setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1417,7 +1422,7 @@ GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GpRect *rects, int co
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by brush setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1444,7 +1449,7 @@ GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width,
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by brush setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1476,7 +1481,7 @@ GdipFillPolygon (GpGraphics *graphics, GpBrush *brush,
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by brush setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1501,7 +1506,7 @@ GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by brush setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return status;
 }
@@ -1527,7 +1532,7 @@ GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush,
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by brush setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -1582,7 +1587,7 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, in
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by brush setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	GdipFree (tangents);
 
@@ -1631,7 +1636,7 @@ GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by brush setup.
 	 */
-	cairo_set_matrix (graphics->ct, &graphics->copy_of_ctm);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }

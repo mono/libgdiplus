@@ -47,6 +47,7 @@ gdip_texture_init (GpTexture *texture)
 	texture->wrapMode = WrapModeTile;
 	texture->rectangle = NULL;
 	texture->pattern = NULL;
+	GdipCreateMatrix (&texture->matrix);
 }
 
 GpTexture*
@@ -365,7 +366,7 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 	GpImage *img, *gr_img;
 	GpBitmap *bmp, *gr_bmp;
 	cairo_format_t format;
-	GpMatrix product;
+	GpMatrix *product = NULL;
 	unsigned int width;
 	unsigned int height;
 	GpStatus status = Ok;
@@ -431,6 +432,7 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 		}
 	}
 
+	GdipCreateMatrix (&product);
 	if (status == Ok) {
 		if (texture->pattern == NULL)
 			status = GenericError;
@@ -470,9 +472,9 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 
 			if (pattern != NULL) {
 				/* Use both the matrices */
-				cairo_matrix_multiply (&product, &texture->matrix, &graphics->copy_of_ctm);
-				cairo_matrix_invert (&product);
-				cairo_pattern_set_matrix (pattern, &product);
+				cairo_matrix_multiply (product, texture->matrix, graphics->copy_of_ctm);
+				cairo_matrix_invert (product);
+				cairo_pattern_set_matrix (pattern, product);
 				cairo_set_source (ct, pattern);
 				/*	cairo_pattern_destroy (pattern); */
 			}
@@ -715,7 +717,7 @@ GdipResetTextureTransform (GpTexture *texture)
 	GpStatus s;
 	g_return_val_if_fail (texture != NULL, InvalidParameter);
 
-	 cairo_matrix_init_identity (&texture->matrix);
+	 cairo_matrix_init_identity (texture->matrix);
 	texture->base.changed = TRUE;
 	return Ok;
 }
@@ -728,7 +730,7 @@ GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrde
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
 	/* FIXME: How to take care of rotation here ? */
-	status = GdipMultiplyMatrix (&texture->matrix, matrix, order);
+	status = GdipMultiplyMatrix (texture->matrix, matrix, order);
 	if (status == Ok)
 		texture->base.changed = TRUE;
 	return status;
@@ -740,7 +742,7 @@ GdipTranslateTextureTransform (GpTexture *texture, float dx, float dy, GpMatrixO
 	GpStatus status;
 	g_return_val_if_fail (texture != NULL, InvalidParameter);
 
-	status = GdipTranslateMatrix (&texture->matrix, dx, dy, order);
+	status = GdipTranslateMatrix (texture->matrix, dx, dy, order);
 	if (status == Ok)
 		texture->base.changed = TRUE;
 	return status;
@@ -752,7 +754,7 @@ GdipScaleTextureTransform (GpTexture *texture, float sx, float sy, GpMatrixOrder
 	GpStatus status;
 	g_return_val_if_fail (texture != NULL, InvalidParameter);
 
-	status = GdipScaleMatrix (&texture->matrix, sx, sy, order);
+	status = GdipScaleMatrix (texture->matrix, sx, sy, order);
 	if (status == Ok)
 		texture->base.changed = TRUE;
 	return status;
@@ -775,9 +777,9 @@ GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order
 	axis.X = texture->rectangle->Width;
 	axis.Y = texture->rectangle->Height;
 
-	if ((status = GdipTranslateMatrix (&texture->matrix, -axis.X, -axis.Y, order)) == Ok)
-		if ((status = GdipRotateMatrix (&texture->matrix, angle, order)) == Ok)
-			if ((status = GdipTranslateMatrix (&texture->matrix, axis.X, axis.Y, order)) == Ok)
+	if ((status = GdipTranslateMatrix (texture->matrix, -axis.X, -axis.Y, order)) == Ok)
+		if ((status = GdipRotateMatrix (texture->matrix, angle, order)) == Ok)
+			if ((status = GdipTranslateMatrix (texture->matrix, axis.X, axis.Y, order)) == Ok)
 				texture->base.changed = TRUE;
 	return status;
 }

@@ -52,7 +52,7 @@ win_draw(win_t *win)
 					    win->width, win->height);
 
 	gp = gdip_graphics_new (surface);
-	
+
         {	
 		GpPen *pen;
 		GpBrush *brush;
@@ -66,9 +66,9 @@ win_draw(win_t *win)
 		
 		GdipDrawRectangle (gp, pen, 10, 10, 60, 60);
 		GdipDrawLine (gp, pen, 0, 0, 100, 100);
-		return;
+//		return;
 	}
-	
+
 	
 	
 	

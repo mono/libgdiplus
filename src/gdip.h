@@ -696,13 +696,13 @@ typedef struct {
 	BOOL own_dash_array; /* flag to mark if pen maintains its own array or global array */
         float *dash_array;
         GpUnit unit; /* Always set to UnitWorld. */
-        GpMatrix matrix;
+        GpMatrix *matrix;
         BOOL changed; /* flag to mark if pen is changed and needs setup */
 } GpPen;
 
 typedef struct {
 	cairo_t         *ct;
-	cairo_matrix_t	copy_of_ctm;
+	GpMatrix/*cairo_matrix_t*/	*copy_of_ctm;
 	Display		*display;
 	Drawable	drawable;
 	void            *image;
@@ -720,7 +720,7 @@ typedef struct {
 } GpGraphics;
 
 typedef struct {
-	cairo_matrix_t		matrix;
+	cairo_matrix_t		*matrix;
 } GpState;
 
 typedef struct {
@@ -1108,11 +1108,11 @@ GpStatus GdipMeasureString(GpGraphics *graphics, GDIPCONST WCHAR *string, int le
 GpStatus GdipMeasureCharacterRanges(GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *stringFormat, int regionCount, GpRegion **regions);
 
 /* Matrix */
-GpStatus GdipCreateMatrix (GpMatrix *matrix);
-GpStatus GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float dy, GpMatrix *matrix);
-GpStatus GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix *matrix);
-GpStatus GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix *matrix);
-GpStatus GdipCloneMatrix (GpMatrix *matrix, GpMatrix *cloneMatrix);
+GpStatus GdipCreateMatrix (GpMatrix **matrix);
+GpStatus GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float dy, GpMatrix **matrix);
+GpStatus GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matrix);
+GpStatus GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix);
+GpStatus GdipCloneMatrix (GpMatrix *matrix, GpMatrix **cloneMatrix);
 GpStatus GdipDeleteMatrix (GpMatrix *matrix);
 GpStatus GdipSetMatrixElements (GpMatrix *matrix, float m11, float m12, float m21, float m22, float dx, float dy);
 GpStatus GdipMultiplyMatrix (GpMatrix *matrix, GpMatrix *matrix2, GpMatrixOrder order);

@@ -27,23 +27,26 @@
 #include "gdip.h"
 
 GpStatus 
-GdipCreateMatrix (GpMatrix *matrix)
+GdipCreateMatrix (GpMatrix **matrix)
 {
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-	cairo_matrix_init (matrix, 1, 0, 0, 1, 0, 0);
+	g_return_val_if_fail  (matrix != NULL, InvalidParameter);
+	
+	*matrix = g_new (GpMatrix, 1);
+	cairo_matrix_init (*matrix, 1, 0, 0, 1, 0, 0);
+	
 	return Ok;
 }
 
 GpStatus
-GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float dy, GpMatrix *matrix)
+GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float dy, GpMatrix **matrix)
 {
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-	cairo_matrix_init (matrix, m11, m12, m21, m22, dx, dy);
+	cairo_matrix_init (*matrix, m11, m12, m21, m22, dx, dy);
 	return Ok;
 }
 
 GpStatus
-GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix *matrix)
+GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matrix)
 {
 	double m11, m12, m21, m22, dx, dy;
 	Status s;
@@ -59,13 +62,13 @@ GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix *matrix
 	dx = dstplg->X;
 	dy = dstplg->Y;
 
-	cairo_matrix_init (matrix, m11, m12, m21, m22, dx, dy);
+	cairo_matrix_init (*matrix, m11, m12, m21, m22, dx, dy);
 
 	return Ok;
 }
 
 GpStatus
-GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix *matrix)
+GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix)
 {
 	double m11, m12, m21, m22, dx, dy;
 	Status s;
@@ -81,13 +84,13 @@ GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix *matrix)
 	dx = dstplg->X;
 	dy = dstplg->Y;
         
-	cairo_matrix_init (matrix, m11, m12, m21, m22, dx, dy);
+	cairo_matrix_init (*matrix, m11, m12, m21, m22, dx, dy);
 
         return Ok;
 }
 
 GpStatus
-GdipCloneMatrix (GpMatrix *matrix, GpMatrix *cloneMatrix)
+GdipCloneMatrix (GpMatrix *matrix, GpMatrix **cloneMatrix)
 {
 
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
@@ -102,7 +105,7 @@ GpStatus
 GdipDeleteMatrix (GpMatrix *matrix)
 {
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-
+	free (matrix);
         return Ok;
 }
 

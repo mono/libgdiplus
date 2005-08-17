@@ -28,7 +28,7 @@ then
 	#libpixman.la already included in cairo
 	#CAIRO_LIBS='$(top_builddir)/libpixman/src/libpixman.la $(top_builddir)/cairo/src/libcairo.la'
 	CAIRO_LIBS='$(top_builddir)/cairo/src/libcairo.la'
-	CAIRO_CFLAGS='-I$(top_builddir)/libpixman/src -I$(top_srcdir)/libpixman/src -I$(top_builddir)/cairo/src -I$(top_srcdir)/cairo/src'
+	CAIRO_CFLAGS='-I$(top_builddir)/cairo/pixman/src -I$(top_srcdir)/cairo/pixman/src -I$(top_builddir)/cairo/src -I$(top_srcdir)/cairo/src'
 	AC_DEFINE(USE_INCLUDED_CAIRO,1,[Use Cairo bundled in libgdiplus])
 else
 	if pkg-config --exact-version 0.3.0 cairo; then

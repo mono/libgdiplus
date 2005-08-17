@@ -568,8 +568,14 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont
 	}
 
 	//font = cairo_ft_font_create (ft_library, pat);
+	
+	if (pat) {
+		printf("Pattern is set up with: %s %d %d\n", family, fcslant, fcweight);
+	}
+	
 	font = cairo_ft_font_face_create_for_pattern (pat);
 	if (font == NULL) {
+		printf("THE BIIIIIIIIIIIIIG ERROR!!!\n");
 		FT_Done_FreeType(ft_library);
 		FcPatternDestroy (pat);
 		return 0;
@@ -693,7 +699,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 
         if ((style & FontStyleItalic) == FontStyleItalic)        
                 slant = FC_SLANT_ITALIC;
-        
+        	
 	if (!gdip_font_create (str, slant, weight, result)) {
 		return InvalidParameter;	/* FIXME -  wrong return code */
 	}
