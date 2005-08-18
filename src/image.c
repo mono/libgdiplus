@@ -132,17 +132,20 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 		return InvalidParameter;
 	
 	// we need to look into this
-	surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+	surface = cairo_image_surface_create(image->format,
 					     image->width, image->height);
- 
-	
+ 	
 	gfx = gdip_graphics_new (surface);
+		
 	if (image->type == imageBitmap) {
 		gdip_graphics_attach_bitmap (gfx, (GpBitmap *) image);
 	}
 	else if (image->type == imageMetafile) {
 	}
-
+	
+	cairo_rectangle(gfx->ct, 0, 0, image->width, image->height);
+	cairo_fill(gfx->ct);		
+	
 	*graphics = gfx;
 
 	return Ok;

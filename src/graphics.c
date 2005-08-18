@@ -92,6 +92,8 @@ gdip_graphics_attach_bitmap (GpGraphics *graphics, GpBitmap *image)
 	image->image.surface = surface;
 	cairo_pattern_set_filter (cairo_pattern_create_for_surface (image->image.surface), gdip_get_cairo_filter (graphics->interpolation));
 
+	graphics->ct = cairo_create (surface);
+	
 	/* Increase the reference count of the surface. Because, this surface
 	 * is referenced by graphics->ct also. This is required for the proper
 	 * memory management of the surface.

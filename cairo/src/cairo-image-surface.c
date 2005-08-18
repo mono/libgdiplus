@@ -297,7 +297,7 @@ _cairo_format_from_content (cairo_content_t content)
 	return CAIRO_FORMAT_ARGB32;
     }
 
-    //ASSERT_NOT_REACHED;
+    ASSERT_NOT_REACHED;
     return CAIRO_FORMAT_ARGB32;
 }
 
@@ -314,7 +314,7 @@ _cairo_content_from_format (cairo_format_t format)
 	return CAIRO_CONTENT_ALPHA;
     }
 
-    //ASSERT_NOT_REACHED;
+    ASSERT_NOT_REACHED;
     return CAIRO_CONTENT_COLOR_ALPHA;
 }
 
