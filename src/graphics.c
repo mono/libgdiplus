@@ -3695,7 +3695,7 @@ GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordi
         if (!called) {
                 printf("NOT IMPLEMENTED YET:GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPointF *points, int count)\n");
         }
-        //return NotImplemented;
+        /* return NotImplemented; */
         return Ok;
 }
 
@@ -3707,6 +3707,6 @@ GdipTransformPointsI (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoord
         if (!called) {
                 printf("NOT IMPLEMENTED YET:GdipTransformPointsI (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPoint *points, int count)\n");
         }
-        //return NotImplemented;
+        /* return NotImplemented; */
         return Ok;
 }

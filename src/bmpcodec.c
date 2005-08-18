@@ -989,12 +989,12 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 		}
 	}
 	else {
-		// Size contains the size of the lines on disk
+		/* Size contains the size of the lines on disk */
 		switch (bmi.biBitCount) {
 			case 1: {
 				size = ((img->image.width + 31) & ~31) / 8;
 				loop = img->image.width / 8;
-				// we assume 0s for 1 bit, only setting 1s
+				/* we assume 0s for 1 bit, only setting 1s */
 				memset(pixels, 0, img->data.Stride * img->data.Height);
 				break;
 			}
@@ -1020,7 +1020,6 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 		data_read = (byte*) GdipAlloc(size);
 
-		//printf("Reading image data, upsidedown:%d, size: %d, stride:%d, loop:%d\n", upsidedown, size, img->data.Stride, loop);
 		for (i = 0; i < img->data.Height; i++){ 
 			if (upsidedown) {
 				line = img->data.Height - i - 1;
@@ -1108,10 +1107,10 @@ gdip_read_bmp_data (void *pointer, byte *data, int size, bool useFile)
 	if (useFile) {
 		return fread (data, 1, size, (FILE*) pointer);
 	} else {
-		// Streams are not required to return the number of bytes
-		// requested, they could return less yet our code seems to assume
-		// it will always get what it's asking for; lets loop until we
-		// get what was requested or we get an error
+		/* Streams are not required to return the number of bytes
+		   requested, they could return less yet our code seems to assume
+		   it will always get what it's asking for; lets loop until we
+		   get what was requested or we get an error */
 		int got;
 		int total;
 
@@ -1119,7 +1118,7 @@ gdip_read_bmp_data (void *pointer, byte *data, int size, bool useFile)
 
 		do {
 			got = ((GetBytesDelegate)(pointer))(data + total, size - total, 0);
-			if (got < 1) {  // 0 = end of stream, -1 = error
+			if (got < 1) {  /*  0 = end of stream, -1 = error */
 				return total;
 			}
 			total += got;

@@ -282,7 +282,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 		int palette_entries = 1 << gdip_get_pixel_format_depth(format);
 		int header_size = sizeof(ColorPalette) - sizeof(ARGB);
 		int bytes_needed = header_size + palette_entries * sizeof(ARGB);
-
+		const unsigned int *default_palette;
 		int i;
 
 		result->image.palette = malloc (bytes_needed);
@@ -293,7 +293,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 		result->image.palette->Flags = 0;
 		result->image.palette->Count = palette_entries;
 
-		const unsigned int *default_palette;
+		
 
 		switch (format)
 		{
@@ -584,7 +584,7 @@ gdip_is_pixel_format_conversion_valid (PixelFormat src, PixelFormat dest)
 	if (!(src & PixelFormatGDI))
 		return 0;
 
-	if ((src & PixelFormatIndexed)      )//     || (dest & PixelFormatIndexed))
+	if ((src & PixelFormatIndexed)      )/*     || (dest & PixelFormatIndexed)) */
 		return 0;
 
 	/* These are the RGB formats */
@@ -1488,7 +1488,7 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, GdipBitmapData *bitmap_data)
 	
 	return Ok;
 }
-#endif // NEW_LOCKBITS_IMPL
+#endif /* NEW_LOCKBITS_IMPL */
 
 GpStatus
 GdipBitmapSetPixel (GpBitmap *bitmap, int x, int y, ARGB color)

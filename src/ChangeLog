@@ -1,3 +1,11 @@
+2005-08-18 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: C ANSI language fixes
+	* bmpcodec.c:  C ANSI language fixes 
+	* general.c:  C ANSI language fixes
+	* tiffcodec.c:  C ANSI language fixes 
+	* bitmap.c:  C ANSI language fixes 
+
 2005-08-17 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* region.c: Rewritten region support

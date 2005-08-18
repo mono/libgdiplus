@@ -155,7 +155,7 @@ gdip_get_display_dpi()
 		char *val;
 
 		display = XOpenDisplay (0);
-		// If the display is openable lets try to read dpi from it; otherwise use a default of 96.0f
+		/* If the display is openable lets try to read dpi from it; otherwise use a default of 96.0f */
 		if (display) {
 			val = XGetDefault (display, "Xft", "dpi");
 			XCloseDisplay (display);
@@ -437,7 +437,7 @@ ucs2_to_utf8(const gunichar2 *ucs2, int length) {
 	gunichar	*uni;
 	gchar		*utf8;
 
-	// Count length
+	/* Count length */
 	if (length == -1) {
 		ptr = ucs2;
 		length = 0;
@@ -484,7 +484,7 @@ utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) {
 	items_read = 0;
 	count = 0;
 
-	ucs2_len--;	// Space for null terminator
+	ucs2_len--;	/* Space for null terminator */
 
 	ucs4 = g_utf8_to_ucs4(utf8, -1, &items_read, &count, NULL);
 	if (ucs4 == NULL) {
@@ -497,11 +497,11 @@ utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) {
 			ptr[0] = (unsigned char)ucs4[i];
 			ptr[1] = (unsigned char)(ucs4[i] >> 8);
 			ptr += 2;
-		}	// we're simply ignoring any chars that don't fit into ucs2
+		}	/* we're simply ignoring any chars that don't fit into ucs2 */
 	}
-	ucs2[ptr - (unsigned char *)ucs2] = 0;	// terminate
+	ucs2[ptr - (unsigned char *)ucs2] = 0;	/* terminate */
 
-	// free the intermediate ucs4 string
+	/* free the intermediate ucs4 string */
 	g_free(ucs4);
 
 	return TRUE;
