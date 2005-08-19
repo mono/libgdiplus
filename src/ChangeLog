@@ -1,3 +1,8 @@
+2005-08-19  Zoltan Varga  <vargaz@freemail.hu>
+
+	* gifcodec.c (gdip_save_gif_image_to_file): Fix compilation without GIF
+	support.
+
 2005-08-19 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* graphics.c: Standarize mem alloc/free with GdipAlloc/GdipFree
