@@ -1,3 +1,7 @@
+2005-08-19 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* bmpcodec.c: fixes codec for 24 bits bmps. It passes the tests again.
+
 2005-08-18 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* graphics.c: C ANSI language fixes

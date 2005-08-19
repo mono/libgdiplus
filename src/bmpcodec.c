@@ -1013,7 +1013,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 			default: {
 				size = (((bmi.biBitCount * img->image.width) + 31) & ~31) / 8;
-				loop = size; 
+				loop = (bmi.biBitCount * img->image.width) / 8; 
 				break;
 			}
 		}
