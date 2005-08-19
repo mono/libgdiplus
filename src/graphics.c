@@ -1689,7 +1689,7 @@ CalculateStringWidths (GDIPCONST GpFont *gdiFont, const unsigned char *utf8, uns
 	gdip_cairo_ft_font_unlock_face(Font);
 	cairo_matrix_destroy(matrix);
 
-	free(ucs4);
+	GdipFree(ucs4);
 
 	
 #ifdef DRAWSTRING_DEBUG
@@ -1750,15 +1750,15 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 	/* Prepare our various buffers and variables */
 	StringLen=length;
-	StringDetails=calloc (StringLen+1, sizeof(GpStringDetailStruct));
-	CleanString=malloc (sizeof(WCHAR)*(StringLen+1));
+	StringDetails=GdipCalloc (StringLen+1, sizeof(GpStringDetailStruct));
+	CleanString=GdipAlloc (sizeof(WCHAR)*(StringLen+1));
 
 	if (!CleanString || !StringDetails) {
 		if (CleanString) {
-			free (CleanString);
+			GdipFree (CleanString);
 		}
 		if (StringDetails) {
-			free (StringDetails);
+			GdipFree (StringDetails);
 		}
 		if (format!=fmt) {
 			GdipDeleteStringFormat (fmt);
@@ -1862,8 +1862,8 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 	/* Don't bother doing anything else if the length is 0 */
 	if (StringLen == 0) {
-		free(CleanString);
-		free(StringDetails);
+		GdipFree(CleanString);
+		GdipFree(StringDetails);
 		if (format != fmt) {
 			GdipDeleteStringFormat(fmt);
 		}
@@ -1874,8 +1874,8 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
 	String = (unsigned char *) ucs2_to_utf8 ((const gunichar2 *)CleanString, -1);
 	if (!String) {
-		free (CleanString);
-		free (StringDetails);
+		GdipFree (CleanString);
+		GdipFree (StringDetails);
 		if (format!=fmt) {
 			GdipDeleteStringFormat (fmt);
 		}
@@ -1890,16 +1890,16 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	/* Generate size array */
 	if (CalculateStringWidths (font, String, StringLen, StringDetails)==0) {
 		/* FIXME; pick right return code */
-		g_free(String);
-		free(StringDetails);
-		free(CleanString);
+		GdipFree(String);
+		GdipFree(StringDetails);
+		GdipFree(CleanString);
 		if (format!=fmt) {
 			GdipDeleteStringFormat (fmt);
 		}
 		cairo_matrix_destroy(SavedMatrix);
 		return 0;
 	}
-	g_free (String);
+	GdipFree (String);
 
 	CursorX=0;
 	CursorY=0;
@@ -2345,7 +2345,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 #ifdef DRAWSTRING_DEBUG
 				printf("Drawing %d chars at %d x %d (width=%f pixels)\n", StringDetails[i].LineLen, (int)CursorX, (int)CursorY, StringDetails[i+StringDetails[i].LineLen-1].PosX);
 #endif
-				g_free (String);
+				GdipFree (String);
 
 				if (font->style & (FontStyleUnderline | FontStyleStrikeout)) {
 					/* Calculate the width of the line */
@@ -2440,8 +2440,8 @@ Done:
 	cairo_init_clip (graphics->ct);
 
 	/* Cleanup */
-	free (CleanString);
-	free (StringDetails);
+	GdipFree (CleanString);
+	GdipFree (StringDetails);
 
 	cairo_matrix_destroy(SavedMatrix);
 
@@ -2539,15 +2539,15 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 
 	/* Prepare our various buffers and variables */
 	StringLen=length;
-	StringDetails=calloc (StringLen+1, sizeof(GpStringDetailStruct));
-	CleanString=malloc (sizeof(WCHAR)*(StringLen+1));
+	StringDetails=GdipCalloc (StringLen+1, sizeof(GpStringDetailStruct));
+	CleanString=GdipAlloc (sizeof(WCHAR)*(StringLen+1));
 
 	if (!CleanString || !StringDetails) {
 		if (CleanString) {
-			free (CleanString);
+			GdipFree (CleanString);
 		}
 		if (StringDetails) {
-			free (StringDetails);
+			GdipFree (StringDetails);
 		}
 		if (format!=fmt) {
 			GdipDeleteStringFormat (fmt);
@@ -2652,8 +2652,8 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
 	String=(unsigned char *) ucs2_to_utf8 ((const gunichar2 *)CleanString, -1);
 	if (!String) {
-		free (CleanString);
-		free (StringDetails);
+		GdipFree (CleanString);
+		GdipFree (StringDetails);
 		if (format!=fmt) {
 			GdipDeleteStringFormat (fmt);
 		}
@@ -2667,15 +2667,15 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 	/* Generate size array */
 	if (CalculateStringWidths (font, String, StringLen, StringDetails)==0) {
 		/* FIXME; pick right return code */
-		g_free(String);
-		free(StringDetails);
-		free(CleanString);
+		GdipFree(String);
+		GdipFree(StringDetails);
+		GdipFree(CleanString);
 		if (format!=fmt) {
 			GdipDeleteStringFormat (fmt);
 		}
 		return InvalidParameter;
 	}
-	g_free (String);
+	GdipFree (String);
 
 	CursorX=rc->X;
 	CursorY=rc->Y;
@@ -3030,7 +3030,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 	cairo_matrix_destroy(SavedMatrix);
 
 	/* Cleanup */
-	free (CleanString);
+	GdipFree (CleanString);
 
 	if (format != fmt) {
 		GdipDeleteStringFormat (fmt);
@@ -3120,7 +3120,7 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 			break;
 	}
 
-	free (strDetails);
+	GdipFree (strDetails);
 
 	return Ok;
 }
@@ -3429,9 +3429,9 @@ GdipGetClip (GpGraphics *graphics, GpRegion *region)
 		return InvalidParameter;
 	
 	if (region->rects)
-		free (region->rects),
+		GdipFree (region->rects),
 	
-	region->rects = (GpRectF *) malloc (sizeof (GpRectF) * graphics->clip->cnt);
+	region->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * graphics->clip->cnt);
 	memcpy (region->rects, graphics->clip->rects, sizeof (GpRectF) * graphics->clip->cnt);
 	return Ok;
 }

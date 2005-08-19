@@ -432,7 +432,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	
 	if (allocated) {
 		bitmap->data.Scan0 = org;
-		free (dest);	
+		GdipFree (dest);	
 	}
 	
 	return Ok;
@@ -510,7 +510,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	}
 	
 	fp = fopen(file_name, "rb");
-	g_free (file_name);
+	GdipFree (file_name);
 	if (fp == NULL)
 		return FileNotFound;
 	
@@ -581,18 +581,18 @@ gdip_get_imageformat_from_codec_clsid (CLSID *encoderCLSID)
     	if (numEncoders == 0)
         	return INVALID;
 
-    	encoders = malloc (size);
+    	encoders = GdipAlloc (size);
     
     	GdipGetImageEncoders (numEncoders, size, encoders);
 
     	for (cnt = 0, encoder = encoders; cnt < numEncoders; encoder++) {
 	       	if (memcmp (&encoder->Clsid, encoderCLSID, sizeof (GUID)) == 0) {
-            		free (encoders);
+            		GdipFree (encoders);
             		return gdip_image_format_for_format_guid (&encoder->FormatID);
         	}
     	}
 
-    	free (encoders);
+    	GdipFree (encoders);
     	return INVALID;
 }
 
@@ -620,14 +620,14 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 	
 	if (format == GIF) { /* gif library has to open the file itself*/
 		status = gdip_save_gif_image_to_file ((unsigned char *)file_name, image);
-		g_free (file_name);
+		GdipFree (file_name);
 		return status;
 	}
 	
 	if ((fp = fopen(file_name, "wb")) == NULL)
 		return GenericError;
 		
-	g_free (file_name);
+	GdipFree (file_name);
 	
 	switch (format) {
 		case BMP:
@@ -874,7 +874,7 @@ gdip_rotate_180_FlipX (GpImage *image)
 	
 	stride = bitmap->data.Stride;
 	height = bitmap->data.Height;
-	line = malloc (stride);		
+	line = GdipAlloc (stride);		
 	src = (BYTE *) bitmap->data.Scan0;
 	trg = (BYTE *) bitmap->data.Scan0;
 	trg +=  (height-1) * stride;
@@ -885,7 +885,7 @@ gdip_rotate_180_FlipX (GpImage *image)
 		memcpy (src, line, stride);	/* Copy trg to src*/		
 	}
 	
-	free (line);
+	GdipFree (line);
 }
 
 void
@@ -902,7 +902,7 @@ gdip_rotate_90 (GpImage *image)
 	stride_trg = (stride_trg * width_trg) / 8;
 	stride_trg = (stride_trg + 3) & ~3;		
 	
-	rotated = malloc (stride_trg * height_trg);
+	rotated = GdipAlloc (stride_trg * height_trg);
 	src = (BYTE *) bitmap->data.Scan0;
 	
 	for (line = 0; line < bitmap->data.Height; line++, src += bitmap->data.Stride) {		
@@ -929,7 +929,7 @@ gdip_rotate_90 (GpImage *image)
 		int k,j; 
 
 		/* Do the free first since the frame point can be for some codes a reference to bitmap->data*/
-		free (bitmap->data.Scan0);
+		GdipFree (bitmap->data.Scan0);
 		for (j = 0; j < image->frameDimensionCount; j++) {
 			for (k = 0; k < image->frameDimensionList [j].count; k++) {
 				if (image->frameDimensionList[j].frames[k].Scan0 == bitmap->data.Scan0)  {
@@ -957,7 +957,7 @@ gdip_rotate_180 (GpImage *image)
 	bitmap = (GpBitmap *) image;	
         stride = bitmap->data.Stride;
 	height = bitmap->data.Height;
-	rotated = malloc (stride * height);	
+	rotated = GdipAlloc (stride * height);	
 	src = (BYTE *) bitmap->data.Scan0;
 	
 	for (line = 0; line < height; line++, src += stride) {		
@@ -970,7 +970,7 @@ gdip_rotate_180 (GpImage *image)
 	}	
 	
 	memcpy (bitmap->data.Scan0, rotated, stride * height);	
-	free (rotated);
+	GdipFree (rotated);
 }
 
 void
@@ -987,7 +987,7 @@ gdip_rotate_270 (GpImage *image)
 	stride_trg = (stride_trg * width_trg) / 8;
 	stride_trg = (stride_trg + 3) & ~3;		
 
-	rotated = malloc (stride_trg * height_trg);
+	rotated = GdipAlloc (stride_trg * height_trg);
 	
 	src = (BYTE *) bitmap->data.Scan0;
 	
@@ -1015,7 +1015,7 @@ gdip_rotate_270 (GpImage *image)
 		int k,j; 
 
 		/* Do the free first since the frame point can be for some codes a reference to bitmap->data*/
-		free (bitmap->data.Scan0);
+		GdipFree (bitmap->data.Scan0);
 		for (j = 0; j < image->frameDimensionCount; j++) {
 			for (k = 0; k < image->frameDimensionList [j].count; k++) {
 				if (image->frameDimensionList[j].frames[k].Scan0 == bitmap->data.Scan0)  {
@@ -1043,7 +1043,7 @@ gdip_FlipX (GpImage *image)
 	bitmap = (GpBitmap *) image;	
         stride = bitmap->data.Stride;
 	height = bitmap->data.Height;
-	rotated = malloc (stride * height);
+	rotated = GdipAlloc (stride * height);
 	
 	src = (BYTE *) bitmap->data.Scan0;
 	
@@ -1058,7 +1058,7 @@ gdip_FlipX (GpImage *image)
 	}	
 	
 	memcpy (bitmap->data.Scan0, rotated, stride * height);	
-	free (rotated);
+	GdipFree (rotated);
 }
 
 GpStatus 
@@ -1218,7 +1218,7 @@ gdip_image_clone (GpImage* image, GpImage* clonedImage)
 
 	if (image->frameDimensionCount) {
 		clonedImage->frameDimensionCount = image->frameDimensionCount;
-		clonedImage->frameDimensionList = malloc (sizeof (FrameInfo) * image->frameDimensionCount);
+		clonedImage->frameDimensionList = GdipAlloc (sizeof (FrameInfo) * image->frameDimensionCount);
 
 		for (i = 0; i < image->frameDimensionCount; i++) {
 			clonedImage->frameDimensionList[i].count = image->frameDimensionList[i].count;
@@ -1227,7 +1227,7 @@ gdip_image_clone (GpImage* image, GpImage* clonedImage)
 
 			dataCount = image->frameDimensionList[i].count;
 			data = image->frameDimensionList[i].frames;
-			clonedImage->frameDimensionList[i].frames = malloc (sizeof (BitmapData) * dataCount);
+			clonedImage->frameDimensionList[i].frames = GdipAlloc (sizeof (BitmapData) * dataCount);
 			clonedData = clonedImage->frameDimensionList[i].frames;
 			/* Copy all BitmapData */
 			memcpy (clonedImage->frameDimensionList[i].frames, 
@@ -1235,11 +1235,11 @@ gdip_image_clone (GpImage* image, GpImage* clonedImage)
 
 			for (j = 0; j < dataCount; j++) {
 				if (data[j].Scan0) {
-					clonedData[j].Scan0 = malloc (data[j].Stride * data[j].Height);
+					clonedData[j].Scan0 = GdipAlloc (data[j].Stride * data[j].Height);
 					memcpy (clonedData[j].Scan0, data[j].Scan0, data[j].Stride * data[j].Height);				
 				}
 				if ((data[j].ByteCount) > 0 && (data[j].Bytes != NULL)) {				
-					clonedData[j].Bytes = malloc (data[j].ByteCount);
+					clonedData[j].Bytes = GdipAlloc (data[j].ByteCount);
 					memcpy (clonedData[j].Bytes, data[j].Bytes, data[j].ByteCount);
 				}
 			}
@@ -1544,7 +1544,7 @@ void initCodecList (void)
 {
 	BYTE *pos;
 	
-	g_codeclist = pos = malloc (sizeof (ImageCodecInfo) * CODECS_SUPPORTED);
+	g_codeclist = pos = GdipAlloc (sizeof (ImageCodecInfo) * CODECS_SUPPORTED);
 	
 	/* BMP codec - built-in */
 	memcpy (pos, gdip_getcodecinfo_bmp(), sizeof (ImageCodecInfo));
@@ -1583,7 +1583,7 @@ void initCodecList (void)
 void releaseCodecList (void)
 {
 	if (g_codeclist)
-		free (g_codeclist);
+		GdipFree (g_codeclist);
 }
 
 GpStatus

@@ -142,7 +142,7 @@ GdipPrivateAddFontFile (GpFontCollection *font_collection,  GDIPCONST WCHAR *fil
 
 	FcConfigAppFontAddFile (font_collection->config, file);
     
-	g_free (file);
+	GdipFree (file);
 	return Ok;
 }
 
@@ -271,7 +271,7 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 		(*fontFamily)->allocated = TRUE;
 
 		r = FcPatternGetString ((*fontFamily)->pattern, FC_FAMILY, 0, &str);
-		g_free (string);
+		GdipFree (string);
 		FcPatternDestroy (pat);
 		return Ok;
 	}
@@ -285,12 +285,12 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 			gdip_createFontFamily (fontFamily);
 			(*fontFamily)->pattern = *gpfam;
 			(*fontFamily)->allocated = FALSE;
-			g_free (string);
+			GdipFree (string);
 			return Ok;
 		}
 	}
 
-	g_free (string);
+	GdipFree (string);
 	return FontFamilyNotFound;
 }
 

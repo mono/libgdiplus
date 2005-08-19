@@ -42,11 +42,11 @@ gdip_add_rect_to_array (GpRectF** srcarray, int* elements,  GpRectF* rect)
 {
         GpRectF *array, *next;
 
-        array = malloc (sizeof (GpRectF) * (*elements + 1));
+        array = GdipAlloc (sizeof (GpRectF) * (*elements + 1));
         memcpy (array, *srcarray, sizeof (GpRectF) * (*elements));
 
         if (*srcarray)
-                free (*srcarray);
+                GdipFree (*srcarray);
 
         next = array;
         next += (*elements);
@@ -267,7 +267,7 @@ GdipCloneRegion (GpRegion *region, GpRegion **cloneRegion)
 
         result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
         memcpy (result, region, sizeof (GpRegion));
-        result->rects = (GpRectF *) malloc (sizeof (GpRectF) * region->cnt);
+        result->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * region->cnt);
         memcpy (result->rects, region->rects, sizeof (GpRectF) * region->cnt);
         *cloneRegion = result;
 
@@ -282,7 +282,7 @@ GdipDeleteRegion (GpRegion *region)
                 return InvalidParameter;
 
         if (region->rects)
-                free (region->rects);
+                GdipFree (region->rects);
 
         GdipFree (region);
 
@@ -315,7 +315,7 @@ GdipSetEmpty (GpRegion *region)
                 return InvalidParameter;
 
         if (region->rects)
-                free (region->rects);
+                GdipFree (region->rects);
 
         region->rects = NULL;
         region->cnt = 0;
@@ -468,10 +468,10 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 		}
 	}
 
-	free (allsrcrects);
-	free (alltrgrects);
+	GdipFree (allsrcrects);
+	GdipFree (alltrgrects);
 	if (region->rects)
-		free (region->rects);
+		GdipFree (region->rects);
 
         region->rects = rects;
         region->cnt = cnt;
@@ -503,7 +503,7 @@ gdip_combine_complement (GpRegion *region, GpRectF *rtrg, int cntt)
 
 
 	if (region->rects == allsrcrects) {
-		free (region->rects); }
+		GdipFree (region->rects); }
 	else {
 		region->rects = regsrc.rects;
 		region->cnt = regsrc.cnt;
@@ -529,7 +529,7 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
                 gdip_add_rect_to_array (&allrects, &allcnt,  rect);
 
         if (allcnt == 0) {
-                free (allrects);
+                GdipFree (allrects);
                 return;
         }
 
@@ -644,9 +644,9 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 
 	}
 
-	free (allrects);
+	GdipFree (allrects);
 	if (region->rects)
-		free (region->rects);
+		GdipFree (region->rects);
 
         region->rects = rects;
         region->cnt = cnt;
@@ -689,7 +689,7 @@ gdip_combine_intersect (GpRegion *region, GpRectF *rtrg, int cnttrg)
 	}
 
 	if (region->rects)
-		free (region->rects);
+		GdipFree (region->rects);
 
 	region->rects = regunion.rects;
 	region->cnt = regunion.cnt;
@@ -721,7 +721,7 @@ gdip_combine_xor (GpRegion *region, GpRectF *recttrg, int cnttrg)
         gdip_combine_exclude (rgnsrc, rgntrg->rects, rgntrg->cnt);
 
         if (region->rects)
-                free (region->rects);
+                GdipFree (region->rects);
 
         region->rects = rgnsrc->rects;
         region->cnt = rgnsrc->cnt;

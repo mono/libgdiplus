@@ -108,7 +108,7 @@ convert_line_cap (GpLineCap cap)
 static double *
 convert_dash_array (float *f, int count)
 {
-        double *retval = malloc (sizeof (double) * count);
+        double *retval = GdipAlloc (sizeof (double) * count);
         int i;
         for (i = 0; i < count; i++) {
                 retval[i] = (double) f[i];
@@ -168,7 +168,7 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 
                 dash_array = convert_dash_array (pen->dash_array, pen->dash_count);
                 cairo_set_dash (graphics->ct, dash_array, pen->dash_count, pen->dash_offset);
-                free (dash_array);
+                GdipFree (dash_array);
         } else /* Clear the dashes, if set in previous calls */
 		cairo_set_dash (graphics->ct, NULL, 0, 0);
 

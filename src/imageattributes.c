@@ -41,12 +41,12 @@ void
 gdip_dispose_image_attribute (GpImageAttribute* attr)
 {
 	if (attr->colormap) {
-		free (attr->colormap);
+		GdipFree (attr->colormap);
 		attr->colormap = NULL;
 	}
 
 	if (attr->colormatrix) {
-		free (attr->colormatrix);
+		GdipFree (attr->colormatrix);
 		attr->colormatrix = NULL;
 	}
 }
@@ -98,7 +98,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		
 	if (imgattr->colormap_elem || imgattr->gamma_correction || imgattr->key_enabled
 		|| (imgattr->colormatrix_enabled && imgattr->colormatrix)) {
-		scan0 = malloc (bitmap->data.Stride * bitmap->data.Height);
+		scan0 = GdipAlloc (bitmap->data.Stride * bitmap->data.Height);
 		memcpy (scan0, bitmap->data.Scan0, bitmap->data.Stride * bitmap->data.Height);
 		*dest = scan0;
 		memcpy (&bmpdest, bitmap, sizeof (GpBitmap));
@@ -362,17 +362,17 @@ GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType 
 		return InvalidParameter;	
 		
 	if (!enableFlag)  {	/* Acts as clean */			
-		free (imgattr->colormap);
+		GdipFree (imgattr->colormap);
 		imgattr->colormap = NULL;
 		imgattr->colormap_elem = 0;
 		return Ok;
 	}
 	
 	if (imgattr->colormap) 
-		free (imgattr->colormap);
+		GdipFree (imgattr->colormap);
 		
 	/* Copy colormap table*/	
-	imgattr->colormap =  malloc (mapSize);
+	imgattr->colormap =  GdipAlloc (mapSize);
 	memcpy (imgattr->colormap, map, mapSize * sizeof (GpColorMap));
 	imgattr->colormap_elem = mapSize;
 	
@@ -418,7 +418,7 @@ GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType
 
 	if (colorMatrix) {
 		if (imgattr->colormatrix == NULL)
-			imgattr->colormatrix =  malloc (sizeof (GpColorMatrix));
+			imgattr->colormatrix =  GdipAlloc (sizeof (GpColorMatrix));
 
 		memcpy (imgattr->colormatrix, colorMatrix, sizeof (GpColorMatrix));
 	}

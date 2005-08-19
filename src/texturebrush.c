@@ -528,7 +528,7 @@ gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush)
 	}
 
 	cairo_matrix_copy (result->matrix, texture->matrix);
-	result->rectangle = (GpRect *) malloc (sizeof (GpRect));
+	result->rectangle = (GpRect *) GdipAlloc (sizeof (GpRect));
 
 	if (result->rectangle == NULL) {
 		cairo_matrix_destroy (result->matrix);
@@ -601,7 +601,7 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 
 	(*texture)->wrapMode = wrapMode;
 	(*texture)->image = image;
-	(*texture)->rectangle = (GpRect *) malloc (sizeof (GpRect));
+	(*texture)->rectangle = (GpRect *) GdipAlloc (sizeof (GpRect));
 
 	if ( (*texture)->rectangle == NULL) {
 		cairo_surface_destroy (imageSurface);
@@ -679,7 +679,7 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 
 	(*texture)->wrapMode = wrapMode;
 	(*texture)->image = image;
-	(*texture)->rectangle = (GpRect *) malloc (sizeof (GpRect));
+	(*texture)->rectangle = (GpRect *) GdipAlloc (sizeof (GpRect));
 
 	if ( (*texture)->rectangle == NULL) {
 		cairo_surface_destroy (new);

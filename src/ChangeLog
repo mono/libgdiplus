@@ -1,5 +1,23 @@
 2005-08-19 Jordi Mas i Hernandez  <jordi@ximian.com>
 
+	* graphics.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* font.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* bmpcodec.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* general.c: Implement linked list to keep track of leaks
+	* image.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* region.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* jpegcodec.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* imageattributes.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* gifcodec.c: Standarize mem alloc/free with GdipAlloc/GdipFree 
+	* texturebrush.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* bitmap.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* stringformat.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* pen.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* gdip.h: define GdipCalloc
+	* graphics-path.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+
+2005-08-19 Jordi Mas i Hernandez  <jordi@ximian.com>
+
 	* bmpcodec.c: fixes codec for 24 bits bmps. It passes the tests again.
 
 2005-08-18 Jordi Mas i Hernandez  <jordi@ximian.com>

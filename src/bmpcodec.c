@@ -928,7 +928,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 		if (img->data.PixelFormat == Format4bppIndexed)
 			palette_entries = 256;
 
-		img->image.palette = g_malloc (sizeof(ColorPalette) + sizeof(ARGB) * palette_entries);
+		img->image.palette = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * palette_entries);
 		img->image.palette->Flags = 0;
 		img->image.palette->Count = palette_entries;
 

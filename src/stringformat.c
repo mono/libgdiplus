@@ -282,7 +282,7 @@ GdipSetStringFormatTabStops (GpStringFormat *format, float firstTabOffset, int c
 		return InvalidParameter;
 
 	if (format->tabStops)
-		free (format->tabStops);
+		GdipFree (format->tabStops);
 
 	format->firstTabOffset = firstTabOffset;
 
@@ -292,7 +292,7 @@ GdipSetStringFormatTabStops (GpStringFormat *format, float firstTabOffset, int c
 		return Ok;
 	}
 
-	pItemTrg = format->tabStops = malloc (sizeof(float) * count);
+	pItemTrg = format->tabStops = GdipAlloc (sizeof(float) * count);
 
 	if (!pItemTrg)
 		return OutOfMemory;

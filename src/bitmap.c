@@ -97,12 +97,12 @@ gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
 	GpBitmap *result = (GpBitmap *) GdipAlloc (sizeof (GpBitmap));	
 	memcpy (result, bitmap, sizeof (GpBitmap));
 	
-	result->data.Scan0 = malloc (bitmap->data.Stride * bitmap->data.Height);
+	result->data.Scan0 = GdipAlloc (bitmap->data.Stride * bitmap->data.Height);
 	memcpy (result->data.Scan0, bitmap->data.Scan0, bitmap->data.Stride * bitmap->data.Height);
 	*clonedbitmap = result;
 
 	if (bitmap->data.ByteCount > 0 && bitmap->data.Bytes != NULL){
-		result->data.Bytes = malloc (bitmap->data.ByteCount);
+		result->data.Bytes = GdipAlloc (bitmap->data.ByteCount);
 		if (result->data.Bytes == NULL)
 			bitmap->data.ByteCount = 0;
 		else
@@ -285,7 +285,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 		const unsigned int *default_palette;
 		int i;
 
-		result->image.palette = malloc (bytes_needed);
+		result->image.palette = GdipAlloc (bytes_needed);
 
 		if (result->image.palette == NULL)
 			return OutOfMemory;
@@ -1009,7 +1009,7 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 
 		int stride = (row_bytes + sizeof(pixman_bits_t) - 1) & ~(sizeof(pixman_bits_t) - 1);
 
-		void *dest_scan0 = malloc(stride * scans);
+		void *dest_scan0 = GdipAlloc(stride * scans);
 
 		if (dest_scan0 == NULL)
 			return OutOfMemory;
@@ -1215,7 +1215,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 		int dest_stride = (srcRect->Width * dest_pixel_format_bpp + 7) / 8;
 		int dest_size = srcRect->Height * dest_stride;
 
-		unsigned char *dest_scan0 = malloc(dest_size);
+		unsigned char *dest_scan0 = GdipAlloc(dest_size);
 
 		Rect destRect = { 0, 0, srcRect->Width, srcRect->Height };
 
@@ -1234,7 +1234,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 		if ((flags & ImageLockModeRead) != 0) {
 			status = gdip_bitmap_change_rect_pixel_format (root_data, srcRect, locked_data, &destRect);
 			if (status != Ok)
-				free(dest_scan0);
+				GdipFree(dest_scan0);
 		}
 
 		return status;
@@ -1309,7 +1309,7 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, GdipBitmapData *locked_data)
 	}
 
 	if ((locked_data->Reserved & GBD_OWN_SCAN0) != 0) {
-		free(locked_data->Scan0);
+		GdipFree(locked_data->Scan0);
 		locked_data->Scan0 = NULL;
 		locked_data->Reserved &= ~GBD_OWN_SCAN0;
 	}
@@ -1687,7 +1687,7 @@ gdip_convert_indexed_to_rgb (GpBitmap *indexed_bmp)
 	rgb_bytes = data->Height * rgb_stride;
 
 	/* allocate the RGB frame */
-	rgb_scan0 = malloc (rgb_bytes);
+	rgb_scan0 = GdipAlloc (rgb_bytes);
 
 	if (rgb_scan0 == NULL) /* out of memory?? */
 		return NULL;
@@ -1724,8 +1724,8 @@ gdip_convert_indexed_to_rgb (GpBitmap *indexed_bmp)
 	status = GdipCreateBitmapFromScan0 (data->Width, data->Height, rgb_stride, Format32bppRgb, rgb_scan0, &ret);
 
 	if ((status != Ok) || (ret == NULL)) {
-		free (ret);
-		free (rgb_scan0);
+		GdipFree (ret);
+		GdipFree (rgb_scan0);
 		return NULL;
 	}
 	else {

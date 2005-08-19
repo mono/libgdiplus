@@ -882,8 +882,8 @@ GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
 	for (i = 1; i < length; i++)
 		append_point (path, pts [i], types [i]);
 
-	free(pts);
-	free(types);
+	GdipFree(pts);
+	GdipFree(types);
 
 	return Ok;
 }
