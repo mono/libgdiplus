@@ -214,7 +214,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 
 	/* Copy the palette over, if there is one */
 	if (gif->SColorMap != NULL) {
-		ColorPalette *pal = g_malloc (sizeof(ColorPalette) + sizeof(ARGB) * gif->SColorMap->ColorCount);
+		ColorPalette *pal = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * gif->SColorMap->ColorCount);
 		pal->Flags = 0;
 		pal->Count = gif->SColorMap->ColorCount;
 		for (i = 0; i < gif->SColorMap->ColorCount; i++) {
@@ -227,7 +227,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	}
 	else {
 		/* Assume a grayscale image. */
-		img->image.palette = g_malloc (sizeof(ColorPalette) + 256 * sizeof(ARGB));
+		img->image.palette = GdipAlloc (sizeof(ColorPalette) + 256 * sizeof(ARGB));
 
 		img->image.palette->Flags = PaletteFlagsGrayScale;
 		img->image.palette->Count = 256; /* FIXME: what about other bit depths? does GIF support them? does anybody use them? */
@@ -264,7 +264,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		/* copy the local color map if there is one*/
 		localPalObj= si.ImageDesc.ColorMap;
 		if (localPalObj != NULL) {
-			localPal = g_malloc (sizeof(ColorPalette) + sizeof(ARGB) * localPalObj->ColorCount);
+			localPal = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * localPalObj->ColorCount);
 			localPal->Flags = 0;
 			localPal->Count = localPalObj->ColorCount;
 			for (j = 0; j < localPalObj->ColorCount; j++) {
@@ -607,7 +607,7 @@ gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
 }
 
 GpStatus 
-gdip_save_gif_image_to_file (char *filename, GpImage *image)
+gdip_save_gif_image_to_file (unsigned char *filename, GpImage *image)
 {
 	return UnknownImageFormat;
 }

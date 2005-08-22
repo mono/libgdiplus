@@ -295,7 +295,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
         jpeg_destroy_decompress (&cinfo);
 
         if (destbuf != NULL)
-            g_free (destbuf);
+            GdipFree (destbuf);
 
         gdip_bitmap_dispose (img);
         *image = NULL;
