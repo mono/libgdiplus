@@ -81,7 +81,7 @@ cairo_font_face_reference (cairo_font_face_t *font_face)
 {
     if (font_face == NULL)
 	return NULL;
-
+	
     if (font_face->ref_count == (unsigned int)-1)
 	return font_face;
 
