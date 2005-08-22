@@ -1249,6 +1249,7 @@ void gdip_calculate_coefficients (int count, int terms, float **coefficients, in
 
 /* Memory */
 void *GdipAlloc (int size);
+void *GdipCalloc (size_t nelem, size_t elsize); 
 void GdipFree (void *ptr);
 
 /* Utility*/
