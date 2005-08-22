@@ -28,6 +28,8 @@
 #include <cairo.h>
 #include <math.h>
 
+//#define DEBUG_MEMLEAKS	1
+
 /* Startup / shutdown */
 
 struct startupInput
@@ -47,10 +49,12 @@ struct startupOutput
 
 extern void gdip_release_cachedfonts ();
 
+static GList* g_mem_allocations;
 
 GpStatus 
 GdiplusStartup(unsigned long *token, const struct startupInput *input, struct startupOutput *output)
 {
+	g_mem_allocations = NULL;
         initCodecList (); 
 	*token = 1;
 	gdip_get_display_dpi();
@@ -60,8 +64,17 @@ GdiplusStartup(unsigned long *token, const struct startupInput *input, struct st
 void 
 GdiplusShutdown(unsigned long *token)
 {
+#ifdef DEBUG_MEMLEAKS
+	GList* list = NULL;
+#endif
 	releaseCodecList ();
 	gdip_release_cachedfonts ();
+
+#ifdef DEBUG_MEMLEAKS
+	for (list = g_list_first (g_mem_allocations); list != NULL; list = g_list_next (list)) {
+		printf ("Memory bloc not free'd at %x\n", list->data);
+	}
+#endif
 }
 
 
@@ -69,13 +82,47 @@ GdiplusShutdown(unsigned long *token)
 void *
 GdipAlloc (int size)
 {
+#ifdef DEBUG_MEMLEAKS		
+	void* block = malloc (size);
+	g_mem_allocations =  g_list_append (g_mem_allocations, block);
+	printf ("alloc %x %u\n", block, size);
+	return block;
+#else
 	return malloc (size);
+#endif
+}
+
+void *
+GdipCalloc (size_t nelem, size_t elsize)
+{
+#ifdef DEBUG_MEMLEAKS		
+	void* block = calloc (nelem, elsize);
+	g_mem_allocations =  g_list_append (g_mem_allocations, block);
+	printf ("calloc %x %u\n", block, nelem);
+	return block;
+#else
+	return calloc (nelem, elsize);
+#endif
+
 }
 
 void 
 GdipFree (void *ptr)
 {
+#ifdef DEBUG_MEMLEAKS	
+	GList* list = NULL;
+
+	list = g_list_find (g_list_first (g_mem_allocations), ptr);
+	if (list != NULL) {
+		list  = g_list_delete_link  (g_list_first (g_mem_allocations), list);
+		g_mem_allocations = g_list_last (list);
+	}
+
+	printf ("free %x\n", ptr);
 	free (ptr);
+#else
+	free (ptr);
+#endif
 }
 
 /* Helpers */
@@ -155,7 +202,7 @@ gdip_get_display_dpi()
 		char *val;
 
 		display = XOpenDisplay (0);
-		// If the display is openable lets try to read dpi from it; otherwise use a default of 96.0f
+		/* If the display is openable lets try to read dpi from it; otherwise use a default of 96.0f */
 		if (display) {
 			val = XGetDefault (display, "Xft", "dpi");
 			XCloseDisplay (display);
@@ -437,7 +484,7 @@ ucs2_to_utf8(const gunichar2 *ucs2, int length) {
 	gunichar	*uni;
 	gchar		*utf8;
 
-	// Count length
+	/* Count length */
 	if (length == -1) {
 		ptr = ucs2;
 		length = 0;
@@ -448,7 +495,7 @@ ucs2_to_utf8(const gunichar2 *ucs2, int length) {
 	}
 
 
-	uni = malloc((length + 1) * sizeof(gunichar));
+	uni = GdipAlloc((length + 1) * sizeof(gunichar));
 	if (uni == NULL) {
 		return NULL;
 	}
@@ -468,7 +515,7 @@ ucs2_to_utf8(const gunichar2 *ucs2, int length) {
 	
 	utf8 = (gchar *) g_ucs4_to_utf8 ((const gunichar *)uni, -1, NULL, NULL, NULL);
 
-	free(uni);
+	GdipFree(uni);
 
 	return utf8;
 }
@@ -484,7 +531,7 @@ utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) {
 	items_read = 0;
 	count = 0;
 
-	ucs2_len--;	// Space for null terminator
+	ucs2_len--;	/* Space for null terminator */
 
 	ucs4 = g_utf8_to_ucs4(utf8, -1, &items_read, &count, NULL);
 	if (ucs4 == NULL) {
@@ -497,12 +544,12 @@ utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) {
 			ptr[0] = (unsigned char)ucs4[i];
 			ptr[1] = (unsigned char)(ucs4[i] >> 8);
 			ptr += 2;
-		}	// we're simply ignoring any chars that don't fit into ucs2
+		}	/* we're simply ignoring any chars that don't fit into ucs2 */
 	}
-	ucs2[ptr - (unsigned char *)ucs2] = 0;	// terminate
+	ucs2[ptr - (unsigned char *)ucs2] = 0;	/* terminate */
 
-	// free the intermediate ucs4 string
-	g_free(ucs4);
+	/* free the intermediate ucs4 string */
+	GdipFree(ucs4);
 
 	return TRUE;
 }
