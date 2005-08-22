@@ -95,7 +95,7 @@ gdip_tiff_fileseek (thandle_t clientData, toff_t offSet, int whence)
 int 
 gdip_tiff_fileclose (thandle_t clientData)
 {
-	// This is a TIFF cleanup function; but we own the FILE* and close it in image.c so this is a null op
+	/* This is a TIFF cleanup function; but we own the FILE* and close it in image.c so this is a null op */
 	return 0;
 }
 
