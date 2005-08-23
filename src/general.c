@@ -553,3 +553,43 @@ utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) {
 
 	return TRUE;
 }
+
+int
+utf8_encode_ucs2char(gunichar2 unichar, unsigned char *dest)
+{
+	if (unichar < 0x0080) {					/* 0000-007F */
+		dest[0] = (unsigned char)(unichar);
+		return (1);
+	}
+	if(unichar < 0x0800) {					/* 0080-07FF */
+		dest[0] = (unsigned char)(0xC0 | ((unichar & 0x07C0) >> 6));
+		dest[1] = (unsigned char)(0x80 | (unichar & 0x003F));
+		return (2);
+	}
+								/* 0800-FFFF */
+	dest[0] = (unsigned char)(0xE0 | ((unichar & 0xF000) >> 12));
+	dest[1] = (unsigned char)(0x80 | ((unichar & 0x0FC0) >> 6));
+	dest[2] = (unsigned char)(0x80 | (unichar & 0x003F));
+	return (3);	
+}
+
+/* This function only handles UCS-2 */
+int
+utf8_decode_ucs2char(const unsigned char *src, gunichar2 *uchar)
+{
+	if (src[0] <= 0x7F) {			/* 0000-007F: one byte (0xxxxxxx) */
+		*uchar = (gunichar2)src[0];
+		return (1);
+	}
+	if (src[0] <= 0xDF) {			/* 0080-07FF: two bytes (110xxxxx 10xxxxxx) */
+		*uchar = ((((gunichar2)src[0]) & 0x001F) << 6) |
+			((((gunichar2)src[1]) & 0x003F) << 0);
+		return (2);
+	}
+						/* 0800-FFFF: three bytes (1110xxxx 10xxxxxx 10xxxxxx) */
+	*uchar = ((((gunichar2)src[0]) & 0x000F) << 12) |
+		((((gunichar2)src[1]) & 0x003F) << 6) |
+		((((gunichar2)src[2]) & 0x003F) << 0);
+	return (3);
+}
+

@@ -1,3 +1,15 @@
+2005-08-23  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c: The original CalculateStringWidths method was dependent
+	  on FT and internal knowledge of cairo font matrix behaviour, and the
+	  function broke with the newer cairo due to changes to this behaviour.
+	  Renamed the original to CalculateStringWidthsUTF8 and wrote a new 
+	  method which uses cairo_text_extents to calculate character widths. 
+	  This is somewhat slower but works font-backend independent.
+	* general.c: Added ucs2 to utf8 char encoder and decoder (allows
+	  faster calculations than the malloc-dependent utf8 string functions)
+	* gdip.h: Added prototypes for utf8 character functions
+
 2005-08-22 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* region.c: fixes memory leaks

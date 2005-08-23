@@ -1680,7 +1680,28 @@ _install_font_matrix(cairo_matrix_t *matrix, FT_Face face)
 }
 
 static int
-CalculateStringWidths (cairo_t *ct, GDIPCONST GpFont *gdiFont, const unsigned char *utf8, unsigned long StringDetailElements, GpStringDetailStruct *StringDetails)
+CalculateStringWidths (cairo_t *ct, GDIPCONST GpFont *gdiFont, GDIPCONST gunichar2 *stringUnicode, unsigned long StringDetailElements, GpStringDetailStruct *StringDetails)
+{
+	size_t			i;
+	cairo_text_extents_t	ext;
+	GpStringDetailStruct	*CurrentDetail;
+	unsigned char		utf8[5];
+
+
+	CurrentDetail = StringDetails;
+
+	for (i = 0; i < StringDetailElements; i++) {
+		utf8[utf8_encode_ucs2char(*(stringUnicode + i), utf8)] = '\0';
+		cairo_text_extents(ct, utf8, &ext);
+		CurrentDetail->Width = ext.x_advance;
+		CurrentDetail++;
+	}
+
+	return StringDetailElements;
+}
+
+static int
+CalculateStringWidthsUTF8 (cairo_t *ct, GDIPCONST GpFont *gdiFont, const unsigned char *utf8, unsigned long StringDetailElements, GpStringDetailStruct *StringDetails)
 {
 	FT_Face			face;
 	size_t			i;
@@ -1919,7 +1940,8 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 #endif
 
 	/* Generate size array */
-	if (CalculateStringWidths (graphics->ct, font, String, StringLen, StringDetails)==0) {
+	//if (CalculateStringWidths (graphics->ct, font, String, StringLen, StringDetails)==0) {
+	if (CalculateStringWidths (graphics->ct, font, CleanString, StringLen, StringDetails)==0) {
 		/* FIXME; pick right return code */
 		GdipFree(String);
 		GdipFree(StringDetails);
@@ -2697,7 +2719,8 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 #endif
 
 	/* Generate size array */
-	if (CalculateStringWidths (graphics->ct, font, String, StringLen, StringDetails)==0) {
+	//if (CalculateStringWidths (graphics->ct, font, String, StringLen, StringDetails)==0) {
+	if (CalculateStringWidths (graphics->ct, font, CleanString, StringLen, StringDetails)==0) {
 		/* FIXME; pick right return code */
 		GdipFree(String);
 		GdipFree(StringDetails);
