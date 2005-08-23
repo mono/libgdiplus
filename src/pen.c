@@ -33,6 +33,7 @@ gdip_pen_init (GpPen *pen)
 {
         pen->color = 0;
         pen->brush = 0;
+	pen->own_brush = FALSE;
         pen->width = 1;
         pen->miter_limit = 10;
         pen->line_join = LineJoinMiter;
@@ -203,7 +204,7 @@ GdipCreatePen1 (int argb, float width, GpUnit unit, GpPen **pen)
 
 	s = GdipCreateSolidFill (argb, &solidBrush);
         (*pen)->brush = (GpBrush*) solidBrush;
-
+	(*pen)->own_brush = TRUE;
         return s;
 }
 
@@ -218,6 +219,7 @@ GdipCreatePen2 (GpBrush *brush, float width, GpUnit unit, GpPen **pen)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
         *pen = gdip_pen_new ();
+
 	g_return_val_if_fail (*pen != NULL, OutOfMemory);
 
         /* FIXME: do unit conversion when setting width */
@@ -311,8 +313,17 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 		return OutOfMemory;
 	}
 
-        result->color = pen->color;
-	result->brush = pen->brush;
+	if (pen->own_brush) {
+		GpSolidFill* solidBrush;
+		GpSolidFill* oldbrush = (GpSolidFill*)pen->brush;
+		GdipCreateSolidFill (oldbrush->color, &solidBrush);
+		result->brush = (GpBrush*) solidBrush;
+	} else {
+		result->brush = pen->brush;
+	}
+
+        result->own_brush = pen->own_brush;
+	result->color = pen->color;
         result->width = pen->width;
         result->miter_limit = pen->miter_limit;
         result->line_join = pen->line_join;
@@ -344,6 +355,9 @@ GdipDeletePen (GpPen *pen)
 		pen->dash_count = 0;
 		pen->dash_array = NULL;
 	}
+
+	if (pen->own_brush && pen->brush)
+		GdipFree (pen->brush);
 
         if (pen->compound_count != 0)
                 GdipFree (pen->compound_array);
@@ -398,8 +412,12 @@ GdipSetPenBrushFill (GpPen *pen, GpBrush *brush)
 	else
 		pen->color = 0;
 
+	if (pen->own_brush && pen->brush)
+		GdipFree (pen->brush);
+
         pen->brush = brush;
 	pen->changed = TRUE;
+	pen->own_brush = FALSE;
 
         return Ok;
 }

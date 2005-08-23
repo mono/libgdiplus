@@ -1,3 +1,9 @@
+2005-08-22 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* region.c: fixes memory leaks
+	* pen.c: releases the solid brush when is owned by us
+	* gdip.h: releases the solid brush when is owned by us
+	
 2005-08-19  Zoltan Varga  <vargaz@freemail.hu>
 
 	* gifcodec.c (gdip_save_gif_image_to_file): Fix compilation without GIF

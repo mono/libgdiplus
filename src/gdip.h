@@ -682,6 +682,7 @@ typedef cairo_matrix_t GpMatrix;
 typedef struct {
 	int color;
         GpBrush *brush;
+	BOOL own_brush;
 	float width;
         float miter_limit;
         GpLineJoin line_join;
