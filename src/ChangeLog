@@ -1,3 +1,9 @@
+2005-08-24 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* hatchbrush.c, lineargradientbrush.c. Cairo has changed the format
+	enum parameter for cairo_surface_create_similar. This fixes many samples
+	not running. 
+
 2005-08-23  Peter Bartok  <pbartok@novell.com>
 
 	* graphics.c: The original CalculateStringWidths method was dependent

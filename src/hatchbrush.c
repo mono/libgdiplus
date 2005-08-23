@@ -2386,7 +2386,7 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 	cairo_t *ct;
 	int forecol;
 	int backcol;
-	cairo_format_t format = CAIRO_FORMAT_ARGB32;
+	cairo_format_t format = CAIRO_CONTENT_COLOR_ALPHA;
 	GpStatus status = Ok;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);

@@ -287,9 +287,9 @@ create_tile_linear (cairo_t *ct, GpLineGradient *linear)
 	GpRectF *rect = linear->rectangle;
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
-	/* gradient surface to be created. We are using CAIRO_FORMAT_ARGB32, */
+	/* gradient surface to be created. We are using CAIRO_CONTENT_COLOR_ALPHA, */
 	/* because internally this is the format we use everywhere. */
-	gradient = cairo_surface_create_similar (cairo_get_target (ct), CAIRO_FORMAT_ARGB32,
+	gradient = cairo_surface_create_similar (cairo_get_target (ct), CAIRO_CONTENT_COLOR_ALPHA,
 						 (int) (2 * rect->Width), (int) (2 * rect->Height));
 
 	if (gradient == NULL) {
@@ -363,9 +363,9 @@ create_tile_flipX_linear (cairo_t *ct, GpLineGradient *linear)
 	GpRectF *rect = linear->rectangle;
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
-	/* gradient surface to be created. We are using CAIRO_FORMAT_ARGB32, */
+	/* gradient surface to be created. We are using CAIRO_CONTENT_COLOR_ALPHA, */
 	/* because internally this is the format we use everywhere. */
-	gradient = cairo_surface_create_similar (cairo_get_target (ct), CAIRO_FORMAT_ARGB32,
+	gradient = cairo_surface_create_similar (cairo_get_target (ct), CAIRO_CONTENT_COLOR_ALPHA,
 						 (int) (2 * rect->Width), (int) (2 * rect->Height));
 
 	if (gradient == NULL) {
@@ -453,9 +453,9 @@ create_tile_flipY_linear (cairo_t *ct, GpLineGradient *linear)
 	GpRectF *rect = linear->rectangle;
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
-	/* gradient surface to be created. We are using CAIRO_FORMAT_ARGB32, */
+	/* gradient surface to be created. We are using CAIRO_CONTENT_COLOR_ALPHA, */
 	/* because internally this is the format we use everywhere. */
-	gradient = cairo_surface_create_similar (cairo_get_target (ct), CAIRO_FORMAT_ARGB32,
+	gradient = cairo_surface_create_similar (cairo_get_target (ct), CAIRO_CONTENT_COLOR_ALPHA,
 						 (int) (2 * rect->Width), (int) (2 * rect->Height));
 
 	if (gradient == NULL) {
@@ -543,9 +543,9 @@ create_tile_flipXY_linear (cairo_t *ct, GpLineGradient *linear)
 	GpRectF *rect = linear->rectangle;
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
-	/* gradient surface to be created. We are using CAIRO_FORMAT_ARGB32, */
+	/* gradient surface to be created. We are using CAIRO_CONTENT_COLOR_ALPHA, */
 	/* because internally this is the format we use everywhere. */
-	gradient = cairo_surface_create_similar (cairo_get_target (ct), CAIRO_FORMAT_ARGB32,
+	gradient = cairo_surface_create_similar (cairo_get_target (ct), CAIRO_CONTENT_COLOR_ALPHA,
 						 (int) (2 * rect->Width), (int) (2 * rect->Height));
 	
 	if (gradient == NULL) {
