@@ -553,6 +553,7 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont
 {
 	cairo_font_face_t *font = NULL;
 	FcPattern * pat = NULL;
+	FcPattern * pat2 = NULL;
 	FT_Library ft_library;
 	FT_Error error;
 
@@ -573,7 +574,15 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont
 		return 0;
 	}
 
-	font = cairo_ft_font_face_create_for_pattern (pat);
+	pat2 =  FcFontMatch (0, pat, &error);
+
+	if (error) {
+		FcPatternDestroy (pat);
+		FcPatternDestroy (pat2);
+		return 0;
+	}
+
+	font = cairo_ft_font_face_create_for_pattern (pat2);
 	if (font == NULL) {
 		FT_Done_FreeType(ft_library);
 		FcPatternDestroy (pat);
@@ -590,6 +599,7 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont
 	gdip_cairo_ft_font_unlock_face(font);
 
 	FcPatternDestroy (pat);
+	FcPatternDestroy (pat2);
 	return 1;
 }
 
