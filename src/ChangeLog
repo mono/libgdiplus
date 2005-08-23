@@ -1,3 +1,7 @@
+2005-08-24 Hisham Mardam Bey  <hisham.mardambey@gmail.com>
+
+        * pen.c : remove debugging printf.
+
 2005-08-24 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* hatchbrush.c, lineargradientbrush.c. Cairo has changed the format
