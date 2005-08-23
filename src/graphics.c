@@ -1706,7 +1706,7 @@ CalculateStringWidths (cairo_t *ct, GDIPCONST GpFont *gdiFont, const unsigned ch
 		return 0;
 	}
 
-	_install_font_matrix (&matrix, face);
+	//_install_font_matrix (&matrix, face);
 
 	CurrentDetail=StringDetails;
 	for (i = 0; i < NumOfGlyphs; i++) {

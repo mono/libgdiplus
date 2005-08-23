@@ -556,6 +556,7 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont
 	FcPattern * pat2 = NULL;
 	FT_Library ft_library;
 	FT_Error error;
+	FcResult rslt;
 
 	pat = FcPatternCreate ();
 	if (pat == NULL || result == NULL) {
@@ -574,9 +575,9 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont
 		return 0;
 	}
 
-	pat2 =  FcFontMatch (0, pat, &error);
+	pat2 =  FcFontMatch (0, pat, &rslt);
 
-	if (error) {
+	if (pat2 == NULL) {
 		FcPatternDestroy (pat);
 		FcPatternDestroy (pat2);
 		return 0;
