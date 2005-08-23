@@ -83,7 +83,7 @@ gdip_graphics_attach_bitmap (GpGraphics *graphics, GpBitmap *image)
 {
 	cairo_surface_t *surface;	
 	
-	surface = cairo_image_surface_create_for_data ((char *)image->data.Scan0, image->cairo_format,
+	surface = cairo_image_surface_create_for_data ((unsigned char *)image->data.Scan0, image->cairo_format,
 				image->data.Width, image->data.Height, image->data.Stride);
 	if (image->image.surface) {
 		cairo_surface_destroy (image->image.surface);
@@ -2351,7 +2351,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 						case StringAlignmentFar: CursorY=rc->Y+rc->Height-MaxY+StringDetails[i].PosY+LineHeight; break;
 					}
 					cairo_move_to (graphics->ct, CursorX, CursorY);
-					cairo_show_text (graphics->ct, String);
+					cairo_show_text (graphics->ct, (const char *) String);
 				} else {
 					switch (AlignHorz) {
 						case StringAlignmentNear: CursorY=rc->Y; break;
@@ -2369,7 +2369,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 					cairo_save (graphics->ct);
 					cairo_move_to (graphics->ct, CursorX, CursorY);
 					cairo_rotate (graphics->ct, PI/2);
-					cairo_show_text (graphics->ct, String);
+					cairo_show_text (graphics->ct, (const char *) String);
 					cairo_restore (graphics->ct);
 				}
 

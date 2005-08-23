@@ -1611,14 +1611,13 @@ GdipBitmapSetResolution (GpBitmap *bitmap, float xdpi, float ydpi)
 cairo_surface_t *
 gdip_bitmap_ensure_surface (GpBitmap *bitmap)
 {
-
 	if (bitmap->image.surface == NULL &&
 		bitmap->data.Scan0 != NULL)	{		
 		
 		switch (bitmap->data.PixelFormat) {
 		case Format24bppRgb:
 			bitmap->image.surface = cairo_image_surface_create_for_data
-				((char *)bitmap->data.Scan0,
+				((unsigned char *)bitmap->data.Scan0,
 				 CAIRO_FORMAT_RGB24,
 				 bitmap->data.Width,
 				 bitmap->data.Height,
@@ -1628,7 +1627,7 @@ gdip_bitmap_ensure_surface (GpBitmap *bitmap)
 		case Format32bppRgb:
 		case Format32bppPArgb:
 			bitmap->image.surface = cairo_image_surface_create_for_data
-				((char *)bitmap->data.Scan0,
+				((unsigned char *)bitmap->data.Scan0,
 				 CAIRO_FORMAT_ARGB32,
 				 bitmap->data.Width,
 				 bitmap->data.Height,

@@ -558,7 +558,7 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 	else
 		return NotImplemented;
 
-	imageSurface = cairo_image_surface_create_for_data ((char *)bitmap->data.Scan0,
+	imageSurface = cairo_image_surface_create_for_data ((unsigned char *)bitmap->data.Scan0,
 					bitmap->cairo_format, bitmap->data.Width,
 					bitmap->data.Height, bitmap->data.Stride);
 
@@ -622,7 +622,7 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 		  || (bmpWidth < (x + width)) || (bmpHeight < (y + height)))
 	     return OutOfMemory;
 
-	original = cairo_image_surface_create_for_data ((char *)bitmap->data.Scan0, 
+	original = cairo_image_surface_create_for_data ((unsigned char *)bitmap->data.Scan0, 
 			bitmap->cairo_format, x + width, y + height, bitmap->data.Stride);
 
 	g_return_val_if_fail (original != NULL, OutOfMemory);

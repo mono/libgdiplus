@@ -473,7 +473,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
     img->data.Scan0 = destbuf;
     img->data.Reserved = GBD_OWN_SCAN0;
 
-    img->image.surface = cairo_image_surface_create_for_data ((char *)destbuf, img->cairo_format,
+    img->image.surface = cairo_image_surface_create_for_data ((unsigned char *)destbuf, img->cairo_format,
                                                    img->image.width, img->image.height,
                                                    stride);
 
