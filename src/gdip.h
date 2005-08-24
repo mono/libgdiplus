@@ -1258,8 +1258,6 @@ int fcmp (double x1, double x2, double epsilon);
 float gdip_get_display_dpi();
 void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg);
 cairo_content_t from_cairoformat_to_content (cairo_format_t format);
-void gdip_font_drawunderline (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
-void gdip_font_drawstrikeout (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
 
 cairo_status_t gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s);
 

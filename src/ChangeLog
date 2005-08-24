@@ -1,3 +1,14 @@
+2005-08-24  Peter Bartok  <pbartok@novell.com>
+
+	* gdip.h: Removed prototypes for internal strikethrough and underline
+	  functions; those are no longer used
+	* font.c:
+	  - Cairo switched to positive font descent number, fixed code to match
+	  - Removed unused methods for strikethrough and underline; drawstring
+	    handles that behaviour internally
+	* graphics.c (DrawString): Cairo switched to positive descent values
+	  for font extents, switched the code to handle that
+
 2005-08-24 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* graphics.c: fixes gcc 4 warning

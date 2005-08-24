@@ -605,32 +605,6 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont
 }
 
 void
-gdip_font_drawunderline (GpGraphics *graphics, GpBrush *brush, float x, float y, float width)
-{
-        float pos, size;
-        cairo_font_extents_t extents;
-
-        cairo_font_extents (graphics->ct, &extents);
-        pos = 0.5 + ((extents.ascent + extents.descent) *0.1);
-        size = 0.5 + ((extents.ascent + extents.descent) *0.05);
-
-        GdipFillRectangle (graphics, brush, x, y +pos, width, size);     
-}
-
-void
-gdip_font_drawstrikeout (GpGraphics *graphics, GpBrush *brush, float x, float y, float width)
-{
-        float pos, size;
-        cairo_font_extents_t extents;
-
-        cairo_font_extents (graphics->ct, &extents);
-        pos = 0.5 + ((extents.ascent + extents.descent) *0.5);
-        size = 0.5 + ((extents.ascent + extents.descent) *0.05);
-
-        GdipFillRectangle (graphics, brush, x, y -pos, width, size);
-}
-
-void
 gdip_release_font (GpFont* font)
 {
 	if (!font)
@@ -850,9 +824,8 @@ GetFontMetrics(GpGraphics *graphics, GpFont *font, int *ascent, int *descent)
 		*ascent = (int)font_extent.ascent;
 	}
 
-	/* Descent is negative for descent below the baseline */
 	if (descent) {
-		*descent = -1 * (int)font_extent.descent;
+		*descent = (int)font_extent.descent;
 	}
 
 	return TRUE;

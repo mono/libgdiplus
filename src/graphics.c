@@ -2240,7 +2240,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		MaxX+=2;
 	}
 #endif
-	MaxY+=LineHeight-FontExtent.descent+2;
+	MaxY+=LineHeight+FontExtent.descent+2;
 
 #ifdef DRAWSTRING_DEBUG
 	printf("\n");
@@ -2406,21 +2406,21 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 					if (font->style & FontStyleStrikeout) {
 						if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
-							cairo_move_to (graphics->ct, (int)(CursorX)+0.5, (int)(CursorY+FontExtent.descent)+0.5);
-							cairo_line_to (graphics->ct, (int)(CursorX+j)+0.5, (int)(CursorY+FontExtent.descent)+0.5);
+							cairo_move_to (graphics->ct, (int)(CursorX)+0.5, (int)(CursorY-FontExtent.descent)+0.5);
+							cairo_line_to (graphics->ct, (int)(CursorX+j)+0.5, (int)(CursorY-FontExtent.descent)+0.5);
 						} else {
-							cairo_move_to (graphics->ct, (int)(CursorX-FontExtent.descent)+0.5, (int)(CursorY)+0.5);
-							cairo_line_to (graphics->ct, (int)(CursorX-FontExtent.descent)+0.5, (int)(CursorY+j)+0.5);
+							cairo_move_to (graphics->ct, (int)(CursorX+FontExtent.descent)+0.5, (int)(CursorY)+0.5);
+							cairo_line_to (graphics->ct, (int)(CursorX+FontExtent.descent)+0.5, (int)(CursorY+j)+0.5);
 						}
 					}
 
 					if (font->style & FontStyleUnderline) {
 						if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
-							cairo_move_to (graphics->ct, (int)(CursorX)+0.5, (int)(CursorY+FontExtent.descent/2)+0.5);
-							cairo_line_to (graphics->ct, (int)(CursorX+j)+0.5, (int)(CursorY+FontExtent.descent/2)+0.5);
+							cairo_move_to (graphics->ct, (int)(CursorX)+0.5, (int)(CursorY-FontExtent.descent/2)+0.5);
+							cairo_line_to (graphics->ct, (int)(CursorX+j)+0.5, (int)(CursorY-FontExtent.descent/2)+0.5);
 						} else {
-							cairo_move_to (graphics->ct, (int)(CursorX-FontExtent.descent/2)+0.5, (int)(CursorY)+0.5);
-							cairo_line_to (graphics->ct, (int)(CursorX-FontExtent.descent/2)+0.5, (int)(CursorY+j)+0.5);
+							cairo_move_to (graphics->ct, (int)(CursorX+FontExtent.descent/2)+0.5, (int)(CursorY)+0.5);
+							cairo_line_to (graphics->ct, (int)(CursorX+FontExtent.descent/2)+0.5, (int)(CursorY+j)+0.5);
 						}
 					}
 				}
@@ -2466,15 +2466,15 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 						CursorX+=CurrentDetail->PosX;
 						cairo_set_line_width(graphics->ct, 1);
 
-						cairo_move_to (graphics->ct, (int)(CursorX)+0.5, (int)(CursorY-FontExtent.descent/2)+0.5);
-						cairo_line_to (graphics->ct, (int)(CursorX+CurrentDetail->Width)+0.5, (int)(CursorY-FontExtent.descent/2)+0.5);
+						cairo_move_to (graphics->ct, (int)(CursorX)+0.5, (int)(CursorY+FontExtent.descent/2)+0.5);
+						cairo_line_to (graphics->ct, (int)(CursorX+CurrentDetail->Width)+0.5, (int)(CursorY+FontExtent.descent/2)+0.5);
 						cairo_stroke (graphics->ct);
 						CursorX-=CurrentDetail->PosX;
 
 					} else {
 						CursorY+=CurrentDetail->PosX;
-						cairo_move_to (graphics->ct, (int)(CursorX+FontExtent.descent/2)-0.5, (int)(CursorY)+0.5);
-						cairo_line_to (graphics->ct, (int)(CursorX+FontExtent.descent/2)-0.5, (int)(CursorY+CurrentDetail->Width)+0.5);
+						cairo_move_to (graphics->ct, (int)(CursorX-FontExtent.descent/2)-0.5, (int)(CursorY)+0.5);
+						cairo_line_to (graphics->ct, (int)(CursorX-FontExtent.descent/2)-0.5, (int)(CursorY+CurrentDetail->Width)+0.5);
 						CursorY-=CurrentDetail->PosX;
 					}
 				}
@@ -3012,7 +3012,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 
 	/* We ignored it above, for shorter of calculations, also, add a bit of padding */
 	MaxX+=2;
-	MaxY+=LineHeight-FontExtent.descent+2;
+	MaxY+=LineHeight+FontExtent.descent+2;
 
 #ifdef DRAWSTRING_DEBUG
 	printf("\n");
