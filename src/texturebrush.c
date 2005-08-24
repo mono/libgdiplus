@@ -83,7 +83,7 @@ draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (original, bitmap->cairo_format,
+	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
 						2 * rect->Width, 2 * rect->Height);
 
 	g_return_val_if_fail (texture != NULL, OutOfMemory);
@@ -127,7 +127,7 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	g_return_val_if_fail (pat != NULL, OutOfMemory);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (original, bitmap->cairo_format,
+	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
 						2 * rect->Width, rect->Height);
 
 	if (texture == NULL) {
@@ -187,7 +187,7 @@ draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	g_return_val_if_fail (pat != NULL, OutOfMemory);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (original, bitmap->cairo_format,
+	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
 						rect->Width, 2 * rect->Height);
 
 	if (texture == NULL) {
@@ -246,7 +246,7 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	g_return_val_if_fail (pat != NULL, OutOfMemory);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (original, bitmap->cairo_format,
+	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
 						2 * rect->Width, 2 * rect->Height);
 
 	if (texture == NULL) {
@@ -332,7 +332,7 @@ draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (original, bitmap->cairo_format,
+	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
 						rect->Width, rect->Height);
 
 	g_return_val_if_fail (texture != NULL, OutOfMemory);
@@ -628,7 +628,7 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 	g_return_val_if_fail (original != NULL, OutOfMemory);
 
 	/* texture surface to be used by brush */
-	new = cairo_surface_create_similar (original, bitmap->cairo_format, width, height);
+	new = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format), width, height);
 
 	if (new == NULL) {
 		cairo_surface_destroy (original);

@@ -72,7 +72,7 @@ GdiplusShutdown(unsigned long *token)
 
 #ifdef DEBUG_MEMLEAKS
 	for (list = g_list_first (g_mem_allocations); list != NULL; list = g_list_next (list)) {
-		printf ("Memory bloc not free'd at %x\n", list->data);
+		printf ("Memory block not free'd at %x\n", list->data);
 	}
 #endif
 }
@@ -591,5 +591,19 @@ utf8_decode_ucs2char(const unsigned char *src, gunichar2 *uchar)
 		((((gunichar2)src[1]) & 0x003F) << 6) |
 		((((gunichar2)src[2]) & 0x003F) << 0);
 	return (3);
+}
+
+cairo_content_t
+from_cairoformat_to_content (cairo_format_t format)
+{
+    	switch (format) {
+    	case CAIRO_FORMAT_RGB24:
+		return CAIRO_CONTENT_COLOR;
+	case CAIRO_FORMAT_A8:
+		return CAIRO_CONTENT_ALPHA;
+	case CAIRO_FORMAT_ARGB32:
+	default:
+		return CAIRO_CONTENT_COLOR_ALPHA;
+    }
 }
 

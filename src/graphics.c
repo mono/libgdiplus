@@ -1692,7 +1692,7 @@ CalculateStringWidths (cairo_t *ct, GDIPCONST GpFont *gdiFont, GDIPCONST gunicha
 
 	for (i = 0; i < StringDetailElements; i++) {
 		utf8[utf8_encode_ucs2char(*(stringUnicode + i), utf8)] = '\0';
-		cairo_text_extents(ct, utf8, &ext);
+		cairo_text_extents(ct, (const char *) utf8, &ext);
 		CurrentDetail->Width = ext.x_advance;
 		CurrentDetail++;
 	}

@@ -1,3 +1,15 @@
+2005-08-24 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: fixes gcc 4 warning
+	* general.c: from_cairoformat_to_content function
+	* texturebrush.c: fixes texture brushes
+  	* matrix.c:
+		* All the create function allocate the memory 
+		* Fixes GdipCloneMatrix function	
+		* Fixes GdipIsMatrixEqual 
+		* Fixes GdipIsMatrixInvertible (always returned true) 
+		* Fixes GdipGetMatrixElements (wrong order)
+
 2005-08-24 Hisham Mardam Bey  <hisham.mardambey@gmail.com>
 
         * pen.c : remove debugging printf.
