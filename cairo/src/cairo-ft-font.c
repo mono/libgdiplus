@@ -375,14 +375,13 @@ _cairo_ft_unscaled_font_create_for_pattern (FcPattern *pattern)
 	goto UNWIND;
 
     _cairo_ft_unscaled_font_init_key (&key, filename, id);
-	printf("passed!\n");
+
     /* Return exsiting unscaled font if it exists in the hash table. */
     if (_cairo_hash_table_lookup (font_map->hash_table, &key.base.hash_entry,
 				  (cairo_hash_entry_t **) &unscaled))
     {
 	_cairo_ft_unscaled_font_map_unlock ();
 	_cairo_unscaled_font_reference (&unscaled->base);
-	    printf("first return!\n");
 	return unscaled;
     }
 
@@ -390,27 +389,17 @@ _cairo_ft_unscaled_font_create_for_pattern (FcPattern *pattern)
     unscaled = malloc (sizeof (cairo_ft_unscaled_font_t));
     if (unscaled == NULL)
 	goto UNWIND_FONT_MAP_LOCK;
-
-	printf("malloc ok!\n");
 	
     status = _cairo_ft_unscaled_font_init (unscaled, filename, id, NULL);
     if (status)
 	goto UNWIND_UNSCALED_MALLOC;
-
-	printf("font init ok!\n");
 	
     status = _cairo_hash_table_insert (font_map->hash_table,
 				       &unscaled->base.hash_entry);
     if (status)
 	goto UNWIND_UNSCALED_FONT_INIT;
-
-	printf("hashtable insert ok!\n");
 	
     _cairo_ft_unscaled_font_map_unlock ();
-
-	if(unscaled == NULL) printf("UNSCALED IS NULL!\n");
-	
-	printf("unscaled font details: filename = %s id = %d\n", filename, id);	
 	
     return unscaled;
 
@@ -2439,7 +2428,6 @@ cairo_ft_font_face_create_for_pattern (FcPattern *pattern)
     unscaled = _cairo_ft_unscaled_font_create_for_pattern (pattern);
     if (unscaled == NULL) {
 	_cairo_error (CAIRO_STATUS_NO_MEMORY);
-	printf("returning FONT FACE NIL!!\n");	    
 	return (cairo_font_face_t *)&_cairo_font_face_nil;
     }
 
