@@ -1260,6 +1260,7 @@ void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg);
 cairo_content_t from_cairoformat_to_content (cairo_format_t format);
 
 cairo_status_t gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s);
+cairo_status_t gdip_cairo_set_surface_pattern_with_extend (cairo_t *t, cairo_surface_t *s, cairo_extend_t extend);
 
 void gdip_rect_expand_by (GpRectF *rect, GpPointF *point);
 

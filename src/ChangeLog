@@ -1,3 +1,10 @@
+2005-08-25  Hisham Mardam Bey <hisham.mardambey@gmail.com>
+       
+        * hatchbrush.c: removed cairo_paint calls, we still have a few, must
+	  look into them
+	* general.c: added gdip_cairo_set_surface_pattern_with_extend
+	* gdip.h: added gdip_cairo_set_surface_pattern_with_extend
+       
 2005-08-24  Peter Bartok  <pbartok@novell.com>
 
 	* hatchbrush.c: Fixed 50% hatchbrush drawing. Still need to fix all
