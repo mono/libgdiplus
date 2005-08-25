@@ -211,9 +211,8 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 				(double) height / image->height);
 	}
 	
-	cairo_set_source_surface (graphics->ct, image->surface, x, y);
+	cairo_set_source_surface (graphics->ct, image->surface, 0, 0);
 	cairo_identity_matrix (graphics->ct);
-	//cairo_translate (graphics->ct, x, y);
 	cairo_paint (graphics->ct);
 	
 	cairo_pattern_destroy (pattern);

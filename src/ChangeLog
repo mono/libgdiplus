@@ -1,5 +1,9 @@
 2005-08-25 Jordi Mas i Hernandez  <jordi@ximian.com>
 
+	* image.c: fixes issues of images drawn on the wrong place
+
+2005-08-25 Jordi Mas i Hernandez  <jordi@ximian.com>
+
 	* graphics.c:
 		- Fixes leaking on GdipDeleteGraphics
 		- Fixes GdipGetDC bug exposed by Marek changes into graphics.cs
