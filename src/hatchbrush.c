@@ -931,10 +931,7 @@ draw_50_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 
 		cairo_rectangle (ct, 0, 0, hatch_size / 2.0, hatch_size / 2.0);
 		cairo_rectangle (ct, hatch_size / 2.0, hatch_size / 2.0, hatch_size, hatch_size);
-		cairo_fill (ct);
-
-		cairo_paint (ct);		
-		
+		cairo_fill (ct);		
 		cairo_restore (ct);		
 	}
 
