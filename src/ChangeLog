@@ -1,5 +1,11 @@
 2005-08-25 Jordi Mas i Hernandez  <jordi@ximian.com>
 
+	* graphics.c:
+		- Fixes leaking on GdipDeleteGraphics
+		- Fixes GdipGetDC bug exposed by Marek changes into graphics.cs
+
+2005-08-25 Jordi Mas i Hernandez  <jordi@ximian.com>
+
 	* hatchbrush.c: use correct enumerator for cairo calls
 	* matrix.c: fixes GdipShearMatrix method
 

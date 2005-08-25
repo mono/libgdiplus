@@ -43,7 +43,6 @@ gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 {
 	
 	graphics->ct = cairo_create (surface);
-	graphics->copy_of_ctm = NULL;	
 	GdipCreateMatrix (&graphics->copy_of_ctm);
 	cairo_matrix_init_identity (graphics->copy_of_ctm);
 	cairo_identity_matrix (graphics->ct);
@@ -390,9 +389,10 @@ GdipDeleteGraphics (GpGraphics *graphics)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
 	/* We don't destroy image because we did not create one. */
-	//if (graphics->copy_of_ctm)
-	//	cairo_matrix_destroy (graphics->copy_of_ctm);
-	//graphics->copy_of_ctm = NULL;
+	if (graphics->copy_of_ctm) {
+		GdipDeleteMatrix (graphics->copy_of_ctm);
+		graphics->copy_of_ctm = NULL;
+	}
 	GdipDeleteRegion (graphics->clip);
 
 	if (graphics->ct)
@@ -408,7 +408,7 @@ GpStatus
 GdipGetDC (GpGraphics *graphics, void **hDC)
 {
 	/* For our gdi+ the hDC is equivalent to the graphics handle */
-	if (*hDC) {
+	if (hDC) {
 		*hDC = (void *)graphics;
 	}
 	return Ok;

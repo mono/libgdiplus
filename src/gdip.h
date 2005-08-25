@@ -703,7 +703,7 @@ typedef struct {
 
 typedef struct {
 	cairo_t         *ct;
-	GpMatrix/*cairo_matrix_t*/	*copy_of_ctm;
+	GpMatrix	*copy_of_ctm;
 	Display		*display;
 	Drawable	drawable;
 	void            *image;
