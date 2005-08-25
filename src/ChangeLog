@@ -1,7 +1,7 @@
 2005-08-25  Hisham Mardam Bey <hisham.mardambey@gmail.com>
        
         * hatchbrush.c: removed cairo_paint calls, we still have a few, must
-	  look into them
+	  look into them. Fixed remaining cairo_paint and patter problems.
 	* general.c: added gdip_cairo_set_surface_pattern_with_extend
 	* gdip.h: added gdip_cairo_set_surface_pattern_with_extend
        
