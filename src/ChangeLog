@@ -1,3 +1,8 @@
+2005-08-25 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* hatchbrush.c: use correct enumerator for cairo calls
+	* matrix.c: fixes GdipShearMatrix method
+
 2005-08-25  Hisham Mardam Bey <hisham.mardambey@gmail.com>
        
         * hatchbrush.c: removed cairo_paint calls, we still have a few, must

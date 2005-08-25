@@ -67,7 +67,7 @@ gdip_hatch_new (void)
 #define LINE_WIDTH 1
 
 GpStatus
-draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE;
@@ -143,7 +143,7 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 }
 
 GpStatus
-draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE;
@@ -217,7 +217,7 @@ draw_veritcal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t f
 }
 
 GpStatus
-draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 1;
@@ -276,7 +276,7 @@ draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_fo
 }
 
 GpStatus
-draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 1;
@@ -337,7 +337,7 @@ draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_f
 }
 
 GpStatus
-draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 2;
@@ -405,7 +405,7 @@ draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 }
 
 GpStatus
-draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 1;
@@ -476,7 +476,7 @@ draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_form
 }
 
 GpStatus
-draw_05_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_05_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 2;
@@ -545,7 +545,7 @@ draw_05_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 }
 
 GpStatus
-draw_10_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_10_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_wd = HATCH_SIZE + 2;
@@ -613,7 +613,7 @@ draw_10_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 }
 
 GpStatus
-draw_20_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_20_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = 5;
@@ -680,7 +680,7 @@ draw_20_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 }
 
 GpStatus
-draw_25_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_25_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_wd = 5;
@@ -749,7 +749,7 @@ draw_25_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 }
 
 GpStatus
-draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch, *temp;
 	cairo_pattern_t *pattern;
@@ -864,7 +864,7 @@ draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 }
 
 GpStatus
-draw_50_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_50_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = 2;
@@ -914,7 +914,7 @@ draw_50_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 }
 
 GpStatus
-draw_60_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_60_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_wd = 4;
@@ -979,7 +979,7 @@ draw_60_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 }
 
 GpStatus
-draw_70_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_70_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_wd = 4;
@@ -1040,7 +1040,7 @@ draw_70_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 }
 
 GpStatus
-draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	/* FIXME:
 	 * Lines drawn in this hatch are not supposed to be antialiased as per
@@ -1126,7 +1126,7 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_f
 }
 
 GpStatus
-draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	/* FIXME:
 	 * Lines drawn in this hatch are not supposed to be antialiased as per
@@ -1212,7 +1212,7 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_for
 }
 
 GpStatus
-draw_dashed_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_dashed_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double space = 6;
@@ -1276,7 +1276,7 @@ draw_dashed_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_for
 }
 
 GpStatus
-draw_dashed_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_dashed_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double dash_len = 5;
@@ -1339,7 +1339,7 @@ draw_dashed_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_f
 }
 
 GpStatus
-draw_dashed_vertical_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_dashed_vertical_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double dash_len = 5;
@@ -1402,7 +1402,7 @@ draw_dashed_vertical_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_for
 }
 
 GpStatus
-draw_confetti_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_confetti_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 1;
@@ -1468,7 +1468,7 @@ draw_confetti_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t f
 }
 
 GpStatus
-draw_zigzag_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_zigzag_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 1;
@@ -1531,7 +1531,7 @@ draw_zigzag_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t for
 }
 
 GpStatus
-draw_wave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_wave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_wd = HATCH_SIZE + 2;
@@ -1589,7 +1589,7 @@ draw_wave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t forma
 }
 
 GpStatus
-draw_diagonal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_diagonal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 2;
@@ -1646,7 +1646,7 @@ draw_diagonal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_form
 }
 
 GpStatus
-draw_horizontal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_horizontal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 2;
@@ -1708,7 +1708,7 @@ draw_horizontal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_fo
 }
 
 GpStatus
-draw_weave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_weave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 1;
@@ -1785,7 +1785,7 @@ draw_weave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 }
 
 GpStatus
-draw_plaid_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_plaid_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch, *temp;
 	cairo_pattern_t *pattern;
@@ -1889,7 +1889,7 @@ draw_plaid_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 }
 
 GpStatus
-draw_divot_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_divot_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = 10.0;
@@ -1950,7 +1950,7 @@ draw_divot_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t form
 }
 
 GpStatus
-draw_solid_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_solid_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 1;
@@ -2013,7 +2013,7 @@ draw_solid_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_forma
 }
 
 GpStatus
-draw_shingle_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_shingle_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 1;
@@ -2075,7 +2075,7 @@ draw_shingle_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t fo
 }
 
 GpStatus
-draw_trellis_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_trellis_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = 4;
@@ -2137,7 +2137,7 @@ draw_trellis_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t fo
 }
 
 GpStatus
-draw_sphere_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_sphere_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = 12;
@@ -2221,7 +2221,7 @@ draw_sphere_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t for
 }
 
 GpStatus
-draw_checker_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
+draw_checker_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
 	cairo_surface_t *hatch;
 	double hatch_size = 5.0;
@@ -2286,7 +2286,7 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 	cairo_t *ct;
 	int forecol;
 	int backcol;
-	cairo_format_t format = CAIRO_CONTENT_COLOR_ALPHA;
+	cairo_content_t format = CAIRO_CONTENT_COLOR_ALPHA;
 	GpStatus status = Ok;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);

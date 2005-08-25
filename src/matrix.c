@@ -201,7 +201,7 @@ GdipShearMatrix (GpMatrix *matrix, float shearX, float shearY, GpMatrixOrder ord
         cairo_matrix_t tmp;
 	GpStatus s;
 
-        cairo_matrix_init (&tmp, 1, shearX, shearY, 1, 0, 0);
+        cairo_matrix_init (&tmp, 1, shearY, shearX, 1, 0, 0);
 	s = GdipMultiplyMatrix (matrix, &tmp, order);
 
         return s;
