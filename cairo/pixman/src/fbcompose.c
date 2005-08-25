@@ -26,7 +26,6 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include <stdio.h>
 #include "pixman-xserver-compat.h"
 #include "fbpict.h"
 
@@ -2906,6 +2905,7 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
 #else
     miIndexedPtr indexed = 0;
 #endif
+    Bool projective = FALSE;
 
     fetch = fetchPixelProcForPicture(pict);
 
@@ -2929,6 +2929,7 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
         unit.vector[1] = 0;
         unit.vector[2] = 0;
     }
+    projective = (unit.vector[2] != 0);
 
     if (pict->filter == PIXMAN_FILTER_NEAREST || pict->filter == PIXMAN_FILTER_FAST)
     {
@@ -2939,8 +2940,13 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                     if (!v.vector[2]) {
                         buffer[i] = 0;
                     } else {
-                        y = MOD(DIV(v.vector[1],v.vector[2]), pict->pDrawable->height);
-                        x = MOD(DIV(v.vector[0],v.vector[2]), pict->pDrawable->width);
+                        if (projective) {
+                            y = MOD(DIV(v.vector[1],v.vector[2]), pict->pDrawable->height);
+                            x = MOD(DIV(v.vector[0],v.vector[2]), pict->pDrawable->width);
+                        } else {
+                            y = MOD(v.vector[1]>>16, pict->pDrawable->height);
+                            x = MOD(v.vector[0]>>16, pict->pDrawable->width);
+                        }
                         buffer[i] = fetch(bits + (y + pict->pDrawable->y)*stride, x + pict->pDrawable->x, indexed);
                     }
                     v.vector[0] += unit.vector[0];
@@ -2952,8 +2958,13 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                     if (!v.vector[2]) {
                         buffer[i] = 0;
                     } else {
-                        y = MOD(DIV(v.vector[1],v.vector[2]), pict->pDrawable->height);
-                        x = MOD(DIV(v.vector[0],v.vector[2]), pict->pDrawable->width);
+                        if (projective) {
+                            y = MOD(DIV(v.vector[1],v.vector[2]), pict->pDrawable->height);
+                            x = MOD(DIV(v.vector[0],v.vector[2]), pict->pDrawable->width);
+                        } else {
+                            y = MOD(v.vector[1]>>16, pict->pDrawable->height);
+                            x = MOD(v.vector[0]>>16, pict->pDrawable->width);
+                        }
                         if (pixman_region_contains_point (pict->pCompositeClip, x, y, &box))
                             buffer[i] = fetch(bits + (y + pict->pDrawable->y)*stride, x + pict->pDrawable->x, indexed);
                         else
@@ -2971,8 +2982,13 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                     if (!v.vector[2]) {
                         buffer[i] = 0;
                     } else {
-                        y = DIV(v.vector[1],v.vector[2]);
-                        x = DIV(v.vector[0],v.vector[2]);
+                        if (projective) {
+                            y = DIV(v.vector[1],v.vector[2]);
+                            x = DIV(v.vector[0],v.vector[2]);
+                        } else {
+                            y = v.vector[1]>>16;
+                            x = v.vector[0]>>16;
+                        }
                         buffer[i] = ((x < box.x1) | (x >= box.x2) | (y < box.y1) | (y >= box.y2)) ?
                                     0 : fetch(bits + (y + pict->pDrawable->y)*stride, x + pict->pDrawable->x, indexed);
                     }
@@ -2985,8 +3001,13 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                     if (!v.vector[2]) {
                         buffer[i] = 0;
                     } else {
-                        y = DIV(v.vector[1],v.vector[2]);
-                        x = DIV(v.vector[0],v.vector[2]);
+                        if (projective) {
+                            y = DIV(v.vector[1],v.vector[2]);
+                            x = DIV(v.vector[0],v.vector[2]);
+                        } else {
+                            y = v.vector[1]>>16;
+                            x = v.vector[0]>>16;
+                        }
                         if (pixman_region_contains_point (pict->pCompositeClip, x, y, &box))
                             buffer[i] = fetch(bits + (y + pict->pDrawable->y)*stride, x + pict->pDrawable->x, indexed);
                         else
@@ -3006,19 +3027,27 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                     if (!v.vector[2]) {
                         buffer[i] = 0;
                     } else {
-                        int x1, x2, y1, y2, distx, idistx, disty, idisty, k;
+                        int x1, x2, y1, y2, distx, idistx, disty, idisty;
                         FbBits *b;
                         CARD32 tl, tr, bl, br, r;
-                        xFixed_48_16 div;
+                        CARD32 ft, fb;
 
-                        div = ((xFixed_48_16)v.vector[0] << 16)/v.vector[2];
-                        x1 = div >> 16;
-                        distx = ((xFixed)div >> 8) & 0xff;
+                        if (projective) {
+                            xFixed_48_16 div;
+                            div = ((xFixed_48_16)v.vector[0] << 16)/v.vector[2];
+                            x1 = div >> 16;
+                            distx = ((xFixed)div >> 8) & 0xff;
+                            div = ((xFixed_48_16)v.vector[1] << 16)/v.vector[2];
+                            y1 = div >> 16;
+                            disty = ((xFixed)div >> 8) & 0xff;
+                        } else {
+                            x1 = v.vector[0] >> 16;
+                            distx = (v.vector[0] >> 8) & 0xff;
+                            y1 = v.vector[1] >> 16;
+                            disty = (v.vector[1] >> 8) & 0xff;
+                        }
                         x2 = x1 + 1;
-                        div = ((xFixed_48_16)v.vector[1] << 16)/v.vector[2];
-                        y1 = div >> 16;
                         y2 = y1 + 1;
-                        disty = ((xFixed)div >> 8) & 0xff;
 
                         idistx = 256 - distx;
                         idisty = 256 - disty;
@@ -3036,13 +3065,18 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                         bl = fetch(b, x1 + pict->pDrawable->x, indexed);
                         br = fetch(b, x2 + pict->pDrawable->x, indexed);
 
-                        r = 0;
-                        for (k = 0; k < 32; k += 8) {
-                            CARD32 t, b;
-                            t = FbGet8(tl,k) * idistx + FbGet8(tr,k) * distx;
-                            b = FbGet8(bl,k) * idistx + FbGet8(br,k) * distx;
-                            r |= ((((t * idisty) + (b * disty)) >> 16) & 0xff) << k;
-                        }
+                        ft = FbGet8(tl,0) * idistx + FbGet8(tr,0) * distx;
+                        fb = FbGet8(bl,0) * idistx + FbGet8(br,0) * distx;
+                        r = (((ft * idisty + fb * disty) >> 16) & 0xff);
+                        ft = FbGet8(tl,8) * idistx + FbGet8(tr,8) * distx;
+                        fb = FbGet8(bl,8) * idistx + FbGet8(br,8) * distx;
+                        r |= (((ft * idisty + fb * disty) >> 8) & 0xff00);
+                        ft = FbGet8(tl,16) * idistx + FbGet8(tr,16) * distx;
+                        fb = FbGet8(bl,16) * idistx + FbGet8(br,16) * distx;
+                        r |= (((ft * idisty + fb * disty)) & 0xff0000);
+                        ft = FbGet8(tl,24) * idistx + FbGet8(tr,24) * distx;
+                        fb = FbGet8(bl,24) * idistx + FbGet8(br,24) * distx;
+                        r |= (((ft * idisty + fb * disty) << 8) & 0xff000000);
                         buffer[i] = r;
                     }
                     v.vector[0] += unit.vector[0];
@@ -3054,19 +3088,27 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                     if (!v.vector[2]) {
                         buffer[i] = 0;
                     } else {
-                        int x1, x2, y1, y2, distx, idistx, disty, idisty, k;
+                        int x1, x2, y1, y2, distx, idistx, disty, idisty;
                         FbBits *b;
                         CARD32 tl, tr, bl, br, r;
-                        xFixed_48_16 div;
+                        CARD32 ft, fb;
 
-                        div = ((xFixed_48_16)v.vector[0] << 16)/v.vector[2];
-                        x1 = div >> 16;
-                        distx = ((xFixed)div >> 8) & 0xff;
+                        if (projective) {
+                            xFixed_48_16 div;
+                            div = ((xFixed_48_16)v.vector[0] << 16)/v.vector[2];
+                            x1 = div >> 16;
+                            distx = ((xFixed)div >> 8) & 0xff;
+                            div = ((xFixed_48_16)v.vector[1] << 16)/v.vector[2];
+                            y1 = div >> 16;
+                            disty = ((xFixed)div >> 8) & 0xff;
+                        } else {
+                            x1 = v.vector[0] >> 16;
+                            distx = (v.vector[0] >> 8) & 0xff;
+                            y1 = v.vector[1] >> 16;
+                            disty = (v.vector[1] >> 8) & 0xff;
+                        }
                         x2 = x1 + 1;
-                        div = ((xFixed_48_16)v.vector[1] << 16)/v.vector[2];
-                        y1 = div >> 16;
                         y2 = y1 + 1;
-                        disty = ((xFixed)div >> 8) & 0xff;
 
                         idistx = 256 - distx;
                         idisty = 256 - disty;
@@ -3088,13 +3130,18 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                         br = pixman_region_contains_point(pict->pCompositeClip, x2, y2, &box)
                              ? fetch(b, x2 + pict->pDrawable->x, indexed) : 0;
 
-                        r = 0;
-                        for (k = 0; k < 32; k += 8) {
-                            CARD32 t, b;
-                            t = FbGet8(tl,k) * idistx + FbGet8(tr,k) * distx;
-                            b = FbGet8(bl,k) * idistx + FbGet8(br,k) * distx;
-                            r |= ((((t * idisty) + (b * disty)) >> 16) & 0xff) << k;
-                        }
+                        ft = FbGet8(tl,0) * idistx + FbGet8(tr,0) * distx;
+                        fb = FbGet8(bl,0) * idistx + FbGet8(br,0) * distx;
+                        r = (((ft * idisty + fb * disty) >> 16) & 0xff);
+                        ft = FbGet8(tl,8) * idistx + FbGet8(tr,8) * distx;
+                        fb = FbGet8(bl,8) * idistx + FbGet8(br,8) * distx;
+                        r |= (((ft * idisty + fb * disty) >> 8) & 0xff00);
+                        ft = FbGet8(tl,16) * idistx + FbGet8(tr,16) * distx;
+                        fb = FbGet8(bl,16) * idistx + FbGet8(br,16) * distx;
+                        r |= (((ft * idisty + fb * disty)) & 0xff0000);
+                        ft = FbGet8(tl,24) * idistx + FbGet8(tr,24) * distx;
+                        fb = FbGet8(bl,24) * idistx + FbGet8(br,24) * distx;
+                        r |= (((ft * idisty + fb * disty) << 8) & 0xff000000);
                         buffer[i] = r;
                     }
                     v.vector[0] += unit.vector[0];
@@ -3109,20 +3156,28 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                     if (!v.vector[2]) {
                         buffer[i] = 0;
                     } else {
-                        int x1, x2, y1, y2, distx, idistx, disty, idisty, x_off, k;
+                        int x1, x2, y1, y2, distx, idistx, disty, idisty, x_off;
                         FbBits *b;
                         CARD32 tl, tr, bl, br, r;
                         Bool x1_out, x2_out, y1_out, y2_out;
-                        xFixed_48_16 div;
+                        CARD32 ft, fb;
 
-                        div = ((xFixed_48_16)v.vector[0] << 16)/v.vector[2];
-                        x1 = div >> 16;
-                        distx = ((xFixed)div >> 8) & 0xff;
+                        if (projective) {
+                            xFixed_48_16 div;
+                            div = ((xFixed_48_16)v.vector[0] << 16)/v.vector[2];
+                            x1 = div >> 16;
+                            distx = ((xFixed)div >> 8) & 0xff;
+                            div = ((xFixed_48_16)v.vector[1] << 16)/v.vector[2];
+                            y1 = div >> 16;
+                            disty = ((xFixed)div >> 8) & 0xff;
+                        } else {
+                            x1 = v.vector[0] >> 16;
+                            distx = (v.vector[0] >> 8) & 0xff;
+                            y1 = v.vector[1] >> 16;
+                            disty = (v.vector[1] >> 8) & 0xff;
+                        }
                         x2 = x1 + 1;
-                        div = ((xFixed_48_16)v.vector[1] << 16)/v.vector[2];
-                        y1 = div >> 16;
                         y2 = y1 + 1;
-                        disty = ((xFixed)div >> 8) & 0xff;
 
                         idistx = 256 - distx;
                         idisty = 256 - disty;
@@ -3141,13 +3196,18 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                         bl = x1_out|y2_out ? 0 : fetch(b, x_off, indexed);
                         br = x2_out|y2_out ? 0 : fetch(b, x_off + 1, indexed);
 
-                        r = 0;
-                        for (k = 0; k < 32; k += 8) {
-                            CARD32 t, b;
-                            t = FbGet8(tl,k) * idistx + FbGet8(tr,k) * distx;
-                            b = FbGet8(bl,k) * idistx + FbGet8(br,k) * distx;
-                            r |= ((((t * idisty) + (b * disty)) >> 16) & 0xff) << k;
-                        }
+                        ft = FbGet8(tl,0) * idistx + FbGet8(tr,0) * distx;
+                        fb = FbGet8(bl,0) * idistx + FbGet8(br,0) * distx;
+                        r = (((ft * idisty + fb * disty) >> 16) & 0xff);
+                        ft = FbGet8(tl,8) * idistx + FbGet8(tr,8) * distx;
+                        fb = FbGet8(bl,8) * idistx + FbGet8(br,8) * distx;
+                        r |= (((ft * idisty + fb * disty) >> 8) & 0xff00);
+                        ft = FbGet8(tl,16) * idistx + FbGet8(tr,16) * distx;
+                        fb = FbGet8(bl,16) * idistx + FbGet8(br,16) * distx;
+                        r |= (((ft * idisty + fb * disty)) & 0xff0000);
+                        ft = FbGet8(tl,24) * idistx + FbGet8(tr,24) * distx;
+                        fb = FbGet8(bl,24) * idistx + FbGet8(br,24) * distx;
+                        r |= (((ft * idisty + fb * disty) << 8) & 0xff000000);
                         buffer[i] = r;
                     }
                     v.vector[0] += unit.vector[0];
@@ -3159,19 +3219,27 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                     if (!v.vector[2]) {
                         buffer[i] = 0;
                     } else {
-                        int x1, x2, y1, y2, distx, idistx, disty, idisty, x_off, k;
+                        int x1, x2, y1, y2, distx, idistx, disty, idisty, x_off;
                         FbBits *b;
                         CARD32 tl, tr, bl, br, r;
-                        xFixed_48_16 div;
+                        CARD32 ft, fb;
 
-                        div = ((xFixed_48_16)v.vector[0] << 16)/v.vector[2];
-                        x1 = div >> 16;
-                        distx = ((xFixed)div >> 8) & 0xff;
+                        if (projective) {
+                            xFixed_48_16 div;
+                            div = ((xFixed_48_16)v.vector[0] << 16)/v.vector[2];
+                            x1 = div >> 16;
+                            distx = ((xFixed)div >> 8) & 0xff;
+                            div = ((xFixed_48_16)v.vector[1] << 16)/v.vector[2];
+                            y1 = div >> 16;
+                            disty = ((xFixed)div >> 8) & 0xff;
+                        } else {
+                            x1 = v.vector[0] >> 16;
+                            distx = (v.vector[0] >> 8) & 0xff;
+                            y1 = v.vector[1] >> 16;
+                            disty = (v.vector[1] >> 8) & 0xff;
+                        }
                         x2 = x1 + 1;
-                        div = ((xFixed_48_16)v.vector[1] << 16)/v.vector[2];
-                        y1 = div >> 16;
                         y2 = y1 + 1;
-                        disty = ((xFixed)div >> 8) & 0xff;
 
                         idistx = 256 - distx;
                         idisty = 256 - disty;
@@ -3189,13 +3257,18 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                         br = pixman_region_contains_point(pict->pCompositeClip, x2, y2, &box)
                              ? fetch(b, x_off + 1, indexed) : 0;
 
-                        r = 0;
-                        for (k = 0; k < 32; k += 8) {
-                            CARD32 t, b;
-                            t = FbGet8(tl,k) * idistx + FbGet8(tr,k) * distx;
-                            b = FbGet8(bl,k) * idistx + FbGet8(br,k) * distx;
-                            r |= ((((t * idisty) + (b * disty)) >> 16) & 0xff) << k;
-                        }
+                        ft = FbGet8(tl,0) * idistx + FbGet8(tr,0) * distx;
+                        fb = FbGet8(bl,0) * idistx + FbGet8(br,0) * distx;
+                        r = (((ft * idisty + fb * disty) >> 16) & 0xff);
+                        ft = FbGet8(tl,8) * idistx + FbGet8(tr,8) * distx;
+                        fb = FbGet8(bl,8) * idistx + FbGet8(br,8) * distx;
+                        r |= (((ft * idisty + fb * disty) >> 8) & 0xff00);
+                        ft = FbGet8(tl,16) * idistx + FbGet8(tr,16) * distx;
+                        fb = FbGet8(bl,16) * idistx + FbGet8(br,16) * distx;
+                        r |= (((ft * idisty + fb * disty)) & 0xff0000);
+                        ft = FbGet8(tl,24) * idistx + FbGet8(tr,24) * distx;
+                        fb = FbGet8(bl,24) * idistx + FbGet8(br,24) * distx;
+                        r |= (((ft * idisty + fb * disty) << 8) & 0xff000000);
                         buffer[i] = r;
                     }
                     v.vector[0] += unit.vector[0];
@@ -3219,12 +3292,18 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                 int x1, x2, y1, y2, x, y;
                 INT32 srtot, sgtot, sbtot, satot;
                 xFixed *p = params;
-                xFixed_48_16 tmp;
-                tmp = ((xFixed_48_16)v.vector[0] << 16)/v.vector[2] - xoff;
-                x1 = xFixedToInt(tmp);
+
+                if (projective) {
+                    xFixed_48_16 tmp;
+                    tmp = ((xFixed_48_16)v.vector[0] << 16)/v.vector[2] - xoff;
+                    x1 = xFixedToInt(tmp);
+                    tmp = ((xFixed_48_16)v.vector[1] << 16)/v.vector[2] - yoff;
+                    y1 = xFixedToInt(tmp);
+                } else {
+                    x1 = xFixedToInt(v.vector[0] - xoff);
+                    y1 = xFixedToInt(v.vector[1] - yoff);
+                }
                 x2 = x1 + cwidth;
-                tmp = ((xFixed_48_16)v.vector[1] << 16)/v.vector[2] - yoff;
-                y1 = xFixedToInt(tmp);
                 y2 = y1 + cheight;
 
                 srtot = sgtot = sbtot = satot = 0;

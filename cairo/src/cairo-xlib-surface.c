@@ -374,7 +374,7 @@ _get_image_surface (cairo_xlib_surface_t   *surface,
     else
     {
 	surface->use_pixmap--;
-	ximage = 0;
+	ximage = NULL;
     }
     
     if (!ximage)
@@ -1140,15 +1140,6 @@ _cairo_xlib_surface_composite (cairo_operator_t		operator,
 			      width, height);
 	}
 
-	if (!_cairo_operator_bounded (operator))
-	    status = _cairo_surface_composite_fixup_unbounded (&dst->base,
-							       &src_attr, src->width, src->height,
-							       mask ? &mask_attr : NULL,
-							       mask ? mask->width : 0,
-							       mask ? mask->height : 0,
-							       src_x, src_y,
-							       mask_x, mask_y,
-							       dst_x, dst_y, width, height);
 	break;
 
     case DO_XCOPYAREA:
@@ -1188,6 +1179,18 @@ _cairo_xlib_surface_composite (cairo_operator_t		operator,
 	ASSERT_NOT_REACHED;
     }
 
+    if (!_cairo_operator_bounded (operator) ||
+	operator == CAIRO_OPERATOR_SOURCE ||
+	operator == CAIRO_OPERATOR_CLEAR)
+      status = _cairo_surface_composite_fixup_unbounded (&dst->base,
+							 &src_attr, src->width, src->height,
+							 mask ? &mask_attr : NULL,
+							 mask ? mask->width : 0,
+							 mask ? mask->height : 0,
+							 src_x, src_y,
+							 mask_x, mask_y,
+							 dst_x, dst_y, width, height);
+    
  FAIL:
 
     if (mask)
@@ -1643,11 +1646,11 @@ _cairo_xlib_surface_create_internal (Display		       *dpy,
     }
 
     surface->buggy_repeat = FALSE;
-    if (strcmp (ServerVendor (dpy), "The X.Org Foundation") == 0) {
+    if (strstr (ServerVendor (dpy), "The X.Org Foundation") != NULL) {
 	if (VendorRelease (dpy) <= 60802000)
 	    surface->buggy_repeat = TRUE;
-    } else if (strcmp (ServerVendor (dpy), "The XFree86 Project, Inc") == 0) {
-	if (VendorRelease (dpy) <= 40400000)
+    } else if (strstr (ServerVendor (dpy), "The XFree86 Project, Inc") != NULL) {
+	if (VendorRelease (dpy) <= 40500000)
 	    surface->buggy_repeat = TRUE;
     }
 
@@ -1827,6 +1830,8 @@ cairo_xlib_surface_set_size (cairo_surface_t *surface,
  * cairo_xlib_surface_set_drawable:
  * @surface: a #cairo_surface_t for the XLib backend
  * @drawable: the new drawable for the surface
+ * @width: the width of the new drawable
+ * @height: the height of the new drawable
  * 
  * Informs cairo of a new X Drawable underlying the
  * surface. The drawable must match the display, screen
@@ -2288,7 +2293,7 @@ _cairo_xlib_surface_show_glyphs32 (cairo_scaled_font_t    *scaled_font,
 			    src->src_picture,
 			    self->dst_picture,
 			    mask_format,
-			    source_x, source_y,
+			    source_x + elts[0].xOff, source_y + elts[0].yOff,
 			    0, 0,
 			    elts, count);
 
@@ -2391,7 +2396,7 @@ _cairo_xlib_surface_show_glyphs16 (cairo_scaled_font_t    *scaled_font,
 			    src->src_picture,
 			    self->dst_picture,
 			    mask_format,
-			    source_x, source_y,
+			    source_x + elts[0].xOff, source_y + elts[0].yOff,
 			    0, 0,
 			    elts, count);
 
@@ -2496,7 +2501,7 @@ _cairo_xlib_surface_show_glyphs8 (cairo_scaled_font_t    *scaled_font,
 			   src->src_picture,
 			   self->dst_picture,
 			   mask_format,
-			   source_x, source_y,
+			   source_x + elts[0].xOff, source_y + elts[0].yOff,
 			   0, 0,
 			   elts, count);
     
@@ -2517,7 +2522,7 @@ _cairo_xlib_surface_show_glyphs8 (cairo_scaled_font_t    *scaled_font,
 
 /* Handles clearing the regions that are outside of the temporary
  * mask created by XRenderCompositeText[N] but should be affected
- * by an unbounded operator like CAIRO_OPERATOR_SOURCE.
+ * by an unbounded operator like CAIRO_OPERATOR_IN
  */
 static cairo_status_t
 _show_glyphs_fixup_unbounded (cairo_xlib_surface_t       *self,
@@ -2663,22 +2668,22 @@ _cairo_xlib_surface_show_glyphs (cairo_scaled_font_t    *scaled_font,
     if (elt_size == 8)
     {
 	status = _cairo_xlib_surface_show_glyphs8 (scaled_font, operator, cache, &key, src, self,
-						   source_x + attributes.x_offset,
-						   source_y + attributes.y_offset, 
+						   source_x + attributes.x_offset - dest_x,
+						   source_y + attributes.y_offset - dest_y, 
 						   glyphs, entries, num_glyphs);
     }
     else if (elt_size == 16)
     {
 	status = _cairo_xlib_surface_show_glyphs16 (scaled_font, operator, cache, &key, src, self,
-						    source_x + attributes.x_offset,
-						    source_y + attributes.y_offset, 
+						    source_x + attributes.x_offset - dest_x,
+						    source_y + attributes.y_offset - dest_y, 
 						    glyphs, entries, num_glyphs);
     }
     else 
     {
 	status = _cairo_xlib_surface_show_glyphs32 (scaled_font, operator, cache, &key, src, self,
-						    source_x + attributes.x_offset,
-						    source_y + attributes.y_offset, 
+						    source_x + attributes.x_offset - dest_x,
+						    source_y + attributes.y_offset - dest_y, 
 						    glyphs, entries, num_glyphs);
     }
 

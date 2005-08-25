@@ -1,5 +1,5 @@
 /*
- * $Id: fbpict.c,v 1.1 2005/08/16 23:50:25 vektor Exp $
+ * $Id: fbpict.c,v 1.4 2005/08/22 03:49:47 vektor Exp $
  *
  * Copyright © 2000 SuSE, Inc.
  *
@@ -119,30 +119,29 @@ fbIn24 (CARD32 x, CARD8 y)
 	}
 
 #if IMAGE_BYTE_ORDER == LSBFirst
-	#define setupPackedReader(count,temp,where,workingWhere,workingVal) count=(long)where; \
+#	define setupPackedReader(count,temp,where,workingWhere,workingVal) count=(long)where; \
 					temp=count&3; \
 					where-=temp; \
 					workingWhere=(CARD32 *)where; \
 					workingVal=*workingWhere++; \
 					count=4-temp; \
 					workingVal>>=(8*temp)
-	#define readPacked(where,x,y,z) {if(!(x)) { (x)=4; y=*z++; } where=(y)&0xff; (y)>>=8; (x)--;}
-	#define readPackedSource(where) readPacked(where,ws,workingSource,wsrc)
-	#define readPackedDest(where) readPacked(where,wd,workingiDest,widst)
-	#define writePacked(what) workingoDest>>=8; workingoDest|=(what<<24); ww--; if(!ww) { ww=4; *wodst++=workingoDest; }
+#	define readPacked(where,x,y,z) {if(!(x)) { (x)=4; y=*z++; } where=(y)&0xff; (y)>>=8; (x)--;}
+#	define readPackedSource(where) readPacked(where,ws,workingSource,wsrc)
+#	define readPackedDest(where) readPacked(where,wd,workingiDest,widst)
+#	define writePacked(what) workingoDest>>=8; workingoDest|=(what<<24); ww--; if(!ww) { ww=4; *wodst++=workingoDest; }
 #else
-	#warning "I havn't tested fbCompositeTrans_0888xnx0888() on big endian yet!"
-	#define setupPackedReader(count,temp,where,workingWhere,workingVal) count=(long)where; \
+#	define setupPackedReader(count,temp,where,workingWhere,workingVal) count=(long)where; \
 					temp=count&3; \
 					where-=temp; \
 					workingWhere=(CARD32 *)where; \
 					workingVal=*workingWhere++; \
 					count=4-temp; \
 					workingVal<<=(8*temp)
-	#define readPacked(where,x,y,z) {if(!(x)) { (x)=4; y=*z++; } where=(y)>>24; (y)<<=8; (x)--;}
-	#define readPackedSource(where) readPacked(where,ws,workingSource,wsrc)
-	#define readPackedDest(where) readPacked(where,wd,workingiDest,widst)
-	#define writePacked(what) workingoDest<<=8; workingoDest|=what; ww--; if(!ww) { ww=4; *wodst++=workingoDest; }
+#	define readPacked(where,x,y,z) {if(!(x)) { (x)=4; y=*z++; } where=(y)>>24; (y)<<=8; (x)--;}
+#	define readPackedSource(where) readPacked(where,ws,workingSource,wsrc)
+#	define readPackedDest(where) readPacked(where,wd,workingiDest,widst)
+#	define writePacked(what) workingoDest<<=8; workingoDest|=what; ww--; if(!ww) { ww=4; *wodst++=workingoDest; }
 #endif
 /*
  * Naming convention:
@@ -1416,10 +1415,9 @@ pixman_composite (pixman_operator_t	op,
         && !maskAlphaMap && !srcAlphaMap && !dstAlphaMap
 #ifdef PIXMAN_CONVOLUTION
         && (pSrc->filter != PictFilterConvolution)
-        && (!pMask || pMask->filter != PictFilterConvolution))
-#else
-        && !pMask)
+        && (!pMask || pMask->filter != PictFilterConvolution)
 #endif
+        )
     switch (op) {
     case PIXMAN_OPERATOR_OVER:
 	if (pMask)
@@ -1694,7 +1692,12 @@ pixman_composite (pixman_operator_t	op,
 		    switch (pDst->format_code) {
 		    case PICT_a8r8g8b8:
 		    case PICT_x8r8g8b8:
-			func = fbCompositeSrc_8888x8888;
+#ifdef USE_MMX
+			if (fbHaveMMX())
+			    func = fbCompositeSrc_8888x8888mmx;
+			else
+#endif
+			    func = fbCompositeSrc_8888x8888;
 			break;
 		    case PICT_r8g8b8:
 			func = fbCompositeSrc_8888x0888;
@@ -1708,7 +1711,12 @@ pixman_composite (pixman_operator_t	op,
 		    switch (pDst->format_code) {
 		    case PICT_a8b8g8r8:
 		    case PICT_x8b8g8r8:
-			func = fbCompositeSrc_8888x8888;
+#ifdef USE_MMX
+			if (fbHaveMMX())
+			    func = fbCompositeSrc_8888x8888mmx;
+			else
+#endif
+			    func = fbCompositeSrc_8888x8888;
 			break;
 		    case PICT_b8g8r8:
 			func = fbCompositeSrc_8888x0888;

@@ -42,6 +42,9 @@ draw (cairo_t *cr, int width, int height)
     cairo_font_options_t *font_options;
     static char black[] = "black", blue[] = "blue";
 
+    cairo_set_source_rgb (cr, 1.0, 1.0, 1.0);
+    cairo_paint (cr);
+
     cairo_select_font_face (cr, "Bitstream Vera Sans",
 			    CAIRO_FONT_SLANT_NORMAL,
 			    CAIRO_FONT_WEIGHT_NORMAL);
@@ -54,7 +57,6 @@ draw (cairo_t *cr, int width, int height)
     font_options = cairo_font_options_create ();
 
     cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_NONE);
-    cairo_font_options_set_hint_metrics (font_options, CAIRO_HINT_METRICS_OFF);
     cairo_font_options_set_antialias (font_options, CAIRO_ANTIALIAS_SUBPIXEL);
     cairo_font_options_set_subpixel_order (font_options, CAIRO_SUBPIXEL_ORDER_RGB);
     cairo_set_font_options (cr, font_options);
@@ -77,6 +79,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test_expect_failure (&test, draw,
-	"Bugs in subpixel-antialiased text rendering");
+    return cairo_test (&test, draw);
 }

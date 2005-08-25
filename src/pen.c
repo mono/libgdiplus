@@ -273,6 +273,7 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 	/* we make a copy of dash array only if it is owned by pen, i.e. it is not
 	 * our global array.
 	 */
+
 	if (pen->dash_count > 0 && pen->own_dash_array) {
 		dashes = (float *) GdipAlloc (pen->dash_count * sizeof (float));
 		g_return_val_if_fail (dashes != NULL, OutOfMemory);

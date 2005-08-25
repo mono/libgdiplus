@@ -1,5 +1,4 @@
-DIST_SUBDIRS = pixman src test 
-#doc
+DIST_SUBDIRS = pixman src test doc
 SUBDIRS = pixman src 
 #doc
 
@@ -28,11 +27,14 @@ DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc
 # or		make release-publish
 
 RELEASE_UPLOAD_HOST =   cairographics.org
-RELEASE_UPLOAD_DIR =    /srv/cairo.freedesktop.org/www/snapshots
-RELEASE_URL_BASE = 	http://cairographics.org/snapshots
+RELEASE_UPLOAD_BASE =	/srv/cairo.freedesktop.org/www
+RELEASE_UPLOAD_DIR =	$(RELEASE_UPLOAD_BASE)/releases
+RELEASE_URL_BASE = 	http://cairographics.org/releases
 RELEASE_ANNOUNCE_LIST = cairo-announce@cairographics.org (and CC gnome-announce-list@gnome.org)
 
-CVS=cvs
+MANUAL_DATED =		cairo-manual-`date +%Y%m%d`
+MANUAL_TAR_FILE = 	$(MANUAL_DATED).tar.gz
+MANUAL_UPLOAD_DIR =	$(RELEASE_UPLOAD_BASE)
 
 tar_file = $(PACKAGE)-$(VERSION).tar.gz
 sha1_file = $(tar_file).sha1
@@ -45,10 +47,21 @@ $(gpg_file): $(sha1_file)
 	@echo "Please enter your GPG password to sign the checksum."
 	gpg --armor --sign $^ 
 
-release-remove-old:
-	rm -f $(tar_file) $(sha1_file) $(gpg_file)
+# Win32 package zipfiles
+runtime_zip_file = /tmp/$(PACKAGE)-$(VERSION).zip
+developer_zip_file = /tmp/$(PACKAGE)-dev-$(VERSION).zip
 
-release-check: release-verify-even-micro release-verify-newer release-remove-old distcheck
+$(runtime_zip_file): install
+	-rm $@
+	cd $(prefix); \
+	zip $@ bin/libcairo-$(LT_CURRENT_MINUS_AGE).dll
+
+$(developer_zip_file): install
+	-rm $@
+	cd $(prefix); \
+	zip -r $@ include/cairo lib/libcairo.dll.a lib/cairo.lib lib/pkgconfig/cairo.pc
+
+zips: $(runtime_zip_file) $(developer_zip_file)
 
 release-verify-even-micro:
 	@echo -n "Checking that $(VERSION) has an even micro component..."
@@ -66,6 +79,18 @@ release-verify-newer:
 		&& echo "This should never happen." \
 		&& false)
 	@echo "Good."
+
+release-remove-old:
+	rm -f $(tar_file) $(sha1_file) $(gpg_file)
+
+# Maybe it's just my system, but somehow group sticky bits keep
+# getting set and this causes failures in un-tarring on some systems.
+# Until I figure out where the sticky bit is coming from, just clean
+# these up before building a release.
+release-cleanup-group-sticky:
+	find . -type f | xargs chmod g-s
+
+release-check: release-verify-even-micro release-verify-newer release-remove-old release-cleanup-group-sticky distcheck
 
 release-upload: release-check $(tar_file) $(sha1_file) $(gpg_file)
 	mkdir -p releases
@@ -101,4 +126,12 @@ release-publish: release-upload releases/$(sha1_file)
 	@echo "Last but not least, do not forget to bump up the micro"
 	@echo "version component to the next (odd) number and commit."
 
-.PHONY: release-check release-remove-old release-verify-even-micro release-verify-newer release-check release-publish release-upload
+# XXX: Depending on all here is rather overkill. We don't really need
+# the library built in order to create the documentation.
+docs-publish: all
+	cp -a doc/public/html $(MANUAL_DATED)
+	tar czf $(MANUAL_TAR_FILE) $(MANUAL_DATED)
+	scp $(MANUAL_TAR_FILE) $(RELEASE_UPLOAD_HOST):$(MANUAL_UPLOAD_DIR)
+	ssh $(RELEASE_UPLOAD_HOST) "cd $(MANUAL_UPLOAD_DIR) && tar xzf $(MANUAL_TAR_FILE) && rm -f manual && ln -s $(MANUAL_DATED) manual && ln -sf $(MANUAL_TAR_FILE) cairo-manual.tar.gz"
+
+.PHONY: release-verify-even-micro release-verify-newer release-remove-old release-cleanup-group-sticky release-check release-upload release-publish docs-publish

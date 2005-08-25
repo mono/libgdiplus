@@ -1,22 +1,16 @@
-cairo-xlib-surface needs to do the Xlib register extension hack so
-that it can listen for a Display close event. When it gets that, it
-needs to run through its caches and eliminate anything associated with
-that display.
+The place to find a current list of known bugs for cairo is:
 
---
+	http://bugs.freedesktop.org
 
-cairo_image_surface_create should return a blank image
-(eg. transparent black) instead of an image with random data in it.
+under either the cairo or libpixman products. New bugs should be
+reported there as well.
+
+[A few old bugs have not bee moved to bugs.freedesktop.org and are
+instead listed below:]
 
 --
 
 The caches need to be invalidated at font destruction time.
-
---
-
-cairo_clip is really slow, (with at least the Xlib and image
-backends). An accelerated implementation of the IN operator would
-probably help a lot here.
 
 --
 
@@ -37,43 +31,3 @@ Recent improvements to make the intersection code more robust (using
 128-bit arithmetic where needed), have exposed some of the weakness in
 the current tessellation implementation. So, for now, filling some
 polygons will cause "leaking" until we implement Hobby's algorithm.
-
---
-
-Stroking a self-intersecting path generates the wrong answer, (in
-mostly subtle ways). The fix is to tessellate a giant polygon for the
-entire stroke outline rather than incrementally generating trapezoids.
-
---
-
-Cairo is crashing Xnest with the following message:
-
-X Error of failed request:  BadMatch (invalid parameter attributes)
-  Major opcode of failed request:  72 (X_PutImage)
-  Serial number of failed request:  28
-  Current serial number in output stream:  29
-
-confirmed on a quite default install of debian unstable.
-
---
-
-cairo_show_text is not updating the current point by the string's advance values.
-
---
-
-Caps are added only to the last subpath in a complex path.
-
---
-
-ref_counts will go negative if destroy is called with ref_count ==
-0. We noticed this in cairo_surface.c but it likely happens in several
-places.
-
---
-
-font-size="0" in an SVG file does very bad things.
-
---
-
-cairo falls over with XFree86 4.2 (probably braindead depth handling
-somewhere).

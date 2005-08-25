@@ -6,9 +6,7 @@ PACKAGE=cairo
 
 LIBTOOLIZE=${LIBTOOLIZE-libtoolize}
 LIBTOOLIZE_FLAGS="--copy --force"
-ACLOCAL=${ACLOCAL-aclocal}
 AUTOHEADER=${AUTOHEADER-autoheader}
-AUTOMAKE=${AUTOMAKE-automake}
 AUTOMAKE_FLAGS="--add-missing"
 AUTOCONF=${AUTOCONF-autoconf}
 
@@ -19,11 +17,21 @@ aclocal_min_vers=$automake_min_vers
 autoconf_min_vers=2.54
 libtoolize_min_vers=1.4
 
-# The awk-based string->number conversion we use needs a C locale to work as expected.
-LANG=C
-LC_NUMERIC=C
+# The awk-based string->number conversion we use needs a C locale to work 
+# as expected. Setting LC_ALL overrides whether the user set LC_ALL,
+# LC_NUMERIC, or LANG.
+LC_ALL=C
 
 ARGV0=$0
+
+# Allow invocation from a separate build directory; in that case, we change
+# to the source directory to run the auto*, then change back before running configure
+srcdir=`dirname $ARGV0`
+test -z "$srcdir" && srcdir=.
+
+ORIGDIR=`pwd`
+
+cd $srcdir
 
 if ($AUTOCONF --version) < /dev/null > /dev/null 2>&1 ; then
     if ($AUTOCONF --version | head -n 1 | awk 'NR==1 { if( $(NF) >= '$autoconf_min_vers') \
@@ -42,6 +50,33 @@ else
     DIE="yes"
 fi
 
+#
+# Hunt for an appropriate version of automake and aclocal; we can't
+# assume that 'automake' is necessarily the most recent installed version
+# 
+# We check automake first to allow it to be a newer version than we know about.
+#
+if test x"$AUTOMAKE" = x || test x"$ACLOCAL" = x ; then
+  am_ver=""
+  for ver in "" "-1.9" "-1.8" "-1.7" ; do
+    am="automake$ver"
+    if ($am --version) < /dev/null > /dev/null 2>&1 ; then
+      if ($am --version | head -n 1 | awk 'NR==1 { if( $(NF) >= '$automake_min_vers') \
+	  		 exit 1; exit 0; }'); then : ; else
+         am_ver=$ver
+         break;
+      fi
+    fi
+  done
+  
+  AUTOMAKE=${AUTOMAKE-automake$am_ver}
+  ACLOCAL=${ACLOCAL-aclocal$am_ver}
+fi
+
+#
+# Now repeat the tests with the copies we decided upon and error out if they
+# aren't sufficiently new.
+#
 if ($AUTOMAKE --version) < /dev/null > /dev/null 2>&1 ; then
   if ($AUTOMAKE --version | head -n 1 | awk 'NR==1 { if( $(NF) >= '$automake_min_vers') \
 			     exit 1; exit 0; }');
@@ -133,4 +168,6 @@ do_cmd $AUTOMAKE $AUTOMAKE_FLAGS
 
 do_cmd $AUTOCONF
 
-do_cmd ./configure --enable-maintainer-mode --enable-gtk-doc ${1+"$@"} && echo "Now type \`make' to compile" || exit 1
+cd $ORIGDIR || exit 1
+
+do_cmd $srcdir/configure --enable-maintainer-mode --enable-gtk-doc ${1+"$@"} && echo "Now type \`make' to compile" || exit 1

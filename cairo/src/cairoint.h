@@ -124,6 +124,12 @@
 #define __attribute__(x)
 #endif
 
+#if defined(__GNUC__)
+#define INLINE __inline__
+#else
+#define INLINE
+#endif
+
 #if HAVE_PTHREAD_H
 # include <pthread.h>
 # define CAIRO_MUTEX_DECLARE(name) static pthread_mutex_t name = PTHREAD_MUTEX_INITIALIZER
@@ -172,6 +178,7 @@ typedef cairo_fixed_16_16_t cairo_fixed_t;
 #define CAIRO_MINSHORT SHRT_MIN
 
 #define CAIRO_ALPHA_IS_OPAQUE(alpha) ((alpha) >= ((double)0xff00 / (double)0xffff))
+#define CAIRO_ALPHA_IS_ZERO(alpha) ((alpha) <= 0.0)
 
 #include "cairo-hash-private.h"
 
@@ -683,7 +690,7 @@ typedef struct _cairo_surface_backend {
 				 cairo_image_surface_t  *image,
 				 cairo_rectangle_t      *image_rect,
 				 void                   *image_extra);
-	
+
     cairo_status_t
     (*clone_similar)            (void                   *surface,
 				 cairo_surface_t        *src,
@@ -845,6 +852,8 @@ struct _cairo_surface {
 
     double device_x_offset;
     double device_y_offset;
+    double device_x_scale;
+    double device_y_scale;
 
     /*
      * Each time a clip region is modified, it gets the next value in this
@@ -936,7 +945,7 @@ typedef struct _cairo_solid_pattern {
     cairo_color_t color;
 } cairo_solid_pattern_t;
 
-extern const cairo_private cairo_solid_pattern_t cairo_solid_pattern_nil;
+extern const cairo_private cairo_solid_pattern_t cairo_pattern_nil;
 
 typedef struct _cairo_surface_pattern {
     cairo_pattern_t base;
@@ -1737,6 +1746,15 @@ _cairo_surface_composite_shape_fixup_unbounded (cairo_surface_t            *dst,
 
 /* cairo_image_surface.c */
 
+#define CAIRO_FORMAT_VALID(format) ((format) >= CAIRO_FORMAT_ARGB32 && \
+				    (format) <= CAIRO_FORMAT_A1)
+
+#define CAIRO_CONTENT_VALID(content) ((content) && 			         \
+				      (((content) & ~(CAIRO_CONTENT_COLOR |      \
+						      CAIRO_CONTENT_ALPHA |      \
+						      CAIRO_CONTENT_COLOR_ALPHA))\
+				       == 0))
+
 cairo_private cairo_format_t
 _cairo_format_from_content (cairo_content_t content);
 
@@ -1847,10 +1865,6 @@ _cairo_matrix_transform_bounding_box (const cairo_matrix_t *matrix,
 cairo_private void
 _cairo_matrix_compute_determinant (const cairo_matrix_t *matrix, double *det);
 
-cairo_private void
-_cairo_matrix_compute_eigen_values (const cairo_matrix_t *matrix,
-				    double *lambda1, double *lambda2);
-
 cairo_private cairo_status_t
 _cairo_matrix_compute_scale_factors (const cairo_matrix_t *matrix,
 				     double *sx, double *sy, int x_major);
@@ -1858,6 +1872,9 @@ _cairo_matrix_compute_scale_factors (const cairo_matrix_t *matrix,
 cairo_private cairo_bool_t
 _cairo_matrix_is_integer_translation(const cairo_matrix_t *matrix,
 				     int *itx, int *ity);
+
+cairo_private double
+_cairo_matrix_transformed_circle_major_axis(cairo_matrix_t *matrix, double radius);
 
 /* cairo_traps.c */
 cairo_private void

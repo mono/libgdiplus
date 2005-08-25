@@ -1,8 +1,8 @@
 <!-- ##### SECTION Title ##### -->
-cairo_pattern_t
+Patterns
 
 <!-- ##### SECTION Short_Description ##### -->
-
+Gradients and filtered sources
 
 <!-- ##### SECTION Long_Description ##### -->
 <para>
@@ -21,6 +21,31 @@ cairo_pattern_t
 <para>
 
 </para>
+
+
+<!-- ##### FUNCTION cairo_pattern_add_color_stop_rgb ##### -->
+<para>
+
+</para>
+
+@pattern: 
+@offset: 
+@red: 
+@green: 
+@blue: 
+
+
+<!-- ##### FUNCTION cairo_pattern_add_color_stop_rgba ##### -->
+<para>
+
+</para>
+
+@pattern: 
+@offset: 
+@red: 
+@green: 
+@blue: 
+@alpha: 
 
 
 <!-- ##### FUNCTION cairo_pattern_create_rgb ##### -->
@@ -81,6 +106,14 @@ cairo_pattern_t
 @Returns: 
 
 
+<!-- ##### FUNCTION cairo_pattern_destroy ##### -->
+<para>
+
+</para>
+
+@pattern: 
+
+
 <!-- ##### FUNCTION cairo_pattern_reference ##### -->
 <para>
 
@@ -90,65 +123,12 @@ cairo_pattern_t
 @Returns: 
 
 
-<!-- ##### FUNCTION cairo_pattern_destroy ##### -->
-<para>
-
-</para>
-
-@pattern: 
-
-
 <!-- ##### FUNCTION cairo_pattern_status ##### -->
 <para>
 
 </para>
 
 @pattern: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_pattern_add_color_stop_rgb ##### -->
-<para>
-
-</para>
-
-@pattern: 
-@offset: 
-@red: 
-@green: 
-@blue: 
-
-
-<!-- ##### FUNCTION cairo_pattern_add_color_stop_rgba ##### -->
-<para>
-
-</para>
-
-@pattern: 
-@offset: 
-@red: 
-@green: 
-@blue: 
-@alpha: 
-
-
-<!-- ##### FUNCTION cairo_pattern_set_matrix ##### -->
-<para>
-
-</para>
-
-@pattern: 
-@matrix: 
-
-
-<!-- ##### FUNCTION cairo_pattern_get_matrix ##### -->
-<para>
-
-</para>
-
-@pattern: 
-@matrix: 
-<!-- # Unused Parameters # -->
 @Returns: 
 
 
@@ -179,6 +159,18 @@ cairo_pattern_t
 @Returns: 
 
 
+<!-- ##### ENUM cairo_filter_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_FILTER_FAST: 
+@CAIRO_FILTER_GOOD: 
+@CAIRO_FILTER_BEST: 
+@CAIRO_FILTER_NEAREST: 
+@CAIRO_FILTER_BILINEAR: 
+@CAIRO_FILTER_GAUSSIAN: 
+
 <!-- ##### FUNCTION cairo_pattern_set_filter ##### -->
 <para>
 
@@ -194,6 +186,26 @@ cairo_pattern_t
 </para>
 
 @pattern: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_pattern_set_matrix ##### -->
+<para>
+
+</para>
+
+@pattern: 
+@matrix: 
+
+
+<!-- ##### FUNCTION cairo_pattern_get_matrix ##### -->
+<para>
+
+</para>
+
+@pattern: 
+@matrix: 
+<!-- # Unused Parameters # -->
 @Returns: 
 
 

@@ -4,7 +4,6 @@
 #include <math.h>
 
 #include <cairo.h>
-#include <cairo-pdf.h>
 
 #include "cairo-test.h"
 

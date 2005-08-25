@@ -15,7 +15,7 @@ Here are the steps to follow to create a new cairo release:
 
 	==================================================
 	cairo-X.Y.Z-head archives ready for distribution:
-	caioo-X.Y.Z-head.tar.gz
+	cairo-X.Y.Z-head.tar.gz
 	==================================================
 
 	(But the tar file isn't actually ready yet, as we still have
@@ -68,7 +68,7 @@ Here are the steps to follow to create a new cairo release:
 	* Generate the final tar file
 	* Generate an sha1sum file
 	* Sign the sha1sum using your GPG setup (asks for your GPG password)
-	* scp the three files to appear on http://cairographics.org/snapshots
+	* scp the three files to appear on http://cairographics.org/releases
 	* Place local copies of the three files in the releases directory
 	* Create a LATEST-package-version file (after deleting any old one)
 	* Tag the entire source tree with a tag of the form RELEASE_X_Y_Z

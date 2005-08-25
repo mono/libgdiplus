@@ -405,6 +405,35 @@ _cairo_stroker_cap (cairo_stroker_t *stroker, cairo_stroke_face_t *f)
     }
 }
 
+static cairo_status_t
+_cairo_stroker_add_caps (cairo_stroker_t *stroker)
+{
+    cairo_status_t status;
+
+    if (stroker->has_first_face) {
+	cairo_point_t t;
+	/* The initial cap needs an outward facing vector. Reverse everything */
+	stroker->first_face.usr_vector.x = -stroker->first_face.usr_vector.x;
+	stroker->first_face.usr_vector.y = -stroker->first_face.usr_vector.y;
+	stroker->first_face.dev_vector.dx = -stroker->first_face.dev_vector.dx;
+	stroker->first_face.dev_vector.dy = -stroker->first_face.dev_vector.dy;
+	t = stroker->first_face.cw;
+	stroker->first_face.cw = stroker->first_face.ccw;
+	stroker->first_face.ccw = t;
+	status = _cairo_stroker_cap (stroker, &stroker->first_face);
+	if (status)
+	    return status;
+    }
+
+    if (stroker->has_current_face) {
+	status = _cairo_stroker_cap (stroker, &stroker->current_face);
+	if (status)
+	    return status;
+    }
+
+    return CAIRO_STATUS_SUCCESS;
+}
+
 static void
 _compute_face (cairo_point_t *point, cairo_slope_t *slope, cairo_gstate_t *gstate, cairo_stroke_face_t *face)
 {
@@ -527,7 +556,12 @@ _cairo_stroker_add_sub_edge (cairo_stroker_t *stroker, cairo_point_t *p1, cairo_
 static cairo_status_t
 _cairo_stroker_move_to (void *closure, cairo_point_t *point)
 {
+    cairo_status_t status;
     cairo_stroker_t *stroker = closure;
+
+    status = _cairo_stroker_add_caps (stroker);
+    if (status)
+	return status;
 
     stroker->first_point = *point;
     stroker->current_point = *point;
@@ -824,26 +858,7 @@ _cairo_path_fixed_stroke_to_traps (cairo_path_fixed_t *path,
     if (status)
 	goto BAIL;
 
-    if (stroker.has_first_face) {
-	cairo_point_t t;
-	/* The initial cap needs an outward facing vector. Reverse everything */
-	stroker.first_face.usr_vector.x = -stroker.first_face.usr_vector.x;
-	stroker.first_face.usr_vector.y = -stroker.first_face.usr_vector.y;
-	stroker.first_face.dev_vector.dx = -stroker.first_face.dev_vector.dx;
-	stroker.first_face.dev_vector.dy = -stroker.first_face.dev_vector.dy;
-	t = stroker.first_face.cw;
-	stroker.first_face.cw = stroker.first_face.ccw;
-	stroker.first_face.ccw = t;
-	status = _cairo_stroker_cap (&stroker, &stroker.first_face);
-	if (status)
-	    goto BAIL;
-    }
-
-    if (stroker.has_current_face) {
-	status = _cairo_stroker_cap (&stroker, &stroker.current_face);
-	if (status)
-	    goto BAIL;
-    }
+    status = _cairo_stroker_add_caps (&stroker);
 
 BAIL:
     _cairo_stroker_fini (&stroker);

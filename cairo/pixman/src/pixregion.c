@@ -1156,7 +1156,7 @@ pixman_region_union_rect(pixman_region16_t *dest, pixman_region16_t *source,
     pixman_region16_t region;
 
     if (!width || !height)
-	return PIXMAN_REGION_STATUS_SUCCESS;
+	return pixman_region_copy (dest, source);
     region.data = NULL;
     region.extents.x1 = x;
     region.extents.y1 = y;

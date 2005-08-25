@@ -1,3 +1,1123 @@
+2005-08-24  Billy Biggs  <vektor@dumbterm.net>
+
+	* doc/public/tmpl/cairo-font-options.sgml:
+	* doc/public/tmpl/cairo-font.sgml:
+	* doc/public/tmpl/cairo-ft.sgml:
+	* doc/public/tmpl/cairo-glitz.sgml:
+	* doc/public/tmpl/cairo-image.sgml:
+	* doc/public/tmpl/cairo-matrix.sgml:
+	* doc/public/tmpl/cairo-paths.sgml:
+	* doc/public/tmpl/cairo-pattern.sgml:
+	* doc/public/tmpl/cairo-pdf.sgml:
+	* doc/public/tmpl/cairo-png.sgml:
+	* doc/public/tmpl/cairo-ps.sgml:
+	* doc/public/tmpl/cairo-quartz.sgml:
+	* doc/public/tmpl/cairo-scaled-font.sgml:
+	* doc/public/tmpl/cairo-status.sgml:
+	* doc/public/tmpl/cairo-surface.sgml:
+	* doc/public/tmpl/cairo-text.sgml:
+	* doc/public/tmpl/cairo-transforms.sgml:
+	* doc/public/tmpl/cairo-types.sgml:
+	* doc/public/tmpl/cairo-version.sgml:
+	* doc/public/tmpl/cairo-win32-fonts.sgml:
+	* doc/public/tmpl/cairo-win32.sgml:
+	* doc/public/tmpl/cairo-xcb-xrender.sgml:
+	* doc/public/tmpl/cairo-xcb.sgml:
+	* doc/public/tmpl/cairo-xlib.sgml:
+	* doc/public/tmpl/cairo.sgml: Update formatting of the title
+	and short description, as this actually changes how the TOC
+	appears in devhelp.
+
+2005-08-24  Bertram Felgenhauer  <int-e@gmx.de>
+
+	* Makefile.am (.PHONY): add docs-publish as a phony target
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* configure.in: Increment CAIRO_VERSION to 1.0.1 after tagging
+	RELEASE_1_0_0.
+	
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* configure.in: Increment CAIRO_VERSION to 1.0.0 and libtool
+	versioning to 4:2:2.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* NEWS: Fix typos. Add CAIRO_STATUS_INVALID_DASH.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* README: Unabbreviate "eg." to "for example,".
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* PORTING_GUIDE: Update name from "0.5 porting guide" to "1.0
+	porting guide."
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+	
+	* README: Some text cleanups from Øyvind Kolås.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+
+	* AUTHORS: Add Amaury Jacquot.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* RELEASING: Fix typo.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* AUTHORS:
+	* README: Fix typos.
+
+2005-08-24  Tor Lillqvist  <tml@novell.com>
+
+	* src/Makefile.am (cairo.def): Drop PDF and PS backend and FT font
+	API from Win32 DLL entry points for now.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* README: Fix typos.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* README: Move glitz into the experimental list.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* INSTALL: Put glitz in the experimental section.
+
+	* configure.in: Give glitz the experimental treatment, (disable it
+	by default.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* INSTALL: Add some more detailed build instructions.
+
+2005-08-24  Billy Biggs  <vektor@dumbterm.net>
+
+	* src/cairo.c (cairo_text_extents), (cairo_glyph_extents),
+	(cairo_show_text): Fix some minor typos in the doc.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* configure.in: Disable ATSUI by default as well.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* BUGS: Add pointer to http://bugs.freedesktop.org.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* README: Add more detailed notes on what is required to compile
+	cairo on Mac OS X or win32.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* Makefile.am:
+	* RELEASING: Change upload directory from snapshots to releases
+	now thatwe're doing stable releases of cairo.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* configure.in: Give PostScript and PDF backends the experimental
+	treatment, disabling them by default.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* NEWS: Add notes for 1.0 release. Thanks to Owen Taylor.
+	
+	* README: Note that PS and PDF backends are experimental.
+	
+	* ROADMAP: Note the progress that has been completed so that 1.0
+	is ready now.
+
+2005-08-24  Keith Packard  <keithp@keithp.com>
+
+	reviewed by: cworth
+
+	* src/cairo-ps-surface.c:
+	(_cairo_ps_surface_create_for_stream_internal),
+	(cairo_ps_surface_set_dpi), (color_is_translucent),
+	(pattern_is_translucent), (emit_image), (_ps_output_composite),
+	(_ps_output_fill_rectangles), (_ps_output_composite_trapezoids),
+	(_ps_output_path_move_to), (_ps_output_path_line_to),
+	(_ps_output_path_curve_to), (_ps_output_intersect_clip_path),
+	(_ps_output_show_glyphs), (_ps_output_fill_path),
+	(_cairo_ps_surface_render_page):
+	
+	Use new device_x_scale/device_y_scale surface fields
+	to set the device coordinate space to the nominal pixels.
+
+	Treat more alpha values as translucent (up to 0.999)
+
+	Fix emit_image to actually use a temporary image
+	when necessary.
+
+	Change PS coordinate space to match cairo (top-down),
+	adjust PS output to use new space.
+
+	Find more cases where PS output was not supported and
+	fall back to image surface.
+
+2005-08-24  Keith Packard  <keithp@keithp.com>
+
+	reviewed by: cworth
+
+	* src/cairo-meta-surface.c: (_cairo_meta_surface_replay):
+	_cairo_surface_show_glyphs may return UNSUPPORTED in which
+	case a call to scaled_font->backend->show_glyphs is needed.
+
+2005-08-24  Keith Packard  <keithp@keithp.com>
+
+	reviewed by: cworth
+
+	* src/cairo-gstate-private.h:
+	* src/cairo-gstate.c: (_cairo_gstate_init),
+	(_cairo_gstate_apply_device_transform),
+	(_cairo_gstate_apply_device_inverse_transform),
+	(_cairo_gstate_get_matrix), (_cairo_gstate_set_matrix),
+	(_cairo_gstate_identity_matrix), (_cairo_gstate_user_to_backend),
+	(_cairo_gstate_backend_to_user):
+	* src/cairo-surface.c: (_cairo_surface_init),
+	(cairo_surface_set_device_offset):
+	* src/cairoint.h:
+	Add device_x_scale and device_y_scale to
+	surface so that the coordinate system seen
+	by the backend can differ from the nominal
+	device coordinate space used by the application.
+	
+	Useful for printer backends where the device
+	coordinate space should be in pixels while the
+	user visible device space is in points.
+
+	There is no API to set these values; the backends
+	using this functionality should do that themselves
+	before the first cairo_t is created.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* src/cairo.c: (cairo_show_text): Fix cairo_show_text to advance
+	the current point. Add documentation for cairo_show_text.
+	
+	* test/.cvsignore:
+	* test/Makefile.am:
+	* test/show-text-current-point-ref.png:
+	* test/show-text-current-point.c: (draw), (main): Add test to
+	verify that the current-point-advancing behavior of
+	cairo_show_text is working.
+
+	* BUGS: Remove bug about cairo_show_text not advancing the current
+	point.
+
+2005-08-24  Carl Worth  <cworth@cworth.org>
+
+	* src/cairo.c (cairo_new_path, cairo_move_to, cairo_line_to,
+	cairo_curve_to, cairo_arc, cairo_rel_move_to, cairo_rel_line_to,
+	cairo_rel_curve_to, cairo_rectangle, cairo_close_path): Update
+	documentation for most path construction functions. Add discussion
+	of the effects on the current point to all functions. Rephrase the
+	wording of the relative functions. Big rewrite of cairo_arc
+	description. Add discussion of join not caps to cairo_close_path.
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* src/cairo.h: Minor doc edit.
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* doc/public/tmpl/cairo-matrix.sgml: Minor doc edits.
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* doc/public/tmpl/cairo-matrix.sgml:
+	* doc/public/tmpl/cairo-status.sgml:
+	* doc/public/tmpl/cairo-types.sgml:
+	* doc/public/tmpl/cairo.sgml: Prefer cairo over Cairo when not at
+	the beginning of a sentence.
+
+2005-08-23  Billy Biggs  <vektor@dumbterm.net>
+
+	* doc/public/tmpl/cairo-image.sgml: Add a long description.
+	* doc/public/tmpl/cairo.sgml: Fix a typo.
+	* src/cairo-font.c: Document the return value of
+	cairo_scaled_font_reference().
+	* src/cairo-xlib-surface.c: Document the width and height
+	parameters of cairo_xlib_surface_set_drawable().
+
+2005-08-23  Billy Biggs  <vektor@dumbterm.net>
+
+	* src/cairo.c: Document the rest of the path functions (except the
+	two text ones, which should coordinate with their corresponding
+	non-path versions).
+	* doc/public/cairo-sections.txt:
+	* doc/public/tmpl/cairo-paths.sgml:
+	* doc/public/tmpl/cairo-text.sgml: Minor shuffling.
+
+2005-08-23  Kristian Høgsberg  <krh@redhat.com>
+
+	* AUTHORS: 
+	* README: More minor edits.
+
+2005-08-23  Billy Biggs  <vektor@dumbterm.net>
+
+	* README: Minor edits.
+
+2005-08-23  Billy Biggs  <vektor@dumbterm.net>
+
+	* doc/public/tmpl/cairo-matrix.sgml: Update the long description
+	of cairo_matrix_t to match the current sources.
+	* doc/public/tmpl/cairo-paths.sgml: Add cairo_path_data_t.
+	* src/cairo-ft-font.c:
+	* src/cairo-path-data.c:
+	* src/cairo-pattern.c:
+	* src/cairo.c:
+	* src/cairo.h: Some documentation updates and improvements.
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* test/.valgrind-suppressions: Add suppression for uninitialized
+	data in fbBltOne.
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* README: Big update in preparation for 1.0.
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+	
+	* AUTHORS: Added several names to the AUTHORS file (since
+	2005-01-24):
+
+	Josh Aas <joshmoz@gmail.com>
+	Billy Biggs <vektor@dumbterm.net>
+	Damien Carbery <damien.carbery@sun.com>
+	Steve Chaplin <stevech1097@yahoo.com.au>
+	Tomasz Cholewo <cholewo@ieee-cis.org>
+	John Ehresman <jpe@wingide.com>
+	Behdad Esfahbod <behdad@behdad.org>
+	Bertram Felgenhauer <int-e@gmx.de>
+	J. Ali Harlow <ali@avrc.city.ac.uk>
+	Adrian Johnson <ajohnson@redneon.com>
+	Michael Johnson <ahze@ahze.net>
+	Øyvind Kolås <pippin@freedesktop.org>
+	Martin Kretzschmar <martink@gnome.org>
+	Tor Lillqvist <tml@novell.com>
+	Luke-Jr <luke-jr@utopios.org>
+	Jeff Muizelaar <jeff@infidigm.net>
+	Peter Nilsson <c99pnn@cs.umu.se>
+	Geoff Norton <gnorton@customerdna.com>
+	Robert O'Callahan <rocallahan@novell.com>
+	Mike Owens <etc@filespanker.com>
+	Stuart Parmenter <pavlov@pavlov.net>
+	Tim Rowley <tim.rowley@gmail.com>
+	Jason Dorje Short <jdorje@users.sf.net>
+	Travis Spencer <tspencer@cs.pdx.edu>
+	Malcolm Tredinnick <malcolm@commsecure.com.au>
+
+2005-08-23  Billy Biggs  <vektor@dumbterm.net>
+
+	* doc/public/cairo-docs.xml: Experimental Quartz and XCB
+	backends removed from the public doc for now.
+
+2005-08-23  Owen Taylor  <otaylor@redhat.com>
+
+	* configure.in: Reverse the help text for --enable-xcb,
+	--enable-quartz.
+
+2005-08-23  Owen Taylor  <otaylor@redhat.com>
+
+	* configure.in: Disable XCB and Quartz backends unless
+	explicitely enabled. Add a big warning message if they
+	are enabled about bugs and API instability.
+
+2005-08-23  Owen Taylor  <otaylor@redhat.com>
+
+	* src/cairo-pattern.c (_cairo_pattern_calc_color_at_pixel):
+	Rip out all the code for doing anything other than linear
+	interpolation between color stops, instead of doing different
+	funky things based on pattern->filter. (#4184)
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* src/cairo-font.c: (cairo_font_face_reference),
+	(cairo_scaled_font_reference): Remove assert statements that
+	violate two intentional instances of ref_count == 0.
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* test/text-pattern.c: (draw): Fix memory leak of pattern.
+
+2005-08-23  Owen Taylor  <otaylor@redhat.com>
+
+	* src/cairo-win32-font.c (_cairo_win32_scaled_font_show_glyphs):
+	Check for AlphaBlend() with GetProcAddress() to support older
+	compilation environments like MSVC 6. (Also fixes this portion
+	of the code to run on Win98 and Win95, but much of the rest
+	of cairo-win32-* won't work in that environment)
+	(#3926, Hans Breuer, Christian Biesinger, based on code 
+	originally from Mozilla)
+
+	* src/cairo-win32-private.h: Remove WINVER define, since it
+	was there only for AlphaBlend().
+
+2005-08-23  Owen Taylor  <otaylor@redhat.com>
+
+	* src/cairo-ft-font.c: Call _get_pattern_load_flags() 
+	on the resolved pattern, not the input pattern.
+	(Further fix from sunmoon1997)
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	Reviewed by: otaylor
+	Fixes bug #4198
+
+	* src/cairo-font.c: (cairo_font_face_reference),
+	(cairo_font_face_destroy), (cairo_scaled_font_reference),
+	(cairo_scaled_font_destroy):
+	* src/cairo-pattern.c: (cairo_pattern_reference),
+	(cairo_pattern_destroy):
+	* src/cairo-surface.c: (cairo_surface_reference),
+	(cairo_surface_destroy):
+	* src/cairo.c: (cairo_reference), (cairo_destroy):
+	Detect (by assert and crash) if users attempt to twice destroy or
+	re-reference a destroyed object. The condition for detecting this
+ 	case is a ref_count of 0.
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* src/cairo.h:
+	* src/cairoint.h: Move CAIRO_CONTENT_VALID and CAIRO_FORMAT_VALID
+	from the public cairo.h to the private cairoint.h where they
+	belong.
+
+2005-08-23  Owen Taylor  <otaylor@redhat.com>
+
+	* src/cairo-ft-font.c (_cairo_ft_scaled_font_show_glyphs): 
+	when creating the temporary mask, do glyph ADD mask, not 
+	(glyph IN source) ADD mask. Set the mask as having component
+	alpha when it's 4-channel.
+
+	* test/text-antialias-subpixel.c test/Makefile.am: No longer XFAIL.
+	
+	* test/text-antialias-gray.c test/text-antialias-subpixel.c
+	* test/text-antialias-none.c (draw): Don't turn off metrics
+	hinting, it doesn't make sense.
+
+	* test/text-antialias-*-ref.png: Update.
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* CODING_STYLE: Revise the description of indentation and tabs to
+	be clear (I hope).
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* test/text-antialias-subpixel.c (draw): Clear to opaque white at
+	the beginning of the test so that the 0 alpha values in the
+	destination don't cause bizarre results.
+	(main): Note that only the image backend should fail now.
+
+	* test/text-antialias-subpixel-ref.png: Add new reference image.
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* test/text-rotate-ref.png:
+	* test/text-rotate.c: (draw), (main): Add more comments on the
+	improved state of this bug. Commit a reference image generated
+	with cairo_text_path; cairo_fill. (We may not require getting this
+	exact result, but I think it is worth examining the differences
+	closely.)
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* Makefile.am: Add docs-publish target to build and push
+	documentation, (since our nightly server-side cron job is not
+	working right now).
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* BUGS:
+	* src/cairo-xlib-screen.c: Move comment about missing cleanup of
+	caches on XCloseDisplay from BUGS to a
+	_cairo_xlib_close_display. Also covered in bug #4120.
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* test/Makefile.am:
+	* test/caps-sub-paths.c: (main): Remove caps-sub-paths from the
+	XFAIL list since it is fixed now.
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	Fix for bug #4205:
+
+	* src/cairo-path-stroke.c: (_cairo_stroker_add_caps):
+	(_cairo_path_fixed_stroke_to_traps): Abstract the cap-addition
+	code from the end of the stroke operation into a new
+	_cairo_stroker_add_caps function.
+
+	* src/cairo-path-stroke.c: (_cairo_stroker_move_to): Call the new
+	_cairo_stroker_add_caps at the beginning of every move_to so that
+	we get caps on every subpath and not just the last one.
+
+2005-08-23  Billy Biggs  <vektor@dumbterm.net>
+
+	* src/Makefile.am: Add libpixman.la to the libcairo_la_DEPENDENCIES
+	line so that changes to pixman get picked up.
+
+2005-08-23  Owen Taylor  <otaylor@redhat.com>
+
+	Some fixes for warnings from sparse (Part of #4208, 
+	Kjartan Maraas)
+
+	* test/cairo-test.c (create_xlib_surface): Use NULL, not 0.
+
+	* src/cairo-matrix.c (_cairo_matrix_transformed_circle_major_axis):
+	Fix C99'ism of mixed code and declarations.
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* BUGS: caps only added to last subpath: COVERED by
+	test/caps-sub-paths and bug #4205.
+
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* test/caps-sub-paths.c: Use the expect_failure variant of
+	cairo_test so that make check prints the reason this test fails.
+	
+2005-08-23  Carl Worth  <cworth@cworth.org>
+
+	* test/.cvsignore:
+	* test/Makefile.am:
+	* test/caps-sub-paths-ref.png:
+	* test/caps-sub-paths.c: (draw), (main): Add test to demonstrate
+	bug #4205, missing caps on all but last sub-path in a complex
+	path.
+
+2005-08-22  Carl Worth  <cworth@cworth.org>
+
+	* src/cairo.c (cairo_create): Remove discussion of the BAD_NESTING
+	restriction from the documentation of cairo_create. No such
+	restriction exists anymore.
+
+2005-08-22  Carl Worth  <cworth@cworth.org>
+
+	Fix for bug #4192:
+
+	* src/cairo-ft-font.c: (_font_map_release_face_lock_held): New
+	function to handle both calling FT_Done_Face on unscaled->face and
+	decrementing font_map->num_open_faces.
+
+	* src/cairo-ft-font.c:
+	(_cairo_ft_unscaled_font_map_destroy),
+	(_cairo_ft_unscaled_font_destroy),
+	(_cairo_ft_unscaled_font_lock_face): Call new
+	_font_map_release_face_lock_held as approporiate.
+
+	* src/cairo-ft-font.c: (_cairo_ft_unscaled_font_map_destroy):
+	Assert that (font_map->num_open_faces == 0) when we're done, to
+	help guarantee the bug is fixed.
+
+	* src/cairo-ft-font.c: (_cairo_ft_unscaled_font_fini): Don't call
+	FT_Done_Face anymore, instead assert that (unscaled->face == NULL)
+	by the time this function is called.
+
+	* src/cairo-ft-font.c: (_cairo_ft_unscaled_font_init),
+	(_cairo_ft_unscaled_font_set_scale): Prefer TRUE/FALSE as values
+	for cairo_bool_t have_scale.
+
+2005-08-22  Billy Biggs  <vektor@dumbterm.net>
+
+	* doc/public/Makefile.am: Add version.xml to content_files
+	so it will be copied to the right place for DESTDIR builds.
+
+2005-08-22  Billy Biggs  <vektor@dumbterm.net>
+
+	* doc/public/cairo-docs.xml:
+	* doc/public/cairo-sections.txt: Rework the index for the
+	reference manual.
+
+	* doc/public/tmpl/cairo-font-options.sgml:
+	* doc/public/tmpl/cairo-font.sgml:
+	* doc/public/tmpl/cairo-ft.sgml:
+	* doc/public/tmpl/cairo-glitz.sgml:
+	* doc/public/tmpl/cairo-image.sgml:
+	* doc/public/tmpl/cairo-matrix.sgml:
+	* doc/public/tmpl/cairo-paths.sgml:
+	* doc/public/tmpl/cairo-pattern.sgml:
+	* doc/public/tmpl/cairo-pdf.sgml:
+	* doc/public/tmpl/cairo-png.sgml:
+	* doc/public/tmpl/cairo-ps.sgml:
+	* doc/public/tmpl/cairo-quartz.sgml:
+	* doc/public/tmpl/cairo-scaled-font.sgml:
+	* doc/public/tmpl/cairo-status.sgml:
+	* doc/public/tmpl/cairo-surface.sgml:
+	* doc/public/tmpl/cairo-text.sgml:
+	* doc/public/tmpl/cairo-transforms.sgml:
+	* doc/public/tmpl/cairo-types.sgml:
+	* doc/public/tmpl/cairo-version.sgml:
+	* doc/public/tmpl/cairo-win32-fonts.sgml:
+	* doc/public/tmpl/cairo-win32.sgml:
+	* doc/public/tmpl/cairo-xcb-xrender.sgml:
+	* doc/public/tmpl/cairo-xcb.sgml:
+	* doc/public/tmpl/cairo-xlib.sgml:
+	* doc/public/tmpl/cairo.sgml: Update descriptions and add new
+	files for added sections.
+
+2005-08-22  Owen Taylor  <otaylor@redhat.com>
+
+	* src/cairo-ft-font.c: Make cairo_ft_unscaled_font_backend static.
+
+	* src/cairo-gstate.c (_cairo_gstate_fini): Add missing static.
+
+	* src/cairo-pattern.c (_cairo_pattern_init_gradient): 
+	* src/cairo-ps-surface.c (_cairo_ps_surface_finish): 
+	* src/cairo-xlib-surface.c (_get_image_surface): Use
+	NULL, not 0.
+
+	* src/cairo-font.c (_cairo_lock,unlock,get_global_image_glyph_cache): 
+	Use void in the definition of void functions, not ().
+
+	* src/cairo-pattern.c: Make non-exported 
+	cairo_pattern_nil_* static.
+
+2005-08-22  Carl Worth  <cworth@cworth.org>
+
+	* BUGS: ref_counts will go negative: COVERED by
+	https://bugs.freedesktop.org/show_bug.cgi?id=4198
+
+2005-08-22  Carl Worth  <cworth@cworth.org>
+
+	* BUGS: Remove several entries in an effort to obsolete the BUGS
+	file in favor of bugzilla and cairo/test. Specifically:
+
+	cairo_image_surface_create should clear image: NOTABUG. The user
+	  can clear if desired, and cairo clearing unconditionally would
+	  be performance overhead).
+
+	cairo_clip is really slow: FIXED/COVERED. Since the time this
+	  entry was added we've got rectangular, pixel-alignend clipping
+	  optimized. And there's a bug in bugzilla
+	  (https://bugs.freedesktop.org/show_bug.cgi?id=4191) for
+	  optimizing IN.
+
+	self-intersecting path is wrong: COVERED by
+	  test/self-intersecting.c.
+
+	Cairo is crashing Xnest: NEEDINFO. Is this still happening? Xfake
+	  has been working quite well for a very long time now.
+
+	font-size="0" in SVG does bad things: FIXED.
+
+2005-08-22  Bertram Felgenhauer  <int-e@gmx.de>
+
+	* src/cairoint.h, src/cairo-matrix.c
+	(_cairo_matrix_compute_eigen_values): remove.
+
+2005-08-22  Bertram Felgenhauer  <int-e@gmx.de>
+
+	* src/cairo-arc.c (_arc_segments_needed): correct the calculation of
+	the error bound.
+
+2005-08-22  Bertram Felgenhauer  <int-e@gmx.de>
+
+	* src/cairo-pen.c (_cairo_pen_vertices_needed): use new function.
+	strip comment of derivation for major axis length.
+
+	* src/cairo-matrix.c (_cairo_matrix_transformed_circle_major_axis):
+	use _cairo_matrix_get_affine to retrieve matrix entries.
+
+	* src/cairoint.h, src/cairo-matrix.c
+	(_cairo_matrix_transformed_circle_major_axis): new function split out
+	of cairo-pen.c. UTF8-ify the comment that explains the calculation.
+
+2005-08-22  Bertram Felgenhauer  <int-e@gmx.de>
+
+	* src/cairo-pen.c (_cairo_pen_vertices_needed): use correctly
+	transposed version of the matrix and fix up the comments above
+	to use row vector notation.
+
+2005-08-22  Tor Lillqvist  <tml@novell.com>
+
+	* configure.in: Calculate LT_CURRENT_MINUS_AGE (which forms part
+	of the DLL name on Win32), and AC_SUBST it.
+
+	* Makefile.am: Add target "zips" to create zip file based
+	distribution for Win32.
+
+	* src/Makefile.am: Produce a cairo.def file for distribution by
+	preprocessing the relevant header files and grepping for
+	declarations of functions that start with cairo_. Works for now,
+	will have to modify later if necessary. Use the .def file when
+	linking on Win32.
+
+2005-08-22  Owen Taylor  <otaylor@redhat.com>
+
+	Support artificial bold fonts with FC_EMBOLDEN; patch
+	from Jackey Yang and sunmoon1997.
+
+	* configure.in: Check for FT_GlyphSlot_Embolden()
+
+	* src/cairo-ft-font.c: Call FT_GlyphSlot_Embolden for
+	fonts where FC_EMBOLDEN is set but that aren't bold.
+	Add another private flag for this.
+
+2005-08-22  Carl Worth  <cworth@cworth.org>
+
+	* test/Makefile.am (EXTRA_DIST): Fix typo that was causing make
+	dist to fail.
+
+2005-08-22  Owen Taylor  <otaylor@redhat.com>
+
+	* test/text-rotate.c (draw): Use floor(0.5+x) rather than
+	round(), which is C99. (David Hollenberg)
+
+2005-08-22  Owen Taylor  <otaylor@redhat.com>
+
+	* autogen.sh: Set LC_ALL=C rather than LANG and LC_NUMERIC to be
+	robust against whatever settings the user has. (Martin Dobias)
+
+2005-08-21  Billy Biggs  <vektor@dumbterm.net>
+
+	* src/cairo.c: (cairo_paint_with_alpha): Optimize away calls to
+	cairo_paint_with_alpha() if the alpha value given is <= 0.
+
+	* src/cairoint.h: Add a new macro CAIRO_ALPHA_IS_ZERO.
+
+2005-08-21  Billy Biggs  <vektor@dumbterm.net>
+
+	Fix for bug #4172:
+
+	* src/cairo-pattern.c: (_cairo_pattern_shader_gaussian),
+	(_cairo_image_data_set_linear), (_cairo_image_data_set_radial):
+	Use _cairo_fixed_to_double and _cairo_double_to_fixed when converting
+	between double and 16.16 fixed point.  These functions round nicely,
+	and solve some inconsistencies in rendering between my PPC and x86
+	machines.  Thanks to Owen Taylor for suggesting the fix.
+
+	* test/gradient-alpha-ref.png:
+	* test/linear-gradient-ref.png:
+	* test/text-pattern-ref.png: The above change does affect linear
+	gradients slightly, but it seems worth it.  Update the reference
+	images to follow.
+
+2005-08-21  Owen Taylor  <otaylor@redhat.com>
+
+	* src/cairo-surface.c (_cairo_surface_acquire_dest_image): Remove
+	stray doc sentence that wasn't meant to be committed.
+
+2005-08-21  Billy Biggs  <vektor@dumbterm.net>
+
+	Fix for bug #4165:
+
+	* src/cairo-hull.c: (_cairo_hull_vertex_compare): Use pointer
+	comparison for coincident points to ensure a well-defined
+	ordering, and avoid setting discard on both points.  This fixes
+	problems with my Mac's implementation of qsort.  Final patch by
+	Bertram Felgenhauer.
+
+	* test/clip-operator-ref.png:
+	* test/linear-gradient-ref.png:
+	* test/operator-clear-ref.png:
+	* test/operator-source-ref.png:
+	* test/unantialiased-shapes-ref.png:
+	* test/unbounded-operator-ref.png: Update reference images after
+	the change.
+
+2005-08-21  Owen Taylor  <otaylor@redhat.com>
+
+	* autogen.sh: Check automake-<ver> if automake isn't sufficiently
+	new. (#3593, Philip Van Hoof)
+	
+2005-08-21  Owen Taylor  <otaylor@redhat.com>
+
+	* autogen.sh: When invoked as, say, ../autogen.sh, switch to
+	the sourcedir to run the auto*. Based on corresponding code
+	in GTK+'s autogen.sh. (#3402, Thomas Fitzsimmons)
+
+	* gtk-doc.make: Update from gtk-doc CVS, bringing in some
+	minor output changes. (Eliminate the *** from the messages
+	that don't indicate errors.)
+
+	* doc/public/Makefile.am (EXTRA_DIST): Use += for EXTRA_DIST,
+	since gtk-doc.make already defines it.
+
+2005-08-21  Owen Taylor  <otaylor@redhat.com>
+
+	* configure.in: Check for FT_Load_Sfnt_Table and disable
+	the PDF/PS backends if not found. (#4144, Billy Biggs)
+
+2005-08-21  Owen Taylor  <otaylor@redhat.com>
+
+	* src/cairo-surface.c (_cairo_surface_clone_similar): Fix the
+	handling of backend->clone_similar == NULL. (#4161,
+	Christian Biesinger)
+	
+2005-08-21  Owen Taylor  <otaylor@redhat.com>
+
+	* src/cairo-surface.c: Improve the documentation of internal
+	functions. (Based on a patch from Christian Biesinger, #4162)
+
+2005-08-21  Owen Taylor  <otaylor@redhat.com>
+
+	* src/cairo-xlib-surface.c (_cairo_xlib_surface_create_internal):
+	Recognize gentoo's (and maybe other distro's) modified
+	server vendor string, where extra text is added to the
+	upstream value. (#4068, reported by Doug Goldstein, others.
+	Patch from Mart Raudsepp)
+
+2005-08-21  Owen Taylor  <otaylor@redhat.com>
+
+	* src/cairo-ft-font.c (_cairo_ft_unscaled_font_create_glyph): 
+	Don't try to transform val->image when it is NULL.
+	(#4163, Mathias Hasselmann)
+
+2005-08-20  Carl Worth  <cworth@cworth.org>
+
+	Fix for bug #4142:
+
+	* test/cairo-test.c (create_xlib_surface): Disable xlib tests on X
+	servers without the Render, since they currently just crash
+	there. A better long-term fix would be to do some useful tests in
+	this case. Thanks to Tim Mooney.
+
+2005-08-20  Owen Taylor  <otaylor@redhat.com>
+
+	* src/cairo-xlib-surface.c (_cairo_xlib_surface_create_internal): 
+	Include Xfree86-4.5 in the blacklist. (Reported by 
+	Andrew Benton)
+
+2005-08-20  Billy Biggs  <vektor@dumbterm.net>
+
+	Fix for bug #4096:
+
+	* src/cairo-png.c: (multiply_alpha), (premultiply_data): Improve
+	the performance of png reading by adding special cases for fully
+	transparent and fully opaque alpha, and using the standard
+	optimization for 8-bit division by 255.
+
+	* src/cairoint.h: Add an INLINE macro for gcc.
+
+2005-08-19  Carl Worth  <cworth@cworth.org>
+
+	From Bertram Felgenhauer <int-e@gmx.de>:
+
+	* test/.cvsignore:
+	* test/Makefile.am:
+	* test/rectangle-rounding-error-ref.png:
+	* test/rectangle-rounding-error.c: (draw), (main):
+	Add regression test for bug #4137 (fixed earlier).
+
+2005-08-19  Billy Biggs  <vektor@dumbterm.net>
+
+	* test/pixman-rotate.c: No need to include cairo-pdf.h.
+
+2005-08-19  Carl Worth  <cworth@cworth.org>
+
+	Fix for bug #4137:
+
+	* src/cairo-fixed.c: (_cairo_fixed_from_double): Fix to round
+	properly.
+
+2005-08-19  Owen Taylor  <otaylor@redhat.com>
+
+	* src/cairo-pdf-surface.c (_cairo_pdf_surface_show_glyphs):
+	Ignore really small fonts, since size zero fonts give xpdf
+	fits. (#2938)
+
+2005-08-19  Carl Worth  <cworth@cworth.org>
+
+	* src/cairo-font.c: (_cairo_scaled_font_set_error): Fix to
+	actually test scaled_font->status instead of just having a comment
+	that claims to test it. Thanks to Behdad Esfahbod
+	<behdad@cs.toronto.edu>.
+
+2005-08-18  Owen Taylor  <otaylor@redhat.com>
+
+	* src/cairo-xlib-surface.c (_cairo_xlib_surface_composite): We need
+	the call to fixup_unbounded when we optimize the RENDER operator
+	to XCopyArea as well.
+
+2005-08-19  Carl Worth  <cworth@cworth.org>
+
+	Fixes for a general problem of which bug #4094 was a specific
+	instance:
+
+	* src/cairo.c: (_cairo_set_error):
+	* src/cairo-font.c: (_cairo_scaled_font_set_error):
+	* src/cairo-pattern.c: (_cairo_pattern_set_error):
+	* src/cairo-surface.c: (_cairo_surface_set_error):
+	Don't change the status value if it already holds an error. This
+	avoids destroying "first error" information and also avoids
+	attempting to write read-only data, (eg. from nil objects).
+	
+	* src/cairo-font.c:	
+	(cairo_scaled_font_extents), (cairo_scaled_font_glyph_extents):
+	* src/cairo-pattern.c::	
+	(cairo_pattern_create_rgb), (cairo_pattern_create_rgba):
+	* src/cairo-surface.c:
+	(cairo_surface_flush), (cairo_surface_mark_dirty_rectangle),
+	(cairo_surface_set_device_offset):
+	* src/cairo-win32-font.c: (cairo_win32_scaled_font_select_font):
+	* src/cairo.c: (cairo_save), (cairo_restore),
+	(cairo_set_operator), (cairo_set_source_rgb),
+	(cairo_set_source_rgba), (cairo_set_source_surface),
+	(cairo_set_source), (cairo_set_tolerance), (cairo_set_antialias),
+	(cairo_set_fill_rule), (cairo_set_line_width),
+	(cairo_set_line_cap), (cairo_set_line_join), (cairo_set_dash),
+	(cairo_set_miter_limit), (cairo_translate), (cairo_scale),
+	(cairo_rotate), (cairo_transform), (cairo_set_matrix),
+	(cairo_identity_matrix), (cairo_user_to_device),
+	(cairo_user_to_device_distance), (cairo_device_to_user),
+	(cairo_device_to_user_distance), (cairo_new_path), (cairo_move_to),
+	(cairo_line_to), (cairo_curve_to), (cairo_arc),
+	(cairo_arc_negative), (cairo_rel_move_to), (cairo_rel_line_to),
+	(cairo_rel_curve_to), (cairo_rectangle), (cairo_close_path),
+	(cairo_paint), (cairo_paint_with_alpha), (cairo_mask),
+	(cairo_mask_surface), (cairo_stroke_preserve),
+	(cairo_fill_preserve), (cairo_copy_page), (cairo_show_page),
+	(cairo_in_stroke), (cairo_in_fill), (cairo_stroke_extents),
+	(cairo_fill_extents), (cairo_clip_preserve), (cairo_reset_clip),
+	(cairo_select_font_face), (cairo_get_font_face),
+	(cairo_font_extents), (cairo_set_font_face), (cairo_set_font_size),
+	(cairo_set_font_matrix), (cairo_set_font_options),
+	(cairo_text_extents), (cairo_glyph_extents), (cairo_show_text),
+	(cairo_show_glyphs), (cairo_text_path), (cairo_glyph_path),
+	(cairo_append_path):
+	Don't set an error on the same object if it is in an error state
+	to begin with, just return immediately. This is intended to reduce
+	(eventual) error prints to the first cause of an error for any
+	given object, instead of a continual spew.
+
+2005-08-19  Kristian Høgsberg  <krh@redhat.com>
+
+	* src/cairo-ps-surface.c (cairo_ps_surface_set_dpi): Add this
+	missing fuction.
+
+	* src/cairo-pdf-surface.c (cairo_pdf_surface_create): Document
+	this funtion.
+
+2005-08-19  Carl Worth  <cworth@cworth.org>
+
+	Fix for bug #2729:
+
+	* src/cairo-gstate.c: (_cairo_gstate_set_dash): Adjust negative
+	offsets up to their equivalent positive value. Add error checking
+	for dash values, (must each be non-negative and must not be all
+	zero).
+
+	* src/cairo.c (cairo_set_dash): Add documentation.
+
+	* src/cairo.h:
+	* src/cairo.c: (cairo_status_to_string): Add new
+	CAIRO_STATUS_INVALID_DASH.
+
+	* test/.cvsignore:
+	* test/Makefile.am: Add dash-offfset-negative test from Owen.
+
+	* doc/public/tmpl/cairo.sgml: churn
+
+2005-08-19  Carl Worth  <cworth@cworth.org>
+
+	Fix for bug #3915:
+
+	* src/cairo-pattern.c: (_cairo_pattern_nil_for_status): Add new
+	NULL_POINTER nil pattern.
+
+	* src/cairo-pattern.c: (cairo_pattern_create_for_surface): Check
+	for surface == NULL and return a nil pattern.
+	
+	* test/nil-surface.c: (draw): Verify that the above fix works.
+
+2005-08-18  Carl Worth  <cworth@cworth.org>
+
+	Fix for bug #4088:
+
+	* src/cairo-pattern.c: (_cairo_pattern_nil_for_status):
+	New function to return the current nil pattern depending on the
+	status.
+	
+	* src/cairo-pattern.c: (cairo_pattern_create_for_surface):
+	* src/cairo-pattern.c: (_cairo_pattern_init_for_surface): Add
+	missing early bailout on surface->status with error propagation to
+	the pattern.
+
+	Related cleanups for cairo_pattern_t:
+
+	* src/cairo-pattern.c: (_cairo_gradient_pattern_init_copy): Don't
+	check other->status since this is a static function.
+
+	* src/cairo-pattern.c: (_cairo_pattern_init_copy): Add missing
+	early bailout on other->status.
+	
+	* src/cairo-pattern.c: (_cairo_pattern_fini): Cleanup identifier
+	names.
+
+	* src/cairo-pattern.c: (_cairo_pattern_create_solid),
+	(cairo_pattern_create_linear), (cairo_pattern_create_radial):
+	Track rename of nil patterns.
+	
+	* src/cairo-pattern.c: (cairo_pattern_set_matrix),
+	(cairo_pattern_set_filter),
+	(cairo_pattern_set_extend): Don't call _cairo_error for
+	pre-existing errors.
+
+	* src/cairo-pattern.c: (_cairo_pattern_acquire_surface): Take care
+	to initialize some fields to that _cairo_pattern_release_surface
+	will work even after an error.
+
+	* src/cairoint.h:
+	* src/cairo.c: (cairo_get_source): Track rename of
+	cairo_solid_pattern_nil to cairo_pattern_nil.
+	
+	* test/.cvsignore:
+	* test/Makefile.am:
+	* test/nil-surface-ref.png:
+	* test/nil-surface.c: (draw), (main): New test to ensure that a
+	file-not-found error will propagate from a surface, through a
+	pattern, and onto a cairo_t.
+
+2005-08-18  Carl Worth  <cworth@cworth.org>
+
+	* test/.valgrind-suppressions: Suppress a pthread initialization
+	error now that tests are linked with -lpthread.
+
+2005-08-18  Carl Worth  <cworth@cworth.org>
+
+	* src/cairo-pattern.c: Fix documentation comment to use &amp; in
+	place of &.
+
+2005-08-18  Owen Taylor  <otaylor@redhat.com>
+
+	Reviewed by: krh
+
+	* configure.in: Fix tests to just disable FreeType if a too-old FreeType
+	is found, rather than erroring out. (#2298)
+
+2005-08-18  Owen Taylor  <otaylor@redhat.com>
+
+	* src/cairo-xlib-surface.c (_cairo_xlib_surface_show_glyphs): Fix offset
+	passed in for source patterns. (#2333, Tim Rowley)
+
+	* test/text-pattern.c: Fix font to Vera Sans rather than "Sans"
+
+2005-08-18  Carl Worth  <cworth@cworth.org>
+
+	* ROADMAP: Update the roadmap. Remove difficulty rating from
+	completed tasks. Note that PostScript/PDF is (grudgingly) done as
+	far as 1.0 is concerned, but there is more work to completing this
+	that is slipped beyond 1.0. Note that the deadlock bug is fixed as
+	of 0.9.2. Update who is working on what for performance. Add some
+	new detail for post-1.0 PostScript/PDF work. Slip the overlapping
+	source/dest Render workaround past 1.0.
+
+2005-08-18  Owen Taylor  <otaylor@redhat.com>
+
+	* test/text-pattern.c: Add a test for bug #2333 (Tim Rowley)
+
+2005-08-17  Owen Taylor  <otaylor@redhat.com>
+	
+	* src/cairo-gstate.c: Implement new equations for CLEAR and SOURCE
+	CLEAR: (mask IN clip) ? 0 : dest
+	SOURCE: (mask IN clip) ? src : dest
+	That behave more like what people expect.
+
+	* src/cairo-gstate.c (_cairo_operator_bounded): CLEAR and SOURCE are 
+	now bounded.
+
+	* src/cairo-font.c (_cairo_ft_scaled_font_show_glyphs)
+	* src/cairo-surface.c (_cairo_surface_composite_trapezoids):
+	Assert that SOURCE and CLEAR aren't passed to these functions.
+
+	* src/cairo-surface.c (_cairo_surface_composite):
+	Assert that SOURCE and CLEAR aren't passed to these functions
+	when there is a mask.
+
+	* src/cairo-xlib-surface.c (_cairo_xlib_surface_composite)
+	* src/cairo-image-surface.c (_cairo_image_surface_composite): 
+	Do fixups for SOURCE and CLEAR as well as unbounded operators,
+	since in the absence of a mask, we need SOURCE to work 
+	correctly (don't care about CLEAR)
+
+	* src/cairo-ft-font.c (_transform_glyph_bitmap, _cairo_ft_font_show_glyphs)
+	Consistently use CLEAR/TRANSPARENT (source doesn't matter)
+	rather than SOURCE/TRANSPARENT when clearing rectangles.
+
+	* src/cairo-xlib-surface.c src/cairo-surface.c: Use 
+	IN rather than SOURCE as an example of an unbounded operator in
+	docs.
+
+	* test/unbounded-operator.c: Remove CLEAR/SOURCE columns since
+	they are no longer unbounded.
+
+	* test/operator-clear.c test/operator-source Makefile.am: Add
+	targetted tests of CLEAR/SOURCE.
+
+2005-08-18  Carl Worth  <cworth@cworth.org>
+
+	* src/cairo-quartz-surface.c
+	(_cairo_quartz_surface_acquire_source_image): Fix to not leak
+	surface->cgImage on out-of-memory (thanks to Josh Aas
+	<joshmoz@gmail.com>).
+
+2005-08-18  Carl Worth  <cworth@cworth.org>
+
+	* src/cairo-fixed.c: (_cairo_fixed_integer_ceil): Fix to not
+	right-shift a negative number when called with an argument of 0.
+
+2005-08-18  Carl Worth  <cworth@cworth.org>
+
+	* test/cairo-test.c: (cairo_test_expecting): Disable
+	not-yet-implemented quartz stuff.
+
+2005-08-18  Billy Biggs  <vektor@dumbterm.net>
+
+	* doc/public/version.xml.in: Add an autoconf-generated version
+	file to advertise what cairo version the manual was generated
+	for.  Idea taken from the GTK+ documentation.
+
+	* doc/public/cairo-docs.xml: Include the version number, along
+	with the title, in a bookinfo section.
+
+	* doc/public/Makefile.am: Add the version.xml.in to the dist.
+
+	* doc/public/.cvsignore: Ignore version.xml.
+
+	* configure.in: Generate doc/public/version.xml.
+
+2005-08-18  Carl Worth  <cworth@cworth.org>
+
+	* Makefile.am: Clear setgid bit on regular files prior to tarring
+	up a release.
+
+2005-08-18  Kristian Høgsberg  <krh@redhat.com>
+
+	* configure.in: Fix typo in freetype configure check.
+
+2005-08-17  Kristian Høgsberg  <krh@redhat.com>
+
+	* configure.in: Try to use pkg-config to detect freetype2, then
+	fall back to the existing freetype-config based check.
+
+2005-08-17  Carl Worth  <cworth@cworth.org>
+
+ 	Fixes for bug #4110:
+
+	* src/cairo-ft-font.c (_cairo_ft_unscaled_font_init): Don't call
+	_cairo_ft_unscaled_font_init_key in the from_face case, just clear
+	filename and id instead. Initialize unscaled->base first so that
+	initialization order matches the structure declaration order.
+
+	* src/cairo-cache.c (_cairo_hash_string): Fix to accept a NULL
+	string and hash it identically to a zero-length string.
+
+	* test/Makefile.am:
+	* test/ft-font-create-for-ft-face: Add a test that calls
+	cairo_ft_font_create_for_ft_face to demonstrate bug #4110.
+
 2005-08-16  Billy Biggs  <vektor@dumbterm.net>
 
 	* test/filter-nearest-offset.c: (draw): Fix the filter-nearest-offset
@@ -51,7 +1171,7 @@
 
 	* configure.in: Add a check for the MMX intrinsics used by pixman.
 	gcc >= 3.4 is required.
-
+ 
 2005-08-16  Carl Worth  <cworth@cworth.org>
 
 	* src/cairoint.h (CAIRO_PRINTF_FORMAT): Rename cairo_printf_format
@@ -9831,6 +10951,3 @@
 	XRender to Xc).
 
 	* Started keeping a ChangeLog ;-)
-
-
-

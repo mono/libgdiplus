@@ -172,7 +172,7 @@ cleanup_glitz (cairo_t *cr)
 }
 #endif
 
-#if CAIRO_HAS_QUARTZ_SURFACE
+#if 0 && CAIRO_HAS_QUARTZ_SURFACE
 static cairo_surface_t *
 create_quartz_surface (int width, int height, void **closure)
 {
@@ -376,13 +376,25 @@ create_xlib_surface (int width, int height, void **closure)
     if (height == 0)
 	height = 1;
 
-    xtc->dpy = dpy = XOpenDisplay (0);
+    xtc->dpy = dpy = XOpenDisplay (NULL);
     if (xtc->dpy == NULL) {
 	cairo_test_log ("Failed to open display: %s\n", XDisplayName(0));
 	return NULL;
     }
 
+    /* XXX: Currently we don't do any xlib testing when the X server
+     * doesn't have the Render extension. We could do better here,
+     * (perhaps by converting the tests from ARGB32 to RGB24). One
+     * step better would be to always test the non-Render fallbacks
+     * for each test even if the server does have the Render
+     * extension. That would probably be through another
+     * cairo_test_target which would use an extended version of
+     * cairo_test_xlib_disable_render.  */
     xrender_format = XRenderFindStandardFormat (dpy, PictStandardARGB32);
+    if (xrender_format == NULL) {
+	cairo_test_log ("X server does not have the Render extension.\n");
+	return NULL;
+    }
     
     xtc->pixmap = XCreatePixmap (dpy, DefaultRootWindow (dpy),
 				 width, height, xrender_format->depth);
@@ -505,7 +517,7 @@ cairo_test_expecting (cairo_test_t *test, cairo_test_draw_function_t draw,
 #if 0 /* #ifdef CAIRO_HAS_GLITZ_SURFACE */
 	    { "glitz", create_glitz_surface, cleanup_glitz}, 
 #endif
-#if CAIRO_HAS_QUARTZ_SURFACE
+#if 0 && CAIRO_HAS_QUARTZ_SURFACE
 	    { "quartz", create_quartz_surface, cleanup_quartz},
 #endif
 #if 0 && CAIRO_HAS_WIN32_SURFACE

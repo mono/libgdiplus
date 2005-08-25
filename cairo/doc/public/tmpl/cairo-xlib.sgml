@@ -1,8 +1,8 @@
 <!-- ##### SECTION Title ##### -->
-XLib Backend
+XLib Surfaces
 
 <!-- ##### SECTION Short_Description ##### -->
-
+X Window System rendering using XLib
 
 <!-- ##### SECTION Long_Description ##### -->
 <para>

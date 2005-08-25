@@ -1,8 +1,8 @@
 <!-- ##### SECTION Title ##### -->
-XCB Backend
+XCB Surfaces
 
 <!-- ##### SECTION Short_Description ##### -->
-
+X Window System rendering using the XCB library
 
 <!-- ##### SECTION Long_Description ##### -->
 <para>

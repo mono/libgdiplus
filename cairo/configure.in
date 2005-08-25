@@ -3,9 +3,9 @@ AC_PREREQ(2.54)
 # cairo package version number, (as distinct from shared library version)
 # An odd micro number indicates in-progress development, (eg. from CVS)
 # An even micro number indicates a released version.
-m4_define(cairo_version_major, 0)
-m4_define(cairo_version_minor, 9)
-m4_define(cairo_version_micro, 3)
+m4_define(cairo_version_major, 1)
+m4_define(cairo_version_minor, 0)
+m4_define(cairo_version_micro, 1)
 
 AC_INIT([cairo],
       cairo_version_major.cairo_version_minor.cairo_version_micro,
@@ -19,21 +19,25 @@ dnl ===========================================================================
 # libtool shared library version
 
 # Increment if the interface has additions, changes, removals.
-LT_CURRENT=3
+LT_CURRENT=4
 
 # Increment any time the source changes; set to
 # 0 if you increment CURRENT
-LT_REVISION=1
+LT_REVISION=2
 
 # Increment if any interfaces have been added; set to 0
 # if any interfaces have been removed. removal has
 # precedence over adding, so set to 0 if both happened.
-LT_AGE=1
+LT_AGE=2
 
 dnl ===========================================================================
 
 VERSION_INFO="$LT_CURRENT:$LT_REVISION:$LT_AGE"
 AC_SUBST(VERSION_INFO)
+
+LT_CURRENT_MINUS_AGE=`expr $LT_CURRENT - $LT_AGE`
+AC_SUBST(LT_CURRENT_MINUS_AGE)
+
 CAIRO_VERSION_MAJOR=cairo_version_major()
 CAIRO_VERSION_MINOR=cairo_version_minor()
 CAIRO_VERSION_MICRO=cairo_version_micro()
@@ -110,8 +114,8 @@ CAIRO_CFLAGS="$CAIRO_CFLAGS $XRENDER_CFLAGS"
 CAIRO_LIBS="$CAIRO_LIBS $XRENDER_LIBS"
 
 AC_ARG_ENABLE(quartz,
-  [  --disable-quartz          Disable cairo's quartz backend],
-  [use_quartz=$enableval], [use_quartz=yes])
+  [  --enable-quartz         Enable cairo's Quartz backend],
+  [use_quartz=$enableval], [use_quartz=no])
 
 if test "x$use_quartz" = "xyes"; then
   dnl There is no pkgconfig for quartz; lets do a header check
@@ -129,8 +133,8 @@ CAIRO_LIBS="$CAIRO_LIBS $QUARTZ_LIBS"
 dnl ===========================================================================
 
 AC_ARG_ENABLE(xcb,
-  [  --disable-xcb           Disable cairo's XCB backend],
-  [use_xcb=$enableval], [use_xcb=yes])
+  [  --enable-xcb            Enable cairo's XCB backend],
+  [use_xcb=$enableval], [use_xcb=no])
 
 if test "x$use_xcb" = "xyes"; then
   PKG_CHECK_MODULES(XCB, xcb, [use_xcb=yes], [
@@ -161,7 +165,7 @@ esac
 AC_MSG_RESULT([$cairo_platform_win32])
 
 AC_ARG_ENABLE(win32,
-  [  --disable-win32          Disable cairo's Microsoft Windows backend],
+  [  --disable-win32         Disable cairo's Microsoft Windows backend],
   [use_win32=$enableval], [use_win32="yes"])
 
 if test "x$cairo_platform_win32" != "xyes" ; then
@@ -225,8 +229,8 @@ AC_SUBST(PNG_REQUIRES)
 dnl ===========================================================================
 
 AC_ARG_ENABLE(glitz,
-  [  --disable-glitz         Disable cairo's glitz backend],
-  [use_glitz=$enableval], [use_glitz=yes])
+  [  --enable-glitz          Enable cairo's glitz backend],
+  [use_glitz=$enableval], [use_glitz=no])
 
 if test "x$use_glitz" = "xyes"; then
   PKG_CHECK_MODULES(GLITZ, glitz >= 0.4.4, [
@@ -260,12 +264,15 @@ fi
 CAIRO_CFLAGS="$CAIRO_CFLAGS $FONTCONFIG_CFLAGS"
 CAIRO_LIBS="$CAIRO_LIBS $FONTCONFIG_LIBS"
 
-# Test for freetype2 separate from pkg-config since at least up to
-# 2003-06-07, there was no freetype2.pc in the release.
+# We use pkg-config to look for freetype2, but fall back to
+# freetype-config if it fails.  We prefer pkg-config, since we can
+# then just put freetype2 >= $FREETYPE_MIN_VERSION in
+# Requires.private, but at least up to 2003-06-07, there was no
+# freetype2.pc in the release.
 #
 # Freetype versions come in three forms:
 #   release (such as 2.1.5)
-#   libtool (such as 9.4.3) (returned by freetype-config)
+#   libtool (such as 9.4.3) (returned by freetype-config and pkg-config)
 #   platform-specific/soname (such as 6.3.4)
 # and they recommend you never use the platform-specific version
 # (see docs/VERSION.DLL in freetype2 sources)
@@ -279,29 +286,52 @@ FREETYPE_MIN_VERSION=8.0.2
 
 if test "x$use_freetype" = "xyes"; then
 
-  if test -z "$FREETYPE_CONFIG"; then
-    AC_PATH_PROG(FREETYPE_CONFIG, freetype-config, no)
+  PKG_CHECK_MODULES(FREETYPE, freetype2 >= $FREETYPE_MIN_VERSION,
+                    [freetype_pkgconfig=yes], [freetype_pkgconfig=no])
+
+  if test "x$freetype_pkgconfig" = "xyes"; then
+
+    FREETYPE_REQUIRES="freetype2 >= $FREETYPE_MIN_VERSION fontconfig"
+
+  else
+
+    if test -z "$FREETYPE_CONFIG"; then
+      AC_PATH_PROG(FREETYPE_CONFIG, freetype-config, no)
+    fi
+    if test "$FREETYPE_CONFIG" = "no" ; then
+      AC_MSG_WARN([No freetype-config script found in path or FREETYPE_CONFIG])
+      use_freetype=no
+    else
+      AC_MSG_CHECKING(freetype2 libtool version)
+  
+      FREETYPE_VERSION=`$FREETYPE_CONFIG --version`
+  
+      VERSION_DEC=`echo $FREETYPE_VERSION | awk -F. '{printf("%d\n", 10000*$1 + 100*$2 + $3)};'`
+      MIN_VERSION_DEC=`echo $FREETYPE_MIN_VERSION | awk -F. '{printf("%d\n", 10000*$1 + 100*$2 + $3)};'`
+      if test $VERSION_DEC -lt $MIN_VERSION_DEC; then
+        AC_MSG_RESULT($FREETYPE_VERSION - Too old)
+        AC_MSG_WARN([$FREETYPE_VERSION - version $FREETYPE_MIN_VERSION from release $FREETYPE_MIN_RELEASE required])
+        use_freetype=no
+      else
+        AC_MSG_RESULT($FREETYPE_VERSION - OK)
+	
+	FREETYPE_CONFIG_CFLAGS=`$FREETYPE_CONFIG --cflags`
+	FREETYPE_CONFIG_LIBS=`$FREETYPE_CONFIG --libs`  
+	FREETYPE_CFLAGS=$FREETYPE_CONFIG_CFLAGS
+	FREETYPE_LIBS=$FREETYPE_CONFIG_LIBS
+	FREETYPE_REQUIRES=fontconfig
+      fi
+    fi
   fi
-  if test "$FREETYPE_CONFIG" = "no" ; then
-    AC_MSG_ERROR(No freetype-config script found in path or FREETYPE_CONFIG)
-  fi
+fi
 
-  AC_MSG_CHECKING(freetype2 libtool version)
+have_ft_load_sfnt_table=no
 
-  FREETYPE_VERSION=`$FREETYPE_CONFIG --version`
-
-  VERSION_DEC=`echo $FREETYPE_VERSION | awk -F. '{printf("%d\n", 10000*$1 + 100*$2 + $3)};'`
-  MIN_VERSION_DEC=`echo $FREETYPE_MIN_VERSION | awk -F. '{printf("%d\n", 10000*$1 + 100*$2 + $3)};'`
-  if test $VERSION_DEC -lt $MIN_VERSION_DEC; then
-    AC_MSG_ERROR($FREETYPE_VERSION - version $FREETYPE_MIN_VERSION from release $FREETYPE_MIN_RELEASE required)
-  fi
-  AC_MSG_RESULT($FREETYPE_VERSION - OK)
-
-  FREETYPE_CFLAGS=`$FREETYPE_CONFIG --cflags`
-  FREETYPE_LIBS=`$FREETYPE_CONFIG --libs`  
-  FREETYPE_REQUIRES=fontconfig
+if test "x$use_freetype" = "xyes"; then
   AC_SUBST(FREETYPE_CFLAGS)
   AC_SUBST(FREETYPE_LIBS)
+  AC_SUBST(FREETYPE_CONFIG_CFLAGS)
+  AC_SUBST(FREETYPE_CONFIG_LIBS)
   AC_SUBST(FREETYPE_REQUIRES)
 
   temp_save_libs="$LIBS"
@@ -315,6 +345,10 @@ if test "x$use_freetype" = "xyes"; then
                    #include FT_FREETYPE_H])
   AC_DEFINE_UNQUOTED(HAVE_FT_BITMAP_SIZE_Y_PPEM,$HAVE_FT_BITMAP_SIZE_Y_PPEM,
                      [FT_Bitmap_Size structure includes y_ppem field])
+
+  AC_CHECK_FUNC(FT_Load_Sfnt_Table, have_ft_load_sfnt_table=yes)
+  AC_CHECK_FUNCS(FT_GlyphSlot_Embolden)
+
   LIBS="$temp_save_libs"
   CFLAGS="$temp_save_cflags"
 fi
@@ -336,11 +370,11 @@ AM_CONDITIONAL(HAVE_PTHREAD, test "x$have_pthread" = "xyes")
 dnl ===========================================================================
 
 AC_ARG_ENABLE(ps,
-  [  --disable-ps            Disable cairo's PostScript backend],
-  [use_ps=$enableval], [use_ps=yes])
+  [  --enable-ps             Enable cairo's PostScript backend],
+  [use_ps=$enableval], [use_ps=no])
 
-if test x"$use_freetype" != "xyes" ; then
-  AC_MSG_WARN([PS backend requires FreeType, disabling])
+if test x"$have_ft_load_sfnt_table" != "xyes" ; then
+  AC_MSG_WARN([PS backend requires FreeType 2.1.4 or newer, disabling])
   use_ps=no
 fi
 
@@ -364,11 +398,11 @@ AC_SUBST(PS_LIBS)
 dnl ===========================================================================
 
 AC_ARG_ENABLE(pdf,
-  [  --disable-pdf           Disable cairo's PDF backend],
-  [use_pdf=$enableval], [use_pdf=yes])
+  [  --enable-pdf            Enable cairo's PDF backend],
+  [use_pdf=$enableval], [use_pdf=no])
 
-if test x"$use_freetype" != "xyes" ; then
-  AC_MSG_WARN([PDF backend requires FreeType, disabling])
+if test x"$have_ft_load_sfnt_table" != "xyes" ; then
+  AC_MSG_WARN([PDF backend requires FreeType 2.1.4 or newer, disabling])
   use_pdf=no
 fi
 
@@ -389,8 +423,8 @@ dnl This check should default to 'yes' once we have code to actually
 dnl check for the atsui font backend.
 
 AC_ARG_ENABLE(atsui,
-  [  --disable-atsui         Disable cairo's atsui font backend],
-  [use_atsui=$enableval], [use_atsui=yes])
+  [  --enable-atsui          Enable cairo's atsui font backend],
+  [use_atsui=$enableval], [use_atsui=no])
 
 if test "x$use_atsui" = "xyes"; then
   dnl There is no pkgconfig for atsui; lets do a header check
@@ -483,6 +517,7 @@ src/cairo-features.h
 test/Makefile
 doc/Makefile
 doc/public/Makefile
+doc/public/version.xml
 ])
 
 dnl ===========================================================================
@@ -513,4 +548,35 @@ if test x"$use_freetype" != "xyes" && \
 		  Please install freetype and fontconfig, then try again:
 		  http://freetype.org/	http://fontconfig.org/
 		])
+fi
+
+WARNING_MESSAGE='
+*** The @BACKEND@ backend is still under active development and
+*** is included in this release only as a preview. It does not
+*** fully work yet and incompatible changes may yet be made
+*** to @BACKEND@-backend specific API.
+'
+
+if test x"$use_glitz" == "xyes" ; then
+   echo "$WARNING_MESSAGE" | sed 's/@BACKEND@/Glitz/'
+fi
+
+if test x"$use_xcb" == "xyes" ; then
+   echo "$WARNING_MESSAGE" | sed 's/@BACKEND@/XCB/'
+fi
+
+if test x"$use_quartz" == "xyes" ; then
+   echo "$WARNING_MESSAGE" | sed 's/@BACKEND@/Quartz/'
+fi
+
+if test x"$use_quartz" == "xyes" ; then
+   echo "$WARNING_MESSAGE" | sed 's/@BACKEND@/ATSUI/'
+fi
+
+if test x"$use_pdf" == "xyes" ; then
+   echo "$WARNING_MESSAGE" | sed 's/@BACKEND@/PDF/'
+fi
+
+if test x"$use_ps" == "xyes" ; then
+   echo "$WARNING_MESSAGE" | sed 's/@BACKEND@/PostScript/'
 fi

@@ -1,5 +1,0 @@
-cairo_font_face_status
-cairo_xlib_surface_set_drawable
-cairo_scaled_font_status
-cairo_surface_status
-cairo_path_nil

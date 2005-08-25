@@ -2,35 +2,26 @@
 cairo_matrix_t
 
 <!-- ##### SECTION Short_Description ##### -->
-
-  Transformation matrices
+Generic matrix operations
 
 <!-- ##### SECTION Long_Description ##### -->
 
   <para><indexterm><primary>types</primary><secondary>cairo_matrix</secondary></indexterm><indexterm><primary/></indexterm>
-    <structname>cairo_matrix_t</structname> is used throughout
-    Cairo to represents between different coordinates spaces.
-    A <structname>cairo_matrix</structname> holds an affine
-    transformation, such as a scale, rotation, or shear, or a
-    combination of those. Mathematically, the effect of an affine
-    transformation on a point (<literal>x</literal>,<literal>y</literal>) is given by:
+    #cairo_matrix_t is used throughout cairo to convert between different
+    coordinate spaces.  A #cairo_matrix_t holds an affine transformation,
+    such as a scale, rotation, shear, or a combination of these.
+    The transformation of a point (<literal>x</literal>,<literal>y</literal>)
+    is given by:
   </para>
   <programlisting>
-    x_new = x * a + y * c + tx;
-    y_new = x * b + y * d + ty;
+    x_new = xx * x + xy * y + x0;
+    y_new = yx * x + yy * y + y0;
   </programlisting>
   <para>
-    The parameters <literal>a</literal>, <literal>b</literal>,
-    <literal>c</literal>, <literal>d</literal>, <literal>tx</literal>,
-    <literal>ty</literal> can be retrieved with
-    cairo_matrix_get_affine() and set with cairo_matrix_get_affine().
-  </para>
-  <para>
-    The primary use of transformation matrices in Cairo is as the
-    current transformation matrix in a #cairo_t. The current
-    transformation matrix gives the transformation from user space
-    coordinates to device coordinates. See cairo_set_matrix(),
-    cairo_current_matrix().
+    The current transformation matrix of a #cairo_t, represented as a
+    #cairo_matrix_t, defines the transformation from user-space
+    coordinates to device-space coordinates. See cairo_get_matrix() and
+    cairo_set_matrix().
   </para>
 
 <!-- ##### SECTION See_Also ##### -->

@@ -616,7 +616,9 @@ _cairo_image_surface_composite (cairo_operator_t	operator,
 			  width, height);
     }
     
-    if (!_cairo_operator_bounded (operator))
+    if (!_cairo_operator_bounded (operator) ||
+	operator == CAIRO_OPERATOR_SOURCE ||
+	operator == CAIRO_OPERATOR_CLEAR)
 	status = _cairo_surface_composite_fixup_unbounded (&dst->base,
 							   &src_attr, src->width, src->height,
 							   mask ? &mask_attr : NULL,

@@ -124,8 +124,8 @@ static void (*draw_funcs[])(cairo_t *cr, int x, int y) = {
 };
 
 static cairo_operator_t operators[] = {
-    CAIRO_OPERATOR_CLEAR, CAIRO_OPERATOR_SOURCE, CAIRO_OPERATOR_IN,
-    CAIRO_OPERATOR_OUT, CAIRO_OPERATOR_DEST_IN, CAIRO_OPERATOR_DEST_ATOP
+    CAIRO_OPERATOR_IN, CAIRO_OPERATOR_OUT,
+    CAIRO_OPERATOR_DEST_IN, CAIRO_OPERATOR_DEST_ATOP
 };
 
 #define ARRAY_SIZE(a) (sizeof (a) / sizeof ((a)[0]))

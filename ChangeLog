@@ -1,3 +1,8 @@
+2005-08-25  Hisham Mardam Bey <hisham.mardambey@gmail.com>
+
+        * Upgrade Cairo to 1.0 release
+	* Added INSTALL file
+
 2005-06-10  Ben Maurer  <bmaurer@ximian.com>
 
 	* configure.in: 1.1.8

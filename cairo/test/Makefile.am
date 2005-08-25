@@ -1,6 +1,7 @@
 # All test cases go here
 TESTS = 			\
 a8-mask				\
+caps-sub-paths			\
 clip-nesting			\
 clip-operator			\
 clip-twice			\
@@ -9,6 +10,7 @@ composite-integer-translate-over \
 composite-integer-translate-over-repeat \
 create-from-png			\
 create-from-png-stream		\
+dash-offset-negative		\
 fill-and-stroke			\
 fill-rule			\
 filter-nearest-offset		\
@@ -21,15 +23,20 @@ mask				\
 mask-ctm			\
 mask-surface-ctm		\
 move-to-show-surface		\
+nil-surface			\
+operator-clear			\
+operator-source			\
 paint				\
 paint-with-alpha		\
 path-data			\
 pixman-rotate			\
+rectangle-rounding-error	\
 scale-source-surface-paint	\
 select-font-no-show-text	\
 self-copy			\
 self-intersecting		\
 set-source			\
+show-text-current-point		\
 source-clip			\
 source-surface-scale-paint	\
 surface-finish-twice		\
@@ -38,6 +45,7 @@ text-antialias-gray		\
 text-antialias-none		\
 text-antialias-subpixel		\
 text-cache-crash		\
+text-pattern			\
 text-rotate			\
 transforms			\
 translate-show-surface		\
@@ -46,6 +54,10 @@ unantialiased-shapes		\
 unbounded-operator		\
 user-data			\
 rel-path
+
+if CAIRO_HAS_FT_FONT
+TESTS += ft-font-create-for-ft-face
+endif
 
 if CAIRO_HAS_PDF_SURFACE
 TESTS += pdf-surface pdf-clip
@@ -64,6 +76,7 @@ endif
 # way to avoid it? Can I use a wildcard here?
 EXTRA_DIST =				\
 a8-mask-ref.png				\
+caps-sub-paths-ref.png			\
 clip-nesting-ref.png			\
 clip-operator-ref.png			\
 clip-twice-ref.png			\
@@ -72,6 +85,7 @@ composite-integer-translate-over-ref.png		\
 composite-integer-translate-over-repeat-ref.png		\
 create-from-png-ref.png			\
 create-from-png-stream-ref.png		\
+dash-offset-negative-ref.png		\
 fill-and-stroke-ref.png			\
 fill-rule-ref.png			\
 filter-nearest-offset-ref.png		\
@@ -83,20 +97,27 @@ mask-ref.png				\
 mask-ctm-ref.png			\
 mask-surface-ctm-ref.png		\
 move-to-show-surface-ref.png		\
+nil-surface-ref.png			\
+operator-clear-ref.png			\
+operator-source-ref.png			\
 paint-ref.png				\
 paint-with-alpha-ref.png		\
 path-data-ref.png			\
 pixman-rotate-ref.png			\
+rectangle-rounding-error-ref.png	\
 romedalen.png				\
 self-copy-ref.png			\
 self-intersecting-ref.png		\
 scale-source-surface-paint-ref.png	\
 set-source-ref.png			\
+show-text-current-point-ref.png		\
 source-clip-ref.png			\
 source-surface-scale-paint-ref.png	\
 surface-pattern-ref.png			\
 text-antialias-gray-ref.png		\
 text-antialias-none-ref.png		\
+text-antialias-subpixel-ref.png		\
+text-pattern-ref.png			\
 transforms-ref.png			\
 translate-show-surface-ref.png		\
 trap-clip-ref.png			\
@@ -122,7 +143,6 @@ a8-mask				\
 filter-nearest-offset		\
 pixman-rotate			\
 self-intersecting		\
-text-antialias-subpixel		\
 text-rotate
 
 check_PROGRAMS = $(TESTS)
@@ -163,6 +183,7 @@ endif
 # time to break down and auto-generate the Makefile.am or something
 # from autogen.sh. My, but this is painful...
 a8_mask_LDADD = $(LDADDS)
+caps_sub_paths_LDADD = $(LDADDS)
 clip_nesting_LDADD = $(LDADDS)
 clip_operator_LDADD = $(LDADDS)
 clip_twice_LDADD = $(LDADDS)
@@ -171,9 +192,11 @@ composite_integer_translate_over_LDADD = $(LDADDS)
 composite_integer_translate_over_repeat_LDADD = $(LDADDS)
 create_from_png_LDADD = $(LDADDS)
 create_from_png_stream_LDADD = $(LDADDS)
+dash_offset_negative_LDADD = $(LDADDS)
 fill_and_stroke_LDADD = $(LDADDS)
 fill_rule_LDADD = $(LDADDS)
 filter_nearest_offset_LDADD = $(LDADDS)
+ft_font_create_for_ft_face_LDADD = $(LDADDS)
 get_and_set_LDADD = $(LDADDS)
 gradient_alpha_LDADD = $(LDADDS)
 leaky_polygon_LDADD = $(LDADDS)
@@ -183,6 +206,9 @@ mask_LDADD = $(LDADDS)
 mask_ctm_LDADD = $(LDADDS)
 mask_surface_ctm_LDADD = $(LDADDS)
 move_to_show_surface_LDADD = $(LDADDS)
+nil_surface_LDADD = $(LDADDS)
+operator_clear_LDADD = $(LDADDS)
+operator_source_LDADD = $(LDADDS)
 paint_LDADD = $(LDADDS)
 paint_with_alpha_LDADD = $(LDADDS)
 path_data_LDADD = $(LDADDS)
@@ -190,11 +216,13 @@ pdf_surface_LDADD = $(LDADDS)
 pdf_clip_LDADD = $(LDADDS)
 ps_surface_LDADD = $(LDADDS)
 pixman_rotate_LDADD = $(LDADDS)
+rectangle_rounding_error_LDADD = $(LDADDS)
 scale_source_surface_paint_LDADD = $(LDADDS)
 select_font_no_show_text_LDADD = $(LDADDS)
 self_copy_LDADD = $(LDADDS)
 self_intersecting_LDADD = $(LDADDS)
 set_source_LDADD = $(LDADDS)
+show_text_current_point_LDADD = $(LDADDS)
 source_clip_LDADD = $(LDADDS)
 source_surface_scale_paint_LDADD = $(LDADDS)
 surface_finish_twice_LDADD = $(LDADDS)
@@ -203,6 +231,7 @@ text_antialias_gray_LDADD = $(LDADDS)
 text_antialias_none_LDADD = $(LDADDS)
 text_antialias_subpixel_LDADD = $(LDADDS)
 text_cache_crash_LDADD = $(LDADDS)
+text_pattern_LDADD = $(LDADDS)
 text_rotate_LDADD = $(LDADDS)
 transforms_LDADD = $(LDADDS)
 translate_show_surface_LDADD = $(LDADDS)

@@ -24,14 +24,33 @@ Each new level is indented 4 more spaces than the previous level:
 	if (condition)
 	    do_something ();
 
-Spaces or tabs (or a combination) can be used in indentation, but tabs
-must always be interpreted as 8 spaces. Code using single tabs for all
-indentation (expecting people to interpret tabs as 4 spaces) will not
-be accepted in cairo.
+This may be achieved with space characters or a combination of tab
+characters and space characters. It may not be achieved with tab
+characters exclusively (see below).
+
+Tab characters
+--------------
+The tab character must always be interepreted according to its
+traditional meaning:
+
+	Advance to the next column which is a multiple of 8.
+
+With this definition, even levels of indentation can be achieved with
+a sequence of tab characters, while odd levels of indentation may
+begin with a sequence of tab character but must end with 4 space
+characters.
+
+Some programmers have been misled by certain text editors into
+thinking that 4-space indentation can be achieved with tab characters
+exclusively by changing the meaning of tab character to be "advance to
+the next column which is a multiple of 4". Code formatted in this way,
+making an assumption of a fictitious 4-character-tab will not be
+accepted into cairo.
 
 The rationale here is that tabs are used in the code for lining things
 up other than indentation, (see the Whitespace section below), and
-changing the interpretation of tab from 8 characters will break this.
+changing the interpretation of tab from its traditional meaning will
+break this alignment.
 
 Braces
 ------

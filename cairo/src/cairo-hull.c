@@ -97,7 +97,12 @@ _cairo_hull_vertex_compare (const void *av, const void *bv)
 		  (cairo_fixed_48_16_t) a->slope.dy * a->slope.dy);
 	b_dist = ((cairo_fixed_48_16_t) b->slope.dx * b->slope.dx +
 		  (cairo_fixed_48_16_t) b->slope.dy * b->slope.dy);
-	if (a_dist < b_dist) {
+	/*
+	 * Use pointer comparison for coincident points to ensure
+	 * a well-defined ordering, and avoid setting discard on
+	 * both points.
+	 */
+	if (a_dist < b_dist || (a_dist == b_dist && a < b)) {
 	    a->discard = 1;
 	    ret = -1;
 	} else {

@@ -374,11 +374,17 @@ mmxCombineMaskU (CARD32 *src, const CARD32 *mask, int width)
 {
     const CARD32 *end = mask + width;
     while (mask < end) {
-        __m64 a = load8888(*mask);
-        __m64 s = load8888(*src);
-        a = expand_alpha(a);
-        s = pix_multiply(s, a);
-        *src = store8888(s);
+	CARD32 mmask = *mask;
+	CARD32 maska = mmask >> 24;
+	if (maska == 0) {
+	    *src = 0;
+	} else if (maska != 0xff) {
+	    __m64 a = load8888(mmask);
+	    __m64 s = load8888(*src);
+	    a = expand_alpha(a);
+	    s = pix_multiply(s, a);
+	    *src = store8888(s);
+	}
         ++src;
         ++mask;
     }
@@ -392,10 +398,16 @@ mmxCombineOverU (CARD32 *dest, const CARD32 *src, int width)
     const CARD32 *end = dest + width;
 
     while (dest < end) {
-        __m64 s, sa;
-	s = load8888(*src);
-	sa = expand_alpha(s);
-	*dest = store8888(over(s, sa, load8888(*dest)));
+	CARD32 ssrc = *src;
+	CARD32 a = ssrc >> 24;
+	if (a == 0xff) {
+	    *dest = ssrc;
+	} else if (a) {
+	    __m64 s, sa;
+	    s = load8888(ssrc);
+	    sa = expand_alpha(s);
+	    *dest = store8888(over(s, sa, load8888(*dest)));
+	}
         ++dest;
         ++src;
     }
@@ -1339,6 +1351,56 @@ fbCompositeSrc_x888x8x8888mmx (pixman_operator_t	op,
 }
 
 void
+fbCompositeSrc_8888x8888mmx (pixman_operator_t      op,
+			     PicturePtr pSrc,
+			     PicturePtr pMask,
+			     PicturePtr pDst,
+			     INT16      xSrc,
+			     INT16      ySrc,
+			     INT16      xMask,
+			     INT16      yMask,
+			     INT16      xDst,
+			     INT16      yDst,
+			     CARD16     width,
+			     CARD16     height)
+{
+    CARD32	*dstLine, *dst;
+    CARD32	*srcLine, *src, s;
+    FbStride	dstStride, srcStride;
+    CARD8	a;
+    CARD16	w;
+
+    fbComposeGetStart (pDst, xDst, yDst, CARD32, dstStride, dstLine, 1);
+    fbComposeGetStart (pSrc, xSrc, ySrc, CARD32, srcStride, srcLine, 1);
+
+    while (height--)
+    {
+	dst = dstLine;
+	dstLine += dstStride;
+	src = srcLine;
+	srcLine += srcStride;
+	w = width;
+
+	while (w--)
+	{
+	    s = *src++;
+	    a = s >> 24;
+	    if (a == 0xff)
+		*dst = s;
+	    else if (a) {
+		__m64 ms, sa;
+		ms = load8888(s);
+		sa = expand_alpha(ms);
+		*dst = store8888(over(ms, sa, load8888(*dst)));
+	    }
+	    dst++;
+	}
+    }
+    _mm_empty();
+}
+
+
+void
 fbCompositeSolidMask_nx8x8888mmx (pixman_operator_t      op,
 				  PicturePtr pSrc,
 				  PicturePtr pMask,
@@ -1513,6 +1575,10 @@ fbCompositeSolidMaskSrc_nx8x8888mmx (pixman_operator_t      op,
 		  __m64 vdest = in(vsrc, expand_alpha_rev ((__m64)m));
 		  *dst = store8888(vdest);
 	    }
+	    else
+	    {
+		  *dst = 0;
+	    }
 	    
 	    w--;
 	    mask++;
@@ -1543,6 +1609,10 @@ fbCompositeSolidMaskSrc_nx8x8888mmx (pixman_operator_t      op,
 		
 		*(__m64 *)dst = pack8888(dest0, dest1);
 	    }
+	    else
+	    {
+		*dst = 0;
+	    }
 	    
 	    mask += 2;
 	    dst += 2;
@@ -1560,6 +1630,10 @@ fbCompositeSolidMaskSrc_nx8x8888mmx (pixman_operator_t      op,
 		__m64 vdest = load8888(*dst);
 		vdest = in(vsrc, expand_alpha_rev ((__m64)m));
 		*dst = store8888(vdest);
+	    }
+	    else
+	    {
+		*dst = 0;
 	    }
 	    
 	    w--;

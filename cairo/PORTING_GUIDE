@@ -1,9 +1,9 @@
 		    ...-----=======-----...
-		    Cairo 0.5 Porting Guide
+		    Cairo 1.0 Porting Guide
 		    ...-----=======-----...
 
 Here are some notes on more easily porting cairo_code from cairo 0.4
-to cairo 0.5. It is sorted roughly in order of importance, (the items
+to cairo 1.0. It is sorted roughly in order of importance, (the items
 near the top are expected to affect the most people).
 
 Automated API renamings
@@ -224,11 +224,19 @@ Was:	cairo_set_rgb_color (cr, 0., 0., 0.);
 	cairo_rectangle (cr, 0., 0., surface_width, surface_height);
 	cairo_fill (cr);
 
+    or:	cairo_set_rgb_color (cr, 0., 0., 0.);
+	cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
+	cairo_rectangle (cr, 0., 0., surface_width, surface_height);
+	cairo_fill (cr);
+
 Now:	cairo_set_source_rgba (cr, 0., 0., 0., 0.);
 	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
 	cairo_paint (cr);
 
-NOTE: Using cairo_rectanlgle and fill would still work just fine. It's
+    or:	cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
+	cairo_paint (cr);
+
+NOTE: Using cairo_rectangle and fill would still work just fine. It's
       just a lot more convenient to use cairo_paint now, (particularly
       as it doesn't require you to even know what the bounds of the
       target surface are).

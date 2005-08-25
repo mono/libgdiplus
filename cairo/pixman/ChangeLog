@@ -1,3 +1,59 @@
+2005-08-22  Owen Taylor  <otaylor@redhat.com>
+
+	* src/pixregion.c (pixman_region_union_rect): When width/height
+	are 0, copy the src to the dest, don't just return. (#3017)
+
+2005-08-21  Billy Biggs  <vektor@dumbterm.net>
+
+	* src/pixman-remap.h: Fix a typo in the last change.
+
+2005-08-21  Billy Biggs  <vektor@dumbterm.net>
+
+	* src/fbpict.c: Remove warning about fbCompositeTrans_0888xnx0888 not
+	being tested on big-endian, it's not helpful at this point.
+
+	* src/pixman-remap.h: Only define _cairo_pixman_have_mmx for fbHaveMMX
+	when the symbol will actually exist.
+
+2005-08-21  Billy Biggs  <vektor@dumbterm.net>
+
+	Fix for bug #4140:
+
+	* src/icrect.c: (pixman_fill_rect_8bpp): Dereference the pixel value
+	correctly on big endian systems.
+
+2005-08-18  Billy Biggs  <vektor@dumbterm.net>
+
+	* src/fbmmx.c: (mmxCombineMaskU), (mmxCombineOverU): Special case
+	alpha values of 0 and 0xff.
+	(fbCompositeSrc_8888x8888mmx): Add an MMX implementation for
+	a common operation when using pixman.
+
+	* src/fbmmx.h: Prototype for the new function.
+
+	* src/fbpict.c: (fbComposite): Call the new function where
+	appropriate.
+
+2005-08-18  Billy Biggs  <vektor@dumbterm.net>
+
+	* src/fbcompose.c: (fbFetchTransformed): Special case projective
+	transforms so we can avoid doing the expensive 64-bit math.
+	Unroll the bilinear interpolation loops for an extra boost.
+
+2005-08-18  Billy Biggs  <vektor@dumbterm.net>
+
+	* src/fbmmx.c: (fbCompositeSolidMaskSrc_nx8x8888mmx): For the source
+	operator, the output should be cleared if the mask is zero.  This
+	fixes the MMX code to match the fbcompose code.
+
+	* src/fbpict.c: (pixman_composite): Fix a logic mistake that caused
+	the MMX functions not to be used in many cases.
+
+2005-08-17  Billy Biggs  <vektor@dumbterm.net>
+
+	* src/pixman-remap.h: Only mangle exported symbols.  This is
+	sufficient and makes debugging a lot easier.
+
 2005-08-16  Billy Biggs  <vektor@dumbterm.net>
 
 	* src/Makefile.am: Fix a typo in the last commit.

@@ -512,7 +512,7 @@ _cairo_hash_string (const char *c)
 {
     /* This is the djb2 hash. */
     unsigned long hash = 5381;
-    while (*c)
+    while (c && *c)
 	hash = ((hash << 5) + hash) + *c++;
     return hash;
 }

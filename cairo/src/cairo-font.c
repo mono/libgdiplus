@@ -81,9 +81,13 @@ cairo_font_face_reference (cairo_font_face_t *font_face)
 {
     if (font_face == NULL)
 	return NULL;
-	
+
     if (font_face->ref_count == (unsigned int)-1)
 	return font_face;
+
+    /* We would normally assert (font_face->ref_count >0) here but we
+     * can't get away with that due to the zombie case as documented
+     * in _cairo_ft_font_face_destroy. */
 
     font_face->ref_count++;
 
@@ -106,6 +110,8 @@ cairo_font_face_destroy (cairo_font_face_t *font_face)
 
     if (font_face->ref_count == (unsigned int)-1)
 	return;
+
+    assert (font_face->ref_count > 0);
 
     if (--(font_face->ref_count) > 0)
 	return;
@@ -444,7 +450,11 @@ void
 _cairo_scaled_font_set_error (cairo_scaled_font_t *scaled_font,
 			      cairo_status_t status)
 {
-    scaled_font->status = status;
+    /* Don't overwrite an existing error. This preserves the first
+     * error, which is the most significant. It also avoids attempting
+     * to write to read-only data (eg. from a nil scaled_font). */
+    if (scaled_font->status == CAIRO_STATUS_SUCCESS)
+	scaled_font->status = status;
 
     _cairo_error (status);
 }
@@ -746,6 +756,8 @@ UNWIND:
  * Increases the reference count on @scaled_font by one. This prevents
  * @scaled_font from being destroyed until a matching call to
  * cairo_scaled_font_destroy() is made.
+ *
+ * Returns: the referenced #cairo_scaled_font_t
  **/
 cairo_scaled_font_t *
 cairo_scaled_font_reference (cairo_scaled_font_t *scaled_font)
@@ -755,6 +767,10 @@ cairo_scaled_font_reference (cairo_scaled_font_t *scaled_font)
 
     if (scaled_font->ref_count == (unsigned int)-1)
 	return scaled_font;
+
+    /* We would normally assert (scaled_font->ref_count > 0) here, but
+     * we are using ref_count == 0 as a legitimate case for the
+     * holdovers array. See below. */
 
     /* If the original reference count is 0, then this font must have
      * been found in font_map->holdovers, (which means this caching is
@@ -802,6 +818,8 @@ cairo_scaled_font_destroy (cairo_scaled_font_t *scaled_font)
 
     if (scaled_font->ref_count == (unsigned int)-1)
 	return;
+
+    assert (scaled_font->ref_count > 0);
 
     if (--(scaled_font->ref_count) > 0)
 	return;
@@ -890,6 +908,11 @@ _cairo_scaled_font_show_glyphs (cairo_scaled_font_t    *scaled_font,
 {
     cairo_status_t status;
 
+    /* These operators aren't interpreted the same way by the backends;
+     * they are implemented in terms of other operators in cairo-gstate.c
+     */
+    assert (operator != CAIRO_OPERATOR_SOURCE && operator != CAIRO_OPERATOR_CLEAR);
+    
     if (scaled_font->status)
 	return scaled_font->status;
 
@@ -994,10 +1017,8 @@ cairo_scaled_font_extents (cairo_scaled_font_t  *scaled_font,
     cairo_int_status_t status;
     double  font_scale_x, font_scale_y;
     
-    if (scaled_font->status) {
-	_cairo_scaled_font_set_error (scaled_font, scaled_font->status);
+    if (scaled_font->status)
 	return;
-    }
 
     status = _cairo_scaled_font_font_extents (scaled_font, extents);
     if (status) {
@@ -1045,10 +1066,8 @@ cairo_scaled_font_glyph_extents (cairo_scaled_font_t   *scaled_font,
     double x_pos = 0.0, y_pos = 0.0;
     int set = 0;
 
-    if (scaled_font->status) {
-	_cairo_scaled_font_set_error (scaled_font, scaled_font->status);
+    if (scaled_font->status)
 	return;
-    }
 
     if (!num_glyphs)
     {
@@ -1230,13 +1249,13 @@ static cairo_cache_t *
 _global_image_glyph_cache = NULL;
 
 void
-_cairo_lock_global_image_glyph_cache()
+_cairo_lock_global_image_glyph_cache (void)
 {
     CAIRO_MUTEX_LOCK (_global_image_glyph_cache_mutex);
 }
 
 void
-_cairo_unlock_global_image_glyph_cache()
+_cairo_unlock_global_image_glyph_cache (void)
 {
     if (_global_image_glyph_cache) {
 	_cairo_cache_shrink_to (_global_image_glyph_cache, 
@@ -1246,7 +1265,7 @@ _cairo_unlock_global_image_glyph_cache()
 }
 
 cairo_cache_t *
-_cairo_get_global_image_glyph_cache ()
+_cairo_get_global_image_glyph_cache (void)
 {
     if (_global_image_glyph_cache == NULL) {
 	_global_image_glyph_cache = malloc (sizeof (cairo_cache_t));

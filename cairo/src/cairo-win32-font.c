@@ -1390,10 +1390,8 @@ cairo_win32_scaled_font_select_font (cairo_scaled_font_t *scaled_font,
     HFONT old_hfont = NULL;
     int old_mode;
 
-    if (scaled_font->status) {
-	_cairo_scaled_font_set_error (scaled_font, scaled_font->status);
+    if (scaled_font->status)
 	return scaled_font->status;
-    }
 
     hfont = _win32_scaled_font_get_scaled_hfont ((cairo_win32_scaled_font_t *)scaled_font);
     if (!hfont)

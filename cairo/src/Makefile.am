@@ -34,6 +34,8 @@ libcairo_win32_sources =
 if CAIRO_HAS_WIN32_SURFACE
 libcairo_win32_headers = cairo-win32.h
 libcairo_win32_sources += cairo-win32-surface.c cairo-win32-private.h
+export_symbols = -export-symbols cairo.def
+cairo_def_dependency = cairo.def
 endif
 if CAIRO_HAS_WIN32_FONT
 libcairo_win32_sources += cairo-win32-font.c
@@ -53,6 +55,15 @@ if CAIRO_HAS_FT_FONT
 libcairo_ft_headers = cairo-ft.h
 libcairo_ft_sources = cairo-ft-font.c cairo-ft-private.h
 endif
+
+# Headers that declare the functions in the cairo DLL API on Windows
+#cairo_win32_api_headers = \
+#	$(srcdir)/cairo.h \
+#	$(srcdir)/cairo-ft.h \
+#	$(srcdir)/cairo-pdf.h \
+#	$(srcdir)/cairo-ps.h \
+#	$(srcdir)/cairo-win32.h \
+#	$(srcdir)/cairo-debug.h
 
 # These names match automake style variable definition conventions so
 # without these lines, automake will complain during the handling of 
@@ -77,7 +88,6 @@ XRENDER_LIBS=@XRENDER_LIBS@
 
 #lib_LTLIBRARIES = libcairo.la
 noinst_LTLIBRARIES = libcairo.la
-
 
 libcairo_la_SOURCES =				\
 	cairo.c					\
@@ -136,11 +146,31 @@ libcairo_la_SOURCES =				\
 	$(libcairo_win32_sources)		\
 	cairoint.h
 
-libcairo_la_LDFLAGS = -version-info @VERSION_INFO@ -no-undefined
+libcairo_la_LDFLAGS = -version-info @VERSION_INFO@ -no-undefined $(export_symbols)
 
 INCLUDES = -I$(srcdir) -I$(top_srcdir)/pixman/src $(CAIRO_CFLAGS)
 
 libcairo_la_LIBADD = $(top_builddir)/pixman/src/libpixman.la $(CAIRO_LIBS)
+
+libcairo_la_DEPENDENCIES = $(cairo_def_dependency) $(top_builddir)/pixman/src/libpixman.la
+
+EXTRA_DIST = \
+	cairo.def
+
+cairo.def: $(cairo_win32_api_headers)
+	(echo EXPORTS; \
+	cat $(cairo_win32_api_headers) | \
+	grep -v -E '^# *include' | \
+	gcc \
+	    -DCAIRO_HAS_WIN32_SURFACE \
+	    -DCAIRO_HAS_WIN32_FONT \
+	    -DCAIRO_HAS_PNG_FUNCTIONS \
+	    -E - | \
+	grep -E '^cairo_.* \(' | \
+	sed -e 's/\([^ ]*\).*/\1/' | \
+	sort; \
+	echo LIBRARY libcairo-$(LT_CURRENT_MINUS_AGE).dll; \
+	) >$@
 
 install-data-local:
 	@if test -f "$(DESTDIR)$(includedir)/cairo.h" || test -f "$(DESTDIR)$(includedir)/cairo-features.h" ; then \

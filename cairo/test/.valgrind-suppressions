@@ -24,3 +24,30 @@
    fun:png_write_image
    fun:write_png_argb32
  }
+{
+   pthread initialization strstr bug
+   Memcheck:Cond
+   fun:strstr
+   fun:__pthread_initialize_minimal
+   obj:/lib/libpthread-2.3.5.so
+   obj:/lib/libpthread-2.3.5.so
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/ld-2.3.5.so
+}
+{
+   Pixman reads padding bytes that are never initialized
+   Memcheck:Cond
+   fun:fbBltOne
+   fun:fbCompositeSolidMask_nx1xn
+   fun:_cairo_pixman_composite
+   fun:_cairo_image_surface_composite
+   fun:_cairo_surface_composite
+   fun:_cairo_ft_scaled_font_show_glyphs
+   fun:_cairo_scaled_font_show_glyphs
+   fun:_cairo_gstate_show_glyphs_draw_func
+   fun:_cairo_gstate_clip_and_composite
+   fun:_cairo_gstate_show_glyphs
+   fun:cairo_show_text
+   fun:draw
+}

@@ -9,6 +9,9 @@
 /* FT_Bitmap_Size structure includes y_ppem field */
 #undef HAVE_FT_BITMAP_SIZE_Y_PPEM
 
+/* Define to 1 if you have the `FT_GlyphSlot_Embolden' function. */
+#undef HAVE_FT_GLYPHSLOT_EMBOLDEN
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 

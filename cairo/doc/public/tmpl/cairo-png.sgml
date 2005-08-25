@@ -1,8 +1,8 @@
 <!-- ##### SECTION Title ##### -->
-PNG Backend
+PNG Support
 
 <!-- ##### SECTION Short_Description ##### -->
-
+Reading and writing PNG images
 
 <!-- ##### SECTION Long_Description ##### -->
 <para>
@@ -26,6 +26,17 @@ PNG Backend
 @Returns: 
 
 
+<!-- ##### USER_FUNCTION cairo_read_func_t ##### -->
+<para>
+
+</para>
+
+@closure: 
+@data: 
+@length: 
+@Returns: 
+
+
 <!-- ##### FUNCTION cairo_image_surface_create_from_png_stream ##### -->
 <para>
 
@@ -43,6 +54,17 @@ PNG Backend
 
 @surface: 
 @filename: 
+@Returns: 
+
+
+<!-- ##### USER_FUNCTION cairo_write_func_t ##### -->
+<para>
+
+</para>
+
+@closure: 
+@data: 
+@length: 
 @Returns: 
 
 

@@ -42,7 +42,7 @@
  *
  * 2004-11-03 Carl Worth <cworth@cworth.org>
  *
- *   Looks like the major problems with this bg appeared in the great
+ *   Looks like the major problems with this bug appeared in the great
  *   font rework between 0.1.23 and 0.2.0. And it looks like we need
  *   to fix the regression test suite to test the xlib target (since
  *   the bug does not show up in the png backend).
@@ -55,6 +55,26 @@
  *   text--a new version of freetype will change everything. We may
  *   need to add a simple backend for stroked fonts and add a simple
  *   builtin font to cairo for pixel-perfect tests with text.
+ *
+ * 2005-08-23
+ *
+ *   It appears that the worst placement and glyph selection problems
+ *   have now been resolved. In the past some letters were noticeably
+ *   of a different size at some rotations, and there was a lot of
+ *   drift away from the baseline. These problems do not appear
+ *   anymore.
+ *
+ *   Another thing that helps is that we now have font options which
+ *   we can use to disable hinting in order to get more repeatable
+ *   results. I'm doing that in this test now.
+ *
+ *   There are still some subtle positioning problems which I'm
+ *   assuming are due to the lack of finer-than-whole-pixel glyph
+ *   positioning. I'm generating a reference image now by replacing
+ *   cairo_show_text with cairo_text_path; cairo_fill. This will let
+ *   us look more closely at the remaining positioning problems. (In
+ *   particular, I want to make sure we're rounding as well as
+ *   possible).
  */
 
 #include "cairo-test.h"
@@ -76,12 +96,22 @@ draw (cairo_t *cr, int width, int height)
 {
     int i, x_off, y_off;
     cairo_text_extents_t extents;
+    cairo_font_options_t *font_options;
     static char text[] = "cairo";
 
     cairo_select_font_face (cr, "Bitstream Vera Sans",
 			    CAIRO_FONT_SLANT_NORMAL,
 			    CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size (cr, TEXT_SIZE);
+
+    font_options = cairo_font_options_create ();
+
+    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_NONE);
+    cairo_font_options_set_hint_metrics (font_options, CAIRO_HINT_METRICS_OFF);
+    cairo_font_options_set_antialias (font_options, CAIRO_ANTIALIAS_GRAY);
+
+    cairo_set_font_options (cr, font_options);
+    cairo_font_options_destroy (font_options);
 
     cairo_set_source_rgb (cr, 0, 0, 0);
 
@@ -92,8 +122,8 @@ draw (cairo_t *cr, int width, int height)
     if (NUM_TEXT == 1) {
 	x_off = y_off = 0;
     } else {
-	y_off = - round (extents.height / 2.0);
-	x_off = round ((extents.height+1) / (2 * tan (M_PI/NUM_TEXT)));
+	y_off = - floor (0.5 + extents.height / 2.0);
+	x_off = floor (0.5 + (extents.height+1) / (2 * tan (M_PI/NUM_TEXT)));
     }
   
     for (i=0; i < NUM_TEXT; i++) {
@@ -105,7 +135,12 @@ draw (cairo_t *cr, int width, int height)
 	cairo_stroke (cr);
 	cairo_move_to (cr, x_off - extents.x_bearing, y_off - extents.y_bearing);
 	cairo_set_source_rgb (cr, 0, 0, 0);
+#if CAIRO_TEST_GENERATE_REFERENCE_IMAGE
+	cairo_text_path (cr, "cairo");
+	cairo_fill (cr);
+#else
 	cairo_show_text (cr, "cairo");
+#endif
 	cairo_restore (cr);
     }
 
@@ -116,5 +151,5 @@ int
 main (void)
 {
     return cairo_test_expect_failure (&test, draw,
-				      "known bugs in positioning rotated glyphs");
+				      "minor bugs in positioning rotated glyphs");
 }

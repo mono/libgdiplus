@@ -2,7 +2,7 @@
 cairo_surface_t
 
 <!-- ##### SECTION Short_Description ##### -->
-
+Base class for surfaces
 
 <!-- ##### SECTION Long_Description ##### -->
 <para>
@@ -23,6 +23,15 @@ cairo_surface_t
 </para>
 
 
+<!-- ##### ENUM cairo_content_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_CONTENT_COLOR: 
+@CAIRO_CONTENT_ALPHA: 
+@CAIRO_CONTENT_COLOR_ALPHA: 
+
 <!-- ##### FUNCTION cairo_surface_create_similar ##### -->
 <para>
 
@@ -37,30 +46,12 @@ cairo_surface_t
 @format: 
 
 
-<!-- ##### FUNCTION cairo_surface_reference ##### -->
-<para>
-
-</para>
-
-@surface: 
-@Returns: 
-
-
 <!-- ##### FUNCTION cairo_surface_destroy ##### -->
 <para>
 
 </para>
 
 @surface: 
-
-
-<!-- ##### FUNCTION cairo_surface_status ##### -->
-<para>
-
-</para>
-
-@surface: 
-@Returns: 
 
 
 <!-- ##### FUNCTION cairo_surface_finish ##### -->
@@ -71,6 +62,14 @@ cairo_surface_t
 @surface: 
 <!-- # Unused Parameters # -->
 @Returns: 
+
+
+<!-- ##### FUNCTION cairo_surface_flush ##### -->
+<para>
+
+</para>
+
+@surface: 
 
 
 <!-- ##### FUNCTION cairo_surface_get_font_options ##### -->
@@ -104,14 +103,6 @@ cairo_surface_t
 @Returns: 
 
 
-<!-- ##### FUNCTION cairo_surface_flush ##### -->
-<para>
-
-</para>
-
-@surface: 
-
-
 <!-- ##### FUNCTION cairo_surface_mark_dirty ##### -->
 <para>
 
@@ -132,6 +123,15 @@ cairo_surface_t
 @height: 
 
 
+<!-- ##### FUNCTION cairo_surface_reference ##### -->
+<para>
+
+</para>
+
+@surface: 
+@Returns: 
+
+
 <!-- ##### FUNCTION cairo_surface_set_device_offset ##### -->
 <para>
 
@@ -140,5 +140,14 @@ cairo_surface_t
 @surface: 
 @x_offset: 
 @y_offset: 
+
+
+<!-- ##### FUNCTION cairo_surface_status ##### -->
+<para>
+
+</para>
+
+@surface: 
+@Returns: 
 
 

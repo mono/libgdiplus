@@ -50,7 +50,6 @@ draw (cairo_t *cr, int width, int height)
     font_options = cairo_font_options_create ();
 
     cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_NONE);
-    cairo_font_options_set_hint_metrics (font_options, CAIRO_HINT_METRICS_OFF);
     cairo_font_options_set_antialias (font_options, CAIRO_ANTIALIAS_NONE);
 
     cairo_set_font_options (cr, font_options);

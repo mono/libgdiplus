@@ -1,0 +1,52 @@
+<!-- ##### SECTION Title ##### -->
+Version Information
+
+<!-- ##### SECTION Short_Description ##### -->
+Compile and run time version checks
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### MACRO CAIRO_VERSION ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO CAIRO_VERSION_ENCODE ##### -->
+<para>
+
+</para>
+
+@major: 
+@minor: 
+@micro: 
+
+
+<!-- ##### FUNCTION cairo_version ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_version_string ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
