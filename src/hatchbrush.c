@@ -896,16 +896,13 @@ draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 GpStatus
 draw_50_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t format, GpHatch *hbr)
 {
-	cairo_surface_t *hatch; cairo_pattern_t *pattern;
+	cairo_surface_t *hatch;
 	double hatch_size = 2;
 
 	hatch = cairo_surface_create_similar (cairo_get_target (ct),
 					      format, hatch_size, hatch_size);
 
 	g_return_val_if_fail (hatch != NULL, OutOfMemory);
-
-	pattern = cairo_get_source (ct);
-	cairo_pattern_set_extend (pattern, CAIRO_EXTEND_REPEAT);	
 
 	/* draw one hatch */
 	{
@@ -936,13 +933,12 @@ draw_50_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_format_t
 		cairo_rectangle (ct, hatch_size / 2.0, hatch_size / 2.0, hatch_size, hatch_size);
 		cairo_fill (ct);
 
-		cairo_paint (ct);
-		
 		cairo_restore (ct);		
 	}
 
 	/* set the pattern for the consequent fill or stroke */
 	hbr->pattern = cairo_pattern_create_for_surface (hatch);
+	cairo_pattern_set_extend (hbr->pattern, CAIRO_EXTEND_REPEAT);	
 	cairo_surface_destroy (hatch);
 
 	return Ok;

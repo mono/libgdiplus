@@ -1,5 +1,10 @@
 2005-08-24  Peter Bartok  <pbartok@novell.com>
 
+	* hatchbrush.c: Fixed 50% hatchbrush drawing. Still need to fix all
+	  other 50 gazillion hatchbrushes :-(
+
+2005-08-24  Peter Bartok  <pbartok@novell.com>
+
 	* gdip.h: Removed prototypes for internal strikethrough and underline
 	  functions; those are no longer used
 	* font.c:
