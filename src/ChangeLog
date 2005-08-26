@@ -1,3 +1,7 @@
+2005-08-26 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* lineargradientbrush.c: fixes issues with angle
+
 2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* hatchbrush.c: Wouldn't it be nice to clean the cairo stuff when

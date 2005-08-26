@@ -284,8 +284,8 @@ create_tile_linear (cairo_t *ct, GpLineGradient *linear)
 	cairo_t	*ct2;
 	cairo_surface_t *gradient;
 	cairo_pattern_t *pat;
-	GpMatrix *tempMatrix = NULL;
 	GpMatrix *currMatrix = NULL;
+	GpMatrix *tempMatrix = NULL;
 	GpRectF *rect = linear->rectangle;
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
@@ -315,16 +315,8 @@ create_tile_linear (cairo_t *ct, GpLineGradient *linear)
 	else
 		add_color_stops (pat, linear->lineColors);
 
-	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
-	cairo_set_source (ct2, pat);
-	cairo_rectangle (ct2, 0, 0, 2 * rect->Width, 2 * rect->Height);
-	cairo_fill (ct2);
-
-	cairo_pattern_destroy (pat);
-	cairo_destroy (ct2);
-
 	GdipCreateMatrix (&tempMatrix);
-	cairo_matrix_init_identity (tempMatrix);
+
 	/* rotate the pattern if angle is non-zero */
 	if (linear->angle != 0) {
 		/* Absolute rotation */
@@ -338,15 +330,20 @@ create_tile_linear (cairo_t *ct, GpLineGradient *linear)
 		cairo_matrix_multiply (tempMatrix, tempMatrix, linear->matrix);
 	}
 
+	/* pattern is transformed wrt to main graphics */
+	cairo_matrix_multiply (linear->matrix, linear->matrix, tempMatrix);
+
+	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
+	cairo_set_source (ct2, pat);
+	cairo_rectangle (ct2, 0, 0, 2 * rect->Width, 2 * rect->Height);
+	cairo_fill (ct2);	
+
+	cairo_pattern_destroy (pat);
+	cairo_destroy (ct2);
+
 	linear->pattern = cairo_pattern_create_for_surface (gradient);
 	cairo_surface_destroy (gradient);
 
-	/* pattern is transformed wrt to main graphics */
-	GdipCreateMatrix (&currMatrix);
-	cairo_get_matrix (ct, currMatrix);
-	cairo_matrix_multiply (tempMatrix, tempMatrix, currMatrix);
-	cairo_set_matrix (ct, tempMatrix);
-	GdipDeleteMatrix (currMatrix);
 
 	return Ok;
 }
