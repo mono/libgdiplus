@@ -1,5 +1,10 @@
 2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
 
+	* hatchbrush.c: Wouldn't it be nice to clean the cairo stuff when
+	  destroying the brush
+
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
 	* image.c: Now scales/resizes images to destination rectangle
 	* gdip.h: Removed gdip_cairo_set_surface_pattern() prototype
 	* general.c: Removed gdip_cairo_set_surface_pattern() method, it's

@@ -2398,7 +2398,16 @@ gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush)
 GpStatus
 gdip_hatch_destroy (GpBrush *brush)
 {
+	GpHatch *hbr;
+
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
+	hbr = (GpHatch *) brush;
+
+	if (hbr->pattern) {
+		cairo_pattern_destroy (hbr->pattern);
+		hbr->pattern = NULL;
+	}
 
 	GdipFree (brush);
 
