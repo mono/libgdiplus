@@ -1,5 +1,10 @@
 2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
 
+	* hatchbrush.c: Fixed context leaks (We're also no longer 
+	  abusing the passed cairo_t context as the pattern context)
+
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
 	* hatchbrush.c: Fixed 40% and plaid drawing, resolved ct corruption and
 	  nesting bugs
 
