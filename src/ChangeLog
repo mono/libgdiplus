@@ -1,5 +1,12 @@
 2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
 
+	* image.c: Now scales/resizes images to destination rectangle
+	* gdip.h: Removed gdip_cairo_set_surface_pattern() prototype
+	* general.c: Removed gdip_cairo_set_surface_pattern() method, it's
+	  no longer used
+
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
 	* gdip.h, general.c: Removed gdip_cairo_set_surface_pattern_with_extend
 	  since it's no longer needed (replaced with less code directly in  
 	  hatchbrush)

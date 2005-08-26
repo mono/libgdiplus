@@ -288,6 +288,8 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	bool allocated = FALSE;
 	GpBitmap *bitmap = (GpBitmap *) image;
 	
+	cairo_matrix_init (&mat, 1, 0, 0, 1, 0, 0);
+
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (image != NULL, InvalidParameter);
 	g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
@@ -387,16 +389,21 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 						else 
 							cur_image = bitmap;
 				
+
 				cairo_matrix_scale (&mat, srcwidth / dstwidth, srcheight / dstheight);
 				cairo_matrix_translate (&mat, srcx - (dstx + posx), srcy - (dsty + posy));
-				cairo_pattern_set_matrix (cairo_pattern_create_for_surface (cur_image->image.surface), &mat);
-				gdip_cairo_set_surface_pattern (graphics->ct, cur_image->image.surface);
+
+				pattern = cairo_pattern_create_for_surface(cur_image->image.surface);
+				cairo_pattern_set_matrix (pattern, &mat);
+				cairo_set_source(graphics->ct, pattern);
 				
 				cairo_rectangle (graphics->ct, dstx + posx, dsty + posy, img_width, img_height);
 				cairo_fill (graphics->ct);
 				
 				cairo_matrix_init_identity (&mat);
-				cairo_pattern_set_matrix (cairo_pattern_create_for_surface (cur_image->image.surface), &mat);
+				cairo_pattern_set_matrix (pattern, &mat);
+
+				cairo_pattern_destroy(pattern);
 				
 				if (flipXOn)
 					flipX = !flipX; 					
@@ -418,22 +425,23 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		
 	}
 	else  {		
-		
 		/* Create a surface for this bitmap if one doesn't exist */
 		gdip_bitmap_ensure_surface ((GpBitmap*) image);
 		cairo_pattern_set_filter (cairo_pattern_create_for_surface (((GpBitmap*) image)->image.surface) , gdip_get_cairo_filter (graphics->interpolation));
 		
 		cairo_matrix_scale (&mat, srcwidth / dstwidth, srcheight / dstheight);
 		cairo_matrix_translate (&mat, srcx - dstx, srcy - dsty);
-		cairo_pattern_set_matrix (cairo_pattern_create_for_surface (image->surface), &mat);
-		
-		gdip_cairo_set_surface_pattern (graphics->ct, image->surface);
+
+		pattern = cairo_pattern_create_for_surface(image->surface);
+		cairo_pattern_set_matrix (pattern, &mat);
+		cairo_set_source(graphics->ct, pattern);
 		
 		cairo_rectangle (graphics->ct, dstx, dsty, dstwidth, dstheight);
 		cairo_fill (graphics->ct);
 		
 		cairo_matrix_init_identity (&mat);
-		cairo_pattern_set_matrix (cairo_pattern_create_for_surface (image->surface), &mat);
+		cairo_pattern_set_matrix (pattern, &mat);
+		cairo_pattern_destroy (pattern);
 	}
 
 	/* The default surface is no longer valid*/

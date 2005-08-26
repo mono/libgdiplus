@@ -1259,8 +1259,6 @@ float gdip_get_display_dpi();
 void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg);
 cairo_content_t from_cairoformat_to_content (cairo_format_t format);
 
-cairo_status_t gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s);
-
 void gdip_rect_expand_by (GpRectF *rect, GpPointF *point);
 
 cairo_surface_t * gdip_bitmap_ensure_surface (GpBitmap *bitmap);
