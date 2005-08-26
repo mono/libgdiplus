@@ -1,3 +1,8 @@
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* hatchbrush.c: Fixed 40% and plaid drawing, resolved ct corruption and
+	  nesting bugs
+
 2005-08-26  Hisham Mardam Bey <hisham.mardambey@gmail.com>
 
 	* hatchbrush.c: remove extra paint calls and fix cairo_save/restore
