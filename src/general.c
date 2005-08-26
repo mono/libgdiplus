@@ -372,21 +372,6 @@ gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s)
 	return cairo_status (t);
 }
 
-cairo_status_t
-gdip_cairo_set_surface_pattern_with_extend (cairo_t *t, cairo_surface_t *s, cairo_extend_t extend)
-{
-	cairo_pattern_t *pat;
-	pat = cairo_pattern_create_for_surface (s);
-	if (pat == NULL)
-	  return CAIRO_STATUS_NO_MEMORY;
-	
-	cairo_pattern_set_extend (pat, extend);
-	cairo_set_source (t, pat);
-	cairo_pattern_destroy (pat);
-	
-	return cairo_status (t);
-}
-
 void
 gdip_rect_expand_by (GpRectF *rect, GpPointF *point)
 {

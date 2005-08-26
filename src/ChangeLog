@@ -1,5 +1,11 @@
 2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
 
+	* gdip.h, general.c: Removed gdip_cairo_set_surface_pattern_with_extend
+	  since it's no longer needed (replaced with less code directly in  
+	  hatchbrush)
+
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
 	* hatchbrush.c: Fixed context leaks (We're also no longer 
 	  abusing the passed cairo_t context as the pattern context)
 
