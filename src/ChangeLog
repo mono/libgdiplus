@@ -1,3 +1,8 @@
+2005-08-26  Geoff Norton  <gnorton@customerdna.com>
+
+	* graphics.c: Update the Quartz constructors for the new Cairo 1.0
+	API calls
+
 2005-08-26 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* lineargradientbrush.c: fixes issues with angle

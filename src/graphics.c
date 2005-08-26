@@ -325,19 +325,19 @@ GdipCreateFromHWND (void *hwnd, GpGraphics **graphics)
 /* This is a dirty hack; but it gets us around header include issues for now
  FIXME: We need to split all the X11 stuff off into its own file(s) so that
  different backends / font backends can be easily introduced in the future. */
-void
-cairo_set_target_quartz_context(cairo_t         *cr,
-				void		*ctx,
-				int             width,
-				int             height);
+cairo_surface_t *cairo_quartz_surface_create(void *ctx, int width, int height);
 
 GpStatus
 GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **graphics)
 {
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-	*graphics = gdip_graphics_new();
-	cairo_set_target_quartz_context ((*graphics)->ct, ctx, width, height);
+        cairo_surface_t *surface;
+
+	surface = cairo_quartz_surface_create(ctx, width, height);
+	
+	
+	*graphics = gdip_graphics_new(surface);
 	
 	(*graphics)->bounds.Width = width;
 	(*graphics)->bounds.Height = height;
