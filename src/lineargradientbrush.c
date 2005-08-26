@@ -45,6 +45,7 @@ gdip_linear_gradient_init (GpLineGradient *linear)
 {
 	gdip_brush_init (&linear->base, &vtable);
 	linear->wrapMode = WrapModeTile;
+	GdipCreateMatrix(&linear->matrix);
 	linear->rectangle = NULL;
 	linear->gammaCorrection = FALSE;
 	linear->angle = 0.0;
@@ -280,6 +281,7 @@ add_color_stops (cairo_pattern_t *pattern, ARGB *colors)
 GpStatus
 create_tile_linear (cairo_t *ct, GpLineGradient *linear)
 {
+	cairo_t	*ct2;
 	cairo_surface_t *gradient;
 	cairo_pattern_t *pat;
 	GpMatrix *tempMatrix = NULL;
@@ -304,26 +306,22 @@ create_tile_linear (cairo_t *ct, GpLineGradient *linear)
 		return OutOfMemory;
 	}
 
-	cairo_save (ct);
-	{
-		ct = cairo_create (gradient);		
-		cairo_identity_matrix (ct);
+	ct2 = cairo_create(gradient);
 
-		if (linear->blend->count > 1)
-			add_color_stops_from_blend (pat, linear->blend, linear->lineColors);
-		else if (linear->presetColors->count > 1)
-			add_color_stops_from_interpolation_colors (pat, linear->presetColors);
-		else
-			add_color_stops (pat, linear->lineColors);
+	if (linear->blend->count > 1)
+		add_color_stops_from_blend (pat, linear->blend, linear->lineColors);
+	else if (linear->presetColors->count > 1)
+		add_color_stops_from_interpolation_colors (pat, linear->presetColors);
+	else
+		add_color_stops (pat, linear->lineColors);
 
-		cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
-		cairo_set_source (ct, pat);
-		cairo_rectangle (ct, 0, 0, 2 * rect->Width, 2 * rect->Height);
-		cairo_fill (ct);
+	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
+	cairo_set_source (ct2, pat);
+	cairo_rectangle (ct2, 0, 0, 2 * rect->Width, 2 * rect->Height);
+	cairo_fill (ct2);
 
-		cairo_pattern_destroy (pat);
-	}
-	cairo_restore (ct);
+	cairo_pattern_destroy (pat);
+	cairo_destroy (ct2);
 
 	GdipCreateMatrix (&tempMatrix);
 	cairo_matrix_init_identity (tempMatrix);

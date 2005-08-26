@@ -1,3 +1,11 @@
+2005-08-25  Peter Bartok  <pbartok@novell.com>
+
+	* hatchbrush.c: Preventing 50% hatch brush ct from getting whacked 
+	  (need to do all other styles as well)
+	* lineargradientbrush.c:
+	  - Fixed missing initialization of brush matrix
+	  - Preventing cairo context from getting whacked
+
 2005-08-25 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* image.c: fixes issues of images drawn on the wrong place
