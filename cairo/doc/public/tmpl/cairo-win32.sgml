@@ -1,0 +1,28 @@
+<!-- ##### SECTION Title ##### -->
+Win32 Surfaces
+
+<!-- ##### SECTION Short_Description ##### -->
+Microsoft Windows surface support
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### FUNCTION cairo_win32_surface_create ##### -->
+<para>
+
+</para>
+
+@hdc: 
+@Returns: 
+
+

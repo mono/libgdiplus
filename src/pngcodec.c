@@ -377,7 +377,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
         img->data.Scan0 = rawdata;
         img->data.Reserved = GBD_OWN_SCAN0;
 
-        img->image.surface = cairo_surface_create_for_image ((char *)rawdata,
+        img->image.surface = cairo_image_surface_create_for_data ((unsigned char *)rawdata,
                                                              img->cairo_format,
                                                              img->image.width,
                                                              img->image.height,

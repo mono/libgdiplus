@@ -1,0 +1,899 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<refentry id="cairo-Fonts">
+<refmeta>
+<refentrytitle>Fonts</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>CAIRO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Fonts</refname><refpurpose>Font Handling</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+
+
+typedef     <link linkend="cairo-font-face-t">cairo_font_face_t</link>;
+typedef     <link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link>;
+<link linkend="void">void</link>        <link linkend="cairo-font-face-reference">cairo_font_face_reference</link>       (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);
+<link linkend="void">void</link>        <link linkend="cairo-font-face-destroy">cairo_font_face_destroy</link>         (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);
+<link linkend="void">void</link>*       <link linkend="cairo-font-face-get-user-data">cairo_font_face_get_user_data</link>   (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
+                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);
+<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-font-face-set-user-data">cairo_font_face_set_user_data</link>
+                                            (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
+                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
+                                             <link linkend="void">void</link> *user_data,
+                                             <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);
+<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link>* <link linkend="cairo-scaled-font-create">cairo_scaled_font_create</link>
+                                            (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
+                                             const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *font_matrix,
+                                             const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *ctm,
+                                             const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);
+<link linkend="void">void</link>        <link linkend="cairo-scaled-font-reference">cairo_scaled_font_reference</link>     (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);
+<link linkend="void">void</link>        <link linkend="cairo-scaled-font-destroy">cairo_scaled_font_destroy</link>       (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);
+            <link linkend="cairo-font-extents-t">cairo_font_extents_t</link>;
+<link linkend="void">void</link>        <link linkend="cairo-scaled-font-extents">cairo_scaled_font_extents</link>       (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                             <link linkend="cairo-font-extents-t">cairo_font_extents_t</link> *extents);
+            <link linkend="cairo-text-extents-t">cairo_text_extents_t</link>;
+<link linkend="void">void</link>        <link linkend="cairo-scaled-font-glyph-extents">cairo_scaled_font_glyph_extents</link> (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                             <link linkend="cairo-glyph-t">cairo_glyph_t</link> *glyphs,
+                                             <link linkend="int">int</link> num_glyphs,
+                                             <link linkend="cairo-text-extents-t">cairo_text_extents_t</link> *extents);
+typedef     <link linkend="cairo-font-options-t">cairo_font_options_t</link>;
+<link linkend="cairo-font-options-t">cairo_font_options_t</link>* <link linkend="cairo-font-options-create">cairo_font_options_create</link>
+                                            (void);
+<link linkend="cairo-font-options-t">cairo_font_options_t</link>* <link linkend="cairo-font-options-copy">cairo_font_options_copy</link>
+                                            (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *original);
+<link linkend="void">void</link>        <link linkend="cairo-font-options-destroy">cairo_font_options_destroy</link>      (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);
+<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-font-options-status">cairo_font_options_status</link>    (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);
+<link linkend="void">void</link>        <link linkend="cairo-font-options-merge">cairo_font_options_merge</link>        (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
+                                             const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *other);
+unsigned <link linkend="long">long</link> <link linkend="cairo-font-options-hash">cairo_font_options_hash</link>       (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);
+<link linkend="cairo-bool-t">cairo_bool_t</link> <link linkend="cairo-font-options-equal">cairo_font_options_equal</link>       (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
+                                             const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *other);
+enum        <link linkend="cairo-antialias-t">cairo_antialias_t</link>;
+<link linkend="void">void</link>        <link linkend="cairo-font-options-set-antialias">cairo_font_options_set_antialias</link>
+                                            (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
+                                             <link linkend="cairo-antialias-t">cairo_antialias_t</link> antialias);
+<link linkend="cairo-antialias-t">cairo_antialias_t</link> <link linkend="cairo-font-options-get-antialias">cairo_font_options_get_antialias</link>
+                                            (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);
+enum        <link linkend="cairo-subpixel-order-t">cairo_subpixel_order_t</link>;
+<link linkend="void">void</link>        <link linkend="cairo-font-options-set-subpixel-order">cairo_font_options_set_subpixel_order</link>
+                                            (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
+                                             <link linkend="cairo-subpixel-order-t">cairo_subpixel_order_t</link> subpixel_order);
+<link linkend="cairo-subpixel-order-t">cairo_subpixel_order_t</link> <link linkend="cairo-font-options-get-subpixel-order">cairo_font_options_get_subpixel_order</link>
+                                            (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);
+enum        <link linkend="cairo-hint-style-t">cairo_hint_style_t</link>;
+<link linkend="void">void</link>        <link linkend="cairo-font-options-set-hint-style">cairo_font_options_set_hint_style</link>
+                                            (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
+                                             <link linkend="cairo-hint-style-t">cairo_hint_style_t</link> hint_style);
+<link linkend="cairo-hint-style-t">cairo_hint_style_t</link> <link linkend="cairo-font-options-get-hint-style">cairo_font_options_get_hint_style</link>
+                                            (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);
+enum        <link linkend="cairo-hint-metrics-t">cairo_hint_metrics_t</link>;
+<link linkend="void">void</link>        <link linkend="cairo-font-options-set-hint-metrics">cairo_font_options_set_hint_metrics</link>
+                                            (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
+                                             <link linkend="cairo-hint-metrics-t">cairo_hint_metrics_t</link> hint_metrics);
+<link linkend="cairo-hint-metrics-t">cairo_hint_metrics_t</link> <link linkend="cairo-font-options-get-hint-metrics">cairo_font_options_get_hint_metrics</link>
+                                            (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="cairo-font-face-t"/>cairo_font_face_t</title>
+<indexterm><primary>cairo_font_face_t</primary></indexterm><programlisting>typedef struct _cairo_font_face cairo_font_face_t;
+</programlisting>
+<para>
+A <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link> specifies all aspects of a font other
+than the size or font matrix (a font matrix is used to distort
+a font by sheering it or scaling it unequally in the two
+directions) . A font face can be set on a <link linkend="cairo-t"><type>cairo_t</type></link> by using
+<link linkend="cairo-set-font-face"><function>cairo_set_font_face()</function></link>; the size and font matrix are set with
+<link linkend="cairo-set-font-size"><function>cairo_set_font_size()</function></link> and <link linkend="cairo-set-font-matrix"><function>cairo_set_font_matrix()</function></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-scaled-font-t"/>cairo_scaled_font_t</title>
+<indexterm><primary>cairo_scaled_font_t</primary></indexterm><programlisting>typedef struct _cairo_scaled_font cairo_scaled_font_t;
+</programlisting>
+<para>
+A <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link> is a font scaled to a particular size and device
+resolution. A cairo_scaled_font_t is most useful for low-level font
+usage where a library or application wants to cache a reference
+to a scaled font to speed up the computation of metrics.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-face-reference"/>cairo_font_face_reference ()</title>
+<indexterm><primary>cairo_font_face_reference</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_font_face_reference       (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
+<para>
+Increases the reference count on <parameter>font_face</parameter> by one. This prevents
+<parameter>font_face</parameter> from being destroyed until a matching call to
+<link linkend="cairo-font-face-destroy"><function>cairo_font_face_destroy()</function></link> is made.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>font_face</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link>, (may be NULL in which case this
+function does nothing).
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-face-destroy"/>cairo_font_face_destroy ()</title>
+<indexterm><primary>cairo_font_face_destroy</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_font_face_destroy         (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
+<para>
+Decreases the reference count on <parameter>font_face</parameter> by one. If the result
+is zero, then <parameter>font_face</parameter> and all associated resources are freed.
+See <link linkend="cairo-font-face-reference"><function>cairo_font_face_reference()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>font_face</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-face-get-user-data"/>cairo_font_face_get_user_data ()</title>
+<indexterm><primary>cairo_font_face_get_user_data</primary></indexterm><programlisting><link linkend="void">void</link>*       cairo_font_face_get_user_data   (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
+                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);</programlisting>
+<para>
+Return user data previously attached to <parameter>font_face</parameter> using the specified
+key.  If no user data has been attached with the given key this
+function returns <literal>NULL</literal>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>font_face</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>key</parameter>&nbsp;:</term>
+<listitem><simpara> the address of the <link linkend="cairo-user-data-key-t"><type>cairo_user_data_key_t</type></link> the user data was
+attached to
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the user data previously attached or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-face-set-user-data"/>cairo_font_face_set_user_data ()</title>
+<indexterm><primary>cairo_font_face_set_user_data</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_font_face_set_user_data
+                                            (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
+                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
+                                             <link linkend="void">void</link> *user_data,
+                                             <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);</programlisting>
+<para>
+Attach user data to <parameter>font_face</parameter>.  To remove user data from a font face,
+call this function with the key that was used to set it and <literal>NULL</literal>
+for <parameter>data</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>font_face</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>key</parameter>&nbsp;:</term>
+<listitem><simpara> the address of a <link linkend="cairo-user-data-key-t"><type>cairo_user_data_key_t</type></link> to attach the user data to
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara> the user data to attach to the font face
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-destroy-func-t"><type>cairo_destroy_func_t</type></link> which will be called when the
+font face is destroyed or when new user data is attached using the
+same key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <literal>CAIRO_STATUS_SUCCESS</literal> or <literal>CAIRO_STATUS_NO_MEMORY</literal> if a
+slot could not be allocated for the user data.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-scaled-font-create"/>cairo_scaled_font_create ()</title>
+<indexterm><primary>cairo_scaled_font_create</primary></indexterm><programlisting><link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link>* cairo_scaled_font_create
+                                            (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
+                                             const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *font_matrix,
+                                             const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *ctm,
+                                             const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);</programlisting>
+<para>
+Creates a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link> object from a font face and matrices that
+describe the size of the font and the environment in which it will
+be used.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>font_face</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>font_matrix</parameter>&nbsp;:</term>
+<listitem><simpara> font space to user space transformation matrix for the
+      font. In the simplest case of a N point font, this matrix is
+      just a scale by N, but it can also be used to shear the font
+      or stretch it unequally along the two axes. See
+      <link linkend="cairo-set-font-matrix"><function>cairo_set_font_matrix()</function></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ctm</parameter>&nbsp;:</term>
+<listitem><simpara> user to device transformation matrix with which the font will
+      be used.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> options to use when getting metrics for the font and
+          rendering with it.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a newly created <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>. Destroy with
+ <link linkend="cairo-scaled-font-destroy"><function>cairo_scaled_font_destroy()</function></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-scaled-font-reference"/>cairo_scaled_font_reference ()</title>
+<indexterm><primary>cairo_scaled_font_reference</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_scaled_font_reference     (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
+<para>
+Increases the reference count on <parameter>scaled_font</parameter> by one. This prevents
+<parameter>scaled_font</parameter> from being destroyed until a matching call to
+<link linkend="cairo-scaled-font-destroy"><function>cairo_scaled_font_destroy()</function></link> is made.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>, (may be NULL in which case
+this function does nothing)
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-scaled-font-destroy"/>cairo_scaled_font_destroy ()</title>
+<indexterm><primary>cairo_scaled_font_destroy</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_scaled_font_destroy       (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
+<para>
+Decreases the reference count on <parameter>font</parameter> by one. If the result
+is zero, then <parameter>font</parameter> and all associated resources are freed.
+See <link linkend="cairo-scaled-font-reference"><function>cairo_scaled_font_reference()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-extents-t"/>cairo_font_extents_t</title>
+<indexterm><primary>cairo_font_extents_t</primary></indexterm><programlisting>typedef struct {
+    double ascent;
+    double descent;
+    double height;
+    double max_x_advance;
+    double max_y_advance;
+} cairo_font_extents_t;
+</programlisting>
+<para>
+The <link linkend="cairo-text-extents-t"><type>cairo_text_extents_t</type></link> structure stores metric information for
+a font. Values are given in the current user-space coordinate
+system.
+</para>
+<para>
+Because font metrics are in user-space coordinates, they are
+mostly, but not entirely, independent of the current transformation
+matrix. If you call <literal>cairo_scale(cr, 2.0, 2.0)</literal>,
+text will be drawn twice as big, but the reported text extents will
+not be doubled. They will change slightly due to hinting (so you
+can't assume that metrics are independent of the transformation
+matrix), but otherwise will remain unchanged.</para>
+<para>
+
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>ascent</structfield>;</term>
+<listitem><simpara> the distance that the font extends above the baseline.
+         Note that this is not always exactly equal to the maximum
+         of the extents of all the glyphs in the font, but rather
+         is picked to express the font designer's intent as to
+         how the font should align with elements above it.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>descent</structfield>;</term>
+<listitem><simpara> the distance that the font extends below the baseline.
+          This value is positive for typical fonts that include
+          portions below the baseline. Note that this is not always
+          exactly equal to the maximum of the extents of all the
+          glyphs in the font, but rather is picked to express the
+          font designer's intent as to how the the font should
+          align with elements below it.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>height</structfield>;</term>
+<listitem><simpara> the recommended vertical distance between baselines when
+         setting consecutive lines of text with the font. This
+         is greater than <parameter>ascent</parameter>+<parameter>descent</parameter> by a
+         quantity known as the <firstterm>line spacing</firstterm>
+         or <firstterm>external leading</firstterm>. When space
+         is at a premium, most fonts can be set with only
+         a distance of <parameter>ascent</parameter>+<parameter>descent</parameter> between lines.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>max_x_advance</structfield>;</term>
+<listitem><simpara> the maximum distance in the X direction that 
+        the the origin is advanced for any glyph in the font.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>max_y_advance</structfield>;</term>
+<listitem><simpara> the maximum distance in the Y direction that
+        the the origin is advanced for any glyph in the font.
+        this will be zero for normal fonts used for horizontal
+        writing. (The scripts of East Asia are sometimes written
+        vertically.)
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-scaled-font-extents"/>cairo_scaled_font_extents ()</title>
+<indexterm><primary>cairo_scaled_font_extents</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_scaled_font_extents       (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                             <link linkend="cairo-font-extents-t">cairo_font_extents_t</link> *extents);</programlisting>
+<para>
+Gets the metrics for a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>extents</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-extents-t"><type>cairo_font_extents_t</type></link> which to store the retrieved extents.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-text-extents-t"/>cairo_text_extents_t</title>
+<indexterm><primary>cairo_text_extents_t</primary></indexterm><programlisting>typedef struct {
+    double x_bearing;
+    double y_bearing;
+    double width;
+    double height;
+    double x_advance;
+    double y_advance;
+} cairo_text_extents_t;
+</programlisting>
+<para>
+The <link linkend="cairo-text-extents-t"><type>cairo_text_extents_t</type></link> structure stores the extents of a single
+glyph or a string of glyphs in user-space coordinates. Because text
+extents are in user-space coordinates, they are mostly, but not
+entirely, independent of the current transformation matrix. If you call
+<literal>cairo_scale(cr, 2.0, 2.0)</literal>, text will
+be drawn twice as big, but the reported text extents will not be
+doubled. They will change slightly due to hinting (so you can't
+assume that metrics are independent of the transformation matrix),
+but otherwise will remain unchanged.</para>
+<para>
+
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>x_bearing</structfield>;</term>
+<listitem><simpara> the horizontal distance from the origin to the
+  leftmost part of the glyphs as drawn. Positive if the
+  glyphs lie entirely to the right of the origin.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>y_bearing</structfield>;</term>
+<listitem><simpara> the vertical distance from the origin to the
+  topmost part of the glyphs as drawn. Positive only if the
+  glyphs lie completely below the origin; will usually be
+  negative.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>width</structfield>;</term>
+<listitem><simpara> width of the glyphs as drawn
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>height</structfield>;</term>
+<listitem><simpara> height of the glyphs as drawn
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>x_advance</structfield>;</term>
+<listitem><simpara>distance to advance in the X direction
+   after drawing these glyphs
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>y_advance</structfield>;</term>
+<listitem><simpara> distance to advance in the Y direction
+  after drawing these glyphs. Will typically be zero except
+  for vertical text layout as found in East-Asian languages.
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-scaled-font-glyph-extents"/>cairo_scaled_font_glyph_extents ()</title>
+<indexterm><primary>cairo_scaled_font_glyph_extents</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_scaled_font_glyph_extents (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                             <link linkend="cairo-glyph-t">cairo_glyph_t</link> *glyphs,
+                                             <link linkend="int">int</link> num_glyphs,
+                                             <link linkend="cairo-text-extents-t">cairo_text_extents_t</link> *extents);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>glyphs</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>num_glyphs</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>extents</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-t"/>cairo_font_options_t</title>
+<indexterm><primary>cairo_font_options_t</primary></indexterm><programlisting>typedef struct _cairo_font_options cairo_font_options_t;
+</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-create"/>cairo_font_options_create ()</title>
+<indexterm><primary>cairo_font_options_create</primary></indexterm><programlisting><link linkend="cairo-font-options-t">cairo_font_options_t</link>* cairo_font_options_create
+                                            (void);</programlisting>
+<para>
+Allocates a new font options object with all options initialized
+ to default values.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a newly allocated <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>. Free with
+  <link linkend="cairo-font-options-destroy"><function>cairo_font_options_destroy()</function></link>. This function always returns a
+  valid pointer; if memory cannot be allocated, then a special
+  error object is returned where all operations on the object do nothing.
+  You can check for this with <link linkend="cairo-font-options-status"><function>cairo_font_options_status()</function></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-copy"/>cairo_font_options_copy ()</title>
+<indexterm><primary>cairo_font_options_copy</primary></indexterm><programlisting><link linkend="cairo-font-options-t">cairo_font_options_t</link>* cairo_font_options_copy
+                                            (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *original);</programlisting>
+<para>
+Allocates a new font options object copying the option values from
+ <parameter>original</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>original</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a newly allocated <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>. Free with
+  <link linkend="cairo-font-options-destroy"><function>cairo_font_options_destroy()</function></link>. This function always returns a
+  valid pointer; if memory cannot be allocated, then a special
+  error object is returned where all operations on the object do nothing.
+  You can check for this with <link linkend="cairo-font-options-status"><function>cairo_font_options_status()</function></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-destroy"/>cairo_font_options_destroy ()</title>
+<indexterm><primary>cairo_font_options_destroy</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_font_options_destroy      (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);</programlisting>
+<para>
+Destroys a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link> object created with with
+<link linkend="cairo-font-options-create"><function>cairo_font_options_create()</function></link> or <link linkend="cairo-font-options-copy"><function>cairo_font_options_copy()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-status"/>cairo_font_options_status ()</title>
+<indexterm><primary>cairo_font_options_status</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_font_options_status    (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);</programlisting>
+<para>
+Checks whether an error has previously occurred for this
+font options object</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <literal>CAIRO_STATUS_SUCCESS</literal> or <literal>CAIRO_STATUS_NO_MEMORY</literal>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-merge"/>cairo_font_options_merge ()</title>
+<indexterm><primary>cairo_font_options_merge</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_font_options_merge        (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
+                                             const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *other);</programlisting>
+<para>
+Merges non-default options from <parameter>other</parameter> into <parameter>options</parameter>, replacing
+existing values. This operation can be thought of as somewhat
+similar to compositing <parameter>other</parameter> onto <parameter>options</parameter> with the operation
+of <literal>CAIRO_OPERATION_OVER</literal>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>other</parameter>&nbsp;:</term>
+<listitem><simpara> another <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-hash"/>cairo_font_options_hash ()</title>
+<indexterm><primary>cairo_font_options_hash</primary></indexterm><programlisting>unsigned <link linkend="long">long</link> cairo_font_options_hash       (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);</programlisting>
+<para>
+Compute a hash for the font options object; this value will
+be useful when storing an object containing a cairo_font_options_t
+in a hash table.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the hash value for the font options object.
+  The return value can be cast to a 32-bit type if a
+  32-bit hash value is needed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-equal"/>cairo_font_options_equal ()</title>
+<indexterm><primary>cairo_font_options_equal</primary></indexterm><programlisting><link linkend="cairo-bool-t">cairo_bool_t</link> cairo_font_options_equal       (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
+                                             const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *other);</programlisting>
+<para>
+Compares two font options objects for equality.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>other</parameter>&nbsp;:</term>
+<listitem><simpara> another <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <literal>TRUE</literal> if all fields of the two font options objects match
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-antialias-t"/>enum cairo_antialias_t</title>
+<indexterm><primary>cairo_antialias_t</primary></indexterm><programlisting>typedef enum _cairo_antialias {
+    CAIRO_ANTIALIAS_DEFAULT,
+    CAIRO_ANTIALIAS_NONE,
+    CAIRO_ANTIALIAS_GRAY,
+    CAIRO_ANTIALIAS_SUBPIXEL
+} cairo_antialias_t;
+</programlisting>
+<para>
+Specifies the type of antialiasing to do when rendering text.</para>
+<para>
+
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>CAIRO_ANTIALIAS_DEFAULT</literal></term>
+<listitem><simpara> Use the default antialiasing for
+  the font subsystem and target device
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>CAIRO_ANTIALIAS_NONE</literal></term>
+<listitem><simpara> Do no antialiasing of fonts; use bilevel text
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>CAIRO_ANTIALIAS_GRAY</literal></term>
+<listitem><simpara> Perform single-color antialiasing (using
+ shades of gray for black text on a white background, for example).
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>CAIRO_ANTIALIAS_SUBPIXEL</literal></term>
+<listitem><simpara> Perform antialiasing by taking
+ advantage of the order of subpixel elements on devices
+ such as LCD panels
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-set-antialias"/>cairo_font_options_set_antialias ()</title>
+<indexterm><primary>cairo_font_options_set_antialias</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_font_options_set_antialias
+                                            (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
+                                             <link linkend="cairo-antialias-t">cairo_antialias_t</link> antialias);</programlisting>
+<para>
+Sets the antiliasing mode for the font options object. This
+specifies the type of antialiasing to do when rendering text.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>antialias</parameter>&nbsp;:</term>
+<listitem><simpara> the new antialiasing mode
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-get-antialias"/>cairo_font_options_get_antialias ()</title>
+<indexterm><primary>cairo_font_options_get_antialias</primary></indexterm><programlisting><link linkend="cairo-antialias-t">cairo_antialias_t</link> cairo_font_options_get_antialias
+                                            (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);</programlisting>
+<para>
+Gets the antialising mode for the font options object.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the antialiasing mode
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-subpixel-order-t"/>enum cairo_subpixel_order_t</title>
+<indexterm><primary>cairo_subpixel_order_t</primary></indexterm><programlisting>typedef enum _cairo_subpixel_order {
+    CAIRO_SUBPIXEL_ORDER_DEFAULT,
+    CAIRO_SUBPIXEL_ORDER_RGB,
+    CAIRO_SUBPIXEL_ORDER_BGR,
+    CAIRO_SUBPIXEL_ORDER_VRGB,
+    CAIRO_SUBPIXEL_ORDER_VBGR
+} cairo_subpixel_order_t;
+</programlisting>
+<para>
+The subpixel order specifies the order of color elements within
+each pixel on the display device when rendering with an
+antialiasing mode of <literal>CAIRO_ANTIALIAS_SUBPIXEL</literal>.</para>
+<para>
+
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>CAIRO_SUBPIXEL_ORDER_DEFAULT</literal></term>
+<listitem><simpara> Use the default subpixel order for
+  for the target device
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>CAIRO_SUBPIXEL_ORDER_RGB</literal></term>
+<listitem><simpara> Subpixel elements are arranged horizontally
+  with red at the left
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>CAIRO_SUBPIXEL_ORDER_BGR</literal></term>
+<listitem><simpara>  Subpixel elements are arranged horizontally
+  with blue at the left
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>CAIRO_SUBPIXEL_ORDER_VRGB</literal></term>
+<listitem><simpara> Subpixel elements are arranged vertically
+  with red at the top
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>CAIRO_SUBPIXEL_ORDER_VBGR</literal></term>
+<listitem><simpara> Subpixel elements are arranged vertically
+  with blue at the top
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-set-subpixel-order"/>cairo_font_options_set_subpixel_order ()</title>
+<indexterm><primary>cairo_font_options_set_subpixel_order</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_font_options_set_subpixel_order
+                                            (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
+                                             <link linkend="cairo-subpixel-order-t">cairo_subpixel_order_t</link> subpixel_order);</programlisting>
+<para>
+Sets the subpixel order for the font options object. The subpixel
+order specifies the order of color elements within each pixel on
+the display device when rendering with an antialiasing mode of
+<literal>CAIRO_ANTIALIAS_SUBPIXEL</literal>. See the documentation for
+<link linkend="cairo-subpixel-order-t"><type>cairo_subpixel_order_t</type></link> for full details.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>subpixel_order</parameter>&nbsp;:</term>
+<listitem><simpara> the new subpixel order
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-get-subpixel-order"/>cairo_font_options_get_subpixel_order ()</title>
+<indexterm><primary>cairo_font_options_get_subpixel_order</primary></indexterm><programlisting><link linkend="cairo-subpixel-order-t">cairo_subpixel_order_t</link> cairo_font_options_get_subpixel_order
+                                            (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);</programlisting>
+<para>
+Gets the subpixel order for the font options object.
+See the documentation for <link linkend="cairo-subpixel-order-t"><type>cairo_subpixel_order_t</type></link> for full details.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the subpixel order for the font options object
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-hint-style-t"/>enum cairo_hint_style_t</title>
+<indexterm><primary>cairo_hint_style_t</primary></indexterm><programlisting>typedef enum _cairo_hint_style {
+    CAIRO_HINT_STYLE_DEFAULT,
+    CAIRO_HINT_STYLE_NONE,
+    CAIRO_HINT_STYLE_SLIGHT,
+    CAIRO_HINT_STYLE_MEDIUM,
+    CAIRO_HINT_STYLE_FULL
+} cairo_hint_style_t;
+</programlisting>
+<para>
+Specifies the type of hinting to do on font outlines. Hinting
+is the process of fitting outlines to the pixel grid in order
+to improve the appearance of the result. Since hinting outlines
+involves distorting them, it also reduces the faithfulness
+to the original outline shapes. Not all of the outline hinting
+styles are supported by all font backends.</para>
+<para>
+
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>CAIRO_HINT_STYLE_DEFAULT</literal></term>
+<listitem><simpara> Use the default hint style for
+  for font backend and target device
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>CAIRO_HINT_STYLE_NONE</literal></term>
+<listitem><simpara> Do not hint outlines
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>CAIRO_HINT_STYLE_SLIGHT</literal></term>
+<listitem><simpara> Hint outlines slightly to improve
+  contrast while retaining good fidelity to the original
+  shapes.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>CAIRO_HINT_STYLE_MEDIUM</literal></term>
+<listitem><simpara> Hint outlines with medium strength
+  giving a compromise between fidelity to the original shapes
+  and contrast
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>CAIRO_HINT_STYLE_FULL</literal></term>
+<listitem><simpara> Hint outlines to maximize contrast
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-set-hint-style"/>cairo_font_options_set_hint_style ()</title>
+<indexterm><primary>cairo_font_options_set_hint_style</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_font_options_set_hint_style
+                                            (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
+                                             <link linkend="cairo-hint-style-t">cairo_hint_style_t</link> hint_style);</programlisting>
+<para>
+Sets the hint style for font outlines for the font options object.
+This controls whether to fit font outlines to the pixel grid,
+and if so, whether to optimize for fidelity or contrast.
+See the documentation for <link linkend="cairo-hint-style-t"><type>cairo_hint_style_t</type></link> for full details.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>hint_style</parameter>&nbsp;:</term>
+<listitem><simpara> the new hint style
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-get-hint-style"/>cairo_font_options_get_hint_style ()</title>
+<indexterm><primary>cairo_font_options_get_hint_style</primary></indexterm><programlisting><link linkend="cairo-hint-style-t">cairo_hint_style_t</link> cairo_font_options_get_hint_style
+                                            (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);</programlisting>
+<para>
+Gets the hint style for font outlines for the font options object.
+See the documentation for <link linkend="cairo-hint-style-t"><type>cairo_hint_style_t</type></link> for full details.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the hint style for the font options object
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-hint-metrics-t"/>enum cairo_hint_metrics_t</title>
+<indexterm><primary>cairo_hint_metrics_t</primary></indexterm><programlisting>typedef enum _cairo_hint_metrics {
+    CAIRO_HINT_METRICS_DEFAULT,
+    CAIRO_HINT_METRICS_OFF,
+    CAIRO_HINT_METRICS_ON
+} cairo_hint_metrics_t;
+</programlisting>
+<para>
+Specifies whether to hint font metrics; hinting font metrics
+means quantizing them so that they are integer values in
+device space. Doing this improves the consistency of
+letter and line spacing, however it also means that text
+will be laid out differently at different zoom factors.</para>
+<para>
+
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>CAIRO_HINT_METRICS_DEFAULT</literal></term>
+<listitem><simpara> Hint metrics in the default
+ manner for the font backend and target device
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>CAIRO_HINT_METRICS_OFF</literal></term>
+<listitem><simpara> Do not hint font metrics
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>CAIRO_HINT_METRICS_ON</literal></term>
+<listitem><simpara> Hint font metrics
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-set-hint-metrics"/>cairo_font_options_set_hint_metrics ()</title>
+<indexterm><primary>cairo_font_options_set_hint_metrics</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_font_options_set_hint_metrics
+                                            (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
+                                             <link linkend="cairo-hint-metrics-t">cairo_hint_metrics_t</link> hint_metrics);</programlisting>
+<para>
+Sets the metrics hinting mode for the font options object. This
+controls whether metrics are quantized to integer values in
+device units.
+See the documentation for <link linkend="cairo-hint-metrics-t"><type>cairo_hint_metrics_t</type></link> for full details.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>hint_metrics</parameter>&nbsp;:</term>
+<listitem><simpara> the new metrics hinting mode
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-options-get-hint-metrics"/>cairo_font_options_get_hint_metrics ()</title>
+<indexterm><primary>cairo_font_options_get_hint_metrics</primary></indexterm><programlisting><link linkend="cairo-hint-metrics-t">cairo_hint_metrics_t</link> cairo_font_options_get_hint_metrics
+                                            (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);</programlisting>
+<para>
+Gets the metrics hinting mode for the font options object.
+See the documentation for <link linkend="cairo-hint-metrics-t"><type>cairo_hint_metrics_t</type></link> for full details.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the metrics hinting mode for the font options object
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

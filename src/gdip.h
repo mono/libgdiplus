@@ -41,8 +41,9 @@
 #endif
 #endif
 
-#define	gdip_cairo_ft_font_lock_face(font)	cairo_ft_font_face(font)
-#define gdip_cairo_ft_font_unlock_face(font)
+//#define	gdip_cairo_ft_font_lock_face(font)	cairo_ft_font_face(font)
+//#define gdip_cairo_ft_font_unlock_face(font)
+#define gdip_cairo_matrix_copy(m1, m2) memcpy (m1, m2, sizeof (cairo_matrix_t))
 
 #ifdef WORDS_BIGENDIAN
 #define set_pixel_bgra(pixel,index,b,g,r,a) do { \
@@ -702,7 +703,7 @@ typedef struct {
 
 typedef struct {
 	cairo_t         *ct;
-	cairo_matrix_t	*copy_of_ctm;
+	GpMatrix	*copy_of_ctm;
 	Display		*display;
 	Drawable	drawable;
 	void            *image;
@@ -825,7 +826,7 @@ typedef struct {
 
 
 typedef struct {
-        cairo_font_t*       cairofnt;
+        cairo_font_face_t*  cairofnt;
         float               sizeInPixels;
         GpFontStyle         style;
         void                *wineHfont;
@@ -913,8 +914,8 @@ GpBitmap *gdip_bitmap_new   (void);
 void gdip_bitmap_dispose (GpBitmap *bitmap);
 void gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap);
 
-void gdip_graphics_init (GpGraphics *graphics);
-GpGraphics *gdip_graphics_new (void);
+void gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface);
+GpGraphics *gdip_graphics_new (cairo_surface_t *surface);
 void gdip_graphics_attach_bitmap (GpGraphics *graphics, GpBitmap *image);
 void gdip_graphics_detach_bitmap (GpGraphics *graphics, GpBitmap *image);
 
@@ -1256,11 +1257,7 @@ void GdipFree (void *ptr);
 int fcmp (double x1, double x2, double epsilon);
 float gdip_get_display_dpi();
 void gdip_unitConversion(Unit fromUnit, Unit toUnit, float nSrc, float* nTrg);
-
-void gdip_font_drawunderline (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
-void gdip_font_drawstrikeout (GpGraphics *graphics, GpBrush *brush, float x, float y, float width);
-
-cairo_status_t gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s);
+cairo_content_t from_cairoformat_to_content (cairo_format_t format);
 
 void gdip_rect_expand_by (GpRectF *rect, GpPointF *point);
 
@@ -1272,6 +1269,8 @@ GpBitmap * gdip_convert_indexed_to_rgb (GpBitmap *bitmap);
 const EncoderParameter *gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid);
 gchar *ucs2_to_utf8(const gunichar2 *ucs2, int length);
 bool utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len);
+int utf8_encode_ucs2char(gunichar2 unichar, unsigned char *dest);
+int utf8_decode_ucs2char(const unsigned char *src, gunichar2 *uchar);
 
 
 /* Stream handling bits */

@@ -1,0 +1,33 @@
+The place to find a current list of known bugs for cairo is:
+
+	http://bugs.freedesktop.org
+
+under either the cairo or libpixman products. New bugs should be
+reported there as well.
+
+[A few old bugs have not bee moved to bugs.freedesktop.org and are
+instead listed below:]
+
+--
+
+The caches need to be invalidated at font destruction time.
+
+--
+
+Splines are not dashed.
+
+--
+
+The polygon tessellation routine has problems. It appears that the
+following paper has the right answers:
+
+	http://cm.bell-labs.com/cm/cs/doc/93/2-27.ps.gz
+
+	[Hobby93c] John D. Hobby, Practical Segment Intersection with
+	Finite Precision Output, Computation Geometry Theory and
+	Applications, 13(4), 1999.
+
+Recent improvements to make the intersection code more robust (using
+128-bit arithmetic where needed), have exposed some of the weakness in
+the current tessellation implementation. So, for now, filling some
+polygons will cause "leaking" until we implement Hobby's algorithm.

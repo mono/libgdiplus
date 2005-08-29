@@ -350,6 +350,39 @@ GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily)
 	return Ok;
 }
 
+FT_Face
+gdip_cairo_ft_font_lock_face (cairo_font_face_t *cairofnt)
+{
+	cairo_scaled_font_t *scaled_ft;
+	cairo_matrix_t matrix1, matrix2;
+        cairo_font_options_t *options;
+	
+	options = cairo_font_options_create ();
+		
+	scaled_ft = cairo_scaled_font_create (cairofnt,
+					      &matrix1,
+					      &matrix2,
+					      options);
+	return cairo_ft_scaled_font_lock_face (scaled_ft);
+}
+
+void
+gdip_cairo_ft_font_unlock_face (cairo_font_face_t *cairofnt)
+{
+	cairo_scaled_font_t *scaled_ft;
+	cairo_matrix_t matrix1, matrix2;
+	cairo_font_options_t *options = NULL;
+
+	options = cairo_font_options_create ();	
+	
+	scaled_ft = cairo_scaled_font_create (cairofnt,
+					      &matrix1,
+					      &matrix2,
+					      options);
+	
+	cairo_ft_scaled_font_unlock_face (scaled_ft);
+}
+
 GpStatus
 GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHeight)
 {
@@ -370,6 +403,7 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHei
 		FT_Face	face;
 		TT_VertHeader *pVert;
 
+		//cairo_ft_scaled_font_lock_face (cairo_scaled_font_t *abstract_font)
 		face = gdip_cairo_ft_font_lock_face(font->cairofnt);
 
 		pVert = FT_Get_Sfnt_Table(face, ft_sfnt_vhea);
@@ -517,16 +551,20 @@ GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAv
 int
 gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont *result)
 {
-	cairo_font_t *font = NULL;
+	cairo_font_face_t *font = NULL;
 	FcPattern * pat = NULL;
+	FcPattern * pat2 = NULL;
 	FT_Library ft_library;
 	FT_Error error;
+	FcResult rslt;
 
 	pat = FcPatternCreate ();
 	if (pat == NULL || result == NULL) {
 		return 0;
 	}
 
+	FcDefaultSubstitute (pat);	
+	
 	FcPatternAddString (pat, FC_FAMILY, family);
 	FcPatternAddInteger (pat, FC_SLANT, fcslant);
 	FcPatternAddInteger (pat, FC_WEIGHT, fcweight);
@@ -537,7 +575,15 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont
 		return 0;
 	}
 
-	font = cairo_ft_font_create (ft_library, pat);
+	pat2 =  FcFontMatch (0, pat, &rslt);
+
+	if (pat2 == NULL) {
+		FcPatternDestroy (pat);
+		FcPatternDestroy (pat2);
+		return 0;
+	}
+
+	font = cairo_ft_font_face_create_for_pattern (pat2);
 	if (font == NULL) {
 		FT_Done_FreeType(ft_library);
 		FcPatternDestroy (pat);
@@ -554,33 +600,8 @@ gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont
 	gdip_cairo_ft_font_unlock_face(font);
 
 	FcPatternDestroy (pat);
+	FcPatternDestroy (pat2);
 	return 1;
-}
-
-void
-gdip_font_drawunderline (GpGraphics *graphics, GpBrush *brush, float x, float y, float width)
-{
-        float pos, size;
-        cairo_font_extents_t extents;
-
-        cairo_current_font_extents (graphics->ct, &extents);
-        pos = 0.5 + ((extents.ascent + extents.descent) *0.1);
-        size = 0.5 + ((extents.ascent + extents.descent) *0.05);
-
-        GdipFillRectangle (graphics, brush, x, y +pos, width, size);     
-}
-
-void
-gdip_font_drawstrikeout (GpGraphics *graphics, GpBrush *brush, float x, float y, float width)
-{
-        float pos, size;
-        cairo_font_extents_t extents;
-
-        cairo_current_font_extents (graphics->ct, &extents);
-        pos = 0.5 + ((extents.ascent + extents.descent) *0.5);
-        size = 0.5 + ((extents.ascent + extents.descent) *0.05);
-
-        GdipFillRectangle (graphics, brush, x, y -pos, width, size);
 }
 
 void
@@ -589,7 +610,7 @@ gdip_release_font (GpFont* font)
 	if (!font)
 		return;
 
-	cairo_font_destroy ((cairo_font_t *)font->cairofnt);
+	cairo_font_face_destroy ((cairo_font_face_t *)font->cairofnt);
 
 	if (font->ft_library)
 		FT_Done_FreeType(font->ft_library);
@@ -653,7 +674,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 		return Ok;
 	}
 	UNLOCK_FONTCACHE;
-
+		
 	result = (GpFont *) GdipAlloc (sizeof (GpFont));
 	result->sizeInPixels = sizeInPixels;
 
@@ -662,14 +683,15 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 
         if ((style & FontStyleItalic) == FontStyleItalic)        
                 slant = FC_SLANT_ITALIC;
-        
+
 	if (!gdip_font_create (str, slant, weight, result)) {
 		return InvalidParameter;	/* FIXME -  wrong return code */
-	}
-        result->style = style;
-	cairo_font_reference ((cairo_font_t *)result->cairofnt);
-	*font=result;
+	}	
 
+        result->style = style;
+	cairo_font_face_reference ((cairo_font_face_t *)result->cairofnt);
+	*font=result;	
+	
 	if (strlen ((const char *)str) > 127) /* Cannot cache this font */
 		return Ok;
 	
@@ -698,7 +720,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 		}	
 	}
 	UNLOCK_FONTCACHE;
-        
+        		
 	return Ok;
 }
 
@@ -794,17 +816,16 @@ GetFontMetrics(GpGraphics *graphics, GpFont *font, int *ascent, int *descent)
 {
 	cairo_font_extents_t	font_extent;
 
-	cairo_set_font (graphics->ct, (cairo_font_t*) font->cairofnt);
-	cairo_scale_font (graphics->ct, font->sizeInPixels);
-	cairo_current_font_extents (graphics->ct, &font_extent);
+	cairo_set_font_face (graphics->ct, (cairo_font_face_t*) font->cairofnt);
+	cairo_set_font_size (graphics->ct, font->sizeInPixels);
+	cairo_font_extents (graphics->ct, &font_extent);
 
 	if (ascent) {
 		*ascent = (int)font_extent.ascent;
 	}
 
-	/* Descent is negative for descent below the baseline */
 	if (descent) {
-		*descent = -1 * (int)font_extent.descent;
+		*descent = (int)font_extent.descent;
 	}
 
 	return TRUE;

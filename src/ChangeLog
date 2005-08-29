@@ -1,3 +1,125 @@
+2005-08-26  Geoff Norton  <gnorton@customerdna.com>
+
+	* graphics.c: Update the Quartz constructors for the new Cairo 1.0
+	API calls
+
+2005-08-26 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* lineargradientbrush.c: fixes issues with angle
+
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* hatchbrush.c: Wouldn't it be nice to clean the cairo stuff when
+	  destroying the brush
+
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* image.c: Now scales/resizes images to destination rectangle
+	* gdip.h: Removed gdip_cairo_set_surface_pattern() prototype
+	* general.c: Removed gdip_cairo_set_surface_pattern() method, it's
+	  no longer used
+
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* gdip.h, general.c: Removed gdip_cairo_set_surface_pattern_with_extend
+	  since it's no longer needed (replaced with less code directly in  
+	  hatchbrush)
+
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* hatchbrush.c: Fixed context leaks (We're also no longer 
+	  abusing the passed cairo_t context as the pattern context)
+
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* hatchbrush.c: Fixed 40% and plaid drawing, resolved ct corruption and
+	  nesting bugs
+
+2005-08-26  Hisham Mardam Bey <hisham.mardambey@gmail.com>
+
+	* hatchbrush.c: remove extra paint calls and fix cairo_save/restore
+	  calls.
+
+2005-08-25  Peter Bartok  <pbartok@novell.com>
+
+	* hatchbrush.c: Preventing 50% hatch brush ct from getting whacked 
+	  (need to do all other styles as well)
+	* lineargradientbrush.c:
+	  - Fixed missing initialization of brush matrix
+	  - Preventing cairo context from getting whacked
+
+2005-08-25 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* image.c: fixes issues of images drawn on the wrong place
+
+2005-08-25 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c:
+		- Fixes leaking on GdipDeleteGraphics
+		- Fixes GdipGetDC bug exposed by Marek changes into graphics.cs
+
+2005-08-25 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* hatchbrush.c: use correct enumerator for cairo calls
+	* matrix.c: fixes GdipShearMatrix method
+
+2005-08-25  Hisham Mardam Bey <hisham.mardambey@gmail.com>
+       
+        * hatchbrush.c: removed cairo_paint calls, we still have a few, must
+	  look into them. Fixed remaining cairo_paint and patter problems.
+	* general.c: added gdip_cairo_set_surface_pattern_with_extend
+	* gdip.h: added gdip_cairo_set_surface_pattern_with_extend
+       
+2005-08-24  Peter Bartok  <pbartok@novell.com>
+
+	* hatchbrush.c: Fixed 50% hatchbrush drawing. Still need to fix all
+	  other 50 gazillion hatchbrushes :-(
+
+2005-08-24  Peter Bartok  <pbartok@novell.com>
+
+	* gdip.h: Removed prototypes for internal strikethrough and underline
+	  functions; those are no longer used
+	* font.c:
+	  - Cairo switched to positive font descent number, fixed code to match
+	  - Removed unused methods for strikethrough and underline; drawstring
+	    handles that behaviour internally
+	* graphics.c (DrawString): Cairo switched to positive descent values
+	  for font extents, switched the code to handle that
+
+2005-08-24 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: fixes gcc 4 warning
+	* general.c: from_cairoformat_to_content function
+	* texturebrush.c: fixes texture brushes
+  	* matrix.c:
+		* All the create function allocate the memory 
+		* Fixes GdipCloneMatrix function	
+		* Fixes GdipIsMatrixEqual 
+		* Fixes GdipIsMatrixInvertible (always returned true) 
+		* Fixes GdipGetMatrixElements (wrong order)
+
+2005-08-24 Hisham Mardam Bey  <hisham.mardambey@gmail.com>
+
+        * pen.c : remove debugging printf.
+
+2005-08-24 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* hatchbrush.c, lineargradientbrush.c. Cairo has changed the format
+	enum parameter for cairo_surface_create_similar. This fixes many samples
+	not running. 
+
+2005-08-23  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c: The original CalculateStringWidths method was dependent
+	  on FT and internal knowledge of cairo font matrix behaviour, and the
+	  function broke with the newer cairo due to changes to this behaviour.
+	  Renamed the original to CalculateStringWidthsUTF8 and wrote a new 
+	  method which uses cairo_text_extents to calculate character widths. 
+	  This is somewhat slower but works font-backend independent.
+	* general.c: Added ucs2 to utf8 char encoder and decoder (allows
+	  faster calculations than the malloc-dependent utf8 string functions)
+	* gdip.h: Added prototypes for utf8 character functions
+
 2005-08-22 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* region.c: fixes memory leaks

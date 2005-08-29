@@ -47,8 +47,11 @@ gdip_pen_init (GpPen *pen)
 	pen->compound_count = 0;
 	pen->compound_array = NULL;
 	pen->unit = UnitWorld;
-        pen->matrix = cairo_matrix_create ();
 	pen->changed = TRUE;
+	pen->matrix = NULL;
+	//GdipCreateMatrix (pen->matrix);
+	pen->matrix = g_new (GpMatrix, 1);
+	cairo_matrix_init_identity (pen->matrix);
 }
 
 GpPen*
@@ -122,11 +125,14 @@ GpStatus
 gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 {
 	GpStatus status;
-	cairo_matrix_t *product;
-
+	GpMatrix *product = NULL;
+	
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
+	GdipCreateMatrix (&product);
+	cairo_matrix_init_identity (product);
+	
 	status = gdip_brush_setup (graphics, pen->brush);
 	if (status != Ok)
 		return status;
@@ -138,10 +144,8 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	 * every time we perform stroke operations. Graphics matrix gets
 	 * reset to its own state after stroking.
 	 */
-	product = cairo_matrix_create ();
 	cairo_matrix_multiply (product, pen->matrix, graphics->copy_of_ctm);
 	cairo_set_matrix (graphics->ct, product);
-	cairo_matrix_destroy (product);
 
 	/* Don't need to setup, if pen is the same as the cached pen and
 	 * it is not changed. Just comparing pointers may not be sufficient
@@ -155,7 +159,7 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	if (pen->width <= 0) { /* we draw a pixel wide line if width is <=0 */
 		double widthx = 1.0;
 		double widthy = 1.0;
-		cairo_inverse_transform_distance (graphics->ct, &widthx, &widthy);
+		cairo_device_to_user_distance (graphics->ct, &widthx, &widthy);
 		cairo_set_line_width (graphics->ct, widthx);
 	} else
 		cairo_set_line_width (graphics->ct, (double) pen->width);
@@ -259,7 +263,7 @@ GpStatus
 GdipClonePen (GpPen *pen, GpPen **clonepen)
 {
         GpPen *result;
-        GpMatrix *matrix;               /* copy of pen->matrix */
+        GpMatrix *matrix = NULL;        /* copy of pen->matrix */
         float *dashes;                  /* copy off pen->dash_array */
         float *compound_array = NULL;   /* copy off pen->compound_array */
 
@@ -269,6 +273,7 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 	/* we make a copy of dash array only if it is owned by pen, i.e. it is not
 	 * our global array.
 	 */
+
 	if (pen->dash_count > 0 && pen->own_dash_array) {
 		dashes = (float *) GdipAlloc (pen->dash_count * sizeof (float));
 		g_return_val_if_fail (dashes != NULL, OutOfMemory);
@@ -286,6 +291,7 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 		clone_dash_array (compound_array, pen->compound_array, pen->compound_count);
 	}
 
+	GdipCreateMatrix (&matrix);
         if (GdipCloneMatrix (pen->matrix, &matrix) != Ok) {
 		if (pen->dash_count > 0)
 			GdipFree (dashes);
@@ -330,7 +336,7 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 	result->compound_count = pen->compound_count;
 	result->compound_array = compound_array;
 	result->unit = pen->unit;
-        result->matrix = matrix;
+        gdip_cairo_matrix_copy(result->matrix, matrix);
 	result->changed = pen->changed;
 
         *clonepen = result;
@@ -342,10 +348,6 @@ GpStatus
 GdipDeletePen (GpPen *pen)
 {
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
-
-        if (pen->matrix != NULL)
-                cairo_matrix_destroy (pen->matrix);
-	pen->matrix = NULL;
 
         if (pen->dash_count != 0 && pen->own_dash_array) {
                 GdipFree (pen->dash_array);
@@ -566,8 +568,8 @@ GdipSetPenTransform (GpPen *pen, GDIPCONST GpMatrix *matrix)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	pen->matrix = cairo_matrix_create();
-	cairo_matrix_copy(pen->matrix, matrix);
+
+	gdip_cairo_matrix_copy(&pen->matrix, matrix);
 	pen->changed = TRUE;
         return Ok;
 }
@@ -578,7 +580,7 @@ GdipGetPenTransform (GpPen *pen, GpMatrix *matrix)
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	cairo_matrix_copy(matrix, pen->matrix);
+	gdip_cairo_matrix_copy(matrix, &pen->matrix);
         return Ok;
 }
 
@@ -589,13 +591,11 @@ GdipResetPenTransform (GpPen *pen)
 	GpStatus s;
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-	status = cairo_matrix_set_identity (pen->matrix);
-	s = gdip_get_status (status);
+	cairo_matrix_init_identity (pen->matrix);
 
-	if (s == Ok)
-		pen->changed = TRUE;
+	pen->changed = TRUE;
 
-	return s;
+	return Ok;
 }
 
 GpStatus

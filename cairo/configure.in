@@ -1,0 +1,582 @@
+AC_PREREQ(2.54)
+
+# cairo package version number, (as distinct from shared library version)
+# An odd micro number indicates in-progress development, (eg. from CVS)
+# An even micro number indicates a released version.
+m4_define(cairo_version_major, 1)
+m4_define(cairo_version_minor, 0)
+m4_define(cairo_version_micro, 1)
+
+AC_INIT([cairo],
+      cairo_version_major.cairo_version_minor.cairo_version_micro,
+      [http://bugs.freedesktop.org/enter_bug.cgi?product=cairo])
+AC_CONFIG_SRCDIR(src/cairo.h)
+AC_CONFIG_HEADERS(config.h)
+AM_INIT_AUTOMAKE([1.7])
+
+dnl ===========================================================================
+
+# libtool shared library version
+
+# Increment if the interface has additions, changes, removals.
+LT_CURRENT=4
+
+# Increment any time the source changes; set to
+# 0 if you increment CURRENT
+LT_REVISION=2
+
+# Increment if any interfaces have been added; set to 0
+# if any interfaces have been removed. removal has
+# precedence over adding, so set to 0 if both happened.
+LT_AGE=2
+
+dnl ===========================================================================
+
+VERSION_INFO="$LT_CURRENT:$LT_REVISION:$LT_AGE"
+AC_SUBST(VERSION_INFO)
+
+LT_CURRENT_MINUS_AGE=`expr $LT_CURRENT - $LT_AGE`
+AC_SUBST(LT_CURRENT_MINUS_AGE)
+
+CAIRO_VERSION_MAJOR=cairo_version_major()
+CAIRO_VERSION_MINOR=cairo_version_minor()
+CAIRO_VERSION_MICRO=cairo_version_micro()
+AC_SUBST(CAIRO_VERSION_MAJOR)
+AC_SUBST(CAIRO_VERSION_MINOR)
+AC_SUBST(CAIRO_VERSION_MICRO)
+AC_SUBST(CAIRO_VERSION_OTHER)
+
+AM_MAINTAINER_MODE
+
+AC_PROG_CC
+AC_PROG_CPP
+AM_PROG_LIBTOOL
+AC_STDC_HEADERS
+AC_C_BIGENDIAN
+
+dnl ===========================================================================
+dnl === Local macros
+dnl ===========================================================================
+
+# _CHECK_FUNCS_WITH_FLAGS(FUNCTION..., CFLAGS, LIBS 
+#                         [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
+# Like AC_CHECK_FUNCS but with additional CFLAGS and LIBS
+# --------------------------------------------------------------------
+AC_DEFUN([_CHECK_FUNCS_WITH_FLAGS],
+[ 
+  save_cflags="$CFLAGS"
+  save_libs="$LIBS"
+  CFLAGS="$CFLAGS $2"
+  LIBS="$LIBS $3"
+  AC_CHECK_FUNCS($1, $4, $5)
+  CFLAGS="$save_cflags"
+  LIBS="$save_libs"
+])
+
+dnl ===========================================================================
+
+AC_CHECK_FUNCS(vasnprintf)
+	
+AC_CHECK_LIBM
+
+LIBS="$LIBS $LIBM"
+
+AC_CHECK_FUNCS(sincos)
+
+dnl ===========================================================================
+
+AC_ARG_ENABLE(xlib,
+  [  --disable-xlib          Disable cairo's Xlib backend],
+  [use_xlib=$enableval], [use_xlib=yes])
+
+if test "x$use_xlib" = "xyes"; then
+  dnl Check for Xrender header files if the Xrender package is not installed:
+  PKG_CHECK_MODULES(XRENDER, xrender >= 0.6, [
+    XRENDER_REQUIRES=xrender
+    use_xlib=yes], [
+      AC_CHECK_HEADER(X11/extensions/Xrender.h, [
+      AC_PATH_XTRA
+      XRENDER_LIBS="$X_LIBS -lXrender -lXext -lX11 $X_EXTRA_LIBS"
+      use_xlib=yes], [
+		use_xlib="no (requires Xrender http://freedesktop.org/Software/xlibs)"])])
+  _CHECK_FUNCS_WITH_FLAGS(XrmFinalize, $XRENDER_CFLAGS, $XRENDER_LIBS)
+fi
+
+AM_CONDITIONAL(CAIRO_HAS_XLIB_SURFACE, test "x$use_xlib" = "xyes")
+if test "x$use_xlib" = "xyes"; then
+  XLIB_SURFACE_FEATURE="#define CAIRO_HAS_XLIB_SURFACE 1"
+fi
+AC_SUBST(XLIB_SURFACE_FEATURE)
+
+AC_SUBST(XRENDER_REQUIRES)
+
+CAIRO_CFLAGS="$CAIRO_CFLAGS $XRENDER_CFLAGS"
+CAIRO_LIBS="$CAIRO_LIBS $XRENDER_LIBS"
+
+AC_ARG_ENABLE(quartz,
+  [  --enable-quartz         Enable cairo's Quartz backend],
+  [use_quartz=$enableval], [use_quartz=no])
+
+if test "x$use_quartz" = "xyes"; then
+  dnl There is no pkgconfig for quartz; lets do a header check
+  AC_CHECK_HEADER(Carbon/Carbon.h, [use_quartz=yes], [use_quartz=no])
+fi
+
+AM_CONDITIONAL(CAIRO_HAS_QUARTZ_SURFACE, test "x$use_quartz" = "xyes")
+if test "x$use_quartz" = "xyes"; then
+  QUARTZ_SURFACE_FEATURE="#define CAIRO_HAS_QUARTZ_SURFACE 1"
+  QUARTZ_LIBS="-Xlinker -framework -Xlinker Carbon"
+fi
+AC_SUBST(QUARTZ_SURFACE_FEATURE)
+CAIRO_LIBS="$CAIRO_LIBS $QUARTZ_LIBS"
+
+dnl ===========================================================================
+
+AC_ARG_ENABLE(xcb,
+  [  --enable-xcb            Enable cairo's XCB backend],
+  [use_xcb=$enableval], [use_xcb=no])
+
+if test "x$use_xcb" = "xyes"; then
+  PKG_CHECK_MODULES(XCB, xcb, [use_xcb=yes], [
+  use_xcb="no (requires XCB http://xcb.freedesktop.org)"])
+fi
+
+AM_CONDITIONAL(CAIRO_HAS_XCB_SURFACE, test "x$use_xcb" = "xyes")
+if test "x$use_xcb" = "xyes"; then
+  XCB_SURFACE_FEATURE="#define CAIRO_HAS_XCB_SURFACE 1"
+fi
+AC_SUBST(XCB_SURFACE_FEATURE)
+
+CAIRO_CFLAGS="$CAIRO_CFLAGS $XCB_CFLAGS"
+CAIRO_LIBS="$CAIRO_LIBS $XCB_LIBS"
+
+
+dnl ===========================================================================
+
+AC_MSG_CHECKING([for some Win32 platform])
+case "$host" in
+  *-*-mingw*|*-*-cygwin*)
+    cairo_platform_win32=yes
+    ;;
+  *)
+    cairo_platform_win32=no
+    ;;
+esac
+AC_MSG_RESULT([$cairo_platform_win32])
+
+AC_ARG_ENABLE(win32,
+  [  --disable-win32         Disable cairo's Microsoft Windows backend],
+  [use_win32=$enableval], [use_win32="yes"])
+
+if test "x$cairo_platform_win32" != "xyes" ; then
+  use_win32=no
+fi
+
+if test "x$use_win32" = "xyes"; then
+   CAIRO_LIBS="$CAIRO_LIBS -lgdi32 -lmsimg32"
+fi
+
+AM_CONDITIONAL(CAIRO_HAS_WIN32_SURFACE, test "x$use_win32" = "xyes")
+if test "x$use_win32" = "xyes"; then
+  WIN32_SURFACE_FEATURE="#define CAIRO_HAS_WIN32_SURFACE 1"
+fi
+AC_SUBST(WIN32_SURFACE_FEATURE)
+
+AM_CONDITIONAL(CAIRO_HAS_WIN32_FONT, test "x$use_win32" = "xyes")
+if test "x$use_win32" = "xyes"; then
+  WIN32_FONT_FEATURE="#define CAIRO_HAS_WIN32_FONT 1"
+fi
+AC_SUBST(WIN32_FONT_FEATURE)
+
+dnl ===========================================================================
+
+AC_ARG_ENABLE(png,
+  [  --disable-png           Disable cairo's PNG functions],
+  [use_png=$enableval], [use_png=yes])
+
+if test "x$use_png" = "xyes"; then
+  use_png=no
+  # libpng13 is GnuWin32's libpng-1.2.8 :-(
+  for l in libpng12 libpng13 libpng10 ; do
+    if $PKG_CONFIG --exists $l ; then
+      PNG_REQUIRES=$l
+      use_png=yes
+      break
+    fi
+  done
+
+  if test "x$use_png" = "xyes" ; then 
+    # Sets PNG_CFLAGS, PNG_LIBS
+    PKG_CHECK_MODULES(PNG, $PNG_REQUIRES)
+  else
+    AC_MSG_WARN([Could not find libpng in the pkg-config search path])
+  fi    
+fi
+
+AM_CONDITIONAL(CAIRO_HAS_PNG_FUNCTIONS, test "x$use_png" = "xyes")
+if test "x$use_png" = "xyes"; then
+  PNG_FUNCTIONS_FEATURE="#define CAIRO_HAS_PNG_FUNCTIONS 1"
+else
+  AC_MSG_WARN("*** To run the tests, cairo must be built with png support ***)
+fi
+AC_SUBST(PNG_FUNCTIONS_FEATURE)
+
+CAIRO_CFLAGS="$CAIRO_CFLAGS $PNG_CFLAGS"
+CAIRO_LIBS="$CAIRO_LIBS $PNG_LIBS"
+
+AC_SUBST(PNG_REQUIRES)
+
+dnl ===========================================================================
+
+AC_ARG_ENABLE(glitz,
+  [  --enable-glitz          Enable cairo's glitz backend],
+  [use_glitz=$enableval], [use_glitz=no])
+
+if test "x$use_glitz" = "xyes"; then
+  PKG_CHECK_MODULES(GLITZ, glitz >= 0.4.4, [
+    GLITZ_REQUIRES=glitz
+    use_glitz=yes], [use_glitz="no (requires glitz http://freedesktop.org/Software/glitz)"])
+fi
+
+AM_CONDITIONAL(CAIRO_HAS_GLITZ_SURFACE, test "x$use_glitz" = "xyes")
+if test "x$use_glitz" = "xyes"; then
+  GLITZ_SURFACE_FEATURE="#define CAIRO_HAS_GLITZ_SURFACE 1"
+fi
+AC_SUBST(GLITZ_SURFACE_FEATURE)
+
+CAIRO_CFLAGS="$CAIRO_CFLAGS $GLITZ_CFLAGS"
+CAIRO_LIBS="$CAIRO_LIBS $GLITZ_LIBS"
+
+AC_SUBST(GLITZ_REQUIRES)
+
+dnl ===========================================================================
+
+AC_ARG_ENABLE(freetype,
+  [  --disable-freetype      Disable cairo's freetype font backend],
+  [use_freetype=$enableval], [use_freetype=yes])
+
+if test "x$use_freetype" = "xyes"; then
+  PKG_CHECK_MODULES(FONTCONFIG, fontconfig, 
+                    [use_freetype=yes], [use_freetype=no])
+  _CHECK_FUNCS_WITH_FLAGS(FcFini, $FONTCONFIG_CFLAGS, $FONTCONFIG_LIBS)
+fi
+
+CAIRO_CFLAGS="$CAIRO_CFLAGS $FONTCONFIG_CFLAGS"
+CAIRO_LIBS="$CAIRO_LIBS $FONTCONFIG_LIBS"
+
+# We use pkg-config to look for freetype2, but fall back to
+# freetype-config if it fails.  We prefer pkg-config, since we can
+# then just put freetype2 >= $FREETYPE_MIN_VERSION in
+# Requires.private, but at least up to 2003-06-07, there was no
+# freetype2.pc in the release.
+#
+# Freetype versions come in three forms:
+#   release (such as 2.1.5)
+#   libtool (such as 9.4.3) (returned by freetype-config and pkg-config)
+#   platform-specific/soname (such as 6.3.4)
+# and they recommend you never use the platform-specific version
+# (see docs/VERSION.DLL in freetype2 sources)
+#
+# Set these as appropriate:
+
+# release number - for information only
+FREETYPE_MIN_RELEASE=2.1.0
+# libtool-specific version - this is what is checked
+FREETYPE_MIN_VERSION=8.0.2
+
+if test "x$use_freetype" = "xyes"; then
+
+  PKG_CHECK_MODULES(FREETYPE, freetype2 >= $FREETYPE_MIN_VERSION,
+                    [freetype_pkgconfig=yes], [freetype_pkgconfig=no])
+
+  if test "x$freetype_pkgconfig" = "xyes"; then
+
+    FREETYPE_REQUIRES="freetype2 >= $FREETYPE_MIN_VERSION fontconfig"
+
+  else
+
+    if test -z "$FREETYPE_CONFIG"; then
+      AC_PATH_PROG(FREETYPE_CONFIG, freetype-config, no)
+    fi
+    if test "$FREETYPE_CONFIG" = "no" ; then
+      AC_MSG_WARN([No freetype-config script found in path or FREETYPE_CONFIG])
+      use_freetype=no
+    else
+      AC_MSG_CHECKING(freetype2 libtool version)
+  
+      FREETYPE_VERSION=`$FREETYPE_CONFIG --version`
+  
+      VERSION_DEC=`echo $FREETYPE_VERSION | awk -F. '{printf("%d\n", 10000*$1 + 100*$2 + $3)};'`
+      MIN_VERSION_DEC=`echo $FREETYPE_MIN_VERSION | awk -F. '{printf("%d\n", 10000*$1 + 100*$2 + $3)};'`
+      if test $VERSION_DEC -lt $MIN_VERSION_DEC; then
+        AC_MSG_RESULT($FREETYPE_VERSION - Too old)
+        AC_MSG_WARN([$FREETYPE_VERSION - version $FREETYPE_MIN_VERSION from release $FREETYPE_MIN_RELEASE required])
+        use_freetype=no
+      else
+        AC_MSG_RESULT($FREETYPE_VERSION - OK)
+	
+	FREETYPE_CONFIG_CFLAGS=`$FREETYPE_CONFIG --cflags`
+	FREETYPE_CONFIG_LIBS=`$FREETYPE_CONFIG --libs`  
+	FREETYPE_CFLAGS=$FREETYPE_CONFIG_CFLAGS
+	FREETYPE_LIBS=$FREETYPE_CONFIG_LIBS
+	FREETYPE_REQUIRES=fontconfig
+      fi
+    fi
+  fi
+fi
+
+have_ft_load_sfnt_table=no
+
+if test "x$use_freetype" = "xyes"; then
+  AC_SUBST(FREETYPE_CFLAGS)
+  AC_SUBST(FREETYPE_LIBS)
+  AC_SUBST(FREETYPE_CONFIG_CFLAGS)
+  AC_SUBST(FREETYPE_CONFIG_LIBS)
+  AC_SUBST(FREETYPE_REQUIRES)
+
+  temp_save_libs="$LIBS"
+  temp_save_cflags="$CFLAGS"
+  LIBS="$LIBS $FREETYPE_LIBS"
+  CFLAGS="$CFLAGS $FREETYPE_CFLAGS"
+  AC_CHECK_MEMBER(FT_Bitmap_Size.y_ppem,
+                  HAVE_FT_BITMAP_SIZE_Y_PPEM=1,
+                  HAVE_FT_BITMAP_SIZE_Y_PPEM=0,
+                  [#include<ft2build.h>
+                   #include FT_FREETYPE_H])
+  AC_DEFINE_UNQUOTED(HAVE_FT_BITMAP_SIZE_Y_PPEM,$HAVE_FT_BITMAP_SIZE_Y_PPEM,
+                     [FT_Bitmap_Size structure includes y_ppem field])
+
+  AC_CHECK_FUNC(FT_Load_Sfnt_Table, have_ft_load_sfnt_table=yes)
+  AC_CHECK_FUNCS(FT_GlyphSlot_Embolden)
+
+  LIBS="$temp_save_libs"
+  CFLAGS="$temp_save_cflags"
+fi
+
+CAIRO_CFLAGS="$CAIRO_CFLAGS $FREETYPE_CFLAGS"
+CAIRO_LIBS="$CAIRO_LIBS $FREETYPE_LIBS"
+
+AM_CONDITIONAL(CAIRO_HAS_FT_FONT, test "x$use_freetype" = "xyes")
+if test "x$use_freetype" = "xyes"; then
+  FT_FONT_FEATURE="#define CAIRO_HAS_FT_FONT 1"
+fi
+AC_SUBST(FT_FONT_FEATURE)
+
+dnl ===========================================================================
+
+AC_CHECK_HEADERS([pthread.h], have_pthread=yes, have_pthread=no)
+AM_CONDITIONAL(HAVE_PTHREAD, test "x$have_pthread" = "xyes")
+
+dnl ===========================================================================
+
+AC_ARG_ENABLE(ps,
+  [  --enable-ps             Enable cairo's PostScript backend],
+  [use_ps=$enableval], [use_ps=no])
+
+if test x"$have_ft_load_sfnt_table" != "xyes" ; then
+  AC_MSG_WARN([PS backend requires FreeType 2.1.4 or newer, disabling])
+  use_ps=no
+fi
+
+# The postscript module requires zlib.
+AC_CHECK_LIB(z, compress,
+             [AC_CHECK_HEADER(zlib.h, [],
+	         [use_ps="no (requires zlib http://www.gzip.org/zlib/)"])],
+	     [use_ps="no (requires zlib http://www.gzip.org/zlib/)"])
+
+AM_CONDITIONAL(CAIRO_HAS_PS_SURFACE, test "x$use_ps" = "xyes")
+if test "x$use_ps" = "xyes"; then
+  PS_SURFACE_FEATURE="#define CAIRO_HAS_PS_SURFACE 1"
+  PS_LIBS=-lz
+fi
+AC_SUBST(PS_SURFACE_FEATURE)
+
+CAIRO_LIBS="$CAIRO_LIBS $PS_LIBS"
+
+AC_SUBST(PS_LIBS)
+
+dnl ===========================================================================
+
+AC_ARG_ENABLE(pdf,
+  [  --enable-pdf            Enable cairo's PDF backend],
+  [use_pdf=$enableval], [use_pdf=no])
+
+if test x"$have_ft_load_sfnt_table" != "xyes" ; then
+  AC_MSG_WARN([PDF backend requires FreeType 2.1.4 or newer, disabling])
+  use_pdf=no
+fi
+
+AM_CONDITIONAL(CAIRO_HAS_PDF_SURFACE, test "x$use_pdf" = "xyes")
+if test "x$use_pdf" = "xyes"; then
+  PDF_SURFACE_FEATURE="#define CAIRO_HAS_PDF_SURFACE 1"
+  PDF_LIBS=-lz
+fi
+AC_SUBST(PDF_SURFACE_FEATURE)
+
+CAIRO_LIBS="$CAIRO_LIBS $PDF_LIBS"
+
+AC_SUBST(PDF_LIBS)
+
+dnl ===========================================================================
+
+dnl This check should default to 'yes' once we have code to actually
+dnl check for the atsui font backend.
+
+AC_ARG_ENABLE(atsui,
+  [  --enable-atsui          Enable cairo's atsui font backend],
+  [use_atsui=$enableval], [use_atsui=no])
+
+if test "x$use_atsui" = "xyes"; then
+  dnl There is no pkgconfig for atsui; lets do a header check
+  AC_CHECK_HEADER(Carbon/Carbon.h, [use_atsui=yes], [use_atsui=no])
+fi
+
+AM_CONDITIONAL(CAIRO_HAS_ATSUI_FONT, test "x$use_atsui" = "xyes")
+if test "x$use_atsui" = "xyes"; then
+  ATSUI_FONT_FEATURE="#define CAIRO_HAS_ATSUI_FONT 1"
+fi
+AC_SUBST(ATSUI_FONT_FEATURE)
+
+dnl ===========================================================================
+dnl Checks for precise integer types
+AC_CHECK_HEADERS([stdint.h inttypes.h sys/int_types.h])
+AC_CHECK_TYPES([uint64_t, uint128_t])
+
+dnl Use lots of warning flags with GCC
+
+WARN_CFLAGS=""
+
+if test "x$GCC" = "xyes"; then
+	WARN_CFLAGS="-Wall -Wpointer-arith -Wstrict-prototypes \
+	-Wmissing-prototypes -Wmissing-declarations \
+	-Wnested-externs -fno-strict-aliasing"
+fi
+
+CAIRO_CFLAGS="$CAIRO_CFLAGS $WARN_CFLAGS"
+CAIRO_LIBS="$CAIRO_LIBS"
+
+AC_SUBST(CAIRO_CFLAGS)
+AC_SUBST(CAIRO_LIBS)
+
+dnl ===========================================================================
+dnl Check for gtk-doc and docbook
+
+GTK_DOC_CHECK([1.3])
+
+dnl ===========================================================================
+dnl Check for recent pkg-config which supports Requires.private
+
+case `$PKG_CONFIG --version` in
+0.?|0.1[0-7]) PKGCONFIG_REQUIRES="Requires"; ;;
+*) PKGCONFIG_REQUIRES="Requires.private"; ;;
+esac
+
+AC_SUBST(PKGCONFIG_REQUIRES)
+
+dnl ===========================================================================
+dnl Check for MMX
+
+MMX_CFLAGS="-mmmx -msse -Winline --param inline-unit-growth=10000 --param large-function-growth=10000"
+
+have_mmx_intrinsics=no
+AC_MSG_CHECKING(For MMX/SSE intrinsics in the compiler)
+xserver_save_CFLAGS=$CFLAGS
+CFLAGS="$CFLAGS $MMX_CFLAGS"
+AC_COMPILE_IFELSE([
+#if defined(__GNUC__) && (__GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ < 4))
+#error "Need GCC >= 3.4 for MMX intrinsics"
+#endif
+#include <mmintrin.h>
+#include <xmmintrin.h>
+int main () {
+    __m64 v = _mm_cvtsi32_si64 (1);
+    v = _mm_shuffle_pi16 (v, _MM_SHUFFLE(3, 3, 3, 3));
+    return _mm_cvtsi64_si32 (v);
+}], have_mmx_intrinsics=yes)
+CFLAGS=$xserver_save_CFLAGS
+AC_MSG_RESULT($have_mmx_intrinsics)
+
+if test $have_mmx_intrinsics = yes ; then
+   AC_DEFINE(USE_MMX, 1, [use MMX compiler intrinsics])
+else
+   MMX_CFLAGS=
+fi
+AC_SUBST(MMX_CFLAGS)
+
+AM_CONDITIONAL(USE_MMX, test $have_mmx_intrinsics = yes)
+
+dnl ===========================================================================
+
+AC_OUTPUT([
+cairo.pc
+Makefile
+pixman/Makefile
+pixman/src/Makefile
+src/Makefile
+src/cairo-features.h
+test/Makefile
+doc/Makefile
+doc/public/Makefile
+doc/public/version.xml
+])
+
+dnl ===========================================================================
+
+echo ""
+echo "cairo will be compiled with the following surface backends:"
+echo "  Xlib: $use_xlib"
+echo "  Quartz: $use_quartz"
+echo "  XCB: $use_xcb"
+echo "  Win32: $use_win32"
+echo "  PostScript: $use_ps"
+echo "  PDF: $use_pdf"
+echo "  glitz: $use_glitz"
+echo ""
+echo "the following font backends:"
+echo "  FreeType: $use_freetype"
+echo "  Win32: $use_win32"
+echo "  ATSUI: $use_atsui"
+echo ""
+echo "and the following features:"
+echo "  PNG functions: $use_png"
+
+if test x"$use_freetype" != "xyes" && \
+   test x"$use_win32"    != "xyes" && \
+   test x"$use_atsui"    != "xyes" ; then
+
+   AC_MSG_ERROR([Cairo requires at least one font backend.
+		  Please install freetype and fontconfig, then try again:
+		  http://freetype.org/	http://fontconfig.org/
+		])
+fi
+
+WARNING_MESSAGE='
+*** The @BACKEND@ backend is still under active development and
+*** is included in this release only as a preview. It does not
+*** fully work yet and incompatible changes may yet be made
+*** to @BACKEND@-backend specific API.
+'
+
+if test x"$use_glitz" == "xyes" ; then
+   echo "$WARNING_MESSAGE" | sed 's/@BACKEND@/Glitz/'
+fi
+
+if test x"$use_xcb" == "xyes" ; then
+   echo "$WARNING_MESSAGE" | sed 's/@BACKEND@/XCB/'
+fi
+
+if test x"$use_quartz" == "xyes" ; then
+   echo "$WARNING_MESSAGE" | sed 's/@BACKEND@/Quartz/'
+fi
+
+if test x"$use_quartz" == "xyes" ; then
+   echo "$WARNING_MESSAGE" | sed 's/@BACKEND@/ATSUI/'
+fi
+
+if test x"$use_pdf" == "xyes" ; then
+   echo "$WARNING_MESSAGE" | sed 's/@BACKEND@/PDF/'
+fi
+
+if test x"$use_ps" == "xyes" ; then
+   echo "$WARNING_MESSAGE" | sed 's/@BACKEND@/PostScript/'
+fi

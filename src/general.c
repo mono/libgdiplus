@@ -72,7 +72,7 @@ GdiplusShutdown(unsigned long *token)
 
 #ifdef DEBUG_MEMLEAKS
 	for (list = g_list_first (g_mem_allocations); list != NULL; list = g_list_next (list)) {
-		printf ("Memory bloc not free'd at %x\n", list->data);
+		printf ("Memory block not free'd at %x\n", list->data);
 	}
 #endif
 }
@@ -144,7 +144,7 @@ gdip_get_status (cairo_status_t status)
                         return InvalidParameter;                
 
                 case CAIRO_STATUS_NO_CURRENT_POINT:
-                case CAIRO_STATUS_NO_TARGET_SURFACE:
+                //case CAIRO_STATUS_NO_TARGET_SURFACE:
                         return WrongState;
 
                 default:
@@ -351,25 +351,12 @@ gdip_closed_curve_tangents (int terms, const GpPointF *points, int count, float 
 
                 if (r >= count) r -= count;
                 if (s < 0) s += count;
-
+		
                 tangents [i].X += (coefficient * (points [r].X - points [s].X));
                 tangents [i].Y += (coefficient * (points [r].Y - points [s].Y));
         }
 
         return tangents;
-}
-
-cairo_status_t
-gdip_cairo_set_surface_pattern (cairo_t *t, cairo_surface_t *s)
-{
-    cairo_pattern_t *pat;
-    pat = cairo_pattern_create_for_surface (s);
-    if (pat == NULL)
-	return CAIRO_STATUS_NO_MEMORY;
-    cairo_set_pattern (t, pat);
-    cairo_pattern_destroy (pat);
-
-    return cairo_status (t);
 }
 
 void
@@ -553,3 +540,57 @@ utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) {
 
 	return TRUE;
 }
+
+int
+utf8_encode_ucs2char(gunichar2 unichar, unsigned char *dest)
+{
+	if (unichar < 0x0080) {					/* 0000-007F */
+		dest[0] = (unsigned char)(unichar);
+		return (1);
+	}
+	if(unichar < 0x0800) {					/* 0080-07FF */
+		dest[0] = (unsigned char)(0xC0 | ((unichar & 0x07C0) >> 6));
+		dest[1] = (unsigned char)(0x80 | (unichar & 0x003F));
+		return (2);
+	}
+								/* 0800-FFFF */
+	dest[0] = (unsigned char)(0xE0 | ((unichar & 0xF000) >> 12));
+	dest[1] = (unsigned char)(0x80 | ((unichar & 0x0FC0) >> 6));
+	dest[2] = (unsigned char)(0x80 | (unichar & 0x003F));
+	return (3);	
+}
+
+/* This function only handles UCS-2 */
+int
+utf8_decode_ucs2char(const unsigned char *src, gunichar2 *uchar)
+{
+	if (src[0] <= 0x7F) {			/* 0000-007F: one byte (0xxxxxxx) */
+		*uchar = (gunichar2)src[0];
+		return (1);
+	}
+	if (src[0] <= 0xDF) {			/* 0080-07FF: two bytes (110xxxxx 10xxxxxx) */
+		*uchar = ((((gunichar2)src[0]) & 0x001F) << 6) |
+			((((gunichar2)src[1]) & 0x003F) << 0);
+		return (2);
+	}
+						/* 0800-FFFF: three bytes (1110xxxx 10xxxxxx 10xxxxxx) */
+	*uchar = ((((gunichar2)src[0]) & 0x000F) << 12) |
+		((((gunichar2)src[1]) & 0x003F) << 6) |
+		((((gunichar2)src[2]) & 0x003F) << 0);
+	return (3);
+}
+
+cairo_content_t
+from_cairoformat_to_content (cairo_format_t format)
+{
+    	switch (format) {
+    	case CAIRO_FORMAT_RGB24:
+		return CAIRO_CONTENT_COLOR;
+	case CAIRO_FORMAT_A8:
+		return CAIRO_CONTENT_ALPHA;
+	case CAIRO_FORMAT_ARGB32:
+	default:
+		return CAIRO_CONTENT_COLOR_ALPHA;
+    }
+}
+

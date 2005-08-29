@@ -1,0 +1,83 @@
+Here are the steps to follow to create a new cairo release:
+
+1) Ensure that there are no local, uncommitted modifications. The best
+   thing to do here may be to begin with a fresh checkout from CVS:
+
+	cvs -d cairographics.org:/cvs/cairo co cairo
+
+   But it's probably good enough if "cvs -q update -Ad" generates no
+   output.
+
+2) Verify that the code passes "make distcheck"
+
+	Running "make distcheck" should result in no warnings or
+	errors and end with a message of the form:
+
+	==================================================
+	cairo-X.Y.Z-head archives ready for distribution:
+	cairo-X.Y.Z-head.tar.gz
+	==================================================
+
+	(But the tar file isn't actually ready yet, as we still have
+	some more steps to follow).
+
+3) Fill out an entry in the NEWS file
+
+	Sift through the information in ChangeLog since the last
+	release. Summarize major changes briefly in a style similar
+	to other entries in NEWS. Take special care to note any
+	additions in the API. These should be easy to find
+	by looking for cairo*.h in the ChangeLog. Additionally, the
+	output of the following command should be examined using the
+	previous release tag:
+
+		find src/ -name '*.h' -not -name '*-private.h' -not -name 'cairoint.h' | \
+		xargs cvs diff -r RELEASE_X_Y_Z
+
+4) Increment cairo_version_{minor|micro} and LT_{CURRENT|VERSION|AGE}
+   in configure.in:
+
+	If there are backward-incompatible changes in the API, stop
+	now and don't release. Go back and fix the API instead. Cairo
+	is intended to remain backwards-compatible as far as API.
+
+	So cairo_version_major will not be incremented unless we come
+	up with a new versioning scheme to take advantage of it.
+
+	If there are API additions, then increment
+	cairo_version_minor and reset cairo_version_micro to 0.
+
+	Otherwise, (ie. there are only bug fixes), increment
+	cairo_version_micro to the next larger (even) number.
+
+	Adjust LT_CURRENT, LT_VERSION, and LT_AGE as describe in the
+	comments in configure.in.
+
+5) Commit the changes to NEWS and configure.in
+
+	Don't forget to fill out the ChangeLog just like with any
+	other commit. It's especially important to mention the new
+	version number in the ChangeLog.
+
+6) Run "make release-publish" which will perform the following steps
+   for you:
+
+	* Check that the version number ends with an even micro component
+	* Check that no release exists with the current version
+	* Verify that make distcheck completes successfully
+	* Generate the final tar file
+	* Generate an sha1sum file
+	* Sign the sha1sum using your GPG setup (asks for your GPG password)
+	* scp the three files to appear on http://cairographics.org/releases
+	* Place local copies of the three files in the releases directory
+	* Create a LATEST-package-version file (after deleting any old one)
+	* Tag the entire source tree with a tag of the form RELEASE_X_Y_Z
+	* Provide some text for the release announcement (see below).
+
+7) Increment cairo_version_micro to the next larger (odd) number in
+   configure, and commit.
+
+8) Send a message to cairo-announce@cairographics.org and CC
+   gnome-announce-list@gnome.org to announce the
+   new release using the text provided from "make release-publish".
+
