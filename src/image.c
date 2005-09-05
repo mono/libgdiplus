@@ -532,7 +532,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	fp = fopen(file_name, "rb");
 	GdipFree (file_name);
 	if (fp == NULL)
-		return FileNotFound;
+		return InvalidParameter;
 	
 	format_peek_sz = fread (format_peek, 1, 10, fp);
 	format = get_image_format (format_peek, format_peek_sz);
@@ -1710,7 +1710,7 @@ GdipGetImageThumbnail(GpImage *image, UINT thumbWidth, UINT thumbHeight, GpImage
 GpStatus
 GdipLoadImageFromFileICM(GDIPCONST WCHAR* filename, GpImage **image)
 {
-	return (GdipLoadImageFromFileICM(filename, image));
+	return (GdipLoadImageFromFile (filename, image));
 }
 
 const EncoderParameter *

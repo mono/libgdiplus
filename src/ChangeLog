@@ -1,3 +1,10 @@
+2005-09-05 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* image.c: fixes return parameter and GdipLoadImageFromFileICM call
+	* gdipImage.h: include GdipLoadImageFromFileICM definition
+	* bitmap.c: new GDI calls
+	* gdip.h: definitions
+
 2005-08-26  Geoff Norton  <gnorton@customerdna.com>
 
 	* graphics.c: Update the Quartz constructors for the new Cairo 1.0

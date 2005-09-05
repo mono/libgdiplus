@@ -936,6 +936,8 @@ void gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttri
 
 
 /* Bitmap */
+GpStatus GdipCreateBitmapFromFile(GDIPCONST WCHAR* filename, GpBitmap **bitmap);
+GpStatus GdipCreateBitmapFromFileICM(GDIPCONST WCHAR* filename, GpBitmap **bitmap);
 GpStatus GdipCreateBitmapFromScan0 (int width, int height, int strideIn, int format, void *scan0, GpBitmap **bitmap);
 GpStatus GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBitmap **bitmap);
 GpStatus GdipBitmapLockBits (GpBitmap *bmp, Rect *rc, int flags, int format, GdipBitmapData *result);

@@ -174,6 +174,17 @@ static const unsigned int default_Format8bppIndexed_palette[256] =
     0xFF9966, 0xFF9999, 0xFF99CC, 0xFF99FF, 0xFFCC00, 0xFFCC33, 0xFFCC66, 0xFFCC99, 0xFFCCCC, 0xFFCCFF, 0xFFFF00, 0xFFFF33, 0xFFFF66, 0xFFFF99, 0xFFFFCC, 0xFFFFFF
   };
 
+GpStatus
+GdipCreateBitmapFromFile (GDIPCONST WCHAR* filename, GpBitmap **bitmap)
+{
+	return GdipLoadImageFromFile (filename, (GpImage **) bitmap);
+}
+
+GpStatus 
+GdipCreateBitmapFromFileICM (GDIPCONST WCHAR* filename, GpBitmap **bitmap)
+{
+	return GdipCreateBitmapFromFile (filename, bitmap);
+}
 
 GpStatus 
 GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *scan0, GpBitmap **bitmap)
