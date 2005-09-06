@@ -1,5 +1,9 @@
 2005-09-06 Jordi Mas i Hernandez  <jordi@ximian.com>
 
+	* graphics.c: Clipping support
+
+2005-09-06 Jordi Mas i Hernandez  <jordi@ximian.com>
+
 	* graphics.c: several fixes to rect/region clipping operations
 	* region.c: fixes and include CombineModeReplace  mode
 

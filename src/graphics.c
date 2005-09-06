@@ -376,7 +376,7 @@ GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 	(*graphics)->type = gtX11Drawable;
 	(*graphics)->display = dpy;
 	(*graphics)->drawable = d;
-			
+
 	GdipSetVisibleClip_linux (*graphics, &bounds);
 	return Ok;
 }
@@ -3385,6 +3385,29 @@ GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 	best thing for now is keep track of what the user wants and let Cairo do its autoclipping
 */
 
+extern bool gdip_is_InfiniteRegion (GpRegion *region);
+
+void
+gdip_set_cairo_clipping (GpGraphics *graphics)
+{
+        GpRectF* rect;
+        int i;
+
+	cairo_reset_clip (graphics->ct);
+
+	if (gdip_is_InfiniteRegion (graphics->clip)) {
+		return;
+	}
+	
+	/* Set Cairo rectangles that Cairo will use for clipping */ 
+        for (i = 0, rect = graphics->clip->rects; i < graphics->clip->cnt; i++, rect++) {
+		cairo_rectangle (graphics->ct, rect->X, rect->Y, rect->Width, rect->Height);
+	}
+	
+	cairo_clip (graphics->ct);
+	cairo_new_path (graphics->ct);
+}
+
 GpStatus
 GdipSetClipGraphics (GpGraphics *graphics, GpGraphics *srcgraphics, CombineMode combineMode)
 {
@@ -3393,7 +3416,7 @@ GdipSetClipGraphics (GpGraphics *graphics, GpGraphics *srcgraphics, CombineMode 
 		
 	GdipDeleteRegion (graphics->clip);
 	GdipCloneRegion (srcgraphics->clip, &graphics->clip);
-	
+	gdip_set_cairo_clipping (graphics);
 	return Ok;
 }
 
@@ -3409,6 +3432,7 @@ GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float heig
 	rect.Width = width; rect.Height = height;
 		
 	GdipCombineRegionRect (graphics->clip, &rect, combineMode);
+	gdip_set_cairo_clipping (graphics);
 	return Ok;
 }
 
@@ -3424,6 +3448,7 @@ GdipSetClipRectI (GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height,
 	rect.Width = width; rect.Height = height;
 		
 	GdipCombineRegionRectI (graphics->clip, &rect, combineMode);	
+	gdip_set_cairo_clipping (graphics);
 	return Ok;
 }
 
@@ -3438,8 +3463,9 @@ GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMo
 {
 	if (!graphics || !region)
 		return InvalidParameter;
-		
+	
 	GdipCombineRegionRegion (graphics->clip, region, combineMode);	
+	gdip_set_cairo_clipping (graphics);
 	return Ok;
 }
 
@@ -3456,6 +3482,7 @@ GdipResetClip (GpGraphics *graphics)
 		return InvalidParameter;
 	
 	GdipSetInfinite (graphics->clip);
+	cairo_reset_clip (graphics->ct);
 	return Ok;
 }
 
@@ -3478,7 +3505,7 @@ GdipGetClip (GpGraphics *graphics, GpRegion *region)
 		return InvalidParameter;
 	
 	if (region->rects)
-		GdipFree (region->rects),
+		GdipFree (region->rects);
 	
 	region->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * graphics->clip->cnt);
 	memcpy (region->rects, graphics->clip->rects, sizeof (GpRectF) * graphics->clip->cnt);
