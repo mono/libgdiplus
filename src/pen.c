@@ -49,7 +49,6 @@ gdip_pen_init (GpPen *pen)
 	pen->unit = UnitWorld;
 	pen->changed = TRUE;
 	pen->matrix = NULL;
-	//GdipCreateMatrix (pen->matrix);
 	pen->matrix = g_new (GpMatrix, 1);
 	cairo_matrix_init_identity (pen->matrix);
 }

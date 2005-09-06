@@ -41,8 +41,6 @@
 #endif
 #endif
 
-//#define	gdip_cairo_ft_font_lock_face(font)	cairo_ft_font_face(font)
-//#define gdip_cairo_ft_font_unlock_face(font)
 #define gdip_cairo_matrix_copy(m1, m2) memcpy (m1, m2, sizeof (cairo_matrix_t))
 
 #ifdef WORDS_BIGENDIAN

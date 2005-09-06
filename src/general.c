@@ -28,7 +28,7 @@
 #include <cairo.h>
 #include <math.h>
 
-//#define DEBUG_MEMLEAKS	1
+/* #define DEBUG_MEMLEAKS	1 */
 
 /* Startup / shutdown */
 
@@ -144,7 +144,6 @@ gdip_get_status (cairo_status_t status)
                         return InvalidParameter;                
 
                 case CAIRO_STATUS_NO_CURRENT_POINT:
-                //case CAIRO_STATUS_NO_TARGET_SURFACE:
                         return WrongState;
 
                 default:

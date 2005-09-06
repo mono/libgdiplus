@@ -131,7 +131,7 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 	if (!image || !graphics)
 		return InvalidParameter;
 	
-	// we need to look into this
+	/* we need to look into this */
 	surface = cairo_image_surface_create(image->format,
 					     image->width, image->height);
  	
@@ -142,10 +142,6 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 	}
 	else if (image->type == imageMetafile) {
 	}
-	
-	// we shouldnt need those.
-	//cairo_rectangle(gfx->ct, 0, 0, image->width, image->height);
-	//cairo_fill(gfx->ct);
 	
 	*graphics = gfx;
 

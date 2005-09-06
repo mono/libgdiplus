@@ -1479,10 +1479,7 @@ GdipResetLineTransform (GpLineGradient *brush)
 
 	cairo_matrix_init_identity (brush->matrix);
        
-	//s = gdip_get_status (status);
-	//if (s == Ok)
-		brush->base.changed = TRUE;
-	//return s;
+	brush->base.changed = TRUE;
 	return Ok;
 }
 

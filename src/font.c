@@ -403,7 +403,6 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHei
 		FT_Face	face;
 		TT_VertHeader *pVert;
 
-		//cairo_ft_scaled_font_lock_face (cairo_scaled_font_t *abstract_font)
 		face = gdip_cairo_ft_font_lock_face(font->cairofnt);
 
 		pVert = FT_Get_Sfnt_Table(face, ft_sfnt_vhea);
