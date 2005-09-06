@@ -33,6 +33,7 @@ extern BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect);
 extern BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect);
 extern FT_Face gdip_cairo_ft_font_lock_face (cairo_font_face_t *cairofnt);
 extern void gdip_cairo_ft_font_unlock_face (cairo_font_face_t *cairofnt);
+void gdip_set_cairo_clipping (GpGraphics *graphics);
     
 extern cairo_filter_t gdip_get_cairo_filter (InterpolationMode imode);
 
@@ -1759,6 +1760,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	int			LineHeight;		/* Height of a line with given font */
 	bool			HaveHotkeys=FALSE;	/* True if we find hotkey */
 	cairo_font_extents_t	FontExtent;		/* Info about our font */
+	bool			SetClipping=FALSE;	/* If clipping has been set */
 
 	/* Sanity; should we check for length==0? */
 	if (!graphics || !stringUnicode || !font) {
@@ -2302,17 +2304,12 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		if ((rc->Width!=0) && (rc->Height!=0) && ((fmt->formatFlags & StringFormatFlagsNoClip)==0)) {
 #ifdef DRAWSTRING_DEBUG
 			printf("Setting clipping rectangle (%f, %f %fx%f)\n", rc->X, rc->Y, rc->Width, rc->Height);
-#endif
-			/* Commented following clipping calls to fix DrawString bugs */
-			/* that appear with cairo-0.1.23. */
-			/* However, cairo cvs seems to have fixed something which lets */
-			/* us uncomment following clipping calls. So, probably we can */
-			/* uncomment these when we depend on new version of cairo */
-
-			cairo_reset_clip (graphics->ct);
+#endif		
+			/* We do not call cairo_reset_clip because we want to take previous clipping into account */
 			cairo_rectangle (graphics->ct, rc->X, rc->Y, rc->Width, rc->Height);
 			cairo_clip (graphics->ct);
 			cairo_new_path (graphics->ct);
+			SetClipping = TRUE;
 		}
 
 		/* Setup cairo */
@@ -2467,10 +2464,10 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 Done:
 	cairo_set_font_matrix(graphics->ct, &SavedMatrix);		/* Restore matrix to original values */
 
-	/* We need to remove the clip region */
-	/* Following line is commented to fix the DrawString bugs */
-	/* See the note at the beginning of if(draw) block. */
-	cairo_reset_clip (graphics->ct);
+	/* Restore the graphics clipping region */
+	if (SetClipping) {
+		gdip_set_cairo_clipping (graphics);
+	}
 
 	/* Cleanup */
 	GdipFree (CleanString);

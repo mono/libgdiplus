@@ -1,5 +1,9 @@
 2005-09-06 Jordi Mas i Hernandez  <jordi@ximian.com>
 
+	* graphics.c: Makes DrawString clipping not destroy previous clipping
+
+2005-09-06 Jordi Mas i Hernandez  <jordi@ximian.com>
+
 	* graphics.c: removes non-ansi comments or not longer need it
 	* font.c: removes non-ansi comments or not longer need it
 	* general.c: removes non-ansi comments or not longer need it
