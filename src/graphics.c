@@ -3408,9 +3408,7 @@ GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float heig
 	rect.X = x; rect.Y = y;
 	rect.Width = width; rect.Height = height;
 		
-	GdipSetEmpty (graphics->clip);
-	GdipCombineRegionRect (graphics->clip, &rect, combineMode);	
-
+	GdipCombineRegionRect (graphics->clip, &rect, combineMode);
 	return Ok;
 }
 
@@ -3425,9 +3423,7 @@ GdipSetClipRectI (GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height,
 	rect.X = x; rect.Y = y;
 	rect.Width = width; rect.Height = height;
 		
-	GdipSetEmpty (graphics->clip);
 	GdipCombineRegionRectI (graphics->clip, &rect, combineMode);	
-
 	return Ok;
 }
 
@@ -3443,9 +3439,7 @@ GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMo
 	if (!graphics || !region)
 		return InvalidParameter;
 		
-	GdipSetEmpty (graphics->clip);
 	GdipCombineRegionRegion (graphics->clip, region, combineMode);	
-
 	return Ok;
 }
 
@@ -3488,6 +3482,7 @@ GdipGetClip (GpGraphics *graphics, GpRegion *region)
 	
 	region->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * graphics->clip->cnt);
 	memcpy (region->rects, graphics->clip->rects, sizeof (GpRectF) * graphics->clip->cnt);
+	region->cnt = graphics->clip->cnt;
 	return Ok;
 }
 
@@ -3503,9 +3498,6 @@ GdipGetClipBoundsI (GpGraphics *graphics, GpRect *rect)
 {
 	GpRectF rectF;
 	Status status;
-
-	rectF.X = rect->X; rectF.Y = rect->Y;
-	rectF.Width = rect->Width; rectF.Height = rect->Height;
 	
 	status =  GdipGetRegionBounds (graphics->clip, graphics, &rectF);
 	

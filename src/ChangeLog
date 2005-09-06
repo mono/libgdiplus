@@ -1,3 +1,8 @@
+2005-09-06 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: several fixes to rect/region clipping operations
+	* region.c: fixes and include CombineModeReplace  mode
+
 2005-09-05 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* image.c: fixes return parameter and GdipLoadImageFromFileICM call
