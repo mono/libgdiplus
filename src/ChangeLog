@@ -1,3 +1,8 @@
+2005-09-07 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: fixes cairo handles leaks
+	* image.c: optimise and fix leaks
+
 2005-09-06 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* graphics.c: Makes DrawString clipping not destroy previous clipping

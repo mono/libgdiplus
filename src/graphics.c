@@ -92,13 +92,10 @@ gdip_graphics_attach_bitmap (GpGraphics *graphics, GpBitmap *image)
 	image->image.surface = surface;
 	cairo_pattern_set_filter (cairo_pattern_create_for_surface (image->image.surface), gdip_get_cairo_filter (graphics->interpolation));
 
-	graphics->ct = cairo_create (surface);
+	if (graphics->ct)
+		cairo_destroy (graphics->ct);
 	
-	/* Increase the reference count of the surface. Because, this surface
-	 * is referenced by graphics->ct also. This is required for the proper
-	 * memory management of the surface.
-	 */
-	cairo_surface_reference (image->image.surface);
+	graphics->ct = cairo_create (surface);
 	graphics->image = image;
 	graphics->type = gtMemoryBitmap;
 }
@@ -373,6 +370,7 @@ GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 	
 	
 	*graphics = gdip_graphics_new(surface);
+	cairo_surface_destroy (surface);
 
 	(*graphics)->type = gtX11Drawable;
 	(*graphics)->display = dpy;
