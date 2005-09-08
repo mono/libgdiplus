@@ -64,7 +64,8 @@ gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 	graphics->last_brush = NULL;
 	graphics->composite_quality = CompositingQualityDefault;
 	graphics->composite_mode = CompositingModeSourceOver;
-	
+	graphics->text_mode = TextRenderingHintSystemDefault;
+	graphics->draw_mode = SmoothingModeDefault;
 }
 
 GpGraphics *
@@ -768,9 +769,6 @@ GdipDrawLine (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
 	gdip_cairo_matrix_copy (&saved, graphics->copy_of_ctm);
-#ifdef NO_CAIRO_AA
-	cairo_matrix_translate (graphics->copy_of_ctm, 0.5, 0.5);
-#endif
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 	
 	/* We use graphics->copy_of_ctm matrix for path creation. We
@@ -1025,9 +1023,6 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
         gdip_cairo_matrix_copy (&saved, graphics->copy_of_ctm);
-#ifdef NO_CAIRO_AA
-        cairo_matrix_translate (graphics->copy_of_ctm, 0.5, 0.5);
-#endif
         cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 	
 	/* We use graphics->copy_of_ctm matrix for path creation. We
@@ -1759,6 +1754,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	bool			HaveHotkeys=FALSE;	/* True if we find hotkey */
 	cairo_font_extents_t	FontExtent;		/* Info about our font */
 	bool			SetClipping=FALSE;	/* If clipping has been set */
+	cairo_font_options_t	*FontOptions;
 
 	/* Sanity; should we check for length==0? */
 	if (!graphics || !stringUnicode || !font) {
@@ -1797,9 +1793,43 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	}
 
 	/*
+	  Set aliasing mode
+	*/
+	FontOptions = cairo_font_options_create();
+	
+	switch(graphics->text_mode) {
+		default:
+		case TextRenderingHintSystemDefault: {
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_NONE);
+			//cairo_font_options_set_hint_style(FontOptions, CAIRO_HINT_STYLE_NONE);
+			//cairo_font_options_set_subpixel_order(FontOptions, CAIRO_SUBPIXEL_ORDER_DEFAULT);
+			//cairo_font_options_set_hint_style(FontOptions, CAIRO_HINT_STYLE_DEFAULT);
+			//cairo_font_options_set_hint_metrics(FontOptions, CAIRO_HINT_METRICS_DEFAULT);
+			break;
+		}
+
+		// FIXME - pick matching settings for each text mode
+    		case TextRenderingHintSingleBitPerPixelGridFit:
+    		case TextRenderingHintSingleBitPerPixel:
+    		case TextRenderingHintAntiAliasGridFit:
+    		case TextRenderingHintAntiAlias: {
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_DEFAULT);
+			break;
+		}
+
+    		case TextRenderingHintClearTypeGridFit: {
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_NONE);
+			break;
+		}
+	}
+
+	cairo_set_font_options(graphics->ct, FontOptions);
+	cairo_font_options_destroy(FontOptions);
+cairo_set_antialias(graphics->ct, CAIRO_ANTIALIAS_NONE);
+
+	/*
 	   Get font size information; how expensive is the cairo stuff here? 
 	*/	
-	
 	cairo_set_font_face (graphics->ct, (cairo_font_face_t*) font->cairofnt);	/* Set our font; this will also be used for later drawing */
 
 	/* is the following ok ? */
@@ -2391,13 +2421,15 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 					if (font->style & FontStyleUnderline) {
 						if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
-							cairo_move_to (graphics->ct, (int)(CursorX)+0.5, (int)(CursorY-FontExtent.descent/2)+0.5);
-							cairo_line_to (graphics->ct, (int)(CursorX+j)+0.5, (int)(CursorY-FontExtent.descent/2)+0.5);
+							cairo_move_to (graphics->ct, (int)(CursorX)+0.5, (int)(CursorY+FontExtent.descent-2)+0.5);
+							cairo_line_to (graphics->ct, (int)(CursorX+j)+0.5, (int)(CursorY+FontExtent.descent-2)+0.5);
 						} else {
-							cairo_move_to (graphics->ct, (int)(CursorX+FontExtent.descent/2)+0.5, (int)(CursorY)+0.5);
-							cairo_line_to (graphics->ct, (int)(CursorX+FontExtent.descent/2)+0.5, (int)(CursorY+j)+0.5);
+							cairo_move_to (graphics->ct, (int)(CursorX+FontExtent.descent-2)+0.5, (int)(CursorY)+0.5);
+							cairo_line_to (graphics->ct, (int)(CursorX+FontExtent.descent-2)+0.5, (int)(CursorY+j)+0.5);
 						}
 					}
+
+					cairo_stroke (graphics->ct);
 				}
 
 				i+=StringDetails[i].LineLen-1;
@@ -2470,8 +2502,6 @@ Done:
 	/* Cleanup */
 	GdipFree (CleanString);
 	GdipFree (StringDetails);
-
-
 
 	if (format != fmt) {
 		GdipDeleteStringFormat (fmt);
@@ -3249,6 +3279,8 @@ GdipSetTextRenderingHint (GpGraphics *graphics, TextRenderingHint mode)
 {
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
+	graphics->text_mode = mode;
+
 	return Ok;
 }
 
@@ -3258,7 +3290,8 @@ GdipGetTextRenderingHint(GpGraphics *graphics, TextRenderingHint *mode)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (mode != NULL, InvalidParameter);
 
-	*mode = TextRenderingHintSystemDefault;
+	*mode = graphics->text_mode;
+
 	return Ok;
 }
 
@@ -3306,6 +3339,8 @@ GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (mode != SmoothingModeInvalid, InvalidParameter);
 
+	graphics->draw_mode = mode;
+
 	return Ok;
 }
 
@@ -3315,7 +3350,7 @@ GdipGetSmoothingMode (GpGraphics *graphics, SmoothingMode *mode)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (mode != NULL, InvalidParameter);
 
-	*mode = SmoothingModeDefault;
+	*mode = graphics->draw_mode;
 	return Ok;
 }
 

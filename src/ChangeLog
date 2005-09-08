@@ -1,3 +1,13 @@
+2005-09-08  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* graphics.c: 
+	  - MeasureOrDrawString: Fixed underline/strikethrough calculations
+	  - Removed old conditional code attempting to avoid cairo AA problems
+	  - Implemented setting/getting of AntiAlias variables
+	  - MeasureOrDrawString: Added code to handle font antialiasing 
+	    options; still inoperative
+	* gdip.h: Added fields to support antialias settings
+
 2005-09-07 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* graphics.c: fixes cairo handles leaks

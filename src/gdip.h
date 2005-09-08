@@ -713,6 +713,8 @@ typedef struct {
 	InterpolationMode interpolation;
 	GpPen*		last_pen;	/* caching pen and brush to avoid unnecessary sets */
 	GpBrush*	last_brush;
+	SmoothingMode	draw_mode;
+	TextRenderingHint text_mode;
 	
 	GpCompositingMode    composite_mode;
 	GpCompositingQuality composite_quality;
