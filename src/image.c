@@ -1400,11 +1400,11 @@ gdip_get_pixel_format_components(PixelFormat pixfmt)
 
 GpStatus
 GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
-				 GetBytesDelegate getBytesFunc,
-				 PutBytesDelegate putBytesFunc,
+								 GetBytesDelegate getBytesFunc,
+								 PutBytesDelegate putBytesFunc,
                                  SeekDelegate seekFunc,
-				 CloseDelegate closeFunc,
-				 SizeDelegate sizeFunc,
+								 CloseDelegate closeFunc,
+								 SizeDelegate sizeFunc,
                                  GpImage **image)
 {
 	GpImage *result = 0;
@@ -1445,6 +1445,7 @@ GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 				result->format = GIF;            
 			break;
 		default:
+			printf ("type: %d Not implemented\n", format);
 			status = NotImplemented;
 			break;
 	}

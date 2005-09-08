@@ -57,13 +57,13 @@ libcairo_ft_sources = cairo-ft-font.c cairo-ft-private.h
 endif
 
 # Headers that declare the functions in the cairo DLL API on Windows
-#cairo_win32_api_headers = \
-#	$(srcdir)/cairo.h \
-#	$(srcdir)/cairo-ft.h \
-#	$(srcdir)/cairo-pdf.h \
-#	$(srcdir)/cairo-ps.h \
-#	$(srcdir)/cairo-win32.h \
-#	$(srcdir)/cairo-debug.h
+cairo_win32_api_headers = \
+	$(srcdir)/cairo.h \
+	$(srcdir)/cairo-ft.h \
+	$(srcdir)/cairo-pdf.h \
+	$(srcdir)/cairo-ps.h \
+	$(srcdir)/cairo-win32.h \
+	$(srcdir)/cairo-debug.h
 
 # These names match automake style variable definition conventions so
 # without these lines, automake will complain during the handling of 
@@ -73,18 +73,18 @@ FONTCONFIG_LIBS=@FONTCONFIG_LIBS@
 XRENDER_LIBS=@XRENDER_LIBS@
 
 #cairoincludedir = $(includedir)/cairo
-#cairoinclude_HEADERS =			\
-#	cairo.h				\
-#	cairo-features.h		\
-#	$(libcairo_atsui_headers)	\
-#	$(libcairo_ft_headers)		\
-#	$(libcairo_glitz_headers)	\
-#	$(libcairo_pdf_headers)		\
-#	$(libcairo_ps_headers)		\
-#	$(libcairo_quartz_headers)	\
-#	$(libcairo_win32_headers)	\
-#	$(libcairo_xcb_headers)		\
-#	$(libcairo_xlib_headers)
+headers =			\
+	cairo.h				\
+	cairo-features.h		\
+	$(libcairo_atsui_headers)	\
+	$(libcairo_ft_headers)		\
+	$(libcairo_glitz_headers)	\
+	$(libcairo_pdf_headers)		\
+	$(libcairo_ps_headers)		\
+	$(libcairo_quartz_headers)	\
+	$(libcairo_win32_headers)	\
+	$(libcairo_xcb_headers)		\
+	$(libcairo_xlib_headers)
 
 #lib_LTLIBRARIES = libcairo.la
 noinst_LTLIBRARIES = libcairo.la
@@ -155,7 +155,8 @@ libcairo_la_LIBADD = $(top_builddir)/pixman/src/libpixman.la $(CAIRO_LIBS)
 libcairo_la_DEPENDENCIES = $(cairo_def_dependency) $(top_builddir)/pixman/src/libpixman.la
 
 EXTRA_DIST = \
-	cairo.def
+	cairo.def 	\
+	$(headers)
 
 cairo.def: $(cairo_win32_api_headers)
 	(echo EXPORTS; \

@@ -1,4 +1,4 @@
-DIST_SUBDIRS = pixman src test doc
+DIST_SUBDIRS = pixman src test 
 SUBDIRS = pixman src 
 #doc
 
