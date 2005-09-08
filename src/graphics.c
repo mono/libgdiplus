@@ -1800,7 +1800,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	switch(graphics->text_mode) {
 		default:
 		case TextRenderingHintSystemDefault: {
-			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_NONE);
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_DEFAULT);
 			//cairo_font_options_set_hint_style(FontOptions, CAIRO_HINT_STYLE_NONE);
 			//cairo_font_options_set_subpixel_order(FontOptions, CAIRO_SUBPIXEL_ORDER_DEFAULT);
 			//cairo_font_options_set_hint_style(FontOptions, CAIRO_HINT_STYLE_DEFAULT);
@@ -1818,14 +1818,16 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		}
 
     		case TextRenderingHintClearTypeGridFit: {
-			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_NONE);
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_DEFAULT);
 			break;
 		}
 	}
 
 	cairo_set_font_options(graphics->ct, FontOptions);
 	cairo_font_options_destroy(FontOptions);
-cairo_set_antialias(graphics->ct, CAIRO_ANTIALIAS_NONE);
+
+	// Do we want this here?
+	cairo_set_antialias(graphics->ct, CAIRO_ANTIALIAS_NONE);
 
 	/*
 	   Get font size information; how expensive is the cairo stuff here? 
