@@ -1,3 +1,7 @@
+2005-09-09 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: Implements GdipFlush
+
 2005-09-08  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* graphics.c: 

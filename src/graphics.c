@@ -3383,9 +3383,13 @@ GdipEndContainer (GpGraphics *graphics, GpGraphicsContainer state)
 GpStatus
 GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 {
-	/*
-		Since all the Cairo API is syncronous, there is no need for flushing
-	*/
+	cairo_surface_t* surface;
+
+	if (!graphics)
+		return InvalidParameter;
+
+	surface = cairo_get_target (graphics->ct);
+	cairo_surface_flush (surface);
 	return Ok;
 }
 
