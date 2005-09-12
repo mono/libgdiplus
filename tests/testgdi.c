@@ -54,14 +54,6 @@ win_draw(win_t *win)
 					    win->width, win->height);
 
 	gp = gdip_graphics_new (surface);
-
-	{
-		GpFont *result;
-		result = (GpFont *) GdipAlloc (sizeof (GpFont));
-		result->sizeInPixels = 50;		
-		gdip_font_create ("Vera",  FC_SLANT_ITALIC, FC_WEIGHT_BOLD, result);
-	
-	}
         {	
 		GpPen *pen;
 		GpBrush *brush;
