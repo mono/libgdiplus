@@ -1,3 +1,10 @@
+2005-09-12 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* font.c: Fixes font creation and italic issues, death code
+	* general.c: Fixes font creation and italic issues, death code
+	* gdip.h: Fixes font creation and italic issues, death code
+
+
 2005-09-09 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* graphics.c: Implements GdipFlush

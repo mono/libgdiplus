@@ -47,7 +47,6 @@ struct startupOutput
 	void *unhook;
 };
 
-extern void gdip_release_cachedfonts ();
 
 static GList* g_mem_allocations;
 
@@ -68,7 +67,6 @@ GdiplusShutdown(unsigned long *token)
 	GList* list = NULL;
 #endif
 	releaseCodecList ();
-	gdip_release_cachedfonts ();
 
 #ifdef DEBUG_MEMLEAKS
 	for (list = g_list_first (g_mem_allocations); list != NULL; list = g_list_next (list)) {

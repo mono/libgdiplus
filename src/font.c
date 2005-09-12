@@ -36,22 +36,11 @@ static int ref_familySerif = 0;
 static int ref_familySansSerif = 0;
 static int ref_familyMonospace = 0;
 
-/*
-	How font cache works
+extern cairo_font_face_t *
+_cairo_toy_font_face_create (const char *family, 
+			     cairo_font_slant_t   slant, 
+			     cairo_font_weight_t  weight);
 
-	- Create any font and store it in the cache
-	- When GdipDeleteFont is called just decrease the reference count and do not delete the font
-	- All the cached fonts are released when GDI+ is shutdown
-	- When the cache is full we release the first font cached with 0 references
-*/
-
-#define MAX_CACHED_FONTS 128
-static GpCachedFont cached_fonts [MAX_CACHED_FONTS];
-static int cached_fonts_index = 0;
-static pthread_mutex_t	fontcache_mutex = PTHREAD_MUTEX_INITIALIZER;
-
-#define	LOCK_FONTCACHE		pthread_mutex_lock(&fontcache_mutex)
-#define	UNLOCK_FONTCACHE	pthread_mutex_unlock(&fontcache_mutex)
 
 /* Family and collections font functions */
 
@@ -544,93 +533,7 @@ GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAv
 	return Ok;    
 }
 
-
 /* Font functions */
-
-int
-gdip_font_create (const unsigned char *family, int fcslant, int fcweight, GpFont *result)
-{
-	cairo_font_face_t *font = NULL;
-	FcPattern * pat = NULL;
-	FcPattern * pat2 = NULL;
-	FT_Library ft_library;
-	FT_Error error;
-	FcResult rslt;
-
-	pat = FcPatternCreate ();
-	if (pat == NULL || result == NULL) {
-		return 0;
-	}
-
-	FcDefaultSubstitute (pat);	
-	
-	FcPatternAddString (pat, FC_FAMILY, family);
-	FcPatternAddInteger (pat, FC_SLANT, fcslant);
-	FcPatternAddInteger (pat, FC_WEIGHT, fcweight);
-
-	error = FT_Init_FreeType (&ft_library);
-	if (error) {
-		FcPatternDestroy (pat);
-		return 0;
-	}
-
-	pat2 =  FcFontMatch (0, pat, &rslt);
-
-	if (pat2 == NULL) {
-		FcPatternDestroy (pat);
-		FcPatternDestroy (pat2);
-		return 0;
-	}
-
-	font = cairo_ft_font_face_create_for_pattern (pat2);
-	if (font == NULL) {
-		FT_Done_FreeType(ft_library);
-		FcPatternDestroy (pat);
-		return 0;
-	}
-
-	result->cairofnt = font;
-	result->ft_library = ft_library;
-
-	FT_Set_Char_Size (gdip_cairo_ft_font_lock_face(font),
-			  DOUBLE_TO_26_6 (1.0),
-			  DOUBLE_TO_26_6 (1.0),
-			  0, 0);
-	gdip_cairo_ft_font_unlock_face(font);
-
-	FcPatternDestroy (pat);
-	FcPatternDestroy (pat2);
-	return 1;
-}
-
-void
-gdip_release_font (GpFont* font)
-{
-	if (!font)
-		return;
-
-	cairo_font_face_destroy ((cairo_font_face_t *)font->cairofnt);
-
-	if (font->ft_library)
-		FT_Done_FreeType(font->ft_library);
-	
-	GdipFree ((void *)font);	
-}
-
-void
-gdip_release_cachedfonts ()
-{
-	int i;
-
-	/* Loop all the cached fonts */
-	
-	LOCK_FONTCACHE;
-	for (i = 0; i < cached_fonts_index; i++) {
-		gdip_release_font (cached_fonts[i].font);
-	}
-	UNLOCK_FONTCACHE;
-}
-
 
 GpStatus
 GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, Unit unit,  GpFont **font)
@@ -638,10 +541,11 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 	FcChar8* str;
 	FcResult r;
 	GpFont *result;
-	int slant = 0;
-	int weight = FC_WEIGHT_LIGHT;
+	cairo_font_slant_t slant;
+	cairo_font_weight_t weight;
 	int i;
 	float sizeInPixels;
+	cairo_font_face_t* cairofnt;
 	
 	if (!family || !font)
 		return InvalidParameter;
@@ -649,77 +553,28 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 	r = FcPatternGetString (family->pattern, FC_FAMILY, 0, &str);
 	
 	gdip_unitConversion (unit, UnitPixel, emSize, &sizeInPixels);
-
-	
-	/* Is it already in the cache */
-	LOCK_FONTCACHE;
-	for (i = 0; i < cached_fonts_index; i++) {
-		if (sizeInPixels != cached_fonts[i].sizeInPixels)
-			continue;
-
-		if (style != cached_fonts[i].style)
-			continue;
-		
-		if (strcmp ((char *)str, (const char *)cached_fonts[i].szFamily) != 0)
-			continue;
-
-		if (cached_fonts[i].font == NULL)
-			continue;
-
-		/* Found in cache */
-		*font = cached_fonts[i].font;
-		cached_fonts[i].refcount++;
-		UNLOCK_FONTCACHE;
-		return Ok;
-	}
-	UNLOCK_FONTCACHE;
 		
 	result = (GpFont *) GdipAlloc (sizeof (GpFont));
 	result->sizeInPixels = sizeInPixels;
 
         if ((style & FontStyleBold) == FontStyleBold)
-                weight = FC_WEIGHT_BOLD;
+                weight = CAIRO_FONT_WEIGHT_BOLD;
+	else
+		weight = CAIRO_FONT_WEIGHT_NORMAL;
 
         if ((style & FontStyleItalic) == FontStyleItalic)        
-                slant = FC_SLANT_ITALIC;
+                slant = CAIRO_FONT_SLANT_ITALIC;
+	else
+		slant = CAIRO_FONT_SLANT_NORMAL;
 
-	if (!gdip_font_create (str, slant, weight, result)) {
-		return InvalidParameter;	/* FIXME -  wrong return code */
-	}	
+	cairofnt = _cairo_toy_font_face_create ((const char*) str, slant, weight);
 
+	if (cairofnt == NULL)
+		return GenericError;	
+
+	result->cairofnt = cairofnt;
         result->style = style;
-	cairo_font_face_reference ((cairo_font_face_t *)result->cairofnt);
-	*font=result;	
-	
-	if (strlen ((const char *)str) > 127) /* Cannot cache this font */
-		return Ok;
-	
-	/* Cache entry */
-	LOCK_FONTCACHE;
-	if (cached_fonts_index < MAX_CACHED_FONTS) {
-		strcpy (cached_fonts[cached_fonts_index].szFamily, (const char *)str);
-		cached_fonts[cached_fonts_index].sizeInPixels = sizeInPixels;
-		cached_fonts[cached_fonts_index].style = style;
-		cached_fonts[cached_fonts_index].font = result;
-		cached_fonts[cached_fonts_index].refcount = 1;
-		cached_fonts_index++;
-	} else {
-
-		/* Look for the first non-referenced font */
-		for (i = 0; i < MAX_CACHED_FONTS; i++) {
-			if (cached_fonts[i].refcount > 0)
-				continue;
-
-			gdip_release_font (cached_fonts[i].font); /* release previous cached font */
-			strcpy (cached_fonts[i].szFamily, (const char *)str);
-			cached_fonts[i].sizeInPixels = sizeInPixels;
-			cached_fonts[i].style = style;
-			cached_fonts[i].font = result;
-			cached_fonts[i].refcount = 1;
-		}	
-	}
-	UNLOCK_FONTCACHE;
-        		
+	*font = result;	        		
 	return Ok;
 }
 
@@ -737,25 +592,11 @@ GdipGetHfont(GpFont* font, void **Hfont)
 GpStatus
 GdipDeleteFont (GpFont* font)
 {
-	int i;
-
 	if (!font)
 		return InvalidParameter;
 
-	/* Is is in the cache */
-	LOCK_FONTCACHE;
-	for (i = 0; i < cached_fonts_index; i++) {
-		if (font != cached_fonts[i].font)
-			continue;		
-
-		/* Found in cache */
-		cached_fonts[i].refcount--;
-		UNLOCK_FONTCACHE;
-		return Ok;
-	}
-	UNLOCK_FONTCACHE;
-
-	gdip_release_font (font);
+	cairo_font_face_destroy (font->cairofnt);
+	GdipFree ((void *)font);
 	return Ok;	       
 }
 

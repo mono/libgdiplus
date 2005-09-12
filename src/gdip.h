@@ -830,7 +830,6 @@ typedef struct {
         float               sizeInPixels;
         GpFontStyle         style;
         void                *wineHfont;
-	FT_Library          ft_library;
 } GpFont;
 
  
