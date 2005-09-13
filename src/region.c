@@ -739,9 +739,6 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
         if (!region || !rect)
                 return InvalidParameter;
 
-	if (gdip_is_InfiniteRegion (region))
-		return Ok;
-
         switch (combineMode) {
         case CombineModeExclude:
                 gdip_combine_exclude (region, (GpRectF *) rect, 1);
