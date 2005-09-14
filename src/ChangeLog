@@ -1,5 +1,14 @@
 2005-09-13 Jordi Mas i Hernandez  <jordi@ximian.com>
 
+	* graphics.c:
+	* gdip.h:
+		- Fixes some default values
+		- Fixes bug 76089
+		- GdipRestoreGraphics and GdipSaveGraphics save all the status
+		- Fixes pixelOffsetMode setting
+	
+2005-09-13 Jordi Mas i Hernandez  <jordi@ximian.com>
+
 	* region.c: Fixes region for combine (used in clipping)
 
 2005-09-12 Jordi Mas i Hernandez  <jordi@ximian.com>

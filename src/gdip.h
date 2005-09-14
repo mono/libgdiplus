@@ -699,6 +699,22 @@ typedef struct {
         BOOL changed; /* flag to mark if pen is changed and needs setup */
 } GpPen;
 
+ 
+typedef struct {
+	cairo_matrix_t		matrix;
+	GpRegion*		clip;
+	GpCompositingMode    	composite_mode;
+	GpCompositingQuality 	composite_quality;
+	InterpolationMode 	interpolation;
+	GpUnit			page_unit;
+	float			scale;
+	SmoothingMode		draw_mode;
+	TextRenderingHint 	text_mode;
+	PixelOffsetMode 	pixel_mode;
+	int			org_x;
+	int			org_y;
+} GpState;
+
 typedef struct {
 	cairo_t         *ct;
 	GpMatrix	*copy_of_ctm;
@@ -715,14 +731,14 @@ typedef struct {
 	GpBrush*	last_brush;
 	SmoothingMode	draw_mode;
 	TextRenderingHint text_mode;
-	
+	GpState*	saved_status;
+	int		saved_status_pos;
 	GpCompositingMode    composite_mode;
 	GpCompositingQuality composite_quality;
+	PixelOffsetMode pixel_mode;
 } GpGraphics;
 
-typedef struct {
-	cairo_matrix_t		*matrix;
-} GpState;
+
 
 typedef struct {
 	UINT Flags;

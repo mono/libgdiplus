@@ -39,6 +39,8 @@ extern cairo_filter_t gdip_get_cairo_filter (InterpolationMode imode);
 
 #define	NO_CAIRO_AA
 
+#define MAX_GRAPHICS_STATE_STACK 512
+
 void
 gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 {
@@ -59,13 +61,16 @@ gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 	graphics->bounds.X = graphics->bounds.Y = graphics->bounds.Width = graphics->bounds.Height = 0;
 	graphics->page_unit = UnitDisplay;
 	graphics->scale = 1.0f;
-	graphics->interpolation = InterpolationModeDefault;
+	graphics->interpolation = InterpolationModeBilinear;
 	graphics->last_pen = NULL;
 	graphics->last_brush = NULL;
 	graphics->composite_quality = CompositingQualityDefault;
 	graphics->composite_mode = CompositingModeSourceOver;
 	graphics->text_mode = TextRenderingHintSystemDefault;
-	graphics->draw_mode = SmoothingModeDefault;
+	graphics->draw_mode = SmoothingModeNone;
+	graphics->pixel_mode = PixelOffsetModeDefault;
+	graphics->saved_status = NULL;
+	graphics->saved_status_pos = 0;
 }
 
 GpGraphics *
@@ -395,12 +400,25 @@ GdipDeleteGraphics (GpGraphics *graphics)
 	}
 	GdipDeleteRegion (graphics->clip);
 
-	if (graphics->ct)
+	if (graphics->ct) {
 		cairo_destroy (graphics->ct);
-	graphics->ct = NULL;
+		graphics->ct = NULL;
+	}
+
+	if (graphics->saved_status) {
+		GpState* pos_state = graphics->saved_status;
+		int i;
+		
+		for (i = 0; i < MAX_GRAPHICS_STATE_STACK; i++, pos_state++) {
+			if (pos_state->clip)
+				GdipDeleteRegion (pos_state->clip);		
+		}
+		
+		GdipFree (graphics->saved_status);
+		graphics->saved_status = NULL;
+	}	
 
 	GdipFree (graphics);
-
 	return Ok;
 }
 
@@ -423,42 +441,80 @@ GdipReleaseDC (GpGraphics *graphics, void *hDC)
 	return Ok;
 }
 
-/* FIXME: the stack implementation is probably not suitable */
-#define MAX_GRAPHICS_STATE_STACK 100
-
-GpState saved_stack [MAX_GRAPHICS_STATE_STACK];
-int current_stack_pos = 0;
 
 GpStatus 
 GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 {
+	GpState* pos_state;
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-	if (graphicsState < MAX_GRAPHICS_STATE_STACK) {
-		gdip_cairo_matrix_copy (graphics->copy_of_ctm, saved_stack[graphicsState].matrix);
-		cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-		current_stack_pos = graphicsState;
-	}
-	else {
+	if (graphicsState >= MAX_GRAPHICS_STATE_STACK || graphicsState > graphics->saved_status_pos)
 		return InvalidParameter;
-	}
+
+	pos_state = graphics->saved_status;
+	pos_state += graphicsState;	
+
+	gdip_cairo_matrix_copy (graphics->copy_of_ctm, &pos_state->matrix);
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+
+	if (graphics->clip)
+		GdipDeleteRegion (graphics->clip);
+
+	/* Save from GpState to Graphics  */
+	gdip_cairo_matrix_copy (&pos_state->matrix, graphics->copy_of_ctm);
+	GdipSetRenderingOrigin (graphics, pos_state->org_x, pos_state->org_y);
+	GdipCloneRegion (pos_state->clip, &graphics->clip);
+
+	graphics->composite_mode = pos_state->composite_mode;
+	graphics->composite_quality = pos_state->composite_quality;
+	graphics->scale = pos_state->scale;
+	graphics->interpolation = pos_state->interpolation;
+	graphics->page_unit = pos_state->page_unit;
+	graphics->draw_mode = pos_state->draw_mode;
+	graphics->text_mode = pos_state->text_mode;
+	graphics->pixel_mode = pos_state->pixel_mode;
+
+	graphics->saved_status_pos = graphicsState;
 	return Ok;
 }
 
 GpStatus 
 GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 {
+	GpState* pos_state;
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (state != NULL, InvalidParameter);
 
-	if (current_stack_pos < MAX_GRAPHICS_STATE_STACK) {
-		gdip_cairo_matrix_copy (saved_stack[current_stack_pos].matrix, graphics->copy_of_ctm);
-		*state = current_stack_pos;
-		++current_stack_pos;
+	if (graphics->saved_status == NULL) {
+		graphics->saved_status = GdipCalloc (MAX_GRAPHICS_STATE_STACK, sizeof (GpState));
+		graphics->saved_status_pos = 0;
 	}
-	else {
+
+	if (graphics->saved_status_pos >= MAX_GRAPHICS_STATE_STACK) 
 		return OutOfMemory;
-	}
+
+	pos_state = graphics->saved_status;
+	pos_state += graphics->saved_status_pos;
+
+	if (pos_state->clip)
+		GdipDeleteRegion (pos_state->clip);
+
+	/* Save from Graphics to GpState */
+	gdip_cairo_matrix_copy (&pos_state->matrix, graphics->copy_of_ctm);
+	GdipGetRenderingOrigin (graphics, &pos_state->org_x, &pos_state->org_y);
+	GdipCloneRegion (graphics->clip, &pos_state->clip);
+
+	pos_state->composite_mode = graphics->composite_mode;
+	pos_state->composite_quality = graphics->composite_quality;
+	pos_state->interpolation = graphics->interpolation;
+	pos_state->page_unit = graphics->page_unit;
+	pos_state->scale = graphics->scale;
+	pos_state->draw_mode = graphics->draw_mode;
+	pos_state->text_mode = graphics->text_mode;
+	pos_state->pixel_mode = graphics->pixel_mode;
+	
+	*state = graphics->saved_status_pos;
+	graphics->saved_status_pos++;
 	return Ok;
 }
 
@@ -3302,6 +3358,7 @@ GdipSetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode pixelOffsetMode)
 {
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pixelOffsetMode != PixelOffsetModeInvalid, InvalidParameter);
+	graphics->pixel_mode = pixelOffsetMode;
 	
 	return Ok;
 }
@@ -3312,7 +3369,7 @@ GdipGetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode *pixelOffsetMode)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pixelOffsetMode != NULL, InvalidParameter);
 	
-	*pixelOffsetMode = PixelOffsetModeDefault;
+	*pixelOffsetMode = graphics->pixel_mode;
 	return Ok;
 }
 
