@@ -1,3 +1,7 @@
+2005-09-15 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* region.c: Speed ups CombineModeReplace mode and fixes setting Infite
+
 2005-09-13 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* graphics.c:

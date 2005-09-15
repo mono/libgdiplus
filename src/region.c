@@ -757,7 +757,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
                 break;
 	case CombineModeReplace: /* Used by Graphics clipping */
 		GdipSetEmpty (region);
-		gdip_combine_union (region, (GpRectF *) rect, 1);
+		gdip_add_rect_to_array (&region->rects, &region->cnt, (GpRectF *)rect);
         default:
                return NotImplemented;
 
@@ -810,10 +810,16 @@ GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combi
         case CombineModeXor:
                 gdip_combine_xor (region, region2->rects, region2->cnt);
                 break;
-	case CombineModeReplace: /* Used by Graphics clipping */
+	case CombineModeReplace: { /* Used by Graphics clipping */
+		int i;
+		GpRectF* rect;
 		GdipSetEmpty (region);
-		gdip_combine_union (region, region2->rects, region2->cnt);
+		
+		for (i = 0, rect = region2->rects; i < region2->cnt; i++, rect++)
+			gdip_add_rect_to_array (&region->rects, &region->cnt, rect);
+	
 		break;
+	}
         default:
                return NotImplemented;
 
