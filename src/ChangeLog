@@ -1,3 +1,8 @@
+2005-09-19  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* graphics.c: Remove AA setting; fixes bug #76135. Needs to have a save
+	  restore of previous AA settings
+
 2005-09-15 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* region.c: Speed ups CombineModeReplace mode and fixes setting Infite

@@ -1883,7 +1883,10 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	cairo_font_options_destroy(FontOptions);
 
 	// Do we want this here?
+
+/* Commented out until we properly save/restore AA settings; should fix bug #76135
 	cairo_set_antialias(graphics->ct, CAIRO_ANTIALIAS_NONE);
+*/
 
 	/*
 	   Get font size information; how expensive is the cairo stuff here? 
