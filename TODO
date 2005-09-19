@@ -1,0 +1,106 @@
+This file has a list of functionality not yet implemented or issues that
+have to be fixed in libgdiplus.
+
+---- Functionality not implemented
+
+* Image formats 
+
+- EXIF. There is libexif
+- WMF and EMF. We do not support metafiles. See libwmf.
+- ICON. Some icon functionality is done at SD level.
+
+---- Not implemented functions
+
+* Handle functions
+
+All the functions that use or create Win32 handles are not yet implemented 
+(except for window and device) need in System.Windows.Forms.
+
+GdipCreateBitmapFromHBITMAP
+GdipCreateHBITMAPFromBitmap
+GdipCreateBitmapFromHICON
+GdipCreateHICONFromBitmap
+GdipCreateBitmapFromResource
+GdipCreateFontFromDC
+GdipCreateFontFromHfont
+GdipGetLogFontA
+GdipSetClipHrgn
+GdipCreateFromHWND
+GdipGetRegionDataSize
+GdipGetRegionData
+
+* Generic functions
+
+GdipBeginContainer
+GdipBeginContainer2
+GdipBeginContainerI
+GdipEndContainer
+GdipEndContainer
+GdipSetClipPath
+GdipGetNearestColor
+GdipTransformPoints
+GdipTransformPointsI
+GdipTransformRegion 
+
+* Image handeling
+
+GdipSetImageAttributesThreshold
+GdipSetImageAttributesOutputChannelColorProfile
+GdipGetImageAttributesAdjustedPalette
+GdipSetImageAttributesOutputChannel
+GdipDrawImagePointRect
+GdipDrawImagePointsRect
+GdipDrawImagePointsRectI 
+GdipLoadImageFromStream
+GdipSaveImageToStream
+GdipGetPropertyCount
+GdipGetPropertyIdList
+GdipGetPropertyItemSize
+GdipGetPropertyItem
+GdipGetPropertySize
+GdipRemovePropertyItem
+GdipSetPropertyItem
+GdipGetAllPropertyItems
+GdipSaveAdd
+GdipSaveAddImage 
+
+* Pens and brushes
+
+GdipSetPenDashCap197819
+GdipGetPenDashCap197819
+GdipSetPenCustomStartCap
+GdipGetPenCustomStartCap
+GdipSetPenCustomEndCap
+GdipGetPenCustomEndCap
+
+* Functions releated to paths
+
+GdipAddString
+GdipAddStringI
+GdipFlattenPath 
+GdipWindingModeOutline
+GdipWidenPath
+GdipWarpPath
+GdipCombineRegionPath 
+GdipCreateRegionPath
+
+---- Issues
+
+* All the functions that create Cairo resources have to be review to make
+sure that we do not over reference the handles. For example, calling 
+cairo_create and cairo_reference will set the internal cairo reference count
+to two. A single cairo_destroy will decrease the internal counter to 1 but
+it will not release the resource.
+
+We have to review these calls to make sure that we are releasing propertly
+the handles and not leaving them created when their associated object 
+(GpGraphics in this case) is destroyed.
+
+* There are internal libgdiplus memory leaks. At general.c there is a little
+DEBUG_MEMLEAKS define that enables an internal system to track down these
+issues. Leave it always on and try to fix the leaks to you detect.
+
+Jordi
+19/09/2005
+
+

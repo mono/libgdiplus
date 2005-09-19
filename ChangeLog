@@ -1,3 +1,7 @@
+2005-09-19  Jordi Mas <jordi@ximian.com>
+
+	* Added TODO file
+
 2005-09-13  Jordi Mas <jordi@ximian.com>
 
 	* configure.in: 1.1.9 (It was only changed in the mono-1-1-9 tag)
