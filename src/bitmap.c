@@ -100,6 +100,7 @@ gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
 	result->data.Scan0 = GdipAlloc (bitmap->data.Stride * bitmap->data.Height);
 	memcpy (result->data.Scan0, bitmap->data.Scan0, bitmap->data.Stride * bitmap->data.Height);
 	*clonedbitmap = result;
+	result->data.Reserved =  GBD_OWN_SCAN0; /* Also overwrites a possible GDB_LOCKED */
 
 	if (bitmap->data.ByteCount > 0 && bitmap->data.Bytes != NULL){
 		result->data.Bytes = GdipAlloc (bitmap->data.ByteCount);
