@@ -1,3 +1,11 @@
+2005-09-21  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* bmpcodec.c: The alpha value in a indexed color table is never
+	  valid. Since the indexed bitmap code uses the color value from
+	  the table directly, we need to always set the alpha to 0xFF. This
+	  matches MS behaviour (Custom cursors are a good testcase for this,
+	  since they are generated through an intermediate BMP step)
+
 2005-09-20 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* bitmap.c: Fixes bug 76152

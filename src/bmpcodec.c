@@ -933,43 +933,26 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 		img->image.palette->Count = palette_entries;
 
 		/* Read optional colour table*/
-		if (os2format) {  /* RGBTRIPLE */
-			size = sizeof(byte)*3;
-			data_read = (byte*) GdipAlloc(size);
-			for (i = 0; i < colours; i++) {
-				memset(data_read, 0, size);
-				size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-				if (size_read < size) {
-					GdipFree(data_read);
-					return InvalidParameter;
-				}
-
-				set_pixel_bgra (img->image.palette->Entries, i * 4,
-					(data_read[0] & 0xFF),		/* B */
-					(data_read[1] & 0xFF),		/* G */
-					(data_read[2] & 0xFF),		/* R */
-					0xFF);				/* Alpha */
-			}
-			GdipFree(data_read);
+		if (os2format) {
+			size = sizeof(byte)*3;	/* RGBTRIPLE */
+		} else {
+			size = sizeof(byte)*4;	/* RGBquads */
 		}
-		else { /* RGBSquads */
-			size = sizeof(byte)*4;
-			data_read = (byte*) GdipAlloc(size);
-			for (i = 0; i < colours; i++) {
-				size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-				if (size_read < size) {
-					GdipFree(data_read);
-					return InvalidParameter;
-				}
-
-				set_pixel_bgra (img->image.palette->Entries, i * 4,
-					(data_read[0] & 0xFF),		/* B */
-					(data_read[1] & 0xFF),		/* G */
-					(data_read[2] & 0xFF),		/* R */
-					(data_read[3] & 0xFF));		/* Alpha */
+		data_read = (byte*) GdipAlloc(size);
+		for (i = 0; i < colours; i++) {
+			size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
+			if (size_read < size) {
+				GdipFree(data_read);
+				return InvalidParameter;
 			}
-			GdipFree(data_read);
+
+			set_pixel_bgra (img->image.palette->Entries, i * 4,
+				(data_read[0] & 0xFF),		/* B */
+				(data_read[1] & 0xFF),		/* G */
+				(data_read[2] & 0xFF),		/* R */
+				0xFF);				/* Alpha */
 		}
+		GdipFree(data_read);
 	} else {
 		img->image.palette = NULL;
 	}
