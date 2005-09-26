@@ -931,8 +931,6 @@ void gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap);
 
 void gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface);
 GpGraphics *gdip_graphics_new (cairo_surface_t *surface);
-void gdip_graphics_attach_bitmap (GpGraphics *graphics, GpBitmap *image);
-void gdip_graphics_detach_bitmap (GpGraphics *graphics, GpBitmap *image);
 
 GpStatus gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect);
 GpStatus gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect);

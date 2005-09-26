@@ -84,35 +84,6 @@ gdip_graphics_new (cairo_surface_t *surface)
 	return result;
 }
 
-void
-gdip_graphics_attach_bitmap (GpGraphics *graphics, GpBitmap *image)
-{
-	cairo_surface_t *surface;	
-	
-	surface = cairo_image_surface_create_for_data ((unsigned char *)image->data.Scan0, image->cairo_format,
-				image->data.Width, image->data.Height, image->data.Stride);
-	if (image->image.surface) {
-		cairo_surface_destroy (image->image.surface);
-	}
-
-	image->image.surface = surface;
-	cairo_pattern_set_filter (cairo_pattern_create_for_surface (image->image.surface), gdip_get_cairo_filter (graphics->interpolation));
-
-	if (graphics->ct)
-		cairo_destroy (graphics->ct);
-	
-	graphics->ct = cairo_create (surface);
-	graphics->image = image;
-	graphics->type = gtMemoryBitmap;
-}
-
-void 
-gdip_graphics_detach_bitmap (GpGraphics *graphics, GpBitmap *image)
-{
-	printf ("Implement graphics_detach_bitmap");
-	/* FIXME: implement me */
-}
-
 #define C1 0.552285
 static void 
 make_ellipse (GpGraphics *graphics, float x, float y, float width, float height)

@@ -1,3 +1,9 @@
+2005-09-20 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* image.c, gdip.h, image.c: Creates the surface and then creates the 
+	graphics context. This is not only reduces the operations need it, also
+	and more avoids to lose the values that we have init into cairo.
+
 2005-09-21  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* bmpcodec.c: The alpha value in a indexed color table is never

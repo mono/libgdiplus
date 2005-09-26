@@ -127,15 +127,22 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 {
 	GpGraphics *gfx;
 	cairo_surface_t *surface;
+	GpBitmap* bmp = (GpBitmap *) image;
 	
 	if (!image || !graphics)
 		return InvalidParameter;
 
 	if (image->type != imageBitmap)
-		return NotImplemented;
+		return NotImplemented;	
 	
-	gfx = gdip_graphics_new (NULL);
-	gdip_graphics_attach_bitmap (gfx, (GpBitmap *) image);
+	surface = cairo_image_surface_create_for_data ((unsigned char *) bmp->data.Scan0, bmp->cairo_format,
+				bmp->data.Width, bmp->data.Height, bmp->data.Stride);
+
+	gfx = gdip_graphics_new (surface);
+
+	gfx->image = bmp;
+	gfx->type = gtMemoryBitmap;	
+	cairo_pattern_set_filter (cairo_pattern_create_for_surface (bmp->image.surface), gdip_get_cairo_filter (gfx->interpolation));
 	*graphics = gfx;
 	return Ok;
 }
