@@ -1,3 +1,14 @@
+2005-10-03  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c (make_arcs):
+	* graphics-path.c (append_arcs): Helper functions for dividing
+	the arcs into smaller segments. Properly handles negative starting
+	angles and sweep angles.
+
+	* graphics-path.c (GdipAddPathArc, GdipAddPathPie): 
+	* graphics.c (GdipDrawArc, make_pie): Simplified to make use of the
+	new helper functions.
+
 2005-09-20 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* image.c, gdip.h, image.c: Creates the surface and then creates the 

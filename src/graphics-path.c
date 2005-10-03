@@ -560,6 +560,7 @@ append_arc (GpPath *path, bool start, float x, float y, float width, float heigh
         /* angles in radians */        
         float alpha = startAngle * PI / 180;
         float beta = endAngle * PI / 180;
+	float sweep = abs (beta - alpha);
 
         float delta = beta - alpha;
         float bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta / 2);
@@ -572,7 +573,7 @@ append_arc (GpPath *path, bool start, float x, float y, float width, float heigh
         /* starting point */
         double sx = cx + rx * cos_alpha;
         double sy = cy + ry * sin_alpha;
-
+	
         /* move to the starting point if we're not continuing a curve */
         if (start)
                 append (path, sx, sy, PathPointTypeLine);
@@ -586,27 +587,50 @@ append_arc (GpPath *path, bool start, float x, float y, float width, float heigh
                 cy + ry *  sin_beta);
 }
 
+static void
+append_arcs (GpPath *path, float x, float y, float width, float height, float startAngle, float sweepAngle)
+{
+	int i;
+	float drawn = 0;
+	float endAngle = startAngle + sweepAngle;	
+	int sign = (endAngle > 0) ? 1 : -1;
+	int increment = sign * 90; 
+	
+	if (abs (sweepAngle) >= 360) {
+		GdipAddPathEllipse (path, x, y, width, height);
+		return;
+	}
+
+	/* i is the number of sub-arcs drawn, each sub-arc can be at most 90 degrees.*/
+	/* there can be no more then 4 subarcs, ie. 90 + 90 + 90 + (something less than 90) */
+	for (i = 0; i < 4; i++) {
+		float current = startAngle + drawn;
+
+		/* we've drawn enough */
+		if (abs (current) >= abs (endAngle))
+			break;
+		
+		/* if we are not done yet */
+		float additional = abs (current + increment) < abs (endAngle) ?
+				increment : /* add the default increment */
+				endAngle - current; /* otherwise, add the remainder */
+		
+		append_arc (path,
+			    (i == 0) ? TRUE : FALSE,  /* only move to the starting pt in the 1st iteration */
+			    x, y, width, height,      /* bounding rectangle */
+			    current, current + additional);
+		drawn += additional;		
+	}
+}
+
 GpStatus
 GdipAddPathArc (GpPath *path, float x, float y, 
                 float width, float height, float startAngle, float sweepAngle)
 {
-	float endAngle = startAngle + sweepAngle;
-	int i, sign = (endAngle > 0) ? 1 : -1;	
-
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 
-	if (abs (sweepAngle) >= 360)
-		return GdipAddPathEllipse (path, x, y, width, height);
-
 	/* draw the arcs */
-	for (i = 0; i < abs (endAngle); i += 90) {
-		append_arc (path,
-			    (i == 0) ? TRUE : FALSE,  /* only move to the starting pt in the 1st iteration */
-			    x, y, width, height,      /* bounding rectangle */
-			    i * sign,		      /* start angle */
-			    (i + 90 < abs (endAngle)) ? (i + 90) * sign : endAngle); /* sweep angle,
-											at most up to 90 degrees  */
-	}	
+	append_arcs (path, x, y, width, height, startAngle, sweepAngle);
 
         return Ok;
 }
@@ -796,19 +820,8 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
         append (path, cx + rx * cos_alpha, cy + ry * sin_alpha,
                 PathPointTypeLine);
 
-        /* draw arc */
-        if (abs (sweepAngle) >= 360)
-                return GdipAddPathEllipse (path, x, y, width, height);
-
 	/* draw the arcs */
-	for (i = 0; i < abs (endAngle); i += 90) {
-		append_arc (path,
-			    (i == 0) ? TRUE : FALSE,  /* only move to the starting pt in the 1st iteration */
-			    x, y, width, height,      /* bounding rectangle */
-			    i * sign,		      /* start angle */
-			    (i + 90 < abs (endAngle)) ? (i + 90) * sign : endAngle); /* sweep angle,
-											at most up to 90 degrees  */
-	}	
+	append_arcs (path, x, y, width, height, startAngle, sweepAngle);
         
         /* draw pie edge */
         append (path, cx, cy, PathPointTypeLine);
