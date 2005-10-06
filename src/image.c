@@ -219,19 +219,56 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 GpStatus
 GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *dstPoints, int count)
 {
-	float x, y, width, height;
+	float width, height;
+	cairo_pattern_t *pattern;
 	
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (image != NULL, InvalidParameter);
 	g_return_val_if_fail (dstPoints != NULL, InvalidParameter);
-	g_return_val_if_fail (count != 3, InvalidParameter);
+	g_return_val_if_fail (count == 3, InvalidParameter);
+
+	if (gdip_is_an_indexed_pixelformat (((GpBitmap*) image)->data.PixelFormat)) {
+		/* Unable to create a surface for the bitmap; it is an indexed image.
+		 * Instead, it will first be converted to 32-bit RGB.
+		 */
+		GpStatus status = OutOfMemory;
+
+		GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb ((GpBitmap *) image);
+
+		if (rgb_bitmap != NULL) {
+			status = GdipDrawImagePoints (graphics, (GpImage *)rgb_bitmap, dstPoints, count);
+			GdipDisposeImage((GpImage *)rgb_bitmap);
+		}
+		return status;
+	}
+
+	cairo_new_path(graphics->ct);
+
+	width = dstPoints[1].X > dstPoints[0].X ? dstPoints[1].X - dstPoints[0].X : dstPoints[0].X - dstPoints[1].X;
+	height = dstPoints[2].Y > dstPoints[0].Y ? dstPoints[2].Y - dstPoints[0].Y : dstPoints[0].Y - dstPoints[2].Y;
+
+	/* Create a surface for this bitmap if one doesn't exist */
+	gdip_bitmap_ensure_surface ((GpBitmap *) image);
+	pattern = cairo_pattern_create_for_surface (((GpBitmap*) image)->image.surface);
+	cairo_pattern_set_filter (pattern,
+				  gdip_get_cairo_filter (graphics->interpolation));
+
+	cairo_translate (graphics->ct, dstPoints[0].X, dstPoints[0].Y);
+
+	/*
+		TODO: Implement rotation
+	*/
+
+	cairo_scale (graphics->ct,
+		(double) width / image->width,
+		(double) height / image->height);
 	
-	x = dstPoints[0].X;
-	y = dstPoints[0].Y;
-	width = dstPoints[1].X - dstPoints[0].X;
-	height = dstPoints[2].Y - dstPoints[2].Y;
+	cairo_set_source_surface (graphics->ct, image->surface, 0, 0);
+	cairo_identity_matrix (graphics->ct);
+	cairo_paint (graphics->ct);	
+	cairo_pattern_destroy (pattern);
 	
-	return GdipDrawImageRect (graphics, image, x, y, width, height);
+	return Ok;
 }
 
 GpStatus
@@ -241,11 +278,11 @@ GdipDrawImagePointsI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *d
 	int i;
 	
 	g_return_val_if_fail (dstPoints != NULL, InvalidParameter);
-	g_return_val_if_fail (count != 3, InvalidParameter);
+	g_return_val_if_fail (count == 3, InvalidParameter);
 	
 	for (i = 0; i < 3; i++) {
-	points[i].X = dstPoints[i].X;
-	points[i].Y = dstPoints[i].Y;
+		points[i].X = dstPoints[i].X;
+		points[i].Y = dstPoints[i].Y;
 	}
 	
 	return GdipDrawImagePoints (graphics, image, points, 3);

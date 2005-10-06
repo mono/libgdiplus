@@ -1,3 +1,8 @@
+2005-10-06 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* image.c: Partially fixes 75063
+	* matrix.c: Some documentation about matrices
+
 2005-10-03  Duncan Mak  <duncan@novell.com>
 
 	* graphics.c (make_arcs):

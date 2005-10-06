@@ -26,6 +26,26 @@
 #include <math.h>
 #include "gdip.h"
 
+/*
+	GDI+ matrix takes 6 elements arranged in 3 rows by 2 columns. The identity matrix is
+	
+	[1, 0]					[1, 0, 0]
+	[0, 1] that is a simplification of 	[0, 1, 0] 
+	[0, 0] 					[0, 0, 1]
+
+	Point v1, v2	Matrix: [m11, m12]
+				[m21, m22]
+				[m31, m32]
+	
+	Calcutation of X, Y using the previous matrix
+
+	X = v1 * m11 + v2 * m12 + m31
+	Y = v1 * N21 + V2 * M22 + m32
+
+	M31 and M32 are used to do matrix translations
+
+*/
+
 GpStatus 
 GdipCreateMatrix (GpMatrix **matrix)
 {
