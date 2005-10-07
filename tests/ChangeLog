@@ -1,3 +1,7 @@
+2005-10-07  Wade Berrier  <wberrier@novell.com>
+
+	* testgdi.c: Added missing printf argument
+
 2004-06-11  Sanjay Gupta  <gsanjay@novell.com>
 
 	* test.bmp, test.gif, test.png: Added files to prevent seg fault.
