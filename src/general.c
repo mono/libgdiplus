@@ -50,6 +50,8 @@ struct startupOutput
 
 static GList* g_mem_allocations;
 
+extern void cairo_test_xlib_disable_render();
+
 GpStatus 
 GdiplusStartup(unsigned long *token, const struct startupInput *input, struct startupOutput *output)
 {
@@ -57,6 +59,7 @@ GdiplusStartup(unsigned long *token, const struct startupInput *input, struct st
         initCodecList (); 
 	*token = 1;
 	gdip_get_display_dpi();
+//	cairo_test_xlib_disable_render();
 	return Ok;
 }
 
@@ -530,7 +533,7 @@ utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) {
 			ptr += 2;
 		}	/* we're simply ignoring any chars that don't fit into ucs2 */
 	}
-	ucs2[ptr - (unsigned char *)ucs2] = 0;	/* terminate */
+	ucs2[i] = 0;	/* terminate */
 
 	/* free the intermediate ucs4 string */
 	GdipFree(ucs4);

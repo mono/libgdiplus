@@ -1,3 +1,11 @@
+2005-10-06  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* general.c: Fixed bug in ucs2 termation code; code assumed
+	  a byte array, so we always terminated twice as many bytes in as
+	  we wanted to. This was also causing 'random' crashes at much later
+	  times since depending on the situation we'd write 0 past the end
+	  of ucs2_len  (This is half of the bugfix for #74871 and #75534)
+
 2005-10-06 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* gifcodec.c: Fixes a warning (an error since we use -Werror) when 
