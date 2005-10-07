@@ -1,5 +1,10 @@
 2005-10-06 Jordi Mas i Hernandez  <jordi@ximian.com>
 
+	* gifcodec.c: Fixes a warning (an error since we use -Werror) when 
+	using libgif 4.0)
+
+2005-10-06 Jordi Mas i Hernandez  <jordi@ximian.com>
+
 	* image.c: Partially fixes 75063
 	* matrix.c: Some documentation about matrices
 

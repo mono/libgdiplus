@@ -284,7 +284,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	
 		pixels = GdipAlloc (data.Stride * data.Height);
 	
-		readptr = si.RasterBits;
+		readptr = (guchar *) si.RasterBits;
 		writeptr = pixels;
 		pixelLength = data.Width * data.Height;
 		/*
