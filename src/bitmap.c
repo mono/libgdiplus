@@ -617,7 +617,7 @@ gdip_is_pixel_format_conversion_valid (PixelFormat src, PixelFormat dest)
 int
 gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride)
 {
-	int x, y, len, r, g, b, a;
+	int x, y;
 	BYTE *result;
 	BYTE *pos_src, *pos_dest;
 	int src_components = 4; /* ARGB */
@@ -650,7 +650,7 @@ gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest
 int
 gdip_from_RGB_to_ARGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride)
 {
-	int x, y, len, r, g, b, a;
+	int x, y;
 	BYTE *result;
 	BYTE *pos_src, *pos_dest;
 	int src_components = 3; /* RGB */

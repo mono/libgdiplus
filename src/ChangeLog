@@ -1,5 +1,12 @@
 2005-10-06  Peter Dennis Bartok  <pbartok@novell.com>
 
+	* adjustablearrowcap.c: Removed unused vars
+	* bitmap.c: Removed unused vars
+	* font.c: Switched 0 to NULL
+
+
+2005-10-06  Peter Dennis Bartok  <pbartok@novell.com>
+
 	* general.c: Fixed bug in ucs2 termation code; code assumed
 	  a byte array, so we always terminated twice as many bytes in as
 	  we wanted to. This was also causing 'random' crashes at much later

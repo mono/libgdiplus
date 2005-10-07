@@ -61,7 +61,7 @@ GpStatus
 GdipNewInstalledFontCollection (GpFontCollection **font_collection)
 {	
 	
-	FcObjectSet *os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, 0);
+	FcObjectSet *os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, NULL);
 	FcPattern *pat = FcPatternCreate ();
 	FcValue val;
 	FcFontSet *col;
@@ -173,7 +173,7 @@ GdipDeleteFontFamily (GpFontFamily *fontFamily)
 void
 gdip_createPrivateFontSet (GpFontCollection *font_collection)
 {
-	FcObjectSet *os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, 0);
+	FcObjectSet *os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, NULL);
 	FcPattern *pat = FcPatternCreate ();
 	FcFontSet *col =  FcFontList (font_collection->config, pat, os);
     

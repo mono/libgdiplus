@@ -93,7 +93,6 @@ GpStatus
 gdip_adjust_arrowcap_setup (GpGraphics *graphics, GpCustomLineCap *customCap)
 {
 	GpAdjustableArrowCap *arrow;
-	cairo_pattern_t *pattern;
 	cairo_t *ct;
 	GpStatus status;
 
