@@ -40,7 +40,7 @@
 	Calcutation of X, Y using the previous matrix
 
 	X = v1 * m11 + v2 * m12 + m31
-	Y = v1 * N21 + V2 * M22 + m32
+	Y = v1 * m21 + v2 * m22 + m32
 
 	M31 and M32 are used to do matrix translations
 
@@ -70,7 +70,6 @@ GpStatus
 GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matrix)
 {
 	double m11, m12, m21, m22, dx, dy;
-	Status s;
 
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 	g_return_val_if_fail (dstplg != NULL, InvalidParameter);
@@ -93,7 +92,6 @@ GpStatus
 GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix)
 {
 	double m11, m12, m21, m22, dx, dy;
-	Status s;
 
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 	g_return_val_if_fail (dstplg != NULL, InvalidParameter);
@@ -161,8 +159,6 @@ GdipGetMatrixElements (GpMatrix *matrix, float *matrixOut)
 GpStatus
 GdipMultiplyMatrix (GpMatrix *matrix, GpMatrix *matrix2, GpMatrixOrder order)
 {
-        cairo_status_t status;
-
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix2 != NULL, InvalidParameter);
 
@@ -240,7 +236,6 @@ GpStatus
 GdipTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
 {
         int i;
-        cairo_status_t status;
 
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 	g_return_val_if_fail (pts != NULL, InvalidParameter);
@@ -261,7 +256,6 @@ GpStatus
 GdipTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
 {
         int i;
-        cairo_status_t status;
 
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 	g_return_val_if_fail (pts != NULL, InvalidParameter);
@@ -282,7 +276,6 @@ GpStatus
 GdipVectorTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
 {
         int i;
-        cairo_status_t status;
 
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 	g_return_val_if_fail (pts != NULL, InvalidParameter);
@@ -303,7 +296,6 @@ GpStatus
 GdipVectorTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
 {
         int i;
-        cairo_status_t status;
         
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 	g_return_val_if_fail (pts != NULL, InvalidParameter);

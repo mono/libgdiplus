@@ -326,8 +326,7 @@ GdipSetEmpty (GpRegion *region)
 void
 gdip_get_bounds (GpRectF *allrects, int allcnt, GpRectF *bound)
 {
-        float nx, ny, fx, fy, posx, posy;
-        float x = 0, y = 0, hitx, hity, step;
+        float nx, ny, fx, fy;
         int i;
         GpRectF *rect;
 

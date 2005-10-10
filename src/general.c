@@ -464,7 +464,6 @@ float gdip_erf (float x, float std, float mean)
 
 gchar *
 ucs2_to_utf8(const gunichar2 *ucs2, int length) {
-	unsigned int	ch;
 	const gunichar2	*ptr;
 	const gunichar2	*end;
 	gunichar	*dest;

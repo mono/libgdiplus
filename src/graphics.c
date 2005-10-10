@@ -176,7 +176,6 @@ make_arc (GpGraphics *graphics, bool start, float x, float y, float width,
         /* angles in radians */        
         float alpha = startAngle * PI / 180;
         float beta = endAngle * PI / 180;
-	float sweep = abs (beta - alpha);
 
         float delta = beta - alpha;
         float bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta /2);
@@ -348,7 +347,6 @@ GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **grap
 GpStatus
 GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 {
-	XImage *ximage;
 	Window root_ignore;
 	GpRect bounds;
 	int bwidth_ignore, depth_ignore;
@@ -617,8 +615,6 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
 	     float x, float y, float width, float height, 
 	     float startAngle, float sweepAngle)
 {
-        float endAngle = startAngle + sweepAngle;
-
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
@@ -1085,7 +1081,6 @@ GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen,
 GpStatus
 GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count)
 {
-	GpStatus s;
 	int i;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
@@ -1114,7 +1109,6 @@ GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count)
 GpStatus
 GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GpRect *rects, int count)
 {
-	GpStatus s;
 	int i;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
@@ -1381,7 +1375,6 @@ GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush,
 GpStatus 
 GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GpRectF *rects, int count)
 {
-	GpStatus s;
 	int i;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
@@ -1410,7 +1403,6 @@ GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GpRectF *rects, int co
 GpStatus 
 GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GpRect *rects, int count)
 {
-	GpStatus s;
 	int i;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
@@ -1653,41 +1645,6 @@ GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 
 #undef DRAWSTRING_DEBUG
 
-void __inline
-_install_font_matrix(cairo_matrix_t *matrix, FT_Face face)
-{
-    cairo_matrix_t normalized;
-    double scale_x, scale_y;
-    double x, y, xx, xy, yx, yy, tx, ty;
-    FT_Matrix mat;
-
-    x = 1.0;
-    y = 0.0;
-    cairo_matrix_transform_distance (matrix, &x, &y);
-    scale_x = sqrt(x*x + y*y);
-
-    x = 0.0;
-    y = 1.0;
-    cairo_matrix_transform_distance (matrix, &x, &y);
-    scale_y = sqrt(x*x + y*y);
-
-    gdip_cairo_matrix_copy (&normalized, &matrix);
-
-    cairo_matrix_scale (&normalized, 1.0 / scale_x, 1.0 / scale_y);
-
-    mat.xx = DOUBLE_TO_16_16(normalized.xx);
-    mat.xy = -DOUBLE_TO_16_16(normalized.xy);
-    mat.yx = -DOUBLE_TO_16_16(normalized.yx);
-    mat.yy = DOUBLE_TO_16_16(normalized.yy);
-
-    FT_Set_Transform(face, &mat, NULL);
-    FT_Set_Char_Size(face,
-		     DOUBLE_TO_26_6(scale_x),
-		     DOUBLE_TO_26_6(scale_y),
-		     0, 0);
-
-}
-
 static int
 CalculateStringWidths (cairo_t *ct, GDIPCONST GpFont *gdiFont, GDIPCONST gunichar2 *stringUnicode, unsigned long StringDetailElements, GpStringDetailStruct *StringDetails)
 {
@@ -1709,6 +1666,8 @@ CalculateStringWidths (cairo_t *ct, GDIPCONST GpFont *gdiFont, GDIPCONST gunicha
 	return StringDetailElements;
 }
 
+#ifdef NOT_USED
+/* Currently not used */
 static int
 CalculateStringWidthsUTF8 (cairo_t *ct, GDIPCONST GpFont *gdiFont, const unsigned char *utf8, unsigned long StringDetailElements, GpStringDetailStruct *StringDetails)
 {
@@ -1753,6 +1712,7 @@ CalculateStringWidthsUTF8 (cairo_t *ct, GDIPCONST GpFont *gdiFont, const unsigne
 #endif
 	return NumOfGlyphs;
 }
+#endif
 
 GpStatus
 MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush, RectF *boundingBox, int *codepointsFitted, int *linesFilled, int draw)
@@ -2528,7 +2488,6 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 	}
 
-Done:
 	cairo_set_font_matrix(graphics->ct, &SavedMatrix);		/* Restore matrix to original values */
 
 	/* Restore the graphics clipping region */

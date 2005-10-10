@@ -481,9 +481,6 @@ GdipGetPathGradientBlendCount (GpPathGradient *brush, int *count)
 GpStatus
 GdipGetPathGradientBlend (GpPathGradient *brush, float *blend, float *positions, int count)
 {
-	float *blendFactors;
-	float *blendPositions;
-
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (blend != NULL, InvalidParameter);
 	g_return_val_if_fail (positions != NULL, InvalidParameter);
@@ -566,9 +563,6 @@ GdipGetPathGradientPresetBlendCount (GpPathGradient *brush, int *count)
 GpStatus
 GdipGetPathGradientPresetBlend (GpPathGradient *brush, ARGB *blend, float *positions, int count)
 {
-	float *blendColors;
-	float *blendPositions;
-
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (blend != NULL, InvalidParameter);
 	g_return_val_if_fail (positions != NULL, InvalidParameter);

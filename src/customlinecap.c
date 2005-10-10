@@ -97,7 +97,6 @@ gdip_custom_linecap_destroy (GpCustomLineCap *cap)
 GpStatus
 gdip_custom_linecap_setup (GpGraphics *graphics, GpCustomLineCap *customCap)
 {
-	cairo_pattern_t *pattern;
 	cairo_t *ct;
 	GpStatus status;
 

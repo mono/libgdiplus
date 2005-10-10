@@ -121,7 +121,6 @@ GpStatus
 gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 {
 	GifFileType *gif = NULL;
-	GifRecordType *rectype = NULL;
 	int res;
 	
 	GpBitmap *img = NULL;
@@ -364,12 +363,10 @@ GpStatus
 gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 {
 	GifFileType *fp;
-	int i, row, x, y, size;
-	GpBitmap *bitmap = (GpBitmap *) image;
+	int i, x, y, size;
 	ColorPalette *palette = image->palette;
 	GifByteType *red = NULL, *green = NULL, *blue = NULL, *pixels = NULL;
 	GifByteType *ptr_red, *ptr_green, *ptr_blue, *ptr_pixels;
-	ARGB color = 0;	
 	int cmap_size = 256;	
 	ColorMapObject *cmap = NULL;	
 	BOOL error = FALSE;

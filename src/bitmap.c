@@ -511,7 +511,6 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 		int width_bits = destRect->Width * src_depth;
 
 		int src_first_x_bit_offset_into_byte = src_first_x_bit_index & 7;
-		int width_bit_offset_into_byte = width_bits & 7;
 
 		if (src_first_x_bit_offset_into_byte == 0) {
 			/* the fast path: no mid-byte bit mangling required :-)
@@ -533,13 +532,7 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 
 			unsigned char *src_scan0 = srcData->Scan0;
 			unsigned char *dest_scan0 = destData->Scan0;
-
 			int left_shift = src_first_x_bit_offset_into_byte;
-
-			int left_edge_src_mask = 255 >> src_first_x_bit_offset_into_byte;
-
-			int num_whole_dest_bytes = (width_bits / 8);
-
 			int x, y;
 
 			/* move the src_scan0 up to the first byte with pixel data involved in the copy */
@@ -1013,7 +1006,6 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 
 	if (destData->Scan0 == NULL) {
 		/* Allocate a buffer on behalf of the caller. */
-		int width = destRect->X + destRect->Width;
 		int scans = destRect->Y + destRect->Height;
 
 		int row_bits = destRect->Width * gdip_get_pixel_format_bpp (destFormat);

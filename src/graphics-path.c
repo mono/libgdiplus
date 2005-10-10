@@ -560,8 +560,6 @@ append_arc (GpPath *path, bool start, float x, float y, float width, float heigh
         /* angles in radians */        
         float alpha = startAngle * PI / 180;
         float beta = endAngle * PI / 180;
-	float sweep = abs (beta - alpha);
-
         float delta = beta - alpha;
         float bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta / 2);
 
@@ -799,12 +797,7 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
 
         /* center */
         int cx = x + rx;
-        int cy = y + ry;
-
-        float endAngle = startAngle + sweepAngle;        
-
-	int i, sign = (endAngle > 0) ? 1 : -1;
-	
+        int cy = y + ry;	
         /* angles in radians */        
         float alpha = startAngle * PI / 180;
 

@@ -451,7 +451,7 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
     GpBitmap *bitmap = (GpBitmap *) image;
     gdip_stream_png_source_ptr pngsrc = NULL;
 
-    int i, j;
+    int i;
 
     int bit_depth;
     int color_type;

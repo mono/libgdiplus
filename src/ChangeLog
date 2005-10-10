@@ -1,3 +1,25 @@
+2005-10-10 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: remove unused vars and dead code
+	* font.c: remove unused vars
+	* bmpcodec.c: remove unused vars
+	* general.c: remove unused vars
+	* pathgradientbrush.c: remove unused vars
+	* image.c: remove unused vars
+	* jpegcodec.c: remove unused vars
+	* region.c: remove unused vars
+	* tiffcodec.c: remove unused vars
+	* imageattributes.c: remove unused vars
+	* gifcodec.c: remove unused vars
+	* texturebrush.c: remove unused vars
+	* matrix.c: remove unused vars
+	* customlinecap.c: remove unused vars
+	* bitmap.c: remove unused vars
+	* pen.c: remove unused vars
+	* pngcodec.c: remove unused vars
+	* graphics-path.c: remove unused vars
+	* lineargradientbrush.c: remove unused vars
+
 2005-10-06  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* adjustablearrowcap.c: Removed unused vars

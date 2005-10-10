@@ -124,7 +124,6 @@ gdip_get_bmp_pixelformat (int bitCount, int compression, PixelFormat *dest)
 void 
 gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 {
-	int  bitmapLen = bitmap->data.Stride * bitmap->data.Height;
 	memset (bmi, 0, sizeof (BITMAPINFOHEADER));
 #ifdef WORDS_BIGENDIAN
 	bmi->biSize = GUINT32_FROM_LE (sizeof (BITMAPINFOHEADER));
@@ -741,9 +740,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	BITMAPINFOHEADER bmi;
 	GpBitmap	*img = NULL;
 	guchar		*pixels = NULL;
-	guchar		*linep = NULL;
 	int		i;
-	int		j;
 	PixelFormat	format;
 	int		colours;
 	BOOL		os2format = FALSE;
@@ -753,7 +750,6 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	byte		*data_read;
 	int		line;
 	int		loop;
-	long		pixel;
 	long		index;
 	GpStatus	status;
 		

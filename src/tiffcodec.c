@@ -195,8 +195,6 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 {
 	GpBitmap *bitmap = (GpBitmap *) image;	
 	int i, j, k, l, linebytes;
-	guint32 *r32 = NULL;
-	size_t npixels;
 	int dimensionCount = 0;
 	int frameCount = 0;
 	BitmapData data;

@@ -268,7 +268,7 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 	gpfam = font_collection->fontset->fonts;
     
 	for (i=0; i < font_collection->fontset->nfont; gpfam++, i++){
-		FcResult r = FcPatternGetString (*gpfam, FC_FAMILY, 0, &str);
+		FcPatternGetString (*gpfam, FC_FAMILY, 0, &str);
 
 		if (strcmp ((char *)string, (const char *)str)==0) {
 			gdip_createFontFamily (fontFamily);
@@ -288,7 +288,6 @@ GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], int 
 {                
 	FcChar8 *fc_str;
 	FcResult r;
-	gunichar2 *string;
 	
 	if (!family)
 		return InvalidParameter;
@@ -543,7 +542,6 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 	GpFont *result;
 	cairo_font_slant_t slant;
 	cairo_font_weight_t weight;
-	int i;
 	float sizeInPixels;
 	cairo_font_face_t* cairofnt;
 	

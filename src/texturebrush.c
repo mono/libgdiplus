@@ -361,7 +361,6 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 {
 	cairo_t *ct;
 	cairo_pattern_t *pattern;
-	cairo_surface_t *temp;
 	GpTexture *texture;
 	GpImage *img, *gr_img;
 	GpBitmap *bmp, *gr_bmp;
@@ -548,7 +547,6 @@ GpStatus
 GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 {
 	GpBitmap *bitmap;
-	cairo_t *ct;
 	cairo_surface_t *imageSurface;
 
 	g_return_val_if_fail (image != NULL, InvalidParameter);
@@ -713,8 +711,6 @@ GdipSetTextureTransform (GpTexture *texture, GDIPCONST GpMatrix *matrix)
 GpStatus
 GdipResetTextureTransform (GpTexture *texture)
 {
-	cairo_status_t status;
-	GpStatus s;
 	g_return_val_if_fail (texture != NULL, InvalidParameter);
 
 	 cairo_matrix_init_identity (texture->matrix);

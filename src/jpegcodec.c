@@ -116,7 +116,7 @@ typedef struct gdip_jpeg_error_mgr *gdip_jpeg_error_mgr_ptr;
 static void
 _gdip_jpeg_error_exit (j_common_ptr cinfo)
 {
-    gdip_jpeg_error_mgr_ptr err = (gdip_jpeg_error_mgr_ptr) cinfo->err;
+    /*gdip_jpeg_error_mgr_ptr err = (gdip_jpeg_error_mgr_ptr) cinfo->err;*/
     char buffer[JMSG_LENGTH_MAX];
 
     (* cinfo->err->format_message) (cinfo, buffer);
@@ -451,7 +451,6 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src,
 	    for (i = 0; i < nlines; i++) {
 		int j;
 		guchar *inptr, *outptr;
-		JOCTET r, g, b;
 
 		inptr = lines[i] + (img->image.width) * 3;
 		outptr = lines[i] + stride;

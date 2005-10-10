@@ -284,7 +284,6 @@ create_tile_linear (cairo_t *ct, GpLineGradient *linear)
 	cairo_t	*ct2;
 	cairo_surface_t *gradient;
 	cairo_pattern_t *pat;
-	GpMatrix *currMatrix = NULL;
 	GpMatrix *tempMatrix = NULL;
 	GpRectF *rect = linear->rectangle;
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
@@ -651,7 +650,6 @@ gdip_linear_gradient_setup (GpGraphics *graphics, GpBrush *brush)
 {
 	cairo_t *ct;
 	GpLineGradient *linear;
-	cairo_pattern_t *pattern;
 	GpMatrix *product = NULL;
 	GpStatus status = Ok;
 
@@ -717,8 +715,6 @@ gdip_linear_gradient_setup (GpGraphics *graphics, GpBrush *brush)
 void
 gdip_set_rect (GpRectF *rect, float x1, float y1, float x2, float y2)
 {
-	float x, y, width, height;
-
 	if (rect) {
 		if (x1 == x2) {
 			rect->Height = (y1 > y2) ? (y1 - y2) : (y2 - y1);
@@ -832,7 +828,6 @@ GdipCreateLineBrushFromRectI (GDIPCONST GpRect *rect, ARGB color1, ARGB color2, 
 GpStatus
 GdipCreateLineBrushFromRect (GDIPCONST GpRectF *rect, ARGB color1, ARGB color2, LinearGradientMode mode, GpWrapMode wrapMode, GpLineGradient **lineGradient)
 {
-	GpLineGradient *linear;
 	float angle = 0.0;
 
 	switch (mode) {
@@ -984,9 +979,6 @@ GdipSetLineBlend (GpLineGradient *brush, GDIPCONST float *blend, GDIPCONST float
 GpStatus
 GdipGetLineBlend (GpLineGradient *brush, float *blend, float *positions, int count)
 {
-	float *blendFactors;
-	float *blendPositions;
-
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (blend != NULL, InvalidParameter);
 	g_return_val_if_fail (positions != NULL, InvalidParameter);
@@ -1093,9 +1085,6 @@ GdipSetLinePresetBlend (GpLineGradient *brush, GDIPCONST ARGB *blend, GDIPCONST 
 GpStatus
 GdipGetLinePresetBlend (GpLineGradient *brush, ARGB *blend, float *positions, int count)
 {
-	float *blendColors;
-	float *blendPositions;
-
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (blend != NULL, InvalidParameter);
 	g_return_val_if_fail (positions != NULL, InvalidParameter);
@@ -1473,8 +1462,6 @@ GdipMultiplyLineTransform (GpLineGradient *brush, GpMatrix *matrix, GpMatrixOrde
 GpStatus
 GdipResetLineTransform (GpLineGradient *brush)
 {
-	GpStatus s;
-	cairo_status_t status;
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
 	cairo_matrix_init_identity (brush->matrix);

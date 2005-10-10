@@ -31,8 +31,6 @@
 #include "gdipImage.h"
 #include <math.h>
 
-
-static char *guid_to_string_hack (GDIPCONST CLSID *clsid);
 void gdip_FlipX (GpImage *image);
 void gdip_rotate_180_FlipX (GpImage *image);
 cairo_filter_t gdip_get_cairo_filter (InterpolationMode imode);
@@ -372,7 +370,6 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	}
 
 	if (imageAttributes && imageAttributes->wrapmode != WrapModeClamp) {
-		float img_x = srcx - dstx, img_y = srcy - dsty;
 		float img_width = bitmap->data.Width *  (dstwidth / srcwidth) , img_height = bitmap->data.Height * (dstheight / srcheight);
 		float posx, posy;
 		bool flipXOn = (imageAttributes->wrapmode == WrapModeTileFlipX) ? TRUE: FALSE;
@@ -793,8 +790,6 @@ GdipGetImageFlags (GpImage *image, UINT *flags)
 
 GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format)
 {
-	byte* guid;
-
 	if (!image || !format)
 		return InvalidParameter;
 	
@@ -1201,7 +1196,6 @@ GpStatus
 GdipGetImagePaletteSize (GpImage *image, int* size)
 {
         int palette_entries;
-        int bytes_needed;
 
         if ((image == NULL) || (size == NULL))
                 return InvalidParameter;
@@ -1263,7 +1257,7 @@ GdipSetPropertyItem(GpImage *image, GDIPCONST PropertyItem *item)
 void
 gdip_image_clone (GpImage* image, GpImage* clonedImage)
 {
-	int i = 0, j = 0, count = 0, dataCount = 0;
+	int i = 0, j = 0, dataCount = 0;
 	BitmapData *data, *clonedData;
 
 	clonedImage->surface = NULL;
@@ -1325,7 +1319,7 @@ GdipCloneImage(GpImage *image, GpImage **cloneImage)
 ImageFormat 
 get_image_format (char *sig_read, size_t size_read)
 {
-	int index, sig_len, sig_num, inner_index;
+	int index;
 	char png[] = { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, '\0'};
 	char *signature[]  = { "BM", "MM", "II", "GIF", png, "\xff\xd8", "\xff\xd8\xff\xe1", "", "", ""};
 
@@ -1579,15 +1573,6 @@ gdip_image_format_for_format_guid (GDIPCONST GUID *formatGUID)
 	return INVALID;
 }
 
-static char *
-guid_to_string_hack (GDIPCONST GUID *guid)
-{
-	static char buf[1024];
-	snprintf (buf, 1024, "%08lx-%04x-%04x-%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x",
-		  guid->Data1, guid->Data2, guid->Data3,
-		  guid->Data4[0], guid->Data4[1], guid->Data4[2], guid->Data4[3], guid->Data4[4], guid->Data4[5], guid->Data4[6], guid->Data4[7]);
-	return buf;
-}
 
 #define CODECS_SUPPORTED 5
 static BYTE *g_codeclist;

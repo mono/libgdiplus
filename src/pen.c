@@ -586,8 +586,6 @@ GdipGetPenTransform (GpPen *pen, GpMatrix *matrix)
 GpStatus
 GdipResetPenTransform (GpPen *pen)
 {
-	cairo_status_t status;
-	GpStatus s;
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
 	cairo_matrix_init_identity (pen->matrix);
