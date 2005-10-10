@@ -1,5 +1,9 @@
 2005-10-10 Jordi Mas i Hernandez  <jordi@ximian.com>
 
+	* graphics.c: fixes line width issues when drawing underline/strikeout
+
+2005-10-10 Jordi Mas i Hernandez  <jordi@ximian.com>
+
 	* graphics.c: remove unused vars and dead code
 	* font.c: remove unused vars
 	* bmpcodec.c: remove unused vars

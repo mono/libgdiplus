@@ -2403,7 +2403,10 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 				GdipFree (String);
 
 				if (font->style & (FontStyleUnderline | FontStyleStrikeout)) {
+					double line_width = cairo_get_line_width (graphics->ct);
+
 					/* Calculate the width of the line */
+					cairo_set_line_width (graphics->ct, 1.0);
 					j=StringDetails[i+StringDetails[i].LineLen-1].PosX+StringDetails[i+StringDetails[i].LineLen-1].Width;
 
 					if (font->style & FontStyleStrikeout) {
@@ -2427,6 +2430,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 					}
 
 					cairo_stroke (graphics->ct);
+					cairo_set_line_width (graphics->ct, line_width);
 				}
 
 				i+=StringDetails[i].LineLen-1;
