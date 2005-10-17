@@ -35,7 +35,7 @@
 #include "gdipImage.h"
 #include "gifcodec.h"
 
-#ifdef HAVE_LIBUNGIF
+#ifdef HAVE_LIBGIF
 
 #include <gif_lib.h>
 

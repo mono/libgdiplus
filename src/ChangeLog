@@ -1,3 +1,7 @@
+2005-10-17 Ruediger Oertel <ro@suse.de>
+
+	* gifcodec.c: Switching from libungif to libgif
+
 2005-10-10 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* graphics.c: fixes line width issues when drawing underline/strikeout

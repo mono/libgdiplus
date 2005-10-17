@@ -141,8 +141,8 @@ AC_ARG_WITH(libjpeg,
 	[AC_HELP_STRING([--without-libjpeg], [disable JPEG file IO])])
 AC_ARG_WITH(libtiff,
 	[AC_HELP_STRING([--without-libtiff], [disable TIFF file IO])])
-AC_ARG_WITH(libungif,
-	[AC_HELP_STRING([--without-libungif], [disable GIF file IO])])
+AC_ARG_WITH(libgif,
+	[AC_HELP_STRING([--without-libgif], [disable GIF file IO])])
 AC_ARG_WITH(libpng,
 	[AC_HELP_STRING([--without-libpng], [disable PNG file IO])])
 
@@ -198,18 +198,18 @@ if test x$JPEG != x; then
   AC_DEFINE(HAVE_LIBJPEG, 1, Define if jpeg support is available)
 fi
 
-dnl Test for libungif
-  if test x$with_libungif != xno && test -z "$LIBUNGIF"; then
-    AC_CHECK_LIB(ungif, DGifOpenFileName,
+dnl Test for libgif
+  if test x$with_libgif != xno && test -z "$LIBGIF"; then
+    AC_CHECK_LIB(gif, DGifOpenFileName,
       [AC_CHECK_HEADER(gif_lib.h,
-        UNGIF='ungif'; LIBUNGIF='-lungif',
-	AC_MSG_WARN(*** GIF loader will not be built (ungiflibrary not found) ***))],
-      AC_MSG_WARN(*** GIF loader will not be built (ungiflibrary not found) ***))
+        GIF='gif'; LIBGIF='-lgif',
+	AC_MSG_WARN(*** GIF loader will not be built (giflibrary not found) ***))],
+      AC_MSG_WARN(*** GIF loader will not be built (giflibrary not found) ***))
   fi
 
-if test x$UNGIF != x; then
-  GDIPLUS_LIBS="$GDIPLUS_LIBS $LIBUNGIF"
-  AC_DEFINE(HAVE_LIBUNGIF, 1, Define if gif support is available)
+if test x$GIF != x; then
+  GDIPLUS_LIBS="$GDIPLUS_LIBS $LIBGIF"
+  AC_DEFINE(HAVE_LIBGIF, 1, Define if gif support is available)
 fi
 
 dnl Test for libpng
@@ -280,7 +280,7 @@ test ! x$TIFF = x && echo yes || echo "no (Get it from http://www.libtiff.org/)"
 echo $ECHO_N "      - JPEG: "
 test ! x$JPEG = x && echo yes || echo "no (Get it from http://freshmeat.net/projects/libjpeg)"
 echo $ECHO_N "      - GIF: "
-test ! x$UNGIF = x && echo yes || echo "no (See http://sourceforge.net/projects/libungif)"
+test ! x$GIF = x && echo yes || echo "no (See http://sourceforge.net/projects/libgif)"
 echo $ECHO_N "      - PNG: "
 test ! x$PNG = x && echo yes || echo "no (See http://www.libpng.org/pub/png/libpng.html)"
 echo ""
