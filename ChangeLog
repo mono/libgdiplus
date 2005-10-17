@@ -1,3 +1,7 @@
+2005-09-19  Jordi Mas <jordi@ximian.com>
+
+	* configure.in: Keep also libungif support on top of libgif
+
 2005-10-17  Ruediger Oertel <ro@suse.de>
 
 	* configure.in: Switching from libungif to libgif

@@ -198,13 +198,21 @@ if test x$JPEG != x; then
   AC_DEFINE(HAVE_LIBJPEG, 1, Define if jpeg support is available)
 fi
 
-dnl Test for libgif
+dnl Test for libgif or libungif
   if test x$with_libgif != xno && test -z "$LIBGIF"; then
     AC_CHECK_LIB(gif, DGifOpenFileName,
       [AC_CHECK_HEADER(gif_lib.h,
         GIF='gif'; LIBGIF='-lgif',
 	AC_MSG_WARN(*** GIF loader will not be built (giflibrary not found) ***))],
       AC_MSG_WARN(*** GIF loader will not be built (giflibrary not found) ***))
+  fi
+
+if ! test x$GIF != x; then
+   AC_CHECK_LIB(gif, DGifOpenFileName,
+      [AC_CHECK_HEADER(gif_lib.h,
+	GIF='ungif'; LIBGIF='-lungif',
+	AC_MSG_WARN(*** GIF loader will not be built (ungiflibrary not found) ***))],
+      AC_MSG_WARN(*** GIF loader will not be built (ungiflibrary not found) ***))
   fi
 
 if test x$GIF != x; then
