@@ -1,3 +1,7 @@
+2005-10-19 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* font.c: Make us more resistant to situations like bug #74761
+
 2005-10-17 Ruediger Oertel <ro@suse.de>
 
 	* gifcodec.c: Switching from libungif to libgif

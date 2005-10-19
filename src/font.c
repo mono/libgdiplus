@@ -240,10 +240,8 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 	string = (unsigned char*)ucs2_to_utf8 ((const gunichar2 *)name, -1);
 
 	if (!font_collection) {
-		FcChar8 *str;
 		FcPattern *pat = FcPatternCreate ();
 		FcResult rlt;
-		FcResult r;
 		
 		/* find the family we want */
 		FcValue val;
@@ -258,10 +256,13 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 		gdip_createFontFamily (fontFamily);
 		(*fontFamily)->pattern =  FcFontMatch (0, pat, &rlt);
 		(*fontFamily)->allocated = TRUE;
-
-		r = FcPatternGetString ((*fontFamily)->pattern, FC_FAMILY, 0, &str);
 		GdipFree (string);
-		FcPatternDestroy (pat);
+		if ((*fontFamily)->pattern == NULL) {
+			(*fontFamily)->pattern = pat;
+		} else {
+			FcPatternDestroy (pat);			
+		}
+		
 		return Ok;
 	}
 
