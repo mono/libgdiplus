@@ -1,3 +1,10 @@
+2005-10-21  Miguel de Icaza  <miguel@novell.com>
+
+	* hatchbrush.c (gdip_hatch_clone): Also copy and reference the
+	brush.  This bug was identified by Zoltan's change to the runtime
+	where segfaults in unmanaged code are not translated into
+	NullReferences. 
+
 2005-10-19 Jordi Mas i Hernandez  <jordi@ximian.com>
 
 	* font.c: Make us more resistant to situations like bug #74761
