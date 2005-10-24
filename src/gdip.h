@@ -917,7 +917,28 @@ typedef struct {
         const BYTE* SigMask;
 } ImageCodecInfo;
 
-                
+/*
+ * Pixel Streams
+ *
+ */
+
+typedef struct
+{
+	Rect region;
+	int x, y;               /* the offset of the next byte that will be loaded, once the buffer is depleted */
+	unsigned short buffer;
+	int p;                  /* index of pixel within 'buffer' that was returned by the last call to gdip_pixel_stream_get_next () */
+	int one_pixel_mask, one_pixel_shift, pixels_per_byte;
+
+	BitmapData *data;
+	unsigned char *scan;
+} StreamingState;
+
+GpStatus gdip_init_pixel_stream (StreamingState *state, BitmapData *data, int x, int y, int w, int h);
+BOOL gdip_pixel_stream_has_next (StreamingState *state);
+unsigned int gdip_pixel_stream_get_next (StreamingState *state);
+void gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value);
+
 /*
  * Functions
  * 

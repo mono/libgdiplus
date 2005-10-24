@@ -31,8 +31,8 @@
 #include "gdipImage.h"
 #include <math.h>
 
-void gdip_FlipX (GpImage *image);
-void gdip_rotate_180_FlipX (GpImage *image);
+static GpStatus gdip_flip_x (GpImage *image);
+static GpStatus gdip_flip_y (GpImage *image);
 cairo_filter_t gdip_get_cairo_filter (InterpolationMode imode);
 
 /*
@@ -382,20 +382,20 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		
 		if (flipXOn) {			
 			gdip_bitmap_clone (bitmap, &imgflipX);
-			gdip_FlipX ((GpImage *) imgflipX);	
+			gdip_flip_x ((GpImage *) imgflipX);	
 			gdip_bitmap_ensure_surface (imgflipX);			
 		}
 		
 		if (flipYOn) {			
 			gdip_bitmap_clone (bitmap, &imgflipY);
-			gdip_rotate_180_FlipX ((GpImage *) imgflipY);	
+			gdip_flip_y ((GpImage *) imgflipY);	
 			gdip_bitmap_ensure_surface (imgflipY);			
 		}
 		
 		if (flipXOn && flipYOn) {			
 			gdip_bitmap_clone (bitmap, &imgflipXY);
-			gdip_FlipX ((GpImage *)imgflipXY);	
-			gdip_rotate_180_FlipX ((GpImage *) imgflipXY);	
+			gdip_flip_x ((GpImage *)imgflipXY);	
+			gdip_flip_y ((GpImage *) imgflipXY);	
 			gdip_bitmap_ensure_surface (imgflipXY);			
 		}
 		
@@ -907,13 +907,42 @@ GdipImageSelectActiveFrame(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT i
         return InvalidParameter;        
 }
 
-void copy_pixel (BYTE *src, BYTE *trg, int components)
+void copy_pixel (BYTE *src, BYTE *trg, int size)
 {
-	memcpy (trg, src, components);
+	memcpy (trg, src, size);
 }
 
-void
-gdip_rotate_180_FlipX (GpImage *image)
+static GpStatus
+gdip_flip_x (GpImage *image)
+{
+	BYTE *src, *line;
+	int stride, width, height, pixel_size, i, j;
+	GpBitmap *bitmap = (GpBitmap *) image;
+	
+	stride = bitmap->data.Stride;
+	width = bitmap->data.Width;
+	height = bitmap->data.Height;
+	pixel_size = gdip_get_pixel_format_components (bitmap->data.PixelFormat) * gdip_get_pixel_format_depth (bitmap->data.PixelFormat) / 8;
+	line = GdipAlloc (stride);
+	src = (BYTE *) bitmap->data.Scan0;
+
+	if (line == NULL)
+		return OutOfMemory;
+	
+	for (i = 0; i < height; i++, src += stride) {			
+		memcpy (line, src, stride);	/* Save original line*/
+
+		for  (j = 0; j < width; j++)
+			copy_pixel(&line[(width - j - 1) * pixel_size], &src[j * pixel_size], pixel_size);
+	}
+	
+	GdipFree (line);
+
+	return Ok;
+}
+
+static GpStatus
+gdip_flip_y (GpImage *image)
 {
 	BYTE *src, *trg, *line;
 	int stride, height, i;	
@@ -925,6 +954,9 @@ gdip_rotate_180_FlipX (GpImage *image)
 	src = (BYTE *) bitmap->data.Scan0;
 	trg = (BYTE *) bitmap->data.Scan0;
 	trg +=  (height-1) * stride;
+
+	if (line == NULL)
+		return OutOfMemory;
 	
 	for (i = 0; i < (height /2); i++, src += stride, trg -= stride) {			
 		memcpy (line, trg, stride);	/* Save target line*/		
@@ -933,218 +965,371 @@ gdip_rotate_180_FlipX (GpImage *image)
 	}
 	
 	GdipFree (line);
+
+	return Ok;
 }
 
-void
-gdip_rotate_90 (GpImage *image)
+static GpStatus
+gdip_rotate_orthogonal_flip_x (GpImage *image, int angle, BOOL flip_x)
 {
-	BYTE *src, *trg, *rotated;
-	int line, x, stride_trg, height_trg, width_trg;
 	GpBitmap *bitmap = (GpBitmap *) image;
-	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         	 
 
-	height_trg = bitmap->data.Width;
-	width_trg = bitmap->data.Height;
-	stride_trg = components * gdip_get_pixel_format_depth (bitmap->data.PixelFormat);
-	stride_trg = (stride_trg * width_trg) / 8;
-	stride_trg = (stride_trg + 3) & ~3;		
-	
-	rotated = GdipAlloc (stride_trg * height_trg);
-	src = (BYTE *) bitmap->data.Scan0;
-	
-	for (line = 0; line < bitmap->data.Height; line++, src += bitmap->data.Stride) {		
-		for (x = 0; x < bitmap->data.Width; x++) {
+	BYTE *rotated;
 
-			if (x >= height_trg)
-				continue;			
+	BYTE *source, *target;
+	int x, y;
+	int source_stride, source_height, source_width, source_pixel_delta, source_interscan_delta;
+	int target_stride, target_height, target_width, target_pixel_delta, target_interscan_delta;
+	int initial_source_offset, initial_target_offset;
 
-			if (line >= width_trg)
-				continue;
+	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);
+	int depth = gdip_get_pixel_format_depth (bitmap->data.PixelFormat);
 
-			trg = rotated;
-			trg += x * stride_trg;
-			trg += (width_trg - 1  - line) * components;		
-			copy_pixel (src + (x * components), trg, components);			
-		}	
+	int pixel_size = components * depth / 8;
+
+	source_stride = bitmap->data.Stride;
+	source_width = bitmap->data.Width;
+	source_height = bitmap->data.Height;
+
+	source_pixel_delta = pixel_size;
+	source_interscan_delta = source_stride - source_width * pixel_size;
+	initial_source_offset = 0;
+
+	if (angle == 180) {
+		target_width = source_width;
+		target_height = source_height;
+	}
+	else {
+		target_height = source_width; /* swap width & height here */
+		target_width = source_height;
 	}
 
-	bitmap->data.Stride = stride_trg;
-	bitmap->data.Height = image->height = height_trg;
-	bitmap->data.Width = image->width = width_trg;
+	target_stride = target_width * pixel_size;
+	target_stride = (target_stride + 3) & ~3;
+
+	switch (angle)
+	{
+		case 90:
+			target_pixel_delta = target_stride;
+			if (flip_x) {
+				target_interscan_delta = +pixel_size - target_stride * target_height;
+				initial_target_offset = 0;
+			}
+			else {
+				target_interscan_delta = -pixel_size - target_stride * target_height;
+				initial_target_offset = (target_width - 1) * pixel_size;
+			}
+			break;
+		case 180:
+			if (flip_x) {
+				target_pixel_delta = +pixel_size;
+				target_interscan_delta = -target_width * pixel_size - target_stride; 
+				initial_target_offset = (target_height - 1) * target_stride;
+			}
+			else {
+				target_pixel_delta = -pixel_size;
+				target_interscan_delta = +target_width * pixel_size - target_stride;
+				initial_target_offset = (target_height - 1) * target_stride + (target_width - 1) * pixel_size;
+			}
+			break;
+		case 270:
+			target_pixel_delta = -target_stride;
+			if (flip_x) {
+				target_interscan_delta = target_stride * target_height - pixel_size;
+				initial_target_offset = (target_height - 1) * target_stride + (target_width - 1) * pixel_size;
+			}
+			else {
+				target_interscan_delta = target_stride * target_height + pixel_size;
+				initial_target_offset = (target_height - 1) * target_stride;
+			}
+			break;
+		default:
+			if (flip_x)
+				return gdip_flip_x (image);
+			else
+				return Ok;
+	}
+
+	rotated = GdipAlloc (target_height * target_stride);
+
+	if (rotated == NULL)
+		return OutOfMemory;
+
+	source = initial_source_offset + (BYTE *) bitmap->data.Scan0;
+	target = initial_target_offset + rotated;
+
+	for (y = 0; y < source_height;
+             y++,
+             source += source_interscan_delta,
+             target += target_interscan_delta)
+		for (x = 0; x < source_width;
+                     x++,
+                     source += source_pixel_delta,
+                     target += target_pixel_delta)
+			copy_pixel (source, target, pixel_size);
+
+	bitmap->data.Stride = target_stride;
+	bitmap->data.Height = image->height = target_height;
+	bitmap->data.Width = image->width = target_width;
 
 	if ((bitmap->data.Reserved & GBD_OWN_SCAN0) != 0) {
-		int k,j; 
+		int k, j; 
 
-		/* Do the free first since the frame point can be for some codes a reference to bitmap->data*/
-		GdipFree (bitmap->data.Scan0);
+		void *old_scan0 = bitmap->data.Scan0;
+
 		for (j = 0; j < image->frameDimensionCount; j++) {
 			for (k = 0; k < image->frameDimensionList [j].count; k++) {
-				if (image->frameDimensionList[j].frames[k].Scan0 == bitmap->data.Scan0)  {
+				if (image->frameDimensionList[j].frames[k].Scan0 == old_scan0)  {
 					image->frameDimensionList[j].frames[k].Scan0 = rotated;
-					image->frameDimensionList[j].frames[k].Stride = stride_trg;
-					image->frameDimensionList[j].frames[k].Height = image->height = height_trg;
-					image->frameDimensionList[j].frames[k].Width = image->width = width_trg;
-				}				
+					image->frameDimensionList[j].frames[k].Stride = target_stride;
+					image->frameDimensionList[j].frames[k].Height = image->height = target_height;
+					image->frameDimensionList[j].frames[k].Width = image->width = target_width;
+				}
 			}
-		}		
+		}
+
+		GdipFree (old_scan0);
 	}
 
 	bitmap->data.Scan0 = rotated;
 	bitmap->data.Reserved |= GBD_OWN_SCAN0;	
+
+	if (image->surface != NULL) {
+		cairo_surface_destroy (image->surface);
+		image->surface = NULL;
+	}
+
+	return Ok;
 }
 
-void
-gdip_rotate_180 (GpImage *image)
+static GpStatus
+gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int angle, BOOL flip_x)
 {
-	BYTE *src, *trg, *rotated;
-	int stride, height, line, x;	
-	GpBitmap *bitmap = (GpBitmap *) image;
-	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
-	 
-	bitmap = (GpBitmap *) image;	
-        stride = bitmap->data.Stride;
-	height = bitmap->data.Height;
-	rotated = GdipAlloc (stride * height);	
-	src = (BYTE *) bitmap->data.Scan0;
-	
-	for (line = 0; line < height; line++, src += stride) {		
-		for (x = 0; x < bitmap->data.Width; x++) {		
-			trg = rotated;	
-			trg += (bitmap->data.Height - 1  - line) * stride;
-			trg += (bitmap->data.Width - 1  - x) * components;		
-			copy_pixel (src + (x*components), trg, components);			
-		}	
-	}	
-	
-	memcpy (bitmap->data.Scan0, rotated, stride * height);	
-	GdipFree (rotated);
-}
+	GpBitmap *bitmap = (GpBitmap *)image;
+	BitmapData *data = &bitmap->data;
+	BYTE *rotated;
+	StreamingState scan[8];
+	BOOL scan_valid[8];
+	int x, y, i;
 
-void
-gdip_rotate_270 (GpImage *image)
-{
-	BYTE *src, *trg, *rotated;
-	int line, x, stride_trg, height_trg, width_trg;
-	GpBitmap *bitmap = (GpBitmap *) image;
-	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);
+	int bits_per_pixel = gdip_get_pixel_format_depth (pixel_format);
+	int pixels_per_byte = 8 / bits_per_pixel;
 
-	height_trg = bitmap->data.Width;
-	width_trg = bitmap->data.Height;
-	stride_trg = components * gdip_get_pixel_format_depth (bitmap->data.PixelFormat);
-	stride_trg = (stride_trg * width_trg) / 8;
-	stride_trg = (stride_trg + 3) & ~3;		
+	int source_width = data->Width;
+	int source_height = data->Height;
 
-	rotated = GdipAlloc (stride_trg * height_trg);
-	
-	src = (BYTE *) bitmap->data.Scan0;
-	
-	for (line = 0; line < bitmap->data.Height; line++, src += bitmap->data.Stride) {		
-		for (x = 0; x < bitmap->data.Width; x++) {
+	/* Swap the width & height if needed */
+	BOOL aspect_inversion = ((angle % 180) != 0);
 
-			if (x >= height_trg)
-				continue;			
+	int target_width = aspect_inversion ? source_height : source_width;
+	int target_height = aspect_inversion ? source_width : source_height;
 
-			if (line >= width_trg)
-				continue;
+	int target_scan_size = (target_width + pixels_per_byte - 1) / pixels_per_byte;
+	int target_stride = (target_scan_size + 3) & ~3;
 
-			trg = rotated;	
-			trg += (height_trg -1 -x) * stride_trg;
-			trg += line * components;	
-			copy_pixel (src + (x * components), trg, components);			
-		}	
-	}	
+	if ((angle == 180) && flip_x)
+		return gdip_flip_y(image);
 
-	bitmap->data.Stride = stride_trg;
-	bitmap->data.Height = image->height = height_trg;
-	bitmap->data.Width = image->width = width_trg;
+	rotated = GdipAlloc (target_height * target_stride);
+
+	if (rotated == NULL)
+		return OutOfMemory;
+
+	if (aspect_inversion == FALSE) {
+		int x_alignment = ((source_width - 1) % pixels_per_byte) + 1 - pixels_per_byte;
+		int x_step = pixels_per_byte;
+
+		StreamingState stream;
+
+		BOOL target_starts_at_bottom = (angle == 180);
+
+		int target_x_offset = target_scan_size - 1;
+		int target_y_offset = target_starts_at_bottom ? (target_height - 1) * target_stride : 0;
+		int target_y_offset_delta = target_starts_at_bottom ? -target_stride : +target_stride;
+
+		Status status = gdip_init_pixel_stream (&stream, data, 0, 0, data->Width, data->Height);
+
+		if (status != Ok) {
+			GdipFree (rotated);
+			return status;
+		}
+
+		for (y = 0; y < source_height; y++, target_y_offset += target_y_offset_delta) {
+			BYTE *target = rotated + target_x_offset + target_y_offset;
+
+			for (x = x_alignment; x < source_width; x += x_step) {
+				int byte = 0;
+				for (i = 0; i < pixels_per_byte; i++) {
+					int index = x + i;
+
+					if ((index >= 0) && (index < source_width))
+						byte |= (gdip_pixel_stream_get_next (&stream) << 8);
+					byte >>= bits_per_pixel;
+				}
+
+				*target = byte;
+				target--;
+			}
+		}
+	}
+	else {
+		int y_alignment = ((source_height - 1) % pixels_per_byte) + 1 - pixels_per_byte;
+		int y_step = pixels_per_byte;
+		int byte_column = 0;
+
+		int target_delta;
+
+		BOOL target_starts_at_bottom = (angle == 270);
+		BOOL target_starts_at_left = (target_starts_at_bottom ^ flip_x);
+
+		if (target_starts_at_left)
+			y_alignment = 0;
+
+		if (target_starts_at_bottom)
+			target_delta = -target_stride;
+		else
+			target_delta = +target_stride;
+
+		for (y = y_alignment; y < source_height; y += y_step) {
+			BYTE *target;
+
+			for (i=0; i < pixels_per_byte; i++) {
+				int scan_index = y + i;
+
+				scan_valid[i] = ((scan_index >= 0) && (scan_index < source_height));
+
+				if (scan_valid[i]) {
+					Status status = gdip_init_pixel_stream (&scan[i], data, 0, scan_index, source_width, 1);
+
+					if (status != Ok) {
+						GdipFree (rotated);
+						return status;
+					}
+				}
+			}
+
+			target = rotated;
+
+			if (target_starts_at_left)
+				target += byte_column;
+			else
+				target += target_scan_size - byte_column - 1;
+
+			if (target_starts_at_bottom)
+				target += (target_height - 1) * target_stride;
+
+			for (x = 0; x < source_width; x++) {
+				int byte = 0;
+
+				if (target_starts_at_left)
+					for (i=0; i < pixels_per_byte; i++)
+					{
+						byte <<= bits_per_pixel;
+						if (scan_valid[i])
+							byte |= gdip_pixel_stream_get_next (&scan[i]);
+					}
+				else
+					for (i = pixels_per_byte - 1; i >= 0; i--)
+					{
+						byte <<= bits_per_pixel;
+						if (scan_valid[i])
+							byte |= gdip_pixel_stream_get_next (&scan[i]);
+					}
+
+				*target = byte;
+				target += target_delta;
+			}
+
+			byte_column++;
+		}
+	}
+
+	bitmap->data.Stride = target_stride;
+	bitmap->data.Height = image->height = target_height;
+	bitmap->data.Width = image->width = target_width;
 
 	if ((bitmap->data.Reserved & GBD_OWN_SCAN0) != 0) {
-		int k,j; 
+		int k, j; 
 
-		/* Do the free first since the frame point can be for some codes a reference to bitmap->data*/
-		GdipFree (bitmap->data.Scan0);
+		void *old_scan0 = bitmap->data.Scan0;
+
 		for (j = 0; j < image->frameDimensionCount; j++) {
 			for (k = 0; k < image->frameDimensionList [j].count; k++) {
-				if (image->frameDimensionList[j].frames[k].Scan0 == bitmap->data.Scan0)  {
+				if (image->frameDimensionList[j].frames[k].Scan0 == old_scan0)  {
 					image->frameDimensionList[j].frames[k].Scan0 = rotated;
-					image->frameDimensionList[j].frames[k].Stride = stride_trg;
-					image->frameDimensionList[j].frames[k].Height = image->height = height_trg;
-					image->frameDimensionList[j].frames[k].Width = image->width = width_trg;
-				}				
+					image->frameDimensionList[j].frames[k].Stride = target_stride;
+					image->frameDimensionList[j].frames[k].Height = image->height = target_height;
+					image->frameDimensionList[j].frames[k].Width = image->width = target_width;
+				}
 			}
-		}		
+		}
+
+		GdipFree (old_scan0);
 	}
 
 	bitmap->data.Scan0 = rotated;
-	bitmap->data.Reserved |= GBD_OWN_SCAN0;
-}
+	bitmap->data.Reserved |= GBD_OWN_SCAN0;	
 
-void
-gdip_FlipX (GpImage *image)
-{
-	BYTE *src, *trg, *rotated;
-	int stride, height, line, x;	
-	GpBitmap *bitmap = (GpBitmap *) image;
-	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);		         
-	 
-	bitmap = (GpBitmap *) image;	
-        stride = bitmap->data.Stride;
-	height = bitmap->data.Height;
-	rotated = GdipAlloc (stride * height);
-	
-	src = (BYTE *) bitmap->data.Scan0;
-	
-	for (line = 0; line < height; line++, src += stride) {		
-		for (x = 0; x < bitmap->data.Width; x++) {
-		
-			trg = rotated;	
-			trg += (bitmap->data.Width-1-x)  * components;
-			trg += line * stride;	
-			copy_pixel (src + (x*components), trg, components);			
-		}	
-	}	
-	
-	memcpy (bitmap->data.Scan0, rotated, stride * height);	
-	GdipFree (rotated);
+	/* It shouldn't be possible for an indexed image to have one,
+	 * but if it does, it needs to be killed.
+	 */
+	if (image->surface != NULL) {
+		cairo_surface_destroy (image->surface);
+		image->surface = NULL;
+	}
+
+	return Ok;
 }
 
 GpStatus 
 GdipImageRotateFlip (GpImage *image, RotateFlipType type)
 {
+	int angle;
+	BOOL flip_x;
+	PixelFormat pixel_format;
+
 	if (!image)
 		return InvalidParameter;
 
+	pixel_format = ((GpBitmap *)image)->data.PixelFormat;
+
+
+	angle = flip_x = 0;
+
 	switch (type) {
-                case RotateNoneFlipNone:
+                case RotateNoneFlipNone: /* equivalent to Rotate180FlipXY */
+			return Ok;
+		case Rotate90FlipNone: /* equivalent to Rotate270FlipXY */
+			angle = 90;
 			break;
-		case Rotate90FlipNone:
-			gdip_rotate_90 (image);
+		case RotateNoneFlipXY: /* equivalent to Rotate180FlipNone */
+			angle = 180;
 			break;
-		case Rotate180FlipNone:
-			gdip_rotate_180 (image);
+		case Rotate90FlipXY: /* equivalent to Rotate270FlipNone */
+			angle = 270;
 			break;
-		case Rotate270FlipNone:	
-			gdip_rotate_270 (image);
+		case RotateNoneFlipX: /* equivalent to Rotate180FlipY */
+			flip_x = TRUE;
 			break;
-		case RotateNoneFlipX:
-			gdip_FlipX (image);
+		case Rotate90FlipX: /* equivalent to Rotate270FlipY */
+			angle = 90;
+			flip_x = TRUE;
 			break;
-		case Rotate90FlipX:
-			gdip_rotate_90 (image);
-			gdip_FlipX (image);
-			break;
-		case Rotate180FlipX:
-			gdip_rotate_180_FlipX (image);
-			break;
-		case Rotate270FlipX:
-			gdip_rotate_270 (image);
-			gdip_FlipX (image);
+		case RotateNoneFlipY: /* equivalent to Rotate180FlipX */
+			return gdip_flip_y (image);
+		case Rotate90FlipY: /* equivalent to Rotate270FlipX */
+			angle = 270;
+			flip_x = TRUE;
 			break;			
 		default:
 			return NotImplemented;
 	}	
 	
-	return Ok;
+	if (gdip_is_an_indexed_pixelformat (pixel_format)
+         && (gdip_get_pixel_format_depth (pixel_format) < 8))
+		return gdip_rotate_flip_packed_indexed (image, pixel_format, angle, flip_x);
+	else
+		return gdip_rotate_orthogonal_flip_x (image, angle, flip_x);
 }
 
 GpStatus 

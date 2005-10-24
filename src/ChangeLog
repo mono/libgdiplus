@@ -1,3 +1,34 @@
+2005-10-23  Jonathan Gilbert <logic@deltaq.org>
+
+	* image.c: Renamed gdip_FlipX() and gdip_rotate_180_FlipX() to
+	  gdip_flip_x() and gdip_flip_y() respectively.
+	* image.c: Updated GdipDrawImageRectRect to call the functions by
+	  their new names.
+	* image.c: Renamed copy_pixel()'s third argument 'components' to
+	  'size', as pixel components can be more than one byte in size.
+	* image.c: Rewrote gdip_flip_x() to use only a single scan of buffer
+	  space instead of redoing the entire image. Moved gdip_flip_x() to
+	  be adjacent to gdip_flip_y().
+	* image.c: Replaced gdip_rotate_90(), gdip_rotate_180(), and
+	  gdip_rotate_270() with gdip_rotate_orthogonal_flip_x() which handles
+	  all types of rotation and can also integrate a horizontal flip
+	  into the rotation. All of the RotateFlipTypes can be reduced to a
+	  clockwise rotation of a multiple of 90 degrees optionally followed
+	  by a horizontal flip.
+	* image.c: Added gdip_rotate_flip_packed_indexed() which does what
+	  gdip_rotate_orthogonal_flip_x() does but for 1- and 4-bit Bitmaps,
+	  where a single byte contains more than one pixel.
+	* image.c: Reworked GdipImageRotateFlip to determine the rotation and
+	  whether a flip is required first and then call one of the two core
+	  rotation functions to do the appropriate operation.
+	* bitmap.c, gdip.h: Moved the definition of the pixel stream code's
+	  struct StreamingState from the middle of bitmap.c to gdip.h. The
+	  functions were already being exported (non-static), but the
+	  structure was inaccessible making pixel streams unusable outside of
+	  bitmap.c.
+	* gdip.h: Added prototypes for pixel stream functions so that they
+	  could be used by gdip_rotate_flip_packed_indexed() in image.c.
+
 2005-10-21  Miguel de Icaza  <miguel@novell.com>
 
 	* hatchbrush.c (gdip_hatch_clone): Also copy and reference the
