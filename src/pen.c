@@ -89,13 +89,13 @@ convert_line_cap (GpLineCap cap)
 {
         switch (cap) {
         
+        case LineCapFlat:
         case LineCapSquare:
                 return CAIRO_LINE_CAP_SQUARE;
 
         case LineCapRound:
                 return CAIRO_LINE_CAP_ROUND;                
 
-        case LineCapFlat:
         case LineCapTriangle:
         case LineCapNoAnchor:
         case LineCapSquareAnchor:

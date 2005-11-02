@@ -1,3 +1,13 @@
+2005-11-01  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* graphics.c: Implemented smoothing mode support. Now defaulting
+	  to non-antialiased drawing
+
+2005-11-01  Jonathan Chambers  <jonathan.chambers@ansys.com>
+
+	* pen.c: LineCapFlat needs to translate to square cairo line caps
+	  in order for line lengths to be correct when not aliased
+
 2005-10-23  Jonathan Gilbert <logic@deltaq.org>
 
 	* image.c: Renamed gdip_FlipX() and gdip_rotate_180_FlipX() to

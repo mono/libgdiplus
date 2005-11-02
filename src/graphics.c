@@ -67,10 +67,11 @@ gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 	graphics->composite_quality = CompositingQualityDefault;
 	graphics->composite_mode = CompositingModeSourceOver;
 	graphics->text_mode = TextRenderingHintSystemDefault;
-	graphics->draw_mode = SmoothingModeNone;
 	graphics->pixel_mode = PixelOffsetModeDefault;
 	graphics->saved_status = NULL;
 	graphics->saved_status_pos = 0;
+
+	GdipSetSmoothingMode(graphics, SmoothingModeNone);
 }
 
 GpGraphics *
@@ -458,11 +459,11 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 	graphics->scale = pos_state->scale;
 	graphics->interpolation = pos_state->interpolation;
 	graphics->page_unit = pos_state->page_unit;
-	graphics->draw_mode = pos_state->draw_mode;
 	graphics->text_mode = pos_state->text_mode;
 	graphics->pixel_mode = pos_state->pixel_mode;
 
 	graphics->saved_status_pos = graphicsState;
+	GdipSetSmoothingMode(graphics, pos_state->draw_mode);
 	return Ok;
 }
 
@@ -3342,6 +3343,23 @@ GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 
 	graphics->draw_mode = mode;
 
+	switch (mode) {
+		case SmoothingModeAntiAlias:
+		case SmoothingModeHighQuality: {
+			cairo_set_antialias(graphics->ct, CAIRO_ANTIALIAS_DEFAULT);
+			break;
+		}
+
+		case SmoothingModeNone:
+		case SmoothingModeDefault:
+		case SmoothingModeHighSpeed:
+		default: {
+			cairo_set_antialias(graphics->ct, CAIRO_ANTIALIAS_NONE);
+			break;
+		}
+		
+	}
+
 	return Ok;
 }
 
@@ -3779,7 +3797,7 @@ GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordi
         static int      called = 0;
 
         if (!called) {
-                printf("NOT IMPLEMENTED YET:GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPointF *points, int count)\n");
+                printf("NOT IMPLEMENTED YET:GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace %d, GpCoordinateSpace srcSpace %d, GpPointF *points, int count %d)\n", destSpace, srcSpace, count);
         }
         /* return NotImplemented; */
         return Ok;
