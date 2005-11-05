@@ -2197,6 +2197,9 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 					CurrentLineStart->LineLen=EndOfLine;
 				}
 
+				if ((fmt->formatFlags & StringFormatFlagsNoWrap)!=0)
+					break;
+
 				/* New line */
 				CurrentLineStart=&(StringDetails[EndOfLine]);
 				CurrentLineStart->Flags|=STRING_DETAIL_LINESTART;
