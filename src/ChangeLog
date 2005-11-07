@@ -1,3 +1,7 @@
+2005-11-07  Kornél Pál  <kornelpal@hotmail.com>
+
+	* bmpcodec.c: Load 32-bit bitmaps as Format32bppRgb.
+
 2005-11-05 Jordi Mas i Hernandez  <jordimash@gmail.com>
 
 	* graphics.c: Fixes 76111 (DrawString does not honor NoWrap)

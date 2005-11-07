@@ -76,7 +76,7 @@ gdip_get_pixelformat (WORD bitcount)
 {
         switch (bitcount) {
         case 32:
-                return Format32bppArgb;
+                return Format32bppRgb;
         case 24:
                 return Format24bppRgb;
         case 8:
