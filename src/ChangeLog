@@ -1,3 +1,9 @@
+2005-11-07  Jackson Harper  <jackson@ximian.com>
+
+	* pen.c: Set the width of dashes when creating the dashed array,
+	cairo uses the values in the dashed array as the size of the
+	dash. This fixes dashed lines with a width greater then 1.
+
 2005-11-07  Kornél Pál  <kornelpal@hotmail.com>
 
 	* bmpcodec.c: Load 32-bit bitmaps as Format32bppRgb.
