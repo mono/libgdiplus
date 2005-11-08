@@ -1,5 +1,7 @@
 # All test cases go here
-TESTS = 			\
+TESTS =
+
+TESTS_ORG=	\
 a8-mask				\
 caps-sub-paths			\
 clip-nesting			\
@@ -56,25 +58,26 @@ user-data			\
 rel-path
 
 if CAIRO_HAS_FT_FONT
-TESTS += ft-font-create-for-ft-face
+TESTS_ORG += ft-font-create-for-ft-face
 endif
 
 if CAIRO_HAS_PDF_SURFACE
-TESTS += pdf-surface pdf-clip
+TESTS_ORG += pdf-surface pdf-clip
 endif
 
 if CAIRO_HAS_PS_SURFACE
-TESTS += ps-surface
+TESTS_ORG += ps-surface
 endif
 
 if CAIRO_HAS_XLIB_SURFACE
-TESTS += xlib-surface
+TESTS_ORG += xlib-surface
 endif
 
 # All tests which have a reference image go here.
 # I really don't like having to repeat this list. Anyone know a good
 # way to avoid it? Can I use a wildcard here?
-EXTRA_DIST =				\
+EXTRA_DIST =
+EXTRA_DIST_ORG =				\
 a8-mask-ref.png				\
 caps-sub-paths-ref.png			\
 clip-nesting-ref.png			\
