@@ -23,6 +23,9 @@
  *
  */
 
+
+/* FIXME - match hatchbrush use the RenderOrigin stored in graphics */
+
 #include <math.h>
 #include "gdip.h"
 #include "hatchbrush.h"
@@ -78,15 +81,14 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 	 * the results similar to that of MS. Not sure, if the results will
 	 * be the same with different resolutions.
 	 */
-	if (hbr->hatchStyle == HatchStyleLightHorizontal)
+	if (hbr->hatchStyle == HatchStyleLightHorizontal) {
 		hatch_size *= 0.7; 	/* As per the docs lines should be 50% closer than */
 					/* horizontal i.e. multiplication factor of 0.5    */
-	else if (hbr->hatchStyle == HatchStyleNarrowHorizontal) {
+	} else if (hbr->hatchStyle == HatchStyleNarrowHorizontal) {
 		hatch_size *= 0.5; 	/* As per the docs lines should be 75% closer than */
 					/* horizontal i.e. multiplication factor of 0.25   */
 		line_width *= 1.5; 	/* docs say nothing about line width               */
-	}
-	else if (hbr->hatchStyle == HatchStyleDarkHorizontal) {
+	} else if (hbr->hatchStyle == HatchStyleDarkHorizontal) {
 		hatch_size *= 0.6; 	/* As per the docs lines should be 50% closer than */
 					/* horizontal i.e. multiplication factor of 0.5    */
 		line_width *= 2.0; 	/* As per the docs line width should be twice the  */
@@ -106,6 +108,8 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 			       
 		/* hatch is not supposed to be affected by user matrix */
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+		cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -124,7 +128,7 @@ draw_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 
 		cairo_set_line_width (ct2, line_width);
 		cairo_move_to (ct2, 0, hatch_size / 2.0);
-		cairo_line_to (ct2, hatch_size, hatch_size / 2.0);
+		cairo_line_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
 		cairo_stroke (ct2);
 		cairo_destroy (ct2);
 	}
@@ -150,15 +154,14 @@ draw_vertical_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t 
 	 * The values used below are obtained by hit and trial to get the 
 	 * results similar to that of MS.
 	 */
-	if (hbr->hatchStyle == HatchStyleLightVertical)
+	if (hbr->hatchStyle == HatchStyleLightVertical) {
 		hatch_size *= 0.7; 	/* As per the docs lines should be 50% closer than */
 					/* vertical i.e. multiplication factor of 0.5      */
-	else if (hbr->hatchStyle == HatchStyleNarrowVertical) {
+	} else if (hbr->hatchStyle == HatchStyleNarrowVertical) {
 		hatch_size *= 0.5; 	/* As per the docs lines should be 75% closer than */
 					/* vertical i.e. multiplication factor of 0.25     */
 		line_width *= 1.5; 	/* docs say nothing about line width               */
-	}
-	else if (hbr->hatchStyle == HatchStyleDarkVertical) {
+	} else if (hbr->hatchStyle == HatchStyleDarkVertical) {
 		hatch_size *= 0.6; 	/* As per the docs lines should be 50% closer than */
 					/* vertical i.e. multiplication factor of 0.5      */
 		line_width *= 2.0; 	/* As per the docs line width should be twice the  */
@@ -177,6 +180,8 @@ draw_vertical_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t 
 
 		/* hatch is not supposed to be affected by user matrix */
                 ct2 = cairo_create (hatch);		
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+		cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -194,8 +199,8 @@ draw_vertical_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t 
 		cairo_set_source_rgb (ct2, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		cairo_set_line_width (ct2, line_width);
-		cairo_move_to (ct2, hatch_size / 2.0, 0);
-		cairo_line_to (ct2, hatch_size / 2.0, hatch_size);
+		cairo_move_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y);
 		cairo_stroke (ct2);
 
 		cairo_destroy (ct2);
@@ -227,6 +232,7 @@ draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_co
 		int R,G,B;
 
                 ct2 = cairo_create (hatch);		
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -234,7 +240,7 @@ draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_co
 		B = (backcolor & 0x000000FF);
 		cairo_set_source_rgb (ct2, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
-		cairo_rectangle (ct2, 0, 0, hatch_size, hatch_size);
+		cairo_rectangle(ct2, 0, 0, hatch_size, hatch_size);
 		cairo_fill (ct2);
 
 		/* draw forward diagonal lines in the foreground */
@@ -245,11 +251,11 @@ draw_forward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_co
 
 		cairo_set_line_width (ct2, line_width);
 
-		cairo_move_to (ct2, 0, hatch_size / 2.0);
-		cairo_line_to (ct2, hatch_size / 2.0, hatch_size);
+		cairo_move_to (ct2, CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y);
  
-		cairo_move_to (ct2, hatch_size / 2.0, 0);
-		cairo_line_to (ct2, hatch_size, hatch_size / 2.0);
+		cairo_move_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
  
 		cairo_stroke (ct2);
 
@@ -283,6 +289,7 @@ draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_c
 		int R,G,B;
 
                 ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -301,11 +308,11 @@ draw_backward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_c
 
 		cairo_set_line_width (ct2, line_width);
 
-		cairo_move_to (ct2, hatch_size / 2.0, 0);
-		cairo_line_to (ct2, 0, hatch_size / 2.0);
+		cairo_move_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
 
-		cairo_move_to (ct2, hatch_size, hatch_size / 2.0);
-		cairo_line_to (ct2, hatch_size / 2.0, hatch_size);
+		cairo_move_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y);
 
 		cairo_stroke (ct2);
 
@@ -342,6 +349,8 @@ draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t for
 		int R,G,B;
 
                 ct2 = cairo_create (hatch);		
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -364,12 +373,12 @@ draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t for
 			cairo_set_dash (ct2, dash, 1, 0);
 
 		/* draw a horizontal line */
-		cairo_move_to (ct2, 0, hatch_size / 2.0);
-		cairo_line_to (ct2, hatch_size, hatch_size / 2.0);
+		cairo_move_to (ct2, CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
 
 		/* draw a vertical line */
-		cairo_move_to (ct2, hatch_size / 2.0, 0);
-		cairo_line_to (ct2, hatch_size / 2.0, hatch_size);
+		cairo_move_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y);
 
 		cairo_stroke (ct2);
 
@@ -385,20 +394,13 @@ draw_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t for
 }
 
 GpStatus
-draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
+draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, bool want_aa, GpHatch *hbr)
 {
 	cairo_t	*ct2;
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 1;
 	double line_width = LINE_WIDTH;
 	double dash [] = {1.0}; /* used for drawing dotted diamond */
-
-	/* FIXME:
-	 * Lines drawn in case of OutlinedDiamond hatch style are not supposed 
-	 * to be antialiased as per MS docs. That is the only difference between
-	 * DiagonalCross and OutlinedDiamond style. Find a way to stop Cairo 
-	 * antialiasing to conform to MS docs.
-	 */
 
 	hatch = cairo_surface_create_similar (cairo_get_target (ct),
 					      format, hatch_size, hatch_size);
@@ -410,6 +412,10 @@ draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_cont
 		int R,G,B;
 
                 ct2 = cairo_create (hatch);		
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+		if (!want_aa) {
+			cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
+		}
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -417,7 +423,7 @@ draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_cont
 		B = (backcolor & 0x000000FF);
 		cairo_set_source_rgb (ct2, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
-		cairo_rectangle (ct2, 0, 0, hatch_size, hatch_size);
+		cairo_rectangle(ct2, 0, 0, hatch_size, hatch_size);
 		cairo_fill (ct2);
 
 		/* draw diagonal lines in the foreground */
@@ -432,12 +438,12 @@ draw_diagonal_cross_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_cont
 			cairo_set_dash (ct2, dash, 1, 0);
 
 		/* draw a forward diagonal line */
-		cairo_move_to (ct2, 0, 0);
-		cairo_line_to (ct2, hatch_size, hatch_size);
+		cairo_move_to (ct2, CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y);
 
 		/* draw a backward diagonal line */
-		cairo_move_to (ct2, hatch_size, 0);
-		cairo_line_to (ct2, 0, hatch_size);
+		cairo_move_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y);
 		cairo_stroke (ct2);
 
 		cairo_destroy (ct2);
@@ -472,6 +478,8 @@ draw_05_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -479,7 +487,7 @@ draw_05_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 		B = (backcolor & 0x000000FF);
 		cairo_set_source_rgb (ct2, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
-		cairo_rectangle (ct2, 0, 0, hatch_size, hatch_size);
+		cairo_rectangle(ct2, 0, 0, hatch_size, hatch_size);
 		cairo_fill (ct2);
 
 		/* draw four half circles in the foreground to make dots */
@@ -537,6 +545,8 @@ draw_10_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -601,6 +611,8 @@ draw_20_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -667,6 +679,8 @@ draw_25_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -751,6 +765,8 @@ draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 
 			/* hatch is not supposed to be affected by user matrix */
                         ct2 = cairo_create (temp);			
+			cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+			cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 			
 			/* draw background */
 			cairo_set_source_rgb (ct2, (double) Rb / 255.0, (double) Gb / 255.0, (double) Bb / 255.0);
@@ -779,6 +795,8 @@ draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 
 		/* temp hatch is used as background, so we get 50% hatch */
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 		cairo_set_source (ct2, pattern);
 		cairo_rectangle (ct2, 0, 0, hatch_wd, hatch_ht);
 		cairo_fill (ct2);
@@ -789,19 +807,19 @@ draw_40_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 		/* 0.5 is added for pixel adjustment. It's ugly but it makes output better. */
 		/* draw four semi circles in the foregound to make dots */
 		/* left middle */
-		cairo_arc (ct2, 0, hatch_ht / 2.0 + 0.5, rad, - PI / 2.0, PI / 2.0);
+		cairo_arc (ct2, 0, hatch_ht / 2.0, rad, - PI / 2.0, PI / 2.0);
 		cairo_fill (ct2);
 
 		/* top middle */
-		cairo_arc (ct2, hatch_wd / 2.0 + 0.5, 0, rad, 0, PI);
+		cairo_arc (ct2, hatch_wd / 2.0, 0, rad, 0, PI);
 		cairo_fill (ct2);
 
 		/* bottom middle */
-		cairo_arc (ct2, hatch_wd / 2.0 + 0.5, hatch_ht, rad, - PI, 0);
+		cairo_arc (ct2, hatch_wd / 2.0, hatch_ht, rad, - PI, 0);
 		cairo_fill (ct2);
 
 		/* right middle */
-		cairo_arc (ct2, hatch_wd, hatch_ht / 2.0 + 0.5, rad, PI / 2.0, - PI / 2.0);
+		cairo_arc (ct2, hatch_wd, hatch_ht / 2.0, rad, PI / 2.0, - PI / 2.0);
 		cairo_fill (ct2);
 		
 		cairo_destroy (ct2);
@@ -834,6 +852,8 @@ draw_50_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 
 		/* hatch is not supposed to be affected by user matrix */
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -889,6 +909,8 @@ draw_60_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -907,11 +929,11 @@ draw_60_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 
 		cairo_set_line_width (ct2, line_width);
 
-		cairo_move_to (ct2, hatch_wd, 0);
-		cairo_line_to (ct2, 0, hatch_ht);
+		cairo_move_to (ct2, hatch_wd + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, CAIRO_AA_OFFSET_X, hatch_ht + CAIRO_AA_OFFSET_Y);
 
-		cairo_move_to (ct2, 0, hatch_ht / 4.0);
-		cairo_line_to (ct2, hatch_wd - hatch_wd / 4.0, hatch_ht);
+		cairo_move_to (ct2, CAIRO_AA_OFFSET_X, hatch_ht / 4.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_wd - hatch_wd / 4.0 + CAIRO_AA_OFFSET_X, hatch_ht + CAIRO_AA_OFFSET_Y);
 
 		cairo_stroke (ct2);
 
@@ -945,6 +967,8 @@ draw_70_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -964,12 +988,12 @@ draw_70_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 		cairo_set_line_width (ct2, line_width);
 
 		/* near top left corner */
-		cairo_move_to (ct2, 0, 0);
-		cairo_line_to (ct2, hatch_wd, hatch_ht);
+		cairo_move_to (ct2, CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_wd + CAIRO_AA_OFFSET_X, hatch_ht + CAIRO_AA_OFFSET_Y);
 
 		/* near top right corner */
-		cairo_move_to (ct2, hatch_wd, 0);
-		cairo_line_to (ct2, 0, hatch_ht);
+		cairo_move_to (ct2, hatch_wd + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, CAIRO_AA_OFFSET_X, hatch_ht + CAIRO_AA_OFFSET_Y);
 
 		cairo_stroke (ct2);
 
@@ -987,10 +1011,6 @@ draw_70_percent_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_
 GpStatus
 draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
-	/* FIXME:
-	 * Lines drawn in this hatch are not supposed to be antialiased as per
-	 * MS docs. Find a way to stop cairo antialiasing to conform to MS docs.
-	 */
 	cairo_t *ct2;
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 1;
@@ -1004,14 +1024,12 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_c
 		hatch_size *= 0.5; 	/* As per the docs lines should be 50% closer than */
 					/* forward diagonal i.e. multiplication factor of  */
 					/* 0.5                                             */
-		line_width *= 0.7;
-	}
-	else if (hbr->hatchStyle == HatchStyleWideDownwardDiagonal)
+	} else if (hbr->hatchStyle == HatchStyleWideDownwardDiagonal) {
 		line_width *= 2.0; 	/* As per the docs lines should be spaced same as  */
 					/* forward diagonal but line width is triple the   */
 					/* width of forward diagonal i.e. multiplication   */
 					/* factor of 3.0                                   */
-	else if (hbr->hatchStyle == HatchStyleDarkDownwardDiagonal) {
+	} else if (hbr->hatchStyle == HatchStyleDarkDownwardDiagonal) {
 		hatch_size *= 0.5; 	/* As per the docs lines should be 50% closer than */
 					/* forward diagonal i.e. multiplication factor of  */
                                         /* 0.5                                             */
@@ -1030,6 +1048,8 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_c
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -1048,11 +1068,11 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_c
 
 		cairo_set_line_width (ct2, line_width);
 
-		cairo_move_to (ct2, 0, hatch_size / 2.0);
-		cairo_line_to (ct2, hatch_size / 2.0, hatch_size);
+		cairo_move_to (ct2, CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y);
  
-		cairo_move_to (ct2, hatch_size / 2.0, 0);
-		cairo_line_to (ct2, hatch_size, hatch_size / 2.0);
+		cairo_move_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
 
 		cairo_stroke (ct2);
 
@@ -1070,10 +1090,6 @@ draw_downward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_c
 GpStatus
 draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t format, GpHatch *hbr)
 {
-	/* FIXME:
-	 * Lines drawn in this hatch are not supposed to be antialiased as per
-	 * MS docs. Find a way to stop cairo antialiasing to conform to MS docs.
-	 */
 	cairo_t *ct2;
 	cairo_surface_t *hatch;
 	double hatch_size = HATCH_SIZE + 1;
@@ -1087,14 +1103,12 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_con
 		hatch_size *= 0.5; 	/* As per the docs lines should be 50% closer than */
 					/* backward diagonal i.e. multiplication factor of */
 					/* 0.5                                             */
-		line_width *= 0.7;
-	}
-	else if (hbr->hatchStyle == HatchStyleWideUpwardDiagonal)
+	} else if (hbr->hatchStyle == HatchStyleWideUpwardDiagonal) {
 		line_width *= 2.0; 	/* As per the docs lines should be spaced same as  */
 					/* backward diagonal but line width is triple the  */
 					/* width of backward diagonal i.e. multiplication  */
 					/* factor of 3.0                                   */
-	else if (hbr->hatchStyle == HatchStyleDarkUpwardDiagonal) {
+	} else if (hbr->hatchStyle == HatchStyleDarkUpwardDiagonal) {
 		hatch_size *= 0.5; 	/* As per the docs lines should be 50% closer than */
 					/* backward diagonal i.e. multiplication factor of */
                                         /* 0.5                                             */
@@ -1113,6 +1127,8 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_con
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -1131,11 +1147,11 @@ draw_upward_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_con
 
 		cairo_set_line_width (ct2, line_width);
 
-		cairo_move_to (ct2, hatch_size / 2.0, 0);
-		cairo_line_to (ct2, 0, hatch_size / 2.0);
+		cairo_move_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
 
-		cairo_move_to (ct2, hatch_size, hatch_size / 2.0);
-		cairo_line_to (ct2, hatch_size / 2.0, hatch_size);
+		cairo_move_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y);
 
 		cairo_stroke (ct2);
 
@@ -1155,7 +1171,7 @@ draw_dashed_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_con
 {
 	cairo_t	*ct2;
 	cairo_surface_t *hatch;
-	double space = 6;
+	double space = 4;
 	double hatch_wd = 4;
 	double hatch_ht = hatch_wd + space;
 	double line_width = LINE_WIDTH;
@@ -1170,6 +1186,8 @@ draw_dashed_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_con
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -1190,12 +1208,12 @@ draw_dashed_diagonal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_con
 
 		if (hbr->hatchStyle == HatchStyleDashedUpwardDiagonal) {
 			/* 45 deg slant line */
-			cairo_move_to (ct2, hatch_wd, 0);
-			cairo_line_to (ct2, 0, hatch_wd);
+			cairo_move_to (ct2, hatch_wd + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+			cairo_line_to (ct2, CAIRO_AA_OFFSET_X, hatch_wd + CAIRO_AA_OFFSET_Y);
 		} else { /* HatchStyleDashedDownwardDiagonal */
 			/* -45 deg slant line */
-			cairo_move_to (ct2, 0, 0);
-			cairo_line_to (ct2, hatch_wd, hatch_wd);
+			cairo_move_to (ct2, CAIRO_AA_OFFSET_Y, CAIRO_AA_OFFSET_Y);
+			cairo_line_to (ct2, hatch_wd + CAIRO_AA_OFFSET_X, hatch_wd + CAIRO_AA_OFFSET_Y);
 		}
 
 		cairo_stroke (ct2);
@@ -1232,6 +1250,8 @@ draw_dashed_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_c
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -1251,12 +1271,12 @@ draw_dashed_horizontal_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_c
 		cairo_set_line_width (ct2, line_width);
 
 		/* upper left dash */
-		cairo_move_to (ct2, 0, line_space / 2);
-		cairo_line_to (ct2, dash_len, line_space / 2);
+		cairo_move_to (ct2, CAIRO_AA_OFFSET_X, line_space / 2 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, dash_len + CAIRO_AA_OFFSET_X, line_space / 2 + CAIRO_AA_OFFSET_Y);
 
 		/* lower right dash */
-		cairo_move_to (ct2, hatch_wd - dash_len, hatch_ht - line_space / 2);
-		cairo_line_to (ct2, hatch_wd, hatch_ht - line_space / 2);
+		cairo_move_to (ct2, hatch_wd - dash_len + CAIRO_AA_OFFSET_X, hatch_ht - line_space / 2 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_wd + CAIRO_AA_OFFSET_X, hatch_ht - line_space / 2 + CAIRO_AA_OFFSET_Y);
 		
 		cairo_stroke (ct2);
 
@@ -1292,6 +1312,8 @@ draw_dashed_vertical_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_con
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -1311,12 +1333,12 @@ draw_dashed_vertical_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_con
 		cairo_set_line_width (ct2, line_width);
 
 		/* upper left dash */
-		cairo_move_to (ct2, line_space / 2, 0);
-		cairo_line_to (ct2, line_space / 2, dash_len);
+		cairo_move_to (ct2, line_space / 2 + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, line_space / 2 + CAIRO_AA_OFFSET_X, dash_len + CAIRO_AA_OFFSET_Y);
 
 		/* lower right dash */
-		cairo_move_to (ct2, hatch_wd - line_space / 2, hatch_ht - dash_len);
-		cairo_line_to (ct2, hatch_wd - line_space / 2, hatch_ht);
+		cairo_move_to (ct2, hatch_wd - line_space / 2 + CAIRO_AA_OFFSET_X, hatch_ht - dash_len + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_wd - line_space / 2 + CAIRO_AA_OFFSET_X, hatch_ht + CAIRO_AA_OFFSET_Y);
 
 		cairo_stroke (ct2);
 
@@ -1352,6 +1374,8 @@ draw_confetti_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t 
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -1411,6 +1435,8 @@ draw_zigzag_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t fo
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -1430,14 +1456,14 @@ draw_zigzag_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t fo
 		cairo_set_line_width (ct2, line_width);
 
 		/* upper 'V' shape */
-		cairo_move_to (ct2, 0, 0);
-		cairo_line_to (ct2, hatch_size / 2.0, hatch_size / 2.0);
-		cairo_line_to (ct2, hatch_size, 0);
+		cairo_move_to (ct2, CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
 
 		/* lower 'V' shape */
-		cairo_move_to (ct2, 0, hatch_size / 2.0);
-		cairo_line_to (ct2, hatch_size / 2.0, hatch_size);
-		cairo_line_to (ct2, hatch_size, hatch_size / 2.0);
+		cairo_move_to (ct2, CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size + CAIRO_AA_OFFSET_X / 2.0, hatch_size + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
 		
 		cairo_stroke (ct2);
 
@@ -1471,6 +1497,8 @@ draw_wave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t form
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -1490,9 +1518,9 @@ draw_wave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t form
 		cairo_set_line_width (ct2, line_width);
 
 		/* draw a horizontal 'S' shape */
-		cairo_move_to (ct2, 1.0, 1.0);
-		cairo_curve_to (ct2, 1.0, 1.0, hatch_wd / 4.0, hatch_ht, hatch_wd / 2.0, hatch_ht / 2.0);
-		cairo_curve_to (ct2, hatch_wd / 2.0, hatch_ht / 2.0, 3 * hatch_wd / 4.0, 0, hatch_wd - 1.0, hatch_ht - 1.0);
+		cairo_move_to (ct2, 1.0 + CAIRO_AA_OFFSET_X, 1.0 + CAIRO_AA_OFFSET_Y);
+		cairo_curve_to (ct2, 1.0 + CAIRO_AA_OFFSET_X, 1.0 + CAIRO_AA_OFFSET_Y, hatch_wd / 4.0 + CAIRO_AA_OFFSET_X, hatch_ht + CAIRO_AA_OFFSET_Y, hatch_wd / 2.0 + CAIRO_AA_OFFSET_X, hatch_ht / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_curve_to (ct2, hatch_wd / 2.0 + CAIRO_AA_OFFSET_X, hatch_ht / 2.0 + CAIRO_AA_OFFSET_Y, 3 * hatch_wd / 4.0 + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y, hatch_wd - 1.0 + CAIRO_AA_OFFSET_X, hatch_ht - 1.0 + CAIRO_AA_OFFSET_Y);
 
 		cairo_stroke (ct2);
 
@@ -1525,6 +1553,8 @@ draw_diagonal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_cont
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -1543,10 +1573,10 @@ draw_diagonal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_cont
 		cairo_set_line_width (ct2, line_width);
 
 		/* draw one full diagonal line and half of another diagonal line */
-		cairo_move_to (ct2, 0, hatch_size);
-		cairo_line_to (ct2, hatch_size, 0);
-		cairo_move_to (ct2, hatch_size / 2.0, hatch_size / 2.0);
-		cairo_line_to (ct2, hatch_size, hatch_size);
+		cairo_move_to (ct2, CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_move_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y);
 		
 		cairo_stroke (ct2);
 
@@ -1579,6 +1609,8 @@ draw_horizontal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_co
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -1598,14 +1630,14 @@ draw_horizontal_brick_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_co
 		cairo_set_line_width (ct2, line_width);
 
 		/* draw a 'C' shape */
-		cairo_move_to (ct2, hatch_size, 0);
-		cairo_line_to (ct2, 0, 0);
-		cairo_line_to (ct2, 0, hatch_size / 2.0);
-		cairo_line_to (ct2, hatch_size, hatch_size / 2.0);
+		cairo_move_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
 
 		/* draw lower connector */
-		cairo_move_to (ct2, hatch_size / 2.0, hatch_size / 2.0);
-		cairo_line_to (ct2, hatch_size / 2.0, hatch_size);
+		cairo_move_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y);
 
 		cairo_stroke (ct2);
 
@@ -1639,6 +1671,8 @@ draw_weave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t for
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -1662,24 +1696,24 @@ draw_weave_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t for
 		 * one of the other two vertices of the square and three connectors
 		 * towards the fourth vertex.
 		 */
-		cairo_move_to (ct2, 0, hatch_size / 2.0);
-		cairo_line_to (ct2, hatch_size / 2.0, 0);
+		cairo_move_to (ct2, CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
 		/* this makes up one of the lower connectors also */
-		cairo_line_to (ct2, hatch_size, hatch_size / 2.0);
+		cairo_line_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
 		/* complete the diagonal 'C' shape */
-		cairo_move_to (ct2, 3 * hatch_size / 4.0, hatch_size / 4.0);
-		cairo_line_to (ct2, 0, hatch_size);
+		cairo_move_to (ct2, 3 * hatch_size / 4.0 + CAIRO_AA_OFFSET_X, hatch_size / 4.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y);
 
 		/* draw one upper connector */
-		cairo_move_to (ct2, 0, 0);
-		cairo_line_to (ct2, hatch_size / 4.0, hatch_size / 4.0);
+		cairo_move_to (ct2, CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 4.0 + CAIRO_AA_OFFSET_X, hatch_size / 4.0 + CAIRO_AA_OFFSET_Y);
 
 		/* draw lower connectors */
-		cairo_move_to (ct2, hatch_size / 4.0, 3 * hatch_size / 4.0);
-		cairo_line_to (ct2, hatch_size / 2.0, hatch_size);
+		cairo_move_to (ct2, hatch_size / 4.0 + CAIRO_AA_OFFSET_X, 3 * hatch_size / 4.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y);
 
-		cairo_move_to (ct2, hatch_size, hatch_size);
-		cairo_line_to (ct2, hatch_size / 2.0, hatch_size / 2.0);
+		cairo_move_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y);
 
 		cairo_stroke (ct2);
 
@@ -1735,6 +1769,8 @@ draw_plaid_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t for
 		{
 			/* hatch is not supposed to be affected by user matrix */
 			ct2 = cairo_create (temp);
+			cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+			cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 			
 			/* draw background */
 			cairo_set_source_rgb (ct2, (double) Rb / 255.0, (double) Gb / 255.0, (double) Bb / 255.0);
@@ -1760,6 +1796,8 @@ draw_plaid_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t for
 
 		/* hatch is not supposed to be affected by user matrix */
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* temp hatch is used to fill 50% of area */
 		cairo_set_source(ct2, pattern);
@@ -1806,6 +1844,8 @@ draw_divot_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t for
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -1825,13 +1865,13 @@ draw_divot_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t for
 		cairo_set_line_width (ct2, line_width);
 
 		/* draw two angle brackets in the foreground */
-		cairo_move_to (ct2, hatch_size / 8.0, hatch_size / 8.0);
-		cairo_line_to (ct2, 3 * hatch_size / 8.0, hatch_size / 4.0);
-		cairo_line_to (ct2, hatch_size / 8.0, 3 * hatch_size / 8.0);
+		cairo_move_to (ct2, hatch_size / 8.0 + CAIRO_AA_OFFSET_X, hatch_size / 8.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, 3 * hatch_size / 8.0 + CAIRO_AA_OFFSET_X, hatch_size / 4.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 8.0 + CAIRO_AA_OFFSET_X, 3 * hatch_size / 8.0 + CAIRO_AA_OFFSET_Y);
 
-		cairo_move_to (ct2, 7 * hatch_size / 8.0, 7 * hatch_size / 8.0);
-		cairo_line_to (ct2, 5 * hatch_size / 8.0, 3 * hatch_size / 4.0);
-		cairo_line_to (ct2, 7 * hatch_size / 8.0, 5 * hatch_size / 8.0);
+		cairo_move_to (ct2, 7 * hatch_size / 8.0 + CAIRO_AA_OFFSET_X, 7 * hatch_size / 8.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, 5 * hatch_size / 8.0 + CAIRO_AA_OFFSET_X, 3 * hatch_size / 4.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, 7 * hatch_size / 8.0 + CAIRO_AA_OFFSET_X, 5 * hatch_size / 8.0 + CAIRO_AA_OFFSET_Y);
 
 		cairo_stroke (ct2);
 
@@ -1863,6 +1903,8 @@ draw_solid_diamond_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_conte
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -1923,6 +1965,8 @@ draw_shingle_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t f
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -1942,13 +1986,13 @@ draw_shingle_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t f
 		cairo_set_line_width (ct2, line_width);
 
 		/* draw a curve thru left top, center and right top corners */
-		cairo_move_to (ct2, 0, 0);
-		cairo_line_to (ct2, hatch_size / 4.0, hatch_size / 4.0);
-		cairo_curve_to (ct2, hatch_size / 4.0, hatch_size / 4.0, hatch_size / 2.0, hatch_size / 2.0, 3 * hatch_size / 4.0, hatch_size / 4.0);
-		cairo_line_to (ct2, hatch_size, 0);
+		cairo_move_to (ct2, CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 4.0 + CAIRO_AA_OFFSET_X, hatch_size / 4.0 + CAIRO_AA_OFFSET_Y);
+		cairo_curve_to (ct2, hatch_size / 4.0 + CAIRO_AA_OFFSET_X, hatch_size / 4.0 + CAIRO_AA_OFFSET_Y, hatch_size / 2.0 + CAIRO_AA_OFFSET_X, hatch_size / 2.0 + CAIRO_AA_OFFSET_Y, 3 * hatch_size / 4.0 + CAIRO_AA_OFFSET_X, hatch_size / 4.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, CAIRO_AA_OFFSET_Y);
 
 		/* draw a quarter circle thru center and right bottom corner */
-		cairo_arc (ct2, 0, hatch_size, hatch_size, -PI/4.0, 0);
+		cairo_arc (ct2, CAIRO_AA_OFFSET_X, hatch_size + CAIRO_AA_OFFSET_Y, hatch_size, -PI/4.0, 0);
 		
 		cairo_stroke (ct2);
 
@@ -1986,6 +2030,8 @@ draw_trellis_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t f
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -2003,7 +2049,7 @@ draw_trellis_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t f
 		cairo_set_source_rgb (ct2, (double) R / 255.0, (double) G / 255.0, (double) B / 255.0);
 
 		/* upper left rectangle */
-		cairo_rectangle (ct2, 0, hatch_size / 4.0, hatch_size / 2.0, hatch_size / 4.0);
+		cairo_rectangle (ct2,0, hatch_size / 4.0, hatch_size / 2.0, hatch_size / 4.0);
 
 		/* lower right rectangle */
 		cairo_rectangle (ct2, hatch_size / 2.0, 3 * hatch_size / 4.0, hatch_size / 2.0, hatch_size / 4.0);
@@ -2040,6 +2086,8 @@ draw_sphere_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t fo
 		int Rf,Gf,Bf;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		Rb = (backcolor & 0x00FF0000) >> 16;
@@ -2077,16 +2125,16 @@ draw_sphere_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t fo
 		cairo_set_line_width (ct2, line_width);
 
 		/* left middle */
-		cairo_move_to (ct2, 0, hatch_size / 2.0 - rad / 2.0);
-		cairo_line_to (ct2, rad / 2.0, hatch_size / 2.0 - rad / 2.0);
+		cairo_move_to (ct2, CAIRO_AA_OFFSET_X, hatch_size / 2.0 - rad / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, rad / 2.0 + CAIRO_AA_OFFSET_X, hatch_size / 2.0 - rad / 2.0 + CAIRO_AA_OFFSET_Y);
 
 		/* right middle */
-		cairo_move_to (ct2, hatch_size, hatch_size / 2.0 - rad / 2.0);
-		cairo_line_to (ct2, hatch_size - rad / 2.0, hatch_size / 2.0 - rad / 2.0);
+		cairo_move_to (ct2, hatch_size + CAIRO_AA_OFFSET_X, hatch_size / 2.0 - rad / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size - rad / 2.0 + CAIRO_AA_OFFSET_X, hatch_size / 2.0 - rad / 2.0 + CAIRO_AA_OFFSET_Y);
 
 		/* bottom middle */
-		cairo_move_to (ct2, hatch_size / 2.0 - rad / 2.0, hatch_size - rad / 2.0);
-		cairo_line_to (ct2, hatch_size / 2.0 + rad / 2.0, hatch_size - rad / 2.0);
+		cairo_move_to (ct2, hatch_size / 2.0 - rad / 2.0 + CAIRO_AA_OFFSET_X, hatch_size - rad / 2.0 + CAIRO_AA_OFFSET_Y);
+		cairo_line_to (ct2, hatch_size / 2.0 + rad / 2.0 + CAIRO_AA_OFFSET_X, hatch_size - rad / 2.0 + CAIRO_AA_OFFSET_Y);
 
 		cairo_stroke (ct2);
 
@@ -2121,6 +2169,8 @@ draw_checker_hatch (cairo_t *ct, int forecolor, int backcolor, cairo_content_t f
 		int R,G,B;
 
 		ct2 = cairo_create (hatch);
+                cairo_set_line_cap(ct2, CAIRO_LINE_CAP_SQUARE);
+                cairo_set_antialias(ct2, CAIRO_ANTIALIAS_NONE);
 
 		/* draw background */
 		R = (backcolor & 0x00FF0000) >> 16;
@@ -2164,6 +2214,7 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 	int backcol;
 	cairo_content_t format = CAIRO_CONTENT_COLOR_ALPHA;
 	GpStatus status = Ok;
+	cairo_antialias_t alias;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
@@ -2184,6 +2235,9 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 		/* destroy the existing pattern */
 		if (hbr->pattern)
 			cairo_pattern_destroy (hbr->pattern);
+
+		alias = cairo_get_antialias(ct);
+		cairo_set_antialias(ct, CAIRO_ANTIALIAS_NONE);
 
 		switch (hbr->hatchStyle) {
 
@@ -2218,9 +2272,12 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 			break;
 
 		case HatchStyleDiagonalCross:
+			status = draw_diagonal_cross_hatch (ct, forecol, backcol, format, TRUE, hbr);
+			break;
+
 		case HatchStyleDottedDiamond:
 		case HatchStyleOutlinedDiamond:
-			status = draw_diagonal_cross_hatch (ct, forecol, backcol, format, hbr);
+			status = draw_diagonal_cross_hatch (ct, forecol, backcol, format, FALSE, hbr);
 			break;
 
 		case HatchStyle05Percent:
@@ -2357,6 +2414,8 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 		default:
 			status = InvalidParameter;
 		}
+
+		cairo_set_antialias(ct, alias);
 	}
 
 	if (status == Ok) {

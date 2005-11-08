@@ -70,6 +70,8 @@ gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 	graphics->pixel_mode = PixelOffsetModeDefault;
 	graphics->saved_status = NULL;
 	graphics->saved_status_pos = 0;
+	graphics->render_origin_x = 0;
+	graphics->render_origin_y = 0;
 
 	GdipSetSmoothingMode(graphics, SmoothingModeNone);
 }
@@ -87,12 +89,12 @@ gdip_graphics_new (cairo_surface_t *surface)
 
 #define C1 0.552285
 static void 
-make_ellipse (GpGraphics *graphics, float x, float y, float width, float height)
+make_ellipse (GpGraphics *graphics, float x, float y, float width, float height, float aa_offset_x, float aa_offset_y)
 {
         double rx = width / 2;
         double ry = height / 2;
-        double cx = x + rx;
-        double cy = y + ry;
+        double cx = x + rx + aa_offset_x;
+        double cy = y + ry + aa_offset_y;
 
         cairo_move_to (graphics->ct, cx + rx, cy);
 
@@ -122,39 +124,39 @@ make_ellipse (GpGraphics *graphics, float x, float y, float width, float height)
 }
 
 static void
-make_polygon (GpGraphics *graphics, GpPointF *points, int count)
+make_polygon (GpGraphics *graphics, GpPointF *points, int count, float aa_offset_x, float aa_offset_y)
 {
         int i;
-        cairo_move_to (graphics->ct, points [0].X, points [0].Y);
+        cairo_move_to (graphics->ct, points [0].X + aa_offset_x, points [0].Y + aa_offset_y);
 
         for (i = 0; i < count; i++)
-                cairo_line_to (graphics->ct, points [i].X, points [i].Y);
+                cairo_line_to (graphics->ct, points [i].X + aa_offset_x, points [i].Y + aa_offset_y);
 
         /*
          * Draw a line from the last point back to the first point if
          * they're not the same
          */
         if (points [0].X != points [count].X && points [0].Y != points [count].Y)
-                cairo_line_to (graphics->ct, points [0].X, points [0].Y);
+                cairo_line_to (graphics->ct, points [0].X + aa_offset_x, points [0].Y + aa_offset_y);
 
         cairo_close_path (graphics->ct);
 }
 
 static void
-make_polygon_from_integers (GpGraphics *graphics, GpPoint *points, int count)
+make_polygon_from_integers (GpGraphics *graphics, GpPoint *points, int count, float aa_offset_x, float aa_offset_y)
 {
         int i;
-        cairo_move_to (graphics->ct, points [0].X, points [0].Y);
+        cairo_move_to (graphics->ct, points [0].X + aa_offset_x, points [0].Y + aa_offset_y);
 
         for (i = 0; i < count; i++)
-                cairo_line_to (graphics->ct, points [i].X, points [i].Y);
+                cairo_line_to (graphics->ct, points [i].X + aa_offset_x, points [i].Y + aa_offset_y);
 
         /*
          * Draw a line from the last point back to the first point if
          * they're not the same
          */
         if (points [0].X != points [count].X && points [0].Y != points [count].Y)
-                cairo_line_to (graphics->ct, points [0].X, points [0].Y);
+                cairo_line_to (graphics->ct, points [0].X + aa_offset_x, points [0].Y + aa_offset_y);
 
         cairo_close_path (graphics->ct);
 }
@@ -165,7 +167,7 @@ make_polygon_from_integers (GpGraphics *graphics, GpPoint *points, int count)
  */
 static void
 make_arc (GpGraphics *graphics, bool start, float x, float y, float width,
-	  float height, float startAngle, float endAngle)
+	  float height, float startAngle, float endAngle, float aa_offset_x, float aa_offset_y)
 {       
         float rx = width / 2;
         float ry = height / 2;
@@ -192,7 +194,10 @@ make_arc (GpGraphics *graphics, bool start, float x, float y, float width,
 	
         /* don't move to starting point if we're continuing an existing curve */
         if (start)
-                cairo_move_to (graphics->ct, sx, sy);
+                cairo_move_to (graphics->ct, sx + aa_offset_x, sy + aa_offset_y);
+
+	cx += graphics->aa_offset_x;
+	cy += graphics->aa_offset_y;
 
         cairo_curve_to (graphics->ct,
                         cx + rx * (cos_alpha - bcp * sin_alpha),
@@ -204,7 +209,7 @@ make_arc (GpGraphics *graphics, bool start, float x, float y, float width,
 }
 
 static void
-make_arcs (GpGraphics *graphics, float x, float y, float width, float height, float startAngle, float sweepAngle)
+make_arcs (GpGraphics *graphics, float x, float y, float width, float height, float startAngle, float sweepAngle, float aa_offset_x, float aa_offset_y)
 {
 	int i;
 	float drawn = 0;
@@ -213,7 +218,7 @@ make_arcs (GpGraphics *graphics, float x, float y, float width, float height, fl
 	int increment = sign * 90; 
 	
 	if (abs (sweepAngle) >= 360) {
-		make_ellipse (graphics, x, y, width, height);
+		make_ellipse (graphics, x, y, width, height, aa_offset_x, aa_offset_y);
 		return;
 	}
 
@@ -234,41 +239,41 @@ make_arcs (GpGraphics *graphics, float x, float y, float width, float height, fl
 		make_arc (graphics,
 			  (i == 0) ? TRUE : FALSE,  /* only move to the starting pt in the 1st iteration */
 			  x, y, width, height,      /* bounding rectangle */
-			  current, current + additional);
+			  current, current + additional, aa_offset_x, aa_offset_y);
 		drawn += additional;		
 	}
 }
 
 static void
 make_pie (GpGraphics *graphics, float x, float y, 
-          float width, float height, float startAngle, float sweepAngle)
+          float width, float height, float startAngle, float sweepAngle, float aa_offset_x, float aa_offset_y)
 {
-        float rx = width / 2;
-        float ry = height / 2;
+	float rx = width / 2;
+	float ry = height / 2;
 
-        /* center */
-        float cx = x + rx;
-        float cy = y + ry;
+	/* center */
+	float cx = x + rx + aa_offset_x;
+	float cy = y + ry + aa_offset_y;
 
-        /* angles in radians */        
-        float alpha = startAngle * PI / 180;
+	/* angles in radians */        
+	float alpha = startAngle * PI / 180;
 
-        double sin_alpha = sin (alpha);
-        double cos_alpha = cos (alpha);
+	double sin_alpha = sin (alpha);
+	double cos_alpha = cos (alpha);
 
-        /* move to center */
-        cairo_move_to (graphics->ct, cx, cy);
-        
-        /* draw pie edge */
-        cairo_line_to (graphics->ct,
-                       cx + rx * cos_alpha, 
-                       cy + ry * sin_alpha);
+	/* move to center */
+	cairo_move_to (graphics->ct, cx, cy);
+
+	/* draw pie edge */
+	cairo_line_to (graphics->ct,
+			cx + rx * cos_alpha, 
+			cy + ry * sin_alpha);
 
 	/* draw the arcs */
-	make_arcs (graphics, x, y, width, height, startAngle, sweepAngle);
+	make_arcs (graphics, x, y, width, height, startAngle, sweepAngle, aa_offset_x, aa_offset_y);
 
-        /* draws line back to center */
-        cairo_line_to (graphics->ct, cx, cy);
+	/* draws line back to center */
+	cairo_line_to (graphics->ct, cx + aa_offset_x, cy + aa_offset_y);
 }
 
 static cairo_fill_rule_t
@@ -623,7 +628,7 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
 	 * have it set already.
 	 */
 
-	make_arcs (graphics, x, y, width, height, startAngle, sweepAngle);
+	make_arcs (graphics, x, y, width, height, startAngle, sweepAngle, graphics->aa_offset_x, graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -656,8 +661,8 @@ GdipDrawBezier (GpGraphics *graphics, GpPen *pen,
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-        cairo_move_to (graphics->ct, x1, y1);
-        cairo_curve_to (graphics->ct, x2, y2, x3, y3, x4, y4);
+        cairo_move_to (graphics->ct, x1 + graphics->aa_offset_x, y1 + graphics->aa_offset_y);
+        cairo_curve_to (graphics->ct, x2 + graphics->aa_offset_x, y2 + graphics->aa_offset_y, x3 + graphics->aa_offset_x, y3 + graphics->aa_offset_y, x4 + graphics->aa_offset_x, y4 + graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -695,15 +700,15 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen,
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-        cairo_move_to (graphics->ct, points [0].X, points [0].Y);
+        cairo_move_to (graphics->ct, points [0].X + graphics->aa_offset_x, points [0].Y + graphics->aa_offset_y);
 
         for (i = 0; i < count - 3; i += 3) {
                 j = i + 1;
                 k = i + 2;
                 cairo_curve_to (graphics->ct,
-                                points [i].X, points [i].Y,
-                                points [j].X, points [j].Y,
-                                points [k].X, points [k].Y);
+                                points [i].X + graphics->aa_offset_x, points [i].Y + graphics->aa_offset_y,
+                                points [j].X + graphics->aa_offset_x, points [j].Y + graphics->aa_offset_y,
+                                points [k].X + graphics->aa_offset_x, points [k].Y + graphics->aa_offset_y);
         }
 
 	/* We do pen setup just before stroking. */
@@ -734,15 +739,15 @@ GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen,
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-        cairo_move_to (graphics->ct, points [0].X, points [0].Y);
+        cairo_move_to (graphics->ct, points [0].X + graphics->aa_offset_x, points [0].Y + graphics->aa_offset_y);
 
         for (i = 0; i < count - 3; i += 3) {
                 j = i + 1;
                 k = i + 2;
                 cairo_curve_to (graphics->ct,
-                                points [i].X, points [i].Y,
-                                points [j].X, points [j].Y,
-                                points [k].X, points [k].Y);
+                                points [i].X + graphics->aa_offset_x, points [i].Y + graphics->aa_offset_y,
+                                points [j].X + graphics->aa_offset_x, points [j].Y + graphics->aa_offset_y,
+                                points [k].X + graphics->aa_offset_x, points [k].Y + graphics->aa_offset_y);
         }
 
 	/* We do pen setup just before stroking. */
@@ -767,7 +772,7 @@ GdipDrawEllipse (GpGraphics *graphics, GpPen *pen,
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	make_ellipse (graphics, x, y, width, height);
+	make_ellipse (graphics, x, y, width, height, graphics->aa_offset_x, graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -803,8 +808,8 @@ GdipDrawLine (GpGraphics *graphics, GpPen *pen,
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	cairo_move_to (graphics->ct, x1, y1);
-	cairo_line_to (graphics->ct, x2, y2);
+	cairo_move_to (graphics->ct, x1 + graphics->aa_offset_x, y1 + graphics->aa_offset_y);
+	cairo_line_to (graphics->ct, x2 + graphics->aa_offset_x, y2 + graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -840,9 +845,9 @@ GdipDrawLines (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	cairo_move_to (graphics->ct, points [0].X, points [0].Y);
+	cairo_move_to (graphics->ct, points [0].X + graphics->aa_offset_x, points [0].Y + graphics->aa_offset_y);
 	for (i = 1; i < count; i++)
-		cairo_line_to (graphics->ct, points [i].X, points [i].Y);
+		cairo_line_to (graphics->ct, points [i].X + graphics->aa_offset_x, points [i].Y + graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -869,9 +874,9 @@ GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	cairo_move_to (graphics->ct, points [0].X, points [0].Y);
+	cairo_move_to (graphics->ct, points [0].X + graphics->aa_offset_x, points [0].Y + graphics->aa_offset_y);
 	for (i = 1; i < count; i++)
-		cairo_line_to (graphics->ct, points [i].X, points [i].Y);
+		cairo_line_to (graphics->ct, points [i].X + graphics->aa_offset_x, points [i].Y + graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -886,7 +891,7 @@ GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 }
 
 static GpStatus
-gdip_plot_path (GpGraphics *graphics, GpPath *path)
+gdip_plot_path (GpGraphics *graphics, GpPath *path, float aa_offset_x, float aa_offset_y)
 {
         int length = path->count;
         int i, idx = 0;
@@ -899,11 +904,11 @@ gdip_plot_path (GpGraphics *graphics, GpPath *path)
 		/* mask the bits so that we get only the type value not the other flags */
                 switch (type & PathPointTypePathTypeMask) {
                 case PathPointTypeStart:
-                        cairo_move_to (graphics->ct, pt.X, pt.Y);
+                        cairo_move_to (graphics->ct, pt.X + aa_offset_x, pt.Y + aa_offset_y);
                         break;
 
                 case PathPointTypeLine:
-                        cairo_line_to (graphics->ct, pt.X, pt.Y);
+                        cairo_line_to (graphics->ct, pt.X + aa_offset_x, pt.Y + aa_offset_y);
                         break;
 
                 case PathPointTypeBezier:
@@ -916,9 +921,9 @@ gdip_plot_path (GpGraphics *graphics, GpPath *path)
                         /* once we've added 3 pts, we can draw the curve */
                         if (idx == 3) {
                                 cairo_curve_to (graphics->ct,
-                                                pts [0].X, pts [0].Y,
-                                                pts [1].X, pts [1].Y,
-                                                pts [2].X, pts [2].Y);
+                                                pts [0].X + aa_offset_x, pts [0].Y + aa_offset_y,
+                                                pts [1].X + aa_offset_x, pts [1].Y + aa_offset_y,
+                                                pts [2].X + aa_offset_x, pts [2].Y + aa_offset_y);
                                 idx = 0;
                         }
 
@@ -945,7 +950,7 @@ GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	status = gdip_plot_path (graphics, path);
+	status = gdip_plot_path (graphics, path, graphics->aa_offset_x, graphics->aa_offset_y);
 
         /* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -973,7 +978,7 @@ GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y,
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
+	make_pie (graphics, x, y, width, height, startAngle, sweepAngle, graphics->aa_offset_x, graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -1004,7 +1009,7 @@ GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	make_polygon (graphics, points, count);
+	make_polygon (graphics, points, count, graphics->aa_offset_x, graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -1028,7 +1033,7 @@ GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	make_polygon_from_integers (graphics, points, count);
+	make_polygon_from_integers (graphics, points, count, graphics->aa_offset_x, graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -1057,7 +1062,7 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	cairo_rectangle (graphics->ct, x, y, width, height);
+	cairo_rectangle (graphics->ct, x + graphics->aa_offset_x, y + graphics->aa_offset_y, width, height);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -1093,7 +1098,7 @@ GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count)
 	 * should have it set already.
 	 */
 	for (i = 0; i < count; i++)
-		cairo_rectangle (graphics->ct, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height);
+		cairo_rectangle (graphics->ct, rects [i].X + graphics->aa_offset_x, rects [i].Y + graphics->aa_offset_y, rects [i].Width, rects [i].Height);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -1136,7 +1141,7 @@ GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GpRect *rects, int count)
 }
 
 static void
-make_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int count, _CurveType type)
+make_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int count, _CurveType type, float aa_offset_x, float aa_offset_y)
 {
         int i, length = count;
 
@@ -1148,7 +1153,7 @@ make_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int coun
                 length = count - 1;
         
         cairo_move_to (graphics->ct,
-                        points [0].X, points [0].Y);
+                        points [0].X + aa_offset_x, points [0].Y + aa_offset_y);
 
         for (i = 1; i <= length; i++) {
                 int j = i - 1;
@@ -1165,7 +1170,7 @@ make_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int coun
 
                 cairo_curve_to (
                         graphics->ct,
-                        x1, y1, x2, y2, x3, y3);
+                        x1 + aa_offset_x, y1 + aa_offset_y, x2 + aa_offset_x, y2 + aa_offset_y, x3 + aa_offset_x, y3 + aa_offset_y);
         }
 
         if (type == CURVE_CLOSE)
@@ -1201,7 +1206,7 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int co
 	 * should have it set already.
 	 */
 	tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
-	make_curve (graphics, points, tangents, count, CURVE_CLOSE);
+	make_curve (graphics, points, tangents, count, CURVE_CLOSE, graphics->aa_offset_x, graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -1275,7 +1280,7 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
 	 * should have it set already.
 	 */
         tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
-        make_curve (graphics, points, tangents, count, CURVE_OPEN);
+        make_curve (graphics, points, tangents, count, CURVE_OPEN, graphics->aa_offset_x, graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -1321,7 +1326,7 @@ GdipFillEllipse (GpGraphics *graphics, GpBrush *brush,
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	make_ellipse (graphics, x, y, width, height);	
+	make_ellipse (graphics, x, y, width, height, 0, 0);
 	
 	/* We do brush setup just before filling. */
 	gdip_brush_setup (graphics, brush);
@@ -1442,7 +1447,7 @@ GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width,
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	make_pie (graphics, x, y, width, height, startAngle, sweepAngle);
+	make_pie (graphics, x, y, width, height, startAngle, sweepAngle, 0, 0);
 
 	/* We do brush setup just before filling. */
 	gdip_brush_setup (graphics, brush);
@@ -1473,7 +1478,7 @@ GdipFillPolygon (GpGraphics *graphics, GpBrush *brush,
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	make_polygon (graphics, points, count);
+	make_polygon (graphics, points, count, 0, 0);
 	cairo_set_fill_rule (graphics->ct, convert_fill_mode (fillMode));
 
 	/* We do brush setup just before filling. */
@@ -1499,7 +1504,7 @@ GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	status = gdip_plot_path (graphics, path);
+	status = gdip_plot_path (graphics, path, 0, 0);
 
 	/* We do brush setup just before filling. */
 	gdip_brush_setup (graphics, brush);
@@ -1524,7 +1529,7 @@ GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush,
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	make_polygon_from_integers (graphics, points, count);
+	make_polygon_from_integers (graphics, points, count, 0, 0);
 	cairo_set_fill_rule (graphics->ct, convert_fill_mode (fillMode));
 
 	/* We do brush setup just before filling. */
@@ -1580,7 +1585,7 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, in
 	 * should have it set already.
 	 */
 	tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
-	make_curve (graphics, points, tangents, count, CURVE_CLOSE);
+	make_curve (graphics, points, tangents, count, CURVE_CLOSE, 0, 0);
 
 	/* We do brush setup just before filling. */
 	gdip_brush_setup (graphics, brush);
@@ -2335,7 +2340,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			printf("Setting clipping rectangle (%f, %f %fx%f)\n", rc->X, rc->Y, rc->Width, rc->Height);
 #endif		
 			/* We do not call cairo_reset_clip because we want to take previous clipping into account */
-			cairo_rectangle (graphics->ct, rc->X, rc->Y, rc->Width, rc->Height);
+			cairo_rectangle (graphics->ct, rc->X + graphics->aa_offset_x, rc->Y + graphics->aa_offset_y, rc->Width, rc->Height);
 			cairo_clip (graphics->ct);
 			cairo_new_path (graphics->ct);
 			SetClipping = TRUE;
@@ -2378,7 +2383,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 						case StringAlignmentCenter: CursorY=rc->Y+(rc->Height-MaxY)/2+StringDetails[i].PosY+LineHeight; break;
 						case StringAlignmentFar: CursorY=rc->Y+rc->Height-MaxY+StringDetails[i].PosY+LineHeight; break;
 					}
-					cairo_move_to (graphics->ct, CursorX, CursorY);
+					cairo_move_to (graphics->ct, CursorX + graphics->aa_offset_x, CursorY + graphics->aa_offset_y);
 					cairo_show_text (graphics->ct, (const char *) String);
 				} else {
 					switch (AlignHorz) {
@@ -2395,7 +2400,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 					/* Rotate text for vertical drawing */
 					cairo_save (graphics->ct);
-					cairo_move_to (graphics->ct, CursorX, CursorY);
+					cairo_move_to (graphics->ct, CursorX + graphics->aa_offset_x, CursorY + graphics->aa_offset_y);
 					cairo_rotate (graphics->ct, PI/2);
 					cairo_show_text (graphics->ct, (const char *) String);
 					cairo_restore (graphics->ct);
@@ -2415,21 +2420,21 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 					if (font->style & FontStyleStrikeout) {
 						if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
-							cairo_move_to (graphics->ct, (int)(CursorX)+0.5, (int)(CursorY-FontExtent.descent)+0.5);
-							cairo_line_to (graphics->ct, (int)(CursorX+j)+0.5, (int)(CursorY-FontExtent.descent)+0.5);
+							cairo_move_to (graphics->ct, (int)(CursorX) + graphics->aa_offset_x, (int)(CursorY-FontExtent.descent) + graphics->aa_offset_y);
+							cairo_line_to (graphics->ct, (int)(CursorX+j) + graphics->aa_offset_x, (int)(CursorY-FontExtent.descent) + graphics->aa_offset_y);
 						} else {
-							cairo_move_to (graphics->ct, (int)(CursorX+FontExtent.descent)+0.5, (int)(CursorY)+0.5);
-							cairo_line_to (graphics->ct, (int)(CursorX+FontExtent.descent)+0.5, (int)(CursorY+j)+0.5);
+							cairo_move_to (graphics->ct, (int)(CursorX+FontExtent.descent) + graphics->aa_offset_x, (int)(CursorY) + graphics->aa_offset_y);
+							cairo_line_to (graphics->ct, (int)(CursorX+FontExtent.descent) + graphics->aa_offset_x, (int)(CursorY+j) + graphics->aa_offset_y);
 						}
 					}
 
 					if (font->style & FontStyleUnderline) {
 						if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
-							cairo_move_to (graphics->ct, (int)(CursorX)+0.5, (int)(CursorY+FontExtent.descent-2)+0.5);
-							cairo_line_to (graphics->ct, (int)(CursorX+j)+0.5, (int)(CursorY+FontExtent.descent-2)+0.5);
+							cairo_move_to (graphics->ct, (int)(CursorX) + graphics->aa_offset_x, (int)(CursorY+FontExtent.descent-2) + graphics->aa_offset_y);
+							cairo_line_to (graphics->ct, (int)(CursorX+j) + graphics->aa_offset_x, (int)(CursorY+FontExtent.descent-2) + graphics->aa_offset_y);
 						} else {
-							cairo_move_to (graphics->ct, (int)(CursorX+FontExtent.descent-2)+0.5, (int)(CursorY)+0.5);
-							cairo_line_to (graphics->ct, (int)(CursorX+FontExtent.descent-2)+0.5, (int)(CursorY+j)+0.5);
+							cairo_move_to (graphics->ct, (int)(CursorX+FontExtent.descent-2) + graphics->aa_offset_x, (int)(CursorY) + graphics->aa_offset_y);
+							cairo_line_to (graphics->ct, (int)(CursorX+FontExtent.descent-2) + graphics->aa_offset_x, (int)(CursorY+j) + graphics->aa_offset_y);
 						}
 					}
 
@@ -2478,15 +2483,15 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 						CursorX+=CurrentDetail->PosX;
 						cairo_set_line_width(graphics->ct, 1);
 
-						cairo_move_to (graphics->ct, (int)(CursorX)+0.5, (int)(CursorY+FontExtent.descent/2)+0.5);
-						cairo_line_to (graphics->ct, (int)(CursorX+CurrentDetail->Width)+0.5, (int)(CursorY+FontExtent.descent/2)+0.5);
+						cairo_move_to (graphics->ct, (int)(CursorX) + graphics->aa_offset_x, (int)(CursorY+FontExtent.descent/2) + graphics->aa_offset_y);
+						cairo_line_to (graphics->ct, (int)(CursorX+CurrentDetail->Width) + graphics->aa_offset_x, (int)(CursorY+FontExtent.descent/2) + graphics->aa_offset_y);
 						cairo_stroke (graphics->ct);
 						CursorX-=CurrentDetail->PosX;
 
 					} else {
 						CursorY+=CurrentDetail->PosX;
-						cairo_move_to (graphics->ct, (int)(CursorX-FontExtent.descent/2)-0.5, (int)(CursorY)+0.5);
-						cairo_line_to (graphics->ct, (int)(CursorX-FontExtent.descent/2)-0.5, (int)(CursorY+CurrentDetail->Width)+0.5);
+						cairo_move_to (graphics->ct, (int)(CursorX-FontExtent.descent/2) - graphics->aa_offset_x, (int)(CursorY) + graphics->aa_offset_y);
+						cairo_line_to (graphics->ct, (int)(CursorX-FontExtent.descent/2) - graphics->aa_offset_x, (int)(CursorY+CurrentDetail->Width) + graphics->aa_offset_y);
 						CursorY-=CurrentDetail->PosX;
 					}
 				}
@@ -3192,8 +3197,8 @@ GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y)
 {
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
-        cairo_move_to (graphics->ct, x, y);
-        cairo_close_path (graphics->ct);
+	graphics->render_origin_x = x;
+	graphics->render_origin_y = y;
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -3206,10 +3211,8 @@ GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
 	g_return_val_if_fail (x != NULL, InvalidParameter);
 	g_return_val_if_fail (y != NULL, InvalidParameter);
 
-        cairo_get_current_point (graphics->ct, &cx, &cy);
-
-        *x = (int) cx;
-        *y = (int) cy;
+        *x = graphics->render_origin_x;
+        *y = graphics->render_origin_y;
 
         return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -3350,6 +3353,8 @@ GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 		case SmoothingModeAntiAlias:
 		case SmoothingModeHighQuality: {
 			cairo_set_antialias(graphics->ct, CAIRO_ANTIALIAS_DEFAULT);
+			graphics->aa_offset_x = 0;
+			graphics->aa_offset_y = 0;
 			break;
 		}
 
@@ -3358,6 +3363,8 @@ GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 		case SmoothingModeHighSpeed:
 		default: {
 			cairo_set_antialias(graphics->ct, CAIRO_ANTIALIAS_NONE);
+			graphics->aa_offset_x = CAIRO_AA_OFFSET_X;
+			graphics->aa_offset_y = CAIRO_AA_OFFSET_Y;
 			break;
 		}
 		

@@ -663,7 +663,7 @@ GdipGetPenDashStyle (GpPen *pen, GpDashStyle *dashStyle)
 }
 
 static float Custom [] = { 1.0 };
-static float Dot []  = { 1.0, 1.0 };
+static float Dot []  = { 1.0, 2.0 };	// FIXME - this is a workaround for cairo, should be 1.0, 1.0
 static float Dash []  = { 3.0, 1.0 };
 static float DashDot [] = { 3.0, 1.0, 1.0, 1.0 };
 static float DashDotDot [] = { 3.0, 1.0, 1.0, 1.0, 1.0, 1.0 };

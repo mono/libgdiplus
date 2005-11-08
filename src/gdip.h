@@ -143,6 +143,9 @@ typedef ImageAbort GetThumbnailImageAbort;
 #define CURVE_MIN_TERMS 1
 #define CURVE_MAX_TERMS 7
 
+#define CAIRO_AA_OFFSET_X	1
+#define CAIRO_AA_OFFSET_Y	0.5
+
 typedef unsigned char byte;
 typedef int bool;
 typedef guint16 WCHAR; /* 16-bits unicode */
@@ -736,6 +739,10 @@ typedef struct {
 	GpCompositingMode    composite_mode;
 	GpCompositingQuality composite_quality;
 	PixelOffsetMode pixel_mode;
+	float		aa_offset_x;
+	float		aa_offset_y;
+	int		render_origin_x;
+	int		render_origin_y;
 } GpGraphics;
 
 

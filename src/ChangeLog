@@ -1,3 +1,22 @@
+2005-11-08  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* gdip.h: Added aa offset vars and hatch origin vars
+	* graphics.c:
+	  - For all x and y coordinates that are passed to cairo, but not
+	    used for fills we now add an offset if anti aliasing is turned
+	    off.
+	  - Fixed Get/SetRenderOrigin. It is supposed to track the origin
+	    for dithering and hatchbrushes.
+	* hatchbrush.c: 
+	  - hatch lines are no longer are antialiased, except for the 
+	    diagonal hatches, which are required to (Removes some fixmes)
+	  - Using square cairo line caps for now, to get diagonal lines 
+	    to connect
+	  - Switched some numbers to more closely match MS again now that
+	    we're turning AA off
+	* pen.c: Work around cairo drawing a linecap for every element
+	  of a dashed line
+
 2005-11-07  Jackson Harper  <jackson@ximian.com>
 
 	* pen.c: Set the width of dashes when creating the dashed array,
