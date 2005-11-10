@@ -156,7 +156,8 @@ libcairo_la_DEPENDENCIES = $(cairo_def_dependency) $(top_builddir)/pixman/src/li
 
 EXTRA_DIST = \
 	cairo.def 	\
-	$(headers)
+	$(headers)	\
+	cairo-quartz.h
 
 cairo.def: $(cairo_win32_api_headers)
 	(echo EXPORTS; \
