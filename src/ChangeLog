@@ -1,3 +1,7 @@
+2005-11-10  Geoff Norton  <gnorton@customerdna.com>
+
+	* pngcodec.c:  Readd a removed but needed variable for big endian build
+
 2005-11-08  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* gdip.h: Added aa offset vars and hatch origin vars

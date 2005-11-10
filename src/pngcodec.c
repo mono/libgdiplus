@@ -592,6 +592,7 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
     }
     else {
 #ifdef WORDS_BIGENDIAN
+	int j;
 	guchar *row_pointer = GdipAlloc (image->width * 4);
 
 	for (i = 0; i < image->height; i++) {
