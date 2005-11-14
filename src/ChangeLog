@@ -1,3 +1,7 @@
+2005-11-13  Miguel de Icaza  <miguel@novell.com>
+
+	* image.c: Implement a little bit of mandolin.
+
 2005-11-10  Geoff Norton  <gnorton@customerdna.com>
 
 	* pngcodec.c:  Readd a removed but needed variable for big endian build

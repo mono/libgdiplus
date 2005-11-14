@@ -1400,7 +1400,10 @@ GdipGetImagePaletteSize (GpImage *image, int* size)
 GpStatus 
 GdipGetPropertyCount (GpImage *image, UINT *propertyNumber)
 {
-	return NotImplemented;
+	/*
+	 * We currently only return 1 fake property 0xdeadbeee
+	 */
+	return 1;
 }
 
 GpStatus 
@@ -1412,31 +1415,39 @@ GdipGetPropertyIdList (GpImage *image, UINT propertyNumber, PROPID *list)
 GpStatus 
 GdipGetPropertyItemSize (GpImage *image, PROPID propID, UINT *size)
 {
-	return NotImplemented;
+	*size = 16;
+	return Ok;
 }
 
 GpStatus 
 GdipGetPropertyItem (GpImage *image, PROPID propID, UINT size, PropertyItem buffer)
 {
-	return NotImplemented;
+	if (propID != 0xdeadbeee)
+		return InvalidParameter;
+
+	return Ok;
 }
 
 GpStatus 
 GdipGetPropertySize (GpImage *image, UINT *bufferSize, UINT *propertyNumbers)
 {
-	return NotImplemented;
+	*bufferSize = 32;
+	*propertyNumbers = 1;
+	return Ok;
 }
 
 GpStatus 
 GdipRemovePropertyItem (GpImage *image, PROPID propID)
 {
-	return NotImplemented;
+	/* Not implemented */
+	return Ok;
 }
 
 GpStatus 
 GdipSetPropertyItem(GpImage *image, GDIPCONST PropertyItem *item)
 {
-	return NotImplemented; /* GdipSetPropertyItem */
+	/* Not implemented */
+	return Ok;
 }
 
 void
@@ -1854,7 +1865,15 @@ GdipGetImageEncoders (UINT numEncoders, UINT size, ImageCodecInfo *encoders)
 GpStatus
 GdipGetAllPropertyItems(GpImage *image, UINT totalBufferSize, UINT numProperties, PropertyItem *allItems)
 {
-	return(NotImplemented);
+	if (totalBufferSize < 16)
+		return InvalidParameter;
+
+	allItems [0].id = 0xdeadbeee;
+	allItems [0].length = 4;
+	/* A byte */
+	allItems [0].type = 1;
+	allItems [0].value = &(allItems [0].id);
+	return Ok;
 }
 
 GpStatus
