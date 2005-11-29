@@ -180,6 +180,17 @@ make_arc (GpGraphics *graphics, bool start, float x, float y, float width,
         float alpha = startAngle * PI / 180;
         float beta = endAngle * PI / 180;
 
+        /* adjust angles for ellipses */
+	alpha = atan2 (rx * sin (alpha), ry * cos (alpha));
+	beta = atan2 (rx * sin (beta), ry * cos (beta));
+
+	if (abs (beta - alpha) > M_PI){
+		if (beta > alpha)
+			beta -= 2 * PI;
+		else
+			alpha -= 2 * PI;
+	}
+	
         float delta = beta - alpha;
         float bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta /2);
 
@@ -260,6 +271,9 @@ make_pie (GpGraphics *graphics, float x, float y,
 
 	/* angles in radians */        
 	float alpha = startAngle * PI / 180;
+	
+        /* adjust angle for ellipses */
+        alpha = atan2 (rx * sin (alpha), ry * cos (alpha));
 
 	double sin_alpha = sin (alpha);
 	double cos_alpha = cos (alpha);

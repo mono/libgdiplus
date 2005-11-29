@@ -1,5 +1,17 @@
 2005-11-29  Duncan Mak  <duncan@novell.com>
 
+	* graphics.c (make_arcs, make_pie):
+	* graphics-path.c (append_arcs, GdipAddPathPie): Scale alpha and
+	beta accordingly because GDI+ deals with elliptical arcs, instead
+	of circular arcs.
+
+	Thanks to Bertram Felgenhauer <int-e@gmx.de> from #cairo for
+	helping me figure this out.
+
+	This fully fixes #76846.
+
+2005-11-29  Duncan Mak  <duncan@novell.com>
+
 	* graphics.c (make_arcs):
 	* graphics-path.c (append_arcs): Add a new flag 'enough' to
 	signify that we're done drawing all the subarcs.
