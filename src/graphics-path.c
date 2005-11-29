@@ -590,10 +590,11 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 {
 	int i;
 	float drawn = 0;
-	float endAngle = startAngle + sweepAngle;	
+	float endAngle = startAngle + sweepAngle;
 	int sign = (endAngle > 0) ? 1 : -1;
-	int increment = sign * 90; 
-	
+	int increment = sign * 90;
+	bool enough = FALSE;
+
 	if (abs (sweepAngle) >= 360) {
 		GdipAddPathEllipse (path, x, y, width, height);
 		return;
@@ -604,20 +605,22 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 	for (i = 0; i < 4; i++) {
 		float current = startAngle + drawn;
 
-		/* we've drawn enough */
-		if (abs (current) >= abs (endAngle))
-			break;
+		if (enough)
+			return;
 		
-		/* if we are not done yet */
-		float additional = abs (current + increment) < abs (endAngle) ?
-				increment : /* add the default increment */
-				endAngle - current; /* otherwise, add the remainder */
-		
+		float additional;
+		if (abs (current + increment) < abs (endAngle))
+			additional = increment;  /* add the default increment */
+		else {
+			additional = endAngle - current; /* otherwise, add the remainder */
+			enough = TRUE;
+		}
+
 		append_arc (path,
 			    (i == 0) ? TRUE : FALSE,  /* only move to the starting pt in the 1st iteration */
 			    x, y, width, height,      /* bounding rectangle */
 			    current, current + additional);
-		drawn += additional;		
+		drawn += additional;
 	}
 }
 

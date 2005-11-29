@@ -1,3 +1,13 @@
+2005-11-29  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c (make_arcs):
+	* graphics-path.c (append_arcs): Add a new flag 'enough' to
+	signify that we're done drawing all the subarcs.
+
+	This fixes #76846. Previously, the check for 'enough' incorrectly
+	filters out sweep angles with a negative value (i.e. drawing
+	'backwards').
+
 2005-11-13  Miguel de Icaza  <miguel@novell.com>
 
 	* image.c: Implement a little bit of mandolin.
