@@ -701,8 +701,12 @@ gdip_init_pixel_stream (StreamingState *state, BitmapData *data, int x, int y, i
 		case Format1bppIndexed: state->one_pixel_mask = 0x01; state->one_pixel_shift = 1; state->pixels_per_byte = 8; break;
 		case Format4bppIndexed: state->one_pixel_mask = 0x0F; state->one_pixel_shift = 4; state->pixels_per_byte = 2; break;
 		case Format8bppIndexed: state->one_pixel_mask = 0xFF; state->one_pixel_shift = 8; state->pixels_per_byte = 1; break;
+		case Format24bppRgb: /* gdip_get_pixel_format_bpp lies because other code depends on Format24bppRgb being CAIRO_FORMAT_ARGB32 internally */
+			state->pixels_per_byte = -3;
+			break;
 		default:
-			state->pixels_per_byte = 0; /* indicate full RGB processing */
+			/* indicate full RGB processing */
+			state->pixels_per_byte = -gdip_get_pixel_format_bpp (data->PixelFormat) / 8; 
 			break;
 	}
 
@@ -811,6 +815,12 @@ gdip_pixel_stream_get_next (StreamingState *state)
 		 * CAIRO_FORMAT_ARGB. This makes this section very easy to implement. If native
 		 * support for 15- and 16-bit pixel formats needs to be added in the future, though,
 		 * then this is where it needs to be done.
+		 *
+		 * In order to simplify advancing the state->scan pointer, the state->pixels_per_byte
+		 * member is set to the number of bytes per pixel, negated. That is, for 24-bit
+		 * formats, it is set to -3, and for 32-bit formats, it is set to -4.
+		 *
+		 * Note that pixel streams do not support 48- and 64-bit data at this time.
 		 */
 		ret = *(unsigned int *)state->scan;
 
@@ -825,7 +835,7 @@ gdip_pixel_stream_get_next (StreamingState *state)
 			ret |= force_alpha;
 		}
 
-		state->scan += 4;
+		state->scan -= state->pixels_per_byte;
 		state->x++;
 
 		if (state->x >= (state->region.X + state->region.Width)) {
@@ -834,7 +844,7 @@ gdip_pixel_stream_get_next (StreamingState *state)
 
 			state->scan = (unsigned char *)(state->data->Scan0)
 			            + state->y * state->data->Stride
-			            + state->x * 4;
+			            + state->x * -state->pixels_per_byte;
 		}
 	}
 
@@ -934,10 +944,16 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 		 * CAIRO_FORMAT_ARGB. This makes this section very easy to implement. If native
 		 * support for 15- and 16-bit pixel formats needs to be added in the future, though,
 		 * then this is where it needs to be done.
+		 *
+		 * In order to simplify advancing the state->scan pointer, the state->pixels_per_byte
+		 * member is set to the number of bytes per pixel, negated. That is, for 24-bit
+		 * formats, it is set to -3, and for 32-bit formats, it is set to -4.
+		 *
+		 * Note that pixel streams do not support 48- and 64-bit data at this time.
 		 */
 		*(unsigned int *)state->scan = pixel_value;
 
-		state->scan += 4;
+		state->scan -= state->pixels_per_byte;
 		state->x++;
 
 		if (state->x >= (state->region.X + state->region.Width)) {
@@ -946,7 +962,7 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 
 			state->scan = (unsigned char *)(state->data->Scan0)
 			            + state->y * state->data->Stride
-			            + state->x * 4;
+			            + state->x * -state->pixels_per_byte;
 		}
 	}
 }
@@ -1289,12 +1305,12 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, GdipBitmapData *locked_data)
 		/* We need to copy the locked data back to the root data's Scan0
 		 * (but of course only if the ImageLockMode specified writability)
 		 */
-		if ((locked_data->Reserved & GBD_READ_ONLY) != 0) {
+		if ((locked_data->Reserved & GBD_READ_ONLY) == 0) {
 			/* FIXME: destRect isn't necessarily equal to srcRect. this is a bug (the old implementation had it too). */
 			Rect srcRect = { 0, 0, locked_data->Width, locked_data->Height };
 			Rect destRect = srcRect;
 
-			GpStatus status = gdip_bitmap_change_rect_pixel_format (root_data, &srcRect, locked_data, &destRect);
+			GpStatus status = gdip_bitmap_change_rect_pixel_format (locked_data, &srcRect, root_data, &destRect);
 			if (status != Ok)
 				return status;
 		}

@@ -1,3 +1,16 @@
+2005-12-02  Jonathan Gilbert  <logic@deltaq.org>
+
+	* bitmap.c: Fixed support for PixelFormat24bppRgb in pixel streams.
+	  The count of bytes per pixel for pixel formats with depths of more
+	  than 8 bits is now stored negated in the state->pixels_per_byte
+	  member of the StreamingState structure.
+	* gdip.h: Added comment explaining the meaning of negative values
+	  in the pixels_per_byte member of struct StreamingState.
+	* bitmap.c: Fixed the copying back of changed bitmap data in the
+	  GdipBitmapUnlockBits() method. The condition was erroneously
+	  checking for the presence of the GBD_READ_ONLY flag instead of its
+	  absence.
+
 2005-11-29  Duncan Mak  <duncan@novell.com>
 
 	* graphics.c (make_arcs, make_pie):
