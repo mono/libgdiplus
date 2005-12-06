@@ -573,13 +573,13 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 		return GenericError;
 	}
 
-	result->face = GdipAlloc(strlen((unsigned char *)str) + 1);
+	result->face = GdipAlloc(strlen((char *)str) + 1);
 	if (!result->face) {
 		GdipFree(result);
 		return OutOfMemory;
 	}
 
-	memcpy(result->face, str, strlen((unsigned char *)str) + 1);
+	memcpy(result->face, str, strlen((char *)str) + 1);
 
 	result->cairofnt = cairofnt;
         result->style = style;
@@ -680,7 +680,7 @@ gdip_logfont_from_font(GpFont *font, GpGraphics *graphics, void *lf, bool ucs2)
 
 	logFont->lfPitchAndFamily = 0;
 	if (ucs2) {
-		utf8_to_ucs2(font->face, (gunichar2 *)logFont->lfFaceName, LF_FACESIZE);
+		utf8_to_ucs2((const gchar *)font->face, (gunichar2 *)logFont->lfFaceName, LF_FACESIZE);
 	} else {
 		memcpy(logFont->lfFaceName, font->face, LF_FACESIZE);
 		logFont->lfFaceName[LF_FACESIZE - 1] = '\0';
@@ -713,13 +713,13 @@ GdipCreateFontFromHfont(void *hfont, GpFont **font, void *lf)
 	} else {
 		slant = CAIRO_FONT_SLANT_NORMAL;
 	}
-	result->face = GdipAlloc(strlen((unsigned char *)src_font->face) + 1);
+	result->face = GdipAlloc(strlen((char *)src_font->face) + 1);
 	if (!result->face) {
 		GdipFree(result);
 		return OutOfMemory;
 	}
 
-	memcpy(result->face, src_font->face, strlen((unsigned char *)src_font->face) + 1);
+	memcpy(result->face, src_font->face, strlen((char *)src_font->face) + 1);
 
 	result->cairofnt = _cairo_toy_font_face_create ((const char*) src_font->face, slant, weight);
 
