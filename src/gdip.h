@@ -805,9 +805,6 @@ typedef struct {
 	GpImage		image;
         int             cairo_format;
 	BitmapData	data;
-	void		*hBitmapDC;
-	void		*hInitialBitmap;
-	void		*hBitmap;	
 } GpBitmap;
 
 typedef struct {
@@ -992,7 +989,7 @@ void gdip_image_init              (GpImage *image);
 void gdip_bitmap_init  (GpBitmap *bitmap);
 GpBitmap *gdip_bitmap_new   (void);
 void gdip_bitmap_dispose (GpBitmap *bitmap);
-void gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap);
+GpStatus gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap);
 
 void gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface);
 GpGraphics *gdip_graphics_new (cairo_surface_t *surface);

@@ -83,21 +83,25 @@ gdip_bitmap_init (GpBitmap *bitmap)
 	bitmap->data.Left = 0;
 	bitmap->data.Top = 0;
 	bitmap->cairo_format = CAIRO_FORMAT_ARGB32; 
-		
-	bitmap->hBitmapDC = 0;
-	bitmap->hInitialBitmap = 0;
-	bitmap->hBitmap = 0;
 }
 
 
 
-void
+GpStatus
 gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
 {
 	GpBitmap *result = (GpBitmap *) GdipAlloc (sizeof (GpBitmap));	
+	if (result == NULL) {
+		return OutOfMemory;
+	}
 	memcpy (result, bitmap, sizeof (GpBitmap));
 	
 	result->data.Scan0 = GdipAlloc (bitmap->data.Stride * bitmap->data.Height);
+	if (result->data.Scan0 == NULL) {
+		GdipFree(result);
+		return OutOfMemory;
+	}
+
 	memcpy (result->data.Scan0, bitmap->data.Scan0, bitmap->data.Stride * bitmap->data.Height);
 	*clonedbitmap = result;
 	result->data.Reserved =  GBD_OWN_SCAN0; /* Also overwrites a possible GDB_LOCKED */
@@ -112,6 +116,8 @@ gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
 	
 	
 	/*TODO: We should also copy palette info when we support it*/
+
+	return Ok;
 }
 
 
@@ -368,13 +374,14 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 GpStatus
 GdipCreateBitmapFromHBITMAP(void *hbm, void *hpal, GpBitmap** bitmap)
 {
-	return(NotImplemented);
+	return gdip_bitmap_clone ((GpBitmap *)hbm, bitmap);
 }
 
 GpStatus
 GdipCreateHBITMAPFromBitmap(GpBitmap* bitmap, void **hbmReturn, unsigned long background)
 {
-	return(NotImplemented);
+	*hbmReturn = bitmap;
+	return Ok;
 }
 
 GpStatus

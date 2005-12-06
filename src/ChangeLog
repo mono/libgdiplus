@@ -1,3 +1,15 @@
+2005-12-06  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* gdip.h:
+	  - Removed old wine leftovers for bitmaps
+	  - Added GpStatus return value to gdip_bitmap_clone()
+	* bitmap.c:
+	  - Added handling of failures to gdip_bitmap_clone(), including
+	    returning a status
+	  - Implemented the GdipCreateBitmapFromHBITMAP() and 
+	    GdipCreateHBITMAPFromBitmap() functions. Like with other handles
+	    the handle is equivalent to the gdi+ memory pointer
+
 2005-12-05  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* gdip.h:
