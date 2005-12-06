@@ -3270,8 +3270,8 @@ GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 	cairo_save (graphics->ct);
 
 	cairo_set_source_rgba (graphics->ct, red / 255, green / 255, blue / 255, alpha / 255);
-	cairo_rectangle (graphics->ct, 0, 0, graphics->bounds.Width, graphics->bounds.Height);
-	cairo_fill (graphics->ct);
+	cairo_set_operator (graphics->ct, CAIRO_OPERATOR_SOURCE);
+	cairo_paint (graphics->ct);
 
 	/* Restore the color/alpha/pattern settings */
 	cairo_restore (graphics->ct);
