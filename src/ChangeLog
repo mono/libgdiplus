@@ -1,3 +1,15 @@
+2005-12-05  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* gdip.h:
+	  - Removed wine leftover
+	  - Added LOGFONTA and LOGFONTW structures (for GdipGetLogFontX)
+	  - Added face var to GpFont struct to remember face name
+	* font.c:
+	  - Implemented GdipGetLogFontA() and GdipGetLogFontW() functions
+	  - Implemented GetGetFontFromHfont() function
+	  - Droped wine leftovers and added code to remember (and free)
+	    the face name of a font
+
 2005-12-02  Jonathan Gilbert  <logic@deltaq.org>
 
 	* bitmap.c: Fixed support for PixelFormat24bppRgb in pixel streams.

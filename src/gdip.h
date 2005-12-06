@@ -848,13 +848,49 @@ typedef struct {
 } GpFontFamily;
 
 
+#define LF_FACESIZE	32
+
 typedef struct {
         cairo_font_face_t*  cairofnt;
         float               sizeInPixels;
         GpFontStyle         style;
-        void                *wineHfont;
+        unsigned char       *face;
 } GpFont;
 
+
+typedef struct {
+    LONG lfHeight;
+    LONG lfWidth;
+    LONG lfEscapement;
+    LONG lfOrientation;
+    LONG lfWeight;
+    BYTE lfItalic;
+    BYTE lfUnderline;
+    BYTE lfStrikeOut;
+    BYTE lfCharSet;
+    BYTE lfOutPrecision;
+    BYTE lfClipPrecision;
+    BYTE lfQuality;
+    BYTE lfPitchAndFamily;
+    WCHAR lfFaceName[LF_FACESIZE];
+} LOGFONTW;
+
+typedef struct {
+    LONG lfHeight;
+    LONG lfWidth;
+    LONG lfEscapement;
+    LONG lfOrientation;
+    LONG lfWeight;
+    BYTE lfItalic;
+    BYTE lfUnderline;
+    BYTE lfStrikeOut;
+    BYTE lfCharSet;
+    BYTE lfOutPrecision;
+    BYTE lfClipPrecision;
+    BYTE lfQuality;
+    BYTE lfPitchAndFamily;
+    char lfFaceName[LF_FACESIZE];
+} LOGFONTA;
  
 typedef struct
 {

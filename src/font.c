@@ -568,8 +568,18 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 
 	cairofnt = _cairo_toy_font_face_create ((const char*) str, slant, weight);
 
-	if (cairofnt == NULL)
-		return GenericError;	
+	if (cairofnt == NULL) {
+		GdipFree(result);
+		return GenericError;
+	}
+
+	result->face = GdipAlloc(strlen((unsigned char *)str) + 1);
+	if (!result->face) {
+		GdipFree(result);
+		return OutOfMemory;
+	}
+
+	memcpy(result->face, str, strlen((unsigned char *)str) + 1);
 
 	result->cairofnt = cairofnt;
         result->style = style;
@@ -581,7 +591,7 @@ GpStatus
 GdipGetHfont(GpFont* font, void **Hfont)
 {
 	if (font) {
-		*Hfont=font->wineHfont;
+		*Hfont=font;
 		return(Ok);
 	}
 	return InvalidParameter;
@@ -595,6 +605,7 @@ GdipDeleteFont (GpFont* font)
 		return InvalidParameter;
 
 	cairo_font_face_destroy (font->cairofnt);
+	GdipFree ((void *)font->face);
 	GdipFree ((void *)font);
 	return Ok;	       
 }
@@ -605,20 +616,145 @@ GdipCreateFontFromDC(void *hdc, GpFont **font)
 	return(NotImplemented);
 }
 
+static void
+gdip_logfont_from_font(GpFont *font, GpGraphics *graphics, void *lf, bool ucs2)
+{
+	LOGFONTA		*logFont;
+
+	logFont = (LOGFONTA *)lf;
+
+	logFont->lfHeight = -(font->sizeInPixels);
+	logFont->lfWidth = 0;
+	logFont->lfEscapement = 0;	// FIXME
+	logFont->lfOrientation = logFont->lfEscapement;
+	if (font->style & FontStyleBold) {
+		logFont->lfWeight = 700;
+	} else {
+		logFont->lfWeight = 400;
+	}
+
+	if (font->style & FontStyleItalic) {
+		logFont->lfItalic = 1;
+	} else {
+		logFont->lfItalic = 0;
+	}
+
+	if (font->style & FontStyleUnderline) {
+		logFont->lfUnderline = 1;
+	} else {
+		logFont->lfUnderline = 0;
+	}
+
+	if (font->style & FontStyleStrikeout) {
+		logFont->lfStrikeOut = 1;
+	} else {
+		logFont->lfStrikeOut = 0;
+	}
+
+	logFont->lfCharSet = 1;	// DEFAULT_CHARSET
+	logFont->lfOutPrecision = 0;
+	logFont->lfClipPrecision = 0;
+	if (graphics != NULL) {
+		switch(graphics->text_mode) {
+			case TextRenderingHintSystemDefault: {
+				logFont->lfQuality = 0;
+				break;
+			}
+	
+			case TextRenderingHintSingleBitPerPixelGridFit:
+			case TextRenderingHintSingleBitPerPixel:
+			case TextRenderingHintAntiAliasGridFit:
+			case TextRenderingHintAntiAlias: {
+				logFont->lfQuality = 3;	// ANTIALIASED_QUALITY;
+				break;
+			}
+	
+			case TextRenderingHintClearTypeGridFit: {
+				logFont->lfQuality = 5;	// CLEARTYPE_QUALITY
+				break;
+			}
+		}
+	} else {
+		logFont->lfQuality = 0;
+	}
+
+	logFont->lfPitchAndFamily = 0;
+	if (ucs2) {
+		utf8_to_ucs2(font->face, (gunichar2 *)logFont->lfFaceName, LF_FACESIZE);
+	} else {
+		memcpy(logFont->lfFaceName, font->face, LF_FACESIZE);
+		logFont->lfFaceName[LF_FACESIZE - 1] = '\0';
+	}
+}
+
 GpStatus
 GdipCreateFontFromHfont(void *hfont, GpFont **font, void *lf)
 {
-	return(NotImplemented);
+	GpFont			*src_font;
+	GpFont			*result;
+	cairo_font_face_t	*face;
+	cairo_font_slant_t	slant;
+	cairo_font_weight_t	weight;
+
+	src_font = (GpFont *)hfont;
+
+	result = (GpFont *) GdipAlloc (sizeof (GpFont));
+	result->sizeInPixels = src_font->sizeInPixels;
+	result->style = src_font->style;
+
+        if ((result->style & FontStyleBold) == FontStyleBold) {
+                weight = CAIRO_FONT_WEIGHT_BOLD;
+	} else {
+		weight = CAIRO_FONT_WEIGHT_NORMAL;
+	}
+
+        if ((result->style & FontStyleItalic) == FontStyleItalic) {
+                slant = CAIRO_FONT_SLANT_ITALIC;
+	} else {
+		slant = CAIRO_FONT_SLANT_NORMAL;
+	}
+	result->face = GdipAlloc(strlen((unsigned char *)src_font->face) + 1);
+	if (!result->face) {
+		GdipFree(result);
+		return OutOfMemory;
+	}
+
+	memcpy(result->face, src_font->face, strlen((unsigned char *)src_font->face) + 1);
+
+	result->cairofnt = _cairo_toy_font_face_create ((const char*) src_font->face, slant, weight);
+
+	if (result->cairofnt == NULL) {
+		GdipFree(result);
+		return GenericError;
+	}
+
+	*font = result;
+
+	gdip_logfont_from_font(result, NULL, lf, FALSE);
+
+	return Ok;
+}
+
+GpStatus
+GdipGetLogFontW(GpFont *font, GpGraphics *graphics, void *lf)
+{
+	if (!font || !lf) {
+		return(InvalidParameter);
+	}
+	gdip_logfont_from_font(font, graphics, lf, TRUE);
+	return Ok;
 }
 
 GpStatus
 GdipGetLogFontA(GpFont *font, GpGraphics *graphics, void *lf)
 {
+		
 	if (!font || !lf) {
 		return(InvalidParameter);
 	}
 	
-	return NotImplemented;
+	gdip_logfont_from_font(font, graphics, lf, FALSE);
+	return Ok;
 }
 
 GpStatus
