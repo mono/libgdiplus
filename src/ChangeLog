@@ -1,3 +1,8 @@
+2005-12-09 Jordi Mas i Hernandez  <jordimash@gmail.com>
+
+	* graphics.c, image.c: Unreference the surface properly. Now, we do 
+	  not leak those and cairo_surface_finish is called.
+
 2005-12-07 Jordi Mas i Hernandez  <jordimash@gmail.com>
 
 	* graphics.c: Fixes 76923

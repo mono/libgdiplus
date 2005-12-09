@@ -322,6 +322,8 @@ GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 	    w, h);
 			
 	*graphics = gdip_graphics_new (surface);
+	cairo_surface_destroy (surface);
+
 	if (!*graphics)
 		return OutOfMemory;
 
@@ -354,6 +356,7 @@ GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **grap
 	
 	
 	*graphics = gdip_graphics_new(surface);
+	cairo_surface_destroy (surface);
 	
 	(*graphics)->bounds.Width = width;
 	(*graphics)->bounds.Height = height;

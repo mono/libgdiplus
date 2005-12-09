@@ -137,6 +137,7 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 				bmp->data.Width, bmp->data.Height, bmp->data.Stride);
 
 	gfx = gdip_graphics_new (surface);
+	cairo_surface_destroy (surface);
 
 	gfx->image = bmp;
 	gfx->type = gtMemoryBitmap;	
