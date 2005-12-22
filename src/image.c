@@ -146,6 +146,41 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 	return Ok;
 }
 
+#ifdef CAIRO_HAS_PS_SURFACE
+
+#include <cairo-ps.h>
+
+GpStatus 
+GdipGetPostScriptGraphicsContext (char* filename, int width, int height, GpGraphics **graphics)
+{
+	GpGraphics *gfx;
+	cairo_surface_t *surface;
+	
+	if (!graphics)
+		return InvalidParameter;
+
+	surface = cairo_ps_surface_create (filename, (double) width, (double) height);
+
+	gfx = gdip_graphics_new (surface);
+	cairo_surface_destroy (surface);
+
+	gfx->type = gtPostScript;
+	*graphics = gfx;
+	return Ok;
+}
+
+GpStatus 
+GdipGetPostScriptSavePage (GpGraphics* graphics) 
+{
+	if (!graphics)
+		return InvalidParameter;
+
+	cairo_show_page (graphics->ct);
+	return Ok;
+}
+
+#endif
+
 GpStatus 
 GdipDrawImageI (GpGraphics *graphics, GpImage *image, int x, int y)
 {

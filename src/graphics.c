@@ -314,6 +314,15 @@ GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 	int x, y;
 	unsigned int w, h, border_w, depth;
 	Window root;
+
+#ifdef CAIRO_HAS_PS_SURFACE
+
+	if (clone->type == gtPostScript) {
+		*graphics = clone;
+		return Ok;
+	}
+#endif
+
 	XGetGeometry (clone->display, clone->drawable, &root,
 		      &x, &y, &w, &h, &border_w, &depth);
 	

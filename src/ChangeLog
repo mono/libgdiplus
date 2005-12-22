@@ -1,3 +1,9 @@
+2005-12-22 Jordi Mas i Hernandez  <jordimash@gmail.com>
+
+	* graphics.c: Postscript support for handle
+	* image.c: Postscript drawble support for printing
+	* gdip.h: Postscript Drawable
+
 2005-12-09 Jordi Mas i Hernandez  <jordimash@gmail.com>
 
 	* graphics.c, image.c: Unreference the surface properly. Now, we do 

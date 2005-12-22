@@ -347,7 +347,8 @@ typedef enum {
 	gtUndefined,
 	gtX11Drawable,
 	gtMemoryBitmap,
-	gtOSXDrawable
+	gtOSXDrawable,
+	gtPostScript
 } GraphicsType;
 
 typedef enum{
