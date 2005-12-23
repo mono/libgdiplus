@@ -1,7 +1,7 @@
 2005-12-22  Peter Dennis Bartok  <pbartok@novell.com>
 
-	* texturebrush.c: Fixed generation of tiled texturebrush. All other
-	  variations are still broken
+	* texturebrush.c: Fixed generation of texturebrushes. Was seriously
+	  broken
 
 2005-12-22 Jordi Mas i Hernandez  <jordimash@gmail.com>
 
