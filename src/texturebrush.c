@@ -71,6 +71,7 @@ draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat, *pattern;
 	GpRect *rect = brush->rectangle;
+
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
 	/* Original image surface */
@@ -85,22 +86,21 @@ draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	/* texture surface to be created */
 	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
 						2 * rect->Width, 2 * rect->Height);
-
 	g_return_val_if_fail (texture != NULL, OutOfMemory);
 
-	cairo_save (ct);
 	{
+		cairo_t *ct2;
+
 		/* Draw the texture */
-		ct = cairo_create (texture);
-		cairo_identity_matrix (ct);
-		cairo_set_source (ct, pat);
-		cairo_rectangle (ct, 0, 0, 2 * rect->Width, 2 * rect->Height);
-		cairo_fill (ct);
+		ct2 = cairo_create (texture);
+		cairo_identity_matrix (ct2);
+		cairo_set_source (ct2, pat);
+		cairo_rectangle (ct2, 0, 0, 2 * rect->Width, 2 * rect->Height);
+		cairo_fill (ct2);
+		cairo_destroy(ct2);
 	}
-	cairo_restore (ct);
-	pattern = cairo_pattern_create_for_surface (texture);
-	cairo_pattern_set_extend (pattern, CAIRO_EXTEND_REPEAT);
 	brush->pattern = cairo_pattern_create_for_surface (texture);
+	cairo_pattern_set_extend (brush->pattern, CAIRO_EXTEND_REPEAT);
 
 	cairo_pattern_destroy (pat);
 	cairo_surface_destroy (texture);
@@ -376,21 +376,14 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 	texture = (GpTexture *) brush;
 	img = texture->image;
 	g_return_val_if_fail (img != NULL, InvalidParameter);
-	if (img->type == imageBitmap)
+	if (img->type == imageBitmap) {
 		bmp = (GpBitmap *) img;
-	else 
+		width = bmp->data.Width;
+		height = bmp->data.Height;
+		format = bmp->data.PixelFormat;
+	} else {
 		return NotImplemented;
-
-	gr_img = graphics->image;
-	g_return_val_if_fail (gr_img != NULL, InvalidParameter);
-	if (gr_img->type == imageBitmap) {
-		gr_bmp = (GpBitmap *) gr_img;
-		width = gr_bmp->data.Width;
-		height = gr_bmp->data.Height;
-		format = gr_bmp->data.PixelFormat;
 	}
-	else 
-		return NotImplemented;
 
 	ct = graphics->ct;
 	g_return_val_if_fail (ct != NULL, InvalidParameter);
@@ -399,7 +392,6 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 	 * or if pattern has not been created yet.
 	 */
 	if (texture->base.changed || (texture->pattern) == NULL) {
-
 		/* destroy the existing pattern */
 		if (texture->pattern)
 			cairo_pattern_destroy (texture->pattern);
