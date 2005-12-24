@@ -24,6 +24,7 @@
  */
 
 #include "gdip.h"
+#include "gdipImage.h"
 #include "texturebrush.h"
 
 static GpStatus gdip_texture_setup (GpGraphics *graphics, GpBrush *brush);
@@ -367,6 +368,7 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 	unsigned int width;
 	unsigned int height;
 	GpStatus status = Ok;
+	BOOL dispose_bitmap;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
@@ -376,6 +378,17 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 	g_return_val_if_fail (img != NULL, InvalidParameter);
 	if (img->type == imageBitmap) {
 		bmp = (GpBitmap *) img;
+		if (gdip_is_an_indexed_pixelformat (bmp->data.PixelFormat)) {
+			/* Unable to create a surface for the bitmap; it is an indexed image.
+			* Instead, it will first be converted to 32-bit RGB.
+			*/
+			bmp = gdip_convert_indexed_to_rgb (bmp);
+			g_return_val_if_fail (bmp != NULL, OutOfMemory);
+			gdip_bitmap_ensure_surface (bmp);
+			dispose_bitmap = TRUE;
+		} else {
+			dispose_bitmap = FALSE;
+		}
 		width = bmp->data.Width;
 		height = bmp->data.Height;
 		format = bmp->data.PixelFormat;
@@ -419,6 +432,10 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 		default:
 			status = InvalidParameter;
 		}
+	}
+
+	if (dispose_bitmap) {
+		GdipDisposeImage((GpImage *)bmp);
 	}
 
 	GdipCreateMatrix (&product);

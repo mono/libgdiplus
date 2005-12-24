@@ -1,3 +1,7 @@
+2005-12-23  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* texturebrush.c: Added handling for indexed texture images
+
 2005-12-22  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* texturebrush.c: Fixed generation of texturebrushes. Was seriously
