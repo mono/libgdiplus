@@ -200,6 +200,9 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
         bool own_scan0 = FALSE;
 	int cairo_format = 0;
 	
+	if (width <= 0 || height <= 0)
+		return InvalidParameter;
+	
 	switch (format) {
 	case Format24bppRgb:
 		cairo_format = CAIRO_FORMAT_RGB24;  

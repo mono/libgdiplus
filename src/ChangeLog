@@ -1,3 +1,7 @@
+2006-01-01 Jordi Mas i Hernandez  <jordimash@gmail.com>
+
+	* bitmap.c: Fixes 77131
+
 2005-12-23  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* texturebrush.c: Added handling for indexed texture images
