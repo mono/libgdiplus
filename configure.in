@@ -133,10 +133,6 @@ if test "$gdip_ok" = "yes"; then
   AC_DEFINE(HAVE_SIGSETJMP, 1, sigsetjmp is available)
 fi
 
-AC_CHECK_LIB(cairo, cairo_ft_font_lock_face,
-	[AC_DEFINE(HAVE_CAIRO_FT_FONT_LOCK_FACE, 1, Define if cairo_ft_font_lock_face() is available)]
-)
-
 AC_ARG_WITH(libjpeg,
 	[AC_HELP_STRING([--without-libjpeg], [disable JPEG file IO])])
 AC_ARG_WITH(libtiff,
@@ -208,7 +204,7 @@ dnl Test for libgif or libungif
   fi
 
 if ! test x$GIF != x; then
-   AC_CHECK_LIB(gif, DGifOpenFileName,
+   AC_CHECK_LIB(ungif, DGifOpenFileName,
       [AC_CHECK_HEADER(gif_lib.h,
 	GIF='ungif'; LIBGIF='-lungif',
 	AC_MSG_WARN(*** GIF loader will not be built (ungiflibrary not found) ***))],

@@ -1,3 +1,10 @@
+2006-01-04  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* configure.in: 
+	  - ungif check was using cached gif check result. Fixed by changing 
+	    name of ungif check to be different from gif check.
+	  - Removed unused cairo check
+
 2005-09-19  Jordi Mas <jordi@ximian.com>
 
 	* configure.in: Keep also libungif support on top of libgif
