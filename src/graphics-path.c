@@ -2,6 +2,7 @@
  * graphics-path.c
  *
  * Copyright (C) 2003, Novell Inc.
+ * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -668,6 +669,9 @@ GdipAddPathBeziers (GpPath *path, const GpPointF *points, int count)
 	GpPointF *tmp = (GpPointF *) points;
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
+	/* first bezier requires 4 points, other 3 more points */
+	if ((count < 4) || ((count % 3) != 1))
+		return InvalidParameter;
         
         append_point (path, *tmp, PathPointTypeLine);
         tmp++;
@@ -697,6 +701,8 @@ GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count,
         GpPointF *tangents;
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (count < 2)
+		return InvalidParameter;
 
         tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
 
@@ -718,6 +724,8 @@ GdipAddPathClosedCurve2 (GpPath *path, const GpPointF *points, int count, float 
 {
         GpPointF *tangents;
 	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (count < 3)
+		return InvalidParameter;
 
         tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
 
@@ -848,6 +856,8 @@ GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
         GpPointF *tmp = (GpPointF *) points;
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (count < 3)
+		return InvalidParameter;
         
         append_point (path, *tmp, PathPointTypeStart);
         tmp ++;

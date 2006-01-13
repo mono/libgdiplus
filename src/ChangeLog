@@ -1,3 +1,9 @@
+2006-01-13  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: Added checks for the number of points added when
+	using AddBeziers (4 points for the first, 3 afterward) and the minimum
+	of point required to add a Curve, ClosedCurve and a Polygon.
+
 2006-01-01 Jordi Mas i Hernandez  <jordimash@gmail.com>
 
 	* bitmap.c: Fixes 77131
