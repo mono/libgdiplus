@@ -1,3 +1,7 @@
+2006-01-13  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* libgdiplus.pc.in: Removed cairo as a dependency. Fixes #77173
+
 2006-01-09  Everaldo Canuto <everaldo@simios.org>
 
 	* Fix cairo compilation problems when used gcc 4.0.2.
