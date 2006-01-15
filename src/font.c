@@ -551,7 +551,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 
 	r = FcPatternGetString (family->pattern, FC_FAMILY, 0, &str);
 	
-	gdip_unitConversion (unit, UnitPixel, emSize, &sizeInPixels);
+	gdip_unit_conversion (unit, UnitPixel, gdip_get_display_dpi(), gtMemoryBitmap, emSize, &sizeInPixels);
 		
 	result = (GpFont *) GdipAlloc (sizeof (GpFont));
 	result->sizeInPixels = sizeInPixels;

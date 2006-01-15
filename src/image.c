@@ -137,6 +137,7 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 				bmp->data.Width, bmp->data.Height, bmp->data.Stride);
 
 	gfx = gdip_graphics_new (surface);
+	gfx->dpi_x = gfx->dpi_y = gdip_get_display_dpi ();
 	cairo_surface_destroy (surface);
 
 	gfx->image = bmp;
@@ -151,7 +152,7 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 #include <cairo-ps.h>
 
 GpStatus 
-GdipGetPostScriptGraphicsContext (char* filename, int width, int height, GpGraphics **graphics)
+GdipGetPostScriptGraphicsContext (char* filename, int width, int height, double dpix, double dpiy, GpGraphics **graphics)
 {
 	GpGraphics *gfx;
 	cairo_surface_t *surface;
@@ -160,8 +161,11 @@ GdipGetPostScriptGraphicsContext (char* filename, int width, int height, GpGraph
 		return InvalidParameter;
 
 	surface = cairo_ps_surface_create (filename, (double) width, (double) height);
+	cairo_ps_surface_set_dpi (surface, dpix, dpiy);
 
 	gfx = gdip_graphics_new (surface);
+	gfx->dpi_x = dpix;
+	gfx->dpi_y = dpiy;
 	cairo_surface_destroy (surface);
 
 	gfx->type = gtPostScript;
@@ -207,6 +211,11 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (image != NULL, InvalidParameter);
 	g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
+
+	x = gdip_unitx_convgr (graphics, x);
+	y = gdip_unity_convgr (graphics, y);
+	width = gdip_unitx_convgr (graphics, width);
+	height = gdip_unity_convgr (graphics, height);
 	
 	cairo_new_path(graphics->ct);
 
@@ -339,7 +348,6 @@ GdipDrawImagePointRectI (GpGraphics *graphics, GpImage *image,
 {
 	return GdipDrawImagePointRect (graphics, image, x, y, srcx, srcy, srcwidth, srcheight, srcUnit);
 }
-
 GpStatus
 GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
                        float dstx, float dsty, float dstwidth, float dstheight,
@@ -380,14 +388,14 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	}
 
 	if (srcUnit != UnitPixel && srcUnit != UnitWorld) {
-		gdip_unitConversion(srcUnit, UnitPixel, dstx, &dstx);
-		gdip_unitConversion(srcUnit, UnitPixel, dsty, &dsty);
-		gdip_unitConversion(srcUnit, UnitPixel, dstwidth, &dstwidth);
-		gdip_unitConversion(srcUnit, UnitPixel, dstheight, &dstheight);
-		gdip_unitConversion(srcUnit, UnitPixel, srcx, &srcx);
-		gdip_unitConversion(srcUnit, UnitPixel, srcy, &srcy);
-		gdip_unitConversion(srcUnit, UnitPixel, srcwidth, &dstwidth);
-		gdip_unitConversion(srcUnit, UnitPixel, srcheight, &srcheight);
+		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_x, dstx, &dstx);
+		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_y, dsty, &dsty);
+		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_x, dstwidth, &dstwidth);
+		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_y, dstheight, &dstheight);
+		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_x, srcx, &srcx);
+		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_y, srcy, &srcy);
+		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_x, srcwidth, &dstwidth);
+		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_y, srcheight, &srcheight);
 	}
 
 	org = dest = bitmap->data.Scan0; 

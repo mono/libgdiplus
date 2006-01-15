@@ -1,3 +1,11 @@
+2006-01-15 Jordi Mas i Hernandez  <jordimash@gmail.com>
+
+	* graphics.c, image.c, gdip.h, general.c:
+		- Implements PageUnit functionality
+		- Converts units to Cairo user-space (postscript or display)
+		- Each surface has its own x and y dpi
+		- Allows setting Postscript dpy's
+
 2006-01-13  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c: Added checks for the number of points added when
