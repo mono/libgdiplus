@@ -1147,29 +1147,101 @@ GdipTransformPath (GpPath* path, GpMatrix *matrix)
         return s;
 }
 
-/* MonoTODO */
+/* MonoTODO - pen isn't considered (related to GdipWidenPath?) */
 GpStatus 
 GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
-	static int called = 0;
+	GpStatus status = Ok;
+	GpPath *workpath = path;
 
-	if (!called) {
-		printf("NOT IMPLEMENTED: GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, const GpPen *pen)\n");
-		called = 1;
+	if (!path || !bounds)
+		return InvalidParameter;
+
+	if (matrix && !pen) {
+		status = GdipClonePath (path, &workpath);
+		if (status != Ok)
+			return status;
+		status = GdipTransformPath (workpath, (GpMatrix*)matrix);
+	} else if (pen) {
+		status = GdipClonePath (path, &workpath);
+		if (status != Ok)
+			return status;
+		/* FIXME: GdipWidenPath isn't implemented - and may not be related :-| */
+		status = GdipWidenPath (workpath, (GpPen*)pen, (GpMatrix*)matrix, 1.0f);
+	}
+
+	if (status != Ok) {
+		if (workpath != path)
+			GdipDeletePath (workpath);
+		return status;
+	} else {
+		int length = 0, i;
+		GpPointF *base, *points;
+
+		GdipGetPointCount (workpath, &length);
+		if (length < 1) {
+			/* special case #1 - Empty */
+			bounds->X = 0.0f;
+			bounds->Y = 0.0f;
+			bounds->Width = 0.0f;
+			bounds->Height = 0.0f;
+			return Ok;
+		}
+        
+		base = points = (GpPointF*) GdipAlloc (sizeof (GpPointF) * length);
+		GdipGetPathPoints (workpath, points, length);
+
+		bounds->X = points->X;		/* keep minimum X here */
+		bounds->Y = points->Y;		/* keep minimum Y here */
+		if (length == 1) {
+			/* special case #2 - Only one element */
+			bounds->Width = 0.0f;
+			bounds->Height = 0.0f;
+			return Ok;
+		}
+
+		bounds->Width = points->X;	/* keep maximum X here */
+		bounds->Height = points->Y;	/* keep maximum Y here */
+		*points++;
+
+		for (i = 1; i < length; i++, *points++) {
+			if (points->X < bounds->X)
+				bounds->X = points->X;
+			if (points->Y < bounds->Y)
+				bounds->Y = points->Y;
+			if (points->X > bounds->Width)
+				bounds->Width = points->X;
+			if (points->Y > bounds->Height)
+				bounds->Height = points->Y;
+		}
+
+		GdipFree (base);
+
+		/* convert maximum values (width/height) as length */
+		bounds->Width -= bounds->X;
+		bounds->Height -= bounds->Y;
 	}
 	return Ok;
 }
 
-/* MonoTODO */
+/* MonoTODO - pen isn't considered (related to GdipWidenPath?) */
 GpStatus 
 GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
-	static int called = 0;
+	GpRectF rect;
+	GpStatus status;
 
-	if (!called) {
-		printf("NOT IMPLEMENTED: GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, const GpPen *pen)\n");
-		called = 1;
-	}
+	if (!path || !bounds)
+		return InvalidParameter;
+
+	status = GdipGetPathWorldBounds (path, &rect, matrix, pen);
+	if (status != Ok)
+		return status;	
+
+	bounds->X = (int) rect.X;
+	bounds->Y = (int) rect.X;
+	bounds->Width = (int) rect.Width;
+	bounds->Height = (int) rect.Height;
 	return Ok;
 }
 

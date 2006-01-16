@@ -1,3 +1,8 @@
+2006-01-16  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: Implemented GdipGetPathWorldBounds[I] minus Pen
+	support.
+
 2006-01-15 Jordi Mas i Hernandez  <jordimash@gmail.com>
 
 	* graphics.c, image.c, gdip.h, general.c:
