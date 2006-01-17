@@ -1,3 +1,8 @@
+2006-01-17  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* graphics.c: If no trim flag is set we need to wrap, not trim. Every
+	  character can be used as wrap character in that case. Fixes #76034
+
 2006-01-16  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c: Implemented GdipGetPathWorldBounds[I] minus Pen

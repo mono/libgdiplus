@@ -2107,7 +2107,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 			/* Boy, this must be slow, FIXME somehow */
 			default: {
-				if (fmt->trimming!=StringTrimmingCharacter) {
+				if ((fmt->trimming != StringTrimmingCharacter) && (fmt->trimming != StringTrimmingNone)) {
 					break;
 				}
 				/* Fall through */
@@ -2159,7 +2159,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	}
 
 #ifdef DRAWSTRING_DEBUG
-	printf("Sanitized string: >%s<, length %d (utf8-length:%d)\n", String, StringLen, strlen(String));
+	printf("Sanitized string: >%s<, length %d (utf8-length:%d)\n", String, StringLen, strlen((char *)String));
 #endif
 
 	/* Generate size array */
@@ -2235,7 +2235,11 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 #endif
 		/* Remember where to wrap next, but only if wrapping allowed */
 		if (((fmt->formatFlags & StringFormatFlagsNoWrap)==0) && (CurrentDetail->Flags & STRING_DETAIL_BREAK)) {
-			WrapPoint=i+1;	/* We skip the break char itself, keeping it at the end of the old line */
+			if (String[i] == ' ') {
+				WrapPoint=i+1;	/* We skip the break char itself, keeping it at the end of the old line */
+			} else {
+				WrapPoint=i;
+			}
 
 			if (CursorX>MaxX) {
 				WrapX=CursorX;
@@ -2937,7 +2941,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 	}
 
 #ifdef DRAWSTRING_DEBUG
-	printf("Sanitized string: >%s<, length %d (utf8-length:%d)\n", String, StringLen, strlen(String));
+	printf("Sanitized string: >%s<, length %d (utf8-length:%d)\n", String, StringLen, strlen((char *)String));
 #endif
 
 	/* Generate size array */
