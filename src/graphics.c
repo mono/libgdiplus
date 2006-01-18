@@ -3651,7 +3651,7 @@ gdip_set_cairo_clipping (GpGraphics *graphics)
 	if (gdip_is_InfiniteRegion (graphics->clip)) {
 		return;
 	}
-	
+/* FIXME - region aren't all rect based */
 	/* Set Cairo rectangles that Cairo will use for clipping */ 
         for (i = 0, rect = graphics->clip->rects; i < graphics->clip->cnt; i++, rect++) {
 		cairo_rectangle (graphics->ct, rect->X, rect->Y, rect->Width, rect->Height);
@@ -3716,9 +3716,17 @@ GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMo
 {
 	if (!graphics || !region)
 		return InvalidParameter;
-	
-	GdipCombineRegionRegion (graphics->clip, region, combineMode);	
-	gdip_set_cairo_clipping (graphics);
+
+	switch (region->type) {
+	case RegionTypeRectF:
+		GdipCombineRegionRegion (graphics->clip, region, combineMode);	
+		gdip_set_cairo_clipping (graphics);
+		break;
+	case RegionTypePath:
+		return GdipSetClipPath (graphics, region->path, combineMode);
+	default:
+		return NotImplemented;
+	}
 	return Ok;
 }
 
@@ -3751,15 +3759,17 @@ GdipTranslateClipI (GpGraphics *graphics, UINT dx, UINT dy)
 	return GdipTranslateRegionI (graphics->clip, dx, dy);
 }
 
+extern void gdip_clear_region (GpRegion *region);
+
 GpStatus
 GdipGetClip (GpGraphics *graphics, GpRegion *region)
 {
 	if (!graphics || !region)
 		return InvalidParameter;
-	
-	if (region->rects)
-		GdipFree (region->rects);
-	
+
+	gdip_clear_region (region);
+	region->type = RegionTypeRectF;
+/* FIXME: is the clip always rectangular ? */
 	region->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * graphics->clip->cnt);
 	memcpy (region->rects, graphics->clip->rects, sizeof (GpRectF) * graphics->clip->cnt);
 	region->cnt = graphics->clip->cnt;

@@ -1,3 +1,15 @@
+2006-01-18  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Started adapting functions to recognize path based 
+	regions (while keeping rectangular regions working).
+	* region.c: Added function to convert a rectangle based region to a 
+	path based region. Started adapting functions to recognize path based
+	regions (while keeping rectangular regions working). Implemented 
+	GdipCreateRegionRgnData, GdipGetRegionDataSize and GdipGetRegionData 
+	(for both path and rectangle based regions).
+	* gdip.h: Reordered some typedef to include a GpPath inside GpRegion. 
+	Added export for GdipCreateRegionRgnData.
+
 2006-01-17  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* graphics.c: If no trim flag is set we need to wrap, not trim. Every

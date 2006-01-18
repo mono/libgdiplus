@@ -26,8 +26,6 @@ GdipCreateFontFromHfont
 GdipGetLogFontA
 GdipSetClipHrgn
 GdipCreateFromHWND
-GdipGetRegionDataSize
-GdipGetRegionData
 
 * Generic functions
 

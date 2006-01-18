@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2004-2005 Ximian
+ * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -16,8 +17,9 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * Author:
+ * Authors:
  *          Jordi Mas i Hernandez <jordi@ximian.com>, 2004-2005
+ *          Sebastien Pouliot  <sebastien@ximian.com>
  *
  */
 
@@ -81,16 +83,24 @@ gdip_is_Point_in_RectFs_Visible (float x, float y, GpRectF* r, int cnt)
         return FALSE;
 }
 
-bool
+BOOL
 gdip_is_InfiniteRegion (GpRegion *region)
 {
-	if (region->cnt != 1)
-              return FALSE;
-
-	if (region->rects->X == -4194304 && region->rects->Y == -4194304 &&
-		region->rects->Width == 8388608 &&  region->rects->Height == 8388608)
-		return TRUE;
-
+	switch (region->type) {
+	case RegionTypeRectF:
+		if (region->cnt != 1)
+	              return FALSE;
+		if (region->rects->X == -4194304 && region->rects->Y == -4194304 &&
+			region->rects->Width == 8388608 &&  region->rects->Height == 8388608)
+			return TRUE;
+		break;
+	case RegionTypePath:
+		/* TODO - check for a infinite path. Note that we can't use the path bounds for this! */
+		break;
+	default:
+		g_warning ("unknown type %d", region->type);
+		break;
+	}
 	return FALSE;
 }
 
@@ -191,6 +201,47 @@ gdip_getlowestrect (GpRectF *rects, int cnt, GpRectF* src, GpRectF* rslt)
 	return TRUE;
 }
 
+void 
+gdip_clear_region (GpRegion *region)
+{
+	region->type = RegionTypeEmpty;
+	region->cnt = 0;
+        if (region->rects) {
+                GdipFree (region->rects);
+		region->rects = NULL;
+	}
+
+	if (region->path) {
+		GdipDeletePath (region->path);
+		region->path = NULL;
+	}
+}
+
+/* convert a rectangle-based region to a path based region */
+static void 
+gdip_region_convert_to_path (GpRegion *region)
+{
+	int i;
+	GpRectF *rect;
+
+	/* no convertion is required for empty or complex regions */
+	if (!region || (region->cnt == 0) || (region->type != RegionTypeRectF))
+		return;
+
+	GdipCreatePath (FillModeAlternate, &region->path);
+	for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
+		/* convert existing rectangles into a path */
+		GdipAddPathRectangle (region->path, rect->X, rect->Y, rect->Width, rect->Height);
+	}
+
+	if (region->rects) {
+		GdipFree (region->rects);
+		region->rects = NULL;
+	}
+	region->cnt = 0;
+	region->type = RegionTypePath;
+}
+
 GpStatus
 gdip_createRegion (GpRegion **region, RegionType type, void *src)
 {
@@ -198,25 +249,31 @@ gdip_createRegion (GpRegion **region, RegionType type, void *src)
         GpRectF rect;
 
         result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
+	result->type = type;
+	result->cnt = 0;
         result->rects = NULL;
-        result->cnt = 0;
+        result->path = NULL;
 
         switch (type) {
         case RegionTypeRect:
                 gdip_from_Rect_To_RectF ((GpRect *)src, &rect);
                 gdip_add_rect_to_array (&result->rects, &result->cnt,  &rect);
+		result->type = RegionTypeRectF;
                 break;
         case RegionTypeRectF:
                 gdip_add_rect_to_array (&result->rects, &result->cnt,  (GpRectF *)src);
                 break;
         case RegionTypeEmpty:
 		GdipSetInfinite (result);
+		/* note: GdipSetInfinite converts type to RegionTypeRectF */
                 break;
-
+	case RegionTypePath:
+		GdipCreatePath (FillModeAlternate, &result->path);
+		GdipAddPathPath (result->path, (GpPath*)src, FALSE);
+		break;
         default:
-                GdipFree (result);
-                return NotImplemented;
-
+		g_warning ("unknown type %d", result->type);
+		return NotImplemented;
         }
 
 	*region = result;
@@ -256,6 +313,48 @@ GdipCreateRegionRectI (GDIPCONST GpRect *rect, GpRegion **region)
         return gdip_createRegion (region, RegionTypeRect, (void*) rect);
 }
 
+GpStatus
+GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, int size, GpRegion **region)
+{
+	GpRegion *result;
+	GpRectF *rect;
+	GpPointF *points;
+	guint32 i, *count, *mode;
+
+	if (!region || !regionData || (size < 8))
+		return InvalidParameter;
+
+	result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
+	result->type = *(guint32*) regionData;
+	result->cnt = 0;
+        result->rects = NULL;
+	result->path = NULL;
+	count = (guint32*) (regionData + 4);
+
+	switch (result->type) {
+	case RegionTypeRectF:
+		if (*count != (size - 8) / sizeof (GpRectF))
+			return InvalidParameter;
+
+		for (i = 0, rect = (GpRectF*)(regionData + 8); i < *count; i++, rect++)
+	                gdip_add_rect_to_array (&result->rects, &result->cnt, rect);
+		break;
+	case RegionTypePath:
+		if (size < 12)
+			return InvalidParameter;
+		mode = (guint32*) (regionData + 8);
+		points = (GpPointF*) (regionData + 12 + *count);
+		GdipCreatePath2 (points, (regionData + 12), *count, *mode, &result->path);
+		break;
+	default:
+		g_warning ("unknown type %d", result->type);
+		return NotImplemented;
+	}
+
+	*region = result;
+	return Ok;
+}
+
 
 GpStatus
 GdipCloneRegion (GpRegion *region, GpRegion **cloneRegion)
@@ -266,9 +365,21 @@ GdipCloneRegion (GpRegion *region, GpRegion **cloneRegion)
                 return InvalidParameter;
 
         result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
-        memcpy (result, region, sizeof (GpRegion));
-        result->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * region->cnt);
-        memcpy (result->rects, region->rects, sizeof (GpRectF) * region->cnt);
+	result->type = region->type;
+	result->cnt = region->cnt;
+
+	if (region->rects) {
+	        result->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * region->cnt);
+        	memcpy (result->rects, region->rects, sizeof (GpRectF) * region->cnt);
+	} else {
+		result->rects = NULL;
+	}
+
+	if (region->path) {
+		GdipClonePath (region->path, &result->path);
+	} else {
+		result->path = NULL;
+	}
         *cloneRegion = result;
 
         return Ok;
@@ -281,9 +392,7 @@ GdipDeleteRegion (GpRegion *region)
         if (!region)
                 return InvalidParameter;
 
-        if (region->rects)
-                GdipFree (region->rects);
-
+	gdip_clear_region (region);
         GdipFree (region);
 
         return Ok;
@@ -298,7 +407,8 @@ GdipSetInfinite (GpRegion *region)
         if (!region)
                 return InvalidParameter;
 
-        GdipSetEmpty (region);
+	gdip_clear_region (region);
+	region->type = RegionTypeRectF;
 
         rect.X = rect.Y = -4194304;
         rect.Width = rect.Height= 8388608;
@@ -314,11 +424,8 @@ GdipSetEmpty (GpRegion *region)
         if (!region)
                 return InvalidParameter;
 
-        if (region->rects)
-                GdipFree (region->rects);
-
-        region->rects = NULL;
-        region->cnt = 0;
+	gdip_clear_region (region);
+	region->type = RegionTypeRectF;
 
         return Ok;
 }
@@ -714,6 +821,7 @@ gdip_combine_xor (GpRegion *region, GpRectF *recttrg, int cnttrg)
                 gdip_add_rect_to_array (&allrects, &allcnt,  rect);
 
 	rgnsrc = (GpRegion *) GdipAlloc (sizeof (GpRegion));
+	rgnsrc->type = RegionTypeRectF;
         rgnsrc->cnt = allcnt;
         rgnsrc->rects = allrects;
 
@@ -783,6 +891,13 @@ GdipCombineRegionRectI (GpRegion *region, GDIPCONST GpRect *recti, CombineMode c
 GpStatus
 GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 {
+	if (!region || !path)
+		return InvalidParameter;
+
+	if (region->type == RegionTypeRectF)
+		gdip_region_convert_to_path (region);
+
+	/* TODO combine both complex regions */
         return NotImplemented;
 }
 
@@ -793,6 +908,16 @@ GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combi
         if (!region || !region2)
                 return InvalidParameter;
 
+	if (region->type == RegionTypePath) {
+		gdip_region_convert_to_path (region2);
+		return GdipCombineRegionPath (region, region2->path, combineMode);
+	} else if (region2->type == RegionTypePath) {
+		return GdipCombineRegionPath (region, region2->path, combineMode);
+	}
+
+	/* at this stage we are sure that BOTH region and region2 are rectangle 
+	 * based, so we can use the old rectangle-based code to combine regions
+	 */
         switch (combineMode) {
         case CombineModeExclude:
                 gdip_combine_exclude (region, region2->rects, region2->cnt);
@@ -1004,8 +1129,10 @@ GdipTranslateRegion (GpRegion *region, float dx, float dy)
         if (!region)
                 return InvalidParameter;
 
-        if (region->rects) {
-
+	if (region->type == RegionTypePath) {
+		/* TODO - */
+		return NotImplemented;
+	} else if ((region->type == RegionTypeRectF) && region->rects) {
                 for (i = 0, rect=region->rects ; i < region->cnt; i++, rect++) {
                         rect->X += dx;
                         rect->Y += dy;
@@ -1036,21 +1163,97 @@ GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 GpStatus
 GdipCreateRegionPath (GpPath *path, GpRegion **region)
 {
-        return NotImplemented;
+        if (!region || !path)
+                return InvalidParameter;
+
+        return gdip_createRegion (region, RegionTypePath, (void*) path);
+}
+
+
+/*
+ * The internal data representation for RegionData depends on the type of region.
+ *
+ * Type 0 (RegionTypeEmpty)
+ *	Note: There is no type 0. RegionTypeEmpty are converted into 
+ *	RegionTypeRectF (type 2) when a region is created.
+ *
+ * Type 1 (RegionTypeRect)
+ *	Note: There is no type 1. RegionTypeRect are converted into 
+ *	RegionTypeRectF (type 2) when a region is created.
+ *
+ * Type 2 (RegionTypeRectF), variable size
+ *	guint32 RegionType	Always 2
+ *	guint32 Count		0-2^32
+ *	GpRectF[Count] Points
+ *
+ * Type 3 (RegionTypePath), variable size
+ *	guint32 RegionType	Always 3
+ *	guint32 Count		0-2^32
+ *	GpFillMode FillMode	
+ *	guint8[Count] Types	
+ *	GpPointF[Count] Points
+ */
+
+GpStatus
+GdipGetRegionDataSize (GpRegion *region, UINT *bufferSize)
+{
+	if (!region || !bufferSize)
+		return InvalidParameter;
+
+	switch (region->type) {
+	case RegionTypeRectF:
+		*bufferSize = (sizeof (guint32) * 2) + (region->cnt * sizeof (GpRectF));
+		break;
+	case RegionTypePath:
+		*bufferSize = (sizeof (guint32) * 2) + sizeof (GpFillMode) + 
+			(region->path->count * sizeof (guint8)) +
+			(region->path->count * sizeof (GpPointF));
+		break;
+	default:
+		g_warning ("unknown type %d", region->type);
+		return NotImplemented;
+	}
+	return Ok;
 }
 
 
 GpStatus
-GdipGetRegionDataSize (GpRegion *region, UINT * bufferSize)
+GdipGetRegionData (GpRegion *region, BYTE *buffer, UINT bufferSize, UINT *sizeFilled)
 {
-        return NotImplemented;
+	GpStatus status;
+	UINT size;
+
+	if (!region || !buffer || !sizeFilled)
+		return InvalidParameter;
+
+	status = GdipGetRegionDataSize (region, &size);
+	if (status != Ok)
+		return status;
+	if (size > bufferSize)
+		return InsufficientBuffer;
+
+	memcpy (buffer, &region->type, sizeof (guint32));
+	buffer += sizeof (guint32);
+	switch (region->type) {
+	case RegionTypeRectF:
+		memcpy (buffer, &region->cnt, sizeof (guint32));
+		buffer += sizeof (guint32);
+		memcpy (buffer, region->rects, sizeof (GpRectF) * (region->cnt));
+		break;
+	case RegionTypePath:
+		memcpy (buffer, &region->path->count, sizeof (guint32));
+		buffer += sizeof (guint32);
+		memcpy (buffer, &region->path->fill_mode, sizeof (GpFillMode));
+		buffer += sizeof (GpFillMode);
+		memcpy (buffer, region->path->types->data, region->path->types->len);
+		buffer += region->path->types->len;
+		memcpy (buffer, region->path->points->data, region->path->points->len * sizeof (GpPointF));
+		break;
+	default:
+		g_warning ("unknown type %d", region->type);
+		return NotImplemented;
+	}
+
+	*sizeFilled = size;
+	return Ok;
 }
-
-
-GpStatus
-GdipGetRegionData(GpRegion *region, BYTE * buffer, UINT bufferSize, UINT *sizeFilled)
-{
-        return NotImplemented;
-}
-
-

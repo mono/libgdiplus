@@ -669,11 +669,6 @@ typedef struct {
 } GpPointF, PointF;
 
 typedef struct {
-        GpRectF*        rects;
-        int             cnt;
-} GpRegion;
-
-typedef struct {
 	int first, length;
 } CharacterRange;
 
@@ -704,6 +699,33 @@ typedef struct {
         BOOL changed; /* flag to mark if pen is changed and needs setup */
 } GpPen;
 
+typedef struct {
+	GpFillMode fill_mode;
+	int count;
+	GByteArray *types;
+	GArray *points;
+	BOOL start_new_fig; /* Flag to keep track if we need to start a new figure */
+} GpPath;
+
+typedef struct {
+        int Count;
+        PointF *Points;
+        byte *Types;
+} GpPathData;
+
+typedef struct {
+	GpPath *path;
+	int markerPosition; /* The start position of next marker, index of (marker type) + 1  */
+	int subpathPosition; /* The start position of next subpath, index of (start type) */
+	int pathTypePosition; /* The position to get the next path type inside a subpath */
+} GpPathIterator;
+
+typedef struct {
+	guint32		type;
+        guint32		cnt;
+        GpRectF*	rects;
+	GpPath*		path;
+} GpRegion;
  
 typedef struct {
 	cairo_matrix_t		matrix;
@@ -810,27 +832,6 @@ typedef struct {
         int             cairo_format;
 	BitmapData	data;
 } GpBitmap;
-
-typedef struct {
-	GpFillMode fill_mode;
-	int count;
-	GByteArray *types;
-	GArray *points;
-	BOOL start_new_fig; /* Flag to keep track if we need to start a new figure */
-} GpPath;
-
-typedef struct {
-        int Count;
-        PointF *Points;
-        byte *Types;
-} GpPathData;
-
-typedef struct {
-	GpPath *path;
-	int markerPosition; /* The start position of next marker, index of (marker type) + 1  */
-	int subpathPosition; /* The start position of next subpath, index of (start type) */
-	int pathTypePosition; /* The position to get the next path type inside a subpath */
-} GpPathIterator;
 
 typedef struct {
         FcFontSet*  fontset;
@@ -1287,6 +1288,7 @@ GpStatus GdipCreateRegion(GpRegion **region);
 GpStatus GdipCreateRegionRect(GDIPCONST GpRectF *rect, GpRegion **region);
 GpStatus GdipCreateRegionRectI(GDIPCONST GpRect *rect, GpRegion **region);
 GpStatus GdipCreateRegionPath(GpPath *path, GpRegion **region);
+GpStatus GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, int size, GpRegion **region);
 GpStatus GdipCloneRegion(GpRegion *region, GpRegion **cloneRegion);
 GpStatus GdipDeleteRegion(GpRegion *region);
 GpStatus GdipSetInfinite(GpRegion *region);
