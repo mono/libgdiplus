@@ -722,7 +722,7 @@ typedef struct {
 
 typedef struct {
 	guint32		type;
-        guint32		cnt;
+        int		cnt;
         GpRectF*	rects;
 	GpPath*		path;
 } GpRegion;
