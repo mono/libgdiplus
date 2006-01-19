@@ -552,6 +552,7 @@ gdip_save_jpeg_image_internal (FILE *fp,
                                GpImage *image,
                                GDIPCONST EncoderParameters *params)
 {
+    bool dispose_bitmap;
     GpBitmap *bitmap = (GpBitmap *) image;
     struct jpeg_compress_struct cinfo;
     struct gdip_jpeg_error_mgr jerr;
@@ -560,6 +561,8 @@ gdip_save_jpeg_image_internal (FILE *fp,
     int need_argb_conversion = 0;
 	const EncoderParameter *param;
 
+    dispose_bitmap = FALSE;
+
     /* Verify that we can support this pixel format */
     switch (image->pixFormat) {
         case Format32bppArgb:
@@ -567,9 +570,13 @@ gdip_save_jpeg_image_internal (FILE *fp,
         case Format32bppRgb:
         case Format24bppRgb:
 	    break;
-        case Format8bppIndexed: /* check that this is grayscale */
-	    if ((image->palette->Flags & PaletteFlagsGrayScale) == 0)
-		return InvalidParameter;
+	case Format1bppIndexed:
+	case Format4bppIndexed:
+        case Format8bppIndexed:
+            bitmap = gdip_convert_indexed_to_rgb ((GpBitmap*)bitmap);
+            image = (GpImage *)bitmap;
+            g_return_val_if_fail (image != NULL, OutOfMemory);
+            dispose_bitmap = TRUE;
             break;
         default:
             return InvalidParameter;
@@ -591,6 +598,9 @@ gdip_save_jpeg_image_internal (FILE *fp,
         if (scanline != NULL && need_argb_conversion)
             GdipFree (scanline);
 
+	if (dispose_bitmap) {
+		GdipDisposeImage(image);
+	}
         return GenericError;
     }
 
@@ -703,6 +713,9 @@ gdip_save_jpeg_image_internal (FILE *fp,
         GdipFree (dest);
     }
 
+    if (dispose_bitmap) {
+       GdipDisposeImage(image);
+    }
     return Ok;
 }
 
