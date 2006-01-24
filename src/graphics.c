@@ -468,7 +468,7 @@ GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **grap
 	
 	
 	*graphics = gdip_graphics_new(surface);
-	graphics->dpi_x = *graphics->dpi_y = gdip_get_display_dpi ();
+	(*graphics)->dpi_x = (*graphics)->dpi_y = gdip_get_display_dpi ();
 	cairo_surface_destroy (surface);
 	
 	(*graphics)->bounds.Width = width;
