@@ -305,7 +305,7 @@ GdipGetGenericFontFamilySansSerif (GpFontFamily **nativeFamily)
 {
 	const WCHAR MSSansSerif[] = {'M','S',' ','S','a','n','s',' ', 'S','e','r','i','f', 0};
 	
-	if (!familySansSerif) 
+	if (ref_familySansSerif == 0) 
 		GdipCreateFontFamilyFromName (MSSansSerif, NULL, &familySansSerif);    
 	
 	ref_familySansSerif++;
@@ -318,7 +318,7 @@ GdipGetGenericFontFamilySerif (GpFontFamily **nativeFamily)
 {
 	const WCHAR Serif[] = {'S','e','r','i','f', 0};
 	
-	if (!familySerif)
+	if (ref_familySerif == 0)
 		GdipCreateFontFamilyFromName (Serif, NULL, &familySerif);
 	
 	ref_familySerif++;	
@@ -331,7 +331,7 @@ GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily)
 {
 	const WCHAR Serif[] = {'S','e','r','i','f', 0};
 	
-	if (!familyMonospace)
+	if (ref_familyMonospace == 0)
 		GdipCreateFontFamilyFromName (Serif, NULL, &familyMonospace);    
 		
 	ref_familyMonospace++;
