@@ -14,6 +14,8 @@
 
 #include "gdip.h"
 
+#define FLATTEN_RECURSION_LIMIT		10
+
 GpStatus GdipCreatePath (GpFillMode brushMode, GpPath **path);
 GpStatus GdipCreatePath2 (const GpPointF *points, const byte *types, int count, GpFillMode fillMode, GpPath **path);
 GpStatus GdipClonePath (GpPath *path, GpPath **clonePath);

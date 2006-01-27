@@ -850,8 +850,6 @@ typedef struct {
 } GpFontFamily;
 
 
-#define LF_FACESIZE	32
-
 typedef struct {
         cairo_font_face_t*  cairofnt;
         float               sizeInPixels;

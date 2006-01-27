@@ -83,6 +83,27 @@ gdip_is_Point_in_RectFs_Visible (float x, float y, GpRectF* r, int cnt)
         return FALSE;
 }
 
+void gdip_get_bounds (GpRectF *allrects, int allcnt, GpRectF *bound);
+
+/* This internal version doesn't require a Graphic object to work */
+static BOOL
+gdip_is_region_empty (GpRegion *region)
+{
+	GpRectF rect;
+
+	if (!region)
+		return FALSE;
+
+	if (region->type == RegionTypePath)
+		return (region->path->count == 0);
+
+	if (!region->rects || (region->cnt == 0))
+		return TRUE;
+
+	gdip_get_bounds (region->rects, region->cnt, &rect);
+	return ((rect.Width == 0) || (rect.Height == 0));
+}
+
 BOOL
 gdip_is_InfiniteRegion (GpRegion *region)
 {
@@ -268,8 +289,7 @@ gdip_createRegion (GpRegion **region, RegionType type, void *src)
 		/* note: GdipSetInfinite converts type to RegionTypeRectF */
                 break;
 	case RegionTypePath:
-		GdipCreatePath (FillModeAlternate, &result->path);
-		GdipAddPathPath (result->path, (GpPath*)src, FALSE);
+		GdipClonePath ((GpPath*)src, &result->path);
 		break;
         default:
 		g_warning ("unknown type %d", result->type);
@@ -846,6 +866,19 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
         if (!region || !rect)
                 return InvalidParameter;
 
+	if (region->type == RegionTypePath) {
+		GpPath *path = NULL;
+		GpStatus status;
+
+		/* Convert GpRectF to GpPath and use GdipCombineRegionPath */
+		GdipCreatePath (FillModeAlternate, &path);
+		GdipAddPathRectangle (path, rect->X, rect->Y, rect->Width, rect->Height);
+		status = GdipCombineRegionPath (region, path, combineMode);
+		GdipDeletePath (path);
+		return status;
+	}
+
+	/* region is rectangle-based */
         switch (combineMode) {
         case CombineModeExclude:
                 gdip_combine_exclude (region, (GpRectF *) rect, 1);
@@ -867,7 +900,6 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 		gdip_add_rect_to_array (&region->rects, &region->cnt, (GpRectF *)rect);
         default:
                return NotImplemented;
-
         }
 
         return Ok;
@@ -893,6 +925,55 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 {
 	if (!region || !path)
 		return InvalidParameter;
+
+	/* special case #1 - replace */
+	if (combineMode == CombineModeReplace) {
+		gdip_clear_region (region);
+		region->type = RegionTypePath;
+		GdipClonePath (path, &region->path);
+		return Ok;
+	}
+
+	/* special case #2 - the region is empty */
+	if (gdip_is_region_empty (region)) {
+		switch (combineMode) {
+		case CombineModeComplement:
+		case CombineModeUnion:
+		case CombineModeXor:
+			/* this is like "adding" the path */
+			gdip_clear_region (region);
+			region->type = RegionTypePath;
+			GdipClonePath (path, &region->path);
+			break;
+		default:
+			/* Intersect and Exclude are no-op on an empty region */
+			break;
+		}
+		return Ok;
+	}
+
+	/* special case #3 - the region is infinite */
+	if (gdip_is_InfiniteRegion (region)) {
+		switch (combineMode) {
+		case CombineModeUnion:
+			/* Union with infinity is a no-op (still an infinite region) */
+			return Ok;
+		case CombineModeComplement:
+			/* Complement of infinity is empty - whatever the path is */
+			gdip_clear_region (region);
+			region->type = RegionTypeRectF;
+			return Ok;
+		case CombineModeIntersect:
+			/* Intersection with infinity is the path itself */
+			gdip_clear_region (region);
+			region->type = RegionTypePath;
+			GdipClonePath (path, &region->path);
+			return Ok;
+		default:
+			/* Xor and Exclude must be treated as a "normal" case */
+			break;
+		}
+	}
 
 	if (region->type == RegionTypeRectF)
 		gdip_region_convert_to_path (region);
@@ -967,18 +1048,10 @@ GdipGetRegionBounds (GpRegion *region, GpGraphics *graphics, GpRectF *rect)
 GpStatus
 GdipIsEmptyRegion (GpRegion *region, GpGraphics *graphics, BOOL *result)
 {
-        GpRectF rect;
-
         if (!region || !graphics || !result)
                 return InvalidParameter;
 
-        gdip_get_bounds (region->rects, region->cnt, &rect);
-
-        if (rect.Width ==0  || rect.Height ==0)
-                *result = TRUE;
-        else
-                *result = FALSE;
-
+	*result = gdip_is_region_empty (region);
         return Ok;
 }
 
@@ -1124,15 +1197,19 @@ GpStatus
 GdipTranslateRegion (GpRegion *region, float dx, float dy)
 {
         int i;
-        GpRectF *rect;
 
         if (!region)
                 return InvalidParameter;
 
 	if (region->type == RegionTypePath) {
-		/* TODO - */
-		return NotImplemented;
+		GpPointF *point;
+		for (i = 0; i < region->path->count; i++) {
+			point = &g_array_index (region->path->points, GpPointF, i);
+			point->X += dx;
+			point->Y += dy;
+		}
 	} else if ((region->type == RegionTypeRectF) && region->rects) {
+	        GpRectF *rect;
                 for (i = 0, rect=region->rects ; i < region->cnt; i++, rect++) {
                         rect->X += dx;
                         rect->Y += dy;

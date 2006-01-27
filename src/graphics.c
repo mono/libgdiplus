@@ -1131,6 +1131,7 @@ gdip_plot_path (GpGraphics *graphics, GpPath *path, float aa_offset_x, float aa_
 
                         break;
                 default:
+			g_warning ("Unknown PathPointType %d", type);
                         return NotImplemented;
                 }
 
@@ -1845,33 +1846,22 @@ GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, in
 GpStatus
 GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 {
-        int i;
-        GpRectF *rect;
-
         if (!graphics || !brush || !region)
 		return InvalidParameter;
 
-        if (!region->rects || region->cnt==0)
-                return Ok;
+	/* a region is either a complex path */
+	if (region->type == RegionTypePath) {
+		if (!region->path || (region->path->count == 0))
+			return Ok;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-        for (i = 0, rect = region->rects; i < region->cnt; i++, rect++)
-		cairo_rectangle (graphics->ct, 
-			gdip_unitx_convgr (graphics, rect->X), gdip_unity_convgr (graphics, rect->Y), 
-			gdip_unitx_convgr (graphics, rect->Width), gdip_unity_convgr (graphics, rect->Height));
+		return GdipFillPath (graphics, brush, region->path);
+	}
 
-	/* We do brush setup just before filling. */
-	gdip_brush_setup (graphics, brush);
-	cairo_fill (graphics->ct);
+	/* or multiple rectangles */
+	if (!region->rects || (region->cnt == 0))
+		return Ok;
 
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by brush setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	return gdip_get_status (cairo_status (graphics->ct));
+	return GdipFillRectangles (graphics, brush, region->rects, region->cnt);
 }
 
 

@@ -84,6 +84,23 @@ int_to_float (const GpPoint *pts, int count)
         return p;
 }
 
+/* return TRUE if the specified path has (at least one) curves, FALSE otherwise */
+static BOOL
+gdip_path_has_curve (GpPath *path)
+{
+	int i;
+
+	if (!path)
+		return FALSE;
+
+	for (i = 0; i < path->count; i++) {
+		if (g_array_index (path->types, byte, i) == PathPointTypeBezier)
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
 static void
 append (GpPath *path, float x, float y, GpPathPointType type)
 {
@@ -1096,11 +1113,205 @@ GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count)
         return s;
 }
 
-/* MonoTODO */
+/* nr_curve_flatten comes from Sodipodi's libnr (public domain) available from http://www.sodipodi.com/ */
+/* Mono changes: converted to float (from double), added recursion limit, use GArray */
+static BOOL
+nr_curve_flatten (float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, float flatness, int level, GArray *points)
+{
+	float dx1_0, dy1_0, dx2_0, dy2_0, dx3_0, dy3_0, dx2_3, dy2_3, d3_0_2;
+	float s1_q, t1_q, s2_q, t2_q, v2_q;
+	float f2, f2_q;
+	float x00t, y00t, x0tt, y0tt, xttt, yttt, x1tt, y1tt, x11t, y11t;
+
+	dx1_0 = x1 - x0;
+	dy1_0 = y1 - y0;
+	dx2_0 = x2 - x0;
+	dy2_0 = y2 - y0;
+	dx3_0 = x3 - x0;
+	dy3_0 = y3 - y0;
+	dx2_3 = x3 - x2;
+	dy2_3 = y3 - y2;
+	f2 = flatness;
+	d3_0_2 = dx3_0 * dx3_0 + dy3_0 * dy3_0;
+	if (d3_0_2 < f2) {
+		float d1_0_2, d2_0_2;
+		d1_0_2 = dx1_0 * dx1_0 + dy1_0 * dy1_0;
+		d2_0_2 = dx2_0 * dx2_0 + dy2_0 * dy2_0;
+		if ((d1_0_2 < f2) && (d2_0_2 < f2)) {
+			goto nosubdivide;
+		} else {
+			goto subdivide;
+		}
+	}
+	f2_q = f2 * d3_0_2;
+	s1_q = dx1_0 * dx3_0 + dy1_0 * dy3_0;
+	t1_q = dy1_0 * dx3_0 - dx1_0 * dy3_0;
+	s2_q = dx2_0 * dx3_0 + dy2_0 * dy3_0;
+	t2_q = dy2_0 * dx3_0 - dx2_0 * dy3_0;
+	v2_q = dx2_3 * dx3_0 + dy2_3 * dy3_0;
+	if ((t1_q * t1_q) > f2_q) goto subdivide;
+	if ((t2_q * t2_q) > f2_q) goto subdivide;
+	if ((s1_q < 0.0) && ((s1_q * s1_q) > f2_q)) goto subdivide;
+	if ((v2_q < 0.0) && ((v2_q * v2_q) > f2_q)) goto subdivide;
+	if (s1_q >= s2_q) goto subdivide;
+
+ nosubdivide:
+	{
+	GpPointF pt;
+
+	pt.X = x3;
+	pt.Y = y3;
+	g_array_append_val (points, pt);
+	return TRUE;
+	}
+ subdivide:
+	/* things gets *VERY* memory intensive without a limit */
+	if (level >= FLATTEN_RECURSION_LIMIT)
+		return FALSE;
+
+	x00t = (x0 + x1) * 0.5;
+	y00t = (y0 + y1) * 0.5;
+	x0tt = (x0 + 2 * x1 + x2) * 0.25;
+	y0tt = (y0 + 2 * y1 + y2) * 0.25;
+	x1tt = (x1 + 2 * x2 + x3) * 0.25;
+	y1tt = (y1 + 2 * y2 + y3) * 0.25;
+	x11t = (x2 + x3) * 0.5;
+	y11t = (y2 + y3) * 0.5;
+	xttt = (x0tt + x1tt) * 0.5;
+	yttt = (y0tt + y1tt) * 0.5;
+
+	if (!nr_curve_flatten (x0, y0, x00t, y00t, x0tt, y0tt, xttt, yttt, flatness, level+1, points)) return FALSE;
+	if (!nr_curve_flatten (xttt, yttt, x1tt, y1tt, x11t, y11t, x3, y3, flatness, level+1, points)) return FALSE;
+	return TRUE;
+}
+
+static BOOL
+gdip_convert_bezier_to_lines (GpPath *path, int index, float flatness, GArray *flat_points, GByteArray *flat_types)
+{
+	GArray *points;
+	GpPointF start, first, second, end;
+	GpPointF pt;
+	byte type;
+	int i;
+
+	if ((index <= 0) || (index + 2 >= path->count))
+		return FALSE; /* bad path data */
+
+	start = g_array_index (path->points, GpPointF, index - 1);
+	first = g_array_index (path->points, GpPointF, index);
+	second = g_array_index (path->points, GpPointF, index + 1);
+	end = g_array_index (path->points, GpPointF, index + 2);
+
+	/* we can't add points directly to the original list as we could end up with too much recursion */
+	points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
+	if (!nr_curve_flatten (start.X, start.Y, first.X, first.Y, second.X, second.Y, end.X, end.Y, flatness, 0, points)) {
+		/* curved path is too complex (i.e. would result in too many points) to render as a polygon */
+		g_array_free (points, TRUE);
+		return FALSE;
+	}
+
+	/* recursion was within limits, append the result to the original supplied list */
+	if (points->len > 0) {
+		g_array_append_val (flat_points, g_array_index (points, GpPointF, 0));
+		/* special case: first point type could be PathPointTypeStart */
+		type = (index == 0) ? PathPointTypeStart : PathPointTypeLine;
+		g_byte_array_append (flat_types, &type, 1);
+	}
+
+	/* always PathPointTypeLine */
+	type = PathPointTypeLine;
+	for (i = 1; i < points->len; i++) {
+		pt = g_array_index (points, GpPointF, i);
+		g_array_append_val (flat_points, pt);
+		g_byte_array_append (flat_types, &type, 1);
+	}
+
+	g_array_free (points, TRUE);
+	return TRUE;
+}
+
 GpStatus 
 GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 {
-	return NotImplemented;
+	GpStatus status = Ok;
+	GArray *points;
+	GByteArray *types;
+	int i;
+
+	g_return_val_if_fail (path != NULL, InvalidParameter);
+
+	/* apply matrix before flattening (as there's less points at this stage) */
+	if (matrix) {
+		status = GdipTransformPath (path, matrix);
+		if (status != Ok)
+			return status;
+	}
+
+	/* if no bezier are present then the path doesn't need to be flattened */
+	if (!gdip_path_has_curve (path))
+		return status;
+
+	points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
+	types = g_byte_array_new ();
+
+	/* Iterate the current path and replace each bezier with multiple lines */
+	for (i = 0; i < path->count; i++) {
+		GpPointF point = g_array_index (path->points, GpPointF, i);
+		byte type = g_array_index (path->types, byte, i);
+
+		/* PathPointTypeBezier3 has the same value as PathPointTypeBezier */
+		if ((type & PathPointTypeBezier) == PathPointTypeBezier) {
+			if (!gdip_convert_bezier_to_lines (path, i, fabs (flatness), points, types)) {
+				/* uho, too much recursion - do not pass go, do not collect 200$ */
+				GpPointF pt;
+
+				/* free the the partial flat */
+				g_array_free (points, TRUE);
+				g_byte_array_free (types, TRUE);
+
+				/* mimic MS behaviour when recursion becomes a problem */
+				/* note: it's not really an empty rectangle as the last point isn't closing */
+				points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
+				types = g_byte_array_new ();
+
+				pt.X = pt.Y = 0;
+				type = PathPointTypeStart;
+				g_array_append_val (points, pt);
+				g_byte_array_append (types, &type, 1);
+
+				type = PathPointTypeLine;
+				g_array_append_val (points, pt);
+				g_byte_array_append (types, &type, 1);
+
+				g_array_append_val (points, pt);
+				g_byte_array_append (types, &type, 1);
+
+				g_array_append_val (points, pt);
+				g_byte_array_append (types, &type, 1);
+				break;
+			}
+			/* beziers have 4 points: the previous one, the current and the next two */
+			i += 2;
+		} else {
+			/* no change required, just copy the point */
+			g_array_append_val (points, point);
+			g_byte_array_append (types, &type, 1);
+		}
+	}
+
+	/* free original path points and types */
+	if (path->points != NULL)
+		g_array_free (path->points, TRUE);
+	if (path->types != NULL)
+		g_byte_array_free (path->types, TRUE);
+
+	/* transfer new path informations */
+	path->points = points;
+	path->types = types;
+	path->count = points->len;
+
+	/* note: no error code is given for excessive recursion */
+	return Ok;
 }
 
 /* MonoTODO */

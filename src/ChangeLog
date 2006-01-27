@@ -1,3 +1,17 @@
+2006-01-27  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* gdip.h: Remove duplicate (and identical) definition for LF_FACESIZE.
+	* graphics.c: GdipFillRegion now works with non-rectangular regions by
+	either calling GdipFillPath or GdipFillRectangles.
+	* graphics-path.c: Implemented GdipFlattenPath be re-using Sodipodi's
+	libnr nr_curve_flatten.
+	* graphics-path.h: Added a recursion limit of 10 when flattening.
+	* region.c: Added gdip_is_region_empty which works with any type of 
+	region (rectangular or path based). Added special case support (empty
+	and/or infinite region) in GdipCombineRegionPath. The common case is
+	still missing. GdipTranslateRegion now works with non-rectangular 
+	regions.
+
 2006-01-27 Jordi Mas i Hernandez  <jordimash@gmail.com>
 	
 	* graphics.c:
