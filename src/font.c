@@ -18,7 +18,7 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  * Author:
- *          Jordi Mas i Hernandez <jordi@ximian.com>, 2004
+ *          Jordi Mas i Hernandez <jordi@ximian.com>, 2004-2006
  */
 #include <stdio.h>
 #include "gdip.h"
@@ -583,6 +583,10 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 
 	result->cairofnt = cairofnt;
         result->style = style;
+	result->emSize = emSize;
+	result->unit = unit;
+	result->family = (GpFontFamily*) family;
+	result->style = style;
 	*font = result;	        		
 	return Ok;
 }
@@ -701,6 +705,10 @@ GdipCreateFontFromHfont(void *hfont, GpFont **font, void *lf)
 	result = (GpFont *) GdipAlloc (sizeof (GpFont));
 	result->sizeInPixels = src_font->sizeInPixels;
 	result->style = src_font->style;
+	result->family = src_font->family;
+	result->style = src_font->style;
+	result->emSize = src_font->emSize;
+	result->unit = src_font->unit;
 
         if ((result->style & FontStyleBold) == FontStyleBold) {
                 weight = CAIRO_FONT_WEIGHT_BOLD;
@@ -805,3 +813,50 @@ GetFontMetrics(GpGraphics *graphics, GpFont *font, int *ascent, int *descent)
 
 	return TRUE;
 }
+
+
+GpStatus
+GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float *height)
+{
+	short emHeight, lineSpacing;
+	float emSize;
+
+	if (!font || !height || !graphics)
+		return InvalidParameter;
+
+	/* Operations in display dpi's */	
+	gdip_unit_conversion (font->unit, UnitPixel, gdip_get_display_dpi (), gtMemoryBitmap, font->emSize, &emSize);
+	GdipGetEmHeight (font->family, font->style, &emHeight);
+	GdipGetLineSpacing (font->family, font->style, &lineSpacing);
+
+	*height = lineSpacing * (emSize / emHeight);
+	gdip_unit_conversion (UnitPixel, graphics->page_unit, gdip_get_display_dpi (), graphics->type, *height, height);
+	return Ok;
+}
+
+GpStatus
+GdipGetFontHeightGivenDPI (GDIPCONST GpFont *font, float dpi, float *height)
+{
+	short emHeight, lineSpacing;
+
+	if (!font || !height)
+		return InvalidParameter;
+
+	GdipGetEmHeight (font->family, font->style, &emHeight);
+	GdipGetLineSpacing (font->family, font->style, &lineSpacing);
+	*height = lineSpacing * (font->emSize / emHeight);
+	gdip_unit_conversion (font->unit, UnitInch, dpi, gtMemoryBitmap, *height, height);
+	*height = *height * dpi;
+	return Ok;
+}
+
+GpStatus
+GdipGetFontSize (GpFont *font, float *size)
+{
+	if (!font ||!size)
+		return InvalidParameter;
+
+	*size = font->emSize;
+	return Ok;
+}
+

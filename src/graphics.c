@@ -56,6 +56,22 @@ gdip_unity_convgr (GpGraphics *graphics, float nSrc)
 	gdip_unit_conversion (graphics->page_unit, UnitCairoPoint, graphics->dpi_y, graphics->type, nSrc, &nTrg);
 	return nTrg;
 }
+float 
+gdip_convgr_unitx (GpGraphics *graphics, float nSrc)
+{
+	float nTrg;
+	gdip_unit_conversion (UnitCairoPoint, graphics->page_unit, graphics->dpi_x, graphics->type, nSrc, &nTrg);
+	return nTrg;
+}
+
+float 
+gdip_convgr_unity (GpGraphics *graphics, float nSrc)
+{
+	float nTrg;
+	gdip_unit_conversion (UnitCairoPoint, graphics->page_unit, graphics->dpi_y, graphics->type, nSrc, &nTrg);
+	return nTrg;
+}
+
 
 void
 gdip_unit_conversion (Unit from, Unit to, float dpi, GraphicsType type, float nSrc, float* nTrg)
@@ -87,6 +103,13 @@ gdip_unit_conversion (Unit from, Unit to, float dpi, GraphicsType type, float nS
     	case UnitPoint:
       		inchs = nSrc / 72.0f;
       		break;
+	case UnitCairoPoint:
+		if (type == gtPostScript) { /* Uses 1/100th on printers */
+			inchs = nSrc / 72.0f;
+		} else { /* Pixel for video display */
+			inchs = nSrc / dpi;
+		}
+		break;
     	default:
 		*nTrg = nSrc;
 		return;
@@ -1957,6 +1980,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	bool			SetClipping=FALSE;	/* If clipping has been set */
 	cairo_font_options_t	*FontOptions;
 	RectF 			rc_coords, *rc = &rc_coords;
+	float			FontSize;
 
 	/* Sanity; should we check for length==0? */
 	if (!graphics || !stringUnicode || !font) {
@@ -2046,7 +2070,9 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 	/* is the following ok ? */
 	cairo_get_font_matrix(graphics->ct, &SavedMatrix);	/* Save the matrix */
-	cairo_set_font_size (graphics->ct, font->sizeInPixels);
+	gdip_unit_conversion (UnitPixel, UnitCairoPoint, gdip_get_display_dpi (), graphics->type, font->sizeInPixels, &FontSize);
+	cairo_set_font_size (graphics->ct, FontSize);
+	
 	cairo_font_extents (graphics->ct, &FontExtent);		/* Get the size we're looking for */
 /*	cairo_font_set_transform(font->cairofnt, SavedMatrix);*/	/* Restore the matrix */
 
@@ -2521,20 +2547,20 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	   are to be displayed and where every character goes
 	*/
 	if (boundingBox) {
-		boundingBox->X=rc->X;
-		boundingBox->Y=rc->Y;
+		boundingBox->X=gdip_convgr_unitx (graphics, rc->X);
+		boundingBox->Y=gdip_convgr_unity (graphics, rc->Y);
 		if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
-			boundingBox->Width=MaxY;
-			boundingBox->Height=MaxX;
+			boundingBox->Width=gdip_convgr_unitx (graphics, MaxY);
+			boundingBox->Height=gdip_convgr_unity (graphics, MaxX);
 		} else {
-			boundingBox->Width=MaxX;
-			boundingBox->Height=MaxY;
+			boundingBox->Width=gdip_convgr_unitx (graphics, MaxX);
+			boundingBox->Height=gdip_convgr_unity (graphics, MaxY);
 		}
 		if (rc->Width>0 && boundingBox->Width>rc->Width) {
-			boundingBox->Width=rc->Width;
+			boundingBox->Width=gdip_convgr_unitx (graphics, rc->Width);
 		}
 		if (rc->Height>0 && boundingBox->Height>rc->Height) {
-			boundingBox->Height=rc->Height;
+			boundingBox->Height=gdip_convgr_unity (graphics, rc->Height);
 		}
 	}
 
@@ -2798,6 +2824,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 	int			LineHeight;		/* Height of a line with given font */
 	bool			HaveHotkeys=FALSE;	/* True if we find hotkey */
 	cairo_font_extents_t	FontExtent;		/* Info about our font */
+	float			FontSize;
 
 	/* Sanity; should we check for length==0? */
 	if (!graphics || !stringUnicode || !font) {
@@ -2841,7 +2868,8 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 
 	cairo_set_font_face (graphics->ct, (cairo_font_face_t*) font->cairofnt);	/* Set our font; this will also be used for later drawing */
 	cairo_get_font_matrix (graphics->ct, &SavedMatrix);	/* Save the matrix */
-	cairo_set_font_size (graphics->ct, font->sizeInPixels);
+	gdip_unit_conversion (UnitPixel, UnitCairoPoint, gdip_get_display_dpi (), graphics->type, font->sizeInPixels, &FontSize);
+	cairo_set_font_size (graphics->ct, FontSize);
 	cairo_font_extents (graphics->ct, &FontExtent);		/* Get the size we're looking for */
 
 
@@ -3324,7 +3352,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 
 GpStatus
 GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
-			    GDIPCONST GpFont *font, GDIPCONST GpRectF *layoutRect,
+			    GDIPCONST GpFont *font, GDIPCONST GpRectF *layout,
 			    GDIPCONST GpStringFormat *format, int regionCount, GpRegion **regions)
 {
 	int			i, j, start, end;
@@ -3334,6 +3362,7 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 	GpStringDetailStruct*	strDetails;
 	RectF			boundingBox;
 	RectF			charRect;
+	RectF 			rc_coords, *layoutRect = &rc_coords;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (stringUnicode != NULL, InvalidParameter);
@@ -3345,8 +3374,21 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 	g_return_val_if_fail (regionCount == format->charRangeCount, InvalidParameter);
 
 	/* No char range or bounding rect is set for measurements */
-	if (format->charRangeCount == 0 || layoutRect->Width == 0 || layoutRect->Height == 0)
+	if (format->charRangeCount == 0 || layout->Width == 0 || layout->Height == 0)
 		return Ok;
+
+
+	float			FontSize;
+
+	/* Sanity; should we check for length==0? */
+	if (!graphics || !stringUnicode || !font) {
+		return(InvalidParameter);
+	}
+
+	layoutRect->X = gdip_unitx_convgr (graphics, layout->X);
+	layoutRect->Y = gdip_unity_convgr (graphics, layout->Y);
+	layoutRect->Width = gdip_unitx_convgr (graphics, layout->Width);
+	layoutRect->Height = gdip_unity_convgr (graphics, layout->Height);
 
 	/* string measurements */
 	status = MeasureString (graphics, stringUnicode, length, font, layoutRect,
@@ -3377,16 +3419,16 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 		/* calculate the regions */
 		for (j = start; j < end; j++) {
 			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
-				charRect.X = strDetails [j].PosY;
-				charRect.Y = strDetails [j].PosX;
-				charRect.Width = lineHeight;
-				charRect.Height = strDetails [j].Width;
+				charRect.X = gdip_convgr_unitx (graphics, strDetails [j].PosY);
+				charRect.Y = gdip_convgr_unity (graphics, strDetails [j].PosX);
+				charRect.Width = gdip_convgr_unitx (graphics, lineHeight);
+				charRect.Height = gdip_convgr_unity (graphics, strDetails [j].Width);
 			}
 			else {
-				charRect.X = strDetails [j].PosX;
-				charRect.Y = strDetails [j].PosY;
-				charRect.Width = strDetails [j].Width;
-				charRect.Height = lineHeight;
+				charRect.X = gdip_convgr_unitx (graphics, strDetails [j].PosX);
+				charRect.Y = gdip_convgr_unity (graphics, strDetails [j].PosY);
+				charRect.Width = gdip_convgr_unitx (graphics, strDetails [j].Width);
+				charRect.Height = gdip_convgr_unity (graphics, lineHeight);
 			}
 			status = GdipCombineRegionRect (regions [i], &charRect, CombineModeUnion);
 			if (status == Ok)

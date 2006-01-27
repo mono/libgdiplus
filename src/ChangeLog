@@ -1,3 +1,12 @@
+2006-01-27 Jordi Mas i Hernandez  <jordimash@gmail.com>
+	
+	* graphics.c:
+	  - Fixes font size for printing
+	  - Fixes unit conversions from diferent units
+	* font.c, gdip.h
+	  - Implements GdipGetFontHeight, GdipGetFontHeightGivenDPI and
+	    GdipGetFontSize.		
+
 2006-01-26  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c: Use the reference count to [re-]created the generic font

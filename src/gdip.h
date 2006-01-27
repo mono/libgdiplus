@@ -857,6 +857,9 @@ typedef struct {
         float               sizeInPixels;
         GpFontStyle         style;
         unsigned char       *face;
+	GpFontFamily	    *family;
+	float               emSize;
+	GpUnit              unit;
 } GpFont;
 
 
