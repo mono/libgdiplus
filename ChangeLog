@@ -1,3 +1,8 @@
+2006-01-31  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* TODO: Remove GdipCreateRegionPath. GdipFlattenPath and 
+	GdipSetClipPath from the list if unimplemented functions.
+
 2006-01-13  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* libgdiplus.pc.in: Removed cairo as a dependency. Fixes #77173

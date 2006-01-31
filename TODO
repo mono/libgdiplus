@@ -34,7 +34,6 @@ GdipBeginContainer2
 GdipBeginContainerI
 GdipEndContainer
 GdipEndContainer
-GdipSetClipPath
 GdipGetNearestColor
 GdipTransformPoints
 GdipTransformPointsI
@@ -75,12 +74,10 @@ GdipGetPenCustomEndCap
 
 GdipAddString
 GdipAddStringI
-GdipFlattenPath 
 GdipWindingModeOutline
 GdipWidenPath
 GdipWarpPath
 GdipCombineRegionPath 
-GdipCreateRegionPath
 
 ---- Issues
 
