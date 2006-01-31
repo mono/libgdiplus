@@ -2,6 +2,7 @@
  * graphics.c
  *
  * Copyright (c) 2003 Alexandre Pigolkine, Novell Inc.
+ * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -34,7 +35,8 @@ extern BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect);
 extern FT_Face gdip_cairo_ft_font_lock_face (cairo_font_face_t *cairofnt);
 extern void gdip_cairo_ft_font_unlock_face (cairo_font_face_t *cairofnt);
 void gdip_set_cairo_clipping (GpGraphics *graphics);
-    
+extern void gdip_copy_region (GpRegion *source, GpRegion *dest);
+
 extern cairo_filter_t gdip_get_cairo_filter (InterpolationMode imode);
 
 #define	NO_CAIRO_AA
@@ -1718,6 +1720,9 @@ GdipFillPolygon (GpGraphics *graphics, GpBrush *brush,
 	return gdip_get_status (cairo_status (graphics->ct));
 }
 
+/* FIXME - this doesn't match MS behaviour when a closed part of the path is inside another one
+ * see bug #77408 for details/screenshots - http://bugzilla.ximian.com/show_bug.cgi?id=77408
+ */
 GpStatus
 GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 {
@@ -3683,10 +3688,19 @@ gdip_set_cairo_clipping (GpGraphics *graphics)
 	if (gdip_is_InfiniteRegion (graphics->clip)) {
 		return;
 	}
-/* FIXME - region aren't all rect based */
-	/* Set Cairo rectangles that Cairo will use for clipping */ 
-        for (i = 0, rect = graphics->clip->rects; i < graphics->clip->cnt; i++, rect++) {
-		cairo_rectangle (graphics->ct, rect->X, rect->Y, rect->Width, rect->Height);
+
+	switch (graphics->clip->type) {
+	case RegionTypeRectF:
+	        for (i = 0, rect = graphics->clip->rects; i < graphics->clip->cnt; i++, rect++) {
+			cairo_rectangle (graphics->ct, rect->X, rect->Y, rect->Width, rect->Height);
+		}
+		break;
+	case RegionTypePath:
+		gdip_plot_path (graphics, graphics->clip->path, graphics->aa_offset_x, graphics->aa_offset_y);
+		break;
+	default:
+		g_warning ("Unknown region type %d", graphics->clip);
+		break;
 	}
 	
 	cairo_clip (graphics->ct);
@@ -3740,7 +3754,12 @@ GdipSetClipRectI (GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height,
 GpStatus
 GdipSetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMode)
 {
-	return NotImplemented;
+	if (!graphics || !path)
+		return InvalidParameter;
+
+	GdipCombineRegionPath (graphics->clip, path, combineMode);	
+	gdip_set_cairo_clipping (graphics);
+	return Ok;
 }
 
 GpStatus
@@ -3749,16 +3768,8 @@ GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMo
 	if (!graphics || !region)
 		return InvalidParameter;
 
-	switch (region->type) {
-	case RegionTypeRectF:
-		GdipCombineRegionRegion (graphics->clip, region, combineMode);	
-		gdip_set_cairo_clipping (graphics);
-		break;
-	case RegionTypePath:
-		return GdipSetClipPath (graphics, region->path, combineMode);
-	default:
-		return NotImplemented;
-	}
+	GdipCombineRegionRegion (graphics->clip, region, combineMode);	
+	gdip_set_cairo_clipping (graphics);
 	return Ok;
 }
 
@@ -3782,16 +3793,20 @@ GdipResetClip (GpGraphics *graphics)
 GpStatus
 GdipTranslateClip (GpGraphics *graphics, float dx, float dy)
 {
+	if (!graphics)
+		return InvalidParameter;
+
 	return GdipTranslateRegion (graphics->clip, dx, dy);
 }
 
 GpStatus
 GdipTranslateClipI (GpGraphics *graphics, UINT dx, UINT dy)
 {
+	if (!graphics)
+		return InvalidParameter;
+
 	return GdipTranslateRegionI (graphics->clip, dx, dy);
 }
-
-extern void gdip_clear_region (GpRegion *region);
 
 GpStatus
 GdipGetClip (GpGraphics *graphics, GpRegion *region)
@@ -3799,12 +3814,7 @@ GdipGetClip (GpGraphics *graphics, GpRegion *region)
 	if (!graphics || !region)
 		return InvalidParameter;
 
-	gdip_clear_region (region);
-	region->type = RegionTypeRectF;
-/* FIXME: is the clip always rectangular ? */
-	region->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * graphics->clip->cnt);
-	memcpy (region->rects, graphics->clip->rects, sizeof (GpRectF) * graphics->clip->cnt);
-	region->cnt = graphics->clip->cnt;
+	gdip_copy_region (graphics->clip, region);
 	return Ok;
 }
 
@@ -3812,6 +3822,9 @@ GdipGetClip (GpGraphics *graphics, GpRegion *region)
 GpStatus
 GdipGetClipBounds (GpGraphics *graphics, GpRectF *rect)
 {
+	if (!graphics)
+		return InvalidParameter;
+
 	return GdipGetRegionBounds (graphics->clip, graphics, rect);
 }
 
@@ -3820,16 +3833,19 @@ GdipGetClipBoundsI (GpGraphics *graphics, GpRect *rect)
 {
 	GpRectF rectF;
 	Status status;
+
+	if (!graphics || !rect)
+		return InvalidParameter;
 	
 	status =  GdipGetRegionBounds (graphics->clip, graphics, &rectF);
 	
 	if (status != Ok)
 		return status;
-	
-	graphics->bounds.X = rectF.X;
-	graphics->bounds.Y = rectF.Y;
-	graphics->bounds.Width = rectF.Width;
-	graphics->bounds.Height = rectF.Height;
+
+	rect->X = rectF.X;
+	rect->Y = rectF.Y;
+	rect->Width = rectF.Width;
+	rect->Height = rectF.Height;
 	
 	return Ok;
 }
@@ -3837,6 +3853,9 @@ GdipGetClipBoundsI (GpGraphics *graphics, GpRect *rect)
 GpStatus
 GdipIsClipEmpty (GpGraphics *graphics, BOOL *result)
 {
+	if (!graphics)
+		return InvalidParameter;
+
 	return GdipIsEmptyRegion (graphics->clip, graphics, result);
 }
 
@@ -3971,6 +3990,9 @@ GdipIsVisibleRectI (GpGraphics *graphics, UINT x, UINT y, UINT width, UINT heigh
 GpStatus
 GdipSetCompositingMode (GpGraphics *graphics, GpCompositingMode compositingMode)
 {
+	if (!graphics)
+		return InvalidParameter;
+
 	graphics->composite_mode = compositingMode;
 
 	switch (compositingMode) {
@@ -3990,6 +4012,9 @@ GdipSetCompositingMode (GpGraphics *graphics, GpCompositingMode compositingMode)
 GpStatus
 GdipGetCompositingMode (GpGraphics *graphics, GpCompositingMode *compositingMode)
 {
+	if (!graphics || !compositingMode)
+		return InvalidParameter;
+
 	*compositingMode = graphics->composite_mode;
 	return Ok;
 }
@@ -3997,6 +4022,9 @@ GdipGetCompositingMode (GpGraphics *graphics, GpCompositingMode *compositingMode
 GpStatus
 GdipSetCompositingQuality (GpGraphics *graphics, GpCompositingQuality compositingQuality)
 {
+	if (!graphics)
+		return InvalidParameter;
+
 	/* In Cairo there is no way of setting this, always use high quality */
 
 	graphics->composite_quality = compositingQuality;
@@ -4006,6 +4034,9 @@ GdipSetCompositingQuality (GpGraphics *graphics, GpCompositingQuality compositin
 GpStatus
 GdipGetCompositingQuality (GpGraphics *graphics, GpCompositingQuality *compositingQuality)
 {
+	if (!graphics || !compositingQuality)
+		return InvalidParameter;
+
 	*compositingQuality = graphics->composite_quality;
 	return Ok;
 }

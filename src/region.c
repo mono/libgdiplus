@@ -222,7 +222,7 @@ gdip_getlowestrect (GpRectF *rects, int cnt, GpRectF* src, GpRectF* rslt)
 	return TRUE;
 }
 
-void 
+static void 
 gdip_clear_region (GpRegion *region)
 {
 	region->type = RegionTypeEmpty;
@@ -235,6 +235,26 @@ gdip_clear_region (GpRegion *region)
 	if (region->path) {
 		GdipDeletePath (region->path);
 		region->path = NULL;
+	}
+}
+
+void
+gdip_copy_region (GpRegion *source, GpRegion *dest)
+{
+	dest->type = source->type;
+	dest->cnt = source->cnt;
+
+	if (source->rects) {
+	        dest->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * source->cnt);
+        	memcpy (dest->rects, source->rects, sizeof (GpRectF) * source->cnt);
+	} else {
+		dest->rects = NULL;
+	}
+
+	if (source->path) {
+		GdipClonePath (source->path, &dest->path);
+	} else {
+		dest->path = NULL;
 	}
 }
 
@@ -375,7 +395,6 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, int size, GpRegion **region
 	return Ok;
 }
 
-
 GpStatus
 GdipCloneRegion (GpRegion *region, GpRegion **cloneRegion)
 {
@@ -385,21 +404,7 @@ GdipCloneRegion (GpRegion *region, GpRegion **cloneRegion)
                 return InvalidParameter;
 
         result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
-	result->type = region->type;
-	result->cnt = region->cnt;
-
-	if (region->rects) {
-	        result->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * region->cnt);
-        	memcpy (result->rects, region->rects, sizeof (GpRectF) * region->cnt);
-	} else {
-		result->rects = NULL;
-	}
-
-	if (region->path) {
-		GdipClonePath (region->path, &result->path);
-	} else {
-		result->path = NULL;
-	}
+	gdip_copy_region (region, result);
         *cloneRegion = result;
 
         return Ok;

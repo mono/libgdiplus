@@ -1,3 +1,12 @@
+2006-01-31  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* region.c: Added gdip_copy_region to help reusing region copying in
+	GdipCloneRegion and GdipGetClip.
+	* graphics.c: Fixed GdipGetClipBoundsI to get (not set) the clip. 
+	GdipGetClip and GdipFillPath now works with non-rectangular regions. 
+	Implemented GdipSetClipPath function. Added null checks for parameters
+	in many functions.
+
 2006-01-27  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* gdip.h: Remove duplicate (and identical) definition for LF_FACESIZE.
