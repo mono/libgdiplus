@@ -188,12 +188,18 @@ GdipGetPostScriptSavePage (GpGraphics* graphics)
 GpStatus 
 GdipDrawImageI (GpGraphics *graphics, GpImage *image, int x, int y)
 {
+	if (!image)
+		return InvalidParameter;
+
 	return GdipDrawImageRect (graphics, image, x, y, image->width, image->height);
 }
 
 GpStatus 
 GdipDrawImage (GpGraphics *graphics, GpImage *image, float x, float y)
 {
+	if (!image)
+		return InvalidParameter;
+
 	return GdipDrawImageRect (graphics, image, x, y, image->width, image->height);
 }
 
@@ -880,7 +886,7 @@ GdipGetImagePixelFormat (GpImage *image, PixelFormat *format)
 GpStatus 
 GdipImageGetFrameDimensionsCount (GpImage *image, UINT *count)
 {
-	if (!image)
+	if (!image || !count)
                 return InvalidParameter;
 
 	*count = image->frameDimensionCount;
@@ -914,7 +920,7 @@ GdipImageGetFrameCount(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* coun
 {
 	int i;
 
-	if (!image || !dimensionGUID)
+	if (!image || !dimensionGUID || !count)
 		return InvalidParameter;
 
 	for (i=0; i<image->frameDimensionCount; i++){
@@ -1475,6 +1481,9 @@ GdipGetPropertyItem (GpImage *image, PROPID propID, UINT size, PropertyItem buff
 GpStatus 
 GdipGetPropertySize (GpImage *image, UINT *bufferSize, UINT *propertyNumbers)
 {
+	if (!image || !bufferSize || !propertyNumbers)
+		return InvalidParameter;
+
 	*bufferSize = 32;
 	*propertyNumbers = 1;
 	return Ok;
@@ -1909,7 +1918,7 @@ GdipGetImageEncoders (UINT numEncoders, UINT size, ImageCodecInfo *encoders)
 GpStatus
 GdipGetAllPropertyItems(GpImage *image, UINT totalBufferSize, UINT numProperties, PropertyItem *allItems)
 {
-	if (totalBufferSize < 16)
+	if (!allItems || (totalBufferSize < 16))
 		return InvalidParameter;
 
 	allItems [0].id = 0xdeadbeee;
