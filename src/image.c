@@ -343,7 +343,11 @@ GdipDrawImagePointRect (GpGraphics *graphics, GpImage *image,
                         float srcx, float srcy, float srcwidth, float srcheight,
                         GpUnit srcUnit)
 {
-	return NotImplemented; /* GdipDrawImagePointRect */
+	if (!image)
+		return InvalidParameter;
+
+	return GdipDrawImageRectRect (graphics, image, x, y, srcwidth, srcheight, srcx, srcy, 
+		srcwidth, srcheight, srcUnit, NULL, NULL, NULL);
 }
 
 GpStatus
@@ -354,6 +358,7 @@ GdipDrawImagePointRectI (GpGraphics *graphics, GpImage *image,
 {
 	return GdipDrawImagePointRect (graphics, image, x, y, srcx, srcy, srcwidth, srcheight, srcUnit);
 }
+
 GpStatus
 GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
                        float dstx, float dsty, float dstwidth, float dstheight,
