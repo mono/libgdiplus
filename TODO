@@ -45,7 +45,6 @@ GdipSetImageAttributesThreshold
 GdipSetImageAttributesOutputChannelColorProfile
 GdipGetImageAttributesAdjustedPalette
 GdipSetImageAttributesOutputChannel
-GdipDrawImagePointRect
 GdipDrawImagePointsRect
 GdipDrawImagePointsRectI 
 GdipLoadImageFromStream
