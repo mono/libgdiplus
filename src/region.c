@@ -594,7 +594,8 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 			break;
 		}
 
-		if (storecomplete) {
+		/* don't include a rectangle identical to the excluded one! */
+		if (storecomplete && !gdip_equals (rtrg, &current)) {
 			gdip_add_rect_to_array_notcontained (&rects, &cnt,  &current);
 		}
 	}
@@ -852,7 +853,9 @@ gdip_combine_xor (GpRegion *region, GpRectF *recttrg, int cnttrg)
 
         GdipCloneRegion (region, &rgntrg);
         gdip_combine_intersect (rgntrg, recttrg, cnttrg);
-        gdip_combine_exclude (rgnsrc, rgntrg->rects, rgntrg->cnt);
+	/* exclude the intersecting rectangles (if any) */
+	if (rgntrg->cnt > 0)
+		gdip_combine_exclude (rgnsrc, rgntrg->rects, rgntrg->cnt);
 
         if (region->rects)
                 GdipFree (region->rects);
