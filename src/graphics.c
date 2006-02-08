@@ -1155,7 +1155,7 @@ GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	status = gdip_plot_path (graphics, path, graphics->aa_offset_x, graphics->aa_offset_y);
+	status = gdip_plot_path (graphics, path, 0, 0);
 
         /* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -1720,9 +1720,7 @@ GdipFillPolygon (GpGraphics *graphics, GpBrush *brush,
 	return gdip_get_status (cairo_status (graphics->ct));
 }
 
-/* FIXME - this doesn't match MS behaviour when a closed part of the path is inside another one
- * see bug #77408 for details/screenshots - http://bugzilla.ximian.com/show_bug.cgi?id=77408
- */
+/* FIXME - this doesn't match MS behaviour when we use really complex paths with internal intersections */
 GpStatus
 GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 {
@@ -1735,6 +1733,7 @@ GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 	 * should have it set already.
 	 */
 	status = gdip_plot_path (graphics, path, 0, 0);
+	cairo_set_fill_rule (graphics->ct, convert_fill_mode (path->fill_mode));
 
 	/* We do brush setup just before filling. */
 	gdip_brush_setup (graphics, brush);

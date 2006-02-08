@@ -1,3 +1,10 @@
+2006-02-08  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics.c: Added a missing cairo_set_fill_rule in FillPath (which
+	fixes bug #77408. Changed DrawPath to use 0, 0 (like FillPath) so
+	they both draw at the same place (no blanks) and also behave like 
+	DrawRectangle(s) and FillRectangle(s) when compared side-by-side.
+
 2006-02-03  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* region.c: Fixed a case where gdip_combine_exclude wasn't excluding
