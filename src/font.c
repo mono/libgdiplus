@@ -692,7 +692,7 @@ gdip_logfont_from_font(GpFont *font, GpGraphics *graphics, void *lf, bool ucs2)
 }
 
 GpStatus
-GdipCreateFontFromHfont(void *hfont, GpFont **font, void *lf)
+GdipCreateFontFromHfontA(void *hfont, GpFont **font, void *lf)
 {
 	GpFont			*src_font;
 	GpFont			*result;
@@ -763,6 +763,81 @@ GdipGetLogFontA(GpFont *font, GpGraphics *graphics, void *lf)
 	
 	gdip_logfont_from_font(font, graphics, lf, FALSE);
 	return Ok;
+}
+
+GpStatus
+gdip_create_font_from_logfont(void *hdc, void *lf, GpFont **font, bool ucs2)
+{
+	GpFont			*result;
+	cairo_font_face_t	*face;
+	cairo_font_slant_t	slant;
+	cairo_font_weight_t	weight;
+	LOGFONTA		*logfont;
+
+	logfont = (LOGFONTA *)lf;
+
+	result = (GpFont *) GdipAlloc(sizeof(GpFont));
+	if (logfont->lfHeight < 0) {
+		result->sizeInPixels = -(logfont->lfHeight);
+	} else {
+		result->sizeInPixels = logfont->lfHeight;	// Fixme - convert units
+	}
+	result->style = 0;
+	result->family = 0;
+	/* Fixme - this is wrong, but I don't know of a quick way to get the emSize */
+	result->emSize = result->sizeInPixels;
+	result->unit = UnitPixel;
+
+	if (logfont->lfItalic) {
+		result->style |= FontStyleItalic;
+		slant = CAIRO_FONT_SLANT_ITALIC;
+	} else {
+		slant = CAIRO_FONT_SLANT_NORMAL;
+	}
+
+	if (logfont->lfWeight > 400) {
+		result->style |= FontStyleBold;
+		weight = CAIRO_FONT_WEIGHT_BOLD;
+	} else {
+		weight = CAIRO_FONT_WEIGHT_NORMAL;
+	}
+
+	if (logfont->lfUnderline) {
+		result->style |= FontStyleUnderline;
+	}
+	if (logfont->lfStrikeOut) {
+		result->style |= FontStyleStrikeout;
+	}
+
+	if (ucs2) {
+		result->face = (unsigned char*) ucs2_to_utf8 ((const gunichar2 *)logfont->lfFaceName, -1);
+	} else {
+		result->face = GdipAlloc(LF_FACESIZE);
+		memcpy(result->face, logfont->lfFaceName, LF_FACESIZE);
+		result->face[LF_FACESIZE - 1] = '\0';
+	}
+
+	result->cairofnt = _cairo_toy_font_face_create ((const char *)result->face, slant, weight);
+	if (result->cairofnt == NULL) {
+		GdipFree(result);
+		return GenericError;
+	}
+
+	*font = result;
+
+	return Ok;
+}
+
+GpStatus
+GdipCreateFontFromLogfontA(void *hdc, GDIPCONST LOGFONTA *logfont, GpFont **font)
+{
+	return gdip_create_font_from_logfont(hdc, (void *)logfont, font, FALSE);
+}
+
+GpStatus
+GdipCreateFontFromLogfontW(void *hdc, GDIPCONST LOGFONTW *logfont, GpFont **font)
+{
+	return gdip_create_font_from_logfont(hdc, (void *)logfont, font, TRUE);
 }
 
 GpStatus
