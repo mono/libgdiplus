@@ -1408,6 +1408,7 @@ GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, c
 			/* special case #2 - Only one element */
 			bounds->Width = 0.0f;
 			bounds->Height = 0.0f;
+			GdipFree (base);
 			return Ok;
 		}
 
@@ -1450,7 +1451,7 @@ GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, c
 		return status;	
 
 	bounds->X = (int) rect.X;
-	bounds->Y = (int) rect.X;
+	bounds->Y = (int) rect.Y;
 	bounds->Width = (int) rect.Width;
 	bounds->Height = (int) rect.Height;
 	return Ok;

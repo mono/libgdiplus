@@ -1,3 +1,9 @@
+2006-02-24  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics-path.c: Add missing free in a special case (only one 
+	element) of GdipGetPathWorldBounds. Fix typo (X->Y) in 
+	GdipGetPathWorldBoundsI.
+
 2006-02-10  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* font.cs:
