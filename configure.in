@@ -1,7 +1,7 @@
 AC_INIT(README)
 AC_CANONICAL_SYSTEM
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(libgdiplus,1.1.13.3)
+AM_INIT_AUTOMAKE(libgdiplus,1.1.13.4)
 
 AM_MAINTAINER_MODE
 AM_PROG_LIBTOOL
@@ -45,8 +45,8 @@ AC_DEFINE(USE_INCLUDED_CAIRO,1,[Use Cairo bundled in libgdiplus])
 #	CAIRO_CFLAGS="`pkg-config --cflags cairo`"
 #fi
 
-GDIPLUS_LIBS="$CAIRO_LIBS `pkg-config --libs glib-2.0 ` `freetype-config --libs`"
-GDIPLUS_CFLAGS="$CAIRO_CFLAGS `pkg-config --cflags glib-2.0 ` `freetype-config --cflags`"
+GDIPLUS_LIBS="$CAIRO_LIBS `pkg-config --libs glib-2.0 ` `pkg-config freetype2 fontconfig --libs`"
+GDIPLUS_CFLAGS="$CAIRO_CFLAGS `pkg-config --cflags glib-2.0 ` `pkg-config freetype2 fontconfig --cflags`"
 
 AC_CHECK_HEADERS(byteswap.h)
 
