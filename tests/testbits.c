@@ -98,7 +98,8 @@ main (int argc, char **argv)
         cptr = (unsigned char *) (d.Scan0 + (j * d.Stride));
         printf ("%d: ", j);
         for (i = 0; i < 5; i++) {
-            printf ("%02x%02x%02x ", *cptr++, *cptr++, *cptr++);
+            printf ("%02x%02x%02x ", cptr[0], cptr[1], cptr[2]);
+            cptr += 3;
         }
         printf ("\n");
     }
