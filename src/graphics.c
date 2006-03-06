@@ -4043,7 +4043,7 @@ GdipGetCompositingQuality (GpGraphics *graphics, GpCompositingQuality *compositi
 GpStatus
 GdipGetNearestColor (GpGraphics *graphics, ARGB *argb)
 {
-	return NotImplemented;
+	return Ok;
 }
 
 GpStatus
