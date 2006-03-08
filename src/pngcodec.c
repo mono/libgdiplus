@@ -590,6 +590,27 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
 		png_write_row (png_ptr, bitmap->data.Scan0 + i * bitmap->data.Stride);
 	}
     }
+    else if ((bitmap->data.PixelFormat == Format24bppRgb)
+          || (bitmap->data.PixelFormat == Format32bppRgb)) {
+	int j;
+	guchar *row_pointer = GdipAlloc (image->width * 3);
+
+	for (i = 0; i < image->height; i++) {
+		for (j = 0; j < image->width; j++) {
+#ifdef WORDS_BIGENDIAN
+			row_pointer[j*3  ] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 2);
+			row_pointer[j*3+1] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 1);
+			row_pointer[j*3+2] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 0);
+#else
+			row_pointer[j*3  ] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 0);
+			row_pointer[j*3+1] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 1);
+			row_pointer[j*3+2] = *((guchar *)bitmap->data.Scan0 + (bitmap->data.Stride * i) + (j*4) + 2);
+#endif /* WORDS_BIGENDIAN */
+		}
+		png_write_row (png_ptr, row_pointer);
+	}
+	GdipFree (row_pointer);
+    }
     else {
 #ifdef WORDS_BIGENDIAN
 	int j;

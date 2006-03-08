@@ -1,3 +1,12 @@
+2006-03-06  Jonathan Gilbert  <logic@deltaq.org>
+
+	* pngcodec.c: Added block to handle saving of 8:8:8 images without
+	  an alpha channel. The underlying encoding of the image includes
+	  a filler byte, so that even Format24bppRgb is 32 bpp under the
+	  hood, but when libpng is told to expect RGB data, it expects
+	  only 24 bits per pixel, which was corrupting PNG output for
+	  Format24bppRgb and Format32bppRgb.
+
 2006-02-24  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics-path.c: Add missing free in a special case (only one 
