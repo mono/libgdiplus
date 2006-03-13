@@ -1,3 +1,10 @@
+2006-03-13  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics-path.c: Add missing checks for markers. This fixes some 
+	issues (e.g. accesing item -1) and also reduce memory allocations for
+	empty paths. Return Ok and display a warning when GdipAddString[I] is
+	called (instead of returning NotImplemented).
+
 2006-03-06  Jonathan Gilbert  <logic@deltaq.org>
 
 	* pngcodec.c: Added block to handle saving of 8:8:8 images without

@@ -401,11 +401,12 @@ GdipClosePathFigure (GpPath *path)
 	byte current;
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 
-	current = g_array_index (path->types, byte, path->count - 1);
-	g_byte_array_remove_index (path->types, path->count - 1);
-	current |= PathPointTypeCloseSubpath;
-	g_byte_array_append (path->types, &current, 1);
-
+	if (path->count > 0) {
+		current = g_array_index (path->types, byte, path->count - 1);
+		g_byte_array_remove_index (path->types, path->count - 1);
+		current |= PathPointTypeCloseSubpath;
+		g_byte_array_append (path->types, &current, 1);
+	}
 	path->start_new_fig = TRUE;
 
 	return Ok;
@@ -461,6 +462,9 @@ GdipSetPathMarker (GpPath *path)
 	byte current;
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 
+	if (path->count == 0)
+		return Ok;
+
 	current = g_array_index (path->types, byte, path->count - 1);
 
         g_byte_array_remove_index (path->types, path->count - 1);
@@ -480,6 +484,10 @@ GdipClearPathMarkers (GpPath *path)
 	GByteArray *cleared;
 
 	g_return_val_if_fail (path != NULL, InvalidParameter);
+
+	/* shortcut to avoid allocations */
+	if (path->count == 0)
+		return Ok;
 
 	cleared = g_byte_array_new ();
 
@@ -510,6 +518,9 @@ GdipReversePath (GpPath *path)
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 
 	length = path->count;
+	/* shortcut to avoid allocations */
+	if (length <= 1)
+		return Ok;
 
 	types = g_byte_array_sized_new (length);
 	points = g_array_sized_new (FALSE, TRUE, sizeof (GpPointF), length);
@@ -947,8 +958,9 @@ GpStatus
 GdipAddString (GpPath *path, const char *string, int length, 
                 const GpFontFamily *family, int style, float emSize,
                 const GpRectF *layoutRect, const GpStringFormat *format)
-{ 
-	return NotImplemented;
+{
+	g_warning ("GdipAddString isn't implemented in libgdiplus.");
+	return Ok; //NotImplemented;
 }
 
 /* MonoTODO */
@@ -957,7 +969,8 @@ GdipAddStringI (GpPath *path, const char *string, int length,
                 const GpFontFamily *family, int style, float emSize,
                 const GpRect *layoutRect, const GpStringFormat *format)
 {
-	return NotImplemented;
+	g_warning ("GdipAddStringI isn't implemented in libgdiplus.");
+	return Ok; //NotImplemented;
 }
 
 GpStatus
