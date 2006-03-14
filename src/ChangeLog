@@ -1,3 +1,8 @@
+2006-03-14  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* matrix.c: Add missing validations on count parameters. Fix return 
+	value for an invalid GpMatrixOrder in GdipMultiplyMatrix.
+
 2006-03-14  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* image.c (DrawImageRect): Added a cairo_save/cairo_restore to

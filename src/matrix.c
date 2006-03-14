@@ -164,11 +164,10 @@ GdipMultiplyMatrix (GpMatrix *matrix, GpMatrix *matrix2, GpMatrixOrder order)
 
         if (order == MatrixOrderAppend)
                 cairo_matrix_multiply (matrix, matrix, matrix2);
-
         else if (order == MatrixOrderPrepend)
                 cairo_matrix_multiply (matrix, matrix2, matrix);        
         else
-                return GenericError;
+                return InvalidParameter;
 
 	return Ok;
 }
@@ -239,6 +238,8 @@ GdipTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
 
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 	g_return_val_if_fail (pts != NULL, InvalidParameter);
+	if (count < 1)
+		return InvalidParameter;
         
         for (i = 0; i < count; i++, pts++) {
                 double x = pts->X;
@@ -259,6 +260,8 @@ GdipTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
 
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 	g_return_val_if_fail (pts != NULL, InvalidParameter);
+	if (count < 1)
+		return InvalidParameter;
         
         for (i = 0; i < count; i++, pts++) {
                 double x = pts->X;
@@ -279,7 +282,9 @@ GdipVectorTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
 
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 	g_return_val_if_fail (pts != NULL, InvalidParameter);
-        
+	if (count < 1)
+		return InvalidParameter;
+
         for (i = 0; i < count; i++, pts++) {
                 double x = pts->X;
                 double y = pts->Y;
@@ -299,6 +304,8 @@ GdipVectorTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
         
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 	g_return_val_if_fail (pts != NULL, InvalidParameter);
+	if (count < 1)
+		return InvalidParameter;
 
         for (i = 0; i < count; i++, pts++) {
                 double x = pts->X;
