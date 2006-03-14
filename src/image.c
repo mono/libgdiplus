@@ -218,6 +218,13 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	g_return_val_if_fail (image != NULL, InvalidParameter);
 	g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
 
+	/* 
+	   FIXME - digger shows an issue that needs the save/restore. Figure
+	   out what's screwed up (transformation?) and drop the need for 
+	   save/restore
+	*/
+	cairo_save(graphics->ct);
+
 	x = gdip_unitx_convgr (graphics, x);
 	y = gdip_unity_convgr (graphics, y);
 	width = gdip_unitx_convgr (graphics, width);
@@ -260,6 +267,7 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	cairo_paint (graphics->ct);
 	
 	cairo_pattern_destroy (pattern);
+	cairo_restore(graphics->ct);
 	
 	return Ok;
 }

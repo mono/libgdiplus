@@ -1,3 +1,9 @@
+2006-03-14  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* image.c (DrawImageRect): Added a cairo_save/cairo_restore to
+	  fix the issue exposed by Digger (title score board background
+	  not drawn when doing the FillRectangle)
+
 2006-03-13  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics-path.c: Add missing checks for markers. This fixes some 
