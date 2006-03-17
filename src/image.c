@@ -516,10 +516,13 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 			GdipDisposeImage ((GpImage *) imgflipXY);
 		
 	}
-	else  {		
+	else {
+		cairo_pattern_t *filter;
+
 		/* Create a surface for this bitmap if one doesn't exist */
 		gdip_bitmap_ensure_surface ((GpBitmap*) image);
-		cairo_pattern_set_filter (cairo_pattern_create_for_surface (((GpBitmap*) image)->image.surface) , gdip_get_cairo_filter (graphics->interpolation));
+		filter = cairo_pattern_create_for_surface (((GpBitmap*) image)->image.surface);
+		cairo_pattern_set_filter (filter, gdip_get_cairo_filter (graphics->interpolation));
 		
 		cairo_matrix_scale (&mat, srcwidth / dstwidth, srcheight / dstheight);
 		cairo_matrix_translate (&mat, srcx - dstx, srcy - dsty);
@@ -534,6 +537,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		cairo_matrix_init_identity (&mat);
 		cairo_pattern_set_matrix (pattern, &mat);
 		cairo_pattern_destroy (pattern);
+		cairo_pattern_destroy (filter);
 	}
 
 	/* The default surface is no longer valid*/

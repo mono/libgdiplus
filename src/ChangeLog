@@ -1,7 +1,9 @@
-2006-03-17  Sebastien Pouliot  <sebastien@ximian.com>
-
+2006-03-17  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
 	* general.c: Call XCloseDisplay after we convert the DPI string as we 
 	do not own the 'val' pointer.
+	* image.c: Destroy (cairo_pattern_destroy) the pattern we use as a 
+	filter in GdipDrawImageRectRect.
 
 2006-03-16  Sebastien Pouliot  <sebastien@ximian.com> 
 
