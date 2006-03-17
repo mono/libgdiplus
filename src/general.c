@@ -204,13 +204,14 @@ gdip_get_display_dpi()
 		display = XOpenDisplay (0);
 		/* If the display is openable lets try to read dpi from it; otherwise use a default of 96.0f */
 		if (display) {
+			/* the val pointer is owned by X (do not free) */
 			val = XGetDefault (display, "Xft", "dpi");
-			XCloseDisplay (display);
 			if (val) {
 				dpis = atof (val);
 			} else {
 				dpis = 96.0f;
 			}
+			XCloseDisplay (display);
 		} else {
 			dpis = 96.0f;
 		}

@@ -1,3 +1,8 @@
+2006-03-17  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* general.c: Call XCloseDisplay after we convert the DPI string as we 
+	do not own the 'val' pointer.
+
 2006-03-16  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* pen.c: Delete the temporary matrix created during gdip_pen_setup.
