@@ -129,12 +129,12 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-	GdipCreateMatrix (&product);
-	cairo_matrix_init_identity (product);
-	
 	status = gdip_brush_setup (graphics, pen->brush);
 	if (status != Ok)
 		return status;
+
+	GdipCreateMatrix (&product);
+	cairo_matrix_init_identity (product);
 
 	/* Here we use product of pen->matrix and graphics->copy_of_ctm.
 	 * This gives us absolute results with respect to graphics. We
@@ -145,6 +145,8 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	 */
 	cairo_matrix_multiply (product, pen->matrix, graphics->copy_of_ctm);
 	cairo_set_matrix (graphics->ct, product);
+
+	GdipDeleteMatrix (product);
 
 	/* Don't need to setup, if pen is the same as the cached pen and
 	 * it is not changed. Just comparing pointers may not be sufficient

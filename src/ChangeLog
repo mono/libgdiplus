@@ -1,3 +1,7 @@
+2006-03-16  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* pen.c: Delete the temporary matrix created during gdip_pen_setup.
+
 2006-03-14  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* matrix.c: Add missing validations on count parameters. Fix return 
