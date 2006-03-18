@@ -1,3 +1,8 @@
+2006-03-18  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* image.c: Free the image palette on dispose. Also copy (not refer) 
+	the palette when cloning the image (so we don't double-free it).
+
 2006-03-17  Sebastien Pouliot  <sebastien@ximian.com> 
  
 	* general.c: Call XCloseDisplay after we convert the DPI string as we 

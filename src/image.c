@@ -106,6 +106,11 @@ GdipDisposeImage (GpImage *image)
 		}
 		GdipFree (image->frameDimensionList);
 	}
+
+	if (image->palette) {
+		GdipFree (image->palette);
+		image->palette = NULL;
+	}
 	
 	/* Nothing more to be done here... We have already
 	 * cleaned the memory while looping in FrameDimension List
@@ -1556,6 +1561,15 @@ gdip_image_clone (GpImage* image, GpImage* clonedImage)
 				}
 			}
 		}
+	}
+	// if present, clone the palette too
+	if (image->palette) {
+		int psize;
+		if (GdipGetImagePaletteSize (image, &psize) == Ok) {
+			clonedImage->palette = GdipAlloc (psize);
+			memcpy (clonedImage->palette, image->palette, psize);
+		} else
+			clonedImage->palette = NULL;
 	}
 }
 
