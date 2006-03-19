@@ -342,7 +342,7 @@ create_tile_linear (cairo_t *ct, GpLineGradient *linear)
 
 	linear->pattern = cairo_pattern_create_for_surface (gradient);
 	cairo_surface_destroy (gradient);
-
+	GdipDeleteMatrix (tempMatrix);
 
 	return Ok;
 }
@@ -704,6 +704,7 @@ gdip_linear_gradient_setup (GpGraphics *graphics, GpBrush *brush)
 			cairo_set_source (ct, linear->pattern);
 
 			status = gdip_get_status (cairo_status (ct));
+			GdipDeleteMatrix (product);
 		}
 		else
 			status = GenericError;
@@ -859,19 +860,16 @@ GdipCreateLineBrushFromRect (GDIPCONST GpRectF *rect, ARGB color1, ARGB color2, 
 GpStatus
 GdipCreateLineBrushFromRectWithAngleI (GDIPCONST GpRect *rect, ARGB color1, ARGB color2, float angle, BOOL isAngleScalable, GpWrapMode wrapMode, GpLineGradient **lineGradient)
 {
-	GpRectF *rectf;
+	GpRectF rectf;
 
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
-	rectf = (GpRectF *) GdipAlloc (sizeof (GpRectF));
-	g_return_val_if_fail (rectf != NULL, OutOfMemory);
+	rectf.X = rect->X;
+	rectf.Y = rect->Y;
+	rectf.Width = rect->Width;
+	rectf.Height = rect->Height;
 
-	rectf->X = rect->X;
-	rectf->Y = rect->Y;
-	rectf->Width = rect->Width;
-	rectf->Height = rect->Height;
-
-	return GdipCreateLineBrushFromRectWithAngle (rectf, color1, color2, angle, 
+	return GdipCreateLineBrushFromRectWithAngle (&rectf, color1, color2, angle, 
 						     isAngleScalable, wrapMode, lineGradient);
 }
 

@@ -708,8 +708,9 @@ gdip_get_imageformat_from_codec_clsid (CLSID *encoderCLSID)
 
     	for (cnt = 0, encoder = encoders; cnt < numEncoders; encoder++) {
 	       	if (memcmp (&encoder->Clsid, encoderCLSID, sizeof (GUID)) == 0) {
+			ImageFormat ifmt = gdip_image_format_for_format_guid (&encoder->FormatID);
             		GdipFree (encoders);
-            		return gdip_image_format_for_format_guid (&encoder->FormatID);
+			return ifmt;
         	}
     	}
 

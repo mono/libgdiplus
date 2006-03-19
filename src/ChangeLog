@@ -1,3 +1,12 @@
+2006-03-19  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* lineargradientbrush.c: The GpRect structure was never freed in 
+	GdipCreateLineBrushFromRectWithAngleI. Now allocated on the stack.
+	Temporary matrixes weren't freed in gdip_linear_gradient_setup and
+	create_tile_linear functions.
+	* image.c: Reordered code to avoid using memory we just freed in 
+	gdip_get_imageformat_from_codec_clsid.
+
 2006-03-18  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* image.c: Free the image palette on dispose. Also copy (not refer) 
