@@ -1,5 +1,6 @@
-2006-03-20  Sebastien Pouliot  <sebastien@ximian.com>
-
+2006-03-20  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* image.c: Free the filter in GdipGetImageGraphicsContext.
 	* pen.c: Use the GDI+ call to create the matrix (GdipCreateMatrix).
 	Delete the default (empty) matrix when cloning a pen. Delete the
 	matrix when disposing of the pen.

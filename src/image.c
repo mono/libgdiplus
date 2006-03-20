@@ -130,6 +130,7 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 {
 	GpGraphics *gfx;
 	cairo_surface_t *surface;
+	cairo_pattern_t *filter;
 	GpBitmap* bmp = (GpBitmap *) image;
 	
 	if (!image || !graphics)
@@ -146,8 +147,10 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 	cairo_surface_destroy (surface);
 
 	gfx->image = bmp;
-	gfx->type = gtMemoryBitmap;	
-	cairo_pattern_set_filter (cairo_pattern_create_for_surface (bmp->image.surface), gdip_get_cairo_filter (gfx->interpolation));
+	gfx->type = gtMemoryBitmap;
+	filter = cairo_pattern_create_for_surface (bmp->image.surface);
+	cairo_pattern_set_filter (filter, gdip_get_cairo_filter (gfx->interpolation));
+	cairo_pattern_destroy (filter);
 	*graphics = gfx;
 	return Ok;
 }
