@@ -1,3 +1,9 @@
+2006-03-20  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* font.c: Re-work font locking not to leak memory (and not to create
+	a scaled font when unlocking).
+	* graphics.c: Use CleanString (as String has been freed).
+
 2006-03-20  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: Clear the clipping region before data copying into it.

@@ -2256,7 +2256,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 #endif
 		/* Remember where to wrap next, but only if wrapping allowed */
 		if (((fmt->formatFlags & StringFormatFlagsNoWrap)==0) && (CurrentDetail->Flags & STRING_DETAIL_BREAK)) {
-			if (String[i] == ' ') {
+			if (CleanString[i] == ' ') {
 				WrapPoint=i+1;	/* We skip the break char itself, keeping it at the end of the old line */
 			} else {
 				WrapPoint=i;
