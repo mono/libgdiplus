@@ -1,3 +1,9 @@
+2006-03-20  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* pen.c: Use the GDI+ call to create the matrix (GdipCreateMatrix).
+	Delete the default (empty) matrix when cloning a pen. Delete the
+	matrix when disposing of the pen.
+
 2006-03-19  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* lineargradientbrush.c: The GpRect structure was never freed in 

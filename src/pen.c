@@ -48,8 +48,7 @@ gdip_pen_init (GpPen *pen)
 	pen->compound_array = NULL;
 	pen->unit = UnitWorld;
 	pen->changed = TRUE;
-	pen->matrix = NULL;
-	pen->matrix = g_new (GpMatrix, 1);
+	GdipCreateMatrix (&pen->matrix);
 	cairo_matrix_init_identity (pen->matrix);
 }
 
@@ -337,7 +336,9 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 	result->compound_count = pen->compound_count;
 	result->compound_array = compound_array;
 	result->unit = pen->unit;
-        gdip_cairo_matrix_copy(result->matrix, matrix);
+	if (result->matrix)
+		GdipDeleteMatrix (result->matrix);
+	result->matrix = matrix;
 	result->changed = pen->changed;
 
         *clonepen = result;
@@ -356,12 +357,21 @@ GdipDeletePen (GpPen *pen)
 		pen->dash_array = NULL;
 	}
 
-	if (pen->own_brush && pen->brush)
+	if (pen->own_brush && pen->brush) {
 		GdipFree (pen->brush);
+		pen->brush = NULL;
+	}
 
-        if (pen->compound_count != 0)
+        if (pen->compound_count != 0) {
                 GdipFree (pen->compound_array);
-	pen->compound_array = NULL;
+		pen->compound_array = NULL;
+		pen->compound_count = 0;
+	}
+
+	if (pen->matrix) {
+		GdipDeleteMatrix (pen->matrix);
+		pen->matrix = NULL;
+	}
 
         GdipFree (pen);
 
