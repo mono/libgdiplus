@@ -35,6 +35,7 @@ extern BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect);
 extern FT_Face gdip_cairo_ft_font_lock_face (cairo_font_face_t *cairofnt);
 extern void gdip_cairo_ft_font_unlock_face (cairo_font_face_t *cairofnt);
 void gdip_set_cairo_clipping (GpGraphics *graphics);
+extern void gdip_clear_region (GpRegion *region);
 extern void gdip_copy_region (GpRegion *source, GpRegion *dest);
 
 extern cairo_filter_t gdip_get_cairo_filter (InterpolationMode imode);
@@ -3813,6 +3814,7 @@ GdipGetClip (GpGraphics *graphics, GpRegion *region)
 	if (!graphics || !region)
 		return InvalidParameter;
 
+	gdip_clear_region (region);
 	gdip_copy_region (graphics->clip, region);
 	return Ok;
 }

@@ -1,3 +1,9 @@
+2006-03-20  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Clear the clipping region before data copying into it.
+	* region.c: Remove static from gdip_clear_region as we need it in
+	graphics.c for clipping.
+
 2006-03-20  Sebastien Pouliot  <sebastien@ximian.com> 
  
 	* image.c: Free the filter in GdipGetImageGraphicsContext.

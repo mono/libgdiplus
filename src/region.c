@@ -222,7 +222,7 @@ gdip_getlowestrect (GpRectF *rects, int cnt, GpRectF* src, GpRectF* rslt)
 	return TRUE;
 }
 
-static void 
+void 
 gdip_clear_region (GpRegion *region)
 {
 	region->type = RegionTypeEmpty;
