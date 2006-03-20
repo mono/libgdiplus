@@ -364,7 +364,6 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 	GpImage *img, *gr_img;
 	GpBitmap *bmp, *gr_bmp;
 	cairo_format_t format;
-	GpMatrix *product = NULL;
 	unsigned int width;
 	unsigned int height;
 	GpStatus status = Ok;
@@ -438,12 +437,12 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 		GdipDisposeImage((GpImage *)bmp);
 	}
 
-	GdipCreateMatrix (&product);
 	if (status == Ok) {
 		if (texture->pattern == NULL)
 			status = GenericError;
 		else {
-
+			GpMatrix *product = NULL;
+			GdipCreateMatrix (&product);
 		/* Cairo Bug: REPEAT and transformation do not go together.        */
 		/* To work around this we can create an intermediate surface first */
 		/* with REPEAT and use that with transformation as a pattern. But, */
@@ -486,6 +485,7 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 			}
 			status = gdip_get_status (cairo_status (ct));
 			/*	cairo_surface_destroy (temp); */
+			GdipDeleteMatrix (product);
 		}
 	}
 
@@ -507,7 +507,6 @@ gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush)
 	texture = (GpTexture *) brush;
 	result->base = texture->base;
 	result->wrapMode = texture->wrapMode;
-	result->image = texture->image;
 
 	/* Let the clone create its own pattern. */
 	result->pattern = NULL;
@@ -523,6 +522,9 @@ gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush)
 
 	memcpy (result->rectangle, texture->rectangle, sizeof (GpRect));
 
+	result->image = texture->image;
+	cairo_surface_reference (result->image->surface);
+
 	*clonedBrush = (GpBrush *) result;
 
 	return Ok;
@@ -537,13 +539,25 @@ gdip_texture_destroy (GpBrush *brush)
 
 	texture = (GpTexture *) brush;
 
-	if (texture->rectangle != NULL)
+	if (texture->rectangle) {
 		GdipFree (texture->rectangle);
-	texture->rectangle = NULL;
+		texture->rectangle = NULL;
+	}
 
-	if (texture->pattern != NULL)
+	if (texture->pattern) {
 		cairo_pattern_destroy (texture->pattern);
-	texture->pattern = NULL;
+		texture->pattern = NULL;
+	}
+
+	if (texture->image && texture->image->surface) {
+		cairo_surface_destroy (texture->image->surface);
+		texture->image->surface = NULL;
+	}
+
+	if (texture->matrix) {
+		GdipDeleteMatrix (texture->matrix);
+		texture->matrix = NULL;
+	}
 
 	GdipFree (texture);
 

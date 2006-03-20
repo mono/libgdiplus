@@ -1,3 +1,8 @@
+2006-03-20  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* texturebrush.c: Ensure we destroy the matrix and the surface when
+	disposing the brush. Add a reference to the surface when cloning.
+
 2006-03-20  Sebastien Pouliot  <sebastien@ximian.com> 
  
 	* font.c: Re-work font locking not to leak memory (and not to create
