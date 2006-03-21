@@ -1,3 +1,8 @@
+2006-03-21  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* region.c: Calling gdip_add_rect_to_array reallocate the array so we
+	must update the recttrg variable.
+
 2006-03-21  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* texturebrush.c: Don't keep a reference to the "image" (but Clone) in

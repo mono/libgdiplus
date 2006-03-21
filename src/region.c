@@ -745,6 +745,7 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 
 			if (contained == FALSE && rslt.Height > 0 && rslt.Width > 0) {
 				gdip_add_rect_to_array (&allrects, &allcnt,  &rslt);
+				recttrg = allrects;
 			}
 
 			/* If both we at the same Y when take into account the X also to process the following
