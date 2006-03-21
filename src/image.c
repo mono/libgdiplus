@@ -103,6 +103,9 @@ GdipDisposeImage (GpImage *image)
 						data [j].Bytes = NULL;
 					}
 				}
+			// FIXME: who's freeing 'data' ? (look around line 1551)
+			// someone, somewhere, is not playing fair with that (freeing will crash)
+			//GdipFree (data);
 		}
 		GdipFree (image->frameDimensionList);
 	}

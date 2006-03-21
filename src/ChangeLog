@@ -1,3 +1,11 @@
+2006-03-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* texturebrush.c: Don't keep a reference to the "image" (but Clone) in
+	GdipCreateTexture (we're not the owner of it). Fixed all the _flip 
+	functions that were broken (since the cairo 1.0 update ?).
+	* image.c: Add a comment for a leak (it leak for texture clones but 
+	crash elsewhere if freed).
+
 2006-03-20  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* font.c (gdip_cairo_ft_font_lock_face): Initialize the matrix to

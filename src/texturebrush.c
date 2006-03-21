@@ -87,9 +87,10 @@ draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	/* texture surface to be created */
 	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
 						2 * rect->Width, 2 * rect->Height);
-	g_return_val_if_fail (texture != NULL, OutOfMemory);
-
-	{
+	if (texture == NULL) {
+		cairo_pattern_destroy (pat);
+		return OutOfMemory;
+	} else {
 		cairo_t *ct2;
 
 		/* Draw the texture */
@@ -115,7 +116,6 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_surface_t *original;
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat, *pattern;
-	cairo_matrix_t tempMatrix;
 	GpRect *rect = brush->rectangle;
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
@@ -130,13 +130,12 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	/* texture surface to be created */
 	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
 						2 * rect->Width, rect->Height);
-
 	if (texture == NULL) {
+		cairo_pattern_destroy (pat);
 		return OutOfMemory;
-	}
-
-	{
+	} else {
 		cairo_t	*ct2;
+		cairo_matrix_t tempMatrix;
 
 		/* Draw left part of the texture */
 		ct2 = cairo_create (texture);
@@ -144,17 +143,20 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
 		cairo_fill (ct2);
 		
-		/* Draw right part of the texture */
-		cairo_translate (ct2, rect->Width, 0);
-		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
-
 		/* Not sure if this is a bug, but using rect->Width - 1
 		 * avoids the seam.
 		 */
+		cairo_matrix_init_identity (&tempMatrix);
 		cairo_matrix_translate (&tempMatrix, rect->Width - 1, 0);
 		/* scale in -X direction to flip along X */
 		cairo_matrix_scale (&tempMatrix, -1.0, 1.0);
 		cairo_pattern_set_matrix (pat, &tempMatrix);
+
+		/* Draw right part of the texture */
+		cairo_translate (ct2, rect->Width, 0);
+		cairo_set_source (ct2, pat);
+		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
+
 		cairo_fill (ct2);
 		cairo_destroy(ct2);
 	}
@@ -189,12 +191,10 @@ draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	/* texture surface to be created */
 	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
 						rect->Width, 2 * rect->Height);
-
 	if (texture == NULL) {
+		cairo_pattern_destroy (pat);
 		return OutOfMemory;
-	}
-
-	{
+	} else {
 		cairo_t	*ct2;
 
 		/* Draw upper part of the texture */
@@ -203,17 +203,19 @@ draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
 		cairo_fill (ct2);
 		
-		/* Draw lower part of the texture */
-		cairo_translate (ct2, 0, rect->Height);
-		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
-
 		/* Not sure if this is a bug, but using rect->Height - 1
 		 * avoids the seam.
 		 */
+		cairo_matrix_init_identity (&tempMatrix);
 		cairo_matrix_translate (&tempMatrix, 0, rect->Height - 1);
 		/* scale in -Y direction to flip along Y */
 		cairo_matrix_scale (&tempMatrix, 1.0, -1.0);
 		cairo_pattern_set_matrix (pat, &tempMatrix);
+
+		/* Draw lower part of the texture */
+		cairo_translate (ct2, 0, rect->Height);
+		cairo_set_source (ct2, pat);
+		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
 		cairo_fill (ct2);
 		cairo_destroy(ct2);
 	}
@@ -248,12 +250,10 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	/* texture surface to be created */
 	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
 						2 * rect->Width, 2 * rect->Height);
-
 	if (texture == NULL) {
+		cairo_pattern_destroy (pat);
 		return OutOfMemory;
-	}
-
-	{
+	} else {
 		cairo_t *ct2;
 
 		ct2 = cairo_create (texture);
@@ -263,21 +263,21 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
 		cairo_fill (ct2);
 
-		/* Draw lower left part of the texture */
-		cairo_translate (ct2, 0, rect->Height);
-		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
 		/* Not sure if this is a bug, but using rect->Height - 1
 		 * avoids the seam.
 		 */
+		cairo_matrix_init_identity (&tempMatrix);
 		cairo_matrix_translate (&tempMatrix, 0, rect->Height - 1);
 		/* scale in -Y direction to flip along Y */
 		cairo_matrix_scale (&tempMatrix, 1.0, -1.0);
 		cairo_pattern_set_matrix (pat, &tempMatrix);
+
+		/* Draw lower left part of the texture */
+		cairo_translate (ct2, 0, rect->Height);
+		cairo_set_source (ct2, pat);
+		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
 		cairo_fill (ct2);
 
-		/* Draw upper right part of the texture */
-		cairo_translate (ct2, rect->Width, -rect->Height);
-		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
 		/* Reset the pattern matrix and do fresh transformation */
 		cairo_matrix_init_identity (&tempMatrix);
 		/* Not sure if this is a bug, but using rect->Width - 1
@@ -287,11 +287,13 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 		/* scale in -X direction to flip along X */
 		cairo_matrix_scale (&tempMatrix, -1.0, 1.0);
 		cairo_pattern_set_matrix (pat, &tempMatrix);
+
+		/* Draw upper right part of the texture */
+		cairo_translate (ct2, rect->Width, -rect->Height);
+		cairo_set_source (ct2, pat);
+		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
 		cairo_fill (ct2);
 
-		/* Draw lower right part of the texture */
-		cairo_translate (ct2, 0, rect->Height);
-		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
 		/* Not sure if this is a bug, but using rect->Height - 1
 		 * avoids the seam.
 		 */
@@ -299,6 +301,11 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 		/* scale in -Y direction to flip along Y */
 		cairo_matrix_scale (&tempMatrix, 1.0, -1.0);
 		cairo_pattern_set_matrix (pat, &tempMatrix);
+
+		/* Draw lower right part of the texture */
+		cairo_translate (ct2, 0, rect->Height);
+		cairo_set_source (ct2, pat);
+		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
 		cairo_fill (ct2);
 		cairo_destroy(ct2);
 	}
@@ -333,10 +340,10 @@ draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	/* texture surface to be created */
 	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
 						rect->Width, rect->Height);
-
-	g_return_val_if_fail (texture != NULL, OutOfMemory);
-
-	{
+	if (texture == NULL) {
+		cairo_pattern_destroy (pat);
+		return OutOfMemory;
+	} else {
 		cairo_t	*ct2;
 		/* Draw the texture */
 		ct2 = cairo_create (texture);
@@ -549,9 +556,9 @@ gdip_texture_destroy (GpBrush *brush)
 		texture->pattern = NULL;
 	}
 
-	if (texture->image && texture->image->surface) {
-		cairo_surface_destroy (texture->image->surface);
-		texture->image->surface = NULL;
+	if (texture->image) {
+		GdipDisposeImage (texture->image);
+		texture->image = NULL;
 	}
 
 	if (texture->matrix) {
@@ -580,21 +587,20 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 	imageSurface = cairo_image_surface_create_for_data ((unsigned char *)bitmap->data.Scan0,
 					bitmap->cairo_format, bitmap->data.Width,
 					bitmap->data.Height, bitmap->data.Stride);
-
 	g_return_val_if_fail (imageSurface != NULL, OutOfMemory);
 
-	/* texture surface to be used by brush */
-	image->surface = imageSurface;
-
 	*texture = gdip_texture_new ();
-
 	if (*texture == NULL) {
 		cairo_surface_destroy (imageSurface);
 		return OutOfMemory;
 	}
 
 	(*texture)->wrapMode = wrapMode;
-	(*texture)->image = image;
+	GdipCloneImage (image, &(*texture)->image);
+	// note: surface is *always* empty after cloning
+	g_assert (!(*texture)->image->surface);
+	(*texture)->image->surface = imageSurface;
+
 	(*texture)->rectangle = (GpRect *) GdipAlloc (sizeof (GpRect));
 
 	if ( (*texture)->rectangle == NULL) {
