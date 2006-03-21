@@ -348,6 +348,8 @@ gdip_cairo_ft_font_lock_face (cairo_font_face_t *cairofnt, cairo_scaled_font_t *
 	
 	options = cairo_font_options_create ();
 		
+	cairo_matrix_init (&matrix1, 1, 0, 0, 1, 0, 0);
+	cairo_matrix_init (&matrix2, 1, 0, 0, 1, 0, 0);
 	*scaled_ft = cairo_scaled_font_create (cairofnt,
 					      &matrix1,
 					      &matrix2,

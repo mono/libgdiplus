@@ -1,3 +1,8 @@
+2006-03-20  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* font.c (gdip_cairo_ft_font_lock_face): Initialize the matrix to
+	  avoid using uninitialized memory in cairo
+
 2006-03-20  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* texturebrush.c: Ensure we destroy the matrix and the surface when
