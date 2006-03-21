@@ -1,5 +1,8 @@
-2006-03-21  Sebastien Pouliot  <sebastien@ximian.com> 
- 
+2006-03-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* imageattributes.c: Allocate enough memory before copying GpColorMap 
+	in GdipSetImageAttributesRemapTable. Also handle mapSize ==0 case and 
+	OutOfMemory condition.
 	* region.c: Calling gdip_add_rect_to_array reallocate the array so we
 	must update the recttrg variable.
 

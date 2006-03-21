@@ -369,9 +369,17 @@ GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType 
 	if (imgattr->colormap) 
 		GdipFree (imgattr->colormap);
 		
-	/* Copy colormap table*/	
-	imgattr->colormap =  GdipAlloc (mapSize);
-	memcpy (imgattr->colormap, map, mapSize * sizeof (GpColorMap));
+	/* Copy colormap table*/
+	if (mapSize > 0) {
+		int size = mapSize * sizeof (GpColorMap);
+		imgattr->colormap = GdipAlloc (size);
+		if (!imgattr->colormap)
+			return OutOfMemory;
+		memcpy (imgattr->colormap, map, size);
+	} else {
+		imgattr->colormap = NULL;
+	}
+
 	imgattr->colormap_elem = mapSize;
 	
 	return Ok;	
