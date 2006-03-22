@@ -1,3 +1,10 @@
+2006-03-22  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* lineargradientbrush.c: Don't needlessly allocate GpPointF structures
+	in GdipCreateLineBrushI. Fix pointers when accesing a brush matrix in
+	GdipGetLineTransform and GdipSetLineTransform. Fix error handling in 
+	GdipMultiplyLineTransform (to match GDI+).
+
 2006-03-21  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* imageattributes.c: Allocate enough memory before copying GpColorMap 

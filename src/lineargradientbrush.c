@@ -173,29 +173,33 @@ gdip_linear_gradient_destroy (GpBrush *brush)
 
 	linear = (GpLineGradient *) brush;
 
-	if (linear->rectangle)
+	if (linear->rectangle) {
 		GdipFree (linear->rectangle);
-	linear->rectangle = NULL;
+		linear->rectangle = NULL;
+	}
 
-	if (linear->blend)
+	if (linear->blend) {
 		if (linear->blend->count > 0) {
 			GdipFree (linear->blend->factors);
 			GdipFree (linear->blend->positions);
 		}
-	GdipFree (linear->blend);
-	linear->blend = NULL;
+		GdipFree (linear->blend);
+		linear->blend = NULL;
+	}
 
-	if (linear->presetColors)
+	if (linear->presetColors) {
 		if (linear->presetColors->count > 0) {
 			GdipFree (linear->presetColors->colors);
 			GdipFree (linear->presetColors->positions);
 		}
-	GdipFree (linear->presetColors);
-	linear->presetColors = NULL;
+		GdipFree (linear->presetColors);
+		linear->presetColors = NULL;
+	}
 
-	if (linear->pattern)
+	if (linear->pattern) {
 		cairo_pattern_destroy (linear->pattern);
-	linear->pattern = NULL;
+		linear->pattern = NULL;
+	}
 
 	GdipFree (linear);
 
@@ -431,8 +435,6 @@ create_tile_flipX_linear (cairo_t *ct, GpLineGradient *linear)
 	cairo_matrix_multiply (tempMatrix, tempMatrix, currMatrix);
 	cairo_set_matrix (ct, tempMatrix);
 	GdipDeleteMatrix (currMatrix);
-	
-	
 
 	return Ok;
 }
@@ -741,33 +743,17 @@ gdip_set_rect (GpRectF *rect, float x1, float y1, float x2, float y2)
 GpStatus
 GdipCreateLineBrushI (GDIPCONST GpPoint *point1, GDIPCONST GpPoint *point2, ARGB color1, ARGB color2, GpWrapMode wrapMode, GpLineGradient **lineGradient)
 {
-	GpPointF *pt1, *pt2;
-	GpStatus status;
+	GpPointF pt1, pt2;
 
 	g_return_val_if_fail (point1 != NULL, InvalidParameter);
 	g_return_val_if_fail (point2 != NULL, InvalidParameter);
 
-	pt1 = (GpPointF *) GdipAlloc (sizeof (GpPointF));
-	g_return_val_if_fail (pt1 != NULL, OutOfMemory);
+	pt1.X = point1->X; 
+	pt1.Y = point1->Y;
+	pt2.X = point2->X; 
+	pt2.Y = point2->Y;
 
-	pt2 = (GpPointF *) GdipAlloc (sizeof (GpPointF));
-
-	if (pt2 == NULL) {
-		GdipFree (pt1);
-		return OutOfMemory;
-	}
-
-	pt1->X = point1->X; 
-	pt1->Y = point1->Y;
-	pt2->X = point2->X; 
-	pt2->Y = point2->Y;
-
-	status = GdipCreateLineBrush (pt1, pt2, color1, color2, wrapMode, lineGradient);
-
-	GdipFree (pt1);
-	GdipFree (pt2);
-
-	return status;
+	return GdipCreateLineBrush (&pt1, &pt2, color1, color2, wrapMode, lineGradient);
 }
 
 GpStatus
@@ -794,8 +780,10 @@ GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARG
 	linear->wrapMode = wrapMode;
 	linear->lineColors [0] = color1;
 	linear->lineColors [1] = color2;
-	linear->points [0] = *point1;
-	linear->points [1] = *point2;
+	linear->points [0].X = point1->X;
+	linear->points [0].Y = point1->Y;
+	linear->points [1].X = point2->X;
+	linear->points [1].Y = point2->Y;
 	linear->rectangle = rectf;
 
 	*lineGradient = linear;
@@ -1160,7 +1148,7 @@ GdipGetLineTransform (GpLineGradient *brush, GpMatrix *matrix)
 	if (brush->presetColors->count >= 2)
 		return WrongState;
 
-	gdip_cairo_matrix_copy(matrix, &brush->matrix);
+	gdip_cairo_matrix_copy (matrix, brush->matrix);
 
 	return Ok;
 }
@@ -1171,7 +1159,7 @@ GdipSetLineTransform (GpLineGradient *brush, GDIPCONST GpMatrix *matrix)
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	gdip_cairo_matrix_copy(&brush->matrix, matrix);
+	gdip_cairo_matrix_copy (brush->matrix, matrix);
 	brush->base.changed = TRUE;
 	return Ok;
 }
@@ -1447,14 +1435,17 @@ GdipSetLineSigmaBlend (GpLineGradient *brush, float focus, float scale)
 GpStatus
 GdipMultiplyLineTransform (GpLineGradient *brush, GpMatrix *matrix, GpMatrixOrder order)
 {
-	GpStatus status;
-
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	if ((status = GdipMultiplyMatrix (brush->matrix, matrix, order)) == Ok)
-		brush->base.changed = TRUE;
-	return status;
+	/* note: error handling is different from GdipMultiplyMatrix */
+	if (order == MatrixOrderAppend)
+		cairo_matrix_multiply (brush->matrix, brush->matrix, matrix);
+	else
+		cairo_matrix_multiply (brush->matrix, matrix, brush->matrix);        
+
+	brush->base.changed = TRUE;
+	return Ok;
 }
 
 GpStatus
