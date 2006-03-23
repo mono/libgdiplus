@@ -34,7 +34,6 @@ GdipBeginContainer2
 GdipBeginContainerI
 GdipEndContainer
 GdipEndContainer
-GdipGetNearestColor
 GdipTransformPoints
 GdipTransformPointsI
 GdipTransformRegion 
