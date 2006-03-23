@@ -1,3 +1,8 @@
+2006-03-23  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* lineargradientbrush.c: Set the count value when cloning and Free the
+	matrix when destroying the brush.
+
 2006-03-23  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* lineargradientbrush.c: Don't lose the original context 'ct' when

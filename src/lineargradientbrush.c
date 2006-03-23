@@ -111,6 +111,7 @@ gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	if (newbrush->presetColors == NULL) 
 		goto NO_PRESET;
 
+	newbrush->presetColors->count = linear->presetColors->count;
 	if (linear->presetColors->count > 0) {
 		newbrush->presetColors->colors = (ARGB *) GdipAlloc (linear->presetColors->count * sizeof (ARGB));
 		if (newbrush->presetColors->colors == NULL) 
@@ -199,6 +200,11 @@ gdip_linear_gradient_destroy (GpBrush *brush)
 	if (linear->pattern) {
 		cairo_pattern_destroy (linear->pattern);
 		linear->pattern = NULL;
+	}
+
+	if (linear->matrix) {
+		GdipDeleteMatrix (linear->matrix);
+		linear->matrix = NULL;
 	}
 
 	GdipFree (linear);
