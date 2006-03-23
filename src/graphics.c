@@ -2436,8 +2436,13 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 					CurrentLineStart->LineLen=EndOfLine;
 				}
 
-				if ((fmt->formatFlags & StringFormatFlagsNoWrap)!=0)
+				if ((fmt->formatFlags & StringFormatFlagsNoWrap)!=0) {
+					// Avoid endless loops, always print at least one char
+					if (CurrentLineStart->LineLen == 0) {
+						CurrentLineStart->LineLen = 1;
+					}
 					break;
+				}
 
 				/* New line */
 				CurrentLineStart=&(StringDetails[EndOfLine]);
@@ -2508,6 +2513,9 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			printf("[Len %2d %dx%d] ", StringDetails[i].LineLen, (int)StringDetails[i].PosX, (int)StringDetails[i].PosY);
 			for (j=0; j<StringDetails[i].LineLen; j++) {
 				printf("%c", CleanString[i+j]);
+			}
+			if (j == 0) {
+				break;
 			}
 			i+=j-1;
 			printf("\n");
@@ -3278,6 +3286,9 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 			printf("[Len %2d %dx%d] ", StringDetails[i].LineLen, (int)StringDetails[i].PosX, (int)StringDetails[i].PosY);
 			for (j=0; j<StringDetails[i].LineLen; j++) {
 				printf("%c", CleanString[i+j]);
+			}
+			if (j == 0) {
+				break;
 			}
 			i+=j-1;
 			printf("\n");

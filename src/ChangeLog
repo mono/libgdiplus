@@ -1,3 +1,8 @@
+2006-03-23  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* graphics.c (MeasureOrDrawString): Avoid trying to draw 0-length 
+	  lines (fixes #77699)
+
 2006-03-23  Sebastien Pouliot  <sebastien@ximian.com> 
  
 	* lineargradientbrush.c: Set the count value when cloning and Free the
