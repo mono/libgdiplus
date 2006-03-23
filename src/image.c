@@ -294,6 +294,7 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 {
 	float width, height;
 	cairo_pattern_t *pattern;
+	cairo_pattern_t *org_pattern;
 	
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (image != NULL, InvalidParameter);
@@ -336,9 +337,14 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 		(double) width / image->width,
 		(double) height / image->height);
 	
+	org_pattern = cairo_get_source(graphics->ct);
+	cairo_pattern_reference(org_pattern);
+
 	cairo_set_source_surface (graphics->ct, image->surface, 0, 0);
 	cairo_identity_matrix (graphics->ct);
 	cairo_paint (graphics->ct);	
+	cairo_set_source(graphics->ct, org_pattern);
+
 	cairo_pattern_destroy (pattern);
 	
 	return Ok;
