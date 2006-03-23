@@ -230,17 +230,12 @@ GpStatus
 GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float width, float height)
 {
 	cairo_pattern_t *pattern;
+	cairo_pattern_t *org_pattern;
+
 	
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (image != NULL, InvalidParameter);
 	g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
-
-	/* 
-	   FIXME - digger shows an issue that needs the save/restore. Figure
-	   out what's screwed up (transformation?) and drop the need for 
-	   save/restore
-	*/
-	cairo_save(graphics->ct);
 
 	x = gdip_unitx_convgr (graphics, x);
 	y = gdip_unity_convgr (graphics, y);
@@ -268,6 +263,7 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	/* Create a surface for this bitmap if one doesn't exist */
 	gdip_bitmap_ensure_surface ((GpBitmap *) image);
 	pattern = cairo_pattern_create_for_surface (((GpBitmap*) image)->image.surface);
+
 	cairo_pattern_set_filter (pattern,
 				  gdip_get_cairo_filter (graphics->interpolation));
 
@@ -279,12 +275,15 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 				(double) height / image->height);
 	}
 	
+	org_pattern = cairo_get_source(graphics->ct);
+	cairo_pattern_reference(org_pattern);
+
 	cairo_set_source_surface (graphics->ct, image->surface, 0, 0);
 	cairo_identity_matrix (graphics->ct);
 	cairo_paint (graphics->ct);
-	
+	cairo_set_source(graphics->ct, org_pattern);	
+
 	cairo_pattern_destroy (pattern);
-	cairo_restore(graphics->ct);
 	
 	return Ok;
 }

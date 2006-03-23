@@ -1,3 +1,9 @@
+2006-03-22  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* image.c (GdipDrawImageRect): Dropping the save/restore and putting
+	  in the proper fix for Digger and other apps not drawing properly
+	  after drawing an image.
+
 2006-03-22  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* image.c (GdipDrawImageRectRect): We're now properly saving and 
