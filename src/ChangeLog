@@ -1,3 +1,18 @@
+2006-03-22  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* font.c:
+	  - GdipDeletePrivateFontCollection: No longer free's the passed
+	    variable but instead the memory the passed var points to, since
+	    that's what's been allocated. Sigh.
+	  - GdipDeletePrivateFontCollection: Only destroy the FcFontSet and
+	    FcConfig if we have one allocated.
+	  - GdipDeleteFontFamily: Only free the pattern if it's actually
+	    been allocated.
+	  - GdipGetFontCollectionFamilyList: Where do I begin? It was very
+	    much broken and memory was not handled right, with bad overwrites.
+	    It now properly writes the font families to the pointers it's
+	    supposed to. Got a bit simpler in the process.
+
 2006-03-22  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* image.c:

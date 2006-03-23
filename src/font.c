@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004 Ximian
- * Copyright (c) 2004-2005 Novell, Inc.
+ * Copyright (c) 2004-2006 Novell, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -19,6 +19,7 @@
  * 
  * Author:
  *          Jordi Mas i Hernandez <jordi@ximian.com>, 2004-2006
+ *          Peter Dennis Bartok <pbartok@novell.com>
  */
 #include <stdio.h>
 #include "gdip.h"
@@ -111,9 +112,13 @@ GdipDeletePrivateFontCollection (GpFontCollection **font_collection)
 		return InvalidParameter;
 
 	if (*font_collection) {
-		FcFontSetDestroy ((*font_collection)->fontset);
-		FcConfigDestroy ((*font_collection)->config);
-		GdipFree ((void *)font_collection);
+		if ((*font_collection)->fontset != NULL) {
+			FcFontSetDestroy ((*font_collection)->fontset);
+		}
+		if ((*font_collection)->config != NULL) {
+			FcConfigDestroy ((*font_collection)->config);
+		}
+		GdipFree ((void *)*font_collection);
 	}
 
 	return Ok;
@@ -163,7 +168,9 @@ GdipDeleteFontFamily (GpFontFamily *fontFamily)
 	}	
 	
 	if (delete) {
-		FcPatternDestroy (fontFamily->pattern);
+		if (fontFamily->allocated) {
+			FcPatternDestroy (fontFamily->pattern);
+		}
 		GdipFree (fontFamily);
 	}
 	
@@ -204,10 +211,8 @@ GdipGetFontCollectionFamilyCount (GpFontCollection *font_collection, int *numFou
 }
 
 GpStatus
-GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, int num_sought, GpFontFamily **gpfamilies, int *num_found)
+GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, int num_sought, GpFontFamily *gpfamilies[], int *num_found)
 {
-	GpFontFamily **gpfam = gpfamilies;
-	FcPattern **pattern =  font_collection->fontset->fonts;
 	int i;
 
 	if (!font_collection || !gpfamilies || !num_found)
@@ -216,12 +221,12 @@ GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, int num_soug
 	if (font_collection->config)
 		gdip_createPrivateFontSet (font_collection);
 
-	for (i = 0; i < font_collection->fontset->nfont; gpfam++, pattern++, i++) {
-		gdip_createFontFamily (gpfam);
-		(*gpfam)->pattern = *pattern;
-		(*gpfam)->allocated = FALSE;
+	for (i = 0; i < font_collection->fontset->nfont; i++) {
+		gdip_createFontFamily(&gpfamilies[i]);
+		gpfamilies[i]->pattern = font_collection->fontset->fonts[i];
+		gpfamilies[i]->allocated = FALSE;
 	}
-
+	
 	*num_found = font_collection->fontset->nfont;
 	return Ok;  
 }
