@@ -1,0 +1,42 @@
+Using valgrind to find memory leaks in libgdiplus
+Last update: 2006-03-23
+
+* Introduction
+
+Valgrind (http://valgrind.org/) is a nice tool for finding memory leaks 
+and related problems (e.g. like reusing freed memory).
+
+Libgdiplus is the foundation of Mono's System.Drawing.dll assembly. Any 
+leak from libgdiplus will make your .NET application leak - no GC help 
+here!
+
+There are many ways to run valgrind on libgdiplus. The most simple one is
+to use (or write) a C program using and use valgrind on it, but the most 
+interesting one are running System.Drawing samples using Mono.
+
+
+* Using valgrind with Mono
+
+Historically Mono and Valgrind didn't always played well together. If 
+this has discouraged you in the past then it's time to try it again!
+
+Recent valgrind versions are able to deal with for self-modifying 
+programs (which is what the mono JIT does) by using the 
+--smc-check=all option.
+
+As an extra bonus, Paolo (lupus) has shared his suppression file for 
+Mono. This removes a lot, but not all, false positives (or unimportant)
+logs coming from the Mono runtime. This makes it easier and faster to 
+find what you're looking for. The suppression file is available in 
+Mono's SVN as /mono/data/mono.supp
+
+
+Sample usage:
+
+ valgrind --tool=memcheck -v --leak-check=full --log-file=log 
+	--smc-check=all --suppressions=mono.supp mono app.exe
+
+This will run the app.exe application using mono and create a log file 
+named "log.####" (where #### is the process id). The log file will 
+indicates what leaked (and from where), what was (badly) reused after 
+being freed, ...
