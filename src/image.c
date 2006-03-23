@@ -461,6 +461,8 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 			flipXOn = flipYOn = TRUE;
 		
 		if (flipXOn) {			
+			// We're ok just cloning the bitmap, we don't need the image data
+			// and we destroy it before we leave this function
 			gdip_bitmap_clone (bitmap, &imgflipX);
 			gdip_flip_x ((GpImage *) imgflipX);	
 			gdip_bitmap_ensure_surface (imgflipX);			
