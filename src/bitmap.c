@@ -95,6 +95,13 @@ gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
 		return OutOfMemory;
 	}
 	memcpy (result, bitmap, sizeof (GpBitmap));
+
+	result->image.surface = NULL;
+	result->image.palette = NULL;
+	result->image.propItems = NULL;
+	result->image.frameDimensionCount = 0;
+	result->image.frameDimensionList = NULL;
+	result->data.Bytes = NULL;
 	
 	result->data.Scan0 = GdipAlloc (bitmap->data.Stride * bitmap->data.Height);
 	if (result->data.Scan0 == NULL) {
@@ -377,7 +384,7 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 GpStatus
 GdipCreateBitmapFromHBITMAP(void *hbm, void *hpal, GpBitmap** bitmap)
 {
-	return gdip_bitmap_clone ((GpBitmap *)hbm, bitmap);
+	return GdipCloneImage((GpImage *)hbm, (GpImage **)bitmap);
 }
 
 GpStatus
@@ -410,7 +417,6 @@ GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
 					  GpBitmap *original, GpBitmap **bitmap)
 {
 	GpBitmap *result = 0;
-	GdipBitmapData bd;
 	Rect sr = { x, y, width, height };
 	Rect dr = { 0, 0, width, height };
 	GpStatus st;
@@ -421,21 +427,17 @@ GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
 	g_return_val_if_fail (x + width <= original->data.Width, InvalidParameter);
 	g_return_val_if_fail (y + height <= original->data.Height, InvalidParameter);
 
-	bd.Scan0 = NULL;
-	bd.PixelFormat = format;
-	
-	st = gdip_bitmap_clone_data_rect (&original->data, &sr, &bd, &dr);
-	if (st != Ok)
-		return st;
-
 	result = gdip_bitmap_new ();
 	if (result == NULL){
-		GdipFree (bd.Scan0);
 		return OutOfMemory;
 	}
-	
+
+	st = gdip_bitmap_clone_data_rect (&original->data, &sr, &result->data, &dr);
+	if (st != Ok) {
+		return st;
+	}
+
 	result->cairo_format = original->cairo_format;
-	memcpy (&result->data, &bd, sizeof (GdipBitmapData));
 	result->image.pixFormat = format;
 	result->image.format = original->image.format;
 	result->image.height = result->data.Height;

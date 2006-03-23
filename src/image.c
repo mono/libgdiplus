@@ -78,6 +78,7 @@ GdipDisposeImage (GpImage *image)
 {
 	int i = 0, j = 0, count = 0, dataCount = 0;
 	BitmapData *data;
+	bool dispose_bitmap;
 
 	if (!image)
 		return InvalidParameter;
@@ -87,25 +88,30 @@ GdipDisposeImage (GpImage *image)
 	image->surface = NULL;
 
 	count = image->frameDimensionCount;
+	dispose_bitmap = TRUE;
 
 	if (count > 0 && image->frameDimensionList != NULL) {
 		for (i = 0; i < count; i++) {
 			dataCount = image->frameDimensionList [i].count;
 			data = image->frameDimensionList [i].frames;
-				for (j = 0; j < dataCount; j++) {
-					if (((data [j].Reserved & GBD_OWN_SCAN0) != 0) && data [j].Scan0 != NULL) {
-						GdipFree (data [j].Scan0);
-						data [j].Scan0 = NULL;
-					}
-					if ((data [j].ByteCount) > 0 && (data [j].Bytes != NULL)) {
-						GdipFree (data [j].Bytes);
-						data [j].ByteCount = 0;
-						data [j].Bytes = NULL;
-					}
+			for (j = 0; j < dataCount; j++) {
+				if (((data [j].Reserved & GBD_OWN_SCAN0) != 0) && data [j].Scan0 != NULL) {
+					GdipFree (data [j].Scan0);
+					data [j].Scan0 = NULL;
 				}
+				if ((data [j].ByteCount) > 0 && (data [j].Bytes != NULL)) {
+					GdipFree (data [j].Bytes);
+					data [j].ByteCount = 0;
+					data [j].Bytes = NULL;
+				}
+			}
 			// FIXME: who's freeing 'data' ? (look around line 1551)
 			// someone, somewhere, is not playing fair with that (freeing will crash)
-			//GdipFree (data);
+			if (data != &((GpBitmap *)image)->data) {
+				GdipFree (data);
+			} else {
+				dispose_bitmap = FALSE;
+			}
 		}
 		GdipFree (image->frameDimensionList);
 	}
@@ -115,13 +121,13 @@ GdipDisposeImage (GpImage *image)
 		image->palette = NULL;
 	}
 	
-	/* Nothing more to be done here... We have already
-	 * cleaned the memory while looping in FrameDimension List
-	 * and hence we dont need to do anything in gdip_bitmap_dispose ()
-	 */
-	 GdipFree (image);
+	if (dispose_bitmap) {
+		gdip_bitmap_dispose((GpBitmap *)image);
+	}
 
-	 return Ok;
+	GdipFree (image);
+
+	return Ok;
 }
 
 /*
@@ -475,7 +481,6 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		
 		/* Create a surface for this bitmap if one doesn't exist */
 		gdip_bitmap_ensure_surface ((GpBitmap*) image);
-		cairo_pattern_set_filter (cairo_pattern_create_for_surface(((GpBitmap*) image)->image.surface), gdip_get_cairo_filter (graphics->interpolation));
 
 		for (posy = 0; posy < dstheight; posy += img_height) {
 		

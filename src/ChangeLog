@@ -1,3 +1,21 @@
+2006-03-22  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* image.c:
+	  - GdipDisposeImage: Single-frame images will have the
+	    frameDimensionList[].frames pointer point to the image's BitmapData
+	    block. We now consider that fact and free the image BitmapData only
+	    if it wasn't also part of the frames list (and was free'd there)
+	  - Removed a useless call to cairo that caused a leak but had no
+	    effect on rendering
+	* bitmap.c:
+	  - gdip_bitmap_clone: Resetting all pointers to null after copying
+	    BitmapData. Otherwise the surface will get used without proper
+	    refcounting, and we would illegally free the memory off the wrong
+	    object.
+	  - GdipCloneBitmapAreaI: Eliminated intermediate stack var and memcpy
+	  - GdipCreateBitmapFromHBITMAP: Cloning the whole image instead of
+	    just the bitmap part. That way we also get the palette, etc.
+
 2006-03-22  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* lineargradientbrush.c: Don't needlessly allocate GpPointF structures
