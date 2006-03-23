@@ -1,3 +1,8 @@
+2006-03-23  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* lineargradientbrush.c: Don't lose the original context 'ct' when
+	flipping and free the new context. Remove obsoleted comments.
+
 2006-03-22  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* font.c:

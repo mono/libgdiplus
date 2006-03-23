@@ -293,10 +293,8 @@ create_tile_linear (cairo_t *ct, GpLineGradient *linear)
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
 	/* gradient surface to be created. We are using CAIRO_CONTENT_COLOR_ALPHA, */
-	/* because internally this is the format we use everywhere. */
 	gradient = cairo_surface_create_similar (cairo_get_target (ct), CAIRO_CONTENT_COLOR_ALPHA,
 						 (int) (2 * rect->Width), (int) (2 * rect->Height));
-
 	if (gradient == NULL) {
 		return OutOfMemory;
 	}
@@ -362,7 +360,6 @@ create_tile_flipX_linear (cairo_t *ct, GpLineGradient *linear)
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
 	/* gradient surface to be created. We are using CAIRO_CONTENT_COLOR_ALPHA, */
-	/* because internally this is the format we use everywhere. */
 	gradient = cairo_surface_create_similar (cairo_get_target (ct), CAIRO_CONTENT_COLOR_ALPHA,
 						 (int) (2 * rect->Width), (int) (2 * rect->Height));
 
@@ -383,6 +380,7 @@ create_tile_flipX_linear (cairo_t *ct, GpLineGradient *linear)
 	GdipCreateMatrix (&tempMatrix);
 	cairo_save (ct);
 	{
+		cairo_t *temp = ct;
 		ct = cairo_create (gradient);
 
 		if (linear->blend->count > 1)
@@ -409,6 +407,8 @@ create_tile_flipX_linear (cairo_t *ct, GpLineGradient *linear)
 		cairo_fill (ct);
 
 		cairo_pattern_destroy (pat);
+		cairo_destroy (ct);
+		ct = temp;
 	}
 	cairo_restore (ct);
 
@@ -450,7 +450,6 @@ create_tile_flipY_linear (cairo_t *ct, GpLineGradient *linear)
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
 	/* gradient surface to be created. We are using CAIRO_CONTENT_COLOR_ALPHA, */
-	/* because internally this is the format we use everywhere. */
 	gradient = cairo_surface_create_similar (cairo_get_target (ct), CAIRO_CONTENT_COLOR_ALPHA,
 						 (int) (2 * rect->Width), (int) (2 * rect->Height));
 
@@ -471,6 +470,7 @@ create_tile_flipY_linear (cairo_t *ct, GpLineGradient *linear)
 	GdipCreateMatrix (&tempMatrix);	
 	cairo_save (ct);
 	{
+		cairo_t *temp = ct;
 		ct = cairo_create (gradient);
 
 		if (linear->blend->count > 1)
@@ -497,6 +497,8 @@ create_tile_flipY_linear (cairo_t *ct, GpLineGradient *linear)
 		cairo_fill (ct);
 
 		cairo_pattern_destroy (pat);
+		cairo_destroy (ct);
+		ct = temp;
 	}
 	cairo_restore (ct);
 
@@ -540,7 +542,6 @@ create_tile_flipXY_linear (cairo_t *ct, GpLineGradient *linear)
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
 	/* gradient surface to be created. We are using CAIRO_CONTENT_COLOR_ALPHA, */
-	/* because internally this is the format we use everywhere. */
 	gradient = cairo_surface_create_similar (cairo_get_target (ct), CAIRO_CONTENT_COLOR_ALPHA,
 						 (int) (2 * rect->Width), (int) (2 * rect->Height));
 	
@@ -561,6 +562,7 @@ create_tile_flipXY_linear (cairo_t *ct, GpLineGradient *linear)
 	GdipCreateMatrix (&tempMatrix);	
 	cairo_save (ct);
 	{
+		cairo_t *temp = ct;
 		ct = cairo_create (gradient);
 
 		if (linear->blend->count > 1)
@@ -617,6 +619,8 @@ create_tile_flipXY_linear (cairo_t *ct, GpLineGradient *linear)
 		cairo_fill (ct);
 
 		cairo_pattern_destroy (pat);
+		cairo_destroy (ct);
+		ct = temp;
 	}
 	cairo_restore (ct);
 
