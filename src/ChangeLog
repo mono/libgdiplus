@@ -1,3 +1,10 @@
+2006-03-22  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* image.c (GdipDrawImageRectRect): We're now properly saving and 
+	  restoring the original source pattern (fixes #77438)
+	* imageattributes.c: Setting copied pointer to null to avoid 
+	  double usage
+
 2006-03-22  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* image.c:

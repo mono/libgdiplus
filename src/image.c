@@ -393,6 +393,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
                        DrawImageAbort callback, void *callbackData)
 {
 	cairo_pattern_t *pattern;
+	cairo_pattern_t *orig;
 	cairo_matrix_t mat;
 	void* dest, *org;
 	bool allocated = FALSE;
@@ -444,7 +445,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		bitmap->data.Scan0 = dest;
 	
 	/* Re-attach the image if the image has attribues */
-	if ((bitmap->image.surface && imageAttributes != NULL) || bitmap->image.surface == NULL)  {
+	if ((bitmap->image.surface != NULL) && (imageAttributes != NULL))  {
 		cairo_surface_destroy (bitmap->image.surface);
 		bitmap->image.surface = NULL;
 	}
@@ -505,11 +506,16 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 
 				pattern = cairo_pattern_create_for_surface(cur_image->image.surface);
 				cairo_pattern_set_matrix (pattern, &mat);
+
+				orig = cairo_get_source(graphics->ct);
+				cairo_pattern_reference(orig);
+
 				cairo_set_source(graphics->ct, pattern);
-				
 				cairo_rectangle (graphics->ct, dstx + posx, dsty + posy, img_width, img_height);
 				cairo_fill (graphics->ct);
-				
+
+				cairo_set_source(graphics->ct, orig);
+
 				cairo_matrix_init_identity (&mat);
 				cairo_pattern_set_matrix (pattern, &mat);
 
@@ -547,11 +553,16 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 
 		pattern = cairo_pattern_create_for_surface(image->surface);
 		cairo_pattern_set_matrix (pattern, &mat);
+
+		orig = cairo_get_source(graphics->ct);
+		cairo_pattern_reference(orig);
+
 		cairo_set_source(graphics->ct, pattern);
-		
 		cairo_rectangle (graphics->ct, dstx, dsty, dstwidth, dstheight);
 		cairo_fill (graphics->ct);
 		
+		cairo_set_source(graphics->ct, orig);
+
 		cairo_matrix_init_identity (&mat);
 		cairo_pattern_set_matrix (pattern, &mat);
 		cairo_pattern_destroy (pattern);

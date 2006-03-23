@@ -102,6 +102,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		memcpy (scan0, bitmap->data.Scan0, bitmap->data.Stride * bitmap->data.Height);
 		*dest = scan0;
 		memcpy (&bmpdest, bitmap, sizeof (GpBitmap));
+		bmpdest.data.Bytes = NULL;
 		bmpdest.data.Scan0 = scan0;
 		*allocated = TRUE;
 	}
