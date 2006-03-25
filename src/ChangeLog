@@ -1,3 +1,9 @@
+2006-03-25  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Adjust anti-aliasing so that graphics can draw thin 
+	lines in SmoothingModeAntiAlias and SmoothingModeHighQuality modes
+	(thanks to Peter Bartok).
+
 2006-03-25  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* gdip.h: Added new structures required for path tree (GpPathTree) and

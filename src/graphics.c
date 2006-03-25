@@ -3655,8 +3655,8 @@ GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 		case SmoothingModeAntiAlias:
 		case SmoothingModeHighQuality: {
 			cairo_set_antialias(graphics->ct, CAIRO_ANTIALIAS_DEFAULT);
-			graphics->aa_offset_x = 0;
-			graphics->aa_offset_y = 0;
+			graphics->aa_offset_x = 0.5;
+			graphics->aa_offset_y = 0.5;
 			break;
 		}
 
