@@ -1128,6 +1128,8 @@ GpStatus GdipGetTextContrast(GpGraphics *graphics, UINT *contrast);
 GpStatus GdipSetSmoothingMode(GpGraphics *graphics, SmoothingMode mode);
 GpStatus GdipGetSmoothingMode(GpGraphics *graphics, SmoothingMode *mode);
 GpStatus GdipSetVisibleClip_linux (GpGraphics *graphics, GpRect *rect);
+GpStatus GdipTranslateClip (GpGraphics *graphics, float dx, float dy);
+GpStatus GdipTranslateClipI (GpGraphics *graphics, UINT dx, UINT dy);
 
 /* Status */
 GpStatus gdip_get_status (cairo_status_t status);

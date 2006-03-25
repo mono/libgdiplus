@@ -1359,8 +1359,11 @@ GdipTransformPath (GpPath* path, GpMatrix *matrix)
 
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 
-	points = g_array_to_array (path->points);
 	count = path->count;
+	if (count == 0)
+		return Ok; /* GdipTransformMatrixPoints would fail */
+
+	points = g_array_to_array (path->points);
 
 	s = GdipTransformMatrixPoints (matrix, points, count);
 

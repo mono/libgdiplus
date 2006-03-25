@@ -1,8 +1,11 @@
-2006-03-25  Sebastien Pouliot  <sebastien@ximian.com>
-
+2006-03-25  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* gdip.h: Add missing prototypes for GdipTranslateClip[I] functions.
 	* graphics.c: Adjust anti-aliasing so that graphics can draw thin 
 	lines in SmoothingModeAntiAlias and SmoothingModeHighQuality modes
 	(thanks to Peter Bartok).
+	* graphics-path.c: Fix GdipTransformPath when the path is empty (to
+	return Ok, not an error).
 
 2006-03-25  Sebastien Pouliot  <sebastien@ximian.com> 
 
