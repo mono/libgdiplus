@@ -36,7 +36,6 @@ GdipEndContainer
 GdipEndContainer
 GdipTransformPoints
 GdipTransformPointsI
-GdipTransformRegion 
 
 * Image handeling
 
@@ -75,7 +74,6 @@ GdipAddStringI
 GdipWindingModeOutline
 GdipWidenPath
 GdipWarpPath
-GdipCombineRegionPath 
 
 ---- Issues
 
