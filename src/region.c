@@ -23,8 +23,7 @@
  *
  */
 
-#include "gdip.h"
-
+#include "region.h"
 
 /*
 	Helper functions
@@ -94,14 +93,29 @@ gdip_is_region_empty (GpRegion *region)
 	if (!region)
 		return FALSE;
 
-	if (region->type == RegionTypePath)
-		return (region->path->count == 0);
+	if (region->type == RegionTypePath) {
+		/* check for an existing, but empty, path list */
+		if (!region->tree)
+			return TRUE;
+		if (region->tree->path)
+			return (region->tree->path->count == 0);
+		return FALSE;
+	}
 
 	if (!region->rects || (region->cnt == 0))
 		return TRUE;
 
 	gdip_get_bounds (region->rects, region->cnt, &rect);
 	return ((rect.Width == 0) || (rect.Height == 0));
+}
+
+static BOOL
+gdip_is_rect_infinite (GpRectF *rect)
+{
+	return ((rect->X == REGION_INFINITE_POSITION) && 
+		(rect->Y == REGION_INFINITE_POSITION) &&
+		(rect->Width == REGION_INFINITE_LENGTH) && 
+		(rect->Height == REGION_INFINITE_LENGTH));
 }
 
 BOOL
@@ -111,12 +125,14 @@ gdip_is_InfiniteRegion (GpRegion *region)
 	case RegionTypeRectF:
 		if (region->cnt != 1)
 	              return FALSE;
-		if (region->rects->X == -4194304 && region->rects->Y == -4194304 &&
-			region->rects->Width == 8388608 &&  region->rects->Height == 8388608)
-			return TRUE;
-		break;
+		return gdip_is_rect_infinite (region->rects);
 	case RegionTypePath:
-		/* TODO - check for a infinite path. Note that we can't use the path bounds for this! */
+		/* FIXME: incomplete and not 100% accurate (curves) - but cover the most common case */
+		if (region->tree && region->tree->path && (region->tree->path->count == 4)) {
+			GpRectF bounds;
+			if (GdipGetPathWorldBounds (region->tree->path, &bounds, NULL, NULL) != Ok)
+				return gdip_is_rect_infinite (&bounds);
+		}
 		break;
 	default:
 		g_warning ("unknown type %d", region->type);
@@ -226,35 +242,50 @@ void
 gdip_clear_region (GpRegion *region)
 {
 	region->type = RegionTypeEmpty;
-	region->cnt = 0;
+
         if (region->rects) {
                 GdipFree (region->rects);
 		region->rects = NULL;
 	}
 
-	if (region->path) {
-		GdipDeletePath (region->path);
-		region->path = NULL;
+	if (region->tree) {
+		gdip_region_clear_tree (region->tree);
+                GdipFree (region->tree);
+		region->tree = NULL;
 	}
+
+	if (region->bitmap) {
+		gdip_region_bitmap_free (region->bitmap);
+		region->bitmap = NULL;
+	}
+
+	region->cnt = 0;
 }
 
 void
 gdip_copy_region (GpRegion *source, GpRegion *dest)
 {
 	dest->type = source->type;
-	dest->cnt = source->cnt;
 
 	if (source->rects) {
+		dest->cnt = source->cnt;
 	        dest->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * source->cnt);
         	memcpy (dest->rects, source->rects, sizeof (GpRectF) * source->cnt);
 	} else {
 		dest->rects = NULL;
 	}
 
-	if (source->path) {
-		GdipClonePath (source->path, &dest->path);
+	if (source->tree) {
+		dest->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
+		gdip_region_copy_tree (source->tree, dest->tree);
 	} else {
-		dest->path = NULL;
+		dest->tree = NULL;
+	}
+
+	if (source->bitmap) {
+		dest->bitmap = gdip_region_bitmap_clone (source->bitmap);
+	} else {
+		dest->bitmap = NULL;
 	}
 }
 
@@ -269,18 +300,30 @@ gdip_region_convert_to_path (GpRegion *region)
 	if (!region || (region->cnt == 0) || (region->type != RegionTypeRectF))
 		return;
 
-	GdipCreatePath (FillModeAlternate, &region->path);
+	region->type = RegionTypePath;
+	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
+
+	GdipCreatePath (FillModeAlternate, &region->tree->path);
+	/* all rectangles are converted into a single path */
 	for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
-		/* convert existing rectangles into a path */
-		GdipAddPathRectangle (region->path, rect->X, rect->Y, rect->Width, rect->Height);
+		GdipAddPathRectangle (region->tree->path, rect->X, rect->Y, rect->Width, rect->Height);
 	}
 
 	if (region->rects) {
 		GdipFree (region->rects);
 		region->rects = NULL;
 	}
-	region->cnt = 0;
+}
+
+/*
+ * Create a region (path-tree) from a path.
+ */
+static GpStatus
+gdip_region_create_from_path (GpRegion *region, GpPath *path)
+{
 	region->type = RegionTypePath;
+	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
+	return GdipClonePath (path, &region->tree->path);
 }
 
 GpStatus
@@ -293,7 +336,8 @@ gdip_createRegion (GpRegion **region, RegionType type, void *src)
 	result->type = type;
 	result->cnt = 0;
         result->rects = NULL;
-        result->path = NULL;
+        result->tree = NULL;
+        result->bitmap = NULL;
 
         switch (type) {
         case RegionTypeRect:
@@ -309,7 +353,7 @@ gdip_createRegion (GpRegion **region, RegionType type, void *src)
 		/* note: GdipSetInfinite converts type to RegionTypeRectF */
                 break;
 	case RegionTypePath:
-		GdipClonePath ((GpPath*)src, &result->path);
+		gdip_region_create_from_path (result, (GpPath*)src);
 		break;
         default:
 		g_warning ("unknown type %d", result->type);
@@ -357,9 +401,6 @@ GpStatus
 GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, int size, GpRegion **region)
 {
 	GpRegion *result;
-	GpRectF *rect;
-	GpPointF *points;
-	guint32 i, *count, *mode;
 
 	if (!region || !regionData || (size < 8))
 		return InvalidParameter;
@@ -368,23 +409,30 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, int size, GpRegion **region
 	result->type = *(guint32*) regionData;
 	result->cnt = 0;
         result->rects = NULL;
-	result->path = NULL;
-	count = (guint32*) (regionData + 4);
+	result->tree = NULL;
+        result->bitmap = NULL;
 
 	switch (result->type) {
-	case RegionTypeRectF:
-		if (*count != (size - 8) / sizeof (GpRectF))
+	case RegionTypeRectF: {
+		guint32 count = (guint32) *(regionData + 4);
+		GpRectF *rect;
+		int i;
+
+		if (count != (size - 8) / sizeof (GpRectF))
 			return InvalidParameter;
 
-		for (i = 0, rect = (GpRectF*)(regionData + 8); i < *count; i++, rect++)
+		for (i = 0, rect = (GpRectF*)(regionData + 8); i < count; i++, rect++)
 	                gdip_add_rect_to_array (&result->rects, &result->cnt, rect);
+		}
 		break;
-	case RegionTypePath:
-		if (size < 12)
+	case RegionTypePath: {
+		if (size < 16)
 			return InvalidParameter;
-		mode = (guint32*) (regionData + 8);
-		points = (GpPointF*) (regionData + 12 + *count);
-		GdipCreatePath2 (points, (regionData + 12), *count, *mode, &result->path);
+
+		result->tree = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!gdip_region_deserialize_tree ((BYTE*)(regionData + 4), (size - 4), result->tree))
+			return InvalidParameter;
+		}
 		break;
 	default:
 		g_warning ("unknown type %d", result->type);
@@ -435,8 +483,8 @@ GdipSetInfinite (GpRegion *region)
 	gdip_clear_region (region);
 	region->type = RegionTypeRectF;
 
-        rect.X = rect.Y = -4194304;
-        rect.Width = rect.Height= 8388608;
+        rect.X = rect.Y = REGION_INFINITE_POSITION;
+        rect.Width = rect.Height = REGION_INFINITE_LENGTH;
 
         gdip_add_rect_to_array (&region->rects, &region->cnt,  &rect);
         return Ok;
@@ -489,8 +537,6 @@ gdip_get_bounds (GpRectF *allrects, int allcnt, GpRectF *bound)
         bound->X = nx; bound->Y = ny;
         bound->Width = fx - nx; bound->Height = fy - ny;
 }
-
-
 
 
 /* Exclude */
@@ -932,14 +978,16 @@ GdipCombineRegionRectI (GpRegion *region, GDIPCONST GpRect *recti, CombineMode c
 GpStatus
 GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 {
+	GpRegionBitmap *path_bitmap, *result;
+	GpPathTree* tmp;
+
 	if (!region || !path)
 		return InvalidParameter;
 
 	/* special case #1 - replace */
 	if (combineMode == CombineModeReplace) {
 		gdip_clear_region (region);
-		region->type = RegionTypePath;
-		GdipClonePath (path, &region->path);
+		gdip_region_create_from_path (region, path);
 		return Ok;
 	}
 
@@ -951,8 +999,7 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 		case CombineModeXor:
 			/* this is like "adding" the path */
 			gdip_clear_region (region);
-			region->type = RegionTypePath;
-			GdipClonePath (path, &region->path);
+			gdip_region_create_from_path (region, path);
 			break;
 		default:
 			/* Intersect and Exclude are no-op on an empty region */
@@ -975,8 +1022,7 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 		case CombineModeIntersect:
 			/* Intersection with infinity is the path itself */
 			gdip_clear_region (region);
-			region->type = RegionTypePath;
-			GdipClonePath (path, &region->path);
+			gdip_region_create_from_path (region, path);
 			return Ok;
 		default:
 			/* Xor and Exclude must be treated as a "normal" case */
@@ -987,8 +1033,81 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 	if (region->type == RegionTypeRectF)
 		gdip_region_convert_to_path (region);
 
-	/* TODO combine both complex regions */
-        return NotImplemented;
+	/* make sure the region's bitmap is available */
+	gdip_region_bitmap_ensure (region);
+	g_assert (region->bitmap);
+
+	/* create a bitmap for the path to combine into the region */
+	path_bitmap = gdip_region_bitmap_from_path (path);
+
+	result = gdip_region_bitmap_combine (region->bitmap, path_bitmap, combineMode);
+	gdip_region_bitmap_free (path_bitmap);
+	if (!result)
+		return NotImplemented;
+
+	gdip_region_bitmap_free (region->bitmap);
+	region->bitmap = result;
+
+	/* add a copy of path into region1 tree */
+	tmp = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+	tmp->mode = combineMode;
+	tmp->path = NULL;
+	tmp->branch1 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+	tmp->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+
+	if (region->tree->path) {
+		tmp->branch1->path = region->tree->path;
+	} else {
+		gdip_region_copy_tree (region->tree, tmp->branch1);
+	}
+
+	GdipClonePath (path, &tmp->branch2->path);
+
+	region->tree = tmp;
+	return Ok;
+}
+
+
+static GpStatus
+gdip_combine_pathbased_region (GpRegion *region1, GpRegion *region2, CombineMode combineMode)
+{
+	GpRegionBitmap *result;
+	GpPathTree* tmp;
+
+	/* if not available, construct the bitmaps for both regions */
+	gdip_region_bitmap_ensure (region1);
+	gdip_region_bitmap_ensure (region2);
+	if (!region1->bitmap || !region2->bitmap)
+		return OutOfMemory;
+
+	result = gdip_region_bitmap_combine (region1->bitmap, region2->bitmap, combineMode);
+	if (!result)
+		return NotImplemented;
+	gdip_region_bitmap_free (region1->bitmap);
+	region1->bitmap = result;
+
+	/* add a copy of region2 tree into region1 tree */
+	tmp = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+	tmp->mode = combineMode;
+	tmp->path = NULL;
+	tmp->branch1 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+	tmp->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+
+	if (region1->tree->path) {
+		tmp->branch1->path = region1->tree->path;
+	} else {
+		gdip_region_copy_tree (region1->tree, tmp->branch1);
+	}
+
+	if (region2->tree->path) {
+		GdipClonePath (region2->tree->path, &tmp->branch2->path);
+	} else {
+		gdip_region_copy_tree (region2->tree, tmp->branch2);
+	}
+
+	GdipFree (region1->tree);
+	region1->tree = tmp;
+	return Ok;
 }
 
 
@@ -998,11 +1117,20 @@ GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combi
         if (!region || !region2)
                 return InvalidParameter;
 
+	/* special case to deal with copying empty and infinity regions */
+	/* CombineModeReplace is used by Graphics clipping */
+	if (combineMode == CombineModeReplace) {
+		GdipSetEmpty (region);
+		gdip_copy_region (region2, region);
+		return Ok;
+	}
+
 	if (region->type == RegionTypePath) {
 		gdip_region_convert_to_path (region2);
-		return GdipCombineRegionPath (region, region2->path, combineMode);
+		return gdip_combine_pathbased_region (region, region2, combineMode);
 	} else if (region2->type == RegionTypePath) {
-		return GdipCombineRegionPath (region, region2->path, combineMode);
+		gdip_region_convert_to_path (region);
+		return gdip_combine_pathbased_region (region, region2, combineMode);
 	}
 
 	/* at this stage we are sure that BOTH region and region2 are rectangle 
@@ -1024,19 +1152,8 @@ GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combi
         case CombineModeXor:
                 gdip_combine_xor (region, region2->rects, region2->cnt);
                 break;
-	case CombineModeReplace: { /* Used by Graphics clipping */
-		int i;
-		GpRectF* rect;
-		GdipSetEmpty (region);
-		
-		for (i = 0, rect = region2->rects; i < region2->cnt; i++, rect++)
-			gdip_add_rect_to_array (&region->rects, &region->cnt, rect);
-	
-		break;
-	}
         default:
                return NotImplemented;
-
         }
 
         return Ok;
@@ -1048,7 +1165,24 @@ GdipGetRegionBounds (GpRegion *region, GpGraphics *graphics, GpRectF *rect)
         if (!region || !graphics || !rect)
                 return InvalidParameter;
 
-        gdip_get_bounds (region->rects , region->cnt, rect);
+	if (region->type == RegionTypePath) {
+		GpRect bounds;
+
+		gdip_region_bitmap_ensure (region);
+		if (!region->bitmap)
+			return OutOfMemory;
+
+		/* base the bounds on the reduced bitmap of the paths */
+		gdip_region_bitmap_get_smallest_rect (region->bitmap, &bounds);
+
+		/* small loss of precision when converting the bitmap coord to float */
+		rect->X = bounds.X;
+		rect->Y = bounds.Y;
+		rect->Width = bounds.Width;
+		rect->Height = bounds.Height;
+	} else {
+	        gdip_get_bounds (region->rects , region->cnt, rect);
+	}
 
         return Ok;
 }
@@ -1079,11 +1213,17 @@ GdipIsInfiniteRegion (GpRegion *region, GpGraphics *graphics, BOOL *result)
 GpStatus
 GdipIsVisibleRegionPoint (GpRegion *region, float x, float y, GpGraphics *graphics, BOOL *result)
 {
-
         if (!region || !result)
                 return InvalidParameter;
 
-        *result = gdip_is_Point_in_RectFs_Visible (x, y, region->rects, region->cnt);
+	if (region->type == RegionTypePath) {
+		gdip_region_bitmap_ensure (region);
+		g_assert (region->bitmap);
+
+		*result = gdip_region_bitmap_is_point_visible (region->bitmap, x, y);
+	} else {
+		*result = gdip_is_Point_in_RectFs_Visible (x, y, region->rects, region->cnt);
+	}
 
         return Ok;
 }
@@ -1092,15 +1232,7 @@ GdipIsVisibleRegionPoint (GpRegion *region, float x, float y, GpGraphics *graphi
 GpStatus
 GdipIsVisibleRegionPointI (GpRegion *region, int x, int y, GpGraphics *graphics, BOOL *result)
 {
-        float xf, yf;
-
-        if (!region || !result)
-                return InvalidParameter;
-
-        xf = x;
-        yf = y;
-
-        return GdipIsVisibleRegionPoint (region, xf, yf, graphics, result);
+        return GdipIsVisibleRegionPoint (region, x, y, graphics, result);
 }
 
 
@@ -1108,8 +1240,6 @@ GpStatus
 GdipIsVisibleRegionRect (GpRegion *region, float x, float y, float width, float height, GpGraphics *graphics, BOOL *result)
 {
         BOOL found = FALSE;
-        float posy, posx;
-        GpRectF recthit;
 
         if (!region || !result)
                 return InvalidParameter;
@@ -1119,19 +1249,37 @@ GdipIsVisibleRegionRect (GpRegion *region, float x, float y, float width, float 
                 return Ok;
         }
 
-        recthit.X = x; recthit.Y = y;
-        recthit.Width = width; recthit.Height = height;
+	if (region->type == RegionTypePath) {
+		GpRect rect;
 
-        /* Any point of intersection ?*/
-        for (posy = 0; posy < recthit.Height && found == FALSE; posy++) {
+		rect.X = x;
+		rect.Y = y;
+		rect.Width = width;
+		rect.Height = height;
+		
+		gdip_region_bitmap_ensure (region);
+		g_assert (region->bitmap);
 
-                for (posx = 0; posx < recthit.Width ; posx++) {
-                        if (gdip_is_Point_in_RectFs_Visible (recthit.X + posx , recthit.Y + posy, region->rects, region->cnt) == TRUE) {
-                                found = TRUE;
-                                break;
-                        }
+		found = gdip_region_bitmap_is_rect_visible (region->bitmap, &rect);
+	} else {
+		float posy, posx;
+		GpRectF recthit;
+
+		recthit.X = x;
+		recthit.Y = y;
+		recthit.Width = width;
+		recthit.Height = height;
+
+		/* Any point of intersection ?*/
+		for (posy = 0; posy < recthit.Height && found == FALSE; posy++) {
+			for (posx = 0; posx < recthit.Width ; posx++) {
+				if (gdip_is_Point_in_RectFs_Visible (recthit.X + posx , recthit.Y + posy, region->rects, region->cnt) == TRUE) {
+					found = TRUE;
+					break;
+				}
+			}
 		}
-        }
+	}
 
         *result = found;
         return Ok;
@@ -1141,37 +1289,138 @@ GdipIsVisibleRegionRect (GpRegion *region, float x, float y, float width, float 
 GpStatus
 GdipIsVisibleRegionRectI (GpRegion *region, int x, int y, int width, int height, GpGraphics *graphics, BOOL *result)
 {
-        float fx, fy, fw, fh;
+        return GdipIsVisibleRegionRect (region, x, y, width, height, graphics, result);
+}
 
-        if (!region || !result)
-                return InvalidParameter;
 
-        fx = x; fy = y;
-        fh = height; fw = width;
+/*
+ * In System.Drawing it is often impossible to specify a 'null' matrix. 
+ * Instead we supply an empty matrix (i.e. new Matrix ()). However this
+ * "empty" matrix can cause a lot of extra calculation in libgdiplus
+ * (e.g. invalidating the bitmap) unless we consider it as a special case.
+ */
+static BOOL
+is_matrix_empty (GpMatrix* matrix)
+{
+	float elements[6];
 
-        return GdipIsVisibleRegionRect (region, fx, fy, fw, fh, graphics, result);
+	if (!matrix)
+		return TRUE;
+
+	if (GdipGetMatrixElements (matrix, elements) != Ok)
+		return FALSE;
+
+	/* compare the matrix elements with the empty (no-op) version */
+	return ((elements [0] == 1.0f) && (elements [1] == 0.0f) && (elements [2] == 0.0f) &&
+		(elements [3] == 1.0f) && (elements [4] == 0.0f) && (elements [5] == 0.0f));
 }
 
 
 GpStatus
 GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
 {
+	GpRegion *work;
+	GpStatus status;
+
         if (!region || !count)
                 return InvalidParameter;
 
-        *count = region->cnt;
-        return Ok;
+	/* apply any user supplied matrix transformation */
+	if (!is_matrix_empty (matrix)) {
+		int i;
+
+		/* the matrix doesn't affect the original region - only the result */
+		status = GdipCloneRegion (region, &work);
+		if (status != Ok)
+			return status;
+
+		/* if required convert into a path-based region */
+		if (work->type != RegionTypePath)
+			gdip_region_convert_to_path (work);
+
+		/* transform all the paths */
+		status = gdip_region_transform_tree (work->tree, matrix);
+		if (status != Ok) {
+			GdipDeleteRegion (work);
+			return status;
+		}
+		/* note: any existing bitmap has been invalidated */
+		gdip_region_bitmap_invalidate (work);
+	} else {
+		work = region;
+	}
+
+	if (work->type == RegionTypePath) {
+		/* ensure the bitmap is usable */
+		gdip_region_bitmap_ensure (work);
+
+		/* check if region is too large to render */
+		if (work->bitmap)
+			*count = gdip_region_bitmap_get_scans (work->bitmap, NULL, -1);
+		else
+			*count = 0;
+	} else {
+	        *count = work->cnt;
+	}
+
+	/* delete the clone */
+	if (work != region)
+		GdipDeleteRegion (work);
+	return Ok;
 }
 
 GpStatus
 GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matrix)
 {
+	GpRegion *work;
+	GpStatus status;
+
         if (!region || !rects|| !count)
                 return InvalidParameter;
 
-        memcpy (rects, region->rects, sizeof (GpRectF) * *count);
-        *count = region->cnt;
-        return Ok;
+	/* apply any user supplied matrix transformation */
+	if (!is_matrix_empty (matrix)) {
+		int i;
+
+		/* the matrix doesn't affect the original region - only the result */
+		status = GdipCloneRegion (region, &work);
+		if (status != Ok)
+			return status;
+
+		/* if required convert into a path-based region */
+		if (work->type != RegionTypePath)
+			gdip_region_convert_to_path (work);
+
+		/* transform all the paths */
+		status = gdip_region_transform_tree (work->tree, matrix);
+		if (status != Ok) {
+			GdipDeleteRegion (work);
+			return status;
+		}
+		/* note: any existing bitmap has been invalidated */
+		gdip_region_bitmap_invalidate (work);
+	} else {
+		work = region;
+	}
+
+	if (region->type == RegionTypePath) {
+		/* ensure the bitmap is usable */
+		gdip_region_bitmap_ensure (work);
+
+		/* check if region is too large to render */
+		if (work->bitmap)
+			*count = gdip_region_bitmap_get_scans (work->bitmap, rects, *count);
+		else
+			*count = 0;
+	} else {
+	        memcpy (rects, work->rects, sizeof (GpRectF) * *count);
+	        *count = work->cnt;
+	}
+
+	/* delete the clone */
+	if (work != region)
+		GdipDeleteRegion (work);
+	return Ok;
 }
 
 GpStatus
@@ -1183,6 +1432,30 @@ GdipIsEqualRegion (GpRegion *region, GpRegion *region2, GpGraphics *graphics, BO
         if (!region || !region2 || !graphics || !result)
                 return InvalidParameter;
 
+	/* quick case: same pointer == same region == equals */
+	if (region == region2) {
+		*result = TRUE;
+		return Ok;
+	}
+
+	if ((region->type == RegionTypePath) || (region2->type == RegionTypePath)) {
+		/* if required convert one region to a path based region */
+		if (region->type != RegionTypePath)
+			gdip_region_convert_to_path (region);
+		gdip_region_bitmap_ensure (region);
+		g_assert (region->bitmap);
+
+		if (region2->type != RegionTypePath)
+			gdip_region_convert_to_path (region2);
+
+		gdip_region_bitmap_ensure (region2);
+		g_assert (region2->bitmap);
+
+		*result = gdip_region_bitmap_compare (region->bitmap, region2->bitmap);
+                return Ok;
+	}
+
+	/* rectangular-based region quality test */
         if (region->cnt != region2->cnt) {
                 *result = FALSE;
                 return Ok;
@@ -1205,21 +1478,20 @@ GdipIsEqualRegion (GpRegion *region, GpRegion *region2, GpGraphics *graphics, BO
 GpStatus
 GdipTranslateRegion (GpRegion *region, float dx, float dy)
 {
-        int i;
-
         if (!region)
                 return InvalidParameter;
 
 	if (region->type == RegionTypePath) {
-		GpPointF *point;
-		for (i = 0; i < region->path->count; i++) {
-			point = &g_array_index (region->path->points, GpPointF, i);
-			point->X += dx;
-			point->Y += dy;
+		gdip_region_translate_tree (region->tree, dx, dy);
+		/* any existing bitmap is still valid _if_ we update it's origin */
+		if (region->bitmap) {
+			region->bitmap->X += dx;
+			region->bitmap->Y += dy;
 		}
 	} else if ((region->type == RegionTypeRectF) && region->rects) {
+	        int i;
 	        GpRectF *rect;
-                for (i = 0, rect=region->rects ; i < region->cnt; i++, rect++) {
+                for (i = 0, rect = region->rects ; i < region->cnt; i++, rect++) {
                         rect->X += dx;
                         rect->Y += dy;
                 }
@@ -1231,19 +1503,32 @@ GdipTranslateRegion (GpRegion *region, float dx, float dy)
 GpStatus
 GdipTranslateRegionI (GpRegion *region, int dx, int dy)
 {
-        float fx, fy;
-
-        if (!region)
-                return InvalidParameter;
-
-        fx = dx; fy = dy;
-        return  GdipTranslateRegion (region, fx, fy);
+        return GdipTranslateRegion (region, dx, dy);
 }
 
 GpStatus
 GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 {
-        return NotImplemented;
+	GpStatus status;
+
+	if (!region || !matrix)
+		return InvalidParameter;
+
+	/* don't (possibly) convert to a bitmap if the matrix is empty (a no-op) */
+	if (is_matrix_empty (matrix))
+		return Ok;
+
+	/* most matrix operations would change the rectangles into path so we always preempt this */
+	if (region->type != RegionTypePath)
+		gdip_region_convert_to_path (region);
+
+	/* apply the same transformation matrix to all paths */
+	status = gdip_region_transform_tree (region->tree, matrix);
+
+	/* invalidate the bitmap so it will get re-created on the next gdip_region_bitmap_ensure call */
+	gdip_region_bitmap_invalidate (region);
+
+        return status;
 }
 
 GpStatus
@@ -1274,10 +1559,24 @@ GdipCreateRegionPath (GpPath *path, GpRegion **region)
  *
  * Type 3 (RegionTypePath), variable size
  *	guint32 RegionType	Always 3
- *	guint32 Count		0-2^32
- *	GpFillMode FillMode	
- *	guint8[Count] Types	
- *	GpPointF[Count] Points
+ *	GpPathTree tree
+ *
+ * where GpPathTree is
+ *	guint32 Tag		1 = Path, 2 = Tree
+ *	data[n]
+ *
+ *	where data is for tag 1 (Path)
+ *		guint32 Count		0-2^32
+ *		GpFillMode FillMode	
+ *		guint8[Count] Types	
+ *		GpPointF[Count] Points
+ *	or
+ *	where data is for tag 2 (Tree)
+ *		guint32 Operation	see CombineMode
+ *		guint32 Size1		0-2^32
+ *		byte[Size1]		branch #1
+ *		guint32 Size2		0-2^32
+ *		byte[Size2]		branch #2
  */
 
 GpStatus
@@ -1291,9 +1590,8 @@ GdipGetRegionDataSize (GpRegion *region, UINT *bufferSize)
 		*bufferSize = (sizeof (guint32) * 2) + (region->cnt * sizeof (GpRectF));
 		break;
 	case RegionTypePath:
-		*bufferSize = (sizeof (guint32) * 2) + sizeof (GpFillMode) + 
-			(region->path->count * sizeof (guint8)) +
-			(region->path->count * sizeof (GpPointF));
+		/* regiontype, tree */
+		*bufferSize = sizeof (guint32) + gdip_region_get_tree_size (region->tree);
 		break;
 	default:
 		g_warning ("unknown type %d", region->type);
@@ -1308,6 +1606,7 @@ GdipGetRegionData (GpRegion *region, BYTE *buffer, UINT bufferSize, UINT *sizeFi
 {
 	GpStatus status;
 	UINT size;
+	int len;
 
 	if (!region || !buffer || !sizeFilled)
 		return InvalidParameter;
@@ -1318,28 +1617,32 @@ GdipGetRegionData (GpRegion *region, BYTE *buffer, UINT bufferSize, UINT *sizeFi
 	if (size > bufferSize)
 		return InsufficientBuffer;
 
-	memcpy (buffer, &region->type, sizeof (guint32));
-	buffer += sizeof (guint32);
+	/* type of region */
+	len = sizeof (guint32);
+	memcpy (buffer, &region->type, len);
+	buffer += len;
+	*sizeFilled += len;
+
 	switch (region->type) {
 	case RegionTypeRectF:
-		memcpy (buffer, &region->cnt, sizeof (guint32));
-		buffer += sizeof (guint32);
-		memcpy (buffer, region->rects, sizeof (GpRectF) * (region->cnt));
+		/* count (# rectangles) */
+		memcpy (buffer, &region->cnt, len);
+		buffer += len;
+		*sizeFilled += len;
+		/* rectangles */
+		len = sizeof (GpRectF) * (region->cnt);
+		memcpy (buffer, region->rects, len);
+		*sizeFilled += len;
 		break;
 	case RegionTypePath:
-		memcpy (buffer, &region->path->count, sizeof (guint32));
-		buffer += sizeof (guint32);
-		memcpy (buffer, &region->path->fill_mode, sizeof (GpFillMode));
-		buffer += sizeof (GpFillMode);
-		memcpy (buffer, region->path->types->data, region->path->types->len);
-		buffer += region->path->types->len;
-		memcpy (buffer, region->path->points->data, region->path->points->len * sizeof (GpPointF));
+		bufferSize -= len;
+		if (!gdip_region_serialize_tree (region->tree, buffer, bufferSize, sizeFilled))
+			return InsufficientBuffer;
 		break;
 	default:
 		g_warning ("unknown type %d", region->type);
 		return NotImplemented;
 	}
 
-	*sizeFilled = size;
 	return Ok;
 }

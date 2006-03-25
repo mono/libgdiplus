@@ -11,7 +11,7 @@
  *	Geoff Norton (gnorton@customerdna.com)
  *      Jonathan Gilbert (logic@deltaq.org)
  *
- * Copyright (C) Novell, Inc. 2003-2005. http://www.novell.com
+ * Copyright (C) 2003-2006 Novell, Inc (http://www.novell.com)
  */
 
 #ifndef _GDIP_H
@@ -720,11 +720,30 @@ typedef struct {
 	int pathTypePosition; /* The position to get the next path type inside a subpath */
 } GpPathIterator;
 
+/* internal (private) structure */
+typedef struct {
+	int X;
+	int Y;
+	int Width;
+	int Height;
+	unsigned char *Mask;
+	BOOL reduced;
+} GpRegionBitmap;
+
+/* internal (private) structure */
+typedef struct GpPathTree {
+	CombineMode	mode;
+	GpPath*		path;
+	struct GpPathTree*	branch1;
+	struct GpPathTree*	branch2;
+} GpPathTree;
+
 typedef struct {
 	guint32		type;
         int		cnt;
         GpRectF*	rects;
-	GpPath*		path;
+	GpPathTree*	tree;
+	GpRegionBitmap*	bitmap;
 } GpRegion;
  
 typedef struct {

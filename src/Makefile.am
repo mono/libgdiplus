@@ -25,6 +25,10 @@ libgdiplus_la_SOURCES = \
 	pathgradientbrush.c \
 	pathgradientbrush.h \
 	region.c	\
+	region-bitmap.c	\
+	region-bitmap.h	\
+	region-path-tree.c	\
+	region-path-tree.h	\
 	solidbrush.c	\
 	solidbrush.h	\
 	stringformat.c	\

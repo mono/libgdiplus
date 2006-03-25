@@ -1,3 +1,22 @@
+2006-03-25  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* gdip.h: Added new structures required for path tree (GpPathTree) and
+	regions bitmaps (GpRegionBitmap).
+	* gdipImage.h: Added prototype for GdipGetImageGraphicsContext.
+	* graphics.c: Re-implement GdipFillRegion to use the alpha bitmap
+	provided for by region-bitmap. Correct clipping wrt infinite regions.
+	* region.c: Adjust existing API to use the bitmap regions for path 
+	based regions, while keeping the existing code for rectangular based
+	regions.
+	* region.h: New. Header file for private region functions.
+	* region-bitmap.c|h: New. Code to generate bitmap for regions and the
+	binary operators on them (union, intersection, exclude, complement, 
+	xor).
+	* region-path-tree.c|h: New. Code to create and manipulate trees of
+	path with binary operators. This allows to re-create any region from
+	a small set of serialized data.
+	* Makefile.am: Add the new files to the build.
+
 2006-03-23  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* graphics.c (MeasureOrDrawString): Avoid trying to draw 0-length 

@@ -26,17 +26,15 @@
  */
 
 #include "gdip.h"
+#include "gdipImage.h"
+#include "region.h"
 #include "brush.h"
 #include <math.h>
 #include <glib.h>
 
-extern BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect);
-extern BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect);
 extern FT_Face gdip_cairo_ft_font_lock_face (cairo_font_face_t *cairofnt);
 extern void gdip_cairo_ft_font_unlock_face (cairo_font_face_t *cairofnt);
 void gdip_set_cairo_clipping (GpGraphics *graphics);
-extern void gdip_clear_region (GpRegion *region);
-extern void gdip_copy_region (GpRegion *source, GpRegion *dest);
 
 extern cairo_filter_t gdip_get_cairo_filter (InterpolationMode imode);
 
@@ -1854,15 +1852,53 @@ GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
         if (!graphics || !brush || !region)
 		return InvalidParameter;
 
-	/* a region is either a complex path */
+	/* if this is a region with a complex path */
 	if (region->type == RegionTypePath) {
-		if (!region->path || (region->path->count == 0))
+		GpStatus status;
+		GpBitmap *bitmap;
+
+		/* (optimization) if if the path is empty, return immediately */
+		if (!region->tree)
 			return Ok;
 
-		return GdipFillPath (graphics, brush, region->path);
+		/* (optimization) if there is only one path, then we do not need the bitmap */
+		if (region->tree->path) {
+			/* if the path is empty, return OK */
+			if (region->tree->path->count == 0)
+				return Ok;
+
+			/* else fill the single path */
+			return GdipFillPath (graphics, brush, region->tree->path);
+		}
+
+		gdip_region_bitmap_ensure (region);
+		if (!region->bitmap)
+			return OutOfMemory;
+
+		status = GdipCreateBitmapFromGraphics (region->bitmap->Width, region->bitmap->Height, graphics, &bitmap);
+		if (status == Ok) {
+			GpGraphics *bitgraph;
+			status = GdipGetImageGraphicsContext ((GpImage*)bitmap, &bitgraph);
+			if (status == Ok) {
+				/* fill the "full" rectangle using the specified brush */
+				GdipFillRectangle (bitgraph, brush, 0, 0, region->bitmap->Width, region->bitmap->Height);
+
+				/* adjust bitmap alpha (i.e. shape the brushed-rectangle like the region) */
+				gdip_region_bitmap_apply_alpha (bitmap, region->bitmap);
+
+				/* draw the region */
+				status = GdipDrawImageRect (graphics, (GpImage*)bitmap, region->bitmap->X, region->bitmap->Y,
+					region->bitmap->Width, region->bitmap->Height);
+
+				GdipDeleteGraphics (bitgraph);
+			}
+
+			GdipDisposeImage ((GpImage*)bitmap);
+		}
+		return status;
 	}
 
-	/* or multiple rectangles */
+	/* if there's no rectangles, we can return directly */
 	if (!region->rects || (region->cnt == 0))
 		return Ok;
 
@@ -3691,8 +3727,6 @@ GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 	best thing for now is keep track of what the user wants and let Cairo do its autoclipping
 */
 
-extern bool gdip_is_InfiniteRegion (GpRegion *region);
-
 void
 gdip_set_cairo_clipping (GpGraphics *graphics)
 {
@@ -3712,7 +3746,11 @@ gdip_set_cairo_clipping (GpGraphics *graphics)
 		}
 		break;
 	case RegionTypePath:
-		gdip_plot_path (graphics, graphics->clip->path, graphics->aa_offset_x, graphics->aa_offset_y);
+		/* FIXME - current clipping won't work on complex paths (e.g. after binary operations) */
+		if (graphics->clip->tree && graphics->clip->tree->path)
+			gdip_plot_path (graphics, graphics->clip->tree->path, graphics->aa_offset_x, graphics->aa_offset_y);
+		else
+			g_warning ("FIXME - gdip_set_cairo_clipping support for path region is incomplete");
 		break;
 	default:
 		g_warning ("Unknown region type %d", graphics->clip);
@@ -3784,8 +3822,13 @@ GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMo
 	if (!graphics || !region)
 		return InvalidParameter;
 
-	GdipCombineRegionRegion (graphics->clip, region, combineMode);	
-	gdip_set_cairo_clipping (graphics);
+	if (gdip_is_InfiniteRegion (region)) {
+		GdipSetInfinite (graphics->clip);
+		cairo_reset_clip (graphics->ct);
+	} else {
+		GdipCombineRegionRegion (graphics->clip, region, combineMode);	
+		gdip_set_cairo_clipping (graphics);
+	}
 	return Ok;
 }
 

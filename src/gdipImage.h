@@ -4,7 +4,7 @@
  * Authors:
  *  	Sanjay Gupta (gsanjay@novell.com)
  *
- * Copyright (C) Novell, Inc. 2003-2004.
+ * Copyright (C) 2003-2006 Novell, Inc (http://www.novell.com)
  */
 
 #ifndef _GDIPIMAGE_H
@@ -98,6 +98,7 @@ GpStatus GdipImageGetFrameDimensionsCount (GpImage *image, UINT *count);
 GpStatus GdipImageGetFrameCount (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count); 
 GpStatus GdipImageSelectActiveFrame (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT index);
 GpStatus GdipImageRotateFlip (GpImage *image, RotateFlipType type);
+GpStatus GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics);
 GpStatus GdipGetImagePalette (GpImage *image, ColorPalette *palette, int size);
 GpStatus GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette);
 GpStatus GdipGetImagePaletteSize (GpImage *image, int* size);
