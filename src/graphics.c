@@ -29,6 +29,7 @@
 #include "gdipImage.h"
 #include "region.h"
 #include "brush.h"
+#include "matrix.h"
 #include <math.h>
 #include <glib.h>
 
@@ -3746,11 +3747,22 @@ gdip_set_cairo_clipping (GpGraphics *graphics)
 		}
 		break;
 	case RegionTypePath:
-		/* FIXME - current clipping won't work on complex paths (e.g. after binary operations) */
 		if (graphics->clip->tree && graphics->clip->tree->path)
 			gdip_plot_path (graphics, graphics->clip->tree->path, graphics->aa_offset_x, graphics->aa_offset_y);
-		else
-			g_warning ("FIXME - gdip_set_cairo_clipping support for path region is incomplete");
+		else {
+			int count;
+			/* I admit that's a (not so cute) hack - anyone with a better idea ? */
+			if ((GdipGetRegionScansCount (graphics->clip, &count, NULL) == Ok) && (count > 0)) {
+				GpRectF *rects = (GpRectF*) GdipAlloc (count * sizeof (GpRectF));
+				if (rects) {
+					GdipGetRegionScans (graphics->clip, rects, &count, NULL);
+				        for (i = 0, rect = rects; i < count; i++, rect++) {
+						cairo_rectangle (graphics->ct, rect->X, rect->Y, rect->Width, rect->Height);
+					}
+					GdipFree (rects);
+				}
+			}
+		}
 		break;
 	default:
 		g_warning ("Unknown region type %d", graphics->clip);
@@ -3758,7 +3770,6 @@ gdip_set_cairo_clipping (GpGraphics *graphics)
 	}
 	
 	cairo_clip (graphics->ct);
-	cairo_new_path (graphics->ct);
 }
 
 GpStatus

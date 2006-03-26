@@ -46,6 +46,42 @@
 
 */
 
+
+/* private functions */
+
+
+/*
+ * In System.Drawing it is often impossible to specify a 'null' matrix. 
+ * Instead we supply an empty matrix (i.e. new Matrix ()). However this
+ * "empty" matrix can cause a lot of extra calculation in libgdiplus
+ * (e.g. invalidating the bitmap) unless we consider it as a special case.
+ */
+BOOL
+gdip_is_matrix_empty (GpMatrix* matrix)
+{
+	if (!matrix)
+		return TRUE;
+
+	/* compare the matrix elements with the empty (no-op) version */
+	return ((matrix->xx == 1.0f) && (matrix->yx == 0.0f) &&
+		(matrix->xy == 0.0f) && (matrix->yy == 1.0f) &&
+		(matrix->x0 == 0.0f) && (matrix->y0 == 0.0f));
+}
+
+
+BOOL
+gdip_is_matrix_a_translation (GpMatrix *matrix)
+{
+	if (!matrix)
+		return TRUE;
+
+	return ((matrix->xx == 1.0f) && (matrix->yx == 0.0f) &&
+		(matrix->xy == 0.0f) && (matrix->yy == 1.0f));
+}
+
+
+/* public (exported) functions */
+
 GpStatus 
 GdipCreateMatrix (GpMatrix **matrix)
 {

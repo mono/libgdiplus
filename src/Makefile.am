@@ -21,6 +21,7 @@ libgdiplus_la_SOURCES = \
 	lineargradientbrush.c \
 	lineargradientbrush.h \
 	matrix.c	\
+	matrix.h	\
 	pen.c		\
 	pathgradientbrush.c \
 	pathgradientbrush.h \

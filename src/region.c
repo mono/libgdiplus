@@ -24,6 +24,7 @@
  */
 
 #include "region.h"
+#include "matrix.h"
 
 /*
 	Helper functions
@@ -1293,29 +1294,6 @@ GdipIsVisibleRegionRectI (GpRegion *region, int x, int y, int width, int height,
 }
 
 
-/*
- * In System.Drawing it is often impossible to specify a 'null' matrix. 
- * Instead we supply an empty matrix (i.e. new Matrix ()). However this
- * "empty" matrix can cause a lot of extra calculation in libgdiplus
- * (e.g. invalidating the bitmap) unless we consider it as a special case.
- */
-static BOOL
-is_matrix_empty (GpMatrix* matrix)
-{
-	float elements[6];
-
-	if (!matrix)
-		return TRUE;
-
-	if (GdipGetMatrixElements (matrix, elements) != Ok)
-		return FALSE;
-
-	/* compare the matrix elements with the empty (no-op) version */
-	return ((elements [0] == 1.0f) && (elements [1] == 0.0f) && (elements [2] == 0.0f) &&
-		(elements [3] == 1.0f) && (elements [4] == 0.0f) && (elements [5] == 0.0f));
-}
-
-
 GpStatus
 GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
 {
@@ -1326,7 +1304,7 @@ GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
                 return InvalidParameter;
 
 	/* apply any user supplied matrix transformation */
-	if (!is_matrix_empty (matrix)) {
+	if (!gdip_is_matrix_empty (matrix)) {
 		int i;
 
 		/* the matrix doesn't affect the original region - only the result */
@@ -1379,7 +1357,7 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matr
                 return InvalidParameter;
 
 	/* apply any user supplied matrix transformation */
-	if (!is_matrix_empty (matrix)) {
+	if (!gdip_is_matrix_empty (matrix)) {
 		int i;
 
 		/* the matrix doesn't affect the original region - only the result */
@@ -1515,8 +1493,16 @@ GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 		return InvalidParameter;
 
 	/* don't (possibly) convert to a bitmap if the matrix is empty (a no-op) */
-	if (is_matrix_empty (matrix))
+	if (gdip_is_matrix_empty (matrix))
 		return Ok;
+
+	/* avoid heavy stuff (e.g. convertion to path, invalidating bitmap...)
+	   if the transform is only to do a simple translation */
+	if (gdip_is_matrix_a_translation (matrix)) {
+		return GdipTranslateRegion (region, 
+			gdip_matrix_get_x_translation (matrix), 
+			gdip_matrix_get_y_translation (matrix));
+	}
 
 	/* most matrix operations would change the rectangles into path so we always preempt this */
 	if (region->type != RegionTypePath)

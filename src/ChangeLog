@@ -1,3 +1,17 @@
+2006-03-26  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics.c: Add support for complex (after binary operations) 
+	clipping paths. Hackish but I don't see any alternative...
+	* matrix.h: New. Header file for private region functions.
+	* matrix.c: Added private functions for gdip_is_matrix_empty (moved
+	from region.c) and gdip_is_matrix_a_translation (to enable an 
+	optimization).
+	* region.c: Adjusted code for the renamed gdip_is_matrix_empty. Added
+	a optimization to call GdipTranslateRegion from GdipTransformRegion if
+	the matrix only does a translation. This allows to skip "rectangle to 
+	path" convertion and the invalidation/creation of a region bitmap.
+	* Makefile.am: Added the new matrix.h header file to the build.
+
 2006-03-25  Sebastien Pouliot  <sebastien@ximian.com> 
  
 	* gdip.h: Add missing prototypes for GdipTranslateClip[I] functions.
