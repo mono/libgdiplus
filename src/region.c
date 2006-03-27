@@ -954,6 +954,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 	case CombineModeReplace: /* Used by Graphics clipping */
 		GdipSetEmpty (region);
 		gdip_add_rect_to_array (&region->rects, &region->cnt, (GpRectF *)rect);
+		break;
         default:
                return NotImplemented;
         }
