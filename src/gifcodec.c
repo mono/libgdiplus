@@ -320,9 +320,12 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	img->image.verticalResolution = 0;
 	img->image.propItems = NULL;
 	
+	DGifCloseFile (gif);
+
 	*image = (GpImage *) img;
 	return Ok;
-	error:	
+
+error:	
 	if (pixels)
 		GdipFree (pixels);
 	if (img)
