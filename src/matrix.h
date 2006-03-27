@@ -30,6 +30,8 @@
 #define gdip_matrix_get_x_translation(matrix)	(matrix->x0)
 #define gdip_matrix_get_y_translation(matrix)	(matrix->y0)
 
+#define gdip_matrix_reverse_order(order)	((order == MatrixOrderPrepend) ? MatrixOrderAppend : MatrixOrderPrepend)
+
 BOOL gdip_is_matrix_a_translation (GpMatrix *matrix);
 BOOL gdip_is_matrix_empty (GpMatrix* matrix);
 

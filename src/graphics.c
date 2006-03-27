@@ -173,6 +173,7 @@ gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
         /* cairo_select_font_face (graphics->ct, "serif:12"); */
 	cairo_select_font_face (graphics->ct, "serif:12", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	GdipCreateRegion (&graphics->clip);
+	GdipCreateMatrix (&graphics->clip_matrix);
 	graphics->bounds.X = graphics->bounds.Y = graphics->bounds.Width = graphics->bounds.Height = 0;
 	graphics->page_unit = UnitDisplay;
 	graphics->scale = 1.0f;
@@ -552,6 +553,7 @@ GdipDeleteGraphics (GpGraphics *graphics)
 		graphics->copy_of_ctm = NULL;
 	}
 	GdipDeleteRegion (graphics->clip);
+	GdipDeleteMatrix (graphics->clip_matrix);
 
 	if (graphics->ct) {
 		cairo_destroy (graphics->ct);
@@ -679,18 +681,40 @@ GdipResetWorldTransform (GpGraphics *graphics)
 	cairo_matrix_init_identity (graphics->copy_of_ctm);
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
+	cairo_matrix_init_identity (graphics->clip_matrix);
+	cairo_reset_clip (graphics->ct);
+	gdip_set_cairo_clipping (graphics);
+
 	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus
 GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 {
+	GpStatus status;
+	int invertible;
+
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
+	/* optimization - inverting an identity matrix result in the identity matrix */
+	if (gdip_is_matrix_empty (matrix))
+		return GdipResetWorldTransform (graphics);
+
+	/* the matrix MUST be invertible to be used */
+	status = GdipIsMatrixInvertible (matrix, &invertible);
+	if (!invertible || (status != Ok))
+		return InvalidParameter;
+
 	gdip_cairo_matrix_copy (graphics->copy_of_ctm, matrix);
         cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-        return Ok;
+
+	gdip_cairo_matrix_copy (graphics->clip_matrix, matrix);
+	status = GdipInvertMatrix (graphics->clip_matrix);
+
+	if (status == Ok)
+		gdip_set_cairo_clipping (graphics);
+        return status;
 }
 
 GpStatus 
@@ -707,17 +731,26 @@ GpStatus
 GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrder order)
 {
         Status s;
+	GpMatrix inverted;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
 	s = GdipMultiplyMatrix (graphics->copy_of_ctm, matrix, order);
-        
         if (s != Ok)
                 return s;
-        else {
-                cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-                return Ok;
-        }
+
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+
+	/* Multiply the inverted matrix with the clipping matrix */
+	gdip_cairo_matrix_copy (&inverted, matrix);
+	s = GdipInvertMatrix (&inverted);
+        if (s != Ok)
+                return s;
+
+	s = GdipMultiplyMatrix (graphics->clip_matrix, &inverted, order);
+	if (s == Ok)
+		gdip_set_cairo_clipping (graphics);
+	return s;
 }
 
 GpStatus 
@@ -728,13 +761,14 @@ GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
 	s = GdipRotateMatrix (graphics->copy_of_ctm, angle, order);
-	
         if (s != Ok)
                 return s;
-        else {
-                cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-                return Ok;
-        }
+
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+	s = GdipRotateMatrix (graphics->clip_matrix, -angle, gdip_matrix_reverse_order (order));
+	if (s == Ok)
+		gdip_set_cairo_clipping (graphics);
+	return s;
 }
 
 GpStatus
@@ -743,15 +777,19 @@ GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder
         GpStatus s;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	if ((sx == 0.0f) || (sy == 0.0f))
+		return InvalidParameter;
 
 	s = GdipScaleMatrix (graphics->copy_of_ctm, sx, sy, order);
-
         if (s != Ok)
                 return s;
-        else {
-                cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-                return s;
-        }
+
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+
+	s = GdipScaleMatrix (graphics->clip_matrix, (1.0f / sx), (1.0f / sy), gdip_matrix_reverse_order (order));
+	if (s == Ok)
+		gdip_set_cairo_clipping (graphics);
+	return Ok;
 }
 
 GpStatus 
@@ -762,13 +800,15 @@ GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixO
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
 	s = GdipTranslateMatrix (graphics->copy_of_ctm, dx, dy, order);
-
         if (s != Ok) 
                 return s;
-        else {
-                cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-                return Ok;
-        }
+
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+
+	s = GdipTranslateMatrix (graphics->clip_matrix, -dx, -dy, gdip_matrix_reverse_order (order));
+	if (s == Ok)
+		gdip_set_cairo_clipping (graphics);
+	return s;
 }
 
 /*
@@ -2626,7 +2666,6 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			/* We do not call cairo_reset_clip because we want to take previous clipping into account */
 			cairo_rectangle (graphics->ct, rc->X + graphics->aa_offset_x, rc->Y + graphics->aa_offset_y, rc->Width, rc->Height);
 			cairo_clip (graphics->ct);
-			cairo_new_path (graphics->ct);
 			SetClipping = TRUE;
 		}
 
@@ -3731,31 +3770,38 @@ GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 void
 gdip_set_cairo_clipping (GpGraphics *graphics)
 {
+	GpRegion *work;
         GpRectF* rect;
         int i;
 
 	cairo_reset_clip (graphics->ct);
 
-	if (gdip_is_InfiniteRegion (graphics->clip)) {
+	if (gdip_is_InfiniteRegion (graphics->clip))
 		return;
+
+	if (gdip_is_matrix_empty (graphics->clip_matrix)) {
+		work = graphics->clip;
+	} else {
+		GdipCloneRegion (graphics->clip, &work);
+		GdipTransformRegion (work, graphics->clip_matrix);
 	}
 
-	switch (graphics->clip->type) {
+	switch (work->type) {
 	case RegionTypeRectF:
-	        for (i = 0, rect = graphics->clip->rects; i < graphics->clip->cnt; i++, rect++) {
+	        for (i = 0, rect = work->rects; i < work->cnt; i++, rect++) {
 			cairo_rectangle (graphics->ct, rect->X, rect->Y, rect->Width, rect->Height);
 		}
 		break;
 	case RegionTypePath:
-		if (graphics->clip->tree && graphics->clip->tree->path)
-			gdip_plot_path (graphics, graphics->clip->tree->path, graphics->aa_offset_x, graphics->aa_offset_y);
+		if (work->tree && work->tree->path)
+			gdip_plot_path (graphics, work->tree->path, graphics->aa_offset_x, graphics->aa_offset_y);
 		else {
 			int count;
 			/* I admit that's a (not so cute) hack - anyone with a better idea ? */
-			if ((GdipGetRegionScansCount (graphics->clip, &count, NULL) == Ok) && (count > 0)) {
+			if ((GdipGetRegionScansCount (work, &count, NULL) == Ok) && (count > 0)) {
 				GpRectF *rects = (GpRectF*) GdipAlloc (count * sizeof (GpRectF));
 				if (rects) {
-					GdipGetRegionScans (graphics->clip, rects, &count, NULL);
+					GdipGetRegionScans (work, rects, &count, NULL);
 				        for (i = 0, rect = rects; i < count; i++, rect++) {
 						cairo_rectangle (graphics->ct, rect->X, rect->Y, rect->Width, rect->Height);
 					}
@@ -3765,11 +3811,15 @@ gdip_set_cairo_clipping (GpGraphics *graphics)
 		}
 		break;
 	default:
-		g_warning ("Unknown region type %d", graphics->clip);
+		g_warning ("Unknown region type %d", work->type);
 		break;
 	}
 	
 	cairo_clip (graphics->ct);
+
+	/* destroy the clone, if one was needed */
+	if (work != graphics->clip)
+		GdipDeleteRegion (work);
 }
 
 GpStatus
@@ -3780,13 +3830,16 @@ GdipSetClipGraphics (GpGraphics *graphics, GpGraphics *srcgraphics, CombineMode 
 		
 	GdipDeleteRegion (graphics->clip);
 	GdipCloneRegion (srcgraphics->clip, &graphics->clip);
+
 	gdip_set_cairo_clipping (graphics);
+	gdip_cairo_matrix_copy (graphics->clip_matrix, srcgraphics->clip_matrix);
 	return Ok;
 }
 
 GpStatus
 GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float height, CombineMode combineMode)
 {
+	GpStatus status;
 	GpRectF rect;
 	
 	if (!graphics)
@@ -3795,52 +3848,53 @@ GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float heig
 	rect.X = x; rect.Y = y;
 	rect.Width = width; rect.Height = height;
 		
-	GdipCombineRegionRect (graphics->clip, &rect, combineMode);
-	gdip_set_cairo_clipping (graphics);
-	return Ok;
+	status = GdipCombineRegionRect (graphics->clip, &rect, combineMode);
+	if (status == Ok) {
+		cairo_reset_clip (graphics->ct);
+		cairo_matrix_init_identity (graphics->clip_matrix);
+		gdip_set_cairo_clipping (graphics);
+	}
+	return status;
 }
 
 GpStatus
 GdipSetClipRectI (GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height, CombineMode combineMode)
 {
-	GpRect rect;
-	
-	if (!graphics)
-		return InvalidParameter;
-	
-	rect.X = x; rect.Y = y;
-	rect.Width = width; rect.Height = height;
-		
-	GdipCombineRegionRectI (graphics->clip, &rect, combineMode);	
-	gdip_set_cairo_clipping (graphics);
-	return Ok;
+	return GdipSetClipRect (graphics, x, y, width, height, combineMode);
 }
 
 GpStatus
 GdipSetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMode)
 {
+	GpStatus status;
+
 	if (!graphics || !path)
 		return InvalidParameter;
 
-	GdipCombineRegionPath (graphics->clip, path, combineMode);	
-	gdip_set_cairo_clipping (graphics);
-	return Ok;
+	status = GdipCombineRegionPath (graphics->clip, path, combineMode);	
+	if (status == Ok) {
+		cairo_reset_clip (graphics->ct);
+		cairo_matrix_init_identity (graphics->clip_matrix);
+		gdip_set_cairo_clipping (graphics);
+	}
+	return status;
 }
 
 GpStatus
 GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMode)
 {
+	GpStatus status;
+
 	if (!graphics || !region)
 		return InvalidParameter;
 
-	if (gdip_is_InfiniteRegion (region)) {
-		GdipSetInfinite (graphics->clip);
+	status = GdipCombineRegionRegion (graphics->clip, region, combineMode);	
+	if (status == Ok) {
 		cairo_reset_clip (graphics->ct);
-	} else {
-		GdipCombineRegionRegion (graphics->clip, region, combineMode);	
+		cairo_matrix_init_identity (graphics->clip_matrix);
 		gdip_set_cairo_clipping (graphics);
 	}
-	return Ok;
+	return status;
 }
 
 GpStatus
@@ -3854,28 +3908,39 @@ GdipResetClip (GpGraphics *graphics)
 {
 	if (!graphics)
 		return InvalidParameter;
-	
+
 	GdipSetInfinite (graphics->clip);
 	cairo_reset_clip (graphics->ct);
+	cairo_matrix_init_identity (graphics->clip_matrix);
 	return Ok;
 }
 
 GpStatus
 GdipTranslateClip (GpGraphics *graphics, float dx, float dy)
 {
+	GpStatus status;
+
 	if (!graphics)
 		return InvalidParameter;
 
-	return GdipTranslateRegion (graphics->clip, dx, dy);
+	status = GdipTranslateRegion (graphics->clip, dx, dy);
+	if (status == Ok)
+		gdip_set_cairo_clipping (graphics);
+	return status;
 }
 
 GpStatus
 GdipTranslateClipI (GpGraphics *graphics, UINT dx, UINT dy)
 {
+	GpStatus status;
+
 	if (!graphics)
 		return InvalidParameter;
 
-	return GdipTranslateRegionI (graphics->clip, dx, dy);
+	status = GdipTranslateRegionI (graphics->clip, dx, dy);
+	if (status == Ok)
+		gdip_set_cairo_clipping (graphics);
+	return status;
 }
 
 GpStatus
@@ -3886,17 +3951,36 @@ GdipGetClip (GpGraphics *graphics, GpRegion *region)
 
 	gdip_clear_region (region);
 	gdip_copy_region (graphics->clip, region);
-	return Ok;
+
+	if (gdip_is_matrix_empty (graphics->clip_matrix))
+		return Ok;
+	return GdipTransformRegion (region, graphics->clip_matrix);
 }
 
 
 GpStatus
 GdipGetClipBounds (GpGraphics *graphics, GpRectF *rect)
 {
+	GpStatus status;
+	GpRegion *work;
+
 	if (!graphics)
 		return InvalidParameter;
 
-	return GdipGetRegionBounds (graphics->clip, graphics, rect);
+	/* if the matrix is empty, avoid region cloning and transform */
+	if (gdip_is_matrix_empty (graphics->clip_matrix)) {
+		work = graphics->clip;
+	} else {
+		GdipCloneRegion (graphics->clip, &work);
+		GdipTransformRegion (work, graphics->clip_matrix);
+	}
+
+	status = GdipGetRegionBounds (work, graphics, rect);
+
+	if (work != graphics->clip)
+		GdipDeleteRegion (work);
+
+	return status;
 }
 
 GpStatus

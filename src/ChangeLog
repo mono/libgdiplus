@@ -1,3 +1,10 @@
+2006-03-27  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* gdip.h: Added new member clip_matrix for GpGraphics;
+	* graphics.c: Make sure the applied transforms to the graphics are 
+	also affecting the clipping;
+	* matrix.h: New macro to reverse the order to apply the matrix;
+
 2006-03-27  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* matrix.c: GdipIsMatrixInvertible shouldn't invert the matrix!

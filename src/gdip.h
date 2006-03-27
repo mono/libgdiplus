@@ -769,6 +769,7 @@ typedef struct {
 	void            *image;
 	int             type; 
 	GpRegion*	clip;
+	GpMatrix*	clip_matrix;
 	GpRect		bounds;
 	GpUnit		page_unit;
 	float		scale;
