@@ -26,6 +26,7 @@ libgdiplus_la_SOURCES = \
 	pathgradientbrush.c \
 	pathgradientbrush.h \
 	region.c	\
+	region.h	\
 	region-bitmap.c	\
 	region-bitmap.h	\
 	region-path-tree.c	\
