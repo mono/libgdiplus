@@ -358,12 +358,14 @@ GdipVectorTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
 GpStatus 
 GdipIsMatrixInvertible (GpMatrix *matrix, int *result)
 {
-        cairo_status_t status;
+	cairo_status_t status;
+	cairo_matrix_t copy;
 
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 	g_return_val_if_fail (result != NULL, InvalidParameter);
 
-	status = cairo_matrix_invert (matrix);
+	gdip_cairo_matrix_copy (&copy, matrix);
+	status = cairo_matrix_invert (&copy);
 
         if (status == CAIRO_STATUS_INVALID_MATRIX)
                 *result = 0;
