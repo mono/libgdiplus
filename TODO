@@ -13,17 +13,13 @@ have to be fixed in libgdiplus.
 
 * Handle functions
 
-All the functions that use or create Win32 handles are not yet implemented 
-(except for window and device) need in System.Windows.Forms.
+Functions that use or create Win32 handles and are not yet implemented 
+(except for window and device needed in System.Windows.Forms.)
 
-GdipCreateBitmapFromHBITMAP
-GdipCreateHBITMAPFromBitmap
 GdipCreateBitmapFromHICON
 GdipCreateHICONFromBitmap
 GdipCreateBitmapFromResource
 GdipCreateFontFromDC
-GdipCreateFontFromHfont
-GdipGetLogFontA
 GdipSetClipHrgn
 GdipCreateFromHWND
 
