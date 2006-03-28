@@ -609,27 +609,29 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 	pos_state = graphics->saved_status;
 	pos_state += graphicsState;	
 
+	/* Save from GpState to Graphics  */
 	gdip_cairo_matrix_copy (graphics->copy_of_ctm, &pos_state->matrix);
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+	GdipSetRenderingOrigin (graphics, pos_state->org_x, pos_state->org_y);
 
 	if (graphics->clip)
 		GdipDeleteRegion (graphics->clip);
-
-	/* Save from GpState to Graphics  */
-	gdip_cairo_matrix_copy (&pos_state->matrix, graphics->copy_of_ctm);
-	GdipSetRenderingOrigin (graphics, pos_state->org_x, pos_state->org_y);
 	GdipCloneRegion (pos_state->clip, &graphics->clip);
+	gdip_cairo_matrix_copy (graphics->clip_matrix, &pos_state->clip_matrix);
 
 	graphics->composite_mode = pos_state->composite_mode;
 	graphics->composite_quality = pos_state->composite_quality;
-	graphics->scale = pos_state->scale;
 	graphics->interpolation = pos_state->interpolation;
 	graphics->page_unit = pos_state->page_unit;
+	graphics->scale = pos_state->scale;
+	GdipSetSmoothingMode(graphics, pos_state->draw_mode);
 	graphics->text_mode = pos_state->text_mode;
 	graphics->pixel_mode = pos_state->pixel_mode;
 
 	graphics->saved_status_pos = graphicsState;
-	GdipSetSmoothingMode(graphics, pos_state->draw_mode);
+
+	/* re-adjust clipping (region and matrix) */
+	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+	gdip_set_cairo_clipping (graphics);
 	return Ok;
 }
 
@@ -651,13 +653,14 @@ GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 	pos_state = graphics->saved_status;
 	pos_state += graphics->saved_status_pos;
 
-	if (pos_state->clip)
-		GdipDeleteRegion (pos_state->clip);
-
 	/* Save from Graphics to GpState */
 	gdip_cairo_matrix_copy (&pos_state->matrix, graphics->copy_of_ctm);
 	GdipGetRenderingOrigin (graphics, &pos_state->org_x, &pos_state->org_y);
+
+	if (pos_state->clip)
+		GdipDeleteRegion (pos_state->clip);
 	GdipCloneRegion (graphics->clip, &pos_state->clip);
+	gdip_cairo_matrix_copy (&pos_state->clip_matrix, graphics->clip_matrix);
 
 	pos_state->composite_mode = graphics->composite_mode;
 	pos_state->composite_quality = graphics->composite_quality;

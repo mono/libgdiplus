@@ -1,3 +1,9 @@
+2006-03-28  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* gdip.h: Added new member clip_matrix for GpState;
+	* graphics.c: Add the clipping matrix to the information saved by 
+	GdipSaveGraphics and restored by GdipRestoreGraphics.
+
 2006-03-27  Sebastien Pouliot  <sebastien@ximian.com> 
  
 	* gifcodec.c: Added missing DGifCloseFile to reclaim memory.

@@ -749,6 +749,7 @@ typedef struct {
 typedef struct {
 	cairo_matrix_t		matrix;
 	GpRegion*		clip;
+	cairo_matrix_t		clip_matrix;
 	GpCompositingMode    	composite_mode;
 	GpCompositingQuality 	composite_quality;
 	InterpolationMode 	interpolation;
