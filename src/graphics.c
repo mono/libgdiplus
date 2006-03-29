@@ -4231,9 +4231,6 @@ GdipSetPageUnit (GpGraphics *graphics, GpUnit unit)
 	if (!graphics) 
 		return InvalidParameter;
 
-	if (unit == UnitWorld || unit == UnitMillimeter)
-		return InvalidParameter;
-
 	graphics->page_unit = unit;
 	return Ok;
 }
