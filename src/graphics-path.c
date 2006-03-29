@@ -101,6 +101,26 @@ gdip_path_has_curve (GpPath *path)
 	return FALSE;
 }
 
+/*
+ * Return the correct point type when adding a new shape to the path.
+ */
+static GpPathPointType
+gdip_get_first_point_type (GpPath *path)
+{
+	GpPathPointType type;
+
+	/* check for a new figure flag or an empty path */ 
+	if (path->start_new_fig || (path->count == 0))
+		return PathPointTypeStart;
+
+	/* check if the previous point is a closure */
+	type = g_array_index (path->types, byte, path->count - 1);
+	if (type & PathPointTypeCloseSubpath)
+		return PathPointTypeStart;
+	else
+		return PathPointTypeLine;
+}
+
 static void
 append (GpPath *path, float x, float y, GpPathPointType type)
 {
@@ -115,7 +135,7 @@ append (GpPath *path, float x, float y, GpPathPointType type)
 	else if (path->count > 0) {
 		type = g_array_index (path->types, byte, path->count - 1);
 		if (type & PathPointTypeCloseSubpath)
-		    t = PathPointTypeStart;
+			t = PathPointTypeStart;
         }
 
 	g_array_append_val (path->points, pt);
@@ -147,10 +167,12 @@ append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int coun
         if (count <= 0)
                 return;
 
-        if (type == CURVE_OPEN)
+        if (type == CURVE_OPEN) {
                 length = count - 1;
-
-        append_point (path, points [0], PathPointTypeStart);
+	        append_point (path, points [0], gdip_get_first_point_type (path));
+	} else {
+	        append_point (path, points [0], PathPointTypeStart);
+	}
 
         for (i = 1; i <= length; i++) {
 
@@ -874,7 +896,8 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
         /* draw pie edge */
         append (path, cx, cy, PathPointTypeLine);
 
-        return Ok;
+	/* close the path */
+        return GdipClosePathFigure (path);
 }
 
 GpStatus
@@ -887,7 +910,7 @@ GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
 	if (count < 3)
 		return InvalidParameter;
         
-        append_point (path, *tmp, PathPointTypeStart);
+	append_point (path, *tmp, PathPointTypeStart);
         tmp ++;
 
         for (i = 1; i < count; i++, tmp++)
@@ -900,14 +923,15 @@ GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
         if (points [0].X != points [count].X && points [0].Y != points [count].Y)
                 append_point (path, points [0], PathPointTypeLine);
         
-        return Ok;
+	/* close the path */
+        return GdipClosePathFigure (path);
 }
 
 GpStatus
 GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
 {
         int i, length;
-	GpPathPointType first = PathPointTypeStart;
+	GpPathPointType first;
         GpPointF *pts;
         byte *types;
 
@@ -928,17 +952,7 @@ GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
 	/* We can connect only open figures. If first figure is closed
 	 * it can't be connected.
 	 */
-        if (connect) {
-		for (i = 1; i < length; i++) {
-			if (types [i] == PathPointTypeStart) {
-				if (types [i - 1] & PathPointTypeCloseSubpath)
-					first = PathPointTypeStart;
-				else
-					first = PathPointTypeLine;
-				break;
-			}
-		}
-	}
+	first = connect ? gdip_get_first_point_type (path) : PathPointTypeStart;
 
 	append_point (path, pts [0], first); 
 
