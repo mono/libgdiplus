@@ -1,5 +1,5 @@
 /*
- * $Id: fbtrap.c,v 1.3 2005/01/21 18:26:28 cworth Exp $
+ * $Id: fbtrap.c,v 1.3 2005-01-21 18:26:28 cworth Exp $
  *
  * Copyright © 2004 Keith Packard
  *

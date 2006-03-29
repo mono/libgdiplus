@@ -14,9 +14,6 @@ Caching metrics for a particular font size
 
 </para>
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
 <!-- ##### TYPEDEF cairo_scaled_font_t ##### -->
 <para>
 

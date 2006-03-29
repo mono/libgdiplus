@@ -14,9 +14,6 @@ Base class for fonts
 
 </para>
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
 <!-- ##### TYPEDEF cairo_font_face_t ##### -->
 <para>
 

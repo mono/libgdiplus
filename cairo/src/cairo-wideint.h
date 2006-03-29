@@ -1,5 +1,4 @@
-/*
- * $Id: cairo-wideint.h,v 1.12 2005/08/05 14:48:19 cworth Exp $
+/* cairo - a vector graphics library with display and print output
  *
  * Copyright © 2004 Keith Packard
  *

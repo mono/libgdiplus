@@ -14,9 +14,6 @@ How a font should be rendered
 
 </para>
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
 <!-- ##### TYPEDEF cairo_font_options_t ##### -->
 <para>
 
@@ -64,15 +61,6 @@ How a font should be rendered
 
 @options: 
 @other: 
-
-
-<!-- ##### FUNCTION cairo_font_options_hash ##### -->
-<para>
-
-</para>
-
-@options: 
-@Returns: 
 
 
 <!-- ##### FUNCTION cairo_font_options_equal ##### -->

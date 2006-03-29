@@ -1,5 +1,5 @@
 /*
- * $Id: fbedgeimp.h,v 1.2 2005/01/21 18:38:42 cworth Exp $
+ * $Id: fbedgeimp.h,v 1.2 2005-01-21 18:38:42 cworth Exp $
  *
  * Copyright © 2004 Keith Packard
  *

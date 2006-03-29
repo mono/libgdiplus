@@ -1,15 +1,17 @@
-<?xml version="1.0"?>
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
-<refentry id="cairo-XLib-Backend">
+<?xml version='1.0' encoding='UTF-8'?> 
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+                "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="cairo-XLib-Surfaces">
 <refmeta>
-<refentrytitle>XLib Backend</refentrytitle>
+<refentrytitle>XLib Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>XLib Backend</refname><refpurpose></refpurpose>
+<refname>XLib Surfaces</refname><refpurpose>X Window System rendering using XLib</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv><title>Synopsis</title>
@@ -30,6 +32,10 @@
                                              <link linkend="int">int</link> width,
                                              <link linkend="int">int</link> height);
 <link linkend="void">void</link>        <link linkend="cairo-xlib-surface-set-size">cairo_xlib_surface_set_size</link>     (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height);
+<link linkend="void">void</link>        <link linkend="cairo-xlib-surface-set-drawable">cairo_xlib_surface_set_drawable</link> (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
+                                             <link linkend="Drawable">Drawable</link> drawable,
                                              <link linkend="int">int</link> width,
                                              <link linkend="int">int</link> height);
 </synopsis>
@@ -150,6 +156,35 @@ this function on a surface created for a Pixmap.</para>
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>height</parameter>&nbsp;:</term>
 <listitem><simpara> the new height of the surface
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-xlib-surface-set-drawable"/>cairo_xlib_surface_set_drawable ()</title>
+<indexterm><primary>cairo_xlib_surface_set_drawable</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_xlib_surface_set_drawable (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
+                                             <link linkend="Drawable">Drawable</link> drawable,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height);</programlisting>
+<para>
+Informs cairo of a new X Drawable underlying the
+surface. The drawable must match the display, screen
+and format of the existing drawable or the application
+will get X protocol errors and will probably terminate.
+No checks are done by this function to ensure this
+compatibility.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>surface</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-surface-t"><type>cairo_surface_t</type></link> for the XLib backend
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>drawable</parameter>&nbsp;:</term>
+<listitem><simpara> the new drawable for the surface
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
+<listitem><simpara> the width of the new drawable
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
+<listitem><simpara> the height of the new drawable
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 

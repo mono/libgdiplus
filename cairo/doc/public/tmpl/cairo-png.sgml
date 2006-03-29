@@ -14,9 +14,6 @@ Reading and writing PNG images
 
 </para>
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
 <!-- ##### FUNCTION cairo_image_surface_create_from_png ##### -->
 <para>
 

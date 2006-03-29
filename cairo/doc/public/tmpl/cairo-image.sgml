@@ -17,9 +17,6 @@ Rendering to memory buffers
 
 </para>
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
 <!-- ##### ENUM cairo_format_t ##### -->
 <para>
 

@@ -14,9 +14,6 @@ Manipulating the current transformation matrix
 
 </para>
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
 <!-- ##### FUNCTION cairo_translate ##### -->
 <para>
 

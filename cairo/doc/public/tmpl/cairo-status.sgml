@@ -14,9 +14,6 @@ Decoding cairo's status
 
 </para>
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
 <!-- ##### ENUM cairo_status_t ##### -->
 <para>
 

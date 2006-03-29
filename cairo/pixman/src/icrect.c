@@ -350,7 +350,7 @@ pixman_fill_rectangles (pixman_operator_t		op,
 
 	while (nRects--)
 	{
-	    pixman_composite (op, src, 0, dst, 0, 0, 0, 0, 
+	    pixman_composite (op, src, NULL, dst, 0, 0, 0, 0, 
 			 rects->x,
 			 rects->y,
 			 rects->width,

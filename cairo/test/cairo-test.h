@@ -26,9 +26,35 @@
 #ifndef _CAIRO_TEST_H_
 #define _CAIRO_TEST_H_
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <math.h>
 #include <cairo.h>
 #include <cairo-debug.h>
+
+#if   HAVE_STDINT_H
+# include <stdint.h>
+#elif HAVE_INTTYPES_H
+# include <inttypes.h>
+#elif HAVE_SYS_INT_TYPES_H
+# include <sys/int_types.h>
+#elif defined(_MSC_VER)
+typedef __int8 int8_t;
+typedef unsigned __int8 uint8_t;
+typedef __int16 int16_t;
+typedef unsigned __int16 uint16_t;
+typedef __int32 int32_t;
+typedef unsigned __int32 uint32_t;
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
+# ifndef HAVE_UINT64_T
+#  define HAVE_UINT64_T 1
+# endif
+#else
+#error Cannot find definitions for fixed-width integral types (uint8_t, uint32_t, \etc.)
+#endif
 
 typedef enum cairo_test_status {
     CAIRO_TEST_SUCCESS = 0,
@@ -45,23 +71,63 @@ typedef struct cairo_test {
 
 typedef cairo_test_status_t  (*cairo_test_draw_function_t) (cairo_t *cr, int width, int height);
 
-/* cairo_test.c */
+/* The standard test interface which works by examining result image.
+ *
+ * cairo_test() accepts a draw function which will be called once for
+ * each testable backend. The following checks will be performed for
+ * each backend: 
+ *
+ * 1) If draw() does not return CAIRO_TEST_SUCCESS then this backend
+ *    fails.
+ *
+ * 2) Otherwise, if cairo_status(cr) indicates an error then this
+ *    backend fails.
+ *
+ * 3) Otherwise, if the image size is 0, then this backend passes.
+ *
+ * 4) Otherwise, if every channel of every pixel exactly matches the
+ *    reference image then this backend passes. If not, this backend
+ *    fails.
+ *
+ * The overall test result is PASS if and only if there is at least
+ * one backend that is tested and if all tested backend pass according
+ * to the four criteria above.
+ */
 cairo_test_status_t
 cairo_test (cairo_test_t *test, cairo_test_draw_function_t draw);
 
+/* Like cairo_test, but the text is expected to fail for the stated
+ * reason. Any test calling this variant should be listed in the
+ * XFAIL_TESTS list in Makefile.am. */
 cairo_test_status_t
 cairo_test_expect_failure (cairo_test_t		      *test, 
 			   cairo_test_draw_function_t  draw,
 			   const char		      *reason);
 
+/* cairo_test_init() and cairo_test_log() exist to help in writing
+ * tests for which cairo_test() is not appropriate for one reason or
+ * another. For example, some tests might not be doing any drawing at
+ * all, or may need to create their own cairo_t rather than be handed
+ * one by cairo_test.
+ */
+
+/* Initialize test-specific resources, (log files, etc.) */
+void
+cairo_test_init (const char *test_name);
+
+/* Print a message to the log file, ala printf. */
+void
+cairo_test_log (const char *fmt, ...);
+
+/* Helper functions that take care of finding source images even when
+ * building in a non-srcdir manner, (ie. the tests will be run in a
+ * directory that is different from the one where the source image
+ * exists). */
 cairo_surface_t *
 cairo_test_create_surface_from_png (const char *filename);
 
 cairo_pattern_t *
 cairo_test_create_pattern_from_png (const char *filename);
-
-void
-cairo_test_log (const char *fmt, ...);
 
 void
 xasprintf (char **strp, const char *fmt, ...);

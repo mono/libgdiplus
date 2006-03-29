@@ -229,12 +229,10 @@ cairo_matrix_init_rotate (cairo_matrix_t *matrix,
 {
     double  s;
     double  c;
-#if HAVE_SINCOS
-    sincos (radians, &s, &c);
-#else
+
     s = sin (radians);
     c = cos (radians);
-#endif
+
     cairo_matrix_init (matrix,
 		       c, s,
 		       -s, c,

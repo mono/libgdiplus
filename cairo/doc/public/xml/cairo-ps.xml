@@ -1,15 +1,17 @@
-<?xml version="1.0"?>
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
-<refentry id="cairo-PS-Backend">
+<?xml version='1.0' encoding='UTF-8'?> 
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+                "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="cairo-PostScript-Surfaces">
 <refmeta>
-<refentrytitle>PS Backend</refentrytitle>
+<refentrytitle>PostScript Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>PS Backend</refname><refpurpose></refpurpose>
+<refname>PostScript Surfaces</refname><refpurpose>Rendering PostScript documents</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv><title>Synopsis</title>
@@ -104,18 +106,20 @@
                                              <link linkend="double">double</link> x_dpi,
                                              <link linkend="double">double</link> y_dpi);</programlisting>
 <para>
+Set horizontal and vertical resolution for image fallbacks.  When
+the postscript backend needs to fall back to image overlays, it
+will use this resolution.</para>
+<para>
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>surface</parameter>&nbsp;:</term>
-<listitem><simpara>
+<listitem><simpara> a postscript cairo_surface_t
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>x_dpi</parameter>&nbsp;:</term>
-<listitem><simpara>
+<listitem><simpara> horizontal dpi
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>y_dpi</parameter>&nbsp;:</term>
-<listitem><simpara>
-
-
+<listitem><simpara> vertical dpi
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 

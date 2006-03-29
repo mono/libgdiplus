@@ -35,7 +35,7 @@ static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
     cairo_surface_t *surface;
-    unsigned long data[16] = {
+    uint32_t data[16] = {
 	0xffffffff, 0xffffffff,		0xffff0000, 0xffff0000,
 	0xffffffff, 0xffffffff,		0xffff0000, 0xffff0000,
 

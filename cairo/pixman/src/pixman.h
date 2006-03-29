@@ -54,7 +54,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
 SOFTWARE.
 
 ******************************************************************/
-/* $Id: pixman.h,v 1.22 2005/08/10 19:36:51 cworth Exp $ */
+/* $Id: pixman.h,v 1.22.4.1 2005-09-26 22:48:06 cworth Exp $ */
 
 /* libic.h */
 
@@ -83,12 +83,19 @@ SOFTWARE.
 
 #if defined (__SVR4) && defined (__sun)
 # include <sys/int_types.h>
+#elif defined (__OpenBSD__) || defined (_AIX)
+# include <inttypes.h>
+#elif defined (_MSC_VER)
+  typedef __int8 int8_t;
+  typedef unsigned __int8 uint8_t;
+  typedef __int16 int16_t;
+  typedef unsigned __int16 uint16_t;
+  typedef __int32 int32_t;
+  typedef unsigned __int32 uint32_t;
+  typedef __int64 int64_t;
+  typedef unsigned __int64 uint64_t;
 #else
-# if defined (__OpenBSD__) || defined (_AIX)
-#  include <inttypes.h>
-# else 
-#  include <stdint.h>
-# endif
+# include <stdint.h>
 #endif
 
 #include "pixman-remap.h"

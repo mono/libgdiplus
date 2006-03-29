@@ -14,9 +14,6 @@ Base class for surfaces
 
 </para>
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
 <!-- ##### TYPEDEF cairo_surface_t ##### -->
 <para>
 

@@ -1,9 +1,9 @@
 # All test cases go here
-TESTS =
-
-TESTS_ORG=	\
+TESTS = 			\
 a8-mask				\
+caps-joins			\
 caps-sub-paths			\
+clip-all			\
 clip-nesting			\
 clip-operator			\
 clip-twice			\
@@ -12,6 +12,7 @@ composite-integer-translate-over \
 composite-integer-translate-over-repeat \
 create-from-png			\
 create-from-png-stream		\
+dash-caps-joins			\
 dash-offset-negative		\
 fill-and-stroke			\
 fill-rule			\
@@ -38,6 +39,7 @@ select-font-no-show-text	\
 self-copy			\
 self-intersecting		\
 set-source			\
+show-glyphs-many		\
 show-text-current-point		\
 source-clip			\
 source-surface-scale-paint	\
@@ -57,29 +59,34 @@ unbounded-operator		\
 user-data			\
 rel-path
 
+if HAVE_PTHREAD
+TESTS += pthread-show-text
+endif
+
 if CAIRO_HAS_FT_FONT
-TESTS_ORG += ft-font-create-for-ft-face
+TESTS += ft-font-create-for-ft-face
 endif
 
 if CAIRO_HAS_PDF_SURFACE
-TESTS_ORG += pdf-surface pdf-clip
+TESTS += pdf-surface pdf-clip
 endif
 
 if CAIRO_HAS_PS_SURFACE
-TESTS_ORG += ps-surface
+TESTS += ps-surface
 endif
 
 if CAIRO_HAS_XLIB_SURFACE
-TESTS_ORG += xlib-surface
+TESTS += xlib-surface
 endif
 
 # All tests which have a reference image go here.
 # I really don't like having to repeat this list. Anyone know a good
 # way to avoid it? Can I use a wildcard here?
-EXTRA_DIST =
-EXTRA_DIST_ORG =				\
+EXTRA_DIST =				\
 a8-mask-ref.png				\
+caps-joins-ref.png			\
 caps-sub-paths-ref.png			\
+clip-all-ref.png			\
 clip-nesting-ref.png			\
 clip-operator-ref.png			\
 clip-twice-ref.png			\
@@ -88,6 +95,7 @@ composite-integer-translate-over-ref.png		\
 composite-integer-translate-over-repeat-ref.png		\
 create-from-png-ref.png			\
 create-from-png-stream-ref.png		\
+dash-caps-joins-ref.png			\
 dash-offset-negative-ref.png		\
 fill-and-stroke-ref.png			\
 fill-rule-ref.png			\
@@ -113,6 +121,8 @@ self-copy-ref.png			\
 self-intersecting-ref.png		\
 scale-source-surface-paint-ref.png	\
 set-source-ref.png			\
+show-glyphs-many-ref.png		\
+show-glyphs-many-rgb24-ref.png		\
 show-text-current-point-ref.png		\
 source-clip-ref.png			\
 source-surface-scale-paint-ref.png	\
@@ -121,6 +131,7 @@ text-antialias-gray-ref.png		\
 text-antialias-none-ref.png		\
 text-antialias-subpixel-ref.png		\
 text-pattern-ref.png			\
+text-rotate-ref.png			\
 transforms-ref.png			\
 translate-show-surface-ref.png		\
 trap-clip-ref.png			\
@@ -186,7 +197,9 @@ endif
 # time to break down and auto-generate the Makefile.am or something
 # from autogen.sh. My, but this is painful...
 a8_mask_LDADD = $(LDADDS)
+caps_joins_LDADD = $(LDADDS)
 caps_sub_paths_LDADD = $(LDADDS)
+clip_all_LDADD = $(LDADDS)
 clip_nesting_LDADD = $(LDADDS)
 clip_operator_LDADD = $(LDADDS)
 clip_twice_LDADD = $(LDADDS)
@@ -195,6 +208,7 @@ composite_integer_translate_over_LDADD = $(LDADDS)
 composite_integer_translate_over_repeat_LDADD = $(LDADDS)
 create_from_png_LDADD = $(LDADDS)
 create_from_png_stream_LDADD = $(LDADDS)
+dash_caps_joins_LDADD = $(LDADDS)
 dash_offset_negative_LDADD = $(LDADDS)
 fill_and_stroke_LDADD = $(LDADDS)
 fill_rule_LDADD = $(LDADDS)
@@ -217,14 +231,16 @@ paint_with_alpha_LDADD = $(LDADDS)
 path_data_LDADD = $(LDADDS)
 pdf_surface_LDADD = $(LDADDS)
 pdf_clip_LDADD = $(LDADDS)
-ps_surface_LDADD = $(LDADDS)
 pixman_rotate_LDADD = $(LDADDS)
+ps_surface_LDADD = $(LDADDS)
+pthread_show_text_LDADD = $(LDADDS)
 rectangle_rounding_error_LDADD = $(LDADDS)
 scale_source_surface_paint_LDADD = $(LDADDS)
 select_font_no_show_text_LDADD = $(LDADDS)
 self_copy_LDADD = $(LDADDS)
 self_intersecting_LDADD = $(LDADDS)
 set_source_LDADD = $(LDADDS)
+show_glyphs_many_LDADD = $(LDADDS)
 show_text_current_point_LDADD = $(LDADDS)
 source_clip_LDADD = $(LDADDS)
 source_surface_scale_paint_LDADD = $(LDADDS)

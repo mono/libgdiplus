@@ -32,8 +32,8 @@
 #define HEIGHT 2
 
 cairo_test_t test = {
-    "create-from-png",
-    "Tests the creation of an image surface from a PNG file",
+    "create-from-png-stream",
+    "Tests the creation of an image surface from a PNG using a FILE *",
     WIDTH, HEIGHT
 };
 
@@ -61,7 +61,7 @@ draw (cairo_t *cr, int width, int height)
     xasprintf (&filename, "%s/%s", srcdir ? srcdir : ".",
 	       "create-from-png-stream-ref.png");
 
-    file = fopen (filename, "r");
+    file = fopen (filename, "rb");
     if (file == NULL) {
 	cairo_test_log ("Error: failed to open file: %s\n", filename);
 	return CAIRO_TEST_FAILURE;

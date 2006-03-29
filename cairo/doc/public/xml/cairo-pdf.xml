@@ -1,15 +1,17 @@
-<?xml version="1.0"?>
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
-<refentry id="cairo-PDF-Backend">
+<?xml version='1.0' encoding='UTF-8'?> 
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+                "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="cairo-PDF-Surfaces">
 <refmeta>
-<refentrytitle>PDF Backend</refentrytitle>
+<refentrytitle>PDF Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>PDF Backend</refname><refpurpose></refpurpose>
+<refname>PDF Surfaces</refname><refpurpose>Rendering PDF documents</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv><title>Synopsis</title>

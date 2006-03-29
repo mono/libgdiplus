@@ -14,11 +14,19 @@
 
 
 
-<!-- ##### SECTION ./tmpl/cairo-atsui.sgml:Stability_Level ##### -->
-
-
-
 <!-- ##### SECTION ./tmpl/cairo-atsui.sgml:Title ##### -->
 ATSUI Fonts
 
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+
+<!-- ##### FUNCTION cairo_font_options_hash ##### -->
+<para>
+
+</para>
+
+@options: 
+@Returns: 
 

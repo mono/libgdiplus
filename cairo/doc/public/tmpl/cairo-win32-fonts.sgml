@@ -14,9 +14,6 @@ Font support for Microsoft Windows
 
 </para>
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
 <!-- ##### FUNCTION cairo_win32_font_face_create_for_logfontw ##### -->
 <para>
 

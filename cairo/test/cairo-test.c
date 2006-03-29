@@ -35,7 +35,9 @@
 #endif
 #include <errno.h>
 #include <string.h>
+#if HAVE_FCFINI
 #include <fontconfig/fontconfig.h>
+#endif
 
 #include "cairo-test.h"
 
@@ -48,6 +50,9 @@
 #define vsnprintf _vsnprintf
 #endif
 
+static void
+xunlink (const char *pathname);
+
 #define CAIRO_TEST_LOG_SUFFIX ".log"
 #define CAIRO_TEST_PNG_SUFFIX "-out.png"
 #define CAIRO_TEST_REF_SUFFIX "-ref.png"
@@ -57,6 +62,22 @@
  * general-purpose library, and it keeps the tests cleaner to avoid a
  * context object there, (though not a whole lot). */
 FILE *cairo_test_log_file;
+
+void
+cairo_test_init (const char *test_name)
+{
+    char *log_name;
+
+    xasprintf (&log_name, "%s%s", test_name, CAIRO_TEST_LOG_SUFFIX);
+    xunlink (log_name);
+
+    cairo_test_log_file = fopen (log_name, "a");
+    if (cairo_test_log_file == NULL) {
+	fprintf (stderr, "Error opening log file: %s\n", log_name);
+	cairo_test_log_file = stderr;
+    }
+    free (log_name);
+}
 
 void
 cairo_test_log (const char *fmt, ...)
@@ -382,6 +403,8 @@ create_xlib_surface (int width, int height, void **closure)
 	return NULL;
     }
 
+    XSynchronize (xtc->dpy, 1);
+
     /* XXX: Currently we don't do any xlib testing when the X server
      * doesn't have the Render extension. We could do better here,
      * (perhaps by converting the tests from ARGB32 to RGB24). One
@@ -509,8 +532,10 @@ static cairo_test_status_t
 cairo_test_expecting (cairo_test_t *test, cairo_test_draw_function_t draw,
 		      cairo_test_status_t expectation)
 {
-    int i;
+    int i, num_targets;
+    char *tname;
     cairo_test_status_t status, ret;
+    cairo_test_target_t **targets_to_test;
     cairo_test_target_t targets[] = 
 	{
 	    { "image", create_image_surface, cleanup_image}, 
@@ -530,17 +555,30 @@ cairo_test_expecting (cairo_test_t *test, cairo_test_draw_function_t draw,
 	    { "xlib", create_xlib_surface, cleanup_xlib},
 #endif
 	};
-    char *log_name;
 
-    xasprintf (&log_name, "%s%s", test->name, CAIRO_TEST_LOG_SUFFIX);
-    xunlink (log_name);
+    if ((tname = getenv ("CAIRO_TEST_TARGET")) != NULL) {
+	num_targets = 0;
+	targets_to_test = NULL;
+	/* realloc isn't exactly the best thing here, but meh. */
+	for (i = 0; i < sizeof(targets)/sizeof(targets[0]); i++) {
+	    if (strcmp (targets[i].name, tname) == 0) {
+		targets_to_test = realloc (targets_to_test, sizeof(cairo_test_target_t *) * (num_targets+1));
+		targets_to_test[num_targets++] = &targets[i];
+	    }
+	}
 
-    cairo_test_log_file = fopen (log_name, "a");
-    if (cairo_test_log_file == NULL) {
-	fprintf (stderr, "Error opening log file: %s\n", log_name);
-	cairo_test_log_file = stderr;
+	if (num_targets == 0) {
+	    fprintf (stderr, "CAIRO_TEST_TARGET '%s' not found in targets list!\n", tname);
+	    exit(-1);
+	}
+    } else {
+	num_targets = sizeof(targets)/sizeof(targets[0]);
+	targets_to_test = malloc (sizeof(cairo_test_target_t*) * num_targets);
+	for (i = 0; i < num_targets; i++)
+	    targets_to_test[i] = &targets[i];
     }
-    free (log_name);
+
+    cairo_test_init (test->name);
 
     /* The intended logic here is that we return overall SUCCESS
      * iff. there is at least one tested backend and that all tested
@@ -554,26 +592,34 @@ cairo_test_expecting (cairo_test_t *test, cairo_test_draw_function_t draw,
      *		-> SUCCESS
      */
     ret = CAIRO_TEST_UNTESTED;
-    for (i=0; i < sizeof(targets)/sizeof(targets[0]); i++) {
-	cairo_test_target_t *target = &targets[i];
+    for (i = 0; i < num_targets; i++) {
+    	cairo_test_target_t *target = targets_to_test[i];
 	cairo_test_log ("Testing %s with %s target\n", test->name, target->name);
 	printf ("%s-%s:\t", test->name, target->name);
 	status = cairo_test_for_target (test, draw, target);
+
+	cairo_test_log ("TEST: %s TARGET: %s RESULT: ",
+			test->name, target->name);
 	switch (status) {
 	case CAIRO_TEST_SUCCESS:
 	    printf ("PASS\n");
+	    cairo_test_log ("PASS\n");
 	    if (ret == CAIRO_TEST_UNTESTED)
 		ret = CAIRO_TEST_SUCCESS;
 	    break;
 	case CAIRO_TEST_UNTESTED:
 	    printf ("UNTESTED\n");
+	    cairo_test_log ("UNTESTED\n");
 	    break;
 	default:
 	case CAIRO_TEST_FAILURE:
-	    if (expectation == CAIRO_TEST_FAILURE)
+	    if (expectation == CAIRO_TEST_FAILURE) {
 		printf ("XFAIL\n");
-	    else
+		cairo_test_log ("XFAIL\n");
+	    } else {
 		printf ("FAIL\n");
+		cairo_test_log ("FAIL\n");
+	    }
 	    ret = status;
 	    break;
 	}
@@ -582,6 +628,8 @@ cairo_test_expecting (cairo_test_t *test, cairo_test_draw_function_t draw,
 	ret = CAIRO_TEST_FAILURE;
 
     fclose (cairo_test_log_file);
+
+    free (targets_to_test);
 
 #if HAVE_FCFINI
     FcFini ();

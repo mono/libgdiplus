@@ -1,5 +1,5 @@
 /*
- * $Id: renderedge.c,v 1.2 2005/01/21 18:26:28 cworth Exp $
+ * $Id: renderedge.c,v 1.2 2005-01-21 18:26:28 cworth Exp $
  *
  * Copyright © 2004 Keith Packard
  *

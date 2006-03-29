@@ -1,15 +1,17 @@
-<?xml version="1.0"?>
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
-<refentry id="cairo-PNG-Backend">
+<?xml version='1.0' encoding='UTF-8'?> 
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+                "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="cairo-PNG-Support">
 <refmeta>
-<refentrytitle>PNG Backend</refentrytitle>
+<refentrytitle>PNG Support</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>PNG Backend</refname><refpurpose></refpurpose>
+<refname>PNG Support</refname><refpurpose>Reading and writing PNG images</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv><title>Synopsis</title>
@@ -20,11 +22,17 @@
 
 <link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-image-surface-create-from-png">cairo_image_surface_create_from_png</link>
                                             (const <link linkend="char">char</link> *filename);
+<link linkend="cairo-status-t">cairo_status_t</link> (<link linkend="cairo-read-func-t">*cairo_read_func_t</link>)         (<link linkend="void">void</link> *closure,
+                                             unsigned <link linkend="char">char</link> *data,
+                                             unsigned <link linkend="int">int</link> length);
 <link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-image-surface-create-from-png-stream">cairo_image_surface_create_from_png_stream</link>
                                             (<link linkend="cairo-read-func-t">cairo_read_func_t</link> read_func,
                                              <link linkend="void">void</link> *closure);
 <link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-surface-write-to-png">cairo_surface_write_to_png</link>   (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
                                              const <link linkend="char">char</link> *filename);
+<link linkend="cairo-status-t">cairo_status_t</link> (<link linkend="cairo-write-func-t">*cairo_write_func_t</link>)        (<link linkend="void">void</link> *closure,
+                                             unsigned <link linkend="char">char</link> *data,
+                                             unsigned <link linkend="int">int</link> length);
 <link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-surface-write-to-png-stream">cairo_surface_write_to_png_stream</link>
                                             (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
                                              <link linkend="cairo-write-func-t">cairo_write_func_t</link> write_func,
@@ -73,6 +81,34 @@ CAIRO_STATUS_READ_ERROR
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
+<title><anchor id="cairo-read-func-t"/>cairo_read_func_t ()</title>
+<indexterm><primary>cairo_read_func_t</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> (*cairo_read_func_t)         (<link linkend="void">void</link> *closure,
+                                             unsigned <link linkend="char">char</link> *data,
+                                             unsigned <link linkend="int">int</link> length);</programlisting>
+<para>
+<link linkend="cairo-read-func-t"><type>cairo_read_func_t</type></link> is the type of function which is called when a
+backend needs to read data from an intput stream.  It is passed the
+closure which was specified by the user at the time the read
+function was registered, the buffer to read the data into and the
+length of the data in bytes.  The read function should return
+CAIRO_STATUS_SUCCESS if all the data was successfully read,
+CAIRO_STATUS_READ_ERROR otherwise.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>closure</parameter>&nbsp;:</term>
+<listitem><simpara> the input closure
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> the buffer into which to read the data
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>length</parameter>&nbsp;:</term>
+<listitem><simpara> the amount of data to read
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the status code of the read operation
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
 <title><anchor id="cairo-image-surface-create-from-png-stream"/>cairo_image_surface_create_from_png_stream ()</title>
 <indexterm><primary>cairo_image_surface_create_from_png_stream</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_image_surface_create_from_png_stream
                                             (<link linkend="cairo-read-func-t">cairo_read_func_t</link> read_func,
@@ -116,6 +152,34 @@ be allocated for the operation or
 CAIRO_STATUS_SURFACE_TYPE_MISMATCH if the surface does not have
 pixel contents, or CAIRO_STATUS_WRITE_ERROR if an I/O error occurs
 while attempting to write the file.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-write-func-t"/>cairo_write_func_t ()</title>
+<indexterm><primary>cairo_write_func_t</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> (*cairo_write_func_t)        (<link linkend="void">void</link> *closure,
+                                             unsigned <link linkend="char">char</link> *data,
+                                             unsigned <link linkend="int">int</link> length);</programlisting>
+<para>
+<link linkend="cairo-write-func-t"><type>cairo_write_func_t</type></link> is the type of function which is called when a
+backend needs to write data to an output stream.  It is passed the
+closure which was specified by the user at the time the write
+function was registered, the data to write and the length of the
+data in bytes.  The write function should return
+CAIRO_STATUS_SUCCESS if all the data was successfully written,
+CAIRO_STATUS_WRITE_ERROR otherwise.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>closure</parameter>&nbsp;:</term>
+<listitem><simpara> the output closure
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> the buffer containing the data to write
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>length</parameter>&nbsp;:</term>
+<listitem><simpara> the amount of data to write
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the status code of the write operation
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>

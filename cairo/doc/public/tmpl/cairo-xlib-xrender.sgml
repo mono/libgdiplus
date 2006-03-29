@@ -14,9 +14,6 @@ XLib/Xrender Backend
 
 </para>
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
 <!-- ##### FUNCTION cairo_xlib_surface_create_with_xrender_format ##### -->
 <para>
 

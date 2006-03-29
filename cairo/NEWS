@@ -1,3 +1,96 @@
+Release 1.0.4 (2006-03-15 Behdad Esfahbod <behdad@behdad.org>)
+==============================================================
+This is a bug fix release.  Many fixes in this release are
+backported from the head branch and do not have bug numbers.
+For the bugs in bugzilla that are fixed in this release, see:
+
+	https://bugs.freedesktop.org/buglist.cgi?bug_id=4674,4823,5528,5734,6176,6196,6197
+
+This includes the bug causing Pango crashes with some corrupt
+fonts.  For a list of all changes, see ChangeLog.
+
+Release 1.0.2 (2005-10-03 Carl Worth <cworth@cworth.org>)
+=========================================================
+For each bug number XXXX below, see:
+
+	https://bugs.freedesktop.org/show_bug.cgi?id=XXXX
+
+for more details.
+
+General bug fixes
+-----------------
+ * 4408 - Add support for dashing of stroked curves
+	  (Carl Worth)
+
+ * 4409 - Fix dashing so that each dash is capped on both ends
+	  (Carl Worth)
+
+ * 4414 - Prevent SIGILL failures (proper use of -mmmx and -msse flags)
+	  (Sebastien Bacher, Billy Biggs)
+
+ * 4299 - Fix crashes with text display in multi-threaded program
+	  (Alexey Shabalin, Carl Worth)
+
+ * 4401 - Do not use sincos function since it is buggy on some platforms)
+	  (Tim Mooney, Carl Worth)
+
+ * 4245 - Fix several bugs in the test suite exposed by amd64 systems
+	  (Seemant Kulleen, Carl Worth)
+
+ * 4321 - Add missing byteswapping on GetImage/PutImage
+	  (Sjoerd Simons, Owen Taylor)
+
+ * 4220 - Make the check for rectangular trapezoids simpler and more accurate
+	  (Richard Stellingwerff, Owen Taylor)
+
+ * 4260 - Add missing channel-order swapping for antialised fonts
+	  (Barbie LeVile, Owen Taylor)
+
+ * 4283 - Fix compilation failure with aggressive inlining (gcc -O3)
+	  (Marco Manfredini, Owen Taylor)
+
+ * 4208 - Fix some warnings from sparse
+	  (Kjartan Maraas, Billy Biggs)
+
+ * 4269 - Fix to not crash when compiled with -fomit-frame-pointer
+	  (Ronald Wahl, Owen Taylor)
+
+ * 4263 - Improve performance for vertical gradients
+	  (Richard Stellingwerff, Owen Taylor)
+
+ * 4231
+ * 4298 - Accomodate gentoo and Mandriva versions in X server vendor string check
+	  (Billy Biggs, Frederic Crozat, Owen Taylor)
+
+win32-specific fixes
+--------------------
+ * 4599 - Fix "missing wedges" on some stroked paths (win32)
+	  (Tim Rowley, Jonathan Watt, Bertram Felgenhauer, Carl Worth, Keith Packard)
+
+ * 4612 - Fix disappearing text if first character out of surface (win32)
+	  (Tim Rowley)
+
+ * 4602 - Fix shutdown of cairo from failing intermediate, size-0 bitmaps (win32)
+	  Aka. the "white rectangles" bug from mozilla-svg testing
+	  (Tim Rowley)
+
+ * Various portability improvements for win32
+	  (Hans Breuer, Owen Taylor, Carl Worth)
+
+ * 4593 - Fix font sizes to match user expectations (win32)
+	  (Tor Lillqvist, Owen Taylor)
+
+ * 3927 - Fix to report metrics of size 0 for glyph-not-available (win32)
+	  (Hans Breuer, Owen Taylor, Tor Lillqvist)
+
+ * Add locking primitives for win32
+	  (Hans Breuer)
+
+xlib-specific fixes
+-------------------
+ * Fix crash from size-0 pixmap due to empty clip region (xlib)
+	  (Radek Doulík, Carl Worth)
+
 Release 1.0.0 (2005-08-24 Carl Worth <cworth@cworth.org>)
 =========================================================
 Experimental backends

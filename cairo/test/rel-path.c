@@ -1,5 +1,5 @@
 /*
- * $Id: rel-path.c,v 1.1 2005/05/02 19:36:20 keithp Exp $
+ * $Id: rel-path.c,v 1.1 2005-05-02 19:36:20 keithp Exp $
  *
  * Copyright © 2005 Keith Packard
  *

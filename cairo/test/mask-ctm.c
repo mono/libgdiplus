@@ -36,7 +36,7 @@ draw (cairo_t *cr, int width, int height)
 {
     cairo_surface_t *mask_surface;
     cairo_pattern_t *mask;
-    unsigned long data[] = {
+    uint32_t data[] = {
 	0x80000000, 0x80000000,
 	0x80000000, 0x80000000,
     };

@@ -231,8 +231,10 @@ _cairo_clip_intersect_path (cairo_clip_t       *clip,
 	return CAIRO_STATUS_NO_MEMORY;
 
     status = _cairo_path_fixed_init_copy (&clip_path->path, path);
-    if (status)
+    if (status) {
+	free (clip_path);
 	return status;
+    }
 
     clip_path->ref_count = 1;
     clip_path->fill_rule = fill_rule;
@@ -319,7 +321,7 @@ _cairo_clip_intersect_mask (cairo_clip_t      *clip,
 {
     cairo_pattern_union_t pattern;
     cairo_box_t extents;
-    cairo_rectangle_t surface_rect;
+    cairo_rectangle_t surface_rect, target_rect;
     cairo_surface_t *surface;
     cairo_status_t status;
 
@@ -332,6 +334,13 @@ _cairo_clip_intersect_mask (cairo_clip_t      *clip,
 
     if (clip->surface != NULL)
 	_cairo_rectangle_intersect (&surface_rect, &clip->surface_rect);
+
+    /* Intersect with the target surface rectangle so we don't use
+     * more memory and time than we need to. */
+
+    status = _cairo_surface_get_extents (target, &target_rect);
+    if (!status)
+	_cairo_rectangle_intersect (&surface_rect, &target_rect);
 
     surface = _cairo_surface_create_similar_solid (target,
 						   CAIRO_CONTENT_ALPHA,

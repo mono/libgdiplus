@@ -14,9 +14,6 @@ X Window System rendering using XLib
 
 </para>
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
 <!-- ##### FUNCTION cairo_xlib_surface_create ##### -->
 <para>
 

@@ -37,7 +37,7 @@ draw (cairo_t *cr, int width, int height)
     int i;
     /* This color value might need to change in the future when we fix
      * the rounding in cairo-color.c */
-    unsigned long color = 0x7f19334C;
+    uint32_t color = 0x7f19334C;
     cairo_surface_t *surface;
     cairo_pattern_t *pattern;
 

@@ -138,15 +138,29 @@
 # define CAIRO_MUTEX_UNLOCK(name) pthread_mutex_unlock (&name)
 #endif
 
+#if !defined(CAIRO_MUTEX_DECLARE) && defined CAIRO_HAS_WIN32_SURFACE
+# define WIN32_LEAN_AND_MEAN
+# include <windows.h>
+  /* the real initialization must take place in DllMain */
+# define CAIRO_MUTEX_DECLARE(name) extern CRITICAL_SECTION name; 
+# define CAIRO_MUTEX_DECLARE_GLOBAL(name) extern LPCRITICAL_SECTION name;
+# define CAIRO_MUTEX_LOCK(name) EnterCriticalSection (&name)
+# define CAIRO_MUTEX_UNLOCK(name) LeaveCriticalSection (&name)
+#endif
+
 #ifndef CAIRO_MUTEX_DECLARE
-# warning "No mutex declarations, assuming single-threaded code"
+# error "No mutex declarations. Cairo will not work with multiple threads." \
+	"(Remove this #error directive to acknowledge & accept this limitation)."
 # define CAIRO_MUTEX_DECLARE(name)
 # define CAIRO_MUTEX_DECLARE_GLOBAL(name)
 # define CAIRO_MUTEX_LOCK(name)
 # define CAIRO_MUTEX_UNLOCK(name)
 #endif
 
+#undef MIN
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+#undef MAX
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 #ifndef FALSE
@@ -155,6 +169,10 @@
 
 #ifndef TRUE
 #define TRUE 1
+#endif
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
 #endif
 
 #define ASSERT_NOT_REACHED		\

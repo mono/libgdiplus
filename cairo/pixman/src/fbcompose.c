@@ -33,9 +33,19 @@
 
 #include "pixregionint.h"
 
-// #define PIXMAN_CONVOLUTION
-// #define PIXMAN_GRADIENTS
-// #define PIXMAN_INDEXED_FORMATS
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#endif
+
+#include <math.h>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+/* #define PIXMAN_CONVOLUTION */
+/* #define PIXMAN_GRADIENTS */
+/* #define PIXMAN_INDEXED_FORMATS */
 
 static Bool
 PictureTransformPoint3d (pixman_transform_t *transform,
@@ -585,7 +595,7 @@ static fetchProc fetchProcForPicture (PicturePtr pict)
     case PICT_a1: return  fbFetch_a1;
     case PICT_g1: return  fbFetch_g1;
     default:
-        return 0;
+        return NULL;
     }
 }
 
@@ -1013,7 +1023,7 @@ static fetchPixelProc fetchPixelProcForPicture (PicturePtr pict)
     case PICT_a1: return  fbFetchPixel_a1;
     case PICT_g1: return  fbFetchPixel_g1;
     default:
-        return 0;
+        return NULL;
     }
 }
 
@@ -1049,7 +1059,7 @@ fbStore_a8b8g8r8 (FbBits *bits, const CARD32 *values, int x, int width, miIndexe
     int i;
     CARD32 *pixel = (CARD32 *)bits + x;
     for (i = 0; i < width; ++i)
-        *pixel++ = (values[i] & 0xff00ff00) | ((values[i] >> 16) && 0xff) | ((values[i] & 0xff) << 16);
+        *pixel++ = (values[i] & 0xff00ff00) | ((values[i] >> 16) & 0xff) | ((values[i] & 0xff) << 16);
 }
 
 static FASTCALL void
@@ -1058,7 +1068,7 @@ fbStore_x8b8g8r8 (FbBits *bits, const CARD32 *values, int x, int width, miIndexe
     int i;
     CARD32 *pixel = (CARD32 *)bits + x;
     for (i = 0; i < width; ++i)
-        *pixel++ = (values[i] & 0x0000ff00) | ((values[i] >> 16) && 0xff) | ((values[i] & 0xff) << 16);
+        *pixel++ = (values[i] & 0x0000ff00) | ((values[i] >> 16) & 0xff) | ((values[i] & 0xff) << 16);
 }
 
 static FASTCALL void
@@ -1449,7 +1459,7 @@ static storeProc storeProcForPicture (PicturePtr pict)
     case PICT_a1: return  fbStore_a1;
     case PICT_g1: return  fbStore_g1;
     default:
-        return 0;
+        return NULL;
     }
 }
 
@@ -1953,7 +1963,7 @@ fbCombineConjointXorU (CARD32 *dest, const CARD32 *src, int width)
 static CombineFuncU fbCombineFuncU[] = {
     fbCombineClear,
     fbCombineSrcU,
-    0, /* CombineDst */
+    NULL, /* CombineDst */
     fbCombineOverU,
     fbCombineOverReverseU,
     fbCombineInU,
@@ -1965,11 +1975,11 @@ static CombineFuncU fbCombineFuncU[] = {
     fbCombineXorU,
     fbCombineAddU,
     fbCombineSaturateU,
-    0,
-    0,
+    NULL,
+    NULL,
     fbCombineClear,
     fbCombineSrcU,
-    0, /* CombineDst */
+    NULL, /* CombineDst */
     fbCombineDisjointOverU,
     fbCombineSaturateU, /* DisjointOverReverse */
     fbCombineDisjointInU,
@@ -1979,13 +1989,13 @@ static CombineFuncU fbCombineFuncU[] = {
     fbCombineDisjointAtopU,
     fbCombineDisjointAtopReverseU,
     fbCombineDisjointXorU,
-    0,
-    0,
-    0,
-    0,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     fbCombineClear,
     fbCombineSrcU,
-    0, /* CombineDst */
+    NULL, /* CombineDst */
     fbCombineConjointOverU,
     fbCombineConjointOverReverseU,
     fbCombineConjointInU,
@@ -2574,7 +2584,7 @@ fbCombineConjointXorC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 static CombineFuncC fbCombineFuncC[] = {
     fbCombineClearC,
     fbCombineSrcC,
-    0, /* Dest */
+    NULL, /* Dest */
     fbCombineOverC,
     fbCombineOverReverseC,
     fbCombineInC,
@@ -2586,11 +2596,11 @@ static CombineFuncC fbCombineFuncC[] = {
     fbCombineXorC,
     fbCombineAddC,
     fbCombineSaturateC,
-    0,
-    0,
+    NULL,
+    NULL,
     fbCombineClearC,	    /* 0x10 */
     fbCombineSrcC,
-    0, /* Dest */
+    NULL, /* Dest */
     fbCombineDisjointOverC,
     fbCombineSaturateC, /* DisjointOverReverse */
     fbCombineDisjointInC,
@@ -2600,13 +2610,13 @@ static CombineFuncC fbCombineFuncC[] = {
     fbCombineDisjointAtopC,
     fbCombineDisjointAtopReverseC,
     fbCombineDisjointXorC,  /* 0x1b */
-    0,
-    0,
-    0,
-    0,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     fbCombineClearC,
     fbCombineSrcC,
-    0, /* Dest */
+    NULL, /* Dest */
     fbCombineConjointOverC,
     fbCombineConjointOverReverseC,
     fbCombineConjointInC,
@@ -2638,7 +2648,7 @@ static void fbFetchSolid(PicturePtr pict, int x, int y, int width, CARD32 *buffe
 #ifdef PIXMAN_INDEXED_FORMATS
     miIndexedPtr indexed = (miIndexedPtr) pict->pFormat->index.devPrivate;
 #else
-    miIndexedPtr indexed = 0;
+    miIndexedPtr indexed = NULL;
 #endif
 
     fbGetDrawable (pict->pDrawable, bits, stride, bpp, xoff, yoff);
@@ -2661,7 +2671,7 @@ static void fbFetch(PicturePtr pict, int x, int y, int width, CARD32 *buffer)
 #ifdef PIXMAN_INDEXED_FORMATS
     miIndexedPtr indexed = (miIndexedPtr) pict->pFormat->index.devPrivate;
 #else
-    miIndexedPtr indexed = 0;
+    miIndexedPtr indexed = NULL;
 #endif
 
     fbGetDrawable (pict->pDrawable, bits, stride, bpp, xoff, yoff);
@@ -2903,7 +2913,7 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
 #ifdef PIXMAN_INDEXED_FORMATS
     miIndexedPtr indexed = (miIndexedPtr) pict->pFormat->index.devPrivate;
 #else
-    miIndexedPtr indexed = 0;
+    miIndexedPtr indexed = NULL;
 #endif
     Bool projective = FALSE;
 
@@ -3384,7 +3394,7 @@ static void fbStore(PicturePtr pict, int x, int y, int width, CARD32 *buffer)
 #ifdef PIXMAN_INDEXED_FORMATS
     miIndexedPtr indexed = (miIndexedPtr) pict->pFormat->index.devPrivate;
 #else
-    miIndexedPtr indexed = 0;
+    miIndexedPtr indexed = NULL;
 #endif
 
     fbGetDrawable (pict->pDrawable, bits, stride, bpp, xoff, yoff);
@@ -3407,7 +3417,7 @@ static void fbStoreExternalAlpha(PicturePtr pict, int x, int y, int width, CARD3
 #ifdef PIXMAN_INDEXED_FORMATS
     miIndexedPtr indexed = (miIndexedPtr) pict->pFormat->index.devPrivate;
 #else
-    miIndexedPtr indexed = 0;
+    miIndexedPtr indexed = NULL;
 #endif
     miIndexedPtr aindexed;
 
@@ -3421,7 +3431,7 @@ static void fbStoreExternalAlpha(PicturePtr pict, int x, int y, int width, CARD3
 #ifdef PIXMAN_INDEXED_FORMATS
     aindexed = (miIndexedPtr) pict->alphaMap->pFormat->index.devPrivate;
 #else
-    aindexed = 0;
+    aindexed = NULL;
 #endif
 
     ax = x;
@@ -3452,10 +3462,10 @@ fbCompositeRect (const FbComposeData *data, CARD32 *scanline_buffer)
     CARD32 *dest_buffer = src_buffer + data->width;
     int i;
     scanStoreProc store;
-    scanFetchProc fetchSrc = 0, fetchMask = 0, fetchDest = 0;
+    scanFetchProc fetchSrc = NULL, fetchMask = NULL, fetchDest = NULL;
 
     if (data->op == PIXMAN_OPERATOR_CLEAR)
-        fetchSrc = 0;
+        fetchSrc = NULL;
     else if (!data->src->pDrawable) {
 #ifdef PIXMAN_GRADIENTS
         if (data->src->pSourcePict)
@@ -3497,7 +3507,7 @@ fbCompositeRect (const FbComposeData *data, CARD32 *scanline_buffer)
         else
             fetchMask = fbFetchTransformed;
     } else {
-        fetchMask = 0;
+        fetchMask = NULL;
     }
 
     if (data->dest->alphaMap) {
@@ -3508,7 +3518,7 @@ fbCompositeRect (const FbComposeData *data, CARD32 *scanline_buffer)
         store = fbStore;
     }
     if (data->op == PIXMAN_OPERATOR_CLEAR || data->op == PIXMAN_OPERATOR_SRC)
-        fetchDest = 0;
+        fetchDest = NULL;
 
     if (fetchSrc && fetchMask && data->mask && data->mask->componentAlpha && PICT_FORMAT_RGB(data->mask->format_code)) {
         CARD32 *mask_buffer = dest_buffer + data->width;
@@ -3544,8 +3554,8 @@ fbCompositeRect (const FbComposeData *data, CARD32 *scanline_buffer)
                 fetchMask(data->mask, data->xMask, data->yMask, data->width, dest_buffer);
                 composeFunctions.combineMaskU(src_buffer, dest_buffer, data->width);
             }
-            fetchSrc = 0;
-            fetchMask = 0;
+            fetchSrc = NULL;
+            fetchMask = NULL;
         }
 
         for (i = 0; i < data->height; ++i) {

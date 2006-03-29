@@ -1,5 +1,5 @@
 /*
- * $Id: icpixels.c,v 1.9 2005/06/25 03:13:19 jrmuizel Exp $
+ * $Id: icpixels.c,v 1.9 2005-06-25 03:13:19 jrmuizel Exp $
  *
  * Copyright © 1998 Keith Packard
  *

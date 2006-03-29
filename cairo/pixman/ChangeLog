@@ -1,3 +1,75 @@
+2005-11-21  Carl Worth  <cworth@cworth.org>
+
+	* src/pixman-remap.h: Remove duplicate definitions of
+	pixman_color_to_pixel and pixman_composite.
+
+2005-11-18  Carl Worth  <cworth@cworth.org>
+
+	* src/pixman-remap.h: Remove spurios INT_ prefixes which break the
+	build with very recent binutils.
+
+2005-09-18  Billy Biggs  <vektor@dumbterm.net>
+
+	Bug #4414, reviewed by otaylor, cworth.
+
+	* src/fbmmx.c: Remove CPU detection code, only include
+	xmmintrin.h if USE_SSE is defined.
+	* src/fbpict.c (detectCPUFeatures), (fbHaveMMX): Move CPU
+	detection code out of the MMX file and into the generic code to
+	avoid compiling it with -mmmx and -msse.  Using these options
+	causes gcc to use MMX and SSE instructions in the CPU detection
+	code which causes SIGILLs on older processors.
+
+2005-08-28  Owen Taylor  <otaylor@redhat.com>
+
+	Bug #4260, Reviewed by B. Biggs
+ 
+ 	* src/fbcompose.c (fbStore_a8b8g8r8, fbStore_x8b8g8r8): Use & not
+ 	&& for bitwise AND.
+ 
+ 	* src/fbpict.h (fbComposeGetSolid) src/fbpict.c src/fbmmx.c: Take
+ 	'dest' as an argument, if pict and dest don't match for RGB, BGR,
+ 	swap result.
+
+2005-08-28  Owen Taylor  <otaylor@redhat.com>
+
+	Bug #4260, Reviewed by B. Biggs
+ 
+ 	* src/fbcompose.c (fbStore_a8b8g8r8, fbStore_x8b8g8r8): Use & not
+ 	&& for bitwise AND.
+ 
+ 	* src/fbpict.h (fbComposeGetSolid) src/fbpict.c src/fbmmx.c: Take
+ 	'dest' as an argument, if pict and dest don't match for RGB, BGR,
+ 	swap result.
+	
+2005-08-28  Owen Taylor  <otaylor@redhat.com>
+
+	* src/fbmmx.c (detectCPUFeatures): Use local labels rather than
+	global labels in the assembly, to be robust if the code is inlined
+	in multiple places. (#4283, Reported by Marco Manfredini)
+
+2005-08-27  Billy Biggs  <vektor@dumbterm.net>
+
+	Some fixes for warnings from sparse (Part of bug #4208,
+	Kjartan Maraas)
+
+	* src/fbcompose.c (fetchProcForPicture),
+	(fetchPixelProcForPicture), (storeProcForPicture), (fbFetchSolid),
+	(fbFetch), (fbFetchTransformed), (fbStore), (fbStoreExternalAlpha),
+	(fbCompositeRect):
+	* src/fbpict.c (pixman_composite):
+	* src/icbltone.c (fbLaneTable), (fbBltOne):
+	* src/icimage.c (pixman_image_init), (pixman_image_set_transform):
+	* src/icrect.c (pixman_fill_rectangles):
+	* src/ictrap.c (FbCreateAlphaPicture):   Use NULL not 0.
+
+2005-08-27  Owen Taylor  <otaylor@redhat.com>
+
+	* src/fbmmx.c (detectCPUFeatures): Make the code work with
+	-fomit-frame-pointer by making sure that %esp isn't modified at
+	the point where we access output operands. (#4269, Patch from
+	Ronald Wahl)
+	
 2005-08-22  Owen Taylor  <otaylor@redhat.com>
 
 	* src/pixregion.c (pixman_region_union_rect): When width/height

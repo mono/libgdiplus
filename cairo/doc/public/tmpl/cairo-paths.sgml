@@ -14,9 +14,6 @@ Creating paths and manipulating path data
 
 </para>
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
 <!-- ##### STRUCT cairo_path_t ##### -->
 <para>
 

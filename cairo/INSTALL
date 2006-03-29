@@ -16,6 +16,10 @@ This final step may require temporary root access (eg. with sudo) if
 you don't have write permission to the directory in which cairo will
 be installed.
 
+NOTE: If you are working with source from git/cvs rather than from a tar
+file, then you should use ./autogen.sh in place of ./configure
+anywhere it is mentioned in these instructions.
+
 More detailed build instructions
 --------------------------------
 

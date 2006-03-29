@@ -14,9 +14,6 @@ Font support for FreeType
 
 </para>
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
 <!-- ##### FUNCTION cairo_ft_font_face_create_for_ft_face ##### -->
 <para>
 

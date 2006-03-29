@@ -39,6 +39,14 @@
 #include <cairo-win32.h>
 #include <cairoint.h>
 
+#ifndef SHADEBLENDCAPS
+#define SHADEBLENDCAPS 120
+#endif
+#ifndef SB_NONE
+#define SB_NONE 0
+#endif
+
+
 typedef struct _cairo_win32_surface {
     cairo_surface_t base;
 
@@ -62,9 +70,9 @@ typedef struct _cairo_win32_surface {
     
     cairo_rectangle_t clip_rect;
 
-    int set_clip;
     HRGN saved_clip;
 
+    cairo_rectangle_t extents;
 } cairo_win32_surface_t;
 
 cairo_status_t

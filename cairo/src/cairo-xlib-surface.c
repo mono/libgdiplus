@@ -41,6 +41,7 @@
 #include "cairo-xlib-test.h"
 #include "cairo-xlib-private.h"
 #include <X11/extensions/Xrender.h>
+#include <X11/extensions/renderproto.h>
 
 /* Xlib doesn't define a typedef, so define one ourselves */
 typedef int (*cairo_xlib_error_func_t) (Display     *display,
@@ -59,6 +60,9 @@ _cairo_xlib_surface_ensure_dst_picture (cairo_xlib_surface_t *surface);
 
 static cairo_bool_t
 _cairo_surface_is_xlib (cairo_surface_t *surface);
+
+static cairo_bool_t
+_native_byte_order_lsb (void);
 
 /*
  * Instead of taking two round trips for each blending request,
@@ -302,6 +306,116 @@ _CAIRO_MASK_FORMAT (cairo_format_masks_t *masks, cairo_format_t *format)
     return False;
 }
 
+static void
+_swap_ximage_2bytes (XImage *ximage)
+{
+    int i, j;
+    char *line = ximage->data;
+
+    for (j = ximage->height; j; j--) {
+	uint16_t *p = (uint16_t *)line;
+	for (i = ximage->width; i; i--) {
+	    *p = (((*p & 0x00ff) << 8) |
+		  ((*p)          >> 8));
+	    p++;
+	}
+
+	line += ximage->bytes_per_line;
+    }
+}
+
+static void
+_swap_ximage_4bytes (XImage *ximage)
+{
+    int i, j;
+    char *line = ximage->data;
+
+    for (j = ximage->height; j; j--) {
+	uint32_t *p = (uint32_t *)line;
+	for (i = ximage->width; i; i--) {
+	    *p = (((*p & 0x000000ff) << 24) |
+		  ((*p & 0x0000ff00) << 8) |
+		  ((*p & 0x00ff0000) >> 8) |
+		  ((*p)              >> 24));
+	    p++;
+	}
+
+	line += ximage->bytes_per_line;
+    }
+}
+
+static void
+_swap_ximage_bits (XImage *ximage)
+{
+    int i, j;
+    char *line = ximage->data;
+    int unit = ximage->bitmap_unit;
+    int line_bytes = ((ximage->width + unit - 1) & ~(unit - 1)) / 8;
+
+    for (j = ximage->height; j; j--) {
+	char *p = line;
+	
+	for (i = line_bytes; i; i--) {
+	    char b = *p;
+	    b = ((b << 1) & 0xaa) | ((b >> 1) & 0x55);
+	    b = ((b << 2) & 0xcc) | ((b >> 2) & 0x33);
+	    b = ((b << 4) & 0xf0) | ((b >> 4) & 0x0f);
+	    *p = b;
+	    
+	    p++;
+	}
+
+	line += ximage->bytes_per_line;
+    }
+}
+
+static void
+_swap_ximage_to_native (XImage *ximage)
+{
+    int unit_bytes = 0;
+    int native_byte_order = _native_byte_order_lsb () ? LSBFirst : MSBFirst;
+
+    if (ximage->bits_per_pixel == 1 &&
+	ximage->bitmap_bit_order != native_byte_order) {
+	_swap_ximage_bits (ximage);
+	if (ximage->bitmap_bit_order == ximage->byte_order)
+	    return;
+    }
+    
+    if (ximage->byte_order == native_byte_order)
+	return;
+
+    switch (ximage->bits_per_pixel) {
+    case 1:
+	unit_bytes = ximage->bitmap_unit / 8;
+	break;
+    case 8:
+    case 16:
+    case 32:
+	unit_bytes = ximage->bits_per_pixel / 8;
+	break;
+    default:
+        /* This could be hit on some uncommon but possible cases,
+	 * such as bpp=4. These are cases that libpixman can't deal
+	 * with in any case.
+	 */
+	ASSERT_NOT_REACHED;
+    }
+
+    switch (unit_bytes) {
+    case 1:
+	return;
+    case 2:
+	_swap_ximage_2bytes (ximage);
+	break;
+    case 4:
+	_swap_ximage_4bytes (ximage);
+	break;
+    default:
+	ASSERT_NOT_REACHED;
+    }
+}
+
 static cairo_status_t
 _get_image_surface (cairo_xlib_surface_t   *surface,
 		    cairo_rectangle_t      *interest_rect,
@@ -405,6 +519,8 @@ _get_image_surface (cairo_xlib_surface_t   *surface,
     }
     if (!ximage)
 	return CAIRO_STATUS_NO_MEMORY;
+
+    _swap_ximage_to_native (ximage);
 					
     /*
      * Compute the pixel format masks from either a visual or a 
@@ -545,39 +661,35 @@ _draw_image_surface (cairo_xlib_surface_t   *surface,
 		     int                    dst_x,
 		     int                    dst_y)
 {
-    XImage *ximage;
-    unsigned bitmap_pad;
+    XImage ximage;
+    int bpp, alpha, red, green, blue;
+    int native_byte_order = _native_byte_order_lsb () ? LSBFirst : MSBFirst;
+    
+    pixman_format_get_masks (pixman_image_get_format (image->pixman_image),
+			     &bpp, &alpha, &red, &green, &blue);
+    
+    ximage.width = image->width;
+    ximage.height = image->height;
+    ximage.format = ZPixmap;
+    ximage.data = (char *)image->data;
+    ximage.byte_order = native_byte_order;
+    ximage.bitmap_unit = 32;	/* always for libpixman */
+    ximage.bitmap_bit_order = native_byte_order;
+    ximage.bitmap_pad = 32;	/* always for libpixman */
+    ximage.depth = image->depth;
+    ximage.bytes_per_line = image->stride;
+    ximage.bits_per_pixel = bpp;
+    ximage.red_mask = red;
+    ximage.green_mask = green;
+    ximage.blue_mask = blue;
+    ximage.xoffset = 0;
 
-    /* XXX this is wrong */
-    if (image->depth > 16)
-	bitmap_pad = 32;
-    else if (image->depth > 8)
-	bitmap_pad = 16;
-    else
-	bitmap_pad = 8;
-
-    ximage = XCreateImage (surface->dpy,
-			   DefaultVisual(surface->dpy, DefaultScreen(surface->dpy)),
-			   image->depth,
-			   ZPixmap,
-			   0,
-			   (char *) image->data,
-			   image->width,
-			   image->height,
-			   bitmap_pad,
-			   image->stride);
-    if (ximage == NULL)
-	return CAIRO_STATUS_NO_MEMORY;
-
+    XInitImage (&ximage);
+    
     _cairo_xlib_surface_ensure_gc (surface);
     XPutImage(surface->dpy, surface->drawable, surface->gc,
-	      ximage, 0, 0, dst_x, dst_y,
+	      &ximage, 0, 0, dst_x, dst_y,
 	      image->width, image->height);
-
-    /* Foolish XDestroyImage thinks it can free my data, but I won't
-       stand for it. */
-    ximage->data = NULL;
-    XDestroyImage (ximage);
 
     return CAIRO_STATUS_SUCCESS;
 
@@ -1242,7 +1354,8 @@ _create_a8_picture (cairo_xlib_surface_t *surface,
     unsigned long mask = 0;
 
     Pixmap pixmap = XCreatePixmap (surface->dpy, surface->drawable,
-				   width, height,
+				   width <= 0 ? 1 : width,
+				   height <= 0 ? 1 : height,
 				   8);
     Picture picture;
 
@@ -1646,10 +1759,10 @@ _cairo_xlib_surface_create_internal (Display		       *dpy,
     }
 
     surface->buggy_repeat = FALSE;
-    if (strstr (ServerVendor (dpy), "The X.Org Foundation") != NULL) {
+    if (strstr (ServerVendor (dpy), "X.Org") != NULL) {
 	if (VendorRelease (dpy) <= 60802000)
 	    surface->buggy_repeat = TRUE;
-    } else if (strstr (ServerVendor (dpy), "The XFree86 Project, Inc") != NULL) {
+    } else if (strstr (ServerVendor (dpy), "XFree86") != NULL) {
 	if (VendorRelease (dpy) <= 40500000)
 	    surface->buggy_repeat = TRUE;
     }
@@ -2598,7 +2711,9 @@ _cairo_xlib_surface_show_glyphs (cairo_scaled_font_t    *scaled_font,
     cairo_xlib_surface_t *src;
     glyphset_cache_t *cache;
     cairo_glyph_cache_key_t key;
-    glyphset_cache_entry_t **entries;
+    const cairo_glyph_t *glyphs_chunk;
+    glyphset_cache_entry_t **entries, **entries_chunk;
+    int glyphs_remaining, chunk_size, max_chunk_size;
     glyphset_cache_entry_t *stack_entries [N_STACK_BUF];
     composite_operation_t operation;
     int i;
@@ -2665,26 +2780,46 @@ _cairo_xlib_surface_show_glyphs (cairo_scaled_font_t    *scaled_font,
     /* Call the appropriate sub-function. */
 
     _cairo_xlib_surface_ensure_dst_picture (self);
+
+    max_chunk_size = XMaxRequestSize (self->dpy);
     if (elt_size == 8)
+	max_chunk_size -= sz_xRenderCompositeGlyphs8Req;
+    if (elt_size == 16)
+	max_chunk_size -= sz_xRenderCompositeGlyphs16Req;
+    if (elt_size == 32)
+	max_chunk_size -= sz_xRenderCompositeGlyphs32Req;
+    max_chunk_size /= sz_xGlyphElt;
+
+    for (glyphs_remaining = num_glyphs, glyphs_chunk = glyphs, entries_chunk = entries;
+	 glyphs_remaining;
+	 glyphs_remaining -= chunk_size, glyphs_chunk += chunk_size, entries_chunk += chunk_size)
     {
-	status = _cairo_xlib_surface_show_glyphs8 (scaled_font, operator, cache, &key, src, self,
-						   source_x + attributes.x_offset - dest_x,
-						   source_y + attributes.y_offset - dest_y, 
-						   glyphs, entries, num_glyphs);
-    }
-    else if (elt_size == 16)
-    {
-	status = _cairo_xlib_surface_show_glyphs16 (scaled_font, operator, cache, &key, src, self,
-						    source_x + attributes.x_offset - dest_x,
-						    source_y + attributes.y_offset - dest_y, 
-						    glyphs, entries, num_glyphs);
-    }
-    else 
-    {
-	status = _cairo_xlib_surface_show_glyphs32 (scaled_font, operator, cache, &key, src, self,
-						    source_x + attributes.x_offset - dest_x,
-						    source_y + attributes.y_offset - dest_y, 
-						    glyphs, entries, num_glyphs);
+	chunk_size = MIN (glyphs_remaining, max_chunk_size);
+
+	if (elt_size == 8)
+	{
+	    status = _cairo_xlib_surface_show_glyphs8 (scaled_font, operator, cache, &key, src, self,
+						       source_x + attributes.x_offset - dest_x,
+						       source_y + attributes.y_offset - dest_y, 
+						       glyphs_chunk, entries_chunk, chunk_size);
+	}
+	else if (elt_size == 16)
+	{
+	    status = _cairo_xlib_surface_show_glyphs16 (scaled_font, operator, cache, &key, src, self,
+							source_x + attributes.x_offset - dest_x,
+							source_y + attributes.y_offset - dest_y, 
+							glyphs_chunk, entries_chunk, chunk_size);
+	}
+	else 
+	{
+	    status = _cairo_xlib_surface_show_glyphs32 (scaled_font, operator, cache, &key, src, self,
+							source_x + attributes.x_offset - dest_x,
+							source_y + attributes.y_offset - dest_y, 
+							glyphs_chunk, entries_chunk, chunk_size);
+	}
+
+	if (status != CAIRO_STATUS_SUCCESS)
+	    break;
     }
 
     if (status == CAIRO_STATUS_SUCCESS &&

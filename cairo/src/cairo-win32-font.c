@@ -324,7 +324,7 @@ _win32_scaled_font_get_scaled_hfont (cairo_win32_scaled_font_t *scaled_font)
 {
     if (!scaled_font->scaled_hfont) {
 	LOGFONTW logfont = scaled_font->logfont;
-	logfont.lfHeight = scaled_font->logical_size;
+	logfont.lfHeight = -scaled_font->logical_size;
 	logfont.lfWidth = 0;
 	logfont.lfEscapement = 0;
 	logfont.lfOrientation = 0;
@@ -379,7 +379,7 @@ _win32_scaled_font_get_unscaled_hfont (cairo_win32_scaled_font_t *scaled_font,
 	free (otm);
 	
 	logfont = scaled_font->logfont;
-	logfont.lfHeight = scaled_font->em_square;
+	logfont.lfHeight = -scaled_font->em_square;
 	logfont.lfWidth = 0;
 	logfont.lfEscapement = 0;
 	logfont.lfOrientation = 0;
@@ -723,8 +723,10 @@ _cairo_win32_scaled_font_glyph_extents (void		     *abstract_font,
 	status = cairo_win32_scaled_font_select_font (&scaled_font->base, hdc);
 	if (status)
 	    return status;
-	GetGlyphOutlineW (hdc, glyphs[0].index, GGO_METRICS | GGO_GLYPH_INDEX,
-			  &metrics, 0, NULL, &matrix);
+	if (GetGlyphOutlineW (hdc, glyphs[0].index, GGO_METRICS | GGO_GLYPH_INDEX,
+			      &metrics, 0, NULL, &matrix) == GDI_ERROR) {
+	  memset (&metrics, 0, sizeof (GLYPHMETRICS));
+	}
 	cairo_win32_scaled_font_done_font (&scaled_font->base);
 
 	if (scaled_font->swap_axes) {
@@ -758,8 +760,10 @@ _cairo_win32_scaled_font_glyph_extents (void		     *abstract_font,
 	 * of the font.
 	 */
 	status = _cairo_win32_scaled_font_select_unscaled_font (&scaled_font->base, hdc);
-	GetGlyphOutlineW (hdc, glyphs[0].index, GGO_METRICS | GGO_GLYPH_INDEX,
-			  &metrics, 0, NULL, &matrix);
+	if (GetGlyphOutlineW (hdc, glyphs[0].index, GGO_METRICS | GGO_GLYPH_INDEX,
+			      &metrics, 0, NULL, &matrix) == GDI_ERROR) {
+	  memset (&metrics, 0, sizeof (GLYPHMETRICS));
+	}
 	_cairo_win32_scaled_font_done_unscaled_font (&scaled_font->base);
 
 	extents->x_bearing = (double)metrics.gmptGlyphOrigin.x / scaled_font->em_square;
@@ -808,10 +812,10 @@ _cairo_win32_scaled_font_glyph_bbox (void		 *abstract_font,
 		x1 = x + metrics.gmptGlyphOrigin.x;
 	    if (i == 0 || y1 > y - metrics.gmptGlyphOrigin.y)
 		y1 = y - metrics.gmptGlyphOrigin.y;
-	    if (i == 0 || x2 < x + metrics.gmptGlyphOrigin.x + metrics.gmBlackBoxX)
-		x2 = x + metrics.gmptGlyphOrigin.x + metrics.gmBlackBoxX;
-	    if (i == 0 || y2 < y - metrics.gmptGlyphOrigin.y + metrics.gmBlackBoxY)
-		y2 = y - metrics.gmptGlyphOrigin.y + metrics.gmBlackBoxY;
+	    if (i == 0 || x2 < x + metrics.gmptGlyphOrigin.x + (int)metrics.gmBlackBoxX)
+		x2 = x + metrics.gmptGlyphOrigin.x + (int)metrics.gmBlackBoxX;
+	    if (i == 0 || y2 < y - metrics.gmptGlyphOrigin.y + (int)metrics.gmBlackBoxY)
+		y2 = y - metrics.gmptGlyphOrigin.y + (int)metrics.gmBlackBoxY;
 	}
 
 	cairo_win32_scaled_font_done_font (&scaled_font->base);

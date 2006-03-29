@@ -1,6 +1,8 @@
-<?xml version="1.0"?>
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<?xml version='1.0' encoding='UTF-8'?> 
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+                "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
 <refentry id="cairo-cairo-matrix-t">
 <refmeta>
 <refentrytitle>cairo_matrix_t</refentrytitle>
@@ -9,8 +11,7 @@
 </refmeta>
 
 <refnamediv>
-<refname>cairo_matrix_t</refname><refpurpose>
-  Transformation matrices</refpurpose>
+<refname>cairo_matrix_t</refname><refpurpose>Generic matrix operations</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv><title>Synopsis</title>
@@ -69,29 +70,21 @@
 <title>Description</title>
 
   <para><indexterm><primary>types</primary><secondary>cairo_matrix</secondary></indexterm><indexterm><primary/></indexterm>
-    <structname>cairo_matrix_t</structname> is used throughout
-    Cairo to represents between different coordinates spaces.
-    A <structname>cairo_matrix</structname> holds an affine
-    transformation, such as a scale, rotation, or shear, or a
-    combination of those. Mathematically, the effect of an affine
-    transformation on a point (<literal>x</literal>,<literal>y</literal>) is given by:
+    <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link> is used throughout cairo to convert between different
+    coordinate spaces.  A <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link> holds an affine transformation,
+    such as a scale, rotation, shear, or a combination of these.
+    The transformation of a point (<literal>x</literal>,<literal>y</literal>)
+    is given by:
   </para>
   <programlisting>
-    x_new = x * a + y * c + tx;
-    y_new = x * b + y * d + ty;
+    x_new = xx * x + xy * y + x0;
+    y_new = yx * x + yy * y + y0;
   </programlisting>
   <para>
-    The parameters <literal>a</literal>, <literal>b</literal>,
-    <literal>c</literal>, <literal>d</literal>, <literal>tx</literal>,
-    <literal>ty</literal> can be retrieved with
-    <link linkend="cairo-matrix-get-affine"><function>cairo_matrix_get_affine()</function></link> and set with <link linkend="cairo-matrix-get-affine"><function>cairo_matrix_get_affine()</function></link>.
-  </para>
-  <para>
-    The primary use of transformation matrices in Cairo is as the
-    current transformation matrix in a <link linkend="cairo-t"><type>cairo_t</type></link>. The current
-    transformation matrix gives the transformation from user space
-    coordinates to device coordinates. See <link linkend="cairo-set-matrix"><function>cairo_set_matrix()</function></link>,
-    <link linkend="cairo-current-matrix"><function>cairo_current_matrix()</function></link>.
+    The current transformation matrix of a <link linkend="cairo-t"><type>cairo_t</type></link>, represented as a
+    <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>, defines the transformation from user-space
+    coordinates to device-space coordinates. See <link linkend="cairo-get-matrix"><function>cairo_get_matrix()</function></link> and
+    <link linkend="cairo-set-matrix"><function>cairo_set_matrix()</function></link>.
   </para>
 </refsect1>
 
@@ -107,11 +100,11 @@
 </programlisting>
 <para>
 A <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link> holds an affine transformation, such as a scale,
-rotation, or shear, or a combination of those. The transformation is given
-by:
+rotation, shear, or a combination of those. The transformation of
+a point (x, y) is given by:
 <programlisting>
- x_new = xx * x + xy * y + x0;
- y_new = yx * x + yy * y + y0;
+    x_new = xx * x + xy * y + x0;
+    y_new = yx * x + yy * y + y0;
 </programlisting></para>
 <para>
 

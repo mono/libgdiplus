@@ -24,7 +24,7 @@
  */
 
 #include "cairo-test.h"
-#include <cairo-ft.h>
+#include <stddef.h>
 
 /* Test to verify fixes for the following similar bugs:
  *

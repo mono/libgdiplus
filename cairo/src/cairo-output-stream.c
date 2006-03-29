@@ -305,9 +305,11 @@ _cairo_output_stream_create_for_file (const char *filename)
 	return NULL;
     
     stream = _cairo_output_stream_create (stdio_write, fp);
-    if (stream == NULL)
+
+    if (stream)
+	stream->owns_closure_is_file = TRUE;
+    else
 	fclose (fp);
-    stream->owns_closure_is_file = TRUE;
 
     return stream;
 }

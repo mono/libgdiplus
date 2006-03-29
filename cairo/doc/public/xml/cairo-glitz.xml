@@ -1,15 +1,17 @@
-<?xml version="1.0"?>
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
-<refentry id="cairo-Glitz-backend">
+<?xml version='1.0' encoding='UTF-8'?> 
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+                "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="cairo-Glitz-Surfaces">
 <refmeta>
-<refentrytitle>Glitz backend</refentrytitle>
+<refentrytitle>Glitz Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>Glitz backend</refname><refpurpose></refpurpose>
+<refname>Glitz Surfaces</refname><refpurpose>OpenGL accelerated rendering using the Glitz library</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv><title>Synopsis</title>

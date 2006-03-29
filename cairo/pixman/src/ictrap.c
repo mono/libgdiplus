@@ -1,5 +1,5 @@
 /*
- * $Id: ictrap.c,v 1.26 2005/06/25 03:13:19 jrmuizel Exp $
+ * $Id: ictrap.c,v 1.27 2005-08-28 02:32:57 vektor Exp $
  *
  * Copyright © 2002 Keith Packard
  *
@@ -34,7 +34,7 @@ FbCreateAlphaPicture (pixman_image_t	*dst,
     int own_format = 0;
 
     if (width > 32767 || height > 32767)
-	return 0;
+	return NULL;
 
     if (!format)
     {
@@ -44,7 +44,7 @@ FbCreateAlphaPicture (pixman_image_t	*dst,
 	else
 	    format = pixman_format_create (PIXMAN_FORMAT_NAME_A8);
 	if (!format)
-	    return 0;
+	    return NULL;
     }
 
     image = pixman_image_create (format, width, height); 

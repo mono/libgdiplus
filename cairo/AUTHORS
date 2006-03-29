@@ -8,6 +8,7 @@ Damien Carbery <damien.carbery@sun.com> Build fixes
 Andrew Chant <andrew.chant@utoronto.ca> Adding const where needed
 Steve Chaplin <stevech1097@yahoo.com.au> Bug fixes for PNG reading
 Tomasz Cholewo <cholewo@ieee-cis.org> Bug fixes
+Radek Doulík <rodo@novell.com> Bug report and test case
 John Ehresman <jpe@wingide.com> Build fixes for win32
 John Ellson <ellson@research.att.com> First font/glyph extents functions
 Behdad Esfahbod <behdad@behdad.org> Release script improvements, bug fixes.

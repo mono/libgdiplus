@@ -14,9 +14,6 @@ Generic data types used in the cairo API
 
 </para>
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
 <!-- ##### TYPEDEF cairo_bool_t ##### -->
 <para>
 

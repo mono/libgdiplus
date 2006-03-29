@@ -1230,8 +1230,15 @@ _cairo_pattern_acquire_surface_for_gradient (cairo_gradient_pattern_t *pattern,
 	    height = 1;
 	    repeat = TRUE;
 	}
-	if (is_vertical) {
-	    width = 1;
+	/* width-1 repeating patterns are quite slow with scan-line based
+	 * compositing code, so we use a wider strip and spend some extra
+	 * expense in computing the gradient. It's possible that for narrow
+	 * gradients we'd be better off using a 2 or 4 pixel strip; the
+	 * wider the gradient, the more it's worth spending extra time
+	 * computing a sample.
+	 */
+	if (is_vertical && width > 8) {
+	    width = 8;
 	    repeat = TRUE;
 	}
     }

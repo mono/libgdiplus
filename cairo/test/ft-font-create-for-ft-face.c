@@ -35,7 +35,8 @@ cairo_test_t test = {
 static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
-    FcPattern *pattern;
+    FcPattern *pattern, *resolved;
+    FcResult result;
     cairo_font_face_t *font_face;
     cairo_scaled_font_t *scaled_font;
     cairo_font_options_t *font_options;
@@ -44,13 +45,24 @@ draw (cairo_t *cr, int width, int height)
     FT_Face ft_face;
 
     /* We're trying here to get our hands on _some_ FT_Face but we do
-     * not at all care which one, so an empty pattern should work just
-     * fine. */
+     * not at all care which one. So we start with an empty pattern
+     * and do the minimal substitution on it in order to get a valid
+     * pattern. */
     pattern = FcPatternCreate ();
-    if (!pattern)
+    if (! pattern) {
+	cairo_test_log ("FcPatternCreate failed.\n");
 	return CAIRO_TEST_FAILURE;
+    }
 
-    font_face = cairo_ft_font_face_create_for_pattern (pattern);
+    FcConfigSubstitute (NULL, pattern, FcMatchPattern);
+    FcDefaultSubstitute (pattern);
+    resolved = FcFontMatch (NULL, pattern, &result);
+    if (! resolved) {
+	cairo_test_log ("FcFontMatch failed.\n");
+	return CAIRO_TEST_FAILURE;
+    }
+
+    font_face = cairo_ft_font_face_create_for_pattern (resolved);
 
     cairo_matrix_init_identity (&font_matrix);
 
@@ -68,8 +80,10 @@ draw (cairo_t *cr, int width, int height)
     cairo_font_options_destroy (font_options);
     cairo_font_face_destroy (font_face);
     FcPatternDestroy (pattern);
+    FcPatternDestroy (resolved);
 
     if (!ft_face) {
+	cairo_test_log ("Failed to get an ft_face with cairo_ft_scaled_font_lock_face\n");
 	cairo_scaled_font_destroy (scaled_font);
 	return CAIRO_TEST_FAILURE;
     }

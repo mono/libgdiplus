@@ -52,7 +52,7 @@ settings_t settings[] = {
 	CAIRO_LINE_CAP_SQUARE,
 	CAIRO_LINE_JOIN_ROUND,
 	3.14,
-	{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}
+	{2.0, 0.0, 0.0, 2.0, 5.0, 5.0}
     },
     {
 	CAIRO_OPERATOR_ATOP,
@@ -62,7 +62,7 @@ settings_t settings[] = {
 	CAIRO_LINE_CAP_ROUND,
 	CAIRO_LINE_JOIN_BEVEL,
 	1000.0,
-	{.1, .01, .001, .0001, .00001, .000001}
+	{-3.0, 1.0, 1.0, -3.0, -4, -4}
     }
 };
 

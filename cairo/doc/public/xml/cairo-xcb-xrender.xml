@@ -1,15 +1,17 @@
-<?xml version="1.0"?>
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
-<refentry id="cairo-XCB-Backend">
+<?xml version='1.0' encoding='UTF-8'?> 
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+                "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<refentry id="cairo-XCB-Render-Surfaces">
 <refmeta>
-<refentrytitle>XCB Backend</refentrytitle>
+<refentrytitle>XCB Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>XCB Backend</refname><refpurpose></refpurpose>
+<refname>XCB Surfaces</refname><refpurpose>X Window System rendering using the XCB library</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv><title>Synopsis</title>

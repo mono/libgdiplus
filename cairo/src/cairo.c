@@ -2155,6 +2155,9 @@ cairo_show_glyphs (cairo_t *cr, cairo_glyph_t *glyphs, int num_glyphs)
     if (cr->status)
 	return;
 
+    if (num_glyphs == 0)
+	return;
+
     cr->status = _cairo_gstate_show_glyphs (cr->gstate, glyphs, num_glyphs);
     if (cr->status)
 	_cairo_set_error (cr, cr->status);
