@@ -32,6 +32,9 @@
 
 #define gdip_matrix_reverse_order(order)	((order == MatrixOrderPrepend) ? MatrixOrderAppend : MatrixOrderPrepend)
 
+#define gdip_near_zero(value)	((value >= -0.0001f) && (value <= 0.0001f))
+#define gdip_near_one(value)	((value >= 0.9999f) && (value <= 1.0001f))
+
 BOOL gdip_is_matrix_a_translation (GpMatrix *matrix);
 BOOL gdip_is_matrix_empty (GpMatrix* matrix);
 

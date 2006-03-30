@@ -24,7 +24,7 @@
  **/
 
 #include <math.h>
-#include "gdip.h"
+#include "matrix.h"
 
 /*
 	GDI+ matrix takes 6 elements arranged in 3 rows by 2 columns. The identity matrix is
@@ -63,9 +63,9 @@ gdip_is_matrix_empty (GpMatrix* matrix)
 		return TRUE;
 
 	/* compare the matrix elements with the empty (no-op) version */
-	return ((matrix->xx == 1.0f) && (matrix->yx == 0.0f) &&
-		(matrix->xy == 0.0f) && (matrix->yy == 1.0f) &&
-		(matrix->x0 == 0.0f) && (matrix->y0 == 0.0f));
+	return (gdip_near_one (matrix->xx) && gdip_near_zero (matrix->yx) &&
+		gdip_near_zero (matrix->xy) && gdip_near_one (matrix->yy) &&
+		gdip_near_zero (matrix->x0) && gdip_near_zero (matrix->y0));
 }
 
 
@@ -389,14 +389,12 @@ matrix_equals (GpMatrix *x, GpMatrix *y)
 GpStatus
 GdipIsMatrixIdentity (GpMatrix *matrix, int *result)
 {
-	Status s;
-        GpMatrix identity;
+	if (!matrix || !result)
+		return InvalidParameter;
 
-        cairo_matrix_init_identity (&identity);
-
-        s = GdipIsMatrixEqual (matrix, &identity, result);
-
-        return s;
+	/* note: we CAN'T use GdipIsMatrixEqual - as the precision is different */
+        *result = gdip_is_matrix_empty (matrix);
+        return Ok;
 }
 
 GpStatus
