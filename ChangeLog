@@ -1,3 +1,7 @@
+2006-03-29 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* src/image.c: avoid double-freeing Scan0 twice. Fixes bug #77910.
+
 2006-01-31  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* TODO: Remove GdipCreateRegionPath. GdipFlattenPath and 

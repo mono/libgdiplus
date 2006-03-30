@@ -77,8 +77,9 @@ GpStatus
 GdipDisposeImage (GpImage *image)
 {
 	int i = 0, j = 0, count = 0, dataCount = 0;
-	BitmapData *data;
+	BitmapData *data, *other_data;
 	bool dispose_bitmap;
+	bool free_data;
 
 	if (!image)
 		return InvalidParameter;
@@ -89,15 +90,19 @@ GdipDisposeImage (GpImage *image)
 
 	count = image->frameDimensionCount;
 	dispose_bitmap = TRUE;
+	free_data = FALSE;
 
 	if (count > 0 && image->frameDimensionList != NULL) {
+		other_data = &((GpBitmap *)image)->data;
 		for (i = 0; i < count; i++) {
 			dataCount = image->frameDimensionList [i].count;
 			data = image->frameDimensionList [i].frames;
 			for (j = 0; j < dataCount; j++) {
 				if (((data [j].Reserved & GBD_OWN_SCAN0) != 0) && data [j].Scan0 != NULL) {
+					if (data [i].Scan0 != other_data->Scan0)
+						free_data = TRUE;
+
 					GdipFree (data [j].Scan0);
-					data [j].Scan0 = NULL;
 				}
 				if ((data [j].ByteCount) > 0 && (data [j].Bytes != NULL)) {
 					GdipFree (data [j].Bytes);
@@ -105,9 +110,7 @@ GdipDisposeImage (GpImage *image)
 					data [j].Bytes = NULL;
 				}
 			}
-			// FIXME: who's freeing 'data' ? (look around line 1551)
-			// someone, somewhere, is not playing fair with that (freeing will crash)
-			if (data != &((GpBitmap *)image)->data) {
+			if (free_data) {
 				GdipFree (data);
 			} else {
 				dispose_bitmap = FALSE;
