@@ -734,9 +734,15 @@ GpStatus
 GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrder order)
 {
         Status s;
+	int invertible;
 	GpMatrix inverted;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
+	/* the matrix MUST be invertible to be used */
+	s = GdipIsMatrixInvertible (matrix, &invertible);
+	if (!invertible || (s != Ok))
+		return InvalidParameter;
 
 	s = GdipMultiplyMatrix (graphics->copy_of_ctm, matrix, order);
         if (s != Ok)
@@ -792,7 +798,7 @@ GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder
 	s = GdipScaleMatrix (graphics->clip_matrix, (1.0f / sx), (1.0f / sy), gdip_matrix_reverse_order (order));
 	if (s == Ok)
 		gdip_set_cairo_clipping (graphics);
-	return Ok;
+	return s;
 }
 
 GpStatus 

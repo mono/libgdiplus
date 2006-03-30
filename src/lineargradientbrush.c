@@ -824,58 +824,45 @@ GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARG
 	return Ok;
 }
 
+static float
+get_angle_from_linear_gradient_mode (LinearGradientMode mode)
+{
+	switch (mode) {
+	case LinearGradientModeVertical:
+		return 90.0;
+	case LinearGradientModeForwardDiagonal:
+		return 45.0;
+	case LinearGradientModeBackwardDiagonal:
+		return 135.0;
+	case LinearGradientModeHorizontal:
+	default:
+		return 0;
+	}
+}
+
 GpStatus
 GdipCreateLineBrushFromRectI (GDIPCONST GpRect *rect, ARGB color1, ARGB color2, LinearGradientMode mode, GpWrapMode wrapMode, GpLineGradient **lineGradient)
 {
-	GpRectF *rectf;
-	GpStatus status;
+	GpRectF rectf;
 
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 
-	rectf = (GpRectF *) GdipAlloc (sizeof (GpRectF));
-	g_return_val_if_fail (rectf != NULL, OutOfMemory);
+	rectf.X = rect->X;
+	rectf.Y = rect->Y;
+	rectf.Width = rect->Width;
+	rectf.Height = rect->Height;
 
-	rectf->X = rect->X;
-	rectf->Y = rect->Y;
-	rectf->Width = rect->Width;
-	rectf->Height = rect->Height;
-
-	status = GdipCreateLineBrushFromRect (rectf, color1, color2, mode, wrapMode, lineGradient);
-
-	GdipFree (rectf);
-
-	return status;
+	/* FIXME: Check whether angle has to be scalable or not in case of lineargradient mode. */
+	return GdipCreateLineBrushFromRectWithAngle (&rectf, color1, color2,
+		get_angle_from_linear_gradient_mode (mode), FALSE, wrapMode, lineGradient);
 }
 
 GpStatus
 GdipCreateLineBrushFromRect (GDIPCONST GpRectF *rect, ARGB color1, ARGB color2, LinearGradientMode mode, GpWrapMode wrapMode, GpLineGradient **lineGradient)
 {
-	float angle = 0.0;
-
-	switch (mode) {
-
-	case LinearGradientModeHorizontal:
-		angle = 0.0;
-		break;
-
-	case LinearGradientModeVertical:
-		angle = 90.0;
-		break;
-
-	case LinearGradientModeForwardDiagonal:
-		angle = 45.0;
-		break;
-
-	case LinearGradientModeBackwardDiagonal:
-		angle = 135.0;
-		break;
-	}
-
-	/* FIXME: Check whether angle has to be scalable or 
-	 * not in case of lineargradient mode. 
-	 */
-	return GdipCreateLineBrushFromRectWithAngle (rect, color1, color2, angle, FALSE, 
-						     wrapMode, lineGradient);
+	/* FIXME: Check whether angle has to be scalable or not in case of lineargradient mode. */
+	return GdipCreateLineBrushFromRectWithAngle (rect, color1, color2,
+		get_angle_from_linear_gradient_mode (mode), FALSE, wrapMode, lineGradient);
 }
 
 GpStatus

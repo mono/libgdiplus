@@ -1,3 +1,12 @@
+2006-03-30  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics.c: Check that the matrix is invertible in function
+	GdipMultiplyWorldTransform. Fix typo for return value in function
+	GdipScaleWorldTransform.
+	* lineargradientbrush.c: Avoid memory allocation for GpRectF in 
+	function GdipCreateLineBrushFromRectI. Reduce the number of calls 
+	between GdipCreateLineBrush* functions.
+
 2006-03-30  Sebastien Pouliot  <sebastien@ximian.com>
  
 	* lineargradientbrush.c: Fixed cloning (points and count). Added 
