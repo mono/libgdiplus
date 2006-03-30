@@ -1,5 +1,8 @@
-2006-03-30  Sebastien Pouliot  <sebastien@ximian.com> 
-
+2006-03-30  Sebastien Pouliot  <sebastien@ximian.com>
+ 
+	* lineargradientbrush.c: Fixed cloning (points and count). Added 
+	better error handling for cairo_pattern_create_linear. Check that the
+	matrix is invertible in GdipSetLineTransform.
 	* matrix.c: Matrix identity isn't an equality test and accept a margin
 	for errors/precision.
 

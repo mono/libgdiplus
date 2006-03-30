@@ -103,8 +103,10 @@ gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	newbrush->pattern = NULL;
 	newbrush->lineColors [0] = linear->lineColors [0];
 	newbrush->lineColors [1] = linear->lineColors [1];
-	newbrush->points [0] = linear->points [0];
-	newbrush->points [1] = linear->points [1];
+	newbrush->points [0].X = linear->points [0].X;
+	newbrush->points [0].Y = linear->points [0].Y;
+	newbrush->points [1].X = linear->points [1].X;
+	newbrush->points [1].Y = linear->points [1].Y;
 
 	newbrush->presetColors = (InterpolationColors *) GdipAlloc (sizeof (InterpolationColors));
 
@@ -130,6 +132,8 @@ gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	newbrush->blend = (Blend *) GdipAlloc (sizeof (Blend));
 	if (newbrush->blend == NULL)
 		goto NO_BLEND;
+
+	newbrush->blend->count = linear->blend->count;
 	if (linear->blend->count > 0) {
 		newbrush->blend->factors = (float *) GdipAlloc (linear->blend->count * sizeof (float));
 		if (newbrush->blend->factors == NULL) 
@@ -288,9 +292,28 @@ add_color_stops (cairo_pattern_t *pattern, ARGB *colors)
 	cairo_pattern_add_color_stop_rgba (pattern, 1.0, r / 255, g / 255, b / 255, a / 255);
 }
 
+static GpStatus
+check_pattern_status (cairo_pattern_t *pat)
+{
+	if (!pat)
+		return OutOfMemory;
+
+	switch (cairo_pattern_status (pat)) {
+	case CAIRO_STATUS_SUCCESS:
+		return Ok;
+	case CAIRO_STATUS_NO_MEMORY:
+		cairo_pattern_destroy (pat);
+		return OutOfMemory;
+	default:
+		cairo_pattern_destroy (pat);
+		return InvalidParameter;
+	}
+}
+
 GpStatus
 create_tile_linear (cairo_t *ct, GpLineGradient *linear)
 {
+	GpStatus status;
 	cairo_t	*ct2;
 	cairo_surface_t *gradient;
 	cairo_pattern_t *pat;
@@ -307,10 +330,10 @@ create_tile_linear (cairo_t *ct, GpLineGradient *linear)
 
 	pat = cairo_pattern_create_linear (linear->points [0].X, linear->points [0].Y,
 					   linear->points [1].X, linear->points [1].Y);
-
-	if (pat == NULL) {
+	status = check_pattern_status (pat);
+	if (status != Ok) {
 		cairo_surface_destroy (gradient);
-		return OutOfMemory;
+		return status;
 	}
 
 	ct2 = cairo_create(gradient);
@@ -358,6 +381,7 @@ create_tile_linear (cairo_t *ct, GpLineGradient *linear)
 GpStatus
 create_tile_flipX_linear (cairo_t *ct, GpLineGradient *linear)
 {
+	GpStatus status;
 	cairo_surface_t *gradient;
 	cairo_pattern_t *pat;
 	GpMatrix *tempMatrix = NULL;
@@ -376,11 +400,10 @@ create_tile_flipX_linear (cairo_t *ct, GpLineGradient *linear)
 
 	pat = cairo_pattern_create_linear (linear->points [0].X, linear->points [0].Y,
 					   linear->points [1].X, linear->points [1].Y);
-
-	if (pat == NULL) {
+	status = check_pattern_status (pat);
+	if (status != Ok) {
 		cairo_surface_destroy (gradient);
-		
-		return OutOfMemory;
+		return status;
 	}
 	
 	GdipCreateMatrix (&tempMatrix);
@@ -448,6 +471,7 @@ create_tile_flipX_linear (cairo_t *ct, GpLineGradient *linear)
 GpStatus
 create_tile_flipY_linear (cairo_t *ct, GpLineGradient *linear)
 {
+	GpStatus status;
 	cairo_surface_t *gradient;
 	cairo_pattern_t *pat;
 	GpMatrix *tempMatrix = NULL;
@@ -466,11 +490,10 @@ create_tile_flipY_linear (cairo_t *ct, GpLineGradient *linear)
 
 	pat = cairo_pattern_create_linear (linear->points [0].X, linear->points [0].Y,
 					   linear->points [1].X, linear->points [1].Y);
-
-	if (pat == NULL) {
+	status = check_pattern_status (pat);
+	if (status != Ok) {
 		cairo_surface_destroy (gradient);
-		
-		return OutOfMemory;
+		return status;
 	}
 
 	GdipCreateMatrix (&tempMatrix);	
@@ -539,6 +562,7 @@ create_tile_flipY_linear (cairo_t *ct, GpLineGradient *linear)
 GpStatus
 create_tile_flipXY_linear (cairo_t *ct, GpLineGradient *linear)
 {
+	GpStatus status;
 	cairo_surface_t *gradient;
 	cairo_pattern_t *pat;
 	GpMatrix *tempMatrix = NULL;
@@ -558,11 +582,10 @@ create_tile_flipXY_linear (cairo_t *ct, GpLineGradient *linear)
 
 	pat = cairo_pattern_create_linear (linear->points [0].X, linear->points [0].Y,
 					   linear->points [1].X, linear->points [1].Y);
-
-	if (pat == NULL) {
+	status = check_pattern_status (pat);
+	if (status != Ok) {
 		cairo_surface_destroy (gradient);
-		
-		return OutOfMemory;
+		return status;
 	}
 
 	GdipCreateMatrix (&tempMatrix);	
@@ -1166,8 +1189,16 @@ GdipGetLineTransform (GpLineGradient *brush, GpMatrix *matrix)
 GpStatus
 GdipSetLineTransform (GpLineGradient *brush, GDIPCONST GpMatrix *matrix)
 {
+	GpStatus status;
+	int invertible;
+
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+
+	/* the matrix MUST be invertible to be used */
+	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
+	if (!invertible || (status != Ok))
+		return InvalidParameter;
 
 	gdip_cairo_matrix_copy (brush->matrix, matrix);
 	brush->base.changed = TRUE;
