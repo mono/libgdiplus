@@ -1,3 +1,8 @@
+2006-03-31  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics-path.c: Don't read past the end of the allocated points
+	structure.
+
 2006-03-30  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics.c: Check that the matrix is invertible in function

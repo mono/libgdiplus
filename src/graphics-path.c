@@ -920,7 +920,7 @@ GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
          * Add a line from the last point back to the first point if
          * they're not the same
          */
-        if (points [0].X != points [count].X && points [0].Y != points [count].Y)
+        if (points [0].X != points [count - 1].X && points [0].Y != points [count - 1].Y)
                 append_point (path, points [0], PathPointTypeLine);
         
 	/* close the path */
