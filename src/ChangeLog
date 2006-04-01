@@ -1,3 +1,12 @@
+2006-03-31  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* graphics.c:
+	  - Removed reset of clip_matrix whenever the clip is reset, since
+	    the matrix still would apply were another clip rectangle set
+	    later
+	  - Fixed signature of several methods from UINT to int, to match
+	    MS signature. Fixes TextBox not displaying the first char
+
 2006-03-31  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics-path.c: Don't read past the end of the allocated points

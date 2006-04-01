@@ -602,6 +602,7 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 {
 	GpState* pos_state;
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+///printf("[%s %d] GdipRestoreGraphics called\n", __FILE__, __LINE__);
 
 	if (graphicsState >= MAX_GRAPHICS_STATE_STACK || graphicsState > graphics->saved_status_pos)
 		return InvalidParameter;
@@ -642,6 +643,7 @@ GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (state != NULL, InvalidParameter);
 
+///printf("[%s %d] GdipSaveGraphics called\n", __FILE__, __LINE__);
 	if (graphics->saved_status == NULL) {
 		graphics->saved_status = GdipCalloc (MAX_GRAPHICS_STATE_STACK, sizeof (GpState));
 		graphics->saved_status_pos = 0;
@@ -681,6 +683,7 @@ GdipResetWorldTransform (GpGraphics *graphics)
 {
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
+///printf("[%s %d] GdipResetWorldTransform called\n", __FILE__, __LINE__);
 	cairo_matrix_init_identity (graphics->copy_of_ctm);
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 
@@ -700,6 +703,7 @@ GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
+///printf("[%s %d] GdipSetWorldTransform called\n", __FILE__, __LINE__);
 	/* optimization - inverting an identity matrix result in the identity matrix */
 	if (gdip_is_matrix_empty (matrix))
 		return GdipResetWorldTransform (graphics);
@@ -737,6 +741,7 @@ GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrde
 	int invertible;
 	GpMatrix inverted;
 
+///printf("[%s %d] GdipMultiplyWorldTransform called\n", __FILE__, __LINE__);
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 
 	/* the matrix MUST be invertible to be used */
@@ -768,6 +773,7 @@ GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order
 	GpStatus s;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+///printf("[%s %d] GdipRotateWorldTransform called\n", __FILE__, __LINE__);
 
 	s = GdipRotateMatrix (graphics->copy_of_ctm, angle, order);
         if (s != Ok)
@@ -784,6 +790,8 @@ GpStatus
 GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder order)
 {
         GpStatus s;
+
+///printf("[%s %d] GdipScaleWorldTransform called\n", __FILE__, __LINE__);
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	if ((sx == 0.0f) || (sy == 0.0f))
@@ -807,6 +815,7 @@ GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixO
         GpStatus s;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+///printf("[%s %d] GdipTranslateWorldTransform called\n", __FILE__, __LINE__);
 
 	s = GdipTranslateMatrix (graphics->copy_of_ctm, dx, dy, order);
         if (s != Ok) 
@@ -3784,7 +3793,7 @@ gdip_set_cairo_clipping (GpGraphics *graphics)
         int i;
 
 	cairo_reset_clip (graphics->ct);
-
+ 
 	if (gdip_is_InfiniteRegion (graphics->clip))
 		return;
 
@@ -3850,7 +3859,7 @@ GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float heig
 {
 	GpStatus status;
 	GpRectF rect;
-	
+///printf("[%s %d] GdipSetClipRect %f, %f, %fx%f called\n", __FILE__, __LINE__, x, y, width, height);	
 	if (!graphics)
 		return InvalidParameter;
 
@@ -3860,15 +3869,15 @@ GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float heig
 	status = GdipCombineRegionRect (graphics->clip, &rect, combineMode);
 	if (status == Ok) {
 		cairo_reset_clip (graphics->ct);
-		cairo_matrix_init_identity (graphics->clip_matrix);
 		gdip_set_cairo_clipping (graphics);
 	}
 	return status;
 }
 
 GpStatus
-GdipSetClipRectI (GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height, CombineMode combineMode)
+GdipSetClipRectI (GpGraphics *graphics, int x, int y, int width, int height, CombineMode combineMode)
 {
+
 	return GdipSetClipRect (graphics, x, y, width, height, combineMode);
 }
 
@@ -3877,13 +3886,13 @@ GdipSetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMode)
 {
 	GpStatus status;
 
+///printf("[%s %d] GdipSetClipPath called\n", __FILE__, __LINE__);	
 	if (!graphics || !path)
 		return InvalidParameter;
 
 	status = GdipCombineRegionPath (graphics->clip, path, combineMode);	
 	if (status == Ok) {
 		cairo_reset_clip (graphics->ct);
-		cairo_matrix_init_identity (graphics->clip_matrix);
 		gdip_set_cairo_clipping (graphics);
 	}
 	return status;
@@ -3893,6 +3902,7 @@ GpStatus
 GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMode)
 {
 	GpStatus status;
+///printf("[%s %d] GdipSetClipRegion called\n", __FILE__, __LINE__);	
 
 	if (!graphics || !region)
 		return InvalidParameter;
@@ -3900,7 +3910,6 @@ GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMo
 	status = GdipCombineRegionRegion (graphics->clip, region, combineMode);	
 	if (status == Ok) {
 		cairo_reset_clip (graphics->ct);
-		cairo_matrix_init_identity (graphics->clip_matrix);
 		gdip_set_cairo_clipping (graphics);
 	}
 	return status;
@@ -3918,9 +3927,9 @@ GdipResetClip (GpGraphics *graphics)
 	if (!graphics)
 		return InvalidParameter;
 
+///printf("[%s %d] GdipResetClip called\n", __FILE__, __LINE__);	
 	GdipSetInfinite (graphics->clip);
 	cairo_reset_clip (graphics->ct);
-	cairo_matrix_init_identity (graphics->clip_matrix);
 	return Ok;
 }
 
@@ -3929,6 +3938,7 @@ GdipTranslateClip (GpGraphics *graphics, float dx, float dy)
 {
 	GpStatus status;
 
+///printf("[%s %d] GdipTranslateClip %f %f called\n", __FILE__, __LINE__, dx, dy);	
 	if (!graphics)
 		return InvalidParameter;
 
@@ -3939,7 +3949,7 @@ GdipTranslateClip (GpGraphics *graphics, float dx, float dy)
 }
 
 GpStatus
-GdipTranslateClipI (GpGraphics *graphics, UINT dx, UINT dy)
+GdipTranslateClipI (GpGraphics *graphics, int dx, int dy)
 {
 	GpStatus status;
 
@@ -4103,7 +4113,7 @@ GdipIsVisiblePoint (GpGraphics *graphics, float x, float y, BOOL *result)
 }
 
 GpStatus
-GdipIsVisiblePointI (GpGraphics *graphics, UINT x, UINT y, BOOL *result)
+GdipIsVisiblePointI (GpGraphics *graphics, int x, int y, BOOL *result)
 {
 	return GdipIsVisiblePoint (graphics, (float) x, (float) y, result);
 }
@@ -4146,7 +4156,7 @@ GdipIsVisibleRect (GpGraphics *graphics, float x, float y, float width, float he
 }
 
 GpStatus
-GdipIsVisibleRectI (GpGraphics *graphics, UINT x, UINT y, UINT width, UINT height, BOOL *result)
+GdipIsVisibleRectI (GpGraphics *graphics, int x, int y, int width, int height, BOOL *result)
 {
 	return GdipIsVisibleRect (graphics, x, y, width, height, result);
 }
