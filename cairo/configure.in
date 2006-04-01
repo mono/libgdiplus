@@ -517,9 +517,6 @@ pixman/src/Makefile
 src/Makefile
 src/cairo-features.h
 test/Makefile
-doc/Makefile
-doc/public/Makefile
-doc/public/version.xml
 ])
 
 dnl ===========================================================================
