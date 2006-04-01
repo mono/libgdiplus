@@ -82,62 +82,57 @@ endif
 # All tests which have a reference image go here.
 # I really don't like having to repeat this list. Anyone know a good
 # way to avoid it? Can I use a wildcard here?
-EXTRA_DIST =				\
-a8-mask-ref.png				\
-caps-joins-ref.png			\
-caps-sub-paths-ref.png			\
-clip-all-ref.png			\
-clip-nesting-ref.png			\
-clip-operator-ref.png			\
-clip-twice-ref.png			\
-composite-integer-translate-source-ref.png		\
-composite-integer-translate-over-ref.png		\
-composite-integer-translate-over-repeat-ref.png		\
-create-from-png-ref.png			\
-create-from-png-stream-ref.png		\
-dash-caps-joins-ref.png			\
-dash-offset-negative-ref.png		\
-fill-and-stroke-ref.png			\
-fill-rule-ref.png			\
-filter-nearest-offset-ref.png		\
-gradient-alpha-ref.png			\
-leaky-polygon-ref.png			\
-line-width-ref.png			\
-linear-gradient-ref.png			\
-mask-ref.png				\
-mask-ctm-ref.png			\
-mask-surface-ctm-ref.png		\
-move-to-show-surface-ref.png		\
-nil-surface-ref.png			\
-operator-clear-ref.png			\
-operator-source-ref.png			\
-paint-ref.png				\
-paint-with-alpha-ref.png		\
-path-data-ref.png			\
-pixman-rotate-ref.png			\
-rectangle-rounding-error-ref.png	\
-romedalen.png				\
-self-copy-ref.png			\
-self-intersecting-ref.png		\
-scale-source-surface-paint-ref.png	\
-set-source-ref.png			\
-show-glyphs-many-ref.png		\
-show-glyphs-many-rgb24-ref.png		\
-show-text-current-point-ref.png		\
-source-clip-ref.png			\
-source-surface-scale-paint-ref.png	\
-surface-pattern-ref.png			\
-text-antialias-gray-ref.png		\
-text-antialias-none-ref.png		\
-text-antialias-subpixel-ref.png		\
-text-pattern-ref.png			\
-text-rotate-ref.png			\
-transforms-ref.png			\
-translate-show-surface-ref.png		\
-trap-clip-ref.png			\
-unantialiased-shapes-ref.png		\
-unbounded-operator-ref.png		\
-rel-path-ref.png
+EXTRA_DIST =					\
+a8-mask-ref.png					\
+caps-sub-paths-ref.png				\
+clip-nesting-ref.png				\
+clip-operator-ref.png				\
+clip-twice-ref.png				\
+composite-integer-translate-over-ref.png	\
+composite-integer-translate-over-repeat-ref.png	\
+composite-integer-translate-source-ref.png	\
+create-from-png-ref.png				\
+create-from-png-stream-ref.png			\
+dash-offset-negative-ref.png			\
+fill-and-stroke-ref.png				\
+fill-rule-ref.png				\
+filter-nearest-offset-ref.png			\
+gradient-alpha-ref.png				\
+leaky-polygon-ref.png				\
+line-width-ref.png				\
+linear-gradient-ref.png				\
+mask-ctm-ref.png				\
+mask-ref.png					\
+mask-surface-ctm-ref.png			\
+move-to-show-surface-ref.png			\
+nil-surface-ref.png				\
+operator-clear-ref.png				\
+operator-source-ref.png				\
+paint-ref.png					\
+paint-with-alpha-ref.png			\
+path-data-ref.png				\
+pixman-rotate-ref.png				\
+rectangle-rounding-error-ref.png		\
+rel-path-ref.png				\
+romedalen.png					\
+scale-source-surface-paint-ref.png		\
+self-copy-ref.png				\
+self-intersecting-ref.png			\
+set-source-ref.png				\
+show-text-current-point-ref.png			\
+source-clip-ref.png				\
+source-surface-scale-paint-ref.png		\
+surface-pattern-ref.png				\
+text-antialias-gray-ref.png			\
+text-antialias-none-ref.png			\
+text-antialias-subpixel-ref.png			\
+text-pattern-ref.png				\
+text-rotate-ref.png				\
+transforms-ref.png				\
+translate-show-surface-ref.png			\
+trap-clip-ref.png				\
+unantialiased-shapes-ref.png			\
+unbounded-operator-ref.png
 
 # Any test for which the code committed to CVS is expected to fail
 # should be listed here.
