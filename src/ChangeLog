@@ -1,5 +1,15 @@
 2006-04-03 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
+	* imageattributes.c:
+	(gdip_process_bitmap_attributes): the default fallback condition was
+	wrong and caused the function to not process or incorrectly process the
+	attributes, as it either used the default attributes or did nothing on
+	the bitmap. It works now (tested with BitMap.MakeTransparent() and using
+	"imageAttr.SetColorKey (color, color, ColorAdjustType.Bitmap);").
+
+
+2006-04-03 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
 	* bmpcodec.c: fix offset when saving to a file and speed up writing
 	the palette (15% faster saving).
 

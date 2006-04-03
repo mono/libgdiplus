@@ -75,7 +75,8 @@ void
 gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, bool *allocated)
 { 
 
-	GpImageAttribute *imgattr;
+	GpImageAttribute *imgattr, *def;
+	GpImageAttribute *colormap, *gamma, *trans, *cmatrix;
 	void *scan0;
 	GpBitmap bmpdest;
 	int x,y, cnt;
@@ -89,15 +90,36 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	
 	imgattr = gdip_get_image_attribute (attr, ColorAdjustTypeBitmap);
 	
-	if (!imgattr)	
+	if (!imgattr)
 		return;		
-	
-	/* Fail into default*/
-	if (!imgattr->colormap_elem || !imgattr->gamma_correction || !imgattr->key_enabled) 
-		imgattr = gdip_get_image_attribute (attr, ColorAdjustTypeDefault);
-		
-	if (imgattr->colormap_elem || imgattr->gamma_correction || imgattr->key_enabled
-		|| (imgattr->colormatrix_enabled && imgattr->colormatrix)) {
+
+	def = gdip_get_image_attribute (attr, ColorAdjustTypeDefault);
+	if (imgattr->colormap_elem) {
+		colormap = imgattr;
+	} else {
+		colormap = def;
+	}
+
+	if (imgattr->gamma_correction) {
+		gamma = imgattr;
+	} else {
+		gamma = def;
+	}
+
+	if (imgattr->key_enabled) {
+		trans = imgattr;
+	} else {
+		trans = def;
+	}
+
+	if (imgattr->colormatrix_enabled && imgattr->colormatrix) {
+		cmatrix = imgattr;
+	} else {
+		cmatrix = def;
+	}
+
+	if (colormap->colormap_elem || gamma->gamma_correction || trans->key_enabled || 
+	    (cmatrix->colormatrix_enabled && cmatrix->colormatrix != NULL)) {
 		scan0 = GdipAlloc (bitmap->data.Stride * bitmap->data.Height);
 		memcpy (scan0, bitmap->data.Scan0, bitmap->data.Stride * bitmap->data.Height);
 		*dest = scan0;
@@ -113,28 +135,28 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	*/	
 	
 	/* Color mapping */
-	if (imgattr->colormap_elem) {	
+	if (colormap->colormap_elem) {
 		for (y = 0; y <bitmap->data.Height; y++) {	
 			for (x = 0; x <bitmap->data.Width; x++) {
-				GpColorMap* clrmap = imgattr->colormap;
+				GpColorMap* clrmap = colormap->colormap;
+				int found;
 				
 				GdipBitmapGetPixel (&bmpdest, x, y, &color);
 				
-				for (cnt = 0; cnt < imgattr->colormap_elem; cnt++, clrmap++) {
+				for (cnt = 0; cnt < colormap->colormap_elem; cnt++, clrmap++) {
 				  
 					if (color == clrmap->oldColor.Color) {						
 						color = clrmap->newColor.Color;						
+						GdipBitmapSetPixel (&bmpdest, x, y, color);
 						break;
 					}
 				}
-							
-				GdipBitmapSetPixel (&bmpdest, x, y, color);
 			}	
 		}	
 	}
 	
 	/* Gamma correction */
-	if (imgattr->gamma_correction) {
+	if (gamma->gamma_correction) {
 		for (y = 0; y <bitmap->data.Height; y++) {	
 			for (x = 0; x <bitmap->data.Width; x++) {
 			
@@ -150,10 +172,10 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				/* FIXME: This is not the right gamma GDI + correction algorithm */
 				
 				/*
-				r = (int) powf (r, (1 / imgattr->gamma_correction));			
-				g = (int) powf (g, (1 / imgattr->gamma_correction));			
-				b = (int) powf (b, (1 / imgattr->gamma_correction));			
-				a = (int) powf (a, (1 / imgattr->gamma_correction));*/
+				r = (int) powf (r, (1 / gamma->gamma_correction));			
+				g = (int) powf (g, (1 / gamma->gamma_correction));			
+				b = (int) powf (b, (1 / gamma->gamma_correction));			
+				a = (int) powf (a, (1 / gamma->gamma_correction));*/
 				
 				color = b | (g  << 8) | (r << 16) | (a << 24);
 					
@@ -164,23 +186,23 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	}	
 	
 	/* Apply transparency range */
-	if (imgattr->key_enabled) {
+	if (trans->key_enabled) {
 		for (y = 0; y <bitmap->data.Height; y++) {	
 			for (x = 0; x <bitmap->data.Width; x++) {
 				
 				GdipBitmapGetPixel (&bmpdest, x, y, &color);					
 				
-				if (color >= imgattr->key_colorlow && color <= imgattr->key_colorhigh)
+				if (color >= trans->key_colorlow && color <= trans->key_colorhigh) {
 					color = color & 0x00ffffff; /* Alpha = 0 */
-					
-				GdipBitmapSetPixel (&bmpdest, x, y, color);
+					GdipBitmapSetPixel (&bmpdest, x, y, color);
+				}
 			}	
 		}
 	
 	}
 
 	/* Apply Color Matrix */
-	if (imgattr->colormatrix_enabled && imgattr->colormatrix) {		
+	if (cmatrix->colormatrix_enabled && cmatrix->colormatrix) {
 		for (y = 0; y <bitmap->data.Height; y++) {	
 			for (x = 0; x <bitmap->data.Width; x++) {
 
@@ -190,17 +212,17 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				GdipBitmapGetPixel (&bmpdest, x, y, &color);
 				get_pixel_bgra (color, b, g, r, a);
 
-				r_new = (r * imgattr->colormatrix->m[0][0] + g * imgattr->colormatrix->m[1][0] + b * imgattr->colormatrix->m[2][0] +
-					a * imgattr->colormatrix->m[3][0] + (255 * imgattr->colormatrix->m[4][0]));
+				r_new = (r * cmatrix->colormatrix->m[0][0] + g * cmatrix->colormatrix->m[1][0] + b * cmatrix->colormatrix->m[2][0] +
+					a * cmatrix->colormatrix->m[3][0] + (255 * cmatrix->colormatrix->m[4][0]));
 
-				g_new = (r * imgattr->colormatrix->m[0][1] + g * imgattr->colormatrix->m[1][1] + b * imgattr->colormatrix->m[2][1] +
-					a * imgattr->colormatrix->m[3][1] + (255 * imgattr->colormatrix->m[4][1]));
+				g_new = (r * cmatrix->colormatrix->m[0][1] + g * cmatrix->colormatrix->m[1][1] + b * cmatrix->colormatrix->m[2][1] +
+					a * cmatrix->colormatrix->m[3][1] + (255 * cmatrix->colormatrix->m[4][1]));
 
-				b_new = (r * imgattr->colormatrix->m[0][2] + g * imgattr->colormatrix->m[1][2] + b * imgattr->colormatrix->m[2][2] +
-					a * imgattr->colormatrix->m[3][2] + (255 * imgattr->colormatrix->m[4][2]));
+				b_new = (r * cmatrix->colormatrix->m[0][2] + g * cmatrix->colormatrix->m[1][2] + b * cmatrix->colormatrix->m[2][2] +
+					a * cmatrix->colormatrix->m[3][2] + (255 * cmatrix->colormatrix->m[4][2]));
 
-				a_new = (r * imgattr->colormatrix->m[0][3] + g * imgattr->colormatrix->m[1][3] + b * imgattr->colormatrix->m[2][3] +
-					a * imgattr->colormatrix->m[3][3] + (255 * imgattr->colormatrix->m[4][3]));
+				a_new = (r * cmatrix->colormatrix->m[0][3] + g * cmatrix->colormatrix->m[1][3] + b * cmatrix->colormatrix->m[2][3] +
+					a * cmatrix->colormatrix->m[3][3] + (255 * cmatrix->colormatrix->m[4][3]));
 			
 				if (r_new > 0xff) r_new = 0xff;
 				if (g_new > 0xff) g_new = 0xff;
