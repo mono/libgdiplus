@@ -1,3 +1,8 @@
+2006-04-03 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* bmpcodec.c: fix offset when saving to a file and speed up writing
+	the palette (15% faster saving).
+
 2006-03-31  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* graphics.c:

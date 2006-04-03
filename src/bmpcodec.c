@@ -155,10 +155,13 @@ gdip_bitmap_save_bmp (const char *name, GpBitmap *bitmap)
 	BITMAPINFOHEADER bmi;
 	int  bitmapLen = bitmap->data.Stride * bitmap->data.Height;
 	FILE *fp;
+	int ncolors = 0;
 	
 	bmfh.bfReserved1 = bmfh.bfReserved2 = 0;
 	bmfh.bfType = BFT_BITMAP;
-	bmfh.bfOffBits = (14 + 40 + 0 * 4);
+	if (bitmap->image.palette)
+		ncolors = bitmap->image.palette->Count;
+	bmfh.bfOffBits = (14 + 40 + ncolors * 4);
 	bmfh.bfSize = (bmfh.bfOffBits + bitmapLen);
 	fp = fopen (name, "w+b");
 	fwrite (&bmfh, sizeof (bmfh), 1, fp);
@@ -169,29 +172,30 @@ gdip_bitmap_save_bmp (const char *name, GpBitmap *bitmap)
 
 	if (gdip_is_an_indexed_pixelformat (bitmap->data.PixelFormat)) {
 		int i;
+		char *entries;
 
 		int palette_entries = bitmap->image.palette->Count;
 		if (bitmap->data.PixelFormat == Format4bppIndexed)
 			palette_entries = 16;
 
-		for (i=0; i < palette_entries; i++)
-		{
-			unsigned char entry[4];
-
+		entries = (char *) GdipAlloc (palette_entries * 4);
+		for (i = 0; i < palette_entries; i++) {
+			/* Pixel format: 0xAARRGGBB */
+			int idx;
 			unsigned int packed = bitmap->image.palette->Entries[i];
-
-			/* Pixel format: 0xAARRGGBB
-			 * Therefore, it can be split numerically :-)
-			 * Output always expects little-endian pixels.
-			 */
-
-			entry[0] = ( packed        & 0xFF); /* B */
-			entry[1] = ((packed >>  8) & 0xFF); /* G */
-			entry[2] = ((packed >> 16) & 0xFF); /* R */
-			entry[3] = ((packed >> 24) & 0xFF); /* Alpha */
-
-			fwrite(entry, 4, 1, fp);
+			idx = i * 4;
+#ifdef WORDS_BIGENDIAN
+			entries [idx] = ( packed        & 0xFF); /* B */
+			entries [idx + 1] = ((packed >>  8) & 0xFF); /* G */
+			entries [idx + 2] = ((packed >> 16) & 0xFF); /* R */
+			entries [idx + 3] = ((packed >> 24) & 0xFF); /* Alpha */
+#else
+			*((guint32 *) entries + idx) = packed;
+#endif
 		}
+		fwrite (entries, 4, palette_entries, fp);
+		GdipFree (entries);
+		entries = NULL;
 	}
 
 	fwrite (bitmap->data.Scan0, bitmapLen, 1, fp);
@@ -1130,7 +1134,6 @@ gdip_save_bmp_image_to_file_stream (void *pointer,
         GpBitmap *bitmap = (GpBitmap *) image;
         int bitmapLen = bitmap->data.Stride * bitmap->data.Height;
         int i;
-        byte b;
         ARGB color;
         int colours = 0;
 
@@ -1154,23 +1157,29 @@ gdip_save_bmp_image_to_file_stream (void *pointer,
 	gdip_write_bmp_data (pointer, (byte *)&bmi, sizeof (bmi), useFile);
 
 	if (colours) {
+		unsigned char *entries;
 		int palette_entries = bitmap->image.palette->Count;
 		if (bitmap->data.PixelFormat == Format4bppIndexed)
 			palette_entries = 16;
 
-		/* Write palette on disk on BGRA*/
+		entries = (unsigned char *) GdipAlloc (palette_entries * 4);
 		for (i = 0; i < palette_entries; i++) {
-			color = bitmap->image.palette->Entries[i];
+			int idx;
 
-			b =  color & 0xff;
-			gdip_write_bmp_data (pointer, &b, 1, useFile);
-			b = (color >> 8) & 0xff;
-			gdip_write_bmp_data (pointer, &b, 1, useFile);
-			b = (color >> 16) & 0xff;
-			gdip_write_bmp_data (pointer, &b, 1, useFile);
-			b = color >> 24;
-			gdip_write_bmp_data (pointer, &b, 1, useFile);
-		}	
+			color = bitmap->image.palette->Entries[i];
+			idx = i * 4;
+#ifdef WORDS_BIGENDIAN
+			entries [idx] =  color & 0xff;
+			entries [idx + 1] = (color >> 8) & 0xff;
+			entries [idx + 2] = (color >> 16) & 0xff;
+			entries [idx + 3] = color >> 24;
+#else
+			*((guint32 *) entries + idx) = color;
+#endif
+		}
+		gdip_write_bmp_data (pointer, entries, palette_entries * 4, useFile);
+		GdipFree (entries);
+		entries = NULL;
 	}
 
 	/* Writes bitmap upside down. Many tools can only process bmp stored this way*/        
