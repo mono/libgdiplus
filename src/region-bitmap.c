@@ -315,7 +315,7 @@ empty_bitmap (GpRegionBitmap *bitmap)
 	bitmap->Height = 0;
 
 	if (bitmap->Mask) {
-		free (bitmap->Mask);
+		GdipFree (bitmap->Mask);
 		bitmap->Mask = NULL;
 	}
 }
@@ -575,7 +575,7 @@ gdip_region_bitmap_from_path (GpPath *path)
 
 	bitmap = alloc_bitmap (bounds.X, bounds.Y, bounds.Width, bounds.Height);
 	reduce (buffer, bounds.Width, bounds.Height, bitmap->Mask);
-	free (buffer);
+	GdipFree (buffer);
 
 	return bitmap;
 }
@@ -672,7 +672,6 @@ gdip_region_bitmap_shrink (GpRegionBitmap *bitmap, BOOL always_shrink)
 	int original_size, new_size;
 	BOOL can_be_reduced;
 	GpRect rect;
-	int i;
 
 	/* bitmap (a) was already shrinked, or (b) is empty */
 	if (bitmap->reduced || !bitmap->Mask)
@@ -724,7 +723,7 @@ gdip_region_bitmap_shrink (GpRegionBitmap *bitmap, BOOL always_shrink)
 		bitmap->Y = rect.Y;
 		bitmap->Width = rect.Width;
 		bitmap->Height = rect.Height;
-		free (bitmap->Mask);
+		GdipFree (bitmap->Mask);
 		bitmap->Mask = new_mask;
 		bitmap->reduced = TRUE;
 	}
