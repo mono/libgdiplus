@@ -85,76 +85,116 @@ gdip_is_matrix_a_translation (GpMatrix *matrix)
 GpStatus 
 GdipCreateMatrix (GpMatrix **matrix)
 {
+	GpMatrix *result;
+
 	g_return_val_if_fail  (matrix != NULL, InvalidParameter);
 	
-	*matrix = GdipAlloc (sizeof(GpMatrix));
-	cairo_matrix_init (*matrix, 1, 0, 0, 1, 0, 0);
-	
+	result = GdipAlloc (sizeof (GpMatrix));
+	if (!result)
+		return OutOfMemory;
+
+	cairo_matrix_init_identity (result);
+
+	*matrix = result;
 	return Ok;
 }
 
 GpStatus
 GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float dy, GpMatrix **matrix)
 {
+	GpMatrix *result;
+
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-	*matrix = GdipAlloc (sizeof(GpMatrix));
-	cairo_matrix_init (*matrix, m11, m12, m21, m22, dx, dy);
+
+	result = GdipAlloc (sizeof (GpMatrix));
+	if (!result)
+		return OutOfMemory;
+
+	cairo_matrix_init (result, m11, m12, m21, m22, dx, dy);
+
+	*matrix = result;
 	return Ok;
 }
 
 GpStatus
 GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matrix)
 {
-	double m11, m12, m21, m22, dx, dy;
+	GpMatrix *result;
+	GpPointF *p, *p0, *p1, *p2;
+	double m11, m12, m21, m22;
 
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 	g_return_val_if_fail (dstplg != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	m11 = rect->X;
-	m12 = rect->Y;
-	m21 = rect->Width;
-	m22 = rect->Height;
-	dx = dstplg->X;
-	dy = dstplg->Y;
+	p = (GpPointF*) dstplg;
+	p0 = p++;
+	p1 = p++;
+	p2 = p;
 
-	*matrix = GdipAlloc (sizeof (GpMatrix));
-	cairo_matrix_init (*matrix, m11, m12, m21, m22, dx, dy);
+	m11 = (p1->X - p0->X) / rect->Width;
+	m12 = (p1->Y - p0->Y) / rect->Width;
+	m21 = (p2->X - p0->X) / rect->Height;
+	m22 = (p2->Y - p0->Y) / rect->Height;
 
+	result = GdipAlloc (sizeof (GpMatrix));
+	if (!result)
+		return OutOfMemory;
+
+	cairo_matrix_init (result, m11, m12, m21, m22, p0->X, p0->Y);
+	cairo_matrix_translate (result, -rect->X, -rect->Y);
+
+	*matrix = result;
 	return Ok;
 }
 
 GpStatus
 GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix)
 {
-	double m11, m12, m21, m22, dx, dy;
+	GpMatrix *result;
+	GpPoint *p, *p0, *p1, *p2;
+	double m11, m12, m21, m22;
 
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 	g_return_val_if_fail (dstplg != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	m11 = rect->X;
-	m12 = rect->Y;
-	m21 = rect->Width;
-	m22 = rect->Height;
-	dx = dstplg->X;
-	dy = dstplg->Y;
+	p = (GpPoint*) dstplg;
+	p0 = p++;
+	p1 = p++;
+	p2 = p;
 
-	*matrix = GdipAlloc (sizeof (GpMatrix));
-	cairo_matrix_init (*matrix, m11, m12, m21, m22, dx, dy);
+	m11 = (p1->X - p0->X) / (double)rect->Width;
+	m12 = (p1->Y - p0->Y) / (double)rect->Width;
+	m21 = (p2->X - p0->X) / (double)rect->Height;
+	m22 = (p2->Y - p0->Y) / (double)rect->Height;
 
+	result = GdipAlloc (sizeof (GpMatrix));
+	if (!result)
+		return OutOfMemory;
+
+	cairo_matrix_init (result, m11, m12, m21, m22, p0->X, p0->Y);
+	cairo_matrix_translate (result, -rect->X, -rect->Y);
+
+	*matrix = result;
         return Ok;
 }
 
 GpStatus
 GdipCloneMatrix (GpMatrix *matrix, GpMatrix **cloneMatrix)
 {
+	GpMatrix *result;
+
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 	g_return_val_if_fail (cloneMatrix != NULL, InvalidParameter);
 
-	*cloneMatrix = GdipAlloc (sizeof (GpMatrix));
-        gdip_cairo_matrix_copy (*cloneMatrix, matrix);
+	result = GdipAlloc (sizeof (GpMatrix));
+	if (!result)
+		return OutOfMemory;
+
+        gdip_cairo_matrix_copy (result, matrix);
 	
+	*cloneMatrix = result;
 	return Ok;
 }
 
