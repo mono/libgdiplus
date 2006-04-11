@@ -1,3 +1,8 @@
+2006-04-11  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Fixed bug #77129 where we shouldn't draw (or fill)
+	rectangle(s) with either a negative width or height.
+
 2006-04-10  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* matrix.c: Fixed misimplemented GdipCreateMatrix3[I]. Reworked 

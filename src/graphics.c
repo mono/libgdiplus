@@ -1321,6 +1321,10 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
+	/* don't draw/fill rectangles with negative width/height (bug #77129) */
+	if ((width < 0) || (height < 0))
+		return Ok;
+
         gdip_cairo_matrix_copy (&saved, graphics->copy_of_ctm);
         cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 	
@@ -1356,6 +1360,7 @@ GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen,
 GpStatus
 GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count)
 {
+	BOOL draw = FALSE;
 	int i;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
@@ -1366,12 +1371,21 @@ GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count)
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	for (i = 0; i < count; i++)
+	for (i = 0; i < count; i++) {
+		/* don't draw/fill rectangles with negative width/height (bug #77129) */
+		if ((rects [i].Width < 0) || (rects [i].Height < 0))
+			continue;
+
 		cairo_rectangle (graphics->ct, 
 			gdip_unitx_convgr (graphics, rects [i].X) + graphics->aa_offset_x, 
 			gdip_unity_convgr (graphics, rects [i].Y) + graphics->aa_offset_y, 
 			gdip_unitx_convgr (graphics, rects [i].Width), 
 			gdip_unity_convgr (graphics, rects [i].Height));
+		draw = TRUE;
+	}
+
+	if (!draw)
+		return Ok;
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -1388,6 +1402,7 @@ GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count)
 GpStatus
 GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GpRect *rects, int count)
 {
+	BOOL draw = FALSE;
 	int i;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
@@ -1398,12 +1413,21 @@ GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GpRect *rects, int count)
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	for (i = 0; i < count; i++)
+	for (i = 0; i < count; i++) {
+		/* don't draw/fill rectangles with negative width/height (bug #77129) */
+		if ((rects [i].Width < 0) || (rects [i].Height < 0))
+			continue;
+
 		cairo_rectangle (graphics->ct, 
 			gdip_unitx_convgr (graphics, rects [i].X), 
 			gdip_unity_convgr (graphics, rects [i].Y), 
 			gdip_unitx_convgr (graphics, rects [i].Width), 
 			gdip_unity_convgr (graphics, rects [i].Height));
+		draw = TRUE;
+	}
+
+	if (!draw)
+		return Ok;
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -1632,6 +1656,10 @@ GdipFillRectangle (GpGraphics *graphics, GpBrush *brush,
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
+	/* don't draw/fill rectangles with negative width/height (bug #77129) */
+	if ((width < 0) || (height < 0))
+		return Ok;
+
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
@@ -1660,6 +1688,7 @@ GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush,
 GpStatus 
 GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GpRectF *rects, int count)
 {
+	BOOL draw = FALSE;
 	int i;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
@@ -1670,10 +1699,20 @@ GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GpRectF *rects, int co
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	for (i = 0; i < count; i++)
+	for (i = 0; i < count; i++) {
+		/* don't draw/fill rectangles with negative width/height (bug #77129) */
+		if ((rects [i].Width < 0) || (rects [i].Height < 0))
+			continue;
+
 		cairo_rectangle (graphics->ct, 
 			gdip_unitx_convgr (graphics, rects [i].X), gdip_unity_convgr (graphics, rects [i].Y), 
 			gdip_unitx_convgr (graphics, rects [i].Width), gdip_unity_convgr (graphics, rects [i].Height));
+		draw = TRUE;
+	}
+
+	/* shortcut if no rectangles were drawn into the graphics */
+	if (!draw)
+		return Ok;
 
 	/* We do brush setup just before filling. */
 	gdip_brush_setup (graphics, brush);
@@ -1690,6 +1729,7 @@ GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GpRectF *rects, int co
 GpStatus 
 GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GpRect *rects, int count)
 {
+	BOOL draw = FALSE;
 	int i;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
@@ -1700,10 +1740,20 @@ GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GpRect *rects, int co
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
-	for (i = 0; i < count; i++)
+	for (i = 0; i < count; i++) {
+		/* don't draw/fill rectangles with negative width/height (bug #77129) */
+		if ((rects [i].Width < 0) || (rects [i].Height < 0))
+			continue;
+
 		cairo_rectangle (graphics->ct, 
 			gdip_unitx_convgr (graphics, rects [i].X), gdip_unity_convgr (graphics, rects [i].Y), 
 			gdip_unitx_convgr (graphics, rects [i].Width), gdip_unity_convgr (graphics, rects [i].Height));
+		draw = TRUE;
+	}
+
+	/* shortcut if no rectangles were drawn into the graphics */
+	if (!draw)
+		return Ok;
 
 	/* We do brush setup just before filling. */
 	gdip_brush_setup (graphics, brush);
