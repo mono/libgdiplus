@@ -72,22 +72,16 @@ gdip_getcodecinfo_png ()
 #define siglongjmp longjmp
 #endif
 
-struct gdip_stream_png_source {
-    GetBytesDelegate getBytesFunc;
-    PutBytesDelegate putBytesFunc;
-};
-typedef struct gdip_stream_png_source *gdip_stream_png_source_ptr;
-
 void
 _gdip_png_stream_read_data (png_structp png_ptr, png_bytep data, png_size_t length)
 {
-    gdip_stream_png_source_ptr src = (gdip_stream_png_source_ptr) png_get_io_ptr (png_ptr);
+    GetBytesDelegate getBytesFunc = (GetBytesDelegate) png_get_io_ptr (png_ptr);
     int bytesRead = 0;
 
     /* In png parlance, it is an error to read less than length */
     while (bytesRead != length) {
         int res;
-        res = src->getBytesFunc (data + bytesRead, length - bytesRead, 0);
+        res = getBytesFunc (data + bytesRead, length - bytesRead, 0);
         if (res < 0)
             png_error(png_ptr, "Read failed");
         bytesRead += res;
@@ -97,8 +91,8 @@ _gdip_png_stream_read_data (png_structp png_ptr, png_bytep data, png_size_t leng
 void
 _gdip_png_stream_write_data (png_structp png_ptr, png_bytep data, png_size_t length)
 {
-    gdip_stream_png_source_ptr src = (gdip_stream_png_source_ptr) png_get_io_ptr (png_ptr);
-    src->putBytesFunc (data, length);
+    PutBytesDelegate putBytesFunc = (PutBytesDelegate) png_get_io_ptr (png_ptr);
+    putBytesFunc (data, length);
 }
 
 void
@@ -117,7 +111,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
     png_infop end_info_ptr = NULL;
     guchar *rawdata = NULL;
     GpBitmap *img = NULL;
-    gdip_stream_png_source_ptr pngsrc = NULL;
 
     png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING,
                                       NULL, NULL, NULL);
@@ -141,11 +134,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
     if (fp != NULL) {
         png_init_io (png_ptr, fp);
     } else {
-        pngsrc = GdipAlloc(sizeof(struct gdip_stream_png_source));
-        pngsrc->getBytesFunc = getBytesFunc;
-        pngsrc->putBytesFunc = NULL;
-
-        png_set_read_fn (png_ptr, pngsrc, _gdip_png_stream_read_data);
+        png_set_read_fn (png_ptr, getBytesFunc, _gdip_png_stream_read_data);
     }
 
     png_read_png(png_ptr, info_ptr, 0, NULL);
@@ -401,9 +390,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
         img->image.palette = NULL;
     }
 
-    if (pngsrc)
-        GdipFree (pngsrc);
-
     *image = (GpImage *) img;
 
     return Ok;
@@ -417,9 +403,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp,
                                  info_ptr ? &info_ptr : (png_infopp) NULL,
                                  end_info_ptr ? &end_info_ptr : (png_infopp) NULL);
     }
-
-    if (pngsrc)
-        GdipFree (pngsrc);
 
     *image = NULL;
     return InvalidParameter;
@@ -449,7 +432,6 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
     GpBitmap *bitmap = (GpBitmap *) image;
-    gdip_stream_png_source_ptr pngsrc = NULL;
 
     int i;
 
@@ -473,11 +455,7 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
     if (fp != NULL) {
         png_init_io (png_ptr, fp);
     } else {
-        pngsrc = GdipAlloc(sizeof(struct gdip_stream_png_source));
-        pngsrc->getBytesFunc = NULL;
-        pngsrc->putBytesFunc = putBytesFunc;
-
-        png_set_write_fn (png_ptr, pngsrc, _gdip_png_stream_write_data, _gdip_png_stream_flush_data);
+        png_set_write_fn (png_ptr, putBytesFunc, _gdip_png_stream_write_data, _gdip_png_stream_flush_data);
     }
 
     switch (image->pixFormat) {
@@ -637,16 +615,10 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
 
     png_destroy_write_struct (&png_ptr, &info_ptr);
 
-    if (pngsrc)
-        GdipFree (pngsrc);
-
     return Ok;
 error:
     if (png_ptr)
         png_destroy_write_struct (&png_ptr, info_ptr ? &info_ptr : NULL);
-    if (pngsrc)
-        GdipFree (pngsrc);
-
     return GenericError;
 }
 
