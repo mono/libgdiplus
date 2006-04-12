@@ -548,6 +548,8 @@ gdip_save_png_image_to_file_or_stream (FILE *fp,
 	png_set_PLTE (png_ptr, info_ptr, palette, palette_entries);
     }
 
+    png_set_filter (png_ptr, 0, PNG_NO_FILTERS);
+    png_set_sRGB_gAMA_and_cHRM (png_ptr, info_ptr, PNG_sRGB_INTENT_PERCEPTUAL);
     png_write_info (png_ptr, info_ptr);
 
     if (image->pixFormat != bitmap->data.PixelFormat) {

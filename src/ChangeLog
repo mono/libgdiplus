@@ -1,5 +1,10 @@
 2006-04-11 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
+	* pngcodec.c: don't use any filter (makes the saved image smaller) and
+	generate sRGB,gAMA and cHRM information as MS does.
+
+2006-04-11 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
 	* pngcodec.c: no need for gdip_stream_png_source, just pass the function
 	pointer.
 
