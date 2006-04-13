@@ -1,6 +1,8 @@
-2006-04-13  Sebastien Pouliot  <sebastien@ximian.com>
-
+2006-04-13  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
 	* matrix.c|h: Fix public API signatures to use BOOL (not int).
+	* region.c: Give a better chance to revert to a simpler (rectangular) 
+	region in GdipCombineRegionRect.
 
 2006-04-11 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 

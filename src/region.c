@@ -922,6 +922,10 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
         if (!region || !rect)
                 return InvalidParameter;
 
+	/* allow the current region to "revert" to a simple RegionTypeRect if possible */
+	if (combineMode == CombineModeReplace)
+		GdipSetEmpty (region);
+
 	if (region->type == RegionTypePath) {
 		GpPath *path = NULL;
 		GpStatus status;
@@ -952,7 +956,6 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
                 gdip_combine_xor (region, (GpRectF *) rect, 1);
                 break;
 	case CombineModeReplace: /* Used by Graphics clipping */
-		GdipSetEmpty (region);
 		gdip_add_rect_to_array (&region->rects, &region->cnt, (GpRectF *)rect);
 		break;
         default:
