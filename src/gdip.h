@@ -1233,9 +1233,9 @@ GpStatus GdipTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count);
 GpStatus GdipVectorTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count);
 GpStatus GdipVectorTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count);
 GpStatus GdipGetMatrixElements (GpMatrix *matrix, float *matrixOut);
-GpStatus GdipIsMatrixInvertible (GpMatrix *matrix, int *result);
-GpStatus GdipIsMatrixIdentity (GpMatrix *matrix, int *result);
-GpStatus GdipIsMatrixEqual (GpMatrix *matrix, GpMatrix *matrix2, int *result);
+GpStatus GdipIsMatrixInvertible (GpMatrix *matrix, BOOL *result);
+GpStatus GdipIsMatrixIdentity (GpMatrix *matrix, BOOL *result);
+GpStatus GdipIsMatrixEqual (GpMatrix *matrix, GpMatrix *matrix2, BOOL *result);
 
 
 /* Font Family*/         
