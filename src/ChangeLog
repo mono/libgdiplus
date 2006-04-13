@@ -1,3 +1,12 @@
+2006-04-13  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* font.c: Keep a static collection for the system font that will be
+	leaked (on purpose, see comments). Added missing initialization 
+	(allocation) and nullification (freeing) to avoid using bad references 
+	(which also helps to get better results from valgrind). Reworked 
+	GdipPrivateAddMemoryFont to return the error codes leading to the 
+	expected exceptions in the System.Drawing.dll unit tests.
+
 2006-04-13  Sebastien Pouliot  <sebastien@ximian.com> 
  
 	* matrix.c|h: Fix public API signatures to use BOOL (not int).

@@ -55,37 +55,46 @@ gdip_createFontFamily (GpFontFamily **family)
 	result->linespacing = -1;
 	result->celldescent = -1;
 	result->cellascent = -1;
+	result->pattern = NULL;
+	result->allocated = FALSE;
 	*family = result;
 }
+
+static GpFontCollection *system_fonts = NULL;
 
 GpStatus
 GdipNewInstalledFontCollection (GpFontCollection **font_collection)
 {	
-	
-	FcObjectSet *os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, NULL);
-	FcPattern *pat = FcPatternCreate ();
-	FcValue val;
-	FcFontSet *col;
-	GpFontCollection *result;
-	    
 	if (!font_collection)
 		return InvalidParameter;
-    
-	/* Only Scalable fonts for now */
-	val.type = FcTypeBool;
-	val.u.b = FcTrue;
-	FcPatternAdd (pat, FC_SCALABLE, val, TRUE);
-	FcObjectSetAdd (os, FC_SCALABLE);
 
-	col =  FcFontList (0, pat, os);
-	FcPatternDestroy (pat);
-	FcObjectSetDestroy (os);
-    
-	result = (GpFontCollection *) GdipAlloc (sizeof (GpFontCollection));
-	result->fontset = col;
-	result->config = NULL;
-	*font_collection = result;
+	/*
+	 * Ensure we leak this data only a single time, because:
+	 * (a) there is no API to free it;
+	 * (b) other libgdiplus structures depends on that allocated data;
+	 */
+	if (!system_fonts) {
+		FcObjectSet *os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, NULL);
+		FcPattern *pat = FcPatternCreate ();
+		FcValue val;
+		FcFontSet *col;
 
+		/* Only Scalable fonts for now */
+		val.type = FcTypeBool;
+		val.u.b = FcTrue;
+		FcPatternAdd (pat, FC_SCALABLE, val, TRUE);
+		FcObjectSetAdd (os, FC_SCALABLE);
+
+		col = FcFontList (0, pat, os);
+		FcPatternDestroy (pat);
+		FcObjectSetDestroy (os);
+    
+		system_fonts = (GpFontCollection *) GdipAlloc (sizeof (GpFontCollection));
+		system_fonts->fontset = col;
+		system_fonts->config = NULL;
+	}
+
+	*font_collection = system_fonts;
 	return Ok;
 }
 
@@ -114,9 +123,11 @@ GdipDeletePrivateFontCollection (GpFontCollection **font_collection)
 	if (*font_collection) {
 		if ((*font_collection)->fontset != NULL) {
 			FcFontSetDestroy ((*font_collection)->fontset);
+			(*font_collection)->fontset = NULL;
 		}
 		if ((*font_collection)->config != NULL) {
 			FcConfigDestroy ((*font_collection)->config);
+			(*font_collection)->config = NULL;
 		}
 		GdipFree ((void *)*font_collection);
 	}
@@ -170,6 +181,7 @@ GdipDeleteFontFamily (GpFontFamily *fontFamily)
 	if (delete) {
 		if (fontFamily->allocated) {
 			FcPatternDestroy (fontFamily->pattern);
+			fontFamily->pattern = NULL;
 		}
 		GdipFree (fontFamily);
 	}
@@ -848,29 +860,33 @@ GdipCreateFontFromLogfontW(void *hdc, GDIPCONST LOGFONTW *logfont, GpFont **font
 GpStatus
 GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memory, int length)
 {
+	FcBool result;
 	FcChar8 fontfile[256];
 	int	f;
+
+	if (!memory)
+		return InvalidParameter;
 
 	strcpy((char *) fontfile, "/tmp/ffXXXXXX");
 
 	f = mkstemp((char*)fontfile);
-	if (f == -1) {
-		return(GenericError);
-	}
+	if (f == -1)
+		return FileNotFound;
 
 	if (write(f, memory, length)!=length) {
 		close(f);
-		return(GenericError);
+		return FileNotFound;
 	}
 	close(f);
 
-	FcConfigAppFontAddFile(fontCollection->config, fontfile);
+	/* FIXME - this doesn't seems to catch "bad" (e.g. invalid) font files */
+	result = FcConfigAppFontAddFile (fontCollection->config, fontfile);
 
 	/* FIXME - May we delete our temporary font file or does 
 	   FcConfigAppFontAddFile just reference our file?  */
 	/* unlink(fontfile); */
 
-	return(Ok);
+	return result ? Ok : FileNotFound;
 }
 
 
