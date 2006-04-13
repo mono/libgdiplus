@@ -1,3 +1,7 @@
+2006-04-13  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* matrix.c|h: Fix public API signatures to use BOOL (not int).
+
 2006-04-11 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* pngcodec.c: don't use any filter (makes the saved image smaller) and

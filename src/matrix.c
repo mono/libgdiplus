@@ -396,7 +396,7 @@ GdipVectorTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
 }
 
 GpStatus 
-GdipIsMatrixInvertible (GpMatrix *matrix, int *result)
+GdipIsMatrixInvertible (GpMatrix *matrix, BOOL *result)
 {
 	cairo_status_t status;
 	cairo_matrix_t copy;
@@ -427,7 +427,7 @@ matrix_equals (GpMatrix *x, GpMatrix *y)
 }
 
 GpStatus
-GdipIsMatrixIdentity (GpMatrix *matrix, int *result)
+GdipIsMatrixIdentity (GpMatrix *matrix, BOOL *result)
 {
 	if (!matrix || !result)
 		return InvalidParameter;
@@ -438,7 +438,7 @@ GdipIsMatrixIdentity (GpMatrix *matrix, int *result)
 }
 
 GpStatus
-GdipIsMatrixEqual (GpMatrix *matrix, GpMatrix *matrix2, int *result)
+GdipIsMatrixEqual (GpMatrix *matrix, GpMatrix *matrix2, BOOL *result)
 {
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix2 != NULL, InvalidParameter);
