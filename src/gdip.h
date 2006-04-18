@@ -1382,6 +1382,8 @@ bool utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len);
 int utf8_encode_ucs2char(gunichar2 unichar, unsigned char *dest);
 int utf8_decode_ucs2char(const unsigned char *src, gunichar2 *uchar);
 
+GpStatus gdip_get_pattern_status (cairo_pattern_t *pat);
+
 
 /* Stream handling bits */
 typedef int (*GetHeaderDelegate) (unsigned char *, int);

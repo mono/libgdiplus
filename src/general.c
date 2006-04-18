@@ -539,3 +539,20 @@ from_cairoformat_to_content (cairo_format_t format)
     }
 }
 
+GpStatus
+gdip_get_pattern_status (cairo_pattern_t *pat)
+{
+	if (!pat)
+		return OutOfMemory;
+
+	switch (cairo_pattern_status (pat)) {
+	case CAIRO_STATUS_SUCCESS:
+		return Ok;
+	case CAIRO_STATUS_NO_MEMORY:
+		cairo_pattern_destroy (pat);
+		return OutOfMemory;
+	default:
+		cairo_pattern_destroy (pat);
+		return InvalidParameter;
+	}
+}
