@@ -1,3 +1,9 @@
+2006-04-18  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* general.cs (MeasureOrDrawString): Remove padding from bounding
+	  rectangle calculations. It is causing issues with AutoHeight
+	  controls not matching MS
+
 2006-04-18  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* gdip.h: Add prototype for gdip_get_pattern_status function.

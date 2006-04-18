@@ -2645,7 +2645,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		MaxX+=2;
 	}
 #endif
-	MaxY+=LineHeight+FontExtent.descent+2;
+	MaxY+=LineHeight+FontExtent.descent;
 
 #ifdef DRAWSTRING_DEBUG
 	printf("\n");
