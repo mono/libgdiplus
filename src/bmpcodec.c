@@ -1174,7 +1174,7 @@ gdip_save_bmp_image_to_file_stream (void *pointer,
 			entries [idx + 2] = (color >> 16) & 0xff;
 			entries [idx + 3] = color >> 24;
 #else
-			*((guint32 *) entries + idx) = color;
+			*((guint32 *) entries + i) = color;
 #endif
 		}
 		gdip_write_bmp_data (pointer, entries, palette_entries * 4, useFile);
