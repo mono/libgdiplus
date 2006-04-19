@@ -30,6 +30,7 @@
 #include <math.h>
 #include "gdip.h"
 #include "graphics-path.h"
+#include "matrix.h"
 
 static GArray *
 array_to_g_array (const GpPointF *pt, int length)
@@ -1341,10 +1342,41 @@ GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 	return Ok;
 }
 
-/* MonoTODO */
+static GpStatus
+gdip_prepare_path (GpPath *path, GpMatrix *matrix, float flatness)
+{
+	/* convert any curve into lines */
+	if (gdip_path_has_curve (path)) {
+		/* this will apply the matrix too (before flattening) */
+		return GdipFlattenPath (path, matrix, flatness);
+	} else if (!gdip_is_matrix_empty (matrix)) {
+		/* no curve, but we still have a matrix to apply... */
+		return GdipTransformPath (path, matrix);
+	}
+
+	/* no preparation required */
+	return Ok;
+}
+
+/* MonoTODO - doesn't seems to be exposed in System.Drawing.dll */
 GpStatus 
 GdipWindingModeOutline (GpPath *path, GpMatrix *matrix, float flatness)
 {
+	GpStatus status;
+
+	if (!path)
+		return InvalidParameter;
+
+	/* quick out */
+	if (path->count == 0)
+		return Ok;
+
+	status = gdip_prepare_path (path, matrix, flatness);
+	if (status != Ok)
+		return status;
+
+	/* TODO */
+
 	return NotImplemented;
 }
 
@@ -1352,15 +1384,51 @@ GdipWindingModeOutline (GpPath *path, GpMatrix *matrix, float flatness)
 GpStatus 
 GdipWidenPath (GpPath *nativePath, GpPen *pen, GpMatrix *matrix, float flatness)
 {
+	GpStatus status;
+
+	if (!nativePath || !pen)
+		return InvalidParameter;
+
+	/* quick out */
+	if (nativePath->count == 0)
+		return Ok;
+
+	status = gdip_prepare_path (nativePath, matrix, flatness);
+	if (status != Ok)
+		return status;
+
+	/* TODO inner path (same number of points as the prepared path) */
+
+	/* TODO outer path (twice the number of points as the prepared path) */
+
 	return NotImplemented;
 }
 
 /* MonoTODO */
 GpStatus 
-GdipWarpPath (GpPath *nativePath, GpMatrix *matrix, const GpPointF *points, int count, 
+GdipWarpPath (GpPath *path, GpMatrix *matrix, const GpPointF *points, int count, 
               float srcx, float srcy, float srcwidth, float srcheight,
               WarpMode warpMode, float flatness)
 {
+	GpStatus status;
+
+	if (!path || !points || (count < 1))
+		return InvalidParameter;
+
+	/* quick out */
+	if (path->count == 0)
+		return Ok;
+
+	/* an invalid warp mode resets the current path */
+	if ((warpMode != WarpModePerspective) && (warpMode != WarpModeBilinear))
+		return GdipResetPath (path);
+
+	status = gdip_prepare_path (path, matrix, flatness);
+	if (status != Ok)
+		return status;
+
+	/* TODO */
+
 	return NotImplemented;
 }
 
@@ -1377,7 +1445,13 @@ GdipTransformPath (GpPath* path, GpMatrix *matrix)
 	if (count == 0)
 		return Ok; /* GdipTransformMatrixPoints would fail */
 
+	/* avoid allocation/free/calculation for null/identity matrix */
+	if (gdip_is_matrix_empty (matrix))
+		return Ok;
+
 	points = g_array_to_array (path->points);
+	if (!points)
+		return OutOfMemory;
 
 	s = GdipTransformMatrixPoints (matrix, points, count);
 

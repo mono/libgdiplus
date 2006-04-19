@@ -1,3 +1,12 @@
+2006-04-19  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: Avoid, when possible (i.e. null/identity), matrix 
+	calculations in GdipTransformPath (which gets inherited by every call
+	using it). Also added a OutOfMemory check in GdipTransformPath if 
+	points can't be allocated. Added common path preparation (flattening 
+	and/or matrix) to GdipWindingModeOutline, GdipWidenPath and 
+	GdipWarpPath.
+
 2006-04-19  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* bmpcodec.c: Fixed common math error when adding values to
