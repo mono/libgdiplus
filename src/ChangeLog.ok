@@ -1,0 +1,3754 @@
+2006-04-20  Peter Dennis Bartok  <pbartok@novell.com>
+
+        * bmpcodec.c, general.c, image.c, jpegcodec.c, tiffcodec.c,
+          imageattributes.c, gdipImage.h, region-bitmap.c, gifcodec.c,
+          texturebrush.c, pngcodec.c, gdip.h:
+          - Changed BitmapData, FrameData, GpImage and GpBitmap structures
+            to more accurately reflect gdiplus behaviour; removed broken
+            dual frame and single bitmap concept, instead everything is
+            organized into frames, with an active bitmap designating the
+            currently used bitmap.
+          - Added property components to BitmapData to allow implementing
+            properties per bitmap
+          - Updated all image related code to use new structures
+          - Lots of added sanity checks and logic bug fixes
+          - Fixed up sources to use tabs instead of spaces (png, jpeg) and
+            removed buttloads of trailing whitespace on lines in all files
+          - Rewrote gif load and save methods to properly deal with animation,
+            transparency and reading/storing animation delay times
+          - Streamlined many functions, removed deep nesting, introduced
+            single point of error handling for each encoder and decoder
+          - Now allows for disparate sizes of bitmaps in a single frame
+          - Implemented ImageLockModeUserInputBuf for GdipBitmapLockBits and
+            several other unimplemented features
+
+2006-04-19 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+        * bmpcodec.c: fixed same error that Peter fixed in his last commit, but
+          different place.
+
+2006-04-19  Sebastien Pouliot  <sebastien@ximian.com>
+
+        * graphics-path.c: Avoid, when possible (i.e. null/identity), matrix
+          calculations in GdipTransformPath (which gets inherited by every call
+          using it). Also added a OutOfMemory check in GdipTransformPath if
+          points can't be allocated. Added common path preparation (flattening
+          and/or matrix) to GdipWindingModeOutline, GdipWidenPath and
+          GdipWarpPath.
+
+2006-04-19  Peter Dennis Bartok  <pbartok@novell.com>
+
+        * bmpcodec.c: Fixed common math error when adding values to
+          pointers. Was causing nasty memory overwrites when saving bmps.
+
+2006-04-18  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* general.cs (MeasureOrDrawString): Remove padding from bounding
+	  rectangle calculations. It is causing issues with AutoHeight
+	  controls not matching MS
+
+2006-04-18  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* gdip.h: Add prototype for gdip_get_pattern_status function.
+	* general.c: Added a new function to check the status of a cairo
+	pattern (check for NULL isn't enough). If invalid the pattern will
+	be destroyed.
+
+2006-04-13  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* font.c: Keep a static collection for the system font that will be
+	leaked (on purpose, see comments). Added missing initialization 
+	(allocation) and nullification (freeing) to avoid using bad references 
+	(which also helps to get better results from valgrind). Reworked 
+	GdipPrivateAddMemoryFont to return the error codes leading to the 
+	expected exceptions in the System.Drawing.dll unit tests.
+
+2006-04-13  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* matrix.c|h: Fix public API signatures to use BOOL (not int).
+	* region.c: Give a better chance to revert to a simpler (rectangular) 
+	region in GdipCombineRegionRect.
+
+2006-04-11 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* pngcodec.c: don't use any filter (makes the saved image smaller) and
+	generate sRGB,gAMA and cHRM information as MS does.
+
+2006-04-11 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* pngcodec.c: no need for gdip_stream_png_source, just pass the function
+	pointer.
+
+2006-04-11  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Fixed bug #77129 where we shouldn't draw (or fill)
+	rectangle(s) with either a negative width or height.
+
+2006-04-10  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* matrix.c: Fixed misimplemented GdipCreateMatrix3[I]. Reworked 
+	allocations to report OutOfMemory conditions.
+
+2006-04-07  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* region-bitmap.c: Changed free for GdipFree. Removed unused variable.
+
+2006-04-03 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* imageattributes.c:
+	(gdip_process_bitmap_attributes): the default fallback condition was
+	wrong and caused the function to not process or incorrectly process the
+	attributes, as it either used the default attributes or did nothing on
+	the bitmap. It works now (tested with BitMap.MakeTransparent() and using
+	"imageAttr.SetColorKey (color, color, ColorAdjustType.Bitmap);").
+
+
+2006-04-03 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* bmpcodec.c: fix offset when saving to a file and speed up writing
+	the palette (15% faster saving).
+
+2006-03-31  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* graphics.c:
+	  - Removed reset of clip_matrix whenever the clip is reset, since
+	    the matrix still would apply were another clip rectangle set
+	    later
+	  - Fixed signature of several methods from UINT to int, to match
+	    MS signature. Fixes TextBox not displaying the first char
+
+2006-03-31  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics-path.c: Don't read past the end of the allocated points
+	structure.
+
+2006-03-30  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics.c: Check that the matrix is invertible in function
+	GdipMultiplyWorldTransform. Fix typo for return value in function
+	GdipScaleWorldTransform.
+	* lineargradientbrush.c: Avoid memory allocation for GpRectF in 
+	function GdipCreateLineBrushFromRectI. Reduce the number of calls 
+	between GdipCreateLineBrush* functions.
+
+2006-03-30  Sebastien Pouliot  <sebastien@ximian.com>
+ 
+	* lineargradientbrush.c: Fixed cloning (points and count). Added 
+	better error handling for cairo_pattern_create_linear. Check that the
+	matrix is invertible in GdipSetLineTransform.
+	* matrix.c: Matrix identity isn't an equality test and accept a margin
+	for errors/precision.
+
+2006-03-29  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics-path.c: Ensure we start/close figures correctly in every
+	GdipAddPath* functions. Unit tests confirms the new behaviours.
+
+2006-03-28  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* graphics.c (GdipSetPageUnit): We should be able to set all
+	  units. Not sure why that code was there. (Fixes #77829)
+
+2006-03-28  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* gdip.h: Added new member clip_matrix for GpState;
+	* graphics.c: Add the clipping matrix to the information saved by 
+	GdipSaveGraphics and restored by GdipRestoreGraphics.
+
+2006-03-27  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* gifcodec.c: Added missing DGifCloseFile to reclaim memory.
+
+2006-03-27  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* gdip.h: Added new member clip_matrix for GpGraphics;
+	* graphics.c: Make sure the applied transforms to the graphics are 
+	also affecting the clipping;
+	* matrix.h: New macro to reverse the order to apply the matrix;
+
+2006-03-27  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* matrix.c: GdipIsMatrixInvertible shouldn't invert the matrix!
+
+2006-03-26  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics.c: Add support for complex (after binary operations) 
+	clipping paths. Hackish but I don't see any alternative...
+	* matrix.h: New. Header file for private region functions.
+	* matrix.c: Added private functions for gdip_is_matrix_empty (moved
+	from region.c) and gdip_is_matrix_a_translation (to enable an 
+	optimization).
+	* region.c: Adjusted code for the renamed gdip_is_matrix_empty. Added
+	a optimization to call GdipTranslateRegion from GdipTransformRegion if
+	the matrix only does a translation. This allows to skip "rectangle to 
+	path" convertion and the invalidation/creation of a region bitmap.
+	* Makefile.am: Added the new matrix.h header file to the build.
+
+2006-03-25  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* gdip.h: Add missing prototypes for GdipTranslateClip[I] functions.
+	* graphics.c: Adjust anti-aliasing so that graphics can draw thin 
+	lines in SmoothingModeAntiAlias and SmoothingModeHighQuality modes
+	(thanks to Peter Bartok).
+	* graphics-path.c: Fix GdipTransformPath when the path is empty (to
+	return Ok, not an error).
+
+2006-03-25  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* gdip.h: Added new structures required for path tree (GpPathTree) and
+	regions bitmaps (GpRegionBitmap).
+	* gdipImage.h: Added prototype for GdipGetImageGraphicsContext.
+	* graphics.c: Re-implement GdipFillRegion to use the alpha bitmap
+	provided for by region-bitmap. Correct clipping wrt infinite regions.
+	* region.c: Adjust existing API to use the bitmap regions for path 
+	based regions, while keeping the existing code for rectangular based
+	regions.
+	* region.h: New. Header file for private region functions.
+	* region-bitmap.c|h: New. Code to generate bitmap for regions and the
+	binary operators on them (union, intersection, exclude, complement, 
+	xor).
+	* region-path-tree.c|h: New. Code to create and manipulate trees of
+	path with binary operators. This allows to re-create any region from
+	a small set of serialized data.
+	* Makefile.am: Add the new files to the build.
+
+2006-03-23  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* graphics.c (MeasureOrDrawString): Avoid trying to draw 0-length 
+	  lines (fixes #77699)
+
+2006-03-23  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* lineargradientbrush.c: Set the count value when cloning and Free the
+	matrix when destroying the brush.
+
+2006-03-23  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* lineargradientbrush.c: Don't lose the original context 'ct' when
+	flipping and free the new context. Remove obsoleted comments.
+
+2006-03-22  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* font.c:
+	  - GdipDeletePrivateFontCollection: No longer free's the passed
+	    variable but instead the memory the passed var points to, since
+	    that's what's been allocated. Sigh.
+	  - GdipDeletePrivateFontCollection: Only destroy the FcFontSet and
+	    FcConfig if we have one allocated.
+	  - GdipDeleteFontFamily: Only free the pattern if it's actually
+	    been allocated.
+	  - GdipGetFontCollectionFamilyList: Where do I begin? It was very
+	    much broken and memory was not handled right, with bad overwrites.
+	    It now properly writes the font families to the pointers it's
+	    supposed to. Got a bit simpler in the process.
+
+2006-03-22  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* image.c:
+	  - GdipDrawImageRect: Dropping the save/restore and putting
+	    in the proper fix for Digger and other apps not drawing properly
+	    after drawing an image.
+	  - GdipDrawImagePoints: Saving/Restoring the original source pattern
+
+2006-03-22  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* image.c (GdipDrawImageRectRect): We're now properly saving and 
+	  restoring the original source pattern (fixes #77438)
+	* imageattributes.c: Setting copied pointer to null to avoid 
+	  double usage
+
+2006-03-22  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* image.c:
+	  - GdipDisposeImage: Single-frame images will have the
+	    frameDimensionList[].frames pointer point to the image's BitmapData
+	    block. We now consider that fact and free the image BitmapData only
+	    if it wasn't also part of the frames list (and was free'd there)
+	  - Removed a useless call to cairo that caused a leak but had no
+	    effect on rendering
+	* bitmap.c:
+	  - gdip_bitmap_clone: Resetting all pointers to null after copying
+	    BitmapData. Otherwise the surface will get used without proper
+	    refcounting, and we would illegally free the memory off the wrong
+	    object.
+	  - GdipCloneBitmapAreaI: Eliminated intermediate stack var and memcpy
+	  - GdipCreateBitmapFromHBITMAP: Cloning the whole image instead of
+	    just the bitmap part. That way we also get the palette, etc.
+
+2006-03-22  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* lineargradientbrush.c: Don't needlessly allocate GpPointF structures
+	in GdipCreateLineBrushI. Fix pointers when accesing a brush matrix in
+	GdipGetLineTransform and GdipSetLineTransform. Fix error handling in 
+	GdipMultiplyLineTransform (to match GDI+).
+
+2006-03-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* imageattributes.c: Allocate enough memory before copying GpColorMap 
+	in GdipSetImageAttributesRemapTable. Also handle mapSize ==0 case and 
+	OutOfMemory condition.
+	* region.c: Calling gdip_add_rect_to_array reallocate the array so we
+	must update the recttrg variable.
+
+2006-03-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* texturebrush.c: Don't keep a reference to the "image" (but Clone) in
+	GdipCreateTexture (we're not the owner of it). Fixed all the _flip 
+	functions that were broken (since the cairo 1.0 update ?).
+	* image.c: Add a comment for a leak (it leak for texture clones but 
+	crash elsewhere if freed).
+
+2006-03-20  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* font.c (gdip_cairo_ft_font_lock_face): Initialize the matrix to
+	  avoid using uninitialized memory in cairo
+
+2006-03-20  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* texturebrush.c: Ensure we destroy the matrix and the surface when
+	disposing the brush. Add a reference to the surface when cloning.
+
+2006-03-20  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* font.c: Re-work font locking not to leak memory (and not to create
+	a scaled font when unlocking).
+	* graphics.c: Use CleanString (as String has been freed).
+
+2006-03-20  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Clear the clipping region before data copying into it.
+	* region.c: Remove static from gdip_clear_region as we need it in
+	graphics.c for clipping.
+
+2006-03-20  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* image.c: Free the filter in GdipGetImageGraphicsContext.
+	* pen.c: Use the GDI+ call to create the matrix (GdipCreateMatrix).
+	Delete the default (empty) matrix when cloning a pen. Delete the
+	matrix when disposing of the pen.
+
+2006-03-19  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* lineargradientbrush.c: The GpRect structure was never freed in 
+	GdipCreateLineBrushFromRectWithAngleI. Now allocated on the stack.
+	Temporary matrixes weren't freed in gdip_linear_gradient_setup and
+	create_tile_linear functions.
+	* image.c: Reordered code to avoid using memory we just freed in 
+	gdip_get_imageformat_from_codec_clsid.
+
+2006-03-18  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* image.c: Free the image palette on dispose. Also copy (not refer) 
+	the palette when cloning the image (so we don't double-free it).
+
+2006-03-17  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* general.c: Call XCloseDisplay after we convert the DPI string as we 
+	do not own the 'val' pointer.
+	* image.c: Destroy (cairo_pattern_destroy) the pattern we use as a 
+	filter in GdipDrawImageRectRect.
+
+2006-03-16  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* pen.c: Delete the temporary matrix created during gdip_pen_setup.
+
+2006-03-14  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* matrix.c: Add missing validations on count parameters. Fix return 
+	value for an invalid GpMatrixOrder in GdipMultiplyMatrix.
+
+2006-03-14  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* image.c (DrawImageRect): Added a cairo_save/cairo_restore to
+	  fix the issue exposed by Digger (title score board background
+	  not drawn when doing the FillRectangle)
+
+2006-03-13  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics-path.c: Add missing checks for markers. This fixes some 
+	issues (e.g. accesing item -1) and also reduce memory allocations for
+	empty paths. Return Ok and display a warning when GdipAddString[I] is
+	called (instead of returning NotImplemented).
+
+2006-03-06  Jonathan Gilbert  <logic@deltaq.org>
+
+	* pngcodec.c: Added block to handle saving of 8:8:8 images without
+	  an alpha channel. The underlying encoding of the image includes
+	  a filler byte, so that even Format24bppRgb is 32 bpp under the
+	  hood, but when libpng is told to expect RGB data, it expects
+	  only 24 bits per pixel, which was corrupting PNG output for
+	  Format24bppRgb and Format32bppRgb.
+
+2006-02-24  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics-path.c: Add missing free in a special case (only one 
+	element) of GdipGetPathWorldBounds. Fix typo (X->Y) in 
+	GdipGetPathWorldBoundsI.
+
+2006-02-10  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* font.cs:
+	  - Switched GdipCreateFontFromHfont name to GdipCreateFontFromHfontA
+	    to allow support charset-based naming when marshaling
+	  - Implemented GdipCreateFontFromLogfontA and 
+	    GdipCreateFontFromLogfontW
+
+2006-02-08  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics.c: Added a missing cairo_set_fill_rule in FillPath (which
+	fixes bug #77408. Changed DrawPath to use 0, 0 (like FillPath) so
+	they both draw at the same place (no blanks) and also behave like 
+	DrawRectangle(s) and FillRectangle(s) when compared side-by-side.
+
+2006-02-03  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* region.c: Fixed a case where gdip_combine_exclude wasn't excluding
+	a rectangle if it was identical to the excluding one (see bug #77408
+	for an example). Also in gdip_combine_xor we do not need to call 
+	gdip_combine_exclude if there's no intersection between the rectangles
+
+2006-02-01  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* image.c: Added some missing argument checks. Implemented 
+	GdipDrawImagePointRect to fix bug #77428.
+
+2006-01-31  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* region.c: Added gdip_copy_region to help reusing region copying in
+	GdipCloneRegion and GdipGetClip.
+	* graphics.c: Fixed GdipGetClipBoundsI to get (not set) the clip. 
+	GdipGetClip and GdipFillPath now works with non-rectangular regions. 
+	Implemented GdipSetClipPath function. Added null checks for parameters
+	in many functions.
+
+2006-01-27  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* gdip.h: Remove duplicate (and identical) definition for LF_FACESIZE.
+	* graphics.c: GdipFillRegion now works with non-rectangular regions by
+	either calling GdipFillPath or GdipFillRectangles.
+	* graphics-path.c: Implemented GdipFlattenPath be re-using Sodipodi's
+	libnr nr_curve_flatten.
+	* graphics-path.h: Added a recursion limit of 10 when flattening.
+	* region.c: Added gdip_is_region_empty which works with any type of 
+	region (rectangular or path based). Added special case support (empty
+	and/or infinite region) in GdipCombineRegionPath. The common case is
+	still missing. GdipTranslateRegion now works with non-rectangular 
+	regions.
+
+2006-01-27 Jordi Mas i Hernandez  <jordimash@gmail.com>
+	
+	* graphics.c:
+	  - Fixes font size for printing
+	  - Fixes unit conversions from diferent units
+	* font.c, gdip.h
+	  - Implements GdipGetFontHeight, GdipGetFontHeightGivenDPI and
+	    GdipGetFontSize.		
+
+2006-01-26  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* font.c: Use the reference count to [re-]created the generic font
+	family (as the pointer isn't null after it is disposed).
+
+2006-01-18  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* jpegcodec.c: Upconvert an indexed image, to allow saving it;
+	  added 1 and 4 bit as supported formats as well. This fixes #77270
+
+2006-01-18  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* gdip.h: Switched GpRection.Cnt to int, to avoid signedness mismatch 
+          problems
+
+2006-01-18  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Started adapting functions to recognize path based 
+	regions (while keeping rectangular regions working).
+	* region.c: Added function to convert a rectangle based region to a 
+	path based region. Started adapting functions to recognize path based
+	regions (while keeping rectangular regions working). Implemented 
+	GdipCreateRegionRgnData, GdipGetRegionDataSize and GdipGetRegionData 
+	(for both path and rectangle based regions).
+	* gdip.h: Reordered some typedef to include a GpPath inside GpRegion. 
+	Added export for GdipCreateRegionRgnData.
+
+2006-01-17  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* graphics.c: If no trim flag is set we need to wrap, not trim. Every
+	  character can be used as wrap character in that case. Fixes #76034
+
+2006-01-16  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: Implemented GdipGetPathWorldBounds[I] minus Pen
+	support.
+
+2006-01-15 Jordi Mas i Hernandez  <jordimash@gmail.com>
+
+	* graphics.c, image.c, gdip.h, general.c:
+		- Implements PageUnit functionality
+		- Converts units to Cairo user-space (postscript or display)
+		- Each surface has its own x and y dpi
+		- Allows setting Postscript dpy's
+
+2006-01-13  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: Added checks for the number of points added when
+	using AddBeziers (4 points for the first, 3 afterward) and the minimum
+	of point required to add a Curve, ClosedCurve and a Polygon.
+
+2006-01-01 Jordi Mas i Hernandez  <jordimash@gmail.com>
+
+	* bitmap.c: Fixes 77131
+
+2005-12-23  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* texturebrush.c: Added handling for indexed texture images
+
+2005-12-22  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* texturebrush.c: Fixed generation of texturebrushes. Was seriously
+	  broken
+
+2005-12-22 Jordi Mas i Hernandez  <jordimash@gmail.com>
+
+	* graphics.c: Postscript support for handle
+	* image.c: Postscript drawble support for printing
+	* gdip.h: Postscript Drawable
+
+2005-12-09 Jordi Mas i Hernandez  <jordimash@gmail.com>
+
+	* graphics.c, image.c: Unreference the surface properly. Now, we do 
+	  not leak those and cairo_surface_finish is called.
+
+2005-12-07 Jordi Mas i Hernandez  <jordimash@gmail.com>
+
+	* graphics.c: Fixes 76923
+
+2005-12-06  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* gdip.h:
+	  - Removed old wine leftovers for bitmaps
+	  - Added GpStatus return value to gdip_bitmap_clone()
+	* bitmap.c:
+	  - Added handling of failures to gdip_bitmap_clone(), including
+	    returning a status
+	  - Implemented the GdipCreateBitmapFromHBITMAP() and 
+	    GdipCreateHBITMAPFromBitmap() functions. Like with other handles
+	    the handle is equivalent to the gdi+ memory pointer
+
+2005-12-05  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* gdip.h:
+	  - Removed wine leftover
+	  - Added LOGFONTA and LOGFONTW structures (for GdipGetLogFontX)
+	  - Added face var to GpFont struct to remember face name
+	* font.c:
+	  - Implemented GdipGetLogFontA() and GdipGetLogFontW() functions
+	  - Implemented GetGetFontFromHfont() function
+	  - Droped wine leftovers and added code to remember (and free)
+	    the face name of a font
+
+2005-12-02  Jonathan Gilbert  <logic@deltaq.org>
+
+	* bitmap.c: Fixed support for PixelFormat24bppRgb in pixel streams.
+	  The count of bytes per pixel for pixel formats with depths of more
+	  than 8 bits is now stored negated in the state->pixels_per_byte
+	  member of the StreamingState structure.
+	* gdip.h: Added comment explaining the meaning of negative values
+	  in the pixels_per_byte member of struct StreamingState.
+	* bitmap.c: Fixed the copying back of changed bitmap data in the
+	  GdipBitmapUnlockBits() method. The condition was erroneously
+	  checking for the presence of the GBD_READ_ONLY flag instead of its
+	  absence.
+
+2005-11-29  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c (make_arcs, make_pie):
+	* graphics-path.c (append_arcs, GdipAddPathPie): Scale alpha and
+	beta accordingly because GDI+ deals with elliptical arcs, instead
+	of circular arcs.
+
+	Thanks to Bertram Felgenhauer <int-e@gmx.de> from #cairo for
+	helping me figure this out.
+
+	This fully fixes #76846.
+
+2005-11-29  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c (make_arcs):
+	* graphics-path.c (append_arcs): Add a new flag 'enough' to
+	signify that we're done drawing all the subarcs.
+
+	This fixes #76846. Previously, the check for 'enough' incorrectly
+	filters out sweep angles with a negative value (i.e. drawing
+	'backwards').
+
+2005-11-13  Miguel de Icaza  <miguel@novell.com>
+
+	* image.c: Implement a little bit of mandolin.
+
+2005-11-10  Geoff Norton  <gnorton@customerdna.com>
+
+	* pngcodec.c:  Readd a removed but needed variable for big endian build
+
+2005-11-08  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* gdip.h: Added aa offset vars and hatch origin vars
+	* graphics.c:
+	  - For all x and y coordinates that are passed to cairo, but not
+	    used for fills we now add an offset if anti aliasing is turned
+	    off.
+	  - Fixed Get/SetRenderOrigin. It is supposed to track the origin
+	    for dithering and hatchbrushes.
+	* hatchbrush.c: 
+	  - hatch lines are no longer are antialiased, except for the 
+	    diagonal hatches, which are required to (Removes some fixmes)
+	  - Using square cairo line caps for now, to get diagonal lines 
+	    to connect
+	  - Switched some numbers to more closely match MS again now that
+	    we're turning AA off
+	* pen.c: Work around cairo drawing a linecap for every element
+	  of a dashed line
+
+2005-11-07  Jackson Harper  <jackson@ximian.com>
+
+	* pen.c: Set the width of dashes when creating the dashed array,
+	cairo uses the values in the dashed array as the size of the
+	dash. This fixes dashed lines with a width greater then 1.
+
+2005-11-07  Kornél Pál  <kornelpal@hotmail.com>
+
+	* bmpcodec.c: Load 32-bit bitmaps as Format32bppRgb.
+
+2005-11-05 Jordi Mas i Hernandez  <jordimash@gmail.com>
+
+	* graphics.c: Fixes 76111 (DrawString does not honor NoWrap)
+
+2005-11-01  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* graphics.c: Implemented smoothing mode support. Now defaulting
+	  to non-antialiased drawing
+
+2005-11-01  Jonathan Chambers  <jonathan.chambers@ansys.com>
+
+	* pen.c: LineCapFlat needs to translate to square cairo line caps
+	  in order for line lengths to be correct when not aliased
+
+2005-10-23  Jonathan Gilbert <logic@deltaq.org>
+
+	* image.c: Renamed gdip_FlipX() and gdip_rotate_180_FlipX() to
+	  gdip_flip_x() and gdip_flip_y() respectively.
+	* image.c: Updated GdipDrawImageRectRect to call the functions by
+	  their new names.
+	* image.c: Renamed copy_pixel()'s third argument 'components' to
+	  'size', as pixel components can be more than one byte in size.
+	* image.c: Rewrote gdip_flip_x() to use only a single scan of buffer
+	  space instead of redoing the entire image. Moved gdip_flip_x() to
+	  be adjacent to gdip_flip_y().
+	* image.c: Replaced gdip_rotate_90(), gdip_rotate_180(), and
+	  gdip_rotate_270() with gdip_rotate_orthogonal_flip_x() which handles
+	  all types of rotation and can also integrate a horizontal flip
+	  into the rotation. All of the RotateFlipTypes can be reduced to a
+	  clockwise rotation of a multiple of 90 degrees optionally followed
+	  by a horizontal flip.
+	* image.c: Added gdip_rotate_flip_packed_indexed() which does what
+	  gdip_rotate_orthogonal_flip_x() does but for 1- and 4-bit Bitmaps,
+	  where a single byte contains more than one pixel.
+	* image.c: Reworked GdipImageRotateFlip to determine the rotation and
+	  whether a flip is required first and then call one of the two core
+	  rotation functions to do the appropriate operation.
+	* bitmap.c, gdip.h: Moved the definition of the pixel stream code's
+	  struct StreamingState from the middle of bitmap.c to gdip.h. The
+	  functions were already being exported (non-static), but the
+	  structure was inaccessible making pixel streams unusable outside of
+	  bitmap.c.
+	* gdip.h: Added prototypes for pixel stream functions so that they
+	  could be used by gdip_rotate_flip_packed_indexed() in image.c.
+
+2005-10-21  Miguel de Icaza  <miguel@novell.com>
+
+	* hatchbrush.c (gdip_hatch_clone): Also copy and reference the
+	brush.  This bug was identified by Zoltan's change to the runtime
+	where segfaults in unmanaged code are not translated into
+	NullReferences. 
+
+2005-10-19 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* font.c: Make us more resistant to situations like bug #74761
+
+2005-10-17 Ruediger Oertel <ro@suse.de>
+
+	* gifcodec.c: Switching from libungif to libgif
+
+2005-10-10 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: fixes line width issues when drawing underline/strikeout
+
+2005-10-10 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: remove unused vars and dead code
+	* font.c: remove unused vars
+	* bmpcodec.c: remove unused vars
+	* general.c: remove unused vars
+	* pathgradientbrush.c: remove unused vars
+	* image.c: remove unused vars
+	* jpegcodec.c: remove unused vars
+	* region.c: remove unused vars
+	* tiffcodec.c: remove unused vars
+	* imageattributes.c: remove unused vars
+	* gifcodec.c: remove unused vars
+	* texturebrush.c: remove unused vars
+	* matrix.c: remove unused vars
+	* customlinecap.c: remove unused vars
+	* bitmap.c: remove unused vars
+	* pen.c: remove unused vars
+	* pngcodec.c: remove unused vars
+	* graphics-path.c: remove unused vars
+	* lineargradientbrush.c: remove unused vars
+
+2005-10-06  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* adjustablearrowcap.c: Removed unused vars
+	* bitmap.c: Removed unused vars
+	* font.c: Switched 0 to NULL
+
+
+2005-10-06  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* general.c: Fixed bug in ucs2 termation code; code assumed
+	  a byte array, so we always terminated twice as many bytes in as
+	  we wanted to. This was also causing 'random' crashes at much later
+	  times since depending on the situation we'd write 0 past the end
+	  of ucs2_len  (This is half of the bugfix for #74871 and #75534)
+
+2005-10-06 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* gifcodec.c: Fixes a warning (an error since we use -Werror) when 
+	using libgif 4.0)
+
+2005-10-06 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* image.c: Partially fixes 75063
+	* matrix.c: Some documentation about matrices
+
+2005-10-03  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c (make_arcs):
+	* graphics-path.c (append_arcs): Helper functions for dividing
+	the arcs into smaller segments. Properly handles negative starting
+	angles and sweep angles.
+
+	* graphics-path.c (GdipAddPathArc, GdipAddPathPie): 
+	* graphics.c (GdipDrawArc, make_pie): Simplified to make use of the
+	new helper functions.
+
+2005-09-20 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* image.c, gdip.h, image.c: Creates the surface and then creates the 
+	graphics context. This is not only reduces the operations need it, also
+	and more avoids to lose the values that we have init into cairo.
+
+2005-09-21  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* bmpcodec.c: The alpha value in a indexed color table is never
+	  valid. Since the indexed bitmap code uses the color value from
+	  the table directly, we need to always set the alpha to 0xFF. This
+	  matches MS behaviour (Custom cursors are a good testcase for this,
+	  since they are generated through an intermediate BMP step)
+
+2005-09-20 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* bitmap.c: Fixes bug 76152
+
+2005-09-19  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* graphics.c: Remove AA setting; fixes bug #76135. Needs to have a save
+	  restore of previous AA settings
+
+2005-09-15 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* region.c: Speed ups CombineModeReplace mode and fixes setting Infite
+
+2005-09-13 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c:
+	* gdip.h:
+		- Fixes some default values
+		- Fixes bug 76089
+		- GdipRestoreGraphics and GdipSaveGraphics save all the status
+		- Fixes pixelOffsetMode setting
+	
+2005-09-13 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* region.c: Fixes region for combine (used in clipping)
+
+2005-09-12 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* font.c: Fixes font creation and italic issues, death code
+	* general.c: Fixes font creation and italic issues, death code
+	* gdip.h: Fixes font creation and italic issues, death code
+
+
+2005-09-09 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: Implements GdipFlush
+
+2005-09-08  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* graphics.c: 
+	  - MeasureOrDrawString: Fixed underline/strikethrough calculations
+	  - Removed old conditional code attempting to avoid cairo AA problems
+	  - Implemented setting/getting of AntiAlias variables
+	  - MeasureOrDrawString: Added code to handle font antialiasing 
+	    options; still inoperative
+	* gdip.h: Added fields to support antialias settings
+
+2005-09-07 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: fixes cairo handles leaks
+	* image.c: optimise and fix leaks
+
+2005-09-06 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: Makes DrawString clipping not destroy previous clipping
+
+2005-09-06 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: removes non-ansi comments or not longer need it
+	* font.c: removes non-ansi comments or not longer need it
+	* general.c: removes non-ansi comments or not longer need it
+ 	* image.c: removes non-ansi comments or not longer need it
+	* pen.c: removes non-ansi comments or not longer need it
+	* gdip.h: removes non-ansi comments or not longer need it
+	* lineargradientbrush.c: removes non-ansi comments or not longer need it
+
+2005-09-06 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: Clipping support
+
+2005-09-06 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: several fixes to rect/region clipping operations
+	* region.c: fixes and include CombineModeReplace  mode
+
+2005-09-05 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* image.c: fixes return parameter and GdipLoadImageFromFileICM call
+	* gdipImage.h: include GdipLoadImageFromFileICM definition
+	* bitmap.c: new GDI calls
+	* gdip.h: definitions
+
+2005-08-26  Geoff Norton  <gnorton@customerdna.com>
+
+	* graphics.c: Update the Quartz constructors for the new Cairo 1.0
+	API calls
+
+2005-08-26 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* lineargradientbrush.c: fixes issues with angle
+
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* hatchbrush.c: Wouldn't it be nice to clean the cairo stuff when
+	  destroying the brush
+
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* image.c: Now scales/resizes images to destination rectangle
+	* gdip.h: Removed gdip_cairo_set_surface_pattern() prototype
+	* general.c: Removed gdip_cairo_set_surface_pattern() method, it's
+	  no longer used
+
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* gdip.h, general.c: Removed gdip_cairo_set_surface_pattern_with_extend
+	  since it's no longer needed (replaced with less code directly in  
+	  hatchbrush)
+
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* hatchbrush.c: Fixed context leaks (We're also no longer 
+	  abusing the passed cairo_t context as the pattern context)
+
+2005-08-26  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* hatchbrush.c: Fixed 40% and plaid drawing, resolved ct corruption and
+	  nesting bugs
+
+2005-08-26  Hisham Mardam Bey <hisham.mardambey@gmail.com>
+
+	* hatchbrush.c: remove extra paint calls and fix cairo_save/restore
+	  calls.
+
+2005-08-25  Peter Bartok  <pbartok@novell.com>
+
+	* hatchbrush.c: Preventing 50% hatch brush ct from getting whacked 
+	  (need to do all other styles as well)
+	* lineargradientbrush.c:
+	  - Fixed missing initialization of brush matrix
+	  - Preventing cairo context from getting whacked
+
+2005-08-25 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* image.c: fixes issues of images drawn on the wrong place
+
+2005-08-25 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c:
+		- Fixes leaking on GdipDeleteGraphics
+		- Fixes GdipGetDC bug exposed by Marek changes into graphics.cs
+
+2005-08-25 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* hatchbrush.c: use correct enumerator for cairo calls
+	* matrix.c: fixes GdipShearMatrix method
+
+2005-08-25  Hisham Mardam Bey <hisham.mardambey@gmail.com>
+       
+        * hatchbrush.c: removed cairo_paint calls, we still have a few, must
+	  look into them. Fixed remaining cairo_paint and patter problems.
+	* general.c: added gdip_cairo_set_surface_pattern_with_extend
+	* gdip.h: added gdip_cairo_set_surface_pattern_with_extend
+       
+2005-08-24  Peter Bartok  <pbartok@novell.com>
+
+	* hatchbrush.c: Fixed 50% hatchbrush drawing. Still need to fix all
+	  other 50 gazillion hatchbrushes :-(
+
+2005-08-24  Peter Bartok  <pbartok@novell.com>
+
+	* gdip.h: Removed prototypes for internal strikethrough and underline
+	  functions; those are no longer used
+	* font.c:
+	  - Cairo switched to positive font descent number, fixed code to match
+	  - Removed unused methods for strikethrough and underline; drawstring
+	    handles that behaviour internally
+	* graphics.c (DrawString): Cairo switched to positive descent values
+	  for font extents, switched the code to handle that
+
+2005-08-24 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: fixes gcc 4 warning
+	* general.c: from_cairoformat_to_content function
+	* texturebrush.c: fixes texture brushes
+  	* matrix.c:
+		* All the create function allocate the memory 
+		* Fixes GdipCloneMatrix function	
+		* Fixes GdipIsMatrixEqual 
+		* Fixes GdipIsMatrixInvertible (always returned true) 
+		* Fixes GdipGetMatrixElements (wrong order)
+
+2005-08-24 Hisham Mardam Bey  <hisham.mardambey@gmail.com>
+
+        * pen.c : remove debugging printf.
+
+2005-08-24 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* hatchbrush.c, lineargradientbrush.c. Cairo has changed the format
+	enum parameter for cairo_surface_create_similar. This fixes many samples
+	not running. 
+
+2005-08-23  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c: The original CalculateStringWidths method was dependent
+	  on FT and internal knowledge of cairo font matrix behaviour, and the
+	  function broke with the newer cairo due to changes to this behaviour.
+	  Renamed the original to CalculateStringWidthsUTF8 and wrote a new 
+	  method which uses cairo_text_extents to calculate character widths. 
+	  This is somewhat slower but works font-backend independent.
+	* general.c: Added ucs2 to utf8 char encoder and decoder (allows
+	  faster calculations than the malloc-dependent utf8 string functions)
+	* gdip.h: Added prototypes for utf8 character functions
+
+2005-08-22 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* region.c: fixes memory leaks
+	* pen.c: releases the solid brush when is owned by us
+	* gdip.h: releases the solid brush when is owned by us
+	
+2005-08-19  Zoltan Varga  <vargaz@freemail.hu>
+
+	* gifcodec.c (gdip_save_gif_image_to_file): Fix compilation without GIF
+	support.
+
+2005-08-19 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* font.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* bmpcodec.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* general.c: Implement linked list to keep track of leaks
+	* image.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* region.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* jpegcodec.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* imageattributes.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* gifcodec.c: Standarize mem alloc/free with GdipAlloc/GdipFree 
+	* texturebrush.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* bitmap.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* stringformat.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* pen.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+	* gdip.h: define GdipCalloc
+	* graphics-path.c: Standarize mem alloc/free with GdipAlloc/GdipFree
+
+2005-08-19 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* bmpcodec.c: fixes codec for 24 bits bmps. It passes the tests again.
+
+2005-08-18 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: C ANSI language fixes
+	* bmpcodec.c:  C ANSI language fixes 
+	* general.c:  C ANSI language fixes
+	* tiffcodec.c:  C ANSI language fixes 
+	* bitmap.c:  C ANSI language fixes 
+
+2005-08-17 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* region.c: Rewritten region support
+
+2005-08-10 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* region.c: Rewritten gdip_combine_intersect method
+
+2005-08-09 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* region.c: Optimise union operation
+
+2005-07-21  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c (make_pie): Fix #75475. Use sweepAngle (instead of
+	endAngle) when drawing the arcs.
+
+	"The arc always starts at 0. For the fill method the effect is that
+	a pie ending at 360 will fill the whole circle..."	
+
+	Patch from Patrick Michel <PBMichel@web.de>.
+	
+2005-07-01  Jonathan Gilbert  <logic@deltaq.org>
+
+	* bitmap.c: Fixed bug in GdipCreateBitmapFromScan0's default palette
+	  initialization. Corrected GdipBitmapGetPixel to permit the operation
+	  on indexed bitmaps (uses pixel streams :-).
+
+2005-06-30  Peter Bartok  <pbartok@novell.com>
+
+	* general.c (ucs2_to_utf8): Added argument to allow specifying the
+	  string length (to allow converting substrings)
+	* graphics.c (MeasureOrDrawString, MeasureString): Fixed handling
+	  of Tabs, now properly advances to the next valid tab stop, if
+	  tabs are specified.
+	* font.c, image.c: Changed usage of ucs2_to_utf8 to match new prototype
+	* gdip.h:
+	- Removed TabWidth from GpStringDetailStruct, was obsoleted by
+	  tab-redo
+	- Changed prototype of ucs2_to_utf8(), added length argument
+
+2005-06-21  Geoff Norton  <gnorton@customerdna.com>
+
+	* graphics.c (GdipCreateFromQuartz_macosx): Set the size of the
+	context in the bounds structure.  Fixes #75326
+
+2005-06-13  Peter Bartok  <pbartok@novell.com>
+
+	* bitmap.c, image.c, gdip.h, bmpcodec.c, jpegcodec.c, tiffcodec.c,
+	  gifcodec.c, gifcodec.h, pngcodec.c, pngcodec.h: Re-applied two 
+	  previous changes, since #75254 is now fixed
+
+2005-06-13  Peter Bartok  <pbartok@novell.com>
+
+	* Rolled back last two checkins, to r45601, pre palette patch, due
+	  to the regression caused with Icons (bug #75254)
+
+2005-06-07  Geoff Norton  <gnorton@customerdna.com>
+
+	* bmpcodec.c: 
+	* image.c: Fix some (un)signed mismatch issues so that gdiplus
+	will compile on gcc 4.0 again with -Werror
+
+2005-05-30  Jonathan Gilbert  <logic@deltaq.org>
+
+	* bitmap.c: Added indexed pixel formats to
+	  gdip_is_a_supported_pixelformat().
+	* bitmap.c: Added gdip_is_an_indexed_pixelformat(). Added its
+	  prototype to gdip.h; not sure if this is the correct place.
+	* bitmap.c: Added support for PixelFormat.Format4bppIndexed to
+	  GdipCreateBitmapFromScan0 (maps to CAIRO_FORMAT_A8, like
+	  PixelFormat.Format8bppIndexed). Palettes will be created
+	  as needed. Bitmaps with a 4bpp indexed pixel format will be
+	  given 256-entry ColorPalette structures, as the cairo_format
+	  indicates 8-bit data.
+	* bitmap.c: GdipCreateBitmapFromScan0 now computes stride for
+	  indexed pixel formats differently, and does not convert
+	  indexed pixel formats to 32-bit RGB. It also makes images with
+	  32-bit pixel formats initially black instead of initially
+	  transparent and fills the palette with the default values for
+	  1-, 4- and 8-bpp indexed images.
+	* bitmap.c: Added support for indexed images to
+	  gdip_bitmap_clone_data_rect().
+	* bitmap.c: Rewrote GdipBitmapLockBits () to be maintainable
+	  while supporting indexed pixel formats. Added
+	  gdip_can_window_without_copy (), gdip_is_a_32bit_pixelformat (),
+	  gdip_make_alpha_opaque () and gdip_is_an_alpha_pixelformat ().
+	* bitmap.c: Moved gdip_from_ARGB_to_RGB () and
+	  gdip_from_RGB_to_ARGB () above gdip_bitmap_change_rect_pixel_format (),
+	  so that gdip_bitmap_change_rect_pixel_format () can call them.
+	* bitmap.c: Added struct StreamingState and methods
+	  gdip_init_pixel_stream (), gdip_pixel_stream_has_next (),
+	  gdip_pixel_stream_get_next () and gdip_pixel_stream_set_next () to
+	  work with Bitmaps of various formats in an abstract way.
+	  gdip_pixel_stream_get_next () returns and
+	  gdip_pixel_stream_set_next () accepts 32-bit ARGB values for 15,
+	  16, 24, 32, 48 and 64 bit formats and palette indices for 1, 4 and
+	  8 bit formats. gdip_pixel_stream_get_next () and
+	  gdip_pixel_stream_set_next () cannot be mixed; call either one or
+	  the other on a given stream, but never both.
+	* bitmap.c: Rewrote gdip_bitmap_change_rect_pixel_format to use
+	  pixel streams, which adds support for indexed pixel formats and
+	  increases maintainability.
+	* bitmap.c: Added check to GdipBitmapSetPixel ensuring that
+	  the bitmap is not indexed (despite what MSDN says, in
+	  practice Microsoft's implementation rejects SetPixel on
+	  indexed Bitmaps).
+	* bitmap.c: Added gdip_convert_indexed_to_rgb (), which will
+	  be used by the functions implementing DrawImage, since
+	  gdip_bitmap_ensure_surface () is not compatible with indexed
+	  image data.
+	* image.c: Added support for indexed pixel formats in
+	  GdipDrawImageRect and GdipDrawImageRectRect. The support is
+	  for the image being drawn to be indexed, not the image
+	  being drawn on. :-)
+	* image.c: Implemented GdipGetImagePalette (),
+	  GdipSetImagePalette () and GdipGetImagePaletteSize ().
+	* bmpcodec.c: Corrected gdip_bitmap_fill_info_header ()'s
+	  interpretation of pixel bit widths.
+	* bmpcodec.c: Added include directive for gdipImage.h, for
+	  utility function gdip_get_pixel_format_bpp ().
+	* bmpcodec.c: Updated gdip_bitmap_save_bmp () to save the
+	  palette for indexed bitmaps. Also modified the save function
+	  to not swap bytes for indexed pixel formats on big-endian
+	  architectures.
+	* bmpcodec.c: Updated gdip_read_bmp_image_from_file_stream ()
+	  to maintain 1, 4 and 8 bpp indexed data instead of converting
+	  it on-the-fly to 32 bpp RGB data.
+	* bmpcodec.c: Updated gdip_get_pixelformat () to translate
+	  a bit width of 1 into Format1bppIndexed.
+	* bmpcodec.c: Added support for decoding 4- and 8-bit RLE
+	  bitmaps.
+	* gifcodec.c: Updated gdip_save_gif_image () to support saving
+	  indexed images. Also, an off-by-one error in the 32-bit ARGB
+	  side of the encoder was corrected (the image was translated
+	  left one pixel).
+	* jpegcodec.c: Updated gdip_save_jpeg_image_internal () to
+	  reject 8bpp indexed images that are not grayscale (the
+	  previous behaviour was to assume all 8bpp indexed images
+	  are grayscale).
+	* tiffcodec.c: Updated gdip_save_tiff_image () to reject
+	  indexed images as NotImplemented, for now at least.
+	* pngcodec.c: Updated gdip_load_png_image_from_file_or_stream ()
+	  to handle 1-, 4- and 8-bit PNG files separately, without
+	  upsampling the data to 32-bit RBG.
+	* gdip.h: Fixed the set_pixel_bgra () macro; a lack of
+	  parentheses and no cast down to 'unsigned char' was making
+	  expressions like set_pixel_bgra (&array[i], ...) fail to
+	  compile, and it wasn't a proper statement; it could not be used
+	  in a construct like "if (...) set_pixel_bgra(...); else ...;".
+
+2005-05-25  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c, font.c, image.c, general.c, gdip.h: Replaced UTF8/UTF16 
+	  conversion with UCS2/UTF8 conversion (The MS APIs do not use UTF16)
+
+2005-05-24  Duncan Mak  <duncan@novell.com>
+
+	* graphics-path.c (append_arc): Append PathPointTypeLine instead
+	of PathPointTypeStart, so that arcs will be joint properly. This
+	fixes bug #75015. Thanks to Elliot Paquette for reporting and
+	fixing this bug.
+
+2005-05-24  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c (make_pie, GdipDrawArc): 
+	* graphics-path.cs (GdipAddPathArc, GdipAddPathPie): Rewrote the
+	code for calculating arcs: instead of drawing two arcs via a
+	mid-point, draw multiple arcs at intervals of 90 degrees. This
+	results in prettier arcs/pies and a better match to the output
+	produced by MS.
+
+2005-05-20  Duncan Mak  <duncan@novell.com>
+
+	* graphics-path.c (GdipAddPathArc): Added a special case for
+	drawing ellipses, and remember to use abs() with 'sweepAngle' to
+	ensure correctness when the angle is negative.
+
+	This is basically a port of the previous commit.
+
+2005-05-09  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c (make_pie, GdipDrawArc): when evaluating angles,
+	always use abs(). This fixes the drawing of arcs and pies when the
+	sweep angle is negative.
+
+	Bug #63360 has also been fixed. This was a bug reported by
+	Ravindra in August '04 about a hang when "the difference between
+	width and height of rectangle is 1 and angles sum is close to
+	360". My change doesn't affect this bug. #63360 didn't hang in
+	libgdiplus 1.1.7 as is, so it was actually fixed by the Cairo
+	guys.
+	
+2005-05-06 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* image.c: Only free memory blocks that are owned by us
+
+2005-05-05 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c:
+		- Empty the region before working with it
+		- Move printf into debug bloc
+	* region.c:
+		- Fixes infinite regions
+
+2005-04-28 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* tiffcodec.c: Inits Byte and ByteCount to avoid releasing not allocated
+	blocks GdipDisposeImage. Fixes testgdi.c test.
+
+2005-04-27 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c:
+		- Set bounds when using a X Drawable
+		- Fixes GdipGraphicsClear to make it work with X Drawables
+	* gdip.h: define new function
+
+2005-04-20  Jackson Harper  <jackson@ximian.com>
+
+	* hatchbrush.c: Don't require that hatch brushes be created on a
+	context with an attached bitmap.
+
+2005-04-07 Neale Ferguson <NealeFerguson@earthlink.net>
+
+	* gifcodec.c: Eliminate warning message and optimize breakdown of RGB field.
+
+2005-03-30 Peter Bartok  <pbartok@novell.com>
+
+	* font.c: Added locking for font cache
+	* general.c: Grab DPIs on startup, avoid potential race condition 
+	  with multiple threads using gdiplus and trying to get dpi
+
+2005-03-29 Peter Bartok  <pbartok@novell.com>
+
+	* bitmap.c: Removed set_pixel_bgra() and get_pixel_bgra() functions,
+	  re-made them as macros, since inlining only works for static functions
+	* gdip.h: Added set/get_pixel_bgra macros; removed prototypes
+	* imageattributes.c: Fixed code to work with set/get_pixel_bgra macros
+	* bmpcodec.c: Added code to deal with the (wrong) assumption that 
+	  Stream.Read will always return the number of bytes requested if the
+	  stream end has not been hit (related to bug #72588)
+
+2005-03-22 Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* image.c, bitmap.c: implement gdip_image_clone to copy Image structs properly
+	and fix GdipCloneImage memory corruption problems.
+
+	* gdip.h: inline set_pixel_bgra/get_pixel_bgra functions
+
+
+2005-03-22  Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* bmpcodec.c: 
+	  - Fixes 24 bits bitmap loading
+	  - Fixes leaks when exiting on error conditions
+	  - Sets the img->image.pixFormat propertly
+	  - Sets bmfh.bfOffBits when saving *before* start using it
+
+	* imageattributes.c
+	  - Implements colour matrix processing and GdipSetImageAttributesColorMatrix
+
+	* bitmap.c:
+	  - Fixes stride calculation (was causing many problems)
+	  - Moves set_pixel_bgra into bitmap.c and creates get_pixel_bgra
+
+2005-03-18  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c: Instead of throwing NotImpl exception, we display a 
+	  message that the function isn't implemented yet on the TransformPoints
+	  functions
+
+2005-03-18  Peter Bartok  <pbartok@novell.com>
+
+	* imageattributes.c: Instead of throwing NotImpl exception, we display a 
+	  message that the function isn't implemented yet on the SetColorMatrix 
+	  function
+
+2005-03-18  Peter Bartok  <pbartok@novell.com>
+
+	* graphics-path.c: Instead of throwing NotImpl exception, we display a 
+	  message that the function isn't implemented yet on the Bounds functions
+
+2005-03-18  Peter Bartok  <pbartok@novell.com>
+
+	* gifcodec.c: Fixed prototype for no gif lib codepath; was missed with
+	  GCC4 changes
+
+2005-03-17  Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* pngcodec.c: fixes warnings for GCC4
+	* gdip.h: fixes warnings for GCC4
+	* graphics.c: fixes warnings for GCC4
+	* font.c: fixes warnings for GCC4
+	* bmpcodec.c: fixes warnings for GCC4
+	* image.c: fixes warnings for GCC4
+	* jpegcodec.c: fixes warnings for GCC4
+	* tiffcodec.c: fixes warnings for GCC4
+	* gifcodec.c: fixes warnings for GCC4
+	* texturebrush.c: fixes warnings for GCC4
+	* gifcodec.h: fixes warnings for GCC4
+	* bitmap.c: fixes warnings for GCC4
+	* pngcodec.c: fixes warnings for GCC4
+
+2005-03-17  Peter Bartok  <pbartok@novell.com>
+
+	* image.c (iGdipLoadImageFromDelegate_linux): Now calls GetHeader 
+	  delegate for determining the image type, instead of GetBytes, to
+	  allow usage with non-seekable streams
+	* gdipImage.h: Changed GdipLoadImageFromDelegate_linux() prototype to
+	  include the new StreamGetHeader method
+	* gdip.h: Added definition for new GetHeader delegate
+
+2005-03-15  Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* graphics.c: Fixes GdipSetWorldTransform. We should copy the passed matrix 
+	not to point to it
+
+2005-02-24  Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* region.c: Fixes IsVisible methods
+
+2005-02-22  AJ Frantz  <eckzow@gmail.com>
+
+	* bitmap.c: 64bit stride fixes.
+
+2005-02-20  Peter Bartok  <pbartok@novell.com>
+
+	* bitmap.c: More 64bit stride fixes
+	* pngcodec.c: 64bit stride fixes
+
+2005-02-20  Peter Bartok  <pbartok@novell.com>
+
+	* gdip.h: Added pixman.h include to get pixman_bits_t
+	* bitmap.c: Made stride calculations based on pixman_bits_t, to
+	  properly work on 64bit platforms as well
+
+2005-02-19  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c:
+	  - Setting the appropriate cairo operator when GdipSetCompositingMode
+	    is called.
+	  - Added (very hacked) GdipMeasureCharRanges()
+
+2005-02-19  Geoff Norton  <gnorton@customerdna.com>
+
+	* bitmap.c: (GdipBitmapSetPixel) Make this endian aware.
+
+2005-02-18  Miguel de Icaza  <miguel@novell.com>
+
+	* graphics.c: Implement GdipGetCompositingMode,
+	GdipSetCompositingMode, GdipGetCompositingQuality,
+	GdipSetCompositingQuality: The quality ones dont do anything. 
+	
+	* solidbrush.c: Setup the alpha channel, only if the composite
+	mode is set to ComposintingModeSourceOver (the default) that does
+	alpha blending.
+
+	* pen.c (GdipGetPenEndCap, GdipSetPenEndCap): Avoid crashing,
+	even if we dont do anything with them yet.
+
+2005-02-16  Peter Bartok  <pbartok@novell.com>
+
+	* bitmap.c (gdip_bitmap_clone_data_rect): Patch suggested by 
+	  Scott Mohekey, preventing use of uninitialized variable
+
+2005-02-16  Miguel de Icaza  <miguel@novell.com>
+
+	* bitmap.c: Handle the case where GdipAlloc returns NULL,
+	propagate the error everywhere.
+
+2005-02-10  Geoff Norton  <gnorton@customerdna.com>
+
+	* general.c: Drop the last usage of GDIPLUS_NOX, if we can't open
+	the display fall back to 96.0f (changed new default to 96 from 72)
+
+2005-02-06  Geoff Norton  <gnorton@customerdna.com>
+
+	* gifcodec.c: Fix a typo
+
+2005-02-03  Jordi Mas i Hernandez  <jordi@ximian.com>
+
+	* region.c: Call GdipSetInfinite for empty regions
+
+2005-01-28  Peter Bartok  <pbartok@novell.com>
+
+	* gdip.h, graphics.c: Switched hDC type from int to void. That's what
+	  MS has for them, and also, it is required to compile on 64bit 
+	  platforms (fixes bug #71823)
+
+2005-01-28  Geoff Norton  <gnorton@customerdna.com>
+
+	* bmpcodec.c:  Make this endian aware for saving bitmaps.
+
+2005-01-28  Peter Bartok  <pbartok@novell.com>
+
+	* pathgradientbrush.c (GdipMultiplyPathGradientTransform): Don't
+	  destroy the matrix we're about to destroy. Fixes bug introduced
+	  in r39075. Patch by Peter Johanson
+
+2005-01-27  Geoff Norton  <gnorton@customerdna.com>
+
+	* tiffcodec.c: Make this endian aware for image saving as well
+
+2005-01-26  Peter Bartok  <pbartok@novell.com>
+
+	* pngcodec.c (gdip_save_png_image_to_file_or_stream): Moved definition 
+	  of variable into new block, to keep Ansi compilers happy, also helped
+	  readability by giving both Big and Little endian their own loop
+
+2005-01-26  Geoff Norton  <gnorton@customerdna.com>
+
+	* tiffcodec.c: Fix problem with file callback writer.
+
+2005-01-26  Geoff Norton  <gnorton@customerdna.com>
+
+	* pngcodec.c:
+	  jpegcodec.c:
+	  gifcodec.c:  Make these write files properly on big endian machines
+
+2005-01-26  Peter Bartok  <pbartok@novell.com>
+
+	* bmpcodec.c: We convert all images to 32bit, no longer need the
+	  palette
+
+2005-01-26  Geoff Norton  <gnorton@customerdna.com>
+
+	* tiffcodec.c: Use the tiff callback functions to allow
+	tiff reading to work on Mac.
+
+2005-01-26  Geoff Norton  <gnorton@customerdna.com>
+
+	* gifcodec.c: Use set_pixel_bgra so that big endian machines can
+	load gif and have them look right.
+
+2005-01-26  Geoff Norton  <gnorton@customerdna.com>
+
+	* jpgcodec.c: Use set_pixel_bgra so that big endian machines can
+	load jpgs and have them look right.
+
+2005-01-26  Geoff Norton  <gnorton@customerdna.com>
+	
+	* bmpcodec.c: Move set_pixel_bgra to gdip.h
+	* gdip.h: Add set_pixel_bgra
+	* pngcodec.c: Use set_pixel_bgra so that big endian machines can
+	load pngs and have them look right.
+
+2005-01-26  Peter Bartok  <pbartok@novell.com>
+
+	* bmpcodec.c: Since we 'upgrade' all bitmaps to 32bit, make sure we
+	  store the format as such, too
+
+2005-01-26  Peter Bartok  <pbartok@novell.com>
+
+	* bmpcodec.c: Implemented 32bit support; while no 32bit BMP files
+	  exist, we will generate those internally, to support icons and cursors
+
+2005-01-26  Peter Bartok  <pbartok@novell.com>
+
+	* bmpcodec.c: 
+	  - Fixed generation of color tables (RGBA order)
+	  - Fixed monochrome image translation
+
+2005-01-26  Geoff Norton  <gnorton@customerdna.com>
+
+	* bmpcodec.c: Swap from RGBA to ABGR on big endian systems.
+
+2005-01-26  Peter Bartok  <pbartok@novell.com>
+
+	* bmpcodec.c: Fixed R/B swap mistake
+
+2005-01-26  Peter Bartok  <pbartok@novell.com>
+
+	* bmpcodec.c: Cleaner version, also a bit faster
+
+2005-01-26  Peter Bartok  <pbartok@novell.com>
+
+	* bmpcodec.c: Added ability to read 1, 4 and 8 bit images
+	  as well as 24 bit images, simplified readying by doing the
+	  read/assignment and RGB to ARGB in one go
+
+2005-01-20  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c:
+	  - Using new macro to deal with post 0.3.0 cairo changes in font APIs
+	  - Added Geoff Norton's changes for Mac OS X support
+	* font.c: Using new macro to deal with post 0.3.0 cairo changes in font APIs
+	* gdip.h: 
+	  - Changes to match cairo 0.3.0 release
+	  - Added code for post 0.3.0 cairo support
+
+2005-01-20  Jackson Harper  <jackson@ximian.com>
+
+	* graphics.c: These are floats.
+	
+2005-01-17  Peter Bartok  <pbartok@novell.com>
+
+       * graphics.c:
+       * lineargradientbrush.c
+       * lineargradientbrush.h:
+       * pathgradientbrush.c:
+       * matrix.c:
+       * texturebrush.c:
+       * texturebrush.h:
+       * pen.c:
+       * gdip.h: Another attempt at dealing with the cairo change making 
+	 the cairo_matrix_t type internal. I gave Jackson some wrong info
+	 in the previous attempt.
+
+2005-01-14  Jackson Harper  <jackson@ximian.com>
+
+       * graphics.c:
+       * lineargradientbrush.c
+       * lineargradientbrush.h:
+       * pathgradientbrush.c:
+       * matrix.c:
+       * texturebrush.c:
+       * texturebrush.h:
+       * pen.c:
+       * gdip.h: Current cairo in cvs has made the cairo_matrix_t
+       variable internal. These are updates to compile with current
+       cairo, all the changes should work with older versions of cairo as
+       well.
+
+2005-01-14  Jackson Harper  <jackson@ximian.com>
+
+	* gdip.h: Remove the hdc stuff that was used with wine. Add fields
+	for the x display and drawable so that they can be used when
+	creating a graphics object from an hdc.
+	* graphics.c (GdipCreateFromHDC): Implement, just create a new
+	graphics object and copy the drawable from the old one.
+	* graphics.c (GdipCreateFromXDrawable_linux): Copy the display and
+	drawable params to the graphics structure so they can be used in
+	CreateFromHDC.
+	
+2005-01-07  Peter Bartok  <pbartok@novell.com>
+
+	* graphics-path.c, hatchbrush.c: Applied patch submitted by 
+	  andersb@blacksun.ca to compile with gcc2, fixes bug #65708
+
+2005-01-07  Peter Bartok  <pbartok@novell.com>
+
+	* image.c (GdipDrawImageRect): Start a new path before calling
+	  cairo_translate, it seems thats what other cairo apps do, and it
+	  fixes the problem Jackson reported, where images would not show 
+	  after text was drawn
+
+2005-01-07  Peter Bartok  <pbartok@novell.com>
+
+	* font.c: replaced tempnam() with mkstemp() as requested by
+	  tempnam() documentation
+	* general.c: Removed c++ - ism
+	* gdip.h: Added unistd.h for functions used in font.c
+
+2005-01-06  Miguel de Icaza  <miguel@ximian.com>
+
+	* tiffcodec.c: Cast the third argument to thandle_t to supress
+	errors on certain distros.  Fixes 70456
+
+2005-01-05  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c (MeasureOrDrawString): If the string doesn't fit in
+	  the bounding box and no breaks are allowed or possible, the code
+	  will now not loop anymore.
+
+2005-01-04  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c (MeasureOrDrawString): Return 0 instead of
+	  InvalidParameter if the string being measured has zero length, this
+	  matches MS behaviour; also added earlier check for zero length 
+	  to avoid utf conversion overhead.
+
+2005-01-02  Jordi Mas  <jordi@ximian.com>
+
+	* graphics.c, font.c, general.c, bmpcodec.h, image.c,
+	region.c, jpegcodec.h, imageattributes.c, gdipImage.h,
+	tiffcodec.h,  gifcodec.h,bitmap.c, stringformat.c,
+	pngcodec.h, Makefile.am, gdip.h: removes old Wine
+	glue code
+
+	* gdip_win32.c, gdip_win32.h: remove it
+
+2004-12-30  Miguel de Icaza  <miguel@ximian.com>
+
+	* bitmap.c (gdip_bitmap_clone): Also clone the ->Bytes array which
+	is fileld in by gifcodec.c and image.c as well
+
+2004-12-28  Zoltan Varga  <vargaz@freemail.hu>
+
+	* graphics.c (CalculateStringWidths): Fix 64 bit issues.
+
+2004-12-27  Zoltan Varga  <vargaz@freemail.hu>
+
+	* gdip.h: Make the members of various structures the same size as 
+	their managed counterparts on 64 bit platforms.
+
+	* gdip_win32.h: Do not define __stdcall under amd64.
+
+2004-12-16  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c:
+	  - GdipGetDC(): Removed Wine logic
+	  - GdipReleaseDC(): Removed Wine logic
+
+	* font.c:
+	  - Removed CreateFontFromHDCorHfont (Wine specific)
+	  - GdipCreateFontFromDC(): Removed Wine logic
+	  - GdipCreateFontFromHfont(): Removed Wine logic
+	  - GdipGetLogFontA(): Removed Wine logic
+	  - Added non gdi+ GetFontMetrics call to support MWF, since
+	    DrawString/MeasureString do not support retrieving the
+	    ascent/descent of a font
+
+	* gdip_win32.c: Removed references to Wine GetTextMetrics
+
+2004-12-16  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c (MeasureOrDrawstring): Removed extra padding calc
+
+2004-12-07  Geoff Norton  <gnorton@customerdna.com>
+
+        * graphics.c, gdip_win32.h, gdip.h: Initial support for the Quartz backend to cairo.
+
+2004-11-29  Jordi Mas  <jordi@ximian.com>
+
+	* image.c: fixes bug #69089
+
+2004-11-18  Ravindra  <rkumar@novell.com>
+
+	* graphics.c (GdipGraphicsClear): Save and restore the existing
+	graphics settings. Otherwise, we lose the cached brush settings.
+
+2004-11-11  Jordi Mas  <jordi@ximian.com>
+
+	* gdip.h, font.c, general.c: implements font caching
+
+2004-11-10  Peter Bartok  <pbartok@novell.com>
+	* graphics.c (MeasureOrDrawString): Enabled clipping again, cairo
+	  appears to have the required fixes for it now.
+
+2004-11-10  Peter Bartok  <pbartok@novell.com>
+	* graphics.c (MeasureOrDrawString): Cleanup of earlier fix
+
+2004-11-10  Peter Bartok  <pbartok@novell.com>
+	* graphics.c (MeasureOrDrawString): Removed some unneeded cairo
+	  calls to improve performance; added comments
+
+2004-11-10  Peter Bartok  <pbartok@novell.com>
+	* general.c: 
+	- Removed _install_font_matrix(), now in graphics.c
+	- Removed _gdip_cairo_matrix_compute_scale_factors(), now part of
+	  the new _install_font_matrix()
+	- Removed gdip_utf8_to_glyphs(), now combined with 
+	  CalculateStringWidths
+
+	* graphics.c:
+	- Renamed CalculateStringSize to CalculateStringWidths
+	- Streamlined CalculateStringSize, combined with gdip_utf8_to_glyphs
+	- Removed unused parts of gdip_utf8_to_glyphs() and
+	  CalculateStringSize
+	- Dropped unneeded allocation of glyph memory
+
+	* gdip.h:
+	- Removed gdip_utf8_to_glyphs prototype
+
+2004-11-09  Peter Bartok  <pbartok@novell.com>
+
+	* graphics.c
+	(MeasureOrDrawString): Added check to prevent crash if bogus data is
+	returned from freetype.
+	(MeasureOrDrawString): Instead of calling GdipFillRectangle we call
+	cairo directly to draw underlines and strikeouts
+
+	(GdipDrawLine): Jackson's matrix patch to align pixels and 
+	effectively avoid AA lines
+
+	(GdipDrawRectangle): Same patch as for GdipDrawLine
+
+
+2004-11-04  Miguel de Icaza  <miguel@ximian.com>
+
+	* graphics.c (CalculateStringSize): Free leaked Glyphs.
+
+2004-10-29  Jordi Mas <jordi@ximian.com>
+
+	* gdip.h, font.c: cache fontfamily details. Performance enhancement.
+
+2004-11-05  Ravindra  <rkumar@novell.com>
+
+	* graphics-path.c: Fixed int_to_float () function. We should not
+	increase the pointer that is to be returned.
+
+2004-10-29  Jordi Mas <jordi@ximian.com>
+
+	* font.c gdip.h gdip_win32.h gifcodec.c graphics.c matrix.c  pathgradientbrush.c 
+	texturebrush.c tiffcodec.c: fixes issues with strict C compilers
+
+2004-10-29  Jordi Mas <jordi@ximian.com>
+
+	* bitmap.c font.c graphics-path.c graphics.c image.c imageattributes.c 
+	lineargradientbrush.c stringformat.c: fixes issues with strict C compilers
+
+2004-10-28  Miguel de Icaza  <miguel@ximian.com>
+
+	* graphics.c (GdipSetClipRegion): Fix the test, it should test for
+	either value being null.
+
+2004-10-28  Ravindra <rkumar@novell.com>
+
+	* tiffcodec.c: We should not close the MemoryStreams
+	that we got from user.
+
+2004-10-28  Ravindra <rkumar@novell.com>
+
+	* bitmap.c: Fix for bug #68270. We need to initialize frames
+	for images created from MemoryStreams as well.
+
+2004-10-19  Jordi Mas <jordi@ximian.com>
+
+	* image.c: Speeds up GdipDrawImageRect arround 10%
+
+2004-10-19  Jordi Mas <jordi@ximian.com>
+
+	* imageattributes.c: fixes alpha color setting
+
+2004-10-19  Ravindra <rkumar@novell.com>
+
+	* jpegcodec.c: Fixed bug #68117. Retrieves the proper
+	resolution info from Jpeg image.
+
+2004-10-17  Jordi Mas <jordi@ximian.com>
+
+	* image.c: bug fix, restores pattern after image drawing
+
+2004-10-09  Ravindra <rkumar@novell.com>
+
+	* hatchbrush.h: Added 'pattern' member of cairo_pattern_t
+	type to GpHatch struct.
+	* hatchbrush.c: Added support for caching.
+
+	* lineargradientbrush.h: Removed the 'changed' member from
+	GpLineGradient struct. It is moved to GpBrush struct.
+	* lineargradientbrush.c: Added support for caching.
+
+	* pathgradientbrush.h: Removed the 'changed' member from
+	GpPathGradient struct. It is moved to GpBrush struct.
+	* pathgradientbrush.c: Added support for caching.
+
+	* texturebrush.h: Removed the 'changed' member from GpTexture
+	struct. It is moved to GpBrush struct.
+	* texturebrush.c: Added support for caching.
+
+2004-10-09  Ravindra <rkumar@novell.com>
+
+	* solidbrush.h: Added color components A,R,G,B to SolidFill
+	struct for caching.
+	* solidbrush.c: Added support for caching.
+	* pen.c: Added support for caching.
+
+2004-10-09  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Added 'last_pen' and 'last_brush' members to
+	GpGraphics struct for caching.
+	* brush.h: Added a boolean type 'changed' member to GpBrush.
+	* brush.c: Added caching, to avoid multiple brush setups.
+	* graphics.c: Initialization of cached pen and brush. Removed
+	unwanted calls to cairo_save/cairo_restore.
+
+2004-10-08  Ravindra <rkumar@novell.com>
+
+	* image.c: Fixed GdipDisposeImage function.
+
+2004-10-05  Ravindra <rkumar@novell.com>
+
+	* pen.c: Fix for the bug #66665. Using a dirty bit on pen
+	to avoid multiple setups has a flaw. It does not work well
+	when we use the different pens with the same graphics.
+
+2004-09-27  Mart Roosmaa <roosmaa@gmail.com>
+
+	* general.c: Fallback to 72 dpis if we can not determine this
+	information. 
+
+2004-09-22  Ravindra <rkumar@novell.com>
+
+	* jpegcodec.c: Set proper image flags for JPEG colorspaces.
+
+2004-09-22  Ravindra <rkumar@novell.com>
+
+	* jpegcodec.c: Added support for CMYK and YCCK colorspaces.
+	Fixes bug #50081.
+
+2004-09-16  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Removed the redundant graphics member from GpImage struct.
+	* bmpcodec.c: Removed the unnecessary usage of GpImage->graphics.
+	* gifcodec.c: Same as above.
+	* graphics.c: Same as above.
+	* jpegcodec.c: Same as above.
+	* pngcodec.c: Same as above.
+	* tiffcodec.c: Same as above.
+	* image.c: Same as above and removed some commented code. Fixed
+	GdipGetImageDimensions and GdipImageGetFrameDimensionsList
+	functions. Applied a fix from David Mitchell for bug #66055 in
+	GdipGetImageGraphicsContext function.
+
+2004-09-15  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Applied a fix from David Mitchell for bug #65963
+	in GdipDeleteGraphics function.
+
+2004-09-10  Ravindra <rkumar@novell.com>
+
+	* image.c: Fixes a bug in DrawImageRect function. Reset the matrix
+	after drawing the image.
+
+2004-08-21  Ravindra <rkumar@novell.com>
+
+	* gifcodec.c: Return UnknownImageFormat instead of NotImplemented when
+	required libraries are not installed.
+	* jpegcodec.c: Same.
+	* pngcodec.c: Same.
+	* tiffcodec.c: Same.
+
+2004-08-17  Ravindra <rkumar@novell.com>
+
+	* font.c: Fix for bug #63098.
+
+2004-08-05  Ravindra <rkumar@novell.com>
+
+	* font.c: Fixed GdipDeleteFont function.
+
+2004-08-02  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Commented out cairo_clip calls from GdipDrawString,
+	as these were causing problems. Thanks to Peter for suggesting this
+	fix. This fixes, bug #60386, #60663, #61414. These bugs were actually
+	because of some problem with Cairo clipping. And, these are not 
+	reproducable with Cairo cvs, because Cairo seems to have some changes
+	which have solved the problem with clipping in Cairo.
+	Also, fixed gdip_plot_path function to handle path point types properly.
+
+2004-07-30  Ravindra <rkumar@novell.com>
+
+	* font.c: Fixed GdipGetEmHeight function.
+
+2004-07-30  Sanjay Gupta <gsanjay@novell.com>
+
+	* tiffcodec.c: Added page no information while saving a multi page
+	tiff file.
+
+2004-07-27  Sanjay Gupta <gsanjay@novell.com>
+
+	* tiffcodec.c: Fixing issues in saving multiple images to a file.
+
+2004-07-26  Sanjay Gupta <gsanjay@novell.com>
+
+	* image.c: Some memory management.
+
+2004-07-26  Sanjay Gupta <gsanjay@novell.com>
+
+	* bitmap.c: Initialization of data members in gdip_bitmap_init(). 
+	* gdip.h: Corrected casing in BitmapData structure.
+	* gifcodec.c: Casing changes, because of change in gdip.h.
+
+2004-07-23  Sanjay Gupta <gsanjay@novell.com>
+
+	* tiffcodec.c: Corrected the sequence of writing information
+	to tiff file.
+
+2004-07-23  Ravindra <rkumar@novell.com>
+
+	* stringformat.c: Fixed GdipCloneStringFormat function and some
+	formatting (replaced 8 spaces by tabs).
+
+2004-07-22  Sanjay Gupta <gsanjay@novell.com>
+
+	* gdip.h: Modified GdipBitmapData structure to hold information 
+	about position and graphic control extension for a gif frame.
+	* bitmap.c: Modified gdip_bitmap_dispose ().
+	* gifcodec.c: Corrected memory handling while saving frames to 
+	a gif file, implemented reading and writing Graphic Control 
+	Extension data and added a cool hack from Raja, which reduced 
+	size of our gif file. (30% saving in size on my sample file with 
+	new implementation).
+
+2004-07-22  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Added CharacterRange stuct. Added 'charRanges' and
+	'charRangeCount' members in GpStringFormat struct. Added
+	function declarations for GdipMeasureCharacterRanges,
+	GdipGetStringFormatMeasurableCharacterRangeCount and
+	GdipSetStringFormatMeasurableCharacterRanges.
+	* graphics.c: Added stub for GdipMeasureCharacterRanges.
+	* stringformat.c: Implemented following two functions,
+	 1. GdipGetStringFormatMeasurableCharacterRangeCount and
+	 2. GdipSetStringFormatMeasurableCharacterRanges.
+	Corrected default values for substitute	and trimming in
+	GdipStringFormatGetGenericDefault function. Corrected default
+	value for substitute in	GdipStringFormatGetGenericTypographic
+	function. Also, Added null checks.
+
+2004-07-22  Sanjay Gupta <gsanjay@novell.com>
+
+	* tiffcodec.c: Implemented saving multiple pages of an image to a
+	tif file.
+
+2004-07-21  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Added position members to GpPathIterator stuct.
+	Added start_new_fig flag to GpPath struct.
+	* graphics-path.c: Fixed and implemented various functions.
+	Added null checks and some code formatting.
+	 Fixed: (append) (GdipClonePath) (GdipAddPathClosedCurve2)
+	  (GdipAddPathRectangle) (GdipAddPathRectangles)
+	  (GdipAddPathRectanglesI) (GdipAddPathEllipse) (GdipAddPathPath).
+	 Implemented: (GdipStartPathFigure) (GdipClosePathFigures).
+	* graphics-pathiterator.c: Some fixes and implemented missing
+	subpath functions.
+
+2004-07-21 Sanjay Gupta <gsanjay@novell.com>
+	
+	* gifcodec.c: Minor modifications.
+
+2004-07-20 Sanjay Gupta <gsanjay@novell.com>
+	
+	* gifcodec.c: Implemented saving multiple frames of an image to a 
+	gif file.
+
+2004-07-16  Ravindra <rkumar@novell.com>
+
+	* Makefile.am: Added graphics-pathiterator.c to the sources list.
+	* gdip.h: Corrected GpPathPointEnum and added GpPathIterator stuct.
+	* graphics-path.c: Fixed GdipDeletePath, GdipResetPath,
+	GdipSetPathMarker, GdipGetPathLastPoint, GdipAddPathLine and
+	implemented GdipClosePathFigure and some formatting.
+	* graphics-path.h: Added function declarations for graphics-path
+	iterator.
+	* graphics-pathiterator.c: First implementation.
+
+2004-07-16  Sanjay Gupta <gsanjay@novell.com>
+
+	* image.c: Resolved a crash which was occuring because of attempting
+	to free same memory twice.
+	
+2004-07-14  Ravindra <rkumar@novell.com>
+
+	* adjustablearrowcap.c: Added a note.
+	* customlinecap.c: Added a note.
+	* brush.h: Moved common internal structs in here from
+	lineargradientbrush.c. These will be used by pathgradientbrush also.
+	* graphics-path.h: Corrected some function signatures.
+	* graphics-path.c: Corrected some function signatures and return
+	'NotImplemented' status instead of 'Ok' in unimplemented functions.
+	* lineargradientbrush.[ch]: Moved common internal structs from here
+	to brush.h. And, some minor corrections.
+	* pathgradientbrush.[ch]: Tested and fixed all the properties and
+	implemented all the missing functions. Now, we are missing only
+	the setup function and it can be done only after cairo supporting
+	the required pattern for this brush. Also, corrected indentation.
+
+2004-07-13  Sanjay Gupta <gsanjay@novell.cm>
+
+	* tifcodec.c: Implemented functionality to read all the frames present.
+
+2004-07-12  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Added 'interpolation' member in GpGraphics struct.
+	Fixing bug #61400.
+	* bitmap.c: Check for null before initializing the GpBitmap.
+	* general.c: Added a helper function for converting an
+	InterpolationMode value to cairo_filter_t. Fixing bug #61400.
+	* graphics.c: Set the cairo filter on the surface as per the
+	interpolation mode set. Fixed GdipSet/GetInterpolationMode
+	functions. Fixing bug #61400.
+	* image.c: Set the cairo filter on the surface as per the
+	interpolation mode set. Fixing bug #61400.
+
+2004-07-09  Ravindra <rkumar@novell.com>
+
+	* lineargradientbrush.c: Implemented GdipSetLineSigmaBlend function.
+	* general.c: Added gdip_erf function used for setting sigma blend
+	by gradient brushes.
+
+2004-07-09  Sanjay Gupta <gsanjay@novell.com>
+
+	* gdip.h: Modified FrameDimensionInfo structure to carry data related
+	to various frames of a multi frame image. The structure is now
+	renamed to FrameInfo.
+	* gifcodec.c: Implemented functionality to read all the frames present.
+	* image.c: Implemented SelectActiveFrame() method. Modified associated
+	memory disallocation and changes while reading single frame image.
+
+2004-07-07  Ravindra <rkumar@novell.com>
+
+	* pngcodec.c: Fixes saving RGB file and one perf improvement in
+	image loading. Fixes bug #61156.
+
+2004-06-29  Jordi Mas <jordi@ximian.com>
+
+	* pngcodec.c: fixes saving 24-bit images (it was saving corrupted files before)
+
+2004-06-29  Jordi Mas <jordi@ximian.com>
+
+	* tiffcodec.c: fixes saving images to stream. It was giving an exception
+	before
+
+2004-06-25  Ravindra <rkumar@novell.com>
+
+	* lineargradientbrush.c: Couple of fixes and some missing bits.
+	Also implemented GdipSetLineLinearBlend function.
+	* pen.c: Changed return status of GdipSetCompoundArray to Ok.
+
+2004-06-24  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Modified GdipFillXXX operations to make use of
+	the matrix set by brush setup. Also, moved all the GdipFillXXX
+	functions to one place.
+
+2004-06-24  Sanjay Gupta <gsanjay@novell.com>
+
+	* gdip.h: Changed function signature for SeekDelegate function.
+	* tiffcodec.c: Minor modification in passing flags to libtiff.
+
+2004-06-23  Jordi Mas <jordi@ximian.com>
+
+	* gdip.h, graphics.c: Implement Get/Set Unit and Scale. We will need when we implement
+	GdipTransformPoints
+
+2004-06-23  Jordi Mas <jordi@ximian.com>
+
+	* image.c: fixes bug 60601, simple images where not drawn on the right place
+
+2004-06-22  Ravindra <rkumar@novell.com>
+
+	* lineargradientbrush.h: Added two members 'changed' and 'pattern'
+	to GpLineGradient struct to avoid unnecessary multiple brush setup.
+	* lineargradientbrush.c: Changes related to above and some fixes.
+
+2004-06-22  Jordi Mas <jordi@ximian.com>
+
+	* gdip.h, graphics.c: implement Clip API function calls
+	* region.c: remove unused vars
+
+2004-06-22  Ravindra <rkumar@novell.com>
+
+	* texturebrush.c: We need to reset the 'changed' flag after doing
+	brush setup.
+
+2006-06-21  Sanjay Gupta <gsanjay@novell.com>
+
+	* tiffcodec.c: Added dummy functions and changed the way we
+	were reading/writing tif image from/to stream.
+
+2006-06-17  Sanjay Gupta <gsanjay@novell.com>
+
+	* tiffcodec.c: ABGR 2 ARGB conversion while saving. 
+	Default tiff format of ARGB was converted to our local format ABGR
+	while reading, but in write operation we were not converting back
+	to ARGB format and hence messy image.
+
+2004-06-17  Sanjay Gupta <gsanjay@novell.com>
+	
+	* image.c: Removed a commented line of code. Got checked in by mistake.
+
+2004-06-16  Sanjay Gupta <gsanjay@novell.com>
+
+	* gdipImage.h: Modifed function signature 
+	GdipSaveImageToDelegate_linux().
+	* image.c : Modified call to save tiff image from stream delgate.
+	* tiffcodec.c, tiffcodec.h : Modified API signature and implemented 
+	functions to save tiff images to stream.	
+
+2004-06-16  Sanjay Gupta <gsanjay@novell.com>
+                                                                                
+        * tiffcodec.c, tiffcodec.h: Implemented methods for loading tiff
+        images from stream.
+                                                                                
+2004-06-16  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Removed unnecessary calls to cairo_save and
+	cairo_restore from GdipFillXXX functions.
+
+2004-06-15  Ravindra <rkumar@novell.com>
+
+	* texturebrush.h: Added two members 'changed & pattern' to GpTexture
+	struct to avoid unnecessary texture setup.
+	* texturebrush.c: Fixed the code to avoid the seam. Setup related
+	enhancement. Replaced cairo_show_surface by cairo_fill for creating
+	pattern. This was required to fix the problem with Graphics.DrawXXX,
+	as DrawXXX functions stopped working for texturebrush because of 
+	transformation matrix fix in pen.c (my previous checkin).
+
+2004-06-15  Sanjay Gupta <gsanjay@novell.com>
+
+	* gdip.h: Added function typedefs, (*CloseDelegate), (*SizeDelegate).
+	* gdipImage.h: Modifed function signature 
+	GdipLoadImageFromDelegate_linux().
+	* image.c : Modified call to load tiff image from stream delgate.
+	* tiffcodec.c, tiffcodec.h : Modified API signature for loading tiff
+	images from stream.	
+
+2004-06-14  Peter Bartok <pbartok@novell.com>
+	* general.c: Fixed internal cairo function name to be gdi
+	specific.
+
+2004-06-10  Sanjay Gupta <gsanjay@novell.com>
+
+	* gifcodec.c: Minor error handling.
+	* tiffcodec.c, tiffcodec.h: Added function stubs for loading 
+	and saving images from/to streams. Also modified API to include 
+ 	encoder parameter.
+	* image.c: Minor indentation fixes, fixed incorrect image format
+	assignment in loading images from stream, error handling and 
+	including call to load/save tiff images from stream.
+	
+2004-06-10 Jordi Mas <jordi@ximian.com>
+
+	* gifcodec.c: fixes the stubs signatures when libgif is not installed
+ 
+2004-06-09 Jordi Mas <jordi@ximian.com>
+	* font.c, gdip.h: implemtents cache for generic family fonts,
+	and properly keep track of resources and deallocate them.
+
+2004-06-08  Ravindra  <rkumar@novell.com>
+
+	* graphics.c: Added notes to GdipDrawXXX functions.
+	* pen.c: We need to take into account the graphics->matrix
+	also when stroking. Fixed the same.
+
+2004-06-04  Ravindra  <rkumar@novell.com>
+
+	* graphics.c: Fixed GdipDrawXXX functions as per the fix
+	in pen.c.
+	* pen.c: Added a flag to avoid multiple unnecessary setups
+	of the same pen and fixed transform matrix usage.
+	* gdip.h: Added a 'changed' bool type to GpPen struct.
+
+2004-06-04  Sanjay Gupta <gsanjay@novell.com>
+
+	* bitmap.c: Resolved issue with saving of 24 bit bmps.
+
+2004-06-03  Ravindra  <rkumar@novell.com>
+
+	* graphics.c: Fixed GdipDeleteGraphics and 
+	gdip_graphics_attach_bitmap functions.
+
+2004-06-01  Ravindra <rkumar@novell.com>
+
+	* hatchbrush.c: Peformance improvements in some of diagonal
+	hatch styles. These were quite slow earlier.
+
+2004-05-31  Ravindra  <rkumar@novell.com>
+
+	* graphics.c: Fixed GdipResetWorldTransform, GdipDrawPie and
+	GdipFillPie. ResetWorldTransform should set the copy_of_ctm
+	as well as the graphics->ct matrix to identity.
+	Draw/FillPie functions do not do anything, if sweep angle is
+	zero deg. This is done to fix the crash that we face when we
+	draw/fill pie with zero deg sweep angle. And, some formatting.
+
+2004-05-28  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (GdipResetWorldTransform): Remember to synchronize
+	graphics->copy_of_ctm with the graphics' matrix.
+
+2004-05-28  Ravindra <rkumar@novell.com>
+
+	* hatchbrush.c: Completed the remaining hatch styles.
+
+2004-05-28 Jordi Mas <jordi@ximian.com>
+	* tiffcodec.c, image.c: added support for saving TIFF files
+
+2004-05-28 Jordi Mas <jordi@ximian.com>
+	* bitmap.c, image.c, tiffcodec.c: reformmated using Mono code style. No code
+	changes made
+
+2004-05-28  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Added declarations for GdipDrawRectangles,
+	GdipDrawRectanglesI, GdipFillRectangleI, GdipFillRectangles,
+	GdipFillRectanglesI functions for Graphics.
+	* graphics.c: Implemented the functions mentioned above. Added
+	g_return_val_if_fail macro. Did some of formatting. I have
+	tested this, hope I'm not going to break anything.
+
+2004-05-28  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Changed DrawLinesI and DrawLines functions not to
+	call DrawLineI and DrawLine respectively, as it results in setting
+	up pen so many times unnecessarily.
+	* hatchbrush.c: Formatting.
+
+2004-05-27  Duncan Mak  <duncan@ximian.com>	
+
+	* matrix.c (set_translate, set_scale, set_rotate, set_shear):
+	Removed, we are not allocating a new GpMatrix * anymore.
+	(TranslateMatrix, ScaleMatrix, RotateMatrix, ShearMatrix): All the
+	functionality of set_foo has been moved back into here.
+
+2004-05-27  Miguel de Icaza  <miguel@ximian.com>
+
+	* pen.c (gdip_pen_setup): Fix indentation, and do not set the pen
+	matrix.  The pen matrix trumps any other transformations on the
+	graphics->ct, someone must fix this properly.
+
+	* matrix.c: Remove some heavy use of routines with something
+	lighter, Duncan will look at this further.
+	
+2004-05-27  Ravindra  <rkumar@novell.com>
+
+	* hatchbrush.c: Implemented couple of hatch styles.
+
+2004-05-27 Jordi Mas <jordi@ximian.com>
+	* pngcodec.c: added stubs for when libpng is not present
+
+2004-05-27  Sanjay Gupta <gsanjay@novell.com>
+
+	* bmpcodec.c: Added support for converting 24BPP to 32 BPP 
+	for usage by cairo, in function for loading bmp.
+
+2004-05-27  Sanjay Gupta <gsanjay@novell.com>
+
+	* bmpcodec.c: Abstracted reading bmp from file and stream 
+	to single function.
+	* bmpcodec.h: Added function declarations for above implementation.
+
+2004-05-27 Jordi Mas <jordi@ximian.com>
+	* bitmap.c: added support for drawing 24-bits images tru DrawImage
+	
+2004-05-27  Sanjay Gupta <gsanjay@novell.com>
+
+	* bmpcodec.c: Fixes in function to save bmp to stream.
+
+2004-05-26  Sanjay Gupta <gsanjay@novell.com>
+
+	* bmpcodec.c: Implemented function to save bmp to stream.
+	* bmpcodec.h: Added function declarations for above implementation.
+
+2004-05-26  Sanjay Gupta <gsanjay@novell.com>
+
+	* bmpcodec.c: Resolved issue with saving images to bmp format.
+
+2004-05-26  Sanjay Gupta <gsanjay@novell.com>
+
+	*image.c: Resolved issue with wrong comparison between image format
+	guid and enocder clsid in GdipSaveImageToDelegate_linux() fn.
+
+2004-05-26 Jordi Mas <jordi@ximian.com>
+	* gifcodec.c, gifcodec.h, image.c: implemented saving GIF images
+	to file, stream and loading them from a stream.
+
+2004-05-26  Ravindra  <rkumar@novell.com>
+
+	* hatchbrush.c: Implemented Plaid and Wave hatch styles.
+
+2004-05-26  Ravindra  <rkumar@novell.com>
+
+	* hatchbrush.c: Implemented Sphere hatch style.
+
+2004-05-26 Jordi Mas <jordi@ximian.com>
+	* bitmap.c, gdip.h: remove death code 
+	* gifcodec: no code changes made, reformmating to be able to work with it
+	
+2004-05-25 Jordi Mas <jordi@ximian.com>
+	* bitmap.c, gdip.h, image.c, imageattributes.c:
+		- Implemented SetImageAttributesWrapMode: Tile, TileFlipY, TileFlipY
+		and TileFlipXY
+		- ImageAttributes fails to default category if nothing is setup
+		- Minor bug fixes
+	
+2004-05-25 Jordi Mas <jordi@ximian.com>
+	* bitmap.c: fixes bug in gdip_bitmap_clone. We were not cloning the 
+	bitmap data itself
+
+2004-05-24 Jordi Mas <jordi@ximian.com>
+	* bitmap.c, gdip.h, image.c, imageattributes.c: implemented
+	functions for ImageAttributtes
+
+2004-05-21  Ravindra  <rkumar@novell.com>
+
+	* pen.c: We draw a line of a pixel width, if pen width is set
+	to zero or less than zero.
+
+2004-05-20  Ravindra  <rkumar@novell.com>
+
+	* hatchbrush.c: Implemented SolidDiamond hatch style.
+	* pen.c: Minor fix in GdipSetPenDashArray function.
+	* gdip.h: Added a comment and inserted #ifndef around
+	uglify typedefs.
+	* gdip_win32.h: Removed the mono dependency uglify.h.
+	It was also breaking the build.
+
+2004-05-19  Miguel de Icaza  <miguel@ximian.com>
+
+	* gdip.h: Removed the dependency on Mono for uglify.h by
+	copying here all the required things from mono/io-layer/uglify.h.
+
+2004-05-15  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* image.c, jpegcodec.c, jpegcodec.h, gdip.h: Add support for
+	EncoderParameters.  Currently, only jpeg Quality is exported (MS
+	doesn't support any params for anything but Jpeg and Tiff)
+
+	* image.c, gdip.h, gdipImage.h: Renamed some things which were
+	clsid to format_guid to avoid confusion (they're not clsids)
+
+2004-05-14  Peter Bartok <pbartok@novell.com>
+	* gdip.h: Added various missing structs and enumerations required for
+	  the new stubs.
+	* bitmap.c: Removed warning; added missing stubs
+	* font.c: Implemented GdipGetLogFontA, GdipPrivateAddMemoryFont
+	* graphics.c: Implemented GdipSetInterpolationMode, GdipGetPageScale,
+	  GdipGetPageUnit; added missing stubs
+	* imageattributes.c: Added missing stubs
+	* image.c: Added missing stubs
+
+2004-05-14  Duncan Mak  <duncan@ximian.com>
+	* gdip.h (GpPathPointType): Make all the elements use hex values
+	for consistency.
+
+	* graphics-path.c (append): Handle the CloseSubpath flag. This is
+	needed for SetPathMarker.
+
+	* graphics-path.c (GdipClearPathMarkers, GdipSetPathMarker):
+	Implemented.
+	(GdipAddPathCurveI, GdipAddPathCurve2I, GdipAddPathCurve3I):
+	Implemented. The float versions were committed a long time ago,
+	but I forgot to do the same to the integer overrides.
+
+	* graphics-path.c
+	(GdipStartPathFigure, GdipClosePathFigure, GdipClosePathFigures)
+	(GdipAddString, GdipWindingModeOutline): 
+	(GdipFlattenPath, GdipWidenPath, GdipWarpPath)
+	(GdipGetPathWorldBounds, GdipIsVisiblePathPoint) 
+	(GdipIsOutlineVisiblePathPoint): 
+	Stubbed, they all now return Ok, but we have a MonoTODO comment to
+	remind us to implement them.	
+
+2004-05-14 Jordi Mas <jordi@ximian.com>
+	*  adjustablearrowcap.c ,customlinecap.c, gifcodec.c, graphics-path,
+	hatchbrush.c, jpegcodec.c, lineargradientbrush.c, matrix.c, 
+	pathgradientbrush.c, pngcodec.c,texturebrush.c,tiffcodec.c:
+	added missing licenses.
+
+2004-05-14 Jordi Mas <jordi@ximian.com>
+	* bmpcodec.c, gifcodec.c, jpegcodec.c, pngcodec.c, tiffcodec.c:
+	remove redudant CLSID definitions and use global definitions
+
+2004-05-14  Ravindra <rkumar@novell.com>
+
+	* Makefile.am: Added source file entries for customlinecap and
+	adjustablearrowcap.
+	* pen.c: A minor fix in SetPenDashArray () function.
+
+2004-05-14  Ravindra <rkumar@novell.com>
+
+	* adjustablearrowcap.c: First implementation of AdjustableArrowCap.
+
+2004-05-14  Ravindra <rkumar@novell.com>
+
+	* customlinecap.[ch]: First implementation of CustomLineCap.
+	It needs further work. I need to get it working with pen.
+
+2004-05-14  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Added missing functions for Pen. Added compound
+	array to GpPen struct. Fixed some of Pen function signatures.
+	Moved around few enums for compilation. Added typedefs and
+	functions for CustomLineCap and	AdjustableArrowCap.
+	* pen.c: Added compound array functions. Fixed dash array
+	functions and added stubs for custom linecaps.
+
+2004-05-13 Jordi Mas <jordi@ximian.com>
+	* does a proper pixelformat check
+
+2004-05-13  Ravindra <rkumar@novell.com>
+
+	* gdip.h: Added GpPenType enum and moved GpBrushType enum here
+	from brush.h. Added GdipGetPenFillType function declaration.
+	* brush.h: Moved GpBrushType enum to gdip.h.
+	* pen.c: Implemented GdipGetPenFillType function.
+
+2004-05-12  Peter Bartok  <pbartok@novell.com>
+   * pngcodec: Since the code handles interlace just fine I removed the
+     error condition for interlaced pictures; this fixes bug #55934
+
+2004-05-12  Peter Bartok  <pbartok@novell.com>
+   * font.c: Implemented GdipCreateFontFromDC
+
+2004-05-12  Duncan Mak  <duncan@ximian.com>
+
+	* gdip.h (GpCoordinateSpace): Defined.
+
+	* graphics.c (GdipScaleWorldTransform): Implemented.
+	(GdipSetWorldTransform): Fixed memory management bug
+	pointed out by Vlad.
+
+2004-05-12  Miguel de Icaza  <miguel@ximian.com>
+
+	* image.c (GdipLoadImageFromFile): Added error checking in case
+	the codec fails to load a valid image.
+
+2004-05-12 Jordi Mas i Hernandez <jordi@ximian.com>
+	* bitmap.c, image.c, gdpi.h:
+	- Correct support for Format24bppRgb, Format32bppArgb, Format32bppPArgb, 
+	Format32bppRgb pixel formats
+	- Fixed GdipBitmapLockBits to return the format and behavior than
+	GDI+
+	- GetPixel/SetPixel do not work when the bitmap is locked
+
+2004-05-10  Peter Bartok <pbartok@novell.com>
+   * gdip_win32.c: Added ObjectList to manage Win32 object that can be
+     deleted. Solves problem of asynchronous deletion of object when
+     GC kicks in. While we could also use Control.BeginInvoke this method
+     allows us to keep private gdip handles away from System.Drawing.
+     Currently handles fonts but any other object that could be subject
+     to GC should also be managed through the ObjectList code.
+   * gdip.h: Added prototype
+   * general.c: Shutdown code now also calls the new gdip_win32 shutdown
+     function.
+
+2004-05-10  Duncan Mak  <duncan@ximian.com>
+
+	* gdip.h (fcmp): Added.
+	
+	* general.c (fcmp): Use the fcmp function from fcmp.sf.net.
+
+	* graphics-path.c (append): Check for point count before calling
+	GetPathLastPoint. Use fcmp instead of == when comparison floating
+	point numbers.
+	
+2004-05-09  Peter Bartok <pbartok@novell.com>
+   * graphics.c: Completely rewrote DrawString and MeasureString:
+                 - No longer only works for us-ascii
+                 - Now handles multiple sequential linefeeds in DrawString
+                 - Now properly calculates the bounding box size
+                 - Now handles StringFormat flags (NoWrap, Vertical, Ellipsis)
+                 - Now properly breaks lines at whitespace or characters
+                 - Now properly handles tabstops
+                 - Now properly allows multiple hotkey characters
+   * stringformat.c: Changed trimming default to TrimWord (like MS)
+   * gdip.h: Fixed DrawString prototypes, replaced DrawString support structs
+
+2004-05-09 Jordi Mas i Hernandez <jordi@ximian.com>
+	* bmpcodec.c: Move BMP specific functions to bmpcodec
+	* bitmap.c: Move BMP specific functions to bmpcodec
+
+2004-05-07  Ravindra  <rkumar@novell.com>
+
+	* hatchbrush.c: Implemented 11 hatching styles.
+	* texturebrush.c: Fixed destroy function.
+
+2004-05-04 Jordi Mas i Hernandez <jordi@ximian.com>
+	* bmpcodec.c: We use always RGB32 internally
+	* bitmap.c: We use always RGB32 internally 
+	* image.c: We use always RGB32 internally
+
+2004-05-06 Sanjay Gupta <gsanjay@novell.com>
+	
+	* image.c: Removed a printf stmt.
+	* gifcodec.c: Implemented reading information about time and page 
+	  based frames.
+
+2004-05-05  Peter Bartok <pbartok@novell.com>
+   * gdip_win32.c: Added support for SetMapMode; fixed fontsize conversion
+     for Cairo->Wine fonts
+   * font.c: Added call to SetMapMode to have predictable units for font size
+   * gdip_win32.h: Added support for SetMapMode
+
+2004-05-04 Jordi Mas i Hernandez <jordi@ximian.com>
+	* bitmap.c: calculate strides as GDI+
+
+2004-05-05 Sanjay Gupta <gsanjay@novell.com>
+	
+	* gdipImage.h: Added CLSID for FrameDimensions.
+	* image.c: FrameDimensionsCount, FrameDimensionList and ImageFrameCount 
+	  taken into consideration while loading image.
+	* gifcodec.c: Corrected implementation of reading no of image 
+	  description records present.
+
+2004-05-04 Sanjay Gupta <gsanjay@novell.com>
+
+	* image.c: Implemented functions GdipImageGetFrameDimensionsCount(),
+	 GdipImageGetFrameDimensionsList(), GdipImageGetFrameCount(). UNTESTED
+	* gdip.h: Modifieid GpImage structure and added FrameDimensionInfo struct.
+	* gifcodec.c: Modified to read the no of image description records present.
+
+2004-05-04 Jordi Mas i Hernandez <jordi@ximian.com>
+	* image.c: implements GdipImageRotateFlip: 90, 180, 270,
+	degree, plus FlipX and combinations
+	
+	
+2004-05-04 Ravindra <rkumar@novell.com>
+
+	* matrix.c: Added macros for checking null pointers.
+
+2004-05-04 Ravindra <rkumar@novell.com>
+
+	* pen.c: Added assert macros for checking null pointers. Also fixed
+	Get/Set/Reset PenTransform functions.
+	* graphics.c: Fixed a mistake in Clear function. Cairo takes color
+	values in the range [0.0, 1.0], instead of [0, 255].
+	* gdip.h: Added return type to gdip_pen_setup function.
+	* lineargradientbrush.[ch]: Fixed Get/Set LineTranform functions.
+	* texturebrush.c: Fixed Get/Set TextureTransform functions.
+
+2004-05-03 Jordi Mas i Hernandez <jordi@ximian.com>
+	* bitmap.c: adds Format32bppRgb support for get/set pixel
+	* graphics.c: fixes bug 56798 (RTL support)
+
+2004-05-03 Jordi Mas i Hernandez <jordi@ximian.com>
+	* bitmap.c: fixes stride in GdipCloneBitmapAreaI, copy of different 
+	pixel formats, uninit data in Bitmap struct, etc.
+
+2004-04-30  Ravindra  <rkumar@novell.com>
+
+	* lineargradientbrush.[ch]: Few fixes.
+
+2004-04-30 Jordi Mas i Hernandez <jordi@ximian.com>
+	* region.c: fixes bug at GdipSetInfinite detected by the tests
+
+2004-04-30 Jordi Mas i Hernandez <jordi@ximian.com>
+	* bitmap.c: fixes bug causing a cloned imaged not been able to
+        save it.
+
+2004-04-29  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c (append): Moved the aforementioned logic into
+	here instead; append_point should still just only delegate to
+	append.
+
+2004-04-29  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c (append_point): Add some logic here. Don't
+	append a move_to (PathPointTypeStart) if we're already at the
+	point we need to be in. This fixes problems we have with filling,
+	as Cairo closes all subpaths before a fill op.
+	(GdipAddPathLine, GdipAddPathLineI): Removed precaution checks for
+	move_to, we're doing it once and for all in append_point.
+
+	This should fix the drawing bug Miguel sees in the GraphicsPath
+	in the test form.
+
+2004-04-29  Peter Bartok <pbartok@novell.com>
+
+	* gdip.h: Added flag for multiline strings
+
+	* graphics.cs: Fixed bug #56800, DrawString now handles \n (and
+	   ignores \r, like Microsoft)
+
+2004-04-29 Jordi Mas i Hernandez <jordi@ximian.com>
+	* image.c: fixes GdipSaveImageToFile using FormatID as parameter
+        instead of the coded Clsid
+
+
+2004-04-28 Jordi Mas i Hernandez <jordi@ximian.com>
+	* bmpcodec.c: added codecInfo
+	* gdip_win32.h: added ImageCodecInfo struct
+	* general.c: init codecinfo
+	* gifcodec.c: added codecInfo
+	* image.c: added GDI+ encoder/decoder functions
+	* jpegcodec.c: added codecInfo
+	* pngcodec.c: added codecInfo
+	* tiffcodec.c: added codecInfo
+
+2004-04-27  Ravindra <rkumar@novell.com>
+
+	* lineargradientbrush.[ch]: First implementation of
+	lineargradientbrush.
+	* Makefile.am: Added lineargradientbrush sources to the list.
+
+2004-04-27  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* gdip.h: Added EncoderParameterValueType enum
+
+	* image.c (GdipDrawImageRectRect, GdipDrawImagePoints): implemented.
+	(gdip_encoder_parameter_search_int): start of some encoder
+	parameter stuff
+
+2004-04-26  Duncan Mak  <duncan@ximian.com>
+
+	* general.c (gdip_open_curve_tangents):
+	(gdip_closed_curve_tangents):
+	Simplified. Use only one coefficient, instead of a set of
+	coefficients per each point on the curve. We now take care of
+	tension when calculating tangents.
+	(gdip_calculate_coefficients): Removed. Microsoft doesn't use such
+	a nice way of calculating coefficients. Their implementation is a
+	lot more simplistic.
+
+	Thanks to Professor Rasala for figuring this out.
+
+	* graphics.c (GdipDrawClosedCurve2, GdipDrawCurve3) 
+	(GdipFillClosedCurve2): Add tension paramater.
+
+	* graphics-path.c (GdipAddPathCurve3): Implemented.
+	(GdipAddPathCurve, GdipAddPathCurve2): Pass the work onto
+	GdipAddPathCurve3.
+
+	* gdip.h (gdip_closed_curve_tangents, gdip_open_curve_tangents):
+	Updated function signature to include tension.
+
+2004-04-26 Sanjay Gupta <gsanjay@novell.com>
+	* image.c: Implemented function GdipGetImageRawFormat.
+	* gdip.h: Modifieid GdipImage structure and added ImageFormat 
+	enum from gdipImage.h
+	* gdipImage.h: Removed ImageFormat enum to gdip.h
+
+2004-04-25  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* graphics.c (GdipCreateFromXDrawable_linux): added method, so that
+	we can interface with Gtk (i.e. to draw to a DrawingArea)
+
+2004-04-24  Ravindra <rkumar@novell.com>
+
+	* graphics.c: Fixed GdipGraphicsClear() function.
+	* gdip.h: Removed some unwanted lines.
+
+2004-04-23  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* bitmap.c (GdipCloneBitmapAreaI): wrong sense of assert test,
+	oops
+
+	* image.c (GdipDrawImagePoints): implemented.
+
+2004-04-23 Peter Bartok <pbartok@novell.com>
+   * graphics.c: Fixed bug #57551. Hotkey prefix now properly placed
+   no matter on what line it is or how the text is aligned.
+
+2004-04-23 Peter Bartok <pbartok@novell.com>
+   * graphics.c: Implemented GdipCreateFromHWND()
+
+2004-04-22  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* bitmap.c (GdipCloneBitmapAreaI): implemented with format
+	conversion
+
+	* image.c (GdipDrawImageRect): use gdip_bitmap_ensure_surface
+	to create a surface if it's missing.  Fixes 57323
+
+	* bitmap.c (gdip_bitmap_ensure_surface): added as a way to access
+	a bitmap image's surface, creating it if it's missing
+
+2004-04-21 Peter Bartok <pbartok@novell.com>
+   * font.c: Added private GdipCreateFontFromHfont function to support
+   the System.Drawing.Font.FromHfont method.
+   * gdip_win32.c: Added import of Wine GetTextMetrics and GetTextName 
+   functions
+   * gdip_win32.h: Added some prototypes and LOGFONTA and TEXTMETRICA 
+   structures
+
+2004-04-19 Sanjay Gupta <gsanjay@novell.com>
+	* image.c: Added function call to load bmp image from stream in 
+          switch case stmt.
+
+2004-04-20 Jordi Mas i Hernandez <jordi@ximian.com>
+
+        * region.c -  more work on regions. New methods, fixes, and funtionality
+        * graphics.c - Fixed font bug
+        * gdip.h - new region functions
+
+2004-04-19  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* graphics-path.c (GdipAddPathStringI): renamed GdipPathString ->
+	GdipAddPathString (the real name); still NotImplemented
+
+	* bitmap.c: Implemented new LockBits/UnlockBits that's consistent
+	with MS semantics, and that can do conversions.  (Also some random
+	whitespace cleanup, mainly as I touched functions.)
+
+	* gdip.h: Some ARGB access macros, also a cleanup of the PixelFormat
+	enum (there is a method to the madness).  Some missing prototypes also.
+
+	* image.c: Got rid of unused gdip_getpixel_formatsize (it can be inferred
+	from the pixel format).
+
+	* pathgradientbrush.c: Sets the cairo rgb color to the center color of the
+	gradient.  Not pretty, but better than nothing.
+	
+	* Makefile.am: Added -Wall -Wno-unused -Wno-format.  Lots of
+	functions that should have been returning values weren't,
+	functions used without prototypes, etc.  Touched files to fix
+	missing return issues: bmpcodec.c, brush.h, font.c, gdip_win32.h,
+	general.c, graphics.c, hatchbrush.c, imageattributes.c,
+
+2004-04-19 Sanjay Gupta <gsanjay@novell.com>
+	* bmpcodec.c: Fixed function for loading image from stream
+
+2004-04-16 Jordi Mas i Hernandez <jordi@ximian.com>
+
+        * region.c -  more work on regions. New methods, fixes, and funtionality
+        * graphics.c - GdipFillRegion implemented
+
+2004-04-16 Ravindra <rkumar@novell.com>
+
+	* gdip.h: Included glib.h.
+	* brush.h, solidbrush.h: Removed internal functions and added
+	return type to vtable functions.
+	* brush.c: Now we return status from internal functions also.
+	* texturebrush.c, hatchbrush.c, solidbrush.c, pathgradientbrush.c: 
+	Now we return status from internal functions also and do check for
+	null pointers.
+
+2004-04-16 Sanjay Gupta <gsanjay@novell.com>
+	* bmpcodec.c: Implemented function for loading image from stream
+
+2004-04-15 Ravindra  <rkumar@novell.com>
+
+	* general.c (gdip_cairo_set_surface_pattern): Check for null pattern
+	and return the status.
+	* gdip.h (gdip_cairo_set_surface_pattern): Return status.
+
+2004-04-15 Ravindra  <rkumar@novell.com>
+
+	* hatchbrush.h: Moved internal functions to hatchbrush.c.
+	* hatchbrush.c: Moved some internal functions around.
+
+2004-04-15 Ravindra  <rkumar@novell.com>
+
+	* texturebrush.h: Moved internal functions to texturebrush.c.
+	* texturebrush.c: Few fixes to handle scale/rotate functions. But,
+	we still don't get scaling/rotation right. Seems to be some problem
+	with Cairo. Checking in code now, will see this later when I'm sure
+	that Cairo is doing right.
+
+2004-04-14 Jordi Mas i Hernandez <jordi@ximian.com>
+
+        * bitmap.c -  fixes biXPelsPerMeter fields
+
+	* bmpcodec.c -  fixes strides, fixes new WinNT BMP headers,
+        support for OS/2 bitmaps, 8 and 24 bits, upside bitmaps, gets
+        different pixelformats correct loading/saving, reformatted to 8
+        tabs, support for load/save palette if present (RGBTRIPLE and
+        SQUADS), fixes bitmap writting to allow to work with more tools
+        (saving it upside down), etc.
+
+2004-04-14  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c (GdipAddPathLine, GdipAddPathLineI): Only append
+	a starting point if the current point is not the same as the point
+	we're appending. This removes unnecessary subpaths, and fixes
+	GdipFillPath.
+
+2004-04-13  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* jpegcodec.c (gdip_save_jpeg_image_internal): Check for pixformat
+	equal to Format24bppRgb, not 32bpp when deciding whether to do
+	argb conversion.  Fixes #56967.
+
+	* texturebrush.h: Moved WrapMode enum to gdip.h, to share
+	it with the pgbrush
+	
+	* general.c (gdip_rect_expand_by): Helper function to
+	build bounding rects
+
+	* gdip.h: Bunch of new prototypes
+	
+	* pathgradientbrush.c: Stub implementations of this.  Real version
+	will probably require me to add gouraud triangle shading to cairo,
+	which will happen Real Soon Now.
+
+2004-04-12  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* gdip.h, image.c: I misread the *I methods.  Implement
+	them correctly, keeping the corrent int/float distinction.
+	Also added a bunch of GdipDrawImage* stubs.
+
+2004-04-11  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* general.c (GdiplusStartup): I really meant $GDIPLUS_NOX
+	to mean "no X" instead of "require X".
+
+	* texturebrush.c, image.c: Use gdip_cairo_set_surface_pattern
+
+	* general.c: (gdip_cairo_set_surface_pattern) helper function
+	to create a new pattern from a surface and set it.
+	(GdiplusStartup): Don't acquire an X display if GDIPLUS_NOX is set
+	(gdip_get_display_dpi): use GDIP_display instead of creating a new
+	XDisplay
+
+2004-04-10  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* gdip.h, graphics.c: Added lots of Get/Set stuffs.
+
+2004-04-12  Ravindra  <rkumar@novell.com>
+
+	* texturebrush.h: Internal functions should not appear here. 
+	Removed internal functions. Uncommented few implemented functions.
+	* texturebrush.c: Moved around few functions as per the change
+	in header file.
+
+2004-04-11  Peter Bartok <pbartok@novell.com>
+   * gdip_win32.c: Added fontsize translation when creating HFONT
+   * font.c: Added private function to retrieve the HFONT handle
+
+2004-04-10  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* image.c (GdipDrawImageRectI): put back version that handles
+	scaling correctly and doesn't create an extra graphics context
+	unnecessarily.
+
+	* graphics.c (gdip_graphics_attach_bitmap): set the surface on a
+	GpBitmap after setting it as the cairo target; each GpBitmap
+	should always have an associated cairo surface. (fixes #56803)
+
+	* image.c (gdip_image_init): can't call get_display_dpi(), because
+	we might not have an X display at all.
+
+2004-04-10 Peter Bartok <pbartok@novell.com>
+   * bitmap.c: Removed the hack that set the Win32 bitmap to white.
+     Instead it now simulates alpha blending and merges the Win32
+     bitmap onto the cairo image surface. This makes drawing between
+     cairo and Wine/Win32 fully compatible, albeit with two 
+     drawbacks: First, the copying of the bitmap is done pixel by
+     pixel, and second, the color value of UNALTERED_PIXEL in
+     a Win32 bitmap will be treated as transparent.
+
+   * image.c: Removed the 'improved' GdipDrawImageRectI function. I lost a
+     whole day tracking down why SWF stopped working. The 'improved'
+     version doesn't seem to work (yet). Left the broken version
+     with an #if 0 for future fixing.
+
+   * gdip_win32.c: Added functions to create/delete HFONT handles tracking
+     the cairo fonts.
+
+   * gdip_win32.h: Added prototypes
+
+   * font.c: Now also creates/deletes Wine font tracking the cairo font
+
+   * gdip.h: Added HFONT element to GpFont structure
+
+2004-04-10  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (GdipDrawCurve):
+	(GdipDrawClosedCurve, GdipFillClosedCurve): Added all the
+	overloads, properly delegate the work to avoid code
+	duplication. Handle the case when tension = 0; in that case, we
+	draw/fill a polygon for closed curves, and just draw straight
+	lines for open curves.
+	(GdipDrawCurve3): Fixed signature, there was a missing offset
+	argument.
+
+	* gdip.h: Added open and closed curve drawing and filling
+	functions.
+
+2004-04-10  Duncan Mak  <duncan@ximian.com>	
+
+	* general.c (gdip_open_curve_tangents): Fixed some more errors in
+	the porting of the algorithm. We should be passing Z to
+	gdip_calculate_coefficients instead of count. Z = 2 * count - 1.
+
+2004-04-10  Duncan Mak  <duncan@ximian.com>	
+
+	* graphics.c (GdipDrawCurve): Doh! Use the ask for tangents for
+	open curves, not closed curves.
+
+	* graphics-path.c (GdipResetPath): Don't set them to NULL. That
+	wouldn't work, doofus.
+
+	* graphics.c (GdipDrawCurve2I): Fixed function signature and use
+	convert_points to  pass the work onto GdipDrawCurve2.
+	(GdipDrawCurve3I): Fixed function signature.
+
+	* general.c (gdip_open_curve_tangents): Fix typo.
+
+2004-04-09 Peter Bartok <pbartok@novell.com>
+   * Makefile.am: Added region.c to list of sourcefiles
+
+2004-04-09 Jordi Mas i Hernandez <jordi@ximian.com>
+	* region.c - fixes to regions 
+
+2004-04-09  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c (append_curve): Moved it to the top along with
+	the other append helper functions.
+	(GdipAddPathCurve, GdipAddPathCurveI): Implemented using
+	gdip_open_curve_tangents.
+	(GdipAddString): Fixed signature.
+
+	* general.c (gdip_open_curve_tangents): Implemented.o
+	(gdip_closed_curve_tangents): Fixed memory leak here.
+
+	* gdip.h (gdip_open_curve_tangents): Add here. To be shared
+	between graphics.c and graphics-path.c.
+
+2004-04-08 Jordi Mas i Hernandez <jordi@ximian.com>
+	* region.c - Started regions implementation
+        * gdip.h - signature changes
+
+2004-04-07  Ravindra  <rkumar@novell.com>
+
+	* texturebrush.[ch]: Added the missing functionality of clipping
+	a rectangle out of image provided.
+
+2004-04-06  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* jpegcodec.c (gdip_save_jpeg_image_internal): 
+	remove stray JCS_GRAYSCALE setting, which was generating
+	very bizzare images.
+	
+	* jpegcodec.c, pngcodec.c: Allow reading/writing non-RGBA data.
+	The GpBitmap.data struct holds cairo-compatible data (always 32bpp
+	RGBA), whereas the GpImage.pixFormat field holds what this data is
+	actually supposed to be (i.e. grayscale).  Still no support for
+	colormapped images.
+
+2004-04-07  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (make_pie): Retort to make_ellipse *after* drawing
+	the line.
+
+2004-04-06  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* jpegcodec.c (gdip_save_jpeg_image_internal): implement
+	jpeg saving, both files and streams.  Format options are
+	ignored for now.
+
+	* image.c (GdipSaveImageToFile,
+	(GdipSaveImageToDelegate_linux): add JPEG
+
+	* image.c (gdip_get_pixel_format_components): added function
+
+	* jpegcodec.c (gdip_load_jpeg_image_internal): add missing
+	jpeg_destroy_decompress()
+
+2004-04-06  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (make_arc): Just follow what I did with GraphicsPath
+	and use a boolean flag instead of doing FP comparison. It's not
+	worth it.
+
+2004-04-06  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* gdip.h: Added stream handling delegate prototypes,
+	and some missing function protos
+
+	* gdipImage.h: stream delegate loading/saving functions
+
+	* image.c: stream loading/saving bits, implemented
+	via linux-specific delegates.  Added guids for various
+	file formats, and a gdip_image_format_for_clsid()
+	helper function
+
+	* jpegcodec.c: supports reading from a stream
+
+	* pngcodec.c: supports writing; also supports
+	reading/writing with a stream
+
+	* image.c: blit surface directly for painting images,
+	instead of creating a graphics context for it first
+
+	* gifcodec.c, jpegcodec.c, pngcodec.c, tifcodec.c:
+	Write data with the correct flags and resolution bits,
+	to (almost) match what win32 outputs
+
+2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* gifcodec.c, tiffcodec.c, pngcodec.c: include config.h, which
+	actually enables this code.. so that the glaring bugs as a result
+	of it never having been compiled before can be fixed. *cough*
+
+	* image.c (GdipDrawImageRectI): do correct scaling
+	if source and dest width/height don't match.
+	(GdipLoadImageFromFile): fseek back to the start
+	before passing to the loader.
+
+2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* image.c: Changed loader calls to use correct
+	load prototypes
+
+	* pngcodec.c, gifcodec.c: Implemented png and gif loading
+
+	* gdip.h: Changed ColorPalette to match GDI+; Entries is part
+	of the allocated struct, not a separate pointer.  Also
+	added some ARGB convenience macros.
+
+	* bmpcodec.c, bmpcodec.h: Updated load prototypes to match
+	usage
+
+2004-04-04  Vladimir Vukicevic  <vladimir@pobox.com>
+
+	* src/image.c, src/gdip.h: Added GdipDrawImage/DrawImageRect
+
+	* src/jpegcodec.c, src/tiffcodec.c: Implemented loading jpeg and
+	tiff images.  Need to test these out on windows, to see exactly
+	what formats stuff gets retruned in, but I think we should be ok
+	for the most common cases.  No file saving yet.
+	
+	* src/bmpcodec.c, src/gifcodec.c, src/pngcodec.c:
+	Remove calls to bogus (and undefined) gdip_image_new()
+
+2004-04-04  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (make_curve): Renamed from
+	gdip_make_closed_curve. Added a new _CurveType argument.
+	(convert_points): Moved to general.c, as it's used in
+	graphics-path.c as well.
+
+	* graphics-path.c (append_curve): Add a _CurveType
+	argument. Renamed from gdip_append_closed_curve for consistency.
+	(GdipAddPathClosedCurve2I): Hook it up.
+
+	* general.c (convert_points): Moved here from graphics.c
+	(gdip_open_curve_tangents): Declare here. No code yet, need to
+	investigate end tangents.
+
+	* gdip.h (_CurveType): New (private) enum for distinguishing open
+	and close curves.
+
+2004-04-04  Duncan Mak  <duncan@ximian.com>	
+
+	* graphics-path.c (append_arc): Added a new boolean argument. to
+	determine if we're continuing an existing curve.
+
+2004-04-04  Duncan Mak  <duncan@ximian.com>	
+
+	* graphics.c (make_arc): Only call move_to when we're not already at
+	that point. This fixes FillPie, as cairo_fill implicitly closes
+	all subpaths before filling. The extraneous move_to call earlier
+	was causing Cairo to close early.
+	(make_pie): Removed the debug messages.	
+
+2004-04-02  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (make_pie, GdipDrawArc): If the delta is greater than
+	or equal to 360 degrees, then we're effectively drawing an
+	ellipse, so make it do so.
+
+2004-04-02  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (GdipFillPieI, GdipDrawPieI): Instead of having
+	another copy of the code, just use the float equivalent.
+	(GdipDrawPie): Add restore/save pair.
+	(make_pie): This is broken right now. Added some debugging
+	messages.
+
+2004-04-01  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (GdipFillClosedCurve, GdipFillClosedCurveI):
+	Implemented.
+
+2004-04-02  Ravindra <rkumar@novell.com>
+	* texturebrush.c: Implemented TileFlipXY wrapmode.
+
+2004-04-01  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (convert_points): New helper function to turn a list
+	of GpPoints into GpPointFs.
+	(GdipDrawClosedCurveI): Implemented using convert_points, then
+	just call GdipDrawClosedCurve.
+
+2004-04-01  Duncan Mak  <duncan@ximian.com>	
+
+	Implemented drawing ClosedCurves in Graphics and GraphicsPath. 
+
+	These functions are implemented with the help of Prof. Rasala at
+	Northeastern University. The algorithm is described in:
+
+	     Richard Rasala, Explicit Cubic Spline Interpolation Formulas,
+	     in Andrew S. Glassner, Graphics Gems, Academic Press, 1990,
+	     579-584.
+
+	Remaining TODO: Finish open curves and consider tension.
+	
+	* graphics.c (gdip_make_closed_curve): Translates vertices
+	and tangents for cairo_curve_to.
+	(GdipDrawClosedCurve): Implemented.
+
+	* graphics-path.c (gdip_append_closed_curve): Translates vertices
+	and tangents into append_bezier.
+	(GdipAddPathClosedCurve2): Implemented.
+
+2004-04-01  Duncan Mak  <duncan@ximian.com>	
+
+	* gdip.h: Added the new functions for calculating tangents.
+	(CURVE_MIN_TERMS, CURVE_MAX_TERMS): Constants used in tangent
+	calculations.
+
+	* general.c (gdip_calculate_coefficients) 
+	(gdip_closed_curve_tangents): Two helper functions for drawing
+	closed curves.
+
+2004-03-30  Sanjay Gupta <gsanjay@novell.com>
+	*pngcodec.c Implemented one more method.
+	*gdip.h Modified ColorPalette structure.
+
+2004-03-31  Sachin Kumar <skumar1@novell.com>
+	* Makefile.am: Updated file to make it work for
+	  'make distcheck'.
+
+2004-03-30 Jordi Mas i Hernandez <jordi@ximian.com>
+	* image.c - GdipGetImageBounds and fixes
+        * bitmap.c - keep the witdh, height and pixel format in sync with the image struct
+
+2004-03-30  Sanjay Gupta <gsanjay@novell.com>
+	*pngcodec.c Added crc check
+	*pngcodec.h Added crc check
+
+2004-03-28  Sanjay Gupta <gsanjay@novell.com>
+	* pngcodec.c implementing png encoder
+	* pngcodec.h implementing png encoder
+
+2004-03-26  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c: Prepare for the Curve and CloseCurve work by
+	stubbing out some functions.
+
+	* graphics.c (gdip_plot_path): Fixed the handling of paths
+	containing PathPointTypeBezier points. Previously, we were
+	resetting the index to zero at the head of each loop, so we were
+	never drawing Bezier curves correctly. Also, we need to draw the
+	curve immediately once we've stored 3 points, instead of waiting
+	till the next iteration (which may never come). This is an
+	off-by-one error.
+
+	* graphics-path.c (append_arc): Use floats instead of ints to hold
+	the center points, use doubles to hold the trig points.
+
+2004-03-26 Jordi Mas i Hernandez <jordi@ximian.com>
+	* image.c - dpis and parameter checking
+
+2004-03-26  Ravindra  <rkumar@novell.com>
+	* texturebrush.c: Implemented TileFlipY wrapmode and fixed
+	TileFlipX wrapmode.
+
+2004-03-26  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c: Port the changes made to graphics here.
+	(append_arc): New function, modeled after make_arc for appending
+	arcs (a set of Bezier points) to the Path.
+	(GdipAddPathArc): Calculate the middle angle correctly and call
+	append_arc.
+	(GdipAddPathPie): Removed duplication, call append_arc
+	appropriately.
+
+2004-03-26  Duncan Mak  <duncan@ximian.com>
+	
+	* graphics.c (make_arc): Use the end angle instead of the sweep
+	angle.  Previously, the code was misbehaving because I used the
+	sweep angle as the end angle.
+	(make_pie, DrawArc): Determine the middle angle correctly in cases
+	where the delta > 180. Even though this sounds simple, it took a
+	long time for me to figure out.
+	(make_pie): Simplifed things a bit. Instead of replicating most of
+	the arc-drawing algorithm here, use of make_arc instead. This reduced
+	some of the duplicates in the code.
+	(DrawArcI): I'm tired on maintaining so many copies of the same
+	code, so just call DrawArc now.
+
+	With this patch, we should be drawing Arcs and Pies correctly.
+	
+2004-03-25  Ravindra <rkumar@novell.com>
+	* texturebrush.[ch]: Fixing texture brush. Still needs
+	some work.
+
+2004-03-24  Jordi Mas i Hernandez <jordi@ximian.com>
+	* imageattributes.c - created and first methods
+
+2004-03-23  Peter Bartok <pbartok@novell.com>
+   * gdip_win32.h: Added definitions for Wine X11DRV_ExtEscape function;
+                   removed definition and reference to internal wine structures
+   * gdip_win32.c: Added import of X11DRV_ExtEscape to allow pulling the X11 Drawable without
+                   knowledge of internal structures
+   * graphics.c: Now uses the X11DRV_ExtEscape function to retrieve the drawable from Wine
+   * general.c: Made x11drvHandle accessible for other source files (needed for X11DRV_ExtEscape)
+
+2004-03-23  Ravindra  <rkumar@novell.com>
+	* gdip.h: Changed file format to Unix.
+
+2004-03-22  Jordi Mas i Hernandez <jordi@ximian.com>
+	* graphics.c: added GdipFillPieI and GdipFillPie
+
+2004-03-22  Sanjay Gupta <gsanjay@novell.com>
+	* gdip.h: Typo error
+	* gdipImage.h: Fixed issue because of typo 
+	* image.c: Fixed issue because of typo
+
+2004-03-21  Sanjay Gupta <gsanjay@novell.com>
+	* Makefile.am: Included codec files.
+	* gdip.h: Added few structure definitions.
+	* gdipImage.h: Included codecs .h files.
+	* image.c: Work on codecs.
+
+2004-03-18  Miguel de Icaza  <miguel@ximian.com>
+
+	* graphics.c (GdipDrawString): Fixed what looked like a typo X and
+	Y.  
+
+	(GdipFillPath): Implement this routine.  Factor code
+	into gdip_plot_path.
+
+	Stub out a few more routines to avoid crashes when running.
+
+2004-03-18  Peter Bartok <pbartok@novell.com>
+   * pen.c: Fixed leak and bug that returned wrong pointer for dash array
+
+2004-03-15  Jordi Mas i Hernandez <jordi@ximian.com>
+    * graphics.c - Bug fixing, suport for hotkeys, code reoganisation
+    * stringformat.c - string format tab support
+
+2004-03-11  Peter Bartok <pbartok@novell.com>
+   * bitmap.c: Added temporary hack to always initialize the bitmap scan (pixel) data (for SWF)
+
+2004-03-10  Ravindra  <rkumar@novell.com>
+	* hatchbrush.c: Coding style fixes.
+
+2004-03-10  Ravindra  <rkumar@novell.com>
+	* hatchbrush.h: Modified few internal function signatures.
+	* hatchbrush.c: Implemented couple of hatching styles.
+
+2004-01-10  Alexandre Pigolkine <pigolkine@gmx.de>
+	* bitmap.c
+	* gdip.h	GdipBitmapData struct. Memory ownership 
+			stored in Reserved field		
+	* general.c	small fix
+	 
+2004-03-08  Ravindra  <rkumar@novell.com>
+	* hatchbrush.c: Implemented cross hatch style.
+	* hatchbrush.h: Modified a function signature.
+
+2004-03-08  Ravindra  <rkumar@novell.com>
+	* solidbrush.c: cairo_set_rgb_color bug fix.
+	* hatchbrush.c: cairo_set_rgb_color bug fix.
+
+2004-03-07 Sanjay Gupta <gsanjay@novell.com>
+	* gdip.h: Included ImageFlag enum and moved certain enums from
+	gdipImage.h
+	* gdipImage.h: Moved few enums to gdip.h
+	* image.c: Implemented few functions
+
+2004-03-06  Ravindra  <rkumar@novell.com>
+	* pen.c: Indentation.
+	* solidbrush.c: Coding style.
+	* hatchbrush.c: Coding style and removed printf.
+
+2004-03-05  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c (GdipAddPathPath): Fix index, it should be 0,
+	not 1.
+	(GdipAddPathPolygon): Add a line back to the starting point to
+	complete the polygon if the first and last points are not the same.
+
+2004-03-04  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c (GdipAddPathPath): Implemented.
+
+2004-03-04  Jordi Mas i Hernandez <jordi@ximian.com>
+    * stringformat.c - DigitSubstitution and TabStob methods
+
+2004-03-03  Miguel de Icaza  <miguel@ximian.com>
+
+	* gdip_win32.c (_load_gdi32, _load_user32): Use the
+	_WINE_SHAREDLIB_PATH environment variable to locate our dynamic
+	libraries. 
+
+	* general.c (_load_x11drv): Load the library from the special
+	location provided by the Wine init function.
+
+2004-03-03  Jordi Mas i Hernandez <jordi@ximian.com>
+    * stringformat.c - coding style
+
+2004-03-02  Jordi Mas i Hernandez <jordi@ximian.com>
+    * graphics.c - Implemented font strikeout and underline
+    * font.c - Implemented font strikeout and underline, allows multiple attributes
+    
+2004-03-01  Sanjay Gupta <gsanjay@novell.com>
+	* bitmap.c: Access modification in Get/Set Pixel()
+
+2004-02-29  Ravindra <rkumar@novell.com>
+	* hatchbrush.c: Implemented four vertical hatching styles
+	and did few comment improvements.
+
+2004-02-28  Miguel de Icaza  <miguel@ximian.com>
+
+	* font.c: Coding style, ANSI-C-ification
+
+	* Makefile.am: Add -ansi, -pedantic and -Werror, to keep this
+	clean.
+	
+	* bitmap.c (GdipBitmapSetPixel): Optimize SetPixel, remove
+	non-ANSI-isms.
+
+	* region.c: Ansi C again.
+
+	* hatchbrush.c: ANSI C again.
+
+	* graphics.c: Clean up the mess in this file:
+
+	Turn into ANSI C: No // for comments;  No variable declarations in
+	the middle of a file.
+
+	Fix the coding style (spacing, indentation).
+
+2004-02-28  Sanjay Gupta <gsanjay@novell.com>
+	
+	* bitmap.c: Implemented GetPixel and SetPixel method.
+	* gdip.h: Added declaration for GetPixel and SetPixel method.
+	* gdipImage.h: Removed typedef for ARGB
+
+2004-02-27  Ravindra <rkumar@novell.com>
+	* hatchbrush.c: First implementation. Implementing only
+	four hatching styles as of now. More to be added.
+	* hatchbruush.h: Defines hatch struct, hatchstyle enum
+	and also declaration for hatch brush functions.
+	* Makefile.am: Added hatchbruch.[ch] to sources.
+
+2004-02-26  Ravindra <rkumar@novell.com>
+	* graphics.c: Added cairo_save () and cairo_restore ()
+	function calls in Draw and Fill functions.
+
+2004-02-25  Jordi Mas i Hernandez <jordi@ximian.com>
+    * StringFormat.c - new methods
+    * Font.c - PrivateFontCollection methods
+    
+2004-02-24  Jordi Mas i Hernandez <jordi@ximian.com>
+    * font.c - added metrics for font families
+    
+2004-02-23  Jordi Mas i Hernandez <jordi@ximian.com>
+    * graphics.c - added GdipMeasureString
+    
+2004-02-22  Ravindra <rkumar@novell.com>
+	* texturebrush.c: First implementation. Needs some fixing.
+	* texturebrush.h: Defines texture struct, wrapmode enum and
+	also declaration for texture functions.
+	* Makefile.am: Added texturebruch.[ch] to sources.
+
+2004-02-21  Sanjay Gupta <gsanjay@novell.com>
+	* gdip.h: Added typedef for UINT
+	* Image.h: Added function stubs for image functions
+	* gdipImage.h: Added new file containing image function declaration
+
+2004-02-17  Jordi Mas i Hernandez <jordi@ximian.com>
+    * fonts.c - remove unnecesary code and fixes
+
+2004-02-17  Jordi Mas i Hernandez <jordi@ximian.com>
+    * fonts.c suport for unit conversion
+    * general.c - suport for unit conversion
+    * graphics.c - single line drawing
+    
+2004-02-16  Ravindra <rkumar@novell.com>
+	* gdip.h: Moved GpStatus enum and GpGraphics struct back
+	from brush.h in here. Thanks to Duncan, for pointing this
+	out.
+	* brush.h: Moved out GpStatus enum and GpGraphics struct
+	back to gdip.h.
+
+2004-02-13  Ravindra <rkumar@novell.com>
+	* brush.h: Added. For implementing brushes in OO-C, we
+	have Brush and BrushClass (vtable) structs defined here 
+	and related functions are declared.
+	* solidbrush.h: Added. For implementing brushes in OO-C,
+	we have SolidBrush struct defined here. Also, solid brush
+	functions are declared.
+	* gdip.h: Moved out brush functions to brush.h and solidbrush
+	functions to solidbrush.h. Also, moved GpStatus enum and 
+	GpGraphics struct to brush.h. (This is just to satisfy 
+	compiler).
+	* brush.c: All functions are modified to call functions from
+	vtable.
+	* solidbrush.c: new(), init(), setup(), clone() and destroy()
+	functions are modified.
+	* pen.c: gdip_pen_setup(): Modified to call gdip_brush_setup
+	irrespective of brush type.
+		GdipCreatePen2(): Added status checks. Now we set color
+	also when SolidBrush is in the question. This applies to 
+	GdipSetPenBrushFill() method also.
+	* stringformat.c: Renaming method gdip_brush_init to
+	gdip_stringformat_init. Because the method name is used
+	in brush.c.
+
+2004-02-13  Jordi Mas i Hernandez <jordi@ximian.com>
+    * fonts.c fixed re-use of the same font, fixed size problems
+    * graphics.c - string format, aligment, etc
+    * stringformat.c - initial implementation
+
+2004-02-05  Duncan Mak  <duncan@ximian.com>
+
+	* gdip.h (GpRect, GpRectF): Instead of storing coordinates in
+	terms of top, left, right, bottom, changed it to use X, Y, Width
+	and Height instead. This matches the requirements for GDI+ (Flat
+	API and the C++ wrapper) as well as System.Drawing.
+
+	* bitmap.c (GdipBitmapLockBits): 
+	* matrix.c (GdipCreateMatrix3, GdipCreateMatrix3I):
+	* graphics.c (GdipDrawString): 	
+	* graphics-path.c
+	(GdipAddPathRectangles, GdipAddPathRectanglesI): Use X,
+	Y, Width, Height coordinates instead of the old system.
+
+2004-02-05  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c: Fixed indentation.
+
+2004-02-05  Jordi Mas i Hernandez <jordi@ximian.com>
+	* font.c - first implementation
+
+2004-01-29  Duncan Mak  <duncan@ximian.com>
+
+	* bitmap.c (gdip_bitmap_dispose): Add a check for own_scan0.
+	(GdipCreateBitmapFromScan0): Set own_scan0 flag if we own the
+	incoming buffer, scan0.
+
+	* gdip.h (GdipBitmapData): Add new field, own_scan0.
+
+2004-01-26  Duncan Mak  <duncan@ximian.com>
+
+	* bitmap.c (GdipCreateBitmapFromScan0): Use GdipAlloc here instead
+	of malloc.
+	(gdip_bitmap_dispose): Call GdipFree on bitmap->data.scan0 here.
+
+	Jordi did the work for this, not me; I'm just the messenger.
+
+2004-01-26  Duncan Mak  <duncan@ximian.com>	
+
+	* graphics.c (GdipDrawPath): Doh! Added stupid breaks inside the
+	switch, so we can draw simple paths (lines) now. For more complex
+	curves, the array is holding some NaNs, so I'll need to look into
+	that.
+
+	* bitmap.c:
+	(GdipCreateBitmapFromScan0): Set allocate memory for scan0 if it
+	is NULL. Thanks to Jordi for fixing this, we can now write out to
+	a file again.
+
+2004-01-26  Duncan Mak  <duncan@ximian.com>	
+
+	* graphics.c: Use C style comments instead of C++ style.
+
+	* pen.c (clone_dash_array): new helper function.
+	(GdipClonePen): Copy matrix and dash_array, removed the FIXME.
+
+2004-01-23  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (GdipDrawPath): Implemented.
+
+2004-01-20  Ravindra <rkumar@novell.com>
+
+	* pen.c (GdipGetPenTransform): Fixed function signature, this
+	fixes bug #52811.
+
+2004-01-19  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c (GdipGetPathPoints): Fixed.
+	(GdipCreatePath): Remember to	initialize the arrays instead of
+	just setting them to NULL.
+	(GdipGetPathTypes, GdipGetPathPoints): Fix signature.
+
+	* Makefile (local_sources): Add graphics-path.c to the build.
+
+2004-01-13  Duncan Mak  <duncan@ximian.com>
+
+	* matrix.c (GdipCreateMatrix): Use gdip_get_status instead of just
+	returning Ok;
+
+2004-01-13  Bernie Solomon  <bernard@ugsolutions.com>
+
+	* graphics-path.c (append): fix struct initialization
+	for old fashioned C compilers
+
+2004-01-13  Ravindra <rkumar@novell.com>
+
+	* pen.c: Initialized pen.matrix field to identity matrix.
+
+2004-01-10  Alexandre Pigolkine <pigolkine@gmx.de>
+	* bitmap.c 
+	* brush.c		cosmetic changes
+	* gdip.h		new field added to GpPen structure
+	* gdip_win32.h		conditional compilation flag used to reflect changes in Cairo > 0.14
+	* graphics.c		restore position in GRAPHICS_STATE stack 
+	* matrix.c		order of matrices in GdipMultiplyMatrix changed 
+	* pen.c			initialization of fields, protection in GdipDeletePen function added
+
+2003-12-25  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c (GdipAddPathLine): Use append instead of
+	append_point.
+	(GdipTransformPath): Remember to reset the points after the
+	transformation.
+
+2003-12-25  Duncan Mak  <duncan@ximian.com>	
+
+	* graphics.c (DrawBezier, DrawBezierI): Well, it's pretty obvious
+	that the code was incorrect before. After Christmas, I'm gonna
+	hook up the GraphicsPath code and work on testing and making sure
+	this stuff is correct. I'm pretty sure, in a first pass, there are
+	lots of littles bugs waiting to be fixed.
+
+	* graphics-path.c (new_point): Removed, we now pack the point
+	inside the append functions.
+	(append): New function that takes the X, Y coordinates directly.
+	(append_bezier): Take coordinates instead of GpPointFs. Use the
+	new append function instead of append_point.
+
+2003-12-23  Duncan Mak  <duncan@ximian.com>
+
+	* graphics-path.c:
+	* graphics-path.h: Implemented GraphicsPath.
+
+	* Makefile: Added graphics-path.c.
+
+	* gdip.h (GpPathPointType, GpWarpMode): Added.
+
+2003-12-21  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (C1): Made it more precise.
+	(make_pie): Fixed.
+	(make_arc): New helper function for getting the right Bezier for
+	an elliptical arc, based on an algorithm found in the
+	comp.text.pdf FAQ.
+
+2003-12-02  Bernie Solomon  <bernard@ugsolutions.com>
+
+	* pen.c (GdipSetPenLineCap): fix arg type so it compiles
+	using HP compiler.
+
+	* gdip.h: fix spelling of GdipSetPenLineJoin and add
+	prototype for GdipGetPenLineJoin
+
+2003-11-28  Duncan Mak  <duncan@ximian.com>
+
+	* brush.c (gdip_brush_setup): Check on the type of the brush and
+	delegate the implementation to the concrete Brushes, 
+	(GdipCloneBrush, GdipDeleteBrush, GdipGetBrushType): Implemented.
+
+	* gdip.h (DashStyle): Fixed typo.
+	(PenAlignment, BrushType): Added new enumerations.
+	(GpBrush): Added new type field.
+	(GpPen): Added new fields: color, brush, mode, dash_array and
+	unit. Updated the header file to include new Pen functions.
+
+	* pen.c (convert_dash_array): Utitlity function for converting
+	from a float* from GDI+ to a double* for Cairo.
+	(GdipCreatePen2, GdipClonePen): Implemented.
+	(PenWidth, BrushFill, Color, PenMode, PenUnit, DashStyle):
+	(DashOffset, DashCount, DashArray): Implemented the Get/Set
+	function pairs for these properties.
+	(GdipGetPenCompoundArray, GdipSetPenCompoundArray):
+	(GdipGetPenCompoundArrayCount): Stubbed.
+
+	* solidbrush.c (gdip_solidfill_init): Utility for initializing a
+	SolidBrush. Sets type as BrushTypeSolidColor.
+	(gdip_solidfill_setup): Moved from gdip_brush_setup.
+	(gdip_solidfill_clone): Implementation for GdipCloneBrush for a
+	GpSolidFill.
+	(GdipSetSolidFillColor, GdipGetSolidFillColor): Implemented.
+
+2003-11-22  Duncan Mak  <duncan@ximian.com>
+
+	* matrix.c (GdipCreateMatrix3, GdipCreateMatrix3I): Implemented.
+	(GdipCloneMatrix): Fixed.
+	(GdipShearMatrix, set_shear): Implemented.
+	
+	* graphics.c:
+	(GdipGetWorldTransform, GdipMultiplyWorldTransform): Implemented.
+	(GdipRotatePenTransform, GdipTranslatePenTransform): Use GDI+
+	functions instead.
+
+	* gdip.h
+	(GdipRotatePenTransform, GdipTranslatePenTransform): Fix
+	signature.
+	(GdipCreateMatrix3, GdipCreateMatrix3I): Use const appropriately.
+	
+2003-11-17  Duncan Mak  <duncan@ximian.com>
+
+	* matrix.c (matrix_equals): New helper function help test matrix
+	equality.
+	(GdipIsMatrixIdentity, GdipIsMatrixEqual): Use matrix_equals.
+	(GdipGetMatrixElements): Don't malloc here, because the caller
+	should hand us an allocated array.
+
+2003-11-16  Duncan Mak  <duncan@ximian.com>
+
+	* matrix.c (GdipCreateMatrix2, GdipCreateMatrix3) 
+	(GdipCreateMatrix3I): Implemented.
+
+	* pen.c (GdipResetPenTransform):
+	(GdipMultiplyPenTransform, GdipTranslatePenTransform):
+	(GdipScalePenTransform, GdipRotatePenTransform): Implemented.
+
+	* matrix.c (set_translate, set_scale, set_rotate): Helper
+	functions copied from Cairo. We are doing this because you can
+	specify the order of multiplcation in GDI+, but not in Cairo.
+
+2003-11-15  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c: Moved PI and GRADTORAD to gdip.h.
+	* gdip.h: Renamed GRADTORAD to DEGTORAD.
+
+	* matrix.c (GdipCloneMatrix): Fix argument order.
+	* matrix.c
+	(GdipMultiplyMatrix, GdipTranslateMatrix, GdipScaleMatrix):
+	(GdipRotateMatrix, GdipInvertMatrix):
+	(GdipTransformMatrixPoints, GdipVectorTransformMatrixPoints):
+	(GdipSetMatrixElements, GdipGetMatrixElements):
+	(GdipIsMatrixInvertible): Implemented.
+
+	* matrix.c (GdipIsMatrixIdentity, GdipIsMatrixEqual): Implemented.
+
+2003-11-14  Duncan Mak  <duncan@ximian.com>	
+
+	* general.c (gdip_get_status): Take cairo_status_t instead of
+	cairo_t. We need this because this is used in matrix.c and we only
+	have cairo_matrix_t there.
+	* graphics.c: Updated calls to gdip_get_status.
+
+	* pen.c
+	(convert_line_cap, convert_line_join): Added static keyword.
+	(GdipDeletePen): Implemented.
+
+	* matrix.c
+	(GdipCreateMatrix2, GdipCloneMatrix, GdipInvertMatrix): Use
+	gdip_get_status instead of just returning Ok.
+	(GdipRotateMatrix, GdipScaleMatrix, GdipTranslateMatrix):
+	Implemented.
+
+2003-11-12  Duncan Mak  <duncan@ximian.com>
+
+	* bitmap.c, brush.c, general.c:
+	* graphics.c, image.c, matrix.c:
+	* pen.c, solidbrush.c: Use gdip.h instead of gdip_main.h.
+	
+	* gdip.h: New header file, merged from gdip_main.h and
+	gdip_defs.h.
+
+	* gdip_main.h, gdip_defs.h: Removed.
+
+	* pen.c
+	(convert_line_join, convert_line_cap): new function for converting
+	enumerations between GDI+ and Cairo.
+	(gdip_pen_setup): set miter limit and line join.
+	(GdipSetPenMiterLimit, GdipGetPenMiterLimit):
+	(GdipSetPenLineJoin, GdipGetPenLineJoin): 
+	(GdipSetPenLineJoin, GdipGetPenTransform): implemented.	
+	
+2003-11-12  Alexandre Pigolkine <pigolkine@gmx.de>
+	* bitmap.c 		copy image funciton added
+	
+2003-11-06  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c (GdipDrawRectangle): Add call to gdip_pen_setup so
+	that we stroke with the right color.
+
+2003-11-05  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c
+	(make_pie, make_ellipse, make_polygon): Add static keyword.
+
+	* gdip_defs.h: Update headers to include DrawBezier, DrawBeziers,
+	DrawEllipse, DrawPie, DrawPolygon, DrawRectangle, FillEllipse,
+	FillPolygon and the RenderingOrigin property.
+
+	* Makefile (install-local): Added missing semi-colons.
+
+2003-11-03  Bernie Solomon <bernard@ugsolutions.com>
+
+	* gdip_main.h, gdip_win32.h, gdip_win32.c:
+	fixes for non-GCC compilers
+
+2003-11-02  Alexandre Pigolkine <pigolkine@gmx.de>
+
+	* bitmap.c 		convert 24/32 bpp images in LockBits
+
+2003-11-01  Duncan Mak  <duncan@ximian.com>
+
+	* matrix.c
+	(GdipCreateMatrix, GdipCreateMatrix2, GdipCloneMatrix):
+	(GdipDeleteMatrix, GdipInvertMatrix): Implemented; the rest of the
+	functions are stubbed out.
+
+	* gdip_defs.h (GpMatrixOrder): Added.	
+
+	* gdip_main.h
+	(GpRect, GpRectF): Synonyms for Rect and RectF.
+	(GpMatrix): An alias of cairo_matrix_t.
+
+	* Makefile: Added matrix.c.
+
+2003-10-28  Duncan Mak  <duncan@ximian.com>
+
+	* gdip_main.h, gdip_def.h:
+	Renamed all gdip_foo_ptr types are now GpFoo *.
+	Renamed Status to GpStatus.
+	Reformatted all C++ style comments to C style comments.
+	Reformatted all C function prototypes to the style used by GTK+.
+
+	* gdip_main.h (GpPoint, GpPointF): Added.
+
+	* gdip_defs.h (GpFillMode): Added.
+
+	* graphics.c (make_ellipse):
+	(make_polygon, make_polygon_from_integers):
+	(make_pie): private functions (make_foo) to be reused by DrawFoo
+	and FillFoo.
+	
+	(convert_fill_mode): Converts a GpFillMode to a cairo_fill_rule_t.
+
+	(GdipDrawPie, GdipFillEllipse, GdipFillPolygon): Implemented.
+
+2003-10-26  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c
+	(GdipSetRenderingOrigin, GdipGetRenderingOrigin): Implemented.
+
+2003-10-25  Duncan Mak  <duncan@ximian.com>
+
+	* graphics.c
+	(GdipDrawBezier, GdipDrawBezierI):
+	(GdipDrawBeziers, GdipDrawBeziersI):
+	(GdipDrawLine, GdipDrawLineI):		
+	(GdipDrawLines, GdipDrawLinesI): implemented.
+
+	(GdipFillRectangle):
+	(GdipDrawString): Make use of gdip_get_status.
+	
+	* general.c
+	(gdip_get_status): A new function for retrieving a Status from a
+	cairo_t.
+	
+2003-10-23  Miguel de Icaza  <miguel@ximian.com>
+
+	* bitmap.c (GdipCreateBitmapFromScan0): Do not allocate buffer
+	here, expect that our caller to allocate that.
+	
+	Do not compute the stride here, expect our caller to do this
+	properly.
+
+	* Use the Mono coding conventions.
+
+2003-10-15  Alexandre Pigolkine <pigolkine@gmx.de>
+	* image.c			GdipDrawImageRectI changed 
+	
+2003-10-14  Alexandre Pigolkine <pigolkine@gmx.de>
+	* gdip_defs.h
+	* graphics.c
+	* gdip_main.h
+						DrawString function added
+
+2003-10-12  Alexandre Pigolkine <pigolkine@gmx.de>
+	* bitmap.c
+	* brush.c
+	* gdip_defs.h
+	* gdip_win32.c
+	* gdip_win32.h
+	* gdip_main.h
+	* general.c
+	* graphics.c
+	* image.c
+	* Makefile
+	* pen.c
+	* solidbrush.c
+						Added
