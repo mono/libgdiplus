@@ -393,6 +393,7 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 	red = NULL;
 	green = NULL;
 	blue = NULL;
+	pixbuf_org = NULL;
 
 	for (frame = 0; frame < image->num_of_frames; frame++) {
 		animated = FALSE;
