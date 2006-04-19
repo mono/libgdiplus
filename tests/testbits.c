@@ -36,7 +36,7 @@ main (int argc, char **argv)
     status = GdipBitmapUnlockBits (bitmap, &d);
     CHECK_STATUS(1);
 
-    lptr = (unsigned long *) bitmap->data.Scan0;
+    lptr = (unsigned long *) bitmap->active_bitmap->scan0;
     for (j = 0; j < 10; j++) {
         for (i = 0; i < 10; i++) {
             *lptr++ = j | j << 8 | i << 16 | i << 24;
@@ -51,7 +51,7 @@ main (int argc, char **argv)
     CHECK_STATUS(1);
 
     for (j = 0; j < 5; j++) {
-        lptr = (unsigned long *) d.Scan0 + j * d.Stride;
+        lptr = (unsigned long *) d.scan0 + j * d.stride;
         printf ("%d: ", j);
         for (i = 0; i < 5; i++) {
             printf ("%08x ", *lptr++);
@@ -59,13 +59,13 @@ main (int argc, char **argv)
         printf ("\n");
     }
     printf ("Modifying (setting to 0xff)\n");
-    memset (d.Scan0, 0xff, d.Stride * d.Height);
+    memset (d.scan0, 0xff, d.stride * d.height);
     printf ("Unlocking\n");
     status = GdipBitmapUnlockBits (bitmap, &d);
     CHECK_STATUS(1);
     printf ("Original data after unlock (shouldn't be 0xffffffff): 0x%08x\n",
-            ((unsigned long *)(bitmap->data.Scan0))[55]);
-    if (((unsigned long *)(bitmap->data.Scan0))[55] == 0xffffffff)
+            ((unsigned long *)(bitmap->active_bitmap->scan0))[55]);
+    if (((unsigned long *)(bitmap->active_bitmap->scan0))[55] == 0xffffffff)
         printf ("==> FAIL!\n");
 
     memset (&d, 0x00, sizeof(GdipBitmapData));
@@ -75,7 +75,7 @@ main (int argc, char **argv)
     status = GdipBitmapLockBits (bitmap, &r, ImageLockModeRead, Format32bppRgb, &d);
     CHECK_STATUS(1);
 
-    lptr = (unsigned long *) d.Scan0;
+    lptr = (unsigned long *) d.scan0;
     for (j = 0; j < 5; j++) {
         printf ("%d: ", j);
         for (i = 0; i < 5; i++) {
@@ -95,7 +95,7 @@ main (int argc, char **argv)
     CHECK_STATUS(1);
 
     for (j = 0; j < 5; j++) {
-        cptr = (unsigned char *) (d.Scan0 + (j * d.Stride));
+        cptr = (unsigned char *) (d.scan0 + (j * d.stride));
         printf ("%d: ", j);
         for (i = 0; i < 5; i++) {
             printf ("%02x%02x%02x ", cptr[0], cptr[1], cptr[2]);
@@ -106,7 +106,7 @@ main (int argc, char **argv)
 
     printf ("Modifying (setting to 0xaabbcc)\n");
     for (j = 0; j < 5; j++) {
-        cptr = (unsigned char *) (d.Scan0 + (j * d.Stride));
+        cptr = (unsigned char *) (d.scan0 + (j * d.stride));
         for (i = 0; i < 5; i++) {
             *cptr++ = 0xcc;
             *cptr++ = 0xbb;
@@ -119,7 +119,7 @@ main (int argc, char **argv)
 
     printf ("Original data after Unlock (should be all 0xffaabbcc):\n");
     for (j = 5; j < 10; j++) {
-        lptr = (unsigned long *) (bitmap->data.Scan0 + j * bitmap->data.Stride) + 5;
+        lptr = (unsigned long *) (bitmap->active_bitmap->scan0 + j * bitmap->active_bitmap->stride) + 5;
         printf ("%d: ", j);
         for (i = 5; i < 10; i++) {
             printf ("%08x ", *lptr++);

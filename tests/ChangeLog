@@ -1,3 +1,7 @@
+2006-04-19  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* testbits.cs: Updated to match new BitmapData and Bitmap structs
+
 2006-02-28  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* testbits.cs: Fixed bug #144798 (Novell Bugzilla)
