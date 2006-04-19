@@ -107,6 +107,12 @@ GdipCalloc (size_t nelem, size_t elsize)
 
 }
 
+void *
+GdipRealloc (void *org, int size)
+{
+	return realloc (org, size);
+}
+
 void 
 GdipFree (void *ptr)
 {

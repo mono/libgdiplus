@@ -1,3 +1,27 @@
+2006-04-20  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* bmpcodec.c, general.c, image.c, jpegcodec.c, tiffcodec.c,
+	  imageattributes.c, gdipImage.h, region-bitmap.c, gifcodec.c,
+	  texturebrush.c, pngcodec.c, gdip.h: 
+	  - Changed BitmapData, FrameData, GpImage and GpBitmap structures
+	    to more accurately reflect gdiplus behaviour; removed broken
+	    dual frame and single bitmap concept, instead everything is
+	    organized into frames, with an active bitmap designating the
+	    currently used bitmap.
+	  - Added property components to BitmapData to allow implementing
+	    properties per bitmap
+	  - Updated all image related code to use new structures
+	  - Lots of added sanity checks and logic bug fixes
+	  - Fixed up sources to use tabs instead of spaces (png, jpeg) and
+	    removed buttloads of trailing whitespace on lines in all files
+	  - Rewrote gif load and save methods to properly deal with animation,
+	    transparency and reading/storing animation delay times
+	  - Streamlined many functions, removed deep nesting, introduced
+	    single point of error handling for each encoder and decoder
+	  - Now allows for disparate sizes of bitmaps in a single frame
+	  - Implemented ImageLockModeUserInputBuf for GdipBitmapLockBits and
+	    several other unimplemented features
+
 2006-04-19 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* bmpcodec.c: fixed same error that Peter fixed in his last commit, but

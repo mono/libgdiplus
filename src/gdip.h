@@ -634,23 +634,8 @@ typedef enum {
  */
 
 #define GBD_OWN_SCAN0	(1<<8)
-#define GBD_READ_ONLY	(1<<9)
+#define GBD_WRITE_OK	(1<<9)
 #define GBD_LOCKED	(1<<10)
-
-typedef struct {    /* Keep in sync with BitmapData.cs */
-	unsigned int Width;
-	unsigned int Height;
-	int          Stride;
-	int          PixelFormat;
-	byte* 	     Scan0;
-	unsigned int Reserved;
-	/*Added to keep track of position for displaying next frame
-	in a gif*/
-	unsigned int Top; 
-	unsigned int Left;
-	int	     ByteCount;
-	char*	     Bytes;
-} GdipBitmapData, BitmapData;
 
 typedef struct {
 	int X, Y, Width, Height;
@@ -826,40 +811,60 @@ typedef struct {
 	VOID*	value;
 } PropertyItem;
 
+/* This structure is mirrored in System.Drawing.Imaging.BitmapData.
+   Any changes here must also be made to BitmapData.cs */
 typedef struct {
-	GUID frameDimension;
-	int count;
-	BitmapData *frames;
-} FrameInfo;
+	unsigned int	width;
+	unsigned int	height;
+	int		stride;
+	int		pixel_format;
+	byte 		*scan0;
+	unsigned int	reserved;
+	ColorPalette	*palette;
+
+	int		property_count;		/* Number of properties */
+	PropertyItem 	*property;		/* Properties associated with image */
+
+	float 		dpi_horz;		/* */
+	float 		dpi_vert;		/* */
+	ImageFlags	image_flags;		/* Alpha, ColorSpace, etc. */
+
+	unsigned int	left;			/* left display coordinate of frame */
+	unsigned int	top;			/* top display coordinate of frame */
+	unsigned int	x;			/* LockBits: left coordinate of locked rectangle */
+	unsigned int	y;			/* LockBits: top coordinate of locked rectangle */
+} GdipBitmapData, BitmapData;
 
 typedef struct {
-	ImageType     	type;
-	cairo_surface_t *surface;
-	int 		imageFlags;
-	int 		height;
-	int 		width;
-	float 		horizontalResolution;
-	ColorPalette 	*palette;
-	int	 	pixFormat;
-	PropertyItem 	*propItems;
-	float 		verticalResolution;
-	ImageFormat     format;
-	int		frameDimensionCount;
-	FrameInfo	*frameDimensionList;
-} GpImage;
+	int		count;			/* Number of bitmaps contained in this frame */
+	BitmapData	*bitmap;		/* Bitmaps for this frame */
+	GUID		frame_dimension;	/* GUID describing the frame type */
+} FrameData;
 
 typedef struct {
-	GpImage		image;
+	/* Image Description */
+	ImageType     	type;			/* Undefined, Bitmap, MetaFile */
+	ImageFormat     image_format;		/* BMP, TIF, GIF, PNG, etc.	*/
+
+	/* Image Data */
+	int		num_of_frames;		/* Number of frames */
+	FrameData	*frames;		/* Array of frames (Page, Time, Resolution) for the image */
+
+	/* Tracking of active image */
+	int		active_frame;		/* Index of frame currently used */
+	int		active_bitmap_no;	/* Index of active bitmap in current frame */
+	BitmapData	*active_bitmap;		/* Pointer to active frame/bitmap; DO NOT free() */
+
+	/* Internal fields */
         int             cairo_format;
-	BitmapData	data;
-} GpBitmap;
+	cairo_surface_t *surface;
+} GpImage, GpBitmap;
 
 typedef struct {
         FcFontSet*  fontset;
         /* Only for private collections */
         FcConfig*   config;
 } GpFontCollection;
-
 
 typedef struct {
         FcPattern*	pattern;
@@ -991,15 +996,16 @@ typedef struct {
 
 typedef struct
 {
-	Rect region;
-	int x, y;               /* the offset of the next byte that will be loaded, once the buffer is depleted */
-	unsigned short buffer;
-	int p;                  /* index of pixel within 'buffer' that was returned by the last call to gdip_pixel_stream_get_next () */
-	int one_pixel_mask, one_pixel_shift;
-	int pixels_per_byte;	/* a negative value is used to indicate a count of bytes per pixel for depths of more than 8 bits */
+	Rect		region;
+	int		x, y;			/* the offset of the next byte that will be loaded, once the buffer is depleted */
+	unsigned short	buffer;
+	int		p;			/* index of pixel within 'buffer' that was returned by the last call to gdip_pixel_stream_get_next () */
+	int		one_pixel_mask;
+	int		one_pixel_shift;
+	int		pixels_per_byte;	/* a negative value is used to indicate a count of bytes per pixel for depths of more than 8 bits */
 
-	BitmapData *data;
-	unsigned char *scan;
+	BitmapData	*data;
+	unsigned char	*scan;
 } StreamingState;
 
 GpStatus gdip_init_pixel_stream (StreamingState *state, BitmapData *data, int x, int y, int w, int h);
@@ -1013,10 +1019,17 @@ void gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value
  */
 void gdip_image_init              (GpImage *image);
 
-void gdip_bitmap_init  (GpBitmap *bitmap);
-GpBitmap *gdip_bitmap_new   (void);
-void gdip_bitmap_dispose (GpBitmap *bitmap);
-GpStatus gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap);
+void		gdip_bitmap_init(GpBitmap *bitmap);
+GpBitmap	*gdip_bitmap_new(void);
+GpBitmap	*gdip_bitmap_new_with_frame(const GUID *dimension, bool add_bitmapdata);
+FrameData	*gdip_frame_add(GpBitmap *bitmap, const GUID *dimension);
+BitmapData	*gdip_frame_add_bitmapdata(FrameData *frame);
+void		gdip_bitmap_dispose (GpBitmap *bitmap);
+GpStatus	gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap);
+GpStatus	gdip_bitmap_setactive(GpBitmap *bitmap, const GUID *dimension, int index);
+GpStatus	gdip_bitmapdata_clone(BitmapData *src, BitmapData **dest, int count);
+ColorPalette	*gdip_palette_clone(ColorPalette *original);
+
 
 void gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface);
 GpGraphics *gdip_graphics_new (cairo_surface_t *surface);
@@ -1357,6 +1370,7 @@ void gdip_calculate_coefficients (int count, int terms, float **coefficients, in
 
 /* Memory */
 void *GdipAlloc (int size);
+void *GdipRealloc (void *org, int size);
 void *GdipCalloc (size_t nelem, size_t elsize); 
 void GdipFree (void *ptr);
 

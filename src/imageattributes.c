@@ -77,13 +77,13 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	GpImageAttribute *imgattr, *def;
 	GpImageAttribute *colormap, *gamma, *trans, *cmatrix;
-	void *scan0;
-	GpBitmap bmpdest;
+	GpBitmap *bmpdest;
 	int x,y, cnt;
 	ARGB color;	
 	byte *color_p = (byte *)&color;
 	
 	*allocated = FALSE;
+	bmpdest = NULL;
 	
 	if (!bitmap || !dest || !attr) 
 		return;
@@ -120,12 +120,11 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	if (colormap->colormap_elem || gamma->gamma_correction || trans->key_enabled || 
 	    (cmatrix->colormatrix_enabled && cmatrix->colormatrix != NULL)) {
-		scan0 = GdipAlloc (bitmap->data.Stride * bitmap->data.Height);
-		memcpy (scan0, bitmap->data.Scan0, bitmap->data.Stride * bitmap->data.Height);
-		*dest = scan0;
-		memcpy (&bmpdest, bitmap, sizeof (GpBitmap));
-		bmpdest.data.Bytes = NULL;
-		bmpdest.data.Scan0 = scan0;
+		bmpdest = gdip_bitmap_new_with_frame(NULL, FALSE);
+		gdip_bitmapdata_clone(bitmap->active_bitmap, &bmpdest->frames[0].bitmap, 1);
+		bmpdest->frames[0].count = 1;
+		gdip_bitmap_setactive(bmpdest, NULL, 0);
+		*dest = bmpdest->active_bitmap->scan0;
 		*allocated = TRUE;
 	}
 	
@@ -136,18 +135,18 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	
 	/* Color mapping */
 	if (colormap->colormap_elem) {
-		for (y = 0; y <bitmap->data.Height; y++) {	
-			for (x = 0; x <bitmap->data.Width; x++) {
+		for (y = 0; y <bitmap->active_bitmap->height; y++) {	
+			for (x = 0; x <bitmap->active_bitmap->width; x++) {
 				GpColorMap* clrmap = colormap->colormap;
 				int found;
 				
-				GdipBitmapGetPixel (&bmpdest, x, y, &color);
+				GdipBitmapGetPixel (bmpdest, x, y, &color);
 				
 				for (cnt = 0; cnt < colormap->colormap_elem; cnt++, clrmap++) {
 				  
 					if (color == clrmap->oldColor.Color) {						
 						color = clrmap->newColor.Color;						
-						GdipBitmapSetPixel (&bmpdest, x, y, color);
+						GdipBitmapSetPixel (bmpdest, x, y, color);
 						break;
 					}
 				}
@@ -157,12 +156,12 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	
 	/* Gamma correction */
 	if (gamma->gamma_correction) {
-		for (y = 0; y <bitmap->data.Height; y++) {	
-			for (x = 0; x <bitmap->data.Width; x++) {
+		for (y = 0; y < bitmap->active_bitmap->height; y++) {	
+			for (x = 0; x < bitmap->active_bitmap->width; x++) {
 			
 				BYTE r,g,b,a;					
 				
-				GdipBitmapGetPixel (&bmpdest, x, y, &color);		
+				GdipBitmapGetPixel (bmpdest, x, y, &color);		
 			
 				a = (color & 0xff000000) >> 24;
 				r = (color & 0x00ff0000) >> 16;
@@ -179,7 +178,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				
 				color = b | (g  << 8) | (r << 16) | (a << 24);
 					
-				GdipBitmapSetPixel (&bmpdest, x, y, color);
+				GdipBitmapSetPixel (bmpdest, x, y, color);
 			}	
 		}
 		
@@ -187,14 +186,14 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	
 	/* Apply transparency range */
 	if (trans->key_enabled) {
-		for (y = 0; y <bitmap->data.Height; y++) {	
-			for (x = 0; x <bitmap->data.Width; x++) {
+		for (y = 0; y < bitmap->active_bitmap->height; y++) {	
+			for (x = 0; x < bitmap->active_bitmap->width; x++) {
 				
-				GdipBitmapGetPixel (&bmpdest, x, y, &color);					
+				GdipBitmapGetPixel (bmpdest, x, y, &color);					
 				
 				if (color >= trans->key_colorlow && color <= trans->key_colorhigh) {
 					color = color & 0x00ffffff; /* Alpha = 0 */
-					GdipBitmapSetPixel (&bmpdest, x, y, color);
+					GdipBitmapSetPixel (bmpdest, x, y, color);
 				}
 			}	
 		}
@@ -203,13 +202,13 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	/* Apply Color Matrix */
 	if (cmatrix->colormatrix_enabled && cmatrix->colormatrix) {
-		for (y = 0; y <bitmap->data.Height; y++) {	
-			for (x = 0; x <bitmap->data.Width; x++) {
+		for (y = 0; y < bitmap->active_bitmap->height; y++) {	
+			for (x = 0; x < bitmap->active_bitmap->width; x++) {
 
 				byte r,g,b,a;
 				int r_new,g_new,b_new,a_new;
 				
-				GdipBitmapGetPixel (&bmpdest, x, y, &color);
+				GdipBitmapGetPixel (bmpdest, x, y, &color);
 				get_pixel_bgra (color, b, g, r, a);
 
 				r_new = (r * cmatrix->colormatrix->m[0][0] + g * cmatrix->colormatrix->m[1][0] + b * cmatrix->colormatrix->m[2][0] +
@@ -230,10 +229,15 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				if (a_new > 0xff) a_new = 0xff;
 
 				set_pixel_bgra (color_p, 0, (byte) b_new, (byte) g_new, (byte) r_new, (byte) a_new);
-				GdipBitmapSetPixel (&bmpdest, x, y, color);
+				GdipBitmapSetPixel (bmpdest, x, y, color);
 			}	
 		}
 	
+	}
+
+	if (bmpdest != NULL) {
+		bmpdest->active_bitmap->scan0 = NULL;
+		gdip_bitmap_dispose(bmpdest);
 	}
 }
 

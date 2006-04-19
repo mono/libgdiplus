@@ -38,6 +38,7 @@
 #ifdef HAVE_LIBGIF
 
 #include <gif_lib.h>
+#define	APP_IDENTIFIER	"Mono libgdiplus gif codec"
 
 /* giflib declares this incorrectly as EgifOpen */
 extern GifFileType *EGifOpen(void *userData, OutputFunc writeFunc);
@@ -120,218 +121,208 @@ gdip_load_gif_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 GpStatus 
 gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 {
-	GifFileType *gif = NULL;
-	int res;
-	
-	GpBitmap *img = NULL;
-	ColorMapObject *pal = NULL;
-	ColorMapObject *localPalObj = NULL;
-	ColorPalette *localPal = NULL;
-	guchar *pixels = NULL;
-	guchar *readptr, *writeptr;
-	int i, j, l, pixelLength;
-	int imgCount;
-	int extBlockCount;
-	bool pageDimensionFound = FALSE;
-	bool timeDimensionFound = FALSE;
-	int pageDimensionCount = 0;
-	int timeDimensionCount = 0;
-	bool timeDimension = FALSE;
-	int timeCounter = 0;
-	int pageCounter = 0;
-	BitmapData data;
-	GifImageDesc imgDesc;
+	GifFileType	*gif;
+	guchar		*readptr;
+	guchar		*writeptr;
+	int		i;
+	int		l;
+	int		num_of_images;
+	bool		animated;
+	const GUID	*dimension;
+	FrameData	*frame;
+	GpBitmap	*result;
+	BitmapData	*bitmap_data;
+	SavedImage	si;
+	ColorPalette	*global_palette;
 
-	data.ByteCount = 0;
-	data.Bytes = NULL;	
+	global_palette = NULL;
+	result = NULL;
 
-	if (from_file) 
+	if (from_file) {
 		gif = DGifOpen(stream, &gdip_gif_fileinputfunc);
-	else 		
+	} else {
 		gif = DGifOpen (stream, &gdip_gif_inputfunc);
+	}
 	
-	if (gif == NULL)
+	if (gif == NULL) {
 		goto error;
+	}
 
-	res = DGifSlurp (gif);
-	if (res != GIF_OK)
+	/* Read the image */
+	if (DGifSlurp (gif) != GIF_OK) {
 		goto error;
+	}
 
-	img = gdip_bitmap_new ();
-	img->image.type = imageBitmap;
-	img->image.width = gif->SWidth;
-	img->image.height = gif->SHeight;
+	/* 
+	   We can have either multiple pages (page dimension) or an animation (time dimension)
+	   If we find an Application Extension, it's an animated gif, otherwise we've got multiple
+	   pages
+	*/
 
-	/* ImageCount member of GifFileType structure gives info about the total no of frames
-	 * present in the image. 
-	 * I am assuming that if there is an ExtensionBlock strucutre present in SavedImage structure 
-	 * which has its Function member set to value 249 (Graphic Control Block) 
-	 * then only its an animated gif.
-	 */
-	imgCount = gif->ImageCount;
-	for (i=0; i<imgCount; i++) {
-		SavedImage si = gif->SavedImages[i];
-		extBlockCount = si.ExtensionBlockCount;
-		for (l =0; l<extBlockCount; l++) {
-			ExtensionBlock eb = si.ExtensionBlocks[l];
-			if (eb.Function == 249){
-				if (!timeDimensionFound)
-					timeDimensionFound = TRUE;
-				timeDimensionCount++;
-				break; /*there can be only one Graphic Control Extension before ImageData*/
-			}			
+	animated = FALSE;
+	num_of_images = gif->ImageCount;
+
+	for (i = 0; i < num_of_images; i++) {
+		for (l = 0; l < gif->SavedImages[i].ExtensionBlockCount; l++) {
+			switch(gif->SavedImages[i].ExtensionBlocks[l].Function) {
+				case APPLICATION_EXT_FUNC_CODE: {
+					if (num_of_images > 1) {
+						animated = TRUE;
+					}
+					break;
+				}
+
+				case COMMENT_EXT_FUNC_CODE: {
+printf("FIXME - read the comment and store it as property\n");
+					/* FIXME - we should pull these into properties */
+					break;
+				}
+			}
 		}
 	}
-	
-	if (timeDimensionCount < imgCount){
-		pageDimensionFound = TRUE;
-		pageDimensionCount = imgCount - timeDimensionCount;
+
+	if (animated) {
+		dimension = &gdip_image_frameDimension_time_guid;
+	} else {
+		dimension = &gdip_image_frameDimension_page_guid;
 	}
-		
-	if (pageDimensionFound && timeDimensionFound){
-		img->image.frameDimensionCount = 2;
-		img->image.frameDimensionList = (FrameInfo *) GdipAlloc (sizeof (FrameInfo)*2);
-		img->image.frameDimensionList[0].count = pageDimensionCount;
-		memcpy (&(img->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
-		img->image.frameDimensionList[0].frames = (BitmapData *) GdipAlloc (sizeof (BitmapData)*pageDimensionCount);
-		img->image.frameDimensionList[1].count = timeDimensionCount;
-		memcpy (&(img->image.frameDimensionList[1].frameDimension), &gdip_image_frameDimension_time_guid, sizeof (CLSID));
-		img->image.frameDimensionList[1].frames = (BitmapData *) GdipAlloc (sizeof (BitmapData)*timeDimensionCount);
-	} else if (pageDimensionFound) {
-		img->image.frameDimensionCount = 1;
-		img->image.frameDimensionList = (FrameInfo *) GdipAlloc (sizeof (FrameInfo));
-		img->image.frameDimensionList[0].count = pageDimensionCount;
-		memcpy (&(img->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
-		img->image.frameDimensionList[0].frames = (BitmapData *) GdipAlloc (sizeof (BitmapData)*pageDimensionCount);
-	} else if (timeDimensionFound) {
-		img->image.frameDimensionCount = 1;
-		img->image.frameDimensionList = (FrameInfo *) GdipAlloc (sizeof (FrameInfo));
-		img->image.frameDimensionList[0].count = timeDimensionCount;
-		memcpy (&(img->image.frameDimensionList[0].frameDimension), &gdip_image_frameDimension_time_guid, sizeof (CLSID));
-		img->image.frameDimensionList[0].frames = (BitmapData *) GdipAlloc (sizeof (BitmapData)*timeDimensionCount);
-	}
+
+	result = gdip_bitmap_new();
+	result->type = imageBitmap;
+	frame = gdip_frame_add(result, dimension);
 
 	/* Copy the palette over, if there is one */
 	if (gif->SColorMap != NULL) {
-		ColorPalette *pal = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * gif->SColorMap->ColorCount);
-		pal->Flags = 0;
-		pal->Count = gif->SColorMap->ColorCount;
+		global_palette = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * gif->SColorMap->ColorCount);
+		global_palette->Flags = 0;
+		global_palette->Count = gif->SColorMap->ColorCount;
 		for (i = 0; i < gif->SColorMap->ColorCount; i++) {
-		pal->Entries[i] = MAKE_ARGB_RGB(gif->SColorMap->Colors[i].Red,
-						gif->SColorMap->Colors[i].Green,
-						gif->SColorMap->Colors[i].Blue);
+			global_palette->Entries[i] = MAKE_ARGB_RGB(gif->SColorMap->Colors[i].Red, gif->SColorMap->Colors[i].Green, gif->SColorMap->Colors[i].Blue);
 		}
-		
-		img->image.palette = pal;
-	}
-	else {
-		/* Assume a grayscale image. */
-		img->image.palette = GdipAlloc (sizeof(ColorPalette) + 256 * sizeof(ARGB));
-
-		img->image.palette->Flags = PaletteFlagsGrayScale;
-		img->image.palette->Count = 256; /* FIXME: what about other bit depths? does GIF support them? does anybody use them? */
-
+	} else {
+		/* Assume a grayscale image for the global palette. Individual images might still have a different one. */
+		global_palette = GdipAlloc (sizeof(ColorPalette) + 256 * sizeof(ARGB));
+		global_palette->Flags = PaletteFlagsGrayScale;
+		global_palette->Count = 256;
 		for (i=0; i < 256; i++) {
-			img->image.palette->Entries[i] = MAKE_ARGB_RGB(i, i, i);
+			global_palette->Entries[i] = MAKE_ARGB_RGB(i, i, i);
 		}
 	}
 
-	img->image.pixFormat = Format8bppIndexed;
+	result->cairo_format = CAIRO_FORMAT_A8;
 
-	pal = gif->SColorMap;
-	
-	img->cairo_format = CAIRO_FORMAT_A8;
+	/* create our bitmaps */
+	for (i = 0; i < num_of_images; i++) {
 
-	/* 
-	 * Now populate the frames associated with each frame dimension
-	 */
-	imgCount = gif->ImageCount;
-	for (i=0; i<imgCount; i++) {
-		SavedImage si = gif->SavedImages[i];
-		extBlockCount = si.ExtensionBlockCount;
-		for (l =0; l<extBlockCount; l++) {
-			ExtensionBlock eb = si.ExtensionBlocks[l];
-			if (eb.Function == 249){
-				data.ByteCount= eb.ByteCount;
-				data.Bytes = (char *) GdipAlloc (data.ByteCount);
-				memcpy (data.Bytes, eb.Bytes, data.ByteCount);
-				timeDimension = TRUE;
-				break; /*there can be only one Graphic Control Extension before ImageData*/
-			}			
+		/* Add BitmapData to our frame */
+		bitmap_data = gdip_frame_add_bitmapdata(frame);
+		if (bitmap_data == NULL) {
+			goto error;
 		}
-		
-		/* copy the local color map if there is one*/
-		localPalObj= si.ImageDesc.ColorMap;
-		if (localPalObj != NULL) {
-			localPal = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * localPalObj->ColorCount);
-			localPal->Flags = 0;
-			localPal->Count = localPalObj->ColorCount;
-			for (j = 0; j < localPalObj->ColorCount; j++) {
-				localPal->Entries[j] = MAKE_ARGB_RGB(localPalObj->Colors[j].Red,
-								localPalObj->Colors[j].Green,
-								localPalObj->Colors[j].Blue);
+
+		si = gif->SavedImages[i];
+
+		for (l = 0; l < si.ExtensionBlockCount; l++) {
+			ExtensionBlock eb = si.ExtensionBlocks[l];
+
+			switch(eb.Function) {
+				case GRAPHICS_EXT_FUNC_CODE: {
+					/* Pull animation time and/or transparent color */
+
+					printf("Doing extension. Bytecount = %d, Got transparency=%d, Delay=%d\n", eb.ByteCount, ((eb.Bytes[0] & 0x80) != 0), (eb.Bytes[1] << 8) + eb.Bytes[2]);
+					if (eb.ByteCount > 3) {	/* Sanity */
+						if ((eb.Bytes[0] & 0x80) != 0) {
+							/* We've got transparency; we store it negative, offset by one. 
+							   This gives -257 to -1 as valid numbers and allows us to distinguish 0 and not transparent */
+							// FIXME - store 'eb.Bytes[3]' in properties as transparent color;
+						}
+						// FIXME - store '(eb.Bytes[1] << 8) + eb.Bytes[2]' in properties as delay time
+					}
+					break;
+				}
+
+				case COMMENT_EXT_FUNC_CODE: {
+					printf("FIXME - Have COMMENT_EXT_FUNC_CODE\n");
+					break;
+				}
+
+				case APPLICATION_EXT_FUNC_CODE: {
+					printf("FIXME - Have APPLICATION_EXT_FUNC_CODE\n");
+					break;
+				}
+
+				case PLAINTEXT_EXT_FUNC_CODE: {
+					printf("FIXME - Have PLAINTEXT_EXT_FUNC_CODE\n");
+					break;
+				}
 			}
 		}
 
-                data.PixelFormat = img->image.pixFormat;
-		imgDesc = si.ImageDesc;
-		data.Width = imgDesc.Width;
-		data.Height = imgDesc.Height;
-		data.Stride = (data.Width + sizeof(pixman_bits_t) - 1) & ~(sizeof(pixman_bits_t) - 1);
-		data.Top = imgDesc.Top;
-		data.Left = imgDesc.Left;
+		/* copy the local color map if there is one, otherwise we duplicate the global one */
+		if (si.ImageDesc.ColorMap != NULL) {
+			ColorMapObject	*local_palette_obj;
+
+			local_palette_obj = si.ImageDesc.ColorMap;
 	
-		pixels = GdipAlloc (data.Stride * data.Height);
-	
-		readptr = (guchar *) si.RasterBits;
-		writeptr = pixels;
-		pixelLength = data.Width * data.Height;
-		/*
-		 * FIXME: While loading images, local color map if present takes precedence
-		 * over global color map. However, the palette is stored by the outer
-		 * GpImage, not BitmapData, so GDI+ apparently can't have a separate
-		 * palette for each frame. Convert files that would need one to ARGB 32-bit?
-		 */
-		for (j = 0; j < data.Height; j++) {
-			memcpy(writeptr, readptr, data.Width);
-			readptr += data.Width;
-			writeptr += data.Stride;
+			bitmap_data->palette = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * local_palette_obj->ColorCount);
+			bitmap_data->palette->Flags = 0;
+			bitmap_data->palette->Count = local_palette_obj->ColorCount;
+			for (l = 0; l < local_palette_obj->ColorCount; l++) {
+				bitmap_data->palette->Entries[l] = MAKE_ARGB_RGB(local_palette_obj->Colors[l].Red,
+										local_palette_obj->Colors[l].Green,
+										local_palette_obj->Colors[l].Blue);
+			}
+		} else {
+			bitmap_data->palette = gdip_palette_clone(global_palette);
 		}
 
-		data.Scan0 = pixels;
-		data.Reserved = GBD_OWN_SCAN0;
+		bitmap_data->pixel_format = Format8bppIndexed;
+		bitmap_data->width = si.ImageDesc.Width;
+		bitmap_data->height = si.ImageDesc.Height;
+		bitmap_data->stride = (bitmap_data->width + sizeof(pixman_bits_t) - 1) & ~(sizeof(pixman_bits_t) - 1);
+		bitmap_data->left = si.ImageDesc.Left;
+		bitmap_data->top = si.ImageDesc.Top;
 
-		if (pageDimensionFound && timeDimensionFound){
-			if (timeDimension)
-				img->image.frameDimensionList [1].frames [timeCounter ++] = data;
-			else
-				img->image.frameDimensionList [0].frames [pageCounter ++] = data;
-		} else if (pageDimensionFound){
-			img->image.frameDimensionList[0].frames [pageCounter++] = data;
-		} else if (timeDimensionFound){
-			img->image.frameDimensionList[0].frames [timeCounter++] = data;
-		}				
+		bitmap_data->scan0 = GdipAlloc (bitmap_data->stride * bitmap_data->height);
+		bitmap_data->reserved = GBD_OWN_SCAN0;
+		bitmap_data->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB;
+		bitmap_data->dpi_horz = 0;
+		bitmap_data->dpi_vert = 0;
+	
+		readptr = (guchar *) si.RasterBits;
+		writeptr = bitmap_data->scan0;
+
+		for (l = 0; l < bitmap_data->height; l++) {
+			memcpy(writeptr, readptr, bitmap_data->width);
+			readptr += bitmap_data->width;
+			writeptr += bitmap_data->stride;
+		}
 	}
-	
-	img->data = img->image.frameDimensionList[0].frames[0];
 
-	img->image.imageFlags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB;
-	img->image.horizontalResolution = 0;
-	img->image.verticalResolution = 0;
-	img->image.propItems = NULL;
-	
+	gdip_bitmap_setactive(result, dimension, 0);
+
+	if (global_palette != NULL) {
+		GdipFree(global_palette);
+	}
+
 	DGifCloseFile (gif);
 
-	*image = (GpImage *) img;
+	*image = result;
 	return Ok;
 
 error:	
-	if (pixels)
-		GdipFree (pixels);
-	if (img)
-		gdip_bitmap_dispose (img);
-	if (gif)
+	if (global_palette != NULL) {
+		GdipFree(global_palette);
+	}
+
+	if (result != NULL) {
+		gdip_bitmap_dispose (result);
+	}
+
+	if (gif != NULL) {
 		DGifCloseFile (gif);
+	}
+
 	*image = NULL;
 	return InvalidParameter;
 }
@@ -365,228 +356,296 @@ gdip_save_gif_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
 GpStatus 
 gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 {
-	GifFileType *fp;
+	GifFileType	*fp;
 	int i, x, y, size;
-	ColorPalette *palette = image->palette;
-	GifByteType *red = NULL, *green = NULL, *blue = NULL, *pixels = NULL;
-	GifByteType *ptr_red, *ptr_green, *ptr_blue, *ptr_pixels;
-	int cmap_size = 256;	
+	GifByteType	*red;
+	GifByteType	*green;
+	GifByteType	*blue;
+	GifByteType	*red_ptr;
+	GifByteType	*green_ptr;
+	GifByteType	*blue_ptr;
+	GifByteType	*pixbuf;
+	GifByteType	*pixbuf_org;
+	int		cmap_size;
 	ColorMapObject *cmap = NULL;	
-	BOOL error = FALSE;
-	BitmapData data;
-	int dimensionCount;
-	int frameCount;
-	int j,k;
-	int sizeAlloc;
-	unsigned char * v;
-	BOOL animationFlag = FALSE;
-	
-	if (!stream) 
+	int		k;
+	unsigned char	*v;
+	int		c;
+	BOOL		animated;
+	int		frame;
+	BitmapData	*bitmap_data;
+	int		pixbuf_size;
+
+	if (!stream) {
 		return InvalidParameter;
+	}
 
-	if (from_file)
+	if (from_file) {
 		fp = EGifOpenFileName (stream, 0);
-	else
+	} else {
 		fp = EGifOpen (stream, gdip_gif_outputfunc);
+	}
 		
-	if (!fp)
+	if (!fp) {
 		return FileNotFound;
-		
-	dimensionCount = image->frameDimensionCount;
-	for (j = 0; j < dimensionCount; j++) {
-		frameCount = image->frameDimensionList [j].count;
-		if (!memcmp (&(image->frameDimensionList [j].frameDimension), 
-				&gdip_image_frameDimension_time_guid, sizeof (CLSID)))
-			animationFlag = TRUE;
-		else
-			animationFlag = FALSE;
+	}
 
-		for (k = 0; k < frameCount; k++) {
-			data = image->frameDimensionList [j].frames [k]; 
+	red = NULL;
+	green = NULL;
+	blue = NULL;
 
-			size = data.Height * data.Width;
-			sizeAlloc = sizeof (GifByteType)* size;
+	for (frame = 0; frame < image->num_of_frames; frame++) {
+		animated = FALSE;
+		if (memcmp(&image->frames[frame].frame_dimension, &gdip_image_frameDimension_time_guid, sizeof(GUID)) == 0) {
+			animated = TRUE;
+		}
+		for (k = 0; k < image->frames[frame].count; k++) {
+			bitmap_data = &image->frames[frame].bitmap[k];
 
-			if (gdip_is_an_indexed_pixelformat (data.PixelFormat)) {
+			pixbuf_size = bitmap_data->width * bitmap_data->height * sizeof(GifByteType);
+
+			if (gdip_is_an_indexed_pixelformat(bitmap_data->pixel_format)) {
 				unsigned char w;
 
-				switch (data.PixelFormat)
-				{
+				switch(bitmap_data->pixel_format) {
 					case Format1bppIndexed: cmap_size =   2; break;
 					case Format4bppIndexed: cmap_size =  16; break;
 					case Format8bppIndexed: cmap_size = 256; break;
 				}
 
-				cmap = MakeMapObject (cmap_size, 0);
+				cmap = MakeMapObject(cmap_size, 0);
 
-				ptr_pixels = pixels = GdipAlloc (sizeAlloc);
+				pixbuf = GdipAlloc(pixbuf_size);
+				if (pixbuf == NULL) {
+					goto error;
+				}
 
-				for (i = 0; (i < cmap_size) && (i < palette->Count); i++) {
-					v = (unsigned char *)&palette->Entries[i];
+				pixbuf_org = pixbuf;
+
+				for (c = 0; (c < cmap_size) && (c < bitmap_data->palette->Count); c++) {
+					v = (unsigned char *)&bitmap_data->palette->Entries[c];
 
 #ifdef WORDS_BIGENDIAN
-					cmap->Colors[i].Red =   v[1];
-					cmap->Colors[i].Green = v[2];
-					cmap->Colors[i].Blue =  v[3];
+					cmap->Colors[c].Red =   v[1];
+					cmap->Colors[c].Green = v[2];
+					cmap->Colors[c].Blue =  v[3];
 #else
-					cmap->Colors[i].Red =   v[2];
-					cmap->Colors[i].Green = v[1];
-					cmap->Colors[i].Blue =  v[0];
+					cmap->Colors[c].Red =   v[2];
+					cmap->Colors[c].Green = v[1];
+					cmap->Colors[c].Blue =  v[0];
 #endif /* WORDS_BIGENDIAN */
 				}
 
-				switch (data.PixelFormat)
-				{
-					case Format1bppIndexed:
-						for (y = 0; y < data.Height; y++) {
-							v = ((unsigned char *)data.Scan0) + y * data.Stride;
-							for (x = 0; x + 7 < data.Width; x += 8) {
+				switch(bitmap_data->pixel_format) {
+					case Format1bppIndexed: {
+						for (y = 0; y < bitmap_data->height; y++) {
+							v = bitmap_data->scan0 + y * bitmap_data->stride;
+							for (x = 0; x + 7 < bitmap_data->width; x += 8) {
 								w = *v;
 
-								*(ptr_pixels++) = ((w & 0x80) != 0);
-								*(ptr_pixels++) = ((w & 0x40) != 0);
-								*(ptr_pixels++) = ((w & 0x20) != 0);
-								*(ptr_pixels++) = ((w & 0x10) != 0);
-								*(ptr_pixels++) = ((w & 0x08) != 0);
-								*(ptr_pixels++) = ((w & 0x04) != 0);
-								*(ptr_pixels++) = ((w & 0x02) != 0);
-								*(ptr_pixels++) = ((w & 0x01) != 0);
+								*(pixbuf++) = ((w & 0x80) != 0);
+								*(pixbuf++) = ((w & 0x40) != 0);
+								*(pixbuf++) = ((w & 0x20) != 0);
+								*(pixbuf++) = ((w & 0x10) != 0);
+								*(pixbuf++) = ((w & 0x08) != 0);
+								*(pixbuf++) = ((w & 0x04) != 0);
+								*(pixbuf++) = ((w & 0x02) != 0);
+								*(pixbuf++) = ((w & 0x01) != 0);
 								
 								v++;
 							}
 
 							w = *v;
 
-							switch (data.Width & 7) /* every 'case' here flows into the next */
-							{
-								case 7: ptr_pixels[6] = ((w & 0x02) != 0);
-								case 6: ptr_pixels[5] = ((w & 0x04) != 0);
-								case 5: ptr_pixels[4] = ((w & 0x08) != 0);
-								case 4: ptr_pixels[3] = ((w & 0x10) != 0);
-								case 3: ptr_pixels[2] = ((w & 0x20) != 0);
-								case 2: ptr_pixels[1] = ((w & 0x40) != 0);
-								case 1: ptr_pixels[0] = ((w & 0x80) != 0);
+							switch (bitmap_data->width & 7) {/* every 'case' here flows into the next */
+								case 7: pixbuf[6] = ((w & 0x02) != 0);
+								case 6: pixbuf[5] = ((w & 0x04) != 0);
+								case 5: pixbuf[4] = ((w & 0x08) != 0);
+								case 4: pixbuf[3] = ((w & 0x10) != 0);
+								case 3: pixbuf[2] = ((w & 0x20) != 0);
+								case 2: pixbuf[1] = ((w & 0x40) != 0);
+								case 1: pixbuf[0] = ((w & 0x80) != 0);
 							}
 
-							ptr_pixels += (data.Width & 7);
+							pixbuf += (bitmap_data->width & 7);
 						}
 						break;
-					case Format4bppIndexed:
-						for (y = 0; y < data.Height; y++) {
-							v = ((unsigned char *)data.Scan0) + y * data.Stride;
-							for (x = 0; x + 1 < data.Width; x += 2) {
+					}
+
+					case Format4bppIndexed: {
+						for (y = 0; y < bitmap_data->height; y++) {
+							v = bitmap_data->scan0 + y * bitmap_data->stride;
+							for (x = 0; x + 1 < bitmap_data->width; x += 2) {
 								w = *v;
 
-								*(ptr_pixels++) = ((w >> 4) & 0xF);
-								*(ptr_pixels++) = ( w       & 0xF);
+								*(pixbuf++) = ((w >> 4) & 0xF);
+								*(pixbuf++) = ( w       & 0xF);
 								
 								v++;
 							}
 
-							if ((data.Width & 1) != 0) {
-								*(ptr_pixels++) = ((*v >> 4) & 0xF);
+							if ((bitmap_data->width & 1) != 0) {
+								*(pixbuf++) = ((*v >> 4) & 0xF);
 							}
 						}
 						break;
-					case Format8bppIndexed:
-						for (y = 0; y < data.Height; y++) {
-							memcpy(pixels + y * data.Width,
-							       ((unsigned char *)data.Scan0) + y * data.Stride,
-							       data.Width);
+					}
+
+					case Format8bppIndexed: {
+						for (y = 0; y < bitmap_data->height; y++) {
+							memcpy(pixbuf + y * bitmap_data->width,
+							       bitmap_data->scan0 + y * bitmap_data->stride,
+							       bitmap_data->width);
 						}
 						break;
+					}
 				}
-
-				ptr_pixels = pixels;
-			}
-			else {
+				/* Restore pointer, 1bpp and 4bpp above alter it */
+				pixbuf = pixbuf_org;
+			} else {
 				cmap_size = 256;
 				cmap  = MakeMapObject (cmap_size, 0);
-			
-				ptr_red  = red = GdipAlloc (sizeAlloc);
-				ptr_green = green = GdipAlloc (sizeAlloc);
-				ptr_blue = blue = GdipAlloc (sizeAlloc);
-				ptr_pixels = pixels = GdipAlloc (sizeAlloc);
 
-			
-				for (y = 0; y < data.Height; y++) {	
-					v = ((unsigned char *)data.Scan0) + y * data.Stride;
-					for (x = 0; x < data.Width; x++) {
+				red = GdipAlloc(pixbuf_size);
+				green = GdipAlloc(pixbuf_size);
+				blue = GdipAlloc(pixbuf_size);
+				pixbuf = GdipAlloc(pixbuf_size);
+				if ((red == NULL) || (green == NULL) || (blue == NULL) || (pixbuf == NULL)) {
+					goto error;
+				}
+
+				pixbuf_org = pixbuf;
+				red_ptr = red;
+				green_ptr = green;
+				blue_ptr = blue;
+
+				for (y = 0; y < bitmap_data->height; y++) {
+					v = bitmap_data->scan0 + y * bitmap_data->stride;
+					for (x = 0; x < bitmap_data->width; x++) {
 #ifdef WORDS_BIGENDIAN
-						*ptr_red++ =   v[1];
-						*ptr_green++ = v[2];
-						*ptr_blue++ =  v[3];
+						*red_ptr++ =   v[1];
+						*green_ptr++ = v[2];
+						*blue_ptr++ =  v[3];
 #else
-						*ptr_red++ =   v[2];
-						*ptr_green++ = v[1];
-						*ptr_blue++ =  v[0];
+						*red_ptr++ =   v[2];
+						*green_ptr++ = v[1];
+						*blue_ptr++ =  v[0];
 #endif
 
 						v += 4;
-					}	
-				}	
-			
-				if (QuantizeBuffer (data.Width, data.Height, &cmap_size, red, 
-						green, blue, pixels, cmap->Colors) == GIF_ERROR) 
-					error = TRUE;
+					}
+				}
+				if (QuantizeBuffer(bitmap_data->width, bitmap_data->height, &cmap_size, 
+						red,  green, blue, pixbuf, cmap->Colors) == GIF_ERROR) {
+					goto error;
+				}
 			}
-			
+
 			cmap->BitsPerPixel = BitSize (cmap_size);
 			cmap->ColorCount = 1 << cmap->BitsPerPixel;
 
-			/*Make info from first frame as Global color map*/
-			if (k == 0){
-				if (j == 0){
-					if (EGifPutScreenDesc (fp, image->width, image->height,
-								8, 0, cmap) == GIF_ERROR) 
-						error = TRUE;
+			if ((frame == 0) && (k == 0)) {
+				/* First Image defines the global colormap */
+				if (EGifPutScreenDesc (fp, bitmap_data->width, bitmap_data->height, cmap->BitsPerPixel, 0, cmap) == GIF_ERROR) {
+					goto error;
 				}
 
-				/*Uses information obtained from util directory of libungif 
-				originally written by Gershon Elber*/
-				if (animationFlag) {
-					/*Put application extension code*/
-					unsigned char extStr [3];
-					extStr [0] = 1 % 256;
-					extStr [1] = 1 / 256;
-					extStr [2] = 0;
-
-					EGifPutExtension (fp, APPLICATION_EXT_FUNC_CODE,
-										3, extStr);
+				/* An animated image must have the application extension */
+				if (animated) {
+					EGifPutExtension (fp, APPLICATION_EXT_FUNC_CODE, strlen(APP_IDENTIFIER) + 1, APP_IDENTIFIER);
 				}
-			}
-	
-			/*Put Graphic control Extension*/
-			if (animationFlag) {
-				EGifPutExtension(fp, GRAPHICS_EXT_FUNC_CODE, data.ByteCount, data.Bytes);
+				#if 0
+					/* This will make it loop */
+					EGifPutExtensions(fp, APPLICATION_EXT_FUNC_CODE, 11, "NETSCAPE2.0");
+					EGifPutExtensions(fp, 0, 2, "\x03\x01\0");
+				#endif
 			}
 
-			if (EGifPutImageDesc (fp, data.Left, data.Top, data.Width, 
-						data.Height, FALSE, cmap) == GIF_ERROR) 
-				error = TRUE;
-	
-			for (i = 0;  i < data.Height;  ++i) {
-				if (EGifPutLine (fp, ptr_pixels, data.Width) == GIF_ERROR) {
-					error = TRUE;
-					break;
+			/* Every image has a control extension specifying the time delay */
+			if (animated) {
+				unsigned char	buffer[4];
+
+				buffer[0] = 0x03;		/* 0000 0100 = do not dispose */
+				#if 0	// FIXME - read properties and store transparent and delay numbers
+				if (bitmap_data->transparent < 0) {
+					buffer[0] |= 0x01;	/* 0000 0001 = transparent */
 				}
-				ptr_pixels += data.Width;
+				buffer[1] = (bitmap_data->delay >> 8) & 0xff;
+				buffer[2] = bitmap_data->delay & 0xff;
+				if (bitmap_data->transparent < 0) {
+					buffer[3] = (bitmap_data->transparent + 1) * -1;
+				} else {
+					buffer[3] = 0;
+				}
+				#else
+					buffer[1] = 0;
+					buffer[2] = 0;
+					buffer[3] = 0;
+				#endif
+
+				EGifPutExtension(fp, GRAPHICS_EXT_FUNC_CODE, 4, buffer);
+			}
+
+			/* Store the image description */
+			if (EGifPutImageDesc (fp, bitmap_data->left, bitmap_data->top, bitmap_data->width, bitmap_data->height, FALSE, cmap) == GIF_ERROR) {
+				goto error;
+			}
+
+			for (i = 0;  i < bitmap_data->height;  ++i) {
+				if (EGifPutLine (fp, pixbuf, bitmap_data->width) == GIF_ERROR) {
+					goto error;
+				}
+				pixbuf += bitmap_data->width;
 			}
 
 			FreeMapObject (cmap);
-			if (red != NULL)
+			if (red != NULL) {
 				GdipFree (red);
-			if (green != NULL)
+			}
+			if (green != NULL) {
 				GdipFree (green);
-			if (blue != NULL)
+			}
+			if (blue != NULL) {
 				GdipFree (blue);
-			GdipFree (pixels);
+			}
+
+			if (pixbuf_org != NULL) {
+				GdipFree (pixbuf_org);
+			}
+
+			red = NULL;
+			green = NULL;
+			blue = NULL;
+			pixbuf_org = NULL;
 		}
 	}
-	
+
 	EGifCloseFile (fp);	
 	
-	return (error == FALSE) ? Ok : GenericError;
+	return Ok;
+
+error:
+	if (cmap != NULL) {
+		FreeMapObject (cmap);
+	}
+
+	if (red != NULL) {
+		GdipFree (red);
+	}
+
+	if (green != NULL) {
+		GdipFree (green);
+	}
+
+	if (blue != NULL) {
+		GdipFree (blue);
+	}
+
+	if (pixbuf_org != NULL) {
+		GdipFree (pixbuf_org);
+	}
+
+	return GenericError;
 }
 
 #else

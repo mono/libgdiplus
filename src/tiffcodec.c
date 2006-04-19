@@ -193,214 +193,199 @@ gdip_getcodecinfo_tiff ()
 GpStatus 
 gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *params)
 {
-	GpBitmap *bitmap = (GpBitmap *) image;	
-	int i, j, k, l, linebytes;
-	int dimensionCount = 0;
-	int frameCount = 0;
-	BitmapData data;
-	int currPage = 0; /*First page wud already have been set */
-	int totalPages = 0;
-					
-	if (!tiff)
-		return InvalidParameter;		
+	int		frame;
+	int		x;
+	int		y;
+	int		i;
+	int		num_of_pages;
+	int		page;
+	BitmapData	*bitmap_data;
+	guchar		*pixbuf;
 
-	if (gdip_is_an_indexed_pixelformat (bitmap->data.PixelFormat))
-		return NotImplemented; /* for now */
+	if (tiff == NULL) {
+		return InvalidParameter;
+	}
 
-	dimensionCount = image->frameDimensionCount; 
-	for (j = 0; j < dimensionCount; j++)
-		totalPages += image->frameDimensionList [j].count;
-	
-	for (j = 0; j < dimensionCount; j++) {
-                frameCount = image->frameDimensionList [j].count;
-                for (k = 0; k < frameCount; k++) {
-			if (k > 0 || j > 0) {
-				TIFFCreateDirectory (tiff);
+	/* Count all pages, we need to know ahead */
+	num_of_pages = 0;
+	for (frame = 0; frame < image->num_of_frames; frame++) {
+		num_of_pages += image->frames[frame].count;
+		for (i = 0; i < image->frames[frame].count; i++) {
+			if (gdip_is_an_indexed_pixelformat (image->frames[frame].bitmap[i].pixel_format)) {
+				return NotImplemented; /* FIXME? */
 			}
-			
-			if (totalPages > 1) {
+		}
+	}
+
+	page = 0;
+	for (frame = 0; frame < image->num_of_frames; frame++) {
+		for (i = 0; i < image->frames[frame].count; i++) {
+			bitmap_data = &image->frames[frame].bitmap[i];
+
+			if (num_of_pages > 1) {
+				if ((frame > 0) && (i > 0)) {
+					TIFFCreateDirectory(tiff);
+				}
+
 				TIFFSetField (tiff, TIFFTAG_SUBFILETYPE, FILETYPE_PAGE);
-				TIFFSetField (tiff, TIFFTAG_PAGENUMBER, currPage++, totalPages);
+				TIFFSetField (tiff, TIFFTAG_PAGENUMBER, page, num_of_pages);
 			}
-			data = image->frameDimensionList [j].frames [k];
-			TIFFSetField (tiff, TIFFTAG_IMAGEWIDTH, data.Width);  
-			TIFFSetField (tiff, TIFFTAG_IMAGELENGTH, data.Height); 
+
+			TIFFSetField (tiff, TIFFTAG_IMAGEWIDTH, bitmap_data->width);  
+			TIFFSetField (tiff, TIFFTAG_IMAGELENGTH, bitmap_data->height); 
 			TIFFSetField (tiff, TIFFTAG_BITSPERSAMPLE, 8);  
 			TIFFSetField (tiff, TIFFTAG_COMPRESSION, COMPRESSION_NONE);  
 			TIFFSetField (tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
 			TIFFSetField (tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);   
-			TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, 4); /* Hardcoded 32bbps*/
-
-			linebytes =  data.Stride;     	
-    			TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, linebytes)); 
-
+			TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, 4); /* FIXME - Hardcoded 32bbps*/
+    			TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, bitmap_data->stride)); 
 			TIFFSetField (tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG); 
 			TIFFSetField (tiff, TIFFTAG_EXTRASAMPLES, EXTRASAMPLE_UNSPECIFIED);
-				
-			{
-				guchar *row_pointer = GdipAlloc (image->width * 4);
 
-				for (i = 0; i < image->height; i++) {
-					for (l = 0; l < image->width; l++) {
+printf("TIFFCODEC.C: NEED TO SAVE PROPERTIES AS WELL\n");
+
+			pixbuf = GdipAlloc (bitmap_data->width * 4);
+			for (y = 0; y < bitmap_data->height; y++) {
+				for (x = 0; x < bitmap_data->width; x++) {
 #ifdef WORDS_BIGENDIAN
-						row_pointer[l*4+0] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 1);
-						row_pointer[l*4+1] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 2);
-						row_pointer[l*4+2] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 3);
-						row_pointer[l*4+3] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 0);
+					pixbuf[x*4+0] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 1);
+					pixbuf[x*4+1] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 2);
+					pixbuf[x*4+2] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 3);
+					pixbuf[x*4+3] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 0);
 #else
-						row_pointer[l*4+0] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 2);
-						row_pointer[l*4+1] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 1);
-						row_pointer[l*4+2] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 0);
-						row_pointer[l*4+3] = *((guchar *)data.Scan0 + (data.Stride * i) + (l*4) + 3);
+					pixbuf[x*4+0] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 2);
+					pixbuf[x*4+1] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 1);
+					pixbuf[x*4+2] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 0);
+					pixbuf[x*4+3] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 3);
 #endif
-					}
-					TIFFWriteScanline (tiff, row_pointer, i, 0);
 				}
-				GdipFree (row_pointer);
+				TIFFWriteScanline (tiff, pixbuf, y, 0);
 			}
-			TIFFWriteDirectory (tiff);			
-		}
+			GdipFree(pixbuf);
+			TIFFWriteDirectory (tiff);
+		}	
+		page++;
 	}
-				
 	TIFFClose (tiff); 		
 	return Ok;
 }
 
 GpStatus 
-gdip_load_tiff_image (TIFF *tif, GpImage **image)
+gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 {
-	GpBitmap *img = NULL;
-	char *raster = NULL;
-	int dirCount = 0;
-	int j=0;
-	BitmapData data;
+	int		i;
+	char		error_message[1024];
+	int		num_of_pages;
+	GpImage		*result;
+	int		page;
+	TIFFRGBAImage	tiff_image;
+	FrameData	*frame;
+	BitmapData	*bitmap_data;
+	size_t		num_of_pixels;
+	char		*pixbuf;
+	char		*pixbuf_row;
+	guint32		*pixbuf_ptr;
 
-	data.ByteCount = data.Top = data.Left = 0;
-	data.Bytes = NULL;
+	if (tiff == NULL) {
+		*image = NULL;
+		TIFFClose(tiff);
+		return InvalidParameter;
+	}
 
-	if (tif) {
+	pixbuf_row = NULL;
+	pixbuf = NULL;
 
-		TIFFRGBAImage tifimg;
-		char emsg[1024];
+	num_of_pages = 0;
+	do {
+		num_of_pages++;
+	} while (TIFFReadDirectory(tiff));
 
-		/*Count the no of image frames present in input*/
-		do {
-			dirCount++;
-		} while (TIFFReadDirectory (tif));
-		
-		img = gdip_bitmap_new ();
-		img->image.type = imageBitmap;
-		/* libtiff expands stuff out to ARGB32 for us if we use this interface */
-		img->image.pixFormat = Format32bppArgb;
-		img->cairo_format = CAIRO_FORMAT_ARGB32;
+	result = gdip_bitmap_new();
+	result->type = imageBitmap;
+	frame = gdip_frame_add(result, &gdip_image_frameDimension_page_guid);
 
-		img->image.frameDimensionCount = 1;
-		img->image.frameDimensionList = (FrameInfo *) GdipAlloc (sizeof (FrameInfo));
-		img->image.frameDimensionList [0].count = dirCount;
-		memcpy (&(img->image.frameDimensionList [0].frameDimension), 
-				&gdip_image_frameDimension_page_guid, sizeof (CLSID));
-		img->image.frameDimensionList [0].frames = (BitmapData *)
-						GdipAlloc (sizeof (BitmapData) * dirCount);
+	for (page = 0; page < num_of_pages; page++) {
+		bitmap_data = gdip_frame_add_bitmapdata(frame);
+		if (bitmap_data == NULL) {
+			goto error;
+		}
 
-		/*loop within all the directories and extract the frame info*/
-		for (j = 0; j < dirCount; j++) {
-			if (!TIFFSetDirectory (tif, j))
-				goto error;
-			
-			if (TIFFRGBAImageBegin (&tifimg, tif, 0, emsg)) {
-				size_t npixels;
+		if (!TIFFSetDirectory(tiff, page)) {
+			goto error;
+		}
 
-				data.Stride = tifimg.width * 4;
-				data.PixelFormat = img->image.pixFormat;
-				data.Width = tifimg.width;
-				data.Height = tifimg.height;
-				data.Reserved = GBD_OWN_SCAN0;
-			
-				npixels = tifimg.width * tifimg.height;
-				/* Note that we don't use _TIFFmalloc */
-				raster = GdipAlloc (npixels * sizeof (guint32));
-				if (raster != NULL) {
-					/* Problem: the raster data returned here has the origin at bottom left,
-					* not top left.  The TIFF guys must be in cahoots with the OpenGL folks.
-					*
-					* Then, to add insult to injury, it's in ARGB format, not ABGR.
-					*/
-					if (TIFFRGBAImageGet (&tifimg, (uint32*) raster, tifimg.width, tifimg.height)) { 
-						guchar *onerow = GdipAlloc (data.Stride);
-						guint32 *r32 = (guint32*)raster;
-						int i;
-				
-						/* flip raster */
-						for (i = 0; i < tifimg.height / 2; i++) {
-							memcpy (onerow, raster + (data.Stride * i), data.Stride);
-							memcpy (raster + (data.Stride * i), 
-									raster + (data.Stride * (tifimg.height - i - 1)),
-													data.Stride);
-							memcpy (raster + (data.Stride * (tifimg.height - i - 1)),
-												onerow, data.Stride);
-						}
-						/* flip bytes */
+		if (!TIFFRGBAImageBegin(&tiff_image, tiff, 0, error_message)) {
+			/* Can we use the error message somewhere? */
+			goto error;
+		}
 
-						for (i = 0; i < npixels; i++) {
-							*r32 = (*r32 & 0xff000000) | ((*r32 & 0x00ff0000) >> 16) |
-									(*r32 & 0x0000ff00) | ((*r32 & 0x000000ff) << 16);
-							r32++;
-						}	
-						
-						GdipFree (onerow);
+		bitmap_data->stride = tiff_image.width * 4;
+		bitmap_data->pixel_format = Format32bppArgb;
+		bitmap_data->width = tiff_image.width;
+		bitmap_data->height = tiff_image.height;
+		bitmap_data->reserved = GBD_OWN_SCAN0;
 
-						data.Scan0 = (byte *)raster;
-						img->image.frameDimensionList [0].frames [j] = data;
-					} else {
-						goto error;
-					} /*end if (TIFFRGBAImageGet */					
-				} else {
-					goto error;
-				} /*end if (raster != NULL) */
-				
-				TIFFRGBAImageEnd (&tifimg);				
-			} else {
-				goto error;
-			} /*end if (TIFFRGBAImageBegin())*/
+		num_of_pixels = tiff_image.width * tiff_image.height;
+		pixbuf = GdipAlloc(num_of_pixels * sizeof(guint32));
+		if (pixbuf == NULL) {
+			goto error;
+		}
 
-		} /*End For Loop for reading directories */
-		
-		TIFFClose (tif);
-	
-		img->data = img->image.frameDimensionList [0].frames [0];
-		img->image.width = img->data.Width;
-		img->image.height = img->data.Height;
-		img->image.surface = cairo_image_surface_create_for_data ((unsigned char *)img->data.Scan0, 
-						img->cairo_format, img->image.width, 
-						img->image.height, img->data.Stride);
-		img->image.horizontalResolution = 0;
-		img->image.verticalResolution = 0;
-			
-		img->image.imageFlags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | 
-								ImageFlagsColorSpaceRGB;
-				
-		img->image.propItems = NULL;
-		img->image.palette = NULL;
+		/* Flip the image. TIFF has its origin at bottom left, and is in ARGB instead of ABGR */
+		if (!TIFFRGBAImageGet(&tiff_image, (uint32 *)pixbuf, tiff_image.width, tiff_image.height)) {
+			goto error;
+		}
 
-		*image = (GpImage *) img;
-		return Ok;
-	} else {
-		goto error;
-	} /*end if (tif) */
+		pixbuf_row = GdipAlloc(bitmap_data->stride);
+		if (pixbuf_row == NULL) {
+			goto error;
+		}
+
+		/* First, flip rows */
+		for (i = 0; i < tiff_image.height / 2; i++) {
+			memcpy(pixbuf_row, pixbuf + (bitmap_data->stride * i), bitmap_data->stride);
+			memcpy(pixbuf + (bitmap_data->stride * i), pixbuf + (bitmap_data->stride * (tiff_image.height - i - 1)), bitmap_data->stride);
+			memcpy(pixbuf + (bitmap_data->stride * (tiff_image.height - i - 1)), pixbuf_row, bitmap_data->stride);
+		}
+
+		/* Now flip from ARGB to ABGR */
+		pixbuf_ptr = (guint32 *)pixbuf;
+		for (i = 0; i < num_of_pixels; i++) {
+			*pixbuf_ptr =	(*pixbuf_ptr & 0xff000000) | 
+					((*pixbuf_ptr & 0x00ff0000) >> 16) |
+					(*pixbuf_ptr & 0x0000ff00) | 
+					((*pixbuf_ptr & 0x000000ff) << 16);
+			pixbuf_ptr++;
+		}
+		GdipFree(pixbuf_row);
+		bitmap_data->scan0 = (byte *)pixbuf;
+		pixbuf_row = NULL;
+		pixbuf = NULL;
+	}
+
+	gdip_bitmap_setactive(result, &gdip_image_frameDimension_page_guid, 0);
+
+	TIFFClose(tiff);
+
+	*image = result;
+	return Ok;
 
 error:
-	
-	if (raster)
-		GdipFree (raster);
-		
-	if (img)
-		gdip_bitmap_dispose (img);
-		
-	if (tif)
-		TIFFClose (tif);
-		
-	*image = NULL;
-	return InvalidParameter;
+	if (pixbuf_row != NULL) {
+		GdipFree(pixbuf_row);
+	}
+
+	if (pixbuf != NULL) {
+		GdipFree(pixbuf);
+	}
+
+	if (result != NULL) {
+		gdip_bitmap_dispose(result);
+	}
+
+	TIFFClose(tiff);
+
+	return OutOfMemory;
 }
 
 GpStatus 

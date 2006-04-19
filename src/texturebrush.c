@@ -51,13 +51,14 @@ gdip_texture_init (GpTexture *texture)
 	GdipCreateMatrix (&texture->matrix);
 }
 
-GpTexture*
+GpTexture *
 gdip_texture_new (void)
 {
         GpTexture *result = (GpTexture *) GdipAlloc (sizeof (GpTexture));
 
-	if (result)
+	if (result != NULL) {
 	        gdip_texture_init (result);
+	}
 
         return result;
 }
@@ -70,18 +71,24 @@ draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
 	cairo_surface_t *original;
 	cairo_surface_t *texture;
-	cairo_pattern_t *pat, *pattern;
-	GpRect *rect = brush->rectangle;
+	cairo_pattern_t *pat;
+	GpStatus	status;
+	GpRect		*rect = brush->rectangle;
+	cairo_t		*ct2;
 
-	g_return_val_if_fail (rect != NULL, InvalidParameter);
+	if (rect == NULL)  {
+		return InvalidParameter;
+	}
 
-	/* Original image surface */
-	original = bitmap->image.surface;
-	g_return_val_if_fail (original != NULL, InvalidParameter);
+	gdip_bitmap_ensure_surface (bitmap);
+	original = bitmap->surface;
 
 	/* Use the original as a pattern */
 	pat = cairo_pattern_create_for_surface (original);
-	g_return_val_if_fail (pat != NULL, OutOfMemory);
+	status = gdip_get_pattern_status(pat);
+	if (status != Ok) {
+		return status;
+	}
 	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
 
 	/* texture surface to be created */
@@ -90,18 +97,23 @@ draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	if (texture == NULL) {
 		cairo_pattern_destroy (pat);
 		return OutOfMemory;
-	} else {
-		cairo_t *ct2;
-
-		/* Draw the texture */
-		ct2 = cairo_create (texture);
-		cairo_identity_matrix (ct2);
-		cairo_set_source (ct2, pat);
-		cairo_rectangle (ct2, 0, 0, 2 * rect->Width, 2 * rect->Height);
-		cairo_fill (ct2);
-		cairo_destroy(ct2);
 	}
+
+	/* Draw the texture */
+	ct2 = cairo_create (texture);
+	cairo_identity_matrix (ct2);
+	cairo_set_source (ct2, pat);
+	cairo_rectangle (ct2, 0, 0, 2 * rect->Width, 2 * rect->Height);
+	cairo_fill (ct2);
+	cairo_destroy(ct2);
+
 	brush->pattern = cairo_pattern_create_for_surface (texture);
+	status = gdip_get_pattern_status(brush->pattern);
+	if (status != Ok) {
+		cairo_pattern_destroy (pat);
+		cairo_surface_destroy (texture);
+		return status;
+	}
 	cairo_pattern_set_extend (brush->pattern, CAIRO_EXTEND_REPEAT);
 
 	cairo_pattern_destroy (pat);
@@ -115,17 +127,25 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
 	cairo_surface_t *original;
 	cairo_surface_t *texture;
-	cairo_pattern_t *pat, *pattern;
-	GpRect *rect = brush->rectangle;
-	g_return_val_if_fail (rect != NULL, InvalidParameter);
+	cairo_pattern_t *pat;
+	GpRect		*rect = brush->rectangle;
+	GpStatus	status;
+	cairo_t		*ct2;
+	cairo_matrix_t	tempMatrix;
 
-	/* Original image surface */
-	original = bitmap->image.surface;
-	g_return_val_if_fail (original != NULL, InvalidParameter);
+	if (rect == NULL) {
+		return InvalidParameter;
+	}
+
+	gdip_bitmap_ensure_surface (bitmap);
+	original = bitmap->surface;
 
 	/* Use the original as a pattern */
 	pat = cairo_pattern_create_for_surface (original);
-	g_return_val_if_fail (pat != NULL, OutOfMemory);
+	status = gdip_get_pattern_status(pat);
+	if (status != Ok) {
+		return status;
+	}
 
 	/* texture surface to be created */
 	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
@@ -133,35 +153,37 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	if (texture == NULL) {
 		cairo_pattern_destroy (pat);
 		return OutOfMemory;
-	} else {
-		cairo_t	*ct2;
-		cairo_matrix_t tempMatrix;
-
-		/* Draw left part of the texture */
-		ct2 = cairo_create (texture);
-		cairo_set_source (ct2, pat);
-		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
-		cairo_fill (ct2);
-		
-		/* Not sure if this is a bug, but using rect->Width - 1
-		 * avoids the seam.
-		 */
-		cairo_matrix_init_identity (&tempMatrix);
-		cairo_matrix_translate (&tempMatrix, rect->Width - 1, 0);
-		/* scale in -X direction to flip along X */
-		cairo_matrix_scale (&tempMatrix, -1.0, 1.0);
-		cairo_pattern_set_matrix (pat, &tempMatrix);
-
-		/* Draw right part of the texture */
-		cairo_translate (ct2, rect->Width, 0);
-		cairo_set_source (ct2, pat);
-		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
-
-		cairo_fill (ct2);
-		cairo_destroy(ct2);
 	}
 
+	/* Draw left part of the texture */
+	ct2 = cairo_create (texture);
+	cairo_set_source (ct2, pat);
+	cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
+	cairo_fill (ct2);
+	
+	/* Not sure if this is a bug, but using rect->Width - 1 avoids the seam. */
+	cairo_matrix_init_identity (&tempMatrix);
+	cairo_matrix_translate (&tempMatrix, rect->Width - 1, 0);
+
+	/* scale in -X direction to flip along X */
+	cairo_matrix_scale (&tempMatrix, -1.0, 1.0);
+	cairo_pattern_set_matrix (pat, &tempMatrix);
+
+	/* Draw right part of the texture */
+	cairo_translate (ct2, rect->Width, 0);
+	cairo_set_source (ct2, pat);
+	cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
+
+	cairo_fill (ct2);
+	cairo_destroy(ct2);
+
 	brush->pattern = cairo_pattern_create_for_surface (texture);
+	status = gdip_get_pattern_status(brush->pattern);
+	if (status != Ok) {
+		cairo_pattern_destroy(pat);
+		cairo_surface_destroy(texture);
+		return status;
+	}
 	cairo_pattern_set_extend (brush->pattern, CAIRO_EXTEND_REPEAT);
 
 	cairo_pattern_destroy (pat);
@@ -175,18 +197,25 @@ draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
 	cairo_surface_t *original;
 	cairo_surface_t *texture;
-	cairo_pattern_t *pat, *pattern;
-	GpMatrix tempMatrix;
-	GpRect *rect = brush->rectangle;
-	g_return_val_if_fail (rect != NULL, InvalidParameter);
+	cairo_pattern_t *pat;
+	GpMatrix	tempMatrix;
+	GpRect		*rect = brush->rectangle;
+	GpStatus	status;
+	cairo_t		*ct2;
 
-	/* Original image surface */
-	original = bitmap->image.surface;
-	g_return_val_if_fail (original != NULL, InvalidParameter);
+	if (rect == NULL) {
+		return InvalidParameter;
+	}
+
+	gdip_bitmap_ensure_surface (bitmap);
+	original = bitmap->surface;
 
 	/* Use the original as a pattern */
 	pat = cairo_pattern_create_for_surface (original);
-	g_return_val_if_fail (pat != NULL, OutOfMemory);
+	status = gdip_get_pattern_status(pat);
+	if (status != Ok) {
+		return status;
+	}
 
 	/* texture surface to be created */
 	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
@@ -194,33 +223,37 @@ draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	if (texture == NULL) {
 		cairo_pattern_destroy (pat);
 		return OutOfMemory;
-	} else {
-		cairo_t	*ct2;
-
-		/* Draw upper part of the texture */
-		ct2 = cairo_create (texture);
-		cairo_set_source (ct2, pat);
-		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
-		cairo_fill (ct2);
-		
-		/* Not sure if this is a bug, but using rect->Height - 1
-		 * avoids the seam.
-		 */
-		cairo_matrix_init_identity (&tempMatrix);
-		cairo_matrix_translate (&tempMatrix, 0, rect->Height - 1);
-		/* scale in -Y direction to flip along Y */
-		cairo_matrix_scale (&tempMatrix, 1.0, -1.0);
-		cairo_pattern_set_matrix (pat, &tempMatrix);
-
-		/* Draw lower part of the texture */
-		cairo_translate (ct2, 0, rect->Height);
-		cairo_set_source (ct2, pat);
-		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
-		cairo_fill (ct2);
-		cairo_destroy(ct2);
 	}
 
+	/* Draw upper part of the texture */
+	ct2 = cairo_create (texture);
+	cairo_set_source (ct2, pat);
+	cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
+	cairo_fill (ct2);
+	
+	/* Not sure if this is a bug, but using rect->Height - 1 avoids the seam. */
+	cairo_matrix_init_identity (&tempMatrix);
+	cairo_matrix_translate (&tempMatrix, 0, rect->Height - 1);
+
+	/* scale in -Y direction to flip along Y */
+	cairo_matrix_scale (&tempMatrix, 1.0, -1.0);
+	cairo_pattern_set_matrix (pat, &tempMatrix);
+
+	/* Draw lower part of the texture */
+	cairo_translate (ct2, 0, rect->Height);
+	cairo_set_source (ct2, pat);
+	cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
+	cairo_fill (ct2);
+	cairo_destroy(ct2);
+
+
 	brush->pattern = cairo_pattern_create_for_surface (texture);
+	status = gdip_get_pattern_status(brush->pattern);
+	if (status != Ok) {
+		cairo_pattern_destroy (pat);
+		cairo_surface_destroy (texture);
+		return status;
+	}
 	cairo_pattern_set_extend (brush->pattern, CAIRO_EXTEND_REPEAT);	
 
 	cairo_pattern_destroy (pat);
@@ -234,18 +267,25 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
 	cairo_surface_t *original;
 	cairo_surface_t *texture;
-	cairo_pattern_t *pat, *pattern;
-	GpMatrix tempMatrix;
-	GpRect *rect = brush->rectangle;
-	g_return_val_if_fail (rect != NULL, InvalidParameter);
+	cairo_pattern_t *pat;
+	GpMatrix	tempMatrix;
+	GpRect		*rect = brush->rectangle;
+	GpStatus	status;
+	cairo_t		*ct2;
 
-	/* Original image surface */
-	original = bitmap->image.surface;
-	g_return_val_if_fail (original != NULL, InvalidParameter);
+	if (rect == NULL) {
+		return InvalidParameter;
+	}
+
+	gdip_bitmap_ensure_surface (bitmap);
+	original = bitmap->surface;
 
 	/* Use the original as a pattern */
 	pat = cairo_pattern_create_for_surface (original);
-	g_return_val_if_fail (pat != NULL, OutOfMemory);
+	status = gdip_get_pattern_status(pat);
+	if (status != Ok) {
+		return status;
+	}
 
 	/* texture surface to be created */
 	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
@@ -253,64 +293,64 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	if (texture == NULL) {
 		cairo_pattern_destroy (pat);
 		return OutOfMemory;
-	} else {
-		cairo_t *ct2;
-
-		ct2 = cairo_create (texture);
-		cairo_set_source (ct2, pat);
-
-		/* Draw upper left part of the texture */
-		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
-		cairo_fill (ct2);
-
-		/* Not sure if this is a bug, but using rect->Height - 1
-		 * avoids the seam.
-		 */
-		cairo_matrix_init_identity (&tempMatrix);
-		cairo_matrix_translate (&tempMatrix, 0, rect->Height - 1);
-		/* scale in -Y direction to flip along Y */
-		cairo_matrix_scale (&tempMatrix, 1.0, -1.0);
-		cairo_pattern_set_matrix (pat, &tempMatrix);
-
-		/* Draw lower left part of the texture */
-		cairo_translate (ct2, 0, rect->Height);
-		cairo_set_source (ct2, pat);
-		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
-		cairo_fill (ct2);
-
-		/* Reset the pattern matrix and do fresh transformation */
-		cairo_matrix_init_identity (&tempMatrix);
-		/* Not sure if this is a bug, but using rect->Width - 1
-		 * avoids the seam.
-		 */
-		cairo_matrix_translate (&tempMatrix, rect->Width - 1, 0);
-		/* scale in -X direction to flip along X */
-		cairo_matrix_scale (&tempMatrix, -1.0, 1.0);
-		cairo_pattern_set_matrix (pat, &tempMatrix);
-
-		/* Draw upper right part of the texture */
-		cairo_translate (ct2, rect->Width, -rect->Height);
-		cairo_set_source (ct2, pat);
-		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
-		cairo_fill (ct2);
-
-		/* Not sure if this is a bug, but using rect->Height - 1
-		 * avoids the seam.
-		 */
-		cairo_matrix_translate (&tempMatrix, 0, rect->Height - 1);
-		/* scale in -Y direction to flip along Y */
-		cairo_matrix_scale (&tempMatrix, 1.0, -1.0);
-		cairo_pattern_set_matrix (pat, &tempMatrix);
-
-		/* Draw lower right part of the texture */
-		cairo_translate (ct2, 0, rect->Height);
-		cairo_set_source (ct2, pat);
-		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
-		cairo_fill (ct2);
-		cairo_destroy(ct2);
 	}
 
+	/* Draw upper left part of the texture */
+	ct2 = cairo_create (texture);
+	cairo_set_source (ct2, pat);
+	cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
+	cairo_fill (ct2);
+
+	/* Not sure if this is a bug, but using rect->Height - 1 avoids the seam. */
+	cairo_matrix_init_identity (&tempMatrix);
+	cairo_matrix_translate (&tempMatrix, 0, rect->Height - 1);
+	/* scale in -Y direction to flip along Y */
+	cairo_matrix_scale (&tempMatrix, 1.0, -1.0);
+	cairo_pattern_set_matrix (pat, &tempMatrix);
+
+	/* Draw lower left part of the texture */
+	cairo_translate (ct2, 0, rect->Height);
+	cairo_set_source (ct2, pat);
+	cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
+	cairo_fill (ct2);
+
+	/* Reset the pattern matrix and do fresh transformation */
+	cairo_matrix_init_identity (&tempMatrix);
+
+	/* Not sure if this is a bug, but using rect->Width - 1 avoids the seam. */
+	cairo_matrix_translate (&tempMatrix, rect->Width - 1, 0);
+
+	/* scale in -X direction to flip along X */
+	cairo_matrix_scale (&tempMatrix, -1.0, 1.0);
+	cairo_pattern_set_matrix (pat, &tempMatrix);
+
+	/* Draw upper right part of the texture */
+	cairo_translate (ct2, rect->Width, -rect->Height);
+	cairo_set_source (ct2, pat);
+	cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
+	cairo_fill (ct2);
+
+	/* Not sure if this is a bug, but using rect->Height - 1 avoids the seam. */
+	cairo_matrix_translate (&tempMatrix, 0, rect->Height - 1);
+
+	/* scale in -Y direction to flip along Y */
+	cairo_matrix_scale (&tempMatrix, 1.0, -1.0);
+	cairo_pattern_set_matrix (pat, &tempMatrix);
+
+	/* Draw lower right part of the texture */
+	cairo_translate (ct2, 0, rect->Height);
+	cairo_set_source (ct2, pat);
+	cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
+	cairo_fill (ct2);
+	cairo_destroy(ct2);
+
 	brush->pattern = cairo_pattern_create_for_surface (texture);
+	status = gdip_get_pattern_status(brush->pattern);
+	if (status != Ok) {
+		cairo_pattern_destroy (pat);
+		cairo_surface_destroy (texture);
+		return status;
+	}
 	cairo_pattern_set_extend (brush->pattern, CAIRO_EXTEND_REPEAT);
 
 	cairo_pattern_destroy (pat);
@@ -325,16 +365,25 @@ draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_surface_t *original;
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat;
-	GpRect *rect = brush->rectangle;
-	g_return_val_if_fail (rect != NULL, InvalidParameter);
+	GpRect		*rect = brush->rectangle;
+	GpStatus	status;
+	cairo_t		*ct2;
+
+	if (rect == NULL) {
+		return InvalidParameter;
+	}
 
 	/* Original image surface */
-	original = bitmap->image.surface;
-	g_return_val_if_fail (original != NULL, InvalidParameter);
+	gdip_bitmap_ensure_surface (bitmap);
+	original = bitmap->surface;
 
 	/* Use the original as a pattern */
 	pat = cairo_pattern_create_for_surface (original);
-	g_return_val_if_fail (pat != NULL, OutOfMemory);
+	status = gdip_get_pattern_status(pat);
+	if (status != Ok) {
+		return status;
+	}
+
 	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
 
 	/* texture surface to be created */
@@ -343,18 +392,23 @@ draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	if (texture == NULL) {
 		cairo_pattern_destroy (pat);
 		return OutOfMemory;
-	} else {
-		cairo_t	*ct2;
-		/* Draw the texture */
-		ct2 = cairo_create (texture);
-		cairo_identity_matrix (ct2);
-		cairo_set_source (ct2, pat);
-		cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
-		cairo_fill (ct2);
-		cairo_destroy(ct2);
 	}
 
+	/* Draw the texture */
+	ct2 = cairo_create (texture);
+	cairo_identity_matrix (ct2);
+	cairo_set_source (ct2, pat);
+	cairo_rectangle (ct2, 0, 0, rect->Width, rect->Height);
+	cairo_fill (ct2);
+	cairo_destroy(ct2);
+
 	brush->pattern = cairo_pattern_create_for_surface (texture);
+	status = gdip_get_pattern_status(brush->pattern);
+	if (status != Ok) {
+		cairo_pattern_destroy (pat);
+		cairo_surface_destroy (texture);
+		return status;
+	}
 
 	cairo_pattern_destroy (pat);
 	cairo_surface_destroy (texture);
@@ -365,106 +419,109 @@ draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 GpStatus
 gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 {
-	cairo_t *ct;
-	cairo_pattern_t *pattern;
-	GpTexture *texture;
-	GpImage *img, *gr_img;
-	GpBitmap *bmp, *gr_bmp;
-	cairo_format_t format;
-	unsigned int width;
-	unsigned int height;
-	GpStatus status = Ok;
-	BOOL dispose_bitmap;
+	cairo_t		*ct;
+	cairo_pattern_t	*pattern;
+	GpTexture	*texture;
+	GpImage		*img;
+	GpImage		*gr_img;
+	GpBitmap	*gr_bmp;
+	cairo_format_t	format;
+	unsigned int	width;
+	unsigned int	height;
+	GpStatus	status = Ok;
+	BOOL		dispose_bitmap;
+	GpMatrix	*product;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if ((graphics == NULL) || (brush == NULL) || (graphics->ct == NULL)) {
+		return InvalidParameter;
+	}
 
 	texture = (GpTexture *) brush;
 	img = texture->image;
-	g_return_val_if_fail (img != NULL, InvalidParameter);
-	if (img->type == imageBitmap) {
-		bmp = (GpBitmap *) img;
-		if (gdip_is_an_indexed_pixelformat (bmp->data.PixelFormat)) {
-			/* Unable to create a surface for the bitmap; it is an indexed image.
-			* Instead, it will first be converted to 32-bit RGB.
-			*/
-			bmp = gdip_convert_indexed_to_rgb (bmp);
-			g_return_val_if_fail (bmp != NULL, OutOfMemory);
-			gdip_bitmap_ensure_surface (bmp);
-			dispose_bitmap = TRUE;
-		} else {
-			dispose_bitmap = FALSE;
-		}
-		width = bmp->data.Width;
-		height = bmp->data.Height;
-		format = bmp->data.PixelFormat;
-	} else {
+	if (img == NULL) {
+		return InvalidParameter;
+	}
+
+	if (img->type != imageBitmap) {
 		return NotImplemented;
 	}
 
+	if (gdip_is_an_indexed_pixelformat (img->active_bitmap->pixel_format)) {
+		/* Unable to create a surface for the bitmap; it is an indexed image.
+		 * Instead, it will first be converted to 32-bit RGB. */
+		img = gdip_convert_indexed_to_rgb (img);
+		if (img == NULL) {
+			return OutOfMemory;
+		}
+		gdip_bitmap_ensure_surface (img);
+		dispose_bitmap = TRUE;
+	} else {
+		dispose_bitmap = FALSE;
+	}
+	width = img->active_bitmap->width;
+	height = img->active_bitmap->height;
+	format = img->active_bitmap->pixel_format;
+
 	ct = graphics->ct;
-	g_return_val_if_fail (ct != NULL, InvalidParameter);
 
 	/* We create the new pattern for brush, if the brush is changed
-	 * or if pattern has not been created yet.
-	 */
-	if (texture->base.changed || (texture->pattern) == NULL) {
-		/* destroy the existing pattern */
-		if (texture->pattern)
+	 * or if pattern has not been created yet. */
+	if (texture->base.changed || (texture->pattern == NULL)) {
+		if (texture->pattern != NULL) {
 			cairo_pattern_destroy (texture->pattern);
+		}
 
 		switch (texture->wrapMode) {
+			case WrapModeTile:
+				status = draw_tile_texture (ct, img, texture);
+				break;
 
-		case WrapModeTile:
-			status = draw_tile_texture (ct, bmp, texture);
-			break;
+			case WrapModeTileFlipX:
+				status = draw_tile_flipX_texture (ct, img, texture);
+				break;
 
-		case WrapModeTileFlipX:
-			status = draw_tile_flipX_texture (ct, bmp, texture);
-			break;
+			case WrapModeTileFlipY:
+				status = draw_tile_flipY_texture (ct, img, texture);
+				break;
 
-		case WrapModeTileFlipY:
-			status = draw_tile_flipY_texture (ct, bmp, texture);
-			break;
+			case WrapModeTileFlipXY:
+				status = draw_tile_flipXY_texture (ct, img, texture);
+				break;
 
-		case WrapModeTileFlipXY:
-			status = draw_tile_flipXY_texture (ct, bmp, texture);
-			break;
+			case WrapModeClamp:
+				status = draw_clamp_texture (ct, img, texture);
+				break;
 
-		case WrapModeClamp:
-			status = draw_clamp_texture (ct, bmp, texture);
-			break;
-
-		default:
-			status = InvalidParameter;
+			default:
+				status = InvalidParameter;
 		}
 	}
 
 	if (dispose_bitmap) {
-		GdipDisposeImage((GpImage *)bmp);
+		GdipDisposeImage((GpImage *)img);
 	}
 
-	if (status == Ok) {
-		if (texture->pattern == NULL)
-			status = GenericError;
-		else {
-			GpMatrix *product = NULL;
-			GdipCreateMatrix (&product);
-		/* Cairo Bug: REPEAT and transformation do not go together.        */
-		/* To work around this we can create an intermediate surface first */
-		/* with REPEAT and use that with transformation as a pattern. But, */
-		/* that gets another problem of handling rotation. Since, we need  */
-		/* absolute rotation instead of rotation around 0,0.               */
-		/* There are two ways to get around this problem:                  */
-		/* 1. Uncommenting the following commented code once we know a     */
-		/* better way to handle the rotation axis problem.      OR         */
-		/* 2. Cairo bug gets fixed. Following commented code won't be      */
-		/* needed in that case.                                            */
+	if ((status != Ok) || (gdip_get_pattern_status(texture->pattern) != Ok)) {
+		return GenericError;
+	}
+
+	GdipCreateMatrix (&product);
+
+	/* FIXME Cairo Bug: REPEAT and transformation do not go together.  */
+	/* To work around this we can create an intermediate surface first */
+	/* with REPEAT and use that with transformation as a pattern. But, */
+	/* that gets another problem of handling rotation. Since, we need  */
+	/* absolute rotation instead of rotation around 0,0.               */
+	/* There are two ways to get around this problem:                  */
+	/* 1. Uncommenting the following commented code once we know a     */
+	/* better way to handle the rotation axis problem.      OR         */
+	/* 2. Cairo bug gets fixed. Following commented code won't be      */
+	/* needed in that case.                                            */
 	/*
 		cairo_save (ct);
 		{
 			temp = cairo_surface_create_similar (cairo_get_target (ct),
-							     format, width, height);
+								format, width, height);
 			
 			if (temp == NULL) {
 				cairo_matrix_destroy (product);
@@ -477,24 +534,22 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 			cairo_fill (ct);
 		}
 		cairo_restore (ct);
-	
+
 		pattern = cairo_pattern_create_for_surface (temp);
 	*/
-			pattern = texture->pattern;
+	pattern = texture->pattern;
 
-			if (pattern != NULL) {
-				/* Use both the matrices */
-				cairo_matrix_multiply (product, texture->matrix, graphics->copy_of_ctm);
-				cairo_matrix_invert (product);
-				cairo_pattern_set_matrix (pattern, product);
-				cairo_set_source (ct, pattern);
-				/*	cairo_pattern_destroy (pattern); */
-			}
-			status = gdip_get_status (cairo_status (ct));
-			/*	cairo_surface_destroy (temp); */
-			GdipDeleteMatrix (product);
-		}
+	if (pattern != NULL) {
+		/* Use both the matrices */
+		cairo_matrix_multiply (product, texture->matrix, graphics->copy_of_ctm);
+		cairo_matrix_invert (product);
+		cairo_pattern_set_matrix (pattern, product);
+		cairo_set_source (ct, pattern);
+		/*	cairo_pattern_destroy (pattern); */
 	}
+	status = gdip_get_status (cairo_status (ct));
+	/*	cairo_surface_destroy (temp); */
+	GdipDeleteMatrix (product);
 
 	return status;
 }
@@ -505,11 +560,14 @@ gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush)
 	GpTexture *result;
 	GpTexture *texture;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (brush == NULL) {
+		return InvalidParameter;
+	}
 
 	result = (GpTexture *) GdipAlloc (sizeof (GpTexture));
-
-	g_return_val_if_fail (result != NULL, OutOfMemory);
+	if (result == NULL) {
+		return OutOfMemory;
+	}
 
 	texture = (GpTexture *) brush;
 	result->base = texture->base;
@@ -542,7 +600,9 @@ gdip_texture_destroy (GpBrush *brush)
 {
 	GpTexture *texture;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (brush == NULL) {
+		return InvalidParameter;
+	}
 
 	texture = (GpTexture *) brush;
 
@@ -574,46 +634,51 @@ gdip_texture_destroy (GpBrush *brush)
 GpStatus
 GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 {
-	GpBitmap *bitmap;
 	cairo_surface_t *imageSurface;
+	GpTexture	*result;
 
-	g_return_val_if_fail (image != NULL, InvalidParameter);
+	if (image == NULL) {
+		return InvalidParameter;
+	}
 
-	if (image->type == imageBitmap)
-		bitmap = (GpBitmap *) image;
-	else
+	if (image->type != imageBitmap) {
 		return NotImplemented;
+	}
 
-	imageSurface = cairo_image_surface_create_for_data ((unsigned char *)bitmap->data.Scan0,
-					bitmap->cairo_format, bitmap->data.Width,
-					bitmap->data.Height, bitmap->data.Stride);
-	g_return_val_if_fail (imageSurface != NULL, OutOfMemory);
+	imageSurface = cairo_image_surface_create_for_data ((unsigned char *)image->active_bitmap->scan0,
+					image->cairo_format, image->active_bitmap->width,
+					image->active_bitmap->height, image->active_bitmap->stride);
+	if (imageSurface == NULL) {
+		return OutOfMemory;
+	}
 
-	*texture = gdip_texture_new ();
-	if (*texture == NULL) {
+	result = gdip_texture_new ();
+	if (result == NULL) {
 		cairo_surface_destroy (imageSurface);
 		return OutOfMemory;
 	}
 
-	(*texture)->wrapMode = wrapMode;
-	GdipCloneImage (image, &(*texture)->image);
-	// note: surface is *always* empty after cloning
-	g_assert (!(*texture)->image->surface);
-	(*texture)->image->surface = imageSurface;
+	result->wrapMode = wrapMode;
+	GdipCloneImage (image, &result->image);
+	if (result->image->surface != NULL) {
+		cairo_surface_destroy(result->image->surface);
+	}
+	result->image->surface = imageSurface;
 
-	(*texture)->rectangle = (GpRect *) GdipAlloc (sizeof (GpRect));
+	result->rectangle = (GpRect *) GdipAlloc (sizeof (GpRect));
 
-	if ( (*texture)->rectangle == NULL) {
+	if (result->rectangle == NULL) {
 		cairo_surface_destroy (imageSurface);
-		GdipFree (*texture);
+		GdipFree (result);
 		return OutOfMemory;
 	}
 
-	(*texture)->rectangle->X = 0;
-	(*texture)->rectangle->Y = 0;
-	(*texture)->rectangle->Width = bitmap->data.Width;
-	(*texture)->rectangle->Height = bitmap->data.Height;
+	result->rectangle->X = 0;
+	result->rectangle->Y = 0;
+	result->rectangle->Width = image->active_bitmap->width;
+	result->rectangle->Height = image->active_bitmap->height;
 
+	*texture = result;
 	return Ok;
 }
 
@@ -626,34 +691,37 @@ GdipCreateTexture2 (GpImage *image, GpWrapMode wrapMode, float x, float y, float
 GpStatus
 GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int width, int height, GpTexture **texture)
 {
-	int bmpWidth;
-	int bmpHeight;
-	GpBitmap *bitmap;
-	cairo_t *ct;
-	cairo_surface_t *original, *new;
+	int		bmpWidth;
+	int		bmpHeight;
+	cairo_t		*ct;
+	cairo_surface_t *original;
+	cairo_surface_t	*new;
 
-	g_return_val_if_fail (image != NULL, InvalidParameter);
+	if (image == NULL) {
+		return InvalidParameter;
+	}
 
-	if (image->type == imageBitmap)
-		bitmap = (GpBitmap *) image;
-	else
+	if (image->type != imageBitmap) {
 		return NotImplemented;
+	}
 
-	bmpWidth = bitmap->data.Width;
-	bmpHeight = bitmap->data.Height;
+	bmpWidth = image->active_bitmap->width;
+	bmpHeight = image->active_bitmap->height;
 
 	/* MS behaves this way */
-	if (x < 0 || y < 0 || width < 0 || height < 0 
-		  || (bmpWidth < (x + width)) || (bmpHeight < (y + height)))
+	if (x < 0 || y < 0 || width < 0 || height < 0 || (bmpWidth < (x + width)) || (bmpHeight < (y + height))) {
 	     return OutOfMemory;
+	}
 
-	original = cairo_image_surface_create_for_data ((unsigned char *)bitmap->data.Scan0, 
-			bitmap->cairo_format, x + width, y + height, bitmap->data.Stride);
+	original = cairo_image_surface_create_for_data ((unsigned char *)image->active_bitmap->scan0, 
+			image->cairo_format, x + width, y + height, image->active_bitmap->stride);
 
-	g_return_val_if_fail (original != NULL, OutOfMemory);
+	if (original == NULL) {
+		return OutOfMemory;
+	}
 
 	/* texture surface to be used by brush */
-	new = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format), width, height);
+	new = cairo_surface_create_similar (original, from_cairoformat_to_content (image->cairo_format), width, height);
 
 	if (new == NULL) {
 		cairo_surface_destroy (original);
@@ -698,26 +766,25 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 GpStatus
 GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x, float y, float width, float height, GpTexture **texture)
 {
-	/* MonoTODO: Make use of ImageAttributes parameter when
-	 * ImageAttributes is implemented
-	 */
+	/* FIXME MonoTODO: Make use of ImageAttributes parameter when
+	 * ImageAttributes is implemented */
 	return GdipCreateTexture2 (image, WrapModeTile, x, y, width, height, texture);
 }
 
 GpStatus
 GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x, int y, int width, int height, GpTexture **texture)
 {
-	/* MonoTODO: Make use of ImageAttributes parameter when
-	 * ImageAttributes is implemented
-	 */
+	/* FIXME MonoTODO: Make use of ImageAttributes parameter when
+	 * ImageAttributes is implemented */
 	return GdipCreateTexture2I (image, WrapModeTile, x, y, width, height, texture);
 }
 
 GpStatus
 GdipGetTextureTransform (GpTexture *texture, GpMatrix *matrix)
 {
-	g_return_val_if_fail (texture != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if ((texture == NULL) || (matrix == NULL)) {
+		return InvalidParameter;
+	}
 
 	gdip_cairo_matrix_copy(matrix, &texture->matrix);
 	return Ok;
@@ -726,8 +793,9 @@ GdipGetTextureTransform (GpTexture *texture, GpMatrix *matrix)
 GpStatus
 GdipSetTextureTransform (GpTexture *texture, GDIPCONST GpMatrix *matrix)
 {
-	g_return_val_if_fail (texture != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if ((texture == NULL) || (matrix == NULL)) {
+		return InvalidParameter;
+	}
 
 	gdip_cairo_matrix_copy(&texture->matrix, matrix);
 	texture->base.changed = TRUE;
@@ -738,7 +806,9 @@ GdipSetTextureTransform (GpTexture *texture, GDIPCONST GpMatrix *matrix)
 GpStatus
 GdipResetTextureTransform (GpTexture *texture)
 {
-	g_return_val_if_fail (texture != NULL, InvalidParameter);
+	if (texture == NULL) {
+		return InvalidParameter;
+	}
 
 	 cairo_matrix_init_identity (texture->matrix);
 	texture->base.changed = TRUE;
@@ -749,8 +819,10 @@ GpStatus
 GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrder order)
 {
 	GpStatus status;
-	g_return_val_if_fail (texture != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+
+	if ((texture == NULL) || (matrix == NULL)) {
+		return InvalidParameter;
+	}
 
 	/* FIXME: How to take care of rotation here ? */
 	status = GdipMultiplyMatrix (texture->matrix, matrix, order);
@@ -763,7 +835,10 @@ GpStatus
 GdipTranslateTextureTransform (GpTexture *texture, float dx, float dy, GpMatrixOrder order)
 {
 	GpStatus status;
-	g_return_val_if_fail (texture != NULL, InvalidParameter);
+
+	if (texture == NULL) {
+		return InvalidParameter;
+	}
 
 	status = GdipTranslateMatrix (texture->matrix, dx, dy, order);
 	if (status == Ok)
@@ -775,7 +850,10 @@ GpStatus
 GdipScaleTextureTransform (GpTexture *texture, float sx, float sy, GpMatrixOrder order)
 {
 	GpStatus status;
-	g_return_val_if_fail (texture != NULL, InvalidParameter);
+
+	if (texture == NULL) {
+		return InvalidParameter;
+	}
 
 	status = GdipScaleMatrix (texture->matrix, sx, sy, order);
 	if (status == Ok)
@@ -789,7 +867,9 @@ GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order
 	GpStatus status;
 	GpPointF axis;
 
-	g_return_val_if_fail (texture != NULL, InvalidParameter);
+	if (texture == NULL) {
+		return InvalidParameter;
+	}
 
 	/* Cairo uses origin (0,0) as the axis of rotation. However, we need 
 	 * to do absolute rotation. Following approach for shifting the axis
@@ -800,17 +880,22 @@ GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order
 	axis.X = texture->rectangle->Width;
 	axis.Y = texture->rectangle->Height;
 
-	if ((status = GdipTranslateMatrix (texture->matrix, -axis.X, -axis.Y, order)) == Ok)
-		if ((status = GdipRotateMatrix (texture->matrix, angle, order)) == Ok)
-			if ((status = GdipTranslateMatrix (texture->matrix, axis.X, axis.Y, order)) == Ok)
+	if ((status = GdipTranslateMatrix (texture->matrix, -axis.X, -axis.Y, order)) == Ok) {
+		if ((status = GdipRotateMatrix (texture->matrix, angle, order)) == Ok) {
+			if ((status = GdipTranslateMatrix (texture->matrix, axis.X, axis.Y, order)) == Ok) {
 				texture->base.changed = TRUE;
+			}
+		}
+	}
 	return status;
 }
 
 GpStatus
 GdipSetTextureWrapMode (GpTexture *texture, GpWrapMode wrapMode)
 {
-	g_return_val_if_fail (texture != NULL, InvalidParameter);
+	if (texture == NULL) {
+		return InvalidParameter;
+	}
 
 	texture->wrapMode = wrapMode;
 	texture->base.changed = TRUE;
@@ -821,7 +906,9 @@ GdipSetTextureWrapMode (GpTexture *texture, GpWrapMode wrapMode)
 GpStatus
 GdipGetTextureWrapMode (GpTexture *texture, GpWrapMode *wrapMode)
 {
-	g_return_val_if_fail (texture != NULL, InvalidParameter);
+	if (texture == NULL) {
+		return InvalidParameter;
+	}
 
 	*wrapMode = texture->wrapMode;
 	return Ok;
@@ -830,8 +917,9 @@ GdipGetTextureWrapMode (GpTexture *texture, GpWrapMode *wrapMode)
 GpStatus
 GdipGetTextureImage (GpTexture *texture, GpImage **image)
 {
-	g_return_val_if_fail (texture != NULL, InvalidParameter);
-	g_return_val_if_fail (image != NULL, InvalidParameter);
+	if ((texture == NULL) || (image == NULL)) {
+		return InvalidParameter;
+	}
 
 	*image = texture->image;
 	return Ok;

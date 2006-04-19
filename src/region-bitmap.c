@@ -384,21 +384,21 @@ gdip_region_bitmap_apply_alpha (GpBitmap *bitmap, GpRegionBitmap *alpha)
 	for (y = 0; y < alpha->Height; y++) {
 		for (x = 0; x < alpha->Width; x += 8) {
 			// ARGB32
-			bitmap->data.Scan0 [n] = (alpha->Mask [p] & 0x01) ? 0xFF : 0x00;
+			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x01) ? 0xFF : 0x00;
 			n += 4;
-			bitmap->data.Scan0 [n] = (alpha->Mask [p] & 0x02) ? 0xFF : 0x00;
+			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x02) ? 0xFF : 0x00;
 			n += 4;
-			bitmap->data.Scan0 [n] = (alpha->Mask [p] & 0x04) ? 0xFF : 0x00;
+			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x04) ? 0xFF : 0x00;
 			n += 4;
-			bitmap->data.Scan0 [n] = (alpha->Mask [p] & 0x08) ? 0xFF : 0x00;
+			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x08) ? 0xFF : 0x00;
 			n += 4;
-			bitmap->data.Scan0 [n] = (alpha->Mask [p] & 0x10) ? 0xFF : 0x00;
+			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x10) ? 0xFF : 0x00;
 			n += 4;
-			bitmap->data.Scan0 [n] = (alpha->Mask [p] & 0x20) ? 0xFF : 0x00;
+			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x20) ? 0xFF : 0x00;
 			n += 4;
-			bitmap->data.Scan0 [n] = (alpha->Mask [p] & 0x40) ? 0xFF : 0x00;
+			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x40) ? 0xFF : 0x00;
 			n += 4;
-			bitmap->data.Scan0 [n] = (alpha->Mask [p] & 0x80) ? 0xFF : 0x00;
+			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x80) ? 0xFF : 0x00;
 			n += 4;
 
 			p++;

@@ -57,79 +57,23 @@ GUID GdipEncoderCompression = {0xe09d739dU, 0xccd4U, 0x44eeU, {0x8e, 0xba, 0x3f,
 void 
 gdip_image_init (GpImage *image)
 {
-	image->type = imageUndefined;
-	image->surface = 0;
-	image->imageFlags = 0;
-	image->height = 0;
-	image->width = 0;
-	image->palette = 0;
-	image->pixFormat = Format32bppArgb;
-	image->propItems = 0;
-	image->horizontalResolution = 0;
-	image->verticalResolution = 0;
-	image->format = 0;
-	image->frameDimensionCount = 0;
-	image->frameDimensionList = NULL;
+	gdip_bitmap_init(image);
 } 
 
 
 GpStatus 
 GdipDisposeImage (GpImage *image)
 {
-	int i = 0, j = 0, count = 0, dataCount = 0;
-	BitmapData *data, *other_data;
-	bool dispose_bitmap;
-	bool free_data;
-
-	if (!image)
-		return InvalidParameter;
-
-	if (image->surface)
-		cairo_surface_destroy (image->surface);
-	image->surface = NULL;
-
-	count = image->frameDimensionCount;
-	dispose_bitmap = TRUE;
-	free_data = FALSE;
-
-	if (count > 0 && image->frameDimensionList != NULL) {
-		other_data = &((GpBitmap *)image)->data;
-		for (i = 0; i < count; i++) {
-			dataCount = image->frameDimensionList [i].count;
-			data = image->frameDimensionList [i].frames;
-			for (j = 0; j < dataCount; j++) {
-				if (((data [j].Reserved & GBD_OWN_SCAN0) != 0) && data [j].Scan0 != NULL) {
-					if (data [i].Scan0 != other_data->Scan0)
-						free_data = TRUE;
-
-					GdipFree (data [j].Scan0);
-				}
-				if ((data [j].ByteCount) > 0 && (data [j].Bytes != NULL)) {
-					GdipFree (data [j].Bytes);
-					data [j].ByteCount = 0;
-					data [j].Bytes = NULL;
-				}
-			}
-			if (free_data) {
-				GdipFree (data);
-			} else {
-				dispose_bitmap = FALSE;
-			}
-		}
-		GdipFree (image->frameDimensionList);
+	if (image->type == imageBitmap) {
+		gdip_bitmap_dispose(image);
+		return Ok;
 	}
 
-	if (image->palette) {
-		GdipFree (image->palette);
-		image->palette = NULL;
-	}
-	
-	if (dispose_bitmap) {
-		gdip_bitmap_dispose((GpBitmap *)image);
+	if (image->type == imageMetafile) {
+		return Ok;
 	}
 
-	GdipFree (image);
-
+	/* imageUndefined */
 	return Ok;
 }
 
@@ -140,27 +84,28 @@ GdipDisposeImage (GpImage *image)
 GpStatus 
 GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 {
-	GpGraphics *gfx;
-	cairo_surface_t *surface;
-	cairo_pattern_t *filter;
-	GpBitmap* bmp = (GpBitmap *) image;
+	GpGraphics	*gfx;
+	cairo_surface_t	*surface;
+	cairo_pattern_t	*filter;
 	
-	if (!image || !graphics)
+	if ((image  == NULL) || (image->active_bitmap == NULL) || (graphics == NULL)) {
 		return InvalidParameter;
+	}
 
-	if (image->type != imageBitmap)
-		return NotImplemented;	
+	if (image->type != imageBitmap) {
+		return NotImplemented;
+	}
 	
-	surface = cairo_image_surface_create_for_data ((unsigned char *) bmp->data.Scan0, bmp->cairo_format,
-				bmp->data.Width, bmp->data.Height, bmp->data.Stride);
+	surface = cairo_image_surface_create_for_data ((unsigned char *) image->active_bitmap->scan0, image->cairo_format,
+				image->active_bitmap->width, image->active_bitmap->height, image->active_bitmap->stride);
 
 	gfx = gdip_graphics_new (surface);
 	gfx->dpi_x = gfx->dpi_y = gdip_get_display_dpi ();
 	cairo_surface_destroy (surface);
 
-	gfx->image = bmp;
+	gfx->image = image;
 	gfx->type = gtMemoryBitmap;
-	filter = cairo_pattern_create_for_surface (bmp->image.surface);
+	filter = cairo_pattern_create_for_surface (image->surface);
 	cairo_pattern_set_filter (filter, gdip_get_cairo_filter (gfx->interpolation));
 	cairo_pattern_destroy (filter);
 	*graphics = gfx;
@@ -208,19 +153,21 @@ GdipGetPostScriptSavePage (GpGraphics* graphics)
 GpStatus 
 GdipDrawImageI (GpGraphics *graphics, GpImage *image, int x, int y)
 {
-	if (!image)
+	if (!image) {
 		return InvalidParameter;
+	}
 
-	return GdipDrawImageRect (graphics, image, x, y, image->width, image->height);
+	return GdipDrawImageRect (graphics, image, x, y, image->active_bitmap->width, image->active_bitmap->height);
 }
 
 GpStatus 
 GdipDrawImage (GpGraphics *graphics, GpImage *image, float x, float y)
 {
-	if (!image)
+	if (!image) {
 		return InvalidParameter;
+	}
 
-	return GdipDrawImageRect (graphics, image, x, y, image->width, image->height);
+	return GdipDrawImageRect (graphics, image, x, y, image->active_bitmap->width, image->active_bitmap->height);
 }
 
 GpStatus
@@ -235,10 +182,9 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	cairo_pattern_t *pattern;
 	cairo_pattern_t *org_pattern;
 
-	
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (image != NULL, InvalidParameter);
-	g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
+	if ((graphics == NULL) || (image == NULL) || (image->type != imageBitmap)) {
+		return InvalidParameter;
+	}
 
 	x = gdip_unitx_convgr (graphics, x);
 	y = gdip_unity_convgr (graphics, y);
@@ -247,35 +193,28 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	
 	cairo_new_path(graphics->ct);
 
-	if (gdip_is_an_indexed_pixelformat (((GpBitmap*) image)->data.PixelFormat)) {
-		/* Unable to create a surface for the bitmap; it is an indexed image.
-		 * Instead, it will first be converted to 32-bit RGB.
-		 */
+	if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format)) {
 		GpStatus status = OutOfMemory;
-
-		GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb ((GpBitmap *) image);
+		GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb (image);
 
 		if (rgb_bitmap != NULL) {
-			status = GdipDrawImageRect(graphics, (GpImage *)rgb_bitmap, x, y, width, height);
-			GdipDisposeImage((GpImage *)rgb_bitmap);
+			status = GdipDrawImageRect(graphics, rgb_bitmap, x, y, width, height);
+			GdipDisposeImage(rgb_bitmap);
 		}
 
 		return status;
 	}
 
 	/* Create a surface for this bitmap if one doesn't exist */
-	gdip_bitmap_ensure_surface ((GpBitmap *) image);
-	pattern = cairo_pattern_create_for_surface (((GpBitmap*) image)->image.surface);
+	gdip_bitmap_ensure_surface (image);
+	pattern = cairo_pattern_create_for_surface (image->surface);
 
-	cairo_pattern_set_filter (pattern,
-				  gdip_get_cairo_filter (graphics->interpolation));
+	cairo_pattern_set_filter (pattern, gdip_get_cairo_filter (graphics->interpolation));
 
 	cairo_translate (graphics->ct, x, y);
 
-	if (width != image->width || height != image->height) {
-		cairo_scale (graphics->ct,
-				(double) width / image->width,
-				(double) height / image->height);
+	if (width != image->active_bitmap->width || height != image->active_bitmap->height) {
+		cairo_scale (graphics->ct, (double) width / image->active_bitmap->width, (double) height / image->active_bitmap->height);
 	}
 	
 	org_pattern = cairo_get_source(graphics->ct);
@@ -295,26 +234,23 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 GpStatus
 GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *dstPoints, int count)
 {
-	float width, height;
-	cairo_pattern_t *pattern;
-	cairo_pattern_t *org_pattern;
+	float		width;
+	float		height;
+	cairo_pattern_t	*pattern;
+	cairo_pattern_t	*org_pattern;
 	
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (image != NULL, InvalidParameter);
-	g_return_val_if_fail (dstPoints != NULL, InvalidParameter);
-	g_return_val_if_fail (count == 3, InvalidParameter);
+	if ((graphics == NULL) || (image == NULL) || (dstPoints == NULL) || (count != 3)) {
+		return InvalidParameter;
+	}
 
-	if (gdip_is_an_indexed_pixelformat (((GpBitmap*) image)->data.PixelFormat)) {
-		/* Unable to create a surface for the bitmap; it is an indexed image.
-		 * Instead, it will first be converted to 32-bit RGB.
-		 */
+	if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format)) {
 		GpStatus status = OutOfMemory;
 
-		GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb ((GpBitmap *) image);
+		GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb (image);
 
 		if (rgb_bitmap != NULL) {
-			status = GdipDrawImagePoints (graphics, (GpImage *)rgb_bitmap, dstPoints, count);
-			GdipDisposeImage((GpImage *)rgb_bitmap);
+			status = GdipDrawImagePoints (graphics, rgb_bitmap, dstPoints, count);
+			GdipDisposeImage(rgb_bitmap);
 		}
 		return status;
 	}
@@ -325,10 +261,9 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	height = dstPoints[2].Y > dstPoints[0].Y ? dstPoints[2].Y - dstPoints[0].Y : dstPoints[0].Y - dstPoints[2].Y;
 
 	/* Create a surface for this bitmap if one doesn't exist */
-	gdip_bitmap_ensure_surface ((GpBitmap *) image);
-	pattern = cairo_pattern_create_for_surface (((GpBitmap*) image)->image.surface);
-	cairo_pattern_set_filter (pattern,
-				  gdip_get_cairo_filter (graphics->interpolation));
+	gdip_bitmap_ensure_surface (image);
+	pattern = cairo_pattern_create_for_surface (image->surface);
+	cairo_pattern_set_filter (pattern, gdip_get_cairo_filter (graphics->interpolation));
 
 	cairo_translate (graphics->ct, dstPoints[0].X, dstPoints[0].Y);
 
@@ -336,9 +271,7 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 		TODO: Implement rotation
 	*/
 
-	cairo_scale (graphics->ct,
-		(double) width / image->width,
-		(double) height / image->height);
+	cairo_scale (graphics->ct, (double) width / image->active_bitmap->width, (double) height / image->active_bitmap->height);
 	
 	org_pattern = cairo_get_source(graphics->ct);
 	cairo_pattern_reference(org_pattern);
@@ -356,12 +289,13 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 GpStatus
 GdipDrawImagePointsI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *dstPoints, int count)
 {
-	GpPointF points[3];
-	int i;
+	GpPointF	points[3];
+	int		i;
 	
-	g_return_val_if_fail (dstPoints != NULL, InvalidParameter);
-	g_return_val_if_fail (count == 3, InvalidParameter);
-	
+	if ((dstPoints == NULL) || (count != 3)) {
+		return InvalidParameter;
+	}
+
 	for (i = 0; i < 3; i++) {
 		points[i].X = dstPoints[i].X;
 		points[i].Y = dstPoints[i].Y;
@@ -376,8 +310,9 @@ GdipDrawImagePointRect (GpGraphics *graphics, GpImage *image,
                         float srcx, float srcy, float srcwidth, float srcheight,
                         GpUnit srcUnit)
 {
-	if (!image)
+	if (image == NULL) {
 		return InvalidParameter;
+	}
 
 	return GdipDrawImageRectRect (graphics, image, x, y, srcwidth, srcheight, srcx, srcy, 
 		srcwidth, srcheight, srcUnit, NULL, NULL, NULL);
@@ -400,33 +335,29 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
                        GDIPCONST GpImageAttributes *imageAttributes,
                        DrawImageAbort callback, void *callbackData)
 {
-	cairo_pattern_t *pattern;
-	cairo_pattern_t *orig;
-	cairo_matrix_t mat;
-	void* dest, *org;
-	bool allocated = FALSE;
-	GpBitmap *bitmap = (GpBitmap *) image;
+	cairo_pattern_t	*pattern;
+	cairo_pattern_t	*orig;
+	cairo_matrix_t	mat;
+	void		*dest;
+	void		*org;
+	bool		allocated = FALSE;
 	
+	if ((graphics == NULL) || (image == NULL) || (image->type != imageBitmap)) {
+		return InvalidParameter;
+	}
+
 	cairo_matrix_init (&mat, 1, 0, 0, 1, 0, 0);
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (image != NULL, InvalidParameter);
-	g_return_val_if_fail (image->type == imageBitmap, InvalidParameter);
-
-	if (gdip_is_an_indexed_pixelformat (((GpBitmap *)image)->data.PixelFormat)) {
-                /* Unable to create a surface for the bitmap; it is an indexed image.
-                 * Instead, it will first be converted to 32-bit RGB.
-                 */
+	if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format)) {
 		GpStatus status = OutOfMemory;
-
-		GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb ((GpBitmap *)image);
+		GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb (image);
 
 		if (rgb_bitmap != NULL) {
-			status = GdipDrawImageRectRect (graphics, (GpImage *)rgb_bitmap,
+			status = GdipDrawImageRectRect (graphics, rgb_bitmap,
 				dstx, dsty, dstwidth, dstheight,
 				srcx, srcy, srcwidth, srcheight,
 				srcUnit, imageAttributes, callback, callbackData);
-			GdipDisposeImage ((GpImage *)rgb_bitmap);
+			GdipDisposeImage (rgb_bitmap);
 		}
 
 		return status;
@@ -443,76 +374,91 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_y, srcheight, &srcheight);
 	}
 
-	org = dest = bitmap->data.Scan0; 
-	gdip_process_bitmap_attributes (bitmap,  &dest,  (GpImageAttributes *) imageAttributes, &allocated);
+	org = dest = image->active_bitmap->scan0; 
+	gdip_process_bitmap_attributes (image, &dest, (GpImageAttributes *) imageAttributes, &allocated);
 
-	/* If there was a new Scan0 allocated, it means that we need it to change
-	it's contents in order to apply the imageatributtes*/    
+	/*  If allocated is true we have a newly allocated and altered Scan0 in dest */
+	if (allocated) {
+		image->active_bitmap->scan0 = dest;
+	}
 	
-	if (allocated) 				
-		bitmap->data.Scan0 = dest;
-	
-	/* Re-attach the image if the image has attribues */
-	if ((bitmap->image.surface != NULL) && (imageAttributes != NULL))  {
-		cairo_surface_destroy (bitmap->image.surface);
-		bitmap->image.surface = NULL;
+	/* Drop the existing surface if attributes are being applied since the surface might be out-of-date */
+	if ((image->surface != NULL) && (imageAttributes != NULL))  {
+		cairo_surface_destroy (image->surface);
+		image->surface = NULL;
 	}
 
 	if (imageAttributes && imageAttributes->wrapmode != WrapModeClamp) {
-		float img_width = bitmap->data.Width *  (dstwidth / srcwidth) , img_height = bitmap->data.Height * (dstheight / srcheight);
-		float posx, posy;
-		bool flipXOn = (imageAttributes->wrapmode == WrapModeTileFlipX) ? TRUE: FALSE;
-		bool flipYOn = (imageAttributes->wrapmode == WrapModeTileFlipY) ? TRUE: FALSE;
-		bool flipX = FALSE, flipY = FALSE;
-		GpBitmap *cur_image, *imgflipX = NULL, *imgflipY = NULL, *imgflipXY = NULL;
+		float		img_width;
+		float		img_height;
+		float		posx;
+		float		posy;
+		bool		flipXOn;
+		bool		flipYOn;
+		bool		flipX;
+		bool		flipY;
+		GpBitmap	*cur_image;
+		GpBitmap	*imgflipX;
+		GpBitmap	*imgflipY;
+		GpBitmap	*imgflipXY;
+
+		img_width = image->active_bitmap->width *  (dstwidth / srcwidth);
+		img_height = image->active_bitmap->height * (dstheight / srcheight);
+		flipXOn = (imageAttributes->wrapmode == WrapModeTileFlipX) ? TRUE: FALSE;
+		flipYOn = (imageAttributes->wrapmode == WrapModeTileFlipY) ? TRUE: FALSE;
+		flipX = FALSE;
+		flipY = FALSE;
+		imgflipX = NULL;
+		imgflipY = NULL;
+		imgflipXY = NULL;
 		
-		if (imageAttributes->wrapmode == WrapModeTileFlipXY) 
+		if (imageAttributes->wrapmode == WrapModeTileFlipXY) {
 			flipXOn = flipYOn = TRUE;
+		}
 		
 		if (flipXOn) {			
-			// We're ok just cloning the bitmap, we don't need the image data
-			// and we destroy it before we leave this function
-			gdip_bitmap_clone (bitmap, &imgflipX);
-			gdip_flip_x ((GpImage *) imgflipX);	
+			/* We're ok just cloning the bitmap, we don't need the image data
+			 * and we destroy it before we leave this function */
+			gdip_bitmap_clone (image, &imgflipX);
+			gdip_flip_x (imgflipX);	
 			gdip_bitmap_ensure_surface (imgflipX);			
 		}
 		
 		if (flipYOn) {			
-			gdip_bitmap_clone (bitmap, &imgflipY);
-			gdip_flip_y ((GpImage *) imgflipY);	
+			gdip_bitmap_clone (image, &imgflipY);
+			gdip_flip_y (imgflipY);	
 			gdip_bitmap_ensure_surface (imgflipY);			
 		}
 		
 		if (flipXOn && flipYOn) {			
-			gdip_bitmap_clone (bitmap, &imgflipXY);
-			gdip_flip_x ((GpImage *)imgflipXY);	
-			gdip_flip_y ((GpImage *) imgflipXY);	
+			gdip_bitmap_clone (image, &imgflipXY);
+			gdip_flip_x (imgflipXY);	
+			gdip_flip_y (imgflipXY);	
 			gdip_bitmap_ensure_surface (imgflipXY);			
 		}
 		
-		/* Create a surface for this bitmap if one doesn't exist */
-		gdip_bitmap_ensure_surface ((GpBitmap*) image);
+		gdip_bitmap_ensure_surface (image);
 
 		for (posy = 0; posy < dstheight; posy += img_height) {
-		
 			for (posx = 0; posx < dstwidth; posx += img_width) {
-			
-				if (flipX && flipY)
-					cur_image = imgflipXY;				
-				else			
-					if (flipX) 
-						cur_image = imgflipX;				
-					else
-						if (flipY) 
-							cur_image = imgflipY;									 
-						else 
-							cur_image = bitmap;
-				
+				if (flipX && flipY) {
+					cur_image = imgflipXY;
+				} else {
+					if (flipX) {
+						cur_image = imgflipX;
+					} else {
+						if (flipY) {
+							cur_image = imgflipY;
+						} else {
+							cur_image = image;
+						}
+					}
+				}
 
 				cairo_matrix_scale (&mat, srcwidth / dstwidth, srcheight / dstheight);
 				cairo_matrix_translate (&mat, srcx - (dstx + posx), srcy - (dsty + posy));
 
-				pattern = cairo_pattern_create_for_surface(cur_image->image.surface);
+				pattern = cairo_pattern_create_for_surface(cur_image->surface);
 				cairo_pattern_set_matrix (pattern, &mat);
 
 				orig = cairo_get_source(graphics->ct);
@@ -528,32 +474,34 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 				cairo_pattern_set_matrix (pattern, &mat);
 
 				cairo_pattern_destroy(pattern);
-				
-				if (flipXOn)
-					flipX = !flipX; 					
+
+				if (flipXOn) {
+					flipX = !flipX;
+				}
 			
 			}
 					
-			if (flipYOn)
+			if (flipYOn) {
 				flipY = !flipY; 
+			}
 		}	
 		
-		if (imgflipX)
-			GdipDisposeImage ((GpImage *) imgflipX);	
+		if (imgflipX) {
+			GdipDisposeImage ((GpImage *) imgflipX);
+		}
 			
-		if (imgflipY)
+		if (imgflipY) {
 			GdipDisposeImage ((GpImage *) imgflipY);
-			
-		if (imgflipXY)
+		}
+
+		if (imgflipXY) {
 			GdipDisposeImage ((GpImage *) imgflipXY);
-		
-	}
-	else {
+		}
+	} else {
 		cairo_pattern_t *filter;
 
-		/* Create a surface for this bitmap if one doesn't exist */
-		gdip_bitmap_ensure_surface ((GpBitmap*) image);
-		filter = cairo_pattern_create_for_surface (((GpBitmap*) image)->image.surface);
+		gdip_bitmap_ensure_surface (image);
+		filter = cairo_pattern_create_for_surface (image->surface);
 		cairo_pattern_set_filter (filter, gdip_get_cairo_filter (graphics->interpolation));
 		
 		cairo_matrix_scale (&mat, srcwidth / dstwidth, srcheight / dstheight);
@@ -577,15 +525,15 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		cairo_pattern_destroy (filter);
 	}
 
-	/* The default surface is no longer valid*/
-	if (bitmap->image.surface && imageAttributes != NULL)  {
-		cairo_surface_destroy (bitmap->image.surface);
-		bitmap->image.surface = NULL;
+	/* The current surface is no longer valid if we had attributes applied */
+	if (image->surface && imageAttributes != NULL)  {
+		cairo_surface_destroy (image->surface);
+		image->surface = NULL;
 	}
-	
+
 	if (allocated) {
-		bitmap->data.Scan0 = org;
-		GdipFree (dest);	
+		image->active_bitmap->scan0 = org;
+		GdipFree (dest);
 	}
 	
 	return Ok;
@@ -645,16 +593,17 @@ GdipSaveImageToStream (GpImage *image, void *stream, GDIPCONST CLSID *encoderCLS
 GpStatus 
 GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 {
-	FILE *fp = 0;
-	GpImage *result = 0;
-	GpStatus status = 0;
-	ImageFormat format;
-	char *file_name = NULL;
-	char format_peek[10];
-	int format_peek_sz;
+	FILE		*fp = 0;
+	GpImage		*result = 0;
+	GpStatus	status = 0;
+	ImageFormat	format;
+	char		*file_name = NULL;
+	char		format_peek[10];
+	int		format_peek_sz;
 	
-	if (!image || !file)
+	if ((image == NULL) || (file == NULL)) {
 		return InvalidParameter;
+	}
 	
 	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)file, -1);
 	if (file_name == NULL) {
@@ -664,60 +613,73 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	
 	fp = fopen(file_name, "rb");
 	GdipFree (file_name);
-	if (fp == NULL)
+	if (fp == NULL) {
 		return InvalidParameter;
+	}
 	
 	format_peek_sz = fread (format_peek, 1, 10, fp);
 	format = get_image_format (format_peek, format_peek_sz);
 	fseek (fp, 0, SEEK_SET);
 	
 	switch (format) {
-		case BMP:
+		case BMP: {
 			status = gdip_load_bmp_image_from_file (fp, &result);
-			if (result != NULL)
-				result->format = BMP;
+			if (result != NULL) {
+				result->image_format = BMP;
+			}
 			break;
-		case TIF:
+		}
+
+		case TIF: {
 			status = gdip_load_tiff_image_from_file (fp, &result);
-			if (result != NULL)
-				result->format = TIF;
+			if (result != NULL) {
+				result->image_format = TIF;
+			}
 			break;
-		case GIF:
+		}
+
+		case GIF: {
 			status = gdip_load_gif_image_from_file (fp, &result);
-			if (result != NULL)
-				result->format = GIF;
+			if (result != NULL) {
+				result->image_format = GIF;
+			}
 			break;
-		case PNG:
+		}
+
+		case PNG: {
 			status = gdip_load_png_image_from_file (fp, &result);
-			if (result != NULL)
-				result->format = PNG;
+			if (result != NULL) {
+				result->image_format = PNG;
+			}
 			break;
-		case JPEG:
+		}
+
+		case JPEG: {
 			status = gdip_load_jpeg_image_from_file (fp, &result);
-			if (result != NULL)
-				result->format = JPEG;
+			if (result != NULL) {
+				result->image_format = JPEG;
+			}
 			break;
+		}
+
 		case EXIF:
 		case WMF:
 		case EMF:
 		case ICON:
-		default:
+		default: {
 			status = NotImplemented;
+			break;
+		}
 	}
 	
 	fclose (fp);
 	
+	*image = result;
 	if (status != Ok) {
 		*image = NULL;
-	} else {
-		if (result->frameDimensionCount == 0) {
-			result->frameDimensionCount = 1;
-			result->frameDimensionList = (FrameInfo *) GdipAlloc (sizeof (FrameInfo));
-			result->frameDimensionList[0].count = 1; /*multiple frames are already taken care of in respectic codecs*/
-			memcpy (&(result->frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
-			result->frameDimensionList[0].frames = &(((GpBitmap *) result)->data);
-		}
-		*image = result;
+	} else if (result->active_bitmap == NULL) {
+		/* If the codec didn't set the active bitmap we will */
+		gdip_bitmap_setactive(result, NULL, 0);
 	}
 	
 	return status;
@@ -809,13 +771,14 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 GpStatus 
 GdipGetImageBounds (GpImage *image, GpRectF *rect, GpUnit *unit)
 {
-	if (!image || !rect || !unit)           
+	if ((image == NULL) || (rect == NULL) || (unit == NULL)) {
 		return InvalidParameter;
+	}
 
 	rect->X = 0;
 	rect->Y = 0;
-	rect->Height = image->height;
-	rect->Width = image->width;
+	rect->Height = image->active_bitmap->height;
+	rect->Width = image->active_bitmap->width;
 	*unit = UnitPixel;
 
 	return Ok;
@@ -824,11 +787,12 @@ GdipGetImageBounds (GpImage *image, GpRectF *rect, GpUnit *unit)
 GpStatus 
 GdipGetImageDimension (GpImage *image, float *width, float *height)
 {
-	if (!image || !width || !height)
+	if ((image == NULL) || (width == NULL) || (height == NULL)) {
 		return InvalidParameter;
+	}
 
-	*width = image->width;
-	*height = image->height;
+	*width = image->active_bitmap->width;
+	*height = image->active_bitmap->height;
 
 	return Ok;
 }
@@ -836,93 +800,108 @@ GdipGetImageDimension (GpImage *image, float *width, float *height)
 GpStatus 
 GdipGetImageType (GpImage *image, ImageType *type)
 {
-	if (!image || !type)
+	if ((image == NULL) || (type == NULL)) {
 		return InvalidParameter;
+	}
 
-	*type = image->type;	
+	*type = image->type;
 	return Ok;
 }
 
 GpStatus 
 GdipGetImageWidth (GpImage *image, UINT *width)
 {
-	if (!image || !width)
+	if ((image == NULL) || (width == NULL)) {
 		return InvalidParameter;
+	}
 
-	*width = image->width;
+	*width = image->active_bitmap->width;
 	return Ok;
 }
 
 GpStatus 
 GdipGetImageHeight (GpImage *image, UINT *height)
 {
-	if (!image || !height)
+	if ((image == NULL) || (height == NULL)) {
 		return InvalidParameter;
+	}
 
-	*height = image->height;
+	*height = image->active_bitmap->height;
 	return Ok;
 }
 
 GpStatus 
 GdipGetImageHorizontalResolution (GpImage *image, float *resolution)
 {
-	if (!image || !resolution)
+	if ((image == NULL) || (resolution == NULL)) {
 		return InvalidParameter;
+	}
 	
-	*resolution = image->horizontalResolution;
+	*resolution = image->active_bitmap->dpi_horz;
 	return Ok;
 }
 
 GpStatus 
 GdipGetImageVerticalResolution (GpImage *image, float *resolution)
 {
-	if (!image || !resolution)
+	if ((image == NULL) || (resolution == NULL)) {
 		return InvalidParameter;
+	}
 
-	*resolution = image->verticalResolution;
+	*resolution = image->active_bitmap->dpi_vert;
 	return Ok;
 }
 
 GpStatus 
 GdipGetImageFlags (GpImage *image, UINT *flags)
 {
-	if (!image || !flags)
+	if ((image == NULL) || (flags == NULL)) {
 		return InvalidParameter;
+	}
 
-	*flags = image->imageFlags;
+	*flags = image->active_bitmap->image_flags;
 	return Ok;
 }
 
 GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format)
 {
-	if (!image || !format)
+	if ((image == NULL) || (format == NULL)) {
 		return InvalidParameter;
+	}
 	
-	switch (image->format) {
+	switch (image->image_format) {
         	case BMP:
 	        	memcpy(format, &gdip_bmp_image_format_guid, 16);
 			return Ok;
+
 		case TIF:
             		memcpy(format, &gdip_tif_image_format_guid, 16);
 			return Ok;
+
 		case GIF:
 	        	memcpy(format, &gdip_gif_image_format_guid, 16);
 			return Ok;
+
 		case PNG:
 	        	memcpy(format, &gdip_png_image_format_guid, 16);
 			return Ok;
+
 		case JPEG:
             		memcpy(format, &gdip_jpg_image_format_guid, 16);
 			return Ok;
+
 		case EXIF:
 	        	memcpy(format, &gdip_exif_image_format_guid, 16);
 			return Ok;
+
 		case WMF:
             		memcpy(format, &gdip_wmf_image_format_guid, 16);
 			return Ok;
+
 		case EMF:
 	        	memcpy(format, &gdip_emf_image_format_guid, 16);
 			return Ok;
+
         	default:
             		return InvalidParameter;
     	}
@@ -931,42 +910,44 @@ GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format)
 GpStatus 
 GdipGetImagePixelFormat (GpImage *image, PixelFormat *format)
 {
-	if (!image || !format)
+	if ((image == NULL) || (format == NULL)) {
 		return InvalidParameter;
+	}
 
-	*format = image->pixFormat;
+	*format = image->active_bitmap->pixel_format;
 	return Ok;
 }
 
 GpStatus 
 GdipImageGetFrameDimensionsCount (GpImage *image, UINT *count)
 {
-	if (!image || !count)
-                return InvalidParameter;
+	if ((image == NULL) || (count == NULL)) {
+		return InvalidParameter;
+	}
 
-	*count = image->frameDimensionCount;
+	*count = image->num_of_frames;
 	return Ok;
 }
 
 GpStatus 
 GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count)
 {
-	int i;
-	int countReturn;
-	GUID guid [count];
+	int	i;
+	int	countReturn;
 
-	if (!image || !dimensionGUID)
+	if ((image == NULL) || (dimensionGUID == NULL)) {
 		return InvalidParameter;
-
-	countReturn = image->frameDimensionCount;
-	
-	if (countReturn < count)
-		countReturn = count;
-	for (i=0; i<countReturn; i++){
-		guid [i] = image->frameDimensionList[i].frameDimension;
 	}
 
-	memcpy (dimensionGUID, guid, sizeof (CLSID)*countReturn);
+	countReturn = image->num_of_frames;
+	
+	if (countReturn > count) {
+		countReturn = count;
+	}
+
+	for (i = 0; i < countReturn; i++) {
+		dimensionGUID[i] = image->frames[i].frame_dimension;
+	}
 	return Ok;
 }
 
@@ -975,12 +956,13 @@ GdipImageGetFrameCount(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* coun
 {
 	int i;
 
-	if (!image || !dimensionGUID || !count)
+	if ((image == NULL) || (dimensionGUID == NULL) || (count == NULL)) {
 		return InvalidParameter;
+	}
 
-	for (i=0; i<image->frameDimensionCount; i++){
-		if (memcmp(dimensionGUID, &(image->frameDimensionList[i].frameDimension), sizeof(CLSID)) == 0) {
-			*count = image->frameDimensionList[i].count;
+	for (i = 0; i < image->num_of_frames; i++){
+		if (memcmp(dimensionGUID, &(image->frames[i].frame_dimension), sizeof(CLSID)) == 0) {
+			*count = image->frames[i].count;
 			return Ok;
 		}
 	}
@@ -991,25 +973,11 @@ GdipImageGetFrameCount(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* coun
 GpStatus
 GdipImageSelectActiveFrame(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT index)
 {
-	int i=0;
-
-        if (!image || !dimensionGUID || (index <0))
+        if ((image == NULL) || (dimensionGUID == NULL) || (index <0)) {
                 return InvalidParameter;
-		
-	for (i=0; i<image->frameDimensionCount; i++) {
-		if (memcmp(dimensionGUID, &(image->frameDimensionList[i].frameDimension), sizeof(CLSID)) == 0) {
-			if (image->frameDimensionList[i].count >= index){
-				GpBitmap *bitmap = (GpBitmap *) image;
-				bitmap->data = image->frameDimensionList[i].frames[index];
-				/*printf ("\n image.c selected frame is %d returning ok", index);*/
-				return Ok;
-			} else {
-				return InvalidParameter;
-				/*printf ("\n image.c not selected frame is %d and returning error", index);*/
-			}
-		}
 	}
-        return InvalidParameter;        
+
+	return gdip_bitmap_setactive(image, dimensionGUID, index);
 }
 
 void copy_pixel (BYTE *src, BYTE *trg, int size)
@@ -1020,25 +988,32 @@ void copy_pixel (BYTE *src, BYTE *trg, int size)
 static GpStatus
 gdip_flip_x (GpImage *image)
 {
-	BYTE *src, *line;
-	int stride, width, height, pixel_size, i, j;
-	GpBitmap *bitmap = (GpBitmap *) image;
+	BYTE	*src;
+	BYTE	*line;
+	int	stride;
+	int	width;
+	int	height;
+	int	pixel_size;
+	int	i;
+	int	j;
 	
-	stride = bitmap->data.Stride;
-	width = bitmap->data.Width;
-	height = bitmap->data.Height;
-	pixel_size = gdip_get_pixel_format_components (bitmap->data.PixelFormat) * gdip_get_pixel_format_depth (bitmap->data.PixelFormat) / 8;
+	stride = image->active_bitmap->stride;
+	width = image->active_bitmap->width;
+	height = image->active_bitmap->height;
+	pixel_size = gdip_get_pixel_format_components (image->active_bitmap->pixel_format) * gdip_get_pixel_format_depth (image->active_bitmap->pixel_format) / 8;
 	line = GdipAlloc (stride);
-	src = (BYTE *) bitmap->data.Scan0;
+	src = (BYTE *) image->active_bitmap->scan0;
 
-	if (line == NULL)
+	if (line == NULL) {
 		return OutOfMemory;
+	}
 	
-	for (i = 0; i < height; i++, src += stride) {			
-		memcpy (line, src, stride);	/* Save original line*/
+	for (i = 0; i < height; i++, src += stride) {
+		memcpy (line, src, stride);	/* Save original line */
 
-		for  (j = 0; j < width; j++)
+		for  (j = 0; j < width; j++) {
 			copy_pixel(&line[(width - j - 1) * pixel_size], &src[j * pixel_size], pixel_size);
+		}
 	}
 	
 	GdipFree (line);
@@ -1049,24 +1024,28 @@ gdip_flip_x (GpImage *image)
 static GpStatus
 gdip_flip_y (GpImage *image)
 {
-	BYTE *src, *trg, *line;
-	int stride, height, i;	
-	GpBitmap *bitmap = (GpBitmap *) image;
+	BYTE	*src;
+	BYTE	*trg;
+	BYTE	*line;
+	int	stride;
+	int	height;
+	int	i;
 	
-	stride = bitmap->data.Stride;
-	height = bitmap->data.Height;
-	line = GdipAlloc (stride);		
-	src = (BYTE *) bitmap->data.Scan0;
-	trg = (BYTE *) bitmap->data.Scan0;
+	stride = image->active_bitmap->stride;
+	height = image->active_bitmap->height;
+	line = GdipAlloc (stride);
+	src = (BYTE *) image->active_bitmap->scan0;
+	trg = (BYTE *) image->active_bitmap->scan0;
 	trg +=  (height-1) * stride;
 
-	if (line == NULL)
+	if (line == NULL) {
 		return OutOfMemory;
+	}
 	
 	for (i = 0; i < (height /2); i++, src += stride, trg -= stride) {			
-		memcpy (line, trg, stride);	/* Save target line*/		
-		memcpy (trg, src, stride);	/* Copy src to trg*/		
-		memcpy (src, line, stride);	/* Copy trg to src*/		
+		memcpy (line, trg, stride);	/* Save target line*/
+		memcpy (trg, src, stride);	/* Copy src to trg*/
+		memcpy (src, line, stride);	/* Copy trg to src*/
 	}
 	
 	GdipFree (line);
@@ -1077,24 +1056,24 @@ gdip_flip_y (GpImage *image)
 static GpStatus
 gdip_rotate_orthogonal_flip_x (GpImage *image, int angle, BOOL flip_x)
 {
-	GpBitmap *bitmap = (GpBitmap *) image;
+	BYTE	*rotated;
+	BYTE	*source;
+	BYTE	*target;
+	int	x, y;
+	int	source_stride, source_height, source_width, source_pixel_delta, source_interscan_delta;
+	int	target_stride, target_height, target_width, target_pixel_delta, target_interscan_delta;
+	int	initial_source_offset, initial_target_offset;
+	int	components;
+	int	depth;
+	int	pixel_size;
 
-	BYTE *rotated;
+	components = gdip_get_pixel_format_components (image->active_bitmap->pixel_format);
+	depth = gdip_get_pixel_format_depth (image->active_bitmap->pixel_format);
+	pixel_size = components * depth / 8;
 
-	BYTE *source, *target;
-	int x, y;
-	int source_stride, source_height, source_width, source_pixel_delta, source_interscan_delta;
-	int target_stride, target_height, target_width, target_pixel_delta, target_interscan_delta;
-	int initial_source_offset, initial_target_offset;
-
-	int components = gdip_get_pixel_format_components (bitmap->data.PixelFormat);
-	int depth = gdip_get_pixel_format_depth (bitmap->data.PixelFormat);
-
-	int pixel_size = components * depth / 8;
-
-	source_stride = bitmap->data.Stride;
-	source_width = bitmap->data.Width;
-	source_height = bitmap->data.Height;
+	source_stride = image->active_bitmap->stride;
+	source_width = image->active_bitmap->width;
+	source_height = image->active_bitmap->height;
 
 	source_pixel_delta = pixel_size;
 	source_interscan_delta = source_stride - source_width * pixel_size;
@@ -1103,8 +1082,7 @@ gdip_rotate_orthogonal_flip_x (GpImage *image, int angle, BOOL flip_x)
 	if (angle == 180) {
 		target_width = source_width;
 		target_height = source_height;
-	}
-	else {
+	} else {
 		target_height = source_width; /* swap width & height here */
 		target_width = source_height;
 	}
@@ -1112,92 +1090,84 @@ gdip_rotate_orthogonal_flip_x (GpImage *image, int angle, BOOL flip_x)
 	target_stride = target_width * pixel_size;
 	target_stride = (target_stride + 3) & ~3;
 
-	switch (angle)
-	{
-		case 90:
+	switch (angle) {
+		case 90: {
 			target_pixel_delta = target_stride;
 			if (flip_x) {
 				target_interscan_delta = +pixel_size - target_stride * target_height;
 				initial_target_offset = 0;
-			}
-			else {
+			} else {
 				target_interscan_delta = -pixel_size - target_stride * target_height;
 				initial_target_offset = (target_width - 1) * pixel_size;
 			}
 			break;
-		case 180:
+		}
+
+		case 180: {
 			if (flip_x) {
 				target_pixel_delta = +pixel_size;
 				target_interscan_delta = -target_width * pixel_size - target_stride; 
 				initial_target_offset = (target_height - 1) * target_stride;
-			}
-			else {
+			} else {
 				target_pixel_delta = -pixel_size;
 				target_interscan_delta = +target_width * pixel_size - target_stride;
 				initial_target_offset = (target_height - 1) * target_stride + (target_width - 1) * pixel_size;
 			}
 			break;
-		case 270:
+		}
+
+		case 270: {
 			target_pixel_delta = -target_stride;
 			if (flip_x) {
 				target_interscan_delta = target_stride * target_height - pixel_size;
 				initial_target_offset = (target_height - 1) * target_stride + (target_width - 1) * pixel_size;
-			}
-			else {
+			} else {
 				target_interscan_delta = target_stride * target_height + pixel_size;
 				initial_target_offset = (target_height - 1) * target_stride;
 			}
 			break;
-		default:
-			if (flip_x)
+		}
+
+		default: {
+			if (flip_x) {
 				return gdip_flip_x (image);
-			else
+			} else {
 				return Ok;
+			}
+		}
 	}
 
 	rotated = GdipAlloc (target_height * target_stride);
 
-	if (rotated == NULL)
+	if (rotated == NULL) {
 		return OutOfMemory;
+	}
 
-	source = initial_source_offset + (BYTE *) bitmap->data.Scan0;
+	source = initial_source_offset + (BYTE *) image->active_bitmap->scan0;
 	target = initial_target_offset + rotated;
 
 	for (y = 0; y < source_height;
              y++,
              source += source_interscan_delta,
-             target += target_interscan_delta)
+             target += target_interscan_delta) {
 		for (x = 0; x < source_width;
                      x++,
                      source += source_pixel_delta,
-                     target += target_pixel_delta)
-			copy_pixel (source, target, pixel_size);
-
-	bitmap->data.Stride = target_stride;
-	bitmap->data.Height = image->height = target_height;
-	bitmap->data.Width = image->width = target_width;
-
-	if ((bitmap->data.Reserved & GBD_OWN_SCAN0) != 0) {
-		int k, j; 
-
-		void *old_scan0 = bitmap->data.Scan0;
-
-		for (j = 0; j < image->frameDimensionCount; j++) {
-			for (k = 0; k < image->frameDimensionList [j].count; k++) {
-				if (image->frameDimensionList[j].frames[k].Scan0 == old_scan0)  {
-					image->frameDimensionList[j].frames[k].Scan0 = rotated;
-					image->frameDimensionList[j].frames[k].Stride = target_stride;
-					image->frameDimensionList[j].frames[k].Height = image->height = target_height;
-					image->frameDimensionList[j].frames[k].Width = image->width = target_width;
-				}
-			}
+                     target += target_pixel_delta) {
+				copy_pixel (source, target, pixel_size);
 		}
-
-		GdipFree (old_scan0);
 	}
 
-	bitmap->data.Scan0 = rotated;
-	bitmap->data.Reserved |= GBD_OWN_SCAN0;	
+	image->active_bitmap->stride = target_stride;
+	image->active_bitmap->height = target_height;
+	image->active_bitmap->width = target_width;
+
+	if ((image->active_bitmap->reserved & GBD_OWN_SCAN0) != 0) {
+		GdipFree(image->active_bitmap->scan0);
+	}
+
+	image->active_bitmap->scan0 = rotated;
+	image->active_bitmap->reserved |= GBD_OWN_SCAN0;	
 
 	if (image->surface != NULL) {
 		cairo_surface_destroy (image->surface);
@@ -1210,35 +1180,45 @@ gdip_rotate_orthogonal_flip_x (GpImage *image, int angle, BOOL flip_x)
 static GpStatus
 gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int angle, BOOL flip_x)
 {
-	GpBitmap *bitmap = (GpBitmap *)image;
-	BitmapData *data = &bitmap->data;
-	BYTE *rotated;
-	StreamingState scan[8];
-	BOOL scan_valid[8];
-	int x, y, i;
+	BYTE		*rotated;
+	StreamingState	scan[8];
+	BOOL		scan_valid[8];
+	int		x;
+	int		y;
+	int		i;
+	int		bits_per_pixel;
+	int		pixels_per_byte;
+	int		source_width;
+	int		source_height;
+	BOOL		aspect_inversion;
+	int		target_width;
+	int		target_height;
+	int		target_scan_size;
+	int		target_stride;
 
-	int bits_per_pixel = gdip_get_pixel_format_depth (pixel_format);
-	int pixels_per_byte = 8 / bits_per_pixel;
+	bits_per_pixel = gdip_get_pixel_format_depth (pixel_format);
+	pixels_per_byte = 8 / bits_per_pixel;
 
-	int source_width = data->Width;
-	int source_height = data->Height;
+	source_width = image->active_bitmap->width;
+	source_height = image->active_bitmap->height;
 
 	/* Swap the width & height if needed */
-	BOOL aspect_inversion = ((angle % 180) != 0);
+	aspect_inversion = ((angle % 180) != 0);
 
-	int target_width = aspect_inversion ? source_height : source_width;
-	int target_height = aspect_inversion ? source_width : source_height;
+	target_width = aspect_inversion ? source_height : source_width;
+	target_height = aspect_inversion ? source_width : source_height;
 
-	int target_scan_size = (target_width + pixels_per_byte - 1) / pixels_per_byte;
-	int target_stride = (target_scan_size + 3) & ~3;
+	target_scan_size = (target_width + pixels_per_byte - 1) / pixels_per_byte;
+	target_stride = (target_scan_size + 3) & ~3;
 
-	if ((angle == 180) && flip_x)
+	if ((angle == 180) && flip_x) {
 		return gdip_flip_y(image);
+	}
 
 	rotated = GdipAlloc (target_height * target_stride);
-
-	if (rotated == NULL)
+	if (rotated == NULL) {
 		return OutOfMemory;
+	}
 
 	if (aspect_inversion == FALSE) {
 		int x_alignment = ((source_width - 1) % pixels_per_byte) + 1 - pixels_per_byte;
@@ -1252,7 +1232,7 @@ gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int a
 		int target_y_offset = target_starts_at_bottom ? (target_height - 1) * target_stride : 0;
 		int target_y_offset_delta = target_starts_at_bottom ? -target_stride : +target_stride;
 
-		Status status = gdip_init_pixel_stream (&stream, data, 0, 0, data->Width, data->Height);
+		Status status = gdip_init_pixel_stream (&stream, image->active_bitmap, 0, 0, image->active_bitmap->width, image->active_bitmap->height);
 
 		if (status != Ok) {
 			GdipFree (rotated);
@@ -1267,8 +1247,10 @@ gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int a
 				for (i = 0; i < pixels_per_byte; i++) {
 					int index = x + i;
 
-					if ((index >= 0) && (index < source_width))
+					if ((index >= 0) && (index < source_width)) {
 						byte |= (gdip_pixel_stream_get_next (&stream) << 8);
+					}
+
 					byte >>= bits_per_pixel;
 				}
 
@@ -1276,8 +1258,7 @@ gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int a
 				target--;
 			}
 		}
-	}
-	else {
+	} else {
 		int y_alignment = ((source_height - 1) % pixels_per_byte) + 1 - pixels_per_byte;
 		int y_step = pixels_per_byte;
 		int byte_column = 0;
@@ -1287,13 +1268,15 @@ gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int a
 		BOOL target_starts_at_bottom = (angle == 270);
 		BOOL target_starts_at_left = (target_starts_at_bottom ^ flip_x);
 
-		if (target_starts_at_left)
+		if (target_starts_at_left) {
 			y_alignment = 0;
+		}
 
-		if (target_starts_at_bottom)
+		if (target_starts_at_bottom) {
 			target_delta = -target_stride;
-		else
+		} else {
 			target_delta = +target_stride;
+		}
 
 		for (y = y_alignment; y < source_height; y += y_step) {
 			BYTE *target;
@@ -1304,7 +1287,7 @@ gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int a
 				scan_valid[i] = ((scan_index >= 0) && (scan_index < source_height));
 
 				if (scan_valid[i]) {
-					Status status = gdip_init_pixel_stream (&scan[i], data, 0, scan_index, source_width, 1);
+					Status status = gdip_init_pixel_stream (&scan[i], image->active_bitmap, 0, scan_index, source_width, 1);
 
 					if (status != Ok) {
 						GdipFree (rotated);
@@ -1315,31 +1298,32 @@ gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int a
 
 			target = rotated;
 
-			if (target_starts_at_left)
+			if (target_starts_at_left) {
 				target += byte_column;
-			else
+			} else {
 				target += target_scan_size - byte_column - 1;
+			}
 
-			if (target_starts_at_bottom)
+			if (target_starts_at_bottom) {
 				target += (target_height - 1) * target_stride;
+			}
 
 			for (x = 0; x < source_width; x++) {
 				int byte = 0;
 
-				if (target_starts_at_left)
-					for (i=0; i < pixels_per_byte; i++)
-					{
+				if (target_starts_at_left) {
+					for (i=0; i < pixels_per_byte; i++) {
 						byte <<= bits_per_pixel;
 						if (scan_valid[i])
 							byte |= gdip_pixel_stream_get_next (&scan[i]);
 					}
-				else
-					for (i = pixels_per_byte - 1; i >= 0; i--)
-					{
+				} else {
+					for (i = pixels_per_byte - 1; i >= 0; i--) {
 						byte <<= bits_per_pixel;
 						if (scan_valid[i])
 							byte |= gdip_pixel_stream_get_next (&scan[i]);
 					}
+				}
 
 				*target = byte;
 				target += target_delta;
@@ -1349,35 +1333,19 @@ gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int a
 		}
 	}
 
-	bitmap->data.Stride = target_stride;
-	bitmap->data.Height = image->height = target_height;
-	bitmap->data.Width = image->width = target_width;
+	image->active_bitmap->stride = target_stride;
+	image->active_bitmap->height = target_height;
+	image->active_bitmap->width = target_width;
 
-	if ((bitmap->data.Reserved & GBD_OWN_SCAN0) != 0) {
-		int k, j; 
-
-		void *old_scan0 = bitmap->data.Scan0;
-
-		for (j = 0; j < image->frameDimensionCount; j++) {
-			for (k = 0; k < image->frameDimensionList [j].count; k++) {
-				if (image->frameDimensionList[j].frames[k].Scan0 == old_scan0)  {
-					image->frameDimensionList[j].frames[k].Scan0 = rotated;
-					image->frameDimensionList[j].frames[k].Stride = target_stride;
-					image->frameDimensionList[j].frames[k].Height = image->height = target_height;
-					image->frameDimensionList[j].frames[k].Width = image->width = target_width;
-				}
-			}
-		}
-
-		GdipFree (old_scan0);
+	if ((image->active_bitmap->reserved & GBD_OWN_SCAN0) != 0) {
+		GdipFree(image->active_bitmap->scan0);
 	}
 
-	bitmap->data.Scan0 = rotated;
-	bitmap->data.Reserved |= GBD_OWN_SCAN0;	
+	image->active_bitmap->scan0 = rotated;
+	image->active_bitmap->reserved |= GBD_OWN_SCAN0;	
 
 	/* It shouldn't be possible for an indexed image to have one,
-	 * but if it does, it needs to be killed.
-	 */
+	 * but if it does, it needs to be killed. */
 	if (image->surface != NULL) {
 		cairo_surface_destroy (image->surface);
 		image->surface = NULL;
@@ -1389,52 +1357,57 @@ gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int a
 GpStatus 
 GdipImageRotateFlip (GpImage *image, RotateFlipType type)
 {
-	int angle;
-	BOOL flip_x;
-	PixelFormat pixel_format;
+	int	angle;
+	BOOL	flip_x;
 
-	if (!image)
+	if (image == NULL) {
 		return InvalidParameter;
-
-	pixel_format = ((GpBitmap *)image)->data.PixelFormat;
-
+	}
 
 	angle = flip_x = 0;
 
 	switch (type) {
-                case RotateNoneFlipNone: /* equivalent to Rotate180FlipXY */
+                case RotateNoneFlipNone:/* equivalent to Rotate180FlipXY */
 			return Ok;
-		case Rotate90FlipNone: /* equivalent to Rotate270FlipXY */
+
+		case Rotate90FlipNone:	/* equivalent to Rotate270FlipXY */
 			angle = 90;
 			break;
-		case RotateNoneFlipXY: /* equivalent to Rotate180FlipNone */
+
+		case RotateNoneFlipXY:	/* equivalent to Rotate180FlipNone */
 			angle = 180;
 			break;
-		case Rotate90FlipXY: /* equivalent to Rotate270FlipNone */
+
+		case Rotate90FlipXY:	/* equivalent to Rotate270FlipNone */
 			angle = 270;
 			break;
-		case RotateNoneFlipX: /* equivalent to Rotate180FlipY */
+
+		case RotateNoneFlipX:	/* equivalent to Rotate180FlipY */
 			flip_x = TRUE;
 			break;
-		case Rotate90FlipX: /* equivalent to Rotate270FlipY */
+
+		case Rotate90FlipX:	/* equivalent to Rotate270FlipY */
 			angle = 90;
 			flip_x = TRUE;
 			break;
-		case RotateNoneFlipY: /* equivalent to Rotate180FlipX */
+
+		case RotateNoneFlipY:	/* equivalent to Rotate180FlipX */
 			return gdip_flip_y (image);
-		case Rotate90FlipY: /* equivalent to Rotate270FlipX */
+
+		case Rotate90FlipY:	/* equivalent to Rotate270FlipX */
 			angle = 270;
 			flip_x = TRUE;
-			break;			
+			break;
+
 		default:
 			return NotImplemented;
 	}	
 	
-	if (gdip_is_an_indexed_pixelformat (pixel_format)
-         && (gdip_get_pixel_format_depth (pixel_format) < 8))
-		return gdip_rotate_flip_packed_indexed (image, pixel_format, angle, flip_x);
-	else
+	if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format) && (gdip_get_pixel_format_depth (image->active_bitmap->pixel_format) < 8)) {
+		return gdip_rotate_flip_packed_indexed (image, image->active_bitmap->pixel_format, angle, flip_x);
+	} else {
 		return gdip_rotate_orthogonal_flip_x (image, angle, flip_x);
+	}
 }
 
 GpStatus 
@@ -1443,23 +1416,23 @@ GdipGetImagePalette (GpImage *image, ColorPalette *palette, int size)
 	int palette_entries;
 	int bytes_needed;
 
-	if ((image == NULL) || (palette == NULL))
+	if ((image == NULL) || (palette == NULL) || (image->active_bitmap->palette == NULL)) {
 		return InvalidParameter;
+	}
 
-	if (image->palette == NULL)
-		return InvalidParameter;
+	palette_entries = image->active_bitmap->palette->Count;
 
-	palette_entries = image->palette->Count;
-
-	if ((image->type == imageBitmap) && (((GpBitmap *)image)->data.PixelFormat == Format4bppIndexed))
+	if ((image->type == imageBitmap) && (image->active_bitmap->pixel_format == Format4bppIndexed)) {
 		palette_entries = 16;
+	}
 
 	bytes_needed = palette_entries * sizeof(ARGB) + sizeof(ColorPalette) - sizeof(ARGB);
 
-	if (bytes_needed > size)
+	if (bytes_needed > size) {
 		return InvalidParameter;
+	}
 
-	memcpy(palette, image->palette, bytes_needed);
+	memcpy(palette, image->active_bitmap->palette, bytes_needed);
 	return Ok;
 }
 
@@ -1468,17 +1441,16 @@ GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette)
 {
 	int entries_to_copy;
 
-	if ((image == NULL) || (palette == NULL))
+	if ((image == NULL) || (palette == NULL) || (image->active_bitmap->palette == NULL)) {
 		return InvalidParameter;
+	}
 
-	if (image->palette == NULL)
-		return InvalidParameter;
-
-	entries_to_copy = image->palette->Count;
-	if (entries_to_copy > palette->Count)
+	entries_to_copy = image->active_bitmap->palette->Count;
+	if (entries_to_copy > palette->Count) {
 		entries_to_copy = palette->Count;
+	}
 
-	memcpy(image->palette->Entries, palette->Entries, entries_to_copy * sizeof(ARGB));
+	memcpy(image->active_bitmap->palette->Entries, palette->Entries, entries_to_copy * sizeof(ARGB));
 	return Ok;
 }
 
@@ -1487,16 +1459,15 @@ GdipGetImagePaletteSize (GpImage *image, int* size)
 {
         int palette_entries;
 
-        if ((image == NULL) || (size == NULL))
+        if ((image == NULL) || (size == NULL) || (image->active_bitmap->palette == NULL)) {
                 return InvalidParameter;
+	}
 
-        if (image->palette == NULL)
-                return InvalidParameter;
+        palette_entries = image->active_bitmap->palette->Count;
 
-        palette_entries = image->palette->Count;
-
-        if ((image->type == imageBitmap) && (((GpBitmap *)image)->data.PixelFormat == Format4bppIndexed))
+        if ((image->type == imageBitmap) && (image->active_bitmap->pixel_format == Format4bppIndexed)) {
                 palette_entries = 16;
+	}
 
         *size = palette_entries * sizeof(ARGB) + sizeof(ColorPalette) - sizeof(ARGB);
 	return Ok;
@@ -1559,70 +1530,36 @@ GdipSetPropertyItem(GpImage *image, GDIPCONST PropertyItem *item)
 }
 
 void
-gdip_image_clone (GpImage* image, GpImage* clonedImage)
+gdip_image_clone (GpImage* image, GpImage** clonedImage)
 {
-	int i = 0, j = 0, dataCount = 0;
-	BitmapData *data, *clonedData;
-
-	clonedImage->surface = NULL;
-
-	if (image->frameDimensionCount) {
-		clonedImage->frameDimensionCount = image->frameDimensionCount;
-		clonedImage->frameDimensionList = GdipAlloc (sizeof (FrameInfo) * image->frameDimensionCount);
-
-		for (i = 0; i < image->frameDimensionCount; i++) {
-			clonedImage->frameDimensionList[i].count = image->frameDimensionList[i].count;
-			memcpy (&clonedImage->frameDimensionList[i].frameDimension, 
-				&image->frameDimensionList[i].frameDimension, sizeof (GUID));
-
-			dataCount = image->frameDimensionList[i].count;
-			data = image->frameDimensionList[i].frames;
-			clonedImage->frameDimensionList[i].frames = GdipAlloc (sizeof (BitmapData) * dataCount);
-			clonedData = clonedImage->frameDimensionList[i].frames;
-			/* Copy all BitmapData */
-			memcpy (clonedImage->frameDimensionList[i].frames, 
-				image->frameDimensionList[i].frames,  sizeof (BitmapData) * dataCount);
-
-			for (j = 0; j < dataCount; j++) {
-				if (data[j].Scan0) {
-					clonedData[j].Scan0 = GdipAlloc (data[j].Stride * data[j].Height);
-					memcpy (clonedData[j].Scan0, data[j].Scan0, data[j].Stride * data[j].Height);				
-				}
-				if ((data[j].ByteCount) > 0 && (data[j].Bytes != NULL)) {				
-					clonedData[j].Bytes = GdipAlloc (data[j].ByteCount);
-					memcpy (clonedData[j].Bytes, data[j].Bytes, data[j].ByteCount);
-				}
-			}
-		}
-	}
-	// if present, clone the palette too
-	if (image->palette) {
-		int psize;
-		if (GdipGetImagePaletteSize (image, &psize) == Ok) {
-			clonedImage->palette = GdipAlloc (psize);
-			memcpy (clonedImage->palette, image->palette, psize);
-		} else
-			clonedImage->palette = NULL;
-	}
+	gdip_bitmap_clone(image, clonedImage);
 }
 
 GpStatus
 GdipCloneImage(GpImage *image, GpImage **cloneImage)
 {
-	if (!image || !cloneImage)
+	if ((image == NULL) || (cloneImage == NULL)) {
 		return InvalidParameter;
+	}
 
 	switch (image->type){
-		case imageBitmap:
-                	gdip_bitmap_clone ((GpBitmap *) image, (GpBitmap **) cloneImage);
-			gdip_image_clone (image, *cloneImage);
-			break;
-		case imageMetafile:
+		case imageBitmap: {
+                	gdip_bitmap_clone (image, cloneImage);
+			gdip_bitmap_setactive(*cloneImage, NULL, 0);
+			return Ok;
+		}
+
+		case imageMetafile: {
         	        return NotImplemented; /* GdipCloneImage - imageMetafile */
-        	case imageUndefined:
-			break;
-		default:
-			break;
+		}
+
+        	case imageUndefined: {
+			return Ok;
+		}
+
+		default: {
+			return Ok;
+		}
 	}
         
 	return Ok;
@@ -1632,36 +1569,45 @@ GdipCloneImage(GpImage *image, GpImage **cloneImage)
 ImageFormat 
 get_image_format (char *sig_read, size_t size_read)
 {
-	int index;
-	char png[] = { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, '\0'};
-	char *signature[]  = { "BM", "MM", "II", "GIF", png, "\xff\xd8", "\xff\xd8\xff\xe1", "", "", ""};
+	int	index;
+	char	png[] = { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, '\0'};
+	char	*signature[]  = { "BM", "MM", "II", "GIF", png, "\xff\xd8", "\xff\xd8\xff\xe1", "", "", ""};
 
-	if (size_read < 10)
-			return INVALID;
+	if (size_read < 10) {
+		return INVALID;
+	}
 
 	for (index = 0; index < size_read; index ++) {
 		if ((signature[index][0] == sig_read[0]) && (signature[index][1] == sig_read[1])) {
 			switch (index) {
 				case 0 :	
 					return BMP;
+
 				case 1:
 				case 2:
 					return TIF;
+
 				case 3:
-					if (signature[index][2] == sig_read[2]) 
+					if (signature[index][2] == sig_read[2]) {
 						return GIF;
-					else
+					} else {
 						return INVALID;
+					}
 				case 4:
-					if (strncmp(signature[index], sig_read, 8) == 0) 
+					if (strncmp(signature[index], sig_read, 8) == 0) {
 						return PNG;						
-					else
-						return INVALID;					
+					} else {
+						return INVALID;
+					}
+
 				case 5:		
-				case 6: if (strncmp(sig_read + 2, "\xff\e1", 2) == 0)
-						if (strncmp(sig_read + 6, "Exif", 4) == 0)
+				case 6: if (strncmp(sig_read + 2, "\xff\e1", 2) == 0) {
+						if (strncmp(sig_read + 6, "Exif", 4) == 0) {
 							return EXIF;
+						}
+					}
 					return JPEG;
+
 				case 7:
 				case 8:
 				case 9:
@@ -1682,8 +1628,6 @@ gdip_get_pixel_format_bpp (PixelFormat pixfmt)
 int
 gdip_get_pixel_format_depth(PixelFormat pixfmt)
 {
-	int result = 0;
-	                                           
 	switch (pixfmt) {
 		case Format16bppArgb1555:
 		case Format16bppGrayScale:
@@ -1693,60 +1637,58 @@ gdip_get_pixel_format_depth(PixelFormat pixfmt)
 		case Format32bppArgb:
 		case Format32bppPArgb:
 		case Format32bppRgb:
-			result = 8;
-			break;
+			return 8;		/* FIXME - shouldn't this be 32? - pdb */
+
 		case Format48bppRgb:
 		case Format64bppArgb:
 		case Format64bppPArgb:
-			result = 16;
-			break;
+			return 16;
+
 		case Format8bppIndexed:
-			result = 8;
-			break;
+			return 8;
+
 		case Format4bppIndexed:
-			result = 4;
-			break;
+			return 4;
+
 		case Format1bppIndexed:
-			result = 1;
-			break;
+			return 1;
+
 		default:
 			break;
 	}
 
-	return result;
+	return 0;
 }
 
 int
 gdip_get_pixel_format_components(PixelFormat pixfmt)
 {
-	int result = 0;
-						
 	switch (pixfmt) {
 		case Format16bppArgb1555:
 		case Format32bppArgb:
 		case Format32bppPArgb:
 		case Format64bppArgb:
 		case Format64bppPArgb:
-		case Format24bppRgb:	/* Cairo uses for bytes for 24BPP*/
-		case Format32bppRgb:	/* Cairo uses for bytes for 32BPP*/
-			result = 4;
-			break;
+		case Format24bppRgb:	/* Cairo uses four bytes for 24BPP*/
+		case Format32bppRgb:	/* Cairo uses four bytes for 32BPP*/
+			return 4;
+
 		case Format16bppRgb555:
 		case Format16bppRgb565: 
 		case Format48bppRgb:
-			result = 3;
-			break;
+			return 3;
+
 		case Format16bppGrayScale:
 		case Format8bppIndexed:
 		case Format4bppIndexed:
 		case Format1bppIndexed:
-			result = 1;
-			break;
+			return 1;
+
 		default:
 			break;
 	}
 	
-	return result;
+	return 0;
 }
 
 GpStatus
@@ -1769,49 +1711,60 @@ GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 	format = get_image_format ((char *)format_peek, format_peek_sz);
 	
 	switch (format) {
-		case JPEG:
+		case JPEG: {
 			status = gdip_load_jpeg_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
-			if (result != NULL)
-				result->format = JPEG;
+			if (result != NULL) {
+				result->image_format = JPEG;
+			}
 			break;
-		case PNG:
+		}
+
+		case PNG: {
 			status = gdip_load_png_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
-			if (result != NULL)
-				result->format = PNG;
+			if (result != NULL) {
+				result->image_format = PNG;
+			}
 			break;
-		case BMP:
+		}
+
+		case BMP: {
 			status = gdip_load_bmp_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
-			if (result != NULL)
-				result->format = BMP;
+			if (result != NULL) {
+				result->image_format = BMP;
+			}
 			break;
-		case TIF:
+		}
+
+		case TIF: {
 			status = gdip_load_tiff_image_from_stream_delegate (getBytesFunc, putBytesFunc,
 								seekFunc, closeFunc, sizeFunc, &result);
-			if (result != NULL)
-				result->format = TIF;
+			if (result != NULL) {
+				result->image_format = TIF;
+			}
 			break;
-		case GIF:
+		}
+
+		case GIF: {
 			status = gdip_load_gif_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
-			if (result != NULL)
-				result->format = GIF;            
+			if (result != NULL) {
+				result->image_format = GIF;
+			}
 			break;
-		default:
+		}
+
+		default: {
 			printf ("type: %d Not implemented\n", format);
 			status = NotImplemented;
 			break;
+		}
 	}
 
+	*image = result;
 	if (status != Ok) {
 		*image = NULL;
-	} else {
-		if (result->frameDimensionCount == 0){
-			result->frameDimensionCount = 1;
-			result->frameDimensionList = (FrameInfo *) GdipAlloc (sizeof (FrameInfo));
-			result->frameDimensionList[0].count = 1; /*multiple frames are already taken care of in respectic codecs*/
-			memcpy (&(result->frameDimensionList[0].frameDimension), &gdip_image_frameDimension_page_guid, sizeof (CLSID));
-			result->frameDimensionList[0].frames = &(((GpBitmap *) result)->data);
-		}
-		*image = result;
+	} else if (result->active_bitmap == NULL) {
+		/* If the codec didn't set the active bitmap we will */
+		gdip_bitmap_setactive(result, NULL, 0);
 	}
 	
 	return status;
@@ -1828,33 +1781,37 @@ GdipSaveImageToDelegate_linux (GpImage *image, GetBytesDelegate getBytesFunc,
 	GpStatus status = 0;
     	ImageFormat format;
 
-    	if (image->type != imageBitmap)
+    	if ((image == NULL) || (encoderCLSID == NULL) || (image->type != imageBitmap)) {
         	return InvalidParameter;
-
-    	if (!image || !encoderCLSID)
-        	return InvalidParameter;
+	}
 
     	format = gdip_get_imageformat_from_codec_clsid ((CLSID *)encoderCLSID);
-    	if (format == INVALID)
+    	if (format == INVALID) {
         	return UnknownImageFormat;
+	}
 
     	switch (format) {
 		case BMP:
 	    		status = gdip_save_bmp_image_to_stream_delegate (putBytesFunc, image);
 	    		break;
+
         	case PNG:
             		status = gdip_save_png_image_to_stream_delegate (putBytesFunc, image, params);
             		break;
+
         	case JPEG:
             		status = gdip_save_jpeg_image_to_stream_delegate (putBytesFunc, image, params);
             		break;
+
 	        case GIF:
         	    	status = gdip_save_gif_image_to_stream_delegate (putBytesFunc, image, params);
             		break;
+
 		case TIF:
 	    		status = gdip_save_tiff_image_to_stream_delegate (getBytesFunc, putBytesFunc,
 								seekFunc, closeFunc, sizeFunc, image, params);
 	    		break;
+
 	        default:
         		status = NotImplemented;
 	            	break;
