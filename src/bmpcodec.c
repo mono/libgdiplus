@@ -190,7 +190,7 @@ gdip_bitmap_save_bmp (const char *name, GpBitmap *bitmap)
 			entries [idx + 2] = ((packed >> 16) & 0xFF); /* R */
 			entries [idx + 3] = ((packed >> 24) & 0xFF); /* Alpha */
 #else
-			*((guint32 *) entries + idx) = packed;
+			*((guint32 *) entries + i) = packed;
 #endif
 		}
 		fwrite (entries, 4, palette_entries, fp);
