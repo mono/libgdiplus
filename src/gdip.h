@@ -833,6 +833,8 @@ typedef struct {
 	unsigned int	top;			/* top display coordinate of frame */
 	unsigned int	x;			/* LockBits: left coordinate of locked rectangle */
 	unsigned int	y;			/* LockBits: top coordinate of locked rectangle */
+
+	int		transparent;		/* Index of transparent color (<24bit only) */
 } GdipBitmapData, BitmapData;
 
 typedef struct {

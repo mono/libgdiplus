@@ -1,3 +1,12 @@
+2006-04-21  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* gdip.h: Added transparent tracking field to BitmapData
+	* bitmap.c: Added copying new transparent field to bitmap cloning
+	* gifcodec.c: 
+	  - Now reads transparency color from ext block and stores in BitmapData
+	  - Now writes transparency, loop, delay and comment properties
+	    back out when saving. We can now roundtrip our gif properties
+
 2006-04-20  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* image.c: Implemented all GdipGetProperty, GdipSetProperty and 

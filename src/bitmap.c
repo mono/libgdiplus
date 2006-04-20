@@ -384,6 +384,7 @@ gdip_bitmapdata_clone(BitmapData *src, BitmapData **dest, int count)
 		result[i].left = src[i].left;
 		result[i].x = src[i].x;
 		result[i].y = src[i].y;
+		result[i].transparent = src[i].transparent;
 
 		if (src[i].scan0 != NULL) {
 			result[i].scan0 = GdipAlloc(src[i].stride * src[i].height);

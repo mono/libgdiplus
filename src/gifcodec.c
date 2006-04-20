@@ -38,7 +38,6 @@
 #ifdef HAVE_LIBGIF
 
 #include <gif_lib.h>
-#define	APP_IDENTIFIER	"Mono libgdiplus gif codec"
 
 /* giflib declares this incorrectly as EgifOpen */
 extern GifFileType *EGifOpen(void *userData, OutputFunc writeFunc);
@@ -182,6 +181,11 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 	temp_save.ExtensionBlocks = NULL;
 	temp_save.ExtensionBlockCount = 0;
 
+	if (TrailingExtensions != NULL) {
+		TrailingExtensions->ExtensionBlocks = NULL;
+		TrailingExtensions->ExtensionBlockCount = 0;
+	}
+
 	sp = NULL;
 
 	do {
@@ -247,13 +251,8 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 
 	/* In case the Gif has an extension block without an associated
 	* image we return it in TrailingExtensions, if provided */
-	if (TrailingExtensions != NULL) {
-		if (temp_save.ExtensionBlocks != NULL) {
-			*TrailingExtensions = temp_save;
-		} else {
-			TrailingExtensions->ExtensionBlocks = NULL;
-			TrailingExtensions->ExtensionBlockCount = 0;
-		}
+	if ((TrailingExtensions != NULL) && (temp_save.ExtensionBlocks != NULL)) {
+		*TrailingExtensions = temp_save;
 	}
 
 
@@ -407,7 +406,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 						guint32	value;
 
 						if ((eb.Bytes[0] & 0x01) != 0) {
-							// FIXME - do something with 'eb.Bytes[3]' (=transparent color index)
+							bitmap_data->transparent = -eb.Bytes[3] - 1;	/* 0 = no transparency, so we need to shift range */
 						}
 						value = (eb.Bytes[2] << 8) + (eb.Bytes[1]);
 						gdip_bitmapdata_property_add_long(bitmap_data, FrameDelay, value);
@@ -540,7 +539,7 @@ GpStatus
 gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 {
 	GifFileType	*fp;
-	int i, x, y, size;
+	int		i, x, y, size;
 	GifByteType	*red;
 	GifByteType	*green;
 	GifByteType	*blue;
@@ -554,6 +553,7 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 	int		k;
 	unsigned char	*v;
 	int		c;
+	int		index;
 	BOOL		animated;
 	int		frame;
 	BitmapData	*bitmap_data;
@@ -736,36 +736,52 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 
 				/* An animated image must have the application extension */
 				if (animated) {
-					EGifPutExtension (fp, APPLICATION_EXT_FUNC_CODE, strlen(APP_IDENTIFIER) + 1, APP_IDENTIFIER);
+					/* Store the LoopCount extension */
+					if (gdip_bitmapdata_property_find_id(bitmap_data, LoopCount, &index) == Ok) {
+						unsigned char	Buffer[3];
+						unsigned char	*ptr;
+
+						ptr = bitmap_data->property[index].value;
+						memcpy(Buffer, "NETSCAPE2.0", 11);
+						Buffer[0] = 1;
+						Buffer[1] = ptr[0];
+						Buffer[2] = ptr[1];
+						EGifPutExtensionFirst(fp, APPLICATION_EXT_FUNC_CODE, 11, "NETSCAPE2.0");
+						EGifPutExtensionLast(fp, APPLICATION_EXT_FUNC_CODE, 3, Buffer);
+					}
 				}
-				#if 0
-					/* This will make it loop */
-					EGifPutExtensions(fp, APPLICATION_EXT_FUNC_CODE, 11, "NETSCAPE2.0");
-					EGifPutExtensions(fp, 0, 2, "\x03\x01\0");
-				#endif
+
+				if (gdip_bitmapdata_property_find_id(bitmap_data, ExifUserComment, &index) == Ok) {
+					EGifPutComment(fp, (const char *)bitmap_data->property[index].value);
+				}
 			}
 
 			/* Every image has a control extension specifying the time delay */
-			if (animated) {
+			if (animated || bitmap_data->transparent < 0) {
 				unsigned char	buffer[4];
 
 				buffer[0] = 0x03;		/* 0000 0100 = do not dispose */
-				#if 0	// FIXME - read properties and store transparent and delay numbers
+
 				if (bitmap_data->transparent < 0) {
 					buffer[0] |= 0x01;	/* 0000 0001 = transparent */
 				}
-				buffer[1] = (bitmap_data->delay >> 8) & 0xff;
-				buffer[2] = bitmap_data->delay & 0xff;
+
+				if (gdip_bitmapdata_property_find_id(bitmap_data, FrameDelay, &index) == Ok) {
+					unsigned char *ptr;
+
+					ptr = bitmap_data->property[index].value;
+					buffer[1] = ptr[0];
+					buffer[2] = ptr[1];
+				} else {
+					buffer[1] = 0;
+					buffer[2] = 0;
+				}
+
 				if (bitmap_data->transparent < 0) {
 					buffer[3] = (bitmap_data->transparent + 1) * -1;
 				} else {
 					buffer[3] = 0;
 				}
-				#else
-					buffer[1] = 0;
-					buffer[2] = 0;
-					buffer[3] = 0;
-				#endif
 
 				EGifPutExtension(fp, GRAPHICS_EXT_FUNC_CODE, 4, buffer);
 			}
