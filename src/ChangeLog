@@ -1,3 +1,11 @@
+2006-04-21  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* gifcodec.c: Loader is now alpha/transparency aware and always sets
+	  up the palette with alpha set. If transparent color is specified,
+	  the the matching palette entry alpha is set to zero.
+	* bitmap.c (gdip_bitmap_indexed_to_rgb): Now properly handles palettes
+	  with alpha values.
+
 2006-04-21  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* gdip.h: Added transparent tracking field to BitmapData

@@ -359,7 +359,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		global_palette->Flags = 0;
 		global_palette->Count = gif->SColorMap->ColorCount;
 		for (i = 0; i < gif->SColorMap->ColorCount; i++) {
-			global_palette->Entries[i] = MAKE_ARGB_RGB(gif->SColorMap->Colors[i].Red, gif->SColorMap->Colors[i].Green, gif->SColorMap->Colors[i].Blue);
+			global_palette->Entries[i] = MAKE_ARGB_ARGB(0xff, gif->SColorMap->Colors[i].Red, gif->SColorMap->Colors[i].Green, gif->SColorMap->Colors[i].Blue);
 		}
 	} else {
 		/* Assume a grayscale image for the global palette. Individual images might still have a different one. */
@@ -447,12 +447,28 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 			bitmap_data->palette->Flags = 0;
 			bitmap_data->palette->Count = local_palette_obj->ColorCount;
 			for (l = 0; l < local_palette_obj->ColorCount; l++) {
-				bitmap_data->palette->Entries[l] = MAKE_ARGB_RGB(local_palette_obj->Colors[l].Red,
+				bitmap_data->palette->Entries[l] = MAKE_ARGB_ARGB(0xff, local_palette_obj->Colors[l].Red,
 										local_palette_obj->Colors[l].Green,
 										local_palette_obj->Colors[l].Blue);
 			}
 		} else {
 			bitmap_data->palette = gdip_palette_clone(global_palette);
+
+		}
+
+		/* Set transparency, a bit complicated due to endianness */
+		if (bitmap_data->transparent < 0) {
+			unsigned char	index;
+			unsigned char	*v;
+
+			bitmap_data->palette->Flags |= PaletteFlagsHasAlpha;
+			index = (bitmap_data->transparent + 1) * -1;
+			v = (unsigned char *)&bitmap_data->palette->Entries[index];
+#ifdef WORDS_BIGENDIAN
+			v[0] = 0x00;
+#else
+			v[3] = 0x00;
+#endif /* WORDS_BIGENDIAN */
 		}
 
 		bitmap_data->pixel_format = Format8bppIndexed;

@@ -2079,6 +2079,8 @@ gdip_convert_indexed_to_rgb (GpBitmap *indexed_bmp)
 	int		pixels_this_byte;
 	unsigned short	sample;
 	int		index;
+	int		transparent;
+	int		format;
 
 	data = indexed_bmp->active_bitmap;
 	if (data == NULL) {
@@ -2100,8 +2102,10 @@ gdip_convert_indexed_to_rgb (GpBitmap *indexed_bmp)
 	}
 
 	if ((palette->Flags & PaletteFlagsHasAlpha) == 0) {
+		format = Format32bppRgb;
 		set_pixel_bgra (&force_alpha, 0, 0, 0, 0, 0xFF); /* full alpha bits set */
 	} else {
+		format = Format32bppArgb;
 		force_alpha = 0;
 	}
 
@@ -2145,7 +2149,7 @@ gdip_convert_indexed_to_rgb (GpBitmap *indexed_bmp)
 	}
 
 	/* try to get a GpBitmap out of it :-) */
-	status = GdipCreateBitmapFromScan0 (data->width, data->height, rgb_stride, Format32bppRgb, rgb_scan0, &ret);
+	status = GdipCreateBitmapFromScan0 (data->width, data->height, rgb_stride, format, rgb_scan0, &ret);
 	if (status == Ok) {
 		return ret;
 	}
