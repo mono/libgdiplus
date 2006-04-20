@@ -278,7 +278,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	SavedImage	global_extensions;
 	ColorPalette	*global_palette;
 	bool		loop_counter;
-	unsigned short	loop_value;
+	unsigned short	loop_value = 0;
 
 	global_palette = NULL;
 	result = NULL;
