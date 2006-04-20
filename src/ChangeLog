@@ -1,3 +1,12 @@
+2006-04-20  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* lineargradientbrush.h: Added DEFAULT_GRADIENT_ANGLE constant.
+	* lineargradientbrush.c: Simplify brush creation and fixed initial 
+	matrix calculations. Fixed matrix operations functions. Don't create 
+	an extra surface in create_tile_linear (other wrap mode still need to
+	be updated). This is "closer" to the real thing (much better results
+	in ZedGraph) but there are still issue mainly with rotations.
+
 2006-04-21  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* gifcodec.c: Loader is now alpha/transparency aware and always sets

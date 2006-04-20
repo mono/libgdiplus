@@ -12,6 +12,8 @@
 
 #include "brush.h"
 
+#define DEFAULT_GRADIENT_ANGLE	45.0f
+
 typedef enum {
 	LinearGradientModeHorizontal = 0,	/* angle = 0 deg    */
 	LinearGradientModeVertical = 1,		/* angle = 90 deg   */
