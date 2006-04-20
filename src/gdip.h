@@ -1029,6 +1029,16 @@ GpStatus	gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap);
 GpStatus	gdip_bitmap_setactive(GpBitmap *bitmap, const GUID *dimension, int index);
 GpStatus	gdip_bitmapdata_clone(BitmapData *src, BitmapData **dest, int count);
 ColorPalette	*gdip_palette_clone(ColorPalette *original);
+GpStatus	gdip_bitmapdata_property_add(BitmapData *bitmap_data, PROPID id, ULONG length, WORD type, VOID *value);
+GpStatus	gdip_bitmapdata_property_add_byte(BitmapData *bitmap_data, PROPID id, int num_of_values, unsigned char *value);
+GpStatus	gdip_bitmapdata_property_add_short(BitmapData *bitmap_data, PROPID id, unsigned short value);
+GpStatus	gdip_bitmapdata_property_add_long(BitmapData *bitmap_data, PROPID id, guint32 value);
+GpStatus	gdip_bitmapdata_property_add_ASCII(BitmapData *bitmap_data, PROPID id, unsigned char *value);
+GpStatus	gdip_bitmapdata_property_add_rational(BitmapData *bitmap_data, PROPID id, guint32 numerator, guint32 denominator);
+GpStatus	gdip_bitmapdata_property_add_srational(BitmapData *bitmap_data, PROPID id, unsigned short numerator, unsigned short denominator);
+GpStatus	gdip_bitmapdata_property_remove_id(BitmapData *bitmap_data, PROPID id);
+GpStatus	gdip_bitmapdata_property_remove_index(BitmapData *bitmap_data, int index);
+GpStatus	gdip_bitmapdata_property_find_id(BitmapData *bitmap_data, PROPID id, int *index);
 
 
 void gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface);

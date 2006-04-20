@@ -113,6 +113,7 @@ gdip_bitmap_init (GpBitmap *bitmap)
 	return;
 }
 
+
 GpStatus
 gdip_propertyitems_clone(PropertyItem *src, PropertyItem **dest, int count)
 {
@@ -184,6 +185,169 @@ gdip_bitmapdata_init(BitmapData *data)
 		return Ok;
 	}
 	return InvalidParameter;
+}
+
+GpStatus
+gdip_bitmapdata_property_add_long(BitmapData *bitmap_data, PROPID id, guint32 value)
+{
+	unsigned char	buffer[4];
+
+	buffer[0] = value & 0xff;
+	buffer[1] = (value & 0x0000ff00) >> 8;
+	buffer[2] = (value & 0x00ff0000) >> 16;
+	buffer[3] = (value & 0xff000000) >> 24;
+
+	return gdip_bitmapdata_property_add(bitmap_data, id, 4 , TypeLong, buffer);
+}
+
+GpStatus
+gdip_bitmapdata_property_add_ASCII(BitmapData *bitmap_data, PROPID id, unsigned char *value)
+{
+	return gdip_bitmapdata_property_add(bitmap_data, id, strlen((char *)value) + 1, TypeASCII, value);
+}
+
+GpStatus
+gdip_bitmapdata_property_add_byte(BitmapData *bitmap_data, PROPID id, int num_of_values, unsigned char *value)
+{
+	return gdip_bitmapdata_property_add(bitmap_data, id, num_of_values, TypeByte, value);
+}
+
+GpStatus
+gdip_bitmapdata_property_add_short(BitmapData *bitmap_data, PROPID id, unsigned short value)
+{
+	unsigned char	buffer[2];
+
+	buffer[0] = value & 0xff;
+	buffer[1] = (value & 0x0ff00) >> 8;
+
+	return gdip_bitmapdata_property_add(bitmap_data, id, 2, TypeShort, buffer);
+}
+
+GpStatus
+gdip_bitmapdata_property_add_rational(BitmapData *bitmap_data, PROPID id, guint32 numerator, guint32 denominator)
+{
+	unsigned char	buffer[8];
+
+	buffer[0] = numerator & 0xff;
+	buffer[1] = (numerator & 0x0000ff00) >> 8;
+	buffer[2] = (numerator & 0x00ff0000) >> 16;
+	buffer[3] = (numerator & 0xff000000) >> 24;
+
+	buffer[4] = denominator & 0xff;
+	buffer[5] = (denominator & 0x0000ff00) >> 8;
+	buffer[6] = (denominator & 0x00ff0000) >> 16;
+	buffer[7] = (denominator & 0xff000000) >> 24;
+
+
+	return gdip_bitmapdata_property_add(bitmap_data, id, 8, TypeRational, buffer);
+}
+
+GpStatus
+gdip_bitmapdata_property_add_srational(BitmapData *bitmap_data, PROPID id, unsigned short numerator, unsigned short denominator)
+{
+	unsigned char	buffer[4];
+
+	buffer[0] = numerator & 0xff;
+	buffer[1] = (numerator & 0x0ff00) >> 8;
+
+	buffer[2] = denominator & 0xff;
+	buffer[3] = (denominator & 0xff00) >> 8;
+
+
+	return gdip_bitmapdata_property_add(bitmap_data, id, 8, TypeRational, buffer);
+}
+
+GpStatus
+gdip_bitmapdata_property_add(BitmapData *bitmap_data, PROPID id, ULONG length, WORD type, VOID *value)
+{
+	int	property_count;
+
+	if (bitmap_data == NULL) {
+		return InvalidParameter;
+	}
+
+	property_count = bitmap_data->property_count;
+
+	if (bitmap_data->property == NULL) {
+		bitmap_data->property = GdipAlloc(sizeof(PropertyItem));
+	} else {
+		bitmap_data->property = GdipRealloc(bitmap_data->property, sizeof(PropertyItem) * (property_count + 1));
+	}
+	if (bitmap_data->property == NULL) {
+		bitmap_data->property_count = 0;
+		return OutOfMemory;
+	}
+
+	if ((value != NULL) && (length > 0)) {
+		bitmap_data->property[property_count].value = GdipAlloc(length);
+		if (bitmap_data->property[property_count].value == NULL) {
+			return OutOfMemory;
+		}
+		memcpy(bitmap_data->property[property_count].value, value, length);
+	} else {
+		bitmap_data->property[property_count].value = NULL;
+	}
+
+	bitmap_data->property[property_count].id = id;
+	bitmap_data->property[property_count].length = length;
+	bitmap_data->property[property_count].type = type;
+	bitmap_data->property_count++;
+	return Ok;
+}
+
+GpStatus
+gdip_bitmapdata_property_remove_id(BitmapData *bitmap_data, PROPID id)
+{
+	int	i;
+
+	for (i = 0; i < bitmap_data->property_count; i++) {
+		if (bitmap_data->property[i].id == id) {
+			return gdip_bitmapdata_property_remove_index(bitmap_data, i);
+		}
+	}
+
+	return PropertyNotFound;
+}
+
+GpStatus
+gdip_bitmapdata_property_remove_index(BitmapData *bitmap_data, int index)
+{
+	unsigned char *src;
+	unsigned char *dest;
+
+	if (index >= bitmap_data->property_count) {
+		return PropertyNotFound;
+	}
+
+	/* We don't realloc the array, more overhead than savings */
+	if ((index + 1) < bitmap_data->property_count) {
+		if (bitmap_data->property[index].value != NULL) {
+			GdipFree(bitmap_data->property[index].value);
+		}
+		memmove(&bitmap_data->property[index], &bitmap_data->property[index + 1], (bitmap_data->property_count - index - 1) * sizeof(PropertyItem));
+	}
+	bitmap_data->property_count--;
+
+	return Ok;
+}
+
+GpStatus
+gdip_bitmapdata_property_find_id(BitmapData *bitmap_data, PROPID id, int *index)
+{
+	int	i;
+
+	if (index == NULL) {
+		return InvalidParameter;
+	}
+
+	for (i = 0; i < bitmap_data->property_count; i++) {
+		if (bitmap_data->property[i].id == id) {
+			*index = i;
+			return Ok;
+		}
+	}
+
+	return PropertyNotFound;
 }
 
 GpStatus
@@ -1634,8 +1798,14 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 	/* Common stuff */
 	if ((flags & ImageLockModeWrite) != 0) {
 		locked_data->reserved |= GBD_WRITE_OK;
+		locked_data->image_flags &= ~ImageFlagsReadOnly;
 	} else {
 		locked_data->reserved &= ~GBD_WRITE_OK;
+		locked_data->image_flags |= ImageFlagsReadOnly;
+	}
+
+	if ((format & PixelFormatAlpha) != 0) {
+		locked_data->image_flags |= ImageFlagsHasAlpha;
 	}
 
 	locked_data->reserved |= GBD_LOCKED;
@@ -1665,6 +1835,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 	locked_data->pixel_format = format;
 	locked_data->x = srcRect->X;
 	locked_data->y = srcRect->Y;
+
 
 	/* If the user wants the original data to be readable, then convert the bits. */
 	status = Ok;

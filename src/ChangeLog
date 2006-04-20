@@ -1,3 +1,26 @@
+2006-04-20  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* image.c: Implemented all GdipGetProperty, GdipSetProperty and 
+	  GdipRemoveProperty functions.
+	* gdipImage.h: 
+	  - Added PropertyTag and PropertyTagType enums
+	  - Fixed wrong GdipGetPropertyItem prototype
+	* bitmap.c:
+	  - Implemented gdip_bitmapdata_property_xxx helper methods for
+	    manipulating property data associated with a bitmap
+	  - gdip_bitmapdata_clone now sets appropriate image_flags
+	* gdip.h: Added prototypes for new functions in bitmap.c
+	* gifcodec.c:
+	  - Added GGifSlurpMono, AddExtensionBlockMono and FreeExtensionMono
+	    functions derived from libgif, to work around libgif bug that 
+	    prevents us from retrieving any extensions after the last image 
+	    block (where it seems certain apps place their comments)
+	  - Added handling of trailing extension block, adding comments in
+	    that block will cause all images in the frame to have the
+	    comment
+	  - Added reading of LoopCounter, and subsequent storing as property
+	  - Horizontal and vertical DPI are now retrieved from display
+
 2006-04-20  Peter Dennis Bartok  <pbartok@novell.com>
 
         * bmpcodec.c, general.c, image.c, jpegcodec.c, tiffcodec.c,

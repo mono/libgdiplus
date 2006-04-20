@@ -1476,10 +1476,13 @@ GdipGetImagePaletteSize (GpImage *image, int* size)
 GpStatus 
 GdipGetPropertyCount (GpImage *image, UINT *propertyNumber)
 {
-	/*
-	 * We currently only return 1 fake property 0xdeadbeee
-	 */
-	return 1;
+	if ((image == NULL) || (propertyNumber == NULL)) {
+		return InvalidParameter;
+	}
+
+	*propertyNumber = image->active_bitmap->property_count;
+
+	return Ok;
 }
 
 GpStatus 
@@ -1491,41 +1494,132 @@ GdipGetPropertyIdList (GpImage *image, UINT propertyNumber, PROPID *list)
 GpStatus 
 GdipGetPropertyItemSize (GpImage *image, PROPID propID, UINT *size)
 {
-	*size = 16;
+	int	index;
+
+	if ((image == NULL) || (size == NULL)) {
+		return InvalidParameter;
+	}
+
+	if (gdip_bitmapdata_property_find_id(image->active_bitmap, propID, &index) != Ok) {
+		return PropertyNotFound;
+	}
+
+	*size = sizeof(PropertyItem) + image->active_bitmap->property[index].length;
+
 	return Ok;
 }
 
 GpStatus 
-GdipGetPropertyItem (GpImage *image, PROPID propID, UINT size, PropertyItem buffer)
+GdipGetPropertyItem (GpImage *image, PROPID propID, UINT size, PropertyItem *buffer)
 {
-	if (propID != 0xdeadbeee)
+	int	index;
+	int	size_needed;
+
+	if ((image == NULL) || (buffer == NULL)) {
 		return InvalidParameter;
+	}
+
+	if (gdip_bitmapdata_property_find_id(image->active_bitmap, propID, &index) != Ok) {
+		return PropertyNotFound;
+	}
+
+	if (size != (sizeof(PropertyItem) + image->active_bitmap->property[index].length)) {
+		return InvalidParameter;
+	}
+
+	memcpy(buffer, &image->active_bitmap->property[index], sizeof(PropertyItem));
+	buffer->value = (unsigned char *)buffer + sizeof(PropertyItem);
+	memcpy(buffer->value, image->active_bitmap->property[index].value, buffer->length);
 
 	return Ok;
 }
 
 GpStatus 
-GdipGetPropertySize (GpImage *image, UINT *bufferSize, UINT *propertyNumbers)
+GdipGetPropertySize (GpImage *image, UINT *totalBufferSize, UINT *numProperties)
 {
-	if (!image || !bufferSize || !propertyNumbers)
-		return InvalidParameter;
+	UINT	size;
+	int	i;
 
-	*bufferSize = 32;
-	*propertyNumbers = 1;
+	if ((image == NULL) || (totalBufferSize == NULL) || (numProperties == NULL)) {
+		return InvalidParameter;
+	}
+
+	*numProperties = image->active_bitmap->property_count;
+
+	size = image->active_bitmap->property_count * sizeof(PropertyItem);
+	for (i = 0; i < image->active_bitmap->property_count; i++) {
+		size += image->active_bitmap->property[i].length;
+	}
+
+	*totalBufferSize = size;
 	return Ok;
 }
 
 GpStatus 
 GdipRemovePropertyItem (GpImage *image, PROPID propID)
 {
-	/* Not implemented */
-	return Ok;
+	if (image == NULL) {
+		return InvalidParameter;
+	}
+
+	return gdip_bitmapdata_property_remove_id(image->active_bitmap, propID);
 }
 
 GpStatus 
 GdipSetPropertyItem(GpImage *image, GDIPCONST PropertyItem *item)
 {
-	/* Not implemented */
+	int	i;
+
+	if ((image == NULL) || (item == NULL)) {
+		return InvalidParameter;
+	}
+
+	switch(image->image_format) {
+		case TIF:
+		case JPEG:
+		case PNG: {
+			break;
+		}
+
+		default: {
+			return PropertyNotSupported;
+		}
+	}
+
+	/* Check if it exists and we need to replace */
+	if (gdip_bitmapdata_property_find_id(image->active_bitmap, item->id, &i) != Ok) {
+		/* We're adding a new item */
+		return gdip_bitmapdata_property_add(image->active_bitmap, item->id, item->length, item->type, item->value);
+	}
+
+	/* We're replacing an existing item */
+	if (item->length > image->active_bitmap->property[i].length) {
+		/* We need to allocate more space for our value */
+		if (image->active_bitmap->property[i].value != NULL) {
+			GdipFree(image->active_bitmap->property[i].value);
+		}
+
+		image->active_bitmap->property[i].value = GdipAlloc(item->length);
+		if (image->active_bitmap->property[i].value == NULL) {
+			/* We already freed the old value, remove the entry */
+			gdip_bitmapdata_property_remove_index(image->active_bitmap, i);
+			return OutOfMemory;
+		}
+	} else if (item->length == 0) {
+		/* Just drop the old value */
+		if (image->active_bitmap->property[i].value != NULL) {
+			GdipFree(image->active_bitmap->property[i].value);
+			image->active_bitmap->property[i].value = NULL;
+		}
+	}
+
+	image->active_bitmap->property[i].id = item->id;
+	image->active_bitmap->property[i].length = item->length;
+	image->active_bitmap->property[i].type = item->type;
+	if (item->length > 0) {
+		memcpy(image->active_bitmap->property[i].value, item->value, item->length);
+	}
+
 	return Ok;
 }
 
@@ -1939,14 +2033,42 @@ GdipGetImageEncoders (UINT numEncoders, UINT size, ImageCodecInfo *encoders)
 GpStatus
 GdipGetAllPropertyItems(GpImage *image, UINT totalBufferSize, UINT numProperties, PropertyItem *allItems)
 {
-	if (!allItems || (totalBufferSize < 16))
-		return InvalidParameter;
+	int		size;
+	int		i;
+	unsigned char	*ptr;
 
-	allItems [0].id = 0xdeadbeee;
-	allItems [0].length = 4;
-	/* A byte */
-	allItems [0].type = 1;
-	allItems [0].value = &(allItems [0].id);
+	if ((image == NULL) || (allItems == NULL)) {
+		return InvalidParameter;
+	}
+
+	if (numProperties != image->active_bitmap->property_count) {
+		return InvalidParameter;
+	}
+
+	size = image->active_bitmap->property_count * sizeof(PropertyItem);
+	for (i = 0; i < numProperties; i++) {
+		size += image->active_bitmap->property[i].length;
+	}
+
+	if (size != totalBufferSize) {
+		return InvalidParameter;
+	}
+
+	ptr = (unsigned char *)allItems;
+	ptr += totalBufferSize;
+
+	/* Copy the PropertyItem array */
+	memcpy(allItems, image->active_bitmap->property, sizeof(PropertyItem) * numProperties);
+
+	/* Copy the values and fix up the value pointers in the PropertyItem array to point to them */
+	for (i = 0; i < numProperties; i++) {
+		if (allItems[i].value != NULL) {
+			ptr -= allItems[i].length;
+			memcpy(ptr, allItems[i].value, allItems[i].length);	/* Use the copied pointer, less indirection than image->active_bitmap->property[i].value */
+			allItems[i].value = ptr;
+		}
+	}
+
 	return Ok;
 }
 
