@@ -118,6 +118,149 @@ gdip_load_gif_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 	return gdip_load_gif_image (&gif_data, image, FALSE);	
 }
 
+/*
+   This is the DGifSlurp and AddExtensionBlock code courtesy of giflib, 
+   It's modified to not dump comments after the image block, since those 
+   are still valid
+*/
+
+int
+AddExtensionBlockMono(SavedImage *New, int Len, unsigned char ExtData[])
+{
+	ExtensionBlock	*ep;
+
+	if (New->ExtensionBlocks == NULL) {
+		New->ExtensionBlocks=(ExtensionBlock *)GdipAlloc(sizeof(ExtensionBlock));
+	} else {
+		New->ExtensionBlocks = (ExtensionBlock *)GdipRealloc(New->ExtensionBlocks, sizeof(ExtensionBlock) * (New->ExtensionBlockCount + 1));
+	}
+
+	if (New->ExtensionBlocks == NULL) {
+		return (GIF_ERROR);
+	}
+
+	ep = &New->ExtensionBlocks[New->ExtensionBlockCount++];
+
+	ep->ByteCount=Len;
+	ep->Bytes = (char *)GdipAlloc(ep->ByteCount);
+	if (ep->Bytes == NULL) {
+		return (GIF_ERROR);
+	}
+
+	if (ExtData) {
+		memcpy(ep->Bytes, ExtData, Len);
+		ep->Function = New->Function;
+	}
+
+	return (GIF_OK);
+}
+
+void
+FreeExtensionMono(SavedImage *Image)
+{
+	ExtensionBlock *ep;
+
+	if ((Image == NULL) || (Image->ExtensionBlocks == NULL)) {
+		return;
+	}
+	for (ep = Image->ExtensionBlocks; ep < (Image->ExtensionBlocks + Image->ExtensionBlockCount); ep++) {
+		(void)GdipFree((char *)ep->Bytes);
+	}
+	GdipFree((char *)Image->ExtensionBlocks);
+	Image->ExtensionBlocks = NULL;
+}
+
+int
+DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
+{
+	int		ImageSize;
+	GifRecordType	RecordType;
+	SavedImage	*sp;
+	GifByteType	*ExtData;
+	SavedImage	temp_save;
+
+	temp_save.ExtensionBlocks = NULL;
+	temp_save.ExtensionBlockCount = 0;
+
+	sp = NULL;
+
+	do {
+		if (DGifGetRecordType(GifFile, &RecordType) == GIF_ERROR) {
+			return (GIF_ERROR);
+		}
+
+		switch (RecordType) {
+			case IMAGE_DESC_RECORD_TYPE: {
+				/* This call will leak GifFile->Image.ColorMap; there's a fixme in the DGifGetImageDesc code */
+				if (DGifGetImageDesc(GifFile) == GIF_ERROR) {
+					return (GIF_ERROR);
+				}
+
+				sp = &GifFile->SavedImages[GifFile->ImageCount - 1];
+				ImageSize = sp->ImageDesc.Width * sp->ImageDesc.Height;
+
+				sp->RasterBits = (unsigned char *)malloc(ImageSize * sizeof(GifPixelType));
+				if (sp->RasterBits == NULL) {
+					return GIF_ERROR;
+				}
+				if (DGifGetLine(GifFile, sp->RasterBits, ImageSize) == GIF_ERROR) {
+					return (GIF_ERROR);
+				}
+				if (temp_save.ExtensionBlocks) {
+					sp->ExtensionBlocks = temp_save.ExtensionBlocks;
+					sp->ExtensionBlockCount = temp_save.ExtensionBlockCount;
+
+					temp_save.ExtensionBlocks = NULL;
+					temp_save.ExtensionBlockCount = 0;
+				}
+				break;
+			}
+
+			case EXTENSION_RECORD_TYPE: {
+				if (DGifGetExtension(GifFile, &temp_save.Function, &ExtData) == GIF_ERROR) {
+					return (GIF_ERROR);
+				}
+
+				while (ExtData != NULL) {
+					/* Create an extension block with our data */
+					if (AddExtensionBlockMono(&temp_save, ExtData[0], &ExtData[1]) == GIF_ERROR) {
+						return (GIF_ERROR);
+					}
+
+					if (DGifGetExtensionNext(GifFile, &ExtData) == GIF_ERROR) {
+						return (GIF_ERROR);
+					}
+					temp_save.Function = 0;
+				}
+				break;
+			}
+
+			case TERMINATE_RECORD_TYPE: {
+				break;
+			}
+
+			default: {   /* Should be trapped by DGifGetRecordType */
+				break;
+			}
+		}
+	} while (RecordType != TERMINATE_RECORD_TYPE);
+
+	/* In case the Gif has an extension block without an associated
+	* image we return it in TrailingExtensions, if provided */
+	if (TrailingExtensions != NULL) {
+		if (temp_save.ExtensionBlocks != NULL) {
+			*TrailingExtensions = temp_save;
+		} else {
+			TrailingExtensions->ExtensionBlocks = NULL;
+			TrailingExtensions->ExtensionBlockCount = 0;
+		}
+	}
+
+
+	return (GIF_OK);
+}
+
+
 GpStatus 
 gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 {
@@ -133,10 +276,14 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	GpBitmap	*result;
 	BitmapData	*bitmap_data;
 	SavedImage	si;
+	SavedImage	global_extensions;
 	ColorPalette	*global_palette;
+	bool		loop_counter;
+	unsigned short	loop_value;
 
 	global_palette = NULL;
 	result = NULL;
+	loop_counter = FALSE;
 
 	if (from_file) {
 		gif = DGifOpen(stream, &gdip_gif_fileinputfunc);
@@ -149,7 +296,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	}
 
 	/* Read the image */
-	if (DGifSlurp (gif) != GIF_OK) {
+	if (DGifSlurpMono(gif, &global_extensions) != GIF_OK) {
 		goto error;
 	}
 
@@ -169,12 +316,28 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 					if (num_of_images > 1) {
 						animated = TRUE;
 					}
+
+					/* Mention of the Netscape  format is here: http://list-archive.xemacs.org/xemacs-beta/199910/msg00070.html */
+					/* We seem to be dealing with a bug in the gif lib here, it breaks the sub-bart part of the
+					 * extension data up into a separate ExtensionBlock (of type 0x00) */
+					if (gif->SavedImages[i].ExtensionBlocks[l].ByteCount > 10) {
+						if (memcmp(gif->SavedImages[i].ExtensionBlocks[l].Bytes, "NETSCAPE2.0", 11) == 0) {
+							loop_counter = TRUE;
+
+							/* The next Block is a subblock of the app extension. The 3 bytes are the loop counter */
+							if ((l + 1) < gif->SavedImages[i].ExtensionBlockCount) {
+								if ((gif->SavedImages[i].ExtensionBlocks[l + 1].Function == 0) &&
+								    (gif->SavedImages[i].ExtensionBlocks[l + 1].ByteCount == 3) &&
+								    (gif->SavedImages[i].ExtensionBlocks[l + 1].Bytes[0] == 1)) {
+									loop_value = (unsigned char)(gif->SavedImages[i].ExtensionBlocks[l + 1].Bytes[2] << 8) + (unsigned char)gif->SavedImages[i].ExtensionBlocks[l + 1].Bytes[1];
+								}
+							}
+						}
+					}
 					break;
 				}
 
-				case COMMENT_EXT_FUNC_CODE: {
-printf("FIXME - read the comment and store it as property\n");
-					/* FIXME - we should pull these into properties */
+				case 0: {
 					break;
 				}
 			}
@@ -222,6 +385,17 @@ printf("FIXME - read the comment and store it as property\n");
 
 		si = gif->SavedImages[i];
 
+		for (l = 0; l < global_extensions.ExtensionBlockCount; l++) {
+			ExtensionBlock eb = global_extensions.ExtensionBlocks[l];
+			if (eb.Function == COMMENT_EXT_FUNC_CODE) {
+				int	index;
+
+				if (gdip_bitmapdata_property_find_id(bitmap_data, ExifUserComment, &index) != Ok) {
+					gdip_bitmapdata_property_add_ASCII(bitmap_data, ExifUserComment, (unsigned char *)eb.Bytes);
+				}
+			}
+		}
+
 		for (l = 0; l < si.ExtensionBlockCount; l++) {
 			ExtensionBlock eb = si.ExtensionBlocks[l];
 
@@ -229,32 +403,38 @@ printf("FIXME - read the comment and store it as property\n");
 				case GRAPHICS_EXT_FUNC_CODE: {
 					/* Pull animation time and/or transparent color */
 
-					printf("Doing extension. Bytecount = %d, Got transparency=%d, Delay=%d\n", eb.ByteCount, ((eb.Bytes[0] & 0x80) != 0), (eb.Bytes[1] << 8) + eb.Bytes[2]);
 					if (eb.ByteCount > 3) {	/* Sanity */
-						if ((eb.Bytes[0] & 0x80) != 0) {
-							/* We've got transparency; we store it negative, offset by one. 
-							   This gives -257 to -1 as valid numbers and allows us to distinguish 0 and not transparent */
-							// FIXME - store 'eb.Bytes[3]' in properties as transparent color;
+						guint32	value;
+
+						if ((eb.Bytes[0] & 0x01) != 0) {
+							// FIXME - do something with 'eb.Bytes[3]' (=transparent color index)
 						}
-						// FIXME - store '(eb.Bytes[1] << 8) + eb.Bytes[2]' in properties as delay time
+						value = (eb.Bytes[2] << 8) + (eb.Bytes[1]);
+						gdip_bitmapdata_property_add_long(bitmap_data, FrameDelay, value);
+						if (loop_counter) {
+							gdip_bitmapdata_property_add_short(bitmap_data, LoopCount, loop_value);
+						}
 					}
 					break;
 				}
 
 				case COMMENT_EXT_FUNC_CODE: {
-					printf("FIXME - Have COMMENT_EXT_FUNC_CODE\n");
+					int	index;
+
+					/* Per-image comments override global */
+					if (gdip_bitmapdata_property_find_id(bitmap_data, ExifUserComment, &index) == Ok) {
+						gdip_bitmapdata_property_remove_index(bitmap_data, index);
+					}
+					gdip_bitmapdata_property_add_ASCII(bitmap_data, ExifUserComment, (unsigned char *)eb.Bytes);
 					break;
 				}
 
-				case APPLICATION_EXT_FUNC_CODE: {
-					printf("FIXME - Have APPLICATION_EXT_FUNC_CODE\n");
-					break;
-				}
-
+#if 0
 				case PLAINTEXT_EXT_FUNC_CODE: {
-					printf("FIXME - Have PLAINTEXT_EXT_FUNC_CODE\n");
+					printf("Do something with PLAINTEXT_EXT_FUNC_CODE?\n");
 					break;
 				}
+#endif
 			}
 		}
 
@@ -285,9 +465,9 @@ printf("FIXME - read the comment and store it as property\n");
 
 		bitmap_data->scan0 = GdipAlloc (bitmap_data->stride * bitmap_data->height);
 		bitmap_data->reserved = GBD_OWN_SCAN0;
-		bitmap_data->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB;
-		bitmap_data->dpi_horz = 0;
-		bitmap_data->dpi_vert = 0;
+		bitmap_data->image_flags = ImageFlagsHasAlpha | ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB;
+		bitmap_data->dpi_horz = gdip_get_display_dpi ();
+		bitmap_data->dpi_vert = bitmap_data->dpi_horz;
 	
 		readptr = (guchar *) si.RasterBits;
 		writeptr = bitmap_data->scan0;
@@ -305,6 +485,7 @@ printf("FIXME - read the comment and store it as property\n");
 		GdipFree(global_palette);
 	}
 
+	FreeExtensionMono(&global_extensions);
 	DGifCloseFile (gif);
 
 	*image = result;
@@ -318,6 +499,8 @@ error:
 	if (result != NULL) {
 		gdip_bitmap_dispose (result);
 	}
+
+	FreeExtensionMono(&global_extensions);
 
 	if (gif != NULL) {
 		DGifCloseFile (gif);
@@ -588,6 +771,7 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 			}
 
 			/* Store the image description */
+			/* This call will leak GifFile->Image.ColorMap */
 			if (EGifPutImageDesc (fp, bitmap_data->left, bitmap_data->top, bitmap_data->width, bitmap_data->height, FALSE, cmap) == GIF_ERROR) {
 				goto error;
 			}
