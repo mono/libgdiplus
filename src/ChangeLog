@@ -1,3 +1,9 @@
+2006-04-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Fixes to clipping when resetting (resets the clipping
+	matrix) and when setting the matrix (to apply inverted matrix).
+	* gdip.h: Added missing prototypes for clipping.
+
 2006-04-21 Alexander Olk <alex.olk@googlemail.com>
 
 	* tiffcodec.c: Fixed the build for "older" gcc versions. They don't
