@@ -663,6 +663,7 @@ gdip_save_tiff_properties(TIFF *tiff, BitmapData *bitmap_data, int samples_per_p
 	i = 0;
 	s = 0;
 	s2 = 0;
+	d = 0;
 
 	if (gdip_bitmapdata_property_find_id(bitmap_data, Artist, &index) == Ok) {
 		TIFFSetField(tiff, TIFFTAG_ARTIST, bitmap_data->property[index].value);
