@@ -210,6 +210,9 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				
 				GdipBitmapGetPixel (bmpdest, x, y, &color);
 				get_pixel_bgra (color, b, g, r, a);
+				/* Don't transform transparent pixels */
+				if (a == 0)
+					continue;
 
 				r_new = (r * cmatrix->colormatrix->m[0][0] + g * cmatrix->colormatrix->m[1][0] + b * cmatrix->colormatrix->m[2][0] +
 					a * cmatrix->colormatrix->m[3][0] + (255 * cmatrix->colormatrix->m[4][0]));
