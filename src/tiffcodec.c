@@ -633,7 +633,7 @@ gdip_load_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
 }
 
 GpStatus
-gdip_save_tiff_properties(TIFF *tiff, BitmapData *bitmap_data, int samples_per_pixel)
+gdip_save_tiff_properties(TIFF *tiff, BitmapData *bitmap_data, int samples_per_pixel, int bits_per_sample)
 {
 	int		index;
 	unsigned char	*text;
@@ -645,21 +645,6 @@ gdip_save_tiff_properties(TIFF *tiff, BitmapData *bitmap_data, int samples_per_p
 	double		d;
 	float		f;
 
-	uint16	bits_per_sample;
-	uint16	planar_configuration;
-	uint16	image_length;
-	uint16	strips_per_image;
-	uint32	rows_per_strip;
-	uint32	tile_length;
-	uint32	tile_width;
-
-	bits_per_sample = 0;
-	planar_configuration = 0;
-	image_length = 0;
-	strips_per_image = 0;
-	rows_per_strip = 0;
-	tile_length = 0;
-	tile_width = 0;
 	i = 0;
 	s = 0;
 	s2 = 0;
@@ -946,6 +931,7 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 	BitmapData	*bitmap_data;
 	guchar		*pixbuf;
 	int		samples_per_pixel;
+	int		bits_per_sample;
 
 	if (tiff == NULL) {
 		return InvalidParameter;
@@ -978,16 +964,18 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 
 			if ((bitmap_data->pixel_format & PixelFormatAlpha) != 0) {
 				samples_per_pixel = 3;
+				bits_per_sample = 8;
 			} else {
 				samples_per_pixel = 3;
+				bits_per_sample = 8;
 			}
 
-			gdip_save_tiff_properties(tiff, bitmap_data, samples_per_pixel);
+			gdip_save_tiff_properties(tiff, bitmap_data, samples_per_pixel, bits_per_sample);
 
 			TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, samples_per_pixel);
 			TIFFSetField (tiff, TIFFTAG_IMAGEWIDTH, bitmap_data->width);
 			TIFFSetField (tiff, TIFFTAG_IMAGELENGTH, bitmap_data->height);
-			TIFFSetField (tiff, TIFFTAG_BITSPERSAMPLE, 8);
+			TIFFSetField (tiff, TIFFTAG_BITSPERSAMPLE, bits_per_sample);
 			TIFFSetField (tiff, TIFFTAG_COMPRESSION, COMPRESSION_NONE);
 			TIFFSetField (tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
 			TIFFSetField (tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);

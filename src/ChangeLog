@@ -1,3 +1,7 @@
+2006-04-20  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* tiffcodec.c: Cleaned up unused stuff
+
 2006-04-20  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* tiffcodec.c:
