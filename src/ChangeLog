@@ -1,3 +1,9 @@
+2006-04-21  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* bitmap.c (gdip_bitmap_clone_data_rect): Now calculating the size of
+	  the new bitmap based on source parameters if the new bitmap is
+	  just being created. This fixes the failing Bitmap.Clone() unit test.
+
 2006-04-21  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* image.c: Implemented GetPropertyIdList

@@ -1041,6 +1041,8 @@ GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
 		return OutOfMemory;
 	}
 
+	result->image_format = original->image_format;
+
 	status = gdip_bitmap_clone_data_rect (original->active_bitmap, &sr, result->active_bitmap, &dr);
 	if (status != Ok) {
 		goto fail;
@@ -1048,7 +1050,6 @@ GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
 
 	result->cairo_format = original->cairo_format;
 		
-	gdip_bitmap_setactive(result, NULL, result->frames[0].count - 1);
 	*bitmap = result;
 	return Ok;
 
@@ -1094,11 +1095,14 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 	if (!gdip_is_a_supported_pixelformat (srcData->pixel_format)) {
 		return NotImplemented;
 	}
-	
-	dest_components = gdip_get_pixel_format_components (destData->pixel_format);
-	dest_depth = gdip_get_pixel_format_depth (destData->pixel_format);
 
+	dest_components = gdip_get_pixel_format_components (destData->pixel_format);
+	
 	if (destData->scan0 == NULL) {
+		dest_components = gdip_get_pixel_format_components (srcData->pixel_format);
+		dest_depth = gdip_get_pixel_format_depth (srcData->pixel_format);
+		destData->pixel_format = srcData->pixel_format;
+
 		destData->stride = (((( destRect->Width * dest_components * dest_depth) /8) + (sizeof(pixman_bits_t)-1)) & ~(sizeof(pixman_bits_t)-1));
 
 		destData->scan0 = GdipAlloc (destData->stride * destRect->Height);
