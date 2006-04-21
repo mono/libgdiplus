@@ -1,3 +1,9 @@
+2006-04-20  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* gdipImage.h: Fixed typo in tag name
+	* tiffcodec.c: Implemented reading of TIFF tags and translating
+	  them into properties.
+
 2006-04-20  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* lineargradientbrush.h: Added DEFAULT_GRADIENT_ANGLE constant.
@@ -7,7 +13,7 @@
 	be updated). This is "closer" to the real thing (much better results
 	in ZedGraph) but there are still issue mainly with rotations.
 
-2006-04-21  Peter Dennis Bartok  <pbartok@novell.com>
+2006-04-20  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* gifcodec.c: Loader is now alpha/transparency aware and always sets
 	  up the palette with alpha set. If transparent color is specified,
@@ -15,7 +21,7 @@
 	* bitmap.c (gdip_bitmap_indexed_to_rgb): Now properly handles palettes
 	  with alpha values.
 
-2006-04-21  Peter Dennis Bartok  <pbartok@novell.com> 
+2006-04-20  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* gdip.h: Added transparent tracking field to BitmapData
 	* bitmap.c: Added copying new transparent field to bitmap cloning

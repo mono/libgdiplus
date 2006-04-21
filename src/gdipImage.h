@@ -112,7 +112,7 @@ typedef enum {
 	T6Option            		= 0x0125,
 	ResolutionUnit      		= 0x0128,
 	PageNumber          		= 0x0129,
-	TransferFuncition   		= 0x012D,
+	TransferFunction   		= 0x012D,
 	SoftwareUsed        		= 0x0131,
 	DateTime            		= 0x0132,
 	Artist              		= 0x013B,
