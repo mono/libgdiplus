@@ -191,89 +191,12 @@ gdip_getcodecinfo_tiff ()
 	tiff_codec.SigSize = 0;
 	tiff_codec.SigPattern = 0;
 	tiff_codec.SigMask = 0;
+
+	/* Mute the lib */
+	TIFFSetErrorHandler(NULL);
+	TIFFSetWarningHandler(NULL);
 	
 	return &tiff_codec;
-}
-
-/*TODO Handle TIFF Encoder Parameters*/
-GpStatus 
-gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *params)
-{
-	int		frame;
-	int		x;
-	int		y;
-	int		i;
-	int		num_of_pages;
-	int		page;
-	BitmapData	*bitmap_data;
-	guchar		*pixbuf;
-
-	if (tiff == NULL) {
-		return InvalidParameter;
-	}
-
-	/* Count all pages, we need to know ahead */
-	num_of_pages = 0;
-	for (frame = 0; frame < image->num_of_frames; frame++) {
-		num_of_pages += image->frames[frame].count;
-		for (i = 0; i < image->frames[frame].count; i++) {
-			if (gdip_is_an_indexed_pixelformat (image->frames[frame].bitmap[i].pixel_format)) {
-				return NotImplemented; /* FIXME? */
-			}
-		}
-	}
-
-	page = 0;
-	for (frame = 0; frame < image->num_of_frames; frame++) {
-		for (i = 0; i < image->frames[frame].count; i++) {
-			bitmap_data = &image->frames[frame].bitmap[i];
-
-			if (num_of_pages > 1) {
-				if ((frame > 0) && (i > 0)) {
-					TIFFCreateDirectory(tiff);
-				}
-
-				TIFFSetField (tiff, TIFFTAG_SUBFILETYPE, FILETYPE_PAGE);
-				TIFFSetField (tiff, TIFFTAG_PAGENUMBER, page, num_of_pages);
-			}
-
-			TIFFSetField (tiff, TIFFTAG_IMAGEWIDTH, bitmap_data->width);  
-			TIFFSetField (tiff, TIFFTAG_IMAGELENGTH, bitmap_data->height); 
-			TIFFSetField (tiff, TIFFTAG_BITSPERSAMPLE, 8);  
-			TIFFSetField (tiff, TIFFTAG_COMPRESSION, COMPRESSION_NONE);  
-			TIFFSetField (tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-			TIFFSetField (tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);   
-			TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, 4); /* FIXME - Hardcoded 32bbps*/
-    			TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, bitmap_data->stride)); 
-			TIFFSetField (tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG); 
-			TIFFSetField (tiff, TIFFTAG_EXTRASAMPLES, EXTRASAMPLE_UNSPECIFIED);
-
-printf("TIFFCODEC.C: NEED TO SAVE PROPERTIES AS WELL\n");
-
-			pixbuf = GdipAlloc (bitmap_data->width * 4);
-			for (y = 0; y < bitmap_data->height; y++) {
-				for (x = 0; x < bitmap_data->width; x++) {
-#ifdef WORDS_BIGENDIAN
-					pixbuf[x*4+0] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 1);
-					pixbuf[x*4+1] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 2);
-					pixbuf[x*4+2] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 3);
-					pixbuf[x*4+3] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 0);
-#else
-					pixbuf[x*4+0] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 2);
-					pixbuf[x*4+1] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 1);
-					pixbuf[x*4+2] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 0);
-					pixbuf[x*4+3] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 3);
-#endif
-				}
-				TIFFWriteScanline (tiff, pixbuf, y, 0);
-			}
-			GdipFree(pixbuf);
-			TIFFWriteDirectory (tiff);
-			page++;
-		}	
-	}
-	TIFFClose (tiff); 		
-	return Ok;
 }
 
 GpStatus
@@ -439,7 +362,7 @@ gdip_load_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
 	}
 
 	if (TIFFGetField(tiff, TIFFTAG_MINSAMPLEVALUE, &s)) {
-		gdip_bitmapdata_property_add_short(bitmap_data, MaxSampleValue, s);
+		gdip_bitmapdata_property_add_short(bitmap_data, MinSampleValue, s);
 	}
 
 	if (TIFFGetField(tiff, TIFFTAG_MODEL, &text)) {
@@ -710,18 +633,18 @@ gdip_load_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
 }
 
 GpStatus
-gdip_save_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
+gdip_save_tiff_properties(TIFF *tiff, BitmapData *bitmap_data, int samples_per_pixel)
 {
-	int	index;
-
+	int		index;
 	unsigned char	*text;
-	uint32	i;
-	uint16	s;
-	uint16	s2;
-	char	c;
-	double	d;
-	float	f;
-	uint16	samples_per_pixel;
+	uint32		i;
+	uint32		l;
+	int		j;
+	uint16		s;
+	uint16		s2;
+	double		d;
+	float		f;
+
 	uint16	bits_per_sample;
 	uint16	planar_configuration;
 	uint16	image_length;
@@ -730,7 +653,6 @@ gdip_save_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
 	uint32	tile_length;
 	uint32	tile_width;
 
-	samples_per_pixel = 0;
 	bits_per_sample = 0;
 	planar_configuration = 0;
 	image_length = 0;
@@ -746,8 +668,381 @@ gdip_save_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
 		TIFFSetField(tiff, TIFFTAG_ARTIST, bitmap_data->property[index].value);
 	}
 
+	if (gdip_bitmapdata_property_find_id(bitmap_data, Copyright, &index) == Ok) {
+		TIFFSetField(tiff, TIFFTAG_COPYRIGHT, bitmap_data->property[index].value);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, DateTime, &index) == Ok) {
+		TIFFSetField(tiff, TIFFTAG_DATETIME, bitmap_data->property[index].value);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, DocumentName, &index) == Ok) {
+		TIFFSetField(tiff, TIFFTAG_DOCUMENTNAME, bitmap_data->property[index].value);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, DotRange, &index) == Ok) {
+		gdip_property_get_short(0, bitmap_data->property[index].value, &s);
+		gdip_property_get_short(2, bitmap_data->property[index].value, &s2);
+		TIFFSetField(tiff, TIFFTAG_DOTRANGE, s, s2);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, ExtraSamples, &index) == Ok) {
+		TIFFSetField(tiff, TIFFTAG_EXTRASAMPLES, bitmap_data->property[index].length, bitmap_data->property[index].value);
+	} else {
+		TIFFSetField (tiff, TIFFTAG_EXTRASAMPLES, EXTRASAMPLE_UNSPECIFIED);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, FillOrder, &index) == Ok) {
+		gdip_property_get_short(0, bitmap_data->property[index].value, &s);
+		TIFFSetField(tiff, TIFFTAG_FILLORDER, s);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, T4Option, &index) == Ok) {
+		gdip_property_get_long(0, bitmap_data->property[index].value, &l);
+		TIFFSetField(tiff, TIFFTAG_GROUP3OPTIONS, l);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, T6Option, &index) == Ok) {
+		gdip_property_get_long(0, bitmap_data->property[index].value, &l);
+		TIFFSetField(tiff, TIFFTAG_GROUP4OPTIONS, l);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, HalftoneHints, &index) == Ok) {
+		gdip_property_get_short(0, bitmap_data->property[index].value, &s);
+		gdip_property_get_short(2, bitmap_data->property[index].value, &s2);
+		TIFFSetField(tiff, TIFFTAG_HALFTONEHINTS, s, s2);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, HostComputer, &index) == Ok) {
+		TIFFSetField(tiff, TIFFTAG_HOSTCOMPUTER, bitmap_data->property[index].value);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, ImageDescription, &index) == Ok) {
+		TIFFSetField(tiff, TIFFTAG_IMAGEDESCRIPTION, bitmap_data->property[index].value);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, InkNames, &index) == Ok) {
+		TIFFSetField(tiff, TIFFTAG_INKNAMES, bitmap_data->property[index].value);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, InkSet, &index) == Ok) {
+		gdip_property_get_short(0, bitmap_data->property[index].value, &s);
+		TIFFSetField(tiff, TIFFTAG_INKSET, s);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, JPEGQuality, &index) == Ok) {
+		gdip_property_get_long(0, bitmap_data->property[index].value, &l);
+		TIFFSetField(tiff, TIFFTAG_JPEGQUALITY, l);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, EquipMake, &index) == Ok) {
+		TIFFSetField(tiff, TIFFTAG_MAKE, bitmap_data->property[index].value);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, MaxSampleValue, &index) == Ok) {
+		gdip_property_get_short(0, bitmap_data->property[index].value, &s);
+		TIFFSetField(tiff, TIFFTAG_MAXSAMPLEVALUE, s);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, MinSampleValue, &index) == Ok) {
+		gdip_property_get_short(0, bitmap_data->property[index].value, &s);
+		TIFFSetField(tiff, TIFFTAG_MINSAMPLEVALUE, s);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, EquipModel, &index) == Ok) {
+		TIFFSetField(tiff, TIFFTAG_MODEL, bitmap_data->property[index].value);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, Orientation, &index) == Ok) {
+		gdip_property_get_short(0, bitmap_data->property[index].value, &s);
+		TIFFSetField(tiff, TIFFTAG_ORIENTATION, s);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, PageName, &index) == Ok) {
+		TIFFSetField(tiff, TIFFTAG_PAGENAME, bitmap_data->property[index].value);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, PhotometricInterp, &index) == Ok) {
+		gdip_property_get_short(0, bitmap_data->property[index].value, &s);
+		TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, s);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, Predictor, &index) == Ok) {
+		gdip_property_get_short(0, bitmap_data->property[index].value, &s);
+		TIFFSetField(tiff, TIFFTAG_PREDICTOR, s);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, PrimaryChromaticities, &index) == Ok) {
+		float	chromacities[6];
+		for (j = 0; j < 6; j++) {
+			gdip_property_get_long(j * 8, bitmap_data->property[index].value, &i);
+			chromacities[j] = (float)i / 1000000;
+		}
+
+		TIFFSetField(tiff, TIFFTAG_PRIMARYCHROMATICITIES, &chromacities);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, ResolutionUnit, &index) == Ok) {
+		gdip_property_get_short(0, bitmap_data->property[index].value, &s);
+		TIFFSetField(tiff, TIFFTAG_RESOLUTIONUNIT, s);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, SampleFormat, &index) == Ok) {
+		gdip_property_get_short(0, bitmap_data->property[index].value, &s);
+		TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, s);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, REFBlackWhite, &index) == Ok) {
+		float *ref_blackwhite;	/* 2 * SamplesPerPixel array */
+
+		ref_blackwhite = GdipAlloc(2 * samples_per_pixel * sizeof(float));
+		if (ref_blackwhite != NULL) {
+			for (j = 0; j < (2 * samples_per_pixel); j++) {
+				gdip_property_get_long(j * 8, bitmap_data->property[index].value, &i);
+				ref_blackwhite[j] =  (float)i / 1000000;
+			}
+			TIFFSetField(tiff, TIFFTAG_REFERENCEBLACKWHITE, &ref_blackwhite);
+			GdipFree(ref_blackwhite);
+		}
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, SMaxSampleValue, &index) == Ok) {
+		gdip_property_get_long(0, bitmap_data->property[index].value, &i);
+		d = (double)i / 10000000;
+		TIFFSetField(tiff, TIFFTAG_SMAXSAMPLEVALUE, d);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, SMinSampleValue, &index) == Ok) {
+		gdip_property_get_long(0, bitmap_data->property[index].value, &i);
+		d = (double)i / 10000000;
+		TIFFSetField(tiff, TIFFTAG_SMINSAMPLEVALUE, d);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, SoftwareUsed, &index) == Ok) {
+		TIFFSetField(tiff, TIFFTAG_SOFTWARE, bitmap_data->property[index].value);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, NewSubfileType, &index) == Ok) {
+		TIFFSetField(tiff, TIFFTAG_SUBFILETYPE, bitmap_data->property[index].value);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, NewSubfileType, &index) == Ok) {
+		gdip_property_get_long(0, bitmap_data->property[index].value, &l);
+		TIFFSetField(tiff, TIFFTAG_SUBFILETYPE, l);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, TargetPrinter, &index) == Ok) {
+		TIFFSetField(tiff, TIFFTAG_TARGETPRINTER, bitmap_data->property[index].value);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, ThreshHolding, &index) == Ok) {
+		gdip_property_get_short(0, bitmap_data->property[index].value, &s);
+		TIFFSetField(tiff, TIFFTAG_THRESHHOLDING, s);
+	}
+
+
+	if (samples_per_pixel == 1) {
+		if (gdip_bitmapdata_property_find_id(bitmap_data, TransferFunction, &index) == Ok) {
+			TIFFSetField(tiff, TIFFTAG_TRANSFERFUNCTION, bitmap_data->property[index].value);
+		}
+	} else if (samples_per_pixel == 3) {
+		if (gdip_bitmapdata_property_find_id(bitmap_data, TransferFunction, &index) == Ok) {
+			uint16	*rmap;
+			uint16	*gmap;
+			uint16	*bmap;
+
+			rmap = GdipAlloc((1 << samples_per_pixel) *  sizeof(uint16));
+			gmap = GdipAlloc((1 << samples_per_pixel) *  sizeof(uint16));
+			bmap = GdipAlloc( (1 << samples_per_pixel) *  sizeof(uint16));
+
+			if ((rmap != NULL) && (gmap != NULL) && (bmap != NULL)) {
+				for (j = 0; j < 1 << bits_per_sample; j++) {
+					gdip_property_get_short((j * 3), bitmap_data->property[index].value, &rmap[j]);
+					gdip_property_get_short((j * 3) + 1, bitmap_data->property[index].value, &gmap[j]);
+					gdip_property_get_short((j * 3) + 2, bitmap_data->property[index].value, &bmap[j]);
+				}
+				TIFFSetField(tiff, TIFFTAG_TRANSFERFUNCTION, rmap, gmap, bmap);
+			}
+			if (rmap != NULL) {
+				GdipFree(rmap);
+			}
+
+			if (gmap != NULL) {
+				GdipFree(gmap);
+			}
+
+			if (bmap != NULL) {
+				GdipFree(bmap);
+			}
+		}
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, XPosition, &index) == Ok) {
+		gdip_property_get_long(0, bitmap_data->property[index].value, &i);
+		f = (float)i / 10000000;
+		TIFFSetField(tiff, TIFFTAG_XPOSITION, f);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, XResolution, &index) == Ok) {
+		gdip_property_get_long(0, bitmap_data->property[index].value, &i);
+		f = (float)i;
+		TIFFSetField(tiff, TIFFTAG_XRESOLUTION, f);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, YCbCrCoefficients, &index) == Ok) {
+		float	coefficients[3];
+
+		gdip_property_get_long(0, bitmap_data->property[index].value, &i);
+		coefficients[0] = (float)i / 1000000;
+
+		gdip_property_get_long(8, bitmap_data->property[index].value, &i);
+		coefficients[1] = (float)i / 1000000;
+
+		gdip_property_get_long(16, bitmap_data->property[index].value, &i);
+		coefficients[2] = (float)i / 1000000;
+
+		TIFFSetField(tiff, TIFFTAG_YCBCRCOEFFICIENTS, coefficients);
+	}
+
+	if (TIFFGetField(tiff, TIFFTAG_YCBCRPOSITIONING, &s)) {
+		gdip_bitmapdata_property_add_short(bitmap_data, YCbCrPositioning, s);
+	}
+
+	if (TIFFGetField(tiff, TIFFTAG_YCBCRSUBSAMPLING, &s, &s2)) {
+		gdip_bitmapdata_property_add_srational(bitmap_data, YCbCrSubsampling, s, s2);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, YPosition, &index) == Ok) {
+		gdip_property_get_long(0, bitmap_data->property[index].value, &i);
+		f = (float)i / 1000000;
+		TIFFSetField(tiff, TIFFTAG_YPOSITION, f);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, YResolution, &index) == Ok) {
+		gdip_property_get_long(0, bitmap_data->property[index].value, &i);
+		f = (float)i;
+		TIFFSetField(tiff, TIFFTAG_YRESOLUTION, f);
+	}
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, ExifIFD, &index) == Ok) {
+		gdip_property_get_long(0, bitmap_data->property[index].value, &i);
+		TIFFSetField(tiff, TIFFTAG_EXIFIFD, d);
+	}
+
 	return Ok;
 }
+
+/*TODO Handle TIFF Encoder Parameters*/
+GpStatus 
+gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *params)
+{
+	int		frame;
+	int		x;
+	int		y;
+	int		i;
+	int		num_of_pages;
+	int		page;
+	BitmapData	*bitmap_data;
+	guchar		*pixbuf;
+	int		samples_per_pixel;
+
+	if (tiff == NULL) {
+		return InvalidParameter;
+	}
+
+	/* Count all pages, we need to know ahead */
+	num_of_pages = 0;
+	for (frame = 0; frame < image->num_of_frames; frame++) {
+		num_of_pages += image->frames[frame].count;
+		for (i = 0; i < image->frames[frame].count; i++) {
+			if (gdip_is_an_indexed_pixelformat (image->frames[frame].bitmap[i].pixel_format)) {
+				return NotImplemented; /* FIXME? */
+			}
+		}
+	}
+
+	page = 0;
+	for (frame = 0; frame < image->num_of_frames; frame++) {
+		for (i = 0; i < image->frames[frame].count; i++) {
+			bitmap_data = &image->frames[frame].bitmap[i];
+
+			if (num_of_pages > 1) {
+				if ((frame > 0) && (i > 0)) {
+					TIFFCreateDirectory(tiff);
+				}
+
+				TIFFSetField (tiff, TIFFTAG_SUBFILETYPE, FILETYPE_PAGE);
+				TIFFSetField (tiff, TIFFTAG_PAGENUMBER, page, num_of_pages);
+			}
+
+			if ((bitmap_data->pixel_format & PixelFormatAlpha) != 0) {
+				samples_per_pixel = 3;
+			} else {
+				samples_per_pixel = 3;
+			}
+
+			gdip_save_tiff_properties(tiff, bitmap_data, samples_per_pixel);
+
+			TIFFSetField (tiff, TIFFTAG_SAMPLESPERPIXEL, samples_per_pixel);
+			TIFFSetField (tiff, TIFFTAG_IMAGEWIDTH, bitmap_data->width);
+			TIFFSetField (tiff, TIFFTAG_IMAGELENGTH, bitmap_data->height);
+			TIFFSetField (tiff, TIFFTAG_BITSPERSAMPLE, 8);
+			TIFFSetField (tiff, TIFFTAG_COMPRESSION, COMPRESSION_NONE);
+			TIFFSetField (tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+			TIFFSetField (tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+    			TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, bitmap_data->stride));
+			TIFFSetField (tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+
+			pixbuf = GdipAlloc (bitmap_data->width * samples_per_pixel);
+			if (pixbuf == NULL) {
+				goto error;
+			}
+			if (samples_per_pixel == 4) {
+				for (y = 0; y < bitmap_data->height; y++) {
+					for (x = 0; x < bitmap_data->width; x++) {
+#ifdef WORDS_BIGENDIAN
+						pixbuf[x*4+0] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 1);
+						pixbuf[x*4+1] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 2);
+						pixbuf[x*4+2] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 3);
+						pixbuf[x*4+3] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 0);
+#else
+						pixbuf[x*4+0] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 2);
+						pixbuf[x*4+1] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 1);
+						pixbuf[x*4+2] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 0);
+						pixbuf[x*4+3] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 3);
+#endif
+					}
+					TIFFWriteScanline (tiff, pixbuf, y, 0);
+				}
+			} else {
+				for (y = 0; y < bitmap_data->height; y++) {
+					for (x = 0; x < bitmap_data->width; x++) {
+#ifdef WORDS_BIGENDIAN
+						pixbuf[x*3+0] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 1);
+						pixbuf[x*3+1] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 2);
+						pixbuf[x*3+2] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 3);
+#else
+						pixbuf[x*3+0] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 2);
+						pixbuf[x*3+1] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 1);
+						pixbuf[x*3+2] = *((guchar *)bitmap_data->scan0 + (bitmap_data->stride * y) + (x*4) + 0);
+#endif
+					}
+					TIFFWriteScanline (tiff, pixbuf, y, 0);
+				}
+			}
+			GdipFree(pixbuf);
+			TIFFWriteDirectory (tiff);
+			page++;
+		}	
+	}
+	TIFFClose (tiff);
+	return Ok;
+
+error:
+	TIFFClose (tiff);
+	return OutOfMemory;
+}
+
 
 GpStatus 
 gdip_load_tiff_image (TIFF *tiff, GpImage **image)
@@ -764,6 +1059,8 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 	char		*pixbuf;
 	char		*pixbuf_row;
 	guint32		*pixbuf_ptr;
+	guint16		samples_per_pixel;
+	float		dpi;
 
 	if (tiff == NULL) {
 		*image = NULL;
@@ -797,11 +1094,30 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 			goto error;
 		}
 
+		if (TIFFGetField(tiff, TIFFTAG_SAMPLESPERPIXEL, &samples_per_pixel)) {
+			if (samples_per_pixel != 4) {
+				bitmap_data->pixel_format = Format32bppRgb;
+			} else {
+				bitmap_data->pixel_format = Format32bppArgb;
+				bitmap_data->image_flags |= ImageFlagsHasAlpha;
+			}
+		}
+
+		if (TIFFGetField(tiff, TIFFTAG_XRESOLUTION, &dpi)) {
+			bitmap_data->dpi_horz = dpi;
+			bitmap_data->image_flags |= ImageFlagsHasRealDPI;
+		}
+
+		if (TIFFGetField(tiff, TIFFTAG_YRESOLUTION, &dpi)) {
+			bitmap_data->dpi_vert = dpi;
+			bitmap_data->image_flags |= ImageFlagsHasRealDPI;
+		}
+
 		bitmap_data->stride = tiff_image.width * 4;
-		bitmap_data->pixel_format = Format32bppArgb;
 		bitmap_data->width = tiff_image.width;
 		bitmap_data->height = tiff_image.height;
 		bitmap_data->reserved = GBD_OWN_SCAN0;
+		bitmap_data->image_flags |= ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly;
 
 		num_of_pixels = tiff_image.width * tiff_image.height;
 		pixbuf = GdipAlloc(num_of_pixels * sizeof(guint32));
@@ -871,7 +1187,7 @@ gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
 {
 	TIFF *tif = NULL;
 	
-	tif = TIFFClientOpen("lose.tif", "r", (thandle_t) fp, gdip_tiff_fileread, 
+	tif = TIFFClientOpen("<stream>", "r", (thandle_t) fp, gdip_tiff_fileread, 
 				gdip_tiff_filewrite, gdip_tiff_fileseek, gdip_tiff_fileclose, 
 				gdip_tiff_filesize, gdip_tiff_filedummy_map, gdip_tiff_filedummy_unmap);
 	return gdip_load_tiff_image (tif, image);
@@ -907,7 +1223,7 @@ gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 	clientData.closeFunc = closeFunc;
 	clientData.sizeFunc = sizeFunc;
 	
-	tif = TIFFClientOpen("lose.tif", "r", (thandle_t) &clientData, gdip_tiff_read, 
+	tif = TIFFClientOpen("<stream>", "r", (thandle_t) &clientData, gdip_tiff_read, 
 				gdip_tiff_write, gdip_tiff_seek, gdip_tiff_close, 
 				gdip_tiff_size, gdip_tiff_dummy_map, gdip_tiff_dummy_unmap);
 	
@@ -932,7 +1248,7 @@ gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
 	clientData.closeFunc = closeFunc;
 	clientData.sizeFunc = sizeFunc;
 	
-	tiff = TIFFClientOpen("lose.tif", "w", (thandle_t) &clientData, gdip_tiff_read_none, 
+	tiff = TIFFClientOpen("<stream>", "w", (thandle_t) &clientData, gdip_tiff_read_none, 
 			gdip_tiff_write, gdip_tiff_seek, gdip_tiff_close, 
 			gdip_tiff_size, gdip_tiff_dummy_map, gdip_tiff_dummy_unmap);
 	if (!tiff)
@@ -987,5 +1303,4 @@ gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
 {
     return UnknownImageFormat;
 }
-
 #endif

@@ -188,6 +188,56 @@ gdip_bitmapdata_init(BitmapData *data)
 }
 
 GpStatus
+gdip_property_get_short(int offset, void *value, unsigned short *result)
+{
+	unsigned char	*ptr;
+
+	ptr = (unsigned char *)value;
+
+	*result = ptr[0] + (ptr[1] << 8);
+
+	return Ok;
+}
+
+GpStatus
+gdip_property_get_long(int offset, void *value, guint32 *result)
+{
+	unsigned char	*ptr;
+
+	ptr = (unsigned char *)value;
+
+	*result = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16) + (ptr[3] << 24);
+
+	return Ok;
+}
+
+GpStatus
+gdip_property_get_srational(int offset, void *value, unsigned short *numerator, unsigned short *denominator)
+{
+	unsigned char	*ptr;
+
+	ptr = (unsigned char *)value;
+
+	*numerator = ptr[0] + (ptr[1] << 8);
+	*denominator = ptr[2] + (ptr[3] << 8);
+
+	return Ok;
+}
+
+GpStatus
+gdip_property_get_rational(int offset, void *value, guint32 *numerator, guint32 *denominator)
+{
+	unsigned char	*ptr;
+
+	ptr = (unsigned char *)value;
+
+	*numerator = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16) + (ptr[3] << 24);
+	*denominator = ptr[4] + (ptr[5] << 8) + (ptr[6] << 16) + (ptr[7] << 24);
+
+	return Ok;
+}
+
+GpStatus
 gdip_bitmapdata_property_add_long(BitmapData *bitmap_data, PROPID id, guint32 value)
 {
 	unsigned char	buffer[4];

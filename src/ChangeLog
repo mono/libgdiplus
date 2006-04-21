@@ -1,3 +1,19 @@
+2006-04-20  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* tiffcodec.c:
+	  - Added reading and setting of dpi when loading image
+	  - Now distinguishes between images with or without alpha and sets
+	    the appropriate image flags when loading tiff images
+	  - Added ability to save images as RGB instead of ARGB if the flags
+	    indicate it's ok to do so
+	  - Added saving of properties associated with each picture (we now
+	    successfully roundrip images)
+	  - Setting the TIFF Error and Warning handler to NULL to suppress
+	    error and warning output on the console
+	* gdip.h: Added prototypes for property getters
+	* bitmap.c: Implemented property getter helper methods to allow
+	  codecs to easily translate saved properties for saving
+
 2006-04-20  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* tiffcodec.c:
