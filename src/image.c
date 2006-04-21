@@ -738,10 +738,16 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 		status = gdip_save_gif_image_to_file ((unsigned char *)file_name, image);
 		GdipFree (file_name);
 		return status;
+	} else if (format == TIF) { 
+		/* tif library has to open the file itself or seeking will fail when saving multi-page images*/
+		status = gdip_save_tiff_image_to_file ((unsigned char *)file_name, image, params);
+		GdipFree (file_name);
+		return status;
 	}
 	
-	if ((fp = fopen(file_name, "wb")) == NULL)
+	if ((fp = fopen(file_name, "wb")) == NULL) {
 		return GenericError;
+	}
 		
 	GdipFree (file_name);
 	
@@ -755,9 +761,6 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 		case JPEG:
 			status = gdip_save_jpeg_image_to_file (fp, image, params);
 			break;
-		case TIF:
-			status = gdip_save_tiff_image_to_file (fp, image, params);
-			break;		
 		default:
 			status = NotImplemented;
 			break;

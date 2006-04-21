@@ -264,8 +264,8 @@ printf("TIFFCODEC.C: NEED TO SAVE PROPERTIES AS WELL\n");
 			}
 			GdipFree(pixbuf);
 			TIFFWriteDirectory (tiff);
+			page++;
 		}	
-		page++;
 	}
 	TIFFClose (tiff); 		
 	return Ok;
@@ -449,7 +449,7 @@ gdip_load_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
 		gdip_bitmapdata_property_add_ASCII(bitmap_data, PageName, text);
 	}
 
-	if (TIFFGetField(tiff, TIFFTAG_PAGENUMBER, &s)) {
+	if (TIFFGetField(tiff, TIFFTAG_PAGENUMBER, &s, &s2)) {
 		gdip_bitmapdata_property_add_short(bitmap_data, PageNumber, s);
 	}
 
@@ -704,6 +704,50 @@ gdip_load_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
 	return Ok;
 }
 
+#ifndef TIFFTAG_EXIFIFD
+#define	TIFFTAG_EXIFIFD	34665
+#endif
+
+GpStatus
+gdip_save_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
+{
+	int	index;
+
+	unsigned char	*text;
+	uint32	i;
+	uint16	s;
+	uint16	s2;
+	char	c;
+	double	d;
+	float	f;
+	uint16	samples_per_pixel;
+	uint16	bits_per_sample;
+	uint16	planar_configuration;
+	uint16	image_length;
+	uint16	strips_per_image;
+	uint32	rows_per_strip;
+	uint32	tile_length;
+	uint32	tile_width;
+
+	samples_per_pixel = 0;
+	bits_per_sample = 0;
+	planar_configuration = 0;
+	image_length = 0;
+	strips_per_image = 0;
+	rows_per_strip = 0;
+	tile_length = 0;
+	tile_width = 0;
+	i = 0;
+	s = 0;
+	s2 = 0;
+
+	if (gdip_bitmapdata_property_find_id(bitmap_data, Artist, &index) == Ok) {
+		TIFFSetField(tiff, TIFFTAG_ARTIST, bitmap_data->property[index].value);
+	}
+
+	return Ok;
+}
+
 GpStatus 
 gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 {
@@ -833,11 +877,11 @@ gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
 }
 
 GpStatus 
-gdip_save_tiff_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params)
+gdip_save_tiff_image_to_file (unsigned char *filename, GpImage *image, GDIPCONST EncoderParameters *params)
 {	
 	TIFF* tiff;
 	
-	tiff = TIFFFdOpen (fileno (fp), "lose.tif", "w");
+	tiff = TIFFOpen((char *)filename, "w");
 
 	if (!tiff)
 		return FileNotFound;		
@@ -926,7 +970,7 @@ gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 }
 
 GpStatus 
-gdip_save_tiff_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params)
+gdip_save_tiff_image_to_file (unsigned char *filename, GpImage *image, GDIPCONST EncoderParameters *params)
 {
 	return UnknownImageFormat;
 }

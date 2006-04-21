@@ -1,3 +1,17 @@
+2006-04-20  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* tiffcodec.c:
+	  - Switched from passing the file pointer to passing the
+	    filename for saving. Apparently when a FILE is fdreopen()ed
+	    it doesn't seek properly anymore, and we need the ability to
+	    seek when saving multi-file images
+	  - Moved page counter inside page loop
+	  - Added definition for the private Exif IFD tag (for those using
+	    older versions of TIFFLIB)
+	* image.c: We no longer pass a file pointer for saving TIFF files,
+	  instead we pass the target filename
+	* tiffcodec.h: Changed prototype to match tiffcodec.c
+
 2006-04-20  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* gdipImage.h: Fixed typo in tag name
