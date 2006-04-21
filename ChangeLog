@@ -1,3 +1,7 @@
+2006-04-21  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* TODO: Removed newly implemented items from the list
+
 2006-03-29 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* src/image.c: avoid double-freeing Scan0 twice. Fixes bug #77910.

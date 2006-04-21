@@ -43,14 +43,6 @@ GdipDrawImagePointsRect
 GdipDrawImagePointsRectI 
 GdipLoadImageFromStream
 GdipSaveImageToStream
-GdipGetPropertyCount
-GdipGetPropertyIdList
-GdipGetPropertyItemSize
-GdipGetPropertyItem
-GdipGetPropertySize
-GdipRemovePropertyItem
-GdipSetPropertyItem
-GdipGetAllPropertyItems
 GdipSaveAdd
 GdipSaveAddImage 
 
