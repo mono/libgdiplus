@@ -1,3 +1,7 @@
+2006-04-21  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* image.c: Implemented GetPropertyIdList
+
 2006-04-21  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: Fixes to clipping when resetting (resets the clipping

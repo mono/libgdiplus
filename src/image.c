@@ -1491,7 +1491,14 @@ GdipGetPropertyCount (GpImage *image, UINT *propertyNumber)
 GpStatus 
 GdipGetPropertyIdList (GpImage *image, UINT propertyNumber, PROPID *list)
 {
-	return NotImplemented;
+	int	i;
+
+	if ((list == NULL) || (propertyNumber != image->active_bitmap->property_count)) {
+		return InvalidParameter;
+	}
+	for (i = 0; i < propertyNumber; i++) {
+		list[i] = image->active_bitmap->property[i].id;
+	}
 }
 
 GpStatus 
