@@ -47,6 +47,11 @@
 /* Thankfully, libtiff sucks far less than libjpeg */
 #include <tiffio.h>
 
+#ifndef TIFFTAG_EXIFIFD
+#define	TIFFTAG_EXIFIFD	34665
+#endif
+
+
 /* Codecinfo related data*/
 static ImageCodecInfo tiff_codec;
 static const WCHAR tiff_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'T', 'I', 'F', 'F',
@@ -703,10 +708,6 @@ gdip_load_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
 
 	return Ok;
 }
-
-#ifndef TIFFTAG_EXIFIFD
-#define	TIFFTAG_EXIFIFD	34665
-#endif
 
 GpStatus
 gdip_save_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
