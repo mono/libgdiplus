@@ -637,8 +637,8 @@ gdip_save_tiff_properties(TIFF *tiff, BitmapData *bitmap_data, int samples_per_p
 {
 	int		index;
 	unsigned char	*text;
-	uint32		i;
-	uint32		l;
+	guint32		i;
+	guint32		l;
 	int		j;
 	uint16		s;
 	uint16		s2;

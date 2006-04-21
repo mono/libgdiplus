@@ -1,3 +1,9 @@
+2006-04-21 Alexander Olk <alex.olk@googlemail.com>
+
+	* tiffcodec.c: Fixed the build for "older" gcc versions. They don't
+	  like uint32 pointers when they expect guint32 pointers in
+	  gdip_property_get_long
+
 2006-04-21 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* imageattributes.c: don't apply the color matrix to transparent pixels.
