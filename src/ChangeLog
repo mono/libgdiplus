@@ -1,3 +1,8 @@
+2006-04-22 Alexander Olk <alex.olk@googlemail.com>
+
+	* image.c: Fixed build for warning: control reaches end of non-void
+	  function in GdipGetPropertyIdList
+
 2006-04-21  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* bitmap.c (gdip_bitmap_clone_data_rect): Now calculating the size of

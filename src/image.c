@@ -1499,6 +1499,8 @@ GdipGetPropertyIdList (GpImage *image, UINT propertyNumber, PROPID *list)
 	for (i = 0; i < propertyNumber; i++) {
 		list[i] = image->active_bitmap->property[i].id;
 	}
+
+	return Ok;
 }
 
 GpStatus 
