@@ -25,8 +25,8 @@ typedef struct _LineGradient {
 	GpBrush base;
 	ARGB lineColors [2];
 	GpPointF points [2];
-	GpRectF *rectangle;
-	GpMatrix *matrix;
+	GpRectF rectangle;
+	GpMatrix matrix;
 	GpWrapMode wrapMode;
 	float angle;
 	Blend *blend;

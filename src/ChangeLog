@@ -1,3 +1,10 @@
+2006-04-24  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* lineargradientbrush.c: Avoid the unrequired allocations for the 
+	rectangle and the matrix. Avoid multiple convertion of the angle from
+	degrees to radians. Fix angle calculation when the gradient is built
+	from two points.
+
 2006-04-24  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* lineargradientbrush.c: Gradients are now much better looking using
