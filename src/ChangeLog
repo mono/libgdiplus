@@ -1,3 +1,8 @@
+2006-04-24  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* lineargradientbrush.c: Gradients are now much better looking using
+	a patch from Bill Holmes.
+
 2006-04-22 Alexander Olk <alex.olk@googlemail.com>
 
 	* image.c: Fixed build for warning: control reaches end of non-void

@@ -301,7 +301,6 @@ create_tile_linear (GpGraphics *graphics, cairo_t *ct, GpLineGradient *linear)
 	GpStatus status;
 	cairo_pattern_t *pat;
 	cairo_matrix_t matrix;
-	double p1x, p1y, p2x, p2y;
 	GpRectF *rect;
 
 	if (!graphics || !ct || !linear || !linear->rectangle)
@@ -310,22 +309,16 @@ create_tile_linear (GpGraphics *graphics, cairo_t *ct, GpLineGradient *linear)
 	rect = linear->rectangle;
 
 	gdip_cairo_matrix_copy (&matrix, linear->matrix);
-	GdipRotateMatrix (&matrix, linear->angle - 90, MatrixOrderPrepend);
+	status = GdipInvertMatrix (&matrix);
+	if (status != Ok)
+		return status;
 
-	p1x = (rect->X - rect->Width  / 2);
-	p1y = (rect->Y + rect->Height / 2);
-	cairo_matrix_transform_point (&matrix, &p1x, &p1y);
-
-	p2x = rect->Width;
-	p2y = rect->Height;
-	cairo_matrix_transform_distance (&matrix, &p2x, &p2y);
-	p2x += p1x;
-	p2y += p1y;
-
-	pat = cairo_pattern_create_linear (p1x, p1y, p2x, p2y);
+	pat = cairo_pattern_create_linear (rect->X - 1, rect->Y, rect->X + rect->Width + 1, rect->Y);
 	status = gdip_get_pattern_status (pat);
 	if (status != Ok)
 		return status;
+
+	cairo_pattern_set_matrix (pat, &matrix);
 
 	if (linear->blend->count > 1)
 		add_color_stops_from_blend (pat, linear->blend, linear->lineColors);
