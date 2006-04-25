@@ -914,6 +914,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
         
 	result = gdip_bitmap_new_with_frame (NULL, TRUE);
 	result->type = imageBitmap;
+	result->image_format = BMP;
 	result->active_bitmap->pixel_format = format;
 	result->active_bitmap->width = bmi.biWidth;
 	result->active_bitmap->height = bmi.biHeight;
