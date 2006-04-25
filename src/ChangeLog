@@ -1,3 +1,9 @@
+2006-04-24  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* lineargradientbrush.c: Second patch from Bill Holmes (and friends)
+	which redo my complex matrix setup into a simpler one with much better
+	results.
+
 2006-04-24  Sebastien Pouliot  <sebastien@ximian.com> 
  
 	* lineargradientbrush.c: Avoid the unrequired allocations for the 

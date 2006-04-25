@@ -679,70 +679,22 @@ gdip_linear_gradient_setup (GpGraphics *graphics, GpBrush *brush)
 static void
 gdip_linear_gradient_setup_initial_matrix (GpLineGradient *linear)
 {
-	if (linear->angle == 0) {
-		cairo_matrix_init_identity (&linear->matrix);
-	} else {
-		double xx, yx, xy, yy, x0, y0;
-		/* constants */
-		double radians = linear->angle;
-		double h = sqrt (1 - cos (PI - 2 * radians));	/* calculate hypothenus */
+	float transX, transY;
+	float wRatio, hRatio;
+	GpRectF *rectf = &linear->rectangle;
 
-		if (radians < PI / 2) {
-			/* between 0 and 90 degrees */
-			double c = cos (radians);
-			double s = sin (radians);
-			xx = h * sin ((PI / 4) + radians);	/* add 45 degrees */
-			x0 = linear->rectangle.Width * s * s;
-			y0 = -linear->rectangle.Height * s * c;
-		} else if (radians < PI) {
-			/* between 90 and 180 degrees */
-			double c = cos (radians);
-			xx = h * sin (PI - (PI / 4) + radians);	/* add 135 degrees */
-			x0 = linear->rectangle.Width + (linear->rectangle.Width * sin (PI - radians) * cos (PI - radians));
-			y0 = linear->rectangle.Height * c * c;
-		} else if (radians < PI + PI / 2) {
-			double s2 = sin (radians - (PI / 2));
-			xx = h * sin ((PI / 4) + radians);	/* add 45 degrees */
-			x0 = linear->rectangle.Width * s2 * s2;
-			y0 = linear->rectangle.Height + (linear->rectangle.Height * sin (radians) * cos (radians));
-		} else {
-			/* between 90 and 180 degrees */
-			xx = h * sin (PI - (PI / 4) + radians);	/* add 135 degrees */
-			x0 = linear->rectangle.Width * sin (radians) * cos (radians);
-			y0 = linear->rectangle.Height * sin (radians - PI) * sin (radians - PI);
-		}
+	cairo_matrix_init_identity (&linear->matrix);
 
-		/* find the 'y' coordinate of the triangle (using the Pythagorean Theorem) */
-		if (radians < (PI / 4)) {
-			/* between 0 and 45 degrees */
-			yx = 1 - sqrt (h*h - xx*xx);
-		} else if (radians < (PI - PI / 4)) {
-			/* between 45 and 135 degrees */
-			yx = 1 + sqrt (h*h - xx*xx);
-		} else if (radians < PI) {
-			/* between 135 and 180 degrees */
-			yx = 1 - sqrt (h*h - xx*xx);
-		} else if (radians < (PI + PI / 4)) {
-			/* between 180 and 225 degrees */
-			yx = -1 + sqrt (h*h - xx*xx);
-		} else if (radians < (2 * PI - PI / 4)) {
-			/* between 225 and 315 degrees */
-			yx = -1 - sqrt (h*h - xx*xx);
-		} else {
-			/* between 315 and 360 degrees */
-			yx = -1 + sqrt (h*h - xx*xx);
-		}
+	transX = rectf->X + (rectf->Width / 2.0f);
+	transY = rectf->Y + (rectf->Height / 2.0f);
 
-		/*
-		 * Notes
-		 * - if isAngleScalable is True then xx==yy
-		 * - if Width==Height then yx==-xy
-		 */
-		xy = -yx;
-		yy = xx;
+	wRatio = (fabsf (cosf (linear->angle)) * rectf->Width + fabsf (sinf (linear->angle)) * rectf->Height) / rectf->Width;
+	hRatio = (fabsf (sinf (linear->angle)) * rectf->Width + fabsf (cosf (linear->angle)) * rectf->Height) / rectf->Height;
 
-		cairo_matrix_init (&linear->matrix, xx, yx, xy, yy, x0, y0);
-	}
+	cairo_matrix_translate (&linear->matrix, transX, transY);
+	cairo_matrix_rotate (&linear->matrix, linear->angle);
+	cairo_matrix_scale (&linear->matrix, wRatio, hRatio);
+	cairo_matrix_translate (&linear->matrix, -transX, -transY);
 }
 
 static float
@@ -899,7 +851,7 @@ GdipCreateLineBrushFromRectWithAngle (GDIPCONST GpRectF *rect, ARGB color1, ARGB
 	linear->angle = fmod (angle, 360) * DEGTORAD;
 	linear->isAngleScalable = isAngleScalable;
 
-	linear->points [0].X = rect->X - 1;
+	linear->points [0].X = rect->X;
 	linear->points [0].Y = rect->Y;
 	linear->points [1].X = rect->X + rect->Width + 1;
 	linear->points [1].Y = rect->Y;
