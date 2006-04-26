@@ -238,6 +238,9 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	float		height;
 	cairo_pattern_t	*pattern;
 	cairo_pattern_t	*org_pattern;
+	GpMatrix *matrix = NULL;
+	cairo_matrix_t orig_matrix;
+	GpRectF tRect;
 	
 	if ((graphics == NULL) || (image == NULL) || (dstPoints == NULL) || (count != 3)) {
 		return InvalidParameter;
@@ -257,30 +260,29 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 
 	cairo_new_path(graphics->ct);
 
-	width = dstPoints[1].X > dstPoints[0].X ? dstPoints[1].X - dstPoints[0].X : dstPoints[0].X - dstPoints[1].X;
-	height = dstPoints[2].Y > dstPoints[0].Y ? dstPoints[2].Y - dstPoints[0].Y : dstPoints[0].Y - dstPoints[2].Y;
-
 	/* Create a surface for this bitmap if one doesn't exist */
 	gdip_bitmap_ensure_surface (image);
 	pattern = cairo_pattern_create_for_surface (image->surface);
 	cairo_pattern_set_filter (pattern, gdip_get_cairo_filter (graphics->interpolation));
 
-	cairo_translate (graphics->ct, dstPoints[0].X, dstPoints[0].Y);
-
-	/*
-		TODO: Implement rotation
-	*/
-
-	cairo_scale (graphics->ct, (double) width / image->active_bitmap->width, (double) height / image->active_bitmap->height);
+	tRect.X = 0; 
+	tRect.Y = 0; 
+	tRect.Width = image->active_bitmap->width; 
+	tRect.Height = image->active_bitmap->height;
+	GdipCreateMatrix3(&tRect, dstPoints, &matrix);
 	
 	org_pattern = cairo_get_source(graphics->ct);
 	cairo_pattern_reference(org_pattern);
-
+	
+	cairo_get_matrix(graphics->ct, &orig_matrix);
+	cairo_set_matrix (graphics->ct, matrix);
 	cairo_set_source_surface (graphics->ct, image->surface, 0, 0);
-	cairo_identity_matrix (graphics->ct);
+	
 	cairo_paint (graphics->ct);	
 	cairo_set_source(graphics->ct, org_pattern);
+	cairo_set_matrix (graphics->ct, &orig_matrix);
 
+	GdipDeleteMatrix (matrix);
 	cairo_pattern_destroy (pattern);
 	
 	return Ok;

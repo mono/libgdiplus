@@ -1,3 +1,9 @@
+2006-04-26  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* image.c: Patch by Bill Holmes to fix bug #75063. This correctly
+	implement all cases (including rotation) when points are given as 
+	positions to draw an image.
+
 2006-04-26 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* bmpcodec.c: for 32bpp on little endian platforms, we can use memcpy
