@@ -483,11 +483,11 @@ get_angle_from_linear_gradient_mode (LinearGradientMode mode)
 {
 	switch (mode) {
 	case LinearGradientModeVertical:
-		return 90.0;
+		return 90.0 * DEGTORAD;
 	case LinearGradientModeForwardDiagonal:
-		return 45.0;
+		return 45.0 * DEGTORAD;
 	case LinearGradientModeBackwardDiagonal:
-		return 135.0;
+		return 135.0 * DEGTORAD;
 	case LinearGradientModeHorizontal:
 	default:
 		return 0;
