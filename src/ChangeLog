@@ -1,3 +1,10 @@
+2006-04-26 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* bmpcodec.c: for 32bpp on little endian platforms, we can use memcpy
+	here.
+	* bitmap.c: special case for 24bppRgb in LockBits, as
+	gdip_get_pixel_format_bpp returns 32bpp for it. Fixes bug #76193.
+
 2006-04-26  Sebastien Pouliot  <sebastien@ximian.com> 
  
 	* lineargradientbrush.c: Fix some angles that were still in degrees

@@ -1062,13 +1062,15 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 						index = (line * result->active_bitmap->stride);
 						set_pixel_bgra(pixels, index + dest, data_read[src+0], data_read[src+1], data_read[src+2], 0xff);
 						dest += 4;
-
 						src += 3;
 					}
 					continue;
 				}
 
 				case 32: {
+#ifndef WORDS_BIGENDIAN
+					memcpy (pixels + line * result->active_bitmap->stride, data_read, loop);
+#else
 					int	src;
 					int	dest;
 
@@ -1081,6 +1083,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 						dest += 4;
 						src += 4;
 					}
+#endif
 					continue;
 				}
 			}

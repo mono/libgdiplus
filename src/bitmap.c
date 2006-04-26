@@ -1597,7 +1597,9 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 		 *
 		 * Note that pixel streams do not support 48- and 64-bit data at this time.
 		 */
-		*(unsigned int *)state->scan = pixel_value;
+		state->scan [0] = pixel_value & 0x000000ff;
+		state->scan [1] = (pixel_value & 0x0000ff00) >> 8;
+		state->scan [2] = (pixel_value & 0x00ff0000) >> 16;
 
 		state->scan -= state->pixels_per_byte;
 		state->x++;
@@ -1662,11 +1664,14 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 		int	row_bytes;
 		int	stride;
 		void	*dest_scan0;
+		int	pixel_format;
 
 		/* Allocate a buffer on behalf of the caller. */
 		scans = destRect->Y + destRect->Height;
 
-		row_bits = destRect->Width * gdip_get_pixel_format_bpp (destFormat);
+		/* gdip_get_pixel_format_bpp returns 4 for 24 bpp rgb */
+		pixel_format = (destFormat == Format24bppRgb) ? 3 : gdip_get_pixel_format_bpp (destFormat);
+		row_bits = destRect->Width * pixel_format;
 		row_bytes = (row_bits + 7) / 8;
 		stride = (row_bytes + sizeof(pixman_bits_t) - 1) & ~(sizeof(pixman_bits_t) - 1);
 		dest_scan0 = GdipAlloc(stride * scans);
@@ -1867,7 +1872,11 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 	locked_data->reserved |= GBD_OWN_SCAN0;
 	root_data->reserved |= GBD_LOCKED;
 
-	dest_pixel_format_bpp = gdip_get_pixel_format_bpp (format);
+	if (format == Format24bppRgb) {
+		dest_pixel_format_bpp = 24;
+	} else {
+		dest_pixel_format_bpp = gdip_get_pixel_format_bpp (format);
+	}
 	dest_stride = (srcRect->Width * dest_pixel_format_bpp + 7) / 8;
 	dest_size = srcRect->Height * dest_stride;
 
