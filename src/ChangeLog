@@ -1,3 +1,9 @@
+2006-04-26  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* image.c: GdipLoadImageFromFile returns OutOfMemory when a file 
+	format is unkown (like a text file, an EXE...). This makes S.D.
+	throw an OutOfMemoryException (which is MS compatible).
+
 2006-04-26  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* image.c: Patch by Bill Holmes to fix bug #75063. This correctly

@@ -667,9 +667,13 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 		case EXIF:
 		case WMF:
 		case EMF:
-		case ICON:
-		default: {
+		case ICON: {
 			status = NotImplemented;
+			break;
+		}
+
+		default: {
+			status = OutOfMemory;
 			break;
 		}
 	}
