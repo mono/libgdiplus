@@ -551,10 +551,10 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 	} else {
 #ifdef WORDS_BIGENDIAN
 		int j;
-		guchar *row_pointer = GdipAlloc (image->width * 4);
+		guchar *row_pointer = GdipAlloc (image->active_bitmap->width * 4);
 
-		for (i = 0; i < image->height; i++) {
-			for (j = 0; j < image->width; j++) {
+		for (i = 0; i < image->active_bitmap->height; i++) {
+			for (j = 0; j < image->active_bitmap->width; j++) {
 				row_pointer[j*4] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 3);
 				row_pointer[j*4+1] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 2);
 				row_pointer[j*4+2] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 1);
