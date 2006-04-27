@@ -966,26 +966,115 @@ GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
 	return Ok;
 }
 
-/* XXX: This one is really hard. They really translate a string into
-bezier points and what not */
-/* MonoTODO */
+/* MonoTODO - deal with layoutRect, format... */
 GpStatus 
-GdipAddString (GpPath *path, const char *string, int length, 
-                const GpFontFamily *family, int style, float emSize,
-                const GpRectF *layoutRect, const GpStringFormat *format)
+GdipAddString (GpPath *path, GDIPCONST WCHAR *string, int length, 
+	GDIPCONST GpFontFamily *family, int style, float emSize,
+	GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *format)
 {
-	g_warning ("GdipAddString isn't implemented in libgdiplus.");
-	return Ok; //NotImplemented;
+	cairo_surface_t *cs;
+	cairo_t *cr;
+	cairo_path_t *cp;
+	cairo_text_extents_t extents;
+	cairo_matrix_t matrix;
+	GpFont *font = NULL;
+
+	if (length == 0)
+		return Ok;
+	if (length < 0)
+		return InvalidParameter;
+
+	cs = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 1, 1);
+	if (cairo_surface_status (cs) != CAIRO_STATUS_SUCCESS)
+		return OutOfMemory;
+
+	cr = cairo_create (cs);
+	if (cairo_status (cr) != CAIRO_STATUS_SUCCESS) {
+		cairo_surface_destroy (cs);
+		return OutOfMemory;
+	}
+
+	unsigned char *utf8 = (unsigned char *) ucs2_to_utf8 ((const gunichar2 *)string, -1);
+	if (!utf8) {
+		cairo_destroy (cr);
+		cairo_surface_destroy (cs);
+		return OutOfMemory;
+	}
+
+	GdipCreateFont (family, emSize, style, UnitPixel, &font);
+	if (font) {
+		cairo_set_font_face (cr, font->cairofnt);
+		cairo_set_font_size (cr, font->sizeInPixels);
+	}
+
+#if FALSE
+WCHAR name[LF_FACESIZE];
+GdipGetFamilyName (family, name, 0);
+g_warning ("GdipAddString \"%s\" (family: %s, size %g)", utf8, ucs2_to_utf8 ((const gunichar2 *)name, -1), font->sizeInPixels);
+#endif
+	/* TODO - deal with layoutRect, format... ideally we would be calling a subset
+	   of GdipDrawString that already does everything *and* preserve the whole path */
+	cairo_move_to (cr, layoutRect->X, layoutRect->Y + font->sizeInPixels);
+	cairo_text_path (cr, utf8);
+
+	/* get the font data from the cairo path and translate it as a gdi+ path */
+	cp = cairo_copy_path (cr);
+	if (cp) {
+		int i;
+		for (i=0; i < cp->num_data; i += cp->data[i].header.length) {
+			GpPathPointType type = PathPointTypeStart;
+			cairo_path_data_t *data = &cp->data[i];
+
+			if ((i < cp->num_data - 1) && (data->header.type == CAIRO_PATH_CLOSE_PATH))
+				type |= PathPointTypeCloseSubpath;
+
+			switch (data->header.type) {
+			case CAIRO_PATH_MOVE_TO:
+				append (path, data[1].point.x, data[1].point.y, type);
+				break;
+			case CAIRO_PATH_LINE_TO:
+				append (path, data[1].point.x, data[1].point.y, type | PathPointTypeLine);
+				break;
+			case CAIRO_PATH_CURVE_TO:
+				append (path, data[1].point.x, data[1].point.y, PathPointTypeBezier);
+				append (path, data[2].point.x, data[2].point.y, PathPointTypeBezier);
+				append (path, data[3].point.x, data[3].point.y, type | PathPointTypeBezier);
+				break;
+			case CAIRO_PATH_CLOSE_PATH:
+				break;
+			}
+		}
+
+		cairo_path_destroy (cp);
+	}
+
+	if (font) {
+		GdipDeleteFont (font);
+	}
+	GdipFree (utf8);
+	cairo_destroy (cr);
+	cairo_surface_destroy (cs);
+	return Ok;
 }
 
-/* MonoTODO */
+/* MonoTODO - same limitations as GdipAddString */
 GpStatus
-GdipAddStringI (GpPath *path, const char *string, int length,
-                const GpFontFamily *family, int style, float emSize,
-                const GpRect *layoutRect, const GpStringFormat *format)
+GdipAddStringI (GpPath *path, GDIPCONST WCHAR *string, int length,
+	GDIPCONST GpFontFamily *family, int style, float emSize,
+	GDIPCONST GpRect *layoutRect, GDIPCONST GpStringFormat *format)
 {
-	g_warning ("GdipAddStringI isn't implemented in libgdiplus.");
-	return Ok; //NotImplemented;
+	GpRectF *r = NULL;
+
+	if (layoutRect) {
+		GpRectF rect;
+
+		rect.X = layoutRect->X;
+		rect.Y = layoutRect->Y;
+		rect.Width = layoutRect->Width;
+		rect.Height = layoutRect->Height;
+		r = &rect;
+	}
+	return GdipAddString (path, string, length, family, style, emSize, r, format);
 }
 
 GpStatus

@@ -5,7 +5,7 @@
  *      Duncan Mak (duncan@ximian.com)
  *      Ravindra (rkumar@novell.com)
  *
- * Copyright (C) Novell, Inc. 2003.
+ * Copyright (C) 2003, 2006 Novell, Inc (http://www.novell.com)
  */
 
 
@@ -67,6 +67,8 @@ GpStatus GdipAddPathRectanglesI (GpPath *path, const GpRect *rects, int count);
 GpStatus GdipAddPathEllipseI (GpPath *path, int x, int y, int width, int height);
 GpStatus GdipAddPathPieI (GpPath *path, int x, int y, int width, int height, float startAngle, float sweepAngle);
 GpStatus GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count);
+GpStatus GdipAddString (GpPath *path, GDIPCONST WCHAR *string, int length, const GpFontFamily *family, int style, float emSize,const GpRectF *layoutRect, const GpStringFormat *format);
+GpStatus GdipAddStringI (GpPath *path, GDIPCONST WCHAR *string, int length, const GpFontFamily *family, int style, float emSize,const GpRect *layoutRect, const GpStringFormat *format);
 GpStatus GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness);
 GpStatus GdipWindingModeOutline (GpPath *path, GpMatrix *matrix, float flatness);
 GpStatus GdipWidenPath (GpPath *nativePath, GpPen *pen, GpMatrix *matrix, float flatness);

@@ -1,3 +1,11 @@
+2006-04-27  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics-path.h: Add prototypes for GdipAddString and GdipAddStringI
+	* graphics-path.c: Add a basic implementation for GdipAddString[I]
+	which use the path Cairo builds to get the font path outlines. Some
+	options aren't yet supported (e.g. StringFormat) and would require 
+	some refactoring of the DrawString code.
+
 2006-04-26  Sebastien Pouliot  <sebastien@ximian.com> 
  
 	* image.c: GdipLoadImageFromFile returns OutOfMemory when a file 
