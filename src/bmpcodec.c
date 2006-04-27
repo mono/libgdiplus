@@ -1245,10 +1245,10 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
 			for (j = 0; j < image->active_bitmap->width; j++) {
 				row_pointer[j*4] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 3); 
 				row_pointer[j*4+1] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 2); 
-				row_pointer[j*4+2] = *((guchar *)image->active_bitmap->can0 + (image->active_bitmap->stride * i) + (j*4) + 1); 
-				row_pointer[j*4+3] = *((guchar *)image->active_bitmap->can0 + (image->active_bitmap->stride * i) + (j*4) + 0); 
+				row_pointer[j*4+2] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 1); 
+				row_pointer[j*4+3] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 0); 
 			}
-			gdip_write_bmp_data (pointer, row_pointer, image->active_bitmap->tride, useFile);
+			gdip_write_bmp_data (pointer, row_pointer, image->active_bitmap->stride, useFile);
 		}
 		GdipFree (row_pointer);
 	}

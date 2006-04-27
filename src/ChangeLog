@@ -1,7 +1,7 @@
 2006-04-27  Peter Dennis Bartok  <pbartok@novell.com>
 
-	* pngcodec.c: Missed a few vars in BIG_ENDIAN codepath when doing
-	  the image rewrite
+	* pngcodec.c, bmpcodec.c: Missed a few vars in BIG_ENDIAN codepath 
+	  when doing the image rewrite
 
 2006-04-27  Sebastien Pouliot  <sebastien@ximian.com>
 
