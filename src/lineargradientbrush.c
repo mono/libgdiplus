@@ -389,8 +389,8 @@ gdip_linear_gradient_setup_initial_matrix (GpLineGradient *linear)
 	transX = rectf->X + (rectf->Width / 2.0f);
 	transY = rectf->Y + (rectf->Height / 2.0f);
 
-	wRatio = (fabsf (cosf (linear->angle)) * rectf->Width + fabsf (sinf (linear->angle)) * rectf->Height) / rectf->Width;
-	hRatio = (fabsf (sinf (linear->angle)) * rectf->Width + fabsf (cosf (linear->angle)) * rectf->Height) / rectf->Height;
+	wRatio = (fabs (cos (linear->angle)) * rectf->Width + fabs (sin (linear->angle)) * rectf->Height) / rectf->Width;
+	hRatio = (fabs (sin (linear->angle)) * rectf->Width + fabs (cos (linear->angle)) * rectf->Height) / rectf->Height;
 
 	cairo_matrix_translate (&linear->matrix, transX, transY);
 	cairo_matrix_rotate (&linear->matrix, linear->angle);
