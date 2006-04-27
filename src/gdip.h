@@ -1094,8 +1094,8 @@ GpStatus GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int 
 GpStatus GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count);
 GpStatus GdipDrawCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count, float tension);
 GpStatus GdipDrawCurve2I (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count, float tension);
-GpStatus GdipDrawCurve3 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count, int offset, float numOfSegments, float tension);
-GpStatus GdipDrawCurve3I (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count, int offset, float numOfSegments, float tension);
+GpStatus GdipDrawCurve3 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count, int offset, int numOfSegments, float tension);
+GpStatus GdipDrawCurve3I (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count, int offset, int numOfSegments, float tension);
 GpStatus GdipDrawClosedCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count);
 GpStatus GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count);
 GpStatus GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count, float tension);

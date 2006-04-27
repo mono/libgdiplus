@@ -1565,7 +1565,7 @@ GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, f
 }
 
 GpStatus
-GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, int offset, float numOfSegments, float tension)
+GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, int offset, int numOfSegments, float tension)
 {
         GpPointF *tangents;
 
@@ -1598,7 +1598,7 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
 }
 
 GpStatus
-GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, int offset, float numOfSegments, float tension)
+GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, int offset, int numOfSegments, float tension)
 {
 	GpPointF *pf;
 	GpStatus s;

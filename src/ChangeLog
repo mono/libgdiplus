@@ -1,3 +1,9 @@
+2006-04-27  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* gdip.h, graphics.c: Fix prototypes for GdipDrawCurve3 and 
+	GdipDrawCurve3I functions (float to int). The System.Drawing wrappers
+	are correct. This is the first part of Duncan's patch for #76907.
+
 2006-04-27  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics-path.h: Add prototypes for GdipAddString and GdipAddStringI
