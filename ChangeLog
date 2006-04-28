@@ -1,3 +1,8 @@
+2006-04-28  Wade Berrier <wberrier@novell.com>
+
+	* configure.in: Fallback to -config if .pc files are not found for
+	freetype and fontconfig
+
 2006-04-21  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* TODO: Removed newly implemented items from the list

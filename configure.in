@@ -45,8 +45,29 @@ AC_DEFINE(USE_INCLUDED_CAIRO,1,[Use Cairo bundled in libgdiplus])
 #	CAIRO_CFLAGS="`pkg-config --cflags cairo`"
 #fi
 
-GDIPLUS_LIBS="$CAIRO_LIBS `pkg-config --libs glib-2.0 ` `pkg-config freetype2 fontconfig --libs`"
-GDIPLUS_CFLAGS="$CAIRO_CFLAGS `pkg-config --cflags glib-2.0 ` `pkg-config freetype2 fontconfig --cflags`"
+# Fall back to using fontconfig/freetype-config if their .pc is not found
+PKG_CHECK_MODULES(FONTCONFIG, fontconfig,
+	[fontconfig_pkgconfig=yes], [fontconfig_pkgconfig=no])
+if test "x$FONTCONFIG" = "xno"; then
+	AC_PATH_PROG(FONTCONFIG-CONFIG, fontconfig-config, no)
+	if test "x$FONTCONFIG-CONFIG" = "xyes"; then
+		FONTCONFIG_CFLAGS="`fontconfig-config --cflags`"
+		FONTCONFIG_LIBS="`fontconfig-config --libs`"
+	fi
+fi
+
+PKG_CHECK_MODULES(FREETYPE2, freetype2,
+	[freetype2_pkgconfig=yes], freetype2_pkgconfig=no])
+if test "x$FREETYPE2" = "xno"; then
+	AC_PATH_PROG(FREETYPE-CONFIG, freetype-config, no)
+	if test "x$FREETYPE-CONFIG" = "xyes"; then
+		FREETYPE2_CFLAGS="`freetype-config --cflags`"
+		FREETYPE2_LIBS="`freetype-config --libs`"
+	fi
+fi
+
+GDIPLUS_LIBS="$CAIRO_LIBS `pkg-config --libs glib-2.0 ` $FONTCONFIG_LIBS $FREETYPE2_LIBS"
+GDIPLUS_CFLAGS="$CAIRO_CFLAGS `pkg-config --cflags glib-2.0 ` $FONTCONFIG_CFLAGS $FREETYPE2_CFLAGS"
 
 AC_CHECK_HEADERS(byteswap.h)
 
