@@ -1,3 +1,9 @@
+2006-04-27  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Add missing checks in GdipDrawCurve3. Also add a corner
+	case where GdipDrawCurve[2][I] (but not GdipDrawCurve3) functions 
+	allows to draw lines (curves with two points).
+
 2006-04-27  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* pngcodec.c, bmpcodec.c: Missed a few vars in BIG_ENDIAN codepath 

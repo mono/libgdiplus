@@ -1543,24 +1543,36 @@ GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GpPoint *points, int co
 GpStatus
 GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count) 
 {
+	if (count == 2)
+		return GdipDrawLines (graphics, pen, points, count);
+
         return GdipDrawCurve3 (graphics, pen, points, count, 0, count - 1, 0.5f);
 }
 
 GpStatus
 GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count) 
 {
+	if (count == 2)
+		return GdipDrawLinesI (graphics, pen, points, count);
+
         return GdipDrawCurve3I (graphics, pen, points, count, 0, count - 1, 0.5f);
 }
 
 GpStatus
 GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, float tension)
 {
+	if (count == 2)
+		return GdipDrawLines (graphics, pen, points, count);
+
         return GdipDrawCurve3 (graphics, pen, points, count, 0, count - 1, tension);
 }
 
 GpStatus
 GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, float tension)
 {
+	if (count == 2)
+		return GdipDrawLinesI (graphics, pen, points, count);
+
         return GdipDrawCurve3I (graphics, pen, points, count, 0, count - 1, tension);
 }
 
@@ -1576,6 +1588,11 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
+
+	if (numOfSegments < 1)
+		return InvalidParameter;
+	if (offset > count - 3)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
