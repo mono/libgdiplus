@@ -1576,6 +1576,7 @@ GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, f
         return GdipDrawCurve3I (graphics, pen, points, count, 0, count - 1, tension);
 }
 
+/* MonoTODO - numberOfSegments is never used */
 GpStatus
 GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, int offset, int numOfSegments, float tension)
 {
@@ -1614,6 +1615,7 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
         return gdip_get_status (cairo_status (graphics->ct));
 }
 
+/* MonoTODO - numberOfSegments is ignored by GdipDrawCurve3 */
 GpStatus
 GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, int offset, int numOfSegments, float tension)
 {

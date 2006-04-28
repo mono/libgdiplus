@@ -736,15 +736,30 @@ GdipAddPathBeziers (GpPath *path, const GpPointF *points, int count)
 GpStatus
 GdipAddPathCurve (GpPath *path, const GpPointF *points, int count)
 {
-        return GdipAddPathCurve3 (path, points, count, 0, count - 1, 0.5);
+        return GdipAddPathCurve2 (path, points, count, 0.5);
 }
 
 GpStatus
 GdipAddPathCurve2 (GpPath *path, const GpPointF *points, int count, float tension)
 {
-        return GdipAddPathCurve3 (path, points, count, 0, count - 1, tension);
+        GpPointF *tangents;
+
+	/* special case, here we support a curve with 2 points */
+	if (!path || !points || (count < 2))
+		return InvalidParameter;
+		
+	tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
+	if (!tangents)
+		return OutOfMemory;
+
+	append_curve (path, points, tangents, count, CURVE_OPEN);
+
+	GdipFree (tangents);
+
+        return Ok;
 }
 
+/* MonoTODO - numberOfSegments is ignored */
 GpStatus
 GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count, 
         int offset, int numberOfSegments, float tension)
@@ -752,7 +767,10 @@ GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count,
         GpPointF *tangents;
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 	g_return_val_if_fail (points != NULL, InvalidParameter);
-	if (count < 2)
+
+	if (numberOfSegments < 1)
+		return InvalidParameter;
+	if (offset > count - 3)
 		return InvalidParameter;
 
         tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
@@ -1015,7 +1033,7 @@ g_warning ("GdipAddString \"%s\" (family: %s, size %g)", utf8, ucs2_to_utf8 ((co
 	/* TODO - deal with layoutRect, format... ideally we would be calling a subset
 	   of GdipDrawString that already does everything *and* preserve the whole path */
 	cairo_move_to (cr, layoutRect->X, layoutRect->Y + font->sizeInPixels);
-	cairo_text_path (cr, (const char*)utf8);
+	cairo_text_path (cr, utf8);
 
 	/* get the font data from the cairo path and translate it as a gdi+ path */
 	cp = cairo_copy_path (cr);
@@ -1091,6 +1109,9 @@ GdipAddPathLine2I (GpPath* path, const GpPoint *points, int count)
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
 	tmp = int_to_float (points, count);
+	if (!tmp)
+		return OutOfMemory;
+
 	status = GdipAddPathLine2 (path, tmp, count);
 	GdipFree (tmp);
 
@@ -1118,6 +1139,9 @@ GdipAddPathBeziersI (GpPath *path, const GpPoint *points, int count)
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
 	tmp = int_to_float (points, count);
+	if (!tmp)
+		return OutOfMemory;
+
 	s = GdipAddPathBeziers (path, tmp, count);
 
         GdipFree (tmp);
@@ -1128,31 +1152,48 @@ GdipAddPathBeziersI (GpPath *path, const GpPoint *points, int count)
 GpStatus
 GdipAddPathCurveI (GpPath *path, const GpPoint *points, int count)
 {
-        return GdipAddPathCurve3I (path, points, count, 0, count - 1, 0.5);;
+	return GdipAddPathCurve2I (path, points, count, 0.5);
 }
 
 GpStatus
 GdipAddPathCurve2I (GpPath *path, const GpPoint *points, int count, float tension)
 {
-        return GdipAddPathCurve3I (path, points, count, 0, count - 1, tension);
+	GpPointF *pt;
+	Status s;
+
+	if (!points)
+		return InvalidParameter;
+
+	pt = convert_points (points, count);
+	if (!pt)
+		return OutOfMemory;
+
+	/* here we must deal/accept curve with 2 points, GdipAddPathCurve3I doesn't */
+	s = GdipAddPathCurve2 (path, pt, count, tension);
+
+	GdipFree (pt);
+	return s;
 }
 
+/* MonoTODO - numberOfSegments is ignored by GdipAddPathCurve3 */
 GpStatus
 GdipAddPathCurve3I (GpPath *path, const GpPoint *points,
                     int count, int offset, int numberOfSegments, float tension)
 {
-        GpPointF *pt;
-        Status s;
+	GpPointF *pt;
+	Status s;
 
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!points)
+		return InvalidParameter;
 
 	pt = convert_points (points, count);
+	if (!pt)
+		return OutOfMemory;
 
 	s = GdipAddPathCurve3 (path, pt, count, offset, numberOfSegments, tension);
 
-        GdipFree (pt);
-
-        return s;
+	GdipFree (pt);
+	return s;
 }
 
 GpStatus
@@ -1170,6 +1211,8 @@ GdipAddPathClosedCurve2I (GpPath *path, const GpPoint *points, int count, float 
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
 	pt = convert_points (points, count);
+	if (!pt)
+		return OutOfMemory;
 
 	s = GdipAddPathClosedCurve2 (path, pt, count, tension);
 

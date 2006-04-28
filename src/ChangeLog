@@ -1,3 +1,13 @@
+2006-04-27  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics.c: Added MonoTODO because we're not using the 
+	numberOfSegments parameter in GdipDrawCurve3[I] functions.
+	* graphics-path.c: Fixed AddPathCurve* functions to deal (in some 
+	cases) with curve specified with two points (with strangely not the 
+	same behaviour as DrawCurve). Added more checks for memory allocation
+	failures. Added MonoTODO because we're not using the numberOfSegments
+	parameter in GdipAddPathCurve3[I] functions.
+
 2006-04-27  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: Add missing checks in GdipDrawCurve3. Also add a corner
