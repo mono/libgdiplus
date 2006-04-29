@@ -1597,9 +1597,14 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 		 *
 		 * Note that pixel streams do not support 48- and 64-bit data at this time.
 		 */
-		state->scan [0] = pixel_value & 0x000000ff;
-		state->scan [1] = (pixel_value & 0x0000ff00) >> 8;
-		state->scan [2] = (pixel_value & 0x00ff0000) >> 16;
+
+		if (state->pixels_per_byte == -4) {
+			*(unsigned int *)state->scan = pixel_value;
+		} else {
+			state->scan [0] = (pixel_value & 0x000000ff);		/* Blue */
+			state->scan [1] = (pixel_value & 0x0000ff00) >> 16;	/* Green */
+			state->scan [2] = (pixel_value & 0x00ff0000) >> 24;	/* Red */
+		}
 
 		state->scan -= state->pixels_per_byte;
 		state->x++;
@@ -1667,7 +1672,7 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 		int	pixel_format;
 
 		/* Allocate a buffer on behalf of the caller. */
-		scans = destRect->Y + destRect->Height;
+		scans = destRect->Y + destRect->Height;		/* FIXME - shouldn't this be destRect->Height - destRect->Y ?*/
 
 		/* gdip_get_pixel_format_bpp returns 4 for 24 bpp rgb */
 		pixel_format = (destFormat == Format24bppRgb) ? 3 : gdip_get_pixel_format_bpp (destFormat);

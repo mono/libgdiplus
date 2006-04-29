@@ -1,3 +1,9 @@
+2006-04-29  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* bitmap.c (gdip_pixel_stream_set_next): The previous 24bit patch
+	  ignored that for 32bit copies we need to fill 4 bytes and the first
+	  is not blue, but the alpha value, everything is shifted one byte.
+
 2006-04-29  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* tiffcodec.c: Added a workaround for a broken TIFF I've encountered
