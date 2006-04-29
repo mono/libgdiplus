@@ -418,13 +418,21 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 				}
 
 				case COMMENT_EXT_FUNC_CODE: {
-					int	index;
+					int		index;
+					unsigned char	*text;
 
 					/* Per-image comments override global */
 					if (gdip_bitmapdata_property_find_id(bitmap_data, ExifUserComment, &index) == Ok) {
 						gdip_bitmapdata_property_remove_index(bitmap_data, index);
 					}
-					gdip_bitmapdata_property_add_ASCII(bitmap_data, ExifUserComment, (unsigned char *)eb.Bytes);
+					/* String is not null terminated */
+					text = (unsigned char *)GdipAlloc(eb.ByteCount + 1);
+					if (text != NULL) {
+						memcpy(text, eb.Bytes, eb.ByteCount);
+						text[eb.ByteCount] = '\0';
+						gdip_bitmapdata_property_add_ASCII(bitmap_data, ExifUserComment, text);
+						GdipFree(text);
+					}
 					break;
 				}
 

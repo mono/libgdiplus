@@ -1,3 +1,9 @@
+2006-04-29  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* gifcodec.c: Comments are not null-terminated, we need
+	  to copy the string into a buffer with a null terminator before
+	  storing them in our properties (Fixes #78181)
+
 2006-04-29  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* font.c: gdip_cairo_ft_font_lock_face can return NULL is some cases,
