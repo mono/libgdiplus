@@ -300,7 +300,7 @@ gdip_load_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
 		gdip_bitmapdata_property_add_short(bitmap_data, FillOrder, s);
 	}
 
-	if (TIFFGetField(tiff, TIFFTAG_GROUP3OPTIONS, &i)) {
+	if (TIFFGetField(tiff, TIFFTAG_GROUP3OPTIONS, &i, &i)) {
 		gdip_bitmapdata_property_add_long(bitmap_data, T4Option, i);
 	}
 
