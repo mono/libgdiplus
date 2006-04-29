@@ -1,3 +1,11 @@
+2006-04-29  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* font.c: gdip_cairo_ft_font_lock_face can return NULL is some cases,
+	like when the file fonts.conf is missing. We now check for the NULL
+	value eveywhere the lock is used and issue a warning (console) about
+	the failure. Fix bug #78237.
+	* graphics.c: Check for NULL from gdip_cairo_ft_font_lock_face.
+
 2006-04-27  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics.c: Added MonoTODO because we're not using the 

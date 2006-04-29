@@ -2076,6 +2076,8 @@ CalculateStringWidthsUTF8 (cairo_t *ct, GDIPCONST GpFont *gdiFont, const unsigne
 
 	Font = (cairo_font_face_t *)gdiFont->cairofnt;
 	face = gdip_cairo_ft_font_lock_face(Font);
+	if (!face)
+		return 0;
 
         cairo_get_font_matrix(ct, &matrix);	
 	cairo_matrix_scale(&matrix, gdiFont->sizeInPixels, gdiFont->sizeInPixels);

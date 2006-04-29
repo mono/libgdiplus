@@ -371,6 +371,15 @@ gdip_cairo_ft_font_lock_face (cairo_font_face_t *cairofnt, cairo_scaled_font_t *
 					      &matrix1,
 					      &matrix2,
 					      options);
+	/* a missing fonts.conf will resuls in a NULL *scaled_ft (#78237) */
+	if (!*scaled_ft) {
+		static int flag = 0;
+		if (flag == 0) {
+			g_warning ("couldn't lock the font face. this may be due to a missing fonts.conf on the system.");
+			flag = 1;
+		}
+		return NULL;
+	}
 
 	face = cairo_ft_scaled_font_lock_face (*scaled_ft);
 
@@ -407,16 +416,15 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHei
 		TT_VertHeader *pVert;
 
 		face = gdip_cairo_ft_font_lock_face (font->cairofnt, &scaled_ft);
-
-		pVert = FT_Get_Sfnt_Table(face, ft_sfnt_vhea);
-		if (pVert) {
-			rslt = pVert->yMax_Extent;
-		} else if (face) {
-			rslt = face->units_per_EM;
-		} else {
-			rslt = 0;
+		if (face) {
+			pVert = FT_Get_Sfnt_Table(face, ft_sfnt_vhea);
+			if (pVert) {
+				rslt = pVert->yMax_Extent;
+			} else if (face) {
+				rslt = face->units_per_EM;
+			}
+			gdip_cairo_ft_font_unlock_face (scaled_ft);
 		}
-		gdip_cairo_ft_font_unlock_face(scaled_ft);
 		GdipDeleteFont (font);
 	}
 
@@ -447,13 +455,13 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Cel
 		TT_HoriHeader *pHori;
 
 		face = gdip_cairo_ft_font_lock_face (font->cairofnt, &scaled_ft);
+		if (face) {
+			pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
+			if (pHori)
+				rslt = pHori->Ascender;
 
-		pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
-
-		if (pHori)
-			rslt = pHori->Ascender;
-
-		gdip_cairo_ft_font_unlock_face(scaled_ft);
+			gdip_cairo_ft_font_unlock_face (scaled_ft);
+		}
 		GdipDeleteFont (font);
 	}
 
@@ -484,13 +492,13 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Ce
 		TT_HoriHeader* pHori;
 
 		face = gdip_cairo_ft_font_lock_face (font->cairofnt, &scaled_ft);
+		if (face) {
+			pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
+			if (pHori)
+				rslt = -pHori->Descender;
 
-		pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
-
-		if (pHori)
-			rslt = -pHori->Descender;
-
-		gdip_cairo_ft_font_unlock_face(scaled_ft);
+			gdip_cairo_ft_font_unlock_face (scaled_ft);
+		}
 		GdipDeleteFont (font);
 	}
 
@@ -521,17 +529,16 @@ GdipGetLineSpacing (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Li
 		TT_HoriHeader *pHori;
 
 		face = gdip_cairo_ft_font_lock_face (font->cairofnt, &scaled_ft);
+		if (face) {
+			pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
+			if (pHori) {
+				rslt = pHori->Ascender + (-pHori->Descender) + pHori->Line_Gap;
+			} else if (face) {
+				rslt = face->height;
+			}
 
-		pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
-		if (pHori) {
-			rslt = pHori->Ascender + (-pHori->Descender) + pHori->Line_Gap;
-		} else if (face) {
-			rslt = face->height;
-		} else {
-			rslt = 0;
+			gdip_cairo_ft_font_unlock_face(scaled_ft);
 		}
-
-		gdip_cairo_ft_font_unlock_face(scaled_ft);
 		GdipDeleteFont (font);
 	}
 
