@@ -383,6 +383,9 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		result->active_bitmap->dpi_vert = 0;
 	}
 
+	/* This is a hack for PDN and must go once we support real properties in PNG */
+	gdip_bitmapdata_property_add_ASCII(result->active_bitmap, ExifUserComment, (unsigned char *)"Comment");
+
 	*image = result;
 
 	return Ok;

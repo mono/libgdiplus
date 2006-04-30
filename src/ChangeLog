@@ -1,3 +1,8 @@
+2006-04-29  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* pngcodec.c: Returning fake comment (for pdn) until we read
+	  real properties in png
+
 2006-04-29  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* bitmap.c (gdip_pixel_stream_set_next): The previous 24bit patch
