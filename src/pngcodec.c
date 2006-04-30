@@ -355,6 +355,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		/* Make sure transparency is respected. */
 		if (info_ptr->num_trans > 0) {
 			palette->Flags |= PaletteFlagsHasAlpha;
+			colourspace_flag |= ImageFlagsHasAlpha;
 
 			if (info_ptr->num_trans > info_ptr->num_palette) {
 				info_ptr->num_trans = info_ptr->num_palette;

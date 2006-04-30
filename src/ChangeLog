@@ -1,3 +1,7 @@
+2006-04-30  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* pngcodec.c: Make sure the alpha bit makes it over to the bitmapdata
+
 2006-04-30  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* pngcodec.c: We were handling transparency wrong. The transtable
