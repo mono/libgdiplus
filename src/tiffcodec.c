@@ -559,14 +559,35 @@ gdip_load_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
 					ptr[i + 1] = g[i];
 					ptr[i + 2] = b[i];
 				}
-				gdip_bitmapdata_property_add(bitmap_data, TransferFunction, 6 * (sizeof(uint32) + sizeof(uint32)), TypeRational, buffer);
+				gdip_bitmapdata_property_add(bitmap_data, TransferFunction,3 * (1 << samples_per_pixel) *  sizeof(uint16), TypeShort, buffer);
 				GdipFree(buffer);
 			}
 		}
 	}
 
-	if (TIFFGetField(tiff, TIFFTAG_WHITEPOINT, &f)) {
-		gdip_bitmapdata_property_add_rational(bitmap_data, WhitePoint, f * 1000000, 1000000);
+	{
+		float *whitepoints;
+
+		if (TIFFGetField(tiff, TIFFTAG_WHITEPOINT, &whitepoints)) {
+			unsigned char	*buffer;
+			uint32		*ptr;
+
+			buffer = GdipAlloc(2 * (sizeof(uint32) + sizeof(uint32)));
+			if (buffer != NULL)  {
+				ptr = (uint32 *)buffer;
+
+				ptr[0] = whitepoints[0] * 1000000;
+				ptr[1] = 1000000;
+
+				ptr[2] = whitepoints[1] * 1000000;
+				ptr[3] = 1000000;
+
+				gdip_bitmapdata_property_add(bitmap_data, TransferFunction, 2 * (sizeof(uint32) + sizeof(uint32)), TypeRational, buffer);
+				GdipFree(buffer);
+			}
+
+			gdip_bitmapdata_property_add_rational(bitmap_data, WhitePoint, whitepoints[0] * 1000000, 1000000);
+		}
 	}
 
 	if (TIFFGetField(tiff, TIFFTAG_XPOSITION, &f)) {

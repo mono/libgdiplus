@@ -1,3 +1,16 @@
+2006-04-29  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* pngcodec.c: Added reading of select png properties. I might have
+	  missed some additional we can support, but for the images I had for
+	  testing we return all the same properties as MS. Still need to
+	  add saving so we can roundtrip. This replaces the previous hack
+	* bitmap.c (gdip_bitmapdata_property_add_short): Fixed to match
+	  other xxx_add_xxx methods, removed length and pointer requirement
+	* gdip.h: Updated prototype
+	* tiffcodec: 
+	  - Fixed whitepoint reading; we were only readying X
+	  - Fixed storage type and size for TransferFunction
+
 2006-04-29  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* pngcodec.c: Returning fake comment (for pdn) until we read

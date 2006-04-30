@@ -1036,7 +1036,7 @@ GpStatus	gdip_property_get_long(int offset, void *value, guint32 *result);
 GpStatus	gdip_property_get_srational(int offset, void *value, unsigned short *numerator, unsigned short *denominator);
 GpStatus	gdip_property_get_rational(int offset, void *value, guint32 *numerator, guint32 *denominator);
 GpStatus	gdip_bitmapdata_property_add(BitmapData *bitmap_data, PROPID id, ULONG length, WORD type, VOID *value);
-GpStatus	gdip_bitmapdata_property_add_byte(BitmapData *bitmap_data, PROPID id, int num_of_values, unsigned char *value);
+GpStatus	gdip_bitmapdata_property_add_byte(BitmapData *bitmap_data, PROPID id, byte value);
 GpStatus	gdip_bitmapdata_property_add_short(BitmapData *bitmap_data, PROPID id, unsigned short value);
 GpStatus	gdip_bitmapdata_property_add_long(BitmapData *bitmap_data, PROPID id, guint32 value);
 GpStatus	gdip_bitmapdata_property_add_ASCII(BitmapData *bitmap_data, PROPID id, unsigned char *value);

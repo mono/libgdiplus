@@ -257,9 +257,9 @@ gdip_bitmapdata_property_add_ASCII(BitmapData *bitmap_data, PROPID id, unsigned 
 }
 
 GpStatus
-gdip_bitmapdata_property_add_byte(BitmapData *bitmap_data, PROPID id, int num_of_values, unsigned char *value)
+gdip_bitmapdata_property_add_byte(BitmapData *bitmap_data, PROPID id, byte value)
 {
-	return gdip_bitmapdata_property_add(bitmap_data, id, num_of_values, TypeByte, value);
+	return gdip_bitmapdata_property_add(bitmap_data, id, 1, TypeByte, &value);
 }
 
 GpStatus

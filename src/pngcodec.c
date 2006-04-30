@@ -105,6 +105,119 @@ _gdip_png_stream_flush_data (png_structp png_ptr)
     /* nothing */
 }
 
+GpStatus
+gdip_load_png_properties(png_structp png_ptr, png_infop info_ptr, png_infop end_ptr, BitmapData *bitmap_data)
+{
+
+#if defined(PNG_INCH_CONVERSIONS) && defined(PNG_FLOATING_POINT_SUPPORTED)
+	bitmap_data->image_flags |= ImageFlagsHasRealDPI;
+	bitmap_data->dpi_horz = png_get_x_pixels_per_inch(png_ptr, info_ptr);
+	bitmap_data->dpi_vert = png_get_y_pixels_per_inch(png_ptr, info_ptr);
+#endif
+
+#if defined(PNG_iCCP_SUPPORTED)
+	{
+		png_charp	name;
+		png_charp	profile;
+		png_uint_32	proflen;
+		int		compression_type;
+
+		if (png_get_iCCP(png_ptr, info_ptr, &name, &compression_type, &profile, &proflen)) {
+			gdip_bitmapdata_property_add_ASCII(bitmap_data, ICCProfileDescriptor, (unsigned char *)name);
+			gdip_bitmapdata_property_add_byte(bitmap_data, ICCProfile, (byte)compression_type);
+		}
+	}
+#endif
+
+#if defined(PNG_gAMA_SUPPORTED)
+	{
+		double	gamma;
+
+		if (png_get_gAMA(png_ptr, info_ptr, &gamma)) {
+			gdip_bitmapdata_property_add_rational(bitmap_data, Gamma, 100000, gamma * 100000);
+		}
+	}
+#endif
+
+#if defined(PNG_cHRM_SUPPORTED)
+	{
+		double	white_x;
+		double	white_y;
+		double	red_x;
+		double	red_y;
+		double	green_x;
+		double	green_y;
+		double	blue_x;
+		double	blue_y;
+
+		if (png_get_cHRM(png_ptr, info_ptr, &white_x, &white_y, &red_x, &red_y, &green_x, &green_y, &blue_x, &blue_y)) {
+			unsigned char	*buffer;
+			guint32		*ptr;
+
+			buffer = GdipAlloc(6 * (sizeof(png_uint_32) + sizeof(png_uint_32)));
+			if (buffer != NULL)  {
+				ptr = (guint32 *)buffer;
+
+				ptr[0] = (guint32)(red_x * 100000);
+				ptr[1] = 1000000;
+				ptr[2] = (guint32)(red_y * 100000);
+				ptr[3] = 100000;
+
+				ptr[4] = (guint32)(green_x * 100000);
+				ptr[5] = 1000000;
+				ptr[6] = (guint32)(green_y * 100000);
+				ptr[7] = 100000;
+
+				ptr[8] = (guint32)(blue_x * 100000);
+				ptr[9] = 100000;
+				ptr[10] = (guint32)(blue_y * 100000);
+				ptr[11] = 100000;
+
+				gdip_bitmapdata_property_add(bitmap_data, PrimaryChromaticities, 6 * (sizeof(guint32) + sizeof(guint32)), TypeRational, buffer);
+
+				ptr[0] = (guint32)(white_x * 100000);
+				ptr[1] = 1000000;
+				ptr[2] = (guint32)(white_y * 100000);
+				ptr[3] = 100000;
+				gdip_bitmapdata_property_add(bitmap_data, WhitePoint, 2 * (sizeof(guint32) + sizeof(guint32)), TypeRational, buffer);
+
+
+				GdipFree(buffer);
+			}
+		}
+	}
+#endif
+
+#if defined(PNG_pHYs_SUPPORTED)
+	{
+		int		unit_type;
+		png_uint_32	res_x;
+		png_uint_32	res_y;
+
+		if (png_get_pHYs(png_ptr, info_ptr, &res_x, &res_y, &unit_type)) {
+			gdip_bitmapdata_property_add_byte(bitmap_data, PixelUnit, (byte)unit_type);
+			gdip_bitmapdata_property_add_long(bitmap_data, PixelPerUnitX, res_x);
+			gdip_bitmapdata_property_add_long(bitmap_data, PixelPerUnitY, res_y);
+		}
+	}
+#endif
+
+#if defined(PNG_TEXT_SUPPORTED)
+	{
+		int		num_text;
+		png_textp	text_ptr;
+
+		if (png_get_text(png_ptr, info_ptr, &text_ptr, &num_text)) {
+			if (num_text > 0) {
+				gdip_bitmapdata_property_add_ASCII(bitmap_data, ExifUserComment, (unsigned char *)text_ptr[0].text);
+			}
+		}
+	}
+#endif
+
+	return Ok;
+}
+
 GpStatus 
 gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc, GpImage **image)
 {
@@ -252,7 +365,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			}
 		}
 
-		png_destroy_read_struct (&png_ptr, &info_ptr, &end_info_ptr);
 
 		result = gdip_bitmap_new_with_frame (&gdip_image_frameDimension_page_guid, TRUE);
 		result->type = imageBitmap;
@@ -350,8 +462,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 				break;
 		}
 
-		png_destroy_read_struct (&png_ptr, &info_ptr, &end_info_ptr);
-
 		result = gdip_bitmap_new_with_frame (&gdip_image_frameDimension_page_guid, TRUE);
 		result->type = imageBitmap;
 
@@ -383,8 +493,8 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		result->active_bitmap->dpi_vert = 0;
 	}
 
-	/* This is a hack for PDN and must go once we support real properties in PNG */
-	gdip_bitmapdata_property_add_ASCII(result->active_bitmap, ExifUserComment, (unsigned char *)"Comment");
+	gdip_load_png_properties(png_ptr, info_ptr, end_info_ptr, result->active_bitmap);
+	png_destroy_read_struct (&png_ptr, &info_ptr, &end_info_ptr);
 
 	*image = result;
 
