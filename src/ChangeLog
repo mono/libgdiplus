@@ -1,3 +1,9 @@
+2006-04-30  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* pngcodec.c: We were handling transparency wrong. The transtable
+	  runs alongside the palette (but possibly shorter), providing
+	  the alpha value for the corresponding palette entry
+
 2006-04-29  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* pngcodec.c: Added reading of select png properties. I might have

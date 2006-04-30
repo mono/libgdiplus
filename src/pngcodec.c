@@ -356,12 +356,16 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		if (info_ptr->num_trans > 0) {
 			palette->Flags |= PaletteFlagsHasAlpha;
 
-			for (i=0; i < info_ptr->num_trans; i++) {
-				int transparent_index = info_ptr->trans[i];
+			if (info_ptr->num_trans > info_ptr->num_palette) {
+				info_ptr->num_trans = info_ptr->num_palette;
+			}
 
-				if (transparent_index < num_colours) {
-					palette->Entries[i] = 0; /* 0 has an alpha value of 0x00 */
-				}
+			for (i=0; i < info_ptr->num_trans; i++) {
+				set_pixel_bgra(&palette->Entries[i], 0,
+						info_ptr->palette[i].blue,
+						info_ptr->palette[i].green,
+						info_ptr->palette[i].red,
+						info_ptr->trans[i]); /* alpha */
 			}
 		}
 
