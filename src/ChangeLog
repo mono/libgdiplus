@@ -1,3 +1,12 @@
+2006-04-30  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* image.c: If an attribute changes scan0, it will (now) also change
+	  the pixel_format. Save the original so we can properly restore
+	  when done.
+	* imageattributes.c: Set the pixel_format of our work-bitmap to
+	  32bppArgb (since most our methods need alpha and the provided
+	  format might not have alpha)
+
 2006-04-30  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* pngcodec.c: Make sure the alpha bit makes it over to the bitmapdata

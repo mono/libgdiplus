@@ -95,7 +95,7 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 	if (image->type != imageBitmap) {
 		return NotImplemented;
 	}
-	
+
 	surface = cairo_image_surface_create_for_data ((unsigned char *) image->active_bitmap->scan0, image->cairo_format,
 				image->active_bitmap->width, image->active_bitmap->height, image->active_bitmap->stride);
 
@@ -342,6 +342,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	cairo_matrix_t	mat;
 	void		*dest;
 	void		*org;
+	int		org_format;
 	bool		allocated = FALSE;
 	
 	if ((graphics == NULL) || (image == NULL) || (image->type != imageBitmap)) {
@@ -377,6 +378,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	}
 
 	org = dest = image->active_bitmap->scan0; 
+	org_format = image->active_bitmap->pixel_format;
 	gdip_process_bitmap_attributes (image, &dest, (GpImageAttributes *) imageAttributes, &allocated);
 
 	/*  If allocated is true we have a newly allocated and altered Scan0 in dest */
@@ -535,6 +537,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 
 	if (allocated) {
 		image->active_bitmap->scan0 = org;
+		image->active_bitmap->pixel_format = org_format;
 		GdipFree (dest);
 	}
 	

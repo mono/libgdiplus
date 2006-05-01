@@ -120,6 +120,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	if (colormap->colormap_elem || gamma->gamma_correction || trans->key_enabled || 
 	    (cmatrix->colormatrix_enabled && cmatrix->colormatrix != NULL)) {
+		bitmap->active_bitmap->pixel_format = Format32bppArgb;
 		bmpdest = gdip_bitmap_new_with_frame(NULL, FALSE);
 		gdip_bitmapdata_clone(bitmap->active_bitmap, &bmpdest->frames[0].bitmap, 1);
 		bmpdest->frames[0].count = 1;
@@ -351,10 +352,10 @@ GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType t
         ARGB colorLow, ARGB colorHigh)
 {
 	GpImageAttribute *imgattr;
-		
+
 	if (!imageattr)
 		return InvalidParameter;
-		
+
 	imgattr = gdip_get_image_attribute (imageattr, type);
 	
 	if (!imgattr)
