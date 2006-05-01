@@ -85,7 +85,7 @@ _gdip_png_stream_read_data (png_structp png_ptr, png_bytep data, png_size_t leng
 	bytesRead = 0;
 	while (bytesRead != length) {
 		res = getBytesFunc (data + bytesRead, length - bytesRead, 0);
-		if (res < 0) {
+		if (res <= 0) {
 			png_error(png_ptr, "Read failed");
 		}
 		bytesRead += res;

@@ -1,10 +1,15 @@
+2006-05-01 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* pngcodec.c: don't loop forever on truncated images. Fixes bug #78213.
+	Patch by Pavel Sakowski.
+
 2006-05-01  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics.c: Updated and completed Duncan's patch for #76907. We now
 	support the offset and numOfSegments parameters of GdipAddPathCurve3.
 
 2006-05-01  Sebastien Pouliot  <sebastien@ximian.com>
- 
+
 	* graphics.c: Updated and completed Duncan's patch for #76907. We now
 	support the offset and numOfSegments parameters of GdipDrawCurve3.
 	* lineargradientbrush.c: Applied patch for #78179 from Bill Holmes
