@@ -1,5 +1,7 @@
-2006-05-01  Sebastien Pouliot  <sebastien@ximian.com> 
-
+2006-05-01  Sebastien Pouliot  <sebastien@ximian.com>
+ 
+	* graphics.c: Updated and completed Duncan's patch for #76907. We now
+	support the offset and numOfSegments parameters of GdipDrawCurve3.
 	* lineargradientbrush.c: Applied patch for #78179 from Bill Holmes
 	which fixes gradients created using 2 points (and not a rectangle).
 	Also removed two (now) unused functions in the source code.

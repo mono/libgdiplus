@@ -1442,40 +1442,48 @@ GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GpRect *rects, int count)
 }
 
 static void
-make_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int count, _CurveType type, float aa_offset_x, float aa_offset_y)
+make_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int offset, int length,
+	_CurveType type, float aa_offset_x, float aa_offset_y)
 {
-        int i, length = count;
+        int i;
 
-        if (count <= 0)
-                return;
+	cairo_move_to (graphics->ct, points [offset].X + aa_offset_x, points [offset].Y + aa_offset_y);
+	for (i = offset; i < offset + length; i++) {
+		int j = i + 1;
 
-        /* don't close to the curve if it's an open curve */
-        if (type == CURVE_OPEN)
-                length = count - 1;
-        
-        cairo_move_to (graphics->ct,
-                        points [0].X + aa_offset_x, points [0].Y + aa_offset_y);
+		double x1 = points [i].X + tangents [i].X;
+		double y1 = points [i].Y + tangents [i].Y;
 
-        for (i = 1; i <= length; i++) {
-                int j = i - 1;
-                int k = (i < count) ? i : 0;
+		double x2 = points [j].X - tangents [j].X;
+		double y2 = points [j].Y - tangents [j].Y;
 
-                double x1 = gdip_unitx_convgr (graphics, points [j].X + tangents [j].X);
-                double y1 = gdip_unity_convgr (graphics, points [j].Y + tangents [j].Y);
+		double x3 = points [j].X;
+		double y3 = points [j].Y;
 
-                double x2 = gdip_unitx_convgr (graphics, points [k].X - tangents [k].X);
-                double y2 = gdip_unity_convgr (graphics, points [k].Y - tangents [k].Y);
-
-                double x3 = gdip_unitx_convgr (graphics, points [k].X);
-                double y3 = gdip_unity_convgr (graphics, points [k].Y);
-
-                cairo_curve_to (
-                        graphics->ct,
-                        x1 + aa_offset_x, y1 + aa_offset_y, x2 + aa_offset_x, y2 + aa_offset_y, x3 + aa_offset_x, y3 + aa_offset_y);
+		cairo_curve_to (graphics->ct,
+			x1 + aa_offset_x, y1 + aa_offset_y,
+			x2 + aa_offset_x, y2 + aa_offset_y,
+			x3 + aa_offset_x, y3 + aa_offset_y);
         }
 
-        if (type == CURVE_CLOSE)
+        if (type == CURVE_CLOSE) {
+		/* complete (close) the curve using the first point */
+		double x1 = points [i].X + tangents [i].X;
+		double y1 = points [i].Y + tangents [i].Y;
+
+		double x2 = points [0].X - tangents [0].X;
+		double y2 = points [0].Y - tangents [0].Y;
+
+		double x3 = points [0].X;
+		double y3 = points [0].Y;
+
+		cairo_curve_to (graphics->ct,
+			x1 + aa_offset_x, y1 + aa_offset_y,
+			x2 + aa_offset_x, y2 + aa_offset_y,
+			x3 + aa_offset_x, y3 + aa_offset_y);
+
                 cairo_close_path (graphics->ct);
+	}
 }
 
 GpStatus
@@ -1507,7 +1515,7 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int co
 	 * should have it set already.
 	 */
 	tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
-	make_curve (graphics, points, tangents, count, CURVE_CLOSE, graphics->aa_offset_x, graphics->aa_offset_y);
+	make_curve (graphics, points, tangents, 0, count - 1, CURVE_CLOSE, graphics->aa_offset_x, graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -1543,40 +1551,47 @@ GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GpPoint *points, int co
 GpStatus
 GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count) 
 {
-	if (count == 2)
+	if (count == 2) {
 		return GdipDrawLines (graphics, pen, points, count);
-
-        return GdipDrawCurve3 (graphics, pen, points, count, 0, count - 1, 0.5f);
+	} else {
+		int segments = (count > 3) ? (count - 1) : (count - 2);
+	        return GdipDrawCurve3 (graphics, pen, points, count, 0, segments, 0.5f);
+	}
 }
 
 GpStatus
 GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count) 
 {
-	if (count == 2)
+	if (count == 2) {
 		return GdipDrawLinesI (graphics, pen, points, count);
-
-        return GdipDrawCurve3I (graphics, pen, points, count, 0, count - 1, 0.5f);
+	} else {
+		int segments = (count > 3) ? (count - 1) : (count - 2);
+	        return GdipDrawCurve3I (graphics, pen, points, count, 0, segments, 0.5f);
+	}
 }
 
 GpStatus
 GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, float tension)
 {
-	if (count == 2)
+	if (count == 2) {
 		return GdipDrawLines (graphics, pen, points, count);
-
-        return GdipDrawCurve3 (graphics, pen, points, count, 0, count - 1, tension);
+	} else {
+		int segments = (count > 3) ? (count - 1) : (count - 2);
+	        return GdipDrawCurve3 (graphics, pen, points, count, 0, segments, tension);
+	}
 }
 
 GpStatus
 GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, float tension)
 {
-	if (count == 2)
+	if (count == 2) {
 		return GdipDrawLinesI (graphics, pen, points, count);
-
-        return GdipDrawCurve3I (graphics, pen, points, count, 0, count - 1, tension);
+	} else {
+		int segments = (count > 3) ? (count - 1) : (count - 2);
+	        return GdipDrawCurve3I (graphics, pen, points, count, 0, segments, tension);
+	}
 }
 
-/* MonoTODO - numberOfSegments is never used */
 GpStatus
 GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, int offset, int numOfSegments, float tension)
 {
@@ -1592,14 +1607,19 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
 
 	if (numOfSegments < 1)
 		return InvalidParameter;
-	if (offset > count - 3)
+
+	/* we need 3 points for the first curve, 2 more for each curves */
+	/* and it's possible to use a point prior to the offset (to calculate) */
+	if ((offset == 0) && (numOfSegments == 1) && (count < 3))
+		return InvalidParameter;
+	else if (numOfSegments >= count - offset)
 		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
         tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
-        make_curve (graphics, points, tangents, count, CURVE_OPEN, graphics->aa_offset_x, graphics->aa_offset_y);
+	make_curve (graphics, points, tangents, offset, numOfSegments, CURVE_OPEN, graphics->aa_offset_x, graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
 	gdip_pen_setup (graphics, pen);
@@ -1615,7 +1635,6 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
         return gdip_get_status (cairo_status (graphics->ct));
 }
 
-/* MonoTODO - numberOfSegments is ignored by GdipDrawCurve3 */
 GpStatus
 GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, int offset, int numOfSegments, float tension)
 {
@@ -1941,7 +1960,7 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, in
 	 * should have it set already.
 	 */
 	tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
-	make_curve (graphics, points, tangents, count, CURVE_CLOSE, 0, 0);
+	make_curve (graphics, points, tangents, 0, count - 1, CURVE_CLOSE, 0, 0);
 
 	/* We do brush setup just before filling. */
 	gdip_brush_setup (graphics, brush);
