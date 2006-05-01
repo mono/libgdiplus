@@ -398,40 +398,6 @@ gdip_linear_gradient_setup_initial_matrix (GpLineGradient *linear)
 	cairo_matrix_translate (&linear->matrix, -transX, -transY);
 }
 
-static float
-gdip_get_angle (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2)
-{
-	float x = fabs (point1->X - point2->X);
-	float y = point1->Y - point2->Y;
-	float h = sqrt (x*x + y*y);
-	return asin (x / h);
-}
-
-void
-gdip_set_rect (GpRectF *rect, float x1, float y1, float x2, float y2)
-{
-	if (rect) {
-		if (x1 == x2) {
-			rect->Height = (y1 > y2) ? (y1 - y2) : (y2 - y1);
-			rect->Width = rect->Height;
-			rect->X = x1 - (rect->Height) / 2.0;
-			rect->Y = (y1 < y2) ? y1 : y2;
-		} 
-		else if (y1 == y2) {
-			rect->Width = (x1 > x2) ? (x1 - x2) : (x2 - x1);
-			rect->Height = rect->Width;
-			rect->X = (x1 < x2) ? x1 : x2;
-			rect->Y = y1 - (rect->Width) / 2.0;
-		}
-		else {
-			rect->Width = (x1 > x2) ? (x1 - x2) : (x2 - x1);
-			rect->Height = (y1 > y2) ? (y1 - y2) : (y2 - y1);
-			rect->X = (x1 < x2) ? x1 : x2;
-			rect->Y = (y1 < y2) ? y1 : y2;
-		}
-	}
-}
-
 GpStatus
 GdipCreateLineBrushI (GDIPCONST GpPoint *point1, GDIPCONST GpPoint *point2, ARGB color1, ARGB color2, GpWrapMode wrapMode, GpLineGradient **lineGradient)
 {
@@ -452,6 +418,8 @@ GpStatus
 GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARGB color1, ARGB color2, GpWrapMode wrapMode, GpLineGradient **lineGradient)
 {
 	GpLineGradient *linear;
+	BOOL xFlipped = FALSE;
+	BOOL yFlipped = FALSE;
 
 	g_return_val_if_fail (point1 != NULL, InvalidParameter);
 	g_return_val_if_fail (point2 != NULL, InvalidParameter);
@@ -462,14 +430,55 @@ GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARG
 	linear->wrapMode = wrapMode;
 	linear->lineColors [0] = color1;
 	linear->lineColors [1] = color2;
-	linear->angle = gdip_get_angle (point1, point2);
 	linear->isAngleScalable = FALSE;
 
-	linear->points [0].X = point1->X;
-	linear->points [0].Y = point1->Y;
-	linear->points [1].X = point2->X;
-	linear->points [1].Y = point2->Y;
-	gdip_set_rect (&linear->rectangle, point1->X, point1->Y, point2->X, point2->Y);
+	linear->rectangle.Width = point2->X - point1->X;
+	linear->rectangle.Height = point2->Y - point1->Y;
+	linear->rectangle.X = linear->rectangle.Width < 0 ? point2->X : point1->X;
+	linear->rectangle.Y = linear->rectangle.Height < 0 ? point2->Y : point1->Y;
+
+	if (linear->rectangle.Width < 0) {
+		linear->rectangle.Width = -linear->rectangle.Width;
+		xFlipped = TRUE;
+	}
+
+	if (linear->rectangle.Height < 0) {
+		linear->rectangle.Height = -linear->rectangle.Height;
+		yFlipped = TRUE;
+	}
+
+	if (linear->rectangle.Height == 0) {
+		linear->rectangle.Height = linear->rectangle.Width;
+		linear->rectangle.Y = linear->rectangle.Y - (linear->rectangle.Height / 2.0f);
+		linear->angle = xFlipped ? 180 : 0;
+	}
+
+	else if (linear->rectangle.Width == 0) {
+		linear->rectangle.Width = linear->rectangle.Height;
+		linear->rectangle.X = linear->rectangle.X - (linear->rectangle.Width / 2.0f);
+		linear->angle = yFlipped ? 270 : 90;
+	}
+
+	else {
+		float slope = linear->rectangle.Height / linear->rectangle.Width;
+		float newAngleRad = (atanf(slope));
+		float newAngle = (newAngleRad / (DEGTORAD));
+
+		if (xFlipped)
+			newAngle = 180 - newAngle;
+
+		if (yFlipped)
+			newAngle = 360 - newAngle;
+
+		linear->angle = newAngle;
+	}
+
+	linear->points [0].X = linear->rectangle.X;
+	linear->points [0].Y = linear->rectangle.Y;
+	linear->points [1].X = linear->rectangle.X + linear->rectangle.Width + 1;
+	linear->points [1].Y = linear->rectangle.Y;
+
+	linear->angle = linear->angle * DEGTORAD;
 
 	gdip_linear_gradient_setup_initial_matrix (linear);
 
@@ -483,11 +492,11 @@ get_angle_from_linear_gradient_mode (LinearGradientMode mode)
 {
 	switch (mode) {
 	case LinearGradientModeVertical:
-		return 90.0 * DEGTORAD;
+		return 90.0;
 	case LinearGradientModeForwardDiagonal:
-		return 45.0 * DEGTORAD;
+		return 45.0;
 	case LinearGradientModeBackwardDiagonal:
-		return 135.0 * DEGTORAD;
+		return 135.0;
 	case LinearGradientModeHorizontal:
 	default:
 		return 0;
