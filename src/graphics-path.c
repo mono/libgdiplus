@@ -161,36 +161,41 @@ append_bezier (GpPath *path, float x1, float y1, float x2, float y2, float x3, f
 }
 
 static void
-append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int count, _CurveType type)
+append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int offset, int length, _CurveType type)
 {
-        int i, length = count;
+	int i;
+	GpPathPointType ptype = ((type == CURVE_CLOSE) || (path->count == 0)) ? PathPointTypeStart : PathPointTypeLine;
 
-        if (count <= 0)
-                return;
+	append_point (path, points [offset], ptype);
+	for (i = offset; i < offset + length; i++) {
+		int j = i + 1;
 
-        if (type == CURVE_OPEN) {
-                length = count - 1;
-	        append_point (path, points [0], gdip_get_first_point_type (path));
-	} else {
-	        append_point (path, points [0], PathPointTypeStart);
-	}
+		double x1 = points [i].X + tangents [i].X;
+		double y1 = points [i].Y + tangents [i].Y;
 
-        for (i = 1; i <= length; i++) {
+		double x2 = points [j].X - tangents [j].X;
+		double y2 = points [j].Y - tangents [j].Y;
 
-                int j = i - 1;
-                int k = (i < count) ? i : 0;
+		double x3 = points [j].X;
+		double y3 = points [j].Y;
 
-                double x1 = points [j].X + tangents [j].X;
-                double y1 = points [j].Y + tangents [j].Y;
-
-                double x2 = points [k].X - tangents [k].X;
-                double y2 = points [k].Y - tangents [k].Y;
-
-                double x3 = points [k].X;
-                double y3 = points [k].Y;
-
-                append_bezier (path, x1, y1, x2, y2, x3, y3);
+		append_bezier (path, x1, y1, x2, y2, x3, y3);
         }
+
+        if (type == CURVE_CLOSE) {
+		/* complete (close) the curve using the first point */
+		double x1 = points [i].X + tangents [i].X;
+		double y1 = points [i].Y + tangents [i].Y;
+
+		double x2 = points [0].X - tangents [0].X;
+		double y2 = points [0].Y - tangents [0].Y;
+
+		double x3 = points [0].X;
+		double y3 = points [0].Y;
+
+		append_bezier (path, x1, y1, x2, y2, x3, y3);
+		GdipClosePathFigure (path);
+	}
 }
 
 GpStatus
@@ -747,19 +752,20 @@ GdipAddPathCurve2 (GpPath *path, const GpPointF *points, int count, float tensio
 	/* special case, here we support a curve with 2 points */
 	if (!path || !points || (count < 2))
 		return InvalidParameter;
+
+	int segments = (count == 2) ? (count - 1) : (count - 1);
 		
 	tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
 	if (!tangents)
 		return OutOfMemory;
 
-	append_curve (path, points, tangents, count, CURVE_OPEN);
+	append_curve (path, points, tangents, 0, segments, CURVE_OPEN);
 
 	GdipFree (tangents);
 
-        return Ok;
+       	return Ok;
 }
 
-/* MonoTODO - numberOfSegments is ignored */
 GpStatus
 GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count, 
         int offset, int numberOfSegments, float tension)
@@ -770,12 +776,17 @@ GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count,
 
 	if (numberOfSegments < 1)
 		return InvalidParameter;
-	if (offset > count - 3)
+
+	/* we need 3 points for the first curve, 2 more for each curves */
+	/* and it's possible to use a point prior to the offset (to calculate) */
+	if ((offset == 0) && (numberOfSegments == 1) && (count < 3))
+		return InvalidParameter;
+	else if (numberOfSegments >= count - offset)
 		return InvalidParameter;
 
         tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
 
-        append_curve (path, points, tangents, count, CURVE_OPEN);
+        append_curve (path, points, tangents, offset, numberOfSegments, CURVE_OPEN);
 
         GdipFree (tangents);
 
@@ -798,7 +809,7 @@ GdipAddPathClosedCurve2 (GpPath *path, const GpPointF *points, int count, float 
 
         tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
 
-        append_curve (path, points, tangents, count, CURVE_CLOSE);
+        append_curve (path, points, tangents, 0, count - 1, CURVE_CLOSE);
 
 	/* close the path */
 	GdipClosePathFigure (path);
@@ -1175,7 +1186,6 @@ GdipAddPathCurve2I (GpPath *path, const GpPoint *points, int count, float tensio
 	return s;
 }
 
-/* MonoTODO - numberOfSegments is ignored by GdipAddPathCurve3 */
 GpStatus
 GdipAddPathCurve3I (GpPath *path, const GpPoint *points,
                     int count, int offset, int numberOfSegments, float tension)
