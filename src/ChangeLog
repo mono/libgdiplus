@@ -1,3 +1,7 @@
+2006-05-01  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* bitmap.c (gdip_pixel_stream_set_next): Fixed wrong shifting. 
+
 2006-05-01 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* pngcodec.c: don't loop forever on truncated images. Fixes bug #78213.

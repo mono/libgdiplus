@@ -1602,8 +1602,8 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 			*(unsigned int *)state->scan = pixel_value;
 		} else {
 			state->scan [0] = (pixel_value & 0x000000ff);		/* Blue */
-			state->scan [1] = (pixel_value & 0x0000ff00) >> 16;	/* Green */
-			state->scan [2] = (pixel_value & 0x00ff0000) >> 24;	/* Red */
+			state->scan [1] = (pixel_value & 0x0000ff00) >> 8;	/* Green */
+			state->scan [2] = (pixel_value & 0x00ff0000) >> 16;	/* Red */
 		}
 
 		state->scan -= state->pixels_per_byte;
