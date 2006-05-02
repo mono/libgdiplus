@@ -3587,6 +3587,7 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 	float			OffsetX;
 	float			OffsetY;
 	int			maxY;
+	float			FontSize;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (stringUnicode != NULL, InvalidParameter);
@@ -3602,7 +3603,6 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 		return Ok;
 
 
-	float			FontSize;
 
 	/* Sanity; should we check for length==0? */
 	if (!graphics || !stringUnicode || !font) {
@@ -3620,6 +3620,9 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 
 	if (status != Ok)
 		return status;
+
+	OffsetX = 0;
+	OffsetY = 0;
 
 	/* Create a region for every char range */
 	for (i = 0; i < format->charRangeCount; i++) {
