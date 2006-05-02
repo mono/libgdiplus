@@ -886,11 +886,10 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 				}
 			}
 		}
+		bitmap_data->reserved = GBD_OWN_SCAN0;	
 	}
 	
-	
 	bitmap_data->scan0 = scan0;
-	bitmap_data->reserved = GBD_OWN_SCAN0;	
 
 	/* Make sure indexed images have a palette */
 	if (gdip_is_an_indexed_pixelformat (format)) {
