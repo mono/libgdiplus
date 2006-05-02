@@ -3614,6 +3614,10 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 	layoutRect->Width = gdip_unitx_convgr (graphics, layout->Width);
 	layoutRect->Height = gdip_unity_convgr (graphics, layout->Height);
 
+	maxY = 0;
+	lineHeight = 0;
+	strDetails = NULL;
+
 	/* string measurements */
 	status = MeasureString (graphics, stringUnicode, length, font, layoutRect,
 				format, &boundingBox, &lineHeight, &strDetails, &maxY);
@@ -3623,6 +3627,7 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 
 	OffsetX = 0;
 	OffsetY = 0;
+	
 
 	/* Create a region for every char range */
 	for (i = 0; i < format->charRangeCount; i++) {
