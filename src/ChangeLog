@@ -1,3 +1,8 @@
+2006-05-01  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* graphics.c (GdipMeasureCharacterRanges): Now considers string
+	  alignment (which is needed for properly aligned LinkLabels)
+
 2006-05-01  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* bitmap.c (gdip_pixel_stream_set_next): Fixed wrong shifting. 

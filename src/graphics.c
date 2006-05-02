@@ -2986,7 +2986,7 @@ GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int len
 
 static
 GpStatus
-MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, RectF *boundingBox, int *lineHeight, GpStringDetailStruct** strDetails)
+MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, RectF *boundingBox, int *lineHeight, GpStringDetailStruct** strDetails, int *maxY)
 {
 	unsigned char		*String;		/* Holds the UTF8 version of our sanitized string */
 	WCHAR			*CleanString;		/* Holds the unicode version of our sanitized string */
@@ -3157,6 +3157,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 		if (format!=fmt) {
 			GdipDeleteStringFormat (fmt);
 		}
+
 		return OutOfMemory;
 	}
 
@@ -3173,6 +3174,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 		if (format!=fmt) {
 			GdipDeleteStringFormat (fmt);
 		}
+
 		return InvalidParameter;
 	}
 	GdipFree (String);
@@ -3236,7 +3238,11 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 #endif
 		/* Remember where to wrap next, but only if wrapping allowed */
 		if (((fmt->formatFlags & StringFormatFlagsNoWrap)==0) && (CurrentDetail->Flags & STRING_DETAIL_BREAK)) {
-			WrapPoint=i+1;	/* We skip the break char itself, keeping it at the end of the old line */
+			if (CleanString[i] == ' ') {
+				WrapPoint=i+1;	/* We skip the break char itself, keeping it at the end of the old line */
+			} else {
+				WrapPoint=i;
+			}
 
 			if (CursorX>MaxX) {
 				WrapX=CursorX;
@@ -3404,11 +3410,25 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 						CurrentLineStart->LineLen+=EndOfLine-k-1;
 					} 
 					
-#ifdef DRAWSTRING_DEBUG
 				} else {
+#ifdef DRAWSTRING_DEBUG
 					/* Just cut off the text */
 					printf("End of line at index:%d\n", EndOfLine);
 #endif
+					CurrentLineStart->LineLen=EndOfLine;
+				}
+
+				if ((fmt->formatFlags & StringFormatFlagsNoWrap)!=0) {
+					// Avoid endless loops, always print at least one char
+					if (CurrentLineStart->LineLen == 0) {
+						CurrentLineStart->LineLen = 1;
+					}
+					break;
+				}
+
+				if (CurrentLineStart->LineLen == 0) {
+					CurrentLineStart->LineLen;
+					EndOfLine++;
 				}
 
 				/* New line */
@@ -3449,15 +3469,20 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 		if (i % 3 == 2) {
 			printf("\n");
 		}
-		printf ("curr details: x: %f y: %f wd: %f\n", CurrentDetail->PosX, CurrentDetail->PosY,CurrentDetail->Width);
 #endif
+
 		CurrentDetail++;
+
 		CurrentLineStart->LineLen++;
 	}
 
 	/* We ignored it above, for shorter of calculations, also, add a bit of padding */
-	MaxX+=2;
-	MaxY+=LineHeight+FontExtent.descent+2;
+#if 0
+	if ((fmt->formatFlags & StringFormatFlagsNoFitBlackBox) == 0) {
+		MaxX+=2;
+	}
+#endif
+	MaxY+=LineHeight+FontExtent.descent;
 
 #ifdef DRAWSTRING_DEBUG
 	printf("\n");
@@ -3541,6 +3566,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 
 	*lineHeight = LineHeight;
 	*strDetails = StringDetails;
+	*maxY = MaxY;
 
 	return Ok;
 }
@@ -3558,6 +3584,9 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 	RectF			boundingBox;
 	RectF			charRect;
 	RectF 			rc_coords, *layoutRect = &rc_coords;
+	float			OffsetX;
+	float			OffsetY;
+	int			maxY;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (stringUnicode != NULL, InvalidParameter);
@@ -3587,7 +3616,7 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 
 	/* string measurements */
 	status = MeasureString (graphics, stringUnicode, length, font, layoutRect,
-				format, &boundingBox, &lineHeight, &strDetails);
+				format, &boundingBox, &lineHeight, &strDetails, &maxY);
 
 	if (status != Ok)
 		return status;
@@ -3613,15 +3642,46 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 
 		/* calculate the regions */
 		for (j = start; j < end; j++) {
+			if (strDetails[j].Flags & STRING_DETAIL_LINESTART) {
+				if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+					/* Vertical text */
+					switch (format->alignment) {
+						case StringAlignmentNear: OffsetY = layoutRect->Y; break;
+						case StringAlignmentCenter: OffsetY = layoutRect->Y + (layoutRect->Height - strDetails[j + strDetails[j].LineLen - 1].PosX - strDetails[j + strDetails[i].LineLen - 1].Width) / 2; break;
+						case StringAlignmentFar: OffsetY = layoutRect->Y + layoutRect->Height - strDetails[j + strDetails[j].LineLen - 1].PosX - strDetails[j + strDetails[j].LineLen-1].Width; break;
+
+					}
+
+					switch (format->lineAlignment) {
+						case StringAlignmentNear: OffsetX = layoutRect->X + strDetails[j].PosX + strDetails[j].PosY; break;
+						case StringAlignmentCenter: OffsetX = layoutRect->X + strDetails[j].PosX + (layoutRect->Width - maxY) / 2 + strDetails[j].PosY; break;
+						case StringAlignmentFar: OffsetX = layoutRect->X + strDetails[j].PosX + layoutRect->Width - maxY + strDetails[j].PosY; break;
+					}
+				} else {
+					/* Horizontal text */
+					switch(format->alignment) {
+						case StringAlignmentNear: OffsetX = layoutRect->X + strDetails[j].PosX; break;
+						case StringAlignmentCenter: OffsetX = layoutRect->X + strDetails[j].PosX + (layoutRect->Width-strDetails[j + strDetails[j].LineLen - 1].PosX - strDetails[j + strDetails[j].LineLen - 1].Width)/2; break;
+						case StringAlignmentFar: OffsetX = layoutRect->X + strDetails[j].PosX + layoutRect->Width - strDetails[j + strDetails[j].LineLen - 1].PosX - strDetails[j + strDetails[i].LineLen - 1].Width; break;
+					}
+
+					switch (format->lineAlignment) {
+						case StringAlignmentNear: OffsetY = layoutRect->Y + strDetails[j].PosY; break;
+						case StringAlignmentCenter: OffsetY = layoutRect->Y + (layoutRect->Height - maxY) / 2 + strDetails[j].PosY ; break;
+						case StringAlignmentFar: OffsetY = layoutRect->Height - maxY + strDetails[j].PosY; break;
+					}
+				}
+			}
+
 			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
-				charRect.X = gdip_convgr_unitx (graphics, strDetails [j].PosY);
-				charRect.Y = gdip_convgr_unity (graphics, strDetails [j].PosX);
+				charRect.X = gdip_convgr_unitx (graphics, strDetails [j].PosY + OffsetY);
+				charRect.Y = gdip_convgr_unity (graphics, strDetails [j].PosX + OffsetX);
 				charRect.Width = gdip_convgr_unitx (graphics, lineHeight);
 				charRect.Height = gdip_convgr_unity (graphics, strDetails [j].Width);
 			}
 			else {
-				charRect.X = gdip_convgr_unitx (graphics, strDetails [j].PosX);
-				charRect.Y = gdip_convgr_unity (graphics, strDetails [j].PosY);
+				charRect.X = gdip_convgr_unitx (graphics, strDetails [j].PosX + OffsetX);
+				charRect.Y = gdip_convgr_unity (graphics, strDetails [j].PosY + OffsetY);
 				charRect.Width = gdip_convgr_unitx (graphics, strDetails [j].Width);
 				charRect.Height = gdip_convgr_unity (graphics, lineHeight);
 			}
