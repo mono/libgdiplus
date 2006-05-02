@@ -25,11 +25,8 @@ GdipCreateFromHWND
 
 * Generic functions
 
-GdipBeginContainer
 GdipBeginContainer2
 GdipBeginContainerI
-GdipEndContainer
-GdipEndContainer
 GdipTransformPoints
 GdipTransformPointsI
 
@@ -57,11 +54,15 @@ GdipGetPenCustomEndCap
 
 * Functions releated to paths
 
-GdipAddString
-GdipAddStringI
+GdipAddString			[1]
+GdipAddStringI			[1]
 GdipWindingModeOutline
 GdipWidenPath
 GdipWarpPath
+
+
+Notes
+[1] Partially implemented. LayoutRect and StringFormat are ignored.
 
 ---- Issues
 

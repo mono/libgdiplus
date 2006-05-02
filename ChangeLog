@@ -1,3 +1,9 @@
+2006-05-02  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* TODO: Removed GdipBeginContainer and GdipEndContainer from the list
+	of unimplemented functions. Added note for GdipAddString[I] about the
+	partial support for both functions.
+
 2006-04-28  Wade Berrier <wberrier@novell.com>
 
 	* configure.in: Fallback to -config if .pc files are not found for
