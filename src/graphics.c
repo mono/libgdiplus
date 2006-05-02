@@ -155,15 +155,32 @@ gdip_unit_conversion (Unit from, Unit to, float dpi, GraphicsType type, float nS
 	}
 }
 
+static void
+gdip_graphics_reset (GpGraphics *graphics)
+{
+	cairo_matrix_init_identity (graphics->copy_of_ctm);
+	cairo_identity_matrix (graphics->ct);
+
+	GdipResetClip (graphics);
+	cairo_matrix_init_identity (graphics->clip_matrix);
+	graphics->bounds.X = graphics->bounds.Y = graphics->bounds.Width = graphics->bounds.Height = 0;
+	graphics->page_unit = UnitDisplay;
+	graphics->scale = 1.0f;
+	graphics->interpolation = InterpolationModeBilinear;
+	graphics->composite_quality = CompositingQualityDefault;
+	graphics->composite_mode = CompositingModeSourceOver;
+	graphics->text_mode = TextRenderingHintSystemDefault;
+	graphics->pixel_mode = PixelOffsetModeDefault;
+	graphics->text_contrast = DEFAULT_TEXT_CONTRAST;
+
+	GdipSetSmoothingMode(graphics, SmoothingModeNone);
+}
 
 void
 gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 {
-	
 	graphics->ct = cairo_create (surface);
 	GdipCreateMatrix (&graphics->copy_of_ctm);
-	cairo_matrix_init_identity (graphics->copy_of_ctm);
-	cairo_identity_matrix (graphics->ct);
 
 #ifndef NO_CAIRO_AA
         cairo_set_shape_format (graphics->ct, CAIRO_FORMAT_A1);
@@ -174,23 +191,15 @@ gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 	cairo_select_font_face (graphics->ct, "serif:12", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	GdipCreateRegion (&graphics->clip);
 	GdipCreateMatrix (&graphics->clip_matrix);
-	graphics->bounds.X = graphics->bounds.Y = graphics->bounds.Width = graphics->bounds.Height = 0;
-	graphics->page_unit = UnitDisplay;
-	graphics->scale = 1.0f;
-	graphics->interpolation = InterpolationModeBilinear;
 	graphics->last_pen = NULL;
 	graphics->last_brush = NULL;
-	graphics->composite_quality = CompositingQualityDefault;
-	graphics->composite_mode = CompositingModeSourceOver;
-	graphics->text_mode = TextRenderingHintSystemDefault;
-	graphics->pixel_mode = PixelOffsetModeDefault;
 	graphics->saved_status = NULL;
 	graphics->saved_status_pos = 0;
 	graphics->render_origin_x = 0;
 	graphics->render_origin_y = 0;
 	graphics->dpi_x = graphics->dpi_y = 0;
 
-	GdipSetSmoothingMode(graphics, SmoothingModeNone);
+	gdip_graphics_reset (graphics);
 }
 
 GpGraphics *
@@ -627,6 +636,7 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 	GdipSetSmoothingMode(graphics, pos_state->draw_mode);
 	graphics->text_mode = pos_state->text_mode;
 	graphics->pixel_mode = pos_state->pixel_mode;
+	graphics->text_contrast = pos_state->text_contrast;
 
 	graphics->saved_status_pos = graphicsState;
 
@@ -672,6 +682,7 @@ GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 	pos_state->draw_mode = graphics->draw_mode;
 	pos_state->text_mode = graphics->text_mode;
 	pos_state->pixel_mode = graphics->pixel_mode;
+	pos_state->text_contrast = graphics->text_contrast;
 	
 	*state = graphics->saved_status_pos;
 	graphics->saved_status_pos++;
@@ -3840,22 +3851,25 @@ GdipGetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode *pixelOffsetMode)
 	return Ok;
 }
 
+/* MonoTODO - text contrast isn't supported */
 GpStatus
 GdipSetTextContrast (GpGraphics *graphics, UINT contrast)
 {
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (contrast >= 0 && contrast <= 14, InvalidParameter);
 
+	graphics->text_contrast = contrast;
 	return Ok;
 }
 
+/* MonoTODO - text contrast isn't supported */
 GpStatus
 GdipGetTextContrast (GpGraphics *graphics, UINT *contrast)
 {
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (contrast != NULL, InvalidParameter);
 
-	*contrast = 4;              /* default */
+	*contrast = graphics->text_contrast;
 	return Ok;
 }
 
@@ -3901,28 +3915,59 @@ GdipGetSmoothingMode (GpGraphics *graphics, SmoothingMode *mode)
 	return Ok;
 }
 
+/* MonoTODO - dstrect, srcrect and unit support isn't implemented */
 GpStatus
 GdipBeginContainer (GpGraphics *graphics, GDIPCONST GpRectF* dstrect, GDIPCONST GpRectF *srcrect, GpUnit unit, GpGraphicsContainer *state)
 {
-	return NotImplemented;
+	if (!dstrect || !srcrect || (unit < UnitPixel) || (unit > UnitMillimeter))
+		return InvalidParameter;
+
+	return GdipBeginContainer2 (graphics, state);
 }
 
 GpStatus
 GdipBeginContainer2 (GpGraphics *graphics, GpGraphicsContainer* state)
 {
-	return NotImplemented;
+	GpStatus status;
+
+	if (!graphics || !state)
+		return InvalidParameter;
+
+	status = GdipSaveGraphics (graphics, state);
+	/* reset most properties to defaults after saving them */
+	gdip_graphics_reset (graphics);
+	return status;
 }
 
+/* MonoTODO - depends on incomplete GdipBeginContainer */
 GpStatus
 GdipBeginContainerI (GpGraphics *graphics, GDIPCONST GpRect* dstrect, GDIPCONST GpRect *srcrect, GpUnit unit, GpGraphicsContainer *state)
 {
-	return NotImplemented;
+	GpRectF dr, sr;
+
+	if (!dstrect || !srcrect)
+		return InvalidParameter;
+
+	dr.X = dstrect->X;
+	dr.Y = dstrect->Y;
+	dr.Width = dstrect->Width;
+	dr.Height = dstrect->Height;
+
+	sr.X = srcrect->X;
+	sr.Y = srcrect->Y;
+	sr.Width = srcrect->Width;
+	sr.Height = srcrect->Height;
+
+	return GdipBeginContainer (graphics, &dr, &sr, unit, state);
 }
 
 GpStatus
 GdipEndContainer (GpGraphics *graphics, GpGraphicsContainer state)
 {
-	return NotImplemented;
+	if (!graphics)
+		return InvalidParameter;
+
+	return GdipRestoreGraphics (graphics, state);
 }
 
 GpStatus

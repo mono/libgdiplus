@@ -142,6 +142,7 @@ typedef ImageAbort GetThumbnailImageAbort;
 #define GDIPCONST const
 #define CURVE_MIN_TERMS 1
 #define CURVE_MAX_TERMS 7
+#define DEFAULT_TEXT_CONTRAST	4
 
 #define CAIRO_AA_OFFSET_X	1
 #define CAIRO_AA_OFFSET_Y	0.5
@@ -603,9 +604,7 @@ typedef enum {
 	ColorChannelFlagsLast
 } GpColorChannelFlags;
 
-typedef struct {
-	int	unused;
-} GpGraphicsContainer;
+typedef unsigned int GpGraphicsContainer;
 
 /* private enum */
 
@@ -745,6 +744,7 @@ typedef struct {
 	PixelOffsetMode 	pixel_mode;
 	int			org_x;
 	int			org_y;
+	int			text_contrast;
 } GpState;
 
 typedef struct {
@@ -775,6 +775,7 @@ typedef struct {
 	int		render_origin_y;
 	float		dpi_x;
 	float		dpi_y;
+	int		text_contrast;
 } GpGraphics;
 
 
@@ -1078,6 +1079,9 @@ GpStatus GdipBitmapGetPixel ( GpBitmap *bmp, int x, int y, ARGB *color);
 
 
 /* Graphics */
+GpStatus GdipBeginContainer (GpGraphics *graphics, GDIPCONST GpRectF* dstrect, GDIPCONST GpRectF *srcrect, GpUnit unit, GpGraphicsContainer *state);
+GpStatus GdipBeginContainer2 (GpGraphics *graphics, GpGraphicsContainer* state);
+GpStatus GdipBeginContainerI (GpGraphics *graphics, GDIPCONST GpRect* dstrect, GDIPCONST GpRect *srcrect, GpUnit unit, GpGraphicsContainer *state);
 GpStatus GdipCreateFromHDC (void *hDC, GpGraphics **graphics);
 GpStatus GdipDeleteGraphics (GpGraphics *graphics);
 GpStatus GdipGetDC (GpGraphics *graphics, void **hDC);

@@ -1,3 +1,16 @@
+2006-05-02  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* gdip.h: Changed GpGraphicsContainer to uint (so it match how we are
+	using the Save/Restore functions). Added text_contrast to GpState and
+	GpGraphics (even if it's not really used ATM). Added missing 
+	prototypes for GdipBeginContainer[2][I] functions.
+	* graphics.c: Implemented GdipBeginContainer2 and GdipEndContainer 
+	functions. Added partial implementation for GdipBeginContainer2 and 
+	GdipBeginContainerI as they don't support the extra parameters 
+	(rectangle and units). Added the code to set/get text contrast with
+	Gdip[Get|Set]TextContrast to help the unit test (but it's not being
+	"visually" used).
+
 2006-05-01  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* graphics.c (GdipMeasureCharacterRanges): Now considers string
