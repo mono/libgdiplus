@@ -79,6 +79,30 @@ gdip_is_matrix_a_translation (GpMatrix *matrix)
 		(matrix->xy == 0.0f) && (matrix->yy == 1.0f));
 }
 
+/* this helper function avoid GpMatrix allocation and reduce code duplication */
+GpStatus
+gdip_matrix_init_from_rect_3points (GpMatrix *matrix, const GpRectF *rect, const GpPointF *dstplg)
+{
+	GpPointF *p, *p0, *p1, *p2;
+	double m11, m12, m21, m22;
+
+	if (!matrix || !rect || !dstplg)
+		return InvalidParameter;
+
+	p = (GpPointF*) dstplg;
+	p0 = p++;
+	p1 = p++;
+	p2 = p;
+
+	m11 = (p1->X - p0->X) / rect->Width;
+	m12 = (p1->Y - p0->Y) / rect->Width;
+	m21 = (p2->X - p0->X) / rect->Height;
+	m22 = (p2->Y - p0->Y) / rect->Height;
+
+	cairo_matrix_init (matrix, m11, m12, m21, m22, p0->X, p0->Y);
+	cairo_matrix_translate (matrix, -rect->X, -rect->Y);
+	return Ok;
+}
 
 /* public (exported) functions */
 
@@ -120,64 +144,44 @@ GpStatus
 GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matrix)
 {
 	GpMatrix *result;
-	GpPointF *p, *p0, *p1, *p2;
-	double m11, m12, m21, m22;
+	GpStatus status;
 
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 	g_return_val_if_fail (dstplg != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	p = (GpPointF*) dstplg;
-	p0 = p++;
-	p1 = p++;
-	p2 = p;
-
-	m11 = (p1->X - p0->X) / rect->Width;
-	m12 = (p1->Y - p0->Y) / rect->Width;
-	m21 = (p2->X - p0->X) / rect->Height;
-	m22 = (p2->Y - p0->Y) / rect->Height;
-
 	result = GdipAlloc (sizeof (GpMatrix));
 	if (!result)
 		return OutOfMemory;
 
-	cairo_matrix_init (result, m11, m12, m21, m22, p0->X, p0->Y);
-	cairo_matrix_translate (result, -rect->X, -rect->Y);
-
-	*matrix = result;
-	return Ok;
+	status = gdip_matrix_init_from_rect_3points (result, rect, dstplg);
+	if (status == Ok)
+		*matrix = result;
+	return status;
 }
 
 GpStatus
 GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix)
 {
-	GpMatrix *result;
-	GpPoint *p, *p0, *p1, *p2;
-	double m11, m12, m21, m22;
+	GpRectF r;
+	GpPointF pts[3];
 
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 	g_return_val_if_fail (dstplg != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	p = (GpPoint*) dstplg;
-	p0 = p++;
-	p1 = p++;
-	p2 = p;
+	r.X = rect->X;
+	r.Y = rect->Y;
+	r.Width = rect->Width;
+	r.Height = rect->Height;
 
-	m11 = (p1->X - p0->X) / (double)rect->Width;
-	m12 = (p1->Y - p0->Y) / (double)rect->Width;
-	m21 = (p2->X - p0->X) / (double)rect->Height;
-	m22 = (p2->Y - p0->Y) / (double)rect->Height;
+	pts [0].X = dstplg [0].X;
+	pts [0].Y = dstplg [0].Y;
+	pts [1].X = dstplg [1].X;
+	pts [1].Y = dstplg [1].Y;
+	pts [2].X = dstplg [2].X;
+	pts [2].Y = dstplg [2].Y;
 
-	result = GdipAlloc (sizeof (GpMatrix));
-	if (!result)
-		return OutOfMemory;
-
-	cairo_matrix_init (result, m11, m12, m21, m22, p0->X, p0->Y);
-	cairo_matrix_translate (result, -rect->X, -rect->Y);
-
-	*matrix = result;
-        return Ok;
+        return GdipCreateMatrix3 (&r, (GpPointF*)&pts, matrix);
 }
 
 GpStatus

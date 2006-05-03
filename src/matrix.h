@@ -38,4 +38,6 @@
 BOOL gdip_is_matrix_a_translation (GpMatrix *matrix);
 BOOL gdip_is_matrix_empty (GpMatrix* matrix);
 
+GpStatus gdip_matrix_init_from_rect_3points (GpMatrix *matrix, const GpRectF *rect, const GpPointF *dstplg);
+
 #endif /* _MATRIX_H_ */

@@ -1,3 +1,11 @@
+2006-05-03  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* lineargradientbrush.c: Applied patch for #78185 from Bill Holmes
+	to add support for scalable angle. Changed a bit to use the new
+	matrix function.
+	* matrix.c|h: Added a new function to avoid code duplication when 
+	creating a matrix from a rectangle and 3 points.
+
 2006-05-02  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* bitmap.cs: Only mark the bitmap as own if we actually allocated it

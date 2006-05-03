@@ -380,22 +380,66 @@ gdip_linear_gradient_setup (GpGraphics *graphics, GpBrush *brush)
 static void
 gdip_linear_gradient_setup_initial_matrix (GpLineGradient *linear)
 {
-	float transX, transY;
-	float wRatio, hRatio;
+	float cosAngle, sinAngle, absCosAngle, absSinAngle;
+	float transX, transY, wRatio, hRatio, slope, rectRight, rectBottom;
+	GpPointF pts[3];
 	GpRectF *rectf = &linear->rectangle;
+
+	cosAngle = cos (linear->angle);
+	sinAngle = sin (linear->angle);
+	absCosAngle = fabs (cosAngle);
+	absSinAngle = fabs (sinAngle);
 
 	cairo_matrix_init_identity (&linear->matrix);
 
 	transX = rectf->X + (rectf->Width / 2.0f);
 	transY = rectf->Y + (rectf->Height / 2.0f);
 
-	wRatio = (fabs (cos (linear->angle)) * rectf->Width + fabs (sin (linear->angle)) * rectf->Height) / rectf->Width;
-	hRatio = (fabs (sin (linear->angle)) * rectf->Width + fabs (cos (linear->angle)) * rectf->Height) / rectf->Height;
+	wRatio = (absCosAngle * rectf->Width + absSinAngle * rectf->Height) / rectf->Width;
+	hRatio = (absSinAngle * rectf->Width + absCosAngle * rectf->Height) / rectf->Height;
 
 	cairo_matrix_translate (&linear->matrix, transX, transY);
 	cairo_matrix_rotate (&linear->matrix, linear->angle);
 	cairo_matrix_scale (&linear->matrix, wRatio, hRatio);
 	cairo_matrix_translate (&linear->matrix, -transX, -transY);
+
+	if (linear->isAngleScalable && !gdip_near_zero (cosAngle) && !gdip_near_zero (sinAngle)) {
+		rectRight = rectf->X + rectf->Width;
+		rectBottom = rectf->Y + rectf->Height;
+		
+		pts[0].X = rectf->X;
+		pts[0].Y = rectf->Y;
+		pts[1].X = rectRight;
+		pts[1].Y = rectf->Y;
+		pts[2].X = rectf->X;
+		pts[2].Y = rectBottom;
+
+		GdipTransformMatrixPoints (&linear->matrix, pts, 3);
+
+		if (sinAngle > 0 && cosAngle > 0) {
+			slope = -1.0f / ((rectf->Width / rectf->Height) * tan (linear->angle));
+			pts[0].Y = (slope * (pts[0].X - rectf->X)) + rectf->Y;
+			pts[1].X = ((pts[1].Y - rectBottom) / slope) + rectRight;
+			pts[2].X = ((pts[2].Y - rectf->Y) / slope) + rectf->X;
+		} else if (sinAngle > 0 && cosAngle < 0) {
+			slope = -1.0f / ((rectf->Width / rectf->Height) * tan (linear->angle - PI / 2));
+			pts[0].X = ((pts[0].Y - rectBottom) / slope) + rectRight;
+			pts[1].Y = (slope * (pts[1].X - rectRight)) + rectBottom;
+			pts[2].Y = (slope * (pts[2].X - rectf->X)) + rectf->Y;
+		} else if (sinAngle < 0 && cosAngle < 0) {
+			slope = -1.0f / (((rectf->Width / rectf->Height) * tan (linear->angle)));
+			pts[0].Y = (slope * (pts[0].X - rectRight)) + rectBottom;
+			pts[1].X = ((pts[1].Y - rectf->Y) / slope) + rectf->X;
+			pts[2].X = ((pts[2].Y - rectBottom) / slope) + rectRight;
+		} else {
+			slope = -1.0f / ((rectf->Width / rectf->Height) * tan (linear->angle - 3 * PI / 2));
+			pts[0].X = ((pts[0].Y - rectf->Y) / slope) + rectf->X;
+			pts[1].Y = (slope * (pts[1].X - rectf->X)) + rectf->Y;
+			pts[2].Y = (slope * (pts[2].X - rectRight)) + rectBottom;
+		}
+
+		gdip_matrix_init_from_rect_3points (&linear->matrix, rectf, (GpPointF*)&pts);
+	}
 }
 
 GpStatus
