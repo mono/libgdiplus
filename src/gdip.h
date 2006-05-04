@@ -732,6 +732,7 @@ typedef struct {
  
 typedef struct {
 	cairo_matrix_t		matrix;
+	cairo_matrix_t		previous_matrix;
 	GpRegion*		clip;
 	cairo_matrix_t		clip_matrix;
 	GpCompositingMode    	composite_mode;
@@ -750,6 +751,7 @@ typedef struct {
 typedef struct {
 	cairo_t         *ct;
 	GpMatrix	*copy_of_ctm;
+	cairo_matrix_t	previous_matrix;
 	Display		*display;
 	Drawable	drawable;
 	void            *image;

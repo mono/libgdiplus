@@ -1,3 +1,10 @@
+2006-05-04  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics.c: Fix the default (parameter-less) BeginContainer by
+	introducing a previous_matrix inside GpGraphics. Keeping the effective
+	matrix from the previous container (or the original graphics) allow us
+	to substract it when a call to GdipGetWorldTransform is made.
+
 2006-05-04  Sebastien Pouliot  <sebastien@ximian.com>
  
 	* graphics.c: Removed the reset on the matrix when begining a new 

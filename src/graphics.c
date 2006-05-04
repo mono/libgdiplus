@@ -158,6 +158,8 @@ gdip_unit_conversion (Unit from, Unit to, float dpi, GraphicsType type, float nS
 static void
 gdip_graphics_reset (GpGraphics *graphics)
 {
+	/* if required, previous_matrix will be assigned later (e.g. containers) */
+	cairo_matrix_init_identity (&graphics->previous_matrix);
 	GdipResetClip (graphics);
 	cairo_matrix_init_identity (graphics->clip_matrix);
 	graphics->page_unit = UnitDisplay;
@@ -620,6 +622,8 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 
 	/* Save from GpState to Graphics  */
 	gdip_cairo_matrix_copy (graphics->copy_of_ctm, &pos_state->matrix);
+	gdip_cairo_matrix_copy (&graphics->previous_matrix, &pos_state->previous_matrix);
+
 	GdipSetRenderingOrigin (graphics, pos_state->org_x, pos_state->org_y);
 
 	if (graphics->clip)
@@ -667,6 +671,8 @@ GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 	/* Save from Graphics to GpState */
 	gdip_cairo_matrix_copy (&pos_state->matrix, graphics->copy_of_ctm);
 	GdipGetRenderingOrigin (graphics, &pos_state->org_x, &pos_state->org_y);
+
+	gdip_cairo_matrix_copy (&pos_state->previous_matrix, &graphics->previous_matrix);
 
 	if (pos_state->clip)
 		GdipDeleteRegion (pos_state->clip);
@@ -740,8 +746,16 @@ GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	/* FIXME: this ISN'T be true if we're in a container */
+	/* get the effective matrix from cairo */
         cairo_get_matrix (graphics->ct, matrix);
+	/* if we're inside a container then the previous matrix are hidden */
+	if (!gdip_is_matrix_empty (&graphics->previous_matrix)) {
+		cairo_matrix_t inverted;
+		/* substract the previous matrix from the effective matrix */
+		gdip_cairo_matrix_copy (&inverted, &graphics->previous_matrix);
+		cairo_matrix_invert (&inverted);
+		return GdipMultiplyMatrix (matrix, &inverted, MatrixOrderAppend);
+	}
         return Ok;
 }
 
@@ -3937,8 +3951,12 @@ GdipBeginContainer2 (GpGraphics *graphics, GpGraphicsContainer* state)
 		return InvalidParameter;
 
 	status = GdipSaveGraphics (graphics, state);
-	/* reset most properties to defaults after saving them */
-	gdip_graphics_reset (graphics);
+	if (status == Ok) {
+		/* reset most properties to defaults after saving them */
+		gdip_graphics_reset (graphics);
+		/* copy the current effective matrix as the preivous matrix */
+		gdip_cairo_matrix_copy (&graphics->previous_matrix, graphics->copy_of_ctm);
+	}
 	return status;
 }
 
