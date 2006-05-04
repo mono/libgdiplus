@@ -513,6 +513,10 @@ gdip_region_bitmap_from_path (GpPath *path)
 	/* ensure X and Width are multiple of 8 */
 	rect_adjust_horizontal (&bounds.X, &bounds.Width);
 
+	/* an empty width or height is valid, even if no bitmap can be produced */
+	if ((bounds.Width == 0) || (bounds.Height == 0))
+		return alloc_bitmap_with_buffer (bounds.X, bounds.Y, bounds.Width, bounds.Height, NULL);
+
 	/* replay the path list and the operations to reconstruct the bitmap */
 	stride = bounds.Width * 4;	/* RGBA -> 32 bpp, 4 Bbp */
 	size = stride * bounds.Height;

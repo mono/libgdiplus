@@ -1,3 +1,11 @@
+2006-05-04  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* region.c: Fixed bug #78284 when doing a transform on an empty 
+	region. Also ensure we convert empty region as the some structures
+	are assumed to be allocated after the conversion.
+	* region-bitmap.c: Allow region bitmaps with 0 width and/or height
+	as this is a valid case (i.e. they aren't too big to render ;-).
+
 2006-05-03  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* lineargradientbrush.c: Applied patch for #78185 from Bill Holmes

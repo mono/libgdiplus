@@ -297,8 +297,8 @@ gdip_region_convert_to_path (GpRegion *region)
 	int i;
 	GpRectF *rect;
 
-	/* no convertion is required for empty or complex regions */
-	if (!region || (region->cnt == 0) || (region->type != RegionTypeRectF))
+	/* no convertion is required for complex regions */
+	if (!region || (region->type != RegionTypeRectF))
 		return;
 
 	region->type = RegionTypePath;
@@ -1495,6 +1495,10 @@ GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 
 	if (!region || !matrix)
 		return InvalidParameter;
+
+	/* no transformation to do on an empty region */
+	if ((region->cnt == 0) && (region->type == RegionTypeRectF))
+		return Ok;
 
 	/* don't (possibly) convert to a bitmap if the matrix is empty (a no-op) */
 	if (gdip_is_matrix_empty (matrix))
