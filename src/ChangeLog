@@ -1,5 +1,11 @@
-2006-05-04  Sebastien Pouliot  <sebastien@ximian.com> 
-
+2006-05-04  Sebastien Pouliot  <sebastien@ximian.com>
+ 
+	* graphics.c: Removed the reset on the matrix when begining a new 
+	container (this is half-right, but better vistually than the current
+	reset). Added a FIXME in GdipGetWorldTransform as it won't return the
+	correct results inside a container. Added MonoTODO to Gdip[Get|Set]
+	PixelOffsetMode as we do not use the value inside libgdiplus (and 
+	changing it should affect other values).
 	* region.c: Fixed bug #78284 when doing a transform on an empty 
 	region. Also ensure we convert empty region as the some structures
 	are assumed to be allocated after the conversion.

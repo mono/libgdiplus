@@ -158,12 +158,8 @@ gdip_unit_conversion (Unit from, Unit to, float dpi, GraphicsType type, float nS
 static void
 gdip_graphics_reset (GpGraphics *graphics)
 {
-	cairo_matrix_init_identity (graphics->copy_of_ctm);
-	cairo_identity_matrix (graphics->ct);
-
 	GdipResetClip (graphics);
 	cairo_matrix_init_identity (graphics->clip_matrix);
-	graphics->bounds.X = graphics->bounds.Y = graphics->bounds.Width = graphics->bounds.Height = 0;
 	graphics->page_unit = UnitDisplay;
 	graphics->scale = 1.0f;
 	graphics->interpolation = InterpolationModeBilinear;
@@ -181,6 +177,8 @@ gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 {
 	graphics->ct = cairo_create (surface);
 	GdipCreateMatrix (&graphics->copy_of_ctm);
+	cairo_matrix_init_identity (graphics->copy_of_ctm);
+	cairo_identity_matrix (graphics->ct);
 
 #ifndef NO_CAIRO_AA
         cairo_set_shape_format (graphics->ct, CAIRO_FORMAT_A1);
@@ -191,6 +189,7 @@ gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 	cairo_select_font_face (graphics->ct, "serif:12", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	GdipCreateRegion (&graphics->clip);
 	GdipCreateMatrix (&graphics->clip_matrix);
+	graphics->bounds.X = graphics->bounds.Y = graphics->bounds.Width = graphics->bounds.Height = 0;
 	graphics->last_pen = NULL;
 	graphics->last_brush = NULL;
 	graphics->saved_status = NULL;
@@ -741,6 +740,7 @@ GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
+	/* FIXME: this ISN'T be true if we're in a container */
         cairo_get_matrix (graphics->ct, matrix);
         return Ok;
 }
@@ -3831,16 +3831,19 @@ GdipGetTextRenderingHint(GpGraphics *graphics, TextRenderingHint *mode)
 	return Ok;
 }
 
+/* MonoTODO - pixel offset mode isn't supported */
 GpStatus
 GdipSetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode pixelOffsetMode)
 {
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pixelOffsetMode != PixelOffsetModeInvalid, InvalidParameter);
+
+	/* FIXME: changing pixel mode affects other properties (e.g. the visible clip bounds) */
 	graphics->pixel_mode = pixelOffsetMode;
-	
 	return Ok;
 }
 
+/* MonoTODO - pixel offset mode isn't supported */
 GpStatus
 GdipGetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode *pixelOffsetMode)
 {
