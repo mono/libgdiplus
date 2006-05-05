@@ -1,5 +1,6 @@
 2006-05-05  Sebastien Pouliot  <sebastien@ximian.com>
 
+	* lineargradientbrush.c: Changed atanf for atan (for older SunOS);
 	* graphics-path.c: Changed GdipGetPathWorldBounds to get better 
 	results when curves are used (much better than MS GDI+). Reduced
 	memory allocations. Pen support is still missing.

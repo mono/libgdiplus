@@ -505,7 +505,7 @@ GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARG
 
 	else {
 		float slope = linear->rectangle.Height / linear->rectangle.Width;
-		float newAngleRad = (atanf(slope));
+		float newAngleRad = atan (slope);
 		float newAngle = (newAngleRad / (DEGTORAD));
 
 		if (xFlipped)
