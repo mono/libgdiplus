@@ -1,3 +1,9 @@
+2006-05-05  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: Changed GdipGetPathWorldBounds to get better 
+	results when curves are used (much better than MS GDI+). Reduced
+	memory allocations. Pen support is still missing.
+
 2006-05-04  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics.c: Fix the default (parameter-less) BeginContainer by

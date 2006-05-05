@@ -1604,85 +1604,79 @@ GdipTransformPath (GpPath* path, GpMatrix *matrix)
         return s;
 }
 
-/* MonoTODO - pen isn't considered (related to GdipWidenPath?) */
+/* MonoTODO - pen support depends on unimplemented GdipWidenPath */
 GpStatus 
 GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
-	GpStatus status = Ok;
-	GpPath *workpath = path;
+	GpStatus status;
+	GpPath *workpath;
 
 	if (!path || !bounds)
 		return InvalidParameter;
 
-	if (matrix && !pen) {
-		status = GdipClonePath (path, &workpath);
-		if (status != Ok)
-			return status;
-		status = GdipTransformPath (workpath, (GpMatrix*)matrix);
-	} else if (pen) {
-		status = GdipClonePath (path, &workpath);
-		if (status != Ok)
-			return status;
-		/* FIXME: GdipWidenPath isn't implemented - and may not be related :-| */
-		status = GdipWidenPath (workpath, (GpPen*)pen, (GpMatrix*)matrix, 1.0f);
+	if (path->count < 1) {
+		/* special case #1 - Empty */
+		bounds->X = 0.0f;
+		bounds->Y = 0.0f;
+		bounds->Width = 0.0f;
+		bounds->Height = 0.0f;
+		return Ok;
 	}
 
-	if (status != Ok) {
-		if (workpath != path)
-			GdipDeletePath (workpath);
+	status = GdipClonePath (path, &workpath);
+	if (status != Ok)
 		return status;
+
+	/* We don't need a very precise flat value to get the bounds (GDI+ isn't, big time) -
+	 * however flattening helps by removing curves, making the rest of the algorithm a 
+	 * lot simpler
+	 */
+	if (pen) {
+		/* FIXME: GdipWidenPath isn't implemented - and may not be related :-| */
+		status = GdipWidenPath (workpath, (GpPen*)pen, (GpMatrix*)matrix, 25.0f);
 	} else {
-		int length = 0, i;
-		GpPointF *base, *points;
+		/* note: only the matrix is applied if no curves are present in the path */
+		status = GdipFlattenPath (workpath, (GpMatrix*)matrix, 25.0f);
+	}
 
-		GdipGetPointCount (workpath, &length);
-		if (length < 1) {
-			/* special case #1 - Empty */
-			bounds->X = 0.0f;
-			bounds->Y = 0.0f;
-			bounds->Width = 0.0f;
-			bounds->Height = 0.0f;
-			return Ok;
-		}
-        
-		base = points = (GpPointF*) GdipAlloc (sizeof (GpPointF) * length);
-		GdipGetPathPoints (workpath, points, length);
+	if (status == Ok) {
+		int i;
+		GpPointF points;
 
-		bounds->X = points->X;		/* keep minimum X here */
-		bounds->Y = points->Y;		/* keep minimum Y here */
-		if (length == 1) {
+		points = g_array_index (workpath->points, GpPointF, 0);
+		bounds->X = points.X;		/* keep minimum X here */
+		bounds->Y = points.Y;		/* keep minimum Y here */
+		if (workpath->count == 1) {
 			/* special case #2 - Only one element */
 			bounds->Width = 0.0f;
 			bounds->Height = 0.0f;
-			GdipFree (base);
 			return Ok;
 		}
 
-		bounds->Width = points->X;	/* keep maximum X here */
-		bounds->Height = points->Y;	/* keep maximum Y here */
-		*points++;
+		bounds->Width = points.X;	/* keep maximum X here */
+		bounds->Height = points.Y;	/* keep maximum Y here */
 
-		for (i = 1; i < length; i++, *points++) {
-			if (points->X < bounds->X)
-				bounds->X = points->X;
-			if (points->Y < bounds->Y)
-				bounds->Y = points->Y;
-			if (points->X > bounds->Width)
-				bounds->Width = points->X;
-			if (points->Y > bounds->Height)
-				bounds->Height = points->Y;
+		for (i = 1; i < workpath->count; i++) {
+			points = g_array_index (workpath->points, GpPointF, i);
+			if (points.X < bounds->X)
+				bounds->X = points.X;
+			if (points.Y < bounds->Y)
+				bounds->Y = points.Y;
+			if (points.X > bounds->Width)
+				bounds->Width = points.X;
+			if (points.Y > bounds->Height)
+				bounds->Height = points.Y;
 		}
-
-		GdipFree (base);
 
 		/* convert maximum values (width/height) as length */
 		bounds->Width -= bounds->X;
 		bounds->Height -= bounds->Y;
 	}
-	return Ok;
+	GdipDeletePath (workpath);
+	return status;
 }
 
-/* MonoTODO - pen isn't considered (related to GdipWidenPath?) */
+/* MonoTODO - pen support depends on unimplemented GdipWidenPath */
 GpStatus 
 GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
