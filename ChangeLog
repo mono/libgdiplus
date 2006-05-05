@@ -1,3 +1,7 @@
+2006-05-05  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* TODO: Added a few details about some not-quite-supported API.
+
 2006-05-02  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* TODO: Removed GdipBeginContainer and GdipEndContainer from the list

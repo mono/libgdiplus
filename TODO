@@ -27,6 +27,10 @@ GdipCreateFromHWND
 
 GdipBeginContainer2
 GdipBeginContainerI
+GdipGetPixelOffsetMode		[2]
+GdipGetTextContrast		[2]
+GdipSetPixelOffsetMode		[2]
+GdipSetTextContrast		[2]
 GdipTransformPoints
 GdipTransformPointsI
 
@@ -52,7 +56,7 @@ GdipGetPenCustomStartCap
 GdipSetPenCustomEndCap
 GdipGetPenCustomEndCap
 
-* Functions releated to paths
+* Functions related to paths
 
 GdipAddString			[1]
 GdipAddStringI			[1]
@@ -63,6 +67,7 @@ GdipWarpPath
 
 Notes
 [1] Partially implemented. LayoutRect and StringFormat are ignored.
+[2] Function exists (return Ok) but doesn't do anything (visually or not)
 
 ---- Issues
 
