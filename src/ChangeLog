@@ -1,3 +1,11 @@
+2006-05-08  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: Added pen support to GdipGetPathWorldBounds as the
+	result doesn't have to be very precise (see test cases). Fixed 
+	GdipWidenPath to return OutOfMemory if the supplied path as a single
+	point (seems to be a bug, reported as FDBK49685). Fixed GdipWarpPath
+	to reset (empty) the path in the same case (again to match MS);
+
 2006-05-05  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* lineargradientbrush.c: Changed atanf for atan (for older SunOS);

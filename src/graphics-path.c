@@ -1534,6 +1534,9 @@ GdipWidenPath (GpPath *nativePath, GpPen *pen, GpMatrix *matrix, float flatness)
 	/* quick out */
 	if (nativePath->count == 0)
 		return Ok;
+	/* for compatibility with MS GDI+ (reported as FDBK49685) */
+	if (nativePath->count == 1)
+		return OutOfMemory;
 
 	status = gdip_prepare_path (nativePath, matrix, flatness);
 	if (status != Ok)
@@ -1562,7 +1565,8 @@ GdipWarpPath (GpPath *path, GpMatrix *matrix, const GpPointF *points, int count,
 		return Ok;
 
 	/* an invalid warp mode resets the current path */
-	if ((warpMode != WarpModePerspective) && (warpMode != WarpModeBilinear))
+	/* a path with a single point will reset it too */
+	if (((warpMode != WarpModePerspective) && (warpMode != WarpModeBilinear)) || (path->count == 1))
 		return GdipResetPath (path);
 
 	status = gdip_prepare_path (path, matrix, flatness);
@@ -1604,7 +1608,6 @@ GdipTransformPath (GpPath* path, GpMatrix *matrix)
         return s;
 }
 
-/* MonoTODO - pen support depends on unimplemented GdipWidenPath */
 GpStatus 
 GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
@@ -1629,16 +1632,11 @@ GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, c
 
 	/* We don't need a very precise flat value to get the bounds (GDI+ isn't, big time) -
 	 * however flattening helps by removing curves, making the rest of the algorithm a 
-	 * lot simpler
+	 * lot simpler.
 	 */
-	if (pen) {
-		/* FIXME: GdipWidenPath isn't implemented - and may not be related :-| */
-		status = GdipWidenPath (workpath, (GpPen*)pen, (GpMatrix*)matrix, 25.0f);
-	} else {
-		/* note: only the matrix is applied if no curves are present in the path */
-		status = GdipFlattenPath (workpath, (GpMatrix*)matrix, 25.0f);
-	}
 
+	/* note: only the matrix is applied if no curves are present in the path */
+	status = GdipFlattenPath (workpath, (GpMatrix*)matrix, 25.0f);
 	if (status == Ok) {
 		int i;
 		GpPointF points;
@@ -1671,12 +1669,22 @@ GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, c
 		/* convert maximum values (width/height) as length */
 		bounds->Width -= bounds->X;
 		bounds->Height -= bounds->Y;
+
+		if (pen) {
+			/* in calculation the pen's width is at least 1.0 */
+			float width = (pen->width < 1.0f) ? 1.0f : pen->width;
+			float halfw = (width / 2);
+			
+			bounds->X -= halfw;
+			bounds->Y -= halfw;
+			bounds->Width += width;
+			bounds->Height += width;
+		}
 	}
 	GdipDeletePath (workpath);
 	return status;
 }
 
-/* MonoTODO - pen support depends on unimplemented GdipWidenPath */
 GpStatus 
 GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
