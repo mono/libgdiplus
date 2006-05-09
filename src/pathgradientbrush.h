@@ -22,11 +22,11 @@ struct _GpPathGradient {
 	GpPointF center;
 	ARGB centerColor;
 	GpPointF focusScales;
-	GpRectF *rectangle;
+	GpRectF rectangle;
 	Blend *blend;
 	InterpolationColors *presetColors;
 	GpWrapMode wrapMode;
-	GpMatrix *transform;
+	cairo_matrix_t transform;
 	cairo_pattern_t *pattern;
 };
 

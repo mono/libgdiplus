@@ -1,3 +1,11 @@
+2006-05-09  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* pathgradientbrush.c: Apply tricks, knowledge and unit tests from
+	lineargradientbrush as a starting point (i.e. it doesn't fix anything
+	visually but I like those foundations better ;-)
+	* pathgradientbrush.h: Change transform and rectangle not to require
+	extra memory allocations (always allocated, static size).
+
 2006-05-08  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c: Added pen support to GdipGetPathWorldBounds as the

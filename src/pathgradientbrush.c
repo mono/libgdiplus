@@ -47,8 +47,7 @@ gdip_pathgradient_init (GpPathGradient *pg)
 	pg->focusScales.X = 0.0f;
 	pg->focusScales.Y = 0.0f;
 	pg->wrapMode = WrapModeClamp;
-	pg->transform = NULL;
-	GdipCreateMatrix (&pg->transform);
+	cairo_matrix_init_identity (&pg->transform);
 	pg->presetColors = (InterpolationColors *) GdipAlloc (sizeof (InterpolationColors));
 	pg->presetColors->count = 1;
 	pg->presetColors->colors = (ARGB *) GdipAlloc (sizeof (ARGB));
@@ -61,11 +60,10 @@ gdip_pathgradient_init (GpPathGradient *pg)
 	pg->blend->positions = (float *) GdipAlloc (sizeof (float));
 	pg->blend->factors [0] = 1.0;
 	pg->blend->positions[0] = 0.0;
-	pg->rectangle = (GpRectF *) GdipAlloc (sizeof (GpRectF));
-	pg->rectangle->X = 0.0;
-	pg->rectangle->Y = 0.0;
-	pg->rectangle->Width = 0.0;
-	pg->rectangle->Height = 0.0;
+	pg->rectangle.X = 0.0;
+	pg->rectangle.Y = 0.0;
+	pg->rectangle.Width = 0.0;
+	pg->rectangle.Height = 0.0;
 	pg->pattern = NULL;
 }
 
@@ -108,20 +106,19 @@ gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	newbrush->center = pgbrush->center;
 	newbrush->centerColor = pgbrush->centerColor;
 	newbrush->wrapMode = pgbrush->wrapMode;
-	GdipCloneMatrix (pgbrush->transform, &newbrush->transform);
+	gdip_cairo_matrix_copy (&newbrush->transform, &pgbrush->transform);
 
-	if (pgbrush->rectangle) {
-		newbrush->rectangle = (GpRectF *) GdipAlloc (sizeof (GpRectF));
-		memcpy (newbrush->rectangle, pgbrush->rectangle, sizeof (GpRectF));
-	} else {
-		newbrush->rectangle= NULL;
-	}
+	newbrush->rectangle.X = pgbrush->rectangle.X;
+	newbrush->rectangle.Y = pgbrush->rectangle.Y;
+	newbrush->rectangle.Width = pgbrush->rectangle.Width;
+	newbrush->rectangle.Height = pgbrush->rectangle.Height;
 
 	newbrush->presetColors = (InterpolationColors *) GdipAlloc (sizeof (InterpolationColors));
 
 	if (newbrush->presetColors == NULL) 
 		goto NO_PRESET;
 
+	newbrush->presetColors->count = pgbrush->presetColors->count;
 	if (pgbrush->presetColors->count > 0) {
 		newbrush->presetColors->colors = (ARGB *) GdipAlloc (pgbrush->presetColors->count * sizeof (ARGB));
 		if (newbrush->presetColors->colors == NULL) 
@@ -136,9 +133,12 @@ gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	} else {
 		memcpy (newbrush->presetColors, pgbrush->presetColors, sizeof (InterpolationColors));
 	}
+
 	newbrush->blend = (Blend *) GdipAlloc (sizeof (Blend));
 	if (newbrush->blend == NULL)
 		goto NO_BLEND;
+
+	newbrush->blend->count = pgbrush->blend->count;
 	if (pgbrush->blend->count > 0) {
 		newbrush->blend->factors = (float *) GdipAlloc (pgbrush->blend->count * sizeof (float));
 		if (newbrush->blend->factors == NULL) 
@@ -163,7 +163,6 @@ NO_PRESET_POSITIONS:
 NO_PRESET_COLORS:
 	GdipFree (newbrush->presetColors);
 NO_PRESET:
-	GdipDeleteMatrix (newbrush->transform);
 	GdipFree (newbrush);
 	return OutOfMemory;
 
@@ -186,37 +185,38 @@ gdip_pgrad_destroy (GpBrush *brush)
 
 	pgbrush = (GpPathGradient *) brush;
 
-	if (pgbrush->boundary)
+	if (pgbrush->boundary) {
 		GdipDeletePath (pgbrush->boundary);
-	pgbrush->boundary = NULL;
+		pgbrush->boundary = NULL;
+	}
 
-	if (pgbrush->boundaryColors)
+	if (pgbrush->boundaryColors) {
 		GdipFree (pgbrush->boundaryColors);
-	pgbrush->boundaryColors = NULL;
+		pgbrush->boundaryColors = NULL;
+	}
 
-	if (pgbrush->rectangle)
-		GdipFree (pgbrush->rectangle);
-	pgbrush->rectangle = NULL;
-
-	if (pgbrush->pattern)
+	if (pgbrush->pattern) {
 		cairo_pattern_destroy (pgbrush->pattern);
-	pgbrush->pattern = NULL;
+		pgbrush->pattern = NULL;
+	}
 
-	if (pgbrush->blend)
+	if (pgbrush->blend) {
 		if (pgbrush->blend->count > 0) {
 			GdipFree (pgbrush->blend->factors);
 			GdipFree (pgbrush->blend->positions);
 		}
-	GdipFree (pgbrush->blend);
-	pgbrush->blend = NULL;
+		GdipFree (pgbrush->blend);
+		pgbrush->blend = NULL;
+	}
 	
-	if (pgbrush->presetColors)
+	if (pgbrush->presetColors) {
 		if (pgbrush->presetColors->count > 0) {
 			GdipFree (pgbrush->presetColors->colors);
 			GdipFree (pgbrush->presetColors->positions);
 		}
-	GdipFree (pgbrush->presetColors);
-	pgbrush->presetColors = NULL;
+		GdipFree (pgbrush->presetColors);
+		pgbrush->presetColors = NULL;
+	}
 
 	GdipFree (pgbrush);
 	return Ok;
@@ -276,6 +276,21 @@ gdip_get_center (GDIPCONST GpPointF *points, int count)
 	return center;
 }
 
+static BOOL
+gdip_has_non_empty_color (GDIPCONST ARGB *colors, int count)
+{
+	int i;
+	ARGB *c = (ARGB*)colors;
+
+	for (i = 0; i < count; i++, c++) {
+		if (*c)
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+
 GpStatus
 GdipCreatePathGradient (GDIPCONST GpPointF *points, int count, GpWrapMode wrapMode, GpPathGradient **polyGradient)
 {
@@ -285,7 +300,10 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, int count, GpWrapMode wrapMo
 	GpPath *gppath = NULL;
 
 	g_return_val_if_fail (polyGradient != NULL, InvalidParameter);
-	g_return_val_if_fail (count >= 2, InvalidParameter);
+
+	/* this match MS GDI+ behaviour */
+	if (count < 2)
+		return OutOfMemory;
 
 	gp = gdip_pathgradient_new ();
 	
@@ -301,10 +319,10 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, int count, GpWrapMode wrapMo
 	/* set the bounding rectangle */
 	GdipGetPathData (gppath, &pdata);
 	/* set the first point as the edge of the rectangle */
-	gp->rectangle->X = pdata.Points[0].X;
-	gp->rectangle->Y = pdata.Points[0].Y;
+	gp->rectangle.X = pdata.Points[0].X;
+	gp->rectangle.Y = pdata.Points[0].Y;
 	for (i = 1; i < pdata.Count; i++) {
-		gdip_rect_expand_by (gp->rectangle, &(pdata.Points[i]));
+		gdip_rect_expand_by (&gp->rectangle, &(pdata.Points[i]));
 	}
 
 	*polyGradient = gp;
@@ -317,7 +335,16 @@ GdipCreatePathGradientI (GDIPCONST GpPoint *points, int count, GpWrapMode wrapMo
 {
 	int i;
 	GpStatus result;
-	GpPointF *newPoints = GdipAlloc (sizeof (GpPointF) * count);
+	GpPointF *newPoints;
+
+	/* this match MS GDI+ behaviour */
+	if (count < 2)
+		return OutOfMemory;
+
+	newPoints = GdipAlloc (sizeof (GpPointF) * count);
+	if (!newPoints)
+		return OutOfMemory;
+
 	for (i = 0; i < count; i++) {
 		newPoints[i].X = points[i].X;
 		newPoints[i].Y = points[i].Y;
@@ -339,6 +366,10 @@ GdipCreatePathGradientFromPath (GDIPCONST GpPath *path, GpPathGradient **polyGra
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 	g_return_val_if_fail (polyGradient != NULL, InvalidParameter);
 
+	/* this match MS GDI+ behaviour */
+	if (path->count < 2)
+		return OutOfMemory;
+
 	gp = gdip_pathgradient_new ();
 	GdipClonePath ((GpPath *) path, &(gp->boundary));
 	GdipGetPointCount (path, &count);
@@ -350,10 +381,10 @@ GdipCreatePathGradientFromPath (GDIPCONST GpPath *path, GpPathGradient **polyGra
 	/* set the bounding rectangle */
 	GdipGetPathData (path, &pdata);
 	/* set the first point as the edge of the rectangle */
-	gp->rectangle->X = pdata.Points[0].X;
-	gp->rectangle->Y = pdata.Points[0].Y;
+	gp->rectangle.X = pdata.Points[0].X;
+	gp->rectangle.Y = pdata.Points[0].Y;
 	for (i = 1; i < pdata.Count; i++) {
-		gdip_rect_expand_by (gp->rectangle, &(pdata.Points[i]));
+		gdip_rect_expand_by (&gp->rectangle, &(pdata.Points[i]));
 	}
 
 	*polyGradient = gp;
@@ -408,6 +439,10 @@ GdipSetPathGradientSurroundColorsWithCount (GpPathGradient *brush, GDIPCONST ARG
 	if ((*count < 1) || (*count > brush->boundary->count))
 		return InvalidParameter;
 
+	/* at least one of the colors must be non-zero (i.e. not empty) */
+	if (!gdip_has_non_empty_color (colors, *count))
+		return Ok;
+
 	if (*count != brush->boundaryColorsCount) {
 		GdipFree (brush->boundaryColors);
 		brush->boundaryColors = (ARGB *) GdipAlloc (sizeof(ARGB) * (*count));
@@ -447,7 +482,7 @@ GdipGetPathGradientRect (GpPathGradient *brush, GpRectF *rect)
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (rect != NULL, InvalidParameter);
 	
-	*rect = *(brush->rectangle);
+	memcpy (rect, &brush->rectangle, sizeof (GpRectF));
 	return Ok;
 }
 
@@ -908,17 +943,25 @@ GdipGetPathGradientTransform (GpPathGradient *brush, GpMatrix *matrix)
 	if (brush->presetColors->count >= 2)
 		return WrongState;
 
-	gdip_cairo_matrix_copy(matrix, &brush->transform);
+	gdip_cairo_matrix_copy (matrix, &brush->transform);
 	return Ok;
 }
 
 GpStatus
 GdipSetPathGradientTransform (GpPathGradient *brush, GpMatrix *matrix)
 {
+	GpStatus status;
+	BOOL invertible;
+
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	gdip_cairo_matrix_copy(&brush->transform, matrix);
+	/* the matrix MUST be invertible to be used */
+	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
+	if (!invertible || (status != Ok))
+		return InvalidParameter;
+
+	gdip_cairo_matrix_copy (&brush->transform, matrix);
 	brush->base.changed = TRUE;
 	return Ok;
 }
@@ -926,105 +969,72 @@ GdipSetPathGradientTransform (GpPathGradient *brush, GpMatrix *matrix)
 GpStatus
 GdipResetPathGradientTransform (GpPathGradient *brush)
 {
-    g_return_val_if_fail (brush != NULL, InvalidParameter);
-    cairo_matrix_init_identity (brush->transform);
-    return Ok;
+	g_return_val_if_fail (brush != NULL, InvalidParameter);
+
+	cairo_matrix_init_identity (&brush->transform);
+	brush->base.changed = TRUE;
+	return Ok;
 }
 
 GpStatus
 GdipMultiplyPathGradientTransform (GpPathGradient *brush, GDIPCONST GpMatrix *matrix, GpMatrixOrder order)
 {
-	cairo_matrix_t *mat = NULL;
+	GpStatus status;
+	BOOL invertible;
+	cairo_matrix_t mat;
+
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	GdipCreateMatrix (&mat);
-	
-	if (order == MatrixOrderPrepend)
-		cairo_matrix_multiply (mat, matrix, brush->transform);
-	else if (order == MatrixOrderAppend)
-		cairo_matrix_multiply (mat, brush->transform, matrix);
-	else {
+	/* the matrix MUST be invertible to be used */
+	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
+	if (!invertible || (status != Ok))
 		return InvalidParameter;
-	}
 
-	gdip_cairo_matrix_copy (brush->transform, mat);
+	if (order == MatrixOrderPrepend)
+		cairo_matrix_multiply (&mat, matrix, &brush->transform);
+	else if (order == MatrixOrderAppend)
+		cairo_matrix_multiply (&mat, &brush->transform, matrix);
+
+	gdip_cairo_matrix_copy (&brush->transform, &mat);
+	brush->base.changed = TRUE;
 	return Ok;
 }
 
 GpStatus
 GdipTranslatePathGradientTransform (GpPathGradient *brush, float dx, float dy, GpMatrixOrder order)
 {
+	GpStatus status;
+
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
-	if (order == MatrixOrderAppend) {
-		cairo_matrix_translate (brush->transform, dx, dy);
-	} else if (order == MatrixOrderPrepend) {
-		cairo_matrix_t *mat, *matres;
-		
-		GdipCreateMatrix (&mat);
-		GdipCreateMatrix (&matres);
-
-		cairo_matrix_init_identity (mat);
-		cairo_matrix_translate (mat, dx, dy);
-		cairo_matrix_multiply (matres, mat, brush->transform);
-		gdip_cairo_matrix_copy (brush->transform, matres);
-
-	} else {
-		return InvalidParameter;
-	}
-
-	return Ok;
+	if ((status = GdipTranslateMatrix (&brush->transform, dx, dy, order)) == Ok)
+		brush->base.changed = TRUE;
+	return status;
 }
 
 GpStatus
 GdipScalePathGradientTransform (GpPathGradient *brush, float sx, float sy, GpMatrixOrder order)
 {
+	GpStatus status;
+
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
-	if (order == MatrixOrderAppend) {
-		cairo_matrix_scale (brush->transform, sx, sy);
-	} else if (order == MatrixOrderPrepend) {
-		cairo_matrix_t *mat, *matres;
-		
-		GdipCreateMatrix (&mat);
-		GdipCreateMatrix (&matres);
-		
-		cairo_matrix_init_identity (mat);
-		cairo_matrix_scale (mat, sx, sy);
-		cairo_matrix_multiply (matres, mat, brush->transform);
-		gdip_cairo_matrix_copy (brush->transform, matres);
-
-	} else {
-		return InvalidParameter;
-	}
-
-	return Ok;
+	if ((status = GdipScaleMatrix (&brush->transform, sx, sy, order)) == Ok)
+		brush->base.changed = TRUE;
+	return status;
 }
 
 GpStatus
 GdipRotatePathGradientTransform (GpPathGradient *brush, float angle, GpMatrixOrder order)
 {
+	GpStatus status;
+
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 
-	if (order == MatrixOrderAppend) {
-		cairo_matrix_rotate (brush->transform, angle * DEGTORAD);
-	} else if (order == MatrixOrderPrepend) {
-		cairo_matrix_t *mat, *matres;
-		
-		GdipCreateMatrix (&mat);
-		GdipCreateMatrix (&matres);
-				
-		cairo_matrix_init_identity (mat);
-		cairo_matrix_rotate (mat, angle * DEGTORAD);
-		cairo_matrix_multiply (matres, mat, brush->transform);
-		gdip_cairo_matrix_copy (brush->transform, matres);
-
-	} else {
-		return InvalidParameter;
-	}
-
-	return Ok;
+	if ((status = GdipRotateMatrix (&brush->transform, angle, order)) == Ok)
+		brush->base.changed = TRUE;
+	return status;
 }
 
 GpStatus
@@ -1046,5 +1056,6 @@ GdipSetPathGradientFocusScales (GpPathGradient *brush, float xScale, float yScal
 
 	brush->focusScales.X = xScale;
 	brush->focusScales.Y = yScale;
+	brush->base.changed = TRUE;
 	return Ok;
 }
