@@ -1,3 +1,9 @@
+2006-05-10  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* pathgradientbrush.c: Sadly Cairo doesn't support path-based 
+	gradients. Added support for a special case where we can use cairo's
+	radial gradient. Otherwise we continue to fill using the center color.
+
 2006-05-09  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* pathgradientbrush.c: Apply tricks, knowledge and unit tests from

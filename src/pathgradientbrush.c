@@ -222,10 +222,65 @@ gdip_pgrad_destroy (GpBrush *brush)
 	return Ok;
 }
 
+static void
+add_color_stops_from_blend (cairo_pattern_t *pattern, Blend *blend, ARGB color1, ARGB color2)
+{
+	int index;
+	double sr, sg, sb, sa;
+	double er, eg, eb, ea;
+	double offset, factor;
+
+	sa = (color1 >> 24) & 0xFF;
+	sr = (color1 >> 16) & 0xFF;
+	sg = (color1 >> 8) & 0xFF;
+	sb = color1 & 0xFF;
+
+	ea = (color2 >> 24) & 0xFF;
+	er = (color2 >> 16) & 0xFF;
+	eg = (color2 >> 8) & 0xFF;
+	eb = color2 & 0xFF;
+
+	for (index = 0; index < blend->count; index++) {
+		factor = blend->factors [index];
+		offset = blend->positions [index];
+
+		cairo_pattern_add_color_stop_rgba (pattern, offset, 
+					      ((sr * (1 - factor)) + (er * factor)) / 255,
+					      ((sg * (1 - factor)) + (eg * factor)) / 255,
+					      ((sb * (1 - factor)) + (eb * factor)) / 255,
+					      ((sa * (1 - factor)) + (ea * factor)) / 255);
+	}
+}
+
+static void
+add_color_stops_from_interpolation_colors (cairo_pattern_t *pattern, InterpolationColors *presetColors)
+{
+	int index;
+	double r, g, b, a;
+	double offset;
+	ARGB color;
+
+	/* MS accecpts positions above 1.0 also. Cairo assumes the values above 1.0 as 1.0
+	 * and values below 0 are assumed as 0. So we get different results if any of the
+	 * offset values is out of [0.0, 1.0].
+	 */
+	for (index = 0; index < presetColors->count; index++) {
+		color = presetColors->colors [index];
+		a = (color >> 24) & 0xFF;
+		r = (color >> 16) & 0xFF;
+		g = (color >> 8) & 0xFF;
+		b = color & 0xFF;
+		offset = presetColors->positions [index];
+
+		cairo_pattern_add_color_stop_rgba (pattern, offset, r / 255, g / 255, b / 255, a / 255);
+	}
+}
+
 GpStatus
 gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 {
 	GpPathGradient *pgbrush;
+	GpStatus status;
 
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
@@ -238,24 +293,57 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 	/* We create the new pattern for brush, if the brush is changed
 	 * or if pattern has not been created yet.
 	 */
-	if (pgbrush->base.changed || (pgbrush->pattern) == NULL) {
+	if (pgbrush->base.changed || !pgbrush->pattern) {
+		cairo_pattern_t *pat;
+		float r = MIN (pgbrush->rectangle.Width / 2, pgbrush->rectangle.Height / 2);
+		int i;
 
 		/* destroy the existing pattern */
-		if (pgbrush->pattern)
+		if (pgbrush->pattern) {
 			cairo_pattern_destroy (pgbrush->pattern);
+			pgbrush->pattern = NULL;
+		}
 
-		/* FIXME: To implement this function we need cairo to support
-		 * path gradients.
-		 * As a stub, we simply set the color to the center color.
+		/* FIXME: To fully implement this function we need cairo to support path gradients.
+		 * Right now we have radial gradient which can be used, in some cases, to get the right effect.
 		 */
-		cairo_set_source_rgba (graphics->ct,
-				      ARGB_RED_N(pgbrush->centerColor),
-				      ARGB_GREEN_N(pgbrush->centerColor),
-				      ARGB_BLUE_N(pgbrush->centerColor),
-				      ARGB_ALPHA_N(pgbrush->centerColor));
+
+		pat = cairo_pattern_create_radial (pgbrush->center.X, pgbrush->center.Y, 0.0f,
+			pgbrush->center.X, pgbrush->center.Y, r);
+		status = gdip_get_pattern_status (pat);
+		if (status != Ok)
+			return status;
+
+		cairo_pattern_set_matrix (pat, &pgbrush->transform);
+
+		if ((pgbrush->blend->count > 1) && (pgbrush->boundaryColorsCount > 0)) {
+			/* FIXME: blending done using the a radial shape (not the path shape) */
+			add_color_stops_from_blend (pat, pgbrush->blend, pgbrush->boundaryColors[0], pgbrush->centerColor);
+		} else if (pgbrush->presetColors->count > 1) {
+			/* FIXME: copied from lineargradiantbrush, most probably not right */
+			add_color_stops_from_interpolation_colors (pat, pgbrush->presetColors);
+		} else {
+			cairo_pattern_add_color_stop_rgba (pat, 0.0f,
+				ARGB_RED_N (pgbrush->centerColor),
+				ARGB_GREEN_N (pgbrush->centerColor),
+				ARGB_BLUE_N (pgbrush->centerColor),
+				ARGB_ALPHA_N (pgbrush->centerColor));
+
+			/* if a single other boundary color is present, then we can do the a real radial */
+			if (pgbrush->boundaryColorsCount == 1) {
+				ARGB c = pgbrush->boundaryColors[0];
+				cairo_pattern_add_color_stop_rgba (pat, 1.0f,
+					ARGB_RED_N (c), ARGB_GREEN_N (c), ARGB_BLUE_N (c), ARGB_ALPHA_N (c));
+			} else {
+				/* FIXME: otherwise we (solid-)fill with the centerColor */
+			}
+		}
+
+		pgbrush->pattern = pat;
 	}
 
-	return Ok;
+	cairo_set_source (graphics->ct, pgbrush->pattern);
+	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpPointF
