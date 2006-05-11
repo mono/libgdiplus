@@ -1,3 +1,8 @@
+2006-05-11  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* matrix.c: (GdipCreateMatrix3) Ensure we call GdipFree in case of an 
+	error (where we do not return the allocated matrix).
+
 2006-05-10  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* pathgradientbrush.c: Sadly Cairo doesn't support path-based 

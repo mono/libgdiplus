@@ -157,6 +157,9 @@ GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matri
 	status = gdip_matrix_init_from_rect_3points (result, rect, dstplg);
 	if (status == Ok)
 		*matrix = result;
+	else
+		GdipFree (result);
+
 	return status;
 }
 
