@@ -637,10 +637,14 @@ GdipSetPathGradientBlend (GpPathGradient *brush, GDIPCONST float *blend, GDIPCON
 
 	if (brush->blend->count != count) {
 		blendFactors = (float *) GdipAlloc (count * sizeof (float));
-		g_return_val_if_fail (blendFactors != NULL, OutOfMemory);
+		if (!blendFactors)
+			return OutOfMemory;
 
 		blendPositions = (float *) GdipAlloc (count * sizeof (float));
-		g_return_val_if_fail (blendPositions != NULL, OutOfMemory);
+		if (!blendPositions) {
+			GdipFree (blendFactors);
+			return OutOfMemory;
+		}
 
 		/* free the existing values */
 		if (brush->blend->count != 0) {
@@ -711,10 +715,14 @@ GdipSetPathGradientPresetBlend (GpPathGradient *brush, GDIPCONST ARGB *blend, GD
 
 	if (brush->presetColors->count != count) {
 		blendColors = (ARGB *) GdipAlloc (count * sizeof (ARGB));
-		g_return_val_if_fail (blendColors != NULL, OutOfMemory);
+		if (!blendColors)
+			return OutOfMemory;
 
 		blendPositions = (float *) GdipAlloc (count * sizeof (float));
-		g_return_val_if_fail (blendPositions != NULL, OutOfMemory);
+		if (!blendPositions) {
+			GdipFree (blendColors);
+			return OutOfMemory;
+		}
 
 		/* free the existing values */
 		if (brush->presetColors->count != 0) {
@@ -776,10 +784,14 @@ GdipSetPathGradientSigmaBlend (GpPathGradient *brush, float focus, float scale)
 
 	if (brush->blend->count != count) {
 		blends = (float *) GdipAlloc (count * sizeof (float));
-		g_return_val_if_fail (blends != NULL, OutOfMemory);
+		if (!blends)
+			return OutOfMemory;
 
 		positions = (float *) GdipAlloc (count * sizeof (float));
-		g_return_val_if_fail (positions != NULL, OutOfMemory);
+		if (!positions) {
+			GdipFree (blends);
+			return OutOfMemory;
+		}
 
 		/* free the existing values */
 		if (brush->blend->count != 0) {
@@ -943,10 +955,14 @@ GdipSetPathGradientLinearBlend (GpPathGradient *brush, float focus, float scale)
 
 	if (brush->blend->count != count) {
 		blends = (float *) GdipAlloc (count * sizeof (float));
-		g_return_val_if_fail (blends != NULL, OutOfMemory);
+		if (!blends)
+			return OutOfMemory;
 
 		positions = (float *) GdipAlloc (count * sizeof (float));
-		g_return_val_if_fail (positions != NULL, OutOfMemory);
+		if (!positions) {
+			GdipFree (blends);
+			return OutOfMemory;
+		}
 
 		/* free the existing values */
 		if (brush->blend->count != 0) {
