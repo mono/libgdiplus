@@ -1007,6 +1007,7 @@ GdipAddString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	cairo_text_extents_t extents;
 	cairo_matrix_t matrix;
 	GpFont *font = NULL;
+	GpStatus status;
 
 	if (length == 0)
 		return Ok;
@@ -1033,11 +1034,16 @@ GdipAddString (GpPath *path, GDIPCONST WCHAR *string, int length,
 		return OutOfMemory;
 	}
 
-	GdipCreateFont (family, emSize, style, UnitPixel, &font);
-	if (font) {
-		cairo_set_font_face (cr, font->cairofnt);
-		cairo_set_font_size (cr, font->sizeInPixels);
+	status = GdipCreateFont (family, emSize, style, UnitPixel, &font);
+	if (status != Ok) {
+		GdipFree (utf8);
+		cairo_destroy (cr);
+		cairo_surface_destroy (cs);
+		return status;
 	}
+
+	cairo_set_font_face (cr, font->cairofnt);
+	cairo_set_font_size (cr, font->sizeInPixels);
 
 #if FALSE
 WCHAR name[LF_FACESIZE];
@@ -1046,7 +1052,8 @@ g_warning ("GdipAddString \"%s\" (family: %s, size %g)", utf8, ucs2_to_utf8 ((co
 #endif
 	/* TODO - deal with layoutRect, format... ideally we would be calling a subset
 	   of GdipDrawString that already does everything *and* preserve the whole path */
-	cairo_move_to (cr, layoutRect->X, layoutRect->Y + font->sizeInPixels);
+	if (layoutRect)
+		cairo_move_to (cr, layoutRect->X, layoutRect->Y + font->sizeInPixels);
 	cairo_text_path (cr, (const char*)utf8);
 
 	/* get the font data from the cairo path and translate it as a gdi+ path */
@@ -1386,8 +1393,7 @@ gdip_convert_bezier_to_lines (GpPath *path, int index, float flatness, GArray *f
 	/* recursion was within limits, append the result to the original supplied list */
 	if (points->len > 0) {
 		g_array_append_val (flat_points, g_array_index (points, GpPointF, 0));
-		/* special case: first point type could be PathPointTypeStart */
-		type = (index == 0) ? PathPointTypeStart : PathPointTypeLine;
+		type = PathPointTypeLine;
 		g_byte_array_append (flat_types, &type, 1);
 	}
 
@@ -1651,6 +1657,7 @@ GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, c
 			/* special case #2 - Only one element */
 			bounds->Width = 0.0f;
 			bounds->Height = 0.0f;
+			GdipDeletePath (workpath);
 			return Ok;
 		}
 
