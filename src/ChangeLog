@@ -1,4 +1,11 @@
-2006-05-12  Sebastien Pouliot  <sebastien@ximian.com>
+2006-05-12  Peter Dennis Bartok  <pbartok@novell.com> 
+
+	* region.c (gdip_combine_union): Hack to allow adding rectangles
+	  with negative x/y coordinates. This method should probably
+	  be reworked properly, not assuming negative values have a 
+	  special meaning.
+
+2006-05-12  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* bitmap.c: (GdipCreateBitmapFromScan0) make sure we're not gonna use
 	the default_palette if NULL. (GdipBitmapLockBits) don't use srcRect

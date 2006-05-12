@@ -719,7 +719,8 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
         }
 
 	/* Init current with the first element in the array */
-	current.X = -1; current.Y = -1;
+	current.X = REGION_INFINITE_POSITION;
+	current.Y = REGION_INFINITE_POSITION;
 	current.Width = 0; current.Height = 0;
 
 	while (gdip_getlowestrect (allrects, allcnt, &current, &rslt)) {
