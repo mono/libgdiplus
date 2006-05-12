@@ -1,3 +1,8 @@
+2006-05-12  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* graphics.c (MeasureOrDrawString): Only make every character a
+	  wrappoint if we're single-line and have char trimming (#78336)
+
 2006-05-12  Peter Dennis Bartok  <pbartok@novell.com> 
 
 	* region.c (gdip_combine_union): Hack to allow adding rectangles

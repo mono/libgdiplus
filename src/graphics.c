@@ -2338,7 +2338,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 			/* Boy, this must be slow, FIXME somehow */
 			default: {
-				if ((fmt->trimming != StringTrimmingCharacter) && (fmt->trimming != StringTrimmingNone)) {
+				if (((fmt->formatFlags & StringFormatFlagsNoWrap)==0) || ((fmt->trimming != StringTrimmingCharacter) && (fmt->trimming != StringTrimmingNone))) {
 					break;
 				}
 				/* Fall through */
