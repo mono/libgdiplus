@@ -1,4 +1,4 @@
-2006-05-12  Sebastien Pouliot  <sebastien@ximian.com> 
+2006-05-12  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c: (GdipGetPathWorldBounds) free workpath in the 
 	special case where weonly have a single element after flattening.
@@ -7,6 +7,8 @@
 	* region.c: (GdipCreateRegionRgnData) make sure we free the GpRegion
 	in all error cases. (gdip_combine_complement) avoid possible double
 	free.
+	* stringformat.c: (GdipGetStringFormatTabStops) don't use the format
+	pointer before it's NULL check.
 
 2006-05-11  Sebastien Pouliot  <sebastien@ximian.com> 
 

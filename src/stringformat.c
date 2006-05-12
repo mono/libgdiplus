@@ -339,13 +339,14 @@ GpStatus
 GdipGetStringFormatTabStops (GDIPCONST GpStringFormat *format, int count, float *firstTabOffset, float *tabStops)
 {
 	int i;
-	float *pItemSrc = format->tabStops;
+	float *pItemSrc;
 	float *pItemTrg = tabStops;
 	int elems;
 
 	if (!format || !firstTabOffset || !tabStops)
 		return InvalidParameter;
 
+	pItemSrc = format->tabStops;
 	elems = count<format->numtabStops ? count : format->numtabStops;
 	for (i = 0; i < elems; i++, pItemSrc++, pItemTrg++)
 		*pItemTrg = *pItemSrc;
