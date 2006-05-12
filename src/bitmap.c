@@ -146,6 +146,7 @@ gdip_propertyitems_clone(PropertyItem *src, PropertyItem **dest, int count)
 						GdipFree(result[j].value);
 					}
 				}
+				GdipFree (result);
 				return OutOfMemory;
 			}
 			
@@ -917,7 +918,9 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 			case Format1bppIndexed: default_palette = default_Format1bppIndexed_palette; break;
 			case Format4bppIndexed: default_palette = default_Format4bppIndexed_palette; break;
 			case Format8bppIndexed: default_palette = default_Format8bppIndexed_palette; break;
-			default: default_palette = NULL;	// Suppress unassigned val used warning
+			default:
+				default_palette = NULL;	/* Suppress unassigned val used warning */
+				palette_entries = 0;	/* make sure we don't try to access default_palette later */
 		}
 
 		for (i=0; i < palette_entries; i++) {
@@ -1053,6 +1056,7 @@ GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
 	return Ok;
 
 fail:
+	gdip_bitmap_dispose (result);
 	return status;
 }
 
@@ -1831,13 +1835,18 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 	int		dest_stride;
 	int		dest_size;
 	unsigned char	*dest_scan0;
-	Rect		destRect = { 0, 0, srcRect->Width, srcRect->Height };
+	Rect		destRect;
 	GpStatus	status;
 	BitmapData	*root_data;
 
 	if ((bitmap == NULL) || (srcRect == NULL) || (flags == 0) || (locked_data == NULL)) {
 		return InvalidParameter;
 	}
+
+	destRect.X = 0;
+	destRect.Y = 0;
+	destRect.Width = srcRect->Width;
+	destRect.Height = srcRect->Height;
 
 	root_data = bitmap->active_bitmap;
 
