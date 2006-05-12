@@ -930,6 +930,10 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 	if (combineMode == CombineModeReplace)
 		GdipSetEmpty (region);
 
+	/* Union with infinity is a no-op (still an infinite region) */
+	if ((combineMode == CombineModeUnion) && gdip_is_InfiniteRegion (region))
+		return Ok;
+
 	if (region->type == RegionTypePath) {
 		GpPath *path = NULL;
 		GpStatus status;

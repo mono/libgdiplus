@@ -1,8 +1,10 @@
-2006-05-12  Sebastien Pouliot  <sebastien@ximian.com> 
+2006-05-12  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* image.c: (GdipSaveImageToFile) don't access image->type before the
 	NULL check for image. (GdipLoadImageFromDelegate_linux, 
 	GdipLoadImageFromFile) ensure result isn't NULL before using it.
+	* region.c: Fixed the case where an infinite region was unioned with
+	a rectangle (and didn't result in infinity).
 
 2006-05-12  Peter Dennis Bartok  <pbartok@novell.com>
 
