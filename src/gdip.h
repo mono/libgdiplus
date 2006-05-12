@@ -679,7 +679,7 @@ typedef struct {
 	BOOL own_dash_array; /* flag to mark if pen maintains its own array or global array */
         float *dash_array;
         GpUnit unit; /* Always set to UnitWorld. */
-        GpMatrix *matrix;
+	cairo_matrix_t matrix;
         BOOL changed; /* flag to mark if pen is changed and needs setup */
 } GpPen;
 

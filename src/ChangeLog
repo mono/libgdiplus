@@ -1,10 +1,12 @@
-2006-05-12  Sebastien Pouliot  <sebastien@ximian.com> 
+2006-05-12  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bitmap.c: (GdipCreateBitmapFromScan0) make sure we're not gonna use
 	the default_palette if NULL. (GdipBitmapLockBits) don't use srcRect
 	pointer before it's NULL check. (gdip_propertyitems_clone) free result
 	before returning OutOfMemory. (GdipCloneBitmapAreaI) add missing call 
 	to gdip_bitmap_dispose in fail.
+	* gdip.h: Change GpPen.matrix to cairo_matrix_t (to avoid unrequired
+	allocation/free).
 	* graphics-path.c: (GdipGetPathWorldBounds) free workpath in the 
 	special case where weonly have a single element after flattening.
 	(GdipAddString) added checks for invalid font and NULL layoutRect. 
@@ -13,6 +15,8 @@
 	allocated in case we hit an error.
 	* pathgradientbrush.c: Ensure we always free the structures we 
 	allocated in case we hit an error.
+	* pen.c: Updated code to avoid multiple dynamic creation and deletion 
+	of GpMatrix.
 	* region.c: (GdipCreateRegionRgnData) make sure we free the GpRegion
 	in all error cases. (gdip_combine_complement) avoid possible double
 	free.
