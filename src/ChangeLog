@@ -1,9 +1,11 @@
-2006-05-12  Sebastien Pouliot  <sebastien@ximian.com>
+2006-05-12  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics-path.c: (GdipGetPathWorldBounds) free workpath in the 
 	special case where weonly have a single element after flattening.
 	(GdipAddString) added checks for invalid font and NULL layoutRect. 
 	(gdip_convert_bezier_to_lines) removed impossible special case.
+	* lineargradientbrush.c: Ensure we always free the structures we 
+	allocated in case we hit an error.
 	* region.c: (GdipCreateRegionRgnData) make sure we free the GpRegion
 	in all error cases. (gdip_combine_complement) avoid possible double
 	free.
