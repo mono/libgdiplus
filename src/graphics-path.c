@@ -997,7 +997,7 @@ GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
 
 /* MonoTODO - deal with layoutRect, format... */
 GpStatus 
-GdipAddString (GpPath *path, GDIPCONST WCHAR *string, int length, 
+GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length, 
 	GDIPCONST GpFontFamily *family, int style, float emSize,
 	GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *format)
 {
@@ -1098,7 +1098,7 @@ g_warning ("GdipAddString \"%s\" (family: %s, size %g)", utf8, ucs2_to_utf8 ((co
 
 /* MonoTODO - same limitations as GdipAddString */
 GpStatus
-GdipAddStringI (GpPath *path, GDIPCONST WCHAR *string, int length,
+GdipAddPathStringI (GpPath *path, GDIPCONST WCHAR *string, int length,
 	GDIPCONST GpFontFamily *family, int style, float emSize,
 	GDIPCONST GpRect *layoutRect, GDIPCONST GpStringFormat *format)
 {
@@ -1113,7 +1113,7 @@ GdipAddStringI (GpPath *path, GDIPCONST WCHAR *string, int length,
 		rect.Height = layoutRect->Height;
 		r = &rect;
 	}
-	return GdipAddString (path, string, length, family, style, emSize, r, format);
+	return GdipAddPathString (path, string, length, family, style, emSize, r, format);
 }
 
 GpStatus
