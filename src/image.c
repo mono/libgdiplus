@@ -686,7 +686,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	*image = result;
 	if (status != Ok) {
 		*image = NULL;
-	} else if (result->active_bitmap == NULL) {
+	} else if (result && !result->active_bitmap) {
 		/* If the codec didn't set the active bitmap we will */
 		gdip_bitmap_setactive(result, NULL, 0);
 	}
@@ -729,10 +729,10 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 	char *file_name;
 	ImageFormat format;
 	
-	if (image->type != imageBitmap)
-		return InvalidParameter;
-	
 	if (!image || !file || !encoderCLSID)
+		return InvalidParameter;
+
+	if (image->type != imageBitmap)
 		return InvalidParameter;
 	
 	format = gdip_get_imageformat_from_codec_clsid ( (CLSID *)encoderCLSID);
@@ -1877,7 +1877,7 @@ GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 	*image = result;
 	if (status != Ok) {
 		*image = NULL;
-	} else if (result->active_bitmap == NULL) {
+	} else if (result && !result->active_bitmap) {
 		/* If the codec didn't set the active bitmap we will */
 		gdip_bitmap_setactive(result, NULL, 0);
 	}
