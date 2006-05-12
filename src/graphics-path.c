@@ -1014,11 +1014,14 @@ GdipAddString (GpPath *path, GDIPCONST WCHAR *string, int length,
 		return InvalidParameter;
 
 	cs = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 1, 1);
-	if (cairo_surface_status (cs) != CAIRO_STATUS_SUCCESS)
+	if (cairo_surface_status (cs) != CAIRO_STATUS_SUCCESS) {
+		cairo_surface_destroy (cs);
 		return OutOfMemory;
+	}
 
 	cr = cairo_create (cs);
 	if (cairo_status (cr) != CAIRO_STATUS_SUCCESS) {
+		cairo_destroy (cr);
 		cairo_surface_destroy (cs);
 		return OutOfMemory;
 	}

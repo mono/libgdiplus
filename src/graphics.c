@@ -469,11 +469,11 @@ GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 	    w, h);
 			
 	*graphics = gdip_graphics_new (surface);
-	(*graphics)->dpi_x = (*graphics)->dpi_y = gdip_get_display_dpi ();
-	cairo_surface_destroy (surface);
-
 	if (!*graphics)
 		return OutOfMemory;
+
+	(*graphics)->dpi_x = (*graphics)->dpi_y = gdip_get_display_dpi ();
+	cairo_surface_destroy (surface);
 
 	return Ok;
 }
@@ -4069,13 +4069,8 @@ GdipSetClipGraphics (GpGraphics *graphics, GpGraphics *srcgraphics, CombineMode 
 {
 	if (!graphics || !srcgraphics)
 		return InvalidParameter;
-		
-	GdipDeleteRegion (graphics->clip);
-	GdipCloneRegion (srcgraphics->clip, &graphics->clip);
 
-	gdip_set_cairo_clipping (graphics);
-	gdip_cairo_matrix_copy (graphics->clip_matrix, srcgraphics->clip_matrix);
-	return Ok;
+	return GdipSetClipRegion (graphics, srcgraphics->clip, combineMode);
 }
 
 GpStatus

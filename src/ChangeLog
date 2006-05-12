@@ -1,5 +1,11 @@
-2006-05-11  Sebastien Pouliot  <sebastien@ximian.com>
+2006-05-11  Sebastien Pouliot  <sebastien@ximian.com> 
 
+	* graphics.c: (GdipCreateFromHDC) check for memory allocation failure
+	before using the pointer. (GdipSetClipGraphics) honor the combineMode
+	parameter (in this case by reusing the GdipSetClipRegion function).
+	* graphics-path.c: (GdipAddString) it is possible that some memory is
+	allocated by cairo even if the *_create call fails - so we must call
+	the corresponding *_destroy function on failure to create.
 	* matrix.c: (GdipCreateMatrix3) Ensure we call GdipFree in case of an 
 	error (where we do not return the allocated matrix).
 
