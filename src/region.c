@@ -419,24 +419,30 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, int size, GpRegion **region
 		GpRectF *rect;
 		int i;
 
-		if (count != (size - 8) / sizeof (GpRectF))
+		if (count != (size - 8) / sizeof (GpRectF)) {
+			GdipFree (result);
 			return InvalidParameter;
+		}
 
 		for (i = 0, rect = (GpRectF*)(regionData + 8); i < count; i++, rect++)
 	                gdip_add_rect_to_array (&result->rects, &result->cnt, rect);
 		}
 		break;
-	case RegionTypePath: {
-		if (size < 16)
+	case RegionTypePath:
+		if (size < 16) {
+			GdipFree (result);
 			return InvalidParameter;
+		}
 
 		result->tree = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
-		if (!gdip_region_deserialize_tree ((BYTE*)(regionData + 4), (size - 4), result->tree))
+		if (!gdip_region_deserialize_tree ((BYTE*)(regionData + 4), (size - 4), result->tree)) {
+			GdipFree (result);
 			return InvalidParameter;
 		}
 		break;
 	default:
 		g_warning ("unknown type %d", result->type);
+		GdipFree (result);
 		return NotImplemented;
 	}
 
@@ -680,10 +686,7 @@ gdip_combine_complement (GpRegion *region, GpRectF *rtrg, int cntt)
 
 	gdip_combine_exclude (&regsrc, trg, trgcnt);
 
-	if (regsrc.rects == allsrcrects && regsrc.cnt == allsrccnt) {
-		GdipFree (allsrcrects); 
-	}
-	else {
+	if ((regsrc.rects != allsrcrects) || (regsrc.cnt != allsrccnt)) {
 		if (region->rects)
 			GdipFree (region->rects);
 

@@ -1,3 +1,9 @@
+2006-05-12  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* region.c: (GdipCreateRegionRgnData) make sure we free the GpRegion
+	in all error cases. (gdip_combine_complement) avoid possible double
+	free.
+
 2006-05-11  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics.c: (GdipCreateFromHDC) check for memory allocation failure
