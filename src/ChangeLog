@@ -1,3 +1,10 @@
+2006-05-15  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* pen.c: Revert the change from r52463. This looks better only when 
+	the pen's width is 1 (but looks worse in other cases). This fix both
+	bug #77976 (dash style) and #78059 (double pixel). Also remove a FIXME
+	which is no more required with this fix.
+
 2006-05-12  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* image.c: (GdipSaveImageToFile) don't access image->type before the

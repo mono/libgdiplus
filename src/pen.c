@@ -88,13 +88,13 @@ convert_line_cap (GpLineCap cap)
 {
         switch (cap) {
         
-        case LineCapFlat:
         case LineCapSquare:
                 return CAIRO_LINE_CAP_SQUARE;
 
         case LineCapRound:
                 return CAIRO_LINE_CAP_ROUND;                
 
+        case LineCapFlat:
         case LineCapTriangle:
         case LineCapNoAnchor:
         case LineCapSquareAnchor:
@@ -652,7 +652,7 @@ GdipGetPenDashStyle (GpPen *pen, GpDashStyle *dashStyle)
 }
 
 static float Custom [] = { 1.0 };
-static float Dot []  = { 1.0, 2.0 };	// FIXME - this is a workaround for cairo, should be 1.0, 1.0
+static float Dot []  = { 1.0 };
 static float Dash []  = { 3.0, 1.0 };
 static float DashDot [] = { 3.0, 1.0, 1.0, 1.0 };
 static float DashDotDot [] = { 3.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
@@ -680,7 +680,7 @@ GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
 
 	case DashStyleDot:
 		pen->dash_array = Dot;
-		pen->dash_count = 2;
+		pen->dash_count = 1;
 		break;
 
 	case DashStyleDash:
