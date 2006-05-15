@@ -1,3 +1,8 @@
+2006-05-15  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* pen.c: Added an hack to keep the "bad" behaviour in the most common
+	MWF usage (i.e. where the badness isn't visible).
+
 2006-05-15  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* pen.c: Revert the change from r52463. This looks better only when 

@@ -84,9 +84,19 @@ convert_line_join (GpLineJoin join)
 }
 
 static cairo_line_cap_t
-convert_line_cap (GpLineCap cap)
+convert_line_cap (GpPen *pen)
 {
-        switch (cap) {
+        switch (pen->line_cap) {
+
+	/* HACK - this keeps SWF (mostly) happy with results very similar to GDI+
+	 * (under those specific cases) and also keeps the pen's functionalities 
+	 * on par with GDI+
+	 */
+        case LineCapFlat:
+		if (pen->dash_array || (pen->width != 1.0))
+	                return CAIRO_LINE_CAP_BUTT;
+		else
+	                return CAIRO_LINE_CAP_SQUARE;
         
         case LineCapSquare:
                 return CAIRO_LINE_CAP_SQUARE;
@@ -94,7 +104,6 @@ convert_line_cap (GpLineCap cap)
         case LineCapRound:
                 return CAIRO_LINE_CAP_ROUND;                
 
-        case LineCapFlat:
         case LineCapTriangle:
         case LineCapNoAnchor:
         case LineCapSquareAnchor:
@@ -163,7 +172,7 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 
         cairo_set_miter_limit (graphics->ct, (double) pen->miter_limit);
         cairo_set_line_join (graphics->ct, convert_line_join (pen->line_join));
-        cairo_set_line_cap (graphics->ct, convert_line_cap (pen->line_cap));
+        cairo_set_line_cap (graphics->ct, convert_line_cap (pen));
 
         if (pen->dash_count > 0) {
                 double *dash_array;
