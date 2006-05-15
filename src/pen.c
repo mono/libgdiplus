@@ -93,7 +93,7 @@ convert_line_cap (GpPen *pen)
 	 * on par with GDI+
 	 */
         case LineCapFlat:
-		if (pen->dash_array || (pen->width <= 1.0))
+		if (pen->dash_array || (pen->width > 1.0))
 	                return CAIRO_LINE_CAP_BUTT;
 		else
 	                return CAIRO_LINE_CAP_SQUARE;
