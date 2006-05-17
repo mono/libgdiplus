@@ -1,3 +1,13 @@
+2006-05-17 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* bmpcodec.c: 24bpp bitmaps are no longer stored as 32bpp.
+	* image.c: 24bpp is now 3-byte per pixel, not 4.
+	* bitmap.c: fixes for cloning a 24bpp bitmap. Remove unused RGB_to_ARGB
+	and ARGB_to_RGB.
+	* gdip.h: Remove unused RGB_to_ARGB.
+
+	Fixes bug #78189.
+
 2006-05-15  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* pen.c: Added an hack to keep the "bad" behaviour in the most common
