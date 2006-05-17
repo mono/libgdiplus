@@ -40,6 +40,8 @@ gdip_pen_init (GpPen *pen)
         pen->line_join = LineJoinMiter;
 	pen->dash_style = DashStyleSolid;
 	pen->line_cap = LineCapFlat;
+	pen->end_cap = LineCapFlat;		/* ignored, Cairo only support a single start/end line cap */
+	pen->dash_cap = DashCapFlat;		/* ignored */
 	pen->mode = PenAlignmentCenter;
 	pen->dash_offset = 0;
 	pen->dash_count = 0;
@@ -322,6 +324,7 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
         result->line_join = pen->line_join;
 	result->dash_style = pen->dash_style;
         result->line_cap = pen->line_cap;
+	result->end_cap = pen->end_cap;
 	result->mode = pen->mode;
         result->dash_offset = pen->dash_offset;
 	result->dash_count = pen->dash_count;
@@ -436,7 +439,7 @@ GdipGetPenFillType (GpPen *pen, GpPenType *type)
 	g_return_val_if_fail (type != NULL, InvalidParameter);
 
 	if (pen->brush != NULL)
-	  return GdipGetBrushType (pen->brush, (GpBrushType *) type);
+		return GdipGetBrushType (pen->brush, (GpBrushType *) type);
 
 	*type = PenTypeSolidColor;
 
@@ -448,9 +451,8 @@ GdipSetPenColor (GpPen *pen, int argb)
 {
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
+	pen->changed = (pen->color != argb);
         pen->color = argb;
-	pen->changed = TRUE;
-
         return Ok;
 }
 
@@ -469,8 +471,11 @@ GdipSetPenMiterLimit (GpPen *pen, float miterLimit)
 {
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
+	if (miterLimit < 1.0f)
+		miterLimit = 1.0f;
+
+	pen->changed = (pen->miter_limit != miterLimit);
         pen->miter_limit = miterLimit;
-	pen->changed = TRUE;
         return Ok;
 }
 
@@ -489,8 +494,8 @@ GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin)
 {
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
+	pen->changed = (pen->line_join != lineJoin);
         pen->line_join = lineJoin;
-	pen->changed = TRUE;
         return Ok;
 }
 
@@ -514,7 +519,15 @@ GdipSetPenLineCap197819 (GpPen *pen, GpLineCap startCap, GpLineCap endCap, GpDas
 	 * Use end cap and dash cap when Cairo supports different caps for the
 	 * line ends and dashcap.
 	 */
+
 	pen->line_cap = startCap;
+	pen->end_cap = endCap;
+	/* any invalid value is changed to DashCapFlat */
+	if ((dashCap == DashCapRound) || (dashCap == DashCapTriangle))
+		pen->dash_cap = dashCap;
+	else
+		pen->dash_cap = DashCapFlat; /* default */
+
 	pen->changed = TRUE;
         return Ok;
 }
@@ -522,11 +535,12 @@ GdipSetPenLineCap197819 (GpPen *pen, GpLineCap startCap, GpLineCap endCap, GpDas
 GpStatus
 GdipSetPenMode (GpPen *pen, GpPenAlignment penMode)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
-        pen->mode = penMode;
-	pen->changed = TRUE;
-        return Ok;
+	pen->changed = (penMode != pen->mode);
+	pen->mode = penMode;
+	return Ok;
 }
 
 GpStatus
@@ -562,11 +576,18 @@ GdipSetPenUnit (GpPen *pen, GpUnit unit)
 GpStatus
 GdipSetPenTransform (GpPen *pen, GDIPCONST GpMatrix *matrix)
 {
+	GpStatus status;
+	BOOL invertible;
+
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
+	/* the matrix MUST be invertible to be used */
+	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
+	if (!invertible || (status != Ok))
+		return InvalidParameter;
 
-	gdip_cairo_matrix_copy(&pen->matrix, matrix);
+	gdip_cairo_matrix_copy (&pen->matrix, matrix);
 	pen->changed = TRUE;
         return Ok;
 }
@@ -597,11 +618,21 @@ GpStatus
 GdipMultiplyPenTransform (GpPen *pen, GpMatrix *matrix, GpMatrixOrder order)
 {
 	GpStatus status;
+	BOOL invertible;
+
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 	g_return_val_if_fail (matrix != NULL, InvalidParameter);
 
-	status = GdipMultiplyMatrix (&pen->matrix, matrix, order);
+	/* the matrix MUST be invertible to be used */
+	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
+	if (!invertible || (status != Ok))
+		return InvalidParameter;
 
+	/* invalid GpMatrixOrder values are computed as MatrixOrderAppend (i.e. no error) */
+	if (order != MatrixOrderPrepend)
+		order = MatrixOrderAppend;
+
+	status = GdipMultiplyMatrix (&pen->matrix, matrix, order);
 	if (status == Ok)
 		pen->changed = TRUE;
 
@@ -661,7 +692,7 @@ GdipGetPenDashStyle (GpPen *pen, GpDashStyle *dashStyle)
 }
 
 static float Custom [] = { 1.0 };
-static float Dot []  = { 1.0 };
+static float Dot []  = { 1.0, 1.0 };
 static float Dash []  = { 3.0, 1.0 };
 static float DashDot [] = { 3.0, 1.0, 1.0, 1.0 };
 static float DashDotDot [] = { 3.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
@@ -689,7 +720,7 @@ GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
 
 	case DashStyleDot:
 		pen->dash_array = Dot;
-		pen->dash_count = 1;
+		pen->dash_count = 2;
 		break;
 
 	case DashStyleDash:
@@ -698,8 +729,11 @@ GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
 		break;
 
 	case DashStyleCustom:
-		pen->dash_array = Custom;
-		pen->dash_count = 1;
+		/* in most case we keep the current assigned value when switching to Custom */
+		if (pen->dash_count == 0) {
+			pen->dash_array = Custom;
+			pen->dash_count = 1;
+		}
 		break;
 
 	default:
@@ -855,6 +889,7 @@ GdipGetPenStartCap (GpPen *pen, GpLineCap *startCap)
 	return Ok;
 }
 
+/* MonoTODO - ignored (always same as start cap) */
 GpStatus
 GdipSetPenEndCap (GpPen *pen, GpLineCap endCap)
 {
@@ -870,6 +905,7 @@ GdipSetPenEndCap (GpPen *pen, GpLineCap endCap)
 	return Ok;
 }
 
+/* MonoTODO - ignored (always same as start cap) */
 GpStatus
 GdipGetPenEndCap (GpPen *pen, GpLineCap *endCap)
 {
@@ -881,38 +917,71 @@ GdipGetPenEndCap (GpPen *pen, GpLineCap *endCap)
 	return Ok;
 }
 
+/* MonoTODO - ignored */
 GpStatus
 GdipSetPenDashCap197819 (GpPen *pen, GpDashCap dashCap)
 {
-	return NotImplemented;
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+
+	pen->dash_cap = dashCap;
+	return Ok;
 }
 
+/* MonoTODO - ignored */
 GpStatus
 GdipGetPenDashCap197819 (GpPen *pen, GpDashCap *dashCap)
 {
-	return NotImplemented;
+	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	g_return_val_if_fail (dashCap != NULL, InvalidParameter);
+
+	*dashCap = pen->dash_cap;
+	return Ok;
 }
 
+/* MonoTODO - not implemented */
 GpStatus
 GdipSetPenCustomStartCap (GpPen *pen, GpCustomLineCap *customCap)
 {
-	return NotImplemented;
+	static bool called = FALSE;
+	if (!called) {
+		g_warning ("GdipSetPenCustomStartCap isn't implemented");
+		called = TRUE;
+	}
+	return Ok;
 }
 
+/* MonoTODO - not implemented */
 GpStatus
 GdipGetPenCustomStartCap (GpPen *pen, GpCustomLineCap **customCap)
 {
-	return NotImplemented;
+	static bool called = FALSE;
+	if (!called) {
+		g_warning ("GdipGetPenCustomStartCap isn't implemented");
+		called = TRUE;
+	}
+	return Ok;
 }
 
+/* MonoTODO - not implemented */
 GpStatus
 GdipSetPenCustomEndCap (GpPen *pen, GpCustomLineCap *customCap)
 {
-	return NotImplemented;
+	static bool called = FALSE;
+	if (!called) {
+		g_warning ("GdipSetPenCustomEndCap isn't implemented");
+		called = TRUE;
+	}
+	return Ok;
 }
 
+/* MonoTODO - not implemented */
 GpStatus
 GdipGetPenCustomEndCap (GpPen *pen, GpCustomLineCap **customCap)
 {
-	return NotImplemented;
+	static bool called = FALSE;
+	if (!called) {
+		g_warning ("GdipGetPenCustomEndCap isn't implemented");
+		called = TRUE;
+	}
+	return Ok;
 }

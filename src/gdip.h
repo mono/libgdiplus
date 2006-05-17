@@ -671,6 +671,7 @@ typedef struct {
         GpDashStyle dash_style;
 	GpLineCap line_cap;  /* Cairo supports only same kind of end caps for both the ends. */
 	GpLineCap end_cap;
+	GpDashCap dash_cap;  /* not supported */
 	int compound_count;
 	float *compound_array;
         GpPenAlignment mode;
