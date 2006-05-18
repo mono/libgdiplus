@@ -1341,12 +1341,6 @@ gdip_init_pixel_stream (StreamingState *state, BitmapData *data, int x, int y, i
 		case Format1bppIndexed: state->one_pixel_mask = 0x01; state->one_pixel_shift = 1; state->pixels_per_byte = 8; break;
 		case Format4bppIndexed: state->one_pixel_mask = 0x0F; state->one_pixel_shift = 4; state->pixels_per_byte = 2; break;
 		case Format8bppIndexed: state->one_pixel_mask = 0xFF; state->one_pixel_shift = 8; state->pixels_per_byte = 1; break;
-		case Format24bppRgb: { /* gdip_get_pixel_format_bpp lies because other code depends on Format24bppRgb being CAIRO_FORMAT_ARGB32 internally */
-					     // FIXME: fix comment;
-			state->pixels_per_byte = -3;
-			break;
-		}
-
 		default: {
 			/* indicate full RGB processing */
 			state->pixels_per_byte = -gdip_get_pixel_format_bpp (data->pixel_format) / 8; 
@@ -1465,17 +1459,14 @@ gdip_pixel_stream_get_next (StreamingState *state)
 		 *
 		 * Note that pixel streams do not support 48- and 64-bit data at this time.
 		 */
-		ret = *(unsigned int *)state->scan;
 
-		/* Special case: 24-bit data needs to have the cairo format alpha component forced
-		 * to 0xFF, or many operations will do nothing (or do strange things if the alpha
-		 * channel contains garbage).
-		 */
-		if (state->data->pixel_format == Format24bppRgb) {
-			int force_alpha;
-			set_pixel_bgra(&force_alpha, 0,
-				0, 0, 0, 0xFF);
-			ret |= force_alpha;
+		if (state->pixels_per_byte == -4) {
+			ret = *(unsigned int *)state->scan;
+		} else {
+			ret = 0xFF000000; /* Force alpha for 24bpp */
+			ret += state->scan [0];
+			ret += state->scan [1] << 8;
+			ret += state->scan [2] << 16;
 		}
 
 		state->scan -= state->pixels_per_byte;
