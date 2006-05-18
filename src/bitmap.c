@@ -2141,14 +2141,14 @@ gdip_convert_indexed_to_rgb (GpBitmap *indexed_bmp)
 	int		one_pixel_mask;
 	int		one_pixel_shift;
 	int		pixels_per_byte;
-	int		*rgb_scan0;
+	ARGB		*rgb_scan0;
 	int		p;
 	int		x;
 	int		y;
 	GpBitmap	*ret;
 	GpStatus	status;
 	unsigned char	*indexed_scan;
-	int		*rgb_scan;
+	ARGB		*rgb_scan;
 	int		pixels_this_byte;
 	unsigned short	sample;
 	int		index;
@@ -2182,7 +2182,7 @@ gdip_convert_indexed_to_rgb (GpBitmap *indexed_bmp)
 		force_alpha = 0;
 	}
 
-	rgb_stride = data->width * 4;
+	rgb_stride = data->width * sizeof (ARGB);
 
 	/* ensure pixman_bits_t alignment */
 	rgb_stride += (sizeof(pixman_bits_t)-1);
@@ -2200,8 +2200,17 @@ gdip_convert_indexed_to_rgb (GpBitmap *indexed_bmp)
 	/* convert the indexed pixels into RGB values and store them into the RGB frame */
 	for (y=0; y < data->height; y++) {
 		indexed_scan = (unsigned char *)(data->scan0) + y * data->stride;
-		rgb_scan = rgb_scan0 + (y * rgb_stride) / sizeof(int);
+		rgb_scan = rgb_scan0 + (y * data->width);
+		/* Speed up the 8bpp case */
+		if (pixels_per_byte == 1) {
+			for (x = 0; x < data->width; x++) {
+				index = *indexed_scan++;
+				rgb_scan [x] = palette->Entries [index] | force_alpha;
+			}
+			continue;
+		}
 
+		/* For 4bpp and 1bpp */
 		for (x=0; x < data->width; x += pixels_per_byte) {
 			pixels_this_byte = pixels_per_byte;
 			sample = *indexed_scan;

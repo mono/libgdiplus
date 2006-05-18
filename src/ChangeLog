@@ -1,3 +1,7 @@
+2006-05-17 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* bitmap.c: speed up the 8bppIndexed -> 32bpp conversion.
+
 2006-05-17  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* gdip.h: Added GpDashCap dash_cap to GpPen. It's not used (visually)
