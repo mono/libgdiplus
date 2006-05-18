@@ -1,3 +1,9 @@
+2006-05-18 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* bmpcodec.c: don't change the PixelFormat to 32bpp when it's a 24bpp.
+	* image.c: 24bpp bitmaps are 4-bytes (cairo dixit).
+	Fixes the 24bpp test again.
+
 2006-05-17 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* bitmap.c: speed up the 8bppIndexed -> 32bpp conversion.

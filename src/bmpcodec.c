@@ -923,6 +923,7 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 		case Format1bppIndexed: result->active_bitmap->stride = (result->active_bitmap->width + 7) / 8; break;
 		case Format4bppIndexed: result->active_bitmap->stride = (result->active_bitmap->width + 1) / 2; break;
 		case Format8bppIndexed: result->active_bitmap->stride =  result->active_bitmap->width;          break;
+		case Format24bppRgb: result->active_bitmap->stride = result->active_bitmap->width * 4;		break;
 		default:
 			/* For other types, we assume 32 bit and translate into 32 bit from source format */
 			result->active_bitmap->pixel_format = Format32bppArgb;

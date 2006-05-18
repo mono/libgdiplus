@@ -1785,9 +1785,9 @@ gdip_get_pixel_format_components(PixelFormat pixfmt)
 		case Format64bppArgb:
 		case Format64bppPArgb:
 		case Format32bppRgb:	/* Cairo uses four bytes for 32BPP*/
+		case Format24bppRgb:
 			return 4;
 
-		case Format24bppRgb:
 		case Format16bppRgb555:
 		case Format16bppRgb565: 
 		case Format48bppRgb:
