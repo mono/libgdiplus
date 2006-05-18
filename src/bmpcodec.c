@@ -923,7 +923,6 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 		case Format1bppIndexed: result->active_bitmap->stride = (result->active_bitmap->width + 7) / 8; break;
 		case Format4bppIndexed: result->active_bitmap->stride = (result->active_bitmap->width + 1) / 2; break;
 		case Format8bppIndexed: result->active_bitmap->stride =  result->active_bitmap->width;          break;
-		case Format24bppRgb: result->active_bitmap->stride = result->active_bitmap->width * 3;		break;
 		default:
 			/* For other types, we assume 32 bit and translate into 32 bit from source format */
 			result->active_bitmap->pixel_format = Format32bppArgb;
@@ -1053,18 +1052,18 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 					continue;
 
 				case 24: {
-#ifndef WORDS_BIGENDIAN
-					memcpy (pixels + line * result->active_bitmap->stride, data_read, loop);
-#else
-					int src = 0;
+					int	src;
+					int	dest;
+
+					src = 0;
+					dest = 0;
+
 					while (src < loop) {
 						index = (line * result->active_bitmap->stride);
-						pixels [index + src] = data_read [src + 2];
-						pixels [index + src + 1] = data_read [src + 1];
-						pixels [index + src + 2] = data_read [src];
+						set_pixel_bgra(pixels, index + dest, data_read[src+0], data_read[src+1], data_read[src+2], 0xff);
+						dest += 4;
 						src += 3;
 					}
-#endif
 					continue;
 				}
 
@@ -1072,10 +1071,16 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 #ifndef WORDS_BIGENDIAN
 					memcpy (pixels + line * result->active_bitmap->stride, data_read, loop);
 #else
-					int src = 0;
+					int	src;
+					int	dest;
+
+					src = 0;
+					dest = 0;
+
 					while (src < loop) {
 						index = (line * result->active_bitmap->stride);
-						set_pixel_bgra(pixels, index+src, data_read[src+0], data_read[src+1], data_read[src+2], data_read[src+3]);
+						set_pixel_bgra(pixels, index+dest, data_read[src+0], data_read[src+1], data_read[src+2], data_read[src+3]);
+						dest += 4;
 						src += 4;
 					}
 #endif

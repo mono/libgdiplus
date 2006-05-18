@@ -1,8 +1,3 @@
-2006-05-18 Gonzalo Paniagua Javier <gonzalo@ximian.com>
-
-	* bitmap.c: pixels_per_byte will be set to -3 in the default case now.
-	Don't read an uint32 for 24bpp streams.
-
 2006-05-17 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* bitmap.c: speed up the 8bppIndexed -> 32bpp conversion.
@@ -19,16 +14,6 @@
 	  the value supplied);
 	- fix some error conditions to return the correct error code and also
 	  track some unimplemented stuff (rather than throwing);
-
-2006-05-17 Gonzalo Paniagua Javier <gonzalo@ximian.com>
-
-	* bmpcodec.c: 24bpp bitmaps are no longer stored as 32bpp.
-	* image.c: 24bpp is now 3-byte per pixel, not 4.
-	* bitmap.c: fixes for cloning a 24bpp bitmap. Remove unused RGB_to_ARGB
-	and ARGB_to_RGB.
-	* gdip.h: Remove unused RGB_to_ARGB.
-
-	Fixes bug #78189.
 
 2006-05-15  Sebastien Pouliot  <sebastien@ximian.com>
 

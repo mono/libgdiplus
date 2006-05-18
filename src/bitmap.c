@@ -865,11 +865,9 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 
 		if ((gdip_get_pixel_format_bpp(format) < 16) || gdip_is_an_alpha_pixelformat(format)) {
 			memset (scan0, 0, stride * height);
-		} else if (gdip_get_pixel_format_bpp (format) == 24) {
-			memset (scan0, 0, stride * height);
 		} else {
 			/* Since the pixel format is not an alpha pixel format (i.e., it is
-			 * Format32bppRgb), the image should be
+			 * either Format24bppRgb or Format32bppRgb), the image should be
 			 * initially black, not initially transparent. Thus, we need to set
 			 * the alpha channel, which the user code doesn't think exists but
 			 * Cairo is still paying attention to, to 0xFF.
@@ -1046,7 +1044,6 @@ GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
 	}
 
 	result->image_format = original->image_format;
-	result->active_bitmap->pixel_format = format;
 
 	status = gdip_bitmap_clone_data_rect (original->active_bitmap, &sr, result->active_bitmap, &dr);
 	if (status != Ok) {
@@ -1072,70 +1069,14 @@ GdipCloneBitmapArea (float x, float y, float w, float h, PixelFormat format,
 }
 
 static void
-gdip_copy_strides (void *dst, int dstStride, void *src, int srcStride, int realBytes, int height,
-			int src_components, int dest_components)
+gdip_copy_strides (void *dst, int dstStride, void *src, int srcStride, int realBytes, int height)
 {
-	int y;
-	int x;
-	char *src_ptr;
-	char *dest_ptr;
-	int index;
-
-	if (src_components == dest_components) {
-		for (y = 0; y < height; y++) {
-			memcpy (dst, src, realBytes);
-			dst += dstStride;
-			src += srcStride;
-		}
-		return;
+	int i;
+	for (i = 0; i < height; i++) {
+		memcpy (dst, src, realBytes);
+		dst += dstStride;
+		src += srcStride;
 	}
-
-	/* Possible values for src_components/dest_components are 4, 3 and 1 */
-	/* but copy_compatible() refuses any operation with 1 unless both are 1 */
-	/* 3 -> 4 */
-	if (src_components == 3 && dest_components == 4) {
-		src_ptr = src;
-		dest_ptr = dst;
-		for (y = 0; y < height; y++) {
-			for (x = 0, index = 0; index < realBytes; x += 3, index += 4) {
-				dest_ptr [index] = src_ptr [x];
-				dest_ptr [index + 1] = src_ptr [x + 1];
-				dest_ptr [index + 2] = src_ptr [x + 2];
-				dest_ptr [index + 3] = 0xff;
-			}
-			dest_ptr += dstStride;
-			src_ptr += srcStride;
-		}
-		return;
-	}
-
-	/* 4 -> 3 */
-	if (src_components == 4 && dest_components == 3) {
-		src_ptr = src;
-		dest_ptr = dst;
-		for (y = 0; y < height; y++) {
-			for (x = 0, index = 0; index < realBytes; x += 4, index += 3) {
-				dest_ptr [index] = src_ptr [x];
-				dest_ptr [index + 1] = src_ptr [x + 1];
-				dest_ptr [index + 2] = src_ptr [x + 2];
-			}
-			dest_ptr += dstStride;
-			src_ptr += srcStride;
-		}
-		return;
-	}
-}
-
-static int
-copy_compatible (int sc, int dc)
-{
-	int min = MIN (sc, dc);
-	int max = MAX (sc, dc);
-
-	if (min == 1 && max != 1)
-		return 0;
-
-	return 1;
 }
 
 /*
@@ -1147,10 +1088,8 @@ copy_compatible (int sc, int dc)
 GpStatus
 gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect)
 {
-	int src_components;
 	int dest_components;
 	int dest_depth; 
-	PixelFormat psource, ptarget;
 
 	if ((srcData == NULL) || (srcRect == NULL) || (destData == NULL) || (destRect == NULL) || (srcRect->Width != destRect->Width) || (srcRect->Height != destRect->Height)) {
 		return InvalidParameter;
@@ -1160,31 +1099,29 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 		return NotImplemented;
 	}
 
-	psource = srcData->pixel_format;
-	ptarget = destData->pixel_format;
-	src_components = gdip_get_pixel_format_components (psource);
-	dest_components = gdip_get_pixel_format_components (ptarget);
-	if (!copy_compatible (src_components, dest_components))
-		return OutOfMemory;
-
+	dest_components = gdip_get_pixel_format_components (destData->pixel_format);
+	
 	if (destData->scan0 == NULL) {
-		int pmbt = sizeof (pixman_bits_t);
-		dest_depth = gdip_get_pixel_format_depth (ptarget);
+		dest_components = gdip_get_pixel_format_components (srcData->pixel_format);
+		dest_depth = gdip_get_pixel_format_depth (srcData->pixel_format);
+		destData->pixel_format = srcData->pixel_format;
 
-		destData->stride = ((((destRect->Width * dest_components * dest_depth) /8) + (pmbt-1)) & ~(pmbt-1));
+		destData->stride = (((( destRect->Width * dest_components * dest_depth) /8) + (sizeof(pixman_bits_t)-1)) & ~(sizeof(pixman_bits_t)-1));
 
 		destData->scan0 = GdipAlloc (destData->stride * destRect->Height);
-		if (destData== NULL)
+		if (destData== NULL) {
 			return OutOfMemory;
-
+		}
+		
 		destData->width = destRect->Width;
 		destData->height = destRect->Height;
+		destData->pixel_format = srcData->pixel_format;
 		destData->reserved = GBD_OWN_SCAN0;
 
 		if (srcData->palette != NULL) {
-			destData->palette = GdipAlloc (sizeof (ColorPalette) + sizeof(ARGB) * srcData->palette->Count);
+			destData->palette = GdipAlloc(sizeof(ColorPalette) + sizeof(ARGB) * srcData->palette->Count);
 			if (destData->palette == NULL) {
-				GdipFree (destData->scan0);
+				GdipFree(destData->scan0);
 				destData->scan0 = NULL;
 				return OutOfMemory;
 			}
@@ -1195,23 +1132,22 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 
 	if (!gdip_is_an_indexed_pixelformat (srcData->pixel_format)) {
 		gdip_copy_strides (destData->scan0, destData->stride,
-			srcData->scan0 + (srcData->stride * srcRect->Y) + (src_components * srcRect->X),
-			srcData->stride, destRect->Width * dest_components,  destRect->Height,
-			src_components, dest_components);
+			srcData->scan0 + (srcData->stride * srcRect->Y) + (gdip_get_pixel_format_components (srcData->pixel_format) 
+			* srcRect->X), srcData->stride,   destRect->Width * dest_components,  destRect->Height);
 	} else {
 		int src_depth;
 		int src_first_x_bit_index;
 		int width_bits;
 		int src_first_x_bit_offset_into_byte;
 
-		src_depth = gdip_get_pixel_format_depth (psource);
+		src_depth = gdip_get_pixel_format_depth (srcData->pixel_format);
 
 		/* first, check if the bits are aligned onto a byte boundary */
 		src_first_x_bit_index = srcRect->X * src_depth;
 		width_bits = destRect->Width * src_depth;
 		src_first_x_bit_offset_into_byte = src_first_x_bit_index & 7;
 
-		if (src_first_x_bit_offset_into_byte == 0 && src_components == dest_components) {
+		if (src_first_x_bit_offset_into_byte == 0) {
 			/* the fast path: no mid-byte bit mangling required :-)
 			 * this will always be the case for 8-bit images.
 			 * basically, the source bits are aligned to the destination
@@ -1224,10 +1160,10 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 			gdip_copy_strides (
 				destData->scan0, destData->stride,
 				srcData->scan0 + (src_first_x_bit_index / 8) + (srcData->stride * srcRect->Y),
-				srcData->stride, width_bits / 8, destRect->Height,
-				src_components, dest_components);
+				srcData->stride, width_bits / 8, destRect->Height);
 		} else {
 			/* the not-so-fast path: no bits are aligned, so the entire image requires bit juggling. */
+
 			unsigned char	*src_scan;
 			unsigned char	*src_scan0;
 			unsigned char	*dest_scan;
@@ -1314,6 +1250,78 @@ gdip_is_pixel_format_conversion_valid (PixelFormat src, PixelFormat dest)
 	return 0;
 }
 
+/* Format24bppRgb is internally stored by Cairo as a four bytes. Convert it to 3-byte (RGB) */	
+int
+gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride)
+{
+	int	x;
+	int	y;
+	BYTE	*result;
+	BYTE	*pos_src;
+	BYTE	*pos_dest;
+	int	src_components = 4; /* ARGB */
+	int	dest_components = 3; /* RGB */
+	
+	*dest_stride = dest_components * 8;
+	*dest_stride = (*dest_stride * width) / 8;
+	*dest_stride = (*dest_stride + (sizeof(pixman_bits_t)-1)) & ~(sizeof(pixman_bits_t)-1);		
+	
+	result = GdipAlloc (*dest_stride * height);
+	if (result == NULL) {
+		return OutOfMemory;
+	}
+	
+	memset (result, 0, *dest_stride * height);
+	
+	for (y = 0, pos_src = src, pos_dest = result; y < height; y++, pos_src += stride, pos_dest += *dest_stride) {		
+		for (x = 0; x < width; x++) {
+			pos_dest[0 + (dest_components * x)] = pos_src[0 + (src_components * x)];
+			pos_dest[1 + (dest_components * x)] = pos_src[1 + (src_components * x)];
+			pos_dest[2 + (dest_components * x)] = pos_src[2 + (src_components * x)];
+		}
+	}
+	
+	*dest = result;
+	return Ok;
+}
+
+
+/* Format24bppRgb is internally stored by Cairo as a three bytes. Convert it to 4-byte (ARGB) */	
+int
+gdip_from_RGB_to_ARGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride)
+{
+	int	x;
+	int	y;
+	BYTE	*result;
+	BYTE	*pos_src;
+	BYTE	*pos_dest;
+	int	src_components = 3; /* RGB */
+	int	dest_components = 4; /* ARGB */
+	
+	*dest_stride = dest_components * 8;
+	*dest_stride = (*dest_stride * width) / 8;
+	*dest_stride = (*dest_stride + (sizeof(pixman_bits_t)-1)) & ~(sizeof(pixman_bits_t)-1);		
+	
+	result = GdipAlloc (*dest_stride * height);
+	if (result == NULL) {
+		return OutOfMemory;
+	}
+	
+	memset (result, 0, *dest_stride * height);
+	
+	for (y = 0, pos_src = src, pos_dest = result; y < height; y++, pos_src += stride, pos_dest += *dest_stride) {		
+		for (x = 0; x < width; x++) {
+			pos_dest[0 + (dest_components * x)] = pos_src[0 + (src_components * x)];
+			pos_dest[1 + (dest_components * x)] = pos_src[1 + (src_components * x)];
+			pos_dest[2 + (dest_components * x)] = pos_src[2 + (src_components * x)];
+			pos_dest[3 + (dest_components * x)] = 0xff;
+		}
+	}
+	
+	*dest = result;
+	return Ok;
+}
+
 GpStatus
 gdip_init_pixel_stream (StreamingState *state, BitmapData *data, int x, int y, int w, int h)
 {
@@ -1341,6 +1349,12 @@ gdip_init_pixel_stream (StreamingState *state, BitmapData *data, int x, int y, i
 		case Format1bppIndexed: state->one_pixel_mask = 0x01; state->one_pixel_shift = 1; state->pixels_per_byte = 8; break;
 		case Format4bppIndexed: state->one_pixel_mask = 0x0F; state->one_pixel_shift = 4; state->pixels_per_byte = 2; break;
 		case Format8bppIndexed: state->one_pixel_mask = 0xFF; state->one_pixel_shift = 8; state->pixels_per_byte = 1; break;
+		case Format24bppRgb: { /* gdip_get_pixel_format_bpp lies because other code depends on Format24bppRgb being CAIRO_FORMAT_ARGB32 internally */
+					     // FIXME: fix comment;
+			state->pixels_per_byte = -3;
+			break;
+		}
+
 		default: {
 			/* indicate full RGB processing */
 			state->pixels_per_byte = -gdip_get_pixel_format_bpp (data->pixel_format) / 8; 
@@ -1459,14 +1473,17 @@ gdip_pixel_stream_get_next (StreamingState *state)
 		 *
 		 * Note that pixel streams do not support 48- and 64-bit data at this time.
 		 */
+		ret = *(unsigned int *)state->scan;
 
-		if (state->pixels_per_byte == -4) {
-			ret = *(unsigned int *)state->scan;
-		} else {
-			ret = 0xFF000000; /* Force alpha for 24bpp */
-			ret += state->scan [0];
-			ret += state->scan [1] << 8;
-			ret += state->scan [2] << 16;
+		/* Special case: 24-bit data needs to have the cairo format alpha component forced
+		 * to 0xFF, or many operations will do nothing (or do strange things if the alpha
+		 * channel contains garbage).
+		 */
+		if (state->data->pixel_format == Format24bppRgb) {
+			int force_alpha;
+			set_pixel_bgra(&force_alpha, 0,
+				0, 0, 0, 0xFF);
+			ret |= force_alpha;
 		}
 
 		state->scan -= state->pixels_per_byte;
@@ -2042,6 +2059,7 @@ GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 
 		v = ((unsigned char *)data->scan0) + y * data->stride;
 		switch (data->pixel_format) {
+			case Format24bppRgb:
 			case Format32bppArgb:
 			case Format32bppPArgb:
 			case Format32bppRgb: {
@@ -2051,11 +2069,6 @@ GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 				break;
 			}
 
-			case Format24bppRgb: {
-				x *= 3;
-				*color = v [x] + (v [x + 1] << 8) + (v [x + 2] << 16) + (0xff << 24);
-				break;
-			}
 			default: {
 				return NotImplemented;
 			}
