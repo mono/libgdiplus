@@ -1114,7 +1114,14 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
 	byte			*scan0;
 
 	activebmp = image->active_bitmap;
-	bitmapLen = activebmp->stride * activebmp->height;
+	if (activebmp->pixel_format != Format24bppRgb) {
+		bitmapLen = activebmp->stride * activebmp->height;
+	} else {
+		bitmapLen = activebmp->width * 3;
+		bitmapLen += 3;
+		bitmapLen &= ~3;
+		bitmapLen *= activebmp->height;
+	}
 
         if (activebmp->palette) {
                 colours = activebmp->palette->Count;

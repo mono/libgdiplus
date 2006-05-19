@@ -1,5 +1,9 @@
 2006-05-19 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
+	* bmpcodec.c: fix bfSize for 24bpp.
+
+2006-05-19 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
 	* bmpcodec.c: now we're able to roundtrip a 24bpp bmp file. Don't create
 	the cairo surface when loading the image. Remove unused (obsolete?)
 	gdip_bitmap_save_bmp().
