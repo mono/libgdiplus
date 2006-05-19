@@ -1,3 +1,8 @@
+2006-05-19 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* bitmap.c: don't leak the allocated 'scan0' when converting indexed
+	to RGB.
+
 2006-05-18 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* bmpcodec.c: don't change the PixelFormat to 32bpp when it's a 24bpp.
