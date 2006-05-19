@@ -124,13 +124,18 @@ gdip_get_bmp_pixelformat (int bitCount, int compression, PixelFormat *dest)
 void 
 gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 {
+	PixelFormat format = bitmap->active_bitmap->pixel_format;
+
 	memset (bmi, 0, sizeof (BITMAPINFOHEADER));
 #ifdef WORDS_BIGENDIAN
 	bmi->biSize = GUINT32_FROM_LE (sizeof (BITMAPINFOHEADER));
 	bmi->biWidth = GULONG_FROM_LE (bitmap->active_bitmap->width);
 	bmi->biHeight = GULONG_FROM_LE (bitmap->active_bitmap->height);
 	bmi->biPlanes = GUINT16_FROM_LE (1);
-	bmi->biBitCount = GUINT16_FROM_LE (gdip_get_pixel_format_bpp (bitmap->active_bitmap->pixel_format));
+	if (format != Format24bppRgb)
+		bmi->biBitCount = GUINT16_FROM_LE (gdip_get_pixel_format_bpp (bitmap->active_bitmap->pixel_format));
+	else
+		bmi->biBitCount = GUINT16_FROM_LE (24);
 	bmi->biCompression = GUINT32_FROM_LE (BI_RGB);
 	bmi->biSizeImage =  GUINT32_FROM_LE (0); /* Many tools expect this may be set to zero for BI_RGB bitmaps */
 	bmi->biXPelsPerMeter = GULONG_FROM_LE ((int) (0.5f + ((gdip_get_display_dpi() * 3937) / 100)));
@@ -140,78 +145,17 @@ gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 	bmi->biWidth = bitmap->active_bitmap->width;
 	bmi->biHeight = bitmap->active_bitmap->height;
 	bmi->biPlanes = 1;
-	bmi->biBitCount = gdip_get_pixel_format_bpp (bitmap->active_bitmap->pixel_format);
+	if (format != Format24bppRgb)
+		bmi->biBitCount = gdip_get_pixel_format_bpp (bitmap->active_bitmap->pixel_format);
+	else
+		bmi->biBitCount = 24;
+
 	bmi->biCompression = BI_RGB;
 	bmi->biSizeImage =  0; /* Many tools expect this may be set to zero for BI_RGB bitmaps */
 	bmi->biXPelsPerMeter = (int) (0.5f + ((gdip_get_display_dpi() * 3937) / 100));
 	bmi->biYPelsPerMeter = (int) (0.5f + ((gdip_get_display_dpi() * 3937) / 100)); /* 1 meter is = 39.37 */       
 #endif
 }                                                           
-
-void 
-gdip_bitmap_save_bmp (const char *name, GpBitmap *bitmap)
-{
-	BITMAPFILEHEADER	bmfh;
-	BITMAPINFOHEADER	bmi;
-	int			bitmapLen;
-	FILE			*fp;
-	int			ncolors = 0;
-
-	bitmapLen = bitmap->active_bitmap->stride * bitmap->active_bitmap->height;
-
-	bmfh.bfReserved1 = 0;
-	bmfh.bfReserved2 = 0;
-
-	bmfh.bfType = BFT_BITMAP;
-	if (bitmap->active_bitmap->palette != NULL) {
-		ncolors = bitmap->active_bitmap->palette->Count;
-	}
-
-	bmfh.bfOffBits = (14 + 40 + ncolors * 4);
-	bmfh.bfSize = (bmfh.bfOffBits + bitmapLen);
-
-	fp = fopen (name, "w+b");
-	fwrite (&bmfh, sizeof (bmfh), 1, fp);
-	gdip_bitmap_fill_info_header (bitmap, &bmi);
-	bmi.biHeight = -bmi.biHeight;
-
-	fwrite (&bmi, sizeof (bmi), 1, fp);
-
-	if (gdip_is_an_indexed_pixelformat (bitmap->active_bitmap->pixel_format)) {
-		int	i;
-		char	*entries;
-		int	palette_entries;
-
-		palette_entries = bitmap->active_bitmap->palette->Count;
-
-		if (bitmap->active_bitmap->pixel_format == Format4bppIndexed) {
-			palette_entries = 16;
-		}
-
-		entries = (char *) GdipAlloc (palette_entries * 4);
-		for (i = 0; i < palette_entries; i++) {
-			/* Pixel format: 0xAARRGGBB */
-			int idx;
-			unsigned int packed = bitmap->active_bitmap->palette->Entries[i];
-
-#ifdef WORDS_BIGENDIAN
-			idx = i * 4;
-			entries [idx] = ( packed        & 0xFF); /* B */
-			entries [idx + 1] = ((packed >>  8) & 0xFF); /* G */
-			entries [idx + 2] = ((packed >> 16) & 0xFF); /* R */
-			entries [idx + 3] = ((packed >> 24) & 0xFF); /* Alpha */
-#else
-			*((guint32 *) entries + i) = packed;
-#endif
-		}
-		fwrite (entries, 4, palette_entries, fp);
-		GdipFree (entries);
-		entries = NULL;
-	}
-
-	fwrite (bitmap->active_bitmap->scan0, bitmapLen, 1, fp);
-	fclose (fp);
-}
 
 GpStatus 
 gdip_load_bmp_image_from_file (FILE *fp, GpImage **image)
@@ -1053,14 +997,11 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 					continue;
 
 				case 24: {
-					int	src;
-					int	dest;
+					int src = 0;
+					int dest = 0;
 
-					src = 0;
-					dest = 0;
-
+					index = (line * result->active_bitmap->stride);
 					while (src < loop) {
-						index = (line * result->active_bitmap->stride);
 						set_pixel_bgra(pixels, index + dest, data_read[src+0], data_read[src+1], data_read[src+2], 0xff);
 						dest += 4;
 						src += 3;
@@ -1096,14 +1037,6 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 	result->active_bitmap->scan0 = pixels;
 	result->active_bitmap->reserved = GBD_OWN_SCAN0;
-	if (!gdip_is_an_indexed_pixelformat (result->active_bitmap->pixel_format)) {
-		result->surface = cairo_image_surface_create_for_data ((unsigned char *)pixels,
-		                                                     result->cairo_format,
-		                                                     result->active_bitmap->width,
-		                                                     result->active_bitmap->height,
-		                                                     result->active_bitmap->stride);
-	}
-
 	result->active_bitmap->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB;
 
 	*image = result;
@@ -1177,12 +1110,14 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
         int			colours = 0;
 	unsigned char		*entries;
 	int			palette_entries;
+	BitmapData		*activebmp;
+	byte			*scan0;
 
+	activebmp = image->active_bitmap;
+	bitmapLen = activebmp->stride * activebmp->height;
 
-	bitmapLen = image->active_bitmap->stride * image->active_bitmap->height;
-
-        if (image->active_bitmap->palette) {
-                colours = image->active_bitmap->palette->Count;
+        if (activebmp->palette) {
+                colours = activebmp->palette->Count;
 	}
 
 #ifdef WORDS_BIGENDIAN
@@ -1202,28 +1137,27 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
 	gdip_write_bmp_data (pointer, (byte *)&bmi, sizeof (bmi), useFile);
 
 	if (colours) {
-		palette_entries = image->active_bitmap->palette->Count;
+		int idx;
 
-		if (image->active_bitmap->pixel_format == Format4bppIndexed) {
+		palette_entries = activebmp->palette->Count;
+
+		if (activebmp->pixel_format == Format4bppIndexed) {
 			palette_entries = 16;
 		}
 
-		entries = (unsigned char *) GdipAlloc (palette_entries* 4);
-		if (entries == NULL) {
+		entries = (unsigned char *) GdipAlloc (palette_entries*4);
+		if (entries == NULL)
 			return OutOfMemory;
-		}
 
+		idx = 0;
 		for (i = 0; i < palette_entries; i++) {
-			int idx;
-
-			color = image->active_bitmap->palette->Entries[i];
+			color = activebmp->palette->Entries[i];
 #ifdef WORDS_BIGENDIAN
-			idx = i * 4;
-
 			entries [idx] =  color & 0xff;
 			entries [idx + 1] = (color >> 8) & 0xff;
 			entries [idx + 2] = (color >> 16) & 0xff;
 			entries [idx + 3] = color >> 24;
+			idx += 4;
 #else
 			*((guint32 *) entries + i) = color;
 #endif
@@ -1232,31 +1166,69 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
 		GdipFree (entries);
 	}
 
+	scan0 = activebmp->scan0;
+	if (activebmp->pixel_format == Format24bppRgb) {
+		int width = activebmp->width;
+		int height = activebmp->height;
+		int mystride;
+		int k;
+		byte *current_line;
+
+		/* rows need to be padded up to the next multiple of 4 */
+		mystride = width * 3;
+		mystride += 3;
+		mystride &= ~3;
+		current_line = (byte *) GdipAlloc (mystride);
+		memset (current_line, 0, mystride); /* Zero padding at the end if needed */
+		for (i = height - 1; i >= 0; i--) {
+			byte *ptr;
+			uint32_t *iptr;
+
+			iptr = (uint32_t *) (scan0 + i * activebmp->stride);
+			ptr = current_line;
+			for (k = 0; k < width; k++) {
+				uint32_t color = *iptr++;
+#ifndef WORDS_BIGENDIAN
+				*ptr++ = (color & 0x000000ff);
+				*ptr++ = ((color & 0x0000ff00) >> 8);
+				*ptr++ = ((color & 0x00ff0000) >> 16);
+#else
+				*ptr++ = ((color & 0xff000000) >> 24);
+				*ptr++ = ((color & 0x00ff0000) >> 16);
+				*ptr++ = ((color & 0x0000ff00) >> 8);
+#endif
+			}
+			gdip_write_bmp_data (pointer, current_line, mystride, useFile);
+		}
+		GdipFree (current_line);
+		return Ok;
+	}
+
 	/* Writes bitmap upside down. Many tools can only process bmp stored this way*/        
 #ifdef WORDS_BIGENDIAN
-	if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format) == FALSE) {
+	if (gdip_is_an_indexed_pixelformat (activebmp->pixel_format) == FALSE) {
 		int	j;
-		guchar	*row_pointer = GdipAlloc (image->active_bitmap->width * 4);
+		guchar	*row_pointer = GdipAlloc (activebmp->width * 4);
 
 		if (row_pointer == NULL) {
 			return OutOfMemory;
 		}
 
-		for (i = image->active_bitmap->height -1; i >= 0; i--) {
-			for (j = 0; j < image->active_bitmap->width; j++) {
-				row_pointer[j*4] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 3); 
-				row_pointer[j*4+1] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 2); 
-				row_pointer[j*4+2] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 1); 
-				row_pointer[j*4+3] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 0); 
+		for (i = activebmp->height -1; i >= 0; i--) {
+			for (j = 0; j < activebmp->width; j++) {
+				row_pointer[j*4] = *((guchar *)scan0 + (activebmp->stride * i) + (j*4) + 3); 
+				row_pointer[j*4+1] = *((guchar *)scan0 + (activebmp->stride * i) + (j*4) + 2); 
+				row_pointer[j*4+2] = *((guchar *)scan0 + (activebmp->stride * i) + (j*4) + 1); 
+				row_pointer[j*4+3] = *((guchar *)scan0 + (activebmp->stride * i) + (j*4) + 0); 
 			}
-			gdip_write_bmp_data (pointer, row_pointer, image->active_bitmap->stride, useFile);
+			gdip_write_bmp_data (pointer, row_pointer, activebmp->stride, useFile);
 		}
 		GdipFree (row_pointer);
 	}
 	else
 #endif /* WORDS_BIGENDIAN */
-	for (i = image->active_bitmap->height - 1; i >= 0; i--) {
-		gdip_write_bmp_data (pointer, image->active_bitmap->scan0 + i * image->active_bitmap->stride, image->active_bitmap->stride, useFile);
+	for (i = activebmp->height - 1; i >= 0; i--) {
+		gdip_write_bmp_data (pointer, scan0 + i * activebmp->stride, activebmp->stride, useFile);
 	}
 
 	return Ok;
