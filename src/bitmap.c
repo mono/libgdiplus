@@ -2237,7 +2237,7 @@ gdip_convert_indexed_to_rgb (GpBitmap *indexed_bmp)
 	/* try to get a GpBitmap out of it :-) */
 	status = GdipCreateBitmapFromScan0 (data->width, data->height, rgb_stride, format, rgb_scan0, &ret);
 	if (status == Ok) {
-		ret->reserved = GBD_OWN_SCAN0;
+		ret->active_bitmap->reserved = GBD_OWN_SCAN0;
 		return ret;
 	}
 
