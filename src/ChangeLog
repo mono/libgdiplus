@@ -1,3 +1,7 @@
+2006-05-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* hatchbrush.c: Check all pointers for NULL.
+
 2006-05-19 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* bmpcodec.c: fix bfSize for 24bpp.

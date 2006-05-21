@@ -2436,7 +2436,8 @@ gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush)
 	GpHatch *result;
 	GpHatch *hatch;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush || !clonedBrush)
+		return InvalidParameter;
 
 	hatch = (GpHatch *) brush;
 	result = (GpHatch *) GdipAlloc (sizeof (GpHatch));
@@ -2478,21 +2479,25 @@ gdip_hatch_destroy (GpBrush *brush)
 GpStatus
 GdipCreateHatchBrush (GpHatchStyle hatchstyle, int forecolor, int backcolor, GpHatch **brush)
 {
-        *brush = gdip_hatch_new ();
+	if (!brush)
+		return InvalidParameter;
 
-	g_return_val_if_fail (brush != NULL, OutOfMemory);
+	*brush = gdip_hatch_new ();
+	if (!*brush)
+		return OutOfMemory;
 
-        (*brush)->hatchStyle = hatchstyle;
-        (*brush)->foreColor = forecolor;
-        (*brush)->backColor = backcolor;
+	(*brush)->hatchStyle = hatchstyle;
+	(*brush)->foreColor = forecolor;
+	(*brush)->backColor = backcolor;
 
-        return Ok; 
+	return Ok; 
 }
 
 GpStatus
 GdipGetHatchStyle (GpHatch *brush, GpHatchStyle *hatchstyle)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush || !hatchstyle)
+		return InvalidParameter;
 
 	*hatchstyle = brush->hatchStyle;
 	return Ok;
@@ -2501,7 +2506,8 @@ GdipGetHatchStyle (GpHatch *brush, GpHatchStyle *hatchstyle)
 GpStatus
 GdipGetHatchForegroundColor (GpHatch *brush, int *forecolor)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush || !forecolor)
+		return InvalidParameter;
 
 	*forecolor = brush->foreColor;
 	return Ok;
@@ -2510,7 +2516,8 @@ GdipGetHatchForegroundColor (GpHatch *brush, int *forecolor)
 GpStatus
 GdipGetHatchBackgroundColor (GpHatch *brush, int *backcolor)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush || !backcolor)
+		return InvalidParameter;
 
 	*backcolor = brush->backColor;
 	return Ok;
