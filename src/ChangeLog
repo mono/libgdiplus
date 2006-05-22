@@ -1,3 +1,8 @@
+2006-05-22 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* gifcodec.c: null terminate the byte array passed to
+	gdip_bitmapdata_property_add_ASCII to avoid an invalid memory read.
+
 2006-05-21  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* hatchbrush.c: Check all pointers for NULL.

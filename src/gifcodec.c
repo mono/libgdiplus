@@ -390,7 +390,16 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 				int	index;
 
 				if (gdip_bitmapdata_property_find_id(bitmap_data, ExifUserComment, &index) != Ok) {
-					gdip_bitmapdata_property_add_ASCII(bitmap_data, ExifUserComment, (unsigned char *)eb.Bytes);
+					byte *bytes;
+
+					bytes = (byte *) GdipAlloc (eb.ByteCount + 1);
+					if (bytes == NULL)
+						goto error;
+
+					memcpy (bytes, eb.Bytes, eb.ByteCount);
+					bytes [eb.ByteCount] = '\0';
+					gdip_bitmapdata_property_add_ASCII (bitmap_data, ExifUserComment, bytes);
+					GdipFree (bytes);
 				}
 			}
 		}
