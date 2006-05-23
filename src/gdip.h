@@ -890,6 +890,7 @@ typedef struct {
 	GpFontFamily	    *family;
 	float               emSize;
 	GpUnit              unit;
+	cairo_t*            ct;
 } GpFont;
 
 

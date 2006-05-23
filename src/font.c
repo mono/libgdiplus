@@ -37,11 +37,6 @@ static int ref_familySerif = 0;
 static int ref_familySansSerif = 0;
 static int ref_familyMonospace = 0;
 
-extern cairo_font_face_t *
-_cairo_toy_font_face_create (const char *family, 
-			     cairo_font_slant_t   slant, 
-			     cairo_font_weight_t  weight);
-
 
 /* Family and collections font functions */
 
@@ -558,6 +553,23 @@ GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAv
 }
 
 /* Font functions */
+cairo_font_face_t *
+gdip_face_create (const char *family, 
+			cairo_font_slant_t   slant, 
+			cairo_font_weight_t  weight,
+			cairo_t** ct)
+{
+	cairo_surface_t *surface;
+	cairo_font_face_t *face;
+
+	surface = cairo_image_surface_create_for_data ((unsigned char *)NULL, CAIRO_FORMAT_ARGB32, 0, 0, 0);
+	*ct = cairo_create (surface);
+	cairo_select_font_face (*ct, (const char *) family, slant, weight);
+	face = cairo_get_font_face (*ct);
+	cairo_surface_destroy (surface);
+	return face;
+
+}
 
 GpStatus
 GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, Unit unit,  GpFont **font)
@@ -590,7 +602,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 	else
 		slant = CAIRO_FONT_SLANT_NORMAL;
 
-	cairofnt = _cairo_toy_font_face_create ((const char*) str, slant, weight);
+	cairofnt = gdip_face_create ((const char*) str, slant, weight, &result->ct);
 
 	if (cairofnt == NULL) {
 		GdipFree(result);
@@ -632,7 +644,8 @@ GdipDeleteFont (GpFont* font)
 	if (!font)
 		return InvalidParameter;
 
-	cairo_font_face_destroy (font->cairofnt);
+	cairo_destroy (font->ct);
+
 	GdipFree ((void *)font->face);
 	GdipFree ((void *)font);
 	return Ok;	       
@@ -753,7 +766,7 @@ GdipCreateFontFromHfontA(void *hfont, GpFont **font, void *lf)
 
 	memcpy(result->face, src_font->face, strlen((char *)src_font->face) + 1);
 
-	result->cairofnt = _cairo_toy_font_face_create ((const char*) src_font->face, slant, weight);
+	result->cairofnt = gdip_face_create ((const char*) src_font->face, slant, weight, &result->ct);
 
 	if (result->cairofnt == NULL) {
 		GdipFree(result);
@@ -841,7 +854,7 @@ gdip_create_font_from_logfont(void *hdc, void *lf, GpFont **font, bool ucs2)
 		result->face[LF_FACESIZE - 1] = '\0';
 	}
 
-	result->cairofnt = _cairo_toy_font_face_create ((const char *)result->face, slant, weight);
+	result->cairofnt = gdip_face_create ((const char *)result->face, slant, weight, &result->ct);
 	if (result->cairofnt == NULL) {
 		GdipFree(result);
 		return GenericError;

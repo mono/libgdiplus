@@ -1,3 +1,9 @@
+2006-05-23 Jordi Mas i Hernandez  <jordimash@gmail.com>
+	
+	* font.c:  removes libgdiplus dependency against Cairo 
+	_cairo_toy_font_face_create API function. Change to make 
+	Cairo 1.2 linkable with libgdiplus.
+
 2006-05-22 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* gifcodec.c: null terminate the byte array passed to
