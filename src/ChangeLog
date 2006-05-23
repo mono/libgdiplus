@@ -1,3 +1,8 @@
+2006-05-23 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* gifcodec.c: support 'combine' animated gifs and top/left positioning
+	of frames. Last part of the fixes for bug #77247.
+
 2006-05-23 Jordi Mas i Hernandez  <jordimash@gmail.com>
 	
 	* font.c:  removes libgdiplus dependency against Cairo 

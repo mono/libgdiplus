@@ -278,8 +278,17 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	SavedImage	global_extensions;
 	ColorPalette	*global_palette;
 	bool		loop_counter;
-	unsigned short	loop_value = 0;
+	unsigned short	loop_value;
+	int		disposal;
+	int		last_disposal;
+	int 		transparent_index;
+	int		screen_width;
+	int		screen_height;
+	GifImageDesc	*img_desc;
 
+	disposal = 0;
+	last_disposal = 0;
+	loop_value = 0;
 	global_palette = NULL;
 	result = NULL;
 	loop_counter = FALSE;
@@ -305,6 +314,8 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	   pages
 	*/
 
+	screen_width = gif->SWidth;
+	screen_height = gif->SHeight;
 	animated = FALSE;
 	num_of_images = gif->ImageCount;
 
@@ -383,6 +394,13 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		}
 
 		si = gif->SavedImages[i];
+		img_desc = &si.ImageDesc;
+		if (img_desc->Top < 0 || img_desc->Height < 0 ||
+		    img_desc->Left < 0 || img_desc->Width < 0 ||
+		    (img_desc->Width + img_desc->Left) > screen_width ||
+		    (img_desc->Height + img_desc->Top) > screen_height) {
+			goto error;
+		}
 
 		for (l = 0; l < global_extensions.ExtensionBlockCount; l++) {
 			ExtensionBlock eb = global_extensions.ExtensionBlocks[l];
@@ -412,13 +430,16 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 					/* Pull animation time and/or transparent color */
 
 					if (eb.ByteCount > 3) {	/* Sanity */
-						guint32	value;
+						guint32	delay;
 
+						disposal = ((eb.Bytes [0] >> 2) & 7);
 						if ((eb.Bytes[0] & 0x01) != 0) {
-							bitmap_data->transparent = -eb.Bytes[3] - 1;	/* 0 = no transparency, so we need to shift range */
+							/* 0 = no transparency, so we need to shift range */
+							bitmap_data->transparent = -eb.Bytes[3] - 1;
 						}
-						value = (eb.Bytes[2] << 8) + (eb.Bytes[1]);
-						gdip_bitmapdata_property_add_long(bitmap_data, FrameDelay, value);
+
+						delay = (eb.Bytes[2] << 8) + (eb.Bytes[1]);
+						gdip_bitmapdata_property_add_long(bitmap_data, FrameDelay, delay);
 						if (loop_counter) {
 							gdip_bitmapdata_property_add_short(bitmap_data, LoopCount, loop_value);
 						}
@@ -455,10 +476,11 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		}
 
 		/* copy the local color map if there is one, otherwise we duplicate the global one */
-		if (si.ImageDesc.ColorMap != NULL) {
+		if (img_desc->ColorMap != NULL) {
 			ColorMapObject	*local_palette_obj;
 
-			local_palette_obj = si.ImageDesc.ColorMap;
+			/* TODO: what do we do with combined gif + local palettes? */
+			local_palette_obj = img_desc->ColorMap;
 	
 			bitmap_data->palette = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * local_palette_obj->ColorCount);
 			bitmap_data->palette->Flags = 0;
@@ -473,27 +495,27 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 
 		}
 
-		/* Set transparency, a bit complicated due to endianness */
 		if (bitmap_data->transparent < 0) {
-			unsigned char	index;
 			unsigned char	*v;
 
 			bitmap_data->palette->Flags |= PaletteFlagsHasAlpha;
-			index = (bitmap_data->transparent + 1) * -1;
-			v = (unsigned char *)&bitmap_data->palette->Entries[index];
+			transparent_index = (bitmap_data->transparent + 1) * -1;
+			v = (unsigned char *)&bitmap_data->palette->Entries [transparent_index];
 #ifdef WORDS_BIGENDIAN
 			v[0] = 0x00;
 #else
 			v[3] = 0x00;
 #endif /* WORDS_BIGENDIAN */
+		} else {
+			transparent_index = -1;
 		}
 
 		bitmap_data->pixel_format = Format8bppIndexed;
-		bitmap_data->width = si.ImageDesc.Width;
-		bitmap_data->height = si.ImageDesc.Height;
+		bitmap_data->width = screen_width;
+		bitmap_data->height = screen_height;
 		bitmap_data->stride = (bitmap_data->width + sizeof(pixman_bits_t) - 1) & ~(sizeof(pixman_bits_t) - 1);
-		bitmap_data->left = si.ImageDesc.Left;
-		bitmap_data->top = si.ImageDesc.Top;
+		bitmap_data->left = img_desc->Left;
+		bitmap_data->top = img_desc->Top;
 
 		bitmap_data->scan0 = GdipAlloc (bitmap_data->stride * bitmap_data->height);
 		bitmap_data->reserved = GBD_OWN_SCAN0;
@@ -505,10 +527,42 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		writeptr = bitmap_data->scan0;
 
 		for (l = 0; l < bitmap_data->height; l++) {
-			memcpy(writeptr, readptr, bitmap_data->width);
-			readptr += bitmap_data->width;
-			writeptr += bitmap_data->stride;
+			if (l >= img_desc->Top && l - img_desc->Top < img_desc->Height) {
+				/* Ignore 'disposal' 0 (don't care) and 4, 5, 6, 7 (undocumented) */
+				if (i == 0 || transparent_index == -1 || (last_disposal != 1 && last_disposal != 3)) {
+					writeptr += img_desc->Left;
+					memcpy (writeptr, readptr, img_desc->Width);
+					writeptr -= img_desc->Left;
+					writeptr += bitmap_data->stride;
+					readptr += img_desc->Width;
+				} else {
+					int ridx, widx;
+					BitmapData *last_bitmap;
+
+					last_bitmap = &frame->bitmap [i - 1];
+					if (l == img_desc->Top) {
+						/* Copy the previous bitmap as the base for this one */
+						/* TODO: This will be wrong if each image has a different palette */
+						/* There's a comment up there too */
+						memcpy (bitmap_data->scan0, last_bitmap->scan0,
+							bitmap_data->height * bitmap_data->stride);
+					}
+
+					for (ridx = 0, widx = bitmap_data->left; ridx < img_desc->Width; widx++, ridx++) {
+						byte bt = readptr [ridx];
+						if (bt == transparent_index)
+							continue;
+						writeptr [widx] = bt;
+					}
+					readptr += img_desc->Width;
+					writeptr += bitmap_data->stride;
+				}
+			} else {
+				writeptr += bitmap_data->stride;
+			}
 		}
+		last_disposal = disposal;
+		disposal = 0;
 	}
 
 	gdip_bitmap_setactive(result, dimension, 0);
