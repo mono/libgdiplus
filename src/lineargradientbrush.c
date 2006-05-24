@@ -909,7 +909,9 @@ GpStatus
 GdipSetLineWrapMode (GpLineGradient *brush, GpWrapMode wrapMode)
 {
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (wrapMode != WrapModeClamp, InvalidParameter);
+
+	if (wrapMode == WrapModeClamp)
+		return InvalidParameter;
 
 	brush->wrapMode = wrapMode;
 	brush->base.changed = TRUE;

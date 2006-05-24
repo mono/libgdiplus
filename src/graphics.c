@@ -1757,7 +1757,9 @@ GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GpRectF *rects, int co
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (rects != NULL, InvalidParameter);
-	g_return_val_if_fail (count > 0, InvalidParameter);
+
+	if (count <= 0)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -1798,7 +1800,9 @@ GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GpRect *rects, int co
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (rects != NULL, InvalidParameter);
-	g_return_val_if_fail (count > 0, InvalidParameter);
+
+	if (count <= 0)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.

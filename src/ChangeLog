@@ -1,3 +1,9 @@
+2006-05-24  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics.c: Remove some warning display from S.D. unit tests.
+	* lineargradientbrush.c: Remove some warning display from S.D. unit 
+	tests.
+
 2006-05-24  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* hatchbrush.c|h: Large patch to reduce code duplication and add 
