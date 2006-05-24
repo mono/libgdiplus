@@ -1,3 +1,11 @@
+2006-05-24 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* image.c:
+	* bitmap.c:
+	* gdip.h: added MEMBMP, its GUID and the mapping from that in-memory
+	format to file type when saving. This changes the default bitmap
+	RawFormat to MemoryBmp and its default file format to PNG.
+
 2006-05-24  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics.c: Remove some warning display from S.D. unit tests.

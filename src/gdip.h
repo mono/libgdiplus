@@ -342,6 +342,7 @@ typedef enum {
 	WMF,
 	EMF,
 	ICON,
+	MEMBMP,
 	INVALID
 } ImageFormat;
 

@@ -818,7 +818,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 		return OutOfMemory;
 	}
 
-	result->image_format = BMP;
+	result->image_format = MEMBMP;
 	result->cairo_format = cairo_format;
 	result->surface = NULL;
 	result->active_frame = 0;
@@ -955,7 +955,7 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	stride &= ~(sizeof(pixman_bits_t)-1);
 	
 	result = gdip_bitmap_new ();
-	result->image_format = BMP;
+	result->image_format = MEMBMP;
 	result->cairo_format = CAIRO_FORMAT_ARGB32;
 
 	frame = gdip_frame_add(result, &gdip_image_frameDimension_page_guid);

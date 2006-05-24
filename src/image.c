@@ -39,6 +39,7 @@ cairo_filter_t gdip_get_cairo_filter (InterpolationMode imode);
  * format guids
  */
 
+GUID gdip_membmp_image_format_guid = {0xb96b3caaU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 GUID gdip_bmp_image_format_guid = {0xb96b3cabU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 GUID gdip_jpg_image_format_guid = {0xb96b3caeU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 GUID gdip_png_image_format_guid = {0xb96b3cafU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
@@ -912,6 +913,10 @@ GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format)
 
 		case EMF:
 	        	memcpy(format, &gdip_emf_image_format_guid, 16);
+			return Ok;
+
+		case MEMBMP:
+	        	memcpy(format, &gdip_membmp_image_format_guid, 16);
 			return Ok;
 
         	default:
@@ -1954,6 +1959,8 @@ gdip_image_format_for_format_guid (GDIPCONST GUID *formatGUID)
 		return WMF;
 	if (memcmp(formatGUID, &gdip_emf_image_format_guid, sizeof(GUID)) == 0)
 		return EMF;
+	if (memcmp(formatGUID, &gdip_membmp_image_format_guid, sizeof(GUID)) == 0)
+		return PNG; /* MemoryBmp is saved as PNG */
 
 	return INVALID;
 }
