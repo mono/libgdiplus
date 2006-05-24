@@ -62,7 +62,6 @@ gdip_brush_setup (GpGraphics *graphics, GpBrush *brush)
 GpStatus
 gdip_brush_destroy (GpBrush *brush)
 {
-	
 	/* do nothing, because we are not allocating any memory here. */
 	return Ok;
 }
@@ -70,18 +69,27 @@ gdip_brush_destroy (GpBrush *brush)
 GpStatus 
 GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush)
 {
+	if (!brush || !clonedBrush)
+		return InvalidParameter;
+
 	return brush->vtable->clone_brush (brush, clonedBrush);
 }
 
 GpStatus 
 GdipDeleteBrush (GpBrush *brush)
 {
+	if (!brush)
+		return InvalidParameter;
+
 	return brush->vtable->destroy (brush);
 }
 
 GpStatus
 GdipGetBrushType (GpBrush *brush, GpBrushType *type)
 {
+	if (!brush || !type)
+		return InvalidParameter;
+
         *type = brush->vtable->type;
         return Ok;
 }

@@ -1,3 +1,9 @@
+2006-05-24  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* brush.c: Make sure we check for NULL before using any pointer.
+	* pen.c: Clone the supplied brush in the GdipCreatePen2 function (as 
+	the user may dispose of it anytime).
+
 2006-05-23 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* gifcodec.c: support 'combine' animated gifs and top/left positioning

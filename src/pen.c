@@ -220,17 +220,23 @@ GdipCreatePen2 (GpBrush *brush, float width, GpUnit unit, GpPen **pen)
         int color;
         GpStatus s;
         GpBrushType type;
+	GpPen *result;
 
 	g_return_val_if_fail (brush != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
 
-        *pen = gdip_pen_new ();
-
-	g_return_val_if_fail (*pen != NULL, OutOfMemory);
+        *pen = result = gdip_pen_new ();
+	g_return_val_if_fail (result != NULL, OutOfMemory);
 
         /* FIXME: do unit conversion when setting width */
-        (*pen)->width = width;
-	(*pen)->brush = brush;
+        result->width = width;
+
+	/* the user supplied brush can be disposed, we must clone it to ensure
+	 * it's valid when we need to set the pen */
+	s = GdipCloneBrush (brush, &result->brush);
+	if (s != Ok)
+		return s;
+	result->own_brush = TRUE;
 
         s = GdipGetBrushType (brush, &type);
 	if (s != Ok)
@@ -242,7 +248,7 @@ GdipCreatePen2 (GpBrush *brush, float width, GpUnit unit, GpPen **pen)
                 s = GdipGetSolidFillColor ((GpSolidFill*) brush, &color);
 		if (s != Ok)
 			return s;
-                (*pen)->color = color;
+                result->color = color;
                 return Ok;
 
         case BrushTypeHatchFill:
