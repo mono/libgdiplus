@@ -90,4 +90,13 @@ GpStatus GdipGetHatchStyle (GpHatch *brush, GpHatchStyle *hatchstyle);
 GpStatus GdipGetHatchForegroundColor (GpHatch *brush, int *forecolor);
 GpStatus GdipGetHatchBackgroundColor (GpHatch *brush, int *backcolor);
 
+/* internal helpers */
+
+#define HATCH_SIZE 7
+#define LINE_WIDTH 1
+
+#define gdip_hatch_get_width(hbr)	(hatches_const[hbr->hatchStyle][0])
+#define gdip_hatch_get_height(hbr)	(hatches_const[hbr->hatchStyle][1])
+#define gdip_hatch_get_line_width(hbr)	(hatches_const[hbr->hatchStyle][2])
+
 #endif /* _HATCHBRUSH_H */

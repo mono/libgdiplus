@@ -1,3 +1,9 @@
+2006-05-24  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* hatchbrush.c|h: Large patch to reduce code duplication and add 
+	missing	(and fix bad) error checking. *No* visual changes (or fixes) 
+	in the hatch output (yet) and valgrinded.
+
 2006-05-24  Sebastien Pouliot  <sebastien@ximian.com> 
  
 	* bitmap.c: Zeroize allocated bitmap memory. Fix #78478
