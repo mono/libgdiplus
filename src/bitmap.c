@@ -977,7 +977,7 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	if (bitmap_data->scan0 == NULL) {
 		goto fail;
 	}
-
+	memset (bitmap_data->scan0, 0, stride * height);
 	gdip_bitmap_setactive(result, NULL, 0);
 
 	*bitmap = result;

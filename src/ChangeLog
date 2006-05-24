@@ -1,5 +1,6 @@
-2006-05-24  Sebastien Pouliot  <sebastien@ximian.com>
-
+2006-05-24  Sebastien Pouliot  <sebastien@ximian.com> 
+ 
+	* bitmap.c: Zeroize allocated bitmap memory. Fix #78478
 	* brush.c: Make sure we check for NULL before using any pointer.
 	* pen.c: Clone the supplied brush in the GdipCreatePen2 function (as 
 	the user may dispose of it anytime).
