@@ -1,3 +1,8 @@
+2006-05-25  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* region.c: Implement GdipGetRegionHRgn and GdipCreateRegionHrgn. This
+	fix a possible double dispose in S.D.
+
 2006-05-24 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* image.c:

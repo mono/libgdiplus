@@ -1648,3 +1648,26 @@ GdipGetRegionData (GpRegion *region, BYTE *buffer, UINT bufferSize, UINT *sizeFi
 
 	return Ok;
 }
+
+GpStatus
+GdipGetRegionHRgn (GpRegion *region, GpGraphics *graphics, HRGN *hRgn)
+{
+	if (!region || !graphics || !hRgn)
+		return InvalidParameter;
+
+	/* infinite region returns NULL */
+	if (gdip_is_InfiniteRegion (region))
+		*hRgn = NULL;
+	else
+		*hRgn = region;
+	return Ok;
+}
+
+GpStatus
+GdipCreateRegionHrgn (HRGN hRgn, GpRegion **region)
+{
+	if (!hRgn || !region)
+		return InvalidParameter;
+
+	return GdipCloneRegion ((GpRegion*) hRgn, region);
+}

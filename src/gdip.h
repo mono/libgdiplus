@@ -107,6 +107,7 @@ typedef gpointer HANDLE;
 typedef gpointer *LPHANDLE;
 typedef guint32 SOCKET;
 typedef gpointer HMODULE;
+typedef gpointer HRGN;
 #define CONST const
 #define VOID void
 
