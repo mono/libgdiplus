@@ -20,7 +20,6 @@ GdipCreateBitmapFromHICON
 GdipCreateHICONFromBitmap
 GdipCreateBitmapFromResource
 GdipCreateFontFromDC
-GdipSetClipHrgn
 GdipCreateFromHWND
 
 * Generic functions
@@ -49,12 +48,12 @@ GdipSaveAddImage
 
 * Pens and brushes
 
-GdipSetPenDashCap197819
-GdipGetPenDashCap197819
-GdipSetPenCustomStartCap
-GdipGetPenCustomStartCap
-GdipSetPenCustomEndCap
-GdipGetPenCustomEndCap
+GdipSetPenDashCap197819		[2]
+GdipGetPenDashCap197819		[2]
+GdipSetPenCustomStartCap	[3]
+GdipGetPenCustomStartCap	[3]
+GdipSetPenCustomEndCap		[3]
+GdipGetPenCustomEndCap		[3]
 
 * Functions related to paths
 
@@ -68,6 +67,7 @@ GdipWarpPath
 Notes
 [1] Partially implemented. LayoutRect and StringFormat are ignored.
 [2] Function exists (return Ok) but doesn't do anything (visually or not)
+[3] Function exists (return Ok) but only display a warning on the console
 
 ---- Issues
 
