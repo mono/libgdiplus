@@ -1,5 +1,7 @@
-2006-05-25  Sebastien Pouliot  <sebastien@ximian.com> 
+2006-05-25  Sebastien Pouliot  <sebastien@ximian.com>
 
+	* graphics.c: Implemented GdipSetClipHrgn before finding out (at test
+	time that it's not exposed thru System.Drawing.dll).
 	* region.c: Implement GdipGetRegionHRgn and GdipCreateRegionHrgn. This
 	fix a possible double dispose in S.D.
 

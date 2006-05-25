@@ -4158,10 +4158,27 @@ GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMo
 	return status;
 }
 
+/* Note: not exposed in System.Drawing.dll */
 GpStatus
 GdipSetClipHrgn (GpGraphics *graphics, void *hRgn, CombineMode combineMode)
 {
-	return NotImplemented;
+	GpStatus status;
+
+	if (!graphics)
+		return InvalidParameter;
+
+	if (hRgn) {
+		status = GdipSetClipRegion (graphics, (GpRegion*)hRgn, combineMode);
+	} else {
+		/* hRng == NULL means an infinite region */
+		GpRegion *work;
+		status = GdipCreateRegion (&work);
+		if (status == Ok) {
+			status = GdipSetClipRegion (graphics, work, combineMode);
+			GdipDeleteRegion (work);
+		}
+	}
+	return status;
 }
 
 GpStatus
