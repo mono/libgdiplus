@@ -160,8 +160,6 @@ AC_ARG_WITH(libtiff,
 	[AC_HELP_STRING([--without-libtiff], [disable TIFF file IO])])
 AC_ARG_WITH(libgif,
 	[AC_HELP_STRING([--without-libgif], [disable GIF file IO])])
-AC_ARG_WITH(libpng,
-	[AC_HELP_STRING([--without-libpng], [disable PNG file IO])])
 
 dnl Test for libtiff
   if test x$with_libtiff != xno && test -z "$LIBTIFF"; then
@@ -238,7 +236,6 @@ if test x$GIF != x; then
 fi
 
 dnl Test for libpng
-  if test x$with_libpng != xno && test -z "$LIBPNG"; then
     AC_MSG_CHECKING(for libpng12)
     if $PKG_CONFIG --exists libpng12 ; then
         AC_MSG_RESULT(yes)
@@ -251,7 +248,7 @@ dnl Test for libpng
         [AC_CHECK_HEADER(png.h,
           png_ok=yes,
           png_ok=no)],
-        AC_MSG_WARN(*** PNG loader will not be built (PNG library not found) ***), -lz -lm)
+        AC_MSG_ERROR(*** libpng12 not found. See http://www.libpng.org/pub/png/libpng.html.), -lz -lm)
       if test "$png_ok" = yes; then
         AC_MSG_CHECKING([for png_structp in png.h])
         AC_TRY_COMPILE([#include <png.h>],
@@ -262,19 +259,16 @@ dnl Test for libpng
         if test "$png_ok" = yes; then
           PNG='png'; LIBPNG='-lpng -lz'
         else
-          AC_MSG_WARN(*** PNG loader will not be built (PNG library is too old) ***)
+          AC_MSG_ERROR(*** libpng12 found, but it is too old. See http://www.libpng.org/pub/png/libpng.html.)
         fi
       else
-       AC_MSG_WARN(*** PNG loader will not be built (PNG header file not found) ***)
+          AC_MSG_ERROR(*** libpng12 not found. See http://www.libpng.org/pub/png/libpng.html.)
       fi
     fi
-fi
 
 
-if test x$PNG != x; then
-  GDIPLUS_LIBS="$GDIPLUS_LIBS $LIBPNG"
-  AC_DEFINE(HAVE_LIBPNG, 1, Define if png support is available)
-fi
+GDIPLUS_LIBS="$GDIPLUS_LIBS $LIBPNG"
+AC_DEFINE(HAVE_LIBPNG, 1, Define if png support is available. Always defined.)
 
 dnl
 dnl Produce a diagnostic, to reduce support time
@@ -306,8 +300,7 @@ echo $ECHO_N "      - JPEG: "
 test ! x$JPEG = x && echo yes || echo "no (Get it from http://freshmeat.net/projects/libjpeg)"
 echo $ECHO_N "      - GIF: "
 test ! x$GIF = x && echo yes || echo "no (See http://sourceforge.net/projects/libgif)"
-echo $ECHO_N "      - PNG: "
-test ! x$PNG = x && echo yes || echo "no (See http://www.libpng.org/pub/png/libpng.html)"
+echo $ECHO_N "      - PNG: yes"
 echo ""
 echo "      NOTE: if any of the above say 'no' you may install the"
 echo "            corresponding development packages for them, rerun"

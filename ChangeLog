@@ -1,3 +1,8 @@
+2006-05-25 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* configure.in: made libpng12 mandatory. The resources used in SWF are
+	png files.
+
 2006-05-05  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* TODO: Added a few details about some not-quite-supported API.
