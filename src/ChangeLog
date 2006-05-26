@@ -1,3 +1,9 @@
+2006-05-26  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* font.c: (GdipCreateFontFamilyFromName) Don't free string before 
+	calling FcPatternDestroy. This fix an occasional SIGSEGV (only seen 
+	under XSP2).
+
 2006-05-25  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: Implemented GdipSetClipHrgn before finding out (at test

@@ -268,12 +268,12 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 		gdip_createFontFamily (fontFamily);
 		(*fontFamily)->pattern =  FcFontMatch (0, pat, &rlt);
 		(*fontFamily)->allocated = TRUE;
-		GdipFree (string);
 		if ((*fontFamily)->pattern == NULL) {
 			(*fontFamily)->pattern = pat;
 		} else {
 			FcPatternDestroy (pat);			
 		}
+		GdipFree (string);
 		
 		return Ok;
 	}
