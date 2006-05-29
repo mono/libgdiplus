@@ -1,3 +1,8 @@
+2006-05-29  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* hatchbrush.c: Ensure we're freeing everything if no more memory can
+	be allocated.
+
 2006-05-26  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c: (GdipCreateFontFamilyFromName) Don't free string before 

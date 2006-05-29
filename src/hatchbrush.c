@@ -496,8 +496,10 @@ draw_40_percent_hatch (cairo_t *ct, cairo_surface_t *hatch, GpHatch *hbr)
 	cairo_destroy (ct2);
 	/* temp hatch is used as background, so we get 50% hatch */
 	ct2 = create_hatch_context (hatch, CAIRO_LINE_CAP_SQUARE, FALSE);
-	if (ct2 == NULL)
+	if (ct2 == NULL) {
+		cairo_pattern_destroy (pattern);
 		return CAIRO_STATUS_NO_MEMORY;
+	}
 	cairo_set_source (ct2, pattern);
 	cairo_rectangle (ct2, 0, 0, hatch_size, hatch_size);
 	cairo_fill (ct2);
@@ -529,6 +531,8 @@ draw_50_percent_hatch (cairo_surface_t *hatch, GpHatch *hbr)
 	double hatch_size = gdip_hatch_get_width (hbr);
 	/* hatch is not supposed to be affected by user matrix (so we create a new context) */
 	cairo_t *ct2 = create_hatch_context (hatch, CAIRO_LINE_CAP_SQUARE, FALSE);
+	if (ct2 == NULL)
+		return CAIRO_STATUS_NO_MEMORY;
 	/* draw background */
 	draw_background (ct2, hbr->backColor, hatch_size, hatch_size);
 	/* draw two rectangles in the foreground */
@@ -548,6 +552,8 @@ draw_60_percent_hatch (cairo_surface_t *hatch, GpHatch *hbr)
 	double line_width = gdip_hatch_get_line_width (hbr);
 	/* hatch is not supposed to be affected by user matrix (so we create a new context) */
 	cairo_t *ct2 = create_hatch_context (hatch, CAIRO_LINE_CAP_SQUARE, FALSE);
+	if (ct2 == NULL)
+		return CAIRO_STATUS_NO_MEMORY;
 	/* note: we swapped the colors - draw background */
 	draw_background (ct2, hbr->foreColor, hatch_size, hatch_size);
 	/* draw two diagonal lines in the foreground */
@@ -821,6 +827,8 @@ draw_diagonal_brick_hatch (cairo_surface_t *hatch, GpHatch *hbr)
 	double line_width = gdip_hatch_get_line_width (hbr);
 	/* hatch is not supposed to be affected by user matrix (so we create a new context) */
 	cairo_t *ct2 = create_hatch_context (hatch, CAIRO_LINE_CAP_SQUARE, FALSE);
+	if (ct2 == NULL)
+		return CAIRO_STATUS_NO_MEMORY;
 	/* draw background */
 	draw_background (ct2, hbr->backColor, hatch_size, hatch_size);
 	/* set foreground */
@@ -952,8 +960,10 @@ draw_plaid_hatch (cairo_t *ct, cairo_surface_t *hatch, GpHatch *hbr)
 
 	/* hatch is not supposed to be affected by user matrix (so we create a new context) */
 	ct2 = create_hatch_context (hatch, CAIRO_LINE_CAP_SQUARE, FALSE);
-	if (ct2 == NULL)
+	if (ct2 == NULL) {
+		cairo_pattern_destroy (pattern);
 		return CAIRO_STATUS_NO_MEMORY;
+	}
 	/* temp hatch is used to fill 50% of area */
 	cairo_set_source(ct2, pattern);
 	cairo_rectangle (ct2, 0, 0, hatch_size, hatch_size / 2.0);
