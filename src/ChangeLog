@@ -1,3 +1,7 @@
+2006-05-30  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* font.c: Added more error checking when calling fontconfig API.
+
 2006-05-29  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* hatchbrush.c: Ensure we're freeing everything if no more memory can

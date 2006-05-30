@@ -238,67 +238,125 @@ GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, int num_soug
 	return Ok;  
 }
 
+static GpStatus
+gdip_status_from_fontconfig (FcResult result)
+{
+	switch (result) {
+	case FcResultMatch:
+		return Ok;
+	case FcResultNoMatch:
+	case FcResultTypeMismatch:
+	case FcResultNoId:
+		return FontFamilyNotFound;
+	default:
+		return GenericError;
+	}
+}
+
+static GpStatus
+create_fontfamily_from_name (unsigned char* name, GpFontFamily **fontFamily)
+{
+	GpStatus status;
+	GpFontFamily *ff;
+	FcValue val;
+	FcResult rlt = FcResultMatch;
+
+	FcPattern *pat = FcPatternCreate ();
+	if (!pat)
+		return OutOfMemory;
+		
+	/* find the family we want */
+	val.type = FcTypeString;
+	val.u.s = name;
+	if (!FcPatternAdd (pat, FC_FAMILY, val, TRUE)) {
+		FcPatternDestroy (pat);
+		return GenericError;
+	}
+
+	if (!FcConfigSubstitute (0, pat, FcMatchPattern)) {
+		FcPatternDestroy (pat);
+		return GenericError;
+	}
+
+	FcDefaultSubstitute (pat);                  
+		
+	gdip_createFontFamily (&ff);
+	if (!ff) {
+		FcPatternDestroy (pat);
+		return OutOfMemory;
+	}
+
+	ff->pattern = FcFontMatch (0, pat, &rlt);
+	status = gdip_status_from_fontconfig (rlt);
+	if (status == Ok) {
+		ff->allocated = TRUE;
+		if (ff->pattern == NULL) {
+			ff->pattern = pat;
+		} else {
+			FcPatternDestroy (pat);
+		}
+		*fontFamily = ff;
+	} else {
+		FcPatternDestroy (pat);
+		GdipDeleteFontFamily (ff);
+		*fontFamily = NULL;
+	}
+
+	return status;
+}
+
+static GpStatus
+create_fontfamily_from_collection (unsigned char* name, GpFontCollection *font_collection, GpFontFamily **fontFamily)
+{
+	/* note: fontset can be NULL when we supply an empty private collection */
+	if (font_collection->fontset) {
+		int i;
+		FcChar8 *str;
+		FcPattern **gpfam = font_collection->fontset->fonts;
+    
+		for (i=0; i < font_collection->fontset->nfont; gpfam++, i++) {
+			FcResult rlt = FcPatternGetString (*gpfam, FC_FAMILY, 0, &str);
+			GpStatus status = gdip_status_from_fontconfig (rlt);
+			if (status != Ok)
+				return status;
+
+			if (strcmp ((char *)name, (const char *)str) == 0) {
+				gdip_createFontFamily (fontFamily);
+				(*fontFamily)->pattern = *gpfam;
+				(*fontFamily)->allocated = FALSE;
+				return Ok;
+			}
+		}
+	}
+	return FontFamilyNotFound;
+}
+
+
 GpStatus
 GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_collection, GpFontFamily **fontFamily)
 {
+	GpStatus status;
 	unsigned char *string;
-	FcPattern **gpfam;
-	FcChar8 *str;
-	int i;
 	
 	if (!name || !fontFamily)
 		return InvalidParameter;
 
 	string = (unsigned char*)ucs2_to_utf8 ((const gunichar2 *)name, -1);
 
-	if (!font_collection) {
-		FcPattern *pat = FcPatternCreate ();
-		FcResult rlt;
-		
-		/* find the family we want */
-		FcValue val;
-                                   
-		val.type = FcTypeString;
-		val.u.s = string;
-		FcPatternAdd (pat, FC_FAMILY, val, TRUE);
-
-		FcConfigSubstitute (0, pat, FcMatchPattern);
-		FcDefaultSubstitute (pat);                  
-		
-		gdip_createFontFamily (fontFamily);
-		(*fontFamily)->pattern =  FcFontMatch (0, pat, &rlt);
-		(*fontFamily)->allocated = TRUE;
-		if ((*fontFamily)->pattern == NULL) {
-			(*fontFamily)->pattern = pat;
-		} else {
-			FcPatternDestroy (pat);			
-		}
-		GdipFree (string);
-		
-		return Ok;
-	}
-
-	gpfam = font_collection->fontset->fonts;
-    
-	for (i=0; i < font_collection->fontset->nfont; gpfam++, i++){
-		FcPatternGetString (*gpfam, FC_FAMILY, 0, &str);
-
-		if (strcmp ((char *)string, (const char *)str)==0) {
-			gdip_createFontFamily (fontFamily);
-			(*fontFamily)->pattern = *gpfam;
-			(*fontFamily)->allocated = FALSE;
-			GdipFree (string);
-			return Ok;
-		}
+	if (font_collection) {
+		status = create_fontfamily_from_collection (string, font_collection, fontFamily);
+	} else {
+		status = create_fontfamily_from_name (string, fontFamily);
 	}
 
 	GdipFree (string);
-	return FontFamilyNotFound;
+	return status;
 }
 
 GpStatus
 GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], int language)
-{                
+{
+	GpStatus status;
 	FcChar8 *fc_str;
 	FcResult r;
 	
@@ -306,6 +364,9 @@ GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], int 
 		return InvalidParameter;
 
 	r = FcPatternGetString (family->pattern, FC_FAMILY, 0, &fc_str);
+	status = gdip_status_from_fontconfig (r);
+	if (status != Ok)
+		return status;
 
 	utf8_to_ucs2((const gchar *)fc_str, (gunichar2 *)name, LF_FACESIZE);
 	return Ok;
@@ -574,6 +635,7 @@ gdip_face_create (const char *family,
 GpStatus
 GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, Unit unit,  GpFont **font)
 {
+	GpStatus status;
 	FcChar8* str;
 	FcResult r;
 	GpFont *result;
@@ -582,10 +644,13 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 	float sizeInPixels;
 	cairo_font_face_t* cairofnt;
 	
-	if (!family || !font)
+	if (!family || !font || (unit == UnitDisplay))
 		return InvalidParameter;
 
 	r = FcPatternGetString (family->pattern, FC_FAMILY, 0, &str);
+	status = gdip_status_from_fontconfig (r);
+	if (status != Ok)
+		return status;
 	
 	gdip_unit_conversion (unit, UnitPixel, gdip_get_display_dpi(), gtMemoryBitmap, emSize, &sizeInPixels);
 		
