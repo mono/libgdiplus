@@ -57,6 +57,7 @@ GdiplusStartup(unsigned long *token, const struct startupInput *input, struct st
 {
 	g_mem_allocations = NULL;
         initCodecList (); 
+	FcInit ();
 	*token = 1;
 	gdip_get_display_dpi();
 //	cairo_test_xlib_disable_render();
@@ -70,7 +71,7 @@ GdiplusShutdown(unsigned long *token)
 	GList* list = NULL;
 #endif
 	releaseCodecList ();
-
+	FcFini ();
 #ifdef DEBUG_MEMLEAKS
 	for (list = g_list_first (g_mem_allocations); list != NULL; list = g_list_next (list)) {
 		printf ("Memory block not free'd at %x\n", list->data);

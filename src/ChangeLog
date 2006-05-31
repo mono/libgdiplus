@@ -1,3 +1,12 @@
+2006-05-31  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* font.c: Added mutexes for handling the generic (reference counted)
+	fonts (serif, sans-serif, monospace) and when dealing the fontconfig's
+	FcConfig (which isn't thread-safe and fails under heavy usage in 
+	ASP.NET).
+	* general.c: Added calls to fontconfig's FcInit and FcFini in 
+	GdiplusStartup and GdiplusShutdown functions.
+
 2006-05-30  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c: Added more error checking when calling fontconfig API.

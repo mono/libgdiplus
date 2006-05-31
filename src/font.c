@@ -30,6 +30,7 @@
 
 
 /* Generic fonts families */
+static GStaticMutex generic = G_STATIC_MUTEX_INIT;
 static GpFontFamily* familySerif = NULL;
 static GpFontFamily* familySansSerif = NULL;
 static GpFontFamily* familyMonospace = NULL;
@@ -154,24 +155,34 @@ GdipDeleteFontFamily (GpFontFamily *fontFamily)
 	
 	if (!fontFamily)
 		return Ok;
-		
+
+	g_static_mutex_lock (&generic);
+	
 	if (fontFamily == familySerif) {
 		ref_familySerif--;
 		if (ref_familySerif)
 			delete = FALSE;
+		else
+			familySerif = NULL;
 	}
 	
 	if (fontFamily == familySansSerif) {
 		ref_familySansSerif--;
 		if (ref_familySansSerif)
 			delete = FALSE;
+		else
+			familySansSerif = NULL;
 	}	
 	
 	if (fontFamily == familyMonospace) {
 		ref_familyMonospace--;
 		if (ref_familyMonospace)
 			delete = FALSE;
+		else
+			familyMonospace = NULL;
 	}	
+
+	g_static_mutex_unlock (&generic);
 	
 	if (delete) {
 		if (fontFamily->allocated) {
@@ -256,9 +267,11 @@ gdip_status_from_fontconfig (FcResult result)
 static GpStatus
 create_fontfamily_from_name (unsigned char* name, GpFontFamily **fontFamily)
 {
+	static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 	GpStatus status;
 	GpFontFamily *ff;
 	FcValue val;
+	/* FcResult must be initialized because it's changed only in error conditions */
 	FcResult rlt = FcResultMatch;
 
 	FcPattern *pat = FcPatternCreate ();
@@ -273,8 +286,14 @@ create_fontfamily_from_name (unsigned char* name, GpFontFamily **fontFamily)
 		return GenericError;
 	}
 
+	/* the default config (0 / NULL) cannot be used in multi-threaded code 
+	 * (e.g. ASP.NET) without being protected.
+	 */
+	g_static_mutex_lock (&mutex);
+
 	if (!FcConfigSubstitute (0, pat, FcMatchPattern)) {
 		FcPatternDestroy (pat);
+		g_static_mutex_unlock (&mutex);
 		return GenericError;
 	}
 
@@ -283,6 +302,7 @@ create_fontfamily_from_name (unsigned char* name, GpFontFamily **fontFamily)
 	gdip_createFontFamily (&ff);
 	if (!ff) {
 		FcPatternDestroy (pat);
+		g_static_mutex_unlock (&mutex);
 		return OutOfMemory;
 	}
 
@@ -302,6 +322,7 @@ create_fontfamily_from_name (unsigned char* name, GpFontFamily **fontFamily)
 		*fontFamily = NULL;
 	}
 
+	g_static_mutex_unlock (&mutex);
 	return status;
 }
 
@@ -377,39 +398,66 @@ GpStatus
 GdipGetGenericFontFamilySansSerif (GpFontFamily **nativeFamily)
 {
 	const WCHAR MSSansSerif[] = {'M','S',' ','S','a','n','s',' ', 'S','e','r','i','f', 0};
+	GpStatus status = Ok;
 	
-	if (ref_familySansSerif == 0) 
-		GdipCreateFontFamilyFromName (MSSansSerif, NULL, &familySansSerif);    
-	
-	ref_familySansSerif++;
+	g_static_mutex_lock (&generic);
+
+	if (ref_familySansSerif == 0)
+		status = GdipCreateFontFamilyFromName (MSSansSerif, NULL, &familySansSerif);
+
+	if (status == Ok)
+		ref_familySansSerif++;
+	else
+		familySansSerif = NULL;
+
+	g_static_mutex_unlock (&generic);
+
 	*nativeFamily = familySansSerif;    
-	return Ok;
+	return status;
 }
 
 GpStatus
 GdipGetGenericFontFamilySerif (GpFontFamily **nativeFamily)
 {
 	const WCHAR Serif[] = {'S','e','r','i','f', 0};
+	GpStatus status = Ok;
 	
+	g_static_mutex_lock (&generic);
+
 	if (ref_familySerif == 0)
-		GdipCreateFontFamilyFromName (Serif, NULL, &familySerif);
-	
-	ref_familySerif++;	
-	*nativeFamily = familySerif;    
-	return Ok;
+		status = GdipCreateFontFamilyFromName (Serif, NULL, &familySerif);
+
+	if (status == Ok)
+		ref_familySerif++;
+	else
+		familySerif = NULL;
+
+	g_static_mutex_unlock (&generic);
+
+	*nativeFamily = familySerif;
+	return status;
 }
 
 GpStatus
 GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily)
 {
 	const WCHAR Serif[] = {'S','e','r','i','f', 0};
+	GpStatus status = Ok;
 	
+	g_static_mutex_lock (&generic);
+
 	if (ref_familyMonospace == 0)
-		GdipCreateFontFamilyFromName (Serif, NULL, &familyMonospace);    
-		
-	ref_familyMonospace++;
+		status = GdipCreateFontFamilyFromName (Serif, NULL, &familyMonospace);
+
+	if (status == Ok)
+		ref_familyMonospace++;
+	else
+		familyMonospace = NULL;
+
+	g_static_mutex_unlock (&generic);
+
 	*nativeFamily = familyMonospace;    
-	return Ok;
+	return status;
 }
 
 FT_Face
