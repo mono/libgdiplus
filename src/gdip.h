@@ -1431,6 +1431,8 @@ int utf8_decode_ucs2char(const unsigned char *src, gunichar2 *uchar);
 
 GpStatus gdip_get_pattern_status (cairo_pattern_t *pat);
 
+void gdip_font_clear_pattern_cache (void);
+
 
 /* Stream handling bits */
 typedef int (*GetHeaderDelegate) (unsigned char *, int);

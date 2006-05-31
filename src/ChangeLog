@@ -1,3 +1,10 @@
+2006-05-31  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* font.c: Added a cache for FcPattern to avoid calling (the very slow)
+	FcFontMatch over and over again when no FontCollection is supplied.
+	* general.c: Added code to clear and free the cache at shutdown.
+	* gdip.h: Added prototype for gdip_font_clear_pattern_cache.
+
 2006-05-31  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c: Added mutexes for handling the generic (reference counted)

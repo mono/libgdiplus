@@ -264,70 +264,111 @@ gdip_status_from_fontconfig (FcResult result)
 	}
 }
 
-static GpStatus
-create_fontfamily_from_name (unsigned char* name, GpFontFamily **fontFamily)
+/* note: MUST be executed inside a lock because FcConfig isn't thread-safe */
+static FcPattern*
+create_pattern_from_name (char* name)
 {
-	static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
-	GpStatus status;
-	GpFontFamily *ff;
 	FcValue val;
 	/* FcResult must be initialized because it's changed only in error conditions */
 	FcResult rlt = FcResultMatch;
+	FcPattern *full_pattern = NULL;
+	FcPattern *name_pattern = FcPatternCreate ();
 
-	FcPattern *pat = FcPatternCreate ();
-	if (!pat)
-		return OutOfMemory;
+	if (!name_pattern)
+		return NULL;
 		
 	/* find the family we want */
 	val.type = FcTypeString;
-	val.u.s = name;
-	if (!FcPatternAdd (pat, FC_FAMILY, val, TRUE)) {
-		FcPatternDestroy (pat);
-		return GenericError;
+	val.u.s = (unsigned char*)name;
+	if (!FcPatternAdd (name_pattern, FC_FAMILY, val, TRUE)) {
+		FcPatternDestroy (name_pattern);
+		return NULL;
 	}
 
-	/* the default config (0 / NULL) cannot be used in multi-threaded code 
-	 * (e.g. ASP.NET) without being protected.
-	 */
-	g_static_mutex_lock (&mutex);
-
-	if (!FcConfigSubstitute (0, pat, FcMatchPattern)) {
-		FcPatternDestroy (pat);
-		g_static_mutex_unlock (&mutex);
-		return GenericError;
+	if (!FcConfigSubstitute (0, name_pattern, FcMatchPattern)) {
+		FcPatternDestroy (name_pattern);
+		return NULL;
 	}
 
-	FcDefaultSubstitute (pat);                  
+	FcDefaultSubstitute (name_pattern);                  
 		
-	gdip_createFontFamily (&ff);
-	if (!ff) {
-		FcPatternDestroy (pat);
-		g_static_mutex_unlock (&mutex);
-		return OutOfMemory;
-	}
-
-	ff->pattern = FcFontMatch (0, pat, &rlt);
-	status = gdip_status_from_fontconfig (rlt);
-	if (status == Ok) {
-		ff->allocated = TRUE;
-		if (ff->pattern == NULL) {
-			ff->pattern = pat;
+	full_pattern = FcFontMatch (0, name_pattern, &rlt);
+	if (gdip_status_from_fontconfig (rlt) == Ok) {
+		if (full_pattern == NULL) {
+			full_pattern = name_pattern;
 		} else {
-			FcPatternDestroy (pat);
+			FcPatternDestroy (name_pattern);
 		}
-		*fontFamily = ff;
 	} else {
-		FcPatternDestroy (pat);
-		GdipDeleteFontFamily (ff);
-		*fontFamily = NULL;
+		FcPatternDestroy (name_pattern);
+		if (full_pattern) {
+			FcPatternDestroy (full_pattern);
+			full_pattern = NULL;
+		}
 	}
 
-	g_static_mutex_unlock (&mutex);
+	return full_pattern;
+}
+
+static GStaticMutex patterns_mutex = G_STATIC_MUTEX_INIT;
+static GHashTable *patterns_hashtable;
+
+static GpStatus
+create_fontfamily_from_name (char* name, GpFontFamily **fontFamily)
+{
+	GpStatus status = OutOfMemory;
+	GpFontFamily *ff = NULL;
+	FcPattern *pat = NULL;
+
+	g_static_mutex_lock (&patterns_mutex);
+
+	if (patterns_hashtable) {
+		pat = (FcPattern*) g_hash_table_lookup (patterns_hashtable, name);
+	} else {
+		patterns_hashtable = g_hash_table_new (g_str_hash, g_str_equal);
+	}
+
+	if (!pat) {
+		pat = create_pattern_from_name (name);
+		if (pat) {
+			/* create the pattern and store it for further usage */
+			g_hash_table_insert (patterns_hashtable, g_strdup (name), pat);
+		}
+	}
+
+	if (pat) {
+		gdip_createFontFamily (&ff);
+		if (ff) {
+			ff->pattern = pat;
+			ff->allocated = FALSE;
+			status = Ok;
+		}
+	}
+
+	*fontFamily = ff;
+	g_static_mutex_unlock (&patterns_mutex);
 	return status;
 }
 
+static
+gboolean free_cached_pattern (gpointer key, gpointer value, gpointer user)
+{
+	g_free (value);
+	FcPatternDestroy ((FcPattern*) value);
+	return TRUE;
+}
+
+void
+gdip_font_clear_pattern_cache (void)
+{
+	g_static_mutex_lock (&patterns_mutex);
+	g_hash_table_foreach_remove (patterns_hashtable, free_cached_pattern, NULL);
+	g_hash_table_destroy (patterns_hashtable);
+	g_static_mutex_unlock (&patterns_mutex);
+}
+
 static GpStatus
-create_fontfamily_from_collection (unsigned char* name, GpFontCollection *font_collection, GpFontFamily **fontFamily)
+create_fontfamily_from_collection (char* name, GpFontCollection *font_collection, GpFontFamily **fontFamily)
 {
 	/* note: fontset can be NULL when we supply an empty private collection */
 	if (font_collection->fontset) {
@@ -357,12 +398,12 @@ GpStatus
 GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_collection, GpFontFamily **fontFamily)
 {
 	GpStatus status;
-	unsigned char *string;
+	char *string;
 	
 	if (!name || !fontFamily)
 		return InvalidParameter;
 
-	string = (unsigned char*)ucs2_to_utf8 ((const gunichar2 *)name, -1);
+	string = (char*)ucs2_to_utf8 ((const gunichar2 *)name, -1);
 
 	if (font_collection) {
 		status = create_fontfamily_from_collection (string, font_collection, fontFamily);
