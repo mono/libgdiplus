@@ -1,3 +1,8 @@
+2006-06-01  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* general.c: FcFini was introduced in fontconfig 2.2.91 and we support
+	earlier versions.
+
 2006-05-31  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* font.c: Added a cache for FcPattern to avoid calling (the very slow)

@@ -72,7 +72,6 @@ GdiplusShutdown(unsigned long *token)
 #endif
 	releaseCodecList ();
 	gdip_font_clear_pattern_cache ();
-	FcFini ();
 #ifdef DEBUG_MEMLEAKS
 	for (list = g_list_first (g_mem_allocations); list != NULL; list = g_list_next (list)) {
 		printf ("Memory block not free'd at %x\n", list->data);
