@@ -1,3 +1,9 @@
+2006-06-02  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics-path.c: Changed GdipWidenPath and GdipWrapPath to show a
+	warning and return Ok instead of NotImplemented (to avoid crash in 
+	PDN).
+
 2006-06-01  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* general.c: FcFini was introduced in fontconfig 2.2.91 and we support

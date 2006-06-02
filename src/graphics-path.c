@@ -1535,6 +1535,7 @@ GdipWindingModeOutline (GpPath *path, GpMatrix *matrix, float flatness)
 GpStatus 
 GdipWidenPath (GpPath *nativePath, GpPen *pen, GpMatrix *matrix, float flatness)
 {
+	static int called = 0;
 	GpStatus status;
 
 	if (!nativePath || !pen)
@@ -1555,7 +1556,11 @@ GdipWidenPath (GpPath *nativePath, GpPen *pen, GpMatrix *matrix, float flatness)
 
 	/* TODO outer path (twice the number of points as the prepared path) */
 
-	return NotImplemented;
+	if (!called) {
+		g_warning ("NOT IMPLEMENTED: GdipWidenPath");
+		called = 1;
+	}
+	return Ok;
 }
 
 /* MonoTODO */
@@ -1564,6 +1569,7 @@ GdipWarpPath (GpPath *path, GpMatrix *matrix, const GpPointF *points, int count,
               float srcx, float srcy, float srcwidth, float srcheight,
               WarpMode warpMode, float flatness)
 {
+	static int called = 0;
 	GpStatus status;
 
 	if (!path || !points || (count < 1))
@@ -1584,7 +1590,11 @@ GdipWarpPath (GpPath *path, GpMatrix *matrix, const GpPointF *points, int count,
 
 	/* TODO */
 
-	return NotImplemented;
+	if (!called) {
+		g_warning ("NOT IMPLEMENTED: GdipWarpPath");
+		called = 1;
+	}
+	return Ok;
 }
 
 GpStatus 
