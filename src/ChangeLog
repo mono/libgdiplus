@@ -1,8 +1,10 @@
-2006-06-02  Sebastien Pouliot  <sebastien@ximian.com> 
+2006-06-02  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c: Changed GdipWidenPath and GdipWrapPath to show a
 	warning and return Ok instead of NotImplemented (to avoid crash in 
 	PDN).
+	* region.c: Fixed clone when the region is empty. Added error checking
+	in GdipCombineRegionRect if path creation fails.
 
 2006-06-01  Sebastien Pouliot  <sebastien@ximian.com> 
 

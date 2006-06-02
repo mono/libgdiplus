@@ -273,6 +273,7 @@ gdip_copy_region (GpRegion *source, GpRegion *dest)
 	        dest->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * source->cnt);
         	memcpy (dest->rects, source->rects, sizeof (GpRectF) * source->cnt);
 	} else {
+		dest->cnt = 0;
 		dest->rects = NULL;
 	}
 
@@ -939,7 +940,9 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 		GpStatus status;
 
 		/* Convert GpRectF to GpPath and use GdipCombineRegionPath */
-		GdipCreatePath (FillModeAlternate, &path);
+		status = GdipCreatePath (FillModeAlternate, &path);
+		if (status != Ok)
+			return status;
 		GdipAddPathRectangle (path, rect->X, rect->Y, rect->Width, rect->Height);
 		status = GdipCombineRegionPath (region, path, combineMode);
 		GdipDeletePath (path);
