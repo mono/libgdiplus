@@ -1,3 +1,9 @@
+2006-06-05  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* region.c: Fix region-region intersection with infinity (can't have 
+	an infinite bitmap but this is identical to unioning with empty ;-) 
+	and add some shortcuts for other special cases.
+
 2006-06-02  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c: Changed GdipWidenPath and GdipWrapPath to show a

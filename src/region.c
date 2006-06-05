@@ -1139,6 +1139,36 @@ GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combi
 		GdipSetEmpty (region);
 		gdip_copy_region (region2, region);
 		return Ok;
+	} else if (gdip_is_region_empty (region)) {
+		switch (combineMode) {
+		case CombineModeIntersect:
+		case CombineModeExclude:
+			/* Intersect and Exclude are no-op on an empty region */
+			return Ok;
+		default:
+			/* for Complement, Union and Xor this is normal processing */
+			break;
+		}
+	} else if (gdip_is_InfiniteRegion (region)) {
+		switch (combineMode) {
+		case CombineModeUnion:
+			/* Union with infinity is a no-op (still an infinite region) */
+			return Ok;
+		case CombineModeComplement:
+			/* Complement of infinity is empty - whatever the path is */
+			gdip_clear_region (region);
+			region->type = RegionTypeRectF;
+			return Ok;
+		case CombineModeIntersect:
+			/* Intersection with infinity is the path itself (like an Union with Empty) */
+			gdip_clear_region (region);
+			region->type = RegionTypeRectF;
+			combineMode = CombineModeUnion; 
+			break;
+		default:
+			/* Xor and Exclude must be treated as a "normal" case */
+			break;
+		}
 	}
 
 	if (region->type == RegionTypePath) {
