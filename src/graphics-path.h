@@ -79,8 +79,8 @@ GpStatus GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *
 GpStatus GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, const GpPen *pen);
 GpStatus GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result);
 GpStatus GdipIsVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool *result);
-GpStatus GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result);
-GpStatus GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool *result);
+GpStatus GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpPen *pen, GpGraphics *graphics, bool *result);
+GpStatus GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpPen *pen, GpGraphics *graphics, bool *result);
 
 /* Functions for Graphics Path Iterator */
 GpStatus GdipCreatePathIter (GpPathIterator **iterator, GpPath *path);
