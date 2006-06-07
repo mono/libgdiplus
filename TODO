@@ -59,6 +59,10 @@ GdipGetPenCustomEndCap		[3]
 
 GdipAddString			[1]
 GdipAddStringI			[1]
+GdipIsOutlineVisiblePathPoint	[4]
+GdipIsOutlineVisiblePathPointI	[4]
+GdipIsVisiblePathPoint
+GdipIsVisiblePathPointI
 GdipWindingModeOutline
 GdipWidenPath
 GdipWarpPath
@@ -68,6 +72,7 @@ Notes
 [1] Partially implemented. LayoutRect and StringFormat are ignored.
 [2] Function exists (return Ok) but doesn't do anything (visually or not)
 [3] Function exists (return Ok) but only display a warning on the console
+[4] Partially implemented. GpGraphics is ignored.
 
 ---- Issues
 

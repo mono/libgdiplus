@@ -1,3 +1,8 @@
+2006-06-07  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* TODO: Updated to add status for GdipIsOutlineVisiblePathPoint[I]
+	and GdipIsVisiblePathPoint[I] functions.
+
 2006-05-25  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* TODO: Updated to remove GdipSetClipHrgn and to add a few more 
