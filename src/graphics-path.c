@@ -1751,28 +1751,111 @@ GdipIsVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool 
 	return Ok;
 }
 
-/* MonoTODO */
+static BOOL
+gdip_check_point_within_distance (float x0, float y0, GpPointF *p1, GpPointF *p2, float distance)
+{
+	float x1 = p1->X;
+	float y1 = p1->Y;
+	float x2 = p2->X;
+	float y2 = p2->Y;
+	float x2x1, y2y1;
+
+	/* quick out (to avoid heavy calculations) for out of range points */
+	if ((x0 < min (x1, x2) - distance) || (x0 > max (x1, x2) + distance) ||
+		(y0 < min (y1, y2) - distance) || (y0 > max (y1, y2) + distance))
+		return FALSE;
+
+	/* close enough, do the full math */
+	x2x1 = x2 - x1;
+	y2y1 = y2 - y1;
+	/* if the provided line is a point (simpler calculation and avoids a division by zero) */
+	if ((x2x1 == 0.0) && (y2y1 == 0.0)) {
+		/* check distance between two points */
+		/* ref: http://mathworld.wolfram.com/Point-PointDistance2-Dimensional.html */
+		float x1x0 = x1 - x0;
+		float y1y0 = y1 - y0;
+		return (sqrt ((x1x0 * x1x0) + (y1y0 * y1y0)) <= distance);
+	} else {
+		/* normal case: distance of a point to a line */
+		/* ref: http://mathworld.wolfram.com/Point-LineDistance2-Dimensional.html */
+		float d1 = fabs ((x2x1 * (y1 - y0)) - ((x1 - x0) * y2y1));
+		float d2 = sqrt ((x2x1 * x2x1) + (y2y1 * y2y1));
+		return (d1 / d2 <= distance);
+	}
+}
+
+/* MonoTODO - GpGraphics is ignored */
 GpStatus 
 GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpPen *pen, GpGraphics *graphics, bool *result)
 {
-	static int called = 0;
+	GpStatus status = Ok;
+	GpPath *workpath;
 
-	if (!called) {
-		printf("NOT IMPLEMENTED: GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpPen *pen, GpGraphics *graphics, bool *result)\n");
-		called = 1;
+	if (!path || !pen || !result)
+		return InvalidParameter;
+
+	*result = FALSE;
+
+	if (path->count < 2) {
+		/* FIXME - equality check ? */
+		return Ok;
 	}
-	return Ok;
+
+	/* we clone the supplied path if it contains curves (we only deal with lines) */
+	if (gdip_path_has_curve (path)) {
+		status = GdipClonePath (path, &workpath);
+		if (status != Ok)
+			return status;
+
+		status = GdipFlattenPath (workpath, NULL, 25.0f);
+	} else {
+		workpath = path;
+	}
+
+	if (graphics) {
+		/* FIXME - graphics isn't always ignored, e.g. when we set the matrix, pageunit and pagescale */
+	}
+
+	if (status == Ok) {
+		/* check if the supplied point is within half the pen's width of any path segment */
+		float half_width = pen->width / 2;
+		int start_index = 0;
+		int i;
+		byte type = 0;
+
+		GpPointF p1 = g_array_index (workpath->points, GpPointF, 0);
+		GpPointF p2;
+
+		for (i = 1; i < path->count && !*result; i++) {
+			/* check the line between the previous point and this point */
+			p2 = g_array_index (workpath->points, GpPointF, i);
+			*result = gdip_check_point_within_distance (x, y, &p1, &p2, half_width);
+
+			/* check for closure (to match with the last starting point) */
+			type = g_array_index (path->types, byte, i);
+			if (!*result && (type & PathPointTypeCloseSubpath)) {
+				p1 = g_array_index (workpath->points, GpPointF, start_index);
+				/* compare last point with first (if the path is closed) */
+				*result = gdip_check_point_within_distance (x, y, &p2, &p1, half_width);
+			}
+
+			/* switch point for the next line */
+			p1 = p2;
+
+			/* reset the start index */
+			if (type == PathPointTypeStart)
+				start_index = i;
+		}
+	}
+
+	if (workpath != path)
+		GdipDeletePath (workpath);
+	return status;
 }
 
-/* MonoTODO */
+/* MonoTODO - GpGraphics is ignored */
 GpStatus 
 GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpPen *pen, GpGraphics *graphics, bool *result)
 {
-	static int called = 0;
-
-	if (!called) {
-		printf("NOT IMPLEMENTED: GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpPen *pen, GpGraphics *graphics, bool *result)\n");
-		called = 1;
-	}
-	return Ok;
+	return GdipIsOutlineVisiblePathPoint (path, x, y, pen, graphics, result);
 }

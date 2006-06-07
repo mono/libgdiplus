@@ -14,6 +14,9 @@
 
 #include "gdip.h"
 
+#define min(a,b)	(a < b ? a : b)
+#define max(a,b)	(a > b ? a : b)
+
 #define FLATTEN_RECURSION_LIMIT		10
 
 GpStatus GdipCreatePath (GpFillMode brushMode, GpPath **path);
