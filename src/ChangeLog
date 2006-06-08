@@ -2,6 +2,9 @@
 
 	* graphics-path.c: Implemented GdipIsVisiblePathPoint[I] functions
 	(except for some cases where a GpGraphics is supplied and used).
+	* hatchbrush.c|h: Fix parts of #78159 where the hatches visual output
+	doesn't match MS. This works better with newer X version (e.g. SuSE10)
+	than older ones (e.g. NLD9).
 
 2006-06-07  Sebastien Pouliot  <sebastien@ximian.com>
 

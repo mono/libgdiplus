@@ -99,4 +99,6 @@ GpStatus GdipGetHatchBackgroundColor (GpHatch *brush, int *backcolor);
 #define gdip_hatch_get_height(hbr)	(hatches_const[hbr->hatchStyle][1])
 #define gdip_hatch_get_line_width(hbr)	(hatches_const[hbr->hatchStyle][2])
 
+#define gdip_cairo_pixel(ct,x,y)	cairo_rectangle (ct, x, y, 1, 1)
+
 #endif /* _HATCHBRUSH_H */
