@@ -1,3 +1,8 @@
+2006-06-08  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: Implemented GdipIsVisiblePathPoint[I] functions
+	(except for some cases where a GpGraphics is supplied and used).
+
 2006-06-07  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c|h: Implemented GdipIsOutlineVisiblePathPoint[I]

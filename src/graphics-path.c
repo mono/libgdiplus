@@ -1,8 +1,7 @@
 /*
  * graphics-path.c
  *
- * Copyright (C) 2003, Novell Inc.
- * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
+ * Copyright (C) 2003-2006, Novell Inc. (http://www.novell.com)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -23,8 +22,10 @@
  *      Duncan Mak (duncan@ximian.com)
  *      Ravindra (rkumar@novell.com)
  *
- * Copyright (C) 2003, Novell Inc. (http://www.novell.com)
- *
+ * Additional copyrights:
+ *	gdip_point_in_polygon is based on INPOLY.C (http://www.visibone.com/inpoly/inpoly.c.txt)
+ * 	by Bob Stein (stein@visibone.com) & Craig Yap (craig@cse.fau.edu)
+ *	Copyright (c) 1995-1996 Galacticomm, Inc.  Freeware source code.
  */
  
 #include <math.h>
@@ -1725,30 +1726,101 @@ GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, c
 	return Ok;
 }
 
-/* MonoTODO */
+/* note: round[f] is C99 */
+static int
+iround (float d)
+{
+	double int_part = floor (d);
+	return ((d - int_part) >= 0.5) ? int_part + 1.0 : int_part;
+}
+
+/* adapted from http://www.visibone.com/inpoly/inpoly.c.txt */
+static BOOL
+gdip_point_in_polygon (GpPath *path, int start, int end, float x, float y)
+{
+	GpPointF old, new;
+	float x1, y1, x2, y2;
+	int x0 = iround (x);
+	int y0 = iround (y);
+	BOOL inside = FALSE;
+	int npoints = end - start + 1;
+	int i;
+
+	if (npoints < 3)
+		return FALSE; /* not a polygon */
+
+	old = g_array_index (path->points, GpPointF, end);
+	for (i = 0; i < npoints ; i++) {
+		new = g_array_index (path->points, GpPointF, start + i);
+		if (new.X > old.X) {
+			x1 = old.X;
+			x2 = new.X;
+			y1 = old.Y;
+			y2 = new.Y;
+		} else {
+			x1 = new.X;
+			x2 = old.X;
+			y1 = new.Y;
+			y2 = old.Y;
+		}
+
+		if ((new.X <= x0) == (x0 < old.X) && ((y0 - y1) * (x2 - x1) < (y2 - y1) * (x0 - x1))) {
+			inside = !inside;
+		}
+		old = new;
+	}
+	return inside;
+}
+
+/* MonoTODO - GpGraphics is ignored */
 GpStatus 
 GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result)
 {
-	static int called = 0;
+	GpStatus status = Ok;
+	GpPath *workpath;
+	int start, end;
 
-	if (!called) {
-		printf("NOT IMPLEMENTED: GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result)\n");
-		called = 1;
+	if (!path || !result)
+		return InvalidParameter;
+
+	*result = FALSE;
+
+	/* we clone the supplied path if it contains curves (we only deal with lines) */
+	if (gdip_path_has_curve (path)) {
+		status = GdipClonePath (path, &workpath);
+		if (status != Ok)
+			return status;
+
+		status = GdipFlattenPath (workpath, NULL, 25.0f);
+	} else {
+		workpath = path;
 	}
-	return Ok;
+
+	if (graphics) {
+		/* FIXME - graphics isn't always ignored, e.g. when we set the matrix, pageunit and pagescale */
+	}
+
+	/* there may be multiple polygons inside a path */
+	for (start = 0, end = 0; end < workpath->count && !*result; end++) {
+		byte type = g_array_index (workpath->types, byte, end);
+		if (type & PathPointTypeCloseSubpath) {
+			*result = gdip_point_in_polygon (workpath, start, end, x, y);
+		} else if (type == PathPointTypeStart) {
+			/* reset the start index */
+			start = end;
+		}
+	}
+
+	if (workpath != path)
+		GdipDeletePath (workpath);
+	return status;
 }
 
-/* MonoTODO */
+/* MonoTODO - GpGraphics is ignored */
 GpStatus 
 GdipIsVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool *result)
 {
-	static int called = 0;
-
-	if (!called) {
-		printf("NOT IMPLEMENTED: GdipIsVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool *result)\n");
-		called = 1;
-	}
-	return Ok;
+	return GdipIsVisiblePathPoint (path, x, y, graphics, result);
 }
 
 static BOOL
