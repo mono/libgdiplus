@@ -61,8 +61,8 @@ GdipAddString			[1]
 GdipAddStringI			[1]
 GdipIsOutlineVisiblePathPoint	[4]
 GdipIsOutlineVisiblePathPointI	[4]
-GdipIsVisiblePathPoint
-GdipIsVisiblePathPointI
+GdipIsVisiblePathPoint		[4]
+GdipIsVisiblePathPointI		[4]
 GdipWindingModeOutline
 GdipWidenPath
 GdipWarpPath
