@@ -1892,6 +1892,8 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 		dest_pixel_format_bpp = gdip_get_pixel_format_bpp (format);
 	}
 	dest_stride = (srcRect->Width * dest_pixel_format_bpp + 7) / 8;
+	dest_stride += (sizeof(pixman_bits_t)-1);
+	dest_stride &= ~(sizeof(pixman_bits_t)-1);
 	dest_size = srcRect->Height * dest_stride;
 
 	if ((flags & ImageLockModeUserInputBuf) == 0) {

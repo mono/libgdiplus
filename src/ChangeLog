@@ -1,3 +1,7 @@
+2006-06-12 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* bitmap.c: align the stride to pixman_bits_t in LockBits.
+
 2006-06-08  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c: Implemented GdipIsVisiblePathPoint[I] functions
