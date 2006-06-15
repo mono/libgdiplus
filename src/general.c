@@ -24,7 +24,6 @@
  */
 
 #include "gdip.h"
-#include <dlfcn.h>
 #include <cairo.h>
 #include <math.h>
 
