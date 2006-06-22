@@ -3,6 +3,8 @@
 	* pathgradientbrush.c: Avoid memory allocations (that were never freed
 	anyway) when creating path gradients. Fix valgrind detected leaks when 
 	running unit tests.
+	* pen.c: Don't free, but delete, the brush to ensure it's own data 
+	gets freed (e.g. the pattern for hatch brushes).
 
 2006-06-15 Wade Berrier <wberrier@novell.com>
 

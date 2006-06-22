@@ -359,7 +359,7 @@ GdipDeletePen (GpPen *pen)
 	}
 
 	if (pen->own_brush && pen->brush) {
-		GdipFree (pen->brush);
+		GdipDeleteBrush (pen->brush);
 		pen->brush = NULL;
 	}
 
