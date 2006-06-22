@@ -383,9 +383,10 @@ GpStatus
 GdipCreatePathGradient (GDIPCONST GpPointF *points, int count, GpWrapMode wrapMode, GpPathGradient **polyGradient)
 {
 	int i;
-	GpPathData pdata;
 	GpPathGradient *gp;
 	GpPath *gppath = NULL;
+	GpStatus status;
+	GpPointF point;
 
 	g_return_val_if_fail (polyGradient != NULL, InvalidParameter);
 
@@ -393,24 +394,26 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, int count, GpWrapMode wrapMo
 	if (count < 2)
 		return OutOfMemory;
 
-	gp = gdip_pathgradient_new ();
-	
-	GdipCreatePath (FillModeAlternate, /* ??? */
-			&gppath);
+	status = GdipCreatePath (FillModeAlternate, /* ??? */ &gppath);
+	if (status != Ok)
+		return status;
+
 	GdipAddPathLine2 (gppath, points, count);
 
+	gp = gdip_pathgradient_new ();
 	gp->boundary = gppath;
 	gp->wrapMode = wrapMode;
 	gp->center = gdip_get_center (points, count);
 	gp->centerColor = MAKE_ARGB_ARGB(255,0,0,0); /* black center color */
     
 	/* set the bounding rectangle */
-	GdipGetPathData (gppath, &pdata);
+	point = g_array_index (gppath->points, GpPointF, 0);
 	/* set the first point as the edge of the rectangle */
-	gp->rectangle.X = pdata.Points[0].X;
-	gp->rectangle.Y = pdata.Points[0].Y;
-	for (i = 1; i < pdata.Count; i++) {
-		gdip_rect_expand_by (&gp->rectangle, &(pdata.Points[i]));
+	gp->rectangle.X = point.X;
+	gp->rectangle.Y = point.Y;
+	for (i = 1; i < gppath->count; i++) {
+		point = g_array_index (gppath->points, GpPointF, i);
+		gdip_rect_expand_by (&gp->rectangle, &point);
 	}
 
 	*polyGradient = gp;
@@ -449,7 +452,6 @@ GdipCreatePathGradientFromPath (GDIPCONST GpPath *path, GpPathGradient **polyGra
 	int i, count;
 	GpPathGradient *gp;
 	GpPointF *points;
-	GpPathData pdata;
 
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 	g_return_val_if_fail (polyGradient != NULL, InvalidParameter);
@@ -467,12 +469,11 @@ GdipCreatePathGradientFromPath (GDIPCONST GpPath *path, GpPathGradient **polyGra
 	gp->centerColor = MAKE_ARGB_ARGB(255,255,255,255); /* white center color */
 
 	/* set the bounding rectangle */
-	GdipGetPathData (path, &pdata);
 	/* set the first point as the edge of the rectangle */
-	gp->rectangle.X = pdata.Points[0].X;
-	gp->rectangle.Y = pdata.Points[0].Y;
-	for (i = 1; i < pdata.Count; i++) {
-		gdip_rect_expand_by (&gp->rectangle, &(pdata.Points[i]));
+	gp->rectangle.X = points [0].X;
+	gp->rectangle.Y = points [0].Y;
+	for (i = 1; i < count; i++) {
+		gdip_rect_expand_by (&gp->rectangle, &points[i]);
 	}
 
 	*polyGradient = gp;

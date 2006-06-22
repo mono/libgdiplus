@@ -1,3 +1,9 @@
+2006-06-22  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* pathgradientbrush.c: Avoid memory allocations (that were never freed
+	anyway) when creating path gradients. Fix valgrind detected leaks when 
+	running unit tests.
+
 2006-06-15 Wade Berrier <wberrier@novell.com>
 
 	* general.c: Remove dlfnc.h since it's currently not used (this was 
