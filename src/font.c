@@ -877,8 +877,9 @@ gdip_logfont_from_font(GpFont *font, GpGraphics *graphics, void *lf, bool ucs2)
 	if (ucs2) {
 		utf8_to_ucs2((const gchar *)font->face, (gunichar2 *)logFont->lfFaceName, LF_FACESIZE);
 	} else {
-		memcpy(logFont->lfFaceName, font->face, LF_FACESIZE);
-		logFont->lfFaceName[LF_FACESIZE - 1] = '\0';
+		int len = strlen ((char*)font->face);
+		memset (logFont->lfFaceName, 0, LF_FACESIZE);
+		memcpy (logFont->lfFaceName, font->face, len < LF_FACESIZE ? len : LF_FACESIZE - 1);
 	}
 }
 
