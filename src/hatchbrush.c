@@ -1299,9 +1299,7 @@ gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush)
 	result->foreColor = hatch->foreColor;
 	result->backColor = hatch->backColor;
 	result->base.changed = TRUE;
-	result->pattern = hatch->pattern;
-	cairo_pattern_reference (result->pattern);
-
+	result->pattern = NULL;
 	*clonedBrush = (GpBrush *) result;
 
         return Ok;

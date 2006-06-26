@@ -1,6 +1,10 @@
 2006-06-26  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c: Don't read past allocated memory.
+	* hatchbrush.c: Don't both add a reference when cloning and set 
+	base.changed to TRUE (kept the latter);
+	* pen.c: (Again) Don't free, but delete, the brush to ensure it's own 
+	data gets freed (e.g. the pattern for hatch brushes).
 
 2006-06-22  Sebastien Pouliot  <sebastien@ximian.com>
 

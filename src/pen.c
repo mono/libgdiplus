@@ -418,7 +418,7 @@ GdipSetPenBrushFill (GpPen *pen, GpBrush *brush)
 		pen->color = 0;
 
 	if (pen->own_brush && pen->brush)
-		GdipFree (pen->brush);
+		GdipDeleteBrush (pen->brush);
 
         pen->brush = brush;
 	pen->changed = TRUE;
