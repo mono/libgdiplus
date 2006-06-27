@@ -1,3 +1,7 @@
+2006-06-27 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* bitmap.c: avoid invalid read when we have a 24bpp format.
+
 2006-06-26  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c: Don't read past allocated memory.

@@ -1473,7 +1473,13 @@ gdip_pixel_stream_get_next (StreamingState *state)
 		 *
 		 * Note that pixel streams do not support 48- and 64-bit data at this time.
 		 */
-		ret = *(unsigned int *)state->scan;
+		if (state->pixels_per_byte == -4) {
+			ret = *(unsigned int *)state->scan;
+		} else {
+			ret = state->scan [0];
+			ret += (state->scan [1] << 8);
+			ret += (state->scan [2] << 16);
+		}
 
 		/* Special case: 24-bit data needs to have the cairo format alpha component forced
 		 * to 0xFF, or many operations will do nothing (or do strange things if the alpha
