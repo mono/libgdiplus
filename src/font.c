@@ -811,12 +811,23 @@ GdipCreateFontFromDC(void *hdc, GpFont **font)
 	return(NotImplemented);
 }
 
-static void
+static GpStatus
 gdip_logfont_from_font(GpFont *font, GpGraphics *graphics, void *lf, bool ucs2)
 {
 	LOGFONTA		*logFont;
 
+	if (!lf)
+		return InvalidParameter;
+
 	logFont = (LOGFONTA *)lf;
+
+	if (!font) {
+		/* lf is an Out parameter and must be initialized if 
+		   not NULL (even on error) */
+		memset (logFont, 0, ucs2 ? sizeof (LOGFONTW) : sizeof (LOGFONTA));
+		logFont->lfCharSet = 1;	// DEFAULT_CHARSET
+		return InvalidParameter;
+	}
 
 	logFont->lfHeight = -(font->sizeInPixels);
 	logFont->lfWidth = 0;
@@ -881,6 +892,7 @@ gdip_logfont_from_font(GpFont *font, GpGraphics *graphics, void *lf, bool ucs2)
 		memset (logFont->lfFaceName, 0, LF_FACESIZE);
 		memcpy (logFont->lfFaceName, font->face, len < LF_FACESIZE ? len : LF_FACESIZE - 1);
 	}
+	return Ok;
 }
 
 GpStatus
@@ -930,31 +942,19 @@ GdipCreateFontFromHfontA(void *hfont, GpFont **font, void *lf)
 
 	*font = result;
 
-	gdip_logfont_from_font(result, NULL, lf, FALSE);
-
-	return Ok;
+	return gdip_logfont_from_font (result, NULL, lf, FALSE);
 }
 
 GpStatus
 GdipGetLogFontW(GpFont *font, GpGraphics *graphics, void *lf)
 {
-	if (!font || !lf) {
-		return(InvalidParameter);
-	}
-	gdip_logfont_from_font(font, graphics, lf, TRUE);
-	return Ok;
+	return gdip_logfont_from_font (font, graphics, lf, TRUE);
 }
 
 GpStatus
 GdipGetLogFontA(GpFont *font, GpGraphics *graphics, void *lf)
 {
-		
-	if (!font || !lf) {
-		return(InvalidParameter);
-	}
-	
-	gdip_logfont_from_font(font, graphics, lf, FALSE);
-	return Ok;
+	return gdip_logfont_from_font (font, graphics, lf, FALSE);
 }
 
 GpStatus

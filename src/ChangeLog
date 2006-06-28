@@ -1,3 +1,8 @@
+2006-06-28  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* font.c: Make sure GdipGetLogFont[A|W] always initialize the LOGFONT
+	structure correctly - even if it must return an error. Fix #78721.
+
 2006-06-27 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* bitmap.c: avoid invalid read when we have a 24bpp format.
