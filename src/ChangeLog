@@ -1,3 +1,9 @@
+2006-06-29  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* region.c: Report OutOfMemory condition in GdipCloneRegion. Ensure 
+	all memory is freed from the tree used in GdipCombineRegion* functions
+	and avoid some memory alloc/free when possible.
+
 2006-06-28  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c: Make sure GdipGetLogFont[A|W] always initialize the LOGFONT

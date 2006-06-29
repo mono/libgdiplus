@@ -459,10 +459,12 @@ GdipCloneRegion (GpRegion *region, GpRegion **cloneRegion)
         if (!region || !cloneRegion)
                 return InvalidParameter;
 
-        result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
-	gdip_copy_region (region, result);
-        *cloneRegion = result;
+	result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
+	if (!result)
+		return OutOfMemory;
 
+	gdip_copy_region (region, result);
+	*cloneRegion = result;
         return Ok;
 }
 
@@ -995,7 +997,6 @@ GpStatus
 GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 {
 	GpRegionBitmap *path_bitmap, *result;
-	GpPathTree* tmp;
 
 	if (!region || !path)
 		return InvalidParameter;
@@ -1065,21 +1066,22 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 	region->bitmap = result;
 
 	/* add a copy of path into region1 tree */
-	tmp = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
-	tmp->mode = combineMode;
-	tmp->path = NULL;
-	tmp->branch1 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
-	tmp->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
-
 	if (region->tree->path) {
-		tmp->branch1->path = region->tree->path;
+		/* move the existing path into a new tree (branch1) ... */
+		region->tree->branch1 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		region->tree->branch1->path = region->tree->path;
+		region->tree->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
 	} else {
-		gdip_region_copy_tree (region->tree, tmp->branch1);
+		/* move the current base tree into branch1 of a new tree ... */
+		GpPathTree* tmp = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		tmp->branch1 = region->tree;
+		tmp->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		region->tree = tmp;
 	}
-
-	GdipClonePath (path, &tmp->branch2->path);
-
-	region->tree = tmp;
+	/* ... and clone the specified path into branch2 */
+	region->tree->mode = combineMode;
+	region->tree->path = NULL;
+	GdipClonePath (path, &region->tree->branch2->path);
 	return Ok;
 }
 
@@ -1102,27 +1104,28 @@ gdip_combine_pathbased_region (GpRegion *region1, GpRegion *region2, CombineMode
 	gdip_region_bitmap_free (region1->bitmap);
 	region1->bitmap = result;
 
-	/* add a copy of region2 tree into region1 tree */
-	tmp = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
-	tmp->mode = combineMode;
-	tmp->path = NULL;
-	tmp->branch1 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
-	tmp->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
-
+	/* re-structure region1 to allow adding a copy of region2 inside it */
 	if (region1->tree->path) {
-		tmp->branch1->path = region1->tree->path;
+		region1->tree->branch1 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		region1->tree->branch1->path = region1->tree->path;
+		region1->tree->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
 	} else {
-		gdip_region_copy_tree (region1->tree, tmp->branch1);
+		/* move the current base tree into branch1 of a new tree ... */
+		GpPathTree* tmp = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		tmp->branch1 = region1->tree;
+		tmp->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		region1->tree = tmp;
 	}
 
+	region1->tree->mode = combineMode;
+	region1->tree->path = NULL;
+
+	/* add a copy of region2 tree into region1 tree */
 	if (region2->tree->path) {
-		GdipClonePath (region2->tree->path, &tmp->branch2->path);
+		GdipClonePath (region2->tree->path, &region1->tree->branch2->path);
 	} else {
-		gdip_region_copy_tree (region2->tree, tmp->branch2);
+		gdip_region_copy_tree (region2->tree, region1->tree->branch2);
 	}
-
-	GdipFree (region1->tree);
-	region1->tree = tmp;
 	return Ok;
 }
 
