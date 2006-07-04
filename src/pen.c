@@ -119,7 +119,7 @@ convert_line_cap (GpPen *pen)
 }
 
 static double *
-convert_dash_array (float *f, float width, int count)
+convert_dash_array (float *f, double width, int count)
 {
         double *retval = GdipAlloc (sizeof (double) * count);
         int i;
@@ -135,6 +135,7 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 {
 	GpStatus status;
 	cairo_matrix_t product;
+	double widthx;
 	
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pen != NULL, InvalidParameter);
@@ -165,12 +166,14 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 		return Ok;
 
 	if (pen->width <= 0) { /* we draw a pixel wide line if width is <=0 */
-		double widthx = 1.0;
 		double widthy = 1.0;
+		widthx = 1.0;
+
 		cairo_device_to_user_distance (graphics->ct, &widthx, &widthy);
-		cairo_set_line_width (graphics->ct, widthx);
-	} else
-		cairo_set_line_width (graphics->ct, (double) pen->width);
+	} else {
+		widthx = (double) pen->width;
+	}
+	cairo_set_line_width (graphics->ct, widthx);
 
         cairo_set_miter_limit (graphics->ct, (double) pen->miter_limit);
         cairo_set_line_join (graphics->ct, convert_line_join (pen->line_join));
@@ -179,7 +182,9 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
         if (pen->dash_count > 0) {
                 double *dash_array;
 
-                dash_array = convert_dash_array (pen->dash_array, pen->width, pen->dash_count);
+		/* note: pen->width may be different from what was used to 
+		   call cairo_set_line_width, e.g. 0.0 (#78742) */
+                dash_array = convert_dash_array (pen->dash_array, widthx, pen->dash_count);
                 cairo_set_dash (graphics->ct, dash_array, pen->dash_count, pen->dash_offset);
                 GdipFree (dash_array);
         } else /* Clear the dashes, if set in previous calls */

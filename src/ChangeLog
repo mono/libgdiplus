@@ -1,3 +1,8 @@
+2006-07-04  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* pen.c: Fix #78742 where an error occurs when we use a pen's width of
+	0 (not a real value) with a dash style.
+
 2006-06-29  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* region.c: Report OutOfMemory condition in GdipCloneRegion. Ensure 
