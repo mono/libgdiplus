@@ -65,6 +65,9 @@ gdip_image_init (GpImage *image)
 GpStatus 
 GdipDisposeImage (GpImage *image)
 {
+	if (!image)
+		return InvalidParameter;
+
 	if (image->type == imageBitmap) {
 		gdip_bitmap_dispose(image);
 		return Ok;
