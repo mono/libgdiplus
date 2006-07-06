@@ -1,3 +1,12 @@
+2006-07-06  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* brush.c: Remove empty and unused gdip_brush_destroy;
+	* image.c: Add missing calls to cairo_pattern_destroy when a previous
+	call to cairo_pattern_reference is made on a pattern;
+	* solidbrush.c: Add missing NULL checks for GdipCreateSolidFill and
+	GdipGetSolidFillColor functions and remove duplicate checks for 
+	gdip_solidfill_destroy and gdip_solidfill_clone functions.
+
 2006-07-06  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* image.c: Add missing NULL check to GdipDisposeImage.
