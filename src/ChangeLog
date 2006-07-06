@@ -1,3 +1,14 @@
+2006-07-06  Chris Toshok  <toshok@ximian.com>
+
+	* graphics.c (CalculateStringWidths): don't do the cairo call if
+	we're dealing with a \n, as cairo says its extent is 7 pixels
+	wide.
+	(MeasureOrDrawString): add LineHeight to CursorY on a NEWLINE, not
+	LineHeight * LineFeeds.
+	(MeasureString): same.
+	(GdipMeasureCharacterRanges): don't add strDetail[j].X/Y twice
+	when creating the charRect.
+
 2006-07-06  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* brush.c: Remove empty and unused gdip_brush_destroy;
