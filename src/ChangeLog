@@ -3,6 +3,9 @@
 	* gifcodec.c: Return a GenericError in gdip_save_gif_image if the
 	pixel_format isn't a know value. This makes sure cmap_size is always
 	initialized (before being used).
+	* region-bitmap.c: Don't show up a warning if we're cloning a region
+	containing an empty graphicpath (as it is normal that no bitmap would 
+	be required);
 	* tiffcodec.c: Make sure we don't dereference a NULL pointer inside
 	gdip_load_tiff_image (and properly return OutOfMemory).
 

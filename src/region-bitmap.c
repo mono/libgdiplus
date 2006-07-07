@@ -291,10 +291,13 @@ gdip_region_bitmap_clone (GpRegionBitmap *bitmap)
 	unsigned char *buffer;
 	int size = (bitmap->Width * bitmap->Height >> 3); /* 1 bit per pixel */
 
-	buffer = alloc_bitmap_memory (size, FALSE);
-	if (buffer)
-		memcpy (buffer, bitmap->Mask, size);
-
+	if (size > 0) {
+		buffer = alloc_bitmap_memory (size, FALSE);
+		if (buffer)
+			memcpy (buffer, bitmap->Mask, size);
+	} else {
+		buffer = NULL;
+	}
 	return alloc_bitmap_with_buffer (bitmap->X, bitmap->Y, bitmap->Width, bitmap->Height, buffer);
 }
 
