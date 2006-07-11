@@ -1,3 +1,43 @@
+2006-01-09  Anders Carlsson  <andersca@imendio.com>
+
+        * src/icimage.c:
+        (premultiply):
+        (INTERPOLATE_PIXEL_256):
+        Use uint32_t instead of uint;
+
+2006-01-04  Carl Worth  <cworth@cworth.org>
+
+	* Originally: 2005-10-10  David Reveman  <davidr@novell.com>
+
+	* src/fbcompose.c: (SourcePictureClassify), (fbFetchSolid),
+	(fbFetch), (fbFetchSourcePict), (fbFetchTransformed),
+	(fbFetchExternalAlpha), (fbCompositeRect):
+	* src/icimage.c: (_pixman_init_gradient),
+	(_pixman_create_source_image),
+	(pixman_image_create_linear_gradient),
+	(pixman_image_create_radial_gradient):
+	* src/icimage.h:
+
+	Some major performance improvements to the general composite code
+	used for gradients and transformed images. Like fetching of mask
+	scanline before source scanline so that only the necessary pixels
+	from source needs to be computed in case of gradients or
+	transformed images as source. This patch also include some
+	gradient specific fixes and performance improvement.
+
+2006-01-04  Carl Worth  <cworth@cworth.org>
+
+	* Originally: 2005-10-10  David Reveman  <davidr@novell.com>
+
+	* src/pixman.h: Add entries for gradient support.
+
+	* src/icint.h: Add PictureGradientColor.
+
+	* src/icimage.h:
+	* src/icimage.c: Add necessary functionality for gradient support.
+
+	* src/fbcompose.c: Enable gradient support.
+
 2005-11-21  Carl Worth  <cworth@cworth.org>
 
 	* src/pixman-remap.h: Remove duplicate definitions of
@@ -8,28 +48,34 @@
 	* src/pixman-remap.h: Remove spurios INT_ prefixes which break the
 	build with very recent binutils.
 
+2005-10-09  Billy Biggs  <vektor@dumbterm.net>
+
+	* src/icimage.h: Make space for the new bits needed by expand.
+
+2005-10-09  Billy Biggs  <vektor@dumbterm.net>
+
+	reviewed by: davidr, cworth, otaylor
+
+	* src/pixman.h: Add extended repeat modes, copied from XRender.
+	* src/icimage.c: (pixman_image_init), (pixman_image_set_repeat),
+	(FbClipImageSrc): Cleanup to use the new repeat modes.
+	* src/icrect.c: (pixman_fill_rectangles): Be explicit about which
+	repeat mode we want.
+
 2005-09-18  Billy Biggs  <vektor@dumbterm.net>
+
+	* src/fbmmx.c: Only include xmmintrin.h if USE_SSE is defined.
+
+2005-09-15  Billy Biggs  <vektor@dumbterm.net>
 
 	Bug #4414, reviewed by otaylor, cworth.
 
-	* src/fbmmx.c: Remove CPU detection code, only include
-	xmmintrin.h if USE_SSE is defined.
+	* src/fbmmx.c: Remove CPU detection code.
 	* src/fbpict.c (detectCPUFeatures), (fbHaveMMX): Move CPU
 	detection code out of the MMX file and into the generic code to
 	avoid compiling it with -mmmx and -msse.  Using these options
 	causes gcc to use MMX and SSE instructions in the CPU detection
 	code which causes SIGILLs on older processors.
-
-2005-08-28  Owen Taylor  <otaylor@redhat.com>
-
-	Bug #4260, Reviewed by B. Biggs
- 
- 	* src/fbcompose.c (fbStore_a8b8g8r8, fbStore_x8b8g8r8): Use & not
- 	&& for bitwise AND.
- 
- 	* src/fbpict.h (fbComposeGetSolid) src/fbpict.c src/fbmmx.c: Take
- 	'dest' as an argument, if pict and dest don't match for RGB, BGR,
- 	swap result.
 
 2005-08-28  Owen Taylor  <otaylor@redhat.com>
 

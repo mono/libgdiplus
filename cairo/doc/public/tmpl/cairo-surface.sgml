@@ -14,6 +14,9 @@ Base class for surfaces
 
 </para>
 
+<!-- ##### SECTION Stability_Level ##### -->
+
+
 <!-- ##### TYPEDEF cairo_surface_t ##### -->
 <para>
 
@@ -28,123 +31,4 @@ Base class for surfaces
 @CAIRO_CONTENT_COLOR: 
 @CAIRO_CONTENT_ALPHA: 
 @CAIRO_CONTENT_COLOR_ALPHA: 
-
-<!-- ##### FUNCTION cairo_surface_create_similar ##### -->
-<para>
-
-</para>
-
-@other: 
-@content: 
-@width: 
-@height: 
-@Returns: 
-<!-- # Unused Parameters # -->
-@format: 
-
-
-<!-- ##### FUNCTION cairo_surface_destroy ##### -->
-<para>
-
-</para>
-
-@surface: 
-
-
-<!-- ##### FUNCTION cairo_surface_finish ##### -->
-<para>
-
-</para>
-
-@surface: 
-<!-- # Unused Parameters # -->
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_surface_flush ##### -->
-<para>
-
-</para>
-
-@surface: 
-
-
-<!-- ##### FUNCTION cairo_surface_get_font_options ##### -->
-<para>
-
-</para>
-
-@surface: 
-@options: 
-
-
-<!-- ##### FUNCTION cairo_surface_set_user_data ##### -->
-<para>
-
-</para>
-
-@surface: 
-@key: 
-@user_data: 
-@destroy: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_surface_get_user_data ##### -->
-<para>
-
-</para>
-
-@surface: 
-@key: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_surface_mark_dirty ##### -->
-<para>
-
-</para>
-
-@surface: 
-
-
-<!-- ##### FUNCTION cairo_surface_mark_dirty_rectangle ##### -->
-<para>
-
-</para>
-
-@surface: 
-@x: 
-@y: 
-@width: 
-@height: 
-
-
-<!-- ##### FUNCTION cairo_surface_reference ##### -->
-<para>
-
-</para>
-
-@surface: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_surface_set_device_offset ##### -->
-<para>
-
-</para>
-
-@surface: 
-@x_offset: 
-@y_offset: 
-
-
-<!-- ##### FUNCTION cairo_surface_status ##### -->
-<para>
-
-</para>
-
-@surface: 
-@Returns: 
-
 

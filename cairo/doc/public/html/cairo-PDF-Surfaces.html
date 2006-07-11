@@ -1,4 +1,49 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>PDF Surfaces</title><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="Cairo: A Vector Graphics Library"><link rel="up" href="Surfaces.html" title="Surfaces"><link rel="prev" href="cairo-Glitz-Surfaces.html" title="Glitz Surfaces"><link rel="next" href="cairo-PNG-Support.html" title="PNG Support"><meta name="generator" content="GTK-Doc V1.3 (XML mode)"><link rel="stylesheet" href="style.css" type="text/css"><link rel="part" href="pt01.html" title="Part I. Tutorial"><link rel="part" href="pt02.html" title="Part II. Reference"><link rel="chapter" href="Drawing.html" title="Drawing"><link rel="chapter" href="Fonts.html" title="Fonts"><link rel="chapter" href="Surfaces.html" title="Surfaces"><link rel="chapter" href="Support.html" title="Utilities"><link rel="index" href="ix01.html" title="Index"><link rel="appendix" href="language-bindings.html" title="Appendix A. Creating a language binding for cairo"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="cairo-Glitz-Surfaces.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="Surfaces.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">Cairo: A Vector Graphics Library</th><td><a accesskey="n" href="cairo-PNG-Support.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="cairo-PDF-Surfaces"></a><div class="titlepage"></div><div class="refnamediv"><table width="100%"><tr><td valign="top"><h2><span class="refentrytitle">PDF Surfaces</span></h2><p>PDF Surfaces &#8212; Rendering PDF documents</p></td><td valign="top" align="right"></td></tr></table></div><div class="refsynopsisdiv"><h2>Synopsis</h2><pre class="synopsis">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>PDF Surfaces</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
+<link rel="up" href="Surfaces.html" title="Surfaces">
+<link rel="prev" href="cairo-Image-Surfaces.html" title="Image Surfaces">
+<link rel="next" href="cairo-PNG-Support.html" title="PNG Support">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
+<link rel="chapter" href="Drawing.html" title="Drawing">
+<link rel="chapter" href="Fonts.html" title="Fonts">
+<link rel="chapter" href="Surfaces.html" title="Surfaces">
+<link rel="chapter" href="Support.html" title="Utilities">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="cairo-Image-Surfaces.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="Surfaces.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Cairo: A Vector Graphics Library</th>
+<td><a accesskey="n" href="cairo-PNG-Support.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#top_of_page" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#desc" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="cairo-PDF-Surfaces"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="top_of_page"></a>PDF Surfaces</span></h2>
+<p>PDF Surfaces &#8212; Rendering PDF documents</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<a name="synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">
 
 
 
@@ -10,41 +55,51 @@
                                              void *closure,
                                              double width_in_points,
                                              double height_in_points);
-void        <a href="cairo-PDF-Surfaces.html#cairo-pdf-surface-set-dpi">cairo_pdf_surface_set_dpi</a>       (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
-                                             double x_dpi,
-                                             double y_dpi);
-</pre></div><div class="refsect1" lang="en"><a name="id2537822"></a><h2>Description</h2><p>
-
-</p></div><div class="refsect1" lang="en"><a name="id2537833"></a><h2>Details</h2><div class="refsect2" lang="en"><a name="id2537839"></a><h3><a name="cairo-pdf-surface-create"></a>cairo_pdf_surface_create ()</h3><a class="indexterm" name="id2537848"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_pdf_surface_create   (const char *filename,
+void        <a href="cairo-PDF-Surfaces.html#cairo-pdf-surface-set-size">cairo_pdf_surface_set_size</a>      (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                              double width_in_points,
-                                             double height_in_points);</pre><p>
+                                             double height_in_points);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="desc"></a><h2>Description</h2>
+<p>
 
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>filename</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>width_in_points</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>height_in_points</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td>
-
-
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2537443"></a><h3><a name="cairo-pdf-surface-create-for-stream"></a>cairo_pdf_surface_create_for_stream ()</h3><a class="indexterm" name="id2537452"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_pdf_surface_create_for_stream
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="details"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2583958"></a><h3>
+<a name="cairo-pdf-surface-create"></a>cairo_pdf_surface_create ()</h3>
+<a class="indexterm" name="id2583972"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_pdf_surface_create   (const char *filename,
+                                             double width_in_points,
+                                             double height_in_points);</pre>
+<p>Since  1.2
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2584012"></a><h3>
+<a name="cairo-pdf-surface-create-for-stream"></a>cairo_pdf_surface_create_for_stream ()</h3>
+<a class="indexterm" name="id2584026"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_pdf_surface_create_for_stream
                                             (<a href="cairo-PNG-Support.html#cairo-write-func-t">cairo_write_func_t</a> write_func,
                                              void *closure,
                                              double width_in_points,
-                                             double height_in_points);</pre><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>write_func</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>closure</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>width_in_points</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>height_in_points</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td>
-
-
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2537569"></a><h3><a name="cairo-pdf-surface-set-dpi"></a>cairo_pdf_surface_set_dpi ()</h3><a class="indexterm" name="id2537578"></a><pre class="programlisting">void        cairo_pdf_surface_set_dpi       (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
-                                             double x_dpi,
-                                             double y_dpi);</pre><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>surface</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>x_dpi</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>y_dpi</code></em> :</span></td><td>
-
-
-</td></tr></tbody></table></div></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="cairo-Glitz-Surfaces.html"><b>&lt;&lt; Glitz Surfaces</b></a></td><td align="right"><a accesskey="n" href="cairo-PNG-Support.html"><b>PNG Support &gt;&gt;</b></a></td></tr></table></body></html>
+                                             double height_in_points);</pre>
+<p>Since  1.2
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2570867"></a><h3>
+<a name="cairo-pdf-surface-set-size"></a>cairo_pdf_surface_set_size ()</h3>
+<a class="indexterm" name="id2570881"></a><pre class="programlisting">void        cairo_pdf_surface_set_size      (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+                                             double width_in_points,
+                                             double height_in_points);</pre>
+<p>Since  1.2
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>

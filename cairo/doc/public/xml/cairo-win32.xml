@@ -5,22 +5,30 @@
 ]>
 <refentry id="cairo-Win32-Surfaces">
 <refmeta>
-<refentrytitle>Win32 Surfaces</refentrytitle>
+<refentrytitle id="top_of_page">Win32 Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>Win32 Surfaces</refname><refpurpose>Microsoft Windows surface support</refpurpose>
+<refname>Win32 Surfaces</refname>
+<refpurpose>Microsoft Windows surface support</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv><title>Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
 
 
 <link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-win32-surface-create">cairo_win32_surface_create</link> (<link linkend="HDC:CAPS">HDC</link> hdc);
+<link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-win32-surface-create-with-dib">cairo_win32_surface_create_with_dib</link>
+                                            (<link linkend="cairo-format-t">cairo_format_t</link> format,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height);
+<link linkend="HDC:CAPS">HDC</link>         <link linkend="cairo-win32-surface-get-dc">cairo_win32_surface_get_dc</link>      (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);
 </synopsis>
 </refsynopsisdiv>
 
@@ -32,29 +40,32 @@
 
 
 
-<refsect1>
-<title>Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1>
-<title>Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 <refsect2>
-<title><anchor id="cairo-win32-surface-create"/>cairo_win32_surface_create ()</title>
+<title><anchor id="cairo-win32-surface-create" role="function"/>cairo_win32_surface_create ()</title>
 <indexterm><primary>cairo_win32_surface_create</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_win32_surface_create (<link linkend="HDC:CAPS">HDC</link> hdc);</programlisting>
-<para>
-
-</para><variablelist role="params">
-<varlistentry><term><parameter>hdc</parameter>&nbsp;:</term>
-<listitem><simpara>
-</simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>
-
-
-</simpara></listitem></varlistentry>
-</variablelist></refsect2>
+</refsect2>
+<refsect2>
+<title><anchor id="cairo-win32-surface-create-with-dib" role="function" condition="since:1.2"/>cairo_win32_surface_create_with_dib ()</title>
+<indexterm role="1.2"><primary>cairo_win32_surface_create_with_dib</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_win32_surface_create_with_dib
+                                            (<link linkend="cairo-format-t">cairo_format_t</link> format,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height);</programlisting>
+<para>Since  1.2
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-win32-surface-get-dc" role="function" condition="since:1.2"/>cairo_win32_surface_get_dc ()</title>
+<indexterm role="1.2"><primary>cairo_win32_surface_get_dc</primary></indexterm><programlisting><link linkend="HDC:CAPS">HDC</link>         cairo_win32_surface_get_dc      (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);</programlisting>
+<para>Since  1.2
+</para></refsect2>
 
 </refsect1>
 

@@ -38,6 +38,12 @@ draw (cairo_t *cr, int width, int height)
 {
     cairo_font_options_t *font_options;
 
+    /* We draw in the default black, so paint white first. */
+    cairo_save (cr);
+    cairo_set_source_rgb (cr, 1.0, 1.0, 1.0); /* white */
+    cairo_paint (cr);
+    cairo_restore (cr);
+
     cairo_select_font_face (cr, "Bitstream Vera Sans",
 			    CAIRO_FONT_SLANT_NORMAL,
 			    CAIRO_FONT_WEIGHT_NORMAL);

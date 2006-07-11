@@ -70,7 +70,7 @@ start (void *closure)
 }
 
 int
-main (int argc, char *argv[0])
+main (int argc, char *argv[])
 {
     int err;
     int i, num_threads;

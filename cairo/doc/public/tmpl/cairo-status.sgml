@@ -14,6 +14,9 @@ Decoding cairo's status
 
 </para>
 
+<!-- ##### SECTION Stability_Level ##### -->
+
+
 <!-- ##### ENUM cairo_status_t ##### -->
 <para>
 
@@ -39,20 +42,5 @@ Decoding cairo's status
 @CAIRO_STATUS_INVALID_VISUAL: 
 @CAIRO_STATUS_FILE_NOT_FOUND: 
 @CAIRO_STATUS_INVALID_DASH: 
-
-<!-- ##### FUNCTION cairo_status_to_string ##### -->
-<para>
-
-</para>
-
-@status: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_debug_reset_static_data ##### -->
-<para>
-
-</para>
-
-
+@CAIRO_STATUS_INVALID_DSC_COMMENT: 
 

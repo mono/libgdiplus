@@ -46,7 +46,7 @@ draw (cairo_t *cr, int width, int height)
     cairo_clip (cr);
     cairo_rectangle (cr, 3*CLIP_SIZE, 3*CLIP_SIZE, CLIP_SIZE, CLIP_SIZE);
     cairo_clip (cr);
-    
+
     cairo_translate (cr, .5, .5);
 
     cairo_reset_clip (cr);

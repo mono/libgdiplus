@@ -1,4 +1,49 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Patterns</title><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="Cairo: A Vector Graphics Library"><link rel="up" href="Drawing.html" title="Drawing"><link rel="prev" href="cairo-Paths.html" title="Paths"><link rel="next" href="cairo-Transformations.html" title="Transformations"><meta name="generator" content="GTK-Doc V1.3 (XML mode)"><link rel="stylesheet" href="style.css" type="text/css"><link rel="part" href="pt01.html" title="Part I. Tutorial"><link rel="part" href="pt02.html" title="Part II. Reference"><link rel="chapter" href="Drawing.html" title="Drawing"><link rel="chapter" href="Fonts.html" title="Fonts"><link rel="chapter" href="Surfaces.html" title="Surfaces"><link rel="chapter" href="Support.html" title="Utilities"><link rel="index" href="ix01.html" title="Index"><link rel="appendix" href="language-bindings.html" title="Appendix A. Creating a language binding for cairo"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="cairo-Paths.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="Drawing.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">Cairo: A Vector Graphics Library</th><td><a accesskey="n" href="cairo-Transformations.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="cairo-Patterns"></a><div class="titlepage"></div><div class="refnamediv"><table width="100%"><tr><td valign="top"><h2><span class="refentrytitle">Patterns</span></h2><p>Patterns &#8212; Gradients and filtered sources</p></td><td valign="top" align="right"></td></tr></table></div><div class="refsynopsisdiv"><h2>Synopsis</h2><pre class="synopsis">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Patterns</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
+<link rel="up" href="Drawing.html" title="Drawing">
+<link rel="prev" href="cairo-Paths.html" title="Paths">
+<link rel="next" href="cairo-Transformations.html" title="Transformations">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
+<link rel="chapter" href="Drawing.html" title="Drawing">
+<link rel="chapter" href="Fonts.html" title="Fonts">
+<link rel="chapter" href="Surfaces.html" title="Surfaces">
+<link rel="chapter" href="Support.html" title="Utilities">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="cairo-Paths.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="Drawing.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Cairo: A Vector Graphics Library</th>
+<td><a accesskey="n" href="cairo-Transformations.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#top_of_page" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#desc" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="cairo-Patterns"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="top_of_page"></a>Patterns</span></h2>
+<p>Patterns &#8212; Gradients and filtered sources</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<a name="synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">
 
 
 
@@ -52,211 +97,183 @@ void        <a href="cairo-Patterns.html#cairo-pattern-set-matrix">cairo_pattern
                                              const <a href="cairo-cairo-matrix-t.html#cairo-matrix-t">cairo_matrix_t</a> *matrix);
 void        <a href="cairo-Patterns.html#cairo-pattern-get-matrix">cairo_pattern_get_matrix</a>        (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern,
                                              <a href="cairo-cairo-matrix-t.html#cairo-matrix-t">cairo_matrix_t</a> *matrix);
-</pre></div><div class="refsect1" lang="en"><a name="id2533115"></a><h2>Description</h2><p>
+enum        <a href="cairo-Patterns.html#cairo-pattern-type-t">cairo_pattern_type_t</a>;
+<a href="cairo-Patterns.html#cairo-pattern-type-t">cairo_pattern_type_t</a> <a href="cairo-Patterns.html#cairo-pattern-get-type">cairo_pattern_get_type</a> (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="desc"></a><h2>Description</h2>
+<p>
 
-</p></div><div class="refsect1" lang="en"><a name="id2533126"></a><h2>Details</h2><div class="refsect2" lang="en"><a name="id2533132"></a><h3><a name="cairo-pattern-t"></a>cairo_pattern_t</h3><a class="indexterm" name="id2533142"></a><pre class="programlisting">typedef struct _cairo_pattern cairo_pattern_t;
-</pre><p>
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="details"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2567003"></a><h3>
+<a name="cairo-pattern-t"></a>cairo_pattern_t</h3>
+<a class="indexterm" name="id2567015"></a><pre class="programlisting">typedef struct _cairo_pattern cairo_pattern_t;
+</pre>
+<p>
 
-</p></div><hr><div class="refsect2" lang="en"><a name="id2533166"></a><h3><a name="cairo-pattern-add-color-stop-rgb"></a>cairo_pattern_add_color_stop_rgb ()</h3><a class="indexterm" name="id2533176"></a><pre class="programlisting">void        cairo_pattern_add_color_stop_rgb
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2567031"></a><h3>
+<a name="cairo-pattern-add-color-stop-rgb"></a>cairo_pattern_add_color_stop_rgb ()</h3>
+<a class="indexterm" name="id2567042"></a><pre class="programlisting">void        cairo_pattern_add_color_stop_rgb
                                             (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern,
                                              double offset,
                                              double red,
                                              double green,
-                                             double blue);</pre><p>
-Adds an opaque color stop to a gradient pattern. The offset
-specifies the location along the gradient's control vector. For
-example, a linear gradient's control vector is from (x0,y0) to
-(x1,y1) while a radial gradient's control vector is from any point
-on the start circle to the corresponding point on the end circle.
-</p><p>
-The color is specified in the same way as in <a href="cairo-cairo-t.html#cairo-set-source-rgb"><code class="function">cairo_set_source_rgb()</code></a>.
-</p><p>
-Note: If the pattern is not a gradient pattern, (eg. a linear or
-radial pattern), then the pattern will be put into an error status
-with a status of <code class="literal">CAIRO_STATUS_PATTERN_TYPE_MISMATCH</code>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>pattern</code></em> :</span></td><td> a <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>offset</code></em> :</span></td><td> an offset in the range [0.0 .. 1.0]
-</td></tr><tr><td><span class="term"><em class="parameter"><code>red</code></em> :</span></td><td> red component of color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>green</code></em> :</span></td><td> green component of color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>blue</code></em> :</span></td><td> blue component of color
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2533348"></a><h3><a name="cairo-pattern-add-color-stop-rgba"></a>cairo_pattern_add_color_stop_rgba ()</h3><a class="indexterm" name="id2533359"></a><pre class="programlisting">void        cairo_pattern_add_color_stop_rgba
+                                             double blue);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2538432"></a><h3>
+<a name="cairo-pattern-add-color-stop-rgba"></a>cairo_pattern_add_color_stop_rgba ()</h3>
+<a class="indexterm" name="id2538443"></a><pre class="programlisting">void        cairo_pattern_add_color_stop_rgba
                                             (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern,
                                              double offset,
                                              double red,
                                              double green,
                                              double blue,
-                                             double alpha);</pre><p>
-Adds a translucent color stop to a gradient pattern. The offset
-specifies the location along the gradient's control vector. For
-example, a linear gradient's control vector is from (x0,y0) to
-(x1,y1) while a radial gradient's control vector is from any point
-on the start circle to the corresponding point on the end circle.
-</p><p>
-The color is specified in the same way as in <a href="cairo-cairo-t.html#cairo-set-source-rgba"><code class="function">cairo_set_source_rgba()</code></a>.
-</p><p>
-Note: If the pattern is not a gradient pattern, (eg. a linear or
-radial pattern), then the pattern will be put into an error status
-with a status of <code class="literal">CAIRO_STATUS_PATTERN_TYPE_MISMATCH</code>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>pattern</code></em> :</span></td><td> a <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>offset</code></em> :</span></td><td> an offset in the range [0.0 .. 1.0]
-</td></tr><tr><td><span class="term"><em class="parameter"><code>red</code></em> :</span></td><td> red component of color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>green</code></em> :</span></td><td> green component of color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>blue</code></em> :</span></td><td> blue component of color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>alpha</code></em> :</span></td><td> alpha component of color
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2534705"></a><h3><a name="cairo-pattern-create-rgb"></a>cairo_pattern_create_rgb ()</h3><a class="indexterm" name="id2534714"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_pattern_create_rgb   (double red,
+                                             double alpha);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2538502"></a><h3>
+<a name="cairo-pattern-create-rgb"></a>cairo_pattern_create_rgb ()</h3>
+<a class="indexterm" name="id2538513"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_pattern_create_rgb   (double red,
                                              double green,
-                                             double blue);</pre><p>
-Creates a new cairo_pattern_t corresponding to an opaque color.  The
-color components are floating point numbers in the range 0 to 1.
-If the values passed in are outside that range, they will be
-clamped.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>red</code></em> :</span></td><td> red component of the color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>green</code></em> :</span></td><td> green component of the color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>blue</code></em> :</span></td><td> blue component of the color
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the newly created <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a> if succesful, or
-an error pattern in case of no memory.  The caller owns the
-returned object and should call <a href="cairo-Patterns.html#cairo-pattern-destroy"><code class="function">cairo_pattern_destroy()</code></a> when
-finished with it.
-
-This function will always return a valid pointer, but if an error
-occurred the pattern status will be set to an error.  To inspect
-the status of a pattern use <a href="cairo-Patterns.html#cairo-pattern-status"><code class="function">cairo_pattern_status()</code></a>.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2587701"></a><h3><a name="cairo-pattern-create-rgba"></a>cairo_pattern_create_rgba ()</h3><a class="indexterm" name="id2587709"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_pattern_create_rgba  (double red,
+                                             double blue);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2538551"></a><h3>
+<a name="cairo-pattern-create-rgba"></a>cairo_pattern_create_rgba ()</h3>
+<a class="indexterm" name="id2538563"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_pattern_create_rgba  (double red,
                                              double green,
                                              double blue,
-                                             double alpha);</pre><p>
-Creates a new cairo_pattern_t corresponding to a translucent color.
-The color components are floating point numbers in the range 0 to
-1.  If the values passed in are outside that range, they will be
-clamped.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>red</code></em> :</span></td><td> red component of the color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>green</code></em> :</span></td><td> green component of the color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>blue</code></em> :</span></td><td> blue component of the color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>alpha</code></em> :</span></td><td> alpha component of the color
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the newly created <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a> if succesful, or
-an error pattern in case of no memory.  The caller owns the
-returned object and should call <a href="cairo-Patterns.html#cairo-pattern-destroy"><code class="function">cairo_pattern_destroy()</code></a> when
-finished with it.
-
-This function will always return a valid pointer, but if an error
-occurred the pattern status will be set to an error.  To inspect
-the status of a pattern use <a href="cairo-Patterns.html#cairo-pattern-status"><code class="function">cairo_pattern_status()</code></a>.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2587851"></a><h3><a name="cairo-pattern-create-for-surface"></a>cairo_pattern_create_for_surface ()</h3><a class="indexterm" name="id2587862"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_pattern_create_for_surface
-                                            (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre><p>
-Create a new cairo_pattern_t for the given surface.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>surface</code></em> :</span></td><td> the surface 
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the newly created <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a> if succesful, or
-an error pattern in case of no memory.  The caller owns the
-returned object and should call <a href="cairo-Patterns.html#cairo-pattern-destroy"><code class="function">cairo_pattern_destroy()</code></a> when
-finished with it.
-
-This function will always return a valid pointer, but if an error
-occurred the pattern status will be set to an error.  To inspect
-the status of a pattern use <a href="cairo-Patterns.html#cairo-pattern-status"><code class="function">cairo_pattern_status()</code></a>.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2587953"></a><h3><a name="cairo-pattern-create-linear"></a>cairo_pattern_create_linear ()</h3><a class="indexterm" name="id2587962"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_pattern_create_linear
+                                             double alpha);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2538607"></a><h3>
+<a name="cairo-pattern-create-for-surface"></a>cairo_pattern_create_for_surface ()</h3>
+<a class="indexterm" name="id2538620"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_pattern_create_for_surface
+                                            (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2538646"></a><h3>
+<a name="cairo-pattern-create-linear"></a>cairo_pattern_create_linear ()</h3>
+<a class="indexterm" name="id2538658"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_pattern_create_linear
                                             (double x0,
                                              double y0,
                                              double x1,
-                                             double y1);</pre><p>
-Create a new linear gradient cairo_pattern_t along the line defined
-by (x0, y0) and (x1, y1).  Before using the gradient pattern, a
-number of color stops should be defined using
-<a href="cairo-Patterns.html#cairo-pattern-add-color-stop-rgb"><code class="function">cairo_pattern_add_color_stop_rgb()</code></a> or
-<a href="cairo-Patterns.html#cairo-pattern-add-color-stop-rgba"><code class="function">cairo_pattern_add_color_stop_rgba()</code></a>.
-</p><p>
-Note: The coordinates here are in pattern space. For a new pattern,
-pattern space is identical to user space, but the relationship
-between the spaces can be changed with <a href="cairo-Patterns.html#cairo-pattern-set-matrix"><code class="function">cairo_pattern_set_matrix()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>x0</code></em> :</span></td><td> x coordinate of the start point 
-</td></tr><tr><td><span class="term"><em class="parameter"><code>y0</code></em> :</span></td><td> y coordinate of the start point 
-</td></tr><tr><td><span class="term"><em class="parameter"><code>x1</code></em> :</span></td><td> x coordinate of the end point 
-</td></tr><tr><td><span class="term"><em class="parameter"><code>y1</code></em> :</span></td><td> y coordinate of the end point 
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the newly created <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a> if succesful, or
-an error pattern in case of no memory.  The caller owns the
-returned object and should call <a href="cairo-Patterns.html#cairo-pattern-destroy"><code class="function">cairo_pattern_destroy()</code></a> when
-finished with it.
-
-This function will always return a valid pointer, but if an error
-occurred the pattern status will be set to an error.  To inspect
-the status of a pattern use <a href="cairo-Patterns.html#cairo-pattern-status"><code class="function">cairo_pattern_status()</code></a>.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2588155"></a><h3><a name="cairo-pattern-create-radial"></a>cairo_pattern_create_radial ()</h3><a class="indexterm" name="id2588165"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_pattern_create_radial
+                                             double y1);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2576736"></a><h3>
+<a name="cairo-pattern-create-radial"></a>cairo_pattern_create_radial ()</h3>
+<a class="indexterm" name="id2576746"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_pattern_create_radial
                                             (double cx0,
                                              double cy0,
                                              double radius0,
                                              double cx1,
                                              double cy1,
-                                             double radius1);</pre><p>
-Creates a new radial gradient cairo_pattern_t between the two
-circles defined by (x0, y0, c0) and (x1, y1, c0).  Before using the
-gradient pattern, a number of color stops should be defined using
-<a href="cairo-Patterns.html#cairo-pattern-add-color-stop-rgb"><code class="function">cairo_pattern_add_color_stop_rgb()</code></a> or
-<a href="cairo-Patterns.html#cairo-pattern-add-color-stop-rgba"><code class="function">cairo_pattern_add_color_stop_rgba()</code></a>.
-</p><p>
-Note: The coordinates here are in pattern space. For a new pattern,
-pattern space is identical to user space, but the relationship
-between the spaces can be changed with <a href="cairo-Patterns.html#cairo-pattern-set-matrix"><code class="function">cairo_pattern_set_matrix()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cx0</code></em> :</span></td><td> x coordinate for the center of the start circle
-</td></tr><tr><td><span class="term"><em class="parameter"><code>cy0</code></em> :</span></td><td> y coordinate for the center of the start circle
-</td></tr><tr><td><span class="term"><em class="parameter"><code>radius0</code></em> :</span></td><td> radius of the start cirle
-</td></tr><tr><td><span class="term"><em class="parameter"><code>cx1</code></em> :</span></td><td> x coordinate for the center of the end circle
-</td></tr><tr><td><span class="term"><em class="parameter"><code>cy1</code></em> :</span></td><td> y coordinate for the center of the end circle
-</td></tr><tr><td><span class="term"><em class="parameter"><code>radius1</code></em> :</span></td><td> radius of the end cirle
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the newly created <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a> if succesful, or
-an error pattern in case of no memory.  The caller owns the
-returned object and should call <a href="cairo-Patterns.html#cairo-pattern-destroy"><code class="function">cairo_pattern_destroy()</code></a> when
-finished with it.
-
-This function will always return a valid pointer, but if an error
-occurred the pattern status will be set to an error.  To inspect
-the status of a pattern use <a href="cairo-Patterns.html#cairo-pattern-status"><code class="function">cairo_pattern_status()</code></a>.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2588401"></a><h3><a name="cairo-pattern-destroy"></a>cairo_pattern_destroy ()</h3><a class="indexterm" name="id2588410"></a><pre class="programlisting">void        cairo_pattern_destroy           (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern);</pre><p>
-Decreases the reference count on <em class="parameter"><code>pattern</code></em> by one. If the result is
-zero, then <em class="parameter"><code>pattern</code></em> and all associated resources are freed.  See
-<a href="cairo-Patterns.html#cairo-pattern-reference"><code class="function">cairo_pattern_reference()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>pattern</code></em> :</span></td><td> a <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a>
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2588489"></a><h3><a name="cairo-pattern-reference"></a>cairo_pattern_reference ()</h3><a class="indexterm" name="id2588498"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_pattern_reference    (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern);</pre><p>
-Increases the reference count on <em class="parameter"><code>pattern</code></em> by one. This prevents
-<em class="parameter"><code>pattern</code></em> from being destroyed until a matching call to
-<a href="cairo-Patterns.html#cairo-pattern-destroy"><code class="function">cairo_pattern_destroy()</code></a> is made.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>pattern</code></em> :</span></td><td> a <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a>
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the referenced <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a>.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2588570"></a><h3><a name="cairo-pattern-status"></a>cairo_pattern_status ()</h3><a class="indexterm" name="id2588579"></a><pre class="programlisting"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> cairo_pattern_status         (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern);</pre><p>
-Checks whether an error has previously occurred for this
-pattern.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>pattern</code></em> :</span></td><td> a <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a>
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> <code class="literal">CAIRO_STATUS_SUCCESS</code>, <code class="literal">CAIRO_STATUS_NO_MEMORY</code>, or
-<code class="literal">CAIRO_STATUS_PATTERN_TYPE_MISMATCH</code>.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2588656"></a><h3><a name="cairo-extend-t"></a>enum cairo_extend_t</h3><a class="indexterm" name="id2588664"></a><pre class="programlisting">typedef enum _cairo_extend {
+                                             double radius1);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2576799"></a><h3>
+<a name="cairo-pattern-destroy"></a>cairo_pattern_destroy ()</h3>
+<a class="indexterm" name="id2576809"></a><pre class="programlisting">void        cairo_pattern_destroy           (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2576830"></a><h3>
+<a name="cairo-pattern-reference"></a>cairo_pattern_reference ()</h3>
+<a class="indexterm" name="id2576840"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_pattern_reference    (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2576863"></a><h3>
+<a name="cairo-pattern-status"></a>cairo_pattern_status ()</h3>
+<a class="indexterm" name="id2576874"></a><pre class="programlisting"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> cairo_pattern_status         (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2576899"></a><h3>
+<a name="cairo-extend-t"></a>enum cairo_extend_t</h3>
+<a class="indexterm" name="id2576911"></a><pre class="programlisting">typedef enum _cairo_extend {
     CAIRO_EXTEND_NONE,
     CAIRO_EXTEND_REPEAT,
-    CAIRO_EXTEND_REFLECT
+    CAIRO_EXTEND_REFLECT,
+    CAIRO_EXTEND_PAD
 } cairo_extend_t;
-</pre><p>
+</pre>
+<p>
+<a href="cairo-Patterns.html#cairo-extend-t"><span class="type">cairo_extend_t</span></a> is used to describe how the area outside
+of a pattern will be drawn.</p>
+<p>
 
-</p></div><hr><div class="refsect2" lang="en"><a name="id2588680"></a><h3><a name="cairo-pattern-set-extend"></a>cairo_pattern_set_extend ()</h3><a class="indexterm" name="id2588688"></a><pre class="programlisting">void        cairo_pattern_set_extend        (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern,
-                                             <a href="cairo-Patterns.html#cairo-extend-t">cairo_extend_t</a> extend);</pre><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>pattern</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>extend</code></em> :</span></td><td>
-
-
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2588748"></a><h3><a name="cairo-pattern-get-extend"></a>cairo_pattern_get_extend ()</h3><a class="indexterm" name="id2588756"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-extend-t">cairo_extend_t</a> cairo_pattern_get_extend     (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern);</pre><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>pattern</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td>
-
-
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2588806"></a><h3><a name="cairo-filter-t"></a>enum cairo_filter_t</h3><a class="indexterm" name="id2588814"></a><pre class="programlisting">typedef enum _cairo_filter {
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-EXTEND-NONE:CAPS"></a><code class="literal">CAIRO_EXTEND_NONE</code></span></td>
+<td> pixels outside of the source pattern
+  are fully transparent
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-EXTEND-REPEAT:CAPS"></a><code class="literal">CAIRO_EXTEND_REPEAT</code></span></td>
+<td> the pattern is tiled by repeating
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-EXTEND-REFLECT:CAPS"></a><code class="literal">CAIRO_EXTEND_REFLECT</code></span></td>
+<td> the pattern is tiled by reflecting
+  at the edges (not implemented for surface patterns currently)
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-EXTEND-PAD:CAPS"></a><code class="literal">CAIRO_EXTEND_PAD</code></span></td>
+<td> pixels outside of the pattern copy
+  the closest pixel from the source (Since 1.2; not implemented
+  for surface patterns currently)
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2577035"></a><h3>
+<a name="cairo-pattern-set-extend"></a>cairo_pattern_set_extend ()</h3>
+<a class="indexterm" name="id2577046"></a><pre class="programlisting">void        cairo_pattern_set_extend        (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern,
+                                             <a href="cairo-Patterns.html#cairo-extend-t">cairo_extend_t</a> extend);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2577077"></a><h3>
+<a name="cairo-pattern-get-extend"></a>cairo_pattern_get_extend ()</h3>
+<a class="indexterm" name="id2577089"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-extend-t">cairo_extend_t</a> cairo_pattern_get_extend     (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2577113"></a><h3>
+<a name="cairo-filter-t"></a>enum cairo_filter_t</h3>
+<a class="indexterm" name="id2577126"></a><pre class="programlisting">typedef enum _cairo_filter {
     CAIRO_FILTER_FAST,
     CAIRO_FILTER_GOOD,
     CAIRO_FILTER_BEST,
@@ -264,56 +281,61 @@ pattern.</p><p>
     CAIRO_FILTER_BILINEAR,
     CAIRO_FILTER_GAUSSIAN
 } cairo_filter_t;
-</pre><p>
+</pre>
+<p>
 
-</p></div><hr><div class="refsect2" lang="en"><a name="id2588831"></a><h3><a name="cairo-pattern-set-filter"></a>cairo_pattern_set_filter ()</h3><a class="indexterm" name="id2588840"></a><pre class="programlisting">void        cairo_pattern_set_filter        (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern,
-                                             <a href="cairo-Patterns.html#cairo-filter-t">cairo_filter_t</a> filter);</pre><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>pattern</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>filter</code></em> :</span></td><td>
-
-
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2588899"></a><h3><a name="cairo-pattern-get-filter"></a>cairo_pattern_get_filter ()</h3><a class="indexterm" name="id2588908"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-filter-t">cairo_filter_t</a> cairo_pattern_get_filter     (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern);</pre><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>pattern</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td>
-
-
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2588958"></a><h3><a name="cairo-pattern-set-matrix"></a>cairo_pattern_set_matrix ()</h3><a class="indexterm" name="id2588966"></a><pre class="programlisting">void        cairo_pattern_set_matrix        (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern,
-                                             const <a href="cairo-cairo-matrix-t.html#cairo-matrix-t">cairo_matrix_t</a> *matrix);</pre><p>
-Sets the pattern's transformation matrix to <em class="parameter"><code>matrix</code></em>. This matrix is
-a transformation from user space to pattern space.
-</p><p>
-When a pattern is first created it always has the identity matrix
-for its transformation matrix, which means that pattern space is
-initially identical to user space.
-</p><p>
-Important: Please note that the direction of this transformation
-matrix is from user space to pattern space. This means that if you
-imagine the flow from a pattern to user space (and on to device
-space), then coordinates in that flow will be transformed by the
-inverse of the pattern matrix.
-</p><p>
-For example, if you want to make a pattern appear twice as large as
-it does by default the correct code to use is:
-</p><p>
-</p><div class="informalexample"><pre class="programlisting">
-cairo_matrix_init_scale (&amp;matrix, 0.5, 0.5);
-cairo_pattern_set_matrix (pattern, &amp;matrix);
-</pre></div><p>
-</p><p>
-Meanwhile, using values of 2.0 rather than 0.5 in the code above
-would cause the pattern to appear at half of its default size.
-</p><p>
-Also, please note the discussion of the user-space locking
-semantics of <a href="cairo-cairo-t.html#cairo-set-source"><code class="function">cairo_set_source()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>pattern</code></em> :</span></td><td> a <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>matrix</code></em> :</span></td><td> a <a href="cairo-cairo-matrix-t.html#cairo-matrix-t"><span class="type">cairo_matrix_t</span></a>
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2589098"></a><h3><a name="cairo-pattern-get-matrix"></a>cairo_pattern_get_matrix ()</h3><a class="indexterm" name="id2589106"></a><pre class="programlisting">void        cairo_pattern_get_matrix        (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern,
-                                             <a href="cairo-cairo-matrix-t.html#cairo-matrix-t">cairo_matrix_t</a> *matrix);</pre><p>
-Stores the pattern's transformation matrix into <em class="parameter"><code>matrix</code></em>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>pattern</code></em> :</span></td><td> a <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>matrix</code></em> :</span></td><td> return value for the matrix
-</td></tr></tbody></table></div></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="cairo-Paths.html"><b>&lt;&lt; Paths</b></a></td><td align="right"><a accesskey="n" href="cairo-Transformations.html"><b>Transformations &gt;&gt;</b></a></td></tr></table></body></html>
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2577144"></a><h3>
+<a name="cairo-pattern-set-filter"></a>cairo_pattern_set_filter ()</h3>
+<a class="indexterm" name="id2577156"></a><pre class="programlisting">void        cairo_pattern_set_filter        (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern,
+                                             <a href="cairo-Patterns.html#cairo-filter-t">cairo_filter_t</a> filter);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2577187"></a><h3>
+<a name="cairo-pattern-get-filter"></a>cairo_pattern_get_filter ()</h3>
+<a class="indexterm" name="id2577198"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-filter-t">cairo_filter_t</a> cairo_pattern_get_filter     (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2577223"></a><h3>
+<a name="cairo-pattern-set-matrix"></a>cairo_pattern_set_matrix ()</h3>
+<a class="indexterm" name="id2577234"></a><pre class="programlisting">void        cairo_pattern_set_matrix        (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern,
+                                             const <a href="cairo-cairo-matrix-t.html#cairo-matrix-t">cairo_matrix_t</a> *matrix);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2577266"></a><h3>
+<a name="cairo-pattern-get-matrix"></a>cairo_pattern_get_matrix ()</h3>
+<a class="indexterm" name="id2563126"></a><pre class="programlisting">void        cairo_pattern_get_matrix        (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern,
+                                             <a href="cairo-cairo-matrix-t.html#cairo-matrix-t">cairo_matrix_t</a> *matrix);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2577290"></a><h3>
+<a name="cairo-pattern-type-t"></a>enum cairo_pattern_type_t</h3>
+<a class="indexterm" name="id2577302"></a><pre class="programlisting">typedef enum _cairo_pattern_type {
+    CAIRO_PATTERN_TYPE_SOLID,
+    CAIRO_PATTERN_TYPE_SURFACE,
+    CAIRO_PATTERN_TYPE_LINEAR,
+    CAIRO_PATTERN_TYPE_RADIAL
+} cairo_pattern_type_t;
+</pre>
+<p>Since  1.2
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2577321"></a><h3>
+<a name="cairo-pattern-get-type"></a>cairo_pattern_get_type ()</h3>
+<a class="indexterm" name="id2577333"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-type-t">cairo_pattern_type_t</a> cairo_pattern_get_type (<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern);</pre>
+<p>Since  1.2
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>

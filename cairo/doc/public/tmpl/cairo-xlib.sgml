@@ -14,50 +14,6 @@ X Window System rendering using XLib
 
 </para>
 
-<!-- ##### FUNCTION cairo_xlib_surface_create ##### -->
-<para>
-
-</para>
-
-@dpy: 
-@drawable: 
-@visual: 
-@width: 
-@height: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_xlib_surface_create_for_bitmap ##### -->
-<para>
-
-</para>
-
-@dpy: 
-@bitmap: 
-@screen: 
-@width: 
-@height: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_xlib_surface_set_size ##### -->
-<para>
-
-</para>
-
-@surface: 
-@width: 
-@height: 
-
-
-<!-- ##### FUNCTION cairo_xlib_surface_set_drawable ##### -->
-<para>
-
-</para>
-
-@surface: 
-@drawable: 
-@width: 
-@height: 
+<!-- ##### SECTION Stability_Level ##### -->
 
 

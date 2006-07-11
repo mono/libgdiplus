@@ -14,19 +14,166 @@
 
 
 
+<!-- ##### SECTION ./tmpl/cairo-atsui.sgml:Stability_Level ##### -->
+
+
+
 <!-- ##### SECTION ./tmpl/cairo-atsui.sgml:Title ##### -->
 ATSUI Fonts
 
 
-<!-- ##### SECTION Stability_Level ##### -->
-
-
-
-<!-- ##### FUNCTION cairo_font_options_hash ##### -->
+<!-- ##### SECTION ./tmpl/cairo-beos.sgml:Long_Description ##### -->
 <para>
 
 </para>
 
-@options: 
+
+<!-- ##### SECTION ./tmpl/cairo-beos.sgml:See_Also ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION ./tmpl/cairo-beos.sgml:Short_Description ##### -->
+BeOS surface support
+
+
+<!-- ##### SECTION ./tmpl/cairo-beos.sgml:Stability_Level ##### -->
+
+
+
+<!-- ##### SECTION ./tmpl/cairo-beos.sgml:Title ##### -->
+BeOS Surfaces
+
+
+<!-- ##### SECTION ./tmpl/cairo-glitz.sgml:Long_Description ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION ./tmpl/cairo-glitz.sgml:See_Also ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION ./tmpl/cairo-glitz.sgml:Short_Description ##### -->
+OpenGL accelerated rendering using the Glitz library
+
+
+<!-- ##### SECTION ./tmpl/cairo-glitz.sgml:Stability_Level ##### -->
+
+
+
+<!-- ##### SECTION ./tmpl/cairo-glitz.sgml:Title ##### -->
+Glitz Surfaces
+
+
+<!-- ##### SECTION ./tmpl/cairo-quartz.sgml:Long_Description ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION ./tmpl/cairo-quartz.sgml:See_Also ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION ./tmpl/cairo-quartz.sgml:Short_Description ##### -->
+Rendering to Quartz surfaces
+
+
+<!-- ##### SECTION ./tmpl/cairo-quartz.sgml:Stability_Level ##### -->
+
+
+
+<!-- ##### SECTION ./tmpl/cairo-quartz.sgml:Title ##### -->
+Quartz Surfaces
+
+
+<!-- ##### SECTION ./tmpl/cairo-xcb-xrender.sgml:Long_Description ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION ./tmpl/cairo-xcb-xrender.sgml:See_Also ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION ./tmpl/cairo-xcb-xrender.sgml:Short_Description ##### -->
+X Window System rendering using the XCB library
+
+
+<!-- ##### SECTION ./tmpl/cairo-xcb-xrender.sgml:Stability_Level ##### -->
+
+
+
+<!-- ##### SECTION ./tmpl/cairo-xcb-xrender.sgml:Title ##### -->
+XCB Surfaces
+
+
+<!-- ##### SECTION ./tmpl/cairo-xcb.sgml:Long_Description ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION ./tmpl/cairo-xcb.sgml:See_Also ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION ./tmpl/cairo-xcb.sgml:Short_Description ##### -->
+X Window System rendering using the XCB library
+
+
+<!-- ##### SECTION ./tmpl/cairo-xcb.sgml:Stability_Level ##### -->
+
+
+
+<!-- ##### SECTION ./tmpl/cairo-xcb.sgml:Title ##### -->
+XCB Surfaces
+
+
+<!-- ##### FUNCTION cairo_beos_surface_create ##### -->
+<para>
+
+</para>
+
+@view: 
 @Returns: 
+
+<!-- ##### FUNCTION cairo_beos_surface_create_for_bitmap ##### -->
+<para>
+
+</para>
+
+@view: 
+@bmp: 
+@Returns: 
+
+<!-- ##### MACRO cairo_pdf_surface_set_dpi ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### MACRO cairo_ps_surface_set_dpi ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### MACRO cairo_svg_surface_set_dpi ##### -->
+<para>
+
+</para>
+
 

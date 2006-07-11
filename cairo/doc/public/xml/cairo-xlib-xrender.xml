@@ -5,16 +5,19 @@
 ]>
 <refentry id="cairo-XLib/Xrender-Backend">
 <refmeta>
-<refentrytitle>XLib/Xrender Backend</refentrytitle>
+<refentrytitle id="top_of_page">XLib/Xrender Backend</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>XLib/Xrender Backend</refname><refpurpose></refpurpose>
+<refname>XLib/Xrender Backend</refname>
+<refpurpose></refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv><title>Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -38,17 +41,17 @@
 
 
 
-<refsect1>
-<title>Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1>
-<title>Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 <refsect2>
-<title><anchor id="cairo-xlib-surface-create-with-xrender-format"/>cairo_xlib_surface_create_with_xrender_format ()</title>
+<title><anchor id="cairo-xlib-surface-create-with-xrender-format" role="function"/>cairo_xlib_surface_create_with_xrender_format ()</title>
 <indexterm><primary>cairo_xlib_surface_create_with_xrender_format</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_xlib_surface_create_with_xrender_format
                                             (<link linkend="Display">Display</link> *dpy,
                                              <link linkend="Drawable">Drawable</link> drawable,
@@ -56,40 +59,7 @@
                                              <link linkend="XRenderPictFormat">XRenderPictFormat</link> *format,
                                              <link linkend="int">int</link> width,
                                              <link linkend="int">int</link> height);</programlisting>
-<para>
-Creates an Xlib surface that draws to the given drawable.
-The way that colors are represented in the drawable is specified
-by the provided picture format.
-</para>
-<para>
-NOTE: If <parameter>drawable</parameter> is a Window, then the function
-cairo_xlib_surface_set_size must be called whenever the size of the
-window changes.</para>
-<para>
-
-</para><variablelist role="params">
-<varlistentry><term><parameter>dpy</parameter>&nbsp;:</term>
-<listitem><simpara> an X Display
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>drawable</parameter>&nbsp;:</term>
-<listitem><simpara> an X Drawable, (a Pixmap or a Window)
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>screen</parameter>&nbsp;:</term>
-<listitem><simpara> the X Screen associated with <parameter>drawable</parameter>
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>format</parameter>&nbsp;:</term>
-<listitem><simpara> the picture format to use for drawing to <parameter>drawable</parameter>. The depth
-         of <parameter>format</parameter> must match the depth of the drawable.
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
-<listitem><simpara> the current width of <parameter>drawable</parameter>.
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
-<listitem><simpara> the current height of <parameter>drawable</parameter>.
-</simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the newly created surface
-</simpara></listitem></varlistentry>
-</variablelist></refsect2>
+</refsect2>
 
 </refsect1>
 

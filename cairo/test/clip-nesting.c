@@ -48,7 +48,7 @@ draw (cairo_t *cr, int width, int height)
     cr2 = cairo_create (target_surface);
 
     /* Draw a diagonal line and clip to it */
-    
+
     cairo_move_to (cr2, BORDER,                     BORDER);
     cairo_line_to (cr2, BORDER + LINE_WIDTH,        BORDER);
     cairo_line_to (cr2, SIZE - BORDER,              SIZE - BORDER);
@@ -86,7 +86,7 @@ draw (cairo_t *cr, int width, int height)
 		     BORDER,     BORDER,
 		     LINE_WIDTH, SIZE - 2 * BORDER);
     cairo_fill (cr);
-    
+
     return CAIRO_TEST_SUCCESS;
 
 }

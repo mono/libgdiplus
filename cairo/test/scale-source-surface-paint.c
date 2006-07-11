@@ -35,7 +35,7 @@ static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
     cairo_surface_t *surface;
-    uint32_t data[16] = {
+    static uint32_t data[16] = {
 	0xffffffff, 0xffffffff,		0xffff0000, 0xffff0000,
 	0xffffffff, 0xffffffff,		0xffff0000, 0xffff0000,
 
@@ -44,7 +44,7 @@ draw (cairo_t *cr, int width, int height)
     };
 
     surface = cairo_image_surface_create_for_data ((unsigned char *) data,
-					      CAIRO_FORMAT_ARGB32, 4, 4, 16);
+						   CAIRO_FORMAT_RGB24, 4, 4, 16);
 
     cairo_scale (cr, 2, 2);
 

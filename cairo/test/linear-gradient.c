@@ -47,9 +47,9 @@ static const double rotate_angles[] = { 0, 45, 90 };
 static const int n_stops[] = { 2, 3 };
 #define N_N_STOPS 2
 
-#define UNIT_SIZE 75
-#define UNIT_SIZE 75
-#define PAD 5
+#define UNIT_SIZE 6
+#define UNIT_SIZE 6
+#define PAD 1
 
 #define WIDTH  N_GRADIENT_ANGLES * UNIT_SIZE + (N_GRADIENT_ANGLES + 1) * PAD
 #define HEIGHT N_N_STOPS * N_ROTATE_ANGLES * UNIT_SIZE + (N_N_STOPS * N_ROTATE_ANGLES + 1) * PAD
@@ -71,15 +71,15 @@ draw_unit (cairo_t *cr,
     cairo_rectangle (cr, 0, 0, 1, 1);
     cairo_clip (cr);
     cairo_new_path(cr);
-    
+
     cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
     cairo_rectangle (cr, 0, 0, 1, 1);
     cairo_fill (cr);
-    
+
     cairo_translate (cr, 0.5, 0.5);
     cairo_scale (cr, 1 / 1.5, 1 / 1.5);
     cairo_rotate (cr, rotate_angle);
-    
+
     pattern = cairo_pattern_create_linear (-0.5 * cos (gradient_angle),  -0.5 * sin (gradient_angle),
  					    0.5 * cos (gradient_angle),   0.5 * sin (gradient_angle));
 
@@ -119,7 +119,7 @@ draw (cairo_t *cr, int width, int height)
 				 PAD + (PAD + UNIT_SIZE) * i,
 				 PAD + (PAD + UNIT_SIZE) * (N_ROTATE_ANGLES * k + j));
 		cairo_scale (cr, UNIT_SIZE, UNIT_SIZE);
-		
+
 		draw_unit (cr,
 			   gradient_angles[i] * M_PI / 180.,
 			   rotate_angles[j] * M_PI / 180.,

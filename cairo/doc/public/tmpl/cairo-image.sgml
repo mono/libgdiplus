@@ -17,6 +17,9 @@ Rendering to memory buffers
 
 </para>
 
+<!-- ##### SECTION Stability_Level ##### -->
+
+
 <!-- ##### ENUM cairo_format_t ##### -->
 <para>
 
@@ -26,46 +29,5 @@ Rendering to memory buffers
 @CAIRO_FORMAT_RGB24: 
 @CAIRO_FORMAT_A8: 
 @CAIRO_FORMAT_A1: 
-
-<!-- ##### FUNCTION cairo_image_surface_create ##### -->
-<para>
-
-</para>
-
-@format: 
-@width: 
-@height: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_image_surface_create_for_data ##### -->
-<para>
-
-</para>
-
-@data: 
-@format: 
-@width: 
-@height: 
-@stride: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_image_surface_get_width ##### -->
-<para>
-
-</para>
-
-@surface: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_image_surface_get_height ##### -->
-<para>
-
-</para>
-
-@surface: 
-@Returns: 
-
+@CAIRO_FORMAT_RGB16_565: 
 

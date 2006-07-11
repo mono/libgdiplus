@@ -1,6 +1,4 @@
 /*
- * $Id: fbedgeimp.h,v 1.2 2005-01-21 18:38:42 cworth Exp $
- *
  * Copyright © 2004 Keith Packard
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
@@ -36,14 +34,14 @@ rasterizeEdges (FbBits		*buf,
 {
     xFixed  y = t;
     FbBits  *line;
-    
+
     line = buf + xFixedToInt (y) * stride;
-    
+
     for (;;)
     {
 	xFixed	lx, rx;
 	int	lxi, rxi;
-	
+
 	/* clip X */
 	lx = l->x;
 	if (lx < 0)
@@ -51,7 +49,7 @@ rasterizeEdges (FbBits		*buf,
 	rx = r->x;
 	if (xFixedToInt (rx) >= width)
 	    rx = IntToxFixed (width);
-	
+
 	/* Skip empty (or backwards) sections */
 	if (rx > lx)
 	{

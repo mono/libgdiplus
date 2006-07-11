@@ -32,7 +32,7 @@ cairo_test_t test = {
 };
 
 typedef struct {
-    cairo_operator_t operator;
+    cairo_operator_t op;
     double tolerance;
     cairo_fill_rule_t fill_rule;
     double line_width;
@@ -69,7 +69,7 @@ settings_t settings[] = {
 static void
 settings_set (cairo_t *cr, settings_t *settings)
 {
-    cairo_set_operator (cr, settings->operator);
+    cairo_set_operator (cr, settings->op);
     cairo_set_tolerance (cr, settings->tolerance);
     cairo_set_fill_rule (cr, settings->fill_rule);
     cairo_set_line_width (cr, settings->line_width);
@@ -82,7 +82,7 @@ settings_set (cairo_t *cr, settings_t *settings)
 static void
 settings_get (cairo_t *cr, settings_t *settings)
 {
-    settings->operator = cairo_get_operator (cr);
+    settings->op = cairo_get_operator (cr);
     settings->tolerance = cairo_get_tolerance (cr);
     settings->fill_rule = cairo_get_fill_rule (cr);
     settings->line_width = cairo_get_line_width (cr);
@@ -95,7 +95,7 @@ settings_get (cairo_t *cr, settings_t *settings)
 static int
 settings_equal (settings_t *a, settings_t *b)
 {
-    return (a->operator == b->operator &&
+    return (a->op == b->op &&
 	    a->tolerance == b->tolerance &&
 	    a->fill_rule == b->fill_rule &&
 	    a->line_width == b->line_width &&
@@ -116,7 +116,7 @@ get_and_set (cairo_t *cr, int width, int height)
     settings_t check;
 
     settings_set (cr, &settings[0]);
-    
+
     cairo_save (cr);
     {
 	settings_set (cr, &settings[1]);

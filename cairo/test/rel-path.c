@@ -43,9 +43,9 @@ draw (cairo_t *cr, int width, int height)
 			SIZE/2, -SIZE/2,
 			SIZE*2/3, -SIZE/3,
 			SIZE/2, -SIZE);
-			
+
     cairo_stroke (cr);
-    
+
     return CAIRO_TEST_SUCCESS;
 }
 

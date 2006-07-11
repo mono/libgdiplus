@@ -14,17 +14,6 @@ XLib/Xrender Backend
 
 </para>
 
-<!-- ##### FUNCTION cairo_xlib_surface_create_with_xrender_format ##### -->
-<para>
-
-</para>
-
-@dpy: 
-@drawable: 
-@screen: 
-@format: 
-@width: 
-@height: 
-@Returns: 
+<!-- ##### SECTION Stability_Level ##### -->
 
 

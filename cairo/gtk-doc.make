@@ -41,7 +41,7 @@ SCANOBJ_FILES = 		 \
 CLEANFILES = $(SCANOBJ_FILES) $(DOC_MODULE)-unused.txt $(DOC_STAMPS)
 
 if ENABLE_GTK_DOC
-all-local: html-build.stamp
+doc: html-build.stamp
 
 #### scan ####
 
@@ -88,6 +88,8 @@ sgml.stamp: sgml-build.stamp
 
 #### html ####
 
+dist-hook install-data-local: html-build.stamp
+
 html-build.stamp: sgml.stamp $(DOC_MAIN_SGML_FILE) $(content_files)
 	@echo 'gtk-doc: Building HTML'
 	@-chmod -R u+w $(srcdir)
@@ -99,7 +101,9 @@ html-build.stamp: sgml.stamp $(DOC_MAIN_SGML_FILE) $(content_files)
 	cd $(srcdir) && gtkdoc-fixxref --module-dir=html --html-dir=$(HTML_DIR) $(FIXXREF_OPTIONS)
 	touch html-build.stamp
 else
-all-local:
+doc:
+	@echo "*** gtk-doc must be installed and enabled in order to make doc"
+	@false
 endif
 
 ##############

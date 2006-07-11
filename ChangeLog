@@ -1,3 +1,7 @@
+2006-07-11  Peter Dennis Bartok  <pbartok@novell.com>
+
+	* Updated to cairo 1.2
+
 2006-06-08  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* TODO: Updated status for GdipIsVisiblePathPoint[I] functions.

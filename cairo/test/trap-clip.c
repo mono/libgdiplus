@@ -81,7 +81,7 @@ draw_rects (cairo_t *cr, int x, int y)
 {
     int width = WIDTH / 3;
     int height = HEIGHT / 2;
-  
+
     cairo_new_path (cr);
     cairo_rectangle (cr, x, y, width, height);
     cairo_rectangle (cr, x + width, y + height, width, height);
@@ -122,7 +122,7 @@ static void
 clip_rects (cairo_t *cr, int x, int y)
 {
     int height = HEIGHT / 3;
-  
+
     cairo_new_path (cr);
     cairo_rectangle (cr, x, y, WIDTH, height);
     cairo_rectangle (cr, x, y + 2 * height, WIDTH, height);

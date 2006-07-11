@@ -44,7 +44,7 @@ static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
     cairo_surface_t *surface;
-    uint32_t data[STAMP_WIDTH * STAMP_HEIGHT] = {
+    static uint32_t data[STAMP_WIDTH * STAMP_HEIGHT] = {
 	0xffffffff, 0xffffffff,		0xffff0000, 0xffff0000,
 	0xffffffff, 0xffffffff,		0xffff0000, 0xffff0000,
 
@@ -62,7 +62,7 @@ draw (cairo_t *cr, int width, int height)
     cairo_stroke (cr);
 
     surface = cairo_image_surface_create_for_data ((unsigned char *) data,
-						   CAIRO_FORMAT_ARGB32,
+						   CAIRO_FORMAT_RGB24,
 						   STAMP_WIDTH,
 						   STAMP_HEIGHT,
 						   STAMP_WIDTH * 4);
@@ -89,7 +89,7 @@ draw (cairo_t *cr, int width, int height)
 				      PAD + j * (STAMP_HEIGHT + PAD) + j_step);
 	    cairo_pattern_set_filter (cairo_get_source (cr), CAIRO_FILTER_NEAREST);
 	    cairo_paint (cr);
-	
+
 	    cairo_restore (cr);
 	}
     }

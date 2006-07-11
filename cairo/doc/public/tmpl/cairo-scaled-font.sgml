@@ -14,48 +14,13 @@ Caching metrics for a particular font size
 
 </para>
 
+<!-- ##### SECTION Stability_Level ##### -->
+
+
 <!-- ##### TYPEDEF cairo_scaled_font_t ##### -->
 <para>
 
 </para>
-
-
-<!-- ##### FUNCTION cairo_scaled_font_create ##### -->
-<para>
-
-</para>
-
-@font_face: 
-@font_matrix: 
-@ctm: 
-@options: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_scaled_font_reference ##### -->
-<para>
-
-</para>
-
-@scaled_font: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_scaled_font_destroy ##### -->
-<para>
-
-</para>
-
-@scaled_font: 
-
-
-<!-- ##### FUNCTION cairo_scaled_font_status ##### -->
-<para>
-
-</para>
-
-@scaled_font: 
-@Returns: 
 
 
 <!-- ##### STRUCT cairo_font_extents_t ##### -->
@@ -69,17 +34,6 @@ Caching metrics for a particular font size
 @max_x_advance: 
 @max_y_advance: 
 
-<!-- ##### FUNCTION cairo_scaled_font_extents ##### -->
-<para>
-
-</para>
-
-@scaled_font: 
-@extents: 
-<!-- # Unused Parameters # -->
-@Returns: 
-
-
 <!-- ##### STRUCT cairo_text_extents_t ##### -->
 <para>
 
@@ -91,15 +45,4 @@ Caching metrics for a particular font size
 @height: 
 @x_advance: 
 @y_advance: 
-
-<!-- ##### FUNCTION cairo_scaled_font_glyph_extents ##### -->
-<para>
-
-</para>
-
-@scaled_font: 
-@glyphs: 
-@num_glyphs: 
-@extents: 
-
 

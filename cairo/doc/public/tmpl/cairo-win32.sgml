@@ -14,12 +14,6 @@ Microsoft Windows surface support
 
 </para>
 
-<!-- ##### FUNCTION cairo_win32_surface_create ##### -->
-<para>
-
-</para>
-
-@hdc: 
-@Returns: 
+<!-- ##### SECTION Stability_Level ##### -->
 
 

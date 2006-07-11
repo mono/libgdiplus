@@ -40,7 +40,7 @@ draw (cairo_t *cr, int width, int height)
 {
     cairo_pattern_t *pattern;
     cairo_matrix_t matrix;
-    
+
     /* Paint a diagonal division as a test image */
     cairo_set_source_rgb (cr, 1, 1, 1);	/* White */
     cairo_paint (cr);
@@ -56,10 +56,10 @@ draw (cairo_t *cr, int width, int height)
      * offset by SIZE/2
      */
     pattern = cairo_pattern_create_for_surface (cairo_get_target (cr));
-    
+
     cairo_matrix_init_translate (&matrix, - SIZE / 2, - SIZE / 2);
     cairo_pattern_set_matrix (pattern, &matrix);
-    
+
     cairo_set_source (cr, pattern);
     cairo_pattern_destroy (pattern);
 

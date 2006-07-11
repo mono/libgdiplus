@@ -1,13 +1,69 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Error handling</title><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="Cairo: A Vector Graphics Library"><link rel="up" href="Support.html" title="Utilities"><link rel="prev" href="cairo-cairo-matrix-t.html" title="cairo_matrix_t"><link rel="next" href="cairo-Version-Information.html" title="Version Information"><meta name="generator" content="GTK-Doc V1.3 (XML mode)"><link rel="stylesheet" href="style.css" type="text/css"><link rel="part" href="pt01.html" title="Part I. Tutorial"><link rel="part" href="pt02.html" title="Part II. Reference"><link rel="chapter" href="Drawing.html" title="Drawing"><link rel="chapter" href="Fonts.html" title="Fonts"><link rel="chapter" href="Surfaces.html" title="Surfaces"><link rel="chapter" href="Support.html" title="Utilities"><link rel="index" href="ix01.html" title="Index"><link rel="appendix" href="language-bindings.html" title="Appendix A. Creating a language binding for cairo"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="cairo-cairo-matrix-t.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="Support.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">Cairo: A Vector Graphics Library</th><td><a accesskey="n" href="cairo-Version-Information.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="cairo-Error-handling"></a><div class="titlepage"></div><div class="refnamediv"><table width="100%"><tr><td valign="top"><h2><span class="refentrytitle">Error handling</span></h2><p>Error handling &#8212; Decoding cairo's status</p></td><td valign="top" align="right"></td></tr></table></div><div class="refsynopsisdiv"><h2>Synopsis</h2><pre class="synopsis">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Error handling</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
+<link rel="up" href="Support.html" title="Utilities">
+<link rel="prev" href="cairo-cairo-matrix-t.html" title="cairo_matrix_t">
+<link rel="next" href="cairo-Version-Information.html" title="Version Information">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
+<link rel="chapter" href="Drawing.html" title="Drawing">
+<link rel="chapter" href="Fonts.html" title="Fonts">
+<link rel="chapter" href="Surfaces.html" title="Surfaces">
+<link rel="chapter" href="Support.html" title="Utilities">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="cairo-cairo-matrix-t.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="Support.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Cairo: A Vector Graphics Library</th>
+<td><a accesskey="n" href="cairo-Version-Information.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#top_of_page" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#desc" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="cairo-Error-handling"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="top_of_page"></a>Error handling</span></h2>
+<p>Error handling &#8212; Decoding cairo's status</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<a name="synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">
 
 
 
 enum        <a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a>;
 const char* <a href="cairo-Error-handling.html#cairo-status-to-string">cairo_status_to_string</a>          (<a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> status);
 void        <a href="cairo-Error-handling.html#cairo-debug-reset-static-data">cairo_debug_reset_static_data</a>   (void);
-</pre></div><div class="refsect1" lang="en"><a name="id2482908"></a><h2>Description</h2><p>
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="desc"></a><h2>Description</h2>
+<p>
 
-</p></div><div class="refsect1" lang="en"><a name="id2601216"></a><h2>Details</h2><div class="refsect2" lang="en"><a name="id2601222"></a><h3><a name="cairo-status-t"></a>enum cairo_status_t</h3><a class="indexterm" name="id2601230"></a><pre class="programlisting">typedef enum _cairo_status {
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="details"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2586964"></a><h3>
+<a name="cairo-status-t"></a>enum cairo_status_t</h3>
+<a class="indexterm" name="id2586976"></a><pre class="programlisting">typedef enum _cairo_status {
     CAIRO_STATUS_SUCCESS = 0,
     CAIRO_STATUS_NO_MEMORY,
     CAIRO_STATUS_INVALID_RESTORE,
@@ -27,56 +83,163 @@ void        <a href="cairo-Error-handling.html#cairo-debug-reset-static-data">ca
     CAIRO_STATUS_INVALID_FORMAT,
     CAIRO_STATUS_INVALID_VISUAL,
     CAIRO_STATUS_FILE_NOT_FOUND,
-    CAIRO_STATUS_INVALID_DASH
+    CAIRO_STATUS_INVALID_DASH,
+    CAIRO_STATUS_INVALID_DSC_COMMENT
 } cairo_status_t;
-</pre><p>
+</pre>
+<p>
 <a href="cairo-Error-handling.html#cairo-status-t"><span class="type">cairo_status_t</span></a> is used to indicate errors that can occur when
 using Cairo. In some cases it is returned directly by functions.
 but when using <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>, the last error, if any, is stored in
-the context and can be retrieved with <a href="cairo-cairo-t.html#cairo-status"><code class="function">cairo_status()</code></a>.</p><p>
+the context and can be retrieved with <a href="cairo-cairo-t.html#cairo-status"><code class="function">cairo_status()</code></a>.</p>
+<p>
 
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><code class="literal">CAIRO_STATUS_SUCCESS</code></span></td><td> no error has occurred
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_NO_MEMORY</code></span></td><td> out of memory
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_INVALID_RESTORE</code></span></td><td> cairo_restore without matching cairo_save
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_INVALID_POP_GROUP</code></span></td><td> no saved group to pop
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_NO_CURRENT_POINT</code></span></td><td> no current point defined
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_INVALID_MATRIX</code></span></td><td> invalid matrix (not invertible)
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_INVALID_STATUS</code></span></td><td> invalid value for an input cairo_status_t
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_NULL_POINTER</code></span></td><td> NULL pointer
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_INVALID_STRING</code></span></td><td> input string not valid UTF-8
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_INVALID_PATH_DATA</code></span></td><td> input path data not valid
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_READ_ERROR</code></span></td><td> error while reading from input stream
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_WRITE_ERROR</code></span></td><td> error while writing to output stream
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_SURFACE_FINISHED</code></span></td><td> target surface has been finished
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_SURFACE_TYPE_MISMATCH</code></span></td><td> the surface type is not appropriate for the operation
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_PATTERN_TYPE_MISMATCH</code></span></td><td> the pattern type is not appropriate for the operation
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_INVALID_CONTENT</code></span></td><td> invalid value for an input cairo_content_t
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_INVALID_FORMAT</code></span></td><td> invalid value for an input cairo_format_t
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_INVALID_VISUAL</code></span></td><td> invalid value for an input Visual*
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_FILE_NOT_FOUND</code></span></td><td> file not found
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_STATUS_INVALID_DASH</code></span></td><td> invalid value for a dash setting
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2603013"></a><h3><a name="cairo-status-to-string"></a>cairo_status_to_string ()</h3><a class="indexterm" name="id2603022"></a><pre class="programlisting">const char* cairo_status_to_string          (<a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> status);</pre><p>
-Provides a human-readable description of a <a href="cairo-Error-handling.html#cairo-status-t"><span class="type">cairo_status_t</span></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>status</code></em> :</span></td><td> a cairo status
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td>a string representation of the status
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2603089"></a><h3><a name="cairo-debug-reset-static-data"></a>cairo_debug_reset_static_data ()</h3><a class="indexterm" name="id2603099"></a><pre class="programlisting">void        cairo_debug_reset_static_data   (void);</pre><p>
-Resets all static data within cairo to its original state,
-(ie. identical to the state at the time of program invocation). For
-example, all caches within cairo will be flushed empty.
-</p><p>
-This function is intended to be useful when using memory-checking
-tools such as valgrind. When valgrind's memcheck analyzes a
-cairo-using program without a call to cairo_debug_reset_static_data,
-it will report all data reachable via cairo's static objects as
-"still reachable". Calling cairo_debug_reset_static_data just prior
-to program termination will make it easier to get squeaky clean
-reports from valgrind.
-</p><p>
-WARNING: It is only safe to call this function when there are no
-active cairo objects remaining, (ie. the appropriate destroy
-functions have been called as necessary). If there are active cairo
-objects, this call is likely to cause a crash, (eg. an assertion
-failure due to a hash table being destroyed when non-empty).</p><p>
-
-</p></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="cairo-cairo-matrix-t.html"><b>&lt;&lt; cairo_matrix_t</b></a></td><td align="right"><a accesskey="n" href="cairo-Version-Information.html"><b>Version Information &gt;&gt;</b></a></td></tr></table></body></html>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-SUCCESS:CAPS"></a><code class="literal">CAIRO_STATUS_SUCCESS</code></span></td>
+<td> no error has occurred
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-NO-MEMORY:CAPS"></a><code class="literal">CAIRO_STATUS_NO_MEMORY</code></span></td>
+<td> out of memory
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-INVALID-RESTORE:CAPS"></a><code class="literal">CAIRO_STATUS_INVALID_RESTORE</code></span></td>
+<td> cairo_restore without matching cairo_save
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-INVALID-POP-GROUP:CAPS"></a><code class="literal">CAIRO_STATUS_INVALID_POP_GROUP</code></span></td>
+<td> no saved group to pop
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-NO-CURRENT-POINT:CAPS"></a><code class="literal">CAIRO_STATUS_NO_CURRENT_POINT</code></span></td>
+<td> no current point defined
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-INVALID-MATRIX:CAPS"></a><code class="literal">CAIRO_STATUS_INVALID_MATRIX</code></span></td>
+<td> invalid matrix (not invertible)
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-INVALID-STATUS:CAPS"></a><code class="literal">CAIRO_STATUS_INVALID_STATUS</code></span></td>
+<td> invalid value for an input cairo_status_t
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-NULL-POINTER:CAPS"></a><code class="literal">CAIRO_STATUS_NULL_POINTER</code></span></td>
+<td> NULL pointer
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-INVALID-STRING:CAPS"></a><code class="literal">CAIRO_STATUS_INVALID_STRING</code></span></td>
+<td> input string not valid UTF-8
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-INVALID-PATH-DATA:CAPS"></a><code class="literal">CAIRO_STATUS_INVALID_PATH_DATA</code></span></td>
+<td> input path data not valid
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-READ-ERROR:CAPS"></a><code class="literal">CAIRO_STATUS_READ_ERROR</code></span></td>
+<td> error while reading from input stream
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-WRITE-ERROR:CAPS"></a><code class="literal">CAIRO_STATUS_WRITE_ERROR</code></span></td>
+<td> error while writing to output stream
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-SURFACE-FINISHED:CAPS"></a><code class="literal">CAIRO_STATUS_SURFACE_FINISHED</code></span></td>
+<td> target surface has been finished
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-SURFACE-TYPE-MISMATCH:CAPS"></a><code class="literal">CAIRO_STATUS_SURFACE_TYPE_MISMATCH</code></span></td>
+<td> the surface type is not appropriate for the operation
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-PATTERN-TYPE-MISMATCH:CAPS"></a><code class="literal">CAIRO_STATUS_PATTERN_TYPE_MISMATCH</code></span></td>
+<td> the pattern type is not appropriate for the operation
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-INVALID-CONTENT:CAPS"></a><code class="literal">CAIRO_STATUS_INVALID_CONTENT</code></span></td>
+<td> invalid value for an input cairo_content_t
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-INVALID-FORMAT:CAPS"></a><code class="literal">CAIRO_STATUS_INVALID_FORMAT</code></span></td>
+<td> invalid value for an input cairo_format_t
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-INVALID-VISUAL:CAPS"></a><code class="literal">CAIRO_STATUS_INVALID_VISUAL</code></span></td>
+<td> invalid value for an input Visual*
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-FILE-NOT-FOUND:CAPS"></a><code class="literal">CAIRO_STATUS_FILE_NOT_FOUND</code></span></td>
+<td> file not found
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-INVALID-DASH:CAPS"></a><code class="literal">CAIRO_STATUS_INVALID_DASH</code></span></td>
+<td> invalid value for a dash setting
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-STATUS-INVALID-DSC-COMMENT:CAPS"></a><code class="literal">CAIRO_STATUS_INVALID_DSC_COMMENT</code></span></td>
+<td> invalid value for a DSC comment (Since 1.2)
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2590655"></a><h3>
+<a name="cairo-status-to-string"></a>cairo_status_to_string ()</h3>
+<a class="indexterm" name="id2590666"></a><pre class="programlisting">const char* cairo_status_to_string          (<a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> status);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2588346"></a><h3>
+<a name="cairo-debug-reset-static-data"></a>cairo_debug_reset_static_data ()</h3>
+<a class="indexterm" name="id2588360"></a><pre class="programlisting">void        cairo_debug_reset_static_data   (void);</pre>
+</div>
+</div>
+</div>
+</body>
+</html>

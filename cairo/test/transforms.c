@@ -51,6 +51,12 @@ draw_L_shape (cairo_t *cr)
 static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
+    /* We draw in the default black, so paint white first. */
+    cairo_save (cr);
+    cairo_set_source_rgb (cr, 1.0, 1.0, 1.0); /* white */
+    cairo_paint (cr);
+    cairo_restore (cr);
+
     cairo_translate (cr, 5, 5);
 
     draw_L_shape (cr);
@@ -88,7 +94,7 @@ draw (cairo_t *cr, int width, int height)
     cairo_restore (cr);
 
     cairo_translate (cr, 5, 10);
-    
+
     cairo_save (cr);
     {
 	cairo_matrix_t skew_x = {

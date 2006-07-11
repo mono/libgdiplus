@@ -45,10 +45,11 @@
 
 CAIRO_BEGIN_DECLS
 
-cairo_surface_t *
+cairo_public cairo_surface_t *
 cairo_quartz_surface_create (CGContextRef    context,
 			     int	     width,
-			     int	     height);
+			     int	     height,
+			     cairo_bool_t    y_grows_down);
 
 CAIRO_END_DECLS
 
@@ -57,4 +58,3 @@ CAIRO_END_DECLS
 #endif /* CAIRO_HAS_QUARTZ_SURFACE */
 
 #endif /* CAIRO_QUARTZ_H */
-

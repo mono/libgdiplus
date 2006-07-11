@@ -12,7 +12,7 @@
  * Richard Worth makes no representations about the suitability of this
  * software for any purpose.  It is provided "as is" without express
  * or implied warranty.
- * 
+ *
  * RICHARD WORTH DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
  * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN
  * NO EVENT SHALL RICHARD WORTH BE LIABLE FOR ANY SPECIAL, INDIRECT OR
@@ -36,7 +36,9 @@ buffer_diff (unsigned char *buf_a,
 	     unsigned char *buf_diff,
 	     int	    width,
 	     int	    height,
-	     int	    stride);
+	     int	    stride_a,
+	     int	    stride_b,
+	     int	    stride_diff);
 
 /* Returns number of pixels changed ignoring the alpha channel.
  * Also fills in a "diff" buffer intended to visually show where the
@@ -48,7 +50,9 @@ buffer_diff_noalpha (unsigned char *buf_a,
 		     unsigned char *buf_diff,
 		     int	    width,
 		     int	    height,
-		     int	    stride);
+		     int	    stride_a,
+		     int	    stride_b,
+		     int	    stride_diff);
 
 /* Returns number of pixels changed, (or -1 on error).
  * Also saves a "diff" image intended to visually show where the
@@ -57,6 +61,20 @@ buffer_diff_noalpha (unsigned char *buf_a,
 int
 image_diff (const char *filename_a,
 	    const char *filename_b,
-	    const char *filename_diff);
+	    const char *filename_diff,
+	    int		ax,
+	    int		ay,
+	    int		bx,
+	    int		by);
+
+/* Like image_diff, but blending the contents of b over white first. */
+int
+image_diff_flattened (const char *filename_a,
+		      const char *filename_b,
+		      const char *filename_diff,
+                      int         ax,
+                      int         ay,
+                      int         bx,
+                      int         by);
 
 #endif

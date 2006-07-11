@@ -1,4 +1,35 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>cairo_path_t</title><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="Cairo: A Vector Graphics Library"><link rel="up" href="language-bindings.html" title="Appendix A. Creating a language binding for cairo"><link rel="prev" href="bindings-fonts.html" title="Fonts"><meta name="generator" content="GTK-Doc V1.3 (XML mode)"><link rel="stylesheet" href="style.css" type="text/css"><link rel="part" href="pt01.html" title="Part I. Tutorial"><link rel="part" href="pt02.html" title="Part II. Reference"><link rel="chapter" href="Drawing.html" title="Drawing"><link rel="chapter" href="Fonts.html" title="Fonts"><link rel="chapter" href="Surfaces.html" title="Surfaces"><link rel="chapter" href="Support.html" title="Utilities"><link rel="index" href="ix01.html" title="Index"><link rel="appendix" href="language-bindings.html" title="Appendix A. Creating a language binding for cairo"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="bindings-fonts.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="language-bindings.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">Cairo: A Vector Graphics Library</th></tr></table><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="bindings-path"></a>cairo_path_t</h2></div></div></div><p>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>cairo_path_t</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
+<link rel="up" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
+<link rel="prev" href="bindings-fonts.html" title="Fonts">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
+<link rel="chapter" href="Drawing.html" title="Drawing">
+<link rel="chapter" href="Fonts.html" title="Fonts">
+<link rel="chapter" href="Surfaces.html" title="Surfaces">
+<link rel="chapter" href="Support.html" title="Utilities">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle">
+<td><a accesskey="p" href="bindings-fonts.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="language-bindings.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Cairo: A Vector Graphics Library</th>
+<td>&#160;</td>
+</tr></table>
+<div class="sect1" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="bindings-path"></a>cairo_path_t</h2></div></div></div>
+<p>
       The <a href="cairo-Paths.html#cairo-path-t"><span class="type">cairo_path_t</span></a> type is one
       area in which most language bindings will differ significantly
       from the C API. The C API for <span class="type">cairo_path_t</span> is
@@ -11,7 +42,8 @@
       how iterators work, so it is impossible to give an exact
       specification for how this API should work, but the type names
       and methods should be similar to the language's mapping of the following:
-    </p><pre class="programlisting">
+    </p>
+<pre class="programlisting">
 typedef struct cairo_path_iterator cairo_path_iterator_t;
 typedef struct cairo_path_element cairo_path_element_t;
 
@@ -32,13 +64,15 @@ cairo_path_element_get_point (cairo_path_element_t *element,
                               int                   index,
                               double                *x,
                               double                *y);
-    </pre><p>
+    </pre>
+<p>
       The above is written using the Java conventions for
       iterators. To illustrate how the API for PathIterator might
       depend on the native iteration conventions of the API, examine
       three versions of the loop, first written in a hypothetical Java
       binding:
-    </p><pre class="programlisting">
+    </p>
+<pre class="programlisting">
 PathIterator iter = cr.copyPath().iterator();
 while (cr.hasNext()) {
     PathElement element = iter.next();
@@ -46,9 +80,11 @@ while (cr.hasNext()) {
         Point p = element.getPoint(0);
         doMoveTo (p.x, p.y);
     }
-}</pre><p>
+}</pre>
+<p>
       And then in a hypothetical C++ binding:
-    </p><pre class="programlisting">
+    </p>
+<pre class="programlisting">
 Path path = cr.copyPath();
 for (PathIterator iter = path.begin(); iter != path.end(); iter++) {
     PathElement element = *iter;
@@ -56,18 +92,22 @@ for (PathIterator iter = path.begin(); iter != path.end(); iter++) {
         Point p = element.getPoint(0);
         doMoveTo (p.x, p.y);
     }
-}</pre><p>
+}</pre>
+<p>
       And then finally in a Python binding:
-    </p><pre class="programlisting">
+    </p>
+<pre class="programlisting">
 for element in cr.copy_path():
     if element.getType == cairo.PATH_ELEMENT_MOVE_TO:
         (x, y) = element.getPoint(0)
-        doMoveTo (x, y);</pre><p>
+        doMoveTo (x, y);</pre>
+<p>
       While many of the API elements stay the same in the three
       examples, the exact iteration mechanism is quite different, to
       match how users of the language would expect to iterate over
       a container.
-    </p><p>
+    </p>
+<p>
       You should not present an API for mutating or for creating new
       <span class="type">cairo_path_t</span> objects. In the future, these
       guidelines may be extended to present an API for creating a
@@ -76,4 +116,7 @@ for element in cr.copy_path():
       but the current expectation is that <code class="function">cairo_append_path()</code> will
       mostly be used with paths from
       <a href="cairo-Paths.html#cairo-append-path"><code class="function">cairo_copy_path()</code></a>.
-    </p></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="bindings-fonts.html"><b>&lt;&lt; Fonts</b></a></td><td align="right"></td></tr></table></body></html>
+    </p>
+</div>
+</body>
+</html>

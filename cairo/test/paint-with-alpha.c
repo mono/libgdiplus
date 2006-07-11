@@ -1,5 +1,6 @@
 /*
  * Copyright © 2005 Red Hat, Inc.
+ * Copyright © 2006 Red Hat, Inc.
  *
  * Permission to use, copy, modify, distribute, and sell this software
  * and its documentation for any purpose is hereby granted without
@@ -28,14 +29,14 @@
 cairo_test_t test = {
     "paint-with-alpha",
     "Simple test of cairo_paint_with_alpha",
-    12, 12
+    32, 32
 };
 
 static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
     cairo_surface_t *surface;
-    uint32_t data[16] = {
+    static uint32_t data[16] = {
 	0xffffffff, 0xffffffff,		0xffff0000, 0xffff0000,
 	0xffffffff, 0xffffffff,		0xffff0000, 0xffff0000,
 
@@ -44,11 +45,13 @@ draw (cairo_t *cr, int width, int height)
     };
 
     surface = cairo_image_surface_create_for_data ((unsigned char *) data,
-					      CAIRO_FORMAT_ARGB32, 4, 4, 16);
+						   CAIRO_FORMAT_RGB24, 4, 4, 16);
 
-    cairo_scale (cr, 2, 2);
+    cairo_test_paint_checkered (cr);
 
-    cairo_set_source_surface (cr, surface, 1 , 1);
+    cairo_scale (cr, 4, 4);
+
+    cairo_set_source_surface (cr, surface, 2 , 2);
     cairo_pattern_set_filter (cairo_get_source (cr), CAIRO_FILTER_NEAREST);
     cairo_paint_with_alpha (cr, 0.5);
 

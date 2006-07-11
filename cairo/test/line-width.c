@@ -41,6 +41,10 @@ draw (cairo_t *cr, int width, int height)
 {
     int i;
 
+    /* We draw in black, so paint white first. */
+    cairo_set_source_rgb (cr, 1.0, 1.0, 1.0); /* white */
+    cairo_paint (cr);
+
     cairo_set_source_rgb (cr, 0, 0, 0);
     cairo_translate (cr, 2, 2);
 

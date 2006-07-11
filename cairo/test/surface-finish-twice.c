@@ -73,4 +73,3 @@ main (void)
 {
     return cairo_test (&test, draw);
 }
-

@@ -1,11 +1,44 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Streams and File I/O</title><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="Cairo: A Vector Graphics Library"><link rel="up" href="language-bindings.html" title="Appendix A. Creating a language binding for cairo"><link rel="prev" href="bindings-overloading.html" title="Overloading and optional arguments"><link rel="next" href="bindings-errors.html" title="Error handling"><meta name="generator" content="GTK-Doc V1.3 (XML mode)"><link rel="stylesheet" href="style.css" type="text/css"><link rel="part" href="pt01.html" title="Part I. Tutorial"><link rel="part" href="pt02.html" title="Part II. Reference"><link rel="chapter" href="Drawing.html" title="Drawing"><link rel="chapter" href="Fonts.html" title="Fonts"><link rel="chapter" href="Surfaces.html" title="Surfaces"><link rel="chapter" href="Support.html" title="Utilities"><link rel="index" href="ix01.html" title="Index"><link rel="appendix" href="language-bindings.html" title="Appendix A. Creating a language binding for cairo"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="bindings-overloading.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="language-bindings.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">Cairo: A Vector Graphics Library</th><td><a accesskey="n" href="bindings-errors.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="bindings-streams"></a>Streams and File I/O</h2></div></div></div><p>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Streams and File I/O</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
+<link rel="up" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
+<link rel="prev" href="bindings-overloading.html" title="Overloading and optional arguments">
+<link rel="next" href="bindings-errors.html" title="Error handling">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
+<link rel="chapter" href="Drawing.html" title="Drawing">
+<link rel="chapter" href="Fonts.html" title="Fonts">
+<link rel="chapter" href="Surfaces.html" title="Surfaces">
+<link rel="chapter" href="Support.html" title="Utilities">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle">
+<td><a accesskey="p" href="bindings-overloading.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="language-bindings.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Cairo: A Vector Graphics Library</th>
+<td><a accesskey="n" href="bindings-errors.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="sect1" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="bindings-streams"></a>Streams and File I/O</h2></div></div></div>
+<p>
       Various places in the cairo API deal with reading and writing
       data, whether from and to files, or to other sources and
       destinations. In these cases, what is typically provided in the
       C API is a simple version that just takes a filename, and a
       complex version that takes a callback function.
       An example is the PNG handling functions:
-    </p><pre class="programlisting">
+    </p>
+<pre class="programlisting">
 cairo_surface_t *
 cairo_image_surface_create_from_png (const char	*filename);
 
@@ -20,18 +53,21 @@ cairo_surface_write_to_png (cairo_surface_t	*surface,
 cairo_status_t
 cairo_surface_write_to_png_stream (cairo_surface_t	*surface,
 				   cairo_write_func_t	write_func,
-				   void			*closure);</pre><p>
+				   void			*closure);</pre>
+<p>
       The expectation is that the filename version will be mapped
       literally in the language binding, but the callback version
       will be mapped to a version that takes a language stream
       object. For example, in Java, the four functions above
       might be mapped to:
-    </p><pre class="programlisting">
+    </p>
+<pre class="programlisting">
 static public ImageSurface createFromPNG (String filename) throws IOException;
 static public ImageSurface createFromPNG (InputStream stream) throws IOException;
 public void writeToPNG (String filename) throws IOException;
 public void writeToPNG (OutputStream stream) throws IOException;
-</pre><p>
+</pre>
+<p>
       In many cases, it will be better to
       implement the filename version internally
       using the stream version, rather than building it on top of the
@@ -47,11 +83,15 @@ public void writeToPNG (OutputStream stream) throws IOException;
       store the exception object inside a structure pointed to by
       <em class="parameter"><code>closure</code></em>, and then rethrow it once
       the function returns.
-    </p><p class="remark"><i><span class="remark">
+    </p>
+<p class="remark"><i><span class="remark">
       I'm not sure how to handle this for
       <code class="function">cairo_pdf_surface_create_for_callback()</code>.
       Other than keep a &#8220;exception to rethrow&#8221; thread-specific
       variable
       that is checked after <span class="emphasis"><em>every</em></span> call to a Cairo
       function.
-    </span></i></p></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="bindings-overloading.html"><b>&lt;&lt; Overloading and optional arguments</b></a></td><td align="right"><a accesskey="n" href="bindings-errors.html"><b>Error handling &gt;&gt;</b></a></td></tr></table></body></html>
+    </span></i></p>
+</div>
+</body>
+</html>

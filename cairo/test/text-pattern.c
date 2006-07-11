@@ -25,8 +25,8 @@
 
 #include "cairo-test.h"
 
-#define IMAGE_WIDTH 100
-#define IMAGE_HEIGHT 100
+#define IMAGE_WIDTH 64
+#define IMAGE_HEIGHT 64
 
 cairo_test_t test = {
     "text-pattern",
@@ -41,17 +41,17 @@ draw (cairo_t *cr, int width, int height)
   cairo_pattern_t *pat;
 
   font_options = cairo_font_options_create ();
-  
+
   cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_NONE);
   cairo_font_options_set_antialias (font_options, CAIRO_ANTIALIAS_GRAY);
-  
+
   cairo_set_font_options (cr, font_options);
   cairo_font_options_destroy (font_options);
-  
+
   cairo_select_font_face (cr, "Bitstream Vera Sans",
 			  CAIRO_FONT_SLANT_NORMAL,
 			  CAIRO_FONT_WEIGHT_NORMAL);
-  
+
   cairo_scale (cr, width, height);
 
   pat = cairo_pattern_create_linear (0.0, 0.0, 1, 1);
@@ -62,7 +62,7 @@ draw (cairo_t *cr, int width, int height)
   /* test rectangle - make sure the gradient is set correctly */
   cairo_rectangle (cr, 0, 0, 0.1, 1);
   cairo_fill (cr);
-  
+
   cairo_set_font_size (cr, 0.4);
   cairo_move_to (cr, 0.1, 0.6);
   cairo_show_text (cr, "cairo");

@@ -30,7 +30,7 @@
 
 cairo_test_t test = {
     "fill-and-stroke",
-    "Tests calls to various set_source functions",
+    "Tests using cairo_fill_preserve/cairo_stroke to fill/stroke the same path",
     2 * SIZE + 4 * PAD, SIZE + 2 * PAD
 };
 
@@ -52,7 +52,7 @@ draw (cairo_t *cr, int width, int height)
     cairo_fill_preserve (cr);
     cairo_set_source_rgb (cr, 0, 0, 1);
     cairo_stroke (cr);
-    
+
     return CAIRO_TEST_SUCCESS;
 }
 

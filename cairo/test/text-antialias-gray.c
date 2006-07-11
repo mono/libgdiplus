@@ -26,7 +26,7 @@
 #include "cairo-test.h"
 
 #define WIDTH  31
-#define HEIGHT 20
+#define HEIGHT 22
 #define TEXT_SIZE 12
 
 cairo_test_t test = {
@@ -41,6 +41,12 @@ draw (cairo_t *cr, int width, int height)
     cairo_text_extents_t extents;
     cairo_font_options_t *font_options;
     static char black[] = "black", blue[] = "blue";
+
+    /* We draw in the default black, so paint white first. */
+    cairo_save (cr);
+    cairo_set_source_rgb (cr, 1.0, 1.0, 1.0); /* white */
+    cairo_paint (cr);
+    cairo_restore (cr);
 
     cairo_select_font_face (cr, "Bitstream Vera Sans",
 			    CAIRO_FONT_SLANT_NORMAL,

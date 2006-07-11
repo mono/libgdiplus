@@ -95,6 +95,12 @@ draw (cairo_t *cr, int width, int height)
 {
     cairo_path_t *path;
 
+    /* We draw in the default black, so paint white first. */
+    cairo_save (cr);
+    cairo_set_source_rgb (cr, 1.0, 1.0, 1.0); /* white */
+    cairo_paint (cr);
+    cairo_restore (cr);
+
     /* copy path, munge, and fill */
     cairo_translate (cr, 5, 5);
     make_path (cr);

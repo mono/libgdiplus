@@ -63,7 +63,7 @@ main (void)
     assert (cairo_surface_set_user_data (surface, &key2, NULL, NULL)
 	    == CAIRO_STATUS_SUCCESS);
     assert (data2 == 2);
-    
+
     data1 = 0;
     assert (cairo_surface_set_user_data (surface, &key1, &data1, NULL)
 	    == CAIRO_STATUS_SUCCESS);

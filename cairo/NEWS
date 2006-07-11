@@ -1,13 +1,464 @@
-Release 1.0.4 (2006-03-15 Behdad Esfahbod <behdad@behdad.org>)
-==============================================================
-This is a bug fix release.  Many fixes in this release are
-backported from the head branch and do not have bug numbers.
-For the bugs in bugzilla that are fixed in this release, see:
+Release 1.2.0 (2006-06-27 Carl Worth <cworth@cworth.org>)
+=========================================================
+This is the culmination of the work that has gone on within the 1.1
+branch of cairo.
 
-	https://bugs.freedesktop.org/buglist.cgi?bug_id=4674,4823,5528,5734,6176,6196,6197
+There has been one API addition since the cairo 1.1.10 snapshot:
 
-This includes the bug causing Pango crashes with some corrupt
-fonts.  For a list of all changes, see ChangeLog.
+	cairo_xlib_surface_get_width
+	cairo_xlib_surface_get_height
+
+There's also a new feature without any API change:
+
+	Dots can now be drawn by using CAIRO_LINE_CAP_ROUND with
+	degenerate sub-paths, (cairo_move_to() followed by either
+	cairo_close_path() or a cairo_line_to() to the same location).
+
+And at least the following bugs have been fixed:
+
+ 6759  fontconfig option AntiAlias doesn't work in cairo 1.1.2
+ 6955  Some characters aren't displayed when using xlib (cache u...
+ 7268  positive device_offset values don't work as source
+ * PDF emit_glyph function needs to support bitmapped glyphs
+ * PS emit_glyph function needs to support bitmapped glyphs
+ * SVG emit_glyph function needs to support bitmapped glyphs
+ * PDF: minefield page one is falling back unnecessarily
+ * PS/PDF: Fix broken placement for vertical glyphs
+ * PS: Fix to not draw BUTT-capped zero-length dash segments
+ * Do device offset before float->fixed conversion
+   http://bugzilla.gnome.org/show_bug.cgi?id=332266
+ * PS: Fix source surfaces with transformations
+ * PS: Fix to not draw BUTT-capped degnerate sub-paths
+ * PS: Don't walk off end of array when printing "~>"
+ * Fix some memory leaks in the test suite rig
+ * SVG: Fix memory leak when using cairo_mask
+ * Fix EXTEND_REFLECT and EXTEND_PAD to not crash (though these are
+   still not yet fully implemented for surface patterns).
+
+This has been a tremendous effort by everyone, and I'm proud to have
+been a part of it. Congratulations to all contributors to cairo!
+
+Snapshot 1.1.10 (2006-06-16 Carl Worth <cworth@cworth.org>)
+===========================================================
+This is the fifth in a series of snapshots working toward the 1.2
+release of cairo.
+
+The primary motivation for this snapshot is to fix a long-standing bug
+that had long been silent, but as of the 1.1.8 snapshot started
+causing crashes when run against 16-bit depth X servers, (often Xvnc
+or Xnest). The fix for this adds a new CAIRO_FORMAT_RGB16_565 to the
+API.
+
+This snapshot also includes a rewrite of cairo's SVG backend to
+eliminate the dependency on libxml2. With this in place, cairo 1.2
+will not depend on any libraries that cairo 1.0 did not.
+
+As usual, there are also a few fixes for minor bugs.
+
+Snapshot 1.1.8 (2006-06-14 Carl Worth <cworth@cworth.org>)
+==========================================================
+This is the fourth in a series of snapshots working toward the 1.2
+release of cairo. At this point, all major features of the 1.2 release
+are in place, leaving just a few bug fixes left.
+
+In particular, there well be no additional API changes between this
+1.1.8 snapshot and the 1.2 release.
+
+The announcement for 1.1.6 mentioned several API changes being
+considered. Only one of these changes was actually implemented
+(set_dpi -> fallback_resolution). This change does introduce one
+source-level incompatibility with respect to previous 1.1.x snapshots,
+so see below for details.
+
+Here is an abbreviated summary of changes since the 1.1.6 snapshot:
+
+** API Change **
+----------------
+According to the plan mentioned in the 1.1.6 notes, one source-level
+incompatible change has been implemented. The following three
+functions have been removed from cairo's API:
+
+	cairo_pdf_surface_set_dpi
+	cairo_ps_surface_set_dpi
+	cairo_svg_surface_set_dpi
+
+and in their place the following function has been added:
+
+	cairo_surface_set_fallback_resolution
+
+The signature and semantics of the function remains the same, so it is
+a simple matter of changing the name of the function when calling
+it. As a transition mechanism, this snapshot will (on many systems)
+build to include the old symbols so that code previously compiled will
+still run. However, all source code using the old names must be
+updated before it will compile. And the upcoming 1.2 release is not
+anticipated to include the old symbols.
+
+Finally, it should be pointed out that the old symbols never existed
+in the supported API of any stable release of cairo. (In the stable
+1.0 releases the PDF, PS, and SVG backends were advertised as
+experimental and unstable.)
+
+And, as always, cairo continues to maintain source and binary
+compatibility between major releases. So applications compiled against
+supported backends in a stable release of cairo (1.0.4 say) will
+continue to compile and run without modification against new major
+releases (1.2.0 say) without modification.
+
+API additions
+-------------
+The following new functions have been added to cairo's API:
+
+	cairo_surface_get_content
+	cairo_debug_reset_static_data
+	cairo_image_surface_get_data
+	cairo_image_surface_get_format
+	cairo_image_surface_get_stride
+	cairo_win32_font_face_create_for_hfont
+
+New, backend-specific pkg-config files
+--------------------------------------
+In addition to the original cairo.pc file, cairo will also now install
+a pkg-config files for each configured backend, (for example
+cairo-pdf.pc, cairo-svg.pc, cairo-xlib.pc, cairo-win32.pc, etc.) this
+also includes optional font backends (such as cairo-ft.pc) and the
+optional png functionality (cairo-png.pc).
+
+These new pkg-config files should be very convenient for allowing
+cairo-using code to easily check for the existing of optional
+functionality in cairo without having to write complex rules to grub
+through cairo header files or the compiled library looking for
+symbols.
+
+Printing backend (PS, PDF, and SVG)
+-----------------------------------
+Improving the quality of the "printing" backends has been a priority
+of the development between cairo 1.1.6 and cairo 1.1.8.
+
+The big improvement here is in the area of text output. Previously, at
+best, text was output as paths without taking advantage of any font
+support available in the output file format.
+
+Now, at the minimum text paths will be shared by using type3 fonts
+(for PS and PDF---and similarly, defs for SVG). Also, if possible,
+type3 and truetype fonts will be embedded in PostScript and PDF
+output. There are still some known bugs with this, (for example,
+selecting text in a cairo-generated PDF file with an embedded truetype
+font does not work). So there will be some more changes in this area
+before cairo 1.2, but do try test this feature out as it exists so
+far.
+
+Many thanks to Kristian Høgsberg for the truetype and type1 font
+embedding.
+
+win32 backend
+-------------
+Performance improvements by preferring GDI over pixman rendering when possible.
+Fixes for text rendering.
+
+xlib backend
+------------
+Fix potentially big performance bug by making xlib's create_similar
+try harder to create a pixmap of a depth matching that of the screen.
+
+Bug fixes
+---------
+Among various other fixes, the following bugs listed in bugzilla have
+been fixed:
+
+    Bug 2488: Patch to fix pixman samping location bug (#2488).
+    https://bugs.freedesktop.org/show_bug.cgi?id=2488
+
+    Bug 4196: undef MIN an MAX before defining to avoid duplicate definition
+    https://bugs.freedesktop.org/show_bug.cgi?id=4196
+
+    Bug 4723: configure.in: Fix m4 quoting when examining pkg-config version
+    https://bugs.freedesktop.org/show_bug.cgi?id=4723
+
+    Bug 4882: Flag Sun's X server has having buggy_repeat.
+    https://bugs.freedesktop.org/show_bug.cgi?id=4882
+
+    Bug 5306: test/pdf2png: Add missing include of stdio.h
+    https://bugs.freedesktop.org/show_bug.cgi?id=5306
+
+    Bug 7075: Fix make clean to remove cairo.def
+    https://bugs.freedesktop.org/show_bug.cgi?id=7075
+
+(Many thanks to Behdad Esfahbod for helping us track down and fix many
+of these.)
+
+Snapshot 1.1.6 (2006-05-04 Carl Worth <cworth@cworth.org>)
+==========================================================
+This is the third in a series of snapshots working toward the imminent
+1.2 release of cairo. For a list of items still needing work on the
+cairo 1.2 roadmap, please see:
+
+	http://cairographics.org/ROADMAP
+
+As can be seen in that list, there are no longer any API additions
+left on the roadmap. Instead, there is a feature (PDF type 3 fonts) a
+performance optimization (X server gradients) and a list of bug
+fixes. This gives us a fair amount of freedom to cut the 1.2 release
+at almost any point by deciding to defer remaining bug fixes to
+subsequent maintenance releases such as 1.2.2 and 1.2.4.
+
+Before we will do that, we must first be wiling to commit to all the
+new API additions. As a heads-up, there are a couple of potential API
+changes being considered. (Note that these are changes to new API
+introduced during 1.1 so these will not introduce API
+incompatibilities compared to the stable 1.0 series). The changes
+being considered are:
+
+  cairo_get_group_target: may acquire x and y offset return
+	parameters. May also be eliminated in favor of
+	cairo_get_target assuming its role
+
+  cairo_pdf_surface_set_dpi:
+  cairo_ps_surface_set_dpi:
+  cairo_svg_surface_set_dpi: These functions may be removed in favor
+	of a new cairo_surface_set_fallback_resolution
+
+Additionally there is the possibility of a slight change in the
+semantics of cairo_set_line_width. We believe the current behavior of the sequence:
+
+	cairo_set_line_width; ... change CTM ...; cairo_stroke;
+
+is buggy. It is currently behaving the same as:
+
+	... change CTM ...; cairo_set_line_width; cairo_stroke;
+
+We are considering fixing this bug before 1.2 with the hope that
+nobody is already relying on the buggy behavior described here. Do
+shout if you suspect you might be in that position.
+
+The items included in this snapshot (since the 1.1.4 snapshot) are
+described below.
+
+API additions
+-------------
+The long-awaited group-rendering support is now available with the
+following function calls:
+
+	cairo_push_group
+	cairo_push_group_with_content
+	cairo_pop_group
+	cairo_pop_group_to_source
+	cairo_get_group_target
+
+This API provides a much more convenient mechanism for doing rendering
+to an intermediate surface without the need to manually create a
+temporary cairo_surface_t and a temporary cairo_t and clean them up
+afterwards.
+
+Add the following missing get function to complement
+cairo_surface_set_device_offset:
+
+	cairo_surface_get_device_offset
+
+PDF backend (API addition)
+--------------------------
+The PDF backend now provides for per-page size changes, (similar to
+what the PostScript backend got in the 1.1.4 snapshot). The new API
+is:
+
+	cairo_pdf_surface_set_size
+
+Xlib backend (API additions)
+----------------------------
+The following functions have been added to allow the extraction of
+Xlib surface:
+
+	cairo_xlib_surface_get_display
+	cairo_xlib_surface_get_drawable
+	cairo_xlib_surface_get_screen
+	cairo_xlib_surface_get_visual
+	cairo_xlib_surface_get_depth
+
+XCB backend (experimental)
+--------------------------
+Update backend so that it now compiles with the recent XCB 0.9 release.
+
+Bug fixes and memory leak cleanup
+---------------------------------
+Various little things, nothing too significant though.
+
+Snapshot 1.1.4 (2006-05-03 Carl Worth <cworth@cworth.org>)
+==========================================================
+This is the second in a series of snapshots working toward the
+upcoming 1.2 release of cairo. For a list of items still needing work
+on the cairo 1.2 roadmap, please see:
+
+	http://cairographics.org/ROADMAP
+
+The items included in this snapshot (since the 1.1.2 snapshot) are
+described below.
+
+PostScript backend: new printing-oriented API
+---------------------------------------------
+We anticipate that with cairo 1.2, toolkits will begin to use cairo
+for printing on systems that use PostScript as the spool format. To
+support this use case, we have added 4 new function calls that are
+specific to the PostScript backend:
+
+	cairo_ps_surface_set_size
+        cairo_ps_surface_dsc_comment
+        cairo_ps_surface_dsc_begin_setup
+        cairo_ps_surface_dsc_begin_page_setup
+
+These functions allow variation of the page size/orientation from one
+page to the next in the PostScript output. They also allow the toolkit
+to provide per-document and per-page printer control options in a
+device-independent way, (for example, by using PPD options and
+emitting them as DSC comments into the PostScript output). This should
+allow toolkits to provide very fine-grained control of many options
+available in printers, (media size, media type, tray selection, etc.).
+
+SVG backend: builds by default, version control
+-----------------------------------------------
+The SVG backend continues to see major improvements. It is expected
+that the SVG backend will be a supported backend in the 1.2
+release. This backend will now be built by default if its dependencies
+(freetype and libxml2) are met.
+
+Additionally, the SVG backend now has flexibility with regard to what
+version of SVG it targets. It will target SVG 1.1 by default, which
+will require image fallbacks for some of the "fancier" cairo
+compositing operators. Or with the following new function calls:
+
+	cairo_svg_surface_restrict_to_version
+	cairo_svg_get_versions
+	cairo_svg_version_to_string
+
+it can be made to target SVG 1.2 in which there is native support for
+these compositing operators.
+
+Bug fixes
+---------
+At least the following bugs have been fixed since the 1.1.2 snapshot:
+
+crash at XRenderAddGlyphs
+https://bugs.freedesktop.org/show_bug.cgi?id=4705
+
+Can't build cairo-1.1.2 on opensolaris due to " void function cannot return value"
+https://bugs.freedesktop.org/show_bug.cgi?id=6792
+
+Missing out-of-memory check at gfx/cairo/cairo/src/cairo-atsui-font.c:185
+https://bugzilla.mozilla.org/show_bug.cgi?id=336129
+
+A couple of memory leaks.
+
+Snapshot 1.1.2 (2006-04-25 Carl Worth <cworth@cworth.org>)
+==========================================================
+This is the first in a series of snapshots working toward the upcoming
+1.2 release of cairo. (Subsequent snapshot will use successive even
+numbers for the third digit, 1.1.4, 1.1.6, etc.) This snapshot is
+backwards-compatible with the 1.0 series---it makes a few API
+additions but does not remove any API.
+
+PostScript and PDF backends are no longer "experimental"
+--------------------------------------------------------
+The major theme of the 1.2 release is improved PostScript and PDF
+backends for cairo. Unlike the 1.0 series, in the 1.2 series these
+backends will not be marked as experimental and will be enabled by
+default. We encourage people to test this snapshot and the PS/PDF
+backends in particular as much as possible.
+
+The PostScript and PDF output is not yet ideal.
+
+ * One major problem with the PostScript output is that image
+   fallbacks are used more often than strictly necessary, and the
+   image fallbacks are at a lower resolution than desired, (the
+   cairo_ps_surface_set_dpi call is ignored).
+
+  * The major drawback of the current PDF backend implementation is
+    its text support. Every glyph is represented by a filled path in
+    the PDF file. The causes file sizes to be much larger and
+    rendering to be much slower than desired.
+
+It is anticipated that both of these shortcomings will see some
+improvements before the final 1.2 release.
+
+In spite of those shortcomings, we hope that the PS and PDF backends
+will yield faithful results for pretty much any cairo operations you
+can throw at them. Please let us know if you are getting obviously
+"different" results from the PS/PDF backends than from the image or
+xlib backends.
+
+Other new experimental backends
+-------------------------------
+This snapshot includes three new backends that did not exist in the
+1.0 series:
+
+	* beos backend
+
+	* directfb backend
+
+	* svg backend
+
+These are all currently marked "experimental" and are disabled by
+default. But the SVG backend in particular has seen a lot of recent
+development and is very close to passing the entire cairo test
+suite. It is possible that this backend will become a fully supported
+backend by the time of the cairo 1.2 release.
+
+Public API additions
+--------------------
+There have been a few new API functions added to cairo, including:
+
+New get_type functions for querying sub-types of object:
+
+	cairo_surface_get_type
+	cairo_pattern_get_type
+	cairo_font_face_get_type
+	cairo_scaled_font_get_type
+
+More convenience in working with cairo_scaled_font_t with new getter
+functions:
+
+	cairo_scaled_font_get_font_face
+	cairo_scaled_font_get_font_matrix
+	cairo_scaled_font_get_ctm
+	cairo_scaled_font_get_font_options
+
+As well as a convenience function for setting a scaled font into a
+cairo context:
+
+	cairo_set_scaled_font
+
+and a function to allow text extents to be queried directly from a
+scaled font, (without requiring a cairo_surface_t or a cairo_t):
+
+	cairo_scaled_font_text_extents
+
+These new scaled font functions were motivated by the needs of the
+pango library.
+
+Finally, a new path-construction function was added which clears the
+current point in preparation for a new sub path. This makes cairo_arc
+easier to use in some situations:
+
+	cairo_new_sub_path
+
+Before the 1.2 release is final we do still plan a few more API
+additions specifically motivated by the needs of Mozilla/Firefox.
+
+Optimizations and bug fixes
+---------------------------
+Shortly after the 1.0 maintenance series branched off the mainline
+there was a major rework of the cairo font internals. This should
+provide some good performance benefits, but it's also another area
+people should look at closely for potential regressions.
+
+There has not yet been any widespread, systematic optimization of
+cairo, but various performance improvements have been made, (and some
+of them are fairly significant). So if some things seem faster than
+1.0 then things are good. If there are any performance regressions
+compared to 1.0 then there is a real problem and we would like to hear
+about that.
+
+There has been a huge number of bug fixes---too many to mention in
+detail. Again, things should be better, and never worse compared to
+1.0. Please let us know if your testing shows otherwise.
 
 Release 1.0.2 (2005-10-03 Carl Worth <cworth@cworth.org>)
 =========================================================

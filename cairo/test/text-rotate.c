@@ -125,7 +125,7 @@ draw (cairo_t *cr, int width, int height)
 	y_off = - floor (0.5 + extents.height / 2.0);
 	x_off = floor (0.5 + (extents.height+1) / (2 * tan (M_PI/NUM_TEXT)));
     }
-  
+
     for (i=0; i < NUM_TEXT; i++) {
 	cairo_save (cr);
 	cairo_rotate (cr, 2*M_PI*i/NUM_TEXT);

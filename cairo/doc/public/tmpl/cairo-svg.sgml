@@ -1,0 +1,26 @@
+<!-- ##### SECTION Title ##### -->
+SVG Surfaces
+
+<!-- ##### SECTION Short_Description ##### -->
+Rendering SVG documents
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### MACRO cairo_svg_surface_set_dpi ##### -->
+<para>
+
+</para>
+
+
+

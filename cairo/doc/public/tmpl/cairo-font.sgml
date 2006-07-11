@@ -14,57 +14,12 @@ Base class for fonts
 
 </para>
 
+<!-- ##### SECTION Stability_Level ##### -->
+
+
 <!-- ##### TYPEDEF cairo_font_face_t ##### -->
 <para>
 
 </para>
-
-
-<!-- ##### FUNCTION cairo_font_face_reference ##### -->
-<para>
-
-</para>
-
-@font_face: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_font_face_destroy ##### -->
-<para>
-
-</para>
-
-@font_face: 
-
-
-<!-- ##### FUNCTION cairo_font_face_status ##### -->
-<para>
-
-</para>
-
-@font_face: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_font_face_get_user_data ##### -->
-<para>
-
-</para>
-
-@font_face: 
-@key: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_font_face_set_user_data ##### -->
-<para>
-
-</para>
-
-@font_face: 
-@key: 
-@user_data: 
-@destroy: 
-@Returns: 
 
 

@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: @backend_name@
+Description: @Backend_Name@ backend for cairo graphics library
+Version: @VERSION@
+
+Requires: cairo @BACKEND_REQUIRES@
+Libs: @BACKEND_NONPKGCONFIG_LIBS@
+Cflags: -I${includedir}/cairo @BACKEND_NONPKGCONFIG_CFLAGS@

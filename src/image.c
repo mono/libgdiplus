@@ -130,7 +130,7 @@ GdipGetPostScriptGraphicsContext (char* filename, int width, int height, double 
 		return InvalidParameter;
 
 	surface = cairo_ps_surface_create (filename, (double) width, (double) height);
-	cairo_ps_surface_set_dpi (surface, dpix, dpiy);
+	cairo_surface_set_fallback_resolution (surface, dpix, dpiy);
 
 	gfx = gdip_graphics_new (surface);
 	gfx->dpi_x = dpix;

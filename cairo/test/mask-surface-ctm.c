@@ -35,7 +35,7 @@ static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
     cairo_surface_t *mask;
-    uint32_t data[] = {
+    static uint32_t data[] = {
 	0x80000000, 0x80000000,
 	0x80000000, 0x80000000,
     };

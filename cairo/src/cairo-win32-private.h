@@ -46,12 +46,13 @@
 #define SB_NONE 0
 #endif
 
+#define WIN32_FONT_LOGICAL_SCALE 32
 
 typedef struct _cairo_win32_surface {
     cairo_surface_t base;
 
     cairo_format_t format;
-    
+
     HDC dc;
 
     /* We create off-screen surfaces as DIBs */
@@ -65,23 +66,18 @@ typedef struct _cairo_win32_surface {
      * on some versions of Windows.
      */
     HBITMAP saved_dc_bitmap;
-    
+
     cairo_surface_t *image;
-    
-    cairo_rectangle_t clip_rect;
+
+    cairo_rectangle_int16_t clip_rect;
 
     HRGN saved_clip;
 
-    cairo_rectangle_t extents;
+    cairo_rectangle_int16_t extents;
 } cairo_win32_surface_t;
 
 cairo_status_t
 _cairo_win32_print_gdi_error (const char *context);
-
-cairo_surface_t *
-_cairo_win32_surface_create_dib (cairo_format_t format,
-				 int            width,
-				 int            height);
 
 cairo_bool_t
 _cairo_surface_is_win32 (cairo_surface_t *surface);

@@ -19,12 +19,22 @@
 {
   vertical-align: top;
 }
-table.navigation 
+div a[name]
+{
+  position: relative;
+  top: -4.5em;
+}
+table.navigation#top
 {
   background: #ffeeee;
   border: solid 1px #ffaaaa;
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
+  margin-top: 0;
+  margin-bottom: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2em;
+  z-index: 1;
 }
 .navigation a 
 {
@@ -37,6 +47,18 @@ table.navigation
 .navigation .title 
 {
   font-size: 200%;
+}
+td.shortcuts
+{
+  color: #770000;
+  font-size: 80%;
+}
+
+div.refentry, div.chapter, div.part, div.book, div.index, div.glossary, div.sect1
+{
+  position: relative;
+  top: 3em;
+  z-index: 0;
 }
 div.refnamediv 
 {

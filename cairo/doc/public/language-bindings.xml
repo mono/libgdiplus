@@ -543,6 +543,7 @@ cairo_surface_t
     cairo_atsui_surface_t
     cairo_win32_surface_t
     cairo_xlib_surface_t
+    cairo_beos_surface_t
     </programlisting>
     <para>
       Unlike patterns, the constructors and methods on these types are

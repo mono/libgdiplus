@@ -1,4 +1,36 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Appendix A. Creating a language binding for cairo</title><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="Cairo: A Vector Graphics Library"><link rel="up" href="index.html" title="Cairo: A Vector Graphics Library"><link rel="prev" href="ix01.html" title="Index"><link rel="next" href="bindings-memory.html" title="Memory Management"><meta name="generator" content="GTK-Doc V1.3 (XML mode)"><link rel="stylesheet" href="style.css" type="text/css"><link rel="part" href="pt01.html" title="Part I. Tutorial"><link rel="part" href="pt02.html" title="Part II. Reference"><link rel="chapter" href="Drawing.html" title="Drawing"><link rel="chapter" href="Fonts.html" title="Fonts"><link rel="chapter" href="Surfaces.html" title="Surfaces"><link rel="chapter" href="Support.html" title="Utilities"><link rel="index" href="ix01.html" title="Index"><link rel="appendix" href="language-bindings.html" title="Appendix A. Creating a language binding for cairo"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="ix01.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">Cairo: A Vector Graphics Library</th><td><a accesskey="n" href="bindings-memory.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="appendix" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="language-bindings"></a>Appendix A. Creating a language binding for cairo</h2></div></div></div><p>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Appendix&#160;A.&#160;Creating a language binding for cairo</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
+<link rel="up" href="index.html" title="Cairo: A Vector Graphics Library">
+<link rel="prev" href="ix01.html" title="Index">
+<link rel="next" href="bindings-memory.html" title="Memory Management">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
+<link rel="chapter" href="Drawing.html" title="Drawing">
+<link rel="chapter" href="Fonts.html" title="Fonts">
+<link rel="chapter" href="Surfaces.html" title="Surfaces">
+<link rel="chapter" href="Support.html" title="Utilities">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle">
+<td><a accesskey="p" href="ix01.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td>&#160;</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Cairo: A Vector Graphics Library</th>
+<td><a accesskey="n" href="bindings-memory.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="appendix" lang="en">
+<div class="titlepage"><div><div><h2 class="title">
+<a name="language-bindings"></a>Appendix&#160;A.&#160;Creating a language binding for cairo</h2></div></div></div>
+<p>
     While cairo is implemented and C, and has a C API, it is expected
     that many users of cairo will be using it from languages other
     than C. The glue that connects the core cairo library to another
@@ -7,7 +39,11 @@
     issues that come up when creating a language bindings for cairo
     and present standardized solutions to promote consistency among
     the different language bindings.
-  </p><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="bindings-general"></a>General considerations</h2></div></div></div><p>
+  </p>
+<div class="sect1" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="bindings-general"></a>General considerations</h2></div></div></div>
+<p>
       The naming of the central <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a> type is a
       special exception. The object is &#8220;a cairo context&#8221; not &#8220;a
       cairo&#8221;, and names such as <span class="type">cairo_t</span> rather than
@@ -21,7 +57,8 @@
       like &#8216;Cairo.Cairo&#8217;. For this reason, and for inter-language
       consistency all object-oriented languages should name this
       type as if it were <span class="type">cairo_context_t</span>.
-    </p><p>
+    </p>
+<p>
       The punctuation and casing of the type names and
       method names of cairo should be changed to match the general
       convention of the language. In Java, where type names are written
@@ -34,4 +71,8 @@
       themselves. Even if get is usually omitted from getters in
       your language, you shouldn't bind cairo_get_source() as
       cr.source().
-    </p></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="ix01.html"><b>&lt;&lt; Index</b></a></td><td align="right"><a accesskey="n" href="bindings-memory.html"><b>Memory Management &gt;&gt;</b></a></td></tr></table></body></html>
+    </p>
+</div>
+</div>
+</body>
+</html>

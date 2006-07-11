@@ -1,6 +1,4 @@
 /*
- * $Id: icpixels.c,v 1.9 2005-06-25 03:13:19 jrmuizel Exp $
- *
  * Copyright © 1998 Keith Packard
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
@@ -67,7 +65,7 @@ FbPixelsCreate (int width, int height, int depth)
 	adjust = 8 - (base & 7);
     buf_size += adjust;
 
-    pixels = malloc(base + buf_size);
+    pixels = calloc(base + buf_size, 1);
     if (!pixels)
 	return NULL;
 
@@ -114,4 +112,3 @@ FbPixelsDestroy (FbPixels *pixels)
 
     free(pixels);
 }
-

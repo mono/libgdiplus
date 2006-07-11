@@ -46,7 +46,7 @@ draw (cairo_t *cr, int width, int height)
 	cairo_rectangle (cr2, 3, 3, 3, 3);
 	cairo_set_source_rgb (cr2, 1, 1, 0);
 	cairo_fill (cr2);
-    
+
 	cairo_rectangle (cr2, 3, 0, 3, 3);
 	cairo_rectangle (cr2, 0, 3, 3, 3);
 	cairo_set_source_rgb (cr2, 0, 0, 1);

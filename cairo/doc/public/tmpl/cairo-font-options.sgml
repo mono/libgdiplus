@@ -14,81 +14,13 @@ How a font should be rendered
 
 </para>
 
+<!-- ##### SECTION Stability_Level ##### -->
+
+
 <!-- ##### TYPEDEF cairo_font_options_t ##### -->
 <para>
 
 </para>
-
-
-<!-- ##### FUNCTION cairo_font_options_create ##### -->
-<para>
-
-</para>
-
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_font_options_copy ##### -->
-<para>
-
-</para>
-
-@original: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_font_options_destroy ##### -->
-<para>
-
-</para>
-
-@options: 
-
-
-<!-- ##### FUNCTION cairo_font_options_status ##### -->
-<para>
-
-</para>
-
-@options: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_font_options_merge ##### -->
-<para>
-
-</para>
-
-@options: 
-@other: 
-
-
-<!-- ##### FUNCTION cairo_font_options_equal ##### -->
-<para>
-
-</para>
-
-@options: 
-@other: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_font_options_set_antialias ##### -->
-<para>
-
-</para>
-
-@options: 
-@antialias: 
-
-
-<!-- ##### FUNCTION cairo_font_options_get_antialias ##### -->
-<para>
-
-</para>
-
-@options: 
-@Returns: 
 
 
 <!-- ##### ENUM cairo_subpixel_order_t ##### -->
@@ -102,26 +34,6 @@ How a font should be rendered
 @CAIRO_SUBPIXEL_ORDER_VRGB: 
 @CAIRO_SUBPIXEL_ORDER_VBGR: 
 
-<!-- ##### FUNCTION cairo_font_options_set_subpixel_order ##### -->
-<para>
-
-</para>
-
-@options: 
-@subpixel_order: 
-
-
-<!-- ##### FUNCTION cairo_font_options_get_subpixel_order ##### -->
-<para>
-
-</para>
-
-@options: 
-@Returns: 
-<!-- # Unused Parameters # -->
-@option: 
-
-
 <!-- ##### ENUM cairo_hint_style_t ##### -->
 <para>
 
@@ -133,24 +45,6 @@ How a font should be rendered
 @CAIRO_HINT_STYLE_MEDIUM: 
 @CAIRO_HINT_STYLE_FULL: 
 
-<!-- ##### FUNCTION cairo_font_options_set_hint_style ##### -->
-<para>
-
-</para>
-
-@options: 
-@hint_style: 
-
-
-<!-- ##### FUNCTION cairo_font_options_get_hint_style ##### -->
-<para>
-
-</para>
-
-@options: 
-@Returns: 
-
-
 <!-- ##### ENUM cairo_hint_metrics_t ##### -->
 <para>
 
@@ -159,22 +53,4 @@ How a font should be rendered
 @CAIRO_HINT_METRICS_DEFAULT: 
 @CAIRO_HINT_METRICS_OFF: 
 @CAIRO_HINT_METRICS_ON: 
-
-<!-- ##### FUNCTION cairo_font_options_set_hint_metrics ##### -->
-<para>
-
-</para>
-
-@options: 
-@hint_metrics: 
-
-
-<!-- ##### FUNCTION cairo_font_options_get_hint_metrics ##### -->
-<para>
-
-</para>
-
-@options: 
-@Returns: 
-
 

@@ -45,11 +45,17 @@ draw (cairo_t *cr, int width, int height)
 {
     double dashes[] = { 1 };
 
+    /* We draw in the default black, so paint white first. */
+    cairo_save (cr);
+    cairo_set_source_rgb (cr, 1.0, 1.0, 1.0); /* white */
+    cairo_paint (cr);
+    cairo_restore (cr);
+
     cairo_set_line_width (cr, 2);
 
     /* Basic 1-1 dash pattern */
     cairo_set_dash (cr, dashes, 1, 0.);
-    
+
     cairo_move_to (cr,  1, 2);
     cairo_line_to (cr, 18, 2);
     cairo_stroke (cr);
@@ -63,7 +69,7 @@ draw (cairo_t *cr, int width, int height)
 
     /* Offset dash by 0.5, rather than the path */
     cairo_set_dash (cr, dashes, 1, 0.5);
-    
+
     cairo_move_to (cr,  1, 8);
     cairo_line_to (cr, 18, 8);
     cairo_stroke (cr);
@@ -72,7 +78,7 @@ draw (cairo_t *cr, int width, int height)
 
     /* Basic 1-1 dash pattern dashing */
     cairo_set_dash (cr, dashes, 1, -4);
-    
+
     cairo_move_to (cr,  1, 11);
     cairo_line_to (cr, 18, 11);
     cairo_stroke (cr);
@@ -84,7 +90,7 @@ draw (cairo_t *cr, int width, int height)
 
     /* Offset dash by 0.5 */
     cairo_set_dash (cr, dashes, 1, -3.5);
-    
+
     cairo_move_to (cr,  1, 17);
     cairo_line_to (cr, 18, 17);
     cairo_stroke (cr);

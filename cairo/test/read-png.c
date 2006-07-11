@@ -145,7 +145,6 @@ read_png_argb32 (const char         *filename,
     *height = png_height;
     *stride = 4 * png_width;
 
-
     /* convert palette/gray image to rgb */
     if (color_type == PNG_COLOR_TYPE_PALETTE)
         png_set_palette_to_rgb (png);

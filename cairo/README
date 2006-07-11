@@ -98,6 +98,11 @@ Surface backends:
 	------------
 	Xrender >= 0.6		http://freedesktop.org/Software/xlibs
 
+	beos backend
+	------------
+	No dependencies in itself other than an installed BeOS system, but cairo
+	requires a font backend. See the freetype dependency list.
+
 Font backends:
 
 	freetype font backend

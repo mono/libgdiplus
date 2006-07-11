@@ -1,4 +1,36 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Memory Management</title><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="Cairo: A Vector Graphics Library"><link rel="up" href="language-bindings.html" title="Appendix A. Creating a language binding for cairo"><link rel="prev" href="language-bindings.html" title="Appendix A. Creating a language binding for cairo"><link rel="next" href="bindings-return-values.html" title="Multiple return values"><meta name="generator" content="GTK-Doc V1.3 (XML mode)"><link rel="stylesheet" href="style.css" type="text/css"><link rel="part" href="pt01.html" title="Part I. Tutorial"><link rel="part" href="pt02.html" title="Part II. Reference"><link rel="chapter" href="Drawing.html" title="Drawing"><link rel="chapter" href="Fonts.html" title="Fonts"><link rel="chapter" href="Surfaces.html" title="Surfaces"><link rel="chapter" href="Support.html" title="Utilities"><link rel="index" href="ix01.html" title="Index"><link rel="appendix" href="language-bindings.html" title="Appendix A. Creating a language binding for cairo"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="language-bindings.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="language-bindings.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">Cairo: A Vector Graphics Library</th><td><a accesskey="n" href="bindings-return-values.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="bindings-memory"></a>Memory Management</h2></div></div></div><p>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Memory Management</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
+<link rel="up" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
+<link rel="prev" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
+<link rel="next" href="bindings-return-values.html" title="Multiple return values">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
+<link rel="chapter" href="Drawing.html" title="Drawing">
+<link rel="chapter" href="Fonts.html" title="Fonts">
+<link rel="chapter" href="Surfaces.html" title="Surfaces">
+<link rel="chapter" href="Support.html" title="Utilities">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle">
+<td><a accesskey="p" href="language-bindings.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="language-bindings.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Cairo: A Vector Graphics Library</th>
+<td><a accesskey="n" href="bindings-return-values.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="sect1" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="bindings-memory"></a>Memory Management</h2></div></div></div>
+<p>
       The objects in cairo can roughly be divided into two types:
       reference-counted, opaque types like
       <a href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a>
@@ -8,7 +40,8 @@
       and 
       <a href="cairo-Paths.html#cairo-path-data-t"><span class="type">cairo_path_data_t</span></a>
       are special cases and are treated separately in this appendix.
-    </p><p>
+    </p>
+<p>
       Refcounted opaque types all have a
       <code class="function">..._reference()</code>
       function to increase the refcount by one and a
@@ -21,7 +54,9 @@
       object references the cairo object, and unreferences it when
       finalized. This is the recommended method, though there are
       a couple of caveats to be noted:
-    </p><div class="itemizedlist"><ul type="disc"><li><p>
+    </p>
+<div class="itemizedlist"><ul type="disc">
+<li><p>
 	  Equality won't work as expected. You can have two language
 	  objects for the same cairo and they won't necessarily
 	  compare equal. If the language allows customizing the
@@ -33,11 +68,14 @@
 	  For <span class="type">cairo_surface_t</span> you can use also 
 	  <a href="cairo-cairo-surface-t.html#cairo-surface-set-user-data"><code class="function">cairo_surface_set_user_data()</code></a>
 	  instead of a separate pin table.
-	</p></li><li><p>
+	</p></li>
+<li>
+<p>
 	  Derivation from the language object doesn't work because
 	  you can lose the language object while keeping the Cairo
 	  object. Code like:
-	</p><pre class="programlisting">
+	</p>
+<pre class="programlisting">
 public class MySurface (ImageSurface) {
    public MySurface (width, height) {
       super (Format.ARGB32, width, height);
@@ -49,23 +87,31 @@ public class MySurface (ImageSurface) {
 
    cr = Cairo(MySurface(width, height));
    surface = cr.getTarget();
-</pre><p>
+</pre>
+<p>
 	  Can result in <code class="varname">surface</code> containing an
 	  <code class="classname">ImageSurface</code> not a <code class="classname">MySurface</code>.
 	  This is not easily fixable without creating memory leaks,
 	  and it's probably best to simply forbid deriving from the
 	  language objects.
-	</p></li></ul></div><p>
+	</p>
+</li>
+</ul></div>
+<p>
       When a plain structure is used as a return value from cairo,
       this is done by passing it as a &#8220;out parameter&#8221;.
-    </p><pre class="programlisting">
+    </p>
+<pre class="programlisting">
 cairo_font_extents_t extents;      
 
-cairo_font_extents (cr, &amp;extents);</pre><p>
+cairo_font_extents (cr, &amp;extents);</pre>
+<p>
       In a language binding, this should typically be treated
       as a return value:
-    </p><pre class="programlisting">
-FontExtents extents = cr.fontExtents ();</pre><p>
+    </p>
+<pre class="programlisting">
+FontExtents extents = cr.fontExtents ();</pre>
+<p>
       A language binding has a choice in how it implements the
       language objects for plain structures. It can use a pure
       language object with fields corresponding to those of the C
@@ -76,4 +122,7 @@ FontExtents extents = cr.fontExtents ();</pre><p>
       objects. The choice should be invisible to the user: they should
       be able to imagine that it is implemented as a pure language
       object.
-    </p></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="language-bindings.html"><b>&lt;&lt; Appendix A. Creating a language binding for cairo</b></a></td><td align="right"><a accesskey="n" href="bindings-return-values.html"><b>Multiple return values &gt;&gt;</b></a></td></tr></table></body></html>
+    </p>
+</div>
+</body>
+</html>

@@ -56,4 +56,3 @@ xcalloc (size_t nmemb, size_t size)
 
     return buf;
 }
-

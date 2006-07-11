@@ -1,6 +1,4 @@
 /*
- * $Id: renderedge.h,v 1.3 2005-02-21 21:29:22 cworth Exp $
- *
  * Copyright © 2004 Keith Packard
  *
  * Permission to use, copy, modify, distribute, and sell this software and its

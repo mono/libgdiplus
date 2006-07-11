@@ -14,13 +14,7 @@ Reading and writing PNG images
 
 </para>
 
-<!-- ##### FUNCTION cairo_image_surface_create_from_png ##### -->
-<para>
-
-</para>
-
-@filename: 
-@Returns: 
+<!-- ##### SECTION Stability_Level ##### -->
 
 
 <!-- ##### USER_FUNCTION cairo_read_func_t ##### -->
@@ -34,26 +28,6 @@ Reading and writing PNG images
 @Returns: 
 
 
-<!-- ##### FUNCTION cairo_image_surface_create_from_png_stream ##### -->
-<para>
-
-</para>
-
-@read_func: 
-@closure: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_surface_write_to_png ##### -->
-<para>
-
-</para>
-
-@surface: 
-@filename: 
-@Returns: 
-
-
 <!-- ##### USER_FUNCTION cairo_write_func_t ##### -->
 <para>
 
@@ -62,17 +36,6 @@ Reading and writing PNG images
 @closure: 
 @data: 
 @length: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_surface_write_to_png_stream ##### -->
-<para>
-
-</para>
-
-@surface: 
-@write_func: 
-@closure: 
 @Returns: 
 
 

@@ -36,8 +36,6 @@
 
 #include "cairoint.h"
 
-#include "cairo-gstate-private.h"
-
 static int
 _cairo_pen_vertices_needed (double tolerance, double radius, cairo_matrix_t *matrix);
 
@@ -59,36 +57,29 @@ _cairo_pen_init_empty (cairo_pen_t *pen)
 }
 
 cairo_status_t
-_cairo_pen_init (cairo_pen_t *pen, double radius, cairo_gstate_t *gstate)
+_cairo_pen_init (cairo_pen_t	*pen,
+		 double		 radius,
+		 double		 tolerance,
+		 cairo_matrix_t	*ctm)
 {
     int i;
     int reflect;
     double  det;
 
-    if (pen->num_vertices) {
-	/* XXX: It would be nice to notice that the pen is already properly constructed.
-	   However, this test would also have to account for possible changes in the transformation
-	   matrix.
-	   if (pen->radius == radius && pen->tolerance == tolerance)
-	   return CAIRO_STATUS_SUCCESS;
-	*/
-	_cairo_pen_fini (pen);
-    }
-
     pen->radius = radius;
-    pen->tolerance = gstate->tolerance;
+    pen->tolerance = tolerance;
 
-    _cairo_matrix_compute_determinant (&gstate->ctm, &det);
+    _cairo_matrix_compute_determinant (ctm, &det);
     if (det >= 0) {
 	reflect = 0;
     } else {
 	reflect = 1;
     }
 
-    pen->num_vertices = _cairo_pen_vertices_needed (gstate->tolerance,
+    pen->num_vertices = _cairo_pen_vertices_needed (tolerance,
 						    radius,
-						    &gstate->ctm);
-    
+						    ctm);
+
     pen->vertices = malloc (pen->num_vertices * sizeof (cairo_pen_vertex_t));
     if (pen->vertices == NULL) {
 	return CAIRO_STATUS_NO_MEMORY;
@@ -105,7 +96,7 @@ _cairo_pen_init (cairo_pen_t *pen, double radius, cairo_gstate_t *gstate)
 	double dx = radius * cos (reflect ? -theta : theta);
 	double dy = radius * sin (reflect ? -theta : theta);
 	cairo_pen_vertex_t *v = &pen->vertices[i];
-	cairo_matrix_transform_distance (&gstate->ctm, &dx, &dy);
+	cairo_matrix_transform_distance (ctm, &dx, &dy);
 	v->point.x = _cairo_fixed_from_double (dx);
 	v->point.y = _cairo_fixed_from_double (dy);
     }
@@ -174,7 +165,7 @@ We construct the pen by computing points along the circumference
 using equally spaced angles.
 
 We show that this approximation to the ellipse has maximum error at the
-major axis of the ellipse.  
+major axis of the ellipse.
 
 Set
 
@@ -256,26 +247,26 @@ _cairo_pen_vertices_needed (double	    tolerance,
 			    double	    radius,
 			    cairo_matrix_t  *matrix)
 {
-    /* 
+    /*
      * the pen is a circle that gets transformed to an ellipse by matrix.
      * compute major axis length for a pen with the specified radius.
      * we don't need the minor axis length.
      */
-    
+
     double  major_axis = _cairo_matrix_transformed_circle_major_axis(matrix, radius);
 
     /*
      * compute number of vertices needed
      */
     int	    num_vertices;
-    
+
     /* Where tolerance / M is > 1, we use 4 points */
     if (tolerance >= major_axis) {
 	num_vertices = 4;
     } else {
 	double delta = acos (1 - tolerance / major_axis);
 	num_vertices = ceil (M_PI / delta);
-	
+
 	/* number of vertices must be even */
 	if (num_vertices % 2)
 	    num_vertices++;
@@ -386,8 +377,8 @@ _cairo_pen_stroke_spline_half (cairo_pen_t *pen,
 	initial_slope.dx = -initial_slope.dx;
 	initial_slope.dy = -initial_slope.dy;
 	final_slope = spline->initial_slope;
-	final_slope.dx = -final_slope.dx; 
-	final_slope.dy = -final_slope.dy; 
+	final_slope.dx = -final_slope.dx;
+	final_slope.dy = -final_slope.dy;
     }
 
     _cairo_pen_find_active_cw_vertex_index (pen, &initial_slope, &active);
@@ -452,6 +443,6 @@ _cairo_pen_stroke_spline (cairo_pen_t		*pen,
     _cairo_polygon_close (&polygon);
     _cairo_traps_tessellate_polygon (traps, &polygon, CAIRO_FILL_RULE_WINDING);
     _cairo_polygon_fini (&polygon);
-    
+
     return CAIRO_STATUS_SUCCESS;
 }

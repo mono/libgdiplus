@@ -61,7 +61,7 @@ draw (cairo_t *cr, int width, int height)
 
     for (i=0; i < 4; i++) {
 	surface = cairo_image_surface_create_for_data ((unsigned char *) &colors[i],
-						       CAIRO_FORMAT_ARGB32,
+						       CAIRO_FORMAT_RGB24,
 						       1, 1, 4);
 	cairo_save (cr);
 	{

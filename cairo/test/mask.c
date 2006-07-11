@@ -81,13 +81,12 @@ mask_polygon (cairo_t *cr, int x, int y)
     cr2 = cairo_create (mask_surface);
 
     cairo_save (cr2);
-    cairo_set_source_rgba (cr2, 0, 0, 0, 0); /* transparent */
-    cairo_set_operator (cr2, CAIRO_OPERATOR_SOURCE);
+    cairo_set_operator (cr2, CAIRO_OPERATOR_CLEAR);
     cairo_paint (cr2);
     cairo_restore (cr2);
 
     cairo_set_source_rgb (cr2, 1, 1, 1); /* white */
-    
+
     cairo_new_path (cr2);
     cairo_move_to (cr2, 0, 0);
     cairo_line_to (cr2, 0, HEIGHT);
@@ -127,7 +126,7 @@ mask_gradient (cairo_t *cr, int x, int y)
 				       1, 1, 1, 0);
 
     cairo_mask (cr, pattern);
-    
+
     cairo_pattern_destroy (pattern);
 }
 
@@ -140,7 +139,7 @@ static void
 clip_rects (cairo_t *cr, int x, int y)
 {
     int height = HEIGHT / 3;
-  
+
     cairo_new_path (cr);
     cairo_rectangle (cr, x, y, WIDTH, height);
     cairo_rectangle (cr, x, y + 2 * height, WIDTH, height);
@@ -212,13 +211,11 @@ draw (cairo_t *cr, int width, int height)
 	    for (i = 0; i < ARRAY_SIZE (pattern_funcs); i++) {
 		int x = i * (WIDTH + PAD) + PAD;
 		int y = (ARRAY_SIZE (mask_funcs) * k + j) * (HEIGHT + PAD) + PAD;
-		
-		/* Clear area we are going to be drawing onto */
+
+		/* Clear intermediate surface we are going to be drawing onto */
 		cairo_save (cr2);
-		cairo_set_source_rgba (cr2, 0, 0, 0, 0); /* transparent */
-		cairo_set_operator (cr2, CAIRO_OPERATOR_SOURCE);
-		cairo_rectangle (cr2, x, y, WIDTH, HEIGHT);
-		cairo_fill (cr2);
+		cairo_set_operator (cr2, CAIRO_OPERATOR_CLEAR);
+		cairo_paint (cr2);
 		cairo_restore (cr2);
 
 		/* draw */

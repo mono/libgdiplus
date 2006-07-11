@@ -14,6 +14,9 @@ Rendering text and sets of glyphs
 
 </para>
 
+<!-- ##### SECTION Stability_Level ##### -->
+
+
 <!-- ##### STRUCT cairo_glyph_t ##### -->
 <para>
 
@@ -39,127 +42,4 @@ Rendering text and sets of glyphs
 
 @CAIRO_FONT_WEIGHT_NORMAL: 
 @CAIRO_FONT_WEIGHT_BOLD: 
-
-<!-- ##### FUNCTION cairo_select_font_face ##### -->
-<para>
-
-</para>
-
-@cr: 
-@family: 
-@slant: 
-@weight: 
-
-
-<!-- ##### FUNCTION cairo_set_font_size ##### -->
-<para>
-
-</para>
-
-@cr: 
-@size: 
-
-
-<!-- ##### FUNCTION cairo_set_font_matrix ##### -->
-<para>
-
-</para>
-
-@cr: 
-@matrix: 
-
-
-<!-- ##### FUNCTION cairo_get_font_matrix ##### -->
-<para>
-
-</para>
-
-@cr: 
-@matrix: 
-
-
-<!-- ##### FUNCTION cairo_set_font_options ##### -->
-<para>
-
-</para>
-
-@cr: 
-@options: 
-
-
-<!-- ##### FUNCTION cairo_get_font_options ##### -->
-<para>
-
-</para>
-
-@cr: 
-@options: 
-
-
-<!-- ##### FUNCTION cairo_show_text ##### -->
-<para>
-
-</para>
-
-@cr: 
-@utf8: 
-
-
-<!-- ##### FUNCTION cairo_show_glyphs ##### -->
-<para>
-
-</para>
-
-@cr: 
-@glyphs: 
-@num_glyphs: 
-
-
-<!-- ##### FUNCTION cairo_get_font_face ##### -->
-<para>
-
-</para>
-
-@cr: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_font_extents ##### -->
-<para>
-
-</para>
-
-@cr: 
-@extents: 
-
-
-<!-- ##### FUNCTION cairo_set_font_face ##### -->
-<para>
-
-</para>
-
-@cr: 
-@font_face: 
-
-
-<!-- ##### FUNCTION cairo_text_extents ##### -->
-<para>
-
-</para>
-
-@cr: 
-@utf8: 
-@extents: 
-
-
-<!-- ##### FUNCTION cairo_glyph_extents ##### -->
-<para>
-
-</para>
-
-@cr: 
-@glyphs: 
-@num_glyphs: 
-@extents: 
-
 

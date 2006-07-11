@@ -5,16 +5,19 @@
 ]>
 <refentry id="cairo-cairo-font-face-t">
 <refmeta>
-<refentrytitle>cairo_font_face_t</refentrytitle>
+<refentrytitle id="top_of_page">cairo_font_face_t</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>cairo_font_face_t</refname><refpurpose>Base class for fonts</refpurpose>
+<refname>cairo_font_face_t</refname>
+<refpurpose>Base class for fonts</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv><title>Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -32,6 +35,8 @@ typedef     <link linkend="cairo-font-face-t">cairo_font_face_t</link>;
                                              const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
                                              <link linkend="void">void</link> *user_data,
                                              <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);
+enum        <link linkend="cairo-font-type-t">cairo_font_type_t</link>;
+<link linkend="cairo-font-type-t">cairo_font_type_t</link> <link linkend="cairo-font-face-get-type">cairo_font_face_get_type</link>  (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);
 </synopsis>
 </refsynopsisdiv>
 
@@ -43,17 +48,17 @@ typedef     <link linkend="cairo-font-face-t">cairo_font_face_t</link>;
 
 
 
-<refsect1>
-<title>Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1>
-<title>Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 <refsect2>
-<title><anchor id="cairo-font-face-t"/>cairo_font_face_t</title>
+<title><anchor id="cairo-font-face-t" role="typedef"/>cairo_font_face_t</title>
 <indexterm><primary>cairo_font_face_t</primary></indexterm><programlisting>typedef struct _cairo_font_face cairo_font_face_t;
 </programlisting>
 <para>
@@ -67,106 +72,47 @@ directions) . A font face can be set on a <link linkend="cairo-t"><type>cairo_t<
 
 </para></refsect2>
 <refsect2>
-<title><anchor id="cairo-font-face-reference"/>cairo_font_face_reference ()</title>
+<title><anchor id="cairo-font-face-reference" role="function"/>cairo_font_face_reference ()</title>
 <indexterm><primary>cairo_font_face_reference</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>* cairo_font_face_reference
                                             (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
-<para>
-Increases the reference count on <parameter>font_face</parameter> by one. This prevents
-<parameter>font_face</parameter> from being destroyed until a matching call to
-<link linkend="cairo-font-face-destroy"><function>cairo_font_face_destroy()</function></link> is made.</para>
-<para>
-
-</para><variablelist role="params">
-<varlistentry><term><parameter>font_face</parameter>&nbsp;:</term>
-<listitem><simpara> a <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link>, (may be NULL in which case this
-function does nothing).
-</simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the referenced <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link>.
-</simpara></listitem></varlistentry>
-</variablelist></refsect2>
+</refsect2>
 <refsect2>
-<title><anchor id="cairo-font-face-destroy"/>cairo_font_face_destroy ()</title>
+<title><anchor id="cairo-font-face-destroy" role="function"/>cairo_font_face_destroy ()</title>
 <indexterm><primary>cairo_font_face_destroy</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_font_face_destroy         (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
-<para>
-Decreases the reference count on <parameter>font_face</parameter> by one. If the result
-is zero, then <parameter>font_face</parameter> and all associated resources are freed.
-See <link linkend="cairo-font-face-reference"><function>cairo_font_face_reference()</function></link>.</para>
-<para>
-
-</para><variablelist role="params">
-<varlistentry><term><parameter>font_face</parameter>&nbsp;:</term>
-<listitem><simpara> a <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link>
-</simpara></listitem></varlistentry>
-</variablelist></refsect2>
+</refsect2>
 <refsect2>
-<title><anchor id="cairo-font-face-status"/>cairo_font_face_status ()</title>
+<title><anchor id="cairo-font-face-status" role="function"/>cairo_font_face_status ()</title>
 <indexterm><primary>cairo_font_face_status</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_font_face_status       (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
-<para>
-Checks whether an error has previously occurred for this
-font face</para>
-<para>
-
-</para><variablelist role="params">
-<varlistentry><term><parameter>font_face</parameter>&nbsp;:</term>
-<listitem><simpara> a <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link>
-</simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <literal>CAIRO_STATUS_SUCCESS</literal> or another error such as
-  <literal>CAIRO_STATUS_NO_MEMORY</literal>.
-</simpara></listitem></varlistentry>
-</variablelist></refsect2>
+</refsect2>
 <refsect2>
-<title><anchor id="cairo-font-face-get-user-data"/>cairo_font_face_get_user_data ()</title>
+<title><anchor id="cairo-font-face-get-user-data" role="function"/>cairo_font_face_get_user_data ()</title>
 <indexterm><primary>cairo_font_face_get_user_data</primary></indexterm><programlisting><link linkend="void">void</link>*       cairo_font_face_get_user_data   (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
                                              const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);</programlisting>
-<para>
-Return user data previously attached to <parameter>font_face</parameter> using the specified
-key.  If no user data has been attached with the given key this
-function returns <literal>NULL</literal>.</para>
-<para>
-
-</para><variablelist role="params">
-<varlistentry><term><parameter>font_face</parameter>&nbsp;:</term>
-<listitem><simpara> a <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link>
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>key</parameter>&nbsp;:</term>
-<listitem><simpara> the address of the <link linkend="cairo-user-data-key-t"><type>cairo_user_data_key_t</type></link> the user data was
-attached to
-</simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the user data previously attached or <literal>NULL</literal>.
-</simpara></listitem></varlistentry>
-</variablelist></refsect2>
+</refsect2>
 <refsect2>
-<title><anchor id="cairo-font-face-set-user-data"/>cairo_font_face_set_user_data ()</title>
+<title><anchor id="cairo-font-face-set-user-data" role="function"/>cairo_font_face_set_user_data ()</title>
 <indexterm><primary>cairo_font_face_set_user_data</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_font_face_set_user_data
                                             (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
                                              const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
                                              <link linkend="void">void</link> *user_data,
                                              <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);</programlisting>
-<para>
-Attach user data to <parameter>font_face</parameter>.  To remove user data from a font face,
-call this function with the key that was used to set it and <literal>NULL</literal>
-for <parameter>data</parameter>.</para>
-<para>
-
-</para><variablelist role="params">
-<varlistentry><term><parameter>font_face</parameter>&nbsp;:</term>
-<listitem><simpara> a <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link>
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>key</parameter>&nbsp;:</term>
-<listitem><simpara> the address of a <link linkend="cairo-user-data-key-t"><type>cairo_user_data_key_t</type></link> to attach the user data to
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
-<listitem><simpara> the user data to attach to the font face
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
-<listitem><simpara> a <link linkend="cairo-destroy-func-t"><type>cairo_destroy_func_t</type></link> which will be called when the
-font face is destroyed or when new user data is attached using the
-same key.
-</simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <literal>CAIRO_STATUS_SUCCESS</literal> or <literal>CAIRO_STATUS_NO_MEMORY</literal> if a
-slot could not be allocated for the user data.
-</simpara></listitem></varlistentry>
-</variablelist></refsect2>
+</refsect2>
+<refsect2>
+<title><anchor id="cairo-font-type-t" role="enum" condition="since:1.2"/>enum cairo_font_type_t</title>
+<indexterm role="1.2"><primary>cairo_font_type_t</primary></indexterm><programlisting>typedef enum _cairo_font_type {
+    CAIRO_FONT_TYPE_TOY,
+    CAIRO_FONT_TYPE_FT,
+    CAIRO_FONT_TYPE_WIN32,
+    CAIRO_FONT_TYPE_ATSUI
+} cairo_font_type_t;
+</programlisting>
+<para>Since  1.2
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-font-face-get-type" role="function" condition="since:1.2"/>cairo_font_face_get_type ()</title>
+<indexterm role="1.2"><primary>cairo_font_face_get_type</primary></indexterm><programlisting><link linkend="cairo-font-type-t">cairo_font_type_t</link> cairo_font_face_get_type  (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
+<para>Since  1.2
+</para></refsect2>
 
 </refsect1>
 

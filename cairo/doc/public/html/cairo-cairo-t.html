@@ -1,4 +1,49 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>cairo_t</title><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="Cairo: A Vector Graphics Library"><link rel="up" href="Drawing.html" title="Drawing"><link rel="prev" href="Drawing.html" title="Drawing"><link rel="next" href="cairo-Paths.html" title="Paths"><meta name="generator" content="GTK-Doc V1.3 (XML mode)"><link rel="stylesheet" href="style.css" type="text/css"><link rel="part" href="pt01.html" title="Part I. Tutorial"><link rel="part" href="pt02.html" title="Part II. Reference"><link rel="chapter" href="Drawing.html" title="Drawing"><link rel="chapter" href="Fonts.html" title="Fonts"><link rel="chapter" href="Surfaces.html" title="Surfaces"><link rel="chapter" href="Support.html" title="Utilities"><link rel="index" href="ix01.html" title="Index"><link rel="appendix" href="language-bindings.html" title="Appendix A. Creating a language binding for cairo"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="Drawing.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="Drawing.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">Cairo: A Vector Graphics Library</th><td><a accesskey="n" href="cairo-Paths.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="cairo-cairo-t"></a><div class="titlepage"></div><div class="refnamediv"><table width="100%"><tr><td valign="top"><h2><span class="refentrytitle">cairo_t</span></h2><p>cairo_t &#8212; The cairo drawing context</p></td><td valign="top" align="right"></td></tr></table></div><div class="refsynopsisdiv"><h2>Synopsis</h2><pre class="synopsis">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>cairo_t</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
+<link rel="up" href="Drawing.html" title="Drawing">
+<link rel="prev" href="Drawing.html" title="Drawing">
+<link rel="next" href="cairo-Paths.html" title="Paths">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
+<link rel="chapter" href="Drawing.html" title="Drawing">
+<link rel="chapter" href="Fonts.html" title="Fonts">
+<link rel="chapter" href="Surfaces.html" title="Surfaces">
+<link rel="chapter" href="Support.html" title="Utilities">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="Drawing.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="Drawing.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Cairo: A Vector Graphics Library</th>
+<td><a accesskey="n" href="cairo-Paths.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#top_of_page" class="shortcut">Top</a>
+                  &#160;|&#160;
+                  <a href="#desc" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="cairo-cairo-t"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="top_of_page"></a>cairo_t</span></h2>
+<p>cairo_t &#8212; The cairo drawing context</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<a name="synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">
 
 
 
@@ -6,10 +51,16 @@ typedef     <a href="cairo-cairo-t.html#cairo-t">cairo_t</a>;
 <a href="cairo-cairo-t.html#cairo-t">cairo_t</a>*    <a href="cairo-cairo-t.html#cairo-create">cairo_create</a>                    (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *target);
 <a href="cairo-cairo-t.html#cairo-t">cairo_t</a>*    <a href="cairo-cairo-t.html#cairo-reference">cairo_reference</a>                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);
 void        <a href="cairo-cairo-t.html#cairo-destroy">cairo_destroy</a>                   (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);
+<a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> <a href="cairo-cairo-t.html#cairo-status">cairo_status</a>                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);
 void        <a href="cairo-cairo-t.html#cairo-save">cairo_save</a>                      (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);
 void        <a href="cairo-cairo-t.html#cairo-restore">cairo_restore</a>                   (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);
-<a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> <a href="cairo-cairo-t.html#cairo-status">cairo_status</a>                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);
 <a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* <a href="cairo-cairo-t.html#cairo-get-target">cairo_get_target</a>           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);
+void        <a href="cairo-cairo-t.html#cairo-push-group">cairo_push_group</a>                (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);
+void        <a href="cairo-cairo-t.html#cairo-push-group-with-content">cairo_push_group_with_content</a>   (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             <a href="cairo-cairo-surface-t.html#cairo-content-t">cairo_content_t</a> content);
+<a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* <a href="cairo-cairo-t.html#cairo-pop-group">cairo_pop_group</a>            (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);
+void        <a href="cairo-cairo-t.html#cairo-pop-group-to-source">cairo_pop_group_to_source</a>       (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);
+<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* <a href="cairo-cairo-t.html#cairo-get-group-target">cairo_get_group_target</a>     (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);
 void        <a href="cairo-cairo-t.html#cairo-set-source-rgb">cairo_set_source_rgb</a>            (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double red,
                                              double green,
@@ -94,238 +145,243 @@ void        <a href="cairo-cairo-t.html#cairo-stroke-extents">cairo_stroke_exten
 void        <a href="cairo-cairo-t.html#cairo-copy-page">cairo_copy_page</a>                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);
 void        <a href="cairo-cairo-t.html#cairo-show-page">cairo_show_page</a>                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);
 
-</pre></div><div class="refsect1" lang="en"><a name="id2580914"></a><h2>Description</h2><p>
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="desc"></a><h2>Description</h2>
+<p>
     <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a> is the main object used when drawing with cairo. To
     draw with cairo, you create a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>, set the target surface,
     and drawing options for the <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>, create shapes with
     functions like <a href="cairo-Paths.html#cairo-move-to"><code class="function">cairo_move_to()</code></a> and <a href="cairo-Paths.html#cairo-line-to"><code class="function">cairo_line_to()</code></a>, and then
     draw shapes with <a href="cairo-cairo-t.html#cairo-stroke"><code class="function">cairo_stroke()</code></a> or <a href="cairo-cairo-t.html#cairo-fill"><code class="function">cairo_fill()</code></a>.
-  </p><p>
+  </p>
+<p>
     <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>'s can be pushed to a stack via <a href="cairo-cairo-t.html#cairo-save"><code class="function">cairo_save()</code></a>.
     They may then safely be changed, without loosing the current state.
     Use <a href="cairo-cairo-t.html#cairo-restore"><code class="function">cairo_restore()</code></a> to restore to the saved state.
-  </p></div><div class="refsect1" lang="en"><a name="id2581019"></a><h2>Details</h2><div class="refsect2" lang="en"><a name="id2581025"></a><h3><a name="cairo-t"></a>cairo_t</h3><a class="indexterm" name="id2581035"></a><pre class="programlisting">typedef struct _cairo cairo_t;
-</pre><p>
+  </p>
+</div>
+<div class="refsect1" lang="en">
+<a name="details"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="id2573523"></a><h3>
+<a name="cairo-t"></a>cairo_t</h3>
+<a class="indexterm" name="id2573535"></a><pre class="programlisting">typedef struct _cairo cairo_t;
+</pre>
+<p>
 A <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a> contains the current state of the rendering device,
-including coordinates of yet to be drawn shapes.</p><p>
+including coordinates of yet to be drawn shapes.</p>
+<p>
 
-</p></div><hr><div class="refsect2" lang="en"><a name="id2581063"></a><h3><a name="cairo-create"></a>cairo_create ()</h3><a class="indexterm" name="id2581074"></a><pre class="programlisting"><a href="cairo-cairo-t.html#cairo-t">cairo_t</a>*    cairo_create                    (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *target);</pre><p>
-Creates a new <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a> with all graphics state parameters set to
-default values and with <em class="parameter"><code>target</code></em> as a target surface. The target
-surface should be constructed with a backend-specific function such
-as <a href="cairo-Image-Surfaces.html#cairo-image-surface-create"><code class="function">cairo_image_surface_create()</code></a> (or any other
-<code class="literal">cairo_&lt;backend&gt;_surface_create</code> variant).
-</p><p>
-This function references <em class="parameter"><code>target</code></em>, so you can immediately
-call <a href="cairo-cairo-surface-t.html#cairo-surface-destroy"><code class="function">cairo_surface_destroy()</code></a> on it if you don't need to
-maintain a separate reference to it.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>target</code></em> :</span></td><td> target surface for the context
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> a newly allocated <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a> with a reference
- count of 1. The initial reference count should be released
- with <a href="cairo-cairo-t.html#cairo-destroy"><code class="function">cairo_destroy()</code></a> when you are done using the <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>.
- This function never returns <code class="literal">NULL</code>. If memory cannot be
- allocated, a special <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a> object will be returned on
- which <a href="cairo-cairo-t.html#cairo-status"><code class="function">cairo_status()</code></a> returns <code class="literal">CAIRO_STATUS_NO_MEMORY</code>.
- You can use this object normally, but no drawing will
- be done.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2581240"></a><h3><a name="cairo-reference"></a>cairo_reference ()</h3><a class="indexterm" name="id2581250"></a><pre class="programlisting"><a href="cairo-cairo-t.html#cairo-t">cairo_t</a>*    cairo_reference                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Increases the reference count on <em class="parameter"><code>cr</code></em> by one. This prevents
-<em class="parameter"><code>cr</code></em> from being destroyed until a matching call to <a href="cairo-cairo-t.html#cairo-destroy"><code class="function">cairo_destroy()</code></a> 
-is made.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the referenced <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2581346"></a><h3><a name="cairo-destroy"></a>cairo_destroy ()</h3><a class="indexterm" name="id2581357"></a><pre class="programlisting">void        cairo_destroy                   (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Decreases the reference count on <em class="parameter"><code>cr</code></em> by one. If the result
-is zero, then <em class="parameter"><code>cr</code></em> and all associated resources are freed.
-See <a href="cairo-cairo-t.html#cairo-reference"><code class="function">cairo_reference()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2581435"></a><h3><a name="cairo-save"></a>cairo_save ()</h3><a class="indexterm" name="id2581445"></a><pre class="programlisting">void        cairo_save                      (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Makes a copy of the current state of <em class="parameter"><code>cr</code></em> and saves it
-on an internal stack of saved states for <em class="parameter"><code>cr</code></em>. When
-<a href="cairo-cairo-t.html#cairo-restore"><code class="function">cairo_restore()</code></a> is called, <em class="parameter"><code>cr</code></em> will be restored to
-the saved state. Multiple calls to <a href="cairo-cairo-t.html#cairo-save"><code class="function">cairo_save()</code></a> and
-<a href="cairo-cairo-t.html#cairo-restore"><code class="function">cairo_restore()</code></a> can be nested; each call to <a href="cairo-cairo-t.html#cairo-restore"><code class="function">cairo_restore()</code></a>
-restores the state from the matching paired <a href="cairo-cairo-t.html#cairo-save"><code class="function">cairo_save()</code></a>.
-</p><p>
-It isn't necessary to clear all saved states before
-a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a> is freed. If the reference count of a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>
-drops to zero in response to a call to <a href="cairo-cairo-t.html#cairo-destroy"><code class="function">cairo_destroy()</code></a>,
-any saved states will be freed along with the <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2581607"></a><h3><a name="cairo-restore"></a>cairo_restore ()</h3><a class="indexterm" name="id2581618"></a><pre class="programlisting">void        cairo_restore                   (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Restores <em class="parameter"><code>cr</code></em> to the state saved by a preceding call to
-<a href="cairo-cairo-t.html#cairo-save"><code class="function">cairo_save()</code></a> and removes that state from the stack of
-saved states.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2581691"></a><h3><a name="cairo-status"></a>cairo_status ()</h3><a class="indexterm" name="id2581701"></a><pre class="programlisting"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> cairo_status                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Checks whether an error has previously occurred for this context.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td>the current status of this context, see <a href="cairo-Error-handling.html#cairo-status-t"><span class="type">cairo_status_t</span></a>
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2581770"></a><h3><a name="cairo-get-target"></a>cairo_get_target ()</h3><a class="indexterm" name="id2557850"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_get_target           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Gets the target surface for the cairo context as passed to
-<a href="cairo-cairo-t.html#cairo-create"><code class="function">cairo_create()</code></a>.
-</p><p>
-This function will always return a valid pointer, but the result
-can be a "nil" surface if <em class="parameter"><code>cr</code></em> is already in an error state,
-(ie. <a href="cairo-cairo-t.html#cairo-status"><code class="function">cairo_status()</code></a> <code class="literal">!=</code> <code class="literal">CAIRO_STATUS_SUCCESS</code>).
-A nil surface is indicated by <a href="cairo-cairo-surface-t.html#cairo-surface-status"><code class="function">cairo_surface_status()</code></a>
-<code class="literal">!=</code> <code class="literal">CAIRO_STATUS_SUCCESS</code>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the target surface. This object is owned by cairo. To
-keep a reference to it, you must call <a href="cairo-cairo-surface-t.html#cairo-surface-reference"><code class="function">cairo_surface_reference()</code></a>.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2581886"></a><h3><a name="cairo-set-source-rgb"></a>cairo_set_source_rgb ()</h3><a class="indexterm" name="id2581895"></a><pre class="programlisting">void        cairo_set_source_rgb            (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2573563"></a><h3>
+<a name="cairo-create"></a>cairo_create ()</h3>
+<a class="indexterm" name="id2573576"></a><pre class="programlisting"><a href="cairo-cairo-t.html#cairo-t">cairo_t</a>*    cairo_create                    (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *target);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2573600"></a><h3>
+<a name="cairo-reference"></a>cairo_reference ()</h3>
+<a class="indexterm" name="id2573612"></a><pre class="programlisting"><a href="cairo-cairo-t.html#cairo-t">cairo_t</a>*    cairo_reference                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2573636"></a><h3>
+<a name="cairo-destroy"></a>cairo_destroy ()</h3>
+<a class="indexterm" name="id2573648"></a><pre class="programlisting">void        cairo_destroy                   (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2573672"></a><h3>
+<a name="cairo-status"></a>cairo_status ()</h3>
+<a class="indexterm" name="id2573684"></a><pre class="programlisting"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> cairo_status                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2573709"></a><h3>
+<a name="cairo-save"></a>cairo_save ()</h3>
+<a class="indexterm" name="id2573721"></a><pre class="programlisting">void        cairo_save                      (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2573745"></a><h3>
+<a name="cairo-restore"></a>cairo_restore ()</h3>
+<a class="indexterm" name="id2573757"></a><pre class="programlisting">void        cairo_restore                   (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2573782"></a><h3>
+<a name="cairo-get-target"></a>cairo_get_target ()</h3>
+<a class="indexterm" name="id2573794"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_get_target           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2573819"></a><h3>
+<a name="cairo-push-group"></a>cairo_push_group ()</h3>
+<a class="indexterm" name="id2573834"></a><pre class="programlisting">void        cairo_push_group                (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+<p>Since  1.2
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2573863"></a><h3>
+<a name="cairo-push-group-with-content"></a>cairo_push_group_with_content ()</h3>
+<a class="indexterm" name="id2573878"></a><pre class="programlisting">void        cairo_push_group_with_content   (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             <a href="cairo-cairo-surface-t.html#cairo-content-t">cairo_content_t</a> content);</pre>
+<p>Since  1.2
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2573915"></a><h3>
+<a name="cairo-pop-group"></a>cairo_pop_group ()</h3>
+<a class="indexterm" name="id2573929"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_pop_group            (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+<p>Since  1.2
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2573959"></a><h3>
+<a name="cairo-pop-group-to-source"></a>cairo_pop_group_to_source ()</h3>
+<a class="indexterm" name="id2573973"></a><pre class="programlisting">void        cairo_pop_group_to_source       (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+<p>Since  1.2
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574002"></a><h3>
+<a name="cairo-get-group-target"></a>cairo_get_group_target ()</h3>
+<a class="indexterm" name="id2574015"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_get_group_target     (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+<p>Since  1.2
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574044"></a><h3>
+<a name="cairo-set-source-rgb"></a>cairo_set_source_rgb ()</h3>
+<a class="indexterm" name="id2574055"></a><pre class="programlisting">void        cairo_set_source_rgb            (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double red,
                                              double green,
-                                             double blue);</pre><p>
-Sets the source pattern within <em class="parameter"><code>cr</code></em> to an opaque color. This opaque
-color will then be used for any subsequent drawing operation until
-a new source pattern is set.
-</p><p>
-The color components are floating point numbers in the range 0 to
-1. If the values passed in are outside that range, they will be
-clamped.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><em class="parameter"><code>red</code></em> :</span></td><td> red component of color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>green</code></em> :</span></td><td> green component of color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>blue</code></em> :</span></td><td> blue component of color
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2582009"></a><h3><a name="cairo-set-source-rgba"></a>cairo_set_source_rgba ()</h3><a class="indexterm" name="id2582017"></a><pre class="programlisting">void        cairo_set_source_rgba           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             double blue);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574099"></a><h3>
+<a name="cairo-set-source-rgba"></a>cairo_set_source_rgba ()</h3>
+<a class="indexterm" name="id2574111"></a><pre class="programlisting">void        cairo_set_source_rgba           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double red,
                                              double green,
                                              double blue,
-                                             double alpha);</pre><p>
-Sets the source pattern within <em class="parameter"><code>cr</code></em> to a translucent color. This
-color will then be used for any subsequent drawing operation until
-a new source pattern is set.
-</p><p>
-The color and alpha components are floating point numbers in the
-range 0 to 1. If the values passed in are outside that range, they
-will be clamped.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><em class="parameter"><code>red</code></em> :</span></td><td> red component of color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>green</code></em> :</span></td><td> green component of color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>blue</code></em> :</span></td><td> blue component of color
-</td></tr><tr><td><span class="term"><em class="parameter"><code>alpha</code></em> :</span></td><td> alpha component of color
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2582150"></a><h3><a name="cairo-set-source"></a>cairo_set_source ()</h3><a class="indexterm" name="id2582159"></a><pre class="programlisting">void        cairo_set_source                (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             <a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *source);</pre><p>
-Sets the source pattern within <em class="parameter"><code>cr</code></em> to <em class="parameter"><code>source</code></em>. This pattern
-will then be used for any subsequent drawing operation until a new
-source pattern is set.
-</p><p>
-Note: The pattern's transformation matrix will be locked to the
-user space in effect at the time of <a href="cairo-cairo-t.html#cairo-set-source"><code class="function">cairo_set_source()</code></a>. This means
-that further modifications of the current transformation matrix
-will not affect the source pattern. See <a href="cairo-Patterns.html#cairo-pattern-set-matrix"><code class="function">cairo_pattern_set_matrix()</code></a>.
-</p><p>
-XXX: I'd also like to direct the reader's attention to some
-(not-yet-written) section on cairo's imaging model. How would I do
-that if such a section existed? (cworth).</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><em class="parameter"><code>source</code></em> :</span></td><td> a <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a> to be used as the source for
-subsequent drawing operations.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2582271"></a><h3><a name="cairo-set-source-surface"></a>cairo_set_source_surface ()</h3><a class="indexterm" name="id2582280"></a><pre class="programlisting">void        cairo_set_source_surface        (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             double alpha);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574162"></a><h3>
+<a name="cairo-set-source"></a>cairo_set_source ()</h3>
+<a class="indexterm" name="id2574174"></a><pre class="programlisting">void        cairo_set_source                (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             <a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *source);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574206"></a><h3>
+<a name="cairo-set-source-surface"></a>cairo_set_source_surface ()</h3>
+<a class="indexterm" name="id2574217"></a><pre class="programlisting">void        cairo_set_source_surface        (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              <a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                              double x,
-                                             double y);</pre><p>
-This is a convenience function for creating a pattern from <em class="parameter"><code>surface</code></em>
-and setting it as the source in <em class="parameter"><code>cr</code></em> with <a href="cairo-cairo-t.html#cairo-set-source"><code class="function">cairo_set_source()</code></a>.
-</p><p>
-The <em class="parameter"><code>x</code></em> and <em class="parameter"><code>y</code></em> parameters give the user-space coordinate at which
-the surface origin should appear. (The surface origin is its
-upper-left corner before any transformation has been applied.) The
-<em class="parameter"><code>x</code></em> and <em class="parameter"><code>y</code></em> patterns are negated and then set as translation values
-in the pattern matrix.
-</p><p>
-Other than the initial translation pattern matrix, as described
-above, all other pattern attributes, (such as its extend mode), are
-set to the default values as in <a href="cairo-Patterns.html#cairo-pattern-create-for-surface"><code class="function">cairo_pattern_create_for_surface()</code></a>.
-The resulting pattern can be queried with <a href="cairo-cairo-t.html#cairo-get-source"><code class="function">cairo_get_source()</code></a> so
-that these attributes can be modified if desired, (eg. to create a
-repeating pattern with <a href="cairo-Patterns.html#cairo-pattern-set-extend"><code class="function">cairo_pattern_set_extend()</code></a>).</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><em class="parameter"><code>surface</code></em> :</span></td><td> a surface to be used to set the source pattern
-</td></tr><tr><td><span class="term"><em class="parameter"><code>x</code></em> :</span></td><td> User-space X coordinate for surface origin
-</td></tr><tr><td><span class="term"><em class="parameter"><code>y</code></em> :</span></td><td> User-space Y coordinate for surface origin
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2582467"></a><h3><a name="cairo-get-source"></a>cairo_get_source ()</h3><a class="indexterm" name="id2582475"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_get_source           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Gets the current source pattern for <em class="parameter"><code>cr</code></em>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the current source pattern. This object is owned by
-cairo. To keep a reference to it, you must call
-<a href="cairo-Patterns.html#cairo-pattern-reference"><code class="function">cairo_pattern_reference()</code></a>.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2582545"></a><h3><a name="cairo-antialias-t"></a>enum cairo_antialias_t</h3><a class="indexterm" name="id2582553"></a><pre class="programlisting">typedef enum _cairo_antialias {
+                                             double y);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574261"></a><h3>
+<a name="cairo-get-source"></a>cairo_get_source ()</h3>
+<a class="indexterm" name="id2574274"></a><pre class="programlisting"><a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a>* cairo_get_source           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574298"></a><h3>
+<a name="cairo-antialias-t"></a>enum cairo_antialias_t</h3>
+<a class="indexterm" name="id2574311"></a><pre class="programlisting">typedef enum _cairo_antialias {
     CAIRO_ANTIALIAS_DEFAULT,
     CAIRO_ANTIALIAS_NONE,
     CAIRO_ANTIALIAS_GRAY,
     CAIRO_ANTIALIAS_SUBPIXEL
 } cairo_antialias_t;
-</pre><p>
-Specifies the type of antialiasing to do when rendering text or shapes.</p><p>
+</pre>
+<p>
+Specifies the type of antialiasing to do when rendering text or shapes.</p>
+<p>
 
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><code class="literal">CAIRO_ANTIALIAS_DEFAULT</code></span></td><td> Use the default antialiasing for
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-ANTIALIAS-DEFAULT:CAPS"></a><code class="literal">CAIRO_ANTIALIAS_DEFAULT</code></span></td>
+<td> Use the default antialiasing for
   the subsystem and target device
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_ANTIALIAS_NONE</code></span></td><td> Use a bilevel alpha mask
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_ANTIALIAS_GRAY</code></span></td><td> Perform single-color antialiasing (using
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-ANTIALIAS-NONE:CAPS"></a><code class="literal">CAIRO_ANTIALIAS_NONE</code></span></td>
+<td> Use a bilevel alpha mask
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-ANTIALIAS-GRAY:CAPS"></a><code class="literal">CAIRO_ANTIALIAS_GRAY</code></span></td>
+<td> Perform single-color antialiasing (using
  shades of gray for black text on a white background, for example).
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_ANTIALIAS_SUBPIXEL</code></span></td><td> Perform antialiasing by taking
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-ANTIALIAS-SUBPIXEL:CAPS"></a><code class="literal">CAIRO_ANTIALIAS_SUBPIXEL</code></span></td>
+<td> Perform antialiasing by taking
  advantage of the order of subpixel elements on devices
  such as LCD panels
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2582638"></a><h3><a name="cairo-set-antialias"></a>cairo_set_antialias ()</h3><a class="indexterm" name="id2582647"></a><pre class="programlisting">void        cairo_set_antialias             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             <a href="cairo-cairo-t.html#cairo-antialias-t">cairo_antialias_t</a> antialias);</pre><p>
-Set the antialiasing mode of the rasterizer used for drawing shapes.
-This value is a hint, and a particular backend may or may not support
-a particular value.  At the current time, no backend supports
-<code class="literal">CAIRO_ANTIALIAS_SUBPIXEL</code> when drawing shapes.
-</p><p>
-Note that this option does not affect text rendering, instead see
-<a href="cairo-Font-Options.html#cairo-font-options-set-antialias"><code class="function">cairo_font_options_set_antialias()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>antialias</code></em> :</span></td><td> the new antialiasing mode
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2582738"></a><h3><a name="cairo-get-antialias"></a>cairo_get_antialias ()</h3><a class="indexterm" name="id2582747"></a><pre class="programlisting"><a href="cairo-cairo-t.html#cairo-antialias-t">cairo_antialias_t</a> cairo_get_antialias       (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Gets the current shape antialiasing mode, as set by <code class="function">cairo_set_shape_antialias()</code>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the current shape antialiasing mode.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2582810"></a><h3><a name="cairo-set-dash"></a>cairo_set_dash ()</h3><a class="indexterm" name="id2582818"></a><pre class="programlisting">void        cairo_set_dash                  (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574428"></a><h3>
+<a name="cairo-set-antialias"></a>cairo_set_antialias ()</h3>
+<a class="indexterm" name="id2574441"></a><pre class="programlisting">void        cairo_set_antialias             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             <a href="cairo-cairo-t.html#cairo-antialias-t">cairo_antialias_t</a> antialias);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574472"></a><h3>
+<a name="cairo-get-antialias"></a>cairo_get_antialias ()</h3>
+<a class="indexterm" name="id2574484"></a><pre class="programlisting"><a href="cairo-cairo-t.html#cairo-antialias-t">cairo_antialias_t</a> cairo_get_antialias       (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574508"></a><h3>
+<a name="cairo-set-dash"></a>cairo_set_dash ()</h3>
+<a class="indexterm" name="id2574520"></a><pre class="programlisting">void        cairo_set_dash                  (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double *dashes,
                                              int num_dashes,
-                                             double offset);</pre><p>
-Sets the dash pattern to be used by <a href="cairo-cairo-t.html#cairo-stroke"><code class="function">cairo_stroke()</code></a>. A dash pattern
-is specified by <em class="parameter"><code>dashes</code></em>, an array of positive values. Each value
-provides the user-space length of altenate "on" and "off" portions
-of the stroke. The <em class="parameter"><code>offset</code></em> specifies an offset into the pattern at
-which the stroke begins.
-</p><p>
-If <em class="parameter"><code>num_dashes</code></em> is 0 dashing is disabled.
-</p><p>
-If <em class="parameter"><code>num_dashes</code></em> is 1 a symmetric pattern is assumed with alternating
-on and off portions of the size specified by the single value in
-<em class="parameter"><code>dashes</code></em>.
-</p><p>
-If any value in <em class="parameter"><code>dashes</code></em> is negative, or if all values are 0, then
-<em class="parameter"><code>cairo_t</code></em> will be put into an error state with a status of
-<span class="type">CAIRO_STATUS_INVALID_DASH</span>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><em class="parameter"><code>dashes</code></em> :</span></td><td> an array specifying alternate lengths of on and off po
-</td></tr><tr><td><span class="term"><em class="parameter"><code>num_dashes</code></em> :</span></td><td> the length of the dashes array
-</td></tr><tr><td><span class="term"><em class="parameter"><code>offset</code></em> :</span></td><td> an offset into the dash pattern at which the stroke should start
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2582992"></a><h3><a name="cairo-fill-rule-t"></a>enum cairo_fill_rule_t</h3><a class="indexterm" name="id2583000"></a><pre class="programlisting">typedef enum _cairo_fill_rule {
+                                             double offset);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574565"></a><h3>
+<a name="cairo-fill-rule-t"></a>enum cairo_fill_rule_t</h3>
+<a class="indexterm" name="id2574578"></a><pre class="programlisting">typedef enum _cairo_fill_rule {
     CAIRO_FILL_RULE_WINDING,
     CAIRO_FILL_RULE_EVEN_ODD
 } cairo_fill_rule_t;
-</pre><p>
+</pre>
+<p>
 <a href="cairo-cairo-t.html#cairo-fill-rule-t"><span class="type">cairo_fill_rule_t</span></a> is used to select how paths are filled. For both
 fill rules, whether or not a point is included in the fill is
 determined by taking a ray from that point to infinity and looking
@@ -333,117 +389,158 @@ at intersections with the path. The ray can be in any direction,
 as long as it doesn't pass through the end point of a segment
 or have a tricky intersection such as intersecting tangent to the path.
 (Note that filling is not actually implemented in this way. This
-is just a description of the rule that is applied.)</p><p>
+is just a description of the rule that is applied.)</p>
+<p>
 
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><code class="literal">CAIRO_FILL_RULE_WINDING</code></span></td><td> If the path crosses the ray from
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-FILL-RULE-WINDING:CAPS"></a><code class="literal">CAIRO_FILL_RULE_WINDING</code></span></td>
+<td> If the path crosses the ray from
 left-to-right, counts +1. If the path crosses the ray
 from right to left, counts -1. (Left and right are determined
 from the perspective of looking along the ray from the starting
 point.) If the total count is non-zero, the point will be filled.
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_FILL_RULE_EVEN_ODD</code></span></td><td> Counts the total number of
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-FILL-RULE-EVEN-ODD:CAPS"></a><code class="literal">CAIRO_FILL_RULE_EVEN_ODD</code></span></td>
+<td> Counts the total number of
 intersections, without regard to the orientation of the contour. If
 the total number of intersections is odd, the point will be
 filled.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2583073"></a><h3><a name="cairo-set-fill-rule"></a>cairo_set_fill_rule ()</h3><a class="indexterm" name="id2583081"></a><pre class="programlisting">void        cairo_set_fill_rule             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             <a href="cairo-cairo-t.html#cairo-fill-rule-t">cairo_fill_rule_t</a> fill_rule);</pre><p>
-Set the current fill rule within the cairo context. The fill rule
-is used to determine which regions are inside or outside a complex
-(potentially self-intersecting) path. The current fill rule affects
-both cairo_fill and cairo_clip. See <a href="cairo-cairo-t.html#cairo-fill-rule-t"><span class="type">cairo_fill_rule_t</span></a> for details
-on the semantics of each available fill rule.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>fill_rule</code></em> :</span></td><td> a fill rule, specified as a <a href="cairo-cairo-t.html#cairo-fill-rule-t"><span class="type">cairo_fill_rule_t</span></a>
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2583169"></a><h3><a name="cairo-get-fill-rule"></a>cairo_get_fill_rule ()</h3><a class="indexterm" name="id2583177"></a><pre class="programlisting"><a href="cairo-cairo-t.html#cairo-fill-rule-t">cairo_fill_rule_t</a> cairo_get_fill_rule       (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Gets the current fill rule, as set by <a href="cairo-cairo-t.html#cairo-set-fill-rule"><code class="function">cairo_set_fill_rule()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the current fill rule.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2583239"></a><h3><a name="cairo-line-cap-t"></a>enum cairo_line_cap_t</h3><a class="indexterm" name="id2583248"></a><pre class="programlisting">typedef enum _cairo_line_cap {
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574670"></a><h3>
+<a name="cairo-set-fill-rule"></a>cairo_set_fill_rule ()</h3>
+<a class="indexterm" name="id2574683"></a><pre class="programlisting">void        cairo_set_fill_rule             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             <a href="cairo-cairo-t.html#cairo-fill-rule-t">cairo_fill_rule_t</a> fill_rule);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574714"></a><h3>
+<a name="cairo-get-fill-rule"></a>cairo_get_fill_rule ()</h3>
+<a class="indexterm" name="id2574726"></a><pre class="programlisting"><a href="cairo-cairo-t.html#cairo-fill-rule-t">cairo_fill_rule_t</a> cairo_get_fill_rule       (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574750"></a><h3>
+<a name="cairo-line-cap-t"></a>enum cairo_line_cap_t</h3>
+<a class="indexterm" name="id2574762"></a><pre class="programlisting">typedef enum _cairo_line_cap {
     CAIRO_LINE_CAP_BUTT,
     CAIRO_LINE_CAP_ROUND,
     CAIRO_LINE_CAP_SQUARE
 } cairo_line_cap_t;
-</pre><p>
-enumeration for style of line-endings</p><p>
+</pre>
+<p>
+enumeration for style of line-endings</p>
+<p>
 
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><code class="literal">CAIRO_LINE_CAP_BUTT</code></span></td><td> start(stop) the line exactly at the start(end) point
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_LINE_CAP_ROUND</code></span></td><td> use a round ending, the center of the circle is the end point
-</td></tr><tr><td><span class="term"><code class="literal">CAIRO_LINE_CAP_SQUARE</code></span></td><td> use squared ending, the center of the square is the end point
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2583316"></a><h3><a name="cairo-set-line-cap"></a>cairo_set_line_cap ()</h3><a class="indexterm" name="id2583325"></a><pre class="programlisting">void        cairo_set_line_cap              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             <a href="cairo-cairo-t.html#cairo-line-cap-t">cairo_line_cap_t</a> line_cap);</pre><p>
-Sets the current line cap style within the cairo context. See
-<a href="cairo-cairo-t.html#cairo-line-cap-t"><span class="type">cairo_line_cap_t</span></a> for details about how the available line cap
-styles are drawn.
-</p><p>
-As with the other stroke parameters, the current line cap style is
-examined by <a href="cairo-cairo-t.html#cairo-stroke"><code class="function">cairo_stroke()</code></a>, <a href="cairo-cairo-t.html#cairo-stroke-extents"><code class="function">cairo_stroke_extents()</code></a>, and
-<code class="function">cairo_stroke_to_path()</code>, but does not have any effect during path
-construction.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context, as a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>line_cap</code></em> :</span></td><td> a line cap style, as a <a href="cairo-cairo-t.html#cairo-line-cap-t"><span class="type">cairo_line_cap_t</span></a>
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2583439"></a><h3><a name="cairo-get-line-cap"></a>cairo_get_line_cap ()</h3><a class="indexterm" name="id2583447"></a><pre class="programlisting"><a href="cairo-cairo-t.html#cairo-line-cap-t">cairo_line_cap_t</a> cairo_get_line_cap         (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Gets the current line cap style, as set by <a href="cairo-cairo-t.html#cairo-set-line-cap"><code class="function">cairo_set_line_cap()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the current line cap style.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2583510"></a><h3><a name="cairo-line-join-t"></a>enum cairo_line_join_t</h3><a class="indexterm" name="id2583519"></a><pre class="programlisting">typedef enum _cairo_line_join {
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-LINE-CAP-BUTT:CAPS"></a><code class="literal">CAIRO_LINE_CAP_BUTT</code></span></td>
+<td> start(stop) the line exactly at the start(end) point
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-LINE-CAP-ROUND:CAPS"></a><code class="literal">CAIRO_LINE_CAP_ROUND</code></span></td>
+<td> use a round ending, the center of the circle is the end point
+</td>
+</tr>
+<tr>
+<td>
+<span class="term"><a name="CAIRO-LINE-CAP-SQUARE:CAPS"></a><code class="literal">CAIRO_LINE_CAP_SQUARE</code></span></td>
+<td> use squared ending, the center of the square is the end point
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574852"></a><h3>
+<a name="cairo-set-line-cap"></a>cairo_set_line_cap ()</h3>
+<a class="indexterm" name="id2574865"></a><pre class="programlisting">void        cairo_set_line_cap              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             <a href="cairo-cairo-t.html#cairo-line-cap-t">cairo_line_cap_t</a> line_cap);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574896"></a><h3>
+<a name="cairo-get-line-cap"></a>cairo_get_line_cap ()</h3>
+<a class="indexterm" name="id2574908"></a><pre class="programlisting"><a href="cairo-cairo-t.html#cairo-line-cap-t">cairo_line_cap_t</a> cairo_get_line_cap         (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574933"></a><h3>
+<a name="cairo-line-join-t"></a>enum cairo_line_join_t</h3>
+<a class="indexterm" name="id2574945"></a><pre class="programlisting">typedef enum _cairo_line_join {
     CAIRO_LINE_JOIN_MITER,
     CAIRO_LINE_JOIN_ROUND,
     CAIRO_LINE_JOIN_BEVEL
 } cairo_line_join_t;
-</pre><p>
+</pre>
+<p>
 
-</p></div><hr><div class="refsect2" lang="en"><a name="id2583535"></a><h3><a name="cairo-set-line-join"></a>cairo_set_line_join ()</h3><a class="indexterm" name="id2583543"></a><pre class="programlisting">void        cairo_set_line_join             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             <a href="cairo-cairo-t.html#cairo-line-join-t">cairo_line_join_t</a> line_join);</pre><p>
-Sets the current line join style within the cairo context. See
-<a href="cairo-cairo-t.html#cairo-line-join-t"><span class="type">cairo_line_join_t</span></a> for details about how the available line join
-styles are drawn.
-</p><p>
-As with the other stroke parameters, the current line join style is
-examined by <a href="cairo-cairo-t.html#cairo-stroke"><code class="function">cairo_stroke()</code></a>, <a href="cairo-cairo-t.html#cairo-stroke-extents"><code class="function">cairo_stroke_extents()</code></a>, and
-<code class="function">cairo_stroke_to_path()</code>, but does not have any effect during path
-construction.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context, as a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>line_join</code></em> :</span></td><td> a line joint style, as a <a href="cairo-cairo-t.html#cairo-line-join-t"><span class="type">cairo_line_join_t</span></a>
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2583658"></a><h3><a name="cairo-get-line-join"></a>cairo_get_line_join ()</h3><a class="indexterm" name="id2583666"></a><pre class="programlisting"><a href="cairo-cairo-t.html#cairo-line-join-t">cairo_line_join_t</a> cairo_get_line_join       (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Gets the current line join style, as set by <a href="cairo-cairo-t.html#cairo-set-line-join"><code class="function">cairo_set_line_join()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the current line join style.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2583729"></a><h3><a name="cairo-set-line-width"></a>cairo_set_line_width ()</h3><a class="indexterm" name="id2583737"></a><pre class="programlisting">void        cairo_set_line_width            (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             double width);</pre><p>
-Sets the current line width within the cairo context. The line
-width specifies the diameter of a pen that is circular in
-user-space.
-</p><p>
-As with the other stroke parameters, the current line cap style is
-examined by <a href="cairo-cairo-t.html#cairo-stroke"><code class="function">cairo_stroke()</code></a>, <a href="cairo-cairo-t.html#cairo-stroke-extents"><code class="function">cairo_stroke_extents()</code></a>, and
-<code class="function">cairo_stroke_to_path()</code>, but does not have any effect during path
-construction.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>width</code></em> :</span></td><td> a line width, as a user-space value
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2583840"></a><h3><a name="cairo-get-line-width"></a>cairo_get_line_width ()</h3><a class="indexterm" name="id2583848"></a><pre class="programlisting">double      cairo_get_line_width            (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Gets the current line width, as set by <a href="cairo-cairo-t.html#cairo-set-line-width"><code class="function">cairo_set_line_width()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the current line width, in user-space units.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2583912"></a><h3><a name="cairo-set-miter-limit"></a>cairo_set_miter_limit ()</h3><a class="indexterm" name="id2583920"></a><pre class="programlisting">void        cairo_set_miter_limit           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             double limit);</pre><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>limit</code></em> :</span></td><td>
-
-
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2583979"></a><h3><a name="cairo-get-miter-limit"></a>cairo_get_miter_limit ()</h3><a class="indexterm" name="id2583988"></a><pre class="programlisting">double      cairo_get_miter_limit           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Gets the current miter limit, as set by <a href="cairo-cairo-t.html#cairo-set-miter-limit"><code class="function">cairo_set_miter_limit()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the current miter limit.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2584050"></a><h3><a name="cairo-operator-t"></a>enum cairo_operator_t</h3><a class="indexterm" name="id2584059"></a><pre class="programlisting">typedef enum _cairo_operator {
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2574962"></a><h3>
+<a name="cairo-set-line-join"></a>cairo_set_line_join ()</h3>
+<a class="indexterm" name="id2574975"></a><pre class="programlisting">void        cairo_set_line_join             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             <a href="cairo-cairo-t.html#cairo-line-join-t">cairo_line_join_t</a> line_join);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575006"></a><h3>
+<a name="cairo-get-line-join"></a>cairo_get_line_join ()</h3>
+<a class="indexterm" name="id2554010"></a><pre class="programlisting"><a href="cairo-cairo-t.html#cairo-line-join-t">cairo_line_join_t</a> cairo_get_line_join       (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575027"></a><h3>
+<a name="cairo-set-line-width"></a>cairo_set_line_width ()</h3>
+<a class="indexterm" name="id2575038"></a><pre class="programlisting">void        cairo_set_line_width            (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             double width);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575065"></a><h3>
+<a name="cairo-get-line-width"></a>cairo_get_line_width ()</h3>
+<a class="indexterm" name="id2575076"></a><pre class="programlisting">double      cairo_get_line_width            (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575097"></a><h3>
+<a name="cairo-set-miter-limit"></a>cairo_set_miter_limit ()</h3>
+<a class="indexterm" name="id2575108"></a><pre class="programlisting">void        cairo_set_miter_limit           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             double limit);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575136"></a><h3>
+<a name="cairo-get-miter-limit"></a>cairo_get_miter_limit ()</h3>
+<a class="indexterm" name="id2575146"></a><pre class="programlisting">double      cairo_get_miter_limit           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575168"></a><h3>
+<a name="cairo-operator-t"></a>enum cairo_operator_t</h3>
+<a class="indexterm" name="id2575178"></a><pre class="programlisting">typedef enum _cairo_operator {
     CAIRO_OPERATOR_CLEAR,
 
     CAIRO_OPERATOR_SOURCE,
@@ -462,223 +559,157 @@ Gets the current miter limit, as set by <a href="cairo-cairo-t.html#cairo-set-mi
     CAIRO_OPERATOR_ADD,
     CAIRO_OPERATOR_SATURATE
 } cairo_operator_t;
-</pre><p>
+</pre>
+<p>
 
-</p></div><hr><div class="refsect2" lang="en"><a name="id2584079"></a><h3><a name="cairo-set-operator"></a>cairo_set_operator ()</h3><a class="indexterm" name="id2584088"></a><pre class="programlisting">void        cairo_set_operator              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             <a href="cairo-cairo-t.html#cairo-operator-t">cairo_operator_t</a> op);</pre><p>
-Sets the compositing operator to be used for all drawing
-operations. See <a href="cairo-cairo-t.html#cairo-operator-t"><span class="type">cairo_operator_t</span></a> for details on the semantics of
-each available compositing operator.
-</p><p>
-XXX: I'd also like to direct the reader's attention to some
-(not-yet-written) section on cairo's imaging model. How would I do
-that if such a section existed? (cworth).</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>op</code></em> :</span></td><td> a compositing operator, specified as a <a href="cairo-cairo-t.html#cairo-operator-t"><span class="type">cairo_operator_t</span></a>
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2584179"></a><h3><a name="cairo-get-operator"></a>cairo_get_operator ()</h3><a class="indexterm" name="id2584187"></a><pre class="programlisting"><a href="cairo-cairo-t.html#cairo-operator-t">cairo_operator_t</a> cairo_get_operator         (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Gets the current compositing operator for a cairo context.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the current compositing operator.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2584242"></a><h3><a name="cairo-set-tolerance"></a>cairo_set_tolerance ()</h3><a class="indexterm" name="id2584250"></a><pre class="programlisting">void        cairo_set_tolerance             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             double tolerance);</pre><p>
-Sets the tolerance used when converting paths into trapezoids.
-Curved segments of the path will be subdivided until the maximum
-deviation between the original path and the polygonal approximation
-is less than <em class="parameter"><code>tolerance</code></em>. The default value is 0.1. A larger
-value will give better performance, a smaller value, better
-appearance. (Reducing the value from the default value of 0.1
-is unlikely to improve appearance significantly.)</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>tolerance</code></em> :</span></td><td> the tolerance, in device units (typically pixels)
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2584333"></a><h3><a name="cairo-get-tolerance"></a>cairo_get_tolerance ()</h3><a class="indexterm" name="id2584341"></a><pre class="programlisting">double      cairo_get_tolerance             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Gets the current tolerance value, as set by <a href="cairo-cairo-t.html#cairo-set-tolerance"><code class="function">cairo_set_tolerance()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the current tolerance value.
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2584410"></a><h3><a name="cairo-clip"></a>cairo_clip ()</h3><a class="indexterm" name="id2584420"></a><pre class="programlisting">void        cairo_clip                      (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Establishes a new clip region by intersecting the current clip
-region with the current path as it would be filled by <a href="cairo-cairo-t.html#cairo-fill"><code class="function">cairo_fill()</code></a>
-and according to the current fill rule (see <a href="cairo-cairo-t.html#cairo-set-fill-rule"><code class="function">cairo_set_fill_rule()</code></a>).
-</p><p>
-After cairo_clip, the current path will be cleared from the cairo
-context.
-</p><p>
-The current clip region affects all drawing operations by
-effectively masking out any changes to the surface that are outside
-the current clip region.
-</p><p>
-Calling <a href="cairo-cairo-t.html#cairo-clip"><code class="function">cairo_clip()</code></a> can only make the clip region smaller, never
-larger. But the current clip is part of the graphics state, so a
-temporary restriction of the clip region can be achieved by
-calling <a href="cairo-cairo-t.html#cairo-clip"><code class="function">cairo_clip()</code></a> within a <a href="cairo-cairo-t.html#cairo-save"><code class="function">cairo_save()</code></a>/<a href="cairo-cairo-t.html#cairo-restore"><code class="function">cairo_restore()</code></a>
-pair. The only other means of increasing the size of the clip
-region is <a href="cairo-cairo-t.html#cairo-reset-clip"><code class="function">cairo_reset_clip()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2584558"></a><h3><a name="cairo-clip-preserve"></a>cairo_clip_preserve ()</h3><a class="indexterm" name="id2584569"></a><pre class="programlisting">void        cairo_clip_preserve             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Establishes a new clip region by intersecting the current clip
-region with the current path as it would be filled by <a href="cairo-cairo-t.html#cairo-fill"><code class="function">cairo_fill()</code></a>
-and according to the current fill rule (see <a href="cairo-cairo-t.html#cairo-set-fill-rule"><code class="function">cairo_set_fill_rule()</code></a>).
-</p><p>
-Unlike <a href="cairo-cairo-t.html#cairo-clip"><code class="function">cairo_clip()</code></a>, cairo_clip_preserve preserves the path within
-the cairo context.
-</p><p>
-The current clip region affects all drawing operations by
-effectively masking out any changes to the surface that are outside
-the current clip region.
-</p><p>
-Calling <a href="cairo-cairo-t.html#cairo-clip"><code class="function">cairo_clip()</code></a> can only make the clip region smaller, never
-larger. But the current clip is part of the graphics state, so a
-temporary restriction of the clip region can be achieved by
-calling <a href="cairo-cairo-t.html#cairo-clip"><code class="function">cairo_clip()</code></a> within a <a href="cairo-cairo-t.html#cairo-save"><code class="function">cairo_save()</code></a>/<a href="cairo-cairo-t.html#cairo-restore"><code class="function">cairo_restore()</code></a>
-pair. The only other means of increasing the size of the clip
-region is <a href="cairo-cairo-t.html#cairo-reset-clip"><code class="function">cairo_reset_clip()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2584716"></a><h3><a name="cairo-reset-clip"></a>cairo_reset_clip ()</h3><a class="indexterm" name="id2584726"></a><pre class="programlisting">void        cairo_reset_clip                (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-Reset the current clip region to its original, unrestricted
-state. That is, set the clip region to an infinitely large shape
-containing the target surface. Equivalently, if infinity is too
-hard to grasp, one can imagine the clip region being reset to the
-exact bounds of the target surface.
-</p><p>
-Note that code meant to be reusable should not call
-<a href="cairo-cairo-t.html#cairo-reset-clip"><code class="function">cairo_reset_clip()</code></a> as it will cause results unexpected by
-higher-level code which calls <a href="cairo-cairo-t.html#cairo-clip"><code class="function">cairo_clip()</code></a>. Consider using
-<a href="cairo-cairo-t.html#cairo-save"><code class="function">cairo_save()</code></a> and <a href="cairo-cairo-t.html#cairo-restore"><code class="function">cairo_restore()</code></a> around <a href="cairo-cairo-t.html#cairo-clip"><code class="function">cairo_clip()</code></a> as a more
-robust means of temporarily restricting the clip region.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2584835"></a><h3><a name="cairo-fill"></a>cairo_fill ()</h3><a class="indexterm" name="id2584846"></a><pre class="programlisting">void        cairo_fill                      (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-A drawing operator that fills the current path according to the
-current fill rule, (each sub-path is implicitly closed before being
-filled). After cairo_fill, the current path will be cleared from
-the cairo context. See <a href="cairo-cairo-t.html#cairo-set-fill-rule"><code class="function">cairo_set_fill_rule()</code></a> and
-<a href="cairo-cairo-t.html#cairo-fill-preserve"><code class="function">cairo_fill_preserve()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2584918"></a><h3><a name="cairo-fill-preserve"></a>cairo_fill_preserve ()</h3><a class="indexterm" name="id2584930"></a><pre class="programlisting">void        cairo_fill_preserve             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-A drawing operator that fills the current path according to the
-current fill rule, (each sub-path is implicitly closed before being
-filled). Unlike <a href="cairo-cairo-t.html#cairo-fill"><code class="function">cairo_fill()</code></a>, cairo_fill_preserve preserves the
-path within the cairo context.
-</p><p>
-See <a href="cairo-cairo-t.html#cairo-set-fill-rule"><code class="function">cairo_set_fill_rule()</code></a> and <a href="cairo-cairo-t.html#cairo-fill"><code class="function">cairo_fill()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2585015"></a><h3><a name="cairo-fill-extents"></a>cairo_fill_extents ()</h3><a class="indexterm" name="id2585026"></a><pre class="programlisting">void        cairo_fill_extents              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575199"></a><h3>
+<a name="cairo-set-operator"></a>cairo_set_operator ()</h3>
+<a class="indexterm" name="id2575209"></a><pre class="programlisting">void        cairo_set_operator              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             <a href="cairo-cairo-t.html#cairo-operator-t">cairo_operator_t</a> op);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575237"></a><h3>
+<a name="cairo-get-operator"></a>cairo_get_operator ()</h3>
+<a class="indexterm" name="id2575247"></a><pre class="programlisting"><a href="cairo-cairo-t.html#cairo-operator-t">cairo_operator_t</a> cairo_get_operator         (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575269"></a><h3>
+<a name="cairo-set-tolerance"></a>cairo_set_tolerance ()</h3>
+<a class="indexterm" name="id2575279"></a><pre class="programlisting">void        cairo_set_tolerance             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             double tolerance);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575307"></a><h3>
+<a name="cairo-get-tolerance"></a>cairo_get_tolerance ()</h3>
+<a class="indexterm" name="id2575317"></a><pre class="programlisting">double      cairo_get_tolerance             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575339"></a><h3>
+<a name="cairo-clip"></a>cairo_clip ()</h3>
+<a class="indexterm" name="id2575349"></a><pre class="programlisting">void        cairo_clip                      (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575371"></a><h3>
+<a name="cairo-clip-preserve"></a>cairo_clip_preserve ()</h3>
+<a class="indexterm" name="id2575381"></a><pre class="programlisting">void        cairo_clip_preserve             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575403"></a><h3>
+<a name="cairo-reset-clip"></a>cairo_reset_clip ()</h3>
+<a class="indexterm" name="id2575413"></a><pre class="programlisting">void        cairo_reset_clip                (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575435"></a><h3>
+<a name="cairo-fill"></a>cairo_fill ()</h3>
+<a class="indexterm" name="id2575445"></a><pre class="programlisting">void        cairo_fill                      (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575467"></a><h3>
+<a name="cairo-fill-preserve"></a>cairo_fill_preserve ()</h3>
+<a class="indexterm" name="id2575477"></a><pre class="programlisting">void        cairo_fill_preserve             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575499"></a><h3>
+<a name="cairo-fill-extents"></a>cairo_fill_extents ()</h3>
+<a class="indexterm" name="id2575509"></a><pre class="programlisting">void        cairo_fill_extents              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double *x1,
                                              double *y1,
                                              double *x2,
-                                             double *y2);</pre><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>x1</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>y1</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>x2</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>y2</code></em> :</span></td><td>
-
-
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2585155"></a><h3><a name="cairo-in-fill"></a>cairo_in_fill ()</h3><a class="indexterm" name="id2585166"></a><pre class="programlisting"><a href="cairo-Types.html#cairo-bool-t">cairo_bool_t</a> cairo_in_fill                  (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             double *y2);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575555"></a><h3>
+<a name="cairo-in-fill"></a>cairo_in_fill ()</h3>
+<a class="indexterm" name="id2575566"></a><pre class="programlisting"><a href="cairo-Types.html#cairo-bool-t">cairo_bool_t</a> cairo_in_fill                  (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double x,
-                                             double y);</pre><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>x</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>y</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td>
-
-
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2585264"></a><h3><a name="cairo-mask"></a>cairo_mask ()</h3><a class="indexterm" name="id2585275"></a><pre class="programlisting">void        cairo_mask                      (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             <a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern);</pre><p>
-A drawing operator that paints the current source
-using the alpha channel of <em class="parameter"><code>pattern</code></em> as a mask. (Opaque
-areas of <em class="parameter"><code>mask</code></em> are painted with the source, transparent
-areas are not painted.)</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><em class="parameter"><code>pattern</code></em> :</span></td><td> a <a href="cairo-Patterns.html#cairo-pattern-t"><span class="type">cairo_pattern_t</span></a>
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2585367"></a><h3><a name="cairo-mask-surface"></a>cairo_mask_surface ()</h3><a class="indexterm" name="id2585379"></a><pre class="programlisting">void        cairo_mask_surface              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             double y);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575600"></a><h3>
+<a name="cairo-mask"></a>cairo_mask ()</h3>
+<a class="indexterm" name="id2575610"></a><pre class="programlisting">void        cairo_mask                      (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             <a href="cairo-Patterns.html#cairo-pattern-t">cairo_pattern_t</a> *pattern);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575638"></a><h3>
+<a name="cairo-mask-surface"></a>cairo_mask_surface ()</h3>
+<a class="indexterm" name="id2575648"></a><pre class="programlisting">void        cairo_mask_surface              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              <a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                              double surface_x,
-                                             double surface_y);</pre><p>
-A drawing operator that paints the current source
-using the alpha channel of <em class="parameter"><code>surface</code></em> as a mask. (Opaque
-areas of <em class="parameter"><code>surface</code></em> are painted with the source, transparent
-areas are not painted.)</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><em class="parameter"><code>surface</code></em> :</span></td><td> a <a href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>surface_x</code></em> :</span></td><td> X coordinate at which to place the origin of <em class="parameter"><code>surface</code></em>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>surface_y</code></em> :</span></td><td> Y coordinate at which to place the origin of <em class="parameter"><code>surface</code></em>
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2585527"></a><h3><a name="cairo-paint"></a>cairo_paint ()</h3><a class="indexterm" name="id2585538"></a><pre class="programlisting">void        cairo_paint                     (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-A drawing operator that paints the current source everywhere within
-the current clip region.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2585589"></a><h3><a name="cairo-paint-with-alpha"></a>cairo_paint_with_alpha ()</h3><a class="indexterm" name="id2585600"></a><pre class="programlisting">void        cairo_paint_with_alpha          (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             double alpha);</pre><p>
-A drawing operator that paints the current source everywhere within
-the current clip region using a mask of constant alpha value
-<em class="parameter"><code>alpha</code></em>. The effect is similar to <a href="cairo-cairo-t.html#cairo-paint"><code class="function">cairo_paint()</code></a>, but the drawing
-is faded out using the alpha value.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr><tr><td><span class="term"><em class="parameter"><code>alpha</code></em> :</span></td><td> alpha value, between 0 (transparent) and 1 (opaque)
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2585690"></a><h3><a name="cairo-stroke"></a>cairo_stroke ()</h3><a class="indexterm" name="id2585701"></a><pre class="programlisting">void        cairo_stroke                    (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-A drawing operator that strokes the current path according to the
-current line width, line join, line cap, and dash settings. After
-cairo_stroke, the current path will be cleared from the cairo
-context. See <a href="cairo-cairo-t.html#cairo-set-line-width"><code class="function">cairo_set_line_width()</code></a>, <a href="cairo-cairo-t.html#cairo-set-line-join"><code class="function">cairo_set_line_join()</code></a>,
-<a href="cairo-cairo-t.html#cairo-set-line-cap"><code class="function">cairo_set_line_cap()</code></a>, <a href="cairo-cairo-t.html#cairo-set-dash"><code class="function">cairo_set_dash()</code></a>, and
-<a href="cairo-cairo-t.html#cairo-stroke-preserve"><code class="function">cairo_stroke_preserve()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2585803"></a><h3><a name="cairo-stroke-preserve"></a>cairo_stroke_preserve ()</h3><a class="indexterm" name="id2585814"></a><pre class="programlisting">void        cairo_stroke_preserve           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-A drawing operator that strokes the current path according to the
-current line width, line join, line cap, and dash settings. Unlike
-<a href="cairo-cairo-t.html#cairo-stroke"><code class="function">cairo_stroke()</code></a>, cairo_stroke_preserve preserves the path within the
-cairo context.
-</p><p>
-See <a href="cairo-cairo-t.html#cairo-set-line-width"><code class="function">cairo_set_line_width()</code></a>, <a href="cairo-cairo-t.html#cairo-set-line-join"><code class="function">cairo_set_line_join()</code></a>,
-<a href="cairo-cairo-t.html#cairo-set-line-cap"><code class="function">cairo_set_line_cap()</code></a>, <a href="cairo-cairo-t.html#cairo-set-dash"><code class="function">cairo_set_dash()</code></a>, and
-<a href="cairo-cairo-t.html#cairo-stroke-preserve"><code class="function">cairo_stroke_preserve()</code></a>.</p><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td> a cairo context
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2585929"></a><h3><a name="cairo-stroke-extents"></a>cairo_stroke_extents ()</h3><a class="indexterm" name="id2585940"></a><pre class="programlisting">void        cairo_stroke_extents            (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             double surface_y);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575688"></a><h3>
+<a name="cairo-paint"></a>cairo_paint ()</h3>
+<a class="indexterm" name="id2575699"></a><pre class="programlisting">void        cairo_paint                     (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575720"></a><h3>
+<a name="cairo-paint-with-alpha"></a>cairo_paint_with_alpha ()</h3>
+<a class="indexterm" name="id2575731"></a><pre class="programlisting">void        cairo_paint_with_alpha          (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             double alpha);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575758"></a><h3>
+<a name="cairo-stroke"></a>cairo_stroke ()</h3>
+<a class="indexterm" name="id2575769"></a><pre class="programlisting">void        cairo_stroke                    (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575790"></a><h3>
+<a name="cairo-stroke-preserve"></a>cairo_stroke_preserve ()</h3>
+<a class="indexterm" name="id2575801"></a><pre class="programlisting">void        cairo_stroke_preserve           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575822"></a><h3>
+<a name="cairo-stroke-extents"></a>cairo_stroke_extents ()</h3>
+<a class="indexterm" name="id2575833"></a><pre class="programlisting">void        cairo_stroke_extents            (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double *x1,
                                              double *y1,
                                              double *x2,
-                                             double *y2);</pre><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>x1</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>y1</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>x2</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>y2</code></em> :</span></td><td>
-
-
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2586070"></a><h3><a name="cairo-in-stroke"></a>cairo_in_stroke ()</h3><a class="indexterm" name="id2586080"></a><pre class="programlisting"><a href="cairo-Types.html#cairo-bool-t">cairo_bool_t</a> cairo_in_stroke                (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             double *y2);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575879"></a><h3>
+<a name="cairo-in-stroke"></a>cairo_in_stroke ()</h3>
+<a class="indexterm" name="id2575889"></a><pre class="programlisting"><a href="cairo-Types.html#cairo-bool-t">cairo_bool_t</a> cairo_in_stroke                (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double x,
-                                             double y);</pre><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>x</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><em class="parameter"><code>y</code></em> :</span></td><td>
-</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td>
-
-
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2586179"></a><h3><a name="cairo-copy-page"></a>cairo_copy_page ()</h3><a class="indexterm" name="id2586190"></a><pre class="programlisting">void        cairo_copy_page                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td>
-
-
-</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><a name="id2586236"></a><h3><a name="cairo-show-page"></a>cairo_show_page ()</h3><a class="indexterm" name="id2586246"></a><pre class="programlisting">void        cairo_show_page                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre><p>
-
-</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><em class="parameter"><code>cr</code></em> :</span></td><td>
-
-
-</td></tr></tbody></table></div></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="Drawing.html"><b>&lt;&lt; Drawing</b></a></td><td align="right"><a accesskey="n" href="cairo-Paths.html"><b>Paths &gt;&gt;</b></a></td></tr></table></body></html>
+                                             double y);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575923"></a><h3>
+<a name="cairo-copy-page"></a>cairo_copy_page ()</h3>
+<a class="indexterm" name="id2575934"></a><pre class="programlisting">void        cairo_copy_page                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2575955"></a><h3>
+<a name="cairo-show-page"></a>cairo_show_page ()</h3>
+<a class="indexterm" name="id2575966"></a><pre class="programlisting">void        cairo_show_page                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+</div>
+</div>
+</div>
+</body>
+</html>

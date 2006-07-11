@@ -63,7 +63,7 @@ write_png_argb32 (unsigned char *buffer, FILE *file,
     png_info *info;
     png_byte **rows;
     png_color_16 white;
-    
+
     rows = malloc (height * sizeof(png_byte*));
 
     for (i = 0; i < height; i++) {
@@ -76,7 +76,7 @@ write_png_argb32 (unsigned char *buffer, FILE *file,
     png_init_io (png, file);
     png_set_IHDR (png, info,
 		  width, height, 8,
-		  PNG_COLOR_TYPE_RGB_ALPHA, 
+		  PNG_COLOR_TYPE_RGB_ALPHA,
 		  PNG_INTERLACE_NONE,
 		  PNG_COMPRESSION_TYPE_DEFAULT,
 		  PNG_FILTER_TYPE_DEFAULT);

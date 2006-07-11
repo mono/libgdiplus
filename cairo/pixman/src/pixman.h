@@ -1,12 +1,9 @@
 #ifndef _PIXMAN_H_
 #define _PIXMAN_H_
 
-
 /* pixman.h - a merge of pixregion.h and ic.h */
 
-
 /* from pixregion.h */
-
 
 /***********************************************************
 
@@ -32,18 +29,17 @@ Except as contained in this notice, the name of The Open Group shall not be
 used in advertising or otherwise to promote the sale, use or other dealings
 in this Software without prior written authorization from The Open Group.
 
-
 Copyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts.
 
                         All Rights Reserved
 
-Permission to use, copy, modify, and distribute this software and its 
-documentation for any purpose and without fee is hereby granted, 
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
 provided that the above copyright notice appear in all copies and that
-both that copyright notice and this permission notice appear in 
+both that copyright notice and this permission notice appear in
 supporting documentation, and that the name of Digital not be
 used in advertising or publicity pertaining to distribution of the
-software without specific, written prior permission.  
+software without specific, written prior permission.
 
 DIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
 ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL
@@ -54,8 +50,6 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
 SOFTWARE.
 
 ******************************************************************/
-/* $Id: pixman.h,v 1.22.4.1 2005-09-26 22:48:06 cworth Exp $ */
-
 /* libic.h */
 
 /*
@@ -80,12 +74,17 @@ SOFTWARE.
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 
-#if defined (__SVR4) && defined (__sun)
-# include <sys/int_types.h>
-#elif defined (__OpenBSD__) || defined (_AIX)
+#if   HAVE_STDINT_H
+# include <stdint.h>
+#elif HAVE_INTTYPES_H
 # include <inttypes.h>
-#elif defined (_MSC_VER)
+#elif HAVE_SYS_INT_TYPES_H
+# include <sys/int_types.h>
+#elif defined(_MSC_VER)
   typedef __int8 int8_t;
   typedef unsigned __int8 uint8_t;
   typedef __int16 int16_t;
@@ -95,7 +94,7 @@ SOFTWARE.
   typedef __int64 int64_t;
   typedef unsigned __int64 uint64_t;
 #else
-# include <stdint.h>
+#error Cannot find definitions for fixed-width integral types (uint8_t, uint32_t, etc.)
 #endif
 
 #include "pixman-remap.h"
@@ -203,9 +202,7 @@ pixman_region_reset (pixman_region16_t *region, pixman_box16_t *pBox);
 void
 pixman_region_empty (pixman_region16_t *region);
 
-
 /* ic.h */
-
 
 /* icformat.c */
 typedef enum pixman_operator {
@@ -229,7 +226,8 @@ typedef enum pixman_format_name {
     PIXMAN_FORMAT_NAME_ARGB32,
     PIXMAN_FORMAT_NAME_RGB24,
     PIXMAN_FORMAT_NAME_A8,
-    PIXMAN_FORMAT_NAME_A1
+    PIXMAN_FORMAT_NAME_A1,
+    PIXMAN_FORMAT_NAME_RGB16_565
 } pixman_format_name_t;
 
 typedef struct pixman_format pixman_format_t;
@@ -332,6 +330,34 @@ typedef struct pixman_transform {
     pixman_fixed16_16_t  matrix[3][3];
 } pixman_transform_t;
 
+typedef struct pixman_color {
+    unsigned short   red;
+    unsigned short   green;
+    unsigned short   blue;
+    unsigned short   alpha;
+} pixman_color_t;
+
+typedef struct _pixman_gradient_stop {
+    pixman_fixed16_16_t x;
+    pixman_color_t      color;
+} pixman_gradient_stop_t;
+
+typedef struct _pixman_circle {
+    pixman_fixed16_16_t x;
+    pixman_fixed16_16_t y;
+    pixman_fixed16_16_t radius;
+} pixman_circle_t;
+
+typedef struct pixman_linear_gradient {
+    pixman_point_fixed_t p1;
+    pixman_point_fixed_t p2;
+} pixman_linear_gradient_t;
+
+typedef struct pixman_radial_gradient {
+    pixman_circle_t inner;
+    pixman_circle_t outer;
+} pixman_radial_gradient_t;
+
 typedef enum {
     PIXMAN_FILTER_FAST,
     PIXMAN_FILTER_GOOD,
@@ -348,9 +374,17 @@ int
 pixman_image_set_transform (pixman_image_t	*image,
 			    pixman_transform_t	*transform);
 
+/* Don't blame me, blame XRender */
+typedef enum {
+    PIXMAN_REPEAT_NONE,
+    PIXMAN_REPEAT_NORMAL,
+    PIXMAN_REPEAT_PAD,
+    PIXMAN_REPEAT_REFLECT
+} pixman_repeat_t;
+
 void
-pixman_image_set_repeat (pixman_image_t	*image,
-			 int		repeat);
+pixman_image_set_repeat (pixman_image_t		*image,
+			 pixman_repeat_t	repeat);
 
 void
 pixman_image_set_filter (pixman_image_t		*image,
@@ -374,15 +408,17 @@ pixman_image_get_format (pixman_image_t	*image);
 pixman_bits_t *
 pixman_image_get_data (pixman_image_t	*image);
 
-/* iccolor.c */
+pixman_image_t *
+pixman_image_create_linear_gradient (const pixman_linear_gradient_t *gradient,
+				     const pixman_gradient_stop_t   *stops,
+				     int			    n_stops);
 
-/* XXX: Do we really need a struct here? Only pixman_rectangle_t uses this. */
-typedef struct pixman_color {
-    unsigned short   red;
-    unsigned short   green;
-    unsigned short   blue;
-    unsigned short   alpha;
-} pixman_color_t;
+pixman_image_t *
+pixman_image_create_radial_gradient (const pixman_radial_gradient_t *gradient,
+				     const pixman_gradient_stop_t   *stops,
+				     int			    n_stops);
+
+/* iccolor.c */
 
 void
 pixman_color_to_pixel (const pixman_format_t	*format,
@@ -450,7 +486,6 @@ pixman_composite_tri_strip (pixman_operator_t		op,
 			    const pixman_point_fixed_t	*points,
 			    int				npoints);
 
-
 void
 pixman_composite_tri_fan (pixman_operator_t		op,
 			  pixman_image_t		*src,
@@ -475,8 +510,6 @@ pixman_composite (pixman_operator_t	op,
 		  int      		yDst,
 		  int			width,
 		  int			height);
-
-
 
 #if defined(__cplusplus) || defined(c_plusplus)
 }

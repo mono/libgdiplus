@@ -1,8 +1,41 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Overloading and optional arguments</title><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="Cairo: A Vector Graphics Library"><link rel="up" href="language-bindings.html" title="Appendix A. Creating a language binding for cairo"><link rel="prev" href="bindings-return-values.html" title="Multiple return values"><link rel="next" href="bindings-streams.html" title="Streams and File I/O"><meta name="generator" content="GTK-Doc V1.3 (XML mode)"><link rel="stylesheet" href="style.css" type="text/css"><link rel="part" href="pt01.html" title="Part I. Tutorial"><link rel="part" href="pt02.html" title="Part II. Reference"><link rel="chapter" href="Drawing.html" title="Drawing"><link rel="chapter" href="Fonts.html" title="Fonts"><link rel="chapter" href="Surfaces.html" title="Surfaces"><link rel="chapter" href="Support.html" title="Utilities"><link rel="index" href="ix01.html" title="Index"><link rel="appendix" href="language-bindings.html" title="Appendix A. Creating a language binding for cairo"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="bindings-return-values.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="language-bindings.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">Cairo: A Vector Graphics Library</th><td><a accesskey="n" href="bindings-streams.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="bindings-overloading"></a>Overloading and optional arguments</h2></div></div></div><p>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Overloading and optional arguments</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
+<link rel="up" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
+<link rel="prev" href="bindings-return-values.html" title="Multiple return values">
+<link rel="next" href="bindings-streams.html" title="Streams and File I/O">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
+<link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
+<link rel="chapter" href="Drawing.html" title="Drawing">
+<link rel="chapter" href="Fonts.html" title="Fonts">
+<link rel="chapter" href="Surfaces.html" title="Surfaces">
+<link rel="chapter" href="Support.html" title="Utilities">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle">
+<td><a accesskey="p" href="bindings-return-values.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="language-bindings.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">Cairo: A Vector Graphics Library</th>
+<td><a accesskey="n" href="bindings-streams.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="sect1" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="bindings-overloading"></a>Overloading and optional arguments</h2></div></div></div>
+<p>
       Function overloading (having a several variants of a function
       with the same name and different arguments) is a language
       feature available in many languages but not in C.
-    </p><p>
+    </p>
+<p>
       In general, language binding authors should use restraint in
       combining functions in the cairo API via function
       overloading. What may seem like an obvious overload now may
@@ -14,7 +47,8 @@
       which will also take three doubles make this a bad idea. For
       this reason, only the following pairs of functions should
       be combined via overloading
-    </p><pre class="programlisting">
+    </p>
+<pre class="programlisting">
 void
 cairo_set_source (cairo_t *cr, cairo_pattern_t *source);
 
@@ -60,7 +94,8 @@ cairo_image_surface_create_from_png (const char	*filename);
 cairo_surface_t *
 cairo_image_surface_create_from_png_stream (cairo_read_func_t	read_func,
 					    void		*closure);
-    </pre><p>
+    </pre>
+<p>
       Note that there are cases where all constructors for a type
       aren't overloaded together. For example
       <a href="cairo-PNG-Support.html#cairo-image-surface-create-from-png"><code class="function">cairo_image_surface_create_from_png()</code></a>
@@ -68,18 +103,24 @@ cairo_image_surface_create_from_png_stream (cairo_read_func_t	read_func,
       <a href="cairo-Image-Surfaces.html#cairo-image-surface-create"><code class="function">cairo_image_surface_create()</code></a>.
       In such cases, the remaining constructors will typically need to
       be bound as static methods. In Java, for example, we might have:
-    </p><pre class="programlisting">
+    </p>
+<pre class="programlisting">
 Surface surface1 = ImageSurface(Format.RGB24, 100, 100);
-Surface surface2 = ImageSurface.createFromPNG("camera.png");</pre><p>
+Surface surface2 = ImageSurface.createFromPNG("camera.png");</pre>
+<p>
       Some other overloads that add combinations not found in C may be
       convenient for users for language bindings that provide
       <span class="type">cairo_point_t</span> and <span class="type">cairo_rectangle_t</span>
       types, for example:
-    </p><pre class="programlisting">
+    </p>
+<pre class="programlisting">
 void
 cairo_move_to (cairo_t       *cr,
                cairo_point_t *point);
 void
 cairo_rectangle (cairo_t           *cr,
                  cairo_rectangle_t *rectangle);
-    </pre></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="bindings-return-values.html"><b>&lt;&lt; Multiple return values</b></a></td><td align="right"><a accesskey="n" href="bindings-streams.html"><b>Streams and File I/O &gt;&gt;</b></a></td></tr></table></body></html>
+    </pre>
+</div>
+</body>
+</html>

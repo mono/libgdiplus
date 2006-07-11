@@ -1,5 +1,28 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
+/* define if glitz backend can be tested against agl */
+#undef CAIRO_CAN_TEST_GLITZ_AGL_SURFACE
+
+/* define if glitz backend can be tested against egl */
+#undef CAIRO_CAN_TEST_GLITZ_EGL_SURFACE
+
+/* define if glitz backend can be tested against glx */
+#undef CAIRO_CAN_TEST_GLITZ_GLX_SURFACE
+
+/* define if glitz backend can be tested against wgl */
+#undef CAIRO_CAN_TEST_GLITZ_WGL_SURFACE
+
+/* Define to 1 if the PDF backend can be tested (need poppler and other
+   dependencies for pdf2png) */
+#undef CAIRO_CAN_TEST_PDF_SURFACE
+
+/* Define to 1 if the SVG backend can be tested (need librsvg) */
+#undef CAIRO_CAN_TEST_SVG_SURFACE
+
+/* define in the extra test surface have been built into cairo for the test
+   suite */
+#undef CAIRO_HAS_TEST_SURFACES
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -11,6 +34,9 @@
 
 /* Define to 1 if you have the `FT_GlyphSlot_Embolden' function. */
 #undef HAVE_FT_GLYPHSLOT_EMBOLDEN
+
+/* Whether you have gcov */
+#undef HAVE_GCOV
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H

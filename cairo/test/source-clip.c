@@ -68,7 +68,7 @@ draw (cairo_t *cr, int width, int height)
     cairo_paint (cr);
 
     /* As the clip shouldn't matter, the result should be solid black */
-    
+
     cairo_destroy (cr2);
     cairo_pattern_destroy (pattern);
     cairo_surface_destroy (source_surface);

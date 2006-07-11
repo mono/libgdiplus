@@ -64,6 +64,13 @@ draw (cairo_t *cr, int width, int height)
 
     font_face = cairo_ft_font_face_create_for_pattern (resolved);
 
+    if (cairo_font_face_get_type (font_face) != CAIRO_FONT_TYPE_FT) {
+	cairo_test_log ("Unexpected value from cairo_font_face_get_type: %d (expected %d)\n",
+			cairo_font_face_get_type (font_face), CAIRO_FONT_TYPE_FT);
+	cairo_font_face_destroy (font_face);
+	return CAIRO_TEST_FAILURE;
+    }
+
     cairo_matrix_init_identity (&font_matrix);
 
     cairo_get_matrix (cr, &ctm);
@@ -81,6 +88,13 @@ draw (cairo_t *cr, int width, int height)
     cairo_font_face_destroy (font_face);
     FcPatternDestroy (pattern);
     FcPatternDestroy (resolved);
+
+    if (cairo_scaled_font_get_type (scaled_font) != CAIRO_FONT_TYPE_FT) {
+	cairo_test_log ("Unexpected value from cairo_scaled_font_get_type: %d (expected %d)\n",
+			cairo_scaled_font_get_type (scaled_font), CAIRO_FONT_TYPE_FT);
+	cairo_scaled_font_destroy (scaled_font);
+	return CAIRO_TEST_FAILURE;
+    }
 
     if (!ft_face) {
 	cairo_test_log ("Failed to get an ft_face with cairo_ft_scaled_font_lock_face\n");

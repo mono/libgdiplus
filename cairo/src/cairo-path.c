@@ -87,7 +87,7 @@ _cairo_path_fixed_init (cairo_path_fixed_t *path)
 
     path->current_point.x = 0;
     path->current_point.y = 0;
-    path->has_current_point = 0;
+    path->has_current_point = FALSE;
     path->last_move_point = path->current_point;
 }
 
@@ -132,6 +132,17 @@ _cairo_path_fixed_init_copy (cairo_path_fixed_t *path,
     return CAIRO_STATUS_SUCCESS;
 }
 
+cairo_path_fixed_t *
+_cairo_path_fixed_create (void)
+{
+    cairo_path_fixed_t	*path = malloc (sizeof (cairo_path_fixed_t));
+
+    if (!path)
+	return NULL;
+    _cairo_path_fixed_init (path);
+    return path;
+}
+
 void
 _cairo_path_fixed_fini (cairo_path_fixed_t *path)
 {
@@ -152,7 +163,14 @@ _cairo_path_fixed_fini (cairo_path_fixed_t *path)
     }
     path->arg_buf_tail = NULL;
 
-    path->has_current_point = 0;
+    path->has_current_point = FALSE;
+}
+
+void
+_cairo_path_fixed_destroy (cairo_path_fixed_t *path)
+{
+    _cairo_path_fixed_fini (path);
+    free (path);
 }
 
 cairo_status_t
@@ -171,10 +189,16 @@ _cairo_path_fixed_move_to (cairo_path_fixed_t  *path,
 	return status;
 
     path->current_point = point;
-    path->has_current_point = 1;
+    path->has_current_point = TRUE;
     path->last_move_point = path->current_point;
 
     return CAIRO_STATUS_SUCCESS;
+}
+
+void
+_cairo_path_fixed_new_sub_path (cairo_path_fixed_t *path)
+{
+    path->has_current_point = FALSE;
 }
 
 cairo_status_t
@@ -184,7 +208,7 @@ _cairo_path_fixed_rel_move_to (cairo_path_fixed_t *path,
 {
     cairo_fixed_t x, y;
 
-    if (!path->has_current_point)
+    if (! path->has_current_point)
 	return CAIRO_STATUS_NO_CURRENT_POINT;
 
     x = path->current_point.x + dx;
@@ -204,12 +228,16 @@ _cairo_path_fixed_line_to (cairo_path_fixed_t *path,
     point.x = x;
     point.y = y;
 
-    status = _cairo_path_fixed_add (path, CAIRO_PATH_OP_LINE_TO, &point, 1);
+    if (! path->has_current_point)
+	status = _cairo_path_fixed_add (path, CAIRO_PATH_OP_MOVE_TO, &point, 1);
+    else
+	status = _cairo_path_fixed_add (path, CAIRO_PATH_OP_LINE_TO, &point, 1);
+
     if (status)
 	return status;
 
     path->current_point = point;
-    path->has_current_point = 1;
+    path->has_current_point = TRUE;
 
     return CAIRO_STATUS_SUCCESS;
 }
@@ -221,7 +249,7 @@ _cairo_path_fixed_rel_line_to (cairo_path_fixed_t *path,
 {
     cairo_fixed_t x, y;
 
-    if (!path->has_current_point)
+    if (! path->has_current_point)
 	return CAIRO_STATUS_NO_CURRENT_POINT;
 
     x = path->current_point.x + dx;
@@ -243,12 +271,19 @@ _cairo_path_fixed_curve_to (cairo_path_fixed_t	*path,
     point[1].x = x1; point[1].y = y1;
     point[2].x = x2; point[2].y = y2;
 
+    if (! path->has_current_point) {
+	status = _cairo_path_fixed_add (path, CAIRO_PATH_OP_MOVE_TO,
+					&point[0], 1);
+	if (status)
+	    return status;
+    }
+
     status = _cairo_path_fixed_add (path, CAIRO_PATH_OP_CURVE_TO, point, 3);
     if (status)
 	return status;
 
     path->current_point = point[2];
-    path->has_current_point = 1;
+    path->has_current_point = TRUE;
 
     return CAIRO_STATUS_SUCCESS;
 }
@@ -263,7 +298,7 @@ _cairo_path_fixed_rel_curve_to (cairo_path_fixed_t *path,
     cairo_fixed_t x1, y1;
     cairo_fixed_t x2, y2;
 
-    if (!path->has_current_point)
+    if (! path->has_current_point)
 	return CAIRO_STATUS_NO_CURRENT_POINT;
 
     x0 = path->current_point.x + dx0;
@@ -286,13 +321,16 @@ _cairo_path_fixed_close_path (cairo_path_fixed_t *path)
 {
     cairo_status_t status;
 
+    if (! path->has_current_point)
+	return CAIRO_STATUS_SUCCESS;
+
     status = _cairo_path_fixed_add (path, CAIRO_PATH_OP_CLOSE_PATH, NULL, 0);
     if (status)
 	return status;
 
     path->current_point.x = path->last_move_point.x;
     path->current_point.y = path->last_move_point.y;
-    path->has_current_point = 1;
+    path->has_current_point = TRUE;
 
     return CAIRO_STATUS_SUCCESS;
 }
@@ -444,7 +482,7 @@ _cairo_path_arg_buf_add_points (cairo_path_arg_buf_t *arg_buf,
 
 #define CAIRO_PATH_OP_MAX_ARGS 3
 
-static int const num_args[] = 
+static int const num_args[] =
 {
     1, /* cairo_path_move_to */
     1, /* cairo_path_op_line_to */
@@ -529,4 +567,66 @@ _cairo_path_fixed_interpret (cairo_path_fixed_t			*path,
     }
 
     return CAIRO_STATUS_SUCCESS;
+}
+
+static void
+_cairo_path_fixed_offset_and_scale (cairo_path_fixed_t *path,
+				    cairo_fixed_t offx,
+				    cairo_fixed_t offy,
+				    cairo_fixed_t scalex,
+				    cairo_fixed_t scaley)
+{
+    cairo_path_arg_buf_t *arg_buf = path->arg_buf_head;
+    int i;
+    cairo_int64_t i64temp;
+    cairo_fixed_t fixedtemp;
+
+    while (arg_buf) {
+	 for (i = 0; i < arg_buf->num_points; i++) {
+	     if (scalex == CAIRO_FIXED_ONE) {
+		 arg_buf->points[i].x += offx;
+	     } else {
+		 fixedtemp = arg_buf->points[i].x + offx;
+		 i64temp = _cairo_int32x32_64_mul (fixedtemp, scalex);
+		 arg_buf->points[i].x = _cairo_int64_to_int32(_cairo_int64_rsl (i64temp, 16));
+	     }
+
+	     if (scaley == CAIRO_FIXED_ONE) {
+		 arg_buf->points[i].y += offy;
+	     } else {
+		 fixedtemp = arg_buf->points[i].y + offy;
+		 i64temp = _cairo_int32x32_64_mul (fixedtemp, scaley);
+		 arg_buf->points[i].y = _cairo_int64_to_int32(_cairo_int64_rsl (i64temp, 16));
+	     }
+	 }
+
+	 arg_buf = arg_buf->next;
+    }
+}
+
+
+/**
+ * _cairo_path_fixed_device_transform:
+ * @path: a #cairo_path_fixed_t to be transformed
+ * @device_transform: a matrix with only scaling/translation (no rotation or shear)
+ *
+ * Transform the fixed-point path according to the scaling and
+ * translation of the given matrix. This function assert()s that the
+ * given matrix has no rotation or shear elements, (that is, xy and yx
+ * are 0.0).
+ **/
+void
+_cairo_path_fixed_device_transform (cairo_path_fixed_t	*path,
+				    cairo_matrix_t	*device_transform)
+{
+    assert (device_transform->yx == 0.0 && device_transform->xy == 0.0);
+    /* XXX: FRAGILE: I'm not really sure whether we're doing the
+     * "right" thing here if there is both scaling and translation in
+     * the matrix. But for now, the internals guarantee that we won't
+     * really ever have both going on. */
+    _cairo_path_fixed_offset_and_scale (path,
+					_cairo_fixed_from_double (device_transform->x0),
+					_cairo_fixed_from_double (device_transform->y0),
+					_cairo_fixed_from_double (device_transform->xx),
+					_cairo_fixed_from_double (device_transform->yy));
 }

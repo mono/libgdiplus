@@ -39,6 +39,8 @@
       <xi:include href="xml/cairo-png.xml"/>
       <xi:include href="xml/cairo-ps.xml"/>
       <xi:include href="xml/cairo-win32.xml"/>
+      <xi:include href="xml/cairo-beos.xml"/>
+      <xi:include href="xml/cairo-svg.xml"/>
 <!--  Experimental Quartz and XCB backends removed
       from the public doc for now.
       <xi:include href="xml/cairo-quartz.xml"/>

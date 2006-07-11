@@ -60,6 +60,12 @@ draw (cairo_t *cr, int width, int height)
 {
     double dash[] = {LINE_WIDTH, 1.5 * LINE_WIDTH};
 
+    /* We draw in the default black, so paint white first. */
+    cairo_save (cr);
+    cairo_set_source_rgb (cr, 1.0, 1.0, 1.0); /* white */
+    cairo_paint (cr);
+    cairo_restore (cr);
+
     cairo_set_line_width (cr, LINE_WIDTH);
     cairo_set_dash (cr, dash, sizeof(dash)/sizeof(dash[0]), - 2 * LINE_WIDTH);
 
