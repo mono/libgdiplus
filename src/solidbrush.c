@@ -102,7 +102,7 @@ gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush)
 	GpSolidFill *result;
 	GpSolidFill *solid;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	/* the NULL checks for brush and clonedBrush are done by the caller, GdipCloneBrush */
 
 	result = (GpSolidFill *) GdipAlloc (sizeof (GpSolidFill));
 
@@ -122,7 +122,7 @@ gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush)
 GpStatus
 gdip_solidfill_destroy (GpBrush *brush)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	/* the NULL check for brush is done by the caller, GdipDeleteBrush */
 
 	GdipFree (brush);
 
@@ -132,6 +132,9 @@ gdip_solidfill_destroy (GpBrush *brush)
 GpStatus 
 GdipCreateSolidFill (int color, GpSolidFill **brush)
 {
+	if (!brush)
+		return InvalidParameter;
+
 	*brush = gdip_solidfill_new ();
 
 	g_return_val_if_fail (*brush != NULL, OutOfMemory);
@@ -154,7 +157,8 @@ GdipSetSolidFillColor (GpSolidFill *brush, int color)
 GpStatus
 GdipGetSolidFillColor (GpSolidFill *brush, int *color)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush || !color)
+		return InvalidParameter;
 
         *color = brush->color;
         return Ok;

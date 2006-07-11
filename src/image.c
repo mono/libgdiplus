@@ -65,6 +65,9 @@ gdip_image_init (GpImage *image)
 GpStatus 
 GdipDisposeImage (GpImage *image)
 {
+	if (!image)
+		return InvalidParameter;
+
 	if (image->type == imageBitmap) {
 		gdip_bitmap_dispose(image);
 		return Ok;
@@ -226,6 +229,7 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	cairo_paint (graphics->ct);
 	cairo_set_source(graphics->ct, org_pattern);	
 
+	cairo_pattern_destroy (org_pattern);
 	cairo_pattern_destroy (pattern);
 	
 	return Ok;
@@ -284,6 +288,7 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	cairo_set_matrix (graphics->ct, &orig_matrix);
 
 	GdipDeleteMatrix (matrix);
+	cairo_pattern_destroy (org_pattern);
 	cairo_pattern_destroy (pattern);
 	
 	return Ok;
@@ -478,6 +483,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 				cairo_matrix_init_identity (&mat);
 				cairo_pattern_set_matrix (pattern, &mat);
 
+				cairo_pattern_destroy(orig);
 				cairo_pattern_destroy(pattern);
 
 				if (flipXOn) {
@@ -523,6 +529,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		cairo_fill (graphics->ct);
 		
 		cairo_set_source(graphics->ct, orig);
+		cairo_pattern_destroy (orig);
 
 		cairo_matrix_init_identity (&mat);
 		cairo_pattern_set_matrix (pattern, &mat);

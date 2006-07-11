@@ -1084,6 +1084,9 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 	num_of_pages = TIFFNumberOfDirectories(tiff);
 
 	result = gdip_bitmap_new();
+	if (!result)
+		return OutOfMemory;
+
 	result->type = imageBitmap;
 	frame = gdip_frame_add(result, &gdip_image_frameDimension_page_guid);
 

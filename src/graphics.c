@@ -2096,9 +2096,11 @@ CalculateStringWidths (cairo_t *ct, GDIPCONST GpFont *gdiFont, GDIPCONST gunicha
 	CurrentDetail = StringDetails;
 
 	for (i = 0; i < StringDetailElements; i++) {
-		utf8[utf8_encode_ucs2char(*(stringUnicode + i), utf8)] = '\0';
-		cairo_text_extents(ct, (const char *) utf8, &ext);
-		CurrentDetail->Width = ext.x_advance;
+		if ((CurrentDetail->Flags & STRING_DETAIL_LF) == 0) {
+			utf8[utf8_encode_ucs2char(*(stringUnicode + i), utf8)] = '\0';
+			cairo_text_extents(ct, (const char *) utf8, &ext);
+			CurrentDetail->Width = ext.x_advance;
+		}
 		CurrentDetail++;
 	}
 
@@ -2451,7 +2453,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		}
 		if (CurrentDetail->Flags & STRING_DETAIL_LF) {
 			CursorX = 0;
-			CursorY += CurrentDetail->Linefeeds*LineHeight;
+			CursorY += LineHeight;
 			CurrentDetail->Flags |= STRING_DETAIL_LINESTART;
 			CurrentLineStart = CurrentDetail;
 #ifdef DRAWSTRING_DEBUG
@@ -3248,7 +3250,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 		}
 		if (CurrentDetail->Flags & STRING_DETAIL_LF) {
 			CursorX=0;
-			CursorY+=CurrentDetail->Linefeeds*LineHeight;
+			CursorY+=LineHeight;
 			CurrentDetail->Flags|=STRING_DETAIL_LINESTART;
 			CurrentLineStart=CurrentDetail;
 #ifdef DRAWSTRING_DEBUG
@@ -3697,15 +3699,15 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 				} else {
 					/* Horizontal text */
 					switch(format->alignment) {
-						case StringAlignmentNear: OffsetX = layoutRect->X + strDetails[j].PosX; break;
-						case StringAlignmentCenter: OffsetX = layoutRect->X + strDetails[j].PosX + (layoutRect->Width-strDetails[j + strDetails[j].LineLen - 1].PosX - strDetails[j + strDetails[j].LineLen - 1].Width)/2; break;
-						case StringAlignmentFar: OffsetX = layoutRect->X + strDetails[j].PosX + layoutRect->Width - strDetails[j + strDetails[j].LineLen - 1].PosX - strDetails[j + strDetails[i].LineLen - 1].Width; break;
+						case StringAlignmentNear: OffsetX = layoutRect->X; break;
+						case StringAlignmentCenter: OffsetX = layoutRect->X + (layoutRect->Width-strDetails[j + strDetails[j].LineLen - 1].PosX - strDetails[j + strDetails[j].LineLen - 1].Width)/2; break;
+						case StringAlignmentFar: OffsetX = layoutRect->X + layoutRect->Width - strDetails[j + strDetails[j].LineLen - 1].PosX - strDetails[j + strDetails[i].LineLen - 1].Width; break;
 					}
 
 					switch (format->lineAlignment) {
-						case StringAlignmentNear: OffsetY = layoutRect->Y + strDetails[j].PosY; break;
-						case StringAlignmentCenter: OffsetY = layoutRect->Y + (layoutRect->Height - maxY) / 2 + strDetails[j].PosY ; break;
-						case StringAlignmentFar: OffsetY = layoutRect->Height - maxY + strDetails[j].PosY; break;
+						case StringAlignmentNear: OffsetY = layoutRect->Y; break;
+						case StringAlignmentCenter: OffsetY = layoutRect->Y + (layoutRect->Height - maxY) / 2 ; break;
+						case StringAlignmentFar: OffsetY = layoutRect->Height - maxY; break;
 					}
 				}
 			}

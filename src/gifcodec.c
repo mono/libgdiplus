@@ -682,6 +682,7 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 					case Format1bppIndexed: cmap_size =   2; break;
 					case Format4bppIndexed: cmap_size =  16; break;
 					case Format8bppIndexed: cmap_size = 256; break;
+					default: goto error; 
 				}
 
 				cmap = MakeMapObject(cmap_size, 0);

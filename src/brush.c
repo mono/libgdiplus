@@ -59,13 +59,6 @@ gdip_brush_setup (GpGraphics *graphics, GpBrush *brush)
 	}
 }
 
-GpStatus
-gdip_brush_destroy (GpBrush *brush)
-{
-	/* do nothing, because we are not allocating any memory here. */
-	return Ok;
-}
-
 GpStatus 
 GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush)
 {

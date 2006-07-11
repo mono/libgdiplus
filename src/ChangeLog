@@ -1,3 +1,38 @@
+2006-07-07  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* gifcodec.c: Return a GenericError in gdip_save_gif_image if the
+	pixel_format isn't a know value. This makes sure cmap_size is always
+	initialized (before being used).
+	* region-bitmap.c: Don't show up a warning if we're cloning a region
+	containing an empty graphicpath (as it is normal that no bitmap would 
+	be required);
+	* tiffcodec.c: Make sure we don't dereference a NULL pointer inside
+	gdip_load_tiff_image (and properly return OutOfMemory).
+
+2006-07-06  Chris Toshok  <toshok@ximian.com>
+
+	* graphics.c (CalculateStringWidths): don't do the cairo call if
+	we're dealing with a \n, as cairo says its extent is 7 pixels
+	wide.
+	(MeasureOrDrawString): add LineHeight to CursorY on a NEWLINE, not
+	LineHeight * LineFeeds.
+	(MeasureString): same.
+	(GdipMeasureCharacterRanges): don't add strDetail[j].X/Y twice
+	when creating the charRect.
+
+2006-07-06  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* brush.c: Remove empty and unused gdip_brush_destroy;
+	* image.c: Add missing calls to cairo_pattern_destroy when a previous
+	call to cairo_pattern_reference is made on a pattern;
+	* solidbrush.c: Add missing NULL checks for GdipCreateSolidFill and
+	GdipGetSolidFillColor functions and remove duplicate checks for 
+	gdip_solidfill_destroy and gdip_solidfill_clone functions.
+
+2006-07-06  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* image.c: Add missing NULL check to GdipDisposeImage.
+
 2006-07-04  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* pen.c: Fix #78742 where an error occurs when we use a pen's width of
