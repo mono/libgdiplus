@@ -1,0 +1,218 @@
+/*
+ * Copyright © 2006 Red Hat, Inc.
+ *
+ * Permission to use, copy, modify, distribute, and sell this software
+ * and its documentation for any purpose is hereby granted without
+ * fee, provided that the above copyright notice appear in all copies
+ * and that both that copyright notice and this permission notice
+ * appear in supporting documentation, and that the name of
+ * Red Hat, Inc. not be used in advertising or publicity pertaining to
+ * distribution of the software without specific, written prior
+ * permission. Red Hat, Inc. makes no representations about the
+ * suitability of this software for any purpose.  It is provided "as
+ * is" without express or implied warranty.
+ *
+ * RED HAT, INC. DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS
+ * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS, IN NO EVENT SHALL RED HAT, INC. BE LIABLE FOR ANY SPECIAL,
+ * INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
+ * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
+ * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+ * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ *
+ * Author: Kristian Høgsberg <krh@redhat.com>
+ */
+
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+
+#include <cairo.h>
+
+#if CAIRO_HAS_PS_SURFACE
+#include <cairo-ps.h>
+#endif
+
+#if CAIRO_HAS_PDF_SURFACE
+#include <cairo-pdf.h>
+#endif
+
+#if CAIRO_HAS_SVG_SURFACE
+#include <cairo-svg.h>
+#endif
+
+#include "cairo-test.h"
+
+/* The main test suite doesn't test the *_create_for_stream
+ * constructors for the PDF, PS and SVG surface, so we do that here.
+ * We draw to an in-memory buffer using the stream constructor and
+ * compare the output to the contents of a file writting using the
+ * file constructor.
+ */
+
+#define MAX_OUTPUT_SIZE 4096
+
+#define WIDTH_IN_INCHES  3
+#define HEIGHT_IN_INCHES 3
+#define WIDTH_IN_POINTS  (WIDTH_IN_INCHES  * 72.0)
+#define HEIGHT_IN_POINTS (HEIGHT_IN_INCHES * 72.0)
+
+static void
+draw (cairo_surface_t *surface)
+{
+    cairo_t *cr;
+
+    /* Just draw a rectangle. */
+    cr = cairo_create (surface);
+
+    cairo_rectangle (cr, WIDTH_IN_POINTS / 10, HEIGHT_IN_POINTS /10,
+		     WIDTH_IN_POINTS - 2 * WIDTH_IN_POINTS / 10,
+		     HEIGHT_IN_POINTS - 2 * HEIGHT_IN_POINTS /10);
+    cairo_fill (cr);
+
+    cairo_show_page (cr);
+
+    cairo_destroy (cr);
+}
+
+typedef struct _write_closure {
+    char buffer[MAX_OUTPUT_SIZE];
+    int index;
+    cairo_test_status_t status;
+} write_closure_t;
+
+static cairo_status_t
+test_write (void		*closure,
+	    const unsigned char	*data,
+	    unsigned int	 length)
+{
+    write_closure_t *wc = closure;
+
+    if (wc->index + length >= sizeof wc->buffer) {
+	cairo_test_log ("Error: out of bounds in write callback\n");
+	wc->status = CAIRO_TEST_FAILURE;
+	return CAIRO_STATUS_SUCCESS;
+    }
+
+    memcpy (&wc->buffer[wc->index], data, length);
+    wc->index += length;
+
+    return CAIRO_STATUS_SUCCESS;
+}
+
+
+typedef cairo_surface_t *
+(*file_constructor_t) (const char	       *filename,
+		       double			width_in_points,
+		       double			height_in_points);
+
+typedef cairo_surface_t *
+(*stream_constructor_t) (cairo_write_func_t	write_func,
+			 void		       *closure,
+			 double			width_in_points,
+			 double			height_in_points);
+
+static cairo_test_status_t
+test_surface (const char		 *filename,
+	      file_constructor_t	 file_constructor,
+	      stream_constructor_t	 stream_constructor)
+{
+    cairo_surface_t *surface;
+    write_closure_t wc;
+    char file_contents[MAX_OUTPUT_SIZE];
+    cairo_status_t status;
+    FILE *fp;
+
+    wc.status = CAIRO_TEST_SUCCESS;
+    wc.index = 0;
+
+    surface = stream_constructor (test_write, &wc,
+				  WIDTH_IN_POINTS, HEIGHT_IN_POINTS);
+
+    status = cairo_surface_status (surface);
+    if (status) {
+	cairo_test_log ("Failed to create surface for stream\n");
+	return CAIRO_TEST_FAILURE;
+    }
+
+    draw (surface);
+
+    cairo_surface_destroy (surface);
+
+    if (wc.status != CAIRO_TEST_SUCCESS) {
+	/* Error already reported. */
+	return wc.status;
+    }
+
+    surface = file_constructor (filename,
+				WIDTH_IN_POINTS, HEIGHT_IN_POINTS);
+
+    status = cairo_surface_status (surface);
+    if (status) {
+	cairo_test_log ("Failed to create surface for file %s: %s\n",
+			filename, cairo_status_to_string (status));
+	return CAIRO_TEST_FAILURE;
+    }
+
+    draw (surface);
+
+    cairo_surface_destroy (surface);
+
+    fp = fopen (filename, "r");
+    if (fp == NULL) {
+	cairo_test_log ("Failed to open %s for reading: %s\n",
+			filename, strerror (errno));
+	return CAIRO_TEST_FAILURE;
+    }
+
+    if (fread (file_contents, 1, wc.index, fp) != wc.index) {
+	cairo_test_log ("Failed to read %s: %s\n",
+			filename, strerror (errno));
+	return CAIRO_TEST_FAILURE;
+    }
+
+    if (memcmp (file_contents, wc.buffer, wc.index) != 0) {
+	cairo_test_log ("Stream based output differ from file output for %s\n",
+			filename);
+	return CAIRO_TEST_FAILURE;
+    }
+
+    fclose (fp);
+
+    return CAIRO_TEST_SUCCESS;
+}
+
+
+int
+main (void)
+{
+    cairo_test_status_t status;
+
+    printf("\n");
+
+#if CAIRO_HAS_PS_SURFACE
+    status = test_surface ("create-for-stream.ps",
+			   cairo_ps_surface_create,
+			   cairo_ps_surface_create_for_stream);
+    if (status != CAIRO_TEST_SUCCESS)
+	return status;
+#endif
+
+#if CAIRO_HAS_PDF_SURFACE
+    status = test_surface ("create-for-stream.pdf",
+			   cairo_pdf_surface_create,
+			   cairo_pdf_surface_create_for_stream);
+    if (status != CAIRO_TEST_SUCCESS)
+	return status;
+#endif
+
+#if CAIRO_HAS_SVG_SURFACE
+    status = test_surface ("create-for-stream.svg",
+			   cairo_svg_surface_create,
+			   cairo_svg_surface_create_for_stream);
+    if (status != CAIRO_TEST_SUCCESS)
+	return status;
+#endif
+
+    return CAIRO_TEST_SUCCESS;
+}
