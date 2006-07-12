@@ -18,6 +18,10 @@ else
 	AC_MSG_ERROR("Did not find Glib >= 2.2.3");
 fi
 
+# force subdirectories (cairo, specifically) to build their static
+# libraries using position independent code.
+ac_configure_args="$ac_configure_args --with-pic=yes"
+
 AC_CONFIG_SUBDIRS(cairo)
 CAIRO_LIBS='$(top_builddir)/cairo/src/libcairo.la'
 CAIRO_CFLAGS='-I$(top_builddir)/cairo/pixman/src -I$(top_srcdir)/cairo/pixman/src -I$(top_builddir)/cairo/src -I$(top_srcdir)/cairo/src'

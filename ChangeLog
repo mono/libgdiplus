@@ -1,3 +1,7 @@
+2006-07-12  Chris Toshok  <toshok@ximian.com>
+
+	* configure.in: add --with-pics=yes for subdir configure args.
+
 2006-07-11  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* Updated to cairo 1.2
