@@ -70,8 +70,12 @@ if test "x$FREETYPE2" = "xno"; then
 	fi
 fi
 
-GDIPLUS_LIBS="$CAIRO_LIBS `pkg-config --libs xrender glib-2.0 ` $FONTCONFIG_LIBS $FREETYPE2_LIBS"
-GDIPLUS_CFLAGS="$CAIRO_CFLAGS `pkg-config --cflags xrender glib-2.0 ` $FONTCONFIG_CFLAGS $FREETYPE2_CFLAGS"
+GDIPLUS_LIBS="$CAIRO_LIBS `pkg-config --libs glib-2.0 ` $FONTCONFIG_LIBS $FREETYPE2_LIBS"
+GDIPLUS_CFLAGS="$CAIRO_CFLAGS `pkg-config --cflags glib-2.0 ` $FONTCONFIG_CFLAGS $FREETYPE2_CFLAGS"
+
+# Add xrender here so that we don't fail to find glib if we won't have xrender.pc
+GDIPLUS_LIBS="$GDIPLUS_LIBS `pkg-config --libs xrender `"
+GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS `pkg-config --cflags xrender `"
 
 AC_CHECK_HEADERS(byteswap.h)
 

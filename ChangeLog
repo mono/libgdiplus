@@ -1,3 +1,8 @@
+2006-07-13  Wade Berrier <wberrier@novell.com>
+
+	* configure.in: separate xrender pkg-config statement from the glib statement.
+	If xrender.pc isn't found, the glib settings are not gathered.
+
 2006-07-12  Chris Toshok  <toshok@ximian.com>
 
 	* configure.in: add --with-pics=yes for subdir configure args.
