@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 #include "gdipImage.h"
+#include <cairo-features.h>
 #include <math.h>
 
 static GpStatus gdip_flip_x (GpImage *image);
