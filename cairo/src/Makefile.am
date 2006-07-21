@@ -81,10 +81,10 @@ libcairo_beos_headers = cairo-beos.h
 libcairo_beos_sources += cairo-beos-surface.cpp
 backend_pkgconfigs += cairo-beos.pc
 
-noinst_LTLIBRARIES = libcairo_beos.la
-libcairo_beos_la_SOURCES = $(libcairo_beos_sources)
+#noinst_LTLIBRARIES = libcairo_beos.la
+#libcairo_beos_la_SOURCES = $(libcairo_beos_sources)
 # BeOS system headers trigger this warning
-libcairo_beos_la_CXXFLAGS = -Wno-multichar
+#libcairo_beos_la_CXXFLAGS = -Wno-multichar
 endif
 
 if CAIRO_HAS_GLITZ_SURFACE
@@ -137,8 +137,8 @@ XRENDER_LIBS=@XRENDER_LIBS@
 
 BUILT_SOURCES = cairo-features.h
 
-cairoincludedir = $(includedir)/cairo
-cairoinclude_HEADERS =			\
+#cairoincludedir = $(includedir)/cairo
+headers = \
 	cairo.h				\
 	cairo-features.h		\
 	$(libcairo_atsui_headers)	\
@@ -155,7 +155,7 @@ cairoinclude_HEADERS =			\
 	$(libcairo_xlib_xrender_headers)	\
 	$(libcairo_directfb_headers)
 
-lib_LTLIBRARIES = libcairo.la
+noinst_LTLIBRARIES = libcairo.la
 
 libcairo_la_SOURCES =				\
 	cairo.c					\
@@ -237,12 +237,12 @@ INCLUDES = -I$(srcdir) -I$(top_srcdir)/pixman/src $(CAIRO_CFLAGS)
 
 libcairo_la_LIBADD = $(top_builddir)/pixman/src/libpixman.la $(CAIRO_LIBS) $(noinst_LTLIBRARIES)
 
-libcairo_la_DEPENDENCIES = $(cairo_def_dependency) $(top_builddir)/pixman/src/libpixman.la $(noinst_LTLIBRARIES)
+libcairo_la_DEPENDENCIES = $(cairo_def_dependency) $(top_builddir)/pixman/src/libpixman.la 
 
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = cairo.pc $(backend_pkgconfigs)
+#pkgconfigdir = $(libdir)/pkgconfig
+#pkgconfig_DATA = cairo.pc $(backend_pkgconfigs)
 DISTCLEANFILES = $(backend_pkgconfigs)
-EXTRA_DIST = cairo-backend.pc.in
+EXTRA_DIST = cairo-backend.pc.in $(headers)
 $(backend_pkgconfigs): $(top_srcdir)/configure
 	$(top_builddir)/config.status --recheck
 
