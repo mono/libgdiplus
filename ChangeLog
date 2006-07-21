@@ -1,3 +1,9 @@
+2006-07-21  Alexander Olk <alex.olk@googlemail.com>
+
+	* cairo/src/cairo-xlib-surface.c: Backported a patch from cairo head
+	  that removes XSync implementation of surface_flush.
+	  (git commit b7191885c88068dad57d68ced69a752d1162b12c)
+
 2006-07-13  Wade Berrier <wberrier@novell.com>
 
 	* configure.in: separate xrender pkg-config statement from the glib statement.
