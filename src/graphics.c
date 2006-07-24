@@ -267,7 +267,7 @@ make_polygon (GpGraphics *graphics, GpPointF *points, int count, float aa_offset
          * Draw a line from the last point back to the first point if
          * they're not the same
          */
-        if (points [0].X != points [count].X && points [0].Y != points [count].Y)
+        if (points [0].X != points [count-1].X && points [0].Y != points [count-1].Y)
                 cairo_line_to (graphics->ct, gdip_unitx_convgr (graphics, points [0].X) + aa_offset_x, 
 			gdip_unity_convgr (graphics, points [0].Y) + aa_offset_y);
 
@@ -291,7 +291,7 @@ make_polygon_from_integers (GpGraphics *graphics, GpPoint *points, int count, fl
          * Draw a line from the last point back to the first point if
          * they're not the same
          */
-        if (points [0].X != points [count].X && points [0].Y != points [count].Y)
+        if (points [0].X != points [count-1].X && points [0].Y != points [count-1].Y)
                 cairo_line_to (graphics->ct, 
 			gdip_unitx_convgr (graphics, points [0].X) + aa_offset_x, 
 			gdip_unity_convgr (graphics, points [0].Y) + aa_offset_y);

@@ -1,3 +1,8 @@
+2006-07-24  Alexander Olk  <alex.olk@googlemail.com>
+
+	* graphics.c: Don't SIGSEGV when making polygons. The last point
+	in the array is count-1 not count.
+
 2006-07-21  Chris Toshok  <toshok@ximian.com>
 
 	* image.c: include cairo-features.h so CAIRO_HAS_PS_SURFACE will
