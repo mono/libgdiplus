@@ -51,8 +51,8 @@ backend_pkgconfigs += cairo-xlib-xrender.pc
 endif
 
 if CAIRO_HAS_QUARTZ_SURFACE
-libcairo_quartz_headers = cairo-quartz.h
-libcairo_quartz_sources = cairo-quartz-surface.c cairo-quartz-private.h
+# libcairo_quartz_headers = cairo-quartz.h
+libcairo_quartz_sources = cairo-quartz-surface.c cairo-quartz-private.h cairo-quartz.h
 backend_pkgconfigs += cairo-quartz.pc
 endif
 
