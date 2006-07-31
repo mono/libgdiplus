@@ -830,7 +830,6 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 						unsigned char	*ptr;
 
 						ptr = bitmap_data->property[index].value;
-						memcpy(Buffer, "NETSCAPE2.0", 11);
 						Buffer[0] = 1;
 						Buffer[1] = ptr[0];
 						Buffer[2] = ptr[1];
