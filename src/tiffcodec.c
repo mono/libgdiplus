@@ -248,7 +248,7 @@ gdip_load_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
 			uint16		*ptr;
 
 			if ((rmap != NULL) && (gmap != NULL) && (bmap != NULL)) {
-				buffer = GdipAlloc(3 * bits_per_sample & sizeof(uint16));
+				buffer = GdipAlloc (3 * bits_per_sample * sizeof (uint16));
 				if (buffer != NULL)  {
 					ptr = (uint16 *)buffer;
 
