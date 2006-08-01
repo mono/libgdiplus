@@ -1168,6 +1168,8 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 		bitmap_data->scan0 = (byte *)pixbuf;
 		pixbuf_row = NULL;
 		pixbuf = NULL;
+
+		TIFFRGBAImageEnd (&tiff_image);
 	}
 
 	gdip_bitmap_setactive(result, &gdip_image_frameDimension_page_guid, 0);
@@ -1190,6 +1192,7 @@ error:
 		gdip_bitmap_dispose(result);
 	}
 
+	TIFFRGBAImageEnd (&tiff_image);
 	TIFFClose(tiff);
 
 	return OutOfMemory;

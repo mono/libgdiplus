@@ -1,7 +1,7 @@
 2006-08-01  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* tiffcodec.c: Fix typo to cause crashes when a tiff file has 
-	properties (#78886).
+	properties (#78886). Fix a leak by calling TIFFRGBAImageEnd.
 
 2006-07-31  Peter Dennis Bartok  <pbartok@novell.com>
 
