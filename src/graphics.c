@@ -367,7 +367,7 @@ make_arcs (GpGraphics *graphics, float x, float y, float width, float height, fl
 	int increment = sign * 90;
 	bool enough = FALSE;
 	
-	if (abs (sweepAngle) >= 360) {
+	if (fabs(sweepAngle) >= 360) {
 		make_ellipse (graphics, x, y, width, height, aa_offset_x, aa_offset_y);
 		return;
 	}
@@ -381,7 +381,7 @@ make_arcs (GpGraphics *graphics, float x, float y, float width, float height, fl
 			return;
 		
 		float additional;
-		if (abs (current + increment) < abs (endAngle))
+		if (fabs (current + increment) < fabs (endAngle))
 			additional = increment; /* add the default increment */
 		else {
 			additional = endAngle - current; /* otherwise, add the remainder */
@@ -417,7 +417,7 @@ make_pie (GpGraphics *graphics, float x, float y,
 	double cos_alpha = cos (alpha);
 
 	/* draw pie edge */
-	if (abs (sweepAngle) >= 360)
+	if (fabs (sweepAngle) >= 360)
 		cairo_move_to (graphics->ct, cx + rx * cos_alpha, cy + ry * sin_alpha);
 	else {
 		cairo_move_to (graphics->ct, cx, cy);
@@ -428,7 +428,7 @@ make_pie (GpGraphics *graphics, float x, float y,
 	make_arcs (graphics, x, y, width, height, startAngle, sweepAngle, aa_offset_x, aa_offset_y);
 
 	/* draws line back to center */
-	if (abs (sweepAngle) >= 360)
+	if (fabs (sweepAngle) >= 360)
 		cairo_move_to (graphics->ct, cx + aa_offset_x, cy + aa_offset_y);
 	else
 		cairo_line_to (graphics->ct, cx + aa_offset_x, cy + aa_offset_y);
