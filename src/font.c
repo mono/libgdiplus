@@ -154,7 +154,7 @@ GdipDeleteFontFamily (GpFontFamily *fontFamily)
 	bool delete = TRUE;
 	
 	if (!fontFamily)
-		return Ok;
+		return InvalidParameter;
 
 	g_static_mutex_lock (&generic);
 	

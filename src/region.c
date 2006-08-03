@@ -404,8 +404,10 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, int size, GpRegion **region
 {
 	GpRegion *result;
 
-	if (!region || !regionData || (size < 8))
+	if (!region || !regionData)
 		return InvalidParameter;
+	if (size < 8)
+		return GenericError;
 
 	result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
 	result->type = *(guint32*) regionData;
