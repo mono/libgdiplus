@@ -322,7 +322,7 @@ make_arc (GpGraphics *graphics, bool start, float x, float y, float width,
 	alpha = atan2 (rx * sin (alpha), ry * cos (alpha));
 	beta = atan2 (rx * sin (beta), ry * cos (beta));
 
-	if (abs (beta - alpha) > M_PI){
+	if (fabs (beta - alpha) > M_PI){
 		if (beta > alpha)
 			beta -= 2 * PI;
 		else

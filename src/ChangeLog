@@ -1,3 +1,9 @@
+2006-08-03  Chris Toshok  <toshok@ximian.com>
+
+	* graphics.c (make_arc): this was a pain in the butt to find.  fix
+	the weird drawing bugs we've been seeing in the ellipse code by
+	using fabs() instead of abs(), as the latter truncates to an int.
+
 2006-08-03  Duncan Mak  <duncan@novell.com>
 
 	* graphics.c (make_pie):
