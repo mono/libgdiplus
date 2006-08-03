@@ -6,6 +6,8 @@
 	(make_arcs): more abs -> fabs.
 	(make_pie): same.
 
+	* graphics-path.c: make analogous s/abs/fabs changes here.
+
 2006-08-03  Duncan Mak  <duncan@novell.com>
 
 	* graphics.c (make_pie):
