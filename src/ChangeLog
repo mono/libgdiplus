@@ -1,3 +1,9 @@
+2006-08-03  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c (make_pie):
+	* graphics-path.c (GdipAddPathPie): Don't draw pie edges when we
+	will be drawing an ellipse (i.e. when sweepAngle >= 360).
+
 2006-08-01  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* tiffcodec.c: Fix typo to cause crashes when a tiff file has 

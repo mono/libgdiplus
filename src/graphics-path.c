@@ -918,14 +918,16 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
         append (path, cx, cy, PathPointTypeStart);
 
         /* draw pie edge */
-        append (path, cx + rx * cos_alpha, cy + ry * sin_alpha,
-                PathPointTypeLine);
+	if (abs (sweepAngle) < 360)
+		append (path, cx + rx * cos_alpha, cy + ry * sin_alpha,
+			PathPointTypeLine);
 
 	/* draw the arcs */
 	append_arcs (path, x, y, width, height, startAngle, sweepAngle);
         
         /* draw pie edge */
-        append (path, cx, cy, PathPointTypeLine);
+	if (abs (sweepAngle) < 360)
+		append (path, cx, cy, PathPointTypeLine);
 
 	/* close the path */
         return GdipClosePathFigure (path);

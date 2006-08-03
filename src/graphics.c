@@ -416,19 +416,22 @@ make_pie (GpGraphics *graphics, float x, float y,
 	double sin_alpha = sin (alpha);
 	double cos_alpha = cos (alpha);
 
-	/* move to center */
-	cairo_move_to (graphics->ct, cx, cy);
-
 	/* draw pie edge */
-	cairo_line_to (graphics->ct,
-			cx + rx * cos_alpha, 
-			cy + ry * sin_alpha);
+	if (abs (sweepAngle) >= 360)
+		cairo_move_to (graphics->ct, cx + rx * cos_alpha, cy + ry * sin_alpha);
+	else {
+		cairo_move_to (graphics->ct, cx, cy);
+		cairo_line_to (graphics->ct, cx + rx * cos_alpha, cy + ry * sin_alpha);
+	}
 
 	/* draw the arcs */
 	make_arcs (graphics, x, y, width, height, startAngle, sweepAngle, aa_offset_x, aa_offset_y);
 
 	/* draws line back to center */
-	cairo_line_to (graphics->ct, cx + aa_offset_x, cy + aa_offset_y);
+	if (abs (sweepAngle) >= 360)
+		cairo_move_to (graphics->ct, cx + aa_offset_x, cy + aa_offset_y);
+	else
+		cairo_line_to (graphics->ct, cx + aa_offset_x, cy + aa_offset_y);
 }
 
 static cairo_fill_rule_t
