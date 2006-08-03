@@ -623,7 +623,7 @@ append_arc (GpPath *path, bool start, float x, float y, float width, float heigh
 	alpha = atan2 (rx * sin (alpha), ry * cos (alpha));
 	beta = atan2 (rx * sin (beta), ry * cos (beta));
 
-	if (abs (beta - alpha) > M_PI){
+	if (fabs (beta - alpha) > M_PI){
 		if (beta > alpha)
 			beta -= 2 * PI;
 		else
@@ -665,7 +665,7 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 	int increment = sign * 90;
 	bool enough = FALSE;
 
-	if (abs (sweepAngle) >= 360) {
+	if (fabs (sweepAngle) >= 360) {
 		GdipAddPathEllipse (path, x, y, width, height);
 		return;
 	}
@@ -679,7 +679,7 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 			return;
 		
 		float additional;
-		if (abs (current + increment) < abs (endAngle))
+		if (fabs (current + increment) < fabs (endAngle))
 			additional = increment;  /* add the default increment */
 		else {
 			additional = endAngle - current; /* otherwise, add the remainder */
@@ -918,7 +918,7 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
         append (path, cx, cy, PathPointTypeStart);
 
         /* draw pie edge */
-	if (abs (sweepAngle) < 360)
+	if (fabs (sweepAngle) < 360)
 		append (path, cx + rx * cos_alpha, cy + ry * sin_alpha,
 			PathPointTypeLine);
 
@@ -926,7 +926,7 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
 	append_arcs (path, x, y, width, height, startAngle, sweepAngle);
         
         /* draw pie edge */
-	if (abs (sweepAngle) < 360)
+	if (fabs (sweepAngle) < 360)
 		append (path, cx, cy, PathPointTypeLine);
 
 	/* close the path */
