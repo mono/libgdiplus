@@ -1349,8 +1349,7 @@ gdip_init_pixel_stream (StreamingState *state, BitmapData *data, int x, int y, i
 		case Format1bppIndexed: state->one_pixel_mask = 0x01; state->one_pixel_shift = 1; state->pixels_per_byte = 8; break;
 		case Format4bppIndexed: state->one_pixel_mask = 0x0F; state->one_pixel_shift = 4; state->pixels_per_byte = 2; break;
 		case Format8bppIndexed: state->one_pixel_mask = 0xFF; state->one_pixel_shift = 8; state->pixels_per_byte = 1; break;
-		case Format24bppRgb: { /* gdip_get_pixel_format_bpp lies because other code depends on Format24bppRgb being CAIRO_FORMAT_ARGB32 internally */
-					     // FIXME: fix comment;
+		case Format24bppRgb: {
 			state->pixels_per_byte = -3;
 			break;
 		}
@@ -1608,15 +1607,10 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 		 * Note that pixel streams do not support 48- and 64-bit data at this time.
 		 */
 
-		if (state->pixels_per_byte == -4) {
-			*(unsigned int *)state->scan = pixel_value;
-		} else {
-			state->scan [0] = (pixel_value & 0x000000ff);		/* Blue */
-			state->scan [1] = (pixel_value & 0x0000ff00) >> 8;	/* Green */
-			state->scan [2] = (pixel_value & 0x00ff0000) >> 16;	/* Red */
-		}
-
-		state->scan -= state->pixels_per_byte;
+		*(unsigned int *)state->scan = pixel_value;
+		 /* We always do 4 here, as the internal representation is always 32 bits */
+		state->scan += 4;
+		/* state->scan -= state->pixels_per_byte; */
 		state->x++;
 
 		if (state->x >= (state->region.X + state->region.Width)) {
@@ -1684,8 +1678,7 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 		/* Allocate a buffer on behalf of the caller. */
 		scans = destRect->Y + destRect->Height;		/* FIXME - shouldn't this be destRect->Height - destRect->Y ?*/
 
-		/* gdip_get_pixel_format_bpp returns 4 for 24 bpp rgb */
-		pixel_format = (destFormat == Format24bppRgb) ? 3 : gdip_get_pixel_format_bpp (destFormat);
+		pixel_format = gdip_get_pixel_format_bpp (destFormat);
 		row_bits = destRect->Width * pixel_format;
 		row_bytes = (row_bits + 7) / 8;
 		stride = (row_bytes + sizeof(pixman_bits_t) - 1) & ~(sizeof(pixman_bits_t) - 1);
