@@ -1,3 +1,7 @@
+2006-08-04  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: match GDI+ return value (requires fix to SD);
+
 2006-08-03  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c: match GDI+ return value (requires fix to SD);
