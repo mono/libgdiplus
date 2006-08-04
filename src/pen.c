@@ -355,7 +355,8 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 GpStatus 
 GdipDeletePen (GpPen *pen)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
         if (pen->dash_count != 0 && pen->own_dash_array) {
                 GdipFree (pen->dash_array);
@@ -695,14 +696,13 @@ GdipRotatePenTransform (GpPen *pen, float angle, GpMatrixOrder order)
 GpStatus
 GdipGetPenDashStyle (GpPen *pen, GpDashStyle *dashStyle)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (dashStyle != NULL, InvalidParameter);
+	if (!pen || !dashStyle)
+		return InvalidParameter;
 
         *dashStyle = pen->dash_style;
         return Ok;
 }
 
-static float Custom [] = { 1.0 };
 static float Dot []  = { 1.0, 1.0 };
 static float Dash []  = { 3.0, 1.0 };
 static float DashDot [] = { 3.0, 1.0, 1.0, 1.0 };
@@ -711,7 +711,8 @@ static float DashDotDot [] = { 3.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 GpStatus
 GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
 	switch (dashStyle) {
 	case DashStyleSolid:
@@ -740,11 +741,8 @@ GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
 		break;
 
 	case DashStyleCustom:
-		/* in most case we keep the current assigned value when switching to Custom */
-		if (pen->dash_count == 0) {
-			pen->dash_array = Custom;
-			pen->dash_count = 1;
-		}
+		/* we keep the current assigned value when switching to Custom */
+		/* other special stuff happens in System.Drawing (but not here) */
 		break;
 
 	default:
@@ -779,8 +777,8 @@ GdipSetPenDashOffset (GpPen *pen, float offset)
 GpStatus
 GdipGetPenDashCount (GpPen *pen, int *count)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (count != NULL, InvalidParameter);
+	if (!pen || !count)
+		return InvalidParameter;
 
         *count = pen->dash_count;
         return Ok;
@@ -792,8 +790,10 @@ GdipGetPenDashCount (GpPen *pen, int *count)
 GpStatus
 GdipGetPenDashArray (GpPen *pen, float *dash, int count)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (dash != NULL, InvalidParameter);
+	if (!pen || !dash)
+		return InvalidParameter;
+	if (count == 0)
+		return OutOfMemory;
 	g_return_val_if_fail (count == pen->dash_count, InvalidParameter);
 
 	memcpy (dash, pen->dash_array, count * sizeof (float));

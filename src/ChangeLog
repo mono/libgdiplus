@@ -1,7 +1,9 @@
-2006-08-04  Sebastien Pouliot  <sebastien@ximian.com> 
+2006-08-04  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c: match GDI+ return value (requires fix to SD);
 	* pathgradientbrush.c: match GDI+ return value (requires fix to SD);
+	* pen.c: match GDI+ return value (requires fix to SD). Changed some
+	null checks not to print warnings during unit tests.
 
 2006-08-03  Sebastien Pouliot  <sebastien@ximian.com>
 
