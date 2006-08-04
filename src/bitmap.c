@@ -1380,7 +1380,7 @@ gdip_pixel_stream_has_next (StreamingState *state)
 	if (state != NULL) {
 		return (state->p >= 0)
 		    || ((state->y < (state->region.Y + state->region.Height))
-		     && (state->x < (state->region.X + state->region.Width)));
+                    && (state->x < (state->region.X + state->region.Width)));
 	} else {
 		return FALSE;
 	}
@@ -1885,11 +1885,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 	locked_data->reserved |= GBD_OWN_SCAN0;
 	root_data->reserved |= GBD_LOCKED;
 
-	if (format == Format24bppRgb) {
-		dest_pixel_format_bpp = 24;
-	} else {
-		dest_pixel_format_bpp = gdip_get_pixel_format_bpp (format);
-	}
+	dest_pixel_format_bpp = gdip_get_pixel_format_bpp (format);
 	dest_stride = (srcRect->Width * dest_pixel_format_bpp + 7) / 8;
 	dest_stride += (sizeof(pixman_bits_t)-1);
 	dest_stride &= ~(sizeof(pixman_bits_t)-1);

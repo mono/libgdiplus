@@ -1,5 +1,10 @@
 2006-08-04 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
+	* bitmap.c: allocate 32-bits space for 24bpp when locking as ReadOnly
+	or ReadWrite too.
+
+2006-08-04 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
 	* bitmap.c: the destination format for a 24bpp RGB image has 32 bits
 	internally.
 
