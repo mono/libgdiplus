@@ -695,7 +695,9 @@ GdipGetPathGradientPresetBlend (GpPathGradient *brush, ARGB *blend, float *posit
 	g_return_val_if_fail (blend != NULL, InvalidParameter);
 	g_return_val_if_fail (positions != NULL, InvalidParameter);
 	g_return_val_if_fail (brush->presetColors->count == count, InvalidParameter);
-	
+	if (count < 2)
+		return InvalidParameter;
+
 	memcpy (blend, brush->presetColors->colors, count * sizeof (ARGB));
 	memcpy (positions, brush->presetColors->positions, count * sizeof (float));
 
