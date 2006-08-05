@@ -558,7 +558,8 @@ GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 GpStatus 
 GdipDeleteGraphics (GpGraphics *graphics)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	if (!graphics)
+		return InvalidParameter;
 
 	/* We don't destroy image because we did not create one. */
 	if (graphics->copy_of_ctm) {

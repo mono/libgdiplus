@@ -1,3 +1,10 @@
+2006-08-05  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Changed null check not to print warnings during unit 
+	tests.
+	* font.c: logFont->lfCharSet is always 0 from GDI+ (but it's
+	returned as 1 inside System.Drawing). Fix Mono/Windows test failure.
+
 2006-08-04 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* bitmap.c: allocate 32-bits space for 24bpp when locking as ReadOnly
