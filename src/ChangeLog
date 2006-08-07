@@ -1,3 +1,7 @@
+2006-08-07 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* image.c: don't leak file_name if we fail to open it.
+
 2006-08-07  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* general.c: Avoid double initialization (e.g. multiple appdomains)

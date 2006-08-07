@@ -764,6 +764,7 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 	}
 	
 	if ((fp = fopen(file_name, "wb")) == NULL) {
+		GdipFree (file_name);
 		return GenericError;
 	}
 		
