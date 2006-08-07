@@ -48,18 +48,23 @@ struct startupOutput
 
 
 static GList* g_mem_allocations;
+static BOOL startup = FALSE;
 
 extern void cairo_test_xlib_disable_render();
 
 GpStatus 
 GdiplusStartup(unsigned long *token, const struct startupInput *input, struct startupOutput *output)
 {
-	g_mem_allocations = NULL;
-        initCodecList (); 
-	FcInit ();
-	*token = 1;
-	gdip_get_display_dpi();
-//	cairo_test_xlib_disable_render();
+	/* don't initialize multiple time, e.g. for each appdomain */
+	if (!startup) {
+		startup = TRUE;
+		g_mem_allocations = NULL;
+		initCodecList (); 
+		FcInit ();
+		*token = 1;
+		gdip_get_display_dpi();
+//		cairo_test_xlib_disable_render();
+	}
 	return Ok;
 }
 
@@ -69,8 +74,11 @@ GdiplusShutdown(unsigned long *token)
 #ifdef DEBUG_MEMLEAKS
 	GList* list = NULL;
 #endif
-	releaseCodecList ();
-	gdip_font_clear_pattern_cache ();
+	if (startup) {
+		releaseCodecList ();
+		gdip_font_clear_pattern_cache ();
+		startup = FALSE; /* in case we want to restart it */
+	}
 #ifdef DEBUG_MEMLEAKS
 	for (list = g_list_first (g_mem_allocations); list != NULL; list = g_list_next (list)) {
 		printf ("Memory block not free'd at %x\n", list->data);

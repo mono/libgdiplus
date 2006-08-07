@@ -1,3 +1,8 @@
+2006-08-07  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* general.c: Avoid double initialization (e.g. multiple appdomains)
+	which would, for example, double the number of image codecs.
+
 2006-08-05  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: Changed null check not to print warnings during unit 
