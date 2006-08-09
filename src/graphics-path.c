@@ -253,6 +253,8 @@ GdipCreatePath2I (const GpPoint *points, const byte *types,
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
 	pt = convert_points (points, count);
+	if (!pt)
+		return OutOfMemory;
 	
 	s = GdipCreatePath2 (pt, types, count, fillMode, path);
 
@@ -272,6 +274,9 @@ GdipClonePath (GpPath *path, GpPath **clonePath)
 	g_return_val_if_fail (clonePath != NULL, InvalidParameter);
 
         *clonePath = (GpPath *) GdipAlloc (sizeof (GpPath));
+	if (!*clonePath)
+		return OutOfMemory;
+
         (*clonePath)->fill_mode = path->fill_mode;
         (*clonePath)->count = path->count;
         (*clonePath)->points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
@@ -291,7 +296,8 @@ GdipClonePath (GpPath *path, GpPath **clonePath)
 GpStatus
 GdipDeletePath (GpPath *path)
 {
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (path == NULL)
+		return InvalidParameter;
 
 	if (path->points != NULL)
 		g_array_free (path->points, TRUE);
@@ -308,7 +314,8 @@ GdipDeletePath (GpPath *path)
 GpStatus
 GdipResetPath (GpPath *path)
 {
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (path == NULL)
+		return InvalidParameter;
 
 	if (path->points != NULL)
 		g_array_free (path->points, TRUE);
