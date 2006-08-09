@@ -1,3 +1,8 @@
+2006-08-08  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* region.c: Fix exclude on rectangular region to work with negative
+	positions (X, Y).
+
 2006-08-07 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* image.c: don't leak file_name if we fail to open it.

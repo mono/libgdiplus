@@ -570,7 +570,8 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
                 gdip_add_rect_to_array (&alltrgrects, &alltrgcnt, rect);
 
 	/* Init current with the first element in the array */
-	current.X = -1; current.Y = -1;
+	current.X = REGION_INFINITE_POSITION - 1;
+	current.Y = REGION_INFINITE_POSITION - 1;
 	current.Width = 0; current.Height = 0;
 
 	while (gdip_getlowestrect (allsrcrects, allsrccnt, &current, &rslt)) {
