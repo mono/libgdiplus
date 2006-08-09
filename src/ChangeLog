@@ -1,7 +1,11 @@
-2006-08-09  Sebastien Pouliot  <sebastien@ximian.com>
+2006-08-09  Sebastien Pouliot  <sebastien@ximian.com> 
 
-	* graphics-path.c: Changed null check not to print warnings during 
+	* graphics.c: Added more memory allocation failure checks. Be more
+	careful when disposing resources inside GdipDeleteGraphics.
+	* graphics-path.c: Changed null check not to print warnings during
 	unit tests. Added more memory allocation failure checks.
+	* general.c: Added more memory allocation failure checks.
+	* font.c: Remove deadcode (CID 234) introduced by the last fix. 
 
 2006-08-08  Sebastien Pouliot  <sebastien@ximian.com>
 

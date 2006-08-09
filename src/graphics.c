@@ -566,8 +566,16 @@ GdipDeleteGraphics (GpGraphics *graphics)
 		GdipDeleteMatrix (graphics->copy_of_ctm);
 		graphics->copy_of_ctm = NULL;
 	}
-	GdipDeleteRegion (graphics->clip);
-	GdipDeleteMatrix (graphics->clip_matrix);
+
+	if (graphics->clip) {
+		GdipDeleteRegion (graphics->clip);
+		graphics->clip = NULL;
+	}
+
+	if (graphics->clip_matrix) {
+		GdipDeleteMatrix (graphics->clip_matrix);
+		graphics->clip_matrix = NULL;
+	}
 
 	if (graphics->ct) {
 		cairo_destroy (graphics->ct);
@@ -1544,6 +1552,9 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int co
 	 * should have it set already.
 	 */
 	tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
+	if (!tangents)
+		return OutOfMemory;
+
 	make_curve (graphics, points, tangents, 0, count - 1, CURVE_CLOSE, graphics->aa_offset_x, graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
@@ -1569,6 +1580,8 @@ GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GpPoint *points, int co
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
 	pt = convert_points (points, count);
+	if (!pt)
+		return OutOfMemory;
 
 	s = GdipDrawClosedCurve (graphics, pen, pt, count);
 
@@ -1648,6 +1661,8 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
 	 * should have it set already.
 	 */
         tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
+	if (!tangents)
+		return OutOfMemory;
 	make_curve (graphics, points, tangents, offset, numOfSegments, CURVE_OPEN, graphics->aa_offset_x, graphics->aa_offset_y);
 
 	/* We do pen setup just before stroking. */
@@ -1673,6 +1688,8 @@ GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, i
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
 	pf = convert_points (points, count);
+	if (!pf)
+		return OutOfMemory;
 
 	s = GdipDrawCurve3 (graphics, pen, pf, count, offset, numOfSegments, tension);
 
@@ -1993,6 +2010,9 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, in
 	 * should have it set already.
 	 */
 	tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
+	if (!tangents)
+		return OutOfMemory;
+
 	make_curve (graphics, points, tangents, 0, count - 1, CURVE_CLOSE, 0, 0);
 
 	/* We do brush setup just before filling. */
@@ -2017,7 +2037,9 @@ GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, in
 	
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-	pt  = convert_points (points, count);
+	pt = convert_points (points, count);
+	if (!pt)
+		return OutOfMemory;
 
 	s = GdipFillClosedCurve2 (graphics, brush, pt, count, tension);
 

@@ -46,6 +46,8 @@ g_array_to_array (GArray *p)
 {
         int length = p->len;
         GpPointF *pts = (GpPointF *) GdipAlloc (sizeof (GpPointF) * length);
+	if (!pts)
+		return NULL;
 
         memcpy (pts, p->data, p->len * sizeof (GpPointF));        
         
@@ -57,6 +59,8 @@ g_byte_array_to_array (GByteArray *p)
 {
         int length = p->len;
         byte *types = (byte *) GdipAlloc (sizeof (byte) * length);
+	if (!types)
+		return NULL;
 
         memcpy (types, p->data, p->len * sizeof (byte));
         
@@ -77,6 +81,9 @@ int_to_float (const GpPoint *pts, int count)
         GpPointF *p = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
         GpPoint *tmp = (GpPoint *) pts;
         int i;
+
+	if (!p)
+		return NULL;
 
         for (i = 0; i < count; i++) {
                 p[i].X = (float) tmp[i].X;
@@ -205,6 +212,8 @@ GdipCreatePath (GpFillMode fillMode, GpPath **path)
 	g_return_val_if_fail (path != NULL, InvalidParameter);
 
 	*path = (GpPath *) GdipAlloc (sizeof (GpPath));
+	if (!*path)
+		return OutOfMemory;
 
 	(*path)->fill_mode = fillMode;
 	(*path)->points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
@@ -232,9 +241,15 @@ GdipCreatePath2 (const GpPointF *points, const byte *types,
 	 * PathPointTypeCloseSubpath etc.
 	 */
 	pts = array_to_g_array (points, count);
+	if (!pts)
+		return OutOfMemory;
+
 	t = array_to_g_byte_array (types, count);
         
         *path = (GpPath *) GdipAlloc (sizeof (GpPath));
+	if (!*path)
+		return OutOfMemory;
+
         (*path)->fill_mode = fillMode;
         (*path)->count = count;
         (*path)->points = pts;
@@ -422,6 +437,9 @@ GdipGetPathData (GDIPCONST GpPath *path, GpPathData *pathData)
 
         pathData->Count = path->count;
         pathData->Points = g_array_to_array (path->points);
+	if (!pathData->Points)
+		return OutOfMemory;
+
         pathData->Types = g_byte_array_to_array (path->types);
         
         return Ok;
@@ -799,6 +817,8 @@ GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count,
 		return InvalidParameter;
 
         tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
+	if (!tangents)
+		return OutOfMemory;
 
         append_curve (path, points, tangents, offset, numberOfSegments, CURVE_OPEN);
 
@@ -822,6 +842,8 @@ GdipAddPathClosedCurve2 (GpPath *path, const GpPointF *points, int count, float 
 		return InvalidParameter;
 
         tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
+	if (!tangents)
+		return OutOfMemory;
 
         append_curve (path, points, tangents, 0, count - 1, CURVE_CLOSE);
 
@@ -1301,6 +1323,8 @@ GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count)
 	g_return_val_if_fail (points != NULL, InvalidParameter);
 
 	tmp = int_to_float (points, count);
+	if (!tmp)
+		return OutOfMemory;
 
 	s = GdipAddPathPolygon (path, tmp, count);
 
@@ -1639,6 +1663,8 @@ GdipTransformPath (GpPath* path, GpMatrix *matrix)
         path->points = array_to_g_array (points, count);
 
         GdipFree (points);
+	if (!path->points)
+		return OutOfMemory;
 
         return s;
 }

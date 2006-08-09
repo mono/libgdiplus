@@ -859,28 +859,25 @@ gdip_logfont_from_font(GpFont *font, GpGraphics *graphics, void *lf, bool ucs2)
 	logFont->lfCharSet = 0; /* changed to 1 inside System.Drawing */
 	logFont->lfOutPrecision = 0;
 	logFont->lfClipPrecision = 0;
-	if (graphics != NULL) {
-		switch(graphics->text_mode) {
-			case TextRenderingHintSystemDefault: {
-				logFont->lfQuality = 0;
-				break;
-			}
-	
-			case TextRenderingHintSingleBitPerPixelGridFit:
-			case TextRenderingHintSingleBitPerPixel:
-			case TextRenderingHintAntiAliasGridFit:
-			case TextRenderingHintAntiAlias: {
-				logFont->lfQuality = 3;	// ANTIALIASED_QUALITY;
-				break;
-			}
-	
-			case TextRenderingHintClearTypeGridFit: {
-				logFont->lfQuality = 5;	// CLEARTYPE_QUALITY
-				break;
-			}
+
+	switch (graphics->text_mode) {
+		case TextRenderingHintSystemDefault: {
+			logFont->lfQuality = 0;
+			break;
 		}
-	} else {
-		logFont->lfQuality = 0;
+	
+		case TextRenderingHintSingleBitPerPixelGridFit:
+		case TextRenderingHintSingleBitPerPixel:
+		case TextRenderingHintAntiAliasGridFit:
+		case TextRenderingHintAntiAlias: {
+			logFont->lfQuality = 3;	// ANTIALIASED_QUALITY;
+			break;
+		}
+	
+		case TextRenderingHintClearTypeGridFit: {
+			logFont->lfQuality = 5;	// CLEARTYPE_QUALITY
+			break;
+		}
 	}
 
 	logFont->lfPitchAndFamily = 0;

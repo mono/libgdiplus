@@ -249,6 +249,8 @@ convert_points (const GpPoint *point, int count)
 {
         int i;
         GpPointF *retval = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
+	if (!retval)
+		return NULL;
 
         for (i = 0; i < count; i++) {
                 retval [i].X = (float) point [i].X;
@@ -265,6 +267,8 @@ gdip_open_curve_tangents (int terms, const GpPointF *points, int count, float te
         int i;
 
         GpPointF *tangents = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
+	if (!tangents)
+		return NULL;
 
         /* initialize everything to zero to begin with */
         for (i = 0; i < count; i++) {
@@ -295,6 +299,8 @@ gdip_closed_curve_tangents (int terms, const GpPointF *points, int count, float 
         float coefficient = tension / 3.0;
         int i;
         GpPointF *tangents = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
+	if (!tangents)
+		return NULL;
 
         /* initialize everything to zero to begin with */
         for (i = 0; i < count; i++) {
