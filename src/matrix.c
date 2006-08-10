@@ -208,7 +208,9 @@ GdipCloneMatrix (GpMatrix *matrix, GpMatrix **cloneMatrix)
 GpStatus
 GdipDeleteMatrix (GpMatrix *matrix)
 {
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if (!matrix)
+		return InvalidParameter;
+
 	GdipFree (matrix);
         return Ok;
 }

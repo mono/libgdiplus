@@ -1,5 +1,18 @@
 2006-08-10  Sebastien Pouliot  <sebastien@ximian.com>
 
+	* graphics.c: s/CONVERTION/CONVERSION/ (alp)
+	* general.c: s/CONVERTION/CONVERSION/ (alp)
+	* image.c: s/CONVERTION/CONVERSION/ (alp)
+	* general.h: s/CONVERTION/CONVERSION/ (alp)
+	* region.c: s/CONVERTION/CONVERSION/ (alp)
+	* region-bitmap.c: s/CONVERTION/CONVERSION/ (alp)
+	* matrix.c: Changed some null checks not to print warnings during unit
+	tests.
+	* graphics-path.c: Fix GdipWidenPath to return the same value as GDI+.
+	Changed some null checks not to print warnings during unit tests.
+
+2006-08-10  Sebastien Pouliot  <sebastien@ximian.com>
+
 	* font.c: Deal with gdip_unit_conversion being a function.
 	* general.c: Add OPTIMIZE_CONVERTION to help avoid a floating point 
 	division and multiplication when converting units (in the case where

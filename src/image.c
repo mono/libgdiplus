@@ -192,7 +192,7 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 		return InvalidParameter;
 	}
 
-	if (!OPTIMIZE_CONVERTION (graphics)) {
+	if (!OPTIMIZE_CONVERSION (graphics)) {
 		x = gdip_unitx_convgr (graphics, x);
 		y = gdip_unity_convgr (graphics, y);
 		width = gdip_unitx_convgr (graphics, width);
@@ -376,7 +376,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		return status;
 	}
 
-	// see OPTIMIZE_CONVERTION in general.h
+	// see OPTIMIZE_CONVERSION in general.h
 	if ((srcUnit != UnitPixel) && (srcUnit != UnitWorld) && ((srcUnit != UnitDisplay) || (graphics->type != gtPostScript))) {
 		dstx = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_x, dstx);
 		dsty = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_y, dsty);

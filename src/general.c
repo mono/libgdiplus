@@ -592,8 +592,8 @@ gdip_cairo_rectangle (GpGraphics *graphics, double x, double y, double width, do
 {
 	double x2, y2;
 
-	/* avoid unit convertion whenever possible */
-	if (!OPTIMIZE_CONVERTION (graphics)) {
+	/* avoid unit conversion whenever possible */
+	if (!OPTIMIZE_CONVERSION (graphics)) {
 		x = gdip_unitx_convgr (graphics, x);
 		y = gdip_unity_convgr (graphics, y);
 		width = gdip_unitx_convgr (graphics, width);
@@ -623,8 +623,8 @@ gdip_cairo_rectangle (GpGraphics *graphics, double x, double y, double width, do
 void
 gdip_cairo_move_to (GpGraphics *graphics, double x, double y, BOOL convert_units, BOOL antialiasing)
 {
-	/* avoid unit convertion whenever possible */
-	if (convert_units && !OPTIMIZE_CONVERTION (graphics)) {
+	/* avoid unit conversion whenever possible */
+	if (convert_units && !OPTIMIZE_CONVERSION (graphics)) {
 		x = gdip_unitx_convgr (graphics, x);
 		y = gdip_unity_convgr (graphics, y);
 	}
@@ -645,8 +645,8 @@ gdip_cairo_move_to (GpGraphics *graphics, double x, double y, BOOL convert_units
 void
 gdip_cairo_line_to (GpGraphics *graphics, double x, double y, BOOL convert_units, BOOL antialiasing)
 {
-	/* avoid unit convertion whenever possible */
-	if (convert_units && !OPTIMIZE_CONVERTION (graphics)) {
+	/* avoid unit conversion whenever possible */
+	if (convert_units && !OPTIMIZE_CONVERSION (graphics)) {
 		x = gdip_unitx_convgr (graphics, x);
 		y = gdip_unity_convgr (graphics, y);
 	}
@@ -668,8 +668,8 @@ void
 gdip_cairo_curve_to (GpGraphics *graphics, double x1, double y1, double x2, double y2, double x3, double y3, 
 	BOOL convert_units, BOOL antialiasing)
 {
-	/* avoid unit convertion whenever possible */
-	if (convert_units && !OPTIMIZE_CONVERTION (graphics)) {
+	/* avoid unit conversion whenever possible */
+	if (convert_units && !OPTIMIZE_CONVERSION (graphics)) {
 		x1 = gdip_unitx_convgr (graphics, x1);
 		y1 = gdip_unity_convgr (graphics, y1);
 		x2 = gdip_unitx_convgr (graphics, x2);

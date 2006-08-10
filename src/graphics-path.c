@@ -350,8 +350,8 @@ GdipResetPath (GpPath *path)
 GpStatus
 GdipGetPointCount (GDIPCONST GpPath *path, int *count)
 {
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (count != NULL, InvalidParameter);
+	if (!path || !count)
+		return InvalidParameter;
 
 	*count = path->count;
 	return Ok;
@@ -361,9 +361,8 @@ GpStatus
 GdipGetPathTypes (GpPath *path, byte *types, int count)
 {
 	int i;
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (types != NULL, InvalidParameter);
-	if (count < 1)
+
+	if (!path || !types || (count < 1))
 		return InvalidParameter;
 
         for (i = 0; i < count; i++)
@@ -376,9 +375,8 @@ GpStatus
 GdipGetPathPoints (GDIPCONST GpPath *path, GpPointF *points, int count)
 {
 	int i;
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
-	if (count < 1)
+
+	if (!path ||!points || (count < 1))
 		return InvalidParameter;
 
         for (i = 0; i < count; i++) {
@@ -1581,11 +1579,9 @@ GdipWidenPath (GpPath *nativePath, GpPen *pen, GpMatrix *matrix, float flatness)
 	if (!nativePath || !pen)
 		return InvalidParameter;
 
-	/* quick out */
-	if (nativePath->count == 0)
-		return Ok;
-	/* for compatibility with MS GDI+ (reported as FDBK49685) */
-	if (nativePath->count == 1)
+	/* (0) is deal within System.Drawing */
+	/* (1) for compatibility with MS GDI+ (reported as FDBK49685) */
+	if (nativePath->count <= 1)
 		return OutOfMemory;
 
 	status = gdip_prepare_path (nativePath, matrix, flatness);

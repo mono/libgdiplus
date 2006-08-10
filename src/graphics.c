@@ -178,8 +178,8 @@ make_ellipse (GpGraphics *graphics, float x, float y, float width, float height,
 {
 	double rx, ry, cx, cy;
 
-	/* if required deal, once and for all, with unit convertion */
-	if (convert_units && !OPTIMIZE_CONVERTION (graphics)) {
+	/* if required deal, once and for all, with unit conversion */
+	if (convert_units && !OPTIMIZE_CONVERSION (graphics)) {
 		x = gdip_unitx_convgr (graphics, x);
 		y = gdip_unity_convgr (graphics, y);
 		width = gdip_unitx_convgr (graphics, width);
@@ -338,8 +338,8 @@ make_arcs (GpGraphics *graphics, float x, float y, float width, float height, fl
 	int increment = sign * 90;
 	bool enough = FALSE;
 
-	/* if required deal, once and for all, with unit convertions */
-	if (convert_units && !OPTIMIZE_CONVERTION (graphics)) {
+	/* if required deal, once and for all, with unit conversions */
+	if (convert_units && !OPTIMIZE_CONVERSION (graphics)) {
 		x = gdip_unitx_convgr (graphics, x);
 		y = gdip_unity_convgr (graphics, y);
 		width = gdip_unitx_convgr (graphics, width);
@@ -383,8 +383,8 @@ make_pie (GpGraphics *graphics, float x, float y, float width, float height,
 	float rx, ry, cx, cy, alpha;
 	double sin_alpha, cos_alpha;
 
-	/* if required deal, once and for all, with unit convertions */
-	if (!OPTIMIZE_CONVERTION (graphics)) {
+	/* if required deal, once and for all, with unit conversions */
+	if (!OPTIMIZE_CONVERSION (graphics)) {
 		x = gdip_unitx_convgr (graphics, x);
 		y = gdip_unity_convgr (graphics, y);
 		width = gdip_unitx_convgr (graphics, width);

@@ -27,10 +27,10 @@
 
 
 /* avoid fp division and multiplication that would return the same number */
-#define OPTIMIZE_CONVERTION(g)	(((g->page_unit == UnitDisplay) && (g->type != gtPostScript)) || \
+#define OPTIMIZE_CONVERSION(g)	(((g->page_unit == UnitDisplay) && (g->type != gtPostScript)) || \
 	(g->page_unit == UnitPixel) || (g->page_unit == UnitWorld))
 
-/* macros for common convertions, i.e. to or from UnitCairoPoint */
+/* macros for common conversions, i.e. to or from UnitCairoPoint */
 #define gdip_unitx_convgr(g,f)		(gdip_unit_conversion (g->page_unit, UnitCairoPoint, g->dpi_x, g->type, f))
 #define gdip_unity_convgr(g,f)		(gdip_unit_conversion (g->page_unit, UnitCairoPoint, g->dpi_y, g->type, f))
 #define gdip_convgr_unitx(g,f)		(gdip_unit_conversion (UnitCairoPoint, g->page_unit, g->dpi_x, g->type, f))
@@ -47,7 +47,7 @@
 #define CAIRO_HIGH_LIMIT	16383
 #define CAIRO_LIMIT(v)		((v < CAIRO_LOW_LIMIT) ? CAIRO_LOW_LIMIT : (v > CAIRO_HIGH_LIMIT) ? CAIRO_HIGH_LIMIT : v)
 
-/* prototypes for cairo wrappers to deal with coordonates limits, unit convertion and antialiasing) */
+/* prototypes for cairo wrappers to deal with coordonates limits, unit conversion and antialiasing) */
 void gdip_cairo_rectangle (GpGraphics *graphics, double x, double y, double width, double height, BOOL antialiasing);
 void gdip_cairo_move_to (GpGraphics *graphics, double x, double y, BOOL convert_units, BOOL antialiasing);
 void gdip_cairo_line_to (GpGraphics *graphics, double x, double y, BOOL convert_units, BOOL antialiasing);
