@@ -453,6 +453,7 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, int size, GpRegion **region
 	return Ok;
 }
 
+// coverity[+alloc : arg-*1]
 GpStatus
 GdipCloneRegion (GpRegion *region, GpRegion **cloneRegion)
 {

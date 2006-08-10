@@ -1,3 +1,7 @@
+2006-08-10  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* region.c: Test to see if this help remove a false positive.
+
 2006-08-10  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics-path.c: Avoid temporary memory allocation to convert int 
