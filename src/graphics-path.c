@@ -991,8 +991,8 @@ GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
         if (length < 1)
                 return Ok;
         
-        pts = calloc(sizeof(GpPointF), length);
-        types = calloc(sizeof(byte), length);
+        pts = GdipCalloc (sizeof (GpPointF), length);
+        types = GdipCalloc (sizeof (byte), length);
 
         GdipGetPathPoints (addingPath, pts, length);
         GdipGetPathTypes (addingPath, types, length);
