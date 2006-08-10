@@ -75,24 +75,6 @@ array_to_g_byte_array (const byte *types, int count)
         return p;
 }
 
-static GpPointF *
-int_to_float (const GpPoint *pts, int count)
-{
-        GpPointF *p = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
-        GpPoint *tmp = (GpPoint *) pts;
-        int i;
-
-	if (!p)
-		return NULL;
-
-        for (i = 0; i < count; i++) {
-                p[i].X = (float) tmp[i].X;
-                p[i].Y = (float) tmp[i].Y;
-        }
-
-        return p;
-}
-
 /* return TRUE if the specified path has (at least one) curves, FALSE otherwise */
 static BOOL
 gdip_path_has_curve (GpPath *path)
@@ -610,7 +592,8 @@ GdipGetPathLastPoint (GpPath *path, GpPointF *lastPoint)
 GpStatus
 GdipAddPathLine (GpPath *path, float x1, float y1, float x2, float y2)
 {
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!path)
+		return InvalidParameter;
 
 	append (path, x1, y1, PathPointTypeLine);
 	append (path, x2, y2, PathPointTypeLine);
@@ -623,8 +606,9 @@ GdipAddPathLine2 (GpPath *path, const GpPointF *points, int count)
 {
 	int i;
 	GpPointF *tmp;
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+
+	if (!path || !points || (count < 0))
+		return InvalidParameter;
 
 	tmp = (GpPointF *) points;
 
@@ -753,8 +737,10 @@ GdipAddPathBeziers (GpPath *path, const GpPointF *points, int count)
 {
 	int i;
 	GpPointF *tmp = (GpPointF *) points;
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+
+	if (!path || !points)
+		return InvalidParameter;
+
 	/* first bezier requires 4 points, other 3 more points */
 	if ((count < 4) || ((count % 3) != 1))
 		return InvalidParameter;
@@ -783,13 +769,11 @@ GdipAddPathCurve2 (GpPath *path, const GpPointF *points, int count, float tensio
 	if (!path || !points || (count < 2))
 		return InvalidParameter;
 
-	int segments = (count == 2) ? (count - 1) : (count - 1);
-		
-	tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
+	tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count - 1, tension);
 	if (!tangents)
 		return OutOfMemory;
 
-	append_curve (path, points, tangents, 0, segments, CURVE_OPEN);
+	append_curve (path, points, tangents, 0, count - 1, CURVE_OPEN);
 
 	GdipFree (tangents);
 
@@ -971,9 +955,8 @@ GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
 {
         int i;
         GpPointF *tmp = (GpPointF *) points;
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
-	if (count < 3)
+
+	if (!path || !points || (count < 3))
 		return InvalidParameter;
         
 	append_point (path, *tmp, PathPointTypeStart);
@@ -1001,11 +984,10 @@ GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
         GpPointF *pts;
         byte *types;
 
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (addingPath != NULL, InvalidParameter);
+	if (!path || !addingPath)
+		return InvalidParameter;
 
-        GdipGetPointCount (addingPath, &length);
-
+        length = addingPath->count;
         if (length < 1)
                 return Ok;
         
@@ -1161,18 +1143,17 @@ GdipAddPathLineI (GpPath *path, int x1, int y1, int x2, int y2)
 GpStatus
 GdipAddPathLine2I (GpPath* path, const GpPoint *points, int count)
 {
-	GpPointF *tmp;
-	GpStatus status;
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	GpPoint *tmp;
+	int i;
 
-	tmp = int_to_float (points, count);
-	if (!tmp)
-		return OutOfMemory;
+	if (!path || !points || (count < 0))
+		return InvalidParameter;
 
-	status = GdipAddPathLine2 (path, tmp, count);
-	GdipFree (tmp);
+        for (i = 0, tmp = (GpPoint*) points; i < count; i++, tmp++) {
+                append (path, tmp->X, tmp->Y, PathPointTypeLine);
+	}
 
-	return status;
+	return Ok;
 }
 
 GpStatus
@@ -1190,20 +1171,24 @@ GdipAddPathBezierI (GpPath *path, int x1, int y1, int x2, int y2, int x3, int y3
 GpStatus
 GdipAddPathBeziersI (GpPath *path, const GpPoint *points, int count)
 {
-	GpPointF *tmp;
-        Status s;
+	GpPoint *tmp;
+	int i;
 
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!path || !points)
+		return InvalidParameter;
 
-	tmp = int_to_float (points, count);
-	if (!tmp)
-		return OutOfMemory;
+	/* first bezier requires 4 points, other 3 more points */
+	if ((count < 4) || ((count % 3) != 1))
+		return InvalidParameter;
+        
+	tmp = (GpPoint*) points;
+        append (path, tmp->X, tmp->Y, PathPointTypeLine);
+        tmp++;
 
-	s = GdipAddPathBeziers (path, tmp, count);
+        for (i = 1; i < count; i++, tmp++)
+                append (path, tmp->X, tmp->Y, PathPointTypeBezier3);
 
-        GdipFree (tmp);
-
-        return s;
+        return Ok;
 }
 
 GpStatus
@@ -1315,20 +1300,28 @@ GdipAddPathPieI (GpPath *path, int x, int y, int width, int height, float startA
 GpStatus
 GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count)
 {
-	GpPointF *tmp;	
-        Status s;
+        int i;
+        GpPoint *tmp;
 
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!path || !points || (count < 3))
+		return InvalidParameter;
 
-	tmp = int_to_float (points, count);
-	if (!tmp)
-		return OutOfMemory;
+	tmp = (GpPoint *) points;
+	append (path, tmp->X, tmp->Y, PathPointTypeStart);
+        tmp ++;
 
-	s = GdipAddPathPolygon (path, tmp, count);
+        for (i = 1; i < count; i++, tmp++)
+                append (path, tmp->X, tmp->Y, PathPointTypeLine);
 
-        GdipFree (tmp);
-
-        return s;
+        /*
+         * Add a line from the last point back to the first point if
+         * they're not the same
+         */
+        if (points [0].X != points [count - 1].X && points [0].Y != points [count - 1].Y)
+                append (path, points [0].X, points [0].Y, PathPointTypeLine);
+        
+	/* close the path */
+        return GdipClosePathFigure (path);
 }
 
 /* nr_curve_flatten comes from Sodipodi's libnr (public domain) available from http://www.sodipodi.com/ */

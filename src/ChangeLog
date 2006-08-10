@@ -1,3 +1,13 @@
+2006-08-10  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics-path.c: Avoid temporary memory allocation to convert int 
+	into floats in GdipAddPathLine2I, GdipAddPathBeziersI and 
+	GdipAddPathBeziersI functions. Remove (now) unnecessary int_to_floats
+	function. Replace calloc calls with GdipCalloc. Remove useless line in
+	GdipAddPathCurve2.
+	* pathgradientbrush.c: Fix GdipCreatePathGradientFromPath to return 
+	the same value as GDI+.
+
 2006-08-10  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: s/CONVERTION/CONVERSION/ (alp)

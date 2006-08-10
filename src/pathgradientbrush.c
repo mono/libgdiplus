@@ -453,12 +453,11 @@ GdipCreatePathGradientFromPath (GDIPCONST GpPath *path, GpPathGradient **polyGra
 	GpPathGradient *gp;
 	GpPointF *points;
 
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (polyGradient != NULL, InvalidParameter);
-
 	/* this match MS GDI+ behaviour */
-	if (path->count < 2)
+	if (!path || (path->count < 2))
 		return OutOfMemory;
+	if (!polyGradient)
+		return InvalidParameter;
 
 	gp = gdip_pathgradient_new ();
 	GdipClonePath ((GpPath *) path, &(gp->boundary));
