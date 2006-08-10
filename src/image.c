@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 #include "gdipImage.h"
+#include "general.h"
 #include <cairo-features.h>
 #include <math.h>
 
@@ -191,10 +192,12 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 		return InvalidParameter;
 	}
 
-	x = gdip_unitx_convgr (graphics, x);
-	y = gdip_unity_convgr (graphics, y);
-	width = gdip_unitx_convgr (graphics, width);
-	height = gdip_unity_convgr (graphics, height);
+	if (!OPTIMIZE_CONVERTION (graphics)) {
+		x = gdip_unitx_convgr (graphics, x);
+		y = gdip_unity_convgr (graphics, y);
+		width = gdip_unitx_convgr (graphics, width);
+		height = gdip_unity_convgr (graphics, height);
+	}
 	
 	cairo_new_path(graphics->ct);
 
@@ -373,15 +376,16 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		return status;
 	}
 
-	if (srcUnit != UnitPixel && srcUnit != UnitWorld) {
-		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_x, dstx, &dstx);
-		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_y, dsty, &dsty);
-		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_x, dstwidth, &dstwidth);
-		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_y, dstheight, &dstheight);
-		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_x, srcx, &srcx);
-		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_y, srcy, &srcy);
-		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_x, srcwidth, &dstwidth);
-		gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_y, srcheight, &srcheight);
+	// see OPTIMIZE_CONVERTION in general.h
+	if ((srcUnit != UnitPixel) && (srcUnit != UnitWorld) && ((srcUnit != UnitDisplay) || (graphics->type != gtPostScript))) {
+		dstx = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_x, dstx);
+		dsty = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_y, dsty);
+		dstwidth = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_x, dstwidth);
+		dstheight = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_y, dstheight);
+		srcx = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_x, srcx);
+		srcy = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_y, srcy);
+		srcwidth = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_x, srcwidth);
+		srcheight = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->type, graphics->dpi_y, srcheight);
 	}
 
 	org = dest = image->active_bitmap->scan0; 

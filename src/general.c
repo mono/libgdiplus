@@ -23,7 +23,7 @@
  *   Duncan Mak (duncan@ximian.com)
  */
 
-#include "gdip.h"
+#include "general.h"
 #include <cairo.h>
 #include <math.h>
 
@@ -575,4 +575,126 @@ gdip_get_pattern_status (cairo_pattern_t *pat)
 		cairo_pattern_destroy (pat);
 		return InvalidParameter;
 	}
+}
+
+/* cairo has a (signed) 15(1)/16(2)bits pixel positioning, while GDI+ use (signed) 23 bits (infinity).
+ * Using larger values confuse the bits used for subpixel positioning.
+ * (1) http://lists.freedesktop.org/archives/cairo/2006-June/007251.html
+ * (2) testing shows artefacts if using more than 15 *signed* bits (i.e. -16384 to 16383)
+ */
+
+#define CAIRO_LOW_LIMIT		-16384
+#define CAIRO_HIGH_LIMIT	16383
+#define CAIRO_LIMIT(v)		((v < CAIRO_LOW_LIMIT) ? CAIRO_LOW_LIMIT : (v > CAIRO_HIGH_LIMIT) ? CAIRO_HIGH_LIMIT : v)
+
+void
+gdip_cairo_rectangle (GpGraphics *graphics, double x, double y, double width, double height, BOOL antialiasing)
+{
+	double x2, y2;
+
+	/* avoid unit convertion whenever possible */
+	if (!OPTIMIZE_CONVERTION (graphics)) {
+		x = gdip_unitx_convgr (graphics, x);
+		y = gdip_unity_convgr (graphics, y);
+		width = gdip_unitx_convgr (graphics, width);
+		height = gdip_unity_convgr (graphics, height);
+	}
+
+	/* apply antialiasing offset (if required) */
+	if (antialiasing) {
+		x += graphics->aa_offset_x;
+		y += graphics->aa_offset_y;
+	}
+
+	/* ensure that each point (x,y and x+width,y+height) are within the 16 bits bounds */
+	x2 = x + width;
+	y2 = y + height;
+
+	/* put everything between cairo limits */
+	x = CAIRO_LIMIT (x);
+	y = CAIRO_LIMIT (y);
+	x2 = CAIRO_LIMIT (x2);
+	y2 = CAIRO_LIMIT (y2);
+
+	/* and recompute the final width and length */
+	cairo_rectangle (graphics->ct, x, y, (x2 - x), (y2 - y));
+}
+
+void
+gdip_cairo_move_to (GpGraphics *graphics, double x, double y, BOOL convert_units, BOOL antialiasing)
+{
+	/* avoid unit convertion whenever possible */
+	if (convert_units && !OPTIMIZE_CONVERTION (graphics)) {
+		x = gdip_unitx_convgr (graphics, x);
+		y = gdip_unity_convgr (graphics, y);
+	}
+
+	/* apply antialiasing offset (if required) */
+	if (antialiasing) {
+		x += graphics->aa_offset_x;
+		y += graphics->aa_offset_y;
+	}
+
+	/* put everything between cairo limits */
+	x = CAIRO_LIMIT (x);
+	y = CAIRO_LIMIT (y);
+
+        cairo_move_to (graphics->ct, x, y);
+}
+
+void
+gdip_cairo_line_to (GpGraphics *graphics, double x, double y, BOOL convert_units, BOOL antialiasing)
+{
+	/* avoid unit convertion whenever possible */
+	if (convert_units && !OPTIMIZE_CONVERTION (graphics)) {
+		x = gdip_unitx_convgr (graphics, x);
+		y = gdip_unity_convgr (graphics, y);
+	}
+
+	/* apply antialiasing offset (if required) */
+	if (antialiasing) {
+		x += graphics->aa_offset_x;
+		y += graphics->aa_offset_y;
+	}
+
+	/* put everything between cairo limits */
+	x = CAIRO_LIMIT (x);
+	y = CAIRO_LIMIT (y);
+
+        cairo_line_to (graphics->ct, x, y);
+}
+
+void
+gdip_cairo_curve_to (GpGraphics *graphics, double x1, double y1, double x2, double y2, double x3, double y3, 
+	BOOL convert_units, BOOL antialiasing)
+{
+	/* avoid unit convertion whenever possible */
+	if (convert_units && !OPTIMIZE_CONVERTION (graphics)) {
+		x1 = gdip_unitx_convgr (graphics, x1);
+		y1 = gdip_unity_convgr (graphics, y1);
+		x2 = gdip_unitx_convgr (graphics, x2);
+		y2 = gdip_unity_convgr (graphics, y2);
+		x3 = gdip_unitx_convgr (graphics, x3);
+		y3 = gdip_unity_convgr (graphics, y3);
+	}
+
+	/* apply antialiasing offset (if required) */
+	if (antialiasing) {
+		x1 += graphics->aa_offset_x;
+		y1 += graphics->aa_offset_y;
+		x2 += graphics->aa_offset_x;
+		y2 += graphics->aa_offset_y;
+		x3 += graphics->aa_offset_x;
+		y3 += graphics->aa_offset_y;
+	}
+
+	/* put everything between cairo limits */
+	x1 = CAIRO_LIMIT (x1);
+	y1 = CAIRO_LIMIT (y1);
+	x2 = CAIRO_LIMIT (x2);
+	y2 = CAIRO_LIMIT (y2);
+	x3 = CAIRO_LIMIT (x3);
+	y3 = CAIRO_LIMIT (y3);
+
+	cairo_curve_to (graphics->ct, x1, y1, x2, y2, x3, y3);
 }

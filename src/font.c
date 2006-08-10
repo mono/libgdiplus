@@ -741,7 +741,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 	if (status != Ok)
 		return status;
 	
-	gdip_unit_conversion (unit, UnitPixel, gdip_get_display_dpi(), gtMemoryBitmap, emSize, &sizeInPixels);
+	sizeInPixels = gdip_unit_conversion (unit, UnitPixel, gdip_get_display_dpi(), gtMemoryBitmap, emSize);
 		
 	result = (GpFont *) GdipAlloc (sizeof (GpFont));
 	result->sizeInPixels = sizeInPixels;
@@ -1092,12 +1092,12 @@ GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float
 		return InvalidParameter;
 
 	/* Operations in display dpi's */	
-	gdip_unit_conversion (font->unit, UnitPixel, gdip_get_display_dpi (), gtMemoryBitmap, font->emSize, &emSize);
+	emSize = gdip_unit_conversion (font->unit, UnitPixel, gdip_get_display_dpi (), gtMemoryBitmap, font->emSize);
 	GdipGetEmHeight (font->family, font->style, &emHeight);
 	GdipGetLineSpacing (font->family, font->style, &lineSpacing);
 
 	*height = lineSpacing * (emSize / emHeight);
-	gdip_unit_conversion (UnitPixel, graphics->page_unit, gdip_get_display_dpi (), graphics->type, *height, height);
+	*height = gdip_unit_conversion (UnitPixel, graphics->page_unit, gdip_get_display_dpi (), graphics->type, *height);
 	return Ok;
 }
 
@@ -1112,7 +1112,7 @@ GdipGetFontHeightGivenDPI (GDIPCONST GpFont *font, float dpi, float *height)
 	GdipGetEmHeight (font->family, font->style, &emHeight);
 	GdipGetLineSpacing (font->family, font->style, &lineSpacing);
 	*height = lineSpacing * (font->emSize / emHeight);
-	gdip_unit_conversion (font->unit, UnitInch, dpi, gtMemoryBitmap, *height, height);
+	*height = gdip_unit_conversion (font->unit, UnitInch, dpi, gtMemoryBitmap, *height);
 	*height = *height * dpi;
 	return Ok;
 }

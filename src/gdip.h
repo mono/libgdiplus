@@ -1412,7 +1412,7 @@ int fcmp (double x1, double x2, double epsilon);
 float gdip_get_display_dpi();
 float gdip_unitx_convgr (GpGraphics *graphics, float nSrc);
 float gdip_unity_convgr (GpGraphics *graphics, float nSrc);
-void gdip_unit_conversion (Unit from, Unit to, float dpi, GraphicsType type, float nSrc, float* nTrg);
+float gdip_unit_conversion (Unit from, Unit to, float dpi, GraphicsType type, float nSrc);
 
 cairo_content_t from_cairoformat_to_content (cairo_format_t format);
 

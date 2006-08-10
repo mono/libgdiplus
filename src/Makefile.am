@@ -11,6 +11,7 @@ libgdiplus_la_SOURCES = \
 	gdip.h		\
 	gdipImage.h	\
 	general.c	\
+	general.h	\
 	graphics.c	\
 	graphics-path.c	\
 	graphics-path.h	\
