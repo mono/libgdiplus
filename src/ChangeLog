@@ -1,7 +1,11 @@
-2006-08-11  Sebastien Pouliot  <sebastien@ximian.com>
+2006-08-11  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* font.c: Yet another fix to gdip_logfont_from_font to match MS
 	behaviour more closely (and hopefully fix unit tests under Windows)
+	* region.c: Coverity function annotation worked (it removed a false 
+	positive) and found more possible problems (like the unlikely case
+	where we return an error but did allocate memory). Added more 
+	annotations.
 
 2006-08-10  Sebastien Pouliot  <sebastien@ximian.com> 
 

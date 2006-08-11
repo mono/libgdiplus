@@ -370,6 +370,7 @@ gdip_createRegion (GpRegion **region, RegionType type, void *src)
 	API implementation
 */
 
+// coverity[+alloc : arg-*1]
 GpStatus
 GdipCreateRegion (GpRegion **region)
 {
@@ -379,7 +380,7 @@ GdipCreateRegion (GpRegion **region)
         return gdip_createRegion (region, RegionTypeEmpty, NULL);
 }
 
-
+// coverity[+alloc : arg-*1]
 GpStatus
 GdipCreateRegionRect (GDIPCONST GpRectF *rect, GpRegion **region)
 {
@@ -389,7 +390,7 @@ GdipCreateRegionRect (GDIPCONST GpRectF *rect, GpRegion **region)
         return gdip_createRegion (region, RegionTypeRectF, (void*) rect);
 }
 
-
+// coverity[+alloc : arg-*1]
 GpStatus
 GdipCreateRegionRectI (GDIPCONST GpRect *rect, GpRegion **region)
 {
@@ -399,6 +400,7 @@ GdipCreateRegionRectI (GDIPCONST GpRect *rect, GpRegion **region)
         return gdip_createRegion (region, RegionTypeRect, (void*) rect);
 }
 
+// coverity[+alloc : arg-*2]
 GpStatus
 GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, int size, GpRegion **region)
 {
@@ -1349,7 +1351,7 @@ GdipIsVisibleRegionRectI (GpRegion *region, int x, int y, int width, int height,
 GpStatus
 GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
 {
-	GpRegion *work;
+	GpRegion *work = NULL;
 	GpStatus status;
 
         if (!region || !count)
@@ -1361,8 +1363,11 @@ GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
 
 		/* the matrix doesn't affect the original region - only the result */
 		status = GdipCloneRegion (region, &work);
-		if (status != Ok)
+		if (status != Ok) {
+			if (work)
+				GdipDeleteRegion (work);
 			return status;
+		}
 
 		/* if required convert into a path-based region */
 		if (work->type != RegionTypePath)
@@ -1402,7 +1407,7 @@ GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
 GpStatus
 GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matrix)
 {
-	GpRegion *work;
+	GpRegion *work = NULL;
 	GpStatus status;
 
         if (!region || !rects|| !count)
@@ -1414,8 +1419,11 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matr
 
 		/* the matrix doesn't affect the original region - only the result */
 		status = GdipCloneRegion (region, &work);
-		if (status != Ok)
+		if (status != Ok) {
+			if (work)
+				GdipDeleteRegion (work);
 			return status;
+		}
 
 		/* if required convert into a path-based region */
 		if (work->type != RegionTypePath)
@@ -1573,6 +1581,7 @@ GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
         return status;
 }
 
+// coverity[+alloc : arg-*1]
 GpStatus
 GdipCreateRegionPath (GpPath *path, GpRegion **region)
 {
@@ -1703,6 +1712,7 @@ GdipGetRegionHRgn (GpRegion *region, GpGraphics *graphics, HRGN *hRgn)
 	return Ok;
 }
 
+// coverity[+alloc : arg-*1]
 GpStatus
 GdipCreateRegionHrgn (HRGN hRgn, GpRegion **region)
 {
