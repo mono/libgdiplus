@@ -821,12 +821,11 @@ gdip_logfont_from_font(GpFont *font, GpGraphics *graphics, void *lf, bool ucs2)
 
 	logFont = (LOGFONTA *)lf;
 
-	if (!font || !graphics) {
-		/* lf is an Out parameter and must be initialized if 
-		   not NULL (even on error) */
-		memset (logFont, 0, ucs2 ? sizeof (LOGFONTW) : sizeof (LOGFONTA));
+	/* will be changed back to 1 inside System.Drawing */
+	logFont->lfCharSet = 0;
+
+	if (!font || !graphics)
 		return InvalidParameter;
-	}
 
 	logFont->lfHeight = -(font->sizeInPixels);
 	logFont->lfWidth = 0;
@@ -856,7 +855,6 @@ gdip_logfont_from_font(GpFont *font, GpGraphics *graphics, void *lf, bool ucs2)
 		logFont->lfStrikeOut = 0;
 	}
 
-	logFont->lfCharSet = 0; /* changed to 1 inside System.Drawing */
 	logFont->lfOutPrecision = 0;
 	logFont->lfClipPrecision = 0;
 

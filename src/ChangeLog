@@ -1,3 +1,8 @@
+2006-08-11  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* font.c: Yet another fix to gdip_logfont_from_font to match MS
+	behaviour more closely (and hopefully fix unit tests under Windows)
+
 2006-08-10  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* region.c: Test to see if this help remove a false positive.
