@@ -769,7 +769,7 @@ GdipAddPathCurve2 (GpPath *path, const GpPointF *points, int count, float tensio
 	if (!path || !points || (count < 2))
 		return InvalidParameter;
 
-	tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count - 1, tension);
+	tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
 	if (!tangents)
 		return OutOfMemory;
 

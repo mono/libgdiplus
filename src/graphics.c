@@ -1513,7 +1513,7 @@ GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GpPoint *points, int co
 	if (!pt)
 		return OutOfMemory;
 
-	s = GdipDrawClosedCurve (graphics, pen, pt, count);
+	s = GdipDrawClosedCurve2 (graphics, pen, pt, count, tension);
 
         GdipFree (pt);
 

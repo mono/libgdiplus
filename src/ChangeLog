@@ -1,6 +1,10 @@
-2006-08-10  Sebastien Pouliot  <sebastien@ximian.com>
+2006-08-10  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* region.c: Test to see if this help remove a false positive.
+	* graphics.c: Don't loose track of user supplied tension in function
+	GdipDrawClosedCurve2I.
+	* graphics-path.c: Fix stupid typo made after removing that 
+	unrequired line.
 
 2006-08-10  Sebastien Pouliot  <sebastien@ximian.com> 
 
