@@ -200,7 +200,7 @@ make_ellipse (GpGraphics *graphics, float x, float y, float width, float height,
 	gdip_cairo_move_to (graphics, cx + rx, cy, FALSE, FALSE);
 
         /* an approximate of the ellipse by drawing a curve in each
-         * quartrant */
+         * quadrants */
 	gdip_cairo_curve_to (graphics,
 			cx + rx, cy - C1 * ry,
 			cx + C1 * rx, cy - ry,
@@ -241,7 +241,7 @@ make_polygon (GpGraphics *graphics, GpPointF *points, int count, BOOL antialiasi
 
         /*
          * Draw a line from the last point back to the first point if
-         * they're not the same
+	 * they're not the same
          */
 	if (points [0].X != points [count-1].X && points [0].Y != points [count-1].Y) {
 		gdip_cairo_line_to (graphics, points [0].X, points [0].Y, TRUE, antialiasing);
@@ -263,7 +263,7 @@ make_polygon_from_integers (GpGraphics *graphics, GpPoint *points, int count, BO
 
         /*
          * Draw a line from the last point back to the first point if
-         * they're not the same
+	 * they're not the same
          */
 	if (points [0].X != points [count-1].X && points [0].Y != points [count-1].Y) {
 		gdip_cairo_line_to (graphics, points [0].X, points [0].Y, TRUE, antialiasing);
@@ -346,7 +346,7 @@ make_arcs (GpGraphics *graphics, float x, float y, float width, float height, fl
 		height = gdip_unity_convgr (graphics, height);
 	}
 	
-	if (fabs(sweepAngle) >= 360) {
+	if (fabs (sweepAngle) >= 360) {
 		/* FALSE -> units are already converted */
 		make_ellipse (graphics, x, y, width, height, FALSE, antialiasing);
 		return;
@@ -496,7 +496,8 @@ cairo_surface_t *cairo_quartz_surface_create(void *ctx, int width, int height);
 GpStatus
 GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **graphics)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	if (!graphics)
+		return InvalidParameter;
 
         cairo_surface_t *surface;
 
@@ -526,8 +527,9 @@ GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 	GpRect bounds;
 	int bwidth_ignore, depth_ignore;
         cairo_surface_t *surface;
-		
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
+	if (!graphics)
+		return InvalidParameter;
 
 	XGetGeometry (dpy, d, &root_ignore, &bounds.X,  &bounds.Y,
 		(unsigned int *)&bounds.Width, (unsigned int *)&bounds.Height, 
@@ -620,7 +622,10 @@ GpStatus
 GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 {
 	GpState* pos_state;
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+
+	if (!graphics)
+		return InvalidParameter;
+	
 ///printf("[%s %d] GdipRestoreGraphics called\n", __FILE__, __LINE__);
 
 	if (graphicsState >= MAX_GRAPHICS_STATE_STACK || graphicsState > graphics->saved_status_pos)
@@ -662,8 +667,9 @@ GpStatus
 GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 {
 	GpState* pos_state;
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (state != NULL, InvalidParameter);
+
+	if (!graphics || !state)
+		return InvalidParameter;
 
 ///printf("[%s %d] GdipSaveGraphics called\n", __FILE__, __LINE__);
 	if (graphics->saved_status == NULL) {
@@ -706,7 +712,8 @@ GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 GpStatus
 GdipResetWorldTransform (GpGraphics *graphics)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	if (!graphics)
+		return InvalidParameter;
 
 ///printf("[%s %d] GdipResetWorldTransform called\n", __FILE__, __LINE__);
 	cairo_matrix_init_identity (graphics->copy_of_ctm);
@@ -725,8 +732,8 @@ GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 	GpStatus status;
 	BOOL invertible;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if (!graphics || !matrix)
+		return InvalidParameter;
 
 ///printf("[%s %d] GdipSetWorldTransform called\n", __FILE__, __LINE__);
 	/* optimization - inverting an identity matrix result in the identity matrix */
@@ -752,8 +759,8 @@ GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 GpStatus 
 GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if (!graphics || !matrix)
+		return InvalidParameter;
 
 	/* get the effective matrix from cairo */
         cairo_get_matrix (graphics->ct, matrix);
@@ -776,7 +783,8 @@ GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrde
 	GpMatrix inverted;
 
 ///printf("[%s %d] GdipMultiplyWorldTransform called\n", __FILE__, __LINE__);
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	if (!graphics)
+		return InvalidParameter;
 
 	/* the matrix MUST be invertible to be used */
 	s = GdipIsMatrixInvertible (matrix, &invertible);
@@ -806,7 +814,8 @@ GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order
 {
 	GpStatus s;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	if (!graphics)
+		return InvalidParameter;
 ///printf("[%s %d] GdipRotateWorldTransform called\n", __FILE__, __LINE__);
 
 	s = GdipRotateMatrix (graphics->copy_of_ctm, angle, order);
@@ -827,8 +836,7 @@ GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder
 
 ///printf("[%s %d] GdipScaleWorldTransform called\n", __FILE__, __LINE__);
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	if ((sx == 0.0f) || (sy == 0.0f))
+	if (!graphics || (sx == 0.0f) || (sy == 0.0f))
 		return InvalidParameter;
 
 	s = GdipScaleMatrix (graphics->copy_of_ctm, sx, sy, order);
@@ -848,7 +856,8 @@ GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixO
 {
         GpStatus s;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	if (!graphics)
+		return InvalidParameter;
 ///printf("[%s %d] GdipTranslateWorldTransform called\n", __FILE__, __LINE__);
 
 	s = GdipTranslateMatrix (graphics->copy_of_ctm, dx, dy, order);
@@ -872,8 +881,8 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen,
 	     float x, float y, float width, float height, 
 	     float startAngle, float sweepAngle)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!graphics || !pen)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We should
 	 * have it set already.
@@ -905,8 +914,8 @@ GdipDrawBezier (GpGraphics *graphics, GpPen *pen,
                 float x1, float y1, float x2, float y2,
                 float x3, float y3, float x4, float y4)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!graphics || !pen)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -943,9 +952,8 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen,
         if (count == 0)
                 return Ok;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!graphics || !pen || !points)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -980,9 +988,8 @@ GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen,
         if (count == 0)
                 return Ok;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!graphics || !pen || !points)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -1011,10 +1018,10 @@ GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen,
 GpStatus 
 GdipDrawEllipse (GpGraphics *graphics, GpPen *pen, 
 		 float x, float y, float width, float height)
-{
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-
+{	
+	if (!graphics || !pen)
+		return InvalidParameter;
+	
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
@@ -1045,8 +1052,8 @@ GdipDrawLine (GpGraphics *graphics, GpPen *pen,
 {
 	cairo_matrix_t saved;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!graphics || !pen)
+		return InvalidParameter;
 
 	gdip_cairo_matrix_copy (&saved, graphics->copy_of_ctm);
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
@@ -1082,10 +1089,8 @@ GdipDrawLines (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 {
 	int i;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
-	g_return_val_if_fail (count >= 2, InvalidParameter);
+	if (!graphics || !pen || !points || count < 2)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -1113,10 +1118,8 @@ GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 {
 	int i;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
-	g_return_val_if_fail (count >= 2, InvalidParameter);
+	if (!graphics || !pen || !points || count < 2)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -1192,9 +1195,9 @@ GpStatus
 GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 {
 	GpStatus status;
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+
+	if (!graphics || !pen || !path)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -1217,8 +1220,8 @@ GpStatus
 GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, 
 	     float width, float height, float startAngle, float sweepAngle)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!graphics || !pen)
+		return InvalidParameter;
 
 	/* We don't do anything, if sweep angle is zero. */
 	if (sweepAngle == 0)
@@ -1251,9 +1254,8 @@ GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y,
 GpStatus
 GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!graphics || !pen || !points || count < 2)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -1275,10 +1277,9 @@ GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 GpStatus
 GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
-
+	if (!graphics || !pen || !points || count < 2)
+		return InvalidParameter;
+	
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
@@ -1302,8 +1303,8 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
 {
         cairo_matrix_t saved;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!graphics || !pen)
+		return InvalidParameter;
 
 	/* don't draw/fill rectangles with negative width/height (bug #77129) */
 	if ((width < 0) || (height < 0))
@@ -1343,11 +1344,9 @@ GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count)
 	BOOL draw = FALSE;
 	int i;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (rects != NULL, InvalidParameter);
-	g_return_val_if_fail (count > 0, InvalidParameter);
-
+	if (!graphics || !pen || !rects || count <= 0)
+		return InvalidParameter;
+	
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
 	 */
@@ -1381,10 +1380,8 @@ GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GpRect *rects, int count)
 	BOOL draw = FALSE;
 	int i;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (rects != NULL, InvalidParameter);
-	g_return_val_if_fail (count > 0, InvalidParameter);
+	if (!graphics || !pen || !rects || count <= 0)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -1474,9 +1471,8 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int co
         if (tension == 0)
                 return GdipDrawPolygon (graphics, pen, points, count);
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!graphics || !pen || !points || count <= 2)
+		return InvalidParameter;
         
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -1507,7 +1503,8 @@ GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GpPoint *points, int co
 	GpPointF *pt;
 	GpStatus s;
 
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!points || count <= 0)
+		return InvalidParameter;
 
 	pt = convert_points (points, count);
 	if (!pt)
@@ -1573,11 +1570,7 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
         if (tension == 0)
                 return GdipDrawLines (graphics, pen, points, count);
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
-
-	if (numOfSegments < 1)
+	if (!graphics || !pen || !points || numOfSegments < 1)
 		return InvalidParameter;
 
 	/* we need 3 points for the first curve, 2 more for each curves */
@@ -1615,7 +1608,8 @@ GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, i
 	GpPointF *pf;
 	GpStatus s;
 
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!points || count <= 0)
+		return InvalidParameter;
 
 	pf = convert_points (points, count);
 	if (!pf)
@@ -1635,8 +1629,8 @@ GpStatus
 GdipFillEllipse (GpGraphics *graphics, GpBrush *brush,
 		 float x, float y, float width, float height)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!graphics || !brush)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -1666,8 +1660,8 @@ GpStatus
 GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, 
 		   float x, float y, float width, float height)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!graphics || !brush)
+		return InvalidParameter;
 
 	/* don't draw/fill rectangles with negative width/height (bug #77129) */
 	if ((width < 0) || (height < 0))
@@ -1703,11 +1697,7 @@ GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GpRectF *rects, int co
 	BOOL draw = FALSE;
 	int i;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (rects != NULL, InvalidParameter);
-
-	if (count <= 0)
+	if (!graphics || !brush || !rects || count <= 0)
 		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
@@ -1744,11 +1734,7 @@ GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GpRect *rects, int co
 	BOOL draw = FALSE;
 	int i;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (rects != NULL, InvalidParameter);
-
-	if (count <= 0)
+	if (!graphics || !brush || !rects || count <= 0)
 		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
@@ -1780,10 +1766,12 @@ GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GpRect *rects, int co
 }
 
 GpStatus
-GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, float startAngle, float sweepAngle)
+GdipFillPie (GpGraphics *graphics, GpBrush *brush,
+	     float x, float y, float width, float height,
+	     float startAngle, float sweepAngle)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!graphics || !brush)
+		return InvalidParameter;
 
 	/* We don't do anything, if sweep angle is zero. */
 	if (sweepAngle == 0)
@@ -1807,7 +1795,9 @@ GdipFillPie(GpGraphics *graphics, GpBrush *brush, float x, float y, float width,
 }
 
 GpStatus
-GdipFillPieI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, float startAngle, float sweepAngle)
+GdipFillPieI (GpGraphics *graphics, GpBrush *brush,
+	      int x, int y, int width, int height,
+	      float startAngle, float sweepAngle)
 {
         return GdipFillPie (graphics, brush, x, y, width, height, startAngle, sweepAngle);
 }
@@ -1816,9 +1806,8 @@ GpStatus
 GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, 
 		 GpPointF *points, int count, GpFillMode fillMode)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!graphics || !brush || !points)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -1843,9 +1832,8 @@ GpStatus
 GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 {
 	GpStatus status;
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!graphics || !brush || !path)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -1869,9 +1857,8 @@ GpStatus
 GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, 
 		  GpPoint *points, int count, GpFillMode fillMode)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!graphics || !brush || !points)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -1924,9 +1911,8 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, in
         if (tension == 0)
                 return GdipFillPolygon2 (graphics, brush, points, count);
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!graphics || !brush || !points || count <= 0)
+		return InvalidParameter;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We
 	 * should have it set already.
@@ -1957,7 +1943,8 @@ GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, in
 	GpPointF *pt;
         GpStatus s;
 	
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!points || count <= 0)
+		return InvalidParameter;
 
 	pt = convert_points (points, count);
 	if (!pt)
@@ -3574,20 +3561,13 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 	int			maxY;
 	float			FontSize;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (stringUnicode != NULL, InvalidParameter);
-	g_return_val_if_fail (length != 0, InvalidParameter);
-	g_return_val_if_fail (font != NULL, InvalidParameter);
-	g_return_val_if_fail (layoutRect != NULL, InvalidParameter);
-	g_return_val_if_fail (format != NULL, InvalidParameter);
-	g_return_val_if_fail (regions != NULL, InvalidParameter);
-	g_return_val_if_fail (regionCount == format->charRangeCount, InvalidParameter);
-
+	if (!graphics || !stringUnicode || length == 0 || !font || !layoutRect ||
+	    !format || !regions || regionCount != format->charRangeCount)
+		return InvalidParameter;
+	
 	/* No char range or bounding rect is set for measurements */
 	if (format->charRangeCount == 0 || layout->Width == 0 || layout->Height == 0)
 		return Ok;
-
-
 
 	/* Sanity; should we check for length==0? */
 	if (!graphics || !stringUnicode || !font) {
@@ -3698,7 +3678,8 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 GpStatus 
 GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	if (!graphics)
+		return InvalidParameter;
 
 	graphics->render_origin_x = x;
 	graphics->render_origin_y = y;
@@ -3709,9 +3690,8 @@ GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y)
 GpStatus 
 GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (x != NULL, InvalidParameter);
-	g_return_val_if_fail (y != NULL, InvalidParameter);
+	if (!graphics || !x || !y)
+		return InvalidParameter;
 
         *x = graphics->render_origin_x;
         *y = graphics->render_origin_y;
@@ -3722,8 +3702,8 @@ GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
 GpStatus 
 GdipGetDpiX (GpGraphics *graphics, float *dpi)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (dpi != NULL, InvalidParameter);
+	if (!graphics || !dpi)
+		return InvalidParameter;
 
 	*dpi = graphics->dpi_x;
         return Ok;
@@ -3732,8 +3712,8 @@ GdipGetDpiX (GpGraphics *graphics, float *dpi)
 GpStatus 
 GdipGetDpiY (GpGraphics *graphics, float *dpi)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (dpi != NULL, InvalidParameter);
+	if (!graphics || !dpi)
+		return InvalidParameter;
 
 	*dpi = graphics->dpi_y;
         return Ok;
@@ -3744,7 +3724,8 @@ GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 {
 	double red, green, blue, alpha;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	if (!graphics)
+		return InvalidParameter;
 
 	blue = color & 0xff;
 	green = (color >> 8) & 0xff;
@@ -3767,7 +3748,8 @@ GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 GpStatus
 GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode interpolationMode)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	if (!graphics)
+		return InvalidParameter;
 
 	graphics->interpolation = interpolationMode;
 	return Ok;
@@ -3776,8 +3758,8 @@ GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode interpolationM
 GpStatus
 GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *imode)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (imode != NULL, InvalidParameter);
+	if (!graphics || !imode)
+		return InvalidParameter;
 
 	*imode = graphics->interpolation;
 	return Ok;
@@ -3786,7 +3768,8 @@ GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *imode)
 GpStatus
 GdipSetTextRenderingHint (GpGraphics *graphics, TextRenderingHint mode)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
+	if (!graphics)
+		return InvalidParameter;
 
 	graphics->text_mode = mode;
 
@@ -3796,9 +3779,9 @@ GdipSetTextRenderingHint (GpGraphics *graphics, TextRenderingHint mode)
 GpStatus
 GdipGetTextRenderingHint(GpGraphics *graphics, TextRenderingHint *mode)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (mode != NULL, InvalidParameter);
-
+	if (!graphics || !mode) 
+		return InvalidParameter;
+	
 	*mode = graphics->text_mode;
 
 	return Ok;
@@ -3810,7 +3793,7 @@ GdipSetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode pixelOffsetMode)
 {
 	g_return_val_if_fail (graphics != NULL, InvalidParameter);
 	g_return_val_if_fail (pixelOffsetMode != PixelOffsetModeInvalid, InvalidParameter);
-
+	
 	/* FIXME: changing pixel mode affects other properties (e.g. the visible clip bounds) */
 	graphics->pixel_mode = pixelOffsetMode;
 	return Ok;
@@ -3820,8 +3803,8 @@ GdipSetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode pixelOffsetMode)
 GpStatus
 GdipGetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode *pixelOffsetMode)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pixelOffsetMode != NULL, InvalidParameter);
+	if (!graphics || !pixelOffsetMode)
+		return InvalidParameter;
 	
 	*pixelOffsetMode = graphics->pixel_mode;
 	return Ok;
@@ -3831,8 +3814,10 @@ GdipGetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode *pixelOffsetMode)
 GpStatus
 GdipSetTextContrast (GpGraphics *graphics, UINT contrast)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (contrast >= 0 && contrast <= 14, InvalidParameter);
+	/** The gamma correction value must be between 0 and 12.
+	 * The default value is 4. */
+	if (!graphics || contrast < 0 || contrast > 12)
+		return InvalidParameter; 
 
 	graphics->text_contrast = contrast;
 	return Ok;
@@ -3842,8 +3827,8 @@ GdipSetTextContrast (GpGraphics *graphics, UINT contrast)
 GpStatus
 GdipGetTextContrast (GpGraphics *graphics, UINT *contrast)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (contrast != NULL, InvalidParameter);
+	if (!graphics || !contrast)
+		return InvalidParameter;
 
 	*contrast = graphics->text_contrast;
 	return Ok;
@@ -3852,8 +3837,8 @@ GdipGetTextContrast (GpGraphics *graphics, UINT *contrast)
 GpStatus
 GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (mode != SmoothingModeInvalid, InvalidParameter);
+	if (!graphics)
+		return InvalidParameter;
 
 	graphics->draw_mode = mode;
 
@@ -3884,8 +3869,8 @@ GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 GpStatus
 GdipGetSmoothingMode (GpGraphics *graphics, SmoothingMode *mode)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (mode != NULL, InvalidParameter);
+	if (!graphics || !mode)
+		return InvalidParameter;
 
 	*mode = graphics->draw_mode;
 	return Ok;
@@ -3895,7 +3880,7 @@ GdipGetSmoothingMode (GpGraphics *graphics, SmoothingMode *mode)
 GpStatus
 GdipBeginContainer (GpGraphics *graphics, GDIPCONST GpRectF* dstrect, GDIPCONST GpRectF *srcrect, GpUnit unit, GpGraphicsContainer *state)
 {
-	if (!dstrect || !srcrect || (unit < UnitPixel) || (unit > UnitMillimeter))
+	if (!graphics || !dstrect || !srcrect || (unit < UnitPixel) || (unit > UnitMillimeter))
 		return InvalidParameter;
 
 	return GdipBeginContainer2 (graphics, state);
@@ -4450,8 +4435,8 @@ GdipSetPageScale (GpGraphics *graphics, float scale)
 GpStatus
 GdipGetPageScale (GpGraphics *graphics, float *scale)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (scale != NULL, InvalidParameter);
+	if (!graphics | !scale)
+		return InvalidParameter;
 
 	*scale = graphics->scale;
 	return Ok;
@@ -4470,8 +4455,8 @@ GdipSetPageUnit (GpGraphics *graphics, GpUnit unit)
 GpStatus
 GdipGetPageUnit (GpGraphics *graphics, GpUnit *unit)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (unit != NULL, InvalidParameter);
+	if (!graphics || !unit)
+		return InvalidParameter;
 
 	*unit = graphics->page_unit;
 	return Ok;

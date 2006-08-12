@@ -1,3 +1,22 @@
+2006-08-12  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c (GdipDrawPolygon, GdipDrawClosedCurve2): Add checks
+	for cases when count is less than two, that's an InvalidParameter.
+
+	* graphics.c: In all cases where convert_points is used, check
+	that count must be greater than zero.
+
+2006-08-11  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c (GdipSetTextContrast): The accepted range for
+	'contrast' was between 0 and 14 before. The docs on MSDN says it
+	should be between 0 and 12 instead.
+
+2006-08-10  Duncan Mak  <duncan@novell.com>
+
+	* graphics.c: Rewrote all NULL checks without using
+	g_return_val_if_fail.
+
 2006-08-11  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* font.c: Yet another fix to gdip_logfont_from_font to match MS
