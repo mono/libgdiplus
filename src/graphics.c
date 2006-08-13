@@ -443,6 +443,7 @@ convert_fill_mode (GpFillMode fill_mode)
 
 #ifdef CAIRO_HAS_XLIB_SURFACE
 
+// coverity[+alloc : arg-*1]
 GpStatus 
 GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 {
@@ -493,6 +494,7 @@ GdipCreateFromHWND (void *hwnd, GpGraphics **graphics)
  different backends / font backends can be easily introduced in the future. */
 cairo_surface_t *cairo_quartz_surface_create(void *ctx, int width, int height);
 
+// coverity[+alloc : arg-*3]
 GpStatus
 GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **graphics)
 {
@@ -520,6 +522,7 @@ GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **grap
 
 #ifdef CAIRO_HAS_XLIB_SURFACE
 
+// coverity[+alloc : arg-*2]
 GpStatus
 GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 {
@@ -4022,7 +4025,7 @@ GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float heig
 {
 	GpStatus status;
 	GpRectF rect;
-	GpRegion *region;
+	GpRegion *region = NULL;
 ///printf("[%s %d] GdipSetClipRect %f, %f, %fx%f called\n", __FILE__, __LINE__, x, y, width, height);	
 	if (!graphics)
 		return InvalidParameter;
@@ -4033,10 +4036,10 @@ GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float heig
 	rect.Height = height;
 
 	status = GdipCreateRegionRect (&rect, &region);
-	if (status == Ok) {
+	if (status == Ok)
 		status = GdipSetClipRegion (graphics, region, combineMode);
+	if (region)
 		GdipDeleteRegion (region);
-	}
 	return status;
 }
 

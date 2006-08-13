@@ -370,7 +370,7 @@ gdip_createRegion (GpRegion **region, RegionType type, void *src)
 	API implementation
 */
 
-// coverity[+alloc : arg-*1]
+// coverity[+alloc : arg-*0]
 GpStatus
 GdipCreateRegion (GpRegion **region)
 {

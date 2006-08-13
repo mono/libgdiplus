@@ -1,3 +1,10 @@
+2006-08-13  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: In GdipSetClipRect, ensure the temporary region gets 
+	deleted even if it's creation has failed. Added annotation for 
+	allocation functions.
+	* region.c: Fix annotation for GdipCreateRegion.
+
 2006-08-13 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* dstream.[ch]: read from a stream using delegates, buffers the input
