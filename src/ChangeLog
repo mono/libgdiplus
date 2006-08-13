@@ -1,3 +1,18 @@
+2006-08-13 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* dstream.[ch]: read from a stream using delegates, buffers the input
+	and keeps EXIF data buffer around.
+
+	* bmpcodec.[ch]: use dstream_t to take advantage of the buffering
+	capabilities, as this codec does a lot of small reads.
+	
+	* image.c: use dstream_t for BMP and JPEG stream reading.
+
+	* jpegcodec.[ch]: use dstream. Load EXIF data if available.
+
+	* gdipImage.h: fill the gaps for PropertyTagType.
+	* Makefile.am: added new files.
+
 2006-08-12  Duncan Mak  <duncan@novell.com>
 
 	* graphics.c (GdipDrawPolygon, GdipDrawClosedCurve2): Add checks

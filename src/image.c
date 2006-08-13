@@ -32,6 +32,7 @@
 #include "general.h"
 #include <cairo-features.h>
 #include <math.h>
+#include "dstream.h"
 
 static GpStatus gdip_flip_x (GpImage *image);
 static GpStatus gdip_flip_y (GpImage *image);
@@ -630,8 +631,8 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	}
 	
 	fp = fopen(file_name, "rb");
-	GdipFree (file_name);
 	if (fp == NULL) {
+		GdipFree (file_name);
 		return InvalidParameter;
 	}
 	
@@ -673,7 +674,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 		}
 
 		case JPEG: {
-			status = gdip_load_jpeg_image_from_file (fp, &result);
+			status = gdip_load_jpeg_image_from_file (fp, file_name, &result);
 			if (result != NULL) {
 				result->image_format = JPEG;
 			}
@@ -695,6 +696,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	}
 	
 	fclose (fp);
+	GdipFree (file_name);
 	
 	*image = result;
 	if (status != Ok) {
@@ -1836,6 +1838,7 @@ GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 	GpImage *result = 0;
 	GpStatus status = 0;
 	ImageFormat format;
+	dstream_t *loader = NULL;
 	
 	byte format_peek[10];
 	int format_peek_sz;
@@ -1845,7 +1848,8 @@ GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 	
 	switch (format) {
 		case JPEG: {
-			status = gdip_load_jpeg_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
+			loader = dstream_input_new (getBytesFunc, seekFunc);
+			status = gdip_load_jpeg_image_from_stream_delegate (loader, &result);
 			if (result != NULL) {
 				result->image_format = JPEG;
 			}
@@ -1861,7 +1865,8 @@ GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 		}
 
 		case BMP: {
-			status = gdip_load_bmp_image_from_stream_delegate (getBytesFunc, seekFunc, &result);
+			loader = dstream_input_new (getBytesFunc, seekFunc);
+			status = gdip_load_bmp_image_from_stream_delegate (loader, &result);
 			if (result != NULL) {
 				result->image_format = BMP;
 			}
@@ -1892,6 +1897,7 @@ GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 		}
 	}
 
+	dstream_free (loader);
 	*image = result;
 	if (status != Ok) {
 		*image = NULL;
@@ -1943,7 +1949,7 @@ GdipSaveImageToDelegate_linux (GpImage *image, GetBytesDelegate getBytesFunc,
 		case TIF:
 	    		status = gdip_save_tiff_image_to_stream_delegate (getBytesFunc, putBytesFunc,
 								seekFunc, closeFunc, sizeFunc, image, params);
-	    		break;
+			break;
 
 	        default:
         		status = NotImplemented;
@@ -2201,3 +2207,4 @@ GdipSaveAddImage (GpImage *image, GpImage *imageNew, EncoderParameters *params)
 {
 	return NotImplemented;
 }
+

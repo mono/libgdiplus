@@ -67,9 +67,13 @@ typedef enum {
 	TypeShort		= 3,
 	TypeLong		= 4,
 	TypeRational		= 5,
+	TypeSByte		= 6,
 	TypeUndefined		= 7,
+	TypeSShort		= 8,
 	TypeSLONG		= 9,
-	TypeSRational		= 10
+	TypeSRational		= 10,
+	TypeFloat		= 11,
+	TypeDouble		= 12
 } PropertyTagType;
 
 typedef enum {

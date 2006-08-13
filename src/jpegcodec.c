@@ -40,10 +40,17 @@
 /* pkgsrc */
 #undef HAVE_STDLIB_H
 #include <jpeglib.h>
+#include "dstream.h"
+#ifdef HAVE_LIBEXIF
+#include <libexif/exif-data.h>
+#include <libexif/exif-content.h>
+#include <libexif/exif-entry.h>
+#endif
+
 
 /* Codecinfo related data*/
 static ImageCodecInfo jpeg_codec;
-static const WCHAR jpeg_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'J', 'P', 'E', 'G', 0}; /* Built-in PNG */
+static const WCHAR jpeg_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'J', 'P', 'E', 'G', 0}; /* Built-in JPEG */
 static const WCHAR jpeg_extension[] = {'*', '.', 'J', 'P','G', ';','*', '.', 'J','P', 'E', 'G', ';', '*',
         '.', 'J', 'P', 'E', ';', '*', '.', 'J', 'F','I','F', 0}; /* JPG;*.JPEG;*.JPE;*.JFIF */
 static const WCHAR jpeg_mimetype[] = {'i', 'm', 'a','g', 'e','/', 'j', 'p', 'e', 'g', 0}; /* image/png */
@@ -89,8 +96,7 @@ typedef struct gdip_stdio_jpeg_source_mgr *gdip_stdio_jpeg_source_mgr_ptr;
 
 struct gdip_stream_jpeg_source_mgr {
 	struct jpeg_source_mgr parent;
-	GetBytesDelegate getBytesFunc;
-	SeekDelegate seekFunc;
+	dstream_t *loader;
 
 	JOCTET *buf;
 };
@@ -191,9 +197,10 @@ static bool
 _gdip_source_stream_fill_input_buffer (j_decompress_ptr cinfo)
 {
 	gdip_stream_jpeg_source_mgr_ptr src = (gdip_stream_jpeg_source_mgr_ptr) cinfo->src;
+	dstream_t *loader = src->loader;
 	size_t nb;
 
-	nb = src->getBytesFunc (src->buf, JPEG_BUFFER_SIZE, 0);
+	nb = dstream_read (loader, src->buf, JPEG_BUFFER_SIZE, 0);
 	if (nb <= 0) {
 		/* this is a hack learned from gdk-pixbuf */
 		/* insert fake EOI marker, to try to salvage image
@@ -213,20 +220,12 @@ static void
 _gdip_source_stream_skip_input_data (j_decompress_ptr cinfo, long skipbytes)
 {
 	gdip_stream_jpeg_source_mgr_ptr src = (gdip_stream_jpeg_source_mgr_ptr) cinfo->src;
+	dstream_t *loader = src->loader;
 
 	if (skipbytes > 0) {
 		if (skipbytes > (long) src->parent.bytes_in_buffer) {
 			skipbytes -= (long) src->parent.bytes_in_buffer;
-
-			if (src->seekFunc != NULL) {
-				src->seekFunc (skipbytes, SEEK_CUR);
-			} else {
-				/* getBytes knows how to "read" into a NULL buffer */
-				while (skipbytes >= 0) {
-					skipbytes -= src->getBytesFunc (NULL, skipbytes, 0);
-				}
-			}
-
+			dstream_skip (loader, skipbytes);
 			(void) _gdip_source_stream_fill_input_buffer (cinfo);
 		} else {
 			src->parent.next_input_byte += (size_t) skipbytes;
@@ -481,10 +480,48 @@ error:
 	return status;
 }
 
+#ifdef HAVE_LIBEXIF
+static void
+add_properties_from_entry (ExifEntry *entry, void *user_data)
+{
+	BitmapData *bitmap_data = (BitmapData *) user_data;
+	ULONG length;
+
+	gdip_bitmapdata_property_add (bitmap_data, entry->tag, entry->size, entry->format, entry->data);
+}
+
+static void
+add_properties_from_content (ExifContent *content, void *user_data)
+{
+	exif_content_foreach_entry (content, add_properties_from_entry, user_data);
+}
+
+static void
+load_exif_data (ExifData *exif_data, GpImage *image)
+{
+	int n;
+	BitmapData *bitmap;
+
+	if (exif_data == NULL)
+		return;
+
+	bitmap = image->active_bitmap;
+	exif_data_foreach_content (exif_data, add_properties_from_content, bitmap);
+	/* thumbnail */
+	if (exif_data->size != 0) {
+		gdip_bitmapdata_property_add (bitmap, ThumbnailData, exif_data->size, TypeByte, exif_data->data);
+	}
+	exif_data_unref (exif_data);
+}
+#endif
+
 GpStatus 
-gdip_load_jpeg_image_from_file (FILE *fp, GpImage **image)
+gdip_load_jpeg_image_from_file (FILE *fp, const char *filename, GpImage **image)
 {
 	GpStatus st;
+#ifdef HAVE_LIBEXIF
+	ExifData *exif_data;
+#endif
 
 	gdip_stdio_jpeg_source_mgr_ptr src;
 
@@ -512,16 +549,21 @@ gdip_load_jpeg_image_from_file (FILE *fp, GpImage **image)
 	st = gdip_load_jpeg_image_internal ((struct jpeg_source_mgr *) src, image);
 	GdipFree (src->buf);
 	GdipFree (src);
+#ifdef HAVE_LIBEXIF
+	load_exif_data (exif_data_new_from_file (filename), *image);
+#endif
 
 	return st;
 }
 
 GpStatus
-gdip_load_jpeg_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
-                                           SeekDelegate seekFunc,
-                                           GpImage **image)
+gdip_load_jpeg_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 {
 	GpStatus st;
+#ifdef HAVE_LIBEXIF
+	unsigned int length;
+	unsigned char *ptr;
+#endif
 
 	gdip_stream_jpeg_source_mgr_ptr src;
 
@@ -537,12 +579,18 @@ gdip_load_jpeg_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 	src->parent.bytes_in_buffer = 0;
 	src->parent.next_input_byte = NULL;
 
-	src->getBytesFunc = getBytesFunc;
-	src->seekFunc = seekFunc;
+	src->loader = loader;
+#ifdef HAVE_LIBEXIF
+	dstream_keep_exif_buffer (loader);
+#endif
 
 	st = gdip_load_jpeg_image_internal ((struct jpeg_source_mgr *) src, image);
 	GdipFree (src->buf);
 	GdipFree (src);
+#ifdef HAVE_LIBEXIF
+	dstream_get_exif_buffer (loader, &ptr, &length);
+	load_exif_data (exif_data_new_from_data (ptr, length), *image);
+#endif
 
 	return st;
 }
@@ -757,7 +805,7 @@ gdip_getcodecinfo_jpeg ()
 }
 
 GpStatus
-gdip_load_jpeg_image_from_file (FILE *fp, GpImage **image)
+gdip_load_jpeg_image_from_file (FILE *fp, const char *filename, GpImage **image)
 {
     *image = NULL;
     return UnknownImageFormat;

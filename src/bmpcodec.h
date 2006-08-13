@@ -11,6 +11,7 @@
 #ifndef _BMPCODEC_H
 #define _BMPCODEC_H
 #include "gdip.h"
+#include "dstream.h"
 
 #define BI_RGB           0
 #define BI_RLE8          1
@@ -68,9 +69,7 @@ GpStatus
 gdip_load_bmp_image_from_file (FILE *fp, GpImage **image);
 
 GpStatus
-gdip_load_bmp_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
-                                          SeekDelegate seeknFunc,
-                                          GpImage **image);
+gdip_load_bmp_image_from_stream_delegate (dstream_t *loader, GpImage **image);
 
 GpStatus
 gdip_save_bmp_image_to_file (FILE *fp, GpImage *image);

@@ -1,3 +1,7 @@
+2006-08-13 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* configure.in: if libexif is available use it.
+
 2006-07-21  Alexander Olk <alex.olk@googlemail.com>
 
 	* cairo/src/cairo-xlib-surface.c: Backported a patch from cairo head

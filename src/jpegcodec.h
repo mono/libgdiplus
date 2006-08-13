@@ -11,14 +11,13 @@
 #ifndef _JPEGCODEC_H
 #define _JPEGCODEC_H
 #include "gdip.h"
+#include "dstream.h"
 
 GpStatus 
-gdip_load_jpeg_image_from_file (FILE *fp, GpImage **image);
+gdip_load_jpeg_image_from_file (FILE *fp, const char *filename, GpImage **image);
 
 GpStatus
-gdip_load_jpeg_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
-                                           SeekDelegate seeknFunc,
-                                           GpImage **image);
+gdip_load_jpeg_image_from_stream_delegate (dstream_t *loader, GpImage **image);
 
 GpStatus 
 gdip_save_jpeg_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params);

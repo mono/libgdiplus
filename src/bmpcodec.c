@@ -41,6 +41,7 @@
 #include "bmpcodec.h"
 #include "gdip.h"
 #include "gdipImage.h"
+#include "dstream.h"
 
 
 /* Codecinfo related data*/
@@ -164,11 +165,9 @@ gdip_load_bmp_image_from_file (FILE *fp, GpImage **image)
 }
 
 GpStatus 
-gdip_load_bmp_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
-                                          SeekDelegate seeknFunc,
-                                          GpImage **image)
+gdip_load_bmp_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 {
-	return gdip_read_bmp_image_from_file_stream ( (void*)getBytesFunc, image, FALSE);
+	return gdip_read_bmp_image_from_file_stream ((void *)loader, image, FALSE);
 }
 
 GpStatus
@@ -1071,11 +1070,13 @@ gdip_read_bmp_data (void *pointer, byte *data, int size, bool useFile)
 		   get what was requested or we get an error */
 		int got;
 		int total;
+		dstream_t *loader;
 
+		loader = (dstream_t *) pointer;
 		total = 0;
 
 		do {
-			got = ((GetBytesDelegate)(pointer))(data + total, size - total, 0);
+			got = dstream_read (loader, data + total, size - total, 0);
 			if (got < 1) {  /*  0 = end of stream, -1 = error */
 				return total;
 			}
