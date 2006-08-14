@@ -1,3 +1,9 @@
+2006-08-14  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* pen.c: Remove use of g_return_val_if_fail. Added annotation for 
+	allocation functions. Fixed allocations to make sure an allocated
+	pen is returned only if status == Ok.
+
 2006-08-13  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: In GdipSetClipRect, ensure the temporary region gets 

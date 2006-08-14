@@ -136,9 +136,9 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	GpStatus status;
 	cairo_matrix_t product;
 	double widthx;
-	
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+
+	if (!graphics || !pen)
+		return InvalidParameter;
 
 	status = gdip_brush_setup (graphics, pen->brush);
 	if (status != Ok)
@@ -197,28 +197,40 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	return gdip_get_status (cairo_status (graphics->ct));
 }
 
+// coverity[+alloc : arg-*3]
 GpStatus 
 GdipCreatePen1 (int argb, float width, GpUnit unit, GpPen **pen)
 {
         GpStatus s;
-	GpSolidFill *solidBrush;
+	GpSolidFill *solidBrush = NULL;
+	GpPen *result;
 
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
-        *pen = gdip_pen_new ();
-	g_return_val_if_fail (*pen != NULL, InvalidParameter);
+	*pen = result = gdip_pen_new ();
+	if (!result)
+		return OutOfMemory;
 
-        (*pen)->color = argb;
-
-        /* FIXME: do unit conversion when setting width */
-        (*pen)->width = width;
+	result->color = argb;
+	/* FIXME: do unit conversion when setting width */
+	result->width = width;
 
 	s = GdipCreateSolidFill (argb, &solidBrush);
-        (*pen)->brush = (GpBrush*) solidBrush;
-	(*pen)->own_brush = TRUE;
-        return s;
+	if (s != Ok) {
+		if (solidBrush)
+			GdipDeleteBrush ((GpBrush*) solidBrush);
+		GdipFree (result);
+		*pen = NULL;
+		return s;
+	}
+
+	result->brush = (GpBrush*) solidBrush;
+	result->own_brush = TRUE;
+	return Ok;
 }
 
+// coverity[+alloc : arg-*3]
 GpStatus
 GdipCreatePen2 (GpBrush *brush, float width, GpUnit unit, GpPen **pen)
 {
@@ -227,11 +239,12 @@ GdipCreatePen2 (GpBrush *brush, float width, GpUnit unit, GpPen **pen)
         GpBrushType type;
 	GpPen *result;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!brush || !pen)
+		return InvalidParameter;
 
         *pen = result = gdip_pen_new ();
-	g_return_val_if_fail (result != NULL, OutOfMemory);
+	if (!result)
+		return OutOfMemory;
 
         /* FIXME: do unit conversion when setting width */
         result->width = width;
@@ -239,30 +252,44 @@ GdipCreatePen2 (GpBrush *brush, float width, GpUnit unit, GpPen **pen)
 	/* the user supplied brush can be disposed, we must clone it to ensure
 	 * it's valid when we need to set the pen */
 	s = GdipCloneBrush (brush, &result->brush);
-	if (s != Ok)
+	if (s != Ok) {
+		GdipFree (result);
+		*pen = NULL;
 		return s;
+	}
+
 	result->own_brush = TRUE;
 
         s = GdipGetBrushType (brush, &type);
-	if (s != Ok)
+	if (s != Ok) {
+		GdipFree (result);
+		*pen = NULL;
 		return s;
+	}
 
         switch (type) {
 
         case BrushTypeSolidColor:
                 s = GdipGetSolidFillColor ((GpSolidFill*) brush, &color);
-		if (s != Ok)
+		if (s != Ok) {
+			GdipFree (result);
+			*pen = NULL;
 			return s;
+		}
                 result->color = color;
+		*pen = result;
                 return Ok;
 
         case BrushTypeHatchFill:
         case BrushTypeTextureFill:
         case BrushTypePathGradient:
         case BrushTypeLinearGradient:
+		*pen = result;
 		return Ok;
 
         default:
+		GdipFree (result);
+		*pen = NULL;
                 return GenericError;
         }
 }
@@ -278,6 +305,7 @@ clone_dash_array (float *clone, float *array, int size)
         return clone;
 }
 
+// coverity[+alloc : arg-*1]
 GpStatus 
 GdipClonePen (GpPen *pen, GpPen **clonepen)
 {
@@ -285,8 +313,8 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
         float *dashes;                  /* copy off pen->dash_array */
         float *compound_array = NULL;   /* copy off pen->compound_array */
 
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (clonepen != NULL, InvalidParameter);
+	if (!pen || !clonepen)
+		return InvalidParameter;
 
 	/* we make a copy of dash array only if it is owned by pen, i.e. it is not
 	 * our global array.
@@ -294,7 +322,8 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 
 	if (pen->dash_count > 0 && pen->own_dash_array) {
 		dashes = (float *) GdipAlloc (pen->dash_count * sizeof (float));
-		g_return_val_if_fail (dashes != NULL, OutOfMemory);
+		if (!dashes)
+			return OutOfMemory;
 		clone_dash_array (dashes, pen->dash_array, pen->dash_count);
 	} else
 		dashes = pen->dash_array;
@@ -382,7 +411,8 @@ GdipDeletePen (GpPen *pen)
 GpStatus
 GdipSetPenWidth (GpPen *pen, float width)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
         pen->width = width;
 	pen->changed = TRUE;
@@ -392,8 +422,8 @@ GdipSetPenWidth (GpPen *pen, float width)
 GpStatus
 GdipGetPenWidth (GpPen *pen, float *width)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (width != NULL, InvalidParameter);
+	if (!pen || !width)
+		return InvalidParameter;
 
         *width = pen->width;
         return Ok;
@@ -406,8 +436,8 @@ GdipSetPenBrushFill (GpPen *pen, GpBrush *brush)
         int color;
         GpBrushType type;
 
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!pen || !brush)
+		return InvalidParameter;
 
         s = GdipGetBrushType (brush, &type);
 
@@ -436,8 +466,8 @@ GdipSetPenBrushFill (GpPen *pen, GpBrush *brush)
 GpStatus
 GdipGetPenBrushFill (GpPen *pen, GpBrush **brush)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!pen || !brush)
+		return InvalidParameter;
 
         *brush = pen->brush;
 
@@ -447,8 +477,8 @@ GdipGetPenBrushFill (GpPen *pen, GpBrush **brush)
 GpStatus
 GdipGetPenFillType (GpPen *pen, GpPenType *type)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (type != NULL, InvalidParameter);
+	if (!pen || !type)
+		return InvalidParameter;
 
 	if (pen->brush != NULL)
 		return GdipGetBrushType (pen->brush, (GpBrushType *) type);
@@ -461,7 +491,8 @@ GdipGetPenFillType (GpPen *pen, GpPenType *type)
 GpStatus
 GdipSetPenColor (GpPen *pen, int argb)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
 	pen->changed = (pen->color != argb);
         pen->color = argb;
@@ -471,8 +502,8 @@ GdipSetPenColor (GpPen *pen, int argb)
 GpStatus
 GdipGetPenColor (GpPen *pen, int *argb)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (argb != NULL, InvalidParameter);
+	if (!pen || !argb)
+		return InvalidParameter;
 
         *argb = pen->color;
         return Ok;
@@ -481,7 +512,8 @@ GdipGetPenColor (GpPen *pen, int *argb)
 GpStatus
 GdipSetPenMiterLimit (GpPen *pen, float miterLimit)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
 	if (miterLimit < 1.0f)
 		miterLimit = 1.0f;
@@ -494,8 +526,8 @@ GdipSetPenMiterLimit (GpPen *pen, float miterLimit)
 GpStatus
 GdipGetPenMiterLimit (GpPen *pen, float *miterLimit)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (miterLimit != NULL, InvalidParameter);
+	if (!pen || !miterLimit)
+		return InvalidParameter;
 
         *miterLimit = pen->miter_limit;
         return Ok;
@@ -504,7 +536,8 @@ GdipGetPenMiterLimit (GpPen *pen, float *miterLimit)
 GpStatus
 GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
 	pen->changed = (pen->line_join != lineJoin);
         pen->line_join = lineJoin;
@@ -514,8 +547,8 @@ GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin)
 GpStatus
 GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (lineJoin != NULL, InvalidParameter);
+	if (!pen || !lineJoin)
+		return InvalidParameter;
 
         *lineJoin = pen->line_join;
         return Ok;
@@ -524,7 +557,8 @@ GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin)
 GpStatus
 GdipSetPenLineCap197819 (GpPen *pen, GpLineCap startCap, GpLineCap endCap, GpDashCap dashCap)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
 	/* FIXME:
 	 * Cairo supports only one cap for a line. We use startcap for that.
@@ -558,8 +592,8 @@ GdipSetPenMode (GpPen *pen, GpPenAlignment penMode)
 GpStatus
 GdipGetPenMode (GpPen *pen, GpPenAlignment *penMode)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (penMode != NULL, InvalidParameter);
+	if (!pen || !penMode)
+		return InvalidParameter;
 
         *penMode = pen->mode;
         return Ok;
@@ -568,8 +602,8 @@ GdipGetPenMode (GpPen *pen, GpPenAlignment *penMode)
 GpStatus
 GdipGetPenUnit (GpPen *pen, GpUnit *unit)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (unit != NULL, InvalidParameter);
+	if (!pen || !unit)
+		return InvalidParameter;
 
         *unit = pen->unit;
         return Ok;
@@ -578,7 +612,8 @@ GdipGetPenUnit (GpPen *pen, GpUnit *unit)
 GpStatus
 GdipSetPenUnit (GpPen *pen, GpUnit unit)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
         pen->unit = unit;
 	pen->changed = TRUE;
@@ -591,8 +626,8 @@ GdipSetPenTransform (GpPen *pen, GDIPCONST GpMatrix *matrix)
 	GpStatus status;
 	BOOL invertible;
 
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if (!pen || !matrix)
+		return InvalidParameter;
 
 	/* the matrix MUST be invertible to be used */
 	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
@@ -607,8 +642,8 @@ GdipSetPenTransform (GpPen *pen, GDIPCONST GpMatrix *matrix)
 GpStatus
 GdipGetPenTransform (GpPen *pen, GpMatrix *matrix)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if (!pen || !matrix)
+		return InvalidParameter;
 
 	gdip_cairo_matrix_copy(matrix, &pen->matrix);
         return Ok;
@@ -617,7 +652,8 @@ GdipGetPenTransform (GpPen *pen, GpMatrix *matrix)
 GpStatus
 GdipResetPenTransform (GpPen *pen)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
 	cairo_matrix_init_identity (&pen->matrix);
 
@@ -632,8 +668,8 @@ GdipMultiplyPenTransform (GpPen *pen, GpMatrix *matrix, GpMatrixOrder order)
 	GpStatus status;
 	BOOL invertible;
 
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if (!pen || !matrix)
+		return InvalidParameter;
 
 	/* the matrix MUST be invertible to be used */
 	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
@@ -655,7 +691,9 @@ GpStatus
 GdipTranslatePenTransform (GpPen *pen, float dx, float dy, GpMatrixOrder order)
 {
 	GpStatus status;
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+
+	if (!pen)
+		return InvalidParameter;
 
 	status = GdipTranslateMatrix (&pen->matrix, dx, dy, order);
 
@@ -669,7 +707,9 @@ GpStatus
 GdipScalePenTransform (GpPen *pen, float sx, float sy, GpMatrixOrder order)
 {
 	GpStatus status;
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+
+	if (!pen)
+		return InvalidParameter;
 
         status = GdipScaleMatrix (&pen->matrix, sx, sy, order);
 
@@ -683,7 +723,9 @@ GpStatus
 GdipRotatePenTransform (GpPen *pen, float angle, GpMatrixOrder order)
 {
 	GpStatus status;
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+
+	if (!pen)
+		return InvalidParameter;
 
 	status = GdipRotateMatrix (&pen->matrix, angle, order);
 
@@ -757,8 +799,8 @@ GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
 GpStatus
 GdipGetPenDashOffset (GpPen *pen, float *offset)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (offset != NULL, InvalidParameter);
+	if (!pen || !offset)
+		return InvalidParameter;
 
         *offset = pen->dash_offset;
         return Ok;
@@ -767,7 +809,8 @@ GdipGetPenDashOffset (GpPen *pen, float *offset)
 GpStatus
 GdipSetPenDashOffset (GpPen *pen, float offset)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
 	pen->dash_offset = offset;
 	pen->changed = TRUE;
@@ -794,7 +837,8 @@ GdipGetPenDashArray (GpPen *pen, float *dash, int count)
 		return InvalidParameter;
 	if (count == 0)
 		return OutOfMemory;
-	g_return_val_if_fail (count == pen->dash_count, InvalidParameter);
+	if (count != pen->dash_count)
+		return InvalidParameter;
 
 	memcpy (dash, pen->dash_array, count * sizeof (float));
 
@@ -806,13 +850,13 @@ GdipSetPenDashArray (GpPen *pen, GDIPCONST float *dash, int count)
 {
 	float *dash_array;
 
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (dash != NULL, InvalidParameter);
-	g_return_val_if_fail (count > 0, InvalidParameter);
+	if (!pen || !dash || (count <= 0))
+		return InvalidParameter;
 
 	if (pen->dash_count != count || pen->own_dash_array == FALSE) {
 		dash_array = (float *) GdipAlloc (count * sizeof (float));
-		g_return_val_if_fail (dash_array != NULL, OutOfMemory);
+		if (!dash_array)
+			return OutOfMemory;
 
 		/* free the existing values, if we own them */
 		if (pen->dash_count != 0 && pen->own_dash_array == TRUE)
@@ -835,8 +879,8 @@ GdipSetPenDashArray (GpPen *pen, GDIPCONST float *dash, int count)
 GpStatus
 GdipGetPenCompoundCount (GpPen *pen, int *count)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (count != NULL, InvalidParameter);
+	if (!pen || !count)
+		return InvalidParameter;
 
 	*count = pen->compound_count;
 	return Ok;
@@ -847,13 +891,13 @@ GdipSetPenCompoundArray (GpPen *pen, const float *compound, int count)
 {
 	float *compound_array;
 
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (compound != NULL, InvalidParameter);
-	g_return_val_if_fail (count > 0, InvalidParameter);
+	if (!pen || !compound || (count <= 0))
+		return InvalidParameter;
 
 	if (pen->compound_count != count) {
 		compound_array = (float *) GdipAlloc (count * sizeof (float));
-		g_return_val_if_fail (compound_array != NULL, OutOfMemory);
+		if (!compound_array)
+			return OutOfMemory;
 
 		/* free the existing values */
 		if (pen->compound_count != 0)
@@ -870,9 +914,8 @@ GdipSetPenCompoundArray (GpPen *pen, const float *compound, int count)
 GpStatus
 GdipGetPenCompoundArray (GpPen *pen, float *compound, int count)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (compound != NULL, InvalidParameter);
-	g_return_val_if_fail (count == pen->compound_count, InvalidParameter);
+	if (!pen || !compound || (count != pen->compound_count))
+		return InvalidParameter;
 
 	memcpy (compound, pen->compound_array, count * sizeof (float));
 
@@ -882,7 +925,8 @@ GdipGetPenCompoundArray (GpPen *pen, float *compound, int count)
 GpStatus
 GdipSetPenStartCap (GpPen *pen, GpLineCap startCap)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
 	pen->line_cap = startCap;
 	pen->changed = TRUE;
@@ -892,8 +936,8 @@ GdipSetPenStartCap (GpPen *pen, GpLineCap startCap)
 GpStatus
 GdipGetPenStartCap (GpPen *pen, GpLineCap *startCap)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (startCap != NULL, InvalidParameter);
+	if (!pen || !startCap)
+		return InvalidParameter;
 
 	*startCap = pen->line_cap;
 
@@ -904,7 +948,8 @@ GdipGetPenStartCap (GpPen *pen, GpLineCap *startCap)
 GpStatus
 GdipSetPenEndCap (GpPen *pen, GpLineCap endCap)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
 	/*
 	 * This is currently ignored, as Cairo does not support
@@ -920,8 +965,8 @@ GdipSetPenEndCap (GpPen *pen, GpLineCap endCap)
 GpStatus
 GdipGetPenEndCap (GpPen *pen, GpLineCap *endCap)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (endCap != NULL, InvalidParameter);
+	if (!pen || !endCap)
+		return InvalidParameter;
 
 	*endCap = pen->end_cap;
 
@@ -932,7 +977,8 @@ GdipGetPenEndCap (GpPen *pen, GpLineCap *endCap)
 GpStatus
 GdipSetPenDashCap197819 (GpPen *pen, GpDashCap dashCap)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
+	if (!pen)
+		return InvalidParameter;
 
 	pen->dash_cap = dashCap;
 	return Ok;
@@ -942,8 +988,8 @@ GdipSetPenDashCap197819 (GpPen *pen, GpDashCap dashCap)
 GpStatus
 GdipGetPenDashCap197819 (GpPen *pen, GpDashCap *dashCap)
 {
-	g_return_val_if_fail (pen != NULL, InvalidParameter);
-	g_return_val_if_fail (dashCap != NULL, InvalidParameter);
+	if (!pen || !dashCap)
+		return InvalidParameter;
 
 	*dashCap = pen->dash_cap;
 	return Ok;
