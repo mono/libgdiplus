@@ -70,14 +70,21 @@ gdip_custom_linecap_clone_cap (GpCustomLineCap *cap, GpCustomLineCap **clonedCap
 {
 	GpCustomLineCap *newcap;
 
-	g_return_val_if_fail (cap != NULL, InvalidParameter);
-	g_return_val_if_fail (clonedCap != NULL, InvalidParameter);
+	if (!cap || !clonedCap)
+		return InvalidParameter;
 
 	newcap = (GpCustomLineCap *) GdipAlloc (sizeof (GpCustomLineCap));
+	if (!newcap)
+		return OutOfMemory;
 
-	g_return_val_if_fail (newcap != NULL, OutOfMemory);
+	newcap->vtable = cap->vtable;
+	newcap->base_cap = cap->base_cap;
+	newcap->start_cap = cap->start_cap;
+	newcap->end_cap = cap->end_cap;
+	newcap->stroke_join = cap->stroke_join;
+	newcap->base_inset = cap->base_inset;
+	newcap->width_scale = cap->width_scale;
 
-	*newcap = *cap;
 	*clonedCap = newcap;
 
 	return Ok;
@@ -86,7 +93,8 @@ gdip_custom_linecap_clone_cap (GpCustomLineCap *cap, GpCustomLineCap **clonedCap
 GpStatus
 gdip_custom_linecap_destroy (GpCustomLineCap *cap)
 {
-	g_return_val_if_fail (cap != NULL, InvalidParameter);
+	if (!cap)
+		return InvalidParameter;
 
 	GdipFree (cap);
 
@@ -97,19 +105,10 @@ gdip_custom_linecap_destroy (GpCustomLineCap *cap)
 GpStatus
 gdip_custom_linecap_setup (GpGraphics *graphics, GpCustomLineCap *customCap)
 {
-	cairo_t *ct;
-	GpStatus status;
+	if (!graphics || !customCap)
+		return InvalidParameter;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
-
-	ct = graphics->ct;
-
-	g_return_val_if_fail (ct != NULL, InvalidParameter);
-
-	status = NotImplemented;
-
-	return status;
+	return NotImplemented;
 }
 
 /* this setup function gets called from pen */
@@ -117,22 +116,26 @@ gdip_custom_linecap_setup (GpGraphics *graphics, GpCustomLineCap *customCap)
 GpStatus
 gdip_linecap_setup (GpGraphics *graphics, GpCustomLineCap *customCap)
 {
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
+	if (!graphics || !customCap)
+		return InvalidParameter;
 
 	return customCap->vtable->setup (graphics, customCap);
 }
 
 /* CustomLineCap functions */
+
+// coverity[+alloc : arg-*4]
 GpStatus
 GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap, float baseInset, GpCustomLineCap **customCap)
 {
 	GpCustomLineCap *cap;
 
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
-	g_return_val_if_fail ((fillPath != NULL || strokePath != NULL), InvalidParameter);
+	if (!fillPath || !strokePath || !customCap)
+		return InvalidParameter;
 
 	cap = gdip_custom_linecap_new ();
-	g_return_val_if_fail (cap != NULL, OutOfMemory);
+	if (!cap)
+		return OutOfMemory;
 
 	cap->fill_path = fillPath;
 	cap->stroke_path = strokePath;
@@ -147,7 +150,8 @@ GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap
 GpStatus
 GdipDeleteCustomLineCap (GpCustomLineCap *customCap)
 {
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
+	if (!customCap)
+		return InvalidParameter;
 
 	return customCap->vtable->destroy (customCap);
 }
@@ -155,8 +159,8 @@ GdipDeleteCustomLineCap (GpCustomLineCap *customCap)
 GpStatus
 GdipCloneCustomLineCap (GpCustomLineCap *customCap, GpCustomLineCap **clonedCap)
 {
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
-	g_return_val_if_fail (clonedCap != NULL, InvalidParameter);
+	if (!customCap || !clonedCap)
+		return InvalidParameter;
 
 	return customCap->vtable->clone_cap (customCap, clonedCap);
 }
@@ -164,7 +168,8 @@ GdipCloneCustomLineCap (GpCustomLineCap *customCap, GpCustomLineCap **clonedCap)
 GpStatus
 GdipSetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap startCap, GpLineCap endCap)
 {
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
+	if (!customCap)
+		return InvalidParameter;
 
 	customCap->start_cap = startCap;
 	customCap->end_cap = endCap;
@@ -175,9 +180,8 @@ GdipSetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap startCap, 
 GpStatus
 GdipGetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap *startCap, GpLineCap *endCap)
 {
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
-	g_return_val_if_fail (startCap != NULL, InvalidParameter);
-	g_return_val_if_fail (endCap != NULL, InvalidParameter);
+	if (!customCap || !startCap || !endCap)
+		return InvalidParameter;
 
 	*(startCap) = customCap->start_cap;
 	*(endCap) = customCap->end_cap;
@@ -188,7 +192,8 @@ GdipGetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap *startCap,
 GpStatus
 GdipSetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin lineJoin)
 {
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
+	if (!customCap)
+		return InvalidParameter;
 
 	customCap->stroke_join = lineJoin;
 
@@ -198,8 +203,8 @@ GdipSetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin lineJoin)
 GpStatus
 GdipGetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin *lineJoin)
 {
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
-	g_return_val_if_fail (lineJoin != NULL, InvalidParameter);
+	if (!customCap || !lineJoin)
+		return InvalidParameter;
 
 	*(lineJoin) = customCap->stroke_join;
 
@@ -209,7 +214,8 @@ GdipGetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin *lineJoin
 GpStatus
 GdipSetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap baseCap)
 {
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
+	if (!customCap)
+		return InvalidParameter;
 
 	customCap->base_cap = baseCap;
 
@@ -219,8 +225,8 @@ GdipSetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap baseCap)
 GpStatus
 GdipGetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap *baseCap)
 {
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
-	g_return_val_if_fail (baseCap != NULL, InvalidParameter);
+	if (!customCap || !baseCap)
+		return InvalidParameter;
 
 	*(baseCap) = customCap->base_cap;
 
@@ -230,7 +236,8 @@ GdipGetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap *baseCap)
 GpStatus
 GdipSetCustomLineCapBaseInset (GpCustomLineCap *customCap, float inset)
 {
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
+	if (!customCap)
+		return InvalidParameter;
 
 	customCap->base_inset = inset;
 
@@ -240,8 +247,8 @@ GdipSetCustomLineCapBaseInset (GpCustomLineCap *customCap, float inset)
 GpStatus
 GdipGetCustomLineCapBaseInset (GpCustomLineCap *customCap, float *inset)
 {
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
-	g_return_val_if_fail (inset != NULL, InvalidParameter);
+	if (!customCap || !inset)
+		return InvalidParameter;
 
 	*(inset) = customCap->base_inset;
 
@@ -251,7 +258,8 @@ GdipGetCustomLineCapBaseInset (GpCustomLineCap *customCap, float *inset)
 GpStatus
 GdipSetCustomLineCapWidthScale (GpCustomLineCap *customCap, float widthScale)
 {
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
+	if (!customCap)
+		return InvalidParameter;
 
 	customCap->width_scale = widthScale;
 
@@ -261,8 +269,8 @@ GdipSetCustomLineCapWidthScale (GpCustomLineCap *customCap, float widthScale)
 GpStatus
 GdipGetCustomLineCapWidthScale (GpCustomLineCap *customCap, float *widthScale)
 {
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
-	g_return_val_if_fail (widthScale != NULL, InvalidParameter);
+	if (!customCap || !widthScale)
+		return InvalidParameter;
 
 	*(widthScale) = customCap->width_scale;
 
