@@ -2036,7 +2036,7 @@ void releaseCodecList (void)
 }
 
 GpStatus
-GdipGetImageDecodersSize (int *numDecoders, int *size)
+GdipGetImageDecodersSize (UINT *numDecoders, UINT *size)
 {       
 	if (!numDecoders || !size)
 		return InvalidParameter;
@@ -2047,7 +2047,7 @@ GdipGetImageDecodersSize (int *numDecoders, int *size)
 }
 
 GpStatus
-GdipGetImageDecoders (int numDecoders, int size, ImageCodecInfo *decoders)
+GdipGetImageDecoders (UINT numDecoders, UINT size, ImageCodecInfo *decoders)
 {
 	if (!decoders)
 		return InvalidParameter;
@@ -2057,7 +2057,7 @@ GdipGetImageDecoders (int numDecoders, int size, ImageCodecInfo *decoders)
 }
 
 GpStatus
-GdipGetImageEncodersSize (int *numEncoders, int *size)
+GdipGetImageEncodersSize (UINT *numEncoders, UINT *size)
 {
 	if (!numEncoders || !size)
 		return InvalidParameter;

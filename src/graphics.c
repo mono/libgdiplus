@@ -3794,8 +3794,8 @@ GdipGetTextRenderingHint(GpGraphics *graphics, TextRenderingHint *mode)
 GpStatus
 GdipSetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode pixelOffsetMode)
 {
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (pixelOffsetMode != PixelOffsetModeInvalid, InvalidParameter);
+	if (!graphics || (pixelOffsetMode == PixelOffsetModeInvalid))
+		return InvalidParameter;
 	
 	/* FIXME: changing pixel mode affects other properties (e.g. the visible clip bounds) */
 	graphics->pixel_mode = pixelOffsetMode;

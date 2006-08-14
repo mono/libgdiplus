@@ -1,7 +1,9 @@
-2006-08-14  Sebastien Pouliot  <sebastien@ximian.com> 
+2006-08-14  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* customlinecap.c: Remove use of g_return_val_if_fail. Added 
 	annotation for allocation functions. Fix cloning.
+	* gdip.h|image.c: Fix some public API signatures (int -> UINT);
+	* graphics.c: Replace two forgotten g_return_val_if_fail.
 	* pen.c: Remove use of g_return_val_if_fail. Added annotation for 
 	allocation functions. Fixed allocations to make sure an allocated
 	pen is returned only if status == Ok.

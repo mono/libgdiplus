@@ -1386,9 +1386,9 @@ GpStatus GdipTransformRegion(GpRegion *region, GpMatrix *matrix);
 
 
 /* Encoders / Decoders */
-GpStatus GdipGetImageDecodersSize (int *numDecoders, int *size);
-GpStatus GdipGetImageDecoders (int numDecoders, int size, ImageCodecInfo *decoders);
-GpStatus GdipGetImageEncodersSize (int *numEncoders, int *size);
+GpStatus GdipGetImageDecodersSize (UINT *numDecoders, UINT *size);
+GpStatus GdipGetImageDecoders (UINT numDecoders, UINT size, ImageCodecInfo *decoders);
+GpStatus GdipGetImageEncodersSize (UINT *numEncoders, UINT *size);
 GpStatus GdipGetImageEncoders (UINT numEncoders, UINT size, ImageCodecInfo *encoders);
 
 
