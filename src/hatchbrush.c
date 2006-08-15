@@ -1075,11 +1075,12 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 	cairo_t *ct;
 	cairo_status_t status;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!graphics || !brush)
+		return InvalidParameter;
 
 	ct = graphics->ct;
-	g_return_val_if_fail (ct != NULL, InvalidParameter);
+	if (!ct)
+		return InvalidParameter;
 
 	/* We create the new pattern for brush, if the brush is changed
 	 * or if pattern has not been created yet.
@@ -1289,10 +1290,13 @@ gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush)
 	if (!brush || !clonedBrush)
 		return InvalidParameter;
 
-	hatch = (GpHatch *) brush;
 	result = (GpHatch *) GdipAlloc (sizeof (GpHatch));
-	
-	g_return_val_if_fail (result != NULL, OutOfMemory);
+	if (!result) {
+		*clonedBrush = NULL;
+		return OutOfMemory;
+	}
+
+	hatch = (GpHatch *) brush;
 
 	result->base = hatch->base;
 	result->hatchStyle = hatch->hatchStyle;
@@ -1310,7 +1314,8 @@ gdip_hatch_destroy (GpBrush *brush)
 {
 	GpHatch *hbr;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush)
+		return InvalidParameter;
 
 	hbr = (GpHatch *) brush;
 
@@ -1324,6 +1329,7 @@ gdip_hatch_destroy (GpBrush *brush)
 	return Ok;
 }
 
+// coverity[+alloc : arg-*3]
 GpStatus
 GdipCreateHatchBrush (GpHatchStyle hatchstyle, int forecolor, int backcolor, GpHatch **brush)
 {

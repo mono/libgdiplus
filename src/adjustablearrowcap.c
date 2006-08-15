@@ -1,8 +1,6 @@
 /*
  * adjustablearrowcap.c
  * 
- * Copyright (C) Novell, Inc. 2003-2004.
- *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
  * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
@@ -21,7 +19,7 @@
  * Author:
  *      Ravindra (rkumar@novell.com)
  *
- * Copyright (C) 2004 Novell, Inc. http://www.novell.com
+ * Copyright (C) 2003-2006 Novell, Inc. http://www.novell.com
  */
 
 #include "gdip.h"
@@ -65,12 +63,12 @@ gdip_adjust_arrowcap_clone_cap (GpCustomLineCap *cap, GpCustomLineCap **clonedCa
 {
 	GpAdjustableArrowCap *newcap;
 
-	g_return_val_if_fail (cap != NULL, InvalidParameter);
-	g_return_val_if_fail (clonedCap != NULL, InvalidParameter);
+	if (!cap || !clonedCap)
+		return InvalidParameter;
 
 	newcap = (GpAdjustableArrowCap *) GdipAlloc (sizeof (GpAdjustableArrowCap));
-
-	g_return_val_if_fail (newcap != NULL, OutOfMemory);
+	if (!newcap)
+		return OutOfMemory;
 
 	memcpy (newcap, cap, sizeof (GpAdjustableArrowCap));
 	*clonedCap = (GpCustomLineCap *) newcap;
@@ -81,7 +79,8 @@ gdip_adjust_arrowcap_clone_cap (GpCustomLineCap *cap, GpCustomLineCap **clonedCa
 GpStatus
 gdip_adjust_arrowcap_destroy (GpCustomLineCap *cap)
 {
-	g_return_val_if_fail (cap != NULL, InvalidParameter);
+	if (!cap)
+		return InvalidParameter;
 
 	GdipFree (cap);
 
@@ -92,33 +91,28 @@ gdip_adjust_arrowcap_destroy (GpCustomLineCap *cap)
 GpStatus
 gdip_adjust_arrowcap_setup (GpGraphics *graphics, GpCustomLineCap *customCap)
 {
-	GpAdjustableArrowCap *arrow;
-	cairo_t *ct;
-	GpStatus status;
+	if (!graphics || !customCap)
+		return InvalidParameter;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (customCap != NULL, InvalidParameter);
-
-	ct = graphics->ct;
-	arrow = (GpAdjustableArrowCap *) customCap;
-
-	g_return_val_if_fail (ct != NULL, InvalidParameter);
-
-	status = NotImplemented;
-
-	return status;
+	return NotImplemented;
 }
 
 /* AdjustableArrowCap functions */
+
+// coverity[+alloc : arg-*3]
 GpStatus
 GdipCreateAdjustableArrowCap (float height, float width, bool isFilled, GpAdjustableArrowCap **arrowCap)
 {
 	GpAdjustableArrowCap *cap;
 
-	g_return_val_if_fail (arrowCap != NULL, InvalidParameter);
+	if (!arrowCap)
+		return InvalidParameter;
 
 	cap = gdip_adjust_arrowcap_new ();
-	g_return_val_if_fail (cap != NULL, OutOfMemory);
+	if (!cap) {
+		*arrowCap = NULL;
+		return OutOfMemory;
+	}
 
 	cap->fill_state = isFilled;
 	cap->width = width;
@@ -132,7 +126,8 @@ GdipCreateAdjustableArrowCap (float height, float width, bool isFilled, GpAdjust
 GpStatus
 GdipSetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, float height)
 {
-	g_return_val_if_fail (arrowCap != NULL, InvalidParameter);
+	if (!arrowCap)
+		return InvalidParameter;
 
 	arrowCap->height = height;
 
@@ -142,8 +137,8 @@ GdipSetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, float height)
 GpStatus
 GdipGetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, float *height)
 {
-	g_return_val_if_fail (arrowCap != NULL, InvalidParameter);
-	g_return_val_if_fail (height != NULL, InvalidParameter);
+	if (!arrowCap || !height)
+		return InvalidParameter;
 
 	*(height) = arrowCap->height;
 
@@ -153,7 +148,8 @@ GdipGetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, float *height)
 GpStatus
 GdipSetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, float width)
 {
-	g_return_val_if_fail (arrowCap != NULL, InvalidParameter);
+	if (!arrowCap)
+		return InvalidParameter;
 
 	arrowCap->width = width;
 
@@ -163,8 +159,8 @@ GdipSetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, float width)
 GpStatus
 GdipGetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, float *width)
 {
-	g_return_val_if_fail (arrowCap != NULL, InvalidParameter);
-	g_return_val_if_fail (width != NULL, InvalidParameter);
+	if (!arrowCap || !width)
+		return InvalidParameter;
 
 	*(width) = arrowCap->width;
 
@@ -174,7 +170,8 @@ GdipGetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, float *width)
 GpStatus
 GdipSetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, float middleInset)
 {
-	g_return_val_if_fail (arrowCap != NULL, InvalidParameter);
+	if (!arrowCap)
+		return InvalidParameter;
 
 	arrowCap->middle_inset = middleInset;
 
@@ -184,8 +181,8 @@ GdipSetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, float midd
 GpStatus
 GdipGetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, float *middleInset)
 {
-	g_return_val_if_fail (arrowCap != NULL, InvalidParameter);
-	g_return_val_if_fail (middleInset != NULL, InvalidParameter);
+	if (!arrowCap || !middleInset)
+		return InvalidParameter;
 
 	*(middleInset) = arrowCap->middle_inset;
 
@@ -195,7 +192,8 @@ GdipGetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, float *mid
 GpStatus
 GdipSetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, bool isFilled)
 {
-	g_return_val_if_fail (arrowCap != NULL, InvalidParameter);
+	if (!arrowCap)
+		return InvalidParameter;
 
 	arrowCap->fill_state = isFilled;
 
@@ -205,8 +203,8 @@ GdipSetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, bool isFille
 GpStatus
 GdipGetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, bool *isFilled)
 {
-	g_return_val_if_fail (arrowCap != NULL, InvalidParameter);
-	g_return_val_if_fail (isFilled != NULL, InvalidParameter);
+	if (!arrowCap || !isFilled)
+		return InvalidParameter;
 
 	*(isFilled) = arrowCap->fill_state;
 
