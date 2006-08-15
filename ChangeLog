@@ -1,3 +1,7 @@
+2006-08-15 Gonzalo Paniagua Javier <gonzalo@ximian.com>
+
+	* configure.in: properly disable exif support when asked to do so.
+
 2006-08-13 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* configure.in: if libexif is available use it.

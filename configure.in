@@ -278,15 +278,19 @@ GDIPLUS_LIBS="$GDIPLUS_LIBS $LIBPNG"
 AC_DEFINE(HAVE_LIBPNG, 1, Define if png support is available. Always defined.)
 
 dnl Test for libexif
-PKG_CHECK_MODULES(LIBEXIF, libexif, [libexif_pkgconfig=yes], libexif_pkgconfig=no])
-AM_CONDITIONAL(HAVE_LIBEXIF, test x$libexif_pkgconfig = xyes)
-if test x$libexif_pkgconfig = xyes ; then
+if test x$with_libexif != xno && test -z "$LIBEXIF"; then
+  PKG_CHECK_MODULES(LIBEXIF, libexif, [libexif_pkgconfig=yes], libexif_pkgconfig=no])
+  if test x$libexif_pkgconfig = xyes ; then
 	GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS $LIBEXIF_CFLAGS"
 	GDIPLUS_LIBS="$GDIPLUS_LIBS $LIBEXIF_LIBS"
 	AC_DEFINE(HAVE_LIBEXIF, 1, Define if libexif is available.)
+  else
+	libexif_pkgconfig="No. Get it from http://libexif.sourceforge.net/"
+  fi
 else
-	libexif_pkg_config = "No. Get it from http://libexif.sourceforge.net/"
+	libexif_pkgconfig="No. You disabled it."
 fi
+AM_CONDITIONAL(HAVE_LIBEXIF, test x$libexif_pkgconfig = xyes)
 
 dnl
 dnl Produce a diagnostic, to reduce support time
