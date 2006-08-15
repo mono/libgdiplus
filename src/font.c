@@ -44,20 +44,21 @@ static int ref_familyMonospace = 0;
 void
 gdip_createFontFamily (GpFontFamily **family)
 {
-	GpFontFamily *result;
-
-	result = (GpFontFamily *) GdipAlloc (sizeof (GpFontFamily));
-	result->height = -1;
-	result->linespacing = -1;
-	result->celldescent = -1;
-	result->cellascent = -1;
-	result->pattern = NULL;
-	result->allocated = FALSE;
+	GpFontFamily *result = (GpFontFamily *) GdipAlloc (sizeof (GpFontFamily));
+	if (result) {
+		result->height = -1;
+		result->linespacing = -1;
+		result->celldescent = -1;
+		result->cellascent = -1;
+		result->pattern = NULL;
+		result->allocated = FALSE;
+	}
 	*family = result;
 }
 
 static GpFontCollection *system_fonts = NULL;
 
+// coverity[+alloc : arg-*0]
 GpStatus
 GdipNewInstalledFontCollection (GpFontCollection **font_collection)
 {	
@@ -86,14 +87,17 @@ GdipNewInstalledFontCollection (GpFontCollection **font_collection)
 		FcObjectSetDestroy (os);
     
 		system_fonts = (GpFontCollection *) GdipAlloc (sizeof (GpFontCollection));
-		system_fonts->fontset = col;
-		system_fonts->config = NULL;
+		if (system_fonts) {
+			system_fonts->fontset = col;
+			system_fonts->config = NULL;
+		}
 	}
 
 	*font_collection = system_fonts;
 	return Ok;
 }
 
+// coverity[+alloc : arg-*0]
 GpStatus
 GdipNewPrivateFontCollection (GpFontCollection **font_collection)
 {
@@ -103,13 +107,15 @@ GdipNewPrivateFontCollection (GpFontCollection **font_collection)
 		return InvalidParameter;
 
 	result = (GpFontCollection *) GdipAlloc (sizeof (GpFontCollection));
-	result->fontset = NULL;
-	result->config = FcConfigCreate ();
-    
+	if (result) {
+		result->fontset = NULL;
+		result->config = FcConfigCreate ();
+    	}
 	*font_collection = result;
 	return Ok;
 }
 
+// coverity[+free : arg-0]
 GpStatus
 GdipDeletePrivateFontCollection (GpFontCollection **font_collection)
 {
@@ -140,6 +146,8 @@ GdipPrivateAddFontFile (GpFontCollection *font_collection,  GDIPCONST WCHAR *fil
 		return InvalidParameter;
     
 	file = (unsigned char*) ucs2_to_utf8 ((const gunichar2 *)filename, -1);
+	if (!file)
+		return OutOfMemory;
 
 	FcConfigAppFontAddFile (font_collection->config, file);
     
@@ -316,7 +324,7 @@ static GHashTable *patterns_hashtable;
 static GpStatus
 create_fontfamily_from_name (char* name, GpFontFamily **fontFamily)
 {
-	GpStatus status = OutOfMemory;
+	GpStatus status = FontFamilyNotFound;
 	GpFontFamily *ff = NULL;
 	FcPattern *pat = NULL;
 
@@ -342,7 +350,8 @@ create_fontfamily_from_name (char* name, GpFontFamily **fontFamily)
 			ff->pattern = pat;
 			ff->allocated = FALSE;
 			status = Ok;
-		}
+		} else 
+			status = OutOfMemory;
 	}
 
 	*fontFamily = ff;
@@ -393,7 +402,7 @@ create_fontfamily_from_collection (char* name, GpFontCollection *font_collection
 	return FontFamilyNotFound;
 }
 
-
+// coverity[+alloc : arg-*2]
 GpStatus
 GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_collection, GpFontFamily **fontFamily)
 {
@@ -404,6 +413,8 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 		return InvalidParameter;
 
 	string = (char*)ucs2_to_utf8 ((const gunichar2 *)name, -1);
+	if (!string)
+		return OutOfMemory;
 
 	if (font_collection) {
 		status = create_fontfamily_from_collection (string, font_collection, fontFamily);
@@ -434,7 +445,7 @@ GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], int 
 	return Ok;
 }
 
-
+// coverity[+alloc : arg-*0]
 GpStatus
 GdipGetGenericFontFamilySansSerif (GpFontFamily **nativeFamily)
 {
@@ -457,6 +468,7 @@ GdipGetGenericFontFamilySansSerif (GpFontFamily **nativeFamily)
 	return status;
 }
 
+// coverity[+alloc : arg-*0]
 GpStatus
 GdipGetGenericFontFamilySerif (GpFontFamily **nativeFamily)
 {
@@ -479,6 +491,7 @@ GdipGetGenericFontFamilySerif (GpFontFamily **nativeFamily)
 	return status;
 }
 
+// coverity[+alloc : arg-*0]
 GpStatus
 GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily)
 {
@@ -721,6 +734,7 @@ gdip_face_create (const char *family,
 
 }
 
+// coverity[+alloc : arg-*4]
 GpStatus
 GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, Unit unit,  GpFont **font)
 {
@@ -889,6 +903,7 @@ gdip_logfont_from_font(GpFont *font, GpGraphics *graphics, void *lf, bool ucs2)
 	return Ok;
 }
 
+// coverity[+alloc : arg-*1]
 GpStatus
 GdipCreateFontFromHfontA(void *hfont, GpFont **font, void *lf)
 {
@@ -901,6 +916,9 @@ GdipCreateFontFromHfontA(void *hfont, GpFont **font, void *lf)
 	src_font = (GpFont *)hfont;
 
 	result = (GpFont *) GdipAlloc (sizeof (GpFont));
+	if (!result)
+		return OutOfMemory;
+
 	result->sizeInPixels = src_font->sizeInPixels;
 	result->style = src_font->style;
 	result->family = src_font->family;
@@ -997,8 +1015,16 @@ gdip_create_font_from_logfont(void *hdc, void *lf, GpFont **font, bool ucs2)
 
 	if (ucs2) {
 		result->face = (unsigned char*) ucs2_to_utf8 ((const gunichar2 *)logfont->lfFaceName, -1);
+		if (!result->face){
+			GdipFree (result);
+			return OutOfMemory;
+		}
 	} else {
 		result->face = GdipAlloc(LF_FACESIZE);
+		if (!result->face){
+			GdipFree (result);
+			return OutOfMemory;
+		}
 		memcpy(result->face, logfont->lfFaceName, LF_FACESIZE);
 		result->face[LF_FACESIZE - 1] = '\0';
 	}
@@ -1014,12 +1040,14 @@ gdip_create_font_from_logfont(void *hdc, void *lf, GpFont **font, bool ucs2)
 	return Ok;
 }
 
+// coverity[+alloc : arg-*2]
 GpStatus
 GdipCreateFontFromLogfontA(void *hdc, GDIPCONST LOGFONTA *logfont, GpFont **font)
 {
 	return gdip_create_font_from_logfont(hdc, (void *)logfont, font, FALSE);
 }
 
+// coverity[+alloc : arg-*2]
 GpStatus
 GdipCreateFontFromLogfontW(void *hdc, GDIPCONST LOGFONTW *logfont, GpFont **font)
 {

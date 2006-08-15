@@ -1,3 +1,10 @@
+2006-08-15  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* font.c: In create_fontfamily_from_name changed default status code
+	to FamilyNotFound (instead of OutOfMemory). Added more checks for 
+	OutOfMemory conditions (e.g. after calls to ucs2_to_utf8). Added 
+	annotation for allocation functions.
+
 2006-08-14  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* customlinecap.c: Remove use of g_return_val_if_fail. Added 
