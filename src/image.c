@@ -2124,8 +2124,8 @@ GdipGetEncoderParameterListSize(GpImage *image, GDIPCONST CLSID *clsidEncoder, U
 {
 	ImageFormat fmt;
 
-	g_return_val_if_fail (clsidEncoder != NULL, InvalidParameter);
-	g_return_val_if_fail (size != NULL, InvalidParameter);
+	if (!image || !clsidEncoder || !size)
+		return InvalidParameter;
 
 	fmt = gdip_get_imageformat_from_codec_clsid ((CLSID *) clsidEncoder);
 
@@ -2148,8 +2148,8 @@ GdipGetEncoderParameterList(GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT 
 {
 	ImageFormat fmt;
 
-	g_return_val_if_fail (clsidEncoder != NULL, InvalidParameter);
-	g_return_val_if_fail (buffer != NULL, InvalidParameter);
+	if (!image || !clsidEncoder || !buffer)
+		return InvalidParameter;
 
 	fmt = gdip_get_imageformat_from_codec_clsid ((CLSID *) clsidEncoder);
 

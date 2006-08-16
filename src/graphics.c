@@ -662,6 +662,9 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 
 	/* re-adjust clipping (region and matrix) */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+
+	/* GdipCloneRegion was called, but for some reason, not registred as an allocation */
+	/* coverity[freed_arg] */
 	gdip_set_cairo_clipping (graphics);
 	return Ok;
 }
