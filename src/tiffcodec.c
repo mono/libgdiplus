@@ -984,7 +984,7 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 			}
 
 			if ((bitmap_data->pixel_format & PixelFormatAlpha) != 0) {
-				samples_per_pixel = 3;
+				samples_per_pixel = 4;
 				bits_per_sample = 8;
 			} else {
 				samples_per_pixel = 3;

@@ -1,3 +1,7 @@
+2006-08-16  Peter Dennis Bartok  <pbartok@novell.com>
+
+	tiffcodec.c: Fixed c+p error. Thanks to sebastien for catching that
+
 2006-08-16  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: Try an annotation inside a function.
