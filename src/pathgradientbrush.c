@@ -84,11 +84,12 @@ gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	GpPathGradient *pgbrush;
 	GpPathGradient *newbrush;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush || !clonedBrush)
+		return InvalidParameter;
 
 	newbrush = (GpPathGradient *) GdipAlloc (sizeof (GpPathGradient));
-
-	g_return_val_if_fail (newbrush != NULL, OutOfMemory);
+	if (!newbrush)
+		return OutOfMemory;
 
 	pgbrush = (GpPathGradient *) brush;
 
@@ -100,6 +101,9 @@ gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	}
 
 	newbrush->boundaryColors = GdipAlloc (sizeof(ARGB) * pgbrush->boundaryColorsCount);
+	if (!newbrush->boundaryColors)
+		goto NO_BOUNDARY_COLORS;
+
 	memcpy (newbrush->boundaryColors, pgbrush->boundaryColors, sizeof(ARGB) * pgbrush->boundaryColorsCount);
 	newbrush->boundaryColorsCount = pgbrush->boundaryColorsCount;
 	newbrush->focusScales = pgbrush->focusScales;
@@ -163,6 +167,8 @@ NO_PRESET_POSITIONS:
 NO_PRESET_COLORS:
 	GdipFree (newbrush->presetColors);
 NO_PRESET:
+	GdipFree (newbrush->boundaryColors);
+NO_BOUNDARY_COLORS:
 	GdipFree (newbrush);
 	return OutOfMemory;
 
@@ -181,7 +187,8 @@ gdip_pgrad_destroy (GpBrush *brush)
 {
 	GpPathGradient *pgbrush;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush)
+		return InvalidParameter;
 
 	pgbrush = (GpPathGradient *) brush;
 
@@ -282,8 +289,8 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 	GpPathGradient *pgbrush;
 	GpStatus status;
 
-	g_return_val_if_fail (graphics != NULL, InvalidParameter);
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!graphics || !brush)
+		return InvalidParameter;
 
 	pgbrush = (GpPathGradient *) brush;
 
@@ -388,10 +395,11 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, int count, GpWrapMode wrapMo
 	GpStatus status;
 	GpPointF point;
 
-	g_return_val_if_fail (polyGradient != NULL, InvalidParameter);
+	if (!polyGradient)
+		return InvalidParameter;
 
 	/* this match MS GDI+ behaviour */
-	if (count < 2)
+	if (!points || (count < 2))
 		return OutOfMemory;
 
 	status = GdipCreatePath (FillModeAlternate, /* ??? */ &gppath);
@@ -428,8 +436,11 @@ GdipCreatePathGradientI (GDIPCONST GpPoint *points, int count, GpWrapMode wrapMo
 	GpStatus result;
 	GpPointF *newPoints;
 
+	if (!polyGradient)
+		return InvalidParameter;
+
 	/* this match MS GDI+ behaviour */
-	if (count < 2)
+	if (!points || (count < 2))
 		return OutOfMemory;
 
 	newPoints = GdipAlloc (sizeof (GpPointF) * count);
@@ -484,8 +495,8 @@ GdipCreatePathGradientFromPath (GDIPCONST GpPath *path, GpPathGradient **polyGra
 GpStatus
 GdipGetPathGradientCenterColor (GpPathGradient *brush, ARGB *colors)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (colors != NULL, InvalidParameter);
+	if (!brush || !colors)
+		return InvalidParameter;
 
 	*colors = brush->centerColor;
 	return Ok;
@@ -494,7 +505,8 @@ GdipGetPathGradientCenterColor (GpPathGradient *brush, ARGB *colors)
 GpStatus
 GdipSetPathGradientCenterColor (GpPathGradient *brush, ARGB colors)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush)
+		return InvalidParameter;
 
 	brush->centerColor = colors;
 	brush->base.changed = TRUE;
@@ -505,9 +517,9 @@ GpStatus
 GdipGetPathGradientSurroundColorsWithCount (GpPathGradient *brush, ARGB *colors, int *count)
 {
 	int i;
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (colors != NULL, InvalidParameter);
-	g_return_val_if_fail (count != NULL, InvalidParameter);
+
+	if (!brush || !colors || !count)
+		return InvalidParameter;
 
 	for (i = 0; i < *count && i < brush->boundaryColorsCount; i++) {
 		colors[i] = brush->boundaryColors[i];
@@ -520,9 +532,8 @@ GdipGetPathGradientSurroundColorsWithCount (GpPathGradient *brush, ARGB *colors,
 GpStatus
 GdipSetPathGradientSurroundColorsWithCount (GpPathGradient *brush, GDIPCONST ARGB *colors, int *count)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (colors != NULL, InvalidParameter);
-	g_return_val_if_fail (count != NULL, InvalidParameter);
+	if (!brush || !colors || !count)
+		return InvalidParameter;
 
 	if ((*count < 1) || (*count > brush->boundary->count))
 		return InvalidParameter;
@@ -544,8 +555,8 @@ GdipSetPathGradientSurroundColorsWithCount (GpPathGradient *brush, GDIPCONST ARG
 GpStatus
 GdipGetPathGradientCenterPoint (GpPathGradient *brush, GpPointF *point)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (point != NULL, InvalidParameter);
+	if (!brush || !point)
+		return InvalidParameter;
 
 	point->X = brush->center.X;
 	point->Y = brush->center.Y;
@@ -555,8 +566,8 @@ GdipGetPathGradientCenterPoint (GpPathGradient *brush, GpPointF *point)
 GpStatus
 GdipSetPathGradientCenterPoint (GpPathGradient *brush, GDIPCONST GpPointF *point)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (point != NULL, InvalidParameter);
+	if (!brush || !point)
+		return InvalidParameter;
 	
 	brush->center.X = point->X;
 	brush->center.Y = point->Y;
@@ -567,8 +578,8 @@ GdipSetPathGradientCenterPoint (GpPathGradient *brush, GDIPCONST GpPointF *point
 GpStatus
 GdipGetPathGradientRect (GpPathGradient *brush, GpRectF *rect)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (rect != NULL, InvalidParameter);
+	if (!brush || !rect)
+		return InvalidParameter;
 	
 	memcpy (rect, &brush->rectangle, sizeof (GpRectF));
 	return Ok;
@@ -577,8 +588,8 @@ GdipGetPathGradientRect (GpPathGradient *brush, GpRectF *rect)
 GpStatus
 GdipGetPathGradientSurroundColorCount (GpPathGradient *brush, int *count)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (count != NULL, InvalidParameter);
+	if (!brush || !count)
+		return InvalidParameter;
 	
 	*count = brush->boundaryColorsCount;
 	return Ok;
@@ -587,7 +598,8 @@ GdipGetPathGradientSurroundColorCount (GpPathGradient *brush, int *count)
 GpStatus
 GdipGetPathGradientBlendCount (GpPathGradient *brush, int *count)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush || !count)
+		return InvalidParameter;
 	
 	/* If count is less than 1, we are not in a proper state 
 	 * to return blend property. By default, we have one blend
@@ -604,10 +616,8 @@ GdipGetPathGradientBlendCount (GpPathGradient *brush, int *count)
 GpStatus
 GdipGetPathGradientBlend (GpPathGradient *brush, float *blend, float *positions, int count)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (blend != NULL, InvalidParameter);
-	g_return_val_if_fail (positions != NULL, InvalidParameter);
-	g_return_val_if_fail (brush->blend->count == count, InvalidParameter);
+	if (!brush || !blend || !positions || (brush->blend->count != count))
+		return InvalidParameter;
 
 	/* If count is less than 1, we are not in a proper state 
 	 * to return blend property. By default, we have one blend
@@ -629,11 +639,8 @@ GdipSetPathGradientBlend (GpPathGradient *brush, GDIPCONST float *blend, GDIPCON
 	float *blendPositions;
 	int index;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (blend != NULL, InvalidParameter);
-	g_return_val_if_fail (positions != NULL, InvalidParameter);
-
-	g_return_val_if_fail (count >= 2, InvalidParameter);
+	if (!brush || !blend || !positions || (count < 2))
+		return InvalidParameter;
 
 	if (brush->blend->count != count) {
 		blendFactors = (float *) GdipAlloc (count * sizeof (float));
@@ -681,7 +688,8 @@ GdipSetPathGradientBlend (GpPathGradient *brush, GDIPCONST float *blend, GDIPCON
 GpStatus
 GdipGetPathGradientPresetBlendCount (GpPathGradient *brush, int *count)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush)
+		return InvalidParameter;
 
 	*count = brush->presetColors->count;
 	return Ok;
@@ -690,11 +698,7 @@ GdipGetPathGradientPresetBlendCount (GpPathGradient *brush, int *count)
 GpStatus
 GdipGetPathGradientPresetBlend (GpPathGradient *brush, ARGB *blend, float *positions, int count)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (blend != NULL, InvalidParameter);
-	g_return_val_if_fail (positions != NULL, InvalidParameter);
-	g_return_val_if_fail (brush->presetColors->count == count, InvalidParameter);
-	if (count < 2)
+	if (!brush || !blend || !positions || (brush->presetColors->count != count) || (count < 2))
 		return InvalidParameter;
 
 	memcpy (blend, brush->presetColors->colors, count * sizeof (ARGB));
@@ -710,10 +714,8 @@ GdipSetPathGradientPresetBlend (GpPathGradient *brush, GDIPCONST ARGB *blend, GD
 	float *blendPositions;
 	int index;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (blend != NULL, InvalidParameter);
-	g_return_val_if_fail (positions != NULL, InvalidParameter);
-	g_return_val_if_fail (count >= 2, InvalidParameter);
+	if (!brush || !blend || !positions || (count < 2))
+		return InvalidParameter;
 
 	if (brush->presetColors->count != count) {
 		blendColors = (ARGB *) GdipAlloc (count * sizeof (ARGB));
@@ -778,7 +780,8 @@ GdipSetPathGradientSigmaBlend (GpPathGradient *brush, float focus, float scale)
 	float curve_top;
 	float curve_height;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush)
+		return InvalidParameter;
 
 	if (focus == 0 || focus == 1) {
 		count = 256;
@@ -949,7 +952,8 @@ GdipSetPathGradientLinearBlend (GpPathGradient *brush, float focus, float scale)
 	float *positions;
 	int count = 3;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush)
+		return InvalidParameter;
 
 	if (focus == 0 || focus == 1) {
 		count = 2;
@@ -1020,8 +1024,8 @@ GdipSetPathGradientLinearBlend (GpPathGradient *brush, float focus, float scale)
 GpStatus
 GdipGetPathGradientWrapMode (GpPathGradient *brush, GpWrapMode *wrapMode)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (wrapMode != NULL, InvalidParameter);
+	if (!brush || !wrapMode)
+		return InvalidParameter;
 
 	*wrapMode = brush->wrapMode;
 	return Ok;
@@ -1030,7 +1034,8 @@ GdipGetPathGradientWrapMode (GpPathGradient *brush, GpWrapMode *wrapMode)
 GpStatus
 GdipSetPathGradientWrapMode (GpPathGradient *brush, GpWrapMode wrapMode)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush)
+		return InvalidParameter;
 
 	brush->wrapMode = wrapMode;
 	brush->base.changed = TRUE;
@@ -1040,8 +1045,8 @@ GdipSetPathGradientWrapMode (GpPathGradient *brush, GpWrapMode wrapMode)
 GpStatus
 GdipGetPathGradientTransform (GpPathGradient *brush, GpMatrix *matrix)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if (!brush || !matrix)
+		return InvalidParameter;
 
 	/* If presetcolors are set, we are not in a proper state 
 	 * to return transform property.
@@ -1059,8 +1064,8 @@ GdipSetPathGradientTransform (GpPathGradient *brush, GpMatrix *matrix)
 	GpStatus status;
 	BOOL invertible;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if (!brush || !matrix)
+		return InvalidParameter;
 
 	/* the matrix MUST be invertible to be used */
 	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
@@ -1075,7 +1080,8 @@ GdipSetPathGradientTransform (GpPathGradient *brush, GpMatrix *matrix)
 GpStatus
 GdipResetPathGradientTransform (GpPathGradient *brush)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush)
+		return InvalidParameter;
 
 	cairo_matrix_init_identity (&brush->transform);
 	brush->base.changed = TRUE;
@@ -1089,8 +1095,8 @@ GdipMultiplyPathGradientTransform (GpPathGradient *brush, GDIPCONST GpMatrix *ma
 	BOOL invertible;
 	cairo_matrix_t mat;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if (!brush || !matrix)
+		return InvalidParameter;
 
 	/* the matrix MUST be invertible to be used */
 	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
@@ -1112,7 +1118,8 @@ GdipTranslatePathGradientTransform (GpPathGradient *brush, float dx, float dy, G
 {
 	GpStatus status;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush)
+		return InvalidParameter;
 
 	if ((status = GdipTranslateMatrix (&brush->transform, dx, dy, order)) == Ok)
 		brush->base.changed = TRUE;
@@ -1124,7 +1131,8 @@ GdipScalePathGradientTransform (GpPathGradient *brush, float sx, float sy, GpMat
 {
 	GpStatus status;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush)
+		return InvalidParameter;
 
 	if ((status = GdipScaleMatrix (&brush->transform, sx, sy, order)) == Ok)
 		brush->base.changed = TRUE;
@@ -1136,7 +1144,8 @@ GdipRotatePathGradientTransform (GpPathGradient *brush, float angle, GpMatrixOrd
 {
 	GpStatus status;
 
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush)
+		return InvalidParameter;
 
 	if ((status = GdipRotateMatrix (&brush->transform, angle, order)) == Ok)
 		brush->base.changed = TRUE;
@@ -1146,9 +1155,8 @@ GdipRotatePathGradientTransform (GpPathGradient *brush, float angle, GpMatrixOrd
 GpStatus
 GdipGetPathGradientFocusScales (GpPathGradient *brush, float *xScale, float *yScale)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
-	g_return_val_if_fail (xScale != NULL, InvalidParameter);
-	g_return_val_if_fail (yScale != NULL, InvalidParameter);
+	if (!brush || !xScale || !yScale)
+		return InvalidParameter;
 
 	*xScale = brush->focusScales.X;
 	*yScale = brush->focusScales.Y;
@@ -1158,7 +1166,8 @@ GdipGetPathGradientFocusScales (GpPathGradient *brush, float *xScale, float *ySc
 GpStatus
 GdipSetPathGradientFocusScales (GpPathGradient *brush, float xScale, float yScale)
 {
-	g_return_val_if_fail (brush != NULL, InvalidParameter);
+	if (!brush)
+		return InvalidParameter;
 
 	brush->focusScales.X = xScale;
 	brush->focusScales.Y = yScale;

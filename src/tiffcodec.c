@@ -1180,6 +1180,7 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 	return Ok;
 
 error:
+	/* coverity[dead_error_line] */
 	if (pixbuf_row != NULL) {
 		GdipFree(pixbuf_row);
 	}

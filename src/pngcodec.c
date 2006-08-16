@@ -506,6 +506,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	return Ok;
 
 error:
+	/* coverity[dead_error_line] */
 	if (rawdata) {
 		GdipFree (rawdata);
 	}

@@ -1054,6 +1054,8 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 
 	status = GdipCreateFont (family, emSize, style, UnitPixel, &font);
 	if (status != Ok) {
+		if (font)
+			GdipDeleteFont (font);
 		GdipFree (utf8);
 		cairo_destroy (cr);
 		cairo_surface_destroy (cs);

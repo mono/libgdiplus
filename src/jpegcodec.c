@@ -469,6 +469,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 error:
 	jpeg_destroy_decompress (&cinfo);
 
+	/* coverity[dead_error_line] */
 	if (destbuf != NULL) {
 		GdipFree (destbuf);
 	}
@@ -763,6 +764,7 @@ error:
 
 	jpeg_destroy_compress (&cinfo);
 
+	/* coverity[dead_error_line] */
 	if (dest != NULL) {
 		if (dest->buf != NULL) {
 			GdipFree (dest->buf);
@@ -864,9 +866,8 @@ gdip_fill_encoder_parameter_list_jpeg (EncoderParameters *eps, UINT size)
 	unsigned char *ucptr = (unsigned char *) eps;
 	int *iptr;
 
-	g_return_val_if_fail (eps != NULL, InvalidParameter);
-	g_return_val_if_fail (size >= gdip_get_encoder_parameter_list_size_jpeg (), InvalidParameter);
-	g_return_val_if_fail ((size & 3) == 0, InvalidParameter);
+	if (!eps || (size < gdip_get_encoder_parameter_list_size_jpeg ()) || ((size & 3) != 0))
+		return InvalidParameter;
 
 	eps->Count = 1;
 
