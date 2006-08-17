@@ -106,12 +106,14 @@ gdip_matrix_init_from_rect_3points (GpMatrix *matrix, const GpRectF *rect, const
 
 /* public (exported) functions */
 
+// coverity[+alloc : arg-*0]
 GpStatus 
 GdipCreateMatrix (GpMatrix **matrix)
 {
 	GpMatrix *result;
 
-	g_return_val_if_fail  (matrix != NULL, InvalidParameter);
+	if (!matrix)
+		return InvalidParameter;
 	
 	result = GdipAlloc (sizeof (GpMatrix));
 	if (!result)
@@ -123,12 +125,14 @@ GdipCreateMatrix (GpMatrix **matrix)
 	return Ok;
 }
 
+// coverity[+alloc : arg-*6]
 GpStatus
 GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float dy, GpMatrix **matrix)
 {
 	GpMatrix *result;
 
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if (!matrix)
+		return InvalidParameter;
 
 	result = GdipAlloc (sizeof (GpMatrix));
 	if (!result)
@@ -140,15 +144,15 @@ GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float d
 	return Ok;
 }
 
+// coverity[+alloc : arg-*2]
 GpStatus
 GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matrix)
 {
 	GpMatrix *result;
 	GpStatus status;
 
-	g_return_val_if_fail (rect != NULL, InvalidParameter);
-	g_return_val_if_fail (dstplg != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if (!rect || !dstplg || !matrix)
+		return InvalidParameter;
 
 	result = GdipAlloc (sizeof (GpMatrix));
 	if (!result)
@@ -163,14 +167,15 @@ GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matri
 	return status;
 }
 
+// coverity[+alloc : arg-*2]
 GpStatus
 GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix)
 {
 	GpRectF r;
 	GpPointF pts[3];
 
-	g_return_val_if_fail (rect != NULL, InvalidParameter);
-	g_return_val_if_fail (dstplg != NULL, InvalidParameter);
+	if (!rect || !dstplg || !matrix)
+		return InvalidParameter;
 
 	r.X = rect->X;
 	r.Y = rect->Y;
@@ -187,13 +192,14 @@ GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix
         return GdipCreateMatrix3 (&r, (GpPointF*)&pts, matrix);
 }
 
+// coverity[+alloc : arg-*1]
 GpStatus
 GdipCloneMatrix (GpMatrix *matrix, GpMatrix **cloneMatrix)
 {
 	GpMatrix *result;
 
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-	g_return_val_if_fail (cloneMatrix != NULL, InvalidParameter);
+	if (!matrix || !cloneMatrix)
+		return InvalidParameter;
 
 	result = GdipAlloc (sizeof (GpMatrix));
 	if (!result)
@@ -218,7 +224,8 @@ GdipDeleteMatrix (GpMatrix *matrix)
 GpStatus
 GdipSetMatrixElements (GpMatrix *matrix, float m11, float m12, float m21, float m22, float dx, float dy)
 {
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if (!matrix)
+		return InvalidParameter;
        
 	cairo_matrix_init (matrix, m11, m12, m21, m22, dx, dy);
 	
@@ -228,8 +235,8 @@ GdipSetMatrixElements (GpMatrix *matrix, float m11, float m12, float m21, float 
 GpStatus 
 GdipGetMatrixElements (GpMatrix *matrix, float *matrixOut)
 {
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-	g_return_val_if_fail (matrixOut != NULL, InvalidParameter);
+	if (!matrix || !matrixOut)
+		return InvalidParameter;
 
         matrixOut[0] = (float) matrix->xx;
         matrixOut[1] = (float) matrix->yx;
@@ -244,8 +251,8 @@ GdipGetMatrixElements (GpMatrix *matrix, float *matrixOut)
 GpStatus
 GdipMultiplyMatrix (GpMatrix *matrix, GpMatrix *matrix2, GpMatrixOrder order)
 {
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix2 != NULL, InvalidParameter);
+	if (!matrix || !matrix2)
+		return InvalidParameter;
 
         if (order == MatrixOrderAppend)
                 cairo_matrix_multiply (matrix, matrix, matrix2);
@@ -310,7 +317,8 @@ GdipShearMatrix (GpMatrix *matrix, float shearX, float shearY, GpMatrixOrder ord
 GpStatus
 GdipInvertMatrix (GpMatrix *matrix)
 {
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
+	if (!matrix)
+		return InvalidParameter;
 
         return gdip_get_status (
                 cairo_matrix_invert (matrix));
@@ -321,9 +329,7 @@ GdipTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
 {
         int i;
 
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-	g_return_val_if_fail (pts != NULL, InvalidParameter);
-	if (count < 1)
+	if (!matrix || !pts || (count < 1))
 		return InvalidParameter;
         
         for (i = 0; i < count; i++, pts++) {
@@ -343,9 +349,7 @@ GdipTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
 {
         int i;
 
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-	g_return_val_if_fail (pts != NULL, InvalidParameter);
-	if (count < 1)
+	if (!matrix || !pts || (count < 1))
 		return InvalidParameter;
         
         for (i = 0; i < count; i++, pts++) {
@@ -365,9 +369,7 @@ GdipVectorTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
 {
         int i;
 
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-	g_return_val_if_fail (pts != NULL, InvalidParameter);
-	if (count < 1)
+	if (!matrix || !pts || (count < 1))
 		return InvalidParameter;
 
         for (i = 0; i < count; i++, pts++) {
@@ -387,9 +389,7 @@ GdipVectorTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
 {
         int i;
         
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-	g_return_val_if_fail (pts != NULL, InvalidParameter);
-	if (count < 1)
+	if (!matrix || !pts || (count < 1))
 		return InvalidParameter;
 
         for (i = 0; i < count; i++, pts++) {
@@ -410,8 +410,8 @@ GdipIsMatrixInvertible (GpMatrix *matrix, BOOL *result)
 	cairo_status_t status;
 	cairo_matrix_t copy;
 
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-	g_return_val_if_fail (result != NULL, InvalidParameter);
+	if (!matrix || !result)
+		return InvalidParameter;
 
 	gdip_cairo_matrix_copy (&copy, matrix);
 	status = cairo_matrix_invert (&copy);
@@ -449,9 +449,8 @@ GdipIsMatrixIdentity (GpMatrix *matrix, BOOL *result)
 GpStatus
 GdipIsMatrixEqual (GpMatrix *matrix, GpMatrix *matrix2, BOOL *result)
 {
-	g_return_val_if_fail (matrix != NULL, InvalidParameter);
-	g_return_val_if_fail (matrix2 != NULL, InvalidParameter);
-	g_return_val_if_fail (result != NULL, InvalidParameter);
+	if (!matrix || !matrix2 || !result)
+		return InvalidParameter;
 
         *result = matrix_equals (matrix, matrix2);
         return Ok;
