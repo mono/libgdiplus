@@ -88,6 +88,8 @@ gdip_matrix_init_from_rect_3points (GpMatrix *matrix, const GpRectF *rect, const
 
 	if (!matrix || !rect || !dstplg)
 		return InvalidParameter;
+	if ((rect->Width == 0) || (rect->Height == 0))
+		return OutOfMemory;
 
 	p = (GpPointF*) dstplg;
 	p0 = p++;
