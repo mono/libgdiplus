@@ -1,7 +1,7 @@
 /*
  * graphics-pathiterator.c
  *
- * Copyright (C) 2004, Novell Inc.
+ * Copyright (C) 2004,2006 Novell Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -26,23 +26,30 @@
 #include "gdip.h"
 #include "graphics-path.h"
 
+// coverity[+alloc : arg-*0]
 GpStatus
 GdipCreatePathIter (GpPathIterator **iterator, GpPath *path)
 {
-	GpPath *clone;
+	GpPath *clone = NULL;
 	GpPathIterator *iter;
+	GpStatus status;
 
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (iterator != NULL, InvalidParameter);
+	if (!iterator)
+		return InvalidParameter;
 
 	iter = (GpPathIterator *) GdipAlloc (sizeof (GpPathIterator));
 	if (iter == NULL)
 		return OutOfMemory;
 
-	GdipClonePath (path, &clone);
-	if (clone == NULL) {
-		GdipFree (iter);
-		return OutOfMemory;
+	/* supplying a path isn't required */
+	if (path) {
+		status = GdipClonePath (path, &clone);
+		if (status != Ok) {
+			GdipFree (iter);
+			if (clone)
+				GdipDeletePath (clone);
+			return status;
+		}
 	}
 
 	iter->path = clone;
@@ -58,10 +65,13 @@ GdipCreatePathIter (GpPathIterator **iterator, GpPath *path)
 GpStatus
 GdipPathIterGetCount (GpPathIterator *iterator, int *count)
 {
-	g_return_val_if_fail (iterator != NULL, InvalidParameter);
-	g_return_val_if_fail (count != NULL, InvalidParameter);
+	if (!iterator || !count)
+		return InvalidParameter;
 
-	*count = iterator->path->count;
+	if (iterator->path)
+		*count = iterator->path->count;
+	else
+		*count = 0;
 
 	return Ok;
 }
@@ -69,18 +79,20 @@ GdipPathIterGetCount (GpPathIterator *iterator, int *count)
 GpStatus
 GdipPathIterGetSubpathCount (GpPathIterator *iterator, int *count)
 {
-	int i;
 	int numSubpaths = 0;
-	byte type;
 
-	g_return_val_if_fail (iterator != NULL, InvalidParameter);
-	g_return_val_if_fail (count != NULL, InvalidParameter);
+	if (!iterator || !count)
+		return InvalidParameter;
 
-	/* Number of subpaths = Number of starting points */
-	for (i = 0; i < iterator->path->count; i++) {
-		type = g_array_index (iterator->path->types, byte, i);
-		if (type == PathPointTypeStart)
-			numSubpaths++;
+	if (iterator->path) {
+		int i;
+		byte type;
+		/* Number of subpaths = Number of starting points */
+		for (i = 0; i < iterator->path->count; i++) {
+			type = g_array_index (iterator->path->types, byte, i);
+			if (type == PathPointTypeStart)
+				numSubpaths++;
+		}
 	}
 
 	*count = numSubpaths;
@@ -91,9 +103,13 @@ GdipPathIterGetSubpathCount (GpPathIterator *iterator, int *count)
 GpStatus
 GdipDeletePathIter (GpPathIterator *iterator)
 {
-	g_return_val_if_fail (iterator != NULL, InvalidParameter);
+	if (!iterator)
+		return InvalidParameter;
 
-	GdipDeletePath (iterator->path);
+	if (iterator->path) {
+		GdipDeletePath (iterator->path);
+		iterator->path = NULL;
+	}
 
 	GdipFree (iterator);
 
@@ -105,14 +121,11 @@ GdipPathIterCopyData (GpPathIterator *iterator, int *resultCount, GpPointF *poin
 {
 	int i, j;
 
-	g_return_val_if_fail (iterator != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
-	g_return_val_if_fail (types != NULL, InvalidParameter);
-	g_return_val_if_fail (resultCount != NULL, InvalidParameter);
+	if (!iterator || !resultCount || !points || !types)
+		return InvalidParameter;
 
-	if (startIndex >= iterator->path->count || 
-	    startIndex > endIndex ||
-	    endIndex >= iterator->path->count) {
+	if (!iterator->path || (startIndex >= iterator->path->count) || (startIndex > endIndex) || 
+		(endIndex >= iterator->path->count) || (startIndex < 0) || (endIndex < 0)) {
 		*resultCount = 0;
 		return Ok;
 	}
@@ -130,16 +143,16 @@ GdipPathIterCopyData (GpPathIterator *iterator, int *resultCount, GpPointF *poin
 GpStatus
 GdipPathIterEnumerate (GpPathIterator *iterator, int *resultCount, GpPointF *points, byte *types, int count)
 {
-	int i;
+	int i = 0;
 
-	g_return_val_if_fail (iterator != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
-	g_return_val_if_fail (types != NULL, InvalidParameter);
-	g_return_val_if_fail (resultCount != NULL, InvalidParameter);
+	if (!iterator || !resultCount || !points || !types)
+		return InvalidParameter;
 
-	for (i = 0; i < count && i < iterator->path->count; i++) {
-		points [i] = g_array_index (iterator->path->points, GpPointF, i);
-		types [i] = g_array_index (iterator->path->types, byte, i);
+	if (iterator->path) {
+		for (; i < count && i < iterator->path->count; i++) {
+			points [i] = g_array_index (iterator->path->points, GpPointF, i);
+			types [i] = g_array_index (iterator->path->types, byte, i);
+		}
 	}
 
 	*resultCount = i;
@@ -150,19 +163,21 @@ GdipPathIterEnumerate (GpPathIterator *iterator, int *resultCount, GpPointF *poi
 GpStatus
 GdipPathIterHasCurve (GpPathIterator *iterator, BOOL *curve)
 {
-	int i;
-	byte type;
 	BOOL hasCurve = FALSE;
 
-	g_return_val_if_fail (iterator != NULL, InvalidParameter);
-	g_return_val_if_fail (curve != NULL, InvalidParameter);
+	if (!iterator || !curve)
+		return InvalidParameter;
 
-	/* We have a curve if any point type is bezier or bezier3 */
-	for (i = 0; i < iterator->path->count; i++) {
-		type = g_array_index (iterator->path->types, byte, i);
-		if (type == PathPointTypeBezier || type == PathPointTypeBezier3) {
-			hasCurve = TRUE;
-			break;
+	if (iterator->path) {
+		int i;
+		byte type;
+		/* We have a curve if any point type is bezier or bezier3 */
+		for (i = 0; i < iterator->path->count; i++) {
+			type = g_array_index (iterator->path->types, byte, i);
+			if (type == PathPointTypeBezier || type == PathPointTypeBezier3) {
+				hasCurve = TRUE;
+				break;
+			}
 		}
 	}
 
@@ -178,12 +193,11 @@ GdipPathIterNextMarkerPath (GpPathIterator *iterator, int *resultCount, GpPath *
 	byte type;
 	GpPointF point;
 
-	g_return_val_if_fail (iterator != NULL, InvalidParameter);
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (resultCount != NULL, InvalidParameter);
+	if (!iterator || !resultCount)
+		return InvalidParameter;
 
-	/* There are no markers or we are done with all the markers */
-	if ((iterator->path->count == 0) ||
+	/* There are no paths or markers or we are done with all the markers */
+	if (!path || !iterator->path || (iterator->path->count == 0) ||
 	    (iterator->markerPosition == iterator->path->count)) {
 		*resultCount = 0;
 		return Ok;
@@ -225,14 +239,13 @@ GdipPathIterNextMarker (GpPathIterator *iterator, int *resultCount, int *startIn
 	int index = 0;
 	byte type;
 
-	g_return_val_if_fail (iterator != NULL, InvalidParameter);
-	g_return_val_if_fail (resultCount != NULL, InvalidParameter);
-	g_return_val_if_fail (startIndex != NULL, InvalidParameter);
-	g_return_val_if_fail (endIndex != NULL, InvalidParameter);
+	if (!iterator || !resultCount || !startIndex || !endIndex)
+		return InvalidParameter;
 
 	/* There are no markers or we are done with all the markers */
-	if ((iterator->path->count == 0) ||
+	if (!iterator->path || (iterator->path->count == 0) ||
 	    (iterator->markerPosition == iterator->path->count)) {
+		/* we don't touch startIndex and endIndex in this case */
 		*resultCount = 0;
 		return Ok;
 	}
@@ -262,14 +275,12 @@ GdipPathIterNextPathType (GpPathIterator *iterator, int *resultCount, byte *path
 	byte currentType;
 	byte lastTypeSeen;
 
-	g_return_val_if_fail (iterator != NULL, InvalidParameter);
-	g_return_val_if_fail (pathType != NULL, InvalidParameter);
-	g_return_val_if_fail (resultCount != NULL, InvalidParameter);
-	g_return_val_if_fail (startIndex != NULL, InvalidParameter);
-	g_return_val_if_fail (endIndex != NULL, InvalidParameter);
+	if (!iterator || !resultCount || !pathType || !startIndex || !endIndex)
+		return InvalidParameter;
 
 	/* There are no subpaths or we are done with all the subpaths */
-	if ((iterator->path->count == 0) || (iterator->subpathPosition == 0)) {
+	if (!iterator->path || (iterator->path->count == 0) || (iterator->subpathPosition == 0)) {
+		/* we don't touch pathType, startIndex and endIndex in this case */
 		*resultCount = 0;
 		return Ok;
 	}
@@ -319,13 +330,11 @@ GdipPathIterNextSubpathPath (GpPathIterator *iterator, int *resultCount, GpPath 
 	GpPointF point;
 	byte currentType;
 
-	g_return_val_if_fail (iterator != NULL, InvalidParameter);
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (resultCount != NULL, InvalidParameter);
-	g_return_val_if_fail (isClosed != NULL, InvalidParameter);
+	if (!iterator || !resultCount || !isClosed)
+		return InvalidParameter;
 
 	/* There are no subpaths or we are done with all the subpaths */
-	if ((iterator->path->count == 0) || 
+	if (!path || !iterator->path || (iterator->path->count == 0) || 
 	    (iterator->subpathPosition == iterator->path->count)) {
 		*resultCount = 0;
 		*isClosed = TRUE;
@@ -384,18 +393,14 @@ GdipPathIterNextSubpath (GpPathIterator *iterator, int *resultCount, int *startI
 	int index = 0;
 	byte currentType;
 
-	g_return_val_if_fail (iterator != NULL, InvalidParameter);
-	g_return_val_if_fail (resultCount != NULL, InvalidParameter);
-	g_return_val_if_fail (startIndex != NULL, InvalidParameter);
-	g_return_val_if_fail (endIndex != NULL, InvalidParameter);
-	g_return_val_if_fail (isClosed != NULL, InvalidParameter);
+	if (!iterator || !resultCount || !startIndex || !endIndex || !isClosed)
+		return InvalidParameter;
 
 	/* There are no subpaths or we are done with all the subpaths */
-	if ((iterator->path->count == 0) || 
+	if (!iterator->path || (iterator->path->count == 0) || 
 	    (iterator->subpathPosition == iterator->path->count)) {
+		/* we don't touch startIndex and endIndex in this case */
 		*resultCount = 0;
-		*startIndex = 0;
-		*endIndex = 0;
 		*isClosed = TRUE;
 		return Ok;
 	}
@@ -427,7 +432,8 @@ GdipPathIterNextSubpath (GpPathIterator *iterator, int *resultCount, int *startI
 GpStatus
 GdipPathIterRewind (GpPathIterator *iterator)
 {
-	g_return_val_if_fail (iterator != NULL, InvalidParameter);
+	if (!iterator)
+		return InvalidParameter;
 
 	/* Reset the marker and subpath positions */
 	iterator->markerPosition = 0;
