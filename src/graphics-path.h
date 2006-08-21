@@ -100,5 +100,7 @@ GpStatus GdipPathIterNextSubpathPath (GpPathIterator *iterator, int *resultCount
 GpStatus GdipPathIterNextSubpath (GpPathIterator *iterator, int *resultCount, int *startIndex, int *endIndex, BOOL *isClosed);
 GpStatus GdipPathIterRewind (GpPathIterator *iterator);
 
+/* internal (non-exported) functions */
+BOOL gdip_path_has_curve (GpPath *path);
 
 #endif /* _GRAPHICS_PATH_H_ */

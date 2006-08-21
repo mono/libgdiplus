@@ -163,25 +163,10 @@ GdipPathIterEnumerate (GpPathIterator *iterator, int *resultCount, GpPointF *poi
 GpStatus
 GdipPathIterHasCurve (GpPathIterator *iterator, BOOL *curve)
 {
-	BOOL hasCurve = FALSE;
-
 	if (!iterator || !curve)
 		return InvalidParameter;
 
-	if (iterator->path) {
-		int i;
-		byte type;
-		/* We have a curve if any point type is bezier or bezier3 */
-		for (i = 0; i < iterator->path->count; i++) {
-			type = g_array_index (iterator->path->types, byte, i);
-			if (type == PathPointTypeBezier || type == PathPointTypeBezier3) {
-				hasCurve = TRUE;
-				break;
-			}
-		}
-	}
-
-	*curve = hasCurve;
+	*curve = gdip_path_has_curve (iterator->path);
 
 	return Ok;
 }

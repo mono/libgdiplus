@@ -1,3 +1,12 @@
+2006-08-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.h: Export gdip_path_has_curve to avoid code 
+	duplication.
+	* graphics-path.c: Remove all g_return_val_if_fail. Added annotations 
+	for allocation function.
+	* graphics-pathiterator.c: Simplify GdipPathIterHasCurve by reusing 
+	code from graphics.c.
+
 2006-08-19  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-pathiterator.c: Fix all function to deal with a NULL path

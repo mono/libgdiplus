@@ -76,7 +76,7 @@ array_to_g_byte_array (const byte *types, int count)
 }
 
 /* return TRUE if the specified path has (at least one) curves, FALSE otherwise */
-static BOOL
+BOOL
 gdip_path_has_curve (GpPath *path)
 {
 	int i;
@@ -188,10 +188,12 @@ append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int offs
 	}
 }
 
+/* coverity[+alloc : arg-*1] */
 GpStatus
 GdipCreatePath (GpFillMode fillMode, GpPath **path)
 {
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!path)
+		return InvalidParameter;
 
 	*path = (GpPath *) GdipAlloc (sizeof (GpPath));
 	if (!*path)
@@ -206,6 +208,7 @@ GdipCreatePath (GpFillMode fillMode, GpPath **path)
 	return Ok;
 }
 
+/* coverity[+alloc : arg-*4] */
 GpStatus
 GdipCreatePath2 (const GpPointF *points, const byte *types,
                 int count, GpFillMode fillMode, GpPath **path)
@@ -213,9 +216,8 @@ GdipCreatePath2 (const GpPointF *points, const byte *types,
 	GArray *pts;
 	GByteArray *t;
 
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
-	g_return_val_if_fail (types != NULL, InvalidParameter);
+	if (!path || !points || !types || (count < 0))
+		return InvalidParameter;
 
 	/* FIXME: Check whether path types are valid before adding them. MS does
 	 * some checking and does not use the points passed in, if they look
@@ -240,6 +242,7 @@ GdipCreatePath2 (const GpPointF *points, const byte *types,
         return Ok;
 }
 
+/* coverity[+alloc : arg-*4] */
 GpStatus
 GdipCreatePath2I (const GpPoint *points, const byte *types,
                 int count, GpFillMode fillMode, GpPath **path)
@@ -247,7 +250,8 @@ GdipCreatePath2I (const GpPoint *points, const byte *types,
 	GpPointF *pt;
         GpStatus s;
 
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!points || !types || !path)
+		return InvalidParameter;
 
 	pt = convert_points (points, count);
 	if (!pt)
@@ -260,6 +264,7 @@ GdipCreatePath2I (const GpPoint *points, const byte *types,
         return s;
 }
 
+/* coverity[+alloc : arg-*1] */
 GpStatus
 GdipClonePath (GpPath *path, GpPath **clonePath)
 {
@@ -267,8 +272,8 @@ GdipClonePath (GpPath *path, GpPath **clonePath)
 	byte type;
 	GpPointF point;
 
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (clonePath != NULL, InvalidParameter);
+	if (!path || !clonePath)
+		return InvalidParameter;
 
         *clonePath = (GpPath *) GdipAlloc (sizeof (GpPath));
 	if (!*clonePath)
@@ -374,9 +379,8 @@ GpStatus
 GdipGetPathPointsI (GDIPCONST GpPath *path, GpPoint *points, int count)
 {
 	int i;
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
-	if (count < 1)
+
+	if (!path || !points || (count < 1))
 		return InvalidParameter;
 
         for (i = 0; i < count; i++) {
@@ -391,8 +395,8 @@ GdipGetPathPointsI (GDIPCONST GpPath *path, GpPoint *points, int count)
 GpStatus
 GdipGetPathFillMode (GpPath *path, GpFillMode *fillMode)
 {
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (fillMode != NULL, InvalidParameter);
+	if (!path || !fillMode)
+		return InvalidParameter;
 
         *fillMode = path->fill_mode;
         
@@ -402,7 +406,8 @@ GdipGetPathFillMode (GpPath *path, GpFillMode *fillMode)
 GpStatus
 GdipSetPathFillMode (GpPath *path, GpFillMode fillMode)
 {
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!path)
+		return InvalidParameter;
 
         path->fill_mode = fillMode;
         
@@ -412,15 +417,22 @@ GdipSetPathFillMode (GpPath *path, GpFillMode fillMode)
 GpStatus
 GdipGetPathData (GDIPCONST GpPath *path, GpPathData *pathData)
 {
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (pathData != NULL, InvalidParameter);
+	if (!path || !pathData)
+		return InvalidParameter;
 
-        pathData->Count = path->count;
         pathData->Points = g_array_to_array (path->points);
 	if (!pathData->Points)
 		return OutOfMemory;
 
         pathData->Types = g_byte_array_to_array (path->types);
+	if (!pathData->Types) {
+		g_array_free (pathData->Points, TRUE);
+		pathData->Points = NULL;
+		return OutOfMemory;
+	}
+
+	/* don't return the count unless we have the data */
+        pathData->Count = path->count;
         
         return Ok;
 }
@@ -428,7 +440,8 @@ GdipGetPathData (GDIPCONST GpPath *path, GpPathData *pathData)
 GpStatus
 GdipStartPathFigure (GpPath *path)
 {
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!path)
+		return InvalidParameter;
 
 	path->start_new_fig = TRUE;
 
@@ -438,11 +451,11 @@ GdipStartPathFigure (GpPath *path)
 GpStatus
 GdipClosePathFigure (GpPath *path)
 {
-	byte current;
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!path)
+		return InvalidParameter;
 
 	if (path->count > 0) {
-		current = g_array_index (path->types, byte, path->count - 1);
+		byte current = g_array_index (path->types, byte, path->count - 1);
 		g_byte_array_remove_index (path->types, path->count - 1);
 		current |= PathPointTypeCloseSubpath;
 		g_byte_array_append (path->types, &current, 1);
@@ -460,7 +473,8 @@ GdipClosePathFigures (GpPath *path)
 	byte lastType;
 	GByteArray *oldTypes;
 
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!path)
+		return InvalidParameter;
 
 	/* first point is not closed */
 	if (path->count <= 1)
@@ -500,7 +514,9 @@ GpStatus
 GdipSetPathMarker (GpPath *path)
 {
 	byte current;
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+
+	if (!path)
+		return InvalidParameter;
 
 	if (path->count == 0)
 		return Ok;
@@ -523,7 +539,8 @@ GdipClearPathMarkers (GpPath *path)
 	byte current;
 	GByteArray *cleared;
 
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!path)
+		return InvalidParameter;
 
 	/* shortcut to avoid allocations */
 	if (path->count == 0)
@@ -555,7 +572,8 @@ GdipReversePath (GpPath *path)
 	GByteArray *types;
 	GArray *points;
 
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!path)
+		return InvalidParameter;
 
 	length = path->count;
 	/* shortcut to avoid allocations */
@@ -581,9 +599,8 @@ GdipReversePath (GpPath *path)
 GpStatus
 GdipGetPathLastPoint (GpPath *path, GpPointF *lastPoint)
 {
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (lastPoint != NULL, InvalidParameter);
-	g_return_val_if_fail (path->count > 0, InvalidParameter);
+	if (!path || !lastPoint || (path->count <= 0))
+		return InvalidParameter;
 
 	*lastPoint = g_array_index (path->points, GpPointF, path->count - 1);
 	return Ok;
@@ -711,7 +728,8 @@ GpStatus
 GdipAddPathArc (GpPath *path, float x, float y, 
                 float width, float height, float startAngle, float sweepAngle)
 {
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!path)
+		return InvalidParameter;
 
 	/* draw the arcs */
 	append_arcs (path, x, y, width, height, startAngle, sweepAngle);
@@ -724,7 +742,8 @@ GdipAddPathBezier (GpPath *path,
                    float x1, float y1, float x2, float y2, 
                    float x3, float y3, float x4, float y4)
 {
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!path)
+		return InvalidParameter;
 
         append (path, x1, y1, PathPointTypeLine);
         append_bezier (path, x2, y2, x3, y3, x4, y4);
@@ -785,10 +804,8 @@ GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count,
         int offset, int numberOfSegments, float tension)
 {
         GpPointF *tangents;
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (points != NULL, InvalidParameter);
 
-	if (numberOfSegments < 1)
+	if (!path || !points || (numberOfSegments < 1))
 		return InvalidParameter;
 
 	/* we need 3 points for the first curve, 2 more for each curves */
@@ -819,8 +836,8 @@ GpStatus
 GdipAddPathClosedCurve2 (GpPath *path, const GpPointF *points, int count, float tension)
 {
         GpPointF *tangents;
-	g_return_val_if_fail (points != NULL, InvalidParameter);
-	if (count < 3)
+
+	if (!path || !points || (count < 3))
 		return InvalidParameter;
 
         tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
@@ -839,7 +856,8 @@ GdipAddPathClosedCurve2 (GpPath *path, const GpPointF *points, int count, float 
 GpStatus
 GdipAddPathRectangle (GpPath *path, float x, float y, float width, float height)
 {
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!path)
+		return InvalidParameter;
 
         append (path, x, y, PathPointTypeStart);
         append (path, x + width, y, PathPointTypeLine);
@@ -853,8 +871,9 @@ GpStatus
 GdipAddPathRectangles (GpPath *path, const GpRectF *rects, int count)
 {
         int i;
-	g_return_val_if_fail (path != NULL, InvalidParameter);
-	g_return_val_if_fail (rects != NULL, InvalidParameter);
+
+	if (!path || !rects)
+		return InvalidParameter;
 
         for (i = 0; i < count; i++) {
                 float x = rects[i].X;
@@ -875,7 +894,9 @@ GdipAddPathEllipse (GpPath *path, float x, float y, float width, float height)
         double ry = height / 2;
         double cx = x + rx;
         double cy = y + ry;
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+
+	if (!path)
+		return InvalidParameter;
 
         /* origin */
         append (path, cx + rx, cy, PathPointTypeStart);
@@ -929,7 +950,8 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
         float sin_alpha = sin (alpha);
         float cos_alpha = cos (alpha);
 
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!path)
+		return InvalidParameter;
 
         /* move to center */
         append (path, cx, cy, PathPointTypeStart);
@@ -1251,7 +1273,8 @@ GdipAddPathClosedCurve2I (GpPath *path, const GpPoint *points, int count, float 
 	GpPointF *pt;
 	Status s;
 
-	g_return_val_if_fail (points != NULL, InvalidParameter);
+	if (!path || !points)
+		return InvalidParameter;
 
 	pt = convert_points (points, count);
 	if (!pt)
@@ -1274,7 +1297,9 @@ GpStatus
 GdipAddPathRectanglesI (GpPath *path, const GpRect *rects, int count)
 {
         int i;
-	g_return_val_if_fail (rects != NULL, InvalidParameter);
+
+	if (!path || !rects)
+		return InvalidParameter;
 
         for (i = 0; i < count; i++) {
                 float x = (float) rects[i].X;
@@ -1450,7 +1475,8 @@ GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 	GByteArray *types;
 	int i;
 
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!path)
+		return InvalidParameter;
 
 	/* apply matrix before flattening (as there's less points at this stage) */
 	if (matrix) {
@@ -1635,7 +1661,8 @@ GdipTransformPath (GpPath* path, GpMatrix *matrix)
 	int count;
         Status s;
 
-	g_return_val_if_fail (path != NULL, InvalidParameter);
+	if (!path)
+		return InvalidParameter;
 
 	count = path->count;
 	if (count == 0)
