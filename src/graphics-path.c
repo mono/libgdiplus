@@ -1691,7 +1691,7 @@ GpStatus
 GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
 	GpStatus status;
-	GpPath *workpath;
+	GpPath *workpath = NULL;
 
 	if (!path || !bounds)
 		return InvalidParameter;
@@ -1706,8 +1706,11 @@ GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, c
 	}
 
 	status = GdipClonePath (path, &workpath);
-	if (status != Ok)
+	if (status != Ok) {
+		if (workpath)
+			GdipDeletePath (workpath);
 		return status;
+	}
 
 	/* We don't need a very precise flat value to get the bounds (GDI+ isn't, big time) -
 	 * however flattening helps by removing curves, making the rest of the algorithm a 
@@ -1836,7 +1839,7 @@ GpStatus
 GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result)
 {
 	GpStatus status = Ok;
-	GpPath *workpath;
+	GpPath *workpath = NULL;
 	int start, end;
 
 	if (!path || !result)
@@ -1847,8 +1850,11 @@ GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bo
 	/* we clone the supplied path if it contains curves (we only deal with lines) */
 	if (gdip_path_has_curve (path)) {
 		status = GdipClonePath (path, &workpath);
-		if (status != Ok)
+		if (status != Ok) {
+			if (workpath)
+				GdipDeletePath (workpath);
 			return status;
+		}
 
 		status = GdipFlattenPath (workpath, NULL, 25.0f);
 	} else {
@@ -1920,7 +1926,7 @@ GpStatus
 GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpPen *pen, GpGraphics *graphics, bool *result)
 {
 	GpStatus status = Ok;
-	GpPath *workpath;
+	GpPath *workpath = NULL;
 
 	if (!path || !pen || !result)
 		return InvalidParameter;
@@ -1935,8 +1941,11 @@ GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpPen *pen, GpGra
 	/* we clone the supplied path if it contains curves (we only deal with lines) */
 	if (gdip_path_has_curve (path)) {
 		status = GdipClonePath (path, &workpath);
-		if (status != Ok)
+		if (status != Ok) {
+			if (workpath)
+				GdipDeletePath (workpath);
 			return status;
+		}
 
 		status = GdipFlattenPath (workpath, NULL, 25.0f);
 	} else {

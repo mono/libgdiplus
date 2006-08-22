@@ -403,8 +403,11 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, int count, GpWrapMode wrapMo
 		return OutOfMemory;
 
 	status = GdipCreatePath (FillModeAlternate, /* ??? */ &gppath);
-	if (status != Ok)
+	if (status != Ok) {
+		if (gppath)
+			GdipDeletePath (gppath);
 		return status;
+	}
 
 	GdipAddPathLine2 (gppath, points, count);
 

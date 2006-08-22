@@ -1,3 +1,12 @@
+2006-08-22  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: Ensure (3) that we delete a GraphicsPath even if
+	it's cloning failed (e.g. memory could have been allocated).
+	* pathgradientbrush.c: Ensure that we delete a GraphicsPath even if
+	it's creation failed (e.g. memory could have been allocated).
+	* region.c: Ensure that we delete a GraphicsPath even if it's creation
+	failed (e.g. memory could have been allocated).
+
 2006-08-21  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.h: Export gdip_path_has_curve to avoid code 

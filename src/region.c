@@ -949,8 +949,11 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 
 		/* Convert GpRectF to GpPath and use GdipCombineRegionPath */
 		status = GdipCreatePath (FillModeAlternate, &path);
-		if (status != Ok)
+		if (status != Ok) {
+			if (path)
+				GdipDeletePath (path);
 			return status;
+		}
 		GdipAddPathRectangle (path, rect->X, rect->Y, rect->Width, rect->Height);
 		status = GdipCombineRegionPath (region, path, combineMode);
 		GdipDeletePath (path);
