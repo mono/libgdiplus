@@ -88,6 +88,7 @@ GdipDisposeImage (GpImage *image)
 	Microsoft GDI+ only supports these pixel formats Format24bppRgb, Format32bppArgb, 
 	Format32bppPArgb, Format32bppRgb, Format48bppRgb, Format64bppArgb, Format64bppPArgb
 */
+/* coverity[+alloc : arg-*1] */
 GpStatus 
 GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 {
@@ -123,6 +124,7 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 
 #include <cairo-ps.h>
 
+/* coverity[+alloc : arg-*5] */
 GpStatus 
 GdipGetPostScriptGraphicsContext (char* filename, int width, int height, double dpix, double dpiy, GpGraphics **graphics)
 {
@@ -609,6 +611,7 @@ GdipSaveImageToStream (GpImage *image, void *stream, GDIPCONST CLSID *encoderCLS
 	return NotImplemented; /* GdipSaveImageToStream - not supported */
 }
 
+/* coverity[+alloc : arg-*1] */
 GpStatus 
 GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 {
@@ -1005,7 +1008,7 @@ GdipImageGetFrameCount(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* coun
 GpStatus
 GdipImageSelectActiveFrame(GpImage *image, GDIPCONST GUID *dimensionGUID, UINT index)
 {
-        if ((image == NULL) || (dimensionGUID == NULL) || (index <0)) {
+        if ((image == NULL) || (dimensionGUID == NULL)) {
                 return InvalidParameter;
 	}
 
@@ -1522,7 +1525,7 @@ GdipGetPropertyIdList (GpImage *image, UINT propertyNumber, PROPID *list)
 {
 	int	i;
 
-	if ((list == NULL) || (propertyNumber != image->active_bitmap->property_count)) {
+	if (!image || !list || (propertyNumber != image->active_bitmap->property_count)) {
 		return InvalidParameter;
 	}
 	for (i = 0; i < propertyNumber; i++) {
@@ -2172,6 +2175,7 @@ GdipGetImageThumbnail(GpImage *image, UINT thumbWidth, UINT thumbHeight, GpImage
 	return NotImplemented;
 }
 
+/* coverity[+alloc : arg-*1] */
 GpStatus
 GdipLoadImageFromFileICM(GDIPCONST WCHAR* filename, GpImage **image)
 {

@@ -245,7 +245,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	}
 }
 
-
+/* coverity[+alloc : arg-*0] */
 GpStatus
 GdipCreateImageAttributes (GpImageAttributes **imageattr)
 {
@@ -255,6 +255,11 @@ GdipCreateImageAttributes (GpImageAttributes **imageattr)
 		return InvalidParameter;
 
 	result = (GpImageAttributes *) GdipAlloc (sizeof (GpImageAttributes));
+	if (!result) {
+		*imageattr = NULL;
+		return OutOfMemory;
+	}
+
 	gdip_init_image_attribute (&result->def);
 	gdip_init_image_attribute (&result->bitmap);
 	gdip_init_image_attribute (&result->brush);
@@ -267,7 +272,7 @@ GdipCreateImageAttributes (GpImageAttributes **imageattr)
 	return Ok;        
 }
 
-
+/* coverity[+alloc : arg-*1] */
 GpStatus
 GdipCloneImageAttributes (GDIPCONST GpImageAttributes *imageattr, GpImageAttributes **cloneImageattr)
 {
@@ -277,6 +282,10 @@ GdipCloneImageAttributes (GDIPCONST GpImageAttributes *imageattr, GpImageAttribu
 		return InvalidParameter;
 
 	result = (GpImageAttributes *) GdipAlloc (sizeof (GpImageAttributes));
+	if (!result) {
+		*cloneImageattr = NULL;
+		return OutOfMemory;
+	}
 
 	memcpy (result, imageattr, sizeof (GpImageAttributes));
 
@@ -454,8 +463,11 @@ GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType
 		return InvalidParameter;
 
 	if (colorMatrix) {
-		if (imgattr->colormatrix == NULL)
+		if (!imgattr->colormatrix) {
 			imgattr->colormatrix =  GdipAlloc (sizeof (GpColorMatrix));
+			if (!imgattr->colormatrix)
+				return OutOfMemory;
+		}
 
 		memcpy (imgattr->colormatrix, colorMatrix, sizeof (GpColorMatrix));
 	}

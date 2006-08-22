@@ -385,7 +385,7 @@ gdip_has_non_empty_color (GDIPCONST ARGB *colors, int count)
 	return FALSE;
 }
 
-
+/* coverity[+alloc : arg-*3] */
 GpStatus
 GdipCreatePathGradient (GDIPCONST GpPointF *points, int count, GpWrapMode wrapMode, GpPathGradient **polyGradient)
 {
@@ -432,6 +432,7 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, int count, GpWrapMode wrapMo
 	return Ok;
 }
 
+/* coverity[+alloc : arg-*3] */
 GpStatus
 GdipCreatePathGradientI (GDIPCONST GpPoint *points, int count, GpWrapMode wrapMode, GpPathGradient **polyGradient)
 {
@@ -460,6 +461,7 @@ GdipCreatePathGradientI (GDIPCONST GpPoint *points, int count, GpWrapMode wrapMo
 	return result;
 }
 
+/* coverity[+alloc : arg-*1] */
 GpStatus
 GdipCreatePathGradientFromPath (GDIPCONST GpPath *path, GpPathGradient **polyGradient)
 {

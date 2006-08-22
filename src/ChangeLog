@@ -1,3 +1,15 @@
+2006-08-22  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* bitmap.c: Added annotations for allocation functions.
+	* brush.c: Added annotations for allocation functions.
+	* imageattributes.c: Added annotations for allocation functions. Added
+	some out of memory checks.
+	* image.c: Added annotations for allocation functions. Fixed some 
+	parameters checks.
+	* pathgradientbrush.c: Added annotations for allocation functions.
+	* stringformat.c: Added annotations for allocation functions.
+	* texturebrush.c: Added annotations for allocation functions.
+
 2006-08-22  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c: Ensure (3) that we delete a GraphicsPath even if

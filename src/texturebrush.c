@@ -631,6 +631,7 @@ gdip_texture_destroy (GpBrush *brush)
 	return Ok;
 }
 
+/* coverity[+alloc : arg-*2] */
 GpStatus
 GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 {
@@ -682,12 +683,14 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 	return Ok;
 }
 
+/* coverity[+alloc : arg-*6] */
 GpStatus
 GdipCreateTexture2 (GpImage *image, GpWrapMode wrapMode, float x, float y, float width, float height, GpTexture **texture)
 {
 	return GdipCreateTexture2I (image, wrapMode, (int) x, (int) y, (int) width, (int) height, texture);
 }
 
+/* coverity[+alloc : arg-*6] */
 GpStatus
 GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int width, int height, GpTexture **texture)
 {
@@ -763,6 +766,7 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 	return Ok;
 }
 
+/* coverity[+alloc : arg-*6] */
 GpStatus
 GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x, float y, float width, float height, GpTexture **texture)
 {
@@ -771,6 +775,7 @@ GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x
 	return GdipCreateTexture2 (image, WrapModeTile, x, y, width, height, texture);
 }
 
+/* coverity[+alloc : arg-*6] */
 GpStatus
 GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x, int y, int width, int height, GpTexture **texture)
 {

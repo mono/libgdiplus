@@ -25,6 +25,7 @@
 
 #include "gdip.h"
 
+/* coverity[+alloc : arg-*2] */
 GpStatus
 GdipCreateStringFormat (int formatAttributes, int language, GpStringFormat  **format)
 {
@@ -54,6 +55,7 @@ GdipCreateStringFormat (int formatAttributes, int language, GpStringFormat  **fo
 	return Ok;
 }
 
+/* coverity[+alloc : arg-*0] */
 GpStatus
 GdipStringFormatGetGenericDefault (GpStringFormat **format)
 {
@@ -83,6 +85,7 @@ GdipStringFormatGetGenericDefault (GpStringFormat **format)
 	return Ok;
 }
 
+/* coverity[+alloc : arg-*0] */
 GpStatus
 GdipStringFormatGetGenericTypographic (GpStringFormat **format)
 {
@@ -112,6 +115,7 @@ GdipStringFormatGetGenericTypographic (GpStringFormat **format)
 	return Ok;
 }
 
+/* coverity[+alloc : arg-*1] */
 GpStatus
 GdipCloneStringFormat (GDIPCONST GpStringFormat *format,  GpStringFormat **newFormat)
 {

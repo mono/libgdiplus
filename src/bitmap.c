@@ -758,18 +758,21 @@ gdip_bitmap_dispose (GpBitmap *bitmap)
 	}
 }
 
+/* coverity[+alloc : arg-*1] */
 GpStatus
 GdipCreateBitmapFromFile (GDIPCONST WCHAR* filename, GpBitmap **bitmap)
 {
 	return GdipLoadImageFromFile (filename, (GpImage **) bitmap);
 }
 
+/* coverity[+alloc : arg-*1] */
 GpStatus 
 GdipCreateBitmapFromFileICM (GDIPCONST WCHAR* filename, GpBitmap **bitmap)
 {
 	return GdipCreateBitmapFromFile (filename, bitmap);
 }
 
+/* coverity[+alloc : arg-*5] */
 GpStatus 
 GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *scan0, GpBitmap **bitmap)
 {
@@ -943,6 +946,7 @@ fail:
 	return status;
 }
 
+/* coverity[+alloc : arg-*3] */
 GpStatus
 GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBitmap **bitmap)
 {
@@ -988,6 +992,7 @@ fail:
 	return OutOfMemory;
 }
 
+/* coverity[+alloc : arg-*2] */
 GpStatus
 GdipCreateBitmapFromHBITMAP(void *hbm, void *hpal, GpBitmap** bitmap)
 {
@@ -1019,6 +1024,7 @@ GdipCreateBitmapFromResource(void *hInstance, GDIPCONST WCHAR *lpBitmapName, GpB
 	return(NotImplemented);
 }
 
+/* coverity[+alloc : arg-*6] */
 GpStatus
 GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
 					  GpBitmap *original, GpBitmap **bitmap)
@@ -1060,6 +1066,7 @@ fail:
 	return status;
 }
 
+/* coverity[+alloc : arg-*6] */
 GpStatus
 GdipCloneBitmapArea (float x, float y, float w, float h, PixelFormat format,
 					 GpBitmap *original, GpBitmap **bitmap)

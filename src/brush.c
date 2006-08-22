@@ -59,6 +59,7 @@ gdip_brush_setup (GpGraphics *graphics, GpBrush *brush)
 	}
 }
 
+/* coverity[+alloc : arg-*1] */
 GpStatus 
 GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush)
 {
