@@ -412,7 +412,7 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, int size, GpRegion **region
 		return GenericError;
 
 	result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
-	result->type = *(guint32*) regionData;
+	memcpy (&result->type, regionData, sizeof (guint32));
 	result->cnt = 0;
         result->rects = NULL;
 	result->tree = NULL;

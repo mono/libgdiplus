@@ -1,9 +1,10 @@
-2006-08-23  Sebastien Pouliot  <sebastien@ximian.com> 
+2006-08-23  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* general.c: Don't manipulate individual bytes when converting ucs4 to
 	ucs2.
 	* graphics.c: In GdipFillRegion ensure the GpGraphics and GpImage are 
 	correctly freed even if their allocation function didn't return Ok.
+	* region.c: Fix endian bug when reading region data type;
 
 2006-08-22  Sebastien Pouliot  <sebastien@ximian.com> 
 
