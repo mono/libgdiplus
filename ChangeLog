@@ -1,3 +1,8 @@
+2006-08-23 Wade Berrier <wberrier@novell.com>
+
+	* cairo/configure.in: Use a backward compatible method of finding
+	pkg-config instead of the >= 0.16 macro.
+
 2006-08-15 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* configure.in: properly disable exif support when asked to do so.

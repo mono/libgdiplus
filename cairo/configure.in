@@ -82,7 +82,13 @@ LIBS="$LIBS $LIBM"
 
 dnl ===========================================================================
 
-PKG_PROG_PKG_CONFIG
+# This macro requires a newer than 0.15 pkg-config, which we don't always have
+# Use an older method instead
+#PKG_PROG_PKG_CONFIG
+AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
+if test "x$PKG_CONFIG" = "xno"; then
+        AC_MSG_ERROR([You need to install pkg-config])
+fi
 
 dnl ===========================================================================
 dnl
