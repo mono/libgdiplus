@@ -1972,7 +1972,7 @@ GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 	/* if this is a region with a complex path */
 	if (region->type == RegionTypePath) {
 		GpStatus status;
-		GpBitmap *bitmap;
+		GpBitmap *bitmap = NULL;
 
 		/* (optimization) if if the path is empty, return immediately */
 		if (!region->tree)
@@ -1994,7 +1994,7 @@ GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 
 		status = GdipCreateBitmapFromGraphics (region->bitmap->Width, region->bitmap->Height, graphics, &bitmap);
 		if (status == Ok) {
-			GpGraphics *bitgraph;
+			GpGraphics *bitgraph = NULL;
 			status = GdipGetImageGraphicsContext ((GpImage*)bitmap, &bitgraph);
 			if (status == Ok) {
 				/* fill the "full" rectangle using the specified brush */
@@ -2006,12 +2006,12 @@ GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 				/* draw the region */
 				status = GdipDrawImageRect (graphics, (GpImage*)bitmap, region->bitmap->X, region->bitmap->Y,
 					region->bitmap->Width, region->bitmap->Height);
-
-				GdipDeleteGraphics (bitgraph);
 			}
-
-			GdipDisposeImage ((GpImage*)bitmap);
+			if (bitgraph)
+				GdipDeleteGraphics (bitgraph);
 		}
+		if (bitmap)
+			GdipDisposeImage ((GpImage*)bitmap);
 		return status;
 	}
 
