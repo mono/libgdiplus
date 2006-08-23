@@ -1,3 +1,8 @@
+2006-08-23  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* general.c: Don't manipulate individual bytes when converting ucs4 to
+	ucs2.
+
 2006-08-22  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* bitmap.c: Added annotations for allocation functions.
