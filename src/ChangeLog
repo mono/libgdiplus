@@ -1,3 +1,7 @@
+2006-08-24  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* region-path-tree.c: Fix some endian bug when deserializing a tree.
+
 2006-08-24 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 
 	* dstream.c: (read_from_buffer) return the number of bytes actually

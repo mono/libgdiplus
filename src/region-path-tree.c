@@ -130,11 +130,11 @@ gdip_region_deserialize_tree (BYTE *data, int size, GpPathTree *tree)
 		tree->branch1 = NULL;
 		tree->branch2 = NULL;
 		/* count */
-		count = (guint32) *data;
+		memcpy (&count, data, len);
 		data += len;
 		size -= len;
 		/* mode (FillMode, not CombineMode) */
-		mode = (GpFillMode) *data;
+		memcpy (&mode, data, len);
 		data += len;
 		size -= len;
 		/* check that the size match the length of the type (byte) and 
@@ -151,11 +151,11 @@ gdip_region_deserialize_tree (BYTE *data, int size, GpPathTree *tree)
 		guint branch_size;
 		tree->path = NULL;
 		/* operation */
-		tree->mode = (CombineMode) *data;
+		memcpy (&tree->mode, data, len);
 		data += len;
 		size -= len;
 		/* size (branch1) */
-		branch_size = (guint32) *data;
+		memcpy (&branch_size, data, len);
 		data += len;
 		size -= len;
 		/* deserialize a tree from the memory blob */
@@ -165,7 +165,7 @@ gdip_region_deserialize_tree (BYTE *data, int size, GpPathTree *tree)
 		data += branch_size;
 		size -= branch_size;
 		/* size (branch2) */
-		branch_size = (guint32) *data;
+		memcpy (&branch_size, data, len);
 		data += len;
 		size -= len;
 		tree->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
