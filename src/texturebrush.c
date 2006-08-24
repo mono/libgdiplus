@@ -1,7 +1,7 @@
 /*
  * texturebrush.c
  *
- * Copyright (C) Novell, Inc. 2003-2004.
+ * Copyright (C) 2003,2006 Novell, Inc. http://www.novell.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -46,9 +46,12 @@ gdip_texture_init (GpTexture *texture)
 {
 	gdip_brush_init (&texture->base, &vtable);
 	texture->wrapMode = WrapModeTile;
-	texture->rectangle = NULL;
+	texture->rectangle.X = 0;
+	texture->rectangle.Y = 0;
+	texture->rectangle.Width = 0;
+	texture->rectangle.Height = 0;
 	texture->pattern = NULL;
-	GdipCreateMatrix (&texture->matrix);
+	cairo_matrix_init_identity (&texture->matrix);
 }
 
 GpTexture *
@@ -73,7 +76,7 @@ draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat;
 	GpStatus	status;
-	GpRect		*rect = brush->rectangle;
+	GpRect		*rect = &brush->rectangle;
 	cairo_t		*ct2;
 
 	if (rect == NULL)  {
@@ -128,7 +131,7 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_surface_t *original;
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat;
-	GpRect		*rect = brush->rectangle;
+	GpRect		*rect = &brush->rectangle;
 	GpStatus	status;
 	cairo_t		*ct2;
 	cairo_matrix_t	tempMatrix;
@@ -199,7 +202,7 @@ draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat;
 	GpMatrix	tempMatrix;
-	GpRect		*rect = brush->rectangle;
+	GpRect		*rect = &brush->rectangle;
 	GpStatus	status;
 	cairo_t		*ct2;
 
@@ -269,7 +272,7 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat;
 	GpMatrix	tempMatrix;
-	GpRect		*rect = brush->rectangle;
+	GpRect		*rect = &brush->rectangle;
 	GpStatus	status;
 	cairo_t		*ct2;
 
@@ -365,13 +368,9 @@ draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_surface_t *original;
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat;
-	GpRect		*rect = brush->rectangle;
+	GpRect		*rect = &brush->rectangle;
 	GpStatus	status;
 	cairo_t		*ct2;
-
-	if (rect == NULL) {
-		return InvalidParameter;
-	}
 
 	/* Original image surface */
 	gdip_bitmap_ensure_surface (bitmap);
@@ -541,7 +540,7 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 
 	if (pattern != NULL) {
 		/* Use both the matrices */
-		cairo_matrix_multiply (product, texture->matrix, graphics->copy_of_ctm);
+		cairo_matrix_multiply (product, &texture->matrix, graphics->copy_of_ctm);
 		cairo_matrix_invert (product);
 		cairo_pattern_set_matrix (pattern, product);
 		cairo_set_source (ct, pattern);
@@ -559,10 +558,10 @@ gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush)
 {
 	GpTexture *result;
 	GpTexture *texture;
+	GpStatus status;
 
-	if (brush == NULL) {
+	if (!brush || !clonedBrush)
 		return InvalidParameter;
-	}
 
 	result = (GpTexture *) GdipAlloc (sizeof (GpTexture));
 	if (result == NULL) {
@@ -578,16 +577,18 @@ gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush)
 	result->base.changed = TRUE;
 
 	gdip_cairo_matrix_copy (&result->matrix, &texture->matrix);
-	result->rectangle = (GpRect *) GdipAlloc (sizeof (GpRect));
+	result->rectangle.X = texture->rectangle.X;
+	result->rectangle.Y = texture->rectangle.Y;
+	result->rectangle.Width = texture->rectangle.Width;
+	result->rectangle.Height = texture->rectangle.Height;
 
-	if (result->rectangle == NULL) {
-		GdipFree (result);
-		return OutOfMemory;
+	result->image = NULL;
+	status = GdipCloneImage (texture->image, &result->image);
+	if (status != Ok) {
+		if (result->image)
+			GdipDisposeImage (result->image);
+		return status;
 	}
-
-	memcpy (result->rectangle, texture->rectangle, sizeof (GpRect));
-
-	result->image = texture->image;
 	cairo_surface_reference (result->image->surface);
 
 	*clonedBrush = (GpBrush *) result;
@@ -606,11 +607,6 @@ gdip_texture_destroy (GpBrush *brush)
 
 	texture = (GpTexture *) brush;
 
-	if (texture->rectangle) {
-		GdipFree (texture->rectangle);
-		texture->rectangle = NULL;
-	}
-
 	if (texture->pattern) {
 		cairo_pattern_destroy (texture->pattern);
 		texture->pattern = NULL;
@@ -619,11 +615,6 @@ gdip_texture_destroy (GpBrush *brush)
 	if (texture->image) {
 		GdipDisposeImage (texture->image);
 		texture->image = NULL;
-	}
-
-	if (texture->matrix) {
-		GdipDeleteMatrix (texture->matrix);
-		texture->matrix = NULL;
 	}
 
 	GdipFree (texture);
@@ -637,10 +628,13 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 {
 	cairo_surface_t *imageSurface;
 	GpTexture	*result;
+	GpStatus status;
 
-	if (image == NULL) {
+	if (!image || !texture)
 		return InvalidParameter;
-	}
+
+	if ((wrapMode < WrapModeTile) || (wrapMode > WrapModeClamp))
+		return OutOfMemory;
 
 	if (image->type != imageBitmap) {
 		return NotImplemented;
@@ -659,25 +653,24 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 		return OutOfMemory;
 	}
 
+	result->image = NULL;
+	status = GdipCloneImage (image, &result->image);
+	if (status != Ok) {
+		if (result->image)
+			GdipDisposeImage (result->image);
+		cairo_surface_destroy (imageSurface);
+		return status;
+	}
+
 	result->wrapMode = wrapMode;
-	GdipCloneImage (image, &result->image);
 	if (result->image->surface != NULL) {
 		cairo_surface_destroy(result->image->surface);
 	}
 	result->image->surface = imageSurface;
-
-	result->rectangle = (GpRect *) GdipAlloc (sizeof (GpRect));
-
-	if (result->rectangle == NULL) {
-		cairo_surface_destroy (imageSurface);
-		GdipFree (result);
-		return OutOfMemory;
-	}
-
-	result->rectangle->X = 0;
-	result->rectangle->Y = 0;
-	result->rectangle->Width = image->active_bitmap->width;
-	result->rectangle->Height = image->active_bitmap->height;
+	result->rectangle.X = 0;
+	result->rectangle.Y = 0;
+	result->rectangle.Width = image->active_bitmap->width;
+	result->rectangle.Height = image->active_bitmap->height;
 
 	*texture = result;
 	return Ok;
@@ -699,29 +692,29 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 	cairo_t		*ct;
 	cairo_surface_t *original;
 	cairo_surface_t	*new;
+	GpTexture	*result;
+	GpStatus status;
 
-	if (image == NULL) {
+	if (!image || !texture)
 		return InvalidParameter;
-	}
 
-	if (image->type != imageBitmap) {
+	if ((wrapMode < WrapModeTile) || (wrapMode > WrapModeClamp))
+		return OutOfMemory;
+
+	if (image->type != imageBitmap)
 		return NotImplemented;
-	}
 
 	bmpWidth = image->active_bitmap->width;
 	bmpHeight = image->active_bitmap->height;
 
 	/* MS behaves this way */
-	if (x < 0 || y < 0 || width < 0 || height < 0 || (bmpWidth < (x + width)) || (bmpHeight < (y + height))) {
-	     return OutOfMemory;
-	}
+	if ((x < 0) || (y < 0) || (width <= 0) || (height <= 0) || (bmpWidth < (x + width)) || (bmpHeight < (y + height)))
+		return OutOfMemory;
 
 	original = cairo_image_surface_create_for_data ((unsigned char *)image->active_bitmap->scan0, 
 			image->cairo_format, x + width, y + height, image->active_bitmap->stride);
-
-	if (original == NULL) {
+	if (!original)
 		return OutOfMemory;
-	}
 
 	/* texture surface to be used by brush */
 	new = cairo_surface_create_similar (original, from_cairoformat_to_content (image->cairo_format), width, height);
@@ -739,30 +732,31 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 	cairo_destroy (ct);
 	cairo_surface_destroy (original);
 
-	image->surface = new;
-
-	*texture = gdip_texture_new ();
-
-	if (*texture == NULL) {
+	result = gdip_texture_new ();
+	if (!result) {
 		cairo_surface_destroy (new);
 		return OutOfMemory;
 	}
 
-	(*texture)->wrapMode = wrapMode;
-	(*texture)->image = image;
-	(*texture)->rectangle = (GpRect *) GdipAlloc (sizeof (GpRect));
-
-	if ( (*texture)->rectangle == NULL) {
+	result->image = NULL;
+	status = GdipCloneImage (image, &result->image);
+	if (status != Ok) {
+		if (result->image)
+			GdipDisposeImage (result->image);
 		cairo_surface_destroy (new);
-		GdipFree (*texture);
-		return OutOfMemory;
+		return status;
 	}
 
-	(*texture)->rectangle->X = x;
-	(*texture)->rectangle->Y = y;
-	(*texture)->rectangle->Width = width;
-	(*texture)->rectangle->Height = height;
+	if (result->image->surface)
+		cairo_surface_destroy (result->image->surface);
+	result->image->surface = new;
+	result->wrapMode = wrapMode;
+	result->rectangle.X = x;
+	result->rectangle.Y = y;
+	result->rectangle.Width = width;
+	result->rectangle.Height = height;
 
+	*texture = result;
 	return Ok;
 }
 
@@ -772,7 +766,8 @@ GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x
 {
 	/* FIXME MonoTODO: Make use of ImageAttributes parameter when
 	 * ImageAttributes is implemented */
-	return GdipCreateTexture2 (image, WrapModeTile, x, y, width, height, texture);
+	GpWrapMode mode = imageAttributes ? WrapModeClamp : WrapModeTile;
+	return GdipCreateTexture2 (image, mode, x, y, width, height, texture);
 }
 
 /* coverity[+alloc : arg-*6] */
@@ -781,7 +776,8 @@ GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x,
 {
 	/* FIXME MonoTODO: Make use of ImageAttributes parameter when
 	 * ImageAttributes is implemented */
-	return GdipCreateTexture2I (image, WrapModeTile, x, y, width, height, texture);
+	GpWrapMode mode = imageAttributes ? WrapModeClamp : WrapModeTile;
+	return GdipCreateTexture2I (image, mode, x, y, width, height, texture);
 }
 
 GpStatus
@@ -815,7 +811,7 @@ GdipResetTextureTransform (GpTexture *texture)
 		return InvalidParameter;
 	}
 
-	 cairo_matrix_init_identity (texture->matrix);
+	cairo_matrix_init_identity (&texture->matrix);
 	texture->base.changed = TRUE;
 	return Ok;
 }
@@ -824,15 +820,25 @@ GpStatus
 GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrder order)
 {
 	GpStatus status;
+	BOOL invertible = FALSE;
+	cairo_matrix_t mat;
 
 	if ((texture == NULL) || (matrix == NULL)) {
 		return InvalidParameter;
 	}
 
-	/* FIXME: How to take care of rotation here ? */
-	status = GdipMultiplyMatrix (texture->matrix, matrix, order);
-	if (status == Ok)
-		texture->base.changed = TRUE;
+	/* the matrix MUST be invertible to be used */
+	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
+	if (!invertible || (status != Ok))
+		return InvalidParameter;
+
+	if (order == MatrixOrderPrepend)
+		cairo_matrix_multiply (&mat, matrix, &texture->matrix);
+	else if (order == MatrixOrderAppend)
+		cairo_matrix_multiply (&mat, &texture->matrix, matrix);
+
+	gdip_cairo_matrix_copy (&texture->matrix, &mat);
+	texture->base.changed = TRUE;
 	return status;
 }
 
@@ -845,7 +851,7 @@ GdipTranslateTextureTransform (GpTexture *texture, float dx, float dy, GpMatrixO
 		return InvalidParameter;
 	}
 
-	status = GdipTranslateMatrix (texture->matrix, dx, dy, order);
+	status = GdipTranslateMatrix (&texture->matrix, dx, dy, order);
 	if (status == Ok)
 		texture->base.changed = TRUE;
 	return status;
@@ -860,12 +866,13 @@ GdipScaleTextureTransform (GpTexture *texture, float sx, float sy, GpMatrixOrder
 		return InvalidParameter;
 	}
 
-	status = GdipScaleMatrix (texture->matrix, sx, sy, order);
+	status = GdipScaleMatrix (&texture->matrix, sx, sy, order);
 	if (status == Ok)
 		texture->base.changed = TRUE;
 	return status;
 }
 
+/* MonoTODO - FIXME - this hack affect the public transform and doesn't work with MultiplyTransform */
 GpStatus
 GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order)
 {
@@ -882,12 +889,12 @@ GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order
 	 */
 
 	/* Our pattern size is 2*(texture->rect) hence its centre is following */
-	axis.X = texture->rectangle->Width;
-	axis.Y = texture->rectangle->Height;
+	axis.X = texture->rectangle.Width;
+	axis.Y = texture->rectangle.Height;
 
-	if ((status = GdipTranslateMatrix (texture->matrix, -axis.X, -axis.Y, order)) == Ok) {
-		if ((status = GdipRotateMatrix (texture->matrix, angle, order)) == Ok) {
-			if ((status = GdipTranslateMatrix (texture->matrix, axis.X, axis.Y, order)) == Ok) {
+	if ((status = GdipTranslateMatrix (&texture->matrix, -axis.X, -axis.Y, order)) == Ok) {
+		if ((status = GdipRotateMatrix (&texture->matrix, angle, order)) == Ok) {
+			if ((status = GdipTranslateMatrix (&texture->matrix, axis.X, axis.Y, order)) == Ok) {
 				texture->base.changed = TRUE;
 			}
 		}
@@ -898,9 +905,12 @@ GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order
 GpStatus
 GdipSetTextureWrapMode (GpTexture *texture, GpWrapMode wrapMode)
 {
-	if (texture == NULL) {
+	if (texture == NULL)
 		return InvalidParameter;
-	}
+
+	/* ignore invalid GpWrapMode value */
+	if ((wrapMode < WrapModeTile) || (wrapMode > WrapModeClamp))
+		return Ok;
 
 	texture->wrapMode = wrapMode;
 	texture->base.changed = TRUE;
@@ -911,21 +921,19 @@ GdipSetTextureWrapMode (GpTexture *texture, GpWrapMode wrapMode)
 GpStatus
 GdipGetTextureWrapMode (GpTexture *texture, GpWrapMode *wrapMode)
 {
-	if (texture == NULL) {
+	if (!texture || !wrapMode)
 		return InvalidParameter;
-	}
 
 	*wrapMode = texture->wrapMode;
 	return Ok;
 }
 
+/* coverity[+alloc : arg-*1] */
 GpStatus
 GdipGetTextureImage (GpTexture *texture, GpImage **image)
 {
-	if ((texture == NULL) || (image == NULL)) {
+	if (!texture || !image)
 		return InvalidParameter;
-	}
 
-	*image = texture->image;
-	return Ok;
+	return GdipCloneImage (texture->image, image);
 }

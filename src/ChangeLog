@@ -1,6 +1,13 @@
-2006-08-24  Sebastien Pouliot  <sebastien@ximian.com>
+2006-08-24  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* region-path-tree.c: Fix some endian bug when deserializing a tree.
+	* texturebrush.c: Adjust source for matrix and rectangle changes. 
+	Ensure we're always cloning (correctly) the image (i.e. no pointer 
+	assignment). Review parameter checks. Fix GdipGetTextureImage to 
+	return a clone of the image. Fix some leaks detected with valgrind.
+	* texturebrush.h: Changed GpTexture not to require extra memory 
+	allocations for the matrix and the rectangle (it simplifies the code
+	and help avoid leaks).
 
 2006-08-24 Gonzalo Paniagua Javier <gonzalo@ximian.com>
 

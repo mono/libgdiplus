@@ -4,7 +4,7 @@
  * Author:
  *      Ravindra (rkumar@novell.com)
  *
- * Copyright (C) 2004 Novell, Inc. http://www.novell.com
+ * Copyright (C) 2004,2006 Novell, Inc. http://www.novell.com
  */
 
 #ifndef _TEXTURE_H
@@ -19,8 +19,8 @@ typedef struct _Texture GpTexture;
 typedef struct _Texture {
 	GpBrush base;
 	GpImage *image;
-	GpMatrix *matrix;
-	GpRect *rectangle;
+	cairo_matrix_t matrix;
+	GpRect rectangle;
 	GpWrapMode wrapMode;
 	cairo_pattern_t *pattern;
 } Texture;
