@@ -420,10 +420,11 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, int size, GpRegion **region
 
 	switch (result->type) {
 	case RegionTypeRectF: {
-		guint32 count = (guint32) *(regionData + 4);
+		guint32 count;
 		GpRectF *rect;
 		int i;
 
+		memcpy (&count, regionData + 4, sizeof (guint32));
 		if (count != (size - 8) / sizeof (GpRectF)) {
 			GdipFree (result);
 			return InvalidParameter;
