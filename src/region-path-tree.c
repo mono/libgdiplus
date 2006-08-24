@@ -116,7 +116,9 @@ BOOL
 gdip_region_deserialize_tree (BYTE *data, int size, GpPathTree *tree)
 {
 	int len = sizeof (guint32);
-	guint32 tag = (guint32) *data;
+	guint32 tag;
+
+	memcpy (&tag, data, len);
 	data += len;
 	size -= len;
 
