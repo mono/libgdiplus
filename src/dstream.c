@@ -64,7 +64,7 @@ read_from_buffer (dstream_private *loader, void *buffer, int size)
 	
 	memcpy (buffer, loader->buffer + loader->position, nbytes);
 	loader->position += nbytes;
-	return size;
+	return nbytes;
 }
 
 static void
@@ -77,8 +77,7 @@ fill_buffer (dstream_private *loader)
 		return;
 
 	if (loader->allocated == 0) {
-		if (loader->allocated <= 0)
-			loader->allocated = 65536;
+		loader->allocated = 65536;
 		loader->buffer = GdipAlloc (loader->allocated);
 		if (loader->buffer == NULL) {
 			/* what? */
