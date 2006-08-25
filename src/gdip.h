@@ -50,12 +50,6 @@
 		((unsigned char *)(pixel))[index+2] = g; \
 		((unsigned char *)(pixel))[index+3] = b; \
 	} while (0)
-#define get_pixel_bgra(color, b, g, r, a) do { \
-		a = (color & 0x000000ff); \
-		r = (color & 0x0000ff00) >> 8; \
-		g = (color & 0x00ff0000) >> 16; \
-		b = (color & 0xff000000) >> 24; \
-	} while (0)
 #else
 #define set_pixel_bgra(pixel,index,b,g,r,a) do { \
 		((unsigned char *)(pixel))[index+0] = b; \
@@ -63,13 +57,13 @@
 		((unsigned char *)(pixel))[index+2] = r; \
 		((unsigned char *)(pixel))[index+3] = a; \
 	} while (0)
+#endif
 #define get_pixel_bgra(color, b, g, r, a) do { \
 		a = ((color & 0xff000000) >> 24); \
 		r = ((color & 0x00ff0000) >> 16); \
 		g = ((color & 0x0000ff00) >> 8); \
 		b = (color & 0x000000ff); \
 	} while(0)
-#endif
 
 #ifdef CAIRO_HAS_XLIB_SURFACE
 #ifdef USE_INCLUDED_CAIRO
