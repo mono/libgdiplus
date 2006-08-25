@@ -447,14 +447,14 @@ GdipGetImageAttributesAdjustedPalette (GpImageAttributes *imageattr, ColorPalett
 	return NotImplemented;
 }
 
-
+/* MonoTODO - grayMatrix and flags parameters are ignored */
 GpStatus 
-GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag,  GpColorMatrix* colorMatrix,
-	GpColorMatrix* grayMatrix, GpColorMatrixFlags flags)
+GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, 
+	GDIPCONST GpColorMatrix* colorMatrix, GDIPCONST GpColorMatrix* grayMatrix, GpColorMatrixFlags flags)
 {
 	GpImageAttribute *imgattr;
 	
-	if (!imageattr)
+	if (!imageattr || (!colorMatrix && enableFlag))
 		return InvalidParameter;
 		
 	imgattr = gdip_get_image_attribute (imageattr, type);

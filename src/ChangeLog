@@ -1,3 +1,11 @@
+2006-08-25  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* gdi.h: Add missing GDIPCONST to both GpColorMatrix parameters for
+	function GdipSetImageAttributesColorMatrix;
+	* imageattributes.c: Fix parameter validation on function
+	GdipSetImageAttributesColorMatrix, as colorMatrix can only be NULL if
+	enableFlag is FALSE. Added TODO for unimplemented features.
+
 2006-08-24  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* region-path-tree.c: Fix some endian bug when deserializing a tree.
