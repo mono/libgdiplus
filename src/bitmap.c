@@ -1480,7 +1480,11 @@ gdip_pixel_stream_get_next (StreamingState *state)
 		 * Note that pixel streams do not support 48- and 64-bit data at this time.
 		 */
 		if (state->pixels_per_byte == -4) {
+#if WORDS_BIGENDIAN
+			ret = state->scan [0] + (state->scan [1] << 8) + (state->scan [2] << 16) + (state->scan [3] << 24);
+#else
 			ret = *(unsigned int *)state->scan;
+#endif
 		} else {
 			ret = state->scan [0];
 			ret += (state->scan [1] << 8);

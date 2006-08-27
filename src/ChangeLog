@@ -1,3 +1,7 @@
+2006-08-27  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Fix endian issue in 32 bits bitmaps.
+
 2006-08-25  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* gdip.h: Macro get_pixel_bgra is endian safe.
