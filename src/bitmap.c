@@ -1618,14 +1618,9 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 		 * Note that pixel streams do not support 48- and 64-bit data at this time.
 		 */
 
-#if WORDS_BIGENDIAN
-		*(state->scan) = (pixel_value >> 16) & 0xFF;
-		*(state->scan + 1) = (pixel_value >> 24);
-		*(state->scan + 2) = (pixel_value & 0xFF);
-		*(state->scan + 3) = (pixel_value >> 8) & 0xFF;
-#else
-		*(unsigned int *)state->scan = pixel_value;
-#endif
+		set_pixel_bgra (state->scan, 0, (pixel_value & 0xFF), (pixel_value >> 8) & 0xFF,
+			(pixel_value >> 16) & 0xFF, (pixel_value >> 24));
+
 		 /* We always do 4 here, as the internal representation is always 32 bits */
 		state->scan += 4;
 		/* state->scan -= state->pixels_per_byte; */

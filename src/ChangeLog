@@ -1,3 +1,7 @@
+2006-08-28  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Remove WORDS_BIGENDIAN block and use endian-correct macro.
+
 2006-08-27  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bitmap.c: Fix endianess issues in locked bitmap.
