@@ -1,6 +1,6 @@
 2006-08-27  Sebastien Pouliot  <sebastien@ximian.com>
 
-	* bitmap.c: Fix endian issue in 32 bits bitmaps.
+	* bitmap.c: Fix endianess issues in locked bitmap.
 
 2006-08-25  Sebastien Pouliot  <sebastien@ximian.com> 
 
