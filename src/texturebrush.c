@@ -587,13 +587,15 @@ gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush)
 	if (status != Ok) {
 		if (result->image)
 			GdipDisposeImage (result->image);
-		return status;
+		GdipFree (result);
+		result = NULL;
+	} else {
+		cairo_surface_reference (result->image->surface);
 	}
-	cairo_surface_reference (result->image->surface);
 
 	*clonedBrush = (GpBrush *) result;
 
-	return Ok;
+	return status;
 }
 
 GpStatus
@@ -659,6 +661,8 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 		if (result->image)
 			GdipDisposeImage (result->image);
 		cairo_surface_destroy (imageSurface);
+		GdipFree (result);
+		*texture = NULL;
 		return status;
 	}
 
@@ -744,6 +748,8 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 		if (result->image)
 			GdipDisposeImage (result->image);
 		cairo_surface_destroy (new);
+		GdipFree (result);
+		*texture = NULL;
 		return status;
 	}
 
