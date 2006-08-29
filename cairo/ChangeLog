@@ -1,3 +1,10 @@
+2006-08-29  Chris Toshok  <toshok@ximian.com>
+
+	* src/cairo-font.c: implement One Giant Lock to fix the
+	thread-unsafe ref/unref code in this file.  Once there's proper
+	fix for this upstream we can roll it back into our code and remove
+	this hack.  But for now this keeps us from crashing.
+
 commit 61404bd5022b913f58ecda8dc9e8922b4fc6f80b
 Author: Carl Worth <cworth@cworth.org>
 Date:   Tue Jun 27 15:44:52 2006 +0200
