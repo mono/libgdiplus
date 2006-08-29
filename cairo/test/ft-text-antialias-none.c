@@ -33,10 +33,13 @@
 #define HEIGHT 30
 #define TEXT_SIZE 12
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "ft-text-antialias-none",
     "Tests text rendering with no antialiasing",
-    WIDTH, HEIGHT
+    WIDTH, HEIGHT,
+    draw
 };
 
 static cairo_scaled_font_t *
@@ -52,8 +55,7 @@ create_scaled_font (cairo_t * cr)
 
     font_options = cairo_font_options_create ();
 
-    /* disable hinting */
-    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_NONE);
+    cairo_get_font_options (cr, font_options);
 
     pattern = FcPatternCreate ();
 
@@ -127,5 +129,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

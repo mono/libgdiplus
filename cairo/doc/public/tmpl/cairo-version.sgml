@@ -124,6 +124,27 @@ if (cairo_version() >= %CAIRO_VERSION_ENCODE(1, 0, 0))
 
 
 
+<!-- ##### MACRO CAIRO_VERSION_MAJOR ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO CAIRO_VERSION_MINOR ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO CAIRO_VERSION_MICRO ##### -->
+<para>
+
+</para>
+
+
+
 <!-- ##### MACRO CAIRO_VERSION_STRING ##### -->
 <para>
 
@@ -139,5 +160,21 @@ if (cairo_version() >= %CAIRO_VERSION_ENCODE(1, 0, 0))
 @major: 
 @minor: 
 @micro: 
+
+
+<!-- ##### FUNCTION cairo_version ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_version_string ##### -->
+<para>
+
+</para>
+
+@Returns: 
 
 

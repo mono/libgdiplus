@@ -159,7 +159,7 @@ _cairo_array_grow_by (cairo_array_t *array, int additional)
  * beyond @num_elements are simply "forgotten".
  **/
 void
-_cairo_array_truncate (cairo_array_t *array, int num_elements)
+_cairo_array_truncate (cairo_array_t *array, unsigned int num_elements)
 {
     assert (! array->is_snapshot);
 
@@ -187,7 +187,7 @@ _cairo_array_truncate (cairo_array_t *array, int num_elements)
  *	    ... use values[i] here ...
  **/
 void *
-_cairo_array_index (cairo_array_t *array, int index)
+_cairo_array_index (cairo_array_t *array, unsigned int index)
 {
     /* We allow an index of 0 for the no-elements case.
      * This makes for cleaner calling code which will often look like:
@@ -287,7 +287,7 @@ _cairo_array_append_multiple (cairo_array_t	*array,
  **/
 cairo_status_t
 _cairo_array_allocate (cairo_array_t	 *array,
-		       int		  num_elements,
+		       unsigned int	  num_elements,
 		       void		**elements)
 {
     cairo_status_t status;

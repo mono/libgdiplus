@@ -30,10 +30,13 @@
 #define WIDTH 2
 #define HEIGHT 2
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "create-from-png",
     "Tests the creation of an image surface from a PNG file",
-    WIDTH, HEIGHT
+    WIDTH, HEIGHT,
+    draw
 };
 
 static cairo_test_status_t
@@ -76,5 +79,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

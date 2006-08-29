@@ -44,7 +44,7 @@
 #define CAIRO_TOLERANCE_MINIMUM	0.0002 /* We're limited by 16 bits of sub-pixel precision */
 
 static const cairo_t cairo_nil = {
-  (unsigned int)-1,		/* ref_count */
+  CAIRO_REF_COUNT_INVALID,	/* ref_count */
   CAIRO_STATUS_NO_MEMORY,	/* status */
   { 				/* path */
     NULL, NULL,			/* op_buf_head, op_buf_tail */
@@ -223,7 +223,7 @@ cairo_reference (cairo_t *cr)
     if (cr == NULL)
 	return NULL;
 
-    if (cr->ref_count == (unsigned int)-1)
+    if (cr->ref_count == CAIRO_REF_COUNT_INVALID)
 	return cr;
 
     assert (cr->ref_count > 0);
@@ -247,7 +247,7 @@ cairo_destroy (cairo_t *cr)
     if (cr == NULL)
 	return;
 
-    if (cr->ref_count == (unsigned int)-1)
+    if (cr->ref_count == CAIRO_REF_COUNT_INVALID)
 	return;
 
     assert (cr->ref_count > 0);
@@ -928,10 +928,10 @@ cairo_set_line_join (cairo_t *cr, cairo_line_join_t line_join)
  * #CAIRO_STATUS_INVALID_DASH.
  **/
 void
-cairo_set_dash (cairo_t	*cr,
-		double	*dashes,
-		int	 num_dashes,
-		double	 offset)
+cairo_set_dash (cairo_t	     *cr,
+		const double *dashes,
+		int	      num_dashes,
+		double	      offset)
 {
     if (cr->status)
 	return;
@@ -1362,8 +1362,8 @@ cairo_curve_to (cairo_t *cr,
  *
  * <informalexample><programlisting>
  * cairo_save (cr);
- * cairo_translate (x + width / 2., y + height / 2.);
- * cairo_scale (1. / (height / 2.), 1. / (width / 2.));
+ * cairo_translate (cr, x + width / 2., y + height / 2.);
+ * cairo_scale (cr, 1. / (height / 2.), 1. / (width / 2.));
  * cairo_arc (cr, 0., 0., 1., 0., 2 * M_PI);
  * cairo_restore (cr);
  * </programlisting></informalexample>
@@ -1645,6 +1645,14 @@ cairo_stroke_to_path (cairo_t *cr)
  *
  * If there is no current point before the call to cairo_close_path,
  * this function will have no effect.
+ *
+ * Note: As of cairo version 1.2.4 any call to cairo_close_path will
+ * place an explicit MOVE_TO element into the path immediately after
+ * the CLOSE_PATH element, (which can be seen in cairo_copy_path() for
+ * example). This can simplify path processing in some cases as it may
+ * not be necessary to save the "last move_to point" during processing
+ * as the MOVE_TO immediately after the CLOSE_PATH will provide that
+ * point.
  **/
 void
 cairo_close_path (cairo_t *cr)
@@ -1722,7 +1730,7 @@ cairo_paint_with_alpha (cairo_t *cr,
  *
  * A drawing operator that paints the current source
  * using the alpha channel of @pattern as a mask. (Opaque
- * areas of @mask are painted with the source, transparent
+ * areas of @pattern are painted with the source, transparent
  * areas are not painted.)
  */
 void
@@ -1887,6 +1895,15 @@ cairo_fill_preserve (cairo_t *cr)
 }
 slim_hidden_def(cairo_fill_preserve);
 
+/**
+ * cairo_copy_page:
+ * @cr: a cairo context
+ *
+ * Emits the current page for backends that support multiple pages, but
+ * doesn't clear it, so, the contents of the current page will be retained
+ * for the next page too.  Use cairo_show_page() if you want to get an
+ * empty page after the emission.
+ **/
 void
 cairo_copy_page (cairo_t *cr)
 {
@@ -1898,6 +1915,13 @@ cairo_copy_page (cairo_t *cr)
 	_cairo_set_error (cr, cr->status);
 }
 
+/**
+ * cairo_show_page:
+ * @cr: a cairo context
+ *
+ * Emits and clears the current page for backends that support multiple
+ * pages.  Use cairo_copy_page() if you don't want to clear the page.
+ **/
 void
 cairo_show_page (cairo_t *cr)
 {
@@ -1909,6 +1933,20 @@ cairo_show_page (cairo_t *cr)
 	_cairo_set_error (cr, cr->status);
 }
 
+/**
+ * cairo_in_stroke:
+ * @cr: a cairo context
+ * @x: X coordinate of the point to test
+ * @y: Y coordinate of the point to test
+ *
+ * Tests whether the given point is on the area stroked by doing a
+ * cairo_stroke() operation on @cr given the current path and stroking
+ * parameters.
+ *
+ * See cairo_stroke, cairo_set_line_width(), cairo_set_line_join(),
+ * cairo_set_line_cap(), cairo_set_dash(), and
+ * cairo_stroke_preserve().
+ **/
 cairo_bool_t
 cairo_in_stroke (cairo_t *cr, double x, double y)
 {
@@ -1926,6 +1964,18 @@ cairo_in_stroke (cairo_t *cr, double x, double y)
     return inside;
 }
 
+/**
+ * cairo_in_fill:
+ * @cr: a cairo context
+ * @x: X coordinate of the point to test
+ * @y: Y coordinate of the point to test
+ *
+ * Tests whether the given point is on the area filled by doing a
+ * cairo_stroke() operation on @cr given the current path and filling
+ * parameters.
+ *
+ * See cairo_fill(), cairo_set_fill_rule() and cairo_fill_preserve().
+ **/
 cairo_bool_t
 cairo_in_fill (cairo_t *cr, double x, double y)
 {

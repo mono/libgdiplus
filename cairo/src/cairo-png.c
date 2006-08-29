@@ -35,15 +35,15 @@
  *	Kristian Høgsberg <krh@redhat.com>
  */
 
-#include <png.h>
 #include <errno.h>
 #include "cairoint.h"
+#include <png.h>
 
 /* Unpremultiplies data and converts native endian ARGB => RGBA bytes */
 static void
 unpremultiply_data (png_structp png, png_row_infop row_info, png_bytep data)
 {
-    int i;
+    unsigned int i;
 
     for (i = 0; i < row_info->rowbytes; i += 4) {
         uint8_t *b = &data[i];
@@ -67,7 +67,7 @@ unpremultiply_data (png_structp png, png_row_infop row_info, png_bytep data)
 static void
 convert_data_to_bytes (png_structp png, png_row_infop row_info, png_bytep data)
 {
-    int i;
+    unsigned int i;
 
     for (i = 0; i < row_info->rowbytes; i += 4) {
         uint8_t *b = &data[i];
@@ -301,7 +301,7 @@ premultiply_data (png_structp   png,
                   png_row_infop row_info,
                   png_bytep     data)
 {
-    int i;
+    unsigned int i;
 
     for (i = 0; i < row_info->rowbytes; i += 4) {
 	uint8_t *base = &data[i];
@@ -332,7 +332,7 @@ read_png (png_rw_ptr	read_func,
 {
     cairo_surface_t *surface = (cairo_surface_t*) &_cairo_surface_nil;
     png_byte *data = NULL;
-    int i;
+    unsigned int i;
     png_struct *png = NULL;
     png_info *info;
     png_uint_32 png_width, png_height, stride;

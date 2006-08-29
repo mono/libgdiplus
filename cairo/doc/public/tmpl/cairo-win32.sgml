@@ -17,3 +17,32 @@ Microsoft Windows surface support
 <!-- ##### SECTION Stability_Level ##### -->
 
 
+<!-- ##### FUNCTION cairo_win32_surface_create ##### -->
+<para>
+
+</para>
+
+@hdc: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_win32_surface_create_with_dib ##### -->
+<para>
+
+</para>
+
+@format: 
+@width: 
+@height: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_win32_surface_get_dc ##### -->
+<para>
+
+</para>
+
+@surface: 
+@Returns: 
+
+

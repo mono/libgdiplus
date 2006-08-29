@@ -53,7 +53,7 @@
 #define HEIGHT_IN_POINTS (HEIGHT_IN_INCHES * 72.0)
 
 static void
-draw (cairo_t *cr, double width, double height, double smile_ratio)
+draw_smiley (cairo_t *cr, double width, double height, double smile_ratio)
 {
 #define STROKE_WIDTH .04
     double size;
@@ -112,8 +112,8 @@ draw_some_pages (cairo_surface_t *surface)
 
 #define NUM_FRAMES 5
     for (i=0; i < NUM_FRAMES; i++) {
-	draw (cr, WIDTH_IN_POINTS, HEIGHT_IN_POINTS,
-	      (double) i / (NUM_FRAMES - 1));
+	draw_smiley (cr, WIDTH_IN_POINTS, HEIGHT_IN_POINTS,
+	             (double) i / (NUM_FRAMES - 1));
 
 	/* Duplicate the last frame onto another page. (This is just a
 	 * way to sneak cairo_copy_page into the test).
@@ -132,9 +132,9 @@ main (void)
 {
     cairo_surface_t *surface;
     cairo_status_t status;
-    char *filename;
+    const char *filename;
 
-    printf("\n");
+    cairo_test_init ("multi-page");
 
 #if CAIRO_HAS_PS_SURFACE
     filename = "multi-page.ps";

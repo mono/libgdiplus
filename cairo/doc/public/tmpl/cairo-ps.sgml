@@ -17,10 +17,61 @@ Rendering PostScript documents
 <!-- ##### SECTION Stability_Level ##### -->
 
 
-<!-- ##### MACRO cairo_ps_surface_set_dpi ##### -->
+<!-- ##### FUNCTION cairo_ps_surface_create ##### -->
 <para>
 
 </para>
 
+@filename: 
+@width_in_points: 
+@height_in_points: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_ps_surface_create_for_stream ##### -->
+<para>
+
+</para>
+
+@write_func: 
+@closure: 
+@width_in_points: 
+@height_in_points: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_ps_surface_set_size ##### -->
+<para>
+
+</para>
+
+@surface: 
+@width_in_points: 
+@height_in_points: 
+
+
+<!-- ##### FUNCTION cairo_ps_surface_dsc_begin_setup ##### -->
+<para>
+
+</para>
+
+@surface: 
+
+
+<!-- ##### FUNCTION cairo_ps_surface_dsc_begin_page_setup ##### -->
+<para>
+
+</para>
+
+@surface: 
+
+
+<!-- ##### FUNCTION cairo_ps_surface_dsc_comment ##### -->
+<para>
+
+</para>
+
+@surface: 
+@comment: 
 
 

@@ -44,10 +44,14 @@
 
 #include "cairo-test.h"
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "self-intersecting",
-    "Test strokes of self-intersecting paths",
-    10, 20
+    "Test strokes of self-intersecting paths"
+    "\nSelf-intersecting strokes are wrong due to incremental trapezoidization.",
+    10, 20,
+    draw
 };
 
 static cairo_test_status_t
@@ -84,6 +88,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test_expect_failure (&test, draw,
-    "Self-intersecting strokes are wrong due to incremental trapezoidization.");
+    return cairo_test (&test);
 }

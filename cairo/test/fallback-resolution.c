@@ -44,7 +44,7 @@
 #define SIZE INCHES_TO_POINTS(1)
 
 static void
-draw (cairo_t *cr, double width, double height, double ppi)
+draw_with_ppi (cairo_t *cr, double width, double height, double ppi)
 {
     char message[80];
 
@@ -85,7 +85,7 @@ static const char *backend_filename[NUM_BACKENDS] = {
 int
 main (void)
 {
-    cairo_surface_t *surface;
+    cairo_surface_t *surface = NULL;
     cairo_t *cr;
     cairo_status_t status;
     double ppi[] = { 600., 300., 150., 75., 37.5 };
@@ -94,7 +94,7 @@ main (void)
 
     num_pages = sizeof (ppi) / sizeof (ppi[0]);
 
-    printf("\n");
+    cairo_test_init ("fallback-resolution");
 
     for (backend=0; backend < NUM_BACKENDS; backend++) {
 
@@ -123,7 +123,7 @@ main (void)
 	{
 	    cairo_surface_set_fallback_resolution (surface, ppi[page], ppi[page]);
 
-	    draw (cr, SIZE, SIZE, ppi[page]);
+	    draw_with_ppi (cr, SIZE, SIZE, ppi[page]);
 
 	    /* Backend-specific means of "advancing a page" */
 	    switch (backend) {

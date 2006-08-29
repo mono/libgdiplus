@@ -44,6 +44,7 @@ IGNORE_HFILES=					\
 	cairo-ps-test.h				\
 	cairo-scaled-font-test.h		\
 	cairo-svg-test.h			\
+	cairo-truetype-subset-private.h		\
 	cairo-xlib-test.h			\
 	cairoint.h				\
 	cairo-atsui.h				\

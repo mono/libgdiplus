@@ -97,7 +97,9 @@ CAIRO_BEGIN_DECLS
 /* slim_internal.h */
 #if (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)) && defined(__ELF__)
 #define cairo_private		__attribute__((__visibility__("hidden")))
-#else
+#elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x550)
+#define cairo_private		__hidden
+#else /* not gcc >= 3.3 and not Sun Studio >= 8 */
 #define cairo_private
 #endif
 
@@ -192,6 +194,8 @@ do {					\
     assert (NOT_REACHED);		\
 } while (0)
 
+#define CAIRO_REF_COUNT_INVALID ((unsigned int) -1)
+
 #include "cairo-wideint-private.h"
 
 typedef int32_t		cairo_fixed_16_16_t;
@@ -276,6 +280,35 @@ typedef enum cairo_internal_surface_type {
     CAIRO_INTERNAL_SURFACE_TYPE_TEST_PAGINATED
 } cairo_internal_surface_type_t;
 
+/* For xlib fallbacks, we use image surfaces with formats that match
+ * the visual of the X server. There are a couple of common X server
+ * visuals for which we do not have corresponding public
+ * cairo_format_t values, since we do not plan on always guaranteeing
+ * that cairo will be able to draw to these formats.
+ *
+ * So, currently pixman does provide support for these formats. It's
+ * possible that in the future we will change the implementation to
+ * instead convert to a supported format. This would allow us to be
+ * able to simplify pixman to handle fewer formats.
+ *
+ * The RGB16_565 case could probably have been handled this same way,
+ * (and in fact we could still change it to do so, and maybe just
+ * leave the value in the enum but deprecate it entirely). We can't
+ * drop the value since it did appear in cairo 1.2.0 so it might
+ * appear in code, (particularly bindings which are thorough about
+ * things like that). But we did neglect to update CAIRO_FORMAT_VALID
+ * for 1.2 so we know that no functional code is out there relying on
+ * being able to create an image surface with a 565 format, (which is
+ * good since things like write_to_png are missing support for the 565
+ * format.
+ *
+ * NOTE: The implementation of CAIRO_FORMAT_VALID *must* *not*
+ * consider these internal formats as valid. */
+typedef enum cairo_internal_format {
+    CAIRO_INTERNAL_FORMAT_ABGR32 = 0x1000,
+    CAIRO_INTERNAL_FORMAT_BGR24
+} cairo_internal_format_t;
+
 typedef enum cairo_direction {
     CAIRO_DIRECTION_FORWARD,
     CAIRO_DIRECTION_REVERSE
@@ -350,9 +383,9 @@ _cairo_rectangle_intersect (cairo_rectangle_int16_t *dest, cairo_rectangle_int16
 
 typedef struct _cairo_array cairo_array_t;
 struct _cairo_array {
-    int size;
-    int num_elements;
-    int element_size;
+    unsigned int size;
+    unsigned int num_elements;
+    unsigned int element_size;
     char **elements;
 
     cairo_bool_t is_snapshot;
@@ -372,7 +405,7 @@ cairo_private cairo_status_t
 _cairo_array_grow_by (cairo_array_t *array, int additional);
 
 cairo_private void
-_cairo_array_truncate (cairo_array_t *array, int length);
+_cairo_array_truncate (cairo_array_t *array, unsigned int num_elements);
 
 cairo_private cairo_status_t
 _cairo_array_append (cairo_array_t *array, const void *element);
@@ -384,11 +417,11 @@ _cairo_array_append_multiple (cairo_array_t	*array,
 
 cairo_private cairo_status_t
 _cairo_array_allocate (cairo_array_t	 *array,
-		       int		  num_elements,
+		       unsigned int	  num_elements,
 		       void		**elements);
 
 cairo_private void *
-_cairo_array_index (cairo_array_t *array, int index);
+_cairo_array_index (cairo_array_t *array, unsigned int index);
 
 cairo_private void
 _cairo_array_copy_element (cairo_array_t *array, int index, void *dst);
@@ -427,7 +460,7 @@ typedef struct _cairo_font_face_backend     cairo_font_face_backend_t;
  */
 typedef struct _cairo_unscaled_font {
     cairo_hash_entry_t hash_entry;
-    int ref_count;
+    unsigned int ref_count;
     const cairo_unscaled_font_backend_t *backend;
 } cairo_unscaled_font_t;
 
@@ -457,7 +490,7 @@ struct _cairo_scaled_font {
 
     /* useful bits for _cairo_scaled_font_nil */
     cairo_status_t status;
-    int ref_count;
+    unsigned int ref_count;
 
     /* hash key members */
     cairo_font_face_t *font_face; /* may be NULL */
@@ -486,7 +519,7 @@ struct _cairo_font_face {
     /* hash_entry must be first */
     cairo_hash_entry_t hash_entry;
     cairo_status_t status;
-    int ref_count;
+    unsigned int ref_count;
     cairo_user_data_array_t user_data;
     const cairo_font_face_backend_t *backend;
 };
@@ -574,6 +607,12 @@ struct _cairo_scaled_font_backend {
 			 const cairo_glyph_t	*glyphs,
 			 int			 num_glyphs);
 
+    cairo_int_status_t
+    (*load_truetype_table)(void		        *scaled_font,
+                           unsigned long         tag,
+                           long                  offset,
+                           unsigned char        *buffer,
+                           unsigned long        *length);
 };
 
 struct _cairo_font_face_backend {
@@ -618,7 +657,7 @@ typedef struct _cairo_stroke_style {
     cairo_line_join_t	 line_join;
     double		 miter_limit;
     double		*dash;
-    int			 num_dashes;
+    unsigned int	 num_dashes;
     double		 dash_offset;
 } cairo_stroke_style_t;
 
@@ -893,6 +932,14 @@ struct _cairo_surface {
 
     /* A "snapshot" surface is immutable. See _cairo_surface_snapshot. */
     cairo_bool_t is_snapshot;
+
+    /*
+     * Surface font options, falling back to backend's default options,
+     * and set using _cairo_surface_set_font_options(), and propagated by
+     * cairo_surface_create_similar().
+     */
+    cairo_bool_t has_font_options;
+    cairo_font_options_t font_options;
 };
 
 struct _cairo_image_surface {
@@ -968,7 +1015,7 @@ typedef struct _cairo_gradient_pattern {
     cairo_pattern_t base;
 
     pixman_gradient_stop_t *stops;
-    int			   n_stops;
+    unsigned int	   n_stops;
 } cairo_gradient_pattern_t;
 
 typedef struct _cairo_linear_pattern {
@@ -1162,7 +1209,7 @@ cairo_private cairo_line_join_t
 _cairo_gstate_get_line_join (cairo_gstate_t *gstate);
 
 cairo_private cairo_status_t
-_cairo_gstate_set_dash (cairo_gstate_t *gstate, double *dash, int num_dashes, double offset);
+_cairo_gstate_set_dash (cairo_gstate_t *gstate, const double *dash, int num_dashes, double offset);
 
 cairo_private cairo_status_t
 _cairo_gstate_set_miter_limit (cairo_gstate_t *gstate, double limit);
@@ -1670,6 +1717,10 @@ _cairo_surface_init (cairo_surface_t			*surface,
 		     const cairo_surface_backend_t	*backend,
 		     cairo_content_t			 content);
 
+void
+_cairo_surface_set_font_options (cairo_surface_t       *surface,
+				 cairo_font_options_t  *options);
+
 cairo_private cairo_clip_mode_t
 _cairo_surface_get_clip_mode (cairo_surface_t *surface);
 
@@ -1888,6 +1939,36 @@ _cairo_surface_has_device_transform (cairo_surface_t *surface);
 
 /* cairo_image_surface.c */
 
+/* XXX: In cairo 1.2.0 we added a new CAIRO_FORMAT_RGB16_565 but
+ * neglected to adjust this macro. The net effect is that it's
+ * impossible to externally create an image surface with this
+ * format. This is perhaps a good thing since we also neglected to fix
+ * up things like cairo_surface_write_to_png for the new format
+ * (-Wswitch-enum will tell you where). Is it obvious that format was
+ * added in haste?
+ *
+ * The reason for the new format was to allow the xlib backend to be
+ * used on X servers with a 565 visual. So the new format did its job
+ * for that, even without being considered "valid" for the sake of
+ * things like cairo_image_surface_create.
+ *
+ * Since 1.2.0 we ran into the same situtation with X servers with BGR
+ * visuals. This time we invented cairo_internal_format_t instead,
+ * (see it for more discussion).
+ *
+ * The punchline is that CAIRO_FORMAT_VALID must not conside any
+ * internal format to be valid. Also we need to decide if the
+ * RGB16_565 should be moved to instead be an internal format. If so,
+ * this macro need not change for it. (We probably will need to leave
+ * an RGB16_565 value in the header files for the sake of code that
+ * might have that value in it.)
+ *
+ * If we do decide to start fully supporting RGB16_565 as an external
+ * format, then CAIRO_FORMAT_VALID needs to be adjusted to include
+ * it. But that should not happen before all necessary code is fixed
+ * to support it (at least cairo_surface_write_to_png and a few spots
+ * in cairo-xlib-surface.c--again see -Wswitch-enum).
+ */
 #define CAIRO_FORMAT_VALID(format) ((format) >= CAIRO_FORMAT_ARGB32 && \
 				    (format) <= CAIRO_FORMAT_A1)
 
@@ -1941,6 +2022,10 @@ _cairo_image_surface_assume_ownership_of_data (cairo_image_surface_t *surface);
 cairo_private cairo_int_status_t
 _cairo_image_surface_set_clip_region (void *abstract_surface,
 				      pixman_region16_t *region);
+
+cairo_image_surface_t *
+_cairo_image_surface_clone (cairo_image_surface_t	*surface,
+			    cairo_format_t		 format);
 
 cairo_private cairo_bool_t
 _cairo_surface_is_image (const cairo_surface_t *surface);

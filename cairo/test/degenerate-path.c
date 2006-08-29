@@ -25,38 +25,75 @@
 
 #include "cairo-test.h"
 
-#define IMAGE_WIDTH 40
-#define IMAGE_HEIGHT 22
+#define PAD 3.0
+#define LINE_WIDTH 6.0
+
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+
+static cairo_test_draw_function_t draw;
 
 cairo_test_t test = {
     "degenerate-path",
     "Tests the behaviour of degenerate paths with different cap types",
-    IMAGE_WIDTH, IMAGE_HEIGHT
+    3*(PAD+LINE_WIDTH+PAD), 6*(LINE_WIDTH+PAD) + PAD,
+    draw
 };
-
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 
 static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
     const cairo_line_cap_t cap[] = { CAIRO_LINE_CAP_ROUND, CAIRO_LINE_CAP_SQUARE, CAIRO_LINE_CAP_BUTT };
-    int i;
+    size_t i;
+    double dash[] = {2, 2};
 
     cairo_set_source_rgb (cr, 1, 0, 0);
 
     for (i=0; i<ARRAY_SIZE(cap); i++) {
+	cairo_save (cr);
+
 	cairo_set_line_cap (cr, cap[i]);
 
-	cairo_set_line_width (cr, 6);
-	cairo_move_to (cr, 6, 6);
-	cairo_line_to (cr, 6, 6);
+	/* simple degenerate paths */
+	cairo_set_line_width (cr, LINE_WIDTH);
+	cairo_move_to (cr, LINE_WIDTH, LINE_WIDTH);
+	cairo_line_to (cr, LINE_WIDTH, LINE_WIDTH);
 	cairo_stroke (cr);
 
-	cairo_move_to (cr, 6, 15);
+	cairo_translate (cr, 0, 3*PAD);
+	cairo_move_to (cr, LINE_WIDTH, LINE_WIDTH);
 	cairo_close_path (cr);
 	cairo_stroke (cr);
 
-	cairo_translate (cr, 12, 0);
+	/* degenerate paths starting with dash on */
+	cairo_set_dash (cr, dash, 2, 0.);
+
+	cairo_translate (cr, 0, 3*PAD);
+	cairo_move_to (cr, LINE_WIDTH, LINE_WIDTH);
+	cairo_line_to (cr, LINE_WIDTH, LINE_WIDTH);
+	cairo_stroke (cr);
+
+	cairo_translate (cr, 0, 3*PAD);
+	cairo_move_to (cr, LINE_WIDTH, LINE_WIDTH);
+	cairo_close_path (cr);
+	cairo_stroke (cr);
+
+	/* degenerate paths starting with dash off */
+	/* these should not draw anything */
+	cairo_set_dash (cr, dash, 2, 2.);
+
+	cairo_translate (cr, 0, 3*PAD);
+	cairo_move_to (cr, LINE_WIDTH, LINE_WIDTH);
+	cairo_line_to (cr, LINE_WIDTH, LINE_WIDTH);
+	cairo_stroke (cr);
+
+	cairo_translate (cr, 0, 3*PAD);
+	cairo_move_to (cr, LINE_WIDTH, LINE_WIDTH);
+	cairo_close_path (cr);
+	cairo_stroke (cr);
+
+	cairo_restore (cr);
+
+	cairo_translate (cr, PAD+LINE_WIDTH+PAD, 0);
     }
     return CAIRO_TEST_SUCCESS;
 }
@@ -64,5 +101,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

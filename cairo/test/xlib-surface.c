@@ -220,7 +220,7 @@ main (void)
     cairo_bool_t offscreen;
     result = 0;
 
-    printf("\n");
+    cairo_test_init ("xlib-surface");
     log_file = fopen ("xlib-surface.log", "w");
     if (log_file == NULL) {
 	fprintf (stderr, "Error opening log file: %s\n", "xlib-surface.log");

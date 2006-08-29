@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Scaled-Fonts">
 <refmeta>
-<refentrytitle id="top_of_page">Scaled Fonts</refentrytitle>
+<refentrytitle role="top_of_page">Scaled Fonts</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -67,15 +67,15 @@ typedef     <link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link>;
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-scaled-font-t" role="typedef"/>cairo_scaled_font_t</title>
 <indexterm><primary>cairo_scaled_font_t</primary></indexterm><programlisting>typedef struct _cairo_scaled_font cairo_scaled_font_t;
@@ -95,20 +95,83 @@ to a scaled font to speed up the computation of metrics.</para>
                                              const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *font_matrix,
                                              const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *ctm,
                                              const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);</programlisting>
-</refsect2>
+<para>
+Creates a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link> object from a font face and matrices that
+describe the size of the font and the environment in which it will
+be used.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>font_face</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>font_matrix</parameter>&nbsp;:</term>
+<listitem><simpara> font space to user space transformation matrix for the
+      font. In the simplest case of a N point font, this matrix is
+      just a scale by N, but it can also be used to shear the font
+      or stretch it unequally along the two axes. See
+      <link linkend="cairo-set-font-matrix"><function>cairo_set_font_matrix()</function></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ctm</parameter>&nbsp;:</term>
+<listitem><simpara> user to device transformation matrix with which the font will
+      be used.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> options to use when getting metrics for the font and
+          rendering with it.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a newly created <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>. Destroy with
+ <link linkend="cairo-scaled-font-destroy"><function>cairo_scaled_font_destroy()</function></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-scaled-font-reference" role="function"/>cairo_scaled_font_reference ()</title>
 <indexterm><primary>cairo_scaled_font_reference</primary></indexterm><programlisting><link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link>* cairo_scaled_font_reference
                                             (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
-</refsect2>
+<para>
+Increases the reference count on <parameter>scaled_font</parameter> by one. This prevents
+<parameter>scaled_font</parameter> from being destroyed until a matching call to
+<link linkend="cairo-scaled-font-destroy"><function>cairo_scaled_font_destroy()</function></link> is made.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>, (may be NULL in which case
+this function does nothing)
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the referenced <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-scaled-font-destroy" role="function"/>cairo_scaled_font_destroy ()</title>
 <indexterm><primary>cairo_scaled_font_destroy</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_scaled_font_destroy       (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
-</refsect2>
+<para>
+Decreases the reference count on <parameter>font</parameter> by one. If the result
+is zero, then <parameter>font</parameter> and all associated resources are freed.
+See <link linkend="cairo-scaled-font-reference"><function>cairo_scaled_font_reference()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-scaled-font-status" role="function"/>cairo_scaled_font_status ()</title>
 <indexterm><primary>cairo_scaled_font_status</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_scaled_font_status     (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
-</refsect2>
+<para>
+Checks whether an error has previously occurred for this
+scaled_font.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="CAIRO-STATUS-SUCCESS:CAPS"><literal>CAIRO_STATUS_SUCCESS</literal></link> or another error such as
+  <link linkend="CAIRO-STATUS-NO-MEMORY:CAPS"><literal>CAIRO_STATUS_NO_MEMORY</literal></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-font-extents-t" role="struct"/>cairo_font_extents_t</title>
 <indexterm><primary>cairo_font_extents_t</primary></indexterm><programlisting>typedef struct {
@@ -120,7 +183,7 @@ to a scaled font to speed up the computation of metrics.</para>
 } cairo_font_extents_t;
 </programlisting>
 <para>
-The <link linkend="cairo-text-extents-t"><type>cairo_text_extents_t</type></link> structure stores metric information for
+The <link linkend="cairo-font-extents-t"><type>cairo_font_extents_t</type></link> structure stores metric information for
 a font. Values are given in the current user-space coordinate
 system.
 </para>
@@ -186,7 +249,18 @@ matrix), but otherwise will remain unchanged.</para>
 <title><anchor id="cairo-scaled-font-extents" role="function"/>cairo_scaled_font_extents ()</title>
 <indexterm><primary>cairo_scaled_font_extents</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_scaled_font_extents       (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
                                              <link linkend="cairo-font-extents-t">cairo_font_extents_t</link> *extents);</programlisting>
-</refsect2>
+<para>
+Gets the metrics for a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>extents</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-extents-t"><type>cairo_font_extents_t</type></link> which to store the retrieved extents.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-text-extents-t" role="struct"/>cairo_text_extents_t</title>
 <indexterm><primary>cairo_text_extents_t</primary></indexterm><programlisting>typedef struct {
@@ -255,7 +329,35 @@ but otherwise will remain unchanged.</para>
 <indexterm role="1.2"><primary>cairo_scaled_font_text_extents</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_scaled_font_text_extents  (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
                                              const <link linkend="char">char</link> *utf8,
                                              <link linkend="cairo-text-extents-t">cairo_text_extents_t</link> *extents);</programlisting>
-<para>Since  1.2
+<para>
+Gets the extents for a string of text. The extents describe a
+user-space rectangle that encloses the "inked" portion of the text
+drawn at the origin (0,0) (as it would be drawn by <link linkend="cairo-show-text"><function>cairo_show_text()</function></link>
+if the cairo graphics state were set to the same font_face,
+font_matrix, ctm, and font_options as <parameter>scaled_font</parameter>).  Additionally,
+the x_advance and y_advance values indicate the amount by which the
+current point would be advanced by <link linkend="cairo-show-text"><function>cairo_show_text()</function></link>.
+</para>
+<para>
+Note that whitespace characters do not directly contribute to the
+size of the rectangle (extents.width and extents.height). They do
+contribute indirectly by changing the position of non-whitespace
+characters. In particular, trailing whitespace characters are
+likely to not affect the size of the rectangle, though they will
+affect the x_advance and y_advance values.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>utf8</parameter>&nbsp;:</term>
+<listitem><simpara> a string of text, encoded in UTF-8
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>extents</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-text-extents-t"><type>cairo_text_extents_t</type></link> which to store the retrieved extents.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-scaled-font-glyph-extents" role="function"/>cairo_scaled_font_glyph_extents ()</title>
@@ -263,38 +365,124 @@ but otherwise will remain unchanged.</para>
                                              <link linkend="cairo-glyph-t">cairo_glyph_t</link> *glyphs,
                                              <link linkend="int">int</link> num_glyphs,
                                              <link linkend="cairo-text-extents-t">cairo_text_extents_t</link> *extents);</programlisting>
-</refsect2>
+<para>
+Gets the extents for an array of glyphs. The extents describe a
+user-space rectangle that encloses the "inked" portion of the
+glyphs, (as they would be drawn by <link linkend="cairo-show-glyphs"><function>cairo_show_glyphs()</function></link> if the cairo
+graphics state were set to the same font_face, font_matrix, ctm,
+and font_options as <parameter>scaled_font</parameter>).  Additionally, the x_advance and
+y_advance values indicate the amount by which the current point
+would be advanced by cairo_show_glyphs.
+</para>
+<para>
+Note that whitespace glyphs do not contribute to the size of the
+rectangle (extents.width and extents.height).</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>glyphs</parameter>&nbsp;:</term>
+<listitem><simpara> an array of glyph IDs with X and Y offsets.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>num_glyphs</parameter>&nbsp;:</term>
+<listitem><simpara> the number of glyphs in the <parameter>glyphs</parameter> array
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>extents</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-text-extents-t"><type>cairo_text_extents_t</type></link> which to store the retrieved extents.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-scaled-font-get-font-face" role="function" condition="since:1.2"/>cairo_scaled_font_get_font_face ()</title>
 <indexterm role="1.2"><primary>cairo_scaled_font_get_font_face</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>* cairo_scaled_font_get_font_face
                                             (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
-<para>Since  1.2
+<para>
+Gets the font face that this scaled font was created for.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> The <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link> with which <parameter>scaled_font</parameter> was
+created.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-scaled-font-get-font-options" role="function" condition="since:1.2"/>cairo_scaled_font_get_font_options ()</title>
 <indexterm role="1.2"><primary>cairo_scaled_font_get_font_options</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_scaled_font_get_font_options
                                             (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
                                              <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);</programlisting>
-<para>Since  1.2
+<para>
+Stores the font options with which <parameter>scaled_font</parameter> was created into
+<parameter>options</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> return value for the font options
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-scaled-font-get-font-matrix" role="function" condition="since:1.2"/>cairo_scaled_font_get_font_matrix ()</title>
 <indexterm role="1.2"><primary>cairo_scaled_font_get_font_matrix</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_scaled_font_get_font_matrix
                                             (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
                                              <link linkend="cairo-matrix-t">cairo_matrix_t</link> *font_matrix);</programlisting>
-<para>Since  1.2
+<para>
+Stores the font matrix with which <parameter>scaled_font</parameter> was created into
+<parameter>matrix</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>font_matrix</parameter>&nbsp;:</term>
+<listitem><simpara> return value for the matrix
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-scaled-font-get-ctm" role="function" condition="since:1.2"/>cairo_scaled_font_get_ctm ()</title>
 <indexterm role="1.2"><primary>cairo_scaled_font_get_ctm</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_scaled_font_get_ctm       (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
                                              <link linkend="cairo-matrix-t">cairo_matrix_t</link> *ctm);</programlisting>
-<para>Since  1.2
+<para>
+Stores the CTM with which <parameter>scaled_font</parameter> was created into <parameter>ctm</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ctm</parameter>&nbsp;:</term>
+<listitem><simpara> return value for the CTM
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-scaled-font-get-type" role="function" condition="since:1.2"/>cairo_scaled_font_get_type ()</title>
 <indexterm role="1.2"><primary>cairo_scaled_font_get_type</primary></indexterm><programlisting><link linkend="cairo-font-type-t">cairo_font_type_t</link> cairo_scaled_font_get_type
                                             (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
-<para>Since  1.2
+<para>
+This function returns the type of the backend used to create
+a scaled font. See <link linkend="cairo-font-type-t"><type>cairo_font_type_t</type></link> for available types.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> The type of <parameter>scaled_font</parameter>.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.2
 </para></refsect2>
 
 </refsect1>

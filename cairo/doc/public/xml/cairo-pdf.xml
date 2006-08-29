@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-PDF-Surfaces">
 <refmeta>
-<refentrytitle id="top_of_page">PDF Surfaces</refentrytitle>
+<refentrytitle role="top_of_page">PDF Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -45,21 +45,45 @@
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-pdf-surface-create" role="function" condition="since:1.2"/>cairo_pdf_surface_create ()</title>
 <indexterm role="1.2"><primary>cairo_pdf_surface_create</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_pdf_surface_create   (const <link linkend="char">char</link> *filename,
                                              <link linkend="double">double</link> width_in_points,
                                              <link linkend="double">double</link> height_in_points);</programlisting>
-<para>Since  1.2
+<para>
+Creates a PDF surface of the specified size in points to be written
+to <parameter>filename</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>filename</parameter>&nbsp;:</term>
+<listitem><simpara> a filename for the PDF output (must be writable)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width_in_points</parameter>&nbsp;:</term>
+<listitem><simpara> width of the surface, in points (1 point == 1/72.0 inch)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height_in_points</parameter>&nbsp;:</term>
+<listitem><simpara> height of the surface, in points (1 point == 1/72.0 inch)
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a pointer to the newly created surface. The caller
+owns the surface and should call cairo_surface_destroy when done
+with it.
+
+This function always returns a valid pointer, but it will return a
+pointer to a "nil" surface if an error such as out of memory
+occurs. You can use <link linkend="cairo-surface-status"><function>cairo_surface_status()</function></link> to check for this.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-pdf-surface-create-for-stream" role="function" condition="since:1.2"/>cairo_pdf_surface_create_for_stream ()</title>
@@ -68,14 +92,63 @@
                                              <link linkend="void">void</link> *closure,
                                              <link linkend="double">double</link> width_in_points,
                                              <link linkend="double">double</link> height_in_points);</programlisting>
-<para>Since  1.2
+<para>
+Creates a PDF surface of the specified size in points to be written
+incrementally to the stream represented by <parameter>write_func</parameter> and <parameter>closure</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>write_func</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-write-func-t"><type>cairo_write_func_t</type></link> to accept the output data
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>closure</parameter>&nbsp;:</term>
+<listitem><simpara> the closure argument for <parameter>write_func</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width_in_points</parameter>&nbsp;:</term>
+<listitem><simpara> width of the surface, in points (1 point == 1/72.0 inch)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height_in_points</parameter>&nbsp;:</term>
+<listitem><simpara> height of the surface, in points (1 point == 1/72.0 inch)
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a pointer to the newly created surface. The caller
+owns the surface and should call cairo_surface_destroy when done
+with it.
+
+This function always returns a valid pointer, but it will return a
+pointer to a "nil" surface if an error such as out of memory
+occurs. You can use <link linkend="cairo-surface-status"><function>cairo_surface_status()</function></link> to check for this.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-pdf-surface-set-size" role="function" condition="since:1.2"/>cairo_pdf_surface_set_size ()</title>
 <indexterm role="1.2"><primary>cairo_pdf_surface_set_size</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_pdf_surface_set_size      (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
                                              <link linkend="double">double</link> width_in_points,
                                              <link linkend="double">double</link> height_in_points);</programlisting>
-<para>Since  1.2
+<para>
+Changes the size of a PDF surface for the current (and
+subsequent) pages.
+</para>
+<para>
+This function should only be called before any drawing operations
+have been performed on the current page. The simplest way to do
+this is to call this function immediately after creating the
+surface or immediately after completing a page with either
+<link linkend="cairo-show-page"><function>cairo_show_page()</function></link> or <link linkend="cairo-copy-page"><function>cairo_copy_page()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>surface</parameter>&nbsp;:</term>
+<listitem><simpara> a PDF cairo_surface_t
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width_in_points</parameter>&nbsp;:</term>
+<listitem><simpara> new surface width, in points (1 point == 1/72.0 inch)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height_in_points</parameter>&nbsp;:</term>
+<listitem><simpara> new surface height, in points (1 point == 1/72.0 inch)
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.2
 </para></refsect2>
 
 </refsect1>

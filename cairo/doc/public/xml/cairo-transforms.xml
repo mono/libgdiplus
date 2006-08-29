@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Transformations">
 <refmeta>
-<refentrytitle id="top_of_page">Transformations</refentrytitle>
+<refentrytitle role="top_of_page">Transformations</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -61,75 +61,239 @@
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-translate" role="function"/>cairo_translate ()</title>
 <indexterm><primary>cairo_translate</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_translate                 (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="double">double</link> tx,
                                              <link linkend="double">double</link> ty);</programlisting>
-</refsect2>
+<para>
+Modifies the current transformation matrix (CTM) by translating the
+user-space origin by (<parameter>tx</parameter>, <parameter>ty</parameter>). This offset is interpreted as a
+user-space coordinate according to the CTM in place before the new
+call to cairo_translate. In other words, the translation of the
+user-space origin takes place after any existing transformation.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo context
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>tx</parameter>&nbsp;:</term>
+<listitem><simpara> amount to translate in the X direction
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ty</parameter>&nbsp;:</term>
+<listitem><simpara> amount to translate in the Y direction
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-scale" role="function"/>cairo_scale ()</title>
 <indexterm><primary>cairo_scale</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_scale                     (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="double">double</link> sx,
                                              <link linkend="double">double</link> sy);</programlisting>
-</refsect2>
+<para>
+Modifies the current transformation matrix (CTM) by scaling the X
+and Y user-space axes by <parameter>sx</parameter> and <parameter>sy</parameter> respectively. The scaling of
+the axes takes place after any existing transformation of user
+space.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo context
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>sx</parameter>&nbsp;:</term>
+<listitem><simpara> scale factor for the X dimension
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>sy</parameter>&nbsp;:</term>
+<listitem><simpara> scale factor for the Y dimension
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-rotate" role="function"/>cairo_rotate ()</title>
 <indexterm><primary>cairo_rotate</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_rotate                    (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="double">double</link> angle);</programlisting>
-</refsect2>
+<para>
+Modifies the current transformation matrix (CTM) by rotating the
+user-space axes by <parameter>angle</parameter> radians. The rotation of the axes takes
+places after any existing transformation of user space. The
+rotation direction for positive angles is from the positive X axis
+toward the positive Y axis.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo context
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>angle</parameter>&nbsp;:</term>
+<listitem><simpara> angle (in radians) by which the user-space axes will be
+rotated
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-transform" role="function"/>cairo_transform ()</title>
 <indexterm><primary>cairo_transform</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_transform                 (<link linkend="cairo-t">cairo_t</link> *cr,
                                              const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);</programlisting>
-</refsect2>
+<para>
+Modifies the current transformation matrix (CTM) by applying
+<parameter>matrix</parameter> as an additional transformation. The new transformation of
+user space takes place after any existing transformation.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo context
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> a transformation to be applied to the user-space axes
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-set-matrix" role="function"/>cairo_set_matrix ()</title>
 <indexterm><primary>cairo_set_matrix</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_set_matrix                (<link linkend="cairo-t">cairo_t</link> *cr,
                                              const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);</programlisting>
-</refsect2>
+<para>
+Modifies the current transformation matrix (CTM) by setting it
+equal to <parameter>matrix</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo context
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> a transformation matrix from user space to device space
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-get-matrix" role="function"/>cairo_get_matrix ()</title>
 <indexterm><primary>cairo_get_matrix</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_get_matrix                (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);</programlisting>
-</refsect2>
+<para>
+Stores the current transformation matrix (CTM) into <parameter>matrix</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo context
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> return value for the matrix
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-identity-matrix" role="function"/>cairo_identity_matrix ()</title>
 <indexterm><primary>cairo_identity_matrix</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_identity_matrix           (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
-</refsect2>
+<para>
+Resets the current transformation matrix (CTM) by setting it equal
+to the identity matrix. That is, the user-space and device-space
+axes will be aligned and one user-space unit will transform to one
+device-space unit.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo context
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-user-to-device" role="function"/>cairo_user_to_device ()</title>
 <indexterm><primary>cairo_user_to_device</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_user_to_device            (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="double">double</link> *x,
                                              <link linkend="double">double</link> *y);</programlisting>
-</refsect2>
+<para>
+Transform a coordinate from user space to device space by
+multiplying the given point by the current transformation matrix
+(CTM).</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo context
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x</parameter>&nbsp;:</term>
+<listitem><simpara> X value of coordinate (in/out parameter)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>y</parameter>&nbsp;:</term>
+<listitem><simpara> Y value of coordinate (in/out parameter)
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-user-to-device-distance" role="function"/>cairo_user_to_device_distance ()</title>
 <indexterm><primary>cairo_user_to_device_distance</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_user_to_device_distance   (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="double">double</link> *dx,
                                              <link linkend="double">double</link> *dy);</programlisting>
-</refsect2>
+<para>
+Transform a distance vector from user space to device space. This
+function is similar to <link linkend="cairo-user-to-device"><function>cairo_user_to_device()</function></link> except that the
+translation components of the CTM will be ignored when transforming
+(<parameter>dx</parameter>,<parameter>dy</parameter>).</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo context
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dx</parameter>&nbsp;:</term>
+<listitem><simpara> X component of a distance vector (in/out parameter)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dy</parameter>&nbsp;:</term>
+<listitem><simpara> Y component of a distance vector (in/out parameter)
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-device-to-user" role="function"/>cairo_device_to_user ()</title>
 <indexterm><primary>cairo_device_to_user</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_device_to_user            (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="double">double</link> *x,
                                              <link linkend="double">double</link> *y);</programlisting>
-</refsect2>
+<para>
+Transform a coordinate from device space to user space by
+multiplying the given point by the inverse of the current
+transformation matrix (CTM).</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x</parameter>&nbsp;:</term>
+<listitem><simpara> X value of coordinate (in/out parameter)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>y</parameter>&nbsp;:</term>
+<listitem><simpara> Y value of coordinate (in/out parameter)
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-device-to-user-distance" role="function"/>cairo_device_to_user_distance ()</title>
 <indexterm><primary>cairo_device_to_user_distance</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_device_to_user_distance   (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="double">double</link> *dx,
                                              <link linkend="double">double</link> *dy);</programlisting>
-</refsect2>
+<para>
+Transform a distance vector from device space to user space. This
+function is similar to <link linkend="cairo-device-to-user"><function>cairo_device_to_user()</function></link> except that the
+translation components of the inverse CTM will be ignored when
+transforming (<parameter>dx</parameter>,<parameter>dy</parameter>).</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo context
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dx</parameter>&nbsp;:</term>
+<listitem><simpara> X component of a distance vector (in/out parameter)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dy</parameter>&nbsp;:</term>
+<listitem><simpara> Y component of a distance vector (in/out parameter)
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 
 </refsect1>
 

@@ -92,10 +92,10 @@ main (void)
     cairo_surface_t *surface;
     cairo_t *cr;
     cairo_status_t status;
-    char *filename;
-    int i;
+    const char *filename;
+    size_t i;
 
-    printf("\n");
+    cairo_test_init ("pdf-features");
 
     filename = "pdf-features.pdf";
 

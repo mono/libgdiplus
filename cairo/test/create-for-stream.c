@@ -57,27 +57,36 @@
 #define WIDTH_IN_POINTS  (WIDTH_IN_INCHES  * 72.0)
 #define HEIGHT_IN_POINTS (HEIGHT_IN_INCHES * 72.0)
 
-static void
-draw (cairo_surface_t *surface)
+static cairo_test_status_t
+draw (cairo_t *cr, int width, int height)
 {
-    cairo_t *cr;
-
     /* Just draw a rectangle. */
-    cr = cairo_create (surface);
 
-    cairo_rectangle (cr, WIDTH_IN_POINTS / 10, HEIGHT_IN_POINTS /10,
-		     WIDTH_IN_POINTS - 2 * WIDTH_IN_POINTS / 10,
-		     HEIGHT_IN_POINTS - 2 * HEIGHT_IN_POINTS /10);
+    cairo_rectangle (cr, width / 10., height /10.,
+		     width - 2 * width / 10.,
+		     height - 2 * height /10.);
     cairo_fill (cr);
 
     cairo_show_page (cr);
+
+    return CAIRO_TEST_SUCCESS;
+}
+
+static void
+draw_to (cairo_surface_t *surface)
+{
+    cairo_t *cr;
+
+    cr = cairo_create (surface);
+
+    draw (cr, WIDTH_IN_POINTS, HEIGHT_IN_POINTS);
 
     cairo_destroy (cr);
 }
 
 typedef struct _write_closure {
     char buffer[MAX_OUTPUT_SIZE];
-    int index;
+    size_t index;
     cairo_test_status_t status;
 } write_closure_t;
 
@@ -135,7 +144,7 @@ test_surface (const char		 *filename,
 	return CAIRO_TEST_FAILURE;
     }
 
-    draw (surface);
+    draw_to (surface);
 
     cairo_surface_destroy (surface);
 
@@ -154,7 +163,7 @@ test_surface (const char		 *filename,
 	return CAIRO_TEST_FAILURE;
     }
 
-    draw (surface);
+    draw_to (surface);
 
     cairo_surface_destroy (surface);
 
@@ -188,7 +197,7 @@ main (void)
 {
     cairo_test_status_t status;
 
-    printf("\n");
+    cairo_test_init ("create-for-stream");
 
 #if CAIRO_HAS_PS_SURFACE
     status = test_surface ("create-for-stream.ps",

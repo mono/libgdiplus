@@ -35,10 +35,13 @@
 #define FONT "6x13.pcf"
 #define TEXT_SIZE 13
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "bitmap-font",
     "Test drawing with a font consisting only of bitmaps",
-    246 + 1, TEXT_SIZE
+    246 + 1, 2 * TEXT_SIZE,
+    draw
 };
 
 static cairo_test_status_t
@@ -47,7 +50,7 @@ draw (cairo_t *cr, int width, int height)
     FcPattern *pattern;
     cairo_font_face_t *font_face;
     cairo_status_t status;
-    char *srcdir = getenv ("srcdir");
+    const char *srcdir = getenv ("srcdir");
     char *filename;
     struct stat stat_buf;
 
@@ -94,7 +97,23 @@ draw (cairo_t *cr, int width, int height)
 
     cairo_move_to (cr, 1, TEXT_SIZE - 3);
     cairo_set_source_rgb (cr, 0.0, 0.0, 1.0); /* blue */
-    cairo_show_text (cr, "the quick brown fox jumps over a lazy dog");
+    cairo_show_text (cr, "the quick brown fox");
+
+    /* Switch from show_text to text_path/fill to exercise bug #7889 */
+    cairo_text_path (cr, " jumps over a lazy dog");
+    cairo_fill (cr);
+
+    /* And test it rotated as well for the sake of bug #7888 */
+
+    /* XXX: The math for the vertical positioning here is all wrong,
+     * but it is landing where I want it. Someone who understands
+     * fonts at all should fix this. */
+    cairo_move_to (cr, width -1, 2 * (TEXT_SIZE - 5));
+    cairo_rotate (cr, M_PI);
+    cairo_show_text (cr, "the quick brown fox");
+
+    cairo_text_path (cr, " jumps over a lazy dog");
+    cairo_fill (cr);
 
     return CAIRO_TEST_SUCCESS;
 }
@@ -102,5 +121,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

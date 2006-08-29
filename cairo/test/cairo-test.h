@@ -30,6 +30,7 @@
 #include "config.h"
 #endif
 
+#include <stdio.h>
 #include <math.h>
 #include <cairo.h>
 
@@ -71,18 +72,19 @@ typedef enum cairo_test_status {
     CAIRO_TEST_CRASHED
 } cairo_test_status_t;
 
-typedef struct cairo_test {
-    char *name;
-    char *description;
+typedef cairo_test_status_t  (cairo_test_draw_function_t) (cairo_t *cr, int width, int height);
+
+typedef struct _cairo_test {
+    const char *name;
+    const char *description;
     int width;
     int height;
+    cairo_test_draw_function_t *draw;
 } cairo_test_t;
-
-typedef cairo_test_status_t  (*cairo_test_draw_function_t) (cairo_t *cr, int width, int height);
 
 /* The standard test interface which works by examining result image.
  *
- * cairo_test() accepts a draw function which will be called once for
+ * cairo_test() accepts a test struct which will be called once for
  * each testable backend. The following checks will be performed for
  * each backend:
  *
@@ -103,15 +105,7 @@ typedef cairo_test_status_t  (*cairo_test_draw_function_t) (cairo_t *cr, int wid
  * to the four criteria above.
  */
 cairo_test_status_t
-cairo_test (cairo_test_t *test, cairo_test_draw_function_t draw);
-
-/* Like cairo_test, but the text is expected to fail for the stated
- * reason. Any test calling this variant should be listed in the
- * XFAIL_TESTS list in Makefile.am. */
-cairo_test_status_t
-cairo_test_expect_failure (cairo_test_t		      *test,
-			   cairo_test_draw_function_t  draw,
-			   const char		      *reason);
+cairo_test (cairo_test_t *test);
 
 /* cairo_test_init() and cairo_test_log() exist to help in writing
  * tests for which cairo_test() is not appropriate for one reason or
@@ -142,7 +136,7 @@ cairo_status_t
 cairo_test_paint_checkered (cairo_t *cr);
 
 void
-xasprintf (char **strp, const char *fmt, ...);
+xasprintf (char **strp, const char *fmt, ...) CAIRO_PRINTF_FORMAT(2, 3);
 
 CAIRO_END_DECLS
 

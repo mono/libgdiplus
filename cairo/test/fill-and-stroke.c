@@ -28,10 +28,13 @@
 #define PAD 2
 #define SIZE 10
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "fill-and-stroke",
     "Tests using cairo_fill_preserve/cairo_stroke to fill/stroke the same path",
-    2 * SIZE + 4 * PAD, SIZE + 2 * PAD
+    2 * SIZE + 4 * PAD, SIZE + 2 * PAD,
+    draw
 };
 
 static cairo_test_status_t
@@ -59,5 +62,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

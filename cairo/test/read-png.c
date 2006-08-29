@@ -64,7 +64,7 @@ premultiply_data (png_structp   png,
                   png_row_infop row_info,
                   png_bytep     data)
 {
-    int i;
+    size_t i;
 
     for (i = 0; i < row_info->rowbytes; i += 4) {
 	uint8_t *base = &data[i];
@@ -89,7 +89,7 @@ read_png_argb32 (const char         *filename,
 		 unsigned int       *height,
 		 unsigned int	    *stride)
 {
-    int i;
+    size_t i;
     FILE *file;
 #define PNG_SIG_SIZE 8
     unsigned char png_sig[PNG_SIG_SIZE];

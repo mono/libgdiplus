@@ -29,10 +29,13 @@
 #define HEIGHT 22
 #define TEXT_SIZE 12
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "text-antialias-none",
     "Tests text rendering with no antialiasing",
-    WIDTH, HEIGHT
+    WIDTH, HEIGHT,
+    draw
 };
 
 static cairo_test_status_t
@@ -54,11 +57,10 @@ draw (cairo_t *cr, int width, int height)
     cairo_set_font_size (cr, TEXT_SIZE);
 
     font_options = cairo_font_options_create ();
-
-    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_NONE);
+    cairo_get_font_options (cr, font_options);
     cairo_font_options_set_antialias (font_options, CAIRO_ANTIALIAS_NONE);
-
     cairo_set_font_options (cr, font_options);
+
     cairo_font_options_destroy (font_options);
 
     cairo_set_source_rgb (cr, 0, 0, 0); /* black */
@@ -78,5 +80,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

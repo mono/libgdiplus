@@ -34,10 +34,14 @@
 #define WIDTH 71
 #define HEIGHT 28
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "leaky-dash",
-    "Exercises bug #4863 in which a dashed stroke leaks into half the rectangle being filled",
-    WIDTH, HEIGHT
+    "Exercises bug #4863 in which a dashed stroke leaks into half the rectangle being filled"
+    "\nknown bug (#4863) which has existed since the 1.0 release",
+    WIDTH, HEIGHT,
+    draw
 };
 
 static cairo_test_status_t
@@ -64,6 +68,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test_expect_failure (&test, draw,
-				      "known bug (#4863) which has existed since the 1.0 release");
+    return cairo_test (&test);
 }

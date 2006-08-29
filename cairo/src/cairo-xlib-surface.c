@@ -177,6 +177,8 @@ _CAIRO_FORMAT_DEPTH (cairo_format_t format)
 	return 1;
     case CAIRO_FORMAT_A8:
 	return 8;
+    case CAIRO_FORMAT_RGB16_565:
+	return 16;
     case CAIRO_FORMAT_RGB24:
 	return 24;
     case CAIRO_FORMAT_ARGB32:
@@ -219,10 +221,11 @@ _cairo_xlib_surface_create_similar_with_format (void	       *abstract_src,
 
     /* As a good first approximation, if the display doesn't have even
      * the most elementary RENDER operation, then we're better off
-     * using image surfaces for all temporary operations
+     * using image surfaces for all temporary operations, so return NULL
+     * and let the fallback code happen.
      */
     if (!CAIRO_SURFACE_RENDER_HAS_COMPOSITE(src)) {
-	return cairo_image_surface_create (format, width, height);
+	return NULL;
     }
 
     pix = XCreatePixmap (dpy, RootWindowOfScreen (src->screen),
@@ -747,7 +750,7 @@ _draw_image_surface (cairo_xlib_surface_t   *surface,
 		     int                    dst_y)
 {
     XImage ximage;
-    int bpp, alpha, red, green, blue;
+    unsigned int bpp, alpha, red, green, blue;
     int native_byte_order = _native_byte_order_lsb () ? LSBFirst : MSBFirst;
 
     pixman_format_get_masks (pixman_image_get_format (image->pixman_image),
@@ -874,6 +877,9 @@ _cairo_xlib_surface_clone_similar (void			*abstract_surface,
     } else if (_cairo_surface_is_image (src)) {
 	cairo_image_surface_t *image_src = (cairo_image_surface_t *)src;
 
+	if (! CAIRO_FORMAT_VALID (image_src->format))
+	    return CAIRO_INT_STATUS_UNSUPPORTED;
+
 	clone = (cairo_xlib_surface_t *)
 	    _cairo_xlib_surface_create_similar_with_format (surface, image_src->format,
 						image_src->width, image_src->height);
@@ -934,7 +940,7 @@ static cairo_status_t
 _cairo_xlib_surface_set_filter (cairo_xlib_surface_t *surface,
 				cairo_filter_t	     filter)
 {
-    char *render_filter;
+    const char *render_filter;
 
     if (!surface->src_picture)
 	return CAIRO_STATUS_SUCCESS;
@@ -963,13 +969,19 @@ _cairo_xlib_surface_set_filter (cairo_xlib_surface_t *surface,
     case CAIRO_FILTER_BILINEAR:
 	render_filter = FilterBilinear;
 	break;
+    case CAIRO_FILTER_GAUSSIAN:
+	/* XXX: The GAUSSIAN value has no implementation in cairo
+	 * whatsoever, so it was really a mistake to have it in the
+	 * API. We could fix this by officially deprecating it, or
+	 * else inventing semantics and providing an actual
+	 * implementation for it. */
     default:
 	render_filter = FilterBest;
 	break;
     }
 
     XRenderSetPictureFilter (surface->dpy, surface->src_picture,
-			     render_filter, NULL, 0);
+			     (char *) render_filter, NULL, 0);
 
     return CAIRO_STATUS_SUCCESS;
 }
@@ -1372,6 +1384,7 @@ _cairo_xlib_surface_composite (cairo_operator_t		op,
 			dst_x, dst_y, width, height);
 	break;
 
+    case DO_UNSUPPORTED:
     default:
 	ASSERT_NOT_REACHED;
     }
@@ -1561,6 +1574,9 @@ _cairo_xlib_surface_composite_trapezoids (cairo_operator_t	op,
     case CAIRO_ANTIALIAS_NONE:
 	pict_format = XRenderFindStandardFormat (dst->dpy, PictStandardA1);
 	break;
+    case CAIRO_ANTIALIAS_GRAY:
+    case CAIRO_ANTIALIAS_SUBPIXEL:
+    case CAIRO_ANTIALIAS_DEFAULT:
     default:
 	pict_format = XRenderFindStandardFormat (dst->dpy, PictStandardA8);
 	break;
@@ -1860,7 +1876,7 @@ _cairo_xlib_surface_create_internal (Display		       *dpy,
 	if (VendorRelease (dpy) <= 40500000)
 	    surface->buggy_repeat = TRUE;
     } else if (strstr (ServerVendor (dpy), "Sun Microsystems, Inc.") != NULL) {
-	if (VendorRelease (dpy) <= 60800000)
+	if (VendorRelease (dpy) <= 60900000)
 	    surface->buggy_repeat = TRUE;
     }
 
@@ -2423,7 +2439,7 @@ _cairo_xlib_surface_add_glyph (Display *dpy,
 	break;
     case CAIRO_FORMAT_ARGB32:
 	if (_native_byte_order_lsb() != (ImageByteOrder (dpy) == LSBFirst)) {
-	    int		    c = glyph_surface->stride * glyph_surface->height;
+	    unsigned int    c = glyph_surface->stride * glyph_surface->height;
 	    unsigned char   *d;
 	    unsigned char   *new, *n;
 
@@ -2674,12 +2690,13 @@ _cairo_xlib_surface_show_glyphs (void                *abstract_dst,
     cairo_surface_attributes_t attributes;
     cairo_xlib_surface_t *src = NULL;
 
+    cairo_glyph_t *output_glyphs;
     const cairo_glyph_t *glyphs_chunk;
     int glyphs_remaining, chunk_size, max_chunk_size;
     cairo_scaled_glyph_t *scaled_glyph;
     cairo_xlib_surface_font_private_t *font_private;
 
-    int i;
+    int i, o;
     unsigned long max_index = 0;
 
     cairo_xlib_surface_show_glyphs_func_t show_glyphs_func;
@@ -2722,6 +2739,13 @@ _cairo_xlib_surface_show_glyphs (void                *abstract_dst,
 	 scaled_font->surface_backend != &cairo_xlib_surface_backend) ||
 	(font_private != NULL && font_private->dpy != dst->dpy))
 	return CAIRO_INT_STATUS_UNSUPPORTED;
+
+    /* We make a copy of the glyphs so that we can elide any size-zero
+     * glyphs to workaround an X server bug, (present in at least Xorg
+     * 7.1 without EXA). */
+    output_glyphs = malloc (num_glyphs * sizeof (cairo_glyph_t));
+    if (output_glyphs == NULL)
+	return CAIRO_STATUS_NO_MEMORY;
 
     /* After passing all those tests, we're now committed to rendering
      * these glyphs or to fail trying. We first upload any glyphs to
@@ -2781,7 +2805,7 @@ _cairo_xlib_surface_show_glyphs (void                *abstract_dst,
         goto BAIL;
 
     /* Send all unsent glyphs to the server, and count the max of the glyph indices */
-    for (i = 0; i < num_glyphs; i++) {
+    for (i = 0, o = 0; i < num_glyphs; i++) {
 	if (glyphs[i].index > max_index)
 	    max_index = glyphs[i].index;
 	status = _cairo_scaled_glyph_lookup (scaled_font,
@@ -2790,11 +2814,18 @@ _cairo_xlib_surface_show_glyphs (void                *abstract_dst,
 					     &scaled_glyph);
 	if (status != CAIRO_STATUS_SUCCESS)
 	    goto BAIL;
-	if (scaled_glyph->surface_private == NULL) {
-	    _cairo_xlib_surface_add_glyph (dst->dpy, scaled_font, scaled_glyph);
-	    scaled_glyph->surface_private = (void *) 1;
+	/* Don't put any size-zero glyphs into output_glyphs to avoid
+	 * an X server bug which stops rendering glyphs after the
+	 * first size-zero glyph. */
+	if (scaled_glyph->surface->width && scaled_glyph->surface->height) {
+	    output_glyphs[o++] = glyphs[i];
+	    if (scaled_glyph->surface_private == NULL) {
+		_cairo_xlib_surface_add_glyph (dst->dpy, scaled_font, scaled_glyph);
+		scaled_glyph->surface_private = (void *) 1;
+	    }
 	}
     }
+    num_glyphs = o;
 
     _cairo_xlib_surface_ensure_dst_picture (dst);
 
@@ -2811,7 +2842,7 @@ _cairo_xlib_surface_show_glyphs (void                *abstract_dst,
     }
     max_chunk_size /= sz_xGlyphElt;
 
-    for (glyphs_remaining = num_glyphs, glyphs_chunk = glyphs;
+    for (glyphs_remaining = num_glyphs, glyphs_chunk = output_glyphs;
 	 glyphs_remaining;
 	 glyphs_remaining -= chunk_size, glyphs_chunk += chunk_size)
     {
@@ -2826,6 +2857,7 @@ _cairo_xlib_surface_show_glyphs (void                *abstract_dst,
 
   BAIL:
     _cairo_scaled_font_thaw_cache (scaled_font);
+    free (output_glyphs);
 
     if (src)
         _cairo_pattern_release_surface (src_pattern, &src->base, &attributes);

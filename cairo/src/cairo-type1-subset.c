@@ -53,7 +53,7 @@ typedef struct _cairo_type1_font_subset {
 	cairo_unscaled_font_t *unscaled_font;
 	unsigned int font_id;
 	char *base_font;
-	int num_glyphs;
+	unsigned int num_glyphs;
 	long x_min, y_min, x_max, y_max;
 	long ascent, descent;
 
@@ -252,7 +252,7 @@ cairo_type1_font_subset_write_header (cairo_type1_font_subset_t *font,
 					 const char *name)
 {
     const char *start, *end, *segment_end;
-    int i;
+    unsigned int i;
 
     segment_end = font->header_segment + font->header_segment_size;
 
@@ -399,7 +399,7 @@ static int
 cairo_type1_font_subset_lookup_glyph (cairo_type1_font_subset_t *font,
 				      const char *glyph_name, int length)
 {
-    int i;
+    unsigned int i;
 
     for (i = 0; i < font->base.num_glyphs; i++) {
 	if (font->glyphs[i].name &&
@@ -414,7 +414,7 @@ cairo_type1_font_subset_lookup_glyph (cairo_type1_font_subset_t *font,
 static cairo_status_t
 cairo_type1_font_subset_get_glyph_names_and_widths (cairo_type1_font_subset_t *font)
 {
-    int i;
+    unsigned int i;
     char buffer[256];
     FT_Error error;
 
@@ -481,45 +481,86 @@ cairo_type1_font_subset_decode_integer (const unsigned char *p, int *integer)
 }
 
 static const char *ps_standard_encoding[256] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,	/*   0 */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,	/*  16 */
-    "space", "exclam", "quotedbl", "numbersign",	/*  32 */
-    "dollar", "percent", "ampersand", "quoteright",
-    "parenleft", "parenright", "asterisk", "plus",
-    "comma", "hyphen", "period", "slash",
-    "zero", "one", "two", "three",			/*  48 */
-    "four", "five", "six", "seven", "eight",
-    "nine", "colon", "semicolon", "less",
-    "equal", "greater", "question", "at",
-    "A", "B", "C", "D", "E", "F", "G", "H",		/*  64 */
-    "I", "J", "K", "L", "M", "N", "O", "P",
-    "Q", "R", "S", "T", "U", "V", "W", "X",		/*  80 */
-    "Y", "Z", "bracketleft", "backslash",
-    "bracketright", "asciicircum", "underscore", "quoteleft",
-    "a", "b", "c", "d", "e", "f", "g", "h",		/*  96 */
-    "i", "j", "k", "l", "m", "n", "o", "p",
-    "q", "r", "s", "t", "u", "v", "w", "x",		/* 112 */
-    "y", "z", "braceleft", "bar",
-    "braceright", "asciitilde", 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,	/* 128 */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,	/* 144 */
-    "exclamdown", "cent", "sterling", "fraction",
-    "yen", "florin", "section", "currency",
-    "quotesingle", "quotedblleft", "guillemotleft", "guilsinglleft",
-    "guilsinglright", "fi", "fl", NULL,
-    "endash", "dagger", "daggerdbl", "periodcentered",	/* 160 */
-    NULL, "paragraph", "bullet", "quotesinglbase",
-    "quotedblbase", "quotedblright", "guillemotright", "ellipsis",
-    "perthousand", NULL, "questiondown", NULL,
-    "grave", "acute", "circumflex", "tilde",		/* 176 */
-    "macron", "breve", "dotaccent", "dieresis",
-    NULL, "ring", "cedilla", NULL,
-    "hungarumlaut", "ogonek", "caron", "emdash",
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,	/* 192 */
-    "AE", 0, "ordfeminine", 0, 0, 0, 0, "Lslash",	/* 208 */
-    "Oslash", "OE", "ordmasculine", 0, 0, 0, 0, 0,
-    "ae", 0, 0, 0, "dotlessi", 0, 0, "lslash",		/* 224 */
-    "oslash", "oe", "germandbls", 0, 0, 0, 0
+	/*   0 */
+	NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	/*  16 */
+	NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	/*  32 */
+	"space",	"exclam",	"quotedbl",	"numbersign",
+	"dollar",	"percent",	"ampersand",	"quoteright",
+	"parenleft",	"parenright",	"asterisk",	"plus",
+	"comma",	"hyphen",	"period",	"slash",
+	/*  48 */
+	"zero",		"one",		"two",		"three",
+	"four",		"five",		"six",		"seven",
+	"eight",	"nine",		"colon",	"semicolon",
+	"less",		"equal",	"greater",	"question",
+	/*  64 */
+	"at",		"A",		"B",		"C",
+	"D",		"E",		"F",		"G",
+	"H",		"I",		"J",		"K",
+	"L",		"M",		"N",		"O",
+	/*  80 */
+	"P",		"Q",		"R",		"S",
+	"T",		"U",		"V",		"W",
+	"X",		"Y",		"Z",		"bracketleft",
+	"backslash",	"bracketright",	"asciicircum",	"underscore",
+	/*  96 */
+	"quoteleft",	"a",		"b",		"c",
+	"d",		"e",		"f",		"g",
+	"h",		"i",		"j",		"k",
+	"l",		"m",		"n",		"o",
+	/* 112 */
+	"p",		"q",		"r",		"s",
+	"t",		"u",		"v",		"w",
+	"x",		"y",		"z",		"braceleft",
+	"bar",		"braceright",	"asciitilde",	NULL,
+	/* 128 */
+	NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	/* 144 */
+	NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	/* 160 */
+	NULL,		"exclamdown",	"cent",		"sterling",
+	"fraction",	"yen",		"florin",	"section",
+	"currency",	"quotesingle",	"quotedblleft",	"guillemotleft",
+	"guilsinglleft","guilsinglright","fi",		"fl",
+	/* 176 */
+	NULL,		"endash",	"dagger",	"daggerdbl",
+	"periodcentered",NULL,		"paragraph",	"bullet",
+	"quotesinglbase","quotedblbase","quotedblright","guillemotright",
+	"ellipsis",	"perthousand",	NULL,		"questiondown",
+	/* 192 */
+	NULL,		"grave",	"acute",	"circumflex",
+	"tilde",	"macron",	"breve",	"dotaccent",
+	"dieresis",	NULL,		"ring",		"cedilla",
+	NULL,		"hungarumlaut",	"ogonek",	"caron",
+	/* 208 */
+	"emdash",	NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,
+	/* 224 */
+	NULL,		"AE",		NULL,		"ordfeminine",
+	NULL,		NULL,		NULL,		NULL,
+	"Lslash",	"Oslash",	"OE",		"ordmasculine",
+	NULL,		NULL,		NULL,		NULL,
+	/* 240 */
+	NULL,		"ae",		NULL,		NULL,
+	NULL,		"dotlessi",	NULL,		NULL,
+	"lslash",	"oslash",	"oe",		"germandbls",
+	NULL,		NULL,		NULL,		NULL
 };
 
 static void
@@ -929,7 +970,7 @@ static void
 cairo_type1_font_subset_destroy (void *abstract_font)
 {
     cairo_type1_font_subset_t *font = abstract_font;
-    int i;
+    unsigned int i;
 
     /* If the subset generation failed, some of the pointers below may
      * be NULL depending on at which point the error occurred. */
@@ -958,7 +999,7 @@ _cairo_type1_subset_init (cairo_type1_subset_t		*type1_subset,
     cairo_type1_font_subset_t *font;
     cairo_status_t status;
     unsigned long parent_glyph, length;
-    int i;
+    unsigned int i;
     cairo_unscaled_font_t *unscaled_font;
 
     /* XXX: Need to fix this to work with a general cairo_unscaled_font_t. */

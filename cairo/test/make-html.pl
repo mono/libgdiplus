@@ -25,8 +25,9 @@
 #
 
 ##
-## Takes all the *.log files in the current directory and spits out
-## html to stdout that can be used to view all the test results at once.
+## Takes all the *.log files in the current directory (or those provided
+## on the command line) and spits out html to stdout that can be used to
+## view all the test results at once.
 ##
 
 # show reference images
@@ -44,7 +45,9 @@ my $tests = {};
 
 my $teststats = {};
 
-foreach (<*.log>) {
+if ($#ARGV >= 0) { @files = @ARGV; } else { @files = <*.log>; }
+
+foreach (<@files>) {
   (open LOG, "$_") || next;
   while (<LOG>) {
     next unless /^TEST: (.*) TARGET: (.*) FORMAT: (.*) OFFSET: (.*) RESULT: (.*)$/;
@@ -53,7 +56,7 @@ foreach (<*.log>) {
     $tests->{$1}->{$2}->{$3} = {} unless $tests->{$1}->{$2}->{$3};
     $tests->{$1}->{$2}->{$3}->{$4} = $5;
 
-    $teststats->{$2} = {"PASS" => 0, "FAIL" => 0, "XFAIL" => 0, "UNTESTED" => 0}
+    $teststats->{$2} = {"PASS" => 0, "FAIL" => 0, "XFAIL" => 0, "UNTESTED" => 0, "CRASHED" =>0}
       unless $teststats->{$2};
     ($teststats->{$2}->{$5})++;
   }
@@ -92,16 +95,18 @@ sub printl {
 printl '<html><head>';
 printl '<title>Cairo Test Results</title>';
 printl '<style type="text/css">';
-printl 'a img { border: none; }';
-printl '.PASS { background-color: #009900; min-width: 1em; }';
-printl '.FAIL { background-color: #990000; }';
-printl '.XFAIL { background-color: #999900; }';
-printl '.UNTESTED { background-color: #333333; }';
-printl '.PASSstr { color: #009900; }';
-printl '.FAILstr { color: #990000; }';
-printl '.XFAILstr { color: #999900; }';
-printl '.UNTESTEDstr { color: #333333; }';
-printl 'img { max-width: 15em; min-width: 3em; }';
+printl 'a img { border: solid 1px #FFF; }';
+printl '.PASS { background-color: #0B0; min-width: 1em; }';
+printl '.FAIL { background-color: #B00; }';
+printl '.XFAIL { background-color: #BB0; }';
+printl '.UNTESTED { background-color: #555; }';
+printl '.CRASHED { background-color: #F00; color: #FF0; }';
+printl '.PASSstr { color: #0B0; }';
+printl '.FAILstr { color: #D00; }';
+printl '.XFAILstr { color: #BB0; }';
+printl '.CRASHEDstr { color: #F00; }';
+printl '.UNTESTEDstr { color: #555; }';
+printl 'img { max-width: 15em; min-width: 3em; margin: 3px; }';
 printl 'td { vertical-align: top; }';
 printl '</style>';
 printl '<body>';
@@ -121,7 +126,7 @@ print '<td></td>' if $config_show_ref;
 foreach my $target (@targets) {
   print '<td>';
   print '<span class="PASSstr">', $teststats->{$target}->{"PASS"}, '</span>/';
-  print '<span class="FAILstr">', $teststats->{$target}->{"FAIL"}, '</span>/';
+  print '<span class="FAILstr">', $teststats->{$target}->{"FAIL"} + $teststats->{$target}->{"CRASHED"}, '</span>/';
   print '<span class="XFAILstr">', $teststats->{$target}->{"XFAIL"}, '</span>/';
   print '<span class="UNTESTEDstr">', $teststats->{$target}->{"UNTESTED"}; '</span>';
   print '</td>';
@@ -160,8 +165,6 @@ foreach my $test (sort(keys %$tests)) {
     foreach my $format (@formats) {
       my $testline = "";
 
-      my $num_failed = 0;
-
       foreach my $target (@targets) {
         my $tgtdata = $tests->{$test}->{$target};
         if ($tgtdata) {
@@ -175,21 +178,27 @@ foreach my $test (sort(keys %$tests)) {
                 $testline .= "<a href=\"" . $testfiles{"out"} . "\"><img src=\"" . $testfiles{"out"} . "\"></a>";
               }
             } elsif ($testres eq "FAIL") {
-              $num_failed++;
-
               if ($config_show_fail || $config_show_all) {
                 $testline .= "<a href=\"" . $testfiles{"out"} . "\"><img src=\"" . $testfiles{"out"} . "\"></a>";
-                $testline .= "<hr size=\"1\">";
+                #$testline .= "<hr size=\"1\">";
+                $testline .= " ";
                 $testline .= "<a href=\"" . $testfiles{"diff"} . "\"><img src=\"" . $testfiles{"diff"} . "\"></a>";
               }
+            } elsif ($testres eq "CRASHED") {
+	       $testline .= "!!!CRASHED!!!";
             } elsif ($testres eq "XFAIL") {
               #nothing
               if ($config_show_all) {
                 $testline .= "<a href=\"" . $testfiles{"out"} . "\"><img src=\"" . $testfiles{"out"} . "\"></a>";
-                $testline .= "<hr size=\"1\">";
+                #$testline .= "<hr size=\"1\">";
+                $testline .= " ";
                 $testline .= "<a href=\"" . $testfiles{"diff"} . "\"><img src=\"" . $testfiles{"diff"} . "\"></a>";
               }
-            }
+            } elsif ($testres eq "UNTESTED") {
+              #nothing
+            } else {
+	      $testline .= "UNSUPPORTED STATUS (update make-html.pl)";
+	    }
 
             $testline .= "</td>";
           } else {

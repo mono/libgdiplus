@@ -7,10 +7,13 @@
 #define SCALE 1.5
 const char	png_filename[]	= "romedalen.png";
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "composite-integer-translate-over",
     "Test simple compositing: integer-translation 32->32 OVER",
-    SIZE, SIZE
+    SIZE, SIZE,
+    draw
 };
 
 static cairo_test_status_t
@@ -38,5 +41,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

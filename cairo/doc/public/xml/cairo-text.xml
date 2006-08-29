@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Text">
 <refmeta>
-<refentrytitle id="top_of_page">Text</refentrytitle>
+<refentrytitle role="top_of_page">Text</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -70,15 +70,15 @@ enum        <link linkend="cairo-font-weight-t">cairo_font_weight_t</link>;
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-glyph-t" role="struct"/>cairo_glyph_t</title>
 <indexterm><primary>cairo_glyph_t</primary></indexterm><programlisting>typedef struct {
@@ -106,12 +106,6 @@ with respect to the overall origin</para>
 <para>
 
 </para><variablelist role="struct">
-<varlistentry>
-<term>unsigned&nbsp;<link linkend="long">long</link>&nbsp;<structfield>index</structfield>;</term>
-<listitem><simpara> glyph index in the font. The exact interpretation of the
-     glyph index depends on the font technology being used.
-</simpara></listitem>
-</varlistentry>
 <varlistentry>
 <term><link linkend="double">double</link>&nbsp;<structfield>x</structfield>;</term>
 <listitem><simpara> the offset in the X direction between the origin used for
@@ -152,76 +146,328 @@ with respect to the overall origin</para>
                                              const <link linkend="char">char</link> *family,
                                              <link linkend="cairo-font-slant-t">cairo_font_slant_t</link> slant,
                                              <link linkend="cairo-font-weight-t">cairo_font_weight_t</link> weight);</programlisting>
-</refsect2>
+<para>
+Selects a family and style of font from a simplified description as
+a family name, slant and weight. This function is meant to be used
+only for applications with simple font needs: Cairo doesn't provide
+for operations such as listing all available fonts on the system,
+and it is expected that most applications will need to use a more
+comprehensive font handling and text layout library in addition to
+cairo.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>family</parameter>&nbsp;:</term>
+<listitem><simpara> a font family name, encoded in UTF-8
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>slant</parameter>&nbsp;:</term>
+<listitem><simpara> the slant for the font
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>weight</parameter>&nbsp;:</term>
+<listitem><simpara> the weight for the font
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-set-font-size" role="function"/>cairo_set_font_size ()</title>
 <indexterm><primary>cairo_set_font_size</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_set_font_size             (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="double">double</link> size);</programlisting>
-</refsect2>
+<para>
+Sets the current font matrix to a scale by a factor of <parameter>size</parameter>, replacing
+any font matrix previously set with <link linkend="cairo-set-font-size"><function>cairo_set_font_size()</function></link> or
+<link linkend="cairo-set-font-matrix"><function>cairo_set_font_matrix()</function></link>. This results in a font size of <parameter>size</parameter> user space
+units. (More precisely, this matrix will result in the font's
+em-square being a <parameter>size</parameter> by <parameter>size</parameter> square in user space.)</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>size</parameter>&nbsp;:</term>
+<listitem><simpara> the new font size, in user space units
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-set-font-matrix" role="function"/>cairo_set_font_matrix ()</title>
 <indexterm><primary>cairo_set_font_matrix</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_set_font_matrix           (<link linkend="cairo-t">cairo_t</link> *cr,
                                              const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);</programlisting>
-</refsect2>
+<para>
+Sets the current font matrix to <parameter>matrix</parameter>. The font matrix gives a
+transformation from the design space of the font (in this space,
+the em-square is 1 unit by 1 unit) to user space. Normally, a
+simple scale is used (see <link linkend="cairo-set-font-size"><function>cairo_set_font_size()</function></link>), but a more
+complex font matrix can be used to shear the font
+or stretch it unequally along the two axes</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link> describing a transform to be applied to
+the current font.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-get-font-matrix" role="function"/>cairo_get_font_matrix ()</title>
 <indexterm><primary>cairo_get_font_matrix</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_get_font_matrix           (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);</programlisting>
-</refsect2>
+<para>
+Stores the current font matrix into <parameter>matrix</parameter>. See
+<link linkend="cairo-set-font-matrix"><function>cairo_set_font_matrix()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> return value for the matrix
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-set-font-options" role="function"/>cairo_set_font_options ()</title>
 <indexterm><primary>cairo_set_font_options</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_set_font_options          (<link linkend="cairo-t">cairo_t</link> *cr,
                                              const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);</programlisting>
-</refsect2>
+<para>
+Sets a set of custom font rendering options for the <link linkend="cairo-t"><type>cairo_t</type></link>.
+Rendering options are derived by merging these options with the
+options derived from underlying surface; if the value in <parameter>options</parameter>
+has a default value (like <link linkend="CAIRO-ANTIALIAS-DEFAULT:CAPS"><literal>CAIRO_ANTIALIAS_DEFAULT</literal></link>), then the value
+from the surface is used.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> font options to use
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-get-font-options" role="function"/>cairo_get_font_options ()</title>
 <indexterm><primary>cairo_get_font_options</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_get_font_options          (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);</programlisting>
-</refsect2>
+<para>
+Retrieves font rendering options set via <link linkend="cairo-set-font-options"><type>cairo_set_font_options</type></link>.
+Note that the returned options do not include any options derived
+from the underlying surface; they are literally the options
+passed to <link linkend="cairo-set-font-options"><function>cairo_set_font_options()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>options</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link> object into which to store
+  the retrieved options. All existing values are overwritten
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-show-text" role="function"/>cairo_show_text ()</title>
 <indexterm><primary>cairo_show_text</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_show_text                 (<link linkend="cairo-t">cairo_t</link> *cr,
                                              const <link linkend="char">char</link> *utf8);</programlisting>
-</refsect2>
+<para>
+A drawing operator that generates the shape from a string of UTF-8
+characters, rendered according to the current font_face, font_size
+(font_matrix), and font_options.
+</para>
+<para>
+This function first computes a set of glyphs for the string of
+text. The first glyph is placed so that its origin is at the
+current point. The origin of each subsequent glyph is offset from
+that of the previous glyph by the advance values of the previous
+glyph.
+</para>
+<para>
+After this call the current point is moved to the origin of where
+the next glyph would be placed in this same progression. That is,
+the current point will be at the origin of the final glyph offset
+by its advance values. This allows for easy display of a single
+logical string with multiple calls to <link linkend="cairo-show-text"><function>cairo_show_text()</function></link>.
+</para>
+<para>
+NOTE: The <link linkend="cairo-show-text"><function>cairo_show_text()</function></link> function call is part of what the cairo
+designers call the "toy" text API. It is convenient for short demos
+and simple programs, but it is not expected to be adequate for the
+most serious of text-using applications. See <link linkend="cairo-show-glyphs"><function>cairo_show_glyphs()</function></link>
+for the "real" text display API in cairo.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo context
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>utf8</parameter>&nbsp;:</term>
+<listitem><simpara> a string of text encoded in UTF-8
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-show-glyphs" role="function"/>cairo_show_glyphs ()</title>
 <indexterm><primary>cairo_show_glyphs</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_show_glyphs               (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="cairo-glyph-t">cairo_glyph_t</link> *glyphs,
                                              <link linkend="int">int</link> num_glyphs);</programlisting>
-</refsect2>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>glyphs</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>num_glyphs</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-get-font-face" role="function"/>cairo_get_font_face ()</title>
 <indexterm><primary>cairo_get_font_face</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>* cairo_get_font_face      (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
-</refsect2>
+<para>
+Gets the current font face for a <link linkend="cairo-t"><type>cairo_t</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the current font object. Can return <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+  on out-of-memory or if the context is already in
+  an error state. This object is owned by cairo. To keep
+  a reference to it, you must call <link linkend="cairo-font-face-reference"><function>cairo_font_face_reference()</function></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-font-extents" role="function"/>cairo_font_extents ()</title>
 <indexterm><primary>cairo_font_extents</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_font_extents              (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="cairo-font-extents-t">cairo_font_extents_t</link> *extents);</programlisting>
-</refsect2>
+<para>
+Gets the font extents for the currently selected font.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>extents</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-extents-t"><type>cairo_font_extents_t</type></link> object into which the results
+will be stored.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-set-font-face" role="function"/>cairo_set_font_face ()</title>
 <indexterm><primary>cairo_set_font_face</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_set_font_face             (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
-</refsect2>
+<para>
+Replaces the current <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link> object in the <link linkend="cairo-t"><type>cairo_t</type></link> with
+<parameter>font_face</parameter>. The replaced font face in the <link linkend="cairo-t"><type>cairo_t</type></link> will be
+destroyed if there are no other references to it.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>font_face</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link>, or <link linkend="NULL:CAPS"><literal>NULL</literal></link> to restore to the default font
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-set-scaled-font" role="function" condition="since:1.2"/>cairo_set_scaled_font ()</title>
 <indexterm role="1.2"><primary>cairo_set_scaled_font</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_set_scaled_font           (<link linkend="cairo-t">cairo_t</link> *cr,
                                              const <link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
-<para>Since  1.2
+<para>
+Replaces the current font face, font matrix, and font options in
+the <link linkend="cairo-t"><type>cairo_t</type></link> with those of the <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>.  Except for
+some translation, the current CTM of the <link linkend="cairo-t"><type>cairo_t</type></link> should be the
+same as that of the <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>, which can be accessed
+using <link linkend="cairo-scaled-font-get-ctm"><function>cairo_scaled_font_get_ctm()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-text-extents" role="function"/>cairo_text_extents ()</title>
 <indexterm><primary>cairo_text_extents</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_text_extents              (<link linkend="cairo-t">cairo_t</link> *cr,
                                              const <link linkend="char">char</link> *utf8,
                                              <link linkend="cairo-text-extents-t">cairo_text_extents_t</link> *extents);</programlisting>
-</refsect2>
+<para>
+Gets the extents for a string of text. The extents describe a
+user-space rectangle that encloses the "inked" portion of the text,
+(as it would be drawn by <link linkend="cairo-show-text"><function>cairo_show_text()</function></link>). Additionally, the
+x_advance and y_advance values indicate the amount by which the
+current point would be advanced by <link linkend="cairo-show-text"><function>cairo_show_text()</function></link>.
+</para>
+<para>
+Note that whitespace characters do not directly contribute to the
+size of the rectangle (extents.width and extents.height). They do
+contribute indirectly by changing the position of non-whitespace
+characters. In particular, trailing whitespace characters are
+likely to not affect the size of the rectangle, though they will
+affect the x_advance and y_advance values.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>utf8</parameter>&nbsp;:</term>
+<listitem><simpara> a string of text, encoded in UTF-8
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>extents</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-text-extents-t"><type>cairo_text_extents_t</type></link> object into which the results
+will be stored
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-glyph-extents" role="function"/>cairo_glyph_extents ()</title>
 <indexterm><primary>cairo_glyph_extents</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_glyph_extents             (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="cairo-glyph-t">cairo_glyph_t</link> *glyphs,
                                              <link linkend="int">int</link> num_glyphs,
                                              <link linkend="cairo-text-extents-t">cairo_text_extents_t</link> *extents);</programlisting>
-</refsect2>
+<para>
+Gets the extents for an array of glyphs. The extents describe a
+user-space rectangle that encloses the "inked" portion of the
+glyphs, (as they would be drawn by <link linkend="cairo-show-glyphs"><function>cairo_show_glyphs()</function></link>).
+Additionally, the x_advance and y_advance values indicate the
+amount by which the current point would be advanced by
+cairo_show_glyphs.
+</para>
+<para>
+Note that whitespace glyphs do not contribute to the size of the
+rectangle (extents.width and extents.height).</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>glyphs</parameter>&nbsp;:</term>
+<listitem><simpara> an array of <link linkend="cairo-glyph-t"><type>cairo_glyph_t</type></link> objects
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>num_glyphs</parameter>&nbsp;:</term>
+<listitem><simpara> the number of elements in <parameter>glyphs</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>extents</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-text-extents-t"><type>cairo_text_extents_t</type></link> object into which the results
+will be stored
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 
 </refsect1>
 

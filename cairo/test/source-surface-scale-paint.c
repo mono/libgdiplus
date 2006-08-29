@@ -25,10 +25,13 @@
 
 #include "cairo-test.h"
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "source-surface-scale-paint",
     "Test call sequence: cairo_set_source_surface; cairo_scale; cairo_paint",
-    8, 8
+    8, 8,
+    draw
 };
 
 static cairo_test_status_t
@@ -59,5 +62,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

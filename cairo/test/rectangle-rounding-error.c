@@ -30,11 +30,14 @@
  *      https://bugs.freedesktop.org/show_bug.cgi?id=4137
  */
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "rectangle-rounding-error",
     "This demonstrates (or not) a rounding error that causes a gap between "
     "two neighbouring rectangles.",
-    76, 76
+    76, 76,
+    draw
 };
 
 static cairo_test_status_t
@@ -65,5 +68,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

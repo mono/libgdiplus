@@ -90,22 +90,33 @@ _cairo_image_surface_create_for_pixman_image (pixman_image_t *pixman_image,
 static cairo_format_t
 _cairo_format_from_pixman_format (pixman_format_t *pixman_format)
 {
-    int bpp, am, rm, gm, bm;
+    unsigned int bpp, am, rm, gm, bm;
 
     pixman_format_get_masks (pixman_format, &bpp, &am, &rm, &gm, &bm);
 
+    /* See definition of cairo_internal_format_t for an explanation of
+     * the CAIRO_INTERNAL_FORMAT values used here. */
     switch (bpp) {
     case 32:
-	if (am == 0xff000000 &&
-	    rm == 0x00ff0000 &&
-	    gm == 0x0000ff00 &&
-	    bm == 0x000000ff)
-	    return CAIRO_FORMAT_ARGB32;
-	if (am == 0x0 &&
-	    rm == 0x00ff0000 &&
-	    gm == 0x0000ff00 &&
-	    bm == 0x000000ff)
-	    return CAIRO_FORMAT_RGB24;
+	if (am == 0xff000000) {
+	    if (rm == 0x00ff0000 &&
+		gm == 0x0000ff00 &&
+		bm == 0x000000ff)
+		return CAIRO_FORMAT_ARGB32;
+	    if (rm == 0x000000ff &&
+		gm == 0x0000ff00 &&
+		bm == 0x00ff0000)
+		return CAIRO_INTERNAL_FORMAT_ABGR32;
+	} else if (am == 0x0) {
+	    if (rm == 0x00ff0000 &&
+		gm == 0x0000ff00 &&
+		bm == 0x000000ff)
+		return CAIRO_FORMAT_RGB24;
+	    if (rm == 0x000000ff &&
+		gm == 0x0000ff00 &&
+		bm == 0x00ff0000)
+		return CAIRO_INTERNAL_FORMAT_BGR24;
+	}
 	break;
     case 16:
 	if (am == 0x0 &&
@@ -135,8 +146,8 @@ _cairo_format_from_pixman_format (pixman_format_t *pixman_format)
 	     "\tDepth: %d\n"
 	     "\tAlpha mask: 0x%08x\n"
 	     "\tRed   mask: 0x%08x\n"
-	     "\tBlue  mask: 0x%08x\n"
 	     "\tGreen mask: 0x%08x\n"
+	     "\tBlue  mask: 0x%08x\n"
 	     "Please file an enhacement request (quoting the above) at:\n"
 	     PACKAGE_BUGREPORT "\n",
 	     bpp, am, rm, gm, bm);
@@ -145,6 +156,10 @@ _cairo_format_from_pixman_format (pixman_format_t *pixman_format)
     return (cairo_format_t) -1;
 }
 
+/* XXX: This function really should be eliminated. We don't really
+ * want to advertise a cairo image surface that supports any possible
+ * format. A minimal step would be to replace this function with one
+ * that accepts a cairo_internal_format_t rather than mask values. */
 cairo_surface_t *
 _cairo_image_surface_create_with_masks (unsigned char	       *data,
 					cairo_format_masks_t   *format,
@@ -400,6 +415,8 @@ cairo_image_surface_get_format (cairo_surface_t *surface)
 	return 0;
     }
 
+    assert (CAIRO_FORMAT_VALID (image_surface->format));
+
     return image_surface->format;
 }
 
@@ -491,11 +508,20 @@ _cairo_format_from_content (cairo_content_t content)
 cairo_content_t
 _cairo_content_from_format (cairo_format_t format)
 {
-    switch (format) {
+    /* XXX: Use an int to avoid the warnings from mixed cairo_format_t
+     * and cairo_internal_format_t values. The warnings are extremely
+     * valuable since mixing enums can lead to subtle bugs. It's just
+     * that cairo_internal_format_t is an interim approach to getting
+     * bug #7294 fixed so we can release cairo 1.2.2 . */
+    int f = format;
+
+    switch (f) {
     case CAIRO_FORMAT_ARGB32:
+    case CAIRO_INTERNAL_FORMAT_ABGR32:
 	return CAIRO_CONTENT_COLOR_ALPHA;
     case CAIRO_FORMAT_RGB24:
     case CAIRO_FORMAT_RGB16_565:
+    case CAIRO_INTERNAL_FORMAT_BGR24:
 	return CAIRO_CONTENT_COLOR;
     case CAIRO_FORMAT_A8:
     case CAIRO_FORMAT_A1:
@@ -639,6 +665,12 @@ _cairo_image_surface_set_filter (cairo_image_surface_t *surface, cairo_filter_t 
     case CAIRO_FILTER_BILINEAR:
 	pixman_filter = PIXMAN_FILTER_BILINEAR;
 	break;
+    case CAIRO_FILTER_GAUSSIAN:
+	/* XXX: The GAUSSIAN value has no implementation in cairo
+	 * whatsoever, so it was really a mistake to have it in the
+	 * API. We could fix this by officially deprecating it, or
+	 * else inventing semantics and providing an actual
+	 * implementation for it. */
     default:
 	pixman_filter = PIXMAN_FILTER_BEST;
     }
@@ -895,6 +927,9 @@ _cairo_image_surface_composite_trapezoids (cairo_operator_t	op,
 	mask_stride = (width + 31)/8;
 	mask_bpp = 1;
  	break;
+    case CAIRO_ANTIALIAS_GRAY:
+    case CAIRO_ANTIALIAS_SUBPIXEL:
+    case CAIRO_ANTIALIAS_DEFAULT:
     default:
 	format = pixman_format_create (PIXMAN_FORMAT_NAME_A8);
 	mask_stride = (width + 3) & ~3;
@@ -1015,3 +1050,29 @@ const cairo_surface_backend_t cairo_image_surface_backend = {
     _cairo_image_surface_get_extents,
     NULL /* old_show_glyphs */
 };
+
+/* A convenience function for when one needs to coerce an image
+ * surface to an alternate format. */
+cairo_image_surface_t *
+_cairo_image_surface_clone (cairo_image_surface_t	*surface,
+			    cairo_format_t		 format)
+{
+    cairo_image_surface_t *clone;
+    cairo_t *cr;
+    double x, y;
+
+    clone = (cairo_image_surface_t *)
+	cairo_image_surface_create (format,
+				    surface->width, surface->height);
+
+    cr = cairo_create (&clone->base);
+    cairo_surface_get_device_offset (&surface->base, &x, &y);
+    cairo_set_source_surface (cr, &surface->base, x, y);
+    cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+    cairo_paint (cr);
+    cairo_destroy (cr);
+
+    cairo_surface_set_device_offset (&clone->base, x, y);
+
+    return clone;
+}

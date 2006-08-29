@@ -164,16 +164,19 @@ static void (*clip_funcs[])(cairo_t *cr, int x, int y) = {
 #define IMAGE_WIDTH (ARRAY_SIZE (pattern_funcs) * (WIDTH + PAD) + PAD)
 #define IMAGE_HEIGHT (ARRAY_SIZE (draw_funcs) * ARRAY_SIZE (clip_funcs) * (HEIGHT + PAD) + PAD)
 
-static cairo_test_t test = {
+static cairo_test_draw_function_t draw;
+
+cairo_test_t test = {
     "trap-clip",
     "Trapezoid clipping",
-    IMAGE_WIDTH, IMAGE_HEIGHT
+    IMAGE_WIDTH, IMAGE_HEIGHT,
+    draw
 };
 
 static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
-    int i, j, k, x, y;
+    size_t i, j, k, x, y;
 
     for (k = 0; k < ARRAY_SIZE (clip_funcs); k++) {
 	for (j = 0; j < ARRAY_SIZE (draw_funcs); j++) {
@@ -188,7 +191,7 @@ draw (cairo_t *cr, int width, int height)
 		pattern_funcs[i] (cr, x, y);
 		draw_funcs[j] (cr, x, y);
 		if (cairo_status (cr))
-		    cairo_test_log ("%d %d HERE!\n", i, j);
+		    cairo_test_log ("%d %d HERE!\n", (int)i, (int)j);
 
 		cairo_restore (cr);
 	    }
@@ -196,7 +199,7 @@ draw (cairo_t *cr, int width, int height)
     }
 
     if (cairo_status (cr) != CAIRO_STATUS_SUCCESS)
-	cairo_test_log ("%d %d .HERE!\n", i, j);
+	cairo_test_log ("%d %d .HERE!\n", (int)i, (int)j);
 
     return CAIRO_TEST_SUCCESS;
 }
@@ -204,5 +207,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

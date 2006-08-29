@@ -31,7 +31,7 @@
 
 const cairo_solid_pattern_t cairo_pattern_nil = {
     { CAIRO_PATTERN_TYPE_SOLID, 	/* type */
-      (unsigned int)-1,		/* ref_count */
+      CAIRO_REF_COUNT_INVALID,		/* ref_count */
       CAIRO_STATUS_NO_MEMORY,	/* status */
       { 1., 0., 0., 1., 0., 0., }, /* matrix */
       CAIRO_FILTER_DEFAULT,	/* filter */
@@ -40,7 +40,7 @@ const cairo_solid_pattern_t cairo_pattern_nil = {
 
 static const cairo_solid_pattern_t cairo_pattern_nil_null_pointer = {
     { CAIRO_PATTERN_TYPE_SOLID, 	/* type */
-      (unsigned int)-1,		/* ref_count */
+      CAIRO_REF_COUNT_INVALID,		/* ref_count */
       CAIRO_STATUS_NULL_POINTER,/* status */
       { 1., 0., 0., 1., 0., 0., }, /* matrix */
       CAIRO_FILTER_DEFAULT,	/* filter */
@@ -49,7 +49,7 @@ static const cairo_solid_pattern_t cairo_pattern_nil_null_pointer = {
 
 static const cairo_solid_pattern_t cairo_pattern_nil_file_not_found = {
     { CAIRO_PATTERN_TYPE_SOLID, 	/* type */
-      (unsigned int)-1,		/* ref_count */
+      CAIRO_REF_COUNT_INVALID,		/* ref_count */
       CAIRO_STATUS_FILE_NOT_FOUND, /* status */
       { 1., 0., 0., 1., 0., 0., }, /* matrix */
       CAIRO_FILTER_DEFAULT,	/* filter */
@@ -58,7 +58,7 @@ static const cairo_solid_pattern_t cairo_pattern_nil_file_not_found = {
 
 static const cairo_solid_pattern_t cairo_pattern_nil_read_error = {
     { CAIRO_PATTERN_TYPE_SOLID, 	/* type */
-      (unsigned int)-1,		/* ref_count */
+      CAIRO_REF_COUNT_INVALID,		/* ref_count */
       CAIRO_STATUS_READ_ERROR,	/* status */
       { 1., 0., 0., 1., 0., 0., }, /* matrix */
       CAIRO_FILTER_DEFAULT,	/* filter */
@@ -68,17 +68,17 @@ static const cairo_solid_pattern_t cairo_pattern_nil_read_error = {
 static const cairo_pattern_t *
 _cairo_pattern_nil_for_status (cairo_status_t status)
 {
-    switch (status) {
-    case CAIRO_STATUS_NULL_POINTER:
+    /* A switch statement would be more natural here, but we're
+     * avoiding that to prevent a "false positive" warning from
+     * -Wswitch-enum, (and I don't want to maintain a list of all
+     * status values here). */
+    if (status == CAIRO_STATUS_NULL_POINTER)
 	return &cairo_pattern_nil_null_pointer.base;
-    case CAIRO_STATUS_FILE_NOT_FOUND:
+    if (status == CAIRO_STATUS_FILE_NOT_FOUND)
 	return &cairo_pattern_nil_file_not_found.base;
-    case CAIRO_STATUS_READ_ERROR:
+    if (status == CAIRO_STATUS_READ_ERROR)
 	return &cairo_pattern_nil_read_error.base;
-    default:
-    case CAIRO_STATUS_NO_MEMORY:
-	return &cairo_pattern_nil.base;
-    }
+    return &cairo_pattern_nil.base;
 }
 
 /**
@@ -514,7 +514,7 @@ cairo_pattern_reference (cairo_pattern_t *pattern)
     if (pattern == NULL)
 	return NULL;
 
-    if (pattern->ref_count == (unsigned int)-1)
+    if (pattern->ref_count == CAIRO_REF_COUNT_INVALID)
 	return pattern;
 
     assert (pattern->ref_count > 0);
@@ -528,7 +528,10 @@ cairo_pattern_reference (cairo_pattern_t *pattern)
  * cairo_pattern_get_type:
  * @pattern: a #cairo_pattern_t
  *
- * Return value: The type of @pattern. See #cairo_pattern_type_t.
+ * This function returns the type a pattern.
+ * See #cairo_pattern_type_t for available types.
+ *
+ * Return value: The type of @pattern.
  *
  * Since: 1.2
  **/
@@ -568,7 +571,7 @@ cairo_pattern_destroy (cairo_pattern_t *pattern)
     if (pattern == NULL)
 	return;
 
-    if (pattern->ref_count == (unsigned int)-1)
+    if (pattern->ref_count == CAIRO_REF_COUNT_INVALID)
 	return;
 
     assert (pattern->ref_count > 0);
@@ -591,7 +594,7 @@ _cairo_pattern_add_color_stop (cairo_gradient_pattern_t *pattern,
 {
     pixman_gradient_stop_t *new_stops;
     cairo_fixed_t	   x;
-    int			   i;
+    unsigned int	   i;
 
     new_stops = realloc (pattern->stops, (pattern->n_stops + 1) *
 			 sizeof (pixman_gradient_stop_t));
@@ -1079,7 +1082,7 @@ _cairo_pattern_is_opaque_solid (const cairo_pattern_t *pattern)
 static cairo_bool_t
 _gradient_is_opaque (const cairo_gradient_pattern_t *gradient)
 {
-    int i;
+    unsigned int i;
 
     for (i = 0; i < gradient->n_stops; i++)
 	if (! CAIRO_ALPHA_IS_OPAQUE (gradient->stops[i].color.alpha))

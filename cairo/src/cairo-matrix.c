@@ -94,7 +94,7 @@ slim_hidden_def(cairo_matrix_init);
 
 /**
  * _cairo_matrix_get_affine:
- * @matrix: a @cairo_matrix_t
+ * @matrix: a #cairo_matrix_t
  * @xx: location to store xx component of matrix
  * @yx: location to store yx component of matrix
  * @xy: location to store xy component of matrix
@@ -242,7 +242,7 @@ slim_hidden_def(cairo_matrix_init_rotate);
 
 /**
  * cairo_matrix_rotate:
- * @matrix: a @cairo_matrix_t
+ * @matrix: a #cairo_matrix_t
  * @radians: angle of rotation, in radians. The direction of rotation
  * is defined such that positive angles rotate in the direction from
  * the positive X axis toward the positive Y axis. With the default
@@ -266,9 +266,9 @@ cairo_matrix_rotate (cairo_matrix_t *matrix, double radians)
 
 /**
  * cairo_matrix_multiply:
- * @result: a @cairo_matrix_t in which to store the result
- * @a: a @cairo_matrix_t
- * @b: a @cairo_matrix_t
+ * @result: a #cairo_matrix_t in which to store the result
+ * @a: a #cairo_matrix_t
+ * @b: a #cairo_matrix_t
  *
  * Multiplies the affine transformations in @a and @b together
  * and stores the result in @result. The effect of the resulting
@@ -304,12 +304,12 @@ slim_hidden_def(cairo_matrix_multiply);
 
 /**
  * cairo_matrix_transform_distance:
- * @matrix: a @cairo_matrix_t
+ * @matrix: a #cairo_matrix_t
  * @dx: X component of a distance vector. An in/out parameter
  * @dy: Y component of a distance vector. An in/out parameter
  *
  * Transforms the distance vector (@dx,@dy) by @matrix. This is
- * similar to cairo_matrix_transform() except that the translation
+ * similar to cairo_matrix_transform_point() except that the translation
  * components of the transformation are ignored. The calculation of
  * the returned vector is as follows:
  *
@@ -338,7 +338,7 @@ slim_hidden_def(cairo_matrix_transform_distance);
 
 /**
  * cairo_matrix_transform_point:
- * @matrix: a @cairo_matrix_t
+ * @matrix: a #cairo_matrix_t
  * @x: X position. An in/out parameter
  * @y: Y position. An in/out parameter
  *
@@ -442,7 +442,7 @@ _cairo_matrix_compute_adjoint (cairo_matrix_t *matrix)
 
 /**
  * cairo_matrix_invert:
- * @matrix: a @cairo_matrix_t
+ * @matrix: a #cairo_matrix_t
  *
  * Changes @matrix to be the inverse of it's original value. Not
  * all transformation matrices have inverses; if the matrix

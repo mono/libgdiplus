@@ -34,17 +34,15 @@
       <title>Surfaces</title>
       <xi:include href="xml/cairo-surface.xml"/>
       <xi:include href="xml/cairo-image.xml"/>
-      <xi:include href="xml/cairo-glitz.xml"/>
+      <!--xi:include href="xml/cairo-glitz.xml"/-->
       <xi:include href="xml/cairo-pdf.xml"/>
       <xi:include href="xml/cairo-png.xml"/>
       <xi:include href="xml/cairo-ps.xml"/>
       <xi:include href="xml/cairo-win32.xml"/>
-      <xi:include href="xml/cairo-beos.xml"/>
+      <!--xi:include href="xml/cairo-beos.xml"/-->
       <xi:include href="xml/cairo-svg.xml"/>
-<!--  Experimental Quartz and XCB backends removed
-      from the public doc for now.
-      <xi:include href="xml/cairo-quartz.xml"/>
-      <xi:include href="xml/cairo-xcb.xml"/> -->
+      <!--xi:include href="xml/cairo-quartz.xml"-->
+      <!--xi:include href="xml/cairo-xcb.xml"/-->
       <xi:include href="xml/cairo-xlib.xml"/>
     </chapter>
     <chapter id="Support">
@@ -57,6 +55,9 @@
   </part>
   <index>
     <title>Index</title>
+  </index>
+  <index role="1.2">
+    <title>Index of new symbols in 1.2</title>
   </index>
   <xi:include href="language-bindings.xml"/>
 </book>

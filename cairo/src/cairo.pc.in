@@ -8,5 +8,6 @@ Description: Multi-platform 2D graphics library
 Version: @VERSION@
 
 @PKGCONFIG_REQUIRES@: @CAIRO_REQUIRES@
-Libs: @FREETYPE_CONFIG_LIBS@ -L${libdir} -lcairo 
-Cflags: @FREETYPE_CONFIG_CFLAGS@ -I${includedir}/cairo
+Libs: -L${libdir} -lcairo
+Libs.private: @CAIRO_NONPKGCONFIG_LIBS@
+Cflags: -I${includedir}/cairo

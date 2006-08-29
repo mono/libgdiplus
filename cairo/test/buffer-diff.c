@@ -92,9 +92,12 @@ buffer_diff_core (unsigned char *_buf_a,
 		for (channel = 0; channel < 4; channel++) {
 		    unsigned char value_a = (row_a[x] >> (channel*8));
 		    unsigned char value_b = (row_b[x] >> (channel*8));
-		    double diff;
+		    unsigned int diff;
 		    diff = value_a - value_b;
-		    diff_pixel |= (unsigned char)(128 + diff / 3.0) << (channel*8);
+		    diff *= 4; /* emphasize */
+		    if (diff > 255)
+		      diff = 255;
+		    diff_pixel |= diff << (channel*8);
 		}
 
 		pixels_changed++;
@@ -226,8 +229,7 @@ image_diff (const char *filename_a,
  *    (should use cairo_image_surface_create_from_png, should save
  *    loaded buffers for re-use).
  *
- * 2) Vlad has an outstanding patch against buffer-diff.c and I think
- *    this will be kinder to his merge pain.
+ * 2) There is a second reason no more.
  */
 int
 image_diff_flattened (const char *filename_a,
@@ -242,7 +244,8 @@ image_diff_flattened (const char *filename_a,
     unsigned int width_a, height_a, stride_a;
     unsigned int width_b, height_b, stride_b;
     unsigned char *buf_a, *buf_b, *buf_diff;
-    unsigned char *b_flat;
+    unsigned char *a_flat, *b_flat;
+    cairo_surface_t *buf_a_surface, *a_flat_surface;
     cairo_surface_t *buf_b_surface, *b_flat_surface;
     cairo_t *cr;
     read_png_status_t status;
@@ -275,33 +278,50 @@ image_diff_flattened (const char *filename_a,
 	return -1;
     }
 
+    buf_a_surface =  cairo_image_surface_create_for_data (buf_a,
+							  CAIRO_FORMAT_ARGB32,
+							  width_a + ax, height_a + ay,
+							  stride_a);
     buf_b_surface =  cairo_image_surface_create_for_data (buf_b,
 							  CAIRO_FORMAT_ARGB32,
-							  width_b + bx, height_b + bx,
+							  width_b + bx, height_b + by,
 							  stride_b);
 
     buf_diff = xcalloc (stride_a * height_a, 1);
 
-    b_flat = xcalloc (stride_a * height_a, 1);
+    a_flat = xcalloc (stride_a * height_a, 1);
+    b_flat = xcalloc (stride_b * height_b, 1);
 
+    a_flat_surface = cairo_image_surface_create_for_data (a_flat,
+							  CAIRO_FORMAT_ARGB32,
+							  width_a, height_a,
+							  stride_a);
+    cairo_surface_set_device_offset (a_flat_surface, -ax, -ay);
     b_flat_surface = cairo_image_surface_create_for_data (b_flat,
 							  CAIRO_FORMAT_ARGB32,
 							  width_b, height_b,
 							  stride_b);
     cairo_surface_set_device_offset (b_flat_surface, -bx, -by);
 
-    cr = cairo_create (b_flat_surface);
+    cr = cairo_create (a_flat_surface);
+    cairo_set_source_rgb (cr, 1, 1, 1);
+    cairo_paint (cr);
+    cairo_set_source_surface (cr, buf_a_surface, 0, 0);
+    cairo_paint (cr);
+    cairo_destroy (cr);
+    cairo_surface_destroy (a_flat_surface);
+    cairo_surface_destroy (buf_a_surface);
 
+    cr = cairo_create (b_flat_surface);
     cairo_set_source_rgb (cr, 1, 1, 1);
     cairo_paint (cr);
     cairo_set_source_surface (cr, buf_b_surface, 0, 0);
     cairo_paint (cr);
-
     cairo_destroy (cr);
     cairo_surface_destroy (b_flat_surface);
     cairo_surface_destroy (buf_b_surface);
 
-    pixels_changed = buffer_diff (buf_a + (ay * stride_a) + ax * 4,
+    pixels_changed = buffer_diff (a_flat,
                                   b_flat,
                                   buf_diff,
 				  width_a, height_a,
@@ -317,6 +337,7 @@ image_diff_flattened (const char *filename_a,
 
     free (buf_a);
     free (buf_b);
+    free (a_flat);
     free (b_flat);
     free (buf_diff);
 

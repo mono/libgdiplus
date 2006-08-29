@@ -5,16 +5,19 @@
 ]>
 <refentry id="cairo-Quartz-Surfaces">
 <refmeta>
-<refentrytitle>Quartz Surfaces</refentrytitle>
+<refentrytitle id="top_of_page">Quartz Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>Quartz Surfaces</refname><refpurpose>Rendering to Quartz surfaces</refpurpose>
+<refname>Quartz Surfaces</refname>
+<refpurpose>Rendering to Quartz surfaces</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv><title>Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -35,17 +38,17 @@
 
 
 
-<refsect1>
-<title>Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1>
-<title>Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 <refsect2>
-<title><anchor id="cairo-quartz-surface-create"/>cairo_quartz_surface_create ()</title>
+<title><anchor id="cairo-quartz-surface-create" role="function"/>cairo_quartz_surface_create ()</title>
 <indexterm><primary>cairo_quartz_surface_create</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_quartz_surface_create
                                             (<link linkend="CGContextRef">CGContextRef</link> context,
                                              <link linkend="int">int</link> width,

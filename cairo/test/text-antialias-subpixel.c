@@ -29,10 +29,13 @@
 #define HEIGHT 22
 #define TEXT_SIZE 12
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "text-antialias-subpixel",
     "Tests text rendering with subpixel antialiasing",
-    WIDTH, HEIGHT
+    WIDTH, HEIGHT,
+    draw
 };
 
 static cairo_test_status_t
@@ -50,16 +53,12 @@ draw (cairo_t *cr, int width, int height)
 			    CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size (cr, TEXT_SIZE);
 
-    /* Sub-pixel antialiasing with unhinted glyphs can be pretty ugly
-     * (bad color fringing). The reason we turn off hints here is to
-     * try to get repeatable glyph shapes on multiple systems, not for
-     * any aesthetic reason. */
     font_options = cairo_font_options_create ();
-
-    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_NONE);
+    cairo_get_font_options (cr, font_options);
     cairo_font_options_set_antialias (font_options, CAIRO_ANTIALIAS_SUBPIXEL);
     cairo_font_options_set_subpixel_order (font_options, CAIRO_SUBPIXEL_ORDER_RGB);
     cairo_set_font_options (cr, font_options);
+
     cairo_font_options_destroy (font_options);
 
     cairo_set_source_rgb (cr, 0, 0, 0); /* black */
@@ -79,5 +78,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

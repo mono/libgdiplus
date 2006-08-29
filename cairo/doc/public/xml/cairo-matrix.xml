@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-cairo-matrix-t">
 <refmeta>
-<refentrytitle id="top_of_page">cairo_matrix_t</refentrytitle>
+<refentrytitle role="top_of_page">cairo_matrix_t</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -69,8 +69,8 @@
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 
   <para><indexterm><primary>types</primary><secondary>cairo_matrix</secondary></indexterm><indexterm><primary/></indexterm>
     <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link> is used throughout cairo to convert between different
@@ -91,8 +91,8 @@
   </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-matrix-t" role="struct"/>cairo_matrix_t</title>
 <indexterm><primary>cairo_matrix_t</primary></indexterm><programlisting>typedef struct {
@@ -152,67 +152,284 @@ a point (x, y) is given by:
                                              <link linkend="double">double</link> yy,
                                              <link linkend="double">double</link> x0,
                                              <link linkend="double">double</link> y0);</programlisting>
-</refsect2>
+<para>
+Sets <parameter>matrix</parameter> to be the affine transformation given by
+<parameter>xx</parameter>, <parameter>yx</parameter>, <parameter>xy</parameter>, <parameter>yy</parameter>, <parameter>x0</parameter>, <parameter>y0</parameter>. The transformation is given
+by:
+<programlisting>
+ x_new = xx * x + xy * y + x0;
+ y_new = yx * x + yy * y + y0;
+</programlisting></para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo_matrix_t
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>xx</parameter>&nbsp;:</term>
+<listitem><simpara> xx component of the affine transformation
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>yx</parameter>&nbsp;:</term>
+<listitem><simpara> yx component of the affine transformation
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>xy</parameter>&nbsp;:</term>
+<listitem><simpara> xy component of the affine transformation
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>yy</parameter>&nbsp;:</term>
+<listitem><simpara> yy component of the affine transformation
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x0</parameter>&nbsp;:</term>
+<listitem><simpara> X translation component of the affine transformation
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>y0</parameter>&nbsp;:</term>
+<listitem><simpara> Y translation component of the affine transformation
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-matrix-init-identity" role="function"/>cairo_matrix_init_identity ()</title>
 <indexterm><primary>cairo_matrix_init_identity</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_matrix_init_identity      (<link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);</programlisting>
-</refsect2>
+<para>
+Modifies <parameter>matrix</parameter> to be an identity transformation.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-matrix-init-translate" role="function"/>cairo_matrix_init_translate ()</title>
 <indexterm><primary>cairo_matrix_init_translate</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_matrix_init_translate     (<link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix,
                                              <link linkend="double">double</link> tx,
                                              <link linkend="double">double</link> ty);</programlisting>
-</refsect2>
+<para>
+Initializes <parameter>matrix</parameter> to a transformation that translates by <parameter>tx</parameter> and
+<parameter>ty</parameter> in the X and Y dimensions, respectively.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo_matrix_t
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>tx</parameter>&nbsp;:</term>
+<listitem><simpara> amount to translate in the X direction
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ty</parameter>&nbsp;:</term>
+<listitem><simpara> amount to translate in the Y direction
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-matrix-init-scale" role="function"/>cairo_matrix_init_scale ()</title>
 <indexterm><primary>cairo_matrix_init_scale</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_matrix_init_scale         (<link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix,
                                              <link linkend="double">double</link> sx,
                                              <link linkend="double">double</link> sy);</programlisting>
-</refsect2>
+<para>
+Initializes <parameter>matrix</parameter> to a transformation that scales by <parameter>sx</parameter> and <parameter>sy</parameter>
+in the X and Y dimensions, respectively.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo_matrix_t
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>sx</parameter>&nbsp;:</term>
+<listitem><simpara> scale factor in the X direction
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>sy</parameter>&nbsp;:</term>
+<listitem><simpara> scale factor in the Y direction
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-matrix-init-rotate" role="function"/>cairo_matrix_init_rotate ()</title>
 <indexterm><primary>cairo_matrix_init_rotate</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_matrix_init_rotate        (<link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix,
                                              <link linkend="double">double</link> radians);</programlisting>
-</refsect2>
+<para>
+Initialized <parameter>matrix</parameter> to a transformation that rotates by <parameter>radians</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo_matrix_t
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>radians</parameter>&nbsp;:</term>
+<listitem><simpara> angle of rotation, in radians. The direction of rotation
+is defined such that positive angles rotate in the direction from
+the positive X axis toward the positive Y axis. With the default
+axis orientation of cairo, positive angles rotate in a clockwise
+direction.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-matrix-translate" role="function"/>cairo_matrix_translate ()</title>
 <indexterm><primary>cairo_matrix_translate</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_matrix_translate          (<link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix,
                                              <link linkend="double">double</link> tx,
                                              <link linkend="double">double</link> ty);</programlisting>
-</refsect2>
+<para>
+Applies a translation by <parameter>tx</parameter>, <parameter>ty</parameter> to the transformation in
+<parameter>matrix</parameter>. The effect of the new transformation is to first translate
+the coordinates by <parameter>tx</parameter> and <parameter>ty</parameter>, then apply the original transformation
+to the coordinates.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo_matrix_t
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>tx</parameter>&nbsp;:</term>
+<listitem><simpara> amount to translate in the X direction
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ty</parameter>&nbsp;:</term>
+<listitem><simpara> amount to translate in the Y direction
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-matrix-scale" role="function"/>cairo_matrix_scale ()</title>
 <indexterm><primary>cairo_matrix_scale</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_matrix_scale              (<link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix,
                                              <link linkend="double">double</link> sx,
                                              <link linkend="double">double</link> sy);</programlisting>
-</refsect2>
+<para>
+Applies scaling by <parameter>tx</parameter>, <parameter>ty</parameter> to the transformation in <parameter>matrix</parameter>. The
+effect of the new transformation is to first scale the coordinates
+by <parameter>sx</parameter> and <parameter>sy</parameter>, then apply the original transformation to the coordinates.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>sx</parameter>&nbsp;:</term>
+<listitem><simpara> scale factor in the X direction
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>sy</parameter>&nbsp;:</term>
+<listitem><simpara> scale factor in the Y direction
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-matrix-rotate" role="function"/>cairo_matrix_rotate ()</title>
 <indexterm><primary>cairo_matrix_rotate</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_matrix_rotate             (<link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix,
                                              <link linkend="double">double</link> radians);</programlisting>
-</refsect2>
+<para>
+Applies rotation by <parameter>radians</parameter> to the transformation in
+<parameter>matrix</parameter>. The effect of the new transformation is to first rotate the
+coordinates by <parameter>radians</parameter>, then apply the original transformation
+to the coordinates.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>radians</parameter>&nbsp;:</term>
+<listitem><simpara> angle of rotation, in radians. The direction of rotation
+is defined such that positive angles rotate in the direction from
+the positive X axis toward the positive Y axis. With the default
+axis orientation of cairo, positive angles rotate in a clockwise
+direction.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-matrix-invert" role="function"/>cairo_matrix_invert ()</title>
 <indexterm><primary>cairo_matrix_invert</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_matrix_invert          (<link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);</programlisting>
-</refsect2>
+<para>
+Changes <parameter>matrix</parameter> to be the inverse of it's original value. Not
+all transformation matrices have inverses; if the matrix
+collapses points together (it is <firstterm>degenerate</firstterm>),
+then it has no inverse and this function will fail.
+</para>
+<para>
+Returns: If <parameter>matrix</parameter> has an inverse, modifies <parameter>matrix</parameter> to
+ be the inverse matrix and returns <link linkend="CAIRO-STATUS-SUCCESS:CAPS"><literal>CAIRO_STATUS_SUCCESS</literal></link>. Otherwise,</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara><link linkend="CAIRO-STATUS-INVALID-MATRIX:CAPS"><literal>CAIRO_STATUS_INVALID_MATRIX</literal></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-matrix-multiply" role="function"/>cairo_matrix_multiply ()</title>
 <indexterm><primary>cairo_matrix_multiply</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_matrix_multiply           (<link linkend="cairo-matrix-t">cairo_matrix_t</link> *result,
                                              const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *a,
                                              const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *b);</programlisting>
-</refsect2>
+<para>
+Multiplies the affine transformations in <parameter>a</parameter> and <parameter>b</parameter> together
+and stores the result in <parameter>result</parameter>. The effect of the resulting
+transformation is to first apply the transformation in <parameter>a</parameter> to the
+coordinates and then apply the transformation in <parameter>b</parameter> to the
+coordinates.
+</para>
+<para>
+It is allowable for <parameter>result</parameter> to be identical to either <parameter>a</parameter> or <parameter>b</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>result</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link> in which to store the result
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>a</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>b</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-matrix-transform-distance" role="function"/>cairo_matrix_transform_distance ()</title>
 <indexterm><primary>cairo_matrix_transform_distance</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_matrix_transform_distance (const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix,
                                              <link linkend="double">double</link> *dx,
                                              <link linkend="double">double</link> *dy);</programlisting>
-</refsect2>
+<para>
+Transforms the distance vector (<parameter>dx</parameter>,<parameter>dy</parameter>) by <parameter>matrix</parameter>. This is
+similar to <link linkend="cairo-matrix-transform-point"><function>cairo_matrix_transform_point()</function></link> except that the translation
+components of the transformation are ignored. The calculation of
+the returned vector is as follows:
+</para>
+<para>
+<programlisting>
+dx2 = dx1 * a + dy1 * c;
+dy2 = dx1 * b + dy1 * d;
+</programlisting>
+</para>
+<para>
+Affine transformations are position invariant, so the same vector
+always transforms to the same vector. If (<parameter>x1</parameter>,<parameter>y1</parameter>) transforms
+to (<parameter>x2</parameter>,<parameter>y2</parameter>) then (<parameter>x1</parameter>+<parameter>dx1</parameter>,<parameter>y1</parameter>+<parameter>dy1</parameter>) will transform to
+(<parameter>x1</parameter>+<parameter>dx2</parameter>,<parameter>y1</parameter>+<parameter>dy2</parameter>) for all values of <parameter>x1</parameter> and <parameter>x2</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dx</parameter>&nbsp;:</term>
+<listitem><simpara> X component of a distance vector. An in/out parameter
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dy</parameter>&nbsp;:</term>
+<listitem><simpara> Y component of a distance vector. An in/out parameter
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-matrix-transform-point" role="function"/>cairo_matrix_transform_point ()</title>
 <indexterm><primary>cairo_matrix_transform_point</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_matrix_transform_point    (const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix,
                                              <link linkend="double">double</link> *x,
                                              <link linkend="double">double</link> *y);</programlisting>
-</refsect2>
+<para>
+Transforms the point (<parameter>x</parameter>, <parameter>y</parameter>) by <parameter>matrix</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x</parameter>&nbsp;:</term>
+<listitem><simpara> X position. An in/out parameter
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>y</parameter>&nbsp;:</term>
+<listitem><simpara> Y position. An in/out parameter
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 
 </refsect1>
 

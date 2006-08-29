@@ -84,10 +84,14 @@
 #define NUM_TEXT 20
 #define TEXT_SIZE 12
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "text-rotate",
-    "Tests show_text under various rotations",
-    WIDTH, HEIGHT
+    "Tests show_text under various rotations"
+    "\nminor bugs in positioning rotated glyphs",
+    WIDTH, HEIGHT,
+    draw
 };
 
 /* Draw the word cairo at NUM_TEXT different angles */
@@ -106,9 +110,8 @@ draw (cairo_t *cr, int width, int height)
 
     font_options = cairo_font_options_create ();
 
-    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_NONE);
+    cairo_get_font_options (cr, font_options);
     cairo_font_options_set_hint_metrics (font_options, CAIRO_HINT_METRICS_OFF);
-    cairo_font_options_set_antialias (font_options, CAIRO_ANTIALIAS_GRAY);
 
     cairo_set_font_options (cr, font_options);
     cairo_font_options_destroy (font_options);
@@ -150,6 +153,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test_expect_failure (&test, draw,
-				      "minor bugs in positioning rotated glyphs");
+    return cairo_test (&test);
 }

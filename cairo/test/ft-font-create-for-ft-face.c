@@ -26,10 +26,13 @@
 #include "cairo-test.h"
 #include <cairo-ft.h>
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "ft-font-create-for-ft-face",
     "Simple test to verify that cairo_ft_font_create_for_ft_face doesn't crash.",
-    0, 0
+    0, 0,
+    draw
 };
 
 static cairo_test_status_t
@@ -76,6 +79,8 @@ draw (cairo_t *cr, int width, int height)
     cairo_get_matrix (cr, &ctm);
 
     font_options = cairo_font_options_create ();
+
+    cairo_get_font_options (cr, font_options);
 
     scaled_font = cairo_scaled_font_create (font_face,
 					    &font_matrix,
@@ -126,5 +131,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

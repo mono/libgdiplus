@@ -34,7 +34,7 @@
 static void
 unpremultiply_data (png_structp png, png_row_infop row_info, png_bytep data)
 {
-    int i;
+    size_t i;
 
     for (i = 0; i < row_info->rowbytes; i += 4) {
         unsigned char *b = &data[i];

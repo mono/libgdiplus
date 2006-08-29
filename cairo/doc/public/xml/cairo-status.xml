@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Error-handling">
 <refmeta>
-<refentrytitle id="top_of_page">Error handling</refentrytitle>
+<refentrytitle role="top_of_page">Error handling</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -37,15 +37,15 @@ const <link linkend="char">char</link>* <link linkend="cairo-status-to-string">c
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-status-t" role="enum"/>enum cairo_status_t</title>
 <indexterm><primary>cairo_status_t</primary></indexterm><programlisting>typedef enum _cairo_status {
@@ -76,7 +76,11 @@ const <link linkend="char">char</link>* <link linkend="cairo-status-to-string">c
 <link linkend="cairo-status-t"><type>cairo_status_t</type></link> is used to indicate errors that can occur when
 using Cairo. In some cases it is returned directly by functions.
 but when using <link linkend="cairo-t"><type>cairo_t</type></link>, the last error, if any, is stored in
-the context and can be retrieved with <link linkend="cairo-status"><function>cairo_status()</function></link>.</para>
+the context and can be retrieved with <link linkend="cairo-status"><function>cairo_status()</function></link>.
+</para>
+<para>
+New entries may be added in future versions.  Use <link linkend="cairo-status-to-string"><function>cairo_status_to_string()</function></link>
+to get a human-readable representation of an error message.</para>
 <para>
 
 </para><variablelist role="enum">
@@ -189,11 +193,43 @@ the context and can be retrieved with <link linkend="cairo-status"><function>cai
 <refsect2>
 <title><anchor id="cairo-status-to-string" role="function"/>cairo_status_to_string ()</title>
 <indexterm><primary>cairo_status_to_string</primary></indexterm><programlisting>const <link linkend="char">char</link>* cairo_status_to_string          (<link linkend="cairo-status-t">cairo_status_t</link> status);</programlisting>
-</refsect2>
+<para>
+Provides a human-readable description of a <link linkend="cairo-status-t"><type>cairo_status_t</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>status</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo status
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>a string representation of the status
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-debug-reset-static-data" role="function"/>cairo_debug_reset_static_data ()</title>
 <indexterm><primary>cairo_debug_reset_static_data</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_debug_reset_static_data   (void);</programlisting>
-</refsect2>
+<para>
+Resets all static data within cairo to its original state,
+(ie. identical to the state at the time of program invocation). For
+example, all caches within cairo will be flushed empty.
+</para>
+<para>
+This function is intended to be useful when using memory-checking
+tools such as valgrind. When valgrind's memcheck analyzes a
+cairo-using program without a call to cairo_debug_reset_static_data,
+it will report all data reachable via cairo's static objects as
+"still reachable". Calling cairo_debug_reset_static_data just prior
+to program termination will make it easier to get squeaky clean
+reports from valgrind.
+</para>
+<para>
+WARNING: It is only safe to call this function when there are no
+active cairo objects remaining, (ie. the appropriate destroy
+functions have been called as necessary). If there are active cairo
+objects, this call is likely to cause a crash, (eg. an assertion
+failure due to a hash table being destroyed when non-empty).</para>
+<para>
+
+</para></refsect2>
 
 </refsect1>
 

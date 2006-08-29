@@ -110,7 +110,7 @@ main (void)
     const char *filename = "svg-clip.svg";
     cairo_surface_t *surface;
 
-    printf("\n");
+    cairo_test_init ("svg-clip");
 
     surface = cairo_svg_surface_create (filename,
 					WIDTH_IN_POINTS, HEIGHT_IN_POINTS);

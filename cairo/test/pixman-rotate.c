@@ -13,10 +13,13 @@
 #define IMAGE_WIDTH	(3 * WIDTH)
 #define IMAGE_HEIGHT	IMAGE_WIDTH
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "pixman-rotate",
     "Exposes pixman off-by-one error when rotating",
-    IMAGE_WIDTH, IMAGE_HEIGHT
+    IMAGE_WIDTH, IMAGE_HEIGHT,
+    draw
 };
 
 /* Draw the word cairo at NUM_TEXT different angles */
@@ -70,6 +73,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test_expect_failure (&test, draw,
-				      "known off-by-one bug when rotating a pixman image");
+    return cairo_test (&test);
 }

@@ -184,7 +184,7 @@ _cairo_output_stream_write_hex_string (cairo_output_stream_t *stream,
 {
     const char hex_chars[] = "0123456789abcdef";
     char buffer[2];
-    int i, column;
+    unsigned int i, column;
 
     if (stream->status)
 	return;
@@ -459,8 +459,10 @@ _cairo_output_stream_create_for_filename (const char *filename)
 	return (cairo_output_stream_t *) &cairo_output_stream_nil_write_error;
 
     stream = malloc (sizeof *stream);
-    if (stream == NULL)
+    if (stream == NULL) {
+	fclose (file);
 	return (cairo_output_stream_t *) &cairo_output_stream_nil;
+    }
 
     _cairo_output_stream_init (&stream->base, stdio_write, stdio_close);
     stream->file = file;

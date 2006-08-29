@@ -23,3 +23,70 @@ Base class for fonts
 </para>
 
 
+<!-- ##### FUNCTION cairo_font_face_reference ##### -->
+<para>
+
+</para>
+
+@font_face: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_font_face_destroy ##### -->
+<para>
+
+</para>
+
+@font_face: 
+
+
+<!-- ##### FUNCTION cairo_font_face_status ##### -->
+<para>
+
+</para>
+
+@font_face: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_font_face_get_user_data ##### -->
+<para>
+
+</para>
+
+@font_face: 
+@key: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_font_face_set_user_data ##### -->
+<para>
+
+</para>
+
+@font_face: 
+@key: 
+@user_data: 
+@destroy: 
+@Returns: 
+
+
+<!-- ##### ENUM cairo_font_type_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_FONT_TYPE_TOY: 
+@CAIRO_FONT_TYPE_FT: 
+@CAIRO_FONT_TYPE_WIN32: 
+@CAIRO_FONT_TYPE_ATSUI: 
+
+<!-- ##### FUNCTION cairo_font_face_get_type ##### -->
+<para>
+
+</para>
+
+@font_face: 
+@Returns: 
+
+

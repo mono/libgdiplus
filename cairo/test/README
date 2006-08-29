@@ -7,10 +7,28 @@ Using this test should be as simple as running:
 assuming that the cairo distribution in the directory above has been
 configured and built. The test suite here goes through some effort to
 run against the locally compiled library rather than any installed
-version.
+version, but those efforts may fall short depending the level of your
+libtool madness.
 
 The test suite needs to be run before any code is committed and before
 any release. Here are the rules governing the use of the suite:
+
+
+Tailoring tests running
+-----------------------
+
+There are some mechanisms to limit the tests run during "make check".
+These come very handy when doing development, but should not be used
+to circumvent the "pass" requirements listed below.
+
+To limit the backends that the tests are run against, use the
+TARGETS make variable, that can also be passed to make.
+It should contain a (space-, comma-, etc-separate) list of backends to test.
+To limit the tests run, use the TESTS make variable, which should be a
+space-separated list of tests to run.  For example:
+
+  make check TARGETS=image,ps TESTS="zero-alpha"
+
 
 Before committing
 -----------------
@@ -24,27 +42,31 @@ indicate known bugs. The final message should be one of the following:
 If any tests have a status of FAIL, then the new code has caused a
 regression error which should be fixed before the code is committed.
 
+
 When a new bug is found
 -----------------------
 A new test case should be added by imitating the style of an existing
 test. This means adding the following files:
 
-	new_bug.c
-	new_bug-ref.png
+	new-bug.c
+	new-bug-ref.png
 
-Where new_bug.c is a minimal program to demonstrate the bug, following
-the style of existing tests. The new_bug-ref.png image should contain
-the desired result of new_bug.c if the bug were fixed.
+Where new-bug.c is a minimal program to demonstrate the bug, following
+the style of existing tests. The new-bug-ref.png image should contain
+the desired result of new-bug.c if the bug were fixed.
 
-Makefile.am should be edited, adding new_bug.c to both the TESTS and
-XFAIL_TESTS lists.
+Makefile.am should be edited, adding new-bug.c to both the TESTS and
+XFAIL_TESTS lists and new-bug-ref.png to EXTRA_DIST, add new-bug to
+.gitignore, and last but not least, don't forget to "git add" the new
+files.
+
 
 When a new feature is added
 ---------------------------
 It's important for the regression suite to keep pace with development
-of the library. So a new test should be added for each new
-feature. The work involved is similar the work described above for new
-bugs. The only distinction is that the test is expected to pass so it
+of the library. So a new test should be added for each new feature.
+The work involved is similar the work described above for new bugs.
+The only distinction is that the test is expected to pass so it
 should not be added to the XFAIL_TESTS list.
 
 
@@ -55,10 +77,12 @@ result in an "unexpected pass" for the test of interest. Rejoice as
 appropriate, then remove the relevant file name from the XFAIL_TESTS
 variable in Makefile.am.
 
+
 Before releasing
 ----------------
-All tests should return a result of PASS meaning all known bugs are
-fixed, resulting in the happy message:
+All tests should return a result of PASS for all supported (those enabled by
+default) backends,  meaning all known bugs are fixed, resulting in the happy
+message:
 
 	All XX tests passed
 

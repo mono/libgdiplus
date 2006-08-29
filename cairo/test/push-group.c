@@ -32,10 +32,13 @@
 #define WIDTH (UNIT_SIZE + PAD) + PAD
 #define HEIGHT (UNIT_SIZE + PAD) + PAD
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "push-group",
     "Verify that cairo_push_group works.",
-    WIDTH, HEIGHT
+    WIDTH, HEIGHT,
+    draw
 };
 
 static cairo_test_status_t
@@ -53,7 +56,6 @@ draw (cairo_t *cr, int width, int height)
         for (i = 0; i < 1; i++) {
             double x = (i * UNIT_SIZE) + (i + 1) * PAD;
             double y = (j * UNIT_SIZE) + (j + 1) * PAD;
-            cairo_pattern_t *group_pattern;
 
             cairo_save (cr);
 
@@ -107,11 +109,13 @@ draw (cairo_t *cr, int width, int height)
         }
     }
 
+    cairo_pattern_destroy (gradient);
+
     return CAIRO_TEST_SUCCESS;
 }
 
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

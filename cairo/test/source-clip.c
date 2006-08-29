@@ -27,58 +27,59 @@
 #include "cairo-test.h"
 #include <stdio.h>
 
-#define SIZE 50
+#define SIZE 12
+
+static cairo_test_draw_function_t draw;
 
 cairo_test_t test = {
     "source-clip",
-    "Test using a surface with an active clip as a source",
-    SIZE, SIZE
+    "Test that a source surface is not affected by a clip",
+    SIZE, SIZE,
+    draw
 };
 
 static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
-    cairo_pattern_t *pattern;
-    cairo_surface_t *source_surface;
+    cairo_surface_t *source;
     cairo_t *cr2;
 
-    source_surface = cairo_surface_create_similar (cairo_get_target (cr),
-						   CAIRO_CONTENT_COLOR_ALPHA,
-						   SIZE, SIZE);
+    source = cairo_surface_create_similar (cairo_get_target (cr),
+					   CAIRO_CONTENT_COLOR_ALPHA,
+					   SIZE, SIZE);
 
-    cr2 = cairo_create (source_surface);
+    cr2 = cairo_create (source);
 
-    /* Fill the source surface with solid black */
-    cairo_set_source_rgb (cr2, 0, 0, 0);
+    /* Fill the source surface with green */
+    cairo_set_source_rgb (cr2, 0, 1, 0);
     cairo_paint (cr2);
 
-    /* Now leave a clip in place */
+    /* Draw a blue square in the middle of the source with clipping,
+     * and leave the clip there. */
     cairo_rectangle (cr2,
 		     SIZE / 4, SIZE / 4,
 		     SIZE / 2, SIZE / 2);
     cairo_clip (cr2);
+    cairo_set_source_rgb (cr2, 0, 0, 1);
+    cairo_paint (cr2);
 
-    /* Fill the destination surface with solid white */
-    cairo_set_source_rgb (cr, 1, 1, 1);
+    /* Fill the destination surface with solid red (should not appear
+     * in final result) */
+    cairo_set_source_rgb (cr, 1, 0, 0);
     cairo_paint (cr);
 
     /* Now draw the source surface onto the destination surface */
-    pattern = cairo_pattern_create_for_surface (source_surface);
-    cairo_set_source (cr, pattern);
+    cairo_set_source_surface (cr, source, 0, 0);
     cairo_paint (cr);
 
-    /* As the clip shouldn't matter, the result should be solid black */
-
     cairo_destroy (cr2);
-    cairo_pattern_destroy (pattern);
-    cairo_surface_destroy (source_surface);
+    cairo_surface_destroy (source);
 
     return CAIRO_TEST_SUCCESS;
-
 }
 
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

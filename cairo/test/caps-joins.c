@@ -29,11 +29,14 @@
 #define SIZE 		(5 * LINE_WIDTH)
 #define PAD		(2 * LINE_WIDTH)
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "caps-joins",
     "Test caps and joins",
     3 * (PAD + SIZE) + PAD,
-    PAD + SIZE + PAD
+    PAD + SIZE + PAD,
+    draw
 };
 
 static void
@@ -87,5 +90,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

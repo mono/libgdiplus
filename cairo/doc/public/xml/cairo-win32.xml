@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Win32-Surfaces">
 <refmeta>
-<refentrytitle id="top_of_page">Win32 Surfaces</refentrytitle>
+<refentrytitle role="top_of_page">Win32 Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -40,31 +40,76 @@
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-win32-surface-create" role="function"/>cairo_win32_surface_create ()</title>
 <indexterm><primary>cairo_win32_surface_create</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_win32_surface_create (<link linkend="HDC:CAPS">HDC</link> hdc);</programlisting>
-</refsect2>
+<para>
+Creates a cairo surface that targets the given DC.  The DC will be
+queried for its initial clip extents, and this will be used as the
+size of the cairo surface.  Also, if the DC is a raster DC, it will
+be queried for its pixel format and the cairo surface format will
+be set appropriately.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>hdc</parameter>&nbsp;:</term>
+<listitem><simpara> the DC to create a surface for
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the newly created surface
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-win32-surface-create-with-dib" role="function" condition="since:1.2"/>cairo_win32_surface_create_with_dib ()</title>
 <indexterm role="1.2"><primary>cairo_win32_surface_create_with_dib</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_win32_surface_create_with_dib
                                             (<link linkend="cairo-format-t">cairo_format_t</link> format,
                                              <link linkend="int">int</link> width,
                                              <link linkend="int">int</link> height);</programlisting>
-<para>Since  1.2
+<para>
+Creates a device-independent-bitmap surface not associated with
+any particular existing surface or device context. The created
+bitmap will be unititialized.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>format</parameter>&nbsp;:</term>
+<listitem><simpara> format of pixels in the surface to create
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
+<listitem><simpara> width of the surface, in pixels
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
+<listitem><simpara> height of the surface, in pixels
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the newly created surface
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-win32-surface-get-dc" role="function" condition="since:1.2"/>cairo_win32_surface_get_dc ()</title>
 <indexterm role="1.2"><primary>cairo_win32_surface_get_dc</primary></indexterm><programlisting><link linkend="HDC:CAPS">HDC</link>         cairo_win32_surface_get_dc      (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);</programlisting>
-<para>Since  1.2
+<para>
+Returns the HDC associated with this surface, or NULL if none.
+Also returns NULL if the surface is not a win32 surface.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>surface</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-surface-t"><type>cairo_surface_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> HDC or NULL if no HDC available.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.2
 </para></refsect2>
 
 </refsect1>

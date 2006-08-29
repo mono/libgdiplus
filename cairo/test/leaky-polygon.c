@@ -56,10 +56,13 @@
 #define WIDTH 21
 #define HEIGHT 21
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "leaky-polygon",
     "Exercises a corner case in the trapezoid rasterization in which pixels outside the trapezoids received a non-zero alpha",
-    WIDTH, HEIGHT
+    WIDTH, HEIGHT,
+    draw
 };
 
 static cairo_test_status_t
@@ -86,5 +89,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

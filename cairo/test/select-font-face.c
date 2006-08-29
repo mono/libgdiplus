@@ -27,31 +27,23 @@
 
 #define TEXT_SIZE 12
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "select-font-face",
     "Tests using cairo_select_font_face to draw text in different faces",
-    192, TEXT_SIZE + 4
+    192, TEXT_SIZE + 4,
+    draw
 };
 
 static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
-    cairo_font_options_t *font_options;
-
     /* We draw in the default black, so paint white first. */
     cairo_save (cr);
     cairo_set_source_rgb (cr, 1.0, 1.0, 1.0); /* white */
     cairo_paint (cr);
     cairo_restore (cr);
-
-    font_options = cairo_font_options_create ();
-
-    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_NONE);
-    cairo_font_options_set_hint_metrics (font_options, CAIRO_HINT_METRICS_OFF);
-    cairo_font_options_set_antialias (font_options, CAIRO_ANTIALIAS_GRAY);
-
-    cairo_set_font_options (cr, font_options);
-    cairo_font_options_destroy (font_options);
 
     cairo_set_source_rgb (cr, 0, 0, 0); /* black */
 
@@ -79,5 +71,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

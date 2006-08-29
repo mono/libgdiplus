@@ -25,10 +25,14 @@
 
 #include "cairo-test.h"
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "a8-mask",
-    "test masks of CAIRO_FORMAT_A8",
-    8, 8
+    "test masks of CAIRO_FORMAT_A8"
+    "\nimage backend fails because libpixman only handles (stride % sizeof(pixman_bits) == 0)",
+    8, 8,
+    draw
 };
 
 static unsigned char mask[] = {
@@ -67,6 +71,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test_expect_failure (&test, draw,
-	    "image backend fails because libpixman only handles (stride % sizeof(pixman_bits) == 0)");
+    return cairo_test (&test);
 }

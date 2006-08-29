@@ -1,4 +1,4 @@
 SUBDIRS=public
 .PHONY: doc
 doc:
-	-$(MAKE) -C public doc
+	cd public && $(MAKE) $(AM_MAKEFLAGS) public doc

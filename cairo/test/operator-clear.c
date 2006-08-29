@@ -146,30 +146,24 @@ static void (*draw_funcs[])(cairo_t *cr, int x, int y) = {
 #define IMAGE_WIDTH (ARRAY_SIZE (pattern_funcs) * (WIDTH + PAD) + PAD)
 #define IMAGE_HEIGHT (ARRAY_SIZE (draw_funcs) * (HEIGHT + PAD) + PAD)
 
-static cairo_test_t test = {
+static cairo_test_draw_function_t draw;
+
+cairo_test_t test = {
     "operator-clear",
     "Test of CAIRO_OPERATOR_CLEAR",
-    IMAGE_WIDTH, IMAGE_HEIGHT
+    IMAGE_WIDTH, IMAGE_HEIGHT,
+    draw
 };
 
 static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
-    int i, j, x, y;
-    cairo_font_options_t *font_options;
+    size_t i, j, x, y;
     cairo_pattern_t *pattern;
 
     cairo_select_font_face (cr, "Bitstream Vera Sans",
 			    CAIRO_FONT_SLANT_NORMAL,
 			    CAIRO_FONT_WEIGHT_NORMAL);
-
-    font_options = cairo_font_options_create ();
-
-    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_NONE);
-    cairo_font_options_set_antialias (font_options, CAIRO_ANTIALIAS_GRAY);
-
-    cairo_set_font_options (cr, font_options);
-    cairo_font_options_destroy (font_options);
 
     for (j = 0; j < ARRAY_SIZE (draw_funcs); j++) {
 	for (i = 0; i < ARRAY_SIZE (pattern_funcs); i++) {
@@ -195,14 +189,14 @@ draw (cairo_t *cr, int width, int height)
 	    pattern_funcs[i] (cr, x, y);
 	    draw_funcs[j] (cr, x, y);
 	    if (cairo_status (cr))
-		cairo_test_log ("%d %d HERE!\n", i, j);
+		cairo_test_log ("%d %d HERE!\n", (int)i, (int)j);
 
 	    cairo_restore (cr);
 	}
     }
 
     if (cairo_status (cr) != CAIRO_STATUS_SUCCESS)
-	cairo_test_log ("%d %d .HERE!\n", i, j);
+	cairo_test_log ("%d %d .HERE!\n", (int)i, (int)j);
 
     return CAIRO_TEST_SUCCESS;
 }
@@ -210,5 +204,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

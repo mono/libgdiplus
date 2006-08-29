@@ -5,16 +5,19 @@
 ]>
 <refentry id="cairo-XCB-Surfaces">
 <refmeta>
-<refentrytitle>XCB Surfaces</refentrytitle>
+<refentrytitle id="top_of_page">XCB Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>XCB Surfaces</refname><refpurpose>X Window System rendering using the XCB library</refpurpose>
+<refname>XCB Surfaces</refname>
+<refpurpose>X Window System rendering using the XCB library</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv><title>Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -44,17 +47,17 @@
 
 
 
-<refsect1>
-<title>Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1>
-<title>Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 <refsect2>
-<title><anchor id="cairo-xcb-surface-create"/>cairo_xcb_surface_create ()</title>
+<title><anchor id="cairo-xcb-surface-create" role="function"/>cairo_xcb_surface_create ()</title>
 <indexterm><primary>cairo_xcb_surface_create</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_xcb_surface_create   (<link linkend="XCBConnection">XCBConnection</link> *c,
                                              <link linkend="XCBDRAWABLE:CAPS">XCBDRAWABLE</link> drawable,
                                              <link linkend="XCBVISUALTYPE:CAPS">XCBVISUALTYPE</link> *visual,
@@ -93,7 +96,7 @@ window changes.</para>
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
-<title><anchor id="cairo-xcb-surface-create-for-bitmap"/>cairo_xcb_surface_create_for_bitmap ()</title>
+<title><anchor id="cairo-xcb-surface-create-for-bitmap" role="function"/>cairo_xcb_surface_create_for_bitmap ()</title>
 <indexterm><primary>cairo_xcb_surface_create_for_bitmap</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_xcb_surface_create_for_bitmap
                                             (<link linkend="XCBConnection">XCBConnection</link> *c,
                                              <link linkend="XCBPIXMAP:CAPS">XCBPIXMAP</link> bitmap,
@@ -121,7 +124,7 @@ This will be drawn to as a CAIRO_FORMAT_A1 object.</para>
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
-<title><anchor id="cairo-xcb-surface-set-size"/>cairo_xcb_surface_set_size ()</title>
+<title><anchor id="cairo-xcb-surface-set-size" role="function"/>cairo_xcb_surface_set_size ()</title>
 <indexterm><primary>cairo_xcb_surface_set_size</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_xcb_surface_set_size      (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
                                              <link linkend="int">int</link> width,
                                              <link linkend="int">int</link> height);</programlisting>

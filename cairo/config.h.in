@@ -35,6 +35,9 @@
 /* Define to 1 if you have the `FT_GlyphSlot_Embolden' function. */
 #undef HAVE_FT_GLYPHSLOT_EMBOLDEN
 
+/* Define to 1 if you have the `FT_Load_Sfnt_Table' function. */
+#undef HAVE_FT_LOAD_SFNT_TABLE
+
 /* Whether you have gcov */
 #undef HAVE_GCOV
 
@@ -46,6 +49,9 @@
 
 /* Define to 1 if you have the <pthread.h> header file. */
 #undef HAVE_PTHREAD_H
+
+/* Define to 1 if you have the <signal.h> header file. */
+#undef HAVE_SIGNAL_H
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H

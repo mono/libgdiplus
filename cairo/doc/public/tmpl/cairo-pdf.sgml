@@ -17,10 +17,36 @@ Rendering PDF documents
 <!-- ##### SECTION Stability_Level ##### -->
 
 
-<!-- ##### MACRO cairo_pdf_surface_set_dpi ##### -->
+<!-- ##### FUNCTION cairo_pdf_surface_create ##### -->
 <para>
 
 </para>
 
+@filename: 
+@width_in_points: 
+@height_in_points: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_pdf_surface_create_for_stream ##### -->
+<para>
+
+</para>
+
+@write_func: 
+@closure: 
+@width_in_points: 
+@height_in_points: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_pdf_surface_set_size ##### -->
+<para>
+
+</para>
+
+@surface: 
+@width_in_points: 
+@height_in_points: 
 
 

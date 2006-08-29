@@ -28,25 +28,19 @@
 #define IMAGE_WIDTH 64
 #define IMAGE_HEIGHT 64
 
+static cairo_test_draw_function_t draw;
+
 cairo_test_t test = {
     "text-pattern",
     "Patterned Text",
-    IMAGE_WIDTH, IMAGE_HEIGHT
+    IMAGE_WIDTH, IMAGE_HEIGHT,
+    draw
 };
 
 static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
-  cairo_font_options_t *font_options;
   cairo_pattern_t *pat;
-
-  font_options = cairo_font_options_create ();
-
-  cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_NONE);
-  cairo_font_options_set_antialias (font_options, CAIRO_ANTIALIAS_GRAY);
-
-  cairo_set_font_options (cr, font_options);
-  cairo_font_options_destroy (font_options);
 
   cairo_select_font_face (cr, "Bitstream Vera Sans",
 			  CAIRO_FONT_SLANT_NORMAL,
@@ -75,5 +69,5 @@ draw (cairo_t *cr, int width, int height)
 int
 main (void)
 {
-    return cairo_test (&test, draw);
+    return cairo_test (&test);
 }

@@ -924,9 +924,10 @@ _cairo_glitz_surface_fill_rectangles (void		      *abstract_dst,
 				      int		       n_rects)
 {
     cairo_glitz_surface_t *dst = abstract_dst;
+    cairo_glitz_surface_t *src;
 
-    if (op == CAIRO_OPERATOR_SOURCE)
-    {
+    switch (op) {
+    case CAIRO_OPERATOR_SOURCE: {
 	glitz_color_t glitz_color;
 
 	glitz_color.red = color->red_short;
@@ -936,11 +937,14 @@ _cairo_glitz_surface_fill_rectangles (void		      *abstract_dst,
 
 	glitz_set_rectangles (dst->surface, &glitz_color,
 			      (glitz_rectangle_t *) rects, n_rects);
-    }
-    else
-    {
-	cairo_glitz_surface_t *src;
+    } break;
+    case CAIRO_OPERATOR_CLEAR: {
+	static glitz_color_t glitz_color = { 0, 0, 0, 0 };
 
+	glitz_set_rectangles (dst->surface, &glitz_color,
+			      (glitz_rectangle_t *) rects, n_rects);
+    } break;
+    default:
 	if (op == CAIRO_OPERATOR_SATURATE)
 	    return CAIRO_INT_STATUS_UNSUPPORTED;
 
@@ -971,6 +975,7 @@ _cairo_glitz_surface_fill_rectangles (void		      *abstract_dst,
 	}
 
 	cairo_surface_destroy (&src->base);
+	break;
     }
 
     if (glitz_surface_get_status (dst->surface) == GLITZ_STATUS_NOT_SUPPORTED)

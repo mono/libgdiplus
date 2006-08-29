@@ -10,6 +10,7 @@ clip-fill-rule-pixel-aligned	\
 clip-nesting			\
 clip-operator			\
 clip-twice			\
+close-path			\
 composite-integer-translate-source \
 composite-integer-translate-over \
 composite-integer-translate-over-repeat \
@@ -17,8 +18,9 @@ create-for-stream		\
 create-from-png			\
 create-from-png-stream		\
 dash-caps-joins			\
-dash-scale			\
+dash-no-dash			\
 dash-offset-negative		\
+dash-scale			\
 dash-zero-length		\
 degenerate-path			\
 device-offset			\
@@ -30,6 +32,7 @@ fill-and-stroke-alpha-add	\
 fill-rule			\
 filter-nearest-offset		\
 font-face-get-type		\
+font-matrix-translation		\
 glyph-cache-pressure		\
 get-and-set			\
 get-group-target		\
@@ -39,6 +42,7 @@ leaky-polygon			\
 line-width			\
 line-width-scale		\
 linear-gradient			\
+long-lines			\
 mask				\
 mask-ctm			\
 mask-surface-ctm		\
@@ -62,6 +66,7 @@ self-intersecting		\
 set-source			\
 show-text-current-point		\
 source-clip			\
+source-clip-scale		\
 source-surface-scale-paint	\
 surface-finish-twice		\
 surface-pattern			\
@@ -74,6 +79,7 @@ text-rotate			\
 transforms			\
 translate-show-surface		\
 trap-clip			\
+truetype-tables			\
 unantialiased-shapes		\
 unbounded-operator		\
 user-data			\
@@ -90,7 +96,8 @@ endif
 if CAIRO_HAS_FT_FONT
 TESTS += bitmap-font
 TESTS += ft-font-create-for-ft-face
-TESTS += ft-text-vertical-layout
+TESTS += ft-text-vertical-layout-type1
+TESTS += ft-text-vertical-layout-type3
 TESTS += ft-text-antialias-none
 endif
 
@@ -148,11 +155,11 @@ make-html.pl						\
 a8-mask-ref.png						\
 bitmap-font-ref.png					\
 bitmap-font-rgb24-ref.png				\
+bitmap-font-pdf-argb32-ref.png				\
 caps-joins-ref.png					\
 caps-joins-ps-argb32-ref.png				\
 caps-joins-alpha-ref.png				\
-caps-joins-alpha-svg-argb32-ref.png			\
-caps-joins-alpha-svg-rgb24-ref.png			\
+caps-joins-alpha-svg-ref.png				\
 caps-sub-paths-ref.png					\
 caps-sub-paths-ps-argb32-ref.png			\
 clip-all-ref.png					\
@@ -169,20 +176,22 @@ clip-operator-rgb24-ref.png				\
 clip-twice-ref.png					\
 clip-twice-rgb24-ref.png				\
 clip-twice-ps-argb32-ref.png				\
+close-path-ref.png					\
+close-path-ps-argb32-ref.png				\
 composite-integer-translate-over-ref.png		\
 composite-integer-translate-over-pdf-argb32-ref.png	\
-composite-integer-translate-over-svg-argb32-ref.png	\
-composite-integer-translate-over-svg-rgb24-ref.png	\
+composite-integer-translate-over-svg-ref.png		\
 composite-integer-translate-over-repeat-ref.png		\
 composite-integer-translate-source-ref.png		\
 create-from-png-ref.png					\
 create-from-png-stream-ref.png				\
 dash-caps-joins-ref.png					\
 dash-caps-joins-ps-argb32-ref.png			\
-dash-scale-ref.png					\
-dash-scale-ps-argb32-ref.png				\
+dash-no-dash-ref.png					\
 dash-offset-negative-ref.png				\
 dash-offset-negative-ps-argb32-ref.png			\
+dash-scale-ref.png					\
+dash-scale-ps-argb32-ref.png				\
 dash-zero-length-ref.png				\
 dash-zero-length-rgb24-ref.png				\
 dash-zero-length-ps-argb32-ref.png			\
@@ -197,8 +206,7 @@ fill-and-stroke-ref.png					\
 fill-and-stroke-rgb24-ref.png				\
 fill-and-stroke-ps-argb32-ref.png			\
 fill-and-stroke-alpha-ref.png				\
-fill-and-stroke-alpha-svg-argb32-ref.png		\
-fill-and-stroke-alpha-svg-rgb24-ref.png			\
+fill-and-stroke-alpha-svg-ref.png			\
 fill-and-stroke-alpha-add-ref.png			\
 fill-rule-ref.png					\
 fill-rule-rgb24-ref.png					\
@@ -206,33 +214,33 @@ fill-rule-ps-argb32-ref.png				\
 filter-nearest-offset-ref.png				\
 ft-text-antialias-none-ref.png				\
 ft-text-antialias-none-ps-argb32-ref.png		\
-ft-text-vertical-layout-ref.png				\
-ft-text-vertical-layout-pdf-argb32-ref.png		\
-ft-text-vertical-layout-ps-argb32-ref.png		\
-ft-text-vertical-layout-svg-argb32-ref.png		\
-ft-text-vertical-layout-svg-rgb24-ref.png		\
+ft-text-vertical-layout-type1-ref.png			\
+ft-text-vertical-layout-type1-svg-ref.png		\
+ft-text-vertical-layout-type3-ref.png		\
+ft-text-vertical-layout-type3-svg-ref.png		\
+font-matrix-translation-ref.png				\
+font-matrix-translation-ps-argb32-ref.png		\
+font-matrix-translation-svg-ref.png			\
 get-group-target-ref.png				\
 glyph-cache-pressure-ref.png				\
-glyph-cache-pressure-pdf-argb32-ref.png			\
 glyph-cache-pressure-ps-argb32-ref.png			\
-glyph-cache-pressure-svg-argb32-ref.png			\
-glyph-cache-pressure-svg-rgb24-ref.png			\
+glyph-cache-pressure-svg-ref.png			\
 gradient-alpha-ref.png					\
 gradient-alpha-rgb24-ref.png				\
 leaky-dash-ref.png					\
 leaky-polygon-ref.png					\
 leaky-polygon-ps-argb32-ref.png				\
 linear-gradient-ref.png					\
-linear-gradient-svg-argb32-ref.png			\
-linear-gradient-svg-rgb24-ref.png			\
+linear-gradient-svg-ref.png				\
 line-width-ref.png					\
 line-width-ps-argb32-ref.png				\
 line-width-scale-ref.png				\
 line-width-scale-ps-argb32-ref.png			\
+long-lines-ref.png					\
 mask-ref.png						\
 mask-rgb24-ref.png					\
-mask-beos_bitmap-argb32-ref.png				\
-mask-beos_bitmap-rgb24-ref.png				\
+mask-beos-bitmap-argb32-ref.png				\
+mask-beos-bitmap-rgb24-ref.png				\
 mask-beos-rgb24-ref.png					\
 mask-svg-argb32-ref.png					\
 mask-svg-rgb24-ref.png					\
@@ -257,23 +265,18 @@ operator-source-rgb24-ref.png				\
 paint-ref.png						\
 paint-source-alpha-ref.png				\
 paint-source-alpha-pdf-argb32-ref.png			\
-paint-source-alpha-svg-argb32-ref.png			\
-paint-source-alpha-svg-rgb24-ref.png			\
+paint-source-alpha-svg-ref.png				\
 paint-with-alpha-ref.png				\
-paint-with-alpha-svg-argb32-ref.png			\
-paint-with-alpha-svg-rgb24-ref.png			\
+paint-with-alpha-svg-ref.png				\
 path-data-ref.png					\
 path-data-ps-argb32-ref.png				\
 pixman-rotate-ref.png					\
 pixman-rotate-rgb24-ref.png				\
-pixman-rotate-svg-argb32-ref.png			\
-pixman-rotate-svg-rgb24-ref.png				\
 push-group-ref.png					\
 push-group-rgb24-ref.png				\
 push-group-svg-argb32-ref.png				\
 push-group-svg-rgb24-ref.png				\
 rectangle-rounding-error-ref.png			\
-rectangle-rounding-error-ps-argb32-ref.png		\
 rel-path-ref.png					\
 rel-path-rgb24-ref.png					\
 romedalen.png						\
@@ -283,48 +286,32 @@ scale-source-surface-paint-pdf-argb32-ref.png		\
 scale-source-surface-paint-svg-argb32-ref.png		\
 scale-source-surface-paint-svg-rgb24-ref.png		\
 select-font-face-ref.png				\
-select-font-face-pdf-argb32-ref.png			\
 select-font-face-ps-argb32-ref.png			\
-select-font-face-svg-argb32-ref.png			\
-select-font-face-svg-rgb24-ref.png			\
+select-font-face-svg-ref.png				\
 self-copy-ref.png					\
 self-intersecting-ref.png				\
 self-intersecting-rgb24-ref.png				\
 set-source-ref.png					\
 set-source-rgb24-ref.png				\
-set-source-beos_bitmap-rgb24-ref.png			\
+set-source-beos-bitmap-rgb24-ref.png			\
 set-source-beos-rgb24-ref.png				\
 set-source-svg-argb32-ref.png				\
 set-source-svg-rgb24-ref.png				\
 show-glyphs-many-ref.png				\
 show-text-current-point-ref.png				\
-show-text-current-point-pdf-argb32-ref.png		\
 show-text-current-point-ps-argb32-ref.png		\
-show-text-current-point-svg-argb32-ref.png		\
-show-text-current-point-svg-rgb24-ref.png		\
+show-text-current-point-svg-ref.png			\
 source-clip-ref.png					\
+source-clip-scale-ref.png				\
+source-clip-scale-svg-ref.png				\
 source-surface-scale-paint-ref.png			\
 source-surface-scale-paint-rgb24-ref.png		\
 surface-pattern-ref.png					\
 text-antialias-gray-ref.png				\
-text-antialias-gray-pdf-argb32-ref.png			\
-text-antialias-gray-ps-argb32-ref.png			\
-text-antialias-gray-svg-argb32-ref.png			\
-text-antialias-gray-svg-rgb24-ref.png			\
 text-antialias-none-ref.png				\
-text-antialias-none-pdf-argb32-ref.png			\
-text-antialias-none-ps-argb32-ref.png			\
-text-antialias-none-svg-argb32-ref.png			\
-text-antialias-none-svg-rgb24-ref.png			\
 text-antialias-subpixel-ref.png				\
-text-antialias-subpixel-pdf-argb32-ref.png		\
-text-antialias-subpixel-ps-argb32-ref.png		\
-text-antialias-subpixel-svg-argb32-ref.png		\
-text-antialias-subpixel-svg-rgb24-ref.png		\
 text-pattern-ref.png					\
 text-pattern-rgb24-ref.png				\
-text-pattern-pdf-argb32-ref.png				\
-text-pattern-ps-argb32-ref.png				\
 text-pattern-svg-argb32-ref.png				\
 text-pattern-svg-rgb24-ref.png				\
 text-rotate-ref.png					\
@@ -334,14 +321,11 @@ transforms-ps-argb32-ref.png				\
 translate-show-surface-ref.png				\
 trap-clip-ref.png					\
 trap-clip-rgb24-ref.png					\
-trap-clip-beos_bitmap-rgb24-ref.png			\
+trap-clip-beos-bitmap-rgb24-ref.png			\
 trap-clip-beos-rgb24-ref.png				\
 trap-clip-svg-argb32-ref.png				\
 trap-clip-svg-rgb24-ref.png				\
 unantialiased-shapes-ref.png				\
-unantialiased-shapes-ps-argb32-ref.png			\
-unantialiased-shapes-svg-argb32-ref.png			\
-unantialiased-shapes-svg-rgb24-ref.png			\
 unbounded-operator-ref.png				\
 unbounded-operator-rgb24-ref.png			\
 zero-alpha-ref.png
@@ -363,12 +347,25 @@ XFAIL_TESTS =			\
 a8-mask				\
 extend-reflect			\
 filter-nearest-offset		\
+ft-text-vertical-layout-type1	\
+ft-text-vertical-layout-type3	\
 leaky-dash			\
-pixman-rotate			\
+long-lines			\
 self-intersecting		\
 text-rotate
 
-check_PROGRAMS = $(TESTS)
+# Any test that doesn't generate a log file goes here
+NOLOG_TESTS =			\
+create-for-stream		\
+user-data			\
+svg-surface			\
+svg-clip			\
+pdf-features			\
+ps-features			\
+multi-page			\
+fallback-resolution
+
+SUPPORT_PROGS =
 
 # We're using _GNU_SOURCE to get the prototype for asprintf. This may
 # not be the most portable approach, but it is pragmatic and I'm
@@ -382,7 +379,7 @@ INCLUDES =					\
 	-I$(top_srcdir)/src			\
 	$(CAIRO_CFLAGS)
 
-check_LTLIBRARIES = libcairotest.la
+EXTRA_LTLIBRARIES = libcairotest.la
 
 libcairotest_la_SOURCES =\
 buffer-diff.c		\
@@ -425,19 +422,32 @@ if HAVE_PTHREAD
 LDADD += -lpthread
 endif
 
-check_PROGRAMS += imagediff png-flatten
+SUPPORT_PROGS += imagediff png-flatten
 
 if CAIRO_CAN_TEST_PDF_SURFACE
-check_PROGRAMS += pdf2png
+SUPPORT_PROGS += pdf2png
 pdf2png_CFLAGS = $(POPPLER_CFLAGS)
 pdf2png_LDADD = $(LDADD) $(POPPLER_LIBS)
 endif
 
 if CAIRO_CAN_TEST_SVG_SURFACE
-check_PROGRAMS += svg2png
+SUPPORT_PROGS += svg2png
 svg2png_CFLAGS = $(LIBRSVG_CFLAGS)
-svg2png_LDADD = $(LIBRSVG_LIBS)
+svg2png_LDADD = $(LDADD) $(LIBRSVG_LIBS)
 endif
+
+EXTRA_PROGRAMS = $(TESTS) $(SUPPORT_PROGS)
+
+# Do a funny transition of CAIRO_TEST_TARGET through TARGETS such that
+# one can limit tested targets both through CAIRO_TEST_TARGET env var
+# and TARGETS make var on the command line.
+TARGETS = $(CAIRO_TEST_TARGET)
+
+TESTS_ENVIRONMENT = CAIRO_XFAIL_TESTS="$(XFAIL_TESTS)" CAIRO_TEST_TARGET="$(TARGETS)"
+
+VALGRIND_FLAGS = \
+	--tool=memcheck --suppressions=./.valgrind-suppressions \
+	--leak-check=yes --show-reachable=yes
 
 CLEANFILES =					\
 	*.ps					\
@@ -446,20 +456,67 @@ CLEANFILES =					\
 	*-out.png				\
 	*-diff.png				\
 	*.log					\
-	multi-page.ps				\
-	multi-page.pdf				\
-	pdf-features.pdf			\
-	ps-features.ps				\
-	svg-surface.svg				\
-	svg-clip.svg				\
-	index.html
+	valgrind-log				\
+	index.html				\
+	ref.hash				\
+	$(EXTRA_LTLIBRARIES)			\
+	$(EXTRA_PROGRAMS)
 
+# Check tests under valgrind
+# Saves log to valgrind-log
 check-valgrind:
-	TESTS_ENVIRONMENT="libtool --mode=execute valgrind --tool=memcheck --suppressions=./.valgrind-suppressions --leak-check=yes --show-reachable=yes" $(MAKE) check 2>&1 | tee valgrind.log
+	$(MAKE) $(AM_MAKEFLAGS) check TESTS_ENVIRONMENT='$(TESTS_ENVIRONMENT) $(top_srcdir)/libtool --mode=execute valgrind $(VALGRIND_FLAGS)' 2>&1 | tee valgrind-log
 
-html: index.html
+# The following definitions both should work.
+#FAILED_TESTS = `grep -l '\<FAIL\>' $(TESTS:=.log) 2>/dev/null | sed -e 's/[.]log$$//' | xargs echo`
+FAILED_TESTS = `grep -l '\<FAIL\>' $(TESTS:=.log) 2>/dev/null | tr '\n' ' ' | sed -e 's/[.]log  */ /g; s/^ //; s/ $$//'`
 
-index.html:
-	perl $(srcdir)/make-html.pl > index.html
+recheck = check TESTS="$(FAILED_TESTS)"
 
-.PHONY: check-valgrind html index.html
+# Re-checks all failed tests, i.e. tests with a log file that has a failure
+recheck:
+	@echo Re-checking failed tests
+	@$(MAKE) $(AM_MAKEFLAGS) $(recheck)
+
+# Checks tests and creates index.html.
+# Target doesn't fail if tests fail.
+test:
+	@$(MAKE) $(AM_MAKEFLAGS) check; \
+	$(MAKE) $(AM_MAKEFLAGS) html
+
+# Re-checks tests and creates index.html.
+# Target doesn't fail if tests fail.
+retest:
+	@TESTS="$(FAILED_TESTS)"; \
+	$(MAKE) $(AM_MAKEFLAGS) TESTS="$$TESTS" check; \
+	$(MAKE) $(AM_MAKEFLAGS) TESTS="$$TESTS" html
+
+# Make index.html with no dependency tracking.
+html:
+	@echo Creating index.html
+	@perl $(srcdir)/make-html.pl $(TESTS:=.log) > index.html
+
+# Make index.html with no dependency tracking, containing only the failed tests.
+rehtml:
+	@$(MAKE) $(AM_MAKEFLAGS) TESTS="$(FAILED_TESTS)" html
+
+$(TESTS): $(SUPPORT_PROGS)
+
+%.log: %
+	-./$<
+
+NOLOG_TESTS_LOG = $(NOLOG_TESTS:=.log)
+
+$(NOLOG_TESTS_LOG):
+	echo dummy > $@
+
+index.html: $(srcdir)/make-html.pl $(TESTS:=.log)
+	@echo Creating index.html
+	@perl $^ > $@
+
+# Identify identical reference images
+check-ref-dups:
+	@sha1sum *-ref.png > ref.hash
+	@join ref.hash ref.hash | grep -v -E '( .*-ref.png).*\1' | cut -d' ' -f 1-2 | sort -u
+
+.PHONY: check-valgrind test recheck retest html rehtml check-ref-dups

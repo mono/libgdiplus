@@ -492,9 +492,9 @@ _cairo_gstate_get_line_join (cairo_gstate_t *gstate)
 }
 
 cairo_status_t
-_cairo_gstate_set_dash (cairo_gstate_t *gstate, double *dash, int num_dashes, double offset)
+_cairo_gstate_set_dash (cairo_gstate_t *gstate, const double *dash, int num_dashes, double offset)
 {
-    int i;
+    unsigned int i;
     double dash_total;
 
     if (gstate->stroke_style.dash)
@@ -1436,10 +1436,12 @@ _cairo_gstate_show_glyphs (cairo_gstate_t *gstate,
 
     for (i = 0; i < num_glyphs; ++i)
     {
-	transformed_glyphs[i] = glyphs[i];
-	_cairo_gstate_user_to_device (gstate,
-				      &transformed_glyphs[i].x,
-				      &transformed_glyphs[i].y);
+	transformed_glyphs[i].index = glyphs[i].index;
+	transformed_glyphs[i].x = glyphs[i].x + gstate->font_matrix.x0;
+	transformed_glyphs[i].y = glyphs[i].y + gstate->font_matrix.y0;
+	_cairo_gstate_user_to_backend (gstate,
+				       &transformed_glyphs[i].x,
+				       &transformed_glyphs[i].y);
     }
 
     _cairo_gstate_copy_transformed_source (gstate, &source_pattern.base);
@@ -1477,7 +1479,9 @@ _cairo_gstate_glyph_path (cairo_gstate_t     *gstate,
 
     for (i = 0; i < num_glyphs; ++i)
     {
-	transformed_glyphs[i] = glyphs[i];
+	transformed_glyphs[i].index = glyphs[i].index;
+	transformed_glyphs[i].x = glyphs[i].x + gstate->font_matrix.x0;
+	transformed_glyphs[i].y = glyphs[i].y + gstate->font_matrix.y0;
 	_cairo_gstate_user_to_backend (gstate,
 				       &(transformed_glyphs[i].x),
 				       &(transformed_glyphs[i].y));
