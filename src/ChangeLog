@@ -1,3 +1,7 @@
+2006-08-29  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Reintroduce WORDS_BIGENDIAN for performance reasons.
+
 2006-08-28  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* bitmap.c: Remove WORDS_BIGENDIAN block and use endian-correct macro.
