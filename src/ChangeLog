@@ -1,6 +1,7 @@
-2006-08-29  Sebastien Pouliot  <sebastien@ximian.com>
+2006-08-29  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* bitmap.c: Reintroduce WORDS_BIGENDIAN for performance reasons.
+	* general.c: Remove duplicate macros.
 
 2006-08-28  Sebastien Pouliot  <sebastien@ximian.com> 
 

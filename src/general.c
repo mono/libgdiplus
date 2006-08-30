@@ -582,10 +582,6 @@ gdip_get_pattern_status (cairo_pattern_t *pat)
  * (2) testing shows artefacts if using more than 15 *signed* bits (i.e. -16384 to 16383)
  */
 
-#define CAIRO_LOW_LIMIT		-16384
-#define CAIRO_HIGH_LIMIT	16383
-#define CAIRO_LIMIT(v)		((v < CAIRO_LOW_LIMIT) ? CAIRO_LOW_LIMIT : (v > CAIRO_HIGH_LIMIT) ? CAIRO_HIGH_LIMIT : v)
-
 void
 gdip_cairo_rectangle (GpGraphics *graphics, double x, double y, double width, double height, BOOL antialiasing)
 {
