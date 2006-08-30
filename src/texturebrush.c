@@ -743,7 +743,30 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 	}
 
 	result->image = NULL;
-	status = GdipCloneImage (image, &result->image);
+	if ((x == 0) && (y == 0)) {
+		/* the texture share the same dimension as the image, so we can clone it*/
+		status = GdipCloneImage (image, &result->image);
+	} else {
+		/* otherwise we need to make a copy of the requested (rectangle) region */
+		int new_stride = (int) (image->active_bitmap->stride * (image->active_bitmap->width - x) / image->active_bitmap->width);
+		int format = -1;
+		switch (image->cairo_format) {
+		case CAIRO_FORMAT_RGB24:
+			format = Format24bppRgb;
+			break;
+		case CAIRO_FORMAT_ARGB32:
+			format = Format32bppArgb;
+			break;
+		case CAIRO_FORMAT_A8:
+			format = Format8bppIndexed;
+			break;
+		case CAIRO_FORMAT_A1:
+			format = Format1bppIndexed;
+			break;
+		}
+		status = GdipCreateBitmapFromScan0 (width, height, new_stride, format, 
+			(unsigned char *)image->active_bitmap->scan0, &result->image);
+	}
 	if (status != Ok) {
 		if (result->image)
 			GdipDisposeImage (result->image);
