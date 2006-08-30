@@ -55,9 +55,12 @@ _cairo_quartz_surface_acquire_source_image(void *abstract_surface,
 {
   cairo_quartz_surface_t *surface = abstract_surface;
 
+#if FALSE
+/* this function isn't available before 10.4 and doesn't seems required (as it works without it) */
   if (CGBitmapContextGetBitmapInfo (surface->context) != 0) {
     /* XXX: We can create an image out of the bitmap here */
   }
+#endif
 
   return CAIRO_INT_STATUS_UNSUPPORTED;
 }
