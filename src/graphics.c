@@ -1436,7 +1436,7 @@ make_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int offs
 		double x3 = points [j].X;
 		double y3 = points [j].Y;
 
-		gdip_cairo_curve_to (graphics, x1, y1, x2, y2, x2, y3, FALSE, antialiasing);
+		gdip_cairo_curve_to (graphics, x1, y1, x2, y2, x3, y3, FALSE, antialiasing);
         }
 
         if (type == CURVE_CLOSE) {
@@ -1450,7 +1450,7 @@ make_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int offs
 		double x3 = points [0].X;
 		double y3 = points [0].Y;
 
-		gdip_cairo_curve_to (graphics, x1, y1, x2, y2, x2, y3, FALSE, antialiasing);
+		gdip_cairo_curve_to (graphics, x1, y1, x2, y2, x3, y3, FALSE, antialiasing);
 
                 cairo_close_path (graphics->ct);
 	}
