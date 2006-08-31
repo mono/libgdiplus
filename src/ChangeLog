@@ -1,3 +1,8 @@
+2006-08-31  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* texturebrush.c: Test application shows the rotation to be identical
+	between Cairo and GDI+.
+
 2006-08-30  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* texturebrush.c: Fix image copying when only a part of the original

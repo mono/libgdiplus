@@ -906,28 +906,14 @@ GpStatus
 GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order)
 {
 	GpStatus status;
-	GpPointF axis;
 
-	if (texture == NULL) {
+	if (texture == NULL)
 		return InvalidParameter;
-	}
 
-	/* Cairo uses origin (0,0) as the axis of rotation. However, we need 
-	 * to do absolute rotation. Following approach for shifting the axis
-	 * of rotation was suggested by Carl.
-	 */
+	status = GdipRotateMatrix (&texture->matrix, angle, order);
+	if (status == Ok)
+		texture->base.changed = TRUE;
 
-	/* Our pattern size is 2*(texture->rect) hence its centre is following */
-	axis.X = texture->rectangle.Width;
-	axis.Y = texture->rectangle.Height;
-
-	if ((status = GdipTranslateMatrix (&texture->matrix, -axis.X, -axis.Y, order)) == Ok) {
-		if ((status = GdipRotateMatrix (&texture->matrix, angle, order)) == Ok) {
-			if ((status = GdipTranslateMatrix (&texture->matrix, axis.X, axis.Y, order)) == Ok) {
-				texture->base.changed = TRUE;
-			}
-		}
-	}
 	return status;
 }
 
