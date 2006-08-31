@@ -1,5 +1,7 @@
-2006-08-31  Sebastien Pouliot  <sebastien@ximian.com>
+2006-08-31  Sebastien Pouliot  <sebastien@ximian.com> 
 
+	* jpegcodec.c: Avoid memory overwrite in the processing loop - this 
+	messed up the first two lines (processed backward) of most JPEG files.
 	* texturebrush.c: Test application shows the rotation to be identical
 	between Cairo and GDI+.
 
