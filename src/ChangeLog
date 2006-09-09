@@ -1,3 +1,12 @@
+2006-09-08  Jonathan Gilbert  <logic@deltaq.org>
+
+	* bmpcodec.c: Fix the pixel format used when loading 32-bit BMP
+	files -- they were being loaded as Format32bppArgb, but MS's
+	GDIPLUS.DLL returns Format32bppRgb Bitmap objects. The alpha
+	data is still loaded, and work-arounds involving copying the
+	raw data over to another Bitmap object with the Format32bppArgb
+	pixel format should work here too.
+
 2006-09-07  Chris Toshok  <toshok@ximian.com>
 
 	* texturebrush.c (gdip_texture_setup): remove the matrix
