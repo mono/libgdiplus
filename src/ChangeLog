@@ -1,3 +1,9 @@
+2006-09-12  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* general.c: Don't apply the anti-aliasing offsets if we asked Cairo
+	to scale it's rendering (not the best solution but better than the 
+	current one where 0 scaled 100 times equals 50).
+
 2006-09-08  Jonathan Gilbert  <logic@deltaq.org>
 
 	* bmpcodec.c: Fix the pixel format used when loading 32-bit BMP

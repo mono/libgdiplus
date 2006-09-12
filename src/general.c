@@ -2,6 +2,7 @@
  * general.c
  * 
  * Copyright (c) 2003 Alexandre Pigolkine
+ * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -21,6 +22,7 @@
  * Authors:
  *   Alexandre Pigolkine(pigolkine@gmx.de)
  *   Duncan Mak (duncan@ximian.com)
+ *   Sebastien Pouliot  <sebastien@ximian.com>
  */
 
 #include "general.h"
@@ -576,6 +578,19 @@ gdip_get_pattern_status (cairo_pattern_t *pat)
 	}
 }
 
+/*
+ * Our anti-aliasing hack (adding an X and Y offset when drawing) cannot work if the current matrix 
+ * scales the coordinates. E.g. 0 scale 100 == 0, while (0 + 0.5) scale 100 == 50.
+ */
+
+static BOOL
+gdip_is_scaled (GpGraphics *graphics)
+{
+	cairo_matrix_t matrix;
+	cairo_get_matrix (graphics->ct, &matrix);
+	return ((matrix.xx != 1.0f) || (matrix.yy != 1.0f));
+}
+
 /* cairo has a (signed) 15(1)/16(2)bits pixel positioning, while GDI+ use (signed) 23 bits (infinity).
  * Using larger values confuse the bits used for subpixel positioning.
  * (1) http://lists.freedesktop.org/archives/cairo/2006-June/007251.html
@@ -595,8 +610,8 @@ gdip_cairo_rectangle (GpGraphics *graphics, double x, double y, double width, do
 		height = gdip_unity_convgr (graphics, height);
 	}
 
-	/* apply antialiasing offset (if required) */
-	if (antialiasing) {
+	/* apply antialiasing offset (if required and if no scaling is in effect) */
+	if (antialiasing && !gdip_is_scaled (graphics)) {
 		x += graphics->aa_offset_x;
 		y += graphics->aa_offset_y;
 	}
@@ -624,8 +639,9 @@ gdip_cairo_move_to (GpGraphics *graphics, double x, double y, BOOL convert_units
 		y = gdip_unity_convgr (graphics, y);
 	}
 
-	/* apply antialiasing offset (if required) */
-	if (antialiasing) {
+	/* apply antialiasing offset (if required and if no scaling is in effect) */
+	if (antialiasing && !gdip_is_scaled (graphics)) {
+		/* note that we can't add AA to a 0 position (or scaling will not work) */
 		x += graphics->aa_offset_x;
 		y += graphics->aa_offset_y;
 	}
@@ -646,8 +662,8 @@ gdip_cairo_line_to (GpGraphics *graphics, double x, double y, BOOL convert_units
 		y = gdip_unity_convgr (graphics, y);
 	}
 
-	/* apply antialiasing offset (if required) */
-	if (antialiasing) {
+	/* apply antialiasing offset (if required and if no scaling is in effect) */
+	if (antialiasing && !gdip_is_scaled (graphics)) {
 		x += graphics->aa_offset_x;
 		y += graphics->aa_offset_y;
 	}
@@ -673,8 +689,8 @@ gdip_cairo_curve_to (GpGraphics *graphics, double x1, double y1, double x2, doub
 		y3 = gdip_unity_convgr (graphics, y3);
 	}
 
-	/* apply antialiasing offset (if required) */
-	if (antialiasing) {
+	/* apply antialiasing offset (if required and if no scaling is in effect) */
+	if (antialiasing && !gdip_is_scaled (graphics)) {
 		x1 += graphics->aa_offset_x;
 		y1 += graphics->aa_offset_y;
 		x2 += graphics->aa_offset_x;
