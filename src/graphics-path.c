@@ -691,8 +691,7 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 	int i;
 	float drawn = 0;
 	float endAngle = startAngle + sweepAngle;
-	int sign = (endAngle > 0) ? 1 : -1;
-	int increment = sign * 90;
+	int increment = (endAngle > 0) ? 90 : -90;
 	bool enough = FALSE;
 
 	if (fabs (sweepAngle) >= 360) {
@@ -715,6 +714,10 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 			additional = endAngle - current; /* otherwise, add the remainder */
 			enough = TRUE;
 		}
+
+		/* a near zero value will introduce bad artefact in the drawing (#78999) */
+		if (gdip_near_zero (additional))
+			return;
 
 		append_arc (path,
 			    (i == 0) ? TRUE : FALSE,  /* only move to the starting pt in the 1st iteration */

@@ -1,3 +1,13 @@
+2006-09-13  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* general.h: Add/Move macros gdip_near_zero and gdip_near_one 
+	(from matrix.h) to avoid comparison between floating points value.
+	* graphics.c: (make_arcs) Make sure the additional angle isn't near
+	zero as this will results in NaN values and break rendering (#78999)
+	* graphics-path.c: (append_arcs) Make sure the additional angle isn't 
+	near zero as this will results in NaN values and break rendering
+	* matrix.h: Remove macros and include general.h
+
 2006-09-12  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* general.c: Don't apply the anti-aliasing offsets if we asked Cairo

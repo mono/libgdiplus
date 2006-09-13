@@ -25,6 +25,9 @@
 
 #include "gdip.h"
 
+/* avoid direct floating point comparison */
+#define gdip_near_zero(value)	((value >= -0.0001f) && (value <= 0.0001f))
+#define gdip_near_one(value)	((value >= 0.9999f) && (value <= 1.0001f))
 
 /* avoid fp division and multiplication that would return the same number */
 #define OPTIMIZE_CONVERSION(g)	(((g->page_unit == UnitDisplay) && (g->type != gtPostScript)) || \
