@@ -1,3 +1,7 @@
+2006-09-14  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Fix error reporting in GdipBitmapUnlockBits.
+
 2006-09-13  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* general.h: Add/Move macros gdip_near_zero and gdip_near_one 

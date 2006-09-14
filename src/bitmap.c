@@ -1949,14 +1949,13 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, GdipBitmapData *locked_data)
 		return InvalidParameter;
 	}
 
+	root_data = bitmap->active_bitmap;
+
 	/* It is not safe to assume that the correct BitmapData has been passed in.
 	 * Sanity check: Make sure the locked data is in fact locked.*/
-	if (!(bitmap->active_bitmap->reserved & GBD_LOCKED) || !(locked_data->reserved & GBD_LOCKED)) {
-		return InvalidParameter;
+	if (!(root_data->reserved & GBD_LOCKED) || !(locked_data->reserved & GBD_LOCKED)) {
+		return Win32Error;
 	}
-
-	status = Ok;
-	root_data = bitmap->active_bitmap;
 
 	/* Sanity check: Make sure the locked data's size is consistent with having
 	 * been returned from LockBits (). */
@@ -1970,6 +1969,8 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, GdipBitmapData *locked_data)
 		Rect destRect = { locked_data->x, locked_data->y, locked_data->width, locked_data->height };
 
 		status = gdip_bitmap_change_rect_pixel_format (locked_data, &srcRect, root_data, &destRect);
+	} else {
+		status = Ok;
 	}
 
 	if ((locked_data->reserved & GBD_OWN_SCAN0) != 0) {
