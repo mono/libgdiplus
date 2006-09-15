@@ -1,5 +1,6 @@
-2006-09-15  Sebastien Pouliot  <sebastien@ximian.com>
+2006-09-15  Sebastien Pouliot  <sebastien@ximian.com> 
 
+	* bmpcodec.c: Remove non working code for big endian architectures.
 	* graphics.c: Fix bug #79173 (multi-line labels/DrawText) by reverting
 	part of r62329 for bug #78777 (MeasureCharacterRanges bug).
 	* pngcodec.c: In memory representation is constant and so is the file

@@ -1196,15 +1196,9 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
 			ptr = current_line;
 			for (k = 0; k < width; k++) {
 				uint32_t color = *iptr++;
-#ifndef WORDS_BIGENDIAN
 				*ptr++ = (color & 0x000000ff);
 				*ptr++ = ((color & 0x0000ff00) >> 8);
 				*ptr++ = ((color & 0x00ff0000) >> 16);
-#else
-				*ptr++ = ((color & 0xff000000) >> 24);
-				*ptr++ = ((color & 0x00ff0000) >> 16);
-				*ptr++ = ((color & 0x0000ff00) >> 8);
-#endif
 			}
 			gdip_write_bmp_data (pointer, current_line, mystride, useFile);
 		}
