@@ -1,3 +1,8 @@
+2006-09-15  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* pngcodec.c: In memory representation is constant and so is the file
+	representation. There is no need to have endian code for saving files.
+
 2006-09-15  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* pngcodec.c: Format32bppRgb is a 4bpp format.
