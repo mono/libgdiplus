@@ -2400,7 +2400,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		}
 		if (CurrentDetail->Flags & STRING_DETAIL_LF) {
 			CursorX = 0;
-			CursorY += LineHeight;
+			CursorY += LineHeight * CurrentDetail->Linefeeds;
 			CurrentDetail->Flags |= STRING_DETAIL_LINESTART;
 			CurrentLineStart = CurrentDetail;
 #ifdef DRAWSTRING_DEBUG
@@ -3200,7 +3200,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 		}
 		if (CurrentDetail->Flags & STRING_DETAIL_LF) {
 			CursorX=0;
-			CursorY+=LineHeight;
+			CursorY+=LineHeight * CurrentDetail->Linefeeds;
 			CurrentDetail->Flags|=STRING_DETAIL_LINESTART;
 			CurrentLineStart=CurrentDetail;
 #ifdef DRAWSTRING_DEBUG
