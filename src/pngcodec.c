@@ -565,11 +565,11 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 	switch (image->active_bitmap->pixel_format) {
 		case Format32bppArgb:
 		case Format32bppPArgb:
+		case Format32bppRgb:
 			color_type = PNG_COLOR_TYPE_RGB_ALPHA;
 			bit_depth = 8;
 			break;
 
-		case Format32bppRgb:
 		case Format24bppRgb:
 			color_type = PNG_COLOR_TYPE_RGB; /* FIXME - we should be able to write grayscale PNGs */
 			bit_depth = 8;
@@ -648,10 +648,9 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 		for (i = 0; i < image->active_bitmap->height; i++) {
 			png_write_row (png_ptr, image->active_bitmap->scan0 + i * image->active_bitmap->stride);
 		}
-	} else if ((image->active_bitmap->pixel_format == Format24bppRgb) || (image->active_bitmap->pixel_format == Format32bppRgb)) {
+	} else if (image->active_bitmap->pixel_format == Format24bppRgb) {
 		int j;
 		guchar *row_pointer = GdipAlloc (image->active_bitmap->width * 3);
-
 		for (i = 0; i < image->active_bitmap->height; i++) {
 			for (j = 0; j < image->active_bitmap->width; j++) {
 #ifdef WORDS_BIGENDIAN
