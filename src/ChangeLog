@@ -1,3 +1,7 @@
+2006-09-16  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* pngcodec.c: Fix 24bbp saving for big endian architectures.
+
 2006-09-15  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* bmpcodec.c: Remove non working code for big endian architectures.

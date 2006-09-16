@@ -654,9 +654,9 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 		for (i = 0; i < image->active_bitmap->height; i++) {
 			for (j = 0; j < image->active_bitmap->width; j++) {
 #ifdef WORDS_BIGENDIAN
-				row_pointer[j*3  ] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 2);
-				row_pointer[j*3+1] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 1);
-				row_pointer[j*3+2] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 0);
+				row_pointer[j*3  ] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 3);
+				row_pointer[j*3+1] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 2);
+				row_pointer[j*3+2] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 1);
 #else
 				row_pointer[j*3  ] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 0);
 				row_pointer[j*3+1] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 1);
