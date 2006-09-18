@@ -1,3 +1,9 @@
+2006-09-18  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Avoid unit conversions, when possible, when measuring
+	or drawing strings. Fix both charactersFitted (not total string 
+	length, see bug #76664) and linesFitted (floor) in MeasureOrDrawString
+
 2006-09-16  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* pngcodec.c: Fix 24bbp saving for big endian architectures.

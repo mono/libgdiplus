@@ -2327,7 +2327,7 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			GdipDeleteStringFormat(fmt);
 		}
 
-		return 0;
+		return Ok;
 	}
 	
 	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
@@ -2718,29 +2718,46 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	   are to be displayed and where every character goes
 	*/
 	if (boundingBox) {
-		boundingBox->X=gdip_convgr_unitx (graphics, rc->X);
-		boundingBox->Y=gdip_convgr_unity (graphics, rc->Y);
+		boundingBox->X = rc->X;
+		boundingBox->Y = rc->Y;
 		if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
-			boundingBox->Width=gdip_convgr_unitx (graphics, MaxY);
-			boundingBox->Height=gdip_convgr_unity (graphics, MaxX);
+			boundingBox->Width = MaxY;
+			boundingBox->Height = MaxX;
 		} else {
-			boundingBox->Width=gdip_convgr_unitx (graphics, MaxX);
-			boundingBox->Height=gdip_convgr_unity (graphics, MaxY);
+			boundingBox->Width = MaxX;
+			boundingBox->Height = MaxY;
 		}
-		if (rc->Width>0 && boundingBox->Width>rc->Width) {
-			boundingBox->Width=gdip_convgr_unitx (graphics, rc->Width);
+		if ((rc->Width > 0) && (boundingBox->Width > rc->Width)) {
+			boundingBox->Width = rc->Width;
 		}
-		if (rc->Height>0 && boundingBox->Height>rc->Height) {
-			boundingBox->Height=gdip_convgr_unity (graphics, rc->Height);
+		if ((rc->Height > 0) && (boundingBox->Height > rc->Height)) {
+			boundingBox->Height = rc->Height;
+		}
+
+		/* avoid conversion computations if possible */
+		if (!OPTIMIZE_CONVERSION (graphics)) {
+			boundingBox->X = gdip_convgr_unitx (graphics, boundingBox->X);
+			boundingBox->Y = gdip_convgr_unity (graphics, boundingBox->Y);
+			boundingBox->Width = gdip_convgr_unitx (graphics, boundingBox->Width);
+			boundingBox->Height = gdip_convgr_unity (graphics, boundingBox->Height);
 		}
 	}
 
 	if (codepointsFitted) {
-		*codepointsFitted=StringLen;
+		/* how many characters from the string can be drawn in the boundingBox (#76664) */
+		double max_width = boundingBox ? (boundingBox->X + boundingBox->Width) : rc->X + min (MaxX, rc->Width);
+		int charactersFitted;
+		for (charactersFitted = 0; charactersFitted < StringLen; charactersFitted++) {
+			if ((StringDetails[charactersFitted].PosX + StringDetails[charactersFitted].Width) > max_width)
+				break;
+		}
+		*codepointsFitted = charactersFitted;
 	}
 
 	if (linesFilled) {
-		*linesFilled=MaxY / LineHeight;
+		/* how many *complete* lines fits in our calculated boundingBox */
+		double height = (boundingBox) ? boundingBox->Height : min (MaxY, rc->Height);
+		*linesFilled = floor (height / LineHeight);
 	}
 
 	if (draw) {
