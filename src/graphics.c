@@ -3587,18 +3587,16 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 	int			maxY;
 	float			FontSize;
 
-	if (!graphics || !stringUnicode || length == 0 || !font || !layoutRect ||
-	    !format || !regions || regionCount != format->charRangeCount)
+	if (!graphics || !stringUnicode || length == 0 || !font || !layoutRect || !format || !regions)
 		return InvalidParameter;
-	
+
 	/* No char range or bounding rect is set for measurements */
 	if (format->charRangeCount == 0 || layout->Width == 0 || layout->Height == 0)
 		return Ok;
 
-	/* Sanity; should we check for length==0? */
-	if (!graphics || !stringUnicode || !font) {
-		return(InvalidParameter);
-	}
+	/* if non-zero (previous check) format->charRangeCount must match regionCount */
+	if (regionCount != format->charRangeCount)
+		return InvalidParameter;
 
 	layoutRect->X = gdip_unitx_convgr (graphics, layout->X);
 	layoutRect->Y = gdip_unity_convgr (graphics, layout->Y);

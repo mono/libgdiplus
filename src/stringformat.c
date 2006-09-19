@@ -43,8 +43,8 @@ GdipCreateStringFormat (int formatAttributes, int language, GpStringFormat  **fo
 	result->lineAlignment =  StringAlignmentNear;
 	result->hotkeyPrefix = HotkeyPrefixNone;
 	result->formatFlags = formatAttributes; 
-	result->trimming = StringTrimmingNone;
-	result->substitute = DigitSubstituteNone;
+	result->trimming = StringTrimmingCharacter;
+	result->substitute = DigitSubstituteUser;
 	result->firstTabOffset = 0;
 	result->tabStops = NULL;
 	result->numtabStops = 0;

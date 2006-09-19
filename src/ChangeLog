@@ -1,3 +1,9 @@
+2006-09-19  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Fix parameters checking order and remove duplicates
+	checks in GdipMeasureCharacterRanges.
+	* stringformat.c: Set defaults to match MS GDI+.
+
 2006-09-18  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: Avoid unit conversions, when possible, when measuring
