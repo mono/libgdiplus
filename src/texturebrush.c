@@ -539,6 +539,10 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 	pattern = texture->pattern;
 
 	if (pattern != NULL) {
+		/* Use both the matrices */
+		cairo_matrix_multiply (product, &texture->matrix, graphics->copy_of_ctm);
+		cairo_matrix_invert (product);
+		cairo_pattern_set_matrix (pattern, product);
 		cairo_set_source (ct, pattern);
 		/*	cairo_pattern_destroy (pattern); */
 	}
