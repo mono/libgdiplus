@@ -373,11 +373,13 @@ GdipGetStringFormatMeasurableCharacterRangeCount (GDIPCONST GpStringFormat *form
 GpStatus
 GdipSetStringFormatMeasurableCharacterRanges (GpStringFormat *format, int rangeCount, GDIPCONST CharacterRange *ranges)
 {
-	if (! format || !ranges)
+	if (!format || !ranges || (rangeCount < 0))
 		return InvalidParameter;
 
 	if (rangeCount == 0)
 		return Ok;
+	else if (rangeCount > 32)
+		return ValueOverflow;
 
 	if (format->charRanges && format->charRangeCount != rangeCount) {
 		GdipFree (format->charRanges);
