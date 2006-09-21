@@ -1,3 +1,10 @@
+2006-09-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* texturebrush.c: Only apply the inverted texture matrix if one is set
+	(i.e. don't multiply by the graphic matrix). This should fix
+	parts of #79300 (looks right like the old patch) and the texture
+	sample still works correctly.
+
 2006-09-20  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* texturebrush.c: Revert last patch as it breaks the texture sample

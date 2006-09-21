@@ -429,7 +429,6 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 	unsigned int	height;
 	GpStatus	status = Ok;
 	BOOL		dispose_bitmap;
-	GpMatrix	*product;
 
 	if ((graphics == NULL) || (brush == NULL) || (graphics->ct == NULL)) {
 		return InvalidParameter;
@@ -504,53 +503,20 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 		return GenericError;
 	}
 
-	GdipCreateMatrix (&product);
-
-	/* FIXME Cairo Bug: REPEAT and transformation do not go together.  */
-	/* To work around this we can create an intermediate surface first */
-	/* with REPEAT and use that with transformation as a pattern. But, */
-	/* that gets another problem of handling rotation. Since, we need  */
-	/* absolute rotation instead of rotation around 0,0.               */
-	/* There are two ways to get around this problem:                  */
-	/* 1. Uncommenting the following commented code once we know a     */
-	/* better way to handle the rotation axis problem.      OR         */
-	/* 2. Cairo bug gets fixed. Following commented code won't be      */
-	/* needed in that case.                                            */
-	/*
-		cairo_save (ct);
-		{
-			temp = cairo_surface_create_similar (cairo_get_target (ct),
-								format, width, height);
-			
-			if (temp == NULL) {
-				cairo_matrix_destroy (product);
-				return OutOfMemory;
-			}
-			
-			cairo_set_target_surface (ct, temp);
-			cairo_set_source (ct, texture->pattern);
-			cairo_rectangle (ct, 0, 0, width, height);
-			cairo_fill (ct);
-		}
-		cairo_restore (ct);
-
-		pattern = cairo_pattern_create_for_surface (temp);
-	*/
 	pattern = texture->pattern;
-
 	if (pattern != NULL) {
-		/* Use both the matrices */
-		cairo_matrix_multiply (product, &texture->matrix, graphics->copy_of_ctm);
-		cairo_matrix_invert (product);
-		cairo_pattern_set_matrix (pattern, product);
-		cairo_set_source (ct, pattern);
-		/*	cairo_pattern_destroy (pattern); */
-	}
-	status = gdip_get_status (cairo_status (ct));
-	/*	cairo_surface_destroy (temp); */
-	GdipDeleteMatrix (product);
+		/* got something to apply ? */
+		if (!gdip_is_matrix_empty (&texture->matrix)) {
+			cairo_matrix_t product;
 
-	return status;
+		        gdip_cairo_matrix_copy (&product, &texture->matrix);
+			cairo_matrix_invert (&product);
+			cairo_pattern_set_matrix (pattern, &product);
+		}
+		cairo_set_source (ct, pattern);
+	}
+
+	return gdip_get_status (cairo_status (ct));
 }
 
 GpStatus
