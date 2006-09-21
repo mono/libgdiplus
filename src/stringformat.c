@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2004 Ximian inc. http://www.ximian.com
- * Copyright (C) 2004 Novell Inc. http://www.novell.com
+ * Copyright (C) 2004,2006 Novell Inc. http://www.novell.com
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -20,6 +20,7 @@
  * Authors:
  *	  Jordi Mas i Hernandez <jordi@ximian.com>, 2004
  *	  Ravindra <rkumar@novell.com>
+ *	  Sebastien Pouliot  <sebastien@ximian.com>
  *
  */
 
@@ -59,60 +60,18 @@ GdipCreateStringFormat (int formatAttributes, int language, GpStringFormat  **fo
 GpStatus
 GdipStringFormatGetGenericDefault (GpStringFormat **format)
 {
-	GpStringFormat *result;
-
-	if (!format)
-		return InvalidParameter;
-
-	result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
-
-	if (!result)
-		return OutOfMemory;
-
-	result->alignment = StringAlignmentNear;
-	result->lineAlignment =  StringAlignmentNear;
-	result->hotkeyPrefix = HotkeyPrefixNone;
-	result->formatFlags = 0;
-	result->trimming = StringTrimmingCharacter;
-	result->substitute = DigitSubstituteUser;
-	result->firstTabOffset = 0;
-	result->tabStops = NULL;
-	result->numtabStops = 0;
-	result->charRanges = NULL;
-	result->charRangeCount = 0;
-
-	*format = result;
-	return Ok;
+	return GdipCreateStringFormat (0, 0, format);
 }
 
 /* coverity[+alloc : arg-*0] */
 GpStatus
 GdipStringFormatGetGenericTypographic (GpStringFormat **format)
 {
-	GpStringFormat *result;
-	
-	if (!format)
-		return InvalidParameter;
-
-	result = (GpStringFormat *) GdipAlloc (sizeof (GpStringFormat));
-
-	if (!result)
-		return OutOfMemory;
-
-	result->alignment = StringAlignmentNear;
-	result->lineAlignment =  StringAlignmentNear;
-	result->hotkeyPrefix = HotkeyPrefixNone;
-	result->formatFlags = StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip;
-	result->trimming = StringTrimmingNone;
-	result->substitute = DigitSubstituteUser;
-	result->firstTabOffset = 0;
-	result->tabStops = NULL;
-	result->numtabStops = 0;
-	result->charRanges = NULL;
-	result->charRangeCount = 0;
-
-	*format = result;
-	return Ok;
+	int formatFlags = StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip;
+	GpStatus status = GdipCreateStringFormat (formatFlags, 0, format);
+	if (status == Ok)
+		(*format)->trimming = StringTrimmingNone;
+	return status;
 }
 
 /* coverity[+alloc : arg-*1] */
@@ -130,7 +89,15 @@ GdipCloneStringFormat (GDIPCONST GpStringFormat *format,  GpStringFormat **newFo
 	if (!result)
 		return OutOfMemory;
 
-	*result = *format;
+	result->alignment = format->alignment;
+	result->lineAlignment =  format->lineAlignment;
+	result->hotkeyPrefix = format->hotkeyPrefix;
+	result->formatFlags = format->formatFlags; 
+	result->trimming = format->trimming;
+	result->substitute = format->substitute;
+	result->firstTabOffset = format->firstTabOffset;
+	result->numtabStops = format->numtabStops;
+	result->charRangeCount = format->charRangeCount;
 
 	/* Create a copy of tab stops for the clone */
 	result->tabStops = (float *) GdipAlloc (sizeof (float) * format->numtabStops);
@@ -150,8 +117,10 @@ GdipCloneStringFormat (GDIPCONST GpStringFormat *format,  GpStringFormat **newFo
 		return OutOfMemory;
 	}
 
-	for (i = 0; i < format->charRangeCount; i++)
-		result->charRanges [i] = format->charRanges [i];
+	for (i = 0; i < format->charRangeCount; i++) {
+		result->charRanges [i].first = format->charRanges [i].first;
+		result->charRanges [i].length = format->charRanges [i].length;
+	}
 
 	*newFormat = result;
 	return Ok; 
@@ -163,13 +132,15 @@ GdipDeleteStringFormat (GpStringFormat *format)
 	if (!format)
 		return InvalidParameter;
 
-	if (format->tabStops)
+	if (format->tabStops) {
 		GdipFree (format->tabStops);
-	format->tabStops = NULL;
+		format->tabStops = NULL;
+	}
 
-	if (format->charRanges)
+	if (format->charRanges) {
 		GdipFree (format->charRanges);
-	format->charRanges = NULL;
+		format->charRanges = NULL;
+	}
 
 	GdipFree (format);
 	return Ok;
@@ -288,9 +259,9 @@ GdipSetStringFormatTabStops (GpStringFormat *format, float firstTabOffset, int c
 	if (format->tabStops)
 		GdipFree (format->tabStops);
 
-	format->firstTabOffset = firstTabOffset;
+	format->firstTabOffset = (count >= 0) ? firstTabOffset : 0.0f;
 
-	if (count == 0) {
+	if (count <= 0) {
 		format->tabStops = NULL;
 		format->numtabStops = 0;
 		return Ok;

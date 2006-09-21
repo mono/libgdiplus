@@ -1,3 +1,10 @@
+2006-09-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* stringformat.c: Don't clone by pointer assignement (sigh). Reuse 
+	GdipCreateStringFormat to implement GdipStringFormatGetGenericDefault
+	and GdipStringFormatGetGenericTypographic. Fix negative count in 
+	GdipSetStringFormatTabStops to reset values properly.
+
 2006-09-21  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* stringformat.c: In GdipSetStringFormatMeasurableCharacterRanges we
