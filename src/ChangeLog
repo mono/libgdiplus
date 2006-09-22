@@ -1,3 +1,9 @@
+2006-09-22  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: (GdipMeasureCharacterRanges) Ensure we're always freeing
+	strDetails when we return. Don't return Ok unless the status is Ok.
+	Optimize conversions (done only if required). Handle HotKeyPrefix 
+
 2006-09-21  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* stringformat.c: Don't clone by pointer assignement (sigh). Reuse 

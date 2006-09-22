@@ -3586,6 +3586,7 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 	float			OffsetY;
 	int			maxY;
 	float			FontSize;
+	BOOL			optimize_convert;
 
 	if (!graphics || !stringUnicode || length == 0 || !font || !layoutRect || !format || !regions)
 		return InvalidParameter;
@@ -3598,10 +3599,19 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 	if (regionCount != format->charRangeCount)
 		return InvalidParameter;
 
-	layoutRect->X = gdip_unitx_convgr (graphics, layout->X);
-	layoutRect->Y = gdip_unity_convgr (graphics, layout->Y);
-	layoutRect->Width = gdip_unitx_convgr (graphics, layout->Width);
-	layoutRect->Height = gdip_unity_convgr (graphics, layout->Height);
+	/* avoid conversion if possible */
+	optimize_convert = OPTIMIZE_CONVERSION (graphics);
+	if (optimize_convert) {
+		layoutRect->X = layout->X;
+		layoutRect->Y = layout->Y;
+		layoutRect->Width = layout->Width;
+		layoutRect->Height = layout->Height;
+	} else {
+		layoutRect->X = gdip_unitx_convgr (graphics, layout->X);
+		layoutRect->Y = gdip_unity_convgr (graphics, layout->Y);
+		layoutRect->Width = gdip_unitx_convgr (graphics, layout->Width);
+		layoutRect->Height = gdip_unity_convgr (graphics, layout->Height);
+	}
 
 	maxY = 0;
 	lineHeight = 0;
@@ -3610,13 +3620,14 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 	/* string measurements */
 	status = MeasureString (graphics, stringUnicode, length, font, layoutRect,
 				format, &boundingBox, &lineHeight, &strDetails, &maxY);
-
-	if (status != Ok)
+	if (status != Ok) {
+		if (strDetails)
+			GdipFree (strDetails);
 		return status;
+	}
 
 	OffsetX = 0;
 	OffsetY = 0;
-	
 
 	/* Create a region for every char range */
 	for (i = 0; i < format->charRangeCount; i++) {
@@ -3631,14 +3642,25 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 		end = start + range.length;
 
 		/* sanity check on charRange. negative lengths are allowed */
-		if (range.first < 0)
+		if (range.first < 0) {
+			GdipFree (strDetails);
 			return InvalidParameter;
+		}
 
-		if (start < 0 || end > length)
+		if ((start < 0) || (end > length)){
+			GdipFree (strDetails);
 			return InvalidParameter;
+		}
 
 		/* calculate the regions */
 		for (j = start; j < end; j++) {
+
+			/* the prefix char (&) always count - even if we are not actually print it as a char */
+			if ((strDetails[j].Flags & STRING_DETAIL_HOTKEY) && (format->hotkeyPrefix != HotkeyPrefixNone)) {
+				end--; /* '&' count as invisible char */
+				continue;
+			}
+
 			if (strDetails[j].Flags & STRING_DETAIL_LINESTART) {
 				if (format->formatFlags & StringFormatFlagsDirectionVertical) {
 					/* Vertical text */
@@ -3671,32 +3693,35 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 			}
 
 			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
-				charRect.X = gdip_convgr_unitx (graphics, strDetails [j].PosY + OffsetY);
-				charRect.Y = gdip_convgr_unity (graphics, strDetails [j].PosX + OffsetX);
-				charRect.Width = gdip_convgr_unitx (graphics, lineHeight);
-				charRect.Height = gdip_convgr_unity (graphics, strDetails [j].Width);
+				charRect.X = strDetails [j].PosY + OffsetY;
+				charRect.Y = strDetails [j].PosX + OffsetX;
+				charRect.Width = lineHeight;
+				charRect.Height = strDetails [j].Width;
+			} else {
+				charRect.X = strDetails [j].PosX + OffsetX;
+				charRect.Y = strDetails [j].PosY + OffsetY;
+				charRect.Width = strDetails [j].Width;
+				charRect.Height = lineHeight;
 			}
-			else {
-				charRect.X = gdip_convgr_unitx (graphics, strDetails [j].PosX + OffsetX);
-				charRect.Y = gdip_convgr_unity (graphics, strDetails [j].PosY + OffsetY);
-				charRect.Width = gdip_convgr_unitx (graphics, strDetails [j].Width);
-				charRect.Height = gdip_convgr_unity (graphics, lineHeight);
+
+			if (optimize_convert) {
+				charRect.X = gdip_convgr_unitx (graphics, charRect.X);
+				charRect.Y = gdip_convgr_unity (graphics, charRect.Y);
+				charRect.Width = gdip_convgr_unitx (graphics, charRect.Width);
+				charRect.Height = gdip_convgr_unity (graphics, charRect.Height);
 			}
+
 			status = GdipCombineRegionRect (regions [i], &charRect, CombineModeUnion);
-			if (status == Ok)
-				continue;
-			else
+			if (status != Ok)
 				break;
 		}
-		if (status == Ok)
-			continue;
-		else
+		if (status != Ok)
 			break;
 	}
 
 	GdipFree (strDetails);
 
-	return Ok;
+	return status;
 }
 
 GpStatus 
