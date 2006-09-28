@@ -1,3 +1,8 @@
+2006-09-28  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Re-fix the wrapping case (r58401) if bug #77699 (causing
+	an endless loop in DrawString) to avoid memory corruption.
+
 2006-09-22  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: (GdipMeasureCharacterRanges) Ensure we're always freeing

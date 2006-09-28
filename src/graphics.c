@@ -2607,9 +2607,9 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 					break;
 				}
 
+				/* avoid endless loop when wrapping is allowed */
 				if (CurrentLineStart->LineLen == 0) {
-					CurrentLineStart->LineLen;
-					EndOfLine++;
+					CurrentLineStart->LineLen = 1;
 				}
 
 				/* New line */
