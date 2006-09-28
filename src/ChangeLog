@@ -1,3 +1,7 @@
+2006-09-28  Jackson Harper  <jackson@ximian.com>
+
+	* jpegcodec.c: Fix signature for the #if no libjpeg block.
+
 2006-09-28  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: Re-fix the wrapping case (r58401) if bug #77699 (causing

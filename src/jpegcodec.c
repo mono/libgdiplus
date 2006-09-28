@@ -847,9 +847,7 @@ gdip_save_jpeg_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParamet
 }
 
 GpStatus
-gdip_load_jpeg_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
-                                           SeekDelegate seeknFunc,
-                                           GpImage **image)
+gdip_load_jpeg_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 {
     *image = NULL;
     return UnknownImageFormat;
