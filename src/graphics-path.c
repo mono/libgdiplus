@@ -569,7 +569,6 @@ GpStatus
 GdipReversePath (GpPath *path)
 {
 	int length, i;
-	GByteArray *types;
 	GArray *points;
 
 	if (!path)
@@ -580,18 +579,19 @@ GdipReversePath (GpPath *path)
 	if (length <= 1)
 		return Ok;
 
-	types = g_byte_array_sized_new (length);
-	points = g_array_sized_new (FALSE, TRUE, sizeof (GpPointF), length);
+	/* NOTE: PathTypes are NOT reversed */
 
-        for (i = length; i > 0; i--) {
-                byte t = g_array_index (path->types, byte, i);
+	/* FIXME: this could be done without allocations */
+	points = g_array_sized_new (FALSE, TRUE, sizeof (GpPointF), length);
+	if (!points)
+		return OutOfMemory;
+
+        for (i = length - 1; i >= 0; i--) {
                 GpPointF pt = g_array_index (path->points, GpPointF, i);
-                
-                g_byte_array_append (types, &t, 1);
                 g_array_append_val (points, pt);
         }
+	g_array_free (path->points, TRUE);
         path->points = points;
-        path->types = types;
         
         return Ok;
 }

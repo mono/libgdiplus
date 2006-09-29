@@ -1,3 +1,8 @@
+2006-09-29  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: Fixed GdipReverse loop, don't reverse path types and
+	free the original point list being replaced.
+
 2006-09-28  Jackson Harper  <jackson@ximian.com>
 
 	* jpegcodec.c: Fix signature for the #if no libjpeg block.
