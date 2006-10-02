@@ -715,7 +715,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 ImageFormat 
 gdip_get_imageformat_from_codec_clsid (CLSID *encoderCLSID)
 {
-	int numEncoders, size, cnt;
+	UINT numEncoders, size, cnt;
     	ImageCodecInfo *encoders, *encoder;
 
     	GdipGetImageEncodersSize (&numEncoders, &size);

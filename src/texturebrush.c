@@ -26,6 +26,7 @@
 #include "gdip.h"
 #include "gdipImage.h"
 #include "texturebrush.h"
+#include "matrix.h"
 
 static GpStatus gdip_texture_setup (GpGraphics *graphics, GpBrush *brush);
 static GpStatus gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush);
