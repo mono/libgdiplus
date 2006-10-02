@@ -426,7 +426,7 @@ GdipGetPathData (GDIPCONST GpPath *path, GpPathData *pathData)
 
         pathData->Types = g_byte_array_to_array (path->types);
 	if (!pathData->Types) {
-		g_array_free (pathData->Points, TRUE);
+		GdipFree (pathData->Points);
 		pathData->Points = NULL;
 		return OutOfMemory;
 	}

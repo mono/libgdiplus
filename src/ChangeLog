@@ -1,3 +1,8 @@
+2006-10-02  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: Use correct function to free memory (spotted by 
+	Gonzalo).
+
 2006-09-29  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c: Fixed GdipReverse loop, don't reverse path types and
