@@ -1,3 +1,8 @@
+2006-10-05  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Fix StringAlignmentCenter in GdipDrawString. Half fix 
+	 (#79573) and half band-aid against possible random memory access.
+
 2006-10-02  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics-path.c: Use correct function to free memory (spotted by 

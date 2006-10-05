@@ -2783,6 +2783,9 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 		for (i=0; i<StringLen; i++) {
 			if (StringDetails[i].Flags & STRING_DETAIL_LINESTART) {
+				int length = StringDetails[i].LineLen;
+				int current_line_length = min (length + i, StringLen);
+
 				/* To support the LineLimit flag */
 				if ((StringDetails[i].Flags & STRING_DETAIL_HIDDEN)!=0){
 #ifdef DRAWSTRING_DEBUG
@@ -2792,16 +2795,30 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 					continue;
 				}
 
-				String= (unsigned char *) ucs2_to_utf8 ((const gunichar2 *)(CleanString+i), StringDetails[i].LineLen);
+				if (length > StringLen - i)
+					length = StringLen - i;
+				String = (unsigned char *) ucs2_to_utf8 ((const gunichar2 *)(CleanString+i), length);
 #ifdef DRAWSTRING_DEBUG
-				printf("Displaying line >%s< (%d chars)\n", String, StringDetails[i].LineLen);
+				printf("Displaying line >%s< (%d chars)\n", String, length);
 #endif
 
 				if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
+					CursorX = rc->X + StringDetails[i].PosX;
 					switch (AlignHorz) {
-						case StringAlignmentNear: CursorX=rc->X + StringDetails[i].PosX; break;
-						case StringAlignmentCenter: CursorX=rc->X + StringDetails[i].PosX+(rc->Width-StringDetails[i+StringDetails[i].LineLen-1].PosX-StringDetails[i+StringDetails[i].LineLen-1].Width)/2; break;
-						case StringAlignmentFar: CursorX=rc->X + StringDetails[i].PosX+rc->Width-StringDetails[i+StringDetails[i].LineLen-1].PosX-StringDetails[i+StringDetails[i].LineLen-1].Width; break;
+						case StringAlignmentNear:
+							break;
+						case StringAlignmentCenter:
+							/* PosX isn't calculated if the char is out of the bounding box (#79573) */
+							if (StringDetails [current_line_length-1].PosX > 0) {
+								CursorX += (rc->Width - StringDetails [current_line_length-1].PosX - 
+									StringDetails [current_line_length-1].Width) / 2;
+							}
+							/* which means that the line is too long so no centering is required */
+							break;
+						case StringAlignmentFar:
+							CursorX += rc->Width - StringDetails [current_line_length-1].PosX - 
+								StringDetails [current_line_length-1].Width;
+							break;
 					}
 
 					switch (AlignVert) {
@@ -2812,10 +2829,22 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 					gdip_cairo_move_to (graphics, CursorX, CursorY, FALSE, TRUE);
 					cairo_show_text (graphics->ct, (const char *) String);
 				} else {
+					CursorY = rc->Y;
 					switch (AlignHorz) {
-						case StringAlignmentNear: CursorY=rc->Y; break;
-						case StringAlignmentCenter: CursorY=rc->Y+(rc->Height-StringDetails[i+StringDetails[i].LineLen-1].PosX-StringDetails[i+StringDetails[i].LineLen-1].Width)/2; break;
-						case StringAlignmentFar: CursorY=rc->Y+rc->Height-StringDetails[i+StringDetails[i].LineLen-1].PosX-StringDetails[i+StringDetails[i].LineLen-1].Width; break;
+						case StringAlignmentNear:
+							break;
+						case StringAlignmentCenter:
+							/* PosX isn't calculated if the char is out of the bounding box (#79573) */
+							if (StringDetails [current_line_length-1].PosX > 0) {
+								CursorY += (rc->Height - StringDetails[current_line_length-1].PosX - 
+									StringDetails [current_line_length-1].Width) / 2;
+							}
+							/* which means that the line is too long so no centering is required */
+							break;
+						case StringAlignmentFar:
+							CursorY += rc->Height - StringDetails[current_line_length-1].PosX - 
+								StringDetails [current_line_length-1].Width;
+							break;
 					}
 
 					switch (AlignVert) {
