@@ -2297,7 +2297,9 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 				/* Fall through */
 			}
 
-			case ' ': {
+			case ' ':
+			case '.':
+			{
 				/* Mark where we can break for a new line */
 				CurrentDetail->Flags |= STRING_DETAIL_BREAK;
 				break;

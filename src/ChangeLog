@@ -1,7 +1,8 @@
-2006-10-06  Sebastien Pouliot  <sebastien@ximian.com>
+2006-10-06  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* font.c: Always zeroize LOGFONT facename even when we error out. This
 	removes a lot of warnings from valgrind when running unit tests.
+	* graphics.c: '.' can also be used as a wrap point. Fix bug #79594.
 
 2006-10-05  Sebastien Pouliot  <sebastien@ximian.com>
 
