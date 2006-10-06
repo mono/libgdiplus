@@ -838,8 +838,11 @@ gdip_logfont_from_font(GpFont *font, GpGraphics *graphics, void *lf, bool ucs2)
 	/* will be changed back to 1 inside System.Drawing */
 	logFont->lfCharSet = 0;
 
-	if (!font || !graphics)
+	if (!font || !graphics) {
+		int size = (ucs2) ? 2 * LF_FACESIZE : LF_FACESIZE;
+		memset (logFont->lfFaceName, 0, size);
 		return InvalidParameter;
+	}
 
 	logFont->lfHeight = -(font->sizeInPixels);
 	logFont->lfWidth = 0;
