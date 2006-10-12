@@ -2374,11 +2374,11 @@ MeasureOrDrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	WrapX=0;
 
 	if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
-		FrameWidth=rc->Height;
-		FrameHeight=rc->Width;
+		FrameWidth = SAFE_FLOAT_TO_UINT32 (rc->Height);
+		FrameHeight = SAFE_FLOAT_TO_UINT32 (rc->Width);
 	} else {
-		FrameWidth=rc->Width;
-		FrameHeight=rc->Height;
+		FrameWidth = SAFE_FLOAT_TO_UINT32 (rc->Width);
+		FrameHeight = SAFE_FLOAT_TO_UINT32 (rc->Height);
 	}
 
 #ifdef DRAWSTRING_DEBUG
@@ -3220,11 +3220,11 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length,
 	WrapX=0;
 
 	if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
-		FrameWidth=rc->Height;
-		FrameHeight=rc->Width;
+		FrameWidth = SAFE_FLOAT_TO_UINT32 (rc->Height);
+		FrameHeight = SAFE_FLOAT_TO_UINT32 (rc->Width);
 	} else {
-		FrameWidth=rc->Width;
-		FrameHeight=rc->Height;
+		FrameWidth = SAFE_FLOAT_TO_UINT32 (rc->Width);
+		FrameHeight = SAFE_FLOAT_TO_UINT32 (rc->Height);
 	}
 
 #ifdef DRAWSTRING_DEBUG

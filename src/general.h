@@ -29,6 +29,9 @@
 #define gdip_near_zero(value)	((value >= -0.0001f) && (value <= 0.0001f))
 #define gdip_near_one(value)	((value >= 0.9999f) && (value <= 1.0001f))
 
+/* avoid integer overflows when int/float/int conversion are used (see #79643) */
+#define SAFE_FLOAT_TO_UINT32(value)	((value < 0) ? 0 : (value >= G_MAXINT32) ? G_MAXINT32 : value)
+
 /* avoid fp division and multiplication that would return the same number */
 #define OPTIMIZE_CONVERSION(g)	(((g->page_unit == UnitDisplay) && (g->type != gtPostScript)) || \
 	(g->page_unit == UnitPixel) || (g->page_unit == UnitWorld))

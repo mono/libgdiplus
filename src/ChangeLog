@@ -1,3 +1,11 @@
+2006-10-11  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* general.h: Add SAFE_FLOAT_TO_INT32 macro.
+	* graphics.c: Fix the cases where we convert an int to float (inside
+	System.Drawing) then reconvert this value to an integer inside 
+	libgdiplus. Values like Int32.MaxValue would return as negative due to
+	overflow. Fix bug #79643.
+
 2006-10-06  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* font.c: Always zeroize LOGFONT facename even when we error out. This
