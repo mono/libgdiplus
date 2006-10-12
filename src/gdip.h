@@ -414,24 +414,6 @@ typedef enum {
     StringAlignmentFar    = 2
 } StringAlignment;
 
-
-/* Flags and Support structure for MeasureOrDrawString */
-#define STRING_DETAIL_TAB       (1<<0)
-#define STRING_DETAIL_LF        (1<<1)
-#define STRING_DETAIL_HOTKEY    (1<<2)
-#define STRING_DETAIL_BREAK     (1<<3)
-#define STRING_DETAIL_HIDDEN    (1<<4)
-#define STRING_DETAIL_LINESTART (1<<5)
-
-typedef struct {
-	unsigned long	Flags;
-	unsigned long	Linefeeds;
-	float		PosX;		/* We call it X, even though it might become Y for vertical drawing */
-	float		PosY;		/* We call it Y, even though it might become X for vertical drawing */
-	float		Width;		/* Width of the character; height is defined in font structure */
-	int		LineLen;	/* If LineStart how many chars is the line long? */
-} GpStringDetailStruct;
-
 typedef enum {
 	ImageFlagsNone = 0,
 	ImageFlagsScalable = 1,

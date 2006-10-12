@@ -13,6 +13,7 @@ libgdiplus_la_SOURCES = \
 	general.c	\
 	general.h	\
 	graphics.c	\
+	graphics.h	\
 	graphics-path.c	\
 	graphics-path.h	\
 	graphics-pathiterator.c	\

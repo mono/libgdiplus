@@ -1,3 +1,13 @@
+2006-10-12  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* gdip.h: Remove stuff related to string measurements.
+	* graphics.h: New. Add stuff specific to string measurements.
+	* graphics.c: Refactor the string measurement code. There are now
+	one (not two) methods to measure a string and one (splitted from
+	measure) to draw the string. Doesn't fix any bug in itself but it
+	already makes it much clearer what some problems are (e.g. alignment).
+	* Makefile.am: Add new graphics.h file to the build.
+
 2006-10-12  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: Remove parts of r60164 added for LinkLabel. It can't 
