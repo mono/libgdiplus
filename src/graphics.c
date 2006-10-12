@@ -3692,37 +3692,6 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode
 				continue;
 			}
 
-			if (strDetails[j].Flags & STRING_DETAIL_LINESTART) {
-				if (format->formatFlags & StringFormatFlagsDirectionVertical) {
-					/* Vertical text */
-					switch (format->alignment) {
-						case StringAlignmentNear: OffsetY = layoutRect->Y; break;
-						case StringAlignmentCenter: OffsetY = layoutRect->Y + (layoutRect->Height - strDetails[j + strDetails[j].LineLen - 1].PosX - strDetails[j + strDetails[i].LineLen - 1].Width) / 2; break;
-						case StringAlignmentFar: OffsetY = layoutRect->Y + layoutRect->Height - strDetails[j + strDetails[j].LineLen - 1].PosX - strDetails[j + strDetails[j].LineLen-1].Width; break;
-
-					}
-
-					switch (format->lineAlignment) {
-						case StringAlignmentNear: OffsetX = layoutRect->X + strDetails[j].PosX + strDetails[j].PosY; break;
-						case StringAlignmentCenter: OffsetX = layoutRect->X + strDetails[j].PosX + (layoutRect->Width - maxY) / 2 + strDetails[j].PosY; break;
-						case StringAlignmentFar: OffsetX = layoutRect->X + strDetails[j].PosX + layoutRect->Width - maxY + strDetails[j].PosY; break;
-					}
-				} else {
-					/* Horizontal text */
-					switch(format->alignment) {
-						case StringAlignmentNear: OffsetX = layoutRect->X; break;
-						case StringAlignmentCenter: OffsetX = layoutRect->X + (layoutRect->Width-strDetails[j + strDetails[j].LineLen - 1].PosX - strDetails[j + strDetails[j].LineLen - 1].Width)/2; break;
-						case StringAlignmentFar: OffsetX = layoutRect->X + layoutRect->Width - strDetails[j + strDetails[j].LineLen - 1].PosX - strDetails[j + strDetails[i].LineLen - 1].Width; break;
-					}
-
-					switch (format->lineAlignment) {
-						case StringAlignmentNear: OffsetY = layoutRect->Y; break;
-						case StringAlignmentCenter: OffsetY = layoutRect->Y + (layoutRect->Height - maxY) / 2 ; break;
-						case StringAlignmentFar: OffsetY = layoutRect->Height - maxY; break;
-					}
-				}
-			}
-
 			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
 				charRect.X = strDetails [j].PosY + OffsetY;
 				charRect.Y = strDetails [j].PosX + OffsetX;

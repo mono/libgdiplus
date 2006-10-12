@@ -1,3 +1,10 @@
+2006-10-12  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Remove parts of r60164 added for LinkLabel. It can't 
+	work because we're loosing the start lines in the ranges. Actually we
+	are still duplicating some measurement code and we'll need to merge 
+	both routine if we want accuracy.
+
 2006-10-11  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* general.h: Add SAFE_FLOAT_TO_INT32 macro.
