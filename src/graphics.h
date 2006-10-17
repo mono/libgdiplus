@@ -25,6 +25,11 @@
 
 #include "general.h"
 
+/* looks like it's not available everywhere :( */
+#ifndef G_MAXINT32
+#define G_MAXINT32	2147483647
+#endif
+
 /* internal stuff for graphics.c only */
 
 /* cache for computed information during MeasureString that can be reused during DrawString */
