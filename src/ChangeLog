@@ -1,3 +1,9 @@
+2006-10-17  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Another fix to StringAlignmentCenter when a single
+	character is drawn (#79685). This adjust the band-aid done for #79573
+	awaiting a bigger rewrite (to move alignement from drawing to measure)
+
 2006-10-16  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics.h: Define G_MAXINT32 ourselves (if undefined).

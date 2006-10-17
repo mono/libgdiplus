@@ -2796,8 +2796,8 @@ DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GD
 				case StringAlignmentNear:
 					break;
 				case StringAlignmentCenter:
-					/* PosX isn't calculated if the char is out of the bounding box (#79573) */
-					if (StringDetails [current_line_length-1].PosX > 0) {
+					/* PosX isn't calculated if the char is out of the bounding box (#79573/#79685) */
+					if ((current_line_length == 1) || (StringDetails [current_line_length-1].PosX > 0)) {
 						CursorX += (rc->Width - StringDetails [current_line_length-1].PosX - 
 							StringDetails [current_line_length-1].Width) / 2;
 					}
@@ -2823,8 +2823,8 @@ DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GD
 				case StringAlignmentNear:
 					break;
 				case StringAlignmentCenter:
-					/* PosX isn't calculated if the char is out of the bounding box (#79573) */
-					if (StringDetails [current_line_length-1].PosX > 0) {
+					/* PosX isn't calculated if the char is out of the bounding box (#79573/#79685) */
+					if ((current_line_length == 1) || (StringDetails [current_line_length-1].PosX > 0)) {
 						CursorY += (rc->Height - StringDetails[current_line_length-1].PosX - 
 							StringDetails [current_line_length-1].Width) / 2;
 					}
