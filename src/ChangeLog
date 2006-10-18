@@ -1,3 +1,8 @@
+2006-10-18  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: In MeasureString check for bounding box height when 
+	calculating the	number of characters to be drawn.
+
 2006-10-17  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: Another fix to StringAlignmentCenter when a single

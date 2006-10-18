@@ -2706,9 +2706,12 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 	if (codepointsFitted) {
 		/* how many characters from the string can be drawn in the boundingBox (#76664) */
 		double max_width = boundingBox ? (boundingBox->X + boundingBox->Width) : rc->X + min (MaxX, rc->Width);
+		double max_height = boundingBox ? (boundingBox->Y + boundingBox->Height) : rc->Y + min (MaxY, rc->Height);
 		int charactersFitted;
 		for (charactersFitted = 0; charactersFitted < StringLen; charactersFitted++) {
 			if ((StringDetails[charactersFitted].PosX + StringDetails[charactersFitted].Width) > max_width)
+				break;
+			if (StringDetails[charactersFitted].PosY + LineHeight > max_height)
 				break;
 		}
 		*codepointsFitted = charactersFitted;
