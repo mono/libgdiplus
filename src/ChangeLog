@@ -1,3 +1,9 @@
+2006-10-20  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* general.c: Don't delete the font cache hash table unless it was 
+	created (which removes the glib runtime errors). This can occurs 
+	when doing a C application using libgdiplus.
+
 2006-10-18  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: In MeasureString check for bounding box height when 

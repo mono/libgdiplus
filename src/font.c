@@ -319,7 +319,7 @@ create_pattern_from_name (char* name)
 }
 
 static GStaticMutex patterns_mutex = G_STATIC_MUTEX_INIT;
-static GHashTable *patterns_hashtable;
+static GHashTable *patterns_hashtable = NULL;
 
 static GpStatus
 create_fontfamily_from_name (char* name, GpFontFamily **fontFamily)
@@ -371,8 +371,10 @@ void
 gdip_font_clear_pattern_cache (void)
 {
 	g_static_mutex_lock (&patterns_mutex);
-	g_hash_table_foreach_remove (patterns_hashtable, free_cached_pattern, NULL);
-	g_hash_table_destroy (patterns_hashtable);
+	if (patterns_hashtable) {
+		g_hash_table_foreach_remove (patterns_hashtable, free_cached_pattern, NULL);
+		g_hash_table_destroy (patterns_hashtable);
+	}
 	g_static_mutex_unlock (&patterns_mutex);
 }
 
