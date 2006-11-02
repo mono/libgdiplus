@@ -1,3 +1,7 @@
+2006-11-02 Wade Berrier <wberrier@novell.com>
+
+	* configure.in: version bump -> 1.2
+
 2006-08-23 Wade Berrier <wberrier@novell.com>
 
 	* cairo/configure.in: Use a backward compatible method of finding
