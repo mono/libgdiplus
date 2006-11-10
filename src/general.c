@@ -494,7 +494,7 @@ utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) {
 
 	ptr = (gunichar2 *)ucs2;
 	for (i = 0; (i < count) && (i < ucs2_len); i++) {
-		if (ucs4[i] < 0x1000 && !(ucs4[i] >= 0xd800 && ucs4[i] < 0xe000)) {
+		if (ucs4[i] < 0x10000 && !(ucs4[i] >= 0xd800 && ucs4[i] < 0xe000)) {
 			*ptr = (gunichar2)ucs4[i];
 			ptr++;
 		}	/* we're simply ignoring any chars that don't fit into ucs2 */

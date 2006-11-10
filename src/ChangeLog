@@ -1,3 +1,10 @@
+2006-11-10  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* general.c: Fix utf8_to_ucs2 to process all the first 65536 chars
+	(not just the first 4096). Patch by choe.hwanjin@gmail.com
+	* graphics.c: When measuring a string and if data is provided, 
+	initialize data->has_hotkeys to FALSE.
+
 2006-10-20  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* general.c: Don't delete the font cache hash table unless it was 

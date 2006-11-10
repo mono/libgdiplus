@@ -2154,6 +2154,8 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 
 	/* Prepare our various buffers and variables */
 	StringLen = *length;
+	if (data)
+		data->has_hotkeys = FALSE;
 
 	/*
 	  Set aliasing mode
