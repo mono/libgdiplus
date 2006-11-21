@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-cairo-t">
 <refmeta>
-<refentrytitle role="top_of_page">cairo_t</refentrytitle>
+<refentrytitle id="top_of_page">cairo_t</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv role="synopsis">
-<title role="synopsis.title">Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -132,8 +132,8 @@ enum        <link linkend="cairo-operator-t">cairo_operator_t</link>;
 
 
 
-<refsect1 role="desc">
-<title role="desc.title">Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 
   <para>
     <link linkend="cairo-t"><type>cairo_t</type></link> is the main object used when drawing with cairo. To
@@ -149,8 +149,8 @@ enum        <link linkend="cairo-operator-t">cairo_operator_t</link>;
   </para>
 </refsect1>
 
-<refsect1 role="details">
-<title role="details.title">Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-t" role="typedef"/>cairo_t</title>
 <indexterm><primary>cairo_t</primary></indexterm><programlisting>typedef struct _cairo cairo_t;
@@ -1273,9 +1273,9 @@ See <link linkend="cairo-set-fill-rule"><function>cairo_set_fill_rule()</functio
                                              <link linkend="double">double</link> x,
                                              <link linkend="double">double</link> y);</programlisting>
 <para>
-Tests whether the given point is on the area filled by doing a
-<link linkend="cairo-stroke"><function>cairo_stroke()</function></link> operation on <parameter>cr</parameter> given the current path and filling
-parameters.
+Tests whether the given point is inside the area that would be
+filled by doing a <link linkend="cairo-fill"><function>cairo_fill()</function></link> operation on <parameter>cr</parameter> given the current
+path and filling parameters.
 </para>
 <para>
 See <link linkend="cairo-fill"><function>cairo_fill()</function></link>, <link linkend="cairo-set-fill-rule"><function>cairo_set_fill_rule()</function></link> and <link linkend="cairo-fill-preserve"><function>cairo_fill_preserve()</function></link>.</para>
@@ -1291,9 +1291,8 @@ See <link linkend="cairo-fill"><function>cairo_fill()</function></link>, <link l
 <varlistentry><term><parameter>y</parameter>&nbsp;:</term>
 <listitem><simpara> Y coordinate of the point to test
 </simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>
-
-
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> A non-zero value if the point is inside, or zero if
+outside.
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
@@ -1470,12 +1469,12 @@ See <link linkend="cairo-set-line-width"><function>cairo_set_line_width()</funct
                                              <link linkend="double">double</link> x,
                                              <link linkend="double">double</link> y);</programlisting>
 <para>
-Tests whether the given point is on the area stroked by doing a
-<link linkend="cairo-stroke"><function>cairo_stroke()</function></link> operation on <parameter>cr</parameter> given the current path and stroking
-parameters.
+Tests whether the given point is inside the area that would be
+stroked by doing a <link linkend="cairo-stroke"><function>cairo_stroke()</function></link> operation on <parameter>cr</parameter> given the
+current path and stroking parameters.
 </para>
 <para>
-See cairo_stroke, <link linkend="cairo-set-line-width"><function>cairo_set_line_width()</function></link>, <link linkend="cairo-set-line-join"><function>cairo_set_line_join()</function></link>,
+See <link linkend="cairo-stroke"><function>cairo_stroke()</function></link>, <link linkend="cairo-set-line-width"><function>cairo_set_line_width()</function></link>, <link linkend="cairo-set-line-join"><function>cairo_set_line_join()</function></link>,
 <link linkend="cairo-set-line-cap"><function>cairo_set_line_cap()</function></link>, <link linkend="cairo-set-dash"><function>cairo_set_dash()</function></link>, and
 <link linkend="cairo-stroke-preserve"><function>cairo_stroke_preserve()</function></link>.</para>
 <para>
@@ -1490,9 +1489,8 @@ See cairo_stroke, <link linkend="cairo-set-line-width"><function>cairo_set_line_
 <varlistentry><term><parameter>y</parameter>&nbsp;:</term>
 <listitem><simpara> Y coordinate of the point to test
 </simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>
-
-
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> A non-zero value if the point is inside, or zero if
+outside.
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>

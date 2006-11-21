@@ -14,6 +14,7 @@ close-path			\
 composite-integer-translate-source \
 composite-integer-translate-over \
 composite-integer-translate-over-repeat \
+copy-path			\
 create-for-stream		\
 create-from-png			\
 create-from-png-stream		\
@@ -37,6 +38,7 @@ glyph-cache-pressure		\
 get-and-set			\
 get-group-target		\
 gradient-alpha			\
+infinite-join			\
 leaky-dash			\
 leaky-polygon			\
 line-width			\
@@ -54,7 +56,6 @@ operator-source			\
 paint				\
 paint-source-alpha		\
 paint-with-alpha		\
-path-data			\
 pattern-get-type		\
 pixman-rotate			\
 rectangle-rounding-error	\
@@ -183,6 +184,8 @@ composite-integer-translate-over-pdf-argb32-ref.png	\
 composite-integer-translate-over-svg-ref.png		\
 composite-integer-translate-over-repeat-ref.png		\
 composite-integer-translate-source-ref.png		\
+copy-path-ref.png					\
+copy-path-ps-argb32-ref.png				\
 create-from-png-ref.png					\
 create-from-png-stream-ref.png				\
 dash-caps-joins-ref.png					\
@@ -227,6 +230,8 @@ glyph-cache-pressure-ps-argb32-ref.png			\
 glyph-cache-pressure-svg-ref.png			\
 gradient-alpha-ref.png					\
 gradient-alpha-rgb24-ref.png				\
+infinite-join-ref.png					\
+infinite-join-ps-argb32-ref.png				\
 leaky-dash-ref.png					\
 leaky-polygon-ref.png					\
 leaky-polygon-ps-argb32-ref.png				\
@@ -268,8 +273,6 @@ paint-source-alpha-pdf-argb32-ref.png			\
 paint-source-alpha-svg-ref.png				\
 paint-with-alpha-ref.png				\
 paint-with-alpha-svg-ref.png				\
-path-data-ref.png					\
-path-data-ps-argb32-ref.png				\
 pixman-rotate-ref.png					\
 pixman-rotate-rgb24-ref.png				\
 push-group-ref.png					\
@@ -386,10 +389,6 @@ buffer-diff.c		\
 buffer-diff.h		\
 cairo-test.c		\
 cairo-test.h		\
-read-png.c		\
-read-png.h		\
-write-png.c		\
-write-png.h		\
 xmalloc.c		\
 xmalloc.h
 
@@ -446,7 +445,7 @@ TARGETS = $(CAIRO_TEST_TARGET)
 TESTS_ENVIRONMENT = CAIRO_XFAIL_TESTS="$(XFAIL_TESTS)" CAIRO_TEST_TARGET="$(TARGETS)"
 
 VALGRIND_FLAGS = \
-	--tool=memcheck --suppressions=./.valgrind-suppressions \
+	--tool=memcheck --suppressions=$(srcdir)/.valgrind-suppressions \
 	--leak-check=yes --show-reachable=yes
 
 CLEANFILES =					\

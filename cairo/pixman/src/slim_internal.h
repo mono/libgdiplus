@@ -39,9 +39,9 @@
 	pixman_private int
 	somefunction(void);
 
-   or after a data name,
+   or before the type of a variable,
 
-	extern int somedata pixman_private;
+	extern pixman_private int somedata;
 
    The ELF visibility attribute did not exist before gcc 3.3.  */
 /* ??? Not marked with "slim" because that makes it look too much
@@ -49,7 +49,9 @@
 
 #if (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)) && defined(__ELF__)
 #define pixman_private	__attribute__((__visibility__("hidden")))
-#else
+#elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x550)
+#define pixman_private       __hidden
+#else /* not gcc >= 3.3 and not Sun Studio >= 8 */
 #define pixman_private
 #endif
 
@@ -78,8 +80,9 @@
    level.  */
 
 #if __GNUC__ >= 3 && defined(__ELF__)
-# define slim_hidden_proto(name)	slim_hidden_proto1(name, INT_##name)
-# define slim_hidden_def(name)		slim_hidden_def1(name, INT_##name)
+# define slim_hidden_proto(name)	slim_hidden_proto1(name, slim_hidden_int_name(name))
+# define slim_hidden_def(name)		slim_hidden_def1(name, slim_hidden_int_name(name))
+# define slim_hidden_int_name(name) INT_##name
 # define slim_hidden_proto1(name, internal)				\
   extern __typeof (name) name						\
 	__asm__ (slim_hidden_asmname (internal))			\

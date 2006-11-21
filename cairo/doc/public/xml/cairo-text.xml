@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Text">
 <refmeta>
-<refentrytitle role="top_of_page">Text</refentrytitle>
+<refentrytitle id="top_of_page">Text</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv role="synopsis">
-<title role="synopsis.title">Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -70,15 +70,15 @@ enum        <link linkend="cairo-font-weight-t">cairo_font_weight_t</link>;
 
 
 
-<refsect1 role="desc">
-<title role="desc.title">Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 role="details">
-<title role="details.title">Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-glyph-t" role="struct"/>cairo_glyph_t</title>
 <indexterm><primary>cairo_glyph_t</primary></indexterm><programlisting>typedef struct {
@@ -106,6 +106,12 @@ with respect to the overall origin</para>
 <para>
 
 </para><variablelist role="struct">
+<varlistentry>
+<term>unsigned&nbsp;<link linkend="long">long</link>&nbsp;<structfield>index</structfield>;</term>
+<listitem><simpara> glyph index in the font. The exact interpretation of the
+     glyph index depends on the font technology being used.
+</simpara></listitem>
+</varlistentry>
 <varlistentry>
 <term><link linkend="double">double</link>&nbsp;<structfield>x</structfield>;</term>
 <listitem><simpara> the offset in the X direction between the origin used for

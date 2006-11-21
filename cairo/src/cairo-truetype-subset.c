@@ -194,12 +194,12 @@ _cairo_truetype_font_create (cairo_scaled_font_subset_t  *scaled_font_subset,
 	goto fail3;
 
     font->base.num_glyphs = 0;
-    font->base.x_min = be16_to_cpu (head.x_min);
-    font->base.y_min = be16_to_cpu (head.y_min);
-    font->base.x_max = be16_to_cpu (head.x_max);
-    font->base.y_max = be16_to_cpu (head.y_max);
-    font->base.ascent = be16_to_cpu (hhea.ascender);
-    font->base.descent = be16_to_cpu (hhea.descender);
+    font->base.x_min = (int16_t) be16_to_cpu (head.x_min);
+    font->base.y_min = (int16_t) be16_to_cpu (head.y_min);
+    font->base.x_max = (int16_t) be16_to_cpu (head.x_max);
+    font->base.y_max = (int16_t) be16_to_cpu (head.y_max);
+    font->base.ascent = (int16_t) be16_to_cpu (hhea.ascender);
+    font->base.descent = (int16_t) be16_to_cpu (hhea.descender);
 
     /* Extract the font name from the name table. At present this
      * just looks for the Mac platform/Roman encoded font name. It
@@ -400,8 +400,11 @@ cairo_truetype_font_write_generic_table (cairo_truetype_font_t *font,
     unsigned long size;
 
     size = 0;
-    font->backend->load_truetype_table( font->scaled_font_subset->scaled_font,
-                                        tag, 0, NULL, &size);
+    if (font->backend->load_truetype_table( font->scaled_font_subset->scaled_font,
+					    tag, 0, NULL, &size) != CAIRO_STATUS_SUCCESS) {
+        font->status = CAIRO_INT_STATUS_UNSUPPORTED;
+        return font->status;
+    }
     status = cairo_truetype_font_allocate_write_buffer (font, size, &buffer);
     /* XXX: Need to check status here. */
     font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
@@ -473,8 +476,11 @@ cairo_truetype_font_write_glyf_table (cairo_truetype_font_t *font,
 	font->status = CAIRO_STATUS_NO_MEMORY;
 	return font->status;
     }
-    font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
-                                        TT_TAG_loca, 0, u.bytes, &size);
+    if (font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+                                            TT_TAG_loca, 0, u.bytes, &size) != CAIRO_STATUS_SUCCESS) {
+        font->status = CAIRO_INT_STATUS_UNSUPPORTED;
+        return font->status;
+    }
 
     start_offset = _cairo_array_num_elements (&font->output);
     for (i = 0; i < font->base.num_glyphs; i++) {
@@ -566,23 +572,28 @@ cairo_truetype_font_write_hmtx_table (cairo_truetype_font_t *font,
         status = cairo_truetype_font_allocate_write_buffer (font, long_entry_size,
 							  (unsigned char **) &p);
         if (font->glyphs[i].parent_index < num_hmetrics) {
-            font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
-                                                TT_TAG_hmtx,
-                                                font->glyphs[i].parent_index * long_entry_size,
-                                                (unsigned char *) p, &long_entry_size);
+            if (font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+                                                    TT_TAG_hmtx,
+                                                    font->glyphs[i].parent_index * long_entry_size,
+                                                    (unsigned char *) p, &long_entry_size) != CAIRO_STATUS_SUCCESS) {
+                font->status = CAIRO_INT_STATUS_UNSUPPORTED;
+                return font->status;
+            }
         }
         else
         {
+            if (font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+                                                    TT_TAG_hmtx,
+                                                    (num_hmetrics - 1) * long_entry_size,
+                                                    (unsigned char *) p, &short_entry_size) != CAIRO_STATUS_SUCCESS) {
+                font->status = CAIRO_INT_STATUS_UNSUPPORTED;
+                return font->status;
+            }
             font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
                                                 TT_TAG_hmtx,
-                                                (num_hmetrics - 1) * long_entry_size,
-                                                (unsigned char *) p, &short_entry_size);
-            font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
-                                                TT_TAG_hmtx,
-                                                (num_hmetrics - 1) * long_entry_size +
-                                                (font->glyphs[i].parent_index - num_hmetrics)
-                                                                          * short_entry_size,
-                                                (unsigned char *) (p+1), &short_entry_size);
+                                                num_hmetrics * long_entry_size +
+                                                (font->glyphs[i].parent_index - num_hmetrics) * short_entry_size,
+                                                (unsigned char *) (p + 1), &short_entry_size);
         }
         font->base.widths[i] = be16_to_cpu (p[0]);
     }

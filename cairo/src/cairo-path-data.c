@@ -331,6 +331,22 @@ _cairo_path_data_populate (cairo_path_t   *path,
     assert (cpdp.data - path->data == path->num_data);
 }
 
+cairo_path_t *
+_cairo_path_data_create_for_status (cairo_status_t status)
+{
+    cairo_path_t *path;
+
+    path = malloc (sizeof (cairo_path_t));
+    if (path == NULL)
+	return (cairo_path_t*) &_cairo_path_nil;
+
+    path->num_data = 0;
+    path->data = NULL;
+    path->status = status;
+
+    return path;
+}
+
 static cairo_path_t *
 _cairo_path_data_create_real (cairo_path_fixed_t *path_fixed,
 			      cairo_gstate_t     *gstate,

@@ -26,6 +26,7 @@
 
 #include "cairoint.h"
 #include "cairo-glitz.h"
+#include "cairo-glitz-private.h"
 
 typedef struct _cairo_glitz_surface {
     cairo_surface_t   base;
@@ -2196,3 +2197,4 @@ cairo_glitz_surface_create (glitz_surface_t *surface)
 
     return (cairo_surface_t *) crsurface;
 }
+slim_hidden_def (cairo_glitz_surface_create);

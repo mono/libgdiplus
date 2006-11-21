@@ -31,7 +31,6 @@
 #endif
 
 #include <stdio.h>
-#include <math.h>
 #include <cairo.h>
 
 CAIRO_BEGIN_DECLS
@@ -64,6 +63,12 @@ typedef unsigned __int64 uint64_t;
 #else
 #define CAIRO_PRINTF_FORMAT(fmt_index, va_index)
 #endif
+
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#endif
+
+#include <math.h>
 
 typedef enum cairo_test_status {
     CAIRO_TEST_SUCCESS = 0,
@@ -137,6 +142,13 @@ cairo_test_paint_checkered (cairo_t *cr);
 
 void
 xasprintf (char **strp, const char *fmt, ...) CAIRO_PRINTF_FORMAT(2, 3);
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+#ifndef TRUE
+#define TRUE !FALSE
+#endif
 
 CAIRO_END_DECLS
 

@@ -94,6 +94,10 @@ Rendering to Quartz surfaces
 Quartz Surfaces
 
 
+<!-- ##### SECTION ./tmpl/cairo-unused.sgml:Stability_Level ##### -->
+
+
+
 <!-- ##### SECTION ./tmpl/cairo-xcb-xrender.sgml:Long_Description ##### -->
 <para>
 
@@ -141,4 +145,104 @@ X Window System rendering using the XCB library
 <!-- ##### SECTION ./tmpl/cairo-xcb.sgml:Title ##### -->
 XCB Surfaces
 
+
+<!-- ##### FUNCTION cairo_beos_surface_create ##### -->
+<para>
+
+</para>
+
+@view: 
+@Returns: 
+
+<!-- ##### FUNCTION cairo_beos_surface_create_for_bitmap ##### -->
+<para>
+
+</para>
+
+@view: 
+@bmp: 
+@Returns: 
+
+<!-- ##### FUNCTION cairo_glitz_surface_create ##### -->
+<para>
+
+</para>
+
+@surface: 
+@Returns: 
+
+<!-- ##### MACRO cairo_pdf_surface_set_dpi ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### MACRO cairo_ps_surface_set_dpi ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### FUNCTION cairo_quartz_surface_create ##### -->
+<para>
+
+</para>
+
+@context: 
+@width: 
+@height: 
+@y_grows_down: 
+@Returns: 
+
+<!-- ##### MACRO cairo_svg_surface_set_dpi ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### FUNCTION cairo_xcb_surface_create ##### -->
+<para>
+
+</para>
+
+@c: 
+@drawable: 
+@visual: 
+@width: 
+@height: 
+@Returns: 
+
+<!-- ##### FUNCTION cairo_xcb_surface_create_for_bitmap ##### -->
+<para>
+
+</para>
+
+@c: 
+@bitmap: 
+@screen: 
+@width: 
+@height: 
+@Returns: 
+
+<!-- ##### FUNCTION cairo_xcb_surface_create_with_xrender_format ##### -->
+<para>
+
+</para>
+
+@c: 
+@drawable: 
+@screen: 
+@format: 
+@width: 
+@height: 
+@Returns: 
+
+<!-- ##### FUNCTION cairo_xcb_surface_set_size ##### -->
+<para>
+
+</para>
+
+@surface: 
+@width: 
+@height: 
 

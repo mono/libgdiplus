@@ -1902,7 +1902,6 @@ pixman_composite (pixman_operator_t	op,
     }
     pixman_region_destroy (region);
 }
-slim_hidden_def(pixman_composite);
 
 /* The CPU detection code needs to be in a file not compiled with
  * "-mmmx -msse", as gcc would generate CMOV instructions otherwise

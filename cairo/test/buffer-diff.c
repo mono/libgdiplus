@@ -28,6 +28,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -38,8 +39,6 @@
 #include "cairo-test.h"
 
 #include "buffer-diff.h"
-#include "read-png.h"
-#include "write-png.h"
 #include "xmalloc.h"
 
 static void
@@ -52,10 +51,14 @@ xunlink (const char *pathname)
     }
 }
 
-/* This function should be rewritten to compare all formats supported by
+/* Compare two buffers, returning the number of pixels that are
+ * different and the maximum difference of any single color channel in
+ * result_ret.
+ *
+ * This function should be rewritten to compare all formats supported by
  * cairo_format_t instead of taking a mask as a parameter.
  */
-static int
+static void
 buffer_diff_core (unsigned char *_buf_a,
 		  unsigned char *_buf_b,
 		  unsigned char *_buf_diff,
@@ -64,11 +67,12 @@ buffer_diff_core (unsigned char *_buf_a,
 		  int		stride_a,
 		  int		stride_b,
 		  int		stride_diff,
-		  pixman_bits_t mask)
+		  pixman_bits_t mask,
+		  buffer_diff_result_t *result_ret)
 {
     int x, y;
     pixman_bits_t *row_a, *row_b, *row;
-    int pixels_changed = 0;
+    buffer_diff_result_t result = {0, 0};
     pixman_bits_t *buf_a = (pixman_bits_t*)_buf_a;
     pixman_bits_t *buf_b = (pixman_bits_t*)_buf_b;
     pixman_bits_t *buf_diff = (pixman_bits_t*)_buf_diff;
@@ -90,17 +94,21 @@ buffer_diff_core (unsigned char *_buf_a,
 
 		/* calculate a difference value for all 4 channels */
 		for (channel = 0; channel < 4; channel++) {
-		    unsigned char value_a = (row_a[x] >> (channel*8));
-		    unsigned char value_b = (row_b[x] >> (channel*8));
+		    int value_a = (row_a[x] >> (channel*8)) & 0xff;
+		    int value_b = (row_b[x] >> (channel*8)) & 0xff;
 		    unsigned int diff;
-		    diff = value_a - value_b;
-		    diff *= 4; /* emphasize */
+		    diff = abs (value_a - value_b);
+		    if (diff > result.max_diff)
+			result.max_diff = diff;
+		    diff *= 4;  /* emphasize */
+		    if (diff)
+		        diff += 128; /* make sure it's visible */
 		    if (diff > 255)
-		      diff = 255;
+		        diff = 255;
 		    diff_pixel |= diff << (channel*8);
 		}
 
-		pixels_changed++;
+		result.pixels_changed++;
 		row[x] = diff_pixel;
 	    } else {
 		row[x] = 0;
@@ -109,10 +117,10 @@ buffer_diff_core (unsigned char *_buf_a,
 	}
     }
 
-    return pixels_changed;
+    *result_ret = result;
 }
 
-int
+void
 buffer_diff (unsigned char *buf_a,
 	     unsigned char *buf_b,
 	     unsigned char *buf_diff,
@@ -120,13 +128,15 @@ buffer_diff (unsigned char *buf_a,
 	     int	   height,
 	     int	   stride_a,
 	     int	   stride_b,
-	     int	   stride_diff)
+	     int	   stride_diff,
+	     buffer_diff_result_t *result)
 {
-    return buffer_diff_core(buf_a, buf_b, buf_diff,
-			    width, height, stride_a, stride_b, stride_diff, 0xffffffff);
+    buffer_diff_core(buf_a, buf_b, buf_diff,
+		     width, height, stride_a, stride_b, stride_diff, 0xffffffff,
+		     result);
 }
 
-int
+void
 buffer_diff_noalpha (unsigned char *buf_a,
 		     unsigned char *buf_b,
 		     unsigned char *buf_diff,
@@ -134,77 +144,147 @@ buffer_diff_noalpha (unsigned char *buf_a,
 		     int	   height,
 		     int	   stride_a,
 		     int	   stride_b,
-		     int	   stride_diff)
+		     int	   stride_diff,
+		     buffer_diff_result_t *result)
 {
-    return buffer_diff_core(buf_a, buf_b, buf_diff,
-			    width, height, stride_a, stride_b, stride_diff, 0x00ffffff);
+    buffer_diff_core(buf_a, buf_b, buf_diff,
+		     width, height, stride_a, stride_b, stride_diff, 0x00ffffff,
+		     result);
+}
+
+static cairo_status_t
+stdio_write_func (void *closure, const unsigned char *data, unsigned int length)
+{
+    FILE *file = closure;
+
+    if (fwrite (data, 1, length, file) != length)
+	return CAIRO_STATUS_WRITE_ERROR;
+
+    return CAIRO_STATUS_SUCCESS;
+}
+
+/* Flatten an ARGB surface by blending it over white. The resulting
+ * surface, (still in ARGB32 format, but with only alpha==1.0
+ * everywhere) is returned in the same surface pointer.
+ *
+ * The original surface will be destroyed.
+ *
+ * The (x,y) value specify an origin of interest for the original
+ * image. The flattened image will be generated only from the box
+ * extending from (x,y) to (width,height).
+ */
+static void
+flatten_surface (cairo_surface_t **surface, int x, int y)
+{
+    cairo_surface_t *flat;
+    cairo_t *cr;
+
+    flat = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
+				       cairo_image_surface_get_width (*surface) - x,
+				       cairo_image_surface_get_height (*surface) - y);
+    cairo_surface_set_device_offset (flat, -x, -y);
+
+    cr = cairo_create (flat);
+    cairo_set_source_rgb (cr, 1, 1, 1);
+    cairo_paint (cr);
+    cairo_set_source_surface (cr, *surface, 0, 0);
+    cairo_paint (cr);
+    cairo_destroy (cr);
+
+    cairo_surface_destroy (*surface);
+    *surface = flat;
 }
 
 /* Image comparison code courtesy of Richard Worth <richard@theworths.org>
  * Returns number of pixels changed, (or -1 on error).
  * Also saves a "diff" image intended to visually show where the
  * images differ.
+ *
+ * The return value simply indicates whether a check was successfully
+ * made, (as opposed to a file-not-found condition or similar). It
+ * does not indicate anything about how much the images differ. For
+ * that, see result.
+ *
+ * One failure mode is if the two images provided do not have the same
+ * dimensions. In this case, this function will return
+ * CAIRO_STATUS_SURFACE_TYPE_MISMATCH (which is a bit of an abuse, but
+ * oh well).
  */
-int
-image_diff (const char *filename_a,
-	    const char *filename_b,
-	    const char *filename_diff,
-	    int		ax,
-	    int		ay,
-	    int		bx,
-	    int		by)
+static cairo_status_t
+image_diff_core (const char *filename_a,
+		 const char *filename_b,
+		 const char *filename_diff,
+		 int		ax,
+		 int		ay,
+		 int		bx,
+		 int		by,
+		 buffer_diff_result_t *result,
+		 cairo_bool_t	flatten)
 {
-    int pixels_changed;
     unsigned int width_a, height_a, stride_a;
     unsigned int width_b, height_b, stride_b;
-    unsigned int stride_diff;
-    unsigned char *buf_a, *buf_b, *buf_diff;
-    read_png_status_t status;
+    cairo_surface_t *surface_a, *surface_b, *surface_diff;
 
-    status = read_png_argb32 (filename_a, &buf_a, &width_a, &height_a, &stride_a);
-    if (status)
-	return -1;
+    surface_a = cairo_image_surface_create_from_png (filename_a);
+    if (cairo_surface_status (surface_a))
+	return cairo_surface_status (surface_a);
 
-    status = read_png_argb32 (filename_b, &buf_b, &width_b, &height_b, &stride_b);
-    if (status) {
-	free (buf_a);
-	return -1;
+    surface_b = cairo_image_surface_create_from_png (filename_b);
+    if (cairo_surface_status (surface_b)) {
+	cairo_surface_destroy (surface_a);
+	return cairo_surface_status (surface_b);
     }
 
-    width_a -= ax;
-    height_a -= ay;
-    width_b -= bx;
-    height_b -= by;
+    width_a = cairo_image_surface_get_width (surface_a) - ax;
+    height_a = cairo_image_surface_get_height (surface_a) - ay;
+    width_b = cairo_image_surface_get_width (surface_b) - bx;
+    height_b = cairo_image_surface_get_height (surface_b) - by;
 
     if (width_a  != width_b  ||
 	height_a != height_b)
     {
-	cairo_test_log ("Error: Image size mismatch: (%dx%d@%d) vs. (%dx%d@%d)\n"
+	cairo_test_log ("Error: Image size mismatch: (%dx%d) vs. (%dx%d)\n"
 			"       for %s vs. %s\n",
-			width_a, height_a, stride_a,
-			width_b, height_b, stride_b,
+			width_a, height_a,
+			width_b, height_b,
 			filename_a, filename_b);
-	free (buf_a);
-	free (buf_b);
-	return -1;
+	cairo_surface_destroy (surface_a);
+	cairo_surface_destroy (surface_b);
+	return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
     }
 
-    stride_diff = 4 * width_a;
-    buf_diff = xcalloc (stride_diff * height_a, 1);
+    if (flatten) {
+	flatten_surface (&surface_a, ax, ay);
+	flatten_surface (&surface_b, bx, by);
+	ax = ay = bx = by = 0;
+    }
 
-    pixels_changed = buffer_diff (buf_a + (ay * stride_a) + ax * 4,
-                                  buf_b + (by * stride_b) + by * 4,
-                                  buf_diff,
-                                  width_a, height_a,
-				  stride_a, stride_b, stride_diff);
+    surface_diff = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
+					       width_a, height_a);
 
-    if (pixels_changed) {
+    stride_a = cairo_image_surface_get_stride (surface_a);
+    stride_b = cairo_image_surface_get_stride (surface_b);
+
+    buffer_diff (cairo_image_surface_get_data (surface_a)
+		 + (ay * stride_a) + ax * 4,
+		 cairo_image_surface_get_data (surface_b)
+		 + (by * stride_b) + by * 4,
+		 cairo_image_surface_get_data (surface_diff),
+		 width_a, height_a,
+		 stride_a, stride_b,
+		 cairo_image_surface_get_stride (surface_diff),
+		 result);
+
+    if (result->pixels_changed) {
 	FILE *png_file;
+
 	if (filename_diff)
 	    png_file = fopen (filename_diff, "wb");
 	else
 	    png_file = stdout;
-	write_png_argb32 (buf_diff, png_file, width_a, height_a, stride_diff);
+
+	cairo_surface_write_to_png_stream (surface_diff, stdio_write_func, png_file);
+
 	if (png_file != stdout)
 	    fclose (png_file);
     } else {
@@ -212,134 +292,39 @@ image_diff (const char *filename_a,
 	    xunlink (filename_diff);
     }
 
-    free (buf_a);
-    free (buf_b);
-    free (buf_diff);
+    cairo_surface_destroy (surface_a);
+    cairo_surface_destroy (surface_b);
+    cairo_surface_destroy (surface_diff);
 
-    return pixels_changed;
+    return CAIRO_STATUS_SUCCESS;
 }
 
-/* Like image_diff, but first "flatten" the contents of filename_b by
- * blending over white.
- *
- * Yes, this is an ugly copy-and-paste of another function. I'm doing
- * this for two reasons:
- *
- * 1) I want to rewrite all of the image_diff interfaces anyway
- *    (should use cairo_image_surface_create_from_png, should save
- *    loaded buffers for re-use).
- *
- * 2) There is a second reason no more.
- */
-int
+cairo_status_t
+image_diff (const char *filename_a,
+	    const char *filename_b,
+	    const char *filename_diff,
+	    int		ax,
+	    int		ay,
+	    int		bx,
+	    int		by,
+	    buffer_diff_result_t *result)
+{
+    return image_diff_core (filename_a, filename_b, filename_diff,
+			    ax, ay, bx, by,
+			    result, FALSE);
+}
+
+cairo_status_t
 image_diff_flattened (const char *filename_a,
 		      const char *filename_b,
 		      const char *filename_diff,
 		      int	  ax,
 		      int	  ay,
 		      int	  bx,
-		      int	  by)
+		      int	  by,
+		      buffer_diff_result_t *result)
 {
-    int pixels_changed;
-    unsigned int width_a, height_a, stride_a;
-    unsigned int width_b, height_b, stride_b;
-    unsigned char *buf_a, *buf_b, *buf_diff;
-    unsigned char *a_flat, *b_flat;
-    cairo_surface_t *buf_a_surface, *a_flat_surface;
-    cairo_surface_t *buf_b_surface, *b_flat_surface;
-    cairo_t *cr;
-    read_png_status_t status;
-
-    status = read_png_argb32 (filename_a, &buf_a, &width_a, &height_a, &stride_a);
-    if (status)
-	return -1;
-
-    status = read_png_argb32 (filename_b, &buf_b, &width_b, &height_b, &stride_b);
-    if (status) {
-	free (buf_a);
-	return -1;
-    }
-
-    width_a -= ax;
-    height_a -= ay;
-    width_b -= bx;
-    height_b -= by;
-
-    if (width_a  != width_b  ||
-	height_a != height_b)
-    {
-	cairo_test_log ("Error: Image size mismatch: (%dx%d@%d) vs. (%dx%d@%d)\n"
-			"       for %s vs. %s\n",
-			width_a, height_a, stride_a,
-			width_b, height_b, stride_b,
-			filename_a, filename_b);
-	free (buf_a);
-	free (buf_b);
-	return -1;
-    }
-
-    buf_a_surface =  cairo_image_surface_create_for_data (buf_a,
-							  CAIRO_FORMAT_ARGB32,
-							  width_a + ax, height_a + ay,
-							  stride_a);
-    buf_b_surface =  cairo_image_surface_create_for_data (buf_b,
-							  CAIRO_FORMAT_ARGB32,
-							  width_b + bx, height_b + by,
-							  stride_b);
-
-    buf_diff = xcalloc (stride_a * height_a, 1);
-
-    a_flat = xcalloc (stride_a * height_a, 1);
-    b_flat = xcalloc (stride_b * height_b, 1);
-
-    a_flat_surface = cairo_image_surface_create_for_data (a_flat,
-							  CAIRO_FORMAT_ARGB32,
-							  width_a, height_a,
-							  stride_a);
-    cairo_surface_set_device_offset (a_flat_surface, -ax, -ay);
-    b_flat_surface = cairo_image_surface_create_for_data (b_flat,
-							  CAIRO_FORMAT_ARGB32,
-							  width_b, height_b,
-							  stride_b);
-    cairo_surface_set_device_offset (b_flat_surface, -bx, -by);
-
-    cr = cairo_create (a_flat_surface);
-    cairo_set_source_rgb (cr, 1, 1, 1);
-    cairo_paint (cr);
-    cairo_set_source_surface (cr, buf_a_surface, 0, 0);
-    cairo_paint (cr);
-    cairo_destroy (cr);
-    cairo_surface_destroy (a_flat_surface);
-    cairo_surface_destroy (buf_a_surface);
-
-    cr = cairo_create (b_flat_surface);
-    cairo_set_source_rgb (cr, 1, 1, 1);
-    cairo_paint (cr);
-    cairo_set_source_surface (cr, buf_b_surface, 0, 0);
-    cairo_paint (cr);
-    cairo_destroy (cr);
-    cairo_surface_destroy (b_flat_surface);
-    cairo_surface_destroy (buf_b_surface);
-
-    pixels_changed = buffer_diff (a_flat,
-                                  b_flat,
-                                  buf_diff,
-				  width_a, height_a,
-                                  stride_a, stride_b, stride_a);
-
-    if (pixels_changed) {
-	FILE *png_file = fopen (filename_diff, "wb");
-	write_png_argb32 (buf_diff, png_file, width_a, height_a, stride_a);
-	fclose (png_file);
-    } else {
-	xunlink (filename_diff);
-    }
-
-    free (buf_a);
-    free (buf_b);
-    free (a_flat);
-    free (b_flat);
-    free (buf_diff);
-
-    return pixels_changed;
+    return image_diff_core (filename_a, filename_b, filename_diff,
+			    ax, ay, bx, by,
+			    result, TRUE);
 }

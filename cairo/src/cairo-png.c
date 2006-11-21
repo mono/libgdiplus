@@ -88,7 +88,7 @@ write_png (cairo_surface_t	*surface,
 	   void			*closure)
 {
     int i;
-    cairo_status_t status = CAIRO_STATUS_SUCCESS;
+    volatile cairo_status_t status = CAIRO_STATUS_SUCCESS;
     cairo_image_surface_t *image;
     void *image_extra;
     png_struct *png;
@@ -287,6 +287,7 @@ cairo_surface_write_to_png_stream (cairo_surface_t	*surface,
 
     return write_png (surface, stream_write_func, &png_closure);
 }
+slim_hidden_def (cairo_surface_write_to_png_stream);
 
 static INLINE int
 multiply_alpha (int alpha, int color)

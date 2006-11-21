@@ -30,7 +30,7 @@ characters exclusively (see below).
 
 Tab characters
 --------------
-The tab character must always be interepreted according to its
+The tab character must always be interpreted according to its
 traditional meaning:
 
 	Advance to the next column which is a multiple of 8.
@@ -131,8 +131,8 @@ function or block and can even be used to good effect within a
 structure definition:
 
 	struct _cairo_gstate {
-	    cairo_operator_t operator;
-    
+	    cairo_operator_t op;
+
 	    double tolerance;
 
 	    /* stroke style */
@@ -146,18 +146,32 @@ structure definition:
 	    double *dash;
 	    int num_dashes;
 	    double dash_offset;
-	
+
 	    ...
 	}
 
 Use a single space before a left parenthesis, except where the
 standard will not allow it, (eg. when defining a parameterized macro).
 
-Don't eliminate whitespace just because things would still fit on one
+Don't eliminate newlines just because things would still fit on one
 line. This breaks the expected visual structure of the code making it
 much harder to read and understand:
 
 	if (condition) foo (); else bar ();	/* Yuck! */
+
+Do eliminate trailing whitespace (space or tab characters) on any
+line. Also, avoid putting initial or final blank lines into any file,
+and never use multiple blank lines instead of a single blank line.
+
+Do enable the default git pre-commit hook that detect trailing
+whitespace for you and help you to avoid corrupting cairo's tree with
+it. Do that as follows:
+
+	chmod a+x .git/hooks/pre-commit
+
+You might also find the git-stripspace utility helpful which acts as a
+filter to remove trailing whitespace as well as initial, final, and
+duplicate blank lines.
 
 As a special case of the bracing and whitespace guidelines, function
 definitions should always take the following form:

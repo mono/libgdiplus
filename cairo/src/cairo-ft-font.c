@@ -552,6 +552,7 @@ _cairo_ft_unscaled_font_lock_face (cairo_ft_unscaled_font_t *unscaled)
 
     return face;
 }
+slim_hidden_def (cairo_ft_scaled_font_lock_face);
 
 /* Unlock unscaled font locked with _cairo_ft_unscaled_font_lock_face
  */
@@ -562,6 +563,7 @@ _cairo_ft_unscaled_font_unlock_face (cairo_ft_unscaled_font_t *unscaled)
 
     unscaled->lock--;
 }
+slim_hidden_def (cairo_ft_scaled_font_unlock_face);
 
 static void
 _compute_transform (cairo_ft_font_transform_t *sf,
@@ -603,7 +605,6 @@ _cairo_ft_unscaled_font_set_scale (cairo_ft_unscaled_font_t *unscaled,
 {
     cairo_ft_font_transform_t sf;
     FT_Matrix mat;
-    FT_UInt pixel_width, pixel_height;
     FT_Error error;
 
     assert (unscaled->face != NULL);
@@ -642,18 +643,15 @@ _cairo_ft_unscaled_font_set_scale (cairo_ft_unscaled_font_t *unscaled,
     FT_Set_Transform(unscaled->face, &mat, NULL);
 
     if ((unscaled->face->face_flags & FT_FACE_FLAG_SCALABLE) != 0) {
-	pixel_width = sf.x_scale;
-	pixel_height = sf.y_scale;
 	error = FT_Set_Char_Size (unscaled->face,
 				  sf.x_scale * 64.0,
 				  sf.y_scale * 64.0,
 				  0, 0);
+	assert (error == 0);
     } else {
 	double min_distance = DBL_MAX;
 	int i;
 	int best_i = 0;
-
-	pixel_width = pixel_height = 0;
 
 	for (i = 0; i < unscaled->face->num_fixed_sizes; i++) {
 #if HAVE_FT_BITMAP_SIZE_Y_PPEM
@@ -678,9 +676,8 @@ _cairo_ft_unscaled_font_set_scale (cairo_ft_unscaled_font_t *unscaled,
 	    error = FT_Set_Pixel_Sizes (unscaled->face,
 					unscaled->face->available_sizes[best_i].width,
 					unscaled->face->available_sizes[best_i].height);
+	assert (error == 0);
     }
-
-    assert (error == 0);
 }
 
 /* Empirically-derived subpixel filtering values thanks to Keith
@@ -2273,6 +2270,7 @@ cairo_ft_font_options_substitute (const cairo_font_options_t *options,
 #endif
     }
 }
+slim_hidden_def (cairo_ft_font_options_substitute);
 
 /**
  * cairo_ft_font_face_create_for_pattern:

@@ -289,7 +289,7 @@ cairo_svg_surface_restrict_to_version (cairo_surface_t 		*abstract_surface,
 	return;
     }
 
-    if (version >= 0 && version < CAIRO_SVG_VERSION_LAST)
+    if (version < CAIRO_SVG_VERSION_LAST)
 	surface->document->svg_version = version;
 }
 
@@ -329,7 +329,7 @@ cairo_svg_get_versions (cairo_svg_version_t const	**versions,
 const char *
 cairo_svg_version_to_string (cairo_svg_version_t version)
 {
-    if (version < 0 || version >= CAIRO_SVG_VERSION_LAST)
+    if (version >= CAIRO_SVG_VERSION_LAST)
 	return NULL;
 
     return _cairo_svg_version_strings[version];
@@ -1803,8 +1803,7 @@ _cairo_svg_document_finish (cairo_svg_document_t *document)
     _cairo_output_stream_destroy (document->xml_node_glyphs);
     _cairo_output_stream_destroy (document->xml_node_defs);
 
-    status = _cairo_output_stream_get_status (output);
-    _cairo_output_stream_destroy (output);
+    status = _cairo_output_stream_destroy (output);
 
     for (i = 0; i < document->meta_snapshots.num_elements; i++) {
 	snapshot = _cairo_array_index (&document->meta_snapshots, i);

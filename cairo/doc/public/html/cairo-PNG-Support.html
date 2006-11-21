@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>PNG Support</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.69.1">
 <link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
 <link rel="up" href="Surfaces.html" title="Surfaces">
 <link rel="prev" href="cairo-PDF-Surfaces.html" title="PDF Surfaces">
 <link rel="next" href="cairo-PostScript-Surfaces.html" title="PostScript Surfaces">
-<meta name="generator" content="GTK-Doc V1.7 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 <link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
 <link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
@@ -29,23 +29,21 @@
 <th width="100%" align="center">Cairo: A Vector Graphics Library</th>
 <td><a accesskey="n" href="cairo-PostScript-Surfaces.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
-<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2563127" class="shortcut">Top</a>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#top_of_page" class="shortcut">Top</a>
                   &#160;|&#160;
-                  <a href="#id2592601" class="shortcut">Description</a></nobr></td></tr>
+                  <a href="#desc" class="shortcut">Description</a></nobr></td></tr>
 </table>
 <div class="refentry" lang="en">
 <a name="cairo-PNG-Support"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
-<h2>
-<a name="id2563127"></a><span class="refentrytitle">PNG Support</span>
-</h2>
+<h2><span class="refentrytitle"><a name="top_of_page"></a>PNG Support</span></h2>
 <p>PNG Support &#8212; Reading and writing PNG images</p>
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
 <div class="refsynopsisdiv">
-<h2>Synopsis</h2>
+<a name="synopsis"></a><h2>Synopsis</h2>
 <pre class="synopsis">
 
 
@@ -70,17 +68,17 @@
 </pre>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2592601"></a><h2>Description</h2>
+<a name="desc"></a><h2>Description</h2>
 <p>
 
 </p>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2600136"></a><h2>Details</h2>
+<a name="details"></a><h2>Details</h2>
 <div class="refsect2" lang="en">
-<a name="id2600146"></a><h3>
+<a name="id2722024"></a><h3>
 <a name="cairo-image-surface-create-from-png"></a>cairo_image_surface_create_from_png ()</h3>
-<a class="indexterm" name="id2600158"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_image_surface_create_from_png
+<a class="indexterm" name="id2722036"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_image_surface_create_from_png
                                             (const char *filename);</pre>
 <p>
 Creates a new image surface and initializes the contents to the
@@ -115,9 +113,9 @@ CAIRO_STATUS_READ_ERROR
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2600232"></a><h3>
+<a name="id2722109"></a><h3>
 <a name="cairo-read-func-t"></a>cairo_read_func_t ()</h3>
-<a class="indexterm" name="id2600244"></a><pre class="programlisting"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> (*cairo_read_func_t)         (void *closure,
+<a class="indexterm" name="id2722121"></a><pre class="programlisting"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> (*cairo_read_func_t)         (void *closure,
                                              unsigned char *data,
                                              unsigned int length);</pre>
 <p>
@@ -163,9 +161,9 @@ CAIRO_STATUS_READ_ERROR otherwise.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2597042"></a><h3>
+<a name="id2719194"></a><h3>
 <a name="cairo-image-surface-create-from-png-stream"></a>cairo_image_surface_create_from_png_stream ()</h3>
-<a class="indexterm" name="id2597056"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_image_surface_create_from_png_stream
+<a class="indexterm" name="id2719208"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_image_surface_create_from_png_stream
                                             (<a href="cairo-PNG-Support.html#cairo-read-func-t">cairo_read_func_t</a> read_func,
                                              void *closure);</pre>
 <p>
@@ -193,7 +191,9 @@ via the <em class="parameter"><code>read_func</code></em> function.</p>
 <td>
 <span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
 <td> a new <a href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a> initialized with the contents
-of the PNG file or <code class="literal">NULL</code> if the data read is not a valid PNG image or
+of the PNG file or <a
+href="/home/behdad/.local/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> if the data read is not a valid PNG image or
 memory could not be allocated for the operation.
 </td>
 </tr>
@@ -202,9 +202,9 @@ memory could not be allocated for the operation.
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2597171"></a><h3>
+<a name="id2719323"></a><h3>
 <a name="cairo-surface-write-to-png"></a>cairo_surface_write_to_png ()</h3>
-<a class="indexterm" name="id2597182"></a><pre class="programlisting"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> cairo_surface_write_to_png   (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+<a class="indexterm" name="id2719334"></a><pre class="programlisting"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> cairo_surface_write_to_png   (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                              const char *filename);</pre>
 <p>
 Writes the contents of <em class="parameter"><code>surface</code></em> to a new file <em class="parameter"><code>filename</code></em> as a PNG
@@ -243,9 +243,9 @@ while attempting to write the file.
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2597786"></a><h3>
+<a name="id2719849"></a><h3>
 <a name="cairo-write-func-t"></a>cairo_write_func_t ()</h3>
-<a class="indexterm" name="id2597798"></a><pre class="programlisting"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> (*cairo_write_func_t)        (void *closure,
+<a class="indexterm" name="id2719861"></a><pre class="programlisting"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> (*cairo_write_func_t)        (void *closure,
                                              unsigned char *data,
                                              unsigned int length);</pre>
 <p>
@@ -291,9 +291,9 @@ CAIRO_STATUS_WRITE_ERROR otherwise.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2597913"></a><h3>
+<a name="id2719977"></a><h3>
 <a name="cairo-surface-write-to-png-stream"></a>cairo_surface_write_to_png_stream ()</h3>
-<a class="indexterm" name="id2597925"></a><pre class="programlisting"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> cairo_surface_write_to_png_stream
+<a class="indexterm" name="id2719989"></a><pre class="programlisting"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> cairo_surface_write_to_png_stream
                                             (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                              <a href="cairo-PNG-Support.html#cairo-write-func-t">cairo_write_func_t</a> write_func,
                                              void *closure);</pre>

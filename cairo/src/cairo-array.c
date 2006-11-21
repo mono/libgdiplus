@@ -203,7 +203,7 @@ _cairo_array_index (cairo_array_t *array, unsigned int index)
     if (index == 0 && array->num_elements == 0)
 	return NULL;
 
-    assert (0 <= index && index < array->num_elements);
+    assert (index < array->num_elements);
 
     return (void *) &(*array->elements)[index * array->element_size];
 }

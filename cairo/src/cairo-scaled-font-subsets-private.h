@@ -239,6 +239,7 @@ typedef struct _cairo_type1_subset {
  * _cairo_type1_subset_init:
  * @type1_subset: a #cairo_type1_subset_t to initialize
  * @font_subset: the #cairo_scaled_font_subset_t to initialize from
+ * @hex_encode: if true the encrypted portion of the font is hex encoded
  *
  * If possible (depending on the format of the underlying
  * cairo_scaled_font_t and the font backend in use) generate a type1
@@ -253,7 +254,8 @@ typedef struct _cairo_type1_subset {
 cairo_private cairo_status_t
 _cairo_type1_subset_init (cairo_type1_subset_t		*type_subset,
 			  const char			*name,
-			  cairo_scaled_font_subset_t	*font_subset);
+			  cairo_scaled_font_subset_t	*font_subset,
+                          cairo_bool_t                   hex_encode);
 
 /**
  * _cairo_type1_subset_fini:

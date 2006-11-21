@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-SVG-Surfaces">
 <refmeta>
-<refentrytitle role="top_of_page">SVG Surfaces</refentrytitle>
+<refentrytitle id="top_of_page">SVG Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv role="synopsis">
-<title role="synopsis.title">Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -35,7 +35,7 @@
                                             (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
                                              <link linkend="cairo-svg-version-t">cairo_svg_version_t</link> version);
 enum        <link linkend="cairo-svg-version-t">cairo_svg_version_t</link>;
-<link linkend="void">void</link>        <link linkend="cairo-svg-get-versions">cairo_svg_get_versions</link>          (<link linkend="cairo-svg-version-t">cairo_svg_version_t</link> const **versions,
+<link linkend="void">void</link>        <link linkend="cairo-svg-get-versions">cairo_svg_get_versions</link>          (<link linkend="cairo-svg-version-t">cairo_svg_version_t</link> const	**versions,
                                              <link linkend="int">int</link> *num_versions);
 const <link linkend="char">char</link>* <link linkend="cairo-svg-version-to-string">cairo_svg_version_to_string</link>     (<link linkend="cairo-svg-version-t">cairo_svg_version_t</link> version);
 </synopsis>
@@ -49,15 +49,15 @@ const <link linkend="char">char</link>* <link linkend="cairo-svg-version-to-stri
 
 
 
-<refsect1 role="desc">
-<title role="desc.title">Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 role="details">
-<title role="details.title">Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-svg-surface-create" role="function" condition="since:1.2"/>cairo_svg_surface_create ()</title>
 <indexterm role="1.2"><primary>cairo_svg_surface_create</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_svg_surface_create   (const <link linkend="char">char</link> *filename,
@@ -176,7 +176,7 @@ specification that a generated SVG file will conform to.</para>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-svg-get-versions" role="function" condition="since:1.2"/>cairo_svg_get_versions ()</title>
-<indexterm role="1.2"><primary>cairo_svg_get_versions</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_svg_get_versions          (<link linkend="cairo-svg-version-t">cairo_svg_version_t</link> const **versions,
+<indexterm role="1.2"><primary>cairo_svg_get_versions</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_svg_get_versions          (<link linkend="cairo-svg-version-t">cairo_svg_version_t</link> const	**versions,
                                              <link linkend="int">int</link> *num_versions);</programlisting>
 <para>
 Used to retrieve the list of supported versions. See

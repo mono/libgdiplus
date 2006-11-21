@@ -27,14 +27,13 @@
 #include <stdlib.h>
 
 #include "buffer-diff.h"
-#include "read-png.h"
-#include "write-png.h"
 #include "xmalloc.h"
 
 int
 main (int argc, char *argv[])
 {
-    int total_pixels_changed;
+    buffer_diff_result_t result;
+    cairo_status_t status;
 
     unsigned int ax, ay, bx, by;
 
@@ -55,10 +54,18 @@ main (int argc, char *argv[])
 	ax = ay = bx = by = 0;
     }
 
-    total_pixels_changed = image_diff (argv[1], argv[2], NULL, ax, ay, bx, by);
+    status = image_diff (argv[1], argv[2], NULL, ax, ay, bx, by, &result);
 
-    if (total_pixels_changed)
-	fprintf (stderr, "Total pixels changed: %d\n", total_pixels_changed);
+    if (status) {
+	fprintf (stderr, "Error comparing images: %s\n",
+		 cairo_status_to_string (status));
+	return 1;
+    }
 
-    return (total_pixels_changed != 0);
+    if (result.pixels_changed)
+	fprintf (stderr, "Total pixels changed: %d with a maximum channel difference of %d.\n",
+		 result.pixels_changed,
+		 result.max_diff);
+
+    return (result.pixels_changed != 0);
 }

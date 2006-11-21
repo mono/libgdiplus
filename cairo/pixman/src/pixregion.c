@@ -50,7 +50,6 @@ SOFTWARE.
 #include <string.h>
 
 #include "pixregionint.h"
-#include "slim_internal.h"
 
 #if defined (__GNUC__) && !defined (NO_INLINES)
 #define INLINE	__inline
@@ -88,10 +87,6 @@ pixman_init (pixman_region16_t *region, pixman_box16_t *rect);
 
 static void
 pixman_uninit (pixman_region16_t *region);
-
-slim_hidden_proto(pixman_region_create_simple)
-slim_hidden_proto(pixman_region_copy)
-slim_hidden_proto(pixman_region_union)
 
 /*
  * The functions in this file implement the Region abstraction used extensively
@@ -327,7 +322,6 @@ pixman_region_create_simple (pixman_box16_t *extents)
 
     return region;
 }
-slim_hidden_def(pixman_region_create_simple);
 
 /*****************************************************************
  *   RegionInit(pReg, rect, size)
@@ -452,7 +446,6 @@ pixman_region_copy(pixman_region16_t *dst, pixman_region16_t *src)
 	  dst->data->numRects * sizeof(pixman_box16_t));
     return PIXMAN_REGION_STATUS_SUCCESS;
 }
-slim_hidden_def(pixman_region_copy);
 
 /*======================================================================
  *	    Generic Region Operator
@@ -1232,7 +1225,6 @@ pixman_region_union(pixman_region16_t *newReg, pixman_region16_t *reg1, pixman_r
     good(newReg);
     return PIXMAN_REGION_STATUS_SUCCESS;
 }
-slim_hidden_def(pixman_region_union);
 
 /*======================================================================
  *	    Batch Rectangle Union

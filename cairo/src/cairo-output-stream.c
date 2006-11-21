@@ -57,12 +57,11 @@ _cairo_output_stream_init (cairo_output_stream_t            *stream,
     stream->closed = FALSE;
 }
 
-cairo_private void
+cairo_private cairo_status_t
 _cairo_output_stream_fini (cairo_output_stream_t *stream)
 {
-    _cairo_output_stream_close (stream);
+    return _cairo_output_stream_close (stream);
 }
-
 
 const cairo_output_stream_t cairo_output_stream_nil = {
     NULL, /* write_func */
@@ -130,37 +129,44 @@ _cairo_output_stream_create (cairo_write_func_t		write_func,
     return &stream->base;
 }
 
-void
+cairo_status_t
 _cairo_output_stream_close (cairo_output_stream_t *stream)
 {
     cairo_status_t status;
 
     if (stream->closed)
-	return;
+	return stream->status;
 
     if (stream == &cairo_output_stream_nil ||
 	stream == &cairo_output_stream_nil_write_error)
     {
-	return;
+	return stream->status;
     }
 
     if (stream->close_func) {
 	status = stream->close_func (stream);
-	if (status)
+	/* Don't overwrite a pre-existing status failure. */
+	if (stream->status == CAIRO_STATUS_SUCCESS)
 	    stream->status = status;
     }
 
     stream->closed = TRUE;
+
+    return stream->status;
 }
 
-void
+cairo_status_t
 _cairo_output_stream_destroy (cairo_output_stream_t *stream)
 {
-    if (stream == NULL)
-	return;
+    cairo_status_t status;
 
-    _cairo_output_stream_fini (stream);
+    if (stream == NULL)
+	return CAIRO_STATUS_NULL_POINTER;
+
+    status = _cairo_output_stream_fini (stream);
     free (stream);
+
+    return status;
 }
 
 void

@@ -16,7 +16,7 @@
    dependencies for pdf2png) */
 #undef CAIRO_CAN_TEST_PDF_SURFACE
 
-/* Define to 1 if the SVG backend can be tested (need librsvg) */
+/* Define to 1 if the SVG backend can be tested */
 #undef CAIRO_CAN_TEST_SVG_SURFACE
 
 /* define in the extra test surface have been built into cairo for the test

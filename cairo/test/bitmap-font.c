@@ -31,6 +31,7 @@
 
 #include <cairo-ft.h>
 #include <fontconfig/fontconfig.h>
+#include <fontconfig/fcfreetype.h>
 
 #define FONT "6x13.pcf"
 #define TEXT_SIZE 13
@@ -52,6 +53,7 @@ draw (cairo_t *cr, int width, int height)
     cairo_status_t status;
     const char *srcdir = getenv ("srcdir");
     char *filename;
+    int face_count;
     struct stat stat_buf;
 
     if (! srcdir)
@@ -64,15 +66,13 @@ draw (cairo_t *cr, int width, int height)
 	return CAIRO_TEST_FAILURE;
     }
 
-    pattern = FcPatternCreate ();
+    pattern = FcFreeTypeQuery ((unsigned char *)filename, 0, NULL, &face_count);
+    free (filename);
     if (! pattern) {
-	cairo_test_log ("FcPatternCreate failed.\n");
+	cairo_test_log ("FcFreeTypeQuery failed.\n");
 	return CAIRO_TEST_FAILURE;
     }
 
-    FcPatternAddString (pattern, FC_FILE, (unsigned char *) filename);
-    free (filename);
-    FcPatternAddInteger (pattern, FC_INDEX, 0);
     font_face = cairo_ft_font_face_create_for_pattern (pattern);
 
     status = cairo_font_face_status (font_face);

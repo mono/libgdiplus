@@ -2010,6 +2010,7 @@ cairo_xlib_surface_create_with_xrender_format (Display		    *dpy,
     return _cairo_xlib_surface_create_internal (dpy, drawable, screen,
 						NULL, format, width, height, 0);
 }
+slim_hidden_def (cairo_xlib_surface_create_with_xrender_format);
 
 /**
  * cairo_xlib_surface_set_size:
@@ -2450,7 +2451,7 @@ _cairo_xlib_surface_add_glyph (Display *dpy,
 	    }
 	    n = new;
 	    d = data;
-	    while ((c -= 4) >= 0)
+	    while (c >= 4)
 	    {
 		n[3] = d[0];
 		n[2] = d[1];
@@ -2458,6 +2459,7 @@ _cairo_xlib_surface_add_glyph (Display *dpy,
 		n[0] = d[3];
 		d += 4;
 		n += 4;
+		c -= 4;
 	    }
 	    data = new;
 	}

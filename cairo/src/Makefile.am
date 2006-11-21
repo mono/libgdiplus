@@ -91,7 +91,7 @@ endif
 
 if CAIRO_HAS_GLITZ_SURFACE
 libcairo_glitz_headers = cairo-glitz.h
-libcairo_glitz_sources = cairo-glitz-surface.c
+libcairo_glitz_sources = cairo-glitz-surface.c cairo-glitz-private.h
 backend_pkgconfigs += cairo-glitz.pc
 endif
 
@@ -122,10 +122,8 @@ XRENDER_LIBS=@XRENDER_LIBS@
 
 BUILT_SOURCES = cairo-features.h
 
-#cairoincludedir = $(includedir)/cairo
-headers = \
+cairo_headers =				\
 	cairo.h				\
-	cairo-features.h		\
 	$(libcairo_atsui_headers)	\
 	$(libcairo_ft_headers)		\
 	$(libcairo_glitz_headers)	\
@@ -139,6 +137,11 @@ headers = \
 	$(libcairo_xlib_headers)	\
 	$(libcairo_xlib_xrender_headers)	\
 	$(libcairo_directfb_headers)
+
+#cairoincludedir = $(includedir)/cairo
+headers =			\
+	cairo-features.h		\
+	$(cairo_headers)
 
 noinst_LTLIBRARIES = libcairo.la
 
@@ -216,13 +219,13 @@ libcairo_la_SOURCES =				\
 	$(libcairo_directfb_sources)		\
 	cairoint.h
 
-libcairo_la_LDFLAGS = -static -version-info @VERSION_INFO@ -no-undefined $(export_symbols)
+libcairo_la_LDFLAGS = -version-info @VERSION_INFO@ -no-undefined $(export_symbols)
 
 INCLUDES = -I$(srcdir) -I$(top_srcdir)/pixman/src $(CAIRO_CFLAGS)
 
-libcairo_la_LIBADD = $(top_builddir)/pixman/src/libpixman.la $(CAIRO_LIBS) 
+libcairo_la_LIBADD = $(top_builddir)/pixman/src/libpixman.la $(CAIRO_LIBS)
 
-libcairo_la_DEPENDENCIES = $(cairo_def_dependency) $(top_builddir)/pixman/src/libpixman.la 
+libcairo_la_DEPENDENCIES = $(cairo_def_dependency) $(top_builddir)/pixman/src/libpixman.la
 
 #pkgconfigdir = $(libdir)/pkgconfig
 #pkgconfig_DATA = cairo.pc $(backend_pkgconfigs)
@@ -248,7 +251,7 @@ cairo.def: $(cairoinclude_HEADERS)
 	sort; \
 	echo LIBRARY libcairo-$(LT_CURRENT_MINUS_AGE).dll; \
 	) >$@
-	@ (! grep -q cairo_ERROR $@) || ($(RM) $@; false)
+	@ ! grep -q cairo_ERROR $@ || ($(RM) $@; false)
 
 install-data-local:
 	@if test -f "$(DESTDIR)$(includedir)/cairo.h" || test -f "$(DESTDIR)$(includedir)/cairo-features.h" ; then \
@@ -259,5 +262,9 @@ install-data-local:
 	  echo "****************************************************************" ;	\
 	  false ;									\
         fi
+
+TESTS_ENVIRONMENT = srcdir="$(srcdir)"
+TESTS = check-def.sh check-plt.sh check-headers.sh
+EXTRA_DIST += $(TESTS)
 
 CLEANFILES = cairo.def cairo-features.h

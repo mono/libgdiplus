@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>SVG Surfaces</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.69.1">
 <link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
 <link rel="up" href="Surfaces.html" title="Surfaces">
 <link rel="prev" href="cairo-Win32-Surfaces.html" title="Win32 Surfaces">
 <link rel="next" href="cairo-XLib-Surfaces.html" title="XLib Surfaces">
-<meta name="generator" content="GTK-Doc V1.7 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 <link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
 <link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
@@ -29,23 +29,21 @@
 <th width="100%" align="center">Cairo: A Vector Graphics Library</th>
 <td><a accesskey="n" href="cairo-XLib-Surfaces.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
-<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2535046" class="shortcut">Top</a>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#top_of_page" class="shortcut">Top</a>
                   &#160;|&#160;
-                  <a href="#id2603001" class="shortcut">Description</a></nobr></td></tr>
+                  <a href="#desc" class="shortcut">Description</a></nobr></td></tr>
 </table>
 <div class="refentry" lang="en">
 <a name="cairo-SVG-Surfaces"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
-<h2>
-<a name="id2535046"></a><span class="refentrytitle">SVG Surfaces</span>
-</h2>
+<h2><span class="refentrytitle"><a name="top_of_page"></a>SVG Surfaces</span></h2>
 <p>SVG Surfaces &#8212; Rendering SVG documents</p>
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
 <div class="refsynopsisdiv">
-<h2>Synopsis</h2>
+<a name="synopsis"></a><h2>Synopsis</h2>
 <pre class="synopsis">
 
 
@@ -62,23 +60,23 @@ void        <a href="cairo-SVG-Surfaces.html#cairo-svg-surface-restrict-to-versi
                                             (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                              <a href="cairo-SVG-Surfaces.html#cairo-svg-version-t">cairo_svg_version_t</a> version);
 enum        <a href="cairo-SVG-Surfaces.html#cairo-svg-version-t">cairo_svg_version_t</a>;
-void        <a href="cairo-SVG-Surfaces.html#cairo-svg-get-versions">cairo_svg_get_versions</a>          (<a href="cairo-SVG-Surfaces.html#cairo-svg-version-t">cairo_svg_version_t</a> const **versions,
+void        <a href="cairo-SVG-Surfaces.html#cairo-svg-get-versions">cairo_svg_get_versions</a>          (<a href="cairo-SVG-Surfaces.html#cairo-svg-version-t">cairo_svg_version_t</a> const	**versions,
                                              int *num_versions);
 const char* <a href="cairo-SVG-Surfaces.html#cairo-svg-version-to-string">cairo_svg_version_to_string</a>     (<a href="cairo-SVG-Surfaces.html#cairo-svg-version-t">cairo_svg_version_t</a> version);
 </pre>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2603001"></a><h2>Description</h2>
+<a name="desc"></a><h2>Description</h2>
 <p>
 
 </p>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2603017"></a><h2>Details</h2>
+<a name="details"></a><h2>Details</h2>
 <div class="refsect2" lang="en">
-<a name="id2603028"></a><h3>
+<a name="id2725679"></a><h3>
 <a name="cairo-svg-surface-create"></a>cairo_svg_surface_create ()</h3>
-<a class="indexterm" name="id2603041"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_svg_surface_create   (const char *filename,
+<a class="indexterm" name="id2725693"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_svg_surface_create   (const char *filename,
                                              double width_in_points,
                                              double height_in_points);</pre>
 <p>
@@ -128,9 +126,9 @@ occurs. You can use <a href="cairo-cairo-surface-t.html#cairo-surface-status"><c
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2598309"></a><h3>
+<a name="id2725821"></a><h3>
 <a name="cairo-svg-surface-create-for-stream"></a>cairo_svg_surface_create_for_stream ()</h3>
-<a class="indexterm" name="id2598323"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_svg_surface_create_for_stream
+<a class="indexterm" name="id2725834"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_svg_surface_create_for_stream
                                             (<a href="cairo-PNG-Support.html#cairo-write-func-t">cairo_write_func_t</a> write_func,
                                              void *closure,
                                              double width_in_points,
@@ -188,9 +186,9 @@ occurs. You can use <a href="cairo-cairo-surface-t.html#cairo-surface-status"><c
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2598494"></a><h3>
+<a name="id2724982"></a><h3>
 <a name="cairo-svg-surface-restrict-to-version"></a>cairo_svg_surface_restrict_to_version ()</h3>
-<a class="indexterm" name="id2598510"></a><pre class="programlisting">void        cairo_svg_surface_restrict_to_version
+<a class="indexterm" name="id2724997"></a><pre class="programlisting">void        cairo_svg_surface_restrict_to_version
                                             (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                              <a href="cairo-SVG-Surfaces.html#cairo-svg-version-t">cairo_svg_version_t</a> version);</pre>
 <p>
@@ -227,9 +225,9 @@ surface.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2603629"></a><h3>
+<a name="id2726304"></a><h3>
 <a name="cairo-svg-version-t"></a>enum cairo_svg_version_t</h3>
-<a class="indexterm" name="id2603642"></a><pre class="programlisting">typedef enum {
+<a class="indexterm" name="id2726316"></a><pre class="programlisting">typedef enum {
     CAIRO_SVG_VERSION_1_1,
     CAIRO_SVG_VERSION_1_2
 } cairo_svg_version_t;
@@ -260,9 +258,9 @@ specification that a generated SVG file will conform to.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2603718"></a><h3>
+<a name="id2726393"></a><h3>
 <a name="cairo-svg-get-versions"></a>cairo_svg_get_versions ()</h3>
-<a class="indexterm" name="id2603732"></a><pre class="programlisting">void        cairo_svg_get_versions          (<a href="cairo-SVG-Surfaces.html#cairo-svg-version-t">cairo_svg_version_t</a> const **versions,
+<a class="indexterm" name="id2726406"></a><pre class="programlisting">void        cairo_svg_get_versions          (<a href="cairo-SVG-Surfaces.html#cairo-svg-version-t">cairo_svg_version_t</a> const	**versions,
                                              int *num_versions);</pre>
 <p>
 Used to retrieve the list of supported versions. See
@@ -292,9 +290,9 @@ Used to retrieve the list of supported versions. See
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2603818"></a><h3>
+<a name="id2726493"></a><h3>
 <a name="cairo-svg-version-to-string"></a>cairo_svg_version_to_string ()</h3>
-<a class="indexterm" name="id2603832"></a><pre class="programlisting">const char* cairo_svg_version_to_string     (<a href="cairo-SVG-Surfaces.html#cairo-svg-version-t">cairo_svg_version_t</a> version);</pre>
+<a class="indexterm" name="id2726506"></a><pre class="programlisting">const char* cairo_svg_version_to_string     (<a href="cairo-SVG-Surfaces.html#cairo-svg-version-t">cairo_svg_version_t</a> version);</pre>
 <p>
 Get the string representation of the given <em class="parameter"><code>version</code></em> id. This function
 will return NULL if <em class="parameter"><code>version</code></em> isn't valid. See <a href="cairo-SVG-Surfaces.html#cairo-svg-get-versions"><code class="function">cairo_svg_get_versions()</code></a>

@@ -88,7 +88,7 @@ sgml.stamp: sgml-build.stamp
 
 #### html ####
 
-dist-hook install-data-local: html-build.stamp
+dist-hook-local: html-build.stamp
 
 html-build.stamp: sgml.stamp $(DOC_MAIN_SGML_FILE) $(content_files)
 	@echo 'gtk-doc: Building HTML'

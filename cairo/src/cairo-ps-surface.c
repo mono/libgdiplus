@@ -329,10 +329,11 @@ _cairo_ps_surface_emit_header (cairo_ps_surface_t *surface)
 
     _cairo_output_stream_printf (surface->final_stream,
 				 "%%!PS-Adobe-3.0\n"
-				 "%%%%Creator: cairo (http://cairographics.org)\n"
+				 "%%%%Creator: cairo %s (http://cairographics.org)\n"
 				 "%%%%CreationDate: %s"
 				 "%%%%Pages: %d\n"
 				 "%%%%BoundingBox: %d %d %d %d\n",
+                                 cairo_version_string (),
 				 ctime (&now),
 				 surface->num_pages,
 				 0, 0,
@@ -399,7 +400,7 @@ _cairo_ps_surface_emit_type1_font_subset (cairo_ps_surface_t		*surface,
 
     snprintf (name, sizeof name, "CairoFont-%d-%d",
 	      font_subset->font_id, font_subset->subset_id);
-    status = _cairo_type1_subset_init (&subset, name, font_subset);
+    status = _cairo_type1_subset_init (&subset, name, font_subset, TRUE);
     if (status)
 	return status;
 

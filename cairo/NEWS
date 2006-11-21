@@ -1,3 +1,288 @@
+Release 1.2.6 (2006-11-02 Behdad Esfahbod <behdad@behdad.org>)
+==============================================================
+This is the third bug fix release in the 1.2 series, coming less than
+two months after the 1.2.4 release made on August 18.
+
+The 1.2.4 release turned out to be a pretty solid one, except for a crasher
+bug when forwarding an X connection where the client and the server have
+varying byte orders, eg. from a PPC to an i686.  Other than that, various
+other small bugs have been fixed.
+
+Various improvements have been made in the testing infrastructure to prevent
+false positives, and to make sure the generated cairo shared object behaves as
+expected in terms of exported symbols and relocations.
+
+There were a total of 89 changes since 1.2.4.  The following list the most
+important ones:
+
+Common fixes
+------------
+- Avoid unsigned loop control variable to eliminate infinite,
+  memory-scribbling loop. (#7593)
+- Fix cairo_image_surface_create to report INVALID_FORMAT errors.
+  Previously the detected error was being lost and a nil surface was
+  returned that erroneously reported CAIRO_STATUS_NO_MEMORY.
+- Change _cairo_color_compute_shorts to not rely on any particular
+  floating-point epsilon value. (#7497)
+- Fix infinite-join test case (bug #8379)
+- Pass correct surface to create_similar in _cairo_clip_init_deep_copy().
+
+PS/PDF fixes
+------------
+- Fix Type 1 embedding in PDF.
+- Correct the value of /LastChar in the PDF Type 1 font dictionary.
+- Improve error checking in TrueType subsetting.
+- Compute right index when looking up left side bearing. (bug #8180)
+- Correct an unsigned to signed conversion problem in truetype subsetting
+  bbox.
+- Type1 subsetting: Don't put .notdef in Encoding when there are 256 glyphs.
+- Add cairo version to PS header / PDF document info dictionary.
+- Set CTM before path construction.
+
+Win32 fixes
+-----------
+- Get correct unhinted outlines on win32. (bug 7603)
+- Make cairo as a win32 static library possible.
+- Use CAIRO_FORMAT_RGB24 for BITSPIXEL==32 surfaces too.
+
+Build system fixes
+------------------
+- Define WINVER if it's not defined. (bug 6456)
+- Fix the AMD64 final link by removing SLIM from pixman.
+- Misc win32 compilation fixes.
+- Add Sun Pro C definition of pixman_private.
+- Use pixman_private consistently as prefix not suffix.
+- Added three tests check-plt.sh, check-def.sh, and check-header.sh that check
+  that the shared object, the .def file, and the public headers agree about
+  the exported symbols.
+- Require pkg-config 0.19. (#8686)
+
+
+Release 1.2.4 (2006-08-18 Carl Worth <cworth@cworth.org>)
+=========================================================
+This is the second bug fix release in the 1.2 series, coming less than
+two weeks after the 1.2.2 release made on August 8.
+
+The big motivation for a quick release was that there were a log of
+build system snags that people ran into with the 1.2.2 release. But,
+by the time we got those all done, we found that we had a bunch of
+fixes for cairo's rendering as well. So there's a lot of goodness in
+here for such a short time period.
+
+Rendering fixes
+---------------
+Fix image surfaces to not be clipped when used as a source (Vladimir Vukicevic)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=72e25648c4c4bc82ddd938aa4e05887a293f0d8b
+
+Fix a couple of corner cases in dashing degenerate paths (Jeff Muizelaar)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=fbb1758ba8384650157b2bbbc93d161b0c2a05f0
+
+Fix support for type1 fonts on win32 (Adrian Johnson)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=da1019c9138695cb838a54f8b871bbfd0e8996d7
+
+Fix assertion failure when rotating bitmap fonts (Carl Worth)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=0bfa6d4f33b8ddb5dc55bbe419c15df4af856ff9
+
+Fix assertion failure when calling cairo_text_path with bitmap fonts (Carl Worth)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=9878a033531e6b96b5f27e69e10e90dee7440cd9
+
+Fix mis-handling of cairo_close_path in some situations (Tim Rowley, Carl Worth)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=53f74e59faf1af78f2f0741ccf1f23aa5dad4efc
+
+Respect font_matrix translation in _cairo_gstate_glyph_path (Behdad Esfahbod)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=f183b835b111d23e838889178aa8106ec84663b3
+
+Fix vertical metrics adjustment to work with non-identity shapes (Behdad Esfahbod)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=b7bc263842a798d657a95e539e1693372448837f
+
+[PS] Set correct ImageMatrix in _cairo_ps_surface_emit_bitmap_glyph_data (Behdad Esfahbod)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=d47388ad759b0a1a0869655a87d9b5eb6ae2445d
+
+Build system fixes
+------------------
+Fix xlib detection to prefer pkg-config to avoid false libXt dependency (Behdad Esfahbod)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=0e78e7144353703cbd28aae6a67cd9ca261f1d68
+
+Fix typos causing win32 build problem with PS,PDF, and SVG backends (Behdad Esfahbod)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=aea83b908d020e26732753830bb3056e6702a774
+
+Fix configure cache to not use stale results (Behdad Esfahbod)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=6d0e3260444a2d5b6fb0cb223ac79f1c0e7b3a6e
+
+Fix to not pass unsupported warning options to the compiler (Jens Granseuer)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=97524a8fdb899de1ae4a3e920fb7bda6d76c5571
+
+Fix to allow env. variables such as png_REQUIRES to override configure detection (Jens Granseuer)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=abd16e47d6331bd3811c908e524b4dcb6bd23bf0
+
+Fix test suite to not use an old system cairo when converting svg2png (Behdad Esfahbod)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=6122cc85c8f71b1ba2df3ab86907768edebe1781
+
+Fix test suite to not require signal.h to be present (Behdad Esfahbod)
+http://gitweb.freedesktop.org/?p=cairo;a=commit;h=6f8cf53b1e1ccdbe1ab6a275656b19c6e5120e40
+
+Code cleanups
+-------------
+Many useful warnings cleanups from sparse, valgrind, and careful eyes
+(Kjartan Maraas, Pavel Roskin)
+
+Release 1.2.2 (2006-08-08 Carl Worth <cworth@cworth.org>)
+=========================================================
+This is the first bug fix release in the 1.2 series since the original
+1.2.0 release made six weeks ago.
+
+There were some very serious bugs in the 1.2.0 release, (see below),
+so everybody is encouraged to upgrade from 1.2.0 to 1.2.2. The 1.2.2
+release maintains source and binary compatibility with 1.2.0 and does
+not make any API additions.
+
+Fix crashes with BGR X servers
+------------------------------
+With cairo 1.2.0 many people reported problems with all cairo-using
+programs, (including all GTK+ programs with GTK+ >= 2.8) immediately
+crashing with a complaint about an unsupported image format. This bug
+affected X servers that do not provide the Render extension and that
+provide a visual with BGR rather than RGB channel order.
+
+report:	https://bugs.freedesktop.org/show_bug.cgi?id=7294
+fix:	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=9ae66174e774b57f16ad791452ed44efc2770a59
+
+Fix the "disappearing text" bug
+-------------------------------
+With cairo 1.2.0 many people reported that text would disappear from
+applications, sometimes reappearing with mouse motion or
+selection. The text would disappear after the first space in a string
+of text. This bug was caused by an underlying bug in (very common) X
+servers, and only affected text rendered without antialiasing, (either
+a bitmap font or a vector font with antialiasing disabled). The bug
+was also exacerbated by a KDE migration bug that caused antialiasing
+to be disabled more than desired.
+
+report:	https://bugs.freedesktop.org/show_bug.cgi?id=7494
+fix:	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=456cdb3058f3b416109a9600167cd8842300ae14
+see also:
+Xorg:	https://bugs.freedesktop.org/show_bug.cgi?id=7681
+KDE:	http://qa.mandriva.com/show_bug.cgi?id=23990
+
+Fix broken image fallback scaling (aka. "broken printing")
+----------------------------------------------------------
+The various "print" backends, (pdf, ps, and svg), sometimes fallback
+to using image-based rendering for some operations. In cairo 1.2.0
+these image fallbacks were scaled improperly. Applications using cairo
+can influence the resolution of the image fallbacks with
+cairo_surface_set_fallback_resolution. With the bug, any value other
+than 72.0 would lead to incorrect results, (larger values would lead
+to increasingly shrunken output).
+
+report:	https://bugs.freedesktop.org/show_bug.cgi?id=7533
+fix:	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=1feb4291cf7813494355459bb547eec604c54ffb
+
+Fix inadvertent semantic change of font matrix translation (Behdad Esfahbod)
+----------------------------------------------------------------------------
+The 1.2.0 release introduced an inadvertent change to how the
+translation components of a font matrix are interpreted. In the 1.0
+series, font matrix translation could be used to offset the glyph
+origin, (though glyph metrics were reported incorrectly in
+1.0). However in 1.2.0, the translation was applied to the advance
+values between each glyph. The 1.2.0 behavior is fairly useless in
+practice, and it was not intentional to introduce a semantic
+change. With 1.2.2 we return to the 1.0 semantics, with a much better
+implementation that provides correct glyph metrics.
+
+fix:	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=84840e6bba6e72aa88fad7a0ee929e8955ba9051
+
+Fix create_similar to preserve fallback resolution and font options (Behdad Esfahbod)
+-------------------------------------------------------------------------------------
+There has been a long-standing issue with cairo_surface_create_similar
+such that font options and other settings from the original
+destination surface would not be preserved to the intermediate
+"similar" surface. This could result in incorrect rendering
+(particularly with respect to text hinting/antialiasing) with
+fallbacks, for example.
+
+report:	https://bugs.freedesktop.org/show_bug.cgi?id=4106
+fixes:	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=9fcb3c32c1f16fe6ab913e27eb54d18b7d9a06b0
+	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=bdb4e1edadb78a2118ff70b28163f8bd4317f1ec
+
+xlib: Fix text performance regression from 1.0 to 1.2.0 (Vladimir Vukicevic)
+----------------------------------------------------------------------------
+Several people noticed that upgrading from cairo 1.0 to cairo 1.2.0
+caused a significant performance regression when using the xlib
+backend. This performance regression was particularly noticeable when
+doing lots of text rendering and when using a high-latency connection
+to the X server, (such as a remote X server over an ssh
+connection). The slowdown was identified and fixed in 1.2.2.
+
+report:	https://bugs.freedesktop.org/show_bug.cgi?id=7514
+fix:	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=b7191885c88068dad57d68ced69a752d1162b12c
+
+PDF: Eliminate dependency on FreeType library dependency (Adrian Johnson)
+-------------------------------------------------------------------------
+The cairo 1.2 series adds a supported pdf backend to cairo. In cairo
+1.2.0 this backend required the freetype library, which was an
+undesirable dependency on systems such as win32, (cairo is designed to
+always prefer the "native" font system). As of cairo 1.2.2 the
+freetype library is not required to use the pdf backend on the win32
+platform.
+
+report:	https://bugs.freedesktop.org/show_bug.cgi?id=7538
+fix:	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=a0989f427be87c60415963dd6822b3c5c3781691
+
+PDF: Fix broken output on amd64 (Adrian Johnson)
+------------------------------------------------
+report:	http://bugzilla.gnome.org/show_bug.cgi?id=349826
+fix:	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=f4b12e497b7ac282b2f6831b8fb68deebc412e60
+
+PS: Fix broken output for truetype fonts > 64k (Adrian Johnson)
+---------------------------------------------------------------
+fix:	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=067d97eb1793a6b0d0dddfbd0b54117844511a94
+
+PDF: Fix so that dashing doesn't get stuck on (Kent Worsnop)
+------------------------------------------------------------
+Kent notices that with the PDF backend in cairo 1.2.0 as soon as a
+stroke was performed with dashing, all subsequent strokes would also
+be dashed. There was no way to turn dashing off again.
+
+fix:	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=778c4730a86296bf0a71080cf7008d7291792256
+
+Fix memory leaks in failure paths in gradient creation (Alfred Peng)
+--------------------------------------------------------------------
+fix:	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=db06681b487873788b51a6766894fc619eb8d8f2
+
+Fix memory leak in _cairo_surface_show_glyphs (Chris Wilson)
+------------------------------------------------------------
+report:	https://bugs.freedesktop.org/show_bug.cgi?id=7766
+fix:	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=e2fddcccb43d06486d3680a19cfdd5a54963fcbd
+
+Solaris: Add definition of cairo_private for some Sun compilers (Alfred Peng)
+-----------------------------------------------------------------------------
+report:	https://bugzilla.mozilla.org/show_bug.cgi?id=341874
+fix:	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=04757a3aa8deeff3265719ebe01b021638990ec6
+
+Solaris: Change version number of Sun's Xorg server with buggy repeat (Brian Cameron)
+-------------------------------------------------------------------------------------
+report: https://bugs.freedesktop.org/show_bug.cgi?id=7483
+fix:	http://gitweb.freedesktop.org/?p=cairo;a=commit;h=e0ad1aa995bcec4246c0b8ab0d5a5a79871ce235
+
+Various memory leak fixes
+-------------------------
+Fix memory leak in _cairo_surface_show_glyphs (bug 7766)
+Fix file handle leak in failure path (bug 7616)
+Fix some memory leaks in the test cases.
+Fix some memory leaks in font subsetting code used in print backends.
+
+Documentation improvements (Behdad Esfahbod)
+--------------------------------------------
+Added new documentation for several functions (cairo_show_page,
+cairo_copy_page, cairo_in_stroke, cairo_in_fill).
+
+Fixed some syntax errors that were preventing some existing
+documentation from being published.
+
+Fixed several minor typographical errors.
+
+Added an index for new symbols in 1.2.
+
 Release 1.2.0 (2006-06-27 Carl Worth <cworth@cworth.org>)
 =========================================================
 This is the culmination of the work that has gone on within the 1.1

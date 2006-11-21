@@ -29,8 +29,8 @@
 static cairo_test_draw_function_t draw;
 
 cairo_test_t test = {
-    "path-data",
-    "Tests calls to path_data functions: cairo_copy_path_data, cairo_copy_path_data_flat, and cairo_append_path_data",
+    "copy-path",
+    "Tests calls to path_data functions: cairo_copy_path, cairo_copy_path_flat, and cairo_append_path",
     45, 53,
     draw
 };
@@ -97,6 +97,32 @@ static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
     cairo_path_t *path;
+    cairo_t *cr_error;
+
+    /* Ensure that calling cairo_copy_path on an in-error cairo_t will
+     * propagate the error. */
+    cr_error = cairo_create (NULL);
+    path = cairo_copy_path (cr_error);
+    if (path->status == CAIRO_STATUS_SUCCESS ||
+	path->status != cairo_status (cr_error)) {
+	cairo_test_log ("Error: cairo_copy_path returned status of %s rather than propagating %s\n",
+			cairo_status_to_string (path->status),
+			cairo_status_to_string (cairo_status (cr_error)));
+	cairo_path_destroy (path);
+	return CAIRO_TEST_FAILURE;
+    }
+    cairo_path_destroy (path);
+
+    path = cairo_copy_path_flat (cr_error);
+    if (path->status == CAIRO_STATUS_SUCCESS ||
+	path->status != cairo_status (cr_error)) {
+	cairo_test_log ("Error: cairo_copy_path_flat returned status of %s rather than propagating %s\n",
+			cairo_status_to_string (path->status),
+			cairo_status_to_string (cairo_status (cr_error)));
+	cairo_path_destroy (path);
+	return CAIRO_TEST_FAILURE;
+    }
+    cairo_path_destroy (path);
 
     /* We draw in the default black, so paint white first. */
     cairo_save (cr);

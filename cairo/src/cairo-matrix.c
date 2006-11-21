@@ -170,6 +170,7 @@ cairo_matrix_translate (cairo_matrix_t *matrix, double tx, double ty)
 
     cairo_matrix_multiply (matrix, &tmp, matrix);
 }
+slim_hidden_def (cairo_matrix_translate);
 
 /**
  * cairo_matrix_init_scale:

@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Paths">
 <refmeta>
-<refentrytitle role="top_of_page">Paths</refentrytitle>
+<refentrytitle id="top_of_page">Paths</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv role="synopsis">
-<title role="synopsis.title">Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -96,15 +96,15 @@ enum        <link linkend="cairo-path-data-type-t">cairo_path_data_type_t</link>
 
 
 
-<refsect1 role="desc">
-<title role="desc.title">Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 role="details">
-<title role="details.title">Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-path-t" role="struct"/>cairo_path_t</title>
 <indexterm><primary>cairo_path_t</primary></indexterm><programlisting>typedef struct {
@@ -252,8 +252,12 @@ conditions hold:
 </para>
 <para>
 <orderedlist>
-<listitem>If there is insufficient memory to copy the path.</listitem>
-<listitem>If <parameter>cr</parameter> is already in an error state.</listitem>
+<listitem>If there is insufficient memory to copy the path. In this
+    case <literal>path->status</literal> will be set to
+    <link linkend="CAIRO-STATUS-NO-MEMORY:CAPS"><literal>CAIRO_STATUS_NO_MEMORY</literal></link>.</listitem>
+<listitem>If <parameter>cr</parameter> is already in an error state. In this case
+   <literal>path->status</literal> will contain the same status that
+   would be returned by <link linkend="cairo-status"><function>cairo_status()</function></link>.</listitem>
 </orderedlist>
 </para>
 <para>

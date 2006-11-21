@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-cairo-matrix-t">
 <refmeta>
-<refentrytitle role="top_of_page">cairo_matrix_t</refentrytitle>
+<refentrytitle id="top_of_page">cairo_matrix_t</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv role="synopsis">
-<title role="synopsis.title">Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -69,8 +69,8 @@
 
 
 
-<refsect1 role="desc">
-<title role="desc.title">Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 
   <para><indexterm><primary>types</primary><secondary>cairo_matrix</secondary></indexterm><indexterm><primary/></indexterm>
     <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link> is used throughout cairo to convert between different
@@ -91,8 +91,8 @@
   </para>
 </refsect1>
 
-<refsect1 role="details">
-<title role="details.title">Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-matrix-t" role="struct"/>cairo_matrix_t</title>
 <indexterm><primary>cairo_matrix_t</primary></indexterm><programlisting>typedef struct {

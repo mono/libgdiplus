@@ -5,16 +5,19 @@
 ]>
 <refentry id="cairo-BeOS-Surfaces">
 <refmeta>
-<refentrytitle>BeOS Surfaces</refentrytitle>
+<refentrytitle id="top_of_page">BeOS Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>BeOS Surfaces</refname><refpurpose>BeOS surface support</refpurpose>
+<refname>BeOS Surfaces</refname>
+<refpurpose>BeOS surface support</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv><title>Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -31,15 +34,15 @@
 
 
 
-<refsect1>
-<title>Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1>
-<title>Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 
 </refsect1>
 

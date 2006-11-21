@@ -38,9 +38,7 @@ static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
     int i;
-    /* This color value might need to change in the future when we fix
-     * the rounding in cairo-color.c */
-    uint32_t color = 0x7f19334C;
+    uint32_t color = 0x8019334c;
     cairo_surface_t *surface;
     cairo_pattern_t *pattern;
 

@@ -23,19 +23,6 @@
 
 
 
-<link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-xcb-surface-create">cairo_xcb_surface_create</link>   (<link linkend="XCBConnection">XCBConnection</link> *c,
-                                             <link linkend="XCBDRAWABLE:CAPS">XCBDRAWABLE</link> drawable,
-                                             <link linkend="XCBVISUALTYPE:CAPS">XCBVISUALTYPE</link> *visual,
-                                             <link linkend="int">int</link> width,
-                                             <link linkend="int">int</link> height);
-<link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-xcb-surface-create-for-bitmap">cairo_xcb_surface_create_for_bitmap</link>
-                                            (<link linkend="XCBConnection">XCBConnection</link> *c,
-                                             <link linkend="XCBPIXMAP:CAPS">XCBPIXMAP</link> bitmap,
-                                             <link linkend="int">int</link> width,
-                                             <link linkend="int">int</link> height);
-<link linkend="void">void</link>        <link linkend="cairo-xcb-surface-set-size">cairo_xcb_surface_set_size</link>      (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
-                                             <link linkend="int">int</link> width,
-                                             <link linkend="int">int</link> height);
 </synopsis>
 </refsynopsisdiv>
 
@@ -56,102 +43,6 @@
 
 <refsect1 id="details">
 <title id="details.title">Details</title>
-<refsect2>
-<title><anchor id="cairo-xcb-surface-create" role="function"/>cairo_xcb_surface_create ()</title>
-<indexterm><primary>cairo_xcb_surface_create</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_xcb_surface_create   (<link linkend="XCBConnection">XCBConnection</link> *c,
-                                             <link linkend="XCBDRAWABLE:CAPS">XCBDRAWABLE</link> drawable,
-                                             <link linkend="XCBVISUALTYPE:CAPS">XCBVISUALTYPE</link> *visual,
-                                             <link linkend="int">int</link> width,
-                                             <link linkend="int">int</link> height);</programlisting>
-<para>
-Creates an XCB surface that draws to the given drawable.
-The way that colors are represented in the drawable is specified
-by the provided visual.
-</para>
-<para>
-NOTE: If <parameter>drawable</parameter> is a window, then the function
-cairo_xcb_surface_set_size must be called whenever the size of the
-window changes.</para>
-<para>
-
-</para><variablelist role="params">
-<varlistentry><term><parameter>c</parameter>&nbsp;:</term>
-<listitem><simpara> an XCB connection
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>drawable</parameter>&nbsp;:</term>
-<listitem><simpara> an XCB drawable
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>visual</parameter>&nbsp;:</term>
-<listitem><simpara> the visual to use for drawing to <parameter>drawable</parameter>. The depth
-         of the visual must match the depth of the drawable.
-         Currently, only TrueColor visuals are fully supported.
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
-<listitem><simpara> the current width of <parameter>drawable</parameter>.
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
-<listitem><simpara> the current height of <parameter>drawable</parameter>.
-</simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the newly created surface
-</simpara></listitem></varlistentry>
-</variablelist></refsect2>
-<refsect2>
-<title><anchor id="cairo-xcb-surface-create-for-bitmap" role="function"/>cairo_xcb_surface_create_for_bitmap ()</title>
-<indexterm><primary>cairo_xcb_surface_create_for_bitmap</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_xcb_surface_create_for_bitmap
-                                            (<link linkend="XCBConnection">XCBConnection</link> *c,
-                                             <link linkend="XCBPIXMAP:CAPS">XCBPIXMAP</link> bitmap,
-                                             <link linkend="int">int</link> width,
-                                             <link linkend="int">int</link> height);</programlisting>
-<para>
-Creates an XCB surface that draws to the given bitmap.
-This will be drawn to as a CAIRO_FORMAT_A1 object.</para>
-<para>
-
-</para><variablelist role="params">
-<varlistentry><term><parameter>c</parameter>&nbsp;:</term>
-<listitem><simpara> an XCB connection
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>bitmap</parameter>&nbsp;:</term>
-<listitem><simpara> an XCB Pixmap (a depth-1 pixmap)
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
-<listitem><simpara> the current width of <parameter>bitmap</parameter>
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
-<listitem><simpara> the current height of <parameter>bitmap</parameter>
-</simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the newly created surface
-</simpara></listitem></varlistentry>
-</variablelist></refsect2>
-<refsect2>
-<title><anchor id="cairo-xcb-surface-set-size" role="function"/>cairo_xcb_surface_set_size ()</title>
-<indexterm><primary>cairo_xcb_surface_set_size</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_xcb_surface_set_size      (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
-                                             <link linkend="int">int</link> width,
-                                             <link linkend="int">int</link> height);</programlisting>
-<para>
-Informs cairo of the new size of the XCB drawable underlying the
-surface. For a surface created for a window (rather than a pixmap),
-this function must be called each time the size of the window
-changes. (For a subwindow, you are normally resizing the window
-yourself, but for a toplevel window, it is necessary to listen for
-ConfigureNotify events.)
-</para>
-<para>
-A pixmap can never change size, so it is never necessary to call
-this function on a surface created for a pixmap.</para>
-<para>
-
-</para><variablelist role="params">
-<varlistentry><term><parameter>surface</parameter>&nbsp;:</term>
-<listitem><simpara> a <link linkend="cairo-surface-t"><type>cairo_surface_t</type></link> for the XCB backend
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
-<listitem><simpara> the new width of the surface
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
-<listitem><simpara> the new height of the surface
-</simpara></listitem></varlistentry>
-</variablelist></refsect2>
 
 </refsect1>
 

@@ -309,8 +309,8 @@
     <function name="enum cairo_status_t" link="cairo-Error-handling.html#cairo-status-t"/>
     <function name="cairo_status_to_string ()" link="cairo-Error-handling.html#cairo-status-to-string"/>
     <function name="cairo_debug_reset_static_data ()" link="cairo-Error-handling.html#cairo-debug-reset-static-data"/>
-    <function name="Compatibility" link="cairo-Version-Information.html#id2606197"/>
-    <function name="Examining the version" link="cairo-Version-Information.html#id2606236"/>
+    <function name="Compatibility" link="cairo-Version-Information.html#id2731267"/>
+    <function name="Examining the version" link="cairo-Version-Information.html#id2731305"/>
     <function name="CAIRO_VERSION" link="cairo-Version-Information.html#CAIRO-VERSION:CAPS"/>
     <function name="CAIRO_VERSION_MAJOR" link="cairo-Version-Information.html#CAIRO-VERSION-MAJOR:CAPS"/>
     <function name="CAIRO_VERSION_MINOR" link="cairo-Version-Information.html#CAIRO-VERSION-MINOR:CAPS"/>

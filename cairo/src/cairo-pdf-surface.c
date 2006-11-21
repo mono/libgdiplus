@@ -546,8 +546,7 @@ _cairo_pdf_surface_finish (void *abstract_surface)
 				 "%%%%EOF\r\n",
 				 offset);
 
-    status = _cairo_output_stream_get_status (surface->output);
-    _cairo_output_stream_destroy (surface->output);
+    status = _cairo_output_stream_destroy (surface->output);
 
     _cairo_array_fini (&surface->objects);
     _cairo_array_fini (&surface->pages);
@@ -1474,11 +1473,13 @@ _cairo_pdf_surface_write_info (cairo_pdf_surface_t *surface)
     info = _cairo_pdf_surface_new_object (surface);
     _cairo_output_stream_printf (surface->output,
 				 "%d 0 obj\r\n"
-				 "<< /Creator (cairographics.org)\r\n"
-				 "   /Producer (cairographics.org)\r\n"
+				 "<< /Creator (cairo %s (http://cairographics.org))\r\n"
+				 "   /Producer (cairo %s (http://cairographics.org))\r\n"
 				 ">>\r\n"
 				 "endobj\r\n",
-				 info.id);
+				 info.id,
+                                 cairo_version_string (),
+                                 cairo_version_string ());
 
     return info;
 }
@@ -1594,7 +1595,7 @@ _cairo_pdf_surface_emit_type1_font_subset (cairo_pdf_surface_t		*surface,
 
     snprintf (name, sizeof name, "CairoFont-%d-%d",
 	      font_subset->font_id, font_subset->subset_id);
-    status = _cairo_type1_subset_init (&subset, name, font_subset);
+    status = _cairo_type1_subset_init (&subset, name, font_subset, FALSE);
     if (status)
 	return status;
 
@@ -1665,7 +1666,7 @@ _cairo_pdf_surface_emit_type1_font_subset (cairo_pdf_surface_t		*surface,
 				 "   /Widths [",
 				 subset_resource.id,
 				 subset.base_font,
-				 font_subset->num_glyphs,
+				 font_subset->num_glyphs - 1,
 				 descriptor.id);
 
     for (i = 0; i < font_subset->num_glyphs; i++)
@@ -2505,6 +2506,11 @@ _cairo_pdf_surface_stroke (void			*abstract_surface,
     info.output = surface->output;
     info.ctm_inverse = ctm_inverse;
 
+    _cairo_output_stream_printf (surface->output,
+				 "q %f %f %f %f %f %f cm\r\n",
+				 ctm->xx, ctm->yx, ctm->xy, ctm->yy,
+				 ctm->x0, ctm->y0);
+
     status = _cairo_path_fixed_interpret (path,
 					  CAIRO_DIRECTION_FORWARD,
 					  _cairo_pdf_path_move_to,
@@ -2512,11 +2518,6 @@ _cairo_pdf_surface_stroke (void			*abstract_surface,
 					  _cairo_pdf_path_curve_to,
 					  _cairo_pdf_path_close_path,
 					  &info);
-
-    _cairo_output_stream_printf (surface->output,
-				 "q %f %f %f %f %f %f cm\r\n",
-				 ctm->xx, ctm->yx, ctm->xy, ctm->yy,
-				 ctm->x0, ctm->y0);
 
     _cairo_output_stream_printf (surface->output, "S Q\r\n");
 

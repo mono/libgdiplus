@@ -210,7 +210,8 @@ foreach my $test (sort(keys %$tests)) {
       }
 
       my $testref = testref($test, $format);
-      print '<tr><td>', "<a href=\"$testref\">", $test, ' (', $format, '/', $offset, ')</a></td>';
+      print '<tr><td>', "<a href=\"$testref\">", $test, ' (', $format, '/', $offset, ')</a>',
+      "(<a href=\"$test.log\">log</a>)", '</td>';
 
       if ($config_show_ref) {
         print "<td><a href=\"$testref\"><img src=\"$testref\"></img></a></td>";

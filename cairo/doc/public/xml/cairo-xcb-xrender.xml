@@ -23,12 +23,6 @@
 
 
 
-<link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-xcb-surface-create-with-xrender-format">cairo_xcb_surface_create_with_xrender_format</link>
-                                            (<link linkend="XCBConnection">XCBConnection</link> *c,
-                                             <link linkend="XCBDRAWABLE:CAPS">XCBDRAWABLE</link> drawable,
-                                             <link linkend="XCBRenderPICTFORMINFO">XCBRenderPICTFORMINFO</link> *format,
-                                             <link linkend="int">int</link> width,
-                                             <link linkend="int">int</link> height);
 </synopsis>
 </refsynopsisdiv>
 
@@ -49,45 +43,6 @@
 
 <refsect1 id="details">
 <title id="details.title">Details</title>
-<refsect2>
-<title><anchor id="cairo-xcb-surface-create-with-xrender-format" role="function"/>cairo_xcb_surface_create_with_xrender_format ()</title>
-<indexterm><primary>cairo_xcb_surface_create_with_xrender_format</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_xcb_surface_create_with_xrender_format
-                                            (<link linkend="XCBConnection">XCBConnection</link> *c,
-                                             <link linkend="XCBDRAWABLE:CAPS">XCBDRAWABLE</link> drawable,
-                                             <link linkend="XCBRenderPICTFORMINFO">XCBRenderPICTFORMINFO</link> *format,
-                                             <link linkend="int">int</link> width,
-                                             <link linkend="int">int</link> height);</programlisting>
-<para>
-Creates an XCB surface that draws to the given drawable.
-The way that colors are represented in the drawable is specified
-by the provided picture format.
-</para>
-<para>
-NOTE: If <parameter>drawable</parameter> is a Window, then the function
-cairo_xlib_surface_set_size must be called whenever the size of the
-window changes.</para>
-<para>
-
-</para><variablelist role="params">
-<varlistentry><term><parameter>c</parameter>&nbsp;:</term>
-<listitem><simpara> an XCB connection
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>drawable</parameter>&nbsp;:</term>
-<listitem><simpara> an XCB drawable
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>format</parameter>&nbsp;:</term>
-<listitem><simpara> the picture format to use for drawing to <parameter>drawable</parameter>. The
-         depth of <parameter>format</parameter> mush match the depth of the drawable.
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
-<listitem><simpara> the current width of <parameter>drawable</parameter>
-</simpara></listitem></varlistentry>
-<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
-<listitem><simpara> the current height of <parameter>drawable</parameter>
-</simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the newly created surface. 
-</simpara></listitem></varlistentry>
-</variablelist></refsect2>
 
 </refsect1>
 

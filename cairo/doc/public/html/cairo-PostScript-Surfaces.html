@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>PostScript Surfaces</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.69.1">
 <link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
 <link rel="up" href="Surfaces.html" title="Surfaces">
 <link rel="prev" href="cairo-PNG-Support.html" title="PNG Support">
 <link rel="next" href="cairo-Win32-Surfaces.html" title="Win32 Surfaces">
-<meta name="generator" content="GTK-Doc V1.7 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 <link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
 <link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
@@ -29,23 +29,21 @@
 <th width="100%" align="center">Cairo: A Vector Graphics Library</th>
 <td><a accesskey="n" href="cairo-Win32-Surfaces.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
-<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2540955" class="shortcut">Top</a>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#top_of_page" class="shortcut">Top</a>
                   &#160;|&#160;
-                  <a href="#id2598182" class="shortcut">Description</a></nobr></td></tr>
+                  <a href="#desc" class="shortcut">Description</a></nobr></td></tr>
 </table>
 <div class="refentry" lang="en">
 <a name="cairo-PostScript-Surfaces"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
-<h2>
-<a name="id2540955"></a><span class="refentrytitle">PostScript Surfaces</span>
-</h2>
+<h2><span class="refentrytitle"><a name="top_of_page"></a>PostScript Surfaces</span></h2>
 <p>PostScript Surfaces &#8212; Rendering PostScript documents</p>
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
 <div class="refsynopsisdiv">
-<h2>Synopsis</h2>
+<a name="synopsis"></a><h2>Synopsis</h2>
 <pre class="synopsis">
 
 
@@ -70,17 +68,17 @@ void        <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment
 </pre>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2598182"></a><h2>Description</h2>
+<a name="desc"></a><h2>Description</h2>
 <p>
 
 </p>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2605082"></a><h2>Details</h2>
+<a name="details"></a><h2>Details</h2>
 <div class="refsect2" lang="en">
-<a name="id2605093"></a><h3>
+<a name="id2720182"></a><h3>
 <a name="cairo-ps-surface-create"></a>cairo_ps_surface_create ()</h3>
-<a class="indexterm" name="id2605107"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_ps_surface_create    (const char *filename,
+<a class="indexterm" name="id2720196"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_ps_surface_create    (const char *filename,
                                              double width_in_points,
                                              double height_in_points);</pre>
 <p>
@@ -136,9 +134,9 @@ occurs. You can use <a href="cairo-cairo-surface-t.html#cairo-surface-status"><c
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2605261"></a><h3>
+<a name="id2720485"></a><h3>
 <a name="cairo-ps-surface-create-for-stream"></a>cairo_ps_surface_create_for_stream ()</h3>
-<a class="indexterm" name="id2605275"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_ps_surface_create_for_stream
+<a class="indexterm" name="id2720498"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_ps_surface_create_for_stream
                                             (<a href="cairo-PNG-Support.html#cairo-write-func-t">cairo_write_func_t</a> write_func,
                                              void *closure,
                                              double width_in_points,
@@ -202,9 +200,9 @@ occurs. You can use <a href="cairo-cairo-surface-t.html#cairo-surface-status"><c
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2597378"></a><h3>
+<a name="id2719394"></a><h3>
 <a name="cairo-ps-surface-set-size"></a>cairo_ps_surface_set_size ()</h3>
-<a class="indexterm" name="id2597391"></a><pre class="programlisting">void        cairo_ps_surface_set_size       (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+<a class="indexterm" name="id2719407"></a><pre class="programlisting">void        cairo_ps_surface_set_size       (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                              double width_in_points,
                                              double height_in_points);</pre>
 <p>
@@ -248,9 +246,9 @@ surface or immediately after completing a page with either
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2597517"></a><h3>
+<a name="id2719533"></a><h3>
 <a name="cairo-ps-surface-dsc-begin-setup"></a>cairo_ps_surface_dsc_begin_setup ()</h3>
-<a class="indexterm" name="id2597531"></a><pre class="programlisting">void        cairo_ps_surface_dsc_begin_setup
+<a class="indexterm" name="id2719546"></a><pre class="programlisting">void        cairo_ps_surface_dsc_begin_setup
                                             (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
 <p>
 This function indicates that subsequent calls to
@@ -281,9 +279,9 @@ See <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment"><code 
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2597626"></a><h3>
+<a name="id2719639"></a><h3>
 <a name="cairo-ps-surface-dsc-begin-page-setup"></a>cairo_ps_surface_dsc_begin_page_setup ()</h3>
-<a class="indexterm" name="id2597642"></a><pre class="programlisting">void        cairo_ps_surface_dsc_begin_page_setup
+<a class="indexterm" name="id2719653"></a><pre class="programlisting">void        cairo_ps_surface_dsc_begin_page_setup
                                             (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
 <p>
 This function indicates that subsequent calls to
@@ -315,9 +313,9 @@ See <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment"><code 
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2605536"></a><h3>
+<a name="id2727398"></a><h3>
 <a name="cairo-ps-surface-dsc-comment"></a>cairo_ps_surface_dsc_comment ()</h3>
-<a class="indexterm" name="id2605550"></a><pre class="programlisting">void        cairo_ps_surface_dsc_comment    (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+<a class="indexterm" name="id2727412"></a><pre class="programlisting">void        cairo_ps_surface_dsc_comment    (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                              const char *comment);</pre>
 <p>
 Emit a comment into the PostScript output for the given surface.

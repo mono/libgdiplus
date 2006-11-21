@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Text</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.69.1">
 <link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
 <link rel="up" href="Drawing.html" title="Drawing">
 <link rel="prev" href="cairo-Transformations.html" title="Transformations">
 <link rel="next" href="Fonts.html" title="Fonts">
-<meta name="generator" content="GTK-Doc V1.7 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 <link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
 <link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
@@ -29,23 +29,21 @@
 <th width="100%" align="center">Cairo: A Vector Graphics Library</th>
 <td><a accesskey="n" href="Fonts.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
-<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2565687" class="shortcut">Top</a>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#top_of_page" class="shortcut">Top</a>
                   &#160;|&#160;
-                  <a href="#id2544267" class="shortcut">Description</a></nobr></td></tr>
+                  <a href="#desc" class="shortcut">Description</a></nobr></td></tr>
 </table>
 <div class="refentry" lang="en">
 <a name="cairo-Text"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
-<h2>
-<a name="id2565687"></a><span class="refentrytitle">Text</span>
-</h2>
+<h2><span class="refentrytitle"><a name="top_of_page"></a>Text</span></h2>
 <p>Text &#8212; Rendering text and sets of glyphs</p>
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
 <div class="refsynopsisdiv">
-<h2>Synopsis</h2>
+<a name="synopsis"></a><h2>Synopsis</h2>
 <pre class="synopsis">
 
 
@@ -89,17 +87,17 @@ void        <a href="cairo-Text.html#cairo-glyph-extents">cairo_glyph_extents</a
 </pre>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2544267"></a><h2>Description</h2>
+<a name="desc"></a><h2>Description</h2>
 <p>
 
 </p>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2544283"></a><h2>Details</h2>
+<a name="details"></a><h2>Details</h2>
 <div class="refsect2" lang="en">
-<a name="id2544294"></a><h3>
+<a name="id2649171"></a><h3>
 <a name="cairo-glyph-t"></a>cairo_glyph_t</h3>
-<a class="indexterm" name="id2544306"></a><pre class="programlisting">typedef struct {
+<a class="indexterm" name="id2649183"></a><pre class="programlisting">typedef struct {
   unsigned long        index;
   double               x;
   double               y;
@@ -129,6 +127,13 @@ with respect to the overall origin</p>
 <tbody>
 <tr>
 <td>
+<span class="term">unsigned&#160;long&#160;<em class="structfield"><code>index</code></em>;</span></td>
+<td> glyph index in the font. The exact interpretation of the
+     glyph index depends on the font technology being used.
+</td>
+</tr>
+<tr>
+<td>
 <span class="term">double&#160;<em class="structfield"><code>x</code></em>;</span></td>
 <td> the offset in the X direction between the origin used for
     drawing or measuring the string and the origin of this glyph.
@@ -146,9 +151,9 @@ with respect to the overall origin</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2544415"></a><h3>
+<a name="id2649315"></a><h3>
 <a name="cairo-font-slant-t"></a>enum cairo_font_slant_t</h3>
-<a class="indexterm" name="id2544427"></a><pre class="programlisting">typedef enum _cairo_font_slant {
+<a class="indexterm" name="id2649624"></a><pre class="programlisting">typedef enum _cairo_font_slant {
   CAIRO_FONT_SLANT_NORMAL,
   CAIRO_FONT_SLANT_ITALIC,
   CAIRO_FONT_SLANT_OBLIQUE
@@ -160,9 +165,9 @@ with respect to the overall origin</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2544445"></a><h3>
+<a name="id2649642"></a><h3>
 <a name="cairo-font-weight-t"></a>enum cairo_font_weight_t</h3>
-<a class="indexterm" name="id2527141"></a><pre class="programlisting">typedef enum _cairo_font_weight {
+<a class="indexterm" name="id2649654"></a><pre class="programlisting">typedef enum _cairo_font_weight {
   CAIRO_FONT_WEIGHT_NORMAL,
   CAIRO_FONT_WEIGHT_BOLD
 } cairo_font_weight_t;
@@ -173,9 +178,9 @@ with respect to the overall origin</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2527158"></a><h3>
+<a name="id2649671"></a><h3>
 <a name="cairo-select-font-face"></a>cairo_select_font_face ()</h3>
-<a class="indexterm" name="id2527169"></a><pre class="programlisting">void        cairo_select_font_face          (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2649683"></a><pre class="programlisting">void        cairo_select_font_face          (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              const char *family,
                                              <a href="cairo-Text.html#cairo-font-slant-t">cairo_font_slant_t</a> slant,
                                              <a href="cairo-Text.html#cairo-font-weight-t">cairo_font_weight_t</a> weight);</pre>
@@ -222,9 +227,9 @@ cairo.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2527294"></a><h3>
+<a name="id2649808"></a><h3>
 <a name="cairo-set-font-size"></a>cairo_set_font_size ()</h3>
-<a class="indexterm" name="id2527307"></a><pre class="programlisting">void        cairo_set_font_size             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2649820"></a><pre class="programlisting">void        cairo_set_font_size             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double size);</pre>
 <p>
 Sets the current font matrix to a scale by a factor of <em class="parameter"><code>size</code></em>, replacing
@@ -255,9 +260,9 @@ em-square being a <em class="parameter"><code>size</code></em> by <em class="par
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2589226"></a><h3>
+<a name="id2711168"></a><h3>
 <a name="cairo-set-font-matrix"></a>cairo_set_font_matrix ()</h3>
-<a class="indexterm" name="id2589236"></a><pre class="programlisting">void        cairo_set_font_matrix           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2711178"></a><pre class="programlisting">void        cairo_set_font_matrix           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              const <a href="cairo-cairo-matrix-t.html#cairo-matrix-t">cairo_matrix_t</a> *matrix);</pre>
 <p>
 Sets the current font matrix to <em class="parameter"><code>matrix</code></em>. The font matrix gives a
@@ -290,9 +295,9 @@ the current font.
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2589330"></a><h3>
+<a name="id2711272"></a><h3>
 <a name="cairo-get-font-matrix"></a>cairo_get_font_matrix ()</h3>
-<a class="indexterm" name="id2589340"></a><pre class="programlisting">void        cairo_get_font_matrix           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2657212"></a><pre class="programlisting">void        cairo_get_font_matrix           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              <a href="cairo-cairo-matrix-t.html#cairo-matrix-t">cairo_matrix_t</a> *matrix);</pre>
 <p>
 Stores the current font matrix into <em class="parameter"><code>matrix</code></em>. See
@@ -320,9 +325,9 @@ Stores the current font matrix into <em class="parameter"><code>matrix</code></e
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2589428"></a><h3>
+<a name="id2711344"></a><h3>
 <a name="cairo-set-font-options"></a>cairo_set_font_options ()</h3>
-<a class="indexterm" name="id2589440"></a><pre class="programlisting">void        cairo_set_font_options          (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2711354"></a><pre class="programlisting">void        cairo_set_font_options          (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              const <a href="cairo-Font-Options.html#cairo-font-options-t">cairo_font_options_t</a> *options);</pre>
 <p>
 Sets a set of custom font rendering options for the <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>.
@@ -353,9 +358,9 @@ from the surface is used.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2589541"></a><h3>
+<a name="id2711447"></a><h3>
 <a name="cairo-get-font-options"></a>cairo_get_font_options ()</h3>
-<a class="indexterm" name="id2589552"></a><pre class="programlisting">void        cairo_get_font_options          (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2711458"></a><pre class="programlisting">void        cairo_get_font_options          (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              <a href="cairo-Font-Options.html#cairo-font-options-t">cairo_font_options_t</a> *options);</pre>
 <p>
 Retrieves font rendering options set via <a href="cairo-Text.html#cairo-set-font-options"><span class="type">cairo_set_font_options</span></a>.
@@ -386,9 +391,9 @@ passed to <a href="cairo-Text.html#cairo-set-font-options"><code class="function
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2589628"></a><h3>
+<a name="id2711552"></a><h3>
 <a name="cairo-show-text"></a>cairo_show_text ()</h3>
-<a class="indexterm" name="id2589639"></a><pre class="programlisting">void        cairo_show_text                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2711562"></a><pre class="programlisting">void        cairo_show_text                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              const char *utf8);</pre>
 <p>
 A drawing operator that generates the shape from a string of UTF-8
@@ -438,9 +443,9 @@ for the "real" text display API in cairo.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2589754"></a><h3>
+<a name="id2711677"></a><h3>
 <a name="cairo-show-glyphs"></a>cairo_show_glyphs ()</h3>
-<a class="indexterm" name="id2589764"></a><pre class="programlisting">void        cairo_show_glyphs               (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2711688"></a><pre class="programlisting">void        cairo_show_glyphs               (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              <a href="cairo-Text.html#cairo-glyph-t">cairo_glyph_t</a> *glyphs,
                                              int num_glyphs);</pre>
 <p>
@@ -474,9 +479,9 @@ for the "real" text display API in cairo.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2589843"></a><h3>
+<a name="id2711766"></a><h3>
 <a name="cairo-get-font-face"></a>cairo_get_font_face ()</h3>
-<a class="indexterm" name="id2589853"></a><pre class="programlisting"><a href="cairo-cairo-font-face-t.html#cairo-font-face-t">cairo_font_face_t</a>* cairo_get_font_face      (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+<a class="indexterm" name="id2711776"></a><pre class="programlisting"><a href="cairo-cairo-font-face-t.html#cairo-font-face-t">cairo_font_face_t</a>* cairo_get_font_face      (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
 <p>
 Gets the current font face for a <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a>.</p>
 <p>
@@ -494,7 +499,9 @@ Gets the current font face for a <a href="cairo-cairo-t.html#cairo-t"><span clas
 <tr>
 <td>
 <span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
-<td> the current font object. Can return <code class="literal">NULL</code>
+<td> the current font object. Can return <a
+href="/home/behdad/.local/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a>
   on out-of-memory or if the context is already in
   an error state. This object is owned by cairo. To keep
   a reference to it, you must call <a href="cairo-cairo-font-face-t.html#cairo-font-face-reference"><code class="function">cairo_font_face_reference()</code></a>.
@@ -505,9 +512,9 @@ Gets the current font face for a <a href="cairo-cairo-t.html#cairo-t"><span clas
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2589939"></a><h3>
+<a name="id2711863"></a><h3>
 <a name="cairo-font-extents"></a>cairo_font_extents ()</h3>
-<a class="indexterm" name="id2589950"></a><pre class="programlisting">void        cairo_font_extents              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2711873"></a><pre class="programlisting">void        cairo_font_extents              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              <a href="cairo-Scaled-Fonts.html#cairo-font-extents-t">cairo_font_extents_t</a> *extents);</pre>
 <p>
 Gets the font extents for the currently selected font.</p>
@@ -535,9 +542,9 @@ will be stored.
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2590027"></a><h3>
+<a name="id2711950"></a><h3>
 <a name="cairo-set-font-face"></a>cairo_set_font_face ()</h3>
-<a class="indexterm" name="id2590037"></a><pre class="programlisting">void        cairo_set_font_face             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2711961"></a><pre class="programlisting">void        cairo_set_font_face             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              <a href="cairo-cairo-font-face-t.html#cairo-font-face-t">cairo_font_face_t</a> *font_face);</pre>
 <p>
 Replaces the current <a href="cairo-cairo-font-face-t.html#cairo-font-face-t"><span class="type">cairo_font_face_t</span></a> object in the <a href="cairo-cairo-t.html#cairo-t"><span class="type">cairo_t</span></a> with
@@ -558,7 +565,9 @@ destroyed if there are no other references to it.</p>
 <tr>
 <td>
 <span class="term"><em class="parameter"><code>font_face</code></em>&#160;:</span></td>
-<td> a <a href="cairo-cairo-font-face-t.html#cairo-font-face-t"><span class="type">cairo_font_face_t</span></a>, or <code class="literal">NULL</code> to restore to the default font
+<td> a <a href="cairo-cairo-font-face-t.html#cairo-font-face-t"><span class="type">cairo_font_face_t</span></a>, or <a
+href="/home/behdad/.local/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"
+><code class="literal">NULL</code></a> to restore to the default font
 </td>
 </tr>
 </tbody>
@@ -566,9 +575,9 @@ destroyed if there are no other references to it.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2590147"></a><h3>
+<a name="id2712070"></a><h3>
 <a name="cairo-set-scaled-font"></a>cairo_set_scaled_font ()</h3>
-<a class="indexterm" name="id2590159"></a><pre class="programlisting">void        cairo_set_scaled_font           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2712083"></a><pre class="programlisting">void        cairo_set_scaled_font           (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              const <a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t">cairo_scaled_font_t</a> *scaled_font);</pre>
 <p>
 Replaces the current font face, font matrix, and font options in
@@ -601,9 +610,9 @@ using <a href="cairo-Scaled-Fonts.html#cairo-scaled-font-get-ctm"><code class="f
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2590276"></a><h3>
+<a name="id2712199"></a><h3>
 <a name="cairo-text-extents"></a>cairo_text_extents ()</h3>
-<a class="indexterm" name="id2590286"></a><pre class="programlisting">void        cairo_text_extents              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2712210"></a><pre class="programlisting">void        cairo_text_extents              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              const char *utf8,
                                              <a href="cairo-Scaled-Fonts.html#cairo-text-extents-t">cairo_text_extents_t</a> *extents);</pre>
 <p>
@@ -650,9 +659,9 @@ will be stored
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2590413"></a><h3>
+<a name="id2712336"></a><h3>
 <a name="cairo-glyph-extents"></a>cairo_glyph_extents ()</h3>
-<a class="indexterm" name="id2590423"></a><pre class="programlisting">void        cairo_glyph_extents             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2712347"></a><pre class="programlisting">void        cairo_glyph_extents             (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              <a href="cairo-Text.html#cairo-glyph-t">cairo_glyph_t</a> *glyphs,
                                              int num_glyphs,
                                              <a href="cairo-Scaled-Fonts.html#cairo-text-extents-t">cairo_text_extents_t</a> *extents);</pre>

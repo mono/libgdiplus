@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Error handling</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.69.1">
 <link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
 <link rel="up" href="Support.html" title="Utilities">
 <link rel="prev" href="cairo-cairo-matrix-t.html" title="cairo_matrix_t">
 <link rel="next" href="cairo-Version-Information.html" title="Version Information">
-<meta name="generator" content="GTK-Doc V1.7 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 <link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
 <link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
@@ -29,23 +29,21 @@
 <th width="100%" align="center">Cairo: A Vector Graphics Library</th>
 <td><a accesskey="n" href="cairo-Version-Information.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
-<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2570331" class="shortcut">Top</a>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#top_of_page" class="shortcut">Top</a>
                   &#160;|&#160;
-                  <a href="#id2553225" class="shortcut">Description</a></nobr></td></tr>
+                  <a href="#desc" class="shortcut">Description</a></nobr></td></tr>
 </table>
 <div class="refentry" lang="en">
 <a name="cairo-Error-handling"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
-<h2>
-<a name="id2570331"></a><span class="refentrytitle">Error handling</span>
-</h2>
+<h2><span class="refentrytitle"><a name="top_of_page"></a>Error handling</span></h2>
 <p>Error handling &#8212; Decoding cairo's status</p>
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
 <div class="refsynopsisdiv">
-<h2>Synopsis</h2>
+<a name="synopsis"></a><h2>Synopsis</h2>
 <pre class="synopsis">
 
 
@@ -56,17 +54,17 @@ void        <a href="cairo-Error-handling.html#cairo-debug-reset-static-data">ca
 </pre>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2553225"></a><h2>Description</h2>
+<a name="desc"></a><h2>Description</h2>
 <p>
 
 </p>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2604787"></a><h2>Details</h2>
+<a name="details"></a><h2>Details</h2>
 <div class="refsect2" lang="en">
-<a name="id2556640"></a><h3>
+<a name="id2695610"></a><h3>
 <a name="cairo-status-t"></a>enum cairo_status_t</h3>
-<a class="indexterm" name="id2607288"></a><pre class="programlisting">typedef enum _cairo_status {
+<a class="indexterm" name="id2732941"></a><pre class="programlisting">typedef enum _cairo_status {
     CAIRO_STATUS_SUCCESS = 0,
     CAIRO_STATUS_NO_MEMORY,
     CAIRO_STATUS_INVALID_RESTORE,
@@ -236,9 +234,9 @@ to get a human-readable representation of an error message.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2607660"></a><h3>
+<a name="id2732629"></a><h3>
 <a name="cairo-status-to-string"></a>cairo_status_to_string ()</h3>
-<a class="indexterm" name="id2607671"></a><pre class="programlisting">const char* cairo_status_to_string          (<a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> status);</pre>
+<a class="indexterm" name="id2732640"></a><pre class="programlisting">const char* cairo_status_to_string          (<a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> status);</pre>
 <p>
 Provides a human-readable description of a <a href="cairo-Error-handling.html#cairo-status-t"><span class="type">cairo_status_t</span></a>.</p>
 <p>
@@ -264,9 +262,9 @@ Provides a human-readable description of a <a href="cairo-Error-handling.html#ca
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2610542"></a><h3>
+<a name="id2732709"></a><h3>
 <a name="cairo-debug-reset-static-data"></a>cairo_debug_reset_static_data ()</h3>
-<a class="indexterm" name="id2610555"></a><pre class="programlisting">void        cairo_debug_reset_static_data   (void);</pre>
+<a class="indexterm" name="id2732722"></a><pre class="programlisting">void        cairo_debug_reset_static_data   (void);</pre>
 <p>
 Resets all static data within cairo to its original state,
 (ie. identical to the state at the time of program invocation). For

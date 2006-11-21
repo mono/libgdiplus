@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Version-Information">
 <refmeta>
-<refentrytitle role="top_of_page">Version Information</refentrytitle>
+<refentrytitle id="top_of_page">Version Information</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv role="synopsis">
-<title role="synopsis.title">Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -42,8 +42,8 @@ const <link linkend="char">char</link>* <link linkend="cairo-version-string">cai
 
 
 
-<refsect1 role="desc">
-<title role="desc.title">Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 <para>
 Cairo has a three-part version number scheme. In this scheme, we use
 even vs. odd numbers to distinguish fixed points in the software
@@ -149,8 +149,8 @@ if (<link linkend="cairo-version"><function>cairo_version()</function></link> >=
 </refsect2>
 </refsect1>
 
-<refsect1 role="details">
-<title role="details.title">Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 <refsect2>
 <title><anchor id="CAIRO-VERSION:CAPS" role="macro"/>CAIRO_VERSION</title>
 <indexterm><primary>CAIRO_VERSION</primary></indexterm><programlisting>#define     CAIRO_VERSION</programlisting>
@@ -173,14 +173,14 @@ if (<link linkend="cairo-version"><function>cairo_version()</function></link> >=
 </para></refsect2>
 <refsect2>
 <title><anchor id="CAIRO-VERSION-MICRO:CAPS" role="macro"/>CAIRO_VERSION_MICRO</title>
-<indexterm><primary>CAIRO_VERSION_MICRO</primary></indexterm><programlisting>#define CAIRO_VERSION_MICRO 4
+<indexterm><primary>CAIRO_VERSION_MICRO</primary></indexterm><programlisting>#define CAIRO_VERSION_MICRO 6
 </programlisting>
 <para>
 
 </para></refsect2>
 <refsect2>
 <title><anchor id="CAIRO-VERSION-STRING:CAPS" role="macro"/>CAIRO_VERSION_STRING</title>
-<indexterm><primary>CAIRO_VERSION_STRING</primary></indexterm><programlisting>#define CAIRO_VERSION_STRING "1.2.4"
+<indexterm><primary>CAIRO_VERSION_STRING</primary></indexterm><programlisting>#define CAIRO_VERSION_STRING "1.2.6"
 </programlisting>
 <para>
 

@@ -36,6 +36,52 @@
 
 #include "cairoint.h"
 
+const cairo_image_surface_t _cairo_image_surface_nil_invalid_format = {
+    {
+	&cairo_image_surface_backend,	/* backend */
+	CAIRO_SURFACE_TYPE_IMAGE,
+	CAIRO_CONTENT_COLOR,
+	CAIRO_REF_COUNT_INVALID,	/* ref_count */
+	CAIRO_STATUS_INVALID_FORMAT,	/* status */
+	FALSE,				/* finished */
+	{ 0,	/* size */
+	  0,	/* num_elements */
+	  0,	/* element_size */
+	  NULL,	/* elements */
+	},				/* user_data */
+	{ 1.0, 0.0,
+	  0.0, 1.0,
+	  0.0, 0.0
+	},				/* device_transform */
+	{ 1.0, 0.0,
+	  0.0, 1.0,
+	  0.0, 0.0
+	},				/* device_transform_inverse */
+	0.0,				/* x_fallback_resolution */
+	0.0,				/* y_fallback_resolution */
+	NULL,				/* clip */
+	0,				/* next_clip_serial */
+	0,				/* current_clip_serial */
+	FALSE,				/* is_snapshot */
+	FALSE,				/* has_font_options */
+	{ CAIRO_ANTIALIAS_DEFAULT,
+	  CAIRO_SUBPIXEL_ORDER_DEFAULT,
+	  CAIRO_HINT_STYLE_DEFAULT,
+	  CAIRO_HINT_METRICS_DEFAULT
+	}				/* font_options */
+    },					/* base */
+    CAIRO_FORMAT_ARGB32,		/* format */
+    NULL,				/* data */
+    FALSE,				/* owns_data */
+    FALSE,				/* has_clip */
+    0,					/* width */
+    0,					/* height */
+    0,					/* stride */
+    0,					/* depth */
+    NULL				/* pixman_image */
+};
+
+
 static int
 _cairo_format_bpp (cairo_format_t format)
 {
@@ -142,13 +188,13 @@ _cairo_format_from_pixman_format (pixman_format_t *pixman_format)
     }
 
     fprintf (stderr,
-	     "Error: Cairo does not yet support the requested image format:\n"
+	     "Error: Cairo " PACKAGE_VERSION " does not yet support the requested image format:\n"
 	     "\tDepth: %d\n"
 	     "\tAlpha mask: 0x%08x\n"
 	     "\tRed   mask: 0x%08x\n"
 	     "\tGreen mask: 0x%08x\n"
 	     "\tBlue  mask: 0x%08x\n"
-	     "Please file an enhacement request (quoting the above) at:\n"
+	     "Please file an enhancement request (quoting the above) at:\n"
 	     PACKAGE_BUGREPORT "\n",
 	     bpp, am, rm, gm, bm);
 
@@ -253,8 +299,10 @@ cairo_image_surface_create (cairo_format_t	format,
     pixman_format_t *pixman_format;
     pixman_image_t *pixman_image;
 
-    if (! CAIRO_FORMAT_VALID (format))
-	return (cairo_surface_t*) &_cairo_surface_nil;
+    if (! CAIRO_FORMAT_VALID (format)) {
+	_cairo_error (CAIRO_STATUS_INVALID_FORMAT);
+	return (cairo_surface_t*) &_cairo_image_surface_nil_invalid_format;
+    }
 
     pixman_format = _create_pixman_format (format);
     if (pixman_format == NULL) {
@@ -275,6 +323,7 @@ cairo_image_surface_create (cairo_format_t	format,
 
     return surface;
 }
+slim_hidden_def (cairo_image_surface_create);
 
 cairo_surface_t *
 _cairo_image_surface_create_with_content (cairo_content_t	content,
@@ -354,6 +403,7 @@ cairo_image_surface_create_for_data (unsigned char     *data,
 
     return surface;
 }
+slim_hidden_def (cairo_image_surface_create_for_data);
 
 cairo_surface_t *
 _cairo_image_surface_create_for_data_with_content (unsigned char	*data,
@@ -440,6 +490,7 @@ cairo_image_surface_get_width (cairo_surface_t *surface)
 
     return image_surface->width;
 }
+slim_hidden_def (cairo_image_surface_get_width);
 
 /**
  * cairo_image_surface_get_height:
@@ -461,6 +512,7 @@ cairo_image_surface_get_height (cairo_surface_t *surface)
 
     return image_surface->height;
 }
+slim_hidden_def (cairo_image_surface_get_height);
 
 /**
  * cairo_image_surface_get_stride:

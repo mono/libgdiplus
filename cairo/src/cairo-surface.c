@@ -197,6 +197,7 @@ cairo_surface_get_type (cairo_surface_t *surface)
      * surface. */
     return surface->type;
 }
+slim_hidden_def (cairo_surface_get_type);
 
 /**
  * cairo_surface_get_content:
@@ -232,6 +233,7 @@ cairo_surface_status (cairo_surface_t *surface)
 {
     return surface->status;
 }
+slim_hidden_def (cairo_surface_status);
 
 void
 _cairo_surface_init (cairo_surface_t			*surface,
@@ -338,6 +340,7 @@ cairo_surface_create_similar (cairo_surface_t  *other,
 						width, height,
 						CAIRO_COLOR_TRANSPARENT);
 }
+slim_hidden_def (cairo_surface_create_similar);
 
 cairo_surface_t *
 _cairo_surface_create_similar_solid (cairo_surface_t	 *other,
@@ -416,6 +419,7 @@ cairo_surface_reference (cairo_surface_t *surface)
 
     return surface;
 }
+slim_hidden_def (cairo_surface_reference);
 
 /**
  * cairo_surface_destroy:
@@ -497,6 +501,7 @@ cairo_surface_finish (cairo_surface_t *surface)
 
     surface->finished = TRUE;
 }
+slim_hidden_def (cairo_surface_finish);
 
 /**
  * cairo_surface_get_user_data:
@@ -602,6 +607,7 @@ cairo_surface_get_font_options (cairo_surface_t       *surface,
 
     _cairo_font_options_init_copy (options, &surface->font_options);
 }
+slim_hidden_def (cairo_surface_get_font_options);
 
 /**
  * cairo_surface_flush:
@@ -708,6 +714,7 @@ cairo_surface_mark_dirty_rectangle (cairo_surface_t *surface,
 	    _cairo_surface_set_error (surface, status);
     }
 }
+slim_hidden_def (cairo_surface_mark_dirty_rectangle);
 
 /**
  * _cairo_surface_set_device_scale:
@@ -790,6 +797,7 @@ cairo_surface_set_device_offset (cairo_surface_t *surface,
     surface->device_transform_inverse.x0 = - x_offset;
     surface->device_transform_inverse.y0 = - y_offset;
 }
+slim_hidden_def (cairo_surface_set_device_offset);
 
 /**
  * cairo_surface_get_device_offset:
@@ -810,6 +818,7 @@ cairo_surface_get_device_offset (cairo_surface_t *surface,
     *x_offset = surface->device_transform.x0;
     *y_offset = surface->device_transform.y0;
 }
+slim_hidden_def (cairo_surface_get_device_offset);
 
 /**
  * cairo_surface_set_fallback_resolution:
@@ -849,6 +858,7 @@ cairo_surface_set_fallback_resolution (cairo_surface_t	*surface,
     surface->x_fallback_resolution = x_pixels_per_inch;
     surface->y_fallback_resolution = y_pixels_per_inch;
 }
+slim_hidden_def (cairo_surface_set_fallback_resolution);
 
 cairo_bool_t
 _cairo_surface_has_device_transform (cairo_surface_t *surface)

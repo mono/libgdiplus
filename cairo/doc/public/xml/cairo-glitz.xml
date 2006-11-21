@@ -23,7 +23,6 @@
 
 
 
-<link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-glitz-surface-create">cairo_glitz_surface_create</link> (<link linkend="glitz-surface-t">glitz_surface_t</link> *surface);
 </synopsis>
 </refsynopsisdiv>
 
@@ -44,20 +43,6 @@
 
 <refsect1 id="details">
 <title id="details.title">Details</title>
-<refsect2>
-<title><anchor id="cairo-glitz-surface-create" role="function"/>cairo_glitz_surface_create ()</title>
-<indexterm><primary>cairo_glitz_surface_create</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_glitz_surface_create (<link linkend="glitz-surface-t">glitz_surface_t</link> *surface);</programlisting>
-<para>
-
-</para><variablelist role="params">
-<varlistentry><term><parameter>surface</parameter>&nbsp;:</term>
-<listitem><simpara>
-</simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>
-
-
-</simpara></listitem></varlistentry>
-</variablelist></refsect2>
 
 </refsect1>
 

@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Image-Surfaces">
 <refmeta>
-<refentrytitle role="top_of_page">Image Surfaces</refentrytitle>
+<refentrytitle id="top_of_page">Image Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv role="synopsis">
-<title role="synopsis.title">Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -50,8 +50,8 @@ unsigned <link linkend="char">char</link>* <link linkend="cairo-image-surface-ge
 
 
 
-<refsect1 role="desc">
-<title role="desc.title">Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 
   <para>
     Image surfaces provide the ability to render to memory buffers
@@ -60,8 +60,8 @@ unsigned <link linkend="char">char</link>* <link linkend="cairo-image-surface-ge
   </para>
 </refsect1>
 
-<refsect1 role="details">
-<title role="details.title">Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-format-t" role="enum"/>enum cairo_format_t</title>
 <indexterm><primary>cairo_format_t</primary></indexterm><programlisting>typedef enum _cairo_format {

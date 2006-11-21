@@ -226,13 +226,15 @@ void
 _cairo_scaled_font_map_destroy (void)
 {
     int i;
-    cairo_scaled_font_map_t *font_map = cairo_scaled_font_map;
+    cairo_scaled_font_map_t *font_map;
     cairo_scaled_font_t *scaled_font;
 
-    if (font_map == NULL)
-	return;
+    CAIRO_MUTEX_LOCK (cairo_scaled_font_map_mutex);
 
-    CAIRO_MUTEX_UNLOCK (cairo_scaled_font_map_mutex);
+    font_map = cairo_scaled_font_map;
+    if (font_map == NULL) {
+        goto CLEANUP_MUTEX_LOCK;
+    }
 
     for (i = 0; i < font_map->num_holdovers; i++) {
 	scaled_font = font_map->holdovers[i];
@@ -250,6 +252,9 @@ _cairo_scaled_font_map_destroy (void)
 
     free (cairo_scaled_font_map);
     cairo_scaled_font_map = NULL;
+
+ CLEANUP_MUTEX_LOCK:
+    CAIRO_MUTEX_UNLOCK (cairo_scaled_font_map_mutex);
 }
 
 /* Fowler / Noll / Vo (FNV) Hash (http://www.isthe.com/chongo/tech/comp/fnv/)
@@ -493,6 +498,7 @@ UNWIND_FONT_MAP_LOCK:
 UNWIND:
     return NULL;
 }
+slim_hidden_def (cairo_scaled_font_create);
 
 /**
  * cairo_scaled_font_reference:
@@ -551,6 +557,7 @@ cairo_scaled_font_reference (cairo_scaled_font_t *scaled_font)
 
     return scaled_font;
 }
+slim_hidden_def (cairo_scaled_font_reference);
 
 /**
  * cairo_scaled_font_destroy:
@@ -611,6 +618,7 @@ cairo_scaled_font_destroy (cairo_scaled_font_t *scaled_font)
     }
     _cairo_scaled_font_map_unlock ();
 }
+slim_hidden_def (cairo_scaled_font_destroy);
 
 /* Public font API follows. */
 
@@ -627,6 +635,7 @@ cairo_scaled_font_extents (cairo_scaled_font_t  *scaled_font,
 {
     *extents = scaled_font->extents;
 }
+slim_hidden_def (cairo_scaled_font_extents);
 
 /**
  * cairo_scaled_font_text_extents:
@@ -752,6 +761,7 @@ cairo_scaled_font_glyph_extents (cairo_scaled_font_t   *scaled_font,
     extents->x_advance = x_pos - glyphs[0].x;
     extents->y_advance = y_pos - glyphs[0].y;
 }
+slim_hidden_def (cairo_scaled_font_glyph_extents);
 
 cairo_status_t
 _cairo_scaled_font_text_to_glyphs (cairo_scaled_font_t *scaled_font,
@@ -824,7 +834,7 @@ _cairo_scaled_font_glyph_device_extents (cairo_scaled_font_t	 *scaled_font,
     cairo_status_t status = CAIRO_STATUS_SUCCESS;
     int i;
     int min_x = INT16_MAX, max_x = INT16_MIN;
-    int	min_y = INT16_MAX, max_y = INT16_MAX;
+    int	min_y = INT16_MAX, max_y = INT16_MIN;
 
     if (scaled_font->status)
 	return scaled_font->status;
@@ -1408,6 +1418,7 @@ cairo_scaled_font_get_font_face (cairo_scaled_font_t *scaled_font)
 
     return scaled_font->font_face;
 }
+slim_hidden_def (cairo_scaled_font_get_font_face);
 
 /**
  * cairo_scaled_font_get_font_matrix:
@@ -1430,6 +1441,7 @@ cairo_scaled_font_get_font_matrix (cairo_scaled_font_t	*scaled_font,
 
     *font_matrix = scaled_font->font_matrix;
 }
+slim_hidden_def (cairo_scaled_font_get_font_matrix);
 
 /**
  * cairo_scaled_font_get_ctm:
@@ -1451,6 +1463,7 @@ cairo_scaled_font_get_ctm (cairo_scaled_font_t	*scaled_font,
 
     *ctm = scaled_font->ctm;
 }
+slim_hidden_def (cairo_scaled_font_get_ctm);
 
 /**
  * cairo_scaled_font_get_font_options:
@@ -1473,3 +1486,4 @@ cairo_scaled_font_get_font_options (cairo_scaled_font_t		*scaled_font,
 
     _cairo_font_options_init_copy (options, &scaled_font->options);
 }
+slim_hidden_def (cairo_scaled_font_get_font_options);

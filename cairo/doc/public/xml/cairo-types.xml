@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Types">
 <refmeta>
-<refentrytitle role="top_of_page">Types</refentrytitle>
+<refentrytitle id="top_of_page">Types</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv role="synopsis">
-<title role="synopsis.title">Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -37,15 +37,15 @@ typedef     <link linkend="cairo-bool-t">cairo_bool_t</link>;
 
 
 
-<refsect1 role="desc">
-<title role="desc.title">Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 role="details">
-<title role="details.title">Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-bool-t" role="typedef"/>cairo_bool_t</title>
 <indexterm><primary>cairo_bool_t</primary></indexterm><programlisting>typedef int cairo_bool_t;

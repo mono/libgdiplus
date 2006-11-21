@@ -155,6 +155,7 @@ cairo_version_string (void)
 {
     return CAIRO_VERSION_STRING;
 }
+slim_hidden_def (cairo_version_string);
 
 /**
  * cairo_create:
@@ -206,6 +207,7 @@ cairo_create (cairo_surface_t *target)
 
     return cr;
 }
+slim_hidden_def (cairo_create);
 
 /**
  * cairo_reference:
@@ -267,6 +269,7 @@ cairo_destroy (cairo_t *cr)
 
     free (cr);
 }
+slim_hidden_def (cairo_destroy);
 
 /**
  * cairo_save:
@@ -571,6 +574,7 @@ cairo_set_operator (cairo_t *cr, cairo_operator_t op)
     if (cr->status)
 	_cairo_set_error (cr, cr->status);
 }
+slim_hidden_def (cairo_set_operator);
 
 /**
  * cairo_set_source_rgb
@@ -674,6 +678,7 @@ cairo_set_source_surface (cairo_t	  *cr,
     cairo_set_source (cr, pattern);
     cairo_pattern_destroy (pattern);
 }
+slim_hidden_def (cairo_set_source_surface);
 
 /**
  * cairo_set_source
@@ -714,6 +719,7 @@ cairo_set_source (cairo_t *cr, cairo_pattern_t *source)
     if (cr->status)
 	_cairo_set_error (cr, cr->status);
 }
+slim_hidden_def (cairo_set_source);
 
 /**
  * cairo_get_source:
@@ -1268,6 +1274,7 @@ cairo_line_to (cairo_t *cr, double x, double y)
     if (cr->status)
 	_cairo_set_error (cr, cr->status);
 }
+slim_hidden_def (cairo_line_to);
 
 /**
  * cairo_curve_to:
@@ -1321,6 +1328,7 @@ cairo_curve_to (cairo_t *cr,
     if (cr->status)
 	_cairo_set_error (cr, cr->status);
 }
+slim_hidden_def (cairo_curve_to);
 
 /**
  * cairo_arc:
@@ -1683,6 +1691,7 @@ cairo_paint (cairo_t *cr)
     if (cr->status)
 	_cairo_set_error (cr, cr->status);
 }
+slim_hidden_def (cairo_paint);
 
 /**
  * cairo_paint_with_alpha:
@@ -1754,6 +1763,7 @@ cairo_mask (cairo_t         *cr,
     if (cr->status)
 	_cairo_set_error (cr, cr->status);
 }
+slim_hidden_def (cairo_mask);
 
 /**
  * cairo_mask_surface:
@@ -1939,18 +1949,21 @@ cairo_show_page (cairo_t *cr)
  * @x: X coordinate of the point to test
  * @y: Y coordinate of the point to test
  *
- * Tests whether the given point is on the area stroked by doing a
- * cairo_stroke() operation on @cr given the current path and stroking
- * parameters.
+ * Tests whether the given point is inside the area that would be
+ * stroked by doing a cairo_stroke() operation on @cr given the
+ * current path and stroking parameters.
  *
- * See cairo_stroke, cairo_set_line_width(), cairo_set_line_join(),
+ * See cairo_stroke(), cairo_set_line_width(), cairo_set_line_join(),
  * cairo_set_line_cap(), cairo_set_dash(), and
  * cairo_stroke_preserve().
+ *
+ * Return value: A non-zero value if the point is inside, or zero if
+ * outside.
  **/
 cairo_bool_t
 cairo_in_stroke (cairo_t *cr, double x, double y)
 {
-    int inside;
+    cairo_bool_t inside;
 
     if (cr->status)
 	return 0;
@@ -1970,16 +1983,19 @@ cairo_in_stroke (cairo_t *cr, double x, double y)
  * @x: X coordinate of the point to test
  * @y: Y coordinate of the point to test
  *
- * Tests whether the given point is on the area filled by doing a
- * cairo_stroke() operation on @cr given the current path and filling
- * parameters.
+ * Tests whether the given point is inside the area that would be
+ * filled by doing a cairo_fill() operation on @cr given the current
+ * path and filling parameters.
  *
  * See cairo_fill(), cairo_set_fill_rule() and cairo_fill_preserve().
+ *
+ * Return value: A non-zero value if the point is inside, or zero if
+ * outside.
  **/
 cairo_bool_t
 cairo_in_fill (cairo_t *cr, double x, double y)
 {
-    int inside;
+    cairo_bool_t inside;
 
     if (cr->status)
 	return 0;
@@ -2614,6 +2630,7 @@ cairo_get_tolerance (cairo_t *cr)
 {
     return _cairo_gstate_get_tolerance (cr->gstate);
 }
+slim_hidden_def (cairo_get_tolerance);
 
 /**
  * cairo_get_antialias:
@@ -2757,6 +2774,7 @@ cairo_get_matrix (cairo_t *cr, cairo_matrix_t *matrix)
 {
     _cairo_gstate_get_matrix (cr->gstate, matrix);
 }
+slim_hidden_def (cairo_get_matrix);
 
 /**
  * cairo_get_target:
@@ -2824,8 +2842,12 @@ cairo_get_group_target (cairo_t *cr)
  * conditions hold:
  *
  * <orderedlist>
- * <listitem>If there is insufficient memory to copy the path.</listitem>
- * <listitem>If @cr is already in an error state.</listitem>
+ * <listitem>If there is insufficient memory to copy the path. In this
+ *     case <literal>path->status</literal> will be set to
+ *     %CAIRO_STATUS_NO_MEMORY.</listitem>
+ * <listitem>If @cr is already in an error state. In this case
+ *    <literal>path->status</literal> will contain the same status that
+ *    would be returned by cairo_status().</listitem>
  * </orderedlist>
  *
  * In either case, <literal>path->status</literal> will be set to
@@ -2840,7 +2862,7 @@ cairo_path_t *
 cairo_copy_path (cairo_t *cr)
 {
     if (cr->status)
-	return (cairo_path_t*) &_cairo_path_nil;
+	return _cairo_path_data_create_for_status (cr->status);
 
     return _cairo_path_data_create (&cr->path, cr->gstate);
 }
@@ -2882,9 +2904,9 @@ cairo_path_t *
 cairo_copy_path_flat (cairo_t *cr)
 {
     if (cr->status)
-	return (cairo_path_t*) &_cairo_path_nil;
-    else
-	return _cairo_path_data_create_flat (&cr->path, cr->gstate);
+	return _cairo_path_data_create_for_status (cr->status);
+
+    return _cairo_path_data_create_flat (&cr->path, cr->gstate);
 }
 
 /**
@@ -2942,6 +2964,7 @@ cairo_status (cairo_t *cr)
 {
     return cr->status;
 }
+slim_hidden_def (cairo_status);
 
 /**
  * cairo_status_to_string:

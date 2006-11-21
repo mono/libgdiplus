@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-FreeType-Fonts">
 <refmeta>
-<refentrytitle role="top_of_page">FreeType Fonts</refentrytitle>
+<refentrytitle id="top_of_page">FreeType Fonts</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv role="synopsis">
-<title role="synopsis.title">Synopsis</title>
+<refsynopsisdiv id="synopsis">
+<title id="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -45,15 +45,15 @@
 
 
 
-<refsect1 role="desc">
-<title role="desc.title">Description</title>
+<refsect1 id="desc">
+<title id="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 role="details">
-<title role="details.title">Details</title>
+<refsect1 id="details">
+<title id="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-ft-font-face-create-for-ft-face" role="function"/>cairo_ft_font_face_create_for_ft_face ()</title>
 <indexterm><primary>cairo_ft_font_face_create_for_ft_face</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>* cairo_ft_font_face_create_for_ft_face

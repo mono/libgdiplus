@@ -45,7 +45,6 @@ pixman_image_create (pixman_format_t	*format,
 
     return image;
 }
-slim_hidden_def(pixman_image_create);
 
 pixman_image_t *
 pixman_image_create_for_data (FbBits *data, pixman_format_t *format, int width, int height, int bpp, int stride)
@@ -369,7 +368,6 @@ pixman_image_set_component_alpha (pixman_image_t	*image,
     if (image)
 	image->componentAlpha = component_alpha;
 }
-slim_hidden_def(pixman_image_set_component_alpha);
 
 int
 pixman_image_set_transform (pixman_image_t		*image,
@@ -412,7 +410,6 @@ pixman_image_set_repeat (pixman_image_t		*image,
     if (image)
 	image->repeat = repeat;
 }
-slim_hidden_def(pixman_image_set_repeat);
 
 void
 pixman_image_set_filter (pixman_image_t	*image,
@@ -505,7 +502,6 @@ pixman_image_destroy (pixman_image_t *image)
 
     free (image);
 }
-slim_hidden_def(pixman_image_destroy);
 
 void
 pixman_image_destroyClip (pixman_image_t *image)

@@ -5,7 +5,7 @@ AC_PREREQ(2.54)
 # An even micro number indicates a released version.
 m4_define(cairo_version_major, 1)
 m4_define(cairo_version_minor, 2)
-m4_define(cairo_version_micro, 4)
+m4_define(cairo_version_micro, 6)
 
 AC_INIT([cairo],
       cairo_version_major.cairo_version_minor.cairo_version_micro,
@@ -23,7 +23,7 @@ LT_CURRENT=11
 
 # Increment any time the source changes; set to
 # 0 if you increment CURRENT
-LT_REVISION=2
+LT_REVISION=3
 
 # Increment if any interfaces have been added; set to 0
 # if any interfaces have been removed. removal has
@@ -86,21 +86,16 @@ AC_CHECK_LIB(z, compress,
 
 dnl ===========================================================================
 
-# This macro requires a newer than 0.15 pkg-config, which we don't always have
-# Use an older method instead
-#PKG_PROG_PKG_CONFIG
-AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
-if test "x$PKG_CONFIG" = "xno"; then
-	AC_MSG_ERROR([You need to install pkg-config])
-fi
+PKG_PROG_PKG_CONFIG(0.19)
 
 dnl ===========================================================================
 dnl
 dnl cairo_cache_version should be increased every time that the backend
 dnl detection stuff changes in a way that removing the config.cache file may be
-dnl needed for correct operation.
+dnl needed for correct operation. (this is only for the backend detection
+dnl changes;  it doesn't have any effect on any other cached thing.)
 dnl
-m4_define(cairo_cache_version, 3)
+m4_define(cairo_cache_version, 4)
 
 dnl ===========================================================================
 dnl
@@ -491,13 +486,15 @@ CAIRO_BACKEND_ENABLE(pdf, PDF, pdf, PDF_SURFACE, auto, [
     pdf_NONPKGCONFIG_LIBS=-lz
 ])
 
+POPPLER_VERSION_REQUIRED=0.4.1
 test_pdf=no
 if test "x$use_pdf" = "xyes"; then
-  PKG_CHECK_MODULES(POPPLER, poppler-glib >= 0.4.1 pango gtk+-2.0, [test_pdf=yes], [test_pdf=no])
+  poppler_DEPENDENCY="poppler-glib >= $POPPLER_VERSION_REQUIRED"
+  PKG_CHECK_MODULES(POPPLER, $poppler_DEPENDENCY pango gtk+-2.0, [test_pdf=yes], [test_pdf="no (requires $poppler_DEPENDENCY)"])
   if test "x$test_pdf" = "xyes"; then
     AC_DEFINE([CAIRO_CAN_TEST_PDF_SURFACE], 1, [Define to 1 if the PDF backend can be tested (need poppler and other dependencies for pdf2png)])
   else
-    AC_MSG_WARN([PDF backend will not be tested since poppler is not available])
+    AC_MSG_WARN([PDF backend will not be tested since poppler >= $POPPLER_VERSION_REQUIRED is not available])
   fi
 fi
 
@@ -515,12 +512,14 @@ CAIRO_BACKEND_ENABLE(svg, SVG, svg, SVG_SURFACE, auto, [
   fi
 ])
 
+LIBRSVG_VERSION_REQUIRED=2.14.0
 if test "x$use_svg" = "xyes"; then
-  PKG_CHECK_MODULES(LIBRSVG, librsvg-2.0 gdk-2.0, [test_svg=yes], [test_svg=no])
+  librsvg_DEPENDENCY="librsvg-2.0 >= $LIBRSVG_VERSION_REQUIRED"
+  PKG_CHECK_MODULES(LIBRSVG, $librsvg_DEPENDENCY gdk-2.0, [test_svg=yes], [test_svg="no (requires $librsvg_DEPENDENCY)"])
   if test "x$test_svg" = "xyes"; then
-    AC_DEFINE([CAIRO_CAN_TEST_SVG_SURFACE], 1, [Define to 1 if the SVG backend can be tested (need librsvg)])
+    AC_DEFINE([CAIRO_CAN_TEST_SVG_SURFACE], 1, [Define to 1 if the SVG backend can be tested])
   else
-    AC_MSG_WARN([SVG backend will not be tested since a librsvg is not available])
+    AC_MSG_WARN([SVG backend will not be tested since librsvg >= $LIBRSVG_VERSION_REQUIRED is not available])
   fi
 fi
 
@@ -564,24 +563,49 @@ AC_DEFUN([CAIRO_CC_TRY_FLAG], [
   AC_MSG_RESULT([$cairo_cc_flag])
 ])
 
+
 dnl Use lots of warning flags with with gcc and compatible compilers
+
+dnl Note: if you change the following variable, the cache is automatically
+dnl skipped and all flags rechecked.  So there's no need to do anything
+dnl else.  If for any reason you need to force a recheck, just change
+dnl MAYBE_WARN in an ignorable way (like adding whitespace)
+
+MAYBE_WARN="-Wall -Wextra \
+-Wsign-compare -Werror-implicit-function-declaration \
+-Wpointer-arith -Wwrite-strings -Wstrict-prototypes \
+-Wmissing-prototypes -Wmissing-declarations -Wnested-externs \
+-Wpacked -Wswitch-enum -Wmissing-format-attribute \
+-Wstrict-aliasing=2 -Winit-self -Wunsafe-loop-optimizations \
+-Wdeclaration-after-statement -Wold-style-definition \
+-Wno-missing-field-initializers -Wno-unused-parameter"
+
+
+# invalidate cached value if MAYBE_WARN has changed
+if test "x$cairo_cv_warn_maybe" != "x$MAYBE_WARN"; then
+	unset cairo_cv_warn_cflags
+fi
 AC_CACHE_CHECK([for supported warning flags], cairo_cv_warn_cflags, [
 	echo
 	WARN_CFLAGS=""
 
-	# some warnings are not supported by all versions of gcc
-	MAYBE_WARN="-Wall -Wsign-compare -Werror-implicit-function-declaration \
-	-Wpointer-arith -Wwrite-strings -Wstrict-prototypes \
-	-Wmissing-prototypes -Wmissing-declarations -Wnested-externs \
-	-Wpacked -Wswitch-enum -Wmissing-format-attribute \
-	-Wstrict-aliasing=2 -Winit-self -Wunsafe-loop-optimizations \
-	-Wdeclaration-after-statement -Wold-style-definition"
+	# Some warning options are not supported by all versions of
+	# gcc, so test all desired options against the current
+	# compiler.
+	#
+	# Note that there are some order dependencies
+	# here. Specifically, an option that disables a warning will
+	# have no net effect if a later option then enables that
+	# warnings, (perhaps implicitly). So we put some grouped
+	# options (-Wall and -Wextra) up front and the -Wno options
+	# last.
 
 	for W in $MAYBE_WARN; do
 		CAIRO_CC_TRY_FLAG([$W], [WARN_CFLAGS="$WARN_CFLAGS $W"])
 	done
 
 	cairo_cv_warn_cflags=$WARN_CFLAGS
+	cairo_cv_warn_maybe=$MAYBE_WARN
 
 	AC_MSG_CHECKING([which warning flags were supported])])
 WARN_CFLAGS=$cairo_cv_warn_cflags
@@ -810,6 +834,8 @@ echo ""
 echo "and the following debug options:"
 echo "  gcov support:  $use_gcov"
 echo "  test surfaces: $use_test_surfaces"
+echo "  pdf testing:   $test_pdf"
+echo "  svg testing:   $test_svg"
 echo ""
 echo "using CFLAGS:"
 echo $CAIRO_CFLAGS

@@ -103,7 +103,8 @@ typedef struct _cairo_type1_font_subset {
 
 static cairo_status_t
 _cairo_type1_font_subset_create (cairo_unscaled_font_t      *unscaled_font,
-				 cairo_type1_font_subset_t **subset_return)
+				 cairo_type1_font_subset_t **subset_return,
+                                 cairo_bool_t                hex_encode)
 {
     cairo_ft_unscaled_font_t *ft_unscaled_font;
     FT_Face face;
@@ -145,6 +146,7 @@ _cairo_type1_font_subset_create (cairo_unscaled_font_t      *unscaled_font,
     if (font->glyphs == NULL)
 	goto fail2;
 
+    font->hex_encode = hex_encode;
     font->num_glyphs = 0;
     for (i = 0; i < face->num_glyphs; i++)
 	font->glyphs[i].subset_index = -1;
@@ -185,7 +187,7 @@ static const unsigned short charstring_key = 4330;
 static cairo_bool_t
 is_ps_delimiter(int c)
 {
-    const static char delimiters[] = "()[]{}<>/% \t\r\n";
+    static const char delimiters[] = "()[]{}<>/% \t\r\n";
 
     return strchr (delimiters, c) != NULL;
 }
@@ -278,7 +280,7 @@ cairo_type1_font_subset_write_header (cairo_type1_font_subset_t *font,
     _cairo_output_stream_printf (font->output,
 				 "/Encoding 256 array\n"
 				 "0 1 255 {1 index exch /.notdef put} for\n");
-    for (i = 0; i < font->base.num_glyphs; i++) {
+    for (i = 1; i < font->base.num_glyphs; i++) {
 	if (font->glyphs[i].subset_index < 0)
 	    continue;
 	_cairo_output_stream_printf (font->output,
@@ -900,7 +902,6 @@ cairo_type1_font_subset_write (cairo_type1_font_subset_t *font,
     }
 
     font->eexec_key = private_dict_key;
-    font->hex_encode = TRUE;
     font->hex_column = 0;
 
     cairo_type1_font_subset_write_private_dict (font, name);
@@ -994,7 +995,8 @@ cairo_type1_font_subset_destroy (void *abstract_font)
 cairo_status_t
 _cairo_type1_subset_init (cairo_type1_subset_t		*type1_subset,
 			  const char			*name,
-			  cairo_scaled_font_subset_t	*scaled_font_subset)
+			  cairo_scaled_font_subset_t	*scaled_font_subset,
+                          cairo_bool_t                   hex_encode)
 {
     cairo_type1_font_subset_t *font;
     cairo_status_t status;
@@ -1008,7 +1010,7 @@ _cairo_type1_subset_init (cairo_type1_subset_t		*type1_subset,
 
     unscaled_font = _cairo_ft_scaled_font_get_unscaled_font (scaled_font_subset->scaled_font);
 
-    status = _cairo_type1_font_subset_create (unscaled_font, &font);
+    status = _cairo_type1_font_subset_create (unscaled_font, &font, hex_encode);
     if (status)
 	return status;
 
@@ -1079,4 +1081,3 @@ _cairo_type1_subset_fini (cairo_type1_subset_t *subset)
     free (subset->widths);
     free (subset->data);
 }
-
