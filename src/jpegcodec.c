@@ -616,8 +616,10 @@ gdip_load_jpeg_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 	GdipFree (src->buf);
 	GdipFree (src);
 #ifdef HAVE_LIBEXIF
-	dstream_get_exif_buffer (loader, &ptr, &length);
-	load_exif_data (exif_data_new_from_data (ptr, length), *image);
+	if (st == Ok){
+	    dstream_get_exif_buffer (loader, &ptr, &length);
+	    load_exif_data (exif_data_new_from_data (ptr, length), *image);
+	}
 #endif
 
 	return st;
