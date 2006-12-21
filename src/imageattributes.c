@@ -131,7 +131,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	
 	/* 	
 		We use get/set pixel instead of direct buffer manipulation because it's a good way of keeping the pixel 
-		logic in a single place with a very litte penalty in performance	
+		logic in a single place
 	*/	
 	
 	/* Color mapping */
@@ -203,40 +203,48 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	/* Apply Color Matrix */
 	if (cmatrix->colormatrix_enabled && cmatrix->colormatrix) {
-		for (y = 0; y < bitmap->active_bitmap->height; y++) {	
-			for (x = 0; x < bitmap->active_bitmap->width; x++) {
-
+		BitmapData *data = bmpdest->active_bitmap;
+		GpColorMatrix *cm = cmatrix->colormatrix;
+		unsigned char *v = ((unsigned char *)data->scan0);
+		ARGB *scan;
+		for (y = 0; y < data->height; y++) {
+			scan = (ARGB*) v;
+			for (x = 0; x < data->width; x++) {
 				byte r,g,b,a;
 				int r_new,g_new,b_new,a_new;
-				
-				GdipBitmapGetPixel (bmpdest, x, y, &color);
-				get_pixel_bgra (color, b, g, r, a);
-				/* Don't transform transparent pixels */
-				if (a == 0)
-					continue;
 
-				r_new = (r * cmatrix->colormatrix->m[0][0] + g * cmatrix->colormatrix->m[1][0] + b * cmatrix->colormatrix->m[2][0] +
-					a * cmatrix->colormatrix->m[3][0] + (255 * cmatrix->colormatrix->m[4][0]));
+				get_pixel_bgra (*scan, b, g, r, a);
 
-				g_new = (r * cmatrix->colormatrix->m[0][1] + g * cmatrix->colormatrix->m[1][1] + b * cmatrix->colormatrix->m[2][1] +
-					a * cmatrix->colormatrix->m[3][1] + (255 * cmatrix->colormatrix->m[4][1]));
+				a_new = (r * cm->m[0][3] + g * cm->m[1][3] + b * cm->m[2][3] + a * cm->m[3][3] + (255 * cm->m[4][3]));
+				if (a_new == 0) {
+					/* 100% transparency, don't waste time computing other values (pre-mul will always be 0) */
+					*scan++ = 0;
+				} else {
+					r_new = (r * cm->m[0][0] + g * cm->m[1][0] + b * cm->m[2][0] + a * cm->m[3][0] + (255 * cm->m[4][0]));
+					g_new = (r * cm->m[0][1] + g * cm->m[1][1] + b * cm->m[2][1] + a * cm->m[3][1] + (255 * cm->m[4][1]));
+					b_new = (r * cm->m[0][2] + g * cm->m[1][2] + b * cm->m[2][2] + a * cm->m[3][2] + (255 * cm->m[4][2]));
 
-				b_new = (r * cmatrix->colormatrix->m[0][2] + g * cmatrix->colormatrix->m[1][2] + b * cmatrix->colormatrix->m[2][2] +
-					a * cmatrix->colormatrix->m[3][2] + (255 * cmatrix->colormatrix->m[4][2]));
+					/* remember that Cairo use pre-multiplied alpha, e.g. 50% red == 0x80800000 not 0x80ff0000 */
+					if (a_new < 0xff) {
+						float alpha_pre_mul = ((float) a_new) / 0xff;
+						r_new = (byte) (r_new * alpha_pre_mul);
+						g_new = (byte) (g_new * alpha_pre_mul);
+						b_new = (byte) (b_new * alpha_pre_mul);
+						a = (byte) a_new;
+					} else {
+						a = 0xff;
+					}
 
-				a_new = (r * cmatrix->colormatrix->m[0][3] + g * cmatrix->colormatrix->m[1][3] + b * cmatrix->colormatrix->m[2][3] +
-					a * cmatrix->colormatrix->m[3][3] + (255 * cmatrix->colormatrix->m[4][3]));
-			
-				if (r_new > 0xff) r_new = 0xff;
-				if (g_new > 0xff) g_new = 0xff;
-				if (b_new > 0xff) b_new = 0xff;
-				if (a_new > 0xff) a_new = 0xff;
+					r = (r_new > 0xff) ? 0xff : (byte) r_new;
+					g = (g_new > 0xff) ? 0xff : (byte) g_new;
+					b = (b_new > 0xff) ? 0xff : (byte) b_new;
 
-				set_pixel_bgra (color_p, 0, (byte) b_new, (byte) g_new, (byte) r_new, (byte) a_new);
-				GdipBitmapSetPixel (bmpdest, x, y, color);
-			}	
+					set_pixel_bgra (color_p, 0, b, g, r, a);
+					*scan++ = color;
+				}
+			}
+			v += data->stride;
 		}
-	
 	}
 
 	if (bmpdest != NULL) {

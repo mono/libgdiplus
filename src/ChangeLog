@@ -1,3 +1,9 @@
+2006-12-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* imageattributes.c: Fix bug #80323 for ColorMatrix containing alpha
+	values (Cairo uses pre-multiplied alpha which we weren't providing). 
+	Improved performance by about 30% (in the supplied sample).
+
 2006-12-16  Miguel de Icaza  <miguel@novell.com>
 
 	* jpegcodec.c: Do not load exif information if there was an error
