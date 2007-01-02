@@ -1,3 +1,12 @@
+2007-01-02  Chris Toshok  <toshok@ximian.com>
+
+	* general.c (gdip_get_display_dpi): we don't want to get what the
+	rest of X assumes is the dpi.  we want the actual dpi of the
+	screen, so that we can correctly map to the actual size of fonts
+	when the user asks for a particular size.  This removes the need
+	for the hack of setting the SWF DefaultFont to be 8pt instead of
+	8.25pt to get things to line up.
+
 2006-12-21  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* imageattributes.c: Fix bug #80323 for ColorMatrix containing alpha
