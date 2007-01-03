@@ -2,6 +2,7 @@ lib_LTLIBRARIES = libgdiplus.la
 
 libgdiplus_la_SOURCES = \
 	adjustablearrowcap.c	\
+	alpha-premul-table.inc	\
 	bitmap.c	\
 	brush.c		\
 	brush.h		\
