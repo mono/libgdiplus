@@ -1,3 +1,15 @@
+2007-01-03  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* alpha-premul-table.inc: New. Table that contains all values of
+	256x256 divised by 255. This allows to avoid a division and three 
+	multiplications for each pixel that requires alpha to be pre-multiplied
+	into the RGB values.
+	* general.c|h: Include/make available the premultiplied table.
+	* imageattributes.c: Use the table when applying a ColorMatrix;
+	* pngcodec.c: Use the table when loading PNG images with alpha. Also
+	ensure we're setting the alpha flag correctly for non-palette bitmaps.
+	Fix bug #79297 and #80366.
+
 2007-01-02  Chris Toshok  <toshok@ximian.com>
 
 	* general.c (gdip_get_display_dpi): we don't want to get what the

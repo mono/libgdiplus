@@ -32,6 +32,7 @@
 #ifdef HAVE_LIBPNG
 
 #include <png.h>
+#include "general.h"
 #include "pngcodec.h"
 
 
@@ -435,7 +436,22 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 				for (i = 0; i < height; i++) {
 					png_bytep rowp = row_pointers[i];
 					for (j = 0; j < width; j++) {
-						set_pixel_bgra (rawptr, 0, rowp[2], rowp[1], rowp[0], rowp[3]);
+						byte a = rowp[3];
+						if (a == 0) {
+							set_pixel_bgra (rawptr, 0, 0, 0, 0, 0);
+						} else {
+							byte b = rowp[2];
+							byte g = rowp[1];
+							byte r = rowp[0];
+
+							if (a < 0xff) {
+								r = pre_multiplied_table [r][a];
+								g = pre_multiplied_table [g][a];
+								b = pre_multiplied_table [b][a];
+							}
+
+							set_pixel_bgra (rawptr, 0, b, g, r, a);
+						}
 						rowp += 4;
 						rawptr += 4;
 					}
@@ -493,6 +509,10 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			result->active_bitmap->pixel_format = Format8bppIndexed;
 			result->active_bitmap->image_flags = ImageFlagsColorSpaceGRAY;
 		}
+
+		if (color_type & PNG_COLOR_MASK_ALPHA)
+			 result->active_bitmap->image_flags |= ImageFlagsHasAlpha;
+
 		result->active_bitmap->image_flags |= ImageFlagsReadOnly | ImageFlagsHasRealPixelSize;
 		result->active_bitmap->dpi_horz = 0;
 		result->active_bitmap->dpi_vert = 0;

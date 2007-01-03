@@ -48,6 +48,8 @@ struct startupOutput
 	void *unhook;
 };
 
+/* large table to avoid a division and three multiplications when premultiplying alpha into R, G and B */
+#include "alpha-premul-table.inc"
 
 static GList* g_mem_allocations;
 static BOOL startup = FALSE;

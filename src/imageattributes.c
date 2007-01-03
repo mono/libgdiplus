@@ -21,7 +21,7 @@
  *
  */
 
-#include "gdip.h"
+#include "general.h"
 #include <math.h>
 
 void
@@ -224,20 +224,19 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 					g_new = (r * cm->m[0][1] + g * cm->m[1][1] + b * cm->m[2][1] + a * cm->m[3][1] + (255 * cm->m[4][1]));
 					b_new = (r * cm->m[0][2] + g * cm->m[1][2] + b * cm->m[2][2] + a * cm->m[3][2] + (255 * cm->m[4][2]));
 
-					/* remember that Cairo use pre-multiplied alpha, e.g. 50% red == 0x80800000 not 0x80ff0000 */
-					if (a_new < 0xff) {
-						float alpha_pre_mul = ((float) a_new) / 0xff;
-						r_new = (byte) (r_new * alpha_pre_mul);
-						g_new = (byte) (g_new * alpha_pre_mul);
-						b_new = (byte) (b_new * alpha_pre_mul);
-						a = (byte) a_new;
-					} else {
-						a = 0xff;
-					}
-
 					r = (r_new > 0xff) ? 0xff : (byte) r_new;
 					g = (g_new > 0xff) ? 0xff : (byte) g_new;
 					b = (b_new > 0xff) ? 0xff : (byte) b_new;
+
+					/* remember that Cairo use pre-multiplied alpha, e.g. 50% red == 0x80800000 not 0x80ff0000 */
+					if (a_new < 0xff) {
+						a = (byte) a_new;
+						r = pre_multiplied_table [r][a];
+						g = pre_multiplied_table [g][a];
+						b = pre_multiplied_table [b][a];
+					} else {
+						a = 0xff;
+					}
 
 					set_pixel_bgra (color_p, 0, b, g, r, a);
 					*scan++ = color;

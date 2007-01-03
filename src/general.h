@@ -42,6 +42,8 @@
 #define gdip_convgr_unitx(g,f)		(gdip_unit_conversion (UnitCairoPoint, g->page_unit, g->dpi_x, g->type, f))
 #define gdip_convgr_unity(g,f)		(gdip_unit_conversion (UnitCairoPoint, g->page_unit, g->dpi_y, g->type, f))
 
+/* avoid floating point division/multiplications when pre-multiplying the alpha channel with R, G and B values */
+const byte pre_multiplied_table[256][256];
 
 /* cairo has a (signed) 15(1)/16(2)bits pixel positioning, while GDI+ use (signed) 23 bits (infinity).
  * Using larger values confuse the bits used for subpixel positioning.
