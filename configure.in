@@ -67,8 +67,8 @@ if test "x$FREETYPE2" = "xno"; then
 	fi
 fi
 
-GDIPLUS_LIBS="$CAIRO_LIBS `pkg-config --libs glib-2.0 ` $FONTCONFIG_LIBS $FREETYPE2_LIBS"
-GDIPLUS_CFLAGS="$CAIRO_CFLAGS `pkg-config --cflags glib-2.0 ` $FONTCONFIG_CFLAGS $FREETYPE2_CFLAGS"
+GDIPLUS_LIBS="`pkg-config --libs glib-2.0 ` $FONTCONFIG_LIBS $FREETYPE2_LIBS"
+GDIPLUS_CFLAGS="`pkg-config --cflags glib-2.0 ` $FONTCONFIG_CFLAGS $FREETYPE2_CFLAGS"
 
 # Add xrender here so that we don't fail to find glib if we won't have xrender.pc
 GDIPLUS_LIBS="$GDIPLUS_LIBS `pkg-config --libs xrender `"
@@ -300,9 +300,17 @@ AC_TRY_COMPILE([#include <X11/Xlib.h>],
 if $x11_failed; then
    AC_ERROR("Failed to compile with X11/Xlib.h include.  You must fix your compiler paths")
 fi
+
+GDIPLUS_PKG_LIBS="$GDIPLUS_LIBS"
+GDIPLUS_PKG_CFLAGS="$GDIPLUS_CFLAGS"
  
+GDIPLUS_LIBS="$CAIRO_LIBS $GDIPLUS_LIBS"
+GDIPLUS_CFLAGS="$CAIRO_CFLAGS $GDIPLUS_CFLAGS"
+
 AC_SUBST(GDIPLUS_LIBS)
 AC_SUBST(GDIPLUS_CFLAGS)
+AC_SUBST(GDIPLUS_PKG_LIBS)
+AC_SUBST(GDIPLUS_PKG_CFLAGS)
 
 AC_OUTPUT([
 Makefile

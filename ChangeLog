@@ -1,3 +1,11 @@
+2007-01-04 Wade Berrier <wberrier@novell.com>
+
+	* configure.in:
+	* libgdiplus.pc.in: Remove CAIRO_CFLAGS and CAIRO_LIBS
+	from libgdiplus.pc.
+
+	Fixes: bxc: #79889
+
 2006-11-17 Wade Berrier <wberrier@novell.com>
 
 	* configure.in: version bump -> 1.2.1
