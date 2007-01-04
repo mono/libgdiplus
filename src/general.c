@@ -222,8 +222,12 @@ gdip_get_display_dpi()
 		display = XOpenDisplay (0);
 		/* If the display is openable lets try to read dpi from it; otherwise use a default of 96.0f */
 		if (display) {
-			dpis = (((float) DisplayHeight (display, 0) * 25.4f) / 
-				(float) DisplayHeightMM (display, 0));
+			val = XGetDefault (display, "Xft", "dpi");
+			if (val) {
+				dpis = atof (val);
+			} else {
+				dpis = 96.0f;
+			}
 			XCloseDisplay (display);
 		} else {
 			dpis = 96.0f;
