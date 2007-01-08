@@ -18,6 +18,9 @@
 #include "jpegcodec.h"
 #include "gifcodec.h"
 #include "tiffcodec.h"
+#include "icocodec.h"
+#include "emfcodec.h"
+#include "wmfcodec.h"
 
 /*typedef bool BOOL;
 typedef BOOL (CALLBACK * ImageAbort) (VOID *);

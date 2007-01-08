@@ -1,3 +1,19 @@
+2007-01-08  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bmpcodec.c: Add missing SigPattern and SigMask to codec;
+	* emfcodec.c|h: New. Plumbing to add the new EMF codec;
+	* gdip.h: Add SHORT type. Add new GUID for ICO, WMF and EMF codecs;
+	* gdipImage.h: Add include files for new codecs;
+	* general.c: Update call to codecs initialization;
+	* gifcodec.c: Add missing SigPattern and SigMask to codec;
+	* icocodec.c|h: New. Plumbing to add the new ICO codec;
+	* image.c: CHange codecs structure to allow a different number of 
+	encoders and decoders.
+	* jpegcodec.c: Add missing SigPattern and SigMask to codec;
+	* pngcodec.c: Add missing SigPattern and SigMask to codec;
+	* wmfcodec.c|h: New. Plumbing to add the new WMF codec;
+	* Makefile.am: Add new files for codecs;
+
 2007-01-03  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* alpha-premul-table.inc: New. Table that contains all values of

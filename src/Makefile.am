@@ -8,6 +8,8 @@ libgdiplus_la_SOURCES = \
 	brush.h		\
 	customlinecap.c	\
 	customlinecap.h	\
+	emfcodec.c	\
+	emfcodec.h	\
 	font.c		\
 	gdip.h		\
 	gdipImage.h	\
@@ -20,6 +22,8 @@ libgdiplus_la_SOURCES = \
 	graphics-pathiterator.c	\
 	hatchbrush.c	\
 	hatchbrush.h	\
+	icocodec.c	\
+	icocodec.h	\
 	image.c		\
 	lineargradientbrush.c \
 	lineargradientbrush.h \
@@ -49,9 +53,11 @@ libgdiplus_la_SOURCES = \
 	bmpcodec.c	\
 	jpegcodec.h	\
 	imageattributes.c \
-	jpegcodec.c \
-	dstream.c  \
-	dstream.h
+	jpegcodec.c	\
+	dstream.c 	\
+	dstream.h	\
+	wmfcodec.c	\
+	wmfcodec.h
 
 
 libgdiplus_la_LIBADD = $(GDIPLUS_LIBS)

@@ -90,6 +90,7 @@ typedef gpointer PVOID;
 typedef gpointer LPVOID;
 typedef gboolean BOOL;
 typedef guint32 *LPDWORD;
+typedef gint16 SHORT;
 typedef gint32 LONG;
 typedef guint32 ULONG;
 typedef gint32 *PLONG;
@@ -1044,7 +1045,7 @@ void gdip_pen_init (GpPen *pen);
 GpPen *gdip_pen_new (void);
 GpStatus gdip_pen_setup (GpGraphics *graphics, GpPen *pen);
 
-void initCodecList (void);
+GpStatus initCodecList (void);
 void releaseCodecList (void);
 void gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, bool *allocated);
 
@@ -1424,6 +1425,9 @@ extern GUID gdip_jpg_image_format_guid;
 extern GUID gdip_png_image_format_guid;
 extern GUID gdip_gif_image_format_guid;
 extern GUID gdip_tif_image_format_guid;
+extern GUID gdip_ico_image_format_guid;
+extern GUID gdip_emf_image_format_guid;
+extern GUID gdip_wmf_image_format_guid;
 
 extern GUID GdipEncoderQuality;
 extern GUID GdipEncoderCompression;

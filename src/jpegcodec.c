@@ -2,7 +2,7 @@
  *
  * jpegcodec.c : Contains function definitions for encoding decoding jpeg images
  *
- * Copyright (C) Novell, Inc. 2003-2004.
+ * Copyright (C) 2003-2004,2007 Novell, Inc (http://www.novell.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -55,6 +55,8 @@ static const WCHAR jpeg_extension[] = {'*', '.', 'J', 'P','G', ';','*', '.', 'J'
         '.', 'J', 'P', 'E', ';', '*', '.', 'J', 'F','I','F', 0}; /* JPG;*.JPEG;*.JPE;*.JFIF */
 static const WCHAR jpeg_mimetype[] = {'i', 'm', 'a','g', 'e','/', 'j', 'p', 'e', 'g', 0}; /* image/png */
 static const WCHAR jpeg_format[] = {'J', 'P', 'E', 'G', 0}; /* JPEG */
+static const BYTE jpeg_sig_pattern[] = { 0xFF, 0xD8 };
+static const BYTE jpeg_sig_mask[] = { 0xFF, 0xFF };
 
 
 ImageCodecInfo *
@@ -69,10 +71,10 @@ gdip_getcodecinfo_jpeg ()
 	jpeg_codec.MimeType = (const WCHAR*) jpeg_mimetype;
 	jpeg_codec.Flags = Encoder | Decoder | SupportBitmap | Builtin;
 	jpeg_codec.Version = 1;
-	jpeg_codec.SigCount = 0;
-	jpeg_codec.SigSize = 0;
-	jpeg_codec.SigPattern = 0;
-	jpeg_codec.SigMask = 0;
+	jpeg_codec.SigCount = 1;
+	jpeg_codec.SigSize = 2;
+	jpeg_codec.SigPattern = jpeg_sig_pattern;
+	jpeg_codec.SigMask = jpeg_sig_mask;
 
 	return &jpeg_codec;
 }

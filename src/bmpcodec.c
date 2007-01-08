@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2004 Ximian
+ * Copyright (C) 2003-2004,2007 Novell, Inc (http://www.novell.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -50,6 +51,8 @@ static const WCHAR bmp_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ',
 static const WCHAR bmp_extension[] = {'*','.','B', 'M', 'P',';', '*','.', 'D','I', 'B',';', '*','.', 'R', 'L', 'E',0}; /* *.BMP;*.DIB;*.RLE */
 static const WCHAR bmp_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'b', 'm', 'p', 0}; /* image/bmp */
 static const WCHAR bmp_format[] = {'B', 'M', 'P', 0}; /* BMP */
+static const BYTE bmp_sig_pattern[] = { 0x42, 0x4D };
+static const BYTE bmp_sig_mask[] = { 0xFF, 0xFF };
 
 
 ImageCodecInfo *
@@ -64,10 +67,10 @@ gdip_getcodecinfo_bmp ()
         bmp_codec.MimeType = (const WCHAR*) bmp_mimetype;
         bmp_codec.Flags = Encoder | Decoder | SupportBitmap | Builtin;
         bmp_codec.Version = 1;
-        bmp_codec.SigCount = 0;
-        bmp_codec.SigSize = 0;
-        bmp_codec.SigPattern = 0;
-        bmp_codec.SigMask = 0;
+        bmp_codec.SigCount = 1;
+        bmp_codec.SigSize = 2;
+        bmp_codec.SigPattern = bmp_sig_pattern;
+        bmp_codec.SigMask = bmp_sig_mask;
 
         return &bmp_codec; 
 }

@@ -51,6 +51,7 @@ GUID gdip_tif_image_format_guid = {0xb96b3cb1U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 GUID gdip_exif_image_format_guid = {0xb96b3cb2U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 GUID gdip_wmf_image_format_guid = {0xb96b3cadU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 GUID gdip_emf_image_format_guid = {0xb96b3cacU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+GUID gdip_ico_image_format_guid = {0xb96b3cb5U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 
 /*
  * encoder param guids
@@ -362,8 +363,6 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		return InvalidParameter;
 	}
 
-	cairo_matrix_init (&mat, 1, 0, 0, 1, 0, 0);
-
 	if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format)) {
 		GpStatus status = OutOfMemory;
 		GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb (image);
@@ -405,6 +404,8 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		cairo_surface_destroy (image->surface);
 		image->surface = NULL;
 	}
+
+	cairo_matrix_init (&mat, 1, 0, 0, 1, 0, 0);
 
 	if (imageAttributes && imageAttributes->wrapmode != WrapModeClamp) {
 		float		img_width;
@@ -684,10 +685,21 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 			break;
 		}
 
-		case EXIF:
-		case WMF:
-		case EMF:
 		case ICON: {
+			status = gdip_load_ico_image_from_file (fp, &result);
+			if (result != NULL) {
+				result->image_format = ICON;
+			}
+			break;
+		}
+
+		case WMF:
+		case EMF: {
+			status = NotImplemented;
+			break;
+		}
+
+		case EXIF: {
 			status = NotImplemented;
 			break;
 		}
@@ -781,6 +793,7 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 	
 	switch (format) {
 		case BMP:
+		case ICON:
 			status = gdip_save_bmp_image_to_file (fp, image);
 			break;
 		case PNG:
@@ -1709,7 +1722,8 @@ get_image_format (char *sig_read, size_t size_read)
 {
 	int	index;
 	char	png[] = { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, '\0'};
-	char	*signature[]  = { "BM", "MM", "II", "GIF", png, "\xff\xd8", "\xff\xd8\xff\xe1", "", "", ""};
+	char	icon[] = { 0x00, 0x00, 0x01, 0x00, '\0' };
+	char	*signature[]  = { "BM", "MM", "II", "GIF", png, "\xff\xd8", "\xff\xd8\xff\xe1", icon, "", ""};
 
 	if (size_read < 10) {
 		return INVALID;
@@ -1747,6 +1761,11 @@ get_image_format (char *sig_read, size_t size_read)
 					return JPEG;
 
 				case 7:
+					if ((signature[index][2] == sig_read[2]) && (signature[index][3] == sig_read[3])) {
+						return ICON;						
+					} else {
+						return INVALID;
+					}
 				case 8:
 				case 9:
 				default:
@@ -1893,6 +1912,33 @@ GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 			break;
 		}
 
+		case ICON: {
+			loader = dstream_input_new (getBytesFunc, seekFunc);
+			status = gdip_load_ico_image_from_stream_delegate (loader, &result);
+			if (result != NULL) {
+				result->image_format = ICON;
+			}
+			break;
+		}
+
+		case EMF: {
+			loader = dstream_input_new (getBytesFunc, seekFunc);
+			status = gdip_load_emf_image_from_stream_delegate (loader, &result);
+			if (result != NULL) {
+				result->image_format = EMF;
+			}
+			break;
+		}
+
+		case WMF: {
+			loader = dstream_input_new (getBytesFunc, seekFunc);
+			status = gdip_load_wmf_image_from_stream_delegate (loader, &result);
+			if (result != NULL) {
+				result->image_format = WMF;
+			}
+			break;
+		}
+
 		default: {
 			printf ("type: %d Not implemented\n", format);
 			status = NotImplemented;
@@ -1933,6 +1979,7 @@ GdipSaveImageToDelegate_linux (GpImage *image, GetBytesDelegate getBytesFunc,
 	}
 
     	switch (format) {
+		case ICON:
 		case BMP:
 	    		status = gdip_save_bmp_image_to_stream_delegate (putBytesFunc, image);
 	    		break;
@@ -1988,54 +2035,111 @@ gdip_image_format_for_format_guid (GDIPCONST GUID *formatGUID)
 }
 
 
-#define CODECS_SUPPORTED 5
-static BYTE *g_codeclist;
-static int g_codecs = 0; /* Available codecs */
+#define DECODERS_SUPPORTED 8
+#define ENCODERS_SUPPORTED 5
+static BYTE *g_decoder_list;
+static int g_decoders = 0;
+static BYTE *g_encoder_list;
+static int g_encoders = 0;
 
-void initCodecList (void)
+GpStatus
+initCodecList (void)
 {
-	BYTE *pos;
+	BYTE *dpos, *epos;
 	
-	g_codeclist = pos = GdipAlloc (sizeof (ImageCodecInfo) * CODECS_SUPPORTED);
+	g_decoder_list = dpos = GdipAlloc (sizeof (ImageCodecInfo) * DECODERS_SUPPORTED);
+	if (!g_decoder_list)
+		return OutOfMemory;
+
+	g_encoder_list = epos = GdipAlloc (sizeof (ImageCodecInfo) * ENCODERS_SUPPORTED);
+	if (!g_decoder_list) {
+		GdipFree (g_decoder_list);
+		g_decoder_list = NULL;
+		return OutOfMemory;
+	}
 	
-	/* BMP codec - built-in */
-	memcpy (pos, gdip_getcodecinfo_bmp(), sizeof (ImageCodecInfo));
-	pos += sizeof (ImageCodecInfo);
-	g_codecs++;
+	/* BMP codec (encoder+decoder) - built-in */
+	memcpy (dpos, gdip_getcodecinfo_bmp (), sizeof (ImageCodecInfo));
+	dpos += sizeof (ImageCodecInfo);
+	g_decoders++;
+	memcpy (epos, gdip_getcodecinfo_bmp (), sizeof (ImageCodecInfo));
+	epos += sizeof (ImageCodecInfo);
+	g_encoders++;
+
+	/* ICO codec (decoder-only) - built-in */
+	memcpy (dpos, gdip_getcodecinfo_ico (), sizeof (ImageCodecInfo));
+	dpos += sizeof (ImageCodecInfo);
+	g_decoders++;
 	
-	/* JPEG codec */
+	/* JPEG codec (encoder+decoder) */
 	if (gdip_getcodecinfo_jpeg ()) {
-		memcpy (pos, gdip_getcodecinfo_jpeg(), sizeof (ImageCodecInfo));
-		pos += sizeof (ImageCodecInfo);
-		g_codecs++;
+		memcpy (dpos, gdip_getcodecinfo_jpeg(), sizeof (ImageCodecInfo));
+		dpos += sizeof (ImageCodecInfo);
+		g_decoders++;
+		memcpy (epos, gdip_getcodecinfo_jpeg(), sizeof (ImageCodecInfo));
+		epos += sizeof (ImageCodecInfo);
+		g_encoders++;
 	}
 	
-	/* GIF codec */
+	/* GIF codec (encoder+decoder) */
 	if (gdip_getcodecinfo_gif ()) {
-		memcpy (pos, gdip_getcodecinfo_gif (), sizeof (ImageCodecInfo));
-		pos += sizeof (ImageCodecInfo);
-		g_codecs++;
+		memcpy (dpos, gdip_getcodecinfo_gif (), sizeof (ImageCodecInfo));
+		dpos += sizeof (ImageCodecInfo);
+		g_decoders++;
+		memcpy (epos, gdip_getcodecinfo_gif (), sizeof (ImageCodecInfo));
+		epos += sizeof (ImageCodecInfo);
+		g_encoders++;
 	}
 	
-	/* TIFF codec */
+	/* TIFF codec (encoder+decoder) */
 	if (gdip_getcodecinfo_tiff ()) {
-		memcpy (pos, gdip_getcodecinfo_tiff (), sizeof (ImageCodecInfo));
-		pos += sizeof (ImageCodecInfo);
-		g_codecs++;
+		memcpy (dpos, gdip_getcodecinfo_tiff (), sizeof (ImageCodecInfo));
+		dpos += sizeof (ImageCodecInfo);
+		g_decoders++;
+		memcpy (epos, gdip_getcodecinfo_tiff (), sizeof (ImageCodecInfo));
+		epos += sizeof (ImageCodecInfo);
+		g_encoders++;
 	}
 	
-	/* PNG codec */
+	/* PNG codec (encoder+decoder) */
 	if (gdip_getcodecinfo_png ()) {
-		memcpy (pos, gdip_getcodecinfo_png (), sizeof (ImageCodecInfo));
-		pos += sizeof (ImageCodecInfo);
-		g_codecs++;
+		memcpy (dpos, gdip_getcodecinfo_png (), sizeof (ImageCodecInfo));
+		dpos += sizeof (ImageCodecInfo);
+		g_decoders++;
+		memcpy (epos, gdip_getcodecinfo_png (), sizeof (ImageCodecInfo));
+		epos += sizeof (ImageCodecInfo);
+		g_encoders++;
 	}
+
+	/* WMF codec (decoder-only) */
+	if (gdip_getcodecinfo_wmf ()) {
+		memcpy (dpos, gdip_getcodecinfo_wmf (), sizeof (ImageCodecInfo));
+		dpos += sizeof (ImageCodecInfo);
+		g_decoders++;
+	}
+
+	/* EMF codec (decoder-only) */
+	if (gdip_getcodecinfo_emf ()) {
+		memcpy (dpos, gdip_getcodecinfo_emf (), sizeof (ImageCodecInfo));
+		dpos += sizeof (ImageCodecInfo);
+		g_decoders++;
+	}
+
+	return Ok;
 }
 
 void releaseCodecList (void)
 {
-	if (g_codeclist)
-		GdipFree (g_codeclist);
+	if (g_decoder_list) {
+		GdipFree (g_decoder_list);
+		g_decoder_list = NULL;
+		g_decoders = 0;
+	}
+	if (g_encoder_list) {
+		GdipFree (g_encoder_list);
+		g_encoder_list = NULL;
+		g_encoders = 0;
+	}
 }
 
 GpStatus
@@ -2044,18 +2148,18 @@ GdipGetImageDecodersSize (UINT *numDecoders, UINT *size)
 	if (!numDecoders || !size)
 		return InvalidParameter;
 	
-	*numDecoders = g_codecs;
-	*size = sizeof (ImageCodecInfo) * g_codecs;
+	*numDecoders = g_decoders;
+	*size = sizeof (ImageCodecInfo) * g_decoders;
 	return Ok;
 }
 
 GpStatus
 GdipGetImageDecoders (UINT numDecoders, UINT size, ImageCodecInfo *decoders)
 {
-	if (!decoders)
-		return InvalidParameter;
-					
-	memcpy (decoders, g_codeclist, size);
+	if (!decoders || (numDecoders != g_decoders) || (size != sizeof (ImageCodecInfo) * g_decoders))
+		return GenericError;
+
+	memcpy (decoders, g_decoder_list, size);
 	return Ok;
 }
 
@@ -2065,18 +2169,18 @@ GdipGetImageEncodersSize (UINT *numEncoders, UINT *size)
 	if (!numEncoders || !size)
 		return InvalidParameter;
 	
-	*numEncoders = g_codecs;
-	*size = sizeof (ImageCodecInfo) * g_codecs;
+	*numEncoders = g_encoders;
+	*size = sizeof (ImageCodecInfo) * g_encoders;
 	return Ok;
 }
 
 GpStatus
 GdipGetImageEncoders (UINT numEncoders, UINT size, ImageCodecInfo *encoders)
 {
-	if (!encoders)
-		return InvalidParameter;
-	
-	memcpy (encoders, g_codeclist, size);
+	if (!encoders || (numEncoders != g_encoders) || (size != sizeof (ImageCodecInfo) * g_encoders))
+		return GenericError;
+
+	memcpy (encoders, g_encoder_list, size);
 	return Ok;
 }
 

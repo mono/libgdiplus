@@ -1,7 +1,7 @@
 /* 
  * gifcodec.c : Contains function definitions for encoding decoding gif images
  *
- * Copyright (C) Novell, Inc. 2003-2004.
+ * Copyright (C) 2003-2004,2007 Novell, Inc (http://www.novell.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -23,8 +23,6 @@
  *	Vladimir Vukicevic (vladimir@pobox.com)
  *	Jordi Mas (jordi@ximian.com)
  *	Jonathan Gilbert (logic@deltaq.org)
- *
- * Copyright (C) Novell, Inc. 2003-2004.
  */
 
 #if HAVE_CONFIG_H
@@ -57,6 +55,9 @@ static const WCHAR gif_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ',
 static const WCHAR gif_extension[] = {'*', '.', 'G', 'I', 'F',0}; /* *.GIF */
 static const WCHAR gif_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'g', 'i', 'f', 0}; /* image/gif */
 static const WCHAR gif_format[] = {'G', 'I', 'F', 0}; /* GIF */
+static const BYTE gif_sig_pattern[] = { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x47, 0x49, 0x46, 0x38, 0x37, 0x61 };
+static const BYTE gif_sig_mask[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
 
 GpStatus  gdip_load_gif_image (void *stream, GpImage **image, bool from_file);
 GpStatus  gdip_save_gif_image (void *stream, GpImage *image, bool from_file);
@@ -73,10 +74,10 @@ gdip_getcodecinfo_gif ()
 	gif_codec.MimeType = (const WCHAR*) gif_mimetype;
 	gif_codec.Flags = Encoder | Decoder | SupportBitmap | Builtin;
 	gif_codec.Version = 1;
-	gif_codec.SigCount = 0;
-	gif_codec.SigSize = 0;
-	gif_codec.SigPattern = 0;
-	gif_codec.SigMask = 0;
+	gif_codec.SigCount = 2;
+	gif_codec.SigSize = 6;
+	gif_codec.SigPattern = gif_sig_pattern;
+	gif_codec.SigMask = gif_sig_mask;
 	
 	return &gif_codec;
 }

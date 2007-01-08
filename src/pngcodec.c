@@ -1,7 +1,7 @@
 /*
  * pngcodec.c : Contains function definitions for encoding decoding png images
  *
- * Copyright (C) Novell, Inc. 2003-2004.
+ * Copyright (C) 2003-2004,2007 Novell, Inc (http://www.novell.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -45,6 +45,8 @@ static const WCHAR png_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ',
 static const WCHAR png_extension[] = {'*', '.', 'P', 'N', 'G', 0}; /* *.PNG */
 static const WCHAR png_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'p', 'n', 'g', 0}; /* image/png */
 static const WCHAR png_format[] = {'P', 'N', 'G', 0}; /* PNG */
+static const BYTE png_sig_pattern[] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+static const BYTE png_sig_mask[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
 
 ImageCodecInfo *
@@ -59,10 +61,10 @@ gdip_getcodecinfo_png ()
         png_codec.MimeType = (const WCHAR*) png_mimetype;
         png_codec.Flags = Encoder | Decoder | SupportBitmap | Builtin;
         png_codec.Version = 1;
-        png_codec.SigCount = 0;
-        png_codec.SigSize = 0;
-        png_codec.SigPattern = 0;
-        png_codec.SigMask = 0;
+        png_codec.SigCount = 1;
+        png_codec.SigSize = 8;
+        png_codec.SigPattern = png_sig_pattern;
+        png_codec.SigMask = png_sig_mask;
 
         return &png_codec;
 }

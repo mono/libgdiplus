@@ -2,7 +2,7 @@
  * general.c
  * 
  * Copyright (c) 2003 Alexandre Pigolkine
- * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
+ * Copyright (C) 2006, 2007 Novell, Inc (http://www.novell.com)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -59,17 +59,20 @@ extern void cairo_test_xlib_disable_render();
 GpStatus 
 GdiplusStartup(unsigned long *token, const struct startupInput *input, struct startupOutput *output)
 {
+	GpStatus status = Ok;
 	/* don't initialize multiple time, e.g. for each appdomain */
 	if (!startup) {
 		startup = TRUE;
 		g_mem_allocations = NULL;
-		initCodecList (); 
+		status = initCodecList ();
+		if (status != Ok)
+			return status;
 		FcInit ();
 		*token = 1;
 		gdip_get_display_dpi();
 //		cairo_test_xlib_disable_render();
 	}
-	return Ok;
+	return status;
 }
 
 void 
