@@ -99,4 +99,8 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 int
 gdip_read_bmp_data (void *pointer, byte *data, int size, bool useFile);
 
+/* helper functions / shared with ICOn codec */
+GpStatus gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, bool useFile, BOOL *os2format, BOOL *upsidedown);
+int gdip_read_bmp_data (void *pointer, byte *data, int size, bool useFile);
+
 #endif /* _BMPCODEC_H */

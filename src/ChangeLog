@@ -1,3 +1,11 @@
+2007-01-10  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bmpcodec.c|h: Refactor some decoding code to share with the ICON 
+	decoder.
+	* icocodec.c|h: Implement icon decoder, reusing some parts of the BMP
+	 codec.
+	* image.c: Add ICON format support to GdipLoadImageFromDelegate_linux.
+
 2007-01-08  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bmpcodec.c: Add missing SigPattern and SigMask to codec;

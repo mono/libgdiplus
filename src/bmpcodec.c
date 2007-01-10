@@ -692,6 +692,93 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 	return Ok;
 }
 
+GpStatus
+gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, bool useFile, BOOL *os2format, BOOL *upsidedown)
+{
+	DWORD dw = 0;
+	byte *data_read = (byte*)&dw;
+	int size = sizeof (DWORD);
+	int size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
+	if (size_read < size)
+		return InvalidParameter;
+
+	bmi->biSize = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	if (bmi->biSize > BITMAPCOREHEADER_SIZE){   /* New Windows headers can be bigger */ 
+		dw = 0;
+		size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
+		if (size_read < size)
+			return InvalidParameter;
+		bmi->biWidth = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+		dw = 0;
+		size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
+		if (size_read < size)
+			return InvalidParameter;
+		bmi->biHeight = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+ 	} else if (bmi->biSize == BITMAPCOREHEADER_SIZE) {
+		/* Old OS/2 format. Width and Height fields are WORDs instead of DWORDS */
+		dw = 0;
+		size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
+		if (size_read < size)
+			return InvalidParameter;
+		bmi->biWidth = (data_read[1]<<8 | data_read[0]);
+		bmi->biHeight = (data_read[3]<<8 | data_read[2]);
+		*os2format = TRUE;
+	} else {
+		return UnknownImageFormat;
+	}
+
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi->biPlanes = (data_read[1]<<8 | data_read[0]); 
+	bmi->biBitCount = (data_read[3]<<8 | data_read[2]); 
+
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi->biCompression = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+		
+	if (bmi->biHeight < 0) { /* Negative height indicates that the bitmap is sideup*/
+		upsidedown = FALSE;
+		bmi->biHeight = -bmi->biHeight;
+	}
+
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi->biSizeImage = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+		
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi->biXPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi->biYPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+		
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi->biClrUsed = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+		
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
+	if (size_read < size)
+		return InvalidParameter;
+	bmi->biClrImportant = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+	return Ok;
+}
+
 GpStatus 
 gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFile)
 {
@@ -737,118 +824,10 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	bmfh.bfOffBits = (data_read[13]<<24 | data_read[12]<<16 | data_read[11]<<8 | data_read[10]);
 	GdipFree(data_read);
 
-	size = sizeof(DWORD);
-	data_read = (byte*)GdipAlloc(size);
-	if (data_read == NULL) {
-		status = OutOfMemory;
+	status = gdip_read_BITMAPINFOHEADER (pointer, &bmi, useFile, &os2format, &upsidedown);
+	if (status != Ok)
 		goto error;
-	}
-	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
 
-	if (size_read < size) {
-		status = InvalidParameter;
-		goto error;
-	}
-
-	bmi.biSize = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-
-	if (bmi.biSize > BITMAPCOREHEADER_SIZE){   /* New Windows headers can be bigger */ 
-		memset (data_read, 0, size);
-		size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-		if (size_read < size) {
-			status = InvalidParameter;
-			goto error;
-		}
-		bmi.biWidth = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-
-		memset (data_read, 0, size);
-		size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-		if (size_read < size) {
-			status = InvalidParameter;
-			goto error;
-		}
-		bmi.biHeight = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
- 	} else  {
-		if (bmi.biSize ==  BITMAPCOREHEADER_SIZE) {
-			/* Old OS/2 format. Width and Height fields are WORDs instead of DWORDS */
-			memset (data_read, 0, size);
-			size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-			if (size_read < size) {
-				status = InvalidParameter;
-				goto error;
-			}
-			bmi.biWidth = (data_read[1]<<8 | data_read[0]);
-			bmi.biHeight = (data_read[3]<<8 | data_read[2]);
-			os2format = TRUE;
-		} else {
-			status = UnknownImageFormat;
-			goto error;
-		}
-	}
-
-	memset (data_read, 0, size);
-	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size) {
-		status = InvalidParameter;
-		goto error;
-	}
-	bmi.biPlanes = (data_read[1]<<8 | data_read[0]); 
-	bmi.biBitCount = (data_read[3]<<8 | data_read[2]); 
-
-	memset (data_read, 0, size);
-	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size) {
-		status = InvalidParameter;
-		goto error;
-	}
-	bmi.biCompression = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-		
-	if (bmi.biHeight < 0) { /* Negative height indicates that the bitmap is sideup*/
-		upsidedown = FALSE;
-		bmi.biHeight =  -bmi.biHeight;
-	}
-
-	memset (data_read, 0, size);
-	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size) {
-		status = InvalidParameter;
-		goto error;
-	}
-	bmi.biSizeImage = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-		
-	memset (data_read, 0, size);
-	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size) {
-		status = InvalidParameter;
-		goto error;
-	}
-	bmi.biXPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-	
-	memset (data_read, 0, size);
-	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size) {
-		status = InvalidParameter;
-		goto error;
-	}
-	bmi.biYPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-		
-	memset (data_read, 0, size);
-	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size) {
-		status = InvalidParameter;
-		goto error;
-	}
-	bmi.biClrUsed = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-		
-	memset (data_read, 0, size);
-	size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
-	if (size_read < size) {
-		status = InvalidParameter;
-		goto error;
-	}
-
-	bmi.biClrImportant = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-		
 	colours = (bmi.biClrUsed == 0 && bmi.biBitCount <= 8) ? (1 << bmi.biBitCount) : bmi.biClrUsed;
 
 	status = gdip_get_bmp_pixelformat (bmi.biBitCount, bmi.biCompression, &format);
@@ -877,7 +856,6 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 			break;
 	}
 
-	GdipFree(data_read);
 	data_read = NULL;
 
 	/* Ensure pixman_bits_t alignment */

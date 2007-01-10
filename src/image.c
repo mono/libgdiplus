@@ -950,6 +950,10 @@ GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format)
 	        	memcpy(format, &gdip_membmp_image_format_guid, 16);
 			return Ok;
 
+		case ICON:
+			memcpy (format, &gdip_ico_image_format_guid, 16);
+			return Ok;
+
         	default:
             		return InvalidParameter;
     	}

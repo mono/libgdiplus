@@ -27,6 +27,22 @@
 #include "gdip.h"
 #include "gdipImage.h"
 #include "dstream.h"
+#include "bmpcodec.h"
+
+/* Information about the icon format can be found @ http://www.daubnet.com/formats/ICO.html */
+
+typedef struct {
+	BYTE	bWidth;
+	BYTE	bHeight;
+	BYTE	bColorCount;
+	BYTE	bReserved;
+	WORD	wPlanes;
+	WORD	wBitCount;
+	DWORD	dwBytesInRes;
+	DWORD	dwImageOffset;
+} ICONDIRENTRY;
+
+#define gdip_read_ico_data	gdip_read_bmp_data
 
 GpStatus gdip_load_ico_image_from_file (FILE *fp, GpImage **image);
 
