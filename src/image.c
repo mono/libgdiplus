@@ -1468,8 +1468,13 @@ GdipGetImagePalette (GpImage *image, ColorPalette *palette, int size)
 	int palette_entries;
 	int bytes_needed;
 
-	if ((image == NULL) || (palette == NULL) || (image->active_bitmap->palette == NULL)) {
+        if (!image || !palette)
 		return InvalidParameter;
+
+	if (!image->active_bitmap->palette) {
+		image->active_bitmap->palette = (ColorPalette*) GdipAlloc (sizeof(ColorPalette) - sizeof(ARGB));
+		image->active_bitmap->palette->Flags = 0;
+		image->active_bitmap->palette->Count = 0;
 	}
 
 	palette_entries = image->active_bitmap->palette->Count;
@@ -1478,7 +1483,7 @@ GdipGetImagePalette (GpImage *image, ColorPalette *palette, int size)
 		palette_entries = 16;
 	}
 
-	bytes_needed = palette_entries * sizeof(ARGB) + sizeof(ColorPalette) - sizeof(ARGB);
+	bytes_needed = (palette_entries - 1) * sizeof(ARGB) + sizeof(ColorPalette);
 
 	if (bytes_needed > size) {
 		return InvalidParameter;
@@ -1491,18 +1496,19 @@ GdipGetImagePalette (GpImage *image, ColorPalette *palette, int size)
 GpStatus 
 GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette)
 {
-	int entries_to_copy;
+	int size;
 
-	if ((image == NULL) || (palette == NULL) || (image->active_bitmap->palette == NULL)) {
+        if (!image || !palette)
 		return InvalidParameter;
+
+	size = (palette->Count - 1) * sizeof(ARGB) + sizeof(ColorPalette);
+	if (!image->active_bitmap->palette || (palette->Count != image->active_bitmap->palette->Count)) {
+		if (image->active_bitmap->palette)
+			GdipFree (image->active_bitmap->palette);
+		image->active_bitmap->palette = (ColorPalette*) GdipAlloc (size);
 	}
 
-	entries_to_copy = image->active_bitmap->palette->Count;
-	if (entries_to_copy > palette->Count) {
-		entries_to_copy = palette->Count;
-	}
-
-	memcpy(image->active_bitmap->palette->Entries, palette->Entries, entries_to_copy * sizeof(ARGB));
+	memcpy (image->active_bitmap->palette, palette, size);
 	return Ok;
 }
 
@@ -1511,17 +1517,16 @@ GdipGetImagePaletteSize (GpImage *image, int* size)
 {
         int palette_entries;
 
-        if ((image == NULL) || (size == NULL) || (image->active_bitmap->palette == NULL)) {
+        if (!image || !size)
                 return InvalidParameter;
-	}
 
-        palette_entries = image->active_bitmap->palette->Count;
+        palette_entries = (image->active_bitmap->palette) ? image->active_bitmap->palette->Count : 0;
 
         if ((image->type == imageBitmap) && (image->active_bitmap->pixel_format == Format4bppIndexed)) {
                 palette_entries = 16;
 	}
 
-        *size = palette_entries * sizeof(ARGB) + sizeof(ColorPalette) - sizeof(ARGB);
+	*size = (palette_entries - 1) * sizeof(ARGB) + sizeof(ColorPalette);
 	return Ok;
 }
 

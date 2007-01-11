@@ -1,3 +1,12 @@
+2007-01-11  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Fix GdipCreateBitmapFromScan0 to initialize the flags to 2
+	(HasAlpha) if the format supports alpha;
+	* image.c: Copy all palette (including flags and count) in function
+	GdipSetImagePalette. Re-adjust the size if the palette size is 
+	different. Fix palette handling not to return errors for an unexisting
+	palette (but return a default empty one).
+
 2007-01-10  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bmpcodec.c|h: Refactor some decoding code to share with the ICON 

@@ -781,6 +781,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 	GpBitmap	*result;
 	BitmapData	*bitmap_data;
 	int		cairo_format;
+	int flags = 0;
 	
 	if (width <= 0 || height <= 0) {
 		return InvalidParameter;
@@ -796,6 +797,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 		case Format32bppRgb:
 		case Format32bppPArgb: {
 			cairo_format = CAIRO_FORMAT_ARGB32;
+			flags = 2;
 			break;
 		}
 
@@ -845,6 +847,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 	bitmap_data->width = width;
 	bitmap_data->height = height;
 	bitmap_data->pixel_format = format;
+	bitmap_data->image_flags = flags;
 
 	if (stride == 0) {
 		if (gdip_is_an_indexed_pixelformat(format)) {
