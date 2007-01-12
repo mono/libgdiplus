@@ -75,6 +75,28 @@ get_ico_data (BYTE *data, int x, int y, int bpp, int line_length)
 	return result;
 }
 
+static BOOL
+read_ICONDIRENTRY (void *pointer, ICONDIRENTRY *entry, BOOL useFile, BOOL decode)
+{
+	if (gdip_read_ico_data (pointer, (void*)entry, sizeof (ICONDIRENTRY), useFile) != sizeof (ICONDIRENTRY))
+		return FALSE;
+#if WORDS_BIGENDIAN
+	if (decode) {
+		BYTE *b;
+		/* entry->bWidth, bHeight, bColorCount, bReserved are all BYTE, no change required */
+		b = (BYTE*)&entry->wPlanes;
+		entry->wPlanes = (b[1] << 8) | b[0]; 
+		b = (BYTE*)&entry->wBitCount;
+		entry->wBitCount = (b[1] << 8) | b[0];
+		b = (BYTE*)&entry->dwBytesInRes;
+		entry->dwBytesInRes = (b[3] << 24) | (b[2] << 16) | (b[1] << 8) | b[0];
+		b = (BYTE*)&entry->dwImageOffset;
+		entry->dwImageOffset = (b[3] << 24) | (b[2] << 16) | (b[1] << 8) | b[0];
+	}
+#endif
+	return TRUE;
+}
+
 static GpStatus
 gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFile)
 {
@@ -120,11 +142,15 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	 * NOTE: it looks like (from unit tests) that we get the last icon 
 	 * (e.g. it can return the 16 pixel version, instead of the 32 or 48 pixels available in the same file)
 	 */ 
-	for (i = 0; i < count; i++) {
-		if (gdip_read_ico_data (pointer, (void*)&entry, sizeof (ICONDIRENTRY), useFile) != sizeof (ICONDIRENTRY))
+	for (i = 0; i < count - 1; i++) {
+		if (!read_ICONDIRENTRY (pointer, &entry, useFile, FALSE))
 			goto error;
 		pos += sizeof (ICONDIRENTRY);
 	}
+	/* last one is important, so we must decode (endianess) it's values */
+	if (!read_ICONDIRENTRY (pointer, &entry, useFile, TRUE))
+		goto error;
+	pos += sizeof (ICONDIRENTRY);
 
 	while (pos < entry.dwImageOffset) {
 		if (gdip_read_ico_data (pointer, p, sizeof (WORD), useFile) != sizeof (WORD))
