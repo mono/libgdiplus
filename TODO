@@ -7,7 +7,6 @@ have to be fixed in libgdiplus.
 
 - EXIF. There is libexif
 - WMF and EMF. We do not support metafiles. See libwmf.
-- ICON. Some icon functionality is done at SD level.
 
 ---- Not implemented functions
 
@@ -16,8 +15,6 @@ have to be fixed in libgdiplus.
 Functions that use or create Win32 handles and are not yet implemented 
 (except for window and device needed in System.Windows.Forms.)
 
-GdipCreateBitmapFromHICON
-GdipCreateHICONFromBitmap
 GdipCreateBitmapFromResource
 GdipCreateFontFromDC
 GdipCreateFromHWND
@@ -86,11 +83,5 @@ We have to review these calls to make sure that we are releasing propertly
 the handles and not leaving them created when their associated object 
 (GpGraphics in this case) is destroyed.
 
-* There are internal libgdiplus memory leaks. At general.c there is a little
-DEBUG_MEMLEAKS define that enables an internal system to track down these
-issues. Leave it always on and try to fix the leaks to you detect.
 
-Jordi
-19/09/2005
-
-
+last updated: January 12th, 2007

@@ -1,3 +1,9 @@
+2007-01-12  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* TODO: Updated to remove missing ICON decoder and functions
+	GdipCreateBitmapFromHICON and GdipCreateHICONFromBitmap. Also removed
+	comments about DEBUG_MEMLEAKS as it's better to use valgrind.
+
 2007-01-04 Wade Berrier <wberrier@novell.com>
 
 	* configure.in:
