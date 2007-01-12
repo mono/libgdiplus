@@ -429,7 +429,8 @@ typedef enum {
 	ImageFlagsHasRealDPI = 4096,
 	ImageFlagsHasRealPixelSize = 8192,
 	ImageFlagsReadOnly = 65536,
-	ImageFlagsCaching = 131072
+	ImageFlagsCaching = 131072,
+	ImageFlagsUndocumented = 0x00040000
 } ImageFlags;
 
 typedef enum 

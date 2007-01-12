@@ -1,3 +1,12 @@
+2007-01-12  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Fix HBITMAP support in GdipCreateBitmapFromHBITMAP and 
+	GdipCreateHBITMAPFromBitmap functions so an HBITMAP can survive the
+	deletion of the GpBitmap structure. Implement GdipCreateBitmapFromHICON
+	and GdipCreateHICONFromBitmap functions. See comments about freeing
+	the memory associated with HBITMAP and HICON.
+	* gdip.h: Add new undocumented ImageFlag to match MS results.
+
 2007-01-11  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bitmap.c: Fix GdipCreateBitmapFromScan0 to initialize the flags to 2

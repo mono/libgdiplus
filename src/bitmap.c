@@ -450,8 +450,10 @@ gdip_bitmapdata_clone(BitmapData *src, BitmapData **dest, int count)
 
 		/* Duplicate palette */
 		if (src[i].palette != NULL) {
-			result[i].palette = GdipAlloc(sizeof(ColorPalette) + sizeof(ARGB) * src[i].palette->Count);
-			memcpy(result[i].palette, src[i].palette, sizeof(ColorPalette) + sizeof(ARGB) * src[i].palette->Count);
+			/* note: the ColorPalette structure already contains a (single)ARGB member (so we substract it) */
+			int size = sizeof(ColorPalette) + sizeof(ARGB) * (src[i].palette->Count - 1);
+			result[i].palette = GdipAlloc (size);
+			memcpy (result[i].palette, src[i].palette, size);
 		} else {
 			result[i].palette = NULL;
 		}
@@ -995,30 +997,65 @@ fail:
 	return OutOfMemory;
 }
 
-/* coverity[+alloc : arg-*2] */
 GpStatus
-GdipCreateBitmapFromHBITMAP(void *hbm, void *hpal, GpBitmap** bitmap)
+GdipCreateBitmapFromHBITMAP (void *hbm, void *hpal, GpBitmap** bitmap)
 {
-	return GdipCloneImage((GpImage *)hbm, (GpImage **)bitmap);
-}
+	if (!bitmap || !hbm)
+		return InvalidParameter;
 
-GpStatus
-GdipCreateHBITMAPFromBitmap(GpBitmap* bitmap, void **hbmReturn, unsigned long background)
-{
-	*hbmReturn = bitmap;
+	*bitmap = hbm;
 	return Ok;
 }
 
 GpStatus
-GdipCreateBitmapFromHICON(void *hicon, GpBitmap** bitmap)
+GdipCreateHBITMAPFromBitmap (GpBitmap* bitmap, void **hbmReturn, unsigned long background)
 {
-	return(NotImplemented);
+	/*
+	 * Note: the handle must survive disposing the bitmap. This means that there's no interoperable way to free this memory. 
+	 * For libgdiplus you must use GdipDisposeImage on the handle, while on Windows you should call the DeleteObject function.
+	 */
+	GpStatus status = GdipCloneImage ((GpImage *)bitmap, (GpImage**)hbmReturn);
+	if (status != Ok)
+		return status;
+	((GpImage*)*hbmReturn)->image_format = MEMBMP;
+	((GpImage*)*hbmReturn)->active_bitmap->image_flags |= ImageFlagsUndocumented;	/* 0x00040000 */
+	((GpImage*)*hbmReturn)->active_bitmap->image_flags &= ~ImageFlagsHasAlpha;	/* 0x00000002 */
+	return Ok;
 }
 
 GpStatus
-GdipCreateHICONFromBitmap(GpBitmap* bitmap, void **hbmReturn)
+GdipCreateBitmapFromHICON (void *hicon, GpBitmap** bitmap)
 {
-	return(NotImplemented);
+	GpStatus status;
+
+	if (!hicon || !bitmap)
+		return InvalidParameter;
+
+	status = GdipCloneImage ((GpImage *)hicon, (GpImage**)bitmap);
+	if (status == Ok) {
+		ColorPalette *palette = (ColorPalette*)GdipAlloc (sizeof (ColorPalette) - sizeof (ARGB));
+		if (!palette)
+			return OutOfMemory;
+
+		palette->Flags = 0;
+		palette->Count = 0;
+		status = GdipSetImagePalette ((GpImage*)*bitmap, palette);
+		(*bitmap)->image_format = MEMBMP;
+		(*bitmap)->active_bitmap->image_flags |= ImageFlagsUndocumented;/* 0x00040000 */
+		(*bitmap)->active_bitmap->image_flags &= ~ImageFlagsHasAlpha;	/* 0x00000002 */
+		GdipFree (palette);
+	}
+	return status;
+}
+
+GpStatus
+GdipCreateHICONFromBitmap (GpBitmap* bitmap, void **hbmReturn)
+{
+	/*
+	 * Note: the handle must survive disposing the bitmap. This means that there's no interoperable way to free this memory. 
+	 * For libgdiplus you must use GdipDisposeImage on the handle, while on Windows you should call the DestroyIcon function.
+	 */
+	return GdipCloneImage ((GpImage *)bitmap, (GpImage**)hbmReturn);
 }
 
 GpStatus
