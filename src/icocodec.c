@@ -127,7 +127,8 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	/* WORD ICONDIR.idType / resource type, MUST be 1 for icons */
 	if (gdip_read_ico_data (pointer, p, sizeof (WORD), useFile) != sizeof (WORD))
 		goto error;
-	if (w != 1)
+	i = (b[1] << 8 | b[0]);
+	if (i != 1)
 		goto error;
 
 	/* WORD ICONDIR.idCount / number of icons, must be greater than 0 */
@@ -279,8 +280,8 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	return Ok;
 
 error:
-	if (result->active_bitmap->palette)
-		GdipFree (result->active_bitmap->palette);
+	if (result)
+		GdipDisposeImage (result);
 	if (xor_data)
 		GdipFree (xor_data);
 	if (and_data)
