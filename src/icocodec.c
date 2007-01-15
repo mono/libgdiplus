@@ -111,7 +111,7 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	BOOL upsidedown = TRUE;
 	BOOL os2format = FALSE;
 	BITMAPINFOHEADER bih;
-	int palette_entries;
+	int palette_entries = -1;
 	ARGB *colors = NULL;
 	int x, y;
 	int line_xor_length, xor_size;
@@ -181,13 +181,19 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	case 1:
 	case 4:
 	case 8:
-		/* support 2, 16 and 256 colors icons, no compression */
-		if (bih.biCompression == 0) {
+		/* support 2, 16 and 256 colors icons, with palettes, no compression */
+		if (bih.biCompression == 0)
 			palette_entries = 1 << bih.biBitCount;
-			break;
-		}
-		 /* fall through */
-	default:
+		break;
+	case 32:
+		/* support 24bits + 8 bits alpha (aka "XP" icons), no palette, no compression */
+		if (bih.biCompression == 0)
+			palette_entries = 0;
+		break;
+	}
+
+	if (palette_entries < 0) {
+		g_warning ("Unknown icon format, bitcount = %d, compression = %d", bih.biBitCount, bih.biCompression);
 		status = InvalidParameter;
 		goto error;
 	}
@@ -265,9 +271,16 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	colors = result->active_bitmap->palette->Entries;
 	for (y = 0; y < entry.bHeight; y++) {
 		for (x = 0; x < entry.bWidth; x++) {
-			ARGB color = colors [get_ico_data (xor_data, x, y, bih.biBitCount, line_xor_length)];
-			if (get_ico_data (and_data, x, y, 1, line_and_length) == 1)
-				color = color & 0x00FFFFFF;
+			ARGB color;
+			if (palette_entries > 0) {
+				color = colors [get_ico_data (xor_data, x, y, bih.biBitCount, line_xor_length)];
+				if (get_ico_data (and_data, x, y, 1, line_and_length) == 1)
+					color = color & 0x00FFFFFF;
+			} else {
+				BYTE *line_data = xor_data + y * line_xor_length + x * 4;
+				// ARGB to BRGA
+				color = (line_data [0] | line_data [1] << 8 | line_data [2] << 16 | line_data [3] << 24);
+			}
 			/* image is reversed (y) */
 			GdipBitmapSetPixel (result, x, entry.bHeight - y - 1, color);
 		}

@@ -1,3 +1,7 @@
+2007-01-15  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* icocodec.c: Add support for 32bpp icons (aka XP icons).
+
 2007-01-12  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* icocodec.c: Fix another endian issue and free the bitmap (not just
