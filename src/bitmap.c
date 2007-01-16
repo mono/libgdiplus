@@ -1003,8 +1003,7 @@ GdipCreateBitmapFromHBITMAP (void *hbm, void *hpal, GpBitmap** bitmap)
 	if (!bitmap || !hbm)
 		return InvalidParameter;
 
-	*bitmap = hbm;
-	return Ok;
+	return GdipCloneImage ((GpImage *)hbm, (GpImage**)bitmap);
 }
 
 GpStatus

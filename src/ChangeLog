@@ -1,5 +1,7 @@
 2007-01-15  Sebastien Pouliot  <sebastien@ximian.com>
 
+	* bitmap.c: Clone the bitmap on GdipCreateBitmapFromHBITMAP too. This 
+	ensure multiple GpBitmap objects can be created from a single HBITMAP.
 	* icocodec.c: Add support for 32bpp icons (aka XP icons).
 
 2007-01-12  Sebastien Pouliot  <sebastien@ximian.com>
