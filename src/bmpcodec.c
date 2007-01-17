@@ -822,7 +822,8 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	bmfh.bfReserved1 = ((data_read[7]<<8)|data_read[6]);
 	bmfh.bfReserved1 = ((data_read[9]<<8)|data_read[8]);
 	bmfh.bfOffBits = (data_read[13]<<24 | data_read[12]<<16 | data_read[11]<<8 | data_read[10]);
-	GdipFree(data_read);
+	GdipFree (data_read);
+	data_read = NULL;
 
 	status = gdip_read_BITMAPINFOHEADER (pointer, &bmi, useFile, &os2format, &upsidedown);
 	if (status != Ok)
@@ -855,8 +856,6 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 			result->active_bitmap->stride = result->active_bitmap->width * 4;
 			break;
 	}
-
-	data_read = NULL;
 
 	/* Ensure pixman_bits_t alignment */
 	result->active_bitmap->stride += (sizeof(pixman_bits_t) - 1);
