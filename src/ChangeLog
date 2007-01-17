@@ -1,3 +1,10 @@
+2007-01-17  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* bmpcodec.c: Add support for loading 16bpp bitmaps (555 or 565).
+	Cairo deprecated CAIRO_FORMAT_RGB16_565 so we promote the bitmaps
+	into 24bpp RGB bitmaps.
+	* bmpcodec.h: Add new structures for V4 bitmap headers.
+
 2007-01-17  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bmpcodec.c: Avoid potential double-free if the image is invalid.

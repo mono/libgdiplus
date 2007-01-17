@@ -75,51 +75,50 @@ gdip_getcodecinfo_bmp ()
         return &bmp_codec; 
 }
 
-int
-gdip_get_pixelformat (WORD bitcount)
-{
-        switch (bitcount) {
-        case 32:
-                return Format32bppRgb;
-        case 24:
-                return Format24bppRgb;
-        case 8:
-                return Format8bppIndexed;
-        case 4:
-                return Format4bppIndexed;
-	case 1:
-		return Format1bppIndexed;
-        default:
-                return 0;
-        }  
-}
-
 GpStatus
-gdip_get_bmp_pixelformat (int bitCount, int compression, PixelFormat *dest)
+gdip_get_bmp_pixelformat (BITMAPINFOHEADER *bih, PixelFormat *dest)
 {
-	switch (compression)
-	{
-		case BI_RLE4:
-		{
-			if (bitCount != 4)
-				return InvalidParameter;
-			*dest = Format4bppIndexed;
+	int bitCount = bih->biBitCount;
+	int compression = bih->biCompression;
+
+	switch (compression) {
+	case BI_RLE4:
+		if (bitCount != 4)
+			return InvalidParameter;
+		*dest = Format4bppIndexed;
+		break;
+	case BI_RLE8:
+		if (bitCount != 8)
+			return InvalidParameter;
+		*dest = Format8bppIndexed;
+		break;
+	case BI_BITFIELDS:
+		if (bitCount != 16)
+			return InvalidParameter;
+		/* note: incomplete at this stage */
+		*dest = Format16bppRgb565;
+		break;
+	default:
+	        switch (bitCount) {
+	        case 32:
+	                *dest = Format32bppRgb;
 			break;
-		}
-		case BI_RLE8:
-		{
-			if (bitCount != 8)
-				return InvalidParameter;
-			*dest = Format8bppIndexed;
+	        case 24:
+	                *dest = Format24bppRgb;
 			break;
-		}
-		default:
-		{
-			*dest = gdip_get_pixelformat (bitCount);
-			if (0 == *dest) /* invalid pixel format */
-				return InvalidParameter;
+	        case 8:
+	                *dest = Format8bppIndexed;
 			break;
-		}
+	        case 4:
+	                *dest = Format4bppIndexed;
+			break;
+		case 1:
+			*dest = Format1bppIndexed;
+			break;
+	        default:
+			g_warning ("Unsupported bitcount (%d) and/or compression (%d).", bitCount, compression);
+			return InvalidParameter;
+	        }  
 	}
 
 	return Ok;
@@ -798,6 +797,11 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	int		loop;
 	long		index;
 	GpStatus	status;
+	ARGB alpha_mask = 0;
+	ARGB red_mask = 0;
+	ARGB green_mask = 0;
+	ARGB blue_mask = 0;
+	int red_shift = 0;
 		
 	size = sizeof(bmfh);
 	data_read = (byte*) GdipAlloc(size);
@@ -831,13 +835,57 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 
 	colours = (bmi.biClrUsed == 0 && bmi.biBitCount <= 8) ? (1 << bmi.biBitCount) : bmi.biClrUsed;
 
-	status = gdip_get_bmp_pixelformat (bmi.biBitCount, bmi.biCompression, &format);
+	status = gdip_get_bmp_pixelformat (&bmi, &format);
 
 	if (status != Ok) {
 		 /* bit count mismatch */
 		goto error;
 	}
-        
+
+	/* for 16bbp images we need to be more precise */
+	if (format == Format16bppRgb565) {
+		/* check if we're dealing with a BITMAPV4HEADER (or later) structure */
+		if (bmi.biSize >= sizeof (BITMAPV4HEADER)) {
+			/* the new structure contains the ARGB masks */
+			void *p = &bmi;
+			BITMAPV4HEADER *v4 = p;
+			alpha_mask = v4->bV4AlphaMask;
+			red_mask = v4->bV4RedMask;
+			green_mask = v4->bV4GreenMask;
+			blue_mask = v4->bV4BlueMask;
+		} else if (bmi.biSize == sizeof (BITMAPINFOHEADER)) {
+			// next three DWORD are the R,G,B masks, like bmiColors in BITMAPINFO
+			int size = sizeof (RGBQUAD);
+			size_read = gdip_read_bmp_data (pointer, (void*)&red_mask, size, useFile);
+			if (size_read != size)
+				goto error;
+			size_read = gdip_read_bmp_data (pointer, (void*)&green_mask, size, useFile);
+			if (size_read != size)
+				goto error;
+			size_read = gdip_read_bmp_data (pointer, (void*)&blue_mask, size, useFile);
+			if (size_read != size)
+				goto error;
+		}
+
+		if ((red_mask == 0x7C00) && (green_mask == 0x3E0) && (blue_mask == 0x1F)) {
+			/* five red bits, five green bits and five blue bits (0x7FFF) */
+			red_shift = 10;
+		} else if ((red_mask == 63488) && (green_mask == 2016) && (blue_mask == 31)) {
+			/* five red bits, six green bits and five blue bits (0xFFFF) */
+			red_shift = 11;
+		} else {
+			g_warning ("Unsupported 16bbp format with masks A %d, R: %d, G %d, B %d", 
+				alpha_mask, red_mask, green_mask, blue_mask);
+			status = InvalidParameter;
+			goto error;
+		}
+
+		/* note: CAIRO_FORMAT_RGB16_565 is deprecated so we're promoting the bitmap to 24RGB */
+		format = Format24bppRgb;
+		/* 16bbp bitmap don't seems reversed like their height indicates */
+		upsidedown = FALSE;
+	}
+
 	result = gdip_bitmap_new_with_frame (NULL, TRUE);
 	result->type = imageBitmap;
 	result->image_format = BMP;
@@ -846,15 +894,23 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	result->active_bitmap->height = bmi.biHeight;
 
 	switch (result->active_bitmap->pixel_format) {
-		case Format1bppIndexed: result->active_bitmap->stride = (result->active_bitmap->width + 7) / 8; break;
-		case Format4bppIndexed: result->active_bitmap->stride = (result->active_bitmap->width + 1) / 2; break;
-		case Format8bppIndexed: result->active_bitmap->stride =  result->active_bitmap->width;          break;
-		case Format24bppRgb: result->active_bitmap->stride = result->active_bitmap->width * 4;		break;
-		default:
-			/* For other types, we assume 32 bit and translate into 32 bit from source format */
-			result->active_bitmap->pixel_format = Format32bppRgb;
-			result->active_bitmap->stride = result->active_bitmap->width * 4;
-			break;
+	case Format1bppIndexed:
+		result->active_bitmap->stride = (result->active_bitmap->width + 7) / 8;
+		break;
+	case Format4bppIndexed:
+		result->active_bitmap->stride = (result->active_bitmap->width + 1) / 2;
+		break;
+	case Format8bppIndexed:
+		result->active_bitmap->stride =  result->active_bitmap->width;
+		break;
+	case Format24bppRgb:
+		result->active_bitmap->stride = result->active_bitmap->width * 4;
+		break;
+	default:
+		/* For other types, we assume 32 bit and translate into 32 bit from source format */
+		result->active_bitmap->pixel_format = Format32bppRgb;
+		result->active_bitmap->stride = result->active_bitmap->width * 4;
+		break;
 	}
 
 	/* Ensure pixman_bits_t alignment */
@@ -974,6 +1030,24 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 				case 4:
 				case 8: memcpy(pixels + line * result->active_bitmap->stride, data_read, size);
 					continue;
+
+				case 16: {
+					int src = 0;
+					int dest = 0;
+					SHORT *pix = (SHORT*) data_read;
+
+					index = (line * result->active_bitmap->stride);
+					while (src < loop) {
+						BYTE r = ((*pix & red_mask) >> (red_shift - 3));
+						BYTE g = ((*pix & green_mask) >> (red_shift - 8));
+						BYTE b = (*pix & blue_mask) << 3;
+						set_pixel_bgra (pixels, index + dest, b, g, r, 0xff);
+						dest += 4;
+						src += 2;
+						pix++;
+					}
+					continue;
+				}
 
 				case 24: {
 					int src = 0;
