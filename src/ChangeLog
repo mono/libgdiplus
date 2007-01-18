@@ -1,3 +1,11 @@
+2007-01-18  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Handle the case where we're asked to create 15/16 bpp 
+	bitmaps. In this case the returned bitmap is a 32bpp RGB (no alpha)
+	which, somewhat, match MS GDI+ when it loads such images.
+	* bmpcodec.c: Switch 15/16 bpp to 32bpp RGB (instead of 24) for the
+	same reasons.
+
 2007-01-18  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* icocodec.c: Add support for 24bpp icons with the alpha 1-bit.

@@ -796,12 +796,21 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 		}
 
 		case Format32bppArgb:
+		case Format32bppPArgb:
+			flags = ImageFlagsHasAlpha;
+			/* fall through */
 		case Format32bppRgb:
-		case Format32bppPArgb: {
 			cairo_format = CAIRO_FORMAT_ARGB32;
-			flags = 2;
 			break;
-		}
+
+		case Format16bppRgb555:
+		case Format16bppRgb565:
+			/* fake them as 32bpp RGB as Cairo deprecated CAIRO_FORMAT_RGB16_565 support */
+			/* why 32bpp ? because that's the result of MS GDI+ when loading them, even if the bitmap is empty */
+			format = Format32bppRgb;
+			stride *= 2;
+			cairo_format = CAIRO_FORMAT_ARGB32;
+			break;
 
 		case Format8bppIndexed:
 		case Format4bppIndexed: {

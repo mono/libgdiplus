@@ -880,8 +880,9 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 			goto error;
 		}
 
-		/* note: CAIRO_FORMAT_RGB16_565 is deprecated so we're promoting the bitmap to 24RGB */
-		format = Format24bppRgb;
+		/* note: CAIRO_FORMAT_RGB16_565 is deprecated so we're promoting the bitmap to 32RGB */
+		/* why 32bpp when 24 would be enough ? because MS GDI+ loads them as such, but can't display them (empty) */
+		format = Format32bppRgb;
 		/* 16bbp bitmap don't seems reversed like their height indicates */
 		upsidedown = FALSE;
 	}
