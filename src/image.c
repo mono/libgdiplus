@@ -85,10 +85,6 @@ GdipDisposeImage (GpImage *image)
 	return Ok;
 }
 
-/*
-	Microsoft GDI+ only supports these pixel formats Format24bppRgb, Format32bppArgb, 
-	Format32bppPArgb, Format32bppRgb, Format48bppRgb, Format64bppArgb, Format64bppPArgb
-*/
 /* coverity[+alloc : arg-*1] */
 GpStatus 
 GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
@@ -103,6 +99,21 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 
 	if (image->type != imageBitmap) {
 		return NotImplemented;
+	}
+
+	/*
+	 * Microsoft GDI+ only supports these pixel formats Format24bppRgb, Format32bppArgb, 
+	 * Format32bppPArgb, Format32bppRgb, Format48bppRgb, Format64bppArgb, Format64bppPArgb
+	 * but we're limited to 24/32 inside libgdiplus
+	 */
+	switch (image->active_bitmap->pixel_format) {
+	case Format24bppRgb:
+	case Format32bppArgb:
+	case Format32bppPArgb:
+	case Format32bppRgb:
+		break;
+	default:
+		return GenericError;
 	}
 
 	surface = cairo_image_surface_create_for_data ((unsigned char *) image->active_bitmap->scan0, image->cairo_format,
