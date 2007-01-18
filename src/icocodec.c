@@ -185,6 +185,8 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 		if (bih.biCompression == 0)
 			palette_entries = 1 << bih.biBitCount;
 		break;
+	case 24:
+		/* support 24bits + alpha bitmap, this is not documented anywhere but Windows accept them as valid */
 	case 32:
 		/* support 24bits + 8 bits alpha (aka "XP" icons), no palette, no compression */
 		if (bih.biCompression == 0)
@@ -275,10 +277,18 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 			if (palette_entries > 0) {
 				color = colors [get_ico_data (xor_data, x, y, bih.biBitCount, line_xor_length)];
 				if (get_ico_data (and_data, x, y, 1, line_and_length) == 1)
-					color = color & 0x00FFFFFF;
+					color &= 0x00FFFFFF;
+			} else if (bih.biBitCount == 24) {
+				/* take 1bpp alpha from the and_data */
+				if (get_ico_data (and_data, x, y, 1, line_and_length) == 1) {
+					color = 0;
+				} else {
+					BYTE *line_data = xor_data + y * line_xor_length + x * 3;
+					color = 0xFF000000 | (line_data [0] | line_data [1] << 8| line_data [2] << 16);
+				}
 			} else {
 				BYTE *line_data = xor_data + y * line_xor_length + x * 4;
-				// ARGB to BRGA
+				/* ARGB to BRGA */
 				color = (line_data [0] | line_data [1] << 8 | line_data [2] << 16 | line_data [3] << 24);
 			}
 			/* image is reversed (y) */
