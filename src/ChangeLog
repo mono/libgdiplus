@@ -1,3 +1,11 @@
+2007-01-19  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* bitmap.c: Fix GdipLoadImageFromFile to return OutOfMemory (like MS
+	GDI+) when the file isn't found.
+	* image.c: Change GdipCreateBitmapFromFile[ICM] to still return (see
+	previous fix) InvalidParameter if the file isn't found (again to match
+	MS GDI+). Not sure why FileNotFound was defined as an error code :-|
+
 2007-01-19  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: Remove extern declaration for gdip_get_cairo_filter

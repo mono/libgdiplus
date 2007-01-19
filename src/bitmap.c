@@ -764,13 +764,17 @@ gdip_bitmap_dispose (GpBitmap *bitmap)
 GpStatus
 GdipCreateBitmapFromFile (GDIPCONST WCHAR* filename, GpBitmap **bitmap)
 {
-	return GdipLoadImageFromFile (filename, (GpImage **) bitmap);
+	GpStatus status = GdipLoadImageFromFile (filename, (GpImage **) bitmap);
+	if (status == OutOfMemory)
+		status = InvalidParameter;
+	return status;
 }
 
 /* coverity[+alloc : arg-*1] */
 GpStatus 
 GdipCreateBitmapFromFileICM (GDIPCONST WCHAR* filename, GpBitmap **bitmap)
 {
+	/* ICM isn't supported */
 	return GdipCreateBitmapFromFile (filename, bitmap);
 }
 

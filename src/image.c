@@ -112,7 +112,7 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 	case Format32bppRgb:
 		break;
 	default:
-		return GenericError;
+		return OutOfMemory;
 	}
 
 	surface = cairo_image_surface_create_for_data ((unsigned char *) image->active_bitmap->scan0, image->cairo_format,
@@ -647,7 +647,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	fp = fopen(file_name, "rb");
 	if (fp == NULL) {
 		GdipFree (file_name);
-		return InvalidParameter;
+		return OutOfMemory;
 	}
 	
 	format_peek_sz = fread (format_peek, 1, 10, fp);
