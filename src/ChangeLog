@@ -1,3 +1,11 @@
+2007-01-19  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Remove extern declaration for gdip_get_cairo_filter
+	* image.c: Fix #77181 by using the pattern (not the surface) to get
+	the interpolation modes to work. Of course the modes are limited by 
+	what's available in cairo/pixman (i.e. two modes).
+	* general.h: Add prototype for gdip_get_cairo_filter.
+
 2007-01-18  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bitmap.c: Handle the case where we're asked to create 15/16 bpp 

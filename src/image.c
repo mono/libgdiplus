@@ -36,7 +36,6 @@
 
 static GpStatus gdip_flip_x (GpImage *image);
 static GpStatus gdip_flip_y (GpImage *image);
-cairo_filter_t gdip_get_cairo_filter (InterpolationMode imode);
 
 /*
  * format guids
@@ -243,7 +242,7 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	org_pattern = cairo_get_source(graphics->ct);
 	cairo_pattern_reference(org_pattern);
 
-	cairo_set_source_surface (graphics->ct, image->surface, 0, 0);
+	cairo_set_source (graphics->ct, pattern);
 	cairo_identity_matrix (graphics->ct);
 	cairo_paint (graphics->ct);
 	cairo_set_source(graphics->ct, org_pattern);	
