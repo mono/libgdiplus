@@ -1,0 +1,103 @@
+Region implementations in libgdiplus
+Last update: 2006-03-23
+
+* Introduction
+
+First you should notice "implementations" in the title. Yes there is more 
+than one implementation to handle region code.
+
+
+* Rectangular based regions
+
+The first implementation (i.e. the only one available before 1.1.14) is 
+based on rectangles. A region is simply a list of rectangles and all 
+binary operations (union, intersection, complement, exclude and xor) are 
+done mathematically (i.e. they results in a new list of rectangles).
+
+This approach is simple, efficient and allow to implement some other GDI+
+API very easily (e.g. GdipGetRegionData, GdipGetRegionDataSize, 
+GdipGetRegionScans).
+
+However it is limited to rectangles (i.e. no polygons, beziers ...) and 
+makes it impossible to implement some other GDI+ API, like 
+GdipTransformRegion where the rectangles would be transformed into paths.
+Software depending on these features simply can't work.
+
+All the code for this implementation resides inside the file 
+/libgdiplus/src/region.c
+
+
+* Bitmap based regions
+
+This implementation use 1bbp (1 bit per pixel) bitmaps to represent the 
+regions. This allows us to implement the binary operators on memory 
+buffers, not on coordinates (see /libgdiplus/src/region-bitmap.c). At 
+display time (GdipFillRegion) the bitmap is used as the alpha channel and
+we simply draw a rectangle using the selected brush.
+
+This approach is simple, compared to a pure mathematical implementation,
+but not as efficient and somewhat less precise (float to int 
+conversions). This is why the bitmap implementation co-exists with the 
+rectangular based region code. Simple regions get treated simply ;-)
+
+To minimize the inconveniences the bitmaps are created only on demand 
+(e.g. when an API requires them) and we try, as much as possible, to 
+avoid this code path (e.g. using the rectangle code where possible, check
+for special cases, like an union with infinity...).
+
+Sadly having bitmaps isn't quite enough. We still have to be able to 
+apply transforms (i.e. GdipTransformRegion) and be able to [de]serialize 
+the region (GdipGetRegionData). While both operations _could_ be done 
+with bitmaps the results wouldn't be very precise (transform) nor small 
+(serialization). This is why the region keeps a tree of all the paths and
+operations required to re-construct itself (see 
+/libgdiplus/src/region-path-tree.c).
+
+The code for this implementation resides in the files:
+
+/libgdiplus/src/region.c|h
+	The GDI+ API for regions. The API will switch to the rectangle or
+	bitmap code based on the regions type. If required a rectangle-
+	based region will be "promoted" to a bitmap region.
+        
+/libgdiplus/src/region-bitmap.c|h
+	Handle the bitmap allocation, creation (from path), the binary 
+	operations, ...
+        
+/libgdiplus/src/region-path-tree.c|h
+	Handle the tree of path and (binary) operations required to 
+	re-construct the region if required (e.g. transform and 
+	serialization).
+        
+There are currently two main limitations to this approach:
+
+1. Memory. It's simply impossible to allocate enough memory for an 
+   "infinite" region. There is a maximum of 2 megabytes allocated for a
+   region bitmap (see region-bitmap.h). This is enough (1bbp) for 
+   regions to cover a full screen resolution.
+        
+2. Clipping. Graphics.Clip can't use the bitmap (at least not without 
+   major changes). This means that clipping _will_work_ for any region
+   (not just rectangles) until a binary operation is done on it. So far
+   I've not seen any code trying that...
+        
+
+* Future?
+
+A pure, totally mathematical, implementation would be a nice addition to
+libgdiplus. It could, once debugged, replace both the rectangular and 
+bitmap implementations.
+
+The main advantages of this implementation would be:
+- reduced memory requirements (well most of the time);
+- (almost) unlimited size;
+- more precision (no float to int conversion);
+- no limits on clipping;
+
+So if it's the best solution why don't we have it yet ?
+
+Well it's really not an easy problem. Writing an effective intersector is
+a complex problem. You must deal with curves (well they could be cheated 
+into linear paths) and a _lot_ of corner cases (google for them). Most 
+existing (open source) implementation aren't satisfied with their results
+(e.g. libart, livarot). But don't let us discourage you from trying! ;-)

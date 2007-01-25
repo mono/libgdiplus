@@ -1,0 +1,154 @@
+This file contains a list of some things that have been suggested
+
+Changes that are expected to impact the public API
+==================================================
+
+ Patch submitted to mailing list?
+/ Documentation included in patch?
+|/ Review of patch completed?
+||/ Test case included?
+|||/ Committed.
+||||/
+Backwards compatible (API additions only)
+-----------------------------------------
+	Add CAIRO_FILL_RULE_INVERSE_WINDING and CAIRO_FILL_RULE_INVERSE_EVEN_ODD
+	Add support for programmatic patterns, (ie. arbitrary gradients)
+P	Add cairo_arc_to.
+	Add support for custom caps (see below for details)
+	Add CAIRO_STATUS_DESTROYED
+	Add cairo_finish
+	Add cairo_get_scaled_font
+
+Details on some of the above changes
+------------------------------------
+* support for custom caps:
+
+  It would be nice if the user had a mechanism to reliably draw custom
+  caps. One approach here would be to provide the coordinates of the
+  butt cap faces so that the user can append seamless caps to the
+  current path. We may also need to provide the coordinates of the
+  faces of every dash as well.
+
+Changes that do not affect the public API
+=========================================
+* Change stroke code to go through one giant polygon. This will fix
+  problems with stroking self-intersecting paths.
+
+* Fix the intersection problem, (see reference to Hobby's paper
+  mentioned in cairo_traps.c).
+
+* Should add geometry pruning as appropriate.
+
+* Fix/define tolerance for PS/PDF/SVG backends
+
+Other changes (this text used to be in RODMAP)
+==============================================
+ Fairly severe bugs
+     6806  cairo 1.0.4 crash progressbar in window
+     PDF: minefield shows too-tiny bitmapped fonts in image fallback
+     PDF: minefield shows strangely hinted glyph shapes (only without truetype subsetting)
+     PDF: minefield has broken selection (only with truetype subsetting code)
+     4630  Fonts too large when drawing to image surface while printing
+     4863  stroking problems with wide dashed lines
+     7497 _cairo_color_compute_shorts fails with FPU set to single ...
+
+ Fix all expected failures (XFAIL) in the test suite
+     a8-mask
+     extend-reflect
+     filter-nearest-offset
+     leaky-dash
+     self-intersecting
+     text-rotate
+
+ Fix disabled tests in the test suite
+     show-glyphs-many
+
+ Win32 backend
+    ✓1. Incorporate into test suite
+     2. Correct output for the entire suite
+	 a. self-copy
+	 b. trap-clip
+	 [There is some mailing-list discussion about possible fixes
+	 for these.]
+
+ New API
+     cairo_arc_to
+	see http://lists.freedesktop.org/archives/cairo/2005-August/004801.html
+	or see arc_to branch in bedhad's repository
+
+ PS/PDF improvements
+     1. Make image fallbacks finer-grained than a whole page
+     2. Ensure that PDF text output is "selectable"
+
+ Quartz backend (maintainer needed!)
+     1. Mark Quartz backend as supported:
+	 a. Incorporate into test suite
+	 b. Correct output for the entire suite
+
+ Misc
+     1. xlib backend requires xrender to compile, while it can perform without
+        xrender at run time.  Make it compile without it.
+
+Some known bugs (this text used to be in BUGS)
+==============================================
+XXX: Many of these bugs are likely no longer valid. We should
+invesitgate each and either move it up into TODO (above) or ROADMAP or
+else just delete it.
+
+--
+
+The caches need to be invalidated at font destruction time.
+
+--
+
+The polygon tessellation routine has problems. It appears that the
+following paper has the right answers:
+
+	http://cm.bell-labs.com/cm/cs/doc/93/2-27.ps.gz
+
+	[Hobby93c] John D. Hobby, Practical Segment Intersection with
+	Finite Precision Output, Computation Geometry Theory and
+	Applications, 13(4), 1999.
+
+Recent improvements to make the intersection code more robust (using
+128-bit arithmetic where needed), have exposed some of the weakness in
+the current tessellation implementation. So, for now, filling some
+polygons will cause "leaking" until we implement Hobby's algorithm.
+
+--
+
+Stroke extents might not work for degenerate cases, (e.g. single
+vertical or horizontal line).
+
+--
+
+Stroke width of 0 might do bad things.
+
+--
+
+Could there be a bug in PS backend exposed by?:
+
+cairo_save
+cairo_clip
+cairo_restore
+...
+
+This needs a new testcase.
+
+--
+
+This puts the cairo_t in an error state:
+cairo_scale (cr, 0, 0);
+
+--
+
+Text drawn with vertical metrics cannot currently use TrueType
+subsetting for PDF/PS output as the code doesn't write out the necessary
+VHEA or VMTX entries to the TrueType font objects. As a result, cairo uses
+Type3 fonts which generates slightly different outlines.
+
+--
+
+Text transformations is a mess in PS/PDF backends.  Many combinations of
+rotated/scaled ctm, rotated/scaled font_matrix, and subsetting code used
+(Type1/Type3/TrueType) are broken.

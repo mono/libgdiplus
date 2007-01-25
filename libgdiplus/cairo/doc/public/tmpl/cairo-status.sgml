@@ -1,0 +1,62 @@
+<!-- ##### SECTION Title ##### -->
+Error handling
+
+<!-- ##### SECTION Short_Description ##### -->
+Decoding cairo's status
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### ENUM cairo_status_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_STATUS_SUCCESS: 
+@CAIRO_STATUS_NO_MEMORY: 
+@CAIRO_STATUS_INVALID_RESTORE: 
+@CAIRO_STATUS_INVALID_POP_GROUP: 
+@CAIRO_STATUS_NO_CURRENT_POINT: 
+@CAIRO_STATUS_INVALID_MATRIX: 
+@CAIRO_STATUS_INVALID_STATUS: 
+@CAIRO_STATUS_NULL_POINTER: 
+@CAIRO_STATUS_INVALID_STRING: 
+@CAIRO_STATUS_INVALID_PATH_DATA: 
+@CAIRO_STATUS_READ_ERROR: 
+@CAIRO_STATUS_WRITE_ERROR: 
+@CAIRO_STATUS_SURFACE_FINISHED: 
+@CAIRO_STATUS_SURFACE_TYPE_MISMATCH: 
+@CAIRO_STATUS_PATTERN_TYPE_MISMATCH: 
+@CAIRO_STATUS_INVALID_CONTENT: 
+@CAIRO_STATUS_INVALID_FORMAT: 
+@CAIRO_STATUS_INVALID_VISUAL: 
+@CAIRO_STATUS_FILE_NOT_FOUND: 
+@CAIRO_STATUS_INVALID_DASH: 
+@CAIRO_STATUS_INVALID_DSC_COMMENT: 
+
+<!-- ##### FUNCTION cairo_status_to_string ##### -->
+<para>
+
+</para>
+
+@status: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_debug_reset_static_data ##### -->
+<para>
+
+</para>
+
+
+
