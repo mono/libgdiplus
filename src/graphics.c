@@ -2220,9 +2220,16 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 	/* Sanitize string, remove formatting chars and build description array */
 #ifdef DRAWSTRING_DEBUG
 	printf("GdipDrawString(...) Sanitizing string, StringLen=%d\n", StringLen);
-#endif	
-	
+#endif
+
 	Src=stringUnicode;
+
+	/* Handle trailing spaces like MS GDI+, see http://bugzilla.ximian.com/show_bug.cgi?id=80680 */
+	while ((StringLen > 0) && (isspace (*(Src + StringLen - 1))))
+		StringLen--;
+	if (StringLen == 0)
+		StringLen = 1;
+
 	Dest=CleanString;
 	CurrentDetail=StringDetails;
 	for (i=0; i<StringLen; i++) {

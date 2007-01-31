@@ -1,3 +1,8 @@
+2007-01-31  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Fix bug #80680 to make MeasureString handle trailing 
+	spaces like MS GDI+
+
 2007-01-19  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* bitmap.c: Fix GdipLoadImageFromFile to return OutOfMemory (like MS
