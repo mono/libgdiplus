@@ -1,3 +1,8 @@
+2007-02-01  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* pngcodec.c: Fix codec to return UnknownImageFormat and display a
+	warning when loading an image with more than 32bpp. #80693. 
+
 2007-01-31  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: Fix bug #80680 to make MeasureString handle trailing 

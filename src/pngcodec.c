@@ -229,6 +229,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	png_infop	end_info_ptr = NULL;
 	guchar		*rawdata = NULL;
 	GpImage		*result = NULL;
+	GpStatus	status = InvalidParameter;
 
 	png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
@@ -407,9 +408,17 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 
 		width = png_get_image_width (png_ptr, info_ptr);
 		height = png_get_image_height (png_ptr, info_ptr);
-		bit_depth = png_get_bit_depth (png_ptr, info_ptr);
-		color_type = png_get_color_type (png_ptr, info_ptr);
 		channels = png_get_channels (png_ptr, info_ptr);
+
+		/* 24 and 32bpp are supported, 48, 64bpp aren't, see http://bugzilla.ximian.com/show_bug.cgi?id=80693 */
+		bit_depth = png_get_bit_depth (png_ptr, info_ptr);
+		if (bit_depth > 8) {
+			g_warning ("PNG images with %dbpp aren't supported by libgdiplus.", channels * bit_depth);
+			status = UnknownImageFormat;
+			goto error;
+		}
+
+		color_type = png_get_color_type (png_ptr, info_ptr);
 		interlace = png_get_interlace_type (png_ptr, info_ptr);
 
 		/* According to the libpng manual, this sequence is equivalent to
@@ -538,7 +547,7 @@ error:
 	}
 
 	*image = NULL;
-	return InvalidParameter;
+	return status;
 }
 
 
