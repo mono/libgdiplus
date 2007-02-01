@@ -64,5 +64,6 @@ void gdip_cairo_curve_to (GpGraphics *graphics, double x1, double y1, double x2,
 
 /* other shared functions */
 cairo_filter_t gdip_get_cairo_filter (InterpolationMode imode);
+int iround (float d);
 
 #endif

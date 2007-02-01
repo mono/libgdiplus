@@ -1791,14 +1791,6 @@ GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, c
 	return Ok;
 }
 
-/* note: round[f] is C99 */
-static int
-iround (float d)
-{
-	double int_part = floor (d);
-	return ((d - int_part) >= 0.5) ? int_part + 1.0 : int_part;
-}
-
 /* adapted from http://www.visibone.com/inpoly/inpoly.c.txt */
 static BOOL
 gdip_point_in_polygon (GpPath *path, int start, int end, float x, float y)

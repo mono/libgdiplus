@@ -402,6 +402,14 @@ fcmp (double x1, double x2, double epsilon)
                 return 0;  /* x1 == x2 */
 }
 
+/* note: round[f] is C99 */
+int
+iround (float d)
+{
+	double int_part = floor (d);
+	return ((d - int_part) >= 0.5) ? int_part + 1.0 : int_part;
+}
+
 /* This function is used by gradient brushes for calculating the erf required for 
  * calculating the integral of the normal distribution equation.
  */

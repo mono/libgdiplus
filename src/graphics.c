@@ -781,6 +781,39 @@ GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
         return Ok;
 }
 
+static GpStatus
+apply_world_to_bounds (GpGraphics *graphics)
+{
+	GpStatus status;
+	GpPointF pts[2];
+
+	gdip_set_cairo_clipping (graphics);
+
+	pts[0].X = graphics->bounds.X;
+	pts[0].Y = graphics->bounds.Y;
+	pts[1].X = graphics->bounds.X + graphics->bounds.Width;
+	pts[1].Y = graphics->bounds.Y + graphics->bounds.Height;
+	status = GdipTransformMatrixPoints (graphics->clip_matrix, (GpPointF*)&pts, 2);
+	if (status != Ok)
+		return status;
+
+	if (pts[0].X > pts[1].X) {
+		graphics->bounds.X = pts[1].X;
+		graphics->bounds.Width = iround (pts[0].X - pts[1].X);
+	} else {
+		graphics->bounds.X = pts[0].X;
+		graphics->bounds.Width = iround (pts[1].X - pts[0].X);
+	}
+	if (pts[0].Y > pts[1].Y) {
+		graphics->bounds.Y = pts[1].Y;
+		graphics->bounds.Height = iround (pts[0].Y - pts[1].Y);
+	} else {
+		graphics->bounds.Y = pts[0].Y;
+		graphics->bounds.Height = iround (pts[1].Y - pts[0].Y);
+	}
+	return Ok;
+}
+
 GpStatus
 GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrder order)
 {
@@ -811,7 +844,7 @@ GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrde
 
 	s = GdipMultiplyMatrix (graphics->clip_matrix, &inverted, order);
 	if (s == Ok)
-		gdip_set_cairo_clipping (graphics);
+		s = apply_world_to_bounds (graphics);
 	return s;
 }
 
@@ -831,7 +864,7 @@ GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 	s = GdipRotateMatrix (graphics->clip_matrix, -angle, gdip_matrix_reverse_order (order));
 	if (s == Ok)
-		gdip_set_cairo_clipping (graphics);
+		s = apply_world_to_bounds (graphics);
 	return s;
 }
 
@@ -853,7 +886,7 @@ GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder
 
 	s = GdipScaleMatrix (graphics->clip_matrix, (1.0f / sx), (1.0f / sy), gdip_matrix_reverse_order (order));
 	if (s == Ok)
-		gdip_set_cairo_clipping (graphics);
+		s = apply_world_to_bounds (graphics);
 	return s;
 }
 
@@ -874,7 +907,7 @@ GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixO
 
 	s = GdipTranslateMatrix (graphics->clip_matrix, -dx, -dy, gdip_matrix_reverse_order (order));
 	if (s == Ok)
-		gdip_set_cairo_clipping (graphics);
+		s = apply_world_to_bounds (graphics);
 	return s;
 }
 
@@ -3796,24 +3829,41 @@ GdipGetVisibleClipBounds (GpGraphics *graphics, GpRectF *rect)
 {
 	if (!graphics || !rect)
 		return InvalidParameter;
-		
-	rect->X = graphics->bounds.X;
-	rect->Y = graphics->bounds.Y;
-	rect->Width = graphics->bounds.Width;
-	rect->Height = graphics->bounds.Height;
-	
+
+	if (!gdip_is_InfiniteRegion (graphics->clip)) {
+		GpRectF clipbound;
+		GpStatus status = GdipGetClipBounds (graphics, &clipbound);
+		if (status != Ok)
+			return status;
+
+		/* intersect clipping with bounds (for clips bigger than the graphics) */
+		rect->X = (clipbound.X > graphics->bounds.X) ? clipbound.X : graphics->bounds.X;
+		rect->Y = (clipbound.Y > graphics->bounds.Y) ? clipbound.Y : graphics->bounds.Y;
+		rect->Width = (((clipbound.X + clipbound.Width) < (graphics->bounds.X + graphics->bounds.Width)) ? 
+			(clipbound.X + clipbound.Width) : (graphics->bounds.X + graphics->bounds.Width)) - rect->X;
+		rect->Height = (((clipbound.Y + clipbound.Height) < (graphics->bounds.Y + graphics->bounds.Height)) ? 
+			(clipbound.Y + clipbound.Height) : (graphics->bounds.Y + graphics->bounds.Height)) - rect->Y;
+	} else {
+		rect->X = graphics->bounds.X;
+		rect->Y = graphics->bounds.Y;
+		rect->Width = graphics->bounds.Width;
+		rect->Height = graphics->bounds.Height;
+	}
 	return Ok;
 }
 
 GpStatus
 GdipGetVisibleClipBoundsI (GpGraphics *graphics, GpRect *rect)
-{	
+{
+	GpStatus status;
 	GpRectF rectF;
 	
 	if (!graphics || !rect)
 		return InvalidParameter;
 	
-	GdipGetVisibleClipBounds (graphics, &rectF);
+	status = GdipGetVisibleClipBounds (graphics, &rectF);
+	if (status != Ok)
+		return status;
 	
 	rect->X = rectF.X;
 	rect->Y = rectF.Y;

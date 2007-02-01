@@ -109,9 +109,9 @@ rect_intersect (GpRegionBitmap *bitmap1, GpRegionBitmap *bitmap2, GpRect *rect)
 {
 	rect->X = (bitmap1->X > bitmap2->X) ? bitmap1->X : bitmap2->X;
 	rect->Y = (bitmap1->Y > bitmap2->Y) ? bitmap1->Y : bitmap2->Y;
-	rect->Width = (((bitmap1->X + bitmap1->Width) < (bitmap2->X - bitmap2->Width)) ? 
+	rect->Width = (((bitmap1->X + bitmap1->Width) < (bitmap2->X + bitmap2->Width)) ? 
 		(bitmap1->X + bitmap1->Width) : (bitmap2->X + bitmap2->Width)) - rect->X;
-	rect->Height = (((bitmap1->Y + bitmap1->Height) < (bitmap2->Y - bitmap2->Height)) ? 
+	rect->Height = (((bitmap1->Y + bitmap1->Height) < (bitmap2->Y + bitmap2->Height)) ? 
 		(bitmap1->Y + bitmap1->Height) : (bitmap2->Y + bitmap2->Height)) - rect->Y;
 }
 
