@@ -71,6 +71,18 @@ Notes
 [3] Function exists (return Ok) but only display a warning on the console
 [4] Partially implemented. GpGraphics is ignored.
 
+---- Cairo limitations
+
+* Maximum of 32bpp
+
+	GDI+ supports bitmaps with more than 32bpp.
+	http://bugzilla.ximian.com/show_bug.cgi?id=80693
+
+* Coordinates limitations
+
+	GDI+ supports 32bips of precision (Cairo is limited to 15bits)
+	http://bugzilla.ximian.com/show_bug.cgi?id=79729
+
 ---- Issues
 
 * All the functions that create Cairo resources have to be review to make
