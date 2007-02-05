@@ -46,6 +46,8 @@
 #ifndef _CAIROINT_H_
 #define _CAIROINT_H_
 
+#include "../../src/cairo-embed.h"
+
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif

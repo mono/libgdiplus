@@ -38,6 +38,8 @@
 #ifndef CAIRO_H
 #define CAIRO_H
 
+#include "../../src/cairo-embed.h"
+
 #include <cairo-features.h>
 
 CAIRO_BEGIN_DECLS
