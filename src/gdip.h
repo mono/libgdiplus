@@ -10,8 +10,9 @@
  *	Vladimir Vukicevic (vladimir@pobox.com)
  *	Geoff Norton (gnorton@customerdna.com)
  *      Jonathan Gilbert (logic@deltaq.org)
+ *	Sebastien Pouliot  <sebastien@ximian.com>
  *
- * Copyright (C) 2003-2006 Novell, Inc (http://www.novell.com)
+ * Copyright (C) 2003-2007 Novell, Inc (http://www.novell.com)
  */
 
 #ifndef _GDIP_H
@@ -27,19 +28,27 @@
 #include "pixman.h"
 
 #ifdef USE_INCLUDED_CAIRO
-#include <cairo.h>
-#else
-#include <cairo/cairo.h>
-#endif
-#include <X11/Xlib.h>
+	#include "cairo-embed.h"
+	#include "cairo.h"
 
-#ifdef CAIRO_HAS_FT_FONT
-#ifdef USE_INCLUDED_CAIRO
-#include <cairo-ft.h>
+	#ifdef CAIRO_HAS_FT_FONT
+		#include "cairo-ft.h"
+	#endif
+
+	#ifdef CAIRO_HAS_XLIB_SURFACE
+		#include "cairo-xlib.h"
+	#endif
 #else
-#include <cairo/cairo-ft.h>
+	#include <cairo/cairo.h>
+	#ifdef CAIRO_HAS_FT_FONT
+		#include <cairo/cairo-ft.h>
+	#endif
+	#ifdef CAIRO_HAS_XLIB_SURFACE
+		#include <cairo/cairo-xlib.h>
+	#endif
 #endif
-#endif
+
+#include <X11/Xlib.h>
 
 #define gdip_cairo_matrix_copy(m1, m2) memcpy (m1, m2, sizeof (cairo_matrix_t))
 
@@ -65,13 +74,6 @@
 		b = (color & 0x000000ff); \
 	} while(0)
 
-#ifdef CAIRO_HAS_XLIB_SURFACE
-#ifdef USE_INCLUDED_CAIRO
-#include <cairo-xlib.h>
-#else
-#include <cairo/cairo-xlib.h>
-#endif
-#endif
 
 /* mono/io-layer/uglify.h also has these typedefs.
  * To avoid a dependency on mono we have copied all
@@ -118,9 +120,6 @@ typedef gpointer HRGN;
 #define DOUBLE_TO_16_16(d) ((FT_Fixed)((d) * 65536.0))
 #define DOUBLE_FROM_16_16(t) ((double)(t) / 65536.0)
 
-struct cairo_matrix {
-	double m[3][2];
-};
 /*
  * Callbacks
  */

@@ -1,3 +1,11 @@
+2007-02-05  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* cairo-embed.h: Redefine used cairo symbols to avoid coexistance
+	problems with Gtk+ 2.8 (and later). Fix bug #
+	* gdip.h: Rework includes, remove unused cairo_matrix typedef.
+	* general.c: Remove cairo.h from includes.
+	* Makefile.am: Add cairo-embed.h to the build.
+
 2007-02-01  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* general.c|h: Add iround (from graphics-path.c);

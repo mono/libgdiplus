@@ -6,6 +6,7 @@ libgdiplus_la_SOURCES = \
 	bitmap.c	\
 	brush.c		\
 	brush.h		\
+	cairo-embed.h	\
 	customlinecap.c	\
 	customlinecap.h	\
 	emfcodec.c	\

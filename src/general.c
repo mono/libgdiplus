@@ -26,7 +26,6 @@
  */
 
 #include "general.h"
-#include <cairo.h>
 #include <math.h>
 
 /* #define DEBUG_MEMLEAKS	1 */
