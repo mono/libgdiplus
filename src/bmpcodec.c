@@ -741,7 +741,7 @@ gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, bool useFile, 
 	bmi->biCompression = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 		
 	if (bmi->biHeight < 0) { /* Negative height indicates that the bitmap is sideup*/
-		upsidedown = FALSE;
+		*upsidedown = FALSE;
 		bmi->biHeight = -bmi->biHeight;
 	}
 

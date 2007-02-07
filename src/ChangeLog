@@ -1,3 +1,8 @@
+2007-02-07  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bmpcodec.c: Fix #80751 for that aren't reversed (bug introduced
+	when refactoring for icon support).
+
 2007-02-05  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* cairo-embed.h: Redefine used cairo symbols to avoid coexistance
