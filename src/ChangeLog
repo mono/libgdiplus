@@ -1,3 +1,11 @@
+2007-02-08  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* matrix.h: Add macros gdip_matrix_get_[x|y]_scale
+	* region.c: Fix matrix operations on infinite region (the result is
+	always an infinite region). Optimize the transform when the matrix is
+	only a scale (or a scale+translate) to avoid converting a rectangular
+	based region into a bitmap based region (fix #80758).
+
 2007-02-07  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bmpcodec.c: Fix #80751 for that aren't reversed (bug introduced

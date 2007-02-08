@@ -1523,6 +1523,12 @@ GdipTranslateRegion (GpRegion *region, float dx, float dy)
         if (!region)
                 return InvalidParameter;
 
+	/* can't transforman infinite region to anything else than an infinite region 
+	 * (even if you scale it by half it's still infinite ;-) see unit tests
+	 */
+	if (gdip_is_InfiniteRegion (region))
+		return Ok;
+
 	if (region->type == RegionTypePath) {
 		gdip_region_translate_tree (region->tree, dx, dy);
 		/* any existing bitmap is still valid _if_ we update it's origin */
@@ -1548,10 +1554,31 @@ GdipTranslateRegionI (GpRegion *region, int dx, int dy)
         return GdipTranslateRegion (region, dx, dy);
 }
 
+/* this call doesn't exists in GDI+ */
+static GpStatus
+ScaleRegion (GpRegion *region, float sx, float sy)
+{
+	if (!region)
+		return InvalidParameter;
+
+	if ((region->type == RegionTypeRectF) && region->rects) {
+	        int i;
+	        GpRectF *rect;
+                for (i = 0, rect = region->rects ; i < region->cnt; i++, rect++) {
+                        rect->X *= sx;
+                        rect->Y *= sy;
+                        rect->Width *= sx;
+                        rect->Height *= sy;
+                }
+        }
+
+        return Ok;
+}
+
 GpStatus
 GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 {
-	GpStatus status;
+	GpStatus status = Ok;
 
 	if (!region || !matrix)
 		return InvalidParameter;
@@ -1564,12 +1591,35 @@ GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 	if (gdip_is_matrix_empty (matrix))
 		return Ok;
 
-	/* avoid heavy stuff (e.g. conversion to path, invalidating bitmap...)
-	   if the transform is only to do a simple translation */
-	if (gdip_is_matrix_a_translation (matrix)) {
-		return GdipTranslateRegion (region, 
-			gdip_matrix_get_x_translation (matrix), 
-			gdip_matrix_get_y_translation (matrix));
+	/* can't transforman infinite region to anything else than an infinite region 
+	 * (even if you scale it by half it's still infinite ;-) see unit tests
+	 */
+	if (gdip_is_InfiniteRegion (region))
+		return Ok;
+
+	/* try to avoid heavy stuff (e.g. conversion to path, invalidating 
+	 * bitmap...) if the transform is:
+	 * - a translation + scale operations (for rectangle ebased region)
+	 * - only to do a scale operation (for a rectangle based region)
+	 * - only to do a simple translation (for both rectangular and bitmap based regions)
+	 */
+	if ((matrix->xy == 0.0f) && (matrix->yx == 0.0f)) {
+		BOOL s = (((matrix->xx != 1.0f) || (matrix->yy != 1.0f)) && (region->type == RegionTypeRectF));
+		BOOL t = ((matrix->x0 != 0.0f) || (matrix->yx != 0.0f));
+		if (s) {
+			status = ScaleRegion (region, 
+				gdip_matrix_get_x_scale (matrix), 
+				gdip_matrix_get_y_scale (matrix));
+		}
+		if (t && (status == Ok)) {
+			status = GdipTranslateRegion (region, 
+				gdip_matrix_get_x_translation (matrix), 
+				gdip_matrix_get_y_translation (matrix));
+		}
+
+		/* return now if we could optimize the transform (to avoid bitmaps) */
+		if (t || s)
+			return status;
 	}
 
 	/* most matrix operations would change the rectangles into path so we always preempt this */
