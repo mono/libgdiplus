@@ -106,6 +106,10 @@ gdip_get_bmp_pixelformat (BITMAPINFOHEADER *bih, PixelFormat *dest)
 	        case 24:
 	                *dest = Format24bppRgb;
 			break;
+	        case 16:
+			/* MS produce such files (i.e. bad header) for storing ImageList bitmaps, see bug #80797 */
+	                *dest = Format16bppRgb565;
+			break;
 	        case 8:
 	                *dest = Format8bppIndexed;
 			break;
@@ -874,10 +878,11 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 			/* five red bits, six green bits and five blue bits (0xFFFF) */
 			red_shift = 11;
 		} else {
-			g_warning ("Unsupported 16bbp format with masks A %d, R: %d, G %d, B %d", 
-				alpha_mask, red_mask, green_mask, blue_mask);
-			status = InvalidParameter;
-			goto error;
+			/* MS produce such files (i.e. missing masks) for storing ImageList bitmaps, see bug #80797 */
+			red_mask = 0x7C00;
+			green_mask = 0x3E0;
+			blue_mask = 0x1F;
+			red_shift = 10;
 		}
 
 		/* note: CAIRO_FORMAT_RGB16_565 is deprecated so we're promoting the bitmap to 32RGB */
@@ -1022,8 +1027,15 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 			size_read = gdip_read_bmp_data (pointer, data_read, size, useFile);
 
 			if (size_read < size) {
-				status = InvalidParameter;
-				goto error;
+				/* special case for missing data in the last line */
+				if (line == result->active_bitmap->height - 1) {
+					/* MS produce such files for storing ImageList bitmaps, see bug #80797 */
+					int missing_size = size - size_read;
+					memset (data_read + size_read, 0, missing_size);
+				} else {
+					status = InvalidParameter;
+					goto error;
+				}
 			}
 
 			switch(bmi.biBitCount) {
