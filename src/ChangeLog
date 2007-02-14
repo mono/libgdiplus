@@ -1,3 +1,9 @@
+2007-02-14  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Fix default palettes values (8bpp), flags and encoding
+	(RGB versus BGRA).
+	* gdip.h: Add color palette flags required to fix palettes.
+
 2007-02-13  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bmpcodec.c: MS generates what looks like invalid (or undocumented) 

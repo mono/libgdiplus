@@ -142,6 +142,11 @@ typedef ImageAbort GetThumbnailImageAbort;
 #define CAIRO_AA_OFFSET_X	1
 #define CAIRO_AA_OFFSET_Y	0.5
 
+#define COLOR_PALETTE_FLAGS_DEFAULT	0
+#define COLOR_PALETTE_FLAGS_HAS_ALPHA	1
+#define COLOR_PALETTE_FLAGS_GREYSCALE	2
+#define COLOR_PALETTE_FLAGS_HALFTONE	4
+
 typedef unsigned char byte;
 typedef int bool;
 typedef guint16 WCHAR; /* 16-bits unicode */
