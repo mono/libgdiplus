@@ -1,3 +1,9 @@
+2007-02-15  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c, graphics-path.c, region-bitmap.c, tiffcodec.c: Patch
+	from Dmitriy Lukinov to fix compilation when using gcc 2.95 (and
+	other old C compilers). #80844
+
 2007-02-14  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bitmap.c: Fix default palettes values (8bpp), flags and encoding

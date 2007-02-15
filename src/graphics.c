@@ -277,6 +277,10 @@ static void
 make_arc (GpGraphics *graphics, bool start, float x, float y, float width,
 	  float height, float startAngle, float endAngle, BOOL antialiasing)
 {       
+	float delta, bcp;
+	double sin_alpha, sin_beta, cos_alpha, cos_beta;
+	double sx, sy;
+
         float rx = width / 2;
         float ry = height / 2;
         
@@ -299,17 +303,17 @@ make_arc (GpGraphics *graphics, bool start, float x, float y, float width,
 			alpha -= 2 * PI;
 	}
 	
-        float delta = beta - alpha;
-        float bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta /2);
+	delta = beta - alpha;
+	bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta /2);
 
-        double sin_alpha = sin (alpha);
-        double sin_beta = sin (beta);
-        double cos_alpha = cos (alpha);
-        double cos_beta = cos (beta);
+	sin_alpha = sin (alpha);
+	sin_beta = sin (beta);
+	cos_alpha = cos (alpha);
+	cos_beta = cos (beta);
 
         /* starting point */
-        double sx = cx + rx * cos_alpha;
-        double sy = cy + ry * sin_alpha;
+	sx = cx + rx * cos_alpha;
+	sy = cy + ry * sin_alpha;
 	
         /* don't move to starting point if we're continuing an existing curve */
         if (start)
@@ -352,11 +356,11 @@ make_arcs (GpGraphics *graphics, float x, float y, float width, float height, fl
 	/* there can be no more then 4 subarcs, ie. 90 + 90 + 90 + (something less than 90) */
 	for (i = 0; i < 4; i++) {
 		float current = startAngle + drawn;
+		float additional;
 
 		if (enough)
 			return;
 		
-		float additional;
 		if (fabs (current + increment) < fabs (endAngle))
 			additional = increment; /* add the default increment */
 		else {

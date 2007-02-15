@@ -638,6 +638,10 @@ GdipAddPathLine2 (GpPath *path, const GpPointF *points, int count)
 static void
 append_arc (GpPath *path, bool start, float x, float y, float width, float height, float startAngle, float endAngle)
 {
+	float delta, bcp;
+	double sin_alpha, sin_beta, cos_alpha, cos_beta;
+	double sx, sy;
+
         float rx = width / 2;
         float ry = height / 2;
         
@@ -660,17 +664,17 @@ append_arc (GpPath *path, bool start, float x, float y, float width, float heigh
 			alpha -= 2 * PI;
 	}
 
-	float delta = beta - alpha;
-        float bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta / 2);
+	delta = beta - alpha;
+	bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta / 2);
 
-        double sin_alpha = sin (alpha);
-        double sin_beta = sin (beta);
-        double cos_alpha = cos (alpha);
-        double cos_beta = cos (beta);
+	sin_alpha = sin (alpha);
+	sin_beta = sin (beta);
+	cos_alpha = cos (alpha);
+	cos_beta = cos (beta);
 
         /* starting point */
-        double sx = cx + rx * cos_alpha;
-        double sy = cy + ry * sin_alpha;
+	sx = cx + rx * cos_alpha;
+	sy = cy + ry * sin_alpha;
 	
         /* move to the starting point if we're not continuing a curve */
         if (start)
@@ -703,11 +707,11 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 	/* there can be no more then 4 subarcs, ie. 90 + 90 + 90 + (something less than 90) */
 	for (i = 0; i < 4; i++) {
 		float current = startAngle + drawn;
+		float additional;
 
 		if (enough)
 			return;
 		
-		float additional;
 		if (fabs (current + increment) < fabs (endAngle))
 			additional = increment;  /* add the default increment */
 		else {
@@ -937,6 +941,8 @@ GdipAddPathEllipse (GpPath *path, float x, float y, float width, float height)
 GpStatus
 GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float startAngle, float sweepAngle)
 {
+	float sin_alpha, cos_alpha;
+
         float rx = width / 2;
         float ry = height / 2;
 
@@ -950,8 +956,8 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
         /* adjust angle for ellipses */
         alpha = atan2 (rx * sin (alpha), ry * cos (alpha));
 
-        float sin_alpha = sin (alpha);
-        float cos_alpha = cos (alpha);
+	sin_alpha = sin (alpha);
+	cos_alpha = cos (alpha);
 
 	if (!path)
 		return InvalidParameter;
@@ -1051,6 +1057,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	cairo_matrix_t matrix;
 	GpFont *font = NULL;
 	GpStatus status;
+	unsigned char *utf8 = NULL;
 
 	if (length == 0)
 		return Ok;
@@ -1070,7 +1077,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 		return OutOfMemory;
 	}
 
-	unsigned char *utf8 = (unsigned char *) ucs2_to_utf8 ((const gunichar2 *)string, -1);
+	utf8 = (unsigned char *) ucs2_to_utf8 ((const gunichar2 *)string, -1);
 	if (!utf8) {
 		cairo_destroy (cr);
 		cairo_surface_destroy (cs);

@@ -108,9 +108,10 @@ gdip_tiff_fileclose (thandle_t clientData)
 toff_t 
 gdip_tiff_filesize (thandle_t clientData)
 {
+	long ret;
 	long cur_pos = ftell ((FILE*)clientData);
 	fseek ((FILE*)clientData, 0, SEEK_END);
-	long ret = ftell ((FILE*)clientData);
+	ret = ftell ((FILE*)clientData);
 	fseek ((FILE*)clientData, cur_pos, SEEK_SET);
 	return (toff_t)ret;
 }

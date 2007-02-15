@@ -504,6 +504,8 @@ gdip_region_bitmap_from_path (GpPath *path)
         int i, idx, stride;
 	int length = path->count;
 	unsigned long size;
+	cairo_surface_t *surface = NULL;
+	cairo_t *cr = NULL;
 
 	/* empty path == empty bitmap */
 	if (length == 0)
@@ -535,9 +537,9 @@ gdip_region_bitmap_from_path (GpPath *path)
 		return NULL;
 	memset (buffer, 0, size);
 
-	cairo_surface_t *surface = cairo_image_surface_create_for_data (buffer, 
+	surface = cairo_image_surface_create_for_data (buffer, 
 		CAIRO_FORMAT_ARGB32, bounds.Width, bounds.Height, stride);
-	cairo_t *cr = cairo_create (surface);
+	cr = cairo_create (surface);
 
 	idx = 0;
 	for (i = 0; i < length; ++i) {
@@ -706,18 +708,26 @@ gdip_region_bitmap_shrink (GpRegionBitmap *bitmap, BOOL always_shrink)
 	if ((always_shrink && can_be_reduced) || is_worth_shrinking (original_size, new_size)) {
 		/* reallocate a new bitmap buffer */
 		unsigned char *new_mask = alloc_bitmap_memory (new_size, FALSE);
+		int new_width, new_height;
+		int x, y;
+
+		int old_width_byte, new_width_byte;
+
+		unsigned char* newline = NULL;
+		unsigned char* oldline = NULL;
+
+
 		if (!new_mask)
 			return;
 
-		int new_width = rect.Width;
-		int new_height = rect.Height;
-		int x, y;
+		new_width = rect.Width;
+		new_height = rect.Height;
 
-		int old_width_byte = bitmap->Width >> 3;
-		int new_width_byte = new_width >> 3;
+		old_width_byte = bitmap->Width >> 3;
+		new_width_byte = new_width >> 3;
 
-		unsigned char* newline = new_mask;
-		unsigned char* oldline = bitmap->Mask + ((rect.Y - bitmap->Y) * old_width_byte) + ((rect.X - bitmap->X) >> 3);
+		newline = new_mask;
+		oldline = bitmap->Mask + ((rect.Y - bitmap->Y) * old_width_byte) + ((rect.X - bitmap->X) >> 3);
 		/* copy the interesting portion in the new bitmap */
 		for (y = 0; y < new_height; y++) {
 			memcpy (newline, oldline, new_width_byte);
