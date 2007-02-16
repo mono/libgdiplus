@@ -59,6 +59,8 @@ static const WCHAR tiff_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' '
 static const WCHAR tiff_extension[] = {'*', '.', 'T', 'I', 'F',';', '*', '.', 'T', 'I', 'F','F', 0}; /* *.TIF;*.TIFF */
 static const WCHAR tiff_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 't', 'i', 'f', 'f', 0}; /* image/gif */
 static const WCHAR tiff_format[] = {'T', 'I', 'F', 'F', 0}; /* TIFF */
+static const BYTE tiff_sig_pattern[] = { 0x49, 0x49, 0x4D, 0x4D };
+static const BYTE tiff_sig_mask[] = { 0xFF, 0xFF, 0xFF, 0xFF };
 
 /*Wrapper functions and client data strucutre for delegate functions from StreamHelper class of 
 System.Drawing Namespace*/
@@ -188,10 +190,10 @@ gdip_getcodecinfo_tiff ()
 	tiff_codec.MimeType = (const WCHAR*) tiff_mimetype;
 	tiff_codec.Flags = Encoder | Decoder | SupportBitmap | Builtin;
 	tiff_codec.Version = 1;
-	tiff_codec.SigCount = 0;
-	tiff_codec.SigSize = 0;
-	tiff_codec.SigPattern = 0;
-	tiff_codec.SigMask = 0;
+	tiff_codec.SigCount = 2;
+	tiff_codec.SigSize = 2;
+	tiff_codec.SigPattern = tiff_sig_pattern;
+	tiff_codec.SigMask = tiff_sig_mask;
 
 	/* Mute the lib */
 	TIFFSetErrorHandler(NULL);

@@ -2,6 +2,7 @@
  * bitmap.c
  * 
  * Copyright (c) 2003 Alexandre Pigolkine
+ * Copyright (C) 2007 Novell, Inc (http://www.novell.com)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -23,6 +24,7 @@
  *   Vladimir Vukicevic (vladimir@pobox.com)
  *   Jordi Mas (jordi@ximian.com)
  *   Jonathan Gilbert (logic@deltaq.org)
+ *   Sebastien Pouliot  <sebastien@ximian.com>
  */
 
 #include <glib.h>
@@ -731,32 +733,26 @@ gdip_bitmap_new_with_frame(const GUID *dimension, bool add_bitmapdata)
 	return result;
 }
 
-void 
+GpStatus
 gdip_bitmap_dispose (GpBitmap *bitmap)
 {
-	int frame;
-	int image;
-
 	/* Might be called with partially filled bitmaps, so check values to be freed instead of assuming */
+	if (!bitmap)
+		return Ok;
 
-	if (bitmap == NULL) {
-		return;
-	}
-
-	if (bitmap->frames != NULL) {
+	if (bitmap->frames) {
+		int frame;
 		for (frame = 0; frame < bitmap->num_of_frames; frame++) {
-			gdip_bitmapdata_dispose(bitmap->frames[frame].bitmap, bitmap->frames[frame].count);
+			gdip_bitmapdata_dispose (bitmap->frames[frame].bitmap, bitmap->frames[frame].count);
 		}
-		GdipFree(bitmap->frames);
+		GdipFree (bitmap->frames);
 	}
 
-	if (bitmap->surface != NULL) {
-		cairo_surface_destroy(bitmap->surface);
-	}
+	if (bitmap->surface)
+		cairo_surface_destroy (bitmap->surface);
 
-	if (bitmap != NULL) {
-		GdipFree(bitmap);
-	}
+	GdipFree (bitmap);
+	return Ok;
 }
 
 /* coverity[+alloc : arg-*1] */

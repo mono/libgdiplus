@@ -1015,7 +1015,7 @@ GpBitmap	*gdip_bitmap_new(void);
 GpBitmap	*gdip_bitmap_new_with_frame(const GUID *dimension, bool add_bitmapdata);
 FrameData	*gdip_frame_add(GpBitmap *bitmap, const GUID *dimension);
 BitmapData	*gdip_frame_add_bitmapdata(FrameData *frame);
-void		gdip_bitmap_dispose (GpBitmap *bitmap);
+GpStatus	gdip_bitmap_dispose (GpBitmap *bitmap);
 GpStatus	gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap);
 GpStatus	gdip_bitmap_setactive(GpBitmap *bitmap, const GUID *dimension, int index);
 GpStatus	gdip_bitmapdata_clone(BitmapData *src, BitmapData **dest, int count);

@@ -1,3 +1,14 @@
+2007-02-16  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Refactor to match upcoming metafile definitions.
+	* gdip.h: Update gdip_bitmap_dispose definition to return GpStatus.
+	* gdipImage.h: Remove get_image_format definition, it's now static.
+	* image.c: Rewrite get_image_format to use the codec info (and remove
+	"uneasy" FIXME). Remove unused gdip_image_clone function. Refactor 
+	Dispose and Clone functions for upcoming metafile support. Fix GUID to
+	ImageFormat for icons.
+	* tiffcodec.c: Add missing signatures and mask to TIFF ImageCodecInfo.
+
 2007-02-15  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c, graphics-path.c, region-bitmap.c, tiffcodec.c: Patch

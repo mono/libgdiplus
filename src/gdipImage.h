@@ -384,8 +384,6 @@ GpStatus GdipSaveImageToDelegate_linux (GpImage *image,
 GpStatus GdipDisposeImage (GpImage *image);
 
 
-ImageFormat get_image_format (char *sig_read, size_t size_read);
-
 int gdip_getpixel_formatsize(PixelFormat pixfmt);
 int gdip_get_pixel_format_depth(PixelFormat pixfmt);
 int gdip_get_pixel_format_components(PixelFormat pixfmt);

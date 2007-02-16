@@ -3,6 +3,7 @@
  * image.c
  * 
  * Copyright (c) 2003 Alexandre Pigolkine
+ * Copyright (C) 2007 Novell, Inc (http://www.novell.com)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -25,6 +26,7 @@
  *   Vladimir Vukicevic (vladimir@pobox.com)
  *   Jordi Mas (jordi@ximian.com)
  *   Jonathan Gilbert (logic@deltaq.org)
+ *   Sebastien Pouliot  <sebastien@ximian.com>
  */
 
 #include <stdio.h>
@@ -33,6 +35,7 @@
 #include <cairo-features.h>
 #include <math.h>
 #include "dstream.h"
+/* #include "metafile.h" */
 
 static GpStatus gdip_flip_x (GpImage *image);
 static GpStatus gdip_flip_y (GpImage *image);
@@ -58,12 +61,45 @@ GUID gdip_ico_image_format_guid = {0xb96b3cb5U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 GUID GdipEncoderQuality = {0x1d5be4b5U, 0xfa4aU, 0x452dU, {0x9c, 0xdd, 0x5d, 0xb3, 0x51, 0x05, 0xe7, 0xeb}};
 GUID GdipEncoderCompression = {0xe09d739dU, 0xccd4U, 0x44eeU, {0x8e, 0xba, 0x3f, 0xbf, 0x8b, 0xe4, 0xfc, 0x58}};
 
+#define DECODERS_SUPPORTED 8
+#define ENCODERS_SUPPORTED 5
+static BYTE *g_decoder_list;
+static int g_decoders = 0;
+static BYTE *g_encoder_list;
+static int g_encoders = 0;
+
+static ImageFormat 
+get_image_format (char *sig_read, size_t size_read)
+{
+	ImageCodecInfo *decoder = (ImageCodecInfo*)g_decoder_list;
+	int index;
+	/* look at every decoder available, this will depends on how libgdiplus is compiled */
+	for (index = 0; index < g_decoders; index++, decoder++) {
+		int sig;
+		/* for each signature in the codec */
+		for (sig = 0; sig < decoder->SigCount; sig++) {
+			BOOL match = TRUE;
+			int p;
+			for (p = 0; ((p < decoder->SigSize) && (p < size_read)); p++) {
+				BYTE *mask = (BYTE*)(&decoder->SigMask [sig]);
+				BYTE *pattern = (BYTE*)(&decoder->SigPattern [sig]);
+				if ((sig_read [p] & mask[p]) != pattern[p]) {
+					match = FALSE;
+					break;
+				}
+			}
+			if (match)
+				return gdip_image_format_for_format_guid (&decoder->FormatID);
+		}
+	}
+	return INVALID;
+}
+
 void 
 gdip_image_init (GpImage *image)
 {
 	gdip_bitmap_init(image);
-} 
-
+}
 
 GpStatus 
 GdipDisposeImage (GpImage *image)
@@ -71,17 +107,15 @@ GdipDisposeImage (GpImage *image)
 	if (!image)
 		return InvalidParameter;
 
-	if (image->type == imageBitmap) {
-		gdip_bitmap_dispose(image);
+	switch (image->type) {
+	case imageBitmap:
+		return gdip_bitmap_dispose (image);
+	case imageMetafile:
+/*		return gdip_metafile_dispose ((GpMetafile*)image); */
+		return NotImplemented;
+	default: /* imageUndefined */
 		return Ok;
 	}
-
-	if (image->type == imageMetafile) {
-		return Ok;
-	}
-
-	/* imageUndefined */
-	return Ok;
 }
 
 /* coverity[+alloc : arg-*1] */
@@ -94,10 +128,6 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 	
 	if ((image  == NULL) || (image->active_bitmap == NULL) || (graphics == NULL)) {
 		return InvalidParameter;
-	}
-
-	if (image->type != imageBitmap) {
-		return NotImplemented;
 	}
 
 	/*
@@ -202,9 +232,8 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	cairo_pattern_t *pattern;
 	cairo_pattern_t *org_pattern;
 
-	if ((graphics == NULL) || (image == NULL) || (image->type != imageBitmap)) {
+	if (!graphics || !image)
 		return InvalidParameter;
-	}
 
 	if (!OPTIMIZE_CONVERSION (graphics)) {
 		x = gdip_unitx_convgr (graphics, x);
@@ -703,10 +732,18 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 			break;
 		}
 
-		case WMF:
+		case WMF: {
+			status = gdip_load_wmf_image_from_file (fp, &result);
+			if (result != NULL) {
+				result->image_format = WMF;
+			}
+		}
+
 		case EMF: {
-			status = NotImplemented;
-			break;
+			status = gdip_load_emf_image_from_file (fp, &result);
+			if (result != NULL) {
+				result->image_format = EMF;
+			}
 		}
 
 		case EXIF: {
@@ -1699,101 +1736,27 @@ GdipSetPropertyItem(GpImage *image, GDIPCONST PropertyItem *item)
 	return Ok;
 }
 
-void
-gdip_image_clone (GpImage* image, GpImage** clonedImage)
-{
-	gdip_bitmap_clone(image, clonedImage);
-}
-
 GpStatus
-GdipCloneImage(GpImage *image, GpImage **cloneImage)
+GdipCloneImage (GpImage *image, GpImage **cloneImage)
 {
-	if ((image == NULL) || (cloneImage == NULL)) {
+	if (!image || !cloneImage)
 		return InvalidParameter;
-	}
 
 	switch (image->type){
-		case imageBitmap: {
-                	gdip_bitmap_clone (image, cloneImage);
-			gdip_bitmap_setactive(*cloneImage, NULL, 0);
-			return Ok;
-		}
+	case imageBitmap:
+               	gdip_bitmap_clone (image, cloneImage);
+		gdip_bitmap_setactive(*cloneImage, NULL, 0);
+		return Ok;
 
-		case imageMetafile: {
-        	        return NotImplemented; /* GdipCloneImage - imageMetafile */
-		}
+	case imageMetafile:
+/*		return gdip_metafile_clone ((GpMetafile*)image, (GpMetafile**)cloneImage); */
+		return NotImplemented;
 
-        	case imageUndefined: {
-			return Ok;
-		}
-
-		default: {
-			return Ok;
-		}
+       	case imageUndefined:
+	default:
+		return Ok;
 	}
-        
-	return Ok;
 }
-
-/*  FIXME - this function makes me uneasy. */
-ImageFormat 
-get_image_format (char *sig_read, size_t size_read)
-{
-	int	index;
-	char	png[] = { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, '\0'};
-	char	icon[] = { 0x00, 0x00, 0x01, 0x00, '\0' };
-	char	*signature[]  = { "BM", "MM", "II", "GIF", png, "\xff\xd8", "\xff\xd8\xff\xe1", icon, "", ""};
-
-	if (size_read < 10) {
-		return INVALID;
-	}
-
-	for (index = 0; index < size_read; index ++) {
-		if ((signature[index][0] == sig_read[0]) && (signature[index][1] == sig_read[1])) {
-			switch (index) {
-				case 0 :	
-					return BMP;
-
-				case 1:
-				case 2:
-					return TIF;
-
-				case 3:
-					if (signature[index][2] == sig_read[2]) {
-						return GIF;
-					} else {
-						return INVALID;
-					}
-				case 4:
-					if (strncmp(signature[index], sig_read, 8) == 0) {
-						return PNG;						
-					} else {
-						return INVALID;
-					}
-
-				case 5:		
-				case 6: if (strncmp(sig_read + 2, "\xff\e1", 2) == 0) {
-						if (strncmp(sig_read + 6, "Exif", 4) == 0) {
-							return EXIF;
-						}
-					}
-					return JPEG;
-
-				case 7:
-					if ((signature[index][2] == sig_read[2]) && (signature[index][3] == sig_read[3])) {
-						return ICON;						
-					} else {
-						return INVALID;
-					}
-				case 8:
-				case 9:
-				default:
-					return INVALID;
-			}	
-		}
-	}
-	return INVALID;
-} 
 
 int 
 gdip_get_pixel_format_bpp (PixelFormat pixfmt)
@@ -2047,19 +2010,12 @@ gdip_image_format_for_format_guid (GDIPCONST GUID *formatGUID)
 		return WMF;
 	if (memcmp(formatGUID, &gdip_emf_image_format_guid, sizeof(GUID)) == 0)
 		return EMF;
+	if (memcmp(formatGUID, &gdip_ico_image_format_guid, sizeof(GUID)) == 0)
+		return ICON;
 	if (memcmp(formatGUID, &gdip_membmp_image_format_guid, sizeof(GUID)) == 0)
 		return PNG; /* MemoryBmp is saved as PNG */
-
 	return INVALID;
 }
-
-
-#define DECODERS_SUPPORTED 8
-#define ENCODERS_SUPPORTED 5
-static BYTE *g_decoder_list;
-static int g_decoders = 0;
-static BYTE *g_encoder_list;
-static int g_encoders = 0;
 
 GpStatus
 initCodecList (void)
