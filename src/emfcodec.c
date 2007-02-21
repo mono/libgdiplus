@@ -58,6 +58,12 @@ gdip_getcodecinfo_emf ()
 	return &emf_codec;
 }
 
+GpStatus
+gdip_metafile_play_emf (MetafilePlayContext *context)
+{
+	return NotImplemented;
+}
+
 GpStatus 
 gdip_load_emf_image_from_file (FILE *fp, GpImage **image)
 {

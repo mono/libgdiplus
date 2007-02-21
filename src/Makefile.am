@@ -30,9 +30,12 @@ libgdiplus_la_SOURCES = \
 	lineargradientbrush.h \
 	matrix.c	\
 	matrix.h	\
+	metafile.c	\
+	metafile.h	\
 	pen.c		\
 	pathgradientbrush.c \
 	pathgradientbrush.h \
+	print.c		\
 	region.c	\
 	region.h	\
 	region-bitmap.c	\

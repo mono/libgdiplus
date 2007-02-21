@@ -51,14 +51,20 @@ gdip_getcodecinfo_wmf ()
 	return &wmf_codec;
 }
 
-GpStatus 
-gdip_load_wmf_image_from_file (FILE *fp, GpImage **image)
+GpStatus
+gdip_metafile_play_wmf (MetafilePlayContext *context)
 {
 	return NotImplemented;
 }
 
 GpStatus 
+gdip_load_wmf_image_from_file (FILE *fp, GpImage **image)
+{
+	return gdip_get_metafile_from ((void*)fp, (GpMetafile**)image, TRUE);
+}
+
+GpStatus 
 gdip_load_wmf_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 {
-	return NotImplemented;
+	return gdip_get_metafile_from ((void *)loader, (GpMetafile**)image, FALSE);
 }

@@ -27,6 +27,9 @@
 #include "gdip.h"
 #include "gdipImage.h"
 #include "dstream.h"
+#include "metafile.h"
+
+#define gdip_read_emf_data	gdip_read_bmp_data
 
 GpStatus gdip_load_emf_image_from_file (FILE *fp, GpImage **image);
 

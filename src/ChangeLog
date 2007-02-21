@@ -1,3 +1,14 @@
+2007-02-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* emfcodec.c|h: Minor update to compile image.c changes.
+	* image.c: Updated all functions to allow them to work on metafiles
+	(i.e. don't touch the bitmap data).
+	* Makefile.am: Add new files to the build.
+	* metafile.c|h: New. Skeleton to make image.c changes compile.
+	* print.c: Moved non-GDI+ (but public) print functions here (from 
+	image.c).
+	* wmfcodec.c|h: Minor update to compile image.c changes.
+
 2007-02-16  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bitmap.c: Refactor to match upcoming metafile definitions.
