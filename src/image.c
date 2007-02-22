@@ -228,7 +228,7 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 			GpStatus status = OutOfMemory;
 			GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb (image);
 
-			if (!rgb_bitmap) {
+			if (rgb_bitmap) {
 				status = GdipDrawImageRect (graphics, rgb_bitmap, x, y, width, height);
 				GdipDisposeImage (rgb_bitmap);
 			}
@@ -307,7 +307,7 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 		if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format)) {
 			GpStatus status = OutOfMemory;
 			GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb (image);
-			if (!rgb_bitmap) {
+			if (rgb_bitmap) {
 				status = GdipDrawImagePoints (graphics, rgb_bitmap, dstPoints, count);
 				GdipDisposeImage(rgb_bitmap);
 			}
@@ -413,7 +413,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format)) {
 			GpStatus status = OutOfMemory;
 			GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb (image);
-			if (!rgb_bitmap) {
+			if (rgb_bitmap) {
 				status = GdipDrawImageRectRect (graphics, rgb_bitmap,
 					dstx, dsty, dstwidth, dstheight,
 					srcx, srcy, srcwidth, srcheight,
