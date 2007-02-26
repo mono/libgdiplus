@@ -1759,11 +1759,14 @@ GdipGetRegionHRgn (GpRegion *region, GpGraphics *graphics, HRGN *hRgn)
 		return InvalidParameter;
 
 	/* infinite region returns NULL */
-	if (gdip_is_InfiniteRegion (region))
+	if (gdip_is_InfiniteRegion (region)) {
 		*hRgn = NULL;
-	else
-		*hRgn = region;
-	return Ok;
+		return Ok;
+	}
+
+	/* calling GdipGetRegionHRgn multiple times returns a different HRNG value
+	   (i.e. each to be freed separately) */
+	return GdipCloneRegion (region, (GpRegion**)hRgn);
 }
 
 // coverity[+alloc : arg-*1]
