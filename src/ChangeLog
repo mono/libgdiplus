@@ -1,3 +1,10 @@
+2007-02-27  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* gdip.h: Add some missing prototypes to avoid compiler warnings.
+	* texturebrush.cs: Reworked GdipCreateTexture to use the data from the
+	cloned image (and not the original). Simplified GdipCreateTexture2I to
+	reuse bitmap functions and call GdipCreateTexture. Fix bug #80971.
+
 2007-02-26  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* region.c: Change GdipGetRegionHRgn to return a pointer to a *clone*

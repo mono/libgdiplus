@@ -595,7 +595,7 @@ gdip_texture_destroy (GpBrush *brush)
 GpStatus
 GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 {
-	cairo_surface_t *imageSurface;
+	cairo_surface_t *imageSurface = NULL;
 	GpTexture	*result;
 	GpStatus status;
 
@@ -609,34 +609,24 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 		return NotImplemented;
 	}
 
-	imageSurface = cairo_image_surface_create_for_data ((unsigned char *)image->active_bitmap->scan0,
-					image->cairo_format, image->active_bitmap->width,
-					image->active_bitmap->height, image->active_bitmap->stride);
-	if (imageSurface == NULL) {
-		return OutOfMemory;
-	}
-
 	result = gdip_texture_new ();
-	if (result == NULL) {
-		cairo_surface_destroy (imageSurface);
+	if (!result)
 		return OutOfMemory;
-	}
 
 	result->image = NULL;
 	status = GdipCloneImage (image, &result->image);
-	if (status != Ok) {
-		if (result->image)
-			GdipDisposeImage (result->image);
-		cairo_surface_destroy (imageSurface);
-		GdipFree (result);
-		*texture = NULL;
-		return status;
-	}
+	if (status != Ok)
+		goto failure;
+
+	/* note: we must keep the scan0 alive, so we must use the cloned image (and not the original) see bug #80971 */
+	imageSurface = cairo_image_surface_create_for_data ((unsigned char *)result->image->active_bitmap->scan0,
+		image->cairo_format, image->active_bitmap->width, image->active_bitmap->height, image->active_bitmap->stride);
+	if (!imageSurface)
+		goto failure;
 
 	result->wrapMode = wrapMode;
-	if (result->image->surface != NULL) {
-		cairo_surface_destroy(result->image->surface);
-	}
+	if (result->image->surface)
+		cairo_surface_destroy (result->image->surface);
 	result->image->surface = imageSurface;
 	result->rectangle.X = 0;
 	result->rectangle.Y = 0;
@@ -645,6 +635,15 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 
 	*texture = result;
 	return Ok;
+
+failure:
+	if (result->image)
+		GdipDisposeImage (result->image);
+	if (imageSurface)
+		cairo_surface_destroy (imageSurface);
+	GdipFree (result);
+	*texture = NULL;
+	return status;
 }
 
 /* coverity[+alloc : arg-*6] */
@@ -658,19 +657,13 @@ GdipCreateTexture2 (GpImage *image, GpWrapMode wrapMode, float x, float y, float
 GpStatus
 GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int width, int height, GpTexture **texture)
 {
-	int		bmpWidth;
-	int		bmpHeight;
-	cairo_t		*ct;
-	cairo_surface_t *original;
-	cairo_surface_t	*new;
-	GpTexture	*result;
+	int bmpWidth;
+	int bmpHeight;
 	GpStatus status;
+	GpImage *resized_image = NULL;
 
 	if (!image || !texture)
 		return InvalidParameter;
-
-	if ((wrapMode < WrapModeTile) || (wrapMode > WrapModeClamp))
-		return OutOfMemory;
 
 	if (image->type != imageBitmap)
 		return NotImplemented;
@@ -682,78 +675,13 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 	if ((x < 0) || (y < 0) || (width <= 0) || (height <= 0) || (bmpWidth < (x + width)) || (bmpHeight < (y + height)))
 		return OutOfMemory;
 
-	original = cairo_image_surface_create_for_data ((unsigned char *)image->active_bitmap->scan0, 
-			image->cairo_format, x + width, y + height, image->active_bitmap->stride);
-	if (!original)
-		return OutOfMemory;
-
-	/* texture surface to be used by brush */
-	new = cairo_surface_create_similar (original, from_cairoformat_to_content (image->cairo_format), width, height);
-
-	if (new == NULL) {
-		cairo_surface_destroy (original);
-		return OutOfMemory;
-	}
-
-	/* clip the rectangle from original image surface and create new surface */
-	ct = cairo_create (new);
-	cairo_translate (ct, -x, -y);
-	cairo_set_source_surface (ct, original, x + width, y + height);
-	cairo_paint (ct);
-	cairo_destroy (ct);
-	cairo_surface_destroy (original);
-
-	result = gdip_texture_new ();
-	if (!result) {
-		cairo_surface_destroy (new);
-		return OutOfMemory;
-	}
-
-	result->image = NULL;
-	if ((x == 0) && (y == 0)) {
-		/* the texture share the same dimension as the image, so we can clone it*/
-		status = GdipCloneImage (image, &result->image);
-	} else {
-		/* otherwise we need to make a copy of the requested (rectangle) region */
-		int new_stride = (int) (image->active_bitmap->stride * (image->active_bitmap->width - x) / image->active_bitmap->width);
-		int format = -1;
-		switch (image->cairo_format) {
-		case CAIRO_FORMAT_RGB24:
-			format = Format24bppRgb;
-			break;
-		case CAIRO_FORMAT_ARGB32:
-			format = Format32bppArgb;
-			break;
-		case CAIRO_FORMAT_A8:
-			format = Format8bppIndexed;
-			break;
-		case CAIRO_FORMAT_A1:
-			format = Format1bppIndexed;
-			break;
-		}
-		status = GdipCreateBitmapFromScan0 (width, height, new_stride, format, 
-			(unsigned char *)image->active_bitmap->scan0, &result->image);
-	}
-	if (status != Ok) {
-		if (result->image)
-			GdipDisposeImage (result->image);
-		cairo_surface_destroy (new);
-		GdipFree (result);
-		*texture = NULL;
+	status = GdipCloneBitmapAreaI (x, y, width, height, image->active_bitmap->pixel_format, image, &resized_image);
+	if (status != Ok)
 		return status;
-	}
 
-	if (result->image->surface)
-		cairo_surface_destroy (result->image->surface);
-	result->image->surface = new;
-	result->wrapMode = wrapMode;
-	result->rectangle.X = x;
-	result->rectangle.Y = y;
-	result->rectangle.Width = width;
-	result->rectangle.Height = height;
-
-	*texture = result;
-	return Ok;
+	status = GdipCreateTexture (resized_image, wrapMode, texture);
+	GdipDisposeImage (resized_image);
+	return status;
 }
 
 /* coverity[+alloc : arg-*6] */

@@ -1064,7 +1064,8 @@ GpStatus GdipBitmapLockBits (GpBitmap *bmp, Rect *rc, int flags, int format, Gdi
 GpStatus GdipBitmapUnlockBits (GpBitmap *bmp, GdipBitmapData *bmpData);
 GpStatus GdipBitmapSetPixel ( GpBitmap *bmp, int x, int y, ARGB color);
 GpStatus GdipBitmapGetPixel ( GpBitmap *bmp, int x, int y, ARGB *color);
-
+GpStatus GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format, GpBitmap *original, GpBitmap **bitmap);
+GpStatus GdipCloneBitmapArea (float x, float y, float w, float h, PixelFormat format, GpBitmap *original, GpBitmap **bitmap);
 
 /* Graphics */
 GpStatus GdipBeginContainer (GpGraphics *graphics, GDIPCONST GpRectF* dstrect, GDIPCONST GpRectF *srcrect, GpUnit unit, GpGraphicsContainer *state);
@@ -1076,6 +1077,9 @@ GpStatus GdipGetDC (GpGraphics *graphics, void **hDC);
 GpStatus GdipReleaseDC (GpGraphics *graphics, void *hDC);
 GpStatus GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState);
 GpStatus GdipSaveGraphics(GpGraphics *graphics, unsigned int * state);
+GpStatus GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix);
+GpStatus GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix);
+GpStatus GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder order);
 GpStatus GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order);
 GpStatus GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixOrder order);
 GpStatus GdipDrawBezier (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
