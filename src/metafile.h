@@ -24,6 +24,7 @@
 #define __METAFILE_H__
 
 #include <stdio.h>
+#include <math.h>
 #include "gdip.h"
 #include "gdipImage.h"
 #include "dstream.h"
@@ -60,6 +61,16 @@
 #define TRANSPARENT		1
 #define OPAQUE			2
 
+/* SetMapMode */
+#define MM_TEXT			1
+#define MM_LOMETRIC		2
+#define MM_HIMETRIC		3
+#define MM_LOENGLISH		4
+#define MM_HIENGLISH		5
+#define MM_TWIPS		6
+#define MM_ISOTROPIC		7
+#define MM_ANISOTROPIC		8
+
 /* CreatePenIndirect */
 #define PS_NULL			0x00000005
 #define PS_STYLE_MASK		0x0000000F
@@ -67,8 +78,44 @@
 #define PS_ENDCAP_SQUARE	0x00000100
 #define PS_ENDCAP_FLAT		0x00000200
 #define PS_ENDCAP_MASK		0x00000F00
+#define PS_JOIN_ROUND		0x00000000
+#define PS_JOIN_BEVEL		0x00001000
+#define PS_JOIN_MITER		0x00002000
 #define PS_JOIN_MASK		0x0000F000
 
+/* CreateBrushIndirect */
+#define BS_SOLID		0
+#define BS_NULL			1
+#define BS_HATCHED		2
+#define BS_PATTERN		3
+#define BS_INDEXED		4
+
+/* SetPolyFillMode */
+#define ALTERNATE		1
+#define WINDING			2
+
+/* SetRelabs */
+#define ABSOLUTE		1
+#define RELATIVE		2
+
+typedef struct {
+	LONG	x;
+	LONG	y;
+} POINT;
+
+typedef DWORD COLORREF;
+
+typedef struct {
+	UINT		lopnStyle;
+	POINT		lopnWidth;
+	COLORREF	lopnColor;
+} LOGPEN;
+
+typedef struct {
+	UINT		lbStyle;
+	COLORREF	lbColor;
+	LONG		lbHatch;
+} LOGBRUSH;
 
 #pragma pack(2)
 
@@ -100,6 +147,7 @@ typedef struct {
 	RECTL	rclBounds;
 	RECTL	rclFrame;
 	DWORD	dSignature;
+	DWORD	nVersion;
 	DWORD	nBytes;
 	DWORD	nRecords;
 	WORD	nHandles;
@@ -163,13 +211,38 @@ typedef struct {
 typedef struct {
 	GpMetafile *metafile;
 	int x, y, width, height;
+	int objects_count;
 	MetaObject *objects;
 	MetaObject created;
 	GpGraphics *graphics;
-	GpPen *selected_pen;
-	GpBrush *selected_brush;
+	GpMatrix matrix;
+	DWORD bk_mode;
+	DWORD bk_color;
+	float miter_limit;
+	int selected_pen;
+	int selected_brush;
+	int selected_font;
+	int selected_palette;
+	int map_mode;
+	GpFillMode fill_mode;
+	int current_x, current_y;
+	/* path related data */
+	BOOL use_path;
+	GpPath *path;
+	int path_x, path_y;
+	/* stock objects */
+	GpPen *stock_pen_white;
+	GpPen *stock_pen_black;
+	GpPen *stock_pen_null;
+	GpSolidFill *stock_brush_white;
+	GpSolidFill *stock_brush_ltgray;
+	GpSolidFill *stock_brush_gray;
+	GpSolidFill *stock_brush_dkgray;
+	GpSolidFill *stock_brush_black;
+	GpSolidFill *stock_brush_null;
+	/* bitmap representation */
 	BYTE *scan0;
-} MetafilePlayContext;
+} MetafilePlayContext, HDC;
 
 typedef struct {
 	int num;
@@ -236,5 +309,36 @@ MetafilePlayContext* gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics 
 GpStatus gdip_metafile_play (MetafilePlayContext *context);
 GpStatus gdip_metafile_play_cleanup (MetafilePlayContext *context);
 
+GpPen* gdip_metafile_GetSelectedPen (MetafilePlayContext *context);
+GpBrush* gdip_metafile_GetSelectedBrush (MetafilePlayContext *context);
+
+GpStatus gdip_metafile_SetBkMode (MetafilePlayContext *context, DWORD bkMode);
+GpStatus gdip_metafile_SetMapMode (MetafilePlayContext *context, DWORD mode);
+GpStatus gdip_metafile_SetROP2 (MetafilePlayContext *context, DWORD rop);
+GpStatus gdip_metafile_SetRelabs (MetafilePlayContext *context, DWORD mode);
+GpStatus gdip_metafile_SetPolyFillMode (MetafilePlayContext *context, DWORD mode);
+GpStatus gdip_metafile_SelectObject (MetafilePlayContext *context, DWORD slot);
+GpStatus gdip_metafile_SetTextAlign (MetafilePlayContext *context, DWORD textalign);
+GpStatus gdip_metafile_DeleteObject (MetafilePlayContext *context, DWORD slot);
+GpStatus gdip_metafile_SetBkColor (MetafilePlayContext *context, DWORD color);
+GpStatus gdip_metafile_SetWindowOrg (MetafilePlayContext *context, int x, int y);
+GpStatus gdip_metafile_SetWindowExt (MetafilePlayContext *context, int height, int width);
+GpStatus gdip_metafile_LineTo (MetafilePlayContext *context, int x, int y);
+GpStatus gdip_metafile_MoveTo (MetafilePlayContext *context, int x, int y);
+GpStatus gdip_metafile_SetMiterLimit (MetafilePlayContext *context, float eNewLimit, float *peOldLimit);
+GpStatus gdip_metafile_CreatePenIndirect (MetafilePlayContext *context, DWORD style, DWORD width, DWORD color);
+GpStatus gdip_metafile_ExtCreatePen (MetafilePlayContext *context, DWORD dwPenStyle, DWORD dwWidth, CONST LOGBRUSH *lplb,
+	DWORD dwStyleCount, CONST DWORD *lpStyle);
+GpStatus gdip_metafile_CreateBrushIndirect (MetafilePlayContext *context, DWORD style, DWORD color, DWORD hatch);
+GpStatus gdip_metafile_Arc (MetafilePlayContext *context, int left, int top, int right, int bottom, 
+	int xstart, int ystart, int xend, int yend);
+GpStatus gdip_metafile_PolyBezier (MetafilePlayContext *context, GpPointF *points, int count);
+GpStatus gdip_metafile_Polygon (MetafilePlayContext *context, GpPointF *points, int count);
+GpStatus gdip_metafile_BeginPath (MetafilePlayContext *context);
+GpStatus gdip_metafile_EndPath (MetafilePlayContext *context);
+GpStatus gdip_metafile_CloseFigure (MetafilePlayContext *context);
+GpStatus gdip_metafile_FillPath (MetafilePlayContext *context);
+GpStatus gdip_metafile_StrokePath (MetafilePlayContext *context);
+GpStatus gdip_metafile_StrokeAndFillPath (MetafilePlayContext *context);
 
 #endif

@@ -29,6 +29,100 @@
 #include "dstream.h"
 #include "metafile.h"
 
+/*
+ * Some interesting links...
+ * http://wvware.sourceforge.net/caolan/ora-wmf.html
+ * http://www.undocprint.org/formats/winspool/emf
+ */
+
+#define EMF_MIN_RECORD_SIZE	8
+
+#define EMF_CHECK_PARAMS(x)	do { \
+		if (params < (x)) goto cleanup; \
+	} while (0)
+
+#define GETDW(x)	(*(DWORD*)(data + (x)))
+
+#define EMF_FUNCTION	0
+#define EMF_RECORDSIZE	4
+#define DWP1		8
+#define DWP2		12
+#define DWP3		16
+#define DWP4		20
+#define DWP5		24
+#define DWP6		28
+#define DWP7		32
+#define DWP8		36
+#define DWP9		40
+#define DWP10		44
+#define DWP11		48
+#define DWP(y)		(8 + ((y) << 2))
+
+#define EMR_POLYBEZIER			2
+#define EMR_POLYGON			3
+#define EMR_POLYPOLYGON			8
+#define EMR_SETWINDOWEXTEX		9
+#define EMR_SETWINDOWORGEX		10
+#define EMR_SETVIEWPORTEXTEX		11
+#define EMR_SETVIEWPORTORGEX		12
+#define EMR_SETBRUSHORGEX		13
+#define EMR_EOF				14
+#define EMR_SETMAPMODE			17
+#define EMR_SETBKMODE			18
+#define EMR_SETPOLYFILLMODE		19
+#define EMR_SETROP2			20
+#define EMR_SETSTRETCHBLTMODE		21
+#define EMR_SETTEXTALIGN		22
+#define EMR_SETTEXTCOLOR		24
+#define EMR_MOVETOEX			27
+#define EMR_INTERSECTCLIPRECT		30
+#define EMR_SAVEDC			33
+#define EMR_RESTOREDC			34
+#define EMR_SETWORLDTRANSFORM		35
+#define EMR_SELECTOBJECT		37
+#define EMR_CREATEPEN			38
+#define EMR_CREATEBRUSHINDIRECT		39
+#define EMR_DELETEOBJECT		40
+#define EMR_LINETO			54
+#define EMR_SETMITERLIMIT		58
+#define EMR_BEGINPATH			59
+#define EMR_ENDPATH			60
+#define EMR_CLOSEFIGURE			61
+#define EMR_FILLPATH			62
+#define EMR_STROKEANDFILLPATH		63
+#define EMR_STROKEPATH			64
+#define EMR_SELECTCLIPPATH		67
+#define EMR_GDICOMMENT			70
+#define EMR_EXTSELECTCLIPRGN		75
+#define EMR_EXTCREATEFONTINDIRECTW	82
+#define EMR_EXTTEXTOUTA			83
+#define EMR_EXTTEXTOUTW			84
+#define EMR_POLYGON16			86
+#define EMR_POLYBEZIERTO16		88
+#define EMR_POLYPOLYGON16		91
+#define EMR_EXTCREATEPEN		95
+
+/* some old GDI cruft we need to consider... */
+
+#define ENHMETA_STOCK_OBJECT	0x80000000
+#define WHITE_BRUSH		0
+#define LTGRAY_BRUSH		1
+#define GRAY_BRUSH		2
+#define DKGRAY_BRUSH		3
+#define BLACK_BRUSH		4
+#define NULL_BRUSH		5
+#define WHITE_PEN		6
+#define BLACK_PEN		7
+#define NULL_PEN		8
+#define OEM_FIXED_FONT		10
+#define ANSI_FIXED_FONT		11
+#define ANSI_VAR_FONT		12
+#define SYSTEM_FONT		13
+#define DEVICE_DEFAULT_FONT	14
+#define DEFAULT_PALETTE		15
+#define SYSTEM_FIXED_FONT	16
+
+
 #define gdip_read_emf_data	gdip_read_bmp_data
 
 GpStatus gdip_load_emf_image_from_file (FILE *fp, GpImage **image);

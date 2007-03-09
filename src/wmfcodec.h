@@ -29,6 +29,48 @@
 #include "dstream.h"
 #include "metafile.h"
 
+#define WMF_MIN_RECORD_SIZE	6
+
+#define WMF_CHECK_PARAMS(x)	do { \
+		if (params < (x)) goto cleanup; \
+	} while (0)
+
+#define GETDW(x)	(*(DWORD*)(data + (x)))
+#define GETW(x)		(*(WORD*)(data + (x)))
+#define RECORDSIZE	0
+#define FUNCTION	4
+#define WP1		6
+#define WP2		8
+#define WP3		10
+#define WP4		12
+#define WP5		14
+#define WP6		16
+#define WP7		18
+#define WP8		20
+#define WP(y)		(4 + ((y) << 1))
+
+
+#define METAFILE_RECORD_SETBKMODE		0x0102
+#define METAFILE_RECORD_SETMAPMODE		0x0103
+#define METAFILE_RECORD_SETROP2			0x0104
+#define METAFILE_RECORD_SETRELABS		0x0105
+#define METAFILE_RECORD_SETPOLYFILLMODE		0x0106
+#define METAFILE_RECORD_SELECTOBJECT		0x012D
+#define METAFILE_RECORD_SETTEXTALIGN		0x012E
+#define METAFILE_RECORD_DELETEOBJECT		0x01F0
+#define METAFILE_RECORD_SETBKCOLOR		0x0201
+#define METAFILE_RECORD_SETWINDOWORG		0x020B
+#define METAFILE_RECORD_SETWINDOWEXT		0x020C
+#define METAFILE_RECORD_LINETO			0x0213
+#define METAFILE_RECORD_MOVETO			0x0214
+#define METAFILE_RECORD_CREATEPENINDIRECT	0x02FA
+#define METAFILE_RECORD_CREATEBRUSHINDIRECT	0x02FC
+#define METAFILE_RECORD_POLYGON			0x0324
+#define METAFILE_RECORD_POLYLINE		0x0325
+#define METAFILE_RECORD_POLYPOLYGON		0x0538
+#define METAFILE_RECORD_ARC			0x0817
+
+
 #define gdip_read_wmf_data	gdip_read_bmp_data
 
 

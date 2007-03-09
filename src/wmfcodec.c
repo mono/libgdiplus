@@ -31,6 +31,13 @@ static const WCHAR wmf_format[] = {'W', 'M', 'F', 0}; /* WMF */
 static const BYTE wmf_sig_pattern[] = { 0xD7, 0xCD, 0xC6, 0x9A };
 static const BYTE wmf_sig_mask[] = { 0xFF, 0xFF, 0xFF, 0xFF };
 
+//#define DEBUG_WMF_ALL
+#ifdef DEBUG_WMF_ALL
+#define DEBUG_WMF
+#define DEBUG_WMF_2
+#define DEBUG_WMF_3
+#define DEBUG_WMF_NOTIMPLEMENTED
+#endif
 
 ImageCodecInfo*
 gdip_getcodecinfo_wmf ()
@@ -51,10 +58,282 @@ gdip_getcodecinfo_wmf ()
 	return &wmf_codec;
 }
 
+static WORD
+GetWORD (int position, BYTE *data)
+{
+	WORD *value = (WORD*)(data + position);
+	return *value;
+}
+
+static DWORD
+GetDWORD (int position, BYTE* data)
+{
+	DWORD *value = (DWORD*)(data + position);
+	return *value;
+}
+
+static DWORD
+GetColor (WORD w1, WORD w2)
+{
+	DWORD color = (w2 << 16) | w1;
+	BYTE *p = (BYTE*)&color;
+	BYTE temp = p[0];
+	p[0] = p[2];
+	p[2] = temp;
+	return color;
+}
+
+#define GetParam(x,y)	GetWORD((6 + ((x) << 1)), (y))
+
+
+/* http://wvware.sourceforge.net/caolan/Polygon.html */
+static GpStatus
+Polygon (MetafilePlayContext *context, BYTE *data, int len)
+{
+	GpPointF *points, *pt;
+	GpStatus status;
+	int p;
+	/* variable number of parameters */
+	SHORT num = GETW(WP1);
+
+	/* len (in WORDs) = num (WORD) + num * (x WORD + y WORD) */
+	if (num > len + 1)
+		return InvalidParameter;
+
+#ifdef DEBUG_WMF
+	printf ("Polygon %d points", num);
+#endif
+	points = (GpPointF*) GdipAlloc (num * sizeof (GpPointF));
+	if (!points)
+		return OutOfMemory;
+
+	int n = 2;
+	for (p = 0, pt = points; p < num; p++, pt++) {
+		pt->X = GETW(WP(n++));
+		pt->Y = GETW(WP(n++));
+#ifdef DEBUG_WMF
+		printf ("\n\tpoly to %g,%g", pt->X, pt->Y);
+#endif
+	}
+
+	status = gdip_metafile_Polygon (context, points, num);
+
+	GdipFree (points);
+	return status;
+}
+
+/* http://wvware.sourceforge.net/caolan/Polyline.html */
+static GpStatus
+Polyline (MetafilePlayContext *context, BYTE *data)
+{
+	GpStatus status;
+	int p;
+	/* variable number of parameters */
+	SHORT num = GETW(WP1);
+
+#ifdef DEBUG_WMF
+	printf ("Polyline %d points", num);
+#endif
+	SHORT x1 = GETW(WP2);
+	SHORT y1 = GETW(WP3);
+	int n = 4;
+	for (p = 1; p < num; p++) {
+		SHORT x2 = GETW(WP(n++));
+		SHORT y2 = GETW(WP(n++));
+#ifdef DEBUG_WMF_2
+		printf ("\n\tdraw from %d,%d to %d,%d", x1, y1, x2, y2);
+#endif
+		GpPen *pen = gdip_metafile_GetSelectedPen (context);
+		status = GdipDrawLine (context->graphics, pen, x1, y1, x2, y2);
+		if (status != Ok)
+			return status;
+
+		x1 = x2;
+		y1 = y2;
+	}
+	return Ok;
+}
+
+/* http://wvware.sourceforge.net/caolan/PolyPolygon.html */
+/* storage isn't very efficient, # of polygons, size of each polygon, data for each polygon */
+static GpStatus
+PolyPolygon (MetafilePlayContext *context, BYTE *data)
+{
+	GpStatus status = Ok;
+	/* variable number of parameters */
+	int poly_num = GETW(WP1);
+	int i;
+	PointFList *list = GdipAlloc (poly_num * sizeof (PointFList));
+	PointFList *current = list;
+#ifdef DEBUG_WMF
+	printf ("PolyPolygon has %d polygons", poly_num);
+#endif
+	int n = 2;
+	/* read size of each polygon and allocate the required memory */
+	for (i = 0; i < poly_num; i++) {
+		current->num = GETW(WP(n++));
+		current->points = (GpPointF*) GdipAlloc (current->num * sizeof (GpPointF));
+#ifdef DEBUG_WMF_2
+		printf ("\n\tSub Polygon #%d has %d points", i, current->num);
+#endif
+		current++;
+	}
+
+	/* read the points for each polygons */
+	current = list;
+	for (i = 0; i < poly_num; i++) {
+		GpPointF *pt = current->points;
+		int p;
+		for (p = 0; p < current->num; p++) {
+			pt->X = GETW(WP(n++));
+			pt->Y = GETW(WP(n++));
+#ifdef DEBUG_WMF_3
+			printf ("\n\t\tpoly to %g,%g", pt->X, pt->Y);
+#endif
+			pt++;
+		}
+
+		GpStatus s = gdip_metafile_Polygon (context, current->points, current->num);
+		if (s != Ok)
+			status = s;
+
+		/* free points */
+		GdipFree (current->points);
+		current++;
+	}
+
+	/* all points were freed, after being drawn, so we just have to free the polygon list*/
+	GdipFree (list);
+	return status;
+}
+
 GpStatus
 gdip_metafile_play_wmf (MetafilePlayContext *context)
 {
-	return NotImplemented;
+	GpStatus status = Ok;
+	GpMetafile *metafile = context->metafile;
+	GpGraphics *graphics = context->graphics;
+	BYTE *data = metafile->data;
+	BYTE *end = data + metafile->length;
+#ifdef DEBUG_WMF
+	int i = 1, j;
+#endif
+	/* reality check - each record is, at minimum, 6 bytes long (4 size + 2 function) */
+	while (data < end - WMF_MIN_RECORD_SIZE) {
+		DWORD size = GETDW(RECORDSIZE);
+		WORD func = GETW(FUNCTION);
+		int params = size - (WMF_MIN_RECORD_SIZE / sizeof (WORD));
+#ifdef DEBUG_WMF
+		printf ("\n[#%d] size %d ", i++, size);
+#endif
+		/* reality check - enough data available to read all parameters ? (params is in WORD) */
+		if ((params << 1) > (end - data)) {
+			status = InvalidParameter;
+			goto cleanup;
+		}
+
+		/* Notes:
+		 * - The previous check doesn't mean we have all required parameters (only the one encoded)
+		 * - sometimes there are extra (undocumented?, buggy?) parameters for some functions
+		 */
+		switch (func) {
+		case METAFILE_RECORD_SETBKMODE:
+			WMF_CHECK_PARAMS(1);
+			status = gdip_metafile_SetBkMode (context, GETW(WP1));
+			break;
+		case METAFILE_RECORD_SETMAPMODE:
+			WMF_CHECK_PARAMS(1);
+			status = gdip_metafile_SetMapMode (context, GETW(WP1));
+			break;
+		case METAFILE_RECORD_SETROP2:
+			WMF_CHECK_PARAMS(1);
+			status = gdip_metafile_SetROP2 (context, GETW(WP1));
+			break;
+		case METAFILE_RECORD_SETRELABS:
+			WMF_CHECK_PARAMS(1);
+			status = gdip_metafile_SetRelabs (context, GETW(WP1));
+			break;
+		case METAFILE_RECORD_SETPOLYFILLMODE:
+			WMF_CHECK_PARAMS(1);
+			status = gdip_metafile_SetPolyFillMode (context, GETW(WP1));
+			break;
+		case METAFILE_RECORD_SELECTOBJECT:
+			WMF_CHECK_PARAMS(1);
+			status = gdip_metafile_SelectObject (context, GETW(WP1));
+			break;
+		case METAFILE_RECORD_SETTEXTALIGN:
+			WMF_CHECK_PARAMS(1);
+			status = gdip_metafile_SetTextAlign (context, GETW(WP1));
+			break;
+		case METAFILE_RECORD_DELETEOBJECT:
+			WMF_CHECK_PARAMS(1);
+			status = gdip_metafile_DeleteObject (context, GETW(WP1));
+			break;
+		case METAFILE_RECORD_SETBKCOLOR:
+			WMF_CHECK_PARAMS(2);
+			status = gdip_metafile_SetBkColor (context, GetColor (GETW(WP1), GETW(WP2)));
+			break;
+		case METAFILE_RECORD_SETWINDOWORG:
+			WMF_CHECK_PARAMS(2);
+			status = gdip_metafile_SetWindowOrg (context, GETW(WP1), GETW(WP2));
+			break;
+		case METAFILE_RECORD_SETWINDOWEXT:
+			WMF_CHECK_PARAMS(2);
+			status = gdip_metafile_SetWindowExt (context, GETW(WP1), GETW(WP2));
+			break;
+		case METAFILE_RECORD_LINETO:
+			WMF_CHECK_PARAMS(2);
+			status = gdip_metafile_LineTo (context, GETW(WP1), GETW(WP2));
+			break;
+		case METAFILE_RECORD_MOVETO:
+			WMF_CHECK_PARAMS(2);
+			status = gdip_metafile_MoveTo (context, GETW(WP1), GETW(WP2));
+			break;
+		case METAFILE_RECORD_CREATEPENINDIRECT:
+			/* note: documented with only 4 parameters, LOGPEN use a POINT to specify width, so y (3) is unused) */
+			WMF_CHECK_PARAMS(5);
+			status = gdip_metafile_CreatePenIndirect (context, GETW(WP1), GETW(WP2), GetColor (GETW(WP4), GETW(WP5)));
+			break;
+		case METAFILE_RECORD_CREATEBRUSHINDIRECT:
+			WMF_CHECK_PARAMS(4);
+			status = gdip_metafile_CreateBrushIndirect (context, GETW(WP1), GetColor (GETW(WP2), GETW(WP3)), GETW(WP4));
+			break;
+		case METAFILE_RECORD_POLYGON:
+			status = Polygon (context, data, params);
+			break;
+		case METAFILE_RECORD_POLYLINE:
+			status = Polyline (context, data);
+			break;
+		case METAFILE_RECORD_POLYPOLYGON:
+			status = PolyPolygon (context, data);
+			break;
+		case METAFILE_RECORD_ARC:
+			WMF_CHECK_PARAMS(8);
+			status = gdip_metafile_Arc (context, GETW(WP1), GETW(WP2), GETW(WP3), GETW(WP4), GETW(WP5), GETW(WP6),
+				GETW(WP7), GETW(WP8));
+			break;
+		default:
+			/* unprocessed records, ignore the data */
+			/* 3 for size (DWORD) == 2 * SHORT + function == 1 SHORT */
+#ifdef DEBUG_WMF
+			printf ("Unimplemented_%X (", func);
+			for (j = 0; j < params; j++) {
+				printf (" %d", GetParam (j, data));
+			}
+			printf (" )");
+#endif
+			break;
+		}
+
+		if (status != Ok) {
+			g_warning ("Parsing interupted, status %d returned from function %d.", status, func);
+			goto cleanup;
+		}
+
+		data += size * 2;
+	}
+cleanup:
+	return status;
 }
 
 GpStatus 

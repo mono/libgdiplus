@@ -1,3 +1,11 @@
+2007-03-08  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* emfcodec.c|h: Initial (i.e. subset of) EMF parser/player.
+	* metafile.c|h: Shared metafile code, like setup, play & cleanup 
+	functions and a lot of "record" functions (which looks like the old
+	GDI32 API).
+	* wmfcodec.c|h: Initial (i.e. subset of) WMF parser/player.
+
 2007-03-08  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* gdip.h: Add some missing prototypes to avoid compiler warnings.

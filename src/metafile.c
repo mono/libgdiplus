@@ -22,6 +22,722 @@
 
 #include "metafile.h"
 
+
+//#define DEBUG_METAFILE
+
+/* http://wvware.sourceforge.net/caolan/SetBkMode.html */
+GpStatus
+gdip_metafile_SetBkMode (MetafilePlayContext *context, DWORD bkMode)
+{
+#ifdef DEBUG_METAFILE
+	printf ("SetBkMode %d", bkMode);
+#endif
+	/* TODO - currently unused elsewhere */
+	context->bk_mode = bkMode;
+	return Ok;
+}
+
+/* http://wvware.sourceforge.net/caolan/SetMapMode.html */
+GpStatus
+gdip_metafile_SetMapMode (MetafilePlayContext *context, DWORD mode)
+{
+	GpStatus status;
+	float scale;
+#ifdef DEBUG_METAFILE
+	printf ("SetMapMode %d", mode);
+#endif
+	context->map_mode = mode;
+
+	switch (mode) {
+	case MM_HIENGLISH:
+		/* 1 logical unit == 0.001 inch */
+		scale = gdip_get_display_dpi () * 0.001;
+		break;
+	case MM_LOENGLISH:
+		/* 1 logical unit == 0.01 inch */
+		scale = gdip_get_display_dpi () * 0.01;
+		break;
+	case MM_HIMETRIC:
+		/* 1 logical unit == 0.01 mm */
+		scale = gdip_get_display_dpi () / METAFILE_DIMENSION_FACTOR;
+		break;
+	case MM_LOMETRIC:
+		/* 1 logical unit == 0.1 mm */
+		scale = 10 * gdip_get_display_dpi () / METAFILE_DIMENSION_FACTOR;
+		break;
+	case MM_TWIPS:
+		/* 1 logical point == 1/1440 inch (1/20 of a "old" printer point ;-) */
+		scale = gdip_get_display_dpi () / 1440;
+		break;
+	case MM_TEXT:
+	default:
+		/* 1 logical unit == 1 pixel */
+		scale = 1.0f;
+		context->map_mode = MM_TEXT;
+		break;
+	case MM_ISOTROPIC:
+	case MM_ANISOTROPIC:
+		/* SetWindowExt will calculate the correct ratio */
+		return Ok;
+	}
+
+	/* this isn't cumulative (and we get a lot of "junk" calls) */
+	GdipSetWorldTransform (context->graphics, &context->matrix);
+	status = GdipScaleWorldTransform (context->graphics, scale, scale, MatrixOrderPrepend);
+#ifdef DEBUG_METAFILE_2
+	printf ("\n\tGdipScaleWorldTransform sx %g, sy %g (status %d)", scale, scale, status);
+#endif
+	return status;
+}
+
+/* http://wvware.sourceforge.net/caolan/SetROP2.html */
+GpStatus
+gdip_metafile_SetROP2 (MetafilePlayContext *context, DWORD rop)
+{
+#ifdef DEBUG_METAFILE
+	printf ("SetROP2 %d", rop);
+#endif
+	/* TODO */
+	return Ok;
+}
+
+/* http://www.ousob.com/ng/win2api/ng30859.php */
+GpStatus
+gdip_metafile_SetRelabs (MetafilePlayContext *context, DWORD mode)
+{
+#ifdef DEBUG_METAFILE
+	printf ("SetRelabs %d", mode);
+#endif
+	/* TODO */
+	return Ok;
+}
+
+/* http://wvware.sourceforge.net/caolan/SetPolyFillMode.html */
+GpStatus
+gdip_metafile_SetPolyFillMode (MetafilePlayContext *context, DWORD fillmode)
+{
+#ifdef DEBUG_METAFILE
+	printf ("SetPolyFillMode %d", fillmode);
+#endif
+	switch (fillmode) {
+	case WINDING:
+		context->fill_mode = FillModeWinding;
+		break;
+	default:
+		g_warning ("Unknown fillmode %d, assuming ALTERNATE", fillmode);
+		/* fall through */
+	case ALTERNATE:
+		context->fill_mode = FillModeAlternate;
+		break;
+	}
+	return Ok;
+}
+
+/* http://wvware.sourceforge.net/caolan/SelectObject.html */
+GpStatus
+gdip_metafile_SelectObject (MetafilePlayContext *context, DWORD slot)
+{
+	// EMF have some stock objects that do not requires creation
+	if (slot & ENHMETA_STOCK_OBJECT) {
+#ifdef DEBUG_METAFILE
+		printf ("SelectObject stock #%X", slot);
+#endif
+		switch (slot - ENHMETA_STOCK_OBJECT) {
+		case WHITE_BRUSH:
+		case LTGRAY_BRUSH:
+		case GRAY_BRUSH:
+		case DKGRAY_BRUSH:
+		case BLACK_BRUSH:
+		case NULL_BRUSH:
+			context->selected_brush = slot;
+			break;
+		case WHITE_PEN:
+		case BLACK_PEN:
+		case NULL_PEN:
+			context->selected_pen = slot;
+			break;
+		case OEM_FIXED_FONT:
+		case ANSI_FIXED_FONT:
+		case ANSI_VAR_FONT:
+		case SYSTEM_FONT:
+		case DEVICE_DEFAULT_FONT:
+		case SYSTEM_FIXED_FONT:
+			context->selected_font = slot;
+			break;
+		case DEFAULT_PALETTE:
+			context->selected_palette = slot;
+			break;
+		default:
+			return InvalidParameter;
+		}
+		return Ok;
+	}
+
+#ifdef DEBUG_METAFILE
+	printf ("SelectObject %d (out of %d slots)", slot, context->objects_count);
+#endif
+	if (slot >= context->objects_count) {
+		g_warning ("SelectObject %d, invalid slot number.", slot);
+		return InvalidParameter;
+	}
+
+	/* FIXME - what's first ? the created object or what's in the slot ? */
+	switch (context->created.type) {
+	case METAOBJECT_TYPE_EMPTY:
+		/* if nothing is "created" (and not yet selected into a slot) then we "reselect" the object */
+		switch (context->objects [slot].type) {
+		case METAOBJECT_TYPE_EMPTY:
+			g_warning ("SelectObject %d, no created object, slot empty.", slot);
+			break;
+		case METAOBJECT_TYPE_PEN:
+			context->selected_pen = slot;
+			break;
+		case METAOBJECT_TYPE_BRUSH:
+			context->selected_brush = slot;
+			break;
+		}
+		return Ok;
+	case METAOBJECT_TYPE_PEN:
+		context->selected_pen = slot;
+		break;
+	case METAOBJECT_TYPE_BRUSH:
+		context->selected_brush = slot;
+		break;
+	}
+
+	context->objects [slot].type = context->created.type;
+	context->objects [slot].ptr = context->created.ptr;
+
+	context->created.type = METAOBJECT_TYPE_EMPTY;
+	context->created.ptr = NULL;
+	return Ok;
+}
+
+/* http://wvware.sourceforge.net/caolan/SetTextAlign.html */
+GpStatus
+gdip_metafile_SetTextAlign (MetafilePlayContext *context, DWORD textalign)
+{
+#ifdef DEBUG_METAFILE
+	printf ("SetTextAlign %d", textalign);
+#endif
+	/* TODO */
+	return Ok;
+}
+
+/* http://wvware.sourceforge.net/caolan/DeleteObject.html */
+GpStatus
+gdip_metafile_DeleteObject (MetafilePlayContext *context, DWORD slot)
+{
+	GpStatus status = Ok;
+	GpMetafile *metafile = context->metafile;
+	MetaObject *obj;
+
+	if (slot >= context->objects_count) {
+		g_warning ("DeleteObject failure");
+		return InvalidParameter;
+	}
+
+	obj = &context->objects [slot];
+	switch (obj->type) {
+	case METAOBJECT_TYPE_PEN:
+		status = GdipDeletePen ((GpPen*)obj->ptr);
+		break;
+	case METAOBJECT_TYPE_BRUSH:
+		status = GdipDeleteBrush ((GpBrush*)obj->ptr);
+		break;
+	case METAOBJECT_TYPE_EMPTY:
+		break;
+	}
+
+#ifdef DEBUG_METAFILE
+	printf ("DeleteObject %d (type %d, ptr %p, status %d)", slot, obj->type, obj->ptr, status);
+#endif
+	obj->type = METAOBJECT_TYPE_EMPTY;
+	obj->ptr = NULL;
+	return status;
+}
+
+/* http://wvware.sourceforge.net/caolan/SetBkColor.html */
+GpStatus
+gdip_metafile_SetBkColor (MetafilePlayContext *context, DWORD color)
+{
+#ifdef DEBUG_METAFILE
+	printf ("SetBkColor %X", color);
+#endif
+	/* TODO - currently unused elsewhere */
+	context->bk_color = color;
+	return Ok;
+}
+
+/* http://wvware.sourceforge.net/caolan/SetWindowOrg.html */
+GpStatus
+gdip_metafile_SetWindowOrg (MetafilePlayContext *context, int x, int y)
+{
+#ifdef DEBUG_METAFILE
+	printf ("SetWindowOrg X: %d, Y: %d", x, y);
+#endif
+	/* TODO */
+	return Ok;
+}
+
+/* http://wvware.sourceforge.net/caolan/SetWindowExt.html */
+GpStatus
+gdip_metafile_SetWindowExt (MetafilePlayContext *context, int height, int width)
+{
+	GpStatus status;
+	float sx, sy;
+
+#ifdef DEBUG_METAFILE
+	printf ("SetWindowExt height %d, width %d", height, width);
+#endif
+	switch (context->map_mode) {
+	case MM_ISOTROPIC:
+		sx = (float)context->metafile->metafile_header.Width / width;
+		sy = (float)context->metafile->metafile_header.Height / height;
+		/* keeps ratio to 1:1 */
+		if (sx < sy)
+			sy = sx;
+		break;
+	case MM_ANISOTROPIC:
+		sx = (float)context->metafile->metafile_header.Width / width;
+		sy = (float)context->metafile->metafile_header.Height / height;
+		break;
+	default:
+		/* most cases are handled by SetMapMode */
+		return Ok;
+	}
+
+	/* this isn't cumulative (and we get a lot of "junk" calls) */
+	GdipSetWorldTransform (context->graphics, &context->matrix);
+	status = GdipScaleWorldTransform (context->graphics, sx, sy, MatrixOrderPrepend);
+#ifdef DEBUG_METAFILE_2
+	printf ("\n\tGdipScaleWorldTransform sx %g, sy %g (status %d)", sx, sy, status);
+#endif
+	return status;
+}
+
+/* http://wvware.sourceforge.net/caolan/LineTo.html */
+GpStatus
+gdip_metafile_LineTo (MetafilePlayContext *context, int x, int y)
+{
+	GpStatus status;
+#ifdef DEBUG_METAFILE
+	printf ("LineTo %s%d, %d", context->use_path ? "Path " : " ", x, y);
+#endif
+	if (context->use_path) {
+		status = GdipAddPathLine (context->path, context->current_x, context->current_y, x, y);
+	} else {
+		GpPen *pen = gdip_metafile_GetSelectedPen (context);
+		status = GdipDrawLine (context->graphics, pen, context->current_x, context->current_y, x, y);
+	}
+	context->current_x = x;
+	context->current_y = y;
+	return status;
+}
+
+/* http://wvware.sourceforge.net/caolan/MoveTo.html */
+GpStatus
+gdip_metafile_MoveTo (MetafilePlayContext *context, int x, int y)
+{
+#ifdef DEBUG_METAFILE
+	printf ("MoveTo X: %d, Y: %d", x, y);
+#endif
+	/* seems to always be called before Arc but, according to documentation, 
+	   Arc doesn't depend on the current cursor position */
+	context->current_x = x;
+	context->current_y = y;
+	return Ok;
+}
+
+GpStatus
+gdip_metafile_SetMiterLimit (MetafilePlayContext *context, float eNewLimit, float *peOldLimit)
+{
+	if (peOldLimit)
+		*peOldLimit = context->miter_limit;
+	/* GDI+ keeps the miter limit with it's pen, not the context, definition */
+	context->miter_limit = eNewLimit;
+	return Ok;
+}
+
+/* http://wvware.sourceforge.net/caolan/CreatePenIndirect.html */
+GpStatus
+gdip_metafile_CreatePenIndirect (MetafilePlayContext *context, DWORD style, DWORD width, DWORD color)
+{
+	GpStatus status;
+	GpPen *pen;
+	GpLineCap line_cap = LineCapRound;
+	GpLineJoin line_join = LineJoinRound;
+	int s = style & PS_STYLE_MASK;
+
+#ifdef DEBUG_METAFILE
+	printf ("CreatePenIndirect style %d, width %d, color %X", style, width, color);
+#endif
+	if (s == PS_NULL)
+		color &= 0x00FFFFFF;
+	else
+		color |= 0xFF000000;
+
+	if (width > 1) {
+		/* style is always solid for width > 1 */
+		status = GdipCreatePen1 (color, width, UnitPixel, &pen);
+	} else {
+		/* 0 isn't a mistake, this ensure we have a "real" pixel-wide line drawn */
+		status = GdipCreatePen1 (color, 0, UnitPixel, &pen);
+
+		switch (s) {
+		default:
+			g_warning ("Invalid pen style %d, style & PS_STYLE_MASK %d", style, s);
+			/* fall through */
+		case PS_NULL:
+		case DashStyleSolid:
+			break;
+		case DashStyleDash:
+		case DashStyleDot:
+		case DashStyleDashDot:
+		case DashStyleDashDotDot:
+			if (status == Ok)
+				status = GdipSetPenDashStyle (pen, s);
+			break;
+		}
+	}
+
+	if (status != Ok)
+		return status;
+	/* at this stage we got a pen, so we won't abort drawing on it's style */
+
+	s = (style & PS_ENDCAP_MASK);
+	switch (s) {
+	default:
+		g_warning ("Invalid pen endcap, style %d, (style & PS_ENDCAP_MASK) %d", style, s);
+		/* fall through */
+	case PS_ENDCAP_ROUND:
+		line_cap = LineCapRound;
+		break;
+	case PS_ENDCAP_SQUARE:
+		line_cap = LineCapSquare;
+		break;
+	case PS_ENDCAP_FLAT:
+		line_cap = LineCapFlat;
+		break;
+	}
+	GdipSetPenStartCap (pen, line_cap);
+	GdipSetPenEndCap (pen, line_cap);
+
+	s = (style & PS_JOIN_MASK);
+	switch (s) {
+	default:
+		g_warning ("Invalid pen join, style %d, (style & PS_JOIN_MASK) %d", style, s);
+		/* fall through */
+	case PS_JOIN_ROUND:
+		line_join = LineJoinRound;
+		break;
+	case PS_JOIN_BEVEL:
+		line_join = LineJoinBevel;
+		break;
+	case PS_JOIN_MITER:
+		line_join = LineJoinMiter;
+		break;
+	}
+	GdipSetPenLineJoin (pen, line_join);
+
+	context->created.type = METAOBJECT_TYPE_PEN;
+	context->created.ptr = pen;
+	return Ok;
+}
+
+GpStatus
+gdip_metafile_ExtCreatePen (MetafilePlayContext *context, DWORD dwPenStyle, DWORD dwWidth, CONST LOGBRUSH *lplb, 
+	DWORD dwStyleCount, CONST DWORD *lpStyle)
+{
+	/* TODO - there's more cases to consider */
+	return gdip_metafile_CreatePenIndirect (context, dwPenStyle, dwWidth, lplb->lbColor);
+}
+
+/* http://wvware.sourceforge.net/caolan/CreateBrushIndirect.html */
+GpStatus
+gdip_metafile_CreateBrushIndirect (MetafilePlayContext *context, DWORD style, DWORD color, DWORD hatch)
+{
+	GpStatus status = Ok;
+	GpSolidFill *brush;
+
+	switch (style) {
+	case BS_SOLID:
+		color |= 0xFF000000;
+		status = GdipCreateSolidFill (color, &brush);
+		break;
+	case BS_NULL:
+		color &= 0x00FFFFFF;
+		status = GdipCreateSolidFill (color, &brush);
+		break;
+	default:
+		g_warning ("gdip_metafile_CreateBrushIndirect unimplemented style %d", style);
+		status = GdipCreateSolidFill (color, &brush);
+		break;
+	}
+
+#ifdef DEBUG_METAFILE
+	printf ("CreateBrushIndirect style %d, color %X, hatch %d (%p, status %d)", style, color, hatch, brush, status);
+#endif
+	context->created.type = METAOBJECT_TYPE_BRUSH;
+	context->created.ptr = brush;
+	return status;
+}
+
+/* http://wvware.sourceforge.net/caolan/Arc.html */
+GpStatus
+gdip_metafile_Arc (MetafilePlayContext *context, int left, int top, int right, int bottom, 
+	int xstart, int ystart, int xend, int yend)
+{
+#ifdef DEBUG_METAFILE
+	printf ("Arc left %d, top %d, right %d, bottom %d, xstart %d, ystart %d, xend %d, yend %d", 
+		left, top, right, bottom, xstart, ystart, xend, yend);
+#endif
+	/* don't draw if the bounds are empty (width or height) */
+	if ((right - left <= 0) || (bottom = top <= 0))
+		return Ok;
+	return GdipDrawArc (context->graphics, gdip_metafile_GetSelectedPen (context), left, top, 
+		(right - left), (bottom - top), atan2 (ystart, xstart), atan2 (yend, xend));
+}
+
+/*
+ * Return the selected GDI+ Pen to draw on the metafile or NULL if none is selected/valid.
+ */
+GpPen*
+gdip_metafile_GetSelectedPen (MetafilePlayContext *context)
+{
+	GpPen *pen;
+
+	// EMF have some stock objects that do not requires explicit creation
+	if (context->selected_pen & ENHMETA_STOCK_OBJECT) {
+		switch (context->selected_pen - ENHMETA_STOCK_OBJECT) {
+		case WHITE_PEN:
+			if (!context->stock_pen_white) {
+				if (GdipCreatePen1 (0xFFFFFFFF, 0, UnitPixel, &context->stock_pen_white) != Ok)
+					return NULL;
+			}
+			pen = context->stock_pen_white;
+			break;
+		case BLACK_PEN:
+			if (!context->stock_pen_black) {
+				if (GdipCreatePen1 (0xFF000000, 0, UnitPixel, &context->stock_pen_black) != Ok)
+					return NULL;
+			}
+			pen = context->stock_pen_black;
+			break;
+		case NULL_PEN:
+			if (!context->stock_pen_null) {
+				if (GdipCreatePen1 (0x00000000, 0, UnitPixel, &context->stock_pen_null) != Ok)
+					return NULL;
+			}
+			pen = context->stock_pen_null;
+			break;
+		default:
+			return NULL;
+		}
+	} else {
+		if ((context->selected_pen < 0) || (context->selected_pen >= context->objects_count)) {
+			g_warning ("Invalid pen handle %d [0..%d[", context->selected_pen, context->objects_count);
+			return NULL;
+		}
+
+		if (context->objects [context->selected_pen].type != METAOBJECT_TYPE_PEN) {
+			g_warning ("Wrong object type %d, expected pen (%d)", context->objects [context->selected_pen].type, 
+				METAOBJECT_TYPE_PEN);
+			return NULL;
+		}
+#ifdef DEBUG_METAFILE
+		printf ("\tusing pen #%d (%p)", context->selected_pen, context->objects [context->selected_pen].ptr);
+#endif
+		pen = (GpPen*) context->objects [context->selected_pen].ptr;
+	}
+
+	/* miter limit was global (i.e. context not pen specific) in GDI */
+	GdipSetPenMiterLimit (pen, context->miter_limit);
+	return pen;
+}
+
+/*
+ * Return the selected GDI+ Brush to fill on the metafile or NULL if none is selected/valid.
+ */
+GpBrush*
+gdip_metafile_GetSelectedBrush (MetafilePlayContext *context)
+{
+	// EMF have some stock objects that do not requires explicit creation
+	if (context->selected_brush & ENHMETA_STOCK_OBJECT) {
+		switch (context->selected_brush - ENHMETA_STOCK_OBJECT) {
+		case WHITE_BRUSH:
+			if (!context->stock_brush_white) {
+				if (GdipCreateSolidFill (0xFFFFFFFF, &context->stock_brush_white) != Ok)
+					return NULL;
+			}
+			return (GpBrush*)context->stock_brush_white;
+		case LTGRAY_BRUSH:
+			if (!context->stock_brush_ltgray) {
+				if (GdipCreateSolidFill (0xFFBBBBBB, &context->stock_brush_ltgray) != Ok)
+					return NULL;
+			}
+			return (GpBrush*)context->stock_brush_ltgray;
+		case GRAY_BRUSH:
+			if (!context->stock_brush_gray) {
+				if (GdipCreateSolidFill (0xFF888888, &context->stock_brush_gray) != Ok)
+					return NULL;
+			}
+			return (GpBrush*)context->stock_brush_gray;
+		case DKGRAY_BRUSH:
+			if (!context->stock_brush_dkgray) {
+				if (GdipCreateSolidFill (0xFF444444, &context->stock_brush_dkgray) != Ok)
+					return NULL;
+			}
+			return (GpBrush*)context->stock_brush_dkgray;
+		case BLACK_BRUSH:
+			if (!context->stock_brush_black) {
+				if (GdipCreateSolidFill (0xFF000000, &context->stock_brush_black) != Ok)
+					return NULL;
+			}
+			return (GpBrush*)context->stock_brush_black;
+		case NULL_BRUSH:
+			if (!context->stock_brush_null) {
+				if (GdipCreateSolidFill (0x00000000, &context->stock_brush_null) != Ok)
+					return NULL;
+			}
+			return (GpBrush*)context->stock_brush_null;
+		default:
+			return NULL;
+		}
+	}
+
+	if ((context->selected_brush < 0) || (context->selected_brush >= context->objects_count)) {
+		g_warning ("Invalid brush handle %d [0..%d[", context->selected_brush, context->objects_count);
+		return NULL;
+	}
+
+	if (context->objects [context->selected_brush].type != METAOBJECT_TYPE_BRUSH) {
+		g_warning ("Wrong object type %d, expected brush (%d)", context->objects [context->selected_brush].type, 
+			METAOBJECT_TYPE_BRUSH);
+		return NULL;
+	}
+
+#ifdef DEBUG_METAFILE
+	printf ("\tusing brush #%d (%p)", context->selected_brush, context->objects [context->selected_brush].ptr);
+#endif
+	return (GpBrush*) context->objects [context->selected_brush].ptr;
+}
+
+GpStatus
+gdip_metafile_PolyBezier (MetafilePlayContext *context, GpPointF *points, int count)
+{
+	GpStatus status;
+#ifdef DEBUG_METAFILE
+	printf ("PolyBezier %s count %d", context->use_path ? "Path " : " ", count);
+#endif
+	if (context->use_path) {
+		status = GdipAddPathBeziers (context->path, points, count);
+	} else {
+		GpPen *pen = gdip_metafile_GetSelectedPen (context);
+		return GdipDrawCurve (context->graphics, pen, points, count);
+	}
+	return status;
+}
+
+GpStatus
+gdip_metafile_Polygon (MetafilePlayContext *context, GpPointF *points, int count)
+{
+#ifdef DEBUG_METAFILE
+	printf ("Polygon %s count %d", context->use_path ? "Path " : " ", count);
+#endif
+	GpBrush *brush = gdip_metafile_GetSelectedBrush (context);
+	GpStatus status = GdipFillPolygon (context->graphics, brush, points, count, context->fill_mode);
+	if (status == Ok) {
+		GpPen *pen = gdip_metafile_GetSelectedPen (context);
+		status = GdipDrawPolygon (context->graphics, pen, points, count);
+	}
+	return status;
+}
+
+GpStatus
+gdip_metafile_BeginPath (MetafilePlayContext *context)
+{
+	GpStatus status;
+
+	if (context->path) {
+		GdipDeletePath (context->path);
+		context->path = NULL;
+	}
+	context->use_path = TRUE;
+	status = GdipCreatePath (0, &context->path);
+#ifdef DEBUG_METAFILE
+	printf ("BeginPath %p", context->path);
+#endif
+	return status;
+}
+
+GpStatus
+gdip_metafile_EndPath (MetafilePlayContext *context)
+{
+#ifdef DEBUG_METAFILE
+	printf ("EndPath %p", context->path);
+#endif
+	context->use_path = FALSE;
+	return Ok;
+}
+
+GpStatus
+gdip_metafile_CloseFigure (MetafilePlayContext *context)
+{
+#ifdef DEBUG_METAFILE
+	printf ("CloseFigure %p", context->path);
+#endif
+	return GdipClosePathFigures (context->path);
+}
+
+GpStatus
+gdip_metafile_FillPath (MetafilePlayContext *context)
+{
+#ifdef DEBUG_METAFILE
+	printf ("FillPath %p", context->path);
+#endif
+	GpBrush* brush = gdip_metafile_GetSelectedBrush (context);
+	/* end path if required */
+	if (context->use_path)
+		gdip_metafile_EndPath (context);
+	return GdipFillPath (context->graphics, brush, context->path);
+}
+
+GpStatus
+gdip_metafile_StrokePath (MetafilePlayContext *context)
+{
+#ifdef DEBUG_METAFILE
+	printf ("StrokePath %p", context->path);
+#endif
+	GpPen *pen = gdip_metafile_GetSelectedPen (context);
+	/* end path if required */
+	if (context->use_path)
+		gdip_metafile_EndPath (context);
+	return GdipDrawPath (context->graphics, pen, context->path);
+}
+
+GpStatus
+gdip_metafile_StrokeAndFillPath (MetafilePlayContext *context)
+{
+	GpBrush *brush;
+	GpStatus status;
+#ifdef DEBUG_METAFILE
+	printf ("StrokeAndFillPath %p", context->path);
+#endif
+	/* end path if required */
+	if (context->use_path)
+		gdip_metafile_EndPath (context);
+
+	brush = gdip_metafile_GetSelectedBrush (context);
+	status = GdipFillPath (context->graphics, brush, context->path);
+	if (status == Ok) {
+		GpPen *pen = gdip_metafile_GetSelectedPen (context);
+		status = GdipDrawPath (context->graphics, pen, context->path);
+	}
+	return status;
+}
+
+
 static GpMetafile*
 gdip_metafile_create ()
 {
@@ -78,36 +794,72 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 	MetafilePlayContext *context;
 	/* metafiles always render as 32bppRgb */
 	int stride = width * 4;
+	int size = height * stride;
 
 	if (!metafile || !graphics)
 		return NULL;
 
-	n = metafile->metafile_header.WmfHeader.mtNoObjects;
 	context = GdipAlloc (sizeof (MetafilePlayContext));
 	context->metafile = metafile;
 	context->graphics = graphics;
+	context->use_path = FALSE;
+	context->path = NULL;
+	GdipGetWorldTransform (graphics, &context->matrix);
 	context->x = x;
 	context->y = y;
 	context->width = width;
 	context->height = height;
-	context->scan0 = GdipAlloc (height * stride);
-	metafile->base.surface = cairo_image_surface_create_for_data (context->scan0, CAIRO_FORMAT_ARGB32, width, height, stride);
+
+	/* defaults */
+	context->fill_mode = FillModeAlternate;
+	context->map_mode = MM_TEXT;
+	context->miter_limit = 10.0f;
+	context->selected_pen = -1;
+	context->selected_brush = -1;
+	context->selected_font = -1;
+	context->selected_palette = -1;
+
 	/* Create* functions store the object here */
 	context->created.type = METAOBJECT_TYPE_EMPTY;
 	context->created.ptr = NULL;
+
+	/* stock objects */
+	context->stock_pen_white = NULL;
+	context->stock_pen_black = NULL;
+	context->stock_pen_null = NULL;
+	context->stock_brush_white = NULL;
+	context->stock_brush_ltgray = NULL;
+	context->stock_brush_gray = NULL;
+	context->stock_brush_dkgray = NULL;
+	context->stock_brush_black = NULL;
+	context->stock_brush_null = NULL;
+
 	/* SelectObject | DeleteObject works on this array */
-	context->objects = (MetaObject*) GdipAlloc (n * sizeof (MetaObject));
+	switch (context->metafile->metafile_header.Type) {
+	case METAFILETYPE_WMFPLACEABLE:
+	case METAFILETYPE_WMF:
+		context->objects_count = metafile->metafile_header.WmfHeader.mtNoObjects;
+		break;
+	case METAFILETYPE_EMF:
+	case METAFILETYPE_EMFPLUSONLY:
+	case METAFILETYPE_EMFPLUSDUAL:
+		context->objects_count = metafile->metafile_header.EmfHeader.nHandles + 1; /* 0 is reserved */
+		break;
+	default:
+		return NULL;
+	}
+	context->objects = (MetaObject*) GdipAlloc (context->objects_count * sizeof (MetaObject));
 	if (!context->objects) {
 		GdipFree (context);
 		return NULL;
 	}
-
 	obj = context->objects;
-	for (i = 0; i < n; i++) {
+	for (i = 0; i < context->objects_count; i++) {
 		obj->type = METAOBJECT_TYPE_EMPTY;
 		obj->ptr = NULL;
 		obj++;
 	}
+
 	return context;
 }
 
@@ -140,10 +892,12 @@ gdip_metafile_play_cleanup (MetafilePlayContext *context)
 	if (!context)
 		return InvalidParameter;
 
-	GdipFree (context->scan0);
-	context->scan0 = NULL;
+	GdipSetWorldTransform (context->graphics, &context->matrix);
 	context->graphics = NULL;
-/* TODO cleanup surface */
+	if (context->path) {
+		GdipDeletePath (context->path);
+		context->path = NULL;
+	}
 	context->created.type = METAOBJECT_TYPE_EMPTY;
 	context->created.ptr = NULL;
 	if (context->objects) {
@@ -151,17 +905,44 @@ gdip_metafile_play_cleanup (MetafilePlayContext *context)
 		GpMetafile *metafile = context->metafile;
 		MetaObject *obj = context->objects;
 		/* free each object */
-		for (i = 0; i < metafile->metafile_header.WmfHeader.mtNoObjects; i++) {
-			/* gdip_metafile_DeleteObject (context, i); */
+		for (i = 0; i < context->objects_count; i++) {
+			gdip_metafile_DeleteObject (context, i);
 			obj++;
 		}
 		GdipFree (context->objects);
 		context->objects = NULL;
 	}
-	context->selected_pen = NULL;
-	context->selected_brush = NULL;
+
+	context->selected_pen = -1;
+	context->selected_brush = -1;
+	context->selected_font = -1;
+	context->selected_font = -1;
+	context->selected_palette = -1;
+
+	/* stock objects */
+	if (context->stock_pen_white)
+		GdipDeletePen (context->stock_pen_white);
+	if (context->stock_pen_black)
+		GdipDeletePen (context->stock_pen_black);
+	if (context->stock_pen_null)
+		GdipDeletePen (context->stock_pen_null);
+	if (context->stock_brush_white)
+		GdipDeleteBrush ((GpBrush*)context->stock_brush_white);
+	if (context->stock_brush_ltgray)
+		GdipDeleteBrush ((GpBrush*)context->stock_brush_ltgray);
+	if (context->stock_brush_gray)
+		GdipDeleteBrush ((GpBrush*)context->stock_brush_gray);
+	if (context->stock_brush_dkgray)
+		GdipDeleteBrush ((GpBrush*)context->stock_brush_dkgray);
+	if (context->stock_brush_black)
+		GdipDeleteBrush ((GpBrush*)context->stock_brush_black);
+	if (context->stock_brush_null)
+		GdipDeleteBrush ((GpBrush*)context->stock_brush_null);
+
+	GdipFree (context);
 	return Ok;
 }
+
 
 static GpStatus
 combine_headers (GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, MetafileHeader *header)
@@ -193,6 +974,7 @@ gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, bool useFil
 	DWORD key;
 	GpStatus status = NotImplemented;
 	WmfPlaceableFileHeader aldus_header;
+	ENHMETAHEADER3 *emf;
 
 	/* peek at first DWORD to select the right format */
 	size = sizeof (DWORD);
@@ -204,7 +986,7 @@ gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, bool useFil
 		aldus_header.Key = key;
 		size = sizeof (WmfPlaceableFileHeader) - size;
 		if (gdip_read_wmf_data (pointer, (void*)(&aldus_header) + sizeof (DWORD), size, useFile) != size)
-			return NotImplemented;
+			return InvalidParameter;
 #if FALSE
 g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inch %d, reserved %d, checksum %d", 
 	aldus_header.Key, aldus_header.Hmf, aldus_header.BoundingBox.Left, aldus_header.BoundingBox.Top,
@@ -213,7 +995,7 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 #endif
 		size = sizeof (METAHEADER);
 		if (gdip_read_wmf_data (pointer, (void*)&header->WmfHeader, size, useFile) != size)
-			return NotImplemented;
+			return InvalidParameter;
 
 		status = combine_headers (&aldus_header, header);
 		break;
@@ -222,11 +1004,59 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 
 		size = sizeof (METAHEADER) - size;
 		if (gdip_read_wmf_data (pointer, (void*)(&header->WmfHeader) + sizeof (DWORD), size, useFile) != size)
-			return NotImplemented;
+			return InvalidParameter;
 
 		status = combine_headers (NULL, header);
 		break;
 	case EMF_EMR_HEADER_KEY:
+		emf = &(header->EmfHeader);
+		emf->iType = key;
+		size = sizeof (ENHMETAHEADER3) - size;
+		if (gdip_read_emf_data (pointer, (void*)(&header->EmfHeader) + sizeof (DWORD), size, useFile) != size)
+			return InvalidParameter;
+#if FALSE
+g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame L %d, T %d, R %d, B %d, signature %d, version %d,  bytes %d, records %d, handles %d, reserved %d, description %d, %d, palentries %d, device %d, %d, millimeters %d, %d", 
+	header->EmfHeader.iType, header->EmfHeader.nSize, 
+	header->EmfHeader.rclBounds.left, header->EmfHeader.rclBounds.top, header->EmfHeader.rclBounds.right, header->EmfHeader.rclBounds.bottom,
+	header->EmfHeader.rclFrame.left, header->EmfHeader.rclFrame.top, header->EmfHeader.rclFrame.right, header->EmfHeader.rclFrame.bottom,
+	header->EmfHeader.dSignature, header->EmfHeader.nVersion, header->EmfHeader.nBytes, header->EmfHeader.nRecords, header->EmfHeader.nHandles,
+	header->EmfHeader.sReserved, header->EmfHeader.nDescription, header->EmfHeader.offDescription, header->EmfHeader.nPalEntries,
+	header->EmfHeader.szlDevice.cx, header->EmfHeader.szlDevice.cy, header->EmfHeader.szlMillimeters.cx, header->EmfHeader.szlMillimeters.cy);
+#endif
+		/* sanity check */
+		if ((emf->iType != 1) || (emf->dSignature != 0x464D4520) || (emf->sReserved != 0))
+			return InvalidParameter;
+
+		header->Type = METAFILETYPE_EMF;
+		header->X = emf->rclBounds.left;
+		header->Y = emf->rclBounds.top;
+		/* FIXME: inclusive-inclusive, MS gets 2 to 5 pixels larger than the header */
+		header->Width = emf->rclBounds.right - emf->rclBounds.left + 1;
+		header->Height = emf->rclBounds.bottom - emf->rclBounds.top + 1;
+		header->DpiX = header->Width / ((emf->rclBounds.right - emf->rclBounds.left + 1) / (float)METAFILE_DIMENSION_FACTOR);
+		header->DpiY = header->Height / ((emf->rclBounds.bottom - emf->rclBounds.top + 1) / (float)METAFILE_DIMENSION_FACTOR);
+		header->Size = emf->nBytes;
+		header->Version = emf->nVersion;
+		/* FIXME: we do not match MS results here*/
+		header->EmfPlusFlags = 0;
+		header->EmfPlusHeaderSize = 0;
+		header->LogicalDpiX = 0;
+		header->LogicalDpiY = 0;
+
+		/* note: there can be (empty?) space between the header and the start of the metafile records */
+		size = emf->nSize - sizeof (ENHMETAHEADER3);
+		if (size > 0) {
+			while (size > sizeof (DWORD)) {
+				if (gdip_read_emf_data (pointer, (void*)(&key), sizeof (DWORD), useFile) != sizeof (DWORD))
+					return InvalidParameter;
+				size -= sizeof (DWORD);
+			}
+			if (size > 0) {
+				if (gdip_read_emf_data (pointer, (void*)(&key), size, useFile) != size)
+					return InvalidParameter;
+			}
+		}
+		status = Ok;
 		break;
 	default:
 		g_warning ("Unknown metafile format: key %d", key);
@@ -239,7 +1069,6 @@ g_warning ("METAHEADER type %d, header %d, version %d, size %d, #obj %d, max rec
 	header->WmfHeader.mtSize, header->WmfHeader.mtNoObjects, header->WmfHeader.mtMaxRecord,
 	header->WmfHeader.mtNoParameters);
 #endif
-
 	return status;
 }
 
@@ -262,23 +1091,22 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, bool useFile)
 		mf->base.image_format = WMF;
 		/* note: mtSize is in WORD, mtSize contains the METAHEADER, mf->length is in bytes */
 		mf->length = mf->metafile_header.WmfHeader.mtSize * 2 - sizeof (METAHEADER);
-		mf->data = (BYTE*) GdipAlloc (mf->length);
-		if (!mf->data)
-			goto error;
-		/* copy data in memory (to play it later) */
-		if (gdip_read_wmf_data (pointer, (void*)mf->data, mf->length, useFile) != mf->length) {
-			status = InvalidParameter;
-			goto error;
-		}
 		break;
 	case METAFILETYPE_EMF:
 	case METAFILETYPE_EMFPLUSONLY:
 	case METAFILETYPE_EMFPLUSDUAL:
 		mf->base.image_format = EMF;
-/* TODO - handle EMF */
-		status = NotImplemented;
-		goto error;
+		mf->length = mf->metafile_header.EmfHeader.nBytes - mf->metafile_header.EmfHeader.nSize;
 		break;
+	}
+
+	mf->data = (BYTE*) GdipAlloc (mf->length);
+	if (!mf->data)
+		goto error;
+	/* copy data in memory (to play it later) */
+	if (gdip_read_wmf_data (pointer, (void*)mf->data, mf->length, useFile) != mf->length) {
+		status = InvalidParameter;
+		goto error;
 	}
 
 	*metafile = mf;
@@ -498,7 +1326,7 @@ GdipGetMetafileDownLevelRasterizationLimit (GpMetafile *metafile, UINT *metafile
 	switch (metafile->metafile_header.Type) {
 	case METAFILETYPE_EMF:
 	case METAFILETYPE_EMFPLUSDUAL:
-/* TODO */
+		/* TODO */
 		*metafileRasterizationLimitDpi = 0;
 		return Ok;
 	case METAFILETYPE_WMFPLACEABLE:
