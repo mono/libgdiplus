@@ -246,19 +246,26 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	
 	cairo_new_path (graphics->ct);
 
-	if (image->type == imageBitmap) {
-		/* Create a surface for this bitmap if one doesn't exist */
-		gdip_bitmap_ensure_surface (image);
+	/* metafile */
+	if (image->type == imageMetafile) {
+		GpStatus status;
 
-		if (width != image->active_bitmap->width || height != image->active_bitmap->height) {
-			scaled_width = (double) width / image->active_bitmap->width;
-			scaled_height = (double) height / image->active_bitmap->height;
-			need_scaling = TRUE;
-		}
-	} else if (image->type == imageMetafile) {
-		/* metafile */
 		metacontext = gdip_metafile_play_setup ((GpMetafile*)image, graphics, x, y, width, height);
-		gdip_metafile_play (metacontext);
+
+		cairo_translate (graphics->ct, x, y);
+		status = gdip_metafile_play (metacontext);
+
+		gdip_metafile_play_cleanup (metacontext);
+		return status;
+	}
+
+	/* Create a surface for this bitmap if one doesn't exist */
+	gdip_bitmap_ensure_surface (image);
+
+	if (width != image->active_bitmap->width || height != image->active_bitmap->height) {
+		scaled_width = (double) width / image->active_bitmap->width;
+		scaled_height = (double) height / image->active_bitmap->height;
+		need_scaling = TRUE;
 	}
 
 	pattern = cairo_pattern_create_for_surface (image->surface);
@@ -281,9 +288,6 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	cairo_pattern_destroy (org_pattern);
 	cairo_pattern_destroy (pattern);
 
-	if (metacontext)
-		gdip_metafile_play_cleanup (metacontext);
-	
 	return Ok;
 }
 
@@ -325,14 +329,22 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	tRect.Y = 0; 
 	GdipCreateMatrix3 (&tRect, dstPoints, &matrix);
 
-	if (image->type == imageBitmap) {
-		/* Create a surface for this bitmap if one doesn't exist */
-		gdip_bitmap_ensure_surface (image);
-	} else if (image->type == imageMetafile) {
-		/* metafile */
+	/* metafile */
+	if (image->type == imageMetafile) {
+		GpStatus status;
 		metacontext = gdip_metafile_play_setup ((GpMetafile*)image, graphics, tRect.X, tRect.Y, tRect.Width, tRect.Height);
-		gdip_metafile_play (metacontext);
+
+		cairo_get_matrix (graphics->ct, &orig_matrix);
+		cairo_set_matrix (graphics->ct, matrix);
+		status = gdip_metafile_play (metacontext);
+		GdipDeleteMatrix (matrix);
+
+		gdip_metafile_play_cleanup (metacontext);
+		return status;
 	}
+
+	/* Create a surface for this bitmap if one doesn't exist */
+	gdip_bitmap_ensure_surface (image);
 
 	pattern = cairo_pattern_create_for_surface (image->surface);
 	cairo_pattern_set_filter (pattern, gdip_get_cairo_filter (graphics->interpolation));
@@ -351,9 +363,6 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	GdipDeleteMatrix (matrix);
 	cairo_pattern_destroy (org_pattern);
 	cairo_pattern_destroy (pattern);
-
-	if (metacontext)
-		gdip_metafile_play_cleanup (metacontext);
 
 	return Ok;
 }

@@ -1,3 +1,9 @@
+2007-03-08  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* gdip.h: Add some missing prototypes to avoid compiler warnings.
+	* image.c: Change drawing metafiles not to require a surface (it will 
+	be played on the existing one).
+
 2007-02-27  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* gdip.h: Add some missing prototypes to avoid compiler warnings.
