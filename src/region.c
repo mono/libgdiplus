@@ -113,7 +113,7 @@ gdip_is_region_empty (GpRegion *region)
 static BOOL
 gdip_is_rect_infinite (GpRectF *rect)
 {
-	return ((rect->X == REGION_INFINITE_POSITION) && 
+	return (rect && (rect->X == REGION_INFINITE_POSITION) && 
 		(rect->Y == REGION_INFINITE_POSITION) &&
 		(rect->Width == REGION_INFINITE_LENGTH) && 
 		(rect->Height == REGION_INFINITE_LENGTH));

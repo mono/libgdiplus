@@ -1600,6 +1600,10 @@ GdipGetImagePalette (GpImage *image, ColorPalette *palette, int size)
 		return NotImplemented;
 
 	if (!image->active_bitmap->palette) {
+		/* ColorPalette definition includes one ARGB member (ARGB Entries[1]). In reality there are 
+		 * Count entries allocated, where Count can be 0 (and required to substract the ARGB size)
+		 */
+		/* coverity[buffer_alloc] */
 		image->active_bitmap->palette = (ColorPalette*) GdipAlloc (sizeof(ColorPalette) - sizeof(ARGB));
 		image->active_bitmap->palette->Flags = 0;
 		image->active_bitmap->palette->Count = 0;

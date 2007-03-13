@@ -364,7 +364,7 @@ GpStatus
 gdip_metafile_CreatePenIndirect (MetafilePlayContext *context, DWORD style, DWORD width, DWORD color)
 {
 	GpStatus status;
-	GpPen *pen;
+	GpPen *pen = NULL;
 	GpLineCap line_cap = LineCapRound;
 	GpLineJoin line_join = LineJoinRound;
 	int s = style & PS_STYLE_MASK;
@@ -401,8 +401,11 @@ gdip_metafile_CreatePenIndirect (MetafilePlayContext *context, DWORD style, DWOR
 		}
 	}
 
-	if (status != Ok)
+	if (status != Ok) {
+		if (pen)
+			GdipDeletePen (pen);
 		return status;
+	}
 	/* at this stage we got a pen, so we won't abort drawing on it's style */
 
 	s = (style & PS_ENDCAP_MASK);
@@ -846,6 +849,7 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 		context->objects_count = metafile->metafile_header.EmfHeader.nHandles + 1; /* 0 is reserved */
 		break;
 	default:
+		GdipFree (context);
 		return NULL;
 	}
 	context->objects = (MetaObject*) GdipAlloc (context->objects_count * sizeof (MetaObject));

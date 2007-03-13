@@ -1,3 +1,14 @@
+2007-03-13  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* bitmap.c: Added comment about the special allocation of ColorPalette
+	where Count == 0 (CID273).
+	* image.c: Added comment about the special allocation of ColorPalette
+	where Count == 0 (CID272).
+	* metafile.c: Delete possibly allocated pen if invalid (CID279).
+	Free metafile context if the metafile type is invalid (CID280).
+	* region.c: In gdip_is_rect_infinite make sure rect can never be 
+	dereferenced (CID276).
+
 2007-03-08  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* emfcodec.c|h: Initial (i.e. subset of) EMF parser/player.
