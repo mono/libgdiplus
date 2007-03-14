@@ -1,3 +1,10 @@
+2007-03-13  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* image.c: Fix codec signature compare when more than one signature-
+	mask exists (e.g. GIF87 files). Fix codec signature length to match the
+	(very large) EMF requirement (44 bytes).
+	* gdipImage.h: Add define for MAX_CODEC_SIG_LENGTH
+
 2007-03-13  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* bitmap.c: Added comment about the special allocation of ColorPalette

@@ -31,6 +31,8 @@ static const CLSID gdip_image_frameDimension_time_guid = {0x6aedbd6dU, 0x3fb5U, 
 static const CLSID gdip_image_frameDimension_resolution_guid = {0x84236f7bU, 0x3bd3U, 0x428fU, {0x8d, 0xab, 0x4e, 0xa1, 0x43, 0x9c, 0xa3, 0x15}};
 
 
+#define MAX_CODEC_SIG_LENGTH	44
+
 /*
  * Enumerations
  *

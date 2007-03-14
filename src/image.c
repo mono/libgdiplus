@@ -77,7 +77,7 @@ get_image_format (char *sig_read, size_t size_read)
 	for (index = 0; index < g_decoders; index++, decoder++) {
 		int sig;
 		/* for each signature in the codec */
-		for (sig = 0; sig < decoder->SigCount; sig++) {
+		for (sig = 0; sig < (decoder->SigSize * decoder->SigCount); sig += decoder->SigSize) {
 			BOOL match = TRUE;
 			int p;
 			for (p = 0; ((p < decoder->SigSize) && (p < size_read)); p++) {
@@ -677,7 +677,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	GpStatus	status = Ok;
 	ImageFormat	format;
 	char		*file_name = NULL;
-	char		format_peek[10];
+	char		format_peek[MAX_CODEC_SIG_LENGTH];
 	int		format_peek_sz;
 	
 	if (!image || !file)
@@ -695,7 +695,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 		return OutOfMemory;
 	}
 	
-	format_peek_sz = fread (format_peek, 1, 10, fp);
+	format_peek_sz = fread (format_peek, 1, MAX_CODEC_SIG_LENGTH, fp);
 	format = get_image_format (format_peek, format_peek_sz);
 	fseek (fp, 0, SEEK_SET);
 	
@@ -1965,10 +1965,10 @@ GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 	ImageFormat format;
 	dstream_t *loader = NULL;
 	
-	byte format_peek[10];
+	byte format_peek[MAX_CODEC_SIG_LENGTH];
 	int format_peek_sz;
 	
-	format_peek_sz = getHeaderFunc (format_peek, 10);
+	format_peek_sz = getHeaderFunc (format_peek, MAX_CODEC_SIG_LENGTH);
 	format = get_image_format ((char *)format_peek, format_peek_sz);
 	
 	switch (format) {
