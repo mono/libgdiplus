@@ -2003,7 +2003,8 @@ GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 		status = gdip_load_wmf_image_from_stream_delegate (loader, &result);
 		break;
 	default:
-		status = NotImplemented;
+		/* NotImplemented looks better but this matchs MS behavior */
+		status = InvalidParameter;
 		break;
 	}
 
