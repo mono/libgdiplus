@@ -43,6 +43,7 @@
 
 /* this has to do with 25.4mm in an inch (but why is it multiplied by 100 ?) */
 #define METAFILE_DIMENSION_FACTOR	2540
+#define MM_PER_INCH			25.4f
 
 /* match System.Drawing.Imaging.MetafileType */
 #define METAFILETYPE_INVALID		0
