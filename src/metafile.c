@@ -1019,29 +1019,29 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 		if (gdip_read_emf_data (pointer, (void*)(&header->EmfHeader) + sizeof (DWORD), size, useFile) != size)
 			return InvalidParameter;
 #if FALSE
-g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame L %d, T %d, R %d, B %d, signature %d, version %d,  bytes %d, records %d, handles %d, reserved %d, description %d, %d, palentries %d, device %d, %d, millimeters %d, %d", 
-	header->EmfHeader.iType, header->EmfHeader.nSize, 
-	header->EmfHeader.rclBounds.left, header->EmfHeader.rclBounds.top, header->EmfHeader.rclBounds.right, header->EmfHeader.rclBounds.bottom,
-	header->EmfHeader.rclFrame.left, header->EmfHeader.rclFrame.top, header->EmfHeader.rclFrame.right, header->EmfHeader.rclFrame.bottom,
-	header->EmfHeader.dSignature, header->EmfHeader.nVersion, header->EmfHeader.nBytes, header->EmfHeader.nRecords, header->EmfHeader.nHandles,
-	header->EmfHeader.sReserved, header->EmfHeader.nDescription, header->EmfHeader.offDescription, header->EmfHeader.nPalEntries,
-	header->EmfHeader.szlDevice.cx, header->EmfHeader.szlDevice.cy, header->EmfHeader.szlMillimeters.cx, header->EmfHeader.szlMillimeters.cy);
+g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame L %d, T %d, R %d, B %d, signature %X, version %d, bytes %d, records %d, handles %d, reserved %d, description %d, %d, palentries %d, device %d, %d, millimeters %d, %d", 
+	emf->iType, emf->nSize, 
+	emf->rclBounds.left, emf->rclBounds.top, emf->rclBounds.right, emf->rclBounds.bottom,
+	emf->rclFrame.left, emf->rclFrame.top, emf->rclFrame.right, emf->rclFrame.bottom,
+	emf->dSignature, emf->nVersion, emf->nBytes, emf->nRecords, emf->nHandles,
+	emf->sReserved, emf->nDescription, emf->offDescription, emf->nPalEntries,
+	emf->szlDevice.cx, emf->szlDevice.cy, emf->szlMillimeters.cx, emf->szlMillimeters.cy);
 #endif
 		/* sanity check */
 		if ((emf->iType != 1) || (emf->dSignature != 0x464D4520) || (emf->sReserved != 0))
 			return InvalidParameter;
 
 		header->Type = METAFILETYPE_EMF;
-		header->X = emf->rclBounds.left;
-		header->Y = emf->rclBounds.top;
-		/* FIXME: inclusive-inclusive, MS gets 2 to 5 pixels larger than the header */
-		header->Width = emf->rclBounds.right - emf->rclBounds.left + 1;
-		header->Height = emf->rclBounds.bottom - emf->rclBounds.top + 1;
-		header->DpiX = header->Width / ((emf->rclBounds.right - emf->rclBounds.left + 1) / (float)METAFILE_DIMENSION_FACTOR);
-		header->DpiY = header->Height / ((emf->rclBounds.bottom - emf->rclBounds.top + 1) / (float)METAFILE_DIMENSION_FACTOR);
+		/* FIXME: inclusive-inclusive, MS gets 1 to 5 pixels larger than the header */
+		header->X = 0;
+		header->Y = 0;
+		header->Width = emf->szlDevice.cx + 1;
+		header->Height = emf->szlDevice.cy + 1;
+		header->DpiX = MM_PER_INCH / ((float)emf->szlMillimeters.cx / emf->szlDevice.cx);
+		header->DpiY = MM_PER_INCH / ((float)emf->szlMillimeters.cy / emf->szlDevice.cy);
 		header->Size = emf->nBytes;
 		header->Version = emf->nVersion;
-		/* FIXME: we do not match MS results here*/
+		/* FIXME: we need to check for the EmfHeader record but some files still returns invalid values */
 		header->EmfPlusFlags = 0;
 		header->EmfPlusHeaderSize = 0;
 		header->LogicalDpiX = 0;
