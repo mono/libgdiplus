@@ -1078,6 +1078,8 @@ GpStatus GdipReleaseDC (GpGraphics *graphics, void *hDC);
 GpStatus GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState);
 GpStatus GdipSaveGraphics(GpGraphics *graphics, unsigned int * state);
 GpStatus GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix);
+GpStatus GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrder order);
+GpStatus GdipResetWorldTransform (GpGraphics *graphics);
 GpStatus GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix);
 GpStatus GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder order);
 GpStatus GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order);

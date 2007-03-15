@@ -1,3 +1,7 @@
+2007-03-15  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* gdip.h: Add some missing prototypes to avoid compiler warnings.
+
 2007-03-14  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* image.c: Return InvalidParameter when loading an unknown file format
