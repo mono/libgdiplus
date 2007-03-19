@@ -362,7 +362,7 @@ create_fontfamily_from_name (char* name, GpFontFamily **fontFamily)
 static
 gboolean free_cached_pattern (gpointer key, gpointer value, gpointer user)
 {
-	g_free (value);
+	g_free (key);
 	FcPatternDestroy ((FcPattern*) value);
 	return TRUE;
 }

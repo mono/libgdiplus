@@ -1,3 +1,9 @@
+2007-03-19  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* font.c: Fix free in free_cached_pattern to release the 'key' memory
+	(no leak) and not the 'value' memory (double-free). Found/patch by 
+	Choe Hwanjin.
+
 2007-03-15  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* gdip.h: Add some missing prototypes to avoid compiler warnings.
