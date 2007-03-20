@@ -1,3 +1,4 @@
+/* -*- Mode: c; c-basic-offset: 4; indent-tabs-mode: t; tab-width: 8; -*- */
 /* cairo - a vector graphics library with display and print output
  *
  * Copyright © 2002 University of Southern California
@@ -39,9 +40,6 @@
 
 #include "cairoint.h"
 
-CAIRO_MUTEX_DECLARE (font_face_ref_mutex);
-static cairo_font_face_t *_cairo_font_face_reference (cairo_font_face_t *font_face);
-
 /* Forward declare so we can use it as an arbitrary backend for
  * _cairo_font_face_nil.
  */
@@ -68,47 +66,43 @@ _cairo_font_face_init (cairo_font_face_t               *font_face,
     _cairo_user_data_array_init (&font_face->user_data);
 }
 
-static cairo_font_face_t *
-_cairo_font_face_reference (cairo_font_face_t *font_face)
-{
-    if (font_face == NULL)
-	return NULL;
-
-    if (font_face->ref_count == (unsigned int)-1)
-	return font_face;
-
-    /* We would normally assert (font_face->ref_count >0) here but we
-     * can't get away with that due to the zombie case as documented
-     * in _cairo_ft_font_face_destroy. */
-    font_face->ref_count++;
-
-    return font_face;
-}
+/* This mutex protects both cairo_toy_font_hash_table as well as
+   reference count manipulations for all cairo_font_face_t. */
+CAIRO_MUTEX_DECLARE (_cairo_font_face_mutex);
 
 /**
  * cairo_font_face_reference:
- * @font_face: a #cairo_font_face_t, (may be NULL in which case this
+ * @font_face: a #cairo_font_face_t, (may be %NULL in which case this
  * function does nothing).
  *
  * Increases the reference count on @font_face by one. This prevents
  * @font_face from being destroyed until a matching call to
  * cairo_font_face_destroy() is made.
  *
+ * The number of references to a #cairo_font_face_t can be get using
+ * cairo_font_face_get_reference_count().
+ *
  * Return value: the referenced #cairo_font_face_t.
  **/
 cairo_font_face_t *
 cairo_font_face_reference (cairo_font_face_t *font_face)
 {
-  cairo_font_face_t *rv;
+    if (font_face == NULL || font_face->ref_count == CAIRO_REF_COUNT_INVALID)
+	return font_face;
 
-  CAIRO_MUTEX_LOCK (font_face_ref_mutex);
+    CAIRO_MUTEX_LOCK (_cairo_font_face_mutex);
 
-  rv = _cairo_font_face_reference (font_face);
+    /* We would normally assert (font_face->ref_count >0) here but we
+     * can't get away with that due to the zombie case as documented
+     * in _cairo_ft_font_face_destroy. */
 
-  CAIRO_MUTEX_UNLOCK (font_face_ref_mutex);
+    font_face->ref_count++;
 
-  return rv;
+    CAIRO_MUTEX_UNLOCK (_cairo_font_face_mutex);
+
+    return font_face;
 }
+slim_hidden_def (cairo_font_face_reference);
 
 /**
  * cairo_font_face_destroy:
@@ -121,22 +115,19 @@ cairo_font_face_reference (cairo_font_face_t *font_face)
 void
 cairo_font_face_destroy (cairo_font_face_t *font_face)
 {
-    if (font_face == NULL)
+    if (font_face == NULL || font_face->ref_count == CAIRO_REF_COUNT_INVALID)
 	return;
 
-    CAIRO_MUTEX_LOCK (font_face_ref_mutex);
-
-    if (font_face->ref_count == (unsigned int)-1) {
-        CAIRO_MUTEX_UNLOCK (font_face_ref_mutex);
-	return;
-    }
+    CAIRO_MUTEX_LOCK (_cairo_font_face_mutex);
 
     assert (font_face->ref_count > 0);
 
-    if ((--font_face->ref_count) > 0) {
-        CAIRO_MUTEX_UNLOCK (font_face_ref_mutex);
+    if (--(font_face->ref_count) > 0) {
+        CAIRO_MUTEX_UNLOCK (_cairo_font_face_mutex);
 	return;
     }
+
+    CAIRO_MUTEX_UNLOCK (_cairo_font_face_mutex);
 
     font_face->backend->destroy (font_face);
 
@@ -144,20 +135,18 @@ cairo_font_face_destroy (cairo_font_face_t *font_face)
      * FreeType backend where cairo_ft_font_face_t and cairo_ft_unscaled_font_t
      * need to effectively mutually reference each other
      */
-    if (font_face->ref_count > 0) {
-        CAIRO_MUTEX_UNLOCK (font_face_ref_mutex);
+    if (font_face->ref_count > 0)
 	return;
-    }
 
-    CAIRO_MUTEX_UNLOCK (font_face_ref_mutex);
     _cairo_user_data_array_fini (&font_face->user_data);
 
     free (font_face);
 }
+slim_hidden_def (cairo_font_face_destroy);
 
 /**
  * cairo_font_face_get_type:
- * @font_face: a #cairo_font_face_t
+ * @font_face: a font face
  *
  * This function returns the type of the backend used to create
  * a font face. See #cairo_font_type_t for available types.
@@ -170,6 +159,26 @@ cairo_font_type_t
 cairo_font_face_get_type (cairo_font_face_t *font_face)
 {
     return font_face->backend->type;
+}
+
+/**
+ * cairo_font_face_get_reference_count:
+ * @font_face: a #cairo_font_face_t
+ *
+ * Returns the current reference count of @font_face.
+ *
+ * Return value: the current reference count of @font_face.  If the
+ * object is a nil object, 0 will be returned.
+ *
+ * Since: 1.4
+ **/
+unsigned int
+cairo_font_face_get_reference_count (cairo_font_face_t *font_face)
+{
+    if (font_face == NULL || font_face->ref_count == CAIRO_REF_COUNT_INVALID)
+	return 0;
+
+    return font_face->ref_count;
 }
 
 /**
@@ -249,16 +258,16 @@ _cairo_toy_font_face_keys_equal (const void *key_a,
  * our cache and mapping from cairo_font_face_t => cairo_scaled_font_t
  * works. Once the corresponding cairo_font_face_t objects fall out of
  * downstream caches, we don't need them in this hash table anymore.
+ *
+ * Modifications to this hash table are protected by
+ * _cairo_font_face_mutex.
  */
-
 static cairo_hash_table_t *cairo_toy_font_face_hash_table = NULL;
-
-CAIRO_MUTEX_DECLARE (cairo_toy_font_face_hash_table_mutex);
 
 static cairo_hash_table_t *
 _cairo_toy_font_face_hash_table_lock (void)
 {
-    CAIRO_MUTEX_LOCK (cairo_toy_font_face_hash_table_mutex);
+    CAIRO_MUTEX_LOCK (_cairo_font_face_mutex);
 
     if (cairo_toy_font_face_hash_table == NULL)
     {
@@ -266,7 +275,7 @@ _cairo_toy_font_face_hash_table_lock (void)
 	    _cairo_hash_table_create (_cairo_toy_font_face_keys_equal);
 
 	if (cairo_toy_font_face_hash_table == NULL) {
-	    CAIRO_MUTEX_UNLOCK (cairo_toy_font_face_hash_table_mutex);
+	    CAIRO_MUTEX_UNLOCK (_cairo_font_face_mutex);
 	    return NULL;
 	}
     }
@@ -277,7 +286,7 @@ _cairo_toy_font_face_hash_table_lock (void)
 static void
 _cairo_toy_font_face_hash_table_unlock (void)
 {
-    CAIRO_MUTEX_UNLOCK (cairo_toy_font_face_hash_table_mutex);
+    CAIRO_MUTEX_UNLOCK (_cairo_font_face_mutex);
 }
 
 /**
@@ -375,8 +384,6 @@ _cairo_toy_font_face_create (const char          *family,
     cairo_toy_font_face_t key, *font_face;
     cairo_hash_table_t *hash_table;
 
-    CAIRO_MUTEX_LOCK (font_face_ref_mutex);
-
     hash_table = _cairo_toy_font_face_hash_table_lock ();
     if (hash_table == NULL)
 	goto UNWIND;
@@ -388,10 +395,11 @@ _cairo_toy_font_face_create (const char          *family,
 				  &key.base.hash_entry,
 				  (cairo_hash_entry_t **) &font_face))
     {
-	cairo_font_face_t *rv = _cairo_font_face_reference (&font_face->base);
+	/* We increment the reference count here manually to avoid
+	   double-locking. */
+	font_face->base.ref_count++;
 	_cairo_toy_font_face_hash_table_unlock ();
-	CAIRO_MUTEX_UNLOCK (font_face_ref_mutex);
-	return rv;
+	return &font_face->base;
     }
 
     /* Otherwise create it and insert into hash table. */
@@ -408,7 +416,6 @@ _cairo_toy_font_face_create (const char          *family,
 	goto UNWIND_FONT_FACE_INIT;
 
     _cairo_toy_font_face_hash_table_unlock ();
-    CAIRO_MUTEX_UNLOCK (font_face_ref_mutex);
 
     return &font_face->base;
 
@@ -418,7 +425,6 @@ _cairo_toy_font_face_create (const char          *family,
  UNWIND_HASH_TABLE_LOCK:
     _cairo_toy_font_face_hash_table_unlock ();
  UNWIND:
-    CAIRO_MUTEX_UNLOCK (font_face_ref_mutex);
     return (cairo_font_face_t*) &_cairo_font_face_nil;
 }
 
@@ -500,8 +506,11 @@ _cairo_font_reset_static_data (void)
 {
     _cairo_scaled_font_map_destroy ();
 
-    CAIRO_MUTEX_LOCK (cairo_toy_font_face_hash_table_mutex);
+    /* We manually acquire the lock rather than calling
+     * cairo_toy_font_face_hash_table_lock simply to avoid
+     * creating the table only to destroy it again. */
+    CAIRO_MUTEX_LOCK (_cairo_font_face_mutex);
     _cairo_hash_table_destroy (cairo_toy_font_face_hash_table);
     cairo_toy_font_face_hash_table = NULL;
-    CAIRO_MUTEX_UNLOCK (cairo_toy_font_face_hash_table_mutex);
+    CAIRO_MUTEX_UNLOCK (_cairo_font_face_mutex);
 }

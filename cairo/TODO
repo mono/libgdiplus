@@ -16,8 +16,7 @@ Backwards compatible (API additions only)
 P	Add cairo_arc_to.
 	Add support for custom caps (see below for details)
 	Add CAIRO_STATUS_DESTROYED
-	Add cairo_finish
-	Add cairo_get_scaled_font
+See New Api below
 
 Details on some of the above changes
 ------------------------------------
@@ -41,6 +40,8 @@ Changes that do not affect the public API
 
 * Fix/define tolerance for PS/PDF/SVG backends
 
+* Fix CAIRO_EXTEND_REFLECT in pixman and remove the current hack
+
 Other changes (this text used to be in RODMAP)
 ==============================================
  Fairly severe bugs
@@ -50,15 +51,8 @@ Other changes (this text used to be in RODMAP)
      PDF: minefield has broken selection (only with truetype subsetting code)
      4630  Fonts too large when drawing to image surface while printing
      4863  stroking problems with wide dashed lines
-     7497 _cairo_color_compute_shorts fails with FPU set to single ...
 
  Fix all expected failures (XFAIL) in the test suite
-     a8-mask
-     extend-reflect
-     filter-nearest-offset
-     leaky-dash
-     self-intersecting
-     text-rotate
 
  Fix disabled tests in the test suite
      show-glyphs-many
@@ -75,19 +69,43 @@ Other changes (this text used to be in RODMAP)
      cairo_arc_to
 	see http://lists.freedesktop.org/archives/cairo/2005-August/004801.html
 	or see arc_to branch in bedhad's repository
+     cairo_font_options_[gs]et_writing_mode()
+	http://lists.freedesktop.org/archives/cairo/2007-January/009372.html
+     cairo_font_metrics_t
+	http://lists.freedesktop.org/archives/cairo/2007-January/009373.html
+     cairo_surface_show_page() and cairo_surface_copy_page()
+	show_page is a surface operation and should have been there instead of
+	cairo_show_page() from the beginning.  Same about copy_page().
+	Implement the right API now.
+     User-font API---a couple of threads of interest:
+	http://lists.freedesktop.org/archives/cairo/2007-February/009539.html
+        http://lists.freedesktop.org/archives/cairo/2006-May/006893.html
+	http://lists.freedesktop.org/archives/cairo/2006-May/006888.html
+     Polling API (cairo_get_serial and cairo_changed)
 
  PS/PDF improvements
-     1. Make image fallbacks finer-grained than a whole page
-     2. Ensure that PDF text output is "selectable"
+     - Make image fallbacks finer-grained than a whole page
+     - Fix extend modes in PDF
+     - Fix encoding "issues" reported here:
+       http://lists.freedesktop.org/archives/cairo/2006-December/008985.html
+     - Use glyph advances to generate more compact PS/PDF (done for PDF)
+     - Look into generating EPS.  That may be done using a new constructor
+       for the PS backend, or better, using an API similar to
+       cairo_svg_surface_restrict_to_version.  The PDF backend needs a
+       restrict_to API at some point too.
+
+ Xlib backend
+     - xlib backend requires xrender to compile, while it can perform without
+       xrender at run time.  Make it compile without it. see
+       http://lists.freedesktop.org/archives/cairo/2006-October/008075.html
+     - Cache patterns (maybe solid ones only). see
+       http://lists.freedesktop.org/archives/cairo/2006-December/008916.html
+       http://lists.freedesktop.org/archives/cairo/2007-February/009825.html
 
  Quartz backend (maintainer needed!)
-     1. Mark Quartz backend as supported:
+     - Mark Quartz backend as supported:
 	 a. Incorporate into test suite
 	 b. Correct output for the entire suite
-
- Misc
-     1. xlib backend requires xrender to compile, while it can perform without
-        xrender at run time.  Make it compile without it.
 
 Some known bugs (this text used to be in BUGS)
 ==============================================
@@ -117,11 +135,6 @@ polygons will cause "leaking" until we implement Hobby's algorithm.
 
 --
 
-Stroke extents might not work for degenerate cases, (e.g. single
-vertical or horizontal line).
-
---
-
 Stroke width of 0 might do bad things.
 
 --
@@ -145,10 +158,22 @@ cairo_scale (cr, 0, 0);
 Text drawn with vertical metrics cannot currently use TrueType
 subsetting for PDF/PS output as the code doesn't write out the necessary
 VHEA or VMTX entries to the TrueType font objects. As a result, cairo uses
-Type3 fonts which generates slightly different outlines.
+Type3 fonts which generates slightly different outlines.  Type1 has the same
+problem.
 
 --
 
 Text transformations is a mess in PS/PDF backends.  Many combinations of
 rotated/scaled ctm, rotated/scaled font_matrix, and subsetting code used
 (Type1/Type3/TrueType) are broken.
+
+--
+
+Move docs inline.  see
+http://lists.freedesktop.org/archives/cairo/2006-July/007431.html
+
+--
+
+Look into the glyph cache.  Moreover, make sure we are reusing scaled fonts
+enough.
+

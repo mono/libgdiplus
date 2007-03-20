@@ -90,8 +90,6 @@ _cairo_format_bpp (cairo_format_t format)
 	return 1;
     case CAIRO_FORMAT_A8:
 	return 8;
-    case CAIRO_FORMAT_RGB16_565:
-	return 16;
     case CAIRO_FORMAT_RGB24:
     case CAIRO_FORMAT_ARGB32:
 	return 32;
@@ -257,9 +255,6 @@ _create_pixman_format (cairo_format_t format)
     case CAIRO_FORMAT_A8:
 	return pixman_format_create (PIXMAN_FORMAT_NAME_A8);
 	break;
-    case CAIRO_FORMAT_RGB16_565:
-	return pixman_format_create (PIXMAN_FORMAT_NAME_RGB16_565);
-	break;
     case CAIRO_FORMAT_RGB24:
 	return pixman_format_create (PIXMAN_FORMAT_NAME_RGB24);
 	break;
@@ -352,8 +347,8 @@ _cairo_image_surface_create_with_content (cairo_content_t	content,
  * Creates an image surface for the provided pixel data. The output
  * buffer must be kept around until the #cairo_surface_t is destroyed
  * or cairo_surface_finish() is called on the surface.  The initial
- * contents of @buffer will be used as the inital image contents; you
- * must explicitely clear the buffer, using, for example,
+ * contents of @buffer will be used as the initial image contents; you
+ * must explicitly clear the buffer, using, for example,
  * cairo_rectangle() and cairo_fill() if you want it cleared.
  *
  * Return value: a pointer to the newly created surface. The caller
@@ -670,6 +665,10 @@ _cairo_image_surface_release_dest_image (void                    *abstract_surfa
 static cairo_status_t
 _cairo_image_surface_clone_similar (void		*abstract_surface,
 				    cairo_surface_t	*src,
+				    int                  src_x,
+				    int                  src_y,
+				    int                  width,
+				    int                  height,
 				    cairo_surface_t    **clone_out)
 {
     cairo_image_surface_t *surface = abstract_surface;
@@ -1117,6 +1116,7 @@ _cairo_image_surface_clone (cairo_image_surface_t	*surface,
 	cairo_image_surface_create (format,
 				    surface->width, surface->height);
 
+    /* Use _cairo_surface_composite directly */
     cr = cairo_create (&clone->base);
     cairo_surface_get_device_offset (&surface->base, &x, &y);
     cairo_set_source_surface (cr, &surface->base, x, y);

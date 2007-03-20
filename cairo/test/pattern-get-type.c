@@ -70,5 +70,7 @@ main (void)
     cairo_pattern_destroy (linear);
     cairo_pattern_destroy (radial);
 
+    cairo_test_fini ();
+
     return CAIRO_TEST_SUCCESS;
 }

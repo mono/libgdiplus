@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Win32 Fonts</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.69.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.71.0">
 <link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
 <link rel="up" href="Fonts.html" title="Fonts">
 <link rel="prev" href="cairo-FreeType-Fonts.html" title="FreeType Fonts">
 <link rel="next" href="Surfaces.html" title="Surfaces">
-<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.7 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 <link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
 <link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
@@ -18,6 +18,7 @@
 <link rel="chapter" href="Support.html" title="Utilities">
 <link rel="index" href="ix01.html" title="Index">
 <link rel="index" href="ix02.html" title="Index of new symbols in 1.2">
+<link rel="index" href="ix03.html" title="Index of new symbols in 1.4">
 <link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -29,21 +30,23 @@
 <th width="100%" align="center">Cairo: A Vector Graphics Library</th>
 <td><a accesskey="n" href="Surfaces.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
-<tr><td colspan="5" class="shortcuts"><nobr><a href="#top_of_page" class="shortcut">Top</a>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2581381" class="shortcut">Top</a>
                   &#160;|&#160;
-                  <a href="#desc" class="shortcut">Description</a></nobr></td></tr>
+                  <a href="#id2613459" class="shortcut">Description</a></nobr></td></tr>
 </table>
 <div class="refentry" lang="en">
 <a name="cairo-Win32-Fonts"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
-<h2><span class="refentrytitle"><a name="top_of_page"></a>Win32 Fonts</span></h2>
+<h2>
+<a name="id2581381"></a><span class="refentrytitle">Win32 Fonts</span>
+</h2>
 <p>Win32 Fonts &#8212; Font support for Microsoft Windows</p>
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
 <div class="refsynopsisdiv">
-<a name="synopsis"></a><h2>Synopsis</h2>
+<h2>Synopsis</h2>
 <pre class="synopsis">
 
 
@@ -59,20 +62,26 @@ void        <a href="cairo-Win32-Fonts.html#cairo-win32-scaled-font-done-font">c
                                             (<a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t">cairo_scaled_font_t</a> *scaled_font);
 double      <a href="cairo-Win32-Fonts.html#cairo-win32-scaled-font-get-metrics-factor">cairo_win32_scaled_font_get_metrics_factor</a>
                                             (<a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t">cairo_scaled_font_t</a> *scaled_font);
+void        <a href="cairo-Win32-Fonts.html#cairo-win32-scaled-font-get-logical-to-device">cairo_win32_scaled_font_get_logical_to_device</a>
+                                            (<a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t">cairo_scaled_font_t</a> *scaled_font,
+                                             <a href="cairo-cairo-matrix-t.html#cairo-matrix-t">cairo_matrix_t</a> *logical_to_device);
+void        <a href="cairo-Win32-Fonts.html#cairo-win32-scaled-font-get-device-to-logical">cairo_win32_scaled_font_get_device_to_logical</a>
+                                            (<a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t">cairo_scaled_font_t</a> *scaled_font,
+                                             <a href="cairo-cairo-matrix-t.html#cairo-matrix-t">cairo_matrix_t</a> *device_to_logical);
 </pre>
 </div>
 <div class="refsect1" lang="en">
-<a name="desc"></a><h2>Description</h2>
+<a name="id2613459"></a><h2>Description</h2>
 <p>
 
 </p>
 </div>
 <div class="refsect1" lang="en">
-<a name="details"></a><h2>Details</h2>
+<a name="id2613475"></a><h2>Details</h2>
 <div class="refsect2" lang="en">
-<a name="id2710156"></a><h3>
+<a name="id2613486"></a><h3>
 <a name="cairo-win32-font-face-create-for-logfontw"></a>cairo_win32_font_face_create_for_logfontw ()</h3>
-<a class="indexterm" name="id2710170"></a><pre class="programlisting"><a href="cairo-cairo-font-face-t.html#cairo-font-face-t">cairo_font_face_t</a>* cairo_win32_font_face_create_for_logfontw
+<a class="indexterm" name="id2613500"></a><pre class="programlisting"><a href="cairo-cairo-font-face-t.html#cairo-font-face-t">cairo_font_face_t</a>* cairo_win32_font_face_create_for_logfontw
                                             (LOGFONTW *logfont);</pre>
 <p>
 Creates a new font for the Win32 font backend based on a
@@ -88,16 +97,14 @@ and can be used with functions such as <a href="cairo-Win32-Fonts.html#cairo-win
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>logfont</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>logfont</code></em>&#160;:</span></td>
 <td> A <span class="type">LOGFONTW</span> structure specifying the font to use.
   The lfHeight, lfWidth, lfOrientation and lfEscapement
   fields of this structure are ignored.
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
 <td> a newly created <a href="cairo-cairo-font-face-t.html#cairo-font-face-t"><span class="type">cairo_font_face_t</span></a>. Free with
  <a href="cairo-cairo-font-face-t.html#cairo-font-face-destroy"><code class="function">cairo_font_face_destroy()</code></a> when you are done using it.
 </td>
@@ -107,9 +114,9 @@ and can be used with functions such as <a href="cairo-Win32-Fonts.html#cairo-win
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2665592"></a><h3>
+<a name="id2620730"></a><h3>
 <a name="cairo-win32-font-face-create-for-hfont"></a>cairo_win32_font_face_create_for_hfont ()</h3>
-<a class="indexterm" name="id2665605"></a><pre class="programlisting"><a href="cairo-cairo-font-face-t.html#cairo-font-face-t">cairo_font_face_t</a>* cairo_win32_font_face_create_for_hfont
+<a class="indexterm" name="id2620744"></a><pre class="programlisting"><a href="cairo-cairo-font-face-t.html#cairo-font-face-t">cairo_font_face_t</a>* cairo_win32_font_face_create_for_hfont
                                             (HFONT font);</pre>
 <p>
 Creates a new font for the Win32 font backend based on a
@@ -125,14 +132,12 @@ and can be used with functions such as <a href="cairo-Win32-Fonts.html#cairo-win
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>font</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>font</code></em>&#160;:</span></td>
 <td> An <span class="type">HFONT</span> structure specifying the font to use.
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
 <td> a newly created <a href="cairo-cairo-font-face-t.html#cairo-font-face-t"><span class="type">cairo_font_face_t</span></a>. Free with
  <a href="cairo-cairo-font-face-t.html#cairo-font-face-destroy"><code class="function">cairo_font_face_destroy()</code></a> when you are done using it.
 </td>
@@ -142,9 +147,9 @@ and can be used with functions such as <a href="cairo-Win32-Fonts.html#cairo-win
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2709458"></a><h3>
+<a name="id2620882"></a><h3>
 <a name="cairo-win32-scaled-font-select-font"></a>cairo_win32_scaled_font_select_font ()</h3>
-<a class="indexterm" name="id2709470"></a><pre class="programlisting"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> cairo_win32_scaled_font_select_font
+<a class="indexterm" name="id2620894"></a><pre class="programlisting"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a> cairo_win32_scaled_font_select_font
                                             (<a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t">cairo_scaled_font_t</a> *scaled_font,
                                              HDC hdc);</pre>
 <p>
@@ -170,21 +175,18 @@ the use of this function to preserve the original graphics state.</p>
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>scaled_font</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>scaled_font</code></em>&#160;:</span></td>
 <td> A <a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t"><span class="type">cairo_scaled_font_t</span></a> from the Win32 font backend. Such an
   object can be created with <code class="function">cairo_win32_scaled_font_create_for_logfontw()</code>.
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>hdc</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>hdc</code></em>&#160;:</span></td>
 <td> a device context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
 <td> <a href="cairo-Error-handling.html#CAIRO-STATUS-SUCCESS:CAPS"><code class="literal">CAIRO_STATUS_SUCCESS</code></a> if the operation succeeded.
   otherwise an error such as <a href="cairo-Error-handling.html#CAIRO-STATUS-NO-MEMORY:CAPS"><code class="literal">CAIRO_STATUS_NO_MEMORY</code></a> and
   the device context is unchanged.
@@ -195,9 +197,9 @@ the use of this function to preserve the original graphics state.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2709790"></a><h3>
+<a name="id2621330"></a><h3>
 <a name="cairo-win32-scaled-font-done-font"></a>cairo_win32_scaled_font_done_font ()</h3>
-<a class="indexterm" name="id2709802"></a><pre class="programlisting">void        cairo_win32_scaled_font_done_font
+<a class="indexterm" name="id2621342"></a><pre class="programlisting">void        cairo_win32_scaled_font_done_font
                                             (<a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t">cairo_scaled_font_t</a> *scaled_font);</pre>
 <p>
 Releases any resources allocated by <a href="cairo-Win32-Fonts.html#cairo-win32-scaled-font-select-font"><code class="function">cairo_win32_scaled_font_select_font()</code></a></p>
@@ -207,18 +209,17 @@ Releases any resources allocated by <a href="cairo-Win32-Fonts.html#cairo-win32-
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody><tr>
-<td>
-<span class="term"><em class="parameter"><code>scaled_font</code></em>&#160;:</span></td>
-<td> A <a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t"><span class="type">cairo_scaled_font_t</span></a> from the Win32 font backend.
+<td><span class="term"><em class="parameter"><code>scaled_font</code></em>&#160;:</span></td>
+<td> A scaled font from the Win32 font backend.
 </td>
 </tr></tbody>
 </table></div>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2709868"></a><h3>
+<a name="id2621402"></a><h3>
 <a name="cairo-win32-scaled-font-get-metrics-factor"></a>cairo_win32_scaled_font_get_metrics_factor ()</h3>
-<a class="indexterm" name="id2709883"></a><pre class="programlisting">double      cairo_win32_scaled_font_get_metrics_factor
+<a class="indexterm" name="id2621417"></a><pre class="programlisting">double      cairo_win32_scaled_font_get_metrics_factor
                                             (<a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t">cairo_scaled_font_t</a> *scaled_font);</pre>
 <p>
 Gets a scale factor between logical coordinates in the coordinate
@@ -232,20 +233,80 @@ font space coordinates.</p>
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>scaled_font</code></em>&#160;:</span></td>
-<td> a <a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t"><span class="type">cairo_scaled_font_t</span></a> from the Win32 font backend
+<td><span class="term"><em class="parameter"><code>scaled_font</code></em>&#160;:</span></td>
+<td> a scaled font from the Win32 font backend
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
 <td> factor to multiply logical units by to get font space
               coordinates.
 </td>
 </tr>
 </tbody>
 </table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2621493"></a><h3>
+<a name="cairo-win32-scaled-font-get-logical-to-device"></a>cairo_win32_scaled_font_get_logical_to_device ()</h3>
+<a class="indexterm" name="id2621509"></a><pre class="programlisting">void        cairo_win32_scaled_font_get_logical_to_device
+                                            (<a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t">cairo_scaled_font_t</a> *scaled_font,
+                                             <a href="cairo-cairo-matrix-t.html#cairo-matrix-t">cairo_matrix_t</a> *logical_to_device);</pre>
+<p>
+Gets the transformation mapping the logical space used by <em class="parameter"><code>scaled_font</code></em>
+to device space.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><span class="term"><em class="parameter"><code>scaled_font</code></em>&#160;:</span></td>
+<td> a scaled font from the Win32 font backend
+</td>
+</tr>
+<tr>
+<td><span class="term"><em class="parameter"><code>logical_to_device</code></em>&#160;:</span></td>
+<td> matrix to return
+</td>
+</tr>
+</tbody>
+</table></div>
+<p>Since  1.4
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2621594"></a><h3>
+<a name="cairo-win32-scaled-font-get-device-to-logical"></a>cairo_win32_scaled_font_get_device_to_logical ()</h3>
+<a class="indexterm" name="id2621610"></a><pre class="programlisting">void        cairo_win32_scaled_font_get_device_to_logical
+                                            (<a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t">cairo_scaled_font_t</a> *scaled_font,
+                                             <a href="cairo-cairo-matrix-t.html#cairo-matrix-t">cairo_matrix_t</a> *device_to_logical);</pre>
+<p>
+Gets the transformation mapping device space to the logical space
+used by <em class="parameter"><code>scaled_font</code></em>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><span class="term"><em class="parameter"><code>scaled_font</code></em>&#160;:</span></td>
+<td> a scaled font from the Win32 font backend
+</td>
+</tr>
+<tr>
+<td><span class="term"><em class="parameter"><code>device_to_logical</code></em>&#160;:</span></td>
+<td> matrix to return
+</td>
+</tr>
+</tbody>
+</table></div>
+<p>Since  1.4
+</p>
 </div>
 </div>
 </div>

@@ -28,8 +28,7 @@ libpixman_la_SOURCES = \
 	fbtrap.c \
 	fbcompose.c \
 	renderedge.c \
-	renderedge.h \
-	slim_internal.h
+	renderedge.h
 
 if USE_MMX
 noinst_LTLIBRARIES += libpixman-mmx.la

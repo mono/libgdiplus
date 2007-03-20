@@ -34,6 +34,7 @@
  */
 
 #include "cairoint.h"
+#include "cairo-type1-private.h"
 #include "cairo-scaled-font-subsets-private.h"
 #include "cairo-output-stream-private.h"
 
@@ -107,6 +108,7 @@ _cairo_type1_font_subset_create (cairo_unscaled_font_t      *unscaled_font,
                                  cairo_bool_t                hex_encode)
 {
     cairo_ft_unscaled_font_t *ft_unscaled_font;
+    cairo_status_t status;
     FT_Face face;
     PS_FontInfoRec font_info;
     cairo_type1_font_subset_t *font;
@@ -116,12 +118,16 @@ _cairo_type1_font_subset_create (cairo_unscaled_font_t      *unscaled_font,
 
     face = _cairo_ft_unscaled_font_lock_face (ft_unscaled_font);
 
-    if (FT_Get_PS_Font_Info(face, &font_info) != 0)
-	return CAIRO_INT_STATUS_UNSUPPORTED;
+    if (FT_Get_PS_Font_Info(face, &font_info) != 0) {
+	status = CAIRO_INT_STATUS_UNSUPPORTED;
+        goto fail1;
+    }
 
     font = calloc (sizeof (cairo_type1_font_subset_t), 1);
-    if (font == NULL)
-	return CAIRO_STATUS_NO_MEMORY;
+    if (font == NULL) {
+	status = CAIRO_STATUS_NO_MEMORY;
+        goto fail1;
+    }
 
     font->base.unscaled_font = _cairo_unscaled_font_reference (unscaled_font);
     font->base.num_glyphs = face->num_glyphs;
@@ -132,8 +138,10 @@ _cairo_type1_font_subset_create (cairo_unscaled_font_t      *unscaled_font,
     font->base.ascent = face->ascender;
     font->base.descent = face->descender;
     font->base.base_font = strdup (face->family_name);
-    if (font->base.base_font == NULL)
-	goto fail1;
+    if (font->base.base_font == NULL) {
+        status = CAIRO_STATUS_NO_MEMORY;
+	goto fail2;
+    }
 
     for (i = 0, j = 0; font->base.base_font[j]; j++) {
 	if (font->base.base_font[j] == ' ')
@@ -143,8 +151,10 @@ _cairo_type1_font_subset_create (cairo_unscaled_font_t      *unscaled_font,
     font->base.base_font[i] = '\0';
 
     font->glyphs = calloc (face->num_glyphs, sizeof font->glyphs[0]);
-    if (font->glyphs == NULL)
-	goto fail2;
+    if (font->glyphs == NULL) {
+        status = CAIRO_STATUS_NO_MEMORY;
+	goto fail3;
+    }
 
     font->hex_encode = hex_encode;
     font->num_glyphs = 0;
@@ -159,12 +169,15 @@ _cairo_type1_font_subset_create (cairo_unscaled_font_t      *unscaled_font,
 
     return CAIRO_STATUS_SUCCESS;
 
- fail2:
+ fail3:
     free (font->base.base_font);
- fail1:
+ fail2:
+    _cairo_unscaled_font_destroy (unscaled_font);
     free (font);
+ fail1:
+    _cairo_ft_unscaled_font_unlock_face (ft_unscaled_font);
 
-    return CAIRO_STATUS_NO_MEMORY;
+    return status;
 }
 
 static int
@@ -178,11 +191,6 @@ cairo_type1_font_subset_use_glyph (cairo_type1_font_subset_t *font, int glyph)
 
     return font->glyphs[glyph].subset_index;
 }
-
-/* Magic constants for the type1 eexec encryption */
-static const unsigned short c1 = 52845, c2 = 22719;
-static const unsigned short private_dict_key = 55665;
-static const unsigned short charstring_key = 4330;
 
 static cairo_bool_t
 is_ps_delimiter(int c)
@@ -325,7 +333,7 @@ cairo_type1_font_subset_write_encrypted (cairo_type1_font_subset_t *font,
     while (in < end) {
 	p = *in++;
 	c = p ^ (font->eexec_key >> 8);
-	font->eexec_key = (c + font->eexec_key) * c1 + c2;
+	font->eexec_key = (c + font->eexec_key) * CAIRO_TYPE1_ENCRYPT_C1 + CAIRO_TYPE1_ENCRYPT_C2;
 
 	if (font->hex_encode) {
 	    digits[0] = hex_digits[c >> 4];
@@ -349,7 +357,7 @@ cairo_type1_font_subset_write_encrypted (cairo_type1_font_subset_t *font,
 static cairo_status_t
 cairo_type1_font_subset_decrypt_eexec_segment (cairo_type1_font_subset_t *font)
 {
-    unsigned short r = private_dict_key;
+    unsigned short r = CAIRO_TYPE1_PRIVATE_DICT_KEY;
     unsigned char *in, *end;
     char *out;
     int c, p;
@@ -372,7 +380,7 @@ cairo_type1_font_subset_decrypt_eexec_segment (cairo_type1_font_subset_t *font)
 	    c = *in++;
 	}
 	p = c ^ (r >> 8);
-	r = (c + r) * c1 + c2;
+	r = (c + r) * CAIRO_TYPE1_ENCRYPT_C1 + CAIRO_TYPE1_ENCRYPT_C2;
 
 	*out++ = p;
     }
@@ -452,13 +460,13 @@ cairo_type1_font_subset_get_glyph_names_and_widths (cairo_type1_font_subset_t *f
 static void
 cairo_type1_font_subset_decrypt_charstring (const unsigned char *in, int size, unsigned char *out)
 {
-    unsigned short r = charstring_key;
+    unsigned short r = CAIRO_TYPE1_CHARSTRING_KEY;
     int c, p, i;
 
     for (i = 0; i < size; i++) {
         c = *in++;
 	p = c ^ (r >> 8);
-	r = (c + r) * c1 + c2;
+	r = (c + r) * CAIRO_TYPE1_ENCRYPT_C1 + CAIRO_TYPE1_ENCRYPT_C2;
 	*out++ = p;
     }
 }
@@ -482,7 +490,12 @@ cairo_type1_font_subset_decode_integer (const unsigned char *p, int *integer)
     return p;
 }
 
-static const char *ps_standard_encoding[256] = {
+#if 0
+/*
+ * The two tables that follow are generated using this perl code:
+ */
+
+@encoding = (
 	/*   0 */
 	NULL,		NULL,		NULL,		NULL,
 	NULL,		NULL,		NULL,		NULL,
@@ -563,7 +576,105 @@ static const char *ps_standard_encoding[256] = {
 	NULL,		"dotlessi",	NULL,		NULL,
 	"lslash",	"oslash",	"oe",		"germandbls",
 	NULL,		NULL,		NULL,		NULL
+	);
+
+print "static const char ps_standard_encoding_symbol[] = {\n";
+$s = qq( "\\0");
+for $sym (@encoding) {
+    if (! ($sym eq NULL)) {
+        $ss = qq( "$sym\\0");
+	if (length($s) + length($ss) > 78) {
+	  print qq( $s\n);
+	  $s = "";
+	}
+	$s .= $ss;
+    }
+}
+print qq( $s\n);
+print "};\n\n";
+print "static const int16_t ps_standard_encoding_offset[256] = {\n";
+$offset = 1;
+$s = qq();
+for $sym (@encoding) {
+    if (! ($sym eq NULL)) {
+	$ss = qq( $offset/*$sym*/,);
+	$offset += length($sym) + 1;
+    } else {
+	$ss = qq( 0,);
+    }
+    if (length($s) + length($ss) > 78) {
+      print qq( $s\n);
+      $s = "";
+    }
+    $s .= $ss;
+}
+print qq( $s\n);
+print "};\n";
+exit;
+#endif
+
+static const char ps_standard_encoding_symbol[] = {
+  "\0" "space\0" "exclam\0" "quotedbl\0" "numbersign\0" "dollar\0" "percent\0"
+  "ampersand\0" "quoteright\0" "parenleft\0" "parenright\0" "asterisk\0"
+  "plus\0" "comma\0" "hyphen\0" "period\0" "slash\0" "zero\0" "one\0" "two\0"
+  "three\0" "four\0" "five\0" "six\0" "seven\0" "eight\0" "nine\0" "colon\0"
+  "semicolon\0" "less\0" "equal\0" "greater\0" "question\0" "at\0" "A\0" "B\0"
+  "C\0" "D\0" "E\0" "F\0" "G\0" "H\0" "I\0" "J\0" "K\0" "L\0" "M\0" "N\0" "O\0"
+  "P\0" "Q\0" "R\0" "S\0" "T\0" "U\0" "V\0" "W\0" "X\0" "Y\0" "Z\0"
+  "bracketleft\0" "backslash\0" "bracketright\0" "asciicircum\0" "underscore\0"
+  "quoteleft\0" "a\0" "b\0" "c\0" "d\0" "e\0" "f\0" "g\0" "h\0" "i\0" "j\0"
+  "k\0" "l\0" "m\0" "n\0" "o\0" "p\0" "q\0" "r\0" "s\0" "t\0" "u\0" "v\0" "w\0"
+  "x\0" "y\0" "z\0" "braceleft\0" "bar\0" "braceright\0" "asciitilde\0"
+  "exclamdown\0" "cent\0" "sterling\0" "fraction\0" "yen\0" "florin\0"
+  "section\0" "currency\0" "quotesingle\0" "quotedblleft\0" "guillemotleft\0"
+  "guilsinglleft\0" "guilsinglright\0" "fi\0" "fl\0" "endash\0" "dagger\0"
+  "daggerdbl\0" "periodcentered\0" "paragraph\0" "bullet\0" "quotesinglbase\0"
+  "quotedblbase\0" "quotedblright\0" "guillemotright\0" "ellipsis\0"
+  "perthousand\0" "questiondown\0" "grave\0" "acute\0" "circumflex\0" "tilde\0"
+  "macron\0" "breve\0" "dotaccent\0" "dieresis\0" "ring\0" "cedilla\0"
+  "hungarumlaut\0" "ogonek\0" "caron\0" "emdash\0" "AE\0" "ordfeminine\0"
+  "Lslash\0" "Oslash\0" "OE\0" "ordmasculine\0" "ae\0" "dotlessi\0" "lslash\0"
+  "oslash\0" "oe\0" "germandbls\0"
 };
+
+static const int16_t ps_standard_encoding_offset[256] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 1/*space*/, 7/*exclam*/, 14/*quotedbl*/, 23/*numbersign*/,
+  34/*dollar*/, 41/*percent*/, 49/*ampersand*/, 59/*quoteright*/,
+  70/*parenleft*/, 80/*parenright*/, 91/*asterisk*/, 100/*plus*/, 105/*comma*/,
+  111/*hyphen*/, 118/*period*/, 125/*slash*/, 131/*zero*/, 136/*one*/,
+  140/*two*/, 144/*three*/, 150/*four*/, 155/*five*/, 160/*six*/, 164/*seven*/,
+  170/*eight*/, 176/*nine*/, 181/*colon*/, 187/*semicolon*/, 197/*less*/,
+  202/*equal*/, 208/*greater*/, 216/*question*/, 225/*at*/, 228/*A*/, 230/*B*/,
+  232/*C*/, 234/*D*/, 236/*E*/, 238/*F*/, 240/*G*/, 242/*H*/, 244/*I*/,
+  246/*J*/, 248/*K*/, 250/*L*/, 252/*M*/, 254/*N*/, 256/*O*/, 258/*P*/,
+  260/*Q*/, 262/*R*/, 264/*S*/, 266/*T*/, 268/*U*/, 270/*V*/, 272/*W*/,
+  274/*X*/, 276/*Y*/, 278/*Z*/, 280/*bracketleft*/, 292/*backslash*/,
+  302/*bracketright*/, 315/*asciicircum*/, 327/*underscore*/, 338/*quoteleft*/,
+  348/*a*/, 350/*b*/, 352/*c*/, 354/*d*/, 356/*e*/, 358/*f*/, 360/*g*/,
+  362/*h*/, 364/*i*/, 366/*j*/, 368/*k*/, 370/*l*/, 372/*m*/, 374/*n*/,
+  376/*o*/, 378/*p*/, 380/*q*/, 382/*r*/, 384/*s*/, 386/*t*/, 388/*u*/,
+  390/*v*/, 392/*w*/, 394/*x*/, 396/*y*/, 398/*z*/, 400/*braceleft*/,
+  410/*bar*/, 414/*braceright*/, 425/*asciitilde*/, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  436/*exclamdown*/, 447/*cent*/, 452/*sterling*/, 461/*fraction*/, 470/*yen*/,
+  474/*florin*/, 481/*section*/, 489/*currency*/, 498/*quotesingle*/,
+  510/*quotedblleft*/, 523/*guillemotleft*/, 537/*guilsinglleft*/,
+  551/*guilsinglright*/, 566/*fi*/, 569/*fl*/, 0, 572/*endash*/, 579/*dagger*/,
+  586/*daggerdbl*/, 596/*periodcentered*/, 0, 611/*paragraph*/, 621/*bullet*/,
+  628/*quotesinglbase*/, 643/*quotedblbase*/, 656/*quotedblright*/,
+  670/*guillemotright*/, 685/*ellipsis*/, 694/*perthousand*/, 0,
+  706/*questiondown*/, 0, 719/*grave*/, 725/*acute*/, 731/*circumflex*/,
+  742/*tilde*/, 748/*macron*/, 755/*breve*/, 761/*dotaccent*/, 771/*dieresis*/,
+  0, 780/*ring*/, 785/*cedilla*/, 0, 793/*hungarumlaut*/, 806/*ogonek*/,
+  813/*caron*/, 819/*emdash*/, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  826/*AE*/, 0, 829/*ordfeminine*/, 0, 0, 0, 0, 841/*Lslash*/, 848/*Oslash*/,
+  855/*OE*/, 858/*ordmasculine*/, 0, 0, 0, 0, 0, 871/*ae*/, 0, 0, 0,
+  874/*dotlessi*/, 0, 0, 883/*lslash*/, 890/*oslash*/, 897/*oe*/,
+  900/*germandbls*/, 0, 0, 0, 0,
+};
+
+#define ps_standard_encoding(index) ((index) ? ps_standard_encoding_symbol+ps_standard_encoding_offset[(index)] : NULL)
 
 static void
 use_standard_encoding_glyph (cairo_type1_font_subset_t *font, int index)
@@ -573,7 +684,7 @@ use_standard_encoding_glyph (cairo_type1_font_subset_t *font, int index)
     if (index < 0 || index > 255)
 	return;
 
-    glyph_name = ps_standard_encoding[index];
+    glyph_name = ps_standard_encoding(index);
     if (glyph_name == NULL)
 	return;
 
@@ -901,7 +1012,7 @@ cairo_type1_font_subset_write (cairo_type1_font_subset_t *font,
 	return font->status = CAIRO_INT_STATUS_UNSUPPORTED;
     }
 
-    font->eexec_key = private_dict_key;
+    font->eexec_key = CAIRO_TYPE1_PRIVATE_DICT_KEY;
     font->hex_column = 0;
 
     cairo_type1_font_subset_write_private_dict (font, name);
@@ -1007,6 +1118,9 @@ _cairo_type1_subset_init (cairo_type1_subset_t		*type1_subset,
     /* XXX: Need to fix this to work with a general cairo_unscaled_font_t. */
     if (!_cairo_scaled_font_is_ft (scaled_font_subset->scaled_font))
 	return CAIRO_INT_STATUS_UNSUPPORTED;
+
+    if (_cairo_ft_scaled_font_is_vertical (scaled_font_subset->scaled_font))
+        return CAIRO_INT_STATUS_UNSUPPORTED;
 
     unscaled_font = _cairo_ft_scaled_font_get_unscaled_font (scaled_font_subset->scaled_font);
 

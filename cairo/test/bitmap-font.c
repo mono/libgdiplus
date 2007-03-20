@@ -110,9 +110,11 @@ draw (cairo_t *cr, int width, int height)
      * fonts at all should fix this. */
     cairo_move_to (cr, width -1, 2 * (TEXT_SIZE - 5));
     cairo_rotate (cr, M_PI);
-    cairo_show_text (cr, "the quick brown fox");
+    cairo_show_text (cr, "the quick");
+    cairo_show_text (cr, " brown fox");
 
-    cairo_text_path (cr, " jumps over a lazy dog");
+    cairo_text_path (cr, " jumps over");
+    cairo_text_path (cr, " a lazy dog");
     cairo_fill (cr);
 
     return CAIRO_TEST_SUCCESS;

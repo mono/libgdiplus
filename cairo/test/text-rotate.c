@@ -75,6 +75,12 @@
  *   us look more closely at the remaining positioning problems. (In
  *   particular, I want to make sure we're rounding as well as
  *   possible).
+ *
+ * 2007-02-21
+ *
+ *   Seems like all the "bugs" have been fixed and all remainint is
+ *   missing support for subpixel glyph positioning.  Removing from
+ *   XFAIL now.
  */
 
 #include "cairo-test.h"
@@ -88,8 +94,7 @@ static cairo_test_draw_function_t draw;
 
 cairo_test_t test = {
     "text-rotate",
-    "Tests show_text under various rotations"
-    "\nminor bugs in positioning rotated glyphs",
+    "Tests show_text under various rotations",
     WIDTH, HEIGHT,
     draw
 };
@@ -102,6 +107,11 @@ draw (cairo_t *cr, int width, int height)
     cairo_text_extents_t extents;
     cairo_font_options_t *font_options;
     static char text[] = "cairo";
+
+    /* paint white so we don't need separate ref images for
+     * RGB24 and ARGB32 */
+    cairo_set_source_rgb (cr, 1., 1., 1.);
+    cairo_paint (cr);
 
     cairo_select_font_face (cr, "Bitstream Vera Sans",
 			    CAIRO_FONT_SLANT_NORMAL,
@@ -139,10 +149,10 @@ draw (cairo_t *cr, int width, int height)
 	cairo_move_to (cr, x_off - extents.x_bearing, y_off - extents.y_bearing);
 	cairo_set_source_rgb (cr, 0, 0, 0);
 #if CAIRO_TEST_GENERATE_REFERENCE_IMAGE
-	cairo_text_path (cr, "cairo");
+	cairo_text_path (cr, text);
 	cairo_fill (cr);
 #else
-	cairo_show_text (cr, "cairo");
+	cairo_show_text (cr, text);
 #endif
 	cairo_restore (cr);
     }

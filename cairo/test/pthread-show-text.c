@@ -35,9 +35,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <pthread.h>
-#if HAVE_FCFINI
-#include <fontconfig/fontconfig.h>
-#endif
+
+#define NUM_THREADS_DEFAULT 50
+#define NUM_ITERATIONS 50
 
 static void *
 start (void *closure)
@@ -58,7 +58,10 @@ start (void *closure)
 
     cairo_move_to (cr, 1, 1);
 
-    for (i=0; i < 10; i++) {
+    for (i=0; i < NUM_ITERATIONS; i++) {
+        cairo_select_font_face (cr, "serif",
+				CAIRO_FONT_SLANT_NORMAL,
+				CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_size (cr, 8 + i);
 	cairo_show_text (cr, "Hello world.\n");
     }
@@ -79,7 +82,7 @@ main (int argc, char *argv[])
     if (argc > 1) {
 	num_threads = atoi (argv[1]);
     } else {
-	num_threads = 20;
+	num_threads = NUM_THREADS_DEFAULT;
     }
 
     cairo_test_init ("pthread-show-text");
@@ -101,10 +104,7 @@ main (int argc, char *argv[])
 
     free (pthread);
 
-    cairo_debug_reset_static_data ();
-#if HAVE_FCFINI
-    FcFini ();
-#endif
+    cairo_test_fini ();
 
     return CAIRO_TEST_SUCCESS;
 }

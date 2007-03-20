@@ -42,7 +42,7 @@ Here are the steps to follow to create a new cairo release:
 	the following command will show each patch that has changed a
 	public header file since the given version:
 
-		find src/ -name '*.h' -not -name '*-private.h' -not -name '*-test.h' -not -name 'cairoint.h' | \
+		find src/ -name '*.h' ! -name '*-private.h' ! -name '*-test.h' ! -name 'cairoint.h' | \
 		xargs git log -p X.Y.Z.. --
 
 4) Increment cairo_version_{minor|micro} and LT_{CURRENT|VERSION|AGE}
@@ -73,6 +73,8 @@ Here are the steps to follow to create a new cairo release:
 6) Run "make release-publish" which will perform the following steps
    for you:
 
+	* Generate ChangeLog files out of git repository
+	* Check that ChangeLog files were generated properly
 	* Check that the version number ends with an even micro component
 	* Check that no release exists with the current version
 	* Verify that make distcheck completes successfully
@@ -90,21 +92,32 @@ Here are the steps to follow to create a new cairo release:
 	  If for some reason you lost this message, "make release-publish-message"
 	  prints it for you.
 
-7) Push the newly created tag out to the central tree wih a command something like:
+7) Increment cairo_version_micro to the next larger (odd) number in
+   configure, commit, and push.
+
+8) Push the newly created tag out to the central tree with a command
+   something like:
 
 	git push cairo X.Y.Z
 
-8) Increment cairo_version_micro to the next larger (odd) number in
-   configure, commit, and push.
-
-9) Edit the cairo bugzilla product and add the new version numbers
+9) Edit the cairo bugzilla product and add the new version numbers. Note
+   that you need to add two versions.  One for the release/snapshot (with
+   an even micro version), another with the post-release version (with an
+   odd micro version).
 
 10) Send a message to cairo-announce@cairographics.org and CC
     gnome-announce-list@gnome.org to announce the new release using
-    the text provided from "make release-publish", adding the standard
-    "What is cairo" and "Where to get more information about cairo"
-    blurbs from README, and also tacking on the detailed changelog-ish
-    thing that gets mailed out when you push the tag.
+    the text provided from "make release-publish", adding the excerpt
+    from NEWS, your signature, followed by the standard "What is cairo"
+    and "Where to get more information about cairo" blurbs from README,
+    and finally tacking on the detailed changelog-ish thing that gets
+    mailed out when you push the tag (but not the diffstat thing).
 
 11) Edit the cairo wiki to add the announcement to the NEWS page and
-    the front page.
+    the front page. (just the parts before your signature).
+
+12) For minor releases (no X.Y change), notify desktop-devel-list@gnome.org
+    or update the ExternalDependencies page for the current cycle if you
+    know where it is.  Currently it's:
+
+	http://live.gnome.org/TwoPointSeventeen/ExternalDependencies

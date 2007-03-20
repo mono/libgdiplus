@@ -1,3 +1,1158 @@
+Release 1.4.2 (2007-03-19 Carl Worth <cworth@cworth.org>)
+=========================================================
+This is the first update release in cairo's stable 1.4 series. It
+comes just less than 2 weeks after 1.4.0. We hadn't anticipated an
+update this early, but we've managed to collect some important fixes
+that we wanted to get out to cairo users as soon as possible, (6 fixes
+for crashes, 1 case where graphical elements would not be drawn at
+all, a handful of backend-specific bugs, and several important build
+fixes).
+
+There's almost nothing but bug fixes in this release, (see below one
+optimization that Behdad did sneak in), so we recommend that everyone
+upgrade to this release when possible.
+
+Thanks to the many people that worked to fix these bugs, and those
+that did the work to report them and to test the fixes, (wherever
+possible both names are credited below).
+
+Critical fixes
+--------------
+• Fix a crash due to a LOCK vs. UNLOCK typo (M. Drochner fixing Carl
+  Worth's embarrassing typo).
+
+  http://bugs.freedesktop.org/show_bug.cgi?id=10235
+
+• Fix potential buffer overflow, which on some systems with a checking
+  variant of snprintf would lead to a crash (Adrian Johnson, Stanislav
+  Brabec, and sangu).
+
+  https://bugs.freedesktop.org/show_bug.cgi?id=10267
+  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=232576
+
+• Fix a crash in cairo_stroke_extents or cairo_in_stroke when line
+  width is 0.0. (Carl Worth and Sebastien Bacher)
+
+  https://bugs.freedesktop.org/show_bug.cgi?id=10231
+
+• Fix a crash on certain combinations of X server/video drivers (Carl
+  Worth and Tomas Carnecky).
+
+  https://bugs.freedesktop.org/show_bug.cgi?id=10250
+
+• Fix a crash due to mishandling of invalid user input (Carl Worth and
+  Alexander Darovsky).
+
+  https://bugs.freedesktop.org/show_bug.cgi?id=9844
+
+• xlib: Cleanup server-side glyph caches on XCloseDisplay. This
+  eliminated a crash detected by the perf suite, (and that
+  applications could have run into as well). (Chris Wilson)
+
+Other bug fixes
+---------------
+• Fix for some geometry which simply disappeared under some
+  transformations---a stroked line with an extreme skew in X, for
+  example (Carl Worth and Jonathan Watt).
+
+  https://bugzilla.mozilla.org/show_bug.cgi?id=373632
+
+• SVG: Fix radial gradients for CAIRO_EXTEND_REFLECT and when r0 > r1
+  (Emmanuel Pacaud).
+
+• PDF: Set page group color space to DeviceRGB.
+
+  This fixes incorrect (muddy) transparent colors when rendering cairo
+  PDF output in some viewers. (Adrian Johnson, Adam Goode, and
+  MenTaLguY).
+
+  http://lists.freedesktop.org/archives/cairo/2006-November/008551.html
+
+• win32: Return correct metrics when hinting is off, and fix font
+  descent computation (Behdad Esfahbod).
+
+• quartz: Fix glyph interfaces to correctly return user-space rather
+  than device-space coordinates (Brian Ewins).
+
+  https://bugs.freedesktop.org/show_bug.cgi?id=9568
+
+• xcb: Fix parameter-order confusion with xcb_create_pixmap, which now
+  makes all tests that pass with xlib now pass with xcb (Carl Worth,
+  Jamey Sharp).
+
+• Fix some memory leaks in the perf suite (Chris Wilson).
+
+• Fix perf suite to consider changes in pixman/src (Mathias
+  Hasselmann).
+
+Build fixes
+-----------
+• Don't include pre-generated cairo-features.h file. This was causing
+  build failures when building with the directfb backend enabled
+  (Behdad Esfahbod).
+
+  https://bugs.freedesktop.org/show_bug.cgi?id=10189
+
+• Eliminate use of maintainer mode from cairo's automake/configure
+  script. This means that updates to files such as Makefile.am will
+  take effect, (by rerunning automake and friends as necessary) when
+  invoking make rather than being silently ignored.  (Behdad Esfahbod)
+
+• Don't compile cairo-deflate-stream.c, which depends on zlib, unless
+  building the pdf backend which requires it. (Carl Worth, Tor
+  Lillqvist)
+
+  https://bugs.freedesktop.org/show_bug.cgi?id=10202
+
+• Don't make the ps backend link against zlib anymore, since it
+  doesn't require it (Carl Worth).
+
+• Use "find !" rather than "find -not" for better portability (Thomas
+  Klausner).
+
+  https://bugs.freedesktop.org/show_bug.cgi?id=10226
+
+• Don't use unsupported visibility attribute "hidden" on Solaris
+  (Gilles Dauphin, Thomas Klausner).
+
+  https://bugs.freedesktop.org/show_bug.cgi?id=10227
+
+Optimization
+------------
+• It was Behdad that suggested we focus strictly on bug fixes now that
+  we shipped so many performance improvements in 1.4.0, but it was
+  also Behdad that got distracted by the chance to remove a lot of
+  mallocs from cairo. Paths, gstates, trapezoids, splines, polygons,
+  and gradient color stops will now use small, stack-allocated buffers
+  in the most common cases rather than calling malloc as
+  often. (Behdad Esfahbod). And look for more from Mathias Hasselmann
+  soon.
+
+Release 1.4.0 (2007-03-06 Carl Worth <cworth@cworth.org>)
+=========================================================
+The many people[*] who have been working hard on cairo are very
+pleased to announce the long-awaited release of cairo 1.4. This
+release comes 4 months after the last stable update release (1.2.6)
+and 9 months since the initial release of 1.2.0.
+
+The release notes below are intended to capture the highlights of the
+changes that have occurred from the 1.2 series to the new 1.4.0
+release.
+
+Performance improvements
+------------------------
+Within the cairo project, the last 6 months or so has seen an intense
+effort focusing on the performance of cairo itself. That effort has
+paid off considerably, as can be seen in the following highlights of
+some of the performance differences from cairo 1.2.6 to cairo 1.4.0.
+
+(Note: The performance results reported here were measured on an x86
+laptop. Many of the improvements in 1.4---particular those involving
+text rendering---are even more dramatic on embedded platforms without
+hardware floating-point units. Such devices played an important part
+of many of the optimizations that found their way into cairo over the
+last few months.)
+
+• Dramatic improvement when drawing objects that are mostly off-screen
+  with the image backend (with the xlib backend this case is still
+  slow due to an X server bug):
+
+  image-rgba       long-lines-uncropped-100  479.64 ->  4.98: 96.24x speedup
+  ███████████████████████████████████████████████▋
+
+• Dramatic improvement when copying a small fraction of an image
+  surface to an xlib surface:
+
+   xlib-rgba              subimage_copy-512    3.93 ->  0.07: 54.52x speedup
+  ██████████████████████████▊
+
+• Dramatic improvement to tessellation speed for complex objects:
+
+  image-rgb              tessellate-256-100  874.16 -> 34.79: 25.13x speedup
+  ████████████▏
+   xlib-rgba        zrusin_another_fill-415  148.40 -> 13.85: 10.72x speedup
+  ████▉
+   xlib-rgb                  world_map-800  680.20 -> 345.54:  1.97x speedup
+  ▌
+
+• Dramatic improvement to the speed of stroking rectilinear shapes,
+  (such as the outline of a rectangle or "box"):
+
+  image-rgb          box-outline-stroke-100    0.18 ->  0.01: 24.22x speedup
+  ███████████▋
+   xlib-rgb          box-outline-stroke-100    0.46 ->  0.06:  8.05x speedup
+  ███▌
+
+
+• Dramatic improvements to text rendering speeds:
+
+   xlib-rgba       text_image_rgba_over-256   63.12 ->  9.61:  6.57x speedup
+  ██▊
+
+• 3x improvements to floating-point to fixed-point conversion speeds:
+
+  image-rgba      pattern_create_radial-16     9.29 ->  3.44:  2.70x speedup
+  ▉
+
+• 2x improvements to linear gradient computation:
+
+  image-rgb     paint_linear_rgb_source-512   26.22 -> 11.61:  2.26x speedup
+  ▋
+
+• 2x improvement to a case common in PDF rendering:
+
+  image-rgb              unaligned_clip-100    0.10 ->  0.06:  1.81x speedup
+  ▍
+
+• 1.3x improvement to rectangle filling speed (note: this improvement
+  is new since 1.3.16---previously this test case was a 1.3x slowdown
+  compared to 1.2.6):
+
+  image-rgba                 rectangles-512    6.19 ->  4.37:  1.42x speedup
+  ▎
+  xlib-rgba                  rectangles-512    7.48 ->  5.58:  1.34x speedup
+  ▏
+
+NOTE: In spite of our best efforts, there are some measurable
+performance regressions in 1.4 compared to 1.2. It appears that the
+primary problem is the increased overhead of the new tessellator when
+drawing many, very simple shapes. The following test cases capture
+some of that slowdown:
+
+  image-rgba    mosaic_tessellate_lines-800   11.03 -> 14.29:  1.30x slowdown
+  ▏
+  image-rgba           box-outline-fill-100    0.01 ->  0.01:  1.26x slowdown
+  ▏
+  image-rgba        fill_solid_rgb_over-64     0.20 ->  0.22:  1.12x slowdown
+
+  image-rgba       fill_image_rgba_over-64     0.23 ->  0.25:  1.10x slowdown
+
+   xlib-rgb     paint_image_rgba_source-256    3.24 ->  3.47:  1.07x slowdown
+
+We did put some special effort into eliminating this slowdown for the
+very common case of drawing axis-aligned rectangles with an identity
+matrix (see the box-outline-stroke and rectangles speedup numbers
+above). Eliminating the rest of this slowdown will be a worthwhile
+project going forward.
+
+Also note that the "box-outline-fill" case is a slowdown while
+"box-outline-stroke" is a (huge) speedup. These two test cases
+resulted from the fact that some GTK+ theme authors were filling
+between two rectangles to avoid slow performance from the more natural
+means of achieving the same shape by stroking a single rectangle. With
+1.4 that workaround should definitely be eliminated as it will now
+cause things to perform more slowly.
+
+Greatly improved PDF output
+---------------------------
+We are very happy to be able to announce that cairo-generated PDF
+output will now have text that can be selected, cut-and-pasted, and
+searched with most capable PDF viewer applications. This is something
+that was not ever possible with cairo 1.2.
+
+Also, the PDF output now has much more compact encoding of text than
+before. Cairo is now much more careful to not embed multiple copies of
+the same font at different sizes. It also compresses text and font
+streams within the PDF output.
+
+API additions
+-------------
+There are several new functions available in 1.4 that were not
+available in 1.2. Curiously, almost all of the new functions simply
+allow the user to query state that has been set in cairo (many new
+"get" functions) rather than providing any fundamentally new
+operations. The new functionality is:
+
+• Getting information about the current clip region
+
+  cairo_clip_extents
+  cairo_copy_clip_rectangle_list
+  cairo_rectangle_list_destroy
+
+• Getting information about the current dash setting
+
+  cairo_get_dash_count
+  cairo_get_dash
+
+• Getting information from a pattern
+
+  cairo_pattern_get_rgba
+  cairo_pattern_get_surface
+  cairo_pattern_get_color_stop_rgba
+  cairo_pattern_get_color_stop_count
+  cairo_pattern_get_linear_points
+  cairo_pattern_get_radial_circles
+
+• Getting the current scaled font
+
+  cairo_get_scaled_font
+
+• Getting reference counts
+
+  cairo_get_reference_count
+  cairo_surface_get_reference_count
+  cairo_pattern_get_reference_count
+  cairo_font_face_get_reference_count
+  cairo_scaled_font_get_reference_count
+
+• Setting/getting user data on objects
+
+  cairo_set_user_data
+  cairo_get_user_data
+  cairo_pattern_set_user_data
+  cairo_pattern_get_user_data
+  cairo_scaled_font_set_user_data
+  cairo_scaled_font_get_user_data
+
+• New cairo-win32 functions:
+
+  cairo_win32_surface_create_with_ddb
+  cairo_win32_surface_get_image
+  cairo_win32_scaled_font_get_logical_to_device
+  cairo_win32_scaled_font_get_device_to_logical
+
+API deprecation
+---------------
+The CAIRO_FORMAT_RGB16_565 enum value has been deprecated. It never
+worked as a format value for cairo_image_surface_create, and it wasn't
+necessary for supporting 16-bit 565 X server visuals.
+
+A sampling of bug fixes in cairo 1.4
+------------------------------------
+  • Fixed radial gradients
+  • Fixed dashing (degenerate and "leaky" cases)
+  • Fixed transformed images in PDF/PS output (eliminate bogus repeating)
+  • Eliminate errors from CAIRO_EXTEND_REFLECT and CAIRO_EXTEND_PAD
+  • cairo_show_page no longer needed for single-page output
+  • SVG: Fix bug preventing text from appearing in many viewers
+  • cairo-ft: Return correct metrics when hinting is off
+  • Eliminate crash in cairo_create_similar if nil surface is returned
+  • Eliminate crash after INVALID_RESTORE error
+  • Fix many bugs related to multi-threaded use and locking
+  • Fix for glyph spacing 32 times larger than desired (cairo-win32)
+  • Fixed several problems in cairo-atsui (assertion failures)
+  • Fix PDF output to avoid problems when printing from Acrobat Reader
+  • Fix segfault on Mac OS X (measuring a zero-length string)
+  • Fix text extents to not include the size of non-inked characters
+  • Fix for glyph cache race condition in glitz backend (Jinghua Luo)
+  • Fix make check to work on OPD platforms (IA64 or PPC64)
+  • Fix compilation problems of cairo "wideint" code on some platforms
+  • Many, many others...
+
+Experimental backends (quartz, XCB, OS/2, BeOS, directfb)
+---------------------------------------------------------
+None of cairo's experimental backends are graduating to "supported"
+status with 1.4.0, but two of them in particular (quartz and xcb), are
+very close.
+
+The quartz baceknd has been entirely rewritten and is now much more
+efficient. The XCB backend has been updated to track the latest XCB
+API (which recently had a 1.0 release).
+
+We hope to see these backends become supported in a future release,
+(once they are passing all the tests in cairo's test suite).
+
+The experimental OS/2 backend is new in cairo 1.4 compared to cairo
+1.2.
+
+Documentation improvements
+--------------------------
+We have added documentation for several functions and types that
+were previously undocumented, and improved documentation on other
+ones.  As of this release, there remain only two undocumented
+symbols: cairo_filter_t and cairo_operator_t.
+
+[*]Thanks to everyone
+---------------------
+I've accounted for 41 distinct people with attributed code added to
+cairo between 1.2.6 and 1.4.0, (their names are below). That's an
+impressive number, but there are certainly dozens more that
+contributed with testing, suggestions, clarifying questions, and
+encouragement. I'm grateful for the friendships that have developed as
+we have worked on cairo together. Thanks to everyone for making this
+all so much fun!
+
+Adrian Johnson, Alfred Peng, Alp Toker, Behdad Esfahbod,
+Benjamin Otte, Brian Ewins, Carl Worth, Christian Biesinger,
+Christopher (Monty) Montgomery, Daniel Amelang, Dan Williams,
+Dave Yeo, David Turner, Emmanuel Pacaud, Eugeniy Meshcheryakov,
+Frederic Crozat, Hans Breuer, Ian Osgood, Jamey Sharp, Jeff Muizelaar,
+Jeff Smith, Jinghua Luo, Jonathan Watt, Joonas Pihlaja, Jorn Baayen,
+Kalle Vahlman, Kjartan Maraas, Kristian Høgsberg, M Joonas Pihlaja,
+Mathias Hasselmann, Mathieu Lacage, Michael Emmel, Nicholas Miell,
+Pavel Roskin, Peter Weilbacher, Robert O'Callahan,
+Soren Sandmann Pedersen, Stuart Parmenter, T Rowley,
+Vladimir Vukicevic
+
+Snapshot 1.3.16 (2007-03-02 Carl Worth <cworth@cworth.org>)
+===========================================================
+New API functions
+-----------------
+A few new public functions have been added to the cairo API since the
+1.3.14 snapshot. These include a function to query the current scaled
+font:
+
+	cairo_get_scaled_font
+
+New functions to query the reference count of all cairo objects:
+
+	cairo_get_reference_count
+
+	cairo_surface_get_reference_count
+	cairo_pattern_get_reference_count
+
+	cairo_font_face_get_reference_count
+	cairo_scaled_font_get_reference_count
+
+And new functions to allow the use of user_data with any cairo object,
+(previously these were only available on cairo_surface_t and
+cairo_font_face_t objects):
+
+	cairo_set_user_data
+	cairo_get_user_data
+
+	cairo_pattern_set_user_data
+	cairo_pattern_get_user_data
+
+	cairo_scaled_font_set_user_data
+	cairo_scaled_font_get_user_data
+
+Usability improvement for PDF/PS/SVG generation
+-----------------------------------------------
+In previous versions of cairo, generating single-page output with the
+cairo-pdf, cairo-ps, or cairo-svg backends required a final call to
+cairo_show_page. This was often quite confusing as people would port
+functional code from a non-paginated backend and be totally mystified
+as to why the output was blank until they learned to add this call.
+
+Now that call to cairo_show_page is optional, (it will be generated
+implicitly if the user does not call it). So cairo_show_page is only
+needed to explicitly separate multiple pages.
+
+Greatly improved PDF output
+---------------------------
+We are very happy to be able to announce that cairo-generated PDF
+output will now have text that can be selected, cut-and-paste, and
+searched with most capable PDF viewer applications. This is something
+that was not ever possible with cairo 1.2.
+
+Also, the PDF output now has much more compact encoding of text than
+before. Cairo is now much more careful to not embed multiple copies of
+the same font at different sizes. It also compresses text and font
+streams within the PDF output.
+
+Major bug fixes
+---------------
+  • Fixed radial gradients
+
+    The rendering of radial gradients has been greatly improved. In
+    the cairo 1.2 series, there was a serious regression affecting
+    radial gradients---results would be very incorrect unless one of
+    the gradient circles had a radius of 0.0 and a center point within
+    the other circle. These bugs have now been fixed.
+
+  • Fixed dashing
+
+    Several fixes have been made to the implementation of dashed
+    stroking. Previously, some dashed, stroked rectangles would
+    mis-render and fill half of the rectangle with a large triangular
+    shape. This bug has now been fixed.
+
+  • Fixed transformed images in PDF/PS output
+
+    In previous versions of cairo, painting with an image-based source
+    surface pattern to the PDF or PS backends would cause many kinds
+    of incorrect results. One of the most common problems was that an
+    image would be repeated many times even when the user had
+    explicitly requested no repetition with CAIRO_EXTEND_NONE. These
+    bugs have now been fixed.
+
+  • Eliminate errors from CAIRO_EXTEND_REFLECT and CAIRO_EXTEND_PAD
+
+    In the 1.2 version of cairo any use of CAIRO_EXTEND_REFLECT or
+    CAIRO_EXTEND_PAD with a surface-based pattern resulted in an
+    error, (cairo would stop rendering). This bug has now been
+    fixed.
+
+    Now, CAIRO_EXTEND_REFLECT should work properly with surface
+    patterns.
+
+    CAIRO_EXTEND_PAD is still not working correctly, but it will now
+    simply behave as CAIRO_EXTEND_NONE rather than triggering the
+    error.
+
+New rewrite of quartz backend (still experimental)
+--------------------------------------------------
+Cairo's quartz backend has been entirely rewritten and is now much
+more efficient. This backend is still marked as experimental, not
+supported, but it is now much closer to becoming an officially
+supported backend. (For people that used the experimental nquartz
+backend in previous snapshots, that implementation has now been
+renamed from "nquartz" to "quartz" and has replaced the old quartz
+backend.)
+
+Documentation improvements
+--------------------------
+We have added documentation for several functions and types that
+were previously undocumented, and improved documentation on other
+ones.  As of this release, there remain only two undocumented
+symbols: cairo_filter_t and cairo_operator_t.
+
+Other bug fixes
+---------------
+  • cairo-svg: Fix bug that was preventing text from appearing in many
+    viewers
+
+  • cairo-ft: Return correct metrics when hinting is off
+
+  • Cairo 1.3.14 deadlocks in cairo_scaled_font_glyph_extents or
+    _cairo_ft_unscaled_font_lock_face
+
+    https://bugs.freedesktop.org/show_bug.cgi?id=10035
+
+  • cairo crashes in cairo_create_similar if nil surface returned by
+    other->backend->create_similar
+
+    https://bugs.freedesktop.org/show_bug.cgi?id=9844
+
+  • evolution crash in _cairo_gstate_backend_to_user()
+    https://bugs.freedesktop.org/show_bug.cgi?id=9906
+
+  • Fix memory leak in rectilinear stroking code
+
+Things not in this release
+--------------------------
+  • Solid-surface-pattern cache: This patch had been applied during
+    the 1.3.x series, but it was reverted due to some inter-thread
+    problems it caused. The patch is interesting since it made a big
+    benefit for text rendering performance---so we'll work to bring a
+    corrected version of this patch back as soon as possible.
+
+Snapshot 1.3.14 (2006-02-13 Carl Worth <cworth@cworth.org>)
+===========================================================
+This is the seventh development snapshot in the 1.3 series, (and there
+likely won't be many more before the 1.4.0 release). It comes just
+over 3 weeks after the 1.3.12 snapshot.
+
+Since we're so close to the 1.4.0 release, there are not a lot of new
+features nor even a lot of new performance improvements in this
+snapshot. Instead, there are a great number of bug fixes. Some are
+long-standing bugs that we're glad to say goodbye to, and several are
+fixes for regressions that were introduced as part of the optimization
+efforts during the 1.3.x series.
+
+PDF text selection fixed
+------------------------
+The inability to correctly select text in cairo-generated PDF has been
+a defect ever since the initial support for the PDF backend in the
+cairo 1.2.0 release. With the 1.3.14 snapshot, in most situations, and
+with most PDF viewer applications, the PDF generated by cairo will
+allow text to be correctly selected for copy-and-paste, (as well as
+searching).
+
+We're very excited about this new functionality, (and very grateful to
+Adrian Johnson, Behdad Esfahbod, and others that have put a lot of
+work into this lately). Please test this new ability and give feedback
+on the cairo@cairographics.org list.
+
+Many thread-safety issues fixed
+-------------------------------
+We've discovered that no release of cairo has ever provided safe text
+rendering from a multi-threaded application. With the 1.3.14 snapshot
+a huge number of the bugs in this area have been fixed, and multiple
+application dvelopers have now reported success at writing
+multi-threaded applications with cairo.
+
+Other fixes
+-----------
+Fixed a bug that was causing glyph spacing to be 32 times larger than
+desired when using cairo-win32.
+
+Fixed a regression in the rendering of linear gradients that had been
+present since the 1.3.8 snapshot.
+
+Fixed several problems in cairo-atsui that were leading to assertion
+failures when rendering text.
+
+Fix corrupted results when rendering a transformed source image
+surface to an xlib surface. This was a regression that had been
+present since the 1.3.2 snapshot.
+
+Fixed PDF output to prevent problems printing from some versions of
+Acrobat Reader, (a single glyph was being substituted for every
+glyph).
+
+And many other fixes as well, (see the logs for details).
+
+Snapshot 1.3.12 (2007-01-20 Carl Worth <cworth@cworth.org>)
+===========================================================
+The relentless march toward the cairo 1.4 release continues, (even if
+slightly late out of the starting blocks in 2007). This is the sixth
+development snapshot in the 1.3 series. It comes 4 weeks after the
+1.3.10 snapshot.
+
+Performance
+-----------
+As usual, this snapshot has some fun performance improvements to show
+off:
+
+image-rgba long-lines-uncropped-100  470.08 -> 4.95: 94.91x speedup
+███████████████████████████████████████████████
+image-rgb  long-lines-uncropped-100  461.60 -> 4.96: 93.02x speedup
+██████████████████████████████████████████████
+
+This 100x improvement, (and yes, that's 100x, not 100%), in the image
+backend occurs when drawing large shapes where only a fraction of the
+shape actually appears in the final result, (the rest being outside
+the bounds of the destination surface). Many applications should see
+speedups here, and the actual amount of speedup depends on the ratio
+of non-visible to visible portions of geometry.
+
+[Note: There remains a similar performance bug when drawing mostly
+non-visible objects with the xlib backend. This is due to a similar
+bug in the X server itself, but we hope a future cairo snapshot will
+workaround that bug to get a similar speedup with the xlib backend.]
+
+image-rgba       unaligned_clip-100    0.09 -> 0.06:  1.67x speedup
+▍
+image-rgb        unaligned_clip-100    0.09 -> 0.06:  1.66x speedup
+▍
+
+This speedup is due to further MMX optimization by Soeren Sandmann for
+a case commonly hit when rendering PDF files, (and thanks to Jeff
+Muizelaar for writing code to extract the test case for us).
+
+There's another MMX optimization in this snapshot (without a fancy
+speedup chart) by Dan Williams which improves compositing performance
+specifically for the OLPC machine.
+
+Thanks to Adrian Johnson, cairo's PDF output is now much more
+efficient in the way it encodes text output. By reducing redundant
+information and adding compression to text output streams, Adrian
+achieved a ~25x improvement in the efficiency of encoding text in PDF
+files, (was ~45 bytes per glyph and is now ~1.6 bytes per glyph).
+
+Bug fixes
+---------
+In addition to those performance improvements, this snapshot includes
+several bug fixes:
+
+ * A huge number of bug fixes for cairo-atsui text rendering, (for mac
+   OS X). These bugs affect font selection, glyph positioning, glyph
+   rendering, etc. One noteworthy bug fixes is that
+   cairo_select_font_face will no longer arbitrarily select bold nor
+   italic when not requested, (at least not when using a standard CSS2
+   font family name such as "serif", "sans-serif", "monospace", etc.).
+   All these fixes are thanks to Brian Ewins who continues to do a
+   great job as the new cairo-atsui maintainer.
+
+ * Fix PDF output so that images that are scaled down no longer
+   mysteriously repeat (Carl Worth).
+
+ * Fix segfault on Mac OS X dues to attempt to measure extents of a
+   zero-length string (Behdad Esfahbod).
+
+ * Fix text extents to not include the size of initial/trailing
+   non-inked characters (Behdad Esfahbod).
+
+API tweaks
+----------
+Three functions have had API changes to improve consistency. Note that
+the API functions being changed here are all functions that were
+introduced as new functions during these 1.3.x snapshots. As always,
+there will not be any API changes to functions included in a major
+release (1.2.x, 1.4.x, etc.) of cairo.
+
+The changes are as follows:
+
+ * Rename of cairo_copy_clip_rectangles to cairo_copy_clip_rectangle_list.
+
+ * Change cairo_get_dash_count to return an int rather than accepting a
+   pointer to an int for the return value.
+
+ * Change cairo_get_dash to have a void return type rather than
+   returning cairo_status_t.
+
+It's possible there will be one more round of changes to these
+functions, (and perhaps cairo_get_color_stop as well), as we seek to
+establish a unifying convention for returning lists of values.
+
+Snapshot 1.3.10 (2006-12-23 Carl Worth <cworth@cworth.org>)
+===========================================================
+Santa Claus is coming just a little bit early this year, and he's
+bringing a shiny new cairo snapshot for all the good little boys and
+girls to play with.
+
+This is the fifth development snapshot in the 1.3 series. It comes 9
+days after the 1.3.8 snapshot, and still well within our goal of
+having a new snapshot every week, (though don't expect one next
+week---we'll all be too stuffed with sugar plums).
+
+Speaking of sugar plums, there's a sweet treat waiting in this cairo
+snapshot---greatly improved performance for stroking rectilinear
+shapes, like the ever common rectangle:
+
+image-rgb          box-outline-stroke-100 0.18 -> 0.01: 25.58x speedup
+████████████████████████▋
+image-rgba         box-outline-stroke-100 0.18 -> 0.01: 25.57x speedup
+████████████████████████▋
+xlib-rgb          box-outline-stroke-100 0.49 -> 0.06:  8.67x speedup
+███████▋
+xlib-rgba         box-outline-stroke-100 0.22 -> 0.04:  5.39x speedup
+████▍
+
+In past releases of cairo, some people had noticed that using
+cairo_stroke to draw rectilinear shapes could be awfully slow. Many
+people had worked around this by using cairo_fill with a more complex
+path and gotten a 5-15x performance benefit from that.
+
+If you're one of those people, please rip that workaround out, as now
+the more natural use of cairo_stroke should be 1.2-2x faster than the
+unnatural use of cairo_fill.
+
+And if you hadn't ever implemented that workaround, then you just
+might get to see your stroked rectangles now get drawn 5-25x faster.
+
+Beyond that performance fix, there are a handful of bug fixes in this
+snapshot:
+
+ * Fix for glyph cache race condition in glitz backend (Jinghua Luo)
+
+ * Many fixes for ATSUI text rendering (Brian Ewins)
+
+ * Un-break recent optimization-triggered regression in rendering text
+   with a translation in the font matrix (Behdad Esfahbod)
+
+ * Fix make check to work on OPD platforms (IA64 or PPC64)
+   (Frederic Crozat)
+
+ * Fix a couple of character spacing issues on Windows
+    (Jonathan Watt)
+
+Have fun with that, everybody, and we'll be back for more in the new
+year, (with a plan to add the last of our performance improvements in
+this round, fix a few bad, lingering bugs, and then finish off a nice,
+stable 1.4 release before the end of January).
+
+-Carl
+
+Snapshot 1.3.8 (2006-12-14 Carl Worth <cworth@cworth.org>)
+==========================================================
+This is the fourth development snapshot in the 1.3 series. It comes
+just slightly more than one week after the 1.3.6 snapshot.
+
+After the bug fixes in 1.3.6, we're back to our original program of
+weekly snapshots, each one faster than the one from the week
+before. Cairo 1.3.8 brings a 2x improvement in the speed of rendering
+linear gradients (thanks to David Turner), and a significant reduction
+in X traffic when rendering text (thanks to Xan Lopez and Behdad
+Esfahbod), making cairo behave very much like Xft does.
+
+A few other things in the 1.3.8 snapshot worth noting include a more
+forgiving image comparator in the test suite, (using the "perceptual
+diff" metric and GPL implementation by Hector Yee[*]), a bug fix for
+broken linking on x86_64 (thanks to M Joonas Pihlaja) and an even
+better implementation of _cairo_lround, (not faster, but supporting a
+more complete input range), from Daniel Amelang.
+
+[*] http://pdiff.sourceforge.net/
+
+Snapshot 1.3.6 (2006-12-06 Carl Worth <cworth@cworth.org>)
+==========================================================
+This is the third development snapshot in the 1.3 series. It comes two
+weeks after the 1.3.4 snapshot.
+
+We don't have fancy performance charts this week as the primary
+changes in this snapshot are bug fixes. The performance work continues
+and the next snapshot (planned for one week from today) should include
+several improvements. The bug fixes in this snapshot include:
+
+ * Fix undesirable rounding in glyph positioning (Dan Amelang)
+
+   This bug was noticed by several users, most commonly by seeing
+   improper text spacing or scrambled glyphs as drawn by nautilus. For
+   example:
+
+	Update to cairo-1.3.4 worsen font rendering
+	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=217819
+
+ * Fix reduced range of valid input coordinates to tessellator
+   (M Joonas Pihlaja)
+
+   This bug was causing lots of assertion failures in mozilla as
+   mentioned here:
+
+	CAIRO_BO_GUARD_BITS and coordinate space?
+	http://lists.freedesktop.org/archives/cairo/2006-December/008743.html
+
+ * Fix several regressions in new tessellator (M Joonas Pihlaja)
+
+   Joonas just had a good eye for detail here. I don't think any
+   external cairo users had noticed any of these bugs yet.
+
+ * Fix compilation problems of cairo "wideint" code on some platforms
+   (Mathieu Lacage)
+
+ * Fix failed configure due to broken grep (Dan Amelang)
+
+   This bug was reported here:
+
+	AX_C_FLOAT_WORDS_BIGENDIAN doesn't work because grep doesn't
+	work with binary file
+	https://bugs.freedesktop.org/show_bug.cgi?id=9124
+
+ * Remove the pkg-config minimum version requirement (Behdad Esfahbod)
+
+   Some systems ship with pkg-config 0.15 and there was really no good
+   reason for cairo to insist on having version 0.19 before it would
+   build.
+
+There is also one new (but inert) feature in this snapshot. There's a
+new option that can be passed to cairo's configure script:
+
+	--disable-some-floating-point
+
+	Disable certain code paths that rely heavily on double precision
+	floating-point calculation. This option can improve
+	performance on systems without a double precision floating-point
+	unit, but might degrade performance on those that do.
+
+As of this snapshot, this option does not make any change to cairo,
+but it is possible that future versions of cairo will respect this
+option and change the implementation of various functions as
+appropriate.
+
+Snapshot 1.3.4 (2006-11-22 Carl Worth <cworth@cworth.org>)
+==========================================================
+This is the second development snapshot in the 1.3 series. It comes
+one week after the 1.3.2 snapshot.
+
+This snapshot has a couple of significant performance improvements,
+and also adds new support for producing multi-page SVG output, (when
+targeting SVG 1.2)---thanks to Emmanuel Pacaud. The details of the
+performance improvements are as follows:
+
+1. The long-awaited "new tessellator".
+
+   The credit for this being an improvement goes to Joonas Pihlaja. He
+   took my really slow code and really put it through its paces to get
+   the dramatic performance improvement seen below (up to 38x faster
+   on realistic cases, and more than 10x faster for the zrusin_another
+   test).
+
+   His own writeup of the work he did is quite thorough, but more than
+   can be quoted here. Please see his post for the interesting details:
+
+   http://lists.freedesktop.org/archives/cairo/2006-November/008483.html
+
+   (Though note that this snapshot also includes some additional,
+   significant improvements that were only sketched out in that
+   email---see "Generating fewer trapezoids").
+
+2. More floating-point improvements
+
+   Daniel Amelang continues to work the magic he began in the 1.3.2
+   snapshot. This time he short-circuits floating-point
+   transformations by identity matrices and applies the earlier
+   floating-to-fixed-point technique to the problem of rounding.
+
+   The improvements here will primarily benefit text performance, and
+   will benefit platforms without hardware floating-point more than
+   those that have it, (some text tests show 20% improvement on an x86
+   machine and closer to 80% improvement on arm).
+
+The performance chart comparing 1.3.2 to 1.3.4 really speaks for
+itself, (this is on an x86 laptop). This is quite a lot of progress
+for one week:
+
+ xlib-rgb    stroke_similar_rgba_over-256   74.99 1.45% ->   2.03 68.38%: 36.86x speedup
+███████████████████████████████████▉
+ xlib-rgb  stroke_similar_rgba_source-256   78.23 1.43% ->   3.30 67.05%: 23.71x speedup
+██████████████████████▊
+ xlib-rgba             tessellate-256-100  820.42 0.15% ->  35.06 2.84%: 23.40x speedup
+██████████████████████▍
+image-rgba             tessellate-256-100  819.55 0.32% ->  35.04 3.56%: 23.39x speedup
+██████████████████████▍
+ xlib-rgb      stroke_image_rgba_over-256   78.10 1.43% ->   4.33 65.56%: 18.04x speedup
+█████████████████
+ xlib-rgb    stroke_image_rgba_source-256   80.11 1.63% ->   5.75 63.99%: 13.94x speedup
+█████████████
+ xlib-rgba  zrusin_another_tessellate-415   89.22 0.35% ->   8.38 5.23%: 10.65x speedup
+█████████▋
+image-rgba  zrusin_another_tessellate-415   87.38 0.89% ->   8.37 5.22%: 10.44x speedup
+█████████▍
+image-rgba        zrusin_another_fill-415  117.67 1.34% ->  12.88 2.77%:  9.14x speedup
+████████▏
+ xlib-rgba        zrusin_another_fill-415  140.52 1.57% ->  15.79 2.88%:  8.90x speedup
+███████▉
+image-rgba              tessellate-64-100    9.68 3.42% ->   1.42 0.60%:  6.82x speedup
+█████▉
+ xlib-rgba              tessellate-64-100    9.78 4.35% ->   1.45 0.83%:  6.72x speedup
+█████▊
+ xlib-rgb     stroke_linear_rgba_over-256   46.01 2.44% ->   7.74 54.51%:  5.94x speedup
+█████
+ xlib-rgb   stroke_linear_rgba_source-256   48.09 2.15% ->   9.14 53.00%:  5.26x speedup
+████▎
+ xlib-rgb     stroke_radial_rgba_over-256   50.96 2.34% ->  12.46 47.99%:  4.09x speedup
+███▏
+ xlib-rgb   stroke_radial_rgba_source-256   53.06 1.57% ->  13.96 46.57%:  3.80x speedup
+██▊
+image-rgba  paint_similar_rgba_source-256    0.12 1.57% ->   0.08 9.92%:  1.42x speedup
+▍
+image-rgba    paint_image_rgba_source-256    0.12 2.49% ->   0.08 10.70%:  1.41x speedup
+▍
+image-rgba                  world_map-800  356.28 0.46% -> 275.72 1.15%:  1.29x speedup
+▎
+ xlib-rgba                  world_map-800  456.81 0.39% -> 357.95 1.39%:  1.28x speedup
+▎
+image-rgb               tessellate-16-100    0.09 0.57% ->   0.07 3.43%:  1.23x speedup
+▎
+image-rgba              tessellate-16-100    0.09 0.06% ->   0.07 2.46%:  1.23x speedup
+▎
+image-rgba        text_solid_rgb_over-256    5.39 4.01% ->   4.47 0.70%:  1.21x speedup
+▎
+image-rgba       text_solid_rgba_over-256    5.37 0.82% ->   4.45 0.75%:  1.21x speedup
+▎
+image-rgba        text_image_rgb_over-64     0.78 0.10% ->   0.65 0.74%:  1.20x speedup
+▎
+image-rgba       text_image_rgba_over-64     0.78 0.29% ->   0.65 0.68%:  1.19x speedup
+▎
+image-rgb         text_solid_rgb_over-64     0.76 2.45% ->   0.63 0.81%:  1.19x speedup
+▎
+image-rgba       text_solid_rgba_over-64     0.76 0.33% ->   0.64 0.66%:  1.19x speedup
+▎
+image-rgba     text_similar_rgba_over-256    5.99 4.72% ->   5.04 1.09%:  1.19x speedup
+▎
+
+We should point out that there is some potential for slowdown in this
+snapshot. The following are the worst slowdowns reported by the cairo
+performance suite when comparing 1.3.2 to 1.3.4:
+
+image-rgba              subimage_copy-256    0.01 0.87% ->   0.01 3.61%:  1.45x slowdown
+▌
+ xlib-rgb        paint_solid_rgb_over-256    0.31 10.23% ->   0.38 0.33%:  1.26x slowdown
+▎
+image-rgba           box-outline-fill-100    0.01 0.30% ->   0.01 2.52%:  1.21x slowdown
+▎
+image-rgba        fill_solid_rgb_over-64     0.20 1.22% ->   0.22 1.59%:  1.12x slowdown
+▏
+image-rgb       fill_similar_rgb_over-64     0.21 1.04% ->   0.24 1.06%:  1.11x slowdown
+▏
+image-rgba        fill_image_rgb_over-64     0.21 1.19% ->   0.24 0.72%:  1.11x slowdown
+▏
+image-rgba      fill_similar_rgb_over-64     0.21 0.18% ->   0.24 0.30%:  1.11x slowdown
+▏
+image-rgb        fill_solid_rgba_over-64     0.22 1.66% ->   0.24 1.15%:  1.11x slowdown
+▏
+image-rgb         fill_image_rgb_over-64     0.21 0.14% ->   0.24 0.80%:  1.11x slowdown
+▏
+image-rgba       fill_image_rgba_over-64     0.22 1.34% ->   0.25 0.20%:  1.11x slowdown
+▏
+image-rgba       fill_solid_rgba_over-64     0.22 1.48% ->   0.24 0.95%:  1.11x slowdown
+▏
+image-rgb      fill_similar_rgba_over-64     0.22 1.13% ->   0.25 1.25%:  1.10x slowdown
+▏
+
+The 45% slowdown for subimage_copy is an extreme case. It's unlikely
+to hit many applications unless they often use cairo_rectangle;
+cairo_fill to copy a single pixel at a time. In any case, it shows a
+worst-case impact of the overhead of the new tessellator. The other
+slowdowns (~ 10%) are probably more realistic, and still very
+concerning.
+
+We will work to ensure that performance regressions like these are not
+present from one major release of cairo to the next, (for example,
+from 1.2 to 1.4).
+
+But we're putting this 1.3.4 snapshot out there now, even with this
+potential slowdown so that people can experiment with it. If you've
+got complex geometry, we hope you will see some benefit from the new
+tessellator. If you've got primarily simple geometry, we hope things
+won't slowdown too much, but please let us know what slowdown you see,
+if any, so we can calibrate our performance suite against real-world
+impacts.
+
+Thanks, and have fun with cairo!
+
+Snapshot 1.3.2 (2006-11-14 Carl Worth <cworth@cworth.org>)
+==========================================================
+This is the first development snapshot since the 1.2 stable series
+branched off shortly after the 1.2.4 release in August 2006.
+
+This snapshot includes all the bug fixes from the 1.2.6 release,
+(since they originated here on the 1.3 branch first and were
+cherry-picked over to 1.2). But more importantly, it contains some new
+API in preparation for a future 1.4 release, and most importantly, it
+contains several performance improvements.
+
+The bug fixes will not be reviewed here, as most of them are already
+described in the 1.2.6 release notes. But details for the new API and
+some performance improvements are included here.
+
+As with all snapshots, this is experimental code, and the new API
+added here is still experimental and is not guaranteed to appear
+unchanged in any future release of cairo.
+
+API additions
+-------------
+Several new API additions are available in this release. There is a
+common theme among all the additions in that they allow cairo to
+advertise information about its state that it was refusing to
+volunteer earlier. So this isn't groundbreaking new functionality, but
+it is essential for easily achieving several tasks.
+
+The new functions can be divided into three categories:
+
+	Getting information about the current clip region
+	-------------------------------------------------
+	cairo_clip_extents
+	cairo_copy_clip_rectangles
+	cairo_rectangle_list_destroy
+
+	Getting information about the current dash setting
+	--------------------------------------------------
+	cairo_get_dash_count
+	cairo_get_dash
+
+	Getting information from a pattern
+	----------------------------------
+	cairo_pattern_get_rgba
+	cairo_pattern_get_surface
+	cairo_pattern_get_color_stop_rgba
+	cairo_pattern_get_color_stop_count
+	cairo_pattern_get_linear_points
+	cairo_pattern_get_radial_circles
+
+In each of these areas, we have new API for providing a list of
+uniform values from cairo. The closest thing we had to this before was
+cairo_copy_path, (which is rather unique in providing a list of
+non-uniform data).
+
+The copy_clip_rectangles/rectangle_list_destroy functions follow a
+style similar to that of cairo_copy_path. Meanwhile, the dash and
+pattern color stop functions introduce a new style in which there is a
+single call to return the number of elements available (get_dash_count
+and get_color_stop_count) and then a function to be called once to get
+each element (get_dash and get_color_stop_rgba).
+
+I'm interested in hearing feedback from users of these new API
+functions, particularly from people writing language bindings. One
+open question is whether the clip "getter" functionality should adopt
+a style similar to that of the new dash and color_stop interfaces.
+
+API deprecation
+---------------
+The CAIRO_FORMAT_RGB16_565 enum value has been deprecated. It never
+worked as a format value for cairo_image_surface_create, and it wasn't
+necessary for supporting 16-bit 565 X server visuals.
+
+XCB backend changes
+-------------------
+The XCB backend has been updated to track the latest XCB API (which
+recently had a 1.0 release).
+
+New quartz backend
+------------------
+Vladimir Vukicevic has written a new "native quartz" backend which
+will eventually replace the current "image-surface wrapping" quartz
+backend. For now, both backends are available, (the old one is
+"quartz" and the new one is "nquartz"). But it is anticipated that the
+new backend will replace the old one and take on the "quartz" name
+before this backend is marked as supported in a release of cairo.
+
+New OS/2 backend
+----------------
+Doodle and Peter Weilbacher have contributed a new, experimental
+backend for using cairo on OS/2 systems.
+
+Performance improvements
+------------------------
+Here are some highlights from cairo's performance suite showing
+improvements from cairo 1.2.6 to cairo 1.3.2. The command used to
+generate this data is:
+
+	./cairo-perf-diff 1.2.6 HEAD
+
+available in the perf/ directory of a recent checkout of cairo's
+source, (the cairo-perf-diff script does require a git checkout and
+will not work from a tar file---though ./cairo-perf can still be used
+to generate a single report there and ./cairo-perf-diff-files can be
+used to compare two reports).
+
+Results are described below both for an x86 laptop (with an old Radeon
+video card, recent X.org build, XAA, free software drivers), as well
+as for a Nokia 770. First the x86 results with comments on each, (all
+times are reported in milliseconds).
+
+Copying subsets of an image surface to an xlib surface (much faster)
+--------------------------------------------------------------------
+ xlib-rgba              subimage_copy-512   10.50 ->   : 53.97x speedup
+█████████████████████████████████████████████████████
+
+Thanks to Christopher (Monty) Montgomery for this big performance
+improvement. Any application which has a large image surface and is
+copying small pieces of it at a time to an xlib surface, (imagine an
+application that loads a single image containing all the "sprites" for
+that application), will benefit from this fix. The larger the ratio of
+the image surface to the portion being copied, the larger the benefit.
+
+Floating-point conversion (3x faster)
+-------------------------------------
+ xlib-rgba  pattern_create_radial-16    27.75 ->   3.93 :  2.94x speedup
+██
+image-rgb   pattern_create_radial-16    26.06 ->   3.74 :  2.90x speedup
+█▉
+
+Thanks to Daniel Amelang, (and others who had contributed the idea
+earlier), for this nice improvement in the speed of converting
+floating-point values to fixed-point.
+
+Text rendering (1.3 - 2x faster)
+------------------------------
+ xlib-rgba text_image_rgba_source-256  319.73 ->  62.40 :  2.13x speedup
+█▏
+image-rgb    text_solid_rgba_over-64     2.85 ->   0.88 :  1.35x speedup
+▍
+
+I don't think we've ever set out to improve text performance
+specifically, but we did it a bit anyway. I believe the extra
+improvement in the xlib backend is due to Monty's image copying fix
+above, and the rest is due to the floating-point conversion speedup.
+
+Thin stroke improvements (1.5x faster)
+---------------------------------------------
+image-rgb               world_map-800  1641.09 -> 414.77 :  1.65x speedup
+▋
+ xlib-rgba              world_map-800  1939.66 -> 529.94 :  1.52x speedup
+▌
+
+The most modest stuff to announce in this release is the 50%
+improvement I made in the world_map case. This is in improvement that
+should help basically anything that is doing strokes with many
+straight line segments, (and the thinner the better, since that makes
+tessellation dominate rasterization). The fixes here are to use a
+custom quadrilateral tessellator rather than the generic tessellator
+for straight line segments and the miter joins.
+
+Performance results from the Nokia 770
+--------------------------------------
+ xlib-rgba          subimage_copy-512     55.88 ->     2.04 : 27.34x speedup
+██████████████████████████▍
+ xlib-rgb     text_image_rgb_over-256   1487.58 ->   294.43 :  5.05x speedup
+████
+image-rgb   pattern_create_radial-16     187.13 ->    91.86 :  2.04x speedup
+█
+ xlib-rgba              world_map-800  21261.41 -> 15628.02 :  1.36x speedup
+▍
+
+Here we see that the subimage_copy improvement was only about half as
+large as the corresponding improvement on my laptop, (27x faster
+compared to 54x) and the floating-point conversion fix also was quite
+as significant, (2x compared to 3x). Oddly the improvement to text
+rendering performance was more than twice as good (5x compared to
+2x). I don't know what the reason for that is, but I don't think it's
+anything anybody should complain about.
+
 Release 1.2.6 (2006-11-02 Behdad Esfahbod <behdad@behdad.org>)
 ==============================================================
 This is the third bug fix release in the 1.2 series, coming less than
@@ -1749,7 +2904,7 @@ This is the first snapshot to include a functional win32 backend,
 
 	#include <cairo-win32.h>
 
-	void 
+	void
 	cairo_set_target_win32 (cairo_t *cr,
 				HDC      hdc);
 

@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Win32 Surfaces</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.69.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.71.0">
 <link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
 <link rel="up" href="Surfaces.html" title="Surfaces">
 <link rel="prev" href="cairo-PostScript-Surfaces.html" title="PostScript Surfaces">
 <link rel="next" href="cairo-SVG-Surfaces.html" title="SVG Surfaces">
-<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.7 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 <link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
 <link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
@@ -18,6 +18,7 @@
 <link rel="chapter" href="Support.html" title="Utilities">
 <link rel="index" href="ix01.html" title="Index">
 <link rel="index" href="ix02.html" title="Index of new symbols in 1.2">
+<link rel="index" href="ix03.html" title="Index of new symbols in 1.4">
 <link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -29,21 +30,23 @@
 <th width="100%" align="center">Cairo: A Vector Graphics Library</th>
 <td><a accesskey="n" href="cairo-SVG-Surfaces.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
-<tr><td colspan="5" class="shortcuts"><nobr><a href="#top_of_page" class="shortcut">Top</a>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2559316" class="shortcut">Top</a>
                   &#160;|&#160;
-                  <a href="#desc" class="shortcut">Description</a></nobr></td></tr>
+                  <a href="#id2634457" class="shortcut">Description</a></nobr></td></tr>
 </table>
 <div class="refentry" lang="en">
 <a name="cairo-Win32-Surfaces"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
-<h2><span class="refentrytitle"><a name="top_of_page"></a>Win32 Surfaces</span></h2>
+<h2>
+<a name="id2559316"></a><span class="refentrytitle">Win32 Surfaces</span>
+</h2>
 <p>Win32 Surfaces &#8212; Microsoft Windows surface support</p>
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
 <div class="refsynopsisdiv">
-<a name="synopsis"></a><h2>Synopsis</h2>
+<h2>Synopsis</h2>
 <pre class="synopsis">
 
 
@@ -53,21 +56,28 @@
                                             (<a href="cairo-Image-Surfaces.html#cairo-format-t">cairo_format_t</a> format,
                                              int width,
                                              int height);
+<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* <a href="cairo-Win32-Surfaces.html#cairo-win32-surface-create-with-ddb">cairo_win32_surface_create_with_ddb</a>
+                                            (HDC hdc,
+                                             <a href="cairo-Image-Surfaces.html#cairo-format-t">cairo_format_t</a> format,
+                                             int width,
+                                             int height);
 HDC         <a href="cairo-Win32-Surfaces.html#cairo-win32-surface-get-dc">cairo_win32_surface_get_dc</a>      (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);
+<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* <a href="cairo-Win32-Surfaces.html#cairo-win32-surface-get-image">cairo_win32_surface_get_image</a>
+                                            (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);
 </pre>
 </div>
 <div class="refsect1" lang="en">
-<a name="desc"></a><h2>Description</h2>
+<a name="id2634457"></a><h2>Description</h2>
 <p>
 
 </p>
 </div>
 <div class="refsect1" lang="en">
-<a name="details"></a><h2>Details</h2>
+<a name="id2634473"></a><h2>Details</h2>
 <div class="refsect2" lang="en">
-<a name="id2710050"></a><h3>
+<a name="id2634483"></a><h3>
 <a name="cairo-win32-surface-create"></a>cairo_win32_surface_create ()</h3>
-<a class="indexterm" name="id2657593"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_win32_surface_create (HDC hdc);</pre>
+<a class="indexterm" name="id2634495"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_win32_surface_create (HDC hdc);</pre>
 <p>
 Creates a cairo surface that targets the given DC.  The DC will be
 queried for its initial clip extents, and this will be used as the
@@ -81,14 +91,12 @@ be set appropriately.</p>
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>hdc</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>hdc</code></em>&#160;:</span></td>
 <td> the DC to create a surface for
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
 <td> the newly created surface
 </td>
 </tr>
@@ -97,16 +105,16 @@ be set appropriately.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2657655"></a><h3>
+<a name="id2629228"></a><h3>
 <a name="cairo-win32-surface-create-with-dib"></a>cairo_win32_surface_create_with_dib ()</h3>
-<a class="indexterm" name="id2657668"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_win32_surface_create_with_dib
+<a class="indexterm" name="id2629242"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_win32_surface_create_with_dib
                                             (<a href="cairo-Image-Surfaces.html#cairo-format-t">cairo_format_t</a> format,
                                              int width,
                                              int height);</pre>
 <p>
 Creates a device-independent-bitmap surface not associated with
 any particular existing surface or device context. The created
-bitmap will be unititialized.</p>
+bitmap will be uninitialized.</p>
 <p>
 
 </p>
@@ -114,26 +122,22 @@ bitmap will be unititialized.</p>
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>format</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>format</code></em>&#160;:</span></td>
 <td> format of pixels in the surface to create
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>width</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>width</code></em>&#160;:</span></td>
 <td> width of the surface, in pixels
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>height</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>height</code></em>&#160;:</span></td>
 <td> height of the surface, in pixels
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
 <td> the newly created surface
 
 </td>
@@ -145,9 +149,59 @@ bitmap will be unititialized.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2722665"></a><h3>
+<a name="id2629351"></a><h3>
+<a name="cairo-win32-surface-create-with-ddb"></a>cairo_win32_surface_create_with_ddb ()</h3>
+<a class="indexterm" name="id2629365"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_win32_surface_create_with_ddb
+                                            (HDC hdc,
+                                             <a href="cairo-Image-Surfaces.html#cairo-format-t">cairo_format_t</a> format,
+                                             int width,
+                                             int height);</pre>
+<p>
+Creates a device-independent-bitmap surface not associated with
+any particular existing surface or device context. The created
+bitmap will be uninitialized.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><span class="term"><em class="parameter"><code>hdc</code></em>&#160;:</span></td>
+<td> the DC to create a surface for
+</td>
+</tr>
+<tr>
+<td><span class="term"><em class="parameter"><code>format</code></em>&#160;:</span></td>
+<td> format of pixels in the surface to create
+</td>
+</tr>
+<tr>
+<td><span class="term"><em class="parameter"><code>width</code></em>&#160;:</span></td>
+<td> width of the surface, in pixels
+</td>
+</tr>
+<tr>
+<td><span class="term"><em class="parameter"><code>height</code></em>&#160;:</span></td>
+<td> height of the surface, in pixels
+</td>
+</tr>
+<tr>
+<td><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> the newly created surface
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p>Since  1.4
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2629495"></a><h3>
 <a name="cairo-win32-surface-get-dc"></a>cairo_win32_surface_get_dc ()</h3>
-<a class="indexterm" name="id2722679"></a><pre class="programlisting">HDC         cairo_win32_surface_get_dc      (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
+<a class="indexterm" name="id2629508"></a><pre class="programlisting">HDC         cairo_win32_surface_get_dc      (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
 <p>
 Returns the HDC associated with this surface, or NULL if none.
 Also returns NULL if the surface is not a win32 surface.</p>
@@ -158,14 +212,12 @@ Also returns NULL if the surface is not a win32 surface.</p>
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>surface</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>surface</code></em>&#160;:</span></td>
 <td> a <a href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a>
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
 <td> HDC or NULL if no HDC available.
 
 </td>
@@ -173,6 +225,39 @@ Also returns NULL if the surface is not a win32 surface.</p>
 </tbody>
 </table></div>
 <p>Since  1.2
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2629582"></a><h3>
+<a name="cairo-win32-surface-get-image"></a>cairo_win32_surface_get_image ()</h3>
+<a class="indexterm" name="id2629597"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_win32_surface_get_image
+                                            (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
+<p>
+Returns a <a href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a> image surface that refers to the same bits
+as the DIB of the Win32 surface.  If the passed-in win32 surface
+is not a DIB surface, NULL is returned.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><span class="term"><em class="parameter"><code>surface</code></em>&#160;:</span></td>
+<td> a <a href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a>
+</td>
+</tr>
+<tr>
+<td><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td> a <a href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a> (owned by the win32 cairo_surface_t),
+or NULL if the win32 surface is not a DIB.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p>Since  1.4
 </p>
 </div>
 </div>

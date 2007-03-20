@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Win32-Surfaces">
 <refmeta>
-<refentrytitle id="top_of_page">Win32 Surfaces</refentrytitle>
+<refentrytitle role="top_of_page">Win32 Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -28,7 +28,14 @@
                                             (<link linkend="cairo-format-t">cairo_format_t</link> format,
                                              <link linkend="int">int</link> width,
                                              <link linkend="int">int</link> height);
+<link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-win32-surface-create-with-ddb">cairo_win32_surface_create_with_ddb</link>
+                                            (<link linkend="HDC:CAPS">HDC</link> hdc,
+                                             <link linkend="cairo-format-t">cairo_format_t</link> format,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height);
 <link linkend="HDC:CAPS">HDC</link>         <link linkend="cairo-win32-surface-get-dc">cairo_win32_surface_get_dc</link>      (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);
+<link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-win32-surface-get-image">cairo_win32_surface_get_image</link>
+                                            (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);
 </synopsis>
 </refsynopsisdiv>
 
@@ -40,15 +47,15 @@
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-win32-surface-create" role="function"/>cairo_win32_surface_create ()</title>
 <indexterm><primary>cairo_win32_surface_create</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_win32_surface_create (<link linkend="HDC:CAPS">HDC</link> hdc);</programlisting>
@@ -76,7 +83,7 @@ be set appropriately.</para>
 <para>
 Creates a device-independent-bitmap surface not associated with
 any particular existing surface or device context. The created
-bitmap will be unititialized.</para>
+bitmap will be uninitialized.</para>
 <para>
 
 </para><variablelist role="params">
@@ -95,6 +102,37 @@ bitmap will be unititialized.</para>
 </variablelist><para>Since  1.2
 </para></refsect2>
 <refsect2>
+<title><anchor id="cairo-win32-surface-create-with-ddb" role="function" condition="since:1.4"/>cairo_win32_surface_create_with_ddb ()</title>
+<indexterm role="1.4"><primary>cairo_win32_surface_create_with_ddb</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_win32_surface_create_with_ddb
+                                            (<link linkend="HDC:CAPS">HDC</link> hdc,
+                                             <link linkend="cairo-format-t">cairo_format_t</link> format,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height);</programlisting>
+<para>
+Creates a device-independent-bitmap surface not associated with
+any particular existing surface or device context. The created
+bitmap will be uninitialized.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>hdc</parameter>&nbsp;:</term>
+<listitem><simpara> the DC to create a surface for
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>format</parameter>&nbsp;:</term>
+<listitem><simpara> format of pixels in the surface to create
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
+<listitem><simpara> width of the surface, in pixels
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
+<listitem><simpara> height of the surface, in pixels
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the newly created surface
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
 <title><anchor id="cairo-win32-surface-get-dc" role="function" condition="since:1.2"/>cairo_win32_surface_get_dc ()</title>
 <indexterm role="1.2"><primary>cairo_win32_surface_get_dc</primary></indexterm><programlisting><link linkend="HDC:CAPS">HDC</link>         cairo_win32_surface_get_dc      (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);</programlisting>
 <para>
@@ -110,6 +148,26 @@ Also returns NULL if the surface is not a win32 surface.</para>
 
 </simpara></listitem></varlistentry>
 </variablelist><para>Since  1.2
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-win32-surface-get-image" role="function" condition="since:1.4"/>cairo_win32_surface_get_image ()</title>
+<indexterm role="1.4"><primary>cairo_win32_surface_get_image</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_win32_surface_get_image
+                                            (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);</programlisting>
+<para>
+Returns a <link linkend="cairo-surface-t"><type>cairo_surface_t</type></link> image surface that refers to the same bits
+as the DIB of the Win32 surface.  If the passed-in win32 surface
+is not a DIB surface, NULL is returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>surface</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-surface-t"><type>cairo_surface_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a <link linkend="cairo-surface-t"><type>cairo_surface_t</type></link> (owned by the win32 cairo_surface_t),
+or NULL if the win32 surface is not a DIB.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
 </para></refsect2>
 
 </refsect1>

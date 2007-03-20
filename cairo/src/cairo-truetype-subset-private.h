@@ -51,6 +51,7 @@
  */
 
 #define MAKE_TT_TAG(a, b, c, d)    (a<<24 | b<<16 | c<<8 | d)
+#define TT_TAG_CFF    MAKE_TT_TAG('C','F','F',' ')
 #define TT_TAG_cmap   MAKE_TT_TAG('c','m','a','p')
 #define TT_TAG_cvt    MAKE_TT_TAG('c','v','t',' ')
 #define TT_TAG_fpgm   MAKE_TT_TAG('f','p','g','m')
@@ -61,9 +62,33 @@
 #define TT_TAG_loca   MAKE_TT_TAG('l','o','c','a')
 #define TT_TAG_maxp   MAKE_TT_TAG('m','a','x','p')
 #define TT_TAG_name   MAKE_TT_TAG('n','a','m','e')
+#define TT_TAG_post   MAKE_TT_TAG('p','o','s','t')
 #define TT_TAG_prep   MAKE_TT_TAG('p','r','e','p')
 
 /* All tt_* structs are big-endian */
+typedef struct _tt_cmap_index {
+    uint16_t platform;
+    uint16_t encoding;
+    uint32_t offset;
+} tt_cmap_index_t;
+
+typedef struct _tt_cmap {
+    uint16_t        version;
+    uint16_t        num_tables;
+    tt_cmap_index_t index[1];
+} tt_cmap_t;
+
+typedef struct _segment_map {
+    uint16_t format;
+    uint16_t length;
+    uint16_t version;
+    uint16_t segCountX2;
+    uint16_t searchRange;
+    uint16_t entrySelector;
+    uint16_t rangeShift;
+    uint16_t endCount[1];
+} tt_segment_map_t;
+
 typedef struct _tt_head {
     int16_t     version_1;
     int16_t     version_2;

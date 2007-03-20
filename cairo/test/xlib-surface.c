@@ -38,7 +38,6 @@
 #define OFFSCREEN_OFFSET 50
 
 cairo_bool_t result = 0;
-FILE *log_file = NULL;
 
 static void
 draw_pattern (cairo_surface_t *surface)
@@ -166,8 +165,6 @@ do_test (Display        *dpy,
 			     SIZE - OFFSCREEN_OFFSET,
 			     SIZE - OFFSCREEN_OFFSET,
 			     4 * SIZE,
-			     4 * SIZE,
-			     4 * SIZE,
 			     &result);
     } else {
 	buffer_diff_noalpha (reference_data,
@@ -176,19 +173,17 @@ do_test (Display        *dpy,
 			     SIZE,
 			     SIZE,
 			     4 * SIZE,
-			     4 * SIZE,
-			     4 * SIZE,
 			     &result);
     }
 
-    fprintf (log_file, "xlib-surface: %s, %s, %s%s: %s\n",
-	     use_render ? "   render" : "no-render",
-	     set_size ? "   size" : "no-size",
-	     use_pixmap ? "pixmap" : "window",
-	     use_pixmap ?
-	     "           " :
-	     (offscreen ? ", offscreen" : ",  onscreen"),
-	     result.pixels_changed ? "FAIL" : "PASS");
+    cairo_test_log ("xlib-surface: %s, %s, %s%s: %s\n",
+		    use_render ? "   render" : "no-render",
+		    set_size ? "   size" : "no-size",
+		    use_pixmap ? "pixmap" : "window",
+		    use_pixmap ?
+		    "           " :
+		    (offscreen ? ", offscreen" : ",  onscreen"),
+		    result.pixels_changed ? "FAIL" : "PASS");
 
     if (result.pixels_changed)
 	return CAIRO_TEST_FAILURE;
@@ -226,22 +221,17 @@ main (void)
     cairo_test_status_t status, result = CAIRO_TEST_SUCCESS;
 
     cairo_test_init ("xlib-surface");
-    log_file = fopen ("xlib-surface.log", "w");
-    if (log_file == NULL) {
-	fprintf (stderr, "Error opening log file: %s\n", "xlib-surface.log");
-	log_file = stderr;
-    }
 
     dpy = XOpenDisplay (NULL);
     if (!dpy) {
-	fprintf (log_file, "xlib-surface: Cannot open display, skipping\n");
-	fclose (log_file);
+	cairo_test_log ("xlib-surface: Cannot open display, skipping\n");
+	cairo_test_fini ();
 	return 0;
     }
 
     if (!check_visual (dpy)) {
-	fprintf (log_file, "xlib-surface: default visual is not RGB24 or BGR24, skipping\n");
-	fclose (log_file);
+	cairo_test_log ("xlib-surface: default visual is not RGB24 or BGR24, skipping\n");
+	cairo_test_fini ();
 	return 0;
     }
 
@@ -287,7 +277,7 @@ main (void)
 
     cairo_debug_reset_static_data ();
 
-    fclose (log_file);
+    cairo_test_fini ();
 
     return result;
 }

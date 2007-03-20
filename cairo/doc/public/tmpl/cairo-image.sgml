@@ -29,7 +29,6 @@ Rendering to memory buffers
 @CAIRO_FORMAT_RGB24: 
 @CAIRO_FORMAT_A8: 
 @CAIRO_FORMAT_A1: 
-@CAIRO_FORMAT_RGB16_565: 
 
 <!-- ##### FUNCTION cairo_image_surface_create ##### -->
 <para>

@@ -10,6 +10,11 @@ fi
 test -z "$srcdir" && srcdir=.
 status=0
 
+get_cairo_syms='nm "$so" | grep " T " | cut -d" " -f3'
+if [ "`uname -s`" = "Linux" ]; then
+       get_cairo_syms='objdump -t "$so" | sed -n "/.*g *F *\.\(opd\|text\).* \(.*cairo_.*\)$/s//\2/p"'
+fi
+
 defs="cairo.def"
 make $defs
 for def in $defs; do
@@ -22,7 +27,7 @@ for def in $defs; do
 
 	{
 		echo EXPORTS
-		nm $so | grep ' T ' | cut -d' ' -f3 | grep -v '^_cairo_.*_test_\|^_fini\|^_init' | sort -u
+		eval $get_cairo_syms | grep -v '^_cairo_.*test_\|^_fini\|^_init' | sort -u
 		# cheat: copy the last line from the def file!
 		tail -n1 $def
 	} | diff $def - || status=1

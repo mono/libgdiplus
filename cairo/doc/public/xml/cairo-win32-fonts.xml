@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Win32-Fonts">
 <refmeta>
-<refentrytitle id="top_of_page">Win32 Fonts</refentrytitle>
+<refentrytitle role="top_of_page">Win32 Fonts</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -34,6 +34,12 @@
                                             (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);
 <link linkend="double">double</link>      <link linkend="cairo-win32-scaled-font-get-metrics-factor">cairo_win32_scaled_font_get_metrics_factor</link>
                                             (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);
+<link linkend="void">void</link>        <link linkend="cairo-win32-scaled-font-get-logical-to-device">cairo_win32_scaled_font_get_logical_to_device</link>
+                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                             <link linkend="cairo-matrix-t">cairo_matrix_t</link> *logical_to_device);
+<link linkend="void">void</link>        <link linkend="cairo-win32-scaled-font-get-device-to-logical">cairo_win32_scaled_font_get_device_to_logical</link>
+                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                             <link linkend="cairo-matrix-t">cairo_matrix_t</link> *device_to_logical);
 </synopsis>
 </refsynopsisdiv>
 
@@ -45,15 +51,15 @@
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-win32-font-face-create-for-logfontw" role="function"/>cairo_win32_font_face_create_for_logfontw ()</title>
 <indexterm><primary>cairo_win32_font_face_create_for_logfontw</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>* cairo_win32_font_face_create_for_logfontw
@@ -144,7 +150,7 @@ Releases any resources allocated by <link linkend="cairo-win32-scaled-font-selec
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
-<listitem><simpara> A <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link> from the Win32 font backend.
+<listitem><simpara> A scaled font from the Win32 font backend.
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
@@ -160,12 +166,50 @@ font space coordinates.</para>
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
-<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link> from the Win32 font backend
+<listitem><simpara> a scaled font from the Win32 font backend
 </simpara></listitem></varlistentry>
 <varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> factor to multiply logical units by to get font space
               coordinates.
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-win32-scaled-font-get-logical-to-device" role="function" condition="since:1.4"/>cairo_win32_scaled_font_get_logical_to_device ()</title>
+<indexterm role="1.4"><primary>cairo_win32_scaled_font_get_logical_to_device</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_win32_scaled_font_get_logical_to_device
+                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                             <link linkend="cairo-matrix-t">cairo_matrix_t</link> *logical_to_device);</programlisting>
+<para>
+Gets the transformation mapping the logical space used by <parameter>scaled_font</parameter>
+to device space.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a scaled font from the Win32 font backend
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>logical_to_device</parameter>&nbsp;:</term>
+<listitem><simpara> matrix to return
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-win32-scaled-font-get-device-to-logical" role="function" condition="since:1.4"/>cairo_win32_scaled_font_get_device_to_logical ()</title>
+<indexterm role="1.4"><primary>cairo_win32_scaled_font_get_device_to_logical</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_win32_scaled_font_get_device_to_logical
+                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                             <link linkend="cairo-matrix-t">cairo_matrix_t</link> *device_to_logical);</programlisting>
+<para>
+Gets the transformation mapping device space to the logical space
+used by <parameter>scaled_font</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a scaled font from the Win32 font backend
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>device_to_logical</parameter>&nbsp;:</term>
+<listitem><simpara> matrix to return
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
 
 </refsect1>
 

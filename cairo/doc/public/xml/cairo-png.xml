@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-PNG-Support">
 <refmeta>
-<refentrytitle id="top_of_page">PNG Support</refentrytitle>
+<refentrytitle role="top_of_page">PNG Support</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -51,15 +51,15 @@
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-image-surface-create-from-png" role="function"/>cairo_image_surface_create_from_png ()</title>
 <indexterm><primary>cairo_image_surface_create_from_png</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_image_surface_create_from_png

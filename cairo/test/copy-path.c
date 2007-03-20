@@ -124,6 +124,8 @@ draw (cairo_t *cr, int width, int height)
     }
     cairo_path_destroy (path);
 
+    cairo_destroy (cr_error);
+
     /* We draw in the default black, so paint white first. */
     cairo_save (cr);
     cairo_set_source_rgb (cr, 1.0, 1.0, 1.0); /* white */

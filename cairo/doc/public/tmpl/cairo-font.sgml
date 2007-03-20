@@ -49,28 +49,6 @@ Base class for fonts
 @Returns: 
 
 
-<!-- ##### FUNCTION cairo_font_face_get_user_data ##### -->
-<para>
-
-</para>
-
-@font_face: 
-@key: 
-@Returns: 
-
-
-<!-- ##### FUNCTION cairo_font_face_set_user_data ##### -->
-<para>
-
-</para>
-
-@font_face: 
-@key: 
-@user_data: 
-@destroy: 
-@Returns: 
-
-
 <!-- ##### ENUM cairo_font_type_t ##### -->
 <para>
 
@@ -87,6 +65,37 @@ Base class for fonts
 </para>
 
 @font_face: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_font_face_get_reference_count ##### -->
+<para>
+
+</para>
+
+@font_face: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_font_face_set_user_data ##### -->
+<para>
+
+</para>
+
+@font_face: 
+@key: 
+@user_data: 
+@destroy: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_font_face_get_user_data ##### -->
+<para>
+
+</para>
+
+@font_face: 
+@key: 
 @Returns: 
 
 

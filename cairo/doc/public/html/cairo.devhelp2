@@ -37,6 +37,7 @@
     </sub>
     <sub name="Index" link="ix01.html"/>
     <sub name="Index of new symbols in 1.2" link="ix02.html"/>
+    <sub name="Index of new symbols in 1.4" link="ix03.html"/>
     <sub name="Creating a language binding for cairo" link="language-bindings.html">
       <sub name="General considerations" link="language-bindings.html#bindings-general"/>
       <sub name="Memory Management" link="bindings-memory.html"/>
@@ -73,6 +74,8 @@
     <keyword type="function" name="cairo_set_antialias ()" link="cairo-cairo-t.html#cairo-set-antialias"/>
     <keyword type="function" name="cairo_get_antialias ()" link="cairo-cairo-t.html#cairo-get-antialias"/>
     <keyword type="function" name="cairo_set_dash ()" link="cairo-cairo-t.html#cairo-set-dash"/>
+    <keyword type="function" name="cairo_get_dash_count ()" link="cairo-cairo-t.html#cairo-get-dash-count" since="1.4"/>
+    <keyword type="function" name="cairo_get_dash ()" link="cairo-cairo-t.html#cairo-get-dash" since="1.4"/>
     <keyword type="enum" name="enum cairo_fill_rule_t" link="cairo-cairo-t.html#cairo-fill-rule-t"/>
     <keyword type="function" name="cairo_set_fill_rule ()" link="cairo-cairo-t.html#cairo-set-fill-rule"/>
     <keyword type="function" name="cairo_get_fill_rule ()" link="cairo-cairo-t.html#cairo-get-fill-rule"/>
@@ -93,7 +96,12 @@
     <keyword type="function" name="cairo_get_tolerance ()" link="cairo-cairo-t.html#cairo-get-tolerance"/>
     <keyword type="function" name="cairo_clip ()" link="cairo-cairo-t.html#cairo-clip"/>
     <keyword type="function" name="cairo_clip_preserve ()" link="cairo-cairo-t.html#cairo-clip-preserve"/>
+    <keyword type="function" name="cairo_clip_extents ()" link="cairo-cairo-t.html#cairo-clip-extents" since="1.4"/>
     <keyword type="function" name="cairo_reset_clip ()" link="cairo-cairo-t.html#cairo-reset-clip"/>
+    <keyword type="struct" name="cairo_rectangle_t" link="cairo-cairo-t.html#cairo-rectangle-t" since="1.4"/>
+    <keyword type="struct" name="cairo_rectangle_list_t" link="cairo-cairo-t.html#cairo-rectangle-list-t" since="1.4"/>
+    <keyword type="function" name="cairo_rectangle_list_destroy ()" link="cairo-cairo-t.html#cairo-rectangle-list-destroy" since="1.4"/>
+    <keyword type="function" name="cairo_copy_clip_rectangle_list ()" link="cairo-cairo-t.html#cairo-copy-clip-rectangle-list" since="1.4"/>
     <keyword type="function" name="cairo_fill ()" link="cairo-cairo-t.html#cairo-fill"/>
     <keyword type="function" name="cairo_fill_preserve ()" link="cairo-cairo-t.html#cairo-fill-preserve"/>
     <keyword type="function" name="cairo_fill_extents ()" link="cairo-cairo-t.html#cairo-fill-extents"/>
@@ -108,6 +116,9 @@
     <keyword type="function" name="cairo_in_stroke ()" link="cairo-cairo-t.html#cairo-in-stroke"/>
     <keyword type="function" name="cairo_copy_page ()" link="cairo-cairo-t.html#cairo-copy-page"/>
     <keyword type="function" name="cairo_show_page ()" link="cairo-cairo-t.html#cairo-show-page"/>
+    <keyword type="function" name="cairo_get_reference_count ()" link="cairo-cairo-t.html#cairo-get-reference-count" since="1.4"/>
+    <keyword type="function" name="cairo_set_user_data ()" link="cairo-cairo-t.html#cairo-set-user-data" since="1.4"/>
+    <keyword type="function" name="cairo_get_user_data ()" link="cairo-cairo-t.html#cairo-get-user-data" since="1.4"/>
     <keyword type="struct" name="cairo_path_t" link="cairo-Paths.html#cairo-path-t"/>
     <keyword type="union" name="union cairo_path_data_t" link="cairo-Paths.html#cairo-path-data-t"/>
     <keyword type="enum" name="enum cairo_path_data_type_t" link="cairo-Paths.html#cairo-path-data-type-t"/>
@@ -133,13 +144,19 @@
     <keyword type="typedef" name="cairo_pattern_t" link="cairo-Patterns.html#cairo-pattern-t"/>
     <keyword type="function" name="cairo_pattern_add_color_stop_rgb ()" link="cairo-Patterns.html#cairo-pattern-add-color-stop-rgb"/>
     <keyword type="function" name="cairo_pattern_add_color_stop_rgba ()" link="cairo-Patterns.html#cairo-pattern-add-color-stop-rgba"/>
+    <keyword type="function" name="cairo_pattern_get_color_stop_count ()" link="cairo-Patterns.html#cairo-pattern-get-color-stop-count" since="1.4"/>
+    <keyword type="function" name="cairo_pattern_get_color_stop_rgba ()" link="cairo-Patterns.html#cairo-pattern-get-color-stop-rgba" since="1.4"/>
     <keyword type="function" name="cairo_pattern_create_rgb ()" link="cairo-Patterns.html#cairo-pattern-create-rgb"/>
     <keyword type="function" name="cairo_pattern_create_rgba ()" link="cairo-Patterns.html#cairo-pattern-create-rgba"/>
+    <keyword type="function" name="cairo_pattern_get_rgba ()" link="cairo-Patterns.html#cairo-pattern-get-rgba" since="1.4"/>
     <keyword type="function" name="cairo_pattern_create_for_surface ()" link="cairo-Patterns.html#cairo-pattern-create-for-surface"/>
+    <keyword type="function" name="cairo_pattern_get_surface ()" link="cairo-Patterns.html#cairo-pattern-get-surface" since="1.4"/>
     <keyword type="function" name="cairo_pattern_create_linear ()" link="cairo-Patterns.html#cairo-pattern-create-linear"/>
+    <keyword type="function" name="cairo_pattern_get_linear_points ()" link="cairo-Patterns.html#cairo-pattern-get-linear-points" since="1.4"/>
     <keyword type="function" name="cairo_pattern_create_radial ()" link="cairo-Patterns.html#cairo-pattern-create-radial"/>
-    <keyword type="function" name="cairo_pattern_destroy ()" link="cairo-Patterns.html#cairo-pattern-destroy"/>
+    <keyword type="function" name="cairo_pattern_get_radial_circles ()" link="cairo-Patterns.html#cairo-pattern-get-radial-circles" since="1.4"/>
     <keyword type="function" name="cairo_pattern_reference ()" link="cairo-Patterns.html#cairo-pattern-reference"/>
+    <keyword type="function" name="cairo_pattern_destroy ()" link="cairo-Patterns.html#cairo-pattern-destroy"/>
     <keyword type="function" name="cairo_pattern_status ()" link="cairo-Patterns.html#cairo-pattern-status"/>
     <keyword type="enum" name="enum cairo_extend_t" link="cairo-Patterns.html#cairo-extend-t"/>
     <keyword type="function" name="cairo_pattern_set_extend ()" link="cairo-Patterns.html#cairo-pattern-set-extend"/>
@@ -151,6 +168,9 @@
     <keyword type="function" name="cairo_pattern_get_matrix ()" link="cairo-Patterns.html#cairo-pattern-get-matrix"/>
     <keyword type="enum" name="enum cairo_pattern_type_t" link="cairo-Patterns.html#cairo-pattern-type-t" since="1.2"/>
     <keyword type="function" name="cairo_pattern_get_type ()" link="cairo-Patterns.html#cairo-pattern-get-type" since="1.2"/>
+    <keyword type="function" name="cairo_pattern_get_reference_count ()" link="cairo-Patterns.html#cairo-pattern-get-reference-count" since="1.4"/>
+    <keyword type="function" name="cairo_pattern_set_user_data ()" link="cairo-Patterns.html#cairo-pattern-set-user-data" since="1.4"/>
+    <keyword type="function" name="cairo_pattern_get_user_data ()" link="cairo-Patterns.html#cairo-pattern-get-user-data" since="1.4"/>
     <keyword type="function" name="cairo_translate ()" link="cairo-Transformations.html#cairo-translate"/>
     <keyword type="function" name="cairo_scale ()" link="cairo-Transformations.html#cairo-scale"/>
     <keyword type="function" name="cairo_rotate ()" link="cairo-Transformations.html#cairo-rotate"/>
@@ -171,22 +191,24 @@
     <keyword type="function" name="cairo_get_font_matrix ()" link="cairo-Text.html#cairo-get-font-matrix"/>
     <keyword type="function" name="cairo_set_font_options ()" link="cairo-Text.html#cairo-set-font-options"/>
     <keyword type="function" name="cairo_get_font_options ()" link="cairo-Text.html#cairo-get-font-options"/>
+    <keyword type="function" name="cairo_set_font_face ()" link="cairo-Text.html#cairo-set-font-face"/>
+    <keyword type="function" name="cairo_get_font_face ()" link="cairo-Text.html#cairo-get-font-face"/>
+    <keyword type="function" name="cairo_set_scaled_font ()" link="cairo-Text.html#cairo-set-scaled-font" since="1.2"/>
+    <keyword type="function" name="cairo_get_scaled_font ()" link="cairo-Text.html#cairo-get-scaled-font" since="1.4"/>
     <keyword type="function" name="cairo_show_text ()" link="cairo-Text.html#cairo-show-text"/>
     <keyword type="function" name="cairo_show_glyphs ()" link="cairo-Text.html#cairo-show-glyphs"/>
-    <keyword type="function" name="cairo_get_font_face ()" link="cairo-Text.html#cairo-get-font-face"/>
     <keyword type="function" name="cairo_font_extents ()" link="cairo-Text.html#cairo-font-extents"/>
-    <keyword type="function" name="cairo_set_font_face ()" link="cairo-Text.html#cairo-set-font-face"/>
-    <keyword type="function" name="cairo_set_scaled_font ()" link="cairo-Text.html#cairo-set-scaled-font" since="1.2"/>
     <keyword type="function" name="cairo_text_extents ()" link="cairo-Text.html#cairo-text-extents"/>
     <keyword type="function" name="cairo_glyph_extents ()" link="cairo-Text.html#cairo-glyph-extents"/>
     <keyword type="typedef" name="cairo_font_face_t" link="cairo-cairo-font-face-t.html#cairo-font-face-t"/>
     <keyword type="function" name="cairo_font_face_reference ()" link="cairo-cairo-font-face-t.html#cairo-font-face-reference"/>
     <keyword type="function" name="cairo_font_face_destroy ()" link="cairo-cairo-font-face-t.html#cairo-font-face-destroy"/>
     <keyword type="function" name="cairo_font_face_status ()" link="cairo-cairo-font-face-t.html#cairo-font-face-status"/>
-    <keyword type="function" name="cairo_font_face_get_user_data ()" link="cairo-cairo-font-face-t.html#cairo-font-face-get-user-data"/>
-    <keyword type="function" name="cairo_font_face_set_user_data ()" link="cairo-cairo-font-face-t.html#cairo-font-face-set-user-data"/>
     <keyword type="enum" name="enum cairo_font_type_t" link="cairo-cairo-font-face-t.html#cairo-font-type-t" since="1.2"/>
     <keyword type="function" name="cairo_font_face_get_type ()" link="cairo-cairo-font-face-t.html#cairo-font-face-get-type" since="1.2"/>
+    <keyword type="function" name="cairo_font_face_get_reference_count ()" link="cairo-cairo-font-face-t.html#cairo-font-face-get-reference-count" since="1.4"/>
+    <keyword type="function" name="cairo_font_face_set_user_data ()" link="cairo-cairo-font-face-t.html#cairo-font-face-set-user-data"/>
+    <keyword type="function" name="cairo_font_face_get_user_data ()" link="cairo-cairo-font-face-t.html#cairo-font-face-get-user-data"/>
     <keyword type="typedef" name="cairo_scaled_font_t" link="cairo-Scaled-Fonts.html#cairo-scaled-font-t"/>
     <keyword type="function" name="cairo_scaled_font_create ()" link="cairo-Scaled-Fonts.html#cairo-scaled-font-create"/>
     <keyword type="function" name="cairo_scaled_font_reference ()" link="cairo-Scaled-Fonts.html#cairo-scaled-font-reference"/>
@@ -202,6 +224,9 @@
     <keyword type="function" name="cairo_scaled_font_get_font_matrix ()" link="cairo-Scaled-Fonts.html#cairo-scaled-font-get-font-matrix" since="1.2"/>
     <keyword type="function" name="cairo_scaled_font_get_ctm ()" link="cairo-Scaled-Fonts.html#cairo-scaled-font-get-ctm" since="1.2"/>
     <keyword type="function" name="cairo_scaled_font_get_type ()" link="cairo-Scaled-Fonts.html#cairo-scaled-font-get-type" since="1.2"/>
+    <keyword type="function" name="cairo_scaled_font_get_reference_count ()" link="cairo-Scaled-Fonts.html#cairo-scaled-font-get-reference-count" since="1.4"/>
+    <keyword type="function" name="cairo_scaled_font_set_user_data ()" link="cairo-Scaled-Fonts.html#cairo-scaled-font-set-user-data" since="1.4"/>
+    <keyword type="function" name="cairo_scaled_font_get_user_data ()" link="cairo-Scaled-Fonts.html#cairo-scaled-font-get-user-data" since="1.4"/>
     <keyword type="typedef" name="cairo_font_options_t" link="cairo-Font-Options.html#cairo-font-options-t"/>
     <keyword type="function" name="cairo_font_options_create ()" link="cairo-Font-Options.html#cairo-font-options-create"/>
     <keyword type="function" name="cairo_font_options_copy ()" link="cairo-Font-Options.html#cairo-font-options-copy"/>
@@ -231,25 +256,28 @@
     <keyword type="function" name="cairo_win32_scaled_font_select_font ()" link="cairo-Win32-Fonts.html#cairo-win32-scaled-font-select-font"/>
     <keyword type="function" name="cairo_win32_scaled_font_done_font ()" link="cairo-Win32-Fonts.html#cairo-win32-scaled-font-done-font"/>
     <keyword type="function" name="cairo_win32_scaled_font_get_metrics_factor ()" link="cairo-Win32-Fonts.html#cairo-win32-scaled-font-get-metrics-factor"/>
+    <keyword type="function" name="cairo_win32_scaled_font_get_logical_to_device ()" link="cairo-Win32-Fonts.html#cairo-win32-scaled-font-get-logical-to-device" since="1.4"/>
+    <keyword type="function" name="cairo_win32_scaled_font_get_device_to_logical ()" link="cairo-Win32-Fonts.html#cairo-win32-scaled-font-get-device-to-logical" since="1.4"/>
     <keyword type="typedef" name="cairo_surface_t" link="cairo-cairo-surface-t.html#cairo-surface-t"/>
     <keyword type="enum" name="enum cairo_content_t" link="cairo-cairo-surface-t.html#cairo-content-t"/>
     <keyword type="function" name="cairo_surface_create_similar ()" link="cairo-cairo-surface-t.html#cairo-surface-create-similar"/>
+    <keyword type="function" name="cairo_surface_reference ()" link="cairo-cairo-surface-t.html#cairo-surface-reference"/>
     <keyword type="function" name="cairo_surface_destroy ()" link="cairo-cairo-surface-t.html#cairo-surface-destroy"/>
+    <keyword type="function" name="cairo_surface_status ()" link="cairo-cairo-surface-t.html#cairo-surface-status"/>
     <keyword type="function" name="cairo_surface_finish ()" link="cairo-cairo-surface-t.html#cairo-surface-finish"/>
     <keyword type="function" name="cairo_surface_flush ()" link="cairo-cairo-surface-t.html#cairo-surface-flush"/>
     <keyword type="function" name="cairo_surface_get_font_options ()" link="cairo-cairo-surface-t.html#cairo-surface-get-font-options"/>
     <keyword type="function" name="cairo_surface_get_content ()" link="cairo-cairo-surface-t.html#cairo-surface-get-content" since="1.2"/>
-    <keyword type="function" name="cairo_surface_set_user_data ()" link="cairo-cairo-surface-t.html#cairo-surface-set-user-data"/>
-    <keyword type="function" name="cairo_surface_get_user_data ()" link="cairo-cairo-surface-t.html#cairo-surface-get-user-data"/>
     <keyword type="function" name="cairo_surface_mark_dirty ()" link="cairo-cairo-surface-t.html#cairo-surface-mark-dirty"/>
     <keyword type="function" name="cairo_surface_mark_dirty_rectangle ()" link="cairo-cairo-surface-t.html#cairo-surface-mark-dirty-rectangle"/>
-    <keyword type="function" name="cairo_surface_reference ()" link="cairo-cairo-surface-t.html#cairo-surface-reference"/>
     <keyword type="function" name="cairo_surface_set_device_offset ()" link="cairo-cairo-surface-t.html#cairo-surface-set-device-offset"/>
     <keyword type="function" name="cairo_surface_get_device_offset ()" link="cairo-cairo-surface-t.html#cairo-surface-get-device-offset" since="1.2"/>
     <keyword type="function" name="cairo_surface_set_fallback_resolution ()" link="cairo-cairo-surface-t.html#cairo-surface-set-fallback-resolution" since="1.2"/>
-    <keyword type="function" name="cairo_surface_status ()" link="cairo-cairo-surface-t.html#cairo-surface-status"/>
     <keyword type="enum" name="enum cairo_surface_type_t" link="cairo-cairo-surface-t.html#cairo-surface-type-t" since="1.2"/>
     <keyword type="function" name="cairo_surface_get_type ()" link="cairo-cairo-surface-t.html#cairo-surface-get-type" since="1.2"/>
+    <keyword type="function" name="cairo_surface_get_reference_count ()" link="cairo-cairo-surface-t.html#cairo-surface-get-reference-count" since="1.4"/>
+    <keyword type="function" name="cairo_surface_set_user_data ()" link="cairo-cairo-surface-t.html#cairo-surface-set-user-data"/>
+    <keyword type="function" name="cairo_surface_get_user_data ()" link="cairo-cairo-surface-t.html#cairo-surface-get-user-data"/>
     <keyword type="enum" name="enum cairo_format_t" link="cairo-Image-Surfaces.html#cairo-format-t"/>
     <keyword type="function" name="cairo_image_surface_create ()" link="cairo-Image-Surfaces.html#cairo-image-surface-create"/>
     <keyword type="function" name="cairo_image_surface_create_for_data ()" link="cairo-Image-Surfaces.html#cairo-image-surface-create-for-data"/>
@@ -275,7 +303,9 @@
     <keyword type="function" name="cairo_ps_surface_dsc_comment ()" link="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment" since="1.2"/>
     <keyword type="function" name="cairo_win32_surface_create ()" link="cairo-Win32-Surfaces.html#cairo-win32-surface-create"/>
     <keyword type="function" name="cairo_win32_surface_create_with_dib ()" link="cairo-Win32-Surfaces.html#cairo-win32-surface-create-with-dib" since="1.2"/>
+    <keyword type="function" name="cairo_win32_surface_create_with_ddb ()" link="cairo-Win32-Surfaces.html#cairo-win32-surface-create-with-ddb" since="1.4"/>
     <keyword type="function" name="cairo_win32_surface_get_dc ()" link="cairo-Win32-Surfaces.html#cairo-win32-surface-get-dc" since="1.2"/>
+    <keyword type="function" name="cairo_win32_surface_get_image ()" link="cairo-Win32-Surfaces.html#cairo-win32-surface-get-image" since="1.4"/>
     <keyword type="function" name="cairo_svg_surface_create ()" link="cairo-SVG-Surfaces.html#cairo-svg-surface-create" since="1.2"/>
     <keyword type="function" name="cairo_svg_surface_create_for_stream ()" link="cairo-SVG-Surfaces.html#cairo-svg-surface-create-for-stream" since="1.2"/>
     <keyword type="function" name="cairo_svg_surface_restrict_to_version ()" link="cairo-SVG-Surfaces.html#cairo-svg-surface-restrict-to-version" since="1.2"/>
@@ -309,8 +339,8 @@
     <keyword type="enum" name="enum cairo_status_t" link="cairo-Error-handling.html#cairo-status-t"/>
     <keyword type="function" name="cairo_status_to_string ()" link="cairo-Error-handling.html#cairo-status-to-string"/>
     <keyword type="function" name="cairo_debug_reset_static_data ()" link="cairo-Error-handling.html#cairo-debug-reset-static-data"/>
-    <keyword type="" name="Compatibility" link="cairo-Version-Information.html#id2731267"/>
-    <keyword type="" name="Examining the version" link="cairo-Version-Information.html#id2731305"/>
+    <keyword type="" name="Compatibility" link="cairo-Version-Information.html#id2638834"/>
+    <keyword type="" name="Examining the version" link="cairo-Version-Information.html#id2638873"/>
     <keyword type="macro" name="CAIRO_VERSION" link="cairo-Version-Information.html#CAIRO-VERSION:CAPS"/>
     <keyword type="macro" name="CAIRO_VERSION_MAJOR" link="cairo-Version-Information.html#CAIRO-VERSION-MAJOR:CAPS"/>
     <keyword type="macro" name="CAIRO_VERSION_MINOR" link="cairo-Version-Information.html#CAIRO-VERSION-MINOR:CAPS"/>

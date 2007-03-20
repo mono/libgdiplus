@@ -48,7 +48,10 @@ _cairo_clip_path_destroy (cairo_clip_path_t *clip_path);
 void
 _cairo_clip_init (cairo_clip_t *clip, cairo_surface_t *target)
 {
-    clip->mode = _cairo_surface_get_clip_mode (target);
+    if (target)
+	clip->mode = _cairo_surface_get_clip_mode (target);
+    else
+	clip->mode = CAIRO_CLIP_MODE_MASK;
 
     clip->surface = NULL;
     clip->surface_rect.x = 0;
@@ -118,6 +121,39 @@ _cairo_clip_reset (cairo_clip_t *clip)
     return CAIRO_STATUS_SUCCESS;
 }
 
+static cairo_status_t
+_cairo_clip_path_intersect_to_rectangle (cairo_clip_path_t       *clip_path,
+   				         cairo_rectangle_int16_t *rectangle)
+{
+    while (clip_path) {
+        cairo_status_t status;
+        cairo_traps_t traps;
+        cairo_box_t extents;
+        cairo_rectangle_int16_t extents_rect;
+
+        _cairo_traps_init (&traps);
+
+        status = _cairo_path_fixed_fill_to_traps (&clip_path->path,
+                                                  clip_path->fill_rule,
+                                                  clip_path->tolerance,
+                                                  &traps);
+        if (status) {
+            _cairo_traps_fini (&traps);
+            return status;
+        }
+
+        _cairo_traps_extents (&traps, &extents);
+        _cairo_box_round_to_rectangle (&extents, &extents_rect);
+        _cairo_rectangle_intersect (rectangle, &extents_rect);
+
+        _cairo_traps_fini (&traps);
+
+        clip_path = clip_path->prev;
+    }
+
+    return CAIRO_STATUS_SUCCESS;
+}
+
 cairo_status_t
 _cairo_clip_intersect_to_rectangle (cairo_clip_t            *clip,
 				    cairo_rectangle_int16_t *rectangle)
@@ -126,7 +162,12 @@ _cairo_clip_intersect_to_rectangle (cairo_clip_t            *clip,
 	return CAIRO_STATUS_SUCCESS;
 
     if (clip->path) {
-	/* Intersect path extents here. */
+        cairo_status_t status;
+        
+        status = _cairo_clip_path_intersect_to_rectangle (clip->path,
+                                                          rectangle);
+        if (status)
+            return status;
     }
 
     if (clip->region) {
@@ -525,7 +566,12 @@ _cairo_clip_init_deep_copy (cairo_clip_t    *clip,
         }
 
         if (other->surface) {
-            _cairo_surface_clone_similar (target, other->surface, &clip->surface);
+            _cairo_surface_clone_similar (target, other->surface,
+					  other->surface_rect.x,
+					  other->surface_rect.y,
+					  other->surface_rect.width,
+					  other->surface_rect.height,
+					  &clip->surface);
             clip->surface_rect = other->surface_rect;
         }
 
@@ -533,4 +579,101 @@ _cairo_clip_init_deep_copy (cairo_clip_t    *clip,
             _cairo_clip_path_reapply_clip_path (clip, other->path);
         }
     }
+}
+
+const cairo_rectangle_list_t _cairo_rectangles_nil =
+  { CAIRO_STATUS_NO_MEMORY, NULL, 0 };
+static const cairo_rectangle_list_t _cairo_rectangles_not_representable =
+  { CAIRO_STATUS_CLIP_NOT_REPRESENTABLE, NULL, 0 };
+
+static cairo_bool_t
+_cairo_clip_rect_to_user (cairo_gstate_t *gstate,
+                          double x, double y, double width, double height,
+                          cairo_rectangle_t *rectangle)
+{
+    double x2 = x + width;
+    double y2 = y + height;
+    cairo_bool_t is_tight;
+
+    _cairo_gstate_backend_to_user_rectangle (gstate, &x, &y, &x2, &y2, &is_tight);
+    rectangle->x = x;
+    rectangle->y = y;
+    rectangle->width = x2 - x;
+    rectangle->height = y2 - y;
+    return is_tight;
+}
+
+cairo_private cairo_rectangle_list_t*
+_cairo_clip_copy_rectangle_list (cairo_clip_t *clip, cairo_gstate_t *gstate)
+{
+    cairo_rectangle_list_t *list;
+    cairo_rectangle_t *rectangles;
+    int n_boxes;
+
+    if (clip->path || clip->surface)
+        return (cairo_rectangle_list_t*) &_cairo_rectangles_not_representable;
+
+    n_boxes = clip->region ? pixman_region_num_rects (clip->region) : 1;
+    rectangles = malloc (sizeof (cairo_rectangle_t)*n_boxes);
+    if (rectangles == NULL)
+        return (cairo_rectangle_list_t*) &_cairo_rectangles_nil;
+
+    if (clip->region) {
+        pixman_box16_t *boxes;
+        int i;
+        
+        boxes = pixman_region_rects (clip->region);
+        for (i = 0; i < n_boxes; ++i) {
+            if (!_cairo_clip_rect_to_user(gstate, boxes[i].x1, boxes[i].y1,
+                                          boxes[i].x2 - boxes[i].x1,
+                                          boxes[i].y2 - boxes[i].y1,
+                                          &rectangles[i])) {
+                free (rectangles);
+                return (cairo_rectangle_list_t*)
+                    &_cairo_rectangles_not_representable;
+            }
+        }
+    } else {
+        cairo_rectangle_int16_t extents;
+        _cairo_surface_get_extents (_cairo_gstate_get_target (gstate), &extents);
+        if (!_cairo_clip_rect_to_user(gstate, extents.x, extents.y,
+                                      extents.width, extents.height,
+                                      rectangles)) {
+            free (rectangles);
+            return (cairo_rectangle_list_t*)
+                &_cairo_rectangles_not_representable;
+        }
+    }
+
+    list = malloc (sizeof (cairo_rectangle_list_t));
+    if (list == NULL) {
+        free (rectangles);
+        return (cairo_rectangle_list_t*) &_cairo_rectangles_nil;
+    }
+    
+    list->status = CAIRO_STATUS_SUCCESS;
+    list->rectangles = rectangles;
+    list->num_rectangles = n_boxes;
+    return list;
+}
+
+/**
+ * cairo_rectangle_list_destroy:
+ * @rectangle_list: a rectangle list, as obtained from cairo_copy_clip_rectangles()
+ *
+ * Unconditionally frees @rectangle_list and all associated
+ * references. After this call, the @rectangle_list pointer must not
+ * be dereferenced.
+ *
+ * Since: 1.4
+ **/
+void
+cairo_rectangle_list_destroy (cairo_rectangle_list_t *rectangle_list)
+{
+    if (rectangle_list == NULL || rectangle_list == &_cairo_rectangles_nil ||
+        rectangle_list == &_cairo_rectangles_not_representable)
+        return;
+
+    free (rectangle_list->rectangles);
+    free (rectangle_list);
 }

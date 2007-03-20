@@ -16,6 +16,8 @@ cairo_win32_font_face_create_for_hfont
 cairo_win32_scaled_font_select_font
 cairo_win32_scaled_font_done_font
 cairo_win32_scaled_font_get_metrics_factor
+cairo_win32_scaled_font_get_logical_to_device
+cairo_win32_scaled_font_get_device_to_logical
 </SECTION>
 
 <SECTION>
@@ -66,7 +68,9 @@ cairo_ps_surface_dsc_comment
 <TITLE>Win32 Surfaces</TITLE>
 cairo_win32_surface_create
 cairo_win32_surface_create_with_dib
+cairo_win32_surface_create_with_ddb
 cairo_win32_surface_get_dc
+cairo_win32_surface_get_image
 </SECTION>
 
 <SECTION>
@@ -108,22 +112,23 @@ cairo_svg_version_to_string
 cairo_surface_t
 cairo_content_t
 cairo_surface_create_similar
+cairo_surface_reference
 cairo_surface_destroy
+cairo_surface_status
 cairo_surface_finish
 cairo_surface_flush
 cairo_surface_get_font_options
 cairo_surface_get_content
-cairo_surface_set_user_data
-cairo_surface_get_user_data
 cairo_surface_mark_dirty
 cairo_surface_mark_dirty_rectangle
-cairo_surface_reference
 cairo_surface_set_device_offset
 cairo_surface_get_device_offset
 cairo_surface_set_fallback_resolution
-cairo_surface_status
 cairo_surface_type_t
 cairo_surface_get_type
+cairo_surface_get_reference_count
+cairo_surface_set_user_data
+cairo_surface_get_user_data
 </SECTION>
 
 <SECTION>
@@ -145,13 +150,19 @@ cairo_version_string
 cairo_pattern_t
 cairo_pattern_add_color_stop_rgb
 cairo_pattern_add_color_stop_rgba
+cairo_pattern_get_color_stop_count
+cairo_pattern_get_color_stop_rgba
 cairo_pattern_create_rgb
 cairo_pattern_create_rgba
+cairo_pattern_get_rgba
 cairo_pattern_create_for_surface
+cairo_pattern_get_surface
 cairo_pattern_create_linear
+cairo_pattern_get_linear_points
 cairo_pattern_create_radial
-cairo_pattern_destroy
+cairo_pattern_get_radial_circles
 cairo_pattern_reference
+cairo_pattern_destroy
 cairo_pattern_status
 cairo_extend_t
 cairo_pattern_set_extend
@@ -163,6 +174,9 @@ cairo_pattern_set_matrix
 cairo_pattern_get_matrix
 cairo_pattern_type_t
 cairo_pattern_get_type
+cairo_pattern_get_reference_count
+cairo_pattern_set_user_data
+cairo_pattern_get_user_data
 </SECTION>
 
 <SECTION>
@@ -198,10 +212,11 @@ cairo_font_face_t
 cairo_font_face_reference
 cairo_font_face_destroy
 cairo_font_face_status
-cairo_font_face_get_user_data
-cairo_font_face_set_user_data
 cairo_font_type_t
 cairo_font_face_get_type
+cairo_font_face_get_reference_count
+cairo_font_face_set_user_data
+cairo_font_face_get_user_data
 </SECTION>
 
 <SECTION>
@@ -222,6 +237,9 @@ cairo_scaled_font_get_font_options
 cairo_scaled_font_get_font_matrix
 cairo_scaled_font_get_ctm
 cairo_scaled_font_get_type
+cairo_scaled_font_get_reference_count
+cairo_scaled_font_set_user_data
+cairo_scaled_font_get_user_data
 </SECTION>
 
 <SECTION>
@@ -312,12 +330,13 @@ cairo_set_font_matrix
 cairo_get_font_matrix
 cairo_set_font_options
 cairo_get_font_options
+cairo_set_font_face
+cairo_get_font_face
+cairo_set_scaled_font
+cairo_get_scaled_font
 cairo_show_text
 cairo_show_glyphs
-cairo_get_font_face
 cairo_font_extents
-cairo_set_font_face
-cairo_set_scaled_font
 cairo_text_extents
 cairo_glyph_extents
 </SECTION>
@@ -347,6 +366,8 @@ cairo_antialias_t
 cairo_set_antialias
 cairo_get_antialias
 cairo_set_dash
+cairo_get_dash_count
+cairo_get_dash
 cairo_fill_rule_t
 cairo_set_fill_rule
 cairo_get_fill_rule
@@ -367,7 +388,12 @@ cairo_set_tolerance
 cairo_get_tolerance
 cairo_clip
 cairo_clip_preserve
+cairo_clip_extents
 cairo_reset_clip
+cairo_rectangle_t
+cairo_rectangle_list_t
+cairo_rectangle_list_destroy
+cairo_copy_clip_rectangle_list
 cairo_fill
 cairo_fill_preserve
 cairo_fill_extents
@@ -382,6 +408,9 @@ cairo_stroke_extents
 cairo_in_stroke
 cairo_copy_page
 cairo_show_page
+cairo_get_reference_count
+cairo_set_user_data
+cairo_get_user_data
 <SUBSECTION Private>
 cairo_public
 CAIRO_BEGIN_DECLS
@@ -450,4 +479,5 @@ cairo_set_target_xcb
 cairo_set_target_drawable
 cairo_get_status_string
 cairo_status_string
+CAIRO_FORMAT_RGB16_565
 </SECTION>

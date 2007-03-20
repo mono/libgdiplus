@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Font-Options">
 <refmeta>
-<refentrytitle id="top_of_page">Font Options</refentrytitle>
+<refentrytitle role="top_of_page">Font Options</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -69,19 +69,38 @@ enum        <link linkend="cairo-hint-metrics-t">cairo_hint_metrics_t</link>;
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-font-options-t" role="typedef"/>cairo_font_options_t</title>
 <indexterm><primary>cairo_font_options_t</primary></indexterm><programlisting>typedef struct _cairo_font_options cairo_font_options_t;
 </programlisting>
+<para>
+An opaque structure holding all options that are used when
+rendering fonts.
+</para>
+<para>
+Individual features of a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link> can be set or
+accessed using functions named
+cairo_font_options_set_<emphasis>feature_name</emphasis> and
+cairo_font_options_get_<emphasis>feature_name</emphasis>, like
+<link linkend="cairo-font-options-set-antialias"><function>cairo_font_options_set_antialias()</function></link> and
+<link linkend="cairo-font-options-get-antialias"><function>cairo_font_options_get_antialias()</function></link>.
+</para>
+<para>
+New features may be added to a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link> in the
+future.  For this reason, <link linkend="cairo-font-options-copy"><function>cairo_font_options_copy()</function></link>,
+<link linkend="cairo-font-options-equal"><function>cairo_font_options_equal()</function></link>, <link linkend="cairo-font-options-merge"><function>cairo_font_options_merge()</function></link>, and
+<link linkend="cairo-font-options-hash"><function>cairo_font_options_hash()</function></link> should be used to copy, check
+for equality, merge, or compute a hash value of
+<link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link> objects.</para>
 <para>
 
 </para></refsect2>
@@ -211,7 +230,7 @@ Compares two font options objects for equality.</para>
                                             (<link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
                                              <link linkend="cairo-antialias-t">cairo_antialias_t</link> antialias);</programlisting>
 <para>
-Sets the antiliasing mode for the font options object. This
+Sets the antialiasing mode for the font options object. This
 specifies the type of antialiasing to do when rendering text.</para>
 <para>
 
@@ -228,7 +247,7 @@ specifies the type of antialiasing to do when rendering text.</para>
 <indexterm><primary>cairo_font_options_get_antialias</primary></indexterm><programlisting><link linkend="cairo-antialias-t">cairo_antialias_t</link> cairo_font_options_get_antialias
                                             (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);</programlisting>
 <para>
-Gets the antialising mode for the font options object.</para>
+Gets the antialiasing mode for the font options object.</para>
 <para>
 
 </para><variablelist role="params">

@@ -23,6 +23,14 @@
    suite */
 #undef CAIRO_HAS_TEST_SURFACES
 
+/* Define to 1 to disable certain code paths that rely heavily on double
+   precision floating-point calculation */
+#undef DISABLE_SOME_FLOATING_POINT
+
+/* Define to 1 if your system stores words within floats with the most
+   significant word first */
+#undef FLOAT_WORDS_BIGENDIAN
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -49,6 +57,12 @@
 
 /* Define to 1 if you have the <pthread.h> header file. */
 #undef HAVE_PTHREAD_H
+
+/* Define to 1 if you have Linux compatible sched_getaffinity */
+#undef HAVE_SCHED_GETAFFINITY
+
+/* Define to 1 if you have the <sched.h> header file. */
+#undef HAVE_SCHED_H
 
 /* Define to 1 if you have the <signal.h> header file. */
 #undef HAVE_SIGNAL_H
@@ -86,8 +100,8 @@
 /* Define to 1 if you have the `vasnprintf' function. */
 #undef HAVE_VASNPRINTF
 
-/* Define to 1 if you have the `XrmFinalize' function. */
-#undef HAVE_XRMFINALIZE
+/* Define to 1 if you have the <windows.h> header file. */
+#undef HAVE_WINDOWS_H
 
 /* Name of package */
 #undef PACKAGE
@@ -122,3 +136,9 @@
 
 /* Define to 1 if the X Window System is missing or not being used. */
 #undef X_DISPLAY_MISSING
+
+/* Define to `__inline__' or `__inline' if that's what the C compiler
+   calls it, or to nothing if 'inline' is not supported under any name.  */
+#ifndef __cplusplus
+#undef inline
+#endif

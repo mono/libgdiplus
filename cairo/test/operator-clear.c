@@ -28,11 +28,9 @@
 #include "cairo-test.h"
 #include <stdio.h>
 
-#define WIDTH 64
-#define HEIGHT 64
-#define PAD 10
-
-const char	png_filename[]	= "romedalen.png";
+#define WIDTH 16
+#define HEIGHT 16
+#define PAD 2
 
 static void
 set_solid_pattern (cairo_t *cr, int x, int y)
@@ -89,8 +87,8 @@ draw_glyphs (cairo_t *cr, int x, int y)
 
     cairo_text_extents (cr, "FG", &extents);
     cairo_move_to (cr,
-		   x + (WIDTH - extents.width) / 2 - extents.x_bearing,
-		   y + (HEIGHT - extents.height) / 2 - extents.y_bearing);
+		   x + floor ((WIDTH - extents.width) / 2 + 0.5) - extents.x_bearing,
+		   y + floor ((HEIGHT - extents.height) / 2 + 0.5) - extents.y_bearing);
     cairo_show_text (cr, "FG");
 }
 

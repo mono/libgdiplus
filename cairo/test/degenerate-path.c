@@ -35,7 +35,7 @@ static cairo_test_draw_function_t draw;
 cairo_test_t test = {
     "degenerate-path",
     "Tests the behaviour of degenerate paths with different cap types",
-    3*(PAD+LINE_WIDTH+PAD), 6*(LINE_WIDTH+PAD) + PAD,
+    3*(PAD+LINE_WIDTH+PAD), 8*(LINE_WIDTH+PAD) + PAD,
     draw
 };
 
@@ -45,6 +45,7 @@ draw (cairo_t *cr, int width, int height)
     const cairo_line_cap_t cap[] = { CAIRO_LINE_CAP_ROUND, CAIRO_LINE_CAP_SQUARE, CAIRO_LINE_CAP_BUTT };
     size_t i;
     double dash[] = {2, 2};
+    double dash_long[] = {6, 6};
 
     cairo_set_source_rgb (cr, 1, 0, 0);
 
@@ -89,6 +90,26 @@ draw (cairo_t *cr, int width, int height)
 	cairo_translate (cr, 0, 3*PAD);
 	cairo_move_to (cr, LINE_WIDTH, LINE_WIDTH);
 	cairo_close_path (cr);
+	cairo_stroke (cr);
+
+	/* this should draw a single degenerate sub-path
+	 * at the end of the path */
+	cairo_set_dash (cr, dash_long, 2, 6.);
+
+	cairo_translate (cr, 0, 3*PAD);
+	cairo_move_to (cr, LINE_WIDTH + 6.0, LINE_WIDTH);
+	cairo_line_to (cr, LINE_WIDTH, LINE_WIDTH);
+	cairo_stroke (cr);
+
+	/* this should draw a single degenerate sub-path
+	 * at the end of the path. The difference between this
+	 * and the above is that this ends with a degenerate sub-path*/
+	cairo_set_dash (cr, dash_long, 2, 6.);
+
+	cairo_translate (cr, 0, 3*PAD);
+	cairo_move_to (cr, LINE_WIDTH + 6.0, LINE_WIDTH);
+	cairo_line_to (cr, LINE_WIDTH, LINE_WIDTH);
+	cairo_line_to (cr, LINE_WIDTH, LINE_WIDTH);
 	cairo_stroke (cr);
 
 	cairo_restore (cr);

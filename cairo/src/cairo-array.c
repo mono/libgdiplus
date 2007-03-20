@@ -44,7 +44,7 @@
  * @element_size.
  *
  * The #cairo_array_t object provides grow-by-doubling storage. It
- * never intereprets the data passed to it, nor does it provide any
+ * never interprets the data passed to it, nor does it provide any
  * sort of callback mechanism for freeing resources held onto by
  * stored objects.
  *
@@ -316,6 +316,18 @@ int
 _cairo_array_num_elements (cairo_array_t *array)
 {
     return array->num_elements;
+}
+
+/**
+ * _cairo_array_size:
+ *
+ * Return value: The number of elements for which there is currently
+ * space allocated in array.
+ **/
+int
+_cairo_array_size (cairo_array_t *array)
+{
+    return array->size;
 }
 
 /* cairo_user_data_array_t */

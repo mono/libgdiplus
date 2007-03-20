@@ -38,6 +38,8 @@
 
 #include "cairo-path-fixed-private.h"
 
+extern cairo_private const cairo_rectangle_list_t _cairo_rectangles_nil;
+
 struct _cairo_clip_path {
     unsigned int	ref_count;
     cairo_path_fixed_t	path;
@@ -123,5 +125,8 @@ cairo_private void
 _cairo_clip_translate (cairo_clip_t  *clip,
                        cairo_fixed_t  tx,
                        cairo_fixed_t  ty);
+
+cairo_private cairo_rectangle_list_t*
+_cairo_clip_copy_rectangle_list (cairo_clip_t *clip, cairo_gstate_t *gstate);
 
 #endif /* CAIRO_CLIP_PRIVATE_H */

@@ -1,5 +1,10 @@
-DIST_SUBDIRS = pixman src test
+DIST_SUBDIRS = pixman src boilerplate test perf
 SUBDIRS = pixman src
+# libpng is required for our test programs
+if CAIRO_HAS_PNG_FUNCTIONS
+SUBDIRS += boilerplate test
+endif
+
 
 .PHONY: doc test retest recheck check-valgrind
 # We have some generated header files, so we really need to build the
@@ -14,11 +19,8 @@ recheck: all
 	cd test && $(MAKE) $(AM_MAKEFLAGS) recheck
 check-valgrind: all
 	cd test && $(MAKE) $(AM_MAKEFLAGS) check-valgrind
-
-# libpng is required for our test programs
-if CAIRO_HAS_PNG_FUNCTIONS
-SUBDIRS += test
-endif
+perf: all
+	cd perf && $(MAKE) $(AM_MAKEFLAGS) perf
 
 EXTRA_DIST = \
 	BUGS \
@@ -46,7 +48,7 @@ MAINTAINERCLEANFILES = \
 	$(srcdir)/mkinstalldirs \
 	`find "$(srcdir)" -type f -name Makefile.in -print`
 
-DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc
+DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc --enable-test-surfaces
 
 include $(srcdir)/ChangeLog.mk
 
@@ -93,6 +95,14 @@ $(developer_zip_file): install
 
 zips: $(runtime_zip_file) $(developer_zip_file)
 
+release-verify-sane-changelogs: changelogs
+	@echo -n "Checking that the ChangeLog files are sane..."
+	@if grep -q "is required to generate" $(CHANGELOGS); then \
+		(echo "Ouch." && echo "Some of the ChangeLogs are not generated correctly." \
+		&& echo "Remove ChangeLog* and make changelogs" \
+		&& false); else :; fi
+	@echo "Good."
+
 release-verify-soname-major:
 	@echo -n "Checking that the cairo soname major number is 2..."
 	@test "$(LT_CURRENT_MINUS_AGE)" = "2" \
@@ -128,22 +138,18 @@ release-remove-old:
 release-cleanup-group-sticky:
 	find . -type f | xargs chmod g-s
 
-release-check: release-verify-soname-major release-verify-even-micro release-verify-newer release-remove-old release-cleanup-group-sticky distcheck
+release-check: release-verify-sane-changelogs release-verify-soname-major release-verify-even-micro release-verify-newer release-remove-old release-cleanup-group-sticky distcheck
 
 release-upload: release-check $(tar_file) $(sha1_file) $(gpg_file)
 	mkdir -p releases
 	scp $(tar_file) $(sha1_file) $(gpg_file) $(RELEASE_UPLOAD_HOST):$(RELEASE_UPLOAD_DIR)
 	mv $(tar_file) $(sha1_file) $(gpg_file) releases
 	ssh $(RELEASE_UPLOAD_HOST) "rm -f $(RELEASE_UPLOAD_DIR)/LATEST-$(PACKAGE)-[0-9]* && ln -s $(tar_file) $(RELEASE_UPLOAD_DIR)/LATEST-$(PACKAGE)-$(VERSION)"
-	git tag -s $(CAIRO_VERSION_MAJOR).$(CAIRO_VERSION_MINOR).$(CAIRO_VERSION_MICRO)
+	git-tag -s  -m "cairo $(CAIRO_VERSION_MAJOR).$(CAIRO_VERSION_MINOR).$(CAIRO_VERSION_MICRO) release" $(CAIRO_VERSION_MAJOR).$(CAIRO_VERSION_MINOR).$(CAIRO_VERSION_MICRO)
 
 release-publish-message: releases/$(sha1_file)
-	@echo "Pleas push the new tag with a command such as:"
-	@echo ""
-	@echo "	git push master $(VERSION)"
-	@echo ""
-	@echo "Please send an announcement to $(RELEASE_ANNOUNCE_LIST)"
-	@echo "including the following:"
+	@echo "Please follow the instructions in RELEASING to push stuff out and"
+	@echo "send out the announcement mails.  Here is the excerpt you need:"
 	@echo ""
 	@echo "Subject: $(PACKAGE) $(RELEASE_OR_SNAPSHOT) $(VERSION) now available"
 	@echo ""
@@ -160,6 +166,7 @@ release-publish-message: releases/$(sha1_file)
 	@echo ""
 	@echo "	$(RELEASE_URL_BASE)/$(gpg_file)"
 	@echo "	(signed by `getent passwd "$$USER" | cut -d: -f 5 | cut -d, -f 1`)"
+	@echo ""
 	@echo "  Additionally, a git clone of the source tree:"
 	@echo ""
 	@echo "	git clone git://git.cairographics.org/git/cairo"
@@ -174,13 +181,6 @@ release-publish-message: releases/$(sha1_file)
 	@echo "	git checkout -b build $(VERSION)"
 	@echo ""
 	@echo "============================== CUT HERE =============================="
-	@echo "Also, please add the new entries from the NEWS file as well as the detailed"
-	@echo "change log sent to the cairo-announce list when the tag is pushed."
-	@echo ""
-	@echo "The same NEWS entries should be posted on the cairographics.org wiki as well."
-	@echo ""
-	@echo "Last but not least, do not forget to bump up the micro"
-	@echo "version component to the next (odd) number and commit."
 
 release-publish: release-upload release-publish-message
 

@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-FreeType-Fonts">
 <refmeta>
-<refentrytitle id="top_of_page">FreeType Fonts</refentrytitle>
+<refentrytitle role="top_of_page">FreeType Fonts</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -45,15 +45,15 @@
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-ft-font-face-create-for-ft-face" role="function"/>cairo_ft_font_face_create_for_ft_face ()</title>
 <indexterm><primary>cairo_ft_font_face_create_for_ft_face</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>* cairo_ft_font_face_create_for_ft_face
@@ -103,7 +103,7 @@ also for the FreeType backend and can be used with functions such
 as <link linkend="cairo-ft-font-lock-face"><function>cairo_ft_font_lock_face()</function></link>.
 </para>
 <para>
-Font rendering options are representated both here and when you
+Font rendering options are represented both here and when you
 call <link linkend="cairo-scaled-font-create"><function>cairo_scaled_font_create()</function></link>. Font options that have a representation
 in a <link linkend="FcPattern"><type>FcPattern</type></link> must be passed in here; to modify <link linkend="FcPattern"><type>FcPattern</type></link>
 appropriately to reflect the options in a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>, call
@@ -131,7 +131,7 @@ appropriately to reflect the options in a <link linkend="cairo-font-options-t"><
                                              <link linkend="FcPattern">FcPattern</link> *pattern);</programlisting>
 <para>
 Add options to a <link linkend="FcPattern"><type>FcPattern</type></link> based on a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link> font
-options object. Options that are already in the pattern, are not overriden,
+options object. Options that are already in the pattern, are not overridden,
 so you should call this function after calling <link linkend="FcConfigSubstitute"><function>FcConfigSubstitute()</function></link> (the
 user's settings should override options based on the surface type), but
 before calling <link linkend="FcDefaultSubstitute"><function>FcDefaultSubstitute()</function></link>.</para>
@@ -161,12 +161,13 @@ of times.
 </para>
 <para>
 You must be careful when using this function in a library or in a
-threaded application, because other threads may lock faces that
-share the same <link linkend="FT-Face"><type>FT_Face</type></link> object. For this reason, you must call
-<link linkend="cairo-ft-lock"><function>cairo_ft_lock()</function></link> before locking any face objects, and
-<link linkend="cairo-ft-unlock"><function>cairo_ft_unlock()</function></link> after you are done. (These functions are not yet
-implemented, so this function cannot be currently safely used in a
-threaded application.)</para>
+threaded application, because freetype's design makes it unsafe to
+call freetype functions simultaneously from multiple threads, (even
+if using distinct FT_Face objects). Because of this, application
+code that acquires an FT_Face object with this call must add it's
+own locking to protect any use of that object, (and which also must
+protect any other calls into cairo as almost any cairo function
+might result in a call into the freetype library).</para>
 <para>
 
 </para><variablelist role="params">

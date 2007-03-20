@@ -46,7 +46,7 @@
  * the meta surface had instead been applied to the target surface.
  *
  * The recording phase of the meta surface is careful to snapshot all
- * necessary objects (paths, patterns, etc.), in order to acheive
+ * necessary objects (paths, patterns, etc.), in order to achieve
  * accurate replay. The efficiency of the meta surface could be
  * improved by improving the implementation of snapshot for the
  * various objects. For example, it would be nice to have a
@@ -416,7 +416,7 @@ static cairo_int_status_t
 _cairo_meta_surface_show_glyphs (void			*abstract_surface,
 				 cairo_operator_t	 op,
 				 cairo_pattern_t	*source,
-				 const cairo_glyph_t	*glyphs,
+				 cairo_glyph_t		*glyphs,
 				 int			 num_glyphs,
 				 cairo_scaled_font_t	*scaled_font)
 {

@@ -37,7 +37,8 @@ static cairo_test_draw_function_t draw;
 
 cairo_test_t test = {
     "ft-text-vertical-layout-type1",
-    "Tests text rendering for vertical layout with TrueType fonts",
+    "Tests text rendering for vertical layout with Type1 fonts"
+    "\nCan fail if an incorrect font is loaded---need to bundle the desired font",
     WIDTH, HEIGHT,
     draw
 };

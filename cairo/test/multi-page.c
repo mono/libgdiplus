@@ -174,5 +174,7 @@ main (void)
     printf ("multi-page: Please check %s to ensure it looks happy.\n", filename);
 #endif
 
+    cairo_test_fini ();
+
     return CAIRO_TEST_SUCCESS;
 }

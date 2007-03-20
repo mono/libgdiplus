@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-cairo-t">
 <refmeta>
-<refentrytitle id="top_of_page">cairo_t</refentrytitle>
+<refentrytitle role="top_of_page">cairo_t</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -61,6 +61,10 @@ enum        <link linkend="cairo-antialias-t">cairo_antialias_t</link>;
                                              const <link linkend="double">double</link> *dashes,
                                              <link linkend="int">int</link> num_dashes,
                                              <link linkend="double">double</link> offset);
+<link linkend="int">int</link>         <link linkend="cairo-get-dash-count">cairo_get_dash_count</link>            (<link linkend="cairo-t">cairo_t</link> *cr);
+<link linkend="void">void</link>        <link linkend="cairo-get-dash">cairo_get_dash</link>                  (<link linkend="cairo-t">cairo_t</link> *cr,
+                                             <link linkend="double">double</link> *dashes,
+                                             <link linkend="double">double</link> *offset);
 enum        <link linkend="cairo-fill-rule-t">cairo_fill_rule_t</link>;
 <link linkend="void">void</link>        <link linkend="cairo-set-fill-rule">cairo_set_fill_rule</link>             (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="cairo-fill-rule-t">cairo_fill_rule_t</link> fill_rule);
@@ -88,7 +92,17 @@ enum        <link linkend="cairo-operator-t">cairo_operator_t</link>;
 <link linkend="double">double</link>      <link linkend="cairo-get-tolerance">cairo_get_tolerance</link>             (<link linkend="cairo-t">cairo_t</link> *cr);
 <link linkend="void">void</link>        <link linkend="cairo-clip">cairo_clip</link>                      (<link linkend="cairo-t">cairo_t</link> *cr);
 <link linkend="void">void</link>        <link linkend="cairo-clip-preserve">cairo_clip_preserve</link>             (<link linkend="cairo-t">cairo_t</link> *cr);
+<link linkend="void">void</link>        <link linkend="cairo-clip-extents">cairo_clip_extents</link>              (<link linkend="cairo-t">cairo_t</link> *cr,
+                                             <link linkend="double">double</link> *x1,
+                                             <link linkend="double">double</link> *y1,
+                                             <link linkend="double">double</link> *x2,
+                                             <link linkend="double">double</link> *y2);
 <link linkend="void">void</link>        <link linkend="cairo-reset-clip">cairo_reset_clip</link>                (<link linkend="cairo-t">cairo_t</link> *cr);
+            <link linkend="cairo-rectangle-t">cairo_rectangle_t</link>;
+            <link linkend="cairo-rectangle-list-t">cairo_rectangle_list_t</link>;
+<link linkend="void">void</link>        <link linkend="cairo-rectangle-list-destroy">cairo_rectangle_list_destroy</link>    (<link linkend="cairo-rectangle-list-t">cairo_rectangle_list_t</link> *rectangle_list);
+<link linkend="cairo-rectangle-list-t">cairo_rectangle_list_t</link>* <link linkend="cairo-copy-clip-rectangle-list">cairo_copy_clip_rectangle_list</link>
+                                            (<link linkend="cairo-t">cairo_t</link> *cr);
 <link linkend="void">void</link>        <link linkend="cairo-fill">cairo_fill</link>                      (<link linkend="cairo-t">cairo_t</link> *cr);
 <link linkend="void">void</link>        <link linkend="cairo-fill-preserve">cairo_fill_preserve</link>             (<link linkend="cairo-t">cairo_t</link> *cr);
 <link linkend="void">void</link>        <link linkend="cairo-fill-extents">cairo_fill_extents</link>              (<link linkend="cairo-t">cairo_t</link> *cr,
@@ -120,6 +134,13 @@ enum        <link linkend="cairo-operator-t">cairo_operator_t</link>;
                                              <link linkend="double">double</link> y);
 <link linkend="void">void</link>        <link linkend="cairo-copy-page">cairo_copy_page</link>                 (<link linkend="cairo-t">cairo_t</link> *cr);
 <link linkend="void">void</link>        <link linkend="cairo-show-page">cairo_show_page</link>                 (<link linkend="cairo-t">cairo_t</link> *cr);
+unsigned <link linkend="int">int</link> <link linkend="cairo-get-reference-count">cairo_get_reference_count</link>      (<link linkend="cairo-t">cairo_t</link> *cr);
+<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-set-user-data">cairo_set_user_data</link>          (<link linkend="cairo-t">cairo_t</link> *cr,
+                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
+                                             <link linkend="void">void</link> *user_data,
+                                             <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);
+<link linkend="void">void</link>*       <link linkend="cairo-get-user-data">cairo_get_user_data</link>             (<link linkend="cairo-t">cairo_t</link> *cr,
+                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);
 
 </synopsis>
 </refsynopsisdiv>
@@ -132,8 +153,8 @@ enum        <link linkend="cairo-operator-t">cairo_operator_t</link>;
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 
   <para>
     <link linkend="cairo-t"><type>cairo_t</type></link> is the main object used when drawing with cairo. To
@@ -149,15 +170,24 @@ enum        <link linkend="cairo-operator-t">cairo_operator_t</link>;
   </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-t" role="typedef"/>cairo_t</title>
 <indexterm><primary>cairo_t</primary></indexterm><programlisting>typedef struct _cairo cairo_t;
 </programlisting>
 <para>
 A <link linkend="cairo-t"><type>cairo_t</type></link> contains the current state of the rendering device,
-including coordinates of yet to be drawn shapes.</para>
+including coordinates of yet to be drawn shapes.
+</para>
+<para>
+Cairo contexts, as <link linkend="cairo-t"><type>cairo_t</type></link> objects are named, are central to
+cairo and all drawing with cairo is always done to a <link linkend="cairo-t"><type>cairo_t</type></link>
+object.
+</para>
+<para>
+Memory management of <link linkend="cairo-t"><type>cairo_t</type></link> is done with
+<link linkend="cairo-reference"><function>cairo_reference()</function></link> and <link linkend="cairo-destroy"><function>cairo_destroy()</function></link>.</para>
 <para>
 
 </para></refsect2>
@@ -197,7 +227,11 @@ maintain a separate reference to it.</para>
 <para>
 Increases the reference count on <parameter>cr</parameter> by one. This prevents
 <parameter>cr</parameter> from being destroyed until a matching call to <link linkend="cairo-destroy"><function>cairo_destroy()</function></link>
-is made.</para>
+is made.
+</para>
+<para>
+The number of references to a <link linkend="cairo-t"><type>cairo_t</type></link> can be get using
+<link linkend="cairo-get-reference-count"><function>cairo_get_reference_count()</function></link>.</para>
 <para>
 
 </para><variablelist role="params">
@@ -748,6 +782,49 @@ If any value in <parameter>dashes</parameter> is negative, or if all values are 
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
+<title><anchor id="cairo-get-dash-count" role="function" condition="since:1.4"/>cairo_get_dash_count ()</title>
+<indexterm role="1.4"><primary>cairo_get_dash_count</primary></indexterm><programlisting><link linkend="int">int</link>         cairo_get_dash_count            (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
+<para>
+This function returns the length of the dash array in <parameter>cr</parameter> (0 if dashing
+is not currently in effect).
+</para>
+<para>
+See also <link linkend="cairo-set-dash"><function>cairo_set_dash()</function></link> and <link linkend="cairo-get-dash"><function>cairo_get_dash()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the length of the dash array, or 0 if no dash array set.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-get-dash" role="function" condition="since:1.4"/>cairo_get_dash ()</title>
+<indexterm role="1.4"><primary>cairo_get_dash</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_get_dash                  (<link linkend="cairo-t">cairo_t</link> *cr,
+                                             <link linkend="double">double</link> *dashes,
+                                             <link linkend="double">double</link> *offset);</programlisting>
+<para>
+Gets the current dash array.  If not <link linkend="NULL:CAPS"><literal>NULL</literal></link>, <parameter>dashes</parameter> should be big
+enough to hold at least the number of values returned by
+<link linkend="cairo-get-dash-count"><function>cairo_get_dash_count()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dashes</parameter>&nbsp;:</term>
+<listitem><simpara> return value for the dash array, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>offset</parameter>&nbsp;:</term>
+<listitem><simpara> return value for the current dash offset, or <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
 <title><anchor id="cairo-fill-rule-t" role="enum"/>enum cairo_fill_rule_t</title>
 <indexterm><primary>cairo_fill_rule_t</primary></indexterm><programlisting>typedef enum _cairo_fill_rule {
     CAIRO_FILL_RULE_WINDING,
@@ -830,7 +907,7 @@ Gets the current fill rule, as set by <link linkend="cairo-set-fill-rule"><funct
 } cairo_line_cap_t;
 </programlisting>
 <para>
-enumeration for style of line-endings</para>
+Specifies how to render the endpoint of a line when stroking.</para>
 <para>
 
 </para><variablelist role="enum">
@@ -868,10 +945,10 @@ construction.</para>
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
-<listitem><simpara> a cairo context, as a <link linkend="cairo-t"><type>cairo_t</type></link>
+<listitem><simpara> a cairo context
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>line_cap</parameter>&nbsp;:</term>
-<listitem><simpara> a line cap style, as a <link linkend="cairo-line-cap-t"><type>cairo_line_cap_t</type></link>
+<listitem><simpara> a line cap style
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
@@ -897,8 +974,29 @@ Gets the current line cap style, as set by <link linkend="cairo-set-line-cap"><f
 } cairo_line_join_t;
 </programlisting>
 <para>
+Specifies how to render the junction of two lines when stroking.</para>
+<para>
 
-</para></refsect2>
+</para><variablelist role="enum">
+<varlistentry>
+<term><anchor id="CAIRO-LINE-JOIN-MITER:CAPS" role="constant"/><literal>CAIRO_LINE_JOIN_MITER</literal></term>
+<listitem><simpara> use a sharp (angled) corner, see
+<link linkend="cairo-set-miter-limit"><function>cairo_set_miter_limit()</function></link>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-LINE-JOIN-ROUND:CAPS" role="constant"/><literal>CAIRO_LINE_JOIN_ROUND</literal></term>
+<listitem><simpara> use a rounded join, the center of the circle is the
+joint point
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-LINE-JOIN-BEVEL:CAPS" role="constant"/><literal>CAIRO_LINE_JOIN_BEVEL</literal></term>
+<listitem><simpara> use a cut-off join, the join is cut off at half
+the line width from the joint point
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-set-line-join" role="function"/>cairo_set_line_join ()</title>
 <indexterm><primary>cairo_set_line_join</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_set_line_join             (<link linkend="cairo-t">cairo_t</link> *cr,
@@ -917,10 +1015,10 @@ construction.</para>
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
-<listitem><simpara> a cairo context, as a <link linkend="cairo-t"><type>cairo_t</type></link>
+<listitem><simpara> a cairo context
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>line_join</parameter>&nbsp;:</term>
-<listitem><simpara> a line joint style, as a <link linkend="cairo-line-join-t"><type>cairo_line_join_t</type></link>
+<listitem><simpara> a line joint style
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
@@ -979,17 +1077,17 @@ The default line width value is 2.0.</para>
 <title><anchor id="cairo-get-line-width" role="function"/>cairo_get_line_width ()</title>
 <indexterm><primary>cairo_get_line_width</primary></indexterm><programlisting><link linkend="double">double</link>      cairo_get_line_width            (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
 <para>
-</para>
+This function returns the current line width value exactly as set by
+<link linkend="cairo-set-line-width"><function>cairo_set_line_width()</function></link>. Note that the value is unchanged even if
+the CTM has changed between the calls to <link linkend="cairo-set-line-width"><function>cairo_set_line_width()</function></link> and
+<link linkend="cairo-get-line-width"><function>cairo_get_line_width()</function></link>.</para>
 <para>
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
 <listitem><simpara> a cairo context
 </simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the current line width value exactly as set by
-<link linkend="cairo-set-line-width"><function>cairo_set_line_width()</function></link>. Note that the value is unchanged even if
-the CTM has changed between the calls to <link linkend="cairo-set-line-width"><function>cairo_set_line_width()</function></link> and
-<link linkend="cairo-get-line-width"><function>cairo_get_line_width()</function></link>.
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the current line width.
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
@@ -997,15 +1095,29 @@ the CTM has changed between the calls to <link linkend="cairo-set-line-width"><f
 <indexterm><primary>cairo_set_miter_limit</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_set_miter_limit           (<link linkend="cairo-t">cairo_t</link> *cr,
                                              <link linkend="double">double</link> limit);</programlisting>
 <para>
+Sets the current miter limit within the cairo context.
+</para>
+<para>
+If the current line join style is set to <link linkend="CAIRO-LINE-JOIN-MITER:CAPS"><literal>CAIRO_LINE_JOIN_MITER</literal></link>
+(see <link linkend="cairo-set-line-join"><function>cairo_set_line_join()</function></link>), the miter limit is used to determine
+whether the lines should be joined with a bevel instead of a miter.
+Cairo divides the length of the miter by the line width.
+If the result is greater than the miter limit, the style is
+converted to a bevel.
+</para>
+<para>
+As with the other stroke parameters, the current line miter limit is
+examined by <link linkend="cairo-stroke"><function>cairo_stroke()</function></link>, <link linkend="cairo-stroke-extents"><function>cairo_stroke_extents()</function></link>, and
+<link linkend="cairo-stroke-to-path"><function>cairo_stroke_to_path()</function></link>, but does not have any effect during path
+construction.</para>
+<para>
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
-<listitem><simpara>
+<listitem><simpara> a cairo context
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>limit</parameter>&nbsp;:</term>
-<listitem><simpara>
-
-
+<listitem><simpara> miter limit to set
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
@@ -1183,6 +1295,36 @@ region is <link linkend="cairo-reset-clip"><function>cairo_reset_clip()</functio
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
+<title><anchor id="cairo-clip-extents" role="function" condition="since:1.4"/>cairo_clip_extents ()</title>
+<indexterm role="1.4"><primary>cairo_clip_extents</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_clip_extents              (<link linkend="cairo-t">cairo_t</link> *cr,
+                                             <link linkend="double">double</link> *x1,
+                                             <link linkend="double">double</link> *y1,
+                                             <link linkend="double">double</link> *x2,
+                                             <link linkend="double">double</link> *y2);</programlisting>
+<para>
+Computes a bounding box in user coordinates covering the area inside the
+current clip.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo context
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x1</parameter>&nbsp;:</term>
+<listitem><simpara> left of the resulting extents
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>y1</parameter>&nbsp;:</term>
+<listitem><simpara> top of the resulting extents
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x2</parameter>&nbsp;:</term>
+<listitem><simpara> right of the resulting extents
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>y2</parameter>&nbsp;:</term>
+<listitem><simpara> bottom of the resulting extents
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
 <title><anchor id="cairo-reset-clip" role="function"/>cairo_reset_clip ()</title>
 <indexterm><primary>cairo_reset_clip</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_reset_clip                (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
 <para>
@@ -1205,6 +1347,113 @@ robust means of temporarily restricting the clip region.</para>
 <listitem><simpara> a cairo context
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-rectangle-t" role="struct" condition="since:1.4"/>cairo_rectangle_t</title>
+<indexterm role="1.4"><primary>cairo_rectangle_t</primary></indexterm><programlisting>typedef struct {
+    double x, y, width, height;
+} cairo_rectangle_t;
+</programlisting>
+<para>
+A data structure for holding a rectangle.</para>
+<para>
+
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>x</structfield>;</term>
+<listitem><simpara> X coordinate of the left side of the rectangle
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>y</structfield>;</term>
+<listitem><simpara> Y coordinate of the the top side of the rectangle
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>width</structfield>;</term>
+<listitem><simpara> width of the rectangle
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="double">double</link>&nbsp;<structfield>height</structfield>;</term>
+<listitem><simpara> height of the rectangle
+</simpara></listitem>
+</varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-rectangle-list-t" role="struct" condition="since:1.4"/>cairo_rectangle_list_t</title>
+<indexterm role="1.4"><primary>cairo_rectangle_list_t</primary></indexterm><programlisting>typedef struct {
+    cairo_status_t     status;
+    cairo_rectangle_t *rectangles;
+    int                num_rectangles;
+} cairo_rectangle_list_t;
+</programlisting>
+<para>
+A data structure for holding a dynamically allocated
+array of rectangles.</para>
+<para>
+
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="cairo-status-t">cairo_status_t</link>&nbsp;<structfield>status</structfield>;</term>
+<listitem><simpara> Error status of the rectangle list
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="cairo-rectangle-t">cairo_rectangle_t</link>&nbsp;*<structfield>rectangles</structfield>;</term>
+<listitem><simpara> Array containing the rectangles
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="int">int</link>&nbsp;<structfield>num_rectangles</structfield>;</term>
+<listitem><simpara> Number of rectangles in this list
+</simpara></listitem>
+</varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-rectangle-list-destroy" role="function" condition="since:1.4"/>cairo_rectangle_list_destroy ()</title>
+<indexterm role="1.4"><primary>cairo_rectangle_list_destroy</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_rectangle_list_destroy    (<link linkend="cairo-rectangle-list-t">cairo_rectangle_list_t</link> *rectangle_list);</programlisting>
+<para>
+Unconditionally frees <parameter>rectangle_list</parameter> and all associated
+references. After this call, the <parameter>rectangle_list</parameter> pointer must not
+be dereferenced.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>rectangle_list</parameter>&nbsp;:</term>
+<listitem><simpara> a rectangle list, as obtained from <link linkend="cairo-copy-clip-rectangles"><function>cairo_copy_clip_rectangles()</function></link>
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-copy-clip-rectangle-list" role="function" condition="since:1.4"/>cairo_copy_clip_rectangle_list ()</title>
+<indexterm role="1.4"><primary>cairo_copy_clip_rectangle_list</primary></indexterm><programlisting><link linkend="cairo-rectangle-list-t">cairo_rectangle_list_t</link>* cairo_copy_clip_rectangle_list
+                                            (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
+<para>
+Gets the current clip region as a list of rectangles in user coordinates.
+Never returns <link linkend="NULL:CAPS"><literal>NULL</literal></link>.
+</para>
+<para>
+The status in the list may be CAIRO_STATUS_CLIP_NOT_REPRESENTABLE to
+indicate that the clip region cannot be represented as a list of
+user-space rectangles. The status may have other values to indicate
+other errors.
+</para>
+<para>
+The caller must always call cairo_rectangle_list_destroy on the result of
+this function.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a cairo context
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the current clip region as a list of rectangles in user coordinates.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
 <refsect2>
 <title><anchor id="cairo-fill" role="function"/>cairo_fill ()</title>
 <indexterm><primary>cairo_fill</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_fill                      (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
@@ -1247,24 +1496,31 @@ See <link linkend="cairo-set-fill-rule"><function>cairo_set_fill_rule()</functio
                                              <link linkend="double">double</link> *x2,
                                              <link linkend="double">double</link> *y2);</programlisting>
 <para>
+Computes a bounding box in user coordinates covering the area that
+would be affected by a <link linkend="cairo-fill"><function>cairo_fill()</function></link> operation given the current path
+and fill parameters. If the current path is empty, returns an empty
+rectangle (0,0, 0,0). Surface dimensions and clipping are not taken
+into account.
+</para>
+<para>
+See <link linkend="cairo-fill"><function>cairo_fill()</function></link>, <link linkend="cairo-set-fill-rule"><function>cairo_set_fill_rule()</function></link> and <link linkend="cairo-fill-preserve"><function>cairo_fill_preserve()</function></link>.</para>
+<para>
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
-<listitem><simpara>
+<listitem><simpara> a cairo context
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>x1</parameter>&nbsp;:</term>
-<listitem><simpara>
+<listitem><simpara> left of the resulting extents
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>y1</parameter>&nbsp;:</term>
-<listitem><simpara>
+<listitem><simpara> top of the resulting extents
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>x2</parameter>&nbsp;:</term>
-<listitem><simpara>
+<listitem><simpara> right of the resulting extents
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>y2</parameter>&nbsp;:</term>
-<listitem><simpara>
-
-
+<listitem><simpara> bottom of the resulting extents
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
@@ -1274,8 +1530,8 @@ See <link linkend="cairo-set-fill-rule"><function>cairo_set_fill_rule()</functio
                                              <link linkend="double">double</link> y);</programlisting>
 <para>
 Tests whether the given point is inside the area that would be
-filled by doing a <link linkend="cairo-fill"><function>cairo_fill()</function></link> operation on <parameter>cr</parameter> given the current
-path and filling parameters.
+affected by a <link linkend="cairo-fill"><function>cairo_fill()</function></link> operation given the current path and
+filling parameters.
 </para>
 <para>
 See <link linkend="cairo-fill"><function>cairo_fill()</function></link>, <link linkend="cairo-set-fill-rule"><function>cairo_set_fill_rule()</function></link> and <link linkend="cairo-fill-preserve"><function>cairo_fill_preserve()</function></link>.</para>
@@ -1443,24 +1699,26 @@ See <link linkend="cairo-set-line-width"><function>cairo_set_line_width()</funct
                                              <link linkend="double">double</link> *x2,
                                              <link linkend="double">double</link> *y2);</programlisting>
 <para>
+Computes a bounding box in user coordinates covering the area that
+would be affected by a <link linkend="cairo-stroke"><function>cairo_stroke()</function></link> operation operation given the
+current path and stroke parameters. If the current path is empty,</para>
+<para>
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
-<listitem><simpara>
+<listitem><simpara> a cairo context
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>x1</parameter>&nbsp;:</term>
-<listitem><simpara>
+<listitem><simpara> left of the resulting extents
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>y1</parameter>&nbsp;:</term>
-<listitem><simpara>
+<listitem><simpara> top of the resulting extents
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>x2</parameter>&nbsp;:</term>
-<listitem><simpara>
+<listitem><simpara> right of the resulting extents
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>y2</parameter>&nbsp;:</term>
-<listitem><simpara>
-
-
+<listitem><simpara> bottom of the resulting extents
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
@@ -1470,8 +1728,8 @@ See <link linkend="cairo-set-line-width"><function>cairo_set_line_width()</funct
                                              <link linkend="double">double</link> y);</programlisting>
 <para>
 Tests whether the given point is inside the area that would be
-stroked by doing a <link linkend="cairo-stroke"><function>cairo_stroke()</function></link> operation on <parameter>cr</parameter> given the
-current path and stroking parameters.
+affected by a <link linkend="cairo-stroke"><function>cairo_stroke()</function></link> operation given the current path and
+stroking parameters.
 </para>
 <para>
 See <link linkend="cairo-stroke"><function>cairo_stroke()</function></link>, <link linkend="cairo-set-line-width"><function>cairo_set_line_width()</function></link>, <link linkend="cairo-set-line-join"><function>cairo_set_line_join()</function></link>,
@@ -1521,6 +1779,79 @@ pages.  Use <link linkend="cairo-copy-page"><function>cairo_copy_page()</functio
 <listitem><simpara> a cairo context
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-get-reference-count" role="function" condition="since:1.4"/>cairo_get_reference_count ()</title>
+<indexterm role="1.4"><primary>cairo_get_reference_count</primary></indexterm><programlisting>unsigned <link linkend="int">int</link> cairo_get_reference_count      (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
+<para>
+Returns the current reference count of <parameter>cr</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the current reference count of <parameter>cr</parameter>.  If the
+object is a nil object, 0 will be returned.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-set-user-data" role="function" condition="since:1.4"/>cairo_set_user_data ()</title>
+<indexterm role="1.4"><primary>cairo_set_user_data</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_set_user_data          (<link linkend="cairo-t">cairo_t</link> *cr,
+                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
+                                             <link linkend="void">void</link> *user_data,
+                                             <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);</programlisting>
+<para>
+Attach user data to <parameter>cr</parameter>.  To remove user data from a surface,
+call this function with the key that was used to set it and <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+for <parameter>data</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>key</parameter>&nbsp;:</term>
+<listitem><simpara> the address of a <link linkend="cairo-user-data-key-t"><type>cairo_user_data_key_t</type></link> to attach the user data to
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara> the user data to attach to the <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-destroy-func-t"><type>cairo_destroy_func_t</type></link> which will be called when the
+<link linkend="cairo-t"><type>cairo_t</type></link> is destroyed or when new user data is attached using the
+same key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="CAIRO-STATUS-SUCCESS:CAPS"><literal>CAIRO_STATUS_SUCCESS</literal></link> or <link linkend="CAIRO-STATUS-NO-MEMORY:CAPS"><literal>CAIRO_STATUS_NO_MEMORY</literal></link> if a
+slot could not be allocated for the user data.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-get-user-data" role="function" condition="since:1.4"/>cairo_get_user_data ()</title>
+<indexterm role="1.4"><primary>cairo_get_user_data</primary></indexterm><programlisting><link linkend="void">void</link>*       cairo_get_user_data             (<link linkend="cairo-t">cairo_t</link> *cr,
+                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);</programlisting>
+<para>
+Return user data previously attached to <parameter>cr</parameter> using the specified
+key.  If no user data has been attached with the given key this
+function returns <link linkend="NULL:CAPS"><literal>NULL</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>key</parameter>&nbsp;:</term>
+<listitem><simpara> the address of the <link linkend="cairo-user-data-key-t"><type>cairo_user_data_key_t</type></link> the user data was
+attached to
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the user data previously attached or <link linkend="NULL:CAPS"><literal>NULL</literal></link>.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
 
 </refsect1>
 

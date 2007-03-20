@@ -159,3 +159,34 @@ Caching metrics for a particular font size
 @Returns: 
 
 
+<!-- ##### FUNCTION cairo_scaled_font_get_reference_count ##### -->
+<para>
+
+</para>
+
+@scaled_font: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_scaled_font_set_user_data ##### -->
+<para>
+
+</para>
+
+@scaled_font: 
+@key: 
+@user_data: 
+@destroy: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_scaled_font_get_user_data ##### -->
+<para>
+
+</para>
+
+@scaled_font: 
+@key: 
+@Returns: 
+
+

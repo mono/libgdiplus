@@ -55,5 +55,7 @@ main (void)
     check (tt_composite_glyph_t,	18);
     check (tt_glyph_data_t,	28);
 
+    cairo_test_fini ();
+
     return ret;
 }

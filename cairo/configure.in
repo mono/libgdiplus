@@ -1,17 +1,20 @@
 AC_PREREQ(2.54)
 
-# cairo package version number, (as distinct from shared library version)
-# An odd micro number indicates in-progress development, (eg. from git/cvs)
-# An even micro number indicates a released version.
+dnl cairo package version number, (as distinct from shared library version)
+dnl An odd micro number indicates in-progress development, (eg. from git/cvs)
+dnl An even micro number indicates a released version.
 m4_define(cairo_version_major, 1)
-m4_define(cairo_version_minor, 2)
-m4_define(cairo_version_micro, 6)
+m4_define(cairo_version_minor, 4)
+m4_define(cairo_version_micro, 2)
 
 AC_INIT([cairo],
       cairo_version_major.cairo_version_minor.cairo_version_micro,
       [http://bugs.freedesktop.org/enter_bug.cgi?product=cairo])
 AC_CONFIG_SRCDIR(src/cairo.h)
 AC_CONFIG_HEADERS(config.h)
+
+dnl automake 1.8 requires autoconf 2.58
+dnl automake 1.7 requires autoconf 2.54
 AM_INIT_AUTOMAKE([1.7])
 
 dnl ===========================================================================
@@ -19,16 +22,16 @@ dnl ===========================================================================
 # libtool shared library version
 
 # Increment if the interface has additions, changes, removals.
-LT_CURRENT=11
+LT_CURRENT=13
 
 # Increment any time the source changes; set to
 # 0 if you increment CURRENT
-LT_REVISION=3
+LT_REVISION=1
 
 # Increment if any interfaces have been added; set to 0
 # if any interfaces have been removed. removal has
 # precedence over adding, so set to 0 if both happened.
-LT_AGE=9
+LT_AGE=11
 
 dnl ===========================================================================
 
@@ -45,22 +48,22 @@ AC_SUBST(CAIRO_VERSION_MAJOR)
 AC_SUBST(CAIRO_VERSION_MINOR)
 AC_SUBST(CAIRO_VERSION_MICRO)
 
-AM_MAINTAINER_MODE
-
 AC_PROG_CC
 AC_PROG_CPP
-AM_PROG_LIBTOOL
+AC_PROG_LIBTOOL dnl required version (1.4) DON'T REMOVE!
 AC_STDC_HEADERS
+AC_C_INLINE
 AC_C_BIGENDIAN
+AX_C_FLOAT_WORDS_BIGENDIAN
 
 dnl ===========================================================================
 dnl === Local macros
 dnl ===========================================================================
 
-# _CHECK_FUNCS_WITH_FLAGS(FUNCTION..., CFLAGS, LIBS 
-#                         [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
-# Like AC_CHECK_FUNCS but with additional CFLAGS and LIBS
-# --------------------------------------------------------------------
+dnl _CHECK_FUNCS_WITH_FLAGS(FUNCTION..., CFLAGS, LIBS
+dnl                         [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
+dnl Like AC_CHECK_FUNCS but with additional CFLAGS and LIBS
+dnl --------------------------------------------------------------------
 AC_DEFUN([_CHECK_FUNCS_WITH_FLAGS],
 [ 
   save_cflags="$CFLAGS"
@@ -86,12 +89,9 @@ AC_CHECK_LIB(z, compress,
 
 dnl ===========================================================================
 
-# This macro requires a newer than 0.15 pkg-config, which we don't always have
-# Use an older method instead
-#PKG_PROG_PKG_CONFIG
-AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
-if test "x$PKG_CONFIG" = "xno"; then
-	AC_MSG_ERROR([You need to install pkg-config])
+PKG_PROG_PKG_CONFIG()
+if test "x$PKG_CONFIG" = x; then
+	AC_MSG_ERROR([pkg-config >= $PKGCONFIG_REQUIRED required but not found (http://pkgconfig.freedesktop.org/)])
 fi
 
 dnl ===========================================================================
@@ -229,7 +229,8 @@ dnl ===========================================================================
 CAIRO_BACKEND_ENABLE(xlib, Xlib, xlib, XLIB_SURFACE, auto, [
   xlib_REQUIRES="x11"
   PKG_CHECK_MODULES(xlib, $xlib_REQUIRES, ,
-		    [xlib_REQUIRES=""
+		    [AC_MSG_RESULT(no)
+		     xlib_REQUIRES=""
 		     AC_PATH_XTRA
 		     if test "x$no_x" = xyes; then
 		       use_xlib="no (requires X development libraries)"
@@ -239,10 +240,6 @@ CAIRO_BACKEND_ENABLE(xlib, Xlib, xlib, XLIB_SURFACE, auto, [
 		     fi])
 ])
 
-if test "x$use_xlib" = xyes; then
-  _CHECK_FUNCS_WITH_FLAGS(XrmFinalize, $xlib_CFLAGS, $xlib_LIBS)
-fi
-
 CAIRO_BACKEND_ENABLE(xlib_xrender, Xlib Xrender, xlib-xrender, XLIB_XRENDER_SURFACE, auto, [
   if test "x$use_xlib" != "xyes"; then
     use_xlib_xrender="no (requires --enable-xlib)"
@@ -251,11 +248,20 @@ CAIRO_BACKEND_ENABLE(xlib_xrender, Xlib Xrender, xlib-xrender, XLIB_XRENDER_SURF
     xlib_xrender_BASE=cairo-xlib
     xlib_xrender_REQUIRES="xrender >= 0.6"
     PKG_CHECK_MODULES(xlib_xrender, $xlib_xrender_REQUIRES, ,
-		      [xlib_xrender_REQUIRES=""
+		      [AC_MSG_RESULT(no)
+		       xlib_xrender_REQUIRES=""
 		       AC_CHECK_HEADER(X11/extensions/Xrender.h,
 				       [xlib_xrender_NONPKGCONFIG_LIBS="-lXrender"],
 				       [use_xlib_xrender="no (requires Xrender http://freedesktop.org/Software/xlibs)"])])
   fi
+])
+
+dnl ===========================================================================
+
+CAIRO_BACKEND_ENABLE(xcb, XCB, xcb, XCB_SURFACE, no, [
+  xcb_REQUIRES="xcb >= 0.9.92 xcb-render >= 0.9.92 xcb-renderutil"
+  PKG_CHECK_MODULES(xcb, $xcb_REQUIRES, , [AC_MSG_RESULT(no)
+  use_xcb="no (requires XCB http://xcb.freedesktop.org)"])
 ])
 
 dnl ===========================================================================
@@ -268,28 +274,42 @@ CAIRO_BACKEND_ENABLE(quartz, Quartz, quartz, QUARTZ_SURFACE, no, [
 
 dnl ===========================================================================
 
-CAIRO_BACKEND_ENABLE(xcb, XCB, xcb, XCB_SURFACE, no, [
-  xcb_REQUIRES="xcb xcb-render xcb-renderutil"
-  PKG_CHECK_MODULES(xcb, $xcb_REQUIRES, , [
-  use_xcb="no (requires XCB http://xcb.freedesktop.org)"])
-])
+AC_MSG_CHECKING([for native Win32])
+case "$host" in
+  *-*-mingw*)
+    cairo_os_win32=yes
+    ;;
+  *)
+    cairo_os_win32=no
+    ;;
+esac
+AC_MSG_RESULT([$cairo_os_win32])
+AM_CONDITIONAL(OS_WIN32, test "$cairo_os_win32" = "yes")
 
-dnl ===========================================================================
+AC_CHECK_HEADERS([windows.h], have_windows=yes, have_windows=no)
 
 CAIRO_BACKEND_ENABLE(win32, Microsoft Windows, win32, WIN32_SURFACE, auto, [
-  case "$host" in
-    *-*-mingw*|*-*-cygwin*)
-      :
-      ;;
-    *)
-      use_win32="no (requires a Win32 platform)"
-      ;;
-  esac
+  if test "x$have_windows" != xyes; then
+    use_win32="no (requires a Win32 platform)"
+  fi
   win32_LIBS="-lgdi32 -lmsimg32"
 ])
 
 CAIRO_BACKEND_ENABLE(win32_font, Microsoft Windows font, win32-font, WIN32_FONT, auto, [
-      use_win32_font=$use_win32
+  use_win32_font=$use_win32
+])
+
+dnl ===========================================================================
+
+CAIRO_BACKEND_ENABLE(os2, OS/2, os2, OS2_SURFACE, no, [
+  case "$host" in
+    *-*-os2*)
+      :
+      ;;
+    *)
+      use_os2="no (requires an OS/2 platform)"
+      ;;
+  esac
 ])
 
 dnl ===========================================================================
@@ -330,7 +350,7 @@ CAIRO_BACKEND_ENABLE(png, PNG, png, PNG_FUNCTIONS, yes, [
   fi
 
   if test "x$use_png" = "xyes" ; then 
-    PKG_CHECK_MODULES(png, $png_REQUIRES)
+    PKG_CHECK_MODULES(png, $png_REQUIRES, , AC_MSG_RESULT(no))
   else
     AC_MSG_WARN([Could not find libpng in the pkg-config search path])
   fi    
@@ -347,19 +367,19 @@ dnl ===========================================================================
 GLITZ_MIN_VERSION=0.5.1
 CAIRO_BACKEND_ENABLE(glitz, glitz, glitz, GLITZ_SURFACE, no, [
   glitz_REQUIRES="glitz >= $GLITZ_MIN_VERSION"
-  PKG_CHECK_MODULES(glitz, $glitz_REQUIRES, , [
+  PKG_CHECK_MODULES(glitz, $glitz_REQUIRES, , [AC_MSG_RESULT(no)
   use_glitz="no (requires glitz http://freedesktop.org/Software/glitz)"])
 ])
 
 if test "x$use_glitz" = "xyes";then
   PKG_CHECK_MODULES(GLITZ_AGL, glitz-agl >= $GLITZ_MIN_VERSION,
-   [have_glitz_agl=yes], [have_glitz_agl=no; echo $MYSTUFF_PKG_ERRORS])
+   [have_glitz_agl=yes], [have_glitz_agl=no; AC_MSG_RESULT(no)])
   PKG_CHECK_MODULES(GLITZ_EGL, glitz-egl >= $GLITZ_MIN_VERSION,
-   [have_glitz_egl=yes], [have_glitz_egl=no; echo $MYSTUFF_PKG_ERRORS])
+   [have_glitz_egl=yes], [have_glitz_egl=no; AC_MSG_RESULT(no)])
   PKG_CHECK_MODULES(GLITZ_GLX, glitz-glx >= $GLITZ_MIN_VERSION,
-   [have_glitz_glx=yes], [have_glitz_glx=no; echo $MYSTUFF_PKG_ERRORS])
+   [have_glitz_glx=yes], [have_glitz_glx=no; AC_MSG_RESULT(no)])
   PKG_CHECK_MODULES(GLITZ_WGL, glitz-wgl >= $GLITZ_MIN_VERSION,
-   [have_glitz_wgl=yes], [have_glitz_wgl=no; echo $MYSTUFF_PKG_ERRORS])
+   [have_glitz_wgl=yes], [have_glitz_wgl=no; AC_MSG_RESULT(no)])
 
   if test "x$have_glitz_agl" = "xyes";then
     AC_DEFINE(CAIRO_CAN_TEST_GLITZ_AGL_SURFACE, 1, [define if glitz backend can be tested against agl])
@@ -384,7 +404,7 @@ dnl ===========================================================================
 
 CAIRO_BACKEND_ENABLE(directfb, directfb, directfb, DIRECTFB_SURFACE, no, [
   directfb_REQUIRES=directfb
-  PKG_CHECK_MODULES(directfb, $directfb_REQUIRES, ,
+  PKG_CHECK_MODULES(directfb, $directfb_REQUIRES, , AC_MSG_RESULT(no)
 		    [use_directfb="no (requires directfb http://www.directfb.org)"])
 ])
 
@@ -414,11 +434,13 @@ CAIRO_BACKEND_ENABLE(ft, FreeType font, freetype, FT_FONT, auto, [
   ft_REQUIRES="fontconfig"
   PKG_CHECK_MODULES(FONTCONFIG, $ft_REQUIRES,
 		    [_CHECK_FUNCS_WITH_FLAGS(FcFini, $ft_CFLAGS, $ft_LIBS)],
-		    [use_ft="no (requires fontconfig"])
+		    [AC_MSG_RESULT(no); use_ft="no (requires fontconfig"])
 
   if test "x$use_ft" = "xyes"; then
     PKG_CHECK_MODULES(FREETYPE, freetype2 >= $FREETYPE_MIN_VERSION,
-                      [freetype_pkgconfig=yes], [freetype_pkgconfig=no])
+                      [freetype_pkgconfig=yes],
+		      [AC_MSG_RESULT(no)
+		       freetype_pkgconfig=no])
   
     if test "x$freetype_pkgconfig" = "xyes"; then
       ft_REQUIRES="freetype2 >= $FREETYPE_MIN_VERSION $ft_REQUIRES"
@@ -478,11 +500,7 @@ AM_CONDITIONAL(HAVE_PTHREAD, test "x$have_pthread" = "xyes")
 
 dnl ===========================================================================
 
-CAIRO_BACKEND_ENABLE(ps, PostScript, ps, PS_SURFACE, auto, [
-    # The postscript backend requires zlib.
-    use_ps=$have_libz
-    ps_NONPKGCONFIG_LIBS=-lz
-])
+CAIRO_BACKEND_ENABLE(ps, PostScript, ps, PS_SURFACE, auto, [use_ps=yes])
 
 dnl ===========================================================================
 
@@ -496,7 +514,10 @@ POPPLER_VERSION_REQUIRED=0.4.1
 test_pdf=no
 if test "x$use_pdf" = "xyes"; then
   poppler_DEPENDENCY="poppler-glib >= $POPPLER_VERSION_REQUIRED"
-  PKG_CHECK_MODULES(POPPLER, $poppler_DEPENDENCY pango gtk+-2.0, [test_pdf=yes], [test_pdf="no (requires $poppler_DEPENDENCY)"])
+  PKG_CHECK_MODULES(POPPLER, $poppler_DEPENDENCY pango gtk+-2.0,
+                    [test_pdf=yes],
+		    [AC_MSG_RESULT(no)
+		     test_pdf="no (requires $poppler_DEPENDENCY)"])
   if test "x$test_pdf" = "xyes"; then
     AC_DEFINE([CAIRO_CAN_TEST_PDF_SURFACE], 1, [Define to 1 if the PDF backend can be tested (need poppler and other dependencies for pdf2png)])
   else
@@ -518,10 +539,13 @@ CAIRO_BACKEND_ENABLE(svg, SVG, svg, SVG_SURFACE, auto, [
   fi
 ])
 
-LIBRSVG_VERSION_REQUIRED=2.14.0
+LIBRSVG_VERSION_REQUIRED=2.15.0
 if test "x$use_svg" = "xyes"; then
   librsvg_DEPENDENCY="librsvg-2.0 >= $LIBRSVG_VERSION_REQUIRED"
-  PKG_CHECK_MODULES(LIBRSVG, $librsvg_DEPENDENCY gdk-2.0, [test_svg=yes], [test_svg="no (requires $librsvg_DEPENDENCY)"])
+  PKG_CHECK_MODULES(LIBRSVG, $librsvg_DEPENDENCY gdk-2.0,
+                    [test_svg=yes],
+		    [AC_MSG_RESULT(no)
+		     test_svg="no (requires $librsvg_DEPENDENCY)"])
   if test "x$test_svg" = "xyes"; then
     AC_DEFINE([CAIRO_CAN_TEST_SVG_SURFACE], 1, [Define to 1 if the SVG backend can be tested])
   else
@@ -540,7 +564,8 @@ dnl check for the atsui font backend.
 
 CAIRO_BACKEND_ENABLE(atsui, ATSUI font, atsui, ATSUI_FONT, no, [
   dnl There is no pkgconfig for atsui; lets do a header check
-  AC_CHECK_HEADER(Carbon/Carbon.h, , [use_atsui="no (Carbon not found)"])
+  AC_CHECK_HEADER(Carbon/Carbon.h, , [use_atsui="no (Carbon headers not found)"])
+  atsui_LIBS="-Xlinker -framework -Xlinker Carbon"
 ])
 
 dnl ===========================================================================
@@ -552,6 +577,17 @@ dnl Checks for precise integer types
 AC_CHECK_HEADERS([stdint.h signal.h inttypes.h sys/int_types.h])
 AC_CHECK_TYPES([uint64_t, uint128_t])
 
+dnl ===========================================================================
+dnl check for CPU affinity support
+AC_CHECK_HEADERS([sched.h], [
+  AC_CHECK_FUNCS([sched_getaffinity], [
+    AC_DEFINE([HAVE_SCHED_GETAFFINITY], [1],
+	      [Define to 1 if you have Linux compatible sched_getaffinity])
+  ])
+])
+
+dnl ===========================================================================
+dnl check compiler flags
 AC_DEFUN([CAIRO_CC_TRY_FLAG], [
   AC_MSG_CHECKING([whether $CC supports $1])
 
@@ -753,6 +789,29 @@ fi
 
 dnl ===========================================================================
 
+AC_ARG_ENABLE(some-floating-point,
+  AS_HELP_STRING([--disable-some-floating-point],
+                 [Disable certain code paths that rely heavily on double precision
+                  floating-point calculation. This option can improve
+                  performance on systems without a double precision floating-point
+                  unit, but might degrade performance on those that do.]), [
+if test "x$enableval" = "xno"; then
+  # A value of 'no' for $enableval means that they want to disable, which
+  # means 'yes' for $disable_some_floating_point.
+  disable_some_floating_point=yes
+fi
+], [disable_some_floating_point=no])
+
+AM_CONDITIONAL(DISABLE_SOME_FLOATING_POINT,
+               test "x$disable_some_floating_point" = "xyes")
+if test "x$disable_some_floating_point" = "xyes"; then
+  AC_DEFINE(DISABLE_SOME_FLOATING_POINT, 1,
+            [Define to 1 to disable certain code paths that rely heavily on
+             double precision floating-point calculation])
+fi
+
+dnl ===========================================================================
+
 AC_CONFIG_COMMANDS([src/cairo-features.h],
 [
 	featuresfile=src/cairo-features.h
@@ -803,10 +862,13 @@ _EOF
 ])
 AC_CONFIG_FILES([
 Makefile
+boilerplate/Makefile
 pixman/Makefile
 pixman/src/Makefile
 src/Makefile
 test/Makefile
+test/pdiff/Makefile
+perf/Makefile
 src/cairo.pc
 ])
 
@@ -822,6 +884,7 @@ echo "  Xlib Xrender:  $use_xlib_xrender"
 echo "  Quartz:        $use_quartz"
 echo "  XCB:           $use_xcb"
 echo "  Win32:         $use_win32"
+echo "  OS2:           $use_os2"
 echo "  PostScript:    $use_ps"
 echo "  PDF:           $use_pdf"
 echo "  SVG:           $use_svg"
@@ -878,6 +941,10 @@ fi
 
 if test x"$use_quartz" = "xyes" ; then
    echo "$WARNING_MESSAGE" | sed 's/@BACKEND@/ATSUI/'
+fi
+
+if test x"$use_os2" = "xyes" ; then
+   echo "$WARNING_MESSAGE" | sed 's,@BACKEND@,OS/2,'
 fi
 
 if test x"$use_beos" = "xyes" ; then

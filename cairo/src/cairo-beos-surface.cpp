@@ -985,16 +985,20 @@ cairo_beos_surface_create_for_bitmap (BView*   view,
 
 class BeLocks {
     public:
-	BLocker cairo_toy_font_face_hash_table_mutex;
-	BLocker cairo_scaled_font_map_mutex;
-	BLocker cairo_ft_unscaled_font_map_mutex;
+	BLocker _cairo_font_face_mutex;
+	BLocker _cairo_scaled_font_map_mutex;
+#ifdef CAIRO_HAS_FT_FONT
+	BLocker _cairo_ft_unscaled_font_map_mutex;
+#endif
 };
 
 static BeLocks locks;
 
-void* cairo_toy_font_face_hash_table_mutex = &locks.cairo_toy_font_face_hash_table_mutex;
-void* cairo_scaled_font_map_mutex = &locks.cairo_scaled_font_map_mutex;
-void* cairo_ft_unscaled_font_map_mutex = &locks.cairo_ft_unscaled_font_map_mutex;
+void* _cairo_font_face_mutex = &locks._cairo_font_face_mutex;
+void* _cairo_scaled_font_map_mutex = &locks._cairo_scaled_font_map_mutex;
+#ifdef CAIRO_HAS_FT_FONT
+void* _cairo_ft_unscaled_font_map_mutex = &locks._cairo_ft_unscaled_font_map_mutex;
+#endif
 
 void _cairo_beos_lock (void* locker) {
     BLocker* bLocker = reinterpret_cast<BLocker*>(locker);

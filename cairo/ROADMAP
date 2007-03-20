@@ -21,36 +21,48 @@ Firefox 3.0 - http://www.mozilla.org/projects/firefox/roadmap.html
 ------------------------------------------------------------------
 Firefox 3 (scheduled for early 2007?) is the first release expected to
 use cairo for all rendering. In the meantime, development builds using
-cairo are available
+cairo are available. Satisfying firefox 3 well requiring releasing a a
+new version of cairo some months before the firefox 3 release data
+with much-improved performance.
 
-Satisfying firefox 3 well requiring releasing new versions of cairo
-before November 2006 (or earlier) that incorporate the patches coming
-from mozilla, (clip querying), and much-improved performance.
+Gnome 2.18 - http://live.gnome.org/TwoPointSeventeen
+----------------------------------------------------
+Looks like early January would be a great time to get cairo 1.4 out.
 
 Themes and Schedules
 ====================
-cairo-1.2.6 (no schedule; may not happen):
- - 7744: Compile troubles on AIX
- - PS/PDF Type1/Type3 problem with rotated font_matrices
-
-cairo-1.4 (October 2006): Better performance
- - New tessellator
+cairo-1.4 (January 2006): Better performance
+ ✓ New tessellator
  - New rasterization
  - Finer-grained fallbacks for PS/PDF
 
+cairo 1.4.2
+===========
+ - [Bug 9994] performance opportunities in cairo
+ - [Bug 10150] Support inline with Sun Studio compiler
+ - AltiVec patches
+ - Kmaraas's warning cleanups
+ - Mathias's Mutex cleanup patch
+ - Update bindings chapter of documentation to reflect new APIs
+   (get_reference_count() and user_data for all)
+ - Work around bug in X server causing extend-reflect test to hang it
+ - Fix a8mask (patch available)
+ - Possibly remove pdiff
+ - Make font backends separable from their native surfaces
+
 cairo 1.4.0 ideas (think performance!)
 ======================================
- Implement framework for performance regression testing
+✓ Implement framework for performance regression testing
 
  Investigate "low-hanging fruit" identified by David Turner (write test case for each)
 
- Look into speeding up pixman gradients
+✓ Look into speeding up pixman gradients
 
- Look into improving text positioning/placement on ARM (with no hardware floating-point)
+✓ Look into improving text positioning/placement on ARM (with no hardware floating-point)
 
  Look into speeding up dashing used for GTK+ focus rectangle
 
- Look into other GTK+ performance regressions as identified on performance-list
+✓ Look into other GTK+ performance regressions as identified on performance-list
 
  xlib backend
      Switch to server-side gradients for xlib backend
@@ -61,25 +73,13 @@ cairo 1.4.0 ideas (think performance!)
 
  Cull geometry outside clip region bounds
 
- New tessellator
-
- Look into using alloca instead of malloc when copying glyphs/path/etc to edit
- and use in one function and deallocate upon return.
-
- Look into generating EPS.  That may be done using a new constructor for the
- PS backend, or better, using an API similar to
- cairo_svg_surface_restrict_to_version.  The PDF backend needs a restrict_to
- API at some point too.
-
- Look into the glyph cache.  Moreover, make sure we are reusing scaled fonts
- enough.
-
- User-font API
+✓ New tessellator
 
  Bugs to fix
  -----------
    CAIRO_EXTEND_PAD is not implemented for surface patterns
-   CAIRO_FORMAT_RGB16_565 should be deprecated
+  ✓CAIRO_FORMAT_RGB16_565 should be deprecated
+  ✓8379 infinite loop when stroking (see 8379 branch in cworth tree)
 
 For other ideas that have been proposed for cairo but are not yet
 scheduled on the roadmap of any particular release, please see the

@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Image-Surfaces">
 <refmeta>
-<refentrytitle id="top_of_page">Image Surfaces</refentrytitle>
+<refentrytitle role="top_of_page">Image Surfaces</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -50,8 +50,8 @@ unsigned <link linkend="char">char</link>* <link linkend="cairo-image-surface-ge
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 
   <para>
     Image surfaces provide the ability to render to memory buffers
@@ -60,16 +60,19 @@ unsigned <link linkend="char">char</link>* <link linkend="cairo-image-surface-ge
   </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-format-t" role="enum"/>enum cairo_format_t</title>
 <indexterm><primary>cairo_format_t</primary></indexterm><programlisting>typedef enum _cairo_format {
     CAIRO_FORMAT_ARGB32,
     CAIRO_FORMAT_RGB24,
     CAIRO_FORMAT_A8,
-    CAIRO_FORMAT_A1,
-    CAIRO_FORMAT_RGB16_565
+    CAIRO_FORMAT_A1
+    /* The value of 4 is reserved by a deprecated enum value.
+     * The next format added must have an explicit value of 5.
+    CAIRO_FORMAT_RGB16_565 = 4,
+    */
 } cairo_format_t;
 </programlisting>
 <para>
@@ -111,20 +114,6 @@ New entries may be added in future versions.</para>
   endianess of the platform. On a big-endian machine, the
   first pixel is in the uppermost bit, on a little-endian
   machine the first pixel is in the least-significant bit.
-</simpara></listitem>
-</varlistentry>
-<varlistentry>
-<term><anchor id="CAIRO-FORMAT-RGB16-565:CAPS" role="constant"/><literal>CAIRO_FORMAT_RGB16_565</literal></term>
-<listitem><simpara> This format value is deprecated. It has
-  never been properly implemented in cairo and should not be used
-  by applications. For example, any attempt to create an image
-  surface with a format of CAIRO_FORMAT_RGB16_565 will fail. This
-  format value was added as part of fixing cairo's xlib backend to
-  work with X servers advertising a 16-bit, 565 visual. But as it
-  turned out, adding this format to <link linkend="cairo-format-t"><type>cairo_format_t</type></link> was not
-  necessary, and was a mistake, (cairo's xlib backend can work fine
-  with 16-bit visuals in the same way it works with BGR visuals
-  without any BGR formats in <link linkend="cairo-format-t"><type>cairo_format_t</type></link>). (Since 1.2)
 </simpara></listitem>
 </varlistentry>
 </variablelist></refsect2>
@@ -172,8 +161,8 @@ occurs. You can use <link linkend="cairo-surface-status"><function>cairo_surface
 Creates an image surface for the provided pixel data. The output
 buffer must be kept around until the <link linkend="cairo-surface-t"><type>cairo_surface_t</type></link> is destroyed
 or <link linkend="cairo-surface-finish"><function>cairo_surface_finish()</function></link> is called on the surface.  The initial
-contents of <parameter>buffer</parameter> will be used as the inital image contents; you
-must explicitely clear the buffer, using, for example,
+contents of <parameter>buffer</parameter> will be used as the initial image contents; you
+must explicitly clear the buffer, using, for example,
 <link linkend="cairo-rectangle"><function>cairo_rectangle()</function></link> and <link linkend="cairo-fill"><function>cairo_fill()</function></link> if you want it cleared.</para>
 <para>
 

@@ -804,15 +804,15 @@ fbRasterizeTrapezoid (pixman_image_t		*pMask,
    in libgcc in case a target does not have one, which should be just as
    good as the static function below.  */
 #if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
-# if __INT_MIN__ == 0x7fffffff
-#  define _FbOnes(mask)		__builtin_popcount(mask)
-# else
-#  define _FbOnes(mask)		__builtin_popcountl((mask) & 0xffffffff)
-# endif
+static INLINE int
+_FbOnes(unsigned int mask)
+{
+	return __builtin_popcount(mask);
+}
 #else
 # define ICINT_NEED_IC_ONES
 pixman_private int
-_FbOnes(unsigned long mask);
+_FbOnes(unsigned int mask);
 #endif
 
 /* icformat.c */
@@ -1026,6 +1026,7 @@ typedef	xFixed_16_16	xFixed;
 #define IntToxFixed(i)	((xFixed) (i) << XFIXED_BITS)
 #define xFixedE		((xFixed) 1)
 #define xFixed1		(IntToxFixed(1))
+#define xFixedToDouble(f) (double) ((f) / (double) xFixed1)
 #define xFixed1MinusE	(xFixed1 - xFixedE)
 #define xFixedFrac(f)	((f) & xFixed1MinusE)
 #define xFixedFloor(f)	((f) & ~xFixed1MinusE)

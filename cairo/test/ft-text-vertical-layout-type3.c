@@ -37,7 +37,7 @@ static cairo_test_draw_function_t draw;
 
 cairo_test_t test = {
     "ft-text-vertical-layout-type3",
-    "Tests text rendering for vertical layout with TrueType fonts (which will be emitted as type3)",
+    "Tests text rendering for vertical layout with TrueType fonts",
     WIDTH, HEIGHT,
     draw
 };

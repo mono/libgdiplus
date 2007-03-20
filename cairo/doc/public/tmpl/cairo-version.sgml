@@ -8,14 +8,14 @@ Compile-time and run-time version checks.
 <para>
 Cairo has a three-part version number scheme. In this scheme, we use
 even vs. odd numbers to distinguish fixed points in the software
-vs. in-progress development, (such as from CVS instead of a tar file,
+vs. in-progress development, (such as from git instead of a tar file,
 or as a "snapshot" tar file as opposed to a "release" tar file).
 </para>
 <para>
 <informalexample><programlisting>
  _____ Major. Always 1, until we invent a new scheme.
-/  ___ Minor. Even/Odd = Release/Snapshot (tar files) or Branch/Head (CVS)
-| /  _ Micro. Even/Odd = Tar-file/CVS
+/  ___ Minor. Even/Odd = Release/Snapshot (tar files) or Branch/Head (git)
+| /  _ Micro. Even/Odd = Tar-file/git
 | | /
 1.0.0
 </programlisting></informalexample>
@@ -33,7 +33,7 @@ Snapshots
 ---------
 1.1.2 - A snapshot (working toward the 1.2.0 release)
 
-In-progress development (eg. from CVS)
+In-progress development (eg. from git)
 --------------------------------------
 1.0.1 - Development on a maintenance branch (toward 1.0.2 release)
 1.1.1 - Development on head (toward 1.1.2 snapshot and 1.2.0 release)
@@ -119,47 +119,52 @@ if (cairo_version() >= %CAIRO_VERSION_ENCODE(1, 0, 0))
 
 <!-- ##### MACRO CAIRO_VERSION ##### -->
 <para>
-
+The version of cairo available at compile-time, encoded using
+CAIRO_VERSION_ENCODE().
 </para>
 
 
 
 <!-- ##### MACRO CAIRO_VERSION_MAJOR ##### -->
 <para>
-
+The major component of the version of cairo available at compile-time.
 </para>
 
 
 
 <!-- ##### MACRO CAIRO_VERSION_MINOR ##### -->
 <para>
-
+The minor component of the version of cairo available at compile-time.
 </para>
 
 
 
 <!-- ##### MACRO CAIRO_VERSION_MICRO ##### -->
 <para>
-
+The micro component of the version of cairo available at compile-time.
 </para>
 
 
 
 <!-- ##### MACRO CAIRO_VERSION_STRING ##### -->
 <para>
-
+A human-readable string literal containing the version of cairo available
+at compile-time, in the form of "X.Y.Z".
 </para>
 
 
 
 <!-- ##### MACRO CAIRO_VERSION_ENCODE ##### -->
 <para>
-
+This macro encodes the given cairo version into an integer.  The numbers
+returned by %CAIRO_VERSION and cairo_version() are encoded using this macro.
+Two encoded version numbers can be compared as integers.  The encoding ensures
+that later versions compare greater than earlier versions.
 </para>
 
-@major: 
-@minor: 
-@micro: 
+@major: the major component of the version number
+@minor: the minor component of the version number
+@micro: the micro component of the version number
 
 
 <!-- ##### FUNCTION cairo_version ##### -->

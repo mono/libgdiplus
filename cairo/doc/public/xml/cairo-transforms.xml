@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Transformations">
 <refmeta>
-<refentrytitle id="top_of_page">Transformations</refentrytitle>
+<refentrytitle role="top_of_page">Transformations</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -61,15 +61,15 @@
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-translate" role="function"/>cairo_translate ()</title>
 <indexterm><primary>cairo_translate</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_translate                 (<link linkend="cairo-t">cairo_t</link> *cr,

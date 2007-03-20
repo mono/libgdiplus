@@ -22,7 +22,6 @@ Rendering text and sets of glyphs
 
 </para>
 
-@index: 
 @x: 
 @y: 
 
@@ -99,6 +98,42 @@ Rendering text and sets of glyphs
 @options: 
 
 
+<!-- ##### FUNCTION cairo_set_font_face ##### -->
+<para>
+
+</para>
+
+@cr: 
+@font_face: 
+
+
+<!-- ##### FUNCTION cairo_get_font_face ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_set_scaled_font ##### -->
+<para>
+
+</para>
+
+@cr: 
+@scaled_font: 
+
+
+<!-- ##### FUNCTION cairo_get_scaled_font ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
+
+
 <!-- ##### FUNCTION cairo_show_text ##### -->
 <para>
 
@@ -118,15 +153,6 @@ Rendering text and sets of glyphs
 @num_glyphs: 
 
 
-<!-- ##### FUNCTION cairo_get_font_face ##### -->
-<para>
-
-</para>
-
-@cr: 
-@Returns: 
-
-
 <!-- ##### FUNCTION cairo_font_extents ##### -->
 <para>
 
@@ -134,24 +160,6 @@ Rendering text and sets of glyphs
 
 @cr: 
 @extents: 
-
-
-<!-- ##### FUNCTION cairo_set_font_face ##### -->
-<para>
-
-</para>
-
-@cr: 
-@font_face: 
-
-
-<!-- ##### FUNCTION cairo_set_scaled_font ##### -->
-<para>
-
-</para>
-
-@cr: 
-@scaled_font: 
 
 
 <!-- ##### FUNCTION cairo_text_extents ##### -->

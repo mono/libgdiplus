@@ -1,5 +1,8 @@
 font_subset_sources =				\
+	cairo-cff-subset.c			\
 	cairo-truetype-subset.c			\
+	cairo-type1-fallback.c			\
+	cairo-type1-private.h			\
 	cairo-truetype-subset-private.h		\
 	cairo-scaled-font-subsets.c		\
 	cairo-scaled-font-subsets-private.h
@@ -18,7 +21,7 @@ endif
 
 if CAIRO_HAS_PDF_SURFACE
 libcairo_pdf_headers = cairo-pdf.h
-libcairo_pdf_sources = cairo-pdf-surface.c cairo-pdf-test.h
+libcairo_pdf_sources = cairo-pdf-surface.c cairo-deflate-stream.c cairo-pdf-test.h
 libcairo_font_subset_sources =	$(font_subset_sources)
 backend_pkgconfigs += cairo-pdf.pc
 endif
@@ -52,29 +55,38 @@ libcairo_xlib_xrender_headers = cairo-xlib-xrender.h
 backend_pkgconfigs += cairo-xlib-xrender.pc
 endif
 
-if CAIRO_HAS_QUARTZ_SURFACE
-# libcairo_quartz_headers = cairo-quartz.h
-libcairo_quartz_sources = cairo-quartz-surface.c cairo-quartz-private.h cairo-quartz.h
-backend_pkgconfigs += cairo-quartz.pc
-endif
-
 if CAIRO_HAS_XCB_SURFACE
 libcairo_xcb_headers = cairo-xcb.h cairo-xcb-xrender.h
 libcairo_xcb_sources = cairo-xcb-surface.c
 backend_pkgconfigs += cairo-xcb.pc
 endif
 
+if CAIRO_HAS_QUARTZ_SURFACE
+# libcairo_quartz_headers = cairo-quartz.h
+libcairo_quartz_sources = cairo-quartz-surface.c cairo-quartz-private.h cairo-quartz.h
+backend_pkgconfigs += cairo-quartz.pc
+endif
+
+if OS_WIN32
+export_symbols = -export-symbols cairo.def
+cairo_def_dependency = cairo.def
+endif
+
 libcairo_win32_sources =
 if CAIRO_HAS_WIN32_SURFACE
 libcairo_win32_headers = cairo-win32.h
 libcairo_win32_sources += cairo-win32-surface.c cairo-win32-private.h
-export_symbols = -export-symbols cairo.def
-cairo_def_dependency = cairo.def
 backend_pkgconfigs += cairo-win32.pc
 endif
 # This is not really a separate conditional.  Is TRUE iff the previous one is.
 if CAIRO_HAS_WIN32_FONT
 libcairo_win32_sources += cairo-win32-font.c
+endif
+
+libcairo_os2_sources =
+if CAIRO_HAS_OS2_SURFACE
+libcairo_os2_headers = cairo-os2.h
+libcairo_os2_sources += cairo-os2-surface.c cairo-os2-private.h
 endif
 
 libcairo_beos_sources =
@@ -120,8 +132,6 @@ endif
 FONTCONFIG_LIBS=@FONTCONFIG_LIBS@
 XRENDER_LIBS=@XRENDER_LIBS@
 
-BUILT_SOURCES = cairo-features.h
-
 cairo_headers =				\
 	cairo.h				\
 	$(libcairo_atsui_headers)	\
@@ -132,6 +142,7 @@ cairo_headers =				\
 	$(libcairo_ps_headers)		\
 	$(libcairo_quartz_headers)	\
 	$(libcairo_win32_headers)	\
+	$(libcairo_os2_headers)		\
 	$(libcairo_beos_headers)	\
 	$(libcairo_xcb_headers)		\
 	$(libcairo_xlib_headers)	\
@@ -140,8 +151,11 @@ cairo_headers =				\
 
 #cairoincludedir = $(includedir)/cairo
 headers =			\
-	cairo-features.h		\
+	cairo-deprecated.h		\
 	$(cairo_headers)
+
+nodist_headers =		\
+	cairo-features.h
 
 noinst_LTLIBRARIES = libcairo.la
 
@@ -153,6 +167,7 @@ libcairo_la_SOURCES =				\
 	cairo-arc-private.h			\
 	cairo-array.c				\
 	cairo-base85-stream.c			\
+	cairo-bentley-ottmann.c			\
 	cairo-cache.c				\
 	cairo-cache-private.h			\
 	cairo-clip.c				\
@@ -162,6 +177,8 @@ libcairo_la_SOURCES =				\
 	cairo-fixed.c				\
 	cairo-font.c				\
 	cairo-font-options.c			\
+	cairo-freelist.c			\
+	cairo-freelist-private.h		\
 	cairo-gstate.c				\
 	cairo-gstate-private.h			\
 	cairo-hash.c				\
@@ -172,10 +189,10 @@ libcairo_la_SOURCES =				\
 	cairo-matrix.c				\
 	cairo-operator.c			\
 	cairo-path.c				\
+	cairo-path-private.h			\
 	cairo-path-bounds.c			\
-	cairo-path-data.c			\
-	cairo-path-data-private.h		\
 	cairo-path-fill.c			\
+	cairo-path-fixed.c			\
 	cairo-path-fixed-private.h		\
 	cairo-path-stroke.c			\
 	cairo-pen.c				\
@@ -184,6 +201,8 @@ libcairo_la_SOURCES =				\
 	cairo-region.c				\
 	cairo-scaled-font.c			\
 	cairo-scaled-font-test.h		\
+	cairo-skiplist.c			\
+	cairo-skiplist-private.h		\
 	cairo-slope.c				\
 	cairo-spline.c				\
 	cairo-stroke-style.c			\
@@ -212,10 +231,11 @@ libcairo_la_SOURCES =				\
 	$(libcairo_test_sources)		\
 	$(libcairo_font_subset_sources)		\
 	$(libcairo_xlib_sources)		\
-	$(libcairo_quartz_sources)		\
 	$(libcairo_xcb_sources)			\
+	$(libcairo_quartz_sources)		\
 	$(libcairo_glitz_sources)		\
 	$(libcairo_win32_sources)		\
+	$(libcairo_os2_sources)			\
 	$(libcairo_directfb_sources)		\
 	cairoint.h
 
@@ -237,9 +257,11 @@ $(backend_pkgconfigs): $(top_srcdir)/configure
 $(top_builddir)/config.h: $(top_srcdir)/config.h.in
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) config.h
 
+DISTCLEANFILES += cairo-features.h
 cairo-features.h:
 	cd $(top_builddir) && ./config.status src/cairo-features.h
 
+CLEANFILES = cairo.def
 cairo.def: $(cairoinclude_HEADERS)
 	@echo Generating $@
 	@(echo EXPORTS; \
@@ -266,5 +288,3 @@ install-data-local:
 TESTS_ENVIRONMENT = srcdir="$(srcdir)"
 TESTS = check-def.sh check-plt.sh check-headers.sh
 EXTRA_DIST += $(TESTS)
-
-CLEANFILES = cairo.def cairo-features.h

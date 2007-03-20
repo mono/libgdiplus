@@ -7,7 +7,7 @@ status=0
 
 echo Checking public headers for missing cairo_public decorators
 
-find "$srcdir" -name '*.h' -not -name '*-private.h' -not -name '*-test.h' -not -name 'cairoint.h' |
+find "$srcdir" -name '*.h' ! -name '*-private.h' ! -name '*-test.h' ! -name 'cairoint.h' |
 xargs grep -B 1 '^cairo_.*[ 	]\+(' |
 awk '
 /^--$/ { context=""; public=0; next; }

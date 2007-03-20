@@ -28,9 +28,9 @@
 #include "cairo-test.h"
 #include <stdio.h>
 
-#define WIDTH 64
-#define HEIGHT 64
-#define PAD 10
+#define WIDTH 16
+#define HEIGHT 16
+#define PAD 2
 
 const char	png_filename[]	= "romedalen.png";
 

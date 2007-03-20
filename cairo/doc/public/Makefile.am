@@ -18,43 +18,31 @@ DOC_SOURCE_DIR=../../src
 HFILE_GLOB=$(top_srcdir)/src/*.h
 CFILE_GLOB=$(top_srcdir)/src/*.c $(top_srcdir)/src/*.h
 
-# Headers to ignore
-IGNORE_HFILES=					\
-	cairo-analysis-surface-private.h	\
-	cairo-arc-private.h			\
-	cairo-cache-private.h			\
-	cairo-clip-private.h			\
-	cairo-font-subset-private.h		\
-	cairo-ft-private.h			\
-	cairo-gstate-private.h			\
-	cairo-hash-private.h			\
-	cairo-meta-surface-private.h		\
-	cairo-output-stream-private.h		\
-	cairo-paginated-surface-private.h	\
-	cairo-path-data-private.h		\
-	cairo-path-fixed-private.h		\
-	cairo-private.h				\
-	cairo-quartz-private.h			\
-	cairo-scaled-font-subsets-private.h	\
-	cairo-surface-fallback-private.h	\
-	cairo-wideint-private.h			\
-	cairo-win32-private.h			\
-	cairo-xlib-private.h			\
-	cairo-pdf-test.h			\
-	cairo-ps-test.h				\
-	cairo-scaled-font-test.h		\
-	cairo-svg-test.h			\
-	cairo-truetype-subset-private.h		\
-	cairo-xlib-test.h			\
-	cairoint.h				\
-	cairo-atsui.h				\
-	cairo-beos.h				\
-	cairo-directfb.h			\
-	cairo-glitz.h				\
-	cairo-quartz.h				\
-	cairo-xcb.h				\
+include $(srcdir)/Headers.mk
+
+UNSUPPORTED_HFILES=		\
+	cairo-atsui.h		\
+	cairo-beos.h		\
+	cairo-directfb.h	\
+	cairo-glitz.h		\
+	cairo-os2.h		\
+	cairo-quartz.h		\
+	cairo-xcb.h		\
 	cairo-xcb-xrender.h
 
+# Headers to ignore
+IGNORE_HFILES=					\
+	$(PRIVATE_TEST_HFILES)			\
+	$(UNSUPPORTED_HFILES)
+
+Headers.mk:
+	( echo "PRIVATE_TEST_HFILES = \\"; \
+	find $(top_srcdir)/src \
+		-name '*-private.h' -o \
+		-name '*-test.h' | \
+	sed 's@.*/@	@; s@$$@ \\@'; \
+	echo '	cairoint.h' ) > $@.tmp
+	mv $@.tmp $@
 
 # CFLAGS and LDFLAGS for compiling scan program. Only needed
 # if $(DOC_MODULE).types is non-empty.

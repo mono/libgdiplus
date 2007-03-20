@@ -112,7 +112,8 @@ main (void)
 	    break;
 	case SVG:
 	    surface = cairo_svg_surface_create (backend_filename[backend],
-						SIZE, SIZE * num_pages);
+						SIZE, SIZE);
+	    cairo_svg_surface_restrict_to_version (surface, CAIRO_SVG_VERSION_1_2);
 	    _cairo_svg_test_force_fallbacks ();
 	    break;
 	}
@@ -125,35 +126,7 @@ main (void)
 
 	    draw_with_ppi (cr, SIZE, SIZE, ppi[page]);
 
-	    /* Backend-specific means of "advancing a page" */
-	    switch (backend) {
-	    case PDF:
-	    case PS:
-		cairo_show_page (cr);
-		break;
-	    case SVG:
-		/* Since the SVG backend doesn't natively support multiple
-		 * pages, we just move further down for each logical
-		 * page, then finally do a show_page at the end. */
-		if (page < num_pages - 1) {
-		    cairo_translate (cr, 0, SIZE);
-		} else {
-		    /* XXX: The goal of this test is to show the
-		     * effect of several different fallback
-		     * resolutions in a single output document. But
-		     * since fallback_resolution only takes effect at
-		     * the time of show_page, we only get once for the
-		     * SVG backend. I'm just re-setting the first one
-		     * here so we actually get legible output.
-		     *
-		     * To fix this properly we'll need some sort of
-		     * multi-page support in the SVG backend I think.
-		     */
-		    cairo_surface_set_fallback_resolution (surface, ppi[0], ppi[0]);
-		    cairo_show_page (cr);
-		}
-		break;
-	    }
+	    cairo_show_page (cr);
 	}
 
 	status = cairo_status (cr);
@@ -171,6 +144,8 @@ main (void)
 	printf ("fallback-resolution: Please check %s to ensure it looks correct.\n",
 		backend_filename[backend]);
     }
+
+    cairo_test_fini ();
 
     return CAIRO_TEST_SUCCESS;
 }

@@ -130,5 +130,7 @@ main (void)
     printf ("svg-surface: Please check %s to make sure it looks happy.\n",
 	    filename);
 
+    cairo_test_fini ();
+
     return 0;
 }

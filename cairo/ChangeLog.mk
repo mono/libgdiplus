@@ -37,7 +37,7 @@ $(srcdir)/ChangeLog:
 	@if test -d "$(srcdir)/.git"; then \
 		version=$(CURR_CHANGELOG_VERSION); \
 		prev=$(PREV_CHANGELOG_VERSION).0; \
-		nearest_tag=`git-describe | sed 's/-[^-]*//'`; \
+		nearest_tag=`git-describe | sed 's/-.*//'`; \
 		before=$(srcdir)/ChangeLog.cache-$$prev..$$nearest_tag; \
 		after=$(srcdir)/ChangeLog.cache-$$nearest_tag..; \
 		$(MAKE) $(AM_MAKEFLAGS) $$before $$after && \
@@ -48,6 +48,8 @@ $(srcdir)/ChangeLog:
 		(echo A git checkout is required to generate $@ >&2 && \
 		 echo A git checkout is required to generate this file >> $@); \
 	fi
+
+DISTCLEANFILES += ChangeLog.cache-*
 
 ChangeLog.cache-*..: .git
 
@@ -71,12 +73,9 @@ $(srcdir)/ChangeLog.cache-% $(srcdir)/ChangeLog.pre-%:
 	  ./missing --run git-log --stat "$$spec") > $@.tmp \
 	  && mv -f $@.tmp $@ \
 	  || ($(RM) $@.tmp; \
-	      echo Failed to generate $@, your $@ may be outdated >&2; \
-	      (test -f $@ || echo git-log is required to generate this file >> $@)); \
+	      echo Failed to generate $@, your $@ may be outdated >&2); \
 	else \
-	  test -f $@ || \
-	  (echo A git checkout is required to generate $@ >&2 && \
-	  echo A git checkout is required to generate this file >> $@); \
+	  echo A git checkout is required to generate $@ >&2; \
 	fi
 
 .PHONY: changelogs ChangeLog $(srcdir)/ChangeLog

@@ -36,24 +36,19 @@ typedef struct _buffer_diff_result {
     unsigned int max_diff;
 } buffer_diff_result_t;
 
-/* Compares two image buffers.
+/* Compares two image surfaces
  *
  * Provides number of pixels changed and maximum single-channel
  * difference in result.
  *
- * Also fills in a "diff" buffer intended to visually show where the
+ * Also fills in a "diff" surface intended to visually show where the
  * images differ.
  */
 void
-buffer_diff (unsigned char *buf_a,
-	     unsigned char *buf_b,
-	     unsigned char *buf_diff,
-	     int	    width,
-	     int	    height,
-	     int	    stride_a,
-	     int	    stride_b,
-	     int	    stride_diff,
-	     buffer_diff_result_t *result);
+compare_surfaces (cairo_surface_t	*surface_a,
+		  cairo_surface_t	*surface_b,
+		  cairo_surface_t	*surface_diff,
+		  buffer_diff_result_t *result);
 
 /* Compares two image buffers ignoring the alpha channel.
  *
@@ -69,9 +64,7 @@ buffer_diff_noalpha (unsigned char *buf_a,
 		     unsigned char *buf_diff,
 		     int	    width,
 		     int	    height,
-		     int	    stride_a,
-		     int	    stride_b,
-		     int	    stride_diff,
+		     int	    stride,
 		     buffer_diff_result_t *result);
 
 /* Compares two image buffers ignoring the alpha channel. A return

@@ -26,12 +26,8 @@
 #ifndef _CAIRO_TEST_H_
 #define _CAIRO_TEST_H_
 
-#if HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include <stdio.h>
-#include <cairo.h>
+#define CAIRO_BOILERPLATE_LOG(...) cairo_test_log (__VA_ARGS__)
+#include "cairo-boilerplate.h"
 
 CAIRO_BEGIN_DECLS
 
@@ -55,13 +51,6 @@ typedef unsigned __int64 uint64_t;
 # endif
 #else
 #error Cannot find definitions for fixed-width integral types (uint8_t, uint32_t, \etc.)
-#endif
-
-#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 4)
-#define CAIRO_PRINTF_FORMAT(fmt_index, va_index) \
-	__attribute__((__format__(__printf__, fmt_index, va_index)))
-#else
-#define CAIRO_PRINTF_FORMAT(fmt_index, va_index)
 #endif
 
 #ifdef _MSC_VER
@@ -112,16 +101,20 @@ typedef struct _cairo_test {
 cairo_test_status_t
 cairo_test (cairo_test_t *test);
 
-/* cairo_test_init() and cairo_test_log() exist to help in writing
- * tests for which cairo_test() is not appropriate for one reason or
- * another. For example, some tests might not be doing any drawing at
- * all, or may need to create their own cairo_t rather than be handed
- * one by cairo_test.
+/* cairo_test_init(), cairo_test_log(), and cairo_test_fini() exist to
+ * help in writing tests for which cairo_test() is not appropriate for
+ * one reason or another. For example, some tests might not be doing
+ * any drawing at all, or may need to create their own cairo_t rather
+ * than be handed one by cairo_test.
  */
 
 /* Initialize test-specific resources, (log files, etc.) */
 void
 cairo_test_init (const char *test_name);
+
+/* Finalize test-specific resource. */
+void
+cairo_test_fini (void);
 
 /* Print a message to the log file, ala printf. */
 void
@@ -139,16 +132,6 @@ cairo_test_create_pattern_from_png (const char *filename);
 
 cairo_status_t
 cairo_test_paint_checkered (cairo_t *cr);
-
-void
-xasprintf (char **strp, const char *fmt, ...) CAIRO_PRINTF_FORMAT(2, 3);
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-#ifndef TRUE
-#define TRUE !FALSE
-#endif
 
 CAIRO_END_DECLS
 

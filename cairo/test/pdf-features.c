@@ -26,9 +26,6 @@
 #include <stdio.h>
 #include <cairo.h>
 #include <cairo-pdf.h>
-#if HAVE_FCFINI
-#include <fontconfig/fontconfig.h>
-#endif
 
 #include "cairo-test.h"
 
@@ -140,11 +137,7 @@ main (void)
 
     printf ("pdf-features: Please check %s to ensure it looks/prints correctly.\n", filename);
 
-    cairo_debug_reset_static_data ();
-
-#if HAVE_FCFINI
-    FcFini ();
-#endif
+    cairo_test_fini ();
 
     return CAIRO_TEST_SUCCESS;
 }

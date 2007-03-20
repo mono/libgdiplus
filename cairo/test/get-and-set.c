@@ -1,3 +1,4 @@
+/* -*- Mode: c; c-basic-offset: 4; indent-tabs-mode: t; tab-width: 8; -*- */
 /*
  * Copyright © 2005 Red Hat, Inc.
  *
@@ -43,6 +44,8 @@ typedef struct {
     cairo_line_join_t line_join;
     double miter_limit;
     cairo_matrix_t matrix;
+    double dash[5];
+    double dash_offset;
 } settings_t;
 
 /* Two sets of settings, no defaults */
@@ -55,7 +58,9 @@ settings_t settings[] = {
 	CAIRO_LINE_CAP_SQUARE,
 	CAIRO_LINE_JOIN_ROUND,
 	3.14,
-	{2.0, 0.0, 0.0, 2.0, 5.0, 5.0}
+	{2.0, 0.0, 0.0, 2.0, 5.0, 5.0},
+	{0.1, 0.2, 0.3, 0.4, 0.5},
+	2.0
     },
     {
 	CAIRO_OPERATOR_ATOP,
@@ -65,7 +70,9 @@ settings_t settings[] = {
 	CAIRO_LINE_CAP_ROUND,
 	CAIRO_LINE_JOIN_BEVEL,
 	1000.0,
-	{-3.0, 1.0, 1.0, -3.0, -4, -4}
+	{-3.0, 1.0, 1.0, -3.0, -4, -4},
+	{1.0, 2.0, 3.0, 4.0, 5.0},
+	3.0
     }
 };
 
@@ -80,11 +87,14 @@ settings_set (cairo_t *cr, settings_t *settings)
     cairo_set_line_join (cr, settings->line_join);
     cairo_set_miter_limit (cr, settings->miter_limit);
     cairo_set_matrix (cr, &settings->matrix);
+    cairo_set_dash (cr, settings->dash, 5, settings->dash_offset);
 }
 
-static void
+static int
 settings_get (cairo_t *cr, settings_t *settings)
 {
+    int count;
+
     settings->op = cairo_get_operator (cr);
     settings->tolerance = cairo_get_tolerance (cr);
     settings->fill_rule = cairo_get_fill_rule (cr);
@@ -93,6 +103,14 @@ settings_get (cairo_t *cr, settings_t *settings)
     settings->line_join = cairo_get_line_join (cr);
     settings->miter_limit = cairo_get_miter_limit (cr);
     cairo_get_matrix (cr, &settings->matrix);
+
+    count = cairo_get_dash_count (cr);
+    if (count != 5)
+	return -1;
+
+    cairo_get_dash (cr, settings->dash, &settings->dash_offset);
+
+    return 0;
 }
 
 static int
@@ -110,7 +128,9 @@ settings_equal (settings_t *a, settings_t *b)
 	    a->matrix.x0 == b->matrix.x0 &&
 	    a->matrix.yx == b->matrix.yx &&
 	    a->matrix.yy == b->matrix.yy &&
-	    a->matrix.y0 == b->matrix.y0);
+	    a->matrix.y0 == b->matrix.y0 &&
+	    memcmp(a->dash, b->dash, sizeof(a->dash)) == 0 &&
+	    a->dash_offset == b->dash_offset);
 }
 
 static cairo_test_status_t
@@ -123,14 +143,16 @@ draw (cairo_t *cr, int width, int height)
     cairo_save (cr);
     {
 	settings_set (cr, &settings[1]);
-	settings_get (cr, &check);
+	if (settings_get (cr, &check))
+	    return CAIRO_TEST_FAILURE;
 
 	if (!settings_equal (&settings[1], &check))
 	    return CAIRO_TEST_FAILURE;
     }
     cairo_restore (cr);
 
-    settings_get (cr, &check);
+    if (settings_get (cr, &check))
+	return CAIRO_TEST_FAILURE;
 
     if (!settings_equal (&settings[0], &check))
 	return CAIRO_TEST_FAILURE;

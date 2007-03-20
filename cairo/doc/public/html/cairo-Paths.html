@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Paths</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.69.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.71.0">
 <link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
 <link rel="up" href="Drawing.html" title="Drawing">
 <link rel="prev" href="cairo-cairo-t.html" title="cairo_t">
 <link rel="next" href="cairo-Patterns.html" title="Patterns">
-<meta name="generator" content="GTK-Doc V1.6 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.7 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 <link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
 <link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
@@ -18,6 +18,7 @@
 <link rel="chapter" href="Support.html" title="Utilities">
 <link rel="index" href="ix01.html" title="Index">
 <link rel="index" href="ix02.html" title="Index of new symbols in 1.2">
+<link rel="index" href="ix03.html" title="Index of new symbols in 1.4">
 <link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -29,21 +30,23 @@
 <th width="100%" align="center">Cairo: A Vector Graphics Library</th>
 <td><a accesskey="n" href="cairo-Patterns.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
-<tr><td colspan="5" class="shortcuts"><nobr><a href="#top_of_page" class="shortcut">Top</a>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2588736" class="shortcut">Top</a>
                   &#160;|&#160;
-                  <a href="#desc" class="shortcut">Description</a></nobr></td></tr>
+                  <a href="#id2597303" class="shortcut">Description</a></nobr></td></tr>
 </table>
 <div class="refentry" lang="en">
 <a name="cairo-Paths"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
-<h2><span class="refentrytitle"><a name="top_of_page"></a>Paths</span></h2>
+<h2>
+<a name="id2588736"></a><span class="refentrytitle">Paths</span>
+</h2>
 <p>Paths &#8212; Creating paths and manipulating path data</p>
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
 <div class="refsynopsisdiv">
-<a name="synopsis"></a><h2>Synopsis</h2>
+<h2>Synopsis</h2>
 <pre class="synopsis">
 
 
@@ -55,7 +58,7 @@ enum        <a href="cairo-Paths.html#cairo-path-data-type-t">cairo_path_data_ty
 <a href="cairo-Paths.html#cairo-path-t">cairo_path_t</a>* <a href="cairo-Paths.html#cairo-copy-path-flat">cairo_copy_path_flat</a>          (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);
 void        <a href="cairo-Paths.html#cairo-path-destroy">cairo_path_destroy</a>              (<a href="cairo-Paths.html#cairo-path-t">cairo_path_t</a> *path);
 void        <a href="cairo-Paths.html#cairo-append-path">cairo_append_path</a>               (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             <a href="cairo-Paths.html#cairo-path-t">cairo_path_t</a> *path);
+                                             const <a href="cairo-Paths.html#cairo-path-t">cairo_path_t</a> *path);
 void        <a href="cairo-Paths.html#cairo-get-current-point">cairo_get_current_point</a>         (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double *x,
                                              double *y);
@@ -93,7 +96,7 @@ void        <a href="cairo-Paths.html#cairo-rectangle">cairo_rectangle</a>      
                                              double width,
                                              double height);
 void        <a href="cairo-Paths.html#cairo-glyph-path">cairo_glyph_path</a>                (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             <a href="cairo-Text.html#cairo-glyph-t">cairo_glyph_t</a> *glyphs,
+                                             const <a href="cairo-Text.html#cairo-glyph-t">cairo_glyph_t</a> *glyphs,
                                              int num_glyphs);
 void        <a href="cairo-Paths.html#cairo-text-path">cairo_text_path</a>                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              const char *utf8);
@@ -113,17 +116,17 @@ void        <a href="cairo-Paths.html#cairo-rel-move-to">cairo_rel_move_to</a>  
 </pre>
 </div>
 <div class="refsect1" lang="en">
-<a name="desc"></a><h2>Description</h2>
+<a name="id2597303"></a><h2>Description</h2>
 <p>
 
 </p>
 </div>
 <div class="refsect1" lang="en">
-<a name="details"></a><h2>Details</h2>
+<a name="id2597319"></a><h2>Details</h2>
 <div class="refsect2" lang="en">
-<a name="id2694098"></a><h3>
+<a name="id2597330"></a><h3>
 <a name="cairo-path-t"></a>cairo_path_t</h3>
-<a class="indexterm" name="id2694110"></a><pre class="programlisting">typedef struct {
+<a class="indexterm" name="id2597342"></a><pre class="programlisting">typedef struct {
     cairo_status_t status;
     cairo_path_data_t *data;
     int num_data;
@@ -151,20 +154,17 @@ includes both headers and coordinates for each portion.</p>
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a>&#160;<em class="structfield"><code>status</code></em>;</span></td>
+<td><span class="term"><a href="cairo-Error-handling.html#cairo-status-t">cairo_status_t</a>&#160;<em class="structfield"><code>status</code></em>;</span></td>
 <td> the current error status
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><a href="cairo-Paths.html#cairo-path-data-t">cairo_path_data_t</a>&#160;*<em class="structfield"><code>data</code></em>;</span></td>
+<td><span class="term"><a href="cairo-Paths.html#cairo-path-data-t">cairo_path_data_t</a>&#160;*<em class="structfield"><code>data</code></em>;</span></td>
 <td> the elements in the path
 </td>
 </tr>
 <tr>
-<td>
-<span class="term">int&#160;<em class="structfield"><code>num_data</code></em>;</span></td>
+<td><span class="term">int&#160;<em class="structfield"><code>num_data</code></em>;</span></td>
 <td> the number of elements in the data array
 </td>
 </tr>
@@ -173,9 +173,9 @@ includes both headers and coordinates for each portion.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2694251"></a><h3>
+<a name="id2597483"></a><h3>
 <a name="cairo-path-data-t"></a>union cairo_path_data_t</h3>
-<a class="indexterm" name="id2694263"></a><pre class="programlisting">union cairo_path_data_t {
+<a class="indexterm" name="id2597496"></a><pre class="programlisting">union cairo_path_data_t {
     struct {
 	cairo_path_data_type_t type;
 	int length;
@@ -199,16 +199,15 @@ Each portion of the path is represented by one or more elements in
 the array, (one header followed by 0 or more points). The length
 value of the header is the number of array elements for the current
 portion including the header, (ie. length == 1 + # of points), and
-where the number of points for each element type must be as
-follows:
+where the number of points for each element type is as follows:
 </p>
 <p>
 </p>
 <pre class="programlisting">
-    <code class="literal">CAIRO_PATH_MOVE_TO</code>:     1 point
-    <code class="literal">CAIRO_PATH_LINE_TO</code>:     1 point
-    <code class="literal">CAIRO_PATH_CURVE_TO</code>:    3 points
-    <code class="literal">CAIRO_PATH_CLOSE_PATH</code>:  0 points
+    <a href="cairo-Paths.html#CAIRO-PATH-MOVE-TO:CAPS"><code class="literal">CAIRO_PATH_MOVE_TO</code></a>:     1 point
+    <a href="cairo-Paths.html#CAIRO-PATH-LINE-TO:CAPS"><code class="literal">CAIRO_PATH_LINE_TO</code></a>:     1 point
+    <a href="cairo-Paths.html#CAIRO-PATH-CURVE-TO:CAPS"><code class="literal">CAIRO_PATH_CURVE_TO</code></a>:    3 points
+    <a href="cairo-Paths.html#CAIRO-PATH-CLOSE-PATH:CAPS"><code class="literal">CAIRO_PATH_CLOSE_PATH</code></a>:  0 points
 </pre>
 <p>
 </p>
@@ -251,14 +250,24 @@ Here is sample code for iterating through a <span class="type">cairo_path_t:</sp
      cairo_path_destroy (path);
 </pre></div>
 <p>
+</p>
+<p>
+As of cairo 1.4, cairo does not mind if there are more elements in
+a portion of the path than needed.  Such elements can be used by
+users of the cairo API to hold extra values in the path data
+structure.  For this reason, it is recommended that applications
+always use <code class="literal">data-&gt;header.length</code> to
+iterate over the path data, instead of hardcoding the number of
+elements for each element type.</p>
+<p>
 
 </p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2687197"></a><h3>
+<a name="id2552974"></a><h3>
 <a name="cairo-path-data-type-t"></a>enum cairo_path_data_type_t</h3>
-<a class="indexterm" name="id2687525"></a><pre class="programlisting">typedef enum _cairo_path_data_type {
+<a class="indexterm" name="id2552985"></a><pre class="programlisting">typedef enum _cairo_path_data_type {
     CAIRO_PATH_MOVE_TO,
     CAIRO_PATH_LINE_TO,
     CAIRO_PATH_CURVE_TO,
@@ -266,14 +275,43 @@ Here is sample code for iterating through a <span class="type">cairo_path_t:</sp
 } cairo_path_data_type_t;
 </pre>
 <p>
+<a href="cairo-Paths.html#cairo-path-data-t"><span class="type">cairo_path_data_t</span></a> is used to describe the type of one portion
+of a path when represented as a <a href="cairo-Paths.html#cairo-path-t"><span class="type">cairo_path_t</span></a>.
+See <a href="cairo-Paths.html#cairo-path-data-t"><span class="type">cairo_path_data_t</span></a> for details.</p>
+<p>
 
 </p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><span class="term"><a name="CAIRO-PATH-MOVE-TO:CAPS"></a><code class="literal">CAIRO_PATH_MOVE_TO</code></span></td>
+<td> A move-to operation
+</td>
+</tr>
+<tr>
+<td><span class="term"><a name="CAIRO-PATH-LINE-TO:CAPS"></a><code class="literal">CAIRO_PATH_LINE_TO</code></span></td>
+<td> A line-to operation
+</td>
+</tr>
+<tr>
+<td><span class="term"><a name="CAIRO-PATH-CURVE-TO:CAPS"></a><code class="literal">CAIRO_PATH_CURVE_TO</code></span></td>
+<td> A curve-to operation
+</td>
+</tr>
+<tr>
+<td><span class="term"><a name="CAIRO-PATH-CLOSE-PATH:CAPS"></a><code class="literal">CAIRO_PATH_CLOSE_PATH</code></span></td>
+<td> A close-path operation
+</td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2651295"></a><h3>
+<a name="id2553117"></a><h3>
 <a name="cairo-copy-path"></a>cairo_copy_path ()</h3>
-<a class="indexterm" name="id2651308"></a><pre class="programlisting"><a href="cairo-Paths.html#cairo-path-t">cairo_path_t</a>* cairo_copy_path               (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+<a class="indexterm" name="id2553130"></a><pre class="programlisting"><a href="cairo-Paths.html#cairo-path-t">cairo_path_t</a>* cairo_copy_path               (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
 <p>
 Creates a copy of the current path and returns it to the user as a
 <a href="cairo-Paths.html#cairo-path-t"><span class="type">cairo_path_t</span></a>. See <a href="cairo-Paths.html#cairo-path-data-t"><span class="type">cairo_path_data_t</span></a> for hints on how to iterate
@@ -308,14 +346,12 @@ In either case, <code class="literal">path-&gt;status</code> will be set to
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
 <td> the copy of the current path. The caller owns the
 returned object and should call <a href="cairo-Paths.html#cairo-path-destroy"><code class="function">cairo_path_destroy()</code></a> when finished
 with it.
@@ -326,9 +362,9 @@ with it.
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2651495"></a><h3>
+<a name="id2553313"></a><h3>
 <a name="cairo-copy-path-flat"></a>cairo_copy_path_flat ()</h3>
-<a class="indexterm" name="id2651506"></a><pre class="programlisting"><a href="cairo-Paths.html#cairo-path-t">cairo_path_t</a>* cairo_copy_path_flat          (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+<a class="indexterm" name="id2553324"></a><pre class="programlisting"><a href="cairo-Paths.html#cairo-path-t">cairo_path_t</a>* cairo_copy_path_flat          (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
 <p>
 Gets a flattened copy of the current path and returns it to the
 user as a <a href="cairo-Paths.html#cairo-path-t"><span class="type">cairo_path_t</span></a>. See <a href="cairo-Paths.html#cairo-path-data-t"><span class="type">cairo_path_data_t</span></a> for hints on
@@ -339,8 +375,8 @@ This function is like <a href="cairo-Paths.html#cairo-copy-path"><code class="fu
 in the path will be approximated with piecewise-linear
 approximations, (accurate to within the current tolerance
 value). That is, the result is guaranteed to not have any elements
-of type <code class="literal">CAIRO_PATH_CURVE_TO</code> which will instead be replaced by a
-series of <code class="literal">CAIRO_PATH_LINE_TO</code> elements.
+of type <a href="cairo-Paths.html#CAIRO-PATH-CURVE-TO:CAPS"><code class="literal">CAIRO_PATH_CURVE_TO</code></a> which will instead be replaced by a
+series of <a href="cairo-Paths.html#CAIRO-PATH-LINE-TO:CAPS"><code class="literal">CAIRO_PATH_LINE_TO</code></a> elements.
 </p>
 <p>
 This function will always return a valid pointer, but the result
@@ -365,14 +401,12 @@ conditions hold:
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
 <td> the copy of the current path. The caller owns the
 returned object and should call <a href="cairo-Paths.html#cairo-path-destroy"><code class="function">cairo_path_destroy()</code></a> when finished
 with it.
@@ -383,9 +417,9 @@ with it.
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2651703"></a><h3>
+<a name="id2553518"></a><h3>
 <a name="cairo-path-destroy"></a>cairo_path_destroy ()</h3>
-<a class="indexterm" name="id2651715"></a><pre class="programlisting">void        cairo_path_destroy              (<a href="cairo-Paths.html#cairo-path-t">cairo_path_t</a> *path);</pre>
+<a class="indexterm" name="id2553530"></a><pre class="programlisting">void        cairo_path_destroy              (<a href="cairo-Paths.html#cairo-path-t">cairo_path_t</a> *path);</pre>
 <p>
 Immediately releases all memory associated with <em class="parameter"><code>path</code></em>. After a call
 to <a href="cairo-Paths.html#cairo-path-destroy"><code class="function">cairo_path_destroy()</code></a> the <em class="parameter"><code>path</code></em> pointer is no longer valid and
@@ -402,8 +436,7 @@ manually as well.</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody><tr>
-<td>
-<span class="term"><em class="parameter"><code>path</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>path</code></em>&#160;:</span></td>
 <td> a path previously returned by either <a href="cairo-Paths.html#cairo-copy-path"><code class="function">cairo_copy_path()</code></a> or
 <a href="cairo-Paths.html#cairo-copy-path-flat"><code class="function">cairo_copy_path_flat()</code></a>.
 </td>
@@ -412,10 +445,10 @@ manually as well.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2651819"></a><h3>
+<a name="id2553634"></a><h3>
 <a name="cairo-append-path"></a>cairo_append_path ()</h3>
-<a class="indexterm" name="id2651832"></a><pre class="programlisting">void        cairo_append_path               (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             <a href="cairo-Paths.html#cairo-path-t">cairo_path_t</a> *path);</pre>
+<a class="indexterm" name="id2553647"></a><pre class="programlisting">void        cairo_append_path               (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             const <a href="cairo-Paths.html#cairo-path-t">cairo_path_t</a> *path);</pre>
 <p>
 Append the <em class="parameter"><code>path</code></em> onto the current path. The <em class="parameter"><code>path</code></em> may be either the
 return value from one of <a href="cairo-Paths.html#cairo-copy-path"><code class="function">cairo_copy_path()</code></a> or
@@ -430,14 +463,12 @@ initialized to <a href="cairo-Error-handling.html#CAIRO-STATUS-SUCCESS:CAPS"><co
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>path</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>path</code></em>&#160;:</span></td>
 <td> path to be appended
 </td>
 </tr>
@@ -446,9 +477,9 @@ initialized to <a href="cairo-Error-handling.html#CAIRO-STATUS-SUCCESS:CAPS"><co
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2651956"></a><h3>
+<a name="id2553772"></a><h3>
 <a name="cairo-get-current-point"></a>cairo_get_current_point ()</h3>
-<a class="indexterm" name="id2651968"></a><pre class="programlisting">void        cairo_get_current_point         (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2553783"></a><pre class="programlisting">void        cairo_get_current_point         (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double *x,
                                              double *y);</pre>
 <p>
@@ -476,20 +507,17 @@ following for details on how they affect the current point:
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>x</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>x</code></em>&#160;:</span></td>
 <td> return value for X coordinate of the current point
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>y</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>y</code></em>&#160;:</span></td>
 <td> return value for Y coordinate of the current point
 </td>
 </tr>
@@ -498,9 +526,9 @@ following for details on how they affect the current point:
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2652191"></a><h3>
+<a name="id2554007"></a><h3>
 <a name="cairo-new-path"></a>cairo_new_path ()</h3>
-<a class="indexterm" name="id2652204"></a><pre class="programlisting">void        cairo_new_path                  (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+<a class="indexterm" name="id2554019"></a><pre class="programlisting">void        cairo_new_path                  (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
 <p>
 Clears the current path. After this call there will be no path and
 no current point.</p>
@@ -510,8 +538,7 @@ no current point.</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody><tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr></tbody>
@@ -519,9 +546,9 @@ no current point.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2652255"></a><h3>
+<a name="id2554069"></a><h3>
 <a name="cairo-new-sub-path"></a>cairo_new_sub_path ()</h3>
-<a class="indexterm" name="id2652270"></a><pre class="programlisting">void        cairo_new_sub_path              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+<a class="indexterm" name="id2554083"></a><pre class="programlisting">void        cairo_new_sub_path              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
 <p>
 Begin a new sub-path. Note that the existing path is not
 affected. After this call there will be no current point.
@@ -542,8 +569,7 @@ compute the arc's initial coordinates for a call to
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody><tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr></tbody>
@@ -553,9 +579,9 @@ compute the arc's initial coordinates for a call to
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2652375"></a><h3>
+<a name="id2554187"></a><h3>
 <a name="cairo-close-path"></a>cairo_close_path ()</h3>
-<a class="indexterm" name="id2652387"></a><pre class="programlisting">void        cairo_close_path                (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
+<a class="indexterm" name="id2554200"></a><pre class="programlisting">void        cairo_close_path                (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr);</pre>
 <p>
 Adds a line segment to the path from the current point to the
 beginning of the current sub-path, (the most recent point passed to
@@ -587,8 +613,7 @@ point.</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody><tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr></tbody>
@@ -596,9 +621,9 @@ point.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2652502"></a><h3>
+<a name="id2554314"></a><h3>
 <a name="cairo-arc"></a>cairo_arc ()</h3>
-<a class="indexterm" name="id2652514"></a><pre class="programlisting">void        cairo_arc                       (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2554326"></a><pre class="programlisting">void        cairo_arc                       (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double xc,
                                              double yc,
                                              double radius,
@@ -655,38 +680,32 @@ cairo_restore (cr);
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>xc</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>xc</code></em>&#160;:</span></td>
 <td> X position of the center of the arc
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>yc</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>yc</code></em>&#160;:</span></td>
 <td> Y position of the center of the arc
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>radius</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>radius</code></em>&#160;:</span></td>
 <td> the radius of the arc
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>angle1</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>angle1</code></em>&#160;:</span></td>
 <td> the start angle, in radians
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>angle2</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>angle2</code></em>&#160;:</span></td>
 <td> the end angle, in radians
 </td>
 </tr>
@@ -695,9 +714,9 @@ cairo_restore (cr);
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2652813"></a><h3>
+<a name="id2554625"></a><h3>
 <a name="cairo-arc-negative"></a>cairo_arc_negative ()</h3>
-<a class="indexterm" name="id2652826"></a><pre class="programlisting">void        cairo_arc_negative              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2554638"></a><pre class="programlisting">void        cairo_arc_negative              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double xc,
                                              double yc,
                                              double radius,
@@ -720,38 +739,32 @@ direction of the arc between the two angles.</p>
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>xc</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>xc</code></em>&#160;:</span></td>
 <td> X position of the center of the arc
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>yc</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>yc</code></em>&#160;:</span></td>
 <td> Y position of the center of the arc
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>radius</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>radius</code></em>&#160;:</span></td>
 <td> the radius of the arc
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>angle1</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>angle1</code></em>&#160;:</span></td>
 <td> the start angle, in radians
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>angle2</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>angle2</code></em>&#160;:</span></td>
 <td> the end angle, in radians
 </td>
 </tr>
@@ -760,9 +773,9 @@ direction of the arc between the two angles.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2653045"></a><h3>
+<a name="id2554856"></a><h3>
 <a name="cairo-curve-to"></a>cairo_curve_to ()</h3>
-<a class="indexterm" name="id2653058"></a><pre class="programlisting">void        cairo_curve_to                  (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2554868"></a><pre class="programlisting">void        cairo_curve_to                  (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double x1,
                                              double y1,
                                              double x2,
@@ -786,44 +799,37 @@ cairo_move_to (<em class="parameter"><code>cr</code></em>, <em class="parameter"
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>x1</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>x1</code></em>&#160;:</span></td>
 <td> the X coordinate of the first control point
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>y1</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>y1</code></em>&#160;:</span></td>
 <td> the Y coordinate of the first control point
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>x2</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>x2</code></em>&#160;:</span></td>
 <td> the X coordinate of the second control point
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>y2</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>y2</code></em>&#160;:</span></td>
 <td> the Y coordinate of the second control point
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>x3</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>x3</code></em>&#160;:</span></td>
 <td> the X coordinate of the end of the curve
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>y3</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>y3</code></em>&#160;:</span></td>
 <td> the Y coordinate of the end of the curve
 </td>
 </tr>
@@ -832,9 +838,9 @@ cairo_move_to (<em class="parameter"><code>cr</code></em>, <em class="parameter"
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2653321"></a><h3>
+<a name="id2555131"></a><h3>
 <a name="cairo-line-to"></a>cairo_line_to ()</h3>
-<a class="indexterm" name="id2653333"></a><pre class="programlisting">void        cairo_line_to                   (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2555143"></a><pre class="programlisting">void        cairo_line_to                   (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double x,
                                              double y);</pre>
 <p>
@@ -852,20 +858,17 @@ this function will behave as cairo_move_to (<em class="parameter"><code>cr</code
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>x</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>x</code></em>&#160;:</span></td>
 <td> the X coordinate of the end of the new line
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>y</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>y</code></em>&#160;:</span></td>
 <td> the Y coordinate of the end of the new line
 </td>
 </tr>
@@ -874,9 +877,9 @@ this function will behave as cairo_move_to (<em class="parameter"><code>cr</code
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2653485"></a><h3>
+<a name="id2555295"></a><h3>
 <a name="cairo-move-to"></a>cairo_move_to ()</h3>
-<a class="indexterm" name="id2653497"></a><pre class="programlisting">void        cairo_move_to                   (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2555307"></a><pre class="programlisting">void        cairo_move_to                   (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double x,
                                              double y);</pre>
 <p>
@@ -889,20 +892,17 @@ Begin a new sub-path. After this call the current point will be (<em class="para
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>x</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>x</code></em>&#160;:</span></td>
 <td> the X coordinate of the new position
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>y</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>y</code></em>&#160;:</span></td>
 <td> the Y coordinate of the new position
 </td>
 </tr>
@@ -911,9 +911,9 @@ Begin a new sub-path. After this call the current point will be (<em class="para
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2653603"></a><h3>
+<a name="id2555413"></a><h3>
 <a name="cairo-rectangle"></a>cairo_rectangle ()</h3>
-<a class="indexterm" name="id2653615"></a><pre class="programlisting">void        cairo_rectangle                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2555425"></a><pre class="programlisting">void        cairo_rectangle                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double x,
                                              double y,
                                              double width,
@@ -939,32 +939,27 @@ cairo_close_path (cr);
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>x</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>x</code></em>&#160;:</span></td>
 <td> the X coordinate of the top left corner of the rectangle
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>y</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>y</code></em>&#160;:</span></td>
 <td> the Y coordinate to the top left corner of the rectangle
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>width</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>width</code></em>&#160;:</span></td>
 <td> the width of the rectangle
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>height</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>height</code></em>&#160;:</span></td>
 <td> the height of the rectangle
 </td>
 </tr>
@@ -973,46 +968,15 @@ cairo_close_path (cr);
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2653777"></a><h3>
+<a name="id2555586"></a><h3>
 <a name="cairo-glyph-path"></a>cairo_glyph_path ()</h3>
-<a class="indexterm" name="id2653790"></a><pre class="programlisting">void        cairo_glyph_path                (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             <a href="cairo-Text.html#cairo-glyph-t">cairo_glyph_t</a> *glyphs,
+<a class="indexterm" name="id2555598"></a><pre class="programlisting">void        cairo_glyph_path                (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             const <a href="cairo-Text.html#cairo-glyph-t">cairo_glyph_t</a> *glyphs,
                                              int num_glyphs);</pre>
 <p>
-
-</p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
-<td>
-</td>
-</tr>
-<tr>
-<td>
-<span class="term"><em class="parameter"><code>glyphs</code></em>&#160;:</span></td>
-<td>
-</td>
-</tr>
-<tr>
-<td>
-<span class="term"><em class="parameter"><code>num_glyphs</code></em>&#160;:</span></td>
-<td>
-
-
-</td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<hr>
-<div class="refsect2" lang="en">
-<a name="id2706360"></a><h3>
-<a name="cairo-text-path"></a>cairo_text_path ()</h3>
-<a class="indexterm" name="id2706370"></a><pre class="programlisting">void        cairo_text_path                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
-                                             const char *utf8);</pre>
+Adds closed paths for the glyphs to the current path.  The generated
+path if filled, achieves an effect similar to that of
+<a href="cairo-Text.html#cairo-show-glyphs"><code class="function">cairo_show_glyphs()</code></a>.</p>
 <p>
 
 </p>
@@ -1020,17 +984,18 @@ cairo_close_path (cr);
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
-<td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td> a cairo context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>utf8</code></em>&#160;:</span></td>
-<td>
-
-
+<td><span class="term"><em class="parameter"><code>glyphs</code></em>&#160;:</span></td>
+<td> array of glyphs to show
+</td>
+</tr>
+<tr>
+<td><span class="term"><em class="parameter"><code>num_glyphs</code></em>&#160;:</span></td>
+<td> number of glyphs to show
 </td>
 </tr>
 </tbody>
@@ -1038,9 +1003,56 @@ cairo_close_path (cr);
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2706430"></a><h3>
+<a name="id2555702"></a><h3>
+<a name="cairo-text-path"></a>cairo_text_path ()</h3>
+<a class="indexterm" name="id2555714"></a><pre class="programlisting">void        cairo_text_path                 (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+                                             const char *utf8);</pre>
+<p>
+Adds closed paths for text to the current path.  The generated
+path if filled, achieves an effect similar to that of
+<a href="cairo-Text.html#cairo-show-text"><code class="function">cairo_show_text()</code></a>.
+</p>
+<p>
+Text conversion and positioning is done similar to <a href="cairo-Text.html#cairo-show-text"><code class="function">cairo_show_text()</code></a>.
+</p>
+<p>
+Like <a href="cairo-Text.html#cairo-show-text"><code class="function">cairo_show_text()</code></a>, After this call the current point is
+moved to the origin of where the next glyph would be placed in
+this same progression.  That is, the current point will be at
+the origin of the final glyph offset by its advance values.
+This allows for chaining multiple calls to to <a href="cairo-Paths.html#cairo-text-path"><code class="function">cairo_text_path()</code></a>
+without having to set current point in between.
+</p>
+<p>
+NOTE: The <a href="cairo-Paths.html#cairo-text-path"><code class="function">cairo_text_path()</code></a> function call is part of what the cairo
+designers call the "toy" text API. It is convenient for short demos
+and simple programs, but it is not expected to be adequate for
+serious text-using applications. See <a href="cairo-Paths.html#cairo-glyph-path"><code class="function">cairo_glyph_path()</code></a> for the
+"real" text path API in cairo.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td> a cairo context
+</td>
+</tr>
+<tr>
+<td><span class="term"><em class="parameter"><code>utf8</code></em>&#160;:</span></td>
+<td> a string of text encoded in UTF-8
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2555866"></a><h3>
 <a name="cairo-rel-curve-to"></a>cairo_rel_curve_to ()</h3>
-<a class="indexterm" name="id2706440"></a><pre class="programlisting">void        cairo_rel_curve_to              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2555878"></a><pre class="programlisting">void        cairo_rel_curve_to              (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double dx1,
                                              double dy1,
                                              double dx2,
@@ -1072,44 +1084,37 @@ CAIRO_STATUS_NO_CURRENT_POINT.</p>
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>dx1</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>dx1</code></em>&#160;:</span></td>
 <td> the X offset to the first control point
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>dy1</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>dy1</code></em>&#160;:</span></td>
 <td> the Y offset to the first control point
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>dx2</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>dx2</code></em>&#160;:</span></td>
 <td> the X offset to the second control point
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>dy2</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>dy2</code></em>&#160;:</span></td>
 <td> the Y offset to the second control point
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>dx3</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>dx3</code></em>&#160;:</span></td>
 <td> the X offset to the end of the curve
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>dy3</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>dy3</code></em>&#160;:</span></td>
 <td> the Y offset to the end of the curve
 </td>
 </tr>
@@ -1118,9 +1123,9 @@ CAIRO_STATUS_NO_CURRENT_POINT.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2706745"></a><h3>
+<a name="id2556219"></a><h3>
 <a name="cairo-rel-line-to"></a>cairo_rel_line_to ()</h3>
-<a class="indexterm" name="id2706756"></a><pre class="programlisting">void        cairo_rel_line_to               (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2556231"></a><pre class="programlisting">void        cairo_rel_line_to               (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double dx,
                                              double dy);</pre>
 <p>
@@ -1144,20 +1149,17 @@ CAIRO_STATUS_NO_CURRENT_POINT.</p>
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>dx</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>dx</code></em>&#160;:</span></td>
 <td> the X offset to the end of the new line
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>dy</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>dy</code></em>&#160;:</span></td>
 <td> the Y offset to the end of the new line
 </td>
 </tr>
@@ -1166,9 +1168,9 @@ CAIRO_STATUS_NO_CURRENT_POINT.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2706919"></a><h3>
+<a name="id2556413"></a><h3>
 <a name="cairo-rel-move-to"></a>cairo_rel_move_to ()</h3>
-<a class="indexterm" name="id2706929"></a><pre class="programlisting">void        cairo_rel_move_to               (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
+<a class="indexterm" name="id2556426"></a><pre class="programlisting">void        cairo_rel_move_to               (<a href="cairo-cairo-t.html#cairo-t">cairo_t</a> *cr,
                                              double dx,
                                              double dy);</pre>
 <p>
@@ -1190,20 +1192,17 @@ CAIRO_STATUS_NO_CURRENT_POINT.</p>
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>cr</code></em>&#160;:</span></td>
 <td> a cairo context
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>dx</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>dx</code></em>&#160;:</span></td>
 <td> the X offset
 </td>
 </tr>
 <tr>
-<td>
-<span class="term"><em class="parameter"><code>dy</code></em>&#160;:</span></td>
+<td><span class="term"><em class="parameter"><code>dy</code></em>&#160;:</span></td>
 <td> the Y offset
 </td>
 </tr>

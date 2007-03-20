@@ -448,7 +448,7 @@ _cairo_pen_stroke_spline (cairo_pen_t		*pen,
 	return status;
 
     _cairo_polygon_close (&polygon);
-    _cairo_traps_tessellate_polygon (traps, &polygon, CAIRO_FILL_RULE_WINDING);
+    _cairo_bentley_ottmann_tessellate_polygon (traps, &polygon, CAIRO_FILL_RULE_WINDING);
     _cairo_polygon_fini (&polygon);
 
     return CAIRO_STATUS_SUCCESS;

@@ -5,7 +5,7 @@
 ]>
 <refentry id="cairo-Scaled-Fonts">
 <refmeta>
-<refentrytitle id="top_of_page">Scaled Fonts</refentrytitle>
+<refentrytitle role="top_of_page">Scaled Fonts</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
@@ -16,8 +16,8 @@
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
-<refsynopsisdiv id="synopsis">
-<title id="synopsis.title">Synopsis</title>
+<refsynopsisdiv role="synopsis">
+<title role="synopsis.title">Synopsis</title>
 
 <synopsis>
 
@@ -41,7 +41,7 @@ typedef     <link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link>;
                                              const <link linkend="char">char</link> *utf8,
                                              <link linkend="cairo-text-extents-t">cairo_text_extents_t</link> *extents);
 <link linkend="void">void</link>        <link linkend="cairo-scaled-font-glyph-extents">cairo_scaled_font_glyph_extents</link> (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
-                                             <link linkend="cairo-glyph-t">cairo_glyph_t</link> *glyphs,
+                                             const <link linkend="cairo-glyph-t">cairo_glyph_t</link> *glyphs,
                                              <link linkend="int">int</link> num_glyphs,
                                              <link linkend="cairo-text-extents-t">cairo_text_extents_t</link> *extents);
 <link linkend="cairo-font-face-t">cairo_font_face_t</link>* <link linkend="cairo-scaled-font-get-font-face">cairo_scaled_font_get_font_face</link>
@@ -56,6 +56,15 @@ typedef     <link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link>;
                                              <link linkend="cairo-matrix-t">cairo_matrix_t</link> *ctm);
 <link linkend="cairo-font-type-t">cairo_font_type_t</link> <link linkend="cairo-scaled-font-get-type">cairo_scaled_font_get_type</link>
                                             (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);
+unsigned <link linkend="int">int</link> <link linkend="cairo-scaled-font-get-reference-count">cairo_scaled_font_get_reference_count</link>
+                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);
+<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-scaled-font-set-user-data">cairo_scaled_font_set_user_data</link>
+                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
+                                             <link linkend="void">void</link> *user_data,
+                                             <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);
+<link linkend="void">void</link>*       <link linkend="cairo-scaled-font-get-user-data">cairo_scaled_font_get_user_data</link> (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);
 </synopsis>
 </refsynopsisdiv>
 
@@ -67,15 +76,15 @@ typedef     <link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link>;
 
 
 
-<refsect1 id="desc">
-<title id="desc.title">Description</title>
+<refsect1 role="desc">
+<title role="desc.title">Description</title>
 <para>
 
 </para>
 </refsect1>
 
-<refsect1 id="details">
-<title id="details.title">Details</title>
+<refsect1 role="details">
+<title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-scaled-font-t" role="typedef"/>cairo_scaled_font_t</title>
 <indexterm><primary>cairo_scaled_font_t</primary></indexterm><programlisting>typedef struct _cairo_scaled_font cairo_scaled_font_t;
@@ -84,7 +93,16 @@ typedef     <link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link>;
 A <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link> is a font scaled to a particular size and device
 resolution. A cairo_scaled_font_t is most useful for low-level font
 usage where a library or application wants to cache a reference
-to a scaled font to speed up the computation of metrics.</para>
+to a scaled font to speed up the computation of metrics.
+</para>
+<para>
+There are various types of scaled fonts, depending on the
+<firstterm>font backend</firstterm> they use. The type of a
+scaled font can be queried using <link linkend="cairo-scaled-font-get-type"><function>cairo_scaled_font_get_type()</function></link>.
+</para>
+<para>
+Memory management of <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link> is done with
+<link linkend="cairo-scaled-font-reference"><function>cairo_scaled_font_reference()</function></link> and <link linkend="cairo-scaled-font-destroy"><function>cairo_scaled_font_destroy()</function></link>.</para>
 <para>
 
 </para></refsect2>
@@ -131,7 +149,11 @@ be used.</para>
 <para>
 Increases the reference count on <parameter>scaled_font</parameter> by one. This prevents
 <parameter>scaled_font</parameter> from being destroyed until a matching call to
-<link linkend="cairo-scaled-font-destroy"><function>cairo_scaled_font_destroy()</function></link> is made.</para>
+<link linkend="cairo-scaled-font-destroy"><function>cairo_scaled_font_destroy()</function></link> is made.
+</para>
+<para>
+The number of references to a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link> can be get using
+<link linkend="cairo-scaled-font-get-reference-count"><function>cairo_scaled_font_get_reference_count()</function></link>.</para>
 <para>
 
 </para><variablelist role="params">
@@ -362,7 +384,7 @@ affect the x_advance and y_advance values.</para>
 <refsect2>
 <title><anchor id="cairo-scaled-font-glyph-extents" role="function"/>cairo_scaled_font_glyph_extents ()</title>
 <indexterm><primary>cairo_scaled_font_glyph_extents</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_scaled_font_glyph_extents (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
-                                             <link linkend="cairo-glyph-t">cairo_glyph_t</link> *glyphs,
+                                             const <link linkend="cairo-glyph-t">cairo_glyph_t</link> *glyphs,
                                              <link linkend="int">int</link> num_glyphs,
                                              <link linkend="cairo-text-extents-t">cairo_text_extents_t</link> *extents);</programlisting>
 <para>
@@ -483,6 +505,81 @@ a scaled font. See <link linkend="cairo-font-type-t"><type>cairo_font_type_t</ty
 
 </simpara></listitem></varlistentry>
 </variablelist><para>Since  1.2
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-scaled-font-get-reference-count" role="function" condition="since:1.4"/>cairo_scaled_font_get_reference_count ()</title>
+<indexterm role="1.4"><primary>cairo_scaled_font_get_reference_count</primary></indexterm><programlisting>unsigned <link linkend="int">int</link> cairo_scaled_font_get_reference_count
+                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
+<para>
+Returns the current reference count of <parameter>scaled_font</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the current reference count of <parameter>scaled_font</parameter>.  If the
+object is a nil object, 0 will be returned.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-scaled-font-set-user-data" role="function" condition="since:1.4"/>cairo_scaled_font_set_user_data ()</title>
+<indexterm role="1.4"><primary>cairo_scaled_font_set_user_data</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_scaled_font_set_user_data
+                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
+                                             <link linkend="void">void</link> *user_data,
+                                             <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);</programlisting>
+<para>
+Attach user data to <parameter>scaled_font</parameter>.  To remove user data from a surface,
+call this function with the key that was used to set it and <link linkend="NULL:CAPS"><literal>NULL</literal></link>
+for <parameter>data</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>key</parameter>&nbsp;:</term>
+<listitem><simpara> the address of a <link linkend="cairo-user-data-key-t"><type>cairo_user_data_key_t</type></link> to attach the user data to
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara> the user data to attach to the <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-destroy-func-t"><type>cairo_destroy_func_t</type></link> which will be called when the
+<link linkend="cairo-t"><type>cairo_t</type></link> is destroyed or when new user data is attached using the
+same key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="CAIRO-STATUS-SUCCESS:CAPS"><literal>CAIRO_STATUS_SUCCESS</literal></link> or <link linkend="CAIRO-STATUS-NO-MEMORY:CAPS"><literal>CAIRO_STATUS_NO_MEMORY</literal></link> if a
+slot could not be allocated for the user data.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-scaled-font-get-user-data" role="function" condition="since:1.4"/>cairo_scaled_font_get_user_data ()</title>
+<indexterm role="1.4"><primary>cairo_scaled_font_get_user_data</primary></indexterm><programlisting><link linkend="void">void</link>*       cairo_scaled_font_get_user_data (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);</programlisting>
+<para>
+Return user data previously attached to <parameter>scaled_font</parameter> using the
+specified key.  If no user data has been attached with the given
+key this function returns <link linkend="NULL:CAPS"><literal>NULL</literal></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>key</parameter>&nbsp;:</term>
+<listitem><simpara> the address of the <link linkend="cairo-user-data-key-t"><type>cairo_user_data_key_t</type></link> the user data was
+attached to
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the user data previously attached or <link linkend="NULL:CAPS"><literal>NULL</literal></link>.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
 </para></refsect2>
 
 </refsect1>

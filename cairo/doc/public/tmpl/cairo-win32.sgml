@@ -37,7 +37,28 @@ Microsoft Windows surface support
 @Returns: 
 
 
+<!-- ##### FUNCTION cairo_win32_surface_create_with_ddb ##### -->
+<para>
+
+</para>
+
+@hdc: 
+@format: 
+@width: 
+@height: 
+@Returns: 
+
+
 <!-- ##### FUNCTION cairo_win32_surface_get_dc ##### -->
+<para>
+
+</para>
+
+@surface: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_win32_surface_get_image ##### -->
 <para>
 
 </para>

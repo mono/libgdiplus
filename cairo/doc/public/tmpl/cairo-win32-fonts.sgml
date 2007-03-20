@@ -62,3 +62,21 @@ Font support for Microsoft Windows
 @Returns: 
 
 
+<!-- ##### FUNCTION cairo_win32_scaled_font_get_logical_to_device ##### -->
+<para>
+
+</para>
+
+@scaled_font: 
+@logical_to_device: 
+
+
+<!-- ##### FUNCTION cairo_win32_scaled_font_get_device_to_logical ##### -->
+<para>
+
+</para>
+
+@scaled_font: 
+@device_to_logical: 
+
+

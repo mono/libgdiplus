@@ -70,6 +70,7 @@ More detailed build instructions
     --enable-xcb
     --enable-glitz
     --enable-beos
+    --enable-os2
 
 	Some of cairo's backends are marked as experimental and will
 	not be built by default. If you would like to build and
