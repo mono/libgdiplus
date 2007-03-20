@@ -42,6 +42,7 @@
 	} while (0)
 
 #define GETDW(x)	(*(DWORD*)(data + (x)))
+#define GETFLOAT(x)	(*(float*)(data + (x)))
 
 #define EMF_FUNCTION	0
 #define EMF_RECORDSIZE	4
@@ -58,6 +59,7 @@
 #define DWP11		48
 #define DWP(y)		(8 + ((y) << 2))
 
+#define EMR_HEADER			1
 #define EMR_POLYBEZIER			2
 #define EMR_POLYGON			3
 #define EMR_POLYPOLYGON			8
@@ -79,6 +81,7 @@
 #define EMR_SAVEDC			33
 #define EMR_RESTOREDC			34
 #define EMR_SETWORLDTRANSFORM		35
+#define EMR_MODIFYWORLDTRANSFORM	36
 #define EMR_SELECTOBJECT		37
 #define EMR_CREATEPEN			38
 #define EMR_CREATEBRUSHINDIRECT		39

@@ -129,7 +129,7 @@ gdip_graphics_reset (GpGraphics *graphics)
 	GdipSetSmoothingMode(graphics, SmoothingModeNone);
 }
 
-void
+static void
 gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 {
 	graphics->ct = cairo_create (surface);

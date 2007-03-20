@@ -28,6 +28,7 @@
 #include "general.h"
 #include <math.h>
 
+/* deprecated, please use valgrind to find memory leaks */
 /* #define DEBUG_MEMLEAKS	1 */
 
 /* Startup / shutdown */
@@ -50,10 +51,10 @@ struct startupOutput
 /* large table to avoid a division and three multiplications when premultiplying alpha into R, G and B */
 #include "alpha-premul-table.inc"
 
+#ifdef DEBUG_MEMLEAKS
 static GList* g_mem_allocations;
+#endif
 static BOOL startup = FALSE;
-
-extern void cairo_test_xlib_disable_render();
 
 GpStatus 
 GdiplusStartup(unsigned long *token, const struct startupInput *input, struct startupOutput *output)
@@ -62,14 +63,15 @@ GdiplusStartup(unsigned long *token, const struct startupInput *input, struct st
 	/* don't initialize multiple time, e.g. for each appdomain */
 	if (!startup) {
 		startup = TRUE;
+#ifdef DEBUG_MEMLEAKS
 		g_mem_allocations = NULL;
+#endif
 		status = initCodecList ();
 		if (status != Ok)
 			return status;
 		FcInit ();
 		*token = 1;
 		gdip_get_display_dpi();
-//		cairo_test_xlib_disable_render();
 	}
 	return status;
 }

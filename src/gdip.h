@@ -1036,7 +1036,6 @@ GpStatus	gdip_bitmapdata_property_remove_index(BitmapData *bitmap_data, int inde
 GpStatus	gdip_bitmapdata_property_find_id(BitmapData *bitmap_data, PROPID id, int *index);
 
 
-void gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface);
 GpGraphics *gdip_graphics_new (cairo_surface_t *surface);
 
 GpStatus gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect);

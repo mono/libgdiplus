@@ -1,3 +1,11 @@
+2007-03-20  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* emfcodec.h: Add some definitions.
+	* gdip.h: Remove gdip_graphics_init prototype.
+	* general.c: Remove unused stuff.
+	* graphics.c: Make gdip_graphics_init static.
+	* wmfcodec.h: Add some definitions.
+
 2007-03-19  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bitmap.c: Exclude unused code and made some function static.
