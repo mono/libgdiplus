@@ -1410,7 +1410,6 @@ cairo_content_t from_cairoformat_to_content (cairo_format_t format);
 void gdip_rect_expand_by (GpRectF *rect, GpPointF *point);
 
 cairo_surface_t * gdip_bitmap_ensure_surface (GpBitmap *bitmap);
-BOOL gdip_is_an_alpha_pixelformat (PixelFormat pixfmt);
 BOOL gdip_is_an_indexed_pixelformat (PixelFormat pixfmt);
 GpBitmap * gdip_convert_indexed_to_rgb (GpBitmap *bitmap);
 

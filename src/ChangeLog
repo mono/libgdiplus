@@ -1,5 +1,7 @@
-2007-03-19  Sebastien Pouliot  <sebastien@ximian.com> 
+2007-03-19  Sebastien Pouliot  <sebastien@ximian.com>
 
+	* bitmap.c: Exclude unused code and made some function static.
+	* gdip.h: Remove un-shared function.
 	* font.c: Fix free in free_cached_pattern to release the 'key' memory
 	(no leak) and not the 'value' memory (double-free). Found/patch by 
 	Choe Hwanjin.

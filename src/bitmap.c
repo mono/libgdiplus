@@ -72,11 +72,10 @@ static const unsigned int default_Format8bppIndexed_palette[256] = {
 /*
 	Those are the only pixel formats that we really support	
 */
-BOOL
+static BOOL
 gdip_is_a_supported_pixelformat (PixelFormat fmt)
 {
 	switch (fmt) {
-	
 	case Format1bppIndexed:
 	case Format4bppIndexed:
 	case Format8bppIndexed:
@@ -88,6 +87,12 @@ gdip_is_a_supported_pixelformat (PixelFormat fmt)
 	default:
 		return FALSE;
 	}
+}
+
+static BOOL
+gdip_is_an_alpha_pixelformat (PixelFormat format)
+{
+	return ((format & PixelFormatAlpha) != 0);
 }
 
 /*
@@ -1824,7 +1829,7 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 }
 
 
-BOOL
+static BOOL
 gdip_is_a_32bit_pixelformat (PixelFormat format)
 {
 	switch (format) {
@@ -1837,12 +1842,7 @@ gdip_is_a_32bit_pixelformat (PixelFormat format)
 	}
 }
 
-BOOL
-gdip_is_an_alpha_pixelformat (PixelFormat format)
-{
-	return ((format & PixelFormatAlpha) != 0);
-}
-
+#if FALSE
 BOOL
 gdip_can_window_without_copy (BitmapData *data, Rect *rect, int format)
 {
@@ -1907,6 +1907,7 @@ gdip_make_alpha_opaque (BitmapData *data)
 		}
 	}
 }
+#endif
 
 GpStatus
 GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, GdipBitmapData *locked_data)
