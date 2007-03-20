@@ -561,6 +561,14 @@ GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 
 #endif
 
+#ifdef CAIRO_HAS_XLIB_SURFACE
+int
+ignore_error_handler (Display *dpy, XErrorEvent *event)
+{
+	return Success;
+}
+#endif
+
 GpStatus 
 GdipDeleteGraphics (GpGraphics *graphics)
 {
@@ -584,8 +592,19 @@ GdipDeleteGraphics (GpGraphics *graphics)
 	}
 
 	if (graphics->ct) {
+#ifdef CAIRO_HAS_XLIB_SURFACE
+		int (*old_error_handler)(Display *dpy, XErrorEvent *ev);
+		if (graphics->type == gtX11Drawable)
+			old_error_handler = XSetErrorHandler (ignore_error_handler);
+#endif
+
 		cairo_destroy (graphics->ct);
 		graphics->ct = NULL;
+
+#ifdef CAIRO_HAS_XLIB_SURFACE
+		if (graphics->type == gtX11Drawable)
+			XSetErrorHandler (old_error_handler);
+#endif
 	}
 
 	if (graphics->saved_status) {

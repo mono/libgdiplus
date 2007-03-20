@@ -1,3 +1,11 @@
+2007-03-20  Chris Toshok  <toshok@ximian.com>
+
+	* graphics.c (GdipDeleteGraphics): if this is an X drawable,
+	ignore any errors we get destroying the surface.  Works around a
+	bug in the RENDER X server support, where the cairo pictures are
+	freed when the drawable/window is destroyed (and so cairo's calls
+	to XRenderFreePicture fail with errors).
+
 2007-03-20  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* emfcodec.h: Add some definitions.
