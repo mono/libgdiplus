@@ -99,6 +99,20 @@
 #define ABSOLUTE		1
 #define RELATIVE		2
 
+/* ModifyWorldTransform */
+#define MWT_IDENTITY		1
+#define MWT_LEFTMULTIPLY	2
+#define MWT_RIGHTMULTIPLY	3
+
+typedef struct {
+	float eM11;
+	float eM12;
+	float eM21;
+	float eM22;
+	float eDx;
+	float eDy;
+} XFORM;
+
 typedef struct {
 	LONG	x;
 	LONG	y;
@@ -216,6 +230,7 @@ typedef struct {
 	MetaObject *objects;
 	MetaObject created;
 	GpGraphics *graphics;
+	GpMatrix initial;
 	GpMatrix matrix;
 	DWORD bk_mode;
 	DWORD bk_color;
@@ -253,9 +268,17 @@ typedef struct {
 typedef gpointer HMETAFILE;
 typedef gpointer HENHMETAFILE;
 
+#define GDIP_EMFPLUS_RECORD_BASE	16384
+
 typedef enum {
-	WmfRecordType = 0
+	EmfRecordTypeGdiComment = 70,
+	EmfPlusRecordTypeHeader = 16385,
+	EmfPlusRecordTypeEndOfFile = 16386,
+	EmfPlusRecordTypeClear = 16393,
+	EmfPlusRecordTypeFillRects = 16394,
 } EmfPlusRecordType;
+
+typedef BOOL (*EnumerateMetafileProc) (EmfPlusRecordType, UINT, UINT, const BYTE*, void*);
 
 #pragma pack()
 
@@ -305,6 +328,7 @@ GpStatus gdip_metafile_dispose (GpMetafile *metafile);
 
 GpStatus gdip_metafile_play_emf (MetafilePlayContext *context);
 GpStatus gdip_metafile_play_wmf (MetafilePlayContext *context);
+GpStatus gdip_metafile_play_emfplus_block (MetafilePlayContext *context, BYTE* data, int length);
 
 MetafilePlayContext* gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int y, int width, int height);
 GpStatus gdip_metafile_play (MetafilePlayContext *context);
@@ -312,13 +336,18 @@ GpStatus gdip_metafile_play_cleanup (MetafilePlayContext *context);
 
 GpPen* gdip_metafile_GetSelectedPen (MetafilePlayContext *context);
 GpBrush* gdip_metafile_GetSelectedBrush (MetafilePlayContext *context);
+GpStatus GdiComment (MetafilePlayContext *context, BYTE* data, DWORD size);
 
+GpStatus gdip_metafile_SaveDC (MetafilePlayContext *context);
 GpStatus gdip_metafile_SetBkMode (MetafilePlayContext *context, DWORD bkMode);
 GpStatus gdip_metafile_SetMapMode (MetafilePlayContext *context, DWORD mode);
 GpStatus gdip_metafile_SetROP2 (MetafilePlayContext *context, DWORD rop);
 GpStatus gdip_metafile_SetRelabs (MetafilePlayContext *context, DWORD mode);
 GpStatus gdip_metafile_SetPolyFillMode (MetafilePlayContext *context, DWORD mode);
+GpStatus gdip_metafile_SetStretchBltMode (MetafilePlayContext *context, int iStretchMode);
+GpStatus gdip_metafile_RestoreDC (MetafilePlayContext *context);
 GpStatus gdip_metafile_SelectObject (MetafilePlayContext *context, DWORD slot);
+GpStatus gdip_metafile_ModifyWorldTransform (MetafilePlayContext *context, XFORM *lpXform, DWORD iMode);
 GpStatus gdip_metafile_SetTextAlign (MetafilePlayContext *context, DWORD textalign);
 GpStatus gdip_metafile_DeleteObject (MetafilePlayContext *context, DWORD slot);
 GpStatus gdip_metafile_SetBkColor (MetafilePlayContext *context, DWORD color);
@@ -333,6 +362,9 @@ GpStatus gdip_metafile_ExtCreatePen (MetafilePlayContext *context, DWORD dwPenSt
 GpStatus gdip_metafile_CreateBrushIndirect (MetafilePlayContext *context, DWORD style, DWORD color, DWORD hatch);
 GpStatus gdip_metafile_Arc (MetafilePlayContext *context, int left, int top, int right, int bottom, 
 	int xstart, int ystart, int xend, int yend);
+GpStatus gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest, int nDestWidth, int nDestHeight, 
+	int XSrc, int YSrc, int nSrcWidth, int nSrcHeight, CONST void *lpBits, CONST BITMAPINFO *lpBitsInfo, 
+	UINT iUsage, DWORD dwRop);
 GpStatus gdip_metafile_PolyBezier (MetafilePlayContext *context, GpPointF *points, int count);
 GpStatus gdip_metafile_Polygon (MetafilePlayContext *context, GpPointF *points, int count);
 GpStatus gdip_metafile_BeginPath (MetafilePlayContext *context);

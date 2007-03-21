@@ -25,6 +25,17 @@
 
 //#define DEBUG_METAFILE
 
+/* http://wvware.sourceforge.net/caolan/SaveDC.html */
+GpStatus
+gdip_metafile_SaveDC (MetafilePlayContext *context)
+{
+#ifdef DEBUG_METAFILE
+	printf ("SaveDC");
+#endif
+	/* TODO */
+	return Ok;
+}
+
 /* http://wvware.sourceforge.net/caolan/SetBkMode.html */
 GpStatus
 gdip_metafile_SetBkMode (MetafilePlayContext *context, DWORD bkMode)
@@ -133,6 +144,28 @@ gdip_metafile_SetPolyFillMode (MetafilePlayContext *context, DWORD fillmode)
 	return Ok;
 }
 
+/* http://wvware.sourceforge.net/caolan/SetStretchBltMode.html */
+GpStatus
+gdip_metafile_SetStretchBltMode (MetafilePlayContext *context, int iStretchMode)
+{
+#ifdef DEBUG_METAFILE
+	printf ("SetStretchBltMode %d", iStretchMode);
+#endif
+	/* TODO */
+	return Ok;
+}
+
+/* http://wvware.sourceforge.net/caolan/RestoreDC.html */
+GpStatus
+gdip_metafile_RestoreDC (MetafilePlayContext *context)
+{
+#ifdef DEBUG_METAFILE
+	printf ("RestoreDC");
+#endif
+	/* TODO */
+	return Ok;
+}
+
 /* http://wvware.sourceforge.net/caolan/SelectObject.html */
 GpStatus
 gdip_metafile_SelectObject (MetafilePlayContext *context, DWORD slot)
@@ -212,6 +245,39 @@ gdip_metafile_SelectObject (MetafilePlayContext *context, DWORD slot)
 	context->created.ptr = NULL;
 	return Ok;
 }
+
+GpStatus
+gdip_metafile_ModifyWorldTransform (MetafilePlayContext *context, XFORM *lpXform, DWORD iMode)
+{
+	GpMatrix matrix;
+	GpMatrixOrder order;
+
+	switch (iMode) {
+	case MWT_IDENTITY:
+		/* This is a reset and it ignores lpXform in this case */
+		/* we can't use GdipResetWorldTransform as we still want the original parameters */
+		return GdipSetWorldTransform (context->graphics, &context->matrix);
+	case MWT_LEFTMULTIPLY:
+		order = MatrixOrderPrepend;
+		break;
+	case MWT_RIGHTMULTIPLY:
+		order = MatrixOrderPrepend;
+		break;
+	default:
+		return InvalidParameter;
+	}
+
+	if (!lpXform)
+		return InvalidParameter;
+	matrix.xx = lpXform->eM11;
+	matrix.yx = lpXform->eM12;
+	matrix.xy = lpXform->eM21;
+	matrix.yy = lpXform->eM22;
+	matrix.x0 = lpXform->eDx;
+	matrix.y0 = lpXform->eDy;
+	return GdipMultiplyWorldTransform (context->graphics, &matrix, order);
+}
+
 
 /* http://wvware.sourceforge.net/caolan/SetTextAlign.html */
 GpStatus
@@ -500,6 +566,40 @@ gdip_metafile_Arc (MetafilePlayContext *context, int left, int top, int right, i
 		return Ok;
 	return GdipDrawArc (context->graphics, gdip_metafile_GetSelectedPen (context), left, top, 
 		(right - left), (bottom - top), atan2 (ystart, xstart), atan2 (yend, xend));
+}
+
+/* http://wvware.sourceforge.net/caolan/ora-wmf.html */
+GpStatus
+gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest, int nDestWidth, int nDestHeight, 
+	int XSrc, int YSrc, int nSrcWidth, int nSrcHeight, CONST void *lpBits, CONST BITMAPINFO *lpBitsInfo, 
+	UINT iUsage, DWORD dwRop)
+{
+	GpStatus status;
+#ifdef DEBUG_METAFILE
+	printf ("StretchDIBits\n\t[XDest %d, YDest %d, nDestWidth %d, nDestHeight %d]", XDest, YDest, nDestWidth, nDestHeight);
+	printf ("\n\t[XSrc %d, YSrc %d, nSrcWidth %d, nSrcHeight %d]", XSrc, YSrc, nSrcWidth, nSrcHeight);
+	printf ("\n\tlpBits %p, lpBitsInfo %p, iUsage %d, dwRop %d", lpBits, lpBitsInfo, iUsage, dwRop);
+	printf ("\n\tBITMAPINFO\n\t\tSize: %d", lpBitsInfo->bmiHeader.biSize);
+	printf ("\n\t\tWidth: %d", lpBitsInfo->bmiHeader.biWidth);
+	printf ("\n\t\tHeight: %d", lpBitsInfo->bmiHeader.biHeight);
+	printf ("\n\t\tPlanes: %d", lpBitsInfo->bmiHeader.biPlanes);
+	printf ("\n\t\tBitCount: %d", lpBitsInfo->bmiHeader.biBitCount);
+	printf ("\n\t\tCompression: %d", lpBitsInfo->bmiHeader.biCompression);
+	printf ("\n\t\tSizeImage: %d", lpBitsInfo->bmiHeader.biSizeImage);
+	printf ("\n\t\tXPelsPerMeter: %d", lpBitsInfo->bmiHeader.biXPelsPerMeter);
+	printf ("\n\t\tYPelsPerMeter: %d", lpBitsInfo->bmiHeader.biXPelsPerMeter);
+	printf ("\n\t\tClrUsed: %d", lpBitsInfo->bmiHeader.biClrUsed);
+	printf ("\n\t\tClrImportant: %d", lpBitsInfo->bmiHeader.biClrImportant);
+#endif
+	/* temporary hack to adjust size */
+	GpPen *pen = NULL;
+	status = GdipCreatePen1 (0xFF000000, 0, UnitPixel, &pen);
+	if (status == Ok) {
+		status = GdipDrawRectangle (context->graphics, pen, XDest, YDest, nDestWidth, nDestHeight);
+	}
+	if (pen)
+		GdipDeletePen (pen);
+	return status;
 }
 
 /*
@@ -807,11 +907,22 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 	context->graphics = graphics;
 	context->use_path = FALSE;
 	context->path = NULL;
-	GdipGetWorldTransform (graphics, &context->matrix);
+
+	/* keep a copy for clean up */
+	GdipGetWorldTransform (graphics, &context->initial);
+#ifdef DEBUG_METAFILE
+	MetafileHeader *mh = &metafile->metafile_header;
+	GpMatrix *m = &context->initial;
+	g_warning ("\nMetafileHeader X %d, Y %d, W %d, H %d", mh->X, mh->Y, mh->Width, mh->Height);
+	g_warning ("\n\tinitial matrix %g %g %g %g %g %g", m->xx, m->yx, m->xy, m->yy, m->x0, m->y0);
+#endif
 	context->x = x;
 	context->y = y;
 	context->width = width;
 	context->height = height;
+	/* and keep an adjusted copy for providing "resets" */
+	GdipTranslateWorldTransform (graphics, -metafile->metafile_header.X, -metafile->metafile_header.Y, MatrixOrderPrepend);
+	GdipGetWorldTransform (graphics, &context->matrix);
 
 	/* defaults */
 	context->fill_mode = FillModeAlternate;
@@ -880,6 +991,7 @@ gdip_metafile_play (MetafilePlayContext *context)
 	case METAFILETYPE_WMF:
 		return gdip_metafile_play_wmf (context);
 	case METAFILETYPE_EMF:
+		return gdip_metafile_play_emf (context);
 	case METAFILETYPE_EMFPLUSONLY:
 	case METAFILETYPE_EMFPLUSDUAL:
 		return gdip_metafile_play_emf (context);
@@ -896,7 +1008,7 @@ gdip_metafile_play_cleanup (MetafilePlayContext *context)
 	if (!context)
 		return InvalidParameter;
 
-	GdipSetWorldTransform (context->graphics, &context->matrix);
+	GdipSetWorldTransform (context->graphics, &context->initial);
 	context->graphics = NULL;
 	if (context->path) {
 		GdipDeletePath (context->path);
@@ -961,6 +1073,13 @@ combine_headers (GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, Metaf
 		header->DpiY = wmfPlaceableFileHeader->Inch;
 	} else {
 		header->Type = METAFILETYPE_WMF;
+		header->X = 0;
+		header->Y = 0;
+		/* TODO: GDI+ uses screen resolution for non-placeable metafiles */
+		header->Width = 1280;
+		header->Height= 1024;
+		header->DpiX = gdip_get_display_dpi ();
+		header->DpiY = header->DpiX;
 	}
 	header->Size = header->WmfHeader.mtSize * 2;
 	header->Version = header->WmfHeader.mtVersion;
@@ -971,8 +1090,37 @@ combine_headers (GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, Metaf
 	return Ok;
 }
 
+/* Handle the record based headers that can exists in EMF files */
+/* Note: GDI+ doesn't report correctly all stuff within the headers :| */
+static GpStatus
+update_emf_header (MetafileHeader *header, BYTE* data, int length)
+{
+	GpStatus status = Ok;
+	MetafilePlayContext context;
+	GpMetafile mf;
+	DWORD *func = (DWORD*)data;
+
+	switch (*func) {
+	case EMR_HEADER:
+		g_warning ("TODO - EMR_HEADER. Not common, need test case :)");
+		break;
+	case EMR_GDICOMMENT:
+		/* this could be an embedded EmfPlusRecordTypeHeader */
+		context.metafile = &mf;
+		context.graphics = NULL; /* special case where we're not playing the metafile */
+		status = GdiComment (&context, data, length);
+		if (status == Ok) {
+			header->Type = mf.metafile_header.Type;
+			header->Version = mf.metafile_header.Version; /* GDI+ seems to report the object header */
+			/* Horizontal and Vertical Logical DPI are available but not reported */
+		}
+		break;
+	}
+	return status;
+}
+
 GpStatus 
-gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, bool useFile)
+gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, BOOL useFile)
 {
 	int size;
 	DWORD key;
@@ -985,6 +1133,12 @@ gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, bool useFil
 	if (gdip_read_wmf_data (pointer, (void*)&key, size, useFile) != size)
 		return GenericError;
 
+/* wait until the decoding is fixed */
+#if FALSE
+#if G_BYTE_ORDER != G_LITTLE_ENDIAN
+	key = GUINT32_FROM_LE (key);
+#endif
+#endif
 	switch (key) {
 	case ALDUS_PLACEABLE_METAFILE_KEY:
 		aldus_header.Key = key;
@@ -1033,15 +1187,24 @@ g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame 
 
 		header->Type = METAFILETYPE_EMF;
 		/* FIXME: inclusive-inclusive, MS gets 1 to 5 pixels larger than the header */
-		header->X = 0;
-		header->Y = 0;
-		header->Width = emf->szlDevice.cx + 1;
-		header->Height = emf->szlDevice.cy + 1;
+		if ((emf->rclFrame.left == 0) && (emf->rclFrame.top == 0)) {
+			header->X = 0;
+			header->Y = 0;
+			header->Width = emf->szlDevice.cx + 1;
+			header->Height = emf->szlDevice.cy + 1;
+		} else {
+			header->X = emf->rclBounds.left;
+			header->Y = emf->rclBounds.top;
+			header->Width = emf->rclBounds.right - emf->rclBounds.left + 1;
+			header->Height = emf->rclBounds.bottom - emf->rclBounds.top + 1;
+		}
 		header->DpiX = MM_PER_INCH / ((float)emf->szlMillimeters.cx / emf->szlDevice.cx);
 		header->DpiY = MM_PER_INCH / ((float)emf->szlMillimeters.cy / emf->szlDevice.cy);
 		header->Size = emf->nBytes;
 		header->Version = emf->nVersion;
-		/* FIXME: we need to check for the EmfHeader record but some files still returns invalid values */
+		/* We need to check for the EmfHeader record (can't be done at this stage) but some files still returns
+		 * invalid values. E.g. Files with "strange" bounds also have insanely large EmfPlusHeaderSize and logical
+		 * DPI values (with MS GDI+) */
 		header->EmfPlusFlags = 0;
 		header->EmfPlusHeaderSize = 0;
 		header->LogicalDpiX = 0;
@@ -1077,8 +1240,9 @@ g_warning ("METAHEADER type %d, header %d, version %d, size %d, #obj %d, max rec
 }
 
 GpStatus 
-gdip_get_metafile_from (void *pointer, GpMetafile **metafile, bool useFile)
+gdip_get_metafile_from (void *pointer, GpMetafile **metafile, BOOL useFile)
 {
+	BOOL adjust_emf_headers = FALSE;
 	GpStatus status = OutOfMemory;
 	GpMetafile *mf = gdip_metafile_create ();
 	if (!mf)
@@ -1101,6 +1265,7 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, bool useFile)
 	case METAFILETYPE_EMFPLUSDUAL:
 		mf->base.image_format = EMF;
 		mf->length = mf->metafile_header.EmfHeader.nBytes - mf->metafile_header.EmfHeader.nSize;
+		adjust_emf_headers = TRUE;
 		break;
 	}
 
@@ -1111,6 +1276,11 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, bool useFile)
 	if (gdip_read_wmf_data (pointer, (void*)mf->data, mf->length, useFile) != mf->length) {
 		status = InvalidParameter;
 		goto error;
+	}
+
+	if (adjust_emf_headers) {
+		/* if the first EMF record is an EmfHeader (or an Header inside a Comment) then we have extra data to extract */
+		status = update_emf_header (&mf->metafile_header, mf->data, mf->length);
 	}
 
 	*metafile = mf;
@@ -1265,6 +1435,11 @@ GdipGetMetafileHeaderFromFile (GDIPCONST WCHAR *filename, MetafileHeader *header
 	fp = fopen (file_name, "rb");
 	if (fp) {
 		status = gdip_get_metafileheader_from (fp, header, TRUE);
+		/* if EMF check for additional header record */
+		if (header->Type == METAFILETYPE_EMF) {
+			/* look for more details, possibly upgrading the metafile to METAFILETYPE_EMFPLUSONLY or EMFPLUSDUAL */
+			/* TODO */
+		}
 		fclose (fp);
 	}
 	GdipFree (file_name);
@@ -1296,6 +1471,11 @@ GdipGetMetafileHeaderFromDelegate_linux (GetHeaderDelegate getHeaderFunc, GetByt
 	loader = dstream_input_new (getBytesFunc, seekFunc);
 	if (loader) {
 		status = gdip_get_metafileheader_from (loader, header, FALSE);
+		/* if EMF check for additional header record */
+		if (header->Type == METAFILETYPE_EMF) {
+			/* look for more details, possibly upgrading the metafile to METAFILETYPE_EMFPLUSONLY or EMFPLUSDUAL */
+			/* TODO */
+		}
 		dstream_free (loader);
 	}
 	return status;

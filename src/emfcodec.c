@@ -293,11 +293,33 @@ EndOfFile (MetafilePlayContext *context, DWORD value, BYTE* data)
 }
 
 /* http://wvware.sourceforge.net/caolan/ora-wmf.html */
-static GpStatus
-GdiComment (MetafilePlayContext *context, DWORD size, BYTE* data)
+GpStatus
+GdiComment (MetafilePlayContext *context, BYTE* data, DWORD size)
 {
+#ifdef DEBUG_EMF
+	printf ("GdiComment record size %d", size);
+#endif
+	DWORD length = GETDW(DWP1);
+	if (length >= 4) {
+		DWORD header = GETDW(DWP2);
+		if ((header == 0x2B464D45) && (size >= 8)) {
+#ifdef DEBUG_EMF_2
+			printf (", EMF+ length %d", length);
+#endif
+			/* move past func, size, comment length, remove EMF+ comment header */
+			data += sizeof (DWORD) * 4;
+			/* remove EMF+ header from length */
+			length -= sizeof (DWORD);
+			/* play the EMF+ comment-embedded block */
+			return gdip_metafile_play_emfplus_block (context, data, length);
+		}
+	}
+
 #ifdef DEBUG_EMF_NOTIMPLEMENTED
-	printf ("GdiComment length %d", size);
+	int i;
+	printf (" - ");
+	for (i = 0; i < size; i++)
+		printf ("%2X ", *data++);
 #endif
 	return Ok;
 }
@@ -316,6 +338,20 @@ ExtCreatePen (MetafilePlayContext *context, BYTE *data, int size)
 	lb.lbColor = GetColor(GETDW(DWP9));
 	lb.lbHatch = GETDW(DWP10);
 	return gdip_metafile_ExtCreatePen (context, GETDW(DWP6), GETDW(DWP7), &lb, GETDW(DWP11), NULL);
+}
+
+static GpStatus
+ModifyWorldTransform (MetafilePlayContext *context, float eM11, float eM12, float eM21, float eM22, 
+	float eDx, float eDy, DWORD iMode)
+{
+	XFORM xf;
+	xf.eM11 = eM11;
+	xf.eM12 = eM12;
+	xf.eM21 = eM21;
+	xf.eM22 = eM22;
+	xf.eDx  = eDx;
+	xf.eDy  = eDy;
+	return gdip_metafile_ModifyWorldTransform (context, &xf, iMode);
 }
 
 /*
@@ -432,6 +468,12 @@ gdip_metafile_play_emf (MetafilePlayContext *context)
 		case EMR_SETWORLDTRANSFORM:
 			EMF_CHECK_PARAMS(6);
 			NOTIMPLEMENTED6("EMR_SETWORLDTRANSFORM %d not implemented", GETDW(DWP1), GETDW(DWP2), GETDW(DWP3), GETDW(DWP4), GETDW(DWP5), GETDW(DWP6));
+			break;
+		case EMR_MODIFYWORLDTRANSFORM:
+			EMF_CHECK_PARAMS(7);
+			status = ModifyWorldTransform (context, GETFLOAT(DWP1), GETFLOAT(DWP2), GETFLOAT(DWP3), 
+				GETFLOAT(DWP4), GETFLOAT(DWP5), GETFLOAT(DWP6), GETDW(DWP7));
+			break;
 		case EMR_SELECTOBJECT:
 			EMF_CHECK_PARAMS(1);
 			status = gdip_metafile_SelectObject (context, GETDW(DWP1));
@@ -490,7 +532,7 @@ gdip_metafile_play_emf (MetafilePlayContext *context)
 			break;
 		case EMR_GDICOMMENT:
 			EMF_CHECK_PARAMS(1); /* record contains at least the size of the comment */
-			status = GdiComment (context, GETDW(DWP1), (data + 3 * sizeof (DWORD)));
+			status = GdiComment (context, data, size);
 			break;
 		case EMR_EXTSELECTCLIPRGN:
 			EMF_CHECK_PARAMS(2);

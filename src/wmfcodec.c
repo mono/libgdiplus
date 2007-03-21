@@ -237,6 +237,10 @@ gdip_metafile_play_wmf (MetafilePlayContext *context)
 		 * - sometimes there are extra (undocumented?, buggy?) parameters for some functions
 		 */
 		switch (func) {
+		case METAFILE_RECORD_SAVEDC:
+			WMF_CHECK_PARAMS(0);
+			status = gdip_metafile_SaveDC (context);
+			break;
 		case METAFILE_RECORD_SETBKMODE:
 			WMF_CHECK_PARAMS(1);
 			status = gdip_metafile_SetBkMode (context, GETW(WP1));
@@ -256,6 +260,14 @@ gdip_metafile_play_wmf (MetafilePlayContext *context)
 		case METAFILE_RECORD_SETPOLYFILLMODE:
 			WMF_CHECK_PARAMS(1);
 			status = gdip_metafile_SetPolyFillMode (context, GETW(WP1));
+			break;
+		case METAFILE_RECORD_SETSTRETCHBLTMODE:
+			WMF_CHECK_PARAMS(1); /* 2 but second is unused (32bits?) */
+			status = gdip_metafile_SetStretchBltMode (context, GETW(WP1));
+			break;
+		case METAFILE_RECORD_RESTOREDC:
+			WMF_CHECK_PARAMS(0);
+			status = gdip_metafile_RestoreDC (context);
 			break;
 		case METAFILE_RECORD_SELECTOBJECT:
 			WMF_CHECK_PARAMS(1);
@@ -312,6 +324,14 @@ gdip_metafile_play_wmf (MetafilePlayContext *context)
 			status = gdip_metafile_Arc (context, GETW(WP1), GETW(WP2), GETW(WP3), GETW(WP4), GETW(WP5), GETW(WP6),
 				GETW(WP7), GETW(WP8));
 			break;
+		case METAFILE_RECORD_STRETCHDIBITS: {
+			WMF_CHECK_PARAMS(14);
+			BITMAPINFO *bmi = (BITMAPINFO*) (data + 14 * sizeof (WORD));
+			void* bits = (void*) (bmi + GETDW(WP12));
+			status = gdip_metafile_StretchDIBits (context, GETW(WP11), GETW(WP10), GETW(WP9), GETW(WP8), GETW(WP7), 
+				GETW(WP6), GETW(WP5), GETW(WP4), bits, bmi, GETW(WP3), GETDW(WP1));
+			break;
+		}
 		default:
 			/* unprocessed records, ignore the data */
 			/* 3 for size (DWORD) == 2 * SHORT + function == 1 SHORT */

@@ -11,6 +11,8 @@ libgdiplus_la_SOURCES = \
 	customlinecap.h	\
 	emfcodec.c	\
 	emfcodec.h	\
+	emfplus.c	\
+	emfplus.h	\
 	font.c		\
 	gdip.h		\
 	gdipImage.h	\

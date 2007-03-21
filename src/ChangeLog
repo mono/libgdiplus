@@ -1,3 +1,14 @@
+2007-03-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* emfcodec.c: Process ModifyWorldTransform and modify GdiComment to be
+	reusable to detect between "classic" EMF and EMF+/dual.
+	* Makefile.am: Add emfplus.g|h to the build/dist.
+	* metafile.c|h: Fixed display bounds. Added detection of EMF+ (and 
+	dual) metafiles. Added ModifyWorldTransform function and a few other
+	TODO.
+	* wmfcodec.c: Process SaveDC, RestoreDC, SetStretchBltMode and
+	StretchDIBits records.
+
 2007-03-21  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* emfplus.c|h: Starting point of the EMF+ (and dual) handling.
