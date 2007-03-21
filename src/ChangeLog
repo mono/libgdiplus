@@ -1,3 +1,7 @@
+2007-03-21  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* emfplus.c|h: Starting point of the EMF+ (and dual) handling.
+
 2007-03-21  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* pen.c: Ensure we never clear the 'changed' flag when setting pen's
