@@ -19,6 +19,9 @@ PKG_CHECK_MODULES(BASE_DEPENDENCIES, glib-2.0 >= $GLIB_REQUIRED_VERSION)
 # libraries using position independent code.
 ac_configure_args="$ac_configure_args --with-pic=yes"
 
+# disable the PDF and SVG surface backends of Cairo (unrequired for GDI+)
+ac_configure_args="$ac_configure_args --disable-pdf --disable-svg"
+
 AC_CONFIG_SUBDIRS(cairo)
 CAIRO_LIBS='$(top_builddir)/cairo/src/libcairo.la'
 CAIRO_CFLAGS='-I$(top_builddir)/cairo/pixman/src -I$(top_srcdir)/cairo/pixman/src -I$(top_builddir)/cairo/src -I$(top_srcdir)/cairo/src'
