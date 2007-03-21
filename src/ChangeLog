@@ -1,3 +1,8 @@
+2007-03-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* pen.c: Ensure we never clear the 'changed' flag when setting pen's
+	properties. Issue #81102 found (and patch) by Choe Hwanjin.
+
 2007-03-20  Chris Toshok  <toshok@ximian.com>
 
 	* graphics.c (GdipDeleteGraphics): if this is an X drawable,

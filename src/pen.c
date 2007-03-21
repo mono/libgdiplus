@@ -494,7 +494,7 @@ GdipSetPenColor (GpPen *pen, int argb)
 	if (!pen)
 		return InvalidParameter;
 
-	pen->changed = (pen->color != argb);
+	pen->changed = pen->changed ? TRUE : (pen->color != argb);
         pen->color = argb;
         return Ok;
 }
@@ -518,7 +518,7 @@ GdipSetPenMiterLimit (GpPen *pen, float miterLimit)
 	if (miterLimit < 1.0f)
 		miterLimit = 1.0f;
 
-	pen->changed = (pen->miter_limit != miterLimit);
+	pen->changed = pen->changed ? TRUE : (pen->miter_limit != miterLimit);
         pen->miter_limit = miterLimit;
         return Ok;
 }
@@ -539,7 +539,7 @@ GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin)
 	if (!pen)
 		return InvalidParameter;
 
-	pen->changed = (pen->line_join != lineJoin);
+	pen->changed = pen->changed ? TRUE : (pen->line_join != lineJoin);
         pen->line_join = lineJoin;
         return Ok;
 }
@@ -584,7 +584,7 @@ GdipSetPenMode (GpPen *pen, GpPenAlignment penMode)
 	if (!pen)
 		return InvalidParameter;
 
-	pen->changed = (penMode != pen->mode);
+	pen->changed = pen->changed ? TRUE : (penMode != pen->mode);
 	pen->mode = penMode;
 	return Ok;
 }
