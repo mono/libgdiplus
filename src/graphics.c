@@ -593,7 +593,7 @@ GdipDeleteGraphics (GpGraphics *graphics)
 
 	if (graphics->ct) {
 #ifdef CAIRO_HAS_XLIB_SURFACE
-		int (*old_error_handler)(Display *dpy, XErrorEvent *ev);
+		int (*old_error_handler)(Display *dpy, XErrorEvent *ev) = NULL;
 		if (graphics->type == gtX11Drawable)
 			old_error_handler = XSetErrorHandler (ignore_error_handler);
 #endif
