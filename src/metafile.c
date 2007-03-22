@@ -1059,9 +1059,24 @@ gdip_metafile_play_cleanup (MetafilePlayContext *context)
 	return Ok;
 }
 
+static void
+WmfPlaceableFileHeaderLE (WmfPlaceableFileHeader *wmfPlaceableFileHeader)
+{
+#if G_BYTE_ORDER != G_LITTLE_ENDIAN
+	/* header->Key is already adjusted */
+	wmfPlaceableFileHeader->Hmf = GUINT16_FROM_LE (wmfPlaceableFileHeader->Hmf);
+	wmfPlaceableFileHeader->BoundingBox.Left = GUINT16_FROM_LE (wmfPlaceableFileHeader->BoundingBox.Left);
+	wmfPlaceableFileHeader->BoundingBox.Top = GUINT16_FROM_LE (wmfPlaceableFileHeader->BoundingBox.Top);
+	wmfPlaceableFileHeader->BoundingBox.Right = GUINT16_FROM_LE (wmfPlaceableFileHeader->BoundingBox.Right);
+	wmfPlaceableFileHeader->BoundingBox.Bottom = GUINT16_FROM_LE (wmfPlaceableFileHeader->BoundingBox.Bottom);
+	wmfPlaceableFileHeader->Inch = GUINT16_FROM_LE (wmfPlaceableFileHeader->Inch);
+	wmfPlaceableFileHeader->Reserved = GUINT32_FROM_LE (wmfPlaceableFileHeader->Reserved);
+	wmfPlaceableFileHeader->Checksum = GUINT16_FROM_LE (wmfPlaceableFileHeader->Checksum);
+#endif
+}
 
-static GpStatus
-combine_headers (GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, MetafileHeader *header)
+static void
+MetafileHeaderLE (MetafileHeader *header)
 {
 #if G_BYTE_ORDER != G_LITTLE_ENDIAN
 	header->WmfHeader.mtType = GUINT16_FROM_LE (header->WmfHeader.mtType);
@@ -1071,18 +1086,12 @@ combine_headers (GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, Metaf
 	header->WmfHeader.mtNoObjects = GUINT16_FROM_LE (header->WmfHeader.mtNoObjects);
 	header->WmfHeader.mtMaxRecord = GUINT32_FROM_LE (header->WmfHeader.mtMaxRecord);
 	header->WmfHeader.mtNoParameters = GUINT16_FROM_LE (header->WmfHeader.mtNoParameters);
-	if (wmfPlaceableFileHeader) {
-		/* header->Key is already adjusted */
-		wmfPlaceableFileHeader->Hmf = GUINT16_FROM_LE (wmfPlaceableFileHeader->Hmf);
-		wmfPlaceableFileHeader->BoundingBox.Left = GUINT16_FROM_LE (wmfPlaceableFileHeader->BoundingBox.Left);
-		wmfPlaceableFileHeader->BoundingBox.Top = GUINT16_FROM_LE (wmfPlaceableFileHeader->BoundingBox.Top);
-		wmfPlaceableFileHeader->BoundingBox.Right = GUINT16_FROM_LE (wmfPlaceableFileHeader->BoundingBox.Right);
-		wmfPlaceableFileHeader->BoundingBox.Bottom = GUINT16_FROM_LE (wmfPlaceableFileHeader->BoundingBox.Bottom);
-		wmfPlaceableFileHeader->Inch = GUINT16_FROM_LE (wmfPlaceableFileHeader->Inch);
-		wmfPlaceableFileHeader->Reserved = GUINT32_FROM_LE (wmfPlaceableFileHeader->Reserved);
-		wmfPlaceableFileHeader->Checksum = GUINT16_FROM_LE (wmfPlaceableFileHeader->Checksum);
-	}
 #endif
+}
+
+static GpStatus
+combine_headers (GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, MetafileHeader *header)
+{
 	if (wmfPlaceableFileHeader) {
 		header->Type = METAFILETYPE_WMFPLACEABLE;
 		header->X = wmfPlaceableFileHeader->BoundingBox.Left;
@@ -1172,6 +1181,8 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 		if (gdip_read_wmf_data (pointer, (void*)&header->WmfHeader, size, useFile) != size)
 			return InvalidParameter;
 
+		WmfPlaceableFileHeaderLE (&aldus_header);
+		MetafileHeaderLE (header);
 		status = combine_headers (&aldus_header, header);
 		break;
 	case WMF_TYPE_AND_HEADERSIZE_KEY:
@@ -1181,6 +1192,7 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 		if (gdip_read_wmf_data (pointer, (void*)(&header->WmfHeader) + sizeof (DWORD), size, useFile) != size)
 			return InvalidParameter;
 
+		MetafileHeaderLE (header);
 		status = combine_headers (NULL, header);
 		break;
 	case EMF_EMR_HEADER_KEY:

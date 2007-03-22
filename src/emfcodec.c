@@ -84,6 +84,14 @@ gdip_getcodecinfo_emf ()
 	return &emf_codec;
 }
 
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+#define GETDW(x)	(*(DWORD*)(data + (x)))
+#define GETFLOAT(x)	(*(float*)(data + (x)))
+#else
+#define GETDW(x)	(GUINT32_FROM_LE(*(DWORD*)(data + (x))))
+#define GETFLOAT(x)	((float)GETDW(x))
+#endif
+
 static DWORD
 GetColor (DWORD color)
 {
