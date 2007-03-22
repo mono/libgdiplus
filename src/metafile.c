@@ -1063,6 +1063,26 @@ gdip_metafile_play_cleanup (MetafilePlayContext *context)
 static GpStatus
 combine_headers (GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, MetafileHeader *header)
 {
+#if G_BYTE_ORDER != G_LITTLE_ENDIAN
+	header->WmfHeader.mtType = GUINT16_FROM_LE (header->WmfHeader.mtType);
+	header->WmfHeader.mtHeaderSize = GUINT16_FROM_LE (header->WmfHeader.mtHeaderSize);
+	header->WmfHeader.mtVersion = GUINT16_FROM_LE (header->WmfHeader.mtVersion);
+	header->WmfHeader.mtSize = GUINT32_FROM_LE (header->WmfHeader.mtSize);
+	header->WmfHeader.mtNoObjects = GUINT16_FROM_LE (header->WmfHeader.mtNoObjects);
+	header->WmfHeader.mtMaxRecord = GUINT32_FROM_LE (header->WmfHeader.mtMaxRecord);
+	header->WmfHeader.mtNoParameters = GUINT16_FROM_LE (header->WmfHeader.mtNoParameters);
+	if (wmfPlaceableFileHeader) {
+		/* header->Key is already adjusted */
+		wmfPlaceableFileHeader->Hmf = GUINT16_FROM_LE (wmfPlaceableFileHeader->Hmf);
+		wmfPlaceableFileHeader->BoundingBox.Left = GUINT16_FROM_LE (wmfPlaceableFileHeader->BoundingBox.Left);
+		wmfPlaceableFileHeader->BoundingBox.Top = GUINT16_FROM_LE (wmfPlaceableFileHeader->BoundingBox.Top);
+		wmfPlaceableFileHeader->BoundingBox.Right = GUINT16_FROM_LE (wmfPlaceableFileHeader->BoundingBox.Right);
+		wmfPlaceableFileHeader->BoundingBox.Bottom = GUINT16_FROM_LE (wmfPlaceableFileHeader->BoundingBox.Bottom);
+		wmfPlaceableFileHeader->Inch = GUINT16_FROM_LE (wmfPlaceableFileHeader->Inch);
+		wmfPlaceableFileHeader->Reserved = GUINT32_FROM_LE (wmfPlaceableFileHeader->Reserved);
+		wmfPlaceableFileHeader->Checksum = GUINT16_FROM_LE (wmfPlaceableFileHeader->Checksum);
+	}
+#endif
 	if (wmfPlaceableFileHeader) {
 		header->Type = METAFILETYPE_WMFPLACEABLE;
 		header->X = wmfPlaceableFileHeader->BoundingBox.Left;
@@ -1133,11 +1153,8 @@ gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, BOOL useFil
 	if (gdip_read_wmf_data (pointer, (void*)&key, size, useFile) != size)
 		return GenericError;
 
-/* wait until the decoding is fixed */
-#if FALSE
 #if G_BYTE_ORDER != G_LITTLE_ENDIAN
 	key = GUINT32_FROM_LE (key);
-#endif
 #endif
 	switch (key) {
 	case ALDUS_PLACEABLE_METAFILE_KEY:

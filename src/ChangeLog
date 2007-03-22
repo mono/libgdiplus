@@ -1,3 +1,9 @@
+2007-03-22  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* emfcodec.h: Some endian fixes.
+	* metafile.c: Some endian fixes.
+	* wmfcodec.c: Some endian fixes.
+
 2007-03-21  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* emfcodec.c: Process ModifyWorldTransform and modify GdiComment to be

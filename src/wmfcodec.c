@@ -62,14 +62,22 @@ static WORD
 GetWORD (int position, BYTE *data)
 {
 	WORD *value = (WORD*)(data + position);
+#if G_BYTE_ORDER != G_LITTLE_ENDIAN
+	return GUINT16_FROM_LE (*value);
+#else
 	return *value;
+#endif
 }
 
 static DWORD
 GetDWORD (int position, BYTE* data)
 {
 	DWORD *value = (DWORD*)(data + position);
+#if G_BYTE_ORDER != G_LITTLE_ENDIAN
+	return GUINT32_FROM_LE (*value);
+#else
 	return *value;
+#endif
 }
 
 static DWORD
