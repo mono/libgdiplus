@@ -1089,6 +1089,37 @@ MetafileHeaderLE (MetafileHeader *header)
 #endif
 }
 
+static void
+EnhMetaHeaderLE (ENHMETAHEADER3 *emf)
+{
+#if G_BYTE_ORDER != G_LITTLE_ENDIAN
+	/* emf->iType is already adjusted */
+	emf->nSize = GUINT32_FROM_LE (emf->nSize);
+	emf->rclBounds.left = GUINT32_FROM_LE (emf->rclBounds.left);
+	emf->rclBounds.top = GUINT32_FROM_LE (emf->rclBounds.top);
+	emf->rclBounds.right = GUINT32_FROM_LE (emf->rclBounds.right);
+	emf->rclBounds.bottom = GUINT32_FROM_LE (emf->rclBounds.bottom);
+	emf->rclFrame.left = GUINT32_FROM_LE (emf->rclFrame.left);
+	emf->rclFrame.top = GUINT32_FROM_LE (emf->rclFrame.top);
+	emf->rclFrame.right = GUINT32_FROM_LE (emf->rclFrame.right);
+	emf->rclFrame.bottom = GUINT32_FROM_LE (emf->rclFrame.bottom);
+	emf->dSignature = GUINT32_FROM_LE (emf->dSignature);
+	emf->nVersion = GUINT32_FROM_LE (emf->nVersion);
+	emf->nBytes = GUINT32_FROM_LE (emf->nBytes);
+	emf->nRecords = GUINT32_FROM_LE (emf->nRecords);
+	emf->nHandles = GUINT32_FROM_LE (emf->nHandles);
+
+	emf->sReserved = GUINT32_FROM_LE (emf->sReserved);
+	emf->nDescription = GUINT32_FROM_LE (emf->nDescription);
+	emf->offDescription = GUINT32_FROM_LE (emf->offDescription);
+	emf->nPalEntries = GUINT32_FROM_LE (emf->nPalEntries);
+	emf->szlDevice.cx = GUINT32_FROM_LE (emf->szlDevice.cx);
+	emf->szlDevice.cy = GUINT32_FROM_LE (emf->szlDevice.cy);
+	emf->szlMillimeters.cx = GUINT32_FROM_LE (emf->szlMillimeters.cx);
+	emf->szlMillimeters.cy = GUINT32_FROM_LE (emf->szlMillimeters.cy);
+#endif
+}
+
 static GpStatus
 combine_headers (GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, MetafileHeader *header)
 {
@@ -1201,6 +1232,7 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 		size = sizeof (ENHMETAHEADER3) - size;
 		if (gdip_read_emf_data (pointer, (void*)(&header->EmfHeader) + sizeof (DWORD), size, useFile) != size)
 			return InvalidParameter;
+		EnhMetaHeaderLE (&header->EmfHeader);
 #if FALSE
 g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame L %d, T %d, R %d, B %d, signature %X, version %d, bytes %d, records %d, handles %d, reserved %d, description %d, %d, palentries %d, device %d, %d, millimeters %d, %d", 
 	emf->iType, emf->nSize, 
