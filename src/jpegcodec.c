@@ -124,7 +124,7 @@ typedef struct gdip_jpeg_error_mgr *gdip_jpeg_error_mgr_ptr;
 static void
 _gdip_jpeg_error_exit (j_common_ptr cinfo)
 {
-	/*gdip_jpeg_error_mgr_ptr err = (gdip_jpeg_error_mgr_ptr) cinfo->err;*/
+	gdip_jpeg_error_mgr_ptr err = (gdip_jpeg_error_mgr_ptr) cinfo->err;
 	char buffer[JMSG_LENGTH_MAX];
 
 	(* cinfo->err->format_message) (cinfo, buffer);
@@ -136,10 +136,9 @@ _gdip_jpeg_error_exit (j_common_ptr cinfo)
 	 * what's going on here.
 	 * -- FIXME
 	 */
-#if 0
-	printf ("jpeg error: %d %s\n", err->parent.msg_code, buffer);
+
+	g_warning ("jpeg error: %d %s\n", err->parent.msg_code, buffer);
 	siglongjmp (err->setjmp_buffer, 1);
-#endif
 }
 
 static void
@@ -496,8 +495,6 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	return Ok;
 
 error:
-	jpeg_destroy_decompress (&cinfo);
-
 	/* coverity[dead_error_line] */
 	if (destbuf != NULL) {
 		GdipFree (destbuf);
@@ -580,7 +577,9 @@ gdip_load_jpeg_image_from_file (FILE *fp, const char *filename, GpImage **image)
 	GdipFree (src->buf);
 	GdipFree (src);
 #ifdef HAVE_LIBEXIF
-	load_exif_data (exif_data_new_from_file (filename), *image);
+	if (st == Ok) {
+		load_exif_data (exif_data_new_from_file (filename), *image);
+	}
 #endif
 
 	return st;

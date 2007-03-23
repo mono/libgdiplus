@@ -1,5 +1,7 @@
-2007-03-23  Sebastien Pouliot  <sebastien@ximian.com>
+2007-03-23  Sebastien Pouliot  <sebastien@ximian.com> 
 
+	* jpegcodec.c: Re-enable sigsetjmp to handle malformed JPEG files.
+	Also don't try to load EXIF data if loading failed. Fix bug #80980.
 	* metafile.c: More endian fixes (EMF headers)
 
 2007-03-22  Sebastien Pouliot  <sebastien@ximian.com>
