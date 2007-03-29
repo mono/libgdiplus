@@ -132,8 +132,6 @@ typedef struct {
 	LONG		lbHatch;
 } LOGBRUSH;
 
-#pragma pack(2)
-
 typedef struct {
 	int	left;
 	int	top;
@@ -147,6 +145,21 @@ typedef struct {
 } SIZE, SIZEL;
 
 typedef struct {
+	SHORT	Left;
+	SHORT	Top;
+	SHORT	Right;
+	SHORT	Bottom;
+} PWMFRect16;
+
+#ifndef __GNUC__
+	#pragma pack(2)
+#endif
+
+typedef struct
+#ifdef __GNUC__
+	 __attribute__ ((packed))
+#endif
+{
 	WORD	mtType;			/* 1 for disk, 0 for memory */
 	WORD	mtHeaderSize;
 	WORD	mtVersion;
@@ -155,6 +168,23 @@ typedef struct {
 	DWORD	mtMaxRecord;
 	WORD	mtNoParameters;
 } METAHEADER;
+
+typedef struct
+#ifdef __GNUC__
+	 __attribute__ ((packed))
+#endif
+{
+	DWORD		Key;
+	SHORT		Hmf;
+	PWMFRect16	BoundingBox;
+	SHORT		Inch;
+	DWORD		Reserved;
+	SHORT		Checksum;
+} WmfPlaceableFileHeader;
+
+#ifndef __GNUC__
+	#pragma pack()
+#endif
 
 typedef struct {
 	DWORD	iType;
@@ -173,22 +203,6 @@ typedef struct {
 	SIZEL	szlDevice;
 	SIZEL	szlMillimeters;
 } ENHMETAHEADER3;
-
-typedef struct {
-	SHORT	Left;
-	SHORT	Top;
-	SHORT	Right;
-	SHORT	Bottom;
-} PWMFRect16;
-
-typedef struct {
-	DWORD		Key;
-	SHORT		Hmf;
-	PWMFRect16	BoundingBox;
-	SHORT		Inch;
-	DWORD		Reserved;
-	SHORT		Checksum;
-} WmfPlaceableFileHeader;
 
 typedef struct {
 	int	Type;
@@ -279,8 +293,6 @@ typedef enum {
 } EmfPlusRecordType;
 
 typedef BOOL (*EnumerateMetafileProc) (EmfPlusRecordType, UINT, UINT, const BYTE*, void*);
-
-#pragma pack()
 
 /* function prototypes */
 
