@@ -5,7 +5,7 @@
  *  	Sanjay Gupta (gsanjay@novell.com)
  *      Mark Steele (ms@rapidsys.com)
  *
- * Copyright (C) Novell, Inc. 2003-2004.
+ * Copyright (C) 2003-2004, 2007 Novell, Inc (http://www.novell.com)
  */
 
 #ifndef _BMPCODEC_H
@@ -21,10 +21,13 @@
 #define BITMAPINFOHEADER_SIZE   40
 #define BITMAPCOREHEADER_SIZE   12
 
-#ifdef __GNUC__
-#    pragma pack(2)
+#ifndef __GNUC__
+	#pragma pack(2)
 #endif
 typedef struct
+#ifdef __GNUC__
+	 __attribute__ ((packed))
+#endif
 {
     WORD    bfType;
     DWORD   bfSize;
@@ -32,8 +35,8 @@ typedef struct
     WORD    bfReserved2;
     DWORD   bfOffBits;
 } BITMAPFILEHEADER, *PBITMAPFILEHEADER, *LPBITMAPFILEHEADER;
-#ifdef __GNUC__
-#    pragma pack()
+#ifndef __GNUC__
+	#pragma pack()
 #endif
 
 #define BFT_BITMAP 0x4d42
