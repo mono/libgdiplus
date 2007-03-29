@@ -1,7 +1,9 @@
-2007-03-29  Sebastien Pouliot  <sebastien@ximian.com> 
+2007-03-29  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* metafile.h: Use __attribute__ ((packed)) instead of #pragma pack(2)
 	in the hope this construct works on the ARM architecture.
+	* tiffcodec.c: Fix TIFF crashes on SPARC (it's amazing what an integer
+	can do to get promoted).
 
 2007-03-23  Sebastien Pouliot  <sebastien@ximian.com> 
 

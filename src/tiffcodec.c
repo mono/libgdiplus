@@ -215,7 +215,7 @@ gdip_load_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
 	uint16	samples_per_pixel;
 	uint16	bits_per_sample;
 	uint16	planar_configuration;
-	uint16	image_length;
+	uint32	image_length;
 	uint16	strips_per_image;
 	uint32	rows_per_strip;
 	uint32	tile_length;
