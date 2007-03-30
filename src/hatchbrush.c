@@ -1,7 +1,7 @@
 /*
  * hatchbrush.c
  * 
- * Copyright (C) 2004,2006 Novell, Inc. http://www.novell.com
+ * Copyright (C) 2004,2006-2007 Novell, Inc. http://www.novell.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -1312,20 +1312,15 @@ gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush)
 GpStatus
 gdip_hatch_destroy (GpBrush *brush)
 {
-	GpHatch *hbr;
+	/* a. the NULL check for brush is done by the caller, GdipDeleteBrush */
+	/* b. brush itself is freed by the caller */
 
-	if (!brush)
-		return InvalidParameter;
-
-	hbr = (GpHatch *) brush;
+	GpHatch *hbr = (GpHatch *) brush;
 
 	if (hbr->pattern) {
 		cairo_pattern_destroy (hbr->pattern);
 		hbr->pattern = NULL;
 	}
-
-	GdipFree (brush);
-
 	return Ok;
 }
 

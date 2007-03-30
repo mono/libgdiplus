@@ -1,7 +1,7 @@
 /*
  * pathgradientbrush.c
  *
- * Copyright (C) Novell, Inc. 2003-2004.
+ * Copyright (C) 2003-2004,2007 Novell, Inc. http://www.novell.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -185,12 +185,10 @@ SUCCESS:
 GpStatus
 gdip_pgrad_destroy (GpBrush *brush)
 {
-	GpPathGradient *pgbrush;
+	/* a. the NULL check for brush is done by the caller, GdipDeleteBrush */
+	/* b. brush itself is freed by the caller */
 
-	if (!brush)
-		return InvalidParameter;
-
-	pgbrush = (GpPathGradient *) brush;
+	GpPathGradient *pgbrush = (GpPathGradient *) brush;
 
 	if (pgbrush->boundary) {
 		GdipDeletePath (pgbrush->boundary);
@@ -225,7 +223,6 @@ gdip_pgrad_destroy (GpBrush *brush)
 		pgbrush->presetColors = NULL;
 	}
 
-	GdipFree (pgbrush);
 	return Ok;
 }
 

@@ -2,6 +2,7 @@
  * brush.c
  * 
  * Copyright (c) 2003 Alexandre Pigolkine
+ * Copyright (C) 2007 Novell, Inc. http://www.novell.com
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -72,10 +73,15 @@ GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush)
 GpStatus 
 GdipDeleteBrush (GpBrush *brush)
 {
+	GpStatus status;
+
 	if (!brush)
 		return InvalidParameter;
 
-	return brush->vtable->destroy (brush);
+	status = brush->vtable->destroy (brush);
+	GdipFree (brush);
+
+	return status;
 }
 
 GpStatus

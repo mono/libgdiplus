@@ -1,7 +1,7 @@
 /*
  * texturebrush.c
  *
- * Copyright (C) 2003,2006 Novell, Inc. http://www.novell.com
+ * Copyright (C) 2003,2006-2007 Novell, Inc. http://www.novell.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -568,13 +568,10 @@ gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush)
 GpStatus
 gdip_texture_destroy (GpBrush *brush)
 {
-	GpTexture *texture;
+	/* a. the NULL check for brush is done by the caller, GdipDeleteBrush */
+	/* b. brush itself is freed by the caller */
 
-	if (brush == NULL) {
-		return InvalidParameter;
-	}
-
-	texture = (GpTexture *) brush;
+	GpTexture *texture = (GpTexture *) brush;
 
 	if (texture->pattern) {
 		cairo_pattern_destroy (texture->pattern);
@@ -585,8 +582,6 @@ gdip_texture_destroy (GpBrush *brush)
 		GdipDisposeImage (texture->image);
 		texture->image = NULL;
 	}
-
-	GdipFree (texture);
 
 	return Ok;
 }

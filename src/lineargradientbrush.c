@@ -1,7 +1,7 @@
 /*
  * lineargradientbrush.c
  *
- * Copyright (C) Novell, Inc. 2003-2004.
+ * Copyright (C) 2003-2004,2007 Novell, Inc. http://www.novell.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -171,12 +171,10 @@ gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 GpStatus
 gdip_linear_gradient_destroy (GpBrush *brush)
 {
-	GpLineGradient *linear;
+	/* a. the NULL check for brush is done by the caller, GdipDeleteBrush */
+	/* b. brush itself is freed by the caller */
 
-	if (!brush)
-		return InvalidParameter;
-
-	linear = (GpLineGradient *) brush;
+	GpLineGradient *linear = (GpLineGradient *) brush;
 
 	if (linear->blend) {
 		if (linear->blend->count > 0) {
@@ -200,8 +198,6 @@ gdip_linear_gradient_destroy (GpBrush *brush)
 		cairo_pattern_destroy (linear->pattern);
 		linear->pattern = NULL;
 	}
-
-	GdipFree (linear);
 
 	return Ok;
 }

@@ -1,3 +1,14 @@
+2007-03-30  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* brush.c: Change contract between GdipDeleteBrush and the destroy
+	function of the specialized brushes. The NULL check and the GdipFree
+	of the brush is now done centrally.
+	* hatchbrush.c: Simplify with new contract.
+	* lineargradientbrush.c: Simplify with new contract.
+	* pathgradientbrush.c: Simplify with new contract.
+	* solidbrush.c: Simplify with new contract.
+	* texturebrush.c: Simplify with new contract.
+
 2007-03-30  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* pen.c: Update solid brush color (if used) when the pen color is 

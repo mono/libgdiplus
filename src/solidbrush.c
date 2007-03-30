@@ -2,6 +2,7 @@
  * solidbrush.c
  * 
  * Copyright (c) 2003 Alexandre Pigolkine
+ * Copyright (C) 2007 Novell, Inc. http://www.novell.com
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -122,10 +123,8 @@ gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush)
 GpStatus
 gdip_solidfill_destroy (GpBrush *brush)
 {
-	/* the NULL check for brush is done by the caller, GdipDeleteBrush */
-
-	GdipFree (brush);
-
+	/* a. the NULL check for brush is done by the caller, GdipDeleteBrush */
+	/* b. brush itself is freed by the caller */
 	return Ok;
 }
 
