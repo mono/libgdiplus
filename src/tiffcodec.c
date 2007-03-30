@@ -699,7 +699,7 @@ gdip_save_tiff_properties(TIFF *tiff, BitmapData *bitmap_data, int samples_per_p
 	if (gdip_bitmapdata_property_find_id(bitmap_data, ExtraSamples, &index) == Ok) {
 		TIFFSetField(tiff, TIFFTAG_EXTRASAMPLES, bitmap_data->property[index].length, bitmap_data->property[index].value);
 	} else {
-		TIFFSetField (tiff, TIFFTAG_EXTRASAMPLES, EXTRASAMPLE_UNSPECIFIED);
+		TIFFSetField (tiff, TIFFTAG_EXTRASAMPLES, 1, EXTRASAMPLE_UNSPECIFIED);
 	}
 
 	if (gdip_bitmapdata_property_find_id(bitmap_data, FillOrder, &index) == Ok) {

@@ -1,3 +1,9 @@
+2007-03-30  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* tiffcodec.c: Fix TIFFSetField as it requires at least two parameters
+	(count & type) when used for TIFFTAG_EXTRASAMPLES. Fix valgrind
+	warning.
+
 2007-03-29  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* bmpcodec.h: Use __attribute__ ((packed)) instead of #pragma pack(2)
