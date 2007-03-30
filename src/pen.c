@@ -466,12 +466,10 @@ GdipSetPenBrushFill (GpPen *pen, GpBrush *brush)
 GpStatus
 GdipGetPenBrushFill (GpPen *pen, GpBrush **brush)
 {
-	if (!pen || !brush)
+	if (!pen)
 		return InvalidParameter;
 
-        *brush = pen->brush;
-
-        return Ok;
+	return GdipCloneBrush (pen->brush, brush);
 }
 
 GpStatus
@@ -495,8 +493,12 @@ GdipSetPenColor (GpPen *pen, int argb)
 		return InvalidParameter;
 
 	pen->changed = pen->changed ? TRUE : (pen->color != argb);
-        pen->color = argb;
-        return Ok;
+	pen->color = argb;
+
+	if (pen->changed && pen->brush && (pen->brush->vtable->type == BrushTypeSolidColor))
+		return GdipSetSolidFillColor ((GpSolidFill*)pen->brush, argb);
+
+	return Ok;
 }
 
 GpStatus

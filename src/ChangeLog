@@ -1,5 +1,8 @@
-2007-03-30  Sebastien Pouliot  <sebastien@ximian.com> 
+2007-03-30  Sebastien Pouliot  <sebastien@ximian.com>
 
+	* pen.c: Update solid brush color (if used) when the pen color is 
+	changed. Fix #81266. Change GdipGetPenBrushFill to return a clone of 
+	the brush and not the original one.
 	* tiffcodec.c: Fix TIFFSetField as it requires at least two parameters
 	(count & type) when used for TIFFTAG_EXTRASAMPLES. Fix valgrind
 	warning.
