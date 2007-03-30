@@ -1,3 +1,8 @@
+2007-03-30  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* jpegcodec.c: Ensure we throw the "right" exception on the managed
+	side when an invalid file is read. Fix #80980
+
 2007-03-30  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* brush.c: Change contract between GdipDeleteBrush and the destroy

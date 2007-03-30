@@ -291,7 +291,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 
 	if (sigsetjmp (jerr.setjmp_buffer, 1)) {
 		/* Error occured during decompression */
-		status = GenericError;
+		status = OutOfMemory;
 		goto error;
 	}
 
