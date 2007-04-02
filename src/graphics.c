@@ -33,8 +33,6 @@
 #include <math.h>
 #include <glib.h>
 
-extern FT_Face gdip_cairo_ft_font_lock_face (cairo_font_face_t *cairofnt);
-extern void gdip_cairo_ft_font_unlock_face (cairo_font_face_t *cairofnt);
 void gdip_set_cairo_clipping (GpGraphics *graphics);
 
 #define	NO_CAIRO_AA

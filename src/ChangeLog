@@ -1,3 +1,8 @@
+2007-04-02  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* font.c: Change some functions to static and remove unused function.
+	* graphics.c: Remove unused externs.
+
 2007-03-30  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* jpegcodec.c: Ensure we throw the "right" exception on the managed

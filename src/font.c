@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004 Ximian
- * Copyright (c) 2004-2006 Novell, Inc.
+ * Copyright (c) 2004-2007 Novell, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -41,7 +41,7 @@ static int ref_familyMonospace = 0;
 
 /* Family and collections font functions */
 
-void
+static void
 gdip_createFontFamily (GpFontFamily **family)
 {
 	GpFontFamily *result = (GpFontFamily *) GdipAlloc (sizeof (GpFontFamily));
@@ -203,7 +203,7 @@ GdipDeleteFontFamily (GpFontFamily *fontFamily)
 	return Ok;
 }
 
-void
+static void
 gdip_createPrivateFontSet (GpFontCollection *font_collection)
 {
 	FcObjectSet *os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, NULL);
@@ -359,8 +359,8 @@ create_fontfamily_from_name (char* name, GpFontFamily **fontFamily)
 	return status;
 }
 
-static
-gboolean free_cached_pattern (gpointer key, gpointer value, gpointer user)
+static gboolean
+free_cached_pattern (gpointer key, gpointer value, gpointer user)
 {
 	g_free (key);
 	FcPatternDestroy ((FcPattern*) value);
@@ -516,7 +516,7 @@ GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily)
 	return status;
 }
 
-FT_Face
+static FT_Face
 gdip_cairo_ft_font_lock_face (cairo_font_face_t *cairofnt, cairo_scaled_font_t **scaled_ft)
 {
 	FT_Face face;
@@ -547,7 +547,7 @@ gdip_cairo_ft_font_lock_face (cairo_font_face_t *cairofnt, cairo_scaled_font_t *
 	return face;
 }
 
-void
+static void
 gdip_cairo_ft_font_unlock_face (cairo_scaled_font_t* scaled_ft)
 {
 	cairo_ft_scaled_font_unlock_face (scaled_ft);
@@ -718,7 +718,7 @@ GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAv
 }
 
 /* Font functions */
-cairo_font_face_t *
+static cairo_font_face_t*
 gdip_face_create (const char *family, 
 			cairo_font_slant_t   slant, 
 			cairo_font_weight_t  weight,
@@ -733,7 +733,6 @@ gdip_face_create (const char *family,
 	face = cairo_get_font_face (*ct);
 	cairo_surface_destroy (surface);
 	return face;
-
 }
 
 // coverity[+alloc : arg-*4]
@@ -974,8 +973,8 @@ GdipGetLogFontA(GpFont *font, GpGraphics *graphics, void *lf)
 	return gdip_logfont_from_font (font, graphics, lf, FALSE);
 }
 
-GpStatus
-gdip_create_font_from_logfont(void *hdc, void *lf, GpFont **font, bool ucs2)
+static GpStatus
+gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, bool ucs2)
 {
 	GpFont			*result;
 	cairo_font_face_t	*face;
@@ -1090,28 +1089,6 @@ GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memor
 
 	return result ? Ok : FileNotFound;
 }
-
-
-bool
-GetFontMetrics(GpGraphics *graphics, GpFont *font, int *ascent, int *descent)
-{
-	cairo_font_extents_t	font_extent;
-
-	cairo_set_font_face (graphics->ct, (cairo_font_face_t*) font->cairofnt);
-	cairo_set_font_size (graphics->ct, font->sizeInPixels);
-	cairo_font_extents (graphics->ct, &font_extent);
-
-	if (ascent) {
-		*ascent = (int)font_extent.ascent;
-	}
-
-	if (descent) {
-		*descent = (int)font_extent.descent;
-	}
-
-	return TRUE;
-}
-
 
 GpStatus
 GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float *height)
