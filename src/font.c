@@ -17,10 +17,12 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
- * Author:
- *          Jordi Mas i Hernandez <jordi@ximian.com>, 2004-2006
- *          Peter Dennis Bartok <pbartok@novell.com>
+ * Authors:
+ *	Jordi Mas i Hernandez <jordi@ximian.com>, 2004-2006
+ *	Peter Dennis Bartok <pbartok@novell.com>
+ *	Sebastien Pouliot  <sebastien@ximian.com>
  */
+
 #include <stdio.h>
 #include "gdip.h"
 #include <math.h>
@@ -497,13 +499,13 @@ GdipGetGenericFontFamilySerif (GpFontFamily **nativeFamily)
 GpStatus
 GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily)
 {
-	const WCHAR Serif[] = {'S','e','r','i','f', 0};
+	const WCHAR Monospace[] = {'C','o','u','r','i', 'e', 'r', ' ', 'N', 'e', 'w', 0};
 	GpStatus status = Ok;
 	
 	g_static_mutex_lock (&generic);
 
 	if (ref_familyMonospace == 0)
-		status = GdipCreateFontFamilyFromName (Serif, NULL, &familyMonospace);
+		status = GdipCreateFontFamilyFromName (Monospace, NULL, &familyMonospace);
 
 	if (status == Ok)
 		ref_familyMonospace++;
@@ -554,157 +556,104 @@ gdip_cairo_ft_font_unlock_face (cairo_scaled_font_t* scaled_ft)
 	cairo_scaled_font_destroy (scaled_ft);
 }
 
+static GpStatus
+gdip_get_fontfamily_details (GpFontFamily *family, GpFontStyle style)
+{
+	GpFont *font = NULL;
+	GpStatus status = GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
+
+	if ((status == Ok) && font) {
+		cairo_scaled_font_t* scaled_ft;
+
+		FT_Face face = gdip_cairo_ft_font_lock_face (font->cairofnt, &scaled_ft);
+		if (face) {
+			TT_VertHeader *pVert = FT_Get_Sfnt_Table (face, ft_sfnt_vhea);
+			TT_HoriHeader *pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
+
+			if (pVert) {
+				family->height = pVert->yMax_Extent;
+			} else {
+				family->height = face->units_per_EM;
+			}
+
+			if (pHori) {
+				/* FIXME: FT docs seems to suggest the use of the OS/2 table */
+				family->cellascent = pHori->Ascender;
+				family->celldescent = -pHori->Descender;
+				family->linespacing = pHori->Ascender - pHori->Descender + pHori->Line_Gap;
+			} else {
+				family->cellascent = face->ascender;
+				family->celldescent = face->descender;
+				family->linespacing = face->height;
+			}
+
+			gdip_cairo_ft_font_unlock_face (scaled_ft);
+		} else
+			status = FontFamilyNotFound;
+	}
+	if (font)
+		GdipDeleteFont (font);
+	return status;
+}
+
 GpStatus
 GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHeight)
 {
-	short rslt = 0;
-	GpFont *font = NULL;
+	GpStatus status = Ok;
 
 	if (!family || !EmHeight)
 		return InvalidParameter;
 
-	if (family->height != -1) {
-		*EmHeight = family->height;
-		return Ok;
-	}
+	if (family->height == -1)
+		status = gdip_get_fontfamily_details ((GpFontFamily*)family, style);
 
-	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
-
-	if (font) {
-		cairo_scaled_font_t* scaled_ft;
-		FT_Face	face;
-		TT_VertHeader *pVert;
-
-		face = gdip_cairo_ft_font_lock_face (font->cairofnt, &scaled_ft);
-		if (face) {
-			pVert = FT_Get_Sfnt_Table(face, ft_sfnt_vhea);
-			if (pVert) {
-				rslt = pVert->yMax_Extent;
-			} else if (face) {
-				rslt = face->units_per_EM;
-			}
-			gdip_cairo_ft_font_unlock_face (scaled_ft);
-		}
-		GdipDeleteFont (font);
-	}
-
-	*EmHeight = rslt;
-	((GpFontFamily *)family)->height = rslt;
-	return Ok;
+	*EmHeight = family->height;
+	return status;
 }
 
 GpStatus
 GdipGetCellAscent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *CellAscent)
 {
-	short rslt = 0;
-	GpFont *font = NULL;
+	GpStatus status = Ok;
 
 	if (!family || !CellAscent)
 		return InvalidParameter;
 
-	if (family->cellascent != -1) {
-		*CellAscent = family->cellascent;
-		return Ok;
-	}
+	if (family->cellascent == -1)
+		status = gdip_get_fontfamily_details ((GpFontFamily*)family, style);
 
-	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
-
-	if (font){
-		cairo_scaled_font_t* scaled_ft;
-                FT_Face face;
-		TT_HoriHeader *pHori;
-
-		face = gdip_cairo_ft_font_lock_face (font->cairofnt, &scaled_ft);
-		if (face) {
-			pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
-			if (pHori)
-				rslt = pHori->Ascender;
-
-			gdip_cairo_ft_font_unlock_face (scaled_ft);
-		}
-		GdipDeleteFont (font);
-	}
-
-	*CellAscent = rslt;
-	((GpFontFamily *)family)->cellascent = rslt;
-	return Ok;         
+	*CellAscent = family->cellascent;
+	return status;
 }
 
 GpStatus
 GdipGetCellDescent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *CellDescent)
 {
-	short rslt = 0;
-	GpFont *font = NULL;
+	GpStatus status = Ok;
 
 	if (!family || !CellDescent)
 		return InvalidParameter;
 
-	if (family->celldescent != -1) {
-		*CellDescent = family->celldescent;
-		return Ok;
-	}
+	if (family->celldescent == -1)
+		status = gdip_get_fontfamily_details ((GpFontFamily*)family, style);
 
-	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
-
-	if (font){
-		cairo_scaled_font_t* scaled_ft;
-                FT_Face face;
-		TT_HoriHeader* pHori;
-
-		face = gdip_cairo_ft_font_lock_face (font->cairofnt, &scaled_ft);
-		if (face) {
-			pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
-			if (pHori)
-				rslt = -pHori->Descender;
-
-			gdip_cairo_ft_font_unlock_face (scaled_ft);
-		}
-		GdipDeleteFont (font);
-	}
-
-	*CellDescent = rslt;
-	((GpFontFamily *)family)->celldescent = rslt;
-	return Ok;         
+	*CellDescent = family->celldescent;
+	return status;
 }
 
 GpStatus
 GdipGetLineSpacing (GDIPCONST GpFontFamily *family, GpFontStyle style, short *LineSpacing)
 {
-	short rslt = 0;
-	GpFont *font = NULL;
+	GpStatus status = Ok;
 
 	if (!family || !LineSpacing)
 		return InvalidParameter;
 
-	if (family->linespacing != -1) {
-		*LineSpacing = family->linespacing;
-		return Ok;
-	}
+	if (family->linespacing == -1)
+		status = gdip_get_fontfamily_details ((GpFontFamily*)family, style);
 
-	GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
-
-	if (font){
-		cairo_scaled_font_t* scaled_ft;
-                FT_Face face;
-		TT_HoriHeader *pHori;
-
-		face = gdip_cairo_ft_font_lock_face (font->cairofnt, &scaled_ft);
-		if (face) {
-			pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
-			if (pHori) {
-				rslt = pHori->Ascender + (-pHori->Descender) + pHori->Line_Gap;
-			} else if (face) {
-				rslt = face->height;
-			}
-
-			gdip_cairo_ft_font_unlock_face(scaled_ft);
-		}
-		GdipDeleteFont (font);
-	}
-
-	*LineSpacing = rslt;
-	((GpFontFamily *)family)->linespacing = rslt;
-	return Ok;
+	*LineSpacing = family->linespacing;
+	return status;
 }
 
 GpStatus
@@ -1093,35 +1042,49 @@ GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memor
 GpStatus
 GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float *height)
 {
+	GpStatus status;
 	short emHeight, lineSpacing;
-	float emSize;
+	float emSize, h;
 
 	if (!font || !height || !graphics)
 		return InvalidParameter;
 
+	status = GdipGetEmHeight (font->family, font->style, &emHeight);
+	if (status != Ok)
+		return status;
+
+	status = GdipGetLineSpacing (font->family, font->style, &lineSpacing);
+	if (status != Ok)
+		return status;
+
 	/* Operations in display dpi's */	
 	emSize = gdip_unit_conversion (font->unit, UnitPixel, gdip_get_display_dpi (), gtMemoryBitmap, font->emSize);
-	GdipGetEmHeight (font->family, font->style, &emHeight);
-	GdipGetLineSpacing (font->family, font->style, &lineSpacing);
 
-	*height = lineSpacing * (emSize / emHeight);
-	*height = gdip_unit_conversion (UnitPixel, graphics->page_unit, gdip_get_display_dpi (), graphics->type, *height);
+	h = lineSpacing * (emSize / emHeight);
+	*height = gdip_unit_conversion (UnitPixel, graphics->page_unit, gdip_get_display_dpi (), graphics->type, h);
 	return Ok;
 }
 
 GpStatus
 GdipGetFontHeightGivenDPI (GDIPCONST GpFont *font, float dpi, float *height)
 {
+	GpStatus status;
 	short emHeight, lineSpacing;
+	float h;
 
 	if (!font || !height)
 		return InvalidParameter;
 
-	GdipGetEmHeight (font->family, font->style, &emHeight);
-	GdipGetLineSpacing (font->family, font->style, &lineSpacing);
-	*height = lineSpacing * (font->emSize / emHeight);
-	*height = gdip_unit_conversion (font->unit, UnitInch, dpi, gtMemoryBitmap, *height);
-	*height = *height * dpi;
+	status = GdipGetEmHeight (font->family, font->style, &emHeight);
+	if (status != Ok)
+		return status;
+
+	status = GdipGetLineSpacing (font->family, font->style, &lineSpacing);
+	if (status != Ok)
+		return status;
+
+	h = lineSpacing * (font->emSize / emHeight);
+	*height = gdip_unit_conversion (font->unit, UnitInch, dpi, gtMemoryBitmap, h) * dpi;
 	return Ok;
 }
 

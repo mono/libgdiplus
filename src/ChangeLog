@@ -1,3 +1,11 @@
+2007-04-02  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* font.c: Avoid locking multiple time for the same font family (e.g.
+	when asking for GetHeight). Make sure we're setting cellascent and 
+	celldescent even if the horizontal table isn't available. This also 
+	simplify the code and has better error handling. Added better error 
+	handling in GdipGetFontHeight and GdipGetFontHeightGivenDPI functions.
+
 2007-04-02  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c: Change some functions to static and remove unused function.
