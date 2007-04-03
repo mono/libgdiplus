@@ -72,25 +72,25 @@ typedef struct {
         SizeDelegate sizeFunc;
 } gdip_tiff_clientData;
 
-tsize_t 
+static tsize_t 
 gdip_tiff_fileread (thandle_t clientData, tdata_t buffer, tsize_t size)
 {
 	return (tsize_t)fread(buffer, 1, size, (FILE*)clientData);
 }
 
-tsize_t 
+static tsize_t 
 gdip_tiff_fileread_none (thandle_t clientData, tdata_t buffer, tsize_t size)
 {
 	return 0;
 }
 
-tsize_t 
+static tsize_t 
 gdip_tiff_filewrite (thandle_t clientData, tdata_t buffer, tsize_t size)
 {
 	return (tsize_t)fwrite (buffer, 1, size, (FILE*)clientData);
 }
 
-toff_t 
+static toff_t 
 gdip_tiff_fileseek (thandle_t clientData, toff_t offSet, int whence)
 {
 	int seek_ok = fseek ((FILE*)clientData, offSet, whence);
@@ -100,14 +100,14 @@ gdip_tiff_fileseek (thandle_t clientData, toff_t offSet, int whence)
 	return -1;
 }
 
-int 
+static int 
 gdip_tiff_fileclose (thandle_t clientData)
 {
 	/* This is a TIFF cleanup function; but we own the FILE* and close it in image.c so this is a null op */
 	return 0;
 }
 
-toff_t 
+static toff_t 
 gdip_tiff_filesize (thandle_t clientData)
 {
 	long ret;
@@ -118,42 +118,42 @@ gdip_tiff_filesize (thandle_t clientData)
 	return (toff_t)ret;
 }
 
-int
+static int
 gdip_tiff_filedummy_map (thandle_t clientData, tdata_t *phase, toff_t* size)
 {
 	return 0;
 }
 
-void
+static void
 gdip_tiff_filedummy_unmap (thandle_t clientData, tdata_t base, toff_t size)
 {
 }
 
-tsize_t 
+static tsize_t 
 gdip_tiff_read (thandle_t clientData, tdata_t buffer, tsize_t size)
 {
 	return (tsize_t)((gdip_tiff_clientData *) clientData)->getBytesFunc (buffer, size, 0);
 }
 
-tsize_t 
+static tsize_t 
 gdip_tiff_read_none (thandle_t clientData, tdata_t buffer, tsize_t size)
 {
 	return 0;
 }
 
-tsize_t 
+static tsize_t 
 gdip_tiff_write (thandle_t clientData, tdata_t buffer, tsize_t size)
 {
 	return (tsize_t)((gdip_tiff_clientData *) clientData)->putBytesFunc (buffer, size);
 }
 
-toff_t 
+static toff_t 
 gdip_tiff_seek (thandle_t clientData, toff_t offSet, int whence)
 {
 	return (toff_t)((gdip_tiff_clientData *) clientData)->seekFunc (offSet, whence);
 }
 
-int 
+static int 
 gdip_tiff_close (thandle_t clientData)
 {
 	/* We should not close the user provided streams */
@@ -161,19 +161,19 @@ gdip_tiff_close (thandle_t clientData)
 	return 1;
 }
 
-toff_t 
+static toff_t 
 gdip_tiff_size (thandle_t clientData)
 {
 	return (toff_t)((gdip_tiff_clientData *) clientData)->sizeFunc ();
 }
 
-int
+static int
 gdip_tiff_dummy_map (thandle_t clientData, tdata_t *phase, toff_t* size)
 {
 	return 0;
 }
 
-void
+static void
 gdip_tiff_dummy_unmap (thandle_t clientData, tdata_t base, toff_t size)
 {
 }
@@ -656,8 +656,8 @@ gdip_load_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
 	return Ok;
 }
 
-GpStatus
-gdip_save_tiff_properties(TIFF *tiff, BitmapData *bitmap_data, int samples_per_pixel, int bits_per_sample)
+static GpStatus
+gdip_save_tiff_properties (TIFF *tiff, BitmapData *bitmap_data, int samples_per_pixel, int bits_per_sample)
 {
 	int		index;
 	unsigned char	*text;
@@ -943,7 +943,7 @@ gdip_save_tiff_properties(TIFF *tiff, BitmapData *bitmap_data, int samples_per_p
 }
 
 /*TODO Handle TIFF Encoder Parameters*/
-GpStatus 
+static GpStatus 
 gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *params)
 {
 	int		frame;

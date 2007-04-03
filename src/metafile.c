@@ -1179,7 +1179,7 @@ update_emf_header (MetafileHeader *header, BYTE* data, int length)
 	return status;
 }
 
-GpStatus 
+static GpStatus 
 gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, BOOL useFile)
 {
 	int size;

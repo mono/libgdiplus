@@ -125,12 +125,12 @@
 
 #define gdip_read_emf_data	gdip_read_bmp_data
 
-GpStatus gdip_load_emf_image_from_file (FILE *fp, GpImage **image);
+GpStatus gdip_load_emf_image_from_file (FILE *fp, GpImage **image) GDIP_INTERNAL;
 
-GpStatus gdip_load_emf_image_from_stream_delegate (dstream_t *loader, GpImage **image);
+GpStatus gdip_load_emf_image_from_stream_delegate (dstream_t *loader, GpImage **image) GDIP_INTERNAL;
 
 /* no save functions as the EMF "codec" is a decoder only */
 
-ImageCodecInfo* gdip_getcodecinfo_emf ();
+ImageCodecInfo* gdip_getcodecinfo_emf () GDIP_INTERNAL;
 
 #endif

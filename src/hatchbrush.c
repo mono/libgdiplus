@@ -44,7 +44,7 @@ static BrushClass vtable = { BrushTypeHatchFill,
 			     gdip_hatch_clone,
 			     gdip_hatch_destroy };
 
-void 
+static void 
 gdip_hatch_init (GpHatch *hatch)
 {
 	gdip_brush_init (&hatch->base, &vtable);
@@ -52,7 +52,7 @@ gdip_hatch_init (GpHatch *hatch)
 	hatch->pattern = NULL;
 }
 
-GpHatch*
+static GpHatch*
 gdip_hatch_new (void)
 {
         GpHatch *result = (GpHatch *) GdipAlloc (sizeof (GpHatch));

@@ -81,12 +81,12 @@
 #define gdip_read_wmf_data	gdip_read_bmp_data
 
 
-GpStatus gdip_load_wmf_image_from_file (FILE *fp, GpImage **image);
+GpStatus gdip_load_wmf_image_from_file (FILE *fp, GpImage **image) GDIP_INTERNAL;
 
-GpStatus gdip_load_wmf_image_from_stream_delegate (dstream_t *loader, GpImage **image);
+GpStatus gdip_load_wmf_image_from_stream_delegate (dstream_t *loader, GpImage **image) GDIP_INTERNAL;
 
 /* no save functions as the WMF "codec" is a decoder only */
 
-ImageCodecInfo* gdip_getcodecinfo_wmf ();
+ImageCodecInfo* gdip_getcodecinfo_wmf () GDIP_INTERNAL;
 
 #endif

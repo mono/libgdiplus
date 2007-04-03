@@ -59,9 +59,6 @@ static const BYTE gif_sig_pattern[] = { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x47
 static const BYTE gif_sig_mask[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
 
-GpStatus  gdip_load_gif_image (void *stream, GpImage **image, bool from_file);
-GpStatus  gdip_save_gif_image (void *stream, GpImage *image, bool from_file);
-
 ImageCodecInfo *
 gdip_getcodecinfo_gif ()
 {                        
@@ -99,32 +96,13 @@ gdip_gif_inputfunc (GifFileType *gif, GifByteType *data, int len)
 	return read;
 }
 
-GpStatus 
-gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
-{
-	return gdip_load_gif_image (fp, image, TRUE);
-}
-
-GpStatus
-gdip_load_gif_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
-                                           SeekDelegate seekFunc,
-                                           GpImage **image)
-{
-	gif_callback_data gif_data;
-	
-	gif_data.getBytesFunc = getBytesFunc;
-	gif_data.seekFunc = seekFunc;
-	
-	return gdip_load_gif_image (&gif_data, image, FALSE);	
-}
-
 /*
    This is the DGifSlurp and AddExtensionBlock code courtesy of giflib, 
    It's modified to not dump comments after the image block, since those 
    are still valid
 */
 
-int
+static int
 AddExtensionBlockMono(SavedImage *New, int Len, unsigned char ExtData[])
 {
 	ExtensionBlock	*ep;
@@ -155,7 +133,7 @@ AddExtensionBlockMono(SavedImage *New, int Len, unsigned char ExtData[])
 	return (GIF_OK);
 }
 
-void
+static void
 FreeExtensionMono(SavedImage *Image)
 {
 	ExtensionBlock *ep;
@@ -170,7 +148,7 @@ FreeExtensionMono(SavedImage *Image)
 	Image->ExtensionBlocks = NULL;
 }
 
-int
+static int
 DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 {
 	int		ImageSize;
@@ -260,8 +238,7 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 	return (GIF_OK);
 }
 
-
-GpStatus 
+static GpStatus 
 gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 {
 	GifFileType	*gif;
@@ -597,6 +574,23 @@ error:
 	return InvalidParameter;
 }
 
+GpStatus 
+gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
+{
+	return gdip_load_gif_image (fp, image, TRUE);
+}
+
+GpStatus
+gdip_load_gif_image_from_stream_delegate (GetBytesDelegate getBytesFunc, SeekDelegate seekFunc, GpImage **image)
+{
+	gif_callback_data gif_data;
+	
+	gif_data.getBytesFunc = getBytesFunc;
+	gif_data.seekFunc = seekFunc;
+	
+	return gdip_load_gif_image (&gif_data, image, FALSE);	
+}
+
 /* Write callback function for the gif libbrary*/
 static int 
 gdip_gif_outputfunc (GifFileType *gif,  const GifByteType *data, int len) 
@@ -608,22 +602,7 @@ gdip_gif_outputfunc (GifFileType *gif,  const GifByteType *data, int len)
 	return written;
 }
 
-
-GpStatus 
-gdip_save_gif_image_to_file (unsigned char *filename, GpImage *image)
-{
-	return gdip_save_gif_image ( (void *)filename, image, TRUE);
-}
-
-GpStatus
-gdip_save_gif_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
-                                         GpImage *image,
-                                         GDIPCONST EncoderParameters *params)
-{
-	return gdip_save_gif_image ( (void *)putBytesFunc, image, FALSE);
-}
-
-GpStatus 
+static GpStatus 
 gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 {
 	GifFileType	*fp;
@@ -935,6 +914,18 @@ error:
 	}
 
 	return GenericError;
+}
+
+GpStatus 
+gdip_save_gif_image_to_file (unsigned char *filename, GpImage *image)
+{
+	return gdip_save_gif_image ((void *)filename, image, TRUE);
+}
+
+GpStatus
+gdip_save_gif_image_to_stream_delegate (PutBytesDelegate putBytesFunc, GpImage *image, GDIPCONST EncoderParameters *params)
+{
+	return gdip_save_gif_image ( (void *)putBytesFunc, image, FALSE);
 }
 
 #else

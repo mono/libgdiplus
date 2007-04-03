@@ -270,7 +270,7 @@ _gdip_dest_stream_term (j_compress_ptr cinfo)
 	dest->putBytesFunc (dest->buf, JPEG_BUFFER_SIZE - dest->parent.free_in_buffer);
 }
 
-GpStatus
+static GpStatus
 gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 {
 	struct jpeg_decompress_struct	cinfo;
@@ -626,7 +626,7 @@ gdip_load_jpeg_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 	return st;
 }
 
-GpStatus
+static GpStatus
 gdip_save_jpeg_image_internal (FILE *fp, PutBytesDelegate putBytesFunc, GpImage *image, GDIPCONST EncoderParameters *params)
 {
 	gdip_stream_jpeg_dest_mgr_ptr	dest = NULL;

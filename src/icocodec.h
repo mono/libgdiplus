@@ -44,12 +44,12 @@ typedef struct {
 
 #define gdip_read_ico_data	gdip_read_bmp_data
 
-GpStatus gdip_load_ico_image_from_file (FILE *fp, GpImage **image);
+GpStatus gdip_load_ico_image_from_file (FILE *fp, GpImage **image) GDIP_INTERNAL;
 
-GpStatus gdip_load_ico_image_from_stream_delegate (dstream_t *loader, GpImage **image);
+GpStatus gdip_load_ico_image_from_stream_delegate (dstream_t *loader, GpImage **image) GDIP_INTERNAL;
 
 /* no save functions as the ICO "codec" is a decoder only */
 
-ImageCodecInfo* gdip_getcodecinfo_ico ();
+ImageCodecInfo* gdip_getcodecinfo_ico () GDIP_INTERNAL;
 
 #endif

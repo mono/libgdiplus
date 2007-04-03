@@ -68,6 +68,32 @@ static int g_decoders = 0;
 static BYTE *g_encoder_list;
 static int g_encoders = 0;
 
+static ImageFormat
+gdip_image_format_for_format_guid (GDIPCONST GUID *formatGUID)
+{
+	if (memcmp (formatGUID, &gdip_bmp_image_format_guid, sizeof (GUID)) == 0)
+		return BMP;
+	if (memcmp (formatGUID, &gdip_jpg_image_format_guid, sizeof (GUID)) == 0)
+		return JPEG;
+	if (memcmp (formatGUID, &gdip_png_image_format_guid, sizeof (GUID)) == 0)
+		return PNG;
+	if (memcmp (formatGUID, &gdip_gif_image_format_guid, sizeof (GUID)) == 0)
+		return GIF;
+	if (memcmp (formatGUID, &gdip_tif_image_format_guid, sizeof (GUID)) == 0)
+		return TIF;
+	if (memcmp (formatGUID, &gdip_exif_image_format_guid, sizeof (GUID)) == 0)
+		return EXIF;
+	if (memcmp (formatGUID, &gdip_wmf_image_format_guid, sizeof (GUID)) == 0)
+		return WMF;
+	if (memcmp (formatGUID, &gdip_emf_image_format_guid, sizeof (GUID)) == 0)
+		return EMF;
+	if (memcmp (formatGUID, &gdip_ico_image_format_guid, sizeof (GUID)) == 0)
+		return ICON;
+	if (memcmp (formatGUID, &gdip_membmp_image_format_guid, sizeof (GUID)) == 0)
+		return PNG; /* MemoryBmp is saved as PNG */
+	return INVALID;
+}
+
 static ImageFormat 
 get_image_format (char *sig_read, size_t size_read)
 {
@@ -93,6 +119,31 @@ get_image_format (char *sig_read, size_t size_read)
 		}
 	}
 	return INVALID;
+}
+
+/* Converts the given interpolation value to cairo_filter_t */
+static cairo_filter_t
+gdip_get_cairo_filter (InterpolationMode imode)
+{
+	cairo_filter_t filter;
+
+	switch (imode) {
+	case InterpolationModeHighQuality:
+	case InterpolationModeHighQualityBilinear:
+	case InterpolationModeHighQualityBicubic:
+		return CAIRO_FILTER_BEST;
+	case InterpolationModeNearestNeighbor:
+		return CAIRO_FILTER_NEAREST;
+	case InterpolationModeBilinear:
+		return CAIRO_FILTER_BILINEAR;
+	case InterpolationModeBicubic:
+		return CAIRO_FILTER_GAUSSIAN;
+	case InterpolationModeLowQuality:
+		return CAIRO_FILTER_FAST;
+	case InterpolationModeDefault:
+	default:
+		return CAIRO_FILTER_GOOD;
+	}
 }
 
 void 
@@ -750,7 +801,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 }
 
 /* Note: use only for encoders (there's more decoders than encoders) */
-ImageFormat 
+static ImageFormat 
 gdip_get_imageformat_from_codec_clsid (CLSID *encoderCLSID)
 {
 	GpStatus status;
@@ -1153,7 +1204,8 @@ GdipImageSelectActiveFrame (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT 
 	}
 }
 
-void copy_pixel (BYTE *src, BYTE *trg, int size)
+static void
+copy_pixel (BYTE *src, BYTE *trg, int size)
 {
 	memcpy (trg, src, size);
 }
@@ -2072,32 +2124,6 @@ GdipSaveImageToDelegate_linux (GpImage *image, GetBytesDelegate getBytesFunc,
     	}
 
     	return status;
-}
-
-ImageFormat
-gdip_image_format_for_format_guid (GDIPCONST GUID *formatGUID)
-{
-	if (memcmp(formatGUID, &gdip_bmp_image_format_guid, sizeof(GUID)) == 0)
-		return BMP;
-	if (memcmp(formatGUID, &gdip_jpg_image_format_guid, sizeof(GUID)) == 0)
-		return JPEG;
-	if (memcmp(formatGUID, &gdip_png_image_format_guid, sizeof(GUID)) == 0)
-		return PNG;
-	if (memcmp(formatGUID, &gdip_gif_image_format_guid, sizeof(GUID)) == 0)
-		return GIF;
-	if (memcmp(formatGUID, &gdip_tif_image_format_guid, sizeof(GUID)) == 0)
-		return TIF;
-	if (memcmp(formatGUID, &gdip_exif_image_format_guid, sizeof(GUID)) == 0)
-		return EXIF;
-	if (memcmp(formatGUID, &gdip_wmf_image_format_guid, sizeof(GUID)) == 0)
-		return WMF;
-	if (memcmp(formatGUID, &gdip_emf_image_format_guid, sizeof(GUID)) == 0)
-		return EMF;
-	if (memcmp(formatGUID, &gdip_ico_image_format_guid, sizeof(GUID)) == 0)
-		return ICON;
-	if (memcmp(formatGUID, &gdip_membmp_image_format_guid, sizeof(GUID)) == 0)
-		return PNG; /* MemoryBmp is saved as PNG */
-	return INVALID;
 }
 
 GpStatus

@@ -30,7 +30,7 @@
 	Helper functions
 */
 
-void
+static void
 gdip_from_Rect_To_RectF (GpRect* rect, GpRectF* rectf)
 {
         rectf->X = rect->X;
@@ -39,7 +39,7 @@ gdip_from_Rect_To_RectF (GpRect* rect, GpRectF* rectf)
         rectf->Height = rect->Height;
 }
 
-void
+static void
 gdip_add_rect_to_array (GpRectF** srcarray, int* elements,  GpRectF* rect)
 {
         GpRectF *array, *next;
@@ -58,7 +58,7 @@ gdip_add_rect_to_array (GpRectF** srcarray, int* elements,  GpRectF* rect)
         *elements = *elements + 1;
 }
 
-BOOL
+static BOOL
 gdip_is_Point_in_RectF_Visible (float x, float y, GpRectF* rect)
 {
         if ((x >= rect->X && x < (rect->X + rect->Width))
@@ -68,7 +68,7 @@ gdip_is_Point_in_RectF_Visible (float x, float y, GpRectF* rect)
                 return FALSE;
 }
 
-BOOL
+static BOOL
 gdip_is_Point_in_RectFs_Visible (float x, float y, GpRectF* r, int cnt)
 {
         GpRectF* rect = r;
@@ -83,7 +83,40 @@ gdip_is_Point_in_RectFs_Visible (float x, float y, GpRectF* r, int cnt)
         return FALSE;
 }
 
-void gdip_get_bounds (GpRectF *allrects, int allcnt, GpRectF *bound);
+static void
+gdip_get_bounds (GpRectF *allrects, int allcnt, GpRectF *bound)
+{
+        float nx, ny, fx, fy;
+        int i;
+        GpRectF *rect;
+
+        if (allrects == NULL || allcnt == 0) {
+                bound->X = bound->Y = bound->Width =  bound->Height = 0;
+                return;
+        }
+
+        /* Build a rect that contains all the rects inside. Smallest x,y and biggest x,y*/
+        nx = allrects->X; ny = allrects->Y;
+        fx = allrects->X + allrects->Width; fy = allrects->Y + allrects->Height;
+
+        for (i = 0, rect = allrects; i < allcnt; i++, rect++) {
+
+                if (rect->X < nx)
+                        nx = rect->X;
+
+                if (rect->Y < ny)
+                        ny = rect->Y;
+
+                if (rect->X + rect->Width  > fx)
+                        fx = rect->X + rect->Width;
+
+                if (rect->Y + rect->Height > fy)
+                        fy = rect->Y + rect->Height;
+        }
+
+        bound->X = nx; bound->Y = ny;
+        bound->Width = fx - nx; bound->Height = fy - ny;
+}
 
 /* This internal version doesn't require a Graphic object to work */
 static BOOL
@@ -142,7 +175,7 @@ gdip_is_InfiniteRegion (GpRegion *region)
 	return FALSE;
 }
 
-BOOL
+static BOOL
 gdip_intersects (GpRectF *rect1, GpRectF *rect2)
 {
 	if (rect1->X + rect1->Width == rect2->X) {
@@ -156,7 +189,7 @@ gdip_intersects (GpRectF *rect1, GpRectF *rect2)
 }
 
 /* Is source contained in target ? */
-BOOL
+static BOOL
 gdip_contains (GpRectF *rect1, GpRectF *rect2)
 {
 	return (rect1->X >= rect2->X &&
@@ -165,7 +198,7 @@ gdip_contains (GpRectF *rect1, GpRectF *rect2)
 		rect1->Y + rect1->Height <= rect2->Y + rect2->Height);
 }
 
-BOOL
+static BOOL
 gdip_add_rect_to_array_notcontained (GpRectF** srcarray, int* elements,  GpRectF* rect)
 {
 	int i;
@@ -185,7 +218,7 @@ gdip_add_rect_to_array_notcontained (GpRectF** srcarray, int* elements,  GpRectF
 }
 
 
-BOOL
+static BOOL
 gdip_equals (GpRectF *rect1, GpRectF *rect2)
 {
 	return (rect1->X == rect2->X &&
@@ -205,7 +238,7 @@ gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect)
 }
 
 /* Finds a rect that has the lowest x and y after the src rect provided */
-BOOL
+static BOOL
 gdip_getlowestrect (GpRectF *rects, int cnt, GpRectF* src, GpRectF* rslt)
 {
 	int i;
@@ -328,7 +361,7 @@ gdip_region_create_from_path (GpRegion *region, GpPath *path)
 	return GdipClonePath (path, &region->tree->path);
 }
 
-GpStatus
+static GpStatus
 gdip_createRegion (GpRegion **region, RegionType type, void *src)
 {
         GpRegion *result;
@@ -519,44 +552,8 @@ GdipSetEmpty (GpRegion *region)
         return Ok;
 }
 
-void
-gdip_get_bounds (GpRectF *allrects, int allcnt, GpRectF *bound)
-{
-        float nx, ny, fx, fy;
-        int i;
-        GpRectF *rect;
-
-        if (allrects == NULL || allcnt == 0) {
-                bound->X = bound->Y = bound->Width =  bound->Height = 0;
-                return;
-        }
-
-        /* Build a rect that contains all the rects inside. Smallest x,y and biggest x,y*/
-        nx = allrects->X; ny = allrects->Y;
-        fx = allrects->X + allrects->Width; fy = allrects->Y + allrects->Height;
-
-        for (i = 0, rect = allrects; i < allcnt; i++, rect++) {
-
-                if (rect->X < nx)
-                        nx = rect->X;
-
-                if (rect->Y < ny)
-                        ny = rect->Y;
-
-                if (rect->X + rect->Width  > fx)
-                        fx = rect->X + rect->Width;
-
-                if (rect->Y + rect->Height > fy)
-                        fy = rect->Y + rect->Height;
-        }
-
-        bound->X = nx; bound->Y = ny;
-        bound->Width = fx - nx; bound->Height = fy - ny;
-}
-
-
 /* Exclude */
-void
+static void
 gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 {
 	GpRectF *allsrcrects = NULL, *rects = NULL;
@@ -677,7 +674,7 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 	Complement: the part of the second region not shared with the first region.
 	Scans the region to be combined and store the rects not present in the region
 */
-void
+static void
 gdip_combine_complement (GpRegion *region, GpRectF *rtrg, int cntt)
 {
 	GpRegion regsrc;
@@ -707,7 +704,7 @@ gdip_combine_complement (GpRegion *region, GpRectF *rtrg, int cntt)
 
 
 /* Union */
-void
+static void
 gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 {
 	GpRectF *allrects = NULL, *rects = NULL;
@@ -850,7 +847,7 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 }
 
 /* Intersect */
-void
+static void
 gdip_combine_intersect (GpRegion *region, GpRectF *rtrg, int cnttrg)
 {
 	GpRectF *rectsrc;
@@ -893,7 +890,7 @@ gdip_combine_intersect (GpRegion *region, GpRectF *rtrg, int cnttrg)
 }
 
 /* Xor */
-void
+static void
 gdip_combine_xor (GpRegion *region, GpRectF *recttrg, int cnttrg)
 {
         GpRegion *rgnsrc;  /* All rectangles of both regions*/

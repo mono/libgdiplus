@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
+ * Copyright (C) 2006-2007 Novell, Inc (http://www.novell.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -39,24 +39,24 @@
 #define SHAPE_SIZE(shape)		(((shape)->Width * (shape)->Height) >> 3)
 
 /* bitmap creation */
-void gdip_region_bitmap_ensure (GpRegion *region);
-GpRegionBitmap* gdip_region_bitmap_from_path (GpPath *path);
-GpRegionBitmap* gdip_region_bitmap_clone (GpRegionBitmap *bitmap);
+void gdip_region_bitmap_ensure (GpRegion *region) GDIP_INTERNAL;
+GpRegionBitmap* gdip_region_bitmap_from_path (GpPath *path) GDIP_INTERNAL;
+GpRegionBitmap* gdip_region_bitmap_clone (GpRegionBitmap *bitmap) GDIP_INTERNAL;
 
-void gdip_region_bitmap_free (GpRegionBitmap *bitmap);
-void gdip_region_bitmap_invalidate (GpRegion *region);
+void gdip_region_bitmap_free (GpRegionBitmap *bitmap) GDIP_INTERNAL;
+void gdip_region_bitmap_invalidate (GpRegion *region) GDIP_INTERNAL;
 
-BOOL gdip_region_bitmap_compare (GpRegionBitmap *shape1, GpRegionBitmap *shape2);
-BOOL gdip_region_bitmap_is_point_visible (GpRegionBitmap *bitmap, int x, int y);
-BOOL gdip_region_bitmap_is_rect_visible (GpRegionBitmap *bitmap, GpRect *rect);
+BOOL gdip_region_bitmap_compare (GpRegionBitmap *shape1, GpRegionBitmap *shape2) GDIP_INTERNAL;
+BOOL gdip_region_bitmap_is_point_visible (GpRegionBitmap *bitmap, int x, int y) GDIP_INTERNAL;
+BOOL gdip_region_bitmap_is_rect_visible (GpRegionBitmap *bitmap, GpRect *rect) GDIP_INTERNAL;
 
-int gdip_region_bitmap_get_scans (GpRegionBitmap *bitmap, GpRectF *rect, int count);
+int gdip_region_bitmap_get_scans (GpRegionBitmap *bitmap, GpRectF *rect, int count) GDIP_INTERNAL;
 
-void gdip_region_bitmap_get_smallest_rect (GpRegionBitmap *bitmap, GpRect *rect);
-void gdip_region_bitmap_shrink (GpRegionBitmap *bitmap, BOOL always_shrink);
+void gdip_region_bitmap_get_smallest_rect (GpRegionBitmap *bitmap, GpRect *rect) GDIP_INTERNAL;
+void gdip_region_bitmap_shrink (GpRegionBitmap *bitmap, BOOL always_shrink) GDIP_INTERNAL;
 
-void gdip_region_bitmap_apply_alpha (GpBitmap *bitmap, GpRegionBitmap *alpha);
+void gdip_region_bitmap_apply_alpha (GpBitmap *bitmap, GpRegionBitmap *alpha) GDIP_INTERNAL;
 
-GpRegionBitmap* gdip_region_bitmap_combine (GpRegionBitmap *bitmap1, GpRegionBitmap* bitmap2, CombineMode combineMode);
+GpRegionBitmap* gdip_region_bitmap_combine (GpRegionBitmap *bitmap1, GpRegionBitmap* bitmap2, CombineMode combineMode) GDIP_INTERNAL;
 
 #endif /* _REGION_BITMAP_H_ */

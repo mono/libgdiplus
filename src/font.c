@@ -24,7 +24,7 @@
  */
 
 #include <stdio.h>
-#include "gdip.h"
+#include "general.h"
 #include <math.h>
 #include <glib.h>
 #include <freetype/tttables.h>

@@ -54,7 +54,7 @@ gdip_custom_linecap_init (GpCustomLineCap *cap, CapClass *vt)
 	cap->width_scale = 0.0;
 }
 
-GpCustomLineCap *
+static GpCustomLineCap*
 gdip_custom_linecap_new (void)
 {
 	GpCustomLineCap *result = (GpCustomLineCap *) GdipAlloc (sizeof (GpCustomLineCap));
@@ -102,7 +102,7 @@ gdip_custom_linecap_destroy (GpCustomLineCap *cap)
 }
 
 /* MonoTODO: Implement this function when cairo supports cairo_stroke_path API */
-GpStatus
+static GpStatus
 gdip_custom_linecap_setup (GpGraphics *graphics, GpCustomLineCap *customCap)
 {
 	if (!graphics || !customCap)

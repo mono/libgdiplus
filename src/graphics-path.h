@@ -101,6 +101,6 @@ GpStatus GdipPathIterNextSubpath (GpPathIterator *iterator, int *resultCount, in
 GpStatus GdipPathIterRewind (GpPathIterator *iterator);
 
 /* internal (non-exported) functions */
-BOOL gdip_path_has_curve (GpPath *path);
+BOOL gdip_path_has_curve (GpPath *path) GDIP_INTERNAL;
 
 #endif /* _GRAPHICS_PATH_H_ */

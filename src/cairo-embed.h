@@ -260,4 +260,8 @@
 #define cairo_xlib_surface_set_drawable			mono_cairo_xlib_surface_set_drawable
 #define cairo_xlib_surface_set_size			mono_cairo_xlib_surface_set_size
 
+#define _cairo_ps_test_force_fallbacks			mono_cairo_ps_test_force_fallbacks
+#define _cairo_scaled_font_test_set_max_glyphs_cached_per_font	mono_cairo_scaled_font_test_set_max_glyphs_cached_per_font
+#define _cairo_xlib_test_disable_render			mono_cairo_xlib_test_disable_render
+
 #endif

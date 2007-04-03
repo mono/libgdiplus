@@ -24,7 +24,7 @@
  *
  */
 
-#include "gdip.h"
+#include "general.h"
 #include "pathgradientbrush.h"
 
 static GpStatus gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush);
@@ -36,7 +36,7 @@ static BrushClass pathgradient_vtable = { BrushTypePathGradient,
                                           gdip_pgrad_clone_brush,
                                           gdip_pgrad_destroy };
 
-void
+static void
 gdip_pathgradient_init (GpPathGradient *pg)
 {
 	gdip_brush_init (&pg->base, &pathgradient_vtable);
@@ -67,7 +67,7 @@ gdip_pathgradient_init (GpPathGradient *pg)
 	pg->pattern = NULL;
 }
 
-GpPathGradient*
+static GpPathGradient*
 gdip_pathgradient_new (void)
 {
 	GpPathGradient *result = (GpPathGradient *) GdipAlloc (sizeof (GpPathGradient));
@@ -350,7 +350,7 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 	return gdip_get_status (cairo_status (graphics->ct));
 }
 
-GpPointF
+static GpPointF
 gdip_get_center (GDIPCONST GpPointF *points, int count)
 {
 	/* Center is the mean of all the points. */
@@ -380,6 +380,33 @@ gdip_has_non_empty_color (GDIPCONST ARGB *colors, int count)
 	}
 
 	return FALSE;
+}
+
+static void
+gdip_rect_expand_by (GpRectF *rect, GpPointF *point)
+{
+	/* This method is somewhat stupid, because GpRect is x,y width,height,
+	* instead of x0,y0 x1,y1.
+	*/
+	float x0 = rect->X;
+	float y0 = rect->Y;
+	float x1 = x0 + rect->Width;
+	float y1 = y0 + rect->Height;
+
+	if (point->X < x0)
+		x0 = point->X;
+	else if (point->X > x1)
+		x1 = point->X;
+
+	if (point->Y < y0)
+		y0 = point->Y;
+	else if (point->Y > y1)
+		y1 = point->Y;
+
+	rect->X = x0;
+	rect->Y = y0;
+	rect->Width = (x1 - x0);
+	rect->Height = (y1 - y0);
 }
 
 /* coverity[+alloc : arg-*3] */
@@ -757,9 +784,6 @@ GdipSetPathGradientPresetBlend (GpPathGradient *brush, GDIPCONST ARGB *blend, GD
 	brush->base.changed = TRUE;
 	return Ok;
 }
-
-/* This is defined in general.c */
-float gdip_erf (float x, float std, float mean);
 
 GpStatus
 GdipSetPathGradientSigmaBlend (GpPathGradient *brush, float focus, float scale)

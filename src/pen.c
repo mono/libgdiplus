@@ -29,7 +29,7 @@
 #include "gdip.h"
 #include "solidbrush.h"
 
-void 
+static void 
 gdip_pen_init (GpPen *pen)
 {
         pen->color = 0;
@@ -54,7 +54,7 @@ gdip_pen_init (GpPen *pen)
 	cairo_matrix_init_identity (&pen->matrix);
 }
 
-GpPen*
+static GpPen*
 gdip_pen_new (void)
 {
         GpPen *result = (GpPen *) GdipAlloc (sizeof (GpPen));

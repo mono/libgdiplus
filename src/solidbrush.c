@@ -41,14 +41,14 @@ static BrushClass vtable = { BrushTypeSolidColor,
 			     gdip_solidfill_clone,
 			     gdip_solidfill_destroy };
 
-void 
+static void 
 gdip_solidfill_init (GpSolidFill *brush)
 {
 	gdip_brush_init (&brush->base, &vtable);
 	brush->color = 0;
 }
 
-GpSolidFill *
+static GpSolidFill*
 gdip_solidfill_new (void)
 {
 	GpSolidFill *result = (GpSolidFill *) GdipAlloc (sizeof (GpSolidFill));

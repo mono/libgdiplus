@@ -4,7 +4,7 @@
  * Authors:
  *      Ravindra (rkumar@novell.com)
  *
- * Copyright (C) Novell, Inc. 2004. http://www.novell.com
+ * Copyright (C) 2004, 2007 Novell, Inc (http://www.novell.com)
  */
 
 #ifndef _CUSTOM_LINECAP_H
@@ -43,7 +43,7 @@ struct _CapClass {
 };
 
 /* CustomLineCap */
-void gdip_custom_linecap_init (GpCustomLineCap *cap, CapClass *vt);
-GpStatus gdip_linecap_setup (GpGraphics *graphics, GpCustomLineCap *customCap);
+void gdip_custom_linecap_init (GpCustomLineCap *cap, CapClass *vt) GDIP_INTERNAL;
+GpStatus gdip_linecap_setup (GpGraphics *graphics, GpCustomLineCap *customCap) GDIP_INTERNAL;
 
 #endif /* _CUSTOM_LINECAP_H */

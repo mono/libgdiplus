@@ -1,3 +1,8 @@
+2007-04-03  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* The great static-fication and hidden-ization of private symbols
+	inside libgdiplus. This brings us much closer to the real GDI+ API.
+
 2007-04-03  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* cairo-embed.h: Rename *all* cairo_* symbols into mono_cairo_*.

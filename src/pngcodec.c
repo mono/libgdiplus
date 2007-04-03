@@ -75,7 +75,7 @@ gdip_getcodecinfo_png ()
 #define siglongjmp longjmp
 #endif
 
-void
+static void
 _gdip_png_stream_read_data (png_structp png_ptr, png_bytep data, png_size_t length)
 {
 	GetBytesDelegate	getBytesFunc;
@@ -95,23 +95,22 @@ _gdip_png_stream_read_data (png_structp png_ptr, png_bytep data, png_size_t leng
 	}
 }
 
-void
+static void
 _gdip_png_stream_write_data (png_structp png_ptr, png_bytep data, png_size_t length)
 {
     PutBytesDelegate putBytesFunc = (PutBytesDelegate) png_get_io_ptr (png_ptr);
     putBytesFunc (data, length);
 }
 
-void
+static void
 _gdip_png_stream_flush_data (png_structp png_ptr)
 {
     /* nothing */
 }
 
-GpStatus
-gdip_load_png_properties(png_structp png_ptr, png_infop info_ptr, png_infop end_ptr, BitmapData *bitmap_data)
+static GpStatus
+gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end_ptr, BitmapData *bitmap_data)
 {
-
 #if defined(PNG_INCH_CONVERSIONS) && defined(PNG_FLOATING_POINT_SUPPORTED)
 	bitmap_data->image_flags |= ImageFlagsHasRealDPI;
 	bitmap_data->dpi_horz = png_get_x_pixels_per_inch(png_ptr, info_ptr);
@@ -221,7 +220,7 @@ gdip_load_png_properties(png_structp png_ptr, png_infop info_ptr, png_infop end_
 	return Ok;
 }
 
-GpStatus 
+static GpStatus 
 gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc, GpImage **image)
 {
 	png_structp	png_ptr = NULL;
@@ -563,7 +562,7 @@ gdip_load_png_image_from_stream_delegate (GetBytesDelegate getBytesFunc, SeekDel
 	return gdip_load_png_image_from_file_or_stream (NULL, getBytesFunc, image);
 }
 
-GpStatus 
+static GpStatus 
 gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, GpImage *image, GDIPCONST EncoderParameters *params)
 {
 	png_structp	png_ptr = NULL;

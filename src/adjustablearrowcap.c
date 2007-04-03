@@ -39,7 +39,7 @@ static CapClass vtable = { CustomLineCapTypeAdjustableArrow,
 			   gdip_adjust_arrowcap_clone_cap,
 			   gdip_adjust_arrowcap_destroy };
 
-void
+static void
 gdip_adjust_arrowcap_init (GpAdjustableArrowCap *arrow)
 {
 	gdip_custom_linecap_init (&arrow->base, &vtable);
@@ -47,7 +47,7 @@ gdip_adjust_arrowcap_init (GpAdjustableArrowCap *arrow)
 	arrow->middle_inset = 0.0;
 }
 
-GpAdjustableArrowCap *
+static GpAdjustableArrowCap*
 gdip_adjust_arrowcap_new (void)
 {
 	GpAdjustableArrowCap *result = (GpAdjustableArrowCap *) GdipAlloc (sizeof (GpAdjustableArrowCap));

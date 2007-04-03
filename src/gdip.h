@@ -27,6 +27,12 @@
 
 #include "pixman.h"
 
+#if HAVE_VISIBILITY_HIDDEN
+	#define GDIP_INTERNAL __attribute__ ((visibility ("hidden")))
+#else
+	#define GDIP_INTERNAL 
+#endif
+
 #ifdef USE_INCLUDED_CAIRO
 	#include "cairo-embed.h"
 	#include "cairo.h"
@@ -999,59 +1005,46 @@ typedef struct
 	unsigned char	*scan;
 } StreamingState;
 
-GpStatus gdip_init_pixel_stream (StreamingState *state, BitmapData *data, int x, int y, int w, int h);
-BOOL gdip_pixel_stream_has_next (StreamingState *state);
-unsigned int gdip_pixel_stream_get_next (StreamingState *state);
-void gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value);
+GpStatus gdip_init_pixel_stream (StreamingState *state, BitmapData *data, int x, int y, int w, int h) GDIP_INTERNAL;
+unsigned int gdip_pixel_stream_get_next (StreamingState *state) GDIP_INTERNAL;
 
 /*
  * Functions
  * 
  */
-void gdip_image_init              (GpImage *image);
+void gdip_image_init (GpImage *image) GDIP_INTERNAL;
+void gdip_bitmap_init (GpBitmap *bitmap) GDIP_INTERNAL;
 
-void		gdip_bitmap_init(GpBitmap *bitmap);
-GpBitmap	*gdip_bitmap_new(void);
-GpBitmap	*gdip_bitmap_new_with_frame(const GUID *dimension, bool add_bitmapdata);
-FrameData	*gdip_frame_add(GpBitmap *bitmap, const GUID *dimension);
-BitmapData	*gdip_frame_add_bitmapdata(FrameData *frame);
-GpStatus	gdip_bitmap_dispose (GpBitmap *bitmap);
-GpStatus	gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap);
-GpStatus	gdip_bitmap_setactive(GpBitmap *bitmap, const GUID *dimension, int index);
-GpStatus	gdip_bitmapdata_clone(BitmapData *src, BitmapData **dest, int count);
-ColorPalette	*gdip_palette_clone(ColorPalette *original);
-GpStatus	gdip_property_get_short(int offset, void *value, unsigned short *result);
-GpStatus	gdip_property_get_long(int offset, void *value, guint32 *result);
-GpStatus	gdip_property_get_srational(int offset, void *value, unsigned short *numerator, unsigned short *denominator);
-GpStatus	gdip_property_get_rational(int offset, void *value, guint32 *numerator, guint32 *denominator);
-GpStatus	gdip_bitmapdata_property_add(BitmapData *bitmap_data, PROPID id, ULONG length, WORD type, VOID *value);
-GpStatus	gdip_bitmapdata_property_add_byte(BitmapData *bitmap_data, PROPID id, byte value);
-GpStatus	gdip_bitmapdata_property_add_short(BitmapData *bitmap_data, PROPID id, unsigned short value);
-GpStatus	gdip_bitmapdata_property_add_long(BitmapData *bitmap_data, PROPID id, guint32 value);
-GpStatus	gdip_bitmapdata_property_add_ASCII(BitmapData *bitmap_data, PROPID id, unsigned char *value);
-GpStatus	gdip_bitmapdata_property_add_rational(BitmapData *bitmap_data, PROPID id, guint32 numerator, guint32 denominator);
-GpStatus	gdip_bitmapdata_property_add_srational(BitmapData *bitmap_data, PROPID id, unsigned short numerator, unsigned short denominator);
-GpStatus	gdip_bitmapdata_property_remove_id(BitmapData *bitmap_data, PROPID id);
-GpStatus	gdip_bitmapdata_property_remove_index(BitmapData *bitmap_data, int index);
-GpStatus	gdip_bitmapdata_property_find_id(BitmapData *bitmap_data, PROPID id, int *index);
+GpBitmap	*gdip_bitmap_new (void) GDIP_INTERNAL;
+GpBitmap	*gdip_bitmap_new_with_frame (const GUID *dimension, bool add_bitmapdata) GDIP_INTERNAL;
+FrameData	*gdip_frame_add(GpBitmap *bitmap, const GUID *dimension) GDIP_INTERNAL;
+BitmapData	*gdip_frame_add_bitmapdata(FrameData *frame) GDIP_INTERNAL;
+GpStatus	gdip_bitmap_dispose (GpBitmap *bitmap) GDIP_INTERNAL;
+GpStatus	gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap) GDIP_INTERNAL;
+GpStatus	gdip_bitmap_setactive (GpBitmap *bitmap, const GUID *dimension, int index) GDIP_INTERNAL;
+GpStatus	gdip_bitmapdata_clone (BitmapData *src, BitmapData **dest, int count) GDIP_INTERNAL;
+ColorPalette	*gdip_palette_clone(ColorPalette *original) GDIP_INTERNAL;
+GpStatus	gdip_property_get_short (int offset, void *value, unsigned short *result) GDIP_INTERNAL;
+GpStatus	gdip_property_get_long (int offset, void *value, guint32 *result) GDIP_INTERNAL;
+GpStatus	gdip_property_get_srational (int offset, void *value, unsigned short *numerator, unsigned short *denominator) GDIP_INTERNAL;
+GpStatus	gdip_property_get_rational (int offset, void *value, guint32 *numerator, guint32 *denominator) GDIP_INTERNAL;
+GpStatus	gdip_bitmapdata_property_add (BitmapData *bitmap_data, PROPID id, ULONG length, WORD type, VOID *value) GDIP_INTERNAL;
+GpStatus	gdip_bitmapdata_property_add_byte (BitmapData *bitmap_data, PROPID id, byte value) GDIP_INTERNAL;
+GpStatus	gdip_bitmapdata_property_add_short (BitmapData *bitmap_data, PROPID id, unsigned short value) GDIP_INTERNAL;
+GpStatus	gdip_bitmapdata_property_add_long (BitmapData *bitmap_data, PROPID id, guint32 value) GDIP_INTERNAL;
+GpStatus	gdip_bitmapdata_property_add_ASCII (BitmapData *bitmap_data, PROPID id, unsigned char *value) GDIP_INTERNAL;
+GpStatus	gdip_bitmapdata_property_add_rational (BitmapData *bitmap_data, PROPID id, guint32 numerator, guint32 denominator) GDIP_INTERNAL;
+GpStatus	gdip_bitmapdata_property_add_srational (BitmapData *bitmap_data, PROPID id, unsigned short numerator, unsigned short denominator) GDIP_INTERNAL;
+GpStatus	gdip_bitmapdata_property_remove_id (BitmapData *bitmap_data, PROPID id) GDIP_INTERNAL;
+GpStatus	gdip_bitmapdata_property_remove_index (BitmapData *bitmap_data, int index) GDIP_INTERNAL;
+GpStatus	gdip_bitmapdata_property_find_id (BitmapData *bitmap_data, PROPID id, int *index) GDIP_INTERNAL;
 
-
-GpGraphics *gdip_graphics_new (cairo_surface_t *surface);
-
-GpStatus gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect);
-GpStatus gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect);
-
-int gdip_from_RGB_to_ARGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride);
-int gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride);
+GpGraphics *gdip_graphics_new (cairo_surface_t *surface) GDIP_INTERNAL;
 
 /* Pen */
-void gdip_pen_init (GpPen *pen);
-GpPen *gdip_pen_new (void);
-GpStatus gdip_pen_setup (GpGraphics *graphics, GpPen *pen);
+GpStatus gdip_pen_setup (GpGraphics *graphics, GpPen *pen) GDIP_INTERNAL;
 
-GpStatus initCodecList (void);
-void releaseCodecList (void);
-void gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, bool *allocated);
+void gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, bool *allocated) GDIP_INTERNAL;
 
 
 /* Bitmap */
@@ -1170,7 +1163,7 @@ GpStatus GdipTranslateClip (GpGraphics *graphics, float dx, float dy);
 GpStatus GdipTranslateClipI (GpGraphics *graphics, int dx, int dy);
 
 /* Status */
-GpStatus gdip_get_status (cairo_status_t status);
+GpStatus gdip_get_status (cairo_status_t status) GDIP_INTERNAL;
 
 /* Pen */
 GpStatus GdipCreatePen1 (int argb, float width, GpUnit unit, GpPen **pen);
@@ -1386,10 +1379,9 @@ GpStatus GdipGetImageEncoders (UINT numEncoders, UINT size, ImageCodecInfo *enco
 #include "graphics-path.h"
 
 /* for drawing curves */
-GpPointF *convert_points (const GpPoint *points, int count);
-GpPointF *gdip_closed_curve_tangents (int terms, const GpPointF *points, int count, float tension);
-GpPointF *gdip_open_curve_tangents (int terms,  const GpPointF *points, int count, float tension);
-void gdip_calculate_coefficients (int count, int terms, float **coefficients, int *coefficients_count);
+GpPointF *convert_points (const GpPoint *points, int count) GDIP_INTERNAL;
+GpPointF *gdip_closed_curve_tangents (int terms, const GpPointF *points, int count, float tension) GDIP_INTERNAL;
+GpPointF *gdip_open_curve_tangents (int terms,  const GpPointF *points, int count, float tension) GDIP_INTERNAL;
 
 /* Memory */
 void *GdipAlloc (int size);
@@ -1398,29 +1390,20 @@ void *GdipCalloc (size_t nelem, size_t elsize);
 void GdipFree (void *ptr);
 
 /* Utility*/
-int fcmp (double x1, double x2, double epsilon);
-float gdip_get_display_dpi();
-float gdip_unitx_convgr (GpGraphics *graphics, float nSrc);
-float gdip_unity_convgr (GpGraphics *graphics, float nSrc);
-float gdip_unit_conversion (Unit from, Unit to, float dpi, GraphicsType type, float nSrc);
+float gdip_get_display_dpi () GDIP_INTERNAL;
+float gdip_unitx_convgr (GpGraphics *graphics, float nSrc) GDIP_INTERNAL;
+float gdip_unity_convgr (GpGraphics *graphics, float nSrc) GDIP_INTERNAL;
+float gdip_unit_conversion (Unit from, Unit to, float dpi, GraphicsType type, float nSrc) GDIP_INTERNAL;
 
-cairo_content_t from_cairoformat_to_content (cairo_format_t format);
+cairo_surface_t * gdip_bitmap_ensure_surface (GpBitmap *bitmap) GDIP_INTERNAL;
+BOOL gdip_is_an_indexed_pixelformat (PixelFormat pixfmt) GDIP_INTERNAL;
+GpBitmap * gdip_convert_indexed_to_rgb (GpBitmap *bitmap) GDIP_INTERNAL;
 
-void gdip_rect_expand_by (GpRectF *rect, GpPointF *point);
+const EncoderParameter *gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid) GDIP_INTERNAL;
 
-cairo_surface_t * gdip_bitmap_ensure_surface (GpBitmap *bitmap);
-BOOL gdip_is_an_indexed_pixelformat (PixelFormat pixfmt);
-GpBitmap * gdip_convert_indexed_to_rgb (GpBitmap *bitmap);
+GpStatus gdip_get_pattern_status (cairo_pattern_t *pat) GDIP_INTERNAL;
 
-const EncoderParameter *gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid);
-gchar *ucs2_to_utf8(const gunichar2 *ucs2, int length);
-bool utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len);
-int utf8_encode_ucs2char(gunichar2 unichar, unsigned char *dest);
-int utf8_decode_ucs2char(const unsigned char *src, gunichar2 *uchar);
-
-GpStatus gdip_get_pattern_status (cairo_pattern_t *pat);
-
-void gdip_font_clear_pattern_cache (void);
+void gdip_font_clear_pattern_cache (void) GDIP_INTERNAL;
 
 
 /* Stream handling bits */

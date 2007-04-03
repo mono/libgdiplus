@@ -43,7 +43,7 @@ static BrushClass vtable = { BrushTypeLinearGradient,
 			     gdip_linear_gradient_clone_brush,
 			     gdip_linear_gradient_destroy };
 
-void
+static void
 gdip_linear_gradient_init (GpLineGradient *linear)
 {
 	gdip_brush_init (&linear->base, &vtable);
@@ -64,7 +64,7 @@ gdip_linear_gradient_init (GpLineGradient *linear)
 	linear->pattern = NULL;
 }
 
-GpLineGradient*
+static GpLineGradient*
 gdip_linear_gradient_new (void)
 {
 	GpLineGradient *result = (GpLineGradient *) GdipAlloc (sizeof (GpLineGradient));
@@ -202,7 +202,7 @@ gdip_linear_gradient_destroy (GpBrush *brush)
 	return Ok;
 }
 
-void
+static void
 add_color_stops_from_blend (cairo_pattern_t *pattern, Blend *blend, ARGB *colors)
 {
 	int index;
@@ -232,7 +232,7 @@ add_color_stops_from_blend (cairo_pattern_t *pattern, Blend *blend, ARGB *colors
 	}
 }
 
-void
+static void
 add_color_stops_from_interpolation_colors (cairo_pattern_t *pattern, InterpolationColors *presetColors)
 {
 	int index;
@@ -256,7 +256,7 @@ add_color_stops_from_interpolation_colors (cairo_pattern_t *pattern, Interpolati
 	}
 }
 
-void
+static void
 add_color_stops (cairo_pattern_t *pattern, ARGB *colors)
 {
 	double r, g, b, a;
@@ -278,7 +278,7 @@ add_color_stops (cairo_pattern_t *pattern, ARGB *colors)
 	cairo_pattern_add_color_stop_rgba (pattern, 1.0, r / 255, g / 255, b / 255, a / 255);
 }
 
-GpStatus
+static GpStatus
 create_tile_linear (GpGraphics *graphics, cairo_t *ct, GpLineGradient *linear)
 {
 	GpStatus status;
@@ -992,9 +992,6 @@ GdipSetLineLinearBlend (GpLineGradient *brush, float focus, float scale)
 
 	return Ok;
 }
-
-/* This is defined in general.c */
-float gdip_erf (float x, float std, float mean);
 
 GpStatus
 GdipSetLineSigmaBlend (GpLineGradient *brush, float focus, float scale)

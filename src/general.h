@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
+ * Copyright (C) 2006-2007 Novell, Inc (http://www.novell.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -56,14 +56,21 @@ extern const byte pre_multiplied_table[256][256];
 #define CAIRO_LIMIT(v)		((v < CAIRO_LOW_LIMIT) ? CAIRO_LOW_LIMIT : (v > CAIRO_HIGH_LIMIT) ? CAIRO_HIGH_LIMIT : v)
 
 /* prototypes for cairo wrappers to deal with coordonates limits, unit conversion and antialiasing) */
-void gdip_cairo_rectangle (GpGraphics *graphics, double x, double y, double width, double height, BOOL antialiasing);
-void gdip_cairo_move_to (GpGraphics *graphics, double x, double y, BOOL convert_units, BOOL antialiasing);
-void gdip_cairo_line_to (GpGraphics *graphics, double x, double y, BOOL convert_units, BOOL antialiasing);
+void gdip_cairo_rectangle (GpGraphics *graphics, double x, double y, double width, double height, BOOL antialiasing) GDIP_INTERNAL;
+void gdip_cairo_move_to (GpGraphics *graphics, double x, double y, BOOL convert_units, BOOL antialiasing) GDIP_INTERNAL;
+void gdip_cairo_line_to (GpGraphics *graphics, double x, double y, BOOL convert_units, BOOL antialiasing) GDIP_INTERNAL;
 void gdip_cairo_curve_to (GpGraphics *graphics, double x1, double y1, double x2, double y2, double x3, double y3, 
-	BOOL convert_units, BOOL antialiasing);
+	BOOL convert_units, BOOL antialiasing) GDIP_INTERNAL;
 
 /* other shared functions */
-cairo_filter_t gdip_get_cairo_filter (InterpolationMode imode);
-int iround (float d);
+int iround (float d) GDIP_INTERNAL;
+float gdip_erf (float x, float std, float mean) GDIP_INTERNAL;
+
+gchar *ucs2_to_utf8(const gunichar2 *ucs2, int length) GDIP_INTERNAL;
+bool utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) GDIP_INTERNAL;
+int utf8_encode_ucs2char(gunichar2 unichar, unsigned char *dest) GDIP_INTERNAL;
+
+GpStatus initCodecList (void) GDIP_INTERNAL;
+void releaseCodecList (void) GDIP_INTERNAL;
 
 #endif

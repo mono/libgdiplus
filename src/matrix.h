@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
+ * Copyright (C) 2006-2007 Novell, Inc (http://www.novell.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -35,9 +35,9 @@
 
 #define gdip_matrix_reverse_order(order)	((order == MatrixOrderPrepend) ? MatrixOrderAppend : MatrixOrderPrepend)
 
-BOOL gdip_is_matrix_a_translation (GpMatrix *matrix);
-BOOL gdip_is_matrix_empty (GpMatrix* matrix);
+BOOL gdip_is_matrix_a_translation (GpMatrix *matrix) GDIP_INTERNAL;
+BOOL gdip_is_matrix_empty (GpMatrix* matrix) GDIP_INTERNAL;
 
-GpStatus gdip_matrix_init_from_rect_3points (GpMatrix *matrix, const GpRectF *rect, const GpPointF *dstplg);
+GpStatus gdip_matrix_init_from_rect_3points (GpMatrix *matrix, const GpRectF *rect, const GpPointF *dstplg) GDIP_INTERNAL;
 
 #endif /* _MATRIX_H_ */

@@ -45,6 +45,9 @@
 #include "dstream.h"
 
 
+static GpStatus gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile);
+static GpStatus gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFile);
+
 /* Codecinfo related data*/
 static ImageCodecInfo bmp_codec;
 static const WCHAR bmp_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'B', 'M', 'P', 0}; /* Built-in BMP */
@@ -75,7 +78,7 @@ gdip_getcodecinfo_bmp ()
         return &bmp_codec; 
 }
 
-GpStatus
+static GpStatus
 gdip_get_bmp_pixelformat (BITMAPINFOHEADER *bih, PixelFormat *dest)
 {
 	int bitCount = bih->biBitCount;
@@ -128,7 +131,7 @@ gdip_get_bmp_pixelformat (BITMAPINFOHEADER *bih, PixelFormat *dest)
 	return Ok;
 }
 
-void 
+static void 
 gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 {
 	PixelFormat format = bitmap->active_bitmap->pixel_format;
@@ -176,7 +179,7 @@ gdip_load_bmp_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 	return gdip_read_bmp_image_from_file_stream ((void *)loader, image, FALSE);
 }
 
-GpStatus
+static GpStatus
 gdip_read_bmp_rle_8bit (void *pointer, byte *scan0, bool upsidedown, int stride, int scanWidth, int scanCount, bool useFile)
 {
 	byte code;
@@ -335,7 +338,7 @@ gdip_read_bmp_rle_8bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 	return Ok;
 }
 
-GpStatus
+static GpStatus
 gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride, int scanWidth, int scanCount, bool useFile)
 {
 	byte code;
@@ -1154,6 +1157,15 @@ gdip_read_bmp_data (void *pointer, byte *data, int size, bool useFile)
 	}
 }
 
+static void 
+gdip_write_bmp_data (void *pointer, byte *data, int size, bool useFile)
+{
+	if (useFile)
+		fwrite (data, 1, size, (FILE*) pointer);
+	else 	
+		((PutBytesDelegate)(pointer))(data, size);	
+}
+
 GpStatus 
 gdip_save_bmp_image_to_file (FILE *fp, GpImage *image)
 {
@@ -1302,14 +1314,3 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
 
 	return Ok;
 }
-
-void 
-gdip_write_bmp_data (void *pointer, byte *data, int size, bool useFile)
-{
-	if (useFile)
-		fwrite (data, 1, size, (FILE*) pointer);
-	else 	
-		((PutBytesDelegate)(pointer))(data, size);	
-}
-
-

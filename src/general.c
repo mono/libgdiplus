@@ -175,47 +175,8 @@ gdip_get_status (cairo_status_t status)
         }
 }
 
-/* Converts the given interpolation value to cairo_filter_t */
-cairo_filter_t
-gdip_get_cairo_filter (InterpolationMode imode)
-{
-	cairo_filter_t filter;
-
-	switch (imode) {
-
-	case InterpolationModeHighQuality:
-	case InterpolationModeHighQualityBilinear:
-	case InterpolationModeHighQualityBicubic:
-		filter = CAIRO_FILTER_BEST;
-		break;
-
-	case InterpolationModeNearestNeighbor:
-		filter = CAIRO_FILTER_NEAREST;
-		break;
-
-	case InterpolationModeBilinear:
-		filter = CAIRO_FILTER_BILINEAR;
-		break;
-
-	case InterpolationModeBicubic:
-		filter = CAIRO_FILTER_GAUSSIAN;
-		break;
-		
-	case InterpolationModeLowQuality:
-		filter = CAIRO_FILTER_FAST;
-		break;
-
-	case InterpolationModeDefault:
-	default:
-		filter = CAIRO_FILTER_GOOD;
-		break;
-	}
-
-	return filter;
-}
-
 float
-gdip_get_display_dpi()
+gdip_get_display_dpi ()
 {
 	static float dpis = 0;
 	Display* display;
@@ -332,33 +293,8 @@ gdip_closed_curve_tangents (int terms, const GpPointF *points, int count, float 
         return tangents;
 }
 
-void
-gdip_rect_expand_by (GpRectF *rect, GpPointF *point)
-{
-    /* This method is somewhat stupid, because GpRect is x,y width,height,
-     * instead of x0,y0 x1,y1.
-     */
-    float x0 = rect->X;
-    float y0 = rect->Y;
-    float x1 = x0 + rect->Width;
-    float y1 = y0 + rect->Height;
-
-    if (point->X < x0)
-        x0 = point->X;
-    else if (point->X > x1)
-        x1 = point->X;
-
-    if (point->Y < y0)
-        y0 = point->Y;
-    else if (point->Y > y1)
-        y1 = point->Y;
-
-    rect->X = x0;
-    rect->Y = y0;
-    rect->Width = (x1 - x0);
-    rect->Height = (y1 - y0);
-}
-
+/* re-enabled if/when required */
+#if FALSE
 /* this function comes from fcmp.sf.net */
 int
 fcmp (double x1, double x2, double epsilon)
@@ -402,6 +338,7 @@ fcmp (double x1, double x2, double epsilon)
         else /* -delta <= difference <= delta */
                 return 0;  /* x1 == x2 */
 }
+#endif
 
 /* note: round[f] is C99 */
 int
@@ -414,7 +351,8 @@ iround (float d)
 /* This function is used by gradient brushes for calculating the erf required for 
  * calculating the integral of the normal distribution equation.
  */
-float gdip_erf (float x, float std, float mean)
+float
+gdip_erf (float x, float std, float mean)
 {
 	/* std refers to standard deviation
 	 *
@@ -539,9 +477,11 @@ utf8_encode_ucs2char(gunichar2 unichar, unsigned char *dest)
 	return (3);	
 }
 
+/* re-enabled if/when required */
+#if FALSE
 /* This function only handles UCS-2 */
 int
-utf8_decode_ucs2char(const unsigned char *src, gunichar2 *uchar)
+utf8_decode_ucs2char (const unsigned char *src, gunichar2 *uchar)
 {
 	if (src[0] <= 0x7F) {			/* 0000-007F: one byte (0xxxxxxx) */
 		*uchar = (gunichar2)src[0];
@@ -558,20 +498,7 @@ utf8_decode_ucs2char(const unsigned char *src, gunichar2 *uchar)
 		((((gunichar2)src[2]) & 0x003F) << 0);
 	return (3);
 }
-
-cairo_content_t
-from_cairoformat_to_content (cairo_format_t format)
-{
-    	switch (format) {
-    	case CAIRO_FORMAT_RGB24:
-		return CAIRO_CONTENT_COLOR;
-	case CAIRO_FORMAT_A8:
-		return CAIRO_CONTENT_ALPHA;
-	case CAIRO_FORMAT_ARGB32:
-	default:
-		return CAIRO_CONTENT_COLOR_ALPHA;
-    }
-}
+#endif
 
 GpStatus
 gdip_get_pattern_status (cairo_pattern_t *pat)

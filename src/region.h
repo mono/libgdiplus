@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
+ * Copyright (C) 2006-2007 Novell, Inc (http://www.novell.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -32,11 +32,10 @@
 #define REGION_INFINITE_POSITION	-4194304
 #define REGION_INFINITE_LENGTH		8388608
 
-BOOL gdip_is_InfiniteRegion (GpRegion *region);
-BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect);
-BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect);
+BOOL gdip_is_InfiniteRegion (GpRegion *region) GDIP_INTERNAL;
+BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect) GDIP_INTERNAL;
 
-void gdip_clear_region (GpRegion *region);
-void gdip_copy_region (GpRegion *source, GpRegion *dest);
+void gdip_clear_region (GpRegion *region) GDIP_INTERNAL;
+void gdip_copy_region (GpRegion *source, GpRegion *dest) GDIP_INTERNAL;
 
 #endif /* _REGION_H_ */

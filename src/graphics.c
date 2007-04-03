@@ -33,7 +33,7 @@
 #include <math.h>
 #include <glib.h>
 
-void gdip_set_cairo_clipping (GpGraphics *graphics);
+static void gdip_set_cairo_clipping (GpGraphics *graphics);
 
 #define	NO_CAIRO_AA
 
@@ -560,7 +560,7 @@ GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 #endif
 
 #ifdef CAIRO_HAS_XLIB_SURFACE
-int
+static int
 ignore_error_handler (Display *dpy, XErrorEvent *event)
 {
 	return Success;
@@ -3551,7 +3551,7 @@ GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 	best thing for now is keep track of what the user wants and let Cairo do its autoclipping
 */
 
-void
+static void
 gdip_set_cairo_clipping (GpGraphics *graphics)
 {
 	GpRegion *work;

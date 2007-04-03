@@ -24,7 +24,7 @@
 #include "general.h"
 #include <math.h>
 
-void
+static void
 gdip_init_image_attribute (GpImageAttribute* attr)
 {
 	attr->colormap = NULL;
@@ -37,7 +37,7 @@ gdip_init_image_attribute (GpImageAttribute* attr)
 	attr->colormatrix_enabled = FALSE;
 }
 
-void
+static void
 gdip_dispose_image_attribute (GpImageAttribute* attr)
 {
 	if (attr->colormap) {
@@ -51,8 +51,7 @@ gdip_dispose_image_attribute (GpImageAttribute* attr)
 	}
 }
 
-
-GpImageAttribute*
+static GpImageAttribute*
 gdip_get_image_attribute (GpImageAttributes* attr, ColorAdjustType type)
 {
 	switch (type)	{

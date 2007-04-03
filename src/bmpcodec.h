@@ -105,42 +105,16 @@ typedef struct {
 	RGBQUAD	bmiColors[1];
 } BITMAPINFO, *PBITMAPINFO, *LPBITMAPINFO;
 
-GpStatus
-gdip_load_bmp_image_from_file (FILE *fp, GpImage **image);
+GpStatus gdip_load_bmp_image_from_file (FILE *fp, GpImage **image) GDIP_INTERNAL;
+GpStatus gdip_load_bmp_image_from_stream_delegate (dstream_t *loader, GpImage **image) GDIP_INTERNAL;
 
-GpStatus
-gdip_load_bmp_image_from_stream_delegate (dstream_t *loader, GpImage **image);
+GpStatus gdip_save_bmp_image_to_file (FILE *fp, GpImage *image) GDIP_INTERNAL;
+GpStatus gdip_save_bmp_image_to_stream_delegate (PutBytesDelegate putBytesFunc, GpImage *image) GDIP_INTERNAL;
 
-GpStatus
-gdip_save_bmp_image_to_file (FILE *fp, GpImage *image);
-
-GpStatus
-gdip_save_bmp_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
-                                        GpImage *image);
-
-ImageCodecInfo *
-gdip_getcodecinfo_bmp ();
-
-void
-gdip_bitmap_save_bmp (const char *name, GpBitmap *bitmap);
-
-void 
-gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi);
-
-GpStatus 
-gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile);
-
-void
-gdip_write_bmp_data (void *pointer, byte *data, int size, bool useFile);
-
-GpStatus 
-gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFile);
-
-int
-gdip_read_bmp_data (void *pointer, byte *data, int size, bool useFile);
+ImageCodecInfo *gdip_getcodecinfo_bmp () GDIP_INTERNAL;
 
 /* helper functions / shared with ICOn codec */
-GpStatus gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, bool useFile, BOOL *os2format, BOOL *upsidedown);
-int gdip_read_bmp_data (void *pointer, byte *data, int size, bool useFile);
+GpStatus gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, bool useFile, BOOL *os2format, BOOL *upsidedown) GDIP_INTERNAL;
+int gdip_read_bmp_data (void *pointer, byte *data, int size, bool useFile) GDIP_INTERNAL;
 
 #endif /* _BMPCODEC_H */

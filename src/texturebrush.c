@@ -42,7 +42,21 @@ static BrushClass vtable = { BrushTypeTextureFill,
 			     gdip_texture_clone,
 			     gdip_texture_destroy };
 
-void 
+static cairo_content_t
+from_cairoformat_to_content (cairo_format_t format)
+{
+    	switch (format) {
+    	case CAIRO_FORMAT_RGB24:
+		return CAIRO_CONTENT_COLOR;
+	case CAIRO_FORMAT_A8:
+		return CAIRO_CONTENT_ALPHA;
+	case CAIRO_FORMAT_ARGB32:
+	default:
+		return CAIRO_CONTENT_COLOR_ALPHA;
+    }
+}
+
+static void 
 gdip_texture_init (GpTexture *texture)
 {
 	gdip_brush_init (&texture->base, &vtable);
@@ -55,7 +69,7 @@ gdip_texture_init (GpTexture *texture)
 	cairo_matrix_init_identity (&texture->matrix);
 }
 
-GpTexture *
+static GpTexture*
 gdip_texture_new (void)
 {
         GpTexture *result = (GpTexture *) GdipAlloc (sizeof (GpTexture));
@@ -70,7 +84,7 @@ gdip_texture_new (void)
 /* 
  * functions to create different wrapmodes.
  */
-GpStatus
+static GpStatus
 draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
 	cairo_surface_t *original;
@@ -126,7 +140,7 @@ draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	return gdip_get_status (cairo_status (ct));
 }
 
-GpStatus
+static GpStatus
 draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
 	cairo_surface_t *original;
@@ -196,7 +210,7 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	return gdip_get_status (cairo_status (ct));
 }
 
-GpStatus
+static GpStatus
 draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
 	cairo_surface_t *original;
@@ -266,7 +280,7 @@ draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	return gdip_get_status (cairo_status (ct));
 }
 
-GpStatus
+static GpStatus
 draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
 	cairo_surface_t *original;
@@ -363,7 +377,7 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	return gdip_get_status (cairo_status (ct));
 }
 
-GpStatus
+static GpStatus
 draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
 	cairo_surface_t *original;

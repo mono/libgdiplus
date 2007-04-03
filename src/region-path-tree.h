@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
+ * Copyright (C) 2006-2007 Novell, Inc (http://www.novell.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -30,14 +30,14 @@
 #define REGION_TAG_PATH		1
 #define REGION_TAG_TREE		2
 
-void gdip_region_clear_tree (GpPathTree *tree);
-void gdip_region_copy_tree (GpPathTree *source, GpPathTree *dest);
+void gdip_region_clear_tree (GpPathTree *tree) GDIP_INTERNAL;
+void gdip_region_copy_tree (GpPathTree *source, GpPathTree *dest) GDIP_INTERNAL;
 
-UINT gdip_region_get_tree_size (GpPathTree *tree);
-BOOL gdip_region_deserialize_tree (BYTE *data, int size, GpPathTree *tree);
-BOOL gdip_region_serialize_tree (GpPathTree *tree, BYTE *buffer, UINT bufferSize, UINT *sizeFilled);
+UINT gdip_region_get_tree_size (GpPathTree *tree) GDIP_INTERNAL;
+BOOL gdip_region_deserialize_tree (BYTE *data, int size, GpPathTree *tree) GDIP_INTERNAL;
+BOOL gdip_region_serialize_tree (GpPathTree *tree, BYTE *buffer, UINT bufferSize, UINT *sizeFilled) GDIP_INTERNAL;
 
-void gdip_region_translate_tree (GpPathTree *tree, float dx, float dy);
-GpStatus gdip_region_transform_tree (GpPathTree *tree, GpMatrix *matrix);
+void gdip_region_translate_tree (GpPathTree *tree, float dx, float dy) GDIP_INTERNAL;
+GpStatus gdip_region_transform_tree (GpPathTree *tree, GpMatrix *matrix) GDIP_INTERNAL;
 
 #endif /* _REGION_PATH_TREE_H_ */

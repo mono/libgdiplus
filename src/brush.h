@@ -5,6 +5,7 @@
  *      Ravindra (rkumar@novell.com)
  *
  * Copyright (C) Novell, Inc. 2004. http://www.novell.com
+ * Copyright (C) 2007 Novell, Inc (http://www.novell.com)
  */
 
 #ifndef _BRUSH_H
@@ -47,8 +48,7 @@ GpStatus GdipDeleteBrush (GpBrush *brush);
 GpStatus GdipGetBrushType (GpBrush *brush, GpBrushType *type);
 
 /* private */
-void gdip_brush_init (GpBrush *brush, BrushClass* vtable);
-GpStatus gdip_brush_setup (GpGraphics *graphics, GpBrush *brush);
-GpStatus gdip_brush_destroy (GpBrush *brush);
+void gdip_brush_init (GpBrush *brush, BrushClass* vtable) GDIP_INTERNAL;
+GpStatus gdip_brush_setup (GpGraphics *graphics, GpBrush *brush) GDIP_INTERNAL;
 
 #endif /* _BRUSH_H */

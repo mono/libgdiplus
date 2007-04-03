@@ -4,7 +4,7 @@
  * Authors:
  *  	Sanjay Gupta (gsanjay@novell.com)
  *
- * Copyright (C) 2003-2006 Novell, Inc (http://www.novell.com)
+ * Copyright (C) 2003-2007 Novell, Inc (http://www.novell.com)
  */
 
 #ifndef _GDIPIMAGE_H
@@ -385,13 +385,9 @@ GpStatus GdipSaveImageToDelegate_linux (GpImage *image,
 					
 GpStatus GdipDisposeImage (GpImage *image);
 
-
-int gdip_getpixel_formatsize(PixelFormat pixfmt);
-int gdip_get_pixel_format_depth(PixelFormat pixfmt);
-int gdip_get_pixel_format_components(PixelFormat pixfmt);
-int gdip_get_pixel_format_bpp (PixelFormat pixfmt);
-ImageFormat gdip_image_format_for_format_guid (GDIPCONST GUID *formatGUID);
-
-
+/* private API */
+int gdip_get_pixel_format_depth (PixelFormat pixfmt) GDIP_INTERNAL;
+int gdip_get_pixel_format_components (PixelFormat pixfmt) GDIP_INTERNAL;
+int gdip_get_pixel_format_bpp (PixelFormat pixfmt) GDIP_INTERNAL;
 
 #endif /* _GDIPIMAGE_H */
