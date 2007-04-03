@@ -1,3 +1,8 @@
+2007-04-03  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* cairo-embed.h: Rename *all* cairo_* symbols into mono_cairo_*.
+	Should fix bug #81279.
+
 2007-04-02  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* font.c: Avoid locking multiple time for the same font family (e.g.
