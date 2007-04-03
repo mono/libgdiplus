@@ -1,3 +1,8 @@
+2007-04-03  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* testgdi.c: Adjust sample as private symbol gdip_graphics_new isn't
+	exported anymore outside libgdiplus.
+
 2006-04-19  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* testbits.cs: Updated to match new BitmapData and Bitmap structs

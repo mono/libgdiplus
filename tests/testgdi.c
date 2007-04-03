@@ -53,7 +53,7 @@ win_draw(win_t *win)
 					    DefaultVisual(win->dpy, DefaultScreen(win->dpy)),
 					    win->width, win->height);
 
-	gp = gdip_graphics_new (surface);
+	GdipCreateFromXDrawable_linux (NULL, NULL, &gp);
         {	
 		GpPen *pen;
 		GpBrush *brush;
