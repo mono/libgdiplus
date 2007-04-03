@@ -162,6 +162,35 @@ if test "$gdip_ok" = "yes"; then
   AC_DEFINE(HAVE_SIGSETJMP, 1, sigsetjmp is available)
 fi
 
+
+# when possible hide stuff we don't want to export
+AC_MSG_CHECKING(for visibility __attribute__)
+AC_TRY_COMPILE([], [
+   void __attribute__ ((visibility ("hidden"))) doit (void) {}
+   void main () { doit (); }
+], [
+   have_visibility_hidden=yes
+   AC_MSG_RESULT(yes)
+], [
+   have_visibility_hidden=no
+   AC_MSG_RESULT(no)
+])
+
+case "$host" in
+	i*86-*-*)
+		case $host_os in
+		  solaris*)
+			# On solaris 10 x86, gcc prints a warning saying 'visibility attribute not supported on this configuration; ignored', but linking fails.
+			have_visibility_hidden=no
+		esac
+		;;
+esac
+
+if test "x$have_visibility_hidden" = "xyes"; then
+   AC_DEFINE(HAVE_VISIBILITY_HIDDEN, 1, [Support for the visibility ("hidden") attribute])
+fi
+
+
 AC_ARG_WITH(libjpeg,
 	[AC_HELP_STRING([--without-libjpeg], [disable JPEG file IO])])
 AC_ARG_WITH(libtiff,
