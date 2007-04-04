@@ -76,9 +76,9 @@ get_ico_data (BYTE *data, int x, int y, int bpp, int line_length)
 }
 
 static BOOL
-read_ICONDIRENTRY (void *pointer, ICONDIRENTRY *entry, BOOL useFile, BOOL decode)
+read_ICONDIRENTRY (void *pointer, ICONDIRENTRY *entry, ImageSource source, BOOL decode)
 {
-	if (gdip_read_ico_data (pointer, (void*)entry, sizeof (ICONDIRENTRY), useFile) != sizeof (ICONDIRENTRY))
+	if (gdip_read_ico_data (pointer, (void*)entry, sizeof (ICONDIRENTRY), source) != sizeof (ICONDIRENTRY))
 		return FALSE;
 #if WORDS_BIGENDIAN
 	if (decode) {
@@ -98,7 +98,7 @@ read_ICONDIRENTRY (void *pointer, ICONDIRENTRY *entry, BOOL useFile, BOOL decode
 }
 
 static GpStatus
-gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFile)
+gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSource source)
 {
 	GpStatus status = InvalidParameter;
 	GpBitmap *result = NULL;
@@ -119,20 +119,20 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	BYTE *xor_data = NULL, *and_data = NULL;
 
 	/* WORD ICONDIR.idReserved / reversed, MUST be 0 */
-	if (gdip_read_ico_data (pointer, p, sizeof (WORD), useFile) != sizeof (WORD))
+	if (gdip_read_ico_data (pointer, p, sizeof (WORD), source) != sizeof (WORD))
 		goto error;
 	if (w != 0)
 		goto error;
 
 	/* WORD ICONDIR.idType / resource type, MUST be 1 for icons */
-	if (gdip_read_ico_data (pointer, p, sizeof (WORD), useFile) != sizeof (WORD))
+	if (gdip_read_ico_data (pointer, p, sizeof (WORD), source) != sizeof (WORD))
 		goto error;
 	i = (b[1] << 8 | b[0]);
 	if (i != 1)
 		goto error;
 
 	/* WORD ICONDIR.idCount / number of icons, must be greater than 0 */
-	if (gdip_read_ico_data (pointer, p, sizeof (WORD), useFile) != sizeof (WORD))
+	if (gdip_read_ico_data (pointer, p, sizeof (WORD), source) != sizeof (WORD))
 		goto error;
 	count = (b[1] << 8 | b[0]); 
 	if (count < 1)
@@ -144,23 +144,23 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	 * (e.g. it can return the 16 pixel version, instead of the 32 or 48 pixels available in the same file)
 	 */ 
 	for (i = 0; i < count - 1; i++) {
-		if (!read_ICONDIRENTRY (pointer, &entry, useFile, FALSE))
+		if (!read_ICONDIRENTRY (pointer, &entry, source, FALSE))
 			goto error;
 		pos += sizeof (ICONDIRENTRY);
 	}
 	/* last one is important, so we must decode (endianess) it's values */
-	if (!read_ICONDIRENTRY (pointer, &entry, useFile, TRUE))
+	if (!read_ICONDIRENTRY (pointer, &entry, source, TRUE))
 		goto error;
 	pos += sizeof (ICONDIRENTRY);
 
 	while (pos < entry.dwImageOffset) {
-		if (gdip_read_ico_data (pointer, p, sizeof (WORD), useFile) != sizeof (WORD))
+		if (gdip_read_ico_data (pointer, p, sizeof (WORD), source) != sizeof (WORD))
 			goto error;
 		pos += sizeof (WORD);
 	}
 
 	/* BITMAPINFOHEADER */
-	status = gdip_read_BITMAPINFOHEADER (pointer, &bih, useFile, &os2format, &upsidedown);
+	status = gdip_read_BITMAPINFOHEADER (pointer, &bih, source, &os2format, &upsidedown);
 	if (status != Ok)
 		goto error;
 	
@@ -217,7 +217,7 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 		BYTE color[4]; 
 		void *p = &color;
 
-		if (gdip_read_ico_data (pointer, p, 4, useFile) < 4) {
+		if (gdip_read_ico_data (pointer, p, 4, source) < 4) {
 			status = InvalidParameter;
 			goto error;
 		}
@@ -253,7 +253,7 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 		status = OutOfMemory;
 		goto error;
 	}
-	if (gdip_read_ico_data (pointer, xor_data, xor_size, useFile) < xor_size) {
+	if (gdip_read_ico_data (pointer, xor_data, xor_size, source) < xor_size) {
 		status = InvalidParameter;
 		goto error;
 	}
@@ -265,7 +265,7 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 		status = OutOfMemory;
 		goto error;
 	}
-	if (gdip_read_ico_data (pointer, and_data, and_size, useFile) < and_size) {
+	if (gdip_read_ico_data (pointer, and_data, and_size, source) < and_size) {
 		status = InvalidParameter;
 		goto error;
 	}
@@ -315,11 +315,11 @@ error:
 GpStatus 
 gdip_load_ico_image_from_file (FILE *fp, GpImage **image)
 {
-	return gdip_read_ico_image_from_file_stream ((void*)fp, image, TRUE);
+	return gdip_read_ico_image_from_file_stream ((void*)fp, image, File);
 }
 
 GpStatus 
 gdip_load_ico_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 {
-	return gdip_read_ico_image_from_file_stream ((void *)loader, image, FALSE);
+	return gdip_read_ico_image_from_file_stream ((void *)loader, image, DStream);
 }

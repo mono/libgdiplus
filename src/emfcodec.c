@@ -597,11 +597,11 @@ end_of_record:
 GpStatus 
 gdip_load_emf_image_from_file (FILE *fp, GpImage **image)
 {
-	return gdip_get_metafile_from ((void*)fp, (GpMetafile**)image, TRUE);
+	return gdip_get_metafile_from ((void*)fp, (GpMetafile**)image, File);
 }
 
 GpStatus 
 gdip_load_emf_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 {
-	return gdip_get_metafile_from ((void *)loader, (GpMetafile**)image, FALSE);
+	return gdip_get_metafile_from ((void *)loader, (GpMetafile**)image, DStream);
 }

@@ -334,7 +334,7 @@ GpStatus GdipPlayMetafileRecord (GDIPCONST GpMetafile *metafile, EmfPlusRecordTy
 
 #define gdip_get_metaheader(image)	(&((GpMetafile*)image)->metafile_header)
 
-GpStatus gdip_get_metafile_from (void *pointer, GpMetafile **metafile, bool useFile) GDIP_INTERNAL;
+GpStatus gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source) GDIP_INTERNAL;
 GpStatus gdip_metafile_clone (GpMetafile *metafile, GpMetafile **clonedmetafile) GDIP_INTERNAL;
 GpStatus gdip_metafile_dispose (GpMetafile *metafile) GDIP_INTERNAL;
 

@@ -568,13 +568,16 @@ gdip_metafile_Arc (MetafilePlayContext *context, int left, int top, int right, i
 		(right - left), (bottom - top), atan2 (ystart, xstart), atan2 (yend, xend));
 }
 
+
 /* http://wvware.sourceforge.net/caolan/ora-wmf.html */
 GpStatus
 gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest, int nDestWidth, int nDestHeight, 
 	int XSrc, int YSrc, int nSrcWidth, int nSrcHeight, CONST void *lpBits, CONST BITMAPINFO *lpBitsInfo, 
 	UINT iUsage, DWORD dwRop)
 {
-	GpStatus status;
+	GpStatus status = OutOfMemory;
+	GpImage *image = NULL;
+	MemorySource ms;
 #ifdef DEBUG_METAFILE
 	printf ("StretchDIBits\n\t[XDest %d, YDest %d, nDestWidth %d, nDestHeight %d]", XDest, YDest, nDestWidth, nDestHeight);
 	printf ("\n\t[XSrc %d, YSrc %d, nSrcWidth %d, nSrcHeight %d]", XSrc, YSrc, nSrcWidth, nSrcHeight);
@@ -591,14 +594,15 @@ gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest,
 	printf ("\n\t\tClrUsed: %d", lpBitsInfo->bmiHeader.biClrUsed);
 	printf ("\n\t\tClrImportant: %d", lpBitsInfo->bmiHeader.biClrImportant);
 #endif
-	/* temporary hack to adjust size */
-	GpPen *pen = NULL;
-	status = GdipCreatePen1 (0xFF000000, 0, UnitPixel, &pen);
+	ms.ptr = (unsigned char*)lpBitsInfo;
+	ms.size = lpBitsInfo->bmiHeader.biSizeImage;
+	ms.pos = 0;
+	status = gdip_read_bmp_image (&ms, &image, Memory);
 	if (status == Ok) {
-		status = GdipDrawRectangle (context->graphics, pen, XDest, YDest, nDestWidth, nDestHeight);
+		status = GdipDrawImageRect (context->graphics, image, context->x + XDest, context->y + YDest, nDestWidth, nDestHeight);
 	}
-	if (pen)
-		GdipDeletePen (pen);
+	if (image)
+		GdipDisposeImage (image);
 	return status;
 }
 
@@ -1180,7 +1184,7 @@ update_emf_header (MetafileHeader *header, BYTE* data, int length)
 }
 
 static GpStatus 
-gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, BOOL useFile)
+gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, ImageSource source)
 {
 	int size;
 	DWORD key;
@@ -1190,7 +1194,7 @@ gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, BOOL useFil
 
 	/* peek at first DWORD to select the right format */
 	size = sizeof (DWORD);
-	if (gdip_read_wmf_data (pointer, (void*)&key, size, useFile) != size)
+	if (gdip_read_wmf_data (pointer, (void*)&key, size, source) != size)
 		return GenericError;
 
 #if G_BYTE_ORDER != G_LITTLE_ENDIAN
@@ -1200,7 +1204,7 @@ gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, BOOL useFil
 	case ALDUS_PLACEABLE_METAFILE_KEY:
 		aldus_header.Key = key;
 		size = sizeof (WmfPlaceableFileHeader) - size;
-		if (gdip_read_wmf_data (pointer, (void*)(&aldus_header) + sizeof (DWORD), size, useFile) != size)
+		if (gdip_read_wmf_data (pointer, (void*)(&aldus_header) + sizeof (DWORD), size, source) != size)
 			return InvalidParameter;
 #if FALSE
 g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inch %d, reserved %d, checksum %d", 
@@ -1209,7 +1213,7 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 	aldus_header.Checksum);
 #endif
 		size = sizeof (METAHEADER);
-		if (gdip_read_wmf_data (pointer, (void*)&header->WmfHeader, size, useFile) != size)
+		if (gdip_read_wmf_data (pointer, (void*)&header->WmfHeader, size, source) != size)
 			return InvalidParameter;
 
 		WmfPlaceableFileHeaderLE (&aldus_header);
@@ -1220,7 +1224,7 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 		memcpy (&header->WmfHeader, &key, size);
 
 		size = sizeof (METAHEADER) - size;
-		if (gdip_read_wmf_data (pointer, (void*)(&header->WmfHeader) + sizeof (DWORD), size, useFile) != size)
+		if (gdip_read_wmf_data (pointer, (void*)(&header->WmfHeader) + sizeof (DWORD), size, source) != size)
 			return InvalidParameter;
 
 		MetafileHeaderLE (header);
@@ -1230,7 +1234,7 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 		emf = &(header->EmfHeader);
 		emf->iType = key;
 		size = sizeof (ENHMETAHEADER3) - size;
-		if (gdip_read_emf_data (pointer, (void*)(&header->EmfHeader) + sizeof (DWORD), size, useFile) != size)
+		if (gdip_read_emf_data (pointer, (void*)(&header->EmfHeader) + sizeof (DWORD), size, source) != size)
 			return InvalidParameter;
 		EnhMetaHeaderLE (&header->EmfHeader);
 #if FALSE
@@ -1275,12 +1279,12 @@ g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame 
 		size = emf->nSize - sizeof (ENHMETAHEADER3);
 		if (size > 0) {
 			while (size > sizeof (DWORD)) {
-				if (gdip_read_emf_data (pointer, (void*)(&key), sizeof (DWORD), useFile) != sizeof (DWORD))
+				if (gdip_read_emf_data (pointer, (void*)(&key), sizeof (DWORD), source) != sizeof (DWORD))
 					return InvalidParameter;
 				size -= sizeof (DWORD);
 			}
 			if (size > 0) {
-				if (gdip_read_emf_data (pointer, (void*)(&key), size, useFile) != size)
+				if (gdip_read_emf_data (pointer, (void*)(&key), size, source) != size)
 					return InvalidParameter;
 			}
 		}
@@ -1301,7 +1305,7 @@ g_warning ("METAHEADER type %d, header %d, version %d, size %d, #obj %d, max rec
 }
 
 GpStatus 
-gdip_get_metafile_from (void *pointer, GpMetafile **metafile, BOOL useFile)
+gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source)
 {
 	BOOL adjust_emf_headers = FALSE;
 	GpStatus status = OutOfMemory;
@@ -1310,7 +1314,7 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, BOOL useFile)
 		goto error;
 
 	/* decode metafile header */
-	status = gdip_get_metafileheader_from (pointer, &mf->metafile_header, useFile);
+	status = gdip_get_metafileheader_from (pointer, &mf->metafile_header, source);
 	if (status != Ok)
 		goto error;
 
@@ -1334,7 +1338,7 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, BOOL useFile)
 	if (!mf->data)
 		goto error;
 	/* copy data in memory (to play it later) */
-	if (gdip_read_wmf_data (pointer, (void*)mf->data, mf->length, useFile) != mf->length) {
+	if (gdip_read_wmf_data (pointer, (void*)mf->data, mf->length, source) != mf->length) {
 		status = InvalidParameter;
 		goto error;
 	}
@@ -1371,7 +1375,7 @@ GdipCreateMetafileFromFile (GDIPCONST WCHAR *file, GpMetafile **metafile)
 	
 	fp = fopen (file_name, "rb");
 	if (fp) {
-		status = gdip_get_metafile_from (fp, metafile, TRUE);
+		status = gdip_get_metafile_from (fp, metafile, File);
 		fclose (fp);
 	}
 	GdipFree (file_name);
@@ -1401,7 +1405,7 @@ GpStatus GdipCreateMetafileFromDelegate_linux (GetHeaderDelegate getHeaderFunc, 
 
 	loader = dstream_input_new (getBytesFunc, seekFunc);
 	if (loader) {
-		status = gdip_get_metafile_from (loader, metafile, FALSE);
+		status = gdip_get_metafile_from (loader, metafile, DStream);
 		dstream_free (loader);
 	}
 	return status;
@@ -1495,7 +1499,7 @@ GdipGetMetafileHeaderFromFile (GDIPCONST WCHAR *filename, MetafileHeader *header
 	
 	fp = fopen (file_name, "rb");
 	if (fp) {
-		status = gdip_get_metafileheader_from (fp, header, TRUE);
+		status = gdip_get_metafileheader_from (fp, header, File);
 		/* if EMF check for additional header record */
 		if (header->Type == METAFILETYPE_EMF) {
 			/* look for more details, possibly upgrading the metafile to METAFILETYPE_EMFPLUSONLY or EMFPLUSDUAL */
@@ -1531,7 +1535,7 @@ GdipGetMetafileHeaderFromDelegate_linux (GetHeaderDelegate getHeaderFunc, GetByt
 
 	loader = dstream_input_new (getBytesFunc, seekFunc);
 	if (loader) {
-		status = gdip_get_metafileheader_from (loader, header, FALSE);
+		status = gdip_get_metafileheader_from (loader, header, DStream);
 		/* if EMF check for additional header record */
 		if (header->Type == METAFILETYPE_EMF) {
 			/* look for more details, possibly upgrading the metafile to METAFILETYPE_EMFPLUSONLY or EMFPLUSDUAL */

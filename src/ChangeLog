@@ -1,3 +1,13 @@
+2007-04-04  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* bmpcodec.c|h: Refactor reading to use ImageSource so metafiles can
+	reuse the codec to load bitmaps.
+	* emfcodec.c: Update reading to ImageSource.
+	* icocodec.c: Update reading to ImageSource.
+	* metafile.c|h: Implement StretchDIBits for #81178. Update reading to 
+	ImageSource.
+	* wmfcodec.c: Update reading to ImageSource.
+
 2007-04-04  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* image.c: Hack around codec signature detection to add support for 

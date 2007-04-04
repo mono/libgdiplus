@@ -105,6 +105,19 @@ typedef struct {
 	RGBQUAD	bmiColors[1];
 } BITMAPINFO, *PBITMAPINFO, *LPBITMAPINFO;
 
+typedef enum {
+	File,
+	DStream,
+	Memory
+} ImageSource;
+
+typedef struct {
+	BYTE* ptr;
+	int size;
+	int pos;
+} MemorySource;
+
+GpStatus gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source) GDIP_INTERNAL;
 GpStatus gdip_load_bmp_image_from_file (FILE *fp, GpImage **image) GDIP_INTERNAL;
 GpStatus gdip_load_bmp_image_from_stream_delegate (dstream_t *loader, GpImage **image) GDIP_INTERNAL;
 
@@ -114,7 +127,8 @@ GpStatus gdip_save_bmp_image_to_stream_delegate (PutBytesDelegate putBytesFunc, 
 ImageCodecInfo *gdip_getcodecinfo_bmp () GDIP_INTERNAL;
 
 /* helper functions / shared with ICOn codec */
-GpStatus gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, bool useFile, BOOL *os2format, BOOL *upsidedown) GDIP_INTERNAL;
-int gdip_read_bmp_data (void *pointer, byte *data, int size, bool useFile) GDIP_INTERNAL;
+GpStatus gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, ImageSource source, BOOL *os2format, 
+	BOOL *upsidedown) GDIP_INTERNAL;
+int gdip_read_bmp_data (void *pointer, byte *data, int size, ImageSource source) GDIP_INTERNAL;
 
 #endif /* _BMPCODEC_H */
