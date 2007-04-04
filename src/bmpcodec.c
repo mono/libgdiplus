@@ -1089,7 +1089,7 @@ error:
 
 /* BMP read from files have a BITMAPFILEHEADER but this isn't the case for the GDI API
  * (e.g. displaying a bitmap) */
-GpStatus 
+static GpStatus 
 gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, ImageSource source)
 {
 	GpStatus status;
@@ -1191,7 +1191,7 @@ gdip_write_bmp_data (void *pointer, byte *data, int size, bool useFile)
 		((PutBytesDelegate)(pointer))(data, size);	
 }
 
-GpStatus 
+static GpStatus 
 gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
 {
 	BITMAPFILEHEADER	bmfh;
