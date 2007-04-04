@@ -1,3 +1,11 @@
+2007-04-04  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* image.c: Hack around codec signature detection to add support for 
+	non-placeable WMF metafiles (which MS GDI+ supports even if no codec
+	signature match them). Also add a second hack to report a different 
+	image format than the one used to decode the image (non-placeable WMF
+	are reported as EMF).
+
 2007-04-03  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* The great static-fication and hidden-ization of private symbols

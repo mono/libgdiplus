@@ -94,29 +94,53 @@ gdip_image_format_for_format_guid (GDIPCONST GUID *formatGUID)
 	return INVALID;
 }
 
+/* hack #1 - nonplaceable WMF metafiles are supported by no signature match them in the codecs */
+static const BYTE nonplaceable_wmf_sig_pattern[] = { 0x01, 0x00, 0x09, 0x00, 0x00, 0x03 };
+static const BYTE nonplaceable_wmf_sig_mask[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+static const int nonplaceable_wmf_sig_count = 1;
+static const int nonplaceable_wmf_sig_size = 6;
+
+static BOOL
+signature_match (char *data, size_t data_size, int size, int count, BYTE* sig_pattern, BYTE* sig_mask)
+{
+	int sig;
+	for (sig = 0; sig < (size * count); sig += size) {
+		BOOL match = TRUE;
+		int p;
+		for (p = 0; ((p < size) && (p < data_size)); p++) {
+			BYTE *mask = (BYTE*)(&sig_mask [sig]);
+			BYTE *pattern = (BYTE*)(&sig_pattern [sig]);
+			if ((data [p] & mask[p]) != pattern[p]) {
+				match = FALSE;
+				break;
+			}
+		}
+		if (match)
+			return TRUE;
+	}
+	return FALSE;
+}
+
 static ImageFormat 
-get_image_format (char *sig_read, size_t size_read)
+get_image_format (char *sig_read, size_t size_read, ImageFormat *final)
 {
 	ImageCodecInfo *decoder = (ImageCodecInfo*)g_decoder_list;
 	int index;
 	/* look at every decoder available, this will depends on how libgdiplus is compiled */
 	for (index = 0; index < g_decoders; index++, decoder++) {
-		int sig;
 		/* for each signature in the codec */
-		for (sig = 0; sig < (decoder->SigSize * decoder->SigCount); sig += decoder->SigSize) {
-			BOOL match = TRUE;
-			int p;
-			for (p = 0; ((p < decoder->SigSize) && (p < size_read)); p++) {
-				BYTE *mask = (BYTE*)(&decoder->SigMask [sig]);
-				BYTE *pattern = (BYTE*)(&decoder->SigPattern [sig]);
-				if ((sig_read [p] & mask[p]) != pattern[p]) {
-					match = FALSE;
-					break;
-				}
-			}
-			if (match)
-				return gdip_image_format_for_format_guid (&decoder->FormatID);
+		if (signature_match (sig_read, size_read, decoder->SigSize, decoder->SigCount, (BYTE*)&decoder->SigPattern[0],
+			(BYTE*)&decoder->SigMask[0])) {
+			*final = gdip_image_format_for_format_guid (&decoder->FormatID);
+			return *final;
 		}
+	}
+	/* last chance - GDI+ still detects some files even if they don't match the codec signatures */
+	/* [mis-]handle non-placeable metafiles are WMF but reported as EMF (see #81178 for a test case) */
+	if (signature_match (sig_read, size_read, nonplaceable_wmf_sig_size, nonplaceable_wmf_sig_count, 
+		(BYTE*)&nonplaceable_wmf_sig_pattern[0], (BYTE*)&nonplaceable_wmf_sig_mask[0])) {
+		*final = EMF;
+		return WMF;
 	}
 	return INVALID;
 }
@@ -726,7 +750,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	FILE		*fp = NULL;
 	GpImage		*result = NULL;
 	GpStatus	status = Ok;
-	ImageFormat	format;
+	ImageFormat	format, public_format;
 	char		*file_name = NULL;
 	char		format_peek[MAX_CODEC_SIG_LENGTH];
 	int		format_peek_sz;
@@ -747,7 +771,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	}
 	
 	format_peek_sz = fread (format_peek, 1, MAX_CODEC_SIG_LENGTH, fp);
-	format = get_image_format (format_peek, format_peek_sz);
+	format = get_image_format (format_peek, format_peek_sz, &public_format);
 	fseek (fp, 0, SEEK_SET);
 	
 	switch (format) {
@@ -784,7 +808,7 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	}
 
 	if (result && (status == Ok))
-		result->image_format = format;
+		result->image_format = public_format;
 	
 	fclose (fp);
 	GdipFree (file_name);
@@ -2014,14 +2038,14 @@ GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 {
 	GpImage *result = 0;
 	GpStatus status = 0;
-	ImageFormat format;
+	ImageFormat format, public_format;
 	dstream_t *loader = NULL;
 	
 	byte format_peek[MAX_CODEC_SIG_LENGTH];
 	int format_peek_sz;
 	
 	format_peek_sz = getHeaderFunc (format_peek, MAX_CODEC_SIG_LENGTH);
-	format = get_image_format ((char *)format_peek, format_peek_sz);
+	format = get_image_format ((char *)format_peek, format_peek_sz, &public_format);
 	
 	switch (format) {
 	case JPEG:
@@ -2061,7 +2085,7 @@ GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 	}
 
 	if (result && (status == Ok))
-		result->image_format = format;
+		result->image_format = public_format;
 
 	dstream_free (loader);
 	*image = result;
