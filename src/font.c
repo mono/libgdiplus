@@ -686,7 +686,7 @@ gdip_face_create (const char *family,
 
 // coverity[+alloc : arg-*4]
 GpStatus
-GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, Unit unit,  GpFont **font)
+GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit unit, GpFont **font)
 {
 	GpStatus status;
 	FcChar8* str;
@@ -746,17 +746,6 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style,
 }
 
 GpStatus
-GdipGetHfont(GpFont* font, void **Hfont)
-{
-	if (font) {
-		*Hfont=font;
-		return(Ok);
-	}
-	return InvalidParameter;
-}
-
-
-GpStatus
 GdipDeleteFont (GpFont* font)
 {
 	if (!font)
@@ -764,8 +753,8 @@ GdipDeleteFont (GpFont* font)
 
 	cairo_destroy (font->ct);
 
-	GdipFree ((void *)font->face);
-	GdipFree ((void *)font);
+	GdipFree (font->face);
+	GdipFree (font);
 	return Ok;	       
 }
 
@@ -911,15 +900,15 @@ GdipCreateFontFromHfontA(void *hfont, GpFont **font, void *lf)
 }
 
 GpStatus
-GdipGetLogFontW(GpFont *font, GpGraphics *graphics, void *lf)
+GdipGetLogFontW (GpFont *font, GpGraphics *graphics, LOGFONTW *logfontW)
 {
-	return gdip_logfont_from_font (font, graphics, lf, TRUE);
+	return gdip_logfont_from_font (font, graphics, logfontW, TRUE);
 }
 
 GpStatus
-GdipGetLogFontA(GpFont *font, GpGraphics *graphics, void *lf)
+GdipGetLogFontA (GpFont *font, GpGraphics *graphics, LOGFONTA *logfontA)
 {
-	return gdip_logfont_from_font (font, graphics, lf, FALSE);
+	return gdip_logfont_from_font (font, graphics, logfontA, FALSE);
 }
 
 static GpStatus

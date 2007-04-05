@@ -918,15 +918,6 @@ typedef struct {
     char lfFaceName[LF_FACESIZE];
 } LOGFONTA;
  
-typedef struct
-{
-	char		szFamily [128];
-	float		sizeInPixels;
-	GpFontStyle	style;
-	GpFont *	font;
-	int		refcount;
-} GpCachedFont;
-
 typedef struct {
         StringAlignment alignment;
         StringAlignment lineAlignment;
@@ -1287,7 +1278,7 @@ GpStatus GdipPrivateAddFontFile(GpFontCollection* fontCollection,  GDIPCONST WCH
 
 
 /* Font */
-GpStatus GdipCreateFont(GDIPCONST GpFontFamily* family, float emSize, GpFontStyle style, Unit unit,  GpFont **font);
+GpStatus GdipCreateFont(GDIPCONST GpFontFamily* family, float emSize, int style, Unit unit,  GpFont **font);
 GpStatus GdipCreateFontFamilyFromName(GDIPCONST WCHAR *name, GpFontCollection *fontCollection, GpFontFamily **FontFamily);
 GpStatus GdipDeleteFont(GpFont* font);
 

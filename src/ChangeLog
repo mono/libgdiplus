@@ -1,3 +1,11 @@
+2007-04-05  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* font.c: Remove internal (and unused) GdipGetHfont (not in GDI+).
+	Fix GdipCreateFont signature (GpFontStyle isn't defined in GDI+). Fix
+	(precise) GdipGetLogFont[A|W] signatures.
+	* gdip.h: Remove unused GpCachedFont (doesn't exists in GDI+). Fix
+	signature for GdipCreateFont.
+
 2007-04-05  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* metafile.c: Stretch correctly to the metafile size.
