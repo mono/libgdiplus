@@ -599,7 +599,8 @@ gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest,
 	ms.pos = 0;
 	status = gdip_read_bmp_image (&ms, &image, Memory);
 	if (status == Ok) {
-		status = GdipDrawImageRect (context->graphics, image, context->x + XDest, context->y + YDest, nDestWidth, nDestHeight);
+		status = GdipDrawImageRectRect (context->graphics, image, context->x + XDest, context->y + YDest,
+			context->width, context->height, XSrc, YSrc, nSrcWidth, nSrcHeight, UnitPixel, NULL, NULL, NULL);
 	}
 	if (image)
 		GdipDisposeImage (image);
