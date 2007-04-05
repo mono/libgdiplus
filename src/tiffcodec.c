@@ -202,8 +202,8 @@ gdip_getcodecinfo_tiff ()
 	return &tiff_codec;
 }
 
-GpStatus
-gdip_load_tiff_properties(TIFF *tiff, BitmapData *bitmap_data)
+static GpStatus
+gdip_load_tiff_properties (TIFF *tiff, BitmapData *bitmap_data)
 {
 	unsigned char	*text;
 	uint32	i;
@@ -1056,7 +1056,7 @@ error:
 }
 
 
-GpStatus 
+static GpStatus 
 gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 {
 	int		i;

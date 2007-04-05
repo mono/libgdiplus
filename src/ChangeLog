@@ -1,10 +1,11 @@
-2007-04-05  Sebastien Pouliot  <sebastien@ximian.com> 
+2007-04-05  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c: Remove internal (and unused) GdipGetHfont (not in GDI+).
 	Fix GdipCreateFont signature (GpFontStyle isn't defined in GDI+). Fix
 	(precise) GdipGetLogFont[A|W] signatures.
 	* gdip.h: Remove unused GpCachedFont (doesn't exists in GDI+). Fix
 	signature for GdipCreateFont.
+	* tiffcodec.c: Change two functions to static to remove their symbols.
 
 2007-04-05  Sebastien Pouliot  <sebastien@ximian.com>
 
