@@ -1,3 +1,8 @@
+2007-04-09  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bmpcodec.c: Fix 32bpp RGB support not to use the (unused) alpha byte
+	in the file since it can contains junk.
+
 2007-04-05  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c: Remove internal (and unused) GdipGetHfont (not in GDI+).

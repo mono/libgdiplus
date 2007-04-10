@@ -1025,36 +1025,18 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 					continue;
 				}
 
-				case 24: {
+				case 24:
+				case 32: {
 					int src = 0;
 					int dest = 0;
+					int skip = (bmi.biBitCount >> 3);
 
 					index = (line * result->active_bitmap->stride);
 					while (src < loop) {
 						set_pixel_bgra(pixels, index + dest, data_read[src+0], data_read[src+1], data_read[src+2], 0xff);
 						dest += 4;
-						src += 3;
+						src += skip;
 					}
-					continue;
-				}
-
-				case 32: {
-#ifndef WORDS_BIGENDIAN
-					memcpy (pixels + line * result->active_bitmap->stride, data_read, loop);
-#else
-					int	src;
-					int	dest;
-
-					src = 0;
-					dest = 0;
-
-					while (src < loop) {
-						index = (line * result->active_bitmap->stride);
-						set_pixel_bgra(pixels, index+dest, data_read[src+0], data_read[src+1], data_read[src+2], data_read[src+3]);
-						dest += 4;
-						src += 4;
-					}
-#endif
 					continue;
 				}
 			}
