@@ -1,3 +1,8 @@
+2007-04-11  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Fix 24/32 mixup between GDI+ requirements and Cairo inner
+	working. Fix bug #80681 and parts of bug #79246.
+
 2007-04-09  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bmpcodec.c: Fix 32bpp RGB support not to use the (unused) alpha byte

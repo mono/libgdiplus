@@ -1422,31 +1422,44 @@ gdip_init_pixel_stream (StreamingState *state, BitmapData *data, int x, int y, i
 
 	state->p = -1; /* ensure that the buffer will be preloaded on the first call, for indexed formats */
 
-	switch (data->pixel_format) {
-		case Format1bppIndexed: state->one_pixel_mask = 0x01; state->one_pixel_shift = 1; state->pixels_per_byte = 8; break;
-		case Format4bppIndexed: state->one_pixel_mask = 0x0F; state->one_pixel_shift = 4; state->pixels_per_byte = 2; break;
-		case Format8bppIndexed: state->one_pixel_mask = 0xFF; state->one_pixel_shift = 8; state->pixels_per_byte = 1; break;
-		case Format24bppRgb: {
-			state->pixels_per_byte = -3;
-			break;
-		}
-
-		default: {
-			/* indicate full RGB processing */
-			state->pixels_per_byte = -gdip_get_pixel_format_bpp (data->pixel_format) / 8; 
-			break;
-		}
-	}
-
-	state->data = data;
-
 	/* The following computation will compute the byte pointer that _contains_ the first
 	 * pixel; this doesn't necessarily mean that the pixel is aligned to the byte. This
 	 * will be handled in gdip_pixel_stream_get_next () each time it starts a new row.
 	 */
-	state->scan = (unsigned char *)(data->scan0)
-			+ y * data->stride
-			+ x * gdip_get_pixel_format_bpp (data->pixel_format) / 8;
+	state->scan = (unsigned char *)(data->scan0) + y * data->stride;
+
+	switch (data->pixel_format) {
+	case Format1bppIndexed:
+		state->one_pixel_mask = 0x01;
+		state->one_pixel_shift = 1;
+		state->pixels_per_byte = 8;
+		state->scan += (x >> 3);	/* x * 1 / 8 */
+		break;
+	case Format4bppIndexed:
+		state->one_pixel_mask = 0x0F;
+		state->one_pixel_shift = 4;
+		state->pixels_per_byte = 2;
+		state->scan += (x >> 1); 	/* x * 4 / 8 */
+		break;
+	case Format8bppIndexed:
+		state->one_pixel_mask = 0xFF;
+		state->one_pixel_shift = 8;
+		state->pixels_per_byte = 1;
+		state->scan += x; 		/* x * 8 / 8 */
+		break;
+	case Format24bppRgb:
+	case Format32bppRgb:
+		state->pixels_per_byte = -3;
+		state->scan += ((x * 3) >> 3);	/* x * 3 / 8 */
+		break;
+	default:
+		/* indicate full RGB processing */
+		state->pixels_per_byte = -(gdip_get_pixel_format_bpp (data->pixel_format) >> 3); 
+		state->scan -= x * state->pixels_per_byte;
+		break;
+	}
+
+	state->data = data;
 
 	return Ok;
 }
@@ -1565,12 +1578,8 @@ gdip_pixel_stream_get_next (StreamingState *state)
 		 * to 0xFF, or many operations will do nothing (or do strange things if the alpha
 		 * channel contains garbage).
 		 */
-		if (state->data->pixel_format == Format24bppRgb) {
-			int force_alpha;
-			set_pixel_bgra(&force_alpha, 0,
-				0, 0, 0, 0xFF);
-			ret |= force_alpha;
-		}
+		if (state->data->pixel_format == Format24bppRgb)
+			ret |= 0xFF000000;
 
 		state->scan -= state->pixels_per_byte;
 		state->x++;
@@ -1694,10 +1703,7 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 #else
 		*(unsigned int *)state->scan = pixel_value;
 #endif
-
-		 /* We always do 4 here, as the internal representation is always 32 bits */
-		state->scan += 4;
-		/* state->scan -= state->pixels_per_byte; */
+		state->scan -= state->pixels_per_byte;
 		state->x++;
 
 		if (state->x >= (state->region.X + state->region.Width)) {
@@ -1718,7 +1724,10 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
  *            which specifies the output type.
  * destRect - destination rectangle in output.
  *
- * assumes that the pixel format conversion has already been validated.
+ * assumes that:
+ *	- non-null data
+ *	- rectangles are valid
+ *	- the pixel format conversion has already been validated.
  */
 static GpStatus
 gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapData *destData, Rect *destRect)
@@ -1730,61 +1739,18 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 	Rect		effectiveDestRect;
 	GpStatus	status;
 
-	if ((srcData == NULL) || (srcRect == NULL) || (destData == NULL) || (destRect == NULL)) {
-		return InvalidParameter;
-	}
-
-	if ((srcRect->X < 0) || (srcRect->Y < 0) || (srcRect->X >= srcData->width) || (srcRect->Y >= srcData->height)) {
-		return InvalidParameter;
-	}
-
-	if ((srcRect->X + srcRect->Width > srcData->width) || (srcRect->Y + srcRect->Height > srcData->height)) {
-		return InvalidParameter;
-	}
-
-	if ((destRect->X < 0) || (destRect->Y < 0) || (srcRect->Width > destRect->Width) || (srcRect->Height > destRect->Height)) {
-		return InvalidParameter;
-	}
-
 	srcFormat = srcData->pixel_format;
 	destFormat = destData->pixel_format;
 
-	if (!gdip_is_pixel_format_conversion_valid (srcFormat, destFormat)) {
+	if (!gdip_is_pixel_format_conversion_valid (srcFormat, destFormat))
 		return InvalidParameter;
-	}
 
-	if (destData->scan0 == NULL) {
-		int	scans;
-		int	row_bits;
-		int	row_bytes;
-		int	stride;
-		void	*dest_scan0;
-		int	pixel_format;
+	if (!destData->scan0)
+		return InvalidParameter;
 
-		/* Allocate a buffer on behalf of the caller. */
-		scans = destRect->Y + destRect->Height;		/* FIXME - shouldn't this be destRect->Height - destRect->Y ?*/
-
-		pixel_format = gdip_get_pixel_format_bpp (destFormat);
-		row_bits = destRect->Width * pixel_format;
-		row_bytes = (row_bits + 7) / 8;
-		stride = (row_bytes + sizeof(pixman_bits_t) - 1) & ~(sizeof(pixman_bits_t) - 1);
-		dest_scan0 = GdipAlloc(stride * scans);
-
-		if (dest_scan0 == NULL) {
-			return OutOfMemory;
-		}
-
-		destData->width = destRect->X + destRect->Width;
-		destData->height = destRect->Y + destRect->Height;
-		destData->stride = stride;
-		destData->scan0 = dest_scan0;
-		destData->reserved = GBD_OWN_SCAN0;
-	} else {
-		/* Check that the destRect lies fully within the destData buffer. */
-		if ((destRect->X + destRect->Width > destData->width) || (destRect->Y + destRect->Height > destData->height)) {
-			return InvalidParameter;
-		}
-	}
+	/* Check that the destRect lies fully within the destData buffer. */
+	if ((destRect->X + destRect->Width > destData->width) || (destRect->Y + destRect->Height > destData->height))
+		return InvalidParameter;
 
 	effectiveDestRect = *destRect;
 
@@ -1921,34 +1887,35 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 	GpStatus	status;
 	BitmapData	*root_data;
 
-	if ((bitmap == NULL) || (srcRect == NULL) || (flags == 0) || (locked_data == NULL)) {
+	if (!bitmap || !srcRect || !locked_data)
+		return InvalidParameter;
+
+	root_data = bitmap->active_bitmap;
+
+	/* Is this bitmap already locked? */
+	if (root_data->reserved & GBD_LOCKED)
+		return Win32Error;
+
+	/* Make sure the srcRect makes sense */
+	if ((srcRect->X < 0) || (srcRect->Y < 0) || (srcRect->Width < 0) || (srcRect->Height < 0))
+		return InvalidParameter;
+
+	if (((srcRect->X + srcRect->Width) > root_data->width) || ((srcRect->Y + srcRect->Height) > root_data->height))
+		return InvalidParameter;
+
+	/* if the current and specified format are different, that the bitmap is indexed and that we ask for write then... */
+	if ((root_data->pixel_format != format) && gdip_is_an_indexed_pixelformat (root_data->pixel_format) &&
+		((flags & ImageLockModeWrite) != 0)) {
 		return InvalidParameter;
 	}
+
+	if (!gdip_is_a_supported_pixelformat (format))
+		return NotImplemented;
 
 	destRect.X = 0;
 	destRect.Y = 0;
 	destRect.Width = srcRect->Width;
 	destRect.Height = srcRect->Height;
-
-	root_data = bitmap->active_bitmap;
-
-	/* Is this bitmap already locked? */
-	if (root_data->reserved & GBD_LOCKED) {
-		return InvalidParameter;
-	}
-
-	/* Make sure the srcRect makes sense */
-	if ((srcRect->X < 0) || (srcRect->Y < 0) || (srcRect->Width < 0) || (srcRect->Height < 0)) {
-		return InvalidParameter;
-	}
-
-	if (((srcRect->X + srcRect->Width) > root_data->width) || ((srcRect->Y + srcRect->Height) > root_data->height)) {
-		return InvalidParameter;
-	}
-
-	if (gdip_is_a_supported_pixelformat (format) == FALSE) {
-		return NotImplemented;
-	}
 
 	/* Common stuff */
 	if ((flags & ImageLockModeWrite) != 0) {
@@ -1967,7 +1934,15 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 	locked_data->reserved |= GBD_OWN_SCAN0;
 	root_data->reserved |= GBD_LOCKED;
 
-	dest_pixel_format_bpp = gdip_get_pixel_format_bpp (format);
+	switch (format) {
+	case Format24bppRgb:
+		/* workaround a hack we have (because Cairo use 32bits in this case) */
+		dest_pixel_format_bpp = 24;
+		break;
+	default:
+		dest_pixel_format_bpp = gdip_get_pixel_format_bpp (format);
+		break;
+	}
 	dest_stride = (srcRect->Width * dest_pixel_format_bpp + 7) / 8;
 	dest_stride += (sizeof(pixman_bits_t)-1);
 	dest_stride &= ~(sizeof(pixman_bits_t)-1);
