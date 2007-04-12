@@ -1705,10 +1705,10 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 			if (state->data->pixel_format == Format32bppRgb)
 				pixel_value |= 0xFF000000;
 #if WORDS_BIGENDIAN
-			*(unsigned int *)state->scan = pixel_value;
-#else
 			set_pixel_bgra (state->scan, 0, (pixel_value & 0xFF), (pixel_value >> 8) & 0xFF,
 				(pixel_value >> 16) & 0xFF, (pixel_value >> 24));
+#else
+			*(unsigned int *)state->scan = pixel_value;
 #endif
 		} else {
 			/* ensure we don't get one byte over our allocated buffer */
