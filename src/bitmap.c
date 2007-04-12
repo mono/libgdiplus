@@ -1433,25 +1433,29 @@ gdip_init_pixel_stream (StreamingState *state, BitmapData *data, int x, int y, i
 		state->one_pixel_mask = 0x01;
 		state->one_pixel_shift = 1;
 		state->pixels_per_byte = 8;
-		state->scan += (x >> 3);	/* x * 1 / 8 */
+		state->scan += (x >> 3);		/* x * 1 / 8 */
 		break;
 	case Format4bppIndexed:
 		state->one_pixel_mask = 0x0F;
 		state->one_pixel_shift = 4;
 		state->pixels_per_byte = 2;
-		state->scan += (x >> 1); 	/* x * 4 / 8 */
+		state->scan += (x >> 1); 		/* x * 4 / 8 */
 		break;
 	case Format8bppIndexed:
 		state->one_pixel_mask = 0xFF;
 		state->one_pixel_shift = 8;
 		state->pixels_per_byte = 1;
-		state->scan += x; 		/* x * 8 / 8 */
+		state->scan += x; 			/* x * 8 / 8 */
 		break;
 	case Format24bppRgb:
+		/* GDI+ use 3 bytes for 24 bpp while Cairo use 4 bytes */
+		if (data->reserved & GBD_TRUE24BPP) {
+			state->pixels_per_byte = -3;
+			state->scan += ((x * 3) >> 3);	/* x * 3 / 8 */
+			break;
+		}
+		/* else continue (don't break) */
 	case Format32bppRgb:
-		state->pixels_per_byte = -3;
-		state->scan += ((x * 3) >> 3);	/* x * 3 / 8 */
-		break;
 	default:
 		/* indicate full RGB processing */
 		state->pixels_per_byte = -(gdip_get_pixel_format_bpp (data->pixel_format) >> 3); 
@@ -1697,6 +1701,8 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 		 * Note that pixel streams do not support 48- and 64-bit data at this time.
 		 */
 
+		if (state->data->pixel_format == Format32bppRgb)
+			pixel_value |= 0xFF000000;
 #if WORDS_BIGENDIAN
 		set_pixel_bgra (state->scan, 0, (pixel_value & 0xFF), (pixel_value >> 8) & 0xFF,
 			(pixel_value >> 16) & 0xFF, (pixel_value >> 24));
@@ -1938,6 +1944,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 	case Format24bppRgb:
 		/* workaround a hack we have (because Cairo use 32bits in this case) */
 		dest_pixel_format_bpp = 24;
+		locked_data->reserved |= GBD_TRUE24BPP;
 		break;
 	default:
 		dest_pixel_format_bpp = gdip_get_pixel_format_bpp (format);

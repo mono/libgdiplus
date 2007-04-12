@@ -610,12 +610,6 @@ typedef enum {
         RegionTypePath  = 3
 } RegionType;
 
-typedef enum {
-	X11DRV_GET_DISPLAY,			/* get X11 display for a DC */
-	X11DRV_GET_DRAWABLE,		/* get current drawable for a DC */
-	X11DRV_GET_FONT			/* get current X font for a DC */
-} x11drv_escape_codes;
-
 
 /*
  * Structures
@@ -625,6 +619,7 @@ typedef enum {
 #define GBD_OWN_SCAN0	(1<<8)
 #define GBD_WRITE_OK	(1<<9)
 #define GBD_LOCKED	(1<<10)
+#define GBD_TRUE24BPP	(1<<11)
 
 typedef struct {
 	int X, Y, Width, Height;
@@ -931,11 +926,6 @@ typedef struct {
         int numtabStops;
 	int charRangeCount;
 } GpStringFormat;
-
-typedef struct {
-        float X, Y;
-        float width;
-} GpLinePointF;
 
 typedef struct {
 	GpColorMap *colormap;

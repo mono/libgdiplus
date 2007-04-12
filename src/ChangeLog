@@ -1,3 +1,13 @@
+2007-04-12  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Complete the fix for #79246, the previous code was 
+	mishandling the fact that Cairo use 4 bytes for 24bpp while GDI+ is
+	using only 3 bytes (so converting between format isn't only get and
+	set operations).
+	* gdip.h: Remove unused structures x11drv_escape_codes and
+	GpLinePointF. Add define for GBD_TRUE24BPP used to tag a GpBitmapData
+	that use 3 bytes for 24bpp (GDI+) versus 4 bytes (Cairo).
+
 2007-04-11  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bitmap.c: Fix 24/32 mixup between GDI+ requirements and Cairo inner
