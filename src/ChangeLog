@@ -1,3 +1,10 @@
+2007-04-12  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* bitmap.c: Ensure we don't get out of bounds by one byte when using
+	the 24bbp/3bytes mode. Fix a possible leak in GdipBitmapLockBits (e.g.
+	if the pixel format convertion doesn't work). The 2.0 API allows a 
+	test case to be built to validate this.
+
 2007-04-12  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bitmap.c: Complete the fix for #79246, the previous code was 

@@ -1701,14 +1701,22 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 		 * Note that pixel streams do not support 48- and 64-bit data at this time.
 		 */
 
-		if (state->data->pixel_format == Format32bppRgb)
-			pixel_value |= 0xFF000000;
+		if (state->pixels_per_byte == -4) {
+			if (state->data->pixel_format == Format32bppRgb)
+				pixel_value |= 0xFF000000;
 #if WORDS_BIGENDIAN
-		set_pixel_bgra (state->scan, 0, (pixel_value & 0xFF), (pixel_value >> 8) & 0xFF,
-			(pixel_value >> 16) & 0xFF, (pixel_value >> 24));
+			*(unsigned int *)state->scan = pixel_value;
 #else
-		*(unsigned int *)state->scan = pixel_value;
+			set_pixel_bgra (state->scan, 0, (pixel_value & 0xFF), (pixel_value >> 8) & 0xFF,
+				(pixel_value >> 16) & 0xFF, (pixel_value >> 24));
 #endif
+		} else {
+			/* ensure we don't get one byte over our allocated buffer */
+			state->scan[0] = pixel_value;
+			state->scan[1] = (pixel_value >> 8);
+			state->scan[2] = (pixel_value >> 16);
+		}
+
 		state->scan -= state->pixels_per_byte;
 		state->x++;
 
@@ -1980,9 +1988,11 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 	status = Ok;
 	if ((flags & ImageLockModeRead) != 0) {
 		status = gdip_bitmap_change_rect_pixel_format (root_data, srcRect, locked_data, &destRect);
-		/* Even if this fails, we don't free scan0, that will be taken care by who created it */
+		if ((status != Ok) && ((flags & ImageLockModeUserInputBuf) == 0)) {
+			GdipFree (locked_data->scan0);
+			locked_data->scan0 = NULL;
+		}
 	}
-
 	return status;
 }
 
