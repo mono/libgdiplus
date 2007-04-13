@@ -1,3 +1,8 @@
+2007-04-13  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Fix endian issues in GdipLockBits and GdipUnlockBits.
+	* gdip.h: Add macros for setting BRG values in a buffer.
+
 2007-04-12  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* bitmap.c: Ensure we don't get out of bounds by one byte when using

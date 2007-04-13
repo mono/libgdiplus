@@ -60,17 +60,27 @@
 
 #ifdef WORDS_BIGENDIAN
 #define set_pixel_bgra(pixel,index,b,g,r,a) do { \
-		((unsigned char *)(pixel))[index+0] = a; \
+		((unsigned char *)(pixel))[index]   = a; \
 		((unsigned char *)(pixel))[index+1] = r; \
 		((unsigned char *)(pixel))[index+2] = g; \
 		((unsigned char *)(pixel))[index+3] = b; \
 	} while (0)
+#define set_pixel_bgr(pixel,index,b,g,r) do { \
+		((unsigned char *)(pixel))[index]   = r; \
+		((unsigned char *)(pixel))[index+1] = g; \
+		((unsigned char *)(pixel))[index+2] = b; \
+	} while (0)
 #else
 #define set_pixel_bgra(pixel,index,b,g,r,a) do { \
-		((unsigned char *)(pixel))[index+0] = b; \
+		((unsigned char *)(pixel))[index]   = b; \
 		((unsigned char *)(pixel))[index+1] = g; \
 		((unsigned char *)(pixel))[index+2] = r; \
 		((unsigned char *)(pixel))[index+3] = a; \
+	} while (0)
+#define set_pixel_bgr(pixel,index,b,g,r) do { \
+		((unsigned char *)(pixel))[index]   = b; \
+		((unsigned char *)(pixel))[index+1] = g; \
+		((unsigned char *)(pixel))[index+2] = r; \
 	} while (0)
 #endif
 #define get_pixel_bgra(color, b, g, r, a) do { \

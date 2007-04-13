@@ -1568,14 +1568,16 @@ gdip_pixel_stream_get_next (StreamingState *state)
 		 */
 		if (state->pixels_per_byte == -4) {
 #if WORDS_BIGENDIAN
-			ret = state->scan [0] + (state->scan [1] << 8) + (state->scan [2] << 16) + (state->scan [3] << 24);
+			ret = state->scan [0] | (state->scan [1] << 8) | (state->scan [2] << 16) | (state->scan [3] << 24);
 #else
 			ret = *(unsigned int *)state->scan;
 #endif
 		} else {
-			ret = state->scan [0];
-			ret += (state->scan [1] << 8);
-			ret += (state->scan [2] << 16);
+#if WORDS_BIGENDIAN
+			ret = state->scan [2] | (state->scan [1] << 8) | (state->scan [1] << 16);
+#else
+			ret = state->scan [0] | (state->scan [1] << 8) | (state->scan [2] << 16);
+#endif
 		}
 
 		/* Special case: 24-bit data needs to have the cairo format alpha component forced
@@ -1712,9 +1714,7 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 #endif
 		} else {
 			/* ensure we don't get one byte over our allocated buffer */
-			state->scan[0] = pixel_value;
-			state->scan[1] = (pixel_value >> 8);
-			state->scan[2] = (pixel_value >> 16);
+			set_pixel_bgr (state->scan, 0, pixel_value, (pixel_value >> 8), (pixel_value >> 16));
 		}
 
 		state->scan -= state->pixels_per_byte;
