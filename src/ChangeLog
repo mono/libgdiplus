@@ -1,3 +1,8 @@
+2007-04-13  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* bitmap.c: Fix more endian issues in GdipLockBits and GdipUnlockBits
+	and remove a few unrequired masks.
+
 2007-04-13  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bitmap.c: Fix endian issues in GdipLockBits and GdipUnlockBits.

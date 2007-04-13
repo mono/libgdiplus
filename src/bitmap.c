@@ -955,11 +955,8 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 
 #if WORDS_BIGENDIAN
 		for (i=0; i < palette_entries; i++) {
-			set_pixel_bgra (bitmap_data->palette->Entries, (i << 2),
-				0xFF &  default_palette[i]       ,
-				0xFF & (default_palette[i] >>  8),
-				0xFF & (default_palette[i] >> 16),
-				0xFF & (default_palette[i] >> 24));
+			set_pixel_bgra (bitmap_data->palette->Entries, (i << 2), default_palette[i], 
+				(default_palette[i] >>  8), (default_palette[i] >> 16), (default_palette[i] >> 24));
 		}
 #else
 		memcpy (bitmap_data->palette->Entries, default_palette, palette_entries * 4);
@@ -1574,18 +1571,16 @@ gdip_pixel_stream_get_next (StreamingState *state)
 #endif
 		} else {
 #if WORDS_BIGENDIAN
-			ret = state->scan [2] | (state->scan [1] << 8) | (state->scan [1] << 16);
+			ret = state->scan [2] | (state->scan [1] << 8) | (state->scan [0] << 16);
 #else
 			ret = state->scan [0] | (state->scan [1] << 8) | (state->scan [2] << 16);
 #endif
-		}
-
-		/* Special case: 24-bit data needs to have the cairo format alpha component forced
-		 * to 0xFF, or many operations will do nothing (or do strange things if the alpha
-		 * channel contains garbage).
-		 */
-		if (state->data->pixel_format == Format24bppRgb)
+			/* Special case: 24-bit data needs to have the cairo format alpha component forced
+			 * to 0xFF, or many operations will do nothing (or do strange things if the alpha
+			 * channel contains garbage).
+			 */
 			ret |= 0xFF000000;
+		}
 
 		state->scan -= state->pixels_per_byte;
 		state->x++;
@@ -1617,7 +1612,7 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 
 	if (state->pixels_per_byte == 1) {
 		/* A fast path for 8-bit indexed data: pixels are byte-aligned, so no special packing is required. */
-		*state->scan = pixel_value & 0xFF;
+		*state->scan = pixel_value;
 
 		state->scan++;
 		state->x++;
@@ -1704,17 +1699,27 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 		 */
 
 		if (state->pixels_per_byte == -4) {
+#if WORDS_BIGENDIAN
+			state->scan [0] = (pixel_value >> 24);
+			state->scan [1] = (pixel_value >> 16);
+			state->scan [2] = (pixel_value >> 8);
+			state->scan [3] = (state->data->pixel_format == Format32bppRgb) ? 0xFF : pixel_value;
+#else
 			if (state->data->pixel_format == Format32bppRgb)
 				pixel_value |= 0xFF000000;
-#if WORDS_BIGENDIAN
-			set_pixel_bgra (state->scan, 0, (pixel_value & 0xFF), (pixel_value >> 8) & 0xFF,
-				(pixel_value >> 16) & 0xFF, (pixel_value >> 24));
-#else
 			*(unsigned int *)state->scan = pixel_value;
 #endif
 		} else {
 			/* ensure we don't get one byte over our allocated buffer */
-			set_pixel_bgr (state->scan, 0, pixel_value, (pixel_value >> 8), (pixel_value >> 16));
+#if WORDS_BIGENDIAN
+			state->scan [0] = (pixel_value >> 24);
+			state->scan [1] = (pixel_value >> 16);
+			state->scan [2] = (pixel_value >> 8);
+#else
+			state->scan [2] = (pixel_value >> 16);
+			state->scan [1] = (pixel_value >> 8);
+			state->scan [0] = pixel_value;
+#endif
 		}
 
 		state->scan -= state->pixels_per_byte;
@@ -1809,7 +1814,7 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 	return Ok;
 }
 
-
+#if FALSE
 static BOOL
 gdip_is_a_32bit_pixelformat (PixelFormat format)
 {
@@ -1823,7 +1828,6 @@ gdip_is_a_32bit_pixelformat (PixelFormat format)
 	}
 }
 
-#if FALSE
 BOOL
 gdip_can_window_without_copy (BitmapData *data, Rect *rect, int format)
 {
