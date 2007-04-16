@@ -1,3 +1,8 @@
+2007-04-16  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* bitmap.c: Report correct error for GdipBitmap[Get|Set]Pixel on a
+	16bpp grayscale bitmap.
+
 2007-04-13  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* bitmap.c: Fix more endian issues in GdipLockBits and GdipUnlockBits

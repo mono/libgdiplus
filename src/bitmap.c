@@ -2067,27 +2067,25 @@ GdipBitmapSetPixel (GpBitmap *bitmap, int x, int y, ARGB color)
 		return InvalidParameter;
 	}
 
-	if (gdip_is_an_indexed_pixelformat (data->pixel_format)) {
+	if (gdip_is_an_indexed_pixelformat (data->pixel_format))
 		return InvalidParameter;
-	}
 
 	v = (unsigned char *)(data->scan0) + y * data->stride;
 	switch (data->pixel_format) {
-		case Format24bppRgb:
-		case Format32bppRgb:
-			color |= 0xFF000000; /* force the alpha for Cairo */
-			/* fall through */
-		case Format32bppArgb:
-		case Format32bppPArgb: {
-			ARGB *scan = (ARGB *)v;
-
-			scan[x] = color;
-			break;
-		}
-
-		default: {
-			return NotImplemented;
-		}
+	case Format24bppRgb:
+	case Format32bppRgb:
+		color |= 0xFF000000; /* force the alpha for Cairo */
+		/* fall through */
+	case Format32bppArgb:
+	case Format32bppPArgb: {
+		ARGB *scan = (ARGB *)v;
+		scan[x] = color;
+		break;
+	}
+	case Format16bppGrayScale:
+		return InvalidParameter;
+	default:
+		return NotImplemented;
 	} 
 
 	return Ok;		
@@ -2131,23 +2129,21 @@ GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 
 		*color = data->palette->Entries[palette_index];
 	} else {
-		unsigned char *v;
+		unsigned char *v = ((unsigned char *)data->scan0) + y * data->stride;
 
-		v = ((unsigned char *)data->scan0) + y * data->stride;
 		switch (data->pixel_format) {
-			case Format24bppRgb:
-			case Format32bppArgb:
-			case Format32bppPArgb:
-			case Format32bppRgb: {
-				ARGB *scan = (ARGB *)v;
-
-				*color = scan[x];
-				break;
-			}
-
-			default: {
-				return NotImplemented;
-			}
+		case Format16bppGrayScale:
+			return InvalidParameter;
+		case Format24bppRgb:
+		case Format32bppArgb:
+		case Format32bppPArgb:
+		case Format32bppRgb: {
+			ARGB *scan = (ARGB *)v;
+			*color = scan[x];
+			break;
+		}
+		default:
+			return NotImplemented;
 		}
 	} 
 	
