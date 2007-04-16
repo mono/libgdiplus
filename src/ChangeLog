@@ -1,3 +1,7 @@
+2007-04-16  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Complete (hopefully) endian fixes.
+
 2007-04-16  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* bitmap.c: Report correct error for GdipBitmap[Get|Set]Pixel on a

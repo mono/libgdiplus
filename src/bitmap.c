@@ -1570,16 +1570,11 @@ gdip_pixel_stream_get_next (StreamingState *state)
 			ret = *(unsigned int *)state->scan;
 #endif
 		} else {
-#if WORDS_BIGENDIAN
-			ret = state->scan [2] | (state->scan [1] << 8) | (state->scan [0] << 16);
-#else
-			ret = state->scan [0] | (state->scan [1] << 8) | (state->scan [2] << 16);
-#endif
 			/* Special case: 24-bit data needs to have the cairo format alpha component forced
 			 * to 0xFF, or many operations will do nothing (or do strange things if the alpha
 			 * channel contains garbage).
 			 */
-			ret |= 0xFF000000;
+			ret = state->scan [0] | (state->scan [1] << 8) | (state->scan [2] << 16) | 0xFF000000;
 		}
 
 		state->scan -= state->pixels_per_byte;
@@ -1803,6 +1798,9 @@ gdip_bitmap_change_rect_pixel_format (GdipBitmapData *srcData, Rect *srcRect, Gd
 
 			/* Look up the pixel in the palette and get the ARGB value */
 			pixel = srcData->palette->Entries[pixel];
+#if G_BYTE_ORDER != G_LITTLE_ENDIAN
+			pixel = GUINT32_FROM_LE (pixel);
+#endif
 			gdip_pixel_stream_set_next (&destStream, pixel);
 		}
 	} else {
