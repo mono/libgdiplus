@@ -1,3 +1,7 @@
+2007-04-19  Wade Berrier  <wberrier@novell.com>
+
+	* configure.in: version bump -> 1.2.4
+
 2007-04-03  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* configure.in: Add check for visibility ("hidden") attribute (based
