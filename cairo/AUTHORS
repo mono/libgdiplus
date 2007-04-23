@@ -26,7 +26,7 @@ Bdale Garbee <bdale@gag.com> Provided essential support for cairo achitecture se
 Jens Granseuer <jensgr@gmx.net> Fixes to generate proper compiler flags
 Laxmi Harikumar <laxmi.harikumar@digital.com> Build fix
 J. Ali Harlow <ali@avrc.city.ac.uk> win32 backend updates
-Mathias Hasselmann <mathias.hasselmann@gmx.de> Build fixes
+Mathias Hasselmann <mathias.hasselmann@gmx.de> Significant reduction of calls to malloc
 Richard Henderson <rth@twiddle.net> "slim" macros for better shared libraries 
 James Henstridge <james@daa.com.au> Build fixes related to freetype
 Graydon Hoare <graydon@redhat.com> Support for non-render X server, first real text support
@@ -90,7 +90,7 @@ Vladimir Vukicevic <vladimir@pobox.com> Quartz backend rewrite, win32/quartz mai
 Jonathan Watt <jwatt@jwatt.org> win32 fixes
 Peter Weilbacher <pmw@avila.aip.de> OS/2 backend
 Dan Williams <dcbw@redhat.com> Implemnt MMX function to help OLPC
-Chris Wilson <cpwilson@taz.qinetiq.com> Fix memory leak
+Chris Wilson <cpwilson@taz.qinetiq.com> Large-scale robustness improvements, (warn_unsed_result and malloc failure injection)
 Carl Worth <cworth@isi.edu> Original library, support for paths, images
 Richard D. Worth <richard@theworths.org> Build fixes for cygwin
 Kent Worsnop <kworsnop@accesswave.ca> Fix PDF dashing bug

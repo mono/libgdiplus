@@ -34,11 +34,10 @@
  *  Calum Robinson <calumr@mac.com>
  */
 
-#include <stdlib.h>
-#include <math.h>
-#include "cairo-atsui.h"
 #include "cairoint.h"
+
 #include "cairo.h"
+#include "cairo-atsui.h"
 #include "cairo-quartz-private.h"
 
 /*
@@ -117,8 +116,7 @@ _cairo_atsui_font_face_scaled_font_create (void	*abstract_face,
     ATSUStyle style;
 
     err = ATSUCreateStyle (&style);
-    err = ATSUSetAttributes(style,
-                            sizeof(styleTags) / sizeof(styleTags[0]),
+    err = ATSUSetAttributes(style, ARRAY_LENGTH (styleTags),
                             styleTags, styleSizes, styleValues);
 
     return _cairo_atsui_font_create_scaled (&font_face->base, font_face->font_id, style,
@@ -232,8 +230,13 @@ _cairo_atsui_font_create_scaled (cairo_font_face_t *font_face,
     if (font == NULL)
 	return CAIRO_STATUS_NO_MEMORY;
 
-    _cairo_scaled_font_init(&font->base, font_face, font_matrix, ctm, options,
-			    &cairo_atsui_scaled_font_backend);
+    status = _cairo_scaled_font_init (&font->base,
+				      font_face, font_matrix, ctm, options,
+				      &cairo_atsui_scaled_font_backend);
+    if (status) {
+	free (font);
+	return status;
+    }
 
     _cairo_matrix_compute_scale_factors (&font->base.scale, 
 					 &xscale, &yscale, 1);
@@ -374,8 +377,7 @@ _cairo_atsui_font_create_toy(cairo_toy_font_face_t *toy_face,
 	ByteCount styleSizes[] =
 	    { sizeof(Boolean), sizeof(Boolean), sizeof(ATSUFontID) };
 
-	err = ATSUSetAttributes(style,
-				sizeof(styleTags) / sizeof(styleTags[0]),
+	err = ATSUSetAttributes(style, ARRAY_LENGTH (styleTags),
 				styleTags, styleSizes, styleValues);
     }
 
@@ -683,8 +685,9 @@ _cairo_atsui_scaled_font_init_glyph_surface (cairo_atsui_font_t *scaled_font,
 
     if (theGlyph == kATSDeletedGlyphcode) {
 	surface = (cairo_image_surface_t *)cairo_image_surface_create (CAIRO_FORMAT_A8, 2, 2);
-	if (!surface)
-	    return CAIRO_STATUS_NO_MEMORY;
+	if (cairo_surface_status (surface))
+	    return cairo_surface_status (surface);
+
 	_cairo_scaled_glyph_set_surface (scaled_glyph,
 					 &base,
 					 surface);
@@ -692,11 +695,17 @@ _cairo_atsui_scaled_font_init_glyph_surface (cairo_atsui_font_t *scaled_font,
     }
 
     /* Compute a box to contain the glyph mask. The vertical
-     * sizes come from the font extents; extra pixels are 
+     * sizes come from the font extents; extra pixels are
      * added to account for fractional sizes.
      */
     height = extents.ascent + extents.descent + 2.0;
     bottom = -extents.descent - 1.0;
+
+    _cairo_matrix_compute_scale_factors (&base.scale,
+					&xscale, &yscale, 1);
+    bbox = CGRectApplyAffineTransform (CGRectMake (1.0, bottom, 1.0, height), CGAffineTransformMakeScale(xscale, yscale));
+    bottom = CGRectGetMinY (bbox);
+    height = bbox.size.height;
 
     /* Horizontal sizes come from the glyph typographic metrics.
      * It is possible that this might result in clipped text
@@ -704,7 +713,7 @@ _cairo_atsui_scaled_font_init_glyph_surface (cairo_atsui_font_t *scaled_font,
      * The width is recalculated, since metricsH.width is rounded.
      */
     err = ATSUGlyphGetScreenMetrics (scaled_font->style,
-				     1, &theGlyph, 0, false, 
+				     1, &theGlyph, 0, false,
 				     false, &metricsH);    
     left = metricsH.sideBearing.x - 1.0;
     width = metricsH.deviceAdvance.x 
@@ -743,8 +752,8 @@ _cairo_atsui_scaled_font_init_glyph_surface (cairo_atsui_font_t *scaled_font,
 
     /* create the glyph mask surface */
     surface = (cairo_image_surface_t *)cairo_image_surface_create (format, bbox.size.width, bbox.size.height);
-    if (!surface)
-	return CAIRO_STATUS_NO_MEMORY;
+    if (cairo_surface_status (surface))
+	return cairo_surface_status (surface);
 
     /* Create a CGBitmapContext for the dest surface for drawing into */
     {

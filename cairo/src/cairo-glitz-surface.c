@@ -33,7 +33,8 @@ typedef struct _cairo_glitz_surface {
 
     glitz_surface_t   *surface;
     glitz_format_t    *format;
-    pixman_region16_t *clip;
+    cairo_bool_t      has_clip;
+    pixman_region16_t clip;
 } cairo_glitz_surface_t;
 
 static const cairo_surface_backend_t *
@@ -44,10 +45,9 @@ _cairo_glitz_surface_finish (void *abstract_surface)
 {
     cairo_glitz_surface_t *surface = abstract_surface;
 
-    if (surface->clip)
-    {
-	glitz_surface_set_clip_region (surface->surface, 0, 0, NULL, 0);
-	pixman_region_destroy (surface->clip);
+    if (surface->has_clip) {
+        glitz_surface_set_clip_region (surface->surface, 0, 0, NULL, 0);
+        pixman_region_fini (&surface->clip);
     }
 
     glitz_surface_destroy (surface->surface);
@@ -208,7 +208,7 @@ _cairo_glitz_surface_get_image (cairo_glitz_surface_t   *surface,
     }
 
     /* clear out the glitz clip; the clip affects glitz_get_pixels */
-    if (surface->clip)
+    if (surface->has_clip)
 	glitz_surface_set_clip_region (surface->surface,
 				       0, 0, NULL, 0);
 
@@ -221,12 +221,12 @@ _cairo_glitz_surface_get_image (cairo_glitz_surface_t   *surface,
     glitz_buffer_destroy (buffer);
 
     /* restore the clip, if any */
-    if (surface->clip) {
+    if (surface->has_clip) {
 	glitz_box_t *box;
 	int	    n;
 
-	box = (glitz_box_t *) pixman_region_rects (surface->clip);
-	n = pixman_region_num_rects (surface->clip);
+	box = (glitz_box_t *) pixman_region_rects (&surface->clip);
+	n = pixman_region_num_rects (&surface->clip);
 	glitz_surface_set_clip_region (surface->surface, 0, 0, box, n);
     }
 
@@ -1283,26 +1283,25 @@ _cairo_glitz_surface_set_clip_region (void		*abstract_surface,
 	glitz_box_t *box;
 	int	    n;
 
-	if (!surface->clip)
-	{
-	    surface->clip = pixman_region_create ();
-	    if (!surface->clip)
-		return CAIRO_STATUS_NO_MEMORY;
-	}
-	pixman_region_copy (surface->clip, region);
+	if (!surface->has_clip) {
+            pixman_region_init (&surface->clip);
+            surface->has_clip = TRUE;
+        }
 
-	box = (glitz_box_t *) pixman_region_rects (surface->clip);
-	n = pixman_region_num_rects (surface->clip);
+	pixman_region_copy (&surface->clip, region);
+	box = (glitz_box_t *) pixman_region_rects (&surface->clip);
+	n = pixman_region_num_rects (&surface->clip);
+
 	glitz_surface_set_clip_region (surface->surface, 0, 0, box, n);
     }
     else
     {
 	glitz_surface_set_clip_region (surface->surface, 0, 0, NULL, 0);
 
-	if (surface->clip)
-	    pixman_region_destroy (surface->clip);
-
-	surface->clip = NULL;
+	if (surface->has_clip) {
+	    pixman_region_fini (&surface->clip);
+	    surface->has_clip = FALSE;
+        }
     }
 
     return CAIRO_STATUS_SUCCESS;
@@ -2240,9 +2239,9 @@ cairo_glitz_surface_create (glitz_surface_t *surface)
 
     glitz_surface_reference (surface);
 
-    crsurface->surface = surface;
-    crsurface->format  = format;
-    crsurface->clip    = NULL;
+    crsurface->surface  = surface;
+    crsurface->format   = format;
+    crsurface->has_clip = FALSE;
 
     return (cairo_surface_t *) crsurface;
 }

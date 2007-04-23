@@ -92,7 +92,7 @@ _cairo_stats_compute (cairo_stats_t		*stats,
     stats->median_ticks = values[min_valid + num_valid / 2];
 
     sum = 0.0;
-    for (i = min_valid; i < num_valid; i++) {
+    for (i = min_valid; i < min_valid + num_valid; i++) {
 	delta = values[i] - mean;
 	sum += delta * delta;
     }

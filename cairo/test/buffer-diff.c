@@ -339,6 +339,7 @@ image_diff_core (const char *filename_a,
 
     compare_surfaces (surface_a, surface_b, surface_diff, result);
 
+    status = CAIRO_STATUS_SUCCESS;
     if (result->pixels_changed) {
 	FILE *png_file;
 
@@ -347,7 +348,7 @@ image_diff_core (const char *filename_a,
 	else
 	    png_file = stdout;
 
-	cairo_surface_write_to_png_stream (surface_diff, stdio_write_func, png_file);
+	status = cairo_surface_write_to_png_stream (surface_diff, stdio_write_func, png_file);
 
 	if (png_file != stdout)
 	    fclose (png_file);
@@ -360,7 +361,7 @@ image_diff_core (const char *filename_a,
     cairo_surface_destroy (surface_b);
     cairo_surface_destroy (surface_diff);
 
-    return CAIRO_STATUS_SUCCESS;
+    return status;
 }
 
 cairo_status_t

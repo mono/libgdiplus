@@ -536,11 +536,11 @@ cairo_perf_report_diff (cairo_perf_report_t			*old,
 	diffs[num_diffs].new = n;
 	if (args->use_ms) {
 	    diffs[num_diffs].speedup =
-		(double) (o->stats.min_ticks / o->stats.ticks_per_ms)
-		       / (n->stats.min_ticks / n->stats.ticks_per_ms);
+		(double) (o->stats.median_ticks / o->stats.ticks_per_ms)
+		       / (n->stats.median_ticks / n->stats.ticks_per_ms);
 	} else {
 	    diffs[num_diffs].speedup =
-		(double) o->stats.min_ticks / n->stats.min_ticks;
+		(double) o->stats.median_ticks / n->stats.median_ticks;
 	}
 	num_diffs++;
 
@@ -591,9 +591,9 @@ cairo_perf_report_diff (cairo_perf_report_t			*old,
 	printf ("%5s-%-4s %26s-%-3d  %6.2f %4.2f%% -> %6.2f %4.2f%%: %5.2fx ",
 		diff->old->backend, diff->old->content,
 		diff->old->name, diff->old->size,
-		diff->old->stats.min_ticks / diff->old->stats.ticks_per_ms,
+		diff->old->stats.median_ticks / diff->old->stats.ticks_per_ms,
 		diff->old->stats.std_dev * 100,
-		diff->new->stats.min_ticks / diff->new->stats.ticks_per_ms,
+		diff->new->stats.median_ticks / diff->new->stats.ticks_per_ms,
 		diff->new->stats.std_dev * 100,
 		change);
 

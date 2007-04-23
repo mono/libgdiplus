@@ -26,6 +26,10 @@
 
 #include "cairo-boilerplate.h"
 
+#if CAIRO_HAS_QUARTZ_SURFACE
+#include "cairo-quartz-boilerplate-private.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -119,6 +123,24 @@ create_image_surface (const char		 *name,
     return cairo_image_surface_create (format, width, height);
 }
 
+static void
+xcairo_surface_set_user_data (cairo_surface_t		 *surface,
+			      const cairo_user_data_key_t *key,
+			      void			 *user_data,
+			      cairo_destroy_func_t	 destroy)
+{
+    cairo_status_t status;
+
+    status = cairo_surface_set_user_data (surface,
+					  key, user_data,
+					  destroy);
+    if (status) {
+	CAIRO_BOILERPLATE_LOG ("Error: %s. Exiting\n",
+			       cairo_status_to_string (status));
+	exit (1);
+    }
+}
+
 #ifdef CAIRO_HAS_TEST_SURFACES
 
 #include "test-fallback-surface.h"
@@ -185,8 +207,8 @@ create_test_paginated_surface (const char		 *name,
 						       tpc->height,
 						       tpc->stride);
 
-    cairo_surface_set_user_data (surface, &test_paginated_closure_key,
-				 tpc, NULL);
+    xcairo_surface_set_user_data (surface, &test_paginated_closure_key,
+				  tpc, NULL);
 
     return surface;
 }
@@ -209,6 +231,7 @@ test_paginated_write_to_png (cairo_surface_t *surface,
     cairo_surface_t *image;
     cairo_format_t format;
     test_paginated_closure_t *tpc;
+    cairo_status_t status;
 
     /* show page first.  the automatic show_page is too late for us */
     /* XXX use cairo_surface_show_page() when that's added */
@@ -237,7 +260,13 @@ test_paginated_write_to_png (cairo_surface_t *surface,
 						 tpc->height,
 						 tpc->stride);
 
-    cairo_surface_write_to_png (image, filename);
+    status = cairo_surface_write_to_png (image, filename);
+    if (status) {
+	CAIRO_BOILERPLATE_LOG ("Error writing %s: %s. Exiting\n",
+			       filename,
+			       cairo_status_to_string (status));
+	exit (1);
+    }
 
     cairo_surface_destroy (image);
 
@@ -706,41 +735,6 @@ cleanup_cairo_glitz_wgl (void *closure)
 
 #endif /* CAIRO_HAS_GLITZ_SURFACE */
 
-#if CAIRO_HAS_QUARTZ_SURFACE
-
-#include <cairo-quartz.h>
-
-static cairo_surface_t *
-create_quartz_surface (const char		*name,
-		       cairo_content_t		 content,
-		       int			 width,
-		       int			 height,
-		       cairo_boilerplate_mode_t  mode,
-		       void **closure)
-{
-    cairo_format_t format;
-
-    switch (content) {
-	case CAIRO_CONTENT_COLOR: format = CAIRO_FORMAT_RGB24; break;
-	case CAIRO_CONTENT_COLOR_ALPHA: format = CAIRO_FORMAT_ARGB32; break;
-	case CAIRO_CONTENT_ALPHA: format = CAIRO_FORMAT_A8; break;
-	default:
-	    assert (0); /* not reached */
-	    return NULL;
-    }
-
-    *closure = NULL;
-
-    return cairo_quartz_surface_create (format, width, height);
-}
-
-static void
-cleanup_quartz (void *closure)
-{
-    /* nothing */
-}
-#endif
-
 /* Testing the win32 surface isn't interesting, since for
  * ARGB images it just chains to the image backend
  */
@@ -877,7 +871,8 @@ boilerplate_xlib_synchronize (void *closure)
 
     ximage = XGetImage (xtc->dpy, xtc->drawable,
 			0, 0, 1, 1, AllPlanes, ZPixmap);
-    XDestroyImage (ximage);
+    if (ximage != NULL)
+	XDestroyImage (ximage);
 }
 
 /* For the xlib backend we distinguish between TEST and PERF mode in a
@@ -1095,7 +1090,15 @@ create_ps_surface (const char			 *name,
 	ptc->target = NULL;
     }
 
-    cairo_surface_set_user_data (surface, &ps_closure_key, ptc, NULL);
+    if (cairo_surface_set_user_data (surface,
+	       	                     &ps_closure_key,
+				     ptc,
+				     NULL) != CAIRO_STATUS_SUCCESS) {
+	cairo_surface_destroy (surface);
+	free (ptc->filename);
+	free (ptc);
+	return NULL;
+    }
 
     return surface;
 }
@@ -1204,7 +1207,7 @@ create_pdf_surface (const char			 *name,
 	ptc->target = NULL;
     }
 
-    cairo_surface_set_user_data (surface, &pdf_closure_key, ptc, NULL);
+    xcairo_surface_set_user_data (surface, &pdf_closure_key, ptc, NULL);
 
     return surface;
 }
@@ -1310,7 +1313,7 @@ create_svg_surface (const char			 *name,
 	ptc->target = NULL;
     }
 
-    cairo_surface_set_user_data (surface, &svg_closure_key, ptc, NULL);
+    xcairo_surface_set_user_data (surface, &svg_closure_key, ptc, NULL);
 
     return surface;
 }
@@ -1424,11 +1427,11 @@ cairo_boilerplate_target_t targets[] =
 #endif /* CAIRO_HAS_GLITZ_SURFACE */
 #if CAIRO_HAS_QUARTZ_SURFACE
     { "quartz", CAIRO_SURFACE_TYPE_QUARTZ, CAIRO_CONTENT_COLOR_ALPHA, 0,
-      create_quartz_surface, cairo_surface_write_to_png,
-      cleanup_quartz },
+      _cairo_quartz_boilerplate_create_surface, cairo_surface_write_to_png,
+      _cairo_quartz_boilerplate_cleanup },
     { "quartz", CAIRO_SURFACE_TYPE_QUARTZ, CAIRO_CONTENT_COLOR, 0,
-      create_quartz_surface, cairo_surface_write_to_png,
-      cleanup_quartz },
+      _cairo_quartz_boilerplate_create_surface, cairo_surface_write_to_png,
+      _cairo_quartz_boilerplate_cleanup },
 #endif
 #if CAIRO_HAS_WIN32_SURFACE
     { "win32", CAIRO_SURFACE_TYPE_WIN32, CAIRO_CONTENT_COLOR, 0,

@@ -24,6 +24,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+
 #include "pixman-xserver-compat.h"
 
 #ifdef RENDER
@@ -1389,7 +1390,7 @@ pixman_composite (pixman_operator_t	op,
 	     int	width,
 	     int	height)
 {
-    pixman_region16_t	    *region;
+    pixman_region16_t	    region;
     int		    n;
     pixman_box16_t    *pbox;
     CompositeFunc   func = NULL;
@@ -1932,25 +1933,14 @@ pixman_composite (pixman_operator_t	op,
     if (maskTransform)
 	maskRepeat = 0;
 
-    region = pixman_region_create();
-    pixman_region_union_rect (region, region, xDst, yDst, width, height);
+    pixman_region_init_rect (&region, xDst, yDst, width, height);
 
-    if (!FbComputeCompositeRegion (region,
-				   pSrc,
-				   pMask,
-				   pDst,
-				   xSrc,
-				   ySrc,
-				   xMask,
-				   yMask,
-				   xDst,
-				   yDst,
-				   width,
-				   height))
-	return;
+    if (!FbComputeCompositeRegion (&region, pSrc, pMask, pDst, xSrc, ySrc,
+				   xMask, yMask, xDst, yDst, width, height))
+        goto CLEANUP_REGION;
 
-    n = pixman_region_num_rects (region);
-    pbox = pixman_region_rects (region);
+    n = pixman_region_num_rects (&region);
+    pbox = pixman_region_rects (&region);
     while (n--)
     {
 	h = pbox->y2 - pbox->y1;
@@ -2006,7 +1996,9 @@ pixman_composite (pixman_operator_t	op,
 	}
 	pbox++;
     }
-    pixman_region_destroy (region);
+
+CLEANUP_REGION:    
+    pixman_region_fini (&region);
 }
 
 /* The CPU detection code needs to be in a file not compiled with

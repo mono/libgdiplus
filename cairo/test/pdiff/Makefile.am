@@ -1,4 +1,5 @@
 EXTRA_PROGRAMS = perceptualdiff
+EXTRA_DIST = gpl.txt
 
 noinst_LTLIBRARIES = libpdiff.la
 libpdiff_la_SOURCES = 		\

@@ -53,7 +53,7 @@ typedef struct _cairo_paginated_surface_backend {
      * any drawing operations for the page, (that is, it will occur
      * during the user's call to cairo_show_page or cairo_copy_page).
      */
-    cairo_int_status_t
+    cairo_warn cairo_int_status_t
     (*start_page)		(void			*surface);
 
     /* Required. Will be called twice for each page, once with an

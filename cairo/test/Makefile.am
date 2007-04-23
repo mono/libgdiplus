@@ -49,6 +49,7 @@ get-path-extents                \
 gradient-alpha			\
 infinite-join			\
 in-fill-empty-trapezoid		\
+invalid-matrix			\
 leaky-dash			\
 leaky-polygon			\
 line-width			\
@@ -86,6 +87,7 @@ self-intersecting		\
 set-source			\
 show-text-current-point		\
 skew-extreme			\
+solid-pattern-cache-stress	\
 source-clip			\
 source-clip-scale		\
 source-surface-scale-paint	\
@@ -97,7 +99,6 @@ text-antialias-gray		\
 text-antialias-none		\
 text-antialias-subpixel		\
 text-cache-crash		\
-text-glyph-range		\
 text-pattern			\
 text-rotate			\
 text-zero-len			\
@@ -111,6 +112,51 @@ user-data			\
 rel-path                        \
 push-group			\
 zero-alpha
+
+# XXX: Here are some existing tests that are currently disabled for
+# one reason or another. They can still be built and run (manually)
+# but we don't currently run them as part of 'make check' to avoid
+# inflicting some particularly nasty problems on the user of the test
+# suite (described below).
+#
+# It would definitely be worthwhile to address these problems so that
+# these tests can get back into the test suite proper, (since the
+# problems do indicated bugs somewhere and we're less likely to get
+# those bugs fixed without the attention due to having these tests in
+# the suite).
+#
+# The reasons for disabling the tests are as follows:
+#
+# extend-reflect - Triggers an infinite (or near-infinite) bug in some
+#	X servers in some circumstances. Details and cause unknown.
+#
+# show-glyphs-many - This stress test was exercising a particular bug
+#	in the xlib surface code (exceeding the X11 protocol request
+#	limit) when rendering several thousand glyphs at once. The
+#	original xlib-surface bug is fixed now, but the test continues
+#	to stress some other aspects of the test suite. For example,
+#	when doing text as paths, the resuilting PostScript file is one
+#	giant path that ghostscript has a particularly hard time
+#	with. I'm disabling this test for now, since I don't care about
+#	that performance problem in ghostscript. (But, there is a
+#	similar performance problem when using cairo to rasterize the
+#	equivalen giant path---from an SVG files say---so this might be
+#	a useful kind of test to bring back again for performance (not
+#	correctness) testing.
+# text-glyph-range - This test triggers the following assertion in cairo:
+#
+#	lt-text-glyph-range: cairo-scaled-font-subsets.c:350:
+#	_cairo_sub_font_collect: Assertion `collection->num_glyphs ==
+#	collection->max_glyph + 1' failed.
+#
+#	And as a result causes a failure to be recorded by the test
+#	suite, (in spite of the XFAIL status of the test). So maybe
+#	that's just a bug in the test rig that should just consider
+#	the abort an XFAIL like any other.
+DISABLED_TESTS =		\
+extend-reflect			\
+show-glyphs-many		\
+text-glyph-range
 
 # Then we have a collection of tests that are only run if certain
 # features are compiled into cairo
@@ -153,23 +199,6 @@ TESTS += fallback-resolution
 endif
 endif
 endif
-
-# XXX: Here are some existing tests that are currently disabled for
-# one reason or another.
-# 
-# show-glyphs-many - this stress test was exercising a particular bug
-#      in the xlib surface code (exceeding the X11 protocol request
-#      limit) when rendering several thousand glyphs at once. The
-#      original xlib-surface bug is fixed now, but the test continues
-#      to stress some other aspects of the test suite. For example,
-#      when doing text as paths, the resuilting PostScript file is one
-#      giant path that ghostscript has a particularly hard time
-#      with. I'm disabling this test for now, since I don't care about
-#      that performance problem in ghostscript. (But, there is a
-#      similar performance problem when using cairo to rasterize the
-#      equivalen giant path---from an SBG files say---so this might be
-#      a useful kind of test to bring back again for performance (not
-#      correctness) testing.
 
 # All tests which have a reference image go here.
 REFERENCE_IMAGES = \
@@ -223,7 +252,6 @@ REFERENCE_IMAGES = \
 	dash-zero-length-ref.png	\
 	dash-zero-length-rgb24-ref.png	\
 	degenerate-path-ps-argb32-ref.png	\
-	degenerate-path-quartz-rgb24-ref.png	\
 	degenerate-path-ref.png	\
 	degenerate-path-rgb24-ref.png	\
 	device-offset-positive-ref.png	\
@@ -409,13 +437,11 @@ a8-mask				\
 big-trap			\
 extend-pad			\
 filter-nearest-offset		\
-ft-text-vertical-layout-type1	\
 long-lines			\
 self-intersecting		\
 surface-pattern			\
 surface-pattern-scale-down	\
-surface-pattern-scale-up	\
-text-glyph-range
+surface-pattern-scale-up
 
 # Any test that doesn't generate a log file goes here
 NOLOG_TESTS =			\
@@ -429,6 +455,7 @@ multi-page			\
 fallback-resolution
 
 SUPPORT_PROGS =
+EXTRA_PROGRAMS =
 
 # We're using _GNU_SOURCE to get the prototype for asprintf. This may
 # not be the most portable approach, but it is pragmatic and I'm
@@ -454,11 +481,12 @@ libcairotest_la_SOURCES =\
 libcairotest_la_LIBADD =\
 	$(top_builddir)/test/pdiff/libpdiff.la \
         $(top_builddir)/boilerplate/libcairoboilerplate.la \
-	$(top_builddir)/src/libcairo.la
+	$(top_builddir)/src/libcairo.la \
+	$(CAIRO_LDADD)
 
-LDADD = libcairotest.la
+LDADD = $(CAIRO_LDADD) libcairotest.la
 
-$(top_builddir)/boilerplate/libcairoboilerplate.la:
+$(top_builddir)/boilerplate/libcairoboilerplate.la: $(top_builddir)/src/libcairo.la
 	cd $(top_builddir)/boilerplate && $(MAKE) $(AM_MAKEFLAGS) libcairoboilerplate.la
 
 $(top_builddir)/src/libcairo.la:
@@ -478,6 +506,12 @@ SUPPORT_PROGS += pdf2png$(EXEEXT)
 pdf2png_CFLAGS = $(POPPLER_CFLAGS)
 # add LDADD, so poppler uses "our" cairo
 pdf2png_LDADD  = $(LDADD) $(POPPLER_LIBS)
+if CAIRO_HAS_SVG_SURFACE
+EXTRA_PROGRAMS += pdf2svg$(EXEEXT)
+pdf2svg_CFLAGS = $(POPPLER_CFLAGS)
+# add LDADD, so poppler uses "our" cairo
+pdf2svg_LDADD  = $(LDADD) $(POPPLER_LIBS)
+endif
 endif
 
 if CAIRO_CAN_TEST_SVG_SURFACE
@@ -485,9 +519,15 @@ SUPPORT_PROGS += svg2png$(EXEEXT)
 svg2png_CFLAGS = $(LIBRSVG_CFLAGS)
 # add LDADD, so librsvg uses "our" cairo
 svg2png_LDADD  = $(LDADD) $(LIBRSVG_LIBS)
+if CAIRO_HAS_PDF_SURFACE
+EXTRA_PROGRAMS += svg2pdf$(EXEEXT)
+svg2pdf_CFLAGS = $(LIBRSVG_CFLAGS)
+# add LDADD, so librsvg uses "our" cairo
+svg2pdf_LDADD  = $(LDADD) $(LIBRSVG_LIBS)
+endif
 endif
 
-EXTRA_PROGRAMS = $(TESTS) $(SUPPORT_PROGS)
+EXTRA_PROGRAMS += $(TESTS) $(DISABLED_TESTS) $(SUPPORT_PROGS)
 
 # Do a funny transition of CAIRO_TEST_TARGET through TARGETS such that
 # one can limit tested targets both through CAIRO_TEST_TARGET env var
@@ -508,14 +548,17 @@ CLEANFILES =					\
 	$(EXTRA_LTLIBRARIES)			\
 	$(EXTRA_PROGRAMS)
 
-# some systems cannot handle all of our clean files together
+# This used to be a simple 'echo ${RM} *.ps *.pdf *.svg *.etc', but
+# most systems cannot handle all of our clean files together.
+# Then it became a fancy find using many GNU extensions, but then the ugly
+# reality of portability was raised and it became....
 clean-local:
-	-$(RM) *.ps
-	-$(RM) *.pdf
-	-$(RM) *.svg
-	-$(RM) *-out.png
-	-$(RM) *-diff.png
-	-$(RM) *.log
+	-${FIND} . -name '*.ps'       -print | ${XARGS} ${RM}
+	-${FIND} . -name '*.pdf'      -print | ${XARGS} ${RM}
+	-${FIND} . -name '*.svg'      -print | ${XARGS} ${RM}
+	-${FIND} . -name '*-out.png'  -print | ${XARGS} ${RM}
+	-${FIND} . -name '*-diff.png' -print | ${XARGS} ${RM}
+	-${FIND} . -name '*.log'      -print | ${XARGS} ${RM}
 
 # Check tests under valgrind
 # Saves log to valgrind-log

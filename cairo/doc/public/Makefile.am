@@ -40,7 +40,8 @@ Headers.mk:
 	find $(top_srcdir)/src \
 		-name '*-private.h' -o \
 		-name '*-test.h' | \
-	sed 's@.*/@	@; s@$$@ \\@'; \
+	sed 's@.*/@	@; s@$$@ \\@' | \
+	LANG=C sort; \
 	echo '	cairoint.h' ) > $@.tmp
 	mv $@.tmp $@
 

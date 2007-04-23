@@ -68,4 +68,6 @@ cairo_debug_reset_static_data (void)
 #if CAIRO_HAS_FT_FONT
     _cairo_ft_font_reset_static_data ();
 #endif
+
+    _cairo_pattern_reset_static_data ();
 }

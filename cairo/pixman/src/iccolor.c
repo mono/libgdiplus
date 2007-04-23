@@ -21,6 +21,10 @@
  * Author:  Keith Packard, SuSE, Inc.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "icint.h"
 
 #ifdef ICINT_NEED_IC_ONES

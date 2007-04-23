@@ -35,9 +35,8 @@
  *	Carl D. Worth <cworth@cworth.org>
  */
 
-#include <stdlib.h>
-
 #include "cairoint.h"
+
 #include "cairo-surface-fallback-private.h"
 #include "cairo-clip-private.h"
 
@@ -180,10 +179,10 @@ _cairo_surface_init (cairo_surface_t			*surface,
 		     const cairo_surface_backend_t	*backend,
 		     cairo_content_t			 content)
 {
+    CAIRO_MUTEX_INITIALIZE ();
+
     surface->backend = backend;
-
     surface->content = content;
-
     surface->type = backend->type;
 
     surface->ref_count = 1;
@@ -573,10 +572,10 @@ cairo_surface_get_font_options (cairo_surface_t       *surface,
     if (!surface->has_font_options) {
 	surface->has_font_options = TRUE;
 
+	_cairo_font_options_init_default (&surface->font_options);
+
 	if (!surface->finished && surface->backend->get_font_options) {
 	    surface->backend->get_font_options (surface, &surface->font_options);
-	} else {
-	    _cairo_font_options_init_default (&surface->font_options);
 	}
     }
 
@@ -1170,6 +1169,7 @@ _cairo_surface_fill_region (cairo_surface_t	   *surface,
 {
     int num_rects = pixman_region_num_rects (region);
     pixman_box16_t *boxes = pixman_region_rects (region);
+    cairo_rectangle_int16_t stack_rects[CAIRO_STACK_BUFFER_SIZE / sizeof (cairo_rectangle_int16_t)];
     cairo_rectangle_int16_t *rects;
     cairo_status_t status;
     int i;
@@ -1179,9 +1179,12 @@ _cairo_surface_fill_region (cairo_surface_t	   *surface,
     if (!num_rects)
 	return CAIRO_STATUS_SUCCESS;
 
-    rects = malloc (sizeof (pixman_rectangle_t) * num_rects);
-    if (!rects)
-	return CAIRO_STATUS_NO_MEMORY;
+    rects = stack_rects;
+    if (num_rects > ARRAY_LENGTH (stack_rects)) {
+	rects = malloc (sizeof (cairo_rectangle_int16_t) * num_rects);
+	if (!rects)
+	    return CAIRO_STATUS_NO_MEMORY;
+    }
 
     for (i = 0; i < num_rects; i++) {
 	rects[i].x = boxes[i].x1;
@@ -1193,7 +1196,8 @@ _cairo_surface_fill_region (cairo_surface_t	   *surface,
     status =  _cairo_surface_fill_rectangles (surface, op,
 					      color, rects, num_rects);
 
-    free (rects);
+    if (rects != stack_rects)
+	free (rects);
 
     return status;
 }
@@ -1430,10 +1434,7 @@ _cairo_surface_composite_trapezoids (cairo_operator_t		op,
 							  traps, num_traps);
 }
 
-/* _copy_page and _show_page are unique among _cairo_surface functions
- * in that they will actually return CAIRO_INT_STATUS_UNSUPPORTED
- * rather than performing any fallbacks. */
-cairo_int_status_t
+cairo_status_t
 _cairo_surface_copy_page (cairo_surface_t *surface)
 {
     assert (! surface->is_snapshot);
@@ -1444,16 +1445,14 @@ _cairo_surface_copy_page (cairo_surface_t *surface)
     if (surface->finished)
 	return CAIRO_STATUS_SURFACE_FINISHED;
 
+    /* It's fine if some backends don't implement copy_page */
     if (surface->backend->copy_page == NULL)
-	return CAIRO_INT_STATUS_UNSUPPORTED;
+	return CAIRO_STATUS_SUCCESS;
 
     return surface->backend->copy_page (surface);
 }
 
-/* _show_page and _copy_page are unique among _cairo_surface functions
- * in that they will actually return CAIRO_INT_STATUS_UNSUPPORTED
- * rather than performing any fallbacks. */
-cairo_int_status_t
+cairo_status_t
 _cairo_surface_show_page (cairo_surface_t *surface)
 {
     assert (! surface->is_snapshot);
@@ -1464,8 +1463,9 @@ _cairo_surface_show_page (cairo_surface_t *surface)
     if (surface->finished)
 	return CAIRO_STATUS_SURFACE_FINISHED;
 
+    /* It's fine if some backends don't implement show_page */
     if (surface->backend->show_page == NULL)
-	return CAIRO_INT_STATUS_UNSUPPORTED;
+	return CAIRO_STATUS_SUCCESS;
 
     return surface->backend->show_page (surface);
 }
@@ -1700,9 +1700,9 @@ _cairo_surface_set_clip (cairo_surface_t *surface, cairo_clip_t *clip)
 						 clip->path,
 						 clip->serial);
 
-	if (clip->region)
+	if (clip->has_region)
 	    return _cairo_surface_set_clip_region (surface,
-						   clip->region,
+						   &clip->region,
 						   clip->serial);
     }
 
@@ -1865,9 +1865,11 @@ _cairo_surface_composite_fixup_unbounded_internal (cairo_surface_t         *dst,
 {
     cairo_rectangle_int16_t dst_rectangle;
     cairo_rectangle_int16_t drawn_rectangle;
-    pixman_region16_t *drawn_region;
-    pixman_region16_t *clear_region;
-    cairo_status_t status = CAIRO_STATUS_SUCCESS;
+    cairo_bool_t has_drawn_region = FALSE;
+    cairo_bool_t has_clear_region = FALSE;
+    pixman_region16_t drawn_region;
+    pixman_region16_t clear_region;
+    cairo_status_t status;
 
     /* The area that was drawn is the area in the destination rectangle but not within
      * the source or the mask.
@@ -1880,34 +1882,38 @@ _cairo_surface_composite_fixup_unbounded_internal (cairo_surface_t         *dst,
     drawn_rectangle = dst_rectangle;
 
     if (src_rectangle)
-	_cairo_rectangle_intersect (&drawn_rectangle, src_rectangle);
+        _cairo_rectangle_intersect (&drawn_rectangle, src_rectangle);
 
     if (mask_rectangle)
-	_cairo_rectangle_intersect (&drawn_rectangle, mask_rectangle);
+        _cairo_rectangle_intersect (&drawn_rectangle, mask_rectangle);
 
     /* Now compute the area that is in dst_rectangle but not in drawn_rectangle
      */
-    drawn_region = _cairo_region_create_from_rectangle (&drawn_rectangle);
-    clear_region = _cairo_region_create_from_rectangle (&dst_rectangle);
-    if (!drawn_region || !clear_region) {
-	status = CAIRO_STATUS_NO_MEMORY;
-	goto CLEANUP_REGIONS;
-    }
+    pixman_region_init_rect (&drawn_region,
+                              drawn_rectangle.x, drawn_rectangle.y,
+                              drawn_rectangle.width, drawn_rectangle.height);
+    pixman_region_init_rect (&clear_region,
+                              dst_rectangle.x, dst_rectangle.y,
+                              dst_rectangle.width, dst_rectangle.height);
 
-    if (pixman_region_subtract (clear_region, clear_region, drawn_region) != PIXMAN_REGION_STATUS_SUCCESS) {
-	status = CAIRO_STATUS_NO_MEMORY;
-	goto CLEANUP_REGIONS;
+    has_drawn_region = TRUE;
+    has_clear_region = TRUE;
+
+    if (PIXMAN_REGION_STATUS_SUCCESS !=
+        pixman_region_subtract (&clear_region, &clear_region, &drawn_region)) {
+        status = CAIRO_STATUS_NO_MEMORY;
+        goto CLEANUP_REGIONS;
     }
 
     status = _cairo_surface_fill_region (dst, CAIRO_OPERATOR_SOURCE,
-					 CAIRO_COLOR_TRANSPARENT,
-					 clear_region);
+                                         CAIRO_COLOR_TRANSPARENT,
+                                         &clear_region);
 
- CLEANUP_REGIONS:
-    if (drawn_region)
-	pixman_region_destroy (drawn_region);
-    if (clear_region)
-	pixman_region_destroy (clear_region);
+CLEANUP_REGIONS:
+    if (has_drawn_region)
+        pixman_region_fini (&drawn_region);
+    if (has_clear_region)
+        pixman_region_fini (&clear_region);
 
     return status;
 }

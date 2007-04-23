@@ -187,6 +187,9 @@ libcairo_la_SOURCES =				\
 	cairo-image-surface.c			\
 	cairo-lzw.c				\
 	cairo-matrix.c				\
+	cairo-mutex.c				\
+	cairo-mutex-list-private.h		\
+	cairo-mutex-private.h			\
 	cairo-operator.c			\
 	cairo-path.c				\
 	cairo-path-private.h			\
@@ -286,5 +289,5 @@ install-data-local:
         fi
 
 TESTS_ENVIRONMENT = srcdir="$(srcdir)"
-TESTS = check-def.sh check-plt.sh check-headers.sh
+TESTS = check-def.sh check-plt.sh check-headers.sh check-cairoint.sh
 EXTRA_DIST += $(TESTS)

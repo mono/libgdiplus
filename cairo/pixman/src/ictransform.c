@@ -21,6 +21,10 @@
  * Author:  Keith Packard, SuSE, Inc.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "icint.h"
 
 #define MAX_FIXED_48_16	    ((xFixed_48_16) 0x7fffffff)

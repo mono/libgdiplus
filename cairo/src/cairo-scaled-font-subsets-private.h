@@ -41,6 +41,14 @@
 
 typedef struct _cairo_scaled_font_subsets cairo_scaled_font_subsets_t;
 
+typedef struct _cairo_scaled_font_subsets_glyph {
+    unsigned int font_id;
+    unsigned int subset_id;
+    unsigned int subset_glyph_index;
+    cairo_bool_t is_scaled;
+    double       x_advance;
+} cairo_scaled_font_subsets_glyph_t;
+
 /**
  * _cairo_scaled_font_subsets_create:
  *
@@ -85,6 +93,8 @@ _cairo_scaled_font_subsets_destroy (cairo_scaled_font_subsets_t *font_subsets);
  * @font_subsets: a #cairo_scaled_font_subsets_t
  * @scaled_font: the font of the glyph to be mapped
  * @scaled_font_glyph_index: the index of the glyph to be mapped
+ * @subset_glyph_ret: return structure containing subset font and glyph id
+ *
  * @font_id_ret: return value giving the font ID of the mapped glyph
  * @subset_id_ret: return value giving the subset ID of the mapped glyph within the @font_id_ret
  * @subset_glyph_index_ret: return value giving the index of the mapped glyph within the @subset_id_ret subset
@@ -126,6 +136,17 @@ _cairo_scaled_font_subsets_destroy (cairo_scaled_font_subsets_t *font_subsets);
  * used by #cairo_scaled_font_subset_t as provided by
  * _cairo_scaled_font_subsets_foreach.
  *
+ * The returned values in the cairo_scaled_font_subsets_glyph_t struct are:
+ *
+ * @font_id: The font ID of the mapped glyph
+ * @subset_id : The subset ID of the mapped glyph within the @font_id
+ * @subset_glyph_index: The index of the mapped glyph within the @subset_id subset
+ * @is_scaled: If true, the mapped glyph is from a bitmap font, and separate font
+ * subset is created for each font scale used. If false, the outline of the mapped glyph
+ * is available. One font subset for each font face is created.
+ * @x_advance: When @is_scaled is true, @x_advance contains the x_advance for the mapped glyph in device space.
+ * When @is_scaled is false, @x_advance contains the x_advance for the the mapped glyph from an unhinted 1 point font.
+ *
  * Return value: CAIRO_STATUS_SUCCESS if successful, or a non-zero
  * value indicating an error. Possible errors include
  * CAIRO_STATUS_NO_MEMORY.
@@ -134,9 +155,7 @@ cairo_private cairo_status_t
 _cairo_scaled_font_subsets_map_glyph (cairo_scaled_font_subsets_t	*font_subsets,
 				      cairo_scaled_font_t		*scaled_font,
 				      unsigned long			 scaled_font_glyph_index,
-				      unsigned int			*font_id_ret,
-				      unsigned int			*subset_id_ret,
-				      unsigned int			*subset_glyph_index_ret);
+                                      cairo_scaled_font_subsets_glyph_t *subset_glyph_ret);
 
 typedef void
 (*cairo_scaled_font_subset_callback_func_t) (cairo_scaled_font_subset_t	*font_subset,

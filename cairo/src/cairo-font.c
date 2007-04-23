@@ -59,16 +59,14 @@ void
 _cairo_font_face_init (cairo_font_face_t               *font_face,
 		       const cairo_font_face_backend_t *backend)
 {
+    CAIRO_MUTEX_INITIALIZE ();
+
     font_face->status = CAIRO_STATUS_SUCCESS;
     font_face->ref_count = 1;
     font_face->backend = backend;
 
     _cairo_user_data_array_init (&font_face->user_data);
 }
-
-/* This mutex protects both cairo_toy_font_hash_table as well as
-   reference count manipulations for all cairo_font_face_t. */
-CAIRO_MUTEX_DECLARE (_cairo_font_face_mutex);
 
 /**
  * cairo_font_face_reference:

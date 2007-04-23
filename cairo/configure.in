@@ -5,7 +5,7 @@ dnl An odd micro number indicates in-progress development, (eg. from git/cvs)
 dnl An even micro number indicates a released version.
 m4_define(cairo_version_major, 1)
 m4_define(cairo_version_minor, 4)
-m4_define(cairo_version_micro, 2)
+m4_define(cairo_version_micro, 4)
 
 AC_INIT([cairo],
       cairo_version_major.cairo_version_minor.cairo_version_micro,
@@ -26,7 +26,7 @@ LT_CURRENT=13
 
 # Increment any time the source changes; set to
 # 0 if you increment CURRENT
-LT_REVISION=1
+LT_REVISION=2
 
 # Increment if any interfaces have been added; set to 0
 # if any interfaces have been removed. removal has
@@ -47,6 +47,13 @@ CAIRO_VERSION_MICRO=cairo_version_micro()
 AC_SUBST(CAIRO_VERSION_MAJOR)
 AC_SUBST(CAIRO_VERSION_MINOR)
 AC_SUBST(CAIRO_VERSION_MICRO)
+
+dnl ===========================================================================
+
+AC_PATH_PROG(FIND, find)
+AC_PATH_PROG(XARGS, xargs)
+
+dnl ===========================================================================
 
 AC_PROG_CC
 AC_PROG_CPP
@@ -221,8 +228,11 @@ CAIRO_FEATURES=""
 CAIRO_REQUIRES=""
 CAIRO_NONPKGCONFIG_CFLAGS=""
 CAIRO_NONPKGCONFIG_LIBS="$LIBM"
+CAIRO_LDADD=""
 CAIRO_CFLAGS=$CAIRO_NONPKGCONFIG_CFLAGS
 CAIRO_LIBS=$CAIRO_NONPKGCONFIG_LIBS
+PIXMAN_CFLAGS=""
+PIXMAN_LDADD=""
 
 dnl ===========================================================================
 
@@ -433,7 +443,7 @@ FREETYPE_MIN_VERSION=8.0.2
 CAIRO_BACKEND_ENABLE(ft, FreeType font, freetype, FT_FONT, auto, [
   ft_REQUIRES="fontconfig"
   PKG_CHECK_MODULES(FONTCONFIG, $ft_REQUIRES,
-		    [_CHECK_FUNCS_WITH_FLAGS(FcFini, $ft_CFLAGS, $ft_LIBS)],
+		    [_CHECK_FUNCS_WITH_FLAGS(FcFini, [$FONTCONFIG_CFLAGS], [$FONTCONFIG_LIBS])],
 		    [AC_MSG_RESULT(no); use_ft="no (requires fontconfig"])
 
   if test "x$use_ft" = "xyes"; then
@@ -620,7 +630,8 @@ MAYBE_WARN="-Wall -Wextra \
 -Wpacked -Wswitch-enum -Wmissing-format-attribute \
 -Wstrict-aliasing=2 -Winit-self -Wunsafe-loop-optimizations \
 -Wdeclaration-after-statement -Wold-style-definition \
--Wno-missing-field-initializers -Wno-unused-parameter"
+-Wno-missing-field-initializers -Wno-unused-parameter \
+-Wno-attributes"
 
 
 # invalidate cached value if MAYBE_WARN has changed
@@ -650,17 +661,36 @@ AC_CACHE_CHECK([for supported warning flags], cairo_cv_warn_cflags, [
 	cairo_cv_warn_maybe=$MAYBE_WARN
 
 	AC_MSG_CHECKING([which warning flags were supported])])
-WARN_CFLAGS=$cairo_cv_warn_cflags
-AC_SUBST(WARN_CFLAGS)
+WARN_CFLAGS="$cairo_cv_warn_cflags"
 CAIRO_CFLAGS="$CAIRO_CFLAGS $WARN_CFLAGS"
+PIXMAN_CFLAGS="$PIXMAN_CFLAGS $WARN_CFLAGS"
 
-CAIRO_CC_TRY_FLAG([-fno-strict-aliasing], [CAIRO_CFLAGS="$CAIRO_CFLAGS -fno-strict-aliasing"])
+# We only wish to enable attribute(warn_unused_result) if we can prevent
+# gcc from generating thousands of warnings about the misapplication of the
+# attribute to void functions and variables.
+AC_MSG_CHECKING([how to enable unused result warnings])
+warn_unused_result=""
+if echo $WARN_CFLAGS | grep -e '-Wno-attributes' >/dev/null; then
+    AC_TRY_COMPILE([__attribute__((__warn_unused_result__))
+	int f (int i) { return i; }], [],
+	[warn_unused_result="__attribute__((__warn_unused_result__))"])
+fi
+AC_DEFINE_UNQUOTED([WARN_UNUSED_RESULT], [$warn_unused_result],
+	  [Define to the value your compiler uses to support the warn-unused-result attribute])
+AC_MSG_RESULT([$warn_unused_result])
+
+CAIRO_CC_TRY_FLAG([-fno-strict-aliasing],
+		  [CAIRO_CFLAGS="$CAIRO_CFLAGS -fno-strict-aliasing"
+		   PIXMAN_CFLAGS="$PIXMAN_CFLAGS -fno-strict-aliasing"])
 
 AC_SUBST(CAIRO_REQUIRES)
 AC_SUBST(CAIRO_NONPKGCONFIG_CFLAGS)
 AC_SUBST(CAIRO_NONPKGCONFIG_LIBS)
 AC_SUBST(CAIRO_CFLAGS)
+AC_SUBST(CAIRO_LDADD)
 AC_SUBST(CAIRO_LIBS)
+AC_SUBST(PIXMAN_CFLAGS)
+AC_SUBST(PIXMAN_LDADD)
 
 dnl ===========================================================================
 dnl Check for gtk-doc and docbook
@@ -705,7 +735,7 @@ if test $have_mmx_intrinsics = yes ; then
 else
    MMX_CFLAGS=
 fi
-AC_SUBST(MMX_CFLAGS)
+PIXMAN_CFLAGS="$PIXMAN_CFLAGS $MMX_CFLAGS"
 
 AM_CONDITIONAL(USE_MMX, test $have_mmx_intrinsics = yes)
 
@@ -723,7 +753,8 @@ if test "x$use_gcov" = "xyes"; then
   fi
 
   dnl Check if ccache is being used
-  case `shtool path $CC` in
+  AC_CHECK_PROG(SHTOOL, shtool, shtool)
+  case `$SHTOOL path $CC` in
     *ccache*[)] gcc_ccache=yes;;
     *[)] gcc_ccache=no;;
   esac
@@ -732,7 +763,7 @@ if test "x$use_gcov" = "xyes"; then
     AC_MSG_ERROR([ccache must be disabled when --enable-gcov option is used. You can disable ccache by setting environment variable CCACHE_DISABLE=1.])
   fi
 
-  ltp_version_list="1.4"
+  ltp_version_list="1.4 1.5"
   AC_CHECK_PROG(LTP, lcov, lcov)
   AC_CHECK_PROG(LTP_GENHTML, genhtml, genhtml)
 
@@ -768,11 +799,16 @@ dnl  PHP_ADD_MAKEFILE_FRAGMENT($abs_srcdir/Makefile.gcov, $abs_srcdir)
 
   dnl Remove all optimization flags from CFLAGS
   changequote({,})
+  CFLAGS=`echo "$CFLAGS" | $SED -e 's/-O[0-9]*//g'`
   CAIRO_CFLAGS=`echo "$CAIRO_CFLAGS" | $SED -e 's/-O[0-9]*//g'`
+  PIXMAN_CFLAGS=`echo "$PIXMAN_CFLAGS" | $SED -e 's/-O[0-9]*//g'`
   changequote([,])
 
   dnl Add the special gcc flags
   CAIRO_CFLAGS="$CAIRO_CFLAGS -O0 -fprofile-arcs -ftest-coverage"
+  CAIRO_LDADD="$CAIRO_LDADD -lgcov"
+  PIXMAN_CFLAGS="$PIXMAN_CFLAGS -O0 -fprofile-arcs -ftest-coverage"
+  PIXMAN_LDADD="$PIXMAN_LDADD -lgcov"
 fi
 
 dnl ===========================================================================

@@ -58,8 +58,6 @@
 
 #define NUM_STD_STRINGS 391
 
-#define ARRAY_LENGTH(a) ( (sizeof (a)) / (sizeof ((a)[0])) )
-
 typedef struct _cff_header {
     uint8_t major;
     uint8_t minor;

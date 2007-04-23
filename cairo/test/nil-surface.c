@@ -136,6 +136,31 @@ draw (cairo_t *cr, int width, int height)
 
     cairo_destroy (cr2);
 
+    /*
+     * 5. Create a cairo_t for the NULL surface.
+     */
+    cr2 = cairo_create (NULL);
+
+    if (cairo_status (cr2) != CAIRO_STATUS_NULL_POINTER) {
+	cairo_test_log ("Error: Received status of \"%s\" rather than expected \"%s\"\n",
+			cairo_status_to_string (cairo_status (cr2)),
+			cairo_status_to_string (CAIRO_STATUS_NULL_POINTER));
+	return CAIRO_TEST_FAILURE;
+    }
+
+    /* Test that get_target returns something valid */
+    if (cairo_get_target (cr2) == NULL) {
+	cairo_test_log ("Error: cairo_get_target() returned NULL\n");
+	return CAIRO_TEST_FAILURE;
+    }
+
+    /* Test that push_group doesn't crash */
+    cairo_push_group (cr2);
+    cairo_stroke (cr2);
+    cairo_pop_group (cr2);
+
+    cairo_destroy (cr2);
+
     return CAIRO_TEST_SUCCESS;
 }
 

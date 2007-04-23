@@ -668,7 +668,9 @@ _cairo_meta_surface_replay (cairo_surface_t *surface,
 
 	dev_path = _cairo_command_get_path (command);
 	if (dev_path && has_device_transform) {
-	    _cairo_path_fixed_init_copy (&path_copy, dev_path);
+	    status = _cairo_path_fixed_init_copy (&path_copy, dev_path);
+	    if (status)
+		break;
 	    _cairo_path_fixed_device_transform (&path_copy, device_transform);
 	    dev_path = &path_copy;
 	}
@@ -754,7 +756,7 @@ _cairo_meta_surface_replay (cairo_surface_t *surface,
 	    /* XXX Meta surface clipping is broken and requires some
 	     * cairo-gstate.c rewriting.  Work around it for now. */
 	    if (dev_path == NULL)
-		status = _cairo_clip_reset (&clip);
+		_cairo_clip_reset (&clip);
 	    else
 		status = _cairo_clip_clip (&clip, dev_path,
 					   command->intersect_clip_path.fill_rule,
@@ -773,7 +775,7 @@ _cairo_meta_surface_replay (cairo_surface_t *surface,
 	    break;
     }
 
-    _cairo_clip_fini (&clip);
+    _cairo_clip_reset (&clip);
 
     return status;
 }

@@ -12,7 +12,7 @@ xargs grep -B 1 '^cairo_.*[ 	]\+(' |
 awk '
 /^--$/ { context=""; public=0; next; }
 /:cairo_.*[ 	]+\(/ { if (!public) {print context; print; print "--";} next; }
-/-cairo_public[ 	]/ {public=1;}
+/-cairo_public.*[ 	]/ {public=1;}
 { context=$0; }
 ' |
 sed 's/[.]h-/.h:/' |

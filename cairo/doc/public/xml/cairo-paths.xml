@@ -587,7 +587,7 @@ Adds a circular arc of the given <parameter>radius</parameter> to the current pa
 arc is centered at (<parameter>xc</parameter>, <parameter>yc</parameter>), begins at <parameter>angle1</parameter> and proceeds in
 the direction of decreasing angles to end at <parameter>angle2</parameter>. If <parameter>angle2</parameter> is
 greater than <parameter>angle1</parameter> it will be progressively decreased by 2*M_PI
-until it is greater than <parameter>angle1</parameter>.
+until it is less than <parameter>angle1</parameter>.
 </para>
 <para>
 See <link linkend="cairo-arc"><function>cairo_arc()</function></link> for more details. This function differs only in the

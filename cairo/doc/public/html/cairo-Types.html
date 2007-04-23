@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Types</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.71.0">
+<meta name="generator" content="DocBook XSL Stylesheets V1.72.0">
 <link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
 <link rel="up" href="Support.html" title="Utilities">
 <link rel="prev" href="cairo-Version-Information.html" title="Version Information">
@@ -30,16 +30,16 @@
 <th width="100%" align="center">Cairo: A Vector Graphics Library</th>
 <td><a accesskey="n" href="ix01.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
-<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2602126" class="shortcut">Top</a>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2582045" class="shortcut">Top</a>
                   &#160;|&#160;
-                  <a href="#id2592228" class="shortcut">Description</a></nobr></td></tr>
+                  <a href="#id2595942" class="shortcut">Description</a></nobr></td></tr>
 </table>
 <div class="refentry" lang="en">
 <a name="cairo-Types"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2>
-<a name="id2602126"></a><span class="refentrytitle">Types</span>
+<a name="id2582045"></a><span class="refentrytitle">Types</span>
 </h2>
 <p>Types &#8212; Generic data types used in the cairo API</p>
 </td>
@@ -57,17 +57,17 @@ void        (<a href="cairo-Types.html#cairo-destroy-func-t">*cairo_destroy_func
 </pre>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2592228"></a><h2>Description</h2>
+<a name="id2595942"></a><h2>Description</h2>
 <p>
 
 </p>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2583699"></a><h2>Details</h2>
+<a name="id2601338"></a><h2>Details</h2>
 <div class="refsect2" lang="en">
-<a name="id2583985"></a><h3>
+<a name="id2644608"></a><h3>
 <a name="cairo-bool-t"></a>cairo_bool_t</h3>
-<a class="indexterm" name="id2578171"></a><pre class="programlisting">typedef int cairo_bool_t;
+<a class="indexterm" name="id2603015"></a><pre class="programlisting">typedef int cairo_bool_t;
 </pre>
 <p>
 <a href="cairo-Types.html#cairo-bool-t"><span class="type">cairo_bool_t</span></a> is used for boolean values. Returns of type
@@ -88,9 +88,9 @@ value as a boolean condition.
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2640521"></a><h3>
+<a name="id2649502"></a><h3>
 <a name="cairo-user-data-key-t"></a>cairo_user_data_key_t</h3>
-<a class="indexterm" name="id2640533"></a><pre class="programlisting">typedef struct {
+<a class="indexterm" name="id2649513"></a><pre class="programlisting">typedef struct {
     int unused;
 } cairo_user_data_key_t;
 </pre>
@@ -114,9 +114,9 @@ would just use the address of a static <span class="type">cairo_data_key_t</span
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2640601"></a><h3>
+<a name="id2646684"></a><h3>
 <a name="cairo-destroy-func-t"></a>cairo_destroy_func_t ()</h3>
-<a class="indexterm" name="id2640612"></a><pre class="programlisting">void        (*cairo_destroy_func_t)         (void *data);</pre>
+<a class="indexterm" name="id2646696"></a><pre class="programlisting">void        (*cairo_destroy_func_t)         (void *data);</pre>
 <p>
 <a href="cairo-Types.html#cairo-destroy-func-t"><span class="type">cairo_destroy_func_t</span></a> the type of function which is called when a
 data element is destroyed. It is passed the pointer to the data

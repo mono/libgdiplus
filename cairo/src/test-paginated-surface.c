@@ -45,9 +45,9 @@
  * backend.
  */
 
-#include "test-paginated-surface.h"
-
 #include "cairoint.h"
+
+#include "test-paginated-surface.h"
 
 #include "cairo-paginated-surface-private.h"
 

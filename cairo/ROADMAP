@@ -1,9 +1,101 @@
-This is the cairo roadmap.
+This is the cairo roadmap
 
 Everything here is subject to change, but it is hoped that all of it
-will be useful. If you want to influence, please feel free to get
-involved with cairo (see http://cairographics.org ).
+will be useful. If you want to influence the roadmap, please feel free
+to get involved with cairo (see http://cairographics.org ).
 
+cairo 1.4.4 (scheduled for 2007-04-09)
+======================================
+ ✓ Mathias Hasselmann's "static region" patch series, (to be reviewed
+   by behdad, and performance tested by cworth)
+
+ ✓ Chris Wilson's many recent cleanups, (to be reviewed by behdad and cworth)
+
+ ✓ 5777 fbcompose.c broken for some composite operations post r1.5
+   (choose one of the existing patches)
+
+ ✓ 10531 cairo nquartz backend floating point precision issues (bewins)
+
+ ✓ 10508 Transformed image source surfaces sometimes misrender to xlib
+   surface target (cworth)
+
+cairo 1.4.x (not scheduled, may become part of 1.6)
+===================================================
+ • Fix all remaining XFAIL failures from the test suite
+	a8mask has a patch available on the list
+
+ • Implement CAIRO_EXTEND_PAD for surface patterns
+
+ • Work around bug in X server causing extend-reflect test to hang it
+
+ • Eliminate problems with "unsupported image formats" for xlib,
+   (very frequently duplicated bug reports and a regression since
+   cairo 1.0.x apparently)
+
+	7735 cairo doesn't support 8-bit truecolor visuals
+	4945 Cairo doesn't support 8-bit pseudocolor visuals
+	9993 Cairo fails with 555 X server visual
+
+ • Discard trapezoids that lie outside the clip region (cworth)
+
+ • Review and land AltiVec patches
+
+ • Update bindings chapter of documentation to reflect new APIs
+   (get_reference_count() and user_data for all)
+
+cairo 1.6 (scheduled for July 2007, targeting firefox and GNOME)
+================================================================
+ • David Turner's cairo-ft rewrite. (behdad)
+
+ • Change from 16.16 to 24.8 (or so) for fixed-point storage (cworth)
+
+ • Implement a faster lookup-table-based rasterizer (cworth)
+
+ • Internal move to cairo_object_t (Chris 'ickle' Wilson)
+
+ • New cairo-xlib API to support IncludeInferior Pictures (see bug
+	10329 for one proposal --- perhaps do
+	cairo_xlib_surface_create_for_picture instead)
+
+ • Make cairo-quartz a supported backend (vlad)
+
+ • Make cairo-xcb a supported backend (Jamey Sharp)
+
+ • A significant improvement to pixman compositing code (jrmuizel)
+   jrmuizel's recent work and other ideas going on).
+
+ • User-font API (behdad, krh)
+	http://lists.freedesktop.org/archives/cairo/2007-February/009539.html
+	http://lists.freedesktop.org/archives/cairo/2006-May/006893.html
+	http://lists.freedesktop.org/archives/cairo/2006-May/006888.html
+
+ • cairo_font_options_[gs]et_writing_mode()  (behdad)
+	http://lists.freedesktop.org/archives/cairo/2007-January/009372.html
+
+ • cairo_font_metrics_t (behdad)
+	http://lists.freedesktop.org/archives/cairo/2007-January/009373.html
+
+ • New text API that allows for perfect text extraction in PDF (behdad)
+
+ • Set PS Level for the PS backend (adrianj)
+
+ • EPS output from the PS backend (adrianj)
+
+ • API to allow enable/disabling certain subsetters (adrianj)
+	http://bugs.freedesktop.org/show_bug.cgi?id=8180#c28
+	This would also be useful feature to control via an environment
+	variable as it would allow the user to override the application
+	settings.
+
+ • Debug environment variable to disable PDF compression (adrianj)
+	http://lists.freedesktop.org/archives/cairo/2007-February/009492.html
+
+For other ideas that have been proposed for cairo but are not yet
+scheduled on the roadmap of any particular release, please see the
+TODO file next to this ROADMAP file.
+
+Where does the information on this roadmap come from?
+=====================================================
 The intent is for this to be a living document. We want both the users
 of cairo, (GTK+, GNOME, Mozilla, Mono, etc. etc.) to let us know
 features they need and dates by which they are needed so that we can
@@ -19,68 +111,14 @@ Targets
 =======
 Firefox 3.0 - http://www.mozilla.org/projects/firefox/roadmap.html
 ------------------------------------------------------------------
-Firefox 3 (scheduled for early 2007?) is the first release expected to
-use cairo for all rendering. In the meantime, development builds using
-cairo are available. Satisfying firefox 3 well requiring releasing a a
-new version of cairo some months before the firefox 3 release data
-with much-improved performance.
+Firefox 3 is the first release expected to use cairo for all
+rendering. In the meantime, development builds using cairo are
+available. Late June 2007 appears to be a rough deadline for when
+mozilla would like to freeze on a cairo release, (as mentioned by
+Vladimir in a cairo meeting on 2007-04-02). No new cairo API is
+needed, but performance improvements are always appreciated.
 
-Gnome 2.18 - http://live.gnome.org/TwoPointSeventeen
-----------------------------------------------------
-Looks like early January would be a great time to get cairo 1.4 out.
-
-Themes and Schedules
-====================
-cairo-1.4 (January 2006): Better performance
- ✓ New tessellator
- - New rasterization
- - Finer-grained fallbacks for PS/PDF
-
-cairo 1.4.2
-===========
- - [Bug 9994] performance opportunities in cairo
- - [Bug 10150] Support inline with Sun Studio compiler
- - AltiVec patches
- - Kmaraas's warning cleanups
- - Mathias's Mutex cleanup patch
- - Update bindings chapter of documentation to reflect new APIs
-   (get_reference_count() and user_data for all)
- - Work around bug in X server causing extend-reflect test to hang it
- - Fix a8mask (patch available)
- - Possibly remove pdiff
- - Make font backends separable from their native surfaces
-
-cairo 1.4.0 ideas (think performance!)
-======================================
-✓ Implement framework for performance regression testing
-
- Investigate "low-hanging fruit" identified by David Turner (write test case for each)
-
-✓ Look into speeding up pixman gradients
-
-✓ Look into improving text positioning/placement on ARM (with no hardware floating-point)
-
- Look into speeding up dashing used for GTK+ focus rectangle
-
-✓ Look into other GTK+ performance regressions as identified on performance-list
-
- xlib backend
-     Switch to server-side gradients for xlib backend
-     Fix X server to make server-side gradients faster
-     Switch to using XRenderAddTraps rather than XRenderCompositeTrapezoids
-
- Implement a non-trapezoid based rasterizer for use with xlib and other backends
-
- Cull geometry outside clip region bounds
-
-✓ New tessellator
-
- Bugs to fix
- -----------
-   CAIRO_EXTEND_PAD is not implemented for surface patterns
-  ✓CAIRO_FORMAT_RGB16_565 should be deprecated
-  ✓8379 infinite loop when stroking (see 8379 branch in cworth tree)
-
-For other ideas that have been proposed for cairo but are not yet
-scheduled on the roadmap of any particular release, please see the
-TODO file next to this ROADMAP file.
+GNOME - http://live.gnome.org/TwoPointSeventeen
+-----------------------------------------------
+GNOME has a regular (6 month) release schedule, so there's always
+another GNOME release coming up soon.

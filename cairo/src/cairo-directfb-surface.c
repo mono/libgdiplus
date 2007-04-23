@@ -35,10 +35,9 @@
  *    Claudio Ciccani <klan@users.sf.net>
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <assert.h>
+#include "cairoint.h"
+
+#include "cairo-directfb.h"
 
 #include <directfb.h>
 
@@ -46,9 +45,6 @@
 #include <direct/debug.h>
 #include <direct/memcpy.h>
 #include <direct/util.h>
-
-#include "cairo-directfb.h"
-#include "cairoint.h"
 
 
 /*

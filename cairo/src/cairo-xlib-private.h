@@ -48,6 +48,7 @@ struct _cairo_xlib_hook {
 
 struct _cairo_xlib_screen_info {
     cairo_xlib_screen_info_t *next;
+    unsigned int ref_count;
 
     Display *display;
     Screen *screen;
@@ -60,6 +61,11 @@ struct _cairo_xlib_screen_info {
 
 cairo_private cairo_xlib_screen_info_t *
 _cairo_xlib_screen_info_get (Display *display, Screen *screen);
+
+cairo_private cairo_xlib_screen_info_t *
+_cairo_xlib_screen_info_reference (cairo_xlib_screen_info_t *info);
+cairo_private void
+_cairo_xlib_screen_info_destroy (cairo_xlib_screen_info_t *info);
 
 cairo_private cairo_bool_t
 _cairo_xlib_add_close_display_hook (Display *display, void (*func) (Display *, void *), void *data, void *key);

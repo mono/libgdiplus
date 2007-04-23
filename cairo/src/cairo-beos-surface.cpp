@@ -36,6 +36,10 @@
 
 // This is a C++ file in order to use the C++ BeOS API
 
+#include "cairoint.h"
+
+#include "cairo-beos.h"
+
 #include <new>
 
 #include <Bitmap.h>
@@ -46,9 +50,6 @@
 #include <Screen.h>
 #include <Window.h>
 #include <Locker.h>
-
-#include "cairoint.h"
-#include "cairo-beos.h"
 
 #define CAIRO_INT_STATUS_SUCCESS (cairo_int_status_t)(CAIRO_STATUS_SUCCESS)
 

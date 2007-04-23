@@ -1,126 +1,73 @@
-This file contains a list of some things that have been suggested
+This file contains a list of some things that have been proposed for
+inclusion in cairo. None of these items have been scheduled for a
+particular release, (see the ROADMAP file next to this TODO file for
+those).
 
-Changes that are expected to impact the public API
-==================================================
+If you'd like to see an item on this list get into a particular
+release, let us know that you're planning on working on it, (see
+http://cairographics.org/lists ), and we can move the item to ROADMAP
+with your name on it.
 
- Patch submitted to mailing list?
-/ Documentation included in patch?
-|/ Review of patch completed?
-||/ Test case included?
-|||/ Committed.
-||||/
-Backwards compatible (API additions only)
------------------------------------------
-	Add CAIRO_FILL_RULE_INVERSE_WINDING and CAIRO_FILL_RULE_INVERSE_EVEN_ODD
-	Add support for programmatic patterns, (ie. arbitrary gradients)
-P	Add cairo_arc_to.
-	Add support for custom caps (see below for details)
-	Add CAIRO_STATUS_DESTROYED
-See New Api below
+Changes that add new API (API changes/removals will not be considered)
+======================================================================
+ • Add CAIRO_FILL_RULE_INVERSE_WINDING and CAIRO_FILL_RULE_INVERSE_EVEN_ODD
 
-Details on some of the above changes
-------------------------------------
-* support for custom caps:
+ • Add support for programmatic patterns, (ie. arbitrary gradients)
 
-  It would be nice if the user had a mechanism to reliably draw custom
-  caps. One approach here would be to provide the coordinates of the
-  butt cap faces so that the user can append seamless caps to the
-  current path. We may also need to provide the coordinates of the
-  faces of every dash as well.
-
-Changes that do not affect the public API
-=========================================
-* Change stroke code to go through one giant polygon. This will fix
-  problems with stroking self-intersecting paths.
-
-* Fix the intersection problem, (see reference to Hobby's paper
-  mentioned in cairo_traps.c).
-
-* Should add geometry pruning as appropriate.
-
-* Fix/define tolerance for PS/PDF/SVG backends
-
-* Fix CAIRO_EXTEND_REFLECT in pixman and remove the current hack
-
-Other changes (this text used to be in RODMAP)
-==============================================
- Fairly severe bugs
-     6806  cairo 1.0.4 crash progressbar in window
-     PDF: minefield shows too-tiny bitmapped fonts in image fallback
-     PDF: minefield shows strangely hinted glyph shapes (only without truetype subsetting)
-     PDF: minefield has broken selection (only with truetype subsetting code)
-     4630  Fonts too large when drawing to image surface while printing
-     4863  stroking problems with wide dashed lines
-
- Fix all expected failures (XFAIL) in the test suite
-
- Fix disabled tests in the test suite
-     show-glyphs-many
-
- Win32 backend
-    ✓1. Incorporate into test suite
-     2. Correct output for the entire suite
-	 a. self-copy
-	 b. trap-clip
-	 [There is some mailing-list discussion about possible fixes
-	 for these.]
-
- New API
-     cairo_arc_to
+ • Add cairo_arc_to.
 	see http://lists.freedesktop.org/archives/cairo/2005-August/004801.html
 	or see arc_to branch in bedhad's repository
-     cairo_font_options_[gs]et_writing_mode()
-	http://lists.freedesktop.org/archives/cairo/2007-January/009372.html
-     cairo_font_metrics_t
-	http://lists.freedesktop.org/archives/cairo/2007-January/009373.html
-     cairo_surface_show_page() and cairo_surface_copy_page()
-	show_page is a surface operation and should have been there instead of
+
+ • Add support for custom caps
+
+	It would be nice if the user had a mechanism to reliably draw custom
+	caps. One approach here would be to provide the coordinates of the
+	butt cap faces so that the user can append seamless caps to the
+	current path. We may also need to provide the coordinates of the
+	faces of every dash as well.
+
+ • cairo_surface_show_page() and cairo_surface_copy_page()
+	how_page is a surface operation and should have been there instead of
 	cairo_show_page() from the beginning.  Same about copy_page().
 	Implement the right API now.
-     User-font API---a couple of threads of interest:
-	http://lists.freedesktop.org/archives/cairo/2007-February/009539.html
-        http://lists.freedesktop.org/archives/cairo/2006-May/006893.html
-	http://lists.freedesktop.org/archives/cairo/2006-May/006888.html
-     Polling API (cairo_get_serial and cairo_changed)
 
- PS/PDF improvements
-     - Make image fallbacks finer-grained than a whole page
-     - Fix extend modes in PDF
-     - Fix encoding "issues" reported here:
-       http://lists.freedesktop.org/archives/cairo/2006-December/008985.html
-     - Use glyph advances to generate more compact PS/PDF (done for PDF)
-     - Look into generating EPS.  That may be done using a new constructor
-       for the PS backend, or better, using an API similar to
-       cairo_svg_surface_restrict_to_version.  The PDF backend needs a
-       restrict_to API at some point too.
+ • Polling API (cairo_get_serial and cairo_changed)
 
- Xlib backend
-     - xlib backend requires xrender to compile, while it can perform without
-       xrender at run time.  Make it compile without it. see
-       http://lists.freedesktop.org/archives/cairo/2006-October/008075.html
-     - Cache patterns (maybe solid ones only). see
-       http://lists.freedesktop.org/archives/cairo/2006-December/008916.html
-       http://lists.freedesktop.org/archives/cairo/2007-February/009825.html
+Performance improvements
+========================
+ • Add dashing support to the fast-path rectilinear stroking
+   code, (will help GTK+ focus rectangle, for example)
 
- Quartz backend (maintainer needed!)
-     - Mark Quartz backend as supported:
-	 a. Incorporate into test suite
-	 b. Correct output for the entire suite
+ • Improve software polygon compositing by doing it in a
+   single scanline pass rather than tessellating, rasterizing, then
+   compositing the entire polygon.
 
-Some known bugs (this text used to be in BUGS)
-==============================================
-XXX: Many of these bugs are likely no longer valid. We should
-invesitgate each and either move it up into TODO (above) or ROADMAP or
-else just delete it.
+ • Clip trapezoids that are partially outside the clip region
 
---
+Other fixes
+===========
+ • Fix/define tolerance for PS/PDF/SVG backends
 
-The caches need to be invalidated at font destruction time.
+ • Fix CAIRO_EXTEND_REFLECT in pixman and remove the current hack
 
---
+ • Fix disabled show-glyphs-many case in cairo test suite
 
-The polygon tessellation routine has problems. It appears that the
-following paper has the right answers:
+ • Get pixman merged up with X server fb implementation
+
+ • Possibly remove pdiff (slows down the test suite with little
+   benefit)
+
+ • Make font backends separable from their native surfaces
+
+ • Fix cairo so that a degenerate matrix draws nothing rather than
+   triggering an error state. That is: cairo_scale (cr, 0, 0); should
+   not cause an error, (though maybe it shouldn't actually draw
+   _nothing_ for painting an infinite source pattern---compute the
+   average color for a surface-based source pattern perhaps?).
+
+ • The new tessellator has greatly improved performance, robustness,
+   and code readability, but may still suffer from "missed
+   intersections" as described here:
 
 	http://cm.bell-labs.com/cm/cs/doc/93/2-27.ps.gz
 
@@ -128,52 +75,37 @@ following paper has the right answers:
 	Finite Precision Output, Computation Geometry Theory and
 	Applications, 13(4), 1999.
 
-Recent improvements to make the intersection code more robust (using
-128-bit arithmetic where needed), have exposed some of the weakness in
-the current tessellation implementation. So, for now, filling some
-polygons will cause "leaking" until we implement Hobby's algorithm.
+   We could do multi-pass Bentley-Ottmann or add a tolerance-square
+   pass as described by Hobby in the paper above.
 
---
+ • Fix vertical metric and TrueType subsetting:
+	Text drawn with vertical metrics cannot currently use TrueType
+	subsetting for PDF/PS output as the code doesn't write out the
+	necessary VHEA or VMTX entries to the TrueType font
+	objects. As a result, cairo uses Type3 fonts which generates
+	slightly different outlines.  Type1 has the same problem.
 
-Stroke width of 0 might do bad things.
+  • Make image fallbacks finer-grained than a whole page (most of the
+	This is work to be done in the cairo-analysis-surface layer
+	and will benefit ps, pdf, svg, and any other
+	analysis-surface-using backends.
 
---
+Backend-specific improvements
+==============================
+ Win32 backend
+     • Fix self-copy test
+     • Fix trap-clip test
 
-Could there be a bug in PS backend exposed by?:
+ PS/PDF improvements
+     • Fix extend modes in PDF
+     • Fix encoding "issues" reported here:
+       http://lists.freedesktop.org/archives/cairo/2006-December/008985.html
+     • Use glyph advances to generate more compact PostScript (done for PDF)
 
-cairo_save
-cairo_clip
-cairo_restore
-...
-
-This needs a new testcase.
-
---
-
-This puts the cairo_t in an error state:
-cairo_scale (cr, 0, 0);
-
---
-
-Text drawn with vertical metrics cannot currently use TrueType
-subsetting for PDF/PS output as the code doesn't write out the necessary
-VHEA or VMTX entries to the TrueType font objects. As a result, cairo uses
-Type3 fonts which generates slightly different outlines.  Type1 has the same
-problem.
-
---
-
-Text transformations is a mess in PS/PDF backends.  Many combinations of
-rotated/scaled ctm, rotated/scaled font_matrix, and subsetting code used
-(Type1/Type3/TrueType) are broken.
-
---
-
-Move docs inline.  see
-http://lists.freedesktop.org/archives/cairo/2006-July/007431.html
-
---
-
-Look into the glyph cache.  Moreover, make sure we are reusing scaled fonts
-enough.
-
+ Xlib backend
+     • xlib backend requires xrender to compile, while it can perform without
+       xrender at run time.  Make it compile without it. see
+       http://lists.freedesktop.org/archives/cairo/2006-October/008075.html
+     • Switch to server-side gradients
+     • Switch to using XRenderAddTraps rather than XRenderCompositeTrapezoids
+     • Use XlibRectStretch for nearest-neighbor image scaling.

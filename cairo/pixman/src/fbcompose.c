@@ -23,9 +23,11 @@
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
  * SOFTWARE.
  */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+
 #include "pixman-xserver-compat.h"
 #include "fbpict.h"
 
@@ -1741,7 +1743,7 @@ fbCombineSaturateU (CARD32 *dest, const CARD32 *src, int width)
 #define CombineXor	(CombineAOut|CombineBOut)
 
 /* portion covered by a but not b */
-static INLINE CARD8
+static inline CARD8
 fbCombineDisjointOutPart (CARD8 a, CARD8 b)
 {
     /* min (1, (1-b) / a) */
@@ -1753,7 +1755,7 @@ fbCombineDisjointOutPart (CARD8 a, CARD8 b)
 }
 
 /* portion covered by both a and b */
-static INLINE CARD8
+static inline CARD8
 fbCombineDisjointInPart (CARD8 a, CARD8 b)
 {
     /* max (1-(1-b)/a,0) */
@@ -1881,7 +1883,7 @@ fbCombineDisjointXorU (CARD32 *dest, const CARD32 *src, int width)
 }
 
 /* portion covered by a but not b */
-static INLINE CARD8
+static inline CARD8
 fbCombineConjointOutPart (CARD8 a, CARD8 b)
 {
     /* max (1-b/a,0) */
@@ -1895,7 +1897,7 @@ fbCombineConjointOutPart (CARD8 a, CARD8 b)
 }
 
 /* portion covered by both a and b */
-static INLINE CARD8
+static inline CARD8
 fbCombineConjointInPart (CARD8 a, CARD8 b)
 {
     /* min (1,b/a) */
@@ -2056,89 +2058,80 @@ static CombineFuncU fbCombineFuncU[] = {
     fbCombineConjointXorU,
 };
 
-static FASTCALL void
-fbCombineMaskC (CARD32 *src, CARD32 *mask, int width)
+static inline void
+fbCombineMaskC (CARD32 *src, CARD32 *mask)
 {
-    int i;
-    for (i = 0; i < width; ++i) {
-        CARD32 a = mask[i];
+    CARD32 a = *mask;
 
-        CARD32	x;
-        CARD16	xa;
+    CARD32	x;
+    CARD16	xa;
 
-        if (!a)
-        {
-            src[i] = 0;
-            continue;
-        }
-
-        x = src[i];
-        if (a == 0xffffffff)
-        {
-            x = x >> 24;
-            x |= x << 8;
-            x |= x << 16;
-            mask[i] = x;
-            continue;
-        }
-
-        xa = x >> 24;
-        FbByteMulC(x, a);
-        src[i] = x;
-        FbByteMul(a, xa);
-        mask[i] = a;
+    if (!a)
+    {
+	*src = 0;
+	return;
     }
+
+    x = *src;
+    if (a == 0xffffffff)
+    {
+	x = x >> 24;
+	x |= x << 8;
+	x |= x << 16;
+	*mask = x;
+	return;
+    }
+
+    xa = x >> 24;
+    FbByteMulC(x, a);
+    *src = x;
+    FbByteMul(a, xa);
+    *mask = a;
 }
 
-static FASTCALL void
-fbCombineMaskValueC (CARD32 *src, const CARD32 *mask, int width)
+static inline void
+fbCombineMaskValueC (CARD32 *src, const CARD32 *mask)
 {
-    int i;
-    for (i = 0; i < width; ++i) {
-        CARD32 a = mask[i];
-        CARD32	x;
+    CARD32 a = *mask;
+    CARD32	x;
 
-        if (!a)
-        {
-            src[i] = 0;
-            continue;
-        }
-
-        if (a == 0xffffffff)
-            continue;
-
-        x = src[i];
-        FbByteMulC(x, a);
-        src[i] = x;
+    if (!a)
+    {
+	*src = 0;
+	return;
     }
+
+    if (a == 0xffffffff)
+	return;
+
+    x = *src;
+    FbByteMulC(x, a);
+    *src = x;
 }
 
-static FASTCALL void
-fbCombineMaskAlphaC (const CARD32 *src, CARD32 *mask, int width)
+static inline void
+fbCombineMaskAlphaC (const CARD32 *src, CARD32 *mask)
 {
-    int i;
-    for (i = 0; i < width; ++i) {
-        CARD32 a = mask[i];
-        CARD32	x;
+    CARD32 a = *mask;
+    CARD32	x;
 
-        if (!a)
-            continue;
+    if (!a)
+	return;
 
-        x = src[i] >> 24;
-        if (x == 0xff)
-            continue;
-        if (a == 0xffffffff)
-        {
-            x = x >> 24;
-            x |= x << 8;
-            x |= x << 16;
-            mask[i] = x;
-            continue;
-        }
-
-        FbByteMul(a, x);
-        mask[i] = a;
+    x = *src >> 24;
+    if (x == 0xff)
+	return;
+    if (a == 0xffffffff)
+    {
+	x = x >> 24;
+	x |= x << 8;
+	x |= x << 16;
+	*mask = x;
+	return;
     }
+
+    FbByteMul(a, x);
+    *mask = a;
 }
 
 static FASTCALL void
@@ -2150,19 +2143,31 @@ fbCombineClearC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 static FASTCALL void
 fbCombineSrcC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 {
-    fbCombineMaskValueC(src, mask, width);
-    memcpy(dest, src, width*sizeof(CARD32));
+    int i;
+
+    for (i = 0; i < width; ++i) {
+	CARD32 s = src[i];
+	CARD32 m = mask[i];
+
+	fbCombineMaskValueC (&s, &m);
+
+	*dest = s;
+    }
 }
 
 static FASTCALL void
 fbCombineOverC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 {
     int i;
-    fbCombineMaskC(src, mask, width);
-    for (i = 0; i < width; ++i) {
-        CARD32  s = src[i];
-        CARD32  a = ~mask[i];
 
+    for (i = 0; i < width; ++i) {
+	CARD32 s = src[i];
+	CARD32 m = mask[i];
+	CARD32 a;
+
+	fbCombineMaskC (&s, &m);
+
+	a = ~m;
         if (a != 0xffffffff)
         {
             if (a)
@@ -2180,7 +2185,7 @@ static FASTCALL void
 fbCombineOverReverseC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 {
     int i;
-    fbCombineMaskValueC(src, mask, width);
+
     for (i = 0; i < width; ++i) {
         CARD32 d = dest[i];
         CARD32 a = ~d >> 24;
@@ -2188,6 +2193,10 @@ fbCombineOverReverseC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
         if (a)
         {
             CARD32 s = src[i];
+	    CARD32 m = mask[i];
+
+	    fbCombineMaskValueC (&s, &m);
+
             if (a != 0xff)
             {
                 FbByteMulAdd(s, a, d);
@@ -2201,14 +2210,17 @@ static FASTCALL void
 fbCombineInC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 {
     int i;
-    fbCombineMaskValueC(src, mask, width);
+
     for (i = 0; i < width; ++i) {
         CARD32 d = dest[i];
         CARD16 a = d >> 24;
         CARD32 s = 0;
         if (a)
         {
-            s = src[i];
+	    CARD32 m = mask[i];
+
+	    s = src[i];
+	    fbCombineMaskValueC (&s, &m);
             if (a != 0xff)
             {
                 FbByteMul(s, a);
@@ -2222,10 +2234,15 @@ static FASTCALL void
 fbCombineInReverseC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 {
     int i;
-    fbCombineMaskAlphaC(src, mask, width);
-    for (i = 0; i < width; ++i) {
-        CARD32 a = mask[i];
 
+    for (i = 0; i < width; ++i) {
+        CARD32 s = src[i];
+        CARD32 m = mask[i];
+        CARD32 a;
+
+	fbCombineMaskAlphaC (&s, &m);
+
+	a = m;
         if (a != 0xffffffff)
         {
             CARD32 d = 0;
@@ -2243,14 +2260,18 @@ static FASTCALL void
 fbCombineOutC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 {
     int i;
-    fbCombineMaskValueC(src, mask, width);
+
     for (i = 0; i < width; ++i) {
         CARD32 d = dest[i];
         CARD16 a = ~d >> 24;
         CARD32 s = 0;
         if (a)
         {
-            s = src[i];
+	    CARD32 m = mask[i];
+
+	    s = src[i];
+	    fbCombineMaskValueC (&s, &m);
+
             if (a != 0xff)
             {
                 FbByteMul(s, a);
@@ -2264,10 +2285,15 @@ static FASTCALL void
 fbCombineOutReverseC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 {
     int i;
-    fbCombineMaskAlphaC(src, mask, width);
-    for (i = 0; i < width; ++i) {
-        CARD32 a = ~mask[i];
 
+    for (i = 0; i < width; ++i) {
+	CARD32 s = src[i];
+	CARD32 m = mask[i];
+	CARD32 a;
+
+	fbCombineMaskAlphaC (&s, &m);
+
+        a = ~m;
         if (a != 0xffffffff)
         {
             CARD32 d = 0;
@@ -2285,12 +2311,18 @@ static FASTCALL void
 fbCombineAtopC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 {
     int i;
-    fbCombineMaskC(src, mask, width);
+
     for (i = 0; i < width; ++i) {
         CARD32 d = dest[i];
         CARD32 s = src[i];
-        CARD32 ad = ~mask[i];
+        CARD32 m = mask[i];
+        CARD32 ad;
         CARD16 as = d >> 24;
+
+	fbCombineMaskC (&s, &m);
+
+        ad = ~m;
+
         FbByteAddMulC(d, ad, s, as);
         dest[i] = d;
     }
@@ -2300,13 +2332,19 @@ static FASTCALL void
 fbCombineAtopReverseC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 {
     int i;
-    fbCombineMaskC(src, mask, width);
+
     for (i = 0; i < width; ++i) {
 
         CARD32 d = dest[i];
         CARD32 s = src[i];
-        CARD32 ad = mask[i];
+        CARD32 m = mask[i];
+        CARD32 ad;
         CARD16 as = ~d >> 24;
+
+	fbCombineMaskC (&s, &m);
+
+	ad = m;
+
         FbByteAddMulC(d, ad, s, as);
         dest[i] = d;
     }
@@ -2316,12 +2354,18 @@ static FASTCALL void
 fbCombineXorC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 {
     int i;
-    fbCombineMaskC(src, mask, width);
+
     for (i = 0; i < width; ++i) {
         CARD32 d = dest[i];
         CARD32 s = src[i];
-        CARD32 ad = ~mask[i];
+        CARD32 m = mask[i];
+        CARD32 ad;
         CARD16 as = ~d >> 24;
+
+	fbCombineMaskC (&s, &m);
+
+	ad = ~m;
+
         FbByteAddMulC(d, ad, s, as);
         dest[i] = d;
     }
@@ -2331,10 +2375,14 @@ static FASTCALL void
 fbCombineAddC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 {
     int i;
-    fbCombineMaskValueC(src, mask, width);
+
     for (i = 0; i < width; ++i) {
         CARD32 s = src[i];
+        CARD32 m = mask[i];
         CARD32 d = dest[i];
+
+	fbCombineMaskValueC (&s, &m);
+
         FbByteAdd(d, s);
         dest[i] = d;
     }
@@ -2344,7 +2392,7 @@ static FASTCALL void
 fbCombineSaturateC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 {
     int i;
-    fbCombineMaskC(src, mask, width);
+
     for (i = 0; i < width; ++i) {
         CARD32  s, d;
         CARD16  sa, sr, sg, sb, da;
@@ -2353,10 +2401,14 @@ fbCombineSaturateC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width)
 
         d = dest[i];
         s = src[i];
-        sa = (mask[i] >> 24);
-        sr = (mask[i] >> 16) & 0xff;
-        sg = (mask[i] >>  8) & 0xff;
-        sb = (mask[i]      ) & 0xff;
+	m = mask[i];
+
+	fbCombineMaskC (&s, &m);
+
+        sa = (m >> 24);
+        sr = (m >> 16) & 0xff;
+        sg = (m >>  8) & 0xff;
+        sb = (m      ) & 0xff;
         da = ~d >> 24;
 
         if (sb <= da)
@@ -2387,7 +2439,7 @@ static FASTCALL void
 fbCombineDisjointGeneralC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width, CARD8 combine)
 {
     int i;
-    fbCombineMaskC(src, mask, width);
+
     for (i = 0; i < width; ++i) {
         CARD32  s, d;
         CARD32  m,n,o,p;
@@ -2397,9 +2449,13 @@ fbCombineDisjointGeneralC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width, C
         CARD8   da;
 
         s = src[i];
-        sa = mask[i];
+        m = mask[i];
         d = dest[i];
         da = d >> 24;
+
+	fbCombineMaskC (&s, &m);
+
+	sa = m;
 
         switch (combine & CombineA) {
         default:
@@ -2507,7 +2563,7 @@ static FASTCALL void
 fbCombineConjointGeneralC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width, CARD8 combine)
 {
     int i;
-    fbCombineMaskC(src, mask, width);
+
     for (i = 0; i < width; ++i) {
         CARD32  s, d;
         CARD32  m,n,o,p;
@@ -2517,9 +2573,13 @@ fbCombineConjointGeneralC (CARD32 *dest, CARD32 *src, CARD32 *mask, int width, C
         CARD8   da;
 
         s = src[i];
-        sa = mask[i];
+        m = mask[i];
         d = dest[i];
         da = d >> 24;
+
+	fbCombineMaskC (&s, &m);
+
+        sa = m;
 
         switch (combine & CombineA) {
         default:
@@ -3372,8 +3432,8 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
     if (pict->filter == PIXMAN_FILTER_NEAREST || pict->filter == PIXMAN_FILTER_FAST)
     {
         if (pict->repeat == RepeatNormal) {
-            if (PIXREGION_NUM_RECTS(pict->pSourceClip) == 1) {
-                box = pict->pSourceClip->extents;
+            if (PIXREGION_NUM_RECTS(&pict->sourceClip) == 1) {
+                box = pict->sourceClip.extents;
                 for (i = 0; i < width; ++i) {
  		    if (!mask || mask[i] & maskBits)
  		    {
@@ -3408,7 +3468,7 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
 				y = MOD(v.vector[1]>>16, pict->pDrawable->height);
 				x = MOD(v.vector[0]>>16, pict->pDrawable->width);
 			    }
-			    if (pixman_region_contains_point (pict->pSourceClip, x, y, &box))
+			    if (pixman_region_contains_point (&pict->sourceClip, x, y, &box))
 				buffer[i] = fetch(bits + (y + pict->pDrawable->y)*stride, x + pict->pDrawable->x, indexed);
 			    else
 				buffer[i] = 0;
@@ -3420,8 +3480,8 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                 }
             }
         } else {
-            if (PIXREGION_NUM_RECTS(pict->pSourceClip) == 1) {
-                box = pict->pSourceClip->extents;
+            if (PIXREGION_NUM_RECTS(&pict->sourceClip) == 1) {
+                box = pict->sourceClip.extents;
                 for (i = 0; i < width; ++i) {
  		    if (!mask || mask[i] & maskBits)
  		    {
@@ -3455,7 +3515,7 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                             y = v.vector[1]>>16;
                             x = v.vector[0]>>16;
                         }
-                        if (pixman_region_contains_point (pict->pSourceClip, x, y, &box))
+                        if (pixman_region_contains_point (&pict->sourceClip, x, y, &box))
                             buffer[i] = fetch(bits + (y + pict->pDrawable->y)*stride, x + pict->pDrawable->x, indexed);
                         else
                             buffer[i] = 0;
@@ -3474,8 +3534,8 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
         unit.vector[1] -= unit.vector[2]/2;
 
         if (pict->repeat == RepeatNormal) {
-            if (PIXREGION_NUM_RECTS(pict->pSourceClip) == 1) {
-                box = pict->pSourceClip->extents;
+            if (PIXREGION_NUM_RECTS(&pict->sourceClip) == 1) {
+                box = pict->sourceClip.extents;
                 for (i = 0; i < width; ++i) {
 		    if (!mask || mask[i] & maskBits)
 		    {
@@ -3578,14 +3638,14 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
 
 			    b = bits + (y1 + pict->pDrawable->y)*stride;
 
-			    tl = pixman_region_contains_point(pict->pSourceClip, x1, y1, &box)
+			    tl = pixman_region_contains_point(&pict->sourceClip, x1, y1, &box)
 				? fetch(b, x1 + pict->pDrawable->x, indexed) : 0;
-			    tr = pixman_region_contains_point(pict->pSourceClip, x2, y1, &box)
+			    tr = pixman_region_contains_point(&pict->sourceClip, x2, y1, &box)
 				? fetch(b, x2 + pict->pDrawable->x, indexed) : 0;
 			    b = bits + (y2 + pict->pDrawable->y)*stride;
-			    bl = pixman_region_contains_point(pict->pSourceClip, x1, y2, &box)
+			    bl = pixman_region_contains_point(&pict->sourceClip, x1, y2, &box)
 				? fetch(b, x1 + pict->pDrawable->x, indexed) : 0;
-			    br = pixman_region_contains_point(pict->pSourceClip, x2, y2, &box)
+			    br = pixman_region_contains_point(&pict->sourceClip, x2, y2, &box)
 				? fetch(b, x2 + pict->pDrawable->x, indexed) : 0;
 
 			    ft = FbGet8(tl,0) * idistx + FbGet8(tr,0) * distx;
@@ -3609,8 +3669,8 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
                 }
             }
         } else {
-            if (PIXREGION_NUM_RECTS(pict->pSourceClip) == 1) {
-                box = pict->pSourceClip->extents;
+            if (PIXREGION_NUM_RECTS(&pict->sourceClip) == 1) {
+                box = pict->sourceClip.extents;
                 for (i = 0; i < width; ++i) {
 		    if (!mask || mask[i] & maskBits)
 		    {
@@ -3711,14 +3771,14 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
 			    b = bits + (y1 + pict->pDrawable->y)*stride;
 			    x_off = x1 + pict->pDrawable->x;
 
-			    tl = pixman_region_contains_point(pict->pSourceClip, x1, y1, &box)
+			    tl = pixman_region_contains_point(&pict->sourceClip, x1, y1, &box)
 				? fetch(b, x_off, indexed) : 0;
-			    tr = pixman_region_contains_point(pict->pSourceClip, x2, y1, &box)
+			    tr = pixman_region_contains_point(&pict->sourceClip, x2, y1, &box)
 				? fetch(b, x_off + 1, indexed) : 0;
 			    b += stride;
-			    bl = pixman_region_contains_point(pict->pSourceClip, x1, y2, &box)
+			    bl = pixman_region_contains_point(&pict->sourceClip, x1, y2, &box)
 				? fetch(b, x_off, indexed) : 0;
-			    br = pixman_region_contains_point(pict->pSourceClip, x2, y2, &box)
+			    br = pixman_region_contains_point(&pict->sourceClip, x2, y2, &box)
 				? fetch(b, x_off + 1, indexed) : 0;
 
 			    ft = FbGet8(tl,0) * idistx + FbGet8(tr,0) * distx;
@@ -3780,7 +3840,7 @@ static void fbFetchTransformed(PicturePtr pict, int x, int y, int width, CARD32 
 			for (x = x1; x < x2; x++) {
 			    if (*p) {
 				int tx = (pict->repeat == RepeatNormal) ? MOD (x, pict->pDrawable->width) : x;
-				if (pixman_region_contains_point (pict->pSourceClip, tx, ty, &box)) {
+				if (pixman_region_contains_point (&pict->sourceClip, tx, ty, &box)) {
 				    FbBits *b = bits + (ty + pict->pDrawable->y)*stride;
 				    CARD32 c = fetch(b, tx + pict->pDrawable->x, indexed);
 
@@ -4196,7 +4256,7 @@ pixman_compositeGeneral (pixman_operator_t	op,
 		    CARD16	width,
 		    CARD16	height)
 {
-    pixman_region16_t *region;
+    pixman_region16_t region;
     int		    n;
     BoxPtr	    pbox;
     Bool	    srcRepeat = FALSE;
@@ -4217,22 +4277,11 @@ pixman_compositeGeneral (pixman_operator_t	op,
     if (op == PIXMAN_OPERATOR_OVER && !pMask && !pSrc->transform && !PICT_FORMAT_A(pSrc->format_code) && !pSrc->alphaMap)
         op = PIXMAN_OPERATOR_SRC;
 
-    region = pixman_region_create();
-    pixman_region_union_rect (region, region, xDst, yDst, width, height);
+    pixman_region_init_rect (&region, xDst, yDst, width, height);
 
-    if (!FbComputeCompositeRegion (region,
-				   pSrc,
-				   pMask,
-				   pDst,
-				   xSrc,
-				   ySrc,
-				   xMask,
-				   yMask,
-				   xDst,
-				   yDst,
-				   width,
-				   height))
-	    return;
+    if (!FbComputeCompositeRegion (&region, pSrc, pMask, pDst, xSrc, ySrc,
+                                   xMask, yMask, xDst, yDst, width, height))
+        goto CLEANUP_REGION;
 
     compose_data.op = op;
     compose_data.src = pSrc;
@@ -4241,8 +4290,8 @@ pixman_compositeGeneral (pixman_operator_t	op,
     if (width > SCANLINE_BUFFER_LENGTH)
         scanline_buffer = (CARD32 *) malloc(width * 3 * sizeof(CARD32));
 
-    n = pixman_region_num_rects (region);
-    pbox = pixman_region_rects (region);
+    n = pixman_region_num_rects (&region);
+    pbox = pixman_region_rects (&region);
     while (n--)
     {
 	h = pbox->y2 - pbox->y1;
@@ -4296,10 +4345,12 @@ pixman_compositeGeneral (pixman_operator_t	op,
 	}
 	pbox++;
     }
-    pixman_region_destroy (region);
 
     if (scanline_buffer != _scanline_buffer)
         free(scanline_buffer);
+
+CLEANUP_REGION:
+    pixman_region_fini (&region);
 }
 
 #endif

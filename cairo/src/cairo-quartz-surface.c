@@ -34,11 +34,11 @@
  *	Vladimir Vukicevic <vladimir@mozilla.com>
  */
 
-#include <Carbon/Carbon.h>
-
 #include "cairoint.h"
 
 #include "cairo-quartz-private.h"
+
+#include <Carbon/Carbon.h>
 
 #undef QUARTZ_DEBUG
 
@@ -286,8 +286,8 @@ _cairo_quartz_cairo_matrix_to_quartz (const cairo_matrix_t *src,
 				       CGAffineTransform *dst)
 {
     dst->a = src->xx;
-    dst->b = src->xy;
-    dst->c = src->yx;
+    dst->b = src->yx;
+    dst->c = src->xy;
     dst->d = src->yy;
     dst->tx = src->x0;
     dst->ty = src->y0;
@@ -1314,8 +1314,8 @@ _cairo_quartz_surface_show_glyphs (void *abstract_surface,
 	cg_advances = (CGSize*) malloc(sizeof(CGSize) * num_glyphs);
     }
 
-    double xprev = glyphs[0].x;
-    double yprev = glyphs[0].y;
+    float xprev = glyphs[0].x;
+    float yprev = glyphs[0].y;
 
     cg_glyphs[0] = glyphs[0].index;
     cg_advances[0].width = 0;
@@ -1323,10 +1323,12 @@ _cairo_quartz_surface_show_glyphs (void *abstract_surface,
 
     for (i = 1; i < num_glyphs; i++) {
 	cg_glyphs[i] = glyphs[i].index;
-	cg_advances[i-1].width = glyphs[i].x - xprev;
-	cg_advances[i-1].height = glyphs[i].y - yprev;
-	xprev = glyphs[i].x;
-	yprev = glyphs[i].y;
+	float xf = glyphs[i].x;
+	float yf = glyphs[i].y;
+	cg_advances[i-1].width = xf - xprev;
+	cg_advances[i-1].height = yf - yprev;
+	xprev = xf;
+	yprev = yf;
     }
 
 #if 0

@@ -36,6 +36,11 @@
  *	Vladimir Vukicevic <vladimir@pobox.com>
  */
 
+#include "cairoint.h"
+
+#include "cairo-clip-private.h"
+#include "cairo-win32-private.h"
+
 #define WIN32_LEAN_AND_MEAN
 /* We require Windows 2000 features such as ETO_PDY */
 #if !defined(WINVER) || (WINVER < 0x0500)
@@ -45,11 +50,6 @@
 # define _WIN32_WINNT 0x0500
 #endif
 #include <windows.h>
-
-#include <stdio.h>
-#include "cairoint.h"
-#include "cairo-clip-private.h"
-#include "cairo-win32-private.h"
 
 #undef DEBUG_COMPOSITE
 
@@ -326,8 +326,6 @@ _cairo_win32_surface_create_for_dc (HDC             original_dc,
     cairo_win32_surface_t *surface;
     char *bits;
     int rowstride;
-
-    _cairo_win32_initialize ();
 
     surface = malloc (sizeof (cairo_win32_surface_t));
     if (surface == NULL) {
@@ -1635,8 +1633,6 @@ cairo_win32_surface_create (HDC hdc)
     int depth;
     cairo_format_t format;
 
-    _cairo_win32_initialize ();
-
     /* Try to figure out the drawing bounds for the Device context
      */
     if (GetClipBox (hdc, &rect) == ERROR) {
@@ -1886,67 +1882,6 @@ static const cairo_surface_backend_t cairo_win32_surface_backend = {
 
     NULL  /* snapshot */
 };
-
-/*
- * Without pthread, on win32 we need to initialize all the 'mutex'es
- * before use. It is guaranteed that DllMain will get called single
- * threaded before any other function.
- * Initializing more than finally needed should not matter much.
- */
-#if !defined(HAVE_PTHREAD_H) 
-
-CRITICAL_SECTION _cairo_scaled_font_map_mutex;
-#ifdef CAIRO_HAS_FT_FONT
-CRITICAL_SECTION _cairo_ft_unscaled_font_map_mutex;
-#endif
-CRITICAL_SECTION _cairo_font_face_mutex;
-
-static int _cairo_win32_initialized = 0;
-
-void
-_cairo_win32_initialize (void) {
-    if (_cairo_win32_initialized)
-	return;
-
-    /* every 'mutex' from CAIRO_MUTEX_DECALRE needs to be initialized here */
-    InitializeCriticalSection (&_cairo_scaled_font_map_mutex);
-#ifdef CAIRO_HAS_FT_FONT
-    InitializeCriticalSection (&_cairo_ft_unscaled_font_map_mutex);
-#endif
-    InitializeCriticalSection (&_cairo_font_face_mutex);
-
-    _cairo_win32_initialized = 1;
-}
-
-#if !defined(CAIRO_WIN32_STATIC_BUILD)
-BOOL WINAPI
-DllMain (HINSTANCE hinstDLL,
-	 DWORD     fdwReason,
-	 LPVOID    lpvReserved)
-{
-  switch (fdwReason)
-  {
-  case DLL_PROCESS_ATTACH:
-    _cairo_win32_initialize();
-    break;
-  case DLL_PROCESS_DETACH:
-    DeleteCriticalSection (&_cairo_scaled_font_map_mutex);
-#ifdef CAIRO_HAS_FT_FONT
-    DeleteCriticalSection (&_cairo_ft_unscaled_font_map_mutex);
-#endif
-    DeleteCriticalSection (&_cairo_font_face_mutex);
-    break;
-  }
-  return TRUE;
-}
-#endif
-#else
-/* Need a function definition here too since it's called outside of ifdefs */
-void
-_cairo_win32_initialize (void)
-{
-}
-#endif
 
 /* Notes:
  *

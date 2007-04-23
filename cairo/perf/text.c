@@ -40,14 +40,14 @@ do_text (cairo_t *cr, int width, int height)
 	cairo_move_to (cr, 0, i * 10);
 	cairo_show_text (cr, text + i);
 	cairo_get_current_point (cr, &x, &y);
-	while (x < width) {
+	while (x < width && cairo_status (cr) == CAIRO_STATUS_SUCCESS) {
 	    cairo_show_text (cr, text);
 	    cairo_get_current_point (cr, &x, &y);
 	}
 	i++;
 	if (i >= len)
 	    i = 0;
-    } while (y < height);
+    } while (y < height && cairo_status (cr) == CAIRO_STATUS_SUCCESS);
 
     cairo_perf_timer_stop ();
 
