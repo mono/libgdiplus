@@ -283,13 +283,15 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		bit_depth = png_get_bit_depth (png_ptr, info_ptr);
 
 		source_stride = (width * bit_depth + 7) / 8;
-		dest_stride = (source_stride + sizeof(pixman_bits_t) - 1) & ~(sizeof(pixman_bits_t) - 1);
+		dest_stride = source_stride;
+		gdip_align_stride (dest_stride);
 
 		/* Copy image data. */
 		row_pointers = png_get_rows (png_ptr, info_ptr);
 
 		if (bit_depth == 2) { /* upsample to 4bpp */
-			dest_stride = ((width + 1) / 2 + sizeof(pixman_bits_t) - 1) & ~(sizeof(pixman_bits_t) - 1);
+			dest_stride = (width + 1) >> 1;
+			gdip_align_stride (dest_stride);
 
 			rawdata = GdipAlloc(dest_stride * height);
 			for (i=0; i < height; i++) {
@@ -434,8 +436,8 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			png_set_tRNS_to_alpha(png_ptr);
 		}
 
-		stride = (width * 4) + (sizeof(pixman_bits_t)-1);
-		stride &= ~(sizeof(pixman_bits_t)-1);
+		stride = (width * 4);
+		gdip_align_stride (stride);
 
 		row_pointers = png_get_rows (png_ptr, info_ptr);
 		rawdata = GdipAlloc (stride * height);

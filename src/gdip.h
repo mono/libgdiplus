@@ -25,8 +25,6 @@
 
 #include "config.h"
 
-#include "pixman.h"
-
 #if HAVE_VISIBILITY_HIDDEN
 	#define GDIP_INTERNAL __attribute__ ((visibility ("hidden")))
 #else

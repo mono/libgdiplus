@@ -882,9 +882,8 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		break;
 	}
 
-	/* Ensure pixman_bits_t alignment */
-	result->active_bitmap->stride += (sizeof(pixman_bits_t) - 1);
-	result->active_bitmap->stride &= ~(sizeof(pixman_bits_t) - 1);
+	/* Ensure 32bits alignment */
+	gdip_align_stride (result->active_bitmap->stride);
  
 	if (colours) {
 		int palette_entries = colours;
@@ -1263,12 +1262,12 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
 		memset (current_line, 0, mystride); /* Zero padding at the end if needed */
 		for (i = height - 1; i >= 0; i--) {
 			byte *ptr;
-			uint32_t *iptr;
+			guint32 *iptr;
 
-			iptr = (uint32_t *) (scan0 + i * activebmp->stride);
+			iptr = (guint32 *) (scan0 + i * activebmp->stride);
 			ptr = current_line;
 			for (k = 0; k < width; k++) {
-				uint32_t color = *iptr++;
+				guint32 color = *iptr++;
 				*ptr++ = (color & 0x000000ff);
 				*ptr++ = ((color & 0x0000ff00) >> 8);
 				*ptr++ = ((color & 0x00ff0000) >> 16);

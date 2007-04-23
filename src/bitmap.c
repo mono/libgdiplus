@@ -872,9 +872,8 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, int format, void *
 			stride = (gdip_get_pixel_format_components (format) * gdip_get_pixel_format_depth (format) * width) / 8;
 		}
 
-		/* make sure the stride aligns the next row to a pixman_bits_t boundary */
-		stride += (sizeof(pixman_bits_t)-1);
-		stride &= ~(sizeof(pixman_bits_t)-1);
+		/* make sure the stride aligns the next row to a 32 bits boundary */
+		gdip_align_stride (stride);
 	}
 	bitmap_data->stride = stride;
 
@@ -983,8 +982,8 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	BitmapData	*bitmap_data;
 	int 		stride;
 
-	stride = width * 4 + (sizeof(pixman_bits_t)-1);
-	stride &= ~(sizeof(pixman_bits_t)-1);
+	stride = width * 4;
+	gdip_align_stride (stride);
 	
 	result = gdip_bitmap_new ();
 	result->image_format = MEMBMP;
@@ -1178,7 +1177,8 @@ gdip_bitmap_clone_data_rect (GdipBitmapData *srcData, Rect *srcRect, GdipBitmapD
 		dest_depth = gdip_get_pixel_format_depth (srcData->pixel_format);
 		destData->pixel_format = srcData->pixel_format;
 
-		destData->stride = (((( destRect->Width * dest_components * dest_depth) /8) + (sizeof(pixman_bits_t)-1)) & ~(sizeof(pixman_bits_t)-1));
+		destData->stride = ((destRect->Width * dest_components * dest_depth) >> 3);
+		gdip_align_stride (destData->stride);
 
 		destData->scan0 = GdipAlloc (destData->stride * destRect->Height);
 		if (destData== NULL) {
@@ -1334,10 +1334,10 @@ gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest
 	BYTE	*pos_dest;
 	int	src_components = 4; /* ARGB */
 	int	dest_components = 3; /* RGB */
-	
-	*dest_stride = dest_components * 8;
-	*dest_stride = (*dest_stride * width) / 8;
-	*dest_stride = (*dest_stride + (sizeof(pixman_bits_t)-1)) & ~(sizeof(pixman_bits_t)-1);		
+
+	int stride = ((dest_components << 3) * width) >> 3);
+	gdip_align_stride (stride);
+	*dest_stride = stride;
 	
 	result = GdipAlloc (*dest_stride * height);
 	if (result == NULL) {
@@ -1371,9 +1371,9 @@ gdip_from_RGB_to_ARGB (BYTE *src, int width, int height, int stride, BYTE **dest
 	int	src_components = 3; /* RGB */
 	int	dest_components = 4; /* ARGB */
 	
-	*dest_stride = dest_components * 8;
-	*dest_stride = (*dest_stride * width) / 8;
-	*dest_stride = (*dest_stride + (sizeof(pixman_bits_t)-1)) & ~(sizeof(pixman_bits_t)-1);		
+	int stride = ((dest_components << 3) * width) >> 3);
+	gdip_align_stride (stride);
+	*dest_stride = stride;
 	
 	result = GdipAlloc (*dest_stride * height);
 	if (result == NULL) {
@@ -1960,9 +1960,8 @@ GdipBitmapLockBits (GpBitmap *bitmap, Rect *srcRect, int flags, int format, Gdip
 		dest_pixel_format_bpp = gdip_get_pixel_format_bpp (format);
 		break;
 	}
-	dest_stride = (srcRect->Width * dest_pixel_format_bpp + 7) / 8;
-	dest_stride += (sizeof(pixman_bits_t)-1);
-	dest_stride &= ~(sizeof(pixman_bits_t)-1);
+	dest_stride = (srcRect->Width * dest_pixel_format_bpp + 7) >> 3;
+	gdip_align_stride (dest_stride);
 	dest_size = srcRect->Height * dest_stride;
 
 	if ((flags & ImageLockModeUserInputBuf) == 0) {
@@ -2258,10 +2257,8 @@ gdip_convert_indexed_to_rgb (GpBitmap *indexed_bmp)
 
 	rgb_stride = data->width * sizeof (ARGB);
 
-	/* ensure pixman_bits_t alignment */
-	rgb_stride += (sizeof(pixman_bits_t)-1);
-	rgb_stride &= ~(sizeof(pixman_bits_t)-1);
-
+	/* ensure 32bits alignment */
+	gdip_align_stride (rgb_stride);
 	rgb_bytes = data->height * rgb_stride;
 
 	/* allocate the RGB frame */

@@ -491,7 +491,8 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		bitmap_data->pixel_format = Format8bppIndexed;
 		bitmap_data->width = screen_width;
 		bitmap_data->height = screen_height;
-		bitmap_data->stride = (bitmap_data->width + sizeof(pixman_bits_t) - 1) & ~(sizeof(pixman_bits_t) - 1);
+		bitmap_data->stride = bitmap_data->width;
+		gdip_align_stride (bitmap_data->stride);
 		bitmap_data->left = img_desc->Left;
 		bitmap_data->top = img_desc->Top;
 

@@ -42,6 +42,9 @@
 #define gdip_convgr_unitx(g,f)		(gdip_unit_conversion (UnitCairoPoint, g->page_unit, g->dpi_x, g->type, f))
 #define gdip_convgr_unity(g,f)		(gdip_unit_conversion (UnitCairoPoint, g->page_unit, g->dpi_y, g->type, f))
 
+/* pixman always use 32bits for pixman_bits_t */
+#define gdip_align_stride(s)		{ s += (sizeof(guint32)-1); s &= ~(sizeof(guint32)-1); }
+
 /* avoid floating point division/multiplications when pre-multiplying the alpha channel with R, G and B values */
 extern const byte pre_multiplied_table[256][256];
 

@@ -171,9 +171,8 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 	result->active_bitmap->width = entry.bWidth;
 	result->active_bitmap->height = entry.bHeight;
 	result->active_bitmap->stride = result->active_bitmap->width * 4;
-	/* Ensure pixman_bits_t alignment */
-	result->active_bitmap->stride += (sizeof(pixman_bits_t) - 1);
-	result->active_bitmap->stride &= ~(sizeof(pixman_bits_t) - 1);
+	/* Ensure 32bits alignment */
+	gdip_align_stride (result->active_bitmap->stride);
 	result->active_bitmap->dpi_horz = 96.0f;
 	result->active_bitmap->dpi_vert = 96.0f;
 

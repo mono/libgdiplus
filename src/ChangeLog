@@ -1,3 +1,14 @@
+2007-04-23  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Use a macro to calculate aligned stride.
+	* bmpcodec.c: Use a macro to calculate aligned stride.
+	* gdip.h: Remove dependency on pixman.h as the alignment is always
+	done on 4 bytes (32 bits) for all architectures.
+	* general.h: Add macro to calculate aligned stride.
+	* gifcodec.c: Use a macro to calculate aligned stride.
+	* icocodec.c: Use a macro to calculate aligned stride.
+	* pngcodec.c: Use a macro to calculate aligned stride.
+
 2007-04-16  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bitmap.c: Complete (hopefully) endian fixes.
