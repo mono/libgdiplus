@@ -39,7 +39,6 @@
 
 typedef int LANGID;
 typedef int INT;
-typedef guint16 UINT16;
 typedef guint16 WCHAR; /* 16-bits unicode */
 typedef guint32 UINT;
 typedef guint32 ARGB;

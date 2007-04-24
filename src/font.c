@@ -595,7 +595,7 @@ gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 }
 
 GpStatus
-GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, UINT16 *EmHeight)
+GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, guint16 *EmHeight)
 {
 	GpStatus status = Ok;
 
@@ -610,7 +610,7 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, UINT16 *EmHeight)
 }
 
 GpStatus
-GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellAscent)
+GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, guint16 *CellAscent)
 {
 	GpStatus status = Ok;
 
@@ -625,7 +625,7 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellAscent
 }
 
 GpStatus
-GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellDescent)
+GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, guint16 *CellDescent)
 {
 	GpStatus status = Ok;
 
@@ -640,7 +640,7 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellDesce
 }
 
 GpStatus
-GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, UINT16 *LineSpacing)
+GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, guint16 *LineSpacing)
 {
 	GpStatus status = Ok;
 
@@ -1030,7 +1030,7 @@ GpStatus
 GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float *height)
 {
 	GpStatus status;
-	UINT16 emHeight, lineSpacing;
+	guint16 emHeight, lineSpacing;
 	float emSize, h;
 
 	if (!font || !height || !graphics)
@@ -1056,7 +1056,7 @@ GpStatus
 GdipGetFontHeightGivenDPI (GDIPCONST GpFont *font, float dpi, float *height)
 {
 	GpStatus status;
-	UINT16 emHeight, lineSpacing;
+	guint16 emHeight, lineSpacing;
 	float h;
 
 	if (!font || !height)

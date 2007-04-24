@@ -35,14 +35,14 @@
 
 GpStatus GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *fontCollection, GpFontFamily **FontFamily);
 GpStatus GdipDeleteFontFamily (GpFontFamily *fontFamily);
-GpStatus GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellAscent);
-GpStatus GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellDescent);
+GpStatus GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, guint16 *CellAscent);
+GpStatus GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, guint16 *CellDescent);
 GpStatus GdipGetGenericFontFamilySansSerif (GpFontFamily **nativeFamily);
 GpStatus GdipGetGenericFontFamilySerif (GpFontFamily **nativeFamily);
 GpStatus GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily);
-GpStatus GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, UINT16 *EmHeight);
+GpStatus GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, guint16 *EmHeight);
 GpStatus GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], LANGID language);
-GpStatus GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, UINT16 *LineSpacing);
+GpStatus GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, guint16 *LineSpacing);
 GpStatus GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAvailable);
 
 /* missing API

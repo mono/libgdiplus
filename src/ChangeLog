@@ -1,3 +1,10 @@
+2007-04-24  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* font.c: Use guint16 instead of UINT16.
+	* font-family.h: Use guint16 instead of UINT16.
+	* win32structs.h: Remove UINT16 definition. It's also present in some 
+	libjpeg headers and some compilers don't like it's redeclaration.
+
 2007-04-24  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* adjustablearrowcap.c: Header/types adjustments.
