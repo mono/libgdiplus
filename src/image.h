@@ -44,62 +44,58 @@ typedef int (*PutBytesDelegate) (BYTE*, int);
 typedef void (*CloseDelegate) ();
 typedef long (*SizeDelegate) ();
 
-/* Image */
-/* GpStatus GdipLoadImageFromStream (IStream *stream, GpImage **image); */
-/* GpStatus GdipSaveImageToStream (GpImage *image, IStream *stream, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params); */
+GpStatus GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
+	PutBytesDelegate putBytesFunc, SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, GpImage **image);
+
+GpStatus GdipSaveImageToDelegate_linux (GpImage *image, GetBytesDelegate getBytesFunc, PutBytesDelegate putBytesFunc,
+	SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, GDIPCONST CLSID *encoderCLSID,
+	GDIPCONST EncoderParameters *params);
+
+
+/* GDI+ exported Image functions */
+GpStatus GdipLoadImageFromStream (void /*IStream*/ *stream, GpImage **image);
 GpStatus GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image); 
 GpStatus GdipLoadImageFromFileICM (GDIPCONST WCHAR* filename, GpImage **image);
-GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params); 
-GpStatus GdipSaveAdd (GpImage *image, EncoderParameters* encoderParams);
-GpStatus GdipSaveAddImage (GpImage *image, GpImage *imageNew, EncoderParameters *params);
 
-GpStatus GdipGetImageBounds (GpImage *image, GpRectF *rect, GpUnit *unit);
-GpStatus GdipGetImageDimension (GpImage *image, float *width, float *height);
+GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *clsidEncoder, GDIPCONST EncoderParameters *encoderParams); 
+GpStatus GdipSaveImageToStream (GpImage *image, void /*IStream*/ *stream, GDIPCONST CLSID *clsidEncoder, GDIPCONST EncoderParameters *encoderParams);
+GpStatus GdipSaveAdd (GpImage *image, GDIPCONST EncoderParameters* encoderParams);
+GpStatus GdipSaveAddImage (GpImage *image, GpImage *newImage, GDIPCONST EncoderParameters *params);
+
+GpStatus GdipGetImageBounds (GpImage *image, GpRectF *srcRect, GpUnit *srcUnit);
+GpStatus GdipGetImageDimension (GpImage *image, REAL *width, REAL *height);
 GpStatus GdipGetImageType (GpImage *image, ImageType *type);
 GpStatus GdipGetImageWidth (GpImage *image, UINT *width);
 GpStatus GdipGetImageHeight (GpImage *image, UINT *heigth);
-GpStatus GdipGetImageHorizontalResolution (GpImage *image, float *resolution);
-GpStatus GdipGetImageVerticalResolution (GpImage *image, float *resolution);
+GpStatus GdipGetImageHorizontalResolution (GpImage *image, REAL *resolution);
+GpStatus GdipGetImageVerticalResolution (GpImage *image, REAL *resolution);
 GpStatus GdipGetImageFlags (GpImage *image, UINT *flags);
-/* GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format); */
+GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format);
 GpStatus GdipGetImagePixelFormat (GpImage *image, PixelFormat *format);
-/*GpStatus GdipGetImageThumbnail (GpImage *image, UINT width, UINT height, GpImage **thumbImage, GetThumbnailImageAbort callback, VOID* callBackData);*/
-/* GpStatus GetEncoderParameterListSize (GpImage *image, GDIPCONST CLSID *encoderCLSID, UINT *size); */
-/* GpStatus GetEncoderParameterList (GpImage *image, GDIPCONST CLSID *encoderCLSID, UINT size, EncoderParameters *buffer); */
+GpStatus GdipGetImageThumbnail (GpImage *image, UINT thumbWidth, UINT thumbHeight, GpImage **thumbImage, GetThumbnailImageAbort callback, VOID* callBackData);
+GpStatus GetEncoderParameterListSize (GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT *size);
+GpStatus GetEncoderParameterList (GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT size, EncoderParameters *buffer);
 GpStatus GdipImageGetFrameDimensionsCount (GpImage *image, UINT *count);
-/* GpStatus GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count); */
+GpStatus GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count);
 GpStatus GdipImageGetFrameCount (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count); 
-GpStatus GdipImageSelectActiveFrame (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT index);
-GpStatus GdipImageRotateFlip (GpImage *image, RotateFlipType type);
+GpStatus GdipImageSelectActiveFrame (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT frameIndex);
+GpStatus GdipImageRotateFlip (GpImage *image, RotateFlipType rfType);
 GpStatus GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics);
-GpStatus GdipGetImagePalette (GpImage *image, ColorPalette *palette, int size);
+GpStatus GdipGetImagePalette (GpImage *image, ColorPalette *palette, INT size);
 GpStatus GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette);
-GpStatus GdipGetImagePaletteSize (GpImage *image, int* size);
-GpStatus GdipGetPropertyCount (GpImage *image, UINT *propertyNumber);
-GpStatus GdipGetPropertyIdList (GpImage *image, UINT propertyNumber, PROPID *list);
+GpStatus GdipGetImagePaletteSize (GpImage *image, INT* size);
+GpStatus GdipGetPropertyCount (GpImage *image, UINT *numOfProperty);
+GpStatus GdipGetPropertyIdList (GpImage *image, UINT numOfProperty, PROPID *list);
 GpStatus GdipGetPropertyItemSize (GpImage *image, PROPID propID, UINT *size);
 GpStatus GdipGetPropertyItem (GpImage *image, PROPID propID, UINT size, PropertyItem *buffer);
-GpStatus GdipGetPropertySize (GpImage *image, UINT *bufferSize, UINT *propertyNumbers);
+GpStatus GdipGetPropertySize (GpImage *image, UINT *totalBufferSize, UINT *numProperties);
 GpStatus GdipRemoveProperyItem (GpImage *image, PROPID propID);
 GpStatus GdipSetProperyItem (GpImage *image, GDIPCONST PropertyItem *item);
 GpStatus GdipCloneImage(GpImage *image, GpImage **cloneImage);
-
-GpStatus GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
-					  GetBytesDelegate getBytesFunc,
-                                          PutBytesDelegate putBytesFunc,
-					  SeekDelegate seekFunc,
-					  CloseDelegate closeFunc,
-					  SizeDelegate sizeFunc,
-                                          GpImage **image);
-GpStatus GdipSaveImageToDelegate_linux (GpImage *image,
-                                        GetBytesDelegate getBytesFunc,
-                                        PutBytesDelegate putBytesFunc,
-					SeekDelegate seekFunc,
-					CloseDelegate closeFunc,
-					SizeDelegate sizeFunc,
-                                        GDIPCONST CLSID *encoderCLSID,
-                                        GDIPCONST EncoderParameters *params);
-					
 GpStatus GdipDisposeImage (GpImage *image);
 
+/* missing API
+	GdipLoadImageFromStreamICM
+	GdipImageForceValidation
+ */
 #endif

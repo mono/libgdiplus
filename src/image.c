@@ -2388,7 +2388,7 @@ gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid)
 */
 
 GpStatus
-GdipSaveAdd (GpImage *image, EncoderParameters* encoderParams)
+GdipSaveAdd (GpImage *image, GDIPCONST EncoderParameters* encoderParams)
 {
 	if (!image || !encoderParams)
 		return InvalidParameter;
@@ -2396,10 +2396,9 @@ GdipSaveAdd (GpImage *image, EncoderParameters* encoderParams)
 }
 
 GpStatus 
-GdipSaveAddImage (GpImage *image, GpImage *imageNew, EncoderParameters *params)
+GdipSaveAddImage (GpImage *image, GpImage *imageNew, GDIPCONST EncoderParameters *params)
 {
 	if (!image || !imageNew || !params)
 		return InvalidParameter;
 	return NotImplemented;
 }
-
