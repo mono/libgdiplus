@@ -59,6 +59,8 @@ if test "x$FONTCONFIG" = "xno"; then
 		FONTCONFIG_LIBS="`fontconfig-config --libs`"
 	fi
 fi
+AC_CHECK_LIB(fontconfig, FcInit)
+AC_CHECK_FUNCS(FcFini)
 
 PKG_CHECK_MODULES(FREETYPE2, freetype2,
 	[freetype2_pkgconfig=yes], freetype2_pkgconfig=no])
