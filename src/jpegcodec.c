@@ -28,10 +28,9 @@
 #if HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "gdiplus-private.h"
 
-#include <stdio.h>
-#include "jpegcodec.h"
-#include "gdipImage.h"
+GUID gdip_jpg_image_format_guid = {0xb96b3caeU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 
 #ifdef HAVE_LIBJPEG
 
@@ -47,8 +46,10 @@
 #include <libexif/exif-entry.h>
 #endif
 
+#include "jpegcodec.h"
 
 /* Codecinfo related data*/
+extern GUID GdipEncoderQuality;
 static ImageCodecInfo jpeg_codec;
 static const WCHAR jpeg_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'J', 'P', 'E', 'G', 0}; /* Built-in JPEG */
 static const WCHAR jpeg_extension[] = {'*', '.', 'J', 'P','G', ';','*', '.', 'J','P', 'E', 'G', ';', '*',
@@ -69,7 +70,7 @@ gdip_getcodecinfo_jpeg ()
 	jpeg_codec.FormatDescription = (const WCHAR*) jpeg_format;
 	jpeg_codec.FilenameExtension = (const WCHAR*) jpeg_extension;
 	jpeg_codec.MimeType = (const WCHAR*) jpeg_mimetype;
-	jpeg_codec.Flags = Encoder | Decoder | SupportBitmap | Builtin;
+	jpeg_codec.Flags = ImageCodecFlagsEncoder | ImageCodecFlagsDecoder | ImageCodecFlagsSupportBitmap | ImageCodecFlagsBuiltin;
 	jpeg_codec.Version = 1;
 	jpeg_codec.SigCount = 1;
 	jpeg_codec.SigSize = 2;
@@ -153,7 +154,7 @@ _gdip_source_dummy_init (j_decompress_ptr cinfo)
 	/* nothing */
 }
 
-static bool
+static BOOL
 _gdip_source_stdio_fill_input_buffer (j_decompress_ptr cinfo)
 {
 	gdip_stdio_jpeg_source_mgr_ptr src = (gdip_stdio_jpeg_source_mgr_ptr) cinfo->src;
@@ -194,7 +195,7 @@ _gdip_source_stdio_skip_input_data (j_decompress_ptr cinfo, long skipbytes)
 	}
 }
 
-static bool
+static BOOL
 _gdip_source_stream_fill_input_buffer (j_decompress_ptr cinfo)
 {
 	gdip_stream_jpeg_source_mgr_ptr src = (gdip_stream_jpeg_source_mgr_ptr) cinfo->src;
@@ -276,9 +277,9 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	struct jpeg_decompress_struct	cinfo;
 	struct gdip_jpeg_error_mgr	jerr;
 	GpBitmap	*result;
-	guchar		*destbuf;
-	guchar		*destptr;
-	guchar		*lines[4] = {NULL, NULL, NULL, NULL};
+	BYTE		*destbuf;
+	BYTE		*destptr;
+	BYTE		*lines[4] = {NULL, NULL, NULL, NULL};
 	GpStatus	status;
 	int		stride;
 
@@ -304,7 +305,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	cinfo.do_block_smoothing = FALSE;
 
 	result = gdip_bitmap_new_with_frame (NULL, TRUE);
-	result->type = imageBitmap;
+	result->type = ImageTypeBitmap;
 	result->active_bitmap->width = cinfo.image_width;
 	result->active_bitmap->height = cinfo.image_height;
 
@@ -320,14 +321,14 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	}
 
 	if (cinfo.num_components == 1) {
-		result->active_bitmap->pixel_format = Format8bppIndexed;
+		result->active_bitmap->pixel_format = PixelFormat8bppIndexed;
 	} else if (cinfo.num_components == 3) {
 		/* libjpeg gives us RGB for many formats and
 		 * we convert to RGB format when needed. JPEG
 		 * does not support alpha (transparency). */
-		result->active_bitmap->pixel_format = Format24bppRgb;
+		result->active_bitmap->pixel_format = PixelFormat24bppRgb;
 	} else if (cinfo.num_components == 4) {
-		result->active_bitmap->pixel_format = Format32bppRgb;
+		result->active_bitmap->pixel_format = PixelFormat32bppRgb;
 	}
 
 	switch (cinfo.jpeg_color_space) {
@@ -404,9 +405,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 			int i, j;
 
 			for (i = 0; i < cinfo.rec_outbuf_height; i++) {
-				guchar *lineptr;
-
-				lineptr = lines [i];
+				BYTE *lineptr = lines [i];
 
 				for (j = 0; j < cinfo.output_width; j++) {
 					JOCTET c, m, y, k;
@@ -436,7 +435,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 		} else {
 			for (i = 0; i < nlines; i++) {
 				int j;
-				guchar *inptr, *outptr;
+				BYTE *inptr, *outptr;
 				int width = result->active_bitmap->width;
 
 				inptr = lines[i] + (width * 3);
@@ -451,7 +450,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 				}
 				/* keep last 2 lines in temporary variables */
 				if (width > 1) {
-					byte b2, g2, r2, b1, g1, r1;
+					BYTE b2, g2, r2, b1, g1, r1;
 					inptr -= 3;
 					b2 = inptr[2];
 					g2 = inptr[1];
@@ -466,7 +465,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 					set_pixel_bgra(outptr, 0, b1, g1, r1, 0xff);
 				} else 	if (width > 0) {
 					/* in case the jpeg has a single line */
-					byte b, g, r;
+					BYTE b, g, r;
 					inptr -= 3;
 					b = inptr[2];
 					g = inptr[1];
@@ -484,7 +483,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	result->active_bitmap->scan0 = destbuf;
 	result->active_bitmap->reserved = GBD_OWN_SCAN0;
 
-	result->surface = cairo_image_surface_create_for_data ((unsigned char *)destbuf, result->cairo_format,
+	result->surface = cairo_image_surface_create_for_data ((BYTE*)destbuf, result->cairo_format,
 		result->active_bitmap->width, result->active_bitmap->height, stride);
 
 	/* win32 returns this as PartiallyScalable and ColorSpaceYCBCR; we
@@ -536,7 +535,7 @@ load_exif_data (ExifData *exif_data, GpImage *image)
 	exif_data_foreach_content (exif_data, add_properties_from_content, bitmap);
 	/* thumbnail */
 	if (exif_data->size != 0) {
-		gdip_bitmapdata_property_add (bitmap, ThumbnailData, exif_data->size, TypeByte, exif_data->data);
+		gdip_bitmapdata_property_add (bitmap, PropertyTagThumbnailData, exif_data->size, PropertyTagTypeByte, exif_data->data);
 	}
 	exif_data_unref (exif_data);
 }
@@ -591,7 +590,7 @@ gdip_load_jpeg_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 	GpStatus st;
 #ifdef HAVE_LIBEXIF
 	unsigned int length;
-	unsigned char *ptr;
+	BYTE *ptr;
 #endif
 
 	gdip_stream_jpeg_source_mgr_ptr src;
@@ -638,18 +637,17 @@ gdip_save_jpeg_image_internal (FILE *fp, PutBytesDelegate putBytesFunc, GpImage 
 	int		need_argb_conversion = 0;
 	GpStatus	status;
 
-
 	/* Verify that we can support this pixel format */
 	switch (image->active_bitmap->pixel_format) {
-		case Format32bppArgb:
-		case Format32bppPArgb:
-		case Format32bppRgb:
-		case Format24bppRgb:
+		case PixelFormat32bppArgb:
+		case PixelFormat32bppPArgb:
+		case PixelFormat32bppRgb:
+		case PixelFormat24bppRgb:
 			break;
 
-		case Format1bppIndexed:
-		case Format4bppIndexed:
-		case Format8bppIndexed:
+		case PixelFormat1bppIndexed:
+		case PixelFormat4bppIndexed:
+		case PixelFormat8bppIndexed:
 			image = gdip_convert_indexed_to_rgb (image);
 			if (image == NULL) {
 				return OutOfMemory;
@@ -694,7 +692,7 @@ gdip_save_jpeg_image_internal (FILE *fp, PutBytesDelegate putBytesFunc, GpImage 
 	if (gdip_get_pixel_format_components (image->active_bitmap->pixel_format) == 3) {
 		cinfo.in_color_space = JCS_RGB;
 		cinfo.input_components = 3;
-		if (image->active_bitmap->pixel_format == Format24bppRgb) {
+		if (image->active_bitmap->pixel_format == PixelFormat24bppRgb) {
 			need_argb_conversion = 1;
 		} else {
 			need_argb_conversion = 0;
@@ -728,7 +726,7 @@ gdip_save_jpeg_image_internal (FILE *fp, PutBytesDelegate putBytesFunc, GpImage 
 
 				quality = (pval[0] + pval[1]) / 2;
 			} else if (param->Type == EncoderParameterValueTypeByte) {
-				quality = *(unsigned char *)param->Value;
+				quality = *(BYTE*)param->Value;
 			} else if (param->Type == EncoderParameterValueTypeShort) {
 				quality = *(short *)param->Value;
 			} else {
@@ -743,7 +741,7 @@ gdip_save_jpeg_image_internal (FILE *fp, PutBytesDelegate putBytesFunc, GpImage 
 	jpeg_start_compress (&cinfo, TRUE);
 
 	if (need_argb_conversion) {
-		guchar *inptr, *outptr;
+		BYTE *inptr, *outptr;
 		int i, j;
 
 		scanline = GdipAlloc (image->active_bitmap->stride);
@@ -891,7 +889,7 @@ gdip_get_encoder_parameter_list_size_jpeg ()
 GpStatus
 gdip_fill_encoder_parameter_list_jpeg (EncoderParameters *eps, UINT size)
 {
-	unsigned char *ucptr = (unsigned char *) eps;
+	BYTE *ucptr = (BYTE*) eps;
 	int *iptr;
 
 	if (!eps || (size < gdip_get_encoder_parameter_list_size_jpeg ()) || ((size & 3) != 0))

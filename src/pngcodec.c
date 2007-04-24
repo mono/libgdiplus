@@ -28,16 +28,16 @@
 #if HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "gdiplus-private.h"
+
+GUID gdip_png_image_format_guid = {0xb96b3cafU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 
 #ifdef HAVE_LIBPNG
 
 #include <png.h>
-#include "general.h"
-#include "pngcodec.h"
-
-
 #include <setjmp.h>
 
+#include "pngcodec.h"
 
 /* Codecinfo related data*/
 static ImageCodecInfo png_codec;
@@ -59,7 +59,7 @@ gdip_getcodecinfo_png ()
         png_codec.FormatDescription = (const WCHAR*) png_format;
         png_codec.FilenameExtension = (const WCHAR*) png_extension;
         png_codec.MimeType = (const WCHAR*) png_mimetype;
-        png_codec.Flags = Encoder | Decoder | SupportBitmap | Builtin;
+        png_codec.Flags = ImageCodecFlagsEncoder | ImageCodecFlagsDecoder | ImageCodecFlagsSupportBitmap | ImageCodecFlagsBuiltin;
         png_codec.Version = 1;
         png_codec.SigCount = 1;
         png_codec.SigSize = 8;
@@ -125,8 +125,8 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 		int		compression_type;
 
 		if (png_get_iCCP(png_ptr, info_ptr, &name, &compression_type, &profile, &proflen)) {
-			gdip_bitmapdata_property_add_ASCII(bitmap_data, ICCProfileDescriptor, (unsigned char *)name);
-			gdip_bitmapdata_property_add_byte(bitmap_data, ICCProfile, (byte)compression_type);
+			gdip_bitmapdata_property_add_ASCII(bitmap_data, PropertyTagICCProfileDescriptor, (BYTE*)name);
+			gdip_bitmapdata_property_add_byte(bitmap_data, PropertyTagICCProfile, (BYTE)compression_type);
 		}
 	}
 #endif
@@ -136,7 +136,7 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 		double	gamma;
 
 		if (png_get_gAMA(png_ptr, info_ptr, &gamma)) {
-			gdip_bitmapdata_property_add_rational(bitmap_data, Gamma, 100000, gamma * 100000);
+			gdip_bitmapdata_property_add_rational(bitmap_data, PropertyTagGamma, 100000, gamma * 100000);
 		}
 	}
 #endif
@@ -153,7 +153,7 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 		double	blue_y;
 
 		if (png_get_cHRM(png_ptr, info_ptr, &white_x, &white_y, &red_x, &red_y, &green_x, &green_y, &blue_x, &blue_y)) {
-			unsigned char	*buffer;
+			BYTE *buffer;
 			guint32		*ptr;
 
 			buffer = GdipAlloc(6 * (sizeof(png_uint_32) + sizeof(png_uint_32)));
@@ -175,14 +175,15 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 				ptr[10] = (guint32)(blue_y * 100000);
 				ptr[11] = 100000;
 
-				gdip_bitmapdata_property_add(bitmap_data, PrimaryChromaticities, 6 * (sizeof(guint32) + sizeof(guint32)), TypeRational, buffer);
+				gdip_bitmapdata_property_add (bitmap_data, PropertyTagPrimaryChromaticities, 
+					6 * (sizeof(guint32) + sizeof(guint32)), PropertyTagTypeRational, buffer);
 
 				ptr[0] = (guint32)(white_x * 100000);
 				ptr[1] = 1000000;
 				ptr[2] = (guint32)(white_y * 100000);
 				ptr[3] = 100000;
-				gdip_bitmapdata_property_add(bitmap_data, WhitePoint, 2 * (sizeof(guint32) + sizeof(guint32)), TypeRational, buffer);
-
+				gdip_bitmapdata_property_add (bitmap_data, PropertyTagWhitePoint, 
+					2 * (sizeof(guint32) + sizeof(guint32)), PropertyTagTypeRational, buffer);
 
 				GdipFree(buffer);
 			}
@@ -197,9 +198,9 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 		png_uint_32	res_y;
 
 		if (png_get_pHYs(png_ptr, info_ptr, &res_x, &res_y, &unit_type)) {
-			gdip_bitmapdata_property_add_byte(bitmap_data, PixelUnit, (byte)unit_type);
-			gdip_bitmapdata_property_add_long(bitmap_data, PixelPerUnitX, res_x);
-			gdip_bitmapdata_property_add_long(bitmap_data, PixelPerUnitY, res_y);
+			gdip_bitmapdata_property_add_byte(bitmap_data, PropertyTagPixelUnit, (BYTE)unit_type);
+			gdip_bitmapdata_property_add_long(bitmap_data, PropertyTagPixelPerUnitX, res_x);
+			gdip_bitmapdata_property_add_long(bitmap_data, PropertyTagPixelPerUnitY, res_y);
 		}
 	}
 #endif
@@ -211,7 +212,7 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 
 		if (png_get_text(png_ptr, info_ptr, &text_ptr, &num_text)) {
 			if (num_text > 0) {
-				gdip_bitmapdata_property_add_ASCII(bitmap_data, ExifUserComment, (unsigned char *)text_ptr[0].text);
+				gdip_bitmapdata_property_add_ASCII(bitmap_data, PropertyTagExifUserComment, (BYTE*)text_ptr[0].text);
 			}
 		}
 	}
@@ -226,7 +227,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	png_structp	png_ptr = NULL;
 	png_infop	info_ptr = NULL;
 	png_infop	end_info_ptr = NULL;
-	guchar		*rawdata = NULL;
+	BYTE		*rawdata = NULL;
 	GpImage		*result = NULL;
 	GpStatus	status = InvalidParameter;
 
@@ -270,7 +271,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		int		source_stride;
 		int		dest_stride;
 		png_bytep	*row_pointers;
-		guchar		*rawptr;
+		BYTE		*rawptr;
 		int		num_colours;
 		int		palette_entries;
 		ColorPalette	*palette;
@@ -377,7 +378,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 
 
 		result = gdip_bitmap_new_with_frame (&gdip_image_frameDimension_page_guid, TRUE);
-		result->type = imageBitmap;
+		result->type = ImageTypeBitmap;
 		result->cairo_format = CAIRO_FORMAT_ARGB32;
 		result->active_bitmap->stride = dest_stride;
 		result->active_bitmap->width = width;
@@ -386,9 +387,18 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		result->active_bitmap->reserved = GBD_OWN_SCAN0;
 
 		switch (bit_depth) {
-			case 1: result->active_bitmap->pixel_format = Format1bppIndexed; result->cairo_format = CAIRO_FORMAT_A1; break;
-			case 4: result->active_bitmap->pixel_format = Format4bppIndexed; result->cairo_format = CAIRO_FORMAT_A8; break;
-			case 8: result->active_bitmap->pixel_format = Format8bppIndexed; result->cairo_format = CAIRO_FORMAT_A8; break;
+		case 1:
+			result->active_bitmap->pixel_format = PixelFormat1bppIndexed;
+			result->cairo_format = CAIRO_FORMAT_A1;
+			break;
+		case 4:
+			result->active_bitmap->pixel_format = PixelFormat4bppIndexed;
+			result->cairo_format = CAIRO_FORMAT_A8;
+			break;
+		case 8:
+			result->active_bitmap->pixel_format = PixelFormat8bppIndexed;
+			result->cairo_format = CAIRO_FORMAT_A8;
+			break;
 		}
 
 		result->active_bitmap->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | colourspace_flag; /* assigned when the palette is loaded */
@@ -398,13 +408,13 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	} else {
 		int		width;
 		int		height;
-		guchar		bit_depth;
-		guchar		color_type;
+		BYTE		bit_depth;
+		BYTE		color_type;
 		int		channels;
 		int		stride;
 		int		interlace;
 		png_bytep *row_pointers;
-		guchar *rawptr;
+		BYTE *rawptr;
 		int i, j;
 
 		width = png_get_image_width (png_ptr, info_ptr);
@@ -448,13 +458,13 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 				for (i = 0; i < height; i++) {
 					png_bytep rowp = row_pointers[i];
 					for (j = 0; j < width; j++) {
-						byte a = rowp[3];
+						BYTE a = rowp[3];
 						if (a == 0) {
 							set_pixel_bgra (rawptr, 0, 0, 0, 0, 0);
 						} else {
-							byte b = rowp[2];
-							byte g = rowp[1];
-							byte r = rowp[0];
+							BYTE b = rowp[2];
+							BYTE g = rowp[1];
+							BYTE r = rowp[0];
 
 							if (a < 0xff) {
 								r = pre_multiplied_table [r][a];
@@ -496,29 +506,29 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		}
 
 		result = gdip_bitmap_new_with_frame (&gdip_image_frameDimension_page_guid, TRUE);
-		result->type = imageBitmap;
+		result->type = ImageTypeBitmap;
 
 		result->cairo_format = CAIRO_FORMAT_ARGB32;
 		result->active_bitmap->stride = stride;
-		result->active_bitmap->pixel_format = Format32bppArgb;
+		result->active_bitmap->pixel_format = PixelFormat32bppArgb;
 		result->active_bitmap->width = width;
 		result->active_bitmap->height = height;
 		result->active_bitmap->scan0 = rawdata;
 		result->active_bitmap->reserved = GBD_OWN_SCAN0;
 
-		result->surface = cairo_image_surface_create_for_data ((unsigned char *)rawdata,
+		result->surface = cairo_image_surface_create_for_data ((BYTE*)rawdata,
 			result->cairo_format,
 			result->active_bitmap->width,
 			result->active_bitmap->height,
 			result->active_bitmap->stride);
 		if (channels == 3) {
-			result->active_bitmap->pixel_format = Format24bppRgb;
+			result->active_bitmap->pixel_format = PixelFormat24bppRgb;
 			result->active_bitmap->image_flags = ImageFlagsColorSpaceRGB;
 		} else if (channels == 4) {
-			result->active_bitmap->pixel_format = Format32bppArgb;
+			result->active_bitmap->pixel_format = PixelFormat32bppArgb;
 			result->active_bitmap->image_flags = ImageFlagsColorSpaceRGB;
 		} else if (channels == 1) {
-			result->active_bitmap->pixel_format = Format8bppIndexed;
+			result->active_bitmap->pixel_format = PixelFormat8bppIndexed;
 			result->active_bitmap->image_flags = ImageFlagsColorSpaceGRAY;
 		}
 
@@ -595,41 +605,41 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 	}
 
 	switch (image->active_bitmap->pixel_format) {
-		case Format32bppArgb:
-		case Format32bppPArgb:
-		case Format32bppRgb:
+		case PixelFormat32bppArgb:
+		case PixelFormat32bppPArgb:
+		case PixelFormat32bppRgb:
 			color_type = PNG_COLOR_TYPE_RGB_ALPHA;
 			bit_depth = 8;
 			break;
 
-		case Format24bppRgb:
+		case PixelFormat24bppRgb:
 			color_type = PNG_COLOR_TYPE_RGB; /* FIXME - we should be able to write grayscale PNGs */
 			bit_depth = 8;
 			break;
 
-		case Format8bppIndexed:
+		case PixelFormat8bppIndexed:
 			color_type = PNG_COLOR_TYPE_PALETTE;
 			bit_depth = 8;
 			break;
 
-		case Format4bppIndexed:
+		case PixelFormat4bppIndexed:
 			color_type = PNG_COLOR_TYPE_PALETTE;
 			bit_depth = 4;
 			break;
 
-		case Format1bppIndexed:
+		case PixelFormat1bppIndexed:
 			color_type = PNG_COLOR_TYPE_PALETTE;
 			bit_depth = 1;
 			break;
 
 		/* We're not going to even try to save these images, for now */
-		case Format64bppArgb:
-		case Format64bppPArgb:
-		case Format48bppRgb:
-		case Format16bppArgb1555:
-		case Format16bppGrayScale:
-		case Format16bppRgb555:
-		case Format16bppRgb565:
+		case PixelFormat64bppArgb:
+		case PixelFormat64bppPArgb:
+		case PixelFormat48bppRgb:
+		case PixelFormat16bppArgb1555:
+		case PixelFormat16bppGrayScale:
+		case PixelFormat16bppRgb555:
+		case PixelFormat16bppRgb565:
 		default:
 			color_type = -1;
 			bit_depth = -1;
@@ -647,7 +657,7 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 		png_color palette[256];
 
 		int palette_entries = image->active_bitmap->palette->Count;
-		if (image->active_bitmap->pixel_format == Format4bppIndexed) {
+		if (image->active_bitmap->pixel_format == PixelFormat4bppIndexed) {
 			palette_entries = 16;
 		}
 
@@ -680,19 +690,19 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 		for (i = 0; i < image->active_bitmap->height; i++) {
 			png_write_row (png_ptr, image->active_bitmap->scan0 + i * image->active_bitmap->stride);
 		}
-	} else if (image->active_bitmap->pixel_format == Format24bppRgb) {
+	} else if (image->active_bitmap->pixel_format == PixelFormat24bppRgb) {
 		int j;
-		guchar *row_pointer = GdipAlloc (image->active_bitmap->width * 3);
+		BYTE *row_pointer = GdipAlloc (image->active_bitmap->width * 3);
 		for (i = 0; i < image->active_bitmap->height; i++) {
 			for (j = 0; j < image->active_bitmap->width; j++) {
 #ifdef WORDS_BIGENDIAN
-				row_pointer[j*3  ] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 3);
-				row_pointer[j*3+1] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 2);
-				row_pointer[j*3+2] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 1);
+				row_pointer[j*3  ] = *((BYTE*)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 3);
+				row_pointer[j*3+1] = *((BYTE*)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 2);
+				row_pointer[j*3+2] = *((BYTE*)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 1);
 #else
-				row_pointer[j*3  ] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 0);
-				row_pointer[j*3+1] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 1);
-				row_pointer[j*3+2] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 2);
+				row_pointer[j*3  ] = *((BYTE*)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 0);
+				row_pointer[j*3+1] = *((BYTE*)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 1);
+				row_pointer[j*3+2] = *((BYTE*)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 2);
 #endif /* WORDS_BIGENDIAN */
 			}
 			png_write_row (png_ptr, row_pointer);
@@ -701,14 +711,14 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 	} else {
 #ifdef WORDS_BIGENDIAN
 		int j;
-		guchar *row_pointer = GdipAlloc (image->active_bitmap->width * 4);
+		BYTE *row_pointer = GdipAlloc (image->active_bitmap->width * 4);
 
 		for (i = 0; i < image->active_bitmap->height; i++) {
 			for (j = 0; j < image->active_bitmap->width; j++) {
-				row_pointer[j*4] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 3);
-				row_pointer[j*4+1] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 2);
-				row_pointer[j*4+2] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 1);
-				row_pointer[j*4+3] = *((guchar *)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 0);
+				row_pointer[j*4]   = *((BYTE*)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 3);
+				row_pointer[j*4+1] = *((BYTE*)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 2);
+				row_pointer[j*4+2] = *((BYTE*)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 1);
+				row_pointer[j*4+3] = *((BYTE*)image->active_bitmap->scan0 + (image->active_bitmap->stride * i) + (j*4) + 0);
 			}
 			png_write_row (png_ptr, row_pointer);
 		}

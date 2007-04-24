@@ -25,47 +25,23 @@
  *   Sebastien Pouliot  <sebastien@ximian.com>
  */
 
-#include "general.h"
-#include <math.h>
-
-/* deprecated, please use valgrind to find memory leaks */
-/* #define DEBUG_MEMLEAKS	1 */
-
-/* Startup / shutdown */
-
-struct startupInput
-{
-	unsigned int version;             
-	void       * ptr; 
-	int          threadOpt;
-	int          codecOpt;
-};
-
-
-struct startupOutput
-{
-	void *hook;
-	void *unhook;
-};
+#include "general-private.h"
+#include "codecs-private.h"
+#include "graphics-private.h"
+#include "font-private.h"
 
 /* large table to avoid a division and three multiplications when premultiplying alpha into R, G and B */
 #include "alpha-premul-table.inc"
 
-#ifdef DEBUG_MEMLEAKS
-static GList* g_mem_allocations;
-#endif
 static BOOL startup = FALSE;
 
 GpStatus 
-GdiplusStartup(unsigned long *token, const struct startupInput *input, struct startupOutput *output)
+GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStartupOutput *output)
 {
 	GpStatus status = Ok;
 	/* don't initialize multiple time, e.g. for each appdomain */
 	if (!startup) {
 		startup = TRUE;
-#ifdef DEBUG_MEMLEAKS
-		g_mem_allocations = NULL;
-#endif
 		status = initCodecList ();
 		if (status != Ok)
 			return status;
@@ -77,54 +53,34 @@ GdiplusStartup(unsigned long *token, const struct startupInput *input, struct st
 }
 
 void 
-GdiplusShutdown(unsigned long *token)
+GdiplusShutdown (ULONG *token)
 {
-#ifdef DEBUG_MEMLEAKS
-	GList* list = NULL;
-#endif
 	if (startup) {
 		releaseCodecList ();
 		gdip_font_clear_pattern_cache ();
+#if HAVE_FCFINI
+		FcFini ();
+#endif
 		startup = FALSE; /* in case we want to restart it */
 	}
-#ifdef DEBUG_MEMLEAKS
-	for (list = g_list_first (g_mem_allocations); list != NULL; list = g_list_next (list)) {
-		printf ("Memory block not free'd at %x\n", list->data);
-	}
-#endif
 }
 
 
 /* Memory */
 void *
-GdipAlloc (int size)
+GdipAlloc (size_t size)
 {
-#ifdef DEBUG_MEMLEAKS		
-	void* block = malloc (size);
-	g_mem_allocations =  g_list_append (g_mem_allocations, block);
-	printf ("alloc %x %u\n", block, size);
-	return block;
-#else
 	return malloc (size);
-#endif
 }
 
 void *
-GdipCalloc (size_t nelem, size_t elsize)
+gdip_calloc (size_t nelem, size_t elsize)
 {
-#ifdef DEBUG_MEMLEAKS		
-	void* block = calloc (nelem, elsize);
-	g_mem_allocations =  g_list_append (g_mem_allocations, block);
-	printf ("calloc %x %u\n", block, nelem);
-	return block;
-#else
 	return calloc (nelem, elsize);
-#endif
-
 }
 
 void *
-GdipRealloc (void *org, int size)
+gdip_realloc (void *org, int size)
 {
 	return realloc (org, size);
 }
@@ -132,20 +88,7 @@ GdipRealloc (void *org, int size)
 void 
 GdipFree (void *ptr)
 {
-#ifdef DEBUG_MEMLEAKS	
-	GList* list = NULL;
-
-	list = g_list_find (g_list_first (g_mem_allocations), ptr);
-	if (list != NULL) {
-		list  = g_list_delete_link  (g_list_first (g_mem_allocations), list);
-		g_mem_allocations = g_list_last (list);
-	}
-
-	printf ("free %x\n", ptr);
 	free (ptr);
-#else
-	free (ptr);
-#endif
 }
 
 /* Helpers */
@@ -425,7 +368,7 @@ ucs2_to_utf8(const gunichar2 *ucs2, int length) {
 	return utf8;
 }
 
-bool
+BOOL
 utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) {
 	int 		i;
 	glong		items_read;
@@ -459,21 +402,21 @@ utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) {
 }
 
 int
-utf8_encode_ucs2char(gunichar2 unichar, unsigned char *dest)
+utf8_encode_ucs2char(gunichar2 unichar, BYTE *dest)
 {
 	if (unichar < 0x0080) {					/* 0000-007F */
-		dest[0] = (unsigned char)(unichar);
+		dest[0] = (BYTE)(unichar);
 		return (1);
 	}
 	if(unichar < 0x0800) {					/* 0080-07FF */
-		dest[0] = (unsigned char)(0xC0 | ((unichar & 0x07C0) >> 6));
-		dest[1] = (unsigned char)(0x80 | (unichar & 0x003F));
+		dest[0] = (BYTE)(0xC0 | ((unichar & 0x07C0) >> 6));
+		dest[1] = (BYTE)(0x80 | (unichar & 0x003F));
 		return (2);
 	}
 								/* 0800-FFFF */
-	dest[0] = (unsigned char)(0xE0 | ((unichar & 0xF000) >> 12));
-	dest[1] = (unsigned char)(0x80 | ((unichar & 0x0FC0) >> 6));
-	dest[2] = (unsigned char)(0x80 | (unichar & 0x003F));
+	dest[0] = (BYTE)(0xE0 | ((unichar & 0xF000) >> 12));
+	dest[1] = (BYTE)(0x80 | ((unichar & 0x0FC0) >> 6));
+	dest[2] = (BYTE)(0x80 | (unichar & 0x003F));
 	return (3);	
 }
 
@@ -481,7 +424,7 @@ utf8_encode_ucs2char(gunichar2 unichar, unsigned char *dest)
 #if FALSE
 /* This function only handles UCS-2 */
 int
-utf8_decode_ucs2char (const unsigned char *src, gunichar2 *uchar)
+utf8_decode_ucs2char (const BYTE *src, gunichar2 *uchar)
 {
 	if (src[0] <= 0x7F) {			/* 0000-007F: one byte (0xxxxxxx) */
 		*uchar = (gunichar2)src[0];

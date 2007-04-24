@@ -23,11 +23,9 @@
  *
  */
 
-#include <math.h>
-
-#include "gdip.h"
-#include "matrix.h"
-#include "lineargradientbrush.h"
+#include "lineargradientbrush-private.h"
+#include "graphics-private.h"
+#include "matrix-private.h"
 
 static GpStatus gdip_linear_gradient_setup (GpGraphics *graphics, GpBrush *brush);
 static GpStatus gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush);

@@ -23,11 +23,9 @@
 #ifndef __EMFCODEC_H__
 #define __EMFCODEC_H__
 
-#include <stdio.h>
-#include "gdip.h"
-#include "gdipImage.h"
-#include "dstream.h"
+#include "gdiplus-private.h"
 #include "metafile.h"
+#include "graphics-private.h"
 
 /*
  * Some interesting links...

@@ -23,9 +23,11 @@
 #ifndef __EMFPLUS_H__
 #define __EMFPLUS_H__
 
-#include <stdio.h>
-#include "gdip.h"
+#include "gdiplus-private.h"
 #include "metafile.h"
+#include "emfcodec.h"
+#include "graphics.h"
+#include "solidbrush-private.h"
 
 /*
  * Some interesting links...

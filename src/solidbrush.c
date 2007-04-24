@@ -24,8 +24,8 @@
  *   Ravindra (rkumar@novell.com)
  */
 
-#include "gdip.h"
-#include "solidbrush.h"
+#include "solidbrush-private.h"
+#include "graphics-private.h"
 
 static GpStatus gdip_solidfill_setup (GpGraphics *graphics, GpBrush *brush);
 static GpStatus gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush);
@@ -130,7 +130,7 @@ gdip_solidfill_destroy (GpBrush *brush)
 
 // coverity[+alloc : arg-*1]
 GpStatus 
-GdipCreateSolidFill (int color, GpSolidFill **brush)
+GdipCreateSolidFill (ARGB color, GpSolidFill **brush)
 {
 	if (!brush)
 		return InvalidParameter;
@@ -144,7 +144,7 @@ GdipCreateSolidFill (int color, GpSolidFill **brush)
 }
 
 GpStatus
-GdipSetSolidFillColor (GpSolidFill *brush, int color)
+GdipSetSolidFillColor (GpSolidFill *brush, ARGB color)
 {
 	if (!brush)
 		return InvalidParameter;
@@ -156,7 +156,7 @@ GdipSetSolidFillColor (GpSolidFill *brush, int color)
 }
 
 GpStatus
-GdipGetSolidFillColor (GpSolidFill *brush, int *color)
+GdipGetSolidFillColor (GpSolidFill *brush, ARGB *color)
 {
 	if (!brush || !color)
 		return InvalidParameter;

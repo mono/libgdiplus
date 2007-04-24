@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2004-2005 Ximian
+ * Copyright (C) 2007 Novell, Inc (http://www.novell.com)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -21,8 +22,8 @@
  *
  */
 
-#include "general.h"
-#include <math.h>
+#include "imageattributes-private.h"
+#include "bitmap-private.h"
 
 static void
 gdip_init_image_attribute (GpImageAttribute* attr)
@@ -71,15 +72,14 @@ gdip_get_image_attribute (GpImageAttributes* attr, ColorAdjustType type)
 }
 
 void
-gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, bool *allocated)
-{ 
-
+gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, BOOL *allocated)
+{
 	GpImageAttribute *imgattr, *def;
 	GpImageAttribute *colormap, *gamma, *trans, *cmatrix;
 	GpBitmap *bmpdest;
 	int x,y, cnt;
 	ARGB color;	
-	byte *color_p = (byte *)&color;
+	BYTE *color_p = (BYTE*) &color;
 	
 	*allocated = FALSE;
 	bmpdest = NULL;
@@ -119,7 +119,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	if (colormap->colormap_elem || gamma->gamma_correction || trans->key_enabled || 
 	    (cmatrix->colormatrix_enabled && cmatrix->colormatrix != NULL)) {
-		bitmap->active_bitmap->pixel_format = Format32bppArgb;
+		bitmap->active_bitmap->pixel_format = PixelFormat32bppArgb;
 		bmpdest = gdip_bitmap_new_with_frame(NULL, FALSE);
 		gdip_bitmapdata_clone(bitmap->active_bitmap, &bmpdest->frames[0].bitmap, 1);
 		bmpdest->frames[0].count = 1;
@@ -137,15 +137,15 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	if (colormap->colormap_elem) {
 		for (y = 0; y <bitmap->active_bitmap->height; y++) {	
 			for (x = 0; x <bitmap->active_bitmap->width; x++) {
-				GpColorMap* clrmap = colormap->colormap;
+				ColorMap* clrmap = colormap->colormap;
 				int found;
 				
 				GdipBitmapGetPixel (bmpdest, x, y, &color);
 				
 				for (cnt = 0; cnt < colormap->colormap_elem; cnt++, clrmap++) {
 				  
-					if (color == clrmap->oldColor.Color) {						
-						color = clrmap->newColor.Color;						
+					if (color == clrmap->oldColor.Argb) {						
+						color = clrmap->newColor.Argb;						
 						GdipBitmapSetPixel (bmpdest, x, y, color);
 						break;
 					}
@@ -203,13 +203,13 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	/* Apply Color Matrix */
 	if (cmatrix->colormatrix_enabled && cmatrix->colormatrix) {
 		BitmapData *data = bmpdest->active_bitmap;
-		GpColorMatrix *cm = cmatrix->colormatrix;
-		unsigned char *v = ((unsigned char *)data->scan0);
+		ColorMatrix *cm = cmatrix->colormatrix;
+		BYTE *v = ((BYTE*)data->scan0);
 		ARGB *scan;
 		for (y = 0; y < data->height; y++) {
 			scan = (ARGB*) v;
 			for (x = 0; x < data->width; x++) {
-				byte r,g,b,a;
+				BYTE r,g,b,a;
 				int r_new,g_new,b_new,a_new;
 
 				get_pixel_bgra (*scan, b, g, r, a);
@@ -223,13 +223,13 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 					g_new = (r * cm->m[0][1] + g * cm->m[1][1] + b * cm->m[2][1] + a * cm->m[3][1] + (255 * cm->m[4][1]));
 					b_new = (r * cm->m[0][2] + g * cm->m[1][2] + b * cm->m[2][2] + a * cm->m[3][2] + (255 * cm->m[4][2]));
 
-					r = (r_new > 0xff) ? 0xff : (byte) r_new;
-					g = (g_new > 0xff) ? 0xff : (byte) g_new;
-					b = (b_new > 0xff) ? 0xff : (byte) b_new;
+					r = (r_new > 0xff) ? 0xff : (BYTE) r_new;
+					g = (g_new > 0xff) ? 0xff : (BYTE) g_new;
+					b = (b_new > 0xff) ? 0xff : (BYTE) b_new;
 
 					/* remember that Cairo use pre-multiplied alpha, e.g. 50% red == 0x80800000 not 0x80ff0000 */
 					if (a_new < 0xff) {
-						a = (byte) a_new;
+						a = (BYTE) a_new;
 						r = pre_multiplied_table [r][a];
 						g = pre_multiplied_table [g][a];
 						b = pre_multiplied_table [b][a];
@@ -393,7 +393,7 @@ GdipSetImageAttributesOutputChannelColorProfile (GpImageAttributes *imageattr, C
 
 
 GpStatus 
-GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, UINT mapSize, GDIPCONST GpColorMap *map)
+GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, UINT mapSize, GDIPCONST ColorMap *map)
 {
 	GpImageAttribute *imgattr;
 	
@@ -417,7 +417,7 @@ GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType 
 		
 	/* Copy colormap table*/
 	if (mapSize > 0) {
-		int size = mapSize * sizeof (GpColorMap);
+		int size = mapSize * sizeof (ColorMap);
 		imgattr->colormap = GdipAlloc (size);
 		if (!imgattr->colormap)
 			return OutOfMemory;
@@ -456,7 +456,7 @@ GdipGetImageAttributesAdjustedPalette (GpImageAttributes *imageattr, ColorPalett
 /* MonoTODO - grayMatrix and flags parameters are ignored */
 GpStatus 
 GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, 
-	GDIPCONST GpColorMatrix* colorMatrix, GDIPCONST GpColorMatrix* grayMatrix, GpColorMatrixFlags flags)
+	GDIPCONST ColorMatrix* colorMatrix, GDIPCONST ColorMatrix* grayMatrix, ColorMatrixFlags flags)
 {
 	GpImageAttribute *imgattr;
 	
@@ -470,12 +470,12 @@ GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType
 
 	if (colorMatrix) {
 		if (!imgattr->colormatrix) {
-			imgattr->colormatrix =  GdipAlloc (sizeof (GpColorMatrix));
+			imgattr->colormatrix =  GdipAlloc (sizeof (ColorMatrix));
 			if (!imgattr->colormatrix)
 				return OutOfMemory;
 		}
 
-		memcpy (imgattr->colormatrix, colorMatrix, sizeof (GpColorMatrix));
+		memcpy (imgattr->colormatrix, colorMatrix, sizeof (ColorMatrix));
 	}
 
 	imgattr->colormatrix_enabled = enableFlag;	
@@ -483,8 +483,7 @@ GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType
 }
 	
 GpStatus 
-GdipSetImageAttributesOutputChannel (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, GpColorChannelFlags channelFlags)
+GdipSetImageAttributesOutputChannel (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, ColorChannelFlags channelFlags)
 {
 	return NotImplemented;
 }
-

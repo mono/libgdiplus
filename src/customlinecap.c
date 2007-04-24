@@ -24,8 +24,7 @@
  * Copyright (C) 2004 Novell, Inc. http://www.novell.com
  */
 
-#include "gdip.h"
-#include "customlinecap.h"
+#include "customlinecap-private.h"
 
 static GpStatus gdip_custom_linecap_setup (GpGraphics *graphics, GpCustomLineCap *cap);
 static GpStatus gdip_custom_linecap_clone_cap (GpCustomLineCap *cap, GpCustomLineCap **clonedCap);

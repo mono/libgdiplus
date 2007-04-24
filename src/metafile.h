@@ -23,13 +23,12 @@
 #ifndef __METAFILE_H__
 #define __METAFILE_H__
 
-#include <stdio.h>
-#include <math.h>
-#include "general.h"
-#include "gdipImage.h"
-#include "dstream.h"
-#include "brush.h"
-#include "solidbrush.h"
+#include "gdiplus-private.h"
+#include "codecs-private.h"
+#include "bitmap-private.h"
+#include "bmpcodec.h"
+#include "emfcodec.h"
+#include "wmfcodec.h"
 
 /*
  *	http://wvware.sourceforge.net/caolan/ora-wmf.html
@@ -254,7 +253,7 @@ typedef struct {
 	int selected_font;
 	int selected_palette;
 	int map_mode;
-	GpFillMode fill_mode;
+	FillMode fill_mode;
 	int current_x, current_y;
 	/* path related data */
 	BOOL use_path;

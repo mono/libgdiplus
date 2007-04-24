@@ -24,8 +24,10 @@
  *
  */
 
-#include "general.h"
-#include "pathgradientbrush.h"
+#include "pathgradientbrush-private.h"
+#include "graphics-private.h"
+#include "graphics-path-private.h"
+#include "matrix-private.h"
 
 static GpStatus gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush);
 static GpStatus gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush);
@@ -500,10 +502,10 @@ GdipCreatePathGradientFromPath (GDIPCONST GpPath *path, GpPathGradient **polyGra
 		return InvalidParameter;
 
 	gp = gdip_pathgradient_new ();
-	GdipClonePath ((GpPath *) path, &(gp->boundary));
-	GdipGetPointCount (path, &count);
-	points = (GpPointF *) GdipAlloc (count * sizeof (GpPointF));
-	GdipGetPathPoints (path, points, count);
+	GdipClonePath ((GpPath*) path, &(gp->boundary));
+	GdipGetPointCount ((GpPath*) path, &count);
+	points = (GpPointF*) GdipAlloc (count * sizeof (GpPointF));
+	GdipGetPathPoints ((GpPath*) path, points, count);
 	gp->center = gdip_get_center (points, count);
 	gp->centerColor = MAKE_ARGB_ARGB(255,255,255,255); /* white center color */
 

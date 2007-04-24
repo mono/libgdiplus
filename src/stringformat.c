@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2004 Ximian inc. http://www.ximian.com
- * Copyright (C) 2004,2006 Novell Inc. http://www.novell.com
+ * Copyright (C) 2004,2006-2007 Novell Inc. http://www.novell.com
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -24,11 +24,11 @@
  *
  */
 
-#include "gdip.h"
+#include "stringformat-private.h"
 
 /* coverity[+alloc : arg-*2] */
 GpStatus
-GdipCreateStringFormat (int formatAttributes, int language, GpStringFormat  **format)
+GdipCreateStringFormat (INT formatAttributes, LANGID language, GpStringFormat **format)
 {
 	GpStringFormat *result;
 
@@ -45,7 +45,7 @@ GdipCreateStringFormat (int formatAttributes, int language, GpStringFormat  **fo
 	result->hotkeyPrefix = HotkeyPrefixNone;
 	result->formatFlags = formatAttributes; 
 	result->trimming = StringTrimmingCharacter;
-	result->substitute = DigitSubstituteUser;
+	result->substitute = StringDigitSubstituteUser;
 	result->firstTabOffset = 0;
 	result->tabStops = NULL;
 	result->numtabStops = 0;
@@ -118,8 +118,8 @@ GdipCloneStringFormat (GDIPCONST GpStringFormat *format,  GpStringFormat **newFo
 	}
 
 	for (i = 0; i < format->charRangeCount; i++) {
-		result->charRanges [i].first = format->charRanges [i].first;
-		result->charRanges [i].length = format->charRanges [i].length;
+		result->charRanges [i].First = format->charRanges [i].First;
+		result->charRanges [i].Length = format->charRanges [i].Length;
 	}
 
 	*newFormat = result;
@@ -187,7 +187,7 @@ GdipGetStringFormatLineAlign (GDIPCONST GpStringFormat *format, StringAlignment 
 }
 
 GpStatus
-GdipSetStringFormatHotkeyPrefix (GpStringFormat *format, HotkeyPrefix hotkeyPrefix)
+GdipSetStringFormatHotkeyPrefix (GpStringFormat *format, INT hotkeyPrefix)
 {
 	if (!format)
 		return InvalidParameter;
@@ -197,7 +197,7 @@ GdipSetStringFormatHotkeyPrefix (GpStringFormat *format, HotkeyPrefix hotkeyPref
 }
 
 GpStatus
-GdipGetStringFormatHotkeyPrefix (GpStringFormat *format, HotkeyPrefix *hotkeyPrefix)
+GdipGetStringFormatHotkeyPrefix (GDIPCONST GpStringFormat *format, INT *hotkeyPrefix)
 {
 	if (!format || !hotkeyPrefix)
 		return InvalidParameter;
@@ -207,7 +207,7 @@ GdipGetStringFormatHotkeyPrefix (GpStringFormat *format, HotkeyPrefix *hotkeyPre
 }
 
 GpStatus
-GdipSetStringFormatFlags (GpStringFormat *format, StringFormatFlags flags)
+GdipSetStringFormatFlags (GpStringFormat *format, INT flags)
 {
 	if (!format)
 		return InvalidParameter;
@@ -217,7 +217,7 @@ GdipSetStringFormatFlags (GpStringFormat *format, StringFormatFlags flags)
 }
 
 GpStatus
-GdipGetStringFormatFlags (GDIPCONST GpStringFormat *format, StringFormatFlags *flags)
+GdipGetStringFormatFlags (GDIPCONST GpStringFormat *format, INT *flags)
 {
 	if (!format || !flags)
 		return InvalidParameter;
@@ -247,10 +247,10 @@ GdipGetStringFormatTrimming (GDIPCONST GpStringFormat *format, StringTrimming *t
 }
 
 GpStatus
-GdipSetStringFormatTabStops (GpStringFormat *format, float firstTabOffset, int count, float *tabStops)
+GdipSetStringFormatTabStops (GpStringFormat *format, float firstTabOffset, int count, GDIPCONST float *tabStops)
 {
 	int i;
-	float *pItemSrc = tabStops;
+	float *pItemSrc = (float*) tabStops;
 	float *pItemTrg;
 
 	if (!format || !tabStops)
@@ -280,7 +280,7 @@ GdipSetStringFormatTabStops (GpStringFormat *format, float firstTabOffset, int c
 }
 
 GpStatus
-GdipGetStringFormatDigitSubstitution (GDIPCONST GpStringFormat *format, int *language, DigitSubstitute *substitute)
+GdipGetStringFormatDigitSubstitution (GDIPCONST GpStringFormat *format, LANGID *language, StringDigitSubstitute *substitute)
 {
 	if (!format || !substitute)
 		return InvalidParameter;
@@ -290,7 +290,7 @@ GdipGetStringFormatDigitSubstitution (GDIPCONST GpStringFormat *format, int *lan
 }
 
 GpStatus
-GdipSetStringFormatDigitSubstitution (GpStringFormat *format, int language, DigitSubstitute substitute)
+GdipSetStringFormatDigitSubstitution (GpStringFormat *format, LANGID language, StringDigitSubstitute substitute)
 {
 	if (!format)
 		return InvalidParameter;

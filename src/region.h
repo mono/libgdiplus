@@ -20,22 +20,43 @@
  *          Sebastien Pouliot  <sebastien@ximian.com>
  */
 
-#ifndef _REGION_H_
-#define _REGION_H_
+#ifndef __REGION_H__
+#define __REGION_H__
 
-#include "gdip.h"
-#include "region-bitmap.h"
-#include "region-path-tree.h"
+GpStatus GdipCreateRegion (GpRegion **region);
+GpStatus GdipCreateRegionRect (GDIPCONST GpRectF *rect, GpRegion **region);
+GpStatus GdipCreateRegionRectI (GDIPCONST GpRect *rect, GpRegion **region);
+GpStatus GdipCreateRegionPath (GpPath *path, GpRegion **region);
+GpStatus GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region);
 
-/* internal (private) API for regions */
+GpStatus GdipCloneRegion(GpRegion *region, GpRegion **cloneRegion);
+GpStatus GdipDeleteRegion(GpRegion *region);
+GpStatus GdipSetInfinite(GpRegion *region);
+GpStatus GdipSetEmpty(GpRegion *region);
 
-#define REGION_INFINITE_POSITION	-4194304
-#define REGION_INFINITE_LENGTH		8388608
+GpStatus GdipCombineRegionRect(GpRegion *region, GDIPCONST GpRectF *rect, CombineMode combineMode);
+GpStatus GdipCombineRegionRectI(GpRegion *region, GDIPCONST GpRect *rect, CombineMode combineMode);
+GpStatus GdipCombineRegionPath(GpRegion *region, GpPath *path, CombineMode combineMode);
+GpStatus GdipCombineRegionRegion(GpRegion *region,  GpRegion *region2, CombineMode combineMode);
 
-BOOL gdip_is_InfiniteRegion (GpRegion *region) GDIP_INTERNAL;
-BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect) GDIP_INTERNAL;
+GpStatus GdipGetRegionBounds(GpRegion *region, GpGraphics *graphics, GpRectF *rect);
+GpStatus GdipIsEmptyRegion(GpRegion *region, GpGraphics *graphics, BOOL *result);
+GpStatus GdipIsInfiniteRegion(GpRegion *region, GpGraphics *graphics, BOOL *result);
 
-void gdip_clear_region (GpRegion *region) GDIP_INTERNAL;
-void gdip_copy_region (GpRegion *source, GpRegion *dest) GDIP_INTERNAL;
+GpStatus GdipIsVisibleRegionPoint(GpRegion *region, float x, float y, GpGraphics *graphics, BOOL *result);
+GpStatus GdipIsVisibleRegionPointI(GpRegion *region, int x, int y, GpGraphics *graphics, BOOL *result);
+GpStatus GdipIsVisibleRegionRect(GpRegion *region, float x, float y, float width, float height, GpGraphics *graphics, BOOL *result);
+GpStatus GdipIsVisibleRegionRectI(GpRegion *region, int x, int y, int width, int height, GpGraphics *graphics, BOOL *result);
 
-#endif /* _REGION_H_ */
+GpStatus GdipGetRegionScansCount(GpRegion *region, int* count, GpMatrix* matrix);
+GpStatus GdipGetRegionScans(GpRegion *region, GpRectF* rects, int* count, GpMatrix* matrix);
+
+GpStatus GdipIsEqualRegion(GpRegion *region, GpRegion *region2, GpGraphics *graphics, BOOL *result);
+GpStatus GdipGetRegionDataSize(GpRegion *region, UINT * bufferSize);
+GpStatus GdipGetRegionData(GpRegion *region, BYTE * buffer, UINT bufferSize, UINT *sizeFilled);
+
+GpStatus GdipTranslateRegion(GpRegion *region, float dx, float dy);
+GpStatus GdipTranslateRegionI(GpRegion *region, int dx, int dy);
+GpStatus GdipTransformRegion(GpRegion *region, GpMatrix *matrix);
+
+#endif

@@ -39,12 +39,10 @@
  *              Bitmap data
  */
 
-#include <stdio.h>
+#include "gdiplus-private.h"
 #include "bmpcodec.h"
-#include "gdip.h"
-#include "gdipImage.h"
-#include "dstream.h"
 
+GUID gdip_bmp_image_format_guid = {0xb96b3cabU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 
 /* Codecinfo related data*/
 static ImageCodecInfo bmp_codec;
@@ -66,7 +64,7 @@ gdip_getcodecinfo_bmp ()
         bmp_codec.FormatDescription = (const WCHAR*) bmp_format;
         bmp_codec.FilenameExtension = (const WCHAR*) bmp_extension;
         bmp_codec.MimeType = (const WCHAR*) bmp_mimetype;
-        bmp_codec.Flags = Encoder | Decoder | SupportBitmap | Builtin;
+        bmp_codec.Flags = ImageCodecFlagsEncoder | ImageCodecFlagsDecoder | ImageCodecFlagsSupportBitmap | ImageCodecFlagsBuiltin;
         bmp_codec.Version = 1;
         bmp_codec.SigCount = 1;
         bmp_codec.SigSize = 2;
@@ -86,39 +84,39 @@ gdip_get_bmp_pixelformat (BITMAPINFOHEADER *bih, PixelFormat *dest)
 	case BI_RLE4:
 		if (bitCount != 4)
 			return InvalidParameter;
-		*dest = Format4bppIndexed;
+		*dest = PixelFormat4bppIndexed;
 		break;
 	case BI_RLE8:
 		if (bitCount != 8)
 			return InvalidParameter;
-		*dest = Format8bppIndexed;
+		*dest = PixelFormat8bppIndexed;
 		break;
 	case BI_BITFIELDS:
 		if (bitCount != 16)
 			return InvalidParameter;
 		/* note: incomplete at this stage */
-		*dest = Format16bppRgb565;
+		*dest = PixelFormat16bppRgb565;
 		break;
 	default:
 	        switch (bitCount) {
 	        case 32:
-	                *dest = Format32bppRgb;
+	                *dest = PixelFormat32bppRgb;
 			break;
 	        case 24:
-	                *dest = Format24bppRgb;
+	                *dest = PixelFormat24bppRgb;
 			break;
 	        case 16:
 			/* MS produce such files (i.e. bad header) for storing ImageList bitmaps, see bug #80797 */
-	                *dest = Format16bppRgb565;
+	                *dest = PixelFormat16bppRgb565;
 			break;
 	        case 8:
-	                *dest = Format8bppIndexed;
+	                *dest = PixelFormat8bppIndexed;
 			break;
 	        case 4:
-	                *dest = Format4bppIndexed;
+	                *dest = PixelFormat4bppIndexed;
 			break;
 		case 1:
-			*dest = Format1bppIndexed;
+			*dest = PixelFormat1bppIndexed;
 			break;
 	        default:
 			g_warning ("Unsupported bitcount (%d) and/or compression (%d).", bitCount, compression);
@@ -140,7 +138,7 @@ gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 	bmi->biWidth = GULONG_FROM_LE (bitmap->active_bitmap->width);
 	bmi->biHeight = GULONG_FROM_LE (bitmap->active_bitmap->height);
 	bmi->biPlanes = GUINT16_FROM_LE (1);
-	if (format != Format24bppRgb)
+	if (format != PixelFormat24bppRgb)
 		bmi->biBitCount = GUINT16_FROM_LE (gdip_get_pixel_format_bpp (bitmap->active_bitmap->pixel_format));
 	else
 		bmi->biBitCount = GUINT16_FROM_LE (24);
@@ -153,7 +151,7 @@ gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 	bmi->biWidth = bitmap->active_bitmap->width;
 	bmi->biHeight = bitmap->active_bitmap->height;
 	bmi->biPlanes = 1;
-	if (format != Format24bppRgb)
+	if (format != PixelFormat24bppRgb)
 		bmi->biBitCount = gdip_get_pixel_format_bpp (bitmap->active_bitmap->pixel_format);
 	else
 		bmi->biBitCount = 24;
@@ -166,16 +164,16 @@ gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 }                                                           
 
 static GpStatus
-gdip_read_bmp_rle_8bit (void *pointer, byte *scan0, bool upsidedown, int stride, int scanWidth, int scanCount, ImageSource source)
+gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride, int scanWidth, int scanCount, ImageSource source)
 {
-	byte code;
+	BYTE code;
 	int bytes_read;
 
 	int col_offset = 0;
 	int row_offset = (upsidedown ? (scanCount - 1) * stride : 0);
 	int row_delta = (upsidedown ? -stride : +stride);
 	int rows_remaining = scanCount;
-	bool new_row = FALSE;
+	BOOL new_row = FALSE;
 
 	if (scanWidth > stride)
 		return InvalidParameter;
@@ -212,7 +210,7 @@ gdip_read_bmp_rle_8bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 				}
 				case 2: /* jump forward (dx, dy) coordinates */
 				{
-					byte dx, dy;
+					BYTE dx, dy;
 
 					bytes_read  = gdip_read_bmp_data (pointer, &dx, 1, source);
 					bytes_read += gdip_read_bmp_data (pointer, &dy, 1, source);
@@ -235,7 +233,7 @@ gdip_read_bmp_rle_8bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 					/* uncompressed sections must be an even number of bytes long,
 					 * even if they are an odd number of *pixels* long.
 					 */
-					bool pad_byte_present = ((code & 1) != 0);
+					BOOL pad_byte_present = ((code & 1) != 0);
 					int bytes_to_read = code;
 
 					/* wrap rows properly, even though they are inverted in memory */
@@ -286,7 +284,7 @@ gdip_read_bmp_rle_8bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 		else {
 			/* we have a run of length 'code'. the colour of the run is the next byte in the file. */
 			int run_length = code;
-			byte pixel_value;
+			BYTE pixel_value;
 
 			bytes_read = gdip_read_bmp_data(pointer, &pixel_value, 1, source);
 
@@ -325,16 +323,16 @@ gdip_read_bmp_rle_8bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 }
 
 static GpStatus
-gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride, int scanWidth, int scanCount, ImageSource source)
+gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride, int scanWidth, int scanCount, ImageSource source)
 {
-	byte code;
+	BYTE code;
 	int bytes_read;
 
 	int col_offset = 0;
 	int row_offset = (upsidedown ? (scanCount - 1) * stride : 0);
 	int row_delta = (upsidedown ? -stride : +stride);
 	int rows_remaining = scanCount;
-	bool new_row = FALSE;
+	BOOL new_row = FALSE;
 
 	if ((scanWidth & 1) != 0)
 		scanWidth++;
@@ -373,7 +371,7 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 				}
 				case 2: /* jump forward (dx, dy) coordinates */
 				{
-					byte dx, dy;
+					BYTE dx, dy;
 
 					bytes_read  = gdip_read_bmp_data (pointer, &dx, 1, source);
 					bytes_read += gdip_read_bmp_data (pointer, &dy, 1, source);
@@ -400,7 +398,7 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 					/* uncompressed sections must be an even number of bytes long,
 					 * even if they are an odd number of *pixels* long.
 					 */
-					bool pad_byte_present = ((bytes_of_data & 1) != 0);
+					BOOL pad_byte_present = ((bytes_of_data & 1) != 0);
 
 					int bytes_to_read = pixels_to_read / 2; /* leave off the last pixel for now */
 
@@ -408,7 +406,7 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 					while (bytes_to_read > 0) {
 						if ((scanWidth - col_offset) == 1) {
 							/* special case: a pair of pixels is split across two rows. */
-							byte pixels, same_row_pixel, next_row_pixel;
+							BYTE pixels, same_row_pixel, next_row_pixel;
 
 							bytes_read = gdip_read_bmp_data (pointer, &pixels, 1, source);
 
@@ -419,7 +417,7 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 							next_row_pixel =  pixels       & 0x0F;
 
 							if ((col_offset & 1) != 0) {
-								byte old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
+								BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
 								scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | same_row_pixel;
 							}
 							else
@@ -465,7 +463,7 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 						}
 						else {
 							/* bad alignment; nybble-swapping will be required */
-							byte last_high_nybble = 0xF0 & scan0[row_offset + col_offset / 2];
+							BYTE last_high_nybble = 0xF0 & scan0[row_offset + col_offset / 2];
 
 							int bytes_to_read_this_scan = (scanWidth - col_offset) / 2;
 
@@ -473,7 +471,7 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 								bytes_to_read_this_scan = bytes_to_read;
 
 							while (bytes_to_read_this_scan >= 0) {
-								byte pixels;
+								BYTE pixels;
 
 								bytes_read = gdip_read_bmp_data (pointer, &pixels, 1, source);
 
@@ -505,7 +503,7 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 
 					if ((pixels_to_read & 1) != 0) {
 						/* half of a byte remains to be inserted into the correct nybble */
-						byte pixel;
+						BYTE pixel;
 
 						bytes_read = gdip_read_bmp_data (pointer, &pixel, 1, source);
 
@@ -515,7 +513,7 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 						pixel >>= 4; /* the last pixel is in the high nybble */
 
 						if ((col_offset & 1) != 0) {
-							byte old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
+							BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
 							scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | pixel;
 						}
 						else
@@ -558,8 +556,8 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 			int run_pixels = code;
 			int run_length = run_pixels / 2;
 
-			byte pixel_values;
-			byte inverted_pixel_values;
+			BYTE pixel_values;
+			BYTE inverted_pixel_values;
 
 			bytes_read = gdip_read_bmp_data(pointer, &pixel_values, 1, source);
 
@@ -569,7 +567,7 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 			inverted_pixel_values = ((pixel_values & 0x0F) << 4) | ((pixel_values & 0xF0) >> 4);
 
 			if ((col_offset & 1) != 0) {
-				byte temp = inverted_pixel_values;
+				BYTE temp = inverted_pixel_values;
 				inverted_pixel_values = pixel_values;
 				pixel_values = temp;
 			}
@@ -577,11 +575,11 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 			while (run_length > 0) {
 				if ((scanWidth - col_offset) == 1) {
 					/* special case: a pair of pixels is split across two rows. */
-					byte same_row_pixel = (pixel_values >> 4) & 0x0F;
-					byte next_row_pixel =  pixel_values       & 0x0F;
+					BYTE same_row_pixel = (pixel_values >> 4) & 0x0F;
+					BYTE next_row_pixel =  pixel_values       & 0x0F;
 
 					if ((col_offset & 1) != 0) {
-						byte old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
+						BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
 						scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | same_row_pixel;
 					}
 					else
@@ -602,7 +600,7 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 						/* if the width of the scan is odd, then the nybbles swap
 						 * places each time they cross from one row to the next
 						 */
-						byte temp = inverted_pixel_values;
+						BYTE temp = inverted_pixel_values;
 						inverted_pixel_values = pixel_values;
 						pixel_values = temp;
 					}
@@ -612,7 +610,7 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 
 					/* make sure we're byte-aligned; if we're not, we need to store a nybble first */
 					if ((col_offset & 1) != 0) {
-						byte old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
+						BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
 						scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | (pixel_values & 0x0F);
 
 						col_offset++;
@@ -642,7 +640,7 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 							/* if the width of the scan is odd, then the nybbles swap
 							 * places each time they cross from one row to the next
 							 */
-							byte temp = inverted_pixel_values;
+							BYTE temp = inverted_pixel_values;
 							inverted_pixel_values = pixel_values;
 							pixel_values = temp;
 						}
@@ -654,10 +652,10 @@ gdip_read_bmp_rle_4bit (void *pointer, byte *scan0, bool upsidedown, int stride,
 
 			if ((run_pixels & 1) != 0) {
 				/* half of a byte remains to be inserted into the correct nybble */
-				byte pixel = pixel_values >> 4; /* the last pixel is in the high nybble */
+				BYTE pixel = pixel_values >> 4; /* the last pixel is in the high nybble */
 
 				if ((col_offset & 1) != 0) {
-					byte old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
+					BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
 					scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | pixel;
 				}
 				else
@@ -688,7 +686,7 @@ GpStatus
 gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, ImageSource source, BOOL *os2format, BOOL *upsidedown)
 {
 	DWORD dw = 0;
-	byte *data_read = (byte*)&dw;
+	BYTE *data_read = (BYTE*)&dw;
 	int size = sizeof (DWORD);
 	int size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
@@ -777,7 +775,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 {
 	BITMAPINFOHEADER bmi;
 	GpBitmap	*result = NULL;
-	guchar		*pixels = NULL;
+	BYTE		*pixels = NULL;
 	int		i;
 	PixelFormat	format;
 	int		colours;
@@ -785,7 +783,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	BOOL		upsidedown = TRUE;
 	int		size;
 	int		size_read;
-	byte		*data_read = NULL;
+	BYTE		*data_read = NULL;
 	int		line;
 	int		loop;
 	long		index;
@@ -810,7 +808,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	}
 
 	/* for 16bbp images we need to be more precise */
-	if (format == Format16bppRgb565) {
+	if (format == PixelFormat16bppRgb565) {
 		/* check if we're dealing with a BITMAPV4HEADER (or later) structure */
 		if (bmi.biSize >= sizeof (BITMAPV4HEADER)) {
 			/* the new structure contains the ARGB masks */
@@ -850,34 +848,34 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 
 		/* note: CAIRO_FORMAT_RGB16_565 is deprecated so we're promoting the bitmap to 32RGB */
 		/* why 32bpp when 24 would be enough ? because MS GDI+ loads them as such, but can't display them (empty) */
-		format = Format32bppRgb;
+		format = PixelFormat32bppRgb;
 		/* 16bbp bitmap don't seems reversed like their height indicates */
 		upsidedown = FALSE;
 	}
 
 	result = gdip_bitmap_new_with_frame (NULL, TRUE);
-	result->type = imageBitmap;
+	result->type = ImageTypeBitmap;
 	result->image_format = BMP;
 	result->active_bitmap->pixel_format = format;
 	result->active_bitmap->width = bmi.biWidth;
 	result->active_bitmap->height = bmi.biHeight;
 
 	switch (result->active_bitmap->pixel_format) {
-	case Format1bppIndexed:
+	case PixelFormat1bppIndexed:
 		result->active_bitmap->stride = (result->active_bitmap->width + 7) / 8;
 		break;
-	case Format4bppIndexed:
+	case PixelFormat4bppIndexed:
 		result->active_bitmap->stride = (result->active_bitmap->width + 1) / 2;
 		break;
-	case Format8bppIndexed:
+	case PixelFormat8bppIndexed:
 		result->active_bitmap->stride =  result->active_bitmap->width;
 		break;
-	case Format24bppRgb:
+	case PixelFormat24bppRgb:
 		result->active_bitmap->stride = result->active_bitmap->width * 4;
 		break;
 	default:
 		/* For other types, we assume 32 bit and translate into 32 bit from source format */
-		result->active_bitmap->pixel_format = Format32bppRgb;
+		result->active_bitmap->pixel_format = PixelFormat32bppRgb;
 		result->active_bitmap->stride = result->active_bitmap->width * 4;
 		break;
 	}
@@ -888,7 +886,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	if (colours) {
 		int palette_entries = colours;
 
-		if (result->active_bitmap->pixel_format == Format4bppIndexed) {
+		if (result->active_bitmap->pixel_format == PixelFormat4bppIndexed) {
 			palette_entries = 256;
 		}
 
@@ -900,13 +898,9 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		result->active_bitmap->palette->Flags = 0;
 		result->active_bitmap->palette->Count = palette_entries;
 
-		/* Read optional colour table*/
-		if (os2format) {
-			size = sizeof(byte)*3;	/* RGBTRIPLE */
-		} else {
-			size = sizeof(byte)*4;	/* RGBquads */
-		}
-		data_read = (byte*) GdipAlloc(size);
+		/* Read optional colour table */
+		size = (os2format) ? 3 /* RGBTRIPLE */ : 4 /* RGBquads */;
+		data_read = (BYTE*) GdipAlloc(size);
 		if (data_read == NULL) {
 			status = OutOfMemory;
 			goto error;
@@ -973,7 +967,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			}
 		}
 
-		data_read = (byte*) GdipAlloc(size);
+		data_read = (BYTE*) GdipAlloc(size);
 		if (data_read == NULL) {
 			status = OutOfMemory;
 			goto error;
@@ -1122,7 +1116,7 @@ gdip_load_bmp_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 }
 
 int 
-gdip_read_bmp_data (void *pointer, byte *data, int size, ImageSource source)
+gdip_read_bmp_data (void *pointer, BYTE *data, int size, ImageSource source)
 {
 	switch (source) {
 	case File:
@@ -1164,7 +1158,7 @@ gdip_read_bmp_data (void *pointer, byte *data, int size, ImageSource source)
 }
 
 static void 
-gdip_write_bmp_data (void *pointer, byte *data, int size, bool useFile)
+gdip_write_bmp_data (void *pointer, BYTE *data, int size, BOOL useFile)
 {
 	if (useFile)
 		fwrite (data, 1, size, (FILE*) pointer);
@@ -1173,7 +1167,7 @@ gdip_write_bmp_data (void *pointer, byte *data, int size, bool useFile)
 }
 
 static GpStatus 
-gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
+gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 {
 	BITMAPFILEHEADER	bmfh;
         BITMAPINFOHEADER	bmi;
@@ -1181,13 +1175,13 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
         int			i;
         ARGB			color;
         int			colours = 0;
-	unsigned char		*entries;
+	BYTE			*entries;
 	int			palette_entries;
 	BitmapData		*activebmp;
-	byte			*scan0;
+	BYTE			*scan0;
 
 	activebmp = image->active_bitmap;
-	if (activebmp->pixel_format != Format24bppRgb) {
+	if (activebmp->pixel_format != PixelFormat24bppRgb) {
 		bitmapLen = activebmp->stride * activebmp->height;
 	} else {
 		bitmapLen = activebmp->width * 3;
@@ -1211,21 +1205,21 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
 	bmfh.bfOffBits = (14 + 40 + colours * 4);
 	bmfh.bfSize = (bmfh.bfOffBits + bitmapLen);
 #endif
-	gdip_write_bmp_data (pointer, (byte *)&bmfh, sizeof (bmfh), useFile);
+	gdip_write_bmp_data (pointer, (BYTE*) &bmfh, sizeof (bmfh), useFile);
         
 	gdip_bitmap_fill_info_header (image, &bmi);
-	gdip_write_bmp_data (pointer, (byte *)&bmi, sizeof (bmi), useFile);
+	gdip_write_bmp_data (pointer, (BYTE*) &bmi, sizeof (bmi), useFile);
 
 	if (colours) {
 		int idx;
 
 		palette_entries = activebmp->palette->Count;
 
-		if (activebmp->pixel_format == Format4bppIndexed) {
+		if (activebmp->pixel_format == PixelFormat4bppIndexed) {
 			palette_entries = 16;
 		}
 
-		entries = (unsigned char *) GdipAlloc (palette_entries*4);
+		entries = (BYTE*) GdipAlloc (palette_entries*4);
 		if (entries == NULL)
 			return OutOfMemory;
 
@@ -1247,21 +1241,21 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
 	}
 
 	scan0 = activebmp->scan0;
-	if (activebmp->pixel_format == Format24bppRgb) {
+	if (activebmp->pixel_format == PixelFormat24bppRgb) {
 		int width = activebmp->width;
 		int height = activebmp->height;
 		int mystride;
 		int k;
-		byte *current_line;
+		BYTE *current_line;
 
 		/* rows need to be padded up to the next multiple of 4 */
 		mystride = width * 3;
 		mystride += 3;
 		mystride &= ~3;
-		current_line = (byte *) GdipAlloc (mystride);
+		current_line = (BYTE*) GdipAlloc (mystride);
 		memset (current_line, 0, mystride); /* Zero padding at the end if needed */
 		for (i = height - 1; i >= 0; i--) {
-			byte *ptr;
+			BYTE *ptr;
 			guint32 *iptr;
 
 			iptr = (guint32 *) (scan0 + i * activebmp->stride);
@@ -1281,8 +1275,8 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
 	/* Writes bitmap upside down. Many tools can only process bmp stored this way*/        
 #ifdef WORDS_BIGENDIAN
 	if (gdip_is_an_indexed_pixelformat (activebmp->pixel_format) == FALSE) {
-		int	j;
-		guchar	*row_pointer = GdipAlloc (activebmp->width * 4);
+		int j;
+		BYTE *row_pointer = GdipAlloc (activebmp->width * 4);
 
 		if (row_pointer == NULL) {
 			return OutOfMemory;
@@ -1290,10 +1284,10 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, bool useFile)
 
 		for (i = activebmp->height -1; i >= 0; i--) {
 			for (j = 0; j < activebmp->width; j++) {
-				row_pointer[j*4] = *((guchar *)scan0 + (activebmp->stride * i) + (j*4) + 3); 
-				row_pointer[j*4+1] = *((guchar *)scan0 + (activebmp->stride * i) + (j*4) + 2); 
-				row_pointer[j*4+2] = *((guchar *)scan0 + (activebmp->stride * i) + (j*4) + 1); 
-				row_pointer[j*4+3] = *((guchar *)scan0 + (activebmp->stride * i) + (j*4) + 0); 
+				row_pointer[j*4] = *((BYTE*)scan0 + (activebmp->stride * i) + (j*4) + 3); 
+				row_pointer[j*4+1] = *((BYTE*)scan0 + (activebmp->stride * i) + (j*4) + 2); 
+				row_pointer[j*4+2] = *((BYTE*)scan0 + (activebmp->stride * i) + (j*4) + 1); 
+				row_pointer[j*4+3] = *((BYTE*)scan0 + (activebmp->stride * i) + (j*4) + 0); 
 			}
 			gdip_write_bmp_data (pointer, row_pointer, activebmp->stride, useFile);
 		}

@@ -23,10 +23,10 @@
  *
  */
 
-#include "gdip.h"
-#include "gdipImage.h"
-#include "texturebrush.h"
-#include "matrix.h"
+#include "texturebrush-private.h"
+#include "graphics-private.h"
+#include "bitmap-private.h"
+#include "matrix-private.h"
 
 static GpStatus gdip_texture_setup (GpGraphics *graphics, GpBrush *brush);
 static GpStatus gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush);
@@ -455,9 +455,8 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 		return InvalidParameter;
 	}
 
-	if (img->type != imageBitmap) {
+	if (img->type != ImageTypeBitmap)
 		return NotImplemented;
-	}
 
 	if (gdip_is_an_indexed_pixelformat (img->active_bitmap->pixel_format)) {
 		/* Unable to create a surface for the bitmap; it is an indexed image.
@@ -614,9 +613,8 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 	if ((wrapMode < WrapModeTile) || (wrapMode > WrapModeClamp))
 		return OutOfMemory;
 
-	if (image->type != imageBitmap) {
+	if (image->type != ImageTypeBitmap)
 		return NotImplemented;
-	}
 
 	result = gdip_texture_new ();
 	if (!result)
@@ -628,7 +626,7 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 		goto failure;
 
 	/* note: we must keep the scan0 alive, so we must use the cloned image (and not the original) see bug #80971 */
-	imageSurface = cairo_image_surface_create_for_data ((unsigned char *)result->image->active_bitmap->scan0,
+	imageSurface = cairo_image_surface_create_for_data ((BYTE*)result->image->active_bitmap->scan0,
 		image->cairo_format, image->active_bitmap->width, image->active_bitmap->height, image->active_bitmap->stride);
 	if (!imageSurface)
 		goto failure;
@@ -674,7 +672,7 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 	if (!image || !texture)
 		return InvalidParameter;
 
-	if (image->type != imageBitmap)
+	if (image->type != ImageTypeBitmap)
 		return NotImplemented;
 
 	bmpWidth = image->active_bitmap->width;

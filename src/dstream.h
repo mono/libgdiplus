@@ -21,7 +21,8 @@
 #ifndef __DSTREAM_H
 #define __DSTREAM_H
 
-#include "gdip.h"
+#include "win32structs.h"
+#include "image.h"
 
 typedef struct _dstream_pvt dstream_private;
 typedef struct _dstream dstream_t;

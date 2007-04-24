@@ -28,14 +28,15 @@
 #if HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "gdiplus-private.h"
 
-#include <stdio.h>
-#include "gdipImage.h"
-#include "gifcodec.h"
+GUID gdip_gif_image_format_guid = {0xb96b3cb0U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 
 #ifdef HAVE_LIBGIF
 
 #include <gif_lib.h>
+
+#include "gifcodec.h"
 
 /* giflib declares this incorrectly as EgifOpen */
 extern GifFileType *EGifOpen(void *userData, OutputFunc writeFunc);
@@ -69,7 +70,7 @@ gdip_getcodecinfo_gif ()
 	gif_codec.FormatDescription = (const WCHAR*) gif_format;
 	gif_codec.FilenameExtension = (const WCHAR*) gif_extension;
 	gif_codec.MimeType = (const WCHAR*) gif_mimetype;
-	gif_codec.Flags = Encoder | Decoder | SupportBitmap | Builtin;
+	gif_codec.Flags = ImageCodecFlagsEncoder | ImageCodecFlagsDecoder | ImageCodecFlagsSupportBitmap | ImageCodecFlagsBuiltin;
 	gif_codec.Version = 1;
 	gif_codec.SigCount = 2;
 	gif_codec.SigSize = 6;
@@ -103,14 +104,14 @@ gdip_gif_inputfunc (GifFileType *gif, GifByteType *data, int len)
 */
 
 static int
-AddExtensionBlockMono(SavedImage *New, int Len, unsigned char ExtData[])
+AddExtensionBlockMono(SavedImage *New, int Len, BYTE ExtData[])
 {
 	ExtensionBlock	*ep;
 
 	if (New->ExtensionBlocks == NULL) {
 		New->ExtensionBlocks=(ExtensionBlock *)GdipAlloc(sizeof(ExtensionBlock));
 	} else {
-		New->ExtensionBlocks = (ExtensionBlock *)GdipRealloc(New->ExtensionBlocks, sizeof(ExtensionBlock) * (New->ExtensionBlockCount + 1));
+		New->ExtensionBlocks = (ExtensionBlock*) gdip_realloc (New->ExtensionBlocks, sizeof(ExtensionBlock) * (New->ExtensionBlockCount + 1));
 	}
 
 	if (New->ExtensionBlocks == NULL) {
@@ -182,7 +183,7 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 				sp = &GifFile->SavedImages[GifFile->ImageCount - 1];
 				ImageSize = sp->ImageDesc.Width * sp->ImageDesc.Height;
 
-				sp->RasterBits = (unsigned char *)malloc(ImageSize * sizeof(GifPixelType));
+				sp->RasterBits = (BYTE*) GdipAlloc (ImageSize * sizeof (GifPixelType));
 				if (sp->RasterBits == NULL) {
 					return GIF_ERROR;
 				}
@@ -239,15 +240,15 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 }
 
 static GpStatus 
-gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
+gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 {
 	GifFileType	*gif;
-	guchar		*readptr;
-	guchar		*writeptr;
+	BYTE		*readptr;
+	BYTE		*writeptr;
 	int		i;
 	int		l;
 	int		num_of_images;
-	bool		animated;
+	BOOL		animated;
 	const GUID	*dimension;
 	FrameData	*frame;
 	GpBitmap	*result;
@@ -255,7 +256,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	SavedImage	si;
 	SavedImage	global_extensions;
 	ColorPalette	*global_palette;
-	bool		loop_counter;
+	BOOL		loop_counter;
 	unsigned short	loop_value;
 	int		disposal;
 	int		last_disposal;
@@ -317,7 +318,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 								if ((gif->SavedImages[i].ExtensionBlocks[l + 1].Function == 0) &&
 								    (gif->SavedImages[i].ExtensionBlocks[l + 1].ByteCount == 3) &&
 								    (gif->SavedImages[i].ExtensionBlocks[l + 1].Bytes[0] == 1)) {
-									loop_value = (unsigned char)(gif->SavedImages[i].ExtensionBlocks[l + 1].Bytes[2] << 8) + (unsigned char)gif->SavedImages[i].ExtensionBlocks[l + 1].Bytes[1];
+									loop_value = (BYTE)(gif->SavedImages[i].ExtensionBlocks[l + 1].Bytes[2] << 8) + (BYTE)gif->SavedImages[i].ExtensionBlocks[l + 1].Bytes[1];
 								}
 							}
 						}
@@ -339,7 +340,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 	}
 
 	result = gdip_bitmap_new();
-	result->type = imageBitmap;
+	result->type = ImageTypeBitmap;
 	frame = gdip_frame_add(result, dimension);
 
 	/* Copy the palette over, if there is one */
@@ -385,16 +386,14 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 			if (eb.Function == COMMENT_EXT_FUNC_CODE) {
 				int	index;
 
-				if (gdip_bitmapdata_property_find_id(bitmap_data, ExifUserComment, &index) != Ok) {
-					byte *bytes;
-
-					bytes = (byte *) GdipAlloc (eb.ByteCount + 1);
+				if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagExifUserComment, &index) != Ok) {
+					BYTE *bytes = (BYTE*) GdipAlloc (eb.ByteCount + 1);
 					if (bytes == NULL)
 						goto error;
 
 					memcpy (bytes, eb.Bytes, eb.ByteCount);
 					bytes [eb.ByteCount] = '\0';
-					gdip_bitmapdata_property_add_ASCII (bitmap_data, ExifUserComment, bytes);
+					gdip_bitmapdata_property_add_ASCII (bitmap_data, PropertyTagExifUserComment, bytes);
 					GdipFree (bytes);
 				}
 			}
@@ -417,9 +416,9 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 						}
 
 						delay = (eb.Bytes[2] << 8) + (eb.Bytes[1]);
-						gdip_bitmapdata_property_add_long(bitmap_data, FrameDelay, delay);
+						gdip_bitmapdata_property_add_long(bitmap_data, PropertyTagFrameDelay, delay);
 						if (loop_counter) {
-							gdip_bitmapdata_property_add_short(bitmap_data, LoopCount, loop_value);
+							gdip_bitmapdata_property_add_short(bitmap_data, PropertyTagLoopCount, loop_value);
 						}
 					}
 					break;
@@ -427,18 +426,18 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 
 				case COMMENT_EXT_FUNC_CODE: {
 					int		index;
-					unsigned char	*text;
+					BYTE *text;
 
 					/* Per-image comments override global */
-					if (gdip_bitmapdata_property_find_id(bitmap_data, ExifUserComment, &index) == Ok) {
+					if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagExifUserComment, &index) == Ok) {
 						gdip_bitmapdata_property_remove_index(bitmap_data, index);
 					}
 					/* String is not null terminated */
-					text = (unsigned char *)GdipAlloc(eb.ByteCount + 1);
+					text = (BYTE*)GdipAlloc(eb.ByteCount + 1);
 					if (text != NULL) {
 						memcpy(text, eb.Bytes, eb.ByteCount);
 						text[eb.ByteCount] = '\0';
-						gdip_bitmapdata_property_add_ASCII(bitmap_data, ExifUserComment, text);
+						gdip_bitmapdata_property_add_ASCII(bitmap_data, PropertyTagExifUserComment, text);
 						GdipFree(text);
 					}
 					break;
@@ -474,11 +473,11 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		}
 
 		if (bitmap_data->transparent < 0) {
-			unsigned char	*v;
+			BYTE *v;
 
 			bitmap_data->palette->Flags |= PaletteFlagsHasAlpha;
 			transparent_index = (bitmap_data->transparent + 1) * -1;
-			v = (unsigned char *)&bitmap_data->palette->Entries [transparent_index];
+			v = (BYTE*)&bitmap_data->palette->Entries [transparent_index];
 #ifdef WORDS_BIGENDIAN
 			v[0] = 0x00;
 #else
@@ -488,7 +487,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 			transparent_index = -1;
 		}
 
-		bitmap_data->pixel_format = Format8bppIndexed;
+		bitmap_data->pixel_format = PixelFormat8bppIndexed;
 		bitmap_data->width = screen_width;
 		bitmap_data->height = screen_height;
 		bitmap_data->stride = bitmap_data->width;
@@ -502,7 +501,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 		bitmap_data->dpi_horz = gdip_get_display_dpi ();
 		bitmap_data->dpi_vert = bitmap_data->dpi_horz;
 	
-		readptr = (guchar *) si.RasterBits;
+		readptr = (BYTE*) si.RasterBits;
 		writeptr = bitmap_data->scan0;
 
 		for (l = 0; l < bitmap_data->height; l++) {
@@ -528,7 +527,7 @@ gdip_load_gif_image (void *stream, GpImage **image, bool from_file)
 					}
 
 					for (ridx = 0, widx = bitmap_data->left; ridx < img_desc->Width; widx++, ridx++) {
-						byte bt = readptr [ridx];
+						BYTE bt = readptr [ridx];
 						if (bt == transparent_index)
 							continue;
 						writeptr [widx] = bt;
@@ -604,7 +603,7 @@ gdip_gif_outputfunc (GifFileType *gif,  const GifByteType *data, int len)
 }
 
 static GpStatus 
-gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
+gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 {
 	GifFileType	*fp;
 	int		i, x, y, size;
@@ -619,7 +618,7 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 	int		cmap_size;
 	ColorMapObject *cmap = NULL;	
 	int		k;
-	unsigned char	*v;
+	BYTE		*v;
 	int		c;
 	int		index;
 	BOOL		animated;
@@ -657,13 +656,20 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 			pixbuf_size = bitmap_data->width * bitmap_data->height * sizeof(GifByteType);
 
 			if (gdip_is_an_indexed_pixelformat(bitmap_data->pixel_format)) {
-				unsigned char w;
+				BYTE w;
 
-				switch(bitmap_data->pixel_format) {
-					case Format1bppIndexed: cmap_size =   2; break;
-					case Format4bppIndexed: cmap_size =  16; break;
-					case Format8bppIndexed: cmap_size = 256; break;
-					default: goto error; 
+				switch (bitmap_data->pixel_format) {
+				case PixelFormat1bppIndexed:
+					cmap_size = 2;
+					break;
+				case PixelFormat4bppIndexed:
+					cmap_size = 16;
+					break;
+				case PixelFormat8bppIndexed:
+					cmap_size = 256;
+					break;
+				default:
+					goto error; 
 				}
 
 				cmap = MakeMapObject(cmap_size, 0);
@@ -676,7 +682,7 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 				pixbuf_org = pixbuf;
 
 				for (c = 0; (c < cmap_size) && (c < bitmap_data->palette->Count); c++) {
-					v = (unsigned char *)&bitmap_data->palette->Entries[c];
+					v = (BYTE*)&bitmap_data->palette->Entries[c];
 
 #ifdef WORDS_BIGENDIAN
 					cmap->Colors[c].Red =   v[1];
@@ -690,7 +696,7 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 				}
 
 				switch(bitmap_data->pixel_format) {
-					case Format1bppIndexed: {
+					case PixelFormat1bppIndexed: {
 						for (y = 0; y < bitmap_data->height; y++) {
 							v = bitmap_data->scan0 + y * bitmap_data->stride;
 							for (x = 0; x + 7 < bitmap_data->width; x += 8) {
@@ -725,7 +731,7 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 						break;
 					}
 
-					case Format4bppIndexed: {
+					case PixelFormat4bppIndexed: {
 						for (y = 0; y < bitmap_data->height; y++) {
 							v = bitmap_data->scan0 + y * bitmap_data->stride;
 							for (x = 0; x + 1 < bitmap_data->width; x += 2) {
@@ -744,7 +750,7 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 						break;
 					}
 
-					case Format8bppIndexed: {
+					case PixelFormat8bppIndexed: {
 						for (y = 0; y < bitmap_data->height; y++) {
 							memcpy(pixbuf + y * bitmap_data->width,
 							       bitmap_data->scan0 + y * bitmap_data->stride,
@@ -806,11 +812,9 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 				/* An animated image must have the application extension */
 				if (animated) {
 					/* Store the LoopCount extension */
-					if (gdip_bitmapdata_property_find_id(bitmap_data, LoopCount, &index) == Ok) {
-						unsigned char	Buffer[3];
-						unsigned char	*ptr;
-
-						ptr = bitmap_data->property[index].value;
+					if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagLoopCount, &index) == Ok) {
+						BYTE Buffer[3];
+						BYTE *ptr = bitmap_data->property[index].value;
 						Buffer[0] = 1;
 						Buffer[1] = ptr[0];
 						Buffer[2] = ptr[1];
@@ -819,14 +823,14 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 					}
 				}
 
-				if (gdip_bitmapdata_property_find_id(bitmap_data, ExifUserComment, &index) == Ok) {
+				if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagExifUserComment, &index) == Ok) {
 					EGifPutComment(fp, (const char *)bitmap_data->property[index].value);
 				}
 			}
 
 			/* Every image has a control extension specifying the time delay */
 			if (animated || bitmap_data->transparent < 0) {
-				unsigned char	buffer[4];
+				BYTE buffer[4];
 
 				buffer[0] = 0x03;		/* 0000 0100 = do not dispose */
 
@@ -834,8 +838,8 @@ gdip_save_gif_image (void *stream, GpImage *image, bool from_file)
 					buffer[0] |= 0x01;	/* 0000 0001 = transparent */
 				}
 
-				if (gdip_bitmapdata_property_find_id(bitmap_data, FrameDelay, &index) == Ok) {
-					unsigned char *ptr;
+				if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagFrameDelay, &index) == Ok) {
+					BYTE *ptr;
 
 					ptr = bitmap_data->property[index].value;
 					buffer[1] = ptr[0];
@@ -918,7 +922,7 @@ error:
 }
 
 GpStatus 
-gdip_save_gif_image_to_file (unsigned char *filename, GpImage *image)
+gdip_save_gif_image_to_file (BYTE *filename, GpImage *image)
 {
 	return gdip_save_gif_image ((void *)filename, image, TRUE);
 }
@@ -947,7 +951,7 @@ gdip_load_gif_image_from_file (FILE *fp, GpImage **image)
 }
 
 GpStatus 
-gdip_save_gif_image_to_file (unsigned char *filename, GpImage *image)
+gdip_save_gif_image_to_file (BYTE *filename, GpImage *image)
 {
 	return UnknownImageFormat;
 }

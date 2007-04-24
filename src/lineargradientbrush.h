@@ -1,45 +1,41 @@
 /*
  * lineargradientbrush.h
  *
- * Author:
- *      Ravindra (rkumar@novell.com)
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
  *
- * Copyright (C) 2004 Novell, Inc. http://www.novell.com
+ * The above copyright notice and this permission notice shall be included in all copies or substantial
+ * portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Authors:
+ *      Ravindra (rkumar@novell.com)
+ *	Sebastien Pouliot  <sebastien@ximian.com>
+ *
+ * Copyright (C) 2004, 2007 Novell, Inc. http://www.novell.com
  */
 
-#ifndef _LINEAR_GRADIENT_H
-#define _LINEAR_GRADIENT_H
+#ifndef __LINEAR_GRADIENT_H__
+#define __LINEAR_GRADIENT_H__
 
-#include "brush.h"
-
-#define DEFAULT_GRADIENT_ANGLE	45.0f
+#include "brush-private.h"
 
 typedef enum {
-	LinearGradientModeHorizontal = 0,	/* angle = 0 deg    */
-	LinearGradientModeVertical = 1,		/* angle = 90 deg   */
-	LinearGradientModeForwardDiagonal = 2,	/* angle = 45 deg  */
-	LinearGradientModeBackwardDiagonal = 3	/* angle = 135 deg */
+	LinearGradientModeHorizontal		= 0,	/* angle = 0 deg    */
+	LinearGradientModeVertical		= 1,	/* angle = 90 deg   */
+	LinearGradientModeForwardDiagonal	= 2,	/* angle = 45 deg  */
+	LinearGradientModeBackwardDiagonal	= 3	/* angle = 135 deg */
 } LinearGradientMode;
 
-typedef struct _LineGradient {
-	GpBrush base;
-	ARGB lineColors [2];
-	GpPointF points [2];
-	GpRectF rectangle;
-	GpMatrix matrix;
-	GpWrapMode wrapMode;
-	float angle;
-	Blend *blend;
-	InterpolationColors *presetColors;
-	cairo_pattern_t *pattern;
-	BOOL isAngleScalable;
-	BOOL gammaCorrection; /* FIXME: Not used */
-} LineGradient;
 
-typedef struct _LineGradient GpLineGradient;
-typedef LinearGradientMode GpLinearGradientMode;
-
-/* LinearGradientBrush functions */
 GpStatus GdipCreateLineBrushI (GDIPCONST GpPoint *point1, GDIPCONST GpPoint *point2, ARGB color1, ARGB color2, GpWrapMode wrapMode, GpLineGradient **lineGradient);
 GpStatus GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARGB color1, ARGB color2, GpWrapMode wrapMode, GpLineGradient **lineGradient);
 GpStatus GdipCreateLineBrushFromRectI (GDIPCONST GpRect *rect, ARGB color1, ARGB color2, LinearGradientMode mode, GpWrapMode wrapMode, GpLineGradient **lineGradient);
@@ -70,4 +66,4 @@ GpStatus GdipRotateLineTransform (GpLineGradient *brush, float angle, GpMatrixOr
 GpStatus GdipScaleLineTransform (GpLineGradient *brush, float sx, float sy, GpMatrixOrder order);
 GpStatus GdipTranslateLineTransform (GpLineGradient *brush, float dx, float dy, GpMatrixOrder order);
 
-#endif /* _LINEAR_GRADIENT_H */
+#endif

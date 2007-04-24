@@ -48,6 +48,8 @@
 #define NOTIMPLEMENTED6(s,p1,p2,p3,p4,p5,p6)
 #endif
 
+GUID gdip_emf_image_format_guid = {0xb96b3cacU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+
 /* Codecinfo related data*/
 static ImageCodecInfo emf_codec;
 static const WCHAR emf_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'E', 'M', 'F', 0}; /* Built-in EMF */
@@ -75,7 +77,7 @@ gdip_getcodecinfo_emf ()
 	emf_codec.FormatDescription = (const WCHAR*) emf_format;
 	emf_codec.FilenameExtension = (const WCHAR*) emf_extension;
 	emf_codec.MimeType = (const WCHAR*) emf_mimetype;
-	emf_codec.Flags = Decoder | SupportBitmap | Builtin;
+	emf_codec.Flags = ImageCodecFlagsDecoder | ImageCodecFlagsSupportBitmap | ImageCodecFlagsBuiltin;
 	emf_codec.Version = 1;
 	emf_codec.SigCount = 1;
 	emf_codec.SigSize = 44;

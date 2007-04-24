@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
+ * Copyright (C) 2006-2007 Novell, Inc (http://www.novell.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,7 +20,8 @@
  *          Sebastien Pouliot  <sebastien@ximian.com>
  */
 
-#include "region.h"
+#include "region-path-tree.h"
+#include "graphics-path-private.h"
 
 /*
  * gdip_region_clear_tree:
@@ -89,8 +90,8 @@ gdip_region_get_tree_size (GpPathTree *tree)
 
 	if (tree->path) {
 		/* tag, count, fillmode, types and points */
-		result = 3 * sizeof (guint32) + 
-			(tree->path->count * sizeof (guint8)) +
+		result = 3 * sizeof (UINT) + 
+			(tree->path->count * sizeof (BYTE)) +
 			(tree->path->count * sizeof (GpPointF));
 	} else {
 		/* tag, operation, size (branch1), branch1, size (branch2), branch2 */
@@ -126,7 +127,7 @@ gdip_region_deserialize_tree (BYTE *data, int size, GpPathTree *tree)
 	case REGION_TAG_PATH: {
 		/* deserialize a path from the memory blob */
 		guint32 count;
-		GpFillMode mode;
+		FillMode mode;
 
 		tree->mode = CombineModeReplace;
 		tree->branch1 = NULL;

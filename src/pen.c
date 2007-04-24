@@ -26,8 +26,10 @@
  *
  */
 
-#include "gdip.h"
-#include "solidbrush.h"
+#include "pen-private.h"
+#include "solidbrush-private.h"
+#include "matrix-private.h"
+#include "graphics-private.h"
 
 static void 
 gdip_pen_init (GpPen *pen)
@@ -199,7 +201,7 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 
 // coverity[+alloc : arg-*3]
 GpStatus 
-GdipCreatePen1 (int argb, float width, GpUnit unit, GpPen **pen)
+GdipCreatePen1 (ARGB argb, float width, GpUnit unit, GpPen **pen)
 {
         GpStatus s;
 	GpSolidFill *solidBrush = NULL;
@@ -234,7 +236,7 @@ GdipCreatePen1 (int argb, float width, GpUnit unit, GpPen **pen)
 GpStatus
 GdipCreatePen2 (GpBrush *brush, float width, GpUnit unit, GpPen **pen)
 {
-        int color;
+        ARGB color;
         GpStatus s;
         GpBrushType type;
 	GpPen *result;
@@ -433,7 +435,7 @@ GpStatus
 GdipSetPenBrushFill (GpPen *pen, GpBrush *brush)
 {
         GpStatus s;
-        int color;
+        ARGB color;
         GpBrushType type;
 
 	if (!pen || !brush)
@@ -487,7 +489,7 @@ GdipGetPenFillType (GpPen *pen, GpPenType *type)
 }
 
 GpStatus
-GdipSetPenColor (GpPen *pen, int argb)
+GdipSetPenColor (GpPen *pen, ARGB argb)
 {
 	if (!pen)
 		return InvalidParameter;
@@ -502,7 +504,7 @@ GdipSetPenColor (GpPen *pen, int argb)
 }
 
 GpStatus
-GdipGetPenColor (GpPen *pen, int *argb)
+GdipGetPenColor (GpPen *pen, ARGB *argb)
 {
 	if (!pen || !argb)
 		return InvalidParameter;
@@ -623,7 +625,7 @@ GdipSetPenUnit (GpPen *pen, GpUnit unit)
 }
 
 GpStatus
-GdipSetPenTransform (GpPen *pen, GDIPCONST GpMatrix *matrix)
+GdipSetPenTransform (GpPen *pen, GpMatrix *matrix)
 {
 	GpStatus status;
 	BOOL invertible;
@@ -1001,7 +1003,7 @@ GdipGetPenDashCap197819 (GpPen *pen, GpDashCap *dashCap)
 GpStatus
 GdipSetPenCustomStartCap (GpPen *pen, GpCustomLineCap *customCap)
 {
-	static bool called = FALSE;
+	static BOOL called = FALSE;
 	if (!called) {
 		g_warning ("GdipSetPenCustomStartCap isn't implemented");
 		called = TRUE;
@@ -1013,11 +1015,12 @@ GdipSetPenCustomStartCap (GpPen *pen, GpCustomLineCap *customCap)
 GpStatus
 GdipGetPenCustomStartCap (GpPen *pen, GpCustomLineCap **customCap)
 {
-	static bool called = FALSE;
+	static BOOL called = FALSE;
 	if (!called) {
 		g_warning ("GdipGetPenCustomStartCap isn't implemented");
 		called = TRUE;
 	}
+	*customCap = NULL;
 	return Ok;
 }
 
@@ -1025,7 +1028,7 @@ GdipGetPenCustomStartCap (GpPen *pen, GpCustomLineCap **customCap)
 GpStatus
 GdipSetPenCustomEndCap (GpPen *pen, GpCustomLineCap *customCap)
 {
-	static bool called = FALSE;
+	static BOOL called = FALSE;
 	if (!called) {
 		g_warning ("GdipSetPenCustomEndCap isn't implemented");
 		called = TRUE;
@@ -1037,10 +1040,11 @@ GdipSetPenCustomEndCap (GpPen *pen, GpCustomLineCap *customCap)
 GpStatus
 GdipGetPenCustomEndCap (GpPen *pen, GpCustomLineCap **customCap)
 {
-	static bool called = FALSE;
+	static BOOL called = FALSE;
 	if (!called) {
 		g_warning ("GdipGetPenCustomEndCap isn't implemented");
 		called = TRUE;
 	}
+	*customCap = NULL;
 	return Ok;
 }

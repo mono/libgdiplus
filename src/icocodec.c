@@ -20,7 +20,10 @@
  *	Sebastien Pouliot  <sebastien@ximian.com>
  */
 
+#include "gdiplus-private.h"
 #include "icocodec.h"
+
+GUID gdip_ico_image_format_guid = {0xb96b3cb5U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 
 /* Codecinfo related data*/
 static ImageCodecInfo ico_codec;
@@ -42,7 +45,7 @@ gdip_getcodecinfo_ico ()
 	ico_codec.FormatDescription = (const WCHAR*) ico_format;
 	ico_codec.FilenameExtension = (const WCHAR*) ico_extension;
 	ico_codec.MimeType = (const WCHAR*) ico_mimetype;
-	ico_codec.Flags = Decoder | SupportBitmap | Builtin;
+	ico_codec.Flags = ImageCodecFlagsDecoder | ImageCodecFlagsSupportBitmap | ImageCodecFlagsBuiltin;
 	ico_codec.Version = 1;
 	ico_codec.SigCount = 1;
 	ico_codec.SigSize = 4;
@@ -102,7 +105,7 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 {
 	GpStatus status = InvalidParameter;
 	GpBitmap *result = NULL;
-	guchar *pixels = NULL;
+	BYTE *pixels = NULL;
 	WORD w, count;
 	void *p = &w;
 	BYTE *b = (BYTE*)&w;
@@ -165,9 +168,9 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 		goto error;
 	
 	result = gdip_bitmap_new_with_frame (NULL, TRUE);
-	result->type = imageBitmap;
+	result->type = ImageTypeBitmap;
 	result->image_format = ICON;
-	result->active_bitmap->pixel_format = Format32bppArgb; /* icons are always promoted to 32 bbp */
+	result->active_bitmap->pixel_format = PixelFormat32bppArgb; /* icons are always promoted to 32 bbp */
 	result->active_bitmap->width = entry.bWidth;
 	result->active_bitmap->height = entry.bHeight;
 	result->active_bitmap->stride = result->active_bitmap->width * 4;

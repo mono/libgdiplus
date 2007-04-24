@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
+ * Copyright (C) 2006-2007 Novell, Inc (http://www.novell.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,7 +20,8 @@
  *	Sebastien Pouliot  <sebastien@ximian.com>
  */
 
-#include "region.h"
+#include "region-private.h"
+#include "graphics-path-private.h"
 
 #if FALSE
 
@@ -29,7 +30,7 @@
  */
 
 static void
-display32 (unsigned char *shape, int width, int height)
+display32 (BYTE *shape, int width, int height)
 {
 	int i, j;
 
@@ -53,7 +54,7 @@ display (char* message, GpRegionBitmap *bitmap)
 		return;
 
 	while (i < SHAPE_SIZE(bitmap)) {
-		unsigned char b = bitmap->Mask [i++];
+		BYTE b = bitmap->Mask [i++];
 		for (k = 0; k < 8; k++) {
 			if (j++ == bitmap->Width) {
 				j = 1;
@@ -154,10 +155,10 @@ rect_adjust_horizontal (int *x, int *width)
  * requested (very large region) or if the memory couldn't be allocated (low
  * memory).
  */
-static unsigned char*
+static BYTE*
 alloc_bitmap_memory (int size, BOOL clear)
 {
-	unsigned char *buffer;
+	BYTE *buffer;
 
 	if ((size < 1) || (size > REGION_MAX_BITMAP_SIZE)) {
 		g_warning ("Requested %d bytes. Maximum size for region is %d bytes.", 
@@ -165,7 +166,7 @@ alloc_bitmap_memory (int size, BOOL clear)
 		return NULL;
 	}
 
-	buffer = (unsigned char*) malloc (size);
+	buffer = (BYTE*) GdipAlloc (size);
 	if (clear)
 		memset (buffer, 0, size);
 
@@ -190,7 +191,7 @@ alloc_bitmap_memory (int size, BOOL clear)
  * - The supplied @buffer MUST match the supplied width and height parameters.
  */
 static GpRegionBitmap*
-alloc_bitmap_with_buffer (int x, int y, int width, int height, unsigned char *buffer)
+alloc_bitmap_with_buffer (int x, int y, int width, int height, BYTE *buffer)
 {
 	GpRegionBitmap *result = (GpRegionBitmap*) GdipAlloc (sizeof (GpRegionBitmap));
 
@@ -221,7 +222,7 @@ alloc_bitmap_with_buffer (int x, int y, int width, int height, unsigned char *bu
 static GpRegionBitmap*
 alloc_bitmap (int x, int y, int width, int height)
 {
-	unsigned char *buffer;
+	BYTE *buffer;
 	int size;
 
 	/* ensure X and Width are multiple of 8 */
@@ -288,7 +289,7 @@ alloc_intersected_bitmap (GpRegionBitmap *bitmap1, GpRegionBitmap *bitmap2)
 GpRegionBitmap*
 gdip_region_bitmap_clone (GpRegionBitmap *bitmap)
 {
-	unsigned char *buffer;
+	BYTE *buffer;
 	int size = (bitmap->Width * bitmap->Height >> 3); /* 1 bit per pixel */
 
 	if (size > 0) {
@@ -348,14 +349,14 @@ gdip_region_bitmap_free (GpRegionBitmap *bitmap)
  * Reduce a 32bpp bitmap @source into a 1bbp bitmap @dest.
  */
 static void
-reduce (unsigned char* source, int width, int height, unsigned char *dest)
+reduce (BYTE* source, int width, int height, BYTE *dest)
 {
 	int i, j, n = 0, value = 0;
 
 	for (i = 0; i < height; i++) {
 		for (j = 0; j < width; j++) {
 			int pos = (i * width + j) * 4;
-			unsigned char combine = source [pos++] | source [pos++] | source [pos++] | source [pos];
+			BYTE combine = source [pos++] | source [pos++] | source [pos++] | source [pos];
 
 			if (combine != 0)
 				value |= 128;
@@ -500,7 +501,7 @@ gdip_region_bitmap_from_path (GpPath *path)
 {
 	GpRect bounds;
 	GpRegionBitmap *bitmap;
-	unsigned char* buffer;
+	BYTE* buffer;
         int i, idx, stride;
 	int length = path->count;
 	unsigned long size;
@@ -532,7 +533,7 @@ gdip_region_bitmap_from_path (GpPath *path)
 			size, bounds.Width, bounds.Height, REGION_MAX_BITMAP_SIZE << 5);
 		return NULL;
 	}
-	buffer = (unsigned char*) malloc (size);
+	buffer = (BYTE*) GdipAlloc (size);
 	if (!buffer)
 		return NULL;
 	memset (buffer, 0, size);
@@ -544,7 +545,7 @@ gdip_region_bitmap_from_path (GpPath *path)
 	idx = 0;
 	for (i = 0; i < length; ++i) {
 		GpPointF pt = g_array_index (path->points, GpPointF, i);
-		byte type = g_array_index (path->types, byte, i);
+		BYTE type = g_array_index (path->types, BYTE, i);
 		GpPointF pts [3];
 		/* mask the bits so that we get only the type value not the other flags */
 		switch (type & PathPointTypePathTypeMask) {
@@ -707,15 +708,14 @@ gdip_region_bitmap_shrink (GpRegionBitmap *bitmap, BOOL always_shrink)
 	 */
 	if ((always_shrink && can_be_reduced) || is_worth_shrinking (original_size, new_size)) {
 		/* reallocate a new bitmap buffer */
-		unsigned char *new_mask = alloc_bitmap_memory (new_size, FALSE);
+		BYTE *new_mask = alloc_bitmap_memory (new_size, FALSE);
 		int new_width, new_height;
 		int x, y;
 
 		int old_width_byte, new_width_byte;
 
-		unsigned char* newline = NULL;
-		unsigned char* oldline = NULL;
-
+		BYTE* newline = NULL;
+		BYTE* oldline = NULL;
 
 		if (!new_mask)
 			return;
@@ -1123,7 +1123,7 @@ gdip_region_bitmap_exclude (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 	for (y = op->Y; y < op->Y + op->Height; y++) {
 		int p = get_buffer_pos (op, op->X, y);
 		for (x = op->X; x < op->X + op->Width; x += 8) {
-			unsigned char b1 = get_byte (shape1, x, y);
+			BYTE b1 = get_byte (shape1, x, y);
 			op->Mask [p++] = b1 - (b1 & get_byte (shape2, x, y));
 		}
 	}
@@ -1158,7 +1158,7 @@ gdip_region_bitmap_complement (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 	for (y = op->Y; y < op->Y + op->Height; y++) {
 		int p = get_buffer_pos (op, op->X, y);
 		for (x = op->X; x < op->X + op->Width; x += 8) {
-			unsigned char b2 = get_byte (shape2, x, y);
+			BYTE b2 = get_byte (shape2, x, y);
 			op->Mask [p++] = b2 - (b2 & get_byte (shape1, x, y));
 		}
 	}

@@ -1,7 +1,7 @@
 /*
  * graphics-pathiterator.c
  *
- * Copyright (C) 2004,2006 Novell Inc.
+ * Copyright (C) 2004,2006-2007 Novell Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -23,8 +23,9 @@
  *
  */
  
-#include "gdip.h"
-#include "graphics-path.h"
+#include "graphics-pathiterator-private.h"
+#include "graphics-path-private.h"
+#include "font.h"
 
 // coverity[+alloc : arg-*0]
 GpStatus
@@ -86,10 +87,10 @@ GdipPathIterGetSubpathCount (GpPathIterator *iterator, int *count)
 
 	if (iterator->path) {
 		int i;
-		byte type;
+		BYTE type;
 		/* Number of subpaths = Number of starting points */
 		for (i = 0; i < iterator->path->count; i++) {
-			type = g_array_index (iterator->path->types, byte, i);
+			type = g_array_index (iterator->path->types, BYTE, i);
 			if (type == PathPointTypeStart)
 				numSubpaths++;
 		}
@@ -117,7 +118,7 @@ GdipDeletePathIter (GpPathIterator *iterator)
 }
 
 GpStatus
-GdipPathIterCopyData (GpPathIterator *iterator, int *resultCount, GpPointF *points, byte *types, int startIndex, int endIndex)
+GdipPathIterCopyData (GpPathIterator *iterator, int *resultCount, GpPointF *points, BYTE *types, int startIndex, int endIndex)
 {
 	int i, j;
 
@@ -132,7 +133,7 @@ GdipPathIterCopyData (GpPathIterator *iterator, int *resultCount, GpPointF *poin
 
 	for (i = startIndex, j = 0; i <= endIndex; i++, j++) {
 		points [j] = g_array_index (iterator->path->points, GpPointF, i);
-		types [j] = g_array_index (iterator->path->types, byte, i);
+		types [j] = g_array_index (iterator->path->types, BYTE, i);
 	}
 
 	*resultCount = j;
@@ -141,7 +142,7 @@ GdipPathIterCopyData (GpPathIterator *iterator, int *resultCount, GpPointF *poin
 }
 
 GpStatus
-GdipPathIterEnumerate (GpPathIterator *iterator, int *resultCount, GpPointF *points, byte *types, int count)
+GdipPathIterEnumerate (GpPathIterator *iterator, int *resultCount, GpPointF *points, BYTE *types, int count)
 {
 	int i = 0;
 
@@ -151,7 +152,7 @@ GdipPathIterEnumerate (GpPathIterator *iterator, int *resultCount, GpPointF *poi
 	if (iterator->path) {
 		for (; i < count && i < iterator->path->count; i++) {
 			points [i] = g_array_index (iterator->path->points, GpPointF, i);
-			types [i] = g_array_index (iterator->path->types, byte, i);
+			types [i] = g_array_index (iterator->path->types, BYTE, i);
 		}
 	}
 
@@ -175,7 +176,7 @@ GpStatus
 GdipPathIterNextMarkerPath (GpPathIterator *iterator, int *resultCount, GpPath *path)
 {
 	int index = 0;
-	byte type;
+	BYTE type;
 	GpPointF point;
 
 	if (!iterator || !resultCount)
@@ -199,7 +200,7 @@ GdipPathIterNextMarkerPath (GpPathIterator *iterator, int *resultCount, GpPath *
 	}
 
 	for (index = iterator->markerPosition; index < iterator->path->count; index++) {
-		type = g_array_index (iterator->path->types, byte, index);
+		type = g_array_index (iterator->path->types, BYTE, index);
 		point = g_array_index (iterator->path->points, GpPointF, index);
 		g_array_append_val (path->points, point);
 		g_byte_array_append (path->types, &type, 1);
@@ -222,7 +223,7 @@ GpStatus
 GdipPathIterNextMarker (GpPathIterator *iterator, int *resultCount, int *startIndex, int *endIndex)
 {
 	int index = 0;
-	byte type;
+	BYTE type;
 
 	if (!iterator || !resultCount || !startIndex || !endIndex)
 		return InvalidParameter;
@@ -237,7 +238,7 @@ GdipPathIterNextMarker (GpPathIterator *iterator, int *resultCount, int *startIn
 	
 	/* Check for next marker */
 	for (index = iterator->markerPosition; index < iterator->path->count; index++) {
-		type = g_array_index (iterator->path->types, byte, index);
+		type = g_array_index (iterator->path->types, BYTE, index);
 		if (type & PathPointTypePathMarker) {
 			index++;
 			break;
@@ -254,11 +255,11 @@ GdipPathIterNextMarker (GpPathIterator *iterator, int *resultCount, int *startIn
 }
 
 GpStatus
-GdipPathIterNextPathType (GpPathIterator *iterator, int *resultCount, byte *pathType, int *startIndex, int *endIndex)
+GdipPathIterNextPathType (GpPathIterator *iterator, int *resultCount, BYTE *pathType, int *startIndex, int *endIndex)
 {
 	int index;
-	byte currentType;
-	byte lastTypeSeen;
+	BYTE currentType;
+	BYTE lastTypeSeen;
 
 	if (!iterator || !resultCount || !pathType || !startIndex || !endIndex)
 		return InvalidParameter;
@@ -272,13 +273,13 @@ GdipPathIterNextPathType (GpPathIterator *iterator, int *resultCount, byte *path
 
 	/* Pathtype position lags behind subpath position */
 	else if (iterator->pathTypePosition < iterator->subpathPosition) {
-		lastTypeSeen = g_array_index (iterator->path->types, byte, iterator->pathTypePosition + 1);
+		lastTypeSeen = g_array_index (iterator->path->types, BYTE, iterator->pathTypePosition + 1);
 		/* Mask the flags */
 		lastTypeSeen &= PathPointTypePathTypeMask;
 
 		/* Check for the change in type */
 		for (index = iterator->pathTypePosition + 2; index < iterator->subpathPosition; index++) {
-			currentType = g_array_index (iterator->path->types, byte, index);
+			currentType = g_array_index (iterator->path->types, BYTE, index);
 			currentType &= PathPointTypePathTypeMask;
 
 			if (currentType != lastTypeSeen)
@@ -313,7 +314,7 @@ GdipPathIterNextSubpathPath (GpPathIterator *iterator, int *resultCount, GpPath 
 {
 	int index = 0;
 	GpPointF point;
-	byte currentType;
+	BYTE currentType;
 
 	if (!iterator || !resultCount || !isClosed)
 		return InvalidParameter;
@@ -337,7 +338,7 @@ GdipPathIterNextSubpathPath (GpPathIterator *iterator, int *resultCount, GpPath 
 	}
 
 	/* Copy the starting point */
-	currentType = g_array_index (iterator->path->types, byte, iterator->subpathPosition);
+	currentType = g_array_index (iterator->path->types, BYTE, iterator->subpathPosition);
 	point = g_array_index (iterator->path->points, GpPointF, iterator->subpathPosition);
 	g_array_append_val (path->points, point);
 	g_byte_array_append (path->types, &currentType, 1);
@@ -345,7 +346,7 @@ GdipPathIterNextSubpathPath (GpPathIterator *iterator, int *resultCount, GpPath 
 
 	/* Check for next start point */
 	for (index = iterator->subpathPosition + 1; index < iterator->path->count; index++) {
-		currentType = g_array_index (iterator->path->types, byte, index);
+		currentType = g_array_index (iterator->path->types, BYTE, index);
 
 		/* Copy the start point till next start point */
 		if (currentType == PathPointTypeStart)
@@ -363,7 +364,7 @@ GdipPathIterNextSubpathPath (GpPathIterator *iterator, int *resultCount, GpPath 
 	iterator->subpathPosition = index;
 
 	/* Check if last subpath was closed */
-	currentType = g_array_index (iterator->path->types, byte, index - 1);
+	currentType = g_array_index (iterator->path->types, BYTE, index - 1);
 	if (currentType & PathPointTypeCloseSubpath)
 		*isClosed = TRUE;
 	else
@@ -376,7 +377,7 @@ GpStatus
 GdipPathIterNextSubpath (GpPathIterator *iterator, int *resultCount, int *startIndex, int *endIndex, BOOL *isClosed)
 {
 	int index = 0;
-	byte currentType;
+	BYTE currentType;
 
 	if (!iterator || !resultCount || !startIndex || !endIndex || !isClosed)
 		return InvalidParameter;
@@ -392,7 +393,7 @@ GdipPathIterNextSubpath (GpPathIterator *iterator, int *resultCount, int *startI
 
 	/* Check for next start point */
 	for (index = iterator->subpathPosition + 1; index < iterator->path->count; index++) {
-		currentType = g_array_index (iterator->path->types, byte, index);
+		currentType = g_array_index (iterator->path->types, BYTE, index);
 		if (currentType == PathPointTypeStart)
 			break;
 	}
@@ -405,7 +406,7 @@ GdipPathIterNextSubpath (GpPathIterator *iterator, int *resultCount, int *startI
 	iterator->subpathPosition = index;
 
 	/* check if last subpath was closed */
-	currentType = g_array_index (iterator->path->types, byte, index - 1);
+	currentType = g_array_index (iterator->path->types, BYTE, index - 1);
 	if (currentType & PathPointTypeCloseSubpath)
 		*isClosed = TRUE;
 	else

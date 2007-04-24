@@ -1,3 +1,104 @@
+2007-04-24  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* adjustablearrowcap.c: Header/types adjustments.
+	* adjustablearrowcap.h: New file. Public header.
+	* adjustablearrowcap-private.h: New file. Private header.
+	* alpha-premul-table.inc: Types adjustment.
+	* bmpcodec.c|h: Header/types adjustments.
+	* bitmap.c: Header/types adjustments.
+	* bitmap.h: New file. Public header.
+	* bitmap-private.h: New file. Private header.
+	* brush.c: Header adjustments.
+	* brush.h: Move private stuff out.
+	* brush-private.h: New file. Private header.
+	* codecs.h: New file. Contains public codec declarations.
+	* codecs-private.h: New file. Private header.
+	* customlinecap.c: Header adjustments. 
+	* customlinecap.h: Move private stuff out, move public stuff in.
+	* customlinecap-private.h: New file. Private header.
+	* dstream.c|h: Header adjustments. 
+	* emfcodec.c|h: Header/types adjustments.
+	* emfplus.h: Header adjustments.
+	* font.c: Header/types adjustments.
+	* font.h: New file. Public header.
+	* fontcollection.h: New file. Public header.
+	* fontcollection-private.h: New file. Private header.
+	* fontfamily.h: New file. Public header.
+	* fontfamily-private.h: New file. Private header.
+	* gdip.h: Deprecated. Public and private stuff has been moved into 
+	different header files to avoid more errors in the future and make it
+	easier to use libgdiplus as a library.
+	* gdipenums.h: New file. Contains (only) public enums.
+	* gdipstructs.h: New file. Contains (only) public types.
+	* gdiplus-private.h: New file. Main private include file.
+	* GdiPlusFlat.h: New file. This is *the* header file to include from
+	C/C++ projects (i.e. the only one that match MS filenames). Makes it
+	easier not to use internal/private (i.e. changing) libgdiplus stuff.
+	* general.c: Move public types to public header. Use FcFini if 
+	available. Remove DEBUG_MEMLEAKS code (valgrind is much better).
+	* general.h: Updated to contain only public stuff.
+	* gifcodec.c|h: Header/types adjustments.
+	* graphics.c: Header/types adjustments. [Draw|Measure]String functions
+	have moved into text.c source file.
+	* graphics.h: Move private stuff out and move public stuff in.
+	* graphics-path.c: Header/types adjustments.
+	* graphics-path.h: Move GpPathIterator functions into their own header 
+	file. Moved internal functions into private header file.
+	* graphics-path-private.h: New file. Private header.
+	* graphics-pathiterator.c: Header/types adjustments.
+	* graphics-pathiterator.h: New file. Public header.
+	* graphics-pathiterator-private.h: New file. Private header.
+	* graphics-private.h: New file. Private header.
+	* hatchbrush.c: Header/types adjustments.
+	* hatchbrush.h: Move private definitions into a separate header file.
+	* hatchbrush-private.h: New file. Private header.
+	* icocodec.c|h: Header/types adjustments.
+	* image.c: Header/types adjustments. Move codec GUID into codec source
+	files.
+	* image.h: New file to replace gdipImage.h but contains only public 
+	and semi-public stuff.
+	* image-private.h: New file. Private header.
+	* imageattributes.c: Header/types adjustments. 
+	* imageattributes.h: New file. Public header.
+	* imageattributes-private.h: New file. Private header.
+	* jpegcodec.c|h: Header/types adjustments.
+	* lineargradientbrush.c: Header adjustments. 
+	* lineargradientbrush.h: Moved private stuff into it's own header file
+	* lineargradientbrush-private.h: New file. Private header.
+	* matrix.c: Header adjustments and inline matrix_equals.
+	* matrix.h: Move private stuff out, move public stuff in.
+	* matrix-private.h: New file. Private header.
+	* metafile.c|h: Header/types adjustments. 
+	* pen.c: Header/types adjustments. 
+	* pen.h: New file. Public header.
+	* pen-private.h: New file. Private header.
+	* pathgradientbrush.c: Header adjustments.
+	* pathgradientbrush.h: Move private stuff out.
+	* pathgradientbrush-private.h: New file. Private header.
+	* pngcodec.c|h: Header/types adjustments. 
+	* region.c: Header adjustments.
+	* region.h: Move private stuff out.
+	* region-bitmap.c|h: Header/types adjustments.
+	* region-path-tree.c|h: Header/types adjustments.
+	* region-private.h: New file. Private header.
+	* solidbrush.c: Header/types adjustments.
+	* solidbrush.h: Move private stuff out.
+	* solidbrush-private.h: New file. Private header.
+	* stringformat.c: Header/types adjustments.
+	* stringformat.h: New file. Public header.
+	* text.c: New file. [Draw|Mesure]String is moved here. This will help
+	having an alternate implementation of them.
+	* text.h: New file. Public header.
+	* text-private.h: New file. Private header.
+	* texturebrush.c: Header/types adjustments.
+	* texturebrush.h: Header/types adjustments.
+	* texturebrush-private.h: Move private stuff out.
+	* tiffcodec.c|h: Header/types adjustments.
+	* win32structs.h: New file that contains win32 definitions required by
+	libgdiplus.
+	* wmfcodec.c|h: Header/types adjustments.
+	* Makefile.am: Add new files to the build.
+
 2007-04-23  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bitmap.c: Use a macro to calculate aligned stride.

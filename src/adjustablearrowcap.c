@@ -19,11 +19,10 @@
  * Author:
  *      Ravindra (rkumar@novell.com)
  *
- * Copyright (C) 2003-2006 Novell, Inc. http://www.novell.com
+ * Copyright (C) 2003-2007 Novell, Inc. http://www.novell.com
  */
 
-#include "gdip.h"
-#include "customlinecap.h"
+#include "adjustablearrowcap-private.h"
 
 static GpStatus gdip_adjust_arrowcap_setup (GpGraphics *graphics, GpCustomLineCap *cap);
 static GpStatus gdip_adjust_arrowcap_clone_cap (GpCustomLineCap *cap, GpCustomLineCap **clonedCap);
@@ -101,7 +100,7 @@ gdip_adjust_arrowcap_setup (GpGraphics *graphics, GpCustomLineCap *customCap)
 
 // coverity[+alloc : arg-*3]
 GpStatus
-GdipCreateAdjustableArrowCap (float height, float width, bool isFilled, GpAdjustableArrowCap **arrowCap)
+GdipCreateAdjustableArrowCap (float height, float width, BOOL isFilled, GpAdjustableArrowCap **arrowCap)
 {
 	GpAdjustableArrowCap *cap;
 
@@ -190,7 +189,7 @@ GdipGetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, float *mid
 }
 
 GpStatus
-GdipSetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, bool isFilled)
+GdipSetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, BOOL isFilled)
 {
 	if (!arrowCap)
 		return InvalidParameter;
@@ -201,7 +200,7 @@ GdipSetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, bool isFille
 }
 
 GpStatus
-GdipGetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, bool *isFilled)
+GdipGetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, BOOL *isFilled)
 {
 	if (!arrowCap || !isFilled)
 		return InvalidParameter;

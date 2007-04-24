@@ -4,28 +4,16 @@
  * Author:
  *      Ravindra (rkumar@novell.com)
  *
- * Copyright (C) 2004,2006 Novell, Inc. http://www.novell.com
+ * Copyright (C) 2004,2006-2007 Novell, Inc. http://www.novell.com
  */
 
-#ifndef _TEXTURE_H
-#define _TEXTURE_H
+/*
+ * NOTE: This header file contains ONLY public definitions and MUST match the GDI+ definitions.
+ */
 
-#include "brush.h"
+#ifndef __TEXTUREBRUSH_H__
+#define __TEXTUREBRUSH_H__
 
-/* Structures */
-
-typedef struct _Texture GpTexture;
-
-typedef struct _Texture {
-	GpBrush base;
-	GpImage *image;
-	cairo_matrix_t matrix;
-	GpRect rectangle;
-	GpWrapMode wrapMode;
-	cairo_pattern_t *pattern;
-} Texture;
-
-/* Texture brush public functions */
 GpStatus GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture);
 GpStatus GdipCreateTexture2 (GpImage *image, GpWrapMode wrapMode, float x, float y, float width, float height, GpTexture **texture);
 GpStatus GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int width, int height, GpTexture **texture);
@@ -42,4 +30,4 @@ GpStatus GdipSetTextureWrapMode (GpTexture *texture, GpWrapMode wrapMode);
 GpStatus GdipGetTextureWrapMode (GpTexture *texture, GpWrapMode *wrapMode);
 GpStatus GdipGetTextureImage (GpTexture *texture, GpImage **image);
 
-#endif /* _TEXTURE_H */
+#endif

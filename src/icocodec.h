@@ -23,10 +23,7 @@
 #ifndef __ICOCODEC_H__
 #define __ICOCODEC_H__
 
-#include <stdio.h>
-#include "gdip.h"
-#include "gdipImage.h"
-#include "dstream.h"
+#include "bitmap-private.h"
 #include "bmpcodec.h"
 
 /* Information about the icon format can be found @ http://www.daubnet.com/formats/ICO.html */

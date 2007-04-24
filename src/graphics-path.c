@@ -1,7 +1,7 @@
 /*
  * graphics-path.c
  *
- * Copyright (C) 2003-2006, Novell Inc. (http://www.novell.com)
+ * Copyright (C) 2003-2007, Novell Inc. (http://www.novell.com)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -21,6 +21,7 @@
  * Authors:
  *      Duncan Mak (duncan@ximian.com)
  *      Ravindra (rkumar@novell.com)
+ *	Sebastien Pouliot  <sebastien@ximian.com>
  *
  * Additional copyrights:
  *	gdip_point_in_polygon is based on INPOLY.C (http://www.visibone.com/inpoly/inpoly.c.txt)
@@ -28,10 +29,9 @@
  *	Copyright (c) 1995-1996 Galacticomm, Inc.  Freeware source code.
  */
  
-#include <math.h>
-#include "gdip.h"
-#include "graphics-path.h"
-#include "matrix.h"
+#include "graphics-path-private.h"
+#include "matrix-private.h"
+#include "font-private.h"
 
 static GArray *
 array_to_g_array (const GpPointF *pt, int length)
@@ -54,21 +54,21 @@ g_array_to_array (GArray *p)
         return pts;
 }
 
-static byte *
+static BYTE *
 g_byte_array_to_array (GByteArray *p)
 {
         int length = p->len;
-        byte *types = (byte *) GdipAlloc (sizeof (byte) * length);
+        BYTE *types = (BYTE*) GdipAlloc (sizeof (BYTE) * length);
 	if (!types)
 		return NULL;
 
-        memcpy (types, p->data, p->len * sizeof (byte));
+        memcpy (types, p->data, p->len * sizeof (BYTE));
         
         return types;
 }
 
 static GByteArray *
-array_to_g_byte_array (const byte *types, int count)
+array_to_g_byte_array (const BYTE *types, int count)
 {
         GByteArray *p = g_byte_array_sized_new (count);
         g_byte_array_append (p, types, count);
@@ -85,7 +85,7 @@ gdip_path_has_curve (GpPath *path)
 		return FALSE;
 
 	for (i = 0; i < path->count; i++) {
-		if (g_array_index (path->types, byte, i) == PathPointTypeBezier)
+		if (g_array_index (path->types, BYTE, i) == PathPointTypeBezier)
 			return TRUE;
 	}
 
@@ -95,17 +95,17 @@ gdip_path_has_curve (GpPath *path)
 /*
  * Return the correct point type when adding a new shape to the path.
  */
-static GpPathPointType
+static PathPointType
 gdip_get_first_point_type (GpPath *path)
 {
-	GpPathPointType type;
+	PathPointType type;
 
 	/* check for a new figure flag or an empty path */ 
 	if (path->start_new_fig || (path->count == 0))
 		return PathPointTypeStart;
 
 	/* check if the previous point is a closure */
-	type = g_array_index (path->types, byte, path->count - 1);
+	type = g_array_index (path->types, BYTE, path->count - 1);
 	if (type & PathPointTypeCloseSubpath)
 		return PathPointTypeStart;
 	else
@@ -113,9 +113,9 @@ gdip_get_first_point_type (GpPath *path)
 }
 
 static void
-append (GpPath *path, float x, float y, GpPathPointType type)
+append (GpPath *path, float x, float y, PathPointType type)
 {
-        byte t = (byte) type;
+        BYTE t = (BYTE) type;
 	GpPointF pt;
 
 	pt.X = x; pt.Y = y;
@@ -124,7 +124,7 @@ append (GpPath *path, float x, float y, GpPathPointType type)
 		t = PathPointTypeStart;
 	/* if we closed a subpath, then start new figure and append */
 	else if (path->count > 0) {
-		type = g_array_index (path->types, byte, path->count - 1);
+		type = g_array_index (path->types, BYTE, path->count - 1);
 		if (type & PathPointTypeCloseSubpath)
 			t = PathPointTypeStart;
         }
@@ -137,7 +137,7 @@ append (GpPath *path, float x, float y, GpPathPointType type)
 }
 
 static void
-append_point (GpPath *path, GpPointF pt, GpPathPointType type)
+append_point (GpPath *path, GpPointF pt, PathPointType type)
 {
         append (path, pt.X, pt.Y, type);
 }
@@ -154,7 +154,7 @@ static void
 append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int offset, int length, _CurveType type)
 {
 	int i;
-	GpPathPointType ptype = ((type == CURVE_CLOSE) || (path->count == 0)) ? PathPointTypeStart : PathPointTypeLine;
+	PathPointType ptype = ((type == CURVE_CLOSE) || (path->count == 0)) ? PathPointTypeStart : PathPointTypeLine;
 
 	append_point (path, points [offset], ptype);
 	for (i = offset; i < offset + length; i++) {
@@ -190,7 +190,7 @@ append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int offs
 
 /* coverity[+alloc : arg-*1] */
 GpStatus
-GdipCreatePath (GpFillMode fillMode, GpPath **path)
+GdipCreatePath (FillMode fillMode, GpPath **path)
 {
 	if (!path)
 		return InvalidParameter;
@@ -210,8 +210,7 @@ GdipCreatePath (GpFillMode fillMode, GpPath **path)
 
 /* coverity[+alloc : arg-*4] */
 GpStatus
-GdipCreatePath2 (const GpPointF *points, const byte *types,
-                int count, GpFillMode fillMode, GpPath **path)
+GdipCreatePath2 (const GpPointF *points, const BYTE *types, int count, FillMode fillMode, GpPath **path)
 {
 	GArray *pts;
 	GByteArray *t;
@@ -244,8 +243,7 @@ GdipCreatePath2 (const GpPointF *points, const byte *types,
 
 /* coverity[+alloc : arg-*4] */
 GpStatus
-GdipCreatePath2I (const GpPoint *points, const byte *types,
-                int count, GpFillMode fillMode, GpPath **path)
+GdipCreatePath2I (const GpPoint *points, const BYTE *types, int count, FillMode fillMode, GpPath **path)
 {
 	GpPointF *pt;
         GpStatus s;
@@ -269,7 +267,7 @@ GpStatus
 GdipClonePath (GpPath *path, GpPath **clonePath)
 {
 	int i;
-	byte type;
+	BYTE type;
 	GpPointF point;
 
 	if (!path || !clonePath)
@@ -285,7 +283,7 @@ GdipClonePath (GpPath *path, GpPath **clonePath)
         (*clonePath)->types = g_byte_array_new ();
 	for (i = 0; i < path->count; i++) {
 		point = g_array_index (path->points, GpPointF, i);
-		type = g_array_index (path->types, byte, i);
+		type = g_array_index (path->types, BYTE, i);
 		g_array_append_val ((*clonePath)->points, point);
 		g_byte_array_append ((*clonePath)->types, &type, 1);
 	}
@@ -335,7 +333,7 @@ GdipResetPath (GpPath *path)
 }
 
 GpStatus
-GdipGetPointCount (GDIPCONST GpPath *path, int *count)
+GdipGetPointCount (GpPath *path, int *count)
 {
 	if (!path || !count)
 		return InvalidParameter;
@@ -345,7 +343,7 @@ GdipGetPointCount (GDIPCONST GpPath *path, int *count)
 }
 
 GpStatus
-GdipGetPathTypes (GpPath *path, byte *types, int count)
+GdipGetPathTypes (GpPath *path, BYTE *types, int count)
 {
 	int i;
 
@@ -359,7 +357,7 @@ GdipGetPathTypes (GpPath *path, byte *types, int count)
 }
 
 GpStatus
-GdipGetPathPoints (GDIPCONST GpPath *path, GpPointF *points, int count)
+GdipGetPathPoints (GpPath *path, GpPointF *points, int count)
 {
 	int i;
 
@@ -376,7 +374,7 @@ GdipGetPathPoints (GDIPCONST GpPath *path, GpPointF *points, int count)
 }
 
 GpStatus
-GdipGetPathPointsI (GDIPCONST GpPath *path, GpPoint *points, int count)
+GdipGetPathPointsI (GpPath *path, GpPoint *points, int count)
 {
 	int i;
 
@@ -393,7 +391,7 @@ GdipGetPathPointsI (GDIPCONST GpPath *path, GpPoint *points, int count)
 }
 
 GpStatus
-GdipGetPathFillMode (GpPath *path, GpFillMode *fillMode)
+GdipGetPathFillMode (GpPath *path, FillMode *fillMode)
 {
 	if (!path || !fillMode)
 		return InvalidParameter;
@@ -404,7 +402,7 @@ GdipGetPathFillMode (GpPath *path, GpFillMode *fillMode)
 }
 
 GpStatus
-GdipSetPathFillMode (GpPath *path, GpFillMode fillMode)
+GdipSetPathFillMode (GpPath *path, FillMode fillMode)
 {
 	if (!path)
 		return InvalidParameter;
@@ -415,7 +413,7 @@ GdipSetPathFillMode (GpPath *path, GpFillMode fillMode)
 }
 
 GpStatus
-GdipGetPathData (GDIPCONST GpPath *path, GpPathData *pathData)
+GdipGetPathData (GpPath *path, GpPathData *pathData)
 {
 	if (!path || !pathData)
 		return InvalidParameter;
@@ -455,7 +453,7 @@ GdipClosePathFigure (GpPath *path)
 		return InvalidParameter;
 
 	if (path->count > 0) {
-		byte current = g_array_index (path->types, byte, path->count - 1);
+		BYTE current = g_array_index (path->types, BYTE, path->count - 1);
 		g_byte_array_remove_index (path->types, path->count - 1);
 		current |= PathPointTypeCloseSubpath;
 		g_byte_array_append (path->types, &current, 1);
@@ -469,8 +467,8 @@ GpStatus
 GdipClosePathFigures (GpPath *path)
 {
 	int index = 0;
-	byte currentType;
-	byte lastType;
+	BYTE currentType;
+	BYTE lastType;
 	GByteArray *oldTypes;
 
 	if (!path)
@@ -483,11 +481,11 @@ GdipClosePathFigures (GpPath *path)
 	oldTypes = path->types;
 	path->types = g_byte_array_new ();
 
-	lastType = g_array_index (oldTypes, byte, index);
+	lastType = g_array_index (oldTypes, BYTE, index);
 	index++;
 
 	for (index = 1; index < path->count; index++) {
-		currentType = g_array_index (oldTypes, byte, index);
+		currentType = g_array_index (oldTypes, BYTE, index);
 		/* we dont close on the first point */
 		if ((currentType == PathPointTypeStart) && (index > 1)) {
 			lastType |= PathPointTypeCloseSubpath;
@@ -513,7 +511,7 @@ GdipClosePathFigures (GpPath *path)
 GpStatus
 GdipSetPathMarker (GpPath *path)
 {
-	byte current;
+	BYTE current;
 
 	if (!path)
 		return InvalidParameter;
@@ -521,7 +519,7 @@ GdipSetPathMarker (GpPath *path)
 	if (path->count == 0)
 		return Ok;
 
-	current = g_array_index (path->types, byte, path->count - 1);
+	current = g_array_index (path->types, BYTE, path->count - 1);
 
         g_byte_array_remove_index (path->types, path->count - 1);
 
@@ -536,7 +534,7 @@ GpStatus
 GdipClearPathMarkers (GpPath *path)
 {
         int i;
-	byte current;
+	BYTE current;
 	GByteArray *cleared;
 
 	if (!path)
@@ -549,7 +547,7 @@ GdipClearPathMarkers (GpPath *path)
 	cleared = g_byte_array_new ();
 
         for (i = 0; i < path->count; i++) {
-                current = g_array_index (path->types, byte, i);
+                current = g_array_index (path->types, BYTE, i);
 
                 /* take out the marker if there is one */
                 if (current & PathPointTypePathMarker)
@@ -636,7 +634,7 @@ GdipAddPathLine2 (GpPath *path, const GpPointF *points, int count)
 }
 
 static void
-append_arc (GpPath *path, bool start, float x, float y, float width, float height, float startAngle, float endAngle)
+append_arc (GpPath *path, BOOL start, float x, float y, float width, float height, float startAngle, float endAngle)
 {
 	float delta, bcp;
 	double sin_alpha, sin_beta, cos_alpha, cos_beta;
@@ -696,7 +694,7 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 	float drawn = 0;
 	float endAngle = startAngle + sweepAngle;
 	int increment = (endAngle > 0) ? 90 : -90;
-	bool enough = FALSE;
+	BOOL enough = FALSE;
 
 	if (fabs (sweepAngle) >= 360) {
 		GdipAddPathEllipse (path, x, y, width, height);
@@ -1008,12 +1006,12 @@ GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
 }
 
 GpStatus
-GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
+GdipAddPathPath (GpPath *path, GDIPCONST GpPath *addingPath, BOOL connect)
 {
         int i, length;
-	GpPathPointType first;
+	PathPointType first;
         GpPointF *pts;
-        byte *types;
+        BYTE *types;
 
 	if (!path || !addingPath)
 		return InvalidParameter;
@@ -1022,11 +1020,17 @@ GdipAddPathPath (GpPath *path, GpPath *addingPath, bool connect)
         if (length < 1)
                 return Ok;
         
-        pts = GdipCalloc (sizeof (GpPointF), length);
-        types = GdipCalloc (sizeof (byte), length);
+        pts = gdip_calloc (sizeof (GpPointF), length);
+	if (!pts)
+		return OutOfMemory;
+        types = gdip_calloc (sizeof (BYTE), length);
+	if (!types) {
+		GdipFree (pts);
+		return OutOfMemory;
+	}
 
-        GdipGetPathPoints (addingPath, pts, length);
-        GdipGetPathTypes (addingPath, types, length);
+        GdipGetPathPoints ((GpPath*)addingPath, pts, length);
+        GdipGetPathTypes ((GpPath*)addingPath, types, length);
 
 	/* We can connect only open figures. If first figure is closed
 	 * it can't be connected.
@@ -1057,7 +1061,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	cairo_matrix_t matrix;
 	GpFont *font = NULL;
 	GpStatus status;
-	unsigned char *utf8 = NULL;
+	BYTE *utf8 = NULL;
 
 	if (length == 0)
 		return Ok;
@@ -1077,7 +1081,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 		return OutOfMemory;
 	}
 
-	utf8 = (unsigned char *) ucs2_to_utf8 ((const gunichar2 *)string, -1);
+	utf8 = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)string, -1);
 	if (!utf8) {
 		cairo_destroy (cr);
 		cairo_surface_destroy (cs);
@@ -1113,7 +1117,7 @@ g_warning ("GdipAddString \"%s\" (family: %s, size %g)", utf8, ucs2_to_utf8 ((co
 	if (cp) {
 		int i;
 		for (i=0; i < cp->num_data; i += cp->data[i].header.length) {
-			GpPathPointType type = PathPointTypeStart;
+			PathPointType type = PathPointTypeStart;
 			cairo_path_data_t *data = &cp->data[i];
 
 			if ((i < cp->num_data - 1) && (data->header.type == CAIRO_PATH_CLOSE_PATH))
@@ -1439,7 +1443,7 @@ gdip_convert_bezier_to_lines (GpPath *path, int index, float flatness, GArray *f
 	GArray *points;
 	GpPointF start, first, second, end;
 	GpPointF pt;
-	byte type;
+	BYTE type;
 	int i;
 
 	if ((index <= 0) || (index + 2 >= path->count))
@@ -1505,7 +1509,7 @@ GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 	/* Iterate the current path and replace each bezier with multiple lines */
 	for (i = 0; i < path->count; i++) {
 		GpPointF point = g_array_index (path->points, GpPointF, i);
-		byte type = g_array_index (path->types, byte, i);
+		BYTE type = g_array_index (path->types, BYTE, i);
 
 		/* PathPointTypeBezier3 has the same value as PathPointTypeBezier */
 		if ((type & PathPointTypeBezier) == PathPointTypeBezier) {
@@ -1838,7 +1842,7 @@ gdip_point_in_polygon (GpPath *path, int start, int end, float x, float y)
 
 /* MonoTODO - GpGraphics is ignored */
 GpStatus 
-GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bool *result)
+GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, BOOL *result)
 {
 	GpStatus status = Ok;
 	GpPath *workpath = NULL;
@@ -1869,7 +1873,7 @@ GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bo
 
 	/* there may be multiple polygons inside a path */
 	for (start = 0, end = 0; end < workpath->count && !*result; end++) {
-		byte type = g_array_index (workpath->types, byte, end);
+		BYTE type = g_array_index (workpath->types, BYTE, end);
 		if (type & PathPointTypeCloseSubpath) {
 			*result = gdip_point_in_polygon (workpath, start, end, x, y);
 		} else if (type == PathPointTypeStart) {
@@ -1885,7 +1889,7 @@ GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, bo
 
 /* MonoTODO - GpGraphics is ignored */
 GpStatus 
-GdipIsVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, bool *result)
+GdipIsVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, BOOL *result)
 {
 	return GdipIsVisiblePathPoint (path, x, y, graphics, result);
 }
@@ -1925,7 +1929,7 @@ gdip_check_point_within_distance (float x0, float y0, GpPointF *p1, GpPointF *p2
 
 /* MonoTODO - GpGraphics is ignored */
 GpStatus 
-GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpPen *pen, GpGraphics *graphics, bool *result)
+GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpPen *pen, GpGraphics *graphics, BOOL *result)
 {
 	GpStatus status = Ok;
 	GpPath *workpath = NULL;
@@ -1963,7 +1967,7 @@ GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpPen *pen, GpGra
 		float half_width = pen->width / 2;
 		int start_index = 0;
 		int i;
-		byte type = 0;
+		BYTE type = 0;
 
 		GpPointF p1 = g_array_index (workpath->points, GpPointF, 0);
 		GpPointF p2;
@@ -1974,7 +1978,7 @@ GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpPen *pen, GpGra
 			*result = gdip_check_point_within_distance (x, y, &p1, &p2, half_width);
 
 			/* check for closure (to match with the last starting point) */
-			type = g_array_index (path->types, byte, i);
+			type = g_array_index (path->types, BYTE, i);
 			if (!*result && (type & PathPointTypeCloseSubpath)) {
 				p1 = g_array_index (workpath->points, GpPointF, start_index);
 				/* compare last point with first (if the path is closed) */
@@ -1997,7 +2001,7 @@ GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpPen *pen, GpGra
 
 /* MonoTODO - GpGraphics is ignored */
 GpStatus 
-GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpPen *pen, GpGraphics *graphics, bool *result)
+GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpPen *pen, GpGraphics *graphics, BOOL *result)
 {
 	return GdipIsOutlineVisiblePathPoint (path, x, y, pen, graphics, result);
 }

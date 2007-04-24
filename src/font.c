@@ -23,13 +23,11 @@
  *	Sebastien Pouliot  <sebastien@ximian.com>
  */
 
-#include <stdio.h>
-#include "general.h"
-#include <math.h>
-#include <glib.h>
-#include <freetype/tttables.h>
-#include <pthread.h>
-
+#include "gdiplus-private.h"
+#include "font-private.h"
+#include "fontcollection-private.h"
+#include "fontfamily-private.h"
+#include "graphics-private.h"
 
 /* Generic fonts families */
 static GStaticMutex generic = G_STATIC_MUTEX_INIT;
@@ -142,12 +140,12 @@ GdipDeletePrivateFontCollection (GpFontCollection **font_collection)
 GpStatus
 GdipPrivateAddFontFile (GpFontCollection *font_collection,  GDIPCONST WCHAR *filename)
 {
-	unsigned char *file;
+	BYTE *file;
 	
 	if (!font_collection || !filename)
 		return InvalidParameter;
     
-	file = (unsigned char*) ucs2_to_utf8 ((const gunichar2 *)filename, -1);
+	file = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)filename, -1);
 	if (!file)
 		return OutOfMemory;
 
@@ -161,7 +159,7 @@ GdipPrivateAddFontFile (GpFontCollection *font_collection,  GDIPCONST WCHAR *fil
 GpStatus 
 GdipDeleteFontFamily (GpFontFamily *fontFamily)
 {
-	bool delete = TRUE;
+	BOOL delete = TRUE;
 	
 	if (!fontFamily)
 		return InvalidParameter;
@@ -289,7 +287,7 @@ create_pattern_from_name (char* name)
 		
 	/* find the family we want */
 	val.type = FcTypeString;
-	val.u.s = (unsigned char*)name;
+	val.u.s = (BYTE*)name;
 	if (!FcPatternAdd (name_pattern, FC_FAMILY, val, TRUE)) {
 		FcPatternDestroy (name_pattern);
 		return NULL;
@@ -361,7 +359,7 @@ create_fontfamily_from_name (char* name, GpFontFamily **fontFamily)
 	return status;
 }
 
-static gboolean
+static BOOL
 free_cached_pattern (gpointer key, gpointer value, gpointer user)
 {
 	g_free (key);
@@ -557,7 +555,7 @@ gdip_cairo_ft_font_unlock_face (cairo_scaled_font_t* scaled_ft)
 }
 
 static GpStatus
-gdip_get_fontfamily_details (GpFontFamily *family, GpFontStyle style)
+gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 {
 	GpFont *font = NULL;
 	GpStatus status = GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
@@ -597,7 +595,7 @@ gdip_get_fontfamily_details (GpFontFamily *family, GpFontStyle style)
 }
 
 GpStatus
-GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHeight)
+GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, UINT16 *EmHeight)
 {
 	GpStatus status = Ok;
 
@@ -612,7 +610,7 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, GpFontStyle style, short *EmHei
 }
 
 GpStatus
-GdipGetCellAscent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *CellAscent)
+GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellAscent)
 {
 	GpStatus status = Ok;
 
@@ -627,7 +625,7 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Cel
 }
 
 GpStatus
-GdipGetCellDescent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *CellDescent)
+GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellDescent)
 {
 	GpStatus status = Ok;
 
@@ -642,7 +640,7 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, GpFontStyle style, short *Ce
 }
 
 GpStatus
-GdipGetLineSpacing (GDIPCONST GpFontFamily *family, GpFontStyle style, short *LineSpacing)
+GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, UINT16 *LineSpacing)
 {
 	GpStatus status = Ok;
 
@@ -676,7 +674,7 @@ gdip_face_create (const char *family,
 	cairo_surface_t *surface;
 	cairo_font_face_t *face;
 
-	surface = cairo_image_surface_create_for_data ((unsigned char *)NULL, CAIRO_FORMAT_ARGB32, 0, 0, 0);
+	surface = cairo_image_surface_create_for_data ((BYTE*)NULL, CAIRO_FORMAT_ARGB32, 0, 0, 0);
 	*ct = cairo_create (surface);
 	cairo_select_font_face (*ct, (const char *) family, slant, weight);
 	face = cairo_get_font_face (*ct);
@@ -765,7 +763,7 @@ GdipCreateFontFromDC(void *hdc, GpFont **font)
 }
 
 static GpStatus
-gdip_logfont_from_font(GpFont *font, GpGraphics *graphics, void *lf, bool ucs2)
+gdip_logfont_from_font (GpFont *font, GpGraphics *graphics, void *lf, BOOL ucs2)
 {
 	LOGFONTA		*logFont;
 
@@ -912,7 +910,7 @@ GdipGetLogFontA (GpFont *font, GpGraphics *graphics, LOGFONTA *logfontA)
 }
 
 static GpStatus
-gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, bool ucs2)
+gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, BOOL ucs2)
 {
 	GpFont			*result;
 	cairo_font_face_t	*face;
@@ -956,7 +954,7 @@ gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, bool ucs2)
 	}
 
 	if (ucs2) {
-		result->face = (unsigned char*) ucs2_to_utf8 ((const gunichar2 *)logfont->lfFaceName, -1);
+		result->face = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)logfont->lfFaceName, -1);
 		if (!result->face){
 			GdipFree (result);
 			return OutOfMemory;
@@ -1032,7 +1030,7 @@ GpStatus
 GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float *height)
 {
 	GpStatus status;
-	short emHeight, lineSpacing;
+	UINT16 emHeight, lineSpacing;
 	float emSize, h;
 
 	if (!font || !height || !graphics)
@@ -1058,7 +1056,7 @@ GpStatus
 GdipGetFontHeightGivenDPI (GDIPCONST GpFont *font, float dpi, float *height)
 {
 	GpStatus status;
-	short emHeight, lineSpacing;
+	UINT16 emHeight, lineSpacing;
 	float h;
 
 	if (!font || !height)

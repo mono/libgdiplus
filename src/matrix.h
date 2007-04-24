@@ -20,24 +20,29 @@
  *          Sebastien Pouliot  <sebastien@ximian.com>
  */
 
-#ifndef _MATRIX_H_
-#define _MATRIX_H_
+#ifndef __MATRIX_H__
+#define __MATRIX_H__
 
-#include "general.h"
+GpStatus GdipCreateMatrix (GpMatrix **matrix);
+GpStatus GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float dy, GpMatrix **matrix);
+GpStatus GdipCreateMatrix3 (GDIPCONST GpRectF *rect, GDIPCONST GpPointF *dstplg, GpMatrix **matrix);
+GpStatus GdipCreateMatrix3I (GDIPCONST GpRect *rect, GDIPCONST GpPoint *dstplg, GpMatrix **matrix);
+GpStatus GdipCloneMatrix (GpMatrix *matrix, GpMatrix **cloneMatrix);
+GpStatus GdipDeleteMatrix (GpMatrix *matrix);
+GpStatus GdipSetMatrixElements (GpMatrix *matrix, float m11, float m12, float m21, float m22, float dx, float dy);
+GpStatus GdipMultiplyMatrix (GpMatrix *matrix, GpMatrix *matrix2, GpMatrixOrder order);
+GpStatus GdipTranslateMatrix (GpMatrix *matrix, float offsetX, float offsetY, GpMatrixOrder order);
+GpStatus GdipScaleMatrix (GpMatrix *matrix, float scaleX, float scaleY, GpMatrixOrder order);
+GpStatus GdipRotateMatrix (GpMatrix *matrix, float angle, GpMatrixOrder order);
+GpStatus GdipShearMatrix (GpMatrix *matrix, float shearX, float shearY, GpMatrixOrder order);
+GpStatus GdipInvertMatrix (GpMatrix *matrix);
+GpStatus GdipTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count);
+GpStatus GdipTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count);
+GpStatus GdipVectorTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count);
+GpStatus GdipVectorTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count);
+GpStatus GdipGetMatrixElements (GpMatrix *matrix, float *matrixOut);
+GpStatus GdipIsMatrixInvertible (GpMatrix *matrix, BOOL *result);
+GpStatus GdipIsMatrixIdentity (GpMatrix *matrix, BOOL *result);
+GpStatus GdipIsMatrixEqual (GpMatrix *matrix, GpMatrix *matrix2, BOOL *result);
 
-/* internal (private) API for matrix */
-
-#define gdip_matrix_get_x_translation(matrix)	(matrix->x0)
-#define gdip_matrix_get_y_translation(matrix)	(matrix->y0)
-
-#define gdip_matrix_get_x_scale(matrix)		(matrix->xx)
-#define gdip_matrix_get_y_scale(matrix)		(matrix->yy)
-
-#define gdip_matrix_reverse_order(order)	((order == MatrixOrderPrepend) ? MatrixOrderAppend : MatrixOrderPrepend)
-
-BOOL gdip_is_matrix_a_translation (GpMatrix *matrix) GDIP_INTERNAL;
-BOOL gdip_is_matrix_empty (GpMatrix* matrix) GDIP_INTERNAL;
-
-GpStatus gdip_matrix_init_from_rect_3points (GpMatrix *matrix, const GpRectF *rect, const GpPointF *dstplg) GDIP_INTERNAL;
-
-#endif /* _MATRIX_H_ */
+#endif

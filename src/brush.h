@@ -1,40 +1,27 @@
 /*
- * brush.h
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial
+ * portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * Authors:
  *      Ravindra (rkumar@novell.com)
  *
- * Copyright (C) Novell, Inc. 2004. http://www.novell.com
- * Copyright (C) 2007 Novell, Inc (http://www.novell.com)
+ * Copyright (C) 2004, 2007 Novell, Inc (http://www.novell.com)
  */
 
-#ifndef _BRUSH_H
-#define _BRUSH_H
-
-#include "gdip.h"
-
-/* Structures */
-
-typedef struct _BrushClass {
-
-	/* Brush virtual functions */
-        GpBrushType type;
-	GpStatus (*setup) (GpGraphics *graphics, GpBrush *brush);
-	GpStatus (*clone_brush) (GpBrush *brush, GpBrush **clonedBrush);
-	GpStatus (*destroy) (GpBrush *brush);
-} BrushClass;
-
-typedef struct _Brush {
-	BrushClass *vtable;
-	BOOL changed;
-} Brush;
-
-/* used by gradient brushes */
-typedef struct _Blend {
-	float *factors;
-	float *positions;
-	int count;
-} Blend;
+#ifndef __BRUSH_H__
+#define __BRUSH_H__
 
 typedef struct _InterpolationColors {
 	ARGB* colors;
@@ -42,13 +29,8 @@ typedef struct _InterpolationColors {
 	int count;
 } InterpolationColors;
 
-
 GpStatus GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush); 
 GpStatus GdipDeleteBrush (GpBrush *brush);
 GpStatus GdipGetBrushType (GpBrush *brush, GpBrushType *type);
 
-/* private */
-void gdip_brush_init (GpBrush *brush, BrushClass* vtable) GDIP_INTERNAL;
-GpStatus gdip_brush_setup (GpGraphics *graphics, GpBrush *brush) GDIP_INTERNAL;
-
-#endif /* _BRUSH_H */
+#endif

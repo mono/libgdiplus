@@ -11,8 +11,8 @@
 #ifndef _PNGCODEC_H
 #define _PNGCODEC_H
 
-#include "gdip.h"
-#include "gdipImage.h"
+#include "bitmap-private.h"
+#include "bmpcodec.h"
 
 GpStatus gdip_load_png_image_from_file (FILE *fp, GpImage **image) GDIP_INTERNAL;
 

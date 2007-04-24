@@ -1,7 +1,7 @@
 /**
  * matrix.c
  *
- * Copyright (C) Novell, Inc. 2003-2004.
+ * Copyright (C) Novell, Inc. 2003-2004, 2007.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -23,8 +23,7 @@
  *
  **/
 
-#include <math.h>
-#include "matrix.h"
+#include "matrix-private.h"
 
 /*
 	GDI+ matrix takes 6 elements arranged in 3 rows by 2 columns. The identity matrix is
@@ -418,23 +417,8 @@ GdipIsMatrixInvertible (GpMatrix *matrix, BOOL *result)
 	gdip_cairo_matrix_copy (&copy, matrix);
 	status = cairo_matrix_invert (&copy);
 
-        if (status == CAIRO_STATUS_INVALID_MATRIX)
-                *result = 0;
-	else
-	        *result = 1;
-
+        *result = (status != CAIRO_STATUS_INVALID_MATRIX);
         return Ok;
-}
-
-static bool
-matrix_equals (GpMatrix *x, GpMatrix *y)
-{
-	if ((x->xx != y->xx) || (x->yx != y->yx) || (x->xy != y->xy) ||
-	    (x->yy != y->yy) || (x->x0 != y->x0) || (x->y0 != y->y0))
-	  return FALSE;
-	
-	return TRUE;
-	
 }
 
 GpStatus
@@ -454,6 +438,7 @@ GdipIsMatrixEqual (GpMatrix *matrix, GpMatrix *matrix2, BOOL *result)
 	if (!matrix || !matrix2 || !result)
 		return InvalidParameter;
 
-        *result = matrix_equals (matrix, matrix2);
+        *result = ((matrix->xx == matrix2->xx) && (matrix->yx == matrix2->yx) && (matrix->xy == matrix2->xy) &&
+		(matrix->yy == matrix2->yy) && (matrix->x0 == matrix2->x0) && (matrix->y0 == matrix2->y0));
         return Ok;
 }

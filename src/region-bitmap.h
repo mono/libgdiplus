@@ -20,12 +20,15 @@
  *          Sebastien Pouliot  <sebastien@ximian.com>
  */
 
-#ifndef _REGION_BITMAP_H_
-#define _REGION_BITMAP_H_
+/*
+ * NOTE: This is a private header files and everything is subject to changes.
+ */
 
-#include "gdip.h"
+#ifndef __REGION_BITMAP_H__
+#define __REGION_BITMAP_H__
 
-/* internal (private) API for regions bitmaps */
+#include "gdiplus-private.h"
+#include "bitmap-private.h"
 
 /*
  * REGION_MAX_BITMAP_SIZE defines the size limit of the region bitmap we keep
@@ -38,7 +41,17 @@
 
 #define SHAPE_SIZE(shape)		(((shape)->Width * (shape)->Height) >> 3)
 
-/* bitmap creation */
+
+typedef struct {
+	int X;
+	int Y;
+	int Width;
+	int Height;
+	unsigned char *Mask;
+	BOOL reduced;
+} GpRegionBitmap;
+
+
 void gdip_region_bitmap_ensure (GpRegion *region) GDIP_INTERNAL;
 GpRegionBitmap* gdip_region_bitmap_from_path (GpPath *path) GDIP_INTERNAL;
 GpRegionBitmap* gdip_region_bitmap_clone (GpRegionBitmap *bitmap) GDIP_INTERNAL;
@@ -59,4 +72,4 @@ void gdip_region_bitmap_apply_alpha (GpBitmap *bitmap, GpRegionBitmap *alpha) GD
 
 GpRegionBitmap* gdip_region_bitmap_combine (GpRegionBitmap *bitmap1, GpRegionBitmap* bitmap2, CombineMode combineMode) GDIP_INTERNAL;
 
-#endif /* _REGION_BITMAP_H_ */
+#endif

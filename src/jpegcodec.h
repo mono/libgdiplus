@@ -11,8 +11,8 @@
 #ifndef _JPEGCODEC_H
 #define _JPEGCODEC_H
 
-#include "gdip.h"
-#include "dstream.h"
+#include "bitmap-private.h"
+#include "bmpcodec.h"
 
 GpStatus gdip_load_jpeg_image_from_file (FILE *fp, const char *filename, GpImage **image) GDIP_INTERNAL;
 

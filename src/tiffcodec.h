@@ -11,7 +11,8 @@
 #ifndef _TIFFCODEC_H
 #define _TIFFCODEC_H
 
-#include "gdip.h"
+#include "bitmap-private.h"
+#include "bmpcodec.h"
 
 GpStatus gdip_load_tiff_image_from_file (FILE *fp, GpImage **image) GDIP_INTERNAL;
 

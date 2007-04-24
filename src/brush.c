@@ -24,8 +24,8 @@
  *   Ravindra (rkumar@novell.com)
  */
 
-#include "gdip.h"
-#include "brush.h"
+#include "brush-private.h"
+#include "graphics-private.h"
 
 void
 gdip_brush_init (GpBrush *brush, BrushClass* vtable)

@@ -21,7 +21,10 @@
  */
 
 #include "metafile.h"
-
+#include "solidbrush-private.h"
+#include "graphics.h"
+#include "graphics-path-private.h"
+#include "pen.h"
 
 //#define DEBUG_METAFILE
 
@@ -594,7 +597,7 @@ gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest,
 	printf ("\n\t\tClrUsed: %d", lpBitsInfo->bmiHeader.biClrUsed);
 	printf ("\n\t\tClrImportant: %d", lpBitsInfo->bmiHeader.biClrImportant);
 #endif
-	ms.ptr = (unsigned char*)lpBitsInfo;
+	ms.ptr = (BYTE*)lpBitsInfo;
 	ms.size = lpBitsInfo->bmiHeader.biSizeImage;
 	ms.pos = 0;
 	status = gdip_read_bmp_image (&ms, &image, Memory);
@@ -851,7 +854,7 @@ gdip_metafile_create ()
 {
 	GpMetafile* mf = (GpMetafile*) GdipAlloc (sizeof (GpMetafile));
 	if (mf) {
-		mf->base.type = imageMetafile;
+		mf->base.type = ImageTypeMetafile;
 		mf->delete = FALSE;
 		mf->data = NULL;
 		mf->length = 0;

@@ -23,12 +23,10 @@
  *
  */
 
-
 /* FIXME - match hatchbrush use the RenderOrigin stored in graphics */
 
-#include <math.h>
-#include "gdip.h"
-#include "hatchbrush.h"
+#include "hatchbrush-private.h"
+#include "graphics-private.h"
 
 static GpStatus gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush);
 static GpStatus gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush);
@@ -1326,7 +1324,7 @@ gdip_hatch_destroy (GpBrush *brush)
 
 // coverity[+alloc : arg-*3]
 GpStatus
-GdipCreateHatchBrush (GpHatchStyle hatchstyle, int forecolor, int backcolor, GpHatch **brush)
+GdipCreateHatchBrush (GpHatchStyle hatchstyle, ARGB forecolor, ARGB backcolor, GpHatch **brush)
 {
 	if (!brush)
 		return InvalidParameter;
@@ -1353,7 +1351,7 @@ GdipGetHatchStyle (GpHatch *brush, GpHatchStyle *hatchstyle)
 }
 
 GpStatus
-GdipGetHatchForegroundColor (GpHatch *brush, int *forecolor)
+GdipGetHatchForegroundColor (GpHatch *brush, ARGB *forecolor)
 {
 	if (!brush || !forecolor)
 		return InvalidParameter;
@@ -1363,7 +1361,7 @@ GdipGetHatchForegroundColor (GpHatch *brush, int *forecolor)
 }
 
 GpStatus
-GdipGetHatchBackgroundColor (GpHatch *brush, int *backcolor)
+GdipGetHatchBackgroundColor (GpHatch *brush, ARGB *backcolor)
 {
 	if (!brush || !backcolor)
 		return InvalidParameter;

@@ -7,43 +7,22 @@
  * Copyright (C) 2004, 2007 Novell, Inc (http://www.novell.com)
  */
 
-#ifndef _CUSTOM_LINECAP_H
-#define _CUSTOM_LINECAP_H
+#ifndef __CUSTOMLINECAP_H__
+#define __CUSTOMLINECAP_H__
 
-#include "gdip.h"
+/* CustomLineCap functions */
+GpStatus GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap, float baseInset, GpCustomLineCap **customCap);
+GpStatus GdipDeleteCustomLineCap (GpCustomLineCap *customCap);
+GpStatus GdipCloneCustomLineCap (GpCustomLineCap *customCap, GpCustomLineCap **clonedCap);
+GpStatus GdipSetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap startCap, GpLineCap endCap);
+GpStatus GdipGetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap *startCap, GpLineCap *endCap);
+GpStatus GdipSetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin lineJoin);
+GpStatus GdipGetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin *lineJoin);
+GpStatus GdipSetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap baseCap);
+GpStatus GdipGetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap *baseCap);
+GpStatus GdipSetCustomLineCapBaseInset (GpCustomLineCap *customCap, float inset);
+GpStatus GdipGetCustomLineCapBaseInset (GpCustomLineCap *customCap, float *inset);
+GpStatus GdipSetCustomLineCapWidthScale (GpCustomLineCap *customCap, float widthScale);
+GpStatus GdipGetCustomLineCapWidthScale (GpCustomLineCap *customCap, float *widthScale);
 
-/* Structures */
-typedef struct _CapClass CapClass;
-
-typedef struct _CustomLineCap {
-	CapClass *vtable;
-	GpPath *fill_path;
-	GpPath *stroke_path;
-	GpLineCap base_cap;
-	GpLineCap start_cap;
-	GpLineCap end_cap;
-	GpLineJoin stroke_join;
-	float base_inset;
-	float width_scale;
-} CustomLineCap;
-
-typedef struct _AdjustableArrowCap {
-	GpCustomLineCap base;
-	float width;
-	float height;
-	float middle_inset;
-	BOOL fill_state;
-} AdjustableArrowCap;
-
-struct _CapClass {
-	CustomLineCapType type;
-	GpStatus (*setup) (GpGraphics *graphics, GpCustomLineCap *cap);
-	GpStatus (*clone_cap) (GpCustomLineCap *cap, GpCustomLineCap **clonedCap);
-	GpStatus (*destroy) (GpCustomLineCap *cap);
-};
-
-/* CustomLineCap */
-void gdip_custom_linecap_init (GpCustomLineCap *cap, CapClass *vt) GDIP_INTERNAL;
-GpStatus gdip_linecap_setup (GpGraphics *graphics, GpCustomLineCap *customCap) GDIP_INTERNAL;
-
-#endif /* _CUSTOM_LINECAP_H */
+#endif

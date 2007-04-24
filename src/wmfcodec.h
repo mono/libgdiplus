@@ -23,10 +23,8 @@
 #ifndef __WMFCODEC_H__
 #define __WMFCODEC_H__
 
-#include <stdio.h>
-#include "gdip.h"
-#include "gdipImage.h"
-#include "dstream.h"
+#include "gdiplus-private.h"
+#include "graphics-private.h"
 #include "metafile.h"
 
 #define WMF_MIN_RECORD_SIZE	6
