@@ -15,11 +15,9 @@
 #include <unistd.h>
 #include <math.h>
 
+#include "GdiPlusFlat.h"
+#include <X11/Xlib.h>
 #include <cairo.h>
-
-#include "gdip.h"
-
-#include <freetype/tttables.h>
 
 typedef struct win {
 	Display *dpy;
@@ -56,7 +54,7 @@ win_draw(win_t *win)
 	GdipCreateFromXDrawable_linux (NULL, NULL, &gp);
         {	
 		GpPen *pen;
-		GpBrush *brush;
+		GpSolidFill *brush;
 		int a = 255;
 		int r = 255;
 		int g = 0;
@@ -68,10 +66,9 @@ win_draw(win_t *win)
 		GdipDrawRectangle (gp, pen, 10, 10, 60, 60);
 		GdipDrawLine (gp, pen, 0, 0, 100, 100);
 		
-		GdipCreateSolidFill (a << 24 | r << 16 | g << 8 | b,
-				     &brush);
+		GdipCreateSolidFill (a << 24 | r << 16 | g << 8 | b, &brush);
 		
-		printf ("%s\n",cairo_status_to_string (GdipFillEllipse (gp, brush, 40, 40, 50, 75)));
+		printf ("%s\n",cairo_status_to_string (GdipFillEllipse (gp, (GpBrush*)brush, 40, 40, 50, 75)));
 //		return;
 	}
 
