@@ -1,3 +1,8 @@
+2007-04-25  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* pngcodec.c: Fix compilation when old headers are used (e.g. rh9 and
+	our debian 3.1 builds on arm and sparc).
+
 2007-04-24  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* font.c: Use guint16 instead of UINT16.
