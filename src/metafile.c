@@ -1707,20 +1707,60 @@ GdipRecordMetafileFileNameI (GDIPCONST WCHAR *fileName, HDC referenceHdc, EmfTyp
 	return GdipRecordMetafileFileName (fileName, referenceHdc, type, (GDIPCONST GpRectF*) &rect, frameUnit, description, metafile);
 }
 
+/*
+ * GdipRecordMetafileStream and GdipRecordMetafileStreamI will never be implemented, as 'stream' is a COM IStream ...
+ */
 GpStatus
 GdipRecordMetafileStream (void /* IStream */ *stream, HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect, 
 	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile)
 {
-	/* note: we do not support the COM-based IStream functions */
 	return NotImplemented;
-	/* TODO: add delegate-based function */
 }
 
 GpStatus
 GdipRecordMetafileStreamI (void /* IStream */ *stream, HDC referenceHdc, EmfType type, GDIPCONST GpRect *frameRect, 
 	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile)
 {
-	/* note: we do not support the COM-based IStream functions */
 	return NotImplemented;
-	/* TODO: add delegate-based function */
+}
+/*
+ * instead we'll use delegates to create the metafile header with these functions
+ */
+GpStatus 
+GdipRecordMetafileFromDelegate_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
+	PutBytesDelegate putBytesFunc, SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, 
+	HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect, 
+	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile)
+{
+	GpStatus status;
+
+	if (!putBytesFunc)
+		return InvalidParameter;
+
+	status = GdipRecordMetafile (referenceHdc, type, frameRect, frameUnit, description, metafile);
+	if (status != Ok)
+		return status;
+
+	/* TODO - keep delegates around to write stuff */
+
+	return Ok;
+}
+
+GpStatus 
+GdipRecordMetafileFromDelegateI_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
+	PutBytesDelegate putBytesFunc, SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, 
+	HDC referenceHdc, EmfType type, GDIPCONST GpRect *frameRect, 
+	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile)
+{
+	GpRectF rect;
+
+	if (!frameRect)
+		return InvalidParameter;
+
+	rect.X = frameRect->X;
+	rect.Y = frameRect->Y;
+	rect.Width = frameRect->Width;
+	rect.Height = frameRect->Height;
+	return GdipRecordMetafileFromDelegate_linux (getHeaderFunc, getBytesFunc, putBytesFunc, seekFunc, closeFunc, sizeFunc,
+		referenceHdc, type, (GDIPCONST GpRectF*) &rect, frameUnit, description, metafile);
 }

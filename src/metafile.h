@@ -106,4 +106,15 @@ GpStatus GdipRecordMetafileStream (void /* IStream */ *stream, HDC referenceHdc,
 GpStatus GdipRecordMetafileStreamI (void /* IStream */ *stream, HDC referenceHdc, EmfType type, GDIPCONST GpRect *frameRect,
 	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile);
 
+/* extra public (exported) functions in libgdiplus to replace the IStream (COM-based) ones available on Windows */
+
+GpStatus GdipRecordMetafileFromDelegate_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
+	PutBytesDelegate putBytesFunc, SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, HDC referenceHdc, 
+	EmfType type, GDIPCONST GpRectF *frameRect, MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, 
+	GpMetafile **metafile);
+GpStatus GdipRecordMetafileFromDelegateI_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
+	PutBytesDelegate putBytesFunc, SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, HDC referenceHdc, 
+	EmfType type, GDIPCONST GpRect *frameRect, MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, 
+	GpMetafile **metafile);
+
 #endif
