@@ -1,3 +1,19 @@
+2007-04-26  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* emfcodec.h: Include metafile-private.h
+	* emfplus.h: Include metafile-private.h
+	* graphics.c: Correct API wrt public API
+	* graphics.h: Clean up public API (and include missing stuff)
+	* gdiplus-private.h: Add typedef for GpMetafile
+	* image.c: Include metafile-private.h
+	* metafile.c: Add GdipRecordMetafile{Filename][I] functions.
+	* metafile.h: Add new record functions. Remove private stuff (into new
+	private header) and win32 definitions.
+	* metafile-private.h: New file. Private header.
+	* win32structs.h: Add metafile public here
+	* wmfcodec.h: Include metafile-private.h
+	* Makefile.am: Add new metafile-private.h to the build/dist
+
 2007-04-25  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* pngcodec.c: Fix compilation when old headers are used (e.g. rh9 and

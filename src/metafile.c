@@ -20,7 +20,7 @@
  *	Sebastien Pouliot  <sebastien@ximian.com>
  */
 
-#include "metafile.h"
+#include "metafile-private.h"
 #include "solidbrush-private.h"
 #include "graphics.h"
 #include "graphics-path-private.h"
@@ -1615,6 +1615,112 @@ GdipSetMetafileDownLevelRasterizationLimit (GpMetafile *metafile, UINT metafileR
 GpStatus
 GdipPlayMetafileRecord (GDIPCONST GpMetafile *metafile, EmfPlusRecordType recordType, UINT flags, UINT dataSize, GDIPCONST BYTE* data)
 {
+	if (!metafile)
+		return InvalidParameter;
+
 	/* TODO */
 	return NotImplemented;
+}
+
+GpStatus
+GdipRecordMetafile (HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect, MetafileFrameUnit frameUnit, 
+	GDIPCONST WCHAR *description, GpMetafile **metafile)
+{
+	GpMetafile *mf;
+
+	if (!referenceHdc || !frameRect || !metafile)
+		return InvalidParameter;
+
+	if ((type < EmfTypeEmfOnly) || (type > EmfTypeEmfPlusDual))
+		return InvalidParameter;
+
+	if ((frameUnit < MetafileFrameUnitPixel) || (frameUnit > MetafileFrameUnitGdi))
+		return InvalidParameter;
+
+	if (((frameRect->Width == 0) || (frameRect->Height == 0)) && (frameUnit != MetafileFrameUnitGdi))
+		return GenericError;
+
+	mf = gdip_metafile_create ();
+	if (!mf)
+		return OutOfMemory;
+
+	mf->metafile_header.X = frameRect->X;
+	mf->metafile_header.Y = frameRect->Y;
+	mf->metafile_header.Width = frameRect->Width;
+	mf->metafile_header.Height = frameRect->Height;
+	mf->metafile_header.Size = 0;
+	mf->metafile_header.Type = type;
+
+	/* TODO - more stuff here! */
+
+	*metafile = mf;
+	return Ok;
+}
+
+GpStatus
+GdipRecordMetafileI (HDC referenceHdc, EmfType type, GDIPCONST GpRect *frameRect, MetafileFrameUnit frameUnit, 
+	GDIPCONST WCHAR *description, GpMetafile **metafile)
+{
+	GpRectF rect;
+
+	if (!frameRect)
+		return InvalidParameter;
+
+	rect.X = frameRect->X;
+	rect.Y = frameRect->Y;
+	rect.Width = frameRect->Width;
+	rect.Height = frameRect->Height;
+	return GdipRecordMetafile (referenceHdc, type, (GDIPCONST GpRectF*) &rect, frameUnit, description, metafile);
+}
+
+GpStatus
+GdipRecordMetafileFileName (GDIPCONST WCHAR *fileName, HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect, 
+	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile)
+{
+	GpStatus status;
+
+	if (!fileName)
+		return InvalidParameter;
+
+	status = GdipRecordMetafile (referenceHdc, type, frameRect, frameUnit, description, metafile);
+	if (status != Ok)
+		return status;
+
+	/* TODO - open filename to write stuff */
+
+	return Ok;
+}
+
+GpStatus
+GdipRecordMetafileFileNameI (GDIPCONST WCHAR *fileName, HDC referenceHdc, EmfType type, GDIPCONST GpRect *frameRect, 
+	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile)
+{
+	GpRectF rect;
+
+	if (!frameRect)
+		return InvalidParameter;
+
+	rect.X = frameRect->X;
+	rect.Y = frameRect->Y;
+	rect.Width = frameRect->Width;
+	rect.Height = frameRect->Height;
+	return GdipRecordMetafileFileName (fileName, referenceHdc, type, (GDIPCONST GpRectF*) &rect, frameUnit, description, metafile);
+}
+
+GpStatus
+GdipRecordMetafileStream (void /* IStream */ *stream, HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect, 
+	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile)
+{
+	/* note: we do not support the COM-based IStream functions */
+	return NotImplemented;
+	/* TODO: add delegate-based function */
+}
+
+GpStatus
+GdipRecordMetafileStreamI (void /* IStream */ *stream, HDC referenceHdc, EmfType type, GDIPCONST GpRect *frameRect, 
+	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile)
+{
+	/* note: we do not support the COM-based IStream functions */
+	return NotImplemented;
+	/* TODO: add delegate-based function */
 }

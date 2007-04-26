@@ -222,7 +222,7 @@ make_ellipse (GpGraphics *graphics, float x, float y, float width, float height,
 }
 
 static void
-make_polygon (GpGraphics *graphics, GpPointF *points, int count, BOOL antialiasing)
+make_polygon (GpGraphics *graphics, GDIPCONST GpPointF *points, int count, BOOL antialiasing)
 {
         int i;
 
@@ -244,7 +244,7 @@ make_polygon (GpGraphics *graphics, GpPointF *points, int count, BOOL antialiasi
 }
 
 static void
-make_polygon_from_integers (GpGraphics *graphics, GpPoint *points, int count, BOOL antialiasing)
+make_polygon_from_integers (GpGraphics *graphics, GDIPCONST GpPoint *points, int count, BOOL antialiasing)
 {
         int i;
 
@@ -1002,8 +1002,7 @@ GpStatus GdipDrawBezierI (GpGraphics *graphics, GpPen *pen,
 }
 
 GpStatus 
-GdipDrawBeziers (GpGraphics *graphics, GpPen *pen,
-		 GpPointF *points, int count)
+GdipDrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
         int i, j, k;
         
@@ -1038,8 +1037,7 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen,
 }
 
 GpStatus
-GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen,
-		  GpPoint *points, int count)
+GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
         int i, j, k;
         
@@ -1143,7 +1141,7 @@ GdipDrawLineI (GpGraphics *graphics, GpPen *pen,
 }
 
 GpStatus 
-GdipDrawLines (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
+GdipDrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
 	int i;
 
@@ -1172,7 +1170,7 @@ GdipDrawLines (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 }
 
 GpStatus 
-GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
+GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
 	int i;
 
@@ -1310,7 +1308,7 @@ GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y,
 }
 
 GpStatus
-GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
+GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
 	if (!graphics || !pen || !points || count < 2)
 		return InvalidParameter;
@@ -1333,7 +1331,7 @@ GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 }
 
 GpStatus
-GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
+GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
 	if (!graphics || !pen || !points || count < 2)
 		return InvalidParameter;
@@ -1397,7 +1395,7 @@ GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen,
 }
 
 GpStatus
-GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count)
+GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects, int count)
 {
 	BOOL draw = FALSE;
 	int i;
@@ -1433,7 +1431,7 @@ GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GpRectF *rects, int count)
 }
 
 GpStatus
-GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GpRect *rects, int count)
+GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRect *rects, int count)
 {
 	BOOL draw = FALSE;
 	int i;
@@ -1469,7 +1467,7 @@ GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GpRect *rects, int count)
 }
 
 static void
-make_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int offset, int length,
+make_curve (GpGraphics *graphics, GDIPCONST GpPointF *points, GpPointF *tangents, int offset, int length,
 	_CurveType type, BOOL antialiasing)
 {
         int i;
@@ -1509,19 +1507,19 @@ make_curve (GpGraphics *graphics, GpPointF *points, GpPointF *tangents, int offs
 }
 
 GpStatus
-GdipDrawClosedCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
+GdipDrawClosedCurve (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
         return GdipDrawClosedCurve2 (graphics, pen, points, count, 0.5f);
 }
 
 GpStatus
-GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
+GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
         return GdipDrawClosedCurve2I (graphics, pen, points, count, 0.5f);
 }
 
 GpStatus
-GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count, float tension)
+GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count, float tension)
 {
         GpPointF *tangents;
 
@@ -1556,7 +1554,7 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GpPointF *points, int co
 }
 
 GpStatus
-GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count, float tension)
+GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count, float tension)
 {
 	GpPointF *pt;
 	GpStatus s;
@@ -1576,7 +1574,7 @@ GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GpPoint *points, int co
 }
 
 GpStatus
-GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count) 
+GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count) 
 {
 	if (count == 2) {
 		return GdipDrawLines (graphics, pen, points, count);
@@ -1587,7 +1585,7 @@ GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GpPointF *points, int count)
 }
 
 GpStatus
-GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count) 
+GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count) 
 {
 	if (count == 2) {
 		return GdipDrawLinesI (graphics, pen, points, count);
@@ -1598,7 +1596,7 @@ GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GpPoint *points, int count)
 }
 
 GpStatus
-GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, float tension)
+GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, int count, float tension)
 {
 	if (count == 2) {
 		return GdipDrawLines (graphics, pen, points, count);
@@ -1609,7 +1607,7 @@ GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, f
 }
 
 GpStatus
-GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, float tension)
+GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, int count, float tension)
 {
 	if (count == 2) {
 		return GdipDrawLinesI (graphics, pen, points, count);
@@ -1620,7 +1618,7 @@ GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, f
 }
 
 GpStatus
-GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, int offset, int numOfSegments, float tension)
+GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, int count, int offset, int numOfSegments, float tension)
 {
         GpPointF *tangents;
 
@@ -1661,7 +1659,7 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GpPointF *points, int count, i
 }
 
 GpStatus
-GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GpPoint *points, int count, int offset, int numOfSegments, float tension)
+GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, int count, int offset, int numOfSegments, float tension)
 {
 	GpPointF *pf;
 	GpStatus s;
@@ -1750,7 +1748,7 @@ GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush,
 }
 
 GpStatus 
-GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GpRectF *rects, int count)
+GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rects, int count)
 {
 	BOOL draw = FALSE;
 	int i;
@@ -1787,7 +1785,7 @@ GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GpRectF *rects, int co
 }
 
 GpStatus 
-GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GpRect *rects, int count)
+GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect *rects, int count)
 {
 	BOOL draw = FALSE;
 	int i;
@@ -1861,7 +1859,7 @@ GdipFillPieI (GpGraphics *graphics, GpBrush *brush,
 }
 
 GpStatus
-GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GpPointF *points, int count, FillMode fillMode)
+GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, FillMode fillMode)
 {
 	if (!graphics || !brush || !points)
 		return InvalidParameter;
@@ -1911,7 +1909,7 @@ GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 }
 
 GpStatus
-GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count, FillMode fillMode)
+GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count, FillMode fillMode)
 {
 	if (!graphics || !brush || !points)
 		return InvalidParameter;
@@ -1935,31 +1933,31 @@ GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int cou
 }
 
 GpStatus
-GdipFillPolygon2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, int count)
+GdipFillPolygon2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count)
 {
         return GdipFillPolygon (graphics, brush, points, count, FillModeAlternate);
 }
 
 GpStatus
-GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count)
+GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count)
 {
         return GdipFillPolygonI (graphics, brush, points, count, FillModeAlternate);
 }
 
 GpStatus
-GdipFillClosedCurve (GpGraphics *graphics, GpBrush *brush, GpPointF *points, int count)
+GdipFillClosedCurve (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count)
 {
         return GdipFillClosedCurve2 (graphics, brush, points, count, 0.5f);
 }
 
 GpStatus
-GdipFillClosedCurveI (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count)
+GdipFillClosedCurveI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count)
 {
         return GdipFillClosedCurve2I (graphics, brush, points, count, 0.5f);
 }
 
 GpStatus
-GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, int count, float tension)
+GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, float tension)
 {
         GpPointF *tangents;
 
@@ -1994,7 +1992,7 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GpPointF *points, in
 }
 
 GpStatus
-GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GpPoint *points, int count, float tension)
+GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count, float tension)
 {
 	GpPointF *pt;
         GpStatus s;

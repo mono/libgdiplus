@@ -81,6 +81,7 @@ typedef struct _Hatch GpHatch;
 typedef struct _Image GpImage;
 typedef struct _ImageAttributes GpImageAttributes;
 typedef struct _LineGradient GpLineGradient;
+typedef struct _Metafile GpMetafile;
 typedef struct _Path GpPath;
 typedef struct _PathIterator GpPathIterator;
 typedef struct _PathGradient GpPathGradient;

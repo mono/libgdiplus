@@ -24,7 +24,7 @@
 #define __EMFCODEC_H__
 
 #include "gdiplus-private.h"
-#include "metafile.h"
+#include "metafile-private.h"
 #include "graphics-private.h"
 
 /*

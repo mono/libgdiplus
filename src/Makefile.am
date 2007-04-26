@@ -62,6 +62,7 @@ libgdiplus_la_SOURCES = \
 	matrix-private.h		\
 	metafile.c			\
 	metafile.h			\
+	metafile-private.h		\
 	pathgradientbrush.c 		\
 	pathgradientbrush.h 		\
 	pathgradientbrush-private.h	\

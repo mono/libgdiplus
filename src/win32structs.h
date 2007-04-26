@@ -35,7 +35,53 @@
 
 /* public enums and structures that GDI+ reuse from the other Windows API */
 
-#define LF_FACESIZE 32
+#define LF_FACESIZE		32
+
+/* SetBkMode */
+#define TRANSPARENT		1
+#define OPAQUE			2
+
+/* SetMapMode */
+#define MM_TEXT			1
+#define MM_LOMETRIC		2
+#define MM_HIMETRIC		3
+#define MM_LOENGLISH		4
+#define MM_HIENGLISH		5
+#define MM_TWIPS		6
+#define MM_ISOTROPIC		7
+#define MM_ANISOTROPIC		8
+
+/* CreatePenIndirect */
+#define PS_NULL			0x00000005
+#define PS_STYLE_MASK		0x0000000F
+#define PS_ENDCAP_ROUND		0x00000000
+#define PS_ENDCAP_SQUARE	0x00000100
+#define PS_ENDCAP_FLAT		0x00000200
+#define PS_ENDCAP_MASK		0x00000F00
+#define PS_JOIN_ROUND		0x00000000
+#define PS_JOIN_BEVEL		0x00001000
+#define PS_JOIN_MITER		0x00002000
+#define PS_JOIN_MASK		0x0000F000
+
+/* CreateBrushIndirect */
+#define BS_SOLID		0
+#define BS_NULL			1
+#define BS_HATCHED		2
+#define BS_PATTERN		3
+#define BS_INDEXED		4
+
+/* SetPolyFillMode */
+#define ALTERNATE		1
+#define WINDING			2
+
+/* SetRelabs */
+#define ABSOLUTE		1
+#define RELATIVE		2
+
+/* ModifyWorldTransform */
+#define MWT_IDENTITY		1
+#define MWT_LEFTMULTIPLY	2
+#define MWT_RIGHTMULTIPLY	3
 
 typedef int LANGID;
 typedef int INT;
@@ -47,11 +93,14 @@ typedef gint32 PROPID;
 typedef guint32 ULONG_PTR; /* not a pointer! */
 typedef float REAL;
 
-typedef void* HBITMAP;
-typedef void* HFONT;
-typedef void* HICON;
-typedef void* HPALETTE;
-typedef void* HINSTANCE;
+typedef gpointer HBITMAP;
+typedef gpointer HDC;
+typedef gpointer HENHMETAFILE;
+typedef gpointer HFONT;
+typedef gpointer HICON;
+typedef gpointer HINSTANCE;
+typedef gpointer HMETAFILE;
+typedef gpointer HPALETTE;
 
 /* mono/io-layer/uglify.h also has these typedefs.
  * To avoid a dependency on mono we have copied all
@@ -132,5 +181,125 @@ typedef struct {
 	BYTE lfPitchAndFamily;
 	WCHAR lfFaceName[LF_FACESIZE];
 } LOGFONTW;
+
+typedef struct {
+	float eM11;
+	float eM12;
+	float eM21;
+	float eM22;
+	float eDx;
+	float eDy;
+} XFORM;
+
+typedef struct {
+	LONG	x;
+	LONG	y;
+} POINT;
+
+typedef DWORD COLORREF;
+
+typedef struct {
+	UINT		lopnStyle;
+	POINT		lopnWidth;
+	COLORREF	lopnColor;
+} LOGPEN;
+
+typedef struct {
+	UINT		lbStyle;
+	COLORREF	lbColor;
+	LONG		lbHatch;
+} LOGBRUSH;
+
+typedef struct {
+	int	left;
+	int	top;
+	int	right;
+	int	bottom;
+} RECT, RECTL;
+
+typedef struct {
+	int	cx;
+	int	cy; 
+} SIZE, SIZEL;
+
+typedef struct {
+	SHORT	Left;
+	SHORT	Top;
+	SHORT	Right;
+	SHORT	Bottom;
+} PWMFRect16;
+
+#ifndef __GNUC__
+	#pragma pack(2)
+#endif
+
+typedef struct
+#ifdef __GNUC__
+	 __attribute__ ((packed))
+#endif
+{
+	WORD	mtType;			/* 1 for disk, 0 for memory */
+	WORD	mtHeaderSize;
+	WORD	mtVersion;
+	DWORD	mtSize;
+	WORD	mtNoObjects;
+	DWORD	mtMaxRecord;
+	WORD	mtNoParameters;
+} METAHEADER;
+
+typedef struct
+#ifdef __GNUC__
+	 __attribute__ ((packed))
+#endif
+{
+	DWORD		Key;
+	SHORT		Hmf;
+	PWMFRect16	BoundingBox;
+	SHORT		Inch;
+	DWORD		Reserved;
+	SHORT		Checksum;
+} WmfPlaceableFileHeader;
+
+#ifndef __GNUC__
+	#pragma pack()
+#endif
+
+typedef struct {
+	DWORD	iType;
+	DWORD	nSize;
+	RECTL	rclBounds;
+	RECTL	rclFrame;
+	DWORD	dSignature;
+	DWORD	nVersion;
+	DWORD	nBytes;
+	DWORD	nRecords;
+	WORD	nHandles;
+	WORD	sReserved;
+	DWORD	nDescription;
+	DWORD	offDescription;
+	DWORD	nPalEntries;
+	SIZEL	szlDevice;
+	SIZEL	szlMillimeters;
+} ENHMETAHEADER3;
+
+typedef struct {
+	int	Type;
+	int	Size;
+	int	Version;
+	int	EmfPlusFlags;
+	float	DpiX;
+	float	DpiY;
+	int	X;
+	int	Y;
+	int	Width;
+	int	Height;
+	union {
+		METAHEADER	WmfHeader;
+		ENHMETAHEADER3	EmfHeader;
+	};
+	int	EmfPlusHeaderSize;
+	int	LogicalDpiX;
+	int	LogicalDpiY;
+} MetafileHeader;
 
 #endif

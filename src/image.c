@@ -35,7 +35,7 @@
 #include "graphics-private.h"
 #include "matrix.h"
 
-#include "metafile.h"
+#include "metafile-private.h"
 #include "bmpcodec.h"
 #include "pngcodec.h"
 #include "jpegcodec.h"

@@ -25,7 +25,7 @@
 
 #include "gdiplus-private.h"
 #include "graphics-private.h"
-#include "metafile.h"
+#include "metafile-private.h"
 
 #define WMF_MIN_RECORD_SIZE	6
 
