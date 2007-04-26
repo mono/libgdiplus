@@ -1291,6 +1291,8 @@ gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
 
 /* no libtiff */
 
+#include "image.h"
+
 ImageCodecInfo *
 gdip_getcodecinfo_tiff ()
 {

@@ -31,6 +31,7 @@
 #include "gdiplus-private.h"
 
 GUID gdip_jpg_image_format_guid = {0xb96b3caeU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+extern GUID GdipEncoderQuality;
 
 #ifdef HAVE_LIBJPEG
 
@@ -49,7 +50,6 @@ GUID gdip_jpg_image_format_guid = {0xb96b3caeU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 #include "jpegcodec.h"
 
 /* Codecinfo related data*/
-extern GUID GdipEncoderQuality;
 static ImageCodecInfo jpeg_codec;
 static const WCHAR jpeg_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'J', 'P', 'E', 'G', 0}; /* Built-in JPEG */
 static const WCHAR jpeg_extension[] = {'*', '.', 'J', 'P','G', ';','*', '.', 'J','P', 'E', 'G', ';', '*',
@@ -827,6 +827,9 @@ gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
 #else
 
 /* No libjpeg */
+
+#include "image.h"
+#include "dstream.h"
 
 ImageCodecInfo *
 gdip_getcodecinfo_jpeg ()

@@ -1,3 +1,10 @@
+2007-04-26  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* gifcodec.c: Add image.h so we can build (stubs) without libgif
+	* jpegcodec.c: Add image.h and dtream.h so we can build (stubs) 
+	without libjpeg and move up "extern GUID GdipEncoderQuality".
+	* tiffcodec.c: Add image.h so we can build (stubs) without libtiff
+
 2007-04-26  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* emfcodec.h: Include metafile-private.h

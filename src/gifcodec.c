@@ -937,6 +937,8 @@ gdip_save_gif_image_to_stream_delegate (PutBytesDelegate putBytesFunc, GpImage *
 
 /* No libgif */
 
+#include "image.h"
+
 ImageCodecInfo *
 gdip_getcodecinfo_gif ()
 {
