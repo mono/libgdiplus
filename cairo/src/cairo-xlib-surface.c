@@ -39,8 +39,8 @@
 #include "cairoint.h"
 #include "cairo-xlib.h"
 #include "cairo-xlib-xrender.h"
-#include "cairo-xlib-test.h"
 #include "cairo-xlib-private.h"
+#include "cairo-xlib-surface-private.h"
 #include "cairo-clip-private.h"
 #include <X11/extensions/Xrender.h>
 #include <X11/extensions/renderproto.h>
@@ -48,8 +48,6 @@
 /* Xlib doesn't define a typedef, so define one ourselves */
 typedef int (*cairo_xlib_error_func_t) (Display     *display,
 					XErrorEvent *event);
-
-typedef struct _cairo_xlib_surface cairo_xlib_surface_t;
 
 static cairo_status_t
 _cairo_xlib_surface_ensure_gc (cairo_xlib_surface_t *surface);
@@ -82,52 +80,11 @@ _cairo_xlib_surface_show_glyphs (void                *abstract_dst,
 
 #define CAIRO_ASSUME_PIXMAP	20
 
-struct _cairo_xlib_surface {
-    cairo_surface_t base;
-
-    Display *dpy;
-    cairo_xlib_screen_info_t *screen_info;
-
-    GC gc;
-    Drawable drawable;
-    Screen *screen;
-    cairo_bool_t owns_pixmap;
-    Visual *visual;
-
-    int use_pixmap;
-
-    int render_major;
-    int render_minor;
-
-    /* TRUE if the server has a bug with repeating pictures
-     *
-     *  https://bugs.freedesktop.org/show_bug.cgi?id=3566
-     *
-     * We can't test for this because it depends on whether the
-     * picture is in video memory or not.
-     *
-     * We also use this variable as a guard against a second
-     * independent bug with transformed repeating pictures:
-     *
-     * http://lists.freedesktop.org/archives/cairo/2004-September/001839.html
-     *
-     * Both are fixed in xorg >= 6.9 and hopefully in > 6.8.2, so
-     * we can reuse the test for now.
-     */
-    cairo_bool_t buggy_repeat;
-
-    int width;
-    int height;
-    int depth;
-
-    Picture dst_picture, src_picture;
-
-    cairo_bool_t have_clip_rects;
-    XRectangle *clip_rects;
-    int num_clip_rects;
-
-    XRenderPictFormat *xrender_format;
-};
+static const XTransform identity = { {
+    { 1 << 16, 0x00000, 0x00000 },
+    { 0x00000, 1 << 16, 0x00000 },
+    { 0x00000, 0x00000, 1 << 16 },
+} };
 
 #define CAIRO_SURFACE_RENDER_AT_LEAST(surface, major, minor)	\
 	(((surface)->render_major > major) ||			\
@@ -150,25 +107,6 @@ struct _cairo_xlib_surface {
 
 #define CAIRO_SURFACE_RENDER_HAS_PICTURE_TRANSFORM(surface)	CAIRO_SURFACE_RENDER_AT_LEAST((surface), 0, 6)
 #define CAIRO_SURFACE_RENDER_HAS_FILTERS(surface)	CAIRO_SURFACE_RENDER_AT_LEAST((surface), 0, 6)
-
-static cairo_bool_t cairo_xlib_render_disabled = FALSE;
-
-/**
- * _cairo_xlib_test_disable_render:
- *
- * Disables the use of the RENDER extension.
- *
- * <note>
- * This function is <emphasis>only</emphasis> intended for internal
- * testing use within the cairo distribution. It is not installed in
- * any public header file.
- * </note>
- **/
-void
-_cairo_xlib_test_disable_render (void)
-{
-    cairo_xlib_render_disabled = TRUE;
-}
 
 static int
 _CAIRO_FORMAT_DEPTH (cairo_format_t format)
@@ -236,6 +174,7 @@ _cairo_xlib_surface_create_similar_with_format (void	       *abstract_src,
 						       xrender_format,
 						       width, height);
     if (surface->base.status != CAIRO_STATUS_SUCCESS) {
+	XFreePixmap (dpy, pix);
 	_cairo_error (CAIRO_STATUS_NO_MEMORY);
 	return (cairo_surface_t*) &_cairo_surface_nil;
     }
@@ -313,6 +252,7 @@ _cairo_xlib_surface_create_similar (void	       *abstract_src,
 						       xrender_format,
 						       width, height);
     if (surface->base.status != CAIRO_STATUS_SUCCESS) {
+	XFreePixmap (src->dpy, pix);
 	_cairo_error (CAIRO_STATUS_NO_MEMORY);
 	return (cairo_surface_t*) &_cairo_surface_nil;
     }
@@ -338,7 +278,7 @@ _cairo_xlib_surface_finish (void *abstract_surface)
     if (surface->gc != NULL)
 	XFreeGC (surface->dpy, surface->gc);
 
-    if (surface->clip_rects != NULL)
+    if (surface->clip_rects != surface->embedded_clip_rects)
 	free (surface->clip_rects);
 
     if (surface->screen_info != NULL)
@@ -950,21 +890,14 @@ _cairo_xlib_surface_set_matrix (cairo_xlib_surface_t *surface,
     xtransform.matrix[2][1] = 0;
     xtransform.matrix[2][2] = _cairo_fixed_from_double (1);
 
+    if (memcmp (&xtransform, &surface->xtransform, sizeof (XTransform)) == 0)
+	return CAIRO_STATUS_SUCCESS;
+
     if (!CAIRO_SURFACE_RENDER_HAS_PICTURE_TRANSFORM (surface))
-    {
-	static const XTransform identity = { {
-	    { 1 << 16, 0x00000, 0x00000 },
-	    { 0x00000, 1 << 16, 0x00000 },
-	    { 0x00000, 0x00000, 1 << 16 },
-	} };
-
-	if (memcmp (&xtransform, &identity, sizeof (XTransform)) == 0)
-	    return CAIRO_STATUS_SUCCESS;
-
 	return CAIRO_INT_STATUS_UNSUPPORTED;
-    }
 
     XRenderSetPictureTransform (surface->dpy, surface->src_picture, &xtransform);
+    surface->xtransform = xtransform;
 
     return CAIRO_STATUS_SUCCESS;
 }
@@ -976,6 +909,9 @@ _cairo_xlib_surface_set_filter (cairo_xlib_surface_t *surface,
     const char *render_filter;
 
     if (!surface->src_picture)
+	return CAIRO_STATUS_SUCCESS;
+
+    if (surface->filter == filter)
 	return CAIRO_STATUS_SUCCESS;
 
     if (!CAIRO_SURFACE_RENDER_HAS_FILTERS (surface))
@@ -1015,6 +951,7 @@ _cairo_xlib_surface_set_filter (cairo_xlib_surface_t *surface,
 
     XRenderSetPictureFilter (surface->dpy, surface->src_picture,
 			     (char *) render_filter, NULL, 0);
+    surface->filter = filter;
 
     return CAIRO_STATUS_SUCCESS;
 }
@@ -1028,10 +965,14 @@ _cairo_xlib_surface_set_repeat (cairo_xlib_surface_t *surface, int repeat)
     if (!surface->src_picture)
 	return CAIRO_STATUS_SUCCESS;
 
+    if (surface->repeat == repeat)
+	return CAIRO_STATUS_SUCCESS;
+
     mask = CPRepeat;
     pa.repeat = repeat;
 
     XRenderChangePicture (surface->dpy, surface->src_picture, mask, &pa);
+    surface->repeat = repeat;
 
     return CAIRO_STATUS_SUCCESS;
 }
@@ -1707,9 +1648,12 @@ _cairo_xlib_surface_set_clip_region (void              *abstract_surface,
 {
     cairo_xlib_surface_t *surface = (cairo_xlib_surface_t *) abstract_surface;
 
-    if (surface->clip_rects) {
+    if (surface->have_clip_rects == FALSE && region == NULL)
+	return CAIRO_STATUS_SUCCESS;
+
+    if (surface->clip_rects != surface->embedded_clip_rects) {
 	free (surface->clip_rects);
-	surface->clip_rects = NULL;
+	surface->clip_rects = surface->embedded_clip_rects;
     }
 
     surface->have_clip_rects = FALSE;
@@ -1731,12 +1675,12 @@ _cairo_xlib_surface_set_clip_region (void              *abstract_surface,
 	int n_boxes, i;
 
 	n_boxes = pixman_region_num_rects (region);
-	if (n_boxes > 0) {
+	if (n_boxes > ARRAY_LENGTH (surface->embedded_clip_rects)) {
 	    rects = malloc (sizeof(XRectangle) * n_boxes);
 	    if (rects == NULL)
 		return CAIRO_STATUS_NO_MEMORY;
-	} else {
-	    rects = NULL;
+	}else {
+	    rects = surface->embedded_clip_rects;
 	}
 
 	boxes = pixman_region_rects (region);
@@ -1886,8 +1830,7 @@ _cairo_xlib_surface_create_internal (Display		       *dpy,
 	;
     }
 
-    if (cairo_xlib_render_disabled ||
-	! XRenderQueryVersion (dpy, &surface->render_major, &surface->render_minor)) {
+    if (! XRenderQueryVersion (dpy, &surface->render_major, &surface->render_minor)) {
 	surface->render_major = -1;
 	surface->render_minor = -1;
     }
@@ -1935,9 +1878,12 @@ _cairo_xlib_surface_create_internal (Display		       *dpy,
     surface->visual = visual;
     surface->xrender_format = xrender_format;
     surface->depth = depth;
+    surface->filter = CAIRO_FILTER_NEAREST;
+    surface->repeat = FALSE;
+    surface->xtransform = identity;
 
     surface->have_clip_rects = FALSE;
-    surface->clip_rects = NULL;
+    surface->clip_rects = surface->embedded_clip_rects;
     surface->num_clip_rects = 0;
 
     return (cairo_surface_t *) surface;
@@ -2934,7 +2880,8 @@ _cairo_xlib_surface_show_glyphs (void                *abstract_dst,
      * so PictOpClear was never used with CompositeText before.
      */
     if (op == CAIRO_OPERATOR_CLEAR) {
-	_cairo_pattern_init_solid (&solid_pattern.solid, CAIRO_COLOR_WHITE);
+	_cairo_pattern_init_solid (&solid_pattern.solid, CAIRO_COLOR_WHITE,
+				   CAIRO_CONTENT_COLOR);
 	src_pattern = &solid_pattern.base;
 	op = CAIRO_OPERATOR_DEST_OUT;
     }

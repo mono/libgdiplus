@@ -30,7 +30,8 @@
 #include "cairo-xlib.h"
 #include "cairo-xlib-xrender.h"
 #include "cairo-test.h"
-#include "cairo-xlib-test.h"
+
+#include "cairo-boilerplate-xlib.h"
 
 #include "buffer-diff.h"
 
@@ -122,6 +123,9 @@ do_test (Display        *dpy,
 					 drawable,
 					 DefaultVisual (dpy, screen),
 					 SIZE, SIZE);
+
+    if (!use_render)
+	cairo_boilerplate_xlib_surface_disable_render (surface);
 
     if (set_size) {
 	cairo_xlib_surface_set_size (surface, SIZE, SIZE);
@@ -256,8 +260,6 @@ main (void)
 		if (status)
 		    result = status;
 	    }
-
-    _cairo_xlib_test_disable_render ();
 
     for (set_size = 0; set_size <= 1; set_size++)
 	for (use_pixmap = 0; use_pixmap <= 1; use_pixmap++)

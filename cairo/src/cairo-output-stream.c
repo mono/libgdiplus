@@ -281,7 +281,8 @@ _cairo_output_stream_vprintf (cairo_output_stream_t *stream,
     int single_fmt_length;
     char *p;
     const char *f, *start;
-    int length_modifier;
+    int length_modifier, width;
+    cairo_bool_t var_width;
 
     if (stream->status)
 	return;
@@ -304,6 +305,12 @@ _cairo_output_stream_vprintf (cairo_output_stream_t *stream,
 
 	if (*f == '0')
 	    f++;
+
+        var_width = FALSE;
+        if (*f == '*') {
+            var_width = TRUE;
+	    f++;
+        }
 
 	while (isdigit (*f))
 	    f++;
@@ -341,15 +348,27 @@ _cairo_output_stream_vprintf (cairo_output_stream_t *stream,
 	case 'o':
 	case 'x':
 	case 'X':
-	    snprintf (buffer, sizeof buffer, single_fmt, va_arg (ap, int));
+            if (var_width) {
+                width = va_arg (ap, int);
+                snprintf (buffer, sizeof buffer,
+                          single_fmt, width, va_arg (ap, int));
+            } else {
+                snprintf (buffer, sizeof buffer, single_fmt, va_arg (ap, int));
+            }
 	    break;
 	case 'd' | LENGTH_MODIFIER_LONG:
 	case 'u' | LENGTH_MODIFIER_LONG:
 	case 'o' | LENGTH_MODIFIER_LONG:
 	case 'x' | LENGTH_MODIFIER_LONG:
 	case 'X' | LENGTH_MODIFIER_LONG:
-	    snprintf (buffer, sizeof buffer,
-		      single_fmt, va_arg (ap, long int));
+            if (var_width) {
+                width = va_arg (ap, int);
+                snprintf (buffer, sizeof buffer,
+                          single_fmt, width, va_arg (ap, long int));
+            } else {
+                snprintf (buffer, sizeof buffer,
+                          single_fmt, va_arg (ap, long int));
+            }
 	    break;
 	case 's':
 	    snprintf (buffer, sizeof buffer,

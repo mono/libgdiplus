@@ -365,7 +365,8 @@ _clip_and_composite (cairo_clip_t                  *clip,
 	return CAIRO_STATUS_SUCCESS;
 
     if (op == CAIRO_OPERATOR_CLEAR) {
-	_cairo_pattern_init_solid (&solid_pattern.solid, CAIRO_COLOR_WHITE);
+	_cairo_pattern_init_solid (&solid_pattern.solid, CAIRO_COLOR_WHITE,
+				   CAIRO_CONTENT_COLOR);
 	src = &solid_pattern.base;
 	op = CAIRO_OPERATOR_DEST_OUT;
     }
@@ -420,7 +421,8 @@ _composite_trap_region (cairo_clip_t            *clip,
     cairo_surface_t *clip_surface = clip ? clip->surface : NULL;
 
     if (clip_surface && op == CAIRO_OPERATOR_CLEAR) {
-	_cairo_pattern_init_solid (&solid_pattern.solid, CAIRO_COLOR_WHITE);
+	_cairo_pattern_init_solid (&solid_pattern.solid, CAIRO_COLOR_WHITE,
+				   CAIRO_CONTENT_COLOR);
 	src = &solid_pattern.base;
 	op = CAIRO_OPERATOR_DEST_OUT;
     }
@@ -490,7 +492,8 @@ _composite_traps_draw_func (void                          *closure,
     if (dst_x != 0 || dst_y != 0)
 	_cairo_traps_translate (info->traps, - dst_x, - dst_y);
 
-    _cairo_pattern_init_solid (&pattern.solid, CAIRO_COLOR_WHITE);
+    _cairo_pattern_init_solid (&pattern.solid, CAIRO_COLOR_WHITE,
+			       CAIRO_CONTENT_COLOR);
     if (!src)
 	src = &pattern.base;
 
@@ -801,8 +804,34 @@ _cairo_surface_fallback_stroke (cairo_surface_t		*surface,
 {
     cairo_status_t status;
     cairo_traps_t traps;
+    cairo_box_t box;
+    cairo_rectangle_int16_t extents;
+
+    status = _cairo_surface_get_extents (surface, &extents);
+    if (status)
+        return status;
+
+    if (_cairo_operator_bounded_by_source (op)) {
+	cairo_rectangle_int16_t source_extents;
+	status = _cairo_pattern_get_extents (source, &source_extents);
+	if (status)
+	    return status;
+
+	_cairo_rectangle_intersect (&extents, &source_extents);
+    }
+
+    status = _cairo_clip_intersect_to_rectangle (surface->clip, &extents);
+    if (status)
+        return status;
+
+    box.p1.x = _cairo_fixed_from_int (extents.x);
+    box.p1.y = _cairo_fixed_from_int (extents.y);
+    box.p2.x = _cairo_fixed_from_int (extents.x + extents.width);
+    box.p2.y = _cairo_fixed_from_int (extents.y + extents.height);
 
     _cairo_traps_init (&traps);
+
+    _cairo_traps_limit (&traps, &box);
 
     status = _cairo_path_fixed_stroke_to_traps (path,
 						stroke_style,
@@ -837,8 +866,34 @@ _cairo_surface_fallback_fill (cairo_surface_t		*surface,
 {
     cairo_status_t status;
     cairo_traps_t traps;
+    cairo_box_t box;
+    cairo_rectangle_int16_t extents;
+
+    status = _cairo_surface_get_extents (surface, &extents);
+    if (status)
+        return status;
+
+    if (_cairo_operator_bounded_by_source (op)) {
+	cairo_rectangle_int16_t source_extents;
+	status = _cairo_pattern_get_extents (source, &source_extents);
+	if (status)
+	    return status;
+
+	_cairo_rectangle_intersect (&extents, &source_extents);
+    }
+
+    status = _cairo_clip_intersect_to_rectangle (surface->clip, &extents);
+    if (status)
+        return status;
+
+    box.p1.x = _cairo_fixed_from_int (extents.x);
+    box.p1.y = _cairo_fixed_from_int (extents.y);
+    box.p2.x = _cairo_fixed_from_int (extents.x + extents.width);
+    box.p2.y = _cairo_fixed_from_int (extents.y + extents.height);
 
     _cairo_traps_init (&traps);
+
+    _cairo_traps_limit (&traps, &box);
 
     status = _cairo_path_fixed_fill_to_traps (path,
 					      fill_rule,
@@ -894,7 +949,8 @@ _cairo_surface_old_show_glyphs_draw_func (void                          *closure
 	}
     }
 
-    _cairo_pattern_init_solid (&pattern.solid, CAIRO_COLOR_WHITE);
+    _cairo_pattern_init_solid (&pattern.solid, CAIRO_COLOR_WHITE,
+			       CAIRO_CONTENT_COLOR);
     if (!src)
 	src = &pattern.base;
 

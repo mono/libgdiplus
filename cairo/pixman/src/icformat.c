@@ -21,11 +21,7 @@
  * Author:  Keith Packard, SuSE, Inc.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include "icint.h"
+#include "pixmanint.h"
 
 #define Mask(n)	((n) == 32 ? 0xffffffff : (unsigned) ((1 << (n))-1))
 

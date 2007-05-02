@@ -91,7 +91,8 @@ _cairo_gstate_init (cairo_gstate_t  *gstate,
     _cairo_gstate_identity_matrix (gstate);
     gstate->source_ctm_inverse = gstate->ctm_inverse;
 
-    gstate->source = _cairo_pattern_create_solid (CAIRO_COLOR_BLACK);
+    gstate->source = _cairo_pattern_create_solid (CAIRO_COLOR_BLACK,
+						  CAIRO_CONTENT_COLOR);
     if (gstate->source->status)
 	return CAIRO_STATUS_NO_MEMORY;
 

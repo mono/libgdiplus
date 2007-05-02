@@ -74,10 +74,6 @@ SOFTWARE.
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
-
 #if   HAVE_STDINT_H
 # include <stdint.h>
 #elif HAVE_INTTYPES_H
@@ -107,6 +103,9 @@ SOFTWARE.
 #define pixman_private_no_warn
 #endif
 
+#ifndef WARN_UNUSED_RESULT
+#define WARN_UNUSED_RESULT
+#endif
 /* Add attribute(warn_unused_result) if supported */
 #define pixman_warn WARN_UNUSED_RESULT
 #define pixman_private pixman_private_no_warn pixman_warn

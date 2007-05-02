@@ -40,15 +40,13 @@
 
 #include "cairoint.h"
 #include "cairo-svg.h"
-#include "cairo-svg-test.h"
+#include "cairo-svg-surface-private.h"
 #include "cairo-path-fixed-private.h"
 #include "cairo-meta-surface-private.h"
-#include "cairo-paginated-surface-private.h"
+#include "cairo-paginated-private.h"
 #include "cairo-scaled-font-subsets-private.h"
 #include "cairo-output-stream-private.h"
 
-typedef struct cairo_svg_document cairo_svg_document_t;
-typedef struct cairo_svg_surface cairo_svg_surface_t;
 typedef struct cairo_svg_page cairo_svg_page_t;
 
 static const int invalid_pattern_id = -1;
@@ -113,27 +111,6 @@ struct cairo_svg_document {
     cairo_svg_version_t svg_version;
 
     cairo_scaled_font_subsets_t *font_subsets;
-};
-
-struct cairo_svg_surface {
-    cairo_surface_t base;
-
-    cairo_content_t content;
-
-    unsigned int id;
-
-    double width;
-    double height;
-
-    cairo_svg_document_t *document;
-
-    cairo_output_stream_t *xml_node;
-    cairo_array_t	   page_set;
-
-    unsigned int clip_level;
-    unsigned int base_clip;
-
-    cairo_paginated_mode_t paginated_mode;
 };
 
 typedef struct {
@@ -398,6 +375,7 @@ _cairo_svg_surface_create_for_document (cairo_svg_document_t	*document,
     }
 
     surface->paginated_mode = CAIRO_PAGINATED_MODE_ANALYZE;
+    surface->force_fallbacks = FALSE;
     surface->content = content;
 
     return _cairo_paginated_surface_create (&surface->base,
@@ -726,26 +704,8 @@ _cairo_svg_document_emit_font_subsets (cairo_svg_document_t *document)
 
 static cairo_bool_t cairo_svg_force_fallbacks = FALSE;
 
-/**
- * _cairo_svg_test_force_fallbacks
- *
- * Force the SVG surface backend to use image fallbacks for every
- * operation.
- *
- * <note>
- * This function is <emphasis>only</emphasis> intended for internal
- * testing use within the cairo distribution. It is not installed in
- * any public header file.
- * </note>
- **/
-void
-_cairo_svg_test_force_fallbacks (void)
-{
-    cairo_svg_force_fallbacks = TRUE;
-}
-
 static cairo_int_status_t
-__cairo_svg_surface_operation_supported (cairo_svg_surface_t *surface,
+_cairo_svg_surface_operation_supported (cairo_svg_surface_t *surface,
 		      cairo_operator_t op,
 		      const cairo_pattern_t *pattern)
 {
@@ -766,7 +726,7 @@ _cairo_svg_surface_analyze_operation (cairo_svg_surface_t *surface,
 		    cairo_operator_t op,
 		    const cairo_pattern_t *pattern)
 {
-    if (__cairo_svg_surface_operation_supported (surface, op, pattern))
+    if (_cairo_svg_surface_operation_supported (surface, op, pattern))
 	return CAIRO_STATUS_SUCCESS;
     else
 	return CAIRO_INT_STATUS_UNSUPPORTED;
@@ -1659,7 +1619,7 @@ _cairo_svg_surface_fill (void			*abstract_surface,
     if (surface->paginated_mode == CAIRO_PAGINATED_MODE_ANALYZE)
 	return _cairo_svg_surface_analyze_operation (surface, op, source);
 
-    assert (__cairo_svg_surface_operation_supported (surface, op, source));
+    assert (_cairo_svg_surface_operation_supported (surface, op, source));
 
     _cairo_output_stream_printf (surface->xml_node,
  				 "<path style=\"stroke: none; "
@@ -1747,7 +1707,7 @@ _cairo_svg_surface_paint (void		    *abstract_surface,
      * possible only because there is nothing between the fallback
      * images and the paper, nor is anything painted above. */
     /*
-    assert (__cairo_svg_surface_operation_supported (surface, op, source));
+    assert (_cairo_svg_surface_operation_supported (surface, op, source));
     */
 
     /* Emulation of clear and source operators, when no clipping region
@@ -1802,7 +1762,7 @@ _cairo_svg_surface_mask (void		    *abstract_surface,
     if (surface->paginated_mode == CAIRO_PAGINATED_MODE_ANALYZE)
 	return _cairo_svg_surface_analyze_operation (surface, op, source);
 
-    assert (__cairo_svg_surface_operation_supported (surface, op, source));
+    assert (_cairo_svg_surface_operation_supported (surface, op, source));
 
     _cairo_svg_surface_emit_alpha_filter (document);
 
@@ -1852,7 +1812,7 @@ _cairo_svg_surface_stroke (void			*abstract_dst,
     if (surface->paginated_mode == CAIRO_PAGINATED_MODE_ANALYZE)
 	return _cairo_svg_surface_analyze_operation (surface, op, source);
 
-    assert (__cairo_svg_surface_operation_supported (surface, op, source));
+    assert (_cairo_svg_surface_operation_supported (surface, op, source));
 
     switch (stroke_style->line_cap) {
     case CAIRO_LINE_CAP_BUTT:
@@ -1940,7 +1900,7 @@ _cairo_svg_surface_show_glyphs (void			*abstract_surface,
     if (surface->paginated_mode == CAIRO_PAGINATED_MODE_ANALYZE)
 	return _cairo_svg_surface_analyze_operation (surface, op, pattern);
 
-    assert (__cairo_svg_surface_operation_supported (surface, op, pattern));
+    assert (_cairo_svg_surface_operation_supported (surface, op, pattern));
 
     if (num_glyphs <= 0)
 	return CAIRO_STATUS_SUCCESS;
@@ -2092,7 +2052,7 @@ _cairo_svg_document_create (cairo_output_stream_t	*output_stream,
     }
 
     /* The use of defs for font glyphs imposes no per-subset limit. */
-    document->font_subsets = _cairo_scaled_font_subsets_create (0, INT_MAX);
+    document->font_subsets = _cairo_scaled_font_subsets_create_scaled ();
     if (document->font_subsets == NULL) {
 	_cairo_error (CAIRO_STATUS_NO_MEMORY);
 	free (document);

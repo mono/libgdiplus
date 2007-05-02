@@ -75,6 +75,22 @@ static const char *fail_face = "", *normal_face = "";
 
 #define NUM_DEVICE_OFFSETS 2
 
+static const char *vector_ignored_tests[] = {
+    /* We can't match the results of tests that depend on
+     * CAIRO_ANTIALIAS_NONE/SUBPIXEL for vector backends
+     * (nor do we care). */
+    "ft-text-antialias-none",
+    "rectangle-rounding-error",
+    "text-antialias-gray",
+    "text-antialias-none",
+    "text-antialias-subpixel",
+    "unantialiased-shapes",
+
+    /* Nor do we care about rendering anomalies in external renderers. */
+    "fill-degenerate-sort-order",
+    NULL
+};
+
 /* Static data is messy, but we're coding for tests here, not a
  * general-purpose library, and it keeps the tests cleaner to avoid a
  * context object there, (though not a whole lot). */
@@ -194,16 +210,16 @@ cairo_test_for_target (cairo_test_t			 *test,
 		       int				  dev_offset)
 {
     cairo_test_status_t status;
-    cairo_surface_t *surface;
+    cairo_surface_t *surface = NULL;
     cairo_t *cr;
     char *png_name, *ref_name, *diff_name, *offset_str;
-    cairo_test_status_t ret;
+    cairo_test_status_t ret = CAIRO_TEST_SUCCESS;
     cairo_content_t expected_content;
     cairo_font_options_t *font_options;
     const char *format;
 
     /* Get the strings ready that we'll need. */
-    format = _cairo_test_content_name (target->content);
+    format = cairo_boilerplate_content_name (target->content);
     if (dev_offset)
 	xasprintf (&offset_str, "-%d", dev_offset);
     else
@@ -221,22 +237,36 @@ cairo_test_for_target (cairo_test_t			 *test,
 	       format,
 	       offset_str, CAIRO_TEST_DIFF_SUFFIX);
 
-    /* Run the actual drawing code. */
-    if (test->width && test->height) {
-	test->width += dev_offset;
-	test->height += dev_offset;
+    if (target->is_vector) {
+	int i;
+
+	for (i = 0; vector_ignored_tests[i] != NULL; i++)
+	    if (strcmp (test->name, vector_ignored_tests[i]) == 0) {
+		cairo_test_log ("Error: Skipping for vector target %s\n", target->name);
+		ret = CAIRO_TEST_UNTESTED;
+		goto UNWIND_STRINGS;
+	    }
     }
 
-    surface = (target->create_surface) (test->name,
-					target->content,
-					test->width,
-					test->height,
-					CAIRO_BOILERPLATE_MODE_TEST,
-					&target->closure);
+    if (ret == CAIRO_TEST_SUCCESS) {
+	/* Run the actual drawing code. */
 
-    if (test->width && test->height) {
-	test->width -= dev_offset;
-	test->height -= dev_offset;;
+	if (test->width && test->height) {
+	    test->width += dev_offset;
+	    test->height += dev_offset;
+	}
+
+	surface = (target->create_surface) (test->name,
+					    target->content,
+					    test->width,
+					    test->height,
+					    CAIRO_BOILERPLATE_MODE_TEST,
+					    &target->closure);
+
+	if (test->width && test->height) {
+	    test->width -= dev_offset;
+	    test->height -= dev_offset;;
+	}
     }
 
     if (surface == NULL) {
@@ -342,8 +372,6 @@ cairo_test_for_target (cairo_test_t			 *test,
 	}
     }
 
-    ret = CAIRO_TEST_SUCCESS;
-
 UNWIND_CAIRO:
     cairo_destroy (cr);
 UNWIND_SURFACE:
@@ -383,7 +411,6 @@ cairo_test_expecting (cairo_test_t *test,
      * by longjmp */
     volatile size_t i, j, num_targets;
     volatile cairo_bool_t limited_targets = FALSE, print_fail_on_stdout = TRUE;
-    const char *tname;
 #ifdef HAVE_SIGNAL_H
     void (*old_segfault_handler)(int);
 #endif
@@ -409,46 +436,12 @@ cairo_test_expecting (cairo_test_t *test,
     if (expectation == CAIRO_TEST_FAILURE)
     printf ("Expecting failure\n");
 
-    if ((tname = getenv ("CAIRO_TEST_TARGET")) != NULL && *tname) {
-
-	limited_targets = TRUE;
-
-	num_targets = 0;
-	targets_to_test = NULL;
-
-	while (*tname) {
-	    int found = 0;
-	    const char *end = strpbrk (tname, " \t\r\n;:,");
-	    if (!end)
-	        end = tname + strlen (tname);
-
-	    for (i = 0; targets[i].name != NULL; i++) {
-		if (0 == strncmp (targets[i].name, tname, end - tname) &&
-		    !isalnum (targets[i].name[end - tname])) {
-		    /* realloc isn't exactly the best thing here, but meh. */
-		    targets_to_test = realloc (targets_to_test, sizeof(cairo_boilerplate_target_t *) * (num_targets+1));
-		    targets_to_test[num_targets++] = &targets[i];
-		    found = 1;
-		}
-	    }
-
-	    if (!found) {
-		fprintf (stderr, "Cannot test target '%.*s'\n", (int)(end - tname), tname);
-		exit(-1);
-	    }
-
-	    if (*end)
-	      end++;
-	    tname = end;
-	}
-    } else {
-	num_targets = 0;
-	for (i = 0; targets[i].name != NULL; i++)
-	    num_targets++;
-	targets_to_test = malloc (sizeof(cairo_boilerplate_target_t*) * num_targets);
-	for (i = 0; i < num_targets; i++) {
-	    targets_to_test[i] = &targets[i];
-	}
+    {
+	int tmp_num_targets;
+	cairo_bool_t tmp_limited_targets;
+	targets_to_test = cairo_boilerplate_get_targets (&tmp_num_targets, &tmp_limited_targets);
+	num_targets = tmp_num_targets;
+	limited_targets = tmp_limited_targets;
     }
 
     /* The intended logic here is that we return overall SUCCESS
@@ -474,7 +467,7 @@ cairo_test_expecting (cairo_test_t *test,
 
 	    cairo_test_log ("Testing %s with %s target (dev offset %d)\n", test->name, target->name, dev_offset);
 	    printf ("%s-%s-%s [%d]:\t", test->name, target->name,
-		    _cairo_test_content_name (target->content),
+		    cairo_boilerplate_content_name (target->content),
 		    dev_offset);
 
 #ifdef HAVE_SIGNAL_H
@@ -491,7 +484,7 @@ cairo_test_expecting (cairo_test_t *test,
 
 	    cairo_test_log ("TEST: %s TARGET: %s FORMAT: %s OFFSET: %d RESULT: ",
 			    test->name, target->name,
-			    _cairo_test_content_name (target->content),
+			    cairo_boilerplate_content_name (target->content),
 			    dev_offset);
 
 	    switch (status) {
@@ -516,7 +509,7 @@ cairo_test_expecting (cairo_test_t *test,
 		cairo_test_log ("CRASHED\n");
 		fprintf (stderr, "%s-%s-%s [%d]:\t%s!!!CRASHED!!!%s\n",
 			 test->name, target->name,
-			 _cairo_test_content_name (target->content), dev_offset,
+			 cairo_boilerplate_content_name (target->content), dev_offset,
 			 fail_face, normal_face);
 		ret = CAIRO_TEST_FAILURE;
 		break;
@@ -535,7 +528,7 @@ cairo_test_expecting (cairo_test_t *test,
 		    }
 		    fprintf (stderr, "%s-%s-%s [%d]:\t%sFAIL%s\n",
 			     test->name, target->name,
-			     _cairo_test_content_name (target->content), dev_offset,
+			     cairo_boilerplate_content_name (target->content), dev_offset,
 			     fail_face, normal_face);
 		    cairo_test_log ("FAIL\n");
 		}
@@ -578,7 +571,7 @@ cairo_test_expecting (cairo_test_t *test,
 
     cairo_test_fini ();
 
-    free (targets_to_test);
+    cairo_boilerplate_free_targets (targets_to_test);
 
     return ret;
 }

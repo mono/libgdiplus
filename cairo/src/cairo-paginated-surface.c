@@ -36,44 +36,16 @@
 
 /* The paginated surface layer exists to provide as much code sharing
  * as possible for the various paginated surface backends in cairo
- * (PostScript, PDF, etc.). See cairo-paginated-surface-private.h for
+ * (PostScript, PDF, etc.). See cairo-paginated-private.h for
  * more details on how it works and how to use it.
  */
 
 #include "cairoint.h"
 
+#include "cairo-paginated-private.h"
 #include "cairo-paginated-surface-private.h"
 #include "cairo-meta-surface-private.h"
 #include "cairo-analysis-surface-private.h"
-
-typedef struct _cairo_paginated_surface {
-    cairo_surface_t base;
-
-    /* The target surface to hold the final result. */
-    cairo_surface_t *target;
-
-    cairo_content_t content;
-
-    /* XXX: These shouldn't actually exist. We inherit this ugliness
-     * from _cairo_meta_surface_create. The width/height parameters
-     * from that function also should not exist. The fix that will
-     * allow us to remove all of these is to fix acquire_source_image
-     * to pass an interest rectangle. */
-    int width;
-    int height;
-
-    /* Paginated-surface specific functions for the target */
-    const cairo_paginated_surface_backend_t *backend;
-
-    /* A cairo_meta_surface to record all operations. To be replayed
-     * against target, and also against image surface as necessary for
-     * fallbacks. */
-    cairo_surface_t *meta;
-
-    int page_num;
-    cairo_bool_t page_is_blank;
-
-} cairo_paginated_surface_t;
 
 const cairo_private cairo_surface_backend_t cairo_paginated_surface_backend;
 

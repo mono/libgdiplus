@@ -90,7 +90,7 @@ Vladimir Vukicevic <vladimir@pobox.com> Quartz backend rewrite, win32/quartz mai
 Jonathan Watt <jwatt@jwatt.org> win32 fixes
 Peter Weilbacher <pmw@avila.aip.de> OS/2 backend
 Dan Williams <dcbw@redhat.com> Implemnt MMX function to help OLPC
-Chris Wilson <cpwilson@taz.qinetiq.com> Large-scale robustness improvements, (warn_unsed_result and malloc failure injection)
+Chris Wilson <chris@chris-wilson.co.uk> Large-scale robustness improvements, (warn_unsed_result and malloc failure injection)
 Carl Worth <cworth@isi.edu> Original library, support for paths, images
 Richard D. Worth <richard@theworths.org> Build fixes for cygwin
 Kent Worsnop <kworsnop@accesswave.ca> Fix PDF dashing bug

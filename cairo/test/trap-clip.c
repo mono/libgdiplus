@@ -168,7 +168,8 @@ static cairo_test_draw_function_t draw;
 
 cairo_test_t test = {
     "trap-clip",
-    "Trapezoid clipping",
+    "Trapezoid clipping\n"
+    "PDF backend will not be tested due to limitations in poppler.",
     IMAGE_WIDTH, IMAGE_HEIGHT,
     draw
 };

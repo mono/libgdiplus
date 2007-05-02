@@ -36,7 +36,7 @@ cairo 1.4.x (not scheduled, may become part of 1.6)
 	4945 Cairo doesn't support 8-bit pseudocolor visuals
 	9993 Cairo fails with 555 X server visual
 
- • Discard trapezoids that lie outside the clip region (cworth)
+ ✓ Discard trapezoids that lie outside the clip region (cworth)
 
  • Review and land AltiVec patches
 
@@ -46,6 +46,7 @@ cairo 1.4.x (not scheduled, may become part of 1.6)
 cairo 1.6 (scheduled for July 2007, targeting firefox and GNOME)
 ================================================================
  • David Turner's cairo-ft rewrite. (behdad)
+   http://david.freetype.org/cairo/
 
  • Change from 16.16 to 24.8 (or so) for fixed-point storage (cworth)
 
@@ -56,6 +57,11 @@ cairo 1.6 (scheduled for July 2007, targeting firefox and GNOME)
  • New cairo-xlib API to support IncludeInferior Pictures (see bug
 	10329 for one proposal --- perhaps do
 	cairo_xlib_surface_create_for_picture instead)
+
+ • New cairo-xlib-xrender API:
+
+	XRenderPictFormat *
+	cairo_xlib_surface_get_xrender_format (cairo_surface_t *surface);
 
  • Make cairo-quartz a supported backend (vlad)
 

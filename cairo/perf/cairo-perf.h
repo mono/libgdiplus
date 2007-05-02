@@ -94,6 +94,7 @@ cairo_perf_cover_sources_and_operators (cairo_perf_t		*perf,
 
 CAIRO_PERF_DECL (fill);
 CAIRO_PERF_DECL (paint);
+CAIRO_PERF_DECL (paint_with_alpha);
 CAIRO_PERF_DECL (stroke);
 CAIRO_PERF_DECL (subimage_copy);
 CAIRO_PERF_DECL (tessellate);

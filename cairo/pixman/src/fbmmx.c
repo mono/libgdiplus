@@ -29,9 +29,7 @@
  * Based on work by Owen Taylor
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include "pixmanint.h"
 
 #include <assert.h>
 #include "fbpict.h"
@@ -1196,10 +1194,9 @@ fbCompositeSrc_8888x8x8888mmx (pixman_operator_t	op,
 {
     CARD32	*dstLine, *dst;
     CARD32	*srcLine, *src;
-    CARD8	*maskLine;
     CARD32	mask;
     __m64	vmask;
-    FbStride	dstStride, srcStride, maskStride;
+    FbStride	dstStride, srcStride;
     CARD16	w;
     __m64  srca;
 
@@ -1207,9 +1204,9 @@ fbCompositeSrc_8888x8x8888mmx (pixman_operator_t	op,
 
     fbComposeGetStart (pDst, xDst, yDst, CARD32, dstStride, dstLine, 1);
     fbComposeGetStart (pSrc, xSrc, ySrc, CARD32, srcStride, srcLine, 1);
-    fbComposeGetStart (pMask, xMask, yMask, CARD8, maskStride, maskLine, 1);
 
-    mask = *maskLine << 24 | *maskLine << 16 | *maskLine << 8 | *maskLine;
+    fbComposeGetSolid (pMask, pDst, mask);
+    mask = mask | mask >> 8 | mask >> 16 | mask >> 24;
     vmask = load8888 (mask);
     srca = MC(4x00ff);
 
@@ -1226,7 +1223,7 @@ fbCompositeSrc_8888x8x8888mmx (pixman_operator_t	op,
 	    __m64 s = load8888 (*src);
 	    __m64 d = load8888 (*dst);
 
-	    *dst = store8888 (over (s, expand_alpha (s), d));
+	    *dst = store8888 (in_over (s, expand_alpha (s), vmask, d));
 
 	    w--;
 	    dst++;
@@ -1235,8 +1232,8 @@ fbCompositeSrc_8888x8x8888mmx (pixman_operator_t	op,
 
 	while (w >= 2)
 	{
-	    __m64 vs = *(__m64 *)dst;
-	    __m64 vd = *(__m64 *)src;
+	    __m64 vs = *(__m64 *)src;
+	    __m64 vd = *(__m64 *)dst;
 	    __m64 vsrc0 = expand8888 (vs, 0);
 	    __m64 vsrc1 = expand8888 (vs, 1);
 
@@ -1281,10 +1278,9 @@ fbCompositeSrc_x888x8x8888mmx (pixman_operator_t	op,
 {
     CARD32	*dstLine, *dst;
     CARD32	*srcLine, *src;
-    CARD8	*maskLine;
     CARD32	mask;
     __m64	vmask;
-    FbStride	dstStride, srcStride, maskStride;
+    FbStride	dstStride, srcStride;
     CARD16	w;
     __m64  srca;
 
@@ -1292,9 +1288,9 @@ fbCompositeSrc_x888x8x8888mmx (pixman_operator_t	op,
 
     fbComposeGetStart (pDst, xDst, yDst, CARD32, dstStride, dstLine, 1);
     fbComposeGetStart (pSrc, xSrc, ySrc, CARD32, srcStride, srcLine, 1);
-    fbComposeGetStart (pMask, xMask, yMask, CARD8, maskStride, maskLine, 1);
+    fbComposeGetSolid (pMask, pDst, mask);
 
-    mask = *maskLine << 24 | *maskLine << 16 | *maskLine << 8 | *maskLine;
+    mask = mask | mask >> 8 | mask >> 16 | mask >> 24;
     vmask = load8888 (mask);
     srca = MC(4x00ff);
 

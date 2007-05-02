@@ -29,7 +29,8 @@ static cairo_test_draw_function_t draw;
 
 cairo_test_t test = {
     "gradient-alpha",
-    "Tests drawing of a gradient with various alpha values in the color stops",
+    "Tests drawing of a gradient with various alpha values in the color stops\n"
+    "PDF backend will not be tested due to limitations in poppler.",
     10, 10,
     draw
 };

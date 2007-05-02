@@ -14,14 +14,15 @@ backend_pkgconfigs =
 
 if CAIRO_HAS_PS_SURFACE
 libcairo_ps_headers = cairo-ps.h
-libcairo_ps_sources = cairo-ps-surface.c cairo-ps-test.h
+libcairo_ps_sources = cairo-ps-surface.c cairo-ps-surface-private.h
 libcairo_font_subset_sources =	$(font_subset_sources)
 backend_pkgconfigs += cairo-ps.pc
 endif
 
 if CAIRO_HAS_PDF_SURFACE
 libcairo_pdf_headers = cairo-pdf.h
-libcairo_pdf_sources = cairo-pdf-surface.c cairo-deflate-stream.c cairo-pdf-test.h
+libcairo_pdf_sources = cairo-pdf-surface.c cairo-pdf-surface-private.h \
+		       cairo-deflate-stream.c
 libcairo_font_subset_sources =	$(font_subset_sources)
 backend_pkgconfigs += cairo-pdf.pc
 endif
@@ -33,7 +34,7 @@ endif
 
 if CAIRO_HAS_SVG_SURFACE
 libcairo_svg_headers = cairo-svg.h
-libcairo_svg_sources = cairo-svg-surface.c cairo-svg-test.h
+libcairo_svg_sources = cairo-svg-surface.c cairo-svg-surface-private.h
 libcairo_font_subset_sources =	$(font_subset_sources)
 backend_pkgconfigs += cairo-svg.pc
 endif
@@ -46,7 +47,8 @@ endif
 
 if CAIRO_HAS_XLIB_SURFACE
 libcairo_xlib_headers = cairo-xlib.h cairo-xlib-xrender.h
-libcairo_xlib_sources = cairo-xlib-surface.c cairo-xlib-screen.c cairo-xlib-private.h cairo-xlib-test.h
+libcairo_xlib_sources = cairo-xlib-surface.c cairo-xlib-surface-private.h \
+			cairo-xlib-screen.c cairo-xlib-private.h
 backend_pkgconfigs += cairo-xlib.pc
 endif
 
@@ -175,7 +177,7 @@ libcairo_la_SOURCES =				\
 	cairo-color.c				\
 	cairo-debug.c				\
 	cairo-fixed.c				\
-	cairo-font.c				\
+	cairo-font-face.c			\
 	cairo-font-options.c			\
 	cairo-freelist.c			\
 	cairo-freelist-private.h		\
@@ -190,6 +192,7 @@ libcairo_la_SOURCES =				\
 	cairo-mutex.c				\
 	cairo-mutex-list-private.h		\
 	cairo-mutex-private.h			\
+	cairo-mutex-type-private.h		\
 	cairo-operator.c			\
 	cairo-path.c				\
 	cairo-path-private.h			\
@@ -203,7 +206,7 @@ libcairo_la_SOURCES =				\
 	cairo-rectangle.c			\
 	cairo-region.c				\
 	cairo-scaled-font.c			\
-	cairo-scaled-font-test.h		\
+	cairo-scaled-font-private.h		\
 	cairo-skiplist.c			\
 	cairo-skiplist-private.h		\
 	cairo-slope.c				\
@@ -212,7 +215,9 @@ libcairo_la_SOURCES =				\
 	cairo-surface.c				\
 	cairo-surface-fallback.c		\
 	cairo-surface-fallback-private.h	\
+	cairo-surface-private.h			\
 	cairo-traps.c				\
+	cairo-types-private.h			\
 	cairo-pattern.c				\
 	cairo-unicode.c				\
 	cairo-output-stream.c			\
@@ -221,6 +226,7 @@ libcairo_la_SOURCES =				\
 	cairo-wideint-private.h			\
 	cairo-meta-surface.c			\
 	cairo-meta-surface-private.h		\
+	cairo-paginated-private.h		\
 	cairo-paginated-surface.c		\
 	cairo-paginated-surface-private.h	\
 	cairo-analysis-surface.c		\

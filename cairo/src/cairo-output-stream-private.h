@@ -37,7 +37,7 @@
 #ifndef CAIRO_OUTPUT_STREAM_PRIVATE_H
 #define CAIRO_OUTPUT_STREAM_PRIVATE_H
 
-typedef struct _cairo_output_stream cairo_output_stream_t;
+#include "cairo-types-private.h"
 
 typedef cairo_status_t (*cairo_output_stream_write_func_t) (cairo_output_stream_t *output_stream,
 							    const unsigned char   *data,

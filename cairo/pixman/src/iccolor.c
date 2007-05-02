@@ -21,11 +21,7 @@
  * Author:  Keith Packard, SuSE, Inc.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include "icint.h"
+#include "pixmanint.h"
 
 #ifdef ICINT_NEED_IC_ONES
 /* Fall back on HACKMEM 169.  */

@@ -118,7 +118,7 @@ cairo_test_fini (void);
 
 /* Print a message to the log file, ala printf. */
 void
-cairo_test_log (const char *fmt, ...) CAIRO_PRINTF_FORMAT(1, 2);
+cairo_test_log (const char *fmt, ...) CAIRO_BOILERPLATE_PRINTF_FORMAT(1, 2);
 
 /* Helper functions that take care of finding source images even when
  * building in a non-srcdir manner, (ie. the tests will be run in a

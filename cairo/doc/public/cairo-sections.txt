@@ -199,7 +199,7 @@ cairo_matrix_transform_point
 
 <SECTION>
 <FILE>cairo-status</FILE>
-<TITLE>Error handling</TITLE>
+<TITLE>Error Handling</TITLE>
 cairo_status_t
 cairo_status_to_string
 cairo_debug_reset_static_data

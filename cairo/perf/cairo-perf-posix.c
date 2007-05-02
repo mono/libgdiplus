@@ -65,11 +65,11 @@
 /* timers */
 
 #if defined(__i386__) || defined(__amd64__)
-static inline unsigned long
+static inline cairo_perf_ticks_t
 oil_profile_stamp_rdtsc (void)
 {
-    unsigned long ts;
-    __asm__ __volatile__("rdtsc\n" : "=a" (ts) : : "edx");
+    uint64_t ts;
+    __asm__ __volatile__("rdtsc\n" : "=A" (ts));
     return ts;
 }
 #define OIL_STAMP oil_profile_stamp_rdtsc
@@ -79,8 +79,17 @@ oil_profile_stamp_rdtsc (void)
 static inline cairo_perf_ticks_t
 oil_profile_stamp_tb(void)
 {
-    unsigned long ts;
-    __asm__ __volatile__("mftb %0\n" : "=r" (ts));
+    uint32_t junk;
+    uint64_t ts;
+
+    __asm__ __volatile__ (
+        "1:     mftbu   %1;"
+        "       mftb    %0+1;"
+        "       mftbu   %0;"
+        "       cmpw    %0,%1;"
+        "       bne     1b" :
+        "=r" (ts), "=r" (junk));
+
     return ts;
 }
 #define OIL_STAMP oil_profile_stamp_tb
@@ -158,9 +167,6 @@ cairo_perf_timer_elapsed (void) {
     cairo_perf_ticks_t ticks;
 
 #ifdef OIL_STAMP
-    /* Handle 32-bit wraparound of timer value */
-    if (timer.stop < timer.start)
-	timer.stop += 0x100000000ll;
     ticks = (timer.stop - timer.start);
 #else
     ticks = (timer.tv_stop.tv_sec - timer.tv_start.tv_sec) * 1000000;

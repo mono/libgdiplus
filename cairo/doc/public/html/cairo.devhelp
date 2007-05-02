@@ -30,7 +30,7 @@
       </sub>
       <sub name="Utilities" link="Support.html">
         <sub name="cairo_matrix_t" link="cairo-cairo-matrix-t.html"/>
-        <sub name="Error handling" link="cairo-Error-handling.html"/>
+        <sub name="Error handling" link="cairo-Error-Handling.html"/>
         <sub name="Version Information" link="cairo-Version-Information.html"/>
         <sub name="Types" link="cairo-Types.html"/>
       </sub>
@@ -40,7 +40,7 @@
     <sub name="Index of new symbols in 1.4" link="ix03.html"/>
     <sub name="Creating a language binding for cairo" link="language-bindings.html">
       <sub name="General considerations" link="language-bindings.html#bindings-general"/>
-      <sub name="Memory Management" link="bindings-memory.html"/>
+      <sub name="Memory management" link="bindings-memory.html"/>
       <sub name="Multiple return values" link="bindings-return-values.html"/>
       <sub name="Overloading and optional arguments" link="bindings-overloading.html"/>
       <sub name="Streams and File I/O" link="bindings-streams.html"/>
@@ -336,11 +336,11 @@
     <function name="cairo_matrix_multiply ()" link="cairo-cairo-matrix-t.html#cairo-matrix-multiply"/>
     <function name="cairo_matrix_transform_distance ()" link="cairo-cairo-matrix-t.html#cairo-matrix-transform-distance"/>
     <function name="cairo_matrix_transform_point ()" link="cairo-cairo-matrix-t.html#cairo-matrix-transform-point"/>
-    <function name="enum cairo_status_t" link="cairo-Error-handling.html#cairo-status-t"/>
-    <function name="cairo_status_to_string ()" link="cairo-Error-handling.html#cairo-status-to-string"/>
-    <function name="cairo_debug_reset_static_data ()" link="cairo-Error-handling.html#cairo-debug-reset-static-data"/>
-    <function name="Compatibility" link="cairo-Version-Information.html#id2646859"/>
-    <function name="Examining the version" link="cairo-Version-Information.html#id2646898"/>
+    <function name="enum cairo_status_t" link="cairo-Error-Handling.html#cairo-status-t"/>
+    <function name="cairo_status_to_string ()" link="cairo-Error-Handling.html#cairo-status-to-string"/>
+    <function name="cairo_debug_reset_static_data ()" link="cairo-Error-Handling.html#cairo-debug-reset-static-data"/>
+    <function name="Compatibility" link="cairo-Version-Information.html#id2645875"/>
+    <function name="Examining the version" link="cairo-Version-Information.html#id2645914"/>
     <function name="CAIRO_VERSION" link="cairo-Version-Information.html#CAIRO-VERSION:CAPS"/>
     <function name="CAIRO_VERSION_MAJOR" link="cairo-Version-Information.html#CAIRO-VERSION-MAJOR:CAPS"/>
     <function name="CAIRO_VERSION_MINOR" link="cairo-Version-Information.html#CAIRO-VERSION-MINOR:CAPS"/>

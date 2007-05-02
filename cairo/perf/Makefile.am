@@ -10,7 +10,7 @@ INCLUDES =					\
 	-I$(top_builddir)/src			\
 	$(CAIRO_CFLAGS)
 
-noinst_PROGRAMS = cairo-perf cairo-perf-diff-files
+EXTRA_PROGRAMS = cairo-perf cairo-perf-diff-files
 EXTRA_DIST = cairo-perf-diff
 
 cairo_perf_SOURCES =		\
@@ -25,6 +25,7 @@ cairo_perf_SOURCES =		\
 	mosaic.c		\
 	mosaic.h		\
 	paint.c			\
+	paint-with-alpha.c	\
 	pattern_create_radial.c \
 	rectangles.c		\
 	stroke.c		\
@@ -40,7 +41,11 @@ cairo_perf_SOURCES =		\
 if CAIRO_HAS_WIN32_SURFACE
 cairo_perf_SOURCES += cairo-perf-win32.c
 else
+if CAIRO_HAS_OS2_SURFACE
+cairo_perf_SOURCES += cairo-perf-os2.c
+else
 cairo_perf_SOURCES += cairo-perf-posix.c
+endif
 endif
 
 cairo_perf_diff_files_SOURCES =	\
@@ -57,34 +62,52 @@ $(top_builddir)/boilerplate/libcairoboilerplate.la: $(top_builddir)/src/libcairo
 $(top_builddir)/src/libcairo.la:
 	cd $(top_builddir)/src && $(MAKE) $(AM_MAKEFLAGS) libcairo.la
 
-perf: cairo-perf FORCE
-	./cairo-perf
+
+# Do a funny transition of CAIRO_TEST_TARGET through TARGETS such that
+# one can limit tested targets both through CAIRO_TEST_TARGET env var
+# and TARGETS make var on the command line.
+TARGETS = $(CAIRO_TEST_TARGET)
+ITERS = $(CAIRO_PERF_ITERATIONS)
+CAIRO_PERF_ENVIRONMENT = CAIRO_TEST_TARGET="$(TARGETS)" CAIRO_PERF_ITERATIONS="$(ITERS)"
+
+# Cap the maximum number of iterations during 'make check'
+TESTS_ENVIRONMENT = CAIRO_TEST_TARGET="$(TARGETS)" CAIRO_PERF_ITERATIONS="10"
+
+TESTS = cairo-perf
+
+perf: cairo-perf
+	$(CAIRO_PERF_ENVIRONMENT) ./cairo-perf
 
 html: index.html
 
 index.html: cairo-perf
-	./cairo-perf-diff -h HEAD > $@
+	$(CAIRO_PERF_ENVIRONMENT) ./cairo-perf-diff -h HEAD > $@
 
-EXTRA_VG_FLAGS = $(CAIRO_EXTRA_VALGRIND_FLAGS)
-VG_MEMCHECK_FLAGS = \
+
+EXTRA_VALGRIND_FLAGS = $(CAIRO_EXTRA_VALGRIND_FLAGS)
+VALGRIND_MEMCHECK_FLAGS = \
 	--tool=memcheck \
 	--suppressions=$(top_srcdir)/test/.valgrind-suppressions \
 	--leak-check=yes --show-reachable=yes
-VG_CALLGRIND_FLAGS = \
+VALGRIND_CALLGRIND_FLAGS = \
 	--tool=callgrind
 CLEANFILES = \
+	$(EXTRA_PROGRAMS) \
 	valgrind-log \
+	callgrind.out.* \
 	index.html
 
-perf-valgrind: cairo-perf FORCE
-	$(top_srcdir)/libtool --mode=execute \
-		valgrind $(VG_MEMCHECK_FLAGS) $(EXTRA_VG_FLAGS) \
-		./cairo-perf 2>&1 | tee valgrind-log
-perf-callgrind: cairo-perf FORCE
-	$(top_srcdir)/libtool --mode=execute \
-		valgrind $(VG_CALLGRIND_FLAGS) $(EXTRA_VG_FLAGS) \
-		./cairo-perf
+check-valgrind perf-valgrind:
+	$(MAKE) $(AM_MAKEFLAGS) check \
+	    TESTS_ENVIRONMENT='$(TESTS_ENVIRONMENT) \
+	    $(top_srcdir)/libtool --mode=execute \
+	    valgrind $(VALGRIND_MEMCHECK_FLAGS) $(EXTRA_VALGRIND_FLAGS)' \
+	    | tee valgrind-log
 
-FORCE:
+perf-callgrind:
+	$(MAKE) $(AM_MAKEFLAGS) check \
+	    TESTS_ENVIRONMENT='$(TESTS_ENVIRONMENT) \
+	    $(top_srcdir)/libtool --mode=execute \
+	    valgrind $(VALGRIND_CALLGRIND_FLAGS) $(EXTRA_VALGRIND_FLAGS)'
 
-.PHONY: perf perf-valgrind perf-callgrind FORCE
+.PHONY: perf html check-valgrind perf-valgrind perf-callgrind

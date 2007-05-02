@@ -11,6 +11,7 @@ with your name on it.
 Changes that add new API (API changes/removals will not be considered)
 ======================================================================
  • Add CAIRO_FILL_RULE_INVERSE_WINDING and CAIRO_FILL_RULE_INVERSE_EVEN_ODD
+   or another way to provide that functionality.
 
  • Add support for programmatic patterns, (ie. arbitrary gradients)
 
@@ -32,6 +33,11 @@ Changes that add new API (API changes/removals will not be considered)
 	Implement the right API now.
 
  • Polling API (cairo_get_serial and cairo_changed)
+
+ • cairo_save/restore_path()
+	http://lists.freedesktop.org/archives/cairo/2007-April/010363.html
+
+ • cairo_copy_clip() and cairo_copy_clip_flat()
 
 Performance improvements
 ========================
@@ -85,10 +91,15 @@ Other fixes
 	objects. As a result, cairo uses Type3 fonts which generates
 	slightly different outlines.  Type1 has the same problem.
 
-  • Make image fallbacks finer-grained than a whole page (most of the
+ • Make image fallbacks finer-grained than a whole page (most of the
 	This is work to be done in the cairo-analysis-surface layer
 	and will benefit ps, pdf, svg, and any other
 	analysis-surface-using backends.
+
+ • Pen matrix locking.  Carl has written an excellent summary but
+   unfortunately that was not sent to the mailing list.  Ask him.
+
+ • Explore Render-like component-alpha ARGB masks
 
 Backend-specific improvements
 ==============================

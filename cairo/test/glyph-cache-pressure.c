@@ -24,7 +24,7 @@
  */
 
 #include "cairo-test.h"
-#include "cairo-scaled-font-test.h"
+#include "cairo-boilerplate-scaled-font.h"
 
 #define TEXT_SIZE 12
 
@@ -67,14 +67,14 @@ draw (cairo_t *cr, int width, int height)
     cairo_paint (cr);
     cairo_restore (cr);
 
-    _cairo_scaled_font_test_set_max_glyphs_cached_per_font (1);
-
     cairo_select_font_face (cr, "Bitstream Vera Sans",
 			    CAIRO_FONT_SLANT_NORMAL,
 			    CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size (cr, TEXT_SIZE);
 
     cairo_set_source_rgb (cr, 0, 0, 0); /* black */
+
+    cairo_boilerplate_scaled_font_set_max_glyphs_cached (cairo_get_scaled_font (cr), 1);
 
     cairo_move_to (cr, 1, TEXT_SIZE);
     cairo_show_text (cr, "the five boxing wizards jump quickly");

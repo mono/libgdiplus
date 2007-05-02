@@ -977,37 +977,3 @@ cairo_beos_surface_create_for_bitmap (BView*   view,
 {
     return _cairo_beos_surface_create_internal(view, bmp);
 }
-
-// ---------------------------------------------------------------------------
-// Cairo uses locks without explicit initialization. To support that, we
-// provide a class here which manages the locks and is in global scope, so the
-// compiler will instantiate it on library load and destroy it on library
-// unload.
-
-class BeLocks {
-    public:
-	BLocker _cairo_font_face_mutex;
-	BLocker _cairo_scaled_font_map_mutex;
-#ifdef CAIRO_HAS_FT_FONT
-	BLocker _cairo_ft_unscaled_font_map_mutex;
-#endif
-};
-
-static BeLocks locks;
-
-void* _cairo_font_face_mutex = &locks._cairo_font_face_mutex;
-void* _cairo_scaled_font_map_mutex = &locks._cairo_scaled_font_map_mutex;
-#ifdef CAIRO_HAS_FT_FONT
-void* _cairo_ft_unscaled_font_map_mutex = &locks._cairo_ft_unscaled_font_map_mutex;
-#endif
-
-void _cairo_beos_lock (void* locker) {
-    BLocker* bLocker = reinterpret_cast<BLocker*>(locker);
-    bLocker->Lock();
-}
-
-void _cairo_beos_unlock (void* locker) {
-    BLocker* bLocker = reinterpret_cast<BLocker*>(locker);
-    bLocker->Unlock();
-}
-

@@ -44,7 +44,7 @@
     </para>
   </sect1>
   <sect1 id="bindings-memory">
-    <title>Memory Management</title>
+    <title>Memory management</title>
     <para>
       The objects in cairo can roughly be divided into two types:
       reference-counted, opaque types like

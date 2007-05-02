@@ -27,13 +27,13 @@
 #include <cairo.h>
 
 #include <cairo-pdf.h>
-#include <cairo-pdf-test.h>
+#include <cairo-boilerplate-pdf.h>
 
 #include <cairo-ps.h>
-#include <cairo-ps-test.h>
+#include <cairo-boilerplate-ps.h>
 
 #include <cairo-svg.h>
-#include <cairo-svg-test.h>
+#include <cairo-boilerplate-svg.h>
 
 #include "cairo-test.h"
 
@@ -103,18 +103,18 @@ main (void)
 	case PDF:
 	    surface = cairo_pdf_surface_create (backend_filename[backend],
 						SIZE, SIZE);
-	    _cairo_pdf_test_force_fallbacks ();
+	    cairo_boilerplate_pdf_surface_force_fallbacks (surface);
 	    break;
 	case PS:
 	    surface = cairo_ps_surface_create (backend_filename[backend],
 					       SIZE, SIZE);
-	    _cairo_ps_test_force_fallbacks ();
+	    cairo_boilerplate_ps_surface_force_fallbacks (surface);
 	    break;
 	case SVG:
 	    surface = cairo_svg_surface_create (backend_filename[backend],
 						SIZE, SIZE);
+	    cairo_boilerplate_svg_surface_force_fallbacks (surface);
 	    cairo_svg_surface_restrict_to_version (surface, CAIRO_SVG_VERSION_1_2);
-	    _cairo_svg_test_force_fallbacks ();
 	    break;
 	}
 

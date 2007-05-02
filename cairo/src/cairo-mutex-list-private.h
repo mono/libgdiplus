@@ -31,8 +31,6 @@
  *	Mathias Hasselmann <mathias.hasselmann@gmx.de>
  */
 
-#ifndef CAIRO_MUTEX_LIST_PRIVATE_H
-#define CAIRO_MUTEX_LIST_PRIVATE_H
 
 CAIRO_MUTEX_DECLARE (_cairo_pattern_solid_cache_lock);
 
@@ -47,4 +45,6 @@ CAIRO_MUTEX_DECLARE (_cairo_ft_unscaled_font_map_mutex);
 CAIRO_MUTEX_DECLARE (_cairo_xlib_screen_mutex);
 #endif
 
-#endif
+
+/* Undefine, to err on unintended inclusion */
+#undef   CAIRO_MUTEX_DECLARE

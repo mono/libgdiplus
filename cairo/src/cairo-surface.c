@@ -288,7 +288,8 @@ cairo_surface_create_similar (cairo_surface_t  *other,
 
     return _cairo_surface_create_similar_solid (other, content,
 						width, height,
-						CAIRO_COLOR_TRANSPARENT);
+						CAIRO_COLOR_TRANSPARENT,
+						NULL);
 }
 slim_hidden_def (cairo_surface_create_similar);
 
@@ -297,7 +298,8 @@ _cairo_surface_create_similar_solid (cairo_surface_t	 *other,
 				     cairo_content_t	  content,
 				     int		  width,
 				     int		  height,
-				     const cairo_color_t *color)
+				     const cairo_color_t *color,
+				     cairo_pattern_t	 *pattern)
 {
     cairo_status_t status;
     cairo_surface_t *surface;
@@ -310,19 +312,23 @@ _cairo_surface_create_similar_solid (cairo_surface_t	 *other,
 	return (cairo_surface_t*) &_cairo_surface_nil;
     }
 
-    source = _cairo_pattern_create_solid (color);
-    if (source->status) {
-	cairo_surface_destroy (surface);
-	_cairo_error (CAIRO_STATUS_NO_MEMORY);
-	return (cairo_surface_t*) &_cairo_surface_nil;
-    }
+    if (pattern == NULL) {
+	source = _cairo_pattern_create_solid (color, content);
+	if (source->status) {
+	    cairo_surface_destroy (surface);
+	    _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	    return (cairo_surface_t*) &_cairo_surface_nil;
+	}
+    } else
+	source = pattern;
 
     status = _cairo_surface_paint (surface,
 				   color == CAIRO_COLOR_TRANSPARENT ?
 				   CAIRO_OPERATOR_CLEAR :
 				   CAIRO_OPERATOR_SOURCE, source);
 
-    cairo_pattern_destroy (source);
+    if (source != pattern)
+	cairo_pattern_destroy (source);
 
     if (status) {
 	cairo_surface_destroy (surface);
@@ -373,7 +379,7 @@ slim_hidden_def (cairo_surface_reference);
 
 /**
  * cairo_surface_destroy:
- * @surface: a #cairo_t
+ * @surface: a #cairo_surface_t
  *
  * Decreases the reference count on @surface by one. If the result is
  * zero, then @surface and all associated resources are freed.  See

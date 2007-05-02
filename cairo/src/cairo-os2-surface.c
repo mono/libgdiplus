@@ -98,6 +98,8 @@ cairo_os2_init (void)
 
     /* Initialize FontConfig */
     FcInit ();
+
+    CAIRO_MUTEX_INITIALIZE ();
 }
 
 cairo_public void
@@ -118,9 +120,7 @@ cairo_os2_fini (void)
     _cairo_ft_font_reset_static_data ();
 #endif
 
-#define CAIRO_MUTEX_DECLARE(name) CAIRO_MUTEX_FINI(name)
-#include "cairo-mutext-list.h"
-#undef CAIRO_MUTEX_DECLARE
+    CAIRO_MUTEX_FINALIZE ();
 
     /* Uninitialize FontConfig */
     FcFini ();

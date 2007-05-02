@@ -24,9 +24,7 @@
  * SOFTWARE.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include "pixmanint.h"
 
 #include "pixman-xserver-compat.h"
 #include "fbpict.h"

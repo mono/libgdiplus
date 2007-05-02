@@ -30,16 +30,16 @@
 <th width="100%" align="center">Cairo: A Vector Graphics Library</th>
 <td><a accesskey="n" href="Support.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
-<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2570029" class="shortcut">Top</a>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2573571" class="shortcut">Top</a>
                   &#160;|&#160;
-                  <a href="#id2643693" class="shortcut">Description</a></nobr></td></tr>
+                  <a href="#id2643952" class="shortcut">Description</a></nobr></td></tr>
 </table>
 <div class="refentry" lang="en">
 <a name="cairo-XLib-Surfaces"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2>
-<a name="id2570029"></a><span class="refentrytitle">XLib Surfaces</span>
+<a name="id2573571"></a><span class="refentrytitle">XLib Surfaces</span>
 </h2>
 <p>XLib Surfaces &#8212; X Window System rendering using XLib</p>
 </td>
@@ -79,17 +79,17 @@ int         <a href="cairo-XLib-Surfaces.html#cairo-xlib-surface-get-depth">cair
 </pre>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2643693"></a><h2>Description</h2>
+<a name="id2643952"></a><h2>Description</h2>
 <p>
 
 </p>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2643709"></a><h2>Details</h2>
+<a name="id2643967"></a><h2>Details</h2>
 <div class="refsect2" lang="en">
-<a name="id2644085"></a><h3>
+<a name="id2643978"></a><h3>
 <a name="cairo-xlib-surface-create"></a>cairo_xlib_surface_create ()</h3>
-<a class="indexterm" name="id2644097"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_xlib_surface_create  (Display *dpy,
+<a class="indexterm" name="id2643989"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_xlib_surface_create  (Display *dpy,
                                              Drawable drawable,
                                              Visual *visual,
                                              int width,
@@ -146,9 +146,9 @@ window changes.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2644273"></a><h3>
+<a name="id2648056"></a><h3>
 <a name="cairo-xlib-surface-create-for-bitmap"></a>cairo_xlib_surface_create_for_bitmap ()</h3>
-<a class="indexterm" name="id2644284"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_xlib_surface_create_for_bitmap
+<a class="indexterm" name="id2648068"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_xlib_surface_create_for_bitmap
                                             (Display *dpy,
                                              Pixmap bitmap,
                                              Screen *screen,
@@ -198,9 +198,9 @@ This will be drawn to as a CAIRO_FORMAT_A1 object.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2644448"></a><h3>
+<a name="id2643651"></a><h3>
 <a name="cairo-xlib-surface-set-size"></a>cairo_xlib_surface_set_size ()</h3>
-<a class="indexterm" name="id2644460"></a><pre class="programlisting">void        cairo_xlib_surface_set_size     (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+<a class="indexterm" name="id2643663"></a><pre class="programlisting">void        cairo_xlib_surface_set_size     (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                              int width,
                                              int height);</pre>
 <p>
@@ -240,9 +240,9 @@ this function on a surface created for a Pixmap.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2648104"></a><h3>
+<a name="id2643774"></a><h3>
 <a name="cairo-xlib-surface-get-display"></a>cairo_xlib_surface_get_display ()</h3>
-<a class="indexterm" name="id2648119"></a><pre class="programlisting">Display*    cairo_xlib_surface_get_display  (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
+<a class="indexterm" name="id2643789"></a><pre class="programlisting">Display*    cairo_xlib_surface_get_display  (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
 <p>
 Get the X Display for the underlying X Drawable.</p>
 <p>
@@ -269,9 +269,9 @@ Get the X Display for the underlying X Drawable.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2648184"></a><h3>
+<a name="id2648246"></a><h3>
 <a name="cairo-xlib-surface-get-screen"></a>cairo_xlib_surface_get_screen ()</h3>
-<a class="indexterm" name="id2648198"></a><pre class="programlisting">Screen*     cairo_xlib_surface_get_screen   (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
+<a class="indexterm" name="id2648260"></a><pre class="programlisting">Screen*     cairo_xlib_surface_get_screen   (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
 <p>
 Get the X Screen for the underlying X Drawable.</p>
 <p>
@@ -298,9 +298,9 @@ Get the X Screen for the underlying X Drawable.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2648264"></a><h3>
+<a name="id2648326"></a><h3>
 <a name="cairo-xlib-surface-set-drawable"></a>cairo_xlib_surface_set_drawable ()</h3>
-<a class="indexterm" name="id2648276"></a><pre class="programlisting">void        cairo_xlib_surface_set_drawable (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+<a class="indexterm" name="id2648338"></a><pre class="programlisting">void        cairo_xlib_surface_set_drawable (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                              Drawable drawable,
                                              int width,
                                              int height);</pre>
@@ -342,9 +342,9 @@ compatibility.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2648390"></a><h3>
+<a name="id2648464"></a><h3>
 <a name="cairo-xlib-surface-get-drawable"></a>cairo_xlib_surface_get_drawable ()</h3>
-<a class="indexterm" name="id2648405"></a><pre class="programlisting">Drawable    cairo_xlib_surface_get_drawable (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
+<a class="indexterm" name="id2648479"></a><pre class="programlisting">Drawable    cairo_xlib_surface_get_drawable (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
 <p>
 Get the underlying X Drawable used for the surface.</p>
 <p>
@@ -371,9 +371,9 @@ Get the underlying X Drawable used for the surface.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2648470"></a><h3>
+<a name="id2648552"></a><h3>
 <a name="cairo-xlib-surface-get-visual"></a>cairo_xlib_surface_get_visual ()</h3>
-<a class="indexterm" name="id2648485"></a><pre class="programlisting">Visual*     cairo_xlib_surface_get_visual   (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
+<a class="indexterm" name="id2648568"></a><pre class="programlisting">Visual*     cairo_xlib_surface_get_visual   (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
 <p>
 Get the X Visual used for underlying X Drawable.</p>
 <p>
@@ -400,9 +400,9 @@ Get the X Visual used for underlying X Drawable.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2648550"></a><h3>
+<a name="id2648641"></a><h3>
 <a name="cairo-xlib-surface-get-width"></a>cairo_xlib_surface_get_width ()</h3>
-<a class="indexterm" name="id2648564"></a><pre class="programlisting">int         cairo_xlib_surface_get_width    (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
+<a class="indexterm" name="id2648656"></a><pre class="programlisting">int         cairo_xlib_surface_get_width    (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
 <p>
 Get the width of the X Drawable underlying the surface in pixels.</p>
 <p>
@@ -429,9 +429,9 @@ Get the width of the X Drawable underlying the surface in pixels.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2648631"></a><h3>
+<a name="id2648730"></a><h3>
 <a name="cairo-xlib-surface-get-height"></a>cairo_xlib_surface_get_height ()</h3>
-<a class="indexterm" name="id2648645"></a><pre class="programlisting">int         cairo_xlib_surface_get_height   (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
+<a class="indexterm" name="id2648745"></a><pre class="programlisting">int         cairo_xlib_surface_get_height   (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
 <p>
 Get the height of the X Drawable underlying the surface in pixels.</p>
 <p>
@@ -458,9 +458,9 @@ Get the height of the X Drawable underlying the surface in pixels.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2648712"></a><h3>
+<a name="id2648818"></a><h3>
 <a name="cairo-xlib-surface-get-depth"></a>cairo_xlib_surface_get_depth ()</h3>
-<a class="indexterm" name="id2648726"></a><pre class="programlisting">int         cairo_xlib_surface_get_depth    (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
+<a class="indexterm" name="id2648834"></a><pre class="programlisting">int         cairo_xlib_surface_get_depth    (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
 <p>
 Get the number of bits used to represent each pixel value.</p>
 <p>

@@ -822,7 +822,10 @@ _cairo_glitz_pattern_acquire_surfaces (cairo_pattern_t	                *src,
 	combined = src_solid->color;
 	_cairo_color_multiply_alpha (&combined, mask_solid->color.alpha);
 
-	_cairo_pattern_init_solid (&tmp.solid, &combined);
+	_cairo_pattern_init_solid (&tmp.solid, &combined,
+				   CAIRO_COLOR_IS_OPAQUE (&combined) ?
+				   CAIRO_CONTENT_COLOR :
+				   CAIRO_CONTENT_COLOR_ALPHA);
 
 	mask = NULL;
     } else {
@@ -1002,7 +1005,8 @@ _cairo_glitz_surface_fill_rectangles (void		      *abstract_dst,
 	    _cairo_surface_create_similar_solid (&dst->base,
 						 CAIRO_CONTENT_COLOR_ALPHA,
 						 1, 1,
-						 (cairo_color_t *) color);
+						 (cairo_color_t *) color,
+						 NULL);
 	if (src->base.status)
 	    return CAIRO_STATUS_NO_MEMORY;
 

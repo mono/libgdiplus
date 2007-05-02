@@ -1531,7 +1531,8 @@ See <link linkend="cairo-fill"><function>cairo_fill()</function></link>, <link l
 <para>
 Tests whether the given point is inside the area that would be
 affected by a <link linkend="cairo-fill"><function>cairo_fill()</function></link> operation given the current path and
-filling parameters.
+filling parameters. Surface dimensions and clipping are not taken
+into account.
 </para>
 <para>
 See <link linkend="cairo-fill"><function>cairo_fill()</function></link>, <link linkend="cairo-set-fill-rule"><function>cairo_set_fill_rule()</function></link> and <link linkend="cairo-fill-preserve"><function>cairo_fill_preserve()</function></link>.</para>
@@ -1729,7 +1730,8 @@ current path and stroke parameters. If the current path is empty,</para>
 <para>
 Tests whether the given point is inside the area that would be
 affected by a <link linkend="cairo-stroke"><function>cairo_stroke()</function></link> operation given the current path and
-stroking parameters.
+stroking parameters. Surface dimensions and clipping are not taken
+into account.
 </para>
 <para>
 See <link linkend="cairo-stroke"><function>cairo_stroke()</function></link>, <link linkend="cairo-set-line-width"><function>cairo_set_line_width()</function></link>, <link linkend="cairo-set-line-join"><function>cairo_set_line_join()</function></link>,

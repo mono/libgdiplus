@@ -26,15 +26,22 @@
 #ifndef _XMALLOC_H_
 #define _XMALLOC_H_
 
-#include <stdlib.h>
+#include "cairo-boilerplate.h"
 
+#define xmalloc cairo_boilerplate_xmalloc
 void *
 xmalloc (size_t size);
 
+#define xcalloc cairo_boilerplate_xcalloc
 void *
 xcalloc (size_t nmemb, size_t size);
 
+#define xrealloc cairo_boilerplate_recalloc
 void *
 xrealloc (void *buf, size_t size);
+
+#define xasprintf cairo_boilerplate_xasprintf
+void
+xasprintf (char **strp, const char *fmt, ...) CAIRO_BOILERPLATE_PRINTF_FORMAT(2, 3);
 
 #endif

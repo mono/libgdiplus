@@ -37,7 +37,7 @@
  */
 
 #include "cairoint.h"
-#include "cairo-scaled-font-test.h"
+#include "cairo-scaled-font-private.h"
 
 static cairo_bool_t
 _cairo_scaled_glyph_keys_equal (const void *abstract_key_a, const void *abstract_key_b)
@@ -331,14 +331,7 @@ _cairo_scaled_font_keys_equal (const void *abstract_key_a, const void *abstract_
  * separately is probably not what we want anyway. Would probably be
  * much better to have a single cache for glyphs with random
  * replacement across all glyphs of all fonts. */
-static int max_glyphs_cached_per_font = 256;
-
-/* For internal testing purposes only. Not part of the supported API. */
-void
-_cairo_scaled_font_test_set_max_glyphs_cached_per_font (int max)
-{
-    max_glyphs_cached_per_font = max;
-}
+#define MAX_GLYPHS_CACHED_PER_FONT 256
 
 /*
  * Basic cairo_scaled_font_t object management
@@ -371,7 +364,7 @@ _cairo_scaled_font_init (cairo_scaled_font_t               *scaled_font,
 
     scaled_font->glyphs = _cairo_cache_create (_cairo_scaled_glyph_keys_equal,
 					       _cairo_scaled_glyph_destroy,
-					       max_glyphs_cached_per_font);
+					       MAX_GLYPHS_CACHED_PER_FONT);
     if (scaled_font->glyphs == NULL)
 	return CAIRO_STATUS_NO_MEMORY;
 
@@ -409,7 +402,7 @@ _cairo_scaled_font_reset_cache (cairo_scaled_font_t *scaled_font)
     _cairo_cache_destroy (scaled_font->glyphs);
     scaled_font->glyphs = _cairo_cache_create (_cairo_scaled_glyph_keys_equal,
 					       _cairo_scaled_glyph_destroy,
-					       max_glyphs_cached_per_font);
+					       MAX_GLYPHS_CACHED_PER_FONT);
 }
 
 void

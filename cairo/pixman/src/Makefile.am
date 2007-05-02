@@ -2,6 +2,7 @@ noinst_LTLIBRARIES = libpixman.la
 
 libpixman_la_SOURCES = \
 	pixman.h \
+	pixmanint.h \
 	pixman-remap.h \
 	pixman-xserver-compat.h \
 	pixregion.c \
@@ -14,7 +15,6 @@ libpixman_la_SOURCES = \
 	icformat.c \
 	icimage.c \
 	icimage.h \
-	icint.h \
 	icpixels.c \
 	icrect.c \
 	icrop.h \
@@ -42,5 +42,5 @@ libpixman_mmx_la_LIBADD = $(PIXMAN_LDADD)
 libpixman_la_LIBADD += libpixman-mmx.la
 endif
 
-TESTS = check-config.sh
+TESTS = check-pixmanint.sh
 EXTRA_DIST = $(TESTS)

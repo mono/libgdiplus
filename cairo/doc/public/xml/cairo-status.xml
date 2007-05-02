@@ -3,7 +3,7 @@
                 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
 <!ENTITY version SYSTEM "version.xml">
 ]>
-<refentry id="cairo-Error-handling">
+<refentry id="cairo-Error-Handling">
 <refmeta>
 <refentrytitle role="top_of_page">Error handling</refentrytitle>
 <manvolnum>3</manvolnum>

@@ -48,11 +48,7 @@ END
     exit 1
 }
 
-# Yes, this ugly ad-hoc option parsing could be cleaned up
-if [ $# -eq 0 ] || [ "$1" = "--" ]; then
-    usage
-fi
-
+# First, pull off any known options
 while true; do
     case $1 in
         -f|--force) force_cairo_perf="true";;
@@ -63,6 +59,13 @@ while true; do
     shift
 done
 
+# Then if anything is left that still looks like an option, (begins
+# with a dash), give usage to catch --help or any other -garbage
+if [ $# -eq 0 ] || [ "${1#-}" != "$1" ]; then
+    usage
+fi
+
+# Finally, pick up the actual revision arguments
 if [ $# -eq 1 ] || [ "$2" = "--" ]; then
     old="$1^"
     new="$1"
@@ -73,6 +76,7 @@ else
     shift 2
 fi
 
+# And post-finally, pass anything after -- on to cairo-perf
 CAIRO_PERF_OPTIONS="-r -i 10"
 if [ $# -gt 0 ]; then
     if [ "$1" = "--" ]; then

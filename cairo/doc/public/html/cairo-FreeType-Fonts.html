@@ -30,16 +30,16 @@
 <th width="100%" align="center">Cairo: A Vector Graphics Library</th>
 <td><a accesskey="n" href="cairo-Win32-Fonts.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
-<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2566088" class="shortcut">Top</a>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2609918" class="shortcut">Top</a>
                   &#160;|&#160;
-                  <a href="#id2571045" class="shortcut">Description</a></nobr></td></tr>
+                  <a href="#id2571033" class="shortcut">Description</a></nobr></td></tr>
 </table>
 <div class="refentry" lang="en">
 <a name="cairo-FreeType-Fonts"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2>
-<a name="id2566088"></a><span class="refentrytitle">FreeType Fonts</span>
+<a name="id2609918"></a><span class="refentrytitle">FreeType Fonts</span>
 </h2>
 <p>FreeType Fonts &#8212; Font support for FreeType</p>
 </td>
@@ -65,17 +65,17 @@ void        <a href="cairo-FreeType-Fonts.html#cairo-ft-scaled-font-unlock-face"
 </pre>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2571045"></a><h2>Description</h2>
+<a name="id2571033"></a><h2>Description</h2>
 <p>
 
 </p>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2571061"></a><h2>Details</h2>
+<a name="id2571048"></a><h2>Details</h2>
 <div class="refsect2" lang="en">
-<a name="id2571072"></a><h3>
+<a name="id2571059"></a><h3>
 <a name="cairo-ft-font-face-create-for-ft-face"></a>cairo_ft_font_face_create_for_ft_face ()</h3>
-<a class="indexterm" name="id2571084"></a><pre class="programlisting"><a href="cairo-cairo-font-face-t.html#cairo-font-face-t">cairo_font_face_t</a>* cairo_ft_font_face_create_for_ft_face
+<a class="indexterm" name="id2571072"></a><pre class="programlisting"><a href="cairo-cairo-font-face-t.html#cairo-font-face-t">cairo_font_face_t</a>* cairo_ft_font_face_create_for_ft_face
                                             (FT_Face face,
                                              int load_flags);</pre>
 <p>
@@ -123,9 +123,9 @@ as <code class="function">cairo_ft_font_lock_face()</code>.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2634269"></a><h3>
+<a name="id2634257"></a><h3>
 <a name="cairo-ft-font-face-create-for-pattern"></a>cairo_ft_font_face_create_for_pattern ()</h3>
-<a class="indexterm" name="id2634283"></a><pre class="programlisting"><a href="cairo-cairo-font-face-t.html#cairo-font-face-t">cairo_font_face_t</a>* cairo_ft_font_face_create_for_pattern
+<a class="indexterm" name="id2634270"></a><pre class="programlisting"><a href="cairo-cairo-font-face-t.html#cairo-font-face-t">cairo_font_face_t</a>* cairo_ft_font_face_create_for_pattern
                                             (FcPattern *pattern);</pre>
 <p>
 Creates a new font face for the FreeType font backend based on a
@@ -169,9 +169,9 @@ appropriately to reflect the options in a <a href="cairo-Font-Options.html#cairo
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2631574"></a><h3>
+<a name="id2629106"></a><h3>
 <a name="cairo-ft-font-options-substitute"></a>cairo_ft_font_options_substitute ()</h3>
-<a class="indexterm" name="id2631585"></a><pre class="programlisting">void        cairo_ft_font_options_substitute
+<a class="indexterm" name="id2629118"></a><pre class="programlisting">void        cairo_ft_font_options_substitute
                                             (const <a href="cairo-Font-Options.html#cairo-font-options-t">cairo_font_options_t</a> *options,
                                              FcPattern *pattern);</pre>
 <p>
@@ -201,9 +201,9 @@ before calling <code class="function">FcDefaultSubstitute()</code>.</p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2570755"></a><h3>
+<a name="id2631429"></a><h3>
 <a name="cairo-ft-scaled-font-lock-face"></a>cairo_ft_scaled_font_lock_face ()</h3>
-<a class="indexterm" name="id2570767"></a><pre class="programlisting">FT_Face     cairo_ft_scaled_font_lock_face  (<a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t">cairo_scaled_font_t</a> *scaled_font);</pre>
+<a class="indexterm" name="id2631442"></a><pre class="programlisting">FT_Face     cairo_ft_scaled_font_lock_face  (<a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t">cairo_scaled_font_t</a> *scaled_font);</pre>
 <p>
 <code class="function">cairo_ft_font_lock_face()</code> gets the <span class="type">FT_Face</span> object from a FreeType
 backend font and scales it appropriately for the font. You must
@@ -250,9 +250,9 @@ or <code class="literal">NULL</code> if <em class="parameter"><code>scaled_font<
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2570939"></a><h3>
+<a name="id2631614"></a><h3>
 <a name="cairo-ft-scaled-font-unlock-face"></a>cairo_ft_scaled_font_unlock_face ()</h3>
-<a class="indexterm" name="id2570952"></a><pre class="programlisting">void        cairo_ft_scaled_font_unlock_face
+<a class="indexterm" name="id2631627"></a><pre class="programlisting">void        cairo_ft_scaled_font_unlock_face
                                             (<a href="cairo-Scaled-Fonts.html#cairo-scaled-font-t">cairo_scaled_font_t</a> *scaled_font);</pre>
 <p>
 Releases a face obtained with <a href="cairo-FreeType-Fonts.html#cairo-ft-scaled-font-lock-face"><code class="function">cairo_ft_scaled_font_lock_face()</code></a>.</p>

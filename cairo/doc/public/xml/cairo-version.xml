@@ -174,14 +174,14 @@ The minor component of the version of cairo available at compile-time.
 </para></refsect2>
 <refsect2>
 <title><anchor id="CAIRO-VERSION-MICRO:CAPS" role="macro"/>CAIRO_VERSION_MICRO</title>
-<indexterm><primary>CAIRO_VERSION_MICRO</primary></indexterm><programlisting>#define CAIRO_VERSION_MICRO 4
+<indexterm><primary>CAIRO_VERSION_MICRO</primary></indexterm><programlisting>#define CAIRO_VERSION_MICRO 6
 </programlisting>
 <para>
 The micro component of the version of cairo available at compile-time.
 </para></refsect2>
 <refsect2>
 <title><anchor id="CAIRO-VERSION-STRING:CAPS" role="macro"/>CAIRO_VERSION_STRING</title>
-<indexterm><primary>CAIRO_VERSION_STRING</primary></indexterm><programlisting>#define CAIRO_VERSION_STRING "1.4.4"
+<indexterm><primary>CAIRO_VERSION_STRING</primary></indexterm><programlisting>#define CAIRO_VERSION_STRING "1.4.6"
 </programlisting>
 <para>
 A human-readable string literal containing the version of cairo available

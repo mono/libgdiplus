@@ -216,7 +216,7 @@ zero, then <parameter>surface</parameter> and all associated resources are freed
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>surface</parameter>&nbsp;:</term>
-<listitem><simpara> a <link linkend="cairo-t"><type>cairo_t</type></link>
+<listitem><simpara> a <link linkend="cairo-surface-t"><type>cairo_surface_t</type></link>
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>

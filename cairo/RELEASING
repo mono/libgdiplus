@@ -42,7 +42,7 @@ Here are the steps to follow to create a new cairo release:
 	the following command will show each patch that has changed a
 	public header file since the given version:
 
-		find src/ -name '*.h' ! -name '*-private.h' ! -name '*-test.h' ! -name 'cairoint.h' | \
+		find src/ -name '*.h' ! -name '*-private.h' ! -name 'cairoint.h' | \
 		xargs git log -p X.Y.Z.. --
 
 4) Increment cairo_version_{minor|micro} and LT_{CURRENT|VERSION|AGE}

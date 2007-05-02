@@ -385,12 +385,12 @@ cairo_truetype_font_write_cmap_table (cairo_truetype_font_t *font,
     cairo_truetype_font_write_be16 (font, 4);  /* searchrange */
     cairo_truetype_font_write_be16 (font, 1);  /* entry selector */
     cairo_truetype_font_write_be16 (font, 0);  /* rangeshift */
-    cairo_truetype_font_write_be16 (font, 0xf000 + font->base.num_glyphs - 2); /* end count[0] */
+    cairo_truetype_font_write_be16 (font, 0xf000 + font->base.num_glyphs - 1); /* end count[0] */
     cairo_truetype_font_write_be16 (font, 0xffff);  /* end count[1] */
     cairo_truetype_font_write_be16 (font, 0);       /* reserved */
     cairo_truetype_font_write_be16 (font, 0xf000);  /* startCode[0] */
     cairo_truetype_font_write_be16 (font, 0xffff);  /* startCode[1] */
-    cairo_truetype_font_write_be16 (font, 0x1001);  /* delta[0] */
+    cairo_truetype_font_write_be16 (font, 0x1000);  /* delta[0] */
     cairo_truetype_font_write_be16 (font, 1);       /* delta[1] */
     cairo_truetype_font_write_be16 (font, 0);       /* rangeOffset[0] */
     cairo_truetype_font_write_be16 (font, 0);       /* rangeOffset[1] */
@@ -398,12 +398,12 @@ cairo_truetype_font_write_cmap_table (cairo_truetype_font_t *font,
     /* Output a format 6 encoding table. */
 
     cairo_truetype_font_write_be16 (font, 6);
-    cairo_truetype_font_write_be16 (font, 10 + 2 * (font->base.num_glyphs - 1));
+    cairo_truetype_font_write_be16 (font, 10 + 2 * font->base.num_glyphs);
     cairo_truetype_font_write_be16 (font, 0);
     cairo_truetype_font_write_be16 (font, 0); /* First character */
     cairo_truetype_font_write_be16 (font, font->base.num_glyphs);
     for (i = 0; i < font->base.num_glyphs; i++)
-	cairo_truetype_font_write_be16 (font, i + 1);
+	cairo_truetype_font_write_be16 (font, i);
 
     return font->status;
 }
@@ -915,7 +915,7 @@ cairo_status_t
 _cairo_truetype_subset_init (cairo_truetype_subset_t    *truetype_subset,
 			     cairo_scaled_font_subset_t	*font_subset)
 {
-    cairo_truetype_font_t *font;
+    cairo_truetype_font_t *font = NULL;
     cairo_status_t status;
     const char *data = NULL; /* squelch bogus compiler warning */
     unsigned long length = 0; /* squelch bogus compiler warning */
@@ -927,10 +927,6 @@ _cairo_truetype_subset_init (cairo_truetype_subset_t    *truetype_subset,
     status = _cairo_truetype_font_create (font_subset, &font);
     if (status)
 	return status;
-
-    /* Add the notdef glyph. This is required at glyph index 0
-     * in the subsetted font. */
-    cairo_truetype_font_use_glyph (font, 0);
 
     for (i = 0; i < font->scaled_font_subset->num_glyphs; i++) {
 	parent_glyph = font->scaled_font_subset->glyphs[i];
@@ -946,16 +942,15 @@ _cairo_truetype_subset_init (cairo_truetype_subset_t    *truetype_subset,
     if (truetype_subset->base_font == NULL)
 	goto fail1;
 
-    /* The widths array returned must contain only widths for
-     * the glyphs in font_subset. The notdef glyph at index 0
-     * and any subglyphs appended after font_subset->num_glyphs
-     * are omitted. */
+    /* The widths array returned must contain only widths for the
+     * glyphs in font_subset. Any subglyphs appended after
+     * font_subset->num_glyphs are omitted. */
     truetype_subset->widths = calloc (sizeof (double),
                                       font->scaled_font_subset->num_glyphs);
     if (truetype_subset->widths == NULL)
 	goto fail2;
     for (i = 0; i < font->scaled_font_subset->num_glyphs; i++)
-	truetype_subset->widths[i] = (double)font->base.widths[i + 1]/font->base.units_per_em;
+	truetype_subset->widths[i] = (double)font->base.widths[i]/font->base.units_per_em;
 
     truetype_subset->x_min = (double)font->base.x_min/font->base.units_per_em;
     truetype_subset->y_min = (double)font->base.y_min/font->base.units_per_em;

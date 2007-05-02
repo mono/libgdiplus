@@ -36,11 +36,6 @@
  *	Vladimir Vukicevic <vladimir@pobox.com>
  */
 
-#include "cairoint.h"
-
-#include "cairo-clip-private.h"
-#include "cairo-win32-private.h"
-
 #define WIN32_LEAN_AND_MEAN
 /* We require Windows 2000 features such as ETO_PDY */
 #if !defined(WINVER) || (WINVER < 0x0500)
@@ -49,7 +44,17 @@
 #if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0500)
 # define _WIN32_WINNT 0x0500
 #endif
+
+#include "cairoint.h"
+
+#include "cairo-clip-private.h"
+#include "cairo-win32-private.h"
+
 #include <windows.h>
+
+#if defined(__MINGW32__) && !defined(ETO_PDY)
+# define ETO_PDY 0x2000
+#endif
 
 #undef DEBUG_COMPOSITE
 
@@ -1896,3 +1901,33 @@ static const cairo_surface_backend_t cairo_win32_surface_backend = {
  *              it will still copy over the src alpha, because the SCA value (255) will be
  *              multiplied by all the src components.
  */
+
+
+#if !defined(CAIRO_WIN32_STATIC_BUILD)
+
+/* declare to avoid "no previous prototype for 'DllMain'" warning */
+BOOL WINAPI
+DllMain (HINSTANCE hinstDLL,
+         DWORD     fdwReason,
+         LPVOID    lpvReserved);
+
+BOOL WINAPI
+DllMain (HINSTANCE hinstDLL,
+         DWORD     fdwReason,
+         LPVOID    lpvReserved)
+{
+    switch (fdwReason) {
+        case DLL_PROCESS_ATTACH:
+            CAIRO_MUTEX_INITIALIZE ();
+            break;
+
+        case DLL_PROCESS_DETACH:
+            CAIRO_MUTEX_FINALIZE ();
+            break;
+    }
+
+    return TRUE;
+}
+
+#endif
+

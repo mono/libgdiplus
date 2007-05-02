@@ -36,7 +36,6 @@
 #include "cairoint.h"
 #include "cairo-xlib.h"
 
-typedef struct _cairo_xlib_screen_info cairo_xlib_screen_info_t;
 typedef struct _cairo_xlib_hook cairo_xlib_hook_t;
 
 struct _cairo_xlib_hook {

@@ -61,6 +61,17 @@ _cairo_traps_init (cairo_traps_t *traps)
     traps->traps = NULL;
     traps->extents.p1.x = traps->extents.p1.y = INT32_MAX;
     traps->extents.p2.x = traps->extents.p2.y = INT32_MIN;
+
+    traps->has_limits = FALSE;
+}
+
+void
+_cairo_traps_limit (cairo_traps_t	*traps,
+		    cairo_box_t		*limits)
+{
+    traps->has_limits = TRUE;
+
+    traps->limits = *limits;
 }
 
 void
@@ -124,7 +135,62 @@ _cairo_traps_add_trap (cairo_traps_t *traps, cairo_fixed_t top, cairo_fixed_t bo
     if (traps->status)
 	return;
 
-    if (top == bottom) {
+    /* Note: With the goofy trapezoid specification, (where an
+     * arbitrary two points on the lines can specified for the left
+     * and right edges), these limit checks would not work in
+     * general. For example, one can imagine a trapezoid entirely
+     * within the limits, but with two points used to specify the left
+     * edge entirely to the right of the limits.  Fortunately, for our
+     * purposes, cairo will never generate such a crazy
+     * trapezoid. Instead, cairo always uses for its points the
+     * extreme positions of the edge that are visible on at least some
+     * trapezoid. With this constraint, it's impossible for both
+     * points to be outside the limits while the relevant edge is
+     * entirely inside the limits.
+     */
+    if (traps->has_limits) {
+	/* Trivially reject if trapezoid is entirely to the right or
+	 * to the left of the limits. */
+	if (left->p1.x >= traps->limits.p2.x &&
+	    left->p2.x >= traps->limits.p2.x)
+	{
+	    return;
+	}
+
+	if (right->p1.x <= traps->limits.p1.x &&
+	    right->p2.x <= traps->limits.p1.x)
+	{
+	    return;
+	}
+
+	/* Otherwise, clip the trapezoid to the limits. We only clip
+	 * where an edge is entirely outside the limits. If we wanted
+	 * to be more clever, we could handle cases where a trapezoid
+	 * edge intersects the edge of the limits, but that would
+	 * require slicing this trapezoid into multiple trapezoids,
+	 * and I'm not sure the effort would be worth it. */
+	if (top < traps->limits.p1.y)
+	    top = traps->limits.p1.y;
+
+	if (bottom > traps->limits.p2.y)
+	    bottom = traps->limits.p2.y;
+
+	if (left->p1.x < traps->limits.p1.x &&
+	    left->p2.x < traps->limits.p1.x)
+	{
+	    left->p1.x = traps->limits.p1.x;
+	    left->p2.x = traps->limits.p1.x;
+	}
+
+	if (right->p1.x > traps->limits.p2.x &&
+	    right->p2.x > traps->limits.p2.x)
+	{
+	    right->p1.x = traps->limits.p2.x;
+	    right->p2.x = traps->limits.p2.x;
+	}
+    }
+
+    if (top >= bottom) {
 	return;
     }
 

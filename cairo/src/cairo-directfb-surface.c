@@ -333,7 +333,7 @@ _directfb_acquire_surface (cairo_directfb_surface_t *surface,
     cairo_format_t            cairo_format;
     cairo_format = surface->format;    
         
-    if (surface->format == -1) {
+    if (surface->format == (cairo_format_t) -1) {
         if( intrest_rec ) {
             source_rect.x = intrest_rec->x;
             source_rect.y = intrest_rec->y;

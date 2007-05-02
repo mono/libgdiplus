@@ -177,12 +177,14 @@ test_surface (const char		 *filename,
     if (fread (file_contents, 1, wc.index, fp) != wc.index) {
 	cairo_test_log ("Failed to read %s: %s\n",
 			filename, strerror (errno));
+	fclose (fp);
 	return CAIRO_TEST_FAILURE;
     }
 
     if (memcmp (file_contents, wc.buffer, wc.index) != 0) {
 	cairo_test_log ("Stream based output differ from file output for %s\n",
 			filename);
+	fclose (fp);
 	return CAIRO_TEST_FAILURE;
     }
 
@@ -195,35 +197,36 @@ test_surface (const char		 *filename,
 int
 main (void)
 {
-    cairo_test_status_t status;
+    cairo_test_status_t status = CAIRO_TEST_SUCCESS;
+    cairo_test_status_t test_status;
 
     cairo_test_init ("create-for-stream");
 
 #if CAIRO_HAS_PS_SURFACE
-    status = test_surface ("create-for-stream.ps",
-			   cairo_ps_surface_create,
-			   cairo_ps_surface_create_for_stream);
-    if (status != CAIRO_TEST_SUCCESS)
-	return status;
+    test_status = test_surface ("create-for-stream.ps",
+			        cairo_ps_surface_create,
+			        cairo_ps_surface_create_for_stream);
+    if (status == CAIRO_TEST_SUCCESS)
+	status = test_status;
 #endif
 
 #if CAIRO_HAS_PDF_SURFACE
-    status = test_surface ("create-for-stream.pdf",
-			   cairo_pdf_surface_create,
-			   cairo_pdf_surface_create_for_stream);
-    if (status != CAIRO_TEST_SUCCESS)
-	return status;
+    test_status = test_surface ("create-for-stream.pdf",
+			        cairo_pdf_surface_create,
+			        cairo_pdf_surface_create_for_stream);
+    if (status == CAIRO_TEST_SUCCESS)
+	status = test_status;
 #endif
 
 #if CAIRO_HAS_SVG_SURFACE
-    status = test_surface ("create-for-stream.svg",
-			   cairo_svg_surface_create,
-			   cairo_svg_surface_create_for_stream);
-    if (status != CAIRO_TEST_SUCCESS)
-	return status;
+    test_status = test_surface ("create-for-stream.svg",
+			        cairo_svg_surface_create,
+			        cairo_svg_surface_create_for_stream);
+    if (status == CAIRO_TEST_SUCCESS)
+	status = test_status;
 #endif
 
     cairo_test_fini ();
 
-    return CAIRO_TEST_SUCCESS;
+    return status;
 }

@@ -27,12 +27,20 @@
  */
 
 #include "cairo-perf.h"
-#include "config.h"
 
 /* For getopt */
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
 /* For basename */
+#ifdef HAVE_LIBGEN_H
 #include <libgen.h>
+#endif
+
+#if HAVE_FCFINI
+#include <fontconfig/fontconfig.h>
+#endif
 
 #ifdef HAVE_SCHED_H
 #include <sched.h>
@@ -216,10 +224,11 @@ static void
 parse_options (cairo_perf_t *perf, int argc, char *argv[])
 {
     int c;
+    const char *iters;
     char *end;
 
-    if (getenv("CAIRO_PERF_ITERATIONS"))
-	perf->iterations = strtol(getenv("CAIRO_PERF_ITERATIONS"), NULL, 0);
+    if ((iters = getenv("CAIRO_PERF_ITERATIONS")) && *iters)
+	perf->iterations = strtol(iters, NULL, 0);
     else
 	perf->iterations = CAIRO_PERF_ITERATIONS_DEFAULT;
     perf->exact_iterations = 0;
@@ -298,14 +307,23 @@ check_cpu_affinity(void)
 #endif
 }
 
+static void
+cairo_perf_fini (void)
+{
+    cairo_debug_reset_static_data ();
+#if HAVE_FCFINI
+    FcFini ();
+#endif
+}
+
+
 int
 main (int argc, char *argv[])
 {
-    int i, j;
+    int i, j, num_targets;
     cairo_perf_case_t *perf_case;
     cairo_perf_t perf;
-    const char *cairo_test_target = getenv ("CAIRO_TEST_TARGET");
-    cairo_boilerplate_target_t *target;
+    cairo_boilerplate_target_t **targets;
     cairo_surface_t *surface;
 
     parse_options (&perf, argc, argv);
@@ -323,14 +341,16 @@ main (int argc, char *argv[])
             stderr);
     }
 
-    for (i = 0; targets[i].name; i++) {
-	perf.target = target = &targets[i];
-	perf.test_number = 0;
+    targets = cairo_boilerplate_get_targets (&num_targets, NULL);
+
+    for (i = 0; i < num_targets; i++) {
+        cairo_boilerplate_target_t *target = targets[i];
 
 	if (! target_is_measurable (target))
 	    continue;
-	if (cairo_test_target && ! strstr (cairo_test_target, target->name))
-	    continue;
+
+	perf.target = target;
+	perf.test_number = 0;
 
 	for (j = 0; perf_cases[j].run; j++) {
 
@@ -345,6 +365,15 @@ main (int argc, char *argv[])
 						    perf.size, perf.size,
 						    CAIRO_BOILERPLATE_MODE_PERF,
 						    &target->closure);
+		if (surface == NULL) {
+		    fprintf (stderr,
+			     "Error: Failed to create target surface: %s\n",
+			     target->name);
+		    cairo_boilerplate_free_targets (targets);
+		    cairo_perf_fini ();
+		    exit (1);
+		}
+
 		cairo_perf_timer_set_synchronize (target->synchronize,
 						  target->closure);
 
@@ -355,6 +384,8 @@ main (int argc, char *argv[])
 		if (cairo_status (perf.cr)) {
 		    fprintf (stderr, "Error: Test left cairo in an error state: %s\n",
 			     cairo_status_to_string (cairo_status (perf.cr)));
+		    cairo_boilerplate_free_targets (targets);
+		    cairo_perf_fini ();
 		    exit (1);
 		}
 
@@ -367,11 +398,15 @@ main (int argc, char *argv[])
 	}
     }
 
+    cairo_boilerplate_free_targets (targets);
+    cairo_perf_fini ();
+
     return 0;
 }
 
 cairo_perf_case_t perf_cases[] = {
     { paint,  256, 512},
+    { paint_with_alpha,  256, 512},
     { fill,   64, 256},
     { stroke, 64, 256},
     { text,   64, 256},

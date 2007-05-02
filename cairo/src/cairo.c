@@ -1545,7 +1545,7 @@ slim_hidden_def (cairo_curve_to);
  * <informalexample><programlisting>
  * cairo_save (cr);
  * cairo_translate (cr, x + width / 2., y + height / 2.);
- * cairo_scale (cr, 1. / (height / 2.), 1. / (width / 2.));
+ * cairo_scale (cr, width / 2., height / 2.);
  * cairo_arc (cr, 0., 0., 1., 0., 2 * M_PI);
  * cairo_restore (cr);
  * </programlisting></informalexample>
@@ -1913,7 +1913,7 @@ cairo_paint_with_alpha (cairo_t *cr,
     }
 
     _cairo_color_init_rgba (&color, 1., 1., 1., alpha);
-    _cairo_pattern_init_solid (&pattern.solid, &color);
+    _cairo_pattern_init_solid (&pattern.solid, &color, CAIRO_CONTENT_ALPHA);
 
     status = _cairo_gstate_mask (cr->gstate, &pattern.base);
     if (status)
@@ -2151,7 +2151,8 @@ cairo_show_page (cairo_t *cr)
  *
  * Tests whether the given point is inside the area that would be
  * affected by a cairo_stroke() operation given the current path and
- * stroking parameters.
+ * stroking parameters. Surface dimensions and clipping are not taken
+ * into account.
  *
  * See cairo_stroke(), cairo_set_line_width(), cairo_set_line_join(),
  * cairo_set_line_cap(), cairo_set_dash(), and
@@ -2186,7 +2187,8 @@ cairo_in_stroke (cairo_t *cr, double x, double y)
  *
  * Tests whether the given point is inside the area that would be
  * affected by a cairo_fill() operation given the current path and
- * filling parameters.
+ * filling parameters. Surface dimensions and clipping are not taken
+ * into account.
  *
  * See cairo_fill(), cairo_set_fill_rule() and cairo_fill_preserve().
  *

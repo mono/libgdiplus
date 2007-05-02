@@ -1,3 +1,2218 @@
+commit ddca8fec07ff95caeda6e4ce9efc3239b146bd2d
+Author: Carl Worth <cworth@cworth.org>
+Date:   Tue May 1 13:37:16 2007 -0700
+
+    perf: Add $(EXTRA_PROGRAMS) to CLEANFILES
+    
+    Otherwise these programs stick around and break distclean,
+    distcheck, and hence release-publish targets.
+
+ perf/Makefile.am |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+commit 0390ed4f189365d595b40a45b0cf9eef5aa0c6ba
+Author: Carl Worth <cworth@cworth.org>
+Date:   Tue May 1 13:24:43 2007 -0700
+
+    Increment version to 1.4.6 (and library versioning to 13:3:11)
+
+ configure.in |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+commit c9e0bb5c79abfc50ae6a24f603c5493c3ac68e40
+Author: Carl Worth <cworth@cworth.org>
+Date:   Tue May 1 13:20:56 2007 -0700
+
+    NEWS: Add notes for cairo 1.4.6
+
+ NEWS |  116 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 116 insertions(+), 0 deletions(-)
+
+commit 7f7f4d4f35cd640733b990fcff924a090b43d360
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 1 12:37:38 2007 +0100
+
+    [cairo-xlib-surface.c] Free the Pixmap on surface construction failure.
+    
+    If we create the Pixmap whilst constructing a similar xlib surface, then
+    it our responsibility to free the Pixmap should we fail to allocate the
+    surface.
+
+ src/cairo-xlib-surface.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+commit 3e3bd4df7e810a9acd14cd6f3717633f71691b9e
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 1 11:28:45 2007 +0100
+
+    Minor typo in cairo_surface_destroy() documentation.
+    
+    The type of @surface is #cairo_surface_t, not #cairo_t.
+
+ src/cairo-surface.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit f7cdbd385a02d023e35357cd27dcc165ada667f2
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Tue May 1 00:41:07 2007 -0400
+
+    [cairo-mutex-private.h] Move implementation-specific parts to cairo-mutex-type-private.h
+    
+    This fixes the problem reported by Dave Yeo that boilerplate wasn't building:
+    
+    In file included from ../src/cairo-scaled-font-private.h:44,
+    	     from cairo-boilerplate.c:65:
+    ../src/cairo-mutex-private.h:183: error: syntax error before "extern"
+    ../src/cairo-mutex-private.h:184: error: syntax error before "void"
+    ../src/cairo-mutex-private.h:185: error: syntax error before "void"
+    make[3]: *** [cairo-boilerplate.lo] Error 1
+
+ src/Makefile.am                 |    1 +
+ src/cairo-mutex-private.h       |   81 +-----------------------
+ src/cairo-mutex-type-private.h  |  131 +++++++++++++++++++++++++++++++++++++++
+ src/cairo-scaled-font-private.h |    2 +-
+ 4 files changed, 135 insertions(+), 80 deletions(-)
+
+commit 6de0f2d15775a451ead2cc3e80530b7dc6b321a3
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Mon Apr 30 22:38:00 2007 -0400
+
+    [cairo-mutex] Fix CAIRO_MUTEX_FINALIZE definition to take parantheses
+    This was breaking build on some systems as reported by Adrian Johnson
+    on the list.
+
+ src/cairo-mutex-private.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 3f297a0fccb01f4e10a093ddc44a25a937364447
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Mon Apr 30 22:00:31 2007 -0400
+
+    [TODO] Add various items discussed recently
+
+ TODO |   13 ++++++++++++-
+ 1 files changed, 12 insertions(+), 1 deletions(-)
+
+commit 51440ad9027bd9ccf7d987c234995470f7699043
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Mon Apr 30 21:57:29 2007 -0400
+
+    [ROADMAP] Mark clipping trapezoids done
+
+ ROADMAP |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 8ea48710dc933cd5dd52fb7d0c29eb8994a5d160
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Mon Apr 30 19:20:56 2007 -0400
+
+    [perf] Check availability before including nonstandard headers
+
+ configure.in                 |    4 ++++
+ perf/cairo-perf-diff-files.c |    2 ++
+ perf/cairo-perf.c            |    6 +++++-
+ 3 files changed, 11 insertions(+), 1 deletions(-)
+
+commit fbc8bf05033a652d26c1defa56d12183e4009870
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Mon Apr 30 19:11:31 2007 -0400
+
+    [perf] Don't build cairo-perf in "make all"
+
+ perf/Makefile.am |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 4be608399f0d196a792f84fe4ddfce9acd2ea943
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Apr 29 19:29:24 2007 +0930
+
+    Fix cygwin compile error
+    
+    The WINVER macros need to be defined before including <windows.h>.
+    As a result of some recent include file rearranging, <windows.h>
+    was included indirectly before WINVER was defined.
+
+ src/cairo-mutex-private.h |   12 ------------
+ src/cairo-win32-surface.c |   11 ++++++-----
+ 2 files changed, 6 insertions(+), 17 deletions(-)
+
+commit a5d1fc923fdef354ceed8478c93e8b7cb734158a
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Mon Apr 30 16:05:36 2007 +0100
+
+    Free all memory when cairo-perf exits.
+    
+    Similar to cairo-test, we free any global memory used by cairo for its
+    caches through the debug interfaces. We do this so that valgrind does
+    not unnecessary warn about memory leaks for the cached data and any true
+    leak is then not lost in the noise.
+
+ perf/cairo-perf.c |   19 +++++++++++++++++++
+ 1 files changed, 19 insertions(+), 0 deletions(-)
+
+commit 7e6ab5461c2eb75c948bcb4725613ebe826c697a
+Author: Carl Worth <cworth@cworth.org>
+Date:   Sat Apr 28 07:46:56 2007 -0700
+
+    Add missing prototypes for getline and strndup
+    
+    This is needed to prevent breaking the build for non-GNU systems.
+
+ perf/cairo-perf-diff-files.c |   12 ++++++++++--
+ 1 files changed, 10 insertions(+), 2 deletions(-)
+
+commit 422798db1d73c1a8ecc5877133b0325023f38e61
+Author: Carl Worth <cworth@cworth.org>
+Date:   Sat Apr 28 07:46:15 2007 -0700
+
+    cairo-perf-diff-files: Add missing include of libgen.h for basename
+
+ perf/cairo-perf-diff-files.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+commit d89d8e6b45b7c13b77aa7c2f1c480f58429b08af
+Author: Carl Worth <cworth@cworth.org>
+Date:   Sat Apr 28 07:45:26 2007 -0700
+
+    pixman.h: Add missing definition of WARN_UNUSED_RESULT
+    
+    This was breaking the build on systems without support for the
+    __warn_unused_result__ attribute.
+
+ pixman/src/pixman.h |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+commit cb6fcdae92503964448144413e48ac388861d95f
+Author: Carl Worth <cworth@cworth.org>
+Date:   Sat Apr 28 07:38:56 2007 -0700
+
+    Fix typo in Makefile preventing builds from succeeding
+    
+    The cairo-ps-surface-private.h file was not getting included in the
+    distribution.
+
+ src/Makefile.am |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit a392cc85081dd1e0fa3342c313af94a1e0c289b1
+Author: Carl Worth <cworth@cworth.org>
+Date:   Fri Apr 27 22:46:47 2007 -0700
+
+    Clarify documentation of cairo_in_stroke and cairo_in_fill
+    
+    Like cairo_stroke_extents and cairo_fill_extents, these functions
+    work without regard to the surface dimensions or the current clip
+    region.
+
+ src/cairo.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
+
+commit 8286b8741675ae163fc40187cd04e84395954c6e
+Author: Carl Worth <cworth@cworth.org>
+Date:   Fri Apr 27 17:23:08 2007 -0700
+
+    Clip trapezoids that are partially (or wholly) outside the clip region.
+    
+    It's quite simple to add a new _cairo_traps_limit call which installs
+    a box into the cairo_traps_t structure. Then at the time of
+    _cairo_traps_add we can discard any trapezoid that is wholly outside
+    the box and also clip any trapezoid that is partially outside the box.
+    
+    We take advantage of this for both cairo_stroke and cairo_fill, (when
+    cairo is computing the trapezoids in cairo-surface-fallback.c). Note
+    that we explicitly do not do any clipping for cairo_stroke_extents,
+    cairo_fill_extents, cairo_in_stroke, or cairo_in_fill which are
+    defined to ignore clipping.
+    
+    As seen by the long-lines perf case, this fix successfully works
+    around the bug in the X server where it creates overly large masks for
+    partially-outside-the-destination-surface trapezoids:
+    
+     xlib-rgba   long-lines-uncropped-100  545.84 -> 5.83: 93.09x speedup
+    ██████████████████████████████████████████████
+     xlib-rgb    long-lines-uncropped-100  554.74 -> 8.10: 69.04x speedup
+    ██████████████████████████████████
+
+ src/cairo-surface-fallback.c |   52 ++++++++++++++++++++++++++++++++
+ src/cairo-traps.c            |   68 +++++++++++++++++++++++++++++++++++++++++-
+ src/cairoint.h               |    7 ++++
+ 3 files changed, 126 insertions(+), 1 deletions(-)
+
+commit 2dcfb944b044172640a3784246d6b3129b686b60
+Author: Carl Worth <cworth@cworth.org>
+Date:   Fri Apr 27 16:41:17 2007 -0700
+
+    Don't test PDF tests known to fail due to poppler limitations
+    
+    The following four tests are disabled:
+    
+    	gradient-alpha, linear-gradient, text-pattern, trap-clip
+    
+    We don't use XFAIL as that would disable all backends, (but
+    we can still usefully use these tests on backends other than
+    PDF).
+
+ boilerplate/cairo-boilerplate-pdf.c |   15 +++++++++++++++
+ test/gradient-alpha.c               |    3 ++-
+ test/linear-gradient.c              |    3 ++-
+ test/text-pattern.c                 |    3 ++-
+ test/trap-clip.c                    |    3 ++-
+ 5 files changed, 23 insertions(+), 4 deletions(-)
+
+commit 179e3399101b5a0daa907dcfe1f9f11ae8fe691e
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Fri Apr 27 16:01:56 2007 -0700
+
+    PDF: Change CTM to identity
+    
+    Some PDF viewers forget the CTM when drawing gradient patterns
+    with SMasks. This patch works around these bugs by using the default
+    identity matrix for the CTM. All paths are transformed from
+    cairo to pdf coordinates before writing to the pdf file.
+
+ src/cairo-pdf-surface-private.h |    1 +
+ src/cairo-pdf-surface.c         |  135 +++++++++++++++++++--------------------
+ 2 files changed, 67 insertions(+), 69 deletions(-)
+
+commit 1816d7c590ae4d423f9314a8a7794e2cae854da3
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Fri Apr 27 09:49:45 2007 -0700
+
+    Add support for transparent gradients
+    
+    This is based on the gradient patch written by Miklós Erdélyi at
+    http://lists.freedesktop.org/archives/cairo/2006-August/007648.html
+    
+    Currently only EXTEND_NONE and EXTEND_PAD are supported. Other extend
+    types will go through the image fallback path.
+
+ src/cairo-pdf-surface-private.h |   13 +
+ src/cairo-pdf-surface.c         |  950 ++++++++++++++++++++++++++++++---------
+ 2 files changed, 752 insertions(+), 211 deletions(-)
+
+commit 050dad71734739f1eaf8976ca5bb88e47c76409c
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu Apr 26 11:30:27 2007 -0700
+
+    cairo-perf-diff-files: Always print old and new configuration names
+    
+    Previously, if the change in the first test case was small enough
+    to be considered insignificant, then the header lines showing the
+    names of the old and new configurations would be omitted. This
+    commit fixes that bug.
+
+ perf/cairo-perf-diff-files.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
+
+commit 6035d3b47e635f53b361dc7924e161a214e038b3
+Author: Carl Worth <cworth@cworth.org>
+Date:   Wed Apr 25 16:28:14 2007 -0700
+
+    cairo-perf-diff: Repair command-line option parsing.
+    
+    Apparently --force and --html have been broken since the attempt
+    to address --help in ef5611df6c6bc8d9c6877af3a59c66fa6fc5c13a .
+
+ perf/cairo-perf-diff |   14 +++++++++-----
+ 1 files changed, 9 insertions(+), 5 deletions(-)
+
+commit 0a1d2070e252921e097fec89537537675f8b7161
+Author: Jeff Muizelaar <jeff@infidigm.net>
+Date:   Wed Apr 25 16:01:29 2007 -0700
+
+    Fix bugs in fbCompositeSrc_8888x8x8888mmx and fbCompositeSrc_x888x8x8888mmx
+    
+    And re-enable fbCompositeSrc_8888x8x8888mmx now that it should work.
+    
+    This gives another little boost to the paint-with-alpha perf test:
+    
+    image-rgba paint-with-alpha_image_rgba_over-512 11.76 -> 5.20: 1.85x speedup
+    ▉
+    image-rgb  paint-with-alpha_image_rgba_over-512 11.76 -> 5.26: 1.84x speedup
+    ▉
+
+ pixman/src/fbmmx.c  |   20 +++++++++-----------
+ pixman/src/fbpict.c |    8 +++-----
+ 2 files changed, 12 insertions(+), 16 deletions(-)
+
+commit 342de46eb4033e1cccfec8b905c0002cc880c9fb
+Author: Carl Worth <cworth@cworth.org>
+Date:   Wed Apr 25 10:25:57 2007 -0700
+
+    Make the traditional speedup vs. slowdown report style available again
+    
+    Now, if you pass exactly two performance reports on the command line
+    you'll get the traditional report style again, (so the tool remains
+    backwards compatible). If you really want the new style with two
+    reports you can get it by adding /dev/null as a third argument.
+
+ perf/cairo-perf-diff-files.c |  112 ++++++++++++++++++++++++++++++++++++++---
+ 1 files changed, 103 insertions(+), 9 deletions(-)
+
+commit db2a761ae7055a61d3705a76526cbd0b71fcc95d
+Author: Carl Worth <cworth@cworth.org>
+Date:   Wed Apr 25 08:53:46 2007 -0700
+
+    Implement support for generating a report from more than two files
+    
+    This support is intended to compare the identical backends across multiple
+    reports from several different configurations, (of one sort or another).
+    The configuration names used in the report are taken from the filenames
+    of the report files, (which will format most nicely if 8 characters or
+    less).
+    
+    The traditional two-input report mode, (showing one line perdiff with
+    all speedups before all slowdowns), is removed with this commit, but
+    is intended to return again shortly.
+
+ perf/cairo-perf-diff-files.c |  270 ++++++++++++++++++++++++------------------
+ 1 files changed, 157 insertions(+), 113 deletions(-)
+
+commit 5030cfce5df507a0338e1070a5dab3851ed9df7c
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu Apr 19 16:32:57 2007 -0700
+
+    cairo-perf-diff-files: Use pointers instead of indexing to iterate over reports
+    
+    We terminate the iteration by adding a final report with a NULL
+    name. This will simplify future code that iterates over more than
+    two reports simultaneously.
+
+ perf/cairo-perf-diff-files.c |   31 ++++++++++++++++++-------------
+ 1 files changed, 18 insertions(+), 13 deletions(-)
+
+commit 6121f4fccfe8d98fb09c096402da05d29d10b9e8
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu Apr 19 16:21:39 2007 -0700
+
+    cairo-perf-diff-files: Simplify code to grow report->tests
+
+ perf/cairo-perf-diff-files.c |   14 +++++---------
+ 1 files changed, 5 insertions(+), 9 deletions(-)
+
+commit cc03f0499e7b133a2e5c14e55207259ea000b8c2
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu Apr 19 16:09:06 2007 -0700
+
+    cairo-perf-diff-files: Sort and compute stats at the time of loading a report
+
+ perf/cairo-perf-diff-files.c |  150 +++++++++++++++++++++---------------------
+ 1 files changed, 75 insertions(+), 75 deletions(-)
+
+commit 228c83c9d2d1fdb6fa3af8a650640a47c8e21e36
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu Apr 19 14:35:51 2007 -0700
+
+    cairo-perf-diff: Separate command-line options within the args structure
+    
+    A function like cairo_perf_report_diff wants the options, but really
+    doesn't want/need to see the filenames for example,
+
+ perf/cairo-perf-diff-files.c |   44 +++++++++++++++++++++++------------------
+ 1 files changed, 25 insertions(+), 19 deletions(-)
+
+commit 876786b3f7316b99a51ba8225e34581be13a883d
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu Apr 19 13:54:50 2007 -0700
+
+    Move implementation of getline and strndup
+    
+    These kept getting in my way as I looked for structure declarations
+    at the top of the file.
+
+ perf/cairo-perf-diff-files.c |  108 ++++++++++++++++++++---------------------
+ 1 files changed, 53 insertions(+), 55 deletions(-)
+
+commit 90d532e08f25644c4e621b0b7e592f4531a39d88
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu Apr 19 13:52:03 2007 -0700
+
+    Replace old and new reports with reports array
+    
+    Another baby step toward allowing comparison of more than two reports.
+
+ perf/cairo-perf-diff-files.c |   11 +++++++----
+ 1 files changed, 7 insertions(+), 4 deletions(-)
+
+commit c6c17633e40f549ede5761095a0652c08adeee08
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu Apr 19 13:31:37 2007 -0700
+
+    Replace old_filename and new_filename with a filenames array
+    
+    More preparation for comparing more than two perf reports.
+
+ perf/cairo-perf-diff-files.c |   30 +++++++++++++-----------------
+ 1 files changed, 13 insertions(+), 17 deletions(-)
+
+commit 1849a7a8bededb281fbb07ec0939f8d1f4954771
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu Apr 19 12:55:04 2007 -0700
+
+    cairo-perf-diff-files: Add new --min-change option, (replacing third positional argument)
+    
+    An upcoming change will allow cairo-perf-diff-files to generate
+    a report based on more than two files. This prepares for that by
+    moving the minimum-change support from the 3rd positional argument
+    to a new --min-change option.
+
+ perf/cairo-perf-diff-files.c |   39 +++++++++++++++++++++++----------------
+ 1 files changed, 23 insertions(+), 16 deletions(-)
+
+commit ef5611df6c6bc8d9c6877af3a59c66fa6fc5c13a
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu Apr 19 11:26:47 2007 -0700
+
+    cairo-perf-diff: Fix implementation of --help
+    
+    Previously only "--" would givethe usage, and not "--help"
+    as intended. The new approach has been tested with ash, bash,
+    and dash, (hopefully that's good enough).
+
+ perf/cairo-perf-diff |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit a8d4fed67a32c6040c27615e063466d654b55a3a
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu Apr 19 10:02:22 2007 -0700
+
+    cairo-perf-diff-files: Remove some overzealous option parsing.
+    
+    The code was complicated and confusing, and only existed to implement
+    undocumented and unneeded command-line options.
+
+ perf/cairo-perf-diff-files.c |   13 ++++++-------
+ 1 files changed, 6 insertions(+), 7 deletions(-)
+
+commit fe9dd719561048af1f2c3c8c43e46f7d97575053
+Author: Carl Worth <cworth@cworth.org>
+Date:   Wed Apr 18 17:01:36 2007 -0700
+
+    Correct misattribution of Mathias' work to Chris
+
+ NEWS |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 29670d37665d184d78d568070cb409acf98ee797
+Author: Carl Worth <cworth@cworth.org>
+Date:   Mon Apr 23 10:24:03 2007 -0700
+
+    Add a content value to solid patterns
+    
+    This allows for the surface acquired from the pattern to have the
+    same content. In particular, in a case such as cairo_paint_with_alpha
+    we can now acquire an A8 mask surface instead of an ARGB32 mask
+    surface which can be rendered much more efficiently. This results
+    in a 4x speedup when using the OVER operator with the recently
+    added paint-with-alpha test:
+    
+    Speedups
+    ========
+    image-rgb  paint-with-alpha_image_rgb_over-256 2.25 -> 0.60: 4.45x speedup
+    ███▌
+    
+    It does slowdown the same test when using the SOURCE operator, but
+    I don't think we care. Performing SOURCE with a mask is already a very
+    slow operation, (hitting compositeGeneral), so the slowdown here is
+    likely from having to convert from A8 back to ARGB32 before the
+    generalized compositing. So if someone cares about this slowdown,
+    (though SOURCE with cairo_paint_with_alpha doesn't seem extremely
+    useful), they will probably be motivated enough to contribute a
+    customized compositing function to replace compositeGeneral in which
+    case this slowdown should go away:
+    
+    image-rgba paint-with-alpha_image_rgb_source-256 3.84 -> 8.86%: 1.94x slowdown
+    █
+
+ src/cairo-clip.c             |    3 ++-
+ src/cairo-glitz-surface.c    |    5 ++++-
+ src/cairo-gstate.c           |    3 ++-
+ src/cairo-pattern.c          |   41 ++++++++++++++++++++++++++---------------
+ src/cairo-surface-fallback.c |   12 ++++++++----
+ src/cairo-surface.c          |    2 +-
+ src/cairo-xcb-surface.c      |    3 ++-
+ src/cairo-xlib-surface.c     |    3 ++-
+ src/cairo.c                  |    2 +-
+ src/cairoint.h               |    9 ++++++---
+ 10 files changed, 54 insertions(+), 29 deletions(-)
+
+commit fea5336e2db201be69256ef1bafd418fee98a21e
+Author: Carl Worth <cworth@cworth.org>
+Date:   Wed Apr 25 10:36:12 2007 -0700
+
+    Allow fbCompositeSrc_x888x8x8888mmx when destination has alpha
+    
+    Previously the check for this optimized function would only allow
+    the function to be called if the source and destination had
+    identical formats. But the function doesn't read the destination
+    alpha (if any) so can be used when it exists as well.
+    
+    (Thanks to Jeff Muizelaar for pointing out this problem.)
+
+ pixman/src/fbpict.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletions(-)
+
+commit 72b812be8c69108c46334841823a2e9103b69516
+Author: Carl Worth <cworth@cworth.org>
+Date:   Mon Apr 23 09:35:35 2007 -0700
+
+    perf: Add new paint-with-alpha test
+    
+    MacSlow noticed that cairo_paint_with_alpha is much slower than
+    it should be, (and jrmuizel has a nice plan for fixing the
+    performance bug).
+
+ perf/Makefile.am        |    1 +
+ perf/cairo-perf.c       |    1 +
+ perf/cairo-perf.h       |    1 +
+ perf/paint-with-alpha.c |   45 +++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 48 insertions(+), 0 deletions(-)
+
+commit 302f1146da5b179e5016e2d523e891437c1a256b
+Author: Carl Worth <cworth@cworth.org>
+Date:   Mon Apr 23 09:26:32 2007 -0700
+
+    Fix two bugs in documentation code sample of cairo_arc
+    
+    The sample code for drawing an ellipse had width and height
+    reversed in the call to cairo_scale, and also had both
+    incorrectly inverted.
+
+ src/cairo.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit e37c9edac02ccd9fbcbc4622a2f421f4be0d597e
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Tue Apr 24 17:33:37 2007 -0400
+
+    [ROADMAP] Add cairo_xlib_surface_get_xrender_format()
+
+ ROADMAP |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+commit ac0ef0302e68ba17ec5a59c689579f1854c7386c
+Merge: d3cf214... 260dcb3...
+Author: Peter Weilbacher <mozilla@weilbacher.org>
+Date:   Mon Apr 23 23:18:05 2007 +0200
+
+    Merge branch 'master' of git+ssh://pmw@git.freedesktop.org/git/cairo
+
+commit 260dcb316e14945e7600406954e4876e8827a777
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Mon Apr 23 13:54:37 2007 +0100
+
+    Add a _cairo_error() to png_simple_error_callback()
+    
+    With the introduction of the error callbacks for PNG, we have the
+    opportunity for the user to set a breakpoint (via _cairo_error) at the
+    point the error is first rasied.
+
+ src/cairo-png.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+commit 0fce7e85a1c853216866ddf6a40725e7ce57fe93
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Mon Apr 23 13:00:40 2007 +0100
+
+    Do not print out libpng error messages to stderr.
+    
+    We wish to avoid writing to file descriptors (and streams) that are
+    outside cairo's control. In this case, the messages are superfluous as
+    the errors are propagated via the cairo_status_t returns.
+
+ src/cairo-png.c |   31 +++++++++++++++++++++++++------
+ 1 files changed, 25 insertions(+), 6 deletions(-)
+
+commit 59670dd5d3854af1f7cbdef984df7802c338330b
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Mon Apr 23 05:19:56 2007 -0400
+
+    [ROADMAP] Add URL to David Turner's patchset
+
+ ROADMAP |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+commit ce91a176489f4cb8f40c5ec29f23881d1e013a9f
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sun Apr 22 16:13:22 2007 -0400
+
+    [cairo-mutex] Add a poor man's mutex implementation in case of CAIRO_NO_MUTEX
+    just for fun.
+
+ src/cairo-mutex-private.h |   13 ++++++++-----
+ 1 files changed, 8 insertions(+), 5 deletions(-)
+
+commit 97b50e99bfa785d77b4900d3070f22a22827db22
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sun Apr 22 16:05:25 2007 -0400
+
+    [BeOS] Remove old-style mutex initialization cruft
+
+ src/cairo-beos-surface.cpp |   34 ----------------------------------
+ 1 files changed, 0 insertions(+), 34 deletions(-)
+
+commit 0fd13a3db00e7e11915b5a7bbe81bf8f43f1941f
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sun Apr 22 16:04:49 2007 -0400
+
+    [BeOS] Add mutex implementation
+
+ src/cairo-mutex-private.h |   17 ++++++-----------
+ 1 files changed, 6 insertions(+), 11 deletions(-)
+
+commit fc83784525d3f2bb3e09d931cc9c83261c0b73ae
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sun Apr 22 15:56:18 2007 -0400
+
+    [cairo-mutex] Properly paranthesize macro arguments
+
+ src/cairo-mutex-private.h |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
+
+commit 406fc63b68203e86c9236d06448e2ffa2c259669
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sun Apr 22 07:11:47 2007 -0400
+
+    [util] Change make target from "tools" to "util"
+    to match targets like "test", "perf", and "doc", that match
+    their directory names.
+
+ util/Makefile.am |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 5bc1f3365d0002f2864bc30638df85c392a495f5
+Author: Peter Weilbacher <pmw@avila.aip.de>
+Date:   Sun Apr 22 07:11:00 2007 -0400
+
+    [perf] Add OS/2 implementation for timer routines
+
+ perf/Makefile.am      |    4 ++
+ perf/cairo-perf-os2.c |   95 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 99 insertions(+), 0 deletions(-)
+
+commit 3b46e105bd781d7a4081068a14668334a7c82986
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 08:21:01 2007 -0400
+
+    [util] Import my malloc wrapper that prints simple statistics
+    
+    To build, do:
+    
+    	make malloc-stats.so
+    
+    inside util/, and to use, run:
+    
+    	LD_PRELOAD=malloc-stats.so some-program
+    
+    For binaries managed by libtool, eg, cairo-perf, do:
+    
+    	../libtool --mode=execute /bin/true ./cairo-perf
+    	LD_PRELOAD="../util/malloc-stats.so" .libs/lt-cairo-perf
+    
+    The code also includes Jeff Muizelaar's libbacktracesymbols that
+    is a much better implementation of backtrace_symbols() than what
+    is provided by glibc.  That can be built by:
+    
+    	make backtrace-symbols.so
+
+ util/.gitignore          |   17 +++
+ util/Makefile.am         |   22 +++
+ util/backtrace-symbols.c |  361 ++++++++++++++++++++++++++++++++++++++++++++++
+ util/malloc-stats.c      |  301 ++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 701 insertions(+), 0 deletions(-)
+
+commit d3cf2144dbd42737d5e2c45908fbca082dd54022
+Merge: 6c12961... abdcbf8...
+Author: Peter Weilbacher <mozilla@weilbacher.org>
+Date:   Sat Apr 21 13:50:30 2007 +0200
+
+    Merge branch 'master' of git+ssh://pmw@git.freedesktop.org/git/cairo
+
+commit 6c129611408ddb5cf0a9a821b30bbb8148af08d9
+Author: Peter Weilbacher <mozilla@weilbacher.org>
+Date:   Sat Apr 21 13:49:04 2007 +0200
+
+    Use deprecated png symbol only when compiling against old version
+    
+    png_set_gray_1_2_4_to_8 is deprecated in libpng >= 1.2.9, the identical
+    substitute for it is png_set_expand_gray_1_2_4_to_8
+
+ src/cairo-png.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+commit 515491334cc32d8be856f25b7d2e36e63cb72246
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 07:48:10 2007 -0400
+
+    Add util/ to distribution
+    We already reference an script in util/ in PORTING_GUIDE, but was
+    not shipping it!
+
+ Makefile.am      |    2 +-
+ configure.in     |    1 +
+ util/Makefile.am |    4 ++++
+ 3 files changed, 6 insertions(+), 1 deletions(-)
+
+commit abdcbf896af69677058490d1d08ba58672c429ec
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 07:23:30 2007 -0400
+
+    [boilerplate] Add missing headers.  Oops!
+    I blame git for it...
+
+ boilerplate/cairo-boilerplate-pdf.h  |   33 +++++++++++++++++++++++++++++++++
+ boilerplate/cairo-boilerplate-xlib.h |   33 +++++++++++++++++++++++++++++++++
+ 2 files changed, 66 insertions(+), 0 deletions(-)
+
+commit 781f2533a32d84ca43a1bdf646bb69b7adab7a77
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 07:21:38 2007 -0400
+
+    [.gitignore] Add cairo-*.*.*
+
+ .gitignore |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+commit febcd689e7a4b277bbebffd8ebdc0970a04f68eb
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 07:19:47 2007 -0400
+
+    Update .gitignore to ignore .perf
+
+ .gitignore |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+commit de425ada871c71277a53687dcd8a93a607d4faab
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 03:46:18 2007 -0400
+
+    [doc/public/Headers.mk] Update.
+
+ doc/public/Headers.mk |   13 ++++++++-----
+ 1 files changed, 8 insertions(+), 5 deletions(-)
+
+commit 519b722747d606170741ccc520d6ec7332b2481f
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 03:45:51 2007 -0400
+
+    [RELEASING] Remove *-test.h from instructions
+    as they are all removed now.
+
+ RELEASING |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 0108f9c69f2f5391ff6b1066ae6b58fe3f71255a
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 03:44:53 2007 -0400
+
+    [check-def.sh] Do not allow _cairo_.*_test_ symbols anymore
+    as all are removed now.
+
+ src/check-def.sh |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 79098c037043f45df0a18265417e96d6214d68e1
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 03:43:04 2007 -0400
+
+    [scaled-font] Get rid of _cairo_scaled_font_test_set_max_glyphs_cached_per_font
+    in favor of cairo_boilerplate_scaled_font_set_max_glyphs_cached.
+
+ boilerplate/Makefile.am                     |    1 +
+ boilerplate/cairo-boilerplate-scaled-font.h |   34 ++++++++++++++++++
+ boilerplate/cairo-boilerplate.c             |   11 ++++++
+ src/Makefile.am                             |    1 -
+ src/cairo-scaled-font-private.h             |    1 +
+ src/cairo-scaled-font-test.h                |   49 ---------------------------
+ src/cairo-scaled-font.c                     |   14 ++------
+ test/glyph-cache-pressure.c                 |    6 ++--
+ 8 files changed, 53 insertions(+), 64 deletions(-)
+
+commit 44563161de82a5ee7bbf8f100213ea1a3af6d5db
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 03:38:24 2007 -0400
+
+    Move a couple typedefs to cairo-types-private.h
+
+ src/cairo-types-private.h |    2 ++
+ src/cairoint.h            |    2 --
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+commit 737d20a5702a18a1480c3b45f876e886b82b065c
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 03:35:07 2007 -0400
+
+    Move cairo_hash_entry_t to cairo-types-private.h
+
+ src/cairo-hash-private.h        |   38 --------------------------------------
+ src/cairo-scaled-font-private.h |    2 ++
+ src/cairo-types-private.h       |   38 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 40 insertions(+), 38 deletions(-)
+
+commit 51ce92c3db093c8d26c8002ddbc105b11e7607bf
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 03:24:31 2007 -0400
+
+    [scaled-font] Move cairo_scaled_font_t to cairo-scaled-font-private.h
+
+ src/Makefile.am                 |    1 +
+ src/cairo-scaled-font-private.h |  109 +++++++++++++++++++++++++++++++++++++++
+ src/cairo-scaled-font.c         |    1 +
+ src/cairoint.h                  |   66 +-----------------------
+ 4 files changed, 112 insertions(+), 65 deletions(-)
+
+commit 91f1056caf46d71c99eb044afbc943b92fb5550c
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 03:18:30 2007 -0400
+
+    Move cairo_cache_t to cairo-types-private.h
+
+ src/cairo-cache-private.h |    2 +-
+ src/cairo-cache.c         |   11 -----------
+ src/cairo-hash-private.h  |    4 ++--
+ src/cairo-types-private.h |   14 ++++++++++++++
+ 4 files changed, 17 insertions(+), 14 deletions(-)
+
+commit d2bb5f30079badf1029fa71faab9d6781092a271
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 03:08:26 2007 -0400
+
+    [svg] Get rid of _cairo_svg_test_force_fallbacks
+    in favor of cairo_boilerplate_svg_surface_force_fallbacks.
+
+ boilerplate/Makefile.am             |    1 +
+ boilerplate/cairo-boilerplate-svg.c |   19 ++++++++++++
+ boilerplate/cairo-boilerplate-svg.h |   33 +++++++++++++++++++++
+ src/Makefile.am                     |    4 +-
+ src/cairo-svg-surface-private.h     |    2 +
+ src/cairo-svg-surface.c             |   20 +------------
+ src/cairo-svg-test.h                |   54 -----------------------------------
+ test/fallback-resolution.c          |    4 +-
+ 8 files changed, 60 insertions(+), 77 deletions(-)
+
+commit ea1b7c2d8a55d694d575c0bb711e60f70a33ff77
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 03:04:03 2007 -0400
+
+    [paginated] Include cairo-surface-private.h
+
+ src/cairo-paginated-surface-private.h |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+commit 7e0ae8bd43dfd8b052d021601912b46956b2921e
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 02:57:55 2007 -0400
+
+    [svg] Move cairo_svg_surface_t to cairo-svg-surface-private.h
+
+ boilerplate/cairo-boilerplate-ps.c |    6 +++-
+ src/Makefile.am                    |    2 +-
+ src/cairo-svg-surface-private.h    |   71 ++++++++++++++++++++++++++++++++++++
+ src/cairo-svg-surface.c            |   24 +------------
+ 4 files changed, 78 insertions(+), 25 deletions(-)
+
+commit 3885fff3e6215023e801dd2c72fc39560a4e22fd
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 03:33:58 2007 -0400
+
+    [ps] Get rid of _cairo_ps_test_force_fallbacks
+    
+    in favor of cairo_boilerplate_ps_surface_force_fallbacks.
+
+ boilerplate/Makefile.am            |    1 +
+ boilerplate/cairo-boilerplate-ps.c |   15 ++++++++++
+ boilerplate/cairo-boilerplate-ps.h |   33 ++++++++++++++++++++++
+ src/Makefile.am                    |    2 +-
+ src/cairo-ps-surface-private.h     |    3 +-
+ src/cairo-ps-surface.c             |   24 +--------------
+ src/cairo-ps-test.h                |   54 ------------------------------------
+ test/fallback-resolution.c         |    4 +-
+ 8 files changed, 56 insertions(+), 80 deletions(-)
+
+commit 57dc972d6e5fe715a83cbcaad9c6cc3d38bf8129
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 03:02:48 2007 -0400
+
+    [ps] Move cairo_ps_surface_t to cairo-ps-surface-private.h
+
+ src/Makefile.am                |    2 +-
+ src/cairo-ps-surface-private.h |   79 ++++++++++++++++++++++++++++++++++++++++
+ src/cairo-ps-surface.c         |   33 +----------------
+ 3 files changed, 81 insertions(+), 33 deletions(-)
+
+commit 3e69fbca6233e9f568935dbb69bf14bc34812d77
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 03:00:21 2007 -0400
+
+    [pdf] Fix header file header!
+
+ src/cairo-pdf-surface-private.h |   12 +++++++++---
+ 1 files changed, 9 insertions(+), 3 deletions(-)
+
+commit 29247e5010632f0453367b64a38c865076605681
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 02:57:12 2007 -0400
+
+    [ps/pdf/svg] Fix minor coding style issue
+
+ src/cairo-pdf-surface.c |   12 ++++++------
+ src/cairo-ps-surface.c  |    2 +-
+ src/cairo-svg-surface.c |   14 +++++++-------
+ 3 files changed, 14 insertions(+), 14 deletions(-)
+
+commit 20ce190e71f838dea598cbd5267f047b75945cee
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 02:50:53 2007 -0400
+
+    [pdf] Get rid of _cairo_pdf_test_force_fallbacks
+    in favor of cairo_boilerplate_pdf_surface_force_fallbacks.
+
+ boilerplate/Makefile.am             |    1 +
+ boilerplate/cairo-boilerplate-pdf.c |   19 ++++++++++++
+ src/cairo-pdf-surface-private.h     |    2 +
+ src/cairo-pdf-surface.c             |   25 ++--------------
+ src/cairo-pdf-test.h                |   54 -----------------------------------
+ test/fallback-resolution.c          |    4 +-
+ 6 files changed, 27 insertions(+), 78 deletions(-)
+
+commit 03477064fa639ab1c735467d1889bde7c99313c4
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Apr 21 02:25:51 2007 -0400
+
+    [paginated] Move cairo_paginated_surface_t to cairo-paginated-surface-private.h
+    The old cairo-paginated-surface-private.h is cairo-paginated-private.h now.
+
+ src/Makefile.am                       |    1 +
+ src/cairo-analysis-surface.c          |    2 +-
+ src/cairo-paginated-private.h         |  136 +++++++++++++++++++++++++++++++++
+ src/cairo-paginated-surface-private.h |  116 ++++++----------------------
+ src/cairo-paginated-surface.c         |   32 +-------
+ src/cairo-pdf-surface.c               |    2 +-
+ src/cairo-ps-surface.c                |    2 +-
+ src/cairo-svg-surface.c               |    2 +-
+ src/cairo-types-private.h             |    1 +
+ src/test-paginated-surface.c          |    2 +-
+ 10 files changed, 170 insertions(+), 126 deletions(-)
+
+commit 21a7de61c26faaaa1ce96cddab6d777dbb37d0bb
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 02:52:53 2007 -0400
+
+    [boilerplate] Add cairo-boilerplate-xlib.h to Makefile.am
+
+ boilerplate/Makefile.am |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+commit 68e2158aaeacefcff8e6df11c25bb61ab0e89606
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 02:37:15 2007 -0400
+
+    [pdf] Move cairo_pdf_surface_t to cairo-pdf-surface-private.h
+
+ src/Makefile.am                         |    3 +-
+ src/cairo-output-stream-private.h       |    2 +-
+ src/cairo-pdf-surface-private.h         |   83 +++++++++++++++++++++++++++++++
+ src/cairo-pdf-surface.c                 |   42 +---------------
+ src/cairo-scaled-font-subsets-private.h |    2 -
+ src/cairo-types-private.h               |    3 +
+ 6 files changed, 90 insertions(+), 45 deletions(-)
+
+commit 183c6af4f1730861a604a912a0609e315da65ecc
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 02:30:46 2007 -0400
+
+    [paginated] Move cairo_paginated_mode_t to cairo-types-private.h
+    
+    as it is used in surface structs for PS/PDF/SVG and we will need
+    it.
+
+ src/cairo-paginated-surface-private.h |    5 -----
+ src/cairo-types-private.h             |    5 +++++
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+commit cd72167ede50b44aa3559ee63b95e12e4b51d80f
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 02:27:19 2007 -0400
+
+    [xlib] Get rid of _cairo_xlib_test_disable_render
+    
+    in favor of cairo_boilerplate_xlib_surface_disable_render.
+
+ boilerplate/cairo-boilerplate-xlib.c |   15 +++++++++
+ src/Makefile.am                      |    2 +-
+ src/cairo-xlib-surface.c             |   23 +--------------
+ src/cairo-xlib-test.h                |   54 ----------------------------------
+ test/xlib-surface.c                  |    8 +++--
+ 5 files changed, 22 insertions(+), 80 deletions(-)
+
+commit 908418cb4d43e387d06698a43626ac9a663d6c2a
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 02:25:55 2007 -0400
+
+    [cairo-surface] Move cairo_surface_t struct in cairo-surface-private.h
+
+ src/Makefile.am                  |    2 +
+ src/cairo-surface-private.h      |   96 ++++++++++++++++++++++++++++++++++++++
+ src/cairo-types-private.h        |   65 +++++++++++++++++++++++++
+ src/cairo-xlib-private.h         |    1 -
+ src/cairo-xlib-surface-private.h |    2 +
+ src/cairoint.h                   |   74 +----------------------------
+ 6 files changed, 167 insertions(+), 73 deletions(-)
+
+commit 8ae02fa470eace1b449c09b6cd0f86cc09b81ec2
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 01:54:35 2007 -0400
+
+    [boilerplate] Minor indentation fix
+
+ boilerplate/cairo-boilerplate-xlib-private.h |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
+
+commit 1345552ac24099900acdb968f905d6e75cc20593
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 01:46:23 2007 -0400
+
+    [xlib] Move cairo_xlib_surface_t definition into cairo-xlib-surface-private.h
+
+ src/Makefile.am                  |    3 +-
+ src/cairo-xlib-surface-private.h |   91 ++++++++++++++++++++++++++++++++++++++
+ src/cairo-xlib-surface.c         |   54 +----------------------
+ 3 files changed, 94 insertions(+), 54 deletions(-)
+
+commit 735be3f09d1d150909305ff3232fda42efcb87bd
+Author: Peter Weilbacher <pmw@avila.aip.de>
+Date:   Fri Apr 20 20:46:55 2007 +0200
+
+    Fix build break related to mutexes on OS/2
+    
+    cairo_mutex_t is HTMX which is ULONG on OS/2, so we have to set the
+    mutex itself to 0 and not the address...
+
+ src/cairo-mutex-private.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 5135bcf414abc91e7777e2c024c9b6e10bf6115c
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri Apr 20 19:08:07 2007 +0100
+
+    cairo-boilerplate - use xmalloc and friends
+    
+    Prefer to abort gracefully if we run out of memory (or simply to protect
+    them from memfault).
+
+ boilerplate/cairo-boilerplate.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+commit b6be361d0ef3b81ef5cbc28852f323a671e3d030
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri Apr 20 17:49:10 2007 +0100
+
+    Clean up compiler warnings from cairo-png
+    
+    I introduced some compiler warnings into read_png() with the superfluous
+    introduction of a couple of volatile qualifiers. I'm sure at the time,
+    the reason was that gcc suggested adding them - however, ATM gcc issues
+    no warnings without them.
+
+ src/cairo-png.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+commit fc455c53ecb0aa496915b1eae68dc0275af78e09
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sat Apr 21 00:26:25 2007 +0930
+
+    Ensure _cairo_scaled_font_subsets_map_glyph() returns correct values
+    
+    The CID font subsetting exposed a bug where the subset_glyph->is_scaled
+    return argument of _cairo_scaled_font_subsets_map_glyph() is sometimes
+    not assigned a value.
+
+ src/cairo-scaled-font-subsets.c |   55 +++++++++++++++------------------------
+ 1 files changed, 21 insertions(+), 34 deletions(-)
+
+commit 9d8eb42c013d197b3365af88e372d1c2c1617173
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Fri Apr 20 22:45:12 2007 +0930
+
+    Exclude Type1 fonts from CID subsets
+    
+    Make cairo-scaled-font-subsets.c limit Type1 font subsets to
+    256 glyphs. This allows Type1 subsetting to be enabled again
+    with type1-fallback as the fallback option for Type1 fonts.
+
+ src/cairo-pdf-surface.c                 |   42 ++++++++++++++----------------
+ src/cairo-scaled-font-subsets-private.h |   11 +++++++-
+ src/cairo-scaled-font-subsets.c         |   36 +++++++++++++++++---------
+ src/cairo-type1-subset.c                |   27 ++++++++++++++++++++
+ src/cairoint.h                          |    1 +
+ 5 files changed, 82 insertions(+), 35 deletions(-)
+
+commit 56ad56263b86a9678387fe8dd994e77c183c6328
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Fri Apr 20 22:44:04 2007 +0930
+
+    Enable embedding of CID fonts in PDF
+    
+    Update cairo-pdf-surface.c to embed CFF and TrueType fonts
+    as CID fonts. Update the ToUnicode CMap to handle CID fonts.
+
+ src/cairo-pdf-surface.c |  285 +++++++++++++++++++++++++++++------------------
+ 1 files changed, 177 insertions(+), 108 deletions(-)
+
+commit ca3662d6fc630e5390b3a8f8dbaa1d65aebc3fe8
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Fri Apr 20 22:43:37 2007 +0930
+
+    Make cairo-output-stream.c accept variable width printf fields
+
+ src/cairo-output-stream.c |   27 +++++++++++++++++++++++----
+ 1 files changed, 23 insertions(+), 4 deletions(-)
+
+commit 0c2a653033e0b631a1cb6591263cbd6125ccc00c
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Fri Apr 20 22:30:55 2007 +0930
+
+    Add CFF CID Fallback
+    
+    Switching to CID font embedding requires a fallback font for
+    the case where CFF CID or TrueType CID subsetting fails.
+    
+    The new function _cairo_type2_charstrings_init() added to
+    cairo-type1-fallback.c creates Type2 charstrings from glyph
+    paths. _cairo_cff_fallback_init() in cairo-cff-subset.c
+    wraps these charstrings in a CFF CID font.
+
+ src/cairo-cff-subset.c                  |  212 +++++++++++++++++++++++++++++++
+ src/cairo-scaled-font-subsets-private.h |   68 ++++++++++
+ src/cairo-type1-fallback.c              |  211 ++++++++++++++++++++++---------
+ 3 files changed, 432 insertions(+), 59 deletions(-)
+
+commit c68a2389f51880b0fa9df6750abdd840258666fc
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Fri Apr 20 22:30:05 2007 +0930
+
+    Make CFF Subsetting create CID subsets
+    
+    OpenType/CFF fonts come in two types: CID and non CID.
+    CFF CID font subsetting was previously disabled in cairo
+    due 1) to the need to embed CFF CID fonts in PDF as a CID fonts
+    and 2) there is no easy way to convert CFF CID to CFF non CID.
+    
+    With the switch to CID fonts cairo-cff-subset.c has been
+    updated to subset CID fonts and to covert non CID fonts to
+    CID. A further advantage of converting non CID CFF fonts
+    to CID is the reduction in size due to not embedding the
+    name of each glyph in the font subset.
+
+ src/cairo-cff-subset.c  |  858 ++++++++++++++++++++++++++++++----------------
+ src/cairo-pdf-surface.c |    2 +
+ 2 files changed, 561 insertions(+), 299 deletions(-)
+
+commit 073fce5a85ab90b1bc6915e41d6a420a47e540e6
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Fri Apr 20 22:29:41 2007 +0930
+
+    Add support for creating CID/composite font subsets
+    
+    cairo-scaled-font-subsets.c now provides three functions for creating subsets:
+    
+      _cairo_scaled_font_subsets_create_scaled()
+        Create a subset for each scaled font with maximum size INT_MAX.
+    
+      _cairo_scaled_font_subsets_create_simple()
+        Create subsets suitable for embedding as simple fonts in PS/PDF.
+    
+      _cairo_scaled_font_subsets_create_composite()
+        Create subsets suitable for embedding as composite fonts in PS/PDF.
+    
+    The _create_simple() and _create_composite() functions both merge
+    scaled fonts with the same face and an outline path available into
+    the same subset. _create_composite() has a maximum subset size of
+    65536 for outline fonts. Bitmap fonts have a separate subset for
+    each scale with a maximum subset size of 256.
+    
+    The _create_simple() and _create_composite() functions both reserve
+    the first glyph in the subset for the .notdef glyph. CID fonts require
+    CID 0 to be .notdef.
+    
+    Update Type1, TrueType and CFF subsetting to expect glyph 0 of each
+    subset to be the .notdef.
+
+ src/cairo-cff-subset.c                  |    9 +--
+ src/cairo-pdf-surface.c                 |    5 +-
+ src/cairo-ps-surface.c                  |   13 +--
+ src/cairo-scaled-font-subsets-private.h |   61 +++++++++++----
+ src/cairo-scaled-font-subsets.c         |  127 ++++++++++++++++++++++---------
+ src/cairo-svg-surface.c                 |    2 +-
+ src/cairo-truetype-subset.c             |   21 ++---
+ src/cairo-type1-fallback.c              |    2 +-
+ src/cairo-type1-subset.c                |    3 -
+ 9 files changed, 156 insertions(+), 87 deletions(-)
+
+commit bf957ee0f29ff49970b4791718eccdb92f3d6886
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri Mar 23 12:59:38 2007 +0000
+
+    cairo-png - handle short reads
+    
+    During MT cairo testing we get the error "libpng: Read Error" which is
+    emitted should the fread return fewer bytes than asked. However, this is
+    not necessarily an error, so double-check the ferror() status before
+    raising a png_error().
+
+ src/cairo-png.c |   24 +++++++++++++++++-------
+ 1 files changed, 17 insertions(+), 7 deletions(-)
+
+commit d00aa44206f474e11c66c585d09bfd55e747cc5b
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 01:28:56 2007 -0400
+
+    [Makefile.am] Add a "make snapshot" target
+    that creates a tarball named with version, date, and git hash of
+    the tree.  Like cairo-1.4.5-20070420-2a0389.tar.gz.
+
+ Makefile.am |   11 ++++++++++-
+ 1 files changed, 10 insertions(+), 1 deletions(-)
+
+commit 2a038956635e27f61fb2147527d2262eebf9bb26
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 00:55:03 2007 -0400
+
+    [pixman] Fix typo in Makefile.am
+
+ pixman/src/Makefile.am |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit abcd929c57459f95e93504e0ef07b012b497a363
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 00:50:48 2007 -0400
+
+    [boilerplate] Add cairo_boilerplate_format_from_content
+
+ boilerplate/cairo-boilerplate-quartz.c        |    9 +--------
+ boilerplate/cairo-boilerplate-test-surfaces.c |   13 +------------
+ boilerplate/cairo-boilerplate-win32.c         |    8 ++------
+ boilerplate/cairo-boilerplate.c               |   18 ++++++++++++++++++
+ boilerplate/cairo-boilerplate.h               |    3 +++
+ 5 files changed, 25 insertions(+), 26 deletions(-)
+
+commit 97624dc488b41eb83d70b2c44a595daa5d833e7f
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 00:45:42 2007 -0400
+
+    [boilerplate] Strip test-surfaces boilerplate into cairo-boilerplate-test-surfaces*
+
+ boilerplate/Makefile.am                            |    5 +
+ .../cairo-boilerplate-test-surfaces-private.h      |   63 +++++++
+ boilerplate/cairo-boilerplate-test-surfaces.c      |  170 ++++++++++++++++++++
+ boilerplate/cairo-boilerplate.c                    |  146 +----------------
+ 4 files changed, 241 insertions(+), 143 deletions(-)
+
+commit 2e709321d858a048731eeaaca4a13a96de739e3f
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 00:34:51 2007 -0400
+
+    [boilerplate] Move xasprintf to xmalloc.c
+
+ boilerplate/cairo-boilerplate.c |   45 -----------------------------------
+ boilerplate/cairo-boilerplate.h |   32 +++++++++++-------------
+ boilerplate/xmalloc.c           |   50 ++++++++++++++++++++++++++++++++++++--
+ boilerplate/xmalloc.h           |    9 ++++++-
+ test/cairo-test.h               |    2 +-
+ 5 files changed, 71 insertions(+), 67 deletions(-)
+
+commit 5331445c12756293a915420a26ab5553fc7db3fc
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 00:26:17 2007 -0400
+
+    [boilerplate] Cleanup includes in cairo-boilerplate-beos.cpp
+
+ boilerplate/cairo-boilerplate-beos.cpp |   20 ++++++++++----------
+ 1 files changed, 10 insertions(+), 10 deletions(-)
+
+commit 56e916d40cf2a5f061347254657592f7bfc90d02
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 00:25:44 2007 -0400
+
+    [boilerplate] Fix typos in cairo-boilerplate-glitz.c
+
+ boilerplate/cairo-boilerplate-glitz.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+commit 06718b0da642d39b7b4dbfc009f08acb24e5e802
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 00:15:19 2007 -0400
+
+    [boilerplate] Remove leftover call to cairo_test_log
+
+ boilerplate/cairo-boilerplate.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 99737a60cb8cae1643b84782768e8c6d50ac7d0a
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 00:13:25 2007 -0400
+
+    [boilerplate] Clean up includes and remove unnecessary ones
+
+ boilerplate/cairo-boilerplate-directfb.c |    9 +++++----
+ boilerplate/cairo-boilerplate-pdf.c      |    2 +-
+ boilerplate/cairo-boilerplate-svg.c      |    2 +-
+ boilerplate/cairo-boilerplate-xcb.c      |    2 +-
+ boilerplate/cairo-boilerplate.c          |   30 +++++++++---------------------
+ 5 files changed, 17 insertions(+), 28 deletions(-)
+
+commit 4b569f13d758015f33ad258a70ad4f472da771ed
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri Apr 20 00:08:44 2007 -0400
+
+    [boilerplate] Strip win32 boilerplate into cairo-boilerplate-win32*
+
+ boilerplate/Makefile.am                       |    5 ++
+ boilerplate/cairo-boilerplate-win32-private.h |   38 ++++++++++++++++++
+ boilerplate/cairo-boilerplate-win32.c         |   51 +++++++++++++++++++++++++
+ boilerplate/cairo-boilerplate.c               |   31 ++-------------
+ 4 files changed, 99 insertions(+), 26 deletions(-)
+
+commit 0a03d66fffe7388d8fb4ffdb7bb5501a214c6342
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 23:58:51 2007 -0400
+
+    [boilerplate] Rename create_win32_surface to _cairo_boilerplate_win32_create_surface
+
+ boilerplate/cairo-boilerplate.c |   22 +++++++++++-----------
+ 1 files changed, 11 insertions(+), 11 deletions(-)
+
+commit 5ee882d3941a9df61d539e056933564a758a6bbc
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 23:53:34 2007 -0400
+
+    [boilerplate] Remove empty cleanup_win32
+
+ boilerplate/cairo-boilerplate.c |   11 ++---------
+ 1 files changed, 2 insertions(+), 9 deletions(-)
+
+commit a684fd80e750bea5661262e29a59c4f8c4d9cee3
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 23:36:00 2007 -0400
+
+    [directfb] Silence compiler warning
+
+ src/cairo-directfb-surface.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 23e6abc3fc01e3d722adfc48cd1df9c8db73adc1
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 22:40:52 2007 -0400
+
+    [boilerplate] Strip glitz boilerplate into cairo-boilerplate-glitz*
+
+ boilerplate/Makefile.am                       |   30 +-
+ boilerplate/cairo-boilerplate-glitz-private.h |   73 ++++
+ boilerplate/cairo-boilerplate-glitz.c         |  477 ++++++++++++++++++++++++
+ boilerplate/cairo-boilerplate.c               |  480 +------------------------
+ 4 files changed, 582 insertions(+), 478 deletions(-)
+
+commit 7d576a376706aad427915b4872429f5605104886
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 22:25:28 2007 -0400
+
+    [boilerplate] Minor indentation fix
+
+ boilerplate/cairo-boilerplate.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+commit 06b657ccf129f6f154c0db7886e5cca6191f93ca
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 22:20:38 2007 -0400
+
+    [boilerplate] Strip xcb boilerplate into cairo-boilerplate-xcb*
+
+ boilerplate/Makefile.am                     |    5 +
+ boilerplate/cairo-boilerplate-xcb-private.h |   44 ++++++++++
+ boilerplate/cairo-boilerplate-xcb.c         |  115 +++++++++++++++++++++++++++
+ boilerplate/cairo-boilerplate.c             |   90 +--------------------
+ 4 files changed, 167 insertions(+), 87 deletions(-)
+
+commit 65f636649d54348722354b2400c3a191309da0e1
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 22:13:08 2007 -0400
+
+    [boilerplate] Strip svg boilerplate into cairo-boilerplate-svg*
+
+ boilerplate/Makefile.am                     |    5 +
+ boilerplate/cairo-boilerplate-svg-private.h |   44 +++++++++
+ boilerplate/cairo-boilerplate-svg.c         |  129 +++++++++++++++++++++++++++
+ boilerplate/cairo-boilerplate.c             |  106 +---------------------
+ 4 files changed, 181 insertions(+), 103 deletions(-)
+
+commit 8c9960675b82978acbd5a85ef358c674c3407ee3
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 22:10:09 2007 -0400
+
+    [boilerplate] Strip pdf boilerplate into cairo-boilerplate-pdf*
+
+ boilerplate/Makefile.am                     |    5 +
+ boilerplate/cairo-boilerplate-pdf-private.h |   44 +++++++++
+ boilerplate/cairo-boilerplate-pdf.c         |  134 +++++++++++++++++++++++++++
+ boilerplate/cairo-boilerplate.c             |  111 +---------------------
+ 4 files changed, 186 insertions(+), 108 deletions(-)
+
+commit d9ce7de57514710f425bdee613edc4ea79ac0f0a
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 22:08:24 2007 -0400
+
+    [boilerplate] Rename xcairo_surface_set_user_data to cairo_boilerplate_surface_set_user_data
+    
+    and make it public.
+
+ boilerplate/cairo-boilerplate.c |   48 +++++++++++++++++++++-----------------
+ boilerplate/cairo-boilerplate.h |    6 +++++
+ 2 files changed, 32 insertions(+), 22 deletions(-)
+
+commit df6b8ecc8963518c897648d82aab1aa090b4721a
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 21:46:51 2007 -0400
+
+    [boilerplate] Strip ps boilerplate into cairo-boilerplate-ps*
+
+ boilerplate/Makefile.am                    |    5 +
+ boilerplate/cairo-boilerplate-ps-private.h |   44 +++++++++
+ boilerplate/cairo-boilerplate-ps.c         |  138 ++++++++++++++++++++++++++++
+ boilerplate/cairo-boilerplate.c            |  115 +----------------------
+ 4 files changed, 190 insertions(+), 112 deletions(-)
+
+commit 6461f0d120bf5fabd08b7621233229b223b3de89
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 20:45:10 2007 -0400
+
+    [boilerplate] Remove unused variables
+
+ boilerplate/cairo-boilerplate.c |    3 ---
+ 1 files changed, 0 insertions(+), 3 deletions(-)
+
+commit f2d6275352142df631e00e27456d7e6ceb83804c
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 20:41:34 2007 -0400
+
+    [boilerplate] Fix renaming typo
+
+ boilerplate/cairo-boilerplate.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit d5535c993b5cde5df29a7a29339aa500992128bf
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 20:36:14 2007 -0400
+
+    [boilerplate/test] Move vector_ignored_tests from boilerplate/ to test/
+
+ boilerplate/cairo-boilerplate.c |   28 -----------------
+ test/cairo-test.c               |   62 ++++++++++++++++++++++++++++----------
+ 2 files changed, 45 insertions(+), 45 deletions(-)
+
+commit d6dc4f978364d287367d239e5594c7ffe50a2571
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 20:28:22 2007 -0400
+
+    [boilerplate] Add a boolean is_vector to boilerplate target type
+    
+    This is used to move the skip-these-tests-for-vector code into
+    cairo-test which it belongs.
+
+ boilerplate/cairo-boilerplate.c |   18 ++++++++++++------
+ boilerplate/cairo-boilerplate.h |    1 +
+ 2 files changed, 13 insertions(+), 6 deletions(-)
+
+commit 0b5e2dbaa84225452a0935f61d2348bce88a3e69
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 20:23:55 2007 -0400
+
+    [boilerplate] Sort backend entries in Makefile.am alphabetically
+
+ boilerplate/Makefile.am |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
+
+commit be0320c4f8082a9274899959dc82297a04aa7800
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 20:17:26 2007 -0400
+
+    [boilerplate] Properly namespace boilerplate methods
+    
+    in preparation for ripping them into per-backend files.
+
+ boilerplate/cairo-boilerplate-beos.cpp   |   24 +-
+ boilerplate/cairo-boilerplate-directfb.c |   33 ++--
+ boilerplate/cairo-boilerplate-quartz.c   |   12 +-
+ boilerplate/cairo-boilerplate-xlib.c     |   24 +-
+ boilerplate/cairo-boilerplate.c          |  328 +++++++++++++++++-------------
+ 5 files changed, 236 insertions(+), 185 deletions(-)
+
+commit 9b660a3d54940c68eb48f2afeca7e87e1d2bffa6
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 19:56:05 2007 -0400
+
+    [boilerplate] Strip xlib boilerplate into cairo-boilerplate-xlib*
+
+ boilerplate/Makefile.am                      |    5 +
+ boilerplate/cairo-boilerplate-xlib-private.h |   44 ++++++
+ boilerplate/cairo-boilerplate-xlib.c         |  196 ++++++++++++++++++++++++++
+ boilerplate/cairo-boilerplate.c              |  183 ++-----------------------
+ 4 files changed, 254 insertions(+), 174 deletions(-)
+
+commit d945f6434643ac35f0e86352cfe3ccf021f568de
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 19:44:57 2007 -0400
+
+    [boilerplate] Move includes around
+
+ boilerplate/cairo-boilerplate.c |   23 ++++++++++-------------
+ 1 files changed, 10 insertions(+), 13 deletions(-)
+
+commit 0130cca6924f5c0969ca285585c68a458301a882
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 19:39:58 2007 -0400
+
+    [boilerplate] Rename test-directfb to boilerplate-directfb
+
+ boilerplate/Makefile.am                          |    3 +-
+ boilerplate/cairo-boilerplate-directfb-private.h |   23 ++++
+ boilerplate/cairo-boilerplate-directfb.c         |  143 ++++++++++++++++++++++
+ boilerplate/cairo-boilerplate.c                  |    6 +-
+ boilerplate/cairo-test-directfb.c                |  143 ----------------------
+ boilerplate/cairo-test-directfb.h                |   23 ----
+ 6 files changed, 171 insertions(+), 170 deletions(-)
+
+commit fb2c0daa09af083278024c3da6f7e9e3f851984f
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 19:38:20 2007 -0400
+
+    [boilerplate] Rename test-beos to boilerplate-beos
+
+ boilerplate/Makefile.am                      |    3 +-
+ boilerplate/cairo-boilerplate-beos-private.h |   34 ++++
+ boilerplate/cairo-boilerplate-beos.cpp       |  258 ++++++++++++++++++++++++++
+ boilerplate/cairo-boilerplate.c              |    8 +-
+ boilerplate/cairo-test-beos.cpp              |  258 --------------------------
+ boilerplate/cairo-test-beos.h                |   34 ----
+ 6 files changed, 298 insertions(+), 297 deletions(-)
+
+commit 01760286b388870e5bebf3851b4bef1350d89852
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 19:32:52 2007 -0400
+
+    [boilerplate] Rename quartz-boilerplate to boilerplate-quartz
+
+ boilerplate/Makefile.am                        |    4 +-
+ boilerplate/cairo-boilerplate-quartz-private.h |   41 ++++++++++++++++
+ boilerplate/cairo-boilerplate-quartz.c         |   60 ++++++++++++++++++++++++
+ boilerplate/cairo-boilerplate.c                |   10 ++--
+ boilerplate/cairo-quartz-boilerplate-private.h |   41 ----------------
+ boilerplate/cairo-quartz-boilerplate.c         |   60 ------------------------
+ 6 files changed, 108 insertions(+), 108 deletions(-)
+
+commit d64ef355217db7a555da0029187d19c80ec12609
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu Apr 19 23:12:09 2007 +0100
+
+    Include cairo-perf in make check
+    
+    Although cairo-perf is not written to perform explicit failure testing of
+    cairo, it does generate long sequences of cairo operations which often
+    trigger unexpected errors. By including it with make check, it becomes
+    even easier for the programmer to check that one has not broken cairo in
+    terms of expected behaviour or performance.
+
+ Makefile.am      |    3 ++-
+ perf/Makefile.am |   30 +++++++++++++++++++-----------
+ 2 files changed, 21 insertions(+), 12 deletions(-)
+
+commit 0ffb021e9b0cc2ec9afc3eaa360b4518327afa6c
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:52:51 2007 -0400
+
+    [cairo-mutex] If no mutex implementation is found, should #error instead of #warning
+    
+    otherwise we will cause compile errors before the sanity check macros get
+    a chance to err.
+
+ src/cairo-mutex-private.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+commit 813cdd71503ca2d77da011c91368e55cf20ad657
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:49:35 2007 -0400
+
+    [configure.in] Support --disable-pthread
+    
+    Also allows for --enable-pthread=yes which will make configure abort
+    if pthread is not found (as opposed to silently disabling it).
+
+ configure.in |   13 ++++++++++++-
+ 1 files changed, 12 insertions(+), 1 deletions(-)
+
+commit 6d01e89988ea89ae21f3461825583d89b6eef55e
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu Apr 19 21:46:00 2007 +0100
+
+    Add callgrind output files to CLEANFILES and .gitignore.
+
+ perf/.gitignore  |    2 ++
+ perf/Makefile.am |    1 +
+ 2 files changed, 3 insertions(+), 0 deletions(-)
+
+commit 2c79f8b75bd5bb0bb3bf054fb2b3cae6de382a7c
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu Apr 19 21:41:43 2007 +0100
+
+    Fix command line for running cairo-perf under valgrind.
+    
+    The CAIRO_PERF_ENVIRONMENT slipped into the middle of the command line
+    instead of at the start.
+
+ perf/Makefile.am |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+commit 3631c11eb4ab49f2bb3b9ef0478e5516793f221f
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:38:23 2007 -0400
+
+    [cairo-mutex] Switch to HAVE_WINDOWS_H to use Win32 mutexes
+
+ src/cairo-mutex-private.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit d2a824a191e6b0d10a1f495d970b0406e37e0a39
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:37:36 2007 -0400
+
+    [cairo-commit] Update attribution headers in cairo-mutex-private.h
+
+ src/cairo-mutex-private.h |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+commit 12dfd8bb4bf72483c835e169003fa00b114beb13
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:36:43 2007 -0400
+
+    [cairo-mutex] Warn if no mutex definition found and let sanity macros err
+    about undefined CAIRO_MUTEX macros.
+
+ src/cairo-mutex-private.h |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+commit 6aa823841d6c1d59d4d972f0236f0e6a43199970
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:36:10 2007 -0400
+
+    [cairo-mutex] Support non-reentrant compilation if CAIRO_NO_MUTEX defined
+    to 1.
+
+ src/cairo-mutex-private.h |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
+
+commit e5980f69ad2d59ee305fe9aae62070a74d2df58b
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:31:47 2007 -0400
+
+    [cairo-commit] Just warn for BeOS and let the sanity check macros err
+    about undefined CAIRO_MUTEX macros.
+
+ src/cairo-mutex-private.h |   10 +++-------
+ 1 files changed, 3 insertions(+), 7 deletions(-)
+
+commit 8ebb054ff9d2fe12faa7b1807aef24b2bf916e64
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:28:44 2007 -0400
+
+    [cairo-mutex] Prefer "#if CAIRO_SOMETHING" over "#if defined CAIRO_SOMETHING"
+
+ src/cairo-mutex-private.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+commit 97c197478023ceb5477a203d058eaec2cb18f987
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:26:21 2007 -0400
+
+    [cairo-mutex] Add default implementation for CAIRO_MUTEX_INIT
+    that uses CAIRO_MUTEX_NIL_INITIALIZER.  This used to be the
+    implementation for pthread because pthread_mutex_init() is
+    broken.  See d48bb4fbe876a93199ba48fcf5f32734fbe18ba9.
+
+ src/cairo-mutex-private.h |   11 +++++++----
+ 1 files changed, 7 insertions(+), 4 deletions(-)
+
+commit 6d2a2dd6d9190c62b209e47c083b7df72e7134fb
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:24:16 2007 -0400
+
+    [cairo-mutex] Add default no-op implementation for CAIRO_MUTEX_FINI
+
+ src/cairo-mutex-private.h |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+commit 2067d6fa90dae80aa666fb7328d51e2f92bec5bd
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:23:14 2007 -0400
+
+    [cairo-mutex] Use CAIRO_MUTEX_NOOP when applicable
+
+ src/cairo-mutex-private.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 5dda76c90f8886b6017ca8bbdf81be2b97201962
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:22:02 2007 -0400
+
+    [cairo-mutex] Err if at least one of mutex macros are not defined
+
+ src/cairo-mutex-private.h |   23 +++++++++++++++++++++++
+ 1 files changed, 23 insertions(+), 0 deletions(-)
+
+commit f771b9157c26430949f4dd1412c7a7b35367f81a
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:21:13 2007 -0400
+
+    [cairo-mutex] Define and use CAIRO_MUTEX_USE_GENERIC_INITIALIZATION
+    We use the generic initialization if CAIRO_MUTEX_INITIALIZE is not
+    defined.
+
+ src/cairo-mutex-private.h |    9 +++++++++
+ src/cairo-mutex.c         |    2 +-
+ 2 files changed, 10 insertions(+), 1 deletions(-)
+
+commit 4fc52e2d49c1299f8f175e22472ebe08baa41fa4
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:19:48 2007 -0400
+
+    [cairo-mutex] Define CAIRO_MUTEX_NOOP
+
+ src/cairo-mutex-private.h |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+commit f9dd8fd0ef0ad95921723155b951cd113ccb2d0b
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 16:19:25 2007 -0400
+
+    [cairo-mutex] Inlucde cairo-features.h and config.h
+    Previously we were lucky enough to have them included before us
+
+ src/cairo-mutex-private.h |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+commit 4e754cf3df9855c1d442578e555b7fb17c3dd4a1
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 15:31:24 2007 -0400
+
+    [cairo-truetype-subset] Shut gcc warning up
+
+ src/cairo-truetype-subset.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 4141e752e2eb0f40f2eb298bad398e6390e00ef8
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 15:04:11 2007 -0400
+
+    [cairo-freelist] Remove redundant struct declarations
+
+ src/cairo-freelist-private.h |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+commit ea817c560c429f445e4c450b60d499dae27f6024
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 14:50:38 2007 -0400
+
+    [cairo-mutex] Remove unneeded #undef CAIRO_MUTEX_EXTERNAL
+
+ src/cairo-mutex-private.h |    8 --------
+ 1 files changed, 0 insertions(+), 8 deletions(-)
+
+commit 0b281085b55aae70876c6ef022266b73461800ab
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 14:45:41 2007 -0400
+
+    [cairo-mutex] Err on unintended inclusion of cairo-mutex-list-private.h
+
+ src/cairo-mutex-list-private.h |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+commit 47be7280bfe751c9f635f1e17c158f04b2927ae3
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Apr 19 14:42:55 2007 -0400
+
+    [cairo-mutex] Remove multiple-inclusion guards from cairo-mutex-list-private.h
+    
+    This is a list header file.  We should not prevent it from multiple
+    inclusions.
+
+ src/cairo-mutex-list-private.h |    3 ---
+ src/cairo-mutex.c              |    2 --
+ 2 files changed, 0 insertions(+), 5 deletions(-)
+
+commit 55ea0466e25de2c60171a9d6c96536bc2e7fb9e3
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu Apr 19 20:24:27 2007 +0100
+
+    Embed simple clip XRectangles in cairo_xlib_surface_t
+    
+    Toolkits like GTK+ almost always set a simple rectangular clip mask before
+    any cairo operation, so avoid the allocation for this simple case by
+    embedding a small number of XRectangles into the surface structure.
+
+ src/cairo-xlib-surface.c |   18 +++++++++++-------
+ 1 files changed, 11 insertions(+), 7 deletions(-)
+
+commit 7906a993403e75aa34b32d2d9338ec179896d765
+Author: Mathias Hasselmann <mathias.hasselmann@gmx.de>
+Date:   Thu Apr 19 14:54:30 2007 +0200
+
+    Define INT32 limits on MSVC as noticed by Hans-Jürgen Schäler
+
+ src/cairo-wideint-private.h |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+commit cc8841645cd7aa06ae48cbad804b31b3c0c2146b
+Author: Mathias Hasselmann <mathias.hasselmann@gmx.de>
+Date:   Thu Apr 19 13:47:45 2007 +0200
+
+    Properly use CAIRO_MUTEX_{INIT,FINI} and remove CAIRO_MUTEX_LIST_PRIVATE_H sentinal before explicitly including the mutex list.
+
+ src/cairo-mutex.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
+
+commit 39a633a8f3618f3b1adb3eefdf36e2fc6d896054
+Author: Mathias Hasselmann <mathias.hasselmann@gmx.de>
+Date:   Thu Apr 19 13:15:08 2007 +0200
+
+    Reintroduce DllMain as deterministic mutex initialization path
+
+ src/cairo-win32-surface.c |   30 ++++++++++++++++++++++++++++++
+ 1 files changed, 30 insertions(+), 0 deletions(-)
+
+commit 9b348929b51fb45f5985914350a10955d6df17ae
+Author: Mathias Hasselmann <mathias.hasselmann@gmx.de>
+Date:   Thu Apr 19 13:13:42 2007 +0200
+
+    Introduce CAIRO_MUTEX_FINALIZE as counter-part for CAIRO_MUTEX_INITIALIZE
+
+ src/cairo-mutex-private.h |    8 +++++++-
+ src/cairo-mutex.c         |   12 ++++++++++++
+ src/cairo-os2-surface.c   |    6 +++---
+ 3 files changed, 22 insertions(+), 4 deletions(-)
+
+commit 67767afa09e3622988b9ac67b754114ea9f84105
+Author: Mathias Hasselmann <mathias.hasselmann@gmx.de>
+Date:   Thu Apr 19 12:35:10 2007 +0200
+
+    Update _cairo_mutex_initialized during initialization.
+
+ src/cairo-mutex.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+commit 41c6eebcd1fab94fd3a91d09f1ef6ee0d8c7a044
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu Apr 19 11:56:15 2007 +0100
+
+    Optionally provide a pattern to use for creating a similar solid surface.
+    
+    _cairo_surface_create_similar_solid() creates a fresh pattern to wrap
+    color, however sometimes the caller already has that pattern available.
+    In those circumstances we can pass the pattern as well as the color and
+    avoid the extra allocation.
+
+ src/cairo-clip.c          |    3 ++-
+ src/cairo-glitz-surface.c |    3 ++-
+ src/cairo-pattern.c       |    3 ++-
+ src/cairo-surface.c       |   24 +++++++++++++++---------
+ src/cairoint.h            |    6 +++++-
+ 5 files changed, 26 insertions(+), 13 deletions(-)
+
+commit ef60e7c65144edd1aa14757b269f2c196df732a2
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed Apr 18 18:08:45 2007 +0100
+
+    cairo-xlib-surface - track picture properties.
+    
+    By tracking picture properties we can dramatically reduce the amount of
+    X11 traffic by avoiding redundant changes.
+
+ src/cairo-xlib-surface.c |   35 ++++++++++++++++++++++++-----------
+ 1 files changed, 24 insertions(+), 11 deletions(-)
+
+commit 9cf09556339e64bdf1273e95938b657112df07b6
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu Apr 19 09:27:51 2007 +0100
+
+    Create opaque similar solid surfaces when possible.
+    
+    For opaque surfaces the backends may use simpler code paths - for
+    example, the xlib backend may be able to use the Core protocol rather
+    than Render. So we only generate a surface with an alpha component if
+    the color is not opaque.
+
+ src/cairo-pattern.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+commit f7b6fc474651311356f116b7d8d7a5ef1cbab570
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu Apr 19 09:22:08 2007 +0100
+
+    Define a CAIRO_ALPHA_IS_OPAQUE variant that operates on uint16.
+    
+    Introducing this variant also fixed a bug in _gradient_is_opaque()
+    which was using the fractional test on a uint16.
+
+ src/cairo-pattern.c |    6 +++---
+ src/cairoint.h      |    3 +++
+ 2 files changed, 6 insertions(+), 3 deletions(-)
+
+commit 157074c794903f1dbe68c1ba5b129b4176dc7975
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Wed Apr 18 19:46:30 2007 -0400
+
+    [boilerplate] Add cairo_boilerplate_get/free_targets
+    This means, test and perf suites now share the same target handling
+    code, including parsing CAIRO_TEST_TARGET.
+
+ boilerplate/cairo-boilerplate.c |   73 +++++++++++++++++++++++++++++++++++++--
+ boilerplate/cairo-boilerplate.h |    6 +++-
+ perf/cairo-perf.c               |   20 +++++-----
+ test/cairo-test.c               |   54 ++++-------------------------
+ 4 files changed, 92 insertions(+), 61 deletions(-)
+
+commit 47c02a6bd67e8b7e50977cc87d5e35358d5c4c2e
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Wed Apr 18 19:15:16 2007 -0400
+
+    [boilerplate] s/_cairo_test_content_name/cairo_boilerplate_content_name/g
+
+ boilerplate/cairo-boilerplate.c |    8 ++++----
+ boilerplate/cairo-boilerplate.h |    2 +-
+ test/cairo-test.c               |   10 +++++-----
+ 3 files changed, 10 insertions(+), 10 deletions(-)
+
+commit b9026d0b137520247b4a93287bd518fc79774e93
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Wed Apr 18 19:09:53 2007 -0400
+
+    [perf] Make targets more consistent with the test suite
+    That is:
+    1) no VALGRING vs VG abbreviations
+    2) setting TARGETS and ITERS on the make command line works now
+
+ perf/Makefile.am  |   26 +++++++++++++++++---------
+ perf/cairo-perf.c |    8 ++++++--
+ 2 files changed, 23 insertions(+), 11 deletions(-)
+
+commit 9f3e0694e644d2279c7f4835f8035d4ecccb5711
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Wed Apr 18 19:08:54 2007 -0400
+
+    [test] Allow bypassing all test targets by setting CAIRO_TEST_TARGET=" "
+
+ test/cairo-test.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+commit 52d4e0f3191440e8ebe366b593c2e9c955328258
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Wed Apr 18 18:27:28 2007 -0400
+
+    [doc] Make section title capitalization more consistent
+
+ doc/public/cairo-sections.txt    |    2 +-
+ doc/public/language-bindings.xml |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+commit beadcdf9bd7c1dde48c8c751ba8af75c60b93a5f
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Wed Apr 18 18:24:09 2007 -0400
+
+    Rename cairo-font.c to cairo-font-face.c
+
+ src/Makefile.am       |    2 +-
+ src/Makefile.win32    |    2 +-
+ src/cairo-font-face.c |  514 +++++++++++++++++++++++++++++++++++++++++++++++++
+ src/cairo-font.c      |  514 -------------------------------------------------
+ src/cairoint.h        |    2 +-
+ 5 files changed, 517 insertions(+), 517 deletions(-)
+
+commit f56582ef06bbf56edcc6ecc26698abaeba1306b0
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Wed Apr 18 17:50:36 2007 -0400
+
+    Put back __inline definition for MSC compilers, in both cairo and pixman
+    Apparently it's too much to expect people compiling on windows to fill
+    in sensible values for config.h... /sigh
+
+ pixman/src/pixmanint.h |   10 ++++++++--
+ src/cairoint.h         |    2 ++
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+commit a54b6ed0784dd00375424e581bc7349dd8a2a2d9
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Wed Apr 18 17:45:31 2007 -0400
+
+    [pixman] Rename icint.h to pixmanint.h
+
+ pixman/src/Makefile.am             |    4 +-
+ pixman/src/check-pixmanint.sh      |   17 +
+ pixman/src/fbcompose.c             |    4 +-
+ pixman/src/fbedge.c                |    4 +-
+ pixman/src/fbmmx.c                 |    4 +-
+ pixman/src/fbpict.c                |    4 +-
+ pixman/src/fbtrap.c                |    4 +-
+ pixman/src/icblt.c                 |    4 +-
+ pixman/src/icbltone.c              |    4 +-
+ pixman/src/iccolor.c               |    6 +-
+ pixman/src/icformat.c              |    6 +-
+ pixman/src/icimage.c               |    4 +-
+ pixman/src/icpixels.c              |    4 +-
+ pixman/src/icrect.c                |    6 +-
+ pixman/src/icstipple.c             |    4 +-
+ pixman/src/ictransform.c           |    6 +-
+ pixman/src/ictrap.c                |    5 +-
+ pixman/src/ictri.c                 |    5 +-
+ pixman/src/icutil.c                |    4 +-
+ pixman/src/pixman-xserver-compat.h |    4 +-
+ pixman/src/pixman.h                |    4 -
+ pixman/src/pixmanint.h             | 1070 ++++++++++++++++++++++++++++++++++++
+ pixman/src/pixregion.c             |    4 +-
+ pixman/src/renderedge.c            |    4 +-
+ 24 files changed, 1110 insertions(+), 75 deletions(-)
+
+commit 48121e97ac4f0114a0d5bc35aec76d2aba23a783
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Wed Apr 18 17:04:07 2007 -0400
+
+    [cairoint.h] Define WARN_UNUSED_RESULT if undefined
+
+ src/cairoint.h |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+commit a396e0b05731db3acbf1e8d82ab77592b697e417
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed Apr 18 14:24:10 2007 +0100
+
+    cairo-perf - add the missing newline.
+    
+    Oops, missed out the newline for the fprintf in the previous commit.
+
+ perf/cairo-perf.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 383e9d5368706168498a87d1b7f023f2b59c2f92
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed Apr 18 14:12:20 2007 +0100
+
+    cairo-perf - Check that the surface is created.
+    
+    Exit(1) if we fail to create the target surface.
+
+ perf/cairo-perf.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+commit 7131f4e6aea11d94e38375a6be71887825008e48
+Author: Dave Yeo <daveryeo@telus.net>
+Date:   Tue Apr 17 15:30:20 2007 -0400
+
+    [OS2] Fix #include "cairo-mutex-list-private.h"
+
+ src/cairo-os2-surface.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit f7a2787685d640dd35ef7ef1314c4e754771c512
+Merge: 2efaf3a... cab4d41...
+Author: Mathias Hasselmann <mathias.hasselmann@gmx.de>
+Date:   Mon Apr 16 23:05:10 2007 +0200
+
+    Merge branch 'master' of git+ssh://hasselmm@git.freedesktop.org/git/cairo
+
+commit cab4d41cae4463841bca297a7e16c970633c8c21
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Mon Apr 16 16:57:24 2007 +0100
+
+    create-for-stream - free resources after test failure.
+    
+    create-for-stream often fails whilst running under valgrind due to the
+    postscript output containing a CreationDate with seconds resolution,
+    hence the visibility of the resource leaks during failure.
+
+ test/create-for-stream.c |   37 ++++++++++++++++++++-----------------
+ 1 files changed, 20 insertions(+), 17 deletions(-)
+
+commit 9d435d5fbfae0f64053f6596f73410bc352cd2de
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Mon Apr 16 15:42:07 2007 +0100
+
+    Add suppression for leak from XauFileName.
+    
+    The string is statically allocated by XauFileName() and so ignore the fact
+    that is not freed upon termination.
+
+ test/.valgrind-suppressions |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
+
+commit 3a3fb0031decec26260cd94e60f1b0bf06541a6d
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Mon Apr 16 15:08:54 2007 +0100
+
+    Update .gitignore
+    
+    Add .*.sw? (vim swapfiles).
+    Add *~ (backup files).
+    Add *.gcno and *.gcda (gcov intermediates).
+
+ .gitignore             |    1 +
+ boilerplate/.gitignore |    4 ++++
+ perf/.gitignore        |    4 ++++
+ src/.gitignore         |    1 +
+ test/.gitignore        |    3 +++
+ 5 files changed, 13 insertions(+), 0 deletions(-)
+
+commit 7ff95c7230471be3ffa231ebc71e1d63ba4621b0
+Author: Kouhei Sutou <kou@cozmixng.org>
+Date:   Mon Apr 16 02:48:14 2007 -0400
+
+    Support MinGW DLL compilation
+
+ configure.in              |    1 +
+ src/cairo-win32-surface.c |    4 ++++
+ 2 files changed, 5 insertions(+), 0 deletions(-)
+
+commit ca9df759b4eda8f19a92b2e0b1092fa7b618d25b
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat Apr 14 15:28:29 2007 +0100
+
+    Change of email address.
+    
+    Update to my new email address and drop my old work one.
+
+ AUTHORS |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 96ee8d5ebe6c6494a140c5424137f26de5fd5d85
+Author: Carl Worth <cworth@cworth.org>
+Date:   Fri Apr 13 17:47:25 2007 -0700
+
+    Update version to 1.4.5 after the 1.4.4 release
+
+ configure.in |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 2efaf3a7a47a281ca02009d371cd7a06a8a4f282
+Merge: abac4d2... 25ddc08...
+Author: Mathias Hasselmann <mathias.hasselmann@gmx.de>
+Date:   Sat Mar 24 00:29:04 2007 +0100
+
+    Merge branch 'master' of git+ssh://hasselmm@git.freedesktop.org/git/cairo
+
+commit abac4d251dd02151dced296afa9d6e1b383868ee
+Author: Mathias Hasselmann <mathias.hasselmann@gmx.de>
+Date:   Fri Mar 23 23:36:15 2007 +0100
+
+    [cairo-perf] Use full 64 bit of the clock cycle counters to avoid overflows
+
+ perf/cairo-perf-posix.c |   22 ++++++++++++++--------
+ 1 files changed, 14 insertions(+), 8 deletions(-)
+
 commit ebba4a6d1467a8e5db5cc43eb08e8fc98c39b30a
 Author: Carl Worth <cworth@cworth.org>
 Date:   Fri Apr 13 17:37:14 2007 -0700
@@ -3343,7 +5558,7 @@ Date:   Wed Mar 14 16:56:45 2007 -0700
     This isn't strictly needed, (pdiff allows the test to pass without the
     image), but it sure runs faster this way.
 
- test/radial-gradient-svg-ref.png |  Bin
+ test/radial-gradient-svg-ref.png |  Bin 0 -> 91039 bytes
  1 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 75201c12be74055d6209d48d1d698797665a70b4
@@ -3411,7 +5626,7 @@ Date:   Tue Mar 13 17:39:48 2007 -0700
 
  test/.gitignore           |    1 +
  test/Makefile.am          |    1 +
- test/skew-extreme-ref.png |  Bin
+ test/skew-extreme-ref.png |  Bin 0 -> 1012 bytes
  test/skew-extreme.c       |  126 +++++++++++++++++++++++++++++++++++++++++++++
  4 files changed, 128 insertions(+), 0 deletions(-)
 
@@ -4262,7 +6477,7 @@ Date:   Mon Mar 5 19:22:41 2007 -0500
 
     [test] Modify extend-reflect to need a smaller reference image
 
- test/extend-reflect-ref.png |  Bin
+ test/extend-reflect-ref.png |  Bin 589279 -> 153571 bytes
  test/extend-reflect.c       |   17 ++++++-----------
  2 files changed, 6 insertions(+), 11 deletions(-)
 
@@ -4277,11 +6492,11 @@ Date:   Mon Mar 5 19:15:35 2007 -0500
     images for now.
 
  test/Makefile.am                               |    3 ---
- test/random-intersections-ps-argb32-ref.png    |  Bin
- test/random-intersections-quartz-ref.png       |  Bin
- test/random-intersections-quartz-rgb24-ref.png |  Bin
- test/random-intersections-ref.png              |  Bin
- test/random-intersections-rgb24-ref.png        |  Bin
+ test/random-intersections-ps-argb32-ref.png    |  Bin 107578 -> 89416 bytes
+ test/random-intersections-quartz-ref.png       |  Bin 203877 -> 0 bytes
+ test/random-intersections-quartz-rgb24-ref.png |  Bin 179204 -> 0 bytes
+ test/random-intersections-ref.png              |  Bin 177153 -> 132210 bytes
+ test/random-intersections-rgb24-ref.png        |  Bin 132210 -> 0 bytes
  test/random-intersections.c                    |    4 ++++
  7 files changed, 4 insertions(+), 3 deletions(-)
 
@@ -5188,7 +7403,7 @@ Date:   Fri Feb 23 07:12:03 2007 +0100
 
  test/.gitignore              |    1 +
  test/Makefile.am             |    1 +
- test/radial-gradient-ref.png |  Bin
+ test/radial-gradient-ref.png |  Bin 0 -> 91159 bytes
  test/radial-gradient.c       |  110 ++++++++++++++++++++++++++++++++++++++++++
  4 files changed, 112 insertions(+), 0 deletions(-)
 
@@ -5382,13 +7597,13 @@ Date:   Tue Feb 27 19:28:37 2007 -0500
 
     [test] Add ref images for new tests
 
- test/surface-pattern-scale-down-pdf-argb32-ref.png |  Bin
- test/surface-pattern-scale-down-ps-argb32-ref.png  |  Bin
- test/surface-pattern-scale-down-ref.png            |  Bin
+ test/surface-pattern-scale-down-pdf-argb32-ref.png |  Bin 0 -> 1565 bytes
+ test/surface-pattern-scale-down-ps-argb32-ref.png  |  Bin 0 -> 1400 bytes
+ test/surface-pattern-scale-down-ref.png            |  Bin 0 -> 1784 bytes
  test/surface-pattern-scale-down.c                  |    3 +--
- test/surface-pattern-scale-up-pdf-argb32-ref.png   |  Bin
- test/surface-pattern-scale-up-ps-argb32-ref.png    |  Bin
- test/surface-pattern-scale-up-ref.png              |  Bin
+ test/surface-pattern-scale-up-pdf-argb32-ref.png   |  Bin 0 -> 3886 bytes
+ test/surface-pattern-scale-up-ps-argb32-ref.png    |  Bin 0 -> 1011 bytes
+ test/surface-pattern-scale-up-ref.png              |  Bin 0 -> 3825 bytes
  test/surface-pattern-scale-up.c                    |    3 +--
  test/surface-pattern.c                             |    3 +--
  9 files changed, 3 insertions(+), 6 deletions(-)
@@ -5485,7 +7700,7 @@ Date:   Thu Feb 22 18:24:19 2007 -0500
 
  test/.gitignore         |    1 +
  test/Makefile.am        |    3 ++
- test/extend-pad-ref.png |  Bin
+ test/extend-pad-ref.png |  Bin 0 -> 616 bytes
  test/extend-pad.c       |   74 +++++++++++++++++++++++++++++++++++++++++++++++
  4 files changed, 78 insertions(+), 0 deletions(-)
 
@@ -5509,7 +7724,7 @@ Date:   Thu Feb 22 18:23:10 2007 -0500
     device-offset=25 case are different and both have seams.
 
  src/cairo-ps-surface.c                 |   42 ++++++++++---------------------
- test/surface-pattern-ps-argb32-ref.png |  Bin
+ test/surface-pattern-ps-argb32-ref.png |  Bin 0 -> 2520 bytes
  2 files changed, 14 insertions(+), 28 deletions(-)
 
 commit 16013ced09c8d6e2a967b9192f8545716a423504
@@ -5531,9 +7746,9 @@ Date:   Thu Feb 22 16:03:47 2007 -0500
     repeated at identity size.  With the new test, the surface pattern
     is scaled and rotated.  This reveals a serious bug in the PS backend.
 
- test/surface-pattern-pdf-argb32-ref.png |  Bin
- test/surface-pattern-ref.png            |  Bin
- test/surface-pattern-svg-ref.png        |  Bin
+ test/surface-pattern-pdf-argb32-ref.png |  Bin 0 -> 14880 bytes
+ test/surface-pattern-ref.png            |  Bin 194 -> 11439 bytes
+ test/surface-pattern-svg-ref.png        |  Bin 0 -> 17663 bytes
  test/surface-pattern.c                  |   94 ++++++++++++++-----------------
  4 files changed, 43 insertions(+), 51 deletions(-)
 
@@ -5561,7 +7776,7 @@ Date:   Thu Feb 22 13:10:34 2007 -0500
     [test] Increase size of extend-reflect test to see that pattern repeats
 
  test/Makefile.am            |    1 +
- test/extend-reflect-ref.png |  Bin
+ test/extend-reflect-ref.png |  Bin 287611 -> 589279 bytes
  test/extend-reflect.c       |    2 +-
  3 files changed, 2 insertions(+), 1 deletions(-)
 
@@ -5627,7 +7842,7 @@ Date:   Wed Feb 21 18:16:34 2007 -0500
 
  src/cairo-pattern.c         |   58 ++++++++++++++++++++++++++++++++++++++++++-
  test/Makefile.am            |    2 +-
- test/extend-reflect-ref.png |  Bin
+ test/extend-reflect-ref.png |  Bin 287611 -> 287611 bytes
  test/extend-reflect.c       |    4 +--
  4 files changed, 59 insertions(+), 5 deletions(-)
 
@@ -5671,7 +7886,7 @@ Date:   Wed Feb 21 17:59:28 2007 -0500
 
     [test] Add ref image for extend-reflect
 
- test/extend-reflect-ref.png |  Bin
+ test/extend-reflect-ref.png |  Bin 0 -> 287611 bytes
  1 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 5a72aac5982015a2b237afeb13164e0c5f5185ed
@@ -5799,10 +8014,10 @@ Date:   Wed Feb 21 13:52:17 2007 -0500
     to remind us for that.
 
  test/Makefile.am                   |    6 +++---
- test/text-rotate-ps-argb32-ref.png |  Bin
- test/text-rotate-ref.png           |  Bin
- test/text-rotate-rgb24-ref.png     |  Bin
- test/text-rotate-svg-ref.png       |  Bin
+ test/text-rotate-ps-argb32-ref.png |  Bin 0 -> 7198 bytes
+ test/text-rotate-ref.png           |  Bin 12300 -> 17775 bytes
+ test/text-rotate-rgb24-ref.png     |  Bin 5640 -> 0 bytes
+ test/text-rotate-svg-ref.png       |  Bin 0 -> 18301 bytes
  test/text-rotate.c                 |   12 +++++++++++-
  6 files changed, 14 insertions(+), 4 deletions(-)
 
@@ -5819,7 +8034,7 @@ Date:   Wed Feb 21 13:43:08 2007 -0500
 
  src/cairo-ps-surface.c                            |   31 ++++++++++++++-------
  test/Makefile.am                                  |    1 -
- test/rotate-image-surface-paint-ps-argb32-ref.png |  Bin
+ test/rotate-image-surface-paint-ps-argb32-ref.png |  Bin 0 -> 276 bytes
  3 files changed, 21 insertions(+), 11 deletions(-)
 
 commit 6ae4a4fd71b030376ec373f2a787eac32b21d7f3
@@ -5834,8 +8049,8 @@ Date:   Wed Feb 21 12:57:09 2007 -0500
     works for Carl too.
 
  test/Makefile.am                               |    1 -
- test/ft-text-vertical-layout-type1-ref.png     |  Bin
- test/ft-text-vertical-layout-type1-svg-ref.png |  Bin
+ test/ft-text-vertical-layout-type1-ref.png     |  Bin 3970 -> 3960 bytes
+ test/ft-text-vertical-layout-type1-svg-ref.png |  Bin 3948 -> 3934 bytes
  3 files changed, 0 insertions(+), 1 deletions(-)
 
 commit c6a067f967f9b92328e7d1ca2a4eba6fb4c6dfdf
@@ -5874,60 +8089,60 @@ Date:   Tue Feb 20 13:22:11 2007 -0800
 
     [quartz] rename test override images from nquartz to quartz
 
- test/caps-joins-alpha-nquartz-ref.png              |  Bin
- test/caps-joins-alpha-quartz-ref.png               |  Bin
- test/clip-nesting-nquartz-ref.png                  |  Bin
- test/clip-nesting-nquartz-rgb24-ref.png            |  Bin
- test/clip-nesting-quartz-ref.png                   |  Bin
- test/clip-nesting-quartz-rgb24-ref.png             |  Bin
- test/clip-push-group-nquartz-ref.png               |  Bin
- test/clip-push-group-quartz-ref.png                |  Bin
- test/clip-twice-nquartz-ref.png                    |  Bin
- test/clip-twice-nquartz-rgb24-ref.png              |  Bin
- test/clip-twice-quartz-ref.png                     |  Bin
- test/clip-twice-quartz-rgb24-ref.png               |  Bin
- test/dash-caps-joins-nquartz-ref.png               |  Bin
- test/dash-caps-joins-quartz-ref.png                |  Bin
- test/degenerate-path-nquartz-rgb24-ref.png         |  Bin
- test/degenerate-path-quartz-rgb24-ref.png          |  Bin
- test/fill-and-stroke-alpha-add-nquartz-ref.png     |  Bin
- test/fill-and-stroke-alpha-add-quartz-ref.png      |  Bin
- test/fill-and-stroke-alpha-nquartz-ref.png         |  Bin
- test/fill-and-stroke-alpha-quartz-ref.png          |  Bin
- test/fill-and-stroke-nquartz-ref.png               |  Bin
- test/fill-and-stroke-nquartz-rgb24-ref.png         |  Bin
- test/fill-and-stroke-quartz-ref.png                |  Bin
- test/fill-and-stroke-quartz-rgb24-ref.png          |  Bin
- test/fill-degenerate-sort-order-nquartz-ref.png    |  Bin
- ...ill-degenerate-sort-order-nquartz-rgb24-ref.png |  Bin
- test/fill-degenerate-sort-order-quartz-ref.png     |  Bin
- ...fill-degenerate-sort-order-quartz-rgb24-ref.png |  Bin
- test/fill-rule-nquartz-ref.png                     |  Bin
- test/fill-rule-nquartz-rgb24-ref.png               |  Bin
- test/fill-rule-quartz-ref.png                      |  Bin
- test/fill-rule-quartz-rgb24-ref.png                |  Bin
- test/new-sub-path-nquartz-ref.png                  |  Bin
- test/new-sub-path-nquartz-rgb24-ref.png            |  Bin
- test/new-sub-path-quartz-ref.png                   |  Bin
- test/new-sub-path-quartz-rgb24-ref.png             |  Bin
- test/operator-clear-nquartz-ref.png                |  Bin
- test/operator-clear-nquartz-rgb24-ref.png          |  Bin
- test/operator-clear-quartz-ref.png                 |  Bin
- test/operator-clear-quartz-rgb24-ref.png           |  Bin
- test/random-intersections-nquartz-ref.png          |  Bin
- test/random-intersections-nquartz-rgb24-ref.png    |  Bin
- test/random-intersections-quartz-ref.png           |  Bin
- test/random-intersections-quartz-rgb24-ref.png     |  Bin
- test/rel-path-nquartz-ref.png                      |  Bin
- test/rel-path-nquartz-rgb24-ref.png                |  Bin
- test/rel-path-quartz-ref.png                       |  Bin
- test/rel-path-quartz-rgb24-ref.png                 |  Bin
- test/source-clip-scale-nquartz-ref.png             |  Bin
- test/source-clip-scale-quartz-ref.png              |  Bin
- test/trap-clip-nquartz-ref.png                     |  Bin
- test/trap-clip-nquartz-rgb24-ref.png               |  Bin
- test/trap-clip-quartz-ref.png                      |  Bin
- test/trap-clip-quartz-rgb24-ref.png                |  Bin
+ test/caps-joins-alpha-nquartz-ref.png              |  Bin 2466 -> 0 bytes
+ test/caps-joins-alpha-quartz-ref.png               |  Bin 0 -> 2466 bytes
+ test/clip-nesting-nquartz-ref.png                  |  Bin 1067 -> 0 bytes
+ test/clip-nesting-nquartz-rgb24-ref.png            |  Bin 956 -> 0 bytes
+ test/clip-nesting-quartz-ref.png                   |  Bin 0 -> 1067 bytes
+ test/clip-nesting-quartz-rgb24-ref.png             |  Bin 0 -> 956 bytes
+ test/clip-push-group-nquartz-ref.png               |  Bin 203 -> 0 bytes
+ test/clip-push-group-quartz-ref.png                |  Bin 0 -> 203 bytes
+ test/clip-twice-nquartz-ref.png                    |  Bin 1171 -> 0 bytes
+ test/clip-twice-nquartz-rgb24-ref.png              |  Bin 1111 -> 0 bytes
+ test/clip-twice-quartz-ref.png                     |  Bin 0 -> 1171 bytes
+ test/clip-twice-quartz-rgb24-ref.png               |  Bin 0 -> 1111 bytes
+ test/dash-caps-joins-nquartz-ref.png               |  Bin 4727 -> 0 bytes
+ test/dash-caps-joins-quartz-ref.png                |  Bin 0 -> 4727 bytes
+ test/degenerate-path-nquartz-rgb24-ref.png         |  Bin 188 -> 0 bytes
+ test/degenerate-path-quartz-rgb24-ref.png          |  Bin 0 -> 188 bytes
+ test/fill-and-stroke-alpha-add-nquartz-ref.png     |  Bin 603 -> 0 bytes
+ test/fill-and-stroke-alpha-add-quartz-ref.png      |  Bin 0 -> 603 bytes
+ test/fill-and-stroke-alpha-nquartz-ref.png         |  Bin 550 -> 0 bytes
+ test/fill-and-stroke-alpha-quartz-ref.png          |  Bin 0 -> 550 bytes
+ test/fill-and-stroke-nquartz-ref.png               |  Bin 286 -> 0 bytes
+ test/fill-and-stroke-nquartz-rgb24-ref.png         |  Bin 264 -> 0 bytes
+ test/fill-and-stroke-quartz-ref.png                |  Bin 0 -> 286 bytes
+ test/fill-and-stroke-quartz-rgb24-ref.png          |  Bin 0 -> 264 bytes
+ test/fill-degenerate-sort-order-nquartz-ref.png    |  Bin 2470 -> 0 bytes
+ ...ill-degenerate-sort-order-nquartz-rgb24-ref.png |  Bin 2098 -> 0 bytes
+ test/fill-degenerate-sort-order-quartz-ref.png     |  Bin 0 -> 2470 bytes
+ ...fill-degenerate-sort-order-quartz-rgb24-ref.png |  Bin 0 -> 2098 bytes
+ test/fill-rule-nquartz-ref.png                     |  Bin 2079 -> 0 bytes
+ test/fill-rule-nquartz-rgb24-ref.png               |  Bin 1790 -> 0 bytes
+ test/fill-rule-quartz-ref.png                      |  Bin 0 -> 2079 bytes
+ test/fill-rule-quartz-rgb24-ref.png                |  Bin 0 -> 1790 bytes
+ test/new-sub-path-nquartz-ref.png                  |  Bin 386 -> 0 bytes
+ test/new-sub-path-nquartz-rgb24-ref.png            |  Bin 357 -> 0 bytes
+ test/new-sub-path-quartz-ref.png                   |  Bin 0 -> 386 bytes
+ test/new-sub-path-quartz-rgb24-ref.png             |  Bin 0 -> 357 bytes
+ test/operator-clear-nquartz-ref.png                |  Bin 1195 -> 0 bytes
+ test/operator-clear-nquartz-rgb24-ref.png          |  Bin 1244 -> 0 bytes
+ test/operator-clear-quartz-ref.png                 |  Bin 0 -> 1195 bytes
+ test/operator-clear-quartz-rgb24-ref.png           |  Bin 0 -> 1244 bytes
+ test/random-intersections-nquartz-ref.png          |  Bin 203877 -> 0 bytes
+ test/random-intersections-nquartz-rgb24-ref.png    |  Bin 179204 -> 0 bytes
+ test/random-intersections-quartz-ref.png           |  Bin 0 -> 203877 bytes
+ test/random-intersections-quartz-rgb24-ref.png     |  Bin 0 -> 179204 bytes
+ test/rel-path-nquartz-ref.png                      |  Bin 212 -> 0 bytes
+ test/rel-path-nquartz-rgb24-ref.png                |  Bin 228 -> 0 bytes
+ test/rel-path-quartz-ref.png                       |  Bin 0 -> 212 bytes
+ test/rel-path-quartz-rgb24-ref.png                 |  Bin 0 -> 228 bytes
+ test/source-clip-scale-nquartz-ref.png             |  Bin 148 -> 0 bytes
+ test/source-clip-scale-quartz-ref.png              |  Bin 0 -> 148 bytes
+ test/trap-clip-nquartz-ref.png                     |  Bin 5814 -> 0 bytes
+ test/trap-clip-nquartz-rgb24-ref.png               |  Bin 5385 -> 0 bytes
+ test/trap-clip-quartz-ref.png                      |  Bin 0 -> 5814 bytes
+ test/trap-clip-quartz-rgb24-ref.png                |  Bin 0 -> 5385 bytes
  54 files changed, 0 insertions(+), 0 deletions(-)
 
 commit be451cd83d8178bfaf28a1c7dec59601d97cff8d
@@ -6088,10 +8303,10 @@ Date:   Mon Feb 19 16:06:57 2007 -0500
 
  src/cairo-path-stroke.c           |   85 +++++++++++++++++--------------------
  test/Makefile.am                  |    1 -
- test/dash-caps-joins-ref.png      |  Bin
- test/dash-scale-ref.png           |  Bin
- test/leaky-dash-ps-argb32-ref.png |  Bin
- test/leaky-dash-ref.png           |  Bin
+ test/dash-caps-joins-ref.png      |  Bin 4680 -> 4718 bytes
+ test/dash-scale-ref.png           |  Bin 7791 -> 7908 bytes
+ test/leaky-dash-ps-argb32-ref.png |  Bin 0 -> 286 bytes
+ test/leaky-dash-ref.png           |  Bin 241 -> 243 bytes
  6 files changed, 39 insertions(+), 47 deletions(-)
 
 commit 78ae474d96b48ccba3d18dc26c416ebd6daab502
@@ -6147,8 +8362,8 @@ Date:   Mon Feb 19 16:06:56 2007 -0500
     good job exploring all the cases that the dashing code needs to deal with.
 
  test/Makefile.am                  |    2 +
- test/dash-state-ps-argb32-ref.png |  Bin
- test/dash-state-ref.png           |  Bin
+ test/dash-state-ps-argb32-ref.png |  Bin 0 -> 8652 bytes
+ test/dash-state-ref.png           |  Bin 0 -> 9389 bytes
  test/dash-state.c                 |   72 +++++++++++++++++++++++++++++++++++++
  4 files changed, 74 insertions(+), 0 deletions(-)
 
@@ -6161,9 +8376,9 @@ Date:   Mon Feb 19 16:06:56 2007 -0500
     These new cases deal with degenerate paths at the end of dashed paths. They
     currently fail.
 
- test/degenerate-path-ps-argb32-ref.png |  Bin
- test/degenerate-path-ref.png           |  Bin
- test/degenerate-path-rgb24-ref.png     |  Bin
+ test/degenerate-path-ps-argb32-ref.png |  Bin 303 -> 390 bytes
+ test/degenerate-path-ref.png           |  Bin 216 -> 257 bytes
+ test/degenerate-path-rgb24-ref.png     |  Bin 189 -> 224 bytes
  test/degenerate-path.c                 |   23 ++++++++++++++++++++++-
  4 files changed, 22 insertions(+), 1 deletions(-)
 
@@ -6994,7 +9209,7 @@ Date:   Fri Feb 2 16:36:12 2007 -0800
     artifacts afterwards.
 
  test/Makefile.am                     |    2 +
- test/linear-gradient-reflect-ref.png |  Bin
+ test/linear-gradient-reflect-ref.png |  Bin 0 -> 216 bytes
  test/linear-gradient-reflect.c       |   74 ++++++++++++++++++++++++++++++++++
  3 files changed, 76 insertions(+), 0 deletions(-)
 
@@ -7110,9 +9325,9 @@ Date:   Sat Jan 20 00:50:38 2007 -0800
 
  test/.gitignore                                    |    1 +
  test/Makefile.am                                   |    1 +
- test/rotate-image-surface-paint-pdf-argb32-ref.png |  Bin
- test/rotate-image-surface-paint-ref.png            |  Bin
- test/rotate-image-surface-paint-svg-ref.png        |  Bin
+ test/rotate-image-surface-paint-pdf-argb32-ref.png |  Bin 0 -> 209 bytes
+ test/rotate-image-surface-paint-ref.png            |  Bin 0 -> 232 bytes
+ test/rotate-image-surface-paint-svg-ref.png        |  Bin 0 -> 248 bytes
  test/rotate-image-surface-paint.c                  |   97 ++++++++++++++++++++
  6 files changed, 99 insertions(+), 0 deletions(-)
 
@@ -7428,7 +9643,7 @@ Date:   Fri Jan 19 15:52:06 2007 -0800
 
  test/.gitignore                              |    1 +
  test/Makefile.am                             |    2 +
- test/scale-down-source-surface-paint-ref.png |  Bin
+ test/scale-down-source-surface-paint-ref.png |  Bin 0 -> 133 bytes
  test/scale-down-source-surface-paint.c       |   72 ++++++++++++++++++++++++++
  4 files changed, 75 insertions(+), 0 deletions(-)
 
@@ -7445,33 +9660,33 @@ Date:   Thu Jan 18 16:49:42 2007 -0800
 
     [nquartz] add test reference files for nquartz backend
 
- test/caps-joins-alpha-nquartz-ref.png              |  Bin
- test/clip-nesting-nquartz-ref.png                  |  Bin
- test/clip-nesting-nquartz-rgb24-ref.png            |  Bin
- test/clip-push-group-nquartz-ref.png               |  Bin
- test/clip-twice-nquartz-ref.png                    |  Bin
- test/clip-twice-nquartz-rgb24-ref.png              |  Bin
- test/dash-caps-joins-nquartz-ref.png               |  Bin
- test/degenerate-path-nquartz-rgb24-ref.png         |  Bin
- test/fill-and-stroke-alpha-add-nquartz-ref.png     |  Bin
- test/fill-and-stroke-alpha-nquartz-ref.png         |  Bin
- test/fill-and-stroke-nquartz-ref.png               |  Bin
- test/fill-and-stroke-nquartz-rgb24-ref.png         |  Bin
- test/fill-degenerate-sort-order-nquartz-ref.png    |  Bin
- ...ill-degenerate-sort-order-nquartz-rgb24-ref.png |  Bin
- test/fill-rule-nquartz-ref.png                     |  Bin
- test/fill-rule-nquartz-rgb24-ref.png               |  Bin
- test/new-sub-path-nquartz-ref.png                  |  Bin
- test/new-sub-path-nquartz-rgb24-ref.png            |  Bin
- test/operator-clear-nquartz-ref.png                |  Bin
- test/operator-clear-nquartz-rgb24-ref.png          |  Bin
- test/random-intersections-nquartz-ref.png          |  Bin
- test/random-intersections-nquartz-rgb24-ref.png    |  Bin
- test/rel-path-nquartz-ref.png                      |  Bin
- test/rel-path-nquartz-rgb24-ref.png                |  Bin
- test/source-clip-scale-nquartz-ref.png             |  Bin
- test/trap-clip-nquartz-ref.png                     |  Bin
- test/trap-clip-nquartz-rgb24-ref.png               |  Bin
+ test/caps-joins-alpha-nquartz-ref.png              |  Bin 0 -> 2466 bytes
+ test/clip-nesting-nquartz-ref.png                  |  Bin 0 -> 1067 bytes
+ test/clip-nesting-nquartz-rgb24-ref.png            |  Bin 0 -> 956 bytes
+ test/clip-push-group-nquartz-ref.png               |  Bin 0 -> 203 bytes
+ test/clip-twice-nquartz-ref.png                    |  Bin 0 -> 1171 bytes
+ test/clip-twice-nquartz-rgb24-ref.png              |  Bin 0 -> 1111 bytes
+ test/dash-caps-joins-nquartz-ref.png               |  Bin 0 -> 4727 bytes
+ test/degenerate-path-nquartz-rgb24-ref.png         |  Bin 0 -> 188 bytes
+ test/fill-and-stroke-alpha-add-nquartz-ref.png     |  Bin 0 -> 603 bytes
+ test/fill-and-stroke-alpha-nquartz-ref.png         |  Bin 0 -> 550 bytes
+ test/fill-and-stroke-nquartz-ref.png               |  Bin 0 -> 286 bytes
+ test/fill-and-stroke-nquartz-rgb24-ref.png         |  Bin 0 -> 264 bytes
+ test/fill-degenerate-sort-order-nquartz-ref.png    |  Bin 0 -> 2470 bytes
+ ...ill-degenerate-sort-order-nquartz-rgb24-ref.png |  Bin 0 -> 2098 bytes
+ test/fill-rule-nquartz-ref.png                     |  Bin 0 -> 2079 bytes
+ test/fill-rule-nquartz-rgb24-ref.png               |  Bin 0 -> 1790 bytes
+ test/new-sub-path-nquartz-ref.png                  |  Bin 0 -> 386 bytes
+ test/new-sub-path-nquartz-rgb24-ref.png            |  Bin 0 -> 357 bytes
+ test/operator-clear-nquartz-ref.png                |  Bin 0 -> 1195 bytes
+ test/operator-clear-nquartz-rgb24-ref.png          |  Bin 0 -> 1244 bytes
+ test/random-intersections-nquartz-ref.png          |  Bin 0 -> 203877 bytes
+ test/random-intersections-nquartz-rgb24-ref.png    |  Bin 0 -> 179204 bytes
+ test/rel-path-nquartz-ref.png                      |  Bin 0 -> 212 bytes
+ test/rel-path-nquartz-rgb24-ref.png                |  Bin 0 -> 228 bytes
+ test/source-clip-scale-nquartz-ref.png             |  Bin 0 -> 148 bytes
+ test/trap-clip-nquartz-ref.png                     |  Bin 0 -> 5814 bytes
+ test/trap-clip-nquartz-rgb24-ref.png               |  Bin 0 -> 5385 bytes
  27 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 7b67c20a013ed45a10676cb129794ccfb66dc04c
@@ -7627,8 +9842,8 @@ Date:   Tue Jan 16 01:25:53 2007 +0000
     FT renderings when they become available.
 
  test/Makefile.am                    |    4 +
- test/text-glyph-range-ref.png       |  Bin
- test/text-glyph-range-rgb24-ref.png |  Bin
+ test/text-glyph-range-ref.png       |  Bin 0 -> 1810 bytes
+ test/text-glyph-range-rgb24-ref.png |  Bin 0 -> 1645 bytes
  test/text-glyph-range.c             |  133 +++++++++++++++++++++++++++++++++++
  4 files changed, 137 insertions(+), 0 deletions(-)
 
@@ -7960,7 +10175,7 @@ Date:   Thu Dec 28 19:51:20 2006 -0500
 
  test/.gitignore            |    1 +
  test/Makefile.am           |    2 +
- test/text-zero-len-ref.png |  Bin
+ test/text-zero-len-ref.png |  Bin 0 -> 130 bytes
  test/text-zero-len.c       |   88 ++++++++++++++++++++++++++++++++++++++++++++
  4 files changed, 91 insertions(+), 0 deletions(-)
 
@@ -8089,8 +10304,8 @@ Date:   Tue Dec 19 21:34:16 2006 -0800
  src/cairo-path-fixed.c                         |    4 +
  src/cairo-path-stroke.c                        |  318 +++++++++++++++++++++++-
  src/cairo.c                                    |   11 +-
- test/ft-text-vertical-layout-type3-ref.png     |  Bin
- test/ft-text-vertical-layout-type3-svg-ref.png |  Bin
+ test/ft-text-vertical-layout-type3-ref.png     |  Bin 3933 -> 3934 bytes
+ test/ft-text-vertical-layout-type3-svg-ref.png |  Bin 3956 -> 3957 bytes
  6 files changed, 329 insertions(+), 7 deletions(-)
 
 commit b1189118532a1fe93e126843af739809d38a62bd
@@ -8129,7 +10344,7 @@ Date:   Thu Dec 21 08:20:20 2006 -0800
 
  test/.gitignore                 |    1 +
  test/Makefile.am                |    2 +
- test/rectilinear-stroke-ref.png |  Bin
+ test/rectilinear-stroke-ref.png |  Bin 0 -> 213 bytes
  test/rectilinear-stroke.c       |  138 +++++++++++++++++++++++++++++++++++++++
  4 files changed, 141 insertions(+), 0 deletions(-)
 
@@ -8244,7 +10459,7 @@ Date:   Sun Dec 17 18:35:16 2006 -0500
 
  src/cairo-type1-subset.c                           |    3 +++
  test/Makefile.am                                   |    2 +-
- ...ft-text-vertical-layout-type1-ps-argb32-ref.png |  Bin
+ ...ft-text-vertical-layout-type1-ps-argb32-ref.png |  Bin 0 -> 1877 bytes
  3 files changed, 4 insertions(+), 1 deletions(-)
 
 commit 207e38e8ba009a5e4d7994ee490d478c6a695336
@@ -8309,7 +10524,7 @@ Date:   Sun Dec 17 01:06:16 2006 -0500
     from XFAIL.
 
  test/Makefile.am                                   |    4 ++--
- ...ft-text-vertical-layout-type3-ps-argb32-ref.png |  Bin
+ ...ft-text-vertical-layout-type3-ps-argb32-ref.png |  Bin 0 -> 1879 bytes
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 commit cab3f84ad334050739e6fa05e8dbc2a7dcb9eca7
@@ -8494,28 +10709,28 @@ Date:   Thu Dec 14 06:55:58 2006 -0800
     ▍
 
  pixman/src/fbcompose.c                |  425 +++++++++++++++++++++++----------
- test/clip-operator-ref.png            |  Bin
- test/clip-operator-rgb24-ref.png      |  Bin
+ test/clip-operator-ref.png            |  Bin 36956 -> 8262 bytes
+ test/clip-operator-rgb24-ref.png      |  Bin 16507 -> 3258 bytes
  test/clip-operator.c                  |    6 +-
- test/mask-ref.png                     |  Bin
- test/mask-rgb24-ref.png               |  Bin
- test/mask-svg-argb32-ref.png          |  Bin
- test/mask-svg-rgb24-ref.png           |  Bin
+ test/mask-ref.png                     |  Bin 87899 -> 8381 bytes
+ test/mask-rgb24-ref.png               |  Bin 71010 -> 7041 bytes
+ test/mask-svg-argb32-ref.png          |  Bin 87728 -> 8405 bytes
+ test/mask-svg-rgb24-ref.png           |  Bin 81753 -> 0 bytes
  test/mask.c                           |    6 +-
- test/operator-clear-ref.png           |  Bin
- test/operator-clear-rgb24-ref.png     |  Bin
+ test/operator-clear-ref.png           |  Bin 4933 -> 1084 bytes
+ test/operator-clear-rgb24-ref.png     |  Bin 4218 -> 965 bytes
  test/operator-clear.c                 |    6 +-
- test/operator-source-ref.png          |  Bin
- test/operator-source-rgb24-ref.png    |  Bin
+ test/operator-source-ref.png          |  Bin 19763 -> 4422 bytes
+ test/operator-source-rgb24-ref.png    |  Bin 14666 -> 3201 bytes
  test/operator-source.c                |    6 +-
- test/text-pattern-ref.png             |  Bin
- test/text-pattern-rgb24-ref.png       |  Bin
- test/trap-clip-ref.png                |  Bin
- test/trap-clip-rgb24-ref.png          |  Bin
- test/trap-clip-svg-argb32-ref.png     |  Bin
+ test/text-pattern-ref.png             |  Bin 1721 -> 1717 bytes
+ test/text-pattern-rgb24-ref.png       |  Bin 1418 -> 1414 bytes
+ test/trap-clip-ref.png                |  Bin 71832 -> 5723 bytes
+ test/trap-clip-rgb24-ref.png          |  Bin 63049 -> 5365 bytes
+ test/trap-clip-svg-argb32-ref.png     |  Bin 71728 -> 0 bytes
  test/trap-clip.c                      |    6 +-
- test/unbounded-operator-ref.png       |  Bin
- test/unbounded-operator-rgb24-ref.png |  Bin
+ test/unbounded-operator-ref.png       |  Bin 11964 -> 2777 bytes
+ test/unbounded-operator-rgb24-ref.png |  Bin 6047 -> 1315 bytes
  test/unbounded-operator.c             |    6 +-
  24 files changed, 316 insertions(+), 145 deletions(-)
 
@@ -8535,17 +10750,17 @@ Date:   Thu Dec 14 04:56:19 2006 -0800
 
     test: Remove ps-specific reference images no longer needed thanks to pdiff
 
- test/caps-joins-ps-argb32-ref.png              |  Bin
- test/caps-sub-paths-ps-argb32-ref.png          |  Bin
- test/close-path-ps-argb32-ref.png              |  Bin
- test/dash-offset-negative-ps-argb32-ref.png    |  Bin
- test/glyph-cache-pressure-ps-argb32-ref.png    |  Bin
- test/infinite-join-ps-argb32-ref.png           |  Bin
- test/leaky-polygon-ps-argb32-ref.png           |  Bin
- test/line-width-ps-argb32-ref.png              |  Bin
- test/select-font-face-ps-argb32-ref.png        |  Bin
- test/show-text-current-point-ps-argb32-ref.png |  Bin
- test/transforms-ps-argb32-ref.png              |  Bin
+ test/caps-joins-ps-argb32-ref.png              |  Bin 1463 -> 0 bytes
+ test/caps-sub-paths-ps-argb32-ref.png          |  Bin 240 -> 0 bytes
+ test/close-path-ps-argb32-ref.png              |  Bin 311 -> 0 bytes
+ test/dash-offset-negative-ps-argb32-ref.png    |  Bin 204 -> 0 bytes
+ test/glyph-cache-pressure-ps-argb32-ref.png    |  Bin 1672 -> 0 bytes
+ test/infinite-join-ps-argb32-ref.png           |  Bin 220 -> 0 bytes
+ test/leaky-polygon-ps-argb32-ref.png           |  Bin 355 -> 0 bytes
+ test/line-width-ps-argb32-ref.png              |  Bin 244 -> 0 bytes
+ test/select-font-face-ps-argb32-ref.png        |  Bin 1333 -> 0 bytes
+ test/show-text-current-point-ps-argb32-ref.png |  Bin 1479 -> 0 bytes
+ test/transforms-ps-argb32-ref.png              |  Bin 420 -> 0 bytes
  11 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 5e0818d79d13f5942485b411a04a4eebd56d36f8
@@ -8557,15 +10772,15 @@ Date:   Thu Dec 14 04:33:08 2006 -0800
     This doesn't get rid of all the SVG reference images, but it
     does clean up quite a few.
 
- test/fill-and-stroke-alpha-svg-ref.png   |  Bin
- test/glyph-cache-pressure-svg-ref.png    |  Bin
- test/mask-ctm-svg-rgb24-ref.png          |  Bin
- test/mask-surface-ctm-svg-rgb24-ref.png  |  Bin
- test/push-group-svg-rgb24-ref.png        |  Bin
- test/select-font-face-svg-ref.png        |  Bin
- test/set-source-svg-rgb24-ref.png        |  Bin
- test/show-text-current-point-svg-ref.png |  Bin
- test/trap-clip-svg-rgb24-ref.png         |  Bin
+ test/fill-and-stroke-alpha-svg-ref.png   |  Bin 509 -> 0 bytes
+ test/glyph-cache-pressure-svg-ref.png    |  Bin 3165 -> 0 bytes
+ test/mask-ctm-svg-rgb24-ref.png          |  Bin 118 -> 0 bytes
+ test/mask-surface-ctm-svg-rgb24-ref.png  |  Bin 118 -> 0 bytes
+ test/push-group-svg-rgb24-ref.png        |  Bin 2887 -> 0 bytes
+ test/select-font-face-svg-ref.png        |  Bin 2430 -> 0 bytes
+ test/set-source-svg-rgb24-ref.png        |  Bin 104 -> 0 bytes
+ test/show-text-current-point-svg-ref.png |  Bin 2398 -> 0 bytes
+ test/trap-clip-svg-rgb24-ref.png         |  Bin 73082 -> 0 bytes
  9 files changed, 0 insertions(+), 0 deletions(-)
 
 commit c426e71141d75dbfd39730bf9c4847309fcd9d9e
@@ -9184,9 +11399,9 @@ Date:   Thu Dec 7 04:46:07 2006 +0200
     don't break it.
 
  test/Makefile.am                            |    4 ++
- test/random-intersections-ps-argb32-ref.png |  Bin
- test/random-intersections-ref.png           |  Bin
- test/random-intersections-rgb24-ref.png     |  Bin
+ test/random-intersections-ps-argb32-ref.png |  Bin 0 -> 107578 bytes
+ test/random-intersections-ref.png           |  Bin 0 -> 177153 bytes
+ test/random-intersections-rgb24-ref.png     |  Bin 0 -> 132210 bytes
  test/random-intersections.c                 |   79 +++++++++++++++++++++++++++
  5 files changed, 83 insertions(+), 0 deletions(-)
 
@@ -9203,8 +11418,8 @@ Date:   Thu Dec 7 02:30:41 2006 +0200
     http://lists.freedesktop.org/archives/cairo/2006-December/008809.html
 
  test/Makefile.am                           |    2 -
- test/in-fill-empty-trapezoid-ref.png       |  Bin
- test/in-fill-empty-trapezoid-rgb24-ref.png |  Bin
+ test/in-fill-empty-trapezoid-ref.png       |  Bin 108 -> 0 bytes
+ test/in-fill-empty-trapezoid-rgb24-ref.png |  Bin 107 -> 0 bytes
  test/in-fill-empty-trapezoid.c             |   54 ++++++++++++++++------------
  4 files changed, 31 insertions(+), 25 deletions(-)
 
@@ -9219,8 +11434,8 @@ Date:   Thu Dec 7 01:42:07 2006 +0200
     http://lists.freedesktop.org/archives/cairo/2006-December/008806.html
 
  boilerplate/cairo-boilerplate.c               |    3 ++
- test/fill-degenerate-sort-order-ref.png       |  Bin
- test/fill-degenerate-sort-order-rgb24-ref.png |  Bin
+ test/fill-degenerate-sort-order-ref.png       |  Bin 643 -> 2397 bytes
+ test/fill-degenerate-sort-order-rgb24-ref.png |  Bin 611 -> 2060 bytes
  test/fill-degenerate-sort-order.c             |   32 ++----------------------
  4 files changed, 6 insertions(+), 29 deletions(-)
 
@@ -9445,9 +11660,9 @@ Date:   Tue Dec 5 13:02:47 2006 +0200
     trapezoid to the left of an edge to be too high.
 
  test/Makefile.am                        |    4 ++
- test/fill-missed-stop-ps-argb32-ref.png |  Bin
- test/fill-missed-stop-ref.png           |  Bin
- test/fill-missed-stop-rgb24-ref.png     |  Bin
+ test/fill-missed-stop-ps-argb32-ref.png |  Bin 0 -> 564 bytes
+ test/fill-missed-stop-ref.png           |  Bin 0 -> 466 bytes
+ test/fill-missed-stop-rgb24-ref.png     |  Bin 0 -> 394 bytes
  test/fill-missed-stop.c                 |   89 +++++++++++++++++++++++++++++++
  5 files changed, 93 insertions(+), 0 deletions(-)
 
@@ -9461,8 +11676,8 @@ Date:   Tue Dec 5 12:20:17 2006 +0200
     empty trapezoid.
 
  test/Makefile.am                           |    3 +
- test/in-fill-empty-trapezoid-ref.png       |  Bin
- test/in-fill-empty-trapezoid-rgb24-ref.png |  Bin
+ test/in-fill-empty-trapezoid-ref.png       |  Bin 0 -> 108 bytes
+ test/in-fill-empty-trapezoid-rgb24-ref.png |  Bin 0 -> 107 bytes
  test/in-fill-empty-trapezoid.c             |   89 ++++++++++++++++++++++++++++
  4 files changed, 92 insertions(+), 0 deletions(-)
 
@@ -9479,8 +11694,8 @@ Date:   Tue Dec 5 11:21:14 2006 +0200
     performance test case.
 
  test/Makefile.am                              |    3 +
- test/fill-degenerate-sort-order-ref.png       |  Bin
- test/fill-degenerate-sort-order-rgb24-ref.png |  Bin
+ test/fill-degenerate-sort-order-ref.png       |  Bin 0 -> 643 bytes
+ test/fill-degenerate-sort-order-rgb24-ref.png |  Bin 0 -> 611 bytes
  test/fill-degenerate-sort-order.c             |  110 +++++++++++++++++++++++++
  4 files changed, 113 insertions(+), 0 deletions(-)
 
@@ -10999,13 +13214,13 @@ Date:   Fri Oct 27 23:50:57 2006 +0200
     That allows us to delete the BeOS-specific reference images.
 
  boilerplate/cairo-boilerplate.c           |    9 ++++++---
- test/mask-beos-bitmap-argb32-ref.png      |  Bin
- test/mask-beos-bitmap-rgb24-ref.png       |  Bin
- test/mask-beos-rgb24-ref.png              |  Bin
- test/set-source-beos-bitmap-rgb24-ref.png |  Bin
- test/set-source-beos-rgb24-ref.png        |  Bin
- test/trap-clip-beos-bitmap-rgb24-ref.png  |  Bin
- test/trap-clip-beos-rgb24-ref.png         |  Bin
+ test/mask-beos-bitmap-argb32-ref.png      |  Bin 87641 -> 0 bytes
+ test/mask-beos-bitmap-rgb24-ref.png       |  Bin 71028 -> 0 bytes
+ test/mask-beos-rgb24-ref.png              |  Bin 71028 -> 0 bytes
+ test/set-source-beos-bitmap-rgb24-ref.png |  Bin 124 -> 0 bytes
+ test/set-source-beos-rgb24-ref.png        |  Bin 124 -> 0 bytes
+ test/trap-clip-beos-bitmap-rgb24-ref.png  |  Bin 63088 -> 0 bytes
+ test/trap-clip-beos-rgb24-ref.png         |  Bin 63088 -> 0 bytes
  8 files changed, 6 insertions(+), 3 deletions(-)
 
 commit 2ec0237051cd4f756a8205cb9ecafc7bfe285a06
@@ -11223,7 +13438,7 @@ Date:   Wed Oct 25 10:43:19 2006 -0700
 
  test/.gitignore           |    1 +
  test/Makefile.am          |    2 +
- test/paint-repeat-ref.png |  Bin
+ test/paint-repeat-ref.png |  Bin 0 -> 145 bytes
  test/paint-repeat.c       |   66 +++++++++++++++++++++++++++++++++++++++++++++
  4 files changed, 69 insertions(+), 0 deletions(-)
 
@@ -11316,22 +13531,22 @@ Date:   Mon Oct 23 11:57:16 2006 -0700
     We just forgot to update the reference images at the time so there
     have been false failure results in the test suite until now.
 
- test/caps-joins-alpha-ref.png              |  Bin
- test/fill-and-stroke-alpha-add-ref.png     |  Bin
- test/fill-and-stroke-alpha-ref.png         |  Bin
- test/linear-gradient-ref.png               |  Bin
- test/mask-ref.png                          |  Bin
- test/mask-rgb24-ref.png                    |  Bin
- test/operator-source-ref.png               |  Bin
- test/operator-source-rgb24-ref.png         |  Bin
- test/paint-source-alpha-pdf-argb32-ref.png |  Bin
- test/paint-source-alpha-ref.png            |  Bin
- test/paint-with-alpha-ref.png              |  Bin
- test/push-group-ref.png                    |  Bin
- test/push-group-rgb24-ref.png              |  Bin
- test/set-source-ref.png                    |  Bin
+ test/caps-joins-alpha-ref.png              |  Bin 2434 -> 2463 bytes
+ test/fill-and-stroke-alpha-add-ref.png     |  Bin 588 -> 591 bytes
+ test/fill-and-stroke-alpha-ref.png         |  Bin 532 -> 519 bytes
+ test/linear-gradient-ref.png               |  Bin 1023 -> 1021 bytes
+ test/mask-ref.png                          |  Bin 87890 -> 87899 bytes
+ test/mask-rgb24-ref.png                    |  Bin 70978 -> 71010 bytes
+ test/operator-source-ref.png               |  Bin 19726 -> 19763 bytes
+ test/operator-source-rgb24-ref.png         |  Bin 14701 -> 14666 bytes
+ test/paint-source-alpha-pdf-argb32-ref.png |  Bin 475 -> 471 bytes
+ test/paint-source-alpha-ref.png            |  Bin 258 -> 256 bytes
+ test/paint-with-alpha-ref.png              |  Bin 268 -> 256 bytes
+ test/push-group-ref.png                    |  Bin 2996 -> 3005 bytes
+ test/push-group-rgb24-ref.png              |  Bin 2840 -> 2849 bytes
+ test/set-source-ref.png                    |  Bin 120 -> 120 bytes
  test/set-source.c                          |    4 +---
- test/trap-clip-ref.png                     |  Bin
+ test/trap-clip-ref.png                     |  Bin 71753 -> 71832 bytes
  16 files changed, 1 insertions(+), 3 deletions(-)
 
 commit 9e4a48557ee42f13c427adfd7e097942ef315006
@@ -11486,7 +13701,7 @@ Date:   Thu Oct 19 15:45:53 2006 -0700
     This should help us test if there's an offset problem in copying
     the mask-based clip during cairo_push_group.
 
- test/clip-push-group-ref.png |  Bin
+ test/clip-push-group-ref.png |  Bin 200 -> 199 bytes
  test/clip-push-group.c       |    3 ++-
  2 files changed, 2 insertions(+), 1 deletions(-)
 
@@ -11502,7 +13717,7 @@ Date:   Thu Oct 19 15:43:02 2006 -0700
     	http://lists.freedesktop.org/archives/cairo/2006-August/007698.html
 
  test/Makefile.am             |    2 +
- test/clip-push-group-ref.png |  Bin
+ test/clip-push-group-ref.png |  Bin 0 -> 200 bytes
  test/clip-push-group.c       |   74 ++++++++++++++++++++++++++++++++++++++++++
  3 files changed, 76 insertions(+), 0 deletions(-)
 
@@ -11576,8 +13791,8 @@ Date:   Wed Oct 18 15:18:11 2006 -0700
 
  test/.gitignore                      |    1 +
  test/Makefile.am                     |    2 ++
- test/infinite-join-ps-argb32-ref.png |  Bin
- test/infinite-join-ref.png           |  Bin
+ test/infinite-join-ps-argb32-ref.png |  Bin 0 -> 220 bytes
+ test/infinite-join-ref.png           |  Bin 0 -> 194 bytes
  4 files changed, 3 insertions(+), 0 deletions(-)
 
 commit e21c155e73569f6533dd01bdd7ec62461e7f215f
@@ -12414,9 +14629,9 @@ Date:   Fri Sep 29 14:44:00 2006 -0700
     This test wasn't translating by an integer, but instead by 5.5.  Fixed
     test and reference image.
 
- ...osite-integer-translate-over-pdf-argb32-ref.png |  Bin
- test/composite-integer-translate-over-ref.png      |  Bin
- test/composite-integer-translate-over-svg-ref.png  |  Bin
+ ...osite-integer-translate-over-pdf-argb32-ref.png |  Bin 12946 -> 0 bytes
+ test/composite-integer-translate-over-ref.png      |  Bin 15397 -> 16385 bytes
+ test/composite-integer-translate-over-svg-ref.png  |  Bin 15465 -> 0 bytes
  test/composite-integer-translate-over.c            |   27 ++++++++++++++++++-
  4 files changed, 25 insertions(+), 2 deletions(-)
 
@@ -12450,11 +14665,11 @@ Date:   Mon Sep 25 16:16:35 2006 -0700
     Rename test from stale path-data name to copy-path
 
  test/Makefile.am                 |    6 +-
- test/copy-path-ps-argb32-ref.png |  Bin
- test/copy-path-ref.png           |  Bin
+ test/copy-path-ps-argb32-ref.png |  Bin 0 -> 442 bytes
+ test/copy-path-ref.png           |  Bin 0 -> 579 bytes
  test/copy-path.c                 |  234 ++++++++++++++++++++++++++++++++++++++
- test/path-data-ps-argb32-ref.png |  Bin
- test/path-data-ref.png           |  Bin
+ test/path-data-ps-argb32-ref.png |  Bin 442 -> 0 bytes
+ test/path-data-ref.png           |  Bin 579 -> 0 bytes
  test/path-data.c                 |  234 --------------------------------------
  7 files changed, 237 insertions(+), 237 deletions(-)
 
@@ -12615,7 +14830,7 @@ Date:   Tue Sep 19 12:17:34 2006 -0700
  test/Makefile.am             |    1 +
  test/Makefile.win32          |    1 +
  test/get-and-set.c           |   39 ++++++-
- test/pattern-getters-ref.png |  Bin
+ test/pattern-getters-ref.png |  Bin 0 -> 107 bytes
  test/pattern-getters.c       |  175 +++++++++++++++++++++++++++++++
  8 files changed, 546 insertions(+), 11 deletions(-)
 
@@ -14395,7 +16610,7 @@ Date:   Fri Aug 18 16:35:27 2006 -0700
     bitmap-font: Add missing pdf-specific reference image
 
  test/Makefile.am                    |    3 +--
- test/bitmap-font-pdf-argb32-ref.png |  Bin
+ test/bitmap-font-pdf-argb32-ref.png |  Bin 0 -> 1064 bytes
  2 files changed, 1 insertions(+), 2 deletions(-)
 
 commit b8b507c0920ddef35363ba1d75e4ba0ca141a028
@@ -14519,11 +16734,11 @@ Date:   Fri Aug 18 13:07:08 2006 -0700
     Rename ft-text-vertical-layout-truetype to ft-text-vertical-layout-type3
 
  test/Makefile.am                                  |    8 +-
- test/ft-text-vertical-layout-truetype-ref.png     |  Bin
- test/ft-text-vertical-layout-truetype-svg-ref.png |  Bin
+ test/ft-text-vertical-layout-truetype-ref.png     |  Bin 3933 -> 0 bytes
+ test/ft-text-vertical-layout-truetype-svg-ref.png |  Bin 3956 -> 0 bytes
  test/ft-text-vertical-layout-truetype.c           |  154 ---------------------
- test/ft-text-vertical-layout-type3-ref.png        |  Bin
- test/ft-text-vertical-layout-type3-svg-ref.png    |  Bin
+ test/ft-text-vertical-layout-type3-ref.png        |  Bin 0 -> 3933 bytes
+ test/ft-text-vertical-layout-type3-svg-ref.png    |  Bin 0 -> 3956 bytes
  test/ft-text-vertical-layout-type3.c              |  154 +++++++++++++++++++++
  7 files changed, 157 insertions(+), 159 deletions(-)
 
@@ -14543,8 +16758,8 @@ Date:   Fri Aug 18 12:04:16 2006 -0400
     [test] text-rotate: Update ref images to make image pass again
     after the font_options change we made in the test suite a while back.
 
- test/text-rotate-ref.png       |  Bin
- test/text-rotate-rgb24-ref.png |  Bin
+ test/text-rotate-ref.png       |  Bin 12446 -> 12300 bytes
+ test/text-rotate-rgb24-ref.png |  Bin 16508 -> 5640 bytes
  2 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 861f1cb4f70cdbd7702eaf642b999a21ad01037d
@@ -14625,8 +16840,8 @@ Date:   Fri Aug 18 06:15:02 2006 -0700
 
  test/.gitignore                   |    1 +
  test/Makefile.am                  |    3 +
- test/close-path-ps-argb32-ref.png |  Bin
- test/close-path-ref.png           |  Bin
+ test/close-path-ps-argb32-ref.png |  Bin 0 -> 311 bytes
+ test/close-path-ref.png           |  Bin 0 -> 312 bytes
  test/close-path.c                 |   84 +++++++++++++++++++++++++++++++++++++
  5 files changed, 88 insertions(+), 0 deletions(-)
 
@@ -14720,8 +16935,8 @@ Date:   Thu Aug 17 13:54:06 2006 -0700
 
     Add rotation to bitmap-font to demonstrate failure of bug #7888
 
- test/bitmap-font-ref.png       |  Bin
- test/bitmap-font-rgb24-ref.png |  Bin
+ test/bitmap-font-ref.png       |  Bin 552 -> 950 bytes
+ test/bitmap-font-rgb24-ref.png |  Bin 513 -> 890 bytes
  test/bitmap-font.c             |   11 ++++++++++-
  3 files changed, 10 insertions(+), 1 deletions(-)
 
@@ -14772,7 +16987,7 @@ Date:   Thu Aug 17 13:34:26 2006 -0700
     its similar surface, so there are no rasterization/filtering
     artefacts when scaling the source surface.
 
- test/source-clip-scale-svg-ref.png |  Bin
+ test/source-clip-scale-svg-ref.png |  Bin 0 -> 119 bytes
  1 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 72e25648c4c4bc82ddd938aa4e05887a293f0d8b
@@ -14793,8 +17008,8 @@ Date:   Thu Aug 17 10:37:46 2006 -0700
     Harmonize implementations of source-clip and source-clip-scale to make similarities more evident.
 
  test/.gitignore                |    1 +
- test/source-clip-ref.png       |  Bin
- test/source-clip-scale-ref.png |  Bin
+ test/source-clip-ref.png       |  Bin 180 -> 133 bytes
+ test/source-clip-scale-ref.png |  Bin 243 -> 161 bytes
  test/source-clip-scale.c       |   56 ++++++++++++++++-----------------------
  test/source-clip.c             |   38 +++++++++++++--------------
  5 files changed, 42 insertions(+), 53 deletions(-)
@@ -14806,9 +17021,9 @@ Date:   Wed Aug 16 16:18:18 2006 -0700
     Rename src-clip test to source-clip-scale
 
  test/Makefile.am               |    3 +-
- test/source-clip-scale-ref.png |  Bin
+ test/source-clip-scale-ref.png |  Bin 0 -> 243 bytes
  test/source-clip-scale.c       |  100 ++++++++++++++++++++++++++++++++++++++++
- test/src-clip-ref.png          |  Bin
+ test/src-clip-ref.png          |  Bin 243 -> 0 bytes
  test/src-clip.c                |  100 ----------------------------------------
  5 files changed, 102 insertions(+), 101 deletions(-)
 
@@ -14819,7 +17034,7 @@ Date:   Wed Aug 16 16:04:24 2006 -0700
     Add src-clip test case to demonstrate bug with clipping applying to a source surface.
 
  test/Makefile.am      |    1 +
- test/src-clip-ref.png |  Bin
+ test/src-clip-ref.png |  Bin 0 -> 243 bytes
  test/src-clip.c       |  100 +++++++++++++++++++++++++++++++++++++++++++++++++
  3 files changed, 101 insertions(+), 0 deletions(-)
 
@@ -14848,8 +17063,8 @@ Date:   Wed Aug 16 19:43:55 2006 -0400
 
     [test] Add ft-text-vertical-layout-truetype.
 
- test/ft-text-vertical-layout-truetype-ref.png     |  Bin
- test/ft-text-vertical-layout-truetype-svg-ref.png |  Bin
+ test/ft-text-vertical-layout-truetype-ref.png     |  Bin 0 -> 3933 bytes
+ test/ft-text-vertical-layout-truetype-svg-ref.png |  Bin 0 -> 3956 bytes
  test/ft-text-vertical-layout-truetype.c           |  154 +++++++++++++++++++++
  3 files changed, 154 insertions(+), 0 deletions(-)
 
@@ -14873,12 +17088,12 @@ Date:   Wed Aug 16 14:27:40 2006 -0400
 
  test/.gitignore                                 |    5 +-
  test/Makefile.am                                |   15 ++-
- test/ft-text-vertical-layout-pdf-argb32-ref.png |  Bin
- test/ft-text-vertical-layout-ps-argb32-ref.png  |  Bin
- test/ft-text-vertical-layout-ref.png            |  Bin
- test/ft-text-vertical-layout-svg-ref.png        |  Bin
- test/ft-text-vertical-layout-type1-ref.png      |  Bin
- test/ft-text-vertical-layout-type1-svg-ref.png  |  Bin
+ test/ft-text-vertical-layout-pdf-argb32-ref.png |  Bin 715 -> 0 bytes
+ test/ft-text-vertical-layout-ps-argb32-ref.png  |  Bin 611 -> 0 bytes
+ test/ft-text-vertical-layout-ref.png            |  Bin 829 -> 0 bytes
+ test/ft-text-vertical-layout-svg-ref.png        |  Bin 770 -> 0 bytes
+ test/ft-text-vertical-layout-type1-ref.png      |  Bin 0 -> 3970 bytes
+ test/ft-text-vertical-layout-type1-svg-ref.png  |  Bin 0 -> 3948 bytes
  test/ft-text-vertical-layout-type1.c            |  154 +++++++++++++++++++++++
  test/ft-text-vertical-layout.c                  |  136 --------------------
  10 files changed, 167 insertions(+), 143 deletions(-)
@@ -14929,10 +17144,10 @@ Date:   Tue Aug 15 05:49:21 2006 -0400
 
     [test] ft-text-vertical-layout: Update ref images
 
- test/ft-text-vertical-layout-pdf-argb32-ref.png |  Bin
- test/ft-text-vertical-layout-ps-argb32-ref.png  |  Bin
- test/ft-text-vertical-layout-ref.png            |  Bin
- test/ft-text-vertical-layout-svg-ref.png        |  Bin
+ test/ft-text-vertical-layout-pdf-argb32-ref.png |  Bin 720 -> 715 bytes
+ test/ft-text-vertical-layout-ps-argb32-ref.png  |  Bin 613 -> 611 bytes
+ test/ft-text-vertical-layout-ref.png            |  Bin 832 -> 829 bytes
+ test/ft-text-vertical-layout-svg-ref.png        |  Bin 778 -> 770 bytes
  4 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 4b3fadefc835cf627c3887a72d8cbb117d7ad5f7
@@ -14950,10 +17165,10 @@ Date:   Tue Aug 15 05:27:59 2006 -0400
 
     [test] ft-text-vertical-layout: Use the string "i-W" to better show vertical metrics
 
- test/ft-text-vertical-layout-pdf-argb32-ref.png |  Bin
- test/ft-text-vertical-layout-ps-argb32-ref.png  |  Bin
- test/ft-text-vertical-layout-ref.png            |  Bin
- test/ft-text-vertical-layout-svg-ref.png        |  Bin
+ test/ft-text-vertical-layout-pdf-argb32-ref.png |  Bin 804 -> 720 bytes
+ test/ft-text-vertical-layout-ps-argb32-ref.png  |  Bin 644 -> 613 bytes
+ test/ft-text-vertical-layout-ref.png            |  Bin 907 -> 832 bytes
+ test/ft-text-vertical-layout-svg-ref.png        |  Bin 880 -> 778 bytes
  test/ft-text-vertical-layout.c                  |   12 ++++++------
  5 files changed, 6 insertions(+), 6 deletions(-)
 
@@ -14977,7 +17192,7 @@ Date:   Mon Aug 14 20:19:15 2006 +0200
 
  test/.gitignore         |    1 +
  test/Makefile.am        |    2 +
- test/long-lines-ref.png |  Bin
+ test/long-lines-ref.png |  Bin 0 -> 247 bytes
  test/long-lines.c       |   92 +++++++++++++++++++++++++++++++++++++++++++++++
  4 files changed, 95 insertions(+), 0 deletions(-)
 
@@ -15215,14 +17430,14 @@ Date:   Thu Aug 10 13:53:24 2006 -0400
     [test] Rename beos_bitmap target to beos-bitmap.  Same for directfb-bitmap.
 
  test/cairo-test.c                         |    6 +++---
- test/mask-beos-bitmap-argb32-ref.png      |  Bin
- test/mask-beos-bitmap-rgb24-ref.png       |  Bin
- test/mask-beos_bitmap-argb32-ref.png      |  Bin
- test/mask-beos_bitmap-rgb24-ref.png       |  Bin
- test/set-source-beos-bitmap-rgb24-ref.png |  Bin
- test/set-source-beos_bitmap-rgb24-ref.png |  Bin
- test/trap-clip-beos-bitmap-rgb24-ref.png  |  Bin
- test/trap-clip-beos_bitmap-rgb24-ref.png  |  Bin
+ test/mask-beos-bitmap-argb32-ref.png      |  Bin 0 -> 87641 bytes
+ test/mask-beos-bitmap-rgb24-ref.png       |  Bin 0 -> 71028 bytes
+ test/mask-beos_bitmap-argb32-ref.png      |  Bin 87641 -> 0 bytes
+ test/mask-beos_bitmap-rgb24-ref.png       |  Bin 71028 -> 0 bytes
+ test/set-source-beos-bitmap-rgb24-ref.png |  Bin 0 -> 124 bytes
+ test/set-source-beos_bitmap-rgb24-ref.png |  Bin 124 -> 0 bytes
+ test/trap-clip-beos-bitmap-rgb24-ref.png  |  Bin 0 -> 63088 bytes
+ test/trap-clip-beos_bitmap-rgb24-ref.png  |  Bin 63088 -> 0 bytes
  9 files changed, 3 insertions(+), 3 deletions(-)
 
 commit c6869b741578be8d93053c8313f71e87061d0202
@@ -15634,8 +17849,8 @@ Date:   Tue Aug 8 00:43:09 2006 -0700
 
     Remove stale SVG-specific reference images for pixman-rotate test
 
- test/pixman-rotate-svg-argb32-ref.png |  Bin
- test/pixman-rotate-svg-rgb24-ref.png  |  Bin
+ test/pixman-rotate-svg-argb32-ref.png |  Bin 258 -> 0 bytes
+ test/pixman-rotate-svg-rgb24-ref.png  |  Bin 358 -> 0 bytes
  2 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 401f0ce3c444e263f03055174791e993e6270c39
@@ -15673,65 +17888,65 @@ Date:   Tue Aug 1 20:40:54 2006 -0400
     Also replace some SVG ref images for rgb24 and argb32 with a single
     one where the two have been similar.
 
- test/caps-joins-alpha-svg-argb32-ref.png           |  Bin
- test/caps-joins-alpha-svg-ref.png                  |  Bin
- test/caps-joins-alpha-svg-rgb24-ref.png            |  Bin
- ...osite-integer-translate-over-svg-argb32-ref.png |  Bin
- test/composite-integer-translate-over-svg-ref.png  |  Bin
- ...posite-integer-translate-over-svg-rgb24-ref.png |  Bin
- test/fill-and-stroke-alpha-svg-argb32-ref.png      |  Bin
- test/fill-and-stroke-alpha-svg-ref.png             |  Bin
- test/fill-and-stroke-alpha-svg-rgb24-ref.png       |  Bin
- test/font-matrix-translation-svg-ref.png           |  Bin
- test/ft-text-vertical-layout-pdf-argb32-ref.png    |  Bin
- test/ft-text-vertical-layout-ref.png               |  Bin
- test/ft-text-vertical-layout-svg-argb32-ref.png    |  Bin
- test/ft-text-vertical-layout-svg-ref.png           |  Bin
- test/ft-text-vertical-layout-svg-rgb24-ref.png     |  Bin
- test/glyph-cache-pressure-pdf-argb32-ref.png       |  Bin
- test/glyph-cache-pressure-svg-argb32-ref.png       |  Bin
- test/glyph-cache-pressure-svg-ref.png              |  Bin
- test/glyph-cache-pressure-svg-rgb24-ref.png        |  Bin
- test/linear-gradient-svg-argb32-ref.png            |  Bin
- test/linear-gradient-svg-ref.png                   |  Bin
- test/linear-gradient-svg-rgb24-ref.png             |  Bin
- test/paint-source-alpha-svg-argb32-ref.png         |  Bin
- test/paint-source-alpha-svg-ref.png                |  Bin
- test/paint-source-alpha-svg-rgb24-ref.png          |  Bin
- test/paint-with-alpha-svg-argb32-ref.png           |  Bin
- test/paint-with-alpha-svg-ref.png                  |  Bin
- test/paint-with-alpha-svg-rgb24-ref.png            |  Bin
- test/pixman-rotate-svg-argb32-ref.png              |  Bin
- test/pixman-rotate-svg-rgb24-ref.png               |  Bin
- test/rectangle-rounding-error-ps-argb32-ref.png    |  Bin
- test/select-font-face-pdf-argb32-ref.png           |  Bin
- test/select-font-face-ps-argb32-ref.png            |  Bin
- test/select-font-face-ref.png                      |  Bin
- test/select-font-face-svg-argb32-ref.png           |  Bin
- test/select-font-face-svg-ref.png                  |  Bin
- test/select-font-face-svg-rgb24-ref.png            |  Bin
- test/show-text-current-point-pdf-argb32-ref.png    |  Bin
- test/show-text-current-point-svg-argb32-ref.png    |  Bin
- test/show-text-current-point-svg-ref.png           |  Bin
- test/show-text-current-point-svg-rgb24-ref.png     |  Bin
- test/text-antialias-gray-pdf-argb32-ref.png        |  Bin
- test/text-antialias-gray-ps-argb32-ref.png         |  Bin
- test/text-antialias-gray-svg-argb32-ref.png        |  Bin
- test/text-antialias-gray-svg-rgb24-ref.png         |  Bin
- test/text-antialias-none-pdf-argb32-ref.png        |  Bin
- test/text-antialias-none-ps-argb32-ref.png         |  Bin
- test/text-antialias-none-svg-argb32-ref.png        |  Bin
- test/text-antialias-none-svg-rgb24-ref.png         |  Bin
- test/text-antialias-subpixel-pdf-argb32-ref.png    |  Bin
- test/text-antialias-subpixel-ps-argb32-ref.png     |  Bin
- test/text-antialias-subpixel-svg-argb32-ref.png    |  Bin
- test/text-antialias-subpixel-svg-rgb24-ref.png     |  Bin
- test/text-pattern-pdf-argb32-ref.png               |  Bin
- test/text-pattern-ps-argb32-ref.png                |  Bin
- test/text-pattern-svg-argb32-ref.png               |  Bin
- test/unantialiased-shapes-ps-argb32-ref.png        |  Bin
- test/unantialiased-shapes-svg-argb32-ref.png       |  Bin
- test/unantialiased-shapes-svg-rgb24-ref.png        |  Bin
+ test/caps-joins-alpha-svg-argb32-ref.png           |  Bin 2454 -> 0 bytes
+ test/caps-joins-alpha-svg-ref.png                  |  Bin 0 -> 2454 bytes
+ test/caps-joins-alpha-svg-rgb24-ref.png            |  Bin 2454 -> 0 bytes
+ ...osite-integer-translate-over-svg-argb32-ref.png |  Bin 15465 -> 0 bytes
+ test/composite-integer-translate-over-svg-ref.png  |  Bin 0 -> 15465 bytes
+ ...posite-integer-translate-over-svg-rgb24-ref.png |  Bin 15465 -> 0 bytes
+ test/fill-and-stroke-alpha-svg-argb32-ref.png      |  Bin 509 -> 0 bytes
+ test/fill-and-stroke-alpha-svg-ref.png             |  Bin 0 -> 509 bytes
+ test/fill-and-stroke-alpha-svg-rgb24-ref.png       |  Bin 509 -> 0 bytes
+ test/font-matrix-translation-svg-ref.png           |  Bin 0 -> 970 bytes
+ test/ft-text-vertical-layout-pdf-argb32-ref.png    |  Bin 725 -> 804 bytes
+ test/ft-text-vertical-layout-ref.png               |  Bin 907 -> 907 bytes
+ test/ft-text-vertical-layout-svg-argb32-ref.png    |  Bin 799 -> 0 bytes
+ test/ft-text-vertical-layout-svg-ref.png           |  Bin 0 -> 880 bytes
+ test/ft-text-vertical-layout-svg-rgb24-ref.png     |  Bin 808 -> 0 bytes
+ test/glyph-cache-pressure-pdf-argb32-ref.png       |  Bin 2879 -> 0 bytes
+ test/glyph-cache-pressure-svg-argb32-ref.png       |  Bin 3635 -> 0 bytes
+ test/glyph-cache-pressure-svg-ref.png              |  Bin 0 -> 3165 bytes
+ test/glyph-cache-pressure-svg-rgb24-ref.png        |  Bin 3165 -> 0 bytes
+ test/linear-gradient-svg-argb32-ref.png            |  Bin 1000 -> 0 bytes
+ test/linear-gradient-svg-ref.png                   |  Bin 0 -> 1000 bytes
+ test/linear-gradient-svg-rgb24-ref.png             |  Bin 1000 -> 0 bytes
+ test/paint-source-alpha-svg-argb32-ref.png         |  Bin 505 -> 0 bytes
+ test/paint-source-alpha-svg-ref.png                |  Bin 0 -> 505 bytes
+ test/paint-source-alpha-svg-rgb24-ref.png          |  Bin 505 -> 0 bytes
+ test/paint-with-alpha-svg-argb32-ref.png           |  Bin 516 -> 0 bytes
+ test/paint-with-alpha-svg-ref.png                  |  Bin 0 -> 516 bytes
+ test/paint-with-alpha-svg-rgb24-ref.png            |  Bin 516 -> 0 bytes
+ test/pixman-rotate-svg-argb32-ref.png              |  Bin 0 -> 258 bytes
+ test/pixman-rotate-svg-rgb24-ref.png               |  Bin 0 -> 358 bytes
+ test/rectangle-rounding-error-ps-argb32-ref.png    |  Bin 258 -> 0 bytes
+ test/select-font-face-pdf-argb32-ref.png           |  Bin 2237 -> 0 bytes
+ test/select-font-face-ps-argb32-ref.png            |  Bin 1443 -> 1333 bytes
+ test/select-font-face-ref.png                      |  Bin 2481 -> 2473 bytes
+ test/select-font-face-svg-argb32-ref.png           |  Bin 3064 -> 0 bytes
+ test/select-font-face-svg-ref.png                  |  Bin 0 -> 2430 bytes
+ test/select-font-face-svg-rgb24-ref.png            |  Bin 3064 -> 0 bytes
+ test/show-text-current-point-pdf-argb32-ref.png    |  Bin 2157 -> 0 bytes
+ test/show-text-current-point-svg-argb32-ref.png    |  Bin 4236 -> 0 bytes
+ test/show-text-current-point-svg-ref.png           |  Bin 0 -> 2398 bytes
+ test/show-text-current-point-svg-rgb24-ref.png     |  Bin 2398 -> 0 bytes
+ test/text-antialias-gray-pdf-argb32-ref.png        |  Bin 950 -> 0 bytes
+ test/text-antialias-gray-ps-argb32-ref.png         |  Bin 310 -> 0 bytes
+ test/text-antialias-gray-svg-argb32-ref.png        |  Bin 1077 -> 0 bytes
+ test/text-antialias-gray-svg-rgb24-ref.png         |  Bin 1033 -> 0 bytes
+ test/text-antialias-none-pdf-argb32-ref.png        |  Bin 950 -> 0 bytes
+ test/text-antialias-none-ps-argb32-ref.png         |  Bin 310 -> 0 bytes
+ test/text-antialias-none-svg-argb32-ref.png        |  Bin 1077 -> 0 bytes
+ test/text-antialias-none-svg-rgb24-ref.png         |  Bin 1033 -> 0 bytes
+ test/text-antialias-subpixel-pdf-argb32-ref.png    |  Bin 950 -> 0 bytes
+ test/text-antialias-subpixel-ps-argb32-ref.png     |  Bin 310 -> 0 bytes
+ test/text-antialias-subpixel-svg-argb32-ref.png    |  Bin 1077 -> 0 bytes
+ test/text-antialias-subpixel-svg-rgb24-ref.png     |  Bin 1033 -> 0 bytes
+ test/text-pattern-pdf-argb32-ref.png               |  Bin 1632 -> 0 bytes
+ test/text-pattern-ps-argb32-ref.png                |  Bin 1681 -> 0 bytes
+ test/text-pattern-svg-argb32-ref.png               |  Bin 1708 -> 1749 bytes
+ test/unantialiased-shapes-ps-argb32-ref.png        |  Bin 4076 -> 0 bytes
+ test/unantialiased-shapes-svg-argb32-ref.png       |  Bin 19689 -> 0 bytes
+ test/unantialiased-shapes-svg-rgb24-ref.png        |  Bin 19689 -> 0 bytes
  59 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 56791ab31d484452cd1ddefd653590095d9f6191
@@ -16177,30 +18392,30 @@ Date:   Tue Aug 1 18:21:27 2006 -0400
 
     New PS ref images, matching the recent png16m->pngalpha driver change
 
- test/caps-joins-ps-argb32-ref.png              |  Bin
- test/caps-sub-paths-ps-argb32-ref.png          |  Bin
- test/clip-fill-rule-ps-argb32-ref.png          |  Bin
- test/clip-nesting-ps-argb32-ref.png            |  Bin
- test/clip-twice-ps-argb32-ref.png              |  Bin
- test/dash-caps-joins-ps-argb32-ref.png         |  Bin
- test/dash-offset-negative-ps-argb32-ref.png    |  Bin
- test/dash-scale-ps-argb32-ref.png              |  Bin
- test/dash-zero-length-ps-argb32-ref.png        |  Bin
- test/degenerate-path-ps-argb32-ref.png         |  Bin
- test/fill-and-stroke-ps-argb32-ref.png         |  Bin
- test/fill-rule-ps-argb32-ref.png               |  Bin
- test/font-matrix-translation-ps-argb32-ref.png |  Bin
- test/ft-text-antialias-none-ps-argb32-ref.png  |  Bin
- test/ft-text-vertical-layout-ps-argb32-ref.png |  Bin
- test/glyph-cache-pressure-ps-argb32-ref.png    |  Bin
- test/leaky-polygon-ps-argb32-ref.png           |  Bin
- test/line-width-ps-argb32-ref.png              |  Bin
- test/line-width-scale-ps-argb32-ref.png        |  Bin
- test/new-sub-path-ps-argb32-ref.png            |  Bin
- test/path-data-ps-argb32-ref.png               |  Bin
- test/select-font-face-ps-argb32-ref.png        |  Bin
- test/show-text-current-point-ps-argb32-ref.png |  Bin
- test/transforms-ps-argb32-ref.png              |  Bin
+ test/caps-joins-ps-argb32-ref.png              |  Bin 995 -> 1463 bytes
+ test/caps-sub-paths-ps-argb32-ref.png          |  Bin 170 -> 240 bytes
+ test/clip-fill-rule-ps-argb32-ref.png          |  Bin 280 -> 322 bytes
+ test/clip-nesting-ps-argb32-ref.png            |  Bin 488 -> 651 bytes
+ test/clip-twice-ps-argb32-ref.png              |  Bin 460 -> 575 bytes
+ test/dash-caps-joins-ps-argb32-ref.png         |  Bin 1247 -> 2189 bytes
+ test/dash-offset-negative-ps-argb32-ref.png    |  Bin 170 -> 204 bytes
+ test/dash-scale-ps-argb32-ref.png              |  Bin 2950 -> 6318 bytes
+ test/dash-zero-length-ps-argb32-ref.png        |  Bin 272 -> 319 bytes
+ test/degenerate-path-ps-argb32-ref.png         |  Bin 197 -> 264 bytes
+ test/fill-and-stroke-ps-argb32-ref.png         |  Bin 243 -> 310 bytes
+ test/fill-rule-ps-argb32-ref.png               |  Bin 1078 -> 2253 bytes
+ test/font-matrix-translation-ps-argb32-ref.png |  Bin 0 -> 785 bytes
+ test/ft-text-antialias-none-ps-argb32-ref.png  |  Bin 335 -> 335 bytes
+ test/ft-text-vertical-layout-ps-argb32-ref.png |  Bin 298 -> 644 bytes
+ test/glyph-cache-pressure-ps-argb32-ref.png    |  Bin 591 -> 1672 bytes
+ test/leaky-polygon-ps-argb32-ref.png           |  Bin 233 -> 355 bytes
+ test/line-width-ps-argb32-ref.png              |  Bin 201 -> 244 bytes
+ test/line-width-scale-ps-argb32-ref.png        |  Bin 1599 -> 3903 bytes
+ test/new-sub-path-ps-argb32-ref.png            |  Bin 316 -> 559 bytes
+ test/path-data-ps-argb32-ref.png               |  Bin 322 -> 442 bytes
+ test/select-font-face-ps-argb32-ref.png        |  Bin 481 -> 1443 bytes
+ test/show-text-current-point-ps-argb32-ref.png |  Bin 602 -> 1479 bytes
+ test/transforms-ps-argb32-ref.png              |  Bin 287 -> 420 bytes
  24 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 3e24f516a2f5435306ee8491e7955177b960a797
@@ -16212,7 +18427,7 @@ Date:   Tue Aug 1 16:13:29 2006 -0400
     using text_path.  The difference is more emphasized when rendering the
     same string.
 
- test/ft-text-vertical-layout-ref.png |  Bin
+ test/ft-text-vertical-layout-ref.png |  Bin 834 -> 907 bytes
  test/ft-text-vertical-layout.c       |    2 +-
  2 files changed, 1 insertions(+), 1 deletions(-)
 
@@ -16596,9 +18811,9 @@ Date:   Sun Jun 25 15:48:48 2006 +0200
 
     Modify degenerate-path test case to test dashed degenerate paths.
 
- test/degenerate-path-ps-argb32-ref.png |  Bin
- test/degenerate-path-ref.png           |  Bin
- test/degenerate-path-rgb24-ref.png     |  Bin
+ test/degenerate-path-ps-argb32-ref.png |  Bin 197 -> 220 bytes
+ test/degenerate-path-ref.png           |  Bin 193 -> 216 bytes
+ test/degenerate-path-rgb24-ref.png     |  Bin 174 -> 189 bytes
  test/degenerate-path.c                 |   54 ++++++++++++++++++++++++++------
  4 files changed, 44 insertions(+), 10 deletions(-)
 
@@ -16611,8 +18826,8 @@ Date:   Sat Jul 15 14:39:26 2006 -0400
     This tests the situation reported by Keith Wells where the start point of a
     closed dashed path was not being properly capped.
 
- test/dash-caps-joins-ps-argb32-ref.png |  Bin
- test/dash-caps-joins-ref.png           |  Bin
+ test/dash-caps-joins-ps-argb32-ref.png |  Bin 1247 -> 2205 bytes
+ test/dash-caps-joins-ref.png           |  Bin 2583 -> 4680 bytes
  test/dash-caps-joins.c                 |   45 +++++++++++++++++++------------
  3 files changed, 27 insertions(+), 18 deletions(-)
 
@@ -16659,7 +18874,7 @@ Date:   Fri Jul 14 12:45:48 2006 -0700
 
  test/.gitignore                      |    1 +
  test/Makefile.am                     |    1 +
- test/font-matrix-translation-ref.png |  Bin
+ test/font-matrix-translation-ref.png |  Bin 0 -> 1006 bytes
  test/font-matrix-translation.c       |  113 ++++++++++++++++++++++++++++++++++
  4 files changed, 115 insertions(+), 0 deletions(-)
 
@@ -16669,8 +18884,8 @@ Date:   Thu Jul 13 16:01:57 2006 -0700
 
     pixman-rotate: remove stale svg backend reference images
 
- test/pixman-rotate-svg-argb32-ref.png |  Bin
- test/pixman-rotate-svg-rgb24-ref.png  |  Bin
+ test/pixman-rotate-svg-argb32-ref.png |  Bin 258 -> 0 bytes
+ test/pixman-rotate-svg-rgb24-ref.png  |  Bin 358 -> 0 bytes
  2 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 2b30f85cade33653afddf536aa7e775dd360f501
@@ -16679,8 +18894,8 @@ Date:   Thu Jul 13 15:56:12 2006 -0700
 
     ft-text-vertical-layout: Update stale reference images
 
- test/ft-text-vertical-layout-pdf-argb32-ref.png |  Bin
- test/ft-text-vertical-layout-svg-rgb24-ref.png  |  Bin
+ test/ft-text-vertical-layout-pdf-argb32-ref.png |  Bin 956 -> 725 bytes
+ test/ft-text-vertical-layout-svg-rgb24-ref.png  |  Bin 808 -> 808 bytes
  2 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 5d64efdbb8fc4e17d4fa44d21068870cd2aea7ce
@@ -16846,7 +19061,7 @@ Date:   Wed Jul 12 14:49:14 2006 -0700
 
  test/.gitignore           |    3 +-
  test/Makefile.am          |    8 ++-
- test/dash-no-dash-ref.png |  Bin
+ test/dash-no-dash-ref.png |  Bin 0 -> 152 bytes
  test/dash-no-dash.c       |   95 +++++++++++++++++++++++++++++++++++++++++++++
  4 files changed, 102 insertions(+), 4 deletions(-)
 
@@ -17145,10 +19360,10 @@ Date:   Tue Jul 11 16:07:13 2006 -0400
     We don't really rely on the Japanese text and font, as FreeType
     synthesizes vertical metrics for all fonts.
 
- test/ft-text-vertical-layout-ps-argb32-ref.png  |  Bin
- test/ft-text-vertical-layout-ref.png            |  Bin
- test/ft-text-vertical-layout-svg-argb32-ref.png |  Bin
- test/ft-text-vertical-layout-svg-rgb24-ref.png  |  Bin
+ test/ft-text-vertical-layout-ps-argb32-ref.png  |  Bin 349 -> 298 bytes
+ test/ft-text-vertical-layout-ref.png            |  Bin 1130 -> 834 bytes
+ test/ft-text-vertical-layout-svg-argb32-ref.png |  Bin 1021 -> 799 bytes
+ test/ft-text-vertical-layout-svg-rgb24-ref.png  |  Bin 1098 -> 808 bytes
  test/ft-text-vertical-layout.c                  |    4 ++--
  5 files changed, 2 insertions(+), 2 deletions(-)
 

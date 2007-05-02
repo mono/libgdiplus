@@ -13,22 +13,25 @@ PRIVATE_TEST_HFILES = \
 	cairo-mutex-private.h \
 	cairo-os2-private.h \
 	cairo-output-stream-private.h \
+	cairo-paginated-private.h \
 	cairo-paginated-surface-private.h \
 	cairo-path-fixed-private.h \
 	cairo-path-private.h \
-	cairo-pdf-test.h \
+	cairo-pdf-surface-private.h \
 	cairo-private.h \
-	cairo-ps-test.h \
+	cairo-ps-surface-private.h \
 	cairo-quartz-private.h \
+	cairo-scaled-font-private.h \
 	cairo-scaled-font-subsets-private.h \
-	cairo-scaled-font-test.h \
 	cairo-skiplist-private.h \
 	cairo-surface-fallback-private.h \
-	cairo-svg-test.h \
+	cairo-surface-private.h \
+	cairo-svg-surface-private.h \
 	cairo-truetype-subset-private.h \
 	cairo-type1-private.h \
+	cairo-types-private.h \
 	cairo-wideint-private.h \
 	cairo-win32-private.h \
 	cairo-xlib-private.h \
-	cairo-xlib-test.h \
+	cairo-xlib-surface-private.h \
 	cairoint.h
