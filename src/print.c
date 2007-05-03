@@ -23,16 +23,20 @@
  *   Sebastien Pouliot  <sebastien@ximian.com>
  */
 
+#include <cairo-features.h>
+
 #ifdef CAIRO_HAS_PS_SURFACE
 
 #include <stdio.h>
 #include "gdipImage.h"
 #include "general.h"
-#include <cairo-features.h>
 #include <math.h>
 #include <cairo-ps.h>
 
-/* NOTE: The functions in this file aren't part of GDI+ and can only be called from libgdiplus */
+/*
+ * NOTE: The functions in this file aren't part of GDI+ and can only be called 
+ * from Mono's System.Drawing.dll on non-Windows operating systems
+ */
 
 /* coverity[+alloc : arg-*5] */
 GpStatus 
