@@ -2309,3 +2309,33 @@ gdip_convert_indexed_to_rgb (GpBitmap *indexed_bmp)
 	return NULL;
 }
 
+
+ColorPalette*
+gdip_create_greyscale_palette (int num_colors)
+{
+	ColorPalette *palette;
+	int i;
+
+	if ((num_colors < 0) || (num_colors > 256))
+		return NULL;
+
+	/* ColorPalette definition already include 1 ARGB member */
+	palette = GdipAlloc (sizeof(ColorPalette) + (num_colors - 1) * sizeof(ARGB));
+	if (!palette)
+		return NULL;
+
+	palette->Count = num_colors;
+	palette->Flags = 0; /* not every codec sets the ImageFlagsColorSpaceGRAY flag*/
+
+	/* always force alpha to opaque */
+	if (num_colors == 256) {
+		for (i = 0; i < 256; i++)
+			set_pixel_bgra (&palette->Entries[i], 0, i, i, i, 0xFF); 
+	} else {
+		for (i = 0; i < num_colors; i++) {
+			int intensity = i * 255 / (num_colors - 1);
+			set_pixel_bgra (&palette->Entries[i], 0, intensity, intensity, intensity, 0xFF);
+		}
+	}
+	return palette;
+}

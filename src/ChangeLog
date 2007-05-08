@@ -1,3 +1,10 @@
+2007-05-08  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c|bitmap-private.h: Add new gdip_create_greyscale_palette
+	function to avoid duplicate work in codecs.
+	* jpegcodec.c: Fix support for 8bpp indexed greyscale images (#81552).
+	* pngcodec.c: Use new greyscale palette function.
+
 2007-05-03  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* print.c: Fix headers inclusion (and re-enable that code).

@@ -151,6 +151,7 @@ GpBitmap* gdip_convert_indexed_to_rgb (GpBitmap *bitmap) GDIP_INTERNAL;
 
 void gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, BOOL *allocated) GDIP_INTERNAL;
 
+ColorPalette* gdip_create_greyscale_palette (int num_colors) GDIP_INTERNAL;
 
 typedef struct {
 	Rect		region;

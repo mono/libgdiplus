@@ -325,21 +325,11 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			num_colours = 256;
 		}
 
-		palette = GdipAlloc (sizeof(ColorPalette) + num_colours * sizeof(ARGB));
-
-		palette->Flags = 0;
-		palette->Count = num_colours;
-
 		if (png_get_color_type (png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY) {
 			/* A gray-scale image; generate a palette fading from black to white. */
 			colourspace_flag = ImageFlagsColorSpaceGRAY;
+			palette = gdip_create_greyscale_palette (num_colours);
 			palette->Flags = PaletteFlagsGrayScale;
-
-			for (i=0; i < num_colours; i++) {
-				int intensity = i * 255 / (num_colours - 1);
-
-				set_pixel_bgra (&palette->Entries[i], 0, intensity, intensity, intensity, 0xFF); /* alpha */
-			}
 		} else {
 			/* Copy the palette data into the GDI+ structure. */
 			colourspace_flag = ImageFlagsColorSpaceRGB;
@@ -348,6 +338,10 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			if (palette_entries > info_ptr->num_palette) {
 				palette_entries = info_ptr->num_palette;
 			}
+
+			palette = GdipAlloc (sizeof(ColorPalette) + (num_colours - 1) * sizeof(ARGB));
+			palette->Flags = 0;
+			palette->Count = num_colours;
 
 			for (i=0; i < palette_entries; i++) {
 				set_pixel_bgra (&palette->Entries[i], 0,
@@ -379,7 +373,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 
 		result = gdip_bitmap_new_with_frame (&gdip_image_frameDimension_page_guid, TRUE);
 		result->type = ImageTypeBitmap;
-		result->cairo_format = CAIRO_FORMAT_ARGB32;
 		result->active_bitmap->stride = dest_stride;
 		result->active_bitmap->width = width;
 		result->active_bitmap->height = height;

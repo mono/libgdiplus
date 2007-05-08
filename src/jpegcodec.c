@@ -308,6 +308,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	result->type = ImageTypeBitmap;
 	result->active_bitmap->width = cinfo.image_width;
 	result->active_bitmap->height = cinfo.image_height;
+	result->active_bitmap->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsPartiallyScalable | ImageFlagsHasRealDPI;
 
 	if (cinfo.density_unit == 1) { /* dpi */
 		result->active_bitmap->dpi_horz = cinfo.X_density;
@@ -321,43 +322,43 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	}
 
 	if (cinfo.num_components == 1) {
+		result->cairo_format = CAIRO_FORMAT_A8;
+		result->active_bitmap->stride = cinfo.image_width;
 		result->active_bitmap->pixel_format = PixelFormat8bppIndexed;
 	} else if (cinfo.num_components == 3) {
 		/* libjpeg gives us RGB for many formats and
 		 * we convert to RGB format when needed. JPEG
 		 * does not support alpha (transparency). */
+		result->cairo_format = CAIRO_FORMAT_ARGB32;
+		result->active_bitmap->stride = 4 * cinfo.image_width;
 		result->active_bitmap->pixel_format = PixelFormat24bppRgb;
 	} else if (cinfo.num_components == 4) {
+		result->cairo_format = CAIRO_FORMAT_ARGB32;
+		result->active_bitmap->stride = 4 * cinfo.image_width;
 		result->active_bitmap->pixel_format = PixelFormat32bppRgb;
 	}
 
 	switch (cinfo.jpeg_color_space) {
-		case JCS_GRAYSCALE:
-			result->active_bitmap->image_flags = ImageFlagsColorSpaceGRAY;
-			break;
-
-		case JCS_RGB:
-			result->active_bitmap->image_flags = ImageFlagsColorSpaceRGB;
-			break;
-
-		case JCS_YCbCr:
-			result->active_bitmap->image_flags = ImageFlagsColorSpaceYCBCR;
-			break;
-
-		case JCS_YCCK:
-			result->active_bitmap->image_flags = ImageFlagsColorSpaceYCCK;
-			break;
-
-		case JCS_CMYK:
-			result->active_bitmap->image_flags = ImageFlagsColorSpaceCMYK;
-			break;
-
-		default:
-			result->active_bitmap->image_flags = ImageFlagsNone; /* Unknown Colorspace */
+	case JCS_GRAYSCALE:
+		result->active_bitmap->image_flags |= ImageFlagsColorSpaceGRAY;
+		if (cinfo.num_components == 1)
+			result->active_bitmap->palette = gdip_create_greyscale_palette (256);
+		break;
+	case JCS_RGB:
+		result->active_bitmap->image_flags |= ImageFlagsColorSpaceRGB;
+		break;
+	case JCS_YCbCr:
+		result->active_bitmap->image_flags |= ImageFlagsColorSpaceYCBCR;
+		break;
+	case JCS_YCCK:
+		result->active_bitmap->image_flags |= ImageFlagsColorSpaceYCCK;
+		break;
+	case JCS_CMYK:
+		result->active_bitmap->image_flags |= ImageFlagsColorSpaceCMYK;
+		break;
+	default:
+		break;
 	}
-
-	result->cairo_format = CAIRO_FORMAT_ARGB32;
-	result->active_bitmap->stride = 4 * cinfo.image_width;
 
 	stride = result->active_bitmap->stride;
 
@@ -369,13 +370,26 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	 * YCCK to CMYK using the libjpeg. We convert CMYK
 	 * to RGB ourself.
 	 */
-	if (cinfo.jpeg_color_space == JCS_RGB || cinfo.jpeg_color_space == JCS_YCbCr || cinfo.jpeg_color_space == JCS_GRAYSCALE) {
+	switch (cinfo.jpeg_color_space) {
+	case JCS_GRAYSCALE:
+		/* special case for indexed 256 greyscale images (bug #81552) */
+		if (cinfo.num_components == 1) {
+			cinfo.out_color_space = JCS_GRAYSCALE;
+			cinfo.out_color_components = 1;
+			break;
+		}
+		/* else treat as RGB */
+	case JCS_RGB:
+	case JCS_YCbCr:
 		cinfo.out_color_space = JCS_RGB;
 		cinfo.out_color_components = 3;
-	} else if (cinfo.jpeg_color_space == JCS_YCCK ||cinfo.jpeg_color_space == JCS_CMYK) {
+		break;
+	case JCS_YCCK:
+	case JCS_CMYK:
 		cinfo.out_color_space = JCS_CMYK;
 		cinfo.out_color_components = 4;
-	} else {
+		break;
+	default:
 		/* Unsupported JPEG color space */
 		status = InvalidParameter;
 		goto error;
@@ -432,11 +446,13 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 					lineptr += 4;
 				}
 			}
+		} else if (cinfo.out_color_components == 1) {
+			/* no decoding required, we already have all we need */
 		} else {
+			int width = result->active_bitmap->width;
 			for (i = 0; i < nlines; i++) {
 				int j;
 				BYTE *inptr, *outptr;
-				int width = result->active_bitmap->width;
 
 				inptr = lines[i] + (width * 3);
 				outptr = lines[i] + stride;
@@ -485,10 +501,6 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 
 	result->surface = cairo_image_surface_create_for_data ((BYTE*)destbuf, result->cairo_format,
 		result->active_bitmap->width, result->active_bitmap->height, stride);
-
-	/* win32 returns this as PartiallyScalable and ColorSpaceYCBCR; we
-	 * just return it as RGB (or Grayscale). */
-	result->active_bitmap->image_flags |= ImageFlagsReadOnly | ImageFlagsHasRealPixelSize;
 
 	*image = result;
 	return Ok;
