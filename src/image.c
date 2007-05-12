@@ -376,6 +376,9 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	if (!graphics || !image)
 		return InvalidParameter;
 
+	if (width == 0 || height == 0)
+		return Ok;
+			
 	if (image->type == ImageTypeBitmap) {
 		if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format)) {
 			GpStatus status = OutOfMemory;
