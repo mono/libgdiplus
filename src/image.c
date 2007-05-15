@@ -376,10 +376,14 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	if (!graphics || !image)
 		return InvalidParameter;
 
-	if (width == 0 || height == 0)
+	if ((width <= 0) || (height <= 0))
 		return Ok;
 			
 	if (image->type == ImageTypeBitmap) {
+		/* check does not apply to metafiles, and it's better be done before converting the image */
+		if (gdip_is_overflow(x) || gdip_is_overflow(y))
+			return ValueOverflow;
+
 		if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format)) {
 			GpStatus status = OutOfMemory;
 			GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb (image);
@@ -574,6 +578,22 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	if (!graphics || !image)
 		return InvalidParameter;
 
+	switch (srcUnit) {
+	case UnitPixel:
+		break;
+	case UnitPoint:
+	case UnitInch:
+	case UnitDocument:
+	case UnitMillimeter:
+		if (graphics->type != gtPostScript)
+			return NotImplemented; /* GDI+ returns the same */
+		break;
+	case UnitWorld:
+	case UnitDisplay:
+	default:
+		return InvalidParameter;
+	}
+
 	if (image->type == ImageTypeBitmap) {
 		if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format)) {
 			GpStatus status = OutOfMemory;
@@ -588,6 +608,9 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 
 			return status;
 		}
+	} else {
+		/* metafile support */
+		return NotImplemented;
 	}
 
 	/* see OPTIMIZE_CONVERSION in general.h */

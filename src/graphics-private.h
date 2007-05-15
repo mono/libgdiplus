@@ -52,6 +52,10 @@
 /* Recursion depth of the flattening algorithm */
 #define FLATTEN_RECURSION_LIMIT		10
 
+/* not 100% identical to MS GDI+ which varies a little from int and float, but still around 0x40000000 */
+#define GDIP_MAX_COORD			1073741824
+#define gdip_is_overflow(a)		(((a) < -GDIP_MAX_COORD) || ((a) > GDIP_MAX_COORD))
+
 typedef enum {
         CURVE_OPEN,
         CURVE_CLOSE 

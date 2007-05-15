@@ -1,3 +1,10 @@
+2007-05-15  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-private.h: Add macro to check for position overflows.
+	* image.c: Check for negative width/height values and overflows 
+	in function GdipDrawImageRect (not applicable to metafiles). 
+	Check GpUnit inside function GdipDrawImageRectRect.
+
 2007-05-12  Miguel de Icaza  <miguel@novell.com>
 
 	* image.c (GdipDrawImageRect): Passing a width or height of 0 is a
