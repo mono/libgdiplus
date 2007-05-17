@@ -40,6 +40,7 @@
 #include "imageattributes-private.h"
 #include "pen-private.h"
 #include "region-private.h"
+#include "metafile.h"
 
 #define CAIRO_AA_OFFSET_X		1
 #define CAIRO_AA_OFFSET_Y		0.5
@@ -69,6 +70,12 @@ typedef enum {
 	gtPostScript
 } GraphicsType;
 
+typedef enum {
+	GraphicsBackEndInvalid	= -1,
+	GraphicsBackEndCairo	= 0,
+	GraphicsBackEndMetafile	= 1
+} GraphicsBackEnd;
+
 typedef struct {
 	cairo_matrix_t		matrix;
 	cairo_matrix_t		previous_matrix;
@@ -88,6 +95,8 @@ typedef struct {
 } GpState;
 
 typedef struct _Graphics {
+	GraphicsBackEnd		backend;
+	/* cairo-specific stuff */
 	cairo_t			*ct;
 	GpMatrix		*copy_of_ctm;
 	cairo_matrix_t		previous_matrix;
@@ -95,14 +104,21 @@ typedef struct _Graphics {
 	Drawable		drawable;
 	void			*image;
 	int			type; 
+	GpPen*			last_pen;	/* caching pen and brush to avoid unnecessary sets */
+	GpBrush*		last_brush;
+	float			aa_offset_x;
+	float			aa_offset_y;
+	/* metafile-specific stuff */
+	EmfType			emf_type;
+	GpMetafile		*metafile;
+	cairo_surface_t		*metasurface;	/* bogus surface to satisfy some API calls */
+	/* common-stuff */
 	GpRegion*		clip;
 	GpMatrix*		clip_matrix;
 	GpRect			bounds;
 	GpUnit			page_unit;
 	float			scale;
 	InterpolationMode	interpolation;
-	GpPen*			last_pen;	/* caching pen and brush to avoid unnecessary sets */
-	GpBrush*		last_brush;
 	SmoothingMode		draw_mode;
 	TextRenderingHint	text_mode;
 	GpState*		saved_status;
@@ -110,8 +126,6 @@ typedef struct _Graphics {
 	CompositingMode		composite_mode;
 	CompositingQuality	composite_quality;
 	PixelOffsetMode		pixel_mode;
-	float			aa_offset_x;
-	float			aa_offset_y;
 	int			render_origin_x;
 	int			render_origin_y;
 	float			dpi_x;
@@ -123,7 +137,8 @@ float gdip_unit_conversion (Unit from, Unit to, float dpi, GraphicsType type, fl
 
 void gdip_set_cairo_clipping (GpGraphics *graphics) GDIP_INTERNAL;
 
-GpGraphics *gdip_graphics_new (cairo_surface_t *surface) GDIP_INTERNAL;
+GpGraphics* gdip_graphics_new (cairo_surface_t *surface) GDIP_INTERNAL;
+GpGraphics* gdip_metafile_graphics_new (GpMetafile *metafile) GDIP_INTERNAL;
 
 /* prototypes for cairo wrappers to deal with coordonates limits, unit conversion and antialiasing) */
 void gdip_cairo_rectangle (GpGraphics *graphics, double x, double y, double width, double height, BOOL antialiasing) GDIP_INTERNAL;

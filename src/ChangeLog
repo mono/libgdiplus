@@ -1,3 +1,25 @@
+2007-05-17  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* emfcodec.c: Don't play empty but valid (e.g. recording) metafiles.
+	* graphics.c: Move cairo code to graphics-cairo.c and switch functions
+	between the cairo and metafile backends.
+	* graphics-private.h: Add the required data for the metafile backend.
+	* graphics-cairo.c: New file. Moved cairo-based stuff from graphics.c.
+	* graphics-cairo-private.h: New. header to cairo graphics functions.
+	* graphics-metafile.c: New. Metafile graphics recording functions.
+	* graphics-metafile-private.h: New. header to metafile graphics 
+	functions.
+	* image.c: Allow creating GpGraphics contexts on a recording metafile.
+	* metafile.c: Starting support for recording.
+	* metafile-private.h: Add data/functions required for recording.
+	* text.c: Move non-validation code (i.e. cairo code) into text-cairo.c
+	* text.h: Add copyrights header.
+	* text-cairo.c: New file. Moved cairo-based stuff from text.c.
+	* text-cairo-private.h: New. header to cairo-based text functions.
+	* text-metafile.c: New. Metafile-based text rendering.
+	* text-metafile-private.h: New. header to metafile text functions.
+	* Makefile.am: Add new files, remove old one.
+
 2007-05-15  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-private.h: Add macro to check for position overflows.

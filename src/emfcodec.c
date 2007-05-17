@@ -384,6 +384,10 @@ gdip_metafile_play_emf (MetafilePlayContext *context)
 #ifdef DEBUG_EMF
 	int i = 1, j;
 #endif
+	/* check for empty or recording metafile */
+	if (!data)
+		return Ok;
+
 	/* reality check - each record is, at minimum, 8 bytes long (when size == 0) */
 	while (data < end - EMF_MIN_RECORD_SIZE) {
 		/* record */

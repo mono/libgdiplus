@@ -858,6 +858,9 @@ gdip_metafile_create ()
 		mf->delete = FALSE;
 		mf->data = NULL;
 		mf->length = 0;
+		mf->recording = FALSE;
+		mf->fp = NULL;
+		mf->stream = NULL;
 	}
 	return mf;
 }
@@ -893,7 +896,28 @@ gdip_metafile_dispose (GpMetafile *metafile)
 		metafile->data = NULL;
 	}
 
+	if (metafile->recording)
+		gdip_metafile_stop_recording (metafile);
+
 	GdipFree (metafile);
+	return Ok;
+}
+
+GpStatus
+gdip_metafile_stop_recording (GpMetafile *metafile)
+{
+	/* TODO save current stuff */
+
+	if (metafile->fp) {
+		fclose (metafile->fp);
+		metafile->fp = NULL;
+	}
+	if (metafile->stream) {
+		/* it's not ours to close, just forget about it */
+		metafile->stream = NULL;
+	}
+	/* we cannot open a new graphics instance on this metafile - recording is over */
+	metafile->recording = FALSE;
 	return Ok;
 }
 
@@ -991,7 +1015,7 @@ gdip_metafile_play (MetafilePlayContext *context)
 {
 	GpStatus status;
 
-	if (!context)
+	if (!context || !context->metafile)
 		return InvalidParameter;
 
 	switch (context->metafile->metafile_header.Type) {
@@ -1650,6 +1674,7 @@ GdipRecordMetafile (HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect
 	mf->metafile_header.Height = frameRect->Height;
 	mf->metafile_header.Size = 0;
 	mf->metafile_header.Type = type;
+	mf->recording = TRUE;
 
 	/* TODO - more stuff here! */
 
@@ -1678,16 +1703,29 @@ GdipRecordMetafileFileName (GDIPCONST WCHAR *fileName, HDC referenceHdc, EmfType
 	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile)
 {
 	GpStatus status;
+	GpMetafile *mf = NULL;
+	char *file_name;
 
 	if (!fileName)
 		return InvalidParameter;
 
-	status = GdipRecordMetafile (referenceHdc, type, frameRect, frameUnit, description, metafile);
-	if (status != Ok)
+	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)fileName, -1);
+	if (!file_name) {
+		*metafile = NULL;
+		return InvalidParameter;
+	}
+
+	status = GdipRecordMetafile (referenceHdc, type, frameRect, frameUnit, description, &mf);
+	if (status != Ok) {
+		GdipFree (file_name);
 		return status;
+	}
 
-	/* TODO - open filename to write stuff */
+	/* yep, an existing file is overwritten */
+	mf->fp = fopen (file_name, "wb");
 
+	GdipFree (file_name);
+	*metafile = mf;
 	return Ok;
 }
 

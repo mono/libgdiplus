@@ -2,7 +2,7 @@
  * graphics.c
  *
  * Copyright (c) 2003 Alexandre Pigolkine, Novell Inc.
- * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
+ * Copyright (C) 2006-2007 Novell, Inc (http://www.novell.com)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -26,12 +26,16 @@
  */
 
 #include "graphics-private.h"
+#include "graphics-cairo-private.h"
+#include "graphics-metafile-private.h"
 #include "region-private.h"
 #include "graphics-path-private.h"
 #include "brush-private.h"
 #include "matrix-private.h"
 #include "bitmap-private.h"
-#include "stringformat.h"
+#include "metafile-private.h"
+
+#include <cairo-features.h>
 
 #define	NO_CAIRO_AA
 
@@ -126,20 +130,16 @@ gdip_graphics_reset (GpGraphics *graphics)
 }
 
 static void
-gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
+gdip_graphics_common_init (GpGraphics *graphics)
 {
-	graphics->ct = cairo_create (surface);
-	GdipCreateMatrix (&graphics->copy_of_ctm);
-	cairo_matrix_init_identity (graphics->copy_of_ctm);
+	graphics->image = NULL;
+	graphics->type = gtUndefined;
+
 	cairo_identity_matrix (graphics->ct);
 
-#ifndef NO_CAIRO_AA
-        cairo_set_shape_format (graphics->ct, CAIRO_FORMAT_A1);
-#endif
-	graphics->image = 0;
-	graphics->type = gtUndefined;
-        /* cairo_select_font_face (graphics->ct, "serif:12"); */
-	cairo_select_font_face (graphics->ct, "serif:12", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+	GdipCreateMatrix (&graphics->copy_of_ctm);
+	cairo_matrix_init_identity (graphics->copy_of_ctm);
+
 	GdipCreateRegion (&graphics->clip);
 	GdipCreateMatrix (&graphics->clip_matrix);
 	graphics->bounds.X = graphics->bounds.Y = graphics->bounds.Width = graphics->bounds.Height = 0;
@@ -154,292 +154,56 @@ gdip_graphics_init (GpGraphics *graphics, cairo_surface_t *surface)
 	gdip_graphics_reset (graphics);
 }
 
+static void
+gdip_graphics_cairo_init (GpGraphics *graphics, cairo_surface_t *surface)
+{
+	graphics->backend = GraphicsBackEndCairo;
+
+	graphics->metafile = NULL;
+	graphics->ct = cairo_create (surface);
+
+#ifndef NO_CAIRO_AA
+        cairo_set_shape_format (graphics->ct, CAIRO_FORMAT_A1);
+#endif
+        /* cairo_select_font_face (graphics->ct, "serif:12"); */
+	cairo_select_font_face (graphics->ct, "serif:12", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+
+	gdip_graphics_common_init (graphics);
+}
+
 GpGraphics *
 gdip_graphics_new (cairo_surface_t *surface)
 {
 	GpGraphics *result = (GpGraphics *) GdipAlloc (sizeof (GpGraphics));
 
 	if (result)
-		gdip_graphics_init (result, surface);
+		gdip_graphics_cairo_init (result, surface);
 
 	return result;
 }
 
-#define C1 0.552285
-static void 
-make_ellipse (GpGraphics *graphics, float x, float y, float width, float height, BOOL convert_units, BOOL antialiasing)
-{
-	double rx, ry, cx, cy;
-
-	/* if required deal, once and for all, with unit conversion */
-	if (convert_units && !OPTIMIZE_CONVERSION (graphics)) {
-		x = gdip_unitx_convgr (graphics, x);
-		y = gdip_unity_convgr (graphics, y);
-		width = gdip_unitx_convgr (graphics, width);
-		height = gdip_unity_convgr (graphics, height);
-	}
-
-	rx = width / 2;
-	ry = height / 2;
-	cx = x + rx;
-	cy = y + ry;
-
-	/* if required deal, once and for all, with antialiasing */
-	if (antialiasing) {
-		cx += graphics->aa_offset_x;
-		cy += graphics->aa_offset_y;
-	}
-
-	gdip_cairo_move_to (graphics, cx + rx, cy, FALSE, FALSE);
-
-        /* an approximate of the ellipse by drawing a curve in each
-         * quadrants */
-	gdip_cairo_curve_to (graphics,
-			cx + rx, cy - C1 * ry,
-			cx + C1 * rx, cy - ry,
-			cx, cy - ry,
-			FALSE, FALSE);
-        
-	gdip_cairo_curve_to (graphics,
-			cx - C1 * rx, cy - ry,
-			cx - rx, cy - C1 * ry,
-			cx - rx, cy,
-			FALSE, FALSE);
-
-	gdip_cairo_curve_to (graphics,
-			cx - rx, cy + C1 * ry,
-			cx - C1 * rx, cy + ry,
-			cx, cy + ry,
-			FALSE, FALSE);
-                
-	gdip_cairo_curve_to (graphics,
-			cx + C1 * rx, cy + ry,
-			cx + rx, cy + C1 * ry,
-			cx + rx, cy,
-			FALSE, FALSE);
-
-        cairo_close_path (graphics->ct);
-}
-
 static void
-make_polygon (GpGraphics *graphics, GDIPCONST GpPointF *points, int count, BOOL antialiasing)
+gdip_graphics_metafile_init (GpGraphics *graphics, GpMetafile *metafile)
 {
-        int i;
+	graphics->backend = GraphicsBackEndMetafile;
+	/* some API requires a valid cairo context (even on a metafile-based graphics) */
+	graphics->metasurface = cairo_image_surface_create (CAIRO_FORMAT_A1, 1, 1);
+	graphics->ct = cairo_create (graphics->metasurface);
+	graphics->metafile = metafile;
 
-	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, antialiasing);
-
-	for (i = 0; i < count; i++) {
-		gdip_cairo_line_to (graphics, points [i].X, points [i].Y, TRUE, antialiasing);
-	}
-
-        /*
-         * Draw a line from the last point back to the first point if
-	 * they're not the same
-         */
-	if (points [0].X != points [count-1].X && points [0].Y != points [count-1].Y) {
-		gdip_cairo_line_to (graphics, points [0].X, points [0].Y, TRUE, antialiasing);
-	}
-
-        cairo_close_path (graphics->ct);
+	gdip_graphics_common_init (graphics);
 }
 
-static void
-make_polygon_from_integers (GpGraphics *graphics, GDIPCONST GpPoint *points, int count, BOOL antialiasing)
+GpGraphics*
+gdip_metafile_graphics_new (GpMetafile *metafile)
 {
-        int i;
+	GpGraphics *result = (GpGraphics *) GdipAlloc (sizeof (GpGraphics));
 
-	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, antialiasing);
+	if (result)
+		gdip_graphics_metafile_init (result, metafile);
 
-	for (i = 0; i < count; i++) {
-		gdip_cairo_line_to (graphics, points [i].X, points [i].Y, TRUE, antialiasing);
-	}
-
-        /*
-         * Draw a line from the last point back to the first point if
-	 * they're not the same
-         */
-	if (points [0].X != points [count-1].X && points [0].Y != points [count-1].Y) {
-		gdip_cairo_line_to (graphics, points [0].X, points [0].Y, TRUE, antialiasing);
-	}
-
-        cairo_close_path (graphics->ct);
+	return result;
 }
-
-/*
- * Based on the algorithm described in
- *      http://www.stillhq.com/ctpfaq/2002/03/c1088.html#AEN1212
- */
-static void
-make_arc (GpGraphics *graphics, BOOL start, float x, float y, float width,
-	  float height, float startAngle, float endAngle, BOOL antialiasing)
-{       
-	float delta, bcp;
-	double sin_alpha, sin_beta, cos_alpha, cos_beta;
-	double sx, sy;
-
-        float rx = width / 2;
-        float ry = height / 2;
-        
-        /* center */
-        float cx = x + rx;
-        float cy = y + ry;
-
-        /* angles in radians */        
-        float alpha = startAngle * PI / 180;
-        float beta = endAngle * PI / 180;
-
-        /* adjust angles for ellipses */
-	alpha = atan2 (rx * sin (alpha), ry * cos (alpha));
-	beta = atan2 (rx * sin (beta), ry * cos (beta));
-
-	if (fabs (beta - alpha) > M_PI){
-		if (beta > alpha)
-			beta -= 2 * PI;
-		else
-			alpha -= 2 * PI;
-	}
-	
-	delta = beta - alpha;
-	bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta /2);
-
-	sin_alpha = sin (alpha);
-	sin_beta = sin (beta);
-	cos_alpha = cos (alpha);
-	cos_beta = cos (beta);
-
-        /* starting point */
-	sx = cx + rx * cos_alpha;
-	sy = cy + ry * sin_alpha;
-	
-        /* don't move to starting point if we're continuing an existing curve */
-        if (start)
-                gdip_cairo_move_to (graphics, sx, sy, FALSE, antialiasing);
-
-        gdip_cairo_curve_to (graphics,
-                        cx + rx * (cos_alpha - bcp * sin_alpha),
-                        cy + ry * (sin_alpha + bcp * cos_alpha),
-                        cx + rx * (cos_beta  + bcp * sin_beta),
-                        cy + ry * (sin_beta  - bcp * cos_beta),
-                        cx + rx * cos_beta, cy + ry * sin_beta,
-			FALSE, antialiasing);
-}
-
-static void
-make_arcs (GpGraphics *graphics, float x, float y, float width, float height, float startAngle, float sweepAngle, 
-	BOOL convert_units, BOOL antialiasing)
-{
-	int i;
-	float drawn = 0;
-	float endAngle = startAngle + sweepAngle;	
-	int increment = (endAngle > 0) ? 90 : -90;
-	BOOL enough = FALSE;
-
-	/* if required deal, once and for all, with unit conversions */
-	if (convert_units && !OPTIMIZE_CONVERSION (graphics)) {
-		x = gdip_unitx_convgr (graphics, x);
-		y = gdip_unity_convgr (graphics, y);
-		width = gdip_unitx_convgr (graphics, width);
-		height = gdip_unity_convgr (graphics, height);
-	}
-	
-	if (fabs (sweepAngle) >= 360) {
-		/* FALSE -> units are already converted */
-		make_ellipse (graphics, x, y, width, height, FALSE, antialiasing);
-		return;
-	}
-
-	/* i is the number of sub-arcs drawn, each sub-arc can be at most 90 degrees.*/
-	/* there can be no more then 4 subarcs, ie. 90 + 90 + 90 + (something less than 90) */
-	for (i = 0; i < 4; i++) {
-		float current = startAngle + drawn;
-		float additional;
-
-		if (enough)
-			return;
-		
-		if (fabs (current + increment) < fabs (endAngle))
-			additional = increment; /* add the default increment */
-		else {
-			additional = endAngle - current; /* otherwise, add the remainder */
-			enough = TRUE;
-		}
-
-		/* a near zero value will introduce bad artefact in the drawing (#78999) */
-		if (gdip_near_zero (additional))
-			return;
-
-		make_arc (graphics,
-			  (i == 0) ? TRUE : FALSE,  /* only move to the starting pt in the 1st iteration */
-			  x, y, width, height,      /* bounding rectangle */
-			  current, current + additional, antialiasing);
-		drawn += additional;		
-	}
-}
-
-static void
-make_pie (GpGraphics *graphics, float x, float y, float width, float height,
-	float startAngle, float sweepAngle, BOOL antialiasing)
-{
-	float rx, ry, cx, cy, alpha;
-	double sin_alpha, cos_alpha;
-
-	/* if required deal, once and for all, with unit conversions */
-	if (!OPTIMIZE_CONVERSION (graphics)) {
-		x = gdip_unitx_convgr (graphics, x);
-		y = gdip_unity_convgr (graphics, y);
-		width = gdip_unitx_convgr (graphics, width);
-		height = gdip_unity_convgr (graphics, height);
-	}
-
-	rx = width / 2;
-	ry = height / 2;
-
-	/* center */
-	cx = x + rx;
-	cy = y + ry;
-
-	/* angles in radians */        
-	alpha = startAngle * PI / 180;
-	
-        /* adjust angle for ellipses */
-        alpha = atan2 (rx * sin (alpha), ry * cos (alpha));
-
-	sin_alpha = sin (alpha);
-	cos_alpha = cos (alpha);
-
-	/* if required deal, once and for all, with antialiasing */
-	if (antialiasing) {
-		cx += graphics->aa_offset_x;
-		cy += graphics->aa_offset_y;
-	}
-
-	/* draw pie edge */
-	if (fabs (sweepAngle) >= 360)
-		gdip_cairo_move_to (graphics, cx + rx * cos_alpha, cy + ry * sin_alpha, FALSE, FALSE);
-	else {
-		gdip_cairo_move_to (graphics, cx, cy, FALSE, FALSE);
-		gdip_cairo_line_to (graphics, cx + rx * cos_alpha, cy + ry * sin_alpha, FALSE, FALSE);
-	}
-
-	/* draw the arcs */
-	make_arcs (graphics, x, y, width, height, startAngle, sweepAngle, FALSE, antialiasing);
-
-	/* draws line back to center */
-	if (fabs (sweepAngle) >= 360)
-		gdip_cairo_move_to (graphics, cx, cy, FALSE, FALSE);
-	else
-		gdip_cairo_line_to (graphics, cx, cy, FALSE, FALSE);
-}
-
-static cairo_fill_rule_t
-convert_fill_mode (FillMode fill_mode)
-{
-        if (fill_mode == FillModeAlternate) 
-                return CAIRO_FILL_RULE_EVEN_ODD;
-        else
-                return CAIRO_FILL_RULE_WINDING;
-}
-
 
 #ifdef CAIRO_HAS_XLIB_SURFACE
 
@@ -498,14 +262,13 @@ cairo_surface_t *cairo_quartz_surface_create(void *ctx, int width, int height);
 GpStatus
 GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **graphics)
 {
+        cairo_surface_t *surface;
+
 	if (!graphics)
 		return InvalidParameter;
 
-        cairo_surface_t *surface;
-
 	surface = cairo_quartz_surface_create(ctx, width, height);
-	
-	
+
 	*graphics = gdip_graphics_new(surface);
 	(*graphics)->dpi_x = (*graphics)->dpi_y = gdip_get_display_dpi ();
 	cairo_surface_destroy (surface);
@@ -603,6 +366,14 @@ GdipDeleteGraphics (GpGraphics *graphics)
 #endif
 	}
 
+	if (graphics->backend == GraphicsBackEndMetafile) {
+		/* if recording this is where we save the metafile (stream or file) */
+		if (graphics->metafile->recording)
+			gdip_metafile_stop_recording (graphics->metafile);
+		cairo_surface_destroy (graphics->metasurface);
+		graphics->metasurface = NULL;
+	}
+
 	if (graphics->saved_status) {
 		GpState* pos_state = graphics->saved_status;
 		int i;
@@ -621,7 +392,7 @@ GdipDeleteGraphics (GpGraphics *graphics)
 }
 
 GpStatus 
-GdipGetDC (GpGraphics *graphics, void **hDC)
+GdipGetDC (GpGraphics *graphics, HDC *hDC)
 {
 	/* For our gdi+ the hDC is equivalent to the graphics handle */
 	if (hDC) {
@@ -631,14 +402,13 @@ GdipGetDC (GpGraphics *graphics, void **hDC)
 }
 
 GpStatus 
-GdipReleaseDC (GpGraphics *graphics, void *hDC)
+GdipReleaseDC (GpGraphics *graphics, HDC hDC)
 {
 	if (hDC != (void *)graphics) {
 		return InvalidParameter;
 	}
 	return Ok;
 }
-
 
 GpStatus 
 GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
@@ -684,8 +454,7 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 
 	/* GdipCloneRegion was called, but for some reason, not registred as an allocation */
 	/* coverity[freed_arg] */
-	gdip_set_cairo_clipping (graphics);
-	return Ok;
+	return cairo_SetGraphicsClip (graphics);
 }
 
 GpStatus 
@@ -740,15 +509,17 @@ GdipResetWorldTransform (GpGraphics *graphics)
 	if (!graphics)
 		return InvalidParameter;
 
-///printf("[%s %d] GdipResetWorldTransform called\n", __FILE__, __LINE__);
 	cairo_matrix_init_identity (graphics->copy_of_ctm);
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
 	cairo_matrix_init_identity (graphics->clip_matrix);
-	cairo_reset_clip (graphics->ct);
-	gdip_set_cairo_clipping (graphics);
 
-	return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_ResetWorldTransform (graphics);
+	case GraphicsBackEndMetafile:
+		return metafile_ResetWorldTransform (graphics);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -760,7 +531,6 @@ GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 	if (!graphics || !matrix)
 		return InvalidParameter;
 
-///printf("[%s %d] GdipSetWorldTransform called\n", __FILE__, __LINE__);
 	/* optimization - inverting an identity matrix result in the identity matrix */
 	if (gdip_is_matrix_empty (matrix))
 		return GdipResetWorldTransform (graphics);
@@ -771,14 +541,19 @@ GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 		return InvalidParameter;
 
 	gdip_cairo_matrix_copy (graphics->copy_of_ctm, matrix);
-        cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
 	gdip_cairo_matrix_copy (graphics->clip_matrix, matrix);
-	status = GdipInvertMatrix (graphics->clip_matrix);
 
-	if (status == Ok)
-		gdip_set_cairo_clipping (graphics);
-        return status;
+	/* we already know it's invertible */
+	GdipInvertMatrix (graphics->clip_matrix);
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_SetWorldTransform (graphics, matrix);
+	case GraphicsBackEndMetafile:
+		return metafile_SetWorldTransform (graphics, matrix);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus 
@@ -788,7 +563,8 @@ GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 		return InvalidParameter;
 
 	/* get the effective matrix from cairo */
-        cairo_get_matrix (graphics->ct, matrix);
+	gdip_cairo_matrix_copy (matrix, graphics->copy_of_ctm);
+
 	/* if we're inside a container then the previous matrix are hidden */
 	if (!gdip_is_matrix_empty (&graphics->previous_matrix)) {
 		cairo_matrix_t inverted;
@@ -805,8 +581,6 @@ apply_world_to_bounds (GpGraphics *graphics)
 {
 	GpStatus status;
 	GpPointF pts[2];
-
-	gdip_set_cairo_clipping (graphics);
 
 	pts[0].X = graphics->bounds.X;
 	pts[0].Y = graphics->bounds.Y;
@@ -837,10 +611,9 @@ GpStatus
 GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrder order)
 {
         Status s;
-	int invertible;
+	BOOL invertible;
 	GpMatrix inverted;
 
-///printf("[%s %d] GdipMultiplyWorldTransform called\n", __FILE__, __LINE__);
 	if (!graphics)
 		return InvalidParameter;
 
@@ -853,8 +626,6 @@ GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrde
         if (s != Ok)
                 return s;
 
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
 	/* Multiply the inverted matrix with the clipping matrix */
 	gdip_cairo_matrix_copy (&inverted, matrix);
 	s = GdipInvertMatrix (&inverted);
@@ -862,9 +633,20 @@ GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrde
                 return s;
 
 	s = GdipMultiplyMatrix (graphics->clip_matrix, &inverted, order);
-	if (s == Ok)
-		s = apply_world_to_bounds (graphics);
-	return s;
+	if (s != Ok)
+		return s;
+
+	apply_world_to_bounds (graphics);
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		/* not a typo - we apply to calculated matrix to cairo context */
+		return cairo_SetWorldTransform (graphics, graphics->copy_of_ctm);
+	case GraphicsBackEndMetafile:
+		return metafile_MultiplyWorldTransform (graphics, matrix, order);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus 
@@ -874,328 +656,287 @@ GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order
 
 	if (!graphics)
 		return InvalidParameter;
-///printf("[%s %d] GdipRotateWorldTransform called\n", __FILE__, __LINE__);
 
 	s = GdipRotateMatrix (graphics->copy_of_ctm, angle, order);
         if (s != Ok)
                 return s;
 
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
 	s = GdipRotateMatrix (graphics->clip_matrix, -angle, gdip_matrix_reverse_order (order));
-	if (s == Ok)
-		s = apply_world_to_bounds (graphics);
-	return s;
+	if (s != Ok)
+		return s;
+
+	apply_world_to_bounds (graphics);
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		/* not a typo - we apply to calculated matrix to cairo context */
+		return cairo_SetWorldTransform (graphics, graphics->copy_of_ctm);
+	case GraphicsBackEndMetafile:
+		return metafile_RotateWorldTransform (graphics, angle, order);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
 GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder order)
 {
-        GpStatus s;
-
-///printf("[%s %d] GdipScaleWorldTransform called\n", __FILE__, __LINE__);
+	GpStatus s;
 
 	if (!graphics || (sx == 0.0f) || (sy == 0.0f))
 		return InvalidParameter;
 
-	s = GdipScaleMatrix (graphics->copy_of_ctm, sx, sy, order);
+        s = GdipScaleMatrix (graphics->copy_of_ctm, sx, sy, order);
         if (s != Ok)
                 return s;
 
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
 	s = GdipScaleMatrix (graphics->clip_matrix, (1.0f / sx), (1.0f / sy), gdip_matrix_reverse_order (order));
-	if (s == Ok)
-		s = apply_world_to_bounds (graphics);
-	return s;
+	if (s != Ok)
+		return s;
+
+	apply_world_to_bounds (graphics);
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		/* not a typo - we apply to calculated matrix to cairo context */
+		return cairo_SetWorldTransform (graphics, graphics->copy_of_ctm);
+	case GraphicsBackEndMetafile:
+		return metafile_ScaleWorldTransform (graphics, sx, sy, order);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus 
 GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixOrder order)
 {
-        GpStatus s;
+	GpStatus s;
 
 	if (!graphics)
 		return InvalidParameter;
-///printf("[%s %d] GdipTranslateWorldTransform called\n", __FILE__, __LINE__);
 
-	s = GdipTranslateMatrix (graphics->copy_of_ctm, dx, dy, order);
+        s = GdipTranslateMatrix (graphics->copy_of_ctm, dx, dy, order);
         if (s != Ok) 
                 return s;
 
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
 	s = GdipTranslateMatrix (graphics->clip_matrix, -dx, -dy, gdip_matrix_reverse_order (order));
-	if (s == Ok)
-		s = apply_world_to_bounds (graphics);
-	return s;
+	if (s != Ok)
+		return s;
+	
+	apply_world_to_bounds (graphics);
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		/* not a typo - we apply to calculated matrix to cairo context */
+		return cairo_SetWorldTransform (graphics, graphics->copy_of_ctm);
+	case GraphicsBackEndMetafile:
+		return metafile_TranslateWorldTransform (graphics, dx, dy, order);
+	default:
+		return GenericError;
+	}
 }
 
 /*
- * Draw operations.
+ * Draw operations - validate parameters and delegate to cairo/metafile backends
  */
 
 GpStatus
-GdipDrawArc (GpGraphics *graphics, GpPen *pen, 
-	     float x, float y, float width, float height, 
-	     float startAngle, float sweepAngle)
+GdipDrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle, float sweepAngle)
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We should
-	 * have it set already.
-	 */
-	make_arcs (graphics, x, y, width, height, startAngle, sweepAngle, TRUE, TRUE);
-
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-        return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawArc (graphics, pen, x, y, width, height, startAngle, sweepAngle);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawArc (graphics, pen, x, y, width, height, startAngle, sweepAngle);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
-GdipDrawArcI (GpGraphics *graphics, GpPen *pen, 
-	      int x, int y, int width, int height, 
-	      float startAngle, float sweepAngle)
-{
-        return GdipDrawArc (graphics, pen, x, y, width, height, startAngle, sweepAngle);
-}
-
-GpStatus 
-GdipDrawBezier (GpGraphics *graphics, GpPen *pen, 
-                float x1, float y1, float x2, float y2,
-                float x3, float y3, float x4, float y4)
+GdipDrawArcI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height, float startAngle, float sweepAngle)
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	gdip_cairo_move_to (graphics, x1, y1, TRUE, TRUE);
-	gdip_cairo_curve_to (graphics, x2, y2, x3, y3, x4, y4, TRUE, TRUE);
-
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-        return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawArcI (graphics, pen, x, y, width, height, startAngle, sweepAngle);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawArcI (graphics, pen, x, y, width, height, startAngle, sweepAngle);
+	default:
+		return GenericError;
+	}
 }
 
-GpStatus GdipDrawBezierI (GpGraphics *graphics, GpPen *pen, 
-			  int x1, int y1, int x2, int y2,
-			  int x3, int y3, int x4, int y4)
+GpStatus 
+GdipDrawBezier (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2, float x3, float y3, 
+	float x4, float y4)
 {
-        return GdipDrawBezier (graphics, pen,
-			       x1, y1, x2, y2, x3, y3, x4, y4);
+	if (!graphics || !pen)
+		return InvalidParameter;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawBezier (graphics, pen, x1, y1, x2, y2, x3, y3, x4, y4);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawBezier (graphics, pen, x1, y1, x2, y2, x3, y3, x4, y4);
+	default:
+		return GenericError;
+	}
+}
+
+GpStatus
+GdipDrawBezierI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
+{
+	if (!graphics || !pen)
+		return InvalidParameter;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawBezierI (graphics, pen, x1, y1, x2, y2, x3, y3, x4, y4);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawBezierI (graphics, pen, x1, y1, x2, y2, x3, y3, x4, y4);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus 
 GdipDrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
-        int i, j, k;
-        
-        if (count == 0)
-                return Ok;
+	if (count == 0)
+		return Ok;
 
 	if (!graphics || !pen || !points)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, TRUE);
-
-        for (i = 0; i < count - 3; i += 3) {
-                j = i + 1;
-                k = i + 2;
-		gdip_cairo_curve_to (graphics, points [i].X, points [i].Y, points [j].X, points [j].Y,
-			points [k].X, points [k].Y, TRUE, TRUE);
-        }
-
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-        return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawBeziers (graphics, pen, points, count);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawBeziers (graphics, pen, points, count);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
 GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
-        int i, j, k;
-        
-        if (count == 0)
-                return Ok;
+	if (count == 0)
+		return Ok;
 
 	if (!graphics || !pen || !points)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, TRUE);
-
-        for (i = 0; i < count - 3; i += 3) {
-                j = i + 1;
-                k = i + 2;
-		gdip_cairo_curve_to (graphics, points [i].X, points [i].Y, points [j].X, points [j].Y,
-			points [k].X, points [k].Y, TRUE, TRUE);
-        }
-
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-        return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawBeziersI (graphics, pen, points, count);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawBeziersI (graphics, pen, points, count);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus 
-GdipDrawEllipse (GpGraphics *graphics, GpPen *pen, 
-		 float x, float y, float width, float height)
+GdipDrawEllipse (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height)
 {	
 	if (!graphics || !pen)
 		return InvalidParameter;
 	
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	make_ellipse (graphics, x, y, width, height, TRUE, TRUE);
-
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-        return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawEllipse (graphics, pen, x, y, width, height);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawEllipse (graphics, pen, x, y, width, height);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
-GdipDrawEllipseI (GpGraphics *graphics, GpPen *pen,
-		  int x, int y, int width, int height)
+GdipDrawEllipseI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height)
 {
-        return GdipDrawEllipse (graphics, pen, x, y, width, height);
-}
-
-GpStatus
-GdipDrawLine (GpGraphics *graphics, GpPen *pen,
-	      float x1, float y1, float x2, float y2)
-{
-	cairo_matrix_t saved;
-
 	if (!graphics || !pen)
 		return InvalidParameter;
 
-	gdip_cairo_matrix_copy (&saved, graphics->copy_of_ctm);
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-	
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	gdip_cairo_move_to (graphics, x1, y1, TRUE, TRUE);
-	gdip_cairo_line_to (graphics, x2, y2, TRUE, TRUE);
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawEllipseI (graphics, pen, x, y, width, height);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawEllipseI (graphics, pen, x, y, width, height);
+	default:
+		return GenericError;
+	}
+}
 
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
+GpStatus
+GdipDrawLine (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2)
+{
+	if (!graphics || !pen)
+		return InvalidParameter;
 
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	gdip_cairo_matrix_copy (graphics->copy_of_ctm, &saved);
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawLine (graphics, pen, x1, y1, x2, y2);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawLine (graphics, pen, x1, y1, x2, y2);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus 
-GdipDrawLineI (GpGraphics *graphics, GpPen *pen, 
-	       int x1, int y1, int x2, int y2)
+GdipDrawLineI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2)
 {
-        return GdipDrawLine (graphics, pen, x1, y1, x2, y2);
+	if (!graphics || !pen)
+		return InvalidParameter;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawLineI (graphics, pen, x1, y1, x2, y2);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawLineI (graphics, pen, x1, y1, x2, y2);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus 
 GdipDrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
-	int i;
-
 	if (!graphics || !pen || !points || count < 2)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, TRUE);
-
-	for (i = 1; i < count; i++) {
-		gdip_cairo_line_to (graphics, points [i].X, points [i].Y, TRUE, TRUE);
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawLines (graphics, pen, points, count);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawLines (graphics, pen, points, count);
+	default:
+		return GenericError;
 	}
-
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus 
 GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
-	int i;
-
 	if (!graphics || !pen || !points || count < 2)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, TRUE);
-
-	for (i = 1; i < count; i++) {
-		gdip_cairo_line_to (graphics, points [i].X, points [i].Y, TRUE, TRUE);
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawLinesI (graphics, pen, points, count);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawLinesI (graphics, pen, points, count);
+	default:
+		return GenericError;
 	}
-
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 static GpStatus
@@ -1250,31 +991,21 @@ gdip_plot_path (GpGraphics *graphics, GpPath *path, BOOL antialiasing)
 GpStatus
 GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 {
-	GpStatus status;
-
 	if (!graphics || !pen || !path)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	status = gdip_plot_path (graphics, path, FALSE);
-
-        /* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-        cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-        return status;
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawPath (graphics, pen, path);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawPath (graphics, pen, path);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
-GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, 
-	     float width, float height, float startAngle, float sweepAngle)
+GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle, float sweepAngle)
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
@@ -1283,28 +1014,34 @@ GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y,
 	if (sweepAngle == 0)
 		return Ok;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	make_pie (graphics, x, y, width, height, startAngle, sweepAngle, TRUE);
-
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-        return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawPie (graphics, pen, x, y, width, height, startAngle, sweepAngle);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawPie (graphics, pen, x, y, width, height, startAngle, sweepAngle);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
-GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y, 
-	      int width, int height, float startAngle, float sweepAngle)
+GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height, float startAngle, float sweepAngle)
 {
-        return GdipDrawPie (graphics, pen, x, y, width, height, startAngle, sweepAngle);
+	if (!graphics || !pen)
+		return InvalidParameter;
+
+	/* We don't do anything, if sweep angle is zero. */
+	if (sweepAngle == 0)
+		return Ok;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawPieI (graphics, pen, x, y, width, height, startAngle, sweepAngle);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawPieI (graphics, pen, x, y, width, height, startAngle, sweepAngle);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -1313,21 +1050,14 @@ GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, i
 	if (!graphics || !pen || !points || count < 2)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	make_polygon (graphics, points, count, TRUE);
-
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-        return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawPolygon (graphics, pen, points, count);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawPolygon (graphics, pen, points, count);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -1335,30 +1065,20 @@ GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, i
 {
 	if (!graphics || !pen || !points || count < 2)
 		return InvalidParameter;
-	
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	make_polygon_from_integers (graphics, points, count, TRUE);
 
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-        return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawPolygonI (graphics, pen, points, count);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawPolygonI (graphics, pen, points, count);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
-GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
-		   float x, float y, float width, float height)
+GdipDrawRectangle (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height)
 {
-        cairo_matrix_t saved;
-
 	if (!graphics || !pen)
 		return InvalidParameter;
 
@@ -1366,143 +1086,65 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen,
 	if ((width < 0) || (height < 0))
 		return Ok;
 
-        gdip_cairo_matrix_copy (&saved, graphics->copy_of_ctm);
-        cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-	
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	gdip_cairo_rectangle (graphics, x, y, width, height, TRUE);
-
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-	
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	gdip_cairo_matrix_copy (graphics->copy_of_ctm, &saved);
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-        return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawRectangle (graphics, pen, x, y, width, height);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawRectangle (graphics, pen, x, y, width, height);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
-GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen,
-		    int x, int y, int width, int height)
+GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height)
 {
-        return GdipDrawRectangle (graphics, pen, x, y, width, height);
+	if (!graphics || !pen)
+		return InvalidParameter;
+
+	/* don't draw/fill rectangles with negative width/height (bug #77129) */
+	if ((width < 0) || (height < 0))
+		return Ok;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawRectangle (graphics, pen, x, y, width, height);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawRectangle (graphics, pen, x, y, width, height);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
 GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects, int count)
 {
-	BOOL draw = FALSE;
-	int i;
-
 	if (!graphics || !pen || !rects || count <= 0)
 		return InvalidParameter;
 	
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	for (i = 0; i < count; i++) {
-		/* don't draw/fill rectangles with negative width/height (bug #77129) */
-		if ((rects [i].Width < 0) || (rects [i].Height < 0))
-			continue;
-
-		gdip_cairo_rectangle (graphics, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height, TRUE);
-		draw = TRUE;
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawRectangles (graphics, pen, rects, count);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawRectangles (graphics, pen, rects, count);
+	default:
+		return GenericError;
 	}
-
-	if (!draw)
-		return Ok;
-
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-	
-	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus
 GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRect *rects, int count)
 {
-	BOOL draw = FALSE;
-	int i;
-
 	if (!graphics || !pen || !rects || count <= 0)
 		return InvalidParameter;
-
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	for (i = 0; i < count; i++) {
-		/* don't draw/fill rectangles with negative width/height (bug #77129) */
-		if ((rects [i].Width < 0) || (rects [i].Height < 0))
-			continue;
-
-		gdip_cairo_rectangle (graphics, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height, FALSE);
-		draw = TRUE;
-	}
-
-	if (!draw)
-		return Ok;
-
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	return gdip_get_status (cairo_status (graphics->ct));
-}
-
-static void
-make_curve (GpGraphics *graphics, GDIPCONST GpPointF *points, GpPointF *tangents, int offset, int length,
-	_CurveType type, BOOL antialiasing)
-{
-        int i;
-
-	gdip_cairo_move_to (graphics, points [offset].X, points [offset].Y, FALSE, antialiasing);
-
-	for (i = offset; i < offset + length; i++) {
-		int j = i + 1;
-
-		double x1 = points [i].X + tangents [i].X;
-		double y1 = points [i].Y + tangents [i].Y;
-
-		double x2 = points [j].X - tangents [j].X;
-		double y2 = points [j].Y - tangents [j].Y;
-
-		double x3 = points [j].X;
-		double y3 = points [j].Y;
-
-		gdip_cairo_curve_to (graphics, x1, y1, x2, y2, x3, y3, FALSE, antialiasing);
-        }
-
-        if (type == CURVE_CLOSE) {
-		/* complete (close) the curve using the first point */
-		double x1 = points [i].X + tangents [i].X;
-		double y1 = points [i].Y + tangents [i].Y;
-
-		double x2 = points [0].X - tangents [0].X;
-		double y2 = points [0].Y - tangents [0].Y;
-
-		double x3 = points [0].X;
-		double y3 = points [0].Y;
-
-		gdip_cairo_curve_to (graphics, x1, y1, x2, y2, x3, y3, FALSE, antialiasing);
-
-                cairo_close_path (graphics->ct);
+	
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawRectanglesI (graphics, pen, rects, count);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawRectanglesI (graphics, pen, rects, count);
+	default:
+		return GenericError;
 	}
 }
 
@@ -1521,56 +1163,41 @@ GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *point
 GpStatus
 GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count, float tension)
 {
-        GpPointF *tangents;
-
-        /* when tension is 0, draw straight lines */
-        if (tension == 0)
-                return GdipDrawPolygon (graphics, pen, points, count);
+	/* when tension is 0, draw straight lines */
+	if (tension == 0)
+		return GdipDrawPolygon (graphics, pen, points, count);
 
 	if (!graphics || !pen || !points || count <= 2)
 		return InvalidParameter;
-        
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
-	if (!tangents)
-		return OutOfMemory;
 
-	make_curve (graphics, points, tangents, 0, count - 1, CURVE_CLOSE, TRUE);
-
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	GdipFree (tangents);        
-
-        return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawClosedCurve2 (graphics, pen, points, count, tension);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawClosedCurve2 (graphics, pen, points, count, tension);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
 GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count, float tension)
 {
-	GpPointF *pt;
-	GpStatus s;
+	/* when tension is 0, draw straight lines */
+	if (tension == 0)
+		return GdipDrawPolygonI (graphics, pen, points, count);
 
-	if (!points || count <= 0)
+	if (!graphics || !pen || !points || count <= 2)
 		return InvalidParameter;
 
-	pt = convert_points (points, count);
-	if (!pt)
-		return OutOfMemory;
-
-	s = GdipDrawClosedCurve2 (graphics, pen, pt, count, tension);
-
-        GdipFree (pt);
-
-        return s;
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawClosedCurve2I (graphics, pen, points, count, tension);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawClosedCurve2I (graphics, pen, points, count, tension);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -1620,11 +1247,9 @@ GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, in
 GpStatus
 GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, int count, int offset, int numOfSegments, float tension)
 {
-        GpPointF *tangents;
-
-        /* draw lines if tension = 0 */
-        if (tension == 0)
-                return GdipDrawLines (graphics, pen, points, count);
+	/* draw lines if tension = 0 */
+	if (tension == 0)
+		return GdipDrawLines (graphics, pen, points, count);
 
 	if (!graphics || !pen || !points || numOfSegments < 1)
 		return InvalidParameter;
@@ -1636,85 +1261,80 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, in
 	else if (numOfSegments >= count - offset)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-        tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
-	if (!tangents)
-		return OutOfMemory;
-	make_curve (graphics, points, tangents, offset, numOfSegments, CURVE_OPEN, TRUE);
-
-	/* We do pen setup just before stroking. */
-	gdip_pen_setup (graphics, pen);
-	cairo_stroke (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by pen setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-        GdipFree (tangents);
-
-        return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawCurve3 (graphics, pen, points, count, offset, numOfSegments, tension);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawCurve3 (graphics, pen, points, count, offset, numOfSegments, tension);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
 GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, int count, int offset, int numOfSegments, float tension)
 {
-	GpPointF *pf;
-	GpStatus s;
+	/* draw lines if tension = 0 */
+	if (tension == 0)
+		return GdipDrawLinesI (graphics, pen, points, count);
 
-	if (!points || count <= 0)
+	if (!graphics || !pen || !points || numOfSegments < 1)
 		return InvalidParameter;
 
-	pf = convert_points (points, count);
-	if (!pf)
-		return OutOfMemory;
+	/* we need 3 points for the first curve, 2 more for each curves */
+	/* and it's possible to use a point prior to the offset (to calculate) */
+	if ((offset == 0) && (numOfSegments == 1) && (count < 3))
+		return InvalidParameter;
+	else if (numOfSegments >= count - offset)
+		return InvalidParameter;
 
-	s = GdipDrawCurve3 (graphics, pen, pf, count, offset, numOfSegments, tension);
-
-        GdipFree (pf);
-
-        return s;
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_DrawCurve3I (graphics, pen, points, count, offset, numOfSegments, tension);
+	case GraphicsBackEndMetafile:
+		return metafile_DrawCurve3I (graphics, pen, points, count, offset, numOfSegments, tension);
+	default:
+		return GenericError;
+	}
 }
 
 /*
  * Fills
  */
 GpStatus
-GdipFillEllipse (GpGraphics *graphics, GpBrush *brush,
-		 float x, float y, float width, float height)
+GdipFillEllipse (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height)
 {
 	if (!graphics || !brush)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	make_ellipse (graphics, x, y, width, height, TRUE, FALSE);
-	
-	/* We do brush setup just before filling. */
-	gdip_brush_setup (graphics, brush);
-	cairo_fill (graphics->ct);       
-	
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by brush setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-	
-	return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_FillEllipse (graphics, brush, x, y, width, height);
+	case GraphicsBackEndMetafile:
+		return metafile_FillEllipse (graphics, brush, x, y, width, height);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
-GdipFillEllipseI (GpGraphics *graphics, GpBrush *brush,
-		  int x, int y, int width, int height)
+GdipFillEllipseI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height)
 {
-        return GdipFillEllipse (graphics, brush, x, y, width, height);
+	if (!graphics || !brush)
+		return InvalidParameter;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_FillEllipseI (graphics, brush, x, y, width, height);
+	case GraphicsBackEndMetafile:
+		return metafile_FillEllipseI (graphics, brush, x, y, width, height);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus 
-GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, 
-		   float x, float y, float width, float height)
+GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height)
 {
 	if (!graphics || !brush)
 		return InvalidParameter;
@@ -1723,108 +1343,71 @@ GdipFillRectangle (GpGraphics *graphics, GpBrush *brush,
 	if ((width < 0) || (height < 0))
 		return Ok;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	gdip_cairo_rectangle (graphics, x, y, width, height, FALSE);
-
-	/* We do brush setup just before filling. */
-	gdip_brush_setup (graphics, brush);
-	cairo_fill (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by brush setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_FillRectangle (graphics, brush, x, y, width, height);
+	case GraphicsBackEndMetafile:
+		return metafile_FillRectangle (graphics, brush, x, y, width, height);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus 
-GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush, 
-		   int x, int y, int width, int height)
+GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height)
 {
-	return GdipFillRectangle (graphics, brush, x, y, width, height);
+	if (!graphics || !brush)
+		return InvalidParameter;
+
+	/* don't draw/fill rectangles with negative width/height (bug #77129) */
+	if ((width < 0) || (height < 0))
+		return Ok;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_FillRectangleI (graphics, brush, x, y, width, height);
+	case GraphicsBackEndMetafile:
+		return metafile_FillRectangleI (graphics, brush, x, y, width, height);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus 
 GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rects, int count)
 {
-	BOOL draw = FALSE;
-	int i;
-
 	if (!graphics || !brush || !rects || count <= 0)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	for (i = 0; i < count; i++) {
-		/* don't draw/fill rectangles with negative width/height (bug #77129) */
-		if ((rects [i].Width < 0) || (rects [i].Height < 0))
-			continue;
-
-		gdip_cairo_rectangle (graphics, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height, FALSE);
-		draw = TRUE;
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_FillRectangles (graphics, brush, rects, count);
+	case GraphicsBackEndMetafile:
+		return metafile_FillRectangles (graphics, brush, rects, count);
+	default:
+		return GenericError;
 	}
-
-	/* shortcut if no rectangles were drawn into the graphics */
-	if (!draw)
-		return Ok;
-
-	/* We do brush setup just before filling. */
-	gdip_brush_setup (graphics, brush);
-	cairo_fill (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by brush setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus 
 GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect *rects, int count)
 {
-	BOOL draw = FALSE;
-	int i;
-
 	if (!graphics || !brush || !rects || count <= 0)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	for (i = 0; i < count; i++) {
-		/* don't draw/fill rectangles with negative width/height (bug #77129) */
-		if ((rects [i].Width < 0) || (rects [i].Height < 0))
-			continue;
-
-		gdip_cairo_rectangle (graphics, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height, FALSE);
-		draw = TRUE;
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_FillRectanglesI (graphics, brush, rects, count);
+	case GraphicsBackEndMetafile:
+		return metafile_FillRectanglesI (graphics, brush, rects, count);
+	default:
+		return GenericError;
 	}
-
-	/* shortcut if no rectangles were drawn into the graphics */
-	if (!draw)
-		return Ok;
-
-	/* We do brush setup just before filling. */
-	gdip_brush_setup (graphics, brush);
-	cairo_fill (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by brush setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	return gdip_get_status (cairo_status (graphics->ct));
 }
 
 GpStatus
-GdipFillPie (GpGraphics *graphics, GpBrush *brush,
-	     float x, float y, float width, float height,
-	     float startAngle, float sweepAngle)
+GdipFillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, 
+	float startAngle, float sweepAngle)
 {
 	if (!graphics || !brush)
 		return InvalidParameter;
@@ -1833,29 +1416,50 @@ GdipFillPie (GpGraphics *graphics, GpBrush *brush,
 	if (sweepAngle == 0)
 		return Ok;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	make_pie (graphics, x, y, width, height, startAngle, sweepAngle, FALSE);
-
-	/* We do brush setup just before filling. */
-	gdip_brush_setup (graphics, brush);
-	cairo_fill (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by brush setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_FillPie (graphics, brush, x, y, width, height, startAngle, sweepAngle);
+	case GraphicsBackEndMetafile:
+		return metafile_FillPie (graphics, brush, x, y, width, height, startAngle, sweepAngle);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
-GdipFillPieI (GpGraphics *graphics, GpBrush *brush,
-	      int x, int y, int width, int height,
-	      float startAngle, float sweepAngle)
+GdipFillPieI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, float startAngle, float sweepAngle)
 {
-        return GdipFillPie (graphics, brush, x, y, width, height, startAngle, sweepAngle);
+	if (!graphics || !brush)
+		return InvalidParameter;
+
+	/* We don't do anything, if sweep angle is zero. */
+	if (sweepAngle == 0)
+		return Ok;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_FillPieI (graphics, brush, x, y, width, height, startAngle, sweepAngle);
+	case GraphicsBackEndMetafile:
+		return metafile_FillPieI (graphics, brush, x, y, width, height, startAngle, sweepAngle);
+	default:
+		return GenericError;
+	}
+}
+
+GpStatus
+GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
+{
+	if (!graphics || !brush || !path)
+		return InvalidParameter;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_FillPath (graphics, brush, path);
+	case GraphicsBackEndMetafile:
+		return metafile_FillPath (graphics, brush, path);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -1864,48 +1468,14 @@ GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *point
 	if (!graphics || !brush || !points)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	make_polygon (graphics, points, count, FALSE);
-	cairo_set_fill_rule (graphics->ct, convert_fill_mode (fillMode));
-
-	/* We do brush setup just before filling. */
-	gdip_brush_setup (graphics, brush);
-	cairo_fill (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by brush setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	return gdip_get_status (cairo_status (graphics->ct));
-}
-
-/* FIXME - this doesn't match MS behaviour when we use really complex paths with internal intersections */
-GpStatus
-GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
-{
-	GpStatus status;
-	if (!graphics || !brush || !path)
-		return InvalidParameter;
-
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	status = gdip_plot_path (graphics, path, FALSE);
-	cairo_set_fill_rule (graphics->ct, convert_fill_mode (path->fill_mode));
-
-	/* We do brush setup just before filling. */
-	gdip_brush_setup (graphics, brush);
-	cairo_fill (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by brush setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	return status;
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_FillPolygon (graphics, brush, points, count, fillMode);
+	case GraphicsBackEndMetafile:
+		return metafile_FillPolygon (graphics, brush, points, count, fillMode);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -1914,22 +1484,14 @@ GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *point
 	if (!graphics || !brush || !points)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	make_polygon_from_integers (graphics, points, count, FALSE);
-	cairo_set_fill_rule (graphics->ct, convert_fill_mode (fillMode));
-
-	/* We do brush setup just before filling. */
-	gdip_brush_setup (graphics, brush);
-	cairo_fill (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by brush setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_FillPolygonI (graphics, brush, points, count, fillMode);
+	case GraphicsBackEndMetafile:
+		return metafile_FillPolygonI (graphics, brush, points, count, fillMode);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -1959,8 +1521,6 @@ GdipFillClosedCurveI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *p
 GpStatus
 GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, float tension)
 {
-        GpPointF *tangents;
-
         /* when tension is 0, the edges are straight lines */
         if (tension == 0)
                 return GdipFillPolygon2 (graphics, brush, points, count);
@@ -1968,47 +1528,34 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *
 	if (!graphics || !brush || !points || count <= 0)
 		return InvalidParameter;
 
-	/* We use graphics->copy_of_ctm matrix for path creation. We
-	 * should have it set already.
-	 */
-	tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
-	if (!tangents)
-		return OutOfMemory;
-
-	make_curve (graphics, points, tangents, 0, count - 1, CURVE_CLOSE, FALSE);
-
-	/* We do brush setup just before filling. */
-	gdip_brush_setup (graphics, brush);
-	cairo_fill (graphics->ct);
-
-	/* Set the matrix back to graphics->copy_of_ctm for other functions.
-	 * This overwrites the matrix set by brush setup.
-	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
-
-	GdipFree (tangents);
-
-	return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_FillClosedCurve2 (graphics, brush, points, count, tension);
+	case GraphicsBackEndMetafile:
+		return metafile_FillClosedCurve2 (graphics, brush, points, count, tension);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
 GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count, float tension)
 {
-	GpPointF *pt;
-        GpStatus s;
-	
-	if (!points || count <= 0)
+        /* when tension is 0, the edges are straight lines */
+        if (tension == 0)
+                return GdipFillPolygon2I (graphics, brush, points, count);
+
+	if (!graphics || !brush || !points || count <= 0)
 		return InvalidParameter;
 
-	pt = convert_points (points, count);
-	if (!pt)
-		return OutOfMemory;
-
-	s = GdipFillClosedCurve2 (graphics, brush, pt, count, tension);
-
-        GdipFree (pt);
-
-        return s;
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_FillClosedCurve2I (graphics, brush, points, count, tension);
+	case GraphicsBackEndMetafile:
+		return metafile_FillClosedCurve2I (graphics, brush, points, count, tension);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -2017,59 +1564,15 @@ GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
         if (!graphics || !brush || !region)
 		return InvalidParameter;
 
-	/* if this is a region with a complex path */
-	if (region->type == RegionTypePath) {
-		GpStatus status;
-		GpBitmap *bitmap = NULL;
-
-		/* (optimization) if if the path is empty, return immediately */
-		if (!region->tree)
-			return Ok;
-
-		/* (optimization) if there is only one path, then we do not need the bitmap */
-		if (region->tree->path) {
-			/* if the path is empty, return OK */
-			if (region->tree->path->count == 0)
-				return Ok;
-
-			/* else fill the single path */
-			return GdipFillPath (graphics, brush, region->tree->path);
-		}
-
-		gdip_region_bitmap_ensure (region);
-		if (!region->bitmap)
-			return OutOfMemory;
-
-		status = GdipCreateBitmapFromGraphics (region->bitmap->Width, region->bitmap->Height, graphics, &bitmap);
-		if (status == Ok) {
-			GpGraphics *bitgraph = NULL;
-			status = GdipGetImageGraphicsContext ((GpImage*)bitmap, &bitgraph);
-			if (status == Ok) {
-				/* fill the "full" rectangle using the specified brush */
-				GdipFillRectangle (bitgraph, brush, 0, 0, region->bitmap->Width, region->bitmap->Height);
-
-				/* adjust bitmap alpha (i.e. shape the brushed-rectangle like the region) */
-				gdip_region_bitmap_apply_alpha (bitmap, region->bitmap);
-
-				/* draw the region */
-				status = GdipDrawImageRect (graphics, (GpImage*)bitmap, region->bitmap->X, region->bitmap->Y,
-					region->bitmap->Width, region->bitmap->Height);
-			}
-			if (bitgraph)
-				GdipDeleteGraphics (bitgraph);
-		}
-		if (bitmap)
-			GdipDisposeImage ((GpImage*)bitmap);
-		return status;
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_FillRegion (graphics, brush, region);
+	case GraphicsBackEndMetafile:
+		return metafile_FillRegion (graphics, brush, region);
+	default:
+		return GenericError;
 	}
-
-	/* if there's no rectangles, we can return directly */
-	if (!region->rects || (region->cnt == 0))
-		return Ok;
-
-	return GdipFillRectangles (graphics, brush, region->rects, region->cnt);
 }
-
 
 GpStatus 
 GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y)
@@ -2080,7 +1583,14 @@ GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y)
 	graphics->render_origin_x = x;
 	graphics->render_origin_y = y;
 
-        return gdip_get_status (cairo_status (graphics->ct));
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return Ok;
+	case GraphicsBackEndMetafile:
+		return metafile_SetRenderingOrigin (graphics, x, y);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus 
@@ -2091,8 +1601,7 @@ GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
 
         *x = graphics->render_origin_x;
         *y = graphics->render_origin_y;
-
-        return gdip_get_status (cairo_status (graphics->ct));
+	return Ok;
 }
 
 GpStatus 
@@ -2102,7 +1611,7 @@ GdipGetDpiX (GpGraphics *graphics, float *dpi)
 		return InvalidParameter;
 
 	*dpi = graphics->dpi_x;
-        return Ok;
+	return Ok;
 }
 
 GpStatus 
@@ -2112,33 +1621,23 @@ GdipGetDpiY (GpGraphics *graphics, float *dpi)
 		return InvalidParameter;
 
 	*dpi = graphics->dpi_y;
-        return Ok;
+	return Ok;
 }
 
 GpStatus
 GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 {
-	double red, green, blue, alpha;
-
 	if (!graphics)
 		return InvalidParameter;
 
-	blue = color & 0xff;
-	green = (color >> 8) & 0xff;
-	red = (color >> 16) & 0xff;
-	alpha = (color >> 24) & 0xff;
-
-	/* Save the existing color/alpha/pattern settings */
-	cairo_save (graphics->ct);
-
-	cairo_set_source_rgba (graphics->ct, red / 255, green / 255, blue / 255, alpha / 255);
-	cairo_set_operator (graphics->ct, CAIRO_OPERATOR_SOURCE);
-	cairo_paint (graphics->ct);
-
-	/* Restore the color/alpha/pattern settings */
-	cairo_restore (graphics->ct);
-
-	return Ok;
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_GraphicsClear (graphics, color);
+	case GraphicsBackEndMetafile:
+		return metafile_GraphicsClear (graphics, color);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -2148,7 +1647,15 @@ GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode interpolationM
 		return InvalidParameter;
 
 	graphics->interpolation = interpolationMode;
-	return Ok;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return Ok;
+	case GraphicsBackEndMetafile:
+		return metafile_SetInterpolationMode (graphics, interpolationMode);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -2169,17 +1676,23 @@ GdipSetTextRenderingHint (GpGraphics *graphics, TextRenderingHint mode)
 
 	graphics->text_mode = mode;
 
-	return Ok;
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return Ok;
+	case GraphicsBackEndMetafile:
+		return metafile_SetTextRenderingHint (graphics, mode);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
-GdipGetTextRenderingHint(GpGraphics *graphics, TextRenderingHint *mode)
+GdipGetTextRenderingHint (GpGraphics *graphics, TextRenderingHint *mode)
 {
 	if (!graphics || !mode) 
 		return InvalidParameter;
 	
 	*mode = graphics->text_mode;
-
 	return Ok;
 }
 
@@ -2190,9 +1703,17 @@ GdipSetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode pixelOffsetMode)
 	if (!graphics || (pixelOffsetMode == PixelOffsetModeInvalid))
 		return InvalidParameter;
 	
-	/* FIXME: changing pixel mode affects other properties (e.g. the visible clip bounds) */
 	graphics->pixel_mode = pixelOffsetMode;
-	return Ok;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		/* FIXME: changing pixel mode affects other properties (e.g. the visible clip bounds) */
+		return Ok;
+	case GraphicsBackEndMetafile:
+		return metafile_SetPixelOffsetMode (graphics, pixelOffsetMode);
+	default:
+		return GenericError;
+	}
 }
 
 /* MonoTODO - pixel offset mode isn't supported */
@@ -2216,7 +1737,15 @@ GdipSetTextContrast (GpGraphics *graphics, UINT contrast)
 		return InvalidParameter; 
 
 	graphics->text_contrast = contrast;
-	return Ok;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return Ok;
+	case GraphicsBackEndMetafile:
+		return metafile_SetTextContrast (graphics, contrast);
+	default:
+		return GenericError;
+	}
 }
 
 /* MonoTODO - text contrast isn't supported */
@@ -2238,28 +1767,14 @@ GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 
 	graphics->draw_mode = mode;
 
-	switch (mode) {
-		case SmoothingModeAntiAlias:
-		case SmoothingModeHighQuality: {
-			cairo_set_antialias(graphics->ct, CAIRO_ANTIALIAS_DEFAULT);
-			graphics->aa_offset_x = 0.5;
-			graphics->aa_offset_y = 0.5;
-			break;
-		}
-
-		case SmoothingModeNone:
-		case SmoothingModeDefault:
-		case SmoothingModeHighSpeed:
-		default: {
-			cairo_set_antialias(graphics->ct, CAIRO_ANTIALIAS_NONE);
-			graphics->aa_offset_x = CAIRO_AA_OFFSET_X;
-			graphics->aa_offset_y = CAIRO_AA_OFFSET_Y;
-			break;
-		}
-		
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_SetSmoothingMode (graphics, mode);
+	case GraphicsBackEndMetafile:
+		return metafile_SetSmoothingMode (graphics, mode);
+	default:
+		return GenericError;
 	}
-
-	return Ok;
 }
 
 GpStatus
@@ -2344,66 +1859,6 @@ GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 	return Ok;
 }
 
-/*
-	Since cairo does autoclipping and it hides the clipping rectangles from the API, the
-	best thing for now is keep track of what the user wants and let Cairo do its autoclipping
-*/
-
-void
-gdip_set_cairo_clipping (GpGraphics *graphics)
-{
-	GpRegion *work;
-        GpRectF* rect;
-        int i;
-
-	cairo_reset_clip (graphics->ct);
- 
-	if (gdip_is_InfiniteRegion (graphics->clip))
-		return;
-
-	if (gdip_is_matrix_empty (graphics->clip_matrix)) {
-		work = graphics->clip;
-	} else {
-		GdipCloneRegion (graphics->clip, &work);
-		GdipTransformRegion (work, graphics->clip_matrix);
-	}
-
-	switch (work->type) {
-	case RegionTypeRectF:
-	        for (i = 0, rect = work->rects; i < work->cnt; i++, rect++) {
-			gdip_cairo_rectangle (graphics, rect->X, rect->Y, rect->Width, rect->Height, FALSE);
-		}
-		break;
-	case RegionTypePath:
-		if (work->tree && work->tree->path)
-			gdip_plot_path (graphics, work->tree->path, TRUE);
-		else {
-			int count;
-			/* I admit that's a (not so cute) hack - anyone with a better idea ? */
-			if ((GdipGetRegionScansCount (work, &count, NULL) == Ok) && (count > 0)) {
-				GpRectF *rects = (GpRectF*) GdipAlloc (count * sizeof (GpRectF));
-				if (rects) {
-					GdipGetRegionScans (work, rects, &count, NULL);
-				        for (i = 0, rect = rects; i < count; i++, rect++) {
-						gdip_cairo_rectangle (graphics, rect->X, rect->Y, rect->Width, rect->Height, FALSE);
-					}
-					GdipFree (rects);
-				}
-			}
-		}
-		break;
-	default:
-		g_warning ("Unknown region type %d", work->type);
-		break;
-	}
-	
-	cairo_clip (graphics->ct);
-
-	/* destroy the clone, if one was needed */
-	if (work != graphics->clip)
-		GdipDeleteRegion (work);
-}
-
 GpStatus
 GdipSetClipGraphics (GpGraphics *graphics, GpGraphics *srcgraphics, CombineMode combineMode)
 {
@@ -2419,7 +1874,7 @@ GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float heig
 	GpStatus status;
 	GpRectF rect;
 	GpRegion *region = NULL;
-///printf("[%s %d] GdipSetClipRect %f, %f, %fx%f called\n", __FILE__, __LINE__, x, y, width, height);	
+
 	if (!graphics)
 		return InvalidParameter;
 
@@ -2429,8 +1884,37 @@ GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float heig
 	rect.Height = height;
 
 	status = GdipCreateRegionRect (&rect, &region);
-	if (status == Ok)
-		status = GdipSetClipRegion (graphics, region, combineMode);
+	if (status != Ok)
+		goto cleanup;
+
+	/* if the matrix is empty, avoid region transformation */
+	if (!gdip_is_matrix_empty (graphics->clip_matrix)) {
+		cairo_matrix_t inverted;
+
+		gdip_cairo_matrix_copy (&inverted, graphics->clip_matrix);
+		cairo_matrix_invert (&inverted);
+
+		GdipTransformRegion (region, &inverted);
+	}
+
+	status = GdipCombineRegionRegion (graphics->clip, region, combineMode);	
+	if (status != Ok)
+		goto cleanup;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		/* adjust cairo clipping according to graphics->clip */
+		status = cairo_SetGraphicsClip (graphics);
+		break;
+	case GraphicsBackEndMetafile:
+		status = metafile_SetClipRect (graphics, x, y, width, height, combineMode);
+		break;
+	default:
+		status = GenericError;
+		break;
+	}
+
+cleanup:
 	if (region)
 		GdipDeleteRegion (region);
 	return status;
@@ -2447,16 +1931,22 @@ GdipSetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMode)
 {
 	GpStatus status;
 
-///printf("[%s %d] GdipSetClipPath called\n", __FILE__, __LINE__);	
 	if (!graphics || !path)
 		return InvalidParameter;
 
 	status = GdipCombineRegionPath (graphics->clip, path, combineMode);	
-	if (status == Ok) {
-		cairo_reset_clip (graphics->ct);
-		gdip_set_cairo_clipping (graphics);
+	if (status != Ok)
+		return status;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		/* adjust cairo clipping according to graphics->clip */
+		return cairo_SetGraphicsClip (graphics);
+	case GraphicsBackEndMetafile:
+		return metafile_SetClipPath (graphics, path, combineMode);
+	default:
+		return GenericError;
 	}
-	return status;
 }
 
 GpStatus
@@ -2464,7 +1954,6 @@ GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMo
 {
 	GpStatus status;
 	GpRegion *work;
-///printf("[%s %d] GdipSetClipRegion called\n", __FILE__, __LINE__);	
 
 	if (!graphics || !region)
 		return InvalidParameter;
@@ -2482,15 +1971,26 @@ GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMo
 		GdipTransformRegion (work, &inverted);
 	}
 
-	status = GdipCombineRegionRegion (graphics->clip, work, combineMode);	
-	if (status == Ok) {
-		cairo_reset_clip (graphics->ct);
-		gdip_set_cairo_clipping (graphics);
+	status = GdipCombineRegionRegion (graphics->clip, work, combineMode);
+	if (status != Ok)
+		goto cleanup;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		/* adjust cairo clipping according to graphics->clip */
+		status = cairo_SetGraphicsClip (graphics);
+		break;
+	case GraphicsBackEndMetafile:
+		status = metafile_SetClipRegion (graphics, region, combineMode);
+		break;
+	default:
+		status = GenericError;
+		break;
 	}
 
+cleanup:
 	if (work != region)
 		GdipDeleteRegion (work);
-
 	return status;
 }
 
@@ -2523,11 +2023,17 @@ GdipResetClip (GpGraphics *graphics)
 	if (!graphics)
 		return InvalidParameter;
 
-///printf("[%s %d] GdipResetClip called\n", __FILE__, __LINE__);	
 	GdipSetInfinite (graphics->clip);
 	cairo_matrix_init_identity (graphics->clip_matrix);
-	cairo_reset_clip (graphics->ct);
-	return Ok;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_ResetClip (graphics);
+	case GraphicsBackEndMetafile:
+		return metafile_ResetClip (graphics);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -2535,28 +2041,28 @@ GdipTranslateClip (GpGraphics *graphics, float dx, float dy)
 {
 	GpStatus status;
 
-///printf("[%s %d] GdipTranslateClip %f %f called\n", __FILE__, __LINE__, dx, dy);	
 	if (!graphics)
 		return InvalidParameter;
 
 	status = GdipTranslateRegion (graphics->clip, dx, dy);
-	if (status == Ok)
-		gdip_set_cairo_clipping (graphics);
-	return status;
+	if (status != Ok)
+		return status;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		/* adjust cairo clipping according to graphics->clip */
+		return cairo_SetGraphicsClip (graphics);
+	case GraphicsBackEndMetafile:
+		return metafile_TranslateClip (graphics, dx, dy);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
 GdipTranslateClipI (GpGraphics *graphics, int dx, int dy)
 {
-	GpStatus status;
-
-	if (!graphics)
-		return InvalidParameter;
-
-	status = GdipTranslateRegionI (graphics->clip, dx, dy);
-	if (status == Ok)
-		gdip_set_cairo_clipping (graphics);
-	return status;
+	return GdipTranslateClip (graphics, dx, dy);
 }
 
 GpStatus
@@ -2572,7 +2078,6 @@ GdipGetClip (GpGraphics *graphics, GpRegion *region)
 		return Ok;
 	return GdipTransformRegion (region, graphics->clip_matrix);
 }
-
 
 GpStatus
 GdipGetClipBounds (GpGraphics *graphics, GpRectF *rect)
@@ -2698,15 +2203,9 @@ GdipIsVisibleClipEmpty (GpGraphics *graphics, BOOL *result)
 	if (!graphics || !result)
 		return InvalidParameter;
 		
-	if (graphics->bounds.Width == 0 || graphics->bounds.Height == 0)
-		*result = TRUE;
-	else
-		*result = FALSE;
-		
+	*result = (graphics->bounds.Width == 0 || graphics->bounds.Height == 0);
 	return Ok;
-	
 }
-
 
 GpStatus
 GdipIsVisiblePoint (GpGraphics *graphics, float x, float y, BOOL *result)
@@ -2729,7 +2228,7 @@ GdipIsVisiblePoint (GpGraphics *graphics, float x, float y, BOOL *result)
 GpStatus
 GdipIsVisiblePointI (GpGraphics *graphics, int x, int y, BOOL *result)
 {
-	return GdipIsVisiblePoint (graphics, (float) x, (float) y, result);
+	return GdipIsVisiblePoint (graphics, x, y, result);
 }
 
 GpStatus
@@ -2752,8 +2251,10 @@ GdipIsVisibleRect (GpGraphics *graphics, float x, float y, float width, float he
 	boundsF.Width = graphics->bounds.Width;
 	boundsF.Height = graphics->bounds.Height;	
 
-	recthit.X = x; recthit.Y = y;
-	recthit.Width = width; recthit.Height = height;
+	recthit.X = x;
+	recthit.Y = y;
+	recthit.Width = width;
+	recthit.Height = height;
 
 	/* Any point of intersection ?*/
 	for (posy = 0; posy < recthit.Height+1; posy++) {	
@@ -2783,18 +2284,14 @@ GdipSetCompositingMode (GpGraphics *graphics, CompositingMode compositingMode)
 
 	graphics->composite_mode = compositingMode;
 
-	switch (compositingMode) {
-		case CompositingModeSourceOver: {
-			cairo_set_operator(graphics->ct, CAIRO_OPERATOR_OVER);
-			break;
-		}
-
-		case CompositingModeSourceCopy: {
-			cairo_set_operator(graphics->ct, CAIRO_OPERATOR_SOURCE);
-			break;
-		}
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return cairo_SetCompositingMode (graphics, compositingMode);
+	case GraphicsBackEndMetafile:
+		return metafile_SetCompositingMode (graphics, compositingMode);
+	default:
+		return GenericError;
 	}
-	return Ok;
 }
 
 GpStatus
@@ -2813,10 +2310,17 @@ GdipSetCompositingQuality (GpGraphics *graphics, CompositingQuality compositingQ
 	if (!graphics)
 		return InvalidParameter;
 
-	/* In Cairo there is no way of setting this, always use high quality */
-
 	graphics->composite_quality = compositingQuality;
-	return Ok;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		/* In Cairo there is no way of setting this, always use high quality */
+		return Ok;
+	case GraphicsBackEndMetafile:
+		return metafile_SetCompositingQuality (graphics, compositingQuality);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -2842,7 +2346,16 @@ GdipSetPageScale (GpGraphics *graphics, float scale)
 		return InvalidParameter;
 	
 	graphics->scale = scale;	
-	return Ok;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return Ok;
+	case GraphicsBackEndMetafile:
+		/* page unit and scale are in the same EMF+ record */
+		return metafile_SetPageTransform (graphics, graphics->page_unit, scale);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -2862,7 +2375,16 @@ GdipSetPageUnit (GpGraphics *graphics, GpUnit unit)
 		return InvalidParameter;
 
 	graphics->page_unit = unit;
-	return Ok;
+
+	switch (graphics->backend) {
+	case GraphicsBackEndCairo:
+		return Ok;
+	case GraphicsBackEndMetafile:
+		/* page unit and scale are in the same EMF+ record */
+		return metafile_SetPageTransform (graphics, unit, graphics->scale);
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus

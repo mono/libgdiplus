@@ -60,7 +60,6 @@
 
 #define gdip_get_metaheader(image)	(&((GpMetafile*)image)->metafile_header)
 
-
 typedef struct {
 	void *ptr;
 	int type;
@@ -72,6 +71,9 @@ struct _Metafile {
 	BOOL delete;
 	BYTE *data;
 	int length;
+	BOOL recording;		/* recording into memory (data), file (fp) or user stream (stream) */
+	FILE *fp;
+	void *stream;
 };
 
 typedef struct {
@@ -120,6 +122,8 @@ typedef struct {
 GpStatus gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source) GDIP_INTERNAL;
 GpStatus gdip_metafile_clone (GpMetafile *metafile, GpMetafile **clonedmetafile) GDIP_INTERNAL;
 GpStatus gdip_metafile_dispose (GpMetafile *metafile) GDIP_INTERNAL;
+
+GpStatus gdip_metafile_stop_recording (GpMetafile *metafile) GDIP_INTERNAL;
 
 GpStatus gdip_metafile_play_emf (MetafilePlayContext *context) GDIP_INTERNAL;
 GpStatus gdip_metafile_play_wmf (MetafilePlayContext *context) GDIP_INTERNAL;

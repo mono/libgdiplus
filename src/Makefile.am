@@ -36,6 +36,10 @@ libgdiplus_la_SOURCES = \
 	general-private.h		\
 	graphics.c			\
 	graphics.h			\
+	graphics-cairo.c		\
+	graphics-cairo-private.h	\
+	graphics-metafile.c		\
+	graphics-metafile-private.h	\
 	graphics-private.h		\
 	graphics-path.c			\
 	graphics-path.h			\
@@ -85,7 +89,10 @@ libgdiplus_la_SOURCES = \
 	stringformat-private.h		\
 	text.c				\
 	text.h				\
-	text-private.h			\
+	text-cairo.c			\
+	text-cairo-private.h		\
+	text-metafile.c			\
+	text-metafile-private.h		\
 	texturebrush.c			\
 	texturebrush.h			\
 	texturebrush-private.h		\

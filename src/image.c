@@ -281,9 +281,16 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 	
 	if (!image || !graphics)
 		return InvalidParameter;
-	/* This function isn't allowed on metafiles */
-	if (image->type != ImageTypeBitmap)
-		return OutOfMemory;
+
+	/* This function isn't allowed on metafiles - unless we're recording */
+	if (image->type == ImageTypeMetafile) {
+		GpMetafile *mf = (GpMetafile*)image;
+		if (!mf->recording)
+			return OutOfMemory;
+		*graphics = gdip_metafile_graphics_new (mf);
+		return *graphics ? Ok : OutOfMemory;
+	}
+
 	if (!image->active_bitmap)
 		return InvalidParameter;
 

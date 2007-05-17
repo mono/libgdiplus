@@ -32,10 +32,11 @@
  * NOTE: This is a private header files and everything is subject to changes.
  */
 
-#ifndef __TEXT_PRIVATE_H__
-#define __TEXT_PRIVATE_H__
+#ifndef __TEXT_CAIRO_PRIVATE_H__
+#define __TEXT_CAIRO_PRIVATE_H__
 
 #include "gdiplus-private.h"
+#include "graphics-private.h"
 #include "stringformat-private.h"
 
 /* Flags and Support structure for MeasureOrDrawString */
@@ -64,6 +65,13 @@ typedef struct {
 	int		LineLen;	/* If LineStart how many chars is the line long? */
 } GpStringDetailStruct;
 
-#include "text.h"
+GpStatus cairo_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
+	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush);
+
+GpStatus cairo_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
+	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format,  RectF *boundingBox, int *codepointsFitted, int *linesFilled);
+
+GpStatus cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
+	GDIPCONST GpRectF *layout, GDIPCONST GpStringFormat *format, int regionCount, GpRegion **regions);
 
 #endif
