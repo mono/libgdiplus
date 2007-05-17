@@ -1,3 +1,8 @@
+2007-05-17  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* general-private.h: Define G_MININT16 and G_MAXINT16 when not 
+	available on a platform.
+
 2007-05-17  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* emfcodec.c: Don't play empty but valid (e.g. recording) metafiles.

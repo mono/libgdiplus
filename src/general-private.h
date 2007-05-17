@@ -42,9 +42,11 @@
 #define PI				3.14159265358979323846
 #define DEGTORAD			(PI / 180.0)
 
-/* looks like it's not available everywhere :( */
+/* looks like they are not available everywhere :( */
 #ifndef G_MAXINT32
 #define G_MAXINT32			2147483647
+#define G_MININT16			-32768
+#define G_MAXINT16			32767
 #endif
 
 #define MAKE_ARGB_RGB(r,g,b)		(((r&0xff) << 16) | ((g&0xff) <<  8) | (b&0xff))
