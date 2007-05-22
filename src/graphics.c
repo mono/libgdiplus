@@ -213,10 +213,12 @@ GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 {
 	GpGraphics *clone = (GpGraphics *) hDC;
 	cairo_surface_t *surface;
-	
 	int x, y;
 	unsigned int w, h, border_w, depth;
 	Window root;
+
+	if (!hDC)
+		return OutOfMemory;
 
 #ifdef CAIRO_HAS_PS_SURFACE
 
