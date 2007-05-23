@@ -1,3 +1,8 @@
+2007-05-23  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* pngcodec.c: Add correct support for 2bpp PNG images (promoted to 
+	32bpp ARGB) and fixed palette for 4bpp images. Fix bug #81674.
+
 2007-05-22  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: Fix GdipCreateFromHDC to return OutOfMemory if HDC is 

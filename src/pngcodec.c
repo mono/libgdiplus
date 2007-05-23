@@ -230,13 +230,15 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	BYTE		*rawdata = NULL;
 	GpImage		*result = NULL;
 	GpStatus	status = InvalidParameter;
+	int		bit_depth;
+	int		channels;
+	BYTE		color_type;
 
 	png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
 	if (!png_ptr) {
 		goto error;
 	}
-
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		/* png detected error occured */
@@ -259,15 +261,17 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		png_set_read_fn (png_ptr, getBytesFunc, _gdip_png_stream_read_data);
 	}
 
-	png_read_png(png_ptr, info_ptr, 0, NULL);
+	png_read_png (png_ptr, info_ptr, 0, NULL);
 
-	if ((png_get_bit_depth (png_ptr, info_ptr) <= 8)
-	 && (png_get_channels (png_ptr, info_ptr) == 1)
-	 && ((png_get_color_type (png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE)
-	 || (png_get_color_type (png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY))) {
+	bit_depth = png_get_bit_depth (png_ptr, info_ptr);
+	channels = png_get_channels (png_ptr, info_ptr);
+	color_type = png_get_color_type (png_ptr, info_ptr);
+
+	/* 2bpp is a special case (promoted to 32bpp ARGB by MS GDI+) */
+	if ((bit_depth <= 8) && (bit_depth != 2) && (channels == 1) && 
+		((color_type == PNG_COLOR_TYPE_PALETTE)	|| (color_type == PNG_COLOR_TYPE_GRAY))) {
 		int		width;
 		int		height;
-		int		bit_depth;
 		int		source_stride;
 		int		dest_stride;
 		png_bytep	*row_pointers;
@@ -281,7 +285,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 
 		width = png_get_image_width (png_ptr, info_ptr);
 		height = png_get_image_height (png_ptr, info_ptr);
-		bit_depth = png_get_bit_depth (png_ptr, info_ptr);
 
 		source_stride = (width * bit_depth + 7) / 8;
 		dest_stride = source_stride;
@@ -290,40 +293,13 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		/* Copy image data. */
 		row_pointers = png_get_rows (png_ptr, info_ptr);
 
-		if (bit_depth == 2) { /* upsample to 4bpp */
-			dest_stride = (width + 1) >> 1;
-			gdip_align_stride (dest_stride);
-
-			rawdata = GdipAlloc(dest_stride * height);
-			for (i=0; i < height; i++) {
-				png_bytep row = row_pointers[i];
-				rawptr = rawdata + i * dest_stride;
-
-				for (j=0; j < source_stride; j++) {
-					int four_pixels = row[j];
-
-					int first_two = 0x0F & (four_pixels >> 4);
-					int second_two = 0x0F & four_pixels;
-
-					first_two = (first_two & 0x03) | ((first_two & 0x0C) << 2);
-					second_two = (second_two & 0x03) | ((second_two & 0x0C) << 2);
-
-					rawptr[j * 2 + 0] = first_two;
-					rawptr[j * 2 + 1] = second_two;
-				}
-			}
-		} else {
-			rawdata = GdipAlloc(dest_stride * height);
-			for (i=0; i < height; i++) {
-				memcpy(rawdata + i * dest_stride, row_pointers[i], source_stride);
-			}
+		rawdata = GdipAlloc(dest_stride * height);
+		for (i=0; i < height; i++) {
+			memcpy (rawdata + i * dest_stride, row_pointers[i], source_stride);
 		}
 
 		/* Copy palette. */
 		num_colours = 1 << bit_depth;
-		if (bit_depth == 4) {
-			num_colours = 256;
-		}
 
 		if (png_get_color_type (png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY) {
 			/* A gray-scale image; generate a palette fading from black to white. */
@@ -370,7 +346,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			}
 		}
 
-
 		result = gdip_bitmap_new_with_frame (&gdip_image_frameDimension_page_guid, TRUE);
 		result->type = ImageTypeBitmap;
 		result->active_bitmap->stride = dest_stride;
@@ -384,6 +359,8 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			result->active_bitmap->pixel_format = PixelFormat1bppIndexed;
 			result->cairo_format = CAIRO_FORMAT_A1;
 			break;
+		// note: 2bpp is a special case as the format is "promoted" to PixelFormat32bppArgb / CAIRO_FORMAT_ARGB32
+		//       we deal with this later...
 		case 4:
 			result->active_bitmap->pixel_format = PixelFormat4bppIndexed;
 			result->cairo_format = CAIRO_FORMAT_A8;
@@ -398,12 +375,13 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		result->active_bitmap->dpi_horz = 0;
 		result->active_bitmap->dpi_vert = 0;
 		result->active_bitmap->palette = palette;
-	} else {
+	}
+
+	/* 2bpp needs to enter here too */
+	if (!result) {
 		int		width;
 		int		height;
 		BYTE		bit_depth;
-		BYTE		color_type;
-		int		channels;
 		int		stride;
 		int		interlace;
 		png_bytep *row_pointers;
@@ -412,7 +390,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 
 		width = png_get_image_width (png_ptr, info_ptr);
 		height = png_get_image_height (png_ptr, info_ptr);
-		channels = png_get_channels (png_ptr, info_ptr);
 
 		/* 24 and 32bpp are supported, 48, 64bpp aren't, see http://bugzilla.ximian.com/show_bug.cgi?id=80693 */
 		bit_depth = png_get_bit_depth (png_ptr, info_ptr);
@@ -422,7 +399,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			goto error;
 		}
 
-		color_type = png_get_color_type (png_ptr, info_ptr);
 		interlace = png_get_interlace_type (png_ptr, info_ptr);
 
 		/* According to the libpng manual, this sequence is equivalent to
@@ -443,6 +419,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		gdip_align_stride (stride);
 
 		row_pointers = png_get_rows (png_ptr, info_ptr);
+
 		rawdata = GdipAlloc (stride * height);
 		rawptr = rawdata;
 
@@ -489,10 +466,47 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			case 1:
 				for (i = 0; i < height; i++) {
 					png_bytep rowp = row_pointers[i];
-					for (j = 0; j < width; j++) {
-						png_byte pix = *rowp++;
-						set_pixel_bgra (rawptr, 0, pix, pix, pix, 0xff);
-						rawptr += 4;
+					if (bit_depth == 2) {
+						// 4 pixels for each byte
+						for (j = 0; j < (width >> bit_depth); j++) {
+							png_byte palette = 0;
+							png_byte pix = *rowp++;
+
+							palette = (pix >> 6) & 0x03;
+							set_pixel_bgra (rawptr, 0,
+								info_ptr->palette[palette].blue,
+								info_ptr->palette[palette].green,
+								info_ptr->palette[palette].red,
+								0xFF); /* alpha */
+
+							palette = (pix >> 4) & 0x03;
+							set_pixel_bgra (rawptr, 4,
+								info_ptr->palette[palette].blue,
+								info_ptr->palette[palette].green,
+								info_ptr->palette[palette].red,
+								0xFF); /* alpha */
+
+							palette = (pix >> 2) & 0x03;
+							set_pixel_bgra (rawptr, 8,
+								info_ptr->palette[palette].blue,
+								info_ptr->palette[palette].green,
+								info_ptr->palette[palette].red,
+								0xFF); /* alpha */
+
+							palette = pix & 0x03;
+							set_pixel_bgra (rawptr, 12,
+								info_ptr->palette[palette].blue,
+								info_ptr->palette[palette].green,
+								info_ptr->palette[palette].red,
+								0xFF); /* alpha */
+							rawptr += 16;
+						}
+					} else {
+						for (j = 0; j < width; j++) {
+							png_byte pix = *rowp++;
+							set_pixel_bgra (rawptr, 0, pix, pix, pix, 0xff);
+							rawptr += 4;
+						}
 					}
 				}
 				break;
@@ -514,13 +528,15 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			result->active_bitmap->width,
 			result->active_bitmap->height,
 			result->active_bitmap->stride);
+
 		if (channels == 3) {
 			result->active_bitmap->pixel_format = PixelFormat24bppRgb;
 			result->active_bitmap->image_flags = ImageFlagsColorSpaceRGB;
 		} else if (channels == 4) {
 			result->active_bitmap->pixel_format = PixelFormat32bppArgb;
 			result->active_bitmap->image_flags = ImageFlagsColorSpaceRGB;
-		} else if (channels == 1) {
+		} else if ((channels == 1) && (color_type == PNG_COLOR_TYPE_GRAY)) {
+			// doesn't apply to 2bpp images
 			result->active_bitmap->pixel_format = PixelFormat8bppIndexed;
 			result->active_bitmap->image_flags = ImageFlagsColorSpaceGRAY;
 		}
