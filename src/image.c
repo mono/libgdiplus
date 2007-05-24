@@ -797,12 +797,9 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 }
 
 GpStatus
-GdipDrawImageRectRectI (GpGraphics *graphics, GpImage *image,
-                        int dstx, int dsty, int dstwidth, int dstheight,
-                        int srcx, int srcy, int srcwidth, int srcheight,
-                        GpUnit srcUnit,
-                        GDIPCONST GpImageAttributes *imageAttributes,
-                        DrawImageAbort callback, void *callbackData)
+GdipDrawImageRectRectI (GpGraphics *graphics, GpImage *image, int dstx, int dsty, int dstwidth, int dstheight, 
+	int srcx, int srcy, int srcwidth, int srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes,
+	DrawImageAbort callback, void *callbackData)
 {
 	return GdipDrawImageRectRect (graphics, image, dstx, dsty, dstwidth, dstheight,
 					srcx, srcy, srcwidth, srcheight,
@@ -811,25 +808,61 @@ GdipDrawImageRectRectI (GpGraphics *graphics, GpImage *image,
 }
 
 GpStatus
-GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image,
-                         GDIPCONST GpPointF *points, int count,
-                         float srcx, float srcy, float srcwidth, float srcheight,
-                         GpUnit srcUnit,
-                         GDIPCONST GpImageAttributes *imageAttributes,
-                         DrawImageAbort callback, void *callbackData)
+GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *points, int count, float srcx, float srcy,
+	float srcwidth, float srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes, DrawImageAbort callback, 
+	void *callbackData)
 {
-	return NotImplemented; /* GdipDrawImagePointsRect */
+	GpRectF rect;
+	GpStatus status;
+	GpMatrix *matrix = NULL;
+
+	if (!graphics || !image || !points || (count < 3))
+		return InvalidParameter;
+	if (count > 3)
+		return NotImplemented;
+
+	rect.X = 0; 
+	rect.Y = 0; 
+	if (image->type == ImageTypeBitmap) {
+		rect.Width = image->active_bitmap->width; 
+		rect.Height = image->active_bitmap->height;
+	} else {
+		MetafileHeader *metaheader = &((GpMetafile*)image)->metafile_header;
+		rect.Width = metaheader->Width; 
+		rect.Height = metaheader->Height;
+	}
+
+	status = GdipCreateMatrix3 (&rect, points, &matrix);
+	if (status == Ok) {
+		status = GdipDrawImageRectRect (graphics, image, rect.X, rect.Y, rect.Width, rect.Height, srcx, srcy, 
+			srcwidth, srcheight, srcUnit, imageAttributes, callback, callbackData);
+	}
+	if (matrix)
+		GdipDeleteMatrix (matrix);
+	return status;
 }
 
 GpStatus
-GdipDrawImagePointsRectI (GpGraphics *graphics, GpImage *image,
-                          GDIPCONST GpPoint *points, int count,
-                          int srcx, int srcy, int srcwidth, int srcheight,
-                          GpUnit srcUnit,
-                          GDIPCONST GpImageAttributes *imageAttributes,
-                          DrawImageAbort callback, void *callbackData)
+GdipDrawImagePointsRectI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *points, int count, int srcx, int srcy, 
+	int srcwidth, int srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes, DrawImageAbort callback,
+	void *callbackData)
 {
-	return NotImplemented; /* GdipDrawImagePointsRectI */
+	GpPointF pf[3];
+
+	if (!points || (count < 3))
+		return InvalidParameter;
+	if (count > 3)
+		return NotImplemented;
+
+	pf[0].X = points[0].X;
+	pf[0].Y = points[0].Y;
+	pf[1].X = points[1].X;
+	pf[1].Y = points[1].Y;
+	pf[2].X = points[2].X;
+	pf[2].Y = points[2].Y;
+
+	return GdipDrawImagePointsRect (graphics, image, (GDIPCONST GpPointF*)&pf, count, srcx, srcy, srcwidth, srcheight, 
+		srcUnit, imageAttributes, callback, callbackData);
 }
 
 /*

@@ -1,7 +1,8 @@
-2007-05-24  Sebastien Pouliot  <sebastien@ximian.com>
+2007-05-24  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics-cairo.c: Don't use antialiasing on clipping paths. Fix bug
 	#81721.
+	* image.c: Implement GdipDrawImagePointsRect[I] functions.
 
 2007-05-23  Sebastien Pouliot  <sebastien@ximian.com>
 
