@@ -996,7 +996,7 @@ cairo_SetGraphicsClip (GpGraphics *graphics)
 		break;
 	case RegionTypePath:
 		if (work->tree && work->tree->path)
-			gdip_plot_path (graphics, work->tree->path, TRUE);
+			gdip_plot_path (graphics, work->tree->path, FALSE);
 		else {
 			int count;
 			/* I admit that's a (not so cute) hack - anyone with a better idea ? */

@@ -1,3 +1,8 @@
+2007-05-24  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-cairo.c: Don't use antialiasing on clipping paths. Fix bug
+	#81721.
+
 2007-05-23  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* pngcodec.c: Add correct support for 2bpp PNG images (promoted to 
