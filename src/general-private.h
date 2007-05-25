@@ -63,8 +63,7 @@
 #define SAFE_FLOAT_TO_UINT32(value)	((value < 0) ? 0 : (value >= G_MAXINT32) ? G_MAXINT32 : value)
 
 /* avoid fp division and multiplication that would return the same number */
-#define OPTIMIZE_CONVERSION(g)		(((g->page_unit == UnitDisplay) && (g->type != gtPostScript)) || \
-					(g->page_unit == UnitPixel) || (g->page_unit == UnitWorld))
+#define OPTIMIZE_CONVERSION(g)		((g->type != gtPostScript) && ((g->page_unit == UnitPixel) || (g->page_unit == UnitWorld)))
 
 /* macros for common conversions, i.e. to or from UnitCairoPoint */
 #define gdip_unitx_convgr(g,f)		(gdip_unit_conversion (g->page_unit, UnitCairoPoint, g->dpi_x, g->type, f))

@@ -210,10 +210,11 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 	*/	
 	cairo_set_font_face (graphics->ct, (cairo_font_face_t*) font->cairofnt);	/* Set our font; this will also be used for later drawing */
 
-/* this will always return the same value
-	gdip_unit_conversion (UnitPixel, UnitCairoPoint, gdip_get_display_dpi (), graphics->type, font->sizeInPixels, &FontSize);
-*/
-	FontSize = font->sizeInPixels;
+	/* this will always return the same value, except when printing */
+	if (graphics->type == gtPostScript)
+		FontSize = gdip_unit_conversion (UnitPixel, UnitCairoPoint, gdip_get_display_dpi (), graphics->type, font->sizeInPixels);
+	else
+		FontSize = font->sizeInPixels;
 	cairo_set_font_size (graphics->ct, FontSize);
 	
 	cairo_font_extents (graphics->ct, &FontExtent);		/* Get the size we're looking for */
@@ -753,7 +754,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 
 static GpStatus
 DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
-	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *fmt, GpBrush *brush, 
+	GDIPCONST RectF *rc_org, GDIPCONST GpStringFormat *fmt, GpBrush *brush, 
 	WCHAR *CleanString, GpStringDetailStruct* StringDetails, GpDrawTextData *data)
 {
 	float CursorX = 0.0;		/* Current X position of drawing cursor */
@@ -766,8 +767,21 @@ DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GD
 	int LineHeight = data->line_height;
 	int MaxY = data->max_y;
 	cairo_font_extents_t FontExtent;
+	RectF rect, *rc = &rect;
 
 	cairo_font_extents (graphics->ct, &FontExtent);
+
+	if (OPTIMIZE_CONVERSION (graphics)) {
+		rc->X = rc_org->X;
+		rc->Y = rc_org->Y;
+		rc->Width = rc_org->Width;
+		rc->Height = rc_org->Height;
+	} else {
+		rc->X = gdip_unitx_convgr (graphics, rc_org->X);
+		rc->Y = gdip_unity_convgr (graphics, rc_org->Y);
+		rc->Width = gdip_unitx_convgr (graphics, rc_org->Width);
+		rc->Height = gdip_unity_convgr (graphics, rc_org->Height);
+	}
 
 	/* Set our clipping rectangle */
 	if ((rc->Width!=0) && (rc->Height!=0) && ((fmt->formatFlags & StringFormatFlagsNoClip)==0)) {

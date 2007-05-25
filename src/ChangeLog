@@ -1,3 +1,9 @@
+2007-05-25  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* general-private.h: Don't optimize convertions when printing.
+	* text-cairo.c: Ensuew we converting coordinates when printing. Fix 
+	bug #81708
+
 2007-05-24  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics-cairo.c: Don't use antialiasing on clipping paths. Fix bug
