@@ -1,3 +1,12 @@
+2007-05-28  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics-cairo.c: Adjust the x,y position (-1,-1) when the pen's 
+	length is a multiple of 2. This makes the rectangle drawing match MS
+	implementation. Also fix cairo_DrawRectanglesI to use anti-aliasing
+	(like all drawing functions should do).
+	* graphics-cairo-private.h: Add macro to check if a coordinate
+	correction is required for the specified pen's width.
+
 2007-05-25  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* general-private.h: Don't optimize convertions when printing.

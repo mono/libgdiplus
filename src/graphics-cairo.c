@@ -736,6 +736,11 @@ cairo_FillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *poi
 GpStatus
 cairo_DrawRectangle (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height)
 {
+	/* wide pen position can be different between cairo and gdi+ */
+	if (gdip_cairo_pen_width_needs_adjustment (pen)) {
+		x -= 1.0f;
+		y -= 1.0f;
+	}
 	gdip_cairo_rectangle (graphics, x, y, width, height, TRUE);
 	return stroke_graphics_with_pen (graphics, pen);
 }
@@ -751,14 +756,26 @@ GpStatus
 cairo_DrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects, int count)
 {
 	BOOL draw = FALSE;
+	BOOL adjust = gdip_cairo_pen_width_needs_adjustment (pen);
 	int i;
 
 	for (i = 0; i < count; i++) {
+		float x = rects [i].X;
+		float y = rects [i].Y;
+		float w = rects [i].Width;
+		float h = rects [i].Height;
+
 		/* don't draw/fill rectangles with negative width/height (bug #77129) */
-		if ((rects [i].Width < 0) || (rects [i].Height < 0))
+		if ((w < 0) || (h < 0))
 			continue;
 
-		gdip_cairo_rectangle (graphics, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height, TRUE);
+		/* wide pen position can be different between cairo and gdi+ */
+		if (adjust) {
+			x -= 1.0f;
+			y -= 1.0f;
+		}
+
+		gdip_cairo_rectangle (graphics, x, y, w, h, TRUE);
 		draw = TRUE;
 	}
 
@@ -772,14 +789,26 @@ GpStatus
 cairo_DrawRectanglesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRect *rects, int count)
 {
 	BOOL draw = FALSE;
+	BOOL adjust = gdip_cairo_pen_width_needs_adjustment (pen);
 	int i;
 
 	for (i = 0; i < count; i++) {
+		int x = rects [i].X;
+		int y = rects [i].Y;
+		int w = rects [i].Width;
+		int h = rects [i].Height;
+
 		/* don't draw/fill rectangles with negative width/height (bug #77129) */
-		if ((rects [i].Width < 0) || (rects [i].Height < 0))
+		if ((w < 0) || (h < 0))
 			continue;
 
-		gdip_cairo_rectangle (graphics, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height, FALSE);
+		/* wide pen position can be different between cairo and gdi+ */
+		if (adjust) {
+			x -= 1;
+			y -= 1;
+		}
+
+		gdip_cairo_rectangle (graphics, x, y, w, h, TRUE);
 		draw = TRUE;
 	}
 

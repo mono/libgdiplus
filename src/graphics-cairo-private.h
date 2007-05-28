@@ -39,6 +39,10 @@
 #define cairo_DrawRectangleI	cairo_DrawRectangle
 #define cairo_FillRectangleI	cairo_FillRectangle
 
+/*
+ * Handling of pens with a width greater than 1 is not identical between GDI+ and Cairo
+ */
+#define gdip_cairo_pen_width_needs_adjustment(pen)	(((int)(pen->width) & 1) == 0)
 
 GpStatus cairo_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle, 
 	float sweepAngle) GDIP_INTERNAL;
