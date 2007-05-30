@@ -46,6 +46,8 @@ typedef struct {
 	BOOL key_enabled;
 	BOOL no_op;
 	ColorMatrix *colormatrix;
+	ColorMatrix *graymatrix;
+	ColorMatrixFlags colormatrix_flags;
 	BOOL colormatrix_enabled;
 } GpImageAttribute;
 

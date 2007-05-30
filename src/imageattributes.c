@@ -17,8 +17,9 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
- * Author:
- *          Jordi Mas i Hernandez <jordi@ximian.com>, 2004-2005
+ * Authors:
+ *	Jordi Mas i Hernandez <jordi@ximian.com>, 2004-2005
+ *	Sebastien Pouliot  <sebastien@ximian.com>
  *
  */
 
@@ -35,6 +36,8 @@ gdip_init_image_attribute (GpImageAttribute* attr)
 	attr->key_colorhigh = 0;
 	attr->key_enabled = FALSE;	
 	attr->colormatrix = NULL;
+	attr->graymatrix = NULL;
+	attr->colormatrix_flags = ColorMatrixFlagsDefault;
 	attr->colormatrix_enabled = FALSE;
 }
 
@@ -49,6 +52,11 @@ gdip_dispose_image_attribute (GpImageAttribute* attr)
 	if (attr->colormatrix) {
 		GdipFree (attr->colormatrix);
 		attr->colormatrix = NULL;
+	}
+
+	if (attr->graymatrix) {
+		GdipFree (attr->graymatrix);
+		attr->graymatrix = NULL;
 	}
 }
 
@@ -203,9 +211,11 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	/* Apply Color Matrix */
 	if (cmatrix->colormatrix_enabled && cmatrix->colormatrix) {
 		BitmapData *data = bmpdest->active_bitmap;
-		ColorMatrix *cm = cmatrix->colormatrix;
 		BYTE *v = ((BYTE*)data->scan0);
 		ARGB *scan;
+		ColorMatrixFlags flags = cmatrix->colormatrix_flags;
+		ColorMatrix *cm;
+
 		for (y = 0; y < data->height; y++) {
 			scan = (ARGB*) v;
 			for (x = 0; x < data->width; x++) {
@@ -213,6 +223,19 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				int r_new,g_new,b_new,a_new;
 
 				get_pixel_bgra (*scan, b, g, r, a);
+
+				/* by default the matrix applies to all colors, including grays */
+				if ((flags != ColorMatrixFlagsDefault) && (b == g) && (b == r)) {
+					if (flags == ColorMatrixFlagsSkipGrays) {
+						/* does not apply */
+						scan++;
+						continue;
+					}
+					/* ColorMatrixFlagsAltGray */
+					cm = cmatrix->graymatrix;
+				} else {
+					cm = cmatrix->colormatrix;
+				}
 
 				a_new = (r * cm->m[0][3] + g * cm->m[1][3] + b * cm->m[2][3] + a * cm->m[3][3] + (255 * cm->m[4][3]));
 				if (a_new == 0) {
@@ -386,7 +409,6 @@ GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType t
 GpStatus
 GdipSetImageAttributesOutputChannelColorProfile (GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
         GDIPCONST WCHAR *colorProfileFilename)
-
 {       
 	return NotImplemented;
 }
@@ -453,14 +475,16 @@ GdipGetImageAttributesAdjustedPalette (GpImageAttributes *imageattr, ColorPalett
 	return NotImplemented;
 }
 
-/* MonoTODO - grayMatrix and flags parameters are ignored */
 GpStatus 
 GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, 
 	GDIPCONST ColorMatrix* colorMatrix, GDIPCONST ColorMatrix* grayMatrix, ColorMatrixFlags flags)
 {
 	GpImageAttribute *imgattr;
 	
-	if (!imageattr || (!colorMatrix && enableFlag))
+	if (!imageattr || (!colorMatrix && enableFlag) || (flags < ColorMatrixFlagsDefault))
+		return InvalidParameter;
+
+	if (flags > (grayMatrix ? ColorMatrixFlagsAltGray : ColorMatrixFlagsSkipGrays))
 		return InvalidParameter;
 		
 	imgattr = gdip_get_image_attribute (imageattr, type);
@@ -470,7 +494,7 @@ GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType
 
 	if (colorMatrix) {
 		if (!imgattr->colormatrix) {
-			imgattr->colormatrix =  GdipAlloc (sizeof (ColorMatrix));
+			imgattr->colormatrix = GdipAlloc (sizeof (ColorMatrix));
 			if (!imgattr->colormatrix)
 				return OutOfMemory;
 		}
@@ -478,6 +502,17 @@ GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType
 		memcpy (imgattr->colormatrix, colorMatrix, sizeof (ColorMatrix));
 	}
 
+	if (grayMatrix) {
+		if (!imgattr->graymatrix) {
+			imgattr->graymatrix = GdipAlloc (sizeof (ColorMatrix));
+			if (!imgattr->graymatrix)
+				return OutOfMemory;
+		}
+
+		memcpy (imgattr->graymatrix, grayMatrix, sizeof (ColorMatrix));
+	}
+
+	imgattr->colormatrix_flags = flags;
 	imgattr->colormatrix_enabled = enableFlag;	
 	return Ok;
 }
