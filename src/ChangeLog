@@ -1,5 +1,6 @@
-2007-05-30  Sebastien Pouliot  <sebastien@ximian.com>
+2007-05-30  Sebastien Pouliot  <sebastien@ximian.com> 
 
+	* gifcodec.c: Add support for interlaced GIF. Fix bug #81773
 	* imageattributes.c: Add support for ColorMatrixFlags and Gray 
 	ColorMatrix (quite popular based on MoMA reports);
 	* imageattributes-private.h: Add the gray color matrix and the color

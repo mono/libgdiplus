@@ -23,6 +23,7 @@
  *	Vladimir Vukicevic (vladimir@pobox.com)
  *	Jordi Mas (jordi@ximian.com)
  *	Jonathan Gilbert (logic@deltaq.org)
+ *	Sebastien Pouliot  <sebastien@ximian.com>
  */
 
 #if HAVE_CONFIG_H
@@ -150,6 +151,18 @@ FreeExtensionMono(SavedImage *Image)
 }
 
 static int
+gif_read_interlace (GifFileType* GifFile, SavedImage *sp, int start, int increment)
+{
+	int line;
+	for (line = start; line < sp->ImageDesc.Height; line += increment) {
+		int index = line * sp->ImageDesc.Width * sizeof (GifPixelType);
+		if (DGifGetLine(GifFile, &sp->RasterBits[index], sp->ImageDesc.Width) == GIF_ERROR)
+			return GIF_ERROR;
+	}
+	return GIF_OK;
+}
+
+static int
 DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 {
 	int		ImageSize;
@@ -187,9 +200,27 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 				if (sp->RasterBits == NULL) {
 					return GIF_ERROR;
 				}
-				if (DGifGetLine(GifFile, sp->RasterBits, ImageSize) == GIF_ERROR) {
-					return (GIF_ERROR);
+
+				if (GifFile->Image.Interlace) {
+					/* first start at line 0 and read every 8th lines */
+					if (gif_read_interlace (GifFile, sp, 0, 8) == GIF_ERROR)
+						return GIF_ERROR;
+					/* then start at line 4 and read every 8th lines */
+					if (gif_read_interlace (GifFile, sp, 4, 8) == GIF_ERROR)
+						return GIF_ERROR;
+					/* then start at line 2 and read every 4th lines */
+					if (gif_read_interlace (GifFile, sp, 2, 4) == GIF_ERROR)
+						return GIF_ERROR;
+					/* then start at line 1 and read every 2th lines */
+					if (gif_read_interlace (GifFile, sp, 1, 2) == GIF_ERROR)
+						return GIF_ERROR;
+					/* all lines are read */
+				} else {
+					if (DGifGetLine(GifFile, sp->RasterBits, ImageSize) == GIF_ERROR) {
+						return (GIF_ERROR);
+					}
 				}
+
 				if (temp_save.ExtensionBlocks) {
 					sp->ExtensionBlocks = temp_save.ExtensionBlocks;
 					sp->ExtensionBlockCount = temp_save.ExtensionBlockCount;
