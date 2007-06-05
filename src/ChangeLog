@@ -1,3 +1,9 @@
+2007-06-05  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* emfcodec.c, emfplus.c, metafile.h, wmfcodec.c, wmfcodec.h: ++ is 
+	unsafe to use with the GUINTx_FROM_LE macro. Also avoid macro 
+	re-declarations
+
 2007-05-03  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* print.c: Re-enable printing support.

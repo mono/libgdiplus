@@ -110,13 +110,18 @@ PolyBezier (MetafilePlayContext *context, BYTE *data, int len, BOOL compact)
 	GpStatus status;
 	int p, n = 0;
 	RECTL bounds;
-	bounds.left = GETDW(DWP(n++));
-	bounds.top = GETDW(DWP(n++));
-	bounds.right = GETDW(DWP(n++));
-	bounds.bottom = GETDW(DWP(n++));
+	bounds.left = GETDW(DWP(n));
+	n++;
+	bounds.top = GETDW(DWP(n));
+	n++;
+	bounds.right = GETDW(DWP(n));
+	n++;
+	bounds.bottom = GETDW(DWP(n));
+	n++;
 
 	/* make sure we're not reading more data than what's available in this record */
-	num = GETDW(DWP(n++));
+	num = GETDW(DWP(n));
+	n++;
 	if (compact) {
 		/* len = bounds (4 * DWORD) + num (DWORD) + 2 * num * (x WORD + y WORD) */
 		if (num > ((len - 5 * sizeof (DWORD)) >> 2))
@@ -148,12 +153,15 @@ PolyBezier (MetafilePlayContext *context, BYTE *data, int len, BOOL compact)
 	pt++;
 	for (p = 0; p < num; p++, pt++) {
 		if (compact) {
-			DWORD xy = GETDW(DWP(n++));
+			DWORD xy = GETDW(DWP(n));
+			n++;
 			pt->X = (xy & 0x0000FFFF);
 			pt->Y = (xy >> 16);
 		} else {
-			pt->X = GETDW(DWP(n++));
-			pt->Y = GETDW(DWP(n++));
+			pt->X = GETDW(DWP(n));
+			n++;
+			pt->Y = GETDW(DWP(n));
+			n++;
 		}
 #ifdef DEBUG_EMF_2
 		printf ("\n\tbezier to %g,%g", pt->X, pt->Y);
@@ -180,13 +188,18 @@ Polygon (MetafilePlayContext *context, BYTE *data, int len, BOOL compact)
 	GpStatus status;
 	int p, n = 0;
 	RECTL bounds;
-	bounds.left = GETDW(DWP(n++));
-	bounds.top = GETDW(DWP(n++));
-	bounds.right = GETDW(DWP(n++));
-	bounds.bottom = GETDW(DWP(n++));
+	bounds.left = GETDW(DWP(n));
+	n++;
+	bounds.top = GETDW(DWP(n));
+	n++;
+	bounds.right = GETDW(DWP(n));
+	n++;
+	bounds.bottom = GETDW(DWP(n));
+	n++;
 
 	/* make sure we're not reading more data than what's available in this record */
-	num = GETDW(DWP(n++));
+	num = GETDW(DWP(n));
+	n++;
 	if (compact) {
 		/* len = bounds (4 * DWORD) + num (DWORD) + 2 * num * (x WORD + y WORD) */
 		if (num > ((len - 5 * sizeof (DWORD)) >> 2))
@@ -208,12 +221,15 @@ Polygon (MetafilePlayContext *context, BYTE *data, int len, BOOL compact)
 
 	for (p = 0, pt = points; p < num; p++, pt++) {
 		if (compact) {
-			DWORD xy = GETDW(DWP(n++));
+			DWORD xy = GETDW(DWP(n));
+			n++;
 			pt->X = (xy & 0x0000FFFF);
 			pt->Y = (xy >> 16);
 		} else {
-			pt->X = GETDW(DWP(n++));
-			pt->Y = GETDW(DWP(n++));
+			pt->X = GETDW(DWP(n));
+			n++;
+			pt->Y = GETDW(DWP(n));
+			n++;
 		}
 #ifdef DEBUG_EMF_2
 		printf ("\n\tpoly to %g,%g", pt->X, pt->Y);
@@ -234,16 +250,22 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data, BOOL compact)
 	int poly_num;
 	int n = 0;
 	RECTL bounds;
-	bounds.left = GETDW(DWP(n++));
-	bounds.top = GETDW(DWP(n++));
-	bounds.right = GETDW(DWP(n++));
-	bounds.bottom = GETDW(DWP(n++));
+	bounds.left = GETDW(DWP(n));
+	n++;
+	bounds.top = GETDW(DWP(n));
+	n++;
+	bounds.right = GETDW(DWP(n));
+	n++;
+	bounds.bottom = GETDW(DWP(n));
+	n++;
 
 	/* variable number of polygons */
-	poly_num = GETDW(DWP(n++));
+	poly_num = GETDW(DWP(n));
+	n++;
 
 	/* total number of points (in all polygons)*/
-	int total = GETDW(DWP(n++));
+	int total = GETDW(DWP(n));
+	n++;
 	int i;
 	PointFList *list = GdipAlloc (poly_num * sizeof (PointFList));
 	PointFList *current = list;
@@ -253,7 +275,8 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data, BOOL compact)
 #endif
 	/* read size of each polygon and allocate the required memory */
 	for (i = 0; i < poly_num; i++) {
-		current->num = GETDW(DWP(n++));
+		current->num = GETDW(DWP(n));
+		n++;
 		current->points = (GpPointF*) GdipAlloc (current->num * sizeof (GpPointF));
 #ifdef DEBUG_EMF_2
 		printf ("\n\tSub Polygon #%d has %d points", i, current->num);
@@ -267,12 +290,15 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data, BOOL compact)
 		int p;
 		for (p = 0; p < current->num; p++) {
 			if (compact) {
-				DWORD xy = GETDW(DWP(n++));
+				DWORD xy = GETDW(DWP(n));
+				n++;
 				pt->X = (xy & 0x0000FFFF);
 				pt->Y = (xy >> 16);
 			} else {
-				pt->X = GETDW(DWP(n++));
-				pt->Y = GETDW(DWP(n++));
+				pt->X = GETDW(DWP(n));
+				n++;
+				pt->Y = GETDW(DWP(n));
+				n++;
 			}
 #ifdef DEBUG_EMF_3
 			printf ("\n\t\tpoly to %g,%g", pt->X, pt->Y);

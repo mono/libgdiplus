@@ -92,17 +92,23 @@ EmfPlusFillRects (MetafilePlayContext *context, WORD flags, BYTE* data, int size
 	while ((i++ < num) && (status == Ok)) {
 		float x, y, w, h;
 		if (use_int16) {
-			DWORD xy = GETDW(DWP(n++));
+			DWORD xy = GETDW(DWP(n));
+			n++;
 			x = (xy >> 16);
 			y = (WORD)xy;
-			DWORD wh = GETDW(DWP(n++));
+			DWORD wh = GETDW(DWP(n));
+			n++;
 			w = (wh >> 16);
 			h = (WORD)wh;
 		} else {
-			x = (float) GETDW(DWP(n++));
-			y = (float) GETDW(DWP(n++));
-			w = (float) GETDW(DWP(n++));
-			h = (float) GETDW(DWP(n++));
+			x = (float) GETDW(DWP(n));
+			n++;
+			y = (float) GETDW(DWP(n));
+			n++;
+			w = (float) GETDW(DWP(n));
+			n++;
+			h = (float) GETDW(DWP(n));
+			n++;
 		}
 #ifdef DEBUG_EMFPLUS_2
 		printf ("\n\t\t%d - x %g, y %g, w %g, h %g", i, x, y, w, h);

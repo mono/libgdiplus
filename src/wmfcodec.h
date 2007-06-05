@@ -35,8 +35,6 @@
 		if (params < (x)) goto cleanup; \
 	} while (0)
 
-#define GETDW(x)	(*(DWORD*)(data + (x)))
-#define GETW(x)		(*(WORD*)(data + (x)))
 #define RECORDSIZE	0
 #define FUNCTION	4
 #define WP1		6

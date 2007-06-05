@@ -39,6 +39,12 @@ static const BYTE wmf_sig_mask[] = { 0xFF, 0xFF, 0xFF, 0xFF };
 #define DEBUG_WMF_NOTIMPLEMENTED
 #endif
 
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+#define GETW(x)		(*(WORD*)(data + (x)))
+#else
+#define GETW(x)		(GUINT16_FROM_LE(*(WORD*)(data + (x))))
+#endif
+
 ImageCodecInfo*
 gdip_getcodecinfo_wmf ()
 {
@@ -117,8 +123,10 @@ Polygon (MetafilePlayContext *context, BYTE *data, int len)
 
 	int n = 2;
 	for (p = 0, pt = points; p < num; p++, pt++) {
-		pt->X = GETW(WP(n++));
-		pt->Y = GETW(WP(n++));
+		pt->X = GETW(WP(n));
+		n++;
+		pt->Y = GETW(WP(n));
+		n++;
 #ifdef DEBUG_WMF
 		printf ("\n\tpoly to %g,%g", pt->X, pt->Y);
 #endif
@@ -146,8 +154,10 @@ Polyline (MetafilePlayContext *context, BYTE *data)
 	SHORT y1 = GETW(WP3);
 	int n = 4;
 	for (p = 1; p < num; p++) {
-		SHORT x2 = GETW(WP(n++));
-		SHORT y2 = GETW(WP(n++));
+		SHORT x2 = GETW(WP(n));
+		n++;
+		SHORT y2 = GETW(WP(n));
+		n++;
 #ifdef DEBUG_WMF_2
 		printf ("\n\tdraw from %d,%d to %d,%d", x1, y1, x2, y2);
 #endif
@@ -179,7 +189,8 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data)
 	int n = 2;
 	/* read size of each polygon and allocate the required memory */
 	for (i = 0; i < poly_num; i++) {
-		current->num = GETW(WP(n++));
+		current->num = GETW(WP(n));
+		n++;
 		current->points = (GpPointF*) GdipAlloc (current->num * sizeof (GpPointF));
 #ifdef DEBUG_WMF_2
 		printf ("\n\tSub Polygon #%d has %d points", i, current->num);
@@ -193,8 +204,10 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data)
 		GpPointF *pt = current->points;
 		int p;
 		for (p = 0; p < current->num; p++) {
-			pt->X = GETW(WP(n++));
-			pt->Y = GETW(WP(n++));
+			pt->X = GETW(WP(n));
+			n++;
+			pt->Y = GETW(WP(n));
+			n++;
 #ifdef DEBUG_WMF_3
 			printf ("\n\t\tpoly to %g,%g", pt->X, pt->Y);
 #endif
