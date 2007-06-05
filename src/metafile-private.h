@@ -60,6 +60,12 @@
 
 #define gdip_get_metaheader(image)	(&((GpMetafile*)image)->metafile_header)
 
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+#define GETDW(x)	(*(DWORD*)(data + (x)))
+#else
+#define GETDW(x)	(GUINT32_FROM_LE(*(DWORD*)(data + (x))))
+#endif
+
 typedef struct {
 	void *ptr;
 	int type;

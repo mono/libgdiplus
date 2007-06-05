@@ -1,3 +1,8 @@
+2007-06-05  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* emfcodec.c, metafile-private.h, wmfcodec.c, wmfcodec.h: ++ is unsafe
+	to use with the GUINTx_FROM_LE macro. Also avoid macro re-declarations
+
 2007-05-30  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* gifcodec.c: Add support for interlaced GIF. Fix bug #81773
