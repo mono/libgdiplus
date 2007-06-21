@@ -53,7 +53,7 @@ GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStart
 }
 
 void 
-GdiplusShutdown (ULONG *token)
+GdiplusShutdown (ULONG_PTR token)
 {
 	if (startup) {
 		releaseCodecList ();

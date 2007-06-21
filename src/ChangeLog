@@ -1,9 +1,13 @@
+2007-06-21  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* general.c|h: Fix signature for GdiplusShutdown. Fix bug #81842.
+
 2007-06-21  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bitmap.c, bmpcodec.c, icocodec.c, imageattributes.c, image.c,
 	jpegcodec.c, pngcodec.c, tiffcodec.c, gdipenums.h: Fix PixelFormat*Rgb
 	(and Argb) to PixelFormat*RGB (and ARGB) to match MS GDI+ definitions.
-	Patch by Yves Bastide.
+	Patch by Yves Bastide. Fix #81841
 
 2007-06-05  Sebastien Pouliot  <sebastien@ximian.com> 
 

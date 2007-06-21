@@ -39,7 +39,7 @@ typedef struct {
 } GdiplusStartupOutput;
 
 GpStatus GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStartupOutput *output);
-void GdiplusShutdown (ULONG_PTR *token);
+void GdiplusShutdown (ULONG_PTR token);
 
 /* Memory / public API */
 void* GdipAlloc (size_t size);
