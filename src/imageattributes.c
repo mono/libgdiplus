@@ -251,13 +251,11 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 					b = (b_new > 0xff) ? 0xff : (BYTE) b_new;
 
 					/* remember that Cairo use pre-multiplied alpha, e.g. 50% red == 0x80800000 not 0x80ff0000 */
-					if (a_new < 0xff) {
-						a = (BYTE) a_new;
+					a = (BYTE) a_new;
+					if (a < 0xff) {
 						r = pre_multiplied_table [r][a];
 						g = pre_multiplied_table [g][a];
 						b = pre_multiplied_table [b][a];
-					} else {
-						a = 0xff;
 					}
 
 					set_pixel_bgra (color_p, 0, b, g, r, a);

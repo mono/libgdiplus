@@ -1,3 +1,8 @@
+2007-06-21  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* imageattributes.c: Fix "too clever" optimization with alpha when 
+	applying a ColorMatrix.
+
 2007-06-21  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* customlinecap.c: Fix #81829 to allow either a fill or stroke path 
