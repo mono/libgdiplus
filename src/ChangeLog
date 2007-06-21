@@ -1,3 +1,8 @@
+2007-06-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.h: Add missing GdipGetClip prototype. Fix #81844. Patch by
+	Yves Bastide. 
+
 2007-06-21  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* general.c|h: Fix signature for GdiplusShutdown. Fix bug #81842.

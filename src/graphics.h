@@ -145,6 +145,7 @@ GpStatus GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace,
 GpStatus GdipTransformPointsI (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPoint *points, INT count);
 
 GpStatus GdipResetClip (GpGraphics *graphics);
+GpStatus GdipGetClip (GpGraphics *graphics, GpRegion *region);
 GpStatus GdipGetClipBounds (GpGraphics *graphics, GpRectF *rect);
 GpStatus GdipGetClipBoundsI (GpGraphics *graphics, GpRect *rect);
 GpStatus GdipGetVisibleClipBounds (GpGraphics *graphics, GpRectF *rect);
