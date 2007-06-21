@@ -19,17 +19,17 @@ main (int argc, char **argv)
     unsigned long *lptr;
     unsigned char *cptr;
     BYTE *scan0 = (BYTE*) GdipAlloc(10 * 10 * 4);
-    GpStatus status = GdipCreateBitmapFromScan0 (10, 10, 10 * 4, PixelFormat32bppArgb, scan0, &bitmap);
+    GpStatus status = GdipCreateBitmapFromScan0 (10, 10, 10 * 4, PixelFormat32bppARGB, scan0, &bitmap);
     CHECK_STATUS(1);
 
     printf ("Full rectangle, no format conversion, read only\n");
     r.X = 0; r.Y = 0;
     r.Width = 10; r.Height = 10;
-    status = GdipBitmapLockBits (bitmap, &r, ImageLockModeRead, PixelFormat32bppArgb, &d);
+    status = GdipBitmapLockBits (bitmap, &r, ImageLockModeRead, PixelFormat32bppARGB, &d);
     CHECK_STATUS(1);
 
     printf ("Attempt to re-lock (should fail)\n");
-    status = GdipBitmapLockBits (bitmap, &r, ImageLockModeRead, PixelFormat32bppArgb, &q);
+    status = GdipBitmapLockBits (bitmap, &r, ImageLockModeRead, PixelFormat32bppARGB, &q);
     CHECK_STATUS(0);
 
     printf ("Unlock\n");
@@ -47,7 +47,7 @@ main (int argc, char **argv)
     printf ("\nHalf rectangle, no format conversion, read only\n");
     r.X = 5; r.Y = 5;
     r.Width = 5; r.Height = 5;
-    status = GdipBitmapLockBits (bitmap, &r, ImageLockModeRead, PixelFormat32bppArgb, &d);
+    status = GdipBitmapLockBits (bitmap, &r, ImageLockModeRead, PixelFormat32bppARGB, &d);
     CHECK_STATUS(1);
 
     for (j = 0; j < 5; j++) {
@@ -72,7 +72,7 @@ main (int argc, char **argv)
     printf ("\nHalf rectangle, 32bpp ARGB -> 32bpp RGB, read only\n");
     r.X = 5; r.Y = 5;
     r.Width = 5; r.Height = 5;
-    status = GdipBitmapLockBits (bitmap, &r, ImageLockModeRead, PixelFormat32bppRgb, &d);
+    status = GdipBitmapLockBits (bitmap, &r, ImageLockModeRead, PixelFormat32bppRGB, &d);
     CHECK_STATUS(1);
 
     lptr = (unsigned long *) d.Scan0;
@@ -91,7 +91,7 @@ main (int argc, char **argv)
     printf ("\nHalf rectangle, 32bpp ARGB -> 24bpp RGB, read/write only\n");
     r.X = 5; r.Y = 5;
     r.Width = 5; r.Height = 5;
-    status = GdipBitmapLockBits (bitmap, &r, ImageLockModeRead | ImageLockModeWrite, PixelFormat24bppRgb, &d);
+    status = GdipBitmapLockBits (bitmap, &r, ImageLockModeRead | ImageLockModeWrite, PixelFormat24bppRGB, &d);
     CHECK_STATUS(1);
 
     for (j = 0; j < 5; j++) {

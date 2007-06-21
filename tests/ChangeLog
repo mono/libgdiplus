@@ -1,3 +1,7 @@
+2007-06-21 Sebastien Pouliot  <sebastien@ximian.com>
+
+	* testbits.cs: Fix Rgb|Argb definitions. Patch by Yves Bastide.
+
 2007-04-24 Sebastien Pouliot  <sebastien@ximian.com>
 
 	* testbits.cs: Use public header file. Comment stuff that use private
