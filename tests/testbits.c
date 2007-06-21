@@ -54,7 +54,7 @@ main (int argc, char **argv)
         lptr = (unsigned long *) d.Scan0 + j * d.Stride;
         printf ("%d: ", j);
         for (i = 0; i < 5; i++) {
-            printf ("%08x ", *lptr++);
+            printf ("%08lx ", *lptr++);
         }
         printf ("\n");
     }
@@ -79,7 +79,7 @@ main (int argc, char **argv)
     for (j = 0; j < 5; j++) {
         printf ("%d: ", j);
         for (i = 0; i < 5; i++) {
-            printf ("%08x ", *lptr++);
+            printf ("%08lx ", *lptr++);
         }
         printf ("\n");
     }

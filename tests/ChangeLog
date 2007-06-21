@@ -1,3 +1,8 @@
+2007-06-21  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* testbits.c, testgdi.c: Fix #81845 to allow using with C++ compilers 
+	and -Werror. Patch by Yves Bastide.
+
 2007-06-21 Sebastien Pouliot  <sebastien@ximian.com>
 
 	* testbits.cs: Fix Rgb|Argb definitions. Patch by Yves Bastide.
