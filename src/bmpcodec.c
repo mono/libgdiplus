@@ -95,19 +95,19 @@ gdip_get_bmp_pixelformat (BITMAPINFOHEADER *bih, PixelFormat *dest)
 		if (bitCount != 16)
 			return InvalidParameter;
 		/* note: incomplete at this stage */
-		*dest = PixelFormat16bppRgb565;
+		*dest = PixelFormat16bppRGB565;
 		break;
 	default:
 	        switch (bitCount) {
 	        case 32:
-	                *dest = PixelFormat32bppRgb;
+	                *dest = PixelFormat32bppRGB;
 			break;
 	        case 24:
-	                *dest = PixelFormat24bppRgb;
+	                *dest = PixelFormat24bppRGB;
 			break;
 	        case 16:
 			/* MS produce such files (i.e. bad header) for storing ImageList bitmaps, see bug #80797 */
-	                *dest = PixelFormat16bppRgb565;
+	                *dest = PixelFormat16bppRGB565;
 			break;
 	        case 8:
 	                *dest = PixelFormat8bppIndexed;
@@ -138,7 +138,7 @@ gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 	bmi->biWidth = GULONG_FROM_LE (bitmap->active_bitmap->width);
 	bmi->biHeight = GULONG_FROM_LE (bitmap->active_bitmap->height);
 	bmi->biPlanes = GUINT16_FROM_LE (1);
-	if (format != PixelFormat24bppRgb)
+	if (format != PixelFormat24bppRGB)
 		bmi->biBitCount = GUINT16_FROM_LE (gdip_get_pixel_format_bpp (bitmap->active_bitmap->pixel_format));
 	else
 		bmi->biBitCount = GUINT16_FROM_LE (24);
@@ -151,7 +151,7 @@ gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 	bmi->biWidth = bitmap->active_bitmap->width;
 	bmi->biHeight = bitmap->active_bitmap->height;
 	bmi->biPlanes = 1;
-	if (format != PixelFormat24bppRgb)
+	if (format != PixelFormat24bppRGB)
 		bmi->biBitCount = gdip_get_pixel_format_bpp (bitmap->active_bitmap->pixel_format);
 	else
 		bmi->biBitCount = 24;
@@ -808,7 +808,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	}
 
 	/* for 16bbp images we need to be more precise */
-	if (format == PixelFormat16bppRgb565) {
+	if (format == PixelFormat16bppRGB565) {
 		/* check if we're dealing with a BITMAPV4HEADER (or later) structure */
 		if (bmi.biSize >= sizeof (BITMAPV4HEADER)) {
 			/* the new structure contains the ARGB masks */
@@ -848,7 +848,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 
 		/* note: CAIRO_FORMAT_RGB16_565 is deprecated so we're promoting the bitmap to 32RGB */
 		/* why 32bpp when 24 would be enough ? because MS GDI+ loads them as such, but can't display them (empty) */
-		format = PixelFormat32bppRgb;
+		format = PixelFormat32bppRGB;
 		/* 16bbp bitmap don't seems reversed like their height indicates */
 		upsidedown = FALSE;
 	}
@@ -870,12 +870,12 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	case PixelFormat8bppIndexed:
 		result->active_bitmap->stride =  result->active_bitmap->width;
 		break;
-	case PixelFormat24bppRgb:
+	case PixelFormat24bppRGB:
 		result->active_bitmap->stride = result->active_bitmap->width * 4;
 		break;
 	default:
 		/* For other types, we assume 32 bit and translate into 32 bit from source format */
-		result->active_bitmap->pixel_format = PixelFormat32bppRgb;
+		result->active_bitmap->pixel_format = PixelFormat32bppRGB;
 		result->active_bitmap->stride = result->active_bitmap->width * 4;
 		break;
 	}
@@ -1181,7 +1181,7 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 	BYTE			*scan0;
 
 	activebmp = image->active_bitmap;
-	if (activebmp->pixel_format != PixelFormat24bppRgb) {
+	if (activebmp->pixel_format != PixelFormat24bppRGB) {
 		bitmapLen = activebmp->stride * activebmp->height;
 	} else {
 		bitmapLen = activebmp->width * 3;
@@ -1241,7 +1241,7 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 	}
 
 	scan0 = activebmp->scan0;
-	if (activebmp->pixel_format == PixelFormat24bppRgb) {
+	if (activebmp->pixel_format == PixelFormat24bppRGB) {
 		int width = activebmp->width;
 		int height = activebmp->height;
 		int mystride;

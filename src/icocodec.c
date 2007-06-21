@@ -170,7 +170,7 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 	result = gdip_bitmap_new_with_frame (NULL, TRUE);
 	result->type = ImageTypeBitmap;
 	result->image_format = ICON;
-	result->active_bitmap->pixel_format = PixelFormat32bppArgb; /* icons are always promoted to 32 bbp */
+	result->active_bitmap->pixel_format = PixelFormat32bppARGB; /* icons are always promoted to 32 bbp */
 	result->active_bitmap->width = entry.bWidth;
 	result->active_bitmap->height = entry.bHeight;
 	result->active_bitmap->stride = result->active_bitmap->width * 4;

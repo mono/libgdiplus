@@ -331,11 +331,11 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 		 * does not support alpha (transparency). */
 		result->cairo_format = CAIRO_FORMAT_ARGB32;
 		result->active_bitmap->stride = 4 * cinfo.image_width;
-		result->active_bitmap->pixel_format = PixelFormat24bppRgb;
+		result->active_bitmap->pixel_format = PixelFormat24bppRGB;
 	} else if (cinfo.num_components == 4) {
 		result->cairo_format = CAIRO_FORMAT_ARGB32;
 		result->active_bitmap->stride = 4 * cinfo.image_width;
-		result->active_bitmap->pixel_format = PixelFormat32bppRgb;
+		result->active_bitmap->pixel_format = PixelFormat32bppRGB;
 	}
 
 	switch (cinfo.jpeg_color_space) {
@@ -651,10 +651,10 @@ gdip_save_jpeg_image_internal (FILE *fp, PutBytesDelegate putBytesFunc, GpImage 
 
 	/* Verify that we can support this pixel format */
 	switch (image->active_bitmap->pixel_format) {
-		case PixelFormat32bppArgb:
-		case PixelFormat32bppPArgb:
-		case PixelFormat32bppRgb:
-		case PixelFormat24bppRgb:
+		case PixelFormat32bppARGB:
+		case PixelFormat32bppPARGB:
+		case PixelFormat32bppRGB:
+		case PixelFormat24bppRGB:
 			break;
 
 		case PixelFormat1bppIndexed:
@@ -704,7 +704,7 @@ gdip_save_jpeg_image_internal (FILE *fp, PutBytesDelegate putBytesFunc, GpImage 
 	if (gdip_get_pixel_format_components (image->active_bitmap->pixel_format) == 3) {
 		cinfo.in_color_space = JCS_RGB;
 		cinfo.input_components = 3;
-		if (image->active_bitmap->pixel_format == PixelFormat24bppRgb) {
+		if (image->active_bitmap->pixel_format == PixelFormat24bppRGB) {
 			need_argb_conversion = 1;
 		} else {
 			need_argb_conversion = 0;

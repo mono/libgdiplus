@@ -127,7 +127,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	if (colormap->colormap_elem || gamma->gamma_correction || trans->key_enabled || 
 	    (cmatrix->colormatrix_enabled && cmatrix->colormatrix != NULL)) {
-		bitmap->active_bitmap->pixel_format = PixelFormat32bppArgb;
+		bitmap->active_bitmap->pixel_format = PixelFormat32bppARGB;
 		bmpdest = gdip_bitmap_new_with_frame(NULL, FALSE);
 		gdip_bitmapdata_clone(bitmap->active_bitmap, &bmpdest->frames[0].bitmap, 1);
 		bmpdest->frames[0].count = 1;

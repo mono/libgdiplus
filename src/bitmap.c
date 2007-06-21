@@ -75,10 +75,10 @@ gdip_is_a_supported_pixelformat (PixelFormat fmt)
 	case PixelFormat1bppIndexed:
 	case PixelFormat4bppIndexed:
 	case PixelFormat8bppIndexed:
- 	case PixelFormat24bppRgb:
-	case PixelFormat32bppArgb:
-	case PixelFormat32bppPArgb:
-	case PixelFormat32bppRgb:
+ 	case PixelFormat24bppRGB:
+	case PixelFormat32bppARGB:
+	case PixelFormat32bppPARGB:
+	case PixelFormat32bppRGB:
 		return TRUE;
 	default:
 		return FALSE;
@@ -775,24 +775,24 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 	}
 	
 	switch (format) {
-		case PixelFormat24bppRgb: {
+		case PixelFormat24bppRGB: {
 			cairo_format = CAIRO_FORMAT_RGB24;  
 			break;
 		}
 
-		case PixelFormat32bppArgb:
-		case PixelFormat32bppPArgb:
+		case PixelFormat32bppARGB:
+		case PixelFormat32bppPARGB:
 			flags = ImageFlagsHasAlpha;
 			/* fall through */
-		case PixelFormat32bppRgb:
+		case PixelFormat32bppRGB:
 			cairo_format = CAIRO_FORMAT_ARGB32;
 			break;
 
-		case PixelFormat16bppRgb555:
-		case PixelFormat16bppRgb565:
+		case PixelFormat16bppRGB555:
+		case PixelFormat16bppRGB565:
 			/* fake them as 32bpp RGB as Cairo deprecated CAIRO_FORMAT_RGB16_565 support */
 			/* why 32bpp ? because that's the result of MS GDI+ when loading them, even if the bitmap is empty */
-			format = PixelFormat32bppRgb;
+			format = PixelFormat32bppRGB;
 			stride *= 2;
 			cairo_format = CAIRO_FORMAT_ARGB32;
 			break;
@@ -868,7 +868,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 			memset (scan0, 0, stride * height);
 		} else {
 			/* Since the pixel format is not an alpha pixel format (i.e., it is
-			 * either PixelFormat24bppRgb or PixelFormat32bppRgb), the image should be
+			 * either PixelFormat24bppRGB or PixelFormat32bppRGB), the image should be
 			 * initially black, not initially transparent. Thus, we need to set
 			 * the alpha channel, which the user code doesn't think exists but
 			 * Cairo is still paying attention to, to 0xFF.
@@ -982,7 +982,7 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	bitmap_data->width = width;
 	bitmap_data->height = height;
 	bitmap_data->stride = stride;
-	bitmap_data->pixel_format = PixelFormat32bppArgb;
+	bitmap_data->pixel_format = PixelFormat32bppARGB;
 	bitmap_data->reserved = GBD_OWN_SCAN0;
 	bitmap_data->scan0 = GdipAlloc(stride * height);
 	if (bitmap_data->scan0 == NULL) {
@@ -1303,7 +1303,7 @@ gdip_is_pixel_format_conversion_valid (PixelFormat src, PixelFormat dest)
 }
 
 #if FALSE
-/* PixelFormat24bppRgb is internally stored by Cairo as a four bytes. Convert it to 3-byte (RGB) */	
+/* PixelFormat24bppRGB is internally stored by Cairo as a four bytes. Convert it to 3-byte (RGB) */	
 int
 gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride)
 {
@@ -1339,7 +1339,7 @@ gdip_from_ARGB_to_RGB (BYTE *src, int width, int height, int stride, BYTE **dest
 }
 
 
-/* PixelFormat24bppRgb is internally stored by Cairo as a three bytes. Convert it to 4-byte (ARGB) */	
+/* PixelFormat24bppRGB is internally stored by Cairo as a three bytes. Convert it to 4-byte (ARGB) */	
 int
 gdip_from_RGB_to_ARGB (BYTE *src, int width, int height, int stride, BYTE **dest, int* dest_stride)
 {
@@ -1424,7 +1424,7 @@ gdip_init_pixel_stream (StreamingState *state, BitmapData *data, int x, int y, i
 		state->pixels_per_byte = 1;
 		state->scan += x; 			/* x * 8 / 8 */
 		break;
-	case PixelFormat24bppRgb:
+	case PixelFormat24bppRGB:
 		/* GDI+ use 3 bytes for 24 bpp while Cairo use 4 bytes */
 		if (data->reserved & GBD_TRUE24BPP) {
 			state->pixels_per_byte = -3;
@@ -1432,7 +1432,7 @@ gdip_init_pixel_stream (StreamingState *state, BitmapData *data, int x, int y, i
 			break;
 		}
 		/* else continue (don't break) */
-	case PixelFormat32bppRgb:
+	case PixelFormat32bppRGB:
 	default:
 		/* indicate full RGB processing */
 		state->pixels_per_byte = -(gdip_get_pixel_format_bpp (data->pixel_format) >> 3); 
@@ -1678,9 +1678,9 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 			state->scan [0] = (pixel_value >> 24);
 			state->scan [1] = (pixel_value >> 16);
 			state->scan [2] = (pixel_value >> 8);
-			state->scan [3] = (state->data->pixel_format == PixelFormat32bppRgb) ? 0xFF : pixel_value;
+			state->scan [3] = (state->data->pixel_format == PixelFormat32bppRGB) ? 0xFF : pixel_value;
 #else
-			if (state->data->pixel_format == PixelFormat32bppRgb)
+			if (state->data->pixel_format == PixelFormat32bppRGB)
 				pixel_value |= 0xFF000000;
 			*(unsigned int *)state->scan = pixel_value;
 #endif
@@ -1797,9 +1797,9 @@ static BOOL
 gdip_is_a_32bit_pixelformat (PixelFormat format)
 {
 	switch (format) {
-		case PixelFormat32bppRgb:
-		case PixelFormat32bppArgb:
-		case PixelFormat32bppPArgb: /* all of these use CAIRO_FORMAT_ARGB, which is 4 bytes wide */
+		case PixelFormat32bppRGB:
+		case PixelFormat32bppARGB:
+		case PixelFormat32bppPARGB: /* all of these use CAIRO_FORMAT_ARGB, which is 4 bytes wide */
 			return TRUE;
 		default:
 			return FALSE;
@@ -1856,7 +1856,7 @@ gdip_make_alpha_opaque (BitmapData *data)
 	int		f;
 
 	/* sanity check; make sure we aren't mangling any image data */
-	if ((data->pixel_format != PixelFormat32bppArgb) && (data->pixel_format != PixelFormat32bppRgb)) {
+	if ((data->pixel_format != PixelFormat32bppARGB) && (data->pixel_format != PixelFormat32bppRGB)) {
 		return;
 	}
 
@@ -1931,7 +1931,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST Rect *srcRect, UINT flags, Pixel
 	root_data->reserved |= GBD_LOCKED;
 
 	switch (format) {
-	case PixelFormat24bppRgb:
+	case PixelFormat24bppRGB:
 		/* workaround a hack we have (because Cairo use 32bits in this case) */
 		dest_pixel_format_bpp = 24;
 		locked_data->reserved |= GBD_TRUE24BPP;
@@ -2049,12 +2049,12 @@ GdipBitmapSetPixel (GpBitmap *bitmap, int x, int y, ARGB color)
 
 	v = (BYTE*)(data->scan0) + y * data->stride;
 	switch (data->pixel_format) {
-	case PixelFormat24bppRgb:
-	case PixelFormat32bppRgb:
+	case PixelFormat24bppRGB:
+	case PixelFormat32bppRGB:
 		color |= 0xFF000000; /* force the alpha for Cairo */
 		/* fall through */
-	case PixelFormat32bppArgb:
-	case PixelFormat32bppPArgb: {
+	case PixelFormat32bppARGB:
+	case PixelFormat32bppPARGB: {
 		ARGB *scan = (ARGB *)v;
 		scan[x] = color;
 		break;
@@ -2111,10 +2111,10 @@ GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 		switch (data->pixel_format) {
 		case PixelFormat16bppGrayScale:
 			return InvalidParameter;
-		case PixelFormat24bppRgb:
-		case PixelFormat32bppArgb:
-		case PixelFormat32bppPArgb:
-		case PixelFormat32bppRgb: {
+		case PixelFormat24bppRGB:
+		case PixelFormat32bppARGB:
+		case PixelFormat32bppPARGB:
+		case PixelFormat32bppRGB: {
 			ARGB *scan = (ARGB *)v;
 			*color = scan[x];
 			break;
@@ -2151,7 +2151,7 @@ gdip_bitmap_ensure_surface (GpBitmap *bitmap)
 
 	if ((bitmap->surface == NULL) && (data != NULL) && (data->scan0 != NULL)) {
 		switch (data->pixel_format) {
-			case PixelFormat24bppRgb: {
+			case PixelFormat24bppRGB: {
 				bitmap->surface = cairo_image_surface_create_for_data(
 							(BYTE*)data->scan0,
 							CAIRO_FORMAT_RGB24, 
@@ -2161,9 +2161,9 @@ gdip_bitmap_ensure_surface (GpBitmap *bitmap)
 				break;
 			}
 
-			case PixelFormat32bppArgb:
-			case PixelFormat32bppRgb:
-			case PixelFormat32bppPArgb: {
+			case PixelFormat32bppARGB:
+			case PixelFormat32bppRGB:
+			case PixelFormat32bppPARGB: {
 				bitmap->surface = cairo_image_surface_create_for_data(
 							(BYTE*)data->scan0,
 							CAIRO_FORMAT_ARGB32,
@@ -2240,10 +2240,10 @@ gdip_convert_indexed_to_rgb (GpBitmap *indexed_bmp)
 	}
 
 	if ((palette->Flags & PaletteFlagsHasAlpha) == 0) {
-		format = PixelFormat32bppRgb;
+		format = PixelFormat32bppRGB;
 		set_pixel_bgra (&force_alpha, 0, 0, 0, 0, 0xFF); /* full alpha bits set */
 	} else {
-		format = PixelFormat32bppArgb;
+		format = PixelFormat32bppARGB;
 		force_alpha = 0;
 	}
 

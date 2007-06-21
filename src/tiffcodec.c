@@ -997,7 +997,7 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 				TIFFSetField (tiff, TIFFTAG_PAGENUMBER, page, num_of_pages);
 			}
 
-			if (((bitmap_data->pixel_format & PixelFormatAlpha) != 0) || (bitmap_data->pixel_format == PixelFormat32bppRgb)) {
+			if (((bitmap_data->pixel_format & PixelFormatAlpha) != 0) || (bitmap_data->pixel_format == PixelFormat32bppRGB)) {
 				samples_per_pixel = 4;
 				bits_per_sample = 8;
 			} else {
@@ -1122,9 +1122,9 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 
 		if (TIFFGetField(tiff, TIFFTAG_SAMPLESPERPIXEL, &samples_per_pixel)) {
 			if (samples_per_pixel != 4) {
-				bitmap_data->pixel_format = PixelFormat24bppRgb;
+				bitmap_data->pixel_format = PixelFormat24bppRGB;
 			} else {
-				bitmap_data->pixel_format = PixelFormat32bppArgb;
+				bitmap_data->pixel_format = PixelFormat32bppARGB;
 				bitmap_data->image_flags |= ImageFlagsHasAlpha;
 			}
 		}

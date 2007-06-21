@@ -1,3 +1,10 @@
+2007-06-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c, bmpcodec.c, icocodec.c, imageattributes.c, image.c,
+	jpegcodec.c, pngcodec.c, tiffcodec.c, gdipenums.h: Fix PixelFormat*Rgb
+	(and Argb) to PixelFormat*RGB (and ARGB) to match MS GDI+ definitions.
+	Patch by Yves Bastide.
+
 2007-06-05  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* emfcodec.c, metafile-private.h, wmfcodec.c, wmfcodec.h: ++ is unsafe

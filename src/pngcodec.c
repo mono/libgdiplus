@@ -359,7 +359,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			result->active_bitmap->pixel_format = PixelFormat1bppIndexed;
 			result->cairo_format = CAIRO_FORMAT_A1;
 			break;
-		// note: 2bpp is a special case as the format is "promoted" to PixelFormat32bppArgb / CAIRO_FORMAT_ARGB32
+		// note: 2bpp is a special case as the format is "promoted" to PixelFormat32bppARGB / CAIRO_FORMAT_ARGB32
 		//       we deal with this later...
 		case 4:
 			result->active_bitmap->pixel_format = PixelFormat4bppIndexed;
@@ -517,7 +517,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 
 		result->cairo_format = CAIRO_FORMAT_ARGB32;
 		result->active_bitmap->stride = stride;
-		result->active_bitmap->pixel_format = PixelFormat32bppArgb;
+		result->active_bitmap->pixel_format = PixelFormat32bppARGB;
 		result->active_bitmap->width = width;
 		result->active_bitmap->height = height;
 		result->active_bitmap->scan0 = rawdata;
@@ -530,10 +530,10 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			result->active_bitmap->stride);
 
 		if (channels == 3) {
-			result->active_bitmap->pixel_format = PixelFormat24bppRgb;
+			result->active_bitmap->pixel_format = PixelFormat24bppRGB;
 			result->active_bitmap->image_flags = ImageFlagsColorSpaceRGB;
 		} else if (channels == 4) {
-			result->active_bitmap->pixel_format = PixelFormat32bppArgb;
+			result->active_bitmap->pixel_format = PixelFormat32bppARGB;
 			result->active_bitmap->image_flags = ImageFlagsColorSpaceRGB;
 		} else if ((channels == 1) && (color_type == PNG_COLOR_TYPE_GRAY)) {
 			// doesn't apply to 2bpp images
@@ -614,14 +614,14 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 	}
 
 	switch (image->active_bitmap->pixel_format) {
-		case PixelFormat32bppArgb:
-		case PixelFormat32bppPArgb:
-		case PixelFormat32bppRgb:
+		case PixelFormat32bppARGB:
+		case PixelFormat32bppPARGB:
+		case PixelFormat32bppRGB:
 			color_type = PNG_COLOR_TYPE_RGB_ALPHA;
 			bit_depth = 8;
 			break;
 
-		case PixelFormat24bppRgb:
+		case PixelFormat24bppRGB:
 			color_type = PNG_COLOR_TYPE_RGB; /* FIXME - we should be able to write grayscale PNGs */
 			bit_depth = 8;
 			break;
@@ -642,13 +642,13 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 			break;
 
 		/* We're not going to even try to save these images, for now */
-		case PixelFormat64bppArgb:
-		case PixelFormat64bppPArgb:
-		case PixelFormat48bppRgb:
-		case PixelFormat16bppArgb1555:
+		case PixelFormat64bppARGB:
+		case PixelFormat64bppPARGB:
+		case PixelFormat48bppRGB:
+		case PixelFormat16bppARGB1555:
 		case PixelFormat16bppGrayScale:
-		case PixelFormat16bppRgb555:
-		case PixelFormat16bppRgb565:
+		case PixelFormat16bppRGB555:
+		case PixelFormat16bppRGB565:
 		default:
 			color_type = -1;
 			bit_depth = -1;
@@ -686,7 +686,7 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 	png_write_info (png_ptr, info_ptr);
 
 #if 0
-	if ((image->active_bitmap->pixel_format == Format24bppRgb) || (image->active_bitmap->pixel_format == Format32bppRgb)) {
+	if ((image->active_bitmap->pixel_format == Format24bppRGB) || (image->active_bitmap->pixel_format == Format32bppRGB)) {
 		png_set_filler (png_ptr, 0, PNG_FILLER_AFTER);
 	} else if (image->active_bitmap->pixel_format == Format8bppIndexed) {
 		png_set_filler (png_ptr, 0, PNG_FILLER_AFTER);
@@ -699,7 +699,7 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 		for (i = 0; i < image->active_bitmap->height; i++) {
 			png_write_row (png_ptr, image->active_bitmap->scan0 + i * image->active_bitmap->stride);
 		}
-	} else if (image->active_bitmap->pixel_format == PixelFormat24bppRgb) {
+	} else if (image->active_bitmap->pixel_format == PixelFormat24bppRGB) {
 		int j;
 		BYTE *row_pointer = GdipAlloc (image->active_bitmap->width * 3);
 		for (i = 0; i < image->active_bitmap->height; i++) {

@@ -295,15 +295,15 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 		return InvalidParameter;
 
 	/*
-	 * Microsoft GDI+ only supports these pixel formats Format24bppRgb, Format32bppArgb, 
-	 * Format32bppPArgb, Format32bppRgb, Format48bppRgb, Format64bppArgb, Format64bppPArgb
+	 * Microsoft GDI+ only supports these pixel formats Format24bppRGB, Format32bppARGB, 
+	 * Format32bppPARGB, Format32bppRGB, Format48bppRGB, Format64bppARGB, Format64bppPARGB
 	 * but we're limited to 24/32 inside libgdiplus
 	 */
 	switch (image->active_bitmap->pixel_format) {
-	case PixelFormat24bppRgb:
-	case PixelFormat32bppArgb:
-	case PixelFormat32bppPArgb:
-	case PixelFormat32bppRgb:
+	case PixelFormat24bppRGB:
+	case PixelFormat32bppARGB:
+	case PixelFormat32bppPARGB:
+	case PixelFormat32bppRGB:
 		break;
 	default:
 		return OutOfMemory;
@@ -1263,7 +1263,7 @@ GdipGetImagePixelFormat (GpImage *image, PixelFormat *format)
 		*format = image->active_bitmap->pixel_format;
 		break;
 	case ImageTypeMetafile:
-		*format = PixelFormat32bppRgb;
+		*format = PixelFormat32bppRGB;
 		break;
 	default:
 		return InvalidParameter;
@@ -2026,19 +2026,19 @@ int
 gdip_get_pixel_format_depth(PixelFormat pixfmt)
 {
 	switch (pixfmt) {
-		case PixelFormat16bppArgb1555:
+		case PixelFormat16bppARGB1555:
 		case PixelFormat16bppGrayScale:
-		case PixelFormat16bppRgb555:
-		case PixelFormat16bppRgb565:
-		case PixelFormat24bppRgb:
-		case PixelFormat32bppArgb:
-		case PixelFormat32bppPArgb:
-		case PixelFormat32bppRgb:
+		case PixelFormat16bppRGB555:
+		case PixelFormat16bppRGB565:
+		case PixelFormat24bppRGB:
+		case PixelFormat32bppARGB:
+		case PixelFormat32bppPARGB:
+		case PixelFormat32bppRGB:
 			return 8;		/* FIXME - shouldn't this be 32? - pdb */
 
-		case PixelFormat48bppRgb:
-		case PixelFormat64bppArgb:
-		case PixelFormat64bppPArgb:
+		case PixelFormat48bppRGB:
+		case PixelFormat64bppARGB:
+		case PixelFormat64bppPARGB:
 			return 16;
 
 		case PixelFormat8bppIndexed:
@@ -2061,18 +2061,18 @@ int
 gdip_get_pixel_format_components(PixelFormat pixfmt)
 {
 	switch (pixfmt) {
-		case PixelFormat16bppArgb1555:
-		case PixelFormat32bppArgb:
-		case PixelFormat32bppPArgb:
-		case PixelFormat64bppArgb:
-		case PixelFormat64bppPArgb:
-		case PixelFormat32bppRgb:	/* Cairo uses four bytes for 32BPP*/
-		case PixelFormat24bppRgb:
+		case PixelFormat16bppARGB1555:
+		case PixelFormat32bppARGB:
+		case PixelFormat32bppPARGB:
+		case PixelFormat64bppARGB:
+		case PixelFormat64bppPARGB:
+		case PixelFormat32bppRGB:	/* Cairo uses four bytes for 32BPP*/
+		case PixelFormat24bppRGB:
 			return 4;
 
-		case PixelFormat16bppRgb555:
-		case PixelFormat16bppRgb565: 
-		case PixelFormat48bppRgb:
+		case PixelFormat16bppRGB555:
+		case PixelFormat16bppRGB565: 
+		case PixelFormat48bppRGB:
 			return 3;
 
 		case PixelFormat16bppGrayScale:
