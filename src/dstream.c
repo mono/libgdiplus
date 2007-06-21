@@ -18,8 +18,8 @@
  *
  */
 
-#include "dstream.h"
 #include "gdiplus-private.h"
+#include "dstream.h"
 
 struct _dstream_pvt {
 	GetBytesDelegate read;

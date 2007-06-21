@@ -28,6 +28,11 @@
 #ifndef _FLATAPI_H
 #define _FLATAPI_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 /*
  * If you ever need a workaround specific to libgdiplus then use the following define
  */
@@ -74,11 +79,17 @@ typedef struct {
 	UINT		Width;
 	UINT		Height;
 	INT		Stride;
+	/* C++ compilers should need '::' (and GCC does) */
+#ifdef __cplusplus
+	::PixelFormat	PixelFormat;
+#else
 	PixelFormat	PixelFormat;
+#endif
 	VOID 		*Scan0;
 	UINT		*Reserved;
 } BitmapData;
 
+#include "general.h"
 #include "adjustablearrowcap.h"
 #include "bitmap.h"
 #include "brush.h"
@@ -89,6 +100,7 @@ typedef struct {
 #include "graphics.h"
 #include "graphics-path.h"
 #include "hatchbrush.h"
+#include "image.h"
 #include "imageattributes.h"
 #include "pen.h"
 #include "matrix.h"
@@ -96,5 +108,9 @@ typedef struct {
 #include "solidbrush.h"
 #include "stringformat.h"
 #include "text.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

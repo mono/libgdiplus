@@ -33,8 +33,8 @@
 #ifndef __CODECS_H__
 #define __CODECS_H__
 
-#include "gdipenums.h"
 #include "win32structs.h"
+#include "gdipenums.h"
 
 typedef struct {
 	GUID	Guid;

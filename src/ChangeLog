@@ -1,3 +1,8 @@
+2007-06-21  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* codecs.h, GdiPlusFlat.h, image.h, dstream.c: Fix #81845 to allow 
+	using with C++ compilers and -Werror. Patch by Yves Bastide.
+
 2007-06-21  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.h: Add missing GdipGetClip prototype. Fix #81844. Patch by

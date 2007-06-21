@@ -31,7 +31,6 @@
 #ifndef __IMAGE_H__
 #define __IMAGE_H__
 
-#include "gdiplus-private.h"
 #include "codecs.h"
 
 /*
