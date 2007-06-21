@@ -1,3 +1,8 @@
+2007-06-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* customlinecap.c: Fix #81829 to allow either a fill or stroke path 
+	when creating a GpCustomLineCap.
+
 2007-06-21  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* codecs.h, GdiPlusFlat.h, image.h, dstream.c: Fix #81845 to allow 

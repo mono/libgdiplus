@@ -129,7 +129,7 @@ GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap
 {
 	GpCustomLineCap *cap;
 
-	if (!fillPath || !strokePath || !customCap)
+	if ((!fillPath && !strokePath) || !customCap)
 		return InvalidParameter;
 
 	cap = gdip_custom_linecap_new ();
