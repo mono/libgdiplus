@@ -1,5 +1,7 @@
-2007-07-03  Sebastien Pouliot  <sebastien@ximian.com> 
+2007-07-03  Sebastien Pouliot  <sebastien@ximian.com>
 
+	* graphics-path.c: Add missing checks in GdipGetPath[Types|Points]
+	functions (based on parts of #81859 patch by Yves Bastide).
 	* region.c: Add a few shortcuts to empty paths|regions combined with 
 	an infinite regions (based on parts of #81833 patch by Yves Bastide).
 

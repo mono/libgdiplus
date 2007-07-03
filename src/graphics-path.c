@@ -350,6 +350,9 @@ GdipGetPathTypes (GpPath *path, BYTE *types, int count)
 	if (!path || !types || (count < 1))
 		return InvalidParameter;
 
+	if (count > path->count)
+		count = path->count;
+
         for (i = 0; i < count; i++)
                 types [i] = path->types->data [i];
         
@@ -361,8 +364,11 @@ GdipGetPathPoints (GpPath *path, GpPointF *points, int count)
 {
 	int i;
 
-	if (!path ||!points || (count < 1))
+	if (!path || !points || (count < 1))
 		return InvalidParameter;
+
+	if (count > path->count)
+		count = path->count;
 
         for (i = 0; i < count; i++) {
 		GpPointF point = g_array_index (path->points, GpPointF, i);
