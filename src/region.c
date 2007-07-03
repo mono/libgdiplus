@@ -1034,6 +1034,9 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 
 	/* special case #3 - the region is infinite */
 	if (gdip_is_InfiniteRegion (region)) {
+		/* additional shortcuts are possible if path is empty */
+		BOOL empty = (path->count == 0);
+
 		switch (combineMode) {
 		case CombineModeUnion:
 			/* Union with infinity is a no-op (still an infinite region) */
@@ -1046,10 +1049,15 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 		case CombineModeIntersect:
 			/* Intersection with infinity is the path itself */
 			gdip_clear_region (region);
-			gdip_region_create_from_path (region, path);
+			if (empty)
+				region->type = RegionTypeRectF;
+			else
+				gdip_region_create_from_path (region, path);
 			return Ok;
 		default:
-			/* Xor and Exclude must be treated as a "normal" case */
+			/* Xor and Exclude must be treated as a "normal" case unless the path is empty */
+			if (empty)
+				return Ok;
 			break;
 		}
 	}
@@ -1160,6 +1168,9 @@ GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combi
 			break;
 		}
 	} else if (gdip_is_InfiniteRegion (region)) {
+		/* additional shortcuts are possible if path is empty */
+		BOOL empty = gdip_is_region_empty (region2);
+
 		switch (combineMode) {
 		case CombineModeUnion:
 			/* Union with infinity is a no-op (still an infinite region) */
@@ -1173,11 +1184,14 @@ GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combi
 			/* Intersection with infinity is the path itself (like an Union with Empty) */
 			gdip_clear_region (region);
 			region->type = RegionTypeRectF;
+			if (empty)
+				return Ok;
 			combineMode = CombineModeUnion; 
 			break;
 		default:
-			/* Xor and Exclude must be treated as a "normal" case */
-			break;
+			/* Xor must be treated as a "normal" case unless the path is empty */
+			if (empty)
+				return Ok;
 		}
 	}
 

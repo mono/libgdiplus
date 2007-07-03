@@ -1,3 +1,8 @@
+2007-07-03  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* region.c: Add a few shortcuts to empty paths|regions combined with 
+	an infinite regions (based on parts of #81833 patch by Yves Bastide).
+
 2007-06-21  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* imageattributes.c: Fix "too clever" optimization with alpha when 
