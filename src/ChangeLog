@@ -1,3 +1,7 @@
+2007-07-05  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* imageattributes.c: Re-fix alpha.
+
 2007-07-03  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c: Add missing checks in GdipGetPath[Types|Points]
