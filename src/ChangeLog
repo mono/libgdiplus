@@ -1,3 +1,8 @@
+2007-07-30  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: Avoid allocations/freeing of memory when reversing
+	the array of points.
+
 2007-07-30  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* bitmap.c: Added global functions to deal with pre-multiplication.

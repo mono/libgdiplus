@@ -579,23 +579,25 @@ GdipReversePath (GpPath *path)
 		return InvalidParameter;
 
 	length = path->count;
-	/* shortcut to avoid allocations */
+	/* shortcut */
 	if (length <= 1)
 		return Ok;
 
-	/* NOTE: PathTypes are NOT reversed */
+	/* FIXME: PathTypes needs to be reversed (#81859) */
 
-	/* FIXME: this could be done without allocations */
-	points = g_array_sized_new (FALSE, TRUE, sizeof (GpPointF), length);
-	if (!points)
-		return OutOfMemory;
+	// note: if length is odd then the middle point doesn't need to switch side
+        for (i = 0; i < (length >> 1); i++) {
+		GpPointF *first = &g_array_index (path->points, GpPointF, i);
+		GpPointF *last = &g_array_index (path->points, GpPointF, length - i - 1);
 
-        for (i = length - 1; i >= 0; i--) {
-                GpPointF pt = g_array_index (path->points, GpPointF, i);
-                g_array_append_val (points, pt);
+		GpPointF temp;
+		temp.X = first->X;
+		temp.Y = first->Y;
+		first->X = last->X;
+		first->Y = last->Y;
+		last->X = temp.X;
+		last->Y = temp.Y;
         }
-	g_array_free (path->points, TRUE);
-        path->points = points;
         
         return Ok;
 }
