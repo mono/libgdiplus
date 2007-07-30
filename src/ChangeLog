@@ -1,3 +1,12 @@
+2007-07-30  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* bitmap.c: Added global functions to deal with pre-multiplication.
+	* bitmap-private.h: New prototypes for pre-multiplication.
+	* texturebrush.c: If required by the format pre-multiply the alpha
+	value of the brush bitmap before it's use as a pattern. Fix #81828.
+	Cleaned-up some unused variables but there's still too much 
+	duplication for my taste (added TODO).
+
 2007-07-30  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-cairo.c: Fix DrawPath offset (bug #82202) and correctly

@@ -149,6 +149,9 @@ GpStatus gdip_bitmapdata_property_find_id (BitmapData *bitmap_data, PROPID id, i
 cairo_surface_t* gdip_bitmap_ensure_surface (GpBitmap *bitmap) GDIP_INTERNAL;
 GpBitmap* gdip_convert_indexed_to_rgb (GpBitmap *bitmap) GDIP_INTERNAL;
 
+BOOL gdip_bitmap_format_needs_premultiplication (GpBitmap *bitmap) GDIP_INTERNAL;
+BYTE* gdip_bitmap_get_premultiplied_scan0 (GpBitmap *bitmap) GDIP_INTERNAL;
+
 void gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, BOOL *allocated) GDIP_INTERNAL;
 
 ColorPalette* gdip_create_greyscale_palette (int num_colors) GDIP_INTERNAL;

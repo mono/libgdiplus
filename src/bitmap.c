@@ -2145,42 +2145,73 @@ GdipBitmapSetResolution (GpBitmap *bitmap, float xdpi, float ydpi)
 cairo_surface_t *
 gdip_bitmap_ensure_surface (GpBitmap *bitmap)
 {
-	BitmapData	*data;
+	cairo_format_t format;
+	BitmapData *data = bitmap->active_bitmap;
 
-	data= bitmap->active_bitmap;
+	if (bitmap->surface || !data || !data->scan0)
+		return bitmap->surface;
 
-	if ((bitmap->surface == NULL) && (data != NULL) && (data->scan0 != NULL)) {
-		switch (data->pixel_format) {
-			case PixelFormat24bppRGB: {
-				bitmap->surface = cairo_image_surface_create_for_data(
-							(BYTE*)data->scan0,
-							CAIRO_FORMAT_RGB24, 
-							data->width, 
-							data->height, 
-							data->stride);
-				break;
-			}
+	switch (data->pixel_format) {
+	case PixelFormat24bppRGB:
+		format = CAIRO_FORMAT_RGB24;
+		break;
 
-			case PixelFormat32bppARGB:
-			case PixelFormat32bppRGB:
-			case PixelFormat32bppPARGB: {
-				bitmap->surface = cairo_image_surface_create_for_data(
-							(BYTE*)data->scan0,
-							CAIRO_FORMAT_ARGB32,
-							data->width, 
-							data->height, 
-							data->stride);
-				break;
-			}
+	case PixelFormat32bppARGB:	/* premultiplication is required */
+	case PixelFormat32bppRGB:	/* no alpha */
+	case PixelFormat32bppPARGB:	/* alpha already premultiplied */
+		format = CAIRO_FORMAT_ARGB32;
+		break;
 
-			default: {
-				g_warning ("gdip_bitmap_ensure_surface: Unable to create a surface for raw bitmap data of format 0x%08x", data->pixel_format);
-				break;
-			}
-		}
+	default:
+		g_warning ("gdip_bitmap_ensure_surface: Unable to create a surface for raw bitmap data of format 0x%08x", data->pixel_format);
+		return NULL;
 	}
 
+	bitmap->surface = cairo_image_surface_create_for_data ((BYTE*)data->scan0, format, 
+		data->width, data->height, data->stride);
 	return bitmap->surface;
+}
+
+BOOL
+gdip_bitmap_format_needs_premultiplication (GpBitmap *bitmap)
+{
+	return (bitmap->active_bitmap->pixel_format == PixelFormat32bppARGB);
+}
+
+BYTE*
+gdip_bitmap_get_premultiplied_scan0 (GpBitmap *bitmap)
+{
+	BitmapData *data = bitmap->active_bitmap;
+	BYTE* premul = (BYTE*) GdipAlloc (data->height * data->stride);
+	if (!premul)
+		return NULL;
+
+	BYTE *source = (BYTE*)data->scan0;
+	BYTE *target = premul;
+	int y, x;
+	for (y = 0; y < data->height; y++) {
+		ARGB *sp = (ARGB*) source;
+		ARGB *tp = (ARGB*) target;
+		for (x = 0; x < data->width; x++) {
+			BYTE a = source [3]; /* format is BGRA */
+			if (a < 0xff) {
+				BYTE *s = (BYTE*)sp;
+				BYTE *t = (BYTE*)tp;
+				t[0] = pre_multiplied_table [s[0]][a];
+				t[1] = pre_multiplied_table [s[1]][a];
+				t[2] = pre_multiplied_table [s[2]][a];
+				t[3] = a;
+			} else {
+				*tp = *sp;
+			}
+			sp++;
+			tp++;
+		}
+		source += data->stride;
+		target += data->stride;
+	}
+
+	return premul;
 }
 
 GpBitmap *
