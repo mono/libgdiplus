@@ -1,3 +1,8 @@
+2007-07-30  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-cairo.c: Fix DrawPath offset (bug #82202) and correctly
+	fill the path (which includes stroking in this case).
+
 2007-07-05  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* imageattributes.c: Re-fix alpha.
