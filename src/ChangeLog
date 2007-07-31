@@ -1,3 +1,10 @@
+2007-07-31  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Ensure proper initialization of palette when locking a 
+	bitmap. Make more use of gdip_palette_clone function.
+	* region.c: Add special case for to exclude path/regions from 
+	infinity. Updated patch from Yves Bastide. Fix #81833.
+
 2007-07-31  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics-path.c: Simplify GdipClosePathFigure.

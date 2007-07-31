@@ -435,16 +435,7 @@ gdip_bitmapdata_clone(BitmapData *src, BitmapData **dest, int count)
 			result[i].scan0 = NULL;
 		}
 
-		/* Duplicate palette */
-		if (src[i].palette != NULL) {
-			/* note: the ColorPalette structure already contains a (single)ARGB member (so we substract it) */
-			int size = sizeof(ColorPalette) + sizeof(ARGB) * (src[i].palette->Count - 1);
-			result[i].palette = GdipAlloc (size);
-			memcpy (result[i].palette, src[i].palette, size);
-		} else {
-			result[i].palette = NULL;
-		}
-
+		result[i].palette = gdip_palette_clone (src[i].palette);
 
 		result[i].property_count = src[i].property_count;
 		status = gdip_propertyitems_clone(src[i].property, &result[i].property, src[i].property_count);
@@ -565,15 +556,17 @@ gdip_frame_add_bitmapdata(FrameData *frame)
 	return &frame->bitmap[frame->count - 1];
 }
 
-ColorPalette *
-gdip_palette_clone(ColorPalette *original)
+ColorPalette*
+gdip_palette_clone (ColorPalette *original)
 {
-	ColorPalette *result;
+	if (!original)
+		return NULL;
 
-	result = GdipAlloc(sizeof(ColorPalette) + sizeof(ARGB) * original->Count);
-	if (result != NULL) {
-		memcpy(result, original, sizeof(ColorPalette) + sizeof(ARGB) * original->Count);
-	}
+	/* ColorPalette definition already includes a (single) ARGB value */
+	int size = sizeof (ColorPalette) + sizeof (ARGB) * (original->Count - 1);
+	ColorPalette *result = GdipAlloc (size);
+	if (result)
+		memcpy (result, original, size);
 
 	return result;
 }
@@ -1170,14 +1163,13 @@ gdip_bitmap_clone_data_rect (BitmapData *srcData, Rect *srcRect, BitmapData *des
 		destData->pixel_format = srcData->pixel_format;
 		destData->reserved = GBD_OWN_SCAN0;
 
-		if (srcData->palette != NULL) {
-			destData->palette = GdipAlloc(sizeof(ColorPalette) + sizeof(ARGB) * srcData->palette->Count);
-			if (destData->palette == NULL) {
-				GdipFree(destData->scan0);
+		if (srcData->palette) {
+			destData->palette = gdip_palette_clone (srcData->palette);
+			if (!destData->palette) {
+				GdipFree (destData->scan0);
 				destData->scan0 = NULL;
 				return OutOfMemory;
 			}
-			memcpy(destData->palette, srcData->palette, sizeof(ColorPalette) + sizeof(ARGB) * srcData->palette->Count);
 		}
 	}
 
@@ -1963,7 +1955,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST Rect *srcRect, UINT flags, Pixel
 	locked_data->pixel_format = format;
 	locked_data->x = srcRect->X;
 	locked_data->y = srcRect->Y;
-
+	locked_data->palette = NULL;
 
 	/* If the user wants the original data to be readable, then convert the bits. */
 	status = Ok;

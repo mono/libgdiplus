@@ -999,6 +999,43 @@ GdipCombineRegionRectI (GpRegion *region, GDIPCONST GpRect *recti, CombineMode c
         return GdipCombineRegionRect (region, (GDIPCONST GpRectF *) &rect, combineMode);
 }
 
+/* Exclude path from infinite region */
+static BOOL
+gdip_combine_exclude_from_infinite (GpRegion *region, GpPath *path)
+{
+	/*
+	 * We combine the path with the infinite region's, then reverse it.
+	 */
+	GpPath *region_path;
+	GpStatus status;
+	
+	if (path->count == 0)
+		return TRUE;
+
+	if (region->type == RegionTypeRectF)
+		gdip_region_convert_to_path (region);
+	
+	g_assert (region->tree->path);
+	region_path = region->tree->path;
+	status = GdipClonePath (path, &region->tree->path);
+	if (status != Ok) {
+		region->tree->path = region_path;
+		return FALSE;
+	}
+	status = GdipAddPathPath (region->tree->path, region_path, FALSE);
+	if (status != Ok) {
+		GdipDeletePath (region->tree->path);
+		region->tree->path = region_path;
+		return FALSE;
+	}
+	status = GdipReversePath (region->tree->path);
+	if (status != Ok) {
+		GdipDeletePath (region->tree->path);
+		region->tree->path = region_path;
+		return FALSE;
+	}
+	return TRUE;
+}
 
 GpStatus
 GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
@@ -1054,8 +1091,12 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 			else
 				gdip_region_create_from_path (region, path);
 			return Ok;
+		case CombineModeExclude:
+			if (gdip_combine_exclude_from_infinite (region, path))
+				return Ok;
+			break;
 		default:
-			/* Xor and Exclude must be treated as a "normal" case unless the path is empty */
+			/* Xor must be treated as a "normal" case unless the path is empty */
 			if (empty)
 				return Ok;
 			break;
@@ -1187,6 +1228,13 @@ GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combi
 			if (empty)
 				return Ok;
 			combineMode = CombineModeUnion; 
+			break;
+		case CombineModeExclude:
+			if (empty)
+				return Ok;
+			if ((region2->type == RegionTypePath) && region2->tree && region2->tree->path &&
+				gdip_combine_exclude_from_infinite (region, region2->tree->path))
+				return Ok;
 			break;
 		default:
 			/* Xor must be treated as a "normal" case unless the path is empty */
