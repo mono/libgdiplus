@@ -569,11 +569,64 @@ GdipClearPathMarkers (GpPath *path)
         return Ok;
 }
 
+/*
+ * Append old_types[start, end] to new_types, adjusting flags.
+ */
+static void
+reverse_subpath_adjust_flags (int start, int end, GByteArray *old_types, GByteArray *new_types, BOOL *prev_had_marker)
+{
+	BYTE t, prev_first, prev_last;
+	int i;
+	
+	/* Copy all but PathPointTypeStart */
+	if (end != start)
+		g_byte_array_append (new_types, old_types->data + start + 1, end - start);
+	
+	/* Append PathPointTypeStart */
+	t = PathPointTypeStart;
+	g_byte_array_append (new_types, &t, 1);
+	
+	g_assert (new_types->len == end + 1);
+	
+	prev_first = g_array_index (old_types, BYTE, start);
+	prev_last = g_array_index (old_types, BYTE, end);
+	
+	/* Remove potential flags from our future start point */
+	if (end != start)
+		new_types->data[end - 1] &= PathPointTypePathTypeMask;
+	/* Set the flags on our to-be-last point */
+	if (prev_last & PathPointTypeDashMode)
+		new_types->data[start] |= PathPointTypeDashMode;
+	if (prev_last & PathPointTypeCloseSubpath)
+		new_types->data[start] |= PathPointTypeCloseSubpath;
+	
+	/*
+	 * Swap markers
+	 */
+	for (i = start + 1; i < end; i++) {
+		if (g_array_index (old_types, BYTE, i - 1) & PathPointTypePathMarker)
+			new_types->data[i] |= PathPointTypePathMarker;
+		else
+			new_types->data[i] &= ~PathPointTypePathMarker;
+	}
+	
+	/* If the last point of the previous subpath had a marker, we inherit it */
+	if (*prev_had_marker)
+		new_types->data[start] |= PathPointTypePathMarker;
+	else
+		new_types->data[start] &= ~PathPointTypePathMarker;
+	
+	*prev_had_marker = ((prev_last & PathPointTypePathMarker) == PathPointTypePathMarker);
+}
+
 GpStatus
 GdipReversePath (GpPath *path)
 {
 	int length, i;
 	GArray *points;
+	GByteArray *types;
+	int start = 0;
+	BOOL prev_had_marker = FALSE;
 
 	if (!path)
 		return InvalidParameter;
@@ -583,9 +636,37 @@ GdipReversePath (GpPath *path)
 	if (length <= 1)
 		return Ok;
 
-	/* FIXME: PathTypes needs to be reversed (#81859) */
+	/* PathTypes reversal */
 
-	// note: if length is odd then the middle point doesn't need to switch side
+	/* First adjust the flags for each subpath */
+	types = g_byte_array_sized_new (length);
+	if (!types)
+		return OutOfMemory;
+
+	for (i = 1; i < length; i++) {
+		BYTE t = g_array_index (path->types, BYTE, i);
+		if ((t & PathPointTypePathTypeMask) == PathPointTypeStart) {
+			reverse_subpath_adjust_flags (start, i - 1, path->types, types, &prev_had_marker);
+			start = i;
+		}
+	}
+	if (start < length - 1)
+		reverse_subpath_adjust_flags (start, length - 1, path->types, types, &prev_had_marker);
+
+	/* Then reverse the resulting array */
+	for (i = 0; i < (length >> 1); i++) {
+		BYTE *a = &g_array_index (types, BYTE, i);
+		BYTE *b = &g_array_index (types, BYTE, length - i - 1);
+		BYTE temp = *a;
+		*a = *b;
+		*b = temp;
+	}
+	g_byte_array_free (path->types, TRUE);
+	path->types = types;
+
+	/* PathPoints reversal
+	 * note: if length is odd then the middle point doesn't need to switch side
+	 */
         for (i = 0; i < (length >> 1); i++) {
 		GpPointF *first = &g_array_index (path->points, GpPointF, i);
 		GpPointF *last = &g_array_index (path->points, GpPointF, length - i - 1);
