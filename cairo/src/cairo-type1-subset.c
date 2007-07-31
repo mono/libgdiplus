@@ -41,6 +41,7 @@
 /* XXX: Eventually, we need to handle other font backends */
 #include "cairo-ft-private.h"
 
+#include <ctype.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
