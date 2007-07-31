@@ -1,3 +1,8 @@
+2007-07-31  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics-path.c: Simplify GdipClosePathFigure.
+	* text-[cairo|metafile]-private.h: Hide internal functions.
+
 2007-07-31  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c: Reverse PathTypes. Patch by Yves Bastide. 

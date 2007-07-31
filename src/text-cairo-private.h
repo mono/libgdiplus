@@ -66,12 +66,13 @@ typedef struct {
 } GpStringDetailStruct;
 
 GpStatus cairo_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
-	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush);
+	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush) GDIP_INTERNAL;
 
 GpStatus cairo_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format,  RectF *boundingBox, int *codepointsFitted, int *linesFilled);
+	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format,  RectF *boundingBox, int *codepointsFitted, int *linesFilled)
+	GDIP_INTERNAL;
 
 GpStatus cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
-	GDIPCONST GpRectF *layout, GDIPCONST GpStringFormat *format, int regionCount, GpRegion **regions);
+	GDIPCONST GpRectF *layout, GDIPCONST GpStringFormat *format, int regionCount, GpRegion **regions) GDIP_INTERNAL;
 
 #endif

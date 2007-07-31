@@ -459,10 +459,8 @@ GdipClosePathFigure (GpPath *path)
 		return InvalidParameter;
 
 	if (path->count > 0) {
-		BYTE current = g_array_index (path->types, BYTE, path->count - 1);
-		g_byte_array_remove_index (path->types, path->count - 1);
-		current |= PathPointTypeCloseSubpath;
-		g_byte_array_append (path->types, &current, 1);
+		BYTE *last = &g_array_index (path->types, BYTE, path->count - 1);
+		*last |= PathPointTypeCloseSubpath;
 	}
 	path->start_new_fig = TRUE;
 
