@@ -1,3 +1,9 @@
+2007-07-31  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* Makefile.am: Add two new tests;
+	* testclip.c: New test case for #83129 by Yves Bastide.
+	* testreversepath.c: New test case for #81859 by Yves Bastide.
+
 2007-06-21  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* testbits.c, testgdi.c: Fix #81845 to allow using with C++ compilers 

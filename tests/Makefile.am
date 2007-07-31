@@ -15,7 +15,7 @@ LDADDS =					\
 	$(GDIPLUS_LIBS)
 
 noinst_PROGRAMS =			\
-	testgdi testbits
+	testgdi testbits testclip testreversepath
 
 testgdi_DEPENDENCIES = $(TEST_DEPS)
 testgdi_LDADD = $(LDADDS)
@@ -29,9 +29,21 @@ testbits_LDADD = $(LDADDS)
 testbits_SOURCES =		\
 	testbits.c
 
+testclip_SOURCES =	\
+	testclip.c
+
+testclip_DEPENDENCIES = $(TEST_DEPS)
+testclip_LDADD = $(LDADDS)
+
+testreversepath_SOURCES =	\
+	testreversepath.c
+
+testreversepath_DEPENDENCIES = $(TEST_DEPS)
+testreversepath_LDADD = $(LDADDS)
+
 EXTRA_DIST =			\
 	$(testgdi_SOURCES)	\
-	$(testbits_SOURCES)
-
-
-
+	$(testbits_SOURCES)	\
+	$(testclip_SOURCES)	\
+	$(testreversepath_SOURCES)	\
+	$(NULL)
