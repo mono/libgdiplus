@@ -34,6 +34,7 @@
 /* FontFamily public API (only!) */
 
 GpStatus GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *fontCollection, GpFontFamily **FontFamily);
+GpStatus GdipCloneFontFamily (GpFontFamily *fontFamily, GpFontFamily **clonedFontFamily);
 GpStatus GdipDeleteFontFamily (GpFontFamily *fontFamily);
 GpStatus GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, guint16 *CellAscent);
 GpStatus GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, guint16 *CellDescent);
@@ -44,9 +45,5 @@ GpStatus GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, guint16 *Em
 GpStatus GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], LANGID language);
 GpStatus GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, guint16 *LineSpacing);
 GpStatus GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAvailable);
-
-/* missing API
-	GdipCloneFontFamily
-*/
 
 #endif

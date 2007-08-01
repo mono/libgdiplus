@@ -1,7 +1,8 @@
-2007-08-01  Sebastien Pouliot  <sebastien@ximian.com>
+2007-08-01  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* bitmap.c: Use [g|s]et_pixel_bgra macros inside premul function to
 	avoid endian issues.
+	* font.c | fontfamily.h: Added GdipCloneFontFamily (fix #80845);
 
 2007-07-31  Sebastien Pouliot  <sebastien@ximian.com>
 

@@ -155,6 +155,31 @@ GdipPrivateAddFontFile (GpFontCollection *font_collection,  GDIPCONST WCHAR *fil
 	return Ok;
 }
 
+GpStatus
+GdipCloneFontFamily (GpFontFamily *fontFamily, GpFontFamily **clonedFontFamily)
+{
+	GpFontFamily *result;
+
+	if (!fontFamily || !clonedFontFamily)
+		return InvalidParameter;
+
+	gdip_createFontFamily (&result);
+	if (!result)
+		return OutOfMemory;
+
+	result->height = fontFamily->height;
+	result->linespacing = fontFamily->linespacing;
+	result->celldescent = fontFamily->celldescent;
+	result->cellascent = fontFamily->cellascent;
+
+	if (fontFamily->pattern) {
+		result->pattern = FcPatternDuplicate (fontFamily->pattern);
+		result->allocated = TRUE;
+	}
+
+	*clonedFontFamily = result;
+	return Ok;
+}
 
 GpStatus 
 GdipDeleteFontFamily (GpFontFamily *fontFamily)
