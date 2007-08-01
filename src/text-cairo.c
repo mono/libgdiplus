@@ -747,6 +747,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 		data->align_vert = AlignVert;
 		data->line_height = LineHeight;
 		data->max_y = MaxY;
+		data->descent = FontExtent.descent;
 	}
 
 	return Ok;
@@ -1127,7 +1128,7 @@ cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 	if (status != Ok)
 		goto cleanup;
 
-	lineHeight = data.line_height;
+	lineHeight = data.line_height + data.descent;
 
 	/* Create a region for every char range */
 	for (i = 0; i < format->charRangeCount; i++) {

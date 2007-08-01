@@ -1,3 +1,9 @@
+2007-08-01  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* text-cairo-private.h | text-cairo.c: Fix MeasureCharacterRanges 
+	inconsistentency (#77496), i.e. missing descent, without (hopefully)
+	breaking everything else.
+
 2007-08-01  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* bitmap.c: Use [g|s]et_pixel_bgra macros inside premul function to

@@ -54,6 +54,7 @@ typedef struct {
 	int	align_vert;
 	int	line_height;
 	int	max_y;
+	int	descent;
 } GpDrawTextData;
 
 typedef struct {
