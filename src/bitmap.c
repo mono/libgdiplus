@@ -2185,14 +2185,14 @@ gdip_bitmap_get_premultiplied_scan0 (GpBitmap *bitmap)
 		ARGB *sp = (ARGB*) source;
 		ARGB *tp = (ARGB*) target;
 		for (x = 0; x < data->width; x++) {
-			BYTE a = source [3]; /* format is BGRA */
+			BYTE r, g, b, a;
+			get_pixel_bgra (*sp, b, g, r, a);
+
 			if (a < 0xff) {
-				BYTE *s = (BYTE*)sp;
-				BYTE *t = (BYTE*)tp;
-				t[0] = pre_multiplied_table [s[0]][a];
-				t[1] = pre_multiplied_table [s[1]][a];
-				t[2] = pre_multiplied_table [s[2]][a];
-				t[3] = a;
+				b = pre_multiplied_table [b][a];
+				g = pre_multiplied_table [g][a];
+				r = pre_multiplied_table [r][a];
+				set_pixel_bgra (tp, 0, b, g, r, a);
 			} else {
 				*tp = *sp;
 			}

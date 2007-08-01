@@ -1,3 +1,8 @@
+2007-08-01  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* bitmap.c: Use [g|s]et_pixel_bgra macros inside premul function to
+	avoid endian issues.
+
 2007-07-31  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* bitmap.c: Ensure proper initialization of palette when locking a 
