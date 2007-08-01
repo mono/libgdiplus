@@ -87,6 +87,8 @@ _cairo_boilerplate_ps_create_surface (const char		 *name,
 				     ptc,
 				     NULL) != CAIRO_STATUS_SUCCESS) {
 	cairo_surface_destroy (surface);
+	if (ptc->target != NULL)
+	    cairo_surface_destroy (ptc->target);
 	free (ptc->filename);
 	free (ptc);
 	return NULL;

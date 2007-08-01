@@ -54,12 +54,12 @@
     </chapter>
   </part>
   <index>
-    <title>Index</title>
+    <title id="index-all">Index</title>
   </index>
-  <index role="1.2">
+  <index id="index-1.2" role="1.2">
     <title>Index of new symbols in 1.2</title>
   </index>
-  <index role="1.4">
+  <index id="index-1.4" role="1.4">
     <title>Index of new symbols in 1.4</title>
   </index>
   <xi:include href="language-bindings.xml"/>

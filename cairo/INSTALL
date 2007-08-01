@@ -63,14 +63,13 @@ More detailed build instructions
 	(NOTE: On mac OS X, at least, use DYLD_LIBRARY_PATH in place
 	       of LD_LIBRARY_PATH above.)
 
-    --enable-ps
-    --enable-pdf
     --enable-quartz
     --enable-atsui
     --enable-xcb
     --enable-glitz
     --enable-beos
     --enable-os2
+    --enable-directfb
 
 	Some of cairo's backends are marked as experimental and will
 	not be built by default. If you would like to build and
@@ -83,6 +82,9 @@ More detailed build instructions
     --disable-win32
     --disable-png
     --disable-freetype
+    --disable-ps
+    --disable-pdf
+    --disable-svg
 
 	Cairo's configure script detects the libraries needed to build
 	each stable backend, and when it finds them, enables each

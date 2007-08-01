@@ -458,9 +458,11 @@ cairo_test_expecting (cairo_test_t *test,
      *		-> FAILURE
      *	else    (== some backend SUCCESS)
      *		-> SUCCESS
+     *
+     * Also, on a crash, run no further tests.
      */
-    ret = CAIRO_TEST_UNTESTED;
-    for (i = 0; i < num_targets; i++) {
+    status = ret = CAIRO_TEST_UNTESTED;
+    for (i = 0; i < num_targets && status != CAIRO_TEST_CRASHED; i++) {
 	for (j = 0; j < NUM_DEVICE_OFFSETS; j++) {
 	    cairo_boilerplate_target_t * volatile target = targets_to_test[i];
 	    volatile int dev_offset = j * 25;
@@ -680,8 +682,10 @@ cairo_test_paint_checkered (cairo_t *cr)
 
     check = cairo_image_surface_create (CAIRO_FORMAT_RGB24, 12, 12);
     status = _draw_check (check, 12, 12);
-    if (status)
+    if (status) {
+	cairo_surface_destroy (check);
 	return status;
+    }
 
     cairo_save (cr);
     cairo_set_source_surface (cr, check, 0, 0);

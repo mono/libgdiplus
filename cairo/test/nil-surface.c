@@ -74,6 +74,7 @@ draw (cairo_t *cr, int width, int height)
 	cairo_test_log ("Error: Received status of \"%s\" rather than expected \"%s\"\n",
 			cairo_status_to_string (cairo_status (cr2)),
 			cairo_status_to_string (CAIRO_STATUS_FILE_NOT_FOUND));
+	cairo_destroy (cr2);
 	return CAIRO_TEST_FAILURE;
     }
 
@@ -98,6 +99,7 @@ draw (cairo_t *cr, int width, int height)
 	cairo_test_log ("Error: Received status of \"%s\" rather than expected \"%s\"\n",
 			cairo_status_to_string (cairo_status (cr2)),
 			cairo_status_to_string (CAIRO_STATUS_NULL_POINTER));
+	cairo_destroy (cr2);
 	return CAIRO_TEST_FAILURE;
     }
 
@@ -128,6 +130,7 @@ draw (cairo_t *cr, int width, int height)
 	cairo_test_log ("Error: Received status of \"%s\" rather than expected \"%s\"\n",
 			cairo_status_to_string (cairo_status (cr2)),
 			cairo_status_to_string (CAIRO_STATUS_INVALID_RESTORE));
+	cairo_destroy (cr2);
 	return CAIRO_TEST_FAILURE;
     }
 
@@ -145,12 +148,14 @@ draw (cairo_t *cr, int width, int height)
 	cairo_test_log ("Error: Received status of \"%s\" rather than expected \"%s\"\n",
 			cairo_status_to_string (cairo_status (cr2)),
 			cairo_status_to_string (CAIRO_STATUS_NULL_POINTER));
+	cairo_destroy (cr2);
 	return CAIRO_TEST_FAILURE;
     }
 
     /* Test that get_target returns something valid */
     if (cairo_get_target (cr2) == NULL) {
 	cairo_test_log ("Error: cairo_get_target() returned NULL\n");
+	cairo_destroy (cr2);
 	return CAIRO_TEST_FAILURE;
     }
 

@@ -1,3 +1,1948 @@
+commit 107a74885a25e585b467c7841c6929a12aa62565
+Author: Carl Worth <cworth@cworth.org>
+Date:   Wed Jun 27 14:05:56 2007 -0700
+
+    Increment cairo version to 1.4.10 (and libtool versioning to 13:5:11)
+
+ configure.in |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+commit f595ad2348dbd97b57d22471fdec7664f8ca7bf6
+Author: Carl Worth <cworth@cworth.org>
+Date:   Wed Jun 27 14:04:27 2007 -0700
+
+    Add notes to NEWS for 1.4.10
+
+ NEWS |   45 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 45 insertions(+), 0 deletions(-)
+
+commit 2bf3e31da99f34328973a0866346af40748097f6
+Author: Carl Worth <cworth@cworth.org>
+Date:   Wed Jun 27 11:11:36 2007 -0700
+
+    Prefer local dpy variable instead of display->display
+    
+    This was a tiny piece of cleanup that had been erroneously included
+    with some earlier functional changes, (so it went through a cycle
+    of being applied and reverted). It's back now in its own commit.
+
+ src/cairo-xlib-display.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+commit eebb0df512da50f883a417bb5e8e368dc81e35a9
+Author: Carl Worth <cworth@cworth.org>
+Date:   Wed Jun 27 11:08:53 2007 -0700
+
+    Revert "[cairo-xlib-display] Hide XErrors during processing of the work queue."
+    
+    This reverts commit 285b702ef6f73e7eb4ca0da235a287ad1e1f412f.
+    
+    The recent commit of 0791f342b93225849d9171aac8b738014b18bdf5 fixes
+    the same bug that 285b702e was fixing, but without introducing any
+    performance-killing calls to XSync. So we can drop those now.
+
+ src/cairo-xlib-display.c |   17 +++--------------
+ 1 files changed, 3 insertions(+), 14 deletions(-)
+
+commit b019cb8a7a910879c7af304edbd06fd105c9d89e
+Author: Carl Worth <cworth@cworth.org>
+Date:   Wed Jun 27 11:07:07 2007 -0700
+
+    Revert "[cairo-xlib-surface] Check for errors before installing a NOOP error handler."
+    
+    This reverts commit 7016614dd90798247524f0c118f462aa2e7ef673.
+    
+    We want to avoid any negative performance impacts due to extra calls
+    to XSync. The fact that X errors can be missed with this appraoch is
+    undesirable of course---a proper fix will likely involve moving to
+    XCB which will hopefully allow us to do the error-checking the way
+    we want without any performance penalty.
+
+ src/cairo-xlib-surface.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+commit 6d021eb4b6e319dd2bb3e5e126de07c6844d5c07
+Merge: 9109946... 0791f34...
+Author: Carl Worth <cworth@cworth.org>
+Date:   Wed Jun 27 11:01:00 2007 -0700
+
+    Merge branch 'ooo-fix' into cairo
+
+commit 0791f342b93225849d9171aac8b738014b18bdf5
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed Jun 27 10:53:29 2007 -0700
+
+    Avoid deferring resource cleanup for application drawables
+    
+    This eliminates X errors propagated from cairo due to cleaning up
+    Render Pictures after the application had already destroyed the
+    Drawable they reference. (It would be nice if the X server wouldn't
+    complain that some cleanup work is already done, but there you
+    have it.)
+    
+    This fix has been verified to fix the bug causing OpenOffice.org to
+    crash as described here:
+    
+    	XError on right click menus in OOo.
+    	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=243811
+    
+    And unlike other proposed fixes for this bug, this fix does not
+    introduce any new calls to XSync, (and thereby avoids performance
+    concerns from those).
+
+ src/cairo-xlib-surface.c |   47 +++++++++++++++++++++++++--------------------
+ 1 files changed, 26 insertions(+), 21 deletions(-)
+
+commit 9109946a1a7f9341e60da7358da6535c5fac52db
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu Jun 21 15:40:23 2007 +0100
+
+    [cairo-directfb] Correct minor typo.
+    
+    Correct the reference to _cairo_directfb_surface_is_similar.
+
+ src/cairo-directfb-surface.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 1e76aa66b23aa7b3fd7b9f7de2b563b4db814517
+Author: Nis Martensen <nis.martensen@web.de>
+Date:   Tue Jun 19 17:04:48 2007 +0200
+
+    Update INSTALL about status of backends
+
+ INSTALL |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
+
+commit 02f753c23ad0db7d677ae41f8d69dc566c8aaa0b
+Author: Carl Worth <cworth@cworth.org>
+Date:   Mon Jun 18 18:23:06 2007 -0700
+
+    Fix cairo-perf-diff to compile cairo-perf explicitly
+
+ perf/cairo-perf-diff |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 2477e57de532fb3ebd1f6113cf51619b84b303d9
+Author: Vladimir Vukicevic <vladimir@pobox.com>
+Date:   Mon Jun 18 13:58:15 2007 -0700
+
+    [perf] Add pixman_region_init_rects and use in extract_region
+    
+    Avoid O(N*N) loop in traps_extract_region by letting us hand pixman
+    an array of rects all at once.
+
+ perf/Makefile.am          |    3 +-
+ perf/cairo-perf.c         |    1 +
+ perf/cairo-perf.h         |    1 +
+ perf/long-dashed-lines.c  |   67 +++++++++++++++++++++++++++++++++++++++++++++
+ pixman/src/pixman-remap.h |    1 +
+ pixman/src/pixman.h       |    2 +
+ pixman/src/pixregion.c    |   29 +++++++++++++++++++
+ src/cairo-traps.c         |   58 +++++++++++++++++++++++++++-----------
+ 8 files changed, 144 insertions(+), 18 deletions(-)
+
+commit 285b702ef6f73e7eb4ca0da235a287ad1e1f412f
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri Jun 15 20:38:01 2007 +0100
+
+    [cairo-xlib-display] Hide XErrors during processing of the work queue.
+    
+    It is possible for the resources that we defer freeing to be already
+    destroyed and trigger an XError whilst processing the work queue. For
+    example, the application renders to a Window and then destroys the
+    Drawable before proceeding with more rendering. This will trigger an
+    invalid Picture from RenderFreePicture whilst attempting to free the
+    resources.
+    
+    By ignoring the possibility that the application could allocate a fresh
+    resource with the same ID, we can simply hide the XErrors...
+    
+    Fixes: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=243811
+
+ src/cairo-xlib-display.c |   17 ++++++++++++++---
+ 1 files changed, 14 insertions(+), 3 deletions(-)
+
+commit 7016614dd90798247524f0c118f462aa2e7ef673
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri Jun 15 20:45:53 2007 +0100
+
+    [cairo-xlib-surface] Check for errors before installing a NOOP error handler.
+    
+    Call XSync before ignoring errors from XGetImage to avoid hiding
+    unassociated errors. Similarly, call XSync before reinstalling the old
+    error handler to ensure no errors creep out of the ignored section.
+
+ src/cairo-xlib-surface.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+commit 0c5d28a4e5ce5e4dd72c0f416ce5e960e92b808b
+Author: Ryan Lortie <desrt@desrt.ca>
+Date:   Wed Jun 13 18:59:22 2007 -0400
+
+    [xlib] Create source xrender Picture with IncludeInferiors
+    
+    When an xlib surface is used as the source of a draw operation this
+    will cause the contents of child windows to be included in the source
+    data.  The semantics of drawing to xlib surfaces are unchanged (ie:
+    draws are still clipped by child windows overlapping the destination
+    window).
+
+ src/cairo-xlib-surface.c |   15 ++++++++++++++-
+ 1 files changed, 14 insertions(+), 1 deletions(-)
+
+commit 817d4b0c9a354526389290c6d5a7662713d67cd8
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Sat Jun 9 19:14:05 2007 +0100
+
+    [atsui] Document ATSUI
+    
+    Add cairo_atsui_font_face_create_for_atsu_font_id
+    and ATSUI to the documentation. Don't enable it yet,
+    since this is still unsupported.
+
+ doc/public/tmpl/cairo-atsui.sgml |    2 +-
+ src/cairo-atsui-font.c           |   13 +++++++++++++
+ 2 files changed, 14 insertions(+), 1 deletions(-)
+
+commit fd1edaa5d386f15edacfd5596b550593ed45d627
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Wed Jun 13 01:27:36 2007 +0100
+
+    [quartz] remove unused code
+    
+    clean up warnings about unused code: removing
+    _cairo_quartz_cairo_path_to_quartz_path and the functions
+    it calls.
+
+ src/cairo-quartz-surface.c |   47 --------------------------------------------
+ 1 files changed, 0 insertions(+), 47 deletions(-)
+
+commit d7a0816ec3d750939dd935f34b217980ee27af3f
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Wed Jun 13 01:27:36 2007 +0100
+
+    [quartz] move glyph array declarations
+    
+    Move declarations causing a warning. A separate patch from
+    the other warning cleanups because it moves where the allocation
+    happens.
+
+ src/cairo-quartz-surface.c |   20 ++++++++++----------
+ 1 files changed, 10 insertions(+), 10 deletions(-)
+
+commit bf39b28b77a83160e5aa037031d82f8c0843f387
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Wed Jun 13 01:04:54 2007 +0100
+
+    commit 75be87b4093aaa7f477d587d5a68308cade1b29c
+    
+        [quartz] move glyph array declarations
+    
+        Move declarations causing a warning. A separate patch from
+        the other warning cleanups because it moves where the allocation
+        happens.
+
+ src/cairo-quartz-surface.c |   27 +++++++++++++++------------
+ 1 files changed, 15 insertions(+), 12 deletions(-)
+
+commit 2034d1dbd5888c393c57f0feeb707b0411fa4480
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Wed Jun 13 01:27:36 2007 +0100
+
+    [quartz] pass quartz_stroke_t not CGContextRef
+    
+    Fix a typo where an incompatible pointer was being passed.
+
+ src/cairo-quartz-surface.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+commit 54bbe44b08b37041c8982634837dbc79b19e6c18
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Mon Jun 11 17:51:37 2007 -0400
+
+    [TODO] Add link to Adrian's finer-grain fallback thread
+
+ TODO |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+commit ef3c64fd13d66648f4e00affb304e8b404249f92
+Author: Vladimir Vukicevic <vladimir@pobox.com>
+Date:   Mon Jun 11 09:27:11 2007 -0700
+
+    [misc] Blow away last remaining $Id$ directives in sources
+
+ pixman/src/fbtrap.c                  |    2 --
+ src/cairo-analysis-surface-private.h |    3 +--
+ test/rel-path.c                      |    2 --
+ 3 files changed, 1 insertions(+), 6 deletions(-)
+
+commit 853f23e18c28548bce4647d4e54a5cfb317ac3dc
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Mon Jun 11 02:42:04 2007 -0400
+
+    [test] Use check_PROGRAMS instead of custom made SUPPORT_PROGS
+    
+    It better handles $(EXEEXT) and is exactly made for this purpose.
+
+ test/Makefile.am |   14 ++++++--------
+ 1 files changed, 6 insertions(+), 8 deletions(-)
+
+commit 1d86c7fa888918c32eb13adb084de78883e17c84
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sat Jun 9 13:48:13 2007 -0400
+
+    [perf] Link to librt if available
+    
+    This is needed on Solaris, but also works on Linux.
+
+ configure.in     |    4 ++++
+ perf/Makefile.am |    3 ++-
+ 2 files changed, 6 insertions(+), 1 deletions(-)
+
+commit 85d045f2675cf191ea1d1af66ad4cd9e57d58e67
+Author: Carl Worth <cworth@cworth.org>
+Date:   Fri Jun 8 16:08:44 2007 -0700
+
+    Update version to 1.4.9 after the 1.4.8 release.
+
+ configure.in |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit fea4f344c46cf5f85c6af3102333008768c55063
+Author: Carl Worth <cworth@cworth.org>
+Date:   Fri Jun 8 15:49:12 2007 -0700
+
+    Update version to 1.4.8 (and libtool info to 13:4:11)
+
+ configure.in |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+commit 0b19ff1d3f493067fa5484151e71dfcedcd14fd1
+Author: Carl Worth <cworth@cworth.org>
+Date:   Fri Jun 8 15:34:35 2007 -0700
+
+    Add include of X11/Xlib.h to cairo-xlib-xrender.h
+    
+    This makes this header file self-sufficient. Thanks to
+    Sam Sirlin <samuel.w.sirlin@jpl.nasa.gov> for pointing
+    this out.
+
+ src/cairo-xlib-xrender.h |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+commit 8223c976d54319b58906de03fcb8fb1967105e53
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Fri Jun 8 01:56:10 2007 +0100
+
+    [NEWS] add note about quartz fixes
+    
+    We've got 11 less failures in the quartz tests this time around,
+    worth a mention.
+
+ NEWS |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+commit 00063a65f758265f3ad5c0caa374d9c7d5e89932
+Author: Vladimir Vukicevic <vladimir@pobox.com>
+Date:   Fri Jun 8 01:17:09 2007 +0100
+
+    [quartz] fix DO_IMAGE
+    
+    The implementation of DO_IMAGE leaks memory via a referenced surface,
+    and wasn't applied for strokes and glyphs. This patch corrects those
+    issues.
+
+ src/cairo-quartz-private.h |    5 ++-
+ src/cairo-quartz-surface.c |   83 +++++++++++++++++++++++++++-----------------
+ 2 files changed, 55 insertions(+), 33 deletions(-)
+
+commit 39e6a0090faa4e73a658c1ca0ead3040309b84a2
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Fri Jun 8 01:12:24 2007 +0100
+
+    [quartz] fall back on extended gradients
+    
+    A temporary fix for mozilla bug 379321, use an image fallback for
+    gradients that use EXTEND_REPEAT or EXTEND_REFLECT.
+
+ src/cairo-quartz-surface.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+commit 7c1afdcd597331c14f256f406a3e95743f7fdad6
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Mon Mar 26 00:06:23 2007 +0100
+
+    [quartz] fixes the offsets in the font-matrix test
+    
+    Apply the font matrix offset to text on the quartz surface, if necessary.
+
+ src/cairo-quartz-surface.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
+
+commit 55f1dbd0fbcbc587823ef8fa291a0af08441c775
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Sun Apr 1 00:04:24 2007 +0100
+
+    [quartz] ensure that line widths are scaled.
+    
+    cairo-gstate applies the ctm to the coordinates used in paths,
+    but not to the line width. In quartz this ends up drawing unscaled
+    lines. This is a minimal fix - it undoes the scaling applied to the
+    points and then draws the path scaled correctly.
+
+ src/cairo-quartz-surface.c |   72 ++++++++++++++++++++++++++++++++++---------
+ 1 files changed, 57 insertions(+), 15 deletions(-)
+
+commit 5a9de1b5c9f6cc445f9f6230937c2254ee49e7cb
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Thu Jun 7 23:22:30 2007 +0100
+
+    [atsui] remove unused code
+    
+    Remove CGAffineTransformMakeWithCairoFontScale.
+
+ src/cairo-atsui-font.c |    8 --------
+ 1 files changed, 0 insertions(+), 8 deletions(-)
+
+commit 807c5ab613e7df60be452d6683c4f9f045ef62a0
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Thu Jun 7 23:22:29 2007 +0100
+
+    [atsui] clean up warnings
+    
+    Refactor code to get rid of compiler warnings.
+
+ src/cairo-atsui-font.c |   11 +++++++----
+ 1 files changed, 7 insertions(+), 4 deletions(-)
+
+commit b210b09e2de2f048debad6e8881f0226b6b17060
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Thu Jun 7 23:22:27 2007 +0100
+
+    [quartz] implement CAIRO_EXTEND_REFLECT
+    
+    Implement extend-reflect by tiling a larger 2x2 grid of reflected
+    images.
+
+ src/cairo-quartz-surface.c |   64 ++++++++++++++++++++-----------------------
+ 1 files changed, 30 insertions(+), 34 deletions(-)
+
+commit fa5dd548b0dd2dfe523501bd40cafe7916240be1
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Tue May 29 23:11:49 2007 +0100
+
+    [quartz] implement CAIRO_EXTEND_NONE
+    
+    Implement extend-none for surface patterns, by using a single
+    DrawImage where possible. There is some code duplication in this
+    patch, to make it easier to edit this patch series without conflicts.
+    A patch to remove duplicate code will be required later..
+
+ src/cairo-quartz-surface.c |   61 ++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 59 insertions(+), 2 deletions(-)
+
+commit 147288864c8c512f3ae17c8117d3c36dbbc6d5f8
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Thu Jun 7 23:22:05 2007 +0100
+
+    [quartz] Refactor code to create a CGImageRef from a pattern
+    
+    In order to implement CAIRO_EXTEND_NONE we will need to create
+    a CGImageRef without also creating a CGPattern. Separate the two
+    pieces of code.
+
+ src/cairo-quartz-surface.c |   40 +++++++++++++++++++++-------------------
+ 1 files changed, 21 insertions(+), 19 deletions(-)
+
+commit a5ee983e1cb97aff63b0c9c3a57125b37d0e3f74
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu Jun 7 15:03:43 2007 -0700
+
+    Update release notes for 1.4.8
+
+ NEWS |   75 ++++++++++++++++++++++++++++++++++++++++++-----------------------
+ 1 files changed, 48 insertions(+), 27 deletions(-)
+
+commit e19c49269d0b236de91a5a9b5230bed7d76282ed
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu Jun 7 12:19:46 2007 -0700
+
+    Remove stale reference to cairo-xlib-test.h
+
+ src/Makefile.am |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+
+commit 5ded4479d6ddbbe16c631144ef987c4c02e706a6
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu May 31 15:35:14 2007 -0700
+
+    Fix return value of cairo_surface_write_to_png for unsupported formats
+    
+    For some reason this was returning CAIRO_STATUS_NULL_POINTER.
+    Now fixed to return CAIRO_STATUS_INVALID_FORMAT.
+
+ src/cairo-png.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit ec63a7839457e2d14c7b1a5b64d1a79daf044222
+Author: Carl Worth <cworth@cworth.org>
+Date:   Thu May 31 14:28:50 2007 -0700
+
+    Add CAIRO_INTERNAL_FORMAT_RGB16_565 and prefer it over deprecated CAIRO_FORMAT_RGB16_565
+    
+    Also clarify the documentation for cairo_internal_format_t
+
+ src/cairo-image-surface.c |    6 ++--
+ src/cairoint.h            |   52 ++++++++++++++++++++++++++------------------
+ 2 files changed, 34 insertions(+), 24 deletions(-)
+
+commit b6ee6c531c41adb57512fe0eaf21558e5d03f04b
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu Jun 7 12:22:20 2007 -0400
+
+    [NEWS] Add par about Chris 'ickle' Wilson's error-handling improvements work
+
+ NEWS |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+), 0 deletions(-)
+
+commit 2399f923d504fba6b3dcbd0a185cd3d4b29b4dcf
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Mon Jun 4 19:55:23 2007 +0100
+
+    [cairo-bentley-ottmann] Malloc reduction.
+    
+    Attempt to allocate the edges during tessellate_polygon() from the stack,
+    if the polygon size is sufficiently small and amalgamate the separate
+    allocations for the list of events and their sorted index into a single
+    block.
+
+ src/cairo-bentley-ottmann.c |   28 +++++++++++++++-------------
+ 1 files changed, 15 insertions(+), 13 deletions(-)
+
+commit ecf6f7f5147195276b3b479879cbd3db402df688
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Mon Jun 4 16:35:15 2007 +0100
+
+    [cairo-scaled-font] Skip the mask composition onto the surface on error.
+    
+    If we fail to composite the glyph onto the mask, skip compositing the
+    mask onto the surface.
+
+ src/cairo-scaled-font.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 2e60029392bca904f7035a8f403de0593193b6b9
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue Jun 5 09:08:51 2007 +0100
+
+    [cairo-ft-font] Markup error paths with _cairo_error().
+    
+    Behdad Esfahbod noted that in ff5af0f540ec4 I had introduce new error
+    paths without the appropriate _cairo_error(). So review cairo-ft-font
+    to ensure that _cairo_error() is called at the start of every error path,
+    as close to the originating error as possible.
+
+ src/cairo-ft-font.c |   58 ++++++++++++++++++++++++++++++++++++---------------
+ 1 files changed, 41 insertions(+), 17 deletions(-)
+
+commit a5e12cd9f212b12a32230263188be38c175dc0a1
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu May 31 19:21:30 2007 -0400
+
+    [ROADMAP] Add link for a8mask patch
+
+ ROADMAP |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+commit ff5af0f540ec407beb3d2a105b22f041cd770ce4
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed May 30 15:44:59 2007 +0100
+
+    [cairo-ft-font] Propagate error rather than asserting.
+    
+    FT_Set_Char_Size can fail due to an out-of-memory condition, so
+    propagate the error status instead of asserting that it never fails.
+
+ src/cairo-ft-font.c |   41 ++++++++++++++++++++++++++++++-----------
+ 1 files changed, 30 insertions(+), 11 deletions(-)
+
+commit de4dd4263cb5183b128a8fc80576ed7ddb239319
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri May 11 15:15:11 2007 +0100
+
+    [cairo] Propagate surface->status on cairo_t creation.
+    
+    Set the cairo_t status to be the surface->status when the context is
+    created, and special case the NO_MEMORY status in order to avoid a
+    redundant allocation.
+
+ src/cairo-gstate.c |    2 +-
+ src/cairo.c        |   12 +++++-------
+ 2 files changed, 6 insertions(+), 8 deletions(-)
+
+commit 9f4efa8a3ae6cbc194d89012286990582a6c8f5d
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri May 11 09:48:47 2007 +0100
+
+    [cairo-ps-surface] Check status of glyph_lookup.
+    
+    Check for failure of _cairo_scaled_glyph_lookup() before preceeding to
+    access the glyph and propagate the failure up the callstack as far as
+    possible.
+
+ src/cairo-ps-surface.c |   14 ++++++++++----
+ 1 files changed, 10 insertions(+), 4 deletions(-)
+
+commit 8010d46de4056e6c15b6891a06ef3d784c641b82
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sun May 27 11:40:47 2007 +0100
+
+    [cairo-gstate] Check scaled font status.
+    
+    After using the public API to access the scaled font, which only sets
+    the status field in the font, check the scaled font status. This will
+    then correctly propagate errors during glyph loading to the context.
+
+ src/cairo-gstate.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+commit faf986bb25eab34eee16415f4dab6f7d5d3460d3
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 29 12:39:16 2007 +0100
+
+    [cairo-gstate] Check status on existing fonts.
+    
+    Add an initial guard in _cairo_gstate_ensure_scaled_font() and
+    _cairo_gstate_ensure_font_face() to check that there is no prior
+    error status on the objects.
+
+ src/cairo-gstate.c |   41 +++++++++++++++++++++++------------------
+ 1 files changed, 23 insertions(+), 18 deletions(-)
+
+commit ac4b20082dd6b2e2b280d3615eebf5387da87e2f
+Author: Vladimir Vukicevic <vladimir@pobox.com>
+Date:   Tue May 29 20:50:02 2007 -0700
+
+    [misc] make _cairo_image_surface_nil_invalid static const
+
+ src/cairo-image-surface.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 0b34e958f18f0bcfb8bc9b054fb3bbb2343d2c32
+Author: Vladimir Vukicevic <vladimir@pobox.com>
+Date:   Tue May 29 17:14:41 2007 -0700
+
+    [test] add XFAIL test surface-pattern-big-scale down
+    
+    Add test for image downscaling with large images severely limiting
+    the destination coordinate space.  See the test for more information.
+
+ test/Makefile.am                      |    2 +
+ test/surface-pattern-big-scale-down.c |  121 +++++++++++++++++++++++++++++++++
+ 2 files changed, 123 insertions(+), 0 deletions(-)
+
+commit 0898411d0abdfa6a02c2fb959b3a668e728fd87c
+Author: Kouhei Sutou <kou@cozmixng.org>
+Date:   Mon May 28 17:05:40 2007 -0400
+
+    [doc] Minor documentation fixes
+
+ src/cairo-matrix.c      |    2 +-
+ src/cairo-pattern.c     |    2 +-
+ src/cairo-scaled-font.c |    2 +-
+ src/cairo.c             |   22 +++++++++++++++-------
+ src/cairo.h             |    2 +-
+ 5 files changed, 19 insertions(+), 11 deletions(-)
+
+commit 4da50dfa02d7c03c32ee20c15f8304eafa0844e0
+Author: Luo jinghua <sunmoon1997@gmail.com>
+Date:   Sun May 27 17:09:49 2007 +0800
+
+    [cairo-xlib-surface]: flush work queue before sending glyphs to X server.
+    
+      After introducing a work queue for deferred destruction of X resource
+    my firefox crashes over and over again because XRenderFreeGlyphs is trying
+    to free a non-exist glyph (already freed). The problematic call sequence is
+    something like below:
+      XRenderAddGlyphs (20990204, 20069)
+      XRenderAddGlyphs (20990204, 20069)
+      XRenderFreeGlyphs (20990204, 20069)
+      XRenderFreeGlyphs (20990204, 20069)
+    You can see the two add/free glyphs is interlaced. And obviously, we'll crash
+    at the last one. To fix this bug, we must be ensure here's no pending work
+    to free the glyph that we want to sent.
+
+ src/cairo-xlib-surface.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+commit 69bf823db1b256f19487d2f002e7b0811859e58e
+Author: Brian Ewins <Brian.Ewins@gmail.com>
+Date:   Fri May 25 01:35:37 2007 +0100
+
+    [atsui] use ATSGlyphGetScreenMetrics to measure glyphs.
+    
+    I don't know how I managed to get glyph measurement so badly wrong
+    before, but tracing paths was not necessary, and 6x slower. The fix
+    switches to using ATSGlyphGetScreenMetrics for all metrics, and remove
+    the  old measuring code.
+
+ src/cairo-atsui-font.c |   88 +++--------------------------------------------
+ 1 files changed, 6 insertions(+), 82 deletions(-)
+
+commit 5b2b008048d2bcbb0b558a6c02aee1093311db39
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri May 11 10:14:57 2007 +0100
+
+    [cairo-scaled-font-subsets] Shortcut empty subset.
+    
+    If the font_subset if empty, avoid allocating zero bytes and iterating
+    over the empty hash table.
+
+ src/cairo-scaled-font-subsets.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+commit c175cf7b833b03c38c8ddea183333ce84c6fdfec
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu May 17 17:04:14 2007 +0100
+
+    [cairo-ft-font] Remove erroneous cached font faces.
+    
+    Only return a font face from the cache if it is not in an error condition.
+    Otherwise unlink the bad font face from the cache and construct a new one.
+
+ src/cairo-ft-font.c |   15 +++++++++++----
+ 1 files changed, 11 insertions(+), 4 deletions(-)
+
+commit f382c3e110f8078e83cbb9d73cfbb43b1506a11b
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri May 11 15:31:33 2007 +0100
+
+    [cairo-pattern] Fully initialise the error pattern.
+    
+    _cairo_pattern_fini depends on the pattern being correctly initialised,
+    for example when calling _cairo_user_data_array_fini(), so we need to
+    initialize the whole pattern and not just set the type to SOLID when
+    creating a pattern for a surface in error.
+
+ src/cairo-pattern.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit fcdfda83655faf0eecbb2b5af09a05340fe422e6
+Author: Boris Zbarsky <bzbarsky@MIT.EDU>
+Date:   Mon May 14 23:46:14 2007 -0500
+
+    [quartz] implementing release_source_image (#11059)
+    
+    The image surface that _cairo_quartz_surface_acquire_source_image creates never
+    seems to be released, probably because there is no release_source_image callback
+    in the quartz code.
+    
+    The attached patch fixes that problem, at least insofar as the image surface
+    itself is no longer leaking.  I'm not sure whether any other cleanup needs to
+    happen here.
+    
+    -Boris
+
+ src/cairo-quartz-surface.c |   11 ++++++++++-
+ 1 files changed, 10 insertions(+), 1 deletions(-)
+
+commit 2c8598aafb4a8779ce94940ce91033a8c5a62ea4
+Author: Carl Worth <cworth@cworth.org>
+Date:   Fri May 18 13:23:04 2007 -0700
+
+    Fix typo in comment.
+
+ src/cairo-pattern.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 3cb67435f805a8ea39f38194379f216ea4a69ed6
+Author: Carl Worth <cworth@cworth.org>
+Date:   Fri May 18 13:22:36 2007 -0700
+
+    Document behavior of color stops added with identical offsets.
+
+ src/cairo-pattern.c |   13 +++++++++++++
+ 1 files changed, 13 insertions(+), 0 deletions(-)
+
+commit 1cf4ed989473e2468ea2d64bb7759084c9f6a1e4
+Author: Carl Worth <cworth@cworth.org>
+Date:   Fri May 18 13:16:23 2007 -0700
+
+    ROADMAP: Add bugs for 565 and 655 Visuals to the list
+
+ ROADMAP |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+commit 7260ee23ecb08e72a938a194e70dfb5e7a48c599
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Fri May 18 11:55:37 2007 -0400
+
+    [Type1] #include <ctype.h> (#10989)
+
+ src/cairo-type1-subset.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+commit 6a42ddf0f9e9e4b8dc5fa6a98ef4448f1c149789
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Thu May 17 12:45:22 2007 +0930
+
+    TrueType Subsetting: Remove post table
+    
+    The post table is not used now that TrueType fonts are embedded
+    in PDF as CID fonts.
+
+ src/cairo-truetype-subset.c |   34 +---------------------------------
+ 1 files changed, 1 insertions(+), 33 deletions(-)
+
+commit 67e752f75fdc561aca419f798a1650feb22e59a4
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Thu May 17 11:48:25 2007 +0930
+
+    CFF Subsetting: Filter out Unique ID from subset
+    
+    The subsetted font is not the same as the original font so it should not
+    have the same XUID and UniqueID.
+
+ src/cairo-cff-subset.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+commit 99a6983017e1cd27f8a598487f8a72cfa6d411f1
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Thu May 17 10:17:09 2007 +0930
+
+    Ensure surface backend finish() is never called more than once.
+    
+    Previously if the backend finish() function returned an error status,
+    surface->finished was not set true. This would result in the backend
+    finish() function being called twice which in the case of the PostScript
+    backend caused a seg fault.
+
+ src/cairo-surface.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
+
+commit c5ae0f1232e8cef860bc1fc0b449ddf9d9063d22
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri May 11 16:11:02 2007 +0100
+
+    [cairo-truetype-subset] Avoid a potential 0 byte allocation.
+    
+    During _cairo_truetype_subset_init skip copying the string_offsets if
+    the vector is empty.
+
+ src/cairo-truetype-subset.c |   21 +++++++++++++--------
+ 1 files changed, 13 insertions(+), 8 deletions(-)
+
+commit e37bee3f52282a042251f2dfc8e051943fd8f1d7
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed May 16 14:47:33 2007 +0100
+
+    [cairo-pdf-surface] emit_pattern_stops() array overrun.
+    
+    _cairo_pdf_surface_emit_pattern_stops() tried to set the last element
+    to have an offset of exactly 1.0, but missed and set the next element
+    after the end of the array.
+
+ src/cairo-pdf-surface.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 27de1869f5a837b79812cd4b04e17621ec0f848c
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed May 16 13:10:58 2007 +0100
+
+    [cairo-pdf-surface] Free allstops on error.
+    
+    Ensure the locally allocated resources are freed on the error paths.
+
+ src/cairo-pdf-surface.c |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
+
+commit 79e6c0207cb65b6bc1f38537f42632d623a1bc9a
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 12 18:27:58 2007 +0100
+
+    [cairo-pattern] Check for the nil surface.
+    
+    cairo_surface_create_similar() does not return NULL as was being checked
+    for, but the nil surface on error. Also ensure that the returned surface
+    is destroyed if we encounter an error whilst compositing.
+
+ src/cairo-pattern.c |   26 ++++++++++++++++++++++----
+ 1 files changed, 22 insertions(+), 4 deletions(-)
+
+commit 32c0ef9f145cec8b997c011b13208362eaf03004
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 12 16:20:00 2007 +0100
+
+    [cairo-gstate] Remove a redundant conditional.
+    
+    Simplify _cairo_gstate_text_to_glyphs() with a tail call.
+
+ src/cairo-gstate.c |    9 ++-------
+ 1 files changed, 2 insertions(+), 7 deletions(-)
+
+commit 37d8c18b3fc489d6336131bae6ec219cafc35718
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 12 15:42:59 2007 +0100
+
+    [cairo-scaled-font-subsets] Destroy the glyph if we fail to cache it.
+    
+    If we fail to insert the glyph into the sub_font glyph cache then we
+    must destroy it before propagating the error.
+
+ src/cairo-scaled-font-subsets.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+commit 76e758df5b99fd4dee64481b9039b0d44dd01587
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 12 15:40:39 2007 +0100
+
+    [cairo-truetype-subset] Destroy the arrays on error.
+    
+    Growing the arrays may successfully allocate the indirect pointer, but
+    fail whilst allocating the actual array - so always call
+    _cairo_array_fini after _cairo_array_grow_by().
+
+ src/cairo-truetype-subset.c |   22 +++++++++++-----------
+ 1 files changed, 11 insertions(+), 11 deletions(-)
+
+commit b63b32958e690409448ddc14e19b1856b9ef555a
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 12 15:32:34 2007 +0100
+
+    [cairo-scaled-font-subsets] Destroy the parent and subfont on error.
+    
+    If we fail to create the sub font destroy the local reference to the
+    parent font and if we fail to insert the sub font into the hash table,
+    destroy the newly create sub font.
+
+ src/cairo-scaled-font-subsets.c |   16 ++++++++++++----
+ 1 files changed, 12 insertions(+), 4 deletions(-)
+
+commit fcd1076bcffa20b7770a1b447a46232760972e2f
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 12 14:36:11 2007 +0100
+
+    [cairo-ft-font] Destroy the path on error.
+    
+    During _decompose_glyph_outline() destroy the fixed path if we
+    encounter an error.
+
+ src/cairo-ft-font.c |   22 ++++++++++++----------
+ 1 files changed, 12 insertions(+), 10 deletions(-)
+
+commit abb19e61cf076c62c7626094c70de0530bd9fd00
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 12 14:32:52 2007 +0100
+
+    [cairo-ft-font] Destroy the unscaled reference on error.
+    
+    Release the reference to the unscaled font if we encounter an error
+    whilst initialising the cairo_ft_scaled_font_t.
+
+ src/cairo-ft-font.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+commit e4055f02a1f5a3d7942c7c2bb4f460ce0a8b5481
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 12 14:29:28 2007 +0100
+
+    [cairo-ft-font] Race between unscaled removal from hash table and creation
+    
+    Small window of opportunity for the unscaled font to be destroyed and
+    removed from the hash table before
+    _cairo_ft_unscaled_font_create_for_pattern() takes a reference on behalf
+    of its cairo. Close the window by taking the reference with the font
+    map lock held.
+
+ src/cairo-ft-font.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit f239308ef1014174d554ccaeab1fe7c2d84e26dc
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 12 13:27:09 2007 +0100
+
+    [cairo-deflate-stream] Free the stream on error.
+    
+    Before returning the nil output stream, free the locally allocated
+    stream when encountering an error during _cairo_deflate_stream_Create().
+
+ src/cairo-deflate-stream.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+commit 35a2ed03352a1abc42e441ce5f52f2704de9be85
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 12 12:36:47 2007 +0100
+
+    [cairo-ft-font] Destroy surface if glyph transformation fails.
+    
+    As we allocated the surface we need to destroy it if we encounter an
+    error.
+
+ src/cairo-ft-font.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+commit 6a43c027238d2302f9e01ee7a780370d330def6c
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 12 09:43:30 2007 +0100
+
+    [cairo-xlib-screen] Increase number of GC depths.
+    
+    Add support for depths 12 and 30, and a separate unknown.
+
+ src/cairo-xlib-private.h |    2 +-
+ src/cairo-xlib-screen.c  |   14 ++++++++------
+ 2 files changed, 9 insertions(+), 7 deletions(-)
+
+commit 70611846ded98ffa0f085f5a704979384b37e84c
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 12 09:40:13 2007 +0100
+
+    [cairo-xlib-surface] Always nullify GC after pushing to screen.
+    
+    The status return from _cairo_xlib_screen_put_gc() indicates the failure
+    to queue a job to free an old GC - the current GC is always transferred
+    away from the caller, so always nullify it in the surface.
+
+ src/cairo-xlib-surface.c |   11 +++++------
+ 1 files changed, 5 insertions(+), 6 deletions(-)
+
+commit 58c35e6d7b2e153dc9cd6ff89fa91497c507afaf
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 12 00:10:26 2007 +0100
+
+    [cairo-paginated-surface] Check surface status during finish.
+    
+    Propagate children status during finish.
+
+ src/cairo-paginated-surface.c |   11 +++++++++--
+ 1 files changed, 9 insertions(+), 2 deletions(-)
+
+commit 9ffd8154e2ec2ccbeeefd3e4a34b2aa16844c1ce
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri May 11 23:43:53 2007 +0100
+
+    [cairo-scaled-font-subsets] Correctly destroy the hash table.
+    
+    After an allocation failure in
+    _cairo_scaled_font_subsets_create_internal() call
+    _cairo_hash_table_destroy() instead of a mere free().
+
+ src/cairo-scaled-font-subsets.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit bcfc5f0bdbd4c1eedc22bde5eed464a8bd18211e
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri May 11 20:57:12 2007 +0100
+
+    [pixman] Propagate allocation failure.
+    
+    pixman_op() failed to propagate the failure from
+    pixman_region_appendNonO() and the generic op.
+
+ pixman/src/pixregion.c |   24 +++++++++++++++++-------
+ 1 files changed, 17 insertions(+), 7 deletions(-)
+
+commit 9e99f0611c834f80903e3554663f71682ef59ef3
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri May 11 20:38:24 2007 +0100
+
+    [cairo-traps] Initialize traps to use embedded buffer.
+    
+    Set the traps to use the embedded buffer during initialization which will
+    save one redundant _cairo_traps_grow()
+
+ src/cairo-traps.c |   26 ++++++--------------------
+ 1 files changed, 6 insertions(+), 20 deletions(-)
+
+commit 35eb65b7772459266e2f954fb370bfdca12b5b64
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri May 11 18:25:13 2007 +0100
+
+    [cairo-path] Check for errors during the count.
+    
+    Return the nil object if we encounter any error whilst trying to
+    generate the path.
+    
+    Also special case the NO_MEMORY error object to return the nil object.
+
+ src/cairo-path.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
+
+commit a60afb0e78ab42498158ef852fcea35c8f71e8ec
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri May 11 16:01:26 2007 +0100
+
+    [cairo-scaled-font] Return status of _cairo_scaled_font_glyph_path()
+    
+    The status return of _cairo_path_fixed_interpret() was being ignored,
+    propagate it.
+
+ src/cairo-scaled-font.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+commit d46f6872a5fe601862e2f63455c97a15c4667cf2
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Sun May 13 21:52:52 2007 -0400
+
+    [docs] Update to latest source changes and kill warnings
+
+ doc/public/Headers.mk     |    1 +
+ doc/public/Makefile.am    |    2 --
+ doc/public/cairo-docs.xml |    6 +++---
+ 3 files changed, 4 insertions(+), 5 deletions(-)
+
+commit 40558cb15e5f7276a29847b00c9dae08b9d9380e
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 12 10:10:49 2007 +0100
+
+    [cairo-xlib-screen] Clear the gc_needs_clip_reset after use.
+    
+    After consuming the GC we need to unset the clip reset flag, so that
+    if we try and get a new GC without first putting a fresh one we do not
+    try to call XSetClipMask on a NULL GC.
+    
+    (Fixes http://bugs.freedesktop.org/show_bug.cgi?id=10921)
+
+ src/cairo-xlib-screen.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+commit abba3f2375c58401b7722837b3be37c3de9beca4
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu May 10 23:05:46 2007 +0100
+
+    [valgrind-suppressions] Update to cover XrmGetStringDatabase
+    
+    By dropping the top frame from suppression, the XrmGetFileDatabase
+    suppressions will also match XrmGetStringDatabase leaks which are
+    starting to occur.
+
+ test/.valgrind-suppressions |   42 ++++++++++++++----------------------------
+ 1 files changed, 14 insertions(+), 28 deletions(-)
+
+commit c4abc3a0e3ebb27bc0aa178651e496c514eb1fae
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu May 10 21:28:48 2007 +0100
+
+    [cairo-truetype-subset] Set CAIRO_STATUS_NO_MEMORY on malloc failure.
+    
+    _cairo_truetype_font_create() failed to update the status before
+    returning after detecting an allocation failure, leaving its callers
+    none the wishing - and eventually triggering a segmentation fault when
+    the font was used in anger.
+
+ src/cairo-truetype-subset.c |   16 ++++++++++++----
+ 1 files changed, 12 insertions(+), 4 deletions(-)
+
+commit ebababc0cf83f828d48200b8e316f57912fb0128
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu May 10 19:24:54 2007 +0100
+
+    [cairo-pattern] Return the nil cairo_pattern_t for CAIRO_STATUS_NO_MEMORY.
+    
+    If we asked to create a pattern after encountering an allocation failure,
+    we can avoid another allocation by returning the nil pattern object.
+
+ src/cairo-pattern.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+commit e8e5f93ffec8321c029c0b95abcb3cd8cadcff31
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu May 10 20:50:58 2007 +0100
+
+    [cairo-meta-surface] Add a surface->status guard to meta_surface_replay()
+    
+    Before attempting to access the cairo_meta_surface_t specific members,
+    we need to ensure that _cairo_meta_surface_replay() has received a true
+    meta surface rather than an error surface (e.g. _cairo_surface_nil).
+
+ src/cairo-meta-surface.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+commit 195112697fac77e70ef36e00a2d557eda1e0e145
+Author: elaine <elaine.xiong@sun.com>
+Date:   Thu May 10 13:58:44 2007 -0400
+
+    [xlib] The buggy_repeat path should be removed for Xsun now
+    
+    Sun never released a version of Solaris with Xorg with the buggy repeat
+    problem.  This patch was only needed for development versions of Solaris
+    Nevada (roughly builds 25-30).  The latest S10U release and Nevada releases
+    have a fixed Xorg.  So no users should ever encounter this bug.
+    
+    We need to remove this test because Xsun has the same VendorString and a lower
+    VendorRelease number so it falsely triggers buggy_repeat to be turned on.
+    They just added Xrender support recently to Xsun, so this wasn't an issue
+    before recently.
+
+ src/cairo-xlib-surface.c |    3 ---
+ 1 files changed, 0 insertions(+), 3 deletions(-)
+
+commit ab6a767cf476c98b466c62dd410d0f61f8dd6bbb
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu May 10 17:17:30 2007 +0100
+
+    [cairo-scaled-font] Check for allocation failure.
+    
+    cairo_scaled_font_create() returns a nil object on failure whereas a few
+    callers were checking for NULL.
+    
+    Secondly review the public entry points for cairo_scaled_font_*() to
+    ensure that all check that they will not attempt to overwrite the
+    read-only nil object.
+
+ src/cairo-gstate.c              |    7 +++----
+ src/cairo-scaled-font-subsets.c |    2 ++
+ src/cairo-scaled-font.c         |   10 ++++++++--
+ src/cairo-type1-fallback.c      |    2 +-
+ 4 files changed, 14 insertions(+), 7 deletions(-)
+
+commit aec92188f1cf4ca34e890b0a4266425532f669d4
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu May 10 09:29:24 2007 +0100
+
+    [cairo-clip] Correctly report allocation failure
+    
+    Distinguish between the unrepresentable clip and the failure to allocate
+    the clip extents.
+
+ src/cairo-clip.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
+
+commit 1a719d1189243a76120b98371f84e074c8cd611e
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu May 10 09:28:20 2007 +0100
+
+    [cairo] Use _cairo_clip_nil for CAIRO_STATUS_NO_MEMORY
+    
+    When creating a error clip list for CAIRO_STATUS_NO_MEMORY, simply
+    reuse the nil object rather than allocate a fresh list.
+
+ src/cairo.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+commit 3fbc4bb5ae27809f417ec2627fa515375e63a0e7
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed May 9 21:41:17 2007 +0100
+
+    [cairo-clip] Add missing error status for _cairo__clip_intersect_region()
+    
+    An out-of-memory error path missed setting CAIRO_STATUS_NO_MEMORY.
+
+ src/cairo-clip.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+commit b5d25068796d572b4b0c6e33eecc5f0736fb8f78
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed May 9 16:27:42 2007 +0100
+
+    [cairo] cairo_pop_group() returns a NULL pattern
+    
+    cairo_pop_group() checks for a NULL return from
+    cairo_pattern_create_for_surface() instead of the nil cairo_pattern_t,
+    and then returns a NULL pattern instead of the nil object.
+
+ src/cairo.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+commit 6f09e93ad7ac4c941ba6c72b21ea4536d248f8d5
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed May 9 13:39:08 2007 +0100
+
+    [ciro-surface-fallback] Propagate status for _clip_and_composite_trapezoids
+    
+    The result of _clip_and_composite_trapezoids() was ignored by 2/3 of
+    its callers - simply propagate the status.
+
+ src/cairo-surface-fallback.c |   28 ++++++++++++++--------------
+ 1 files changed, 14 insertions(+), 14 deletions(-)
+
+commit ae5d4a1c17a46c0a6ea2e4c825ecce7a5cbbe28b
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed May 9 13:19:54 2007 +0100
+
+    [cairo] Return after detecting the invalid font-options.
+    
+    Do not continue to copy the contents of the nil cairo_font_options_t,
+    but set the error on the context and return.
+
+ src/cairo.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+commit dfd4d41ac99dbe5d8ea16aa4ce4809b66308c803
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed May 9 12:30:40 2007 +0100
+
+    [cairo-xlib-surface] Free the allocation if we fail to queue the work.
+    
+    Avoid the leak of the allocated argument if we fail to queue the work to
+    free the glyph.
+
+ src/cairo-xlib-surface.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+commit 8ddfc1b2e4aeefb704e05e64661b5c9985788e99
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 8 16:13:08 2007 +0100
+
+    [cairo-pattern] Return status from _cairo_pattern_init_copy()
+    
+    During the copy, allocation of the gradient may fail and so the callers
+    need to check for a pattern that returned in an error state. No callers
+    did so and in order to force all callers to check the error status,
+    the status return was added to _cairo_pattern_init_copy().  The early
+    error checking may appear redundant for an object with an embedded
+    structure, however it does fix an error where an uninitialised pattern
+    was being used:
+    
+    ==1922== Process terminating with default action of signal 11 (SIGSEGV)
+    ==1922==  Access not within mapped region at address 0x55555555
+    ==1922==    at 0x402CF6F: _cairo_array_index (cairo-array.c:208)
+    ==1922==    by 0x402D4F3: _cairo_user_data_array_fini (cairo-array.c:370)
+    ==1922==    by 0x4046464: _cairo_pattern_fini (cairo-pattern.c:188)
+    ==1922==    by 0x404992A: _cairo_meta_surface_paint (cairo-meta-surface.c:266)
+    ==1922==    by 0x403FCE0: _cairo_surface_paint (cairo-surface.c:1331)
+    ==1922==    by 0x405CB5E: _test_meta_surface_paint (test-meta-surface.c:195)
+    ==1922==    by 0x403FCE0: _cairo_surface_paint (cairo-surface.c:1331)
+    ==1922==    by 0x4032A60: _cairo_gstate_paint (cairo-gstate.c:822)
+    ==1922==    by 0x402B2D1: cairo_paint (cairo.c:1879)
+    ==1922==    by 0x804A4F7: draw (radial-gradient.c:73)
+    ==1922==    by 0x804AFA4: cairo_test_expecting (cairo-test.c:326)
+    ==1922==    by 0x804A57C: main (radial-gradient.c:109)
+    ==1922== Injected fault at:
+    ==1922==    at 0x4020EA5: malloc (vg_replace_malloc.c:207)
+    ==1922==    by 0x404475C: _cairo_pattern_init_copy (cairo-pattern.c:136)
+    ==1922==    by 0x403F779: _cairo_surface_copy_pattern_for_destination (cairo-surface.c:2153)
+    ==1922==    by 0x403FCC1: _cairo_surface_paint (cairo-surface.c:1328)
+    ==1922==    by 0x405CB5E: _test_meta_surface_paint (test-meta-surface.c:195)
+    ==1922==    by 0x403FCE0: _cairo_surface_paint (cairo-surface.c:1331)
+    ==1922==    by 0x4032A60: _cairo_gstate_paint (cairo-gstate.c:822)
+    ==1922==    by 0x402B2D1: cairo_paint (cairo.c:1879)
+    ==1922==    by 0x804A4F7: draw (radial-gradient.c:73)
+    ==1922==    by 0x804AFA4: cairo_test_expecting (cairo-test.c:326)
+    ==1922==    by 0x804A57C: main (radial-gradient.c:109)
+
+ src/cairo-glitz-surface.c  |   12 +++++++--
+ src/cairo-gstate.c         |   55 ++++++++++++++++++++++++++++++-------------
+ src/cairo-meta-surface.c   |    6 ++++-
+ src/cairo-pattern.c        |   30 +++++++++++++++++------
+ src/cairo-quartz-surface.c |    6 ++++-
+ src/cairo-surface.c        |   47 ++++++++++++++++++++++++++-----------
+ src/cairoint.h             |    2 +-
+ 7 files changed, 113 insertions(+), 45 deletions(-)
+
+commit dbdaf0690e1121d0f810dfb035e7a9f0dae17248
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed May 9 09:22:31 2007 +0100
+
+    [cairo-scaled-font] Check _cairo_scaled_glyph_loop() status
+    
+    In _cairo_scaled_font_glyph_path() we forgot to check the status return
+    of _cairo_scaled_glyph_loop() - propagate any failures.
+
+ src/cairo-scaled-font.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+commit b744c2705184c24845423d661258b39bbb17749b
+Author: James Cloos <cloos@jhcloos.com>
+Date:   Wed May 9 02:50:59 2007 -0400
+
+    [cairo-directfb-surface] Fix typo from commit a8c8e17d
+    Fix typo in name of _cairo_directfb_surface_is_similar().
+
+ src/cairo-directfb-surface.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit cbc9218cd3f664682bcb5095c602adf9615535d0
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed May 9 09:03:04 2007 +0100
+
+    [cairo-xcb-surface] Fix compilation
+    
+    As spotted by James Cloos <cloos@jbcloos.com>, I broke the compilation...
+    This is a minimal fix with no claims of completeness.
+
+ src/cairo-xcb-surface.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+commit 069514a10ff2ca9ac86cc3dc1703aa19caa538e2
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 8 18:19:56 2007 +0100
+
+    [test/in-fill-empty-trapezoid] Cleanup after test failure.
+    
+    Ensure that the failure path also calls cairo_test_fini().
+
+ test/in-fill-empty-trapezoid.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+commit 43645eb486da1af91b3264af6c84ac18a1eddcaa
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 8 20:25:21 2007 +0100
+
+    [test/fallback-resolution] Cleanup after test failure
+    
+    Be valgrind clean even for test failures.
+
+ test/fallback-resolution.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
+
+commit 21c6643b09c771454f913b444b6b040aaaacd3a8
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 8 21:28:48 2007 +0100
+
+    [cairo-surface] Check for errors when generating the scaled font.
+    
+    cairo_surface_show_glyphs() attempts to generate a device specific
+    scaled font and so needs to check for failure before attempting to use
+    it.
+
+ src/cairo-surface.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+commit ede76a97ea5b68c3bd042dc6a93ecb1aa7c9761c
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 8 17:26:22 2007 +0100
+
+    [cairo-font-options] Check for the nil-object.
+    
+    The design is for the user to create a cairo_font_options_t object with
+    cairo_font_options_create() and then is free to use it with any Cairo
+    operation. This requires us to check when we may be about to overwrite
+    the read-only nil object.
+
+ src/cairo-font-face.c    |    5 +++++
+ src/cairo-font-options.c |    7 ++++++-
+ src/cairo-gstate.c       |    4 +---
+ src/cairo-scaled-font.c  |   10 ++++++++++
+ src/cairo-surface.c      |    3 +++
+ src/cairo.c              |   12 ++++++++----
+ src/cairoint.h           |    3 ++-
+ 7 files changed, 35 insertions(+), 9 deletions(-)
+
+commit c441938569ed78123a57662a70ef5a74dcf73851
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 8 21:40:26 2007 +0100
+
+    [cairo-pattern] Cleanly handle an invalid pattern in cairo_pattern_transform()
+    
+    Simply return without writing to potentially read-only members of an
+    invalid pattern rather than assert. This is cleaner than tracking down
+    all the error paths that may call into cairo_pattern_transform()...
+
+ src/cairo-pattern.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+commit 409f9734297be250de5e462e2d52e653bd893125
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Tue May 8 14:18:42 2007 -0400
+
+    [test] If a test target fails, end the test
+    otherwise cairo is left in a dirty state and further tests are
+    unreliable.
+
+ test/cairo-test.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
+
+commit aad66d05fd0f310564e80c9ff59526028871751c
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 8 16:40:24 2007 +0100
+
+    [test/nil-surface] Destroy the auxiliary context on failure paths.
+    
+    Just to be tidy, and aim to be valgrind-clean.
+
+ test/nil-surface.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+commit e3acacc096d7db947e7c8f2167a6d97f04c403b1
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 8 16:35:14 2007 +0100
+
+    [cairo-boilerplate-ps] Destroy the target on creation failure
+    
+    Remember to destroy the ptc->target as well as the ordinary surface, if
+    we need to.
+
+ boilerplate/cairo-boilerplate-ps.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+commit efd212bfa25cb44b9499b89f93aa7167a9544ccb
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 8 16:23:07 2007 +0100
+
+    [cairo-boilerplate] Protect against the nil cairo_scaled_font_t
+    
+    Beware the NULL pointer deference when trying to adjust the max glyph
+    cache size...
+
+ boilerplate/cairo-boilerplate.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+commit b85920684f8feaba8d2d5b0262c60b4960c223b8
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 8 14:01:00 2007 +0100
+
+    [cairo-test] Destroy the check image on failure
+    
+    If drawing the checker pattern should fail, we need to free the
+    resources allocated locally.
+
+ test/cairo-test.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+commit 0bf3ffacda5dbfc4fd8a5a0d5fd37d9630f5bcdb
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 8 13:55:04 2007 +0100
+
+    [test-fallback-surface] Destroy the backing image on malloc failure.
+    
+    Ensure we free all local resource should we encounter an allocation
+    failure during _cairo_test_fallback_surface_create().
+
+ src/test-fallback-surface.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+commit eac18d44c7559fe393abf6706b52e5a8edbfd5e9
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 8 12:46:42 2007 +0100
+
+    [cairo-paginated-surface] Propagate malloc failure
+    
+    Check for an allocation failure during _cairo_analysis_surface_create()
+    and propagate to caller - where we discover that the callers themselves
+    missed the status checks...
+
+ src/cairo-paginated-surface.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
+
+commit 0d8a1540ec53ecc309a10e77ea7788fcd16d8345
+Author: Emmanuel Pacaud <emmanuel.pacaud@free.fr>
+Date:   Tue May 8 09:11:57 2007 +0200
+
+    SVG: Don't clip SVG element, as clipping region is implicit.
+    
+    That makes editing of produced SVG easier.
+
+ src/cairo-svg-surface-private.h |    1 +
+ src/cairo-svg-surface.c         |   53 +++++++++++++++++++--------------------
+ 2 files changed, 27 insertions(+), 27 deletions(-)
+
+commit 936c965777c867bd4de7fd2278335837cc24eb22
+Author: Jinghua Luo <sunmoon1997@gmail.com>
+Date:   Tue May 8 13:24:40 2007 +0800
+
+    glitz: kill some compiler warnings.
+
+ src/cairo-glitz-surface.c |   11 +++++++++--
+ 1 files changed, 9 insertions(+), 2 deletions(-)
+
+commit 413705872e321288bff1368c62eacad11805c2fc
+Author: Jinghua Luo <sunmoon1997@gmail.com>
+Date:   Tue May 8 13:19:35 2007 +0800
+
+    glitz: fix a typo preventing build glitz backend from succeeding.
+
+ src/cairo-glitz-surface.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit d81907734e18fb9302e78eccb1e25a838223b726
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Sat May 5 12:33:29 2007 +0100
+
+    [cairo-color] Only compare the shorts for equality.
+    
+    By only checking the premultiplied shorts inside the cairo_color_t we
+    only have to compare at most 8 bytes instead of the full 24 bytes.
+
+ src/cairo-color.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+commit 966a39396eb75d9d4ecc9997bb21d62fba176f78
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri May 4 15:25:18 2007 +0100
+
+    [NEWS] Surface cache for solid patterns
+    
+    Add an entry describing the surface cache to NEWS.
+
+ NEWS |   21 +++++++++++++++++++++
+ 1 files changed, 21 insertions(+), 0 deletions(-)
+
+commit 056d149212ce4999f8984db62b880ff2eb998ab3
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed May 2 12:54:49 2007 +0100
+
+    [cairo-pattern] Don't cache fallback surfaces
+    
+    _cairo_surface_create_similar_solid() may return an image surface,
+    should the backend not support the required content or should it
+    encounter an error whilst creating the surface. In those circumstances
+    we choose not to cache the fallback surface.
+
+ src/cairo-pattern.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletions(-)
+
+commit a8c8e17d845c7060286dac58b553fb717b270788
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed May 2 10:00:22 2007 +0100
+
+    [cairo-pattern] Cache surface for solid patterns
+    
+    Original work by Jorn Baayen <jorn@openedhand.com>,
+    2715f2098127d04d2f9e304580a26cd0842c0e64
+    
+    We use a small cache of size 16 for surfaces created for solid patterns.
+    This mainly helps with the X backends where we don't have to create a
+    pattern for every operation, so we save a lot on X traffic.  Xft uses a
+    similar cache, so cairo's text rendering traffic with the xlib backend
+    now completely matches that of Xft.
+    
+    The cache uses an static index variable, which itself acts like a cache of
+    size 1, remembering the most recently used solid pattern.  So repeated
+    lookups for the same pattern hit immediately.  If that fails, the cache is
+    searched linearly, and if that fails too, a new surface is created and a
+    random member of the cache is evicted.
+    
+    A cached surface can only be reused if it is similar to the destination.
+    In order to check for similar surfaces a new test is introduced for the
+    backends to determine that the cached surface is as would be returned by
+    a _create_similar() call for the destination and content.
+    
+    As surfaces are in general complex encapsulation of graphics state we
+    only return unshared cached surfaces and reset them (to clear any error
+    conditions and graphics state). In practice this makes little difference
+    to the efficacy of the cache during various benchmarks. However, in order
+    to transparently share solid surfaces it would be possible to implement a
+    COW scheme.
+    
+    Cache hit rates:    (hit same index + hit in cache) / lookups
+    cairo-perf:         (42346 + 28480) / 159600 = 44.38%
+    gtk-theme-torturer: (3023  + 3502)  / 6528   = 99.95%
+    gtk-perf:           (8270  + 3190)  / 21504  = 53.29%
+    
+    This translates into a reduction of about 25% of the XRENDER traffic during
+    cairo-perf.
+
+ src/cairo-directfb-surface.c   |   15 ++++-
+ src/cairo-glitz-surface.c      |   40 ++++++++++++-
+ src/cairo-image-surface.c      |   29 ++++++++-
+ src/cairo-mutex-list-private.h |    3 +-
+ src/cairo-pattern.c            |  135 +++++++++++++++++++++++++++++++++++-----
+ src/cairo-pdf-surface.c        |    3 +
+ src/cairo-surface.c            |   57 +++++++++++++++++
+ src/cairo-win32-surface.c      |   29 ++++++++-
+ src/cairo-xcb-surface.c        |   39 +++++++++++-
+ src/cairo-xlib-surface.c       |   45 +++++++++++++-
+ src/cairoint.h                 |   16 +++++
+ 11 files changed, 388 insertions(+), 23 deletions(-)
+
+commit 52472b740e821dee444ede1fff041a99d344daab
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue May 1 18:34:47 2007 +0100
+
+    [cairo-xlib-surface] Defer application of clip mask until required.
+    
+    By deferring the issuing of the X requests to set the clip mask we can
+    theoretically avoid some redundant requests, but primarily we remove
+    another path where X requests are emitted.
+
+ src/cairo-xlib-surface-private.h |    7 ++++
+ src/cairo-xlib-surface.c         |   72 ++++++++++++++++++--------------------
+ 2 files changed, 41 insertions(+), 38 deletions(-)
+
+commit a81823cdf9a147d02bb2365558ba667ab52fb3c9
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri Apr 20 17:32:25 2007 +0100
+
+    [cairo-xlib-display] Allocate the close_display hooks from a freelist.
+    
+    Similar to job allocation, but only useful for toolkits like GTK+ which
+    recreate a new xlib surface for each expose.
+
+ src/cairo-xlib-display.c |  105 ++++++++++++++++++++++++---------------------
+ src/cairo-xlib-private.h |    1 +
+ 2 files changed, 57 insertions(+), 49 deletions(-)
+
+commit c29ffc64ca341623d21a7861f1b5f131b420d20f
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Fri Apr 20 16:33:56 2007 +0100
+
+    [cairo-xlib-display] Cache the screen_info for the lifetime of the display.
+    
+    Hold an extra reference to the screen_info and explicitly destroy the
+    list of screens on CloseDisplay.
+
+ src/cairo-xlib-display.c |   19 +++++++++++++++++++
+ src/cairo-xlib-screen.c  |    3 +--
+ 2 files changed, 20 insertions(+), 2 deletions(-)
+
+commit 1d6f7b7a0282d1b24bec82d9ad113b0d0a0cde98
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu Apr 19 13:01:52 2007 +0100
+
+    [cairo-xlib] Cache freed GCs
+    
+    Maintain a cache of freed GCs, one for each used depth.
+
+ src/cairo-xlib-display.c |    6 +++-
+ src/cairo-xlib-private.h |   10 ++++++
+ src/cairo-xlib-screen.c  |   70 ++++++++++++++++++++++++++++++++++++++++++++++
+ src/cairo-xlib-surface.c |   22 ++++++++------
+ 4 files changed, 98 insertions(+), 10 deletions(-)
+
+commit 88c6d25d4e53ddad6f3d465b2f5249c76a421b82
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Tue Apr 17 12:03:07 2007 +0100
+
+    [cairo-xlib-surface] Defer xlib resource cleanup.
+    
+    Due to caching, destruction of X11 resources may occur outside of a
+    usable X11 context. To avoid this, we defer the destruction onto a work
+    queue which will be run the next time we try to use the X11 connection
+    on behalf of the user (at which point we must have a usable X11 context!)
+    or we are closing the Display.
+
+ src/cairo-xlib-surface.c |  180 +++++++++++++++++++++++++++++++++++++++------
+ 1 files changed, 156 insertions(+), 24 deletions(-)
+
+commit 8ad30ccdb0a00701b15003edb2fe0cd4a8a9dfb7
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu Apr 19 12:15:04 2007 +0100
+
+    [cairo-xlib] Introduce a workqueue for deferred destruction of X resources.
+    
+    Due to the nature of the reference counting, an X resource may be
+    destroyed later than anticipated and possibly from a different thread
+    than the original context. This becomes an issue for applications that
+    carefully manage their single X connection from a single thread and do
+    not use locking and are then suprised when cairo triggers X traffic when
+    performing work for a different part of the application in another thread.
+
+ src/cairo-xlib-display.c |  171 +++++++++++++++++++++++++++++++++++++++++++++-
+ src/cairo-xlib-private.h |   18 +++++
+ src/cairo-xlib-screen.c  |    1 -
+ src/cairo-xlib-surface.c |   21 +++++-
+ 4 files changed, 205 insertions(+), 6 deletions(-)
+
+commit dd8681b76b088bab45c99510258920f027490f70
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Mon Apr 16 15:04:08 2007 +0100
+
+    [cairo-xlib] Split per-display attributes from per-screen.
+    
+    Previously, we stored the per-display attributes inside a special
+    screen=NULL _cairo_xlib_screen_info_t. Now we keep track of known X
+    displays and store the screen information beneath the display structure
+    alongside the per-display hooks.
+
+ src/Makefile.am                |    8 +-
+ src/cairo-debug.c              |    4 -
+ src/cairo-mutex-list-private.h |    2 +-
+ src/cairo-xlib-display.c       |  258 +++++++++++++++++++++++++++++++++
+ src/cairo-xlib-private.h       |   37 ++++-
+ src/cairo-xlib-screen.c        |  309 ++++++++-------------------------------
+ src/cairo-xlib-surface.c       |    2 +-
+ src/cairoint.h                 |    6 -
+ 8 files changed, 359 insertions(+), 267 deletions(-)
+
+commit 9919f1ed9ccbec637252e06dd1de5f4665c873b4
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu May 3 19:54:31 2007 -0400
+
+    [TODO] Add link to cairo_copy_clip() proposal
+
+ TODO |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+commit e5d9d51e55eb45704de6d98ac9265743af56711f
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Thu May 3 19:04:21 2007 -0400
+
+    [cairo-mutex] Fix typo.
+
+ src/cairo-mutex.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+commit 5ec27eef9566faa22fb1cbaf1a103a57ba5296c8
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Thu May 3 13:46:25 2007 +0100
+
+    [pixman] Free the old rects if we fail to allocate new.
+    
+    During the pixman_op, a complicated dance is performed to handle
+    enlarging the rectangle array to accommodate the op. One consequence
+    of this is to, under certain circumstances, replace the current
+    rectangle array with emptyData and track the old array with oldData.
+    Hence if we fail to realloc the enlarged array we need to free oldData.
+
+ pixman/src/pixregion.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
+
+commit ef3070821713c33fab78abb191e27a62e165f6c6
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Wed May 2 16:22:13 2007 -0400
+
+    [boilerplate] Fix typo
+
+ boilerplate/xmalloc.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit c412e42c72c0ff53c678119638357ed95897ed78
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Wed May 2 21:17:39 2007 +0100
+
+    [cairo-xlib-surface] Check that the acquire surfaces are xlib surfaces
+    
+    _cairo_pattern_acquire_surfaces() may substitute an image surface for
+    either the source or the mask should the backend not support creation
+    of similar scratch surfaces or an error occurs during creation. For
+    composition we require xlib surfaces and so we must trigger the
+    fallback path if this happens.
+
+ src/cairo-xlib-surface.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+), 0 deletions(-)
+
+commit f3153091b742daffa853f2c31b76aa9689c5165a
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Tue May 1 20:10:39 2007 -0400
+
+    [cairo-mutex] Document the API for adding cairo_mutex_t implementations
+
+ src/cairo-mutex-type-private.h |   83 ++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 83 insertions(+), 0 deletions(-)
+
+commit 5bfd6553fd028f1429d72c60d04788de4a3c0d58
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Tue May 1 19:48:33 2007 -0400
+
+    [cairo-mutex] Define a NOOP CAIRO_MUTEX_FINALIZE() for pthread
+    as now the mutex layer will define a generic CAIRO_MUTEX_FINALIZE()
+    whenever the implementation defines CAIRO_MUTEX_FINI().  In the
+    case of pthread however we don't need finalization as we don't
+    have any place to call it, and pthread_mutex_destroy() doesn't
+    do much anyway.
+
+ src/cairo-mutex-type-private.h |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+commit c4e0a059feb9c2e0c32966dcb168861e75a244b7
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Tue May 1 19:46:51 2007 -0400
+
+    [cairo-mutex] Remove NOOP definition of CAIRO_MUTEX_INITIALIZE
+    as now the mutex layer will use a NOOP CAIRO_MUTEX_INITIALIZE
+    by default if the implementation does not define CAIRO_MUTEX_INIT.
+
+ src/cairo-mutex-type-private.h |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+commit 06cc74d974a99526829df558606174b41b0ee6e1
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Tue May 1 19:45:29 2007 -0400
+
+    [cairo-mutex] Rewrite defaults for CAIRO_MUTEX macros not defined by the implementation
+    to make them better match the design I have in mind, that I will
+    document in a minute.  They are a lot more readable and understandable
+    now.
+
+ src/cairo-mutex-private.h |   93 ++++++++++++++++++++++++++++++++------------
+ src/cairo-mutex.c         |   18 +++++++-
+ 2 files changed, 82 insertions(+), 29 deletions(-)
+
+commit e87a25dc7c73a44b0cdfc4ef368736e7f77fb522
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Tue May 1 19:24:26 2007 -0400
+
+    [cairo-mutex] Fix usage of CAIRO_MUTEX_DECLARE()
+    
+    Previously cairo-mutex.c was abusing cairo-mutex-private.h by
+    defining CAIRO_MUTEX_DECLARE before including it, and
+    cairo-mutex-private.h was simply not overriding any available
+    CAIRO_MUTEX_DECLARE.  This is not the way it should be.
+    cairo-mutex.c should instead define CAIRO_MUTEX_DECLARE and
+    include cairo-mutex-list-private.h for itself.
+
+ src/cairo-mutex-private.h |    4 +---
+ src/cairo-mutex.c         |    9 +++++----
+ 2 files changed, 6 insertions(+), 7 deletions(-)
+
+commit 1a33e44aa5d73f568c4164c41f9595964e9f1bbb
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Tue May 1 18:13:19 2007 -0400
+
+    [RELEASING] Update GNOME URL to point to 2.19 planning page
+
+ RELEASING |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+commit 4764e6222bf4d5223fc2fbb139bb31a24819b2b5
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Tue May 1 00:50:03 2007 -0400
+
+    [cairo-mutex] Improve error message if no thread implementation found
+    
+    to put back Carl's "acknowledge and accept" clause (!) before suggesting
+    use of CAIRO_NO_MUTEX.
+
+ src/cairo-mutex-type-private.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+commit b5f015f21f3c800919a85f03a081a3ec1648a794
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Tue May 1 00:48:33 2007 -0400
+
+    [cairo-mutex] Make sure mutex implementation declares enough macros
+    
+    We have defaults for the rest.
+
+ src/cairo-mutex-private.h |   11 +++++++++++
+ 1 files changed, 11 insertions(+), 0 deletions(-)
+
+commit b0a0a1779dc5cc16423473b6d80ee5099793a47f
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Tue May 1 00:47:02 2007 -0400
+
+    [cairo-mutex] Make CAIRO_MUTEX_INIT/FINI take mutex object, not pointer to it
+    
+    This is more consistent with CAIRO_MUTEX_LOCK/UNLOCK.
+
+ src/cairo-ft-font.c            |    4 ++--
+ src/cairo-mutex-private.h      |    2 +-
+ src/cairo-mutex-type-private.h |   19 +++++++------------
+ src/cairo-mutex.c              |    4 ++--
+ src/cairo-scaled-font.c        |    4 ++--
+ 5 files changed, 14 insertions(+), 19 deletions(-)
+
+commit f9154f7eda4272ff99cc8a894082cc5aa1b008ef
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Tue May 1 00:44:42 2007 -0400
+
+    [cairo-mutex] Make sure CAIRO_MUTEX_FINI() evaluates its argument once
+
+ src/cairo-mutex-private.h      |    2 +-
+ src/cairo-mutex-type-private.h |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+commit a8d47d0c001a36ddd6c9f09247e6eada408edb24
+Author: Behdad Esfahbod <behdad@behdad.org>
+Date:   Tue May 1 00:43:15 2007 -0400
+
+    [cairo-mutex] Rename macro arguments from "name" to "mutex"
+
+ src/cairo-mutex-private.h      |    6 +++---
+ src/cairo-mutex-type-private.h |   20 ++++++++++----------
+ src/cairo-mutex.c              |    4 ++--
+ 3 files changed, 15 insertions(+), 15 deletions(-)
+
+commit f57a536fceec73435bb13c44275717792b9b3a8c
+Author: Carl Worth <cworth@cworth.org>
+Date:   Tue May 1 13:45:58 2007 -0700
+
+    Increment version to 1.4.7 after the 1.4.6 release
+
+ configure.in |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
 commit ddca8fec07ff95caeda6e4ce9efc3239b146bd2d
 Author: Carl Worth <cworth@cworth.org>
 Date:   Tue May 1 13:37:16 2007 -0700
@@ -2196,22 +4141,6 @@ Date:   Fri Apr 13 17:47:25 2007 -0700
 
  configure.in |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
-
-commit 2efaf3a7a47a281ca02009d371cd7a06a8a4f282
-Merge: abac4d2... 25ddc08...
-Author: Mathias Hasselmann <mathias.hasselmann@gmx.de>
-Date:   Sat Mar 24 00:29:04 2007 +0100
-
-    Merge branch 'master' of git+ssh://hasselmm@git.freedesktop.org/git/cairo
-
-commit abac4d251dd02151dced296afa9d6e1b383868ee
-Author: Mathias Hasselmann <mathias.hasselmann@gmx.de>
-Date:   Fri Mar 23 23:36:15 2007 +0100
-
-    [cairo-perf] Use full 64 bit of the clock cycle counters to avoid overflows
-
- perf/cairo-perf-posix.c |   22 ++++++++++++++--------
- 1 files changed, 14 insertions(+), 8 deletions(-)
 
 commit ebba4a6d1467a8e5db5cc43eb08e8fc98c39b30a
 Author: Carl Worth <cworth@cworth.org>
@@ -4841,6 +6770,22 @@ Date:   Sat Mar 24 13:25:03 2007 +0000
 
  src/cairo-atsui-font.c |   10 ++++++++--
  1 files changed, 8 insertions(+), 2 deletions(-)
+
+commit 2efaf3a7a47a281ca02009d371cd7a06a8a4f282
+Merge: abac4d2... 25ddc08...
+Author: Mathias Hasselmann <mathias.hasselmann@gmx.de>
+Date:   Sat Mar 24 00:29:04 2007 +0100
+
+    Merge branch 'master' of git+ssh://hasselmm@git.freedesktop.org/git/cairo
+
+commit abac4d251dd02151dced296afa9d6e1b383868ee
+Author: Mathias Hasselmann <mathias.hasselmann@gmx.de>
+Date:   Fri Mar 23 23:36:15 2007 +0100
+
+    [cairo-perf] Use full 64 bit of the clock cycle counters to avoid overflows
+
+ perf/cairo-perf-posix.c |   22 ++++++++++++++--------
+ 1 files changed, 14 insertions(+), 8 deletions(-)
 
 commit 25ddc0800490ca0222668e389412f92ccfdab91c
 Author: Adrian Johnson <ajohnson@redneon.com>

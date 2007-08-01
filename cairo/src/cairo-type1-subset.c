@@ -46,6 +46,8 @@
 #include FT_OUTLINE_H
 #include FT_TYPE1_TABLES_H
 
+#include <ctype.h>
+
 typedef struct _cairo_type1_font_subset {
 
     cairo_scaled_font_subset_t *scaled_font_subset;

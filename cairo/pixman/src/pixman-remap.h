@@ -58,6 +58,7 @@
 #define pixman_region_copy _cairo_pixman_region_copy
 #define pixman_region_init _cairo_pixman_region_init
 #define pixman_region_init_rect _cairo_pixman_region_init_rect
+#define pixman_region_init_rects _cairo_pixman_region_init_rects
 #define pixman_region_init_with_extents _cairo_pixman_region_init_with_extents
 #define pixman_region_fini _cairo_pixman_region_fini
 #define pixman_region_empty _cairo_pixman_region_empty

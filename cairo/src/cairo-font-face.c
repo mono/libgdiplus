@@ -455,6 +455,11 @@ _cairo_toy_font_face_scaled_font_create (void                *abstract_font_face
 {
     cairo_toy_font_face_t *font_face = abstract_font_face;
     const cairo_scaled_font_backend_t * backend = CAIRO_SCALED_FONT_BACKEND_DEFAULT;
+    cairo_status_t status;
+
+    status = cairo_font_options_status ((cairo_font_options_t *) options);
+    if (status)
+	return status;
 
     return backend->create_toy (font_face,
 				font_matrix, ctm, options, scaled_font);

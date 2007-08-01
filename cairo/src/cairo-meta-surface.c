@@ -212,7 +212,11 @@ static cairo_status_t
 _init_pattern_with_snapshot (cairo_pattern_t       *pattern,
 			     const cairo_pattern_t *other)
 {
-    _cairo_pattern_init_copy (pattern, other);
+    cairo_status_t status;
+
+    status = _cairo_pattern_init_copy (pattern, other);
+    if (status)
+	return status;
 
     if (pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
 	cairo_surface_pattern_t *surface_pattern =
@@ -647,6 +651,9 @@ _cairo_meta_surface_replay (cairo_surface_t *surface,
     cairo_bool_t has_device_transform = _cairo_surface_has_device_transform (target);
     cairo_matrix_t *device_transform = &target->device_transform;
     cairo_path_fixed_t path_copy, *dev_path;
+
+    if (surface->status)
+	return surface->status;
 
     meta = (cairo_meta_surface_t *) surface;
     status = CAIRO_STATUS_SUCCESS;

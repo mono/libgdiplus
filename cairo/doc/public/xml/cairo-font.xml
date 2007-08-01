@@ -23,22 +23,19 @@
 
 
 
-typedef     <link linkend="cairo-font-face-t">cairo_font_face_t</link>;
-<link linkend="cairo-font-face-t">cairo_font_face_t</link>* <link linkend="cairo-font-face-reference">cairo_font_face_reference</link>
-                                            (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);
-<link linkend="void">void</link>        <link linkend="cairo-font-face-destroy">cairo_font_face_destroy</link>         (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);
-<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-font-face-status">cairo_font_face_status</link>       (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);
-enum        <link linkend="cairo-font-type-t">cairo_font_type_t</link>;
-<link linkend="cairo-font-type-t">cairo_font_type_t</link> <link linkend="cairo-font-face-get-type">cairo_font_face_get_type</link>  (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);
-unsigned <link linkend="int">int</link> <link linkend="cairo-font-face-get-reference-count">cairo_font_face_get_reference_count</link>
-                                            (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);
-<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-font-face-set-user-data">cairo_font_face_set_user_data</link>
-                                            (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
-                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
-                                             <link linkend="void">void</link> *user_data,
-                                             <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);
-<link linkend="void">void</link>*       <link linkend="cairo-font-face-get-user-data">cairo_font_face_get_user_data</link>   (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
-                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);
+typedef             <link linkend="cairo-font-face-t">cairo_font_face_t</link>;
+<link linkend="cairo-font-face-t">cairo_font_face_t</link>*  <link linkend="cairo-font-face-reference">cairo_font_face_reference</link>           (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);
+<link linkend="void">void</link>                <link linkend="cairo-font-face-destroy">cairo_font_face_destroy</link>             (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);
+<link linkend="cairo-status-t">cairo_status_t</link>      <link linkend="cairo-font-face-status">cairo_font_face_status</link>              (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);
+enum                <link linkend="cairo-font-type-t">cairo_font_type_t</link>;
+<link linkend="cairo-font-type-t">cairo_font_type_t</link>   <link linkend="cairo-font-face-get-type">cairo_font_face_get_type</link>            (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);
+unsigned <link linkend="int">int</link>        <link linkend="cairo-font-face-get-reference-count">cairo_font_face_get_reference_count</link> (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);
+<link linkend="cairo-status-t">cairo_status_t</link>      <link linkend="cairo-font-face-set-user-data">cairo_font_face_set_user_data</link>       (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
+                                                         const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
+                                                         <link linkend="void">void</link> *user_data,
+                                                         <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);
+<link linkend="void">void</link>*               <link linkend="cairo-font-face-get-user-data">cairo_font_face_get_user_data</link>       (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
+                                                         const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);
 </synopsis>
 </refsynopsisdiv>
 
@@ -84,8 +81,7 @@ Memory management of <link linkend="cairo-font-face-t"><type>cairo_font_face_t</
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-font-face-reference" role="function"/>cairo_font_face_reference ()</title>
-<indexterm><primary>cairo_font_face_reference</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>* cairo_font_face_reference
-                                            (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
+<indexterm><primary>cairo_font_face_reference</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>*  cairo_font_face_reference           (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
 <para>
 Increases the reference count on <parameter>font_face</parameter> by one. This prevents
 <parameter>font_face</parameter> from being destroyed until a matching call to
@@ -106,7 +102,7 @@ function does nothing).
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-font-face-destroy" role="function"/>cairo_font_face_destroy ()</title>
-<indexterm><primary>cairo_font_face_destroy</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_font_face_destroy         (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
+<indexterm><primary>cairo_font_face_destroy</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_font_face_destroy             (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
 <para>
 Decreases the reference count on <parameter>font_face</parameter> by one. If the result
 is zero, then <parameter>font_face</parameter> and all associated resources are freed.
@@ -120,7 +116,7 @@ See <link linkend="cairo-font-face-reference"><function>cairo_font_face_referenc
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-font-face-status" role="function"/>cairo_font_face_status ()</title>
-<indexterm><primary>cairo_font_face_status</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_font_face_status       (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
+<indexterm><primary>cairo_font_face_status</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      cairo_font_face_status              (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
 <para>
 Checks whether an error has previously occurred for this
 font face</para>
@@ -199,11 +195,11 @@ New entries may be added in future versions.</para>
 <listitem><simpara> The font is of type ATSUI
 </simpara></listitem>
 </varlistentry>
-</variablelist><para>Since  1.2
+</variablelist><para role="since">Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-font-face-get-type" role="function" condition="since:1.2"/>cairo_font_face_get_type ()</title>
-<indexterm role="1.2"><primary>cairo_font_face_get_type</primary></indexterm><programlisting><link linkend="cairo-font-type-t">cairo_font_type_t</link> cairo_font_face_get_type  (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
+<indexterm role="1.2"><primary>cairo_font_face_get_type</primary></indexterm><programlisting><link linkend="cairo-font-type-t">cairo_font_type_t</link>   cairo_font_face_get_type            (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
 <para>
 This function returns the type of the backend used to create
 a font face. See <link linkend="cairo-font-type-t"><type>cairo_font_type_t</type></link> for available types.</para>
@@ -216,12 +212,11 @@ a font face. See <link linkend="cairo-font-type-t"><type>cairo_font_type_t</type
 <varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> The type of <parameter>font_face</parameter>.
 
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.2
+</variablelist><para role="since">Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-font-face-get-reference-count" role="function" condition="since:1.4"/>cairo_font_face_get_reference_count ()</title>
-<indexterm role="1.4"><primary>cairo_font_face_get_reference_count</primary></indexterm><programlisting>unsigned <link linkend="int">int</link> cairo_font_face_get_reference_count
-                                            (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
+<indexterm role="1.4"><primary>cairo_font_face_get_reference_count</primary></indexterm><programlisting>unsigned <link linkend="int">int</link>        cairo_font_face_get_reference_count (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face);</programlisting>
 <para>
 Returns the current reference count of <parameter>font_face</parameter>.</para>
 <para>
@@ -234,15 +229,14 @@ Returns the current reference count of <parameter>font_face</parameter>.</para>
 object is a nil object, 0 will be returned.
 
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.4
+</variablelist><para role="since">Since  1.4
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-font-face-set-user-data" role="function"/>cairo_font_face_set_user_data ()</title>
-<indexterm><primary>cairo_font_face_set_user_data</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_font_face_set_user_data
-                                            (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
-                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
-                                             <link linkend="void">void</link> *user_data,
-                                             <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);</programlisting>
+<indexterm><primary>cairo_font_face_set_user_data</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      cairo_font_face_set_user_data       (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
+                                                         const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
+                                                         <link linkend="void">void</link> *user_data,
+                                                         <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);</programlisting>
 <para>
 Attach user data to <parameter>font_face</parameter>.  To remove user data from a font face,
 call this function with the key that was used to set it and <link linkend="NULL:CAPS"><literal>NULL</literal></link>
@@ -270,8 +264,8 @@ slot could not be allocated for the user data.
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-font-face-get-user-data" role="function"/>cairo_font_face_get_user_data ()</title>
-<indexterm><primary>cairo_font_face_get_user_data</primary></indexterm><programlisting><link linkend="void">void</link>*       cairo_font_face_get_user_data   (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
-                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);</programlisting>
+<indexterm><primary>cairo_font_face_get_user_data</primary></indexterm><programlisting><link linkend="void">void</link>*               cairo_font_face_get_user_data       (<link linkend="cairo-font-face-t">cairo_font_face_t</link> *font_face,
+                                                         const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);</programlisting>
 <para>
 Return user data previously attached to <parameter>font_face</parameter> using the specified
 key.  If no user data has been attached with the given key this

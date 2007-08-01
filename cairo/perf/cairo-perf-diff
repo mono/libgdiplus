@@ -177,7 +177,7 @@ run_cairo_perf_if_not_cached() {
 	rsync $CAIRO_DIR/$file perf
     done
     cd perf;
-    make || exit 1
+    make cairo-perf || exit 1
     echo "Running \"cairo-perf $CAIRO_PERF_OPTIONS\" against $rev. Results will be cached in:"
     echo "$perf"
     (./cairo-perf $CAIRO_PERF_OPTIONS || echo "*** Performance test crashed") >> $perf

@@ -23,23 +23,21 @@
 
 
 
-<link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-ps-surface-create">cairo_ps_surface_create</link>    (const <link linkend="char">char</link> *filename,
-                                             <link linkend="double">double</link> width_in_points,
-                                             <link linkend="double">double</link> height_in_points);
-<link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-ps-surface-create-for-stream">cairo_ps_surface_create_for_stream</link>
-                                            (<link linkend="cairo-write-func-t">cairo_write_func_t</link> write_func,
-                                             <link linkend="void">void</link> *closure,
-                                             <link linkend="double">double</link> width_in_points,
-                                             <link linkend="double">double</link> height_in_points);
-<link linkend="void">void</link>        <link linkend="cairo-ps-surface-set-size">cairo_ps_surface_set_size</link>       (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
-                                             <link linkend="double">double</link> width_in_points,
-                                             <link linkend="double">double</link> height_in_points);
-<link linkend="void">void</link>        <link linkend="cairo-ps-surface-dsc-begin-setup">cairo_ps_surface_dsc_begin_setup</link>
-                                            (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);
-<link linkend="void">void</link>        <link linkend="cairo-ps-surface-dsc-begin-page-setup">cairo_ps_surface_dsc_begin_page_setup</link>
-                                            (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);
-<link linkend="void">void</link>        <link linkend="cairo-ps-surface-dsc-comment">cairo_ps_surface_dsc_comment</link>    (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
-                                             const <link linkend="char">char</link> *comment);
+<link linkend="cairo-surface-t">cairo_surface_t</link>*    <link linkend="cairo-ps-surface-create">cairo_ps_surface_create</link>             (const <link linkend="char">char</link> *filename,
+                                                         <link linkend="double">double</link> width_in_points,
+                                                         <link linkend="double">double</link> height_in_points);
+<link linkend="cairo-surface-t">cairo_surface_t</link>*    <link linkend="cairo-ps-surface-create-for-stream">cairo_ps_surface_create_for_stream</link>  (<link linkend="cairo-write-func-t">cairo_write_func_t</link> write_func,
+                                                         <link linkend="void">void</link> *closure,
+                                                         <link linkend="double">double</link> width_in_points,
+                                                         <link linkend="double">double</link> height_in_points);
+<link linkend="void">void</link>                <link linkend="cairo-ps-surface-set-size">cairo_ps_surface_set_size</link>           (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
+                                                         <link linkend="double">double</link> width_in_points,
+                                                         <link linkend="double">double</link> height_in_points);
+<link linkend="void">void</link>                <link linkend="cairo-ps-surface-dsc-begin-setup">cairo_ps_surface_dsc_begin_setup</link>    (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);
+<link linkend="void">void</link>                <link linkend="cairo-ps-surface-dsc-begin-page-setup">cairo_ps_surface_dsc_begin_page_setup</link>
+                                                        (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);
+<link linkend="void">void</link>                <link linkend="cairo-ps-surface-dsc-comment">cairo_ps_surface_dsc_comment</link>        (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
+                                                         const <link linkend="char">char</link> *comment);
 </synopsis>
 </refsynopsisdiv>
 
@@ -62,9 +60,9 @@
 <title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-ps-surface-create" role="function" condition="since:1.2"/>cairo_ps_surface_create ()</title>
-<indexterm role="1.2"><primary>cairo_ps_surface_create</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_ps_surface_create    (const <link linkend="char">char</link> *filename,
-                                             <link linkend="double">double</link> width_in_points,
-                                             <link linkend="double">double</link> height_in_points);</programlisting>
+<indexterm role="1.2"><primary>cairo_ps_surface_create</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>*    cairo_ps_surface_create             (const <link linkend="char">char</link> *filename,
+                                                         <link linkend="double">double</link> width_in_points,
+                                                         <link linkend="double">double</link> height_in_points);</programlisting>
 <para>
 Creates a PostScript surface of the specified size in points to be
 written to <parameter>filename</parameter>. See <link linkend="cairo-ps-surface-create-for-stream"><function>cairo_ps_surface_create_for_stream()</function></link> for
@@ -95,15 +93,14 @@ pointer to a "nil" surface if an error such as out of memory
 occurs. You can use <link linkend="cairo-surface-status"><function>cairo_surface_status()</function></link> to check for this.
 
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.2
+</variablelist><para role="since">Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-ps-surface-create-for-stream" role="function" condition="since:1.2"/>cairo_ps_surface_create_for_stream ()</title>
-<indexterm role="1.2"><primary>cairo_ps_surface_create_for_stream</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_ps_surface_create_for_stream
-                                            (<link linkend="cairo-write-func-t">cairo_write_func_t</link> write_func,
-                                             <link linkend="void">void</link> *closure,
-                                             <link linkend="double">double</link> width_in_points,
-                                             <link linkend="double">double</link> height_in_points);</programlisting>
+<indexterm role="1.2"><primary>cairo_ps_surface_create_for_stream</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>*    cairo_ps_surface_create_for_stream  (<link linkend="cairo-write-func-t">cairo_write_func_t</link> write_func,
+                                                         <link linkend="void">void</link> *closure,
+                                                         <link linkend="double">double</link> width_in_points,
+                                                         <link linkend="double">double</link> height_in_points);</programlisting>
 <para>
 Creates a PostScript surface of the specified size in points to be
 written incrementally to the stream represented by <parameter>write_func</parameter> and
@@ -137,13 +134,13 @@ pointer to a "nil" surface if an error such as out of memory
 occurs. You can use <link linkend="cairo-surface-status"><function>cairo_surface_status()</function></link> to check for this.
 
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.2
+</variablelist><para role="since">Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-ps-surface-set-size" role="function" condition="since:1.2"/>cairo_ps_surface_set_size ()</title>
-<indexterm role="1.2"><primary>cairo_ps_surface_set_size</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_ps_surface_set_size       (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
-                                             <link linkend="double">double</link> width_in_points,
-                                             <link linkend="double">double</link> height_in_points);</programlisting>
+<indexterm role="1.2"><primary>cairo_ps_surface_set_size</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_ps_surface_set_size           (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
+                                                         <link linkend="double">double</link> width_in_points,
+                                                         <link linkend="double">double</link> height_in_points);</programlisting>
 <para>
 Changes the size of a PostScript surface for the current (and
 subsequent) pages.
@@ -166,12 +163,11 @@ surface or immediately after completing a page with either
 <varlistentry><term><parameter>height_in_points</parameter>&nbsp;:</term>
 <listitem><simpara> new surface height, in points (1 point == 1/72.0 inch)
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.2
+</variablelist><para role="since">Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-ps-surface-dsc-begin-setup" role="function" condition="since:1.2"/>cairo_ps_surface_dsc_begin_setup ()</title>
-<indexterm role="1.2"><primary>cairo_ps_surface_dsc_begin_setup</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_ps_surface_dsc_begin_setup
-                                            (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);</programlisting>
+<indexterm role="1.2"><primary>cairo_ps_surface_dsc_begin_setup</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_ps_surface_dsc_begin_setup    (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);</programlisting>
 <para>
 This function indicates that subsequent calls to
 <link linkend="cairo-ps-surface-dsc-comment"><function>cairo_ps_surface_dsc_comment()</function></link> should direct comments to the Setup
@@ -190,12 +186,12 @@ See <link linkend="cairo-ps-surface-dsc-comment"><function>cairo_ps_surface_dsc_
 <varlistentry><term><parameter>surface</parameter>&nbsp;:</term>
 <listitem><simpara> a PostScript cairo_surface_t
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.2
+</variablelist><para role="since">Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-ps-surface-dsc-begin-page-setup" role="function" condition="since:1.2"/>cairo_ps_surface_dsc_begin_page_setup ()</title>
-<indexterm role="1.2"><primary>cairo_ps_surface_dsc_begin_page_setup</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_ps_surface_dsc_begin_page_setup
-                                            (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);</programlisting>
+<indexterm role="1.2"><primary>cairo_ps_surface_dsc_begin_page_setup</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_ps_surface_dsc_begin_page_setup
+                                                        (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);</programlisting>
 <para>
 This function indicates that subsequent calls to
 <link linkend="cairo-ps-surface-dsc-comment"><function>cairo_ps_surface_dsc_comment()</function></link> should direct comments to the
@@ -215,12 +211,12 @@ See <link linkend="cairo-ps-surface-dsc-comment"><function>cairo_ps_surface_dsc_
 <varlistentry><term><parameter>surface</parameter>&nbsp;:</term>
 <listitem><simpara> a PostScript cairo_surface_t
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.2
+</variablelist><para role="since">Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-ps-surface-dsc-comment" role="function" condition="since:1.2"/>cairo_ps_surface_dsc_comment ()</title>
-<indexterm role="1.2"><primary>cairo_ps_surface_dsc_comment</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_ps_surface_dsc_comment    (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
-                                             const <link linkend="char">char</link> *comment);</programlisting>
+<indexterm role="1.2"><primary>cairo_ps_surface_dsc_comment</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_ps_surface_dsc_comment        (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
+                                                         const <link linkend="char">char</link> *comment);</programlisting>
 <para>
 Emit a comment into the PostScript output for the given surface.
 </para>
@@ -300,21 +296,21 @@ Here is an example sequence showing how this function might be used:
 <informalexample><programlisting>
 cairo_surface_t *surface = cairo_ps_surface_create (filename, width, height);
 ...
-cairo_ps_surface_dsc_comment (surface, "%<link linkend="Title"><literal>Title</literal></link>: My excellent document");
-cairo_ps_surface_dsc_comment (surface, "%<link linkend="Copyright"><literal>Copyright</literal></link>: Copyright (C) 2006 Cairo Lover")
+cairo_ps_surface_dsc_comment (surface, "%%Title: My excellent document");
+cairo_ps_surface_dsc_comment (surface, "%%Copyright: Copyright (C) 2006 Cairo Lover")
 ...
 cairo_ps_surface_dsc_begin_setup (surface);
-cairo_ps_surface_dsc_comment (surface, "%<link linkend="IncludeFeature"><literal>IncludeFeature</literal></link>: *MediaColor White");
+cairo_ps_surface_dsc_comment (surface, "%%IncludeFeature: *MediaColor White");
 ...
 cairo_ps_surface_dsc_begin_page_setup (surface);
-cairo_ps_surface_dsc_comment (surface, "%<link linkend="IncludeFeature"><literal>IncludeFeature</literal></link>: *PageSize A3");
-cairo_ps_surface_dsc_comment (surface, "%<link linkend="IncludeFeature"><literal>IncludeFeature</literal></link>: *InputSlot LargeCapacity");
-cairo_ps_surface_dsc_comment (surface, "%<link linkend="IncludeFeature"><literal>IncludeFeature</literal></link>: *MediaType Glossy");
-cairo_ps_surface_dsc_comment (surface, "%<link linkend="IncludeFeature"><literal>IncludeFeature</literal></link>: *MediaColor Blue");
+cairo_ps_surface_dsc_comment (surface, "%%IncludeFeature: *PageSize A3");
+cairo_ps_surface_dsc_comment (surface, "%%IncludeFeature: *InputSlot LargeCapacity");
+cairo_ps_surface_dsc_comment (surface, "%%IncludeFeature: *MediaType Glossy");
+cairo_ps_surface_dsc_comment (surface, "%%IncludeFeature: *MediaColor Blue");
 ... draw to first page here ..
 cairo_show_page (cr);
 ...
-cairo_ps_surface_dsc_comment (surface, "%<link linkend="IncludeFeature"><literal>IncludeFeature</literal></link>: *PageSize A5");
+cairo_ps_surface_dsc_comment (surface, "%%IncludeFeature: *PageSize A5");
 ...
 </programlisting></informalexample></para>
 <para>
@@ -326,7 +322,7 @@ cairo_ps_surface_dsc_comment (surface, "%<link linkend="IncludeFeature"><literal
 <varlistentry><term><parameter>comment</parameter>&nbsp;:</term>
 <listitem><simpara> a comment string to be emitted into the PostScript output
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.2
+</variablelist><para role="since">Since  1.2
 </para></refsect2>
 
 </refsect1>

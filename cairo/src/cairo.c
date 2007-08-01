@@ -191,6 +191,10 @@ cairo_create (cairo_surface_t *target)
     cairo_t *cr;
     cairo_status_t status;
 
+    /* special case OOM in order to avoid another allocation */
+    if (target && target->status == CAIRO_STATUS_NO_MEMORY)
+	return (cairo_t *) &_cairo_nil;
+
     cr = malloc (sizeof (cairo_t));
     if (cr == NULL)
 	return (cairo_t *) &_cairo_nil;
@@ -200,16 +204,10 @@ cairo_create (cairo_surface_t *target)
     cr->status = CAIRO_STATUS_SUCCESS;
 
     _cairo_user_data_array_init (&cr->user_data);
+    _cairo_path_fixed_init (cr->path);
 
     cr->gstate = cr->gstate_tail;
     status = _cairo_gstate_init (cr->gstate, target);
-
-    _cairo_path_fixed_init (cr->path);
-
-    if (target == NULL) {
-	/* override status with user error */
-	status = CAIRO_STATUS_NULL_POINTER;
-    }
 
     if (status)
 	_cairo_set_error (cr, status);
@@ -564,7 +562,7 @@ cairo_pop_group (cairo_t *cr)
     /* Verify that we are at the right nesting level */
     if (parent_target == NULL) {
 	_cairo_set_error (cr, CAIRO_STATUS_INVALID_POP_GROUP);
-	return NULL;
+	return (cairo_pattern_t*) &_cairo_pattern_nil.base;
     }
 
     /* We need to save group_surface before we restore; we don't need
@@ -578,8 +576,8 @@ cairo_pop_group (cairo_t *cr)
 	goto done;
 
     group_pattern = cairo_pattern_create_for_surface (group_surface);
-    if (!group_pattern) {
-	_cairo_set_error (cr, CAIRO_STATUS_NO_MEMORY);
+    if (cairo_pattern_status (group_pattern)) {
+	_cairo_set_error (cr, cairo_pattern_status (group_pattern));
         goto done;
     }
 
@@ -894,7 +892,7 @@ cairo_set_antialias (cairo_t *cr, cairo_antialias_t antialias)
  * Set the current fill rule within the cairo context. The fill rule
  * is used to determine which regions are inside or outside a complex
  * (potentially self-intersecting) path. The current fill rule affects
- * both cairo_fill and cairo_clip. See #cairo_fill_rule_t for details
+ * both cairo_fill() and cairo_clip(). See #cairo_fill_rule_t for details
  * on the semantics of each available fill rule.
  **/
 void
@@ -2407,6 +2405,9 @@ _cairo_rectangle_list_create_in_error (cairo_status_t status)
 {
     cairo_rectangle_list_t *list;
 
+    if (status == CAIRO_STATUS_NO_MEMORY)
+        return (cairo_rectangle_list_t*) &_cairo_rectangles_nil;
+
     list = malloc (sizeof (cairo_rectangle_list_t));
     if (list == NULL)
         return (cairo_rectangle_list_t*) &_cairo_rectangles_nil;
@@ -2641,9 +2642,13 @@ cairo_set_font_options (cairo_t                    *cr,
     if (cr->status)
 	return;
 
-    status = _cairo_gstate_set_font_options (cr->gstate, options);
-    if (status)
+    status = cairo_font_options_status ((cairo_font_options_t *) options);
+    if (status) {
 	_cairo_set_error (cr, status);
+	return;
+    }
+
+    _cairo_gstate_set_font_options (cr->gstate, options);
 }
 
 /**
@@ -2661,6 +2666,10 @@ void
 cairo_get_font_options (cairo_t              *cr,
 			cairo_font_options_t *options)
 {
+    /* check that we aren't trying to overwrite the nil object */
+    if (cairo_font_options_status (options))
+	return;
+
     _cairo_gstate_get_font_options (cr->gstate, options);
 }
 
@@ -2698,9 +2707,7 @@ cairo_set_scaled_font (cairo_t                   *cr,
     if (status)
         goto BAIL;
 
-    status = _cairo_gstate_set_font_options (cr->gstate, &scaled_font->options);
-    if (status)
-        goto BAIL;
+    _cairo_gstate_set_font_options (cr->gstate, &scaled_font->options);
 
     return;
 
@@ -2927,7 +2934,7 @@ cairo_show_text (cairo_t *cr, const char *utf8)
  * @glyphs: array of glyphs to show
  * @num_glyphs: number of glyphs to show
  *
- * A drawing operator that generates the shape from an array  of glyphs,
+ * A drawing operator that generates the shape from an array of glyphs,
  * rendered according to the current font_face, font_size
  * (font_matrix), and font_options.
  **/
@@ -3105,11 +3112,19 @@ cairo_get_antialias (cairo_t *cr)
  *
  * Most path construction functions alter the current point. See the
  * following for details on how they affect the current point:
+ * cairo_new_path(), cairo_new_sub_path(),
+ * cairo_append_path(), cairo_close_path(),
+ * cairo_move_to(), cairo_line_to(), cairo_curve_to(),
+ * cairo_rel_move_to(), cairo_rel_line_to(), cairo_rel_curve_to(),
+ * cairo_arc(), cairo_arc_negative(), cairo_rectangle(),
+ * cairo_text_path(), cairo_glyph_path(), cairo_stroke_to_path()
  *
- * cairo_new_path(), cairo_move_to(), cairo_line_to(),
- * cairo_curve_to(), cairo_arc(), cairo_rel_move_to(),
- * cairo_rel_line_to(), cairo_rel_curve_to(), cairo_arc(),
- * cairo_text_path(), cairo_stroke_to_path()
+ * Some functions use and alter the current point but do not otherwise
+ * change current path:
+ * cairo_show_text(), cairo_show_glyphs().
+ *
+ * Some functions unset the current path and as a result, current point:
+ * cairo_fill(), cairo_stroke().
  **/
 void
 cairo_get_current_point (cairo_t *cr, double *x_ret, double *y_ret)

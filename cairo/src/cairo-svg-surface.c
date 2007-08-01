@@ -79,7 +79,6 @@ static const char * _cairo_svg_internal_version_strings[CAIRO_SVG_VERSION_LAST] 
 
 struct cairo_svg_page {
     unsigned int surface_id;
-    unsigned int clip_id;
     unsigned int clip_level;
     cairo_output_stream_t *xml_node;
 };
@@ -355,13 +354,7 @@ _cairo_svg_surface_create_for_document (cairo_svg_document_t	*document,
 
     surface->id = document->surface_id++;
     surface->base_clip = document->clip_id++;
-
-    _cairo_output_stream_printf (document->xml_node_defs,
-				 "<clipPath id=\"clip%d\">\n"
-				 "  <rect width=\"%f\" height=\"%f\"/>\n"
-				 "</clipPath>\n",
-				 surface->base_clip,
-				 width, height);
+    surface->is_base_clip_emitted = FALSE;
 
     surface->xml_node = _cairo_memory_stream_create ();
     _cairo_array_init (&surface->page_set, sizeof (cairo_svg_page_t));
@@ -415,7 +408,6 @@ _cairo_svg_surface_store_page (cairo_svg_surface_t *surface)
     cairo_svg_page_t page;
 
     page.surface_id = surface->id;
-    page.clip_id = surface->base_clip;
     page.clip_level = surface->clip_level;
     page.xml_node = surface->xml_node;
 
@@ -959,7 +951,7 @@ _cairo_svg_surface_emit_meta_surface (cairo_svg_document_t *document,
 {
     cairo_status_t status;
     cairo_surface_t *paginated_surface;
-    cairo_surface_t *svg_surface;
+    cairo_svg_surface_t *svg_surface;
     cairo_meta_snapshot_t new_snapshot;
     cairo_array_t *page_set;
 
@@ -986,7 +978,7 @@ _cairo_svg_surface_emit_meta_surface (cairo_svg_document_t *document,
 								meta->content,
 								meta->width_pixels,
 								meta->height_pixels);
-    svg_surface = _cairo_paginated_surface_get_target (paginated_surface);
+    svg_surface = (cairo_svg_surface_t *) _cairo_paginated_surface_get_target (paginated_surface);
     cairo_surface_set_fallback_resolution (paginated_surface,
 					   document->owner->x_fallback_resolution,
 					   document->owner->y_fallback_resolution);
@@ -1004,11 +996,22 @@ _cairo_svg_surface_emit_meta_surface (cairo_svg_document_t *document,
     }
 
     new_snapshot.meta = meta;
-    new_snapshot.id = ((cairo_svg_surface_t *) svg_surface)->id;
+    new_snapshot.id = svg_surface->id;
     status = _cairo_array_append (&document->meta_snapshots, &new_snapshot);
     if (status) {
 	cairo_surface_destroy (&meta->base);
 	return status;
+    }
+
+    if (!svg_surface->is_base_clip_emitted) {
+	svg_surface->is_base_clip_emitted = TRUE;
+	_cairo_output_stream_printf (document->xml_node_defs,
+				     "<clipPath id=\"clip%d\">\n"
+				     "  <rect width=\"%f\" height=\"%f\"/>\n"
+				     "</clipPath>\n",
+				     svg_surface->base_clip,
+				     svg_surface->width,
+				     svg_surface->height);
     }
 
     if (meta->content == CAIRO_CONTENT_ALPHA) {
@@ -1017,21 +1020,21 @@ _cairo_svg_surface_emit_meta_surface (cairo_svg_document_t *document,
 				     "<g id=\"surface%d\" "
 				     "clip-path=\"url(#clip%d)\" "
 				     "filter=\"url(#alpha)\">\n",
-				     ((cairo_svg_surface_t *) svg_surface)->id,
-				     ((cairo_svg_surface_t *) svg_surface)->base_clip);
+				     svg_surface->id,
+				     svg_surface->base_clip);
     } else {
 	_cairo_output_stream_printf (document->xml_node_defs,
 				     "<g id=\"surface%d\" "
 				     "clip-path=\"url(#clip%d)\">\n",
-				     ((cairo_svg_surface_t *) svg_surface)->id,
-				     ((cairo_svg_surface_t *) svg_surface)->base_clip);
+				     svg_surface->id,
+				     svg_surface->base_clip);
     }
 
-    contents = ((cairo_svg_surface_t *) svg_surface)->xml_node;
-    page_set = &((cairo_svg_surface_t *) svg_surface)->page_set;
+    contents = svg_surface->xml_node;
+    page_set = &svg_surface->page_set;
 
     if (_cairo_memory_stream_length (contents) > 0)
-	_cairo_svg_surface_store_page ((cairo_svg_surface_t *) svg_surface);
+	_cairo_svg_surface_store_page (svg_surface);
 
     if (page_set->num_elements > 0) {
 	cairo_svg_page_t *page;
@@ -2157,10 +2160,8 @@ _cairo_svg_document_finish (cairo_svg_document_t *document)
 	    page = _cairo_array_index (&surface->page_set, i);
 	    _cairo_output_stream_printf (output, "<page>\n");
 	    _cairo_output_stream_printf (output,
-					 "<g id=\"surface%d\" "
-					 "clip-path=\"url(#clip%d)\">\n",
-					 page->surface_id,
-					 page->clip_id);
+					 "<g id=\"surface%d\">\n",
+					 page->surface_id);
 	    _cairo_memory_stream_copy (page->xml_node, output);
 	    _cairo_output_stream_printf (output, "</g>\n</page>\n");
 	}
@@ -2168,10 +2169,8 @@ _cairo_svg_document_finish (cairo_svg_document_t *document)
     } else if (surface->page_set.num_elements > 0) {
 	page = _cairo_array_index (&surface->page_set, surface->page_set.num_elements - 1);
 	_cairo_output_stream_printf (output,
-				     "<g id=\"surface%d\" "
-				     "clip-path=\"url(#clip%d)\">\n",
-				     page->surface_id,
-				     page->clip_id);
+				     "<g id=\"surface%d\">\n",
+				     page->surface_id);
 	_cairo_memory_stream_copy (page->xml_node, output);
 	_cairo_output_stream_printf (output, "</g>\n");
     }

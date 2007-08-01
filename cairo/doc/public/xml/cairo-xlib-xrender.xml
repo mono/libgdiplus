@@ -23,13 +23,13 @@
 
 
 
-<link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-xlib-surface-create-with-xrender-format">cairo_xlib_surface_create_with_xrender_format</link>
-                                            (<link linkend="Display">Display</link> *dpy,
-                                             <link linkend="Drawable">Drawable</link> drawable,
-                                             <link linkend="Screen">Screen</link> *screen,
-                                             <link linkend="XRenderPictFormat">XRenderPictFormat</link> *format,
-                                             <link linkend="int">int</link> width,
-                                             <link linkend="int">int</link> height);
+<link linkend="cairo-surface-t">cairo_surface_t</link>*    <link linkend="cairo-xlib-surface-create-with-xrender-format">cairo_xlib_surface_create_with_xrender_format</link>
+                                                        (<link linkend="Display">Display</link> *dpy,
+                                                         <link linkend="Drawable">Drawable</link> drawable,
+                                                         <link linkend="Screen">Screen</link> *screen,
+                                                         <link linkend="XRenderPictFormat">XRenderPictFormat</link> *format,
+                                                         <link linkend="int">int</link> width,
+                                                         <link linkend="int">int</link> height);
 </synopsis>
 </refsynopsisdiv>
 
@@ -52,13 +52,13 @@
 <title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-xlib-surface-create-with-xrender-format" role="function"/>cairo_xlib_surface_create_with_xrender_format ()</title>
-<indexterm><primary>cairo_xlib_surface_create_with_xrender_format</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_xlib_surface_create_with_xrender_format
-                                            (<link linkend="Display">Display</link> *dpy,
-                                             <link linkend="Drawable">Drawable</link> drawable,
-                                             <link linkend="Screen">Screen</link> *screen,
-                                             <link linkend="XRenderPictFormat">XRenderPictFormat</link> *format,
-                                             <link linkend="int">int</link> width,
-                                             <link linkend="int">int</link> height);</programlisting>
+<indexterm><primary>cairo_xlib_surface_create_with_xrender_format</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>*    cairo_xlib_surface_create_with_xrender_format
+                                                        (<link linkend="Display">Display</link> *dpy,
+                                                         <link linkend="Drawable">Drawable</link> drawable,
+                                                         <link linkend="Screen">Screen</link> *screen,
+                                                         <link linkend="XRenderPictFormat">XRenderPictFormat</link> *format,
+                                                         <link linkend="int">int</link> width,
+                                                         <link linkend="int">int</link> height);</programlisting>
 <para>
 Creates an Xlib surface that draws to the given drawable.
 The way that colors are represented in the drawable is specified

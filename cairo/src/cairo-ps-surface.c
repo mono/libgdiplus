@@ -547,6 +547,8 @@ _cairo_ps_surface_emit_bitmap_glyph_data (cairo_ps_surface_t	*surface,
 					 CAIRO_SCALED_GLYPH_INFO_METRICS|
 					 CAIRO_SCALED_GLYPH_INFO_SURFACE,
 					 &scaled_glyph);
+    if (status)
+	return status;
 
     image = scaled_glyph->surface;
     if (image->format != CAIRO_FORMAT_A1) {
@@ -602,7 +604,7 @@ _cairo_ps_surface_emit_bitmap_glyph_data (cairo_ps_surface_t	*surface,
     return CAIRO_STATUS_SUCCESS;
 }
 
-static void
+static cairo_status_t
 _cairo_ps_surface_emit_glyph (cairo_ps_surface_t	*surface,
 			      cairo_scaled_font_t	*scaled_font,
 			      unsigned long		 scaled_font_glyph_index,
@@ -626,6 +628,8 @@ _cairo_ps_surface_emit_glyph (cairo_ps_surface_t	*surface,
 
     if (status)
 	_cairo_surface_set_error (&surface->base, status);
+
+    return status;
 }
 
 static cairo_status_t
@@ -662,9 +666,11 @@ _cairo_ps_surface_emit_type3_font_subset (cairo_ps_surface_t		*surface,
 				 -matrix.yy);
 
     for (i = 0; i < font_subset->num_glyphs; i++) {
-	_cairo_ps_surface_emit_glyph (surface,
-				      font_subset->scaled_font,
-				      font_subset->glyphs[i], i);
+	status = _cairo_ps_surface_emit_glyph (surface,
+				               font_subset->scaled_font,
+					       font_subset->glyphs[i], i);
+	if (status)
+	    return status;
     }
 
     _cairo_output_stream_printf (surface->final_stream,

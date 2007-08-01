@@ -11,6 +11,7 @@ PRIVATE_TEST_HFILES = \
 	cairo-meta-surface-private.h \
 	cairo-mutex-list-private.h \
 	cairo-mutex-private.h \
+	cairo-mutex-type-private.h \
 	cairo-os2-private.h \
 	cairo-output-stream-private.h \
 	cairo-paginated-private.h \

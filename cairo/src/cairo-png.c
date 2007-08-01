@@ -175,7 +175,7 @@ write_png (cairo_surface_t	*surface,
 	png_color_type = PNG_COLOR_TYPE_GRAY;
 	break;
     default:
-	status = CAIRO_STATUS_NULL_POINTER;
+	status = CAIRO_STATUS_INVALID_FORMAT;
 	goto BAIL3;
     }
 

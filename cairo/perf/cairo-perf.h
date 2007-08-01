@@ -107,5 +107,6 @@ CAIRO_PERF_DECL (mosaic);
 CAIRO_PERF_DECL (long_lines);
 CAIRO_PERF_DECL (unaligned_clip);
 CAIRO_PERF_DECL (rectangles);
+CAIRO_PERF_DECL (long_dashed_lines);
 
 #endif

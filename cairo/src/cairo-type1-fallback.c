@@ -106,7 +106,7 @@ cairo_type1_font_create (cairo_scaled_font_subset_t  *scaled_font_subset,
 							&font_matrix,
 							&ctm,
 							&font_options);
-    if (font->type1_scaled_font == NULL)
+    if (font->type1_scaled_font->status)
         goto fail;
 
     _cairo_array_init (&font->contents, sizeof (unsigned char));

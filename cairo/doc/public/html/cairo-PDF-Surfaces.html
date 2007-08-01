@@ -8,7 +8,7 @@
 <link rel="up" href="Surfaces.html" title="Surfaces">
 <link rel="prev" href="cairo-Image-Surfaces.html" title="Image Surfaces">
 <link rel="next" href="cairo-PNG-Support.html" title="PNG Support">
-<meta name="generator" content="GTK-Doc V1.7 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.8 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 <link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
 <link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
@@ -17,8 +17,8 @@
 <link rel="chapter" href="Surfaces.html" title="Surfaces">
 <link rel="chapter" href="Support.html" title="Utilities">
 <link rel="index" href="ix01.html" title="Index">
-<link rel="index" href="ix02.html" title="Index of new symbols in 1.2">
-<link rel="index" href="ix03.html" title="Index of new symbols in 1.4">
+<link rel="index" href="index-1.2.html" title="Index of new symbols in 1.2">
+<link rel="index" href="index-1.4.html" title="Index of new symbols in 1.4">
 <link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -30,16 +30,16 @@
 <th width="100%" align="center">Cairo: A Vector Graphics Library</th>
 <td><a accesskey="n" href="cairo-PNG-Support.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
-<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2597297" class="shortcut">Top</a>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2595338" class="shortcut">Top</a>
                   &#160;|&#160;
-                  <a href="#id2565128" class="shortcut">Description</a></nobr></td></tr>
+                  <a href="#id2610726" class="shortcut">Description</a></nobr></td></tr>
 </table>
 <div class="refentry" lang="en">
 <a name="cairo-PDF-Surfaces"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2>
-<a name="id2597297"></a><span class="refentrytitle">PDF Surfaces</span>
+<a name="id2595338"></a><span class="refentrytitle">PDF Surfaces</span>
 </h2>
 <p>PDF Surfaces &#8212; Rendering PDF documents</p>
 </td>
@@ -51,33 +51,32 @@
 
 
 
-<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* <a href="cairo-PDF-Surfaces.html#cairo-pdf-surface-create">cairo_pdf_surface_create</a>   (const char *filename,
-                                             double width_in_points,
-                                             double height_in_points);
-<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* <a href="cairo-PDF-Surfaces.html#cairo-pdf-surface-create-for-stream">cairo_pdf_surface_create_for_stream</a>
-                                            (<a href="cairo-PNG-Support.html#cairo-write-func-t">cairo_write_func_t</a> write_func,
-                                             void *closure,
-                                             double width_in_points,
-                                             double height_in_points);
-void        <a href="cairo-PDF-Surfaces.html#cairo-pdf-surface-set-size">cairo_pdf_surface_set_size</a>      (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
-                                             double width_in_points,
-                                             double height_in_points);
+<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>*    <a href="cairo-PDF-Surfaces.html#cairo-pdf-surface-create">cairo_pdf_surface_create</a>            (const char *filename,
+                                                         double width_in_points,
+                                                         double height_in_points);
+<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>*    <a href="cairo-PDF-Surfaces.html#cairo-pdf-surface-create-for-stream">cairo_pdf_surface_create_for_stream</a> (<a href="cairo-PNG-Support.html#cairo-write-func-t">cairo_write_func_t</a> write_func,
+                                                         void *closure,
+                                                         double width_in_points,
+                                                         double height_in_points);
+void                <a href="cairo-PDF-Surfaces.html#cairo-pdf-surface-set-size">cairo_pdf_surface_set_size</a>          (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+                                                         double width_in_points,
+                                                         double height_in_points);
 </pre>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2565128"></a><h2>Description</h2>
+<a name="id2610726"></a><h2>Description</h2>
 <p>
 
 </p>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2635942"></a><h2>Details</h2>
+<a name="id2640167"></a><h2>Details</h2>
 <div class="refsect2" lang="en">
-<a name="id2635952"></a><h3>
+<a name="id2640178"></a><h3>
 <a name="cairo-pdf-surface-create"></a>cairo_pdf_surface_create ()</h3>
-<a class="indexterm" name="id2635966"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_pdf_surface_create   (const char *filename,
-                                             double width_in_points,
-                                             double height_in_points);</pre>
+<a class="indexterm" name="id2640191"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>*    cairo_pdf_surface_create            (const char *filename,
+                                                         double width_in_points,
+                                                         double height_in_points);</pre>
 <p>
 Creates a PDF surface of the specified size in points to be written
 to <em class="parameter"><code>filename</code></em>.</p>
@@ -116,18 +115,17 @@ occurs. You can use <a href="cairo-cairo-surface-t.html#cairo-surface-status"><c
 </tr>
 </tbody>
 </table></div>
-<p>Since  1.2
+<p class="since">Since  1.2
 </p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2639798"></a><h3>
+<a name="id2638626"></a><h3>
 <a name="cairo-pdf-surface-create-for-stream"></a>cairo_pdf_surface_create_for_stream ()</h3>
-<a class="indexterm" name="id2639812"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>* cairo_pdf_surface_create_for_stream
-                                            (<a href="cairo-PNG-Support.html#cairo-write-func-t">cairo_write_func_t</a> write_func,
-                                             void *closure,
-                                             double width_in_points,
-                                             double height_in_points);</pre>
+<a class="indexterm" name="id2638639"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>*    cairo_pdf_surface_create_for_stream (<a href="cairo-PNG-Support.html#cairo-write-func-t">cairo_write_func_t</a> write_func,
+                                                         void *closure,
+                                                         double width_in_points,
+                                                         double height_in_points);</pre>
 <p>
 Creates a PDF surface of the specified size in points to be written
 incrementally to the stream represented by <em class="parameter"><code>write_func</code></em> and <em class="parameter"><code>closure</code></em>.</p>
@@ -171,16 +169,16 @@ occurs. You can use <a href="cairo-cairo-surface-t.html#cairo-surface-status"><c
 </tr>
 </tbody>
 </table></div>
-<p>Since  1.2
+<p class="since">Since  1.2
 </p>
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2638171"></a><h3>
+<a name="id2639157"></a><h3>
 <a name="cairo-pdf-surface-set-size"></a>cairo_pdf_surface_set_size ()</h3>
-<a class="indexterm" name="id2638184"></a><pre class="programlisting">void        cairo_pdf_surface_set_size      (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
-                                             double width_in_points,
-                                             double height_in_points);</pre>
+<a class="indexterm" name="id2639171"></a><pre class="programlisting">void                cairo_pdf_surface_set_size          (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+                                                         double width_in_points,
+                                                         double height_in_points);</pre>
 <p>
 Changes the size of a PDF surface for the current (and
 subsequent) pages.
@@ -214,7 +212,7 @@ surface or immediately after completing a page with either
 </tr>
 </tbody>
 </table></div>
-<p>Since  1.2
+<p class="since">Since  1.2
 </p>
 </div>
 </div>

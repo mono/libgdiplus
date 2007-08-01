@@ -443,5 +443,8 @@ void
 cairo_boilerplate_scaled_font_set_max_glyphs_cached (cairo_scaled_font_t *scaled_font,
 						     int max_glyphs)
 {
+    if (cairo_scaled_font_status (scaled_font))
+	return;
+
     scaled_font->glyphs->max_size = max_glyphs;
 }

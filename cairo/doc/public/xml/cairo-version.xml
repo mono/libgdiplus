@@ -23,14 +23,14 @@
 
 
 
-#define     <link linkend="CAIRO-VERSION:CAPS">CAIRO_VERSION</link>
-#define     <link linkend="CAIRO-VERSION-MAJOR:CAPS">CAIRO_VERSION_MAJOR</link>
-#define     <link linkend="CAIRO-VERSION-MINOR:CAPS">CAIRO_VERSION_MINOR</link>
-#define     <link linkend="CAIRO-VERSION-MICRO:CAPS">CAIRO_VERSION_MICRO</link>
-#define     <link linkend="CAIRO-VERSION-STRING:CAPS">CAIRO_VERSION_STRING</link>
-#define     <link linkend="CAIRO-VERSION-ENCODE:CAPS">CAIRO_VERSION_ENCODE</link>            (major, minor, micro)
-<link linkend="int">int</link>         <link linkend="cairo-version">cairo_version</link>                   (void);
-const <link linkend="char">char</link>* <link linkend="cairo-version-string">cairo_version_string</link>            (void);
+#define             <link linkend="CAIRO-VERSION:CAPS">CAIRO_VERSION</link>
+#define             <link linkend="CAIRO-VERSION-MAJOR:CAPS">CAIRO_VERSION_MAJOR</link>
+#define             <link linkend="CAIRO-VERSION-MINOR:CAPS">CAIRO_VERSION_MINOR</link>
+#define             <link linkend="CAIRO-VERSION-MICRO:CAPS">CAIRO_VERSION_MICRO</link>
+#define             <link linkend="CAIRO-VERSION-STRING:CAPS">CAIRO_VERSION_STRING</link>
+#define             <link linkend="CAIRO-VERSION-ENCODE:CAPS">CAIRO_VERSION_ENCODE</link>                (major, minor, micro)
+<link linkend="int">int</link>                 <link linkend="cairo-version">cairo_version</link>                       (void);
+const <link linkend="char">char</link>*         <link linkend="cairo-version-string">cairo_version_string</link>                (void);
 </synopsis>
 </refsynopsisdiv>
 
@@ -123,13 +123,13 @@ macro (CAIRO_VERSION_ENCODE) to perform the encoding.
 <informalexample><programlisting>
 Compile-time
 ------------
-<link linkend="CAIRO-VERSION-STRING:CAPS"><literal>CAIRO_VERSION_STRING</literal></link>	Human-readable
-<link linkend="CAIRO-VERSION:CAPS"><literal>CAIRO_VERSION</literal></link>		Encoded, suitable for comparison
+%CAIRO_VERSION_STRING	Human-readable
+%CAIRO_VERSION		Encoded, suitable for comparison
 
 Run-time
 --------
-<link linkend="cairo-version-string"><function>cairo_version_string()</function></link>	Human-readable
-<link linkend="cairo-version"><function>cairo_version()</function></link>		Encoded, suitable for comparison
+cairo_version_string()	Human-readable
+cairo_version()		Encoded, suitable for comparison
 </programlisting></informalexample>
 </para>
 
@@ -138,12 +138,12 @@ For example, checking that the cairo version is greater than or equal
 to 1.0.0 could be achieved at compile-time or run-time as follows:
 
 <informalexample><programlisting>
-#<link linkend="if"><type>if</type></link> <link linkend="CAIRO-VERSION:CAPS"><literal>CAIRO_VERSION</literal></link> >= <link linkend="CAIRO-VERSION-ENCODE:CAPS"><literal>CAIRO_VERSION_ENCODE</literal></link>(1, 0, 0)
-printf ("Compiling with suitable cairo version: %<link linkend="s"><literal>s</literal></link>\n", CAIRO_VERSION_STRING);
-#<link linkend="endif"><type>endif</type></link>
+##if %CAIRO_VERSION >= %CAIRO_VERSION_ENCODE(1, 0, 0)
+printf ("Compiling with suitable cairo version: %%s\n", CAIRO_VERSION_STRING);
+##endif
 
-if (<link linkend="cairo-version"><function>cairo_version()</function></link> >= <link linkend="CAIRO-VERSION-ENCODE:CAPS"><literal>CAIRO_VERSION_ENCODE</literal></link>(1, 0, 0))
-    printf ("Running with suitable cairo version: %<link linkend="s"><literal>s</literal></link>\n", <link linkend="cairo-version-string"><function>cairo_version_string()</function></link>);
+if (cairo_version() >= %CAIRO_VERSION_ENCODE(1, 0, 0))
+    printf ("Running with suitable cairo version: %%s\n", cairo_version_string ());
 </programlisting></informalexample>
 </para>
 </refsect2>
@@ -153,7 +153,7 @@ if (<link linkend="cairo-version"><function>cairo_version()</function></link> >=
 <title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="CAIRO-VERSION:CAPS" role="macro"/>CAIRO_VERSION</title>
-<indexterm><primary>CAIRO_VERSION</primary></indexterm><programlisting>#define     CAIRO_VERSION</programlisting>
+<indexterm><primary>CAIRO_VERSION</primary></indexterm><programlisting>#define             CAIRO_VERSION</programlisting>
 <para>
 The version of cairo available at compile-time, encoded using
 <link linkend="CAIRO-VERSION-ENCODE:CAPS"><function>CAIRO_VERSION_ENCODE()</function></link>.
@@ -174,14 +174,14 @@ The minor component of the version of cairo available at compile-time.
 </para></refsect2>
 <refsect2>
 <title><anchor id="CAIRO-VERSION-MICRO:CAPS" role="macro"/>CAIRO_VERSION_MICRO</title>
-<indexterm><primary>CAIRO_VERSION_MICRO</primary></indexterm><programlisting>#define CAIRO_VERSION_MICRO 6
+<indexterm><primary>CAIRO_VERSION_MICRO</primary></indexterm><programlisting>#define CAIRO_VERSION_MICRO 10
 </programlisting>
 <para>
 The micro component of the version of cairo available at compile-time.
 </para></refsect2>
 <refsect2>
 <title><anchor id="CAIRO-VERSION-STRING:CAPS" role="macro"/>CAIRO_VERSION_STRING</title>
-<indexterm><primary>CAIRO_VERSION_STRING</primary></indexterm><programlisting>#define CAIRO_VERSION_STRING "1.4.6"
+<indexterm><primary>CAIRO_VERSION_STRING</primary></indexterm><programlisting>#define CAIRO_VERSION_STRING "1.4.10"
 </programlisting>
 <para>
 A human-readable string literal containing the version of cairo available
@@ -189,7 +189,7 @@ at compile-time, in the form of "X.Y.Z".
 </para></refsect2>
 <refsect2>
 <title><anchor id="CAIRO-VERSION-ENCODE:CAPS" role="macro"/>CAIRO_VERSION_ENCODE()</title>
-<indexterm><primary>CAIRO_VERSION_ENCODE</primary></indexterm><programlisting>#define     CAIRO_VERSION_ENCODE(major, minor, micro)</programlisting>
+<indexterm><primary>CAIRO_VERSION_ENCODE</primary></indexterm><programlisting>#define             CAIRO_VERSION_ENCODE(major, minor, micro)</programlisting>
 <para>
 This macro encodes the given cairo version into an integer.  The numbers
 returned by <link linkend="CAIRO-VERSION:CAPS"><literal>CAIRO_VERSION</literal></link> and <link linkend="cairo-version"><function>cairo_version()</function></link> are encoded using this macro.
@@ -210,7 +210,7 @@ that later versions compare greater than earlier versions.
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-version" role="function"/>cairo_version ()</title>
-<indexterm><primary>cairo_version</primary></indexterm><programlisting><link linkend="int">int</link>         cairo_version                   (void);</programlisting>
+<indexterm><primary>cairo_version</primary></indexterm><programlisting><link linkend="int">int</link>                 cairo_version                       (void);</programlisting>
 <para>
 Returns the version of the cairo library encoded in a single
 integer as per CAIRO_VERSION_ENCODE. The encoding ensures that
@@ -222,7 +222,7 @@ or equal to version X.Y.Z could be performed as follows:
 </para>
 <para>
 <informalexample><programlisting>
-if (<link linkend="cairo-version"><function>cairo_version()</function></link> &gt;= CAIRO_VERSION_ENCODE(X,Y,Z)) {...}
+if (cairo_version() &gt;= CAIRO_VERSION_ENCODE(X,Y,Z)) {...}
 </programlisting></informalexample>
 </para>
 <para>
@@ -236,7 +236,7 @@ equivalents <link linkend="CAIRO-VERSION:CAPS"><literal>CAIRO_VERSION</literal><
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-version-string" role="function"/>cairo_version_string ()</title>
-<indexterm><primary>cairo_version_string</primary></indexterm><programlisting>const <link linkend="char">char</link>* cairo_version_string            (void);</programlisting>
+<indexterm><primary>cairo_version_string</primary></indexterm><programlisting>const <link linkend="char">char</link>*         cairo_version_string                (void);</programlisting>
 <para>
 Returns the version of the cairo library as a human-readable string
 of the form "X.Y.Z".

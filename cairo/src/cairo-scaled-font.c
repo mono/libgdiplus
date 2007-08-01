@@ -135,6 +135,9 @@ _cairo_scaled_font_set_error (cairo_scaled_font_t *scaled_font,
 cairo_font_type_t
 cairo_scaled_font_get_type (cairo_scaled_font_t *scaled_font)
 {
+    if (scaled_font->ref_count == CAIRO_REF_COUNT_INVALID)
+	return CAIRO_FONT_TYPE_TOY;
+
     return scaled_font->backend->type;
 }
 
@@ -348,6 +351,10 @@ _cairo_scaled_font_init (cairo_scaled_font_t               *scaled_font,
     cairo_matrix_t inverse;
     cairo_status_t status;
 
+    status = cairo_font_options_status ((cairo_font_options_t *) options);
+    if (status)
+	return status;
+
     /* Initialize scaled_font->scale early for easier bail out on an
      * invalid matrix. */
     _cairo_scaled_font_init_key (scaled_font, font_face,
@@ -374,7 +381,7 @@ _cairo_scaled_font_init (cairo_scaled_font_t               *scaled_font,
 
     cairo_font_face_reference (font_face);
 
-    CAIRO_MUTEX_INIT (&scaled_font->mutex);
+    CAIRO_MUTEX_INIT (scaled_font->mutex);
 
     scaled_font->surface_backend = NULL;
     scaled_font->surface_private = NULL;
@@ -436,7 +443,7 @@ _cairo_scaled_font_fini (cairo_scaled_font_t *scaled_font)
     if (scaled_font->glyphs != NULL)
 	_cairo_cache_destroy (scaled_font->glyphs);
 
-    CAIRO_MUTEX_FINI (&scaled_font->mutex);
+    CAIRO_MUTEX_FINI (scaled_font->mutex);
 
     if (scaled_font->surface_backend != NULL &&
 	scaled_font->surface_backend->scaled_font_fini != NULL)
@@ -478,6 +485,9 @@ cairo_scaled_font_create (cairo_font_face_t          *font_face,
     cairo_scaled_font_t key, *scaled_font = NULL;
 
     if (font_face->status)
+	return (cairo_scaled_font_t *)&_cairo_scaled_font_nil;
+
+    if (cairo_font_options_status ((cairo_font_options_t *) options))
 	return (cairo_scaled_font_t *)&_cairo_scaled_font_nil;
 
     font_map = _cairo_scaled_font_map_lock ();
@@ -763,9 +773,12 @@ cairo_scaled_font_text_extents (cairo_scaled_font_t   *scaled_font,
 				const char            *utf8,
 				cairo_text_extents_t  *extents)
 {
-    cairo_status_t status = CAIRO_STATUS_SUCCESS;
+    cairo_status_t status;
     cairo_glyph_t *glyphs;
     int num_glyphs;
+
+    if (scaled_font->status)
+	return;
 
     status = _cairo_scaled_font_text_to_glyphs (scaled_font, 0., 0., utf8, &glyphs, &num_glyphs);
     if (status) {
@@ -789,7 +802,7 @@ cairo_scaled_font_text_extents (cairo_scaled_font_t   *scaled_font,
  * graphics state were set to the same font_face, font_matrix, ctm,
  * and font_options as @scaled_font).  Additionally, the x_advance and
  * y_advance values indicate the amount by which the current point
- * would be advanced by cairo_show_glyphs.
+ * would be advanced by cairo_show_glyphs().
  *
  * Note that whitespace glyphs do not contribute to the size of the
  * rectangle (extents.width and extents.height).
@@ -800,7 +813,7 @@ cairo_scaled_font_glyph_extents (cairo_scaled_font_t   *scaled_font,
 				 int                    num_glyphs,
 				 cairo_text_extents_t  *extents)
 {
-    cairo_status_t status = CAIRO_STATUS_SUCCESS;
+    cairo_status_t status;
     int i;
     double min_x = 0.0, min_y = 0.0, max_x = 0.0, max_y = 0.0;
     cairo_bool_t visible = FALSE;
@@ -1115,7 +1128,7 @@ _cairo_scaled_font_show_glyphs (cairo_scaled_font_t    *scaled_font,
 
 	_cairo_pattern_fini (&glyph_pattern.base);
 	if (status)
-	    break;
+	    goto CLEANUP_MASK;
     }
 
     if (mask != NULL) {
@@ -1321,6 +1334,8 @@ _cairo_scaled_font_glyph_path (cairo_scaled_font_t *scaled_font,
 						 glyphs[i].index,
 						 CAIRO_SCALED_GLYPH_INFO_SURFACE,
 						 &scaled_glyph);
+	    if (status)
+		return status;
 
 	    glyph_path = _cairo_path_fixed_create ();
 	    if (glyph_path == NULL)
@@ -1345,6 +1360,9 @@ _cairo_scaled_font_glyph_path (cairo_scaled_font_t *scaled_font,
 					      &closure);
 	if (glyph_path != scaled_glyph->path)
 	    _cairo_path_fixed_destroy (glyph_path);
+
+	if (status)
+	    return status;
     }
 
     return CAIRO_STATUS_SUCCESS;
@@ -1644,6 +1662,9 @@ void
 cairo_scaled_font_get_font_options (cairo_scaled_font_t		*scaled_font,
 				    cairo_font_options_t	*options)
 {
+    if (cairo_font_options_status (options))
+	return;
+
     if (scaled_font->status) {
 	_cairo_font_options_init_default (options);
 	return;

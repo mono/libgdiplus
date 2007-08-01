@@ -96,7 +96,7 @@ _cairo_gstate_init (cairo_gstate_t  *gstate,
     if (gstate->source->status)
 	return CAIRO_STATUS_NO_MEMORY;
 
-    return CAIRO_STATUS_SUCCESS;
+    return target ? target->status : CAIRO_STATUS_NULL_POINTER;
 }
 
 /**
@@ -764,7 +764,7 @@ _cairo_gstate_stroke_to_path (cairo_gstate_t *gstate)
 }
 */
 
-static void
+static cairo_status_t
 _cairo_gstate_copy_transformed_pattern (cairo_gstate_t  *gstate,
 					cairo_pattern_t *pattern,
 					cairo_pattern_t *original,
@@ -772,8 +772,12 @@ _cairo_gstate_copy_transformed_pattern (cairo_gstate_t  *gstate,
 {
     cairo_surface_pattern_t *surface_pattern;
     cairo_surface_t *surface;
+    cairo_status_t status;
 
-    _cairo_pattern_init_copy (pattern, original);
+    status = _cairo_pattern_init_copy (pattern, original);
+    if (status)
+	return status;
+
     _cairo_pattern_transform (pattern, ctm_inverse);
 
     if (cairo_pattern_get_type (original) == CAIRO_PATTERN_TYPE_SURFACE) {
@@ -783,25 +787,26 @@ _cairo_gstate_copy_transformed_pattern (cairo_gstate_t  *gstate,
             _cairo_pattern_transform (pattern, &surface->device_transform);
     }
 
+    return CAIRO_STATUS_SUCCESS;
 }
 
-static void
+static cairo_status_t
 _cairo_gstate_copy_transformed_source (cairo_gstate_t  *gstate,
 				       cairo_pattern_t *pattern)
 {
-    _cairo_gstate_copy_transformed_pattern (gstate, pattern,
-					    gstate->source,
-					    &gstate->source_ctm_inverse);
+    return _cairo_gstate_copy_transformed_pattern (gstate, pattern,
+					           gstate->source,
+					           &gstate->source_ctm_inverse);
 }
 
-static void
+static cairo_status_t
 _cairo_gstate_copy_transformed_mask (cairo_gstate_t  *gstate,
 				     cairo_pattern_t *pattern,
 				     cairo_pattern_t *mask)
 {
-    _cairo_gstate_copy_transformed_pattern (gstate, pattern,
-					    mask,
-					    &gstate->ctm_inverse);
+    return _cairo_gstate_copy_transformed_pattern (gstate, pattern,
+					           mask,
+					           &gstate->ctm_inverse);
 }
 
 cairo_status_t
@@ -817,7 +822,9 @@ _cairo_gstate_paint (cairo_gstate_t *gstate)
     if (status)
 	return status;
 
-    _cairo_gstate_copy_transformed_source (gstate, &pattern.base);
+    status = _cairo_gstate_copy_transformed_source (gstate, &pattern.base);
+    if (status)
+	return status;
 
     status = _cairo_surface_paint (gstate->target,
 				   gstate->op,
@@ -924,16 +931,22 @@ _cairo_gstate_mask (cairo_gstate_t  *gstate,
     if (status)
 	return status;
 
-    _cairo_gstate_copy_transformed_source (gstate, &source_pattern.base);
-    _cairo_gstate_copy_transformed_mask (gstate, &mask_pattern.base, mask);
+    status = _cairo_gstate_copy_transformed_source (gstate, &source_pattern.base);
+    if (status)
+	return status;
+
+    status = _cairo_gstate_copy_transformed_mask (gstate, &mask_pattern.base, mask);
+    if (status)
+	goto CLEANUP_SOURCE;
 
     status = _cairo_surface_mask (gstate->target,
 				  gstate->op,
 				  &source_pattern.base,
 				  &mask_pattern.base);
 
-    _cairo_pattern_fini (&source_pattern.base);
     _cairo_pattern_fini (&mask_pattern.base);
+CLEANUP_SOURCE:
+    _cairo_pattern_fini (&source_pattern.base);
 
     return status;
 }
@@ -954,7 +967,10 @@ _cairo_gstate_stroke (cairo_gstate_t *gstate, cairo_path_fixed_t *path)
     if (status)
 	return status;
 
-    _cairo_gstate_copy_transformed_source (gstate, &source_pattern.base);
+    status = _cairo_gstate_copy_transformed_source (gstate,
+	                                            &source_pattern.base);
+    if (status)
+	return status;
 
     status = _cairo_surface_stroke (gstate->target,
 				    gstate->op,
@@ -1021,7 +1037,9 @@ _cairo_gstate_fill (cairo_gstate_t *gstate, cairo_path_fixed_t *path)
     if (status)
 	return status;
 
-    _cairo_gstate_copy_transformed_source (gstate, &pattern.base);
+    status = _cairo_gstate_copy_transformed_source (gstate, &pattern.base);
+    if (status)
+	return status;
 
     status = _cairo_surface_fill (gstate->target,
 				  gstate->op,
@@ -1286,15 +1304,13 @@ _cairo_gstate_get_font_matrix (cairo_gstate_t *gstate,
     *matrix = gstate->font_matrix;
 }
 
-cairo_status_t
+void
 _cairo_gstate_set_font_options (cairo_gstate_t             *gstate,
 				const cairo_font_options_t *options)
 {
     _cairo_gstate_unset_scaled_font (gstate);
 
     gstate->font_options = *options;
-
-    return CAIRO_STATUS_SUCCESS;
 }
 
 void
@@ -1413,17 +1429,19 @@ _cairo_gstate_get_scaled_font (cairo_gstate_t       *gstate,
 static cairo_status_t
 _cairo_gstate_ensure_font_face (cairo_gstate_t *gstate)
 {
-    if (!gstate->font_face) {
-	cairo_font_face_t *font_face;
+    cairo_font_face_t *font_face;
 
-	font_face = _cairo_toy_font_face_create (CAIRO_FONT_FAMILY_DEFAULT,
-						 CAIRO_FONT_SLANT_DEFAULT,
-						 CAIRO_FONT_WEIGHT_DEFAULT);
-	if (font_face->status)
-	    return font_face->status;
-	else
-	    gstate->font_face = font_face;
-    }
+    if (gstate->font_face != NULL)
+	return gstate->font_face->status;
+
+
+    font_face = _cairo_toy_font_face_create (CAIRO_FONT_FAMILY_DEFAULT,
+					     CAIRO_FONT_SLANT_DEFAULT,
+					     CAIRO_FONT_WEIGHT_DEFAULT);
+    if (font_face->status)
+	return font_face->status;
+
+    gstate->font_face = font_face;
 
     return CAIRO_STATUS_SUCCESS;
 }
@@ -1433,9 +1451,10 @@ _cairo_gstate_ensure_scaled_font (cairo_gstate_t *gstate)
 {
     cairo_status_t status;
     cairo_font_options_t options;
+    cairo_scaled_font_t *scaled_font;
 
-    if (gstate->scaled_font)
-	return CAIRO_STATUS_SUCCESS;
+    if (gstate->scaled_font != NULL)
+	return gstate->scaled_font->status;
 
     status = _cairo_gstate_ensure_font_face (gstate);
     if (status)
@@ -1444,15 +1463,16 @@ _cairo_gstate_ensure_scaled_font (cairo_gstate_t *gstate)
     cairo_surface_get_font_options (gstate->target, &options);
     cairo_font_options_merge (&options, &gstate->font_options);
 
-    gstate->scaled_font = cairo_scaled_font_create (gstate->font_face,
-						    &gstate->font_matrix,
-						    &gstate->ctm,
-						    &options);
-    if (gstate->scaled_font == NULL)
-	return CAIRO_STATUS_NO_MEMORY;
+    scaled_font = cairo_scaled_font_create (gstate->font_face,
+				            &gstate->font_matrix,
+					    &gstate->ctm,
+					    &options);
 
-    if (cairo_scaled_font_status (gstate->scaled_font))
-	return cairo_scaled_font_status (gstate->scaled_font);
+    status = cairo_scaled_font_status (scaled_font);
+    if (status)
+	return status;
+
+    gstate->scaled_font = scaled_font;
 
     return CAIRO_STATUS_SUCCESS;
 }
@@ -1467,7 +1487,7 @@ _cairo_gstate_get_font_extents (cairo_gstate_t *gstate,
 
     cairo_scaled_font_extents (gstate->scaled_font, extents);
 
-    return CAIRO_STATUS_SUCCESS;
+    return cairo_scaled_font_status (gstate->scaled_font);
 }
 
 cairo_status_t
@@ -1484,13 +1504,8 @@ _cairo_gstate_text_to_glyphs (cairo_gstate_t *gstate,
     if (status)
 	return status;
 
-    status = _cairo_scaled_font_text_to_glyphs (gstate->scaled_font, x, y,
-						utf8, glyphs, num_glyphs);
-
-    if (status || !glyphs || !num_glyphs || !(*glyphs) || !(num_glyphs))
-	return status;
-
-    return CAIRO_STATUS_SUCCESS;
+    return _cairo_scaled_font_text_to_glyphs (gstate->scaled_font, x, y,
+					      utf8, glyphs, num_glyphs);
 }
 
 cairo_status_t
@@ -1526,7 +1541,7 @@ _cairo_gstate_glyph_extents (cairo_gstate_t *gstate,
 				     glyphs, num_glyphs,
 				     extents);
 
-    return CAIRO_STATUS_SUCCESS;
+    return cairo_scaled_font_status (gstate->scaled_font);
 }
 
 #define STACK_GLYPHS_LEN ((int) (CAIRO_STACK_BUFFER_SIZE / sizeof (cairo_glyph_t)))
@@ -1563,7 +1578,9 @@ _cairo_gstate_show_glyphs (cairo_gstate_t *gstate,
     _cairo_gstate_transform_glyphs_to_backend (gstate, glyphs, num_glyphs,
                                                transformed_glyphs);
 
-    _cairo_gstate_copy_transformed_source (gstate, &source_pattern.base);
+    status = _cairo_gstate_copy_transformed_source (gstate, &source_pattern.base);
+    if (status)
+	goto CLEANUP_GLYPHS;
 
     status = _cairo_surface_show_glyphs (gstate->target,
 					 gstate->op,
@@ -1574,6 +1591,7 @@ _cairo_gstate_show_glyphs (cairo_gstate_t *gstate,
 
     _cairo_pattern_fini (&source_pattern.base);
 
+CLEANUP_GLYPHS:
     if (transformed_glyphs != stack_transformed_glyphs)
       free (transformed_glyphs);
 

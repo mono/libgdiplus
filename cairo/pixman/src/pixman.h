@@ -141,6 +141,8 @@ pixman_region_init_rect(pixman_region16_t *region,
                         int x, int y, unsigned int width, unsigned int height);
 pixman_private void
 pixman_region_init_with_extents(pixman_region16_t *region, pixman_box16_t *extents);
+pixman_private pixman_region_status_t
+pixman_region_init_rects(pixman_region16_t *region, pixman_box16_t *boxes, int count);
 pixman_private void
 pixman_region_fini (pixman_region16_t *region);
 

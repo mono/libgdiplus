@@ -130,8 +130,10 @@ _cairo_deflate_stream_create (cairo_output_stream_t *output)
     stream->zlib_stream.zfree  = Z_NULL;
     stream->zlib_stream.opaque  = Z_NULL;
 
-    if (deflateInit (&stream->zlib_stream, Z_DEFAULT_COMPRESSION) != Z_OK)
+    if (deflateInit (&stream->zlib_stream, Z_DEFAULT_COMPRESSION) != Z_OK) {
+	free (stream);
 	return (cairo_output_stream_t *) &_cairo_output_stream_nil;
+    }
 
     stream->zlib_stream.next_in = stream->input_buf;
     stream->zlib_stream.avail_in = 0;

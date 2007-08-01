@@ -36,7 +36,7 @@
 
 #include "cairoint.h"
 
-const cairo_image_surface_t _cairo_image_surface_nil_invalid_format = {
+static const cairo_image_surface_t _cairo_image_surface_nil_invalid_format = {
     {
 	&cairo_image_surface_backend,	/* backend */
 	CAIRO_SURFACE_TYPE_IMAGE,
@@ -131,7 +131,7 @@ _cairo_image_surface_create_for_pixman_image (pixman_image_t *pixman_image,
 
 /* Try to recover a cairo_format_t from a pixman_format
  * by looking at the bpp and masks values. */
-static cairo_format_t
+static cairo_internal_format_t
 _cairo_format_from_pixman_format (pixman_format_t *pixman_format)
 {
     unsigned int bpp, am, rm, gm, bm;
@@ -167,7 +167,7 @@ _cairo_format_from_pixman_format (pixman_format_t *pixman_format)
 	    rm == 0xf800 &&
 	    gm == 0x07e0 &&
 	    bm == 0x001f)
-	    return CAIRO_FORMAT_RGB16_565;
+	    return CAIRO_INTERNAL_FORMAT_RGB16_565;
 	break;
     case 8:
 	if (am == 0xff &&
@@ -560,7 +560,7 @@ _cairo_content_from_format (cairo_format_t format)
     case CAIRO_INTERNAL_FORMAT_ABGR32:
 	return CAIRO_CONTENT_COLOR_ALPHA;
     case CAIRO_FORMAT_RGB24:
-    case CAIRO_FORMAT_RGB16_565:
+    case CAIRO_INTERNAL_FORMAT_RGB16_565:
     case CAIRO_INTERNAL_FORMAT_BGR24:
 	return CAIRO_CONTENT_COLOR;
     case CAIRO_FORMAT_A8:
@@ -1071,6 +1071,19 @@ _cairo_image_surface_get_font_options (void                  *abstract_surface,
     cairo_font_options_set_hint_metrics (options, CAIRO_HINT_METRICS_ON);
 }
 
+static cairo_status_t
+_cairo_image_surface_reset (void *abstract_surface)
+{
+    cairo_image_surface_t *surface = abstract_surface;
+    cairo_status_t status;
+
+    status = _cairo_image_surface_set_clip_region (surface, NULL);
+    if (status)
+	return status;
+
+    return CAIRO_STATUS_SUCCESS;
+}
+
 /**
  * _cairo_surface_is_image:
  * @surface: a #cairo_surface_t
@@ -1103,7 +1116,21 @@ const cairo_surface_backend_t cairo_image_surface_backend = {
     NULL, /* intersect_clip_path */
     _cairo_image_surface_get_extents,
     NULL, /* old_show_glyphs */
-    _cairo_image_surface_get_font_options
+    _cairo_image_surface_get_font_options,
+    NULL, /* flush */
+    NULL, /* mark_dirty_rectangle */
+    NULL, //* font_fini */
+    NULL, //* glyph_fini */
+
+    NULL, /* paint */
+    NULL, /* mask */
+    NULL, /* stroke */
+    NULL, /* fill */
+    NULL, /* show_glyphs */
+    NULL,  /* snapshot */
+    NULL, /* is_similar */
+
+    _cairo_image_surface_reset
 };
 
 /* A convenience function for when one needs to coerce an image

@@ -23,68 +23,68 @@
 
 
 
-            <link linkend="cairo-path-t">cairo_path_t</link>;
-union       <link linkend="cairo-path-data-t">cairo_path_data_t</link>;
-enum        <link linkend="cairo-path-data-type-t">cairo_path_data_type_t</link>;
-<link linkend="cairo-path-t">cairo_path_t</link>* <link linkend="cairo-copy-path">cairo_copy_path</link>               (<link linkend="cairo-t">cairo_t</link> *cr);
-<link linkend="cairo-path-t">cairo_path_t</link>* <link linkend="cairo-copy-path-flat">cairo_copy_path_flat</link>          (<link linkend="cairo-t">cairo_t</link> *cr);
-<link linkend="void">void</link>        <link linkend="cairo-path-destroy">cairo_path_destroy</link>              (<link linkend="cairo-path-t">cairo_path_t</link> *path);
-<link linkend="void">void</link>        <link linkend="cairo-append-path">cairo_append_path</link>               (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             const <link linkend="cairo-path-t">cairo_path_t</link> *path);
-<link linkend="void">void</link>        <link linkend="cairo-get-current-point">cairo_get_current_point</link>         (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> *x,
-                                             <link linkend="double">double</link> *y);
-<link linkend="void">void</link>        <link linkend="cairo-new-path">cairo_new_path</link>                  (<link linkend="cairo-t">cairo_t</link> *cr);
-<link linkend="void">void</link>        <link linkend="cairo-new-sub-path">cairo_new_sub_path</link>              (<link linkend="cairo-t">cairo_t</link> *cr);
-<link linkend="void">void</link>        <link linkend="cairo-close-path">cairo_close_path</link>                (<link linkend="cairo-t">cairo_t</link> *cr);
-<link linkend="void">void</link>        <link linkend="cairo-arc">cairo_arc</link>                       (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> xc,
-                                             <link linkend="double">double</link> yc,
-                                             <link linkend="double">double</link> radius,
-                                             <link linkend="double">double</link> angle1,
-                                             <link linkend="double">double</link> angle2);
-<link linkend="void">void</link>        <link linkend="cairo-arc-negative">cairo_arc_negative</link>              (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> xc,
-                                             <link linkend="double">double</link> yc,
-                                             <link linkend="double">double</link> radius,
-                                             <link linkend="double">double</link> angle1,
-                                             <link linkend="double">double</link> angle2);
-<link linkend="void">void</link>        <link linkend="cairo-curve-to">cairo_curve_to</link>                  (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> x1,
-                                             <link linkend="double">double</link> y1,
-                                             <link linkend="double">double</link> x2,
-                                             <link linkend="double">double</link> y2,
-                                             <link linkend="double">double</link> x3,
-                                             <link linkend="double">double</link> y3);
-<link linkend="void">void</link>        <link linkend="cairo-line-to">cairo_line_to</link>                   (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> x,
-                                             <link linkend="double">double</link> y);
-<link linkend="void">void</link>        <link linkend="cairo-move-to">cairo_move_to</link>                   (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> x,
-                                             <link linkend="double">double</link> y);
-<link linkend="void">void</link>        <link linkend="cairo-rectangle">cairo_rectangle</link>                 (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> x,
-                                             <link linkend="double">double</link> y,
-                                             <link linkend="double">double</link> width,
-                                             <link linkend="double">double</link> height);
-<link linkend="void">void</link>        <link linkend="cairo-glyph-path">cairo_glyph_path</link>                (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             const <link linkend="cairo-glyph-t">cairo_glyph_t</link> *glyphs,
-                                             <link linkend="int">int</link> num_glyphs);
-<link linkend="void">void</link>        <link linkend="cairo-text-path">cairo_text_path</link>                 (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             const <link linkend="char">char</link> *utf8);
-<link linkend="void">void</link>        <link linkend="cairo-rel-curve-to">cairo_rel_curve_to</link>              (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> dx1,
-                                             <link linkend="double">double</link> dy1,
-                                             <link linkend="double">double</link> dx2,
-                                             <link linkend="double">double</link> dy2,
-                                             <link linkend="double">double</link> dx3,
-                                             <link linkend="double">double</link> dy3);
-<link linkend="void">void</link>        <link linkend="cairo-rel-line-to">cairo_rel_line_to</link>               (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> dx,
-                                             <link linkend="double">double</link> dy);
-<link linkend="void">void</link>        <link linkend="cairo-rel-move-to">cairo_rel_move_to</link>               (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> dx,
-                                             <link linkend="double">double</link> dy);
+                    <link linkend="cairo-path-t">cairo_path_t</link>;
+union               <link linkend="cairo-path-data-t">cairo_path_data_t</link>;
+enum                <link linkend="cairo-path-data-type-t">cairo_path_data_type_t</link>;
+<link linkend="cairo-path-t">cairo_path_t</link>*       <link linkend="cairo-copy-path">cairo_copy_path</link>                     (<link linkend="cairo-t">cairo_t</link> *cr);
+<link linkend="cairo-path-t">cairo_path_t</link>*       <link linkend="cairo-copy-path-flat">cairo_copy_path_flat</link>                (<link linkend="cairo-t">cairo_t</link> *cr);
+<link linkend="void">void</link>                <link linkend="cairo-path-destroy">cairo_path_destroy</link>                  (<link linkend="cairo-path-t">cairo_path_t</link> *path);
+<link linkend="void">void</link>                <link linkend="cairo-append-path">cairo_append_path</link>                   (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         const <link linkend="cairo-path-t">cairo_path_t</link> *path);
+<link linkend="void">void</link>                <link linkend="cairo-get-current-point">cairo_get_current_point</link>             (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> *x,
+                                                         <link linkend="double">double</link> *y);
+<link linkend="void">void</link>                <link linkend="cairo-new-path">cairo_new_path</link>                      (<link linkend="cairo-t">cairo_t</link> *cr);
+<link linkend="void">void</link>                <link linkend="cairo-new-sub-path">cairo_new_sub_path</link>                  (<link linkend="cairo-t">cairo_t</link> *cr);
+<link linkend="void">void</link>                <link linkend="cairo-close-path">cairo_close_path</link>                    (<link linkend="cairo-t">cairo_t</link> *cr);
+<link linkend="void">void</link>                <link linkend="cairo-arc">cairo_arc</link>                           (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> xc,
+                                                         <link linkend="double">double</link> yc,
+                                                         <link linkend="double">double</link> radius,
+                                                         <link linkend="double">double</link> angle1,
+                                                         <link linkend="double">double</link> angle2);
+<link linkend="void">void</link>                <link linkend="cairo-arc-negative">cairo_arc_negative</link>                  (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> xc,
+                                                         <link linkend="double">double</link> yc,
+                                                         <link linkend="double">double</link> radius,
+                                                         <link linkend="double">double</link> angle1,
+                                                         <link linkend="double">double</link> angle2);
+<link linkend="void">void</link>                <link linkend="cairo-curve-to">cairo_curve_to</link>                      (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> x1,
+                                                         <link linkend="double">double</link> y1,
+                                                         <link linkend="double">double</link> x2,
+                                                         <link linkend="double">double</link> y2,
+                                                         <link linkend="double">double</link> x3,
+                                                         <link linkend="double">double</link> y3);
+<link linkend="void">void</link>                <link linkend="cairo-line-to">cairo_line_to</link>                       (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> x,
+                                                         <link linkend="double">double</link> y);
+<link linkend="void">void</link>                <link linkend="cairo-move-to">cairo_move_to</link>                       (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> x,
+                                                         <link linkend="double">double</link> y);
+<link linkend="void">void</link>                <link linkend="cairo-rectangle">cairo_rectangle</link>                     (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> x,
+                                                         <link linkend="double">double</link> y,
+                                                         <link linkend="double">double</link> width,
+                                                         <link linkend="double">double</link> height);
+<link linkend="void">void</link>                <link linkend="cairo-glyph-path">cairo_glyph_path</link>                    (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         const <link linkend="cairo-glyph-t">cairo_glyph_t</link> *glyphs,
+                                                         <link linkend="int">int</link> num_glyphs);
+<link linkend="void">void</link>                <link linkend="cairo-text-path">cairo_text_path</link>                     (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         const <link linkend="char">char</link> *utf8);
+<link linkend="void">void</link>                <link linkend="cairo-rel-curve-to">cairo_rel_curve_to</link>                  (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> dx1,
+                                                         <link linkend="double">double</link> dy1,
+                                                         <link linkend="double">double</link> dx2,
+                                                         <link linkend="double">double</link> dy2,
+                                                         <link linkend="double">double</link> dx3,
+                                                         <link linkend="double">double</link> dy3);
+<link linkend="void">void</link>                <link linkend="cairo-rel-line-to">cairo_rel_line_to</link>                   (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> dx,
+                                                         <link linkend="double">double</link> dy);
+<link linkend="void">void</link>                <link linkend="cairo-rel-move-to">cairo_rel_move_to</link>                   (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> dx,
+                                                         <link linkend="double">double</link> dy);
 </synopsis>
 </refsynopsisdiv>
 
@@ -177,10 +177,10 @@ where the number of points for each element type is as follows:
 </para>
 <para>
 <programlisting>
-    <link linkend="CAIRO-PATH-MOVE-TO:CAPS"><literal>CAIRO_PATH_MOVE_TO</literal></link>:     1 point
-    <link linkend="CAIRO-PATH-LINE-TO:CAPS"><literal>CAIRO_PATH_LINE_TO</literal></link>:     1 point
-    <link linkend="CAIRO-PATH-CURVE-TO:CAPS"><literal>CAIRO_PATH_CURVE_TO</literal></link>:    3 points
-    <link linkend="CAIRO-PATH-CLOSE-PATH:CAPS"><literal>CAIRO_PATH_CLOSE_PATH</literal></link>:  0 points
+    %CAIRO_PATH_MOVE_TO:     1 point
+    %CAIRO_PATH_LINE_TO:     1 point
+    %CAIRO_PATH_CURVE_TO:    3 points
+    %CAIRO_PATH_CLOSE_PATH:  0 points
 </programlisting>
 </para>
 <para>
@@ -214,7 +214,7 @@ Here is sample code for iterating through a <link linkend="cairo-path-t--"><type
                                  data[3].point.x, data[3].point.y);
              break;
          case CAIRO_PATH_CLOSE_PATH:
-             <link linkend="do-close-path-things"><function>do_close_path_things()</function></link>;
+             do_close_path_things ();
              break;
          }
      }
@@ -271,7 +271,7 @@ See <link linkend="cairo-path-data-t"><type>cairo_path_data_t</type></link> for 
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-copy-path" role="function"/>cairo_copy_path ()</title>
-<indexterm><primary>cairo_copy_path</primary></indexterm><programlisting><link linkend="cairo-path-t">cairo_path_t</link>* cairo_copy_path               (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
+<indexterm><primary>cairo_copy_path</primary></indexterm><programlisting><link linkend="cairo-path-t">cairo_path_t</link>*       cairo_copy_path                     (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
 <para>
 Creates a copy of the current path and returns it to the user as a
 <link linkend="cairo-path-t"><type>cairo_path_t</type></link>. See <link linkend="cairo-path-data-t"><type>cairo_path_data_t</type></link> for hints on how to iterate
@@ -310,7 +310,7 @@ with it.
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-copy-path-flat" role="function"/>cairo_copy_path_flat ()</title>
-<indexterm><primary>cairo_copy_path_flat</primary></indexterm><programlisting><link linkend="cairo-path-t">cairo_path_t</link>* cairo_copy_path_flat          (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
+<indexterm><primary>cairo_copy_path_flat</primary></indexterm><programlisting><link linkend="cairo-path-t">cairo_path_t</link>*       cairo_copy_path_flat                (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
 <para>
 Gets a flattened copy of the current path and returns it to the
 user as a <link linkend="cairo-path-t"><type>cairo_path_t</type></link>. See <link linkend="cairo-path-data-t"><type>cairo_path_data_t</type></link> for hints on
@@ -352,7 +352,7 @@ with it.
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-path-destroy" role="function"/>cairo_path_destroy ()</title>
-<indexterm><primary>cairo_path_destroy</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_path_destroy              (<link linkend="cairo-path-t">cairo_path_t</link> *path);</programlisting>
+<indexterm><primary>cairo_path_destroy</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_path_destroy                  (<link linkend="cairo-path-t">cairo_path_t</link> *path);</programlisting>
 <para>
 Immediately releases all memory associated with <parameter>path</parameter>. After a call
 to <link linkend="cairo-path-destroy"><function>cairo_path_destroy()</function></link> the <parameter>path</parameter> pointer is no longer valid and
@@ -373,8 +373,8 @@ manually as well.</para>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-append-path" role="function"/>cairo_append_path ()</title>
-<indexterm><primary>cairo_append_path</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_append_path               (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             const <link linkend="cairo-path-t">cairo_path_t</link> *path);</programlisting>
+<indexterm><primary>cairo_append_path</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_append_path                   (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         const <link linkend="cairo-path-t">cairo_path_t</link> *path);</programlisting>
 <para>
 Append the <parameter>path</parameter> onto the current path. The <parameter>path</parameter> may be either the
 return value from one of <link linkend="cairo-copy-path"><function>cairo_copy_path()</function></link> or
@@ -394,9 +394,9 @@ initialized to <link linkend="CAIRO-STATUS-SUCCESS:CAPS"><literal>CAIRO_STATUS_S
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-get-current-point" role="function"/>cairo_get_current_point ()</title>
-<indexterm><primary>cairo_get_current_point</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_get_current_point         (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> *x,
-                                             <link linkend="double">double</link> *y);</programlisting>
+<indexterm><primary>cairo_get_current_point</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_get_current_point             (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> *x,
+                                                         <link linkend="double">double</link> *y);</programlisting>
 <para>
 Gets the current point of the current path, which is
 conceptually the final point reached by the path so far.
@@ -409,12 +409,21 @@ both be set to 0.0.
 <para>
 Most path construction functions alter the current point. See the
 following for details on how they affect the current point:
+<link linkend="cairo-new-path"><function>cairo_new_path()</function></link>, <link linkend="cairo-new-sub-path"><function>cairo_new_sub_path()</function></link>,
+<link linkend="cairo-append-path"><function>cairo_append_path()</function></link>, <link linkend="cairo-close-path"><function>cairo_close_path()</function></link>,
+<link linkend="cairo-move-to"><function>cairo_move_to()</function></link>, <link linkend="cairo-line-to"><function>cairo_line_to()</function></link>, <link linkend="cairo-curve-to"><function>cairo_curve_to()</function></link>,
+<link linkend="cairo-rel-move-to"><function>cairo_rel_move_to()</function></link>, <link linkend="cairo-rel-line-to"><function>cairo_rel_line_to()</function></link>, <link linkend="cairo-rel-curve-to"><function>cairo_rel_curve_to()</function></link>,
+<link linkend="cairo-arc"><function>cairo_arc()</function></link>, <link linkend="cairo-arc-negative"><function>cairo_arc_negative()</function></link>, <link linkend="cairo-rectangle"><function>cairo_rectangle()</function></link>,
+<link linkend="cairo-text-path"><function>cairo_text_path()</function></link>, <link linkend="cairo-glyph-path"><function>cairo_glyph_path()</function></link>, <link linkend="cairo-stroke-to-path"><function>cairo_stroke_to_path()</function></link>
 </para>
 <para>
-<link linkend="cairo-new-path"><function>cairo_new_path()</function></link>, <link linkend="cairo-move-to"><function>cairo_move_to()</function></link>, <link linkend="cairo-line-to"><function>cairo_line_to()</function></link>,
-<link linkend="cairo-curve-to"><function>cairo_curve_to()</function></link>, <link linkend="cairo-arc"><function>cairo_arc()</function></link>, <link linkend="cairo-rel-move-to"><function>cairo_rel_move_to()</function></link>,
-<link linkend="cairo-rel-line-to"><function>cairo_rel_line_to()</function></link>, <link linkend="cairo-rel-curve-to"><function>cairo_rel_curve_to()</function></link>, <link linkend="cairo-arc"><function>cairo_arc()</function></link>,
-<link linkend="cairo-text-path"><function>cairo_text_path()</function></link>, <link linkend="cairo-stroke-to-path"><function>cairo_stroke_to_path()</function></link></para>
+Some functions use and alter the current point but do not otherwise
+change current path:
+<link linkend="cairo-show-text"><function>cairo_show_text()</function></link>, <link linkend="cairo-show-glyphs"><function>cairo_show_glyphs()</function></link>.
+</para>
+<para>
+Some functions unset the current path and as a result, current point:
+<link linkend="cairo-fill"><function>cairo_fill()</function></link>, <link linkend="cairo-stroke"><function>cairo_stroke()</function></link>.</para>
 <para>
 
 </para><variablelist role="params">
@@ -430,7 +439,7 @@ following for details on how they affect the current point:
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-new-path" role="function"/>cairo_new_path ()</title>
-<indexterm><primary>cairo_new_path</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_new_path                  (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
+<indexterm><primary>cairo_new_path</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_new_path                      (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
 <para>
 Clears the current path. After this call there will be no path and
 no current point.</para>
@@ -443,7 +452,7 @@ no current point.</para>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-new-sub-path" role="function" condition="since:1.2"/>cairo_new_sub_path ()</title>
-<indexterm role="1.2"><primary>cairo_new_sub_path</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_new_sub_path              (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
+<indexterm role="1.2"><primary>cairo_new_sub_path</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_new_sub_path                  (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
 <para>
 Begin a new sub-path. Note that the existing path is not
 affected. After this call there will be no current point.
@@ -464,11 +473,11 @@ compute the arc's initial coordinates for a call to
 <varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
 <listitem><simpara> a cairo context
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.2
+</variablelist><para role="since">Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-close-path" role="function"/>cairo_close_path ()</title>
-<indexterm><primary>cairo_close_path</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_close_path                (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
+<indexterm><primary>cairo_close_path</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_close_path                    (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
 <para>
 Adds a line segment to the path from the current point to the
 beginning of the current sub-path, (the most recent point passed to
@@ -503,12 +512,12 @@ point.</para>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-arc" role="function"/>cairo_arc ()</title>
-<indexterm><primary>cairo_arc</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_arc                       (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> xc,
-                                             <link linkend="double">double</link> yc,
-                                             <link linkend="double">double</link> radius,
-                                             <link linkend="double">double</link> angle1,
-                                             <link linkend="double">double</link> angle2);</programlisting>
+<indexterm><primary>cairo_arc</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_arc                           (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> xc,
+                                                         <link linkend="double">double</link> yc,
+                                                         <link linkend="double">double</link> radius,
+                                                         <link linkend="double">double</link> angle1,
+                                                         <link linkend="double">double</link> angle2);</programlisting>
 <para>
 Adds a circular arc of the given <parameter>radius</parameter> to the current path.  The
 arc is centered at (<parameter>xc</parameter>, <parameter>yc</parameter>), begins at <parameter>angle1</parameter> and proceeds in
@@ -576,12 +585,12 @@ cairo_restore (cr);
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-arc-negative" role="function"/>cairo_arc_negative ()</title>
-<indexterm><primary>cairo_arc_negative</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_arc_negative              (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> xc,
-                                             <link linkend="double">double</link> yc,
-                                             <link linkend="double">double</link> radius,
-                                             <link linkend="double">double</link> angle1,
-                                             <link linkend="double">double</link> angle2);</programlisting>
+<indexterm><primary>cairo_arc_negative</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_arc_negative                  (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> xc,
+                                                         <link linkend="double">double</link> yc,
+                                                         <link linkend="double">double</link> radius,
+                                                         <link linkend="double">double</link> angle1,
+                                                         <link linkend="double">double</link> angle2);</programlisting>
 <para>
 Adds a circular arc of the given <parameter>radius</parameter> to the current path.  The
 arc is centered at (<parameter>xc</parameter>, <parameter>yc</parameter>), begins at <parameter>angle1</parameter> and proceeds in
@@ -616,13 +625,13 @@ direction of the arc between the two angles.</para>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-curve-to" role="function"/>cairo_curve_to ()</title>
-<indexterm><primary>cairo_curve_to</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_curve_to                  (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> x1,
-                                             <link linkend="double">double</link> y1,
-                                             <link linkend="double">double</link> x2,
-                                             <link linkend="double">double</link> y2,
-                                             <link linkend="double">double</link> x3,
-                                             <link linkend="double">double</link> y3);</programlisting>
+<indexterm><primary>cairo_curve_to</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_curve_to                      (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> x1,
+                                                         <link linkend="double">double</link> y1,
+                                                         <link linkend="double">double</link> x2,
+                                                         <link linkend="double">double</link> y2,
+                                                         <link linkend="double">double</link> x3,
+                                                         <link linkend="double">double</link> y3);</programlisting>
 <para>
 Adds a cubic Bézier spline to the path from the current point to
 position (<parameter>x3</parameter>, <parameter>y3</parameter>) in user-space coordinates, using (<parameter>x1</parameter>, <parameter>y1</parameter>) and
@@ -660,9 +669,9 @@ cairo_move_to (<parameter>cr</parameter>, <parameter>x1</parameter>, <parameter>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-line-to" role="function"/>cairo_line_to ()</title>
-<indexterm><primary>cairo_line_to</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_line_to                   (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> x,
-                                             <link linkend="double">double</link> y);</programlisting>
+<indexterm><primary>cairo_line_to</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_line_to                       (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> x,
+                                                         <link linkend="double">double</link> y);</programlisting>
 <para>
 Adds a line to the path from the current point to position (<parameter>x</parameter>, <parameter>y</parameter>)
 in user-space coordinates. After this call the current point
@@ -686,9 +695,9 @@ this function will behave as cairo_move_to (<parameter>cr</parameter>, <paramete
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-move-to" role="function"/>cairo_move_to ()</title>
-<indexterm><primary>cairo_move_to</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_move_to                   (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> x,
-                                             <link linkend="double">double</link> y);</programlisting>
+<indexterm><primary>cairo_move_to</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_move_to                       (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> x,
+                                                         <link linkend="double">double</link> y);</programlisting>
 <para>
 Begin a new sub-path. After this call the current point will be (<parameter>x</parameter>,
 <parameter>y</parameter>).</para>
@@ -707,11 +716,11 @@ Begin a new sub-path. After this call the current point will be (<parameter>x</p
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-rectangle" role="function"/>cairo_rectangle ()</title>
-<indexterm><primary>cairo_rectangle</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_rectangle                 (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> x,
-                                             <link linkend="double">double</link> y,
-                                             <link linkend="double">double</link> width,
-                                             <link linkend="double">double</link> height);</programlisting>
+<indexterm><primary>cairo_rectangle</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_rectangle                     (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> x,
+                                                         <link linkend="double">double</link> y,
+                                                         <link linkend="double">double</link> width,
+                                                         <link linkend="double">double</link> height);</programlisting>
 <para>
 Adds a closed sub-path rectangle of the given size to the current
 path at position (<parameter>x</parameter>, <parameter>y</parameter>) in user-space coordinates.
@@ -746,9 +755,9 @@ cairo_close_path (cr);
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-glyph-path" role="function"/>cairo_glyph_path ()</title>
-<indexterm><primary>cairo_glyph_path</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_glyph_path                (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             const <link linkend="cairo-glyph-t">cairo_glyph_t</link> *glyphs,
-                                             <link linkend="int">int</link> num_glyphs);</programlisting>
+<indexterm><primary>cairo_glyph_path</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_glyph_path                    (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         const <link linkend="cairo-glyph-t">cairo_glyph_t</link> *glyphs,
+                                                         <link linkend="int">int</link> num_glyphs);</programlisting>
 <para>
 Adds closed paths for the glyphs to the current path.  The generated
 path if filled, achieves an effect similar to that of
@@ -768,8 +777,8 @@ path if filled, achieves an effect similar to that of
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-text-path" role="function"/>cairo_text_path ()</title>
-<indexterm><primary>cairo_text_path</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_text_path                 (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             const <link linkend="char">char</link> *utf8);</programlisting>
+<indexterm><primary>cairo_text_path</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_text_path                     (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         const <link linkend="char">char</link> *utf8);</programlisting>
 <para>
 Adds closed paths for text to the current path.  The generated
 path if filled, achieves an effect similar to that of
@@ -804,13 +813,13 @@ serious text-using applications. See <link linkend="cairo-glyph-path"><function>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-rel-curve-to" role="function"/>cairo_rel_curve_to ()</title>
-<indexterm><primary>cairo_rel_curve_to</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_rel_curve_to              (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> dx1,
-                                             <link linkend="double">double</link> dy1,
-                                             <link linkend="double">double</link> dx2,
-                                             <link linkend="double">double</link> dy2,
-                                             <link linkend="double">double</link> dx3,
-                                             <link linkend="double">double</link> dy3);</programlisting>
+<indexterm><primary>cairo_rel_curve_to</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_rel_curve_to                  (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> dx1,
+                                                         <link linkend="double">double</link> dy1,
+                                                         <link linkend="double">double</link> dx2,
+                                                         <link linkend="double">double</link> dy2,
+                                                         <link linkend="double">double</link> dx3,
+                                                         <link linkend="double">double</link> dy3);</programlisting>
 <para>
 Relative-coordinate version of <link linkend="cairo-curve-to"><function>cairo_curve_to()</function></link>. All offsets are
 relative to the current point. Adds a cubic Bézier spline to the
@@ -856,9 +865,9 @@ CAIRO_STATUS_NO_CURRENT_POINT.</para>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-rel-line-to" role="function"/>cairo_rel_line_to ()</title>
-<indexterm><primary>cairo_rel_line_to</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_rel_line_to               (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> dx,
-                                             <link linkend="double">double</link> dy);</programlisting>
+<indexterm><primary>cairo_rel_line_to</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_rel_line_to                   (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> dx,
+                                                         <link linkend="double">double</link> dy);</programlisting>
 <para>
 Relative-coordinate version of <link linkend="cairo-line-to"><function>cairo_line_to()</function></link>. Adds a line to the
 path from the current point to a point that is offset from the
@@ -888,9 +897,9 @@ CAIRO_STATUS_NO_CURRENT_POINT.</para>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-rel-move-to" role="function"/>cairo_rel_move_to ()</title>
-<indexterm><primary>cairo_rel_move_to</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_rel_move_to               (<link linkend="cairo-t">cairo_t</link> *cr,
-                                             <link linkend="double">double</link> dx,
-                                             <link linkend="double">double</link> dy);</programlisting>
+<indexterm><primary>cairo_rel_move_to</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_rel_move_to                   (<link linkend="cairo-t">cairo_t</link> *cr,
+                                                         <link linkend="double">double</link> dx,
+                                                         <link linkend="double">double</link> dy);</programlisting>
 <para>
 Begin a new sub-path. After this call the current point will offset
 by (<parameter>x</parameter>, <parameter>y</parameter>).

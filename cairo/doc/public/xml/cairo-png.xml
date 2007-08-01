@@ -23,23 +23,21 @@
 
 
 
-<link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-image-surface-create-from-png">cairo_image_surface_create_from_png</link>
-                                            (const <link linkend="char">char</link> *filename);
-<link linkend="cairo-status-t">cairo_status_t</link> (<link linkend="cairo-read-func-t">*cairo_read_func_t</link>)         (<link linkend="void">void</link> *closure,
-                                             unsigned <link linkend="char">char</link> *data,
-                                             unsigned <link linkend="int">int</link> length);
-<link linkend="cairo-surface-t">cairo_surface_t</link>* <link linkend="cairo-image-surface-create-from-png-stream">cairo_image_surface_create_from_png_stream</link>
-                                            (<link linkend="cairo-read-func-t">cairo_read_func_t</link> read_func,
-                                             <link linkend="void">void</link> *closure);
-<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-surface-write-to-png">cairo_surface_write_to_png</link>   (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
-                                             const <link linkend="char">char</link> *filename);
-<link linkend="cairo-status-t">cairo_status_t</link> (<link linkend="cairo-write-func-t">*cairo_write_func_t</link>)        (<link linkend="void">void</link> *closure,
-                                             unsigned <link linkend="char">char</link> *data,
-                                             unsigned <link linkend="int">int</link> length);
-<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-surface-write-to-png-stream">cairo_surface_write_to_png_stream</link>
-                                            (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
-                                             <link linkend="cairo-write-func-t">cairo_write_func_t</link> write_func,
-                                             <link linkend="void">void</link> *closure);
+<link linkend="cairo-surface-t">cairo_surface_t</link>*    <link linkend="cairo-image-surface-create-from-png">cairo_image_surface_create_from_png</link> (const <link linkend="char">char</link> *filename);
+<link linkend="cairo-status-t">cairo_status_t</link>      (<link linkend="cairo-read-func-t">*cairo_read_func_t</link>)                (<link linkend="void">void</link> *closure,
+                                                         unsigned <link linkend="char">char</link> *data,
+                                                         unsigned <link linkend="int">int</link> length);
+<link linkend="cairo-surface-t">cairo_surface_t</link>*    <link linkend="cairo-image-surface-create-from-png-stream">cairo_image_surface_create_from_png_stream</link>
+                                                        (<link linkend="cairo-read-func-t">cairo_read_func_t</link> read_func,
+                                                         <link linkend="void">void</link> *closure);
+<link linkend="cairo-status-t">cairo_status_t</link>      <link linkend="cairo-surface-write-to-png">cairo_surface_write_to_png</link>          (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
+                                                         const <link linkend="char">char</link> *filename);
+<link linkend="cairo-status-t">cairo_status_t</link>      (<link linkend="cairo-write-func-t">*cairo_write_func_t</link>)               (<link linkend="void">void</link> *closure,
+                                                         unsigned <link linkend="char">char</link> *data,
+                                                         unsigned <link linkend="int">int</link> length);
+<link linkend="cairo-status-t">cairo_status_t</link>      <link linkend="cairo-surface-write-to-png-stream">cairo_surface_write_to_png_stream</link>   (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
+                                                         <link linkend="cairo-write-func-t">cairo_write_func_t</link> write_func,
+                                                         <link linkend="void">void</link> *closure);
 </synopsis>
 </refsynopsisdiv>
 
@@ -62,8 +60,7 @@
 <title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-image-surface-create-from-png" role="function"/>cairo_image_surface_create_from_png ()</title>
-<indexterm><primary>cairo_image_surface_create_from_png</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_image_surface_create_from_png
-                                            (const <link linkend="char">char</link> *filename);</programlisting>
+<indexterm><primary>cairo_image_surface_create_from_png</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>*    cairo_image_surface_create_from_png (const <link linkend="char">char</link> *filename);</programlisting>
 <para>
 Creates a new image surface and initializes the contents to the
 given PNG file.</para>
@@ -85,9 +82,9 @@ CAIRO_STATUS_READ_ERROR
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-read-func-t" role="function"/>cairo_read_func_t ()</title>
-<indexterm><primary>cairo_read_func_t</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> (*cairo_read_func_t)         (<link linkend="void">void</link> *closure,
-                                             unsigned <link linkend="char">char</link> *data,
-                                             unsigned <link linkend="int">int</link> length);</programlisting>
+<indexterm><primary>cairo_read_func_t</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      (*cairo_read_func_t)                (<link linkend="void">void</link> *closure,
+                                                         unsigned <link linkend="char">char</link> *data,
+                                                         unsigned <link linkend="int">int</link> length);</programlisting>
 <para>
 <link linkend="cairo-read-func-t"><type>cairo_read_func_t</type></link> is the type of function which is called when a
 backend needs to read data from an intput stream.  It is passed the
@@ -113,9 +110,9 @@ CAIRO_STATUS_READ_ERROR otherwise.</para>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-image-surface-create-from-png-stream" role="function"/>cairo_image_surface_create_from_png_stream ()</title>
-<indexterm><primary>cairo_image_surface_create_from_png_stream</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>* cairo_image_surface_create_from_png_stream
-                                            (<link linkend="cairo-read-func-t">cairo_read_func_t</link> read_func,
-                                             <link linkend="void">void</link> *closure);</programlisting>
+<indexterm><primary>cairo_image_surface_create_from_png_stream</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>*    cairo_image_surface_create_from_png_stream
+                                                        (<link linkend="cairo-read-func-t">cairo_read_func_t</link> read_func,
+                                                         <link linkend="void">void</link> *closure);</programlisting>
 <para>
 Creates a new image surface from PNG data read incrementally
 via the <parameter>read_func</parameter> function.</para>
@@ -135,8 +132,8 @@ memory could not be allocated for the operation.
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-surface-write-to-png" role="function"/>cairo_surface_write_to_png ()</title>
-<indexterm><primary>cairo_surface_write_to_png</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_surface_write_to_png   (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
-                                             const <link linkend="char">char</link> *filename);</programlisting>
+<indexterm><primary>cairo_surface_write_to_png</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      cairo_surface_write_to_png          (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
+                                                         const <link linkend="char">char</link> *filename);</programlisting>
 <para>
 Writes the contents of <parameter>surface</parameter> to a new file <parameter>filename</parameter> as a PNG
 image.</para>
@@ -159,9 +156,9 @@ while attempting to write the file.
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-write-func-t" role="function"/>cairo_write_func_t ()</title>
-<indexterm><primary>cairo_write_func_t</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> (*cairo_write_func_t)        (<link linkend="void">void</link> *closure,
-                                             unsigned <link linkend="char">char</link> *data,
-                                             unsigned <link linkend="int">int</link> length);</programlisting>
+<indexterm><primary>cairo_write_func_t</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      (*cairo_write_func_t)               (<link linkend="void">void</link> *closure,
+                                                         unsigned <link linkend="char">char</link> *data,
+                                                         unsigned <link linkend="int">int</link> length);</programlisting>
 <para>
 <link linkend="cairo-write-func-t"><type>cairo_write_func_t</type></link> is the type of function which is called when a
 backend needs to write data to an output stream.  It is passed the
@@ -187,10 +184,9 @@ CAIRO_STATUS_WRITE_ERROR otherwise.</para>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-surface-write-to-png-stream" role="function"/>cairo_surface_write_to_png_stream ()</title>
-<indexterm><primary>cairo_surface_write_to_png_stream</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_surface_write_to_png_stream
-                                            (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
-                                             <link linkend="cairo-write-func-t">cairo_write_func_t</link> write_func,
-                                             <link linkend="void">void</link> *closure);</programlisting>
+<indexterm><primary>cairo_surface_write_to_png_stream</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      cairo_surface_write_to_png_stream   (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
+                                                         <link linkend="cairo-write-func-t">cairo_write_func_t</link> write_func,
+                                                         <link linkend="void">void</link> *closure);</programlisting>
 <para>
 Writes the image surface to the write function.</para>
 <para>

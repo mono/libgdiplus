@@ -134,11 +134,15 @@ _cairo_paginated_surface_finish (void *abstract_surface)
     if (surface->page_is_blank == FALSE || surface->page_num == 1)
 	status = _cairo_paginated_surface_show_page (abstract_surface);
 
-    if (status == CAIRO_STATUS_SUCCESS)
+    if (status == CAIRO_STATUS_SUCCESS) {
 	cairo_surface_finish (surface->target);
+	status = cairo_surface_status (surface->target);
+    }
 
-    if (status == CAIRO_STATUS_SUCCESS)
+    if (status == CAIRO_STATUS_SUCCESS) {
 	cairo_surface_finish (surface->meta);
+	status = cairo_surface_status (surface->meta);
+    }
 
     cairo_surface_destroy (surface->target);
 
@@ -214,6 +218,8 @@ _paint_page (cairo_paginated_surface_t *surface)
 
     analysis = _cairo_analysis_surface_create (surface->target,
 					       surface->width, surface->height);
+    if (analysis == NULL)
+	return CAIRO_STATUS_NO_MEMORY;
 
     surface->backend->set_paginated_mode (surface->target, CAIRO_PAGINATED_MODE_ANALYZE);
     status = _cairo_meta_surface_replay (surface->meta, analysis);
@@ -281,7 +287,9 @@ _cairo_paginated_surface_copy_page (void *abstract_surface)
     if (status)
 	return status;
 
-    _paint_page (surface);
+    status = _paint_page (surface);
+    if (status)
+	return status;
 
     surface->page_num++;
 
@@ -306,11 +314,16 @@ _cairo_paginated_surface_show_page (void *abstract_surface)
     if (status)
 	return status;
 
-    _paint_page (surface);
+    status = _paint_page (surface);
+    if (status)
+	return status;
 
     status = _cairo_surface_show_page (surface->target);
     if (status)
 	return status;
+
+    if (cairo_surface_status (surface->meta))
+	return cairo_surface_status (surface->meta);
 
     cairo_surface_destroy (surface->meta);
 

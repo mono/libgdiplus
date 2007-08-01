@@ -23,9 +23,9 @@
 
 
 
-enum        <link linkend="cairo-status-t">cairo_status_t</link>;
-const <link linkend="char">char</link>* <link linkend="cairo-status-to-string">cairo_status_to_string</link>          (<link linkend="cairo-status-t">cairo_status_t</link> status);
-<link linkend="void">void</link>        <link linkend="cairo-debug-reset-static-data">cairo_debug_reset_static_data</link>   (void);
+enum                <link linkend="cairo-status-t">cairo_status_t</link>;
+const <link linkend="char">char</link>*         <link linkend="cairo-status-to-string">cairo_status_to_string</link>              (<link linkend="cairo-status-t">cairo_status_t</link> status);
+<link linkend="void">void</link>                <link linkend="cairo-debug-reset-static-data">cairo_debug_reset_static_data</link>       (void);
 </synopsis>
 </refsynopsisdiv>
 
@@ -204,7 +204,7 @@ to get a human-readable representation of an error message.</para>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-status-to-string" role="function"/>cairo_status_to_string ()</title>
-<indexterm><primary>cairo_status_to_string</primary></indexterm><programlisting>const <link linkend="char">char</link>* cairo_status_to_string          (<link linkend="cairo-status-t">cairo_status_t</link> status);</programlisting>
+<indexterm><primary>cairo_status_to_string</primary></indexterm><programlisting>const <link linkend="char">char</link>*         cairo_status_to_string              (<link linkend="cairo-status-t">cairo_status_t</link> status);</programlisting>
 <para>
 Provides a human-readable description of a <link linkend="cairo-status-t"><type>cairo_status_t</type></link>.</para>
 <para>
@@ -218,7 +218,7 @@ Provides a human-readable description of a <link linkend="cairo-status-t"><type>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-debug-reset-static-data" role="function"/>cairo_debug_reset_static_data ()</title>
-<indexterm><primary>cairo_debug_reset_static_data</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_debug_reset_static_data   (void);</programlisting>
+<indexterm><primary>cairo_debug_reset_static_data</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_debug_reset_static_data       (void);</programlisting>
 <para>
 Resets all static data within cairo to its original state,
 (ie. identical to the state at the time of program invocation). For

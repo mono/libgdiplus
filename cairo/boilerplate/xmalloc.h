@@ -36,7 +36,7 @@ xmalloc (size_t size);
 void *
 xcalloc (size_t nmemb, size_t size);
 
-#define xrealloc cairo_boilerplate_recalloc
+#define xrealloc cairo_boilerplate_xrealloc
 void *
 xrealloc (void *buf, size_t size);
 

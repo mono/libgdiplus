@@ -23,17 +23,15 @@
 
 
 
-<link linkend="cairo-font-face-t">cairo_font_face_t</link>* <link linkend="cairo-ft-font-face-create-for-ft-face">cairo_ft_font_face_create_for_ft_face</link>
-                                            (<link linkend="FT-Face">FT_Face</link> face,
-                                             <link linkend="int">int</link> load_flags);
-<link linkend="cairo-font-face-t">cairo_font_face_t</link>* <link linkend="cairo-ft-font-face-create-for-pattern">cairo_ft_font_face_create_for_pattern</link>
-                                            (<link linkend="FcPattern">FcPattern</link> *pattern);
-<link linkend="void">void</link>        <link linkend="cairo-ft-font-options-substitute">cairo_ft_font_options_substitute</link>
-                                            (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
-                                             <link linkend="FcPattern">FcPattern</link> *pattern);
-<link linkend="FT-Face">FT_Face</link>     <link linkend="cairo-ft-scaled-font-lock-face">cairo_ft_scaled_font_lock_face</link>  (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);
-<link linkend="void">void</link>        <link linkend="cairo-ft-scaled-font-unlock-face">cairo_ft_scaled_font_unlock_face</link>
-                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);
+<link linkend="cairo-font-face-t">cairo_font_face_t</link>*  <link linkend="cairo-ft-font-face-create-for-ft-face">cairo_ft_font_face_create_for_ft_face</link>
+                                                        (<link linkend="FT-Face">FT_Face</link> face,
+                                                         <link linkend="int">int</link> load_flags);
+<link linkend="cairo-font-face-t">cairo_font_face_t</link>*  <link linkend="cairo-ft-font-face-create-for-pattern">cairo_ft_font_face_create_for_pattern</link>
+                                                        (<link linkend="FcPattern">FcPattern</link> *pattern);
+<link linkend="void">void</link>                <link linkend="cairo-ft-font-options-substitute">cairo_ft_font_options_substitute</link>    (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
+                                                         <link linkend="FcPattern">FcPattern</link> *pattern);
+<link linkend="FT-Face">FT_Face</link>             <link linkend="cairo-ft-scaled-font-lock-face">cairo_ft_scaled_font_lock_face</link>      (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);
+<link linkend="void">void</link>                <link linkend="cairo-ft-scaled-font-unlock-face">cairo_ft_scaled_font_unlock_face</link>    (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);
 </synopsis>
 </refsynopsisdiv>
 
@@ -56,9 +54,9 @@
 <title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-ft-font-face-create-for-ft-face" role="function"/>cairo_ft_font_face_create_for_ft_face ()</title>
-<indexterm><primary>cairo_ft_font_face_create_for_ft_face</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>* cairo_ft_font_face_create_for_ft_face
-                                            (<link linkend="FT-Face">FT_Face</link> face,
-                                             <link linkend="int">int</link> load_flags);</programlisting>
+<indexterm><primary>cairo_ft_font_face_create_for_ft_face</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>*  cairo_ft_font_face_create_for_ft_face
+                                                        (<link linkend="FT-Face">FT_Face</link> face,
+                                                         <link linkend="int">int</link> load_flags);</programlisting>
 <para>
 Creates a new font face for the FreeType font backend from a
 pre-opened FreeType face. This font can then be used with
@@ -92,8 +90,8 @@ as <link linkend="cairo-ft-font-lock-face"><function>cairo_ft_font_lock_face()</
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-ft-font-face-create-for-pattern" role="function"/>cairo_ft_font_face_create_for_pattern ()</title>
-<indexterm><primary>cairo_ft_font_face_create_for_pattern</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>* cairo_ft_font_face_create_for_pattern
-                                            (<link linkend="FcPattern">FcPattern</link> *pattern);</programlisting>
+<indexterm><primary>cairo_ft_font_face_create_for_pattern</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>*  cairo_ft_font_face_create_for_pattern
+                                                        (<link linkend="FcPattern">FcPattern</link> *pattern);</programlisting>
 <para>
 Creates a new font face for the FreeType font backend based on a
 fontconfig pattern. This font can then be used with
@@ -126,9 +124,8 @@ appropriately to reflect the options in a <link linkend="cairo-font-options-t"><
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-ft-font-options-substitute" role="function"/>cairo_ft_font_options_substitute ()</title>
-<indexterm><primary>cairo_ft_font_options_substitute</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_ft_font_options_substitute
-                                            (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
-                                             <link linkend="FcPattern">FcPattern</link> *pattern);</programlisting>
+<indexterm><primary>cairo_ft_font_options_substitute</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_ft_font_options_substitute    (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options,
+                                                         <link linkend="FcPattern">FcPattern</link> *pattern);</programlisting>
 <para>
 Add options to a <link linkend="FcPattern"><type>FcPattern</type></link> based on a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link> font
 options object. Options that are already in the pattern, are not overridden,
@@ -147,7 +144,7 @@ before calling <link linkend="FcDefaultSubstitute"><function>FcDefaultSubstitute
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-ft-scaled-font-lock-face" role="function"/>cairo_ft_scaled_font_lock_face ()</title>
-<indexterm><primary>cairo_ft_scaled_font_lock_face</primary></indexterm><programlisting><link linkend="FT-Face">FT_Face</link>     cairo_ft_scaled_font_lock_face  (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
+<indexterm><primary>cairo_ft_scaled_font_lock_face</primary></indexterm><programlisting><link linkend="FT-Face">FT_Face</link>             cairo_ft_scaled_font_lock_face      (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
 <para>
 <link linkend="cairo-ft-font-lock-face"><function>cairo_ft_font_lock_face()</function></link> gets the <link linkend="FT-Face"><type>FT_Face</type></link> object from a FreeType
 backend font and scales it appropriately for the font. You must
@@ -184,8 +181,7 @@ or <link linkend="NULL:CAPS"><literal>NULL</literal></link> if <parameter>scaled
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-ft-scaled-font-unlock-face" role="function"/>cairo_ft_scaled_font_unlock_face ()</title>
-<indexterm><primary>cairo_ft_scaled_font_unlock_face</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_ft_scaled_font_unlock_face
-                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
+<indexterm><primary>cairo_ft_scaled_font_unlock_face</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_ft_scaled_font_unlock_face    (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
 <para>
 Releases a face obtained with <link linkend="cairo-ft-scaled-font-lock-face"><function>cairo_ft_scaled_font_lock_face()</function></link>.</para>
 <para>

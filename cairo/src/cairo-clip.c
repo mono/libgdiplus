@@ -350,6 +350,8 @@ _cairo_clip_intersect_region (cairo_clip_t    *clip,
         if (pixman_region_copy (&clip->region, &region) ==
 		PIXMAN_REGION_STATUS_SUCCESS)
 	    clip->has_region = TRUE;
+	else
+	    status = CAIRO_STATUS_NO_MEMORY;
     } else {
 	pixman_region16_t intersection;
         pixman_region_init (&intersection);
@@ -654,8 +656,11 @@ _cairo_clip_copy_rectangle_list (cairo_clip_t *clip, cairo_gstate_t *gstate)
     } else {
         cairo_rectangle_int16_t extents;
         if (_cairo_surface_get_extents (_cairo_gstate_get_target (gstate),
-		                        &extents) != CAIRO_STATUS_SUCCESS ||
-		!_cairo_clip_rect_to_user(gstate, extents.x, extents.y,
+		                        &extents) != CAIRO_STATUS_SUCCESS) {
+            free (rectangles);
+	    return (cairo_rectangle_list_t*) &_cairo_rectangles_nil;
+	}
+	if (! _cairo_clip_rect_to_user(gstate, extents.x, extents.y,
                                           extents.width, extents.height,
                                           rectangles)) {
             free (rectangles);

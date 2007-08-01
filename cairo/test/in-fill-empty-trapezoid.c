@@ -47,6 +47,7 @@ main (void)
     cairo_status_t status;
     char const * description =
 	"Test that the tessellator isn't producing obviously empty trapezoids";
+    cairo_test_status_t ret;
 
     cairo_test_init ("in-fill-empty-trapezoid");
     cairo_test_log ("%s\n", description);
@@ -81,20 +82,21 @@ main (void)
     cairo_surface_destroy (surf);
 
     /* Check that everything went well. */
+    ret = CAIRO_TEST_SUCCESS;
     if (CAIRO_STATUS_SUCCESS != status) {
 	cairo_test_log ("Failed to create a test surface and path: %s\n",
 			cairo_status_to_string (status));
-	return CAIRO_TEST_FAILURE;
+	ret = CAIRO_TEST_FAILURE;
     }
 
     if (0 != false_positive_count) {
 	cairo_test_log ("Point sampling found %d false positives "
 			"from cairo_in_fill()\n",
 			false_positive_count);
-	return CAIRO_TEST_FAILURE;
+	ret = CAIRO_TEST_FAILURE;
     }
 
     cairo_test_fini ();
 
-    return CAIRO_TEST_SUCCESS;
+    return ret;
 }

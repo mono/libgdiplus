@@ -1,3 +1,105 @@
+Release 1.4.10 (2007-06-27 Carl Worth <cworth@cworth.org>)
+==========================================================
+This is the fifth update in cairo's stable 1.4 series. It comes
+roughly three weeks after the 1.4.8 release. The most significant
+change in this release is a fix to avoid an X error in certain cases,
+(that were causing OpenOffice.org to crash in Fedora). There is also a
+semantic change to include child window contents when using an xlib
+surface as a source, an optimization when drawing many rectangles, and
+several minor fixes.
+
+Eliminate X errors that were killing OO.o (Chris Wilson)
+--------------------------------------------------------
+Cairo is fixed to avoid the X errors propagated when cleaning up
+Render Pictures after the application had already destroyed the
+Drawable they reference. (It would be nice if the X server wouldn't
+complain that some cleanup work is already done, but there you have
+it.) This fixes the bug causing OpenOffice.org to crash as described
+here:
+
+        XError on right click menus in OOo.
+        https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=243811
+
+Use IncludeInferiors when using xlib surface as a source (Ryan Lortie)
+----------------------------------------------------------------------
+When an xlib surface is used as the source of a draw operation the
+contents of child windows are now included in the source data. The
+semantics of drawing to xlib surfaces are unchanged (ie: draws are
+still clipped by child windows overlapping the destination window).
+
+Optimize drawing of many rectangles (Vladimir Vukicevic)
+--------------------------------------------------------
+Avoid O(N*N) loop when filling many axis-aligned rectangles, (either
+many rectangles as separate sub-paths or due to dashing).
+
+Miscellaneous fixes
+-------------------
+Fix cairo-perf on Solaris by linking to librt. (Behdad Esfahbod)
+
+Fix make check for systems that require executable files to have a
+particular extension. (Behdad Esfahbod)
+
+Eliminate some warnings in cairo-quartz. (Brian Ewins)
+
+Fix build-breaking typo for cairo-directfb. (Chris Wilson)
+
+Release 1.4.8 (2007-06-07 Carl Worth <cworth@cworth.org>)
+=========================================================
+This is the fourth update in cairo's stable 1.4 series. It comes just
+over five weeks after the 1.4.6 release. This release includes a
+thread-safe surface-cache for solid patterns which significantly
+improves text rendering with the xlib backend. Also, dozens of error
+paths in cairo have been fixed thanks to extensive fault-injection
+testing by Chris Wilson.
+
+Surface cache for solid patterns
+--------------------------------
+Originally written by Jorn Baayen, the introduction of a small cache
+for surfaces created for solid patterns improves performance
+dramatically. For example, this reduces the volume of X requests
+during text rendering to the same level as Xft.
+
+This cache first made its appearance in a 1.3.x snapshot, but was
+removed before appearing in any previous major release due to
+complications with multi-threaded programs. For example, programs like
+evince that would carefully restrict usage of cairo-xlib to a single
+thread were unpleasantly surprised to find that using cairo-image in a
+separate thread could trigger X requests.
+
+Behdad Esfahbod designed a fix which was implemented by Chris
+Wilson. Now, the necessary X requests are queued up until the next
+time the application directly operates on an xlib surface.
+
+Improved error handling paths
+------------------------------
+Chris Wilson continued the excellent work he started in cairo 1.4.4 to
+make cairo much more robust against out-of-memory and other errors. He
+applied his memory allocation fault injection cairo's main test suite,
+(previously he had applied it to cairo's performance suite).
+
+Chris's testing found dozens of bugs which he fixed. Many of these
+bugs had perhaps never been hit by any users. But at least one was
+hit by the gnome-about program which resulted in dozens of duplicated
+bug reports against that program:
+
+	http://bugzilla.gnome.org/show_bug.cgi?id=431990
+
+We were very pleasantly surprised to see this bug get fixed as a
+side-effect of Chris's work. Well done, Chris!
+
+Other fixes
+-----------
+Cleanup of mutex declarations (Behdad Esfahbod)
+
+Remove unnecessary clip region from SVG output (Emmanuel Pacaud)
+
+Remove Xsun from the buggy_repeat blacklist (Elaine Xiong)
+
+ATSUI: Fix glyph measurement: faster and more correct (Brian Ewins)
+
+Quartz: fixed 'extend' behaviour for patterns, improved pattern performance,
+and a few smaller correctness fixes. (Brian Ewins, Vladimir Vukicevic)
+
 Release 1.4.6 (2007-05-01 Carl Worth <cworth@cworth.org>)
 =========================================================
 This is the third update in cairo's stable 1.4 series. It comes a
@@ -3685,3 +3787,5 @@ server.
 Carl Worth <cworth@isi.edu> wrote the first lines of Xr, after Keith
 Packard <keithp@keithp.com> proposed the plan for a stateful drawing
 library in C providing a PostScript-like rendering model.
+
+ LocalWords:  mutex BeOS extraordinaire

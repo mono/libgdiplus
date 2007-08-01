@@ -1855,6 +1855,30 @@ cairo_win32_surface_get_image (cairo_surface_t *surface)
     return ((cairo_win32_surface_t*)surface)->image;
 }
 
+static cairo_bool_t
+_cairo_win32_surface_is_similar (void *surface_a,
+	                         void *surface_b,
+				 cairo_content_t content)
+{
+    cairo_win32_surface_t *a = surface_a;
+    cairo_win32_surface_t *b = surface_b;
+
+    return a->dc == b->dc;
+}
+
+static cairo_status_t
+_cairo_win32_surface_reset (void *abstract_surface)
+{
+    cairo_win32_surface_t *surface = abstract_surface;
+    cairo_status_t status;
+
+    status = _cairo_win32_surface_set_clip_region (surface, NULL);
+    if (status)
+	return status;
+
+    return CAIRO_STATUS_SUCCESS;
+}
+
 static const cairo_surface_backend_t cairo_win32_surface_backend = {
     CAIRO_SURFACE_TYPE_WIN32,
     _cairo_win32_surface_create_similar,
@@ -1885,7 +1909,10 @@ static const cairo_surface_backend_t cairo_win32_surface_backend = {
     NULL, /* fill */
     _cairo_win32_surface_show_glyphs,
 
-    NULL  /* snapshot */
+    NULL,  /* snapshot */
+    _cairo_win32_surface_is_similar,
+
+    _cairo_win32_surface_reset
 };
 
 /* Notes:

@@ -154,7 +154,7 @@ _cairo_path_count (cairo_path_t		*path,
 					  _cpc_close_path,
 					  &cpc);
     if (status)
-	return 0;
+	return -1;
 
     return cpc.count;
 }
@@ -347,6 +347,10 @@ _cairo_path_create_in_error (cairo_status_t status)
 {
     cairo_path_t *path;
 
+    /* special case NO_MEMORY so as to avoid allocations */
+    if (status == CAIRO_STATUS_NO_MEMORY)
+	return (cairo_path_t*) &_cairo_path_nil;
+
     path = malloc (sizeof (cairo_path_t));
     if (path == NULL)
 	return (cairo_path_t*) &_cairo_path_nil;
@@ -372,6 +376,10 @@ _cairo_path_create_internal (cairo_path_fixed_t *path_fixed,
     path->num_data = _cairo_path_count (path, path_fixed,
 					_cairo_gstate_get_tolerance (gstate),
 					flatten);
+    if (path->num_data <= 0) {
+	free (path);
+	return (cairo_path_t*) &_cairo_path_nil;
+    }
 
     path->data = malloc (path->num_data * sizeof (cairo_path_data_t));
     if (path->data == NULL) {

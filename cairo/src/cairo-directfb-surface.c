@@ -1511,6 +1511,17 @@ _cairo_directfb_surface_show_glyphs ( void                 *abstract_dst,
 #endif /* DFB_SHOW_GLYPHS */
 
 
+static cairo_bool_t
+_cairo_directfb_surface_is_similar (void *surface_a,
+	                           void *surface_b,
+				   cairo_content_t content)
+{
+    cairo_directfb_surface_t *a = (cairo_directfb_surface_t *) surface_a;
+    cairo_directfb_surface_t *b = (cairo_directfb_surface_t *) surface_b;
+
+    return a->dfb == b->dfb;
+}
+
 static cairo_surface_backend_t cairo_directfb_surface_backend = {
          CAIRO_SURFACE_TYPE_DIRECTFB, /*type*/
         _cairo_directfb_surface_create_similar,/*create_similar*/
@@ -1560,7 +1571,9 @@ static cairo_surface_backend_t cairo_directfb_surface_backend = {
 #else
         NULL, /* show_glyphs */
 #endif
-        NULL /* snapshot */
+        NULL, /* snapshot */
+	_cairo_directfb_surface_is_similar,
+	NULL /* reset */
 };
 
 

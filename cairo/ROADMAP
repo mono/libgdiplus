@@ -22,7 +22,9 @@ cairo 1.4.4 (scheduled for 2007-04-09)
 cairo 1.4.x (not scheduled, may become part of 1.6)
 ===================================================
  • Fix all remaining XFAIL failures from the test suite
-	a8mask has a patch available on the list
+	a8mask has a patch available on the list, but it may need more
+	work.  Read the thread:
+	http://lists.freedesktop.org/archives/cairo/2007-February/009737.html
 
  • Implement CAIRO_EXTEND_PAD for surface patterns
 
@@ -32,9 +34,11 @@ cairo 1.4.x (not scheduled, may become part of 1.6)
    (very frequently duplicated bug reports and a regression since
    cairo 1.0.x apparently)
 
-	7735 cairo doesn't support 8-bit truecolor visuals
-	4945 Cairo doesn't support 8-bit pseudocolor visuals
-	9993 Cairo fails with 555 X server visual
+	 7735 cairo doesn't support 8-bit truecolor visuals
+	 4945 Cairo doesn't support 8-bit pseudocolor visuals
+	 9719 Cairo doesn't support 655 xlib format
+	 9993 Cairo fails with 555 X server visual
+	10461 Cairo doesn't support 565 xlib visual
 
  ✓ Discard trapezoids that lie outside the clip region (cworth)
 

@@ -5,7 +5,7 @@ dnl An odd micro number indicates in-progress development, (eg. from git/cvs)
 dnl An even micro number indicates a released version.
 m4_define(cairo_version_major, 1)
 m4_define(cairo_version_minor, 4)
-m4_define(cairo_version_micro, 6)
+m4_define(cairo_version_micro, 10)
 
 AC_INIT([cairo],
       cairo_version_major.cairo_version_minor.cairo_version_micro,
@@ -26,7 +26,7 @@ LT_CURRENT=13
 
 # Increment any time the source changes; set to
 # 0 if you increment CURRENT
-LT_REVISION=3
+LT_REVISION=5
 
 # Increment if any interfaces have been added; set to 0
 # if any interfaces have been removed. removal has
@@ -608,6 +608,9 @@ AC_CHECK_HEADERS([sched.h], [
   ])
 ])
 
+AC_CHECK_LIB(rt, sched_yield, [RT_LIBS=-lrt], [RT_LIBS=])
+CAIROPERF_LIBS=$RT_LIBS
+
 dnl ===========================================================================
 dnl Checks for misc headers
 AC_CHECK_HEADERS([libgen.h])
@@ -707,6 +710,7 @@ AC_SUBST(CAIRO_LDADD)
 AC_SUBST(CAIRO_LIBS)
 AC_SUBST(PIXMAN_CFLAGS)
 AC_SUBST(PIXMAN_LDADD)
+AC_SUBST(CAIROPERF_LIBS)
 
 dnl ===========================================================================
 dnl Check for gtk-doc and docbook

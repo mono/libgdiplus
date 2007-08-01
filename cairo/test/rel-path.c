@@ -1,6 +1,4 @@
 /*
- * $Id: rel-path.c,v 1.1 2005-05-02 19:36:20 keithp Exp $
- *
  * Copyright © 2005 Keith Packard
  *
  * Permission to use, copy, modify, distribute, and sell this software and its

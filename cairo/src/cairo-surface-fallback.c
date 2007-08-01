@@ -709,16 +709,16 @@ _cairo_surface_fallback_paint (cairo_surface_t	*surface,
     if (status)
 	return status;
 
-    _clip_and_composite_trapezoids (source,
-				    op,
-				    surface,
-				    &traps,
-				    surface->clip,
-				    CAIRO_ANTIALIAS_NONE);
+    status = _clip_and_composite_trapezoids (source,
+				             op,
+					     surface,
+					     &traps,
+					     surface->clip,
+					     CAIRO_ANTIALIAS_NONE);
 
     _cairo_traps_fini (&traps);
 
-    return CAIRO_STATUS_SUCCESS;
+    return status;
 }
 
 static cairo_status_t
@@ -843,16 +843,16 @@ _cairo_surface_fallback_stroke (cairo_surface_t		*surface,
 	return status;
     }
 
-    _clip_and_composite_trapezoids (source,
-				    op,
-				    surface,
-				    &traps,
-				    surface->clip,
-				    antialias);
+    status = _clip_and_composite_trapezoids (source,
+				             op,
+					     surface,
+					     &traps,
+					     surface->clip,
+					     antialias);
 
     _cairo_traps_fini (&traps);
 
-    return CAIRO_STATUS_SUCCESS;
+    return status;
 }
 
 cairo_status_t

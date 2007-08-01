@@ -23,23 +23,21 @@
 
 
 
-<link linkend="cairo-font-face-t">cairo_font_face_t</link>* <link linkend="cairo-win32-font-face-create-for-logfontw">cairo_win32_font_face_create_for_logfontw</link>
-                                            (<link linkend="LOGFONTW:CAPS">LOGFONTW</link> *logfont);
-<link linkend="cairo-font-face-t">cairo_font_face_t</link>* <link linkend="cairo-win32-font-face-create-for-hfont">cairo_win32_font_face_create_for_hfont</link>
-                                            (<link linkend="HFONT:CAPS">HFONT</link> font);
-<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-win32-scaled-font-select-font">cairo_win32_scaled_font_select_font</link>
-                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
-                                             <link linkend="HDC:CAPS">HDC</link> hdc);
-<link linkend="void">void</link>        <link linkend="cairo-win32-scaled-font-done-font">cairo_win32_scaled_font_done_font</link>
-                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);
-<link linkend="double">double</link>      <link linkend="cairo-win32-scaled-font-get-metrics-factor">cairo_win32_scaled_font_get_metrics_factor</link>
-                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);
-<link linkend="void">void</link>        <link linkend="cairo-win32-scaled-font-get-logical-to-device">cairo_win32_scaled_font_get_logical_to_device</link>
-                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
-                                             <link linkend="cairo-matrix-t">cairo_matrix_t</link> *logical_to_device);
-<link linkend="void">void</link>        <link linkend="cairo-win32-scaled-font-get-device-to-logical">cairo_win32_scaled_font_get_device_to_logical</link>
-                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
-                                             <link linkend="cairo-matrix-t">cairo_matrix_t</link> *device_to_logical);
+<link linkend="cairo-font-face-t">cairo_font_face_t</link>*  <link linkend="cairo-win32-font-face-create-for-logfontw">cairo_win32_font_face_create_for_logfontw</link>
+                                                        (<link linkend="LOGFONTW:CAPS">LOGFONTW</link> *logfont);
+<link linkend="cairo-font-face-t">cairo_font_face_t</link>*  <link linkend="cairo-win32-font-face-create-for-hfont">cairo_win32_font_face_create_for_hfont</link>
+                                                        (<link linkend="HFONT:CAPS">HFONT</link> font);
+<link linkend="cairo-status-t">cairo_status_t</link>      <link linkend="cairo-win32-scaled-font-select-font">cairo_win32_scaled_font_select_font</link> (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                                         <link linkend="HDC:CAPS">HDC</link> hdc);
+<link linkend="void">void</link>                <link linkend="cairo-win32-scaled-font-done-font">cairo_win32_scaled_font_done_font</link>   (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);
+<link linkend="double">double</link>              <link linkend="cairo-win32-scaled-font-get-metrics-factor">cairo_win32_scaled_font_get_metrics_factor</link>
+                                                        (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);
+<link linkend="void">void</link>                <link linkend="cairo-win32-scaled-font-get-logical-to-device">cairo_win32_scaled_font_get_logical_to_device</link>
+                                                        (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                                         <link linkend="cairo-matrix-t">cairo_matrix_t</link> *logical_to_device);
+<link linkend="void">void</link>                <link linkend="cairo-win32-scaled-font-get-device-to-logical">cairo_win32_scaled_font_get_device_to_logical</link>
+                                                        (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                                         <link linkend="cairo-matrix-t">cairo_matrix_t</link> *device_to_logical);
 </synopsis>
 </refsynopsisdiv>
 
@@ -62,8 +60,8 @@
 <title role="details.title">Details</title>
 <refsect2>
 <title><anchor id="cairo-win32-font-face-create-for-logfontw" role="function"/>cairo_win32_font_face_create_for_logfontw ()</title>
-<indexterm><primary>cairo_win32_font_face_create_for_logfontw</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>* cairo_win32_font_face_create_for_logfontw
-                                            (<link linkend="LOGFONTW:CAPS">LOGFONTW</link> *logfont);</programlisting>
+<indexterm><primary>cairo_win32_font_face_create_for_logfontw</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>*  cairo_win32_font_face_create_for_logfontw
+                                                        (<link linkend="LOGFONTW:CAPS">LOGFONTW</link> *logfont);</programlisting>
 <para>
 Creates a new font for the Win32 font backend based on a
 <link linkend="LOGFONT:CAPS"><type>LOGFONT</type></link>. This font can then be used with
@@ -85,8 +83,8 @@ and can be used with functions such as <link linkend="cairo-win32-scaled-font-se
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-win32-font-face-create-for-hfont" role="function"/>cairo_win32_font_face_create_for_hfont ()</title>
-<indexterm><primary>cairo_win32_font_face_create_for_hfont</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>* cairo_win32_font_face_create_for_hfont
-                                            (<link linkend="HFONT:CAPS">HFONT</link> font);</programlisting>
+<indexterm><primary>cairo_win32_font_face_create_for_hfont</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>*  cairo_win32_font_face_create_for_hfont
+                                                        (<link linkend="HFONT:CAPS">HFONT</link> font);</programlisting>
 <para>
 Creates a new font for the Win32 font backend based on a
 <link linkend="HFONT:CAPS"><type>HFONT</type></link>. This font can then be used with
@@ -106,9 +104,8 @@ and can be used with functions such as <link linkend="cairo-win32-scaled-font-se
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-win32-scaled-font-select-font" role="function"/>cairo_win32_scaled_font_select_font ()</title>
-<indexterm><primary>cairo_win32_scaled_font_select_font</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_win32_scaled_font_select_font
-                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
-                                             <link linkend="HDC:CAPS">HDC</link> hdc);</programlisting>
+<indexterm><primary>cairo_win32_scaled_font_select_font</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      cairo_win32_scaled_font_select_font (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                                         <link linkend="HDC:CAPS">HDC</link> hdc);</programlisting>
 <para>
 Selects the font into the given device context and changes the
 map mode and world transformation of the device context to match
@@ -142,8 +139,7 @@ the use of this function to preserve the original graphics state.</para>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-win32-scaled-font-done-font" role="function"/>cairo_win32_scaled_font_done_font ()</title>
-<indexterm><primary>cairo_win32_scaled_font_done_font</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_win32_scaled_font_done_font
-                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
+<indexterm><primary>cairo_win32_scaled_font_done_font</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_win32_scaled_font_done_font   (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
 <para>
 Releases any resources allocated by <link linkend="cairo-win32-scaled-font-select-font"><function>cairo_win32_scaled_font_select_font()</function></link></para>
 <para>
@@ -155,8 +151,8 @@ Releases any resources allocated by <link linkend="cairo-win32-scaled-font-selec
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-win32-scaled-font-get-metrics-factor" role="function"/>cairo_win32_scaled_font_get_metrics_factor ()</title>
-<indexterm><primary>cairo_win32_scaled_font_get_metrics_factor</primary></indexterm><programlisting><link linkend="double">double</link>      cairo_win32_scaled_font_get_metrics_factor
-                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
+<indexterm><primary>cairo_win32_scaled_font_get_metrics_factor</primary></indexterm><programlisting><link linkend="double">double</link>              cairo_win32_scaled_font_get_metrics_factor
+                                                        (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font);</programlisting>
 <para>
 Gets a scale factor between logical coordinates in the coordinate
 space used by <link linkend="cairo-win32-scaled-font-select-font"><function>cairo_win32_scaled_font_select_font()</function></link> (that is, the
@@ -174,9 +170,9 @@ font space coordinates.</para>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-win32-scaled-font-get-logical-to-device" role="function" condition="since:1.4"/>cairo_win32_scaled_font_get_logical_to_device ()</title>
-<indexterm role="1.4"><primary>cairo_win32_scaled_font_get_logical_to_device</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_win32_scaled_font_get_logical_to_device
-                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
-                                             <link linkend="cairo-matrix-t">cairo_matrix_t</link> *logical_to_device);</programlisting>
+<indexterm role="1.4"><primary>cairo_win32_scaled_font_get_logical_to_device</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_win32_scaled_font_get_logical_to_device
+                                                        (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                                         <link linkend="cairo-matrix-t">cairo_matrix_t</link> *logical_to_device);</programlisting>
 <para>
 Gets the transformation mapping the logical space used by <parameter>scaled_font</parameter>
 to device space.</para>
@@ -189,13 +185,13 @@ to device space.</para>
 <varlistentry><term><parameter>logical_to_device</parameter>&nbsp;:</term>
 <listitem><simpara> matrix to return
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.4
+</variablelist><para role="since">Since  1.4
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-win32-scaled-font-get-device-to-logical" role="function" condition="since:1.4"/>cairo_win32_scaled_font_get_device_to_logical ()</title>
-<indexterm role="1.4"><primary>cairo_win32_scaled_font_get_device_to_logical</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_win32_scaled_font_get_device_to_logical
-                                            (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
-                                             <link linkend="cairo-matrix-t">cairo_matrix_t</link> *device_to_logical);</programlisting>
+<indexterm role="1.4"><primary>cairo_win32_scaled_font_get_device_to_logical</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_win32_scaled_font_get_device_to_logical
+                                                        (<link linkend="cairo-scaled-font-t">cairo_scaled_font_t</link> *scaled_font,
+                                                         <link linkend="cairo-matrix-t">cairo_matrix_t</link> *device_to_logical);</programlisting>
 <para>
 Gets the transformation mapping device space to the logical space
 used by <parameter>scaled_font</parameter>.</para>
@@ -208,7 +204,7 @@ used by <parameter>scaled_font</parameter>.</para>
 <varlistentry><term><parameter>device_to_logical</parameter>&nbsp;:</term>
 <listitem><simpara> matrix to return
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.4
+</variablelist><para role="since">Since  1.4
 </para></refsect2>
 
 </refsect1>

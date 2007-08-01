@@ -1247,7 +1247,7 @@ _cairo_pdf_surface_emit_stitched_colorgradient (cairo_pdf_surface_t    *surface,
 
 #define COLOR_STOP_EPSILON 1e-6
 
-static  cairo_status_t
+static cairo_status_t
 _cairo_pdf_surface_emit_pattern_stops (cairo_pdf_surface_t      *surface,
                                        cairo_gradient_pattern_t *pattern,
                                        cairo_pdf_resource_t     *color_function,
@@ -1263,9 +1263,8 @@ _cairo_pdf_surface_emit_pattern_stops (cairo_pdf_surface_t      *surface,
     alpha_function->id = 0;
 
     allstops = malloc ((pattern->n_stops + 2) * sizeof (cairo_pdf_color_stop_t));
-    if (allstops == NULL) {
+    if (allstops == NULL)
 	return CAIRO_STATUS_NO_MEMORY;
-    }
 
     stops = &allstops[1];
     n_stops = pattern->n_stops;
@@ -1295,7 +1294,7 @@ _cairo_pdf_surface_emit_pattern_stops (cairo_pdf_surface_t      *surface,
 		    sizeof (cairo_pdf_color_stop_t));
 	    n_stops++;
     }
-    stops[n_stops].offset = 1.0;
+    stops[n_stops-1].offset = 1.0;
 
     if (n_stops == 2) {
         /* no need for stitched function */
@@ -1304,7 +1303,7 @@ _cairo_pdf_surface_emit_pattern_stops (cairo_pdf_surface_t      *surface,
                                                              &stops[1],
                                                              color_function);
         if (status)
-            return status;
+            goto BAIL;
 
         if (emit_alpha) {
             status = cairo_pdf_surface_emit_alpha_linear_function (surface,
@@ -1312,7 +1311,7 @@ _cairo_pdf_surface_emit_pattern_stops (cairo_pdf_surface_t      *surface,
                                                                    &stops[1],
                                                                    alpha_function);
             if (status)
-                return status;
+                goto BAIL;
         }
     } else {
         /* multiple stops: stitch. XXX possible optimization: regulary spaced
@@ -1323,7 +1322,7 @@ _cairo_pdf_surface_emit_pattern_stops (cairo_pdf_surface_t      *surface,
                                                                  FALSE,
                                                                  color_function);
         if (status)
-            return status;
+            goto BAIL;
 
         if (emit_alpha) {
             status = _cairo_pdf_surface_emit_stitched_colorgradient (surface,
@@ -1332,12 +1331,13 @@ _cairo_pdf_surface_emit_pattern_stops (cairo_pdf_surface_t      *surface,
                                                                      TRUE,
                                                                      alpha_function);
             if (status)
-                return status;
+                goto BAIL;
         }
     }
-    free (allstops);
 
-    return CAIRO_STATUS_SUCCESS;
+BAIL:
+    free (allstops);
+    return status;
 }
 
 static cairo_pdf_resource_t
@@ -3637,6 +3637,9 @@ static const cairo_surface_backend_t cairo_pdf_surface_backend = {
     _cairo_pdf_surface_fill,
     _cairo_pdf_surface_show_glyphs,
     NULL, /* snapshot */
+
+    NULL, /* is_compatible */
+    NULL, /* reset */
 };
 
 static const cairo_paginated_surface_backend_t cairo_pdf_surface_paginated_backend = {

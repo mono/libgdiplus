@@ -197,7 +197,7 @@ slim_hidden_def(cairo_matrix_init_scale);
  * @sx: scale factor in the X direction
  * @sy: scale factor in the Y direction
  *
- * Applies scaling by @tx, @ty to the transformation in @matrix. The
+ * Applies scaling by @sx, @sy to the transformation in @matrix. The
  * effect of the new transformation is to first scale the coordinates
  * by @sx and @sy, then apply the original transformation to the coordinates.
  **/

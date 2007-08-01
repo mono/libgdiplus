@@ -76,6 +76,8 @@ static pixman_region16_data_t  pixman_brokendata = {0, 0};
 
 static pixman_region_status_t
 pixman_break (pixman_region16_t *pReg);
+static pixman_region_status_t
+pixman_rect_alloc(pixman_region16_t * region, int n);
 
 /*
  * The functions in this file implement the Region abstraction used extensively
@@ -309,6 +311,33 @@ pixman_region_init_with_extents(pixman_region16_t *region, pixman_box16_t *exten
 {
     region->extents = *extents;
     region->data = NULL;
+}
+
+pixman_region_status_t
+pixman_region_init_rects(pixman_region16_t *region, pixman_box16_t *boxes, int count)
+{
+    int overlap;
+
+    if (count == 1) {
+	pixman_region_init_rect(region,
+				boxes[0].x1,
+				boxes[0].y1,
+				boxes[0].x2 - boxes[0].x1,
+				boxes[0].y2 - boxes[0].y1);
+	return PIXMAN_REGION_STATUS_SUCCESS;
+    }
+
+    pixman_region_init(region);
+    if (!pixman_rect_alloc(region, count))
+	return PIXMAN_REGION_STATUS_FAILURE;
+
+    /* Copy in the rects */
+    memcpy (PIXREGION_RECTS(region), boxes, sizeof(pixman_box16_t) * count);
+    region->data->numRects = count;
+
+    /* Validate */
+    region->extents.x1 = region->extents.x2 = 0;
+    return pixman_region_validate (region, &overlap);
 }
 
 void
@@ -553,7 +582,7 @@ pixman_region_appendNonO (
 {									\
     int newRects;							\
     if ((newRects = rEnd - r)) {					\
-	RECTALLOC(newReg, newRects);					\
+	RECTALLOC_BAIL(newReg, newRects, bail);				\
 	memmove((char *)PIXREGION_TOP(newReg),(char *)r, 			\
               newRects * sizeof(pixman_box16_t));				\
 	newReg->data->numRects += newRects;				\
@@ -670,9 +699,13 @@ pixman_op(
 	newReg->data = &pixman_region_emptyData;
     else if (newReg->data->size)
 	newReg->data->numRects = 0;
-    if (newSize > newReg->data->size)
-	if (!pixman_rect_alloc(newReg, newSize))
+    if (newSize > newReg->data->size) {
+	if (!pixman_rect_alloc(newReg, newSize)) {
+	    if (oldData)
+		free (oldData);
 	    return PIXMAN_REGION_STATUS_FAILURE;
+	}
+    }
 
     /*
      * Initialize ybot.
@@ -729,7 +762,8 @@ pixman_op(
 		bot = MIN(r1->y2, r2y1);
 		if (top != bot)	{
 		    curBand = newReg->data->numRects;
-		    pixman_region_appendNonO(newReg, r1, r1BandEnd, top, bot);
+		    if (!pixman_region_appendNonO(newReg, r1, r1BandEnd, top, bot))
+			goto bail;
 		    Coalesce(newReg, prevBand, curBand);
 		}
 	    }
@@ -740,7 +774,8 @@ pixman_op(
 		bot = MIN(r2->y2, r1y1);
 		if (top != bot) {
 		    curBand = newReg->data->numRects;
-		    pixman_region_appendNonO(newReg, r2, r2BandEnd, top, bot);
+		    if (!pixman_region_appendNonO(newReg, r2, r2BandEnd, top, bot))
+			goto bail;
 		    Coalesce(newReg, prevBand, curBand);
 		}
 	    }
@@ -756,8 +791,9 @@ pixman_op(
 	ybot = MIN(r1->y2, r2->y2);
 	if (ybot > ytop) {
 	    curBand = newReg->data->numRects;
-	    (* overlapFunc)(newReg, r1, r1BandEnd, r2, r2BandEnd, ytop, ybot,
-			    pOverlap);
+	    if (!(* overlapFunc)(newReg, r1, r1BandEnd, r2, r2BandEnd, ytop, ybot,
+			    pOverlap))
+		goto bail;
 	    Coalesce(newReg, prevBand, curBand);
 	}
 
@@ -782,7 +818,8 @@ pixman_op(
 	/* Do first nonOverlap1Func call, which may be able to coalesce */
 	FindBand(r1, r1BandEnd, r1End, r1y1);
 	curBand = newReg->data->numRects;
-	pixman_region_appendNonO(newReg, r1, r1BandEnd, MAX(r1y1, ybot), r1->y2);
+	if (!pixman_region_appendNonO(newReg, r1, r1BandEnd, MAX(r1y1, ybot), r1->y2))
+	    goto bail;
 	Coalesce(newReg, prevBand, curBand);
 	/* Just append the rest of the boxes  */
 	AppendRegions(newReg, r1BandEnd, r1End);
@@ -791,7 +828,8 @@ pixman_op(
 	/* Do first nonOverlap2Func call, which may be able to coalesce */
 	FindBand(r2, r2BandEnd, r2End, r2y1);
 	curBand = newReg->data->numRects;
-	pixman_region_appendNonO(newReg, r2, r2BandEnd, MAX(r2y1, ybot), r2->y2);
+	if (!pixman_region_appendNonO(newReg, r2, r2BandEnd, MAX(r2y1, ybot), r2->y2))
+	    goto bail;
 	Coalesce(newReg, prevBand, curBand);
 	/* Append rest of boxes */
 	AppendRegions(newReg, r2BandEnd, r2End);
@@ -817,6 +855,11 @@ pixman_op(
     }
 
     return PIXMAN_REGION_STATUS_SUCCESS;
+
+bail:
+    if (oldData)
+	free(oldData);
+    return PIXMAN_REGION_STATUS_FAILURE;
 }
 
 /*-

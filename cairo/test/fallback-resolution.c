@@ -88,6 +88,7 @@ main (void)
     cairo_surface_t *surface = NULL;
     cairo_t *cr;
     cairo_status_t status;
+    cairo_test_status_t ret = CAIRO_TEST_SUCCESS;
     double ppi[] = { 600., 300., 150., 75., 37.5 };
     backend_t backend;
     int page, num_pages;
@@ -138,7 +139,8 @@ main (void)
 	    cairo_test_log ("Failed to create pdf surface for file %s: %s\n",
 			    backend_filename[backend],
 			    cairo_status_to_string (status));
-	    return CAIRO_TEST_FAILURE;
+	    ret = CAIRO_TEST_FAILURE;
+	    break;
 	}
 
 	printf ("fallback-resolution: Please check %s to ensure it looks correct.\n",
@@ -147,5 +149,5 @@ main (void)
 
     cairo_test_fini ();
 
-    return CAIRO_TEST_SUCCESS;
+    return ret;
 }

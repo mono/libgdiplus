@@ -113,8 +113,12 @@ slim_hidden_def (cairo_font_options_create);
 cairo_font_options_t *
 cairo_font_options_copy (const cairo_font_options_t *original)
 {
-    cairo_font_options_t *options = malloc (sizeof (cairo_font_options_t));
+    cairo_font_options_t *options;
 
+    if (original == &_cairo_font_options_nil)
+	return (cairo_font_options_t *)&_cairo_font_options_nil;
+
+    options = malloc (sizeof (cairo_font_options_t));
     if (!options)
 	return (cairo_font_options_t *)&_cairo_font_options_nil;
 
@@ -157,6 +161,7 @@ cairo_font_options_status (cairo_font_options_t *options)
     else
 	return CAIRO_STATUS_SUCCESS;
 }
+slim_hidden_def (cairo_font_options_status);
 
 /**
  * cairo_font_options_merge:

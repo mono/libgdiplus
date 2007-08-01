@@ -23,9 +23,9 @@
 
 
 
-typedef     <link linkend="cairo-bool-t">cairo_bool_t</link>;
-            <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link>;
-<link linkend="void">void</link>        (<link linkend="cairo-destroy-func-t">*cairo_destroy_func_t</link>)         (<link linkend="void">void</link> *data);
+typedef             <link linkend="cairo-bool-t">cairo_bool_t</link>;
+                    <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link>;
+<link linkend="void">void</link>                (<link linkend="cairo-destroy-func-t">*cairo_destroy_func_t</link>)             (<link linkend="void">void</link> *data);
 </synopsis>
 </refsynopsisdiv>
 
@@ -88,7 +88,7 @@ would just use the address of a static <link linkend="cairo-data-key-t"><type>ca
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-destroy-func-t" role="function"/>cairo_destroy_func_t ()</title>
-<indexterm><primary>cairo_destroy_func_t</primary></indexterm><programlisting><link linkend="void">void</link>        (*cairo_destroy_func_t)         (<link linkend="void">void</link> *data);</programlisting>
+<indexterm><primary>cairo_destroy_func_t</primary></indexterm><programlisting><link linkend="void">void</link>                (*cairo_destroy_func_t)             (<link linkend="void">void</link> *data);</programlisting>
 <para>
 <link linkend="cairo-destroy-func-t"><type>cairo_destroy_func_t</type></link> the type of function which is called when a
 data element is destroyed. It is passed the pointer to the data

@@ -79,6 +79,7 @@ struct _cairo_xlib_surface {
 
     Picture dst_picture, src_picture;
 
+    unsigned int clip_dirty;
     cairo_bool_t have_clip_rects;
     XRectangle embedded_clip_rects[4];
     XRectangle *clip_rects;
@@ -88,6 +89,12 @@ struct _cairo_xlib_surface {
     cairo_filter_t filter;
     int repeat;
     XTransform xtransform;
+};
+
+enum {
+    CAIRO_XLIB_SURFACE_CLIP_DIRTY_GC      = 0x01,
+    CAIRO_XLIB_SURFACE_CLIP_DIRTY_PICTURE = 0x02,
+    CAIRO_XLIB_SURFACE_CLIP_DIRTY_ALL     = 0x03
 };
 
 #endif /* CAIRO_XLIB_SURFACE_PRIVATE_H */

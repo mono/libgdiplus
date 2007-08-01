@@ -93,6 +93,7 @@ source-clip-scale		\
 source-surface-scale-paint	\
 surface-finish-twice		\
 surface-pattern			\
+surface-pattern-big-scale-down  \
 surface-pattern-scale-down	\
 surface-pattern-scale-up	\
 text-antialias-gray		\
@@ -440,6 +441,7 @@ filter-nearest-offset		\
 long-lines			\
 self-intersecting		\
 surface-pattern			\
+surface-pattern-big-scale-down  \
 surface-pattern-scale-down	\
 surface-pattern-scale-up
 
@@ -454,7 +456,7 @@ ps-features			\
 multi-page			\
 fallback-resolution
 
-SUPPORT_PROGS =
+check_PROGRAMS =
 EXTRA_PROGRAMS =
 
 # We're using _GNU_SOURCE to get the prototype for asprintf. This may
@@ -499,10 +501,10 @@ if HAVE_PTHREAD
 LDADD += -lpthread
 endif
 
-SUPPORT_PROGS += imagediff$(EXEEXT) png-flatten$(EXEEXT)
+check_PROGRAMS += imagediff png-flatten
 
 if CAIRO_CAN_TEST_PDF_SURFACE
-SUPPORT_PROGS += pdf2png$(EXEEXT)
+check_PROGRAMS += pdf2png
 pdf2png_CFLAGS = $(POPPLER_CFLAGS)
 # add LDADD, so poppler uses "our" cairo
 pdf2png_LDADD  = $(LDADD) $(POPPLER_LIBS)
@@ -515,7 +517,7 @@ endif
 endif
 
 if CAIRO_CAN_TEST_SVG_SURFACE
-SUPPORT_PROGS += svg2png$(EXEEXT)
+check_PROGRAMS += svg2png
 svg2png_CFLAGS = $(LIBRSVG_CFLAGS)
 # add LDADD, so librsvg uses "our" cairo
 svg2png_LDADD  = $(LDADD) $(LIBRSVG_LIBS)
@@ -527,7 +529,7 @@ svg2pdf_LDADD  = $(LDADD) $(LIBRSVG_LIBS)
 endif
 endif
 
-EXTRA_PROGRAMS += $(TESTS) $(DISABLED_TESTS) $(SUPPORT_PROGS)
+EXTRA_PROGRAMS += $(TESTS) $(DISABLED_TESTS)
 
 # Do a funny transition of CAIRO_TEST_TARGET through TARGETS such that
 # one can limit tested targets both through CAIRO_TEST_TARGET env var
@@ -598,9 +600,7 @@ html:
 rehtml:
 	@$(MAKE) $(AM_MAKEFLAGS) TESTS="$(FAILED_TESTS)" html
 
-$(TESTS): $(SUPPORT_PROGS)
-
-%.log: %
+%.log: % $(check_PROGRAMS)
 	-./$<
 
 NOLOG_TESTS_LOG = $(NOLOG_TESTS:=.log)

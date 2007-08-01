@@ -38,6 +38,7 @@ Changes that add new API (API changes/removals will not be considered)
 	http://lists.freedesktop.org/archives/cairo/2007-April/010363.html
 
  • cairo_copy_clip() and cairo_copy_clip_flat()
+	http://lists.freedesktop.org/archives/cairo/2007-April/010520.html
 
 Performance improvements
 ========================
@@ -95,6 +96,8 @@ Other fixes
 	This is work to be done in the cairo-analysis-surface layer
 	and will benefit ps, pdf, svg, and any other
 	analysis-surface-using backends.
+	Adrian has started work on this:
+	http://lists.freedesktop.org/archives/cairo/2007-June/010774.html
 
  • Pen matrix locking.  Carl has written an excellent summary but
    unfortunately that was not sent to the mailing list.  Ask him.

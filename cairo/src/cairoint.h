@@ -310,33 +310,43 @@ typedef enum cairo_internal_surface_type {
     CAIRO_INTERNAL_SURFACE_TYPE_TEST_PAGINATED
 } cairo_internal_surface_type_t;
 
-/* For xlib fallbacks, we use image surfaces with formats that match
- * the visual of the X server. There are a couple of common X server
- * visuals for which we do not have corresponding public
- * cairo_format_t values, since we do not plan on always guaranteeing
- * that cairo will be able to draw to these formats.
+/* For xlib fallbacks, we need image surfaces with formats that match
+ * the visual of the X server. There are a few common X server visuals
+ * for which we do not have corresponding public cairo_format_t
+ * values, since we do not plan on always guaranteeing that cairo will
+ * be able to draw to these formats.
  *
- * So, currently pixman does provide support for these formats. It's
- * possible that in the future we will change the implementation to
- * instead convert to a supported format. This would allow us to be
- * able to simplify pixman to handle fewer formats.
+ * Currently pixman does advertise support for these formats, (with an
+ * interface to construct a format from a set of masks---but pixman
+ * may not actually have code to support any arbitrary set of
+ * maskes). So we lodge a cairo_internal_format_t in the internal
+ * cairo image surface to indicate what's going on. The value isn't
+ * actually used for much, since it is the set of pixman masks that
+ * control the rendering.
  *
- * The RGB16_565 case could probably have been handled this same way,
- * (and in fact we could still change it to do so, and maybe just
- * leave the value in the enum but deprecate it entirely). We can't
- * drop the value since it did appear in cairo 1.2.0 so it might
- * appear in code, (particularly bindings which are thorough about
- * things like that). But we did neglect to update CAIRO_FORMAT_VALID
- * for 1.2 so we know that no functional code is out there relying on
- * being able to create an image surface with a 565 format, (which is
- * good since things like write_to_png are missing support for the 565
- * format.
+ * But even though the value isn't used, it's still useful to maintain
+ * this list, as it indicates to use visual formats that have been
+ * encountered in practice. We can take advantage of this for future
+ * rewrites of pixman that might support a limited set of formats
+ * instead of general mask-based rendering, (or at least optimized
+ * rendering for a limited set of formats).
+ *
+ * Another approach that could be taken here is to convert the data at
+ * the time of the fallback to a supported format. This is similar to
+ * what needs to be done to support PseudoColor visuals, for example.
  *
  * NOTE: The implementation of CAIRO_FORMAT_VALID *must* *not*
- * consider these internal formats as valid. */
+ * consider these internal formats as valid.
+ *
+ * NOTE: When adding a value to this list, be sure to add it to
+ * _cairo_format_from_pixman_format, (which is probably the assert
+ * failure you're wanting to eliminate), but also don't forget to add
+ * it to cairo_content_from_format.
+ */
 typedef enum cairo_internal_format {
     CAIRO_INTERNAL_FORMAT_ABGR32 = 0x1000,
-    CAIRO_INTERNAL_FORMAT_BGR24
+    CAIRO_INTERNAL_FORMAT_BGR24,
+    CAIRO_INTERNAL_FORMAT_RGB16_565
 } cairo_internal_format_t;
 
 typedef enum cairo_direction {
@@ -513,12 +523,6 @@ _cairo_font_reset_static_data (void);
 
 cairo_private void
 _cairo_ft_font_reset_static_data (void);
-
-cairo_private void
-_cairo_xlib_surface_reset_static_data (void);
-
-cairo_private void
-_cairo_xlib_screen_reset_static_data (void);
 
 /* the font backend interface */
 
@@ -898,6 +902,14 @@ struct _cairo_surface_backend {
 
     cairo_surface_t *
     (*snapshot)			(void			*surface);
+
+    cairo_bool_t
+    (*is_similar)		(void			*surface_a,
+	                         void			*surface_b,
+				 cairo_content_t         content);
+
+    cairo_warn cairo_status_t
+    (*reset)			(void			*surface);
 };
 
 typedef struct _cairo_format_masks {
@@ -1346,7 +1358,7 @@ cairo_private void
 _cairo_gstate_get_font_options (cairo_gstate_t       *gstate,
 				cairo_font_options_t *options);
 
-cairo_private cairo_status_t
+cairo_private void
 _cairo_gstate_set_font_options (cairo_gstate_t	           *gstate,
 				const cairo_font_options_t *options);
 
@@ -1876,6 +1888,14 @@ _cairo_surface_clone_similar (cairo_surface_t  *surface,
 cairo_private cairo_surface_t *
 _cairo_surface_snapshot (cairo_surface_t *surface);
 
+cairo_private cairo_bool_t
+_cairo_surface_is_similar (cairo_surface_t *surface_a,
+	                   cairo_surface_t *surface_b,
+			   cairo_content_t  content);
+
+cairo_private cairo_status_t
+_cairo_surface_reset (cairo_surface_t *surface);
+
 cairo_private unsigned int
 _cairo_surface_get_current_clip_serial (cairo_surface_t *surface);
 
@@ -2246,7 +2266,7 @@ _cairo_slope_counter_clockwise (cairo_slope_t *a, cairo_slope_t *b);
 
 /* cairo_pattern.c */
 
-cairo_private void
+cairo_private cairo_status_t
 _cairo_pattern_init_copy (cairo_pattern_t	*pattern,
 			  const cairo_pattern_t *other);
 
@@ -2370,6 +2390,7 @@ slim_hidden_proto (cairo_font_options_set_antialias);
 slim_hidden_proto (cairo_font_options_set_hint_metrics);
 slim_hidden_proto (cairo_font_options_set_hint_style);
 slim_hidden_proto (cairo_font_options_set_subpixel_order);
+slim_hidden_proto (cairo_font_options_status);
 slim_hidden_proto (cairo_get_current_point);
 slim_hidden_proto (cairo_get_matrix);
 slim_hidden_proto (cairo_get_tolerance);

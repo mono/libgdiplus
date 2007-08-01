@@ -23,98 +23,88 @@
 
 
 
-typedef     <link linkend="cairo-pattern-t">cairo_pattern_t</link>;
-<link linkend="void">void</link>        <link linkend="cairo-pattern-add-color-stop-rgb">cairo_pattern_add_color_stop_rgb</link>
-                                            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="double">double</link> offset,
-                                             <link linkend="double">double</link> red,
-                                             <link linkend="double">double</link> green,
-                                             <link linkend="double">double</link> blue);
-<link linkend="void">void</link>        <link linkend="cairo-pattern-add-color-stop-rgba">cairo_pattern_add_color_stop_rgba</link>
-                                            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="double">double</link> offset,
-                                             <link linkend="double">double</link> red,
-                                             <link linkend="double">double</link> green,
-                                             <link linkend="double">double</link> blue,
-                                             <link linkend="double">double</link> alpha);
-<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-pattern-get-color-stop-count">cairo_pattern_get_color_stop_count</link>
-                                            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="int">int</link> *count);
-<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-pattern-get-color-stop-rgba">cairo_pattern_get_color_stop_rgba</link>
-                                            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="int">int</link> index,
-                                             <link linkend="double">double</link> *offset,
-                                             <link linkend="double">double</link> *red,
-                                             <link linkend="double">double</link> *green,
-                                             <link linkend="double">double</link> *blue,
-                                             <link linkend="double">double</link> *alpha);
-<link linkend="cairo-pattern-t">cairo_pattern_t</link>* <link linkend="cairo-pattern-create-rgb">cairo_pattern_create_rgb</link>   (<link linkend="double">double</link> red,
-                                             <link linkend="double">double</link> green,
-                                             <link linkend="double">double</link> blue);
-<link linkend="cairo-pattern-t">cairo_pattern_t</link>* <link linkend="cairo-pattern-create-rgba">cairo_pattern_create_rgba</link>  (<link linkend="double">double</link> red,
-                                             <link linkend="double">double</link> green,
-                                             <link linkend="double">double</link> blue,
-                                             <link linkend="double">double</link> alpha);
-<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-pattern-get-rgba">cairo_pattern_get_rgba</link>       (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="double">double</link> *red,
-                                             <link linkend="double">double</link> *green,
-                                             <link linkend="double">double</link> *blue,
-                                             <link linkend="double">double</link> *alpha);
-<link linkend="cairo-pattern-t">cairo_pattern_t</link>* <link linkend="cairo-pattern-create-for-surface">cairo_pattern_create_for_surface</link>
-                                            (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);
-<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-pattern-get-surface">cairo_pattern_get_surface</link>    (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="cairo-surface-t">cairo_surface_t</link> **surface);
-<link linkend="cairo-pattern-t">cairo_pattern_t</link>* <link linkend="cairo-pattern-create-linear">cairo_pattern_create_linear</link>
-                                            (<link linkend="double">double</link> x0,
-                                             <link linkend="double">double</link> y0,
-                                             <link linkend="double">double</link> x1,
-                                             <link linkend="double">double</link> y1);
-<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-pattern-get-linear-points">cairo_pattern_get_linear_points</link>
-                                            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="double">double</link> *x0,
-                                             <link linkend="double">double</link> *y0,
-                                             <link linkend="double">double</link> *x1,
-                                             <link linkend="double">double</link> *y1);
-<link linkend="cairo-pattern-t">cairo_pattern_t</link>* <link linkend="cairo-pattern-create-radial">cairo_pattern_create_radial</link>
-                                            (<link linkend="double">double</link> cx0,
-                                             <link linkend="double">double</link> cy0,
-                                             <link linkend="double">double</link> radius0,
-                                             <link linkend="double">double</link> cx1,
-                                             <link linkend="double">double</link> cy1,
-                                             <link linkend="double">double</link> radius1);
-<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-pattern-get-radial-circles">cairo_pattern_get_radial_circles</link>
-                                            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="double">double</link> *x0,
-                                             <link linkend="double">double</link> *y0,
-                                             <link linkend="double">double</link> *r0,
-                                             <link linkend="double">double</link> *x1,
-                                             <link linkend="double">double</link> *y1,
-                                             <link linkend="double">double</link> *r1);
-<link linkend="cairo-pattern-t">cairo_pattern_t</link>* <link linkend="cairo-pattern-reference">cairo_pattern_reference</link>    (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);
-<link linkend="void">void</link>        <link linkend="cairo-pattern-destroy">cairo_pattern_destroy</link>           (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);
-<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-pattern-status">cairo_pattern_status</link>         (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);
-enum        <link linkend="cairo-extend-t">cairo_extend_t</link>;
-<link linkend="void">void</link>        <link linkend="cairo-pattern-set-extend">cairo_pattern_set_extend</link>        (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="cairo-extend-t">cairo_extend_t</link> extend);
-<link linkend="cairo-extend-t">cairo_extend_t</link> <link linkend="cairo-pattern-get-extend">cairo_pattern_get_extend</link>     (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);
-enum        <link linkend="cairo-filter-t">cairo_filter_t</link>;
-<link linkend="void">void</link>        <link linkend="cairo-pattern-set-filter">cairo_pattern_set_filter</link>        (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="cairo-filter-t">cairo_filter_t</link> filter);
-<link linkend="cairo-filter-t">cairo_filter_t</link> <link linkend="cairo-pattern-get-filter">cairo_pattern_get_filter</link>     (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);
-<link linkend="void">void</link>        <link linkend="cairo-pattern-set-matrix">cairo_pattern_set_matrix</link>        (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);
-<link linkend="void">void</link>        <link linkend="cairo-pattern-get-matrix">cairo_pattern_get_matrix</link>        (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);
-enum        <link linkend="cairo-pattern-type-t">cairo_pattern_type_t</link>;
-<link linkend="cairo-pattern-type-t">cairo_pattern_type_t</link> <link linkend="cairo-pattern-get-type">cairo_pattern_get_type</link> (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);
-unsigned <link linkend="int">int</link> <link linkend="cairo-pattern-get-reference-count">cairo_pattern_get_reference_count</link>
-                                            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);
-<link linkend="cairo-status-t">cairo_status_t</link> <link linkend="cairo-pattern-set-user-data">cairo_pattern_set_user_data</link>  (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
-                                             <link linkend="void">void</link> *user_data,
-                                             <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);
-<link linkend="void">void</link>*       <link linkend="cairo-pattern-get-user-data">cairo_pattern_get_user_data</link>     (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);
+typedef             <link linkend="cairo-pattern-t">cairo_pattern_t</link>;
+<link linkend="void">void</link>                <link linkend="cairo-pattern-add-color-stop-rgb">cairo_pattern_add_color_stop_rgb</link>    (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="double">double</link> offset,
+                                                         <link linkend="double">double</link> red,
+                                                         <link linkend="double">double</link> green,
+                                                         <link linkend="double">double</link> blue);
+<link linkend="void">void</link>                <link linkend="cairo-pattern-add-color-stop-rgba">cairo_pattern_add_color_stop_rgba</link>   (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="double">double</link> offset,
+                                                         <link linkend="double">double</link> red,
+                                                         <link linkend="double">double</link> green,
+                                                         <link linkend="double">double</link> blue,
+                                                         <link linkend="double">double</link> alpha);
+<link linkend="cairo-status-t">cairo_status_t</link>      <link linkend="cairo-pattern-get-color-stop-count">cairo_pattern_get_color_stop_count</link>  (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="int">int</link> *count);
+<link linkend="cairo-status-t">cairo_status_t</link>      <link linkend="cairo-pattern-get-color-stop-rgba">cairo_pattern_get_color_stop_rgba</link>   (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="int">int</link> index,
+                                                         <link linkend="double">double</link> *offset,
+                                                         <link linkend="double">double</link> *red,
+                                                         <link linkend="double">double</link> *green,
+                                                         <link linkend="double">double</link> *blue,
+                                                         <link linkend="double">double</link> *alpha);
+<link linkend="cairo-pattern-t">cairo_pattern_t</link>*    <link linkend="cairo-pattern-create-rgb">cairo_pattern_create_rgb</link>            (<link linkend="double">double</link> red,
+                                                         <link linkend="double">double</link> green,
+                                                         <link linkend="double">double</link> blue);
+<link linkend="cairo-pattern-t">cairo_pattern_t</link>*    <link linkend="cairo-pattern-create-rgba">cairo_pattern_create_rgba</link>           (<link linkend="double">double</link> red,
+                                                         <link linkend="double">double</link> green,
+                                                         <link linkend="double">double</link> blue,
+                                                         <link linkend="double">double</link> alpha);
+<link linkend="cairo-status-t">cairo_status_t</link>      <link linkend="cairo-pattern-get-rgba">cairo_pattern_get_rgba</link>              (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="double">double</link> *red,
+                                                         <link linkend="double">double</link> *green,
+                                                         <link linkend="double">double</link> *blue,
+                                                         <link linkend="double">double</link> *alpha);
+<link linkend="cairo-pattern-t">cairo_pattern_t</link>*    <link linkend="cairo-pattern-create-for-surface">cairo_pattern_create_for_surface</link>    (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);
+<link linkend="cairo-status-t">cairo_status_t</link>      <link linkend="cairo-pattern-get-surface">cairo_pattern_get_surface</link>           (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="cairo-surface-t">cairo_surface_t</link> **surface);
+<link linkend="cairo-pattern-t">cairo_pattern_t</link>*    <link linkend="cairo-pattern-create-linear">cairo_pattern_create_linear</link>         (<link linkend="double">double</link> x0,
+                                                         <link linkend="double">double</link> y0,
+                                                         <link linkend="double">double</link> x1,
+                                                         <link linkend="double">double</link> y1);
+<link linkend="cairo-status-t">cairo_status_t</link>      <link linkend="cairo-pattern-get-linear-points">cairo_pattern_get_linear_points</link>     (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="double">double</link> *x0,
+                                                         <link linkend="double">double</link> *y0,
+                                                         <link linkend="double">double</link> *x1,
+                                                         <link linkend="double">double</link> *y1);
+<link linkend="cairo-pattern-t">cairo_pattern_t</link>*    <link linkend="cairo-pattern-create-radial">cairo_pattern_create_radial</link>         (<link linkend="double">double</link> cx0,
+                                                         <link linkend="double">double</link> cy0,
+                                                         <link linkend="double">double</link> radius0,
+                                                         <link linkend="double">double</link> cx1,
+                                                         <link linkend="double">double</link> cy1,
+                                                         <link linkend="double">double</link> radius1);
+<link linkend="cairo-status-t">cairo_status_t</link>      <link linkend="cairo-pattern-get-radial-circles">cairo_pattern_get_radial_circles</link>    (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="double">double</link> *x0,
+                                                         <link linkend="double">double</link> *y0,
+                                                         <link linkend="double">double</link> *r0,
+                                                         <link linkend="double">double</link> *x1,
+                                                         <link linkend="double">double</link> *y1,
+                                                         <link linkend="double">double</link> *r1);
+<link linkend="cairo-pattern-t">cairo_pattern_t</link>*    <link linkend="cairo-pattern-reference">cairo_pattern_reference</link>             (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);
+<link linkend="void">void</link>                <link linkend="cairo-pattern-destroy">cairo_pattern_destroy</link>               (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);
+<link linkend="cairo-status-t">cairo_status_t</link>      <link linkend="cairo-pattern-status">cairo_pattern_status</link>                (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);
+enum                <link linkend="cairo-extend-t">cairo_extend_t</link>;
+<link linkend="void">void</link>                <link linkend="cairo-pattern-set-extend">cairo_pattern_set_extend</link>            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="cairo-extend-t">cairo_extend_t</link> extend);
+<link linkend="cairo-extend-t">cairo_extend_t</link>      <link linkend="cairo-pattern-get-extend">cairo_pattern_get_extend</link>            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);
+enum                <link linkend="cairo-filter-t">cairo_filter_t</link>;
+<link linkend="void">void</link>                <link linkend="cairo-pattern-set-filter">cairo_pattern_set_filter</link>            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="cairo-filter-t">cairo_filter_t</link> filter);
+<link linkend="cairo-filter-t">cairo_filter_t</link>      <link linkend="cairo-pattern-get-filter">cairo_pattern_get_filter</link>            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);
+<link linkend="void">void</link>                <link linkend="cairo-pattern-set-matrix">cairo_pattern_set_matrix</link>            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);
+<link linkend="void">void</link>                <link linkend="cairo-pattern-get-matrix">cairo_pattern_get_matrix</link>            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);
+enum                <link linkend="cairo-pattern-type-t">cairo_pattern_type_t</link>;
+<link linkend="cairo-pattern-type-t">cairo_pattern_type_t</link> <link linkend="cairo-pattern-get-type">cairo_pattern_get_type</link>             (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);
+unsigned <link linkend="int">int</link>        <link linkend="cairo-pattern-get-reference-count">cairo_pattern_get_reference_count</link>   (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);
+<link linkend="cairo-status-t">cairo_status_t</link>      <link linkend="cairo-pattern-set-user-data">cairo_pattern_set_user_data</link>         (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
+                                                         <link linkend="void">void</link> *user_data,
+                                                         <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);
+<link linkend="void">void</link>*               <link linkend="cairo-pattern-get-user-data">cairo_pattern_get_user_data</link>         (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);
 </synopsis>
 </refsynopsisdiv>
 
@@ -163,12 +153,11 @@ Memory management of <link linkend="cairo-pattern-t"><type>cairo_pattern_t</type
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-add-color-stop-rgb" role="function"/>cairo_pattern_add_color_stop_rgb ()</title>
-<indexterm><primary>cairo_pattern_add_color_stop_rgb</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_pattern_add_color_stop_rgb
-                                            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="double">double</link> offset,
-                                             <link linkend="double">double</link> red,
-                                             <link linkend="double">double</link> green,
-                                             <link linkend="double">double</link> blue);</programlisting>
+<indexterm><primary>cairo_pattern_add_color_stop_rgb</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_pattern_add_color_stop_rgb    (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="double">double</link> offset,
+                                                         <link linkend="double">double</link> red,
+                                                         <link linkend="double">double</link> green,
+                                                         <link linkend="double">double</link> blue);</programlisting>
 <para>
 Adds an opaque color stop to a gradient pattern. The offset
 specifies the location along the gradient's control vector. For
@@ -178,6 +167,13 @@ on the start circle to the corresponding point on the end circle.
 </para>
 <para>
 The color is specified in the same way as in <link linkend="cairo-set-source-rgb"><function>cairo_set_source_rgb()</function></link>.
+</para>
+<para>
+If two (or more) stops are specified with identical offset values,
+they will be sorted according to the order in which the stops are
+added, (stops added earlier will compare less than stops added
+later). This can be useful for reliably making sharp color
+transitions instead of the typical blend.
 </para>
 <para>
 Note: If the pattern is not a gradient pattern, (eg. a linear or
@@ -204,13 +200,12 @@ with a status of <link linkend="CAIRO-STATUS-PATTERN-TYPE-MISMATCH:CAPS"><litera
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-add-color-stop-rgba" role="function"/>cairo_pattern_add_color_stop_rgba ()</title>
-<indexterm><primary>cairo_pattern_add_color_stop_rgba</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_pattern_add_color_stop_rgba
-                                            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="double">double</link> offset,
-                                             <link linkend="double">double</link> red,
-                                             <link linkend="double">double</link> green,
-                                             <link linkend="double">double</link> blue,
-                                             <link linkend="double">double</link> alpha);</programlisting>
+<indexterm><primary>cairo_pattern_add_color_stop_rgba</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_pattern_add_color_stop_rgba   (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="double">double</link> offset,
+                                                         <link linkend="double">double</link> red,
+                                                         <link linkend="double">double</link> green,
+                                                         <link linkend="double">double</link> blue,
+                                                         <link linkend="double">double</link> alpha);</programlisting>
 <para>
 Adds a translucent color stop to a gradient pattern. The offset
 specifies the location along the gradient's control vector. For
@@ -220,6 +215,13 @@ on the start circle to the corresponding point on the end circle.
 </para>
 <para>
 The color is specified in the same way as in <link linkend="cairo-set-source-rgba"><function>cairo_set_source_rgba()</function></link>.
+</para>
+<para>
+If two (or more) stops are specified with identical offset values,
+they will be sorted according to the order in which the stops are
+added, (stops added earlier will compare less than stops added
+later). This can be useful for reliably making sharp color
+transitions instead of the typical blend.
 </para>
 <para>
 Note: If the pattern is not a gradient pattern, (eg. a linear or
@@ -249,9 +251,8 @@ with a status of <link linkend="CAIRO-STATUS-PATTERN-TYPE-MISMATCH:CAPS"><litera
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-get-color-stop-count" role="function" condition="since:1.4"/>cairo_pattern_get_color_stop_count ()</title>
-<indexterm role="1.4"><primary>cairo_pattern_get_color_stop_count</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_pattern_get_color_stop_count
-                                            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="int">int</link> *count);</programlisting>
+<indexterm role="1.4"><primary>cairo_pattern_get_color_stop_count</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      cairo_pattern_get_color_stop_count  (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="int">int</link> *count);</programlisting>
 <para>
 Gets the number of color stops specified in the given gradient
 pattern.</para>
@@ -269,18 +270,17 @@ pattern.</para>
 pattern.
 
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.4
+</variablelist><para role="since">Since  1.4
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-get-color-stop-rgba" role="function" condition="since:1.4"/>cairo_pattern_get_color_stop_rgba ()</title>
-<indexterm role="1.4"><primary>cairo_pattern_get_color_stop_rgba</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_pattern_get_color_stop_rgba
-                                            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="int">int</link> index,
-                                             <link linkend="double">double</link> *offset,
-                                             <link linkend="double">double</link> *red,
-                                             <link linkend="double">double</link> *green,
-                                             <link linkend="double">double</link> *blue,
-                                             <link linkend="double">double</link> *alpha);</programlisting>
+<indexterm role="1.4"><primary>cairo_pattern_get_color_stop_rgba</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      cairo_pattern_get_color_stop_rgba   (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="int">int</link> index,
+                                                         <link linkend="double">double</link> *offset,
+                                                         <link linkend="double">double</link> *red,
+                                                         <link linkend="double">double</link> *green,
+                                                         <link linkend="double">double</link> *blue,
+                                                         <link linkend="double">double</link> *alpha);</programlisting>
 <para>
 Gets the color and offset information at the given <parameter>index</parameter> for a
 gradient pattern.  Values of <parameter>index</parameter> are 0 to 1 less than the number
@@ -315,13 +315,13 @@ not a gradient pattern, <link linkend="CAIRO-STATUS-PATTERN-TYPE-MISMATCH:CAPS">
 returned.
 
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.4
+</variablelist><para role="since">Since  1.4
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-create-rgb" role="function"/>cairo_pattern_create_rgb ()</title>
-<indexterm><primary>cairo_pattern_create_rgb</primary></indexterm><programlisting><link linkend="cairo-pattern-t">cairo_pattern_t</link>* cairo_pattern_create_rgb   (<link linkend="double">double</link> red,
-                                             <link linkend="double">double</link> green,
-                                             <link linkend="double">double</link> blue);</programlisting>
+<indexterm><primary>cairo_pattern_create_rgb</primary></indexterm><programlisting><link linkend="cairo-pattern-t">cairo_pattern_t</link>*    cairo_pattern_create_rgb            (<link linkend="double">double</link> red,
+                                                         <link linkend="double">double</link> green,
+                                                         <link linkend="double">double</link> blue);</programlisting>
 <para>
 Creates a new cairo_pattern_t corresponding to an opaque color.  The
 color components are floating point numbers in the range 0 to 1.
@@ -351,10 +351,10 @@ the status of a pattern use <link linkend="cairo-pattern-status"><function>cairo
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-create-rgba" role="function"/>cairo_pattern_create_rgba ()</title>
-<indexterm><primary>cairo_pattern_create_rgba</primary></indexterm><programlisting><link linkend="cairo-pattern-t">cairo_pattern_t</link>* cairo_pattern_create_rgba  (<link linkend="double">double</link> red,
-                                             <link linkend="double">double</link> green,
-                                             <link linkend="double">double</link> blue,
-                                             <link linkend="double">double</link> alpha);</programlisting>
+<indexterm><primary>cairo_pattern_create_rgba</primary></indexterm><programlisting><link linkend="cairo-pattern-t">cairo_pattern_t</link>*    cairo_pattern_create_rgba           (<link linkend="double">double</link> red,
+                                                         <link linkend="double">double</link> green,
+                                                         <link linkend="double">double</link> blue,
+                                                         <link linkend="double">double</link> alpha);</programlisting>
 <para>
 Creates a new cairo_pattern_t corresponding to a translucent color.
 The color components are floating point numbers in the range 0 to
@@ -387,11 +387,11 @@ the status of a pattern use <link linkend="cairo-pattern-status"><function>cairo
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-get-rgba" role="function" condition="since:1.4"/>cairo_pattern_get_rgba ()</title>
-<indexterm role="1.4"><primary>cairo_pattern_get_rgba</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_pattern_get_rgba       (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="double">double</link> *red,
-                                             <link linkend="double">double</link> *green,
-                                             <link linkend="double">double</link> *blue,
-                                             <link linkend="double">double</link> *alpha);</programlisting>
+<indexterm role="1.4"><primary>cairo_pattern_get_rgba</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      cairo_pattern_get_rgba              (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="double">double</link> *red,
+                                                         <link linkend="double">double</link> *green,
+                                                         <link linkend="double">double</link> *blue,
+                                                         <link linkend="double">double</link> *alpha);</programlisting>
 <para>
 Gets the solid color for a solid color pattern.</para>
 <para>
@@ -417,12 +417,11 @@ Gets the solid color for a solid color pattern.</para>
 color pattern.
 
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.4
+</variablelist><para role="since">Since  1.4
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-create-for-surface" role="function"/>cairo_pattern_create_for_surface ()</title>
-<indexterm><primary>cairo_pattern_create_for_surface</primary></indexterm><programlisting><link linkend="cairo-pattern-t">cairo_pattern_t</link>* cairo_pattern_create_for_surface
-                                            (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);</programlisting>
+<indexterm><primary>cairo_pattern_create_for_surface</primary></indexterm><programlisting><link linkend="cairo-pattern-t">cairo_pattern_t</link>*    cairo_pattern_create_for_surface    (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);</programlisting>
 <para>
 Create a new cairo_pattern_t for the given surface.</para>
 <para>
@@ -443,8 +442,8 @@ the status of a pattern use <link linkend="cairo-pattern-status"><function>cairo
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-get-surface" role="function" condition="since:1.4"/>cairo_pattern_get_surface ()</title>
-<indexterm role="1.4"><primary>cairo_pattern_get_surface</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_pattern_get_surface    (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="cairo-surface-t">cairo_surface_t</link> **surface);</programlisting>
+<indexterm role="1.4"><primary>cairo_pattern_get_surface</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      cairo_pattern_get_surface           (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="cairo-surface-t">cairo_surface_t</link> **surface);</programlisting>
 <para>
 Gets the surface of a surface pattern.  The reference returned in
 <parameter>surface</parameter> is owned by the pattern; the caller should call
@@ -463,15 +462,14 @@ Gets the surface of a surface pattern.  The reference returned in
 pattern.
 
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.4
+</variablelist><para role="since">Since  1.4
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-create-linear" role="function"/>cairo_pattern_create_linear ()</title>
-<indexterm><primary>cairo_pattern_create_linear</primary></indexterm><programlisting><link linkend="cairo-pattern-t">cairo_pattern_t</link>* cairo_pattern_create_linear
-                                            (<link linkend="double">double</link> x0,
-                                             <link linkend="double">double</link> y0,
-                                             <link linkend="double">double</link> x1,
-                                             <link linkend="double">double</link> y1);</programlisting>
+<indexterm><primary>cairo_pattern_create_linear</primary></indexterm><programlisting><link linkend="cairo-pattern-t">cairo_pattern_t</link>*    cairo_pattern_create_linear         (<link linkend="double">double</link> x0,
+                                                         <link linkend="double">double</link> y0,
+                                                         <link linkend="double">double</link> x1,
+                                                         <link linkend="double">double</link> y1);</programlisting>
 <para>
 Create a new linear gradient cairo_pattern_t along the line defined
 by (x0, y0) and (x1, y1).  Before using the gradient pattern, a
@@ -510,12 +508,11 @@ the status of a pattern use <link linkend="cairo-pattern-status"><function>cairo
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-get-linear-points" role="function" condition="since:1.4"/>cairo_pattern_get_linear_points ()</title>
-<indexterm role="1.4"><primary>cairo_pattern_get_linear_points</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_pattern_get_linear_points
-                                            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="double">double</link> *x0,
-                                             <link linkend="double">double</link> *y0,
-                                             <link linkend="double">double</link> *x1,
-                                             <link linkend="double">double</link> *y1);</programlisting>
+<indexterm role="1.4"><primary>cairo_pattern_get_linear_points</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      cairo_pattern_get_linear_points     (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="double">double</link> *x0,
+                                                         <link linkend="double">double</link> *y0,
+                                                         <link linkend="double">double</link> *x1,
+                                                         <link linkend="double">double</link> *y1);</programlisting>
 <para>
 Gets the gradient endpoints for a linear gradient.</para>
 <para>
@@ -541,20 +538,19 @@ Gets the gradient endpoints for a linear gradient.</para>
 gradient pattern.
 
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.4
+</variablelist><para role="since">Since  1.4
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-create-radial" role="function"/>cairo_pattern_create_radial ()</title>
-<indexterm><primary>cairo_pattern_create_radial</primary></indexterm><programlisting><link linkend="cairo-pattern-t">cairo_pattern_t</link>* cairo_pattern_create_radial
-                                            (<link linkend="double">double</link> cx0,
-                                             <link linkend="double">double</link> cy0,
-                                             <link linkend="double">double</link> radius0,
-                                             <link linkend="double">double</link> cx1,
-                                             <link linkend="double">double</link> cy1,
-                                             <link linkend="double">double</link> radius1);</programlisting>
+<indexterm><primary>cairo_pattern_create_radial</primary></indexterm><programlisting><link linkend="cairo-pattern-t">cairo_pattern_t</link>*    cairo_pattern_create_radial         (<link linkend="double">double</link> cx0,
+                                                         <link linkend="double">double</link> cy0,
+                                                         <link linkend="double">double</link> radius0,
+                                                         <link linkend="double">double</link> cx1,
+                                                         <link linkend="double">double</link> cy1,
+                                                         <link linkend="double">double</link> radius1);</programlisting>
 <para>
 Creates a new radial gradient cairo_pattern_t between the two
-circles defined by (x0, y0, c0) and (x1, y1, c0).  Before using the
+circles defined by (cx0, cy0, radius0) and (cx1, cy1, radius1).  Before using the
 gradient pattern, a number of color stops should be defined using
 <link linkend="cairo-pattern-add-color-stop-rgb"><function>cairo_pattern_add_color_stop_rgb()</function></link> or
 <link linkend="cairo-pattern-add-color-stop-rgba"><function>cairo_pattern_add_color_stop_rgba()</function></link>.
@@ -596,14 +592,13 @@ the status of a pattern use <link linkend="cairo-pattern-status"><function>cairo
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-get-radial-circles" role="function" condition="since:1.4"/>cairo_pattern_get_radial_circles ()</title>
-<indexterm role="1.4"><primary>cairo_pattern_get_radial_circles</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_pattern_get_radial_circles
-                                            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="double">double</link> *x0,
-                                             <link linkend="double">double</link> *y0,
-                                             <link linkend="double">double</link> *r0,
-                                             <link linkend="double">double</link> *x1,
-                                             <link linkend="double">double</link> *y1,
-                                             <link linkend="double">double</link> *r1);</programlisting>
+<indexterm role="1.4"><primary>cairo_pattern_get_radial_circles</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      cairo_pattern_get_radial_circles    (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="double">double</link> *x0,
+                                                         <link linkend="double">double</link> *y0,
+                                                         <link linkend="double">double</link> *r0,
+                                                         <link linkend="double">double</link> *x1,
+                                                         <link linkend="double">double</link> *y1,
+                                                         <link linkend="double">double</link> *r1);</programlisting>
 <para>
 Gets the gradient endpoint circles for a radial gradient, each
 specified as a center coordinate and a radius.</para>
@@ -636,11 +631,11 @@ specified as a center coordinate and a radius.</para>
 gradient pattern.
 
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.4
+</variablelist><para role="since">Since  1.4
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-reference" role="function"/>cairo_pattern_reference ()</title>
-<indexterm><primary>cairo_pattern_reference</primary></indexterm><programlisting><link linkend="cairo-pattern-t">cairo_pattern_t</link>* cairo_pattern_reference    (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);</programlisting>
+<indexterm><primary>cairo_pattern_reference</primary></indexterm><programlisting><link linkend="cairo-pattern-t">cairo_pattern_t</link>*    cairo_pattern_reference             (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);</programlisting>
 <para>
 Increases the reference count on <parameter>pattern</parameter> by one. This prevents
 <parameter>pattern</parameter> from being destroyed until a matching call to
@@ -660,7 +655,7 @@ The number of references to a <link linkend="cairo-pattern-t"><type>cairo_patter
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-destroy" role="function"/>cairo_pattern_destroy ()</title>
-<indexterm><primary>cairo_pattern_destroy</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_pattern_destroy           (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);</programlisting>
+<indexterm><primary>cairo_pattern_destroy</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_pattern_destroy               (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);</programlisting>
 <para>
 Decreases the reference count on <parameter>pattern</parameter> by one. If the result is
 zero, then <parameter>pattern</parameter> and all associated resources are freed.  See
@@ -674,7 +669,7 @@ zero, then <parameter>pattern</parameter> and all associated resources are freed
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-status" role="function"/>cairo_pattern_status ()</title>
-<indexterm><primary>cairo_pattern_status</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_pattern_status         (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);</programlisting>
+<indexterm><primary>cairo_pattern_status</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      cairo_pattern_status                (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);</programlisting>
 <para>
 Checks whether an error has previously occurred for this
 pattern.</para>
@@ -733,8 +728,8 @@ New entries may be added in future versions.</para>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-set-extend" role="function"/>cairo_pattern_set_extend ()</title>
-<indexterm><primary>cairo_pattern_set_extend</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_pattern_set_extend        (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="cairo-extend-t">cairo_extend_t</link> extend);</programlisting>
+<indexterm><primary>cairo_pattern_set_extend</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_pattern_set_extend            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="cairo-extend-t">cairo_extend_t</link> extend);</programlisting>
 <para>
 Sets the mode to be used for drawing outside the area of a pattern.
 See <link linkend="cairo-extend-t"><type>cairo_extend_t</type></link> for details on the semantics of each extend
@@ -752,7 +747,7 @@ pattern will be drawn
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-get-extend" role="function"/>cairo_pattern_get_extend ()</title>
-<indexterm><primary>cairo_pattern_get_extend</primary></indexterm><programlisting><link linkend="cairo-extend-t">cairo_extend_t</link> cairo_pattern_get_extend     (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);</programlisting>
+<indexterm><primary>cairo_pattern_get_extend</primary></indexterm><programlisting><link linkend="cairo-extend-t">cairo_extend_t</link>      cairo_pattern_get_extend            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);</programlisting>
 <para>
 Gets the current extend mode for a pattern.  See <link linkend="cairo-extend-t"><type>cairo_extend_t</type></link>
 for details on the semantics of each extend strategy.</para>
@@ -782,8 +777,8 @@ pattern.
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-set-filter" role="function"/>cairo_pattern_set_filter ()</title>
-<indexterm><primary>cairo_pattern_set_filter</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_pattern_set_filter        (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="cairo-filter-t">cairo_filter_t</link> filter);</programlisting>
+<indexterm><primary>cairo_pattern_set_filter</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_pattern_set_filter            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="cairo-filter-t">cairo_filter_t</link> filter);</programlisting>
 <para>
 Sets the filter to be used for resizing when using this pattern.
 See <link linkend="cairo-filter-t"><type>cairo_filter_t</type></link> for details on each filter.</para>
@@ -800,7 +795,7 @@ the pattern
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-get-filter" role="function"/>cairo_pattern_get_filter ()</title>
-<indexterm><primary>cairo_pattern_get_filter</primary></indexterm><programlisting><link linkend="cairo-filter-t">cairo_filter_t</link> cairo_pattern_get_filter     (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);</programlisting>
+<indexterm><primary>cairo_pattern_get_filter</primary></indexterm><programlisting><link linkend="cairo-filter-t">cairo_filter_t</link>      cairo_pattern_get_filter            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);</programlisting>
 <para>
 Gets the current filter for a pattern.  See <link linkend="cairo-filter-t"><type>cairo_filter_t</type></link>
 for details on each filter.</para>
@@ -815,8 +810,8 @@ for details on each filter.</para>
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-set-matrix" role="function"/>cairo_pattern_set_matrix ()</title>
-<indexterm><primary>cairo_pattern_set_matrix</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_pattern_set_matrix        (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);</programlisting>
+<indexterm><primary>cairo_pattern_set_matrix</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_pattern_set_matrix            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         const <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);</programlisting>
 <para>
 Sets the pattern's transformation matrix to <parameter>matrix</parameter>. This matrix is
 a transformation from user space to pattern space.
@@ -862,8 +857,8 @@ semantics of <link linkend="cairo-set-source"><function>cairo_set_source()</func
 </variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-get-matrix" role="function"/>cairo_pattern_get_matrix ()</title>
-<indexterm><primary>cairo_pattern_get_matrix</primary></indexterm><programlisting><link linkend="void">void</link>        cairo_pattern_get_matrix        (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);</programlisting>
+<indexterm><primary>cairo_pattern_get_matrix</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_pattern_get_matrix            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         <link linkend="cairo-matrix-t">cairo_matrix_t</link> *matrix);</programlisting>
 <para>
 Stores the pattern's transformation matrix into <parameter>matrix</parameter>.</para>
 <para>
@@ -933,11 +928,11 @@ color. It may be opaque or translucent.
 <listitem><simpara> The pattern is a radial gradient.
 </simpara></listitem>
 </varlistentry>
-</variablelist><para>Since  1.2
+</variablelist><para role="since">Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-get-type" role="function" condition="since:1.2"/>cairo_pattern_get_type ()</title>
-<indexterm role="1.2"><primary>cairo_pattern_get_type</primary></indexterm><programlisting><link linkend="cairo-pattern-type-t">cairo_pattern_type_t</link> cairo_pattern_get_type (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);</programlisting>
+<indexterm role="1.2"><primary>cairo_pattern_get_type</primary></indexterm><programlisting><link linkend="cairo-pattern-type-t">cairo_pattern_type_t</link> cairo_pattern_get_type             (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);</programlisting>
 <para>
 This function returns the type a pattern.
 See <link linkend="cairo-pattern-type-t"><type>cairo_pattern_type_t</type></link> for available types.</para>
@@ -950,12 +945,11 @@ See <link linkend="cairo-pattern-type-t"><type>cairo_pattern_type_t</type></link
 <varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> The type of <parameter>pattern</parameter>.
 
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.2
+</variablelist><para role="since">Since  1.2
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-get-reference-count" role="function" condition="since:1.4"/>cairo_pattern_get_reference_count ()</title>
-<indexterm role="1.4"><primary>cairo_pattern_get_reference_count</primary></indexterm><programlisting>unsigned <link linkend="int">int</link> cairo_pattern_get_reference_count
-                                            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);</programlisting>
+<indexterm role="1.4"><primary>cairo_pattern_get_reference_count</primary></indexterm><programlisting>unsigned <link linkend="int">int</link>        cairo_pattern_get_reference_count   (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern);</programlisting>
 <para>
 Returns the current reference count of <parameter>pattern</parameter>.</para>
 <para>
@@ -968,14 +962,14 @@ Returns the current reference count of <parameter>pattern</parameter>.</para>
 object is a nil object, 0 will be returned.
 
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.4
+</variablelist><para role="since">Since  1.4
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-set-user-data" role="function" condition="since:1.4"/>cairo_pattern_set_user_data ()</title>
-<indexterm role="1.4"><primary>cairo_pattern_set_user_data</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link> cairo_pattern_set_user_data  (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
-                                             <link linkend="void">void</link> *user_data,
-                                             <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);</programlisting>
+<indexterm role="1.4"><primary>cairo_pattern_set_user_data</primary></indexterm><programlisting><link linkend="cairo-status-t">cairo_status_t</link>      cairo_pattern_set_user_data         (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key,
+                                                         <link linkend="void">void</link> *user_data,
+                                                         <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);</programlisting>
 <para>
 Attach user data to <parameter>pattern</parameter>.  To remove user data from a surface,
 call this function with the key that was used to set it and <link linkend="NULL:CAPS"><literal>NULL</literal></link>
@@ -1001,12 +995,12 @@ same key.
 slot could not be allocated for the user data.
 
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.4
+</variablelist><para role="since">Since  1.4
 </para></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-get-user-data" role="function" condition="since:1.4"/>cairo_pattern_get_user_data ()</title>
-<indexterm role="1.4"><primary>cairo_pattern_get_user_data</primary></indexterm><programlisting><link linkend="void">void</link>*       cairo_pattern_get_user_data     (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
-                                             const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);</programlisting>
+<indexterm role="1.4"><primary>cairo_pattern_get_user_data</primary></indexterm><programlisting><link linkend="void">void</link>*               cairo_pattern_get_user_data         (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
+                                                         const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);</programlisting>
 <para>
 Return user data previously attached to <parameter>pattern</parameter> using the
 specified key.  If no user data has been attached with the given
@@ -1024,7 +1018,7 @@ attached to
 <varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the user data previously attached or <link linkend="NULL:CAPS"><literal>NULL</literal></link>.
 
 </simpara></listitem></varlistentry>
-</variablelist><para>Since  1.4
+</variablelist><para role="since">Since  1.4
 </para></refsect2>
 
 </refsect1>

@@ -754,16 +754,14 @@ _cairo_bo_event_queue_init (cairo_bo_event_queue_t	*event_queue,
      * or stop events, so this allocation is safe.  XXX: make the
      * event type a union so it doesn't always contain the skip
      * elt? */
-    events = malloc (num_events * sizeof(cairo_bo_event_t));
-    sorted_event_ptrs = malloc (num_events * sizeof(cairo_bo_event_t*));
-    if (!events || !sorted_event_ptrs) {
-	if (events) free(events);
-	if (sorted_event_ptrs) free(sorted_event_ptrs);
+    events = malloc (num_events * (sizeof (cairo_bo_event_t) + sizeof(cairo_bo_event_t*)));
+    if (events == NULL)
 	return CAIRO_STATUS_NO_MEMORY;
-    }
+
+    sorted_event_ptrs = (cairo_bo_event_t **) (events + num_events);
     event_queue->startstop_events = events;
     event_queue->sorted_startstop_event_ptrs = sorted_event_ptrs;
-    event_queue->num_startstop_events = (unsigned)(num_events);
+    event_queue->num_startstop_events = num_events;
     event_queue->next_startstop_event_index = 0;
 
     for (i = 0; i < num_edges; i++) {
@@ -796,8 +794,6 @@ _cairo_bo_event_queue_fini (cairo_bo_event_queue_t *event_queue)
     _cairo_skip_list_fini (&event_queue->intersection_queue);
     if (event_queue->startstop_events)
 	free (event_queue->startstop_events);
-    if (event_queue->sorted_startstop_event_ptrs)
-	free (event_queue->sorted_startstop_event_ptrs);
 }
 
 static cairo_status_t
@@ -1425,6 +1421,7 @@ _cairo_bentley_ottmann_tessellate_polygon (cairo_traps_t	*traps,
 {
     int intersections;
     cairo_status_t status;
+    cairo_bo_edge_t stack_edges[CAIRO_STACK_BUFFER_SIZE / sizeof (cairo_bo_edge_t)];
     cairo_bo_edge_t *edges;
     cairo_fixed_t xmin = 0x7FFFFFFF;
     cairo_fixed_t ymin = 0x7FFFFFFF;
@@ -1436,9 +1433,13 @@ _cairo_bentley_ottmann_tessellate_polygon (cairo_traps_t	*traps,
     if (0 == polygon->num_edges)
 	return CAIRO_STATUS_SUCCESS;
 
-    edges = malloc (polygon->num_edges * sizeof (cairo_bo_edge_t));
-    if (edges == NULL)
-	return CAIRO_STATUS_NO_MEMORY;
+    if (polygon->num_edges < ARRAY_LENGTH (stack_edges)) {
+	edges = stack_edges;
+    } else {
+	edges = malloc (polygon->num_edges * sizeof (cairo_bo_edge_t));
+	if (edges == NULL)
+	    return CAIRO_STATUS_NO_MEMORY;
+    }
 
     /* Figure out the bounding box of the input coordinates and
      * validate that we're not given invalid polygon edges. */
@@ -1518,7 +1519,8 @@ _cairo_bentley_ottmann_tessellate_polygon (cairo_traps_t	*traps,
 							 xmin, ymin, xmax, ymax,
 							 &intersections);
 
-    free (edges);
+    if (edges != stack_edges)
+	free (edges);
 
     return status;
 }

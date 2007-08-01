@@ -120,4 +120,4 @@ Here are the steps to follow to create a new cairo release:
     or update the ExternalDependencies page for the current cycle if you
     know where it is.  Currently it's:
 
-	http://live.gnome.org/TwoPointSeventeen/ExternalDependencies
+	http://live.gnome.org/TwoPointNineteen/ExternalDependencies

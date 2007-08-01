@@ -58,8 +58,10 @@
 #define POSTSCRIPT_OP    0x0c15
 #define PRIVATE_OP       0x0012
 #define ROS_OP           0x0c1e
+#define UNIQUEID_OP      0x000d
 #define VERSION_OP       0x0000
 #define WEIGHT_OP        0x0004
+#define XUID_OP          0x000e
 
 #define NUM_STD_STRINGS 391
 
@@ -893,6 +895,11 @@ cairo_cff_font_read_top_dict (cairo_cff_font_t *font)
 
     cff_dict_remove (font->top_dict, ENCODING_OP);
     cff_dict_remove (font->top_dict, PRIVATE_OP);
+
+    /* Remove the unique identifier operators as the subsetted font is
+     * not the same is the original font. */
+    cff_dict_remove (font->top_dict, UNIQUEID_OP);
+    cff_dict_remove (font->top_dict, XUID_OP);
 
 fail:
     cff_index_fini (&index);
