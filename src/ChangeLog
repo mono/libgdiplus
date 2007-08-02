@@ -1,3 +1,10 @@
+2007-08-02  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* text-cairo.c: Reverting patch for bug #78777 to fix bug #81572. 
+	Fixed the "height" part of bug #78777 (LF isn't on the line you expect
+	it to be). The X position is off because LF aren't characters anymore
+	(and this mess with the ranges).
+
 2007-08-01  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* text-cairo-private.h | text-cairo.c: Fix MeasureCharacterRanges 

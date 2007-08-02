@@ -47,11 +47,9 @@ CalculateStringWidths (cairo_t *ct, GDIPCONST GpFont *gdiFont, GDIPCONST gunicha
 	CurrentDetail = StringDetails;
 
 	for (i = 0; i < StringDetailElements; i++) {
-		if ((CurrentDetail->Flags & STRING_DETAIL_LF) == 0) {
-			utf8[utf8_encode_ucs2char(*(stringUnicode + i), utf8)] = '\0';
-			cairo_text_extents(ct, (const char *) utf8, &ext);
-			CurrentDetail->Width = ext.x_advance;
-		}
+		utf8[utf8_encode_ucs2char(*(stringUnicode + i), utf8)] = '\0';
+		cairo_text_extents(ct, (const char *) utf8, &ext);
+		CurrentDetail->Width = ext.x_advance;
 		CurrentDetail++;
 	}
 
@@ -1161,6 +1159,10 @@ cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 				end--; /* '&' count as invisible char */
 				continue;
 			}
+
+			/* workaround the fact that current implementation thinks LF is on the next line */
+			if ((j == end - 1) && (StringDetails[j].Flags & STRING_DETAIL_LF))
+				continue;
 
 			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
 				charRect.X = StringDetails [j].PosY;
