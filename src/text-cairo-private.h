@@ -47,6 +47,10 @@
 #define STRING_DETAIL_HIDDEN		(1<<4)
 #define STRING_DETAIL_LINESTART		(1<<5)
 
+#define text_DrawString			cairo_DrawString
+#define text_MeasureString		cairo_MeasureString
+#define text_MeasureCharacterRanges	cairo_MeasureCharacterRanges
+
 /* cache for computed information during MeasureString that can be reused during DrawString */
 typedef struct {
 	BOOL	has_hotkeys;

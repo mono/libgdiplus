@@ -541,42 +541,93 @@ GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily)
 	return status;
 }
 
-static FT_Face
-gdip_cairo_ft_font_lock_face (cairo_font_face_t *cairofnt, cairo_scaled_font_t **scaled_ft)
+static void
+gdip_get_fontfamily_details_from_freetype (GpFontFamily *family, FT_Face face)
 {
-	FT_Face face;
-	cairo_matrix_t matrix1, matrix2;
-        cairo_font_options_t *options = NULL;
-	
-	options = cairo_font_options_create ();
-		
-	cairo_matrix_init (&matrix1, 1, 0, 0, 1, 0, 0);
-	cairo_matrix_init (&matrix2, 1, 0, 0, 1, 0, 0);
-	*scaled_ft = cairo_scaled_font_create (cairofnt,
-					      &matrix1,
-					      &matrix2,
-					      options);
-	/* a missing fonts.conf will resuls in a NULL *scaled_ft (#78237) */
-	if (!*scaled_ft) {
-		static int flag = 0;
-		if (flag == 0) {
-			g_warning ("couldn't lock the font face. this may be due to a missing fonts.conf on the system.");
-			flag = 1;
-		}
-		return NULL;
+	TT_VertHeader *pVert = FT_Get_Sfnt_Table (face, ft_sfnt_vhea);
+	TT_HoriHeader *pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
+
+	if (pVert) {
+		family->height = pVert->yMax_Extent;
+	} else {
+		family->height = face->units_per_EM;
 	}
 
-	face = cairo_ft_scaled_font_lock_face (*scaled_ft);
-
-	cairo_font_options_destroy (options);
-	return face;
+	if (pHori) {
+		/* FIXME: FT docs seems to suggest the use of the OS/2 table */
+		family->cellascent = pHori->Ascender;
+		family->celldescent = -pHori->Descender;
+		family->linespacing = pHori->Ascender - pHori->Descender + pHori->Line_Gap;
+	} else {
+		family->cellascent = face->ascender;
+		family->celldescent = face->descender;
+		family->linespacing = face->height;
+	}
 }
 
-static void
-gdip_cairo_ft_font_unlock_face (cairo_scaled_font_t* scaled_ft)
+#ifdef USE_PANGO_RENDERING
+
+PangoFontDescription*
+gdip_get_pango_font_description (GpFont *font)
 {
-	cairo_ft_scaled_font_unlock_face (scaled_ft);
-	cairo_scaled_font_destroy (scaled_ft);
+	if (!font->pango) {
+		font->pango = pango_font_description_from_string ((char*)font->face);
+		pango_font_description_set_size (font->pango, font->emSize * PANGO_SCALE);
+
+		if (font->style & FontStyleBold)
+			pango_font_description_set_weight (font->pango, PANGO_WEIGHT_BOLD);
+
+		if (font->style & FontStyleItalic)
+			pango_font_description_set_style (font->pango, PANGO_STYLE_ITALIC);
+	}
+	return font->pango;
+}
+
+static GpStatus
+gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
+{
+	GpFont *font = NULL;
+	GpStatus status = GdipCreateFont (family, 8.0f, style, UnitPoint, &font);
+
+	if ((status == Ok) && font) {
+		PangoFontMap *map = pango_cairo_font_map_get_default (); /* owned by pango */
+		PangoContext *context = pango_cairo_font_map_create_context ((PangoCairoFontMap*)map);
+		PangoFont *pf = pango_font_map_load_font (map, context, gdip_get_pango_font_description (font));
+
+		FT_Face face = pango_fc_font_lock_face ((PangoFcFont*)pf);
+		if (face) {
+			gdip_get_fontfamily_details_from_freetype (family, face);
+
+			pango_fc_font_unlock_face ((PangoFcFont*)pf);
+		} else {
+			status = FontFamilyNotFound;
+		}
+
+		g_object_unref (context);
+	}
+
+	if (font)
+		GdipDeleteFont (font);
+	return status;
+}
+
+#else
+
+cairo_font_face_t*
+gdip_get_cairo_font_face (GpFont *font)
+{
+	if (!font->cairofnt) {
+		cairo_surface_t *surface = cairo_image_surface_create_for_data ((BYTE*)NULL, CAIRO_FORMAT_ARGB32, 0, 0, 0);
+		font->cairo = cairo_create (surface);
+
+		cairo_select_font_face (font->cairo, (const char *)font->family,
+			(font->style & FontStyleItalic) ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL,
+			(font->style & FontStyleBold) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
+		font->cairofnt = cairo_get_font_face (font->cairo);
+		cairo_font_face_reference (font->cairofnt);
+		cairo_surface_destroy (surface);
+	}
+	return font->cairofnt;
 }
 
 static GpStatus
@@ -587,37 +638,44 @@ gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 
 	if ((status == Ok) && font) {
 		cairo_scaled_font_t* scaled_ft;
+		FT_Face face = NULL;
+		cairo_matrix_t matrix1, matrix2;
+	        cairo_font_options_t *options = cairo_font_options_create ();
+		cairo_font_face_t* cairofnt = gdip_get_cairo_font_face (font);
 
-		FT_Face face = gdip_cairo_ft_font_lock_face (font->cairofnt, &scaled_ft);
-		if (face) {
-			TT_VertHeader *pVert = FT_Get_Sfnt_Table (face, ft_sfnt_vhea);
-			TT_HoriHeader *pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
-
-			if (pVert) {
-				family->height = pVert->yMax_Extent;
-			} else {
-				family->height = face->units_per_EM;
+		cairo_matrix_init (&matrix1, 1, 0, 0, 1, 0, 0);
+		cairo_matrix_init (&matrix2, 1, 0, 0, 1, 0, 0);
+		scaled_ft = cairo_scaled_font_create (cairofnt, &matrix1, &matrix2, options);
+		/* a missing fonts.conf will resuls in a NULL *scaled_ft (#78237) */
+		if (!scaled_ft) {
+			static int flag = 0;
+			if (flag == 0) {
+				g_warning ("couldn't lock the font face. this may be due to a missing fonts.conf on the system.");
+				flag = 1;
 			}
-
-			if (pHori) {
-				/* FIXME: FT docs seems to suggest the use of the OS/2 table */
-				family->cellascent = pHori->Ascender;
-				family->celldescent = -pHori->Descender;
-				family->linespacing = pHori->Ascender - pHori->Descender + pHori->Line_Gap;
-			} else {
-				family->cellascent = face->ascender;
-				family->celldescent = face->descender;
-				family->linespacing = face->height;
-			}
-
-			gdip_cairo_ft_font_unlock_face (scaled_ft);
-		} else
 			status = FontFamilyNotFound;
+		}
+
+		if (status == Ok)
+			face = cairo_ft_scaled_font_lock_face (scaled_ft);
+
+		cairo_font_options_destroy (options);
+
+		if (face) {
+			gdip_get_fontfamily_details_from_freetype (family, face);
+
+			cairo_ft_scaled_font_unlock_face (scaled_ft);
+			cairo_scaled_font_destroy (scaled_ft);
+		} else {
+			status = FontFamilyNotFound;
+		}
 	}
+
 	if (font)
 		GdipDeleteFont (font);
 	return status;
 }
+#endif
 
 GpStatus
 GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, guint16 *EmHeight)
@@ -690,22 +748,6 @@ GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAv
 }
 
 /* Font functions */
-static cairo_font_face_t*
-gdip_face_create (const char *family, 
-			cairo_font_slant_t   slant, 
-			cairo_font_weight_t  weight,
-			cairo_t** ct)
-{
-	cairo_surface_t *surface;
-	cairo_font_face_t *face;
-
-	surface = cairo_image_surface_create_for_data ((BYTE*)NULL, CAIRO_FORMAT_ARGB32, 0, 0, 0);
-	*ct = cairo_create (surface);
-	cairo_select_font_face (*ct, (const char *) family, slant, weight);
-	face = cairo_get_font_face (*ct);
-	cairo_surface_destroy (surface);
-	return face;
-}
 
 // coverity[+alloc : arg-*4]
 GpStatus
@@ -715,10 +757,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit un
 	FcChar8* str;
 	FcResult r;
 	GpFont *result;
-	cairo_font_slant_t slant;
-	cairo_font_weight_t weight;
 	float sizeInPixels;
-	cairo_font_face_t* cairofnt;
 	
 	if (!family || !font || (unit == UnitDisplay))
 		return InvalidParameter;
@@ -733,23 +772,6 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit un
 	result = (GpFont *) GdipAlloc (sizeof (GpFont));
 	result->sizeInPixels = sizeInPixels;
 
-        if ((style & FontStyleBold) == FontStyleBold)
-                weight = CAIRO_FONT_WEIGHT_BOLD;
-	else
-		weight = CAIRO_FONT_WEIGHT_NORMAL;
-
-        if ((style & FontStyleItalic) == FontStyleItalic)        
-                slant = CAIRO_FONT_SLANT_ITALIC;
-	else
-		slant = CAIRO_FONT_SLANT_NORMAL;
-
-	cairofnt = gdip_face_create ((const char*) str, slant, weight, &result->ct);
-
-	if (cairofnt == NULL) {
-		GdipFree(result);
-		return GenericError;
-	}
-
 	result->face = GdipAlloc(strlen((char *)str) + 1);
 	if (!result->face) {
 		GdipFree(result);
@@ -758,12 +780,17 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit un
 
 	memcpy(result->face, str, strlen((char *)str) + 1);
 
-	result->cairofnt = cairofnt;
         result->style = style;
 	result->emSize = emSize;
 	result->unit = unit;
 	result->family = (GpFontFamily*) family;
 	result->style = style;
+#ifdef USE_PANGO_RENDERING
+	result->pango = NULL;
+#else
+	result->cairofnt = NULL;
+	result->cairo = NULL;
+#endif
 	*font = result;	        		
 	return Ok;
 }
@@ -774,7 +801,15 @@ GdipDeleteFont (GpFont* font)
 	if (!font)
 		return InvalidParameter;
 
-	cairo_destroy (font->ct);
+#ifdef USE_PANGO_RENDERING
+	if (font->pango)
+		pango_font_description_free (font->pango);
+#else
+	if (font->cairofnt)
+		cairo_font_face_destroy (font->cairofnt);
+	if (font->cairo)
+		cairo_destroy (font->cairo);
+#endif
 
 	GdipFree (font->face);
 	GdipFree (font);
@@ -874,9 +909,6 @@ GdipCreateFontFromHfontA(void *hfont, GpFont **font, void *lf)
 {
 	GpFont			*src_font;
 	GpFont			*result;
-	cairo_font_face_t	*face;
-	cairo_font_slant_t	slant;
-	cairo_font_weight_t	weight;
 
 	src_font = (GpFont *)hfont;
 
@@ -891,17 +923,6 @@ GdipCreateFontFromHfontA(void *hfont, GpFont **font, void *lf)
 	result->emSize = src_font->emSize;
 	result->unit = src_font->unit;
 
-        if ((result->style & FontStyleBold) == FontStyleBold) {
-                weight = CAIRO_FONT_WEIGHT_BOLD;
-	} else {
-		weight = CAIRO_FONT_WEIGHT_NORMAL;
-	}
-
-        if ((result->style & FontStyleItalic) == FontStyleItalic) {
-                slant = CAIRO_FONT_SLANT_ITALIC;
-	} else {
-		slant = CAIRO_FONT_SLANT_NORMAL;
-	}
 	result->face = GdipAlloc(strlen((char *)src_font->face) + 1);
 	if (!result->face) {
 		GdipFree(result);
@@ -909,13 +930,6 @@ GdipCreateFontFromHfontA(void *hfont, GpFont **font, void *lf)
 	}
 
 	memcpy(result->face, src_font->face, strlen((char *)src_font->face) + 1);
-
-	result->cairofnt = gdip_face_create ((const char*) src_font->face, slant, weight, &result->ct);
-
-	if (result->cairofnt == NULL) {
-		GdipFree(result);
-		return GenericError;
-	}
 
 	*font = result;
 
@@ -937,17 +951,11 @@ GdipGetLogFontA (GpFont *font, GpGraphics *graphics, LOGFONTA *logfontA)
 static GpStatus
 gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, BOOL ucs2)
 {
-	GpFont			*result;
-	cairo_font_face_t	*face;
-	cairo_font_slant_t	slant;
-	cairo_font_weight_t	weight;
-	LOGFONTA		*logfont;
+	GpFont *result = (GpFont*) GdipAlloc (sizeof (GpFont));
+	LOGFONTA *logfont = (LOGFONTA *)lf;
 
-	logfont = (LOGFONTA *)lf;
-
-	result = (GpFont *) GdipAlloc(sizeof(GpFont));
 	if (logfont->lfHeight < 0) {
-		result->sizeInPixels = -(logfont->lfHeight);
+		result->sizeInPixels = fabs (logfont->lfHeight);
 	} else {
 		result->sizeInPixels = logfont->lfHeight;	// Fixme - convert units
 	}
@@ -959,18 +967,10 @@ gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, BOOL ucs2)
 
 	if (logfont->lfItalic) {
 		result->style |= FontStyleItalic;
-		slant = CAIRO_FONT_SLANT_ITALIC;
-	} else {
-		slant = CAIRO_FONT_SLANT_NORMAL;
 	}
-
 	if (logfont->lfWeight > 400) {
 		result->style |= FontStyleBold;
-		weight = CAIRO_FONT_WEIGHT_BOLD;
-	} else {
-		weight = CAIRO_FONT_WEIGHT_NORMAL;
 	}
-
 	if (logfont->lfUnderline) {
 		result->style |= FontStyleUnderline;
 	}
@@ -992,12 +992,6 @@ gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, BOOL ucs2)
 		}
 		memcpy(result->face, logfont->lfFaceName, LF_FACESIZE);
 		result->face[LF_FACESIZE - 1] = '\0';
-	}
-
-	result->cairofnt = gdip_face_create ((const char *)result->face, slant, weight, &result->ct);
-	if (result->cairofnt == NULL) {
-		GdipFree(result);
-		return GenericError;
 	}
 
 	*font = result;

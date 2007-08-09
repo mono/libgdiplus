@@ -91,6 +91,8 @@ libgdiplus_la_SOURCES = \
 	text.h				\
 	text-cairo.c			\
 	text-cairo-private.h		\
+	text-pango.c			\
+	text-pango-private.h		\
 	text-metafile.c			\
 	text-metafile-private.h		\
 	texturebrush.c			\

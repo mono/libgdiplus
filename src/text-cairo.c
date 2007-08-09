@@ -24,6 +24,9 @@
  */
 
 #include "gdiplus-private.h"
+
+#ifndef USE_PANGO_RENDERING
+
 #include "text-cairo-private.h"
 #include "graphics-private.h"
 #include "graphics-cairo-private.h"
@@ -209,10 +212,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 	cairo_set_font_face (graphics->ct, (cairo_font_face_t*) font->cairofnt);	/* Set our font; this will also be used for later drawing */
 
 	/* this will always return the same value, except when printing */
-	if (graphics->type == gtPostScript)
-		FontSize = gdip_unit_conversion (UnitPixel, UnitCairoPoint, gdip_get_display_dpi (), graphics->type, font->sizeInPixels);
-	else
-		FontSize = font->sizeInPixels;
+	FontSize = (graphics->type == gtPostScript) ? font->emSize : font->sizeInPixels;
 	cairo_set_font_size (graphics->ct, FontSize);
 	
 	cairo_font_extents (graphics->ct, &FontExtent);		/* Get the size we're looking for */
@@ -1198,3 +1198,5 @@ cleanup:
 
 	return status;
 }
+
+#endif

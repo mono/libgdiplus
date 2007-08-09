@@ -1,3 +1,17 @@
+2007-08-09  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* font.c | font-private.h: Refactor font code to work with either
+	Cairo+FreeType or Pango+FreeType.
+	* graphics-path.c: Adjust for Pango/Cairo rendering in AddString. The
+	Pango part isn't yet done.
+	* text.c: switch between Cairo or Pango rendering at compile time.
+	* text-cairo.c | text-cairo-private.h: Define out if pengo rendering
+	is active.
+	* text-pango.c | text-pango-private.h: New. Pango rendering using the
+	high-level API (PangoLayout). Not all options are supported (but then our
+	Cairo-based rendering never supported all of them either ;-)
+	* Makefile.am: Add text-pango.c and text-pango-private.h to the build.
+
 2007-08-02  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* text-cairo.c: Reverting patch for bug #78777 to fix bug #81572. 

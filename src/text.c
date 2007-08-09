@@ -26,7 +26,13 @@
  */
 
 #include "gdiplus-private.h"
-#include "text-cairo-private.h"
+
+#ifdef USE_PANGO_RENDERING
+	#include "text-pango-private.h"
+#else
+	#include "text-cairo-private.h"
+#endif
+
 #include "text-metafile-private.h"
 
 /*
@@ -45,7 +51,7 @@ GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPC
 
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
-		return cairo_DrawString (graphics, string, length, font, layoutRect, stringFormat, brush);
+		return text_DrawString (graphics, string, length, font, layoutRect, stringFormat, brush);
 	case GraphicsBackEndMetafile:
 		return metafile_DrawString (graphics, string, length, font, layoutRect, stringFormat, brush);
 	default:
@@ -85,7 +91,7 @@ GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GD
 	case GraphicsBackEndCairo:
 	/* a metafile-based graphics returns the correct measures but doesn't record anything */
 	case GraphicsBackEndMetafile:
-		return cairo_MeasureString (graphics, string, length, font, layoutRect, stringFormat, boundingBox, 
+		return text_MeasureString (graphics, string, length, font, layoutRect, stringFormat, boundingBox, 
 			codepointsFitted, linesFilled);
 	default:
 		return GenericError;
@@ -114,7 +120,7 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *string, int l
 	case GraphicsBackEndCairo:
 	/* a metafile-based graphics returns the correct measures but doesn't record anything */
 	case GraphicsBackEndMetafile:
-		return cairo_MeasureCharacterRanges (graphics, string, length, font, layoutRect, stringFormat, regionCount, 
+		return text_MeasureCharacterRanges (graphics, string, length, font, layoutRect, stringFormat, regionCount, 
 			regions);
 	default:
 		return GenericError;

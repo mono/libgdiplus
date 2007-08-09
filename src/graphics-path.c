@@ -1185,19 +1185,17 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 		return status;
 	}
 
-	cairo_set_font_face (cr, font->cairofnt);
-	cairo_set_font_size (cr, font->sizeInPixels);
-
-#if FALSE
-WCHAR name[LF_FACESIZE];
-GdipGetFamilyName (family, name, 0);
-g_warning ("GdipAddString \"%s\" (family: %s, size %g)", utf8, ucs2_to_utf8 ((const gunichar2 *)name, -1), font->sizeInPixels);
-#endif
-	/* TODO - deal with layoutRect, format... ideally we would be calling a subset
-	   of GdipDrawString that already does everything *and* preserve the whole path */
 	if (layoutRect)
 		cairo_move_to (cr, layoutRect->X, layoutRect->Y + font->sizeInPixels);
+
+#ifdef USE_PANGO_RENDERING
+#else
+	cairo_set_font_face (cr, gdip_get_cairo_font_face (font));
+	cairo_set_font_size (cr, font->sizeInPixels);
+	/* TODO - deal with layoutRect, format... ideally we would be calling a subset
+	   of GdipDrawString that already does everything *and* preserve the whole path */
 	cairo_text_path (cr, (const char*)utf8);
+#endif
 
 	/* get the font data from the cairo path and translate it as a gdi+ path */
 	cp = cairo_copy_path (cr);

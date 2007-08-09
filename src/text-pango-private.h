@@ -15,60 +15,45 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * Authors:
- *      Alexandre Pigolkine (pigolkine@gmx.de)
- *      Duncan Mak (duncan@ximian.com)
- *      Miguel de Icaza (miguel@ximian.com)
- *      Ravindra (rkumar@novell.com)
- *  	Sanjay Gupta (gsanjay@novell.com)
- *	Vladimir Vukicevic (vladimir@pobox.com)
- *	Geoff Norton (gnorton@customerdna.com)
- *      Jonathan Gilbert (logic@deltaq.org)
  *	Sebastien Pouliot  <sebastien@ximian.com>
  *
- * Copyright (C) 2003-2007 Novell, Inc (http://www.novell.com)
+ * Copyright (C) 2007 Novell, Inc (http://www.novell.com)
  */
 
 /*
  * NOTE: This is a private header files and everything is subject to changes.
  */
 
-#ifndef __FONT_PRIVATE_H__
-#define __FONT_PRIVATE_H__
+#ifndef __TEXT_PANGO_PRIVATE_H__
+#define __TEXT_PANGO_PRIVATE_H__
 
 #include "gdiplus-private.h"
 
 #ifdef USE_PANGO_RENDERING
-	#include <pango/pangofc-font.h>
-	#include <pango/pangocairo.h>
-#endif
 
-struct _Font {
-        float			sizeInPixels;
-        FontStyle		style;
-        unsigned char*		face;
-	GpFontFamily		*family;
-	float			emSize;
-	GpUnit			unit;
-#ifdef USE_PANGO_RENDERING
-	PangoFontDescription	*pango;
-#else
-	cairo_font_face_t	*cairofnt;
-	cairo_t			*cairo;
-#endif
-};
+#include <pango/pangocairo.h>
+#include "graphics-private.h"
+#include "stringformat-private.h"
 
-void gdip_font_clear_pattern_cache (void) GDIP_INTERNAL;
 
-#ifdef USE_PANGO_RENDERING
+#define	GDIP_WINDOWS_ACCELERATOR	'&'
+#define GDIP_PANGOHACK_ACCELERATOR	((char)1)
 
-PangoFontDescription* gdip_get_pango_font_description (GpFont *font);
+#define text_DrawString			pango_DrawString
+#define text_MeasureString		pango_MeasureString
+#define text_MeasureCharacterRanges	pango_MeasureCharacterRanges
 
-#else
 
-cairo_font_face_t* gdip_get_cairo_font_face (GpFont *font);
+GpStatus pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
+	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush) GDIP_INTERNAL;
+
+GpStatus pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
+	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, RectF *boundingBox, int *codepointsFitted, int *linesFilled)
+	GDIP_INTERNAL;
+
+GpStatus pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
+	GDIPCONST GpRectF *layout, GDIPCONST GpStringFormat *format, int regionCount, GpRegion **regions) GDIP_INTERNAL;
 
 #endif
-
-#include "font.h"
 
 #endif
