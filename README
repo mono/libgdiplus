@@ -16,3 +16,18 @@ To build:
 To install:
 
 	make install
+
+
+Optional build options [UNSUPPORTED]
+
+	--with-cairo=system
+
+	This build libgdiplus using the system's libcairo (and not the 
+	internal copy of Cairo that libgdiplus bundles). Minimum Cairo 
+	version is 1.4.
+
+	--with-pango
+
+	This build libgdiplus using Pango to render (measure and draw) 
+	all of it's text. This can only be enabled if --with-cairo=system
+	and requires Pango version 1.10 (or later).

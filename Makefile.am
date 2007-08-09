@@ -1,5 +1,4 @@
-SUBDIRS = cairo src tests
-#libpixman
+SUBDIRS = $(CAIRO_DIR) src tests
 
 pkgconfigdir = $(libdir)/pkgconfig
 

@@ -125,24 +125,38 @@ automake --add-missing --gnu $am_opt ||
 echo "Running autoconf ..."
 autoconf || { echo "**Error**: autoconf failed."; exit 1; }
 
-if test -d $srcdir/libpixman; then
-  echo Running libpixman/autogen.sh ...
-  (cd $srcdir/libpixman ; NOCONFIGURE=1 ./autogen.sh "$@")
-  echo Done running autogen.sh in libpixman...
-fi
+#if test -d $srcdir/libpixman; then
+#  echo Running libpixman/autogen.sh ...
+#  (cd $srcdir/libpixman ; NOCONFIGURE=1 ./autogen.sh "$@")
+#  echo Done running autogen.sh in libpixman...
+#fi
 
-if test -d $srcdir/cairo; then
-  echo Running cairo/autogen.sh ...
-  (cd $srcdir/cairo ; NOCONFIGURE=1 ./autogen.sh "$@")
-  echo Done running autogen.sh in cairo...
+CONF_OPTIONS=""
+CAIRO_AUTOGEN_REQUIRED=1
+until [ -z "$1" ]
+do
+  if [ "$1" = "--with-cairo=system" ]; then
+    echo Skipping internal cairo/autogen.sh ...
+    CAIRO_AUTOGEN_REQUIRED=0
+  fi
+  CONF_OPTIONS="$CONF_OPTIONS $1"
+  shift
+done
+
+if test "$CAIRO_AUTOGEN_REQUIRED" -eq 1; then
+  if test -d $srcdir/cairo; then
+    echo Running cairo/autogen.sh ...
+    (cd $srcdir/cairo ; NOCONFIGURE=1 ./autogen.sh "$@")
+    echo Done running autogen.sh in cairo...
+  fi
 fi
 
 
 conf_flags="--enable-maintainer-mode --enable-compile-warnings" #--enable-iso-c
 
 if test x$NOCONFIGURE = x; then
-  echo Running $srcdir/configure $conf_flags "$@" ...
-  $srcdir/configure $conf_flags "$@" \
+  echo Running $srcdir/configure $conf_flags $CONF_OPTIONS ...
+  $srcdir/configure $conf_flags $CONF_OPTIONS \
   && echo Now type \`make\' to compile $PKG_NAME || exit 1
 else
   echo Skipping configure process.

@@ -15,39 +15,52 @@ fi
 GLIB_REQUIRED_VERSION="2.2.3"
 PKG_CHECK_MODULES(BASE_DEPENDENCIES, glib-2.0 >= $GLIB_REQUIRED_VERSION)
 
-# force subdirectories (cairo, specifically) to build their static
-# libraries using position independent code.
-ac_configure_args="$ac_configure_args --with-pic=yes"
+GDIPLUS_LIBS="`pkg-config --libs glib-2.0 `"
+GDIPLUS_CFLAGS="`pkg-config --cflags glib-2.0 `"
 
-# disable the PDF and SVG surface backends of Cairo (unrequired for GDI+)
-ac_configure_args="$ac_configure_args --disable-pdf --disable-svg"
+# Optional use (still unsupported) of the system's Cairo library
+AC_ARG_WITH(cairo, [  --with-cairo=internal,system],[cairo_v=system],[cairo_v=internal])
 
-AC_CONFIG_SUBDIRS(cairo)
-CAIRO_LIBS='$(top_builddir)/cairo/src/libcairo.la'
-CAIRO_CFLAGS='-I$(top_builddir)/cairo/pixman/src -I$(top_srcdir)/cairo/pixman/src -I$(top_builddir)/cairo/src -I$(top_srcdir)/cairo/src'
-AC_DEFINE(USE_INCLUDED_CAIRO,1,[Use Cairo bundled in libgdiplus])
+# Optional use (experimental and unsupported) of Pango's text rendering on top of Cairo
+AC_ARG_WITH(pango, [  --with-pango],[text_v=pango],[text_v=cairo])
 
-# Activate this when we support linking to an already exiting Cairo installation
-#default_cairo=included
-#AC_ARG_WITH(cairo, [  --with-cairo=included,installed],[cairo_v=$with_cairo],[cairo_v=$default_cairo])
-#
-#if test $cairo_v = "included";
-#then
-#	#AC_CONFIG_SUBDIRS(libpixman)
-#	AC_CONFIG_SUBDIRS(cairo)
-#	CAIRO_LIBS='$(top_builddir)/cairo/src/libcairo.la'
-#	CAIRO_CFLAGS='-I$(top_builddir)/cairo/pixman/src -I$(top_srcdir)/cairo/pixman/src -I$(top_builddir)/cairo/src -I$(top_srcdir)/cairo/src'
-#	AC_DEFINE(USE_INCLUDED_CAIRO,1,[Use Cairo bundled in libgdiplus])
-#else
-#	if pkg-config --exact-version 0.3.0 cairo; then
-#		echo Cairo installation OK
-#	else
-#		AC_MSG_ERROR("Did not find Cairo == 0.3.0");
-#	fi
-#
-#	CAIRO_LIBS="`pkg-config --libs cairo`"
-#	CAIRO_CFLAGS="`pkg-config --cflags cairo`"
-#fi
+if test $cairo_v = "internal"; then
+	# force subdirectories (cairo, specifically) to build their static
+	# libraries using position independent code.
+	ac_configure_args="$ac_configure_args --with-pic=yes"
+
+	# disable the PDF and SVG surface backends of Cairo (unrequired for GDI+)
+	ac_configure_args="$ac_configure_args --disable-pdf --disable-svg"
+
+	AC_CONFIG_SUBDIRS(cairo)
+	CAIRO_DIR='cairo'
+	CAIRO_LIBS='$(top_builddir)/cairo/src/libcairo.la'
+	CAIRO_CFLAGS='-I$(top_builddir)/cairo/pixman/src -I$(top_srcdir)/cairo/pixman/src -I$(top_builddir)/cairo/src -I$(top_srcdir)/cairo/src'
+	AC_DEFINE(USE_INCLUDED_CAIRO,1,[Use Cairo bundled in libgdiplus])
+
+	if test $text_v = "pango"; then
+		AC_MSG_ERROR("Pango text rendering is only possible with --with-cairo=system")
+	fi
+else
+	CAIRO_REQUIRED_VERSION="1.4"
+	PKG_CHECK_MODULES(CAIRO, cairo >= $CAIRO_REQUIRED_VERSION)
+	CAIRO_DIR=""
+	CAIRO_LIBS="`pkg-config --libs cairo `"
+	CAIRO_CFLAGS="`pkg-config --cflags cairo `"
+	GDIPLUS_PKG_REQ="cairo"
+
+	if test $text_v = "pango"; then
+		PANGO_REQUIRED_VERSION="1.10"
+		PKG_CHECK_MODULES(PANGO, pango >= $PANGO_REQUIRED_VERSION)
+		PANGO_LIBS="`pkg-config --libs pangocairo `"
+		PANGO_CFLAGS="`pkg-config --cflags pangocairo `"
+		AC_DEFINE(USE_PANGO_RENDERING,1,[Use Pango to measure and draw text])
+		GDIPLUS_PKG_REQ="$GDIPLUS_PKG_REQ pangocairo-1.0"
+	fi
+fi
+
+GDIPLUS_LIBS="$GDIPLUS_LIBS $CAIRO_LIBS $PANGO_LIBS"
+GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS $CAIRO_CFLAGS $PANGO_CFLAGS"
 
 # Fall back to using fontconfig/freetype-config if their .pc is not found
 PKG_CHECK_MODULES(FONTCONFIG, fontconfig,
@@ -72,8 +85,8 @@ if test "x$FREETYPE2" = "xno"; then
 	fi
 fi
 
-GDIPLUS_LIBS="`pkg-config --libs glib-2.0 ` $FONTCONFIG_LIBS $FREETYPE2_LIBS"
-GDIPLUS_CFLAGS="`pkg-config --cflags glib-2.0 ` $FONTCONFIG_CFLAGS $FREETYPE2_CFLAGS"
+GDIPLUS_LIBS="$GDIPLUS_LIBS $FONTCONFIG_LIBS $FREETYPE2_LIBS"
+GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS $FONTCONFIG_CFLAGS $FREETYPE2_CFLAGS"
 
 # Add xrender here so that we don't fail to find glib if we won't have xrender.pc
 GDIPLUS_LIBS="$GDIPLUS_LIBS `pkg-config --libs xrender `"
@@ -338,13 +351,11 @@ fi
 GDIPLUS_PKG_LIBS="$GDIPLUS_LIBS"
 GDIPLUS_PKG_CFLAGS="$GDIPLUS_CFLAGS"
  
-GDIPLUS_LIBS="$CAIRO_LIBS $GDIPLUS_LIBS"
-GDIPLUS_CFLAGS="$CAIRO_CFLAGS $GDIPLUS_CFLAGS"
-
 AC_SUBST(GDIPLUS_LIBS)
 AC_SUBST(GDIPLUS_CFLAGS)
 AC_SUBST(GDIPLUS_PKG_LIBS)
 AC_SUBST(GDIPLUS_PKG_CFLAGS)
+AC_SUBST(GDIPLUS_PKG_REQ)
 
 AC_OUTPUT([
 Makefile
@@ -356,6 +367,8 @@ echo "---"
 echo "Configuration summary"
 echo ""
 echo "   * Installation prefix = $prefix"
+echo "   * Cairo = $cairo_v"
+echo "   * Text = $text_v"
 echo "   * EXIF tags = $libexif_pkgconfig"
 echo "   * Codecs supported:"
 echo ""

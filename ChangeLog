@@ -1,3 +1,17 @@
+2007-08-09  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* autogen.sh: Skip running cairo/autogen.sh if we're not using our
+	internal copy of Cairo.
+	* configure.in: Add --with-cairo=internal,system and --with-pango
+	(unsupported) options.
+	* libgdiplus.pc.in: Add additional requirements if the system's Cairo
+	and/or Pango are being used.
+	* Makefile.am: Don't include cairo in SUBDIRS if we're not using our
+	internal copy of Cairo.
+	* NEWS: Link to mono-project.com
+	* README: Added new build options
+	* TODO: refreshed
+
 2007-07-24  Wade Berrier  <wberrier@novell.com>
 
 	* configure.in: version bump -> 1.2.5
