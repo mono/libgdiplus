@@ -33,7 +33,7 @@ if test $cairo_v = "internal"; then
 	ac_configure_args="$ac_configure_args --disable-pdf --disable-svg"
 
 	AC_CONFIG_SUBDIRS(cairo)
-	CAIRO_DIR='cairo'
+	CAIRO_DIR="cairo"
 	CAIRO_LIBS='$(top_builddir)/cairo/src/libcairo.la'
 	CAIRO_CFLAGS='-I$(top_builddir)/cairo/pixman/src -I$(top_srcdir)/cairo/pixman/src -I$(top_builddir)/cairo/src -I$(top_srcdir)/cairo/src'
 	AC_DEFINE(USE_INCLUDED_CAIRO,1,[Use Cairo bundled in libgdiplus])
@@ -356,6 +356,7 @@ AC_SUBST(GDIPLUS_CFLAGS)
 AC_SUBST(GDIPLUS_PKG_LIBS)
 AC_SUBST(GDIPLUS_PKG_CFLAGS)
 AC_SUBST(GDIPLUS_PKG_REQ)
+AC_SUBST(CAIRO_DIR)
 
 AC_OUTPUT([
 Makefile
