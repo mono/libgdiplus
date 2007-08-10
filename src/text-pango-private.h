@@ -44,6 +44,9 @@
 #define text_MeasureCharacterRanges	pango_MeasureCharacterRanges
 
 
+PangoLayout* gdip_pango_setup_layout (cairo_t *ct, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
+	GDIPCONST RectF *rc, RectF *box, GDIPCONST GpStringFormat *format);
+
 GpStatus pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
 	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush) GDIP_INTERNAL;
 

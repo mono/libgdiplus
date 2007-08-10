@@ -33,6 +33,10 @@
 #include "matrix-private.h"
 #include "font-private.h"
 
+#ifdef USE_PANGO_RENDERING
+	#include "text-pango-private.h"
+#endif
+
 static GArray *
 array_to_g_array (const GpPointF *pt, int length)
 {
@@ -1189,6 +1193,16 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 		cairo_move_to (cr, layoutRect->X, layoutRect->Y + font->sizeInPixels);
 
 #ifdef USE_PANGO_RENDERING
+	{
+	GpRectF box;
+	PangoLayout* layout; 
+
+	cairo_save (cr);
+	layout = gdip_pango_setup_layout (cr, string, length, font, layoutRect, &box, format);
+	pango_cairo_layout_path (cr, layout);
+	g_object_unref (layout);
+	cairo_restore (cr);
+	}
 #else
 	cairo_set_font_face (cr, gdip_get_cairo_font_face (font));
 	cairo_set_font_size (cr, font->sizeInPixels);

@@ -1,3 +1,10 @@
+2007-08-10  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: Reuse gdip_pango_setup_layout for paths (needs
+	testing).
+	* text-pango.c | text-pango-private.h: Make API usable for 
+	GdipAddPathString and free (unref) the PangoLayout.
+
 2007-08-09  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c | font-private.h: Refactor font code to work with either

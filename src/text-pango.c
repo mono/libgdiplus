@@ -68,8 +68,8 @@ gdip_process_accelerators (gchar *text, int length, PangoAttrList *list)
 	}
 }
 
-static PangoLayout*
-gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
+PangoLayout*
+gdip_pango_setup_layout (cairo_t *ct, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
 	GDIPCONST RectF *rc, RectF *box, GDIPCONST GpStringFormat *format)
 {
 	GpStringFormat *fmt;
@@ -104,7 +104,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 			length = 1;
 	}
 
-	layout = pango_cairo_create_layout (graphics->ct);
+	layout = pango_cairo_create_layout (ct);
 
 	/* context is owned by Pango (i.e. not referenced counted) do not free */
 	context = pango_layout_get_context (layout);
@@ -174,8 +174,8 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 	if ((rc->Width != 0) && (rc->Height != 0) && ((fmt->formatFlags & StringFormatFlagsNoClip) == 0)) {
 //g_warning ("\tclip [%g %g %g %g]", rc->X, rc->Y, rc->Width, rc->Height);
 		/* We do not call cairo_reset_clip because we want to take previous clipping into account */
-		gdip_cairo_rectangle (graphics, rc->X, rc->Y, rc->Width, rc->Height, TRUE);
-		cairo_clip (graphics->ct);
+		cairo_rectangle (ct, rc->X, rc->Y, rc->Width + 0.5, rc->Height + 0.5);
+		cairo_clip (ct);
 	}
 
 	switch (fmt->trimming) {
@@ -278,7 +278,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 	}
 //g_warning ("va-box\t[x %g, y %g, w %g, h %g]", box->X, box->Y, box->Width, box->Height);
 
-	pango_cairo_update_layout (graphics->ct, layout);
+	pango_cairo_update_layout (ct, layout);
 
 	return layout;
 }
@@ -292,7 +292,7 @@ pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int leng
 
 	cairo_save (graphics->ct);
 
-	layout = gdip_pango_setup_layout (graphics, stringUnicode, length, font, rc, &box, format);
+	layout = gdip_pango_setup_layout (graphics->ct, stringUnicode, length, font, rc, &box, format);
 	if (!layout) {
 		cairo_restore (graphics->ct);
 		return OutOfMemory;
@@ -308,6 +308,7 @@ pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int leng
 	gdip_cairo_move_to (graphics, box.X, box.Y, FALSE, TRUE);
 	pango_cairo_show_layout (graphics->ct, layout);
 
+	g_object_unref (layout);
 	cairo_restore (graphics->ct);
 	return Ok;
 }
@@ -320,7 +321,7 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 	cairo_save (graphics->ct);
 
-	layout = gdip_pango_setup_layout (graphics, stringUnicode, length, font, rc, boundingBox, format);
+	layout = gdip_pango_setup_layout (graphics->ct, stringUnicode, length, font, rc, boundingBox, format);
 	if (!layout) {
 		cairo_restore (graphics->ct);
 		return OutOfMemory;
@@ -337,6 +338,7 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	}
 //else g_warning ("linesFilled %d", pango_layout_get_line_count (layout));
 
+	g_object_unref (layout);
 	cairo_restore (graphics->ct);
 	return Ok;
 }
@@ -352,7 +354,7 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 
 	cairo_save (graphics->ct);
 
-	layout = gdip_pango_setup_layout (graphics, stringUnicode, length, font, layoutRect, &boundingBox, format);
+	layout = gdip_pango_setup_layout (graphics->ct, stringUnicode, length, font, layoutRect, &boundingBox, format);
 	if (!layout) {
 		cairo_restore (graphics->ct);
 		return OutOfMemory;
