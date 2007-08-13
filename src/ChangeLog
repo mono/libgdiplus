@@ -1,3 +1,10 @@
+2007-08-13  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* text.notes: New. Notes about text rendering.
+	* text-cairo.c: Add correct support for MeasureTrailingSpaces
+	* text-pango.c: Optimize the case where the font is underlined and
+	HotkeyPrefixShow is used.
+
 2007-08-10  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c: Reuse gdip_pango_setup_layout for paths (needs

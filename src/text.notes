@@ -1,0 +1,25 @@
+Notes, funny facts and $#&^*@# stuff on text rendering
+------------------------------------------------------
+
+Since there's not much documentation on every options (and parts of it is
+wrong) here's are my little rambling^H notes on the subject...
+
+
+GDI+
+
+- It seems that HotkeyPrefixShow is never seen when we use an underline font;
+
+- StringFormatFlagsMeasureTrailingSpaces not only measure the trailing space,
+it also render them (e.g. underline and strikeout) - but that's not true if
+	- DirectionRightToLeft is specified; or
+	- DirectionVertical is specified; or
+	- both DirectionRightToLeft and DirectionVertical are specified; or
+	- there's more than a single line being rendered
+
+
+- StringFormatFlagsMeasureTrailingSpaces doesn't affect the number of 
+characters reported by GdipMeasureString *codepointsFitted out parameter. 
+I.e. all trailing space are "fitted" - even if not measured.
+
+- HotkeyPrefix[None|Hide|Show] also has no effect on GdipMeasureString 
+*codepointsFitted out parameter. 

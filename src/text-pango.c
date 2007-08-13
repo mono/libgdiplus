@@ -239,10 +239,16 @@ gdip_pango_setup_layout (cairo_t *ct, GDIPCONST WCHAR *stringUnicode, int length
 		gdip_process_accelerators (text, length, NULL);
 		break;
 	case HotkeyPrefixShow:
-		/* find accelerator and add attribute to the next character (unless it's the prefix too) */
-		if (!list)
-			list = gdip_get_layout_attributes (layout);
-		gdip_process_accelerators (text, length, list);
+		/* optimization: is seems that we never see the hotkey when using an underline font */
+		if (font->style & FontStyleUnderline) {
+			/* so don't bother drawing it (and simply add the '&' character) */
+			gdip_process_accelerators (text, length, NULL);
+		} else {
+			/* find accelerator and add attribute to the next character (unless it's the prefix too) */
+			if (!list)
+				list = gdip_get_layout_attributes (layout);
+			gdip_process_accelerators (text, length, list);
+		}
 		break;
 	default:
 		break;
