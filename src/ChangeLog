@@ -1,3 +1,8 @@
+2007-08-13  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* text-pango.c: Ensure we can use the results of MeasureString to 
+	DrawString and get the same results.
+
 2007-08-13  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* text.notes: New. Notes about text rendering.

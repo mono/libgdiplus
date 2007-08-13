@@ -268,7 +268,8 @@ gdip_pango_setup_layout (cairo_t *ct, GDIPCONST WCHAR *stringUnicode, int length
 	box->X = rc->X;
 	box->Y = rc->Y;
 	box->Height = logical.height;
-	box->Width = logical.width;
+	/* add an extra pixel for our AA hack + 2 more if we don't draw on the box itself */
+	box->Width = logical.width + (fmt->formatFlags & StringFormatFlagsNoFitBlackBox) ? 1 : 3;
 //g_warning ("\tbox\t[x %g, y %g, w %g, h %g]", box->X, box->Y, box->Width, box->Height);
 
 	/* vertical alignment*/
@@ -401,7 +402,7 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 			charRect.Y = (float)box.y / PANGO_SCALE;
 			charRect.Width = (float)box.width / PANGO_SCALE;
 			charRect.Height = (float)box.height / PANGO_SCALE;
-
+//g_warning ("[%d] [%d : %d-%d] %c [x %g y %g w %g h %g]", i, j, start, end, (char)stringUnicode[j], charRect.X, charRect.Y, charRect.Width, charRect.Height);
 			status = GdipCombineRegionRect (regions [i], &charRect, CombineModeUnion);
 			if (status != Ok)
 				break;
