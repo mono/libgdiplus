@@ -44,15 +44,10 @@ win_draw(win_t *win)
 	GpStatus st;
 	GpImage *img;
 	gunichar2 *unis;
-	cairo_surface_t *surface;
 
 	XClearWindow(win->dpy, win->win);
 
-	surface = cairo_xlib_surface_create(win->dpy, win->win,
-					    DefaultVisual(win->dpy, DefaultScreen(win->dpy)),
-					    win->width, win->height);
-
-	GdipCreateFromXDrawable_linux (NULL, NULL, &gp);
+	GdipCreateFromXDrawable_linux (win->win, win->dpy, &gp);
         {	
 		GpPen *pen;
 		GpSolidFill *brush;

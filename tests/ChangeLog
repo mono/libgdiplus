@@ -1,3 +1,7 @@
+2007-10-04  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* testgdi.c: Fix segfault. Patch by Yoichi NAKAYAMA.
+
 2007-07-31  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* Makefile.am: Add two new tests;
