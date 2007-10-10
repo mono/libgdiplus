@@ -49,12 +49,8 @@ esac
 
 
 # some terminal codes ...
-boldface="`tput bold 2>/dev/null`"
-normal="`tput sgr0 2>/dev/null`"
-printbold() {
-    echo $ECHO_N "$boldface"
+printmsg() {
     echo "$@"
-    echo $ECHO_N "$normal"
 }
 printerr() {
     echo "$@" >&2
@@ -94,11 +90,11 @@ version_check() {
 
     vc_checkprog=`eval echo "\\$$vc_variable"`
     if [ -n "$vc_checkprog" ]; then
-	printbold "using $vc_checkprog for $vc_package"
+	printmsg "using $vc_checkprog for $vc_package"
 	return 0
     fi
 
-    printbold "checking for $vc_package >= $vc_min_version..."
+    printmsg "checking for $vc_package >= $vc_min_version..."
     for vc_checkprog in $vc_checkprogs; do
 	echo $ECHO_N "  testing $vc_checkprog... "
 	if $vc_checkprog --version < /dev/null > /dev/null 2>&1; then
