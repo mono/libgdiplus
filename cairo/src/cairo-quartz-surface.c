@@ -1718,6 +1718,8 @@ cairo_quartz_surface_create (cairo_format_t format,
 	return (cairo_surface_t*) &_cairo_surface_nil;
     }
 
+	memset (imageData, 0x0, height * stride);
+
     cgc = CGBitmapContextCreate (imageData,
 				 width,
 				 height,

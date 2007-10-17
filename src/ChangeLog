@@ -1,3 +1,15 @@
+2007-10-17  Geoff Norton  <gnorton@novell.com>
+
+	* graphics.c: Construct the quartz surface with a image backend so all
+	cairo operations can complete without failure.  We blit the image to the
+	real cgContext when Flush () is called.
+	* graphics-private.h: Set CAIRO_AA_OFFSET_X to 0.5 when running on a Mac.
+	Add cg_context to Graphics structure when built with the Quartz surface
+	so we can blit the resultant image to the real context.
+	Add declarations for the CoreGraphics structures we need for the blitting.
+	Add declarations for the CoreGraphics / cairo functions we need to call for
+	blitting.
+
 2007-08-13  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* text-pango.c: Ensure we can use the results of MeasureString to 

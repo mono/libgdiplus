@@ -42,8 +42,13 @@
 #include "region-private.h"
 #include "metafile.h"
 
+#ifdef CAIRO_HAS_QUARTZ_SURFACE
+#define CAIRO_AA_OFFSET_X		0.5
+#define CAIRO_AA_OFFSET_Y		0.5
+#else
 #define CAIRO_AA_OFFSET_X		1
 #define CAIRO_AA_OFFSET_Y		0.5
+#endif
 
 #define CURVE_MIN_TERMS			1
 #define CURVE_MAX_TERMS			7
@@ -131,6 +136,9 @@ typedef struct _Graphics {
 	float			dpi_x;
 	float			dpi_y;
 	int			text_contrast;
+#ifdef CAIRO_HAS_QUARTZ_SURFACE
+	void		*cg_context;
+#endif
 } Graphics;
 
 float gdip_unit_conversion (Unit from, Unit to, float dpi, GraphicsType type, float nSrc) GDIP_INTERNAL;
@@ -146,6 +154,38 @@ void gdip_cairo_move_to (GpGraphics *graphics, double x, double y, BOOL convert_
 void gdip_cairo_line_to (GpGraphics *graphics, double x, double y, BOOL convert_units, BOOL antialiasing) GDIP_INTERNAL;
 void gdip_cairo_curve_to (GpGraphics *graphics, double x1, double y1, double x2, double y2, double x3, double y3, 
 	BOOL convert_units, BOOL antialiasing) GDIP_INTERNAL;
+
+#ifdef CAIRO_HAS_QUARTZ_SURFACE
+// For the Quartz backend to function we need a few structures and function declarations.
+// Unfortunately including the headers causes conflicts with internal types.  This must
+// be kept in sync with any changes that might happen (albeit unlikely) to apples structures
+struct CGPoint {
+   float x;
+   float y;
+};
+
+typedef struct CGPoint CGPoint;
+
+struct CGSize {
+   float width;
+   float height;
+};
+
+typedef struct CGSize CGSize;
+
+struct CGRect {
+   CGPoint origin;
+   CGSize size;
+};
+
+typedef struct CGRect CGRect;
+
+void *CGBitmapContextCreateImage (void *context);
+void CGContextDrawImage (void *context, CGRect rect, void *image);
+void *cairo_quartz_surface_get_cg_context(cairo_surface_t *surface);
+cairo_surface_t *cairo_quartz_surface_create (int format, int width, int height);
+cairo_surface_t *cairo_quartz_surface_create_for_cg_context (void *ctx, int width, int height);
+#endif
 
 /* include public API */
 #include "image.h"

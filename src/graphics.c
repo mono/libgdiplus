@@ -254,22 +254,16 @@ GdipCreateFromHWND (void *hwnd, GpGraphics **graphics)
 #endif
 
 #ifdef CAIRO_HAS_QUARTZ_SURFACE
-
-/* This is a dirty hack; but it gets us around header include issues for now
- FIXME: We need to split all the X11 stuff off into its own file(s) so that
- different backends / font backends can be easily introduced in the future. */
-cairo_surface_t *cairo_quartz_surface_create(void *ctx, int width, int height);
-
 // coverity[+alloc : arg-*3]
 GpStatus
 GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **graphics)
 {
-        cairo_surface_t *surface;
+	cairo_surface_t *surface;
 
 	if (!graphics)
 		return InvalidParameter;
 
-	surface = cairo_quartz_surface_create(ctx, width, height);
+	surface = cairo_quartz_surface_create (0, width, height);
 
 	*graphics = gdip_graphics_new(surface);
 	(*graphics)->dpi_x = (*graphics)->dpi_y = gdip_get_display_dpi ();
@@ -279,6 +273,7 @@ GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **grap
 	(*graphics)->bounds.Height = height;
 
 	(*graphics)->type = gtOSXDrawable;
+	(*graphics)->cg_context = ctx;
 
 	return Ok;
 }
@@ -1858,6 +1853,18 @@ GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 
 	surface = cairo_get_target (graphics->ct);
 	cairo_surface_flush (surface);
+
+#ifdef CAIRO_HAS_QUARTZ_SURFACE
+	if (graphics->type == gtOSXDrawable) {
+		CGRect rect;
+	
+		rect.origin.x = 0;
+		rect.origin.y = 0;
+		rect.size.width = graphics->bounds.Width;
+		rect.size.height = graphics->bounds.Height;
+		CGContextDrawImage (graphics->cg_context, rect, CGBitmapContextCreateImage (cairo_quartz_surface_get_cg_context (surface)));
+	}
+#endif
 	return Ok;
 }
 
