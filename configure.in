@@ -274,10 +274,8 @@ dnl Test for libgif or libungif
         GIF='gif'; LIBGIF='-lgif',
 	AC_MSG_WARN(*** GIF loader will not be built (giflibrary not found) ***))],
       AC_MSG_WARN(*** GIF loader will not be built (giflibrary not found) ***))
-  fi
 
-if ! test x$GIF != x; then
-   AC_CHECK_LIB(ungif, DGifOpenFileName,
+    AC_CHECK_LIB(ungif, DGifOpenFileName,
       [AC_CHECK_HEADER(gif_lib.h,
 	GIF='ungif'; LIBGIF='-lungif',
 	AC_MSG_WARN(*** GIF loader will not be built (ungiflibrary not found) ***))],

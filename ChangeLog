@@ -1,3 +1,8 @@
+2007-10-26  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* configure.in: Make sure --without-libgif works (as we also check
+	for libungif)
+
 2007-08-09  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* autogen.sh: Skip running cairo/autogen.sh if we're not using our
