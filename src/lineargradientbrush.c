@@ -336,12 +336,13 @@ gdip_linear_gradient_setup (GpGraphics *graphics, GpBrush *brush)
 	if (linear->base.changed || !linear->pattern) {
 
 		/* destroy the existing pattern */
-		if (linear->pattern)
+		if (linear->pattern) {
 			cairo_pattern_destroy (linear->pattern);
-
-		if (linear->wrapMode == WrapModeClamp) {
-			return InvalidParameter;
+			linear->pattern = NULL;
 		}
+
+		if (linear->wrapMode == WrapModeClamp)
+			return InvalidParameter;
 			
 		status = create_tile_linear (graphics, ct, linear);
 
