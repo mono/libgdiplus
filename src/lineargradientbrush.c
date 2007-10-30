@@ -521,7 +521,7 @@ GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARG
 
 	linear->points [0].X = linear->rectangle.X;
 	linear->points [0].Y = linear->rectangle.Y;
-	linear->points [1].X = linear->rectangle.X + linear->rectangle.Width + 1;
+	linear->points [1].X = linear->rectangle.X + linear->rectangle.Width;
 	linear->points [1].Y = linear->rectangle.Y;
 
 	linear->angle = linear->angle * DEGTORAD;

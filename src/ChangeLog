@@ -1,3 +1,9 @@
+2007-10-30  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* lineargradientbrush.c: Remove small (+1) cosmetic fix that breaks
+	severely when a scale transform is applied to the gradient. Fix bug
+	#325178
+
 2007-10-30  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics.c: Remove gdip_plot_path (duplicate) function.
