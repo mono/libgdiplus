@@ -44,6 +44,10 @@
  */
 #define gdip_cairo_pen_width_needs_adjustment(pen)	(((int)(pen->width) & 1) == 0)
 
+cairo_fill_rule_t gdip_convert_fill_mode (FillMode fill_mode) GDIP_INTERNAL;
+GpStatus gdip_plot_path (GpGraphics *graphics, GpPath *path, BOOL antialiasing) GDIP_INTERNAL;
+
+
 GpStatus cairo_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle, 
 	float sweepAngle) GDIP_INTERNAL;
 GpStatus cairo_DrawArcI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height, float startAngle, 

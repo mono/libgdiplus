@@ -67,8 +67,8 @@ stroke_graphics_with_pen (GpGraphics *graphics, GpPen *pen)
         return gdip_get_status (cairo_status (graphics->ct));
 }
 
-static cairo_fill_rule_t
-convert_fill_mode (FillMode fill_mode)
+cairo_fill_rule_t
+gdip_convert_fill_mode (FillMode fill_mode)
 {
         if (fill_mode == FillModeAlternate) 
                 return CAIRO_FILL_RULE_EVEN_ODD;
@@ -510,7 +510,7 @@ cairo_DrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, i
 	return stroke_graphics_with_pen (graphics, pen);
 }
 
-static GpStatus
+GpStatus
 gdip_plot_path (GpGraphics *graphics, GpPath *path, BOOL antialiasing)
 {
         int length = path->count;
@@ -579,7 +579,7 @@ cairo_FillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 	if (status != Ok)
 		return status;
 
-	cairo_set_fill_rule (graphics->ct, convert_fill_mode (path->fill_mode));
+	cairo_set_fill_rule (graphics->ct, gdip_convert_fill_mode (path->fill_mode));
 
 	// filled paths includes the stroke
 	return fill_graphics_with_brush (graphics, brush, TRUE);
@@ -722,7 +722,7 @@ GpStatus
 cairo_FillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, FillMode fillMode)
 {
 	make_polygon (graphics, points, count, FALSE);
-	cairo_set_fill_rule (graphics->ct, convert_fill_mode (fillMode));
+	cairo_set_fill_rule (graphics->ct, gdip_convert_fill_mode (fillMode));
 	return fill_graphics_with_brush (graphics, brush, FALSE);
 }
 
@@ -730,7 +730,7 @@ GpStatus
 cairo_FillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count, FillMode fillMode)
 {
 	make_polygon_from_integers (graphics, points, count, FALSE);
-	cairo_set_fill_rule (graphics->ct, convert_fill_mode (fillMode));
+	cairo_set_fill_rule (graphics->ct, gdip_convert_fill_mode (fillMode));
 	return fill_graphics_with_brush (graphics, brush, FALSE);
 }
 

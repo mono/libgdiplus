@@ -936,55 +936,6 @@ GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int
 	}
 }
 
-static GpStatus
-gdip_plot_path (GpGraphics *graphics, GpPath *path, BOOL antialiasing)
-{
-        int length = path->count;
-        int i, idx = 0;
-
-        for (i = 0; i < length; ++i) {
-                GpPointF pt = g_array_index (path->points, GpPointF, i);
-                BYTE type = g_array_index (path->types, BYTE, i);
-                GpPointF pts [3];
-
-		/* mask the bits so that we get only the type value not the other flags */
-                switch (type & PathPointTypePathTypeMask) {
-                case PathPointTypeStart:
-			gdip_cairo_move_to (graphics, pt.X, pt.Y, TRUE, antialiasing);
-                        break;
-
-                case PathPointTypeLine:
-			gdip_cairo_line_to (graphics, pt.X, pt.Y, TRUE, antialiasing);
-                        break;
-
-                case PathPointTypeBezier:
-                        /* make sure we only add at most 3 points to pts */
-                        if (idx < 3) {
-                                pts [idx] = pt;
-                                idx ++;
-                        }
-
-                        /* once we've added 3 pts, we can draw the curve */
-                        if (idx == 3) {
-				gdip_cairo_curve_to (graphics, pts[0].X, pts[0].Y, pts[1].X, pts[1].Y,
-					pts[2].X, pts[2].Y, TRUE, antialiasing);
-
-                                idx = 0;
-                        }
-
-                        break;
-                default:
-			g_warning ("Unknown PathPointType %d", type);
-                        return NotImplemented;
-                }
-
-		/* close the subpath */
-		if (type & PathPointTypeCloseSubpath)
-			cairo_close_path (graphics->ct);
-        }
-	return Ok;
-}
-
 GpStatus
 GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 {

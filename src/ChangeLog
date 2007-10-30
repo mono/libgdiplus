@@ -1,3 +1,12 @@
+2007-10-30  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics.c: Remove gdip_plot_path (duplicate) function.
+	* graphics-cairo.c|h: Change [gdip_]convert_fill_mode visibility.
+	* graphics-path.c: Remove old code used for Is[Outline]Visible 
+	functions and use the cairo functions (with some adjustments). This
+	fix bug #325502 (ellipse didn't work). This should also fix some 
+	cases where GpGraphics should have been used for the check.
+
 2007-10-29  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* lineargradientbrush.c: Nullify linear->pattern since we can return

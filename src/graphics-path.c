@@ -22,16 +22,12 @@
  *      Duncan Mak (duncan@ximian.com)
  *      Ravindra (rkumar@novell.com)
  *	Sebastien Pouliot  <sebastien@ximian.com>
- *
- * Additional copyrights:
- *	gdip_point_in_polygon is based on INPOLY.C (http://www.visibone.com/inpoly/inpoly.c.txt)
- * 	by Bob Stein (stein@visibone.com) & Craig Yap (craig@cse.fau.edu)
- *	Copyright (c) 1995-1996 Galacticomm, Inc.  Freeware source code.
  */
  
 #include "graphics-path-private.h"
 #include "matrix-private.h"
 #include "font-private.h"
+#include "graphics-cairo-private.h"
 
 #ifdef USE_PANGO_RENDERING
 	#include "text-pango-private.h"
@@ -985,7 +981,6 @@ GdipAddPathRectangles (GpPath *path, const GpRectF *rects, int count)
 GpStatus
 GdipAddPathEllipse (GpPath *path, float x, float y, float width, float height)
 {
-        float C1 = 0.552285;
         double rx = width / 2;
         double ry = height / 2;
         double cx = x + rx;
@@ -1901,206 +1896,108 @@ GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, c
 	return Ok;
 }
 
-/* adapted from http://www.visibone.com/inpoly/inpoly.c.txt */
-static BOOL
-gdip_point_in_polygon (GpPath *path, int start, int end, float x, float y)
-{
-	GpPointF old, new;
-	float x1, y1, x2, y2;
-	int x0 = iround (x);
-	int y0 = iround (y);
-	BOOL inside = FALSE;
-	int npoints = end - start + 1;
-	int i;
-
-	if (npoints < 3)
-		return FALSE; /* not a polygon */
-
-	old = g_array_index (path->points, GpPointF, end);
-	for (i = 0; i < npoints ; i++) {
-		new = g_array_index (path->points, GpPointF, start + i);
-		if (new.X > old.X) {
-			x1 = old.X;
-			x2 = new.X;
-			y1 = old.Y;
-			y2 = new.Y;
-		} else {
-			x1 = new.X;
-			x2 = old.X;
-			y1 = new.Y;
-			y2 = old.Y;
-		}
-
-		if ((new.X <= x0) == (x0 < old.X) && ((y0 - y1) * (x2 - x1) < (y2 - y1) * (x0 - x1))) {
-			inside = !inside;
-		}
-		old = new;
-	}
-	return inside;
-}
-
-/* MonoTODO - GpGraphics is ignored */
 GpStatus 
 GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, BOOL *result)
 {
 	GpStatus status = Ok;
-	GpPath *workpath = NULL;
-	int start, end;
+	cairo_surface_t* s = NULL;
+	GpGraphics *g;
+	GpUnit page_unit = UnitPixel;
 
 	if (!path || !result)
 		return InvalidParameter;
 
-	*result = FALSE;
-
-	/* we clone the supplied path if it contains curves (we only deal with lines) */
-	if (gdip_path_has_curve (path)) {
-		status = GdipClonePath (path, &workpath);
-		if (status != Ok) {
-			if (workpath)
-				GdipDeletePath (workpath);
-			return status;
-		}
-
-		status = GdipFlattenPath (workpath, NULL, 25.0f);
+	if (graphics) {
+		g = graphics;
+		cairo_save (g->ct);
+		page_unit = g->page_unit;
 	} else {
-		workpath = path;
+		/* create a temporary context */
+		s = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 1, 1);
+		g = gdip_graphics_new (s);
+	}
+
+	cairo_new_path (g->ct);
+	/* unit tests shows that PageUnit isn't consireded (well x, y are probably considered to be the same unit format ) */
+	g->page_unit = UnitPixel;
+	status = gdip_plot_path (g, path, FALSE);
+	if (status == Ok) {
+		cairo_set_fill_rule (g->ct, gdip_convert_fill_mode (path->fill_mode));
+		cairo_set_antialias (g->ct, CAIRO_ANTIALIAS_NONE);
+		*result = cairo_in_fill (g->ct, x + CAIRO_AA_OFFSET_X, y + CAIRO_AA_OFFSET_Y);
+	} else {
+		*result = FALSE;
 	}
 
 	if (graphics) {
-		/* FIXME - graphics isn't always ignored, e.g. when we set the matrix, pageunit and pagescale */
+		/* restore GpGraphics to original state */
+		cairo_restore (graphics->ct);
+		g->page_unit = page_unit;
+	} else {
+		/* delete temporary context */
+		cairo_surface_destroy (s);
+		GdipDeleteGraphics (g);
 	}
 
-	/* there may be multiple polygons inside a path */
-	for (start = 0, end = 0; end < workpath->count && !*result; end++) {
-		BYTE type = g_array_index (workpath->types, BYTE, end);
-		if (type & PathPointTypeCloseSubpath) {
-			*result = gdip_point_in_polygon (workpath, start, end, x, y);
-		} else if (type == PathPointTypeStart) {
-			/* reset the start index */
-			start = end;
-		}
-	}
-
-	if (workpath != path)
-		GdipDeletePath (workpath);
 	return status;
 }
 
-/* MonoTODO - GpGraphics is ignored */
 GpStatus 
 GdipIsVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, BOOL *result)
 {
 	return GdipIsVisiblePathPoint (path, x, y, graphics, result);
 }
 
-static BOOL
-gdip_check_point_within_distance (float x0, float y0, GpPointF *p1, GpPointF *p2, float distance)
-{
-	float x1 = p1->X;
-	float y1 = p1->Y;
-	float x2 = p2->X;
-	float y2 = p2->Y;
-	float x2x1, y2y1;
-
-	/* quick out (to avoid heavy calculations) for out of range points */
-	if ((x0 < min (x1, x2) - distance) || (x0 > max (x1, x2) + distance) ||
-		(y0 < min (y1, y2) - distance) || (y0 > max (y1, y2) + distance))
-		return FALSE;
-
-	/* close enough, do the full math */
-	x2x1 = x2 - x1;
-	y2y1 = y2 - y1;
-	/* if the provided line is a point (simpler calculation and avoids a division by zero) */
-	if ((x2x1 == 0.0) && (y2y1 == 0.0)) {
-		/* check distance between two points */
-		/* ref: http://mathworld.wolfram.com/Point-PointDistance2-Dimensional.html */
-		float x1x0 = x1 - x0;
-		float y1y0 = y1 - y0;
-		return (sqrt ((x1x0 * x1x0) + (y1y0 * y1y0)) <= distance);
-	} else {
-		/* normal case: distance of a point to a line */
-		/* ref: http://mathworld.wolfram.com/Point-LineDistance2-Dimensional.html */
-		float d1 = fabs ((x2x1 * (y1 - y0)) - ((x1 - x0) * y2y1));
-		float d2 = sqrt ((x2x1 * x2x1) + (y2y1 * y2y1));
-		return (d1 / d2 <= distance);
-	}
-}
-
-/* MonoTODO - GpGraphics is ignored */
 GpStatus 
 GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpPen *pen, GpGraphics *graphics, BOOL *result)
 {
 	GpStatus status = Ok;
-	GpPath *workpath = NULL;
+	cairo_surface_t* s = NULL;
+	GpGraphics *g;
+	GpUnit page_unit = UnitPixel;
 
 	if (!path || !pen || !result)
 		return InvalidParameter;
 
-	*result = FALSE;
-
-	if (path->count < 2) {
-		/* FIXME - equality check ? */
-		return Ok;
+	if (graphics) {
+		g = graphics;
+		cairo_save (graphics->ct);
+		page_unit = g->page_unit;
+	} else {
+		/* create a temporary context */
+		s = cairo_image_surface_create (CAIRO_FORMAT_A1, 1, 1);
+		g = gdip_graphics_new (s);
 	}
 
-	/* we clone the supplied path if it contains curves (we only deal with lines) */
-	if (gdip_path_has_curve (path)) {
-		status = GdipClonePath (path, &workpath);
-		if (status != Ok) {
-			if (workpath)
-				GdipDeletePath (workpath);
-			return status;
-		}
-
-		status = GdipFlattenPath (workpath, NULL, 25.0f);
+	cairo_new_path (g->ct);
+	/* unit tests shows that PageUnit isn't consireded (well x, y are probably considered to be the same unit format ) */
+	g->page_unit = UnitPixel;
+	status = gdip_plot_path (g, path, FALSE);
+	if (status == Ok) {
+		/* we must fight around cairo AA */
+		cairo_set_antialias (g->ct, CAIRO_ANTIALIAS_NONE);
+		cairo_set_line_width (g->ct, pen->width - CAIRO_AA_OFFSET_Y);
+		*result = cairo_in_stroke (g->ct, x, y);
 	} else {
-		workpath = path;
+		*result = FALSE;
 	}
 
 	if (graphics) {
-		/* FIXME - graphics isn't always ignored, e.g. when we set the matrix, pageunit and pagescale */
+		/* restore GpGraphics to original state */
+		cairo_restore (graphics->ct);
+		g->page_unit = page_unit;
+	} else {
+		/* delete temporary context */
+		cairo_surface_destroy (s);
+		GdipDeleteGraphics (g);
 	}
 
-	if (status == Ok) {
-		/* check if the supplied point is within half the pen's width of any path segment */
-		float half_width = pen->width / 2;
-		int start_index = 0;
-		int i;
-		BYTE type = 0;
-
-		GpPointF p1 = g_array_index (workpath->points, GpPointF, 0);
-		GpPointF p2;
-
-		for (i = 1; i < path->count && !*result; i++) {
-			/* check the line between the previous point and this point */
-			p2 = g_array_index (workpath->points, GpPointF, i);
-			*result = gdip_check_point_within_distance (x, y, &p1, &p2, half_width);
-
-			/* check for closure (to match with the last starting point) */
-			type = g_array_index (path->types, BYTE, i);
-			if (!*result && (type & PathPointTypeCloseSubpath)) {
-				p1 = g_array_index (workpath->points, GpPointF, start_index);
-				/* compare last point with first (if the path is closed) */
-				*result = gdip_check_point_within_distance (x, y, &p2, &p1, half_width);
-			}
-
-			/* switch point for the next line */
-			p1 = p2;
-
-			/* reset the start index */
-			if (type == PathPointTypeStart)
-				start_index = i;
-		}
-	}
-
-	if (workpath != path)
-		GdipDeletePath (workpath);
 	return status;
 }
 
-/* MonoTODO - GpGraphics is ignored */
 GpStatus 
 GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpPen *pen, GpGraphics *graphics, BOOL *result)
 {
 	return GdipIsOutlineVisiblePathPoint (path, x, y, pen, graphics, result);
 }
+
