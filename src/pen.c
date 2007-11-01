@@ -156,6 +156,11 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	 * reset to its own state after stroking.
 	 */
 	cairo_matrix_multiply (&product, &pen->matrix, graphics->copy_of_ctm);
+	/* Pen scaling by 0 are supported by MS GDI+ but would error in Cairo, see bug #338233 */
+	if (gdip_near_zero (product.xx) || gdip_near_zero (product.yy)) {
+		/* *both* X and Y are affected if either is 0 */
+		product.xx = product.yy = 0.0001f;
+	}
 	cairo_set_matrix (graphics->ct, &product);
 
 	/* Don't need to setup, if pen is the same as the cached pen and
