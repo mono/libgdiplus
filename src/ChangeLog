@@ -1,3 +1,8 @@
+2007-10-31  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* graphics-path.c: Avoid computing the start point coord unless we
+	need them later. Add URL for formula used here.
+
 2007-10-30  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* lineargradientbrush.c: Remove small (+1) cosmetic fix that breaks

@@ -750,6 +750,7 @@ append_arc (GpPath *path, BOOL start, float x, float y, float width, float heigh
 	}
 
 	delta = beta - alpha;
+	// http://www.stillhq.com/ctpfaq/2001/comp.text.pdf-faq-2001-04.txt (section 2.13)
 	bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta / 2);
 
 	sin_alpha = sin (alpha);
@@ -757,13 +758,13 @@ append_arc (GpPath *path, BOOL start, float x, float y, float width, float heigh
 	cos_alpha = cos (alpha);
 	cos_beta = cos (beta);
 
-        /* starting point */
-	sx = cx + rx * cos_alpha;
-	sy = cy + ry * sin_alpha;
-	
-        /* move to the starting point if we're not continuing a curve */
-        if (start)
-                append (path, sx, sy, PathPointTypeLine);
+	/* move to the starting point if we're not continuing a curve */
+	if (start) {
+		/* starting point */
+		sx = cx + rx * cos_alpha;
+		sy = cy + ry * sin_alpha;
+		append (path, sx, sy, PathPointTypeLine);
+	}
 
         append_bezier (path, 
                 cx + rx * (cos_alpha - bcp * sin_alpha),
