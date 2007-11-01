@@ -1,9 +1,11 @@
-2007-11-01  Sebastien Pouliot  <sebastien@ximian.com> 
+2007-11-01  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c: Fix font face selection (typo) and ensure the font-family
 	doesn't cache a version without bold and/or italics. Fix #338207
 	* pen.c: Fix pen scaling (either X or Y) by 0. MS GDI+ produce a thin
 	line while Cairo would return an error. Fix bug #338233
+	* text-pango-private.h: Add ctype.h include to remove warning about
+	isspace.
 
 2007-10-31  Sebastien Pouliot  <sebastien@ximian.com> 
 
