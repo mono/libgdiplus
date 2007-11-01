@@ -620,7 +620,7 @@ gdip_get_cairo_font_face (GpFont *font)
 		cairo_surface_t *surface = cairo_image_surface_create_for_data ((BYTE*)NULL, CAIRO_FORMAT_ARGB32, 0, 0, 0);
 		font->cairo = cairo_create (surface);
 
-		cairo_select_font_face (font->cairo, (const char *)font->family,
+		cairo_select_font_face (font->cairo, (const char *)font->face,
 			(font->style & FontStyleItalic) ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL,
 			(font->style & FontStyleBold) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
 		font->cairofnt = cairo_get_font_face (font->cairo);
@@ -790,6 +790,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit un
 #else
 	result->cairofnt = NULL;
 	result->cairo = NULL;
+	gdip_get_cairo_font_face (result);
 #endif
 	*font = result;	        		
 	return Ok;

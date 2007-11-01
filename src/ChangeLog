@@ -1,3 +1,8 @@
+2007-11-01  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* font.c: Fix font face selection (typo) and ensure the font-family
+	doesn't cache a version without bold and/or italics. Fix #338207
+
 2007-10-31  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* graphics-path.c: Avoid computing the start point coord unless we
