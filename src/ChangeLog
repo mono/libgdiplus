@@ -1,3 +1,9 @@
+2007-11-07  Geoff Norton  <gnorton@novell.com>
+
+	* graphics-private.h: Add CGImageRelease prototype.
+	* graphics.c: Free the CGImageRef after copying it to our display
+	context.  Fixes a massive memory leak in the Mac backend
+
 2007-11-01  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c: Fix font face selection (typo) and ensure the font-family

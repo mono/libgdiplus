@@ -182,6 +182,7 @@ typedef struct CGRect CGRect;
 
 void *CGBitmapContextCreateImage (void *context);
 void CGContextDrawImage (void *context, CGRect rect, void *image);
+void CGImageRelease (void *image);
 void *cairo_quartz_surface_get_cg_context(cairo_surface_t *surface);
 cairo_surface_t *cairo_quartz_surface_create (int format, int width, int height);
 cairo_surface_t *cairo_quartz_surface_create_for_cg_context (void *ctx, int width, int height);

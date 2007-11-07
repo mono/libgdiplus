@@ -1813,7 +1813,9 @@ GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 		rect.origin.y = 0;
 		rect.size.width = graphics->bounds.Width;
 		rect.size.height = graphics->bounds.Height;
-		CGContextDrawImage (graphics->cg_context, rect, CGBitmapContextCreateImage (cairo_quartz_surface_get_cg_context (surface)));
+		void *image = CGBitmapContextCreateImage (cairo_quartz_surface_get_cg_context (surface));
+		CGContextDrawImage (graphics->cg_context, rect, image);
+		CGImageRelease (image);
 	}
 #endif
 	return Ok;
