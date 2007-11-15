@@ -1,3 +1,10 @@
+2007-11-15  Geoff Norton  <gnorton at novell.com>
+
+	[Backport r89721]
+	* general.c: If we're running on the Carbon driver avoid the call
+	to XOpenDisplay.  This fixes a deadlock race condition on Leopard
+	as well as prevents X11 from opening when we start MWF apps.
+
 2007-11-07  Geoff Norton  <gnorton@novell.com>
 
 	* graphics-private.h: Add CGImageRelease prototype.

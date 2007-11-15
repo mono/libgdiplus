@@ -124,6 +124,8 @@ gdip_get_display_dpi ()
 	static float dpis = 0;
 	Display* display;
 
+	if (getenv ("MONO_MWF_USE_QUARTZ_BACKEND") != NULL)
+		dpis = 96.0f;
 	if (dpis == 0) {
 		char *val;
 
