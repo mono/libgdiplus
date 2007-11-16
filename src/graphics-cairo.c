@@ -40,7 +40,7 @@ fill_graphics_with_brush (GpGraphics *graphics, GpBrush *brush, BOOL stroke)
 	gdip_brush_setup (graphics, brush);
 
 	if (stroke)
-		cairo_stroke (graphics->ct);
+		cairo_stroke_preserve (graphics->ct);
 
 	cairo_fill (graphics->ct);
 

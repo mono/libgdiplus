@@ -1,3 +1,8 @@
+2007-11-16  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-cairo.c: If we need to stroke, before filling, then we
+	must preserve the path. Fix bug #342074.
+
 2007-11-15  Geoff Norton  <gnorton@novell.com>
 
 	* general.c: If we're running on the Carbon driver avoid the call
