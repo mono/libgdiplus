@@ -29,8 +29,8 @@ if test $cairo_v = "internal"; then
 	# libraries using position independent code.
 	ac_configure_args="$ac_configure_args --with-pic=yes"
 
-	# disable the PDF and SVG surface backends of Cairo (unrequired for GDI+)
-	ac_configure_args="$ac_configure_args --disable-pdf --disable-svg"
+	# disable the PNG, PDF and SVG surface backends of Cairo (unrequired for GDI+)
+	ac_configure_args="$ac_configure_args --disable-png --disable-pdf --disable-svg"
 
 	AC_CONFIG_SUBDIRS(cairo)
 	CAIRO_DIR="cairo"
