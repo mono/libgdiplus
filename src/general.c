@@ -124,10 +124,13 @@ gdip_get_display_dpi ()
 	static float dpis = 0;
 	Display* display;
 
-	if (getenv ("MONO_MWF_USE_QUARTZ_BACKEND") != NULL)
-		dpis = 96.0f;
 	if (dpis == 0) {
 		char *val;
+
+		if (getenv ("MONO_MWF_USE_QUARTZ_BACKEND") != NULL) {
+			dpis = 96.0f;
+			return dpis;
+		}
 
 		display = XOpenDisplay (0);
 		/* If the display is openable lets try to read dpi from it; otherwise use a default of 96.0f */

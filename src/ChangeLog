@@ -1,3 +1,8 @@
+2007-12-04  Geoff Norton  <gnorton@novell.com>
+
+	* general.c:  Optimize the code path to only check the environment
+	variable once for dpi detection on the Mac.
+
 2007-11-16  Sebastien Pouliot  <sebastien@ximian.com>
 
 	[Backport r89764]
