@@ -1,3 +1,8 @@
+2007-12-22  Geoff Norton  <gnorton@novell.com>
+
+	* graphics-private.h:  Revert the CAIRO_AA change as it caused
+	regressions in the testsuite and improperly layed out controls.
+
 2007-12-04  Geoff Norton  <gnorton@novell.com>
 
 	* general.c:  Optimize the code path to only check the environment

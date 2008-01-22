@@ -42,13 +42,8 @@
 #include "region-private.h"
 #include "metafile.h"
 
-#ifdef CAIRO_HAS_QUARTZ_SURFACE
-#define CAIRO_AA_OFFSET_X		0.5
-#define CAIRO_AA_OFFSET_Y		0.5
-#else
 #define CAIRO_AA_OFFSET_X		1
 #define CAIRO_AA_OFFSET_Y		0.5
-#endif
 
 #define CURVE_MIN_TERMS			1
 #define CURVE_MAX_TERMS			7
