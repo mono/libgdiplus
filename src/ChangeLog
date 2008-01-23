@@ -1,3 +1,12 @@
+2008-01-23  Geoff Norton  <gnorton@novell.com>
+
+	* Makefile.am: Add carbon-private.* to the build.
+	* general.c: Use gdip_get_display_dpi_carbon to get dpi on the mac
+	* graphics.c: Rename GdipCreateFromQuartz_macosx to
+	GdipCreateFromContext_macosx
+	* carbon-private.c: A mac specific implementation to get the
+	horizontal and vertical dpi of a display.
+
 2007-12-22  Geoff Norton  <gnorton@novell.com>
 
 	* graphics-private.h:  Revert the CAIRO_AA change as it caused

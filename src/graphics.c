@@ -256,7 +256,7 @@ GdipCreateFromHWND (void *hwnd, GpGraphics **graphics)
 #ifdef CAIRO_HAS_QUARTZ_SURFACE
 // coverity[+alloc : arg-*3]
 GpStatus
-GdipCreateFromQuartz_macosx (void *ctx, int width, int height, GpGraphics **graphics)
+GdipCreateFromContext_macosx (void *ctx, int width, int height, GpGraphics **graphics)
 {
 	cairo_surface_t *surface;
 

@@ -29,6 +29,7 @@
 #include "codecs-private.h"
 #include "graphics-private.h"
 #include "font-private.h"
+#include "carbon-private.h"
 
 /* large table to avoid a division and three multiplications when premultiplying alpha into R, G and B */
 #include "alpha-premul-table.inc"
@@ -125,12 +126,14 @@ gdip_get_display_dpi ()
 	Display* display;
 
 	if (dpis == 0) {
-		char *val;
+#if __APPLE__
+		float h_dpi, v_dpi;
+		gdip_get_display_dpi_carbon (&h_dpi, &v_dpi);
 
-		if (getenv ("MONO_MWF_USE_CARBON_BACKEND") != NULL) {
-			dpis = 96.0f;
-			return dpis;
-		}
+		dpis = h_dpi;
+		return dpis;
+#else
+		char *val;
 
 		display = XOpenDisplay (0);
 		/* If the display is openable lets try to read dpi from it; otherwise use a default of 96.0f */
@@ -145,6 +148,7 @@ gdip_get_display_dpi ()
 		} else {
 			dpis = 96.0f;
 		}
+#endif
 	}
 
 	return dpis;
