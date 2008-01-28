@@ -1,3 +1,7 @@
+2008-01-28  Wade Berrier  <wberrier@novell.com>
+
+	* configure.in: version bump -> 1.9
+
 2007-12-03  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* configure.in: Disable cairo PNG support since libgdiplus provides
