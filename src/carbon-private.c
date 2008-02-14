@@ -39,16 +39,20 @@ static inline int gdip_get_int_from_dict_for_key (CFDictionaryRef dict, CFString
 }
 
 void gdip_get_display_dpi_carbon (float *h_dpi, float *v_dpi) {
-	CFDictionaryRef mode_dict = CGDisplayCurrentMode (kCGDirectMainDisplay);
-	io_connect_t display_port = CGDisplayIOServicePort (kCGDirectMainDisplay);
-	CFDictionaryRef display_dict = IOCreateDisplayInfoDictionary (display_port, 0);
-	const float mmpi = 25.4;
-	float h_size = (float) gdip_get_int_from_dict_for_key (display_dict, CFSTR (kDisplayHorizontalImageSize)) / mmpi;
-	float v_size = (float) gdip_get_int_from_dict_for_key (display_dict, CFSTR (kDisplayVerticalImageSize)) / mmpi;
+	if (getenv ("MONO_MWF_MAC_DETECT_DPI") != NULL) {
+		CFDictionaryRef mode_dict = CGDisplayCurrentMode (kCGDirectMainDisplay);
+		io_connect_t display_port = CGDisplayIOServicePort (kCGDirectMainDisplay);
+		CFDictionaryRef display_dict = IOCreateDisplayInfoDictionary (display_port, 0);
+		const float mmpi = 25.4;
+		float h_size = (float) gdip_get_int_from_dict_for_key (display_dict, CFSTR (kDisplayHorizontalImageSize)) / mmpi;
+		float v_size = (float) gdip_get_int_from_dict_for_key (display_dict, CFSTR (kDisplayVerticalImageSize)) / mmpi;
 
-	*h_dpi = (float) gdip_get_int_from_dict_for_key (mode_dict, kCGDisplayWidth) / h_size; 
-	*v_dpi = (float) gdip_get_int_from_dict_for_key (mode_dict, kCGDisplayHeight) / v_size; 
+		*h_dpi = (float) gdip_get_int_from_dict_for_key (mode_dict, kCGDisplayWidth) / h_size; 
+		*v_dpi = (float) gdip_get_int_from_dict_for_key (mode_dict, kCGDisplayHeight) / v_size; 
 
-	CFRelease (display_dict);
+		CFRelease (display_dict);
+	} else {
+		*h_dpi = *v_dpi = 96.0f;
+	}
 }
 #endif
