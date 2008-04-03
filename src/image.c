@@ -379,6 +379,7 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	MetafilePlayContext *metacontext = NULL;
 	BOOL need_scaling = FALSE;
 	double scaled_width, scaled_height;
+	cairo_matrix_t orig_matrix;
 
 	if (!graphics || !image)
 		return InvalidParameter;
@@ -439,6 +440,7 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 
 	cairo_pattern_set_filter (pattern, gdip_get_cairo_filter (graphics->interpolation));
 
+	cairo_get_matrix (graphics->ct, &orig_matrix);
 	cairo_translate (graphics->ct, x, y);
 
 	if (need_scaling)
@@ -450,7 +452,8 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	cairo_set_source (graphics->ct, pattern);
 	cairo_identity_matrix (graphics->ct);
 	cairo_paint (graphics->ct);
-	cairo_set_source(graphics->ct, org_pattern);	
+	cairo_set_source (graphics->ct, org_pattern);	
+	cairo_set_matrix (graphics->ct, &orig_matrix);
 
 	cairo_pattern_destroy (org_pattern);
 	cairo_pattern_destroy (pattern);
