@@ -1,3 +1,8 @@
+2008-04-16  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-cairo.c: Tweak AA (since looks like Cairo 1.6 tweaked
+	it too ;-). Probably not complete but this fix SD unit tests.
+
 2008-04-03  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* image.c: Copy (and later restore) the original matrix before 

@@ -486,10 +486,10 @@ cairo_DrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, i
 	int i;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We should have it set already. */
-	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, TRUE);
+	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, FALSE);
 
 	for (i = 1; i < count; i++) {
-		gdip_cairo_line_to (graphics, points [i].X, points [i].Y, TRUE, TRUE);
+		gdip_cairo_line_to (graphics, points [i].X, points [i].Y, TRUE, FALSE);
 	}
 
 	return stroke_graphics_with_pen (graphics, pen);
@@ -501,10 +501,10 @@ cairo_DrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, i
 	int i;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We should have it set already. */
-	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, TRUE);
+	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, FALSE);
 
 	for (i = 1; i < count; i++) {
-		gdip_cairo_line_to (graphics, points [i].X, points [i].Y, TRUE, TRUE);
+		gdip_cairo_line_to (graphics, points [i].X, points [i].Y, TRUE, FALSE);
 	}
 
 	return stroke_graphics_with_pen (graphics, pen);
@@ -563,7 +563,7 @@ GpStatus
 cairo_DrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 {
 	/* We use graphics->copy_of_ctm matrix for path creation. We should have it set already. */
-	GpStatus status = gdip_plot_path (graphics, path, TRUE);
+	GpStatus status = gdip_plot_path (graphics, path, FALSE);
 	if (status != Ok)
 		return status;
 
@@ -741,12 +741,7 @@ cairo_FillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *poi
 GpStatus
 cairo_DrawRectangle (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height)
 {
-	/* wide pen position can be different between cairo and gdi+ */
-	if (gdip_cairo_pen_width_needs_adjustment (pen)) {
-		x -= 1.0f;
-		y -= 1.0f;
-	}
-	gdip_cairo_rectangle (graphics, x, y, width, height, TRUE);
+	gdip_cairo_rectangle (graphics, x, y, width, height, FALSE);
 	return stroke_graphics_with_pen (graphics, pen);
 }
 
