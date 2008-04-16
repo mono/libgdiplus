@@ -58,7 +58,7 @@ draw (cairo_t *cr, int width, int height)
     /* Create a pattern with the target surface as the source,
      * offset by SIZE/2
      */
-    pattern = cairo_pattern_create_for_surface (cairo_get_target (cr));
+    pattern = cairo_pattern_create_for_surface (cairo_get_group_target (cr));
 
     cairo_matrix_init_translate (&matrix, - SIZE / 2, - SIZE / 2);
     cairo_pattern_set_matrix (pattern, &matrix);

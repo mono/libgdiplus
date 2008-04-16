@@ -57,7 +57,7 @@
 #if CAIRO_HAS_XCB_SURFACE
 #include "cairo-boilerplate-xcb-private.h"
 #endif
-#if CAIRO_HAS_XLIB_XRENDER_SURFACE
+#if CAIRO_HAS_XLIB_SURFACE
 #include "cairo-boilerplate-xlib-private.h"
 #endif
 
@@ -67,21 +67,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <assert.h>
-
-/* This is copied from cairoint.h. That makes it painful to keep in
- * sync, but the slim stuff makes cairoint.h "hard" to include when
- * not actually building the cairo library itself. Fortunately, since
- * we're checking all these values, we do have a safeguard for keeping
- * them in sync.
- */
-typedef enum cairo_internal_surface_type {
-    CAIRO_INTERNAL_SURFACE_TYPE_META = 0x1000,
-    CAIRO_INTERNAL_SURFACE_TYPE_PAGINATED,
-    CAIRO_INTERNAL_SURFACE_TYPE_ANALYSIS,
-    CAIRO_INTERNAL_SURFACE_TYPE_TEST_META,
-    CAIRO_INTERNAL_SURFACE_TYPE_TEST_FALLBACK,
-    CAIRO_INTERNAL_SURFACE_TYPE_TEST_PAGINATED
-} cairo_internal_surface_type_t;
 
 const char *
 cairo_boilerplate_content_name (cairo_content_t content)
@@ -237,6 +222,19 @@ static cairo_boilerplate_target_t targets[] =
     { "win32", CAIRO_SURFACE_TYPE_WIN32, CAIRO_CONTENT_COLOR_ALPHA, 0,
       _cairo_boilerplate_win32_create_surface,
       cairo_surface_write_to_png },
+#if CAIRO_CAN_TEST_WIN32_PRINTING_SURFACE
+    { "win32-printing", CAIRO_SURFACE_TYPE_WIN32_PRINTING,
+      CAIRO_TEST_CONTENT_COLOR_ALPHA_FLATTENED, 0,
+      _cairo_boilerplate_win32_printing_create_surface,
+      _cairo_boilerplate_win32_printing_surface_write_to_png,
+      _cairo_boilerplate_win32_printing_cleanup,
+      NULL, TRUE },
+    { "win32-printing", CAIRO_INTERNAL_SURFACE_TYPE_META, CAIRO_CONTENT_COLOR, 0,
+      _cairo_boilerplate_win32_printing_create_surface,
+      _cairo_boilerplate_win32_printing_surface_write_to_png,
+      _cairo_boilerplate_win32_printing_cleanup,
+      NULL, TRUE },
+#endif
 #endif
 #if CAIRO_HAS_XCB_SURFACE
     /* Acceleration architectures may make the results differ by a
@@ -261,23 +259,23 @@ static cairo_boilerplate_target_t targets[] =
       _cairo_boilerplate_xlib_cleanup,
       _cairo_boilerplate_xlib_synchronize},
 #endif
-#if CAIRO_HAS_PS_SURFACE
+#if CAIRO_HAS_XLIB_SURFACE
+    /* This is a fallback surface which uses xlib fallbacks instead of
+     * the Render extension. */
+    { "xlib-fallback", CAIRO_SURFACE_TYPE_XLIB, CAIRO_CONTENT_COLOR, 1,
+      _cairo_boilerplate_xlib_fallback_create_surface,
+      cairo_surface_write_to_png,
+      _cairo_boilerplate_xlib_cleanup,
+      _cairo_boilerplate_xlib_synchronize},
+#endif
+#if CAIRO_HAS_PS_SURFACE && CAIRO_CAN_TEST_PS_SURFACE
     { "ps", CAIRO_SURFACE_TYPE_PS,
       CAIRO_TEST_CONTENT_COLOR_ALPHA_FLATTENED, 0,
       _cairo_boilerplate_ps_create_surface,
       _cairo_boilerplate_ps_surface_write_to_png,
       _cairo_boilerplate_ps_cleanup,
       NULL, TRUE },
-
-    /* XXX: We expect type image here only due to a limitation in
-     * the current PS/meta-surface code. A PS surface is
-     * "naturally" COLOR_ALPHA, so the COLOR-only variant goes
-     * through create_similar in _cairo_boilerplate_ps_create_surface which results
-     * in the similar surface being used as a source. We do not yet
-     * have source support for PS/meta-surfaces, so the
-     * create_similar path for all paginated surfaces currently
-     * returns an image surface.*/
-    { "ps", CAIRO_SURFACE_TYPE_IMAGE, CAIRO_CONTENT_COLOR, 0,
+    { "ps", CAIRO_INTERNAL_SURFACE_TYPE_META, CAIRO_CONTENT_COLOR, 0,
       _cairo_boilerplate_ps_create_surface,
       _cairo_boilerplate_ps_surface_write_to_png,
       _cairo_boilerplate_ps_cleanup,
@@ -290,16 +288,7 @@ static cairo_boilerplate_target_t targets[] =
       _cairo_boilerplate_pdf_surface_write_to_png,
       _cairo_boilerplate_pdf_cleanup,
       NULL, TRUE },
-
-    /* XXX: We expect type image here only due to a limitation in
-     * the current PDF/meta-surface code. A PDF surface is
-     * "naturally" COLOR_ALPHA, so the COLOR-only variant goes
-     * through create_similar in _cairo_boilerplate_pdf_create_surface which results
-     * in the similar surface being used as a source. We do not yet
-     * have source support for PDF/meta-surfaces, so the
-     * create_similar path for all paginated surfaces currently
-     * returns an image surface.*/
-    { "pdf", CAIRO_SURFACE_TYPE_IMAGE, CAIRO_CONTENT_COLOR, 0,
+    { "pdf", CAIRO_INTERNAL_SURFACE_TYPE_META, CAIRO_CONTENT_COLOR, 0,
       _cairo_boilerplate_pdf_create_surface,
       _cairo_boilerplate_pdf_surface_write_to_png,
       _cairo_boilerplate_pdf_cleanup,
@@ -362,7 +351,7 @@ cairo_boilerplate_get_targets (int *pnum_targets, cairo_bool_t *plimited_targets
     cairo_boilerplate_target_t **targets_to_test;
 
     if ((tname = getenv ("CAIRO_TEST_TARGET")) != NULL && *tname) {
-
+	/* check the list of targets specified by the user */
 	limited_targets = TRUE;
 
 	num_targets = 0;
@@ -399,10 +388,42 @@ cairo_boilerplate_get_targets (int *pnum_targets, cairo_bool_t *plimited_targets
 	    tname = end;
 	}
     } else {
+	/* check all compiled in targets */
 	num_targets = sizeof (targets) / sizeof (targets[0]);
 	targets_to_test = xmalloc (sizeof(cairo_boilerplate_target_t*) * num_targets);
 	for (i = 0; i < num_targets; i++) {
 	    targets_to_test[i] = &targets[i];
+	}
+    }
+
+    /* exclude targets as specified by the user */
+    if ((tname = getenv ("CAIRO_TEST_TARGET_EXCLUDE")) != NULL && *tname) {
+	limited_targets = TRUE;
+
+	while (*tname) {
+	    int j, found = 0;
+	    const char *end = strpbrk (tname, " \t\r\n;:,");
+	    if (!end)
+	        end = tname + strlen (tname);
+
+	    if (end == tname) {
+		tname = end + 1;
+		continue;
+	    }
+
+	    for (i = j = 0; i < num_targets; i++) {
+		if (0 == strncmp (targets_to_test[i]->name, tname, end - tname) &&
+		    !isalnum (targets_to_test[i]->name[end - tname])) {
+		    found = 1;
+		} else {
+		    targets_to_test[j++] = targets_to_test[i];
+		}
+	    }
+	    num_targets = j;
+
+	    if (*end)
+	      end++;
+	    tname = end;
 	}
     }
 

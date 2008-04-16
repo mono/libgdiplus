@@ -62,6 +62,8 @@ unsigned <link linkend="int">int</link>        <link linkend="cairo-surface-get-
                                                          <link linkend="cairo-destroy-func-t">cairo_destroy_func_t</link> destroy);
 <link linkend="void">void</link>*               <link linkend="cairo-surface-get-user-data">cairo_surface_get_user_data</link>         (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface,
                                                          const <link linkend="cairo-user-data-key-t">cairo_user_data_key_t</link> *key);
+<link linkend="void">void</link>                <link linkend="cairo-surface-copy-page">cairo_surface_copy_page</link>             (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);
+<link linkend="void">void</link>                <link linkend="cairo-surface-show-page">cairo_surface_show_page</link>             (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);
 </synopsis>
 </refsynopsisdiv>
 
@@ -76,7 +78,14 @@ unsigned <link linkend="int">int</link>        <link linkend="cairo-surface-get-
 <refsect1 role="desc">
 <title role="desc.title">Description</title>
 <para>
-
+<link linkend="cairo-surface-t"><type>cairo_surface_t</type></link> is the abstract type representing all different drawing
+targets that cairo can render to.  The actual drawings are
+performed using a cairo <firstterm>context</firstterm>.
+</para>
+<para>
+A cairo surface is created by using <firstterm>backend</firstterm>-specific
+constructors, typically of the form
+cairo_<emphasis>backend</emphasis><link linkend="surface-create"><function>_surface_create()</function></link>.
 </para>
 </refsect1>
 
@@ -118,8 +127,8 @@ contain, whether color information, alpha information (translucence
 vs. opacity), or both.
 </para>
 <para>
-Note: The large values here are designed to keep cairo_content_t
-values distinct from cairo_format_t values so that the
+Note: The large values here are designed to keep <link linkend="cairo-content-t"><type>cairo_content_t</type></link>
+values distinct from <link linkend="cairo-format-t"><type>cairo_format_t</type></link> values so that the
 implementation can detect the error if users confuse the two types.</para>
 <para>
 
@@ -173,7 +182,7 @@ have transparency, black otherwise.)</para>
 <listitem><simpara> height of the new surface (in device-space units)
 </simpara></listitem></varlistentry>
 <varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a pointer to the newly allocated surface. The caller
-owns the surface and should call cairo_surface_destroy when done
+owns the surface and should call <link linkend="cairo-surface-destroy"><function>cairo_surface_destroy()</function></link> when done
 with it.
 
 This function always returns a valid pointer, but it will return a
@@ -229,7 +238,7 @@ surface.</para>
 </simpara></listitem></varlistentry>
 <varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="CAIRO-STATUS-SUCCESS:CAPS"><literal>CAIRO_STATUS_SUCCESS</literal></link>, <link linkend="CAIRO-STATUS-NULL-POINTER:CAPS"><literal>CAIRO_STATUS_NULL_POINTER</literal></link>,
 <link linkend="CAIRO-STATUS-NO-MEMORY:CAPS"><literal>CAIRO_STATUS_NO_MEMORY</literal></link>, <link linkend="CAIRO-STATUS-READ-ERROR:CAPS"><literal>CAIRO_STATUS_READ_ERROR</literal></link>,
-<link linkend="CAIRO-STATUS-INVALID-CONTENT:CAPS"><literal>CAIRO_STATUS_INVALID_CONTENT</literal></link>, <link linkend="CAIRO-STATUS-INVALUE-FORMAT:CAPS"><literal>CAIRO_STATUS_INVALUE_FORMAT</literal></link>, or
+<link linkend="CAIRO-STATUS-INVALID-CONTENT:CAPS"><literal>CAIRO_STATUS_INVALID_CONTENT</literal></link>, <link linkend="CAIRO-STATUS-INVALID-FORMAT:CAPS"><literal>CAIRO_STATUS_INVALID_FORMAT</literal></link>, or
 <link linkend="CAIRO-STATUS-INVALID-VISUAL:CAPS"><literal>CAIRO_STATUS_INVALID_VISUAL</literal></link>.
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
@@ -444,10 +453,14 @@ device resolution. So this function has no effect on those
 backends.
 </para>
 <para>
-NOTE: The fallback resolution only takes effect at the time of
+Note: The fallback resolution only takes effect at the time of
 completing a page (with <link linkend="cairo-show-page"><function>cairo_show_page()</function></link> or <link linkend="cairo-copy-page"><function>cairo_copy_page()</function></link>) so
 there is currently no way to have more than one fallback resolution
-in effect on a single page.</para>
+in effect on a single page.
+</para>
+<para>
+The default fallback resoultion is 300 pixels per inch in both
+dimensions.</para>
 <para>
 
 </para><variablelist role="params">
@@ -476,7 +489,9 @@ in effect on a single page.</para>
     CAIRO_SURFACE_TYPE_BEOS,
     CAIRO_SURFACE_TYPE_DIRECTFB,
     CAIRO_SURFACE_TYPE_SVG,
-    CAIRO_SURFACE_TYPE_OS2
+    CAIRO_SURFACE_TYPE_OS2,
+    CAIRO_SURFACE_TYPE_WIN32_PRINTING,
+    CAIRO_SURFACE_TYPE_QUARTZ_IMAGE
 } cairo_surface_type_t;
 </programlisting>
 <para>
@@ -486,14 +501,14 @@ backends" within cairo.
 </para>
 <para>
 The type of a surface is determined by the function used to create
-it, which will generally be of the form cairo_<emphasis>type</emphasis>_surface_create,
-(though see cairo_surface_create_similar as well).
+it, which will generally be of the form cairo_<emphasis>type</emphasis><link linkend="surface-create"><function>_surface_create()</function></link>,
+(though see <link linkend="cairo-surface-create-similar"><function>cairo_surface_create_similar()</function></link> as well).
 </para>
 <para>
 The surface type can be queried with <link linkend="cairo-surface-get-type"><function>cairo_surface_get_type()</function></link>
 </para>
 <para>
-The various cairo_surface functions can be used with surfaces of
+The various <link linkend="cairo-surface-t"><type>cairo_surface_t</type></link> functions can be used with surfaces of
 any type, but some backends also provide type-specific functions
 that must only be called with a surface of the appropriate
 type. These functions have names that begin with
@@ -566,6 +581,16 @@ New entries may be added in future versions.</para>
 <varlistentry>
 <term><anchor id="CAIRO-SURFACE-TYPE-OS2:CAPS" role="constant"/><literal>CAIRO_SURFACE_TYPE_OS2</literal></term>
 <listitem><simpara> The surface is of type os2
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-SURFACE-TYPE-WIN32-PRINTING:CAPS" role="constant"/><literal>CAIRO_SURFACE_TYPE_WIN32_PRINTING</literal></term>
+<listitem><simpara> The surface is a win32 printing surface
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-SURFACE-TYPE-QUARTZ-IMAGE:CAPS" role="constant"/><literal>CAIRO_SURFACE_TYPE_QUARTZ_IMAGE</literal></term>
+<listitem><simpara> The surface is of type quartz_image
 </simpara></listitem>
 </varlistentry>
 </variablelist><para role="since">Since  1.2
@@ -656,10 +681,51 @@ attached to
 <varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the user data previously attached or <link linkend="NULL:CAPS"><literal>NULL</literal></link>.
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
+<refsect2>
+<title><anchor id="cairo-surface-copy-page" role="function" condition="since:1.6"/>cairo_surface_copy_page ()</title>
+<indexterm role="1.6"><primary>cairo_surface_copy_page</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_surface_copy_page             (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);</programlisting>
+<para>
+Emits the current page for backends that support multiple pages,
+but doesn't clear it, so that the contents of the current page will
+be retained for the next page.  Use <link linkend="cairo-surface-show-page"><function>cairo_surface_show_page()</function></link> if you
+want to get an empty page after the emission.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>surface</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-surface-t"><type>cairo_surface_t</type></link>
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  1.6
+</para></refsect2>
+<refsect2>
+<title><anchor id="cairo-surface-show-page" role="function" condition="since:1.6"/>cairo_surface_show_page ()</title>
+<indexterm role="1.6"><primary>cairo_surface_show_page</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_surface_show_page             (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);</programlisting>
+<para>
+Emits and clears the current page for backends that support multiple
+pages.  Use <link linkend="cairo-surface-copy-page"><function>cairo_surface_copy_page()</function></link> if you don't want to clear the page.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>surface</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="cairo-Surface-t"><type>cairo_Surface_t</type></link>
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  1.6
+</para></refsect2>
 
 </refsect1>
 
 
 
+<refsect1>
+<title>See Also</title>
+<para>
+<itemizedlist>
+<listitem>#<link linkend="cairo-t"><function>cairo_t()</function></link></listitem>
+<listitem>#<link linkend="cairo-pattern-t"><function>cairo_pattern_t()</function></link></listitem>
+</itemizedlist>
+</para>
+</refsect1>
 
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
 </refentry>

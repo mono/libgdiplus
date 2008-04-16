@@ -23,6 +23,7 @@
 
 
 
+#define             <link linkend="CAIRO-HAS-XLIB-SURFACE:CAPS">CAIRO_HAS_XLIB_SURFACE</link>
 <link linkend="cairo-surface-t">cairo_surface_t</link>*    <link linkend="cairo-xlib-surface-create">cairo_xlib_surface_create</link>           (<link linkend="Display">Display</link> *dpy,
                                                          <link linkend="Drawable">Drawable</link> drawable,
                                                          <link linkend="Visual">Visual</link> *visual,
@@ -62,12 +63,24 @@
 <refsect1 role="desc">
 <title role="desc.title">Description</title>
 <para>
-
+The XLib surface is used to render cairo graphics to X Window System
+windows and pixmaps using the XLib library.
+</para>
+<para>
+Note that the XLib surface automatically takes advantage of X render extension
+if it is available.
 </para>
 </refsect1>
 
 <refsect1 role="details">
 <title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="CAIRO-HAS-XLIB-SURFACE:CAPS" role="macro"/>CAIRO_HAS_XLIB_SURFACE</title>
+<indexterm><primary>CAIRO_HAS_XLIB_SURFACE</primary></indexterm><programlisting>#define CAIRO_HAS_XLIB_SURFACE 1
+</programlisting>
+<para>
+
+</para></refsect2>
 <refsect2>
 <title><anchor id="cairo-xlib-surface-create" role="function"/>cairo_xlib_surface_create ()</title>
 <indexterm><primary>cairo_xlib_surface_create</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>*    cairo_xlib_surface_create           (<link linkend="Display">Display</link> *dpy,
@@ -81,7 +94,7 @@ The way that colors are represented in the drawable is specified
 by the provided visual.
 </para>
 <para>
-NOTE: If <parameter>drawable</parameter> is a Window, then the function
+Note: If <parameter>drawable</parameter> is a Window, then the function
 cairo_xlib_surface_set_size must be called whenever the size of the
 window changes.
 </para>
@@ -123,7 +136,7 @@ children will be included.</para>
                                                          <link linkend="int">int</link> height);</programlisting>
 <para>
 Creates an Xlib surface that draws to the given bitmap.
-This will be drawn to as a CAIRO_FORMAT_A1 object.</para>
+This will be drawn to as a <link linkend="CAIRO-FORMAT-A1:CAPS"><literal>CAIRO_FORMAT_A1</literal></link> object.</para>
 <para>
 
 </para><variablelist role="params">
@@ -320,5 +333,15 @@ Get the number of bits used to represent each pixel value.</para>
 
 
 
+<refsect1>
+<title>See Also</title>
+<para>
+<itemizedlist>
+<listitem><link linkend="cairo-surface-t"><type>cairo_surface_t</type></link></listitem>
+</itemizedlist>
+</para>
+</refsect1>
 
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
 </refentry>

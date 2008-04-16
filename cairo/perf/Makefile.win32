@@ -1,0 +1,58 @@
+#
+# Win32 makefile
+#
+
+
+SUBMAKEFILE = 1
+
+include ../Makefile.win32
+
+LDFLAGS += ../src/$(CFG)/cairo-static.lib $(PIXMAN_LIBS) ../boilerplate/$(CFG)/boiler.lib $(EXE_LDFLAGS)
+
+PERF_SOURCES = \
+	box-outline.c \
+	cairo-perf-win32.c \
+	cairo-perf-cover.c \
+	cairo-perf.c \
+	cairo-stats.c \
+	fill.c \
+	long-dashed-lines.c \
+	long-lines.c \
+	mosaic.c \
+	paint.c \
+	paint-with-alpha.c \
+	pattern_create_radial.c \
+	rectangles.c \
+	stroke.c \
+	subimage_copy.c \
+	tessellate.c \
+	text.c \
+	unaligned-clip.c \
+	world-map.c \
+	zrusin.c \
+#	extend-pad.c \
+	$(NULL)
+
+OBJECTS = $(patsubst %.c, $(CFG)/%.obj, $(PERF_SOURCES))
+
+all: inform $(CFG)/cairo-perf.exe
+
+$(CFG)/cairo-perf.exe: $(OBJECTS)
+	@mkdir -p $(CFG)
+	@$(CC) $(CFLAGS) -Fe"$@" $^ -link $(LDFLAGS)
+
+clean:
+	@rm -f $(CFG)/*.obj $(CFG)/*.exe $(CFG)/*.dll $(CFG)/*.lib $(CFG)/*.pdb $(CFG)/*.ilk || exit 0
+
+inform:
+ifneq ($(CFG),release)
+ifneq ($(CFG),debug)
+	@echo "Invalid configuration "$(CFG)" specified."
+	@echo -n "You must specify a configuration when "
+	@echo "running make, e.g. make CFG=debug"
+	@echo
+	@echo -n "Possible choices for configuration are "
+	@echo "'release' and 'debug'"
+	@exit 1
+endif
+endif

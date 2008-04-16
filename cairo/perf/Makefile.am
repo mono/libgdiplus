@@ -67,22 +67,24 @@ $(top_builddir)/src/libcairo.la:
 
 # Do a funny transition of CAIRO_TEST_TARGET through TARGETS such that
 # one can limit tested targets both through CAIRO_TEST_TARGET env var
-# and TARGETS make var on the command line.
+# and TARGETS make var on the command line.  Same for the rest.
 TARGETS = $(CAIRO_TEST_TARGET)
+TARGETS_EXCLUDE = $(CAIRO_TEST_TARGET_EXCLUDE)
 ITERS = $(CAIRO_PERF_ITERATIONS)
-CAIRO_PERF_ENVIRONMENT = CAIRO_TEST_TARGET="$(TARGETS)" CAIRO_PERF_ITERATIONS="$(ITERS)"
+
+CAIRO_PERF_ENVIRONMENT = CAIRO_PERF_ITERATIONS="$(ITERS)" CAIRO_TEST_TARGET="$(TARGETS)" CAIRO_TEST_TARGET_EXCLUDE="$(TARGETS_EXCLUDE)"
 
 # Cap the maximum number of iterations during 'make check'
 TESTS_ENVIRONMENT = CAIRO_TEST_TARGET="$(TARGETS)" CAIRO_PERF_ITERATIONS="10"
 
-TESTS = cairo-perf
+TESTS = cairo-perf$(EXEEXT)
 
-perf: cairo-perf
-	$(CAIRO_PERF_ENVIRONMENT) ./cairo-perf
+perf: cairo-perf$(EXEEXT)
+	$(CAIRO_PERF_ENVIRONMENT) ./cairo-perf$(EXEEXT)
 
 html: index.html
 
-index.html: cairo-perf
+index.html: cairo-perf$(EXEEXT)
 	$(CAIRO_PERF_ENVIRONMENT) ./cairo-perf-diff -h HEAD > $@
 
 
@@ -102,14 +104,16 @@ CLEANFILES = \
 check-valgrind perf-valgrind:
 	$(MAKE) $(AM_MAKEFLAGS) check \
 	    TESTS_ENVIRONMENT='$(TESTS_ENVIRONMENT) \
-	    $(top_srcdir)/libtool --mode=execute \
+	    $(top_builddir)/libtool --mode=execute \
 	    valgrind $(VALGRIND_MEMCHECK_FLAGS) $(EXTRA_VALGRIND_FLAGS)' \
 	    | tee valgrind-log
 
 perf-callgrind:
 	$(MAKE) $(AM_MAKEFLAGS) check \
 	    TESTS_ENVIRONMENT='$(TESTS_ENVIRONMENT) \
-	    $(top_srcdir)/libtool --mode=execute \
+	    $(top_builddir)/libtool --mode=execute \
 	    valgrind $(VALGRIND_CALLGRIND_FLAGS) $(EXTRA_VALGRIND_FLAGS)'
 
 .PHONY: perf html check-valgrind perf-valgrind perf-callgrind
+
+EXTRA_DIST += Makefile.win32

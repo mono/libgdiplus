@@ -70,7 +70,7 @@ static cairo_test_draw_function_t draw;
 
 cairo_test_t test = {
     "fill-rule",
-    "Tests cairo_set_full_rule with some star shapes",
+    "Tests cairo_set_fill_rule with some star shapes",
     BIG_STAR_SIZE * 2 + 3, BIG_STAR_SIZE + LITTLE_STAR_SIZE + 3,
     draw
 };

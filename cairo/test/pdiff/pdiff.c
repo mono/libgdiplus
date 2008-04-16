@@ -257,19 +257,19 @@ pdiff_compare (cairo_surface_t *surface_a,
     unsigned int i;
 
     /* assuming colorspaces are in Adobe RGB (1998) convert to XYZ */
-    float *aX = xmalloc (dim * sizeof (float));
-    float *aY = xmalloc (dim * sizeof (float));
-    float *aZ = xmalloc (dim * sizeof (float));
-    float *bX = xmalloc (dim * sizeof (float));
-    float *bY = xmalloc (dim * sizeof (float));
-    float *bZ = xmalloc (dim * sizeof (float));
-    float *aLum = xmalloc (dim * sizeof (float));
-    float *bLum = xmalloc (dim * sizeof (float));
+    float *aX;
+    float *aY;
+    float *aZ;
+    float *bX;
+    float *bY;
+    float *bZ;
+    float *aLum;
+    float *bLum;
 
-    float *aA = xmalloc (dim * sizeof (float));
-    float *bA = xmalloc (dim * sizeof (float));
-    float *aB = xmalloc (dim * sizeof (float));
-    float *bB = xmalloc (dim * sizeof (float));
+    float *aA;
+    float *bA;
+    float *aB;
+    float *bB;
 
     unsigned int x, y, w, h;
 
@@ -286,6 +286,23 @@ pdiff_compare (cairo_surface_t *surface_a,
 
     w = cairo_image_surface_get_width (surface_a);
     h = cairo_image_surface_get_height (surface_a);
+    if (w < 3 || h < 3) /* too small for the Laplacian convolution */
+	return -1;
+
+    aX = xmalloc (dim * sizeof (float));
+    aY = xmalloc (dim * sizeof (float));
+    aZ = xmalloc (dim * sizeof (float));
+    bX = xmalloc (dim * sizeof (float));
+    bY = xmalloc (dim * sizeof (float));
+    bZ = xmalloc (dim * sizeof (float));
+    aLum = xmalloc (dim * sizeof (float));
+    bLum = xmalloc (dim * sizeof (float));
+
+    aA = xmalloc (dim * sizeof (float));
+    bA = xmalloc (dim * sizeof (float));
+    aB = xmalloc (dim * sizeof (float));
+    bB = xmalloc (dim * sizeof (float));
+
     for (y = 0; y < h; y++) {
 	for (x = 0; x < w; x++) {
 	    float r, g, b, l;

@@ -23,6 +23,7 @@
 
 
 
+#define             <link linkend="CAIRO-HAS-SVG-SURFACE:CAPS">CAIRO_HAS_SVG_SURFACE</link>
 <link linkend="cairo-surface-t">cairo_surface_t</link>*    <link linkend="cairo-svg-surface-create">cairo_svg_surface_create</link>            (const <link linkend="char">char</link> *filename,
                                                          <link linkend="double">double</link> width_in_points,
                                                          <link linkend="double">double</link> height_in_points);
@@ -51,12 +52,21 @@ const <link linkend="char">char</link>*         <link linkend="cairo-svg-version
 <refsect1 role="desc">
 <title role="desc.title">Description</title>
 <para>
-
+The SVG surface is used to render cairo graphics to
+SVG files and is a multi-page vector surface backend.
 </para>
 </refsect1>
 
 <refsect1 role="details">
 <title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="CAIRO-HAS-SVG-SURFACE:CAPS" role="macro"/>CAIRO_HAS_SVG_SURFACE</title>
+<indexterm><primary>CAIRO_HAS_SVG_SURFACE</primary></indexterm><programlisting>#define CAIRO_HAS_SVG_SURFACE 1
+</programlisting>
+<para>
+Defined if the SVG surface backend is available.
+This macro can be used to conditionally compile backend-specific code.
+</para></refsect2>
 <refsect2>
 <title><anchor id="cairo-svg-surface-create" role="function" condition="since:1.2"/>cairo_svg_surface_create ()</title>
 <indexterm role="1.2"><primary>cairo_svg_surface_create</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>*    cairo_svg_surface_create            (const <link linkend="char">char</link> *filename,
@@ -78,7 +88,7 @@ to <parameter>filename</parameter>.</para>
 <listitem><simpara> height of the surface, in points (1 point == 1/72.0 inch)
 </simpara></listitem></varlistentry>
 <varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a pointer to the newly created surface. The caller
-owns the surface and should call cairo_surface_destroy when done
+owns the surface and should call <link linkend="cairo-surface-destroy"><function>cairo_surface_destroy()</function></link> when done
 with it.
 
 This function always returns a valid pointer, but it will return a
@@ -113,7 +123,7 @@ incrementally to the stream represented by <parameter>write_func</parameter> and
 <listitem><simpara> height of the surface, in points (1 point == 1/72.0 inch)
 </simpara></listitem></varlistentry>
 <varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a pointer to the newly created surface. The caller
-owns the surface and should call cairo_surface_destroy when done
+owns the surface and should call <link linkend="cairo-surface-destroy"><function>cairo_surface_destroy()</function></link> when done
 with it.
 
 This function always returns a valid pointer, but it will return a
@@ -195,7 +205,7 @@ Used to retrieve the list of supported versions. See
 <indexterm role="1.2"><primary>cairo_svg_version_to_string</primary></indexterm><programlisting>const <link linkend="char">char</link>*         cairo_svg_version_to_string         (<link linkend="cairo-svg-version-t">cairo_svg_version_t</link> version);</programlisting>
 <para>
 Get the string representation of the given <parameter>version</parameter> id. This function
-will return NULL if <parameter>version</parameter> isn't valid. See <link linkend="cairo-svg-get-versions"><function>cairo_svg_get_versions()</function></link>
+will return <link linkend="NULL:CAPS"><literal>NULL</literal></link> if <parameter>version</parameter> isn't valid. See <link linkend="cairo-svg-get-versions"><function>cairo_svg_get_versions()</function></link>
 for a way to get the list of valid version ids.</para>
 <para>
 
@@ -213,5 +223,15 @@ for a way to get the list of valid version ids.</para>
 
 
 
+<refsect1>
+<title>See Also</title>
+<para>
+<itemizedlist>
+<listitem>#<link linkend="cairo-surface-t"><function>cairo_surface_t()</function></link></listitem>
+</itemizedlist>
+</para>
+</refsect1>
 
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
 </refentry>

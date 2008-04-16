@@ -1,12 +1,12 @@
 /*
- * Copyright ? 2007 Chris Wilson.
+ * Copyright © 2007 Chris Wilson.
  *
  * Permission to use, copy, modify, distribute, and sell this software
  * and its documentation for any purpose is hereby granted without
  * fee, provided that the above copyright notice appear in all copies
  * and that both that copyright notice and this permission notice
  * appear in supporting documentation, and that the name of
- * Chris Wilson. not be used in advertising or publicity pertaining to
+ * Chris Wilson. Not be used in advertising or publicity pertaining to
  * distribution of the software without specific, written prior
  * permission. Chris Wilson makes no representations about the
  * suitability of this software for any purpose.  It is provided "as
@@ -23,6 +23,10 @@
  * Author: Chris Wilson <chris at chris-wilson.co.uk>
  */
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "cairo-test.h"
 
 static cairo_test_draw_function_t draw;
@@ -38,6 +42,10 @@ cairo_test_t test = {
 
 #define LOOPS 10
 #define NRAND 100
+
+#ifndef HAVE_DRAND48
+#define drand48() (rand () / (double) RAND_MAX)
+#endif
 
 static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)

@@ -71,8 +71,7 @@
 
 <refsect1 role="desc">
 <title role="desc.title">Description</title>
-
-  <para><indexterm><primary>types</primary><secondary>cairo_matrix</secondary></indexterm><indexterm><primary/></indexterm>
+  <para>
     <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link> is used throughout cairo to convert between different
     coordinate spaces.  A <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link> holds an affine transformation,
     such as a scale, rotation, shear, or a combination of these.
@@ -164,7 +163,7 @@ by:
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
-<listitem><simpara> a cairo_matrix_t
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>xx</parameter>&nbsp;:</term>
 <listitem><simpara> xx component of the affine transformation
@@ -209,7 +208,7 @@ Initializes <parameter>matrix</parameter> to a transformation that translates by
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
-<listitem><simpara> a cairo_matrix_t
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>tx</parameter>&nbsp;:</term>
 <listitem><simpara> amount to translate in the X direction
@@ -230,7 +229,7 @@ in the X and Y dimensions, respectively.</para>
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
-<listitem><simpara> a cairo_matrix_t
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>sx</parameter>&nbsp;:</term>
 <listitem><simpara> scale factor in the X direction
@@ -249,7 +248,7 @@ Initialized <parameter>matrix</parameter> to a transformation that rotates by <p
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
-<listitem><simpara> a cairo_matrix_t
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>radians</parameter>&nbsp;:</term>
 <listitem><simpara> angle of rotation, in radians. The direction of rotation
@@ -273,7 +272,7 @@ to the coordinates.</para>
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
-<listitem><simpara> a cairo_matrix_t
+<listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>tx</parameter>&nbsp;:</term>
 <listitem><simpara> amount to translate in the X direction
@@ -334,18 +333,16 @@ direction.
 Changes <parameter>matrix</parameter> to be the inverse of it's original value. Not
 all transformation matrices have inverses; if the matrix
 collapses points together (it is <firstterm>degenerate</firstterm>),
-then it has no inverse and this function will fail.
-</para>
-<para>
-Returns: If <parameter>matrix</parameter> has an inverse, modifies <parameter>matrix</parameter> to
- be the inverse matrix and returns <link linkend="CAIRO-STATUS-SUCCESS:CAPS"><literal>CAIRO_STATUS_SUCCESS</literal></link>. Otherwise,</para>
+then it has no inverse and this function will fail.</para>
 <para>
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>matrix</parameter>&nbsp;:</term>
 <listitem><simpara> a <link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link>
 </simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara><link linkend="CAIRO-STATUS-INVALID-MATRIX:CAPS"><literal>CAIRO_STATUS_INVALID_MATRIX</literal></link>.
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> If <parameter>matrix</parameter> has an inverse, modifies <parameter>matrix</parameter> to
+ be the inverse matrix and returns <link linkend="CAIRO-STATUS-SUCCESS:CAPS"><literal>CAIRO_STATUS_SUCCESS</literal></link>. Otherwise,
+ returns <link linkend="CAIRO-STATUS-INVALID-MATRIX:CAPS"><literal>CAIRO_STATUS_INVALID_MATRIX</literal></link>.
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
@@ -435,5 +432,15 @@ Transforms the point (<parameter>x</parameter>, <parameter>y</parameter>) by <pa
 
 
 
+<refsect1>
+<title>See Also</title>
+<para>
+<itemizedlist>
+<listitem><link linkend="cairo-t"><type>cairo_t</type></link></listitem>
+</itemizedlist>
+</para>
+</refsect1>
 
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
 </refentry>

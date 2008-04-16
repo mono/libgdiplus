@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
+/* whether Cairo needs memory barriers around atomic ops */
+#undef CAIRO_ATOMIC_OP_NEEDS_MEMORY_BARRIER
+
 /* define if glitz backend can be tested against agl */
 #undef CAIRO_CAN_TEST_GLITZ_AGL_SURFACE
 
@@ -16,8 +19,18 @@
    dependencies for pdf2png) */
 #undef CAIRO_CAN_TEST_PDF_SURFACE
 
+/* Define to 1 if the PS backend can be tested (needs ghostscript) */
+#undef CAIRO_CAN_TEST_PS_SURFACE
+
 /* Define to 1 if the SVG backend can be tested */
 #undef CAIRO_CAN_TEST_SVG_SURFACE
+
+/* Define to 1 if the Win32 Printing backend can be tested (needs ghostscript)
+   */
+#undef CAIRO_CAN_TEST_WIN32_PRINTING_SURFACE
+
+/* Enable if your compiler supports the Intel __sync_* atomic primitives */
+#undef CAIRO_HAS_INTEL_ATOMIC_PRIMITIVES
 
 /* define in the extra test surface have been built into cairo for the test
    suite */
@@ -31,8 +44,14 @@
    significant word first */
 #undef FLOAT_WORDS_BIGENDIAN
 
+/* Define to 1 if you have the `ctime_r' function. */
+#undef HAVE_CTIME_R
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
+
+/* Define to 1 if you have the `drand48' function. */
+#undef HAVE_DRAND48
 
 /* Define to 1 if you have the `FcFini' function. */
 #undef HAVE_FCFINI
@@ -58,8 +77,14 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
+/* Define to 1 if you have the `poppler_page_render_to_pixbuf' function. */
+#undef HAVE_POPPLER_PAGE_RENDER_TO_PIXBUF
+
 /* Define to 1 if you have the <pthread.h> header file. */
 #undef HAVE_PTHREAD_H
+
+/* Define to 1 if you have the `rsvg_pixbuf_from_file' function. */
+#undef HAVE_RSVG_PIXBUF_FROM_FILE
 
 /* Define to 1 if you have Linux compatible sched_getaffinity */
 #undef HAVE_SCHED_GETAFFINITY
@@ -127,9 +152,6 @@
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
-/* use MMX compiler intrinsics */
-#undef USE_MMX
-
 /* Version number of package */
 #undef VERSION
 
@@ -140,6 +162,19 @@
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */
 #undef WORDS_BIGENDIAN
+
+
+/* Deal with multiple architecture compiles on Mac OS X */
+#ifdef __APPLE_CC__
+#ifdef __BIG_ENDIAN__
+#define WORDS_BIGENDIAN 1
+#define FLOAT_WORDS_BIGENDIAN 1
+#else
+#undef WORDS_BIGENDIAN
+#undef FLOAT_WORDS_BIGENDIAN
+#endif
+#endif
+
 
 /* Define to 1 if the X Window System is missing or not being used. */
 #undef X_DISPLAY_MISSING

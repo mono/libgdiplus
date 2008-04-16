@@ -275,8 +275,8 @@ merge_similar_entries (void)
 }
 
 __attribute__ ((destructor))
-static void
-finish (void)
+void
+malloc_stats (void)
 {
 	int i;
 
@@ -298,4 +298,3 @@ finish (void)
 		}
 	}
 }
-

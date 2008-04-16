@@ -38,15 +38,44 @@ cairo_test_t test = {
     draw
 };
 
-static void
+static cairo_bool_t
+text_extents_equal (const cairo_text_extents_t *A,
+	            const cairo_text_extents_t *B)
+{
+    return A->x_bearing == B->x_bearing &&
+	   A->y_bearing == B->y_bearing &&
+	   A->width     == B->width     &&
+	   A->height    == B->height    &&
+	   A->x_advance == B->x_advance &&
+	   A->y_advance == B->y_advance;
+}
+
+static cairo_test_status_t
 box_text (cairo_t *cr, const char *utf8, double x, double y)
 {
     double line_width;
-    cairo_text_extents_t extents;
+    cairo_text_extents_t extents = {0}, scaled_extents = {0};
+    cairo_scaled_font_t *scaled_font;
 
     cairo_save (cr);
 
     cairo_text_extents (cr, utf8, &extents);
+
+    scaled_font = cairo_get_scaled_font (cr);
+    cairo_scaled_font_text_extents (scaled_font, TEXT, &scaled_extents);
+    if (! text_extents_equal (&extents, &scaled_extents)) {
+        cairo_test_log ("Error: extents differ when they shouldn't:\n"
+			"cairo_text_extents(); extents (%g, %g, %g, %g, %g, %g)\n"
+			"cairo_scaled_font_text_extents(); extents (%g, %g, %g, %g, %g, %g)\n",
+		        extents.x_bearing, extents.y_bearing,
+			extents.width, extents.height,
+			extents.x_advance, extents.y_advance,
+		        scaled_extents.x_bearing, scaled_extents.y_bearing,
+			scaled_extents.width, scaled_extents.height,
+			scaled_extents.x_advance, scaled_extents.y_advance);
+        return CAIRO_TEST_FAILURE;
+    }
+
     line_width = cairo_get_line_width (cr);
     cairo_rectangle (cr,
 		     x + extents.x_bearing - line_width / 2,
@@ -59,11 +88,14 @@ box_text (cairo_t *cr, const char *utf8, double x, double y)
     cairo_show_text (cr, utf8);
 
     cairo_restore (cr);
+
+    return CAIRO_TEST_SUCCESS;
 }
 
 static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
+    cairo_test_status_t status;
     cairo_text_extents_t extents;
     cairo_matrix_t matrix;
 
@@ -82,7 +114,9 @@ draw (cairo_t *cr, int width, int height)
 
     /* Draw text and bounding box */
     cairo_set_source_rgb (cr, 0, 0, 0); /* black */
-    box_text (cr, TEXT, 0, - extents.y_bearing);
+    status = box_text (cr, TEXT, 0, - extents.y_bearing);
+    if (status)
+	return status;
 
     /* Then draw again with the same coordinates, but with a font
      * matrix to position the text below and shifted a bit to the
@@ -92,7 +126,9 @@ draw (cairo_t *cr, int width, int height)
     cairo_set_font_matrix (cr, &matrix);
 
     cairo_set_source_rgb (cr, 0, 0, 1); /* blue */
-    box_text (cr, TEXT, 0, - extents.y_bearing);
+    status = box_text (cr, TEXT, 0, - extents.y_bearing);
+    if (status)
+	return status;
 
     return CAIRO_TEST_SUCCESS;
 }

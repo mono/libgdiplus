@@ -5,13 +5,13 @@
 ]>
 <refentry id="cairo-Font-Options">
 <refmeta>
-<refentrytitle role="top_of_page">Font Options</refentrytitle>
+<refentrytitle role="top_of_page">cairo_font_options_t</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>Font Options</refname>
+<refname>cairo_font_options_t</refname>
 <refpurpose>How a font should be rendered</refpurpose>
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
@@ -65,7 +65,10 @@ enum                <link linkend="cairo-hint-metrics-t">cairo_hint_metrics_t</l
 <refsect1 role="desc">
 <title role="desc.title">Description</title>
 <para>
-
+The font options specify how fonts should be rendered.  Most of the time the
+font options implied by a surface are just right and do not need any changes,
+but for pixel-based targets tweaking font options may result in superior
+output on a particular display.
 </para>
 </refsect1>
 
@@ -184,7 +187,7 @@ of <link linkend="CAIRO-OPERATION-OVER:CAPS"><literal>CAIRO_OPERATION_OVER</lite
 <indexterm><primary>cairo_font_options_hash</primary></indexterm><programlisting>unsigned <link linkend="long">long</link>       cairo_font_options_hash             (const <link linkend="cairo-font-options-t">cairo_font_options_t</link> *options);</programlisting>
 <para>
 Compute a hash for the font options object; this value will
-be useful when storing an object containing a cairo_font_options_t
+be useful when storing an object containing a <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
 in a hash table.</para>
 <para>
 
@@ -212,7 +215,9 @@ Compares two font options objects for equality.</para>
 <varlistentry><term><parameter>other</parameter>&nbsp;:</term>
 <listitem><simpara> another <link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link>
 </simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if all fields of the two font options objects match
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if all fields of the two font options objects match.
+Note that this function will return <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> if either object is in
+error.
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
@@ -493,5 +498,15 @@ See the documentation for <link linkend="cairo-hint-metrics-t"><type>cairo_hint_
 
 
 
+<refsect1>
+<title>See Also</title>
+<para>
+<itemizedlist>
+<listitem><link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link></listitem>
+</itemizedlist>
+</para>
+</refsect1>
 
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
 </refentry>

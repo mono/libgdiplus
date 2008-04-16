@@ -36,7 +36,7 @@ xmalloc (size_t size)
     void *buf;
 
     buf = malloc (size);
-    if (!buf) {
+    if (buf == NULL && size != 0) {
 	CAIRO_BOILERPLATE_LOG ("Error: Out of memory. Exiting.\n");
 	exit (1);
     }
@@ -50,7 +50,7 @@ xcalloc (size_t nmemb, size_t size)
     void *buf;
 
     buf = calloc (nmemb, size);
-    if (!buf) {
+    if (buf == NULL && nmemb != 0 && size != 0) {
 	CAIRO_BOILERPLATE_LOG ("Error: Out of memory. Exiting\n");
 	exit (1);
     }
@@ -62,7 +62,7 @@ void *
 xrealloc (void *buf, size_t size)
 {
     buf = realloc (buf, size);
-    if (!buf) {
+    if (buf == NULL && size != 0) {
 	CAIRO_BOILERPLATE_LOG ("Error: Out of memory. Exiting\n");
 	exit (1);
     }
@@ -89,10 +89,10 @@ xasprintf (char **strp, const char *fmt, ...)
 #define BUF_SIZE 1024
     va_list va;
     char buffer[BUF_SIZE];
-    int ret;
+    int ret, len;
 
     va_start (va, fmt);
-    ret = vsnprintf (buffer, sizeof(buffer), fmt, va);
+    ret = vsnprintf (buffer, sizeof (buffer), fmt, va);
     va_end (va);
 
     if (ret < 0) {
@@ -100,15 +100,26 @@ xasprintf (char **strp, const char *fmt, ...)
 	exit (1);
     }
 
-    if (strlen (buffer) == sizeof(buffer) - 1) {
-	CAIRO_BOILERPLATE_LOG ("Overflowed fixed buffer\n");
-	exit (1);
-    }
-
-    *strp = strdup (buffer);
-    if (!*strp) {
+    len = (ret + sizeof (int)) & -sizeof (int);
+    *strp = malloc (len);
+    if (*strp == NULL) {
 	CAIRO_BOILERPLATE_LOG ("Out of memory\n");
 	exit (1);
     }
+
+    if ((unsigned) ret < sizeof (buffer)) {
+	memcpy (*strp, buffer, ret);
+    } else {
+	va_start (va, fmt);
+	ret = vsnprintf (*strp, len, fmt, va);
+	va_end (va);
+
+	if (ret >= len) {
+	    free (*strp);
+	    CAIRO_BOILERPLATE_LOG ("Overflowed dynamic buffer\n");
+	    exit (1);
+	}
+    }
+    memset (*strp + ret, 0, len-ret);
 #endif /* !HAVE_VASNPRINTF */
 }

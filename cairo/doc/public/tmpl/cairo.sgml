@@ -21,7 +21,9 @@ The cairo drawing context
 
 <!-- ##### SECTION See_Also ##### -->
 <para>
-
+<itemizedlist>
+<listitem>#cairo_surface_t</listitem>
+</itemizedlist>
 </para>
 
 <!-- ##### SECTION Stability_Level ##### -->

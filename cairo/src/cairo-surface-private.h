@@ -41,6 +41,7 @@
 #include "cairo.h"
 
 #include "cairo-types-private.h"
+#include "cairo-reference-count-private.h"
 
 struct _cairo_surface {
     const cairo_surface_backend_t *backend;
@@ -52,7 +53,7 @@ struct _cairo_surface {
 
     cairo_content_t content;
 
-    unsigned int ref_count;
+    cairo_reference_count_t ref_count;
     cairo_status_t status;
     cairo_bool_t finished;
     cairo_user_data_array_t user_data;
@@ -60,6 +61,14 @@ struct _cairo_surface {
     cairo_matrix_t device_transform;
     cairo_matrix_t device_transform_inverse;
 
+    /* The actual resolution of the device, in dots per inch. */
+    double x_resolution;
+    double y_resolution;
+
+    /* The resolution that should be used when generating image-based
+     * fallback; generally only used by the analysis/paginated
+     * surfaces
+     */
     double x_fallback_resolution;
     double y_fallback_resolution;
 

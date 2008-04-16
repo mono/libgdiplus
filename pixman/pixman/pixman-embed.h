@@ -1,0 +1,131 @@
+/*
+ * Copyright (C) 2007 Novell, Inc (http://www.novell.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial
+ * portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Authors:
+ *            Larry Ewing <lewing@novell.com> (via script)   
+ *          
+ */
+
+#ifndef _PIXMAN_EMBED_H_
+#define _PIXMAN_EMBED_H_
+#define _pixman_brokendata _mono_pixman_brokendata
+#define _pixman_edge_tMultiInit _mono_pixman_edge_tMultiInit
+#define _pixman_region_emptyBox _mono_pixman_region_emptyBox
+#define _pixman_region_emptyData _mono_pixman_region_emptyData
+#define pixmanFetchSourcePict mono_pixmanFetchSourcePict
+#define pixman_add_trapezoids mono_pixman_add_trapezoids
+#define pixman_add_traps mono_pixman_add_traps
+#define pixman_addition_overflows_int mono_pixman_addition_overflows_int
+#define pixman_blt mono_pixman_blt
+#define pixman_blt_mmx mono_pixman_blt_mmx
+#define pixman_break mono_pixman_break
+#define pixman_brokendata mono_pixman_brokendata
+#define pixman_composeFunctions mono_pixman_composeFunctions
+#define pixman_composite_rect_general mono_pixman_composite_rect_general
+#define pixman_composite_rect_general_accessors mono_pixman_composite_rect_general_accessors
+#define pixman_compute_composite_region mono_pixman_compute_composite_region
+#define pixman_edge_init mono_pixman_edge_init
+#define pixman_edge_step mono_pixman_edge_step
+#define pixman_fbCombineFuncC mono_pixman_fbCombineFuncC
+#define pixman_fbCombineFuncU mono_pixman_fbCombineFuncU
+#define pixman_fbCombineMaskU mono_pixman_fbCombineMaskU
+#define pixman_fetchPixelProcForPicture mono_pixman_fetchPixelProcForPicture
+#define pixman_fetchPixelProcForPicture_accessors mono_pixman_fetchPixelProcForPicture_accessors
+#define pixman_fetchProcForPicture mono_pixman_fetchProcForPicture
+#define pixman_fetchProcForPicture_accessors mono_pixman_fetchProcForPicture_accessors
+#define pixman_fill mono_pixman_fill
+#define pixman_fill_mmx mono_pixman_fill_mmx
+#define pixman_format_supported_destination mono_pixman_format_supported_destination
+#define pixman_format_supported_source mono_pixman_format_supported_source
+#define pixman_have_mmx mono_pixman_have_mmx
+#define pixman_have_sse mono_pixman_have_sse
+#define pixman_image_composite mono_pixman_image_composite
+#define pixman_image_composite_rect mono_pixman_image_composite_rect
+#define pixman_image_create_bits mono_pixman_image_create_bits
+#define pixman_image_create_conical_gradient mono_pixman_image_create_conical_gradient
+#define pixman_image_create_linear_gradient mono_pixman_image_create_linear_gradient
+#define pixman_image_create_radial_gradient mono_pixman_image_create_radial_gradient
+#define pixman_image_create_solid_fill mono_pixman_image_create_solid_fill
+#define pixman_image_fill_rectangles mono_pixman_image_fill_rectangles
+#define pixman_image_get_data mono_pixman_image_get_data
+#define pixman_image_get_depth mono_pixman_image_get_depth
+#define pixman_image_get_height mono_pixman_image_get_height
+#define pixman_image_get_stride mono_pixman_image_get_stride
+#define pixman_image_get_width mono_pixman_image_get_width
+#define pixman_image_ref mono_pixman_image_ref
+#define pixman_image_set_accessors mono_pixman_image_set_accessors
+#define pixman_image_set_alpha_map mono_pixman_image_set_alpha_map
+#define pixman_image_set_clip_region mono_pixman_image_set_clip_region
+#define pixman_image_set_component_alpha mono_pixman_image_set_component_alpha
+#define pixman_image_set_filter mono_pixman_image_set_filter
+#define pixman_image_set_has_client_clip mono_pixman_image_set_has_client_clip
+#define pixman_image_set_indexed mono_pixman_image_set_indexed
+#define pixman_image_set_repeat mono_pixman_image_set_repeat
+#define pixman_image_set_source_clipping mono_pixman_image_set_source_clipping
+#define pixman_image_set_transform mono_pixman_image_set_transform
+#define pixman_image_unref mono_pixman_image_unref
+#define pixman_line_fixed_edge_init mono_pixman_line_fixed_edge_init
+#define pixman_malloc_ab mono_pixman_malloc_ab
+#define pixman_malloc_abc mono_pixman_malloc_abc
+#define pixman_multiply_overflows_int mono_pixman_multiply_overflows_int
+#define pixman_op mono_pixman_op
+#define pixman_rasterize_edges mono_pixman_rasterize_edges
+#define pixman_rasterize_edges_accessors mono_pixman_rasterize_edges_accessors
+#define pixman_rasterize_trapezoid mono_pixman_rasterize_trapezoid
+#define pixman_rect_alloc mono_pixman_rect_alloc
+#define pixman_region16_print mono_pixman_region16_print
+#define pixman_region_append mono_pixman_region_append
+#define pixman_region_contains_point mono_pixman_region_contains_point
+#define pixman_region_contains_rectangle mono_pixman_region_contains_rectangle
+#define pixman_region_copy mono_pixman_region_copy
+#define pixman_region_empty mono_pixman_region_empty
+#define pixman_region_emptyBox mono_pixman_region_emptyBox
+#define pixman_region_emptyData mono_pixman_region_emptyData
+#define pixman_region_equal mono_pixman_region_equal
+#define pixman_region_extents mono_pixman_region_extents
+#define pixman_region_fini mono_pixman_region_fini
+#define pixman_region_init mono_pixman_region_init
+#define pixman_region_init_rect mono_pixman_region_init_rect
+#define pixman_region_init_rects mono_pixman_region_init_rects
+#define pixman_region_init_with_extents mono_pixman_region_init_with_extents
+#define pixman_region_intersect mono_pixman_region_intersect
+#define pixman_region_intersectO mono_pixman_region_intersectO
+#define pixman_region_inverse mono_pixman_region_inverse
+#define pixman_region_n_rects mono_pixman_region_n_rects
+#define pixman_region_not_empty mono_pixman_region_not_empty
+#define pixman_region_rectangles mono_pixman_region_rectangles
+#define pixman_region_rects mono_pixman_region_rects
+#define pixman_region_reset mono_pixman_region_reset
+#define pixman_region_selfcheck mono_pixman_region_selfcheck
+#define pixman_region_set_static_pointers mono_pixman_region_set_static_pointers
+#define pixman_region_subtract mono_pixman_region_subtract
+#define pixman_region_subtractO mono_pixman_region_subtractO
+#define pixman_region_translate mono_pixman_region_translate
+#define pixman_region_union mono_pixman_region_union
+#define pixman_region_unionO mono_pixman_region_unionO
+#define pixman_region_union_rect mono_pixman_region_union_rect
+#define pixman_region_validate mono_pixman_region_validate
+#define pixman_sample_ceil_y mono_pixman_sample_ceil_y
+#define pixman_sample_floor_y mono_pixman_sample_floor_y
+#define pixman_set_extents mono_pixman_set_extents
+#define pixman_storeProcForPicture mono_pixman_storeProcForPicture
+#define pixman_storeProcForPicture_accessors mono_pixman_storeProcForPicture_accessors
+#define pixman_transform_point_3d mono_pixman_transform_point_3d
+#define pixman_version mono_pixman_version
+#define pixman_version_string mono_pixman_version_string
+#endif

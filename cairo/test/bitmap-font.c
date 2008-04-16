@@ -45,11 +45,44 @@ cairo_test_t test = {
     draw
 };
 
+static cairo_bool_t
+font_extents_equal (const cairo_font_extents_t *A,
+	            const cairo_font_extents_t *B)
+{
+    return
+	CAIRO_TEST_DOUBLE_EQUALS (A->ascent,  B->ascent)  &&
+	CAIRO_TEST_DOUBLE_EQUALS (A->descent, B->descent) &&
+	CAIRO_TEST_DOUBLE_EQUALS (A->height,  B->height)  &&
+	CAIRO_TEST_DOUBLE_EQUALS (A->max_x_advance, B->max_x_advance) &&
+	CAIRO_TEST_DOUBLE_EQUALS (A->max_y_advance, B->max_y_advance);
+}
+
+static cairo_test_status_t
+check_font_extents (cairo_t *cr, const char *comment)
+{
+    cairo_font_extents_t font_extents, ref_font_extents = {11, 2, 13, 6, 0};
+
+    memset (&font_extents, 0xff, sizeof (cairo_font_extents_t));
+    cairo_font_extents (cr, &font_extents);
+    if (! font_extents_equal (&font_extents, &ref_font_extents)) {
+	cairo_test_log ("Error: %s: cairo_font_extents(); extents (%g, %g, %g, %g, %g)\n",
+			comment,
+		        font_extents.ascent, font_extents.descent,
+			font_extents.height,
+			font_extents.max_x_advance, font_extents.max_y_advance);
+	return CAIRO_TEST_FAILURE;
+    }
+
+    return CAIRO_TEST_SUCCESS;
+}
+
 static cairo_test_status_t
 draw (cairo_t *cr, int width, int height)
 {
     FcPattern *pattern;
     cairo_font_face_t *font_face;
+    cairo_font_extents_t font_extents;
+    cairo_font_options_t *font_options;
     cairo_status_t status;
     const char *srcdir = getenv ("srcdir");
     char *filename;
@@ -92,12 +125,44 @@ draw (cairo_t *cr, int width, int height)
 
     cairo_set_font_face (cr, font_face);
 
+#define CHECK_FONT_EXTENTS(comment) if (check_font_extents (cr, (comment)) != CAIRO_TEST_SUCCESS) return CAIRO_TEST_FAILURE
+
+    cairo_font_extents (cr, &font_extents);
+    CHECK_FONT_EXTENTS ("default");
+
     FcPatternDestroy (pattern);
     cairo_font_face_destroy (font_face);
 
-    cairo_move_to (cr, 1, TEXT_SIZE - 3);
+    font_options = cairo_font_options_create ();
+
+    cairo_font_options_set_hint_metrics (font_options, CAIRO_HINT_METRICS_ON);
+    cairo_set_font_options (cr, font_options);
+
+    CHECK_FONT_EXTENTS ("HINT_METRICS_ON");
+
+    cairo_move_to (cr, 1, font_extents.ascent - 1);
     cairo_set_source_rgb (cr, 0.0, 0.0, 1.0); /* blue */
-    cairo_show_text (cr, "the quick brown fox");
+
+
+    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_NONE);
+    cairo_set_font_options (cr, font_options);
+    CHECK_FONT_EXTENTS ("HINT_METRICS_ON HINT_STYLE_NONE");
+    cairo_show_text (cr, "the ");
+
+    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_SLIGHT);
+    cairo_set_font_options (cr, font_options);
+    CHECK_FONT_EXTENTS ("HINT_METRICS_ON HINT_STYLE_SLIGHT");
+    cairo_show_text (cr, "quick ");
+
+    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_MEDIUM);
+    cairo_set_font_options (cr, font_options);
+    CHECK_FONT_EXTENTS ("HINT_METRICS_ON HINT_STYLE_MEDIUM");
+    cairo_show_text (cr, "brown");
+
+    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_FULL);
+    cairo_set_font_options (cr, font_options);
+    CHECK_FONT_EXTENTS ("HINT_METRICS_ON HINT_STYLE_FULL");
+    cairo_show_text (cr, " fox");
 
     /* Switch from show_text to text_path/fill to exercise bug #7889 */
     cairo_text_path (cr, " jumps over a lazy dog");
@@ -105,17 +170,41 @@ draw (cairo_t *cr, int width, int height)
 
     /* And test it rotated as well for the sake of bug #7888 */
 
-    /* XXX: The math for the vertical positioning here is all wrong,
-     * but it is landing where I want it. Someone who understands
-     * fonts at all should fix this. */
-    cairo_move_to (cr, width -1, 2 * (TEXT_SIZE - 5));
+    cairo_translate (cr, width, height);
     cairo_rotate (cr, M_PI);
-    cairo_show_text (cr, "the quick");
-    cairo_show_text (cr, " brown fox");
+
+    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_DEFAULT);
+    cairo_font_options_set_hint_metrics (font_options, CAIRO_HINT_METRICS_OFF);
+    cairo_set_font_options (cr, font_options);
+    CHECK_FONT_EXTENTS ("HINT_METRICS_OFF");
+
+    cairo_move_to (cr, 1, font_extents.height - font_extents.descent - 1);
+
+    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_NONE);
+    cairo_set_font_options (cr, font_options);
+    CHECK_FONT_EXTENTS ("HINT_METRICS_OFF HINT_STYLE_NONE");
+    cairo_show_text (cr, "the ");
+
+    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_SLIGHT);
+    cairo_set_font_options (cr, font_options);
+    CHECK_FONT_EXTENTS ("HINT_METRICS_OFF HINT_STYLE_SLIGHT");
+    cairo_show_text (cr, "quick");
+
+    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_MEDIUM);
+    cairo_set_font_options (cr, font_options);
+    CHECK_FONT_EXTENTS ("HINT_METRICS_OFF HINT_STYLE_MEDIUM");
+    cairo_show_text (cr, " brown");
+
+    cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_FULL);
+    cairo_set_font_options (cr, font_options);
+    CHECK_FONT_EXTENTS ("HINT_METRICS_OFF HINT_STYLE_FULL");
+    cairo_show_text (cr, " fox");
 
     cairo_text_path (cr, " jumps over");
     cairo_text_path (cr, " a lazy dog");
     cairo_fill (cr);
+
+    cairo_font_options_destroy (font_options);
 
     return CAIRO_TEST_SUCCESS;
 }

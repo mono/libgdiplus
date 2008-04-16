@@ -608,7 +608,7 @@ cairo_perf_reports_compare (cairo_perf_report_t		*reports,
     int num_diffs, max_diffs;
     double max_change;
     double test_time;
-    cairo_bool_t seen_non_null;
+    int seen_non_null;
     cairo_bool_t printed_speedup = FALSE;
     cairo_bool_t printed_slowdown = FALSE;
 
@@ -636,25 +636,36 @@ cairo_perf_reports_compare (cairo_perf_report_t		*reports,
 	    while (tests[i]->name && tests[i]->stats.iterations == 0)
 		tests[i]++;
 	    if (tests[i]->name)
-		seen_non_null = 1;
+		seen_non_null++;
 	}
 
-	if (! seen_non_null)
+	if (seen_non_null < 2)
 	    break;
 
 	/* Find the minimum of all current tests, (we have to do this
 	 * in case some reports don't have a particular test). */
-	min_test = tests[0];
-	for (i = 1; i < num_reports; i++)
-	    if (test_report_cmp_backend_then_name (tests[i], min_test) < 0)
+	for (i = 0; i < num_reports; i++) {
+	    if (tests[i]->name) {
 		min_test = tests[i];
+		break;
+	    }
+	}
+	for (++i; i < num_reports; i++) {
+	    if (tests[i]->name &&
+		test_report_cmp_backend_then_name (tests[i], min_test) < 0)
+	    {
+		min_test = tests[i];
+	    }
+	}
 
 	/* For each report that has the current test, record it into
 	 * the diff structure. */
 	diff->num_tests = 0;
 	diff->tests = xmalloc (num_reports * sizeof (test_diff_t));
 	for (i = 0; i < num_reports; i++) {
-	    if (test_report_cmp_backend_then_name (tests[i], min_test) == 0) {
+	    if (tests[i]->name &&
+		test_report_cmp_backend_then_name (tests[i], min_test) == 0)
+	    {
 		test_time = tests[i]->stats.min_ticks;
 		if (options->use_ms)
 		    test_time /= tests[i]->stats.ticks_per_ms;
@@ -696,6 +707,8 @@ cairo_perf_reports_compare (cairo_perf_report_t		*reports,
 	diff++;
 	num_diffs++;
     }
+    if (num_diffs < 2)
+	goto DONE;
 
     if (num_reports == 2)
 	qsort (diffs, num_diffs, sizeof (test_diff_t),
@@ -709,7 +722,7 @@ cairo_perf_reports_compare (cairo_perf_report_t		*reports,
 	    max_change = fabs (diffs[i].change);
     }
 
-    if (num_reports == 2 )
+    if (num_reports == 2)
 	printf ("old: %s\n"
 		"new: %s\n",
 		diffs->tests[0]->configuration,
@@ -741,6 +754,7 @@ cairo_perf_reports_compare (cairo_perf_report_t		*reports,
 	}
     }
 
+ DONE:
     for (i = 0; i < num_diffs; i++)
 	free (diffs[i].tests);
     free (diffs);

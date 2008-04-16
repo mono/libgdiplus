@@ -55,7 +55,7 @@ draw (cairo_t *cr, int width, int height)
     cairo_surface_t *stamp;
     cairo_t *cr2;
 
-    stamp = cairo_surface_create_similar (cairo_get_target (cr),
+    stamp = cairo_surface_create_similar (cairo_get_group_target (cr),
 					  CAIRO_CONTENT_COLOR_ALPHA,
 					  WIDTH, HEIGHT);
     cr2 = cairo_create (stamp);

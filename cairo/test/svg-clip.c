@@ -76,7 +76,7 @@ test_clip (cairo_t *cr, double width, double height)
 
     /* Create a new context for this surface to test overlapped
      * drawing from two contexts */
-    cr2 = cairo_create (cairo_get_target (cr));
+    cr2 = cairo_create (cairo_get_group_target (cr));
 
     /* Using the new context, draw a black vertical line, which should
      * appear unclipped on top of everything drawn so far. */
@@ -127,7 +127,7 @@ main (void)
     cairo_destroy (cr);
     cairo_surface_destroy (surface);
 
-    printf ("svg-surface: Please check %s to make sure it looks happy.\n",
+    printf ("svg-clip: Please check %s to make sure it looks happy.\n",
 	    filename);
 
     cairo_test_fini ();

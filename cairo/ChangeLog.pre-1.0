@@ -1,1175 +1,3 @@
-commit 71e9372bbdc5c85e14dfc1156269ae6f74802f4d
-Author: Carl Worth <cworth@cworth.org>
-Date:   Wed Jul 26 13:04:25 2006 -0700
-
-    Fix text disappearing after space (bug #6617)
-    
-    What happened here is that when fixing bug #5734 we cahnged the
-    glyph image cache lookup to never return a NULL pointer, but to
-    instead return a 0x0 image surface. We didn't also update code
-    that was looking for a NULL pointer here, and as such we were
-    calling XRenderAddGlyphs with a 0x0 image which apparently
-    tickles a bug in some X servers.
-
- src/cairo-xlib-surface.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-commit e94251861565ed154e15ca3a7198ffe3828536fe
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 15:17:26 2006 -0500
-
-    Clarify that git tag -s does GPG signing.
-
- RELEASING |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletions(-)
-
-commit 98facc6c2d0f57f05de7b98c2aaa592c895d1a09
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 14:19:08 2006 -0500
-
-    Add a release-publish-message target to only get the message.
-
- Makefile.am |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
-
-commit 75b0ab0d66c4065c6cd6cd9b1ccddffd7c581dee
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 14:18:40 2006 -0500
-
-    Increment version to 1.0.5 after release.
-
- configure.in |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-commit 8c188e45eed41a2a2ee38cdbce834ba139190eda
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 14:04:00 2006 -0500
-
-    Cairo-1.0.4 released.
-    Increment CAIRO_VERSION to 1.0.4 and libtool versioning to 4:4:2.
-    Add notes for the 1.0.4 release.
-
- NEWS         |   11 +++++++++++
- configure.in |    4 ++--
- 2 files changed, 13 insertions(+), 2 deletions(-)
-
-commit d3ff5228a205ffb29e85907830d5fc72e2ef5358
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 14:02:14 2006 -0500
-
-    WIN32: Define SHADEBLENDCAPS and SB_NONE if they are not defined. (from Tor Lillqvist)
-
- src/cairo-win32-private.h |    8 ++++++++
- 1 files changed, 8 insertions(+), 0 deletions(-)
-
-commit b3886d1968fdffb52a805952790ef25391be3e99
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 12:16:59 2006 -0500
-
-    Add CAIRO_TEST_TARGET environment variable for limiting backends to test.
-
- test/cairo-test.c |   44 +++++++++++++++++++++++++++++++++++++++-----
- 1 files changed, 39 insertions(+), 5 deletions(-)
-
-commit ba5b30117b076193f5f113be468eec0d951fd919
-Author: Carl Worth <cworth@cworth.org>
-Date:   Mon Feb 27 17:07:22 2006 -0800
-
-    Remove unused RCS $Id:$ tags.
-    (cherry picked from f2245a7932b857ff70dc0476490090d906ae61f8 commit)
-
- src/cairo-wideint.c |    3 +--
- src/cairo-wideint.h |    3 +--
- 2 files changed, 2 insertions(+), 4 deletions(-)
-
-commit 9acc981e440bdf370aee25cc5ea2b836db0886b1
-Author: Vladimir Vukicevic <vladimir@pobox.com>
-Date:   Fri Feb 17 23:37:54 2006 -0800
-
-    Win32: Handle BitBlt in get_image failure and AlphaBlend not being supported
-    
-    If the BitBlt in get_image fails, we pretty much can't do anything -- so
-    fill the destination with white and hope for the best.  This enables
-    somewhat accurate printing of complex operations.  Also, check the
-    destination device caps before calling AlphaBlend; return UNSUPPORTED if
-    the destination DC can't do AlphaBlend.
-    (cherry picked from 9831de538e347a624af5b0ca38242b198b64bd45 commit)
-    (cherry picked from 1a1441912604c89e2912ec764fe26b7a9db995a3 commit)
-
- src/cairo-win32-surface.c |   18 +++++++++++++++---
- 1 files changed, 15 insertions(+), 3 deletions(-)
-
-commit ec4b006c162292ea3b2719dc18a4a3bd40a971ab
-Author: Vladimir Vukicevic <vladimir@pobox.com>
-Date:   Fri Feb 17 23:34:51 2006 -0800
-
-    Win32: Set surface format based on device caps
-    
-    If the DC is a display DC, inspect its depth and set out local format
-    appropriately.  If it's not a display DC, assume RGB24.
-    (cherry picked from 6dd0a70d271f93df95f4bcaff5073b9bf90cecb6 commit)
-    (cherry picked from 2d784815ffac1ca8c10dac12525f2e8d0b412c1a commit)
-
- src/cairo-win32-surface.c |   27 +++++++++++++++++++++++++--
- 1 files changed, 25 insertions(+), 2 deletions(-)
-
-commit d7b280a3add4ec84670e56a85b2a256225b21d0d
-Author: Vladimir Vukicevic <vladimir@pobox.com>
-Date:   Fri Feb 17 23:24:06 2006 -0800
-
-    Win32: Fix up src coords before calling AlphaBlend/BitBlt to avoid invalid calls
-    
-    Fixes up src coords and width/height before calling AlphaBlend/BitBlt; it's
-    an error to try to use a region that extents outside of the source surface
-    as a source DC.
-    
-    Doesn't repair the extra region relative to the operator -- e.g. regions
-    outside of an ARGB source surface with SOURCE operator should be cleared
-    to fully transparent black in the destination.
-    (cherry picked from bc19c5b64b0e38e9d20045907d7b47d79f6afc60 commit)
-    (cherry picked from 68ed40b6da242816a43cd68cc2c7feb779cf0acf commit)
-
- src/cairo-win32-surface.c |   31 +++++++++++++++++++++++++++++--
- 1 files changed, 29 insertions(+), 2 deletions(-)
-
-commit b07f042861602812ca02e01f566026256ba075db
-Author: Vladimir Vukicevic <vladimir@h\-216.office.mozilla.org>
-Date:   Wed Feb 15 12:43:01 2006 -0800
-
-    Win32: Rework clip and extents handling
-    
-    - Save extents at surface creation and always return these
-    - Simplify clipping paths
-    (cherry picked from a67722b3d7280e6c2375778c2d46556cca261bfc commit)
-    (cherry picked from 7ce09732a978749a4da814feb77f50161dc42c91 commit)
-    (cherry picked from e0f4eecb91c8f7f09ef4977703d4ca21b06797a9 commit)
-
- src/cairo-win32-private.h |    2 +-
- src/cairo-win32-surface.c |   92 +++++++++++++++++----------------------------
- 2 files changed, 36 insertions(+), 58 deletions(-)
-
-commit 5cbf914770cc01060fae1abe8cdda9b915352845
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 11:49:37 2006 -0500
-
-    Misc compilation fixes (C++-style comments, M_PI decls, etc.)
-    (cherry picked from d0cc56b9a24fa59febc15ac5de073da0e785e1cc commit)
-    (cherry picked from a6a054abe45287eb950c294e20366594313138f5 commit)
-    (cherry picked from f6b4fabaf59227d6cafcdd7e27cf0d8e26b4eeb8 commit)
-
- pixman/src/fbcompose.c |   10 ++++++++++
- pixman/src/pixregion.c |    6 +++---
- src/cairoint.h         |    4 ++++
- 3 files changed, 17 insertions(+), 3 deletions(-)
-
-commit e78c945b6149a5b209be775d8b240467fbb4cc02
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 11:32:41 2006 -0500
-
-    Check font_face->status and return a nil scaled font if it is in an error state. (Thanks to Christian Biesinger and sunmoon1997 who pointed this out as part of bug #4674)
-    Cherry-picked from head's cairo-scaled-font.c
-
- ChangeLog        |11172 ------------------------------------------------------
- src/cairo-font.c |    3 +
- 2 files changed, 3 insertions(+), 11172 deletions(-)
-
-commit 44e7c120a7dcd7c52a5ea185a650cc5ea1db74dc
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 11:27:15 2006 -0500
-
-    Fix test to use fontconfig properly so that the test no longer fails. Fixes bug #4674. (Thnks to sunmoon1997 for the fix).
-    (cherry picked from a6ad853ee1a78585859ed77d5d8707fcfd448eab commit)
-
- ChangeLog                         |11172 +++++++++++++++++++++++++++++++++++++
- test/ft-font-create-for-ft-face.c |   24 +-
- 2 files changed, 11191 insertions(+), 5 deletions(-)
-
-commit a1621eadb655806de8bb47c2e701de6eaa9d2090
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 11:25:02 2006 -0500
-
-    Note using "git diff" instead of "git status" as the latter is a bit tricky when it says nothing to commit...
-
- RELEASING |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-commit 508b0be5f2023dabe9561f4ca62481d6a4c8c5ae
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 11:18:40 2006 -0500
-
-    Update release infra to reflect git transition.
-
- INSTALL      |    2 +-
- Makefile.am  |    4 ++--
- RELEASING    |   21 +++++++++------------
- configure.in |    2 +-
- 4 files changed, 13 insertions(+), 16 deletions(-)
-
-commit 9cfa638ba0c959204bd65bfb43dd9d7caed5154f
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 11:04:56 2006 -0500
-
-    Add new ref images.
-
- test/Makefile.am |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
-
-commit 393000021c2e082d4b3c235939009a90035b0daf
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 10:59:59 2006 -0500
-
-    Add make bits to autogenerate ChangeLog
-
- .gitignore  |    1 +
- Makefile.am |   39 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 40 insertions(+), 0 deletions(-)
-
-commit d415ea9b6026b3f8597201604bbcdab124705faf
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 10:33:36 2006 -0500
-
-    Shhhh.....
-
- doc/public/.gitignore |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-commit 286cfe2c9ea308a99ff48dcd33708f686e0fc7b8
-Author: Carl Worth <cworth@cworth.org>
-Date:   Fri Feb 24 09:18:17 2006 -0800
-
-    autogen.sh: Pass --foreign option to automake so that it doesn't
-    complain that ChangeLog does not exist.
-    (cherry picked from d0e02a948e83e3b1b330c9cb0aa4930b42bf485c commit)
-
- autogen.sh |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-commit 35d7810f7bb43dd72675207a2f4d379a76c34e5f
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 10:31:43 2006 -0500
-
-    Remove ChangeLog here too.  We'll generate it using git log.
-
- ChangeLog |11320 -------------------------------------------------------------
- 1 files changed, 0 insertions(+), 11320 deletions(-)
-
-commit ff33ddb8f864a48c17c45746fb6bbbcf70216288
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 10:23:21 2006 -0500
-
-    Remove duplicate definitions of pixman_color_to_pixel and pixman_composite.
-    (cherry picked from 9e7076fd27b69b4de21a617a9cb0fa74f91f6bec commit)
-
- ChangeLog                               |   10 ++++++++++
- doc/public/tmpl/cairo-font-options.sgml |   12 ------------
- doc/public/tmpl/cairo-font.sgml         |    3 ---
- doc/public/tmpl/cairo-ft.sgml           |    3 ---
- doc/public/tmpl/cairo-glitz.sgml        |    3 ---
- doc/public/tmpl/cairo-image.sgml        |    3 ---
- doc/public/tmpl/cairo-matrix.sgml       |    3 ---
- doc/public/tmpl/cairo-paths.sgml        |    3 ---
- doc/public/tmpl/cairo-pattern.sgml      |    3 ---
- doc/public/tmpl/cairo-pdf.sgml          |    3 ---
- doc/public/tmpl/cairo-png.sgml          |    3 ---
- doc/public/tmpl/cairo-ps.sgml           |    3 ---
- doc/public/tmpl/cairo-quartz.sgml       |    3 ---
- doc/public/tmpl/cairo-scaled-font.sgml  |    3 ---
- doc/public/tmpl/cairo-status.sgml       |    3 ---
- doc/public/tmpl/cairo-surface.sgml      |    3 ---
- doc/public/tmpl/cairo-text.sgml         |    3 ---
- doc/public/tmpl/cairo-transforms.sgml   |    3 ---
- doc/public/tmpl/cairo-types.sgml        |    3 ---
- doc/public/tmpl/cairo-version.sgml      |    3 ---
- doc/public/tmpl/cairo-win32-fonts.sgml  |    3 ---
- doc/public/tmpl/cairo-win32.sgml        |    3 ---
- doc/public/tmpl/cairo-xcb-xrender.sgml  |    3 ---
- doc/public/tmpl/cairo-xcb.sgml          |    3 ---
- doc/public/tmpl/cairo-xlib-xrender.sgml |    3 ---
- doc/public/tmpl/cairo-xlib.sgml         |    3 ---
- doc/public/tmpl/cairo.sgml              |    3 ---
- 27 files changed, 10 insertions(+), 87 deletions(-)
-
-commit af0cbe2aed0b19613b90e171a2c252e8c8327efd
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 10:15:47 2006 -0500
-
-    Allow _get_bitmap_surface to work for 0x0 glyphs, (fix for bug #5734).
-    
-    Patch from: Behdad Esfahbod <freedesktop@behdad.org>
-    Reviewed by: Carl Worth <cworth@cworth.org>
-    (cherry picked from 0152bd3a562442853ab930eaea316c08b34f6ba6 commit)
-
- src/cairo-ft-font.c |   11 ++++-------
- 1 files changed, 4 insertions(+), 7 deletions(-)
-
-commit 6da5947efa6fbd0da85352974c2eb762bd42ffa7
-Author: Behdad Esfahbod <behdad@home.(none)>
-Date:   Wed Mar 15 10:07:58 2006 -0500
-
-    Bug #4260, Reviewed by B. Biggs
-    Use & not && for bitwise AND.
-    src/fbpict.c src/fbmmx.c: Take 'dest' as an argument, if pict and dest don't match for RGB, BGR, swap result.
-    (cherry picked from a1bca924b9296d769d735d8abaf1353143770def commit)
-
- pixman/ChangeLog    |   11 +++++++++++
- pixman/src/fbpict.c |    2 +-
- pixman/src/fbpict.h |    2 +-
- 3 files changed, 13 insertions(+), 2 deletions(-)
-
-commit a5d13b472936b040755dd30624528cb7c6f52c73
-Author: Carl Worth <cworth@cworth.org>
-Date:   Mon Mar 13 13:20:29 2006 -0800
-
-    fbCompositeTrans_0888xnx0888: Fix suspicious logical negation of pointer value.
-    
-    Surely, the ! instead of ~ here was just a typo. I'd feel better if I
-    had a failing test case for this though, (time to break out gcov
-    again).
-    
-    Fixes bug #6185:
-    
-    	Strange pointer operations in fbCompositeTrans_0888xnx0888 (pixman/src/fbpict.c)
-    	https://bugs.freedesktop.org/show_bug.cgi?id=6185
-    (cherry picked from 5d89faf6b37bb0367c8ba8f8637fc80bd745c888 commit)
-
- pixman/src/fbpict.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-commit 440bb68ef207b9101f355b2d1ccbaa5d1b166c4a
-Author: Carl Worth <cworth@cworth.org>
-Date:   Mon Mar 13 12:30:00 2006 -0800
-
-    _clip_and_composite_trapezoids: Avoid NULL pointer dereference due to OOM.
-    
-    This closes bug #6197:
-    
-    	Null pointer dereference on OOM in _clip_and_composite_trapezoids()
-    	https://bugs.freedesktop.org/show_bug.cgi?id=6197
-    (cherry picked from 6f0d8eedc504e8af2224c502be25dc82b5df70f4 commit)
-
- src/cairo-gstate.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
-
-commit 5e399f87785ce87b2b236b199a96efc99236167f
-Author: Carl Worth <cworth@cworth.org>
-Date:   Mon Mar 13 12:20:23 2006 -0800
-
-    cairo-clip: Fix memory leak during OOM handling.
-    
-    This closes bug #6196:
-    
-    	Memory leak in _cairo_clip_intersect_path (src/cairo-clip.c)
-    	https://bugs.freedesktop.org/show_bug.cgi?id=6196
-    (cherry picked from 79075b2cb1ce1397506fc10572df96f6fd00ecc3 commit)
-
- src/cairo-clip.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
-
-commit 13b919f126427f8038cd9e76d6195494167ba503
-Author: Carl Worth <cworth@cworth.org>
-Date:   Mon Mar 13 12:05:13 2006 -0800
-
-    cairo-output-stream: Don't dereference a NULL pointer due to OOM.
-    
-    This close bug #6176:
-    
-    	Null pointer dereference on OOM in _cairo_output_stream_create_for_file()
-    	https://bugs.freedesktop.org/show_bug.cgi?id=6176
-    (cherry picked from c780f4a5624f27a6cbf7829e10e8cd3544ae4f38 commit)
-
- src/cairo-output-stream.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
-
-commit 46646cf2b1e392caced989a9adb65b50eac86ba3
-Author: Carl Worth <cworth@cworth.org>
-Date:   Wed Mar 8 08:16:49 2006 -0800
-
-    cairo_show_glyphs: Do nothing if num_glyphs == 0
-    (cherry picked from 1cffb39ff04bbb29bb070e42c51aa1ae6aaf5a4c commit)
-
- src/cairo.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
-
-commit 30d4aa863124075c59e8ebf2ce2c085d64290347
-Author: Christian Biesinger <cbiesinger@web.de>
-Date:   Sat Mar 4 15:43:15 2006 +0100
-
-    Use C-style comments rather than C++-style in C files
-
- pixman/src/fbcompose.c             |    6 +++---
- pixman/src/pixman-xserver-compat.h |    2 +-
- src/cairo-atsui-font.c             |   31 +++++++++++++++++--------------
- src/cairo-quartz-surface.c         |   11 ++++++-----
- 4 files changed, 27 insertions(+), 23 deletions(-)
-
-commit 7d498ca91279a4e793d704c5b878f070be4c878f
-Author: Carl Worth <cworth@cworth.org>
-Date:   Fri Mar 3 11:13:36 2006 -0800
-
-    _cairo_xlib_surface_show_glyphs: Break up rendering into chunks to fit
-    into X max request length protocol limits.
-    
-    This fixes bug #5528:
-    
-    	_XError from XRenderCompositeText8
-    	https://bugs.freedesktop.org/show_bug.cgi?id=5528
-
- src/cairo-xlib-surface.c |   61 +++++++++++++++++++++++++++++++--------------
- 1 files changed, 42 insertions(+), 19 deletions(-)
-
-commit 3aac0bf670facd6523e64b3585a93f29da7ffba2
-Author: Carl Worth <cworth@cworth.org>
-Date:   Thu Mar 2 10:32:38 2006 -0800
-
-    test/show-glyphs-many: New test case to demonstrate bug #5528
-    
-    This demonstrates an Xlib crash when rendering many glyphs. See:
-    
-    	_XError from XRenderCompositeText8
-    	https://bugs.freedesktop.org/show_bug.cgi?id=5528
-    
-    for more details.
-    (cherry picked from 34a4ad1e5bca8db34933718db245a232ebe30ce2 commit)
-
- test/.gitignore                     |    1 +
- test/Makefile.am                    |    2 +
- test/show-glyphs-many-ref.png       |  Bin
- test/show-glyphs-many-rgb24-ref.png |  Bin
- test/show-glyphs-many.c             |  127 +++++++++++++++++++++++++++++++++++
- 5 files changed, 130 insertions(+), 0 deletions(-)
-
-commit d8d8694ac424f1c9b1ef57a5a08c6f4ad1a208ce
-Author: Frederic Crozat <fcrozat@mandriva.com>
-Date:   Thu Feb 23 17:09:47 2006 -0800
-
-    Fix usage of freetype to match Xft and follow David Turner's recommendations.
-    
-    Change a little the logic in hinting to follow the same
-    logic as Xft and doesn't try to mix FT_LOAD_TARGET which should not be
-    mixed (based on David Turner comments)
-
- src/cairo-ft-font.c |  103 +++++++++++++++++++++++++--------------------------
- 1 files changed, 51 insertions(+), 52 deletions(-)
-
-commit 65c32ae36fe90d69131435a25e6b15a05339df47
-Author: Frederic Crozat <fcrozat@mandriva.com>
-Date:   Thu Feb 23 16:44:44 2006 -0800
-
-    Fix for sub-pixel BGR and vRGB
-
- src/cairo-ft-font.c |   36 +++++++++++++++++++++++++-----------
- 1 files changed, 25 insertions(+), 11 deletions(-)
-
-commit 540c10f3fb529ad7650065a8b11735027d60b28c
-Author: Frederic Crozat <fcrozat@mandriva.com>
-Date:   Thu Feb 23 16:44:19 2006 -0800
-
-    test/text-antialias-subpixel: Modify to demonstrate problem with subpixel BGR and VRGB
-
- test/text-antialias-subpixel-ref.png |  Bin
- test/text-antialias-subpixel.c       |   38 +++++++++++++++++++--------------
- 2 files changed, 22 insertions(+), 16 deletions(-)
-
-commit 886bc4ddb0cc9bf0c187919d03446d05e44c6714
-Author: Carl Worth <cworth@cworth.org>
-Date:   Tue Feb 21 13:53:57 2006 -0800
-
-    Rename .cvsignore to .gitignore. Add *~ and *.o.
-    (cherry picked from d88c19071f6748b190cb17e6724b67705863a9b0 commit)
-
- .gitignore                     |   24 ++++++++
- doc/.gitignore                 |    3 +
- doc/public/.gitignore          |   17 ++++++
- doc/public/tmpl/.gitignore     |    3 +
- doc/tutorial/slides/.gitignore |    7 +++
- doc/tutorial/src/.gitignore    |    8 +++
- pixman/.gitignore              |   20 +++++++
- pixman/src/.gitignore          |   10 ++++
- src/.gitignore                 |   13 +++++
- test/.gitignore                |  116 ++++++++++++++++++++++++++++++++++++++++
- 10 files changed, 221 insertions(+), 0 deletions(-)
-
-commit 4dbb1500f91680cccf4be3be5e91a5128261731a
-Author: Carl Worth <cworth@cworth.org>
-Date:   Wed Dec 7 11:45:15 2005 +0000
-
-    Use more portable shell syntax, ('test =' rather than 'test =='). Thanks to Richard Lloyd and Klaus Heinz. Closes bug #4823.
-
- ChangeLog    |    6 ++++++
- configure.in |   12 ++++++------
- 2 files changed, 12 insertions(+), 6 deletions(-)
-
-commit 3d3af95489b7e382f41880f67d2c7c45eba76743
-Author: Carl Worth <cworth@cworth.org>
-Date:   Mon Nov 21 11:49:34 2005 +0000
-
-    Remove duplicate definitions of pixman_color_to_pixel and pixman_composite.
-
- ChangeLog                 |    5 +++++
- pixman/ChangeLog          |    5 +++++
- pixman/src/pixman-remap.h |    2 --
- 3 files changed, 10 insertions(+), 2 deletions(-)
-
-commit 36f8345a70f5a11de817b258ead23cb2379a58c0
-Author: Carl Worth <cworth@cworth.org>
-Date:   Fri Nov 18 10:17:29 2005 +0000
-
-    Remove spurios INT_ prefixes which break the build with very recent binutils.
-
- ChangeLog                 |    5 +++++
- pixman/ChangeLog          |    5 +++++
- pixman/src/pixman-remap.h |    4 ++--
- 3 files changed, 12 insertions(+), 2 deletions(-)
-
-commit d08cabcb4c53f59e84d62cacd21d269f15c97c8a
-Author: Tor Lillqvist <tml@novell.com>
-Date:   Wed Oct 12 15:06:44 2005 +0000
-
-    Intersect clip region with target surface so we don't waste time and memory.
-    Reviewed by: cworth
-
- ChangeLog        |    7 +++++++
- src/cairo-clip.c |    9 ++++++++-
- 2 files changed, 15 insertions(+), 1 deletions(-)
-
-commit e1c07e99b9b851845e80139b5f4163284ec3e278
-Author: Tor Lillqvist <tml@novell.com>
-Date:   Mon Oct 10 11:33:18 2005 +0000
-
-    Apply proper transform to generated paths.
-
- ChangeLog              |    5 +++++
- src/cairo-atsui-font.c |   10 ++++------
- 2 files changed, 9 insertions(+), 6 deletions(-)
-
-commit fe254b0ebc99bcc813b8a9d5714e936991fa435a
-Author: Carl Worth <cworth@cworth.org>
-Date:   Sat Oct 8 10:58:11 2005 +0000
-
-    Fix typo leading to truncated error message (Christian Biesinger <cbiesinger@web.de>).
-
- ChangeLog    |    5 +++++
- configure.in |    2 +-
- 2 files changed, 6 insertions(+), 1 deletions(-)
-
-commit 4ac391f861410c7b72bfae48ffd93e7abdf84fe2
-Author: Carl Worth <cworth@cworth.org>
-Date:   Thu Oct 6 11:34:46 2005 +0000
-
-    Add missing initialization for ximage.xoffset.
-
- ChangeLog                |    5 +++++
- src/cairo-xlib-surface.c |    1 +
- 2 files changed, 6 insertions(+), 0 deletions(-)
-
-commit 167c3b430fd85006a5bd1e732def809b5c1f4a46
-Author: Anders Carlsson <andersca@imendio.com>
-Date:   Tue Oct 4 13:49:33 2005 +0000
-
-    Invoke PKG_PROG_PKG_CONFIG so $PKG_CONFIG will be set early on.
-
- ChangeLog    |    5 +++++
- configure.in |    4 ++++
- 2 files changed, 9 insertions(+), 0 deletions(-)
-
-commit cff8f831488ee781bf6738f35ba5dd061b69632a
-Author: Carl Worth <cworth@cworth.org>
-Date:   Mon Oct 3 21:59:01 2005 +0000
-
-    Add missing initialization for _global_image_glyph_cache_mutex (Vladimir Vukicevic <vladimirv@gmail.com>).
-
- ChangeLog                 |    6 ++++++
- src/cairo-win32-surface.c |    3 +++
- 2 files changed, 9 insertions(+), 0 deletions(-)
-
-commit 588ccdb5f24ff71c835b416aaee86971e3417637
-Author: Carl Worth <cworth@cworth.org>
-Date:   Mon Oct 3 21:56:24 2005 +0000
-
-    Increment CAIRO_VERSION to 1.0.3 after tagging RELEASE_1_0_2.
-
- ChangeLog    |    7 ++++++-
- configure.in |    2 +-
- 2 files changed, 7 insertions(+), 2 deletions(-)
-
-commit 169e72d6b973a91747c642c5b6f799e6a2af879b
-Author: Carl Worth <cworth@cworth.org>
-Date:   Mon Oct 3 17:48:04 2005 +0000
-
-    Increment CAIRO_VERSION to 1.0.2 and libtool versioning to 4:3:2.
-    Add notes for the 1.0.2 release.
-
- ChangeLog    |    7 +++++
- NEWS         |   82 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- configure.in |    4 +-
- 3 files changed, 91 insertions(+), 2 deletions(-)
-
-commit d290a19263aea9b28e40eafdffe2235d2b05fbd4
-Author: Bertram Felgenhauer <int-e@gmx.de>
-Date:   Thu Sep 29 20:03:15 2005 +0000
-
-    simplify id initialisation of last patch
-    reviewed by: keithp
-
- ChangeLog        |    5 +++++
- src/cairo-hull.c |   13 +++++++------
- 2 files changed, 12 insertions(+), 6 deletions(-)
-
-commit 1f515c6e6cf7d654ebd70086e52b60fd16b606e6
-Author: Bertram Felgenhauer <int-e@gmx.de>
-Date:   Thu Sep 29 17:35:34 2005 +0000
-
-    ChangeLog cosmetics.
-
- ChangeLog |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-commit 7e5bdaeb62d0dfb2ac622f05a2c6ab9228cb53f6
-Author: Bertram Felgenhauer <int-e@gmx.de>
-Date:   Thu Sep 29 17:28:54 2005 +0000
-
-    Using a pointer comparison as the fallback total order was wrong - these pointers are not stable. So we introduce our own total order instead.
-    reviewed by: cworth
-
- ChangeLog        |    9 +++++++++
- src/cairo-hull.c |   14 +++++++++-----
- 2 files changed, 18 insertions(+), 5 deletions(-)
-
-commit 9b27a73020354cc40f829dd6f83769979c640a36
-Author: Tor Lillqvist <tml@novell.com>
-Date:   Wed Sep 28 10:37:40 2005 +0000
-
-    Use _cairo_utf8_to_utf16 for character conversion.
-
- ChangeLog              |    5 +++++
- src/cairo-atsui-font.c |   24 ++++++------------------
- 2 files changed, 11 insertions(+), 18 deletions(-)
-
-commit 0cb8ee21b55cb2b935905c9bf05e076ff84b8522
-Author: Tor Lillqvist <tml@novell.com>
-Date:   Wed Sep 28 10:27:39 2005 +0000
-
-    Bug #4612, reviewed by cworth.
-    Add cast so that sign conversion doesn't alter comparison.
-
- ChangeLog              |    7 +++++++
- src/cairo-win32-font.c |    8 ++++----
- 2 files changed, 11 insertions(+), 4 deletions(-)
-
-commit b8a08fbea6b287563653ba935fabdb5f8c1f329b
-Author: Tor Lillqvist <tml@novell.com>
-Date:   Tue Sep 27 13:25:06 2005 +0000
-
-    Bug #4602, reviewed by cworth.
-    Avoid creating size-0 bitmap, which fails.
-
- ChangeLog                 |    7 +++++++
- src/cairo-win32-surface.c |    4 ++--
- 2 files changed, 9 insertions(+), 2 deletions(-)
-
-commit 4b1fca82a877df391b47638b3f00f1c44873c82c
-Author: Carl Worth <cworth@cworth.org>
-Date:   Tue Sep 27 12:51:00 2005 +0000
-
-    Note that bug #4409 (Dashes are missing initial caps) is now fixed.
-    Move face-flipping from inside _cairo_stroker_add_caps to new _cairo_stroker_add_leading_cap variant of _cairo_stoker_add_cap.
-    Change to call _cairo_stroker_add_leading_cap or _cairo_stroker_add_trailing_cap as appropriate.
-    Remove dash-caps-joins from the XFAIL list and add reference image.
-
- ChangeLog                    |   21 +++++++++
- src/cairo-path-stroke.c      |   51 +++++++++++++++-------
- test/Makefile.am             |    1 -
- test/caps-joins-ref.png      |  Bin
- test/caps-joins.c            |   85 ++++++++++++++++++++++++++++++++++++++
- test/dash-caps-joins-ref.png |  Bin
- test/dash-caps-joins.c       |   94 ++++++++++++++++++++++++++++++++++++++++++
- 7 files changed, 235 insertions(+), 17 deletions(-)
-
-commit 031943b4e4553c4fcdf5ccd2eb2f8674fc385e83
-Author: Carl Worth <cworth@cworth.org>
-Date:   Tue Sep 27 12:44:32 2005 +0000
-
-    file dash-caps-joins.c was added on branch BRANCH_1_0 on 2005-09-27 19:51:00 +0000
-
-commit e26ebe1053788c884ebbf9c7aaf0121477d9ad01
-Author: Carl Worth <cworth@cworth.org>
-Date:   Tue Sep 27 12:44:32 2005 +0000
-
-    file dash-caps-joins-ref.png was added on branch BRANCH_1_0 on 2005-09-27 19:51:00 +0000
-
-commit 6cf8e5b58b905d6b51b2b9c367ad76735e6a8bee
-Author: Carl Worth <cworth@cworth.org>
-Date:   Tue Sep 27 11:35:48 2005 +0000
-
-    Add two test cases. One for caps and joins (passes), and one for dashed caps and joins, (fails, see bug #4409).
-
- ChangeLog        |   10 ++++++++++
- test/.cvsignore  |    2 ++
- test/Makefile.am |    7 +++++++
- 3 files changed, 19 insertions(+), 0 deletions(-)
-
-commit effdcbb5acb3ef16770e9961e7ebcaf7b42ed808
-Author: Carl Worth <cworth@cworth.org>
-Date:   Tue Sep 27 11:35:18 2005 +0000
-
-    file caps-joins.c was added on branch BRANCH_1_0 on 2005-09-27 19:51:00 +0000
-
-commit 2fb549133e09ad4f1ecb3e7ce588c32813e6f1c9
-Author: Carl Worth <cworth@cworth.org>
-Date:   Tue Sep 27 11:35:18 2005 +0000
-
-    file caps-joins-ref.png was added on branch BRANCH_1_0 on 2005-09-27 19:51:00 +0000
-
-commit 8b4d49921db1b77da8814ed59ba50a53b716a59b
-Author: Carl Worth <cworth@cworth.org>
-Date:   Mon Sep 26 15:48:06 2005 +0000
-
-    Backported from HEAD:
-    Portability improvements for win32 thanks to Hans Breuer <hans@breuer.org>:
-    Defined sized-integer types when under the influence of _MSC_VER and without stdint.h.
-    Use #error which is more portable than #warning, (and more indicative of where we want to be before the next release).
-
- ChangeLog           |   15 +++++++++++++++
- pixman/src/pixman.h |   19 +++++++++++++------
- src/cairoint.h      |    3 ++-
- 3 files changed, 30 insertions(+), 7 deletions(-)
-
-commit ae40e31976c462a56701322345ca8f14a3c82dd5
-Author: Carl Worth <cworth@cworth.org>
-Date:   Mon Sep 26 15:43:17 2005 +0000
-
-    Backported from HEAD:
-    Protect inclusion of fontconfig.h with HAVE_FCFINI.
-    Remove stray cairo-ft.h include.
-    Include stddef.h for NULL.
-    Open the file rb.
-
- ChangeLog                     |   14 ++++++++++++++
- test/cairo-test.c             |    2 ++
- test/create-from-png-stream.c |    6 +++---
- test/nil-surface.c            |    2 +-
- 4 files changed, 20 insertions(+), 4 deletions(-)
-
-commit 975bfe373057462fcb15d03bd2db4531a0fcff19
-Author: Tor Lillqvist <tml@novell.com>
-Date:   Mon Sep 26 09:09:37 2005 +0000
-
-    If GetGlyphOutlineW() fails, set metrics to zero. (#3927, Hans Breuer) (Don't print error message, as this might occur frequently with a misconfigured Pango 1.10.0.)
-
- ChangeLog              |    4 ++++
- src/cairo-win32-font.c |   12 ++++++++----
- 2 files changed, 12 insertions(+), 4 deletions(-)
-
-commit 80b2fae5f13d7eaa5bec7093becc69791ad26d51
-Author: Tor Lillqvist <tml@novell.com>
-Date:   Mon Sep 26 09:05:14 2005 +0000
-
-    Set LOGFONT::lfHeight negative. A negative lfHeight means "em height" which is what we want, and matches how other toolkits interpret font sizes on Win32. (Positive lfHeight means "cell height".) (#4593)
-
- ChangeLog              |    8 ++++++++
- src/cairo-win32-font.c |    4 ++--
- 2 files changed, 10 insertions(+), 2 deletions(-)
-
-commit 4974affc3f64cb1d1f0ef270051e9415e643cfaa
-Author: Tor Lillqvist <tml@novell.com>
-Date:   Tue Sep 20 08:23:20 2005 +0000
-
-    Pass scratch space instead of NULL for image_extra to acquire/release_dest_image.
-
- ChangeLog              |    6 ++++++
- src/cairo-atsui-font.c |    5 +++--
- 2 files changed, 9 insertions(+), 2 deletions(-)
-
-commit e54787b78d414d1f0ec5c139ac3c29904a5e3610
-Author: Carl Worth <cworth@cworth.org>
-Date:   Mon Sep 19 17:27:22 2005 +0000
-
-    Avoid attempting to create a size-0 Pixmap, (to prevent the associated X error). This actually showed up when the clip region is empty. Thanks to Radek Doulík for the bug report.
-    Remove clip-all from the XFAIL list since it works now.
-
- ChangeLog                |   11 +++++++++++
- src/cairo-xlib-surface.c |    3 ++-
- test/Makefile.am         |    1 -
- test/clip-all.c          |    3 +--
- 4 files changed, 14 insertions(+), 4 deletions(-)
-
-commit e39b2391717a04ccaab3367450bb01c2722736cc
-Author: Carl Worth <cworth@cworth.org>
-Date:   Mon Sep 19 14:28:39 2005 +0000
-
-    Originally: 2005-09-19 Hans Breuer <hans@breuer.org>
-    src/cairoint.h : win32 specific definitions for CAIRO_MUTEX_DECLARE, CAIRO_MUTEX_LOCK etc. [not based on win32 mutex but critical sections]
-    src/cairo-win32-surface.c : add DllMain() to do global, single-threaded 'mutex' (de)initialization. No ifdefs needed, some variables would simply not be used when the respective backend would not be compiled in.
-
- ChangeLog                 |   13 +++++++++++++
- src/cairo-win32-surface.c |   34 ++++++++++++++++++++++++++++++++++
- src/cairoint.h            |   10 ++++++++++
- 3 files changed, 57 insertions(+), 0 deletions(-)
-
-commit dbe0552ed39a39133d89975ac3ba9359a766c52f
-Author: Billy Biggs <vektor@dumbterm.net>
-Date:   Sun Sep 18 19:56:32 2005 +0000
-
-    Bug #4414, reviewed by otaylor, cworth.
-    Remove -msse from the MMX CFLAGS as it causes gcc to emit SSE instructions, however the detection code only checks for processors supporting MMX and does not require SSE. Fix the MMX test to only check for MMX intrinsics and not the SSE intrinsics.
-
- ChangeLog    |   10 ++++++++++
- configure.in |    6 +++---
- 2 files changed, 13 insertions(+), 3 deletions(-)
-
-commit 178909580f357f190fd26b437cdd962ce6fc59d0
-Author: Billy Biggs <vektor@dumbterm.net>
-Date:   Sun Sep 18 19:55:54 2005 +0000
-
-    Bug #4414, reviewed by otaylor, cworth.
-    Remove CPU detection code, only include xmmintrin.h if USE_SSE is defined.
-    Move CPU detection code out of the MMX file and into the generic code to avoid compiling it with -mmmx and -msse. Using these options causes gcc to use MMX and SSE instructions in the CPU detection code which causes SIGILLs on older processors.
-
- pixman/ChangeLog    |   12 +++++
- pixman/src/fbmmx.c  |  115 +------------------------------------------------
- pixman/src/fbpict.c |  119 ++++++++++++++++++++++++++++++++++++++++++++++++++-
- 3 files changed, 132 insertions(+), 114 deletions(-)
-
-commit 4ea8d8544ee254c46a6d20fa4f05a3b6a7c0bf6e
-Author: Carl Worth <cworth@cworth.org>
-Date:   Fri Sep 16 10:25:40 2005 +0000
-
-    Tested by: John Ellson Closes bug #4408 https://bugs.freedesktop.org/show_bug.cgi?id=4408
-    Add support for dashed splines. (The antialiasing quality isn't perfect, but at least the curves are dashed now).
-
- ChangeLog               |   11 +++++++
- src/cairo-path-stroke.c |   76 ++++++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 86 insertions(+), 1 deletions(-)
-
-commit a9b89bf8984fdc6ada9275b0e414964ea0d52d57
-Author: Owen Taylor <otaylor@redhat.com>
-Date:   Fri Sep 16 06:43:41 2005 +0000
-
-    Bug #4260, Reviewed by B. Biggs
-    Use & not && for bitwise AND.
-    src/fbpict.c src/fbmmx.c: Take 'dest' as an argument, if pict and dest don't match for RGB, BGR, swap result.
-
- pixman/ChangeLog       |   11 +++++++++++
- pixman/src/fbcompose.c |    4 ++--
- pixman/src/fbmmx.c     |   14 +++++++-------
- pixman/src/fbpict.c    |   20 ++++++++++----------
- pixman/src/fbpict.h    |   12 ++++++++++--
- 5 files changed, 40 insertions(+), 21 deletions(-)
-
-commit a85f9916a9743d83c8a71586dfa1d64f85f52ea7
-Author: Carl Worth <cworth@cworth.org>
-Date:   Tue Sep 13 15:41:16 2005 +0000
-
-    Expand locking to include all modification of cairo_scaled_font and related objects.
-
- ChangeLog           |    6 ++++++
- src/cairo-ft-font.c |   31 +++++++++++++++----------------
- 2 files changed, 21 insertions(+), 16 deletions(-)
-
-commit 4a078039192a57df54f258fe6ff7c1e9a9bbb613
-Author: Carl Worth <cworth@cworth.org>
-Date:   Tue Sep 13 12:38:06 2005 +0000
-
-    Adjust parameters to stress things a bit more, (better exposing another locking bug).
-
- ChangeLog                |    5 +++++
- test/pthread-show-text.c |   10 +++++-----
- 2 files changed, 10 insertions(+), 5 deletions(-)
-
-commit 36f4bb98371a3a81ccc6ccf6f3295b9e48e8c8c9
-Author: Carl Worth <cworth@cworth.org>
-Date:   Tue Sep 13 12:28:00 2005 +0000
-
-    Expand locking to encapsulate any modification to the reference count of a scaled font, rather than just modifcations of the scaled_font_map, since scaled fonts are shared between threads.
-
- ChangeLog        |    8 +++++
- src/cairo-font.c |   85 ++++++++++++++++++++++++++++++-----------------------
- 2 files changed, 56 insertions(+), 37 deletions(-)
-
-commit 33820b04759582334fb725962aa3fff8bdd44584
-Author: Carl Worth <cworth@cworth.org>
-Date:   Tue Sep 13 12:20:15 2005 +0000
-
-    Add documentation for cairo_test functions.
-    Abstract log fie creation into cairo_test_init for use by tests that don't use cairo_test().
-    Add new test for bug #4299 as reported by Alexey Shabalin.
-
- ChangeLog                |   13 +++++
- test/.cvsignore          |    3 +-
- test/Makefile.am         |    7 +++-
- test/cairo-test.c        |   30 ++++++++----
- test/cairo-test.h        |   48 ++++++++++++++++++--
- test/pthread-show-text.c |  110 ++++++++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 195 insertions(+), 16 deletions(-)
-
-commit 95557db5cf8bad464e171d58148b2fcf3d579f2d
-Author: Carl Worth <cworth@cworth.org>
-Date:   Tue Sep 13 12:11:32 2005 +0000
-
-    file pthread-show-text.c was added on branch BRANCH_1_0 on 2005-09-13 19:22:45 +0000
-
-commit ec413ca3a4fc3c76fd2a395f2c0f4867efb0522f
-Author: Carl Worth <cworth@cworth.org>
-Date:   Mon Sep 12 11:11:48 2005 +0000
-
-    Fix for bug #4401 as reported by Tim Mooney:
-    Don't bother checking for sincos function.
-    Don't use sincos function since it is apparently buggy on some platforms, (Tru64 at least).
-
- ChangeLog          |   10 ++++++++++
- configure.in       |    4 +---
- src/cairo-matrix.c |    6 ++----
- 3 files changed, 13 insertions(+), 7 deletions(-)
-
-commit b9809741dd1eaf8ca1f1dbc09fb3938b5ccf471f
-Author: Carl Worth <cworth@cworth.org>
-Date:   Thu Sep 1 02:17:37 2005 +0000
-
-    Add includes to get sized-integers types such as uint32_t.
-    Fix declaration of image data array to be uint32_t rather than unsigned long. Fixes four out of the remaining five failures in bug #4245.
-
- ChangeLog                         |   17 +++++++++++++++++
- test/cairo-test.h                 |   26 ++++++++++++++++++++++++++
- test/filter-nearest-offset.c      |    2 +-
- test/mask-ctm.c                   |    2 +-
- test/mask-surface-ctm.c           |    2 +-
- test/move-to-show-surface.c       |    2 +-
- test/paint-with-alpha.c           |    2 +-
- test/scale-source-surface-paint.c |    2 +-
- test/set-source.c                 |    2 +-
- test/source-surface-scale-paint.c |    2 +-
- test/translate-show-surface.c     |    2 +-
- 11 files changed, 52 insertions(+), 9 deletions(-)
-
-commit 267f272ab0715fd590d8d8f0b0bae52900db3250
-Author: Carl Worth <cworth@cworth.org>
-Date:   Wed Aug 31 16:15:53 2005 +0000
-
-    Add call to XSynchronize, (the expected clip-all failure isn't occuring without it for some reason).
-    Note reason for expected failure.
-
- ChangeLog         |    8 ++++++++
- test/cairo-test.c |    2 ++
- test/clip-all.c   |    3 ++-
- 3 files changed, 12 insertions(+), 1 deletions(-)
-
-commit d521fa3a759457b1b5ce18f8853507798071b599
-Author: Owen Taylor <otaylor@redhat.com>
-Date:   Wed Aug 31 15:09:43 2005 +0000
-
-    Handle displays which don't match the local endianness by byteswapping on GetImage/PutImage. (#4321, reported by Sjoerd Simons)
-
- ChangeLog                |    8 ++-
- src/cairo-xlib-surface.c |  170 ++++++++++++++++++++++++++++++++++++++--------
- 2 files changed, 145 insertions(+), 33 deletions(-)
-
-commit 568ce860264e63f86ae45258eb106fb7a74a33a3
-Author: Carl Worth <cworth@cworth.org>
-Date:   Wed Aug 31 14:43:31 2005 +0000
-
-    Increment CAIRO_VERSION to 1.1.1 after making branch tag BRANCH_1_0.
-
- ChangeLog    |    5 +++++
- configure.in |    2 +-
- 2 files changed, 6 insertions(+), 1 deletions(-)
-
-commit 41c321fffaaa035b71aa8d149e748e1aae6d2317
-Author: Carl Worth <cworth@cworth.org>
-Date:   Wed Aug 31 13:52:19 2005 +0000
-
-    Add note to use ./autogen.sh instead of ./configure when working with source from cvs.
-
- ChangeLog |    5 +++++
- INSTALL   |    4 ++++
- 2 files changed, 9 insertions(+), 0 deletions(-)
-
-commit eb2316ecc7dfe2f7a87153c0094bda8754f6d36f
-Author: Carl Worth <cworth@cworth.org>
-Date:   Wed Aug 31 13:33:42 2005 +0000
-
-    Fix test to not try to set a non-invertible matrix. (We'd gotten away with this due to round-off error on many systems). Fixes one out of six failures in bug #4245.
-
- ChangeLog          |    6 ++++++
- test/get-and-set.c |    4 ++--
- 2 files changed, 8 insertions(+), 2 deletions(-)
-
-commit 464c6dffcf251d4b0089e50b716979da5e3b9a5a
-Author: Carl Worth <cworth@cworth.org>
-Date:   Wed Aug 31 09:00:01 2005 +0000
-
-    Add Radek Doulík.
-    Add test exposing a BadValue (0-size pixmap) bug in cairo-xlib-surface when everything is clipped away (thanks to Radek Doulík <rodo@novell.com>).
-
- AUTHORS               |    1 +
- ChangeLog             |   10 +++++++
- test/.cvsignore       |    1 +
- test/Makefile.am      |    4 +++
- test/clip-all-ref.png |  Bin
- test/clip-all.c       |   69 +++++++++++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 85 insertions(+), 0 deletions(-)
-
-commit 44d6afc8a82c2ede19ccc1e27a123b241be6dc67
-Author: Owen Taylor <otaylor@redhat.com>
-Date:   Tue Aug 30 10:50:27 2005 +0000
-
-    Liberalize the ServerVendor check so that we can handle the Mandriva vendor string. (#4298, Frederic Crozat)
-
- ChangeLog                |    6 ++++++
- src/cairo-xlib-surface.c |    2 +-
- 2 files changed, 7 insertions(+), 1 deletions(-)
-
-commit a4418a63d7b837f0f7c20f5ce6a0e8b31edd97d7
-Author: Owen Taylor <otaylor@redhat.com>
-Date:   Tue Aug 30 10:42:17 2005 +0000
-
-    Use a 8xN rather than a 1xN strip for a vertical gradient. This is much more tolerant of slow compositing code, and is worth some extra expense computing the gradient. (#4263, found in test case from Richard Stellingwerff)
-
- ChangeLog           |    8 ++++++++
- src/cairo-pattern.c |   11 +++++++++--
- 2 files changed, 17 insertions(+), 2 deletions(-)
-
-commit 2120864edfb1bc51251dca3aeefbfadffb442ad0
-Author: Owen Taylor <otaylor@redhat.com>
-Date:   Sun Aug 28 12:52:10 2005 +0000
-
-    Use local labels rather than global labels in the assembly, to be robust if the code is inlined in multiple places. (#4283, Reported by Marco Manfredini)
-
- pixman/ChangeLog   |    6 ++++++
- pixman/src/fbmmx.c |    8 ++++----
- 2 files changed, 10 insertions(+), 4 deletions(-)
-
-commit a83537fe02d29fc36a78be0f5599421edf75dc62
-Author: Billy Biggs <vektor@dumbterm.net>
-Date:   Sat Aug 27 19:32:57 2005 +0000
-
-    Some fixes for warnings from sparse (Part of bug #4208, Kjartan Maraas)
-    Use NULL not 0.
-
- pixman/ChangeLog       |   15 +++++++++++
- pixman/src/fbcompose.c |   66 ++++++++++++++++++++++++------------------------
- pixman/src/fbpict.c    |    4 +-
- pixman/src/icbltone.c  |    6 ++--
- pixman/src/icimage.c   |   10 +++---
- pixman/src/icrect.c    |    2 +-
- pixman/src/ictrap.c    |    6 ++--
- 7 files changed, 62 insertions(+), 47 deletions(-)
-
-commit 96342fe7beee1d0c2084cb6e0f44969d5b05b100
-Author: Owen Taylor <otaylor@redhat.com>
-Date:   Sat Aug 27 18:54:03 2005 +0000
-
-    Make the check for rectangular trapezoids simpler and more accurate. (#4220, found using test case from Richard Stellingwerff)
-    reviewed by: cworth
-
- ChangeLog         |    8 ++++++++
- src/cairo-traps.c |   16 +++++-----------
- 2 files changed, 13 insertions(+), 11 deletions(-)
-
-commit 30e3d538dfbd763872117760ec473481e2c5926d
-Author: Owen Taylor <otaylor@redhat.com>
-Date:   Sat Aug 27 18:49:06 2005 +0000
-
-    Make the vendor string check for XFree86 more liberal, to deal with older versions of gentoo that modified it in a different way. (#4231, fix from Billy Biggs)
-
- ChangeLog                |    7 +++++++
- src/cairo-xlib-surface.c |    2 +-
- 2 files changed, 8 insertions(+), 1 deletions(-)
-
-commit a6acc962f76c1eba9dec3ee1646413f6c82ac6e0
-Author: Owen Taylor <otaylor@redhat.com>
-Date:   Sat Aug 27 18:46:34 2005 +0000
-
-    Undef MIN/MAX before defining them in case some system header happens to define them. (#4196, Christian Biesinger)
-
- ChangeLog      |    8 +++++++-
- src/cairoint.h |    3 +++
- 2 files changed, 10 insertions(+), 1 deletions(-)
-
-commit 3c53414cf34d2027284bdbd4836d10a2c0d998c0
-Author: Owen Taylor <otaylor@redhat.com>
-Date:   Sat Aug 27 18:40:46 2005 +0000
-
-    Fix docs not to talk about %NULL returns. #4271, Duncan Coutts.
-
- ChangeLog                 |    6 ++++++
- src/cairo-image-surface.c |   18 ++++++++++++++----
- 2 files changed, 20 insertions(+), 4 deletions(-)
-
-commit c0da73e1b8e5933ca117512499ccac4e208bd8e0
-Author: Owen Taylor <otaylor@redhat.com>
-Date:   Sat Aug 27 18:36:09 2005 +0000
-
-    Make the code work with
-    -fomit-frame-pointer by making sure that %esp isn't modified at the point where we access output operands. (#4269, Patch from Ronald Wahl)
-
- pixman/ChangeLog   |    7 +++++++
- pixman/src/fbmmx.c |   24 +++++++++++++++++-------
- 2 files changed, 24 insertions(+), 7 deletions(-)
-
-commit 03c3935471ad69e8e2d0e6543b7667f972ef1f0c
-Author: Tor Lillqvist <tml@novell.com>
-Date:   Thu Aug 25 02:59:40 2005 +0000
-
-    Include the documentation, too.
-
- ChangeLog   |    4 ++++
- Makefile.am |    2 +-
- 2 files changed, 5 insertions(+), 1 deletions(-)
-
-commit 1f975f4e82f3090b5f677241c1ca4d344788d27c
-Author: Billy Biggs <vektor@dumbterm.net>
-Date:   Wed Aug 24 19:20:08 2005 +0000
-
-    Update formatting of the title and short description, as this actually changes how the TOC appears in devhelp.
-
- ChangeLog                               |   30 ++++++++++++++++++++++++++++++
- doc/public/tmpl/cairo-font-options.sgml |    6 ++----
- doc/public/tmpl/cairo-font.sgml         |    6 ++----
- doc/public/tmpl/cairo-ft.sgml           |    6 ++----
- doc/public/tmpl/cairo-glitz.sgml        |    6 ++----
- doc/public/tmpl/cairo-image.sgml        |    6 ++----
- doc/public/tmpl/cairo-matrix.sgml       |    6 ++----
- doc/public/tmpl/cairo-paths.sgml        |    6 ++----
- doc/public/tmpl/cairo-pattern.sgml      |    6 ++----
- doc/public/tmpl/cairo-pdf.sgml          |    6 ++----
- doc/public/tmpl/cairo-png.sgml          |    6 ++----
- doc/public/tmpl/cairo-ps.sgml           |    6 ++----
- doc/public/tmpl/cairo-quartz.sgml       |    6 ++----
- doc/public/tmpl/cairo-scaled-font.sgml  |    6 ++----
- doc/public/tmpl/cairo-status.sgml       |    6 ++----
- doc/public/tmpl/cairo-surface.sgml      |    6 ++----
- doc/public/tmpl/cairo-text.sgml         |    6 ++----
- doc/public/tmpl/cairo-transforms.sgml   |    6 ++----
- doc/public/tmpl/cairo-types.sgml        |    6 ++----
- doc/public/tmpl/cairo-version.sgml      |    6 ++----
- doc/public/tmpl/cairo-win32-fonts.sgml  |    6 ++----
- doc/public/tmpl/cairo-win32.sgml        |    6 ++----
- doc/public/tmpl/cairo-xcb-xrender.sgml  |    6 ++----
- doc/public/tmpl/cairo-xcb.sgml          |    6 ++----
- doc/public/tmpl/cairo-xlib.sgml         |    6 ++----
- doc/public/tmpl/cairo.sgml              |    6 ++----
- 26 files changed, 80 insertions(+), 100 deletions(-)
-
-commit 241a4eb8f76fcd1e6ca7db127410fcca8adf907e
-Author: Bertram Felgenhauer <int-e@gmx.de>
-Date:   Wed Aug 24 17:44:16 2005 +0000
-
-    add docs-publish as a phony target
-
- ChangeLog   |    4 ++++
- Makefile.am |    2 +-
- 2 files changed, 5 insertions(+), 1 deletions(-)
-
-commit 0bcad6002a62cb5ba2eb733fe1863ac045db1c86
-Author: Carl Worth <cworth@cworth.org>
-Date:   Wed Aug 24 10:16:14 2005 +0000
-
-    Increment CAIRO_VERSION to 1.0.1 after tagging RELEASE_1_0_0.
-
- ChangeLog    |    5 +++++
- configure.in |    2 +-
- 2 files changed, 6 insertions(+), 1 deletions(-)
-
 commit 995ed33726ac1e840ea1d6a28f48d6883a4bad59
 Author: Carl Worth <cworth@cworth.org>
 Date:   Wed Aug 24 09:29:39 2005 +0000
@@ -1442,7 +270,7 @@ Date:   Wed Aug 24 01:13:36 2005 +0000
  src/cairo.c                          |   54 +++++++++++++++++++++++---
  test/.cvsignore                      |    1 +
  test/Makefile.am                     |    3 +
- test/show-text-current-point-ref.png |  Bin
+ test/show-text-current-point-ref.png |  Bin 0 -> 1606 bytes
  test/show-text-current-point.c       |   68 ++++++++++++++++++++++++++++++++++
  7 files changed, 134 insertions(+), 11 deletions(-)
 
@@ -1719,11 +547,11 @@ Date:   Tue Aug 23 13:34:14 2005 +0000
  ChangeLog                            |   15 +++++++++++++++
  src/cairo-ft-font.c                  |   10 ++++++----
  test/Makefile.am                     |    1 -
- test/text-antialias-gray-ref.png     |  Bin
+ test/text-antialias-gray-ref.png     |  Bin 723 -> 727 bytes
  test/text-antialias-gray.c           |    1 -
- test/text-antialias-none-ref.png     |  Bin
+ test/text-antialias-none-ref.png     |  Bin 277 -> 278 bytes
  test/text-antialias-none.c           |    1 -
- test/text-antialias-subpixel-ref.png |  Bin
+ test/text-antialias-subpixel-ref.png |  Bin 1079 -> 1081 bytes
  test/text-antialias-subpixel.c       |    4 +---
  9 files changed, 22 insertions(+), 10 deletions(-)
 
@@ -1743,7 +571,7 @@ Date:   Tue Aug 23 10:55:00 2005 +0000
 
     Fix inadvertent commit of incorrect reference image
 
- test/text-antialias-subpixel-ref.png |  Bin
+ test/text-antialias-subpixel-ref.png |  Bin 970 -> 1079 bytes
  1 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 9aa1f4d868c7fdad6412205538697899fe760dca
@@ -1755,7 +583,7 @@ Date:   Tue Aug 23 10:39:27 2005 +0000
 
  ChangeLog                            |    9 +++++++++
  test/Makefile.am                     |    1 +
- test/text-antialias-subpixel-ref.png |  Bin
+ test/text-antialias-subpixel-ref.png |  Bin 0 -> 970 bytes
  test/text-antialias-subpixel.c       |    5 ++++-
  4 files changed, 14 insertions(+), 1 deletions(-)
 
@@ -1766,7 +594,7 @@ Date:   Tue Aug 23 10:11:16 2005 +0000
     Add more comments on the improved state of this bug. Commit a reference image generated with cairo_text_path; cairo_fill. (We may not require getting this exact result, but I think it is worth examining the differences closely.)
 
  ChangeLog                |    9 +++++++++
- test/text-rotate-ref.png |  Bin
+ test/text-rotate-ref.png |  Bin 0 -> 12446 bytes
  test/text-rotate.c       |   39 +++++++++++++++++++++++++++++++++++++--
  3 files changed, 46 insertions(+), 2 deletions(-)
 
@@ -1866,7 +694,7 @@ Date:   Tue Aug 23 01:02:16 2005 +0000
  ChangeLog                   |    9 ++++++
  test/.cvsignore             |    1 +
  test/Makefile.am            |    4 +++
- test/caps-sub-paths-ref.png |  Bin
+ test/caps-sub-paths-ref.png |  Bin 0 -> 164 bytes
  test/caps-sub-paths.c       |   63 +++++++++++++++++++++++++++++++++++++++++++
  5 files changed, 77 insertions(+), 0 deletions(-)
 
@@ -2142,9 +970,9 @@ Date:   Sun Aug 21 14:10:39 2005 +0000
 
  ChangeLog                    |   17 +++++++++++++++++
  src/cairo-pattern.c          |    8 ++++----
- test/gradient-alpha-ref.png  |  Bin
- test/linear-gradient-ref.png |  Bin
- test/text-pattern-ref.png    |  Bin
+ test/gradient-alpha-ref.png  |  Bin 153 -> 154 bytes
+ test/linear-gradient-ref.png |  Bin 12744 -> 12719 bytes
+ test/text-pattern-ref.png    |  Bin 2728 -> 2731 bytes
  5 files changed, 21 insertions(+), 4 deletions(-)
 
 commit e3e7046cd7ee629fe085cf081fd3aa2581782bf5
@@ -2167,12 +995,12 @@ Date:   Sun Aug 21 11:41:44 2005 +0000
 
  ChangeLog                         |   18 ++++++++++++++++++
  src/cairo-hull.c                  |    7 ++++++-
- test/clip-operator-ref.png        |  Bin
- test/linear-gradient-ref.png      |  Bin
- test/operator-clear-ref.png       |  Bin
- test/operator-source-ref.png      |  Bin
- test/unantialiased-shapes-ref.png |  Bin
- test/unbounded-operator-ref.png   |  Bin
+ test/clip-operator-ref.png        |  Bin 37330 -> 37330 bytes
+ test/linear-gradient-ref.png      |  Bin 12724 -> 12744 bytes
+ test/operator-clear-ref.png       |  Bin 4992 -> 4988 bytes
+ test/operator-source-ref.png      |  Bin 19957 -> 19958 bytes
+ test/unantialiased-shapes-ref.png |  Bin 4450 -> 4449 bytes
+ test/unbounded-operator-ref.png   |  Bin 11937 -> 11929 bytes
  8 files changed, 24 insertions(+), 1 deletions(-)
 
 commit d93d56caeffb80ac92a0432ad1ebdecee5c0e2b6
@@ -2305,7 +1133,7 @@ Date:   Fri Aug 19 16:37:56 2005 +0000
  ChangeLog                             |   10 +++++
  test/.cvsignore                       |    1 +
  test/Makefile.am                      |    3 +
- test/rectangle-rounding-error-ref.png |  Bin
+ test/rectangle-rounding-error-ref.png |  Bin 0 -> 298 bytes
  test/rectangle-rounding-error.c       |   69 +++++++++++++++++++++++++++++++++
  5 files changed, 83 insertions(+), 0 deletions(-)
 
@@ -2394,7 +1222,7 @@ Date:   Fri Aug 19 12:02:14 2005 +0000
  src/cairo.h                       |    9 +++-
  test/.cvsignore                   |    1 +
  test/Makefile.am                  |    4 ++
- test/dash-offset-negative-ref.png |  Bin
+ test/dash-offset-negative-ref.png |  Bin 0 -> 155 bytes
  test/dash-offset-negative.c       |   99 +++++++++++++++++++++++++++++++++++++
  9 files changed, 203 insertions(+), 15 deletions(-)
 
@@ -2447,7 +1275,7 @@ Date:   Thu Aug 18 23:10:37 2005 +0000
  src/cairoint.h           |    2 +-
  test/.cvsignore          |    1 +
  test/Makefile.am         |    2 +
- test/nil-surface-ref.png |  Bin
+ test/nil-surface-ref.png |  Bin 0 -> 107 bytes
  test/nil-surface.c       |   73 +++++++++++++++++++++++++++++
  8 files changed, 184 insertions(+), 57 deletions(-)
 
@@ -2516,7 +1344,7 @@ Date:   Thu Aug 18 17:19:54 2005 +0000
  ChangeLog                 |    7 +++++++
  src/cairo-xlib-surface.c  |   18 +++++++++---------
  test/.cvsignore           |    1 +
- test/text-pattern-ref.png |  Bin
+ test/text-pattern-ref.png |  Bin 2869 -> 2728 bytes
  test/text-pattern.c       |    9 ++++++---
  5 files changed, 23 insertions(+), 12 deletions(-)
 
@@ -2538,7 +1366,7 @@ Date:   Thu Aug 18 16:22:23 2005 +0000
 
  ChangeLog                 |    4 ++
  test/Makefile.am          |    3 ++
- test/text-pattern-ref.png |  Bin
+ test/text-pattern-ref.png |  Bin 0 -> 2869 bytes
  test/text-pattern.c       |   74 +++++++++++++++++++++++++++++++++++++++++++++
  4 files changed, 81 insertions(+), 0 deletions(-)
 
@@ -2565,12 +1393,12 @@ Date:   Thu Aug 18 15:50:36 2005 +0000
  src/cairo-xlib-surface.c        |    6 +-
  test/.cvsignore                 |    2 +
  test/Makefile.am                |    6 +
- test/clip-operator-ref.png      |  Bin
- test/operator-clear-ref.png     |  Bin
+ test/clip-operator-ref.png      |  Bin 38336 -> 37330 bytes
+ test/operator-clear-ref.png     |  Bin 0 -> 4992 bytes
  test/operator-clear.c           |  214 +++++++++++++++++++++++++++++++++
- test/operator-source-ref.png    |  Bin
+ test/operator-source-ref.png    |  Bin 0 -> 19957 bytes
  test/operator-source.c          |  253 +++++++++++++++++++++++++++++++++++++++
- test/unbounded-operator-ref.png |  Bin
+ test/unbounded-operator-ref.png |  Bin 14178 -> 11937 bytes
  test/unbounded-operator.c       |    4 +-
  16 files changed, 706 insertions(+), 63 deletions(-)
 
@@ -3071,7 +1899,7 @@ Date:   Wed Aug 10 21:12:10 2005 +0000
     Update to match the output from libpixman.
 
  ChangeLog                  |    5 +++++
- test/clip-operator-ref.png |  Bin
+ test/clip-operator-ref.png |  Bin 37486 -> 38336 bytes
  2 files changed, 5 insertions(+), 0 deletions(-)
 
 commit 910d824b3df8cc72a52c44b1177045d91b83051b
@@ -3374,7 +2202,7 @@ Date:   Mon Aug 8 18:35:22 2005 +0000
  src/cairo.h                       |   46 +++++++++-------
  src/cairoint.h                    |   18 +++++-
  test/Makefile.am                  |    3 +
- test/unantialiased-shapes-ref.png |  Bin
+ test/unantialiased-shapes-ref.png |  Bin 0 -> 4450 bytes
  test/unantialiased-shapes.c       |  103 +++++++++++++++++++++++++++++++++++++
  24 files changed, 450 insertions(+), 100 deletions(-)
 
@@ -3444,8 +2272,8 @@ Date:   Mon Aug 8 13:50:02 2005 +0000
 
     Add reference images
 
- test/clip-operator-ref.png      |  Bin
- test/unbounded-operator-ref.png |  Bin
+ test/clip-operator-ref.png      |  Bin 0 -> 37486 bytes
+ test/unbounded-operator-ref.png |  Bin 0 -> 14178 bytes
  2 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 8f19aaf9a8a60aa2eb86e25946d04f293ed703db
@@ -3754,7 +2582,7 @@ Date:   Fri Aug 5 15:07:45 2005 +0000
 
  ChangeLog            |    8 +++++
  test/Makefile.am     |    4 +++
- test/a8-mask-ref.png |  Bin
+ test/a8-mask-ref.png |  Bin 0 -> 128 bytes
  test/a8-mask.c       |   71 ++++++++++++++++++++++++++++++++++++++++++++++++++
  4 files changed, 83 insertions(+), 0 deletions(-)
 
@@ -4064,7 +2892,7 @@ Date:   Mon Aug 1 14:39:01 2005 +0000
  src/cairo-gstate-private.h              |    1 +
  src/cairo-gstate.c                      |  119 +++++++++++++++++--------------
  test/Makefile.am                        |    1 -
- test/source-surface-scale-paint-ref.png |  Bin
+ test/source-surface-scale-paint-ref.png |  Bin 147 -> 139 bytes
  test/source-surface-scale-paint.c       |    5 +-
  6 files changed, 91 insertions(+), 58 deletions(-)
 
@@ -4256,9 +3084,9 @@ Date:   Thu Jul 28 15:55:00 2005 +0000
  ChangeLog                     |   13 ++++++
  test/.cvsignore               |    2 +
  test/Makefile.am              |    6 +++
- test/mask-ctm-ref.png         |  Bin
+ test/mask-ctm-ref.png         |  Bin 0 -> 129 bytes
  test/mask-ctm.c               |   82 +++++++++++++++++++++++++++++++++++++++++
- test/mask-surface-ctm-ref.png |  Bin
+ test/mask-surface-ctm-ref.png |  Bin 0 -> 129 bytes
  test/mask-surface-ctm.c       |   75 +++++++++++++++++++++++++++++++++++++
  7 files changed, 178 insertions(+), 0 deletions(-)
 
@@ -4640,9 +3468,9 @@ Date:   Wed Jul 27 13:28:15 2005 +0000
  ROADMAP                          |    4 ++
  test/.cvsignore                  |    3 +
  test/Makefile.am                 |    8 ++++
- test/text-antialias-gray-ref.png |  Bin
+ test/text-antialias-gray-ref.png |  Bin 0 -> 723 bytes
  test/text-antialias-gray.c       |   77 +++++++++++++++++++++++++++++++++++
- test/text-antialias-none-ref.png |  Bin
+ test/text-antialias-none-ref.png |  Bin 0 -> 277 bytes
  test/text-antialias-none.c       |   78 ++++++++++++++++++++++++++++++++++++
  test/text-antialias-subpixel.c   |   82 ++++++++++++++++++++++++++++++++++++++
  9 files changed, 267 insertions(+), 0 deletions(-)
@@ -4658,7 +3486,7 @@ Date:   Wed Jul 27 09:23:29 2005 +0000
  src/cairo-png.c                     |    2 +-
  test/.cvsignore                     |    1 +
  test/Makefile.am                    |    3 +
- test/create-from-png-stream-ref.png |  Bin
+ test/create-from-png-stream-ref.png |  Bin 0 -> 100 bytes
  test/create-from-png-stream.c       |   95 +++++++++++++++++++++++++++++++++++
  test/create-from-png.c              |    4 +-
  7 files changed, 116 insertions(+), 2 deletions(-)
@@ -4823,14 +3651,14 @@ Date:   Fri Jul 22 06:20:53 2005 +0000
  doc/tutorial/slides/cairo-separator.svg      |  491 +++++++++++++++++++++++++
  doc/tutorial/slides/cairo-title.svg          |  373 +++++++++++++++++++
  doc/tutorial/slides/cairo.svg                |  508 ++++++++++++++++++++++++++
- doc/tutorial/slides/circle-cairo-large.png   |  Bin
- doc/tutorial/slides/circle-cairo.png         |  Bin
- doc/tutorial/slides/circle-ooo-large.png     |  Bin
- doc/tutorial/slides/circle-ooo.png           |  Bin
- doc/tutorial/slides/expander-fuzzy-large.png |  Bin
- doc/tutorial/slides/expander-fuzzy.png       |  Bin
- doc/tutorial/slides/expander-sharp-large.png |  Bin
- doc/tutorial/slides/expander-sharp.png       |  Bin
+ doc/tutorial/slides/circle-cairo-large.png   |  Bin 0 -> 3362 bytes
+ doc/tutorial/slides/circle-cairo.png         |  Bin 0 -> 1429 bytes
+ doc/tutorial/slides/circle-ooo-large.png     |  Bin 0 -> 1491 bytes
+ doc/tutorial/slides/circle-ooo.png           |  Bin 0 -> 383 bytes
+ doc/tutorial/slides/expander-fuzzy-large.png |  Bin 0 -> 1300 bytes
+ doc/tutorial/slides/expander-fuzzy.png       |  Bin 0 -> 296 bytes
+ doc/tutorial/slides/expander-sharp-large.png |  Bin 0 -> 929 bytes
+ doc/tutorial/slides/expander-sharp.png       |  Bin 0 -> 183 bytes
  doc/tutorial/slides/fuzzies.svg              |   11 +
  doc/tutorial/slides/jaggies.svg              |   11 +
  doc/tutorial/slides/tutorial.xml             |  468 ++++++++++++++++++++++++
@@ -5168,11 +3996,11 @@ Date:   Fri Jul 15 13:45:19 2005 +0000
  src/cairo-xlib-surface.c                           |  117 ++++++++++++++-----
  test/.cvsignore                                    |    3 +
  test/Makefile.am                                   |   11 ++-
- test/composite-integer-translate-over-ref.png      |  Bin
- ...composite-integer-translate-over-repeat-ref.png |  Bin
+ test/composite-integer-translate-over-ref.png      |  Bin 0 -> 15397 bytes
+ ...composite-integer-translate-over-repeat-ref.png |  Bin 0 -> 401 bytes
  test/composite-integer-translate-over-repeat.c     |   61 ++++++++++
  test/composite-integer-translate-over.c            |   42 +++++++
- test/composite-integer-translate-source-ref.png    |  Bin
+ test/composite-integer-translate-source-ref.png    |  Bin 0 -> 16385 bytes
  test/composite-integer-translate-source.c          |   42 +++++++
  11 files changed, 255 insertions(+), 33 deletions(-)
 
@@ -5377,7 +4205,7 @@ Date:   Thu Jul 14 11:17:12 2005 +0000
  ChangeLog                   |   10 ++++++
  test/.cvsignore             |    2 +-
  test/Makefile.am            |    6 ++--
- test/create-for-png-ref.png |  Bin
+ test/create-for-png-ref.png |  Bin 100 -> 0 bytes
  test/create-for-png.c       |   69 -------------------------------------------
  test/create-from-png.c      |    4 +-
  6 files changed, 16 insertions(+), 75 deletions(-)
@@ -6654,7 +5482,7 @@ Date:   Fri Jun 3 16:40:15 2005 +0000
 
  ChangeLog               |    6 ++++
  src/cairo-gstate.c      |   75 +++++++++++++++++++++++++++++++++++++---------
- test/clip-twice-ref.png |  Bin
+ test/clip-twice-ref.png |  Bin 751 -> 1191 bytes
  test/clip-twice.c       |    6 ++++
  4 files changed, 72 insertions(+), 15 deletions(-)
 
@@ -6838,7 +5666,7 @@ Date:   Wed Jun 1 11:03:50 2005 +0000
  ChangeLog                      |    9 ++++
  test/.cvsignore                |    1 +
  test/Makefile.am               |    3 +
- test/self-intersecting-ref.png |  Bin
+ test/self-intersecting-ref.png |  Bin 0 -> 242 bytes
  test/self-intersecting.c       |   89 ++++++++++++++++++++++++++++++++++++++++
  5 files changed, 102 insertions(+), 0 deletions(-)
 
@@ -7481,7 +6309,7 @@ Date:   Thu May 12 11:02:35 2005 +0000
  src/cairo-gstate.c            |    6 +++-
  test/.cvsignore               |    1 +
  test/Makefile.am              |    3 ++
- test/paint-with-alpha-ref.png |  Bin
+ test/paint-with-alpha-ref.png |  Bin 0 -> 164 bytes
  test/paint-with-alpha.c       |   64 +++++++++++++++++++++++++++++++++++++++++
  6 files changed, 86 insertions(+), 1 deletions(-)
 
@@ -7943,9 +6771,9 @@ Date:   Fri May 6 12:00:22 2005 +0000
  src/cairo.c                   |   31 +++++++
  src/cairo.h                   |    4 +
  test/Makefile.am              |    4 -
- test/coverage-ref.png         |  Bin
+ test/coverage-ref.png         |  Bin 25904 -> 0 bytes
  test/coverage.c               |  185 -----------------------------------------
- test/mask-ref.png             |  Bin
+ test/mask-ref.png             |  Bin 58954 -> 87846 bytes
  test/mask.c                   |    7 ++
  13 files changed, 83 insertions(+), 209 deletions(-)
 
@@ -7998,13 +6826,13 @@ Date:   Tue May 3 08:33:32 2005 +0000
  test/cairo-test.c                       |    2 +-
  test/create-for-png.c                   |    6 +-
  test/create-from-png.c                  |    6 +-
- test/filter-nearest-offset-ref.png      |  Bin
+ test/filter-nearest-offset-ref.png      |  Bin 0 -> 254 bytes
  test/filter-nearest-offset.c            |  107 ++++++++++++++++++
  test/move-to-show-surface.c             |    5 +-
  test/pixman-rotate.c                    |    3 +-
- test/scale-source-surface-paint-ref.png |  Bin
+ test/scale-source-surface-paint-ref.png |  Bin 0 -> 147 bytes
  test/scale-source-surface-paint.c       |   65 +++++++++++
- test/source-surface-scale-paint-ref.png |  Bin
+ test/source-surface-scale-paint-ref.png |  Bin 0 -> 147 bytes
  test/source-surface-scale-paint.c       |   65 +++++++++++
  test/translate-show-surface.c           |    3 +-
  19 files changed, 399 insertions(+), 300 deletions(-)
@@ -8056,11 +6884,11 @@ Date:   Mon May 2 13:39:30 2005 +0000
  src/cairo.h                |   29 +++++++-
  src/cairoint.h             |   21 ++++-
  test/Makefile.am           |   11 +++
- test/clip-nesting-ref.png  |  Bin
+ test/clip-nesting-ref.png  |  Bin 0 -> 1050 bytes
  test/clip-nesting.c        |  101 ++++++++++++++++++++++++
- test/self-copy-ref.png     |  Bin
+ test/self-copy-ref.png     |  Bin 0 -> 291 bytes
  test/self-copy.c           |   90 ++++++++++++++++++++++
- test/source-clip-ref.png   |  Bin
+ test/source-clip-ref.png   |  Bin 0 -> 180 bytes
  test/source-clip.c         |   85 +++++++++++++++++++++
  16 files changed, 649 insertions(+), 77 deletions(-)
 
@@ -8075,7 +6903,7 @@ Date:   Mon May 2 12:36:20 2005 +0000
  ChangeLog             |   12 ++++++++++
  src/cairo-path.c      |    8 +++---
  test/Makefile.am      |    7 ++++-
- test/rel-path-ref.png |  Bin
+ test/rel-path-ref.png |  Bin 0 -> 212 bytes
  test/rel-path.c       |   56 +++++++++++++++++++++++++++++++++++++++++++++++++
  5 files changed, 77 insertions(+), 6 deletions(-)
 
@@ -8105,7 +6933,7 @@ Date:   Mon May 2 11:01:18 2005 +0000
  src/cairo.h                   |   10 ++
  src/cairoint.h                |    4 +
  test/Makefile.am              |    3 +
- test/mask-ref.png             |  Bin
+ test/mask-ref.png             |  Bin 0 -> 58954 bytes
  test/mask.c                   |  241 ++++++++++++++++++++++++++++++++++++++
  10 files changed, 544 insertions(+), 67 deletions(-)
 
@@ -8221,7 +7049,7 @@ Date:   Tue Apr 26 18:56:37 2005 +0000
  ChangeLog          |    8 +++++++
  test/.cvsignore    |    2 +
  test/Makefile.am   |    3 ++
- test/paint-ref.png |  Bin
+ test/paint-ref.png |  Bin 0 -> 116 bytes
  test/paint.c       |   53 ++++++++++++++++++++++++++++++++++++++++++++++++++++
  5 files changed, 66 insertions(+), 0 deletions(-)
 
@@ -8438,7 +7266,7 @@ Date:   Mon Apr 18 16:26:14 2005 +0000
  ChangeLog                    |    8 ++++
  test/.cvsignore              |    1 +
  test/Makefile.am             |    3 ++
- test/surface-pattern-ref.png |  Bin
+ test/surface-pattern-ref.png |  Bin 0 -> 194 bytes
  test/surface-pattern.c       |   75 ++++++++++++++++++++++++++++++++++++++++++
  5 files changed, 87 insertions(+), 0 deletions(-)
 
@@ -8453,7 +7281,7 @@ Date:   Mon Apr 18 05:25:57 2005 +0000
  ROADMAP                      |   14 ++++----
  test/.cvsignore              |    1 +
  test/Makefile.am             |    3 ++
- test/fill-and-stroke-ref.png |  Bin
+ test/fill-and-stroke-ref.png |  Bin 0 -> 279 bytes
  test/fill-and-stroke.c       |   67 ++++++++++++++++++++++++++++++++++++++++++
  6 files changed, 89 insertions(+), 7 deletions(-)
 
@@ -8527,7 +7355,7 @@ Date:   Thu Apr 14 14:02:03 2005 +0000
     Make gradient change color in addition to just changing alpha in order to highlight distinction between interpolating in premultiplied vs. non-premultiplied space.
 
  ChangeLog                   |    8 ++++++++
- test/gradient-alpha-ref.png |  Bin
+ test/gradient-alpha-ref.png |  Bin 146 -> 153 bytes
  test/gradient-alpha.c       |    8 ++++----
  3 files changed, 12 insertions(+), 4 deletions(-)
 
@@ -8555,7 +7383,7 @@ Date:   Thu Apr 14 09:31:21 2005 +0000
  ChangeLog                   |    8 +++++
  test/.cvsignore             |    1 +
  test/Makefile.am            |    3 ++
- test/gradient-alpha-ref.png |  Bin
+ test/gradient-alpha-ref.png |  Bin 0 -> 146 bytes
  test/gradient-alpha.c       |   62 +++++++++++++++++++++++++++++++++++++++++++
  5 files changed, 74 insertions(+), 0 deletions(-)
 
@@ -8568,7 +7396,7 @@ Date:   Thu Apr 14 09:13:48 2005 +0000
  ChangeLog               |    8 ++++
  test/.cvsignore         |    3 +-
  test/Makefile.am        |    7 +++-
- test/set-source-ref.png |  Bin
+ test/set-source-ref.png |  Bin 0 -> 120 bytes
  test/set-source.c       |   89 +++++++++++++++++++++++++++++++++++++++++++++++
  5 files changed, 104 insertions(+), 3 deletions(-)
 
@@ -8631,7 +7459,7 @@ Date:   Wed Apr 13 14:24:20 2005 +0000
     Temporarily remove all text from this test case until we come up with an approach for drawing the same text with different freetype configurations.
 
  ChangeLog             |    7 +++++++
- test/coverage-ref.png |  Bin
+ test/coverage-ref.png |  Bin 44324 -> 25904 bytes
  test/coverage.c       |    6 ++++++
  3 files changed, 13 insertions(+), 0 deletions(-)
 
@@ -8688,7 +7516,7 @@ Date:   Wed Apr 13 11:23:43 2005 +0000
  src/cairo-traps.c         |   55 +++++
  src/cairoint.h            |    4 +
  test/Makefile.am          |    5 +-
- test/trap-clip-ref.png    |  Bin
+ test/trap-clip-ref.png    |  Bin 0 -> 71701 bytes
  test/trap-clip.c          |  213 ++++++++++++++++
  8 files changed, 688 insertions(+), 196 deletions(-)
 
@@ -8756,7 +7584,7 @@ Date:   Mon Apr 11 14:04:56 2005 +0000
  ChangeLog                           |    9 ++++
  test/.cvsignore                     |    1 +
  test/Makefile.am                    |    5 ++-
- test/translate-show-surface-ref.png |  Bin
+ test/translate-show-surface-ref.png |  Bin 0 -> 100 bytes
  test/translate-show-surface.c       |   77 +++++++++++++++++++++++++++++++++++
  5 files changed, 91 insertions(+), 1 deletions(-)
 
@@ -9100,7 +7928,7 @@ Date:   Thu Apr 7 10:01:49 2005 +0000
  src/cairoint.h            |   38 ++----
  test/.cvsignore           |    1 +
  test/Makefile.am          |    5 +-
- test/transforms-ref.png   |  Bin
+ test/transforms-ref.png   |  Bin 0 -> 302 bytes
  test/transforms.c         |  111 ++++++++++++++
  20 files changed, 502 insertions(+), 307 deletions(-)
 
@@ -9160,9 +7988,9 @@ Date:   Mon Apr 4 09:47:12 2005 +0000
  test/buffer-diff.h           |    4 ++-
  test/cairo-test.c            |   14 ++++---
  test/cairo-test.h            |    2 +
- test/create-for-png-ref.png  |  Bin
+ test/create-for-png-ref.png  |  Bin 0 -> 100 bytes
  test/create-for-png.c        |   74 ++++++++++++++++++++++++++++++++++++++++++
- test/create-from-png-ref.png |  Bin
+ test/create-from-png-ref.png |  Bin 0 -> 100 bytes
  test/create-from-png.c       |   74 ++++++++++++++++++++++++++++++++++++++++++
  test/write-png.c             |    2 +-
  test/write-png.h             |    2 +-
@@ -9366,32 +8194,32 @@ Date:   Tue Mar 29 00:02:19 2005 +0000
  test/cairo_test.c                 |  263 -------------------------------------
  test/cairo_test.h                 |   55 --------
  test/clip-twice.c                 |    4 +-
- test/clip_twice-ref.png           |  Bin
+ test/clip_twice-ref.png           |  Bin 751 -> 0 bytes
  test/clip_twice.c                 |   74 -----------
  test/coverage.c                   |    2 +-
  test/fill-rule.c                  |    4 +-
- test/fill_rule-ref.png            |  Bin
+ test/fill_rule-ref.png            |  Bin 1979 -> 0 bytes
  test/fill_rule.c                  |  132 -------------------
  test/get-and-set.c                |    4 +-
  test/get_and_set.c                |  151 ---------------------
  test/imagediff.c                  |    6 +-
  test/leaky-polygon.c              |    4 +-
- test/leaky_polygon-ref.png        |  Bin
+ test/leaky_polygon-ref.png        |  Bin 255 -> 0 bytes
  test/leaky_polygon.c              |   84 ------------
  test/line-width.c                 |    4 +-
- test/line_width-ref.png           |  Bin
+ test/line_width-ref.png           |  Bin 171 -> 0 bytes
  test/line_width.c                 |   65 ---------
  test/linear-gradient.c            |    4 +-
- test/linear_gradient-ref.png      |  Bin
+ test/linear_gradient-ref.png      |  Bin 12724 -> 0 bytes
  test/linear_gradient.c            |  143 --------------------
  test/move-to-show-surface.c       |    4 +-
- test/move_to_show_surface-ref.png |  Bin
+ test/move_to_show_surface-ref.png |  Bin 100 -> 0 bytes
  test/move_to_show_surface.c       |   71 ----------
  test/path-data.c                  |    4 +-
- test/path_data-ref.png            |  Bin
+ test/path_data-ref.png            |  Bin 387 -> 0 bytes
  test/path_data.c                  |  179 -------------------------
  test/pixman-rotate.c              |    4 +-
- test/pixman_rotate-ref.png        |  Bin
+ test/pixman_rotate-ref.png        |  Bin 260 -> 0 bytes
  test/pixman_rotate.c              |   80 -----------
  test/read-png.c                   |    2 +-
  test/read_png.c                   |  166 -----------------------
@@ -9890,8 +8718,8 @@ Date:   Mon Mar 14 11:49:12 2005 +0000
     Add reference image.
 
  ChangeLog              |    4 ++++
- test/path-data-ref.png |  Bin
- test/path_data-ref.png |  Bin
+ test/path-data-ref.png |  Bin 0 -> 387 bytes
+ test/path_data-ref.png |  Bin 0 -> 387 bytes
  3 files changed, 4 insertions(+), 0 deletions(-)
 
 commit f385e5f3e47dec22aa48df02f3f19b06fe0b8780
@@ -10165,7 +8993,7 @@ Date:   Tue Mar 8 14:30:14 2005 +0000
 
     Fix accidental commit of diff, rather than ref image.
 
- test/coverage-ref.png |  Bin
+ test/coverage-ref.png |  Bin 2148 -> 44324 bytes
  1 files changed, 0 insertions(+), 0 deletions(-)
 
 commit c05059f62fc70e94ed864559212a223debe30915
@@ -10174,7 +9002,7 @@ Date:   Tue Mar 8 14:25:54 2005 +0000
 
     Update coverage-ref.png due to seemingly harmless, though not entirely understood changes.
 
- test/coverage-ref.png |  Bin
+ test/coverage-ref.png |  Bin 44331 -> 2148 bytes
  1 files changed, 0 insertions(+), 0 deletions(-)
 
 commit 246a07022aa97614c8961526cf3e2b06e8d5774b
@@ -10275,9 +9103,9 @@ Date:   Sun Mar 6 12:05:23 2005 +0000
  src/cairo-pattern.c          |  119 +++++++++++++++++++++++++++++------
  src/cairo_pattern.c          |  119 +++++++++++++++++++++++++++++------
  test/Makefile.am             |    3 +
- test/linear-gradient-ref.png |  Bin
+ test/linear-gradient-ref.png |  Bin 0 -> 12724 bytes
  test/linear-gradient.c       |  141 ++++++++++++++++++++++++++++++++++++++++++
- test/linear_gradient-ref.png |  Bin
+ test/linear_gradient-ref.png |  Bin 0 -> 12724 bytes
  test/linear_gradient.c       |  141 ++++++++++++++++++++++++++++++++++++++++++
  8 files changed, 497 insertions(+), 38 deletions(-)
 
@@ -11065,9 +9893,9 @@ Date:   Mon Feb 7 09:38:43 2005 +0000
 
  ChangeLog                  |    6 +++
  test/Makefile.am           |    7 +++-
- test/pixman-rotate-ref.png |  Bin
+ test/pixman-rotate-ref.png |  Bin 0 -> 260 bytes
  test/pixman-rotate.c       |   78 ++++++++++++++++++++++++++++++++++++++++++++
- test/pixman_rotate-ref.png |  Bin
+ test/pixman_rotate-ref.png |  Bin 0 -> 260 bytes
  test/pixman_rotate.c       |   78 ++++++++++++++++++++++++++++++++++++++++++++
  6 files changed, 167 insertions(+), 2 deletions(-)
 
@@ -11605,9 +10433,9 @@ Date:   Thu Jan 27 12:28:17 2005 +0000
     Update these two once again, this time generated using libpixman-0.1.3 without leaky circles.
 
  ChangeLog               |    7 +++++++
- test/clip-twice-ref.png |  Bin
- test/clip_twice-ref.png |  Bin
- test/coverage-ref.png   |  Bin
+ test/clip-twice-ref.png |  Bin 793 -> 751 bytes
+ test/clip_twice-ref.png |  Bin 793 -> 751 bytes
+ test/coverage-ref.png   |  Bin 44373 -> 44331 bytes
  4 files changed, 7 insertions(+), 0 deletions(-)
 
 commit 73cdfa0b2ba3222958483245a48daf483f3c74f6
@@ -11634,9 +10462,9 @@ Date:   Thu Jan 27 11:40:29 2005 +0000
 
  test/.cvsignore         |    2 ++
  test/Makefile.am        |    3 +--
- test/clip-twice-ref.png |  Bin
- test/clip_twice-ref.png |  Bin
- test/coverage-ref.png   |  Bin
+ test/clip-twice-ref.png |  Bin 869 -> 793 bytes
+ test/clip_twice-ref.png |  Bin 869 -> 793 bytes
+ test/coverage-ref.png   |  Bin 44332 -> 44373 bytes
  test/read-png.c         |    6 +++---
  test/read_png.c         |    6 +++---
  test/write-png.c        |    6 +++---
@@ -11722,7 +10550,7 @@ Date:   Thu Jan 27 10:46:20 2005 +0000
  src/cairo_surface.c       |  142 ++-------
  src/cairo_xlib_surface.c  |  102 +++++--
  src/cairoint.h            |  102 ++++--
- test/coverage-ref.png     |  Bin
+ test/coverage-ref.png     |  Bin 43819 -> 44332 bytes
  24 files changed, 1960 insertions(+), 1915 deletions(-)
 
 commit 2654df6afb424e41d7cc3752a9d7b9c27c3efc92
@@ -11733,9 +10561,9 @@ Date:   Wed Jan 26 21:46:01 2005 +0000
 
  ChangeLog               |    4 ++
  test/Makefile.am        |   21 +++++++++----
- test/clip-twice-ref.png |  Bin
+ test/clip-twice-ref.png |  Bin 0 -> 869 bytes
  test/clip-twice.c       |   72 +++++++++++++++++++++++++++++++++++++++++++++++
- test/clip_twice-ref.png |  Bin
+ test/clip_twice-ref.png |  Bin 0 -> 869 bytes
  test/clip_twice.c       |   72 +++++++++++++++++++++++++++++++++++++++++++++++
  6 files changed, 162 insertions(+), 7 deletions(-)
 
@@ -11747,7 +10575,7 @@ Date:   Wed Jan 26 14:21:53 2005 +0000
     Added the right reference PNG. Running test against stock 0.3.0 gives the expected results.
 
  ChangeLog             |    5 +++++
- test/coverage-ref.png |  Bin
+ test/coverage-ref.png |  Bin 629 -> 43819 bytes
  test/coverage.c       |    1 +
  3 files changed, 6 insertions(+), 0 deletions(-)
 
@@ -11765,9 +10593,9 @@ Date:   Wed Jan 26 13:41:55 2005 +0000
  test/cairo-test.h     |    4 +
  test/cairo_test.c     |   23 ++++++
  test/cairo_test.h     |    4 +
- test/coverage-ref.png |  Bin
+ test/coverage-ref.png |  Bin 0 -> 629 bytes
  test/coverage.c       |  181 +++++++++++++++++++++++++++++++++++++++++++++++++
- test/romedalen.png    |  Bin
+ test/romedalen.png    |  Bin 0 -> 80944 bytes
  9 files changed, 253 insertions(+), 2 deletions(-)
 
 commit 6dce601fd3cd7f6c8ebe72240e6be7c223ccbdcb
@@ -12051,12 +10879,12 @@ Date:   Fri Jan 21 11:27:56 2005 +0000
     Update reference images for new rasterization in libpixman 0.1.3.
 
  ChangeLog                  |    5 +++++
- test/fill-rule-ref.png     |  Bin
- test/fill_rule-ref.png     |  Bin
- test/leaky-polygon-ref.png |  Bin
- test/leaky_polygon-ref.png |  Bin
- test/line-width-ref.png    |  Bin
- test/line_width-ref.png    |  Bin
+ test/fill-rule-ref.png     |  Bin 1983 -> 1979 bytes
+ test/fill_rule-ref.png     |  Bin 1983 -> 1979 bytes
+ test/leaky-polygon-ref.png |  Bin 264 -> 255 bytes
+ test/leaky_polygon-ref.png |  Bin 264 -> 255 bytes
+ test/line-width-ref.png    |  Bin 167 -> 171 bytes
+ test/line_width-ref.png    |  Bin 167 -> 171 bytes
  7 files changed, 5 insertions(+), 0 deletions(-)
 
 commit 1463fbb6c90a9a6faff0d4d1b65d375e416dafd4
@@ -12470,9 +11298,9 @@ Date:   Thu Jan 13 14:50:35 2005 +0000
  ChangeLog                  |    5 +++
  test/.cvsignore            |    1 +
  test/Makefile.am           |    3 ++
- test/leaky-polygon-ref.png |  Bin
+ test/leaky-polygon-ref.png |  Bin 0 -> 264 bytes
  test/leaky-polygon.c       |   82 ++++++++++++++++++++++++++++++++++++++++++++
- test/leaky_polygon-ref.png |  Bin
+ test/leaky_polygon-ref.png |  Bin 0 -> 264 bytes
  test/leaky_polygon.c       |   82 ++++++++++++++++++++++++++++++++++++++++++++
  7 files changed, 173 insertions(+), 0 deletions(-)
 
@@ -12528,9 +11356,9 @@ Date:   Wed Jan 12 14:38:22 2005 +0000
 
     Add big_star_path which shows we still have fill bugs, (even now that little_star_path is working).
 
- test/fill-rule-ref.png |  Bin
+ test/fill-rule-ref.png |  Bin 408 -> 1983 bytes
  test/fill-rule.c       |   58 ++++++++++++++++++++++++++++++++++++++++-------
- test/fill_rule-ref.png |  Bin
+ test/fill_rule-ref.png |  Bin 408 -> 1983 bytes
  test/fill_rule.c       |   58 ++++++++++++++++++++++++++++++++++++++++-------
  4 files changed, 98 insertions(+), 18 deletions(-)
 
@@ -13294,9 +12122,9 @@ Date:   Wed Oct 27 10:48:58 2004 +0000
  ChangeLog              |    6 +++
  test/.cvsignore        |    1 +
  test/Makefile.am       |   26 +++++++++-----
- test/fill-rule-ref.png |  Bin
+ test/fill-rule-ref.png |  Bin 0 -> 408 bytes
  test/fill-rule.c       |   90 ++++++++++++++++++++++++++++++++++++++++++++++++
- test/fill_rule-ref.png |  Bin
+ test/fill_rule-ref.png |  Bin 0 -> 408 bytes
  test/fill_rule.c       |   90 ++++++++++++++++++++++++++++++++++++++++++++++++
  7 files changed, 204 insertions(+), 9 deletions(-)
 
@@ -13394,13 +12222,13 @@ Date:   Tue Oct 26 14:38:43 2004 +0000
  test/cairo-test.h                 |   50 ++++++++++
  test/cairo_test.c                 |  191 +++++++++++++++++++++++++++++++++++++
  test/cairo_test.h                 |   50 ++++++++++
- test/line-width-ref.png           |  Bin
+ test/line-width-ref.png           |  Bin 0 -> 167 bytes
  test/line-width.c                 |   63 ++++++++++++
- test/line_width-ref.png           |  Bin
+ test/line_width-ref.png           |  Bin 0 -> 167 bytes
  test/line_width.c                 |   63 ++++++++++++
- test/move-to-show-surface-ref.png |  Bin
+ test/move-to-show-surface-ref.png |  Bin 0 -> 100 bytes
  test/move-to-show-surface.c       |   69 +++++++++++++
- test/move_to_show_surface-ref.png |  Bin
+ test/move_to_show_surface-ref.png |  Bin 0 -> 100 bytes
  test/move_to_show_surface.c       |   69 +++++++++++++
  test/read-png.c                   |  166 ++++++++++++++++++++++++++++++++
  test/read-png.h                   |   45 +++++++++

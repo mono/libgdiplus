@@ -1,0 +1,139 @@
+
+SUBMAKEFILE = 1
+
+include ../Makefile.win32
+
+CFLAGS += -I../src -I../boilerplate -I./pdiff
+
+LDFLAGS += ./pdiff/pdiff.lib ../src/$(CFG)/cairo-static.lib $(PIXMAN_LIBS) ../boilerplate/$(CFG)/boiler.lib $(EXE_LDFLAGS)
+
+TESTS = 			\
+a8-mask				\
+caps-joins			\
+caps-joins-alpha		\
+caps-sub-paths			\
+clip-all			\
+clip-fill-rule			\
+clip-fill-rule-pixel-aligned	\
+clip-nesting			\
+clip-operator			\
+clip-twice			\
+composite-integer-translate-source \
+composite-integer-translate-over \
+composite-integer-translate-over-repeat \
+create-for-stream		\
+create-from-png			\
+create-from-png-stream		\
+dash-caps-joins			\
+dash-no-dash			\
+dash-offset-negative		\
+dash-scale			\
+dash-zero-length		\
+degenerate-path			\
+device-offset			\
+device-offset-positive		\
+extend-pad			\
+extend-reflect			\
+fill-and-stroke			\
+fill-and-stroke-alpha		\
+fill-and-stroke-alpha-add	\
+fill-rule			\
+filter-nearest-offset		\
+font-face-get-type		\
+font-matrix-translation		\
+glyph-cache-pressure		\
+get-and-set			\
+get-clip			\
+get-group-target		\
+get-path-extents		\
+gradient-alpha			\
+leaky-dash			\
+leaky-polygon			\
+line-width			\
+line-width-scale		\
+linear-gradient			\
+mask				\
+mask-ctm			\
+mask-surface-ctm		\
+move-to-show-surface		\
+new-sub-path			\
+nil-surface			\
+operator-clear			\
+operator-source			\
+paint				\
+paint-source-alpha		\
+paint-with-alpha		\
+pattern-get-type		\
+pattern-getters			\
+pixman-rotate			\
+rectangle-rounding-error	\
+scale-source-surface-paint	\
+select-font-face		\
+select-font-no-show-text	\
+self-copy			\
+self-intersecting		\
+set-source			\
+show-text-current-point		\
+source-clip			\
+source-surface-scale-paint	\
+surface-finish-twice		\
+surface-pattern			\
+text-antialias-gray		\
+text-antialias-none		\
+text-antialias-subpixel		\
+text-cache-crash		\
+text-pattern			\
+text-rotate			\
+transforms			\
+translate-show-surface		\
+trap-clip			\
+unantialiased-shapes		\
+unbounded-operator		\
+user-data			\
+rel-path                        \
+push-group			\
+zero-alpha			\
+$(NULL)
+
+TESTCORE_SOURCES = \
+	cairo-test.c \
+	buffer-diff.c \
+	$(NULL)
+
+TEST_EXE = $(patsubst %, $(CFG)/%.exe, $(TESTS))
+# TEST_EXE = $(addsuffix .exe,$(TESTS))
+
+all: $(TEST_EXE)
+
+$(CFG)/%.exe: %.c ./pdiff/pdiff.lib
+	@mkdir -p $(CFG)
+	@$(CC) $(CFLAGS) -Fe"$@" $<  $(TESTCORE_SOURCES) -link $(LDFLAGS)
+
+./pdiff/pdiff.lib:
+	(cd pdiff ; $(MAKE) -f Makefile.win32)
+
+test: $(TEST_EXE)
+	@for exe in $(TEST_EXE) ; do \
+		echo $$exe ; \
+		( ./$$exe || exit 0 ) ; \
+	done
+
+html:
+	@echo Creating index.html...
+	@perl make-html.pl > index.html
+
+clean:
+	@rm -f $(CFG)/*.obj $(CFG)/*.dll $(CFG)/*.lib $(CFG)/*.pdb $(CFG)/*.ilk $(CFG)/*.exe || exit 0
+
+inform:
+ifneq ($(CFG),release)
+ifneq ($(CFG),debug)
+	@echo "Invalid configuration "$(CFG)" specified."
+	@echo -n "You must specify a configuration when "
+	@echo "running make, e.g. make CFG=debug"
+	@echo
+	@echo -n "Possible choices for configuration are "
+	@echo "'release' and 'debug'"
+	@exit 1
+endif
+endif

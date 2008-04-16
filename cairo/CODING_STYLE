@@ -243,3 +243,28 @@ The return statement is often the best thing to use in a pattern like
 this. If it's not available due to additional nesting above which
 require some cleanup after the current block, then consider splitting
 the current block into a new function before using goto.
+
+Memory allocation
+-----------------
+
+Because much of cairo's data consists of dynamically allocated arrays,
+it's very easy to introduce integer overflow issues whenever malloc()
+is called.  Use the _cairo_malloc2(), _cairo_malloc3(), and
+_cairo_malloc2_add1 macros to avoid these cases; these macros check
+for overflow and will return NULL in that case.
+
+  malloc (n * size) => _cairo_malloc_ab (n, size)
+    e.g. malloc (num_elts * sizeof(some_type)) =>
+         _cairo_malloc2 (num_elts, sizeof(some_type))
+
+  malloc (a * b * size) => _cairo_malloc_abc (a, b, size)
+    e.g. malloc (width * height * 4) =>
+         _cairo_malloc3 (width, height, 4)
+
+  malloc (n * size + k) => _cairo_malloc_ab_plus_c (n, size, k)
+    e.g. malloc (num * sizeof(entry) + sizeof(header)) =>
+         _cairo_malloc2k (num, sizeof(entry), sizeof(header))
+
+In general, be wary of performing any arithmetic operations in an
+argument to malloc.  You should explicitly check for integer overflow
+yourself in any more complex situations.

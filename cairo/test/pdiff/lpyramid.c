@@ -20,7 +20,7 @@
 #include <string.h>
 
 struct _lpyramid {
-    /* Succesively blurred versions of the original image */
+    /* Successively blurred versions of the original image */
     float *levels[MAX_PYR_LEVELS];
 
     int width;
@@ -28,29 +28,32 @@ struct _lpyramid {
 };
 
 static void
-convolve (lpyramid_t *pyramid, float *a, float *b)
+convolve (lpyramid_t *pyramid, float *a, const float *b)
 /* convolves image b with the filter kernel and stores it in a */
 {
-    int y,x,i,j,nx,ny;
+    int y,x,i,j;
     const float Kernel[] = {0.05f, 0.25f, 0.4f, 0.25f, 0.05f};
     int width = pyramid->width;
     int height = pyramid->height;
 
     for (y=0; y<height; y++) {
 	for (x=0; x<width; x++) {
-	    int index = y * width + x;
-	    a[index] = 0.0f;
-	    for (i=-2; i<=2; i++) {
-		for (j=-2; j<=2; j++) {
-		    nx=x+i;
-		    ny=y+j;
+	    float sum = 0.f;
+	    for (j=-2; j<=2; j++) {
+		float sum_i = 0.f;
+		int ny=y+j;
+		if (ny<0) ny=-ny;
+		if (ny>=height) ny=2*height - ny - 1;
+		ny *= width;
+		for (i=-2; i<=2; i++) {
+		    int nx=x+i;
 		    if (nx<0) nx=-nx;
-		    if (ny<0) ny=-ny;
 		    if (nx>=width) nx=2*width - nx - 1;
-		    if (ny>=height) ny=2*height - ny - 1;
-		    a[index] += Kernel[i+2] * Kernel[j+2] * b[ny * width + nx];
+		    sum_i += Kernel[i+2] * b[ny + nx];
 		}
+		sum += sum_i * Kernel[j+2];
 	    }
+	    *a++ = sum;
 	}
     }
 }

@@ -58,8 +58,7 @@ static cairo_test_draw_function_t draw;
 
 cairo_test_t test = {
     "linear-gradient",
-    "Tests the drawing of linear gradients\n"
-    "PDF backend will not be tested due to limitations in poppler.",
+    "Tests the drawing of linear gradients\n",
     WIDTH, HEIGHT,
     draw
 };

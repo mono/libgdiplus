@@ -49,8 +49,12 @@ esac
 
 
 # some terminal codes ...
-printmsg() {
+boldface="`tput bold 2>/dev/null || true`"
+normal="`tput sgr0 2>/dev/null || true`"
+printbold() {
+    echo $ECHO_N "$boldface"
     echo "$@"
+    echo $ECHO_N "$normal"
 }
 printerr() {
     echo "$@" >&2
@@ -90,11 +94,11 @@ version_check() {
 
     vc_checkprog=`eval echo "\\$$vc_variable"`
     if [ -n "$vc_checkprog" ]; then
-	printmsg "using $vc_checkprog for $vc_package"
+	printbold "using $vc_checkprog for $vc_package"
 	return 0
     fi
 
-    printmsg "checking for $vc_package >= $vc_min_version..."
+    printbold "checking for $vc_package >= $vc_min_version..."
     for vc_checkprog in $vc_checkprogs; do
 	echo $ECHO_N "  testing $vc_checkprog... "
 	if $vc_checkprog --version < /dev/null > /dev/null 2>&1; then
@@ -187,9 +191,9 @@ cd $ORIGDIR || exit 1
 
 rm -f config.cache
 
-do_cmd $srcdir/configure \
-	--cache-file=config.cache \
-	--disable-static \
-	--enable-gtk-doc \
-	--enable-test-surfaces \
-	${1+"$@"} && echo "Now type \`make' to compile $PROJECT." || exit 1
+#do_cmd $srcdir/configure \
+#	--cache-file=config.cache \
+#	--disable-static \
+#	--enable-gtk-doc \
+#	--enable-test-surfaces \
+#	${1+"$@"} && echo "Now type \`make' to compile $PROJECT." || exit 1

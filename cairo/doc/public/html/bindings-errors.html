@@ -3,15 +3,13 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Error handling</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.72.0">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
 <link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
 <link rel="up" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
 <link rel="prev" href="bindings-streams.html" title="Streams and File I/O">
 <link rel="next" href="bindings-patterns.html" title="Patterns">
-<meta name="generator" content="GTK-Doc V1.8 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
-<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
-<link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
 <link rel="chapter" href="Drawing.html" title="Drawing">
 <link rel="chapter" href="Fonts.html" title="Fonts">
 <link rel="chapter" href="Surfaces.html" title="Surfaces">
@@ -19,6 +17,7 @@
 <link rel="index" href="ix01.html" title="Index">
 <link rel="index" href="index-1.2.html" title="Index of new symbols in 1.2">
 <link rel="index" href="index-1.4.html" title="Index of new symbols in 1.4">
+<link rel="index" href="index-1.6.html" title="Index of new symbols in 1.6">
 <link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -41,7 +40,7 @@
 	  When a method on an object fails, the object is put into
 	  an error state. Subsequent operations on the object do
 	  nothing. The status of the object can be queried with
-	  a function like <a href="cairo-cairo-t.html#cairo-status"><code class="function">status()</code></a>.
+	  a function like <a class="link" href="cairo-cairo-t.html#cairo-status"><code class="function">status()</code></a>.
       </p></li>
 <li>
 <p>
@@ -119,7 +118,7 @@ CAIRO_STATUS_WRITE_ERROR
       perhaps.) And <code class="constant">CAIRO_STATUS_READ_ERROR</code>,
       and <code class="constant">CAIRO_STATUS_WRITE_ERROR</code> can occur
       only in very specific places. (In fact, as described
-      in <a href="bindings-streams.html" title="Streams and File I/O">the section called &#8220;Streams and File I/O&#8221;</a>, these errors may be
+      in <a class="xref" href="bindings-streams.html" title="Streams and File I/O">the section called &#8220;Streams and File I/O&#8221;</a>, these errors may be
       mapped into the language's native I/O error types.)
       So, there really aren't exceptions that the programmer must
       handle at most points in the Cairo API.

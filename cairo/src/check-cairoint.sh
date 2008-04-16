@@ -12,6 +12,6 @@ while read x; do
 	grep '\<include\>' "$x" /dev/null | head -n 1
 done |
 grep -v '"cairoint.h"' |
-grep . && status = 1
+grep . && status=1
 
 exit $status

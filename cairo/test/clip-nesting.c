@@ -46,7 +46,7 @@ draw (cairo_t *cr, int width, int height)
     cairo_surface_t *target_surface;
     cairo_t *cr2, *cr3;
 
-    target_surface = cairo_get_target (cr);
+    target_surface = cairo_get_group_target (cr);
 
     cr2 = cairo_create (target_surface);
 

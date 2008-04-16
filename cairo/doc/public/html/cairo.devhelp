@@ -2,42 +2,42 @@
 <!DOCTYPE book PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "">
 <book xmlns="http://www.devhelp.net/book" title="Cairo: A Vector Graphics Library" link="index.html" author="" name="cairo">
   <chapters>
-    <sub name="Tutorial" link="pt01.html"/>
-    <sub name="Reference" link="pt02.html">
-      <sub name="Drawing" link="Drawing.html">
-        <sub name="cairo_t" link="cairo-cairo-t.html"/>
-        <sub name="Paths" link="cairo-Paths.html"/>
-        <sub name="Patterns" link="cairo-Patterns.html"/>
-        <sub name="Transformations" link="cairo-Transformations.html"/>
-        <sub name="Text" link="cairo-Text.html"/>
-      </sub>
-      <sub name="Fonts" link="Fonts.html">
-        <sub name="cairo_font_face_t" link="cairo-cairo-font-face-t.html"/>
-        <sub name="Scaled Fonts" link="cairo-Scaled-Fonts.html"/>
-        <sub name="Font Options" link="cairo-Font-Options.html"/>
-        <sub name="FreeType Fonts" link="cairo-FreeType-Fonts.html"/>
-        <sub name="Win32 Fonts" link="cairo-Win32-Fonts.html"/>
-      </sub>
-      <sub name="Surfaces" link="Surfaces.html">
-        <sub name="cairo_surface_t" link="cairo-cairo-surface-t.html"/>
-        <sub name="Image Surfaces" link="cairo-Image-Surfaces.html"/>
-        <sub name="PDF Surfaces" link="cairo-PDF-Surfaces.html"/>
-        <sub name="PNG Support" link="cairo-PNG-Support.html"/>
-        <sub name="PostScript Surfaces" link="cairo-PostScript-Surfaces.html"/>
-        <sub name="Win32 Surfaces" link="cairo-Win32-Surfaces.html"/>
-        <sub name="SVG Surfaces" link="cairo-SVG-Surfaces.html"/>
-        <sub name="XLib Surfaces" link="cairo-XLib-Surfaces.html"/>
-      </sub>
-      <sub name="Utilities" link="Support.html">
-        <sub name="cairo_matrix_t" link="cairo-cairo-matrix-t.html"/>
-        <sub name="Error handling" link="cairo-Error-Handling.html"/>
-        <sub name="Version Information" link="cairo-Version-Information.html"/>
-        <sub name="Types" link="cairo-Types.html"/>
-      </sub>
+    <sub name="Drawing" link="Drawing.html">
+      <sub name="cairo_t" link="cairo-cairo-t.html"/>
+      <sub name="Paths" link="cairo-Paths.html"/>
+      <sub name="cairo_pattern_t" link="cairo-Patterns.html"/>
+      <sub name="Transformations" link="cairo-Transformations.html"/>
+      <sub name="Text" link="cairo-Text.html"/>
+    </sub>
+    <sub name="Fonts" link="Fonts.html">
+      <sub name="cairo_font_face_t" link="cairo-cairo-font-face-t.html"/>
+      <sub name="cairo_scaled_font_t" link="cairo-Scaled-Fonts.html"/>
+      <sub name="cairo_font_options_t" link="cairo-Font-Options.html"/>
+      <sub name="FreeType Fonts" link="cairo-FreeType-Fonts.html"/>
+      <sub name="Win32 Fonts" link="cairo-Win32-Fonts.html"/>
+      <sub name="Quartz (CGFont) Fonts" link="cairo-Quartz-Fonts.html"/>
+    </sub>
+    <sub name="Surfaces" link="Surfaces.html">
+      <sub name="cairo_surface_t" link="cairo-cairo-surface-t.html"/>
+      <sub name="Image Surfaces" link="cairo-Image-Surfaces.html"/>
+      <sub name="PDF Surfaces" link="cairo-PDF-Surfaces.html"/>
+      <sub name="PNG Support" link="cairo-PNG-Support.html"/>
+      <sub name="PostScript Surfaces" link="cairo-PostScript-Surfaces.html"/>
+      <sub name="Win32 Surfaces" link="cairo-Win32-Surfaces.html"/>
+      <sub name="SVG Surfaces" link="cairo-SVG-Surfaces.html"/>
+      <sub name="Quartz Surfaces" link="cairo-Quartz-Surfaces.html"/>
+      <sub name="XLib Surfaces" link="cairo-XLib-Surfaces.html"/>
+    </sub>
+    <sub name="Utilities" link="Support.html">
+      <sub name="cairo_matrix_t" link="cairo-cairo-matrix-t.html"/>
+      <sub name="Error handling" link="cairo-Error-Handling.html"/>
+      <sub name="Version Information" link="cairo-Version-Information.html"/>
+      <sub name="Types" link="cairo-Types.html"/>
     </sub>
     <sub name="Index" link="ix01.html"/>
     <sub name="Index of new symbols in 1.2" link="index-1.2.html"/>
     <sub name="Index of new symbols in 1.4" link="index-1.4.html"/>
+    <sub name="Index of new symbols in 1.6" link="index-1.6.html"/>
     <sub name="Creating a language binding for cairo" link="language-bindings.html">
       <sub name="General considerations" link="language-bindings.html#bindings-general"/>
       <sub name="Memory management" link="bindings-memory.html"/>
@@ -119,6 +119,8 @@
     <function name="cairo_get_reference_count ()" link="cairo-cairo-t.html#cairo-get-reference-count"/>
     <function name="cairo_set_user_data ()" link="cairo-cairo-t.html#cairo-set-user-data"/>
     <function name="cairo_get_user_data ()" link="cairo-cairo-t.html#cairo-get-user-data"/>
+    <function name="" link="cairo-cairo-t.html#id2640743"/>
+    <function name="" link="cairo-cairo-t.html#id2640744"/>
     <function name="cairo_path_t" link="cairo-Paths.html#cairo-path-t"/>
     <function name="union cairo_path_data_t" link="cairo-Paths.html#cairo-path-data-t"/>
     <function name="enum cairo_path_data_type_t" link="cairo-Paths.html#cairo-path-data-type-t"/>
@@ -126,6 +128,7 @@
     <function name="cairo_copy_path_flat ()" link="cairo-Paths.html#cairo-copy-path-flat"/>
     <function name="cairo_path_destroy ()" link="cairo-Paths.html#cairo-path-destroy"/>
     <function name="cairo_append_path ()" link="cairo-Paths.html#cairo-append-path"/>
+    <function name="cairo_has_current_point ()" link="cairo-Paths.html#cairo-has-current-point"/>
     <function name="cairo_get_current_point ()" link="cairo-Paths.html#cairo-get-current-point"/>
     <function name="cairo_new_path ()" link="cairo-Paths.html#cairo-new-path"/>
     <function name="cairo_new_sub_path ()" link="cairo-Paths.html#cairo-new-sub-path"/>
@@ -141,6 +144,9 @@
     <function name="cairo_rel_curve_to ()" link="cairo-Paths.html#cairo-rel-curve-to"/>
     <function name="cairo_rel_line_to ()" link="cairo-Paths.html#cairo-rel-line-to"/>
     <function name="cairo_rel_move_to ()" link="cairo-Paths.html#cairo-rel-move-to"/>
+    <function name="cairo_path_extents ()" link="cairo-Paths.html#cairo-path-extents"/>
+    <function name="" link="cairo-Paths.html#id2581909"/>
+    <function name="" link="cairo-Paths.html#id2581910"/>
     <function name="cairo_pattern_t" link="cairo-Patterns.html#cairo-pattern-t"/>
     <function name="cairo_pattern_add_color_stop_rgb ()" link="cairo-Patterns.html#cairo-pattern-add-color-stop-rgb"/>
     <function name="cairo_pattern_add_color_stop_rgba ()" link="cairo-Patterns.html#cairo-pattern-add-color-stop-rgba"/>
@@ -171,6 +177,8 @@
     <function name="cairo_pattern_get_reference_count ()" link="cairo-Patterns.html#cairo-pattern-get-reference-count"/>
     <function name="cairo_pattern_set_user_data ()" link="cairo-Patterns.html#cairo-pattern-set-user-data"/>
     <function name="cairo_pattern_get_user_data ()" link="cairo-Patterns.html#cairo-pattern-get-user-data"/>
+    <function name="" link="cairo-Patterns.html#id2647285"/>
+    <function name="" link="cairo-Patterns.html#id2647286"/>
     <function name="cairo_translate ()" link="cairo-Transformations.html#cairo-translate"/>
     <function name="cairo_scale ()" link="cairo-Transformations.html#cairo-scale"/>
     <function name="cairo_rotate ()" link="cairo-Transformations.html#cairo-rotate"/>
@@ -182,6 +190,8 @@
     <function name="cairo_user_to_device_distance ()" link="cairo-Transformations.html#cairo-user-to-device-distance"/>
     <function name="cairo_device_to_user ()" link="cairo-Transformations.html#cairo-device-to-user"/>
     <function name="cairo_device_to_user_distance ()" link="cairo-Transformations.html#cairo-device-to-user-distance"/>
+    <function name="" link="cairo-Transformations.html#id2594910"/>
+    <function name="" link="cairo-Transformations.html#id2594911"/>
     <function name="cairo_glyph_t" link="cairo-Text.html#cairo-glyph-t"/>
     <function name="enum cairo_font_slant_t" link="cairo-Text.html#cairo-font-slant-t"/>
     <function name="enum cairo_font_weight_t" link="cairo-Text.html#cairo-font-weight-t"/>
@@ -200,6 +210,8 @@
     <function name="cairo_font_extents ()" link="cairo-Text.html#cairo-font-extents"/>
     <function name="cairo_text_extents ()" link="cairo-Text.html#cairo-text-extents"/>
     <function name="cairo_glyph_extents ()" link="cairo-Text.html#cairo-glyph-extents"/>
+    <function name="" link="cairo-Text.html#id2649006"/>
+    <function name="" link="cairo-Text.html#id2649008"/>
     <function name="cairo_font_face_t" link="cairo-cairo-font-face-t.html#cairo-font-face-t"/>
     <function name="cairo_font_face_reference ()" link="cairo-cairo-font-face-t.html#cairo-font-face-reference"/>
     <function name="cairo_font_face_destroy ()" link="cairo-cairo-font-face-t.html#cairo-font-face-destroy"/>
@@ -209,6 +221,8 @@
     <function name="cairo_font_face_get_reference_count ()" link="cairo-cairo-font-face-t.html#cairo-font-face-get-reference-count"/>
     <function name="cairo_font_face_set_user_data ()" link="cairo-cairo-font-face-t.html#cairo-font-face-set-user-data"/>
     <function name="cairo_font_face_get_user_data ()" link="cairo-cairo-font-face-t.html#cairo-font-face-get-user-data"/>
+    <function name="" link="cairo-cairo-font-face-t.html#id2626812"/>
+    <function name="" link="cairo-cairo-font-face-t.html#id2626813"/>
     <function name="cairo_scaled_font_t" link="cairo-Scaled-Fonts.html#cairo-scaled-font-t"/>
     <function name="cairo_scaled_font_create ()" link="cairo-Scaled-Fonts.html#cairo-scaled-font-create"/>
     <function name="cairo_scaled_font_reference ()" link="cairo-Scaled-Fonts.html#cairo-scaled-font-reference"/>
@@ -227,6 +241,8 @@
     <function name="cairo_scaled_font_get_reference_count ()" link="cairo-Scaled-Fonts.html#cairo-scaled-font-get-reference-count"/>
     <function name="cairo_scaled_font_set_user_data ()" link="cairo-Scaled-Fonts.html#cairo-scaled-font-set-user-data"/>
     <function name="cairo_scaled_font_get_user_data ()" link="cairo-Scaled-Fonts.html#cairo-scaled-font-get-user-data"/>
+    <function name="" link="cairo-Scaled-Fonts.html#id2653949"/>
+    <function name="" link="cairo-Scaled-Fonts.html#id2653950"/>
     <function name="cairo_font_options_t" link="cairo-Font-Options.html#cairo-font-options-t"/>
     <function name="cairo_font_options_create ()" link="cairo-Font-Options.html#cairo-font-options-create"/>
     <function name="cairo_font_options_copy ()" link="cairo-Font-Options.html#cairo-font-options-copy"/>
@@ -246,18 +262,32 @@
     <function name="enum cairo_hint_metrics_t" link="cairo-Font-Options.html#cairo-hint-metrics-t"/>
     <function name="cairo_font_options_set_hint_metrics ()" link="cairo-Font-Options.html#cairo-font-options-set-hint-metrics"/>
     <function name="cairo_font_options_get_hint_metrics ()" link="cairo-Font-Options.html#cairo-font-options-get-hint-metrics"/>
+    <function name="" link="cairo-Font-Options.html#id2656035"/>
+    <function name="" link="cairo-Font-Options.html#id2656036"/>
+    <function name="CAIRO_HAS_FT_FONT" link="cairo-FreeType-Fonts.html#CAIRO-HAS-FT-FONT:CAPS"/>
     <function name="cairo_ft_font_face_create_for_ft_face ()" link="cairo-FreeType-Fonts.html#cairo-ft-font-face-create-for-ft-face"/>
     <function name="cairo_ft_font_face_create_for_pattern ()" link="cairo-FreeType-Fonts.html#cairo-ft-font-face-create-for-pattern"/>
     <function name="cairo_ft_font_options_substitute ()" link="cairo-FreeType-Fonts.html#cairo-ft-font-options-substitute"/>
     <function name="cairo_ft_scaled_font_lock_face ()" link="cairo-FreeType-Fonts.html#cairo-ft-scaled-font-lock-face"/>
     <function name="cairo_ft_scaled_font_unlock_face ()" link="cairo-FreeType-Fonts.html#cairo-ft-scaled-font-unlock-face"/>
+    <function name="" link="cairo-FreeType-Fonts.html#id2649199"/>
+    <function name="" link="cairo-FreeType-Fonts.html#id2649200"/>
+    <function name="CAIRO_HAS_WIN32_FONT" link="cairo-Win32-Fonts.html#CAIRO-HAS-WIN32-FONT:CAPS"/>
     <function name="cairo_win32_font_face_create_for_logfontw ()" link="cairo-Win32-Fonts.html#cairo-win32-font-face-create-for-logfontw"/>
     <function name="cairo_win32_font_face_create_for_hfont ()" link="cairo-Win32-Fonts.html#cairo-win32-font-face-create-for-hfont"/>
+    <function name="cairo_win32_font_face_create_for_logfontw_hfont ()" link="cairo-Win32-Fonts.html#cairo-win32-font-face-create-for-logfontw-hfont"/>
     <function name="cairo_win32_scaled_font_select_font ()" link="cairo-Win32-Fonts.html#cairo-win32-scaled-font-select-font"/>
     <function name="cairo_win32_scaled_font_done_font ()" link="cairo-Win32-Fonts.html#cairo-win32-scaled-font-done-font"/>
     <function name="cairo_win32_scaled_font_get_metrics_factor ()" link="cairo-Win32-Fonts.html#cairo-win32-scaled-font-get-metrics-factor"/>
     <function name="cairo_win32_scaled_font_get_logical_to_device ()" link="cairo-Win32-Fonts.html#cairo-win32-scaled-font-get-logical-to-device"/>
     <function name="cairo_win32_scaled_font_get_device_to_logical ()" link="cairo-Win32-Fonts.html#cairo-win32-scaled-font-get-device-to-logical"/>
+    <function name="" link="cairo-Win32-Fonts.html#id2650776"/>
+    <function name="" link="cairo-Win32-Fonts.html#id2650777"/>
+    <function name="CAIRO_HAS_QUARTZ_FONT" link="cairo-Quartz-Fonts.html#CAIRO-HAS-QUARTZ-FONT:CAPS"/>
+    <function name="cairo_quartz_font_face_create_for_cgfont ()" link="cairo-Quartz-Fonts.html#cairo-quartz-font-face-create-for-cgfont"/>
+    <function name="cairo_quartz_font_face_create_for_atsu_font_id ()" link="cairo-Quartz-Fonts.html#cairo-quartz-font-face-create-for-atsu-font-id"/>
+    <function name="" link="cairo-Quartz-Fonts.html#id2621300"/>
+    <function name="" link="cairo-Quartz-Fonts.html#id2621301"/>
     <function name="cairo_surface_t" link="cairo-cairo-surface-t.html#cairo-surface-t"/>
     <function name="enum cairo_content_t" link="cairo-cairo-surface-t.html#cairo-content-t"/>
     <function name="cairo_surface_create_similar ()" link="cairo-cairo-surface-t.html#cairo-surface-create-similar"/>
@@ -278,7 +308,12 @@
     <function name="cairo_surface_get_reference_count ()" link="cairo-cairo-surface-t.html#cairo-surface-get-reference-count"/>
     <function name="cairo_surface_set_user_data ()" link="cairo-cairo-surface-t.html#cairo-surface-set-user-data"/>
     <function name="cairo_surface_get_user_data ()" link="cairo-cairo-surface-t.html#cairo-surface-get-user-data"/>
+    <function name="cairo_surface_copy_page ()" link="cairo-cairo-surface-t.html#cairo-surface-copy-page"/>
+    <function name="cairo_surface_show_page ()" link="cairo-cairo-surface-t.html#cairo-surface-show-page"/>
+    <function name="" link="cairo-cairo-surface-t.html#id2664358"/>
+    <function name="" link="cairo-cairo-surface-t.html#id2664359"/>
     <function name="enum cairo_format_t" link="cairo-Image-Surfaces.html#cairo-format-t"/>
+    <function name="cairo_format_stride_for_width ()" link="cairo-Image-Surfaces.html#cairo-format-stride-for-width"/>
     <function name="cairo_image_surface_create ()" link="cairo-Image-Surfaces.html#cairo-image-surface-create"/>
     <function name="cairo_image_surface_create_for_data ()" link="cairo-Image-Surfaces.html#cairo-image-surface-create-for-data"/>
     <function name="cairo_image_surface_get_data ()" link="cairo-Image-Surfaces.html#cairo-image-surface-get-data"/>
@@ -286,32 +321,63 @@
     <function name="cairo_image_surface_get_width ()" link="cairo-Image-Surfaces.html#cairo-image-surface-get-width"/>
     <function name="cairo_image_surface_get_height ()" link="cairo-Image-Surfaces.html#cairo-image-surface-get-height"/>
     <function name="cairo_image_surface_get_stride ()" link="cairo-Image-Surfaces.html#cairo-image-surface-get-stride"/>
+    <function name="" link="cairo-Image-Surfaces.html#id2661058"/>
+    <function name="" link="cairo-Image-Surfaces.html#id2661059"/>
+    <function name="CAIRO_HAS_PDF_SURFACE" link="cairo-PDF-Surfaces.html#CAIRO-HAS-PDF-SURFACE:CAPS"/>
     <function name="cairo_pdf_surface_create ()" link="cairo-PDF-Surfaces.html#cairo-pdf-surface-create"/>
     <function name="cairo_pdf_surface_create_for_stream ()" link="cairo-PDF-Surfaces.html#cairo-pdf-surface-create-for-stream"/>
     <function name="cairo_pdf_surface_set_size ()" link="cairo-PDF-Surfaces.html#cairo-pdf-surface-set-size"/>
+    <function name="" link="cairo-PDF-Surfaces.html#id2661070"/>
+    <function name="" link="cairo-PDF-Surfaces.html#id2661071"/>
+    <function name="CAIRO_HAS_PNG_FUNCTIONS" link="cairo-PNG-Support.html#CAIRO-HAS-PNG-FUNCTIONS:CAPS"/>
     <function name="cairo_image_surface_create_from_png ()" link="cairo-PNG-Support.html#cairo-image-surface-create-from-png"/>
     <function name="cairo_read_func_t ()" link="cairo-PNG-Support.html#cairo-read-func-t"/>
     <function name="cairo_image_surface_create_from_png_stream ()" link="cairo-PNG-Support.html#cairo-image-surface-create-from-png-stream"/>
     <function name="cairo_surface_write_to_png ()" link="cairo-PNG-Support.html#cairo-surface-write-to-png"/>
     <function name="cairo_write_func_t ()" link="cairo-PNG-Support.html#cairo-write-func-t"/>
     <function name="cairo_surface_write_to_png_stream ()" link="cairo-PNG-Support.html#cairo-surface-write-to-png-stream"/>
+    <function name="" link="cairo-PNG-Support.html#id2657493"/>
+    <function name="" link="cairo-PNG-Support.html#id2657494"/>
+    <function name="CAIRO_HAS_PS_SURFACE" link="cairo-PostScript-Surfaces.html#CAIRO-HAS-PS-SURFACE:CAPS"/>
     <function name="cairo_ps_surface_create ()" link="cairo-PostScript-Surfaces.html#cairo-ps-surface-create"/>
     <function name="cairo_ps_surface_create_for_stream ()" link="cairo-PostScript-Surfaces.html#cairo-ps-surface-create-for-stream"/>
+    <function name="cairo_ps_surface_restrict_to_level ()" link="cairo-PostScript-Surfaces.html#cairo-ps-surface-restrict-to-level"/>
+    <function name="enum cairo_ps_level_t" link="cairo-PostScript-Surfaces.html#cairo-ps-level-t"/>
+    <function name="cairo_ps_get_levels ()" link="cairo-PostScript-Surfaces.html#cairo-ps-get-levels"/>
+    <function name="cairo_ps_level_to_string ()" link="cairo-PostScript-Surfaces.html#cairo-ps-level-to-string"/>
+    <function name="cairo_ps_surface_set_eps ()" link="cairo-PostScript-Surfaces.html#cairo-ps-surface-set-eps"/>
+    <function name="cairo_ps_surface_get_eps ()" link="cairo-PostScript-Surfaces.html#cairo-ps-surface-get-eps"/>
     <function name="cairo_ps_surface_set_size ()" link="cairo-PostScript-Surfaces.html#cairo-ps-surface-set-size"/>
     <function name="cairo_ps_surface_dsc_begin_setup ()" link="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-begin-setup"/>
     <function name="cairo_ps_surface_dsc_begin_page_setup ()" link="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-begin-page-setup"/>
     <function name="cairo_ps_surface_dsc_comment ()" link="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment"/>
+    <function name="" link="cairo-PostScript-Surfaces.html#id2669043"/>
+    <function name="" link="cairo-PostScript-Surfaces.html#id2669044"/>
+    <function name="CAIRO_HAS_WIN32_SURFACE" link="cairo-Win32-Surfaces.html#CAIRO-HAS-WIN32-SURFACE:CAPS"/>
     <function name="cairo_win32_surface_create ()" link="cairo-Win32-Surfaces.html#cairo-win32-surface-create"/>
     <function name="cairo_win32_surface_create_with_dib ()" link="cairo-Win32-Surfaces.html#cairo-win32-surface-create-with-dib"/>
     <function name="cairo_win32_surface_create_with_ddb ()" link="cairo-Win32-Surfaces.html#cairo-win32-surface-create-with-ddb"/>
+    <function name="cairo_win32_printing_surface_create ()" link="cairo-Win32-Surfaces.html#cairo-win32-printing-surface-create"/>
     <function name="cairo_win32_surface_get_dc ()" link="cairo-Win32-Surfaces.html#cairo-win32-surface-get-dc"/>
     <function name="cairo_win32_surface_get_image ()" link="cairo-Win32-Surfaces.html#cairo-win32-surface-get-image"/>
+    <function name="" link="cairo-Win32-Surfaces.html#id2664698"/>
+    <function name="" link="cairo-Win32-Surfaces.html#id2664699"/>
+    <function name="CAIRO_HAS_SVG_SURFACE" link="cairo-SVG-Surfaces.html#CAIRO-HAS-SVG-SURFACE:CAPS"/>
     <function name="cairo_svg_surface_create ()" link="cairo-SVG-Surfaces.html#cairo-svg-surface-create"/>
     <function name="cairo_svg_surface_create_for_stream ()" link="cairo-SVG-Surfaces.html#cairo-svg-surface-create-for-stream"/>
     <function name="cairo_svg_surface_restrict_to_version ()" link="cairo-SVG-Surfaces.html#cairo-svg-surface-restrict-to-version"/>
     <function name="enum cairo_svg_version_t" link="cairo-SVG-Surfaces.html#cairo-svg-version-t"/>
     <function name="cairo_svg_get_versions ()" link="cairo-SVG-Surfaces.html#cairo-svg-get-versions"/>
     <function name="cairo_svg_version_to_string ()" link="cairo-SVG-Surfaces.html#cairo-svg-version-to-string"/>
+    <function name="" link="cairo-SVG-Surfaces.html#id2665898"/>
+    <function name="" link="cairo-SVG-Surfaces.html#id2665899"/>
+    <function name="CAIRO_HAS_QUARTZ_SURFACE" link="cairo-Quartz-Surfaces.html#CAIRO-HAS-QUARTZ-SURFACE:CAPS"/>
+    <function name="cairo_quartz_surface_create ()" link="cairo-Quartz-Surfaces.html#cairo-quartz-surface-create"/>
+    <function name="cairo_quartz_surface_create_for_cg_context ()" link="cairo-Quartz-Surfaces.html#cairo-quartz-surface-create-for-cg-context"/>
+    <function name="cairo_quartz_surface_get_cg_context ()" link="cairo-Quartz-Surfaces.html#cairo-quartz-surface-get-cg-context"/>
+    <function name="" link="cairo-Quartz-Surfaces.html#id2665955"/>
+    <function name="" link="cairo-Quartz-Surfaces.html#id2665956"/>
+    <function name="CAIRO_HAS_XLIB_SURFACE" link="cairo-XLib-Surfaces.html#CAIRO-HAS-XLIB-SURFACE:CAPS"/>
     <function name="cairo_xlib_surface_create ()" link="cairo-XLib-Surfaces.html#cairo-xlib-surface-create"/>
     <function name="cairo_xlib_surface_create_for_bitmap ()" link="cairo-XLib-Surfaces.html#cairo-xlib-surface-create-for-bitmap"/>
     <function name="cairo_xlib_surface_set_size ()" link="cairo-XLib-Surfaces.html#cairo-xlib-surface-set-size"/>
@@ -323,6 +389,8 @@
     <function name="cairo_xlib_surface_get_width ()" link="cairo-XLib-Surfaces.html#cairo-xlib-surface-get-width"/>
     <function name="cairo_xlib_surface_get_height ()" link="cairo-XLib-Surfaces.html#cairo-xlib-surface-get-height"/>
     <function name="cairo_xlib_surface_get_depth ()" link="cairo-XLib-Surfaces.html#cairo-xlib-surface-get-depth"/>
+    <function name="" link="cairo-XLib-Surfaces.html#id2673040"/>
+    <function name="" link="cairo-XLib-Surfaces.html#id2673041"/>
     <function name="cairo_matrix_t" link="cairo-cairo-matrix-t.html#cairo-matrix-t"/>
     <function name="cairo_matrix_init ()" link="cairo-cairo-matrix-t.html#cairo-matrix-init"/>
     <function name="cairo_matrix_init_identity ()" link="cairo-cairo-matrix-t.html#cairo-matrix-init-identity"/>
@@ -336,11 +404,15 @@
     <function name="cairo_matrix_multiply ()" link="cairo-cairo-matrix-t.html#cairo-matrix-multiply"/>
     <function name="cairo_matrix_transform_distance ()" link="cairo-cairo-matrix-t.html#cairo-matrix-transform-distance"/>
     <function name="cairo_matrix_transform_point ()" link="cairo-cairo-matrix-t.html#cairo-matrix-transform-point"/>
+    <function name="" link="cairo-cairo-matrix-t.html#id2676349"/>
+    <function name="" link="cairo-cairo-matrix-t.html#id2676350"/>
     <function name="enum cairo_status_t" link="cairo-Error-Handling.html#cairo-status-t"/>
     <function name="cairo_status_to_string ()" link="cairo-Error-Handling.html#cairo-status-to-string"/>
     <function name="cairo_debug_reset_static_data ()" link="cairo-Error-Handling.html#cairo-debug-reset-static-data"/>
-    <function name="Compatibility" link="cairo-Version-Information.html#id2651090"/>
-    <function name="Examining the version" link="cairo-Version-Information.html#id2651129"/>
+    <function name="" link="cairo-Error-Handling.html#id2674500"/>
+    <function name="" link="cairo-Error-Handling.html#id2674501"/>
+    <function name="Compatibility" link="cairo-Version-Information.html#id2671297"/>
+    <function name="Examining the version" link="cairo-Version-Information.html#id2671336"/>
     <function name="CAIRO_VERSION" link="cairo-Version-Information.html#CAIRO-VERSION:CAPS"/>
     <function name="CAIRO_VERSION_MAJOR" link="cairo-Version-Information.html#CAIRO-VERSION-MAJOR:CAPS"/>
     <function name="CAIRO_VERSION_MINOR" link="cairo-Version-Information.html#CAIRO-VERSION-MINOR:CAPS"/>
@@ -349,8 +421,12 @@
     <function name="CAIRO_VERSION_ENCODE()" link="cairo-Version-Information.html#CAIRO-VERSION-ENCODE:CAPS"/>
     <function name="cairo_version ()" link="cairo-Version-Information.html#cairo-version"/>
     <function name="cairo_version_string ()" link="cairo-Version-Information.html#cairo-version-string"/>
+    <function name="" link="cairo-Version-Information.html#id2674697"/>
+    <function name="" link="cairo-Version-Information.html#id2674698"/>
     <function name="cairo_bool_t" link="cairo-Types.html#cairo-bool-t"/>
     <function name="cairo_user_data_key_t" link="cairo-Types.html#cairo-user-data-key-t"/>
     <function name="cairo_destroy_func_t ()" link="cairo-Types.html#cairo-destroy-func-t"/>
+    <function name="" link="cairo-Types.html#id2670025"/>
+    <function name="" link="cairo-Types.html#id2670026"/>
   </functions>
 </book>

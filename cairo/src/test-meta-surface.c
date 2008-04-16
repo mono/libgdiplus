@@ -63,7 +63,7 @@ typedef struct _test_meta_surface {
     cairo_bool_t image_reflects_meta;
 } test_meta_surface_t;
 
-const cairo_private cairo_surface_backend_t test_meta_surface_backend;
+static const cairo_surface_backend_t test_meta_surface_backend;
 
 static cairo_int_status_t
 _test_meta_surface_show_page (void *abstract_surface);
@@ -74,21 +74,26 @@ _cairo_test_meta_surface_create (cairo_content_t	content,
 			   int		 	height)
 {
     test_meta_surface_t *surface;
+    cairo_status_t status;
 
     surface = malloc (sizeof (test_meta_surface_t));
-    if (surface == NULL)
+    if (surface == NULL) {
+	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto FAIL;
+    }
 
     _cairo_surface_init (&surface->base, &test_meta_surface_backend,
 			 content);
 
     surface->meta = _cairo_meta_surface_create (content, width, height);
-    if (cairo_surface_status (surface->meta))
+    status = cairo_surface_status (surface->meta);
+    if (status)
 	goto FAIL_CLEANUP_SURFACE;
 
     surface->image = _cairo_image_surface_create_with_content (content,
 							       width, height);
-    if (cairo_surface_status (surface->image))
+    status = cairo_surface_status (surface->image);
+    if (status)
 	goto FAIL_CLEANUP_META;
 
     surface->image_reflects_meta = FALSE;
@@ -100,8 +105,7 @@ _cairo_test_meta_surface_create (cairo_content_t	content,
   FAIL_CLEANUP_SURFACE:
     free (surface);
   FAIL:
-    _cairo_error (CAIRO_STATUS_NO_MEMORY);
-    return (cairo_surface_t*) &_cairo_surface_nil;
+    return _cairo_surface_create_in_error (status);
 }
 
 static cairo_status_t
@@ -121,9 +125,13 @@ _test_meta_surface_acquire_source_image (void		  *abstract_surface,
 					 void			**image_extra)
 {
     test_meta_surface_t *surface = abstract_surface;
+    cairo_status_t status;
 
-    if (! surface->image_reflects_meta)
-	_test_meta_surface_show_page (abstract_surface);
+    if (! surface->image_reflects_meta) {
+	status = _test_meta_surface_show_page (abstract_surface);
+	if (status)
+	    return status;
+    }
 
     return _cairo_surface_acquire_source_image (surface->image,
 						image_out, image_extra);
@@ -174,7 +182,7 @@ _test_meta_surface_intersect_clip_path (void			*abstract_surface,
 
 static cairo_int_status_t
 _test_meta_surface_get_extents (void			*abstract_surface,
-				cairo_rectangle_int16_t	*rectangle)
+				cairo_rectangle_int_t	*rectangle)
 {
     test_meta_surface_t *surface = abstract_surface;
 
@@ -300,12 +308,12 @@ _test_meta_surface_snapshot (void *abstract_other)
 #if 0
     return _cairo_surface_snapshot (other->meta);
 #else
-    cairo_rectangle_int16_t extents;
+    cairo_rectangle_int_t extents;
     cairo_surface_t *surface;
 
     status = _cairo_surface_get_extents (other->image, &extents);
     if (status)
-	return (cairo_surface_t*) &_cairo_surface_nil;
+	return _cairo_surface_create_in_error (status);
 
     surface = cairo_surface_create_similar (other->image,
 					    CAIRO_CONTENT_COLOR_ALPHA,
@@ -315,14 +323,14 @@ _test_meta_surface_snapshot (void *abstract_other)
     status = _cairo_meta_surface_replay (other->meta, surface);
     if (status) {
 	cairo_surface_destroy (surface);
-	surface = (cairo_surface_t*) &_cairo_surface_nil;
+	surface = _cairo_surface_create_in_error (status);
     }
 
     return surface;
 #endif
 }
 
-const cairo_surface_backend_t test_meta_surface_backend = {
+static const cairo_surface_backend_t test_meta_surface_backend = {
     CAIRO_INTERNAL_SURFACE_TYPE_TEST_META,
     NULL, /* create_similar */
     _test_meta_surface_finish,

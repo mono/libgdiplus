@@ -1,12 +1,14 @@
 <!-- ##### SECTION ./tmpl/cairo-atsui.sgml:Long_Description ##### -->
 <para>
-
+The ATSUI font backend is primarily used to render text on Apple OS X systems.
 </para>
 
 
 <!-- ##### SECTION ./tmpl/cairo-atsui.sgml:See_Also ##### -->
 <para>
-
+<itemizedlist>
+<listitem>#cairo_font_face_t</listitem>
+</itemizedlist>
 </para>
 
 
@@ -24,13 +26,16 @@ ATSUI Fonts
 
 <!-- ##### SECTION ./tmpl/cairo-beos.sgml:Long_Description ##### -->
 <para>
-
+The BeOS surface is used to render cairo graphics to
+BeOS views and bitmaps.
 </para>
 
 
 <!-- ##### SECTION ./tmpl/cairo-beos.sgml:See_Also ##### -->
 <para>
-
+<itemizedlist>
+<listitem>#cairo_surface_t</listitem>
+</itemizedlist>
 </para>
 
 
@@ -48,13 +53,16 @@ BeOS Surfaces
 
 <!-- ##### SECTION ./tmpl/cairo-glitz.sgml:Long_Description ##### -->
 <para>
-
+The Glitz surface is used to render cairo graphics targeting the
+OpenGL hardware using the Glitz library.
 </para>
 
 
 <!-- ##### SECTION ./tmpl/cairo-glitz.sgml:See_Also ##### -->
 <para>
-
+<itemizedlist>
+<listitem>#cairo_surface_t</listitem>
+</itemizedlist>
 </para>
 
 
@@ -70,44 +78,27 @@ OpenGL accelerated rendering using the Glitz library
 Glitz Surfaces
 
 
-<!-- ##### SECTION ./tmpl/cairo-quartz.sgml:Long_Description ##### -->
-<para>
-
-</para>
-
-
-<!-- ##### SECTION ./tmpl/cairo-quartz.sgml:See_Also ##### -->
-<para>
-
-</para>
-
-
-<!-- ##### SECTION ./tmpl/cairo-quartz.sgml:Short_Description ##### -->
-Rendering to Quartz surfaces
-
-
-<!-- ##### SECTION ./tmpl/cairo-quartz.sgml:Stability_Level ##### -->
-
-
-
-<!-- ##### SECTION ./tmpl/cairo-quartz.sgml:Title ##### -->
-Quartz Surfaces
-
-
 <!-- ##### SECTION ./tmpl/cairo-xcb-xrender.sgml:Long_Description ##### -->
 <para>
-
+The XCB surface is used to render cairo graphics to X Window System
+windows and pixmaps using the XCB library and its X Render extension.
+</para>
+<para>
+Note that the XCB surface automatically takes advantage of the X Render
+extension if it is available.
 </para>
 
 
 <!-- ##### SECTION ./tmpl/cairo-xcb-xrender.sgml:See_Also ##### -->
 <para>
-
+<itemizedlist>
+<listitem>#cairo_surface_t</listitem>
+</itemizedlist>
 </para>
 
 
 <!-- ##### SECTION ./tmpl/cairo-xcb-xrender.sgml:Short_Description ##### -->
-X Window System rendering using the XCB library
+X Window System rendering using the XCB library and the X Render extension
 
 
 <!-- ##### SECTION ./tmpl/cairo-xcb-xrender.sgml:Stability_Level ##### -->
@@ -120,13 +111,20 @@ XCB Surfaces
 
 <!-- ##### SECTION ./tmpl/cairo-xcb.sgml:Long_Description ##### -->
 <para>
-
+The XCB surface is used to render cairo graphics to X Window System
+windows and pixmaps using the XCB library.
+</para>
+<para>
+Note that the XCB surface automatically takes advantage of the X render
+extension if it is available.
 </para>
 
 
 <!-- ##### SECTION ./tmpl/cairo-xcb.sgml:See_Also ##### -->
 <para>
-
+<itemizedlist>
+<listitem>#cairo_surface_t</listitem>
+</itemizedlist>
 </para>
 
 

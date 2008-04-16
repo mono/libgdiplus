@@ -4,7 +4,7 @@ One of the simplest ways to run the performance suite is:
 
     make perf
 
-while will give a report of the speed of each indivudual test. See
+which will give a report of the speed of each individual test. See
 more details on other options for running the suite below.
 
 Running the cairo performance suite
@@ -25,7 +25,7 @@ examples of running it:
     ./cairo-perf -r -i 10 paint >> cairo.perf
 
 Raw results aren't useful for reading directly, but are quite useful
-when using cairo-perf-diff to compare spearate runs (see more
+when using cairo-perf-diff to compare separate runs (see more
 below). The advantage of using the raw mode is that test runs can be
 generated incrementally and appended to existing reports.
 
@@ -71,7 +71,7 @@ example:
     ./cairo-perf-diff aa883123d2af90
 
 Also, when passing git revisions to cairo-perf-diff like this, it will
-automatically cache results and re-use them rather than re-rerunning
+automatically cache results and re-use them rather than re-running
 cairo-perf over and over on the same versions. This means that if you
 ask for a report that you've generated in the past, cairo-perf-diff
 should return it immediately.

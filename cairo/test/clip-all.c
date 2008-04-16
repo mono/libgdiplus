@@ -62,6 +62,16 @@ draw (cairo_t *cr, int width, int height)
     cairo_set_source_rgb (cr, 1, 1, 0);
     cairo_fill (cr);
 
+    /* https://bugs.freedesktop.org/show_bug.cgi?id=13084 */
+    cairo_select_font_face (cr,
+	                    "Bitstream Vera Sans",
+			    CAIRO_FONT_SLANT_NORMAL,
+			    CAIRO_FONT_WEIGHT_NORMAL);
+
+    cairo_move_to (cr, 0., SIZE);
+    cairo_show_text (cr, "cairo");
+
+
     return CAIRO_TEST_SUCCESS;
 }
 

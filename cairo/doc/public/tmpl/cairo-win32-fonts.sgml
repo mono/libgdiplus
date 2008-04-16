@@ -6,15 +6,26 @@ Font support for Microsoft Windows
 
 <!-- ##### SECTION Long_Description ##### -->
 <para>
-
+The Microsoft Windows font backend is primarily used to render text on
+Microsoft Windows systems.
 </para>
 
 <!-- ##### SECTION See_Also ##### -->
 <para>
-
+<itemizedlist>
+<listitem>#cairo_font_face_t</listitem>
+</itemizedlist>
 </para>
 
 <!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### MACRO CAIRO_HAS_WIN32_FONT ##### -->
+<para>
+Defined if the Microsoft Windows font backend is available.
+This macro can be used to conditionally compile backend-specific code.
+</para>
+
 
 
 <!-- ##### FUNCTION cairo_win32_font_face_create_for_logfontw ##### -->
@@ -31,6 +42,16 @@ Font support for Microsoft Windows
 
 </para>
 
+@font: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_win32_font_face_create_for_logfontw_hfont ##### -->
+<para>
+
+</para>
+
+@logfont: 
 @font: 
 @Returns: 
 

@@ -38,14 +38,12 @@ cairo_test_t test = {
 
 #define CHECK_SUCCESS do { if (status) return CAIRO_TEST_FAILURE; } while (0)
 
-#define DOUBLE_EQUALS(a,b)  (fabs((a)-(b)) < 0.00001)
-
 static int
 double_buf_equal (double *a, double *b, int nc)
 {
     int i;
     for (i = 0; i < nc; i++) {
-	if (!DOUBLE_EQUALS(a[i],b[i])) {
+	if (!CAIRO_TEST_DOUBLE_EQUALS(a[i],b[i])) {
 	    cairo_test_log ("Error: doubles not equal: %g, %g\n",
 			    a[i], b[i]);
 	    return 0;
@@ -68,10 +66,10 @@ draw (cairo_t *cr, int width, int height)
 	status = cairo_pattern_get_rgba (pat, &r, &g, &b, &a);
 	CHECK_SUCCESS;
 
-	if (!DOUBLE_EQUALS(r,0.2) ||
-	    !DOUBLE_EQUALS(g,0.3) ||
-	    !DOUBLE_EQUALS(b,0.4) ||
-	    !DOUBLE_EQUALS(a,0.5)) {
+	if (!CAIRO_TEST_DOUBLE_EQUALS(r,0.2) ||
+	    !CAIRO_TEST_DOUBLE_EQUALS(g,0.3) ||
+	    !CAIRO_TEST_DOUBLE_EQUALS(b,0.4) ||
+	    !CAIRO_TEST_DOUBLE_EQUALS(a,0.5)) {
 	    cairo_test_log ("Error: cairo_pattern_get_rgba returned unexepcted results: %g, %g, %g, %g\n",
 			    r, g, b, a);
 	    return CAIRO_TEST_FAILURE;
@@ -120,10 +118,10 @@ draw (cairo_t *cr, int width, int height)
 	status = cairo_pattern_get_linear_points (pat, &x0, &y0, &x1, &y1);
 	CHECK_SUCCESS;
 
-	if (!DOUBLE_EQUALS(x0,1.0) ||
-	    !DOUBLE_EQUALS(y0,2.0) ||
-	    !DOUBLE_EQUALS(x1,3.0) ||
-	    !DOUBLE_EQUALS(y1,4.0))
+	if (!CAIRO_TEST_DOUBLE_EQUALS(x0,1.0) ||
+	    !CAIRO_TEST_DOUBLE_EQUALS(y0,2.0) ||
+	    !CAIRO_TEST_DOUBLE_EQUALS(x1,3.0) ||
+	    !CAIRO_TEST_DOUBLE_EQUALS(y1,4.0))
 	    return CAIRO_TEST_FAILURE;
 
 	status = cairo_pattern_get_color_stop_count (pat, &i);
@@ -161,12 +159,12 @@ draw (cairo_t *cr, int width, int height)
 	status = cairo_pattern_get_radial_circles (pat, &a, &b, &c, &d, &e, &f);
 	CHECK_SUCCESS;
 
-	if (!DOUBLE_EQUALS(a,1.0) ||
-	    !DOUBLE_EQUALS(b,2.0) ||
-	    !DOUBLE_EQUALS(c,3.0) ||
-	    !DOUBLE_EQUALS(d,4.0) ||
-	    !DOUBLE_EQUALS(e,5.0) ||
-	    !DOUBLE_EQUALS(f,6.0))
+	if (!CAIRO_TEST_DOUBLE_EQUALS(a,1.0) ||
+	    !CAIRO_TEST_DOUBLE_EQUALS(b,2.0) ||
+	    !CAIRO_TEST_DOUBLE_EQUALS(c,3.0) ||
+	    !CAIRO_TEST_DOUBLE_EQUALS(d,4.0) ||
+	    !CAIRO_TEST_DOUBLE_EQUALS(e,5.0) ||
+	    !CAIRO_TEST_DOUBLE_EQUALS(f,6.0))
 	    return CAIRO_TEST_FAILURE;
 
 	cairo_pattern_destroy (pat);

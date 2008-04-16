@@ -6,7 +6,8 @@ Creating paths and manipulating path data
 
 <!-- ##### SECTION Long_Description ##### -->
 <para>
-
+Paths are the most basic drawing tools and are primarily used to implicitly
+generate simple masks.
 </para>
 
 <!-- ##### SECTION See_Also ##### -->
@@ -75,6 +76,15 @@ Creating paths and manipulating path data
 
 @cr: 
 @path: 
+
+
+<!-- ##### FUNCTION cairo_has_current_point ##### -->
+<para>
+
+</para>
+
+@cr: 
+@Returns: 
 
 
 <!-- ##### FUNCTION cairo_get_current_point ##### -->
@@ -234,5 +244,17 @@ Creating paths and manipulating path data
 @cr: 
 @dx: 
 @dy: 
+
+
+<!-- ##### FUNCTION cairo_path_extents ##### -->
+<para>
+
+</para>
+
+@cr: 
+@x1: 
+@y1: 
+@x2: 
+@y2: 
 
 

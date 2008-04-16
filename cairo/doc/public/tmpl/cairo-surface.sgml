@@ -6,12 +6,22 @@ Base class for surfaces
 
 <!-- ##### SECTION Long_Description ##### -->
 <para>
-
+#cairo_surface_t is the abstract type representing all different drawing
+targets that cairo can render to.  The actual drawings are
+performed using a cairo <firstterm>context</firstterm>.
+</para>
+<para>
+A cairo surface is created by using <firstterm>backend</firstterm>-specific
+constructors, typically of the form
+cairo_<emphasis>backend</emphasis>_surface_create().
 </para>
 
 <!-- ##### SECTION See_Also ##### -->
 <para>
-
+<itemizedlist>
+<listitem>#cairo_t()</listitem>
+<listitem>#cairo_pattern_t()</listitem>
+</itemizedlist>
 </para>
 
 <!-- ##### SECTION Stability_Level ##### -->
@@ -171,6 +181,8 @@ Base class for surfaces
 @CAIRO_SURFACE_TYPE_DIRECTFB: 
 @CAIRO_SURFACE_TYPE_SVG: 
 @CAIRO_SURFACE_TYPE_OS2: 
+@CAIRO_SURFACE_TYPE_WIN32_PRINTING: 
+@CAIRO_SURFACE_TYPE_QUARTZ_IMAGE: 
 
 <!-- ##### FUNCTION cairo_surface_get_type ##### -->
 <para>
@@ -210,5 +222,21 @@ Base class for surfaces
 @surface: 
 @key: 
 @Returns: 
+
+
+<!-- ##### FUNCTION cairo_surface_copy_page ##### -->
+<para>
+
+</para>
+
+@surface: 
+
+
+<!-- ##### FUNCTION cairo_surface_show_page ##### -->
+<para>
+
+</para>
+
+@surface: 
 
 

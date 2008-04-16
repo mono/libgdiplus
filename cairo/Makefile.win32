@@ -1,0 +1,83 @@
+#
+# Win32 makefile
+#
+
+CC := cl
+LINK := link
+
+ifeq ($(CFG),debug)
+OPT := -Od -Zi
+else
+OPT := -O2
+endif
+
+PIXMAN_CFLAGS := -I../../pixman/pixman
+PIXMAN_LIBS := ../../pixman/pixman/$(CFG)/pixman-1.lib
+
+EXE_LDFLAGS = libpng.lib zlib.lib gdi32.lib msimg32.lib user32.lib
+
+DEFAULT_CFLAGS = -MD -nologo $(OPT)
+DEFAULT_CFLAGS += -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE
+DEFAULT_CFLAGS += -DPACKAGE_VERSION="" -DPACKAGE_BUGREPORT="" -DCAIRO_BUILD
+DEFAULT_CFLAGS += -I. 
+DEFAULT_CFLAGS += $(PIXMAN_CFLAGS)
+DEFAULT_CFLAGS += -DCAIRO_NO_MUTEX=1  -DLIBCAIRO_EXPORTS
+
+CFLAGS := $(DEFAULT_CFLAGS)
+
+CAIRO_VERSION_MAJOR = 1
+CAIRO_VERSION_MINOR = 5
+CAIRO_VERSION_MICRO = 1
+
+CAIRO_VERSION = $(CAIRO_VERSION_MAJOR).$(CAIRO_VERSION_MINOR).$(CAIRO_VERSION_MICRO)
+
+# Only if this was called as the top-level makefile
+ifeq ($(SUBMAKEFILE),)
+
+SUBDIRS = src
+
+TEST_SUBDIRS = boilerplate test
+
+all: inform cairo
+
+cairo: src/cairo-features.h
+	@list='$(SUBDIRS)'; for f in $$list ; do \
+		echo making all in $$f... ; \
+		(cd $$f ; $(MAKE) -f Makefile.win32 CC="$(CC)" LINK="$(LINK)" OPT="$(OPT)" CFLAGS="$(CFLAGS)" PIXMAN_LIBS="$(PIXMAN_LIBS)") || exit 1 ; \
+	done
+
+test: cairo
+	@list='$(TEST_SUBDIRS)'; for f in $$list ; do \
+		echo making all in $$f... ; \
+		(cd $$f ; $(MAKE) -f Makefile.win32 CC="$(CC)" LINK="$(LINK)" OPT="$(OPT)" CFLAGS="$(CFLAGS)" PIXMAN_LIBS="$(PIXMAN_LIBS)") || exit 1 ; \
+	done
+	@(cd test ; make -f Makefile.win32 test)
+
+html:
+	@(cd test ; make -f Makefile.win32 html)
+
+inform:
+ifneq ($(CFG),release)
+ifneq ($(CFG),debug)
+	@echo "Invalid configuration "$(CFG)" specified."
+	@echo -n "You must specify a configuration when "
+	@echo "running make, e.g. make CFG=debug"
+	@echo
+	@echo -n "Possible choices for configuration are "
+	@echo "'release' and 'debug'"
+	@exit 1
+endif
+endif
+
+endif
+
+# Some generic rules
+
+$(CFG)/%.obj: %.c
+	@mkdir -p $(CFG)
+	@$(CC) $(CFLAGS) -c -Fo"$@" $<
+
+$(CFG)/%-static.obj: %.c
+	@mkdir -p $(CFG)
+	@$(CC) $(CFLAGS) -c -DCAIRO_WIN32_STATIC_BUILD=1 -Fo"$@" $<
+

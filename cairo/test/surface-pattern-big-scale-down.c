@@ -81,7 +81,6 @@ draw (cairo_t *cr, int width, int height)
 {
     cairo_surface_t *surface;
     cairo_pattern_t *pat;
-    int n;
 
     cairo_set_source_rgb (cr, 0, 0, 0);
     cairo_paint (cr);
@@ -90,6 +89,7 @@ draw (cairo_t *cr, int width, int height)
     setup_source_surface (surface, SRC_WIDTH, SRC_HEIGHT);
 
     pat = cairo_pattern_create_for_surface (surface);
+    cairo_surface_destroy (surface);
 
     /* We want to draw at a position such that n * SRC_WIDTH * (SRC_WIDTH/16.0) > 32768.
      * x = n * 16.
@@ -107,9 +107,14 @@ draw (cairo_t *cr, int width, int height)
     /* n = 17 */
     draw_n (cr, pat, 16.0, 17);
 #else
-    for (n = 0; n < 32; n++)
-      draw_n (cr, pat, 16.0, n);
+    {
+	int n;
+	for (n = 0; n < 32; n++)
+	    draw_n (cr, pat, 16.0, n);
+    }
 #endif
+
+    cairo_pattern_destroy (pat);
 
     return CAIRO_TEST_SUCCESS;
 }

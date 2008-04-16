@@ -27,6 +27,7 @@
 #ifndef _CAIRO_BOILERPLATE_XLIB_PRIVATE_H_
 #define _CAIRO_BOILERPLATE_XLIB_PRIVATE_H_
 
+#if CAIRO_HAS_XLIB_XRENDER_SURFACE
 cairo_surface_t *
 _cairo_boilerplate_xlib_create_surface (const char		  *name,
 					cairo_content_t		   content,
@@ -34,6 +35,15 @@ _cairo_boilerplate_xlib_create_surface (const char		  *name,
 					int			   height,
 					cairo_boilerplate_mode_t   mode,
 					void			 **closure);
+#endif
+
+cairo_surface_t *
+_cairo_boilerplate_xlib_fallback_create_surface (const char			 *name,
+						 cairo_content_t		  content,
+						 int				  width,
+						 int				  height,
+						 cairo_boilerplate_mode_t	  mode,
+						 void				**closure);
 
 void
 _cairo_boilerplate_xlib_cleanup (void *closure);

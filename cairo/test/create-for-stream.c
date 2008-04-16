@@ -91,6 +91,14 @@ typedef struct _write_closure {
 } write_closure_t;
 
 static cairo_status_t
+bad_write (void		*closure,
+	   const unsigned char	*data,
+	   unsigned int	 length)
+{
+    return CAIRO_STATUS_WRITE_ERROR;
+}
+
+static cairo_status_t
 test_write (void		*closure,
 	    const unsigned char	*data,
 	    unsigned int	 length)
@@ -122,7 +130,8 @@ typedef cairo_surface_t *
 			 double			height_in_points);
 
 static cairo_test_status_t
-test_surface (const char		 *filename,
+test_surface (const char                 *backend,
+	      const char		 *filename,
 	      file_constructor_t	 file_constructor,
 	      stream_constructor_t	 stream_constructor)
 {
@@ -132,6 +141,29 @@ test_surface (const char		 *filename,
     cairo_status_t status;
     FILE *fp;
 
+    /* test propagation of user errors */
+    surface = stream_constructor (bad_write, &wc,
+				  WIDTH_IN_POINTS, HEIGHT_IN_POINTS);
+
+    status = cairo_surface_status (surface);
+    if (status) {
+	cairo_test_log ("%s: Failed to create surface for stream.\n", backend);
+	return CAIRO_TEST_FAILURE;
+    }
+
+    draw_to (surface);
+
+    cairo_surface_finish (surface);
+    status = cairo_surface_status (surface);
+    cairo_surface_destroy (surface);
+
+    if (status != CAIRO_STATUS_WRITE_ERROR) {
+	cairo_test_log ("%s: Error: expected \"write error\", but received \"%s\".\n",
+			backend, cairo_status_to_string (status));
+	return CAIRO_TEST_FAILURE;
+    }
+
+    /* construct the real surface */
     wc.status = CAIRO_TEST_SUCCESS;
     wc.index = 0;
 
@@ -140,7 +172,7 @@ test_surface (const char		 *filename,
 
     status = cairo_surface_status (surface);
     if (status) {
-	cairo_test_log ("Failed to create surface for stream\n");
+	cairo_test_log ("%s: Failed to create surface for stream.\n", backend);
 	return CAIRO_TEST_FAILURE;
     }
 
@@ -158,8 +190,8 @@ test_surface (const char		 *filename,
 
     status = cairo_surface_status (surface);
     if (status) {
-	cairo_test_log ("Failed to create surface for file %s: %s\n",
-			filename, cairo_status_to_string (status));
+	cairo_test_log ("%s: Failed to create surface for file %s: %s.\n",
+			backend, filename, cairo_status_to_string (status));
 	return CAIRO_TEST_FAILURE;
     }
 
@@ -169,21 +201,21 @@ test_surface (const char		 *filename,
 
     fp = fopen (filename, "r");
     if (fp == NULL) {
-	cairo_test_log ("Failed to open %s for reading: %s\n",
-			filename, strerror (errno));
+	cairo_test_log ("%s: Failed to open %s for reading: %s.\n",
+			backend, filename, strerror (errno));
 	return CAIRO_TEST_FAILURE;
     }
 
     if (fread (file_contents, 1, wc.index, fp) != wc.index) {
-	cairo_test_log ("Failed to read %s: %s\n",
-			filename, strerror (errno));
+	cairo_test_log ("%s: Failed to read %s: %s.\n",
+			backend, filename, strerror (errno));
 	fclose (fp);
 	return CAIRO_TEST_FAILURE;
     }
 
     if (memcmp (file_contents, wc.buffer, wc.index) != 0) {
-	cairo_test_log ("Stream based output differ from file output for %s\n",
-			filename);
+	cairo_test_log ("%s: Stream based output differ from file output for %s.\n",
+			backend, filename);
 	fclose (fp);
 	return CAIRO_TEST_FAILURE;
     }
@@ -193,35 +225,44 @@ test_surface (const char		 *filename,
     return CAIRO_TEST_SUCCESS;
 }
 
-
 int
 main (void)
 {
     cairo_test_status_t status = CAIRO_TEST_SUCCESS;
     cairo_test_status_t test_status;
+    const char test_name[] = "create-for-stream";
 
-    cairo_test_init ("create-for-stream");
+    cairo_test_init (test_name);
 
 #if CAIRO_HAS_PS_SURFACE
-    test_status = test_surface ("create-for-stream.ps",
+    test_status = test_surface ("ps", "create-for-stream.ps",
 			        cairo_ps_surface_create,
 			        cairo_ps_surface_create_for_stream);
+    cairo_test_log ("TEST: %s TARGET: %s RESULT: %s\n",
+		    test_name, "ps",
+		    test_status ? "FAIL" : "PASS");
     if (status == CAIRO_TEST_SUCCESS)
 	status = test_status;
 #endif
 
 #if CAIRO_HAS_PDF_SURFACE
-    test_status = test_surface ("create-for-stream.pdf",
+    test_status = test_surface ("pdf", "create-for-stream.pdf",
 			        cairo_pdf_surface_create,
 			        cairo_pdf_surface_create_for_stream);
+    cairo_test_log ("TEST: %s TARGET: %s RESULT: %s\n",
+		    test_name, "pdf",
+		    test_status ? "FAIL" : "PASS");
     if (status == CAIRO_TEST_SUCCESS)
 	status = test_status;
 #endif
 
 #if CAIRO_HAS_SVG_SURFACE
-    test_status = test_surface ("create-for-stream.svg",
+    test_status = test_surface ("svg", "create-for-stream.svg",
 			        cairo_svg_surface_create,
 			        cairo_svg_surface_create_for_stream);
+    cairo_test_log ("TEST: %s TARGET: %s RESULT: %s\n",
+		    test_name, "svg",
+		    test_status ? "FAIL" : "PASS");
     if (status == CAIRO_TEST_SUCCESS)
 	status = test_status;
 #endif

@@ -6,15 +6,26 @@ Rendering PostScript documents
 
 <!-- ##### SECTION Long_Description ##### -->
 <para>
-
+The PostScript surface is used to render cairo graphics to Adobe
+PostScript files and is a multi-page vector surface backend.
 </para>
 
 <!-- ##### SECTION See_Also ##### -->
 <para>
-
+<itemizedlist>
+<listitem>#cairo_surface_t</listitem>
+</itemizedlist>
 </para>
 
 <!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### MACRO CAIRO_HAS_PS_SURFACE ##### -->
+<para>
+Defined if the PostScript surface backend is available.
+This macro can be used to conditionally compile backend-specific code.
+</para>
+
 
 
 <!-- ##### FUNCTION cairo_ps_surface_create ##### -->
@@ -37,6 +48,59 @@ Rendering PostScript documents
 @closure: 
 @width_in_points: 
 @height_in_points: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_ps_surface_restrict_to_level ##### -->
+<para>
+
+</para>
+
+@surface: 
+@level: 
+
+
+<!-- ##### ENUM cairo_ps_level_t ##### -->
+<para>
+
+</para>
+
+@CAIRO_PS_LEVEL_2: 
+@CAIRO_PS_LEVEL_3: 
+
+<!-- ##### FUNCTION cairo_ps_get_levels ##### -->
+<para>
+
+</para>
+
+@levels: 
+@num_levels: 
+
+
+<!-- ##### FUNCTION cairo_ps_level_to_string ##### -->
+<para>
+
+</para>
+
+@level: 
+@Returns: 
+
+
+<!-- ##### FUNCTION cairo_ps_surface_set_eps ##### -->
+<para>
+
+</para>
+
+@surface: 
+@eps: 
+
+
+<!-- ##### FUNCTION cairo_ps_surface_get_eps ##### -->
+<para>
+
+</para>
+
+@surface: 
 @Returns: 
 
 

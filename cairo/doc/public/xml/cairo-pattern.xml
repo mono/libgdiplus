@@ -5,14 +5,14 @@
 ]>
 <refentry id="cairo-Patterns">
 <refmeta>
-<refentrytitle role="top_of_page">Patterns</refentrytitle>
+<refentrytitle role="top_of_page">cairo_pattern_t</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>Patterns</refname>
-<refpurpose>Gradients and filtered sources</refpurpose>
+<refname>cairo_pattern_t</refname>
+<refpurpose>Sources for drawing</refpurpose>
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
@@ -119,7 +119,15 @@ unsigned <link linkend="int">int</link>        <link linkend="cairo-pattern-get-
 <refsect1 role="desc">
 <title role="desc.title">Description</title>
 <para>
-
+<link linkend="cairo-pattern-t"><type>cairo_pattern_t</type></link> is the paint with which cairo draws.
+The primary use of patterns is as the source for all cairo drawing operations,
+although they can also be used as masks, that is, as the brush too.
+</para>
+<para>
+A cairo pattern is created by using one of the many constructors,
+of the form cairo_pattern_create_<emphasis>type</emphasis>()
+or implicitly through
+cairo_set_source_<emphasis>type</emphasis>() functions.
 </para>
 </refsect1>
 
@@ -137,9 +145,9 @@ for different types of sources; for example,
 opaque color.
 </para>
 <para>
-Other than various cairo_pattern_create_<emphasis>type</emphasis>
+Other than various cairo_pattern_create_<emphasis>type</emphasis>()
 functions, some of the pattern types can be implicitly created
-using vairous cairo_set_source_<emphasis>type</emphasis> functions;
+using various cairo_set_source_<emphasis>type</emphasis>() functions;
 for example <link linkend="cairo-set-source-rgb"><function>cairo_set_source_rgb()</function></link>.
 </para>
 <para>
@@ -323,7 +331,7 @@ returned.
                                                          <link linkend="double">double</link> green,
                                                          <link linkend="double">double</link> blue);</programlisting>
 <para>
-Creates a new cairo_pattern_t corresponding to an opaque color.  The
+Creates a new <link linkend="cairo-pattern-t"><type>cairo_pattern_t</type></link> corresponding to an opaque color.  The
 color components are floating point numbers in the range 0 to 1.
 If the values passed in are outside that range, they will be
 clamped.</para>
@@ -356,7 +364,7 @@ the status of a pattern use <link linkend="cairo-pattern-status"><function>cairo
                                                          <link linkend="double">double</link> blue,
                                                          <link linkend="double">double</link> alpha);</programlisting>
 <para>
-Creates a new cairo_pattern_t corresponding to a translucent color.
+Creates a new <link linkend="cairo-pattern-t"><type>cairo_pattern_t</type></link> corresponding to a translucent color.
 The color components are floating point numbers in the range 0 to
 1.  If the values passed in are outside that range, they will be
 clamped.</para>
@@ -423,7 +431,7 @@ color pattern.
 <title><anchor id="cairo-pattern-create-for-surface" role="function"/>cairo_pattern_create_for_surface ()</title>
 <indexterm><primary>cairo_pattern_create_for_surface</primary></indexterm><programlisting><link linkend="cairo-pattern-t">cairo_pattern_t</link>*    cairo_pattern_create_for_surface    (<link linkend="cairo-surface-t">cairo_surface_t</link> *surface);</programlisting>
 <para>
-Create a new cairo_pattern_t for the given surface.</para>
+Create a new <link linkend="cairo-pattern-t"><type>cairo_pattern_t</type></link> for the given surface.</para>
 <para>
 
 </para><variablelist role="params">
@@ -471,7 +479,7 @@ pattern.
                                                          <link linkend="double">double</link> x1,
                                                          <link linkend="double">double</link> y1);</programlisting>
 <para>
-Create a new linear gradient cairo_pattern_t along the line defined
+Create a new linear gradient <link linkend="cairo-pattern-t"><type>cairo_pattern_t</type></link> along the line defined
 by (x0, y0) and (x1, y1).  Before using the gradient pattern, a
 number of color stops should be defined using
 <link linkend="cairo-pattern-add-color-stop-rgb"><function>cairo_pattern_add_color_stop_rgb()</function></link> or
@@ -549,7 +557,7 @@ gradient pattern.
                                                          <link linkend="double">double</link> cy1,
                                                          <link linkend="double">double</link> radius1);</programlisting>
 <para>
-Creates a new radial gradient cairo_pattern_t between the two
+Creates a new radial gradient <link linkend="cairo-pattern-t"><type>cairo_pattern_t</type></link> between the two
 circles defined by (cx0, cy0, radius0) and (cx1, cy1, radius1).  Before using the
 gradient pattern, a number of color stops should be defined using
 <link linkend="cairo-pattern-add-color-stop-rgb"><function>cairo_pattern_add_color_stop_rgb()</function></link> or
@@ -693,8 +701,14 @@ pattern.</para>
 } cairo_extend_t;
 </programlisting>
 <para>
-<link linkend="cairo-extend-t"><type>cairo_extend_t</type></link> is used to describe how the area outside
-of a pattern will be drawn.
+<link linkend="cairo-extend-t"><type>cairo_extend_t</type></link> is used to describe how pattern color/alpha will be
+determined for areas "outside" the pattern's natural area, (for
+example, outside the surface bounds or outside the gradient
+geometry).
+</para>
+<para>
+The default extend mode is <link linkend="CAIRO-EXTEND-NONE:CAPS"><literal>CAIRO_EXTEND_NONE</literal></link> for surface patterns
+and <link linkend="CAIRO-EXTEND-PAD:CAPS"><literal>CAIRO_EXTEND_PAD</literal></link> for gradient patterns.
 </para>
 <para>
 New entries may be added in future versions.</para>
@@ -715,14 +729,14 @@ New entries may be added in future versions.</para>
 <varlistentry>
 <term><anchor id="CAIRO-EXTEND-REFLECT:CAPS" role="constant"/><literal>CAIRO_EXTEND_REFLECT</literal></term>
 <listitem><simpara> the pattern is tiled by reflecting
-  at the edges (not implemented for surface patterns currently)
+  at the edges (Implemented for surface patterns since 1.6)
 </simpara></listitem>
 </varlistentry>
 <varlistentry>
 <term><anchor id="CAIRO-EXTEND-PAD:CAPS" role="constant"/><literal>CAIRO_EXTEND_PAD</literal></term>
 <listitem><simpara> pixels outside of the pattern copy
-  the closest pixel from the source (Since 1.2; not implemented
-  for surface patterns currently)
+  the closest pixel from the source (Since 1.2; but only
+  implemented for surface patterns since 1.6)
 </simpara></listitem>
 </varlistentry>
 </variablelist></refsect2>
@@ -733,7 +747,11 @@ New entries may be added in future versions.</para>
 <para>
 Sets the mode to be used for drawing outside the area of a pattern.
 See <link linkend="cairo-extend-t"><type>cairo_extend_t</type></link> for details on the semantics of each extend
-strategy.</para>
+strategy.
+</para>
+<para>
+The default extend mode is <link linkend="CAIRO-EXTEND-NONE:CAPS"><literal>CAIRO_EXTEND_NONE</literal></link> for surface patterns
+and <link linkend="CAIRO-EXTEND-PAD:CAPS"><literal>CAIRO_EXTEND_PAD</literal></link> for gradient patterns.</para>
 <para>
 
 </para><variablelist role="params">
@@ -773,15 +791,68 @@ pattern.
 } cairo_filter_t;
 </programlisting>
 <para>
+<link linkend="cairo-filter-t"><type>cairo_filter_t</type></link> is used to indicate what filtering should be
+applied when reading pixel values from patterns. See
+<link linkend="cairo-pattern-set-source"><function>cairo_pattern_set_source()</function></link> for indicating the desired filter to be
+used with a particular pattern.</para>
+<para>
 
-</para></refsect2>
+</para><variablelist role="enum">
+<varlistentry>
+<term><anchor id="CAIRO-FILTER-FAST:CAPS" role="constant"/><literal>CAIRO_FILTER_FAST</literal></term>
+<listitem><simpara> A high-performance filter, with quality similar
+    to <link linkend="CAIRO-FILTER-NEAREST:CAPS"><literal>CAIRO_FILTER_NEAREST</literal></link>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-FILTER-GOOD:CAPS" role="constant"/><literal>CAIRO_FILTER_GOOD</literal></term>
+<listitem><simpara> A reasonable-performance filter, with quality
+    similar to <link linkend="CAIRO-FILTER-BILINEAR:CAPS"><literal>CAIRO_FILTER_BILINEAR</literal></link>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-FILTER-BEST:CAPS" role="constant"/><literal>CAIRO_FILTER_BEST</literal></term>
+<listitem><simpara> The highest-quality available, performance may
+    not be suitable for interactive use.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-FILTER-NEAREST:CAPS" role="constant"/><literal>CAIRO_FILTER_NEAREST</literal></term>
+<listitem><simpara> Nearest-neighbor filtering
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-FILTER-BILINEAR:CAPS" role="constant"/><literal>CAIRO_FILTER_BILINEAR</literal></term>
+<listitem><simpara> Linear interpolation in two dimensions
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-FILTER-GAUSSIAN:CAPS" role="constant"/><literal>CAIRO_FILTER_GAUSSIAN</literal></term>
+<listitem><simpara> This filter value is currently
+    unimplemented, and should not be used in current code.
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-pattern-set-filter" role="function"/>cairo_pattern_set_filter ()</title>
 <indexterm><primary>cairo_pattern_set_filter</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_pattern_set_filter            (<link linkend="cairo-pattern-t">cairo_pattern_t</link> *pattern,
                                                          <link linkend="cairo-filter-t">cairo_filter_t</link> filter);</programlisting>
 <para>
 Sets the filter to be used for resizing when using this pattern.
-See <link linkend="cairo-filter-t"><type>cairo_filter_t</type></link> for details on each filter.</para>
+See <link linkend="cairo-filter-t"><type>cairo_filter_t</type></link> for details on each filter.
+</para>
+<para>
+* Note that you might want to control filtering even when you do not
+have an explicit <link linkend="cairo-pattern-t"><type>cairo_pattern_t</type></link> object, (for example when using
+<link linkend="cairo-set-source-surface"><function>cairo_set_source_surface()</function></link>). In these cases, it is convenient to
+use <link linkend="cairo-get-source"><function>cairo_get_source()</function></link> to get access to the pattern that cairo
+creates implicitly. For example:
+</para>
+<para>
+<informalexample><programlisting>
+cairo_set_source_surface (cr, image, x, y);
+cairo_pattern_set_filter (cairo_get_source (cr), %CAIRO_FILTER_NEAREST);
+</programlisting></informalexample></para>
 <para>
 
 </para><variablelist role="params">
@@ -894,7 +965,7 @@ ways.
 The pattern type can be queried with <link linkend="cairo-pattern-get-type"><function>cairo_pattern_get_type()</function></link>
 </para>
 <para>
-Most cairo_pattern functions can be called with a pattern of any
+Most <link linkend="cairo-pattern-t"><type>cairo_pattern_t</type></link> functions can be called with a pattern of any
 type, (though trying to change the extend or filter for a solid
 pattern will have no effect). A notable exception is
 <link linkend="cairo-pattern-add-color-stop-rgb"><function>cairo_pattern_add_color_stop_rgb()</function></link> and
@@ -1025,5 +1096,16 @@ attached to
 
 
 
+<refsect1>
+<title>See Also</title>
+<para>
+<itemizedlist>
+<listitem><link linkend="cairo-t"><type>cairo_t</type></link></listitem>
+<listitem><link linkend="cairo-surface-t"><type>cairo_surface_t</type></link></listitem>
+</itemizedlist>
+</para>
+</refsect1>
 
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
 </refentry>

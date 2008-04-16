@@ -1,3 +1,11 @@
+2008-04-16  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* cairo/*:
+		Update to Cairo 1.6.4
+	* pixman/*:
+		New (it's out of Cairo now). Version 0.10
+	* src/cairo-embed.h: Moved into cairo tree (pixman has it's own too)
+
 2008-01-28  Wade Berrier  <wberrier@novell.com>
 
 	* configure.in: version bump -> 1.9

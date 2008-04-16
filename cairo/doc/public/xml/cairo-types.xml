@@ -12,7 +12,7 @@
 
 <refnamediv>
 <refname>Types</refname>
-<refpurpose>Generic data types used in the cairo API</refpurpose>
+<refpurpose>Generic data types</refpurpose>
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
@@ -40,7 +40,7 @@ typedef             <link linkend="cairo-bool-t">cairo_bool_t</link>;
 <refsect1 role="desc">
 <title role="desc.title">Description</title>
 <para>
-
+Generic data types used in the cairo API
 </para>
 </refsect1>
 
@@ -106,4 +106,6 @@ element and should free any memory and resources allocated for it.</para>
 
 
 
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
 </refentry>

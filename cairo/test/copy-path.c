@@ -125,6 +125,29 @@ draw (cairo_t *cr, int width, int height)
     cairo_path_destroy (path);
 
     cairo_destroy (cr_error);
+    
+    /* first check that we can copy an empty path */
+    cairo_new_path (cr);
+    path = cairo_copy_path (cr);
+    if (path->status != CAIRO_STATUS_SUCCESS) {
+	cairo_test_log ("Error: cairo_copy_path returned status of %s\n",
+			cairo_status_to_string (path->status));
+	cairo_path_destroy (path);
+	return CAIRO_TEST_FAILURE;
+    }
+    if (path->num_data != 0) {
+	cairo_test_log ("Error: cairo_copy_path did not copy an empty path, returned path contains %d elements\n",
+		        path->num_data);
+	cairo_path_destroy (path);
+	return CAIRO_TEST_FAILURE;
+    }
+    cairo_append_path (cr, path);
+    cairo_path_destroy (path);
+    if (cairo_status (cr) != CAIRO_STATUS_SUCCESS) {
+	cairo_test_log ("Error: cairo_append_path failed with a copy of an empty path, returned status of %s\n",
+			cairo_status_to_string (cairo_status (cr)));
+	return CAIRO_TEST_FAILURE;
+    }
 
     /* We draw in the default black, so paint white first. */
     cairo_save (cr);
@@ -205,6 +228,15 @@ main (void)
     cr = cairo_create (surface);
     path.data = NULL;
     path.num_data = 0;
+    path.status = CAIRO_STATUS_SUCCESS;
+    cairo_append_path (cr, &path);
+    if (cairo_status (cr) != CAIRO_STATUS_SUCCESS)
+	return 1;
+    cairo_destroy (cr);
+
+    cr = cairo_create (surface);
+    path.data = NULL;
+    path.num_data = 1;
     path.status = CAIRO_STATUS_SUCCESS;
     cairo_append_path (cr, &path);
     if (cairo_status (cr) != CAIRO_STATUS_NULL_POINTER)

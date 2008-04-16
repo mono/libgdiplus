@@ -17,8 +17,6 @@
 
 #include "GdiPlusFlat.h"
 #include <X11/Xlib.h>
-#include <cairo.h>
-#include <cairo-xlib.h>
 
 typedef struct win {
 	Display *dpy;
@@ -64,7 +62,7 @@ win_draw(win_t *win)
 		
 		GdipCreateSolidFill (a << 24 | r << 16 | g << 8 | b, &brush);
 		
-		printf ("%s\n",cairo_status_to_string (GdipFillEllipse (gp, (GpBrush*)brush, 40, 40, 50, 75)));
+		printf ("%d\n",GdipFillEllipse (gp, (GpBrush*)brush, 40, 40, 50, 75));
 //		return;
 	}
 

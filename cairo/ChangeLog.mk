@@ -51,7 +51,7 @@ $(srcdir)/ChangeLog:
 
 DISTCLEANFILES += ChangeLog.cache-*
 
-ChangeLog.cache-*..: .git
+ChangeLog.cache-*..: .git/HEAD
 
 ChangeLog%: $(srcdir)/ChangeLog%
 
@@ -66,7 +66,7 @@ $(srcdir)/ChangeLog.cache-% $(srcdir)/ChangeLog.pre-%:
 		to=$$version; \
 		test "x$$version" = x && version=$(CURR_CHANGELOG_VERSION); \
 		from=$(PREV_CHANGELOG_VERSION); \
-		test "x$$to" = x || version=$$version.0; \
+		test "x$$to" = x || to=$$to.0; \
 		test "x$$from" = xinitial || from=$$from.0; \
 		spec=$$from..$$to; \
 	  fi; \

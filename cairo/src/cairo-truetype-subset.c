@@ -34,6 +34,13 @@
  *	Adrian Johnson <ajohnson@redneon.com>
  */
 
+/*
+ * Useful links:
+ * http://developer.apple.com/textfonts/TTRefMan/RM06/Chap6.html
+ * http://www.microsoft.com/typography/specs/default.htm
+ */
+
+#define _BSD_SOURCE /* for snprintf(), strdup() */
 #include "cairoint.h"
 
 #include "cairo-scaled-font-subsets-private.h"
@@ -46,9 +53,21 @@ struct subset_glyph {
     unsigned long location;
 };
 
-typedef struct _cairo_truetype_font {
+typedef struct _cairo_truetype_font cairo_truetype_font_t;
+
+typedef struct table table_t;
+struct table {
+    unsigned long tag;
+    cairo_status_t (*write) (cairo_truetype_font_t *font, unsigned long tag);
+    int pos; /* position in the font directory */
+};
+
+struct _cairo_truetype_font {
 
     cairo_scaled_font_subset_t *scaled_font_subset;
+
+    table_t truetype_tables[10];
+    int num_tables;
 
     struct {
 	char *base_font;
@@ -70,13 +89,27 @@ typedef struct _cairo_truetype_font {
     int *parent_to_subset;
     cairo_status_t status;
 
-} cairo_truetype_font_t;
+};
 
-static int
-cairo_truetype_font_use_glyph (cairo_truetype_font_t *font, int glyph);
+static cairo_status_t
+cairo_truetype_font_use_glyph (cairo_truetype_font_t	    *font,
+	                       unsigned short		     glyph,
+			       unsigned short		    *out);
 
 #define SFNT_VERSION			0x00010000
 #define SFNT_STRING_MAX_LENGTH  65535
+
+static cairo_status_t
+_cairo_truetype_font_set_error (cairo_truetype_font_t *font,
+			        cairo_status_t status)
+{
+    if (status == CAIRO_STATUS_SUCCESS || status == CAIRO_INT_STATUS_UNSUPPORTED)
+	return status;
+
+    _cairo_status_set_error (&font->status, status);
+
+    return _cairo_error (status);
+}
 
 static cairo_status_t
 _cairo_truetype_font_create (cairo_scaled_font_subset_t  *scaled_font_subset,
@@ -107,42 +140,51 @@ _cairo_truetype_font_create (cairo_scaled_font_subset_t  *scaled_font_subset,
      */
 
     size = sizeof (tt_head_t);
-    if (backend->load_truetype_table (scaled_font_subset->scaled_font,
-                                      TT_TAG_head, 0, (unsigned char *) &head,
-                                      &size) != CAIRO_STATUS_SUCCESS)
-	return CAIRO_INT_STATUS_UNSUPPORTED;
+    status = backend->load_truetype_table (scaled_font_subset->scaled_font,
+                                          TT_TAG_head, 0,
+					  (unsigned char *) &head,
+                                          &size);
+    if (status)
+	return status;
 
     size = sizeof (tt_maxp_t);
-    if (backend->load_truetype_table (scaled_font_subset->scaled_font,
-                                      TT_TAG_maxp, 0, (unsigned char *) &maxp,
-                                      &size) != CAIRO_STATUS_SUCCESS)
-	return CAIRO_INT_STATUS_UNSUPPORTED;
+    status = backend->load_truetype_table (scaled_font_subset->scaled_font,
+                                           TT_TAG_maxp, 0,
+					   (unsigned char *) &maxp,
+					   &size);
+    if (status)
+	return status;
 
     size = sizeof (tt_hhea_t);
-    if (backend->load_truetype_table (scaled_font_subset->scaled_font,
-                                      TT_TAG_hhea, 0, (unsigned char *) &hhea,
-                                      &size) != CAIRO_STATUS_SUCCESS)
-	return CAIRO_INT_STATUS_UNSUPPORTED;
+    status = backend->load_truetype_table (scaled_font_subset->scaled_font,
+                                           TT_TAG_hhea, 0,
+					   (unsigned char *) &hhea,
+					   &size);
+    if (status)
+	return status;
 
     size = 0;
-    if (backend->load_truetype_table (scaled_font_subset->scaled_font,
-                                      TT_TAG_name, 0, NULL,
-                                      &size) != CAIRO_STATUS_SUCCESS)
-	return CAIRO_INT_STATUS_UNSUPPORTED;
+    status = backend->load_truetype_table (scaled_font_subset->scaled_font,
+	                                   TT_TAG_name, 0,
+					   NULL,
+					   &size);
+    if (status)
+	return status;
 
     name = malloc(size);
     if (name == NULL)
-        return CAIRO_STATUS_NO_MEMORY;
+        return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
     status = backend->load_truetype_table (scaled_font_subset->scaled_font,
-					   TT_TAG_name, 0, (unsigned char *) name,
+					   TT_TAG_name, 0,
+					   (unsigned char *) name,
 					   &size);
     if (status)
 	goto fail0;
 
     font = malloc (sizeof (cairo_truetype_font_t));
     if (font == NULL) {
-	status = CAIRO_STATUS_NO_MEMORY;
+	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto fail0;
     }
 
@@ -159,13 +201,13 @@ _cairo_truetype_font_create (cairo_scaled_font_subset_t  *scaled_font_subset,
 
     font->glyphs = calloc (font->num_glyphs_in_face + 1, sizeof (subset_glyph_t));
     if (font->glyphs == NULL) {
-	status = CAIRO_STATUS_NO_MEMORY;
+	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto fail1;
     }
 
     font->parent_to_subset = calloc (font->num_glyphs_in_face, sizeof (int));
     if (font->parent_to_subset == NULL) {
-	status = CAIRO_STATUS_NO_MEMORY;
+	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto fail2;
     }
 
@@ -191,7 +233,7 @@ _cairo_truetype_font_create (cairo_scaled_font_subset_t  *scaled_font_subset,
         record = &(name->records[i]);
         if ((be16_to_cpu (record->platform) == 1) &&
             (be16_to_cpu (record->encoding) == 0) &&
-            (be16_to_cpu (record->name) == 4)) { 
+            (be16_to_cpu (record->name) == 4)) {
             font->base.base_font = malloc (be16_to_cpu(record->length) + 1);
             if (font->base.base_font) {
                 strncpy(font->base.base_font,
@@ -209,7 +251,7 @@ _cairo_truetype_font_create (cairo_scaled_font_subset_t  *scaled_font_subset,
     if (font->base.base_font == NULL) {
         font->base.base_font = malloc (30);
         if (font->base.base_font == NULL) {
-	    status = CAIRO_STATUS_NO_MEMORY;
+	    status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
             goto fail3;
 	}
 
@@ -227,7 +269,7 @@ _cairo_truetype_font_create (cairo_scaled_font_subset_t  *scaled_font_subset,
 
     font->base.widths = calloc (font->num_glyphs_in_face, sizeof (int));
     if (font->base.widths == NULL) {
-	status = CAIRO_STATUS_NO_MEMORY;
+	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto fail4;
     }
 
@@ -280,25 +322,29 @@ cairo_truetype_font_allocate_write_buffer (cairo_truetype_font_t  *font,
 {
     cairo_status_t status;
 
+    if (font->status)
+	return font->status;
+
     status = _cairo_array_allocate (&font->output, length, (void **) buffer);
     if (status)
-	return status;
+	return _cairo_truetype_font_set_error (font, status);
 
     return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t
+static void
 cairo_truetype_font_write (cairo_truetype_font_t *font,
 			   const void            *data,
 			   size_t                 length)
 {
     cairo_status_t status;
 
+    if (font->status)
+	return;
+
     status = _cairo_array_append_multiple (&font->output, data, length);
     if (status)
-	return status;
-
-    return CAIRO_STATUS_SUCCESS;
+	status = _cairo_truetype_font_set_error (font, status);
 }
 
 static void
@@ -306,6 +352,9 @@ cairo_truetype_font_write_be16 (cairo_truetype_font_t *font,
 				uint16_t               value)
 {
     uint16_t be16_value;
+
+    if (font->status)
+	return;
 
     be16_value = cpu_to_be16 (value);
     cairo_truetype_font_write (font, &be16_value, sizeof be16_value);
@@ -317,26 +366,36 @@ cairo_truetype_font_write_be32 (cairo_truetype_font_t *font,
 {
     uint32_t be32_value;
 
+    if (font->status)
+	return;
+
     be32_value = cpu_to_be32 (value);
     cairo_truetype_font_write (font, &be32_value, sizeof be32_value);
 }
 
-static unsigned long
-cairo_truetype_font_align_output (cairo_truetype_font_t *font)
+static cairo_status_t
+cairo_truetype_font_align_output (cairo_truetype_font_t	    *font,
+	                          unsigned long		    *aligned)
 {
-    int length, aligned, pad;
+    int length, pad;
     unsigned char *padding;
 
     length = _cairo_array_num_elements (&font->output);
-    aligned = (length + 3) & ~3;
-    pad = aligned - length;
+    *aligned = (length + 3) & ~3;
+    pad = *aligned - length;
 
     if (pad) {
-	cairo_truetype_font_allocate_write_buffer (font, pad, &padding);
+	cairo_status_t status;
+
+	status = cairo_truetype_font_allocate_write_buffer (font, pad,
+		                                            &padding);
+	if (status)
+	    return status;
+
 	memset (padding, 0, pad);
     }
 
-    return aligned;
+    return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t
@@ -345,12 +404,15 @@ cairo_truetype_font_check_boundary (cairo_truetype_font_t *font,
 {
     cairo_status_t status;
 
+    if (font->status)
+	return font->status;
+
     if (boundary - font->last_offset > SFNT_STRING_MAX_LENGTH)
     {
         status = _cairo_array_append (&font->string_offsets,
 				      &font->last_boundary);
 	if (status)
-	    return status;
+	    return _cairo_truetype_font_set_error (font, status);
 
         font->last_offset = font->last_boundary;
     }
@@ -416,28 +478,31 @@ cairo_truetype_font_write_generic_table (cairo_truetype_font_t *font,
     unsigned char *buffer;
     unsigned long size;
 
+    if (font->status)
+	return font->status;
+
     size = 0;
-    if (font->backend->load_truetype_table( font->scaled_font_subset->scaled_font,
-					    tag, 0, NULL, &size) != CAIRO_STATUS_SUCCESS) {
-        font->status = CAIRO_INT_STATUS_UNSUPPORTED;
-        return font->status;
-    }
+    status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font,
+					        tag, 0, NULL, &size);
+    if (status)
+        return _cairo_truetype_font_set_error (font, status);
 
     status = cairo_truetype_font_allocate_write_buffer (font, size, &buffer);
     if (status)
-	return status;
+	return _cairo_truetype_font_set_error (font, status);
 
     status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
 						 tag, 0, buffer, &size);
     if (status)
-	return status;
+	return _cairo_truetype_font_set_error (font, status);
 
     return CAIRO_STATUS_SUCCESS;
 }
 
-static void
-cairo_truetype_font_remap_composite_glyph (cairo_truetype_font_t *font,
-					   unsigned char         *buffer)
+static cairo_status_t
+cairo_truetype_font_remap_composite_glyph (cairo_truetype_font_t	*font,
+					   unsigned char		*buffer,
+					   unsigned long		 size)
 {
     tt_glyph_data_t *glyph_data;
     tt_composite_glyph_t *composite_glyph;
@@ -445,16 +510,30 @@ cairo_truetype_font_remap_composite_glyph (cairo_truetype_font_t *font,
     int has_more_components;
     unsigned short flags;
     unsigned short index;
+    cairo_status_t status;
+    unsigned char *end = buffer + size;
+
+    if (font->status)
+	return font->status;
 
     glyph_data = (tt_glyph_data_t *) buffer;
+    if ((unsigned char *)(&glyph_data->data) >= end)
+	return CAIRO_INT_STATUS_UNSUPPORTED;
+
     if ((int16_t)be16_to_cpu (glyph_data->num_contours) >= 0)
-        return;
+        return CAIRO_STATUS_SUCCESS;
 
     composite_glyph = &glyph_data->glyph;
     do {
-        flags = be16_to_cpu (composite_glyph->flags);
+	if ((unsigned char *)(&composite_glyph->args[1]) >= end)
+	    return CAIRO_INT_STATUS_UNSUPPORTED;
+
+	flags = be16_to_cpu (composite_glyph->flags);
         has_more_components = flags & TT_MORE_COMPONENTS;
-        index = cairo_truetype_font_use_glyph (font, be16_to_cpu (composite_glyph->index));
+        status = cairo_truetype_font_use_glyph (font, be16_to_cpu (composite_glyph->index), &index);
+	if (status)
+	    return status;
+
         composite_glyph->index = cpu_to_be16 (index);
         num_args = 1;
         if (flags & TT_ARG_1_AND_2_ARE_WORDS)
@@ -467,6 +546,8 @@ cairo_truetype_font_remap_composite_glyph (cairo_truetype_font_t *font,
             num_args += 3;
         composite_glyph = (tt_composite_glyph_t *) &(composite_glyph->args[num_args]);
     } while (has_more_components);
+
+    return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t
@@ -483,13 +564,17 @@ cairo_truetype_font_write_glyf_table (cairo_truetype_font_t *font,
 	uint16_t      *short_offsets;
 	uint32_t      *long_offsets;
     } u;
+    cairo_status_t status;
 
-    size = sizeof (tt_head_t);
-    font->status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
-						       TT_TAG_head, 0,
-						       (unsigned char*) &header, &size);
     if (font->status)
 	return font->status;
+
+    size = sizeof (tt_head_t);
+    status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+						 TT_TAG_head, 0,
+						 (unsigned char*) &header, &size);
+    if (status)
+	return _cairo_truetype_font_set_error (font, status);
     
     if (be16_to_cpu (header.index_to_loc_format) == 0)
 	size = sizeof (int16_t) * (font->num_glyphs_in_face + 1);
@@ -497,16 +582,13 @@ cairo_truetype_font_write_glyf_table (cairo_truetype_font_t *font,
 	size = sizeof (int32_t) * (font->num_glyphs_in_face + 1);
 
     u.bytes = malloc (size);
-    if (u.bytes == NULL) {
-	font->status = CAIRO_STATUS_NO_MEMORY;
-	return font->status;
-    }
+    if (u.bytes == NULL)
+	return _cairo_truetype_font_set_error (font, CAIRO_STATUS_NO_MEMORY);
 
-    if (font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
-                                            TT_TAG_loca, 0, u.bytes, &size) != CAIRO_STATUS_SUCCESS) {
-        font->status = CAIRO_INT_STATUS_UNSUPPORTED;
-        return font->status;
-    }
+    status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+                                                 TT_TAG_loca, 0, u.bytes, &size);
+    if (status)
+	return _cairo_truetype_font_set_error (font, status);
 
     start_offset = _cairo_array_num_elements (&font->output);
     for (i = 0; i < font->base.num_glyphs; i++) {
@@ -520,36 +602,50 @@ cairo_truetype_font_write_glyf_table (cairo_truetype_font_t *font,
 	    end = be32_to_cpu (u.long_offsets[index + 1]);
 	}
 
+	/* quick sanity check... */
+	if (end < begin) {
+	    status = CAIRO_INT_STATUS_UNSUPPORTED;
+	    goto FAIL;
+	}
+
 	size = end - begin;
+        status = cairo_truetype_font_align_output (font, &next);
+	if (status)
+	    goto FAIL;
 
-        next = cairo_truetype_font_align_output (font);
-
-        font->status = cairo_truetype_font_check_boundary (font, next);
-	if (font->status)
-	    break;
+        status = cairo_truetype_font_check_boundary (font, next);
+	if (status)
+	    goto FAIL;
 
         font->glyphs[i].location = next - start_offset;
 
-	font->status = cairo_truetype_font_allocate_write_buffer (font, size, &buffer);
-	if (font->status)
-	    break;
+	status = cairo_truetype_font_allocate_write_buffer (font, size, &buffer);
+	if (status)
+	    goto FAIL;
 
         if (size != 0) {
-            font->status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
-							       TT_TAG_glyf, begin, buffer, &size);
-	    if (font->status)
-		break;
+            status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+							 TT_TAG_glyf, begin, buffer, &size);
+	    if (status)
+		goto FAIL;
 
-            cairo_truetype_font_remap_composite_glyph (font, buffer);
+            status = cairo_truetype_font_remap_composite_glyph (font, buffer, size);
+	    if (status)
+		goto FAIL;
         }
     }
 
-    font->glyphs[i].location =
-	cairo_truetype_font_align_output (font) - start_offset;
+    status = cairo_truetype_font_align_output (font, &next);
+    if (status)
+	goto FAIL;
 
+    font->glyphs[i].location = next - start_offset;
+
+    status = font->status;
+FAIL:
     free (u.bytes);
 
-    return font->status;
+    return _cairo_truetype_font_set_error (font, status);
 }
 
 static cairo_status_t
@@ -558,27 +654,31 @@ cairo_truetype_font_write_head_table (cairo_truetype_font_t *font,
 {
     unsigned char *buffer;
     unsigned long size;
+    cairo_status_t status;
+
+    if (font->status)
+	return font->status;
 
     size = 0;
-    font->status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
-						       tag, 0, NULL, &size);
-    if (font->status)
-	return font->status;
+    status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+						 tag, 0, NULL, &size);
+    if (status)
+	return _cairo_truetype_font_set_error (font, status);
 
     font->checksum_index = _cairo_array_num_elements (&font->output) + 8;
-    font->status = cairo_truetype_font_allocate_write_buffer (font, size, &buffer);
-    if (font->status)
-	return font->status;
+    status = cairo_truetype_font_allocate_write_buffer (font, size, &buffer);
+    if (status)
+	return _cairo_truetype_font_set_error (font, status);
 
-    font->status = font->backend->load_truetype_table( font->scaled_font_subset->scaled_font,
-						       tag, 0, buffer, &size);
-    if (font->status)
-	return font->status;
+    status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+						 tag, 0, buffer, &size);
+    if (status)
+	return _cairo_truetype_font_set_error (font, status);
 
     /* set checkSumAdjustment to 0 for table checksum calcualtion */
     *(uint32_t *)(buffer + 8) = 0;
 
-    return font->status;
+    return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t
@@ -586,20 +686,24 @@ cairo_truetype_font_write_hhea_table (cairo_truetype_font_t *font, unsigned long
 {
     tt_hhea_t *hhea;
     unsigned long size;
+    cairo_status_t status;
+
+    if (font->status)
+	return font->status;
 
     size = sizeof (tt_hhea_t);
-    font->status = cairo_truetype_font_allocate_write_buffer (font, size, (unsigned char **) &hhea);
-    if (font->status)
-	return font->status;
+    status = cairo_truetype_font_allocate_write_buffer (font, size, (unsigned char **) &hhea);
+    if (status)
+	return _cairo_truetype_font_set_error (font, status);
 
-    font->status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
-						       tag, 0, (unsigned char *) hhea, &size);
-    if (font->status)
-	return font->status;
+    status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+						 tag, 0, (unsigned char *) hhea, &size);
+    if (status)
+	return _cairo_truetype_font_set_error (font, status);
 
     hhea->num_hmetrics = cpu_to_be16 ((uint16_t)(font->base.num_glyphs));
 
-    return font->status;
+    return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t
@@ -613,54 +717,58 @@ cairo_truetype_font_write_hmtx_table (cairo_truetype_font_t *font,
     unsigned int i;
     tt_hhea_t hhea;
     int num_hmetrics;
+    cairo_status_t status;
 
-    size = sizeof (tt_hhea_t);
-    font->status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
-						       TT_TAG_hhea, 0,
-						       (unsigned char*) &hhea, &size);
     if (font->status)
 	return font->status;
+
+    size = sizeof (tt_hhea_t);
+    status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+						 TT_TAG_hhea, 0,
+						 (unsigned char*) &hhea, &size);
+    if (status)
+	return _cairo_truetype_font_set_error (font, status);
 
     num_hmetrics = be16_to_cpu(hhea.num_hmetrics);
 
     for (i = 0; i < font->base.num_glyphs; i++) {
         long_entry_size = 2 * sizeof (int16_t);
         short_entry_size = sizeof (int16_t);
-        font->status = cairo_truetype_font_allocate_write_buffer (font, long_entry_size,
-								  (unsigned char **) &p);
-	if (font->status)
-	    return font->status;
+        status = cairo_truetype_font_allocate_write_buffer (font,
+		                                            long_entry_size,
+							    (unsigned char **) &p);
+	if (status)
+	    return _cairo_truetype_font_set_error (font, status);
 
         if (font->glyphs[i].parent_index < num_hmetrics) {
-            if (font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
-                                                    TT_TAG_hmtx,
-                                                    font->glyphs[i].parent_index * long_entry_size,
-                                                    (unsigned char *) p, &long_entry_size) != CAIRO_STATUS_SUCCESS) {
-                font->status = CAIRO_INT_STATUS_UNSUPPORTED;
-                return font->status;
-            }
+            status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+                                                         TT_TAG_hmtx,
+                                                         font->glyphs[i].parent_index * long_entry_size,
+                                                         (unsigned char *) p, &long_entry_size);
+	    if (status)
+		return _cairo_truetype_font_set_error (font, status);
         }
         else
         {
-            if (font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
-                                                    TT_TAG_hmtx,
-                                                    (num_hmetrics - 1) * long_entry_size,
-                                                    (unsigned char *) p, &short_entry_size) != CAIRO_STATUS_SUCCESS) {
-                font->status = CAIRO_INT_STATUS_UNSUPPORTED;
-                return font->status;
-            }
-            font->status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
-							       TT_TAG_hmtx,
-							       num_hmetrics * long_entry_size +
-							       (font->glyphs[i].parent_index - num_hmetrics) * short_entry_size,
-							       (unsigned char *) (p + 1), &short_entry_size);
-	    if (font->status)
-		return font->status;
+            status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+                                                         TT_TAG_hmtx,
+							 (num_hmetrics - 1) * long_entry_size,
+							 (unsigned char *) p, &short_entry_size);
+	    if (status)
+		return _cairo_truetype_font_set_error (font, status);
+
+            status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+							 TT_TAG_hmtx,
+							 num_hmetrics * long_entry_size +
+							 (font->glyphs[i].parent_index - num_hmetrics) * short_entry_size,
+							 (unsigned char *) (p + 1), &short_entry_size);
+	    if (status)
+		return _cairo_truetype_font_set_error (font, status);
         }
         font->base.widths[i] = be16_to_cpu (p[0]);
     }
 
-    return font->status;
+    return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t
@@ -670,13 +778,17 @@ cairo_truetype_font_write_loca_table (cairo_truetype_font_t *font,
     unsigned int i;
     tt_head_t header;
     unsigned long size;
+    cairo_status_t status;
 
-    size = sizeof(tt_head_t);
-    font->status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
-						       TT_TAG_head, 0,
-						       (unsigned char*) &header, &size);
     if (font->status)
 	return font->status;
+
+    size = sizeof(tt_head_t);
+    status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+						 TT_TAG_head, 0,
+						 (unsigned char*) &header, &size);
+    if (status)
+	return _cairo_truetype_font_set_error (font, status);
 
     if (be16_to_cpu (header.index_to_loc_format) == 0)
     {
@@ -696,50 +808,25 @@ cairo_truetype_font_write_maxp_table (cairo_truetype_font_t *font,
 {
     tt_maxp_t *maxp;
     unsigned long size;
+    cairo_status_t status;
+
+    if (font->status)
+	return font->status;
 
     size = sizeof (tt_maxp_t);
-    font->status = cairo_truetype_font_allocate_write_buffer (font, size, (unsigned char **) &maxp);
-    if (font->status)
-	return font->status;
+    status = cairo_truetype_font_allocate_write_buffer (font, size, (unsigned char **) &maxp);
+    if (status)
+	return _cairo_truetype_font_set_error (font, status);
 
-    font->status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
-						       tag, 0, (unsigned char *) maxp, &size);
-    if (font->status)
-	return font->status;
+    status = font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+						 tag, 0, (unsigned char *) maxp, &size);
+    if (status)
+	return _cairo_truetype_font_set_error (font, status);
 
     maxp->num_glyphs = cpu_to_be16 (font->base.num_glyphs);
 
-    return font->status;
+    return CAIRO_STATUS_SUCCESS;
 }
-
-typedef struct table table_t;
-struct table {
-    unsigned long tag;
-    cairo_status_t (*write) (cairo_truetype_font_t *font, unsigned long tag);
-    int pos; /* position in the font directory */
-};
-
-static const table_t truetype_tables[] = {
-    /* As we write out the glyf table we remap composite glyphs.
-     * Remapping composite glyphs will reference the sub glyphs the
-     * composite glyph is made up of.  That needs to be done first so
-     * we have all the glyphs in the subset before going further.
-     *
-     * The third column in this table is the order in which the
-     * directory entries will appear in the table directory.
-     * The table directory must be sorted in tag order. */
-    { TT_TAG_glyf, cairo_truetype_font_write_glyf_table,     3 },
-    { TT_TAG_cmap, cairo_truetype_font_write_cmap_table,     0 },
-    { TT_TAG_cvt,  cairo_truetype_font_write_generic_table,  1 },
-    { TT_TAG_fpgm, cairo_truetype_font_write_generic_table,  2 },
-    { TT_TAG_head, cairo_truetype_font_write_head_table,     4 },
-    { TT_TAG_hhea, cairo_truetype_font_write_hhea_table,     5 },
-    { TT_TAG_hmtx, cairo_truetype_font_write_hmtx_table,     6 },
-    { TT_TAG_loca, cairo_truetype_font_write_loca_table,     7 },
-    { TT_TAG_maxp, cairo_truetype_font_write_maxp_table,     8 },
-    { TT_TAG_name, cairo_truetype_font_write_generic_table,  9 },
-    { TT_TAG_prep, cairo_truetype_font_write_generic_table, 10 },
-};
 
 static cairo_status_t
 cairo_truetype_font_write_offset_table (cairo_truetype_font_t *font)
@@ -748,20 +835,21 @@ cairo_truetype_font_write_offset_table (cairo_truetype_font_t *font)
     unsigned char *table_buffer;
     size_t table_buffer_length;
     unsigned short search_range, entry_selector, range_shift;
-    int num_tables;
 
-    num_tables = ARRAY_LENGTH (truetype_tables);
+    if (font->status)
+	return font->status;
+
     search_range = 1;
     entry_selector = 0;
-    while (search_range * 2 <= num_tables) {
+    while (search_range * 2 <= font->num_tables) {
 	search_range *= 2;
 	entry_selector++;
     }
     search_range *= 16;
-    range_shift = num_tables * 16 - search_range;
+    range_shift = font->num_tables * 16 - search_range;
 
     cairo_truetype_font_write_be32 (font, SFNT_VERSION);
-    cairo_truetype_font_write_be16 (font, num_tables);
+    cairo_truetype_font_write_be16 (font, font->num_tables);
     cairo_truetype_font_write_be16 (font, search_range);
     cairo_truetype_font_write_be16 (font, entry_selector);
     cairo_truetype_font_write_be16 (font, range_shift);
@@ -769,13 +857,13 @@ cairo_truetype_font_write_offset_table (cairo_truetype_font_t *font)
     /* Allocate space for the table directory. Each directory entry
      * will be filled in by cairo_truetype_font_update_entry() after
      * the table is written. */
-    table_buffer_length = ARRAY_LENGTH (truetype_tables) * 16;
+    table_buffer_length = font->num_tables * 16;
     status = cairo_truetype_font_allocate_write_buffer (font, table_buffer_length,
 						      &table_buffer);
     if (status)
-	return status;
+	return _cairo_truetype_font_set_error (font, status);
 
-    return font->status;
+    return CAIRO_STATUS_SUCCESS;
 }
 
 static uint32_t
@@ -824,28 +912,35 @@ cairo_truetype_font_generate (cairo_truetype_font_t  *font,
     cairo_status_t status;
     unsigned long start, end, next;
     uint32_t checksum, *checksum_location;
-    unsigned int i;
+    int i;
 
-    if (cairo_truetype_font_write_offset_table (font))
-	goto fail;
+    if (font->status)
+	return font->status;
 
-    start = cairo_truetype_font_align_output (font);
-    end = start;
+    status = cairo_truetype_font_write_offset_table (font);
+    if (status)
+	goto FAIL;
+
+    status = cairo_truetype_font_align_output (font, &start);
+    if (status)
+	goto FAIL;
 
     end = 0;
-    for (i = 0; i < ARRAY_LENGTH (truetype_tables); i++) {
-	if (truetype_tables[i].write (font, truetype_tables[i].tag))
-	    goto fail;
+    for (i = 0; i < font->num_tables; i++) {
+	status = font->truetype_tables[i].write (font, font->truetype_tables[i].tag);
+	if (status)
+	    goto FAIL;
 
 	end = _cairo_array_num_elements (&font->output);
-	next = cairo_truetype_font_align_output (font);
-	cairo_truetype_font_update_entry (font, truetype_tables[i].pos, truetype_tables[i].tag,
-					start, end);
+	status = cairo_truetype_font_align_output (font, &next);
+	if (status)
+	    goto FAIL;
+
+	cairo_truetype_font_update_entry (font, font->truetype_tables[i].pos,
+                                          font->truetype_tables[i].tag, start, end);
         status = cairo_truetype_font_check_boundary (font, next);
-	if (status) {
-	    font->status = status;
-	    goto fail;
-	}
+	if (status)
+	    goto FAIL;
 
 	start = next;
     }
@@ -863,20 +958,111 @@ cairo_truetype_font_generate (cairo_truetype_font_t  *font,
     else
 	*string_offsets = NULL;
 
- fail:
-    return font->status;
+ FAIL:
+    return _cairo_truetype_font_set_error (font, status);
 }
 
-static int
-cairo_truetype_font_use_glyph (cairo_truetype_font_t *font, int glyph)
+static cairo_status_t
+cairo_truetype_font_use_glyph (cairo_truetype_font_t	    *font,
+	                       unsigned short		     glyph,
+			       unsigned short		    *out)
 {
+    if (glyph >= font->num_glyphs_in_face)
+	return CAIRO_INT_STATUS_UNSUPPORTED;
+
     if (font->parent_to_subset[glyph] == 0) {
 	font->parent_to_subset[glyph] = font->base.num_glyphs;
 	font->glyphs[font->base.num_glyphs].parent_index = glyph;
 	font->base.num_glyphs++;
     }
 
-    return font->parent_to_subset[glyph];
+    *out = font->parent_to_subset[glyph];
+    return CAIRO_STATUS_SUCCESS;
+}
+
+static void
+cairo_truetype_font_add_truetype_table (cairo_truetype_font_t *font,
+           unsigned long tag,
+           cairo_status_t (*write) (cairo_truetype_font_t *font, unsigned long tag),
+           int pos)
+{
+    font->truetype_tables[font->num_tables].tag = tag;
+    font->truetype_tables[font->num_tables].write = write;
+    font->truetype_tables[font->num_tables].pos = pos;
+    font->num_tables++;
+}
+
+/* cairo_truetype_font_create_truetype_table_list() builds the list of
+ * truetype tables to be embedded in the subsetted font. Each call to
+ * cairo_truetype_font_add_truetype_table() adds a table, the callback
+ * for generating the table, and the position in the table directory
+ * to the truetype_tables array.
+ *
+ * As we write out the glyf table we remap composite glyphs.
+ * Remapping composite glyphs will reference the sub glyphs the
+ * composite glyph is made up of. The "glyf" table callback needs to
+ * be called first so we have all the glyphs in the subset before
+ * going further.
+ *
+ * The order in which tables are added to the truetype_table array
+ * using cairo_truetype_font_add_truetype_table() specifies the order
+ * in which the callback functions will be called.
+ *
+ * The tables in the table directory must be listed in alphabetical
+ * order.  The "cvt", "fpgm", and "prep" are optional tables. They
+ * will only be embedded in the subset if they exist in the source
+ * font. The pos parameter of cairo_truetype_font_add_truetype_table()
+ * specifies the position of the table in the table directory.
+ */
+static void
+cairo_truetype_font_create_truetype_table_list (cairo_truetype_font_t *font)
+{
+    cairo_bool_t has_cvt = FALSE;
+    cairo_bool_t has_fpgm = FALSE;
+    cairo_bool_t has_prep = FALSE;
+    unsigned long size;
+    int pos;
+
+    size = 0;
+    if (font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+                                      TT_TAG_cvt, 0, NULL,
+                                      &size) == CAIRO_STATUS_SUCCESS)
+        has_cvt = TRUE;
+
+    size = 0;
+    if (font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+                                      TT_TAG_fpgm, 0, NULL,
+                                      &size) == CAIRO_STATUS_SUCCESS)
+        has_fpgm = TRUE;
+
+    size = 0;
+    if (font->backend->load_truetype_table (font->scaled_font_subset->scaled_font,
+                                      TT_TAG_prep, 0, NULL,
+                                      &size) == CAIRO_STATUS_SUCCESS)
+        has_prep = TRUE;
+
+    font->num_tables = 0;
+    pos = 1;
+    if (has_cvt)
+        pos++;
+    if (has_fpgm)
+        pos++;
+    cairo_truetype_font_add_truetype_table (font, TT_TAG_glyf, cairo_truetype_font_write_glyf_table, pos);
+
+    pos = 0;
+    cairo_truetype_font_add_truetype_table (font, TT_TAG_cmap, cairo_truetype_font_write_cmap_table, pos++);
+    if (has_cvt)
+        cairo_truetype_font_add_truetype_table (font, TT_TAG_cvt, cairo_truetype_font_write_generic_table, pos++);
+    if (has_fpgm)
+        cairo_truetype_font_add_truetype_table (font, TT_TAG_fpgm, cairo_truetype_font_write_generic_table, pos++);
+    pos++;
+    cairo_truetype_font_add_truetype_table (font, TT_TAG_head, cairo_truetype_font_write_head_table, pos++);
+    cairo_truetype_font_add_truetype_table (font, TT_TAG_hhea, cairo_truetype_font_write_hhea_table, pos++);
+    cairo_truetype_font_add_truetype_table (font, TT_TAG_hmtx, cairo_truetype_font_write_hmtx_table, pos++);
+    cairo_truetype_font_add_truetype_table (font, TT_TAG_loca, cairo_truetype_font_write_loca_table, pos++);
+    cairo_truetype_font_add_truetype_table (font, TT_TAG_maxp, cairo_truetype_font_write_maxp_table, pos++);
+    if (has_prep)
+        cairo_truetype_font_add_truetype_table (font, TT_TAG_prep, cairo_truetype_font_write_generic_table, pos);
 }
 
 cairo_status_t
@@ -887,7 +1073,7 @@ _cairo_truetype_subset_init (cairo_truetype_subset_t    *truetype_subset,
     cairo_status_t status;
     const char *data = NULL; /* squelch bogus compiler warning */
     unsigned long length = 0; /* squelch bogus compiler warning */
-    unsigned long parent_glyph, offsets_length;
+    unsigned long offsets_length;
     unsigned int i;
     const unsigned long *string_offsets = NULL;
     unsigned long num_strings = 0;
@@ -897,18 +1083,21 @@ _cairo_truetype_subset_init (cairo_truetype_subset_t    *truetype_subset,
 	return status;
 
     for (i = 0; i < font->scaled_font_subset->num_glyphs; i++) {
-	parent_glyph = font->scaled_font_subset->glyphs[i];
-	cairo_truetype_font_use_glyph (font, parent_glyph);
+	unsigned short parent_glyph = font->scaled_font_subset->glyphs[i];
+	status = cairo_truetype_font_use_glyph (font, parent_glyph, &parent_glyph);
+	if (status)
+	    goto fail1;
     }
 
+    cairo_truetype_font_create_truetype_table_list (font);
     status = cairo_truetype_font_generate (font, &data, &length,
-					 &string_offsets, &num_strings);
+                                           &string_offsets, &num_strings);
     if (status)
 	goto fail1;
 
     truetype_subset->base_font = strdup (font->base.base_font);
     if (truetype_subset->base_font == NULL) {
-	status = CAIRO_STATUS_NO_MEMORY;
+	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto fail1;
     }
 
@@ -918,7 +1107,7 @@ _cairo_truetype_subset_init (cairo_truetype_subset_t    *truetype_subset,
     truetype_subset->widths = calloc (sizeof (double),
                                       font->scaled_font_subset->num_glyphs);
     if (truetype_subset->widths == NULL) {
-	status = CAIRO_STATUS_NO_MEMORY;
+	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto fail2;
     }
     for (i = 0; i < font->scaled_font_subset->num_glyphs; i++)
@@ -931,20 +1120,23 @@ _cairo_truetype_subset_init (cairo_truetype_subset_t    *truetype_subset,
     truetype_subset->ascent = (double)font->base.ascent/font->base.units_per_em;
     truetype_subset->descent = (double)font->base.descent/font->base.units_per_em;
 
-    truetype_subset->data = malloc (length);
-    if (truetype_subset->data == NULL) {
-	status = CAIRO_STATUS_NO_MEMORY;
-	goto fail3;
-    }
+    if (length) {
+	truetype_subset->data = malloc (length);
+	if (truetype_subset->data == NULL) {
+	    status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	    goto fail3;
+	}
 
-    memcpy (truetype_subset->data, data, length);
+	memcpy (truetype_subset->data, data, length);
+    } else
+	truetype_subset->data = NULL;
     truetype_subset->data_length = length;
 
     if (num_strings) {
 	offsets_length = num_strings * sizeof (unsigned long);
 	truetype_subset->string_offsets = malloc (offsets_length);
 	if (truetype_subset->string_offsets == NULL) {
-	    status = CAIRO_STATUS_NO_MEMORY;
+	    status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	    goto fail4;
 	}
 
@@ -984,7 +1176,7 @@ static cairo_int_status_t
 _cairo_truetype_map_glyphs_to_unicode (cairo_scaled_font_subset_t *font_subset,
                                        unsigned long               table_offset)
 {
-    cairo_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
+    cairo_status_t status;
     const cairo_scaled_font_backend_t *backend;
     tt_segment_map_t *map;
     char buf[4];
@@ -999,12 +1191,12 @@ _cairo_truetype_map_glyphs_to_unicode (cairo_scaled_font_subset_t *font_subset,
 
     backend = font_subset->scaled_font->backend;
     size = 4;
-    if (backend->load_truetype_table (font_subset->scaled_font,
-                                      TT_TAG_cmap, table_offset,
-                                      (unsigned char *) &buf,
-                                      &size) != CAIRO_STATUS_SUCCESS) {
-	return CAIRO_INT_STATUS_UNSUPPORTED;
-    }
+    status = backend->load_truetype_table (font_subset->scaled_font,
+                                           TT_TAG_cmap, table_offset,
+					   (unsigned char *) &buf,
+					   &size);
+    if (status)
+	return status;
 
     /* All table formats have the same first two words */
     map = (tt_segment_map_t *) buf;
@@ -1014,13 +1206,14 @@ _cairo_truetype_map_glyphs_to_unicode (cairo_scaled_font_subset_t *font_subset,
     size = be16_to_cpu (map->length);
     map = malloc (size);
     if (map == NULL)
-	return CAIRO_STATUS_NO_MEMORY;
-    if (backend->load_truetype_table (font_subset->scaled_font,
-                                      TT_TAG_cmap, table_offset,
-                                      (unsigned char *) map,
-                                      &size) != CAIRO_STATUS_SUCCESS) {
+	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+
+    status = backend->load_truetype_table (font_subset->scaled_font,
+                                           TT_TAG_cmap, table_offset,
+                                           (unsigned char *) map,
+                                           &size);
+    if (status)
 	goto fail;
-    }
 
     num_segments = be16_to_cpu (map->segCountX2)/2;
     end_code = map->endCount;
@@ -1088,23 +1281,26 @@ _cairo_truetype_create_glyph_to_unicode_map (cairo_scaled_font_subset_t	*font_su
 	return CAIRO_INT_STATUS_UNSUPPORTED;
 
     size = 4;
-    if (backend->load_truetype_table (font_subset->scaled_font,
-                                      TT_TAG_cmap, 0, (unsigned char *) &buf,
-                                      &size) != CAIRO_STATUS_SUCCESS)
-	return CAIRO_INT_STATUS_UNSUPPORTED;
+    status = backend->load_truetype_table (font_subset->scaled_font,
+                                           TT_TAG_cmap, 0,
+					   (unsigned char *) &buf,
+					   &size);
+    if (status)
+	return status;
 
     cmap = (tt_cmap_t *) buf;
     num_tables = be16_to_cpu (cmap->num_tables);
     size = 4 + num_tables*sizeof(tt_cmap_index_t);
     cmap = malloc (size);
     if (cmap == NULL)
-	return CAIRO_STATUS_NO_MEMORY;
-    if (backend->load_truetype_table (font_subset->scaled_font,
-                                      TT_TAG_cmap, 0, (unsigned char *) cmap,
-                                      &size) != CAIRO_STATUS_SUCCESS) {
-	status = CAIRO_INT_STATUS_UNSUPPORTED;
+	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+
+    status = backend->load_truetype_table (font_subset->scaled_font,
+	                                   TT_TAG_cmap, 0,
+					   (unsigned char *) cmap,
+					   &size);
+    if (status)
         goto cleanup;
-    }
 
     /* Find a table with Unicode mapping */
     for (i = 0; i < num_tables; i++) {

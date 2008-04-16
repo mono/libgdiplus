@@ -64,7 +64,11 @@
 <refsect1 role="desc">
 <title role="desc.title">Description</title>
 <para>
-
+The current transformation matrix, <firstterm>ctm</firstterm>, is a
+two-dimensional affine transformation that maps all coordinates and other
+drawing instruments from the <firstterm>user space</firstterm> into the
+surface's canonical coordinate system, also known as the <firstterm>device
+space</firstterm>.
 </para>
 </refsect1>
 
@@ -79,7 +83,7 @@
 Modifies the current transformation matrix (CTM) by translating the
 user-space origin by (<parameter>tx</parameter>, <parameter>ty</parameter>). This offset is interpreted as a
 user-space coordinate according to the CTM in place before the new
-call to cairo_translate. In other words, the translation of the
+call to <link linkend="cairo-translate"><function>cairo_translate()</function></link>. In other words, the translation of the
 user-space origin takes place after any existing transformation.</para>
 <para>
 
@@ -299,5 +303,15 @@ transforming (<parameter>dx</parameter>,<parameter>dy</parameter>).</para>
 
 
 
+<refsect1>
+<title>See Also</title>
+<para>
+<itemizedlist>
+<listitem><link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link></listitem>
+</itemizedlist>
+</para>
+</refsect1>
 
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
 </refentry>

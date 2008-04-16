@@ -198,7 +198,7 @@ Creates a new <link linkend="cairo-t"><type>cairo_t</type></link> with all graph
 default values and with <parameter>target</parameter> as a target surface. The target
 surface should be constructed with a backend-specific function such
 as <link linkend="cairo-image-surface-create"><function>cairo_image_surface_create()</function></link> (or any other
-<literal>cairo_&lt;backend&gt;_surface_create</literal> variant).
+cairo_<emphasis>backend</emphasis>_surface_create variant).
 </para>
 <para>
 This function references <parameter>target</parameter>, so you can immediately
@@ -265,7 +265,7 @@ Checks whether an error has previously occurred for this context.</para>
 <varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
 <listitem><simpara> a cairo context
 </simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara>the current status of this context, see <link linkend="cairo-status-t"><type>cairo_status_t</type></link>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the current status of this context, see <link linkend="cairo-status-t"><type>cairo_status_t</type></link>
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
@@ -406,7 +406,7 @@ detailed description of group rendering.</para>
 <listitem><simpara> a cairo context
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>content</parameter>&nbsp;:</term>
-<listitem><simpara> a <link linkend="cairo-content-t"><literal>cairo_content_t</literal></link> indicating the type of group that
+<listitem><simpara> a %<link linkend="cairo-content-t"><type>cairo_content_t</type></link> indicating the type of group that
           will be created
 </simpara></listitem></varlistentry>
 </variablelist><para role="since">Since  1.2
@@ -453,7 +453,7 @@ operations:
 </para>
 <para>
 <informalexample><programlisting>
-cairo_pattern_t *group = cairo_pop_group (cr);
+<link linkend="cairo-pattern-t">cairo_pattern_t</link> *group = cairo_pop_group (cr);
 cairo_set_source (cr, group);
 cairo_pattern_destroy (group);
 </programlisting></informalexample>
@@ -479,23 +479,25 @@ group.</para>
 <title><anchor id="cairo-get-group-target" role="function" condition="since:1.2"/>cairo_get_group_target ()</title>
 <indexterm role="1.2"><primary>cairo_get_group_target</primary></indexterm><programlisting><link linkend="cairo-surface-t">cairo_surface_t</link>*    cairo_get_group_target              (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
 <para>
-Gets the target surface for the current group as started by the
-most recent call to <link linkend="cairo-push-group"><function>cairo_push_group()</function></link> or
-<link linkend="cairo-push-group-with-content"><function>cairo_push_group_with_content()</function></link>.
+Gets the current destination surface for the context. This is either
+the original target surface as passed to <link linkend="cairo-create"><function>cairo_create()</function></link> or the target
+surface for the current group as started by the most recent call to
+<link linkend="cairo-push-group"><function>cairo_push_group()</function></link> or <link linkend="cairo-push-group-with-content"><function>cairo_push_group_with_content()</function></link>.
 </para>
 <para>
-This function will return NULL if called "outside" of any group
-rendering blocks, (that is, after the last balancing call to
-<link linkend="cairo-pop-group"><function>cairo_pop_group()</function></link> or <link linkend="cairo-pop-group-to-source"><function>cairo_pop_group_to_source()</function></link>).</para>
+This function will always return a valid pointer, but the result
+can be a "nil" surface if <parameter>cr</parameter> is already in an error state,
+(ie. <link linkend="cairo-status"><function>cairo_status()</function></link> <literal>!=</literal> <link linkend="CAIRO-STATUS-SUCCESS:CAPS"><literal>CAIRO_STATUS_SUCCESS</literal></link>).
+A nil surface is indicated by <link linkend="cairo-surface-status"><function>cairo_surface_status()</function></link>
+<literal>!=</literal> <link linkend="CAIRO-STATUS-SUCCESS:CAPS"><literal>CAIRO_STATUS_SUCCESS</literal></link>.</para>
 <para>
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
 <listitem><simpara> a cairo context
 </simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the target group surface, or NULL if none.  This
-object is owned by cairo. To keep a reference to it, you must call
-<link linkend="cairo-surface-reference"><function>cairo_surface_reference()</function></link>.
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the target surface. This object is owned by cairo. To
+keep a reference to it, you must call <link linkend="cairo-surface-reference"><function>cairo_surface_reference()</function></link>.
 
 </simpara></listitem></varlistentry>
 </variablelist><para role="since">Since  1.2
@@ -514,7 +516,11 @@ a new source pattern is set.
 <para>
 The color components are floating point numbers in the range 0 to
 1. If the values passed in are outside that range, they will be
-clamped.</para>
+clamped.
+</para>
+<para>
+The default source pattern is opaque black, (that is, it is
+equivalent to cairo_set_source_rgb (cr, 0.0, 0.0, 0.0)).</para>
 <para>
 
 </para><variablelist role="params">
@@ -546,7 +552,11 @@ a new source pattern is set.
 <para>
 The color and alpha components are floating point numbers in the
 range 0 to 1. If the values passed in are outside that range, they
-will be clamped.</para>
+will be clamped.
+</para>
+<para>
+The default source pattern is opaque black, (that is, it is
+equivalent to cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, 1.0)).</para>
 <para>
 
 </para><variablelist role="params">
@@ -582,9 +592,9 @@ that further modifications of the current transformation matrix
 will not affect the source pattern. See <link linkend="cairo-pattern-set-matrix"><function>cairo_pattern_set_matrix()</function></link>.
 </para>
 <para>
-XXX: I'd also like to direct the reader's attention to some
-(not-yet-written) section on cairo's imaging model. How would I do
-that if such a section existed? (cworth).</para>
+The default source pattern is a solid pattern that is opaque black,
+(that is, it is equivalent to cairo_set_source_rgb (cr, 0.0, 0.0,
+0.0)).</para>
 <para>
 
 </para><variablelist role="params">
@@ -744,7 +754,7 @@ the stroke begins.
 <para>
 Each "on" segment will have caps applied as if the segment were a
 separate sub-path. In particular, it is valid to use an "on" length
-of 0.0 with CAIRO_LINE_CAP_ROUND or CAIRO_LINE_CAP_SQUARE in order
+of 0.0 with <link linkend="CAIRO-LINE-CAP-ROUND:CAPS"><literal>CAIRO_LINE_CAP_ROUND</literal></link> or <link linkend="CAIRO-LINE-CAP-SQUARE:CAPS"><literal>CAIRO_LINE_CAP_SQUARE</literal></link> in order
 to distributed dots or squares along a path.
 </para>
 <para>
@@ -762,8 +772,8 @@ on and off portions of the size specified by the single value in
 </para>
 <para>
 If any value in <parameter>dashes</parameter> is negative, or if all values are 0, then
-<parameter>cairo_t</parameter> will be put into an error state with a status of
-<link linkend="CAIRO-STATUS-INVALID-DASH:CAPS"><type>CAIRO_STATUS_INVALID_DASH</type></link>.</para>
+<parameter>cr</parameter> will be put into an error state with a status of
+#<link linkend="CAIRO-STATUS-INVALID-DASH:CAPS"><literal>CAIRO_STATUS_INVALID_DASH</literal></link>.</para>
 <para>
 
 </para><variablelist role="params">
@@ -841,6 +851,9 @@ or have a tricky intersection such as intersecting tangent to the path.
 is just a description of the rule that is applied.)
 </para>
 <para>
+The default fill rule is <link linkend="CAIRO-FILL-RULE-WINDING:CAPS"><literal>CAIRO_FILL_RULE_WINDING</literal></link>.
+</para>
+<para>
 New entries may be added in future versions.</para>
 <para>
 
@@ -872,7 +885,10 @@ Set the current fill rule within the cairo context. The fill rule
 is used to determine which regions are inside or outside a complex
 (potentially self-intersecting) path. The current fill rule affects
 both <link linkend="cairo-fill"><function>cairo_fill()</function></link> and <link linkend="cairo-clip"><function>cairo_clip()</function></link>. See <link linkend="cairo-fill-rule-t"><type>cairo_fill_rule_t</type></link> for details
-on the semantics of each available fill rule.</para>
+on the semantics of each available fill rule.
+</para>
+<para>
+The default fill rule is <link linkend="CAIRO-FILL-RULE-WINDING:CAPS"><literal>CAIRO_FILL_RULE_WINDING</literal></link>.</para>
 <para>
 
 </para><variablelist role="params">
@@ -906,7 +922,10 @@ Gets the current fill rule, as set by <link linkend="cairo-set-fill-rule"><funct
 } cairo_line_cap_t;
 </programlisting>
 <para>
-Specifies how to render the endpoint of a line when stroking.</para>
+Specifies how to render the endpoints of the path when stroking.
+</para>
+<para>
+The default line cap style is <link linkend="CAIRO-LINE-CAP-BUTT:CAPS"><literal>CAIRO_LINE_CAP_BUTT</literal></link>.</para>
 <para>
 
 </para><variablelist role="enum">
@@ -939,7 +958,10 @@ styles are drawn.
 As with the other stroke parameters, the current line cap style is
 examined by <link linkend="cairo-stroke"><function>cairo_stroke()</function></link>, <link linkend="cairo-stroke-extents"><function>cairo_stroke_extents()</function></link>, and
 <link linkend="cairo-stroke-to-path"><function>cairo_stroke_to_path()</function></link>, but does not have any effect during path
-construction.</para>
+construction.
+</para>
+<para>
+The default line cap style is <link linkend="CAIRO-LINE-CAP-BUTT:CAPS"><literal>CAIRO_LINE_CAP_BUTT</literal></link>.</para>
 <para>
 
 </para><variablelist role="params">
@@ -973,7 +995,10 @@ Gets the current line cap style, as set by <link linkend="cairo-set-line-cap"><f
 } cairo_line_join_t;
 </programlisting>
 <para>
-Specifies how to render the junction of two lines when stroking.</para>
+Specifies how to render the junction of two lines when stroking.
+</para>
+<para>
+The default line join style is <link linkend="CAIRO-LINE-JOIN-MITER:CAPS"><literal>CAIRO_LINE_JOIN_MITER</literal></link>.</para>
 <para>
 
 </para><variablelist role="enum">
@@ -1009,7 +1034,10 @@ styles are drawn.
 As with the other stroke parameters, the current line join style is
 examined by <link linkend="cairo-stroke"><function>cairo_stroke()</function></link>, <link linkend="cairo-stroke-extents"><function>cairo_stroke_extents()</function></link>, and
 <link linkend="cairo-stroke-to-path"><function>cairo_stroke_to_path()</function></link>, but does not have any effect during path
-construction.</para>
+construction.
+</para>
+<para>
+The default line join style is <link linkend="CAIRO-LINE-JOIN-MITER:CAPS"><literal>CAIRO_LINE_JOIN_MITER</literal></link>.</para>
 <para>
 
 </para><variablelist role="params">
@@ -1017,7 +1045,7 @@ construction.</para>
 <listitem><simpara> a cairo context
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>line_join</parameter>&nbsp;:</term>
-<listitem><simpara> a line joint style
+<listitem><simpara> a line join style
 </simpara></listitem></varlistentry>
 </variablelist></refsect2>
 <refsect2>
@@ -1108,7 +1136,18 @@ converted to a bevel.
 As with the other stroke parameters, the current line miter limit is
 examined by <link linkend="cairo-stroke"><function>cairo_stroke()</function></link>, <link linkend="cairo-stroke-extents"><function>cairo_stroke_extents()</function></link>, and
 <link linkend="cairo-stroke-to-path"><function>cairo_stroke_to_path()</function></link>, but does not have any effect during path
-construction.</para>
+construction.
+</para>
+<para>
+The default miter limit value is 10.0, which will convert joins
+with interior angles less than 11 degrees to bevels instead of
+miters. For reference, a miter limit of 2.0 makes the miter cutoff
+at 60 degrees, and a miter limit of 1.414 makes the cutoff at 90
+degrees.
+</para>
+<para>
+A miter limit for a desired angle can be computed as: miter limit =
+1/sin(angle/2)</para>
 <para>
 
 </para><variablelist role="params">
@@ -1156,8 +1195,109 @@ Gets the current miter limit, as set by <link linkend="cairo-set-miter-limit"><f
 } cairo_operator_t;
 </programlisting>
 <para>
+<link linkend="cairo-operator-t"><type>cairo_operator_t</type></link> is used to set the compositing operator for all cairo
+drawing operations.
+</para>
+<para>
+The default operator is <link linkend="CAIRO-OPERATOR-OVER:CAPS"><literal>CAIRO_OPERATOR_OVER</literal></link>.
+</para>
+<para>
+The operators marked as <firstterm>unbounded</firstterm> modify their
+destination even outside of the mask layer (that is, their effect is not
+bound by the mask layer).  However, their effect can still be limited by
+way of clipping.
+</para>
+<para>
+To keep things simple, the operator descriptions here
+document the behavior for when both source and destination are either fully
+transparent or fully opaque.  The actual implementation works for
+translucent layers too.
+For a more detailed explanation of the effects of each operator, including
+the mathematical definitions, see
+<ulink url="http://cairographics.org/operators/">http://cairographics.org/operators/</ulink>.</para>
+<para>
 
-</para></refsect2>
+</para><variablelist role="enum">
+<varlistentry>
+<term><anchor id="CAIRO-OPERATOR-CLEAR:CAPS" role="constant"/><literal>CAIRO_OPERATOR_CLEAR</literal></term>
+<listitem><simpara> clear destination layer (bounded)
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-OPERATOR-SOURCE:CAPS" role="constant"/><literal>CAIRO_OPERATOR_SOURCE</literal></term>
+<listitem><simpara> replace destination layer (bounded)
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-OPERATOR-OVER:CAPS" role="constant"/><literal>CAIRO_OPERATOR_OVER</literal></term>
+<listitem><simpara> draw source layer on top of destination layer
+(bounded)
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-OPERATOR-IN:CAPS" role="constant"/><literal>CAIRO_OPERATOR_IN</literal></term>
+<listitem><simpara> draw source where there was destination content
+(unbounded)
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-OPERATOR-OUT:CAPS" role="constant"/><literal>CAIRO_OPERATOR_OUT</literal></term>
+<listitem><simpara> draw source where there was no destination
+content (unbounded)
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-OPERATOR-ATOP:CAPS" role="constant"/><literal>CAIRO_OPERATOR_ATOP</literal></term>
+<listitem><simpara> draw source on top of destination content and
+only there
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-OPERATOR-DEST:CAPS" role="constant"/><literal>CAIRO_OPERATOR_DEST</literal></term>
+<listitem><simpara> ignore the source
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-OPERATOR-DEST-OVER:CAPS" role="constant"/><literal>CAIRO_OPERATOR_DEST_OVER</literal></term>
+<listitem><simpara> draw destination on top of source
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-OPERATOR-DEST-IN:CAPS" role="constant"/><literal>CAIRO_OPERATOR_DEST_IN</literal></term>
+<listitem><simpara> leave destination only where there was
+source content (unbounded)
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-OPERATOR-DEST-OUT:CAPS" role="constant"/><literal>CAIRO_OPERATOR_DEST_OUT</literal></term>
+<listitem><simpara> leave destination only where there was no
+source content
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-OPERATOR-DEST-ATOP:CAPS" role="constant"/><literal>CAIRO_OPERATOR_DEST_ATOP</literal></term>
+<listitem><simpara> leave destination on top of source content
+and only there (unbounded)
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-OPERATOR-XOR:CAPS" role="constant"/><literal>CAIRO_OPERATOR_XOR</literal></term>
+<listitem><simpara> source and destination are shown where there is only
+one of them
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-OPERATOR-ADD:CAPS" role="constant"/><literal>CAIRO_OPERATOR_ADD</literal></term>
+<listitem><simpara> source and destination layers are accumulated
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><anchor id="CAIRO-OPERATOR-SATURATE:CAPS" role="constant"/><literal>CAIRO_OPERATOR_SATURATE</literal></term>
+<listitem><simpara> like over, but assuming source and dest are
+disjoint geometries
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
 <refsect2>
 <title><anchor id="cairo-set-operator" role="function"/>cairo_set_operator ()</title>
 <indexterm><primary>cairo_set_operator</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_set_operator                  (<link linkend="cairo-t">cairo_t</link> *cr,
@@ -1168,9 +1308,7 @@ operations. See <link linkend="cairo-operator-t"><type>cairo_operator_t</type></
 each available compositing operator.
 </para>
 <para>
-XXX: I'd also like to direct the reader's attention to some
-(not-yet-written) section on cairo's imaging model. How would I do
-that if such a section existed? (cworth).</para>
+The default operator is <link linkend="CAIRO-OPERATOR-OVER:CAPS"><literal>CAIRO_OPERATOR_OVER</literal></link>.</para>
 <para>
 
 </para><variablelist role="params">
@@ -1240,7 +1378,7 @@ region with the current path as it would be filled by <link linkend="cairo-fill"
 and according to the current fill rule (see <link linkend="cairo-set-fill-rule"><function>cairo_set_fill_rule()</function></link>).
 </para>
 <para>
-After cairo_clip, the current path will be cleared from the cairo
+After <link linkend="cairo-clip"><function>cairo_clip()</function></link>, the current path will be cleared from the cairo
 context.
 </para>
 <para>
@@ -1271,7 +1409,7 @@ region with the current path as it would be filled by <link linkend="cairo-fill"
 and according to the current fill rule (see <link linkend="cairo-set-fill-rule"><function>cairo_set_fill_rule()</function></link>).
 </para>
 <para>
-Unlike <link linkend="cairo-clip"><function>cairo_clip()</function></link>, cairo_clip_preserve preserves the path within
+Unlike <link linkend="cairo-clip"><function>cairo_clip()</function></link>, <link linkend="cairo-clip-preserve"><function>cairo_clip_preserve()</function></link> preserves the path within
 the cairo context.
 </para>
 <para>
@@ -1433,21 +1571,18 @@ Gets the current clip region as a list of rectangles in user coordinates.
 Never returns <link linkend="NULL:CAPS"><literal>NULL</literal></link>.
 </para>
 <para>
-The status in the list may be CAIRO_STATUS_CLIP_NOT_REPRESENTABLE to
+The status in the list may be <link linkend="CAIRO-STATUS-CLIP-NOT-REPRESENTABLE:CAPS"><literal>CAIRO_STATUS_CLIP_NOT_REPRESENTABLE</literal></link> to
 indicate that the clip region cannot be represented as a list of
 user-space rectangles. The status may have other values to indicate
-other errors.
-</para>
-<para>
-The caller must always call cairo_rectangle_list_destroy on the result of
-this function.</para>
+other errors.</para>
 <para>
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>cr</parameter>&nbsp;:</term>
 <listitem><simpara> a cairo context
 </simpara></listitem></varlistentry>
-<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the current clip region as a list of rectangles in user coordinates.
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the current clip region as a list of rectangles in user coordinates,
+which should be destroyed using <link linkend="cairo-rectangle-list-destroy"><function>cairo_rectangle_list_destroy()</function></link>.
 
 </simpara></listitem></varlistentry>
 </variablelist><para role="since">Since  1.4
@@ -1458,7 +1593,7 @@ this function.</para>
 <para>
 A drawing operator that fills the current path according to the
 current fill rule, (each sub-path is implicitly closed before being
-filled). After cairo_fill, the current path will be cleared from
+filled). After <link linkend="cairo-fill"><function>cairo_fill()</function></link>, the current path will be cleared from
 the cairo context. See <link linkend="cairo-set-fill-rule"><function>cairo_set_fill_rule()</function></link> and
 <link linkend="cairo-fill-preserve"><function>cairo_fill_preserve()</function></link>.</para>
 <para>
@@ -1474,7 +1609,7 @@ the cairo context. See <link linkend="cairo-set-fill-rule"><function>cairo_set_f
 <para>
 A drawing operator that fills the current path according to the
 current fill rule, (each sub-path is implicitly closed before being
-filled). Unlike <link linkend="cairo-fill"><function>cairo_fill()</function></link>, cairo_fill_preserve preserves the
+filled). Unlike <link linkend="cairo-fill"><function>cairo_fill()</function></link>, <link linkend="cairo-fill-preserve"><function>cairo_fill_preserve()</function></link> preserves the
 path within the cairo context.
 </para>
 <para>
@@ -1495,10 +1630,21 @@ See <link linkend="cairo-set-fill-rule"><function>cairo_set_fill_rule()</functio
                                                          <link linkend="double">double</link> *y2);</programlisting>
 <para>
 Computes a bounding box in user coordinates covering the area that
-would be affected by a <link linkend="cairo-fill"><function>cairo_fill()</function></link> operation given the current path
-and fill parameters. If the current path is empty, returns an empty
-rectangle (0,0, 0,0). Surface dimensions and clipping are not taken
-into account.
+would be affected, (the "inked" area), by a <link linkend="cairo-fill"><function>cairo_fill()</function></link> operation
+given the current path and fill parameters. If the current path is
+empty, returns an empty rectangle ((0,0), (0,0)). Surface
+dimensions and clipping are not taken into account.
+</para>
+<para>
+Contrast with <link linkend="cairo-path-extents"><function>cairo_path_extents()</function></link>, which is similar, but returns
+non-zero extents for some paths with no inked area, (such as a
+simple line segment).
+</para>
+<para>
+Note that <link linkend="cairo-fill-extents"><function>cairo_fill_extents()</function></link> must necessarily do more work to
+compute the precise inked areas in light of the fill rule, so
+<link linkend="cairo-path-extents"><function>cairo_path_extents()</function></link> may be more desirable for sake of performance
+if the non-inked path extents are desired.
 </para>
 <para>
 See <link linkend="cairo-fill"><function>cairo_fill()</function></link>, <link linkend="cairo-set-fill-rule"><function>cairo_set_fill_rule()</function></link> and <link linkend="cairo-fill-preserve"><function>cairo_fill_preserve()</function></link>.</para>
@@ -1646,9 +1792,9 @@ situations:
 </para>
 <para>
 1. Zero-length "on" segments set in <link linkend="cairo-set-dash"><function>cairo_set_dash()</function></link>. If the cap
-style is CAIRO_LINE_CAP_ROUND or CAIRO_LINE_CAP_SQUARE then these
+style is <link linkend="CAIRO-LINE-CAP-ROUND:CAPS"><literal>CAIRO_LINE_CAP_ROUND</literal></link> or <link linkend="CAIRO-LINE-CAP-SQUARE:CAPS"><literal>CAIRO_LINE_CAP_SQUARE</literal></link> then these
 segments will be drawn as circular dots or squares respectively. In
-the case of CAIRO_LINE_CAP_SQUARE, the orientation of the squares
+the case of <link linkend="CAIRO-LINE-CAP-SQUARE:CAPS"><literal>CAIRO_LINE_CAP_SQUARE</literal></link>, the orientation of the squares
 is determined by the direction of the underlying path.
 </para>
 <para>
@@ -1656,12 +1802,12 @@ is determined by the direction of the underlying path.
 <link linkend="cairo-close-path"><function>cairo_close_path()</function></link> or one or more calls to <link linkend="cairo-line-to"><function>cairo_line_to()</function></link> to the
 same coordinate as the <link linkend="cairo-move-to"><function>cairo_move_to()</function></link>. If the cap style is
 CAIRO_LINE_CAP_ROUND then these sub-paths will be drawn as circular
-dots. Note that in the case of CAIRO_LINE_CAP_SQUARE a degenerate
+dots. Note that in the case of <link linkend="CAIRO-LINE-CAP-SQUARE:CAPS"><literal>CAIRO_LINE_CAP_SQUARE</literal></link> a degenerate
 sub-path will not be drawn at all, (since the correct orientation
 is indeterminate).
 </para>
 <para>
-In no case will a cap style of CAIRO_LINE_CAP_BUTT cause anything
+In no case will a cap style of <link linkend="CAIRO-LINE-CAP-BUTT:CAPS"><literal>CAIRO_LINE_CAP_BUTT</literal></link> cause anything
 to be drawn in the case of either degenerate segments or sub-paths.</para>
 <para>
 
@@ -1676,7 +1822,7 @@ to be drawn in the case of either degenerate segments or sub-paths.</para>
 <para>
 A drawing operator that strokes the current path according to the
 current line width, line join, line cap, and dash settings. Unlike
-<link linkend="cairo-stroke"><function>cairo_stroke()</function></link>, cairo_stroke_preserve preserves the path within the
+<link linkend="cairo-stroke"><function>cairo_stroke()</function></link>, <link linkend="cairo-stroke-preserve"><function>cairo_stroke_preserve()</function></link> preserves the path within the
 cairo context.
 </para>
 <para>
@@ -1699,8 +1845,28 @@ See <link linkend="cairo-set-line-width"><function>cairo_set_line_width()</funct
                                                          <link linkend="double">double</link> *y2);</programlisting>
 <para>
 Computes a bounding box in user coordinates covering the area that
-would be affected by a <link linkend="cairo-stroke"><function>cairo_stroke()</function></link> operation operation given the
-current path and stroke parameters. If the current path is empty,</para>
+would be affected, (the "inked" area), by a <link linkend="cairo-stroke"><function>cairo_stroke()</function></link>
+operation operation given the current path and stroke
+parameters. If the current path is empty, returns an empty
+rectangle ((0,0), (0,0)). Surface dimensions and clipping are not
+taken into account.
+</para>
+<para>
+Note that if the line width is set to exactly zero, then
+<link linkend="cairo-stroke-extents"><function>cairo_stroke_extents()</function></link> will return an empty rectangle. Contrast with
+<link linkend="cairo-path-extents"><function>cairo_path_extents()</function></link> which can be used to compute the non-empty
+bounds as the line width approaches zero.
+</para>
+<para>
+Note that <link linkend="cairo-stroke-extents"><function>cairo_stroke_extents()</function></link> must necessarily do more work to
+compute the precise inked areas in light of the stroke parameters,
+so <link linkend="cairo-path-extents"><function>cairo_path_extents()</function></link> may be more desirable for sake of
+performance if non-inked path extents are desired.
+</para>
+<para>
+See <link linkend="cairo-stroke"><function>cairo_stroke()</function></link>, <link linkend="cairo-set-line-width"><function>cairo_set_line_width()</function></link>, <link linkend="cairo-set-line-join"><function>cairo_set_line_join()</function></link>,
+<link linkend="cairo-set-line-cap"><function>cairo_set_line_cap()</function></link>, <link linkend="cairo-set-dash"><function>cairo_set_dash()</function></link>, and
+<link linkend="cairo-stroke-preserve"><function>cairo_stroke_preserve()</function></link>.</para>
 <para>
 
 </para><variablelist role="params">
@@ -1758,7 +1924,11 @@ outside.
 Emits the current page for backends that support multiple pages, but
 doesn't clear it, so, the contents of the current page will be retained
 for the next page too.  Use <link linkend="cairo-show-page"><function>cairo_show_page()</function></link> if you want to get an
-empty page after the emission.</para>
+empty page after the emission.
+</para>
+<para>
+This is a convenience function that simply calls
+<link linkend="cairo-surface-copy-page"><function>cairo_surface_copy_page()</function></link> on <parameter>cr</parameter>'s target.</para>
 <para>
 
 </para><variablelist role="params">
@@ -1771,7 +1941,11 @@ empty page after the emission.</para>
 <indexterm><primary>cairo_show_page</primary></indexterm><programlisting><link linkend="void">void</link>                cairo_show_page                     (<link linkend="cairo-t">cairo_t</link> *cr);</programlisting>
 <para>
 Emits and clears the current page for backends that support multiple
-pages.  Use <link linkend="cairo-copy-page"><function>cairo_copy_page()</function></link> if you don't want to clear the page.</para>
+pages.  Use <link linkend="cairo-copy-page"><function>cairo_copy_page()</function></link> if you don't want to clear the page.
+</para>
+<para>
+This is a convenience function that simply calls
+<link linkend="cairo-surface-show-page"><function>cairo_surface_show_page()</function></link> on <parameter>cr</parameter>'s target.</para>
 <para>
 
 </para><variablelist role="params">
@@ -1857,5 +2031,15 @@ attached to
 
 
 
+<refsect1>
+<title>See Also</title>
+<para>
+<itemizedlist>
+<listitem><link linkend="cairo-surface-t"><type>cairo_surface_t</type></link></listitem>
+</itemizedlist>
+</para>
+</refsect1>
 
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
 </refentry>

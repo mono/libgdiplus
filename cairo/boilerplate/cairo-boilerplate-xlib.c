@@ -28,8 +28,13 @@
 #include "cairo-boilerplate-xlib.h"
 #include "cairo-boilerplate-xlib-private.h"
 
+#include <cairo-xlib.h>
+#if CAIRO_HAS_XLIB_XRENDER_SURFACE
 #include <cairo-xlib-xrender.h>
+#endif
 #include <cairo-xlib-surface-private.h>
+
+#include <X11/Xutil.h> /* for XDestroyImage */
 
 typedef struct _xlib_target_closure
 {
@@ -50,6 +55,17 @@ _cairo_boilerplate_xlib_synchronize (void *closure)
 	XDestroyImage (ximage);
 }
 
+static cairo_bool_t
+_cairo_boilerplate_xlib_check_screen_size (Display	*dpy,
+	                                   int		 screen,
+					   int		 width,
+					   int		 height)
+{
+    Screen *scr = XScreenOfDisplay (dpy, screen);
+    return width <= WidthOfScreen (scr) && height <= HeightOfScreen (scr);
+}
+
+#if CAIRO_HAS_XLIB_XRENDER_SURFACE
 /* For the xlib backend we distinguish between TEST and PERF mode in a
  * couple of ways.
  *
@@ -124,13 +140,31 @@ _cairo_boilerplate_xlib_perf_create_surface (Display			*dpy,
     switch (content) {
     case CAIRO_CONTENT_COLOR_ALPHA:
 	xrender_format = XRenderFindStandardFormat (dpy, PictStandardARGB32);
+	if (xrender_format == NULL) {
+	    CAIRO_BOILERPLATE_LOG ("X server does not have the Render extension.\n");
+	    return NULL;
+	}
+
 	xtc->drawable = XCreatePixmap (dpy, DefaultRootWindow (dpy),
 				       width, height, xrender_format->depth);
 	xtc->drawable_is_pixmap = TRUE;
 	break;
+
     case CAIRO_CONTENT_COLOR:
+	if (! _cairo_boilerplate_xlib_check_screen_size (dpy,
+		                                         DefaultScreen (dpy),
+		                                         width, height)) {
+	    CAIRO_BOILERPLATE_LOG ("Surface is larger than the Screen.\n");
+	    return NULL;
+	}
+
 	visual = DefaultVisual (dpy, DefaultScreen (dpy));
 	xrender_format = XRenderFindVisualFormat (dpy, visual);
+	if (xrender_format == NULL) {
+	    CAIRO_BOILERPLATE_LOG ("X server does not have the Render extension.\n");
+	    return NULL;
+	}
+
 	attr.override_redirect = True;
 	xtc->drawable = XCreateWindow (dpy, DefaultRootWindow (dpy), 0, 0,
 				       width, height, 0, xrender_format->depth,
@@ -138,13 +172,10 @@ _cairo_boilerplate_xlib_perf_create_surface (Display			*dpy,
 	XMapWindow (dpy, xtc->drawable);
 	xtc->drawable_is_pixmap = FALSE;
 	break;
+
     case CAIRO_CONTENT_ALPHA:
     default:
 	CAIRO_BOILERPLATE_LOG ("Invalid content for xlib test: %d\n", content);
-	return NULL;
-    }
-    if (xrender_format == NULL) {
-	CAIRO_BOILERPLATE_LOG ("X server does not have the Render extension.\n");
 	return NULL;
     }
 
@@ -183,6 +214,90 @@ _cairo_boilerplate_xlib_create_surface (const char			 *name,
     else /* mode == CAIRO_BOILERPLATE_MODE_PERF */
 	return _cairo_boilerplate_xlib_perf_create_surface (dpy, content, width, height, xtc);
 }
+#endif
+
+/* The xlib-fallback target differs from the xlib target in two ways:
+ *
+ * 1. It creates its surfaces without relying on the Render extension
+ *
+ * 2. It disables use of the Render extension for its surfaces
+ *
+ * This provides testing of the non-Render fallback paths we have in
+ * cairo-xlib-surface.c
+ */
+cairo_surface_t *
+_cairo_boilerplate_xlib_fallback_create_surface (const char			 *name,
+						 cairo_content_t		  content,
+						 int				  width,
+						 int				  height,
+						 cairo_boilerplate_mode_t	  mode,
+						 void				**closure)
+{
+    xlib_target_closure_t *xtc;
+    Display *dpy;
+    int screen;
+    XSetWindowAttributes attr;
+    cairo_surface_t *surface;
+
+    /* We're not yet bothering to support perf mode for the
+     * xlib-fallback surface. */
+    if (mode == CAIRO_BOILERPLATE_MODE_PERF)
+	return NULL;
+
+    /* We also don't support drawing with destination-alpha in the
+     * xlib-fallback surface. */
+    if (content == CAIRO_CONTENT_COLOR_ALPHA)
+	return NULL;
+
+    *closure = xtc = xmalloc (sizeof (xlib_target_closure_t));
+
+    if (width == 0)
+	width = 1;
+    if (height == 0)
+	height = 1;
+
+    xtc->dpy = dpy = XOpenDisplay (NULL);
+    if (xtc->dpy == NULL) {
+	CAIRO_BOILERPLATE_LOG ("Failed to open display: %s\n", XDisplayName(0));
+	free (xtc);
+	return NULL;
+    }
+
+    /* This kills performance, but it makes debugging much
+     * easier. That's why we have it here only after explicitly not
+     * supporting PERF mode.*/
+    XSynchronize (dpy, 1);
+
+    screen = DefaultScreen (dpy);
+    if (! _cairo_boilerplate_xlib_check_screen_size (dpy, screen,
+		                                     width, height)) {
+	CAIRO_BOILERPLATE_LOG ("Surface is larger than the Screen.\n");
+	XCloseDisplay (dpy);
+	free (xtc);
+	return NULL;
+    }
+
+    attr.override_redirect = True;
+    xtc->drawable = XCreateWindow (dpy, DefaultRootWindow (dpy),
+				   0, 0,
+				   width, height, 0,
+				   DefaultDepth (dpy, screen),
+				   InputOutput,
+				   DefaultVisual (dpy, screen),
+				   CWOverrideRedirect, &attr);
+    XMapWindow (dpy, xtc->drawable);
+    xtc->drawable_is_pixmap = FALSE;
+
+    surface = cairo_xlib_surface_create (dpy, xtc->drawable,
+					 DefaultVisual (dpy, screen),
+					 width, height);
+    if (cairo_surface_status (surface))
+	_cairo_boilerplate_xlib_cleanup (xtc);
+    else
+	cairo_boilerplate_xlib_surface_disable_render (surface);
+
+    return surface;
+}
 
 void
 _cairo_boilerplate_xlib_cleanup (void *closure)
@@ -206,6 +321,11 @@ cairo_boilerplate_xlib_surface_disable_render (cairo_surface_t *abstract_surface
 	return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
 
     surface->render_major = surface->render_minor = -1;
+    surface->xrender_format = NULL;
+
+    /* The content type is forced by _xrender_format_to_content() during
+     * non-Render surface creation, so repeat the procedure here. */
+    surface->base.content = CAIRO_CONTENT_COLOR;
 
     return CAIRO_STATUS_SUCCESS;
 }

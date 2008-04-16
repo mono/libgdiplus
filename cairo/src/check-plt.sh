@@ -2,16 +2,24 @@
 
 LANG=C
 
-status=0
-
 if ! which readelf 2>/dev/null >/dev/null; then
 	echo "'readelf' not found; skipping test"
 	exit 0
 fi
 
+test -z "$srcdir" && srcdir=.
+test -z "$MAKE" && MAKE=make
+status=0
+
+$MAKE check-has-hidden-symbols.i > /dev/null || exit 1
+if tail -1 check-has-hidden-symbols.i | grep CAIRO_HAS_HIDDEN_SYMBOLS >/dev/null; then
+	echo "Compiler doesn't support symbol visibility; skipping test"
+	exit 0
+fi
+
 for so in .libs/lib*.so; do
-	echo Checking $so for local PLT entries
-	readelf -r $so | grep 'JU\?MP_SLO' | grep 'cairo\|pixman' && status=1
+	echo Checking "$so" for local PLT entries
+	readelf -W -r "$so" | grep 'JU\?MP_SLO' | grep 'cairo' && status=1
 done
 
 exit $status

@@ -59,7 +59,7 @@ draw (cairo_t *cr, int width, int height)
     draw_square (cr);
 
     /* Then, create an offset surface and repeat the drawing in red. */
-    target = cairo_get_target (cr);
+    target = cairo_get_group_target (cr);
     surface = cairo_surface_create_similar (target,
 					    cairo_surface_get_content (target),
 					    SIZE / 2, SIZE / 2);

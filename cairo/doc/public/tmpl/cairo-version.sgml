@@ -77,7 +77,7 @@ rather the many states between snapshots and releases.
 Cairo provides the ability to examine the version at either
 compile-time or run-time and in both a human-readable form as well as
 an encoded form suitable for direct comparison. Cairo also provides a
-macro (CAIRO_VERSION_ENCODE) to perform the encoding.
+macro (CAIRO_VERSION_ENCODE()) to perform the encoding.
 </para>
 
 <para>
@@ -100,7 +100,7 @@ to 1.0.0 could be achieved at compile-time or run-time as follows:
 
 <informalexample><programlisting>
 ##if %CAIRO_VERSION >= %CAIRO_VERSION_ENCODE(1, 0, 0)
-printf ("Compiling with suitable cairo version: %%s\n", CAIRO_VERSION_STRING);
+printf ("Compiling with suitable cairo version: %%s\n", %CAIRO_VERSION_STRING);
 ##endif
 
 if (cairo_version() >= %CAIRO_VERSION_ENCODE(1, 0, 0))

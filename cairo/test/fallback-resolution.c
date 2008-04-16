@@ -47,6 +47,7 @@ static void
 draw_with_ppi (cairo_t *cr, double width, double height, double ppi)
 {
     char message[80];
+    cairo_text_extents_t extents;
 
     cairo_save (cr);
 
@@ -63,10 +64,12 @@ draw_with_ppi (cairo_t *cr, double width, double height, double ppi)
 	       0, 2.0 * M_PI);
     cairo_fill (cr);
 
-    cairo_move_to (cr, .4 * SIZE/2.0, SIZE/2.0);
     sprintf (message, "Fallback PPI: %g", ppi);
     cairo_set_source_rgb (cr, 1, 1, 1); /* white */
     cairo_set_font_size (cr, .1 * SIZE / 2.0);
+    cairo_text_extents (cr, message, &extents);
+    cairo_move_to (cr, (SIZE-extents.width)/2.0-extents.x_bearing,
+		       (SIZE-extents.height)/2.0-extents.y_bearing);
     cairo_show_text (cr, message);
 
     cairo_restore (cr);
@@ -120,6 +123,7 @@ main (void)
 	}
 
 	cr = cairo_create (surface);
+	cairo_set_tolerance (cr, 3.0);
 
 	for (page = 0; page < num_pages; page++)
 	{

@@ -3,15 +3,13 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>PostScript Surfaces</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.72.0">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
 <link rel="start" href="index.html" title="Cairo: A Vector Graphics Library">
 <link rel="up" href="Surfaces.html" title="Surfaces">
 <link rel="prev" href="cairo-PNG-Support.html" title="PNG Support">
 <link rel="next" href="cairo-Win32-Surfaces.html" title="Win32 Surfaces">
-<meta name="generator" content="GTK-Doc V1.8 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.9 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
-<link rel="part" href="pt01.html" title="Part&#160;I.&#160;Tutorial">
-<link rel="part" href="pt02.html" title="Part&#160;II.&#160;Reference">
 <link rel="chapter" href="Drawing.html" title="Drawing">
 <link rel="chapter" href="Fonts.html" title="Fonts">
 <link rel="chapter" href="Surfaces.html" title="Surfaces">
@@ -19,6 +17,7 @@
 <link rel="index" href="ix01.html" title="Index">
 <link rel="index" href="index-1.2.html" title="Index of new symbols in 1.2">
 <link rel="index" href="index-1.4.html" title="Index of new symbols in 1.4">
+<link rel="index" href="index-1.6.html" title="Index of new symbols in 1.6">
 <link rel="appendix" href="language-bindings.html" title="Appendix&#160;A.&#160;Creating a language binding for cairo">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -30,16 +29,16 @@
 <th width="100%" align="center">Cairo: A Vector Graphics Library</th>
 <td><a accesskey="n" href="cairo-Win32-Surfaces.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
-<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2589875" class="shortcut">Top</a>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#id2623104" class="shortcut">Top</a>
                   &#160;|&#160;
-                  <a href="#id2636824" class="shortcut">Description</a></nobr></td></tr>
+                  <a href="#id2666904" class="shortcut">Description</a></nobr></td></tr>
 </table>
 <div class="refentry" lang="en">
 <a name="cairo-PostScript-Surfaces"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2>
-<a name="id2589875"></a><span class="refentrytitle">PostScript Surfaces</span>
+<a name="id2623104"></a><span class="refentrytitle">PostScript Surfaces</span>
 </h2>
 <p>PostScript Surfaces &#8212; Rendering PostScript documents</p>
 </td>
@@ -51,46 +50,68 @@
 
 
 
-<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>*    <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-create">cairo_ps_surface_create</a>             (const char *filename,
+#define             <a class="link" href="cairo-PostScript-Surfaces.html#CAIRO-HAS-PS-SURFACE:CAPS">CAIRO_HAS_PS_SURFACE</a>
+<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>*    <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-create">cairo_ps_surface_create</a>             (const char *filename,
                                                          double width_in_points,
                                                          double height_in_points);
-<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>*    <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-create-for-stream">cairo_ps_surface_create_for_stream</a>  (<a href="cairo-PNG-Support.html#cairo-write-func-t">cairo_write_func_t</a> write_func,
+<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>*    <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-create-for-stream">cairo_ps_surface_create_for_stream</a>  (<a class="link" href="cairo-PNG-Support.html#cairo-write-func-t">cairo_write_func_t</a> write_func,
                                                          void *closure,
                                                          double width_in_points,
                                                          double height_in_points);
-void                <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-set-size">cairo_ps_surface_set_size</a>           (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+void                <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-restrict-to-level">cairo_ps_surface_restrict_to_level</a>  (<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+                                                         <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-level-t">cairo_ps_level_t</a> level);
+enum                <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-level-t">cairo_ps_level_t</a>;
+void                <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-get-levels">cairo_ps_get_levels</a>                 (<a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-level-t">cairo_ps_level_t</a> const **levels,
+                                                         int *num_levels);
+const char*         <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-level-to-string">cairo_ps_level_to_string</a>            (<a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-level-t">cairo_ps_level_t</a> level);
+void                <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-set-eps">cairo_ps_surface_set_eps</a>            (<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+                                                         <a class="link" href="cairo-Types.html#cairo-bool-t">cairo_bool_t</a> eps);
+<a class="link" href="cairo-Types.html#cairo-bool-t">cairo_bool_t</a>        <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-get-eps">cairo_ps_surface_get_eps</a>            (<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);
+void                <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-set-size">cairo_ps_surface_set_size</a>           (<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                                          double width_in_points,
                                                          double height_in_points);
-void                <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-begin-setup">cairo_ps_surface_dsc_begin_setup</a>    (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);
-void                <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-begin-page-setup">cairo_ps_surface_dsc_begin_page_setup</a>
-                                                        (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);
-void                <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment">cairo_ps_surface_dsc_comment</a>        (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+void                <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-begin-setup">cairo_ps_surface_dsc_begin_setup</a>    (<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);
+void                <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-begin-page-setup">cairo_ps_surface_dsc_begin_page_setup</a>
+                                                        (<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);
+void                <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment">cairo_ps_surface_dsc_comment</a>        (<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                                          const char *comment);
 </pre>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2636824"></a><h2>Description</h2>
+<a name="id2666904"></a><h2>Description</h2>
 <p>
-
+The PostScript surface is used to render cairo graphics to Adobe
+PostScript files and is a multi-page vector surface backend.
 </p>
 </div>
 <div class="refsect1" lang="en">
-<a name="id2636840"></a><h2>Details</h2>
+<a name="id2666922"></a><h2>Details</h2>
 <div class="refsect2" lang="en">
-<a name="id2636851"></a><h3>
+<a name="id2666933"></a><h3>
+<a name="CAIRO-HAS-PS-SURFACE:CAPS"></a>CAIRO_HAS_PS_SURFACE</h3>
+<a class="indexterm" name="id2666944"></a><pre class="programlisting">#define CAIRO_HAS_PS_SURFACE 1
+</pre>
+<p>
+Defined if the PostScript surface backend is available.
+This macro can be used to conditionally compile backend-specific code.
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2666961"></a><h3>
 <a name="cairo-ps-surface-create"></a>cairo_ps_surface_create ()</h3>
-<a class="indexterm" name="id2636864"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>*    cairo_ps_surface_create             (const char *filename,
+<a class="indexterm" name="id2666975"></a><pre class="programlisting"><a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>*    cairo_ps_surface_create             (const char *filename,
                                                          double width_in_points,
                                                          double height_in_points);</pre>
 <p>
 Creates a PostScript surface of the specified size in points to be
-written to <em class="parameter"><code>filename</code></em>. See <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-create-for-stream"><code class="function">cairo_ps_surface_create_for_stream()</code></a> for
+written to <em class="parameter"><code>filename</code></em>. See <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-create-for-stream"><code class="function">cairo_ps_surface_create_for_stream()</code></a> for
 a more flexible mechanism for handling the PostScript output than
 simply writing it to a named file.
 </p>
 <p>
 Note that the size of individual pages of the PostScript output can
-vary. See <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-set-size"><code class="function">cairo_ps_surface_set_size()</code></a>.</p>
+vary. See <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-set-size"><code class="function">cairo_ps_surface_set_size()</code></a>.</p>
 <p>
 
 </p>
@@ -98,29 +119,29 @@ vary. See <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-set-size"><co
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td><span class="term"><em class="parameter"><code>filename</code></em>&#160;:</span></td>
+<td><p><span class="term"><em class="parameter"><code>filename</code></em>&#160;:</span></p></td>
 <td> a filename for the PS output (must be writable)
 </td>
 </tr>
 <tr>
-<td><span class="term"><em class="parameter"><code>width_in_points</code></em>&#160;:</span></td>
+<td><p><span class="term"><em class="parameter"><code>width_in_points</code></em>&#160;:</span></p></td>
 <td> width of the surface, in points (1 point == 1/72.0 inch)
 </td>
 </tr>
 <tr>
-<td><span class="term"><em class="parameter"><code>height_in_points</code></em>&#160;:</span></td>
+<td><p><span class="term"><em class="parameter"><code>height_in_points</code></em>&#160;:</span></p></td>
 <td> height of the surface, in points (1 point == 1/72.0 inch)
 </td>
 </tr>
 <tr>
-<td><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
 <td> a pointer to the newly created surface. The caller
-owns the surface and should call cairo_surface_destroy when done
+owns the surface and should call <a class="link" href="cairo-cairo-surface-t.html#cairo-surface-destroy"><code class="function">cairo_surface_destroy()</code></a> when done
 with it.
 
 This function always returns a valid pointer, but it will return a
 pointer to a "nil" surface if an error such as out of memory
-occurs. You can use <a href="cairo-cairo-surface-t.html#cairo-surface-status"><code class="function">cairo_surface_status()</code></a> to check for this.
+occurs. You can use <a class="link" href="cairo-cairo-surface-t.html#cairo-surface-status"><code class="function">cairo_surface_status()</code></a> to check for this.
 
 </td>
 </tr>
@@ -131,21 +152,21 @@ occurs. You can use <a href="cairo-cairo-surface-t.html#cairo-surface-status"><c
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2638281"></a><h3>
+<a name="id2659861"></a><h3>
 <a name="cairo-ps-surface-create-for-stream"></a>cairo_ps_surface_create_for_stream ()</h3>
-<a class="indexterm" name="id2638295"></a><pre class="programlisting"><a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>*    cairo_ps_surface_create_for_stream  (<a href="cairo-PNG-Support.html#cairo-write-func-t">cairo_write_func_t</a> write_func,
+<a class="indexterm" name="id2659875"></a><pre class="programlisting"><a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a>*    cairo_ps_surface_create_for_stream  (<a class="link" href="cairo-PNG-Support.html#cairo-write-func-t">cairo_write_func_t</a> write_func,
                                                          void *closure,
                                                          double width_in_points,
                                                          double height_in_points);</pre>
 <p>
 Creates a PostScript surface of the specified size in points to be
 written incrementally to the stream represented by <em class="parameter"><code>write_func</code></em> and
-<em class="parameter"><code>closure</code></em>. See <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-create"><code class="function">cairo_ps_surface_create()</code></a> for a more convenient way
+<em class="parameter"><code>closure</code></em>. See <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-create"><code class="function">cairo_ps_surface_create()</code></a> for a more convenient way
 to simply direct the PostScript output to a named file.
 </p>
 <p>
 Note that the size of individual pages of the PostScript
-output can vary. See <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-set-size"><code class="function">cairo_ps_surface_set_size()</code></a>.</p>
+output can vary. See <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-set-size"><code class="function">cairo_ps_surface_set_size()</code></a>.</p>
 <p>
 
 </p>
@@ -153,34 +174,34 @@ output can vary. See <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-se
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td><span class="term"><em class="parameter"><code>write_func</code></em>&#160;:</span></td>
-<td> a <a href="cairo-PNG-Support.html#cairo-write-func-t"><span class="type">cairo_write_func_t</span></a> to accept the output data
+<td><p><span class="term"><em class="parameter"><code>write_func</code></em>&#160;:</span></p></td>
+<td> a <a class="link" href="cairo-PNG-Support.html#cairo-write-func-t"><span class="type">cairo_write_func_t</span></a> to accept the output data
 </td>
 </tr>
 <tr>
-<td><span class="term"><em class="parameter"><code>closure</code></em>&#160;:</span></td>
+<td><p><span class="term"><em class="parameter"><code>closure</code></em>&#160;:</span></p></td>
 <td> the closure argument for <em class="parameter"><code>write_func</code></em>
 </td>
 </tr>
 <tr>
-<td><span class="term"><em class="parameter"><code>width_in_points</code></em>&#160;:</span></td>
+<td><p><span class="term"><em class="parameter"><code>width_in_points</code></em>&#160;:</span></p></td>
 <td> width of the surface, in points (1 point == 1/72.0 inch)
 </td>
 </tr>
 <tr>
-<td><span class="term"><em class="parameter"><code>height_in_points</code></em>&#160;:</span></td>
+<td><p><span class="term"><em class="parameter"><code>height_in_points</code></em>&#160;:</span></p></td>
 <td> height of the surface, in points (1 point == 1/72.0 inch)
 </td>
 </tr>
 <tr>
-<td><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></td>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
 <td> a pointer to the newly created surface. The caller
-owns the surface and should call cairo_surface_destroy when done
+owns the surface and should call <a class="link" href="cairo-cairo-surface-t.html#cairo-surface-destroy"><code class="function">cairo_surface_destroy()</code></a> when done
 with it.
 
 This function always returns a valid pointer, but it will return a
 pointer to a "nil" surface if an error such as out of memory
-occurs. You can use <a href="cairo-cairo-surface-t.html#cairo-surface-status"><code class="function">cairo_surface_status()</code></a> to check for this.
+occurs. You can use <a class="link" href="cairo-cairo-surface-t.html#cairo-surface-status"><code class="function">cairo_surface_status()</code></a> to check for this.
 
 </td>
 </tr>
@@ -191,9 +212,205 @@ occurs. You can use <a href="cairo-cairo-surface-t.html#cairo-surface-status"><c
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2637400"></a><h3>
+<a name="id2660080"></a><h3>
+<a name="cairo-ps-surface-restrict-to-level"></a>cairo_ps_surface_restrict_to_level ()</h3>
+<a class="indexterm" name="id2660095"></a><pre class="programlisting">void                cairo_ps_surface_restrict_to_level  (<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+                                                         <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-level-t">cairo_ps_level_t</a> level);</pre>
+<p>
+Restricts the generated PostSript file to <em class="parameter"><code>level</code></em>. See
+<a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-get-levels"><code class="function">cairo_ps_get_levels()</code></a> for a list of available level values that
+can be used here.
+</p>
+<p>
+This function should only be called before any drawing operations
+have been performed on the given surface. The simplest way to do
+this is to call this function immediately after creating the
+surface.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>surface</code></em>&#160;:</span></p></td>
+<td> a PostScript <a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>level</code></em>&#160;:</span></p></td>
+<td> PostScript level
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  1.6
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2667653"></a><h3>
+<a name="cairo-ps-level-t"></a>enum cairo_ps_level_t</h3>
+<a class="indexterm" name="id2667663"></a><pre class="programlisting">typedef enum _cairo_ps_level {
+    CAIRO_PS_LEVEL_2,
+    CAIRO_PS_LEVEL_3
+} cairo_ps_level_t;
+</pre>
+<p>
+<a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-level-t"><span class="type">cairo_ps_level_t</span></a> is used to describe the language level of the
+PostScript Language Reference that a generated PostScript file will
+conform to.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><a name="CAIRO-PS-LEVEL-2:CAPS"></a><code class="literal">CAIRO_PS_LEVEL_2</code></span></p></td>
+<td> The language level 2 of the PostScript specification.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><a name="CAIRO-PS-LEVEL-3:CAPS"></a><code class="literal">CAIRO_PS_LEVEL_3</code></span></p></td>
+<td> The language level 3 of the PostScript specification.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2667734"></a><h3>
+<a name="cairo-ps-get-levels"></a>cairo_ps_get_levels ()</h3>
+<a class="indexterm" name="id2667746"></a><pre class="programlisting">void                cairo_ps_get_levels                 (<a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-level-t">cairo_ps_level_t</a> const **levels,
+                                                         int *num_levels);</pre>
+<p>
+Used to retrieve the list of supported levels. See
+<a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-restrict-to-level"><code class="function">cairo_ps_surface_restrict_to_level()</code></a>.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>levels</code></em>&#160;:</span></p></td>
+<td> supported level list
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>num_levels</code></em>&#160;:</span></p></td>
+<td> list length
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  1.6
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2667835"></a><h3>
+<a name="cairo-ps-level-to-string"></a>cairo_ps_level_to_string ()</h3>
+<a class="indexterm" name="id2667849"></a><pre class="programlisting">const char*         cairo_ps_level_to_string            (<a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-level-t">cairo_ps_level_t</a> level);</pre>
+<p>
+Get the string representation of the given <em class="parameter"><code>level</code></em> id. This function
+will return <code class="literal">NULL</code> if <em class="parameter"><code>level</code></em> id isn't valid. See <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-get-levels"><code class="function">cairo_ps_get_levels()</code></a>
+for a way to get the list of valid level ids.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>level</code></em>&#160;:</span></p></td>
+<td> a level id
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> the string associated to given level.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  1.6
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2667950"></a><h3>
+<a name="cairo-ps-surface-set-eps"></a>cairo_ps_surface_set_eps ()</h3>
+<a class="indexterm" name="id2667963"></a><pre class="programlisting">void                cairo_ps_surface_set_eps            (<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+                                                         <a class="link" href="cairo-Types.html#cairo-bool-t">cairo_bool_t</a> eps);</pre>
+<p>
+If <em class="parameter"><code>eps</code></em> is <code class="literal">TRUE</code>, the PostScript surface will output Encapsulated
+PostScript.
+</p>
+<p>
+This function should only be called before any drawing operations
+have been performed on the current page. The simplest way to do
+this is to call this function immediately after creating the
+surface. An Encapsulated PostScript file should never contain more
+than one page.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>surface</code></em>&#160;:</span></p></td>
+<td> a PostScript <a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>eps</code></em>&#160;:</span></p></td>
+<td> <code class="literal">TRUE</code> to output EPS format PostScript
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  1.6
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2668083"></a><h3>
+<a name="cairo-ps-surface-get-eps"></a>cairo_ps_surface_get_eps ()</h3>
+<a class="indexterm" name="id2668097"></a><pre class="programlisting"><a class="link" href="cairo-Types.html#cairo-bool-t">cairo_bool_t</a>        cairo_ps_surface_get_eps            (<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
+<p>
+Check whether the PostScript surface will output Encapsulated PostScript.</p>
+<p>
+
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>surface</code></em>&#160;:</span></p></td>
+<td> a PostScript <a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span>&#160;:</span></p></td>
+<td> <code class="literal">TRUE</code> if the surface will output Encapsulated PostScript.
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since  1.6
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="id2668183"></a><h3>
 <a name="cairo-ps-surface-set-size"></a>cairo_ps_surface_set_size ()</h3>
-<a class="indexterm" name="id2637413"></a><pre class="programlisting">void                cairo_ps_surface_set_size           (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+<a class="indexterm" name="id2668197"></a><pre class="programlisting">void                cairo_ps_surface_set_size           (<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                                          double width_in_points,
                                                          double height_in_points);</pre>
 <p>
@@ -205,7 +422,7 @@ This function should only be called before any drawing operations
 have been performed on the current page. The simplest way to do
 this is to call this function immediately after creating the
 surface or immediately after completing a page with either
-<a href="cairo-cairo-t.html#cairo-show-page"><code class="function">cairo_show_page()</code></a> or <a href="cairo-cairo-t.html#cairo-copy-page"><code class="function">cairo_copy_page()</code></a>.</p>
+<a class="link" href="cairo-cairo-t.html#cairo-show-page"><code class="function">cairo_show_page()</code></a> or <a class="link" href="cairo-cairo-t.html#cairo-copy-page"><code class="function">cairo_copy_page()</code></a>.</p>
 <p>
 
 </p>
@@ -213,17 +430,17 @@ surface or immediately after completing a page with either
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td><span class="term"><em class="parameter"><code>surface</code></em>&#160;:</span></td>
-<td> a PostScript cairo_surface_t
+<td><p><span class="term"><em class="parameter"><code>surface</code></em>&#160;:</span></p></td>
+<td> a PostScript <a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a>
 </td>
 </tr>
 <tr>
-<td><span class="term"><em class="parameter"><code>width_in_points</code></em>&#160;:</span></td>
+<td><p><span class="term"><em class="parameter"><code>width_in_points</code></em>&#160;:</span></p></td>
 <td> new surface width, in points (1 point == 1/72.0 inch)
 </td>
 </tr>
 <tr>
-<td><span class="term"><em class="parameter"><code>height_in_points</code></em>&#160;:</span></td>
+<td><p><span class="term"><em class="parameter"><code>height_in_points</code></em>&#160;:</span></p></td>
 <td> new surface height, in points (1 point == 1/72.0 inch)
 </td>
 </tr>
@@ -234,29 +451,29 @@ surface or immediately after completing a page with either
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2637542"></a><h3>
+<a name="id2668334"></a><h3>
 <a name="cairo-ps-surface-dsc-begin-setup"></a>cairo_ps_surface_dsc_begin_setup ()</h3>
-<a class="indexterm" name="id2637556"></a><pre class="programlisting">void                cairo_ps_surface_dsc_begin_setup    (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
+<a class="indexterm" name="id2668349"></a><pre class="programlisting">void                cairo_ps_surface_dsc_begin_setup    (<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
 <p>
 This function indicates that subsequent calls to
-<a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment"><code class="function">cairo_ps_surface_dsc_comment()</code></a> should direct comments to the Setup
+<a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment"><code class="function">cairo_ps_surface_dsc_comment()</code></a> should direct comments to the Setup
 section of the PostScript output.
 </p>
 <p>
 This function should be called at most once per surface, and must
-be called before any call to <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-begin-page-setup"><code class="function">cairo_ps_surface_dsc_begin_page_setup()</code></a>
+be called before any call to <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-begin-page-setup"><code class="function">cairo_ps_surface_dsc_begin_page_setup()</code></a>
 and before any drawing is performed to the surface.
 </p>
 <p>
-See <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment"><code class="function">cairo_ps_surface_dsc_comment()</code></a> for more details.</p>
+See <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment"><code class="function">cairo_ps_surface_dsc_comment()</code></a> for more details.</p>
 <p>
 
 </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody><tr>
-<td><span class="term"><em class="parameter"><code>surface</code></em>&#160;:</span></td>
-<td> a PostScript cairo_surface_t
+<td><p><span class="term"><em class="parameter"><code>surface</code></em>&#160;:</span></p></td>
+<td> a PostScript <a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a>
 </td>
 </tr></tbody>
 </table></div>
@@ -265,31 +482,31 @@ See <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment"><code 
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2645031"></a><h3>
+<a name="id2668456"></a><h3>
 <a name="cairo-ps-surface-dsc-begin-page-setup"></a>cairo_ps_surface_dsc_begin_page_setup ()</h3>
-<a class="indexterm" name="id2645043"></a><pre class="programlisting">void                cairo_ps_surface_dsc_begin_page_setup
-                                                        (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
+<a class="indexterm" name="id2668472"></a><pre class="programlisting">void                cairo_ps_surface_dsc_begin_page_setup
+                                                        (<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface);</pre>
 <p>
 This function indicates that subsequent calls to
-<a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment"><code class="function">cairo_ps_surface_dsc_comment()</code></a> should direct comments to the
+<a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment"><code class="function">cairo_ps_surface_dsc_comment()</code></a> should direct comments to the
 PageSetup section of the PostScript output.
 </p>
 <p>
 This function call is only needed for the first page of a
 surface. It should be called after any call to
-<a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-begin-setup"><code class="function">cairo_ps_surface_dsc_begin_setup()</code></a> and before any drawing is
+<a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-begin-setup"><code class="function">cairo_ps_surface_dsc_begin_setup()</code></a> and before any drawing is
 performed to the surface.
 </p>
 <p>
-See <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment"><code class="function">cairo_ps_surface_dsc_comment()</code></a> for more details.</p>
+See <a class="link" href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment"><code class="function">cairo_ps_surface_dsc_comment()</code></a> for more details.</p>
 <p>
 
 </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody><tr>
-<td><span class="term"><em class="parameter"><code>surface</code></em>&#160;:</span></td>
-<td> a PostScript cairo_surface_t
+<td><p><span class="term"><em class="parameter"><code>surface</code></em>&#160;:</span></p></td>
+<td> a PostScript <a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a>
 </td>
 </tr></tbody>
 </table></div>
@@ -298,9 +515,9 @@ See <a href="cairo-PostScript-Surfaces.html#cairo-ps-surface-dsc-comment"><code 
 </div>
 <hr>
 <div class="refsect2" lang="en">
-<a name="id2645133"></a><h3>
+<a name="id2668580"></a><h3>
 <a name="cairo-ps-surface-dsc-comment"></a>cairo_ps_surface_dsc_comment ()</h3>
-<a class="indexterm" name="id2645148"></a><pre class="programlisting">void                cairo_ps_surface_dsc_comment        (<a href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
+<a class="indexterm" name="id2668596"></a><pre class="programlisting">void                cairo_ps_surface_dsc_comment        (<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface,
                                                          const char *comment);</pre>
 <p>
 Emit a comment into the PostScript output for the given surface.
@@ -350,7 +567,7 @@ should be called after a call to <code class="function">cairo_ps_surface_begin_p
 <p>
 Note that it is only necessary to call <code class="function">cairo_ps_surface_begin_page_setup()</code>
 for the first page of any surface. After a call to
-<a href="cairo-cairo-t.html#cairo-show-page"><code class="function">cairo_show_page()</code></a> or <a href="cairo-cairo-t.html#cairo-copy-page"><code class="function">cairo_copy_page()</code></a> comments are unambiguously
+<a class="link" href="cairo-cairo-t.html#cairo-show-page"><code class="function">cairo_show_page()</code></a> or <a class="link" href="cairo-cairo-t.html#cairo-copy-page"><code class="function">cairo_copy_page()</code></a> comments are unambiguously
 directed to the PageSetup section of the current page. But it
 doesn't hurt to call this function at the beginning of every page
 as that consistency may make the calling code simpler.
@@ -380,7 +597,7 @@ Here is an example sequence showing how this function might be used:
 <p>
 </p>
 <div class="informalexample"><pre class="programlisting">
-cairo_surface_t *surface = cairo_ps_surface_create (filename, width, height);
+<a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t">cairo_surface_t</a> *surface = cairo_ps_surface_create (filename, width, height);
 ...
 cairo_ps_surface_dsc_comment (surface, "%%Title: My excellent document");
 cairo_ps_surface_dsc_comment (surface, "%%Copyright: Copyright (C) 2006 Cairo Lover")
@@ -406,12 +623,12 @@ cairo_ps_surface_dsc_comment (surface, "%%IncludeFeature: *PageSize A5");
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td><span class="term"><em class="parameter"><code>surface</code></em>&#160;:</span></td>
-<td> a PostScript cairo_surface_t
+<td><p><span class="term"><em class="parameter"><code>surface</code></em>&#160;:</span></p></td>
+<td> a PostScript <a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a>
 </td>
 </tr>
 <tr>
-<td><span class="term"><em class="parameter"><code>comment</code></em>&#160;:</span></td>
+<td><p><span class="term"><em class="parameter"><code>comment</code></em>&#160;:</span></p></td>
 <td> a comment string to be emitted into the PostScript output
 </td>
 </tr>
@@ -420,6 +637,19 @@ cairo_ps_surface_dsc_comment (surface, "%%IncludeFeature: *PageSize A5");
 <p class="since">Since  1.2
 </p>
 </div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2669022"></a><h2>See Also</h2>
+<p>
+</p>
+<div class="itemizedlist"><ul type="disc"><li><a class="link" href="cairo-cairo-surface-t.html#cairo-surface-t"><span class="type">cairo_surface_t</span></a></li></ul></div>
+<p>
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id2669042"></a><div class="refsect2" lang="en"><a name="id2669043"></a></div>
+<hr>
+<div class="refsect2" lang="en"><a name="id2669044"></a></div>
 </div>
 </div>
 </body>

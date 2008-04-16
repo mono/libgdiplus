@@ -125,18 +125,12 @@ automake --add-missing --gnu $am_opt ||
 echo "Running autoconf ..."
 autoconf || { echo "**Error**: autoconf failed."; exit 1; }
 
-#if test -d $srcdir/libpixman; then
-#  echo Running libpixman/autogen.sh ...
-#  (cd $srcdir/libpixman ; NOCONFIGURE=1 ./autogen.sh "$@")
-#  echo Done running autogen.sh in libpixman...
-#fi
-
 CONF_OPTIONS=""
 CAIRO_AUTOGEN_REQUIRED=1
 until [ -z "$1" ]
 do
   if [ "$1" = "--with-cairo=system" ]; then
-    echo Skipping internal cairo/autogen.sh ...
+    echo Skipping internal pixman and cairo ...
     CAIRO_AUTOGEN_REQUIRED=0
   fi
   CONF_OPTIONS="$CONF_OPTIONS $1"
@@ -144,10 +138,15 @@ do
 done
 
 if test "$CAIRO_AUTOGEN_REQUIRED" -eq 1; then
+  if test -d $srcdir/pixman; then
+    echo Running pixman/autogen.sh ...
+    (cd $srcdir/pixman ; NOCONFIGURE=1 ./autogen.sh "$@")
+    echo Done running autogen.sh in pixman...
+  fi
   if test -d $srcdir/cairo; then
     echo Running cairo/autogen.sh ...
-    (cd $srcdir/cairo ; NOCONFIGURE=1 ./autogen.sh "$@")
-    echo Done running autogen.sh in cairo...
+     (cd $srcdir/cairo ; NOCONFIGURE=1 ./autogen.sh "$@")
+     echo Done running autogen.sh in cairo...
   fi
 fi
 

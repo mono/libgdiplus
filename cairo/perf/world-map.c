@@ -26,7 +26,9 @@
 
 #include "cairo-perf.h"
 
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 
 typedef enum {
     WM_NEW_PATH,

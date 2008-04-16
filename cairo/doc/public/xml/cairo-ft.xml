@@ -23,6 +23,7 @@
 
 
 
+#define             <link linkend="CAIRO-HAS-FT-FONT:CAPS">CAIRO_HAS_FT_FONT</link>
 <link linkend="cairo-font-face-t">cairo_font_face_t</link>*  <link linkend="cairo-ft-font-face-create-for-ft-face">cairo_ft_font_face_create_for_ft_face</link>
                                                         (<link linkend="FT-Face">FT_Face</link> face,
                                                          <link linkend="int">int</link> load_flags);
@@ -46,12 +47,20 @@
 <refsect1 role="desc">
 <title role="desc.title">Description</title>
 <para>
-
+The FreeType font backend is primarily used to render text on GNU/Linux
+systems, but can be used on other platforms too.
 </para>
 </refsect1>
 
 <refsect1 role="details">
 <title role="details.title">Details</title>
+<refsect2>
+<title><anchor id="CAIRO-HAS-FT-FONT:CAPS" role="macro"/>CAIRO_HAS_FT_FONT</title>
+<indexterm><primary>CAIRO_HAS_FT_FONT</primary></indexterm><programlisting>#define CAIRO_HAS_FT_FONT 1
+</programlisting>
+<para>
+
+</para></refsect2>
 <refsect2>
 <title><anchor id="cairo-ft-font-face-create-for-ft-face" role="function"/>cairo_ft_font_face_create_for_ft_face ()</title>
 <indexterm><primary>cairo_ft_font_face_create_for_ft_face</primary></indexterm><programlisting><link linkend="cairo-font-face-t">cairo_font_face_t</link>*  cairo_ft_font_face_create_for_ft_face
@@ -199,5 +208,15 @@ Releases a face obtained with <link linkend="cairo-ft-scaled-font-lock-face"><fu
 
 
 
+<refsect1>
+<title>See Also</title>
+<para>
+<itemizedlist>
+<listitem><link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link></listitem>
+</itemizedlist>
+</para>
+</refsect1>
 
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
 </refentry>

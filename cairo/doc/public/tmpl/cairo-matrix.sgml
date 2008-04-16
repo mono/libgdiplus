@@ -5,8 +5,7 @@ cairo_matrix_t
 Generic matrix operations
 
 <!-- ##### SECTION Long_Description ##### -->
-
-  <para><indexterm><primary>types</primary><secondary>cairo_matrix</secondary></indexterm><indexterm><primary/></indexterm>
+  <para>
     #cairo_matrix_t is used throughout cairo to convert between different
     coordinate spaces.  A #cairo_matrix_t holds an affine transformation,
     such as a scale, rotation, shear, or a combination of these.
@@ -26,7 +25,9 @@ Generic matrix operations
 
 <!-- ##### SECTION See_Also ##### -->
 <para>
-    
+<itemizedlist>
+<listitem>#cairo_t</listitem>
+</itemizedlist>
 </para>
 
 <!-- ##### SECTION Stability_Level ##### -->

@@ -119,7 +119,7 @@ draw (cairo_t *cr, int width, int height)
     const char             *phase;
     cairo_bool_t            uses_clip_rects;
     
-    surface = cairo_surface_create_similar (cairo_get_target (cr),
+    surface = cairo_surface_create_similar (cairo_get_group_target (cr),
                                             CAIRO_CONTENT_COLOR, 100, 100);
     /* don't use cr accidentally */
     cr = NULL;

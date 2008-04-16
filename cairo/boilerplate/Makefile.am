@@ -1,11 +1,15 @@
+EXTRA_DIST = Makefile.win32
+
 EXTRA_LTLIBRARIES = libcairoboilerplate.la
 
-libcairoboilerplate_la_SOURCES =\
-cairo-boilerplate.c	\
-cairo-boilerplate.h	\
-cairo-boilerplate-scaled-font.h	\
-xmalloc.c		\
-xmalloc.h
+libcairoboilerplate_la_SOURCES =	\
+	cairo-boilerplate.c		\
+	cairo-boilerplate.h		\
+	cairo-boilerplate-getopt.c	\
+	cairo-boilerplate-getopt.h	\
+	cairo-boilerplate-scaled-font.h	\
+	xmalloc.c			\
+	xmalloc.h
 libcairoboilerplate_la_LIBADD = $(top_builddir)/src/libcairo.la $(CAIRO_LDADD)
 
 if CAIRO_HAS_BEOS_SURFACE
@@ -67,7 +71,9 @@ endif
 
 if CAIRO_HAS_WIN32_SURFACE
 libcairoboilerplate_la_SOURCES += cairo-boilerplate-win32.c
+libcairoboilerplate_la_SOURCES += cairo-boilerplate-win32-printing.c
 libcairoboilerplate_la_SOURCES += cairo-boilerplate-win32-private.h
+libcairoboilerplate_la_LIBADD += -lwinspool
 endif
 
 if CAIRO_HAS_XCB_SURFACE
@@ -75,7 +81,7 @@ libcairoboilerplate_la_SOURCES += cairo-boilerplate-xcb.c
 libcairoboilerplate_la_SOURCES += cairo-boilerplate-xcb-private.h
 endif
 
-if CAIRO_HAS_XLIB_XRENDER_SURFACE
+if CAIRO_HAS_XLIB_SURFACE
 libcairoboilerplate_la_SOURCES += cairo-boilerplate-xlib.c
 libcairoboilerplate_la_SOURCES += cairo-boilerplate-xlib.h
 libcairoboilerplate_la_SOURCES += cairo-boilerplate-xlib-private.h
@@ -95,3 +101,5 @@ INCLUDES =					\
 
 CLEANFILES =					\
 	$(EXTRA_LTLIBRARIES)
+
+check test: libcairoboilerplate.la

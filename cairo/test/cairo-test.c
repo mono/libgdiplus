@@ -79,6 +79,8 @@ static const char *vector_ignored_tests[] = {
     /* We can't match the results of tests that depend on
      * CAIRO_ANTIALIAS_NONE/SUBPIXEL for vector backends
      * (nor do we care). */
+    "a1-image-sample",
+    "a1-traps-sample",
     "ft-text-antialias-none",
     "rectangle-rounding-error",
     "text-antialias-gray",
@@ -96,6 +98,7 @@ static const char *vector_ignored_tests[] = {
  * context object there, (though not a whole lot). */
 FILE *cairo_test_log_file = NULL;
 const char *srcdir;
+const char *refdir;
 
 /* Used to catch crashes in a test, such that we report it as such and
  * continue testing, although one crasher may already have corrupted memory in
@@ -158,7 +161,20 @@ cairo_ref_name_for_test_target_format (const char *test_name,
 {
     char *ref_name = NULL;
 
-    /* First look for a target/format-specific reference image. */
+    /* First look for a previous build for comparison. */
+    if (refdir) {
+	xasprintf (&ref_name, "%s/%s-%s-%s%s", refdir,
+		   test_name,
+		   target_name,
+		   format,
+		   CAIRO_TEST_PNG_SUFFIX);
+	if (access (ref_name, F_OK) != 0)
+	    free (ref_name);
+	else
+	    goto done;
+    }
+
+    /* Next look for a target/format-specific reference image. */
     xasprintf (&ref_name, "%s/%s-%s-%s%s", srcdir,
 	       test_name,
 	       target_name,
@@ -204,10 +220,47 @@ done:
     return ref_name;
 }
 
+static cairo_bool_t
+cairo_test_target_has_similar (const cairo_test_t *test, cairo_boilerplate_target_t *target)
+{
+    cairo_surface_t *surface;
+    cairo_bool_t has_similar = FALSE;
+
+    /* ignore image intermediate targets */
+    if (target->expected_type == CAIRO_SURFACE_TYPE_IMAGE)
+	return FALSE;
+
+    if (getenv ("CAIRO_TEST_IGNORE_SIMILAR"))
+	return FALSE;
+
+    surface = (target->create_surface) (test->name,
+					target->content,
+					test->width,
+					test->height,
+					CAIRO_BOILERPLATE_MODE_TEST,
+					&target->closure);
+    if (surface != NULL) {
+	cairo_t * cr = cairo_create (surface);
+	cairo_surface_t *similar;
+	cairo_push_group_with_content (cr, target->content);
+	similar = cairo_get_group_target (cr);
+	has_similar = cairo_surface_get_type (similar) == cairo_surface_get_type (surface);
+
+	cairo_destroy (cr);
+	cairo_surface_destroy (surface);
+
+	if (target->cleanup)
+	    target->cleanup (target->closure);
+    }
+
+    return has_similar;
+}
+
 static cairo_test_status_t
 cairo_test_for_target (cairo_test_t			 *test,
 		       cairo_boilerplate_target_t	 *target,
-		       int				  dev_offset)
+		       int				  dev_offset,
+		       cairo_bool_t                       similar)
 {
     cairo_test_status_t status;
     cairo_surface_t *surface = NULL;
@@ -225,16 +278,18 @@ cairo_test_for_target (cairo_test_t			 *test,
     else
 	offset_str = strdup("");
 
-    xasprintf (&png_name, "%s-%s-%s%s%s",
+    xasprintf (&png_name, "%s-%s-%s%s%s%s",
 	       test->name,
 	       target->name,
 	       format,
+	       similar ? "-similar" : "",
 	       offset_str, CAIRO_TEST_PNG_SUFFIX);
     ref_name = cairo_ref_name_for_test_target_format (test->name, target->name, format);
-    xasprintf (&diff_name, "%s-%s-%s%s%s",
+    xasprintf (&diff_name, "%s-%s-%s%s%s%s",
 	       test->name,
 	       target->name,
 	       format,
+	       similar ? "-similar" : "",
 	       offset_str, CAIRO_TEST_DIFF_SUFFIX);
 
     if (target->is_vector) {
@@ -301,6 +356,8 @@ cairo_test_for_target (cairo_test_t			 *test,
     cairo_surface_set_device_offset (surface, dev_offset, dev_offset);
 
     cr = cairo_create (surface);
+    if (similar)
+	cairo_push_group_with_content (cr, target->content);
 
     /* Clear to transparent (or black) depending on whether the target
      * surface supports alpha. */
@@ -318,13 +375,21 @@ cairo_test_for_target (cairo_test_t			 *test,
     cairo_set_font_options (cr, font_options);
     cairo_font_options_destroy (font_options);
 
+    cairo_save (cr);
     status = (test->draw) (cr, test->width, test->height);
+    cairo_restore (cr);
 
     /* Then, check all the different ways it could fail. */
     if (status) {
 	cairo_test_log ("Error: Function under test failed\n");
 	ret = status;
 	goto UNWIND_CAIRO;
+    }
+
+    if (similar) {
+	cairo_pop_group_to_source (cr);
+	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+	cairo_paint (cr);
     }
 
     if (cairo_status (cr) != CAIRO_STATUS_SUCCESS) {
@@ -341,6 +406,7 @@ cairo_test_for_target (cairo_test_t			 *test,
 	xunlink (png_name);
 	(target->write_to_png) (surface, png_name);
 
+	cairo_test_log ("OUTPUT: %s\n", png_name);
 	if (!ref_name) {
 	    cairo_test_log ("Error: Cannot find reference image for %s/%s-%s-%s%s\n",srcdir,
 			    test->name,
@@ -351,7 +417,8 @@ cairo_test_for_target (cairo_test_t			 *test,
 	    goto UNWIND_CAIRO;
 	}
 
-	cairo_test_log ("Comparing result against reference image: %s\n", ref_name);
+	cairo_test_log ("REFERENCE: %s\n", ref_name);
+	cairo_test_log ("DIFFERENCE: %s\n", diff_name);
 
 	if (target->content == CAIRO_TEST_CONTENT_COLOR_ALPHA_FLATTENED) {
 	    diff_status= image_diff_flattened (png_name, ref_name, diff_name,
@@ -409,7 +476,7 @@ cairo_test_expecting (cairo_test_t *test,
 {
     /* we use volatile here to make sure values are not clobbered
      * by longjmp */
-    volatile size_t i, j, num_targets;
+    volatile size_t i, j, num_targets, similar, has_similar;
     volatile cairo_bool_t limited_targets = FALSE, print_fail_on_stdout = TRUE;
 #ifdef HAVE_SIGNAL_H
     void (*old_segfault_handler)(int);
@@ -429,6 +496,7 @@ cairo_test_expecting (cairo_test_t *test,
     srcdir = getenv ("srcdir");
     if (!srcdir)
 	srcdir = ".";
+    refdir = getenv ("CAIRO_REF_DIR");
 
     cairo_test_init (test->name);
     printf ("%s\n", test->description);
@@ -462,83 +530,90 @@ cairo_test_expecting (cairo_test_t *test,
      * Also, on a crash, run no further tests.
      */
     status = ret = CAIRO_TEST_UNTESTED;
-    for (i = 0; i < num_targets && status != CAIRO_TEST_CRASHED; i++) {
+    for (i = 0; i < num_targets; i++) {
 	for (j = 0; j < NUM_DEVICE_OFFSETS; j++) {
 	    cairo_boilerplate_target_t * volatile target = targets_to_test[i];
 	    volatile int dev_offset = j * 25;
-
-	    cairo_test_log ("Testing %s with %s target (dev offset %d)\n", test->name, target->name, dev_offset);
-	    printf ("%s-%s-%s [%d]:\t", test->name, target->name,
-		    cairo_boilerplate_content_name (target->content),
-		    dev_offset);
+	    has_similar = cairo_test_target_has_similar (test, target);
+	    for (similar = 0; similar <= has_similar ; similar++) {
+		cairo_test_log ("Testing %s with %s%s target (dev offset %d)\n", test->name, similar ? " (similar)" : "", target->name, dev_offset);
+		printf ("%s-%s-%s [%d]%s:\t", test->name, target->name,
+			cairo_boilerplate_content_name (target->content),
+			dev_offset,
+			similar ? " (similar)": "");
 
 #ifdef HAVE_SIGNAL_H
-	    /* Set up a checkpoint to get back to in case of segfaults. */
-	    old_segfault_handler = signal (SIGSEGV, segfault_handler);
-	    if (0 == setjmp (jmpbuf))
+		/* Set up a checkpoint to get back to in case of segfaults. */
+		old_segfault_handler = signal (SIGSEGV, segfault_handler);
+		if (0 == setjmp (jmpbuf))
 #endif
-		status = cairo_test_for_target (test, target, dev_offset);
+		    status = cairo_test_for_target (test, target, dev_offset, similar);
 #ifdef HAVE_SIGNAL_H
-	    else
-	        status = CAIRO_TEST_CRASHED;
-	    signal (SIGSEGV, old_segfault_handler);
+		else
+		    status = CAIRO_TEST_CRASHED;
+		signal (SIGSEGV, old_segfault_handler);
 #endif
 
-	    cairo_test_log ("TEST: %s TARGET: %s FORMAT: %s OFFSET: %d RESULT: ",
-			    test->name, target->name,
-			    cairo_boilerplate_content_name (target->content),
-			    dev_offset);
+		cairo_test_log ("TEST: %s TARGET: %s FORMAT: %s OFFSET: %d SIMILAR: %d RESULT: ",
+				test->name, target->name,
+				cairo_boilerplate_content_name (target->content),
+				dev_offset, similar);
 
-	    switch (status) {
-	    case CAIRO_TEST_SUCCESS:
-		printf ("PASS\n");
-		cairo_test_log ("PASS\n");
-		if (ret == CAIRO_TEST_UNTESTED)
-		    ret = CAIRO_TEST_SUCCESS;
-		break;
-	    case CAIRO_TEST_UNTESTED:
-		printf ("UNTESTED\n");
-		cairo_test_log ("UNTESTED\n");
-		break;
-	    case CAIRO_TEST_CRASHED:
-		if (print_fail_on_stdout) {
-		    printf ("!!!CRASHED!!!\n");
-		} else {
-		    /* eat the test name */
-		    printf ("\r");
-		    fflush (stdout);
-		}
-		cairo_test_log ("CRASHED\n");
-		fprintf (stderr, "%s-%s-%s [%d]:\t%s!!!CRASHED!!!%s\n",
-			 test->name, target->name,
-			 cairo_boilerplate_content_name (target->content), dev_offset,
-			 fail_face, normal_face);
-		ret = CAIRO_TEST_FAILURE;
-		break;
-	    default:
-	    case CAIRO_TEST_FAILURE:
-		if (expectation == CAIRO_TEST_FAILURE) {
-		    printf ("XFAIL\n");
-		    cairo_test_log ("XFAIL\n");
-		} else {
+		switch (status) {
+		case CAIRO_TEST_SUCCESS:
+		    printf ("PASS\n");
+		    cairo_test_log ("PASS\n");
+		    if (ret == CAIRO_TEST_UNTESTED)
+			ret = CAIRO_TEST_SUCCESS;
+		    break;
+		case CAIRO_TEST_UNTESTED:
+		    printf ("UNTESTED\n");
+		    cairo_test_log ("UNTESTED\n");
+		    break;
+		case CAIRO_TEST_CRASHED:
 		    if (print_fail_on_stdout) {
-			printf ("FAIL\n");
+			printf ("!!!CRASHED!!!\n");
 		    } else {
 			/* eat the test name */
 			printf ("\r");
 			fflush (stdout);
 		    }
-		    fprintf (stderr, "%s-%s-%s [%d]:\t%sFAIL%s\n",
+		    cairo_test_log ("CRASHED\n");
+		    fprintf (stderr, "%s-%s-%s [%d]%s:\t%s!!!CRASHED!!!%s\n",
 			     test->name, target->name,
-			     cairo_boilerplate_content_name (target->content), dev_offset,
+			     cairo_boilerplate_content_name (target->content), dev_offset, similar ? " (similar)" : "",
 			     fail_face, normal_face);
-		    cairo_test_log ("FAIL\n");
+		    ret = CAIRO_TEST_FAILURE;
+		    break;
+		default:
+		case CAIRO_TEST_FAILURE:
+		    if (expectation == CAIRO_TEST_FAILURE) {
+			printf ("XFAIL\n");
+			cairo_test_log ("XFAIL\n");
+		    } else {
+			if (print_fail_on_stdout) {
+			    printf ("FAIL\n");
+			} else {
+			    /* eat the test name */
+			    printf ("\r");
+			    fflush (stdout);
+			}
+			fprintf (stderr, "%s-%s-%s [%d]%s:\t%sFAIL%s\n",
+				 test->name, target->name,
+				 cairo_boilerplate_content_name (target->content), dev_offset, similar ? " (similar)" : "",
+				 fail_face, normal_face);
+			cairo_test_log ("FAIL\n");
+		    }
+		    ret = status;
+		    break;
 		}
-		ret = status;
-		break;
+
+		if (status == CAIRO_TEST_CRASHED)
+		    goto out;
 	    }
 	}
     }
+out:
 
     if (ret != CAIRO_TEST_SUCCESS)
         printf ("Check %s%s out for more information.\n", test->name, CAIRO_TEST_LOG_SUFFIX);
@@ -628,8 +703,6 @@ cairo_test_create_surface_from_png (const char *filename)
 	    image = cairo_image_surface_create_from_png (srcdir_filename);
 	    free (srcdir_filename);
 	}
-	if (cairo_surface_status(image))
-	    return NULL;
     }
 
     return image;

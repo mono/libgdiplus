@@ -2,11 +2,11 @@
 Types
 
 <!-- ##### SECTION Short_Description ##### -->
-Generic data types used in the cairo API
+Generic data types
 
 <!-- ##### SECTION Long_Description ##### -->
 <para>
-
+Generic data types used in the cairo API
 </para>
 
 <!-- ##### SECTION See_Also ##### -->

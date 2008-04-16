@@ -5,14 +5,14 @@
 ]>
 <refentry id="cairo-Scaled-Fonts">
 <refmeta>
-<refentrytitle role="top_of_page">Scaled Fonts</refentrytitle>
+<refentrytitle role="top_of_page">cairo_scaled_font_t</refentrytitle>
 <manvolnum>3</manvolnum>
 <refmiscinfo>CAIRO Library</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>Scaled Fonts</refname>
-<refpurpose>Caching metrics for a particular font size</refpurpose>
+<refname>cairo_scaled_font_t</refname>
+<refpurpose>Font face at particular size and options</refpurpose>
 <!--[<xref linkend="desc" endterm="desc.title"/>]-->
 </refnamediv>
 
@@ -72,7 +72,8 @@ unsigned <link linkend="int">int</link>        <link linkend="cairo-scaled-font-
 <refsect1 role="desc">
 <title role="desc.title">Description</title>
 <para>
-
+<link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link> represents a realization of a font face at a particular
+size and transformation and a certain set of font options.
 </para>
 </refsect1>
 
@@ -84,7 +85,7 @@ unsigned <link linkend="int">int</link>        <link linkend="cairo-scaled-font-
 </programlisting>
 <para>
 A <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link> is a font scaled to a particular size and device
-resolution. A cairo_scaled_font_t is most useful for low-level font
+resolution. A <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link> is most useful for low-level font
 usage where a library or application wants to cache a reference
 to a scaled font to speed up the computation of metrics.
 </para>
@@ -128,7 +129,8 @@ be used.</para>
 </simpara></listitem></varlistentry>
 <varlistentry><term><parameter>options</parameter>&nbsp;:</term>
 <listitem><simpara> options to use when getting metrics for the font and
-          rendering with it.
+          rendering with it. A <link linkend="NULL:CAPS"><literal>NULL</literal></link> pointer will be interpreted as
+          meaning the default options.
 </simpara></listitem></varlistentry>
 <varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> a newly created <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>. Destroy with
  <link linkend="cairo-scaled-font-destroy"><function>cairo_scaled_font_destroy()</function></link>
@@ -149,7 +151,7 @@ The number of references to a <link linkend="cairo-scaled-font-t"><type>cairo_sc
 
 </para><variablelist role="params">
 <varlistentry><term><parameter>scaled_font</parameter>&nbsp;:</term>
-<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>, (may be NULL in which case
+<listitem><simpara> a <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>, (may be <link linkend="NULL:CAPS"><literal>NULL</literal></link> in which case
 this function does nothing)
 </simpara></listitem></varlistentry>
 <varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the referenced <link linkend="cairo-scaled-font-t"><type>cairo_scaled_font_t</type></link>
@@ -572,5 +574,17 @@ attached to
 
 
 
+<refsect1>
+<title>See Also</title>
+<para>
+<itemizedlist>
+<listitem><link linkend="cairo-font-face-t"><type>cairo_font_face_t</type></link></listitem>
+<listitem><link linkend="cairo-matrix-t"><type>cairo_matrix_t</type></link></listitem>
+<listitem><link linkend="cairo-font-options-t"><type>cairo_font_options_t</type></link></listitem>
+</itemizedlist>
+</para>
+</refsect1>
 
+
+<refsect1><refsect2 /><refsect2 /></refsect1>
 </refentry>

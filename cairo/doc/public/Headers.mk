@@ -1,13 +1,18 @@
 PRIVATE_TEST_HFILES = \
 	cairo-analysis-surface-private.h \
 	cairo-arc-private.h \
+	cairo-atomic-private.h \
 	cairo-cache-private.h \
 	cairo-clip-private.h \
+	cairo-compiler-private.h \
+	cairo-fixed-private.h \
+	cairo-fixed-type-private.h \
 	cairo-freelist-private.h \
 	cairo-ft-private.h \
 	cairo-glitz-private.h \
 	cairo-gstate-private.h \
 	cairo-hash-private.h \
+	cairo-malloc-private.h \
 	cairo-meta-surface-private.h \
 	cairo-mutex-list-private.h \
 	cairo-mutex-private.h \
@@ -18,10 +23,13 @@ PRIVATE_TEST_HFILES = \
 	cairo-paginated-surface-private.h \
 	cairo-path-fixed-private.h \
 	cairo-path-private.h \
+	cairo-pdf-operators-private.h \
 	cairo-pdf-surface-private.h \
 	cairo-private.h \
 	cairo-ps-surface-private.h \
 	cairo-quartz-private.h \
+	cairo-reference-count-private.h \
+	cairo-region-private.h \
 	cairo-scaled-font-private.h \
 	cairo-scaled-font-subsets-private.h \
 	cairo-skiplist-private.h \
@@ -32,7 +40,9 @@ PRIVATE_TEST_HFILES = \
 	cairo-type1-private.h \
 	cairo-types-private.h \
 	cairo-wideint-private.h \
+	cairo-wideint-type-private.h \
 	cairo-win32-private.h \
 	cairo-xlib-private.h \
 	cairo-xlib-surface-private.h \
+	cairo-xlib-xrender-private.h \
 	cairoint.h

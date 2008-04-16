@@ -28,10 +28,7 @@
 
 #include "cairo-perf.h"
 
-/* For getopt */
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+#include "cairo-boilerplate-getopt.h"
 
 /* For basename */
 #ifdef HAVE_LIBGEN_H
@@ -78,6 +75,14 @@ target_is_measurable (cairo_boilerplate_target_t *target)
 	    return TRUE;
 	}
     case CAIRO_SURFACE_TYPE_XLIB:
+	if (strcmp (target->name, "xlib-fallback") == 0)
+	{
+	    return FALSE;
+	}
+	else
+	{
+	    return TRUE;
+	}
     case CAIRO_SURFACE_TYPE_XCB:
     case CAIRO_SURFACE_TYPE_GLITZ:
     case CAIRO_SURFACE_TYPE_QUARTZ:
@@ -97,18 +102,36 @@ target_is_measurable (cairo_boilerplate_target_t *target)
 }
 
 static const char *
-_content_to_string (cairo_content_t content)
+_content_to_string (cairo_content_t content, cairo_bool_t similar)
 {
-    switch (content) {
+    switch (content|similar) {
     case CAIRO_CONTENT_COLOR:
 	return "rgb";
+    case CAIRO_CONTENT_COLOR|1:
+	return "rgb&";
     case CAIRO_CONTENT_ALPHA:
 	return "a";
+    case CAIRO_CONTENT_ALPHA|1:
+	return "a&";
     case CAIRO_CONTENT_COLOR_ALPHA:
 	return "rgba";
+    case CAIRO_CONTENT_COLOR_ALPHA|1:
+	return "rgba&";
     default:
 	return "<unknown_content>";
     }
+}
+
+static cairo_bool_t
+cairo_perf_has_similar (cairo_perf_t *perf)
+{
+    cairo_surface_t *target = cairo_get_target (perf->cr);
+
+    /* exclude the image backend */
+    if (cairo_surface_get_type (target) == CAIRO_SURFACE_TYPE_IMAGE)
+	return FALSE;
+
+    return TRUE;
 }
 
 void
@@ -117,7 +140,7 @@ cairo_perf_run (cairo_perf_t		*perf,
 		cairo_perf_func_t	 perf_func)
 {
     static cairo_bool_t first_run = TRUE;
-    unsigned int i;
+    unsigned int i, similar, has_similar;
     cairo_perf_ticks_t *times;
     cairo_stats_t stats = {0.0, 0.0};
     int low_std_dev_count;
@@ -148,56 +171,67 @@ cairo_perf_run (cairo_perf_t		*perf,
 
     times = xmalloc (perf->iterations * sizeof (cairo_perf_ticks_t));
 
-    /* We run one iteration in advance to warm caches, etc. */
-    cairo_perf_yield ();
-    (perf_func) (perf->cr, perf->size, perf->size);
-
-    low_std_dev_count = 0;
-    for (i =0; i < perf->iterations; i++) {
+    has_similar = cairo_perf_has_similar (perf);
+    for (similar = 0; similar <= has_similar; similar++) {
+	/* We run one iteration in advance to warm caches, etc. */
 	cairo_perf_yield ();
-	times[i] = (perf_func) (perf->cr, perf->size, perf->size);
+	if (similar)
+	    cairo_push_group_with_content (perf->cr, perf->target->content);
+	(perf_func) (perf->cr, perf->size, perf->size);
+	if (similar)
+	    cairo_pattern_destroy (cairo_pop_group (perf->cr));
 
-	if (perf->raw) {
-	    if (i == 0)
-		printf ("[*] %s-%s %s-%d %g",
-			perf->target->name,
-			_content_to_string (perf->target->content),
-			name, perf->size,
-			cairo_perf_ticks_per_second () / 1000.0);
-	    printf (" %lld", times[i]);
-	} else {
-	    if (i > 0) {
-		_cairo_stats_compute (&stats, times, i+1);
+	low_std_dev_count = 0;
+	for (i =0; i < perf->iterations; i++) {
+	    cairo_perf_yield ();
+	    if (similar)
+		cairo_push_group_with_content (perf->cr, perf->target->content);
+	    times[i] = (perf_func) (perf->cr, perf->size, perf->size);
+	    if (similar)
+		cairo_pattern_destroy (cairo_pop_group (perf->cr));
 
-		if (stats.std_dev <= CAIRO_PERF_LOW_STD_DEV &&
-		    ! perf->exact_iterations)
-		{
-		    low_std_dev_count++;
-		    if (low_std_dev_count >= CAIRO_PERF_STABLE_STD_DEV_COUNT)
-			break;
-		} else {
-		    low_std_dev_count = 0;
+	    if (perf->raw) {
+		if (i == 0)
+		    printf ("[*] %s-%s %s-%d %g",
+			    perf->target->name,
+			    _content_to_string (perf->target->content, similar),
+			    name, perf->size,
+			    cairo_perf_ticks_per_second () / 1000.0);
+		printf (" %lld", times[i]);
+	    } else if (! perf->exact_iterations) {
+		if (i > 0) {
+		    _cairo_stats_compute (&stats, times, i+1);
+
+		    if (stats.std_dev <= CAIRO_PERF_LOW_STD_DEV)
+		    {
+			low_std_dev_count++;
+			if (low_std_dev_count >= CAIRO_PERF_STABLE_STD_DEV_COUNT)
+			    break;
+		    } else {
+			low_std_dev_count = 0;
+		    }
 		}
 	    }
 	}
+
+	if (perf->raw) {
+	    printf ("\n");
+	} else {
+	    _cairo_stats_compute (&stats, times, i);
+	    printf ("[%3d] %8s-%-5s %26s-%-3d ",
+		    perf->test_number, perf->target->name,
+		    _content_to_string (perf->target->content, similar),
+		    name, perf->size);
+
+	    printf ("%10lld %#8.3f %#8.3f %#5.2f%% %3d\n",
+		    stats.min_ticks,
+		    (stats.min_ticks * 1000.0) / cairo_perf_ticks_per_second (),
+		    (stats.median_ticks * 1000.0) / cairo_perf_ticks_per_second (),
+		    stats.std_dev * 100.0, stats.iterations);
+	}
+
+	perf->test_number++;
     }
-
-    if (perf->raw) {
-	printf ("\n");
-    } else {
-	printf ("[%3d] %8s-%-4s %26s-%-3d ",
-		perf->test_number, perf->target->name,
-		_content_to_string (perf->target->content),
-		name, perf->size);
-
-	printf ("%10lld %#8.3f %#8.3f %#5.2f%% %3d\n",
-		stats.min_ticks,
-		(stats.min_ticks * 1000.0) / cairo_perf_ticks_per_second (),
-		(stats.median_ticks * 1000.0) / cairo_perf_ticks_per_second (),
-		stats.std_dev * 100.0, stats.iterations);
-    }
-
-    perf->test_number++;
     free (times);
 }
 
@@ -239,7 +273,7 @@ parse_options (cairo_perf_t *perf, int argc, char *argv[])
     perf->num_names = 0;
 
     while (1) {
-	c = getopt (argc, argv, "i:lr");
+	c = _cairo_getopt (argc, argv, "i:lr");
 	if (c == -1)
 	    break;
 

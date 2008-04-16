@@ -90,7 +90,7 @@ cairo_perf_cover_sources_and_operators (cairo_perf_t		*perf,
 					const char		*name,
 					cairo_perf_func_t	 perf_func);
 
-#define CAIRO_PERF_DECL(func) void (func) (cairo_perf_t *perf, cairo_t *cr, int width, int height);
+#define CAIRO_PERF_DECL(func) void (func) (cairo_perf_t *perf, cairo_t *cr, int width, int height)
 
 CAIRO_PERF_DECL (fill);
 CAIRO_PERF_DECL (paint);

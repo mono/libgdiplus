@@ -67,7 +67,7 @@ set_surface_pattern (cairo_t *cr, int x, int y)
     x += 0.2 * WIDTH;
     y += 0.2 * HEIGHT;
 
-    source_surface = cairo_surface_create_similar (cairo_get_target (cr),
+    source_surface = cairo_surface_create_similar (cairo_get_group_target (cr),
 						   CAIRO_CONTENT_COLOR_ALPHA,
 						   width, height);
     cr2 = cairo_create (source_surface);
@@ -98,7 +98,7 @@ draw_mask (cairo_t *cr, int x, int y)
     x += 0.05 * WIDTH;
     y += 0.05 * HEIGHT;
 
-    mask_surface = cairo_surface_create_similar (cairo_get_target (cr),
+    mask_surface = cairo_surface_create_similar (cairo_get_group_target (cr),
 						 CAIRO_CONTENT_ALPHA,
 						 width, height);
     cr2 = cairo_create (mask_surface);

@@ -1,0 +1,40 @@
+
+SUBMAKEFILE = 1
+
+include ../Makefile.win32
+
+CFLAGS += -I../src
+
+SOURCES = \
+	cairo-boilerplate.c \
+	cairo-boilerplate-win32.c \
+	cairo-boilerplate-ps.c \
+	cairo-boilerplate-svg.c \
+	cairo-boilerplate-pdf.c \
+	cairo-boilerplate-getopt.c \
+	xmalloc.c \
+	$(NULL)
+
+OBJECTS = $(patsubst %.c, $(CFG)/%.obj, $(SOURCES))
+
+
+all: $(CFG)/boiler.lib
+
+$(CFG)/boiler.lib: $(OBJECTS)
+	lib -NOLOGO -OUT:$@ $(OBJECTS) $(WIN_LIBS)
+
+clean:
+	@rm -f $(CFG)/*.obj $(CFG)/*.dll $(CFG)/*.lib $(CFG)/*.pdb $(CFG)/*.ilk || exit 0
+
+inform:
+ifneq ($(CFG),release)
+ifneq ($(CFG),debug)
+	@echo "Invalid configuration "$(CFG)" specified."
+	@echo -n "You must specify a configuration when "
+	@echo "running make, e.g. make CFG=debug"
+	@echo
+	@echo -n "Possible choices for configuration are "
+	@echo "'release' and 'debug'"
+	@exit 1
+endif
+endif

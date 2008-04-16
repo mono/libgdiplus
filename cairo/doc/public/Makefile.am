@@ -24,7 +24,6 @@ UNSUPPORTED_HFILES=		\
 	cairo-directfb.h	\
 	cairo-glitz.h		\
 	cairo-os2.h		\
-	cairo-quartz.h		\
 	cairo-xcb.h		\
 	cairo-xcb-xrender.h
 
@@ -70,3 +69,10 @@ include $(top_srcdir)/gtk-doc.make
 # Version information for marking the documentation
 EXTRA_DIST += version.xml.in
 
+if ENABLE_GTK_DOC
+check: doc
+endif
+
+TESTS_ENVIRONMENT = srcdir="$(srcdir)" top_srcdir="$(top_srcdir)" MAKE="$(MAKE)"
+TESTS = check-doc-coverage.sh check-doc-syntax.sh
+EXTRA_DIST += $(TESTS)

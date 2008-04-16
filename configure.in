@@ -30,13 +30,15 @@ if test $cairo_v = "internal"; then
 	ac_configure_args="$ac_configure_args --with-pic=yes"
 
 	# disable the PNG, PDF and SVG surface backends of Cairo (unrequired for GDI+)
-	ac_configure_args="$ac_configure_args --disable-png --disable-pdf --disable-svg"
+# cairo 1.6.x bug - we can't disable PDF and keep PS backend - reported at https://bugs.freedesktop.org/show_bug.cgi?id=15532
+#	ac_configure_args="$ac_configure_args --disable-png --disable-pdf --disable-svg"
+	ac_configure_args="$ac_configure_args --disable-png --disable-svg"
 
-	AC_CONFIG_SUBDIRS(cairo)
-	CAIRO_DIR="cairo"
+	AC_CONFIG_SUBDIRS([pixman cairo])
+	CAIRO_DIR="pixman cairo"
 	CAIRO_LIBS='$(top_builddir)/cairo/src/libcairo.la'
-	CAIRO_CFLAGS='-I$(top_builddir)/cairo/pixman/src -I$(top_srcdir)/cairo/pixman/src -I$(top_builddir)/cairo/src -I$(top_srcdir)/cairo/src'
-	AC_DEFINE(USE_INCLUDED_CAIRO,1,[Use Cairo bundled in libgdiplus])
+	CAIRO_CFLAGS='-I$(top_builddir)/pixman/pixman -I$(top_srcdir)/pixman/pixman -I$(top_builddir)/cairo/src -I$(top_srcdir)/cairo/src'
+	AC_DEFINE(USE_INCLUDED_CAIRO,1,[Use Cairo/pixman bundled in libgdiplus])
 
 	if test $text_v = "pango"; then
 		AC_MSG_ERROR("Pango text rendering is only possible with --with-cairo=system")

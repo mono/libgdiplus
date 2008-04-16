@@ -11,7 +11,6 @@ libgdiplus_la_SOURCES = \
 	brush.c				\
 	brush.h				\
 	brush-private.h			\
-	cairo-embed.h			\
 	carbon-private.c		\
 	carbon-private.h		\
 	codecs.h			\
