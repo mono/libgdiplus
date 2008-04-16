@@ -33,6 +33,9 @@ if test $cairo_v = "internal"; then
 # cairo 1.6.x bug - we can't disable PDF and keep PS backend - reported at https://bugs.freedesktop.org/show_bug.cgi?id=15532
 #	ac_configure_args="$ac_configure_args --disable-png --disable-pdf --disable-svg"
 	ac_configure_args="$ac_configure_args --disable-png --disable-svg"
+# gdiplsu mac note; if we have quartz and ft fonts, quartz is the default and gdi+ assumes the latter everywhere, force it out
+# of the internal build
+	ac_configure_args="$ac_configure_args --disable-quartz-font"
 
 	AC_CONFIG_SUBDIRS([pixman cairo])
 	CAIRO_DIR="pixman cairo"
