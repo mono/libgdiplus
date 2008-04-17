@@ -546,9 +546,9 @@ dnl ===========================================================================
 # Set these as appropriate:
 
 # release number - for information only
-FREETYPE_MIN_RELEASE=2.1.9
+FREETYPE_MIN_RELEASE=2.1.0
 # libtool-specific version - this is what is checked
-FREETYPE_MIN_VERSION=9.7.3
+FREETYPE_MIN_VERSION=8.0.2
 
 CAIRO_BACKEND_ENABLE(ft, FreeType font, freetype, FT_FONT, auto, [
   ft_REQUIRES="fontconfig"
