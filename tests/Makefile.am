@@ -44,5 +44,4 @@ EXTRA_DIST =			\
 	$(testgdi_SOURCES)	\
 	$(testbits_SOURCES)	\
 	$(testclip_SOURCES)	\
-	$(testreversepath_SOURCES)	\
-	$(NULL)
+	$(testreversepath_SOURCES)
