@@ -1,3 +1,9 @@
+2008-04-18  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* pngcodec.c: If PNG_INCH_CONVERSIONS is not defined (old libpng)
+	then manual compute resolution. If none is available fall back to
+	screen resolution. Fix bug #381169
+
 2008-04-16  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-cairo.c: Tweak AA (since looks like Cairo 1.6 tweaked

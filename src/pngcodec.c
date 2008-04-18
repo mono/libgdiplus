@@ -115,7 +115,17 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 	bitmap_data->image_flags |= ImageFlagsHasRealDPI;
 	bitmap_data->dpi_horz = png_get_x_pixels_per_inch(png_ptr, info_ptr);
 	bitmap_data->dpi_vert = png_get_y_pixels_per_inch(png_ptr, info_ptr);
+#elif defined(PNG_pHYs_SUPPORTED)
+	if ((info_ptr->valid & PNG_INFO_pHYs) && (info_ptr->phys_unit_type == PNG_RESOLUTION_METER)) {
+		bitmap_data->image_flags |= ImageFlagsHasRealDPI;
+		bitmap_data->dpi_horz = info_ptr->x_pixels_per_unit * 0.0254;
+		bitmap_data->dpi_vert = info_ptr->y_pixels_per_unit * 0.0254;
+	}
 #endif
+	/* default to screen resolution (if nothing was provided or available) */
+	if (bitmap_data->dpi_horz == 0 || bitmap_data->dpi_vert == 0) {
+		 bitmap_data->dpi_horz = bitmap_data->dpi_vert = gdip_get_display_dpi ();
+	}
 
 #if defined(PNG_iCCP_SUPPORTED)
 	{
