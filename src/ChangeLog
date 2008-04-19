@@ -1,3 +1,9 @@
+2008-04-18  Jeffrey Stedfast  <fejj@novell.com>
+
+	* text-cairo.c (MeasureString): #include <ctype.h> for isspace()
+	and also do proper casting so that we don't run into problems on
+	non-GNU systems.
+
 2008-04-18  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* pngcodec.c: If PNG_INCH_CONVERSIONS is not defined (old libpng)
