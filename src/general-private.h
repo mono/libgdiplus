@@ -77,14 +77,19 @@
 /* avoid floating point division/multiplications when pre-multiplying the alpha channel with R, G and B values */
 extern const BYTE pre_multiplied_table[256][256];
 
-/* cairo has a (signed) 15(1)/16(2)bits pixel positioning, while GDI+ use (signed) 23 bits (infinity).
- * Using larger values confuse the bits used for subpixel positioning.
- * (1) http://lists.freedesktop.org/archives/cairo/2006-June/007251.html
- * (2) testing shows artefacts if using more than 15 bits
- */
-#define CAIRO_LOW_LIMIT			-16384
-#define CAIRO_HIGH_LIMIT		16383
-#define CAIRO_LIMIT(v)			((v < CAIRO_LOW_LIMIT) ? CAIRO_LOW_LIMIT : (v > CAIRO_HIGH_LIMIT) ? CAIRO_HIGH_LIMIT : v)
+#if CAIRO_VERSION < CAIRO_VERSION_ENCODE(1,6,0)
+	/* older cairo has a (signed) 15(1)/16(2)bits pixel positioning, while GDI+ use (signed) 23 bits (infinity).
+	 * Using larger values confuse the bits used for subpixel positioning.
+	 * (1) http://lists.freedesktop.org/archives/cairo/2006-June/007251.html
+	 * (2) testing shows artefacts if using more than 15 bits
+	 */
+	#define CAIRO_LOW_LIMIT		-16384
+	#define CAIRO_HIGH_LIMIT	16383
+	#define CAIRO_LIMIT(v)		((v < CAIRO_LOW_LIMIT) ? CAIRO_LOW_LIMIT : (v > CAIRO_HIGH_LIMIT) ? CAIRO_HIGH_LIMIT : v)
+#else
+	/* since cairo 1.6 values are split 24/8 */
+	#define CAIRO_LIMIT(v)		v
+#endif
 
 /* other shared functions */
 int iround (float d) GDIP_INTERNAL;

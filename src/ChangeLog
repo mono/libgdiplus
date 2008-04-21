@@ -1,3 +1,16 @@
+2008-04-21  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* general-private.h: Don't clamp values for Cairo >= 1.6 since 
+	the fixed point values are now kept in the 24/8 format.
+	* graphics-private.h: Change the CAIRO_AA_OFFSET_X from 1.0 to 
+	0.5 for Cairo >= 1.6.
+	* graphics-cairo.c: Revert earlier AA tweaks (r100945) as it 
+	broke rectangles and the change to CAIRO_AA_OFFSET_X does the 
+	required fixes.
+	[Fix bug #381737]
+	* graphics-path.c: IsVisible X offset still needs to be 1.0 
+	(whatever version of Cairo being used).
+
 2008-04-18  Jeffrey Stedfast  <fejj@novell.com>
 
 	* text-cairo.c (MeasureString): #include <ctype.h> for isspace()

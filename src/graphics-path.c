@@ -1925,7 +1925,7 @@ GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, BO
 	if (status == Ok) {
 		cairo_set_fill_rule (g->ct, gdip_convert_fill_mode (path->fill_mode));
 		cairo_set_antialias (g->ct, CAIRO_ANTIALIAS_NONE);
-		*result = cairo_in_fill (g->ct, x + CAIRO_AA_OFFSET_X, y + CAIRO_AA_OFFSET_Y);
+		*result = cairo_in_fill (g->ct, x + 1.0 /* CAIRO_AA_OFFSET_X */, y + CAIRO_AA_OFFSET_Y);
 	} else {
 		*result = FALSE;
 	}
