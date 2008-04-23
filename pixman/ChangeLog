@@ -1,0 +1,4 @@
+2008-04-23  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* configure.ac: Add same gcc check as MMX to SSE2. Fix build
+	on older bots. Thanks to kangaroo

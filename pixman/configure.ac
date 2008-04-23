@@ -196,6 +196,9 @@ xserver_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS -msse2 $MMX_CFLAGS"
 
 AC_COMPILE_IFELSE([
+#if defined(__GNUC__) && (__GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ < 4))
+#error "Need GCC >= 3.4 for SSE2 intrinsics"
+#endif
 #include <mmintrin.h>
 #include <xmmintrin.h>
 int main () {
