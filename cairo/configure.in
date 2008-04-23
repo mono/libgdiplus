@@ -554,7 +554,8 @@ CAIRO_BACKEND_ENABLE(ft, FreeType font, freetype, FT_FONT, auto, [
   ft_REQUIRES="fontconfig"
   PKG_CHECK_MODULES(FONTCONFIG, $ft_REQUIRES,
 		    [use_ft=yes],
-		    [AC_MSG_RESULT(no) use_ft=no])
+		    [AC_MSG_RESULT(no)
+		     use_ft=no])
 
   if test "x$use_ft" = "xyes"; then
     PKG_CHECK_MODULES(FREETYPE, freetype2 >= $FREETYPE_MIN_VERSION,
