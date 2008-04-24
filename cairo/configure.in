@@ -380,6 +380,15 @@ CAIRO_BACKEND_ENABLE(quartz_image, Quartz Image, quartz-image, QUARTZ_IMAGE_SURF
 
 dnl ===========================================================================
 
+AC_MSG_CHECKING([for Sun Solaris])
+case "$host" in
+  *-*-solaris*)
+    CFLAGS="$CFLAGS -DPOSIX_PTHREAD_SEMANTICS"
+    ;;
+esac
+
+dnl ===========================================================================
+
 AC_MSG_CHECKING([for native Win32])
 case "$host" in
   *-*-mingw*)

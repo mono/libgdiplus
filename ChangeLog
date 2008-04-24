@@ -1,3 +1,7 @@
+2008-04-16  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* cairo/configure.in: Fix (at least try to) the Solaris build.
+
 2008-04-16  Geoff Norton  <gnorton@novell.com>
 
 	* configure.in: Ensure we never build the cairo-font support in our
