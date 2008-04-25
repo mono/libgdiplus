@@ -555,6 +555,27 @@ GdipSetEmpty (GpRegion *region)
         return Ok;
 }
 
+/* pre-process negative width and height, without modifying the originals, see bug #383878 */
+static void
+gdip_normalize_rectangle (GpRectF *rect, GpRectF *normalized)
+{
+	if (rect->Width < 0) {
+		normalized->X = rect->X + rect->Width;
+		normalized->Width = fabs (rect->Width);
+	} else {
+		normalized->X = rect->X;
+		normalized->Width = rect->Width;
+	}
+
+	if (rect->Height < 0) {
+		normalized->Y = rect->Y + rect->Height;
+		normalized->Height = fabs (rect->Height);
+	} else {
+		normalized->Y = rect->Y;
+		normalized->Height = rect->Height;
+	}
+}
+
 /* Exclude */
 static void
 gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
@@ -570,8 +591,12 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
                 gdip_add_rect_to_array (&allsrcrects, &allsrccnt, rect);
 
 	/* Create the list of target rectangles to process, it will contain splitted ones later */
-        for (i = 0, rect = rtrg; i < cntt; i++, rect++)
-                gdip_add_rect_to_array (&alltrgrects, &alltrgcnt, rect);
+        for (i = 0, rect = rtrg; i < cntt; i++, rect++) {
+		/* normalize */
+		GpRectF normal;
+		gdip_normalize_rectangle (rect, &normal);
+		gdip_add_rect_to_array (&alltrgrects, &alltrgcnt, &normal);
+	}
 
 	/* Init current with the first element in the array */
 	current.X = REGION_INFINITE_POSITION - 1;
@@ -686,8 +711,12 @@ gdip_combine_complement (GpRegion *region, GpRectF *rtrg, int cntt)
         int allsrccnt = 0, i,  trgcnt;
 
 	/* Create the list of source rectangles to process */
-        for (i = 0, rect = rtrg; i < cntt; i++, rect++)
-                gdip_add_rect_to_array (&allsrcrects, &allsrccnt, rect);
+        for (i = 0, rect = rtrg; i < cntt; i++, rect++) {
+		/* normalize */
+		GpRectF normal;
+		gdip_normalize_rectangle (rect, &normal);
+		gdip_add_rect_to_array (&allsrcrects, &allsrccnt, &normal);
+	}
 
 	regsrc.rects = allsrcrects;
 	regsrc.cnt = allsrccnt;
@@ -720,8 +749,12 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
         for (i = 0, rect = region->rects; i < region->cnt; i++, rect++)
                 gdip_add_rect_to_array (&allrects, &allcnt,  rect);
 
-        for (i = 0, rect = rtrg; i < cnttrg; i++, rect++)
-                gdip_add_rect_to_array (&allrects, &allcnt,  rect);
+        for (i = 0, rect = rtrg; i < cnttrg; i++, rect++) {
+		/* normalize */
+		GpRectF normal;
+		gdip_normalize_rectangle (rect, &normal);
+		gdip_add_rect_to_array (&allrects, &allcnt, &normal);
+	}
 
         if (allcnt == 0) {
                 GdipFree (allrects);
@@ -864,21 +897,23 @@ gdip_combine_intersect (GpRegion *region, GpRectF *rtrg, int cnttrg)
 
 	for (rectsrc = region->rects, src = 0; src < region->cnt; src++, rectsrc++) {
 		for (recttrg = rtrg, trg = 0; trg < cnttrg; trg++, recttrg++) {
+			/* normalize */
+			GpRectF normal;
+			gdip_normalize_rectangle (recttrg, &normal);
+
 			/* Intersects With */
-			if (rectsrc->X >= recttrg->X + recttrg->Width ||
-				rectsrc->X + rectsrc->Width <= recttrg->X ||
-				rectsrc->Y >= recttrg->Y + recttrg->Height ||
-				rectsrc->Y + rectsrc->Height <= recttrg->Y) { /* BUG, TODO: Re-test*/
+			if ((rectsrc->X >= normal.X + normal.Width) || (rectsrc->X + rectsrc->Width <= normal.X) ||
+				(rectsrc->Y >= normal.Y + normal.Height) || (rectsrc->Y + rectsrc->Height <= normal.Y)) {
 				continue;
 			}
 			/* Area that intersects */
-			rectcur.X = rectsrc->X > recttrg->X ? rectsrc->X : recttrg->X;
-			rectcur.Y = rectsrc->Y > recttrg->Y ? rectsrc->Y : recttrg->Y;
-			rectcur.Width = rectsrc->X + rectsrc->Width < recttrg->X + recttrg->Width ?
-				rectsrc->X + rectsrc->Width - rectcur.X : recttrg->X + recttrg->Width - rectcur.X;
+			rectcur.X = rectsrc->X > normal.X ? rectsrc->X : normal.X;
+			rectcur.Y = rectsrc->Y > normal.Y ? rectsrc->Y : normal.Y;
+			rectcur.Width = rectsrc->X + rectsrc->Width < normal.X + normal.Width ?
+				rectsrc->X + rectsrc->Width - rectcur.X : normal.X + normal.Width - rectcur.X;
 
-			rectcur.Height = rectsrc->Y + rectsrc->Height < recttrg->Y + recttrg->Height ?
-				rectsrc->Y + rectsrc->Height - rectcur.Y : recttrg->Y + recttrg->Height - rectcur.Y;
+			rectcur.Height = rectsrc->Y + rectsrc->Height < normal.Y + normal.Height ?
+				rectsrc->Y + rectsrc->Height - rectcur.Y : normal.Y + normal.Height - rectcur.Y;
 
 			/* Combine with previous areas that intersect with rect */
 			gdip_combine_union (&regunion, &rectcur, 1);
@@ -905,8 +940,12 @@ gdip_combine_xor (GpRegion *region, GpRectF *recttrg, int cnttrg)
         for (i = 0, rect = region->rects; i < region->cnt; i++, rect++)
                 gdip_add_rect_to_array (&allrects, &allcnt,  rect);
 
-        for (i = 0, rect = recttrg; i < cnttrg; i++, rect++)
-                gdip_add_rect_to_array (&allrects, &allcnt,  rect);
+	for (i = 0, rect = recttrg; i < cnttrg; i++, rect++) {
+		/* normalize */
+		GpRectF normal;
+		gdip_normalize_rectangle (rect, &normal);
+		gdip_add_rect_to_array (&allrects, &allcnt, &normal);
+	}
 
 	rgnsrc = (GpRegion *) GdipAlloc (sizeof (GpRegion));
 	rgnsrc->type = RegionTypeRectF;

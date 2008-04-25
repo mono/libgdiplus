@@ -1,3 +1,9 @@
+2008-04-25  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* region.c: Normalize rectangles (apply negative width and height
+	to X, Y) before doing binary operations	on them.
+	[Fix second part of bug #383878]
+
 2008-04-25  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* region.c: Fix possible crash in Complement.
