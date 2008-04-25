@@ -1,3 +1,8 @@
+2008-04-25  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* region.c: Fix possible crash in Complement.
+	[Fix part of bug #383878]
+
 2008-04-21  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* general-private.h: Don't clamp values for Cairo >= 1.6 since 

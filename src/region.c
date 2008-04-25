@@ -221,6 +221,9 @@ gdip_add_rect_to_array_notcontained (GpRectF** srcarray, int* elements,  GpRectF
 static BOOL
 gdip_equals (GpRectF *rect1, GpRectF *rect2)
 {
+	if (!rect1)
+		return (rect2 == NULL);
+
 	return (rect1->X == rect2->X &&
 		rect1->Width == rect2->Width &&
 		rect1->Y == rect2->Y &&
