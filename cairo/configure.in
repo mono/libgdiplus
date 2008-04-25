@@ -109,7 +109,19 @@ AC_DEFUN([_CHECK_FUNCS_WITH_FLAGS],
 dnl ===========================================================================
 
 AC_CHECK_FUNCS(vasnprintf ctime_r drand48)
-	
+
+AC_MSG_CHECKING([for Sun Solaris (non-POSIX ctime_r)])
+case "$host" in
+  *-*-solaris*)
+    CFLAGS="$CFLAGS -D_POSIX_PTHREAD_SEMANTICS"
+    solaris_posix_pthread=yes
+    ;;
+  *)
+    solaris_posix_pthread=no
+    ;;
+esac
+AC_MSG_RESULT([$solaris_posix_pthread])
+
 dnl ===========================================================================
 dnl
 dnl Test for native atomic operations.
@@ -377,15 +389,6 @@ CAIRO_BACKEND_ENABLE(quartz_font, Quartz font, quartz-font, QUARTZ_FONT, auto, [
 CAIRO_BACKEND_ENABLE(quartz_image, Quartz Image, quartz-image, QUARTZ_IMAGE_SURFACE, no, [
   use_quartz_image=$use_quartz
 ])
-
-dnl ===========================================================================
-
-AC_MSG_CHECKING([for Sun Solaris])
-case "$host" in
-  *-*-solaris*)
-    CFLAGS="$CFLAGS -DPOSIX_PTHREAD_SEMANTICS"
-    ;;
-esac
 
 dnl ===========================================================================
 
