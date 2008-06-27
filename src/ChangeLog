@@ -1,3 +1,9 @@
+2008-06-27  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* region.c: Handle the case were we compute a negative Height 
+	value while building the rectangle list for exclude.
+	[Fix bug #402613]
+
 2008-04-25  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* region.c: Normalize rectangles (apply negative width and height

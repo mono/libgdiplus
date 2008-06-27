@@ -630,6 +630,8 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 			newrect.Y = current.Y;
 			if (current.Y >= recttrg->Y) {  /* Our rect intersects in the upper part with another rect */
 				newrect.Height = MIN (recttrg->Y + recttrg->Height - current.Y, current.Height);
+				if (newrect.Height < 0)
+					newrect.Height = current.Height;
 
 				if (current.X >= recttrg->X) { /* Hit from behind */
 					newrect.X = recttrg->X + recttrg->Width;
