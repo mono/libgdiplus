@@ -1,3 +1,8 @@
+2008-07-07  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* font.c: Clone GpFontFamily when creating a new font.
+	[Fix https://bugs.launchpad.net/ubuntu/+source/mono/+bug/246376]
+
 2008-06-27  Sebastien Pouliot  <sebastien@ximian.com> 
 
 	* region.c: Handle the case were we compute a negative Height 

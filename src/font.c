@@ -783,7 +783,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit un
         result->style = style;
 	result->emSize = emSize;
 	result->unit = unit;
-	result->family = (GpFontFamily*) family;
+	GdipCloneFontFamily ((GpFontFamily*) family, &result->family);
 	result->style = style;
 #ifdef USE_PANGO_RENDERING
 	result->pango = NULL;
@@ -801,6 +801,9 @@ GdipDeleteFont (GpFont* font)
 {
 	if (!font)
 		return InvalidParameter;
+
+	if (font->family)
+		GdipDeleteFontFamily (font->family);
 
 #ifdef USE_PANGO_RENDERING
 	if (font->pango)
@@ -919,7 +922,7 @@ GdipCreateFontFromHfontA(void *hfont, GpFont **font, void *lf)
 
 	result->sizeInPixels = src_font->sizeInPixels;
 	result->style = src_font->style;
-	result->family = src_font->family;
+	GdipCloneFontFamily (src_font->family, &result->family);
 	result->style = src_font->style;
 	result->emSize = src_font->emSize;
 	result->unit = src_font->unit;
@@ -961,7 +964,7 @@ gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, BOOL ucs2)
 		result->sizeInPixels = logfont->lfHeight;	// Fixme - convert units
 	}
 	result->style = 0;
-	result->family = 0;
+	result->family = NULL;
 	/* Fixme - this is wrong, but I don't know of a quick way to get the emSize */
 	result->emSize = result->sizeInPixels;
 	result->unit = UnitPixel;
