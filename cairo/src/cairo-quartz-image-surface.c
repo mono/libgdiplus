@@ -42,6 +42,10 @@
 
 #include "cairo-quartz-private.h"
 
+#ifndef kCGBitmapByteOrder32Host
+#define kCGBitmapByteOrder32Host 0
+#endif
+
 #define SURFACE_ERROR_NO_MEMORY (_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY)))
 #define SURFACE_ERROR_INVALID_FORMAT (_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_FORMAT)))
 
