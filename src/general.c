@@ -475,7 +475,7 @@ gdip_get_pattern_status (cairo_pattern_t *pat)
  * scales the coordinates. E.g. 0 scale 100 == 0, while (0 + 0.5) scale 100 == 50.
  */
 
-static BOOL
+BOOL
 gdip_is_scaled (GpGraphics *graphics)
 {
 	cairo_matrix_t matrix;

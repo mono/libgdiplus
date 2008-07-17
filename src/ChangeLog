@@ -1,3 +1,12 @@
+2008-07-17  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-private.h: Add definition for gdip_is_scaled
+	* general.c: Remove static from gdip_is_scaled
+	* graphics-cairo.c: Don't apply AA offset to Ellipses and Pies
+	if the graphic is being scaled.
+	[Fix bug #409672]
+	[Backport of r108130]
+
 2008-07-07  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* font.c: Clone GpFontFamily when creating a new font.
