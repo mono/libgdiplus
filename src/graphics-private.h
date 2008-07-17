@@ -148,6 +148,8 @@ void gdip_set_cairo_clipping (GpGraphics *graphics) GDIP_INTERNAL;
 GpGraphics* gdip_graphics_new (cairo_surface_t *surface) GDIP_INTERNAL;
 GpGraphics* gdip_metafile_graphics_new (GpMetafile *metafile) GDIP_INTERNAL;
 
+BOOL gdip_is_scaled (GpGraphics *graphics) GDIP_INTERNAL;
+
 /* prototypes for cairo wrappers to deal with coordonates limits, unit conversion and antialiasing) */
 void gdip_cairo_rectangle (GpGraphics *graphics, double x, double y, double width, double height, BOOL antialiasing) GDIP_INTERNAL;
 void gdip_cairo_move_to (GpGraphics *graphics, double x, double y, BOOL convert_units, BOOL antialiasing) GDIP_INTERNAL;

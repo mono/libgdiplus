@@ -95,7 +95,7 @@ make_ellipse (GpGraphics *graphics, float x, float y, float width, float height,
 	cy = y + ry;
 
 	/* if required deal, once and for all, with antialiasing */
-	if (antialiasing) {
+	if (antialiasing && !gdip_is_scaled (graphics)) {
 		cx += graphics->aa_offset_x;
 		cy += graphics->aa_offset_y;
 	}
@@ -617,7 +617,7 @@ make_pie (GpGraphics *graphics, float x, float y, float width, float height,
 	cos_alpha = cos (alpha);
 
 	/* if required deal, once and for all, with antialiasing */
-	if (antialiasing) {
+	if (antialiasing && !gdip_is_scaled (graphics)) {
 		cx += graphics->aa_offset_x;
 		cy += graphics->aa_offset_y;
 	}
