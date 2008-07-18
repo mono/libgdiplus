@@ -1,3 +1,11 @@
+2008-07-18  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-cairo.c: Don't stroke when filling (required to match
+	GDI+ behavior) when the graphic is being scaled (since the pen's
+	thickness is scaled too).
+	[Fix bug #410124]
+	[Backport r108255]
+
 2008-07-17  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-private.h: Add definition for gdip_is_scaled

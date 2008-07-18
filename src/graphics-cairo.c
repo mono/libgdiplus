@@ -39,7 +39,8 @@ fill_graphics_with_brush (GpGraphics *graphics, GpBrush *brush, BOOL stroke)
 	/* We do brush setup just before filling. */
 	gdip_brush_setup (graphics, brush);
 
-	if (stroke)
+	/* don't stroke if scaled (since the pen thickness will be scaled too!) */
+	if (stroke && !gdip_is_scaled (graphics))
 		cairo_stroke_preserve (graphics->ct);
 
 	cairo_fill (graphics->ct);
