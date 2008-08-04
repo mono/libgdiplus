@@ -1,3 +1,9 @@
+2008-08-04  Sebastien Pouliot  <sebastien@ximian.com> 
+
+	* pen.c: Pen minimal visual size is 1.0 pixel (whatever the scaling).
+	[Fix bug #410466]
+	[Backport r109585]
+
 2008-08-04  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-cairo.c: Only stroke using a 1.0 width line. Also close

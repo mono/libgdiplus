@@ -172,7 +172,7 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	if (pen == graphics->last_pen && !pen->changed)
 		return Ok;
 
-	if (pen->width <= 0) { /* we draw a pixel wide line if width is <=0 */
+	if (pen->width < 1.0) { /* we draw a pixel wide line if width is < 1.0 */
 		double widthy = 1.0;
 		widthx = 1.0;
 
