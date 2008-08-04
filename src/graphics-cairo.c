@@ -40,9 +40,15 @@ fill_graphics_with_brush (GpGraphics *graphics, GpBrush *brush, BOOL stroke)
 	gdip_brush_setup (graphics, brush);
 
 	/* don't stroke if scaled (since the pen thickness will be scaled too!) */
-	if (stroke && !gdip_is_scaled (graphics))
+	if (stroke && !gdip_is_scaled (graphics)) {
+		/* stroke only using 1 pixel width - see #413461 */
+		double width = cairo_get_line_width (graphics->ct);
+		cairo_set_line_width (graphics->ct, 1.0);
 		cairo_stroke_preserve (graphics->ct);
+		cairo_set_line_width (graphics->ct, width);
+	}
 
+	cairo_close_path (graphics->ct);
 	cairo_fill (graphics->ct);
 
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.

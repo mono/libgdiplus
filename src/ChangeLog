@@ -1,3 +1,9 @@
+2008-08-04  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-cairo.c: Only stroke using a 1.0 width line. Also close
+	the path before filling.
+	[Fix bug #413461]
+
 2008-07-18  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-cairo.c: Don't stroke when filling (required to match
