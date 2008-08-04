@@ -203,8 +203,7 @@ make_arcs (GpGraphics *graphics, float x, float y, float width, float height, fl
 {
 	int i;
 	float drawn = 0;
-	float endAngle = startAngle + sweepAngle;	
-	int increment = (endAngle > 0) ? 90 : -90;
+	float endAngle;
 	BOOL enough = FALSE;
 
 	/* if required deal, once and for all, with unit conversions */
@@ -221,6 +220,14 @@ make_arcs (GpGraphics *graphics, float x, float y, float width, float height, fl
 		return;
 	}
 
+	endAngle = startAngle + sweepAngle;
+	/* if we end before the start then reverse positions (to keep increment positive) */
+	if (endAngle < startAngle) {
+		double temp = endAngle;
+		endAngle = startAngle;
+		startAngle = temp;
+	}
+
 	/* i is the number of sub-arcs drawn, each sub-arc can be at most 90 degrees.*/
 	/* there can be no more then 4 subarcs, ie. 90 + 90 + 90 + (something less than 90) */
 	for (i = 0; i < 4; i++) {
@@ -229,21 +236,20 @@ make_arcs (GpGraphics *graphics, float x, float y, float width, float height, fl
 
 		if (enough)
 			return;
-		
-		if (fabs (current + increment) < fabs (endAngle))
-			additional = increment; /* add the default increment */
-		else {
-			additional = endAngle - current; /* otherwise, add the remainder */
+
+		additional = endAngle - current; /* otherwise, add the remainder */
+		if (additional > 90) {
+			additional = 90.0;
+		} else {
+			/* a near zero value will introduce bad artefact in the drawing (#78999) */
+			if (gdip_near_zero (additional))
+				return;
+
 			enough = TRUE;
 		}
 
-		/* a near zero value will introduce bad artefact in the drawing (#78999) */
-		if (gdip_near_zero (additional))
-			return;
-
-		make_arc (graphics,
-			  (i == 0) ? TRUE : FALSE,  /* only move to the starting pt in the 1st iteration */
-			  x, y, width, height,      /* bounding rectangle */
+		make_arc (graphics, (i == 0),	/* only move to the starting pt in the 1st iteration */
+			  x, y, width, height,	/* bounding rectangle */
 			  current, current + additional, antialiasing);
 		drawn += additional;		
 	}
