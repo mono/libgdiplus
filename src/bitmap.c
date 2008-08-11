@@ -652,12 +652,9 @@ gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
 			result->frames[frame].frame_dimension = bitmap->frames[frame].frame_dimension;
 			result->frames[frame].bitmap = NULL;
 
-			for (image = 0; image < bitmap->frames[frame].count; image++) {
-				status = gdip_bitmapdata_clone(bitmap->frames[frame].bitmap, &result->frames[frame].bitmap, bitmap->frames[frame].count);
-				if (status != Ok) {
-					goto fail;
-				}
-			}
+			status = gdip_bitmapdata_clone (bitmap->frames[frame].bitmap, &result->frames[frame].bitmap, bitmap->frames[frame].count);
+			if (status != Ok)
+				goto fail;
 		}
 		result->active_bitmap = &result->frames[result->active_frame].bitmap[result->active_bitmap_no];
 	} else {
