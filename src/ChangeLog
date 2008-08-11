@@ -3,6 +3,7 @@
 	* image.c: Remove buggy loop in gdip_bitmap_clone which allocates way
 	too much memory when cloning an image with multiple frames (and only
 	free one of them).
+	[Fix bug #411454]
 
 2008-08-04  Sebastien Pouliot  <sebastien@ximian.com>
 
