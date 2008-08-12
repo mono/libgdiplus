@@ -71,8 +71,8 @@ GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS $CAIRO_CFLAGS $PANGO_CFLAGS"
 PKG_CHECK_MODULES(FONTCONFIG, fontconfig,
 	[fontconfig_pkgconfig=yes], [fontconfig_pkgconfig=no])
 if test "x$FONTCONFIG" = "xno"; then
-	AC_PATH_PROG(FONTCONFIG-CONFIG, fontconfig-config, no)
-	if test "x$FONTCONFIG-CONFIG" = "xyes"; then
+	AC_PATH_PROG(FONTCONFIG_CONFIG, fontconfig-config, no)
+	if test "x$FONTCONFIG_CONFIG" = "xyes"; then
 		FONTCONFIG_CFLAGS="`fontconfig-config --cflags`"
 		FONTCONFIG_LIBS="`fontconfig-config --libs`"
 	fi
@@ -83,8 +83,8 @@ AC_CHECK_FUNCS(FcFini)
 PKG_CHECK_MODULES(FREETYPE2, freetype2,
 	[freetype2_pkgconfig=yes], freetype2_pkgconfig=no])
 if test "x$FREETYPE2" = "xno"; then
-	AC_PATH_PROG(FREETYPE-CONFIG, freetype-config, no)
-	if test "x$FREETYPE-CONFIG" = "xyes"; then
+	AC_PATH_PROG(FREETYPE_CONFIG, freetype-config, no)
+	if test "x$FREETYPE_CONFIG" = "xyes"; then
 		FREETYPE2_CFLAGS="`freetype-config --cflags`"
 		FREETYPE2_LIBS="`freetype-config --libs`"
 	fi
