@@ -1,3 +1,8 @@
+2008-09-02  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-path.c: Add support to compress points (skip on of two 
+	identical consecutive points) under some special cases.
+
 2008-08-11  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* image.c: Remove buggy loop in gdip_bitmap_clone which allocates way
