@@ -199,7 +199,7 @@ gdip_open_curve_tangents (int terms, const GpPointF *points, int count, float te
         if (count <= 2)
                 return tangents;
 
-        for (i = 1; i < count - 1; i++) {
+        for (i = 0; i < count; i++) {
                 int r = i + 1;
                 int s = i - 1;
 

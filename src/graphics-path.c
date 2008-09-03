@@ -113,12 +113,22 @@ gdip_get_first_point_type (GpPath *path)
 }
 
 static void
-append (GpPath *path, float x, float y, PathPointType type)
+append (GpPath *path, float x, float y, PathPointType type, BOOL compress)
 {
         BYTE t = (BYTE) type;
 	GpPointF pt;
 
-	pt.X = x; pt.Y = y;
+	/* in some case we're allowed to compress identical points */
+	if (compress && (path->count > 0)) {
+		/* points (X, Y) must be identical */
+		GpPointF lastPoint = g_array_index (path->points, GpPointF, path->count - 1);
+		if ((lastPoint.X == x) && (lastPoint.Y == y)) {
+			/* types need not be identical but must handle closed subpaths */
+			PathPointType last_type = g_array_index (path->types, BYTE, path->count - 1);
+			if ((last_type & PathPointTypeCloseSubpath) != PathPointTypeCloseSubpath)
+				return;
+		}
+	}
 
 	if (path->start_new_fig)
 		t = PathPointTypeStart;
@@ -129,6 +139,9 @@ append (GpPath *path, float x, float y, PathPointType type)
 			t = PathPointTypeStart;
         }
 
+	pt.X = x;
+	pt.Y = y;
+
 	g_array_append_val (path->points, pt);
 	g_byte_array_append (path->types, &t, 1);
 	path->count++;
@@ -137,17 +150,17 @@ append (GpPath *path, float x, float y, PathPointType type)
 }
 
 static void
-append_point (GpPath *path, GpPointF pt, PathPointType type)
+append_point (GpPath *path, GpPointF pt, PathPointType type, BOOL compress)
 {
-        append (path, pt.X, pt.Y, type);
+        append (path, pt.X, pt.Y, type, compress);
 }
 
 static void
 append_bezier (GpPath *path, float x1, float y1, float x2, float y2, float x3, float y3)
 {
-        append (path, x1, y1, PathPointTypeBezier3);
-        append (path, x2, y2, PathPointTypeBezier3);
-        append (path, x3, y3, PathPointTypeBezier3);
+        append (path, x1, y1, PathPointTypeBezier3, FALSE);
+        append (path, x2, y2, PathPointTypeBezier3, FALSE);
+        append (path, x3, y3, PathPointTypeBezier3, FALSE);
 }
 
 static void
@@ -156,7 +169,7 @@ append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int offs
 	int i;
 	PathPointType ptype = ((type == CURVE_CLOSE) || (path->count == 0)) ? PathPointTypeStart : PathPointTypeLine;
 
-	append_point (path, points [offset], ptype);
+	append_point (path, points [offset], ptype, TRUE);
 	for (i = offset; i < offset + length; i++) {
 		int j = i + 1;
 
@@ -697,8 +710,9 @@ GdipAddPathLine (GpPath *path, float x1, float y1, float x2, float y2)
 	if (!path)
 		return InvalidParameter;
 
-	append (path, x1, y1, PathPointTypeLine);
-	append (path, x2, y2, PathPointTypeLine);
+	/* only the first point can be compressed (i.e. removed if identical to previous) */
+	append (path, x1, y1, PathPointTypeLine, TRUE);
+	append (path, x2, y2, PathPointTypeLine, FALSE);
 
 	return Ok;
 }
@@ -712,10 +726,9 @@ GdipAddPathLine2 (GpPath *path, const GpPointF *points, int count)
 	if (!path || !points || (count < 0))
 		return InvalidParameter;
 
-	tmp = (GpPointF *) points;
-
-        for (i = 0; i < count; i++, tmp++)
-                append_point (path, *tmp, PathPointTypeLine);
+	/* only the first point can be compressed (i.e. removed if identical to previous) */
+	for (i = 0, tmp = (GpPointF*) points; i < count; i++, tmp++)
+		append (path, tmp->X, tmp->Y, PathPointTypeLine, (i == 0));
         
         return Ok;
 }
@@ -763,7 +776,7 @@ append_arc (GpPath *path, BOOL start, float x, float y, float width, float heigh
 		/* starting point */
 		sx = cx + rx * cos_alpha;
 		sy = cy + ry * sin_alpha;
-		append (path, sx, sy, PathPointTypeLine);
+		append (path, sx, sy, PathPointTypeLine, FALSE);
 	}
 
         append_bezier (path, 
@@ -838,7 +851,7 @@ GdipAddPathBezier (GpPath *path,
 	if (!path)
 		return InvalidParameter;
 
-        append (path, x1, y1, PathPointTypeLine);
+        append (path, x1, y1, PathPointTypeLine, TRUE);
         append_bezier (path, x2, y2, x3, y3, x4, y4);
         
         return Ok;
@@ -857,11 +870,11 @@ GdipAddPathBeziers (GpPath *path, const GpPointF *points, int count)
 	if ((count < 4) || ((count % 3) != 1))
 		return InvalidParameter;
         
-        append_point (path, *tmp, PathPointTypeLine);
+        append_point (path, *tmp, PathPointTypeLine, TRUE);
         tmp++;
 
         for (i = 1; i < count; i++, tmp++)
-                append_point (path, *tmp, PathPointTypeBezier3);
+                append_point (path, *tmp, PathPointTypeBezier3, FALSE);
 
         return Ok;
 }
@@ -952,10 +965,13 @@ GdipAddPathRectangle (GpPath *path, float x, float y, float width, float height)
 	if (!path)
 		return InvalidParameter;
 
-        append (path, x, y, PathPointTypeStart);
-        append (path, x + width, y, PathPointTypeLine);
-        append (path, x + width, y + height, PathPointTypeLine);
-        append (path, x, y + height, PathPointTypeLine | PathPointTypeCloseSubpath);
+	if ((width == 0.0) || (height == 0.0))
+		return Ok;
+
+        append (path, x, y, PathPointTypeStart, FALSE);
+        append (path, x + width, y, PathPointTypeLine, FALSE);
+        append (path, x + width, y + height, PathPointTypeLine, FALSE);
+        append (path, x, y + height, PathPointTypeLine | PathPointTypeCloseSubpath, FALSE);
         
         return Ok;
 }
@@ -991,7 +1007,7 @@ GdipAddPathEllipse (GpPath *path, float x, float y, float width, float height)
 		return InvalidParameter;
 
         /* origin */
-        append (path, cx + rx, cy, PathPointTypeStart);
+        append (path, cx + rx, cy, PathPointTypeStart, FALSE);
 
         /* quadrant I */
         append_bezier (path, 
@@ -1048,19 +1064,18 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
 		return InvalidParameter;
 
         /* move to center */
-        append (path, cx, cy, PathPointTypeStart);
+        append (path, cx, cy, PathPointTypeStart, FALSE);
 
         /* draw pie edge */
 	if (fabs (sweepAngle) < 360)
-		append (path, cx + rx * cos_alpha, cy + ry * sin_alpha,
-			PathPointTypeLine);
+		append (path, cx + rx * cos_alpha, cy + ry * sin_alpha, PathPointTypeLine, FALSE);
 
 	/* draw the arcs */
 	append_arcs (path, x, y, width, height, startAngle, sweepAngle);
         
         /* draw pie edge */
 	if (fabs (sweepAngle) < 360)
-		append (path, cx, cy, PathPointTypeLine);
+		append (path, cx, cy, PathPointTypeLine, FALSE);
 
 	/* close the path */
         return GdipClosePathFigure (path);
@@ -1074,19 +1089,21 @@ GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
 
 	if (!path || !points || (count < 3))
 		return InvalidParameter;
-        
-	append_point (path, *tmp, PathPointTypeStart);
-        tmp ++;
 
-        for (i = 1; i < count; i++, tmp++)
-                append_point (path, *tmp, PathPointTypeLine);
+	/* note: polygon points are never compressed (i.e. removed if identical) */
+
+	append_point (path, *tmp, PathPointTypeStart, FALSE);
+	tmp ++;
+
+	for (i = 1; i < count; i++, tmp++)
+		append_point (path, *tmp, PathPointTypeLine, FALSE);
 
         /*
          * Add a line from the last point back to the first point if
          * they're not the same
          */
-        if (points [0].X != points [count - 1].X && points [0].Y != points [count - 1].Y)
-                append_point (path, points [0], PathPointTypeLine);
+	if (points [0].X != points [count - 1].X && points [0].Y != points [count - 1].Y)
+		append_point (path, points [0], PathPointTypeLine, FALSE);
         
 	/* close the path */
         return GdipClosePathFigure (path);
@@ -1124,10 +1141,10 @@ GdipAddPathPath (GpPath *path, GDIPCONST GpPath *addingPath, BOOL connect)
 	 */
 	first = connect ? gdip_get_first_point_type (path) : PathPointTypeStart;
 
-	append_point (path, pts [0], first); 
+	append_point (path, pts [0], first, FALSE); 
 
 	for (i = 1; i < length; i++)
-		append_point (path, pts [i], types [i]);
+		append_point (path, pts [i], types [i], FALSE);
 
 	GdipFree(pts);
 	GdipFree(types);
@@ -1220,15 +1237,15 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 
 			switch (data->header.type) {
 			case CAIRO_PATH_MOVE_TO:
-				append (path, data[1].point.x, data[1].point.y, type);
+				append (path, data[1].point.x, data[1].point.y, type, FALSE);
 				break;
 			case CAIRO_PATH_LINE_TO:
-				append (path, data[1].point.x, data[1].point.y, type | PathPointTypeLine);
+				append (path, data[1].point.x, data[1].point.y, type | PathPointTypeLine, FALSE);
 				break;
 			case CAIRO_PATH_CURVE_TO:
-				append (path, data[1].point.x, data[1].point.y, PathPointTypeBezier);
-				append (path, data[2].point.x, data[2].point.y, PathPointTypeBezier);
-				append (path, data[3].point.x, data[3].point.y, type | PathPointTypeBezier);
+				append (path, data[1].point.x, data[1].point.y, PathPointTypeBezier, FALSE);
+				append (path, data[2].point.x, data[2].point.y, PathPointTypeBezier, FALSE);
+				append (path, data[3].point.x, data[3].point.y, type | PathPointTypeBezier, FALSE);
 				break;
 			case CAIRO_PATH_CLOSE_PATH:
 				break;
@@ -1282,9 +1299,9 @@ GdipAddPathLine2I (GpPath* path, const GpPoint *points, int count)
 	if (!path || !points || (count < 0))
 		return InvalidParameter;
 
-        for (i = 0, tmp = (GpPoint*) points; i < count; i++, tmp++) {
-                append (path, tmp->X, tmp->Y, PathPointTypeLine);
-	}
+	/* only the first point can be compressed (i.e. removed if identical to previous) */
+	for (i = 0, tmp = (GpPoint*) points; i < count; i++, tmp++)
+		append (path, tmp->X, tmp->Y, PathPointTypeLine, (i == 0));
 
 	return Ok;
 }
@@ -1315,11 +1332,11 @@ GdipAddPathBeziersI (GpPath *path, const GpPoint *points, int count)
 		return InvalidParameter;
         
 	tmp = (GpPoint*) points;
-        append (path, tmp->X, tmp->Y, PathPointTypeLine);
+        append (path, tmp->X, tmp->Y, PathPointTypeLine, TRUE);
         tmp++;
 
         for (i = 1; i < count; i++, tmp++)
-                append (path, tmp->X, tmp->Y, PathPointTypeBezier3);
+                append (path, tmp->X, tmp->Y, PathPointTypeBezier3, FALSE);
 
         return Ok;
 }
@@ -1442,19 +1459,21 @@ GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count)
 	if (!path || !points || (count < 3))
 		return InvalidParameter;
 
-	tmp = (GpPoint *) points;
-	append (path, tmp->X, tmp->Y, PathPointTypeStart);
-        tmp ++;
+	/* note: polygon points are never compressed (i.e. removed if identical) */
 
-        for (i = 1; i < count; i++, tmp++)
-                append (path, tmp->X, tmp->Y, PathPointTypeLine);
+	tmp = (GpPoint *) points;
+	append (path, tmp->X, tmp->Y, PathPointTypeStart, FALSE);
+	tmp++;
+
+	for (i = 1; i < count; i++, tmp++)
+		append (path, tmp->X, tmp->Y, PathPointTypeLine, FALSE);
 
         /*
          * Add a line from the last point back to the first point if
          * they're not the same
          */
-        if (points [0].X != points [count - 1].X && points [0].Y != points [count - 1].Y)
-                append (path, points [0].X, points [0].Y, PathPointTypeLine);
+	if (points [0].X != points [count - 1].X && points [0].Y != points [count - 1].Y)
+		append (path, points [0].X, points [0].Y, PathPointTypeLine, FALSE);
         
 	/* close the path */
         return GdipClosePathFigure (path);

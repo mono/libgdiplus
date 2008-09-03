@@ -1,3 +1,10 @@
+2008-09-03  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* general.c: Compute intermediate start/end points correctly on an
+	open curve. Patch by Marek Habersack
+	* graphics-path.c: Add support to compress points (skip on of two 
+	identical consecutive points) under some special cases.
+
 2008-08-11  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* image.c: Remove buggy loop in gdip_bitmap_clone which allocates way
