@@ -1,3 +1,8 @@
+2008-09-03  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* general.c: Compute intermediate start/end points correctly on an
+	open curve. Patch by Marek Habersack
+
 2008-09-02  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-path.c: Add support to compress points (skip on of two 
