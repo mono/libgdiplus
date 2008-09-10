@@ -17,7 +17,6 @@ To install:
 
 	make install
 
-
 Optional build options [UNSUPPORTED]
 
 	--with-cairo=system
