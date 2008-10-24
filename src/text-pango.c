@@ -60,8 +60,8 @@ gdip_process_accelerators (gchar *text, int length, PangoAttrList *list)
 			} else if (list) {
 				/* add an attribute on the next character */
 				PangoAttribute *attr = pango_attr_underline_new (PANGO_UNDERLINE_LOW);
-				attr->start_index = i + 1;
-				attr->end_index = i + 2;
+				attr->start_index = g_utf8_next_char(text + i) - text;
+				attr->end_index = g_utf8_next_char(text + attr->start_index) - text;
 				pango_attr_list_insert (list, attr);
 			}
 		}
@@ -80,6 +80,7 @@ gdip_pango_setup_layout (cairo_t *ct, GDIPCONST WCHAR *stringUnicode, int length
 	PangoAttrList *list = NULL;
 
 	gchar *text = ucs2_to_utf8 (stringUnicode, length);
+	length = strlen(text);
 	if (!text)
 		return NULL;
 
@@ -98,8 +99,8 @@ gdip_pango_setup_layout (cairo_t *ct, GDIPCONST WCHAR *stringUnicode, int length
 
 	/* unless specified we don't consider the trailing spaces, unless there is just one space (#80680) */
 	if ((fmt->formatFlags & StringFormatFlagsMeasureTrailingSpaces) == 0) {
-		while ((length > 0) && (isspace (*(text + length - 1))))
-			length--;
+		while ((length > 0) && (g_unichar_isspace(g_utf8_get_char(g_utf8_prev_char(text + length)))))
+			length = g_utf8_prev_char(text + length) - text;
 		if (length == 0)
 			length = 1;
 	}
