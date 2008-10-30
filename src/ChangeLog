@@ -1,3 +1,9 @@
+2008-10-30  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* region-bitmap.c (reduce): Fix skipping a color channel while
+	reducing the bitmap to 1bpp (provided by David Binderman)
+	[Fix bug #440127]
+
 2008-09-03  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* general.c: Compute intermediate start/end points correctly on an

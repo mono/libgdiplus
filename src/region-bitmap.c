@@ -356,7 +356,7 @@ reduce (BYTE* source, int width, int height, BYTE *dest)
 	for (i = 0; i < height; i++) {
 		for (j = 0; j < width; j++) {
 			int pos = (i * width + j) * 4;
-			BYTE combine = source [pos++] | source [pos++] | source [pos++] | source [pos];
+			BYTE combine = source [pos] | source [pos + 1] | source [pos + 2] | source [pos + 3];
 
 			if (combine != 0)
 				value |= 128;
