@@ -459,9 +459,10 @@ CAIRO_BACKEND_ENABLE(beos, BeOS/Zeta, beos, BEOS_SURFACE, no, [
   esac
 ])
 
-if test "x$use_beos" = "xyes"; then
+# Uncomment the if, since with it in place compilation breaks on OpenSuSE 11.1b4
+#if test "x$use_beos" = "xyes"; then
   AC_PROG_CXX
-fi
+#fi
 
 dnl ===========================================================================
 

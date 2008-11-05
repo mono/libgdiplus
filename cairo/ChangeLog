@@ -1,3 +1,8 @@
+2008-11-05  Marek Habersack  <mhabersack@novell.com>
+
+	* configure.in: always call AC_PROG_CXX, fixes compilation on
+	OpenSuSE 11.1b4
+
 commit 08a804806355d99d7968976d6afb98bbc0f2613d
 Author: Carl Worth <cworth@cworth.org>
 Date:   Fri Apr 11 14:33:12 2008 -0700
