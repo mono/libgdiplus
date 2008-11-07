@@ -738,7 +738,6 @@ append_arc (GpPath *path, BOOL start, float x, float y, float width, float heigh
 {
 	float delta, bcp;
 	double sin_alpha, sin_beta, cos_alpha, cos_beta;
-	double sx, sy;
 
         float rx = width / 2;
         float ry = height / 2;
@@ -774,8 +773,8 @@ append_arc (GpPath *path, BOOL start, float x, float y, float width, float heigh
 	/* move to the starting point if we're not continuing a curve */
 	if (start) {
 		/* starting point */
-		sx = cx + rx * cos_alpha;
-		sy = cy + ry * sin_alpha;
+		double sx = cx + rx * cos_alpha;
+		double sy = cy + ry * sin_alpha;
 		append (path, sx, sy, PathPointTypeLine, FALSE);
 	}
 
@@ -793,14 +792,17 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 {
 	int i;
 	float drawn = 0;
-	float endAngle = startAngle + sweepAngle;
-	int increment = (endAngle > 0) ? 90 : -90;
+	int increment;
+	float endAngle;
 	BOOL enough = FALSE;
 
 	if (fabs (sweepAngle) >= 360) {
 		GdipAddPathEllipse (path, x, y, width, height);
 		return;
 	}
+
+	endAngle = startAngle + sweepAngle;
+	increment = (endAngle < startAngle) ? -90 : 90;
 
 	/* i is the number of sub-arcs drawn, each sub-arc can be at most 90 degrees.*/
 	/* there can be no more then 4 subarcs, ie. 90 + 90 + 90 + (something less than 90) */
@@ -811,19 +813,18 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 		if (enough)
 			return;
 		
-		if (fabs (current + increment) < fabs (endAngle))
-			additional = increment;  /* add the default increment */
-		else {
-			additional = endAngle - current; /* otherwise, add the remainder */
+		additional = endAngle - current; /* otherwise, add the remainder */
+		if (fabs (additional) > 90) {
+			additional = increment;
+		} else {
+			/* a near zero value will introduce bad artefact in the drawing (#78999) */
+			if (gdip_near_zero (additional))
+				return;
+
 			enough = TRUE;
 		}
 
-		/* a near zero value will introduce bad artefact in the drawing (#78999) */
-		if (gdip_near_zero (additional))
-			return;
-
-		append_arc (path,
-			    (i == 0) ? TRUE : FALSE,  /* only move to the starting pt in the 1st iteration */
+		append_arc (path, (i == 0),           /* only move to the starting pt in the 1st iteration */
 			    x, y, width, height,      /* bounding rectangle */
 			    current, current + additional);
 		drawn += additional;

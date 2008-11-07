@@ -1,3 +1,12 @@
+2008-11-07  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* graphics-cairo.c (make_arc): Only compute start points if we
+	actually need them.
+	* graphics-path.c (append_arcs): Fix arcs computation like this
+	was done for #410459 (draw) but in this case we need to keep the
+	direction/increment since the points are part of a path.
+	[Fix bug #442428]
+
 2008-10-30  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* region-bitmap.c (reduce): Fix skipping a color channel while

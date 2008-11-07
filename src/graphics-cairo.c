@@ -148,7 +148,6 @@ make_arc (GpGraphics *graphics, BOOL start, float x, float y, float width,
 {       
 	float delta, bcp;
 	double sin_alpha, sin_beta, cos_alpha, cos_beta;
-	double sx, sy;
 
         float rx = width / 2;
         float ry = height / 2;
@@ -180,13 +179,13 @@ make_arc (GpGraphics *graphics, BOOL start, float x, float y, float width,
 	cos_alpha = cos (alpha);
 	cos_beta = cos (beta);
 
-        /* starting point */
-	sx = cx + rx * cos_alpha;
-	sy = cy + ry * sin_alpha;
-	
-        /* don't move to starting point if we're continuing an existing curve */
-        if (start)
-                gdip_cairo_move_to (graphics, sx, sy, FALSE, antialiasing);
+	/* don't move to starting point if we're continuing an existing curve */
+	if (start) {
+		/* starting point */
+		double sx = cx + rx * cos_alpha;
+		double sy = cy + ry * sin_alpha;
+		gdip_cairo_move_to (graphics, sx, sy, FALSE, antialiasing);
+	}
 
         gdip_cairo_curve_to (graphics,
                         cx + rx * (cos_alpha - bcp * sin_alpha),
