@@ -1124,6 +1124,20 @@ cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 		layoutRect->Height = gdip_unity_convgr (graphics, layout->Height);
 	}
 
+	if (layoutRect->Width <= 0.0) {
+		if (layoutRect->Height < 0.0) {
+			/* special case only if BOTH values are negative */
+			for (i = 0; i < format->charRangeCount; i++)
+				GdipSetInfinite (regions [i]);
+			return Ok;
+		} else {
+			layoutRect->Width = REGION_INFINITE_LENGTH;
+		}
+	}
+	if (layoutRect->Height <= 0.0) {
+		layoutRect->Height = REGION_INFINITE_LENGTH;
+	}
+
 	/* string measurements */
 	status = MeasureString (graphics, stringUnicode, &StringLen, font, layoutRect, format, NULL, NULL, NULL, NULL,
 		CleanString, StringDetails, &data);

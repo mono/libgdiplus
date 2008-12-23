@@ -107,7 +107,7 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *string, int l
 		return InvalidParameter;
 
 	/* No char range or bounding rect is set for measurements */
-	if ((stringFormat->charRangeCount == 0) || (layoutRect->Width == 0) || (layoutRect->Height == 0)) {
+	if (stringFormat->charRangeCount == 0) {
 		*regions = NULL;
 		return Ok;
 	}

@@ -1,3 +1,10 @@
+2008-12-23  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* text.c (GdipMeasureCharacterRanges): Don't handle empty (zero)
+	width or height at this early stage.
+	* text-cairo.c: Handle negative/zero width/height to match MS GDI+
+	[Fix bug #449971]
+
 2008-11-07  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* graphics-cairo.c (make_arc): Only compute start points if we
