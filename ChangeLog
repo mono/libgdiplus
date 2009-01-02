@@ -1,3 +1,12 @@
+2009-01-02  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* autogen.sh: Rename --with-cairo=system to --skip-cairo. This option
+	allows you to skip the autogen part of cairo and pixman if you're
+	building libgdiplus with a more recent (than 1.6.4) version of cairo.
+	* configure.in: Automatically use the system cairo if it's more 
+	recent than the one we have bundled in libgdiplus.
+	* README: Update with changes
+
 2008-08-12  Raja R Harinath  <harinath@hurrynot.org>
 
 	* configure.in (FONTCONFIG_CONFIG): Rename from FONTCONFIG-CONFIG.

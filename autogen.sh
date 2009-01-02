@@ -129,7 +129,7 @@ CONF_OPTIONS=""
 CAIRO_AUTOGEN_REQUIRED=1
 until [ -z "$1" ]
 do
-  if [ "$1" = "--with-cairo=system" ]; then
+  if [ "$1" = "--skip-cairo" ]; then
     echo Skipping internal pixman and cairo ...
     CAIRO_AUTOGEN_REQUIRED=0
   fi
