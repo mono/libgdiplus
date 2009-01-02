@@ -1,3 +1,10 @@
+2009-01-02  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* image.c: Adjust image width/height wrt its resolution before 
+	drawing (this can be used to scale a picture).
+	* bitmap.c: Add more validations to GdipBitmapSetResolution
+	[Fix bug #434583]
+
 2008-12-23  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* text.c (GdipMeasureCharacterRanges): Don't handle empty (zero)

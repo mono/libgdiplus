@@ -430,6 +430,14 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 	/* Create a surface for this bitmap if one doesn't exist */
 	gdip_bitmap_ensure_surface (image);
 
+	/* check for image specific DPI data */
+	if (image->active_bitmap->image_flags & ImageFlagsHasRealDPI) {
+		if (graphics->dpi_x != image->active_bitmap->dpi_horz)
+			width *= (graphics->dpi_x / image->active_bitmap->dpi_horz);
+		if (graphics->dpi_y != image->active_bitmap->dpi_vert)
+			height *= (graphics->dpi_y / image->active_bitmap->dpi_vert);
+	}
+
 	if (width != image->active_bitmap->width || height != image->active_bitmap->height) {
 		scaled_width = (double) width / image->active_bitmap->width;
 		scaled_height = (double) height / image->active_bitmap->height;

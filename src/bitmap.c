@@ -2119,9 +2119,8 @@ GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 GpStatus
 GdipBitmapSetResolution (GpBitmap *bitmap, float xdpi, float ydpi)
 {
-	if ((bitmap == NULL) || (bitmap->active_bitmap == NULL)) {
+	if (!bitmap || !bitmap->active_bitmap || isnan(xdpi) || isnan(xdpi) || (xdpi <= 0.0f) || (ydpi <= 0.0f))
 		return InvalidParameter;
-	}
 
 	bitmap->active_bitmap->dpi_horz = xdpi;
 	bitmap->active_bitmap->dpi_vert = ydpi;
