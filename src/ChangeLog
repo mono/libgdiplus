@@ -1,3 +1,7 @@
+2009-01-28  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* image.c: Revert last change wrt resolution
+
 2009-01-02  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* image.c: Adjust image width/height wrt its resolution before 
