@@ -1,3 +1,9 @@
+2009-01-27  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* configure.in: Always include (and build) the internal cairo and 
+	pixman libraries even if, at the end, we're not linking against 
+	them. Not a perfect solution but that fix #467759
+
 2009-01-02  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* autogen.sh: Rename --with-cairo=system to --skip-cairo. This option

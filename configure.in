@@ -38,8 +38,6 @@ if test $cairo_v = "internal"; then
 # of the internal build
 	ac_configure_args="$ac_configure_args --disable-quartz-font"
 
-	AC_CONFIG_SUBDIRS([pixman cairo])
-	CAIRO_DIR="pixman cairo"
 	CAIRO_LIBS='$(top_builddir)/cairo/src/libcairo.la'
 	CAIRO_CFLAGS='-I$(top_builddir)/pixman/pixman -I$(top_srcdir)/pixman/pixman -I$(top_builddir)/cairo/src -I$(top_srcdir)/cairo/src'
 	cairo_info+="$CAIRO_BUNDLED_VERSION (internal)"
@@ -49,7 +47,6 @@ if test $cairo_v = "internal"; then
 		AC_MSG_ERROR("Pango text rendering is only possible with --with-cairo=system")
 	fi
 else
-	CAIRO_DIR=""
 	CAIRO_LIBS="`pkg-config --libs cairo `"
 	CAIRO_CFLAGS="`pkg-config --cflags cairo `"
 	cairo_info="`pkg-config --modversion cairo ` (system)"
@@ -65,6 +62,8 @@ else
 	fi
 fi
 
+AC_CONFIG_SUBDIRS([pixman cairo])
+CAIRO_DIR="pixman cairo"
 GDIPLUS_LIBS="$GDIPLUS_LIBS $CAIRO_LIBS $PANGO_LIBS"
 GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS $CAIRO_CFLAGS $PANGO_CFLAGS"
 
