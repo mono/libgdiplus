@@ -36,26 +36,27 @@
 #include "graphics-private.h"
 #include "stringformat-private.h"
 
+#define PANGO_MAX (G_MAXINT / PANGO_SCALE)
+#define MAKE_SAFE_FOR_PANGO(x)	((x) > G_MAXINT/PANGO_SCALE ? G_MAXINT/PANGO_SCALE : ((x) < G_MININT/PANGO_SCALE ? G_MININT/PANGO_SCALE : (x)))
 
 #define	GDIP_WINDOWS_ACCELERATOR	'&'
-#define GDIP_PANGOHACK_ACCELERATOR	((char)1)
 
 #define text_DrawString			pango_DrawString
 #define text_MeasureString		pango_MeasureString
 #define text_MeasureCharacterRanges	pango_MeasureCharacterRanges
 
 
-PangoLayout* gdip_pango_setup_layout (cairo_t *ct, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
-	GDIPCONST RectF *rc, RectF *box, GDIPCONST GpStringFormat *format);
+PangoLayout* gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
+	GDIPCONST RectF *rc, RectF *box, GDIPCONST GpStringFormat *format, int **charsRemoved);
 
-GpStatus pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
+GpStatus pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
 	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush) GDIP_INTERNAL;
 
 GpStatus pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
 	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, RectF *boundingBox, int *codepointsFitted, int *linesFilled)
 	GDIP_INTERNAL;
 
-GpStatus pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
+GpStatus pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
 	GDIPCONST GpRectF *layout, GDIPCONST GpStringFormat *format, int regionCount, GpRegion **regions) GDIP_INTERNAL;
 
 #endif
