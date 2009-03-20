@@ -151,6 +151,9 @@ gdip_graphics_common_init (GpGraphics *graphics)
 	graphics->render_origin_y = 0;
 	graphics->dpi_x = graphics->dpi_y = 0;
 
+	graphics->display = NULL;
+	graphics->drawable = NULL;
+
 	gdip_graphics_reset (graphics);
 }
 
@@ -228,6 +231,9 @@ GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 	}
 #endif
 
+	if (clone->type == gtMemoryBitmap)
+		return GdipGetImageGraphicsContext (clone->image, graphics);
+	
 	XGetGeometry (clone->display, clone->drawable, &root,
 		      &x, &y, &w, &h, &border_w, &depth);
 	
@@ -241,6 +247,12 @@ GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 
 	(*graphics)->dpi_x = (*graphics)->dpi_y = gdip_get_display_dpi ();
 	cairo_surface_destroy (surface);
+
+	if ((*graphics)->drawable)
+		(*graphics)->drawable = clone->drawable;
+
+	if ((*graphics)->display)
+		(*graphics)->display = clone->display;	
 
 	return Ok;
 }

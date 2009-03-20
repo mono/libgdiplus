@@ -1,3 +1,9 @@
+2009-03-20  Tom Hindle <tom_hindle@sil.org>
+
+	*  graphics.c Allow GdipCreateFromHDC to work on the HDC of objects 
+	previousy created with GdipCreateFromHDC. Also allow GdipCreateFromHDC
+	to work with gtMemoryBitmap types.
+
 2009-01-28  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* image.c: Revert last change wrt resolution
