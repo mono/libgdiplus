@@ -28,3 +28,4 @@ Optional build options [UNSUPPORTED]
 	all of it's text. This can only be enabled if libgdiplus is built
 	with the *system* cairo and requires Pango version 1.10 (or later).
 
+
