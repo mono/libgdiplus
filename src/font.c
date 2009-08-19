@@ -21,6 +21,7 @@
  *	Jordi Mas i Hernandez <jordi@ximian.com>, 2004-2006
  *	Peter Dennis Bartok <pbartok@novell.com>
  *	Sebastien Pouliot  <sebastien@ximian.com>
+ *	Jeffrey Stedfast <fejj@novell.com>
  */
 
 #include "gdiplus-private.h"
@@ -541,28 +542,59 @@ GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily)
 	return status;
 }
 
+/* OpenType's OS/2 fsSelection Table:
+ *
+ * http://www.microsoft.com/typography/otspec/os2.htm#fss
+ */
+enum fsSelection {
+	fsSelectionItalic         = (1 << 0),
+	fsSelectionUnderscore     = (1 << 1),
+	fsSelectionNegative       = (1 << 2),
+	fsSelectionOutlined       = (1 << 3),
+	fsSelectionStrikeout      = (1 << 4),
+	fsSelectionBold           = (1 << 5),
+	fsSelectionRegular        = (1 << 6),
+	fsSelectionUseTypoMetrics = (1 << 7),
+	fsSelectionWWS            = (1 << 8),
+	fsSelectionOblique        = (1 << 9),
+};
+
 static void
 gdip_get_fontfamily_details_from_freetype (GpFontFamily *family, FT_Face face)
 {
-	TT_VertHeader *pVert = FT_Get_Sfnt_Table (face, ft_sfnt_vhea);
-	TT_HoriHeader *pHori = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
-
-	if (pVert) {
-		family->height = pVert->yMax_Extent;
+	if (FT_IS_SFNT (face)) {
+		TT_HoriHeader *hhea = FT_Get_Sfnt_Table (face, ft_sfnt_hhea);
+		TT_OS2 *os2 = FT_Get_Sfnt_Table (face, ft_sfnt_os2);
+		
+		if (os2 && (os2->fsSelection & fsSelectionUseTypoMetrics)) {
+			/* Use the typographic Ascender, Descender, and LineGap values for everything. */
+			family->linespacing = os2->sTypoAscender - os2->sTypoDescender + os2->sTypoLineGap;
+			family->celldescent = -os2->sTypoDescender;
+			family->cellascent = os2->sTypoAscender;
+		} else {
+			/* Calculate the LineSpacing for both the hhea table and the OS/2 table. */
+			int hhea_linespacing = hhea->Ascender + abs (hhea->Descender) + hhea->Line_Gap;
+			int os2_linespacing = os2 ? (os2->usWinAscent + os2->usWinDescent) : 0;
+			
+			/* The LineSpacing is the maximum of the two sumations. */
+			family->linespacing = MAX (hhea_linespacing, os2_linespacing);
+			
+			/* If the OS/2 table exists, use usWinAscent as the
+			 * CellAscent. Otherwise use hhea's Ascender value. */
+			family->cellascent = os2 ? os2->usWinAscent : hhea->Ascender;
+			
+			/* The CellDescent is the difference between the
+			 * LineSpacing and the CellAscent. */
+			family->celldescent = family->linespacing - family->cellascent;
+		}
 	} else {
-		family->height = face->units_per_EM;
-	}
-
-	if (pHori) {
-		/* FIXME: FT docs seems to suggest the use of the OS/2 table */
-		family->cellascent = pHori->Ascender;
-		family->celldescent = -pHori->Descender;
-		family->linespacing = pHori->Ascender - pHori->Descender + pHori->Line_Gap;
-	} else {
+		/* Fall back to using whatever FreeType2 provides. */
+		family->celldescent = -face->descender;
 		family->cellascent = face->ascender;
-		family->celldescent = face->descender;
 		family->linespacing = face->height;
 	}
+	
+	family->height = face->units_per_EM;
 }
 
 #ifdef USE_PANGO_RENDERING

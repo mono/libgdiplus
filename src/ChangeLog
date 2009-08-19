@@ -1,6 +1,12 @@
+2009-08-19  Jeffrey Stedfast  <fejj@novell.com>
+
+	* font.c (gdip_get_fontfamily_details_from_freetype): Fixed to use
+	values much closer to those returned by GDI+ based on work done in
+	Moonlight.
+
 2009-03-20  Tom Hindle <tom_hindle@sil.org>
 
-	*  graphics.c Allow GdipCreateFromHDC to work on the HDC of objects 
+	* graphics.c: Allow GdipCreateFromHDC to work on the HDC of objects 
 	previousy created with GdipCreateFromHDC. Also allow GdipCreateFromHDC
 	to work with gtMemoryBitmap types.
 
