@@ -579,13 +579,13 @@ gdip_get_fontfamily_details_from_freetype (GpFontFamily *family, FT_Face face)
 			/* The LineSpacing is the maximum of the two sumations. */
 			family->linespacing = MAX (hhea_linespacing, os2_linespacing);
 			
+			/* If the OS/2 table exists, use usWinDescent as the
+			 * CellDescent. Otherwise use hhea's Descender value. */
+			family->celldescent = os2 ? os2->usWinDescent : hhea->Descender;
+			
 			/* If the OS/2 table exists, use usWinAscent as the
 			 * CellAscent. Otherwise use hhea's Ascender value. */
 			family->cellascent = os2 ? os2->usWinAscent : hhea->Ascender;
-			
-			/* The CellDescent is the difference between the
-			 * LineSpacing and the CellAscent. */
-			family->celldescent = family->linespacing - family->cellascent;
 		}
 	} else {
 		/* Fall back to using whatever FreeType2 provides. */
