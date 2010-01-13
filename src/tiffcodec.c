@@ -1087,7 +1087,7 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 
 	if (tiff == NULL) {
 		*image = NULL;
-		TIFFClose(tiff);
+		/* we cannot call TIFFClose(tiff); with a NULL value since it will crash - bnc #569940 */
 		return InvalidParameter;
 	}
 
