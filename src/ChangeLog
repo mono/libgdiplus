@@ -1,3 +1,8 @@
+2010-01-13  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* tiffcodec.c: Don't call TIFFClose with a NULL value. Fix #569940
+	[Backport r149475]
+
 2009-01-27  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* image.c: Revert last change (#434583) since it caused 
