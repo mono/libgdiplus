@@ -183,7 +183,6 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 
 	do {
 		if (DGifGetRecordType(GifFile, &RecordType) == GIF_ERROR) {
-			printf ("GetRecType 1 %d\n", RecordType);
 			return (GIF_ERROR);
 		}
 
@@ -191,8 +190,6 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 			case IMAGE_DESC_RECORD_TYPE: {
 				/* This call will leak GifFile->Image.ColorMap; there's a fixme in the DGifGetImageDesc code */
 				if (DGifGetImageDesc(GifFile) == GIF_ERROR) {
-                        printf ("ImageDesc 2 1\n");
-
 					return (GIF_ERROR);
 				}
 
@@ -201,8 +198,6 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 
 				sp->RasterBits = (BYTE*) GdipAlloc (ImageSize * sizeof (GifPixelType));
 				if (sp->RasterBits == NULL) {
-                        printf ("reasterbit 1\n");
-
 					return GIF_ERROR;
 				}
 
@@ -238,16 +233,12 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 
 			case EXTENSION_RECORD_TYPE: {
 				if (DGifGetExtension(GifFile, &temp_save.Function, &ExtData) == GIF_ERROR) {
-                        printf ("GEtEXTEONSN GetRecType 1\n");
-
 					return (GIF_ERROR);
 				}
 
 				while (ExtData != NULL) {
 					/* Create an extension block with our data */
 					if (AddExtensionBlockMono(&temp_save, ExtData[0], &ExtData[1]) == GIF_ERROR) {
-                        printf ("EBLOCK MONOGetRecType 1\n");
-
 						return (GIF_ERROR);
 					}
 
@@ -324,7 +315,6 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 
 	/* Read the image */
 	if (DGifSlurpMono(gif, &global_extensions) != GIF_OK) {
-		printf ("Slup\n");
 		goto error;
 	}
 
@@ -410,7 +400,6 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 		/* Add BitmapData to our frame */
 		bitmap_data = gdip_frame_add_bitmapdata(frame);
 		if (bitmap_data == NULL) {
-			printf ("gdip_frame_add_bitmapdata\n");
 			goto error;
 		}
 
@@ -420,7 +409,6 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 		    img_desc->Left < 0 || img_desc->Width < 0 ||
 		    (img_desc->Width + img_desc->Left) > screen_width ||
 		    (img_desc->Height + img_desc->Top) > screen_height) {
-			printf ("parameters \n");
 			goto error;
 		}
 
@@ -431,10 +419,8 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 
 				if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagExifUserComment, &index) != Ok) {
 					BYTE *bytes = (BYTE*) GdipAlloc (eb.ByteCount + 1);
-					if (bytes == NULL){
-			 printf ("bytes null\n");
+					if (bytes == NULL)
 						goto error;
-					}
 
 					memcpy (bytes, eb.Bytes, eb.ByteCount);
 					bytes [eb.ByteCount] = '\0';
@@ -601,7 +587,6 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 	return Ok;
 
 error:	
-	printf ("HERE\b");
 	if (global_palette != NULL) {
 		GdipFree(global_palette);
 	}
@@ -714,8 +699,7 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 				case PixelFormat8bppIndexed:
 					cmap_size = 256;
 					break;
-				default: 
-					printf ("format is different\n");
+				default:
 					goto error; 
 				}
 
@@ -723,7 +707,6 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 
 				pixbuf = GdipAlloc(pixbuf_size);
 				if (pixbuf == NULL) {
-					printf ("No memory\n");
 					goto error;
 				}
 
@@ -818,7 +801,6 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 				blue = GdipAlloc(pixbuf_size);
 				pixbuf = GdipAlloc(pixbuf_size);
 				if ((red == NULL) || (green == NULL) || (blue == NULL) || (pixbuf == NULL)) {
-					printf ("broken channel\n");
 					goto error;
 				}
 
@@ -845,7 +827,6 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 				}
 				if (QuantizeBuffer(bitmap_data->width, bitmap_data->height, &cmap_size, 
 						red,  green, blue, pixbuf, cmap->Colors) == GIF_ERROR) {
-					printf ("Quantize\n");
 					goto error;
 				}
 			}
@@ -856,7 +837,6 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 			if ((frame == 0) && (k == 0)) {
 				/* First Image defines the global colormap */
 				if (EGifPutScreenDesc (fp, bitmap_data->width, bitmap_data->height, cmap->BitsPerPixel, 0, cmap) == GIF_ERROR) {
-				printf ("EGifPut\n");
 					goto error;
 				}
 
@@ -912,13 +892,11 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 			/* Store the image description */
 			/* This call will leak GifFile->Image.ColorMap */
 			if (EGifPutImageDesc (fp, bitmap_data->left, bitmap_data->top, bitmap_data->width, bitmap_data->height, FALSE, cmap) == GIF_ERROR) {
-				printf ("PutImageDesc ...\n");
 				goto error;
 			}
 
 			for (i = 0;  i < bitmap_data->height;  ++i) {
 				if (EGifPutLine (fp, pixbuf, bitmap_data->width) == GIF_ERROR) {
-					printf ("Put line\n");
 					goto error;
 				}
 				pixbuf += bitmap_data->width;
