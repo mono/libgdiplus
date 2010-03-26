@@ -1,3 +1,8 @@
+2010-03-26  Miguel de Icaza  <miguel@novell.com>
+
+	* Apply patch from Matthew Metnetsky which fixes 590503,
+	GdipCloneImage not cloning the properties.
+
 2010-01-13  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* tiffcodec.c: Don't call TIFFClose with a NULL value. Fix #569940

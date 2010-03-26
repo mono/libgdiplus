@@ -147,7 +147,7 @@ gdip_propertyitems_clone(PropertyItem *src, PropertyItem **dest, int count)
 				GdipFree (result);
 				return OutOfMemory;
 			}
-			
+			memcpy(result[i].value, src[i].value, src[i].length);	
 		} else {
 			result[i].value = NULL;
 		}
