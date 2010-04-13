@@ -353,7 +353,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 						info_ptr->palette[i].green,
 						info_ptr->palette[i].red,
 #if PNG_LIBPNG_VER > 10243
-						info_ptr->trans[i]); /* alpha */
+						info_ptr->trans_alpha [i]); /* alpha */
 #else
 						info_ptr->trans[i]); /* alpha */
 #endif
