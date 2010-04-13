@@ -352,7 +352,11 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 						info_ptr->palette[i].blue,
 						info_ptr->palette[i].green,
 						info_ptr->palette[i].red,
+#if PNG_LIBPNG_VER > 10243
 						info_ptr->trans[i]); /* alpha */
+#else
+						info_ptr->trans[i]); /* alpha */
+#endif
 			}
 		}
 
@@ -418,7 +422,11 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		}
 
 		if ((color_type == PNG_COLOR_TYPE_GRAY) && (bit_depth < 8)) {
+#if PNG_LIBPNG_VER > 10243
+			png_set_expand_gray_1_2_4_to_8 (png_ptr);
+#else
 			png_set_gray_1_2_4_to_8(png_ptr);
+#endif
 		}
 
 		if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
