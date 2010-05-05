@@ -43,8 +43,18 @@ GpStatus
 GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST RectF *layoutRect, 
 	GDIPCONST GpStringFormat *stringFormat, GpBrush *brush)
 {
-	if (length == 0)
+	GDIPCONST WCHAR *ptr = NULL;
+
+	if (length == 0) {
 		return Ok;
+	} else if (length == -1) {
+		ptr = string;
+		length = 0;
+		while (*ptr != 0) {
+			length++;
+			ptr++;
+		}
+	}
 
 	if (!graphics || !string || !font || !layoutRect)
 		return InvalidParameter;
@@ -63,6 +73,8 @@ GpStatus
 GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST RectF *layoutRect,
 	GDIPCONST GpStringFormat *stringFormat, RectF *boundingBox, int *codepointsFitted, int *linesFilled)
 {
+	GDIPCONST WCHAR *ptr = NULL;
+
 	if (length == 0) {
 		if (boundingBox) {
 			if (layoutRect) {
@@ -82,6 +94,13 @@ GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GD
 			*codepointsFitted = 0;
 		}
 		return Ok;
+	} else if (length == -1) {
+		ptr = string;
+		length = 0;
+		while (*ptr != 0) {
+			length++;
+			ptr++;
+		}
 	}
 
 	if (!graphics || !string || !font || !layoutRect)

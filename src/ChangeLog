@@ -1,3 +1,10 @@
+2010-05-04  Miguel de Icaza  <miguel@novell.com>
+
+	* Apply patch from Matthew Metnetsky which fixes Bug #590286
+	Passing -1 (to indicate null terminated string) for the string
+	lengths for GdipDrawString and GdipMeasureString causes the
+	program to seg-fault.
+
 2010-04-12  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* pngcodec.c: SuSE provided patch for newer libpng (1.4.x). Made
