@@ -1,3 +1,7 @@
+2010-05-17  Tom Hindle  <tom_hindle@sil.org>
+
+	* image.c: perform calculated transformation. Fix #606412
+
 2010-04-12  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* pngcodec.c: SuSE provided patch for newer libpng (1.4.x). Made
