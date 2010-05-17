@@ -818,6 +818,7 @@ GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint
 	GpRectF rect;
 	GpStatus status;
 	GpMatrix *matrix = NULL;
+	cairo_matrix_t orig_matrix;
 
 	if (!graphics || !image || !points || (count < 3))
 		return InvalidParameter;
@@ -837,8 +838,11 @@ GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint
 
 	status = GdipCreateMatrix3 (&rect, points, &matrix);
 	if (status == Ok) {
+		cairo_get_matrix (graphics->ct, &orig_matrix);
+		cairo_set_matrix (graphics->ct, matrix);
 		status = GdipDrawImageRectRect (graphics, image, rect.X, rect.Y, rect.Width, rect.Height, srcx, srcy, 
 			srcwidth, srcheight, srcUnit, imageAttributes, callback, callbackData);
+		cairo_set_matrix (graphics->ct, &orig_matrix);
 	}
 	if (matrix)
 		GdipDeleteMatrix (matrix);

@@ -1,3 +1,7 @@
+2010-05-17  Tom Hindle  <tom_hindle@sil.org>
+
+	* image.c: perform calculated transformation. Fix #606412
+
 2010-05-04  Miguel de Icaza  <miguel@novell.com>
 
 	* Apply patch from Matthew Metnetsky which fixes Bug #590286
