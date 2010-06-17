@@ -710,8 +710,9 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 					}
 				}
 
+				cairo_matrix_translate (&mat, srcx, srcy);
 				cairo_matrix_scale (&mat, srcwidth / dstwidth, srcheight / dstheight);
-				cairo_matrix_translate (&mat, srcx - (dstx + posx), srcy - (dsty + posy));
+				cairo_matrix_translate (&mat, - (dstx + posx), - (dsty + posy));
 
 				pattern = cairo_pattern_create_for_surface(cur_image->surface);
 				cairo_pattern_set_matrix (pattern, &mat);
@@ -760,10 +761,12 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		filter = cairo_pattern_create_for_surface (image->surface);
 		cairo_pattern_set_filter (filter, gdip_get_cairo_filter (graphics->interpolation));
 
+		cairo_matrix_translate (&mat, srcx, srcy);
+
 		if (!gdip_near_zero(srcwidth - dstwidth) || !gdip_near_zero(srcheight - dstheight))
 			cairo_matrix_scale (&mat, srcwidth / dstwidth, srcheight / dstheight);
 
-		cairo_matrix_translate (&mat, srcx - dstx, srcy - dsty);
+		cairo_matrix_translate (&mat, -dstx, -dsty);
 
 		pattern = cairo_pattern_create_for_surface(image->surface);
 		cairo_pattern_set_matrix (pattern, &mat);

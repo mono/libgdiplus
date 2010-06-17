@@ -1,3 +1,8 @@
+2010-06-16  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* image.c: Fix #529887 for drawing a part of image with scaling.
+	Patch provided by Dan Parnham
+
 2010-05-17  Tom Hindle  <tom_hindle@sil.org>
 
 	* image.c: perform calculated transformation. Fix #606412
