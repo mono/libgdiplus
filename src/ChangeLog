@@ -1,3 +1,8 @@
+2010-07-07  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* pngcodec.c: security fix in libpng 1.2 broke the define
+	[Backport r160026]
+
 2010-05-17  Tom Hindle  <tom_hindle@sil.org>
 
 	* image.c: perform calculated transformation. Fix #606412
