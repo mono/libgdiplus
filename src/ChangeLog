@@ -1,3 +1,9 @@
+2010-07-14  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* lineargradientbrush.c: Do not accept empty (width/height) 
+	rectangles to create a linear brush. Fix bug #537396
+	[Backport r160453]
+
 2010-07-07  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* pngcodec.c: security fix in libpng 1.2 broke the define

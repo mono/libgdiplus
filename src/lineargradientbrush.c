@@ -600,9 +600,8 @@ GpStatus
 GdipCreateLineBrushFromRectWithAngle (GDIPCONST GpRectF *rect, ARGB color1, ARGB color2, float angle, BOOL isAngleScalable, GpWrapMode wrapMode, GpLineGradient **lineGradient)
 {
 	GpLineGradient *linear;
-	GpRectF *rectf;
 
-	if (!rect || !lineGradient)
+	if (!rect || !lineGradient || rect->Width == 0.0 || rect->Height == 0.0)
 		return InvalidParameter;
 
 	linear = gdip_linear_gradient_new ();
