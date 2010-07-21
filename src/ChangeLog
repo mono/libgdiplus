@@ -1,3 +1,9 @@
+2010-07-20  Sebastien Pouliot  <sebastien@ximian.com>
+
+	* image.c: Use DPI from source image when creating a Graphics
+	instance from it. Fix bug #556181
+	[Backport r160638]
+
 2010-07-14  Sebastien Pouliot  <sebastien@ximian.com>
 
 	* lineargradientbrush.c: Do not accept empty (width/height) 

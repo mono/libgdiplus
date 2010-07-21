@@ -313,7 +313,8 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 				image->active_bitmap->width, image->active_bitmap->height, image->active_bitmap->stride);
 
 	gfx = gdip_graphics_new (surface);
-	gfx->dpi_x = gfx->dpi_y = gdip_get_display_dpi ();
+	gfx->dpi_x = image->active_bitmap->dpi_horz <= 0 ? gdip_get_display_dpi () : image->active_bitmap->dpi_horz;
+	gfx->dpi_y = image->active_bitmap->dpi_vert <= 0 ? gdip_get_display_dpi () : image->active_bitmap->dpi_vert;
 	cairo_surface_destroy (surface);
 
 	gfx->image = image;
