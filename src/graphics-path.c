@@ -1352,7 +1352,7 @@ GpStatus
 GdipAddPathCurve2I (GpPath *path, const GpPoint *points, int count, float tension)
 {
 	GpPointF *pt;
-	Status s;
+	GpStatus s;
 
 	if (!points)
 		return InvalidParameter;
@@ -1373,7 +1373,7 @@ GdipAddPathCurve3I (GpPath *path, const GpPoint *points,
                     int count, int offset, int numberOfSegments, float tension)
 {
 	GpPointF *pt;
-	Status s;
+	GpStatus s;
 
 	if (!points)
 		return InvalidParameter;
@@ -1398,7 +1398,7 @@ GpStatus
 GdipAddPathClosedCurve2I (GpPath *path, const GpPoint *points, int count, float tension)
 {
 	GpPointF *pt;
-	Status s;
+	GpStatus s;
 
 	if (!path || !points)
 		return InvalidParameter;
@@ -1788,7 +1788,7 @@ GdipTransformPath (GpPath* path, GpMatrix *matrix)
 {
         PointF *points;
 	int count;
-        Status s;
+        GpStatus s;
 
 	if (!path)
 		return InvalidParameter;

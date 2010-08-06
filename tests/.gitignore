@@ -1,0 +1,10 @@
+*.o
+.deps/
+.libs/
+Makefile
+Makefile.in
+testbits
+testclip
+testgdi
+testreversepath
+

@@ -1555,7 +1555,7 @@ gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int a
 		int target_y_offset = target_starts_at_bottom ? (target_height - 1) * target_stride : 0;
 		int target_y_offset_delta = target_starts_at_bottom ? -target_stride : +target_stride;
 
-		Status status = gdip_init_pixel_stream (&stream, image->active_bitmap, 0, 0, image->active_bitmap->width, image->active_bitmap->height);
+		GpStatus status = gdip_init_pixel_stream (&stream, image->active_bitmap, 0, 0, image->active_bitmap->width, image->active_bitmap->height);
 
 		if (status != Ok) {
 			GdipFree (rotated);
@@ -1610,7 +1610,7 @@ gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int a
 				scan_valid[i] = ((scan_index >= 0) && (scan_index < source_height));
 
 				if (scan_valid[i]) {
-					Status status = gdip_init_pixel_stream (&scan[i], image->active_bitmap, 0, scan_index, source_width, 1);
+					GpStatus status = gdip_init_pixel_stream (&scan[i], image->active_bitmap, 0, scan_index, source_width, 1);
 
 					if (status != Ok) {
 						GdipFree (rotated);

@@ -619,7 +619,7 @@ apply_world_to_bounds (GpGraphics *graphics)
 GpStatus
 GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrder order)
 {
-        Status s;
+        GpStatus s;
 	BOOL invertible;
 	GpMatrix inverted;
 
@@ -2082,7 +2082,7 @@ GpStatus
 GdipGetClipBoundsI (GpGraphics *graphics, GpRect *rect)
 {
 	GpRectF rectF;
-	Status status;
+	GpStatus status;
 
 	if (!graphics || !rect)
 		return InvalidParameter;
