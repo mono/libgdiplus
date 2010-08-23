@@ -701,13 +701,13 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	int		colours;
 	BOOL		os2format = FALSE;
 	BOOL		upsidedown = TRUE;
-	int		size;
 	int		size_read;
 	byte		*data_read;
 	int		line;
 	int		loop;
 	long		index;
 	GpStatus	status;
+	unsigned long long int size;
 		
 	size = sizeof(bmfh);
 	data_read = (byte*) GdipAlloc(size);
@@ -862,16 +862,31 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 	result->active_bitmap->width = bmi.biWidth;
 	result->active_bitmap->height = bmi.biHeight;
 
+	/* biWidth and biHeight are LONG (32 bits signed integer) */
+	size = bmi.biWidth;
+
 	switch (result->active_bitmap->pixel_format) {
-		case Format1bppIndexed: result->active_bitmap->stride = (result->active_bitmap->width + 7) / 8; break;
-		case Format4bppIndexed: result->active_bitmap->stride = (result->active_bitmap->width + 1) / 2; break;
-		case Format8bppIndexed: result->active_bitmap->stride =  result->active_bitmap->width;          break;
-		case Format24bppRgb: result->active_bitmap->stride = result->active_bitmap->width * 4;		break;
-		default:
-			/* For other types, we assume 32 bit and translate into 32 bit from source format */
-			result->active_bitmap->pixel_format = Format32bppRgb;
-			result->active_bitmap->stride = result->active_bitmap->width * 4;
-			break;
+	case Format1bppIndexed: 
+		result->active_bitmap->stride = (size + 7) / 8;
+		break;
+	case Format4bppIndexed:
+		result->active_bitmap->stride = (size + 1) / 2;
+		break;
+	case Format8bppIndexed:
+		result->active_bitmap->stride = size;
+		break;
+	default:
+		/* For other types, we assume 32 bit and translate into 32 bit from source format */
+		result->active_bitmap->pixel_format = Format32bppRgb;
+		/* fall-thru */
+	case Format24bppRgb:
+		/* stride is a (signed) _int_ and once multiplied by 4 it should hold a value that can be allocated by GdipAlloc
+		 * this effectively limits 'width' to 536870911 pixels */
+		size *= 4;
+		if (size > G_MAXINT32)
+			goto error;
+		result->active_bitmap->stride = size;
+		break;
 	}
 
 	GdipFree(data_read);
@@ -924,7 +939,14 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, bool useFi
 		data_read = NULL;
 	}
 
-	pixels = GdipAlloc (result->active_bitmap->stride * result->active_bitmap->height);
+	size = result->active_bitmap->stride;
+	/* ensure total 'size' does not overflow an integer and fits inside our 2GB limit */
+	size *= result->active_bitmap->height;
+	if (size > G_MAXINT32) {
+		status = OutOfMemory;
+		goto error;
+	}
+	pixels = GdipAlloc (size);
 	if (pixels == NULL) {
 		status = OutOfMemory;
 		goto error;

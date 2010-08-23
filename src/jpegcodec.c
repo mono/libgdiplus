@@ -280,6 +280,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	guchar		*lines[4] = {NULL, NULL, NULL, NULL};
 	GpStatus	status;
 	int		stride;
+	unsigned long long int size = 4;
 
 	destbuf = NULL;
 	result = NULL;
@@ -355,9 +356,12 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	}
 
 	result->cairo_format = CAIRO_FORMAT_ARGB32;
-	result->active_bitmap->stride = 4 * cinfo.image_width;
-
-	stride = result->active_bitmap->stride;
+	size *= cinfo.image_width;
+	/* stride is a (signed) _int_ and once multiplied by 4 it should hold a value that can be allocated by GdipAlloc
+	 * this effectively limits 'width' to 536870911 pixels */
+	if (size > G_MAXINT32)
+		goto error;
+	stride = result->active_bitmap->stride = size;
 
 	/* Request cairo-compat output */
 	/* libjpeg can do only following conversions,
@@ -381,7 +385,13 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 
 	jpeg_start_decompress (&cinfo);
 
-	destbuf = GdipAlloc (stride * cinfo.output_height);
+	/* ensure total 'size' does not overflow an integer and fits inside our 2GB limit */
+	size *= cinfo.output_height;
+	if (size > G_MAXINT32) {
+		status = OutOfMemory;
+		goto error;
+	}
+	destbuf = GdipAlloc (size);
 	if (destbuf == NULL) {
 		status = OutOfMemory;
 		goto error;
