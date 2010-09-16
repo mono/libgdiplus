@@ -23,10 +23,12 @@
  */
 
 #include "adjustablearrowcap-private.h"
+#include "graphics-private.h"
 
 static GpStatus gdip_adjust_arrowcap_setup (GpGraphics *graphics, GpCustomLineCap *cap);
 static GpStatus gdip_adjust_arrowcap_clone_cap (GpCustomLineCap *cap, GpCustomLineCap **clonedCap);
 static GpStatus gdip_adjust_arrowcap_destroy (GpCustomLineCap *cap);
+static GpStatus gdip_adjust_arrowcap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *Cap, float x, float y, float otherend_x, float otherend_y);
 
 /*
  * we have a single copy of vtable for
@@ -36,7 +38,8 @@ static GpStatus gdip_adjust_arrowcap_destroy (GpCustomLineCap *cap);
 static CapClass vtable = { CustomLineCapTypeAdjustableArrow,
 			   gdip_adjust_arrowcap_setup,
 			   gdip_adjust_arrowcap_clone_cap,
-			   gdip_adjust_arrowcap_destroy };
+			   gdip_adjust_arrowcap_destroy,
+			   gdip_adjust_arrowcap_draw };
 
 static void
 gdip_adjust_arrowcap_init (GpAdjustableArrowCap *arrow)
@@ -44,6 +47,8 @@ gdip_adjust_arrowcap_init (GpAdjustableArrowCap *arrow)
 	gdip_custom_linecap_init (&arrow->base, &vtable);
 	arrow->fill_state = TRUE;
 	arrow->middle_inset = 0.0;
+	arrow->width = 0.0;
+	arrow->height = 0.0;
 }
 
 static GpAdjustableArrowCap*
@@ -94,6 +99,59 @@ gdip_adjust_arrowcap_setup (GpGraphics *graphics, GpCustomLineCap *customCap)
 		return InvalidParameter;
 
 	return NotImplemented;
+}
+
+GpStatus
+gdip_adjust_arrowcap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *customCap, float x, float y, float otherend_x, float otherend_y)
+{
+	double angle;
+	GpAdjustableArrowCap *arrowcap;
+	float w;
+	float h;
+	float penwidth;
+
+	if (!graphics || !customCap)
+		return InvalidParameter;
+
+	penwidth = pen->width;
+	if (penwidth < 2.0) {
+		/* Seems to be a minimum */
+		penwidth = 2.0;
+	}
+
+	arrowcap = (GpAdjustableArrowCap *)customCap;
+	w = arrowcap->width / 2;
+	h = arrowcap->height;
+
+	/* Vertical lines need some assistance to point the arrowhead correctly */
+	if ((x == otherend_x) &&
+	    (y < otherend_y)) {
+		h = -h;
+	}
+
+	angle = gdip_custom_linecap_angle (x, y, otherend_x, otherend_y);
+
+	cairo_save (graphics->ct);
+
+	/* FIXME: handle base_inset (including set/get!) */
+	cairo_translate (graphics->ct, x, y);
+	cairo_rotate (graphics->ct, angle);
+
+	gdip_cairo_move_to (graphics, 0, 0, TRUE, TRUE);
+	gdip_cairo_line_to (graphics, -w * penwidth, -h * penwidth, TRUE, TRUE);
+	gdip_cairo_line_to (graphics, w * penwidth, -h * penwidth, TRUE, TRUE);
+	gdip_cairo_line_to (graphics, 0, 0, TRUE, TRUE);
+
+	if (arrowcap->fill_state) {
+		/* FIXME: handle middle_inset */
+		cairo_fill_preserve (graphics->ct);
+	}
+
+	cairo_stroke (graphics->ct);
+
+	cairo_restore (graphics->ct);
+
+	return Ok;
 }
 
 /* AdjustableArrowCap functions */

@@ -30,6 +30,7 @@
 #include "solidbrush-private.h"
 #include "matrix-private.h"
 #include "graphics-private.h"
+#include "customlinecap-private.h"
 
 static void 
 gdip_pen_init (GpPen *pen)
@@ -53,6 +54,8 @@ gdip_pen_init (GpPen *pen)
 	pen->compound_array = NULL;
 	pen->unit = UnitWorld;
 	pen->changed = TRUE;
+	pen->custom_start_cap = NULL;
+	pen->custom_end_cap = NULL;
 	cairo_matrix_init_identity (&pen->matrix);
 }
 
@@ -204,6 +207,34 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	return gdip_get_status (cairo_status (graphics->ct));
 }
 
+GpStatus
+gdip_pen_draw_custom_start_cap (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2)
+{
+	if (!graphics || !pen)
+		return InvalidParameter;
+	
+	if (pen->custom_start_cap) {
+		/* Draw the end cap */
+		gdip_linecap_draw (graphics, pen, pen->custom_start_cap, x1, y1, x2, y2);
+	}
+
+	return gdip_get_status (cairo_status (graphics->ct));
+}
+
+GpStatus
+gdip_pen_draw_custom_end_cap (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2)
+{
+	if (!graphics || !pen)
+		return InvalidParameter;
+	
+	if (pen->custom_end_cap) {
+		/* Draw the end cap */
+		gdip_linecap_draw (graphics, pen, pen->custom_end_cap, x1, y1, x2, y2);
+	}
+
+	return gdip_get_status (cairo_status (graphics->ct));
+}
+
 // coverity[+alloc : arg-*3]
 GpStatus 
 GdipCreatePen1 (ARGB argb, float width, GpUnit unit, GpPen **pen)
@@ -319,6 +350,8 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
         GpPen *result;
         float *dashes;                  /* copy off pen->dash_array */
         float *compound_array = NULL;   /* copy off pen->compound_array */
+	GpCustomLineCap *custom_start_cap = NULL;
+	GpCustomLineCap *custom_end_cap = NULL;
 
 	if (!pen || !clonepen)
 		return InvalidParameter;
@@ -343,6 +376,34 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 			return OutOfMemory;
 		}
 		clone_dash_array (compound_array, pen->compound_array, pen->compound_count);
+	}
+
+	if (pen->custom_start_cap != NULL) {
+		GpStatus status = GdipCloneCustomLineCap (pen->custom_start_cap, &custom_start_cap);
+		if (status != Ok) {
+			if (custom_start_cap)
+				GdipDeleteCustomLineCap (custom_start_cap);
+			if (compound_array != NULL)
+				GdipFree (compound_array);
+			if (pen->dash_count > 0)
+				GdipFree (dashes);
+			return OutOfMemory;
+		}
+	}
+
+	if (pen->custom_end_cap != NULL) {
+		GpStatus status = GdipCloneCustomLineCap (pen->custom_end_cap, &custom_end_cap);
+		if (status != Ok) {
+			if (custom_end_cap)
+				GdipDeleteCustomLineCap (custom_end_cap);
+			if (custom_start_cap)
+				GdipDeleteCustomLineCap (custom_start_cap);
+			if (compound_array != NULL)
+				GdipFree (compound_array);
+			if (pen->dash_count > 0)
+				GdipFree (dashes);
+			return OutOfMemory;
+		}
 	}
 
 	result = gdip_pen_new ();
@@ -382,6 +443,8 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 	result->unit = pen->unit;
 	gdip_cairo_matrix_copy (&result->matrix, &pen->matrix);
 	result->changed = pen->changed;
+	result->custom_start_cap = custom_start_cap;
+	result->custom_end_cap = custom_end_cap;
 
         *clonepen = result;
 
@@ -409,6 +472,16 @@ GdipDeletePen (GpPen *pen)
                 GdipFree (pen->compound_array);
 		pen->compound_array = NULL;
 		pen->compound_count = 0;
+	}
+
+	if (pen->custom_start_cap != NULL) {
+		GdipDeleteCustomLineCap (pen->custom_start_cap);
+		pen->custom_start_cap = NULL;
+	}
+
+	if (pen->custom_end_cap != NULL) {
+		GdipDeleteCustomLineCap (pen->custom_end_cap);
+		pen->custom_end_cap = NULL;
 	}
 
         GdipFree (pen);
@@ -1004,52 +1077,38 @@ GdipGetPenDashCap197819 (GpPen *pen, GpDashCap *dashCap)
 	return Ok;
 }
 
-/* MonoTODO - not implemented */
 GpStatus
 GdipSetPenCustomStartCap (GpPen *pen, GpCustomLineCap *customCap)
 {
-	static BOOL called = FALSE;
-	if (!called) {
-		g_warning ("GdipSetPenCustomStartCap isn't implemented");
-		called = TRUE;
-	}
-	return Ok;
+	if (!pen)
+		return InvalidParameter;
+	
+	return GdipCloneCustomLineCap (customCap, &pen->custom_start_cap);
 }
 
-/* MonoTODO - not implemented */
 GpStatus
 GdipGetPenCustomStartCap (GpPen *pen, GpCustomLineCap **customCap)
 {
-	static BOOL called = FALSE;
-	if (!called) {
-		g_warning ("GdipGetPenCustomStartCap isn't implemented");
-		called = TRUE;
-	}
-	*customCap = NULL;
-	return Ok;
+	if (!pen || !customCap)
+		return InvalidParameter;
+
+	return GdipCloneCustomLineCap (pen->custom_start_cap, customCap);
 }
 
-/* MonoTODO - not implemented */
 GpStatus
 GdipSetPenCustomEndCap (GpPen *pen, GpCustomLineCap *customCap)
 {
-	static BOOL called = FALSE;
-	if (!called) {
-		g_warning ("GdipSetPenCustomEndCap isn't implemented");
-		called = TRUE;
-	}
-	return Ok;
+	if (!pen)
+		return InvalidParameter;
+	
+	return GdipCloneCustomLineCap (customCap, &pen->custom_end_cap);
 }
 
-/* MonoTODO - not implemented */
 GpStatus
 GdipGetPenCustomEndCap (GpPen *pen, GpCustomLineCap **customCap)
 {
-	static BOOL called = FALSE;
-	if (!called) {
-		g_warning ("GdipGetPenCustomEndCap isn't implemented");
-		called = TRUE;
-	}
-	*customCap = NULL;
-	return Ok;
+	if (!pen || !customCap)
+		return InvalidParameter;
+
+	return GdipCloneCustomLineCap (pen->custom_end_cap, customCap);
 }

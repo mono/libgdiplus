@@ -59,9 +59,13 @@ struct _Pen {
         GpUnit		unit;		/* Always set to UnitWorld. */
 	cairo_matrix_t	matrix;
         BOOL		changed;	/* flag to mark if pen is changed and needs setup */
+	GpCustomLineCap *custom_start_cap;
+	GpCustomLineCap *custom_end_cap;
 };
 
 GpStatus gdip_pen_setup (GpGraphics *graphics, GpPen *pen) GDIP_INTERNAL;
+GpStatus gdip_pen_draw_custom_start_cap (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2);
+GpStatus gdip_pen_draw_custom_end_cap (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2);
 
 #include "pen.h"
 
