@@ -42,6 +42,7 @@ typedef struct _CapClass {
 	GpStatus (*setup) (GpGraphics *graphics, GpCustomLineCap *cap);
 	GpStatus (*clone_cap) (GpCustomLineCap *cap, GpCustomLineCap **clonedCap);
 	GpStatus (*destroy) (GpCustomLineCap *cap);
+	GpStatus (*draw) (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *cap, float x, float y, float otherend_x, float otherend_y);
 } CapClass;
 
 typedef struct _CustomLineCap {
@@ -58,6 +59,8 @@ typedef struct _CustomLineCap {
 
 void gdip_custom_linecap_init (GpCustomLineCap *cap, CapClass *vt) GDIP_INTERNAL;
 GpStatus gdip_linecap_setup (GpGraphics *graphics, GpCustomLineCap *customCap) GDIP_INTERNAL;
+GpStatus gdip_linecap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *customCap, float x, float y, float otherend_x, float otherend_y) GDIP_INTERNAL;
+double gdip_custom_linecap_angle (float x, float y, float otherend_x, float otherend_y);
 
 #include "customlinecap.h"
 

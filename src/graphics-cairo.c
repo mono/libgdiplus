@@ -485,41 +485,74 @@ cairo_FillEllipseI (GpGraphics *graphics, GpBrush *brush, int x, int y, int widt
 GpStatus
 cairo_DrawLine (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2)
 {
+	GpStatus ret;
+
 	/* We use graphics->copy_of_ctm matrix for path creation. We should have it set already. */
 	gdip_cairo_move_to (graphics, x1, y1, TRUE, TRUE);
 	gdip_cairo_line_to (graphics, x2, y2, TRUE, TRUE);
 
-	return stroke_graphics_with_pen (graphics, pen);
+	ret = stroke_graphics_with_pen (graphics, pen);
+
+	gdip_pen_draw_custom_start_cap (graphics, pen, x1, y1, x2, y2);
+	gdip_pen_draw_custom_end_cap (graphics, pen, x2, y2, x1, y1);
+
+	return ret;
 }
 
 GpStatus 
 cairo_DrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
 	int i;
+	float last_x, last_y, prev_x, prev_y;
+	GpStatus ret;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We should have it set already. */
 	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, TRUE);
 
 	for (i = 1; i < count; i++) {
 		gdip_cairo_line_to (graphics, points [i].X, points [i].Y, TRUE, TRUE);
+		prev_x = points [i - 1].X;
+		prev_y = points [i - 1].Y;
+		last_x = points [i].X;
+		last_y = points [i].Y;
 	}
 
-	return stroke_graphics_with_pen (graphics, pen);
+	ret = stroke_graphics_with_pen (graphics, pen);
+
+	if (count > 1) {
+		gdip_pen_draw_custom_start_cap (graphics, pen, points [0].X, points [0].Y, points [1].X, points [1].Y);
+		gdip_pen_draw_custom_end_cap (graphics, pen, last_x, last_y, prev_x, prev_y);
+	}
+
+	return ret;
 }
 
 GpStatus 
 cairo_DrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
 	int i;
+	float last_x, last_y, prev_x, prev_y;
+	GpStatus ret;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We should have it set already. */
 	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, TRUE);
 
 	for (i = 1; i < count; i++) {
 		gdip_cairo_line_to (graphics, points [i].X, points [i].Y, TRUE, TRUE);
+		prev_x = points [i - 1].X;
+		prev_y = points [i - 1].Y;
+		last_x = points [i].X;
+		last_y = points [i].Y;
 	}
 
-	return stroke_graphics_with_pen (graphics, pen);
+	ret = stroke_graphics_with_pen (graphics, pen);
+
+	if (count > 1) {
+		gdip_pen_draw_custom_start_cap (graphics, pen, points [0].X, points [0].Y, points [1].X, points [1].Y);
+		gdip_pen_draw_custom_end_cap (graphics, pen, last_x, last_y, prev_x, prev_y);
+	}
+
+	return ret;
 }
 
 GpStatus
@@ -574,12 +607,41 @@ gdip_plot_path (GpGraphics *graphics, GpPath *path, BOOL antialiasing)
 GpStatus
 cairo_DrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 {
+	GpStatus ret;
+	int count;
+	GpPointF *points;
+
 	/* We use graphics->copy_of_ctm matrix for path creation. We should have it set already. */
 	GpStatus status = gdip_plot_path (graphics, path, TRUE);
 	if (status != Ok)
 		return status;
 
-	return stroke_graphics_with_pen (graphics, pen);
+	ret = stroke_graphics_with_pen (graphics, pen);
+
+	/* Draw any custom pen end caps */
+
+	status = GdipGetPointCount (path, &count);
+
+	/* To know the angle of the end cap, we need the penultimate point.
+	   Unfortunately there's no way of getting it without getting all
+	   the points :-(
+	 */
+	if (status == Ok && count > 1) {
+		points = gdip_calloc (count, sizeof(GpPointF));
+		if (points == NULL) {
+			return OutOfMemory;
+		}
+		status = GdipGetPathPoints (path, points, count);
+
+		if (status == Ok) {
+			gdip_pen_draw_custom_start_cap (graphics, pen, points [0].X, points [0].Y, points [1].X, points [1].Y);
+			gdip_pen_draw_custom_end_cap (graphics, pen, points [count - 1].X, points [count - 1].Y, points [count - 2].X, points [count - 2].Y);
+		}
+
+		GdipFree (points);
+	}
+
+	return ret;
 }
 
 /* FIXME - this doesn't match MS behaviour when we use really complex paths with internal intersections */
