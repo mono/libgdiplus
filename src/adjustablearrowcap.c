@@ -123,12 +123,6 @@ gdip_adjust_arrowcap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *cu
 	w = arrowcap->width / 2;
 	h = arrowcap->height;
 
-	/* Vertical lines need some assistance to point the arrowhead correctly */
-	if ((x == otherend_x) &&
-	    (y < otherend_y)) {
-		h = -h;
-	}
-
 	angle = gdip_custom_linecap_angle (x, y, otherend_x, otherend_y);
 
 	cairo_save (graphics->ct);
