@@ -153,17 +153,34 @@ gdip_custom_linecap_angle (float x, float y, float otherend_x, float otherend_y)
 	float slope;
 	double angle;
 	
-	if (y < otherend_y) {
-		slope = (otherend_y - y) / (otherend_x - x);
+	if (x == otherend_x) {
+		slope = 0;
+		if (y < otherend_y) {
+			angle = PI;
+		} else {
+			angle = PI * 2;
+		}
+	} else if (y == otherend_y) {
+		slope = 0;
 		if (x < otherend_x) {
 			angle = PI/2;
 		} else {
 			angle = PI/-2;
 		}
 	} else {
-		slope = (otherend_x - x) / (y - otherend_y);
-		angle = 0;
+		if (y < otherend_y) {
+			slope = (otherend_y - y) / (otherend_x - x);
+			if (x < otherend_x) {
+				angle = PI/2;
+			} else {
+				angle = PI/-2;
+			}
+		} else {
+			slope = (otherend_x - x) / (y - otherend_y);
+			angle = 0;
+		}
 	}
+	
 	angle += atan (slope);
 
 	return angle;
