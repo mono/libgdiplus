@@ -1700,6 +1700,90 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 	}
 }
 
+static BOOL /* <-- TRUE if optimisation was possible and copy done, else FALSE */
+gdip_pixel_stream_copy_optimized (StreamingState *dst_state, StreamingState *src_state)
+{
+	unsigned int ret;
+
+	if (src_state == NULL) return FALSE;
+	if (dst_state == NULL) return FALSE;
+
+	/* in a first shot we only support copy operations for cases where source and destination storage width is exactly the same */
+	if (src_state->pixels_per_byte != dst_state->pixels_per_byte) return FALSE;
+
+	//if (src_state->data->pixel_format == PixelFormat32bppRGB) return FALSE;
+
+	/* if the target is in 32bpp format with only RGB but no alpha then we should forcefully set all alpha bits to 0xff -> optimize this later! */
+	if (dst_state->pixels_per_byte == -4) {
+		if (dst_state->data->pixel_format == PixelFormat32bppRGB) return FALSE;
+	}
+
+	/* optimisation code differs for different bytes per pixel (== pixels per byte) */
+	if (src_state->pixels_per_byte == 1) {
+		/* A fast path for 8-bit indexed data: pixels are byte-aligned, so no special unpacking is required. */
+		return FALSE; /* optimize this later */
+	} else if (src_state->pixels_per_byte > 0) {
+		/* We have an indexed format (the RGB formats can't fit a whole pixel into a single byte). */
+		return FALSE; /* optimize this later */
+	} else if (src_state->pixels_per_byte == 0) {
+		return FALSE; /* unknown format - dont know how to handle; this is a sanity check for crash prevention in the following code */
+	} else {
+		/* We have an RGB format. In the current implementation, these are always stored as
+		 * CAIRO_FORMAT_ARGB. This makes this section very easy to implement. If native
+		 * support for 15- and 16-bit pixel formats needs to be added in the future, though,
+		 * then this is where it needs to be done.
+		 *
+		 * In order to simplify advancing the state->scan pointer, the state->pixels_per_byte
+		 * member is set to the number of bytes per pixel, negated. That is, for 24-bit
+		 * formats, it is set to -3, and for 32-bit formats, it is set to -4.
+		 *
+		 * Note that pixel streams do not support 48- and 64-bit data at this time.
+		 */
+#if WORDS_BIGENDIAN
+		return FALSE; /* optimize this later */
+#else
+		int bytes_per_pixel = -src_state->pixels_per_byte;
+		int bytes_per_line = bytes_per_pixel * src_state->region.Width;
+		int bytes_per_region = bytes_per_line * src_state->region.Height;
+
+		int src_stride = src_state->data->stride;
+		int dst_stride = dst_state->data->stride;
+
+		/* calculate region base addresses (this might resemble the current ..._state->scan value, but we simply dont care) */
+		BYTE* src_region = (BYTE*)(src_state->data->scan0) + src_state->region.Y * src_stride + src_state->region.X * bytes_per_pixel;
+		BYTE* dst_region = (BYTE*)(dst_state->data->scan0) + dst_state->region.Y * dst_stride + dst_state->region.X * bytes_per_pixel;
+
+		/* check if thze data at both locations is in a perfectly consecutive arrangement */
+		if ((src_state->region.Width * bytes_per_pixel == src_stride)
+			&& (dst_state->region.Width * bytes_per_pixel == dst_stride)) {
+			memcpy (dst_region, src_region, bytes_per_region);
+		} else {
+			BYTE *src = src_region;
+			BYTE *dst = dst_region;
+			int lines;
+
+			for (lines = src_state->region.Height; lines; lines--) {
+				memcpy (dst, src, bytes_per_line);
+				src += src_stride;
+				dst += dst_stride;
+			}
+		}
+		/* all data got copied */
+
+		/* adjust the position index and the scan value to the end of the region */
+		src_state->x = src_state->region.X + src_state->region.Width;
+		src_state->y = src_state->region.Y + src_state->region.Height;
+		src_state->scan += src_state->region.Y * src_stride;
+
+		dst_state->x = dst_state->region.X + dst_state->region.Width;
+		dst_state->y = dst_state->region.Y + dst_state->region.Height;
+		dst_state->scan += dst_state->region.Y * dst_stride;
+#endif
+	}
+
+	return TRUE;
+}
+
 /**
  * srcData - input data
  * srcRect - rectangle of input data to place in destData
@@ -1773,8 +1857,10 @@ gdip_bitmap_change_rect_pixel_format (BitmapData *srcData, Rect *srcRect, Bitmap
 			gdip_pixel_stream_set_next (&destStream, pixel);
 		}
 	} else {
-		while (gdip_pixel_stream_has_next (&srcStream)) {
-			gdip_pixel_stream_set_next (&destStream, gdip_pixel_stream_get_next (&srcStream));
+		if (!gdip_pixel_stream_copy_optimized (&destStream, &srcStream)) {
+			while (gdip_pixel_stream_has_next (&srcStream)) {
+				gdip_pixel_stream_set_next (&destStream, gdip_pixel_stream_get_next (&srcStream));
+			}
 		}
 	}
 
