@@ -454,12 +454,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 							BYTE g = rowp[1];
 							BYTE r = rowp[0];
 
-							if (a < 0xff) {
-								r = pre_multiplied_table [r][a];
-								g = pre_multiplied_table [g][a];
-								b = pre_multiplied_table [b][a];
-							}
-
 							set_pixel_bgra (rawptr, 0, b, g, r, a);
 						}
 						rowp += 4;
