@@ -595,9 +595,8 @@ error:
 		gdip_bitmap_dispose (result);
 	}
 
-	FreeExtensionMono(&global_extensions);
-
 	if (gif != NULL) {
+		FreeExtensionMono (&global_extensions);
 		DGifCloseFile (gif);
 	}
 
