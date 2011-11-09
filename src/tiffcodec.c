@@ -219,6 +219,7 @@ gdip_load_tiff_properties (TIFF *tiff, BitmapData *bitmap_data)
 	uint32	rows_per_strip;
 	uint32	tile_length;
 	uint32	tile_width;
+	uint16 compression = 0;
 
 	samples_per_pixel = 0;
 	bits_per_sample = 0;
@@ -269,6 +270,7 @@ gdip_load_tiff_properties (TIFF *tiff, BitmapData *bitmap_data)
 	}
 
 	if (TIFFGetField(tiff, TIFFTAG_COMPRESSION, &s)) {
+		compression = s;
 		gdip_bitmapdata_property_add_short(bitmap_data, PropertyTagCompression, s);
 	}
 
@@ -393,8 +395,10 @@ gdip_load_tiff_properties (TIFF *tiff, BitmapData *bitmap_data)
 		gdip_bitmapdata_property_add_short(bitmap_data, PropertyTagPlanarConfig, planar_configuration);
 	}
 
-	if (TIFFGetField(tiff, TIFFTAG_PREDICTOR, &s)) {
-		gdip_bitmapdata_property_add_short(bitmap_data, PropertyTagPredictor, s);
+	if (compression == COMPRESSION_ADOBE_DEFLATE) {
+		if (TIFFGetField(tiff, TIFFTAG_PREDICTOR, &s)) {
+			gdip_bitmapdata_property_add_short(bitmap_data, PropertyTagPredictor, s);
+		}
 	}
 
 	{
