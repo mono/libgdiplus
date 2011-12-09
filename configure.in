@@ -94,10 +94,6 @@ fi
 GDIPLUS_LIBS="$GDIPLUS_LIBS $FONTCONFIG_LIBS $FREETYPE2_LIBS"
 GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS $FONTCONFIG_CFLAGS $FREETYPE2_CFLAGS"
 
-# Add xrender here so that we don't fail to find glib if we won't have xrender.pc
-GDIPLUS_LIBS="$GDIPLUS_LIBS `pkg-config --libs xrender `"
-GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS `pkg-config --cflags xrender `"
-
 AC_CHECK_HEADERS(byteswap.h)
 
 AC_MSG_CHECKING([host threading settings])
@@ -137,6 +133,7 @@ case "$host" in
 		AC_DEFINE_UNQUOTED(OSX,1,[OS X])
 		CFLAGS="-no-cpp-precomp $CFLAGS"
 		LDFLAGS="-flat_namespace -undefined suppress $LDFLAGS"
+		no_x=yes
 		;;
 
 	*)
@@ -144,6 +141,12 @@ case "$host" in
 		AC_DEFINE_UNQUOTED(OTHEROS,1,[Unknown])
 		;;
 esac
+
+# Add xrender here so that we don't fail to find glib if we won't have xrender.pc
+if test "x$no_x" != "xyes"; then
+   GDIPLUS_LIBS="$GDIPLUS_LIBS `pkg-config --libs xrender `"
+   GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS `pkg-config --cflags xrender `"
+fi
 
 # Apparently for BSD special handling needs to happen
 # See http://archives/neohapsis.com/archives/openbsd/2001-11/2142.html
