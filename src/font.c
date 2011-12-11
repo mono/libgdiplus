@@ -649,6 +649,18 @@ cairo_font_face_t*
 gdip_get_cairo_font_face (GpFont *font)
 {
 	if (!font->cairofnt) {
+#if CAIRO_HAS_QUARTZ_FONT
+		FcPattern *pattern = FcPatternBuild (
+			NULL,
+			FC_FAMILY, FcTypeString,  font->face, 
+			FC_SLANT,  FcTypeInteger, ((font->style & FontStyleItalic) ? FC_SLANT_ITALIC : FC_SLANT_ROMAN), 
+			FC_WEIGHT, FcTypeInteger, ((font->style & FontStyleBold)   ? FC_WEIGHT_BOLD  : FC_WEIGHT_MEDIUM),
+			NULL);
+		
+		font->cairofnt = cairo_ft_font_face_create_for_pattern (pattern);
+		cairo_font_face_reference (font->cairofnt);
+		FcPatternDestroy (pattern);
+#else
 		cairo_surface_t *surface = cairo_image_surface_create_for_data ((BYTE*)NULL, CAIRO_FORMAT_ARGB32, 0, 0, 0);
 		font->cairo = cairo_create (surface);
 
@@ -658,6 +670,8 @@ gdip_get_cairo_font_face (GpFont *font)
 		font->cairofnt = cairo_get_font_face (font->cairo);
 		cairo_font_face_reference (font->cairofnt);
 		cairo_surface_destroy (surface);
+#endif
+
 	}
 	return font->cairofnt;
 }
