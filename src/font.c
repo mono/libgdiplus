@@ -666,7 +666,7 @@ gdip_get_cairo_font_face (GpFont *font)
 
 		cairo_select_font_face (font->cairo, (const char *)font->face,
 			(font->style & FontStyleItalic) ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL,
-			(font->style & FontStyleBold) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
+			(font->style & FontStyleBold)   ? CAIRO_FONT_WEIGHT_BOLD  : CAIRO_FONT_WEIGHT_NORMAL);
 		font->cairofnt = cairo_get_font_face (font->cairo);
 		cairo_font_face_reference (font->cairofnt);
 		cairo_surface_destroy (surface);
