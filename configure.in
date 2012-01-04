@@ -225,8 +225,8 @@ AC_ARG_WITH([libjpeg],
 	[libjpeg_prefix="$withval"], [libjpeg_prefix="${prefix}"])
 
   if test x$with_libjpeg != xno && test -z "$LIBJPEG"; then
-    JPEG_CFLAGS="-I$libjpeg_prefix/include"
-    JPEG_LIBS="-L$libjpeg_prefix/lib"
+    JPEG_CFLAGS="-I${libjpeg_prefix}/include"
+    JPEG_LIBS="-L${libjpeg_prefix}/lib"
     save_cflags=$CFLAGS; CFLAGS=$JPEG_CFLAGS
     save_libs=$LIBS; LIBS=$JPEG_LIBS
     AC_CHECK_LIB(jpeg, jpeg_destroy_decompress,
@@ -245,7 +245,7 @@ AC_ARG_WITH([libjpeg],
         jpeg_ok=no)
       AC_MSG_RESULT($jpeg_ok)
       if test "$jpeg_ok" = yes; then
-        JPEG='jpeg'; LIBJPEG='-L$libjpeg_prefix/lib -ljpeg'
+        JPEG='jpeg'; LIBJPEG='-L${libjpeg_prefix}/lib -ljpeg'
       else
         AC_MSG_WARN(*** JPEG loader will not be built (JPEG header file not found) ***)
       fi
@@ -268,8 +268,8 @@ AC_ARG_WITH([libtiff],
 	[libtiff_prefix="$withval"], [libtiff_prefix="${prefix}"])
 
   if test x$with_libtiff != xno && test -z "$LIBTIFF"; then
-    TIFF_CFLAGS="-I$libjpeg_prefix/include -I$libtiff_prefix/include"
-    TIFF_LIBS="-L$libjpeg_prefix/lib -L$libtiff_prefix/lib"
+    TIFF_CFLAGS="-I${libjpeg_prefix}/include -I${libtiff_prefix}/include"
+    TIFF_LIBS="-L${libjpeg_prefix}/lib -L${libtiff_prefix}/lib"
     save_cflags=$CFLAGS; CFLAGS=$TIFF_CFLAGS
     save_libs=$LIBS; LIBS=$TIFF_LIBS
     AC_CHECK_LIB(tiff, TIFFReadScanline,
@@ -303,8 +303,8 @@ AC_ARG_WITH([libgif],
 	[libgif_prefix="$withval"], [libgif_prefix="${prefix}"])
 
   if test x$with_libgif != xno && test -z "$LIBGIF"; then
-    GIF_CFLAGS="-I$libgif_prefix/include"
-    GIF_LIBS="-L$libgif_prefix/lib"
+    GIF_CFLAGS="-I${libgif_prefix}/include"
+    GIF_LIBS="-L${libgif_prefix}/lib"
     save_cflags=$CFLAGS; CFLAGS=$GIF_CFLAGS
     save_libs=$LIBS; LIBS=$GIF_LIBS
     AC_CHECK_LIB(gif, DGifOpenFileName,
