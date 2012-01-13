@@ -208,8 +208,6 @@ gdip_metafile_graphics_new (GpMetafile *metafile)
 	return result;
 }
 
-#ifdef CAIRO_HAS_XLIB_SURFACE
-
 // coverity[+alloc : arg-*1]
 GpStatus 
 GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
@@ -233,7 +231,8 @@ GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 
 	if (clone->type == gtMemoryBitmap)
 		return GdipGetImageGraphicsContext (clone->image, graphics);
-	
+
+#ifdef CAIRO_HAS_XLIB_SURFACE
 	XGetGeometry (clone->display, clone->drawable, &root,
 		      &x, &y, &w, &h, &border_w, &depth);
 	
@@ -255,6 +254,9 @@ GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 		(*graphics)->display = clone->display;	
 
 	return Ok;
+#endif
+
+	return NotImplemented;
 }
 
 GpStatus
@@ -262,8 +264,6 @@ GdipCreateFromHWND (void *hwnd, GpGraphics **graphics)
 {
 	return NotImplemented;
 }
-
-#endif
 
 #ifdef CAIRO_HAS_QUARTZ_SURFACE
 // coverity[+alloc : arg-*3]
