@@ -397,6 +397,16 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 #ifdef DRAWSTRING_DEBUG
 		printf("[%3d] X: %3d, Y:%3d, '%c'  | ", i, (int)CursorX, (int)CursorY, CleanString[i]>=32 ? CleanString[i] : '?');
 #endif
+		CurrentDetail->PosX=CursorX;
+		CurrentDetail->PosY=CursorY;
+
+		/* Advance cursor */
+		CursorX+=CurrentDetail->Width;
+		if (MaxX<CursorX) {
+			MaxX=CursorX;
+			MaxXatY=CursorY;
+		}
+
 		/* Remember where to wrap next, but only if wrapping allowed */
 		if (((format->formatFlags & StringFormatFlagsNoWrap)==0) && (CurrentDetail->Flags & STRING_DETAIL_BREAK)) {
 			if (CleanString[i] == ' ') {
@@ -418,16 +428,6 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 		/* New line voids any previous wrap point */
 		if (CurrentDetail->Flags & STRING_DETAIL_LINESTART) {
 			WrapPoint=-1;
-		}
-
-		CurrentDetail->PosX=CursorX;
-		CurrentDetail->PosY=CursorY;
-
-		/* Advance cursor */
-		CursorX+=CurrentDetail->Width;
-		if (MaxX<CursorX) {
-			MaxX=CursorX;
-			MaxXatY=CursorY;
 		}
 
 		/* Time for a new line? Go back to last WrapPoint and wrap */
