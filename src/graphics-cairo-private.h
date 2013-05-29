@@ -41,8 +41,14 @@
 
 /*
  * Handling of pens with a width greater than 1 is not identical between GDI+ and Cairo
+ *
+ * On apple pen adjustment is not required or tons of tests senstive to this break.
  */
+#ifdef __APPLE__
+#define gdip_cairo_pen_width_needs_adjustment(pen)	(0)
+#else
 #define gdip_cairo_pen_width_needs_adjustment(pen)	(((int)(pen->width) & 1) == 0)
+#endif
 
 cairo_fill_rule_t gdip_convert_fill_mode (FillMode fill_mode) GDIP_INTERNAL;
 GpStatus gdip_plot_path (GpGraphics *graphics, GpPath *path, BOOL antialiasing) GDIP_INTERNAL;
