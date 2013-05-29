@@ -64,7 +64,7 @@ m4_define([pixman_version],[pixman_major.pixman_minor.pixman_micro])
 AC_INIT(pixman, pixman_version, "sandmann@daimi.au.dk", pixman)
 AM_INIT_AUTOMAKE([dist-bzip2])
 
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 
 AC_PROG_CC
 AC_PROG_LIBTOOL
