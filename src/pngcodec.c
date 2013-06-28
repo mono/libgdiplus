@@ -22,6 +22,7 @@
  *  	Sanjay Gupta (gsanjay@novell.com)
  *	Vladimir Vukicevic <vladimir@pobox.com>
  *      Jonathan Gilbert (logic@deltaq.org)
+ *      Jeremy Reeve <jsr@jsrsolutions.co.nz>
  *
  */
 
@@ -115,12 +116,6 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 	bitmap_data->image_flags |= ImageFlagsHasRealDPI;
 	bitmap_data->dpi_horz = png_get_x_pixels_per_inch(png_ptr, info_ptr);
 	bitmap_data->dpi_vert = png_get_y_pixels_per_inch(png_ptr, info_ptr);
-#elif defined(PNG_pHYs_SUPPORTED)
-	if ((info_ptr->valid & PNG_INFO_pHYs) && (info_ptr->phys_unit_type == PNG_RESOLUTION_METER)) {
-		bitmap_data->image_flags |= ImageFlagsHasRealDPI;
-		bitmap_data->dpi_horz = info_ptr->x_pixels_per_unit * 0.0254;
-		bitmap_data->dpi_vert = info_ptr->y_pixels_per_unit * 0.0254;
-	}
 #endif
 	/* default to screen resolution (if nothing was provided or available) */
 	if (bitmap_data->dpi_horz == 0 || bitmap_data->dpi_vert == 0) {
@@ -130,7 +125,7 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 #if defined(PNG_iCCP_SUPPORTED)
 	{
 		png_charp	name;
-		png_charp	profile;
+		png_bytep	profile;
 		png_uint_32	proflen;
 		int		compression_type;
 
@@ -321,9 +316,9 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			colourspace_flag = ImageFlagsColorSpaceRGB;
 
 			palette_entries = num_colours;
-			if (palette_entries > info_ptr->num_palette) {
-				palette_entries = info_ptr->num_palette;
-			}
+			
+			png_colorp colorp;
+			png_get_PLTE(png_ptr, info_ptr, &colorp, &palette_entries);
 
 			palette = GdipAlloc (sizeof(ColorPalette) + (num_colours - 1) * sizeof(ARGB));
 			palette->Flags = 0;
@@ -331,29 +326,35 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 
 			for (i=0; i < palette_entries; i++) {
 				set_pixel_bgra (&palette->Entries[i], 0,
-						info_ptr->palette[i].blue,
-						info_ptr->palette[i].green,
-						info_ptr->palette[i].red,
+						colorp[i].blue,
+						colorp[i].green,
+						colorp[i].red,
 						0xFF); /* alpha */
 			}
 		}
 
 		/* Make sure transparency is respected. */
-		if (info_ptr->num_trans > 0) {
+		png_bytep trans_alpha = NULL;
+		int num_trans;
+		png_color_16p trans_color = NULL;
+
+		png_get_tRNS(png_ptr, info_ptr, &trans_alpha, &num_trans, &trans_color);
+
+		if (num_trans > 0) {
 			palette->Flags |= PaletteFlagsHasAlpha;
 			colourspace_flag |= ImageFlagsHasAlpha;
 
-			if (info_ptr->num_trans > info_ptr->num_palette) {
-				info_ptr->num_trans = info_ptr->num_palette;
+			if (num_trans > palette_entries) {
+				num_trans = palette_entries;
 			}
 
-			for (i=0; i < info_ptr->num_trans; i++) {
+			for (i=0; i < num_trans; i++) {
 				set_pixel_bgra(&palette->Entries[i], 0,
-						info_ptr->palette[i].blue,
-						info_ptr->palette[i].green,
-						info_ptr->palette[i].red,
+						trans_color[i].blue,
+					       trans_color[i].green,
+						trans_color[i].red,
 #if PNG_LIBPNG_VER > 10399
-						info_ptr->trans_alpha [i]); /* alpha */
+						trans_alpha [i]); /* alpha */
 #else
 						info_ptr->trans[i]); /* alpha */
 #endif
@@ -438,6 +439,11 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 
 		row_pointers = png_get_rows (png_ptr, info_ptr);
 
+		int palette_entries;
+		png_colorp colorp;
+		png_get_PLTE(png_ptr, info_ptr, &colorp, &palette_entries);
+
+
 		rawdata = GdipAlloc (stride * height);
 		rawptr = rawdata;
 
@@ -486,30 +492,30 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 
 							palette = (pix >> 6) & 0x03;
 							set_pixel_bgra (rawptr, 0,
-								info_ptr->palette[palette].blue,
-								info_ptr->palette[palette].green,
-								info_ptr->palette[palette].red,
+								colorp[palette].blue,
+								colorp[palette].green,
+								colorp[palette].red,
 								0xFF); /* alpha */
 
 							palette = (pix >> 4) & 0x03;
 							set_pixel_bgra (rawptr, 4,
-								info_ptr->palette[palette].blue,
-								info_ptr->palette[palette].green,
-								info_ptr->palette[palette].red,
+								colorp[palette].blue,
+								colorp[palette].green,
+								colorp[palette].red,
 								0xFF); /* alpha */
 
 							palette = (pix >> 2) & 0x03;
 							set_pixel_bgra (rawptr, 8,
-								info_ptr->palette[palette].blue,
-								info_ptr->palette[palette].green,
-								info_ptr->palette[palette].red,
+								colorp[palette].blue,
+								colorp[palette].green,
+								colorp[palette].red,
 								0xFF); /* alpha */
 
 							palette = pix & 0x03;
 							set_pixel_bgra (rawptr, 12,
-								info_ptr->palette[palette].blue,
-								info_ptr->palette[palette].green,
-								info_ptr->palette[palette].red,
+								colorp[palette].blue,
+								colorp[palette].green,
+								colorp[palette].red,
 								0xFF); /* alpha */
 							rawptr += 16;
 						}
