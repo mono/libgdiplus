@@ -27,6 +27,8 @@ libgdiplus_la_SOURCES = \
 	fontcollection-private.h	\
 	fontfamily.h			\
 	fontfamily-private.h		\
+	gdi32.h				\
+	gdi32.c				\
 	GdiPlusFlat.h			\
 	gdiplus-private.h		\
 	gdip.h				\
