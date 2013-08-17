@@ -45,7 +45,7 @@ BitBlt (HDC hdcDest, int nXDest, int nYDest, int nWidth, int nHeight, HDC hdcSrc
 	cairo_t *cr = dest->ct;
 	cairo_surface_t *src_surface = cairo_get_target(src->ct);
 
-	cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
 	cairo_set_source_surface (cr, src_surface, nXDest - nXSrc, nYDest - nYSrc);
 	cairo_rectangle (cr, nXDest, nYDest, nWidth, nHeight);
 	cairo_fill (cr);

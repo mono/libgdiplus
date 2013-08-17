@@ -28,7 +28,6 @@
 #ifndef __GDI32_H__
 #define __GDI32_H__
 
-/* Graphics public API (only!) */
 BitBlt (HDC hdcDest, int nXDest, int nYDest, int nWidth, int nHeight, HDC hdcSrc, int nXSrc, int nYSrc, DWORD dwRop);
 
 #endif
