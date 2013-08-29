@@ -26,23 +26,23 @@ dnl ===========================================================================
 # libtool shared library version
 
 # Increment if the interface has additions, changes, removals.
-LT_CURRENT=19
+m4_define(LT_CURRENT, 19)
 
 # Increment any time the source changes; set to
 # 0 if you increment CURRENT
-LT_REVISION=5
+m4_define(LT_REVISION, 5)
 
 # Increment if any interfaces have been added; set to 0
 # if any interfaces have been removed. removal has
 # precedence over adding, so set to 0 if both happened.
-LT_AGE=17
++m4_define(LT_AGE, 17)
 
 dnl ===========================================================================
 
-VERSION_INFO="$LT_CURRENT:$LT_REVISION:$LT_AGE"
+VERSION_INFO="LT_CURRENT():LT_REVISION():LT_AGE()"
 AC_SUBST(VERSION_INFO)
 
-LT_CURRENT_MINUS_AGE=`expr $LT_CURRENT - $LT_AGE`
+LT_CURRENT_MINUS_AGE=m4_eval(LT_CURRENT() - LT_AGE())
 AC_SUBST(LT_CURRENT_MINUS_AGE)
 
 CAIRO_VERSION_MAJOR=cairo_version_major()
