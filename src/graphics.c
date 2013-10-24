@@ -151,8 +151,10 @@ gdip_graphics_common_init (GpGraphics *graphics)
 	graphics->render_origin_y = 0;
 	graphics->dpi_x = graphics->dpi_y = 0;
 
+#ifdef CAIRO_HAS_XLIB_SURFACE
 	graphics->display = NULL;
 	graphics->drawable = NULL;
+#endif
 
 	gdip_graphics_reset (graphics);
 }
@@ -216,7 +218,9 @@ GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 	cairo_surface_t *surface;
 	int x, y;
 	unsigned int w, h, border_w, depth;
+#ifdef CAIRO_HAS_XLIB_SURFACE
 	Window root;
+#endif
 
 	if (!hDC)
 		return OutOfMemory;
