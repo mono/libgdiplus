@@ -391,6 +391,14 @@ AM_CONDITIONAL(HAVE_LIBEXIF, test x$libexif_pkgconfig = xyes)
 
 GDIPLUS_PKG_LIBS="$GDIPLUS_LIBS"
 GDIPLUS_PKG_CFLAGS="$GDIPLUS_CFLAGS"
+
+AC_ARG_ENABLE(tests, [AC_HELP_STRING([--disable-tests],
+			  [ Disable building tests ])],
+			  [disable_tests=yes])
+if test x$disable_tests != xyes ; then
+	TESTS_DIR=tests
+	AC_SUBST(TESTS_DIR)
+fi
  
 AC_SUBST(GDIPLUS_LIBS)
 AC_SUBST(GDIPLUS_CFLAGS)
