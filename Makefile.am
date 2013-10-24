@@ -1,4 +1,4 @@
-SUBDIRS = @CAIRO_DIR@ src tests
+SUBDIRS = @CAIRO_DIR@ src @TESTS_DIR@
 DIST_SUBDIRS = src tests
 
 pkgconfigdir = $(libdir)/pkgconfig
