@@ -19,8 +19,8 @@ fi
 GLIB_REQUIRED_VERSION="2.2.3"
 PKG_CHECK_MODULES(BASE_DEPENDENCIES, glib-2.0 >= $GLIB_REQUIRED_VERSION)
 
-GDIPLUS_LIBS="`pkg-config --libs glib-2.0 `"
-GDIPLUS_CFLAGS="`pkg-config --cflags glib-2.0 `"
+GDIPLUS_LIBS="`$PKG_CONFIG --libs glib-2.0 `"
+GDIPLUS_CFLAGS="`$PKG_CONFIG --cflags glib-2.0 `"
 
 CAIRO_REQUIRED_VERSION="1.6.4"
 PKG_CHECK_MODULES(CAIRO, cairo >= $CAIRO_REQUIRED_VERSION)
@@ -122,8 +122,8 @@ esac
 
 # Add xrender here so that we don't fail to find glib if we won't have xrender.pc
 if test "x$no_x" != "xyes"; then
-   GDIPLUS_LIBS="$GDIPLUS_LIBS `pkg-config --libs xrender `"
-   GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS `pkg-config --cflags xrender `"
+   GDIPLUS_LIBS="$GDIPLUS_LIBS `$PKG_CONFIG --libs xrender `"
+   GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS `$PKG_CONFIG --cflags xrender `"
 fi
 
 # Apparently for BSD special handling needs to happen
@@ -362,15 +362,6 @@ else
 	libexif_pkgconfig="No. You disabled it."
 fi
 AM_CONDITIONAL(HAVE_LIBEXIF, test x$libexif_pkgconfig = xyes)
-
-dnl
-dnl Produce a diagnostic, to reduce support time
-dnl
-AC_TRY_COMPILE([#include <X11/Xlib.h>],
-			 [],[x11_failed=false],[x11_failed=true])
-if $x11_failed; then
-   AC_ERROR("Failed to compile with X11/Xlib.h include.  You must fix your compiler paths")
-fi
 
 GDIPLUS_PKG_LIBS="$GDIPLUS_LIBS"
 GDIPLUS_PKG_CFLAGS="$GDIPLUS_CFLAGS"
