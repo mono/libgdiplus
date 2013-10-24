@@ -389,15 +389,6 @@ else
 fi
 AM_CONDITIONAL(HAVE_LIBEXIF, test x$libexif_pkgconfig = xyes)
 
-dnl
-dnl Produce a diagnostic, to reduce support time
-dnl
-AC_TRY_COMPILE([#include <X11/Xlib.h>],
-			 [],[x11_failed=false],[x11_failed=true])
-if $x11_failed; then
-   AC_ERROR("Failed to compile with X11/Xlib.h include.  You must fix your compiler paths")
-fi
-
 GDIPLUS_PKG_LIBS="$GDIPLUS_LIBS"
 GDIPLUS_PKG_CFLAGS="$GDIPLUS_CFLAGS"
  

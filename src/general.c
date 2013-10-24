@@ -123,7 +123,6 @@ float
 gdip_get_display_dpi ()
 {
 	static float dpis = 0;
-	Display* display;
 
 	if (dpis == 0) {
 #if __APPLE__
@@ -132,7 +131,8 @@ gdip_get_display_dpi ()
 
 		dpis = h_dpi;
 		return dpis;
-#else
+#elif defined(CAIRO_HAS_XLIB_SURFACE)
+		Display* display;
 		char *val;
 
 		display = XOpenDisplay (0);
@@ -148,7 +148,9 @@ gdip_get_display_dpi ()
 		} else {
 			dpis = 96.0f;
 		}
+		return dpis;
 #endif
+		dpis = 96.0f;
 	}
 
 	return dpis;
