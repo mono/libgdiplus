@@ -63,7 +63,9 @@
 	#endif
 #endif
 
+#ifdef CAIRO_HAS_XLIB_SURFACE
 #include <X11/Xlib.h>
+#endif
 
 #include "win32structs.h"
 #include "gdipenums.h"
