@@ -105,8 +105,10 @@ typedef struct _Graphics {
 	cairo_t			*ct;
 	GpMatrix		*copy_of_ctm;
 	cairo_matrix_t		previous_matrix;
+#ifdef CAIRO_HAS_XLIB_SURFACE
 	Display			*display;
 	Drawable		drawable;
+#endif
 	void			*image;
 	int			type; 
 	GpPen*			last_pen;	/* caching pen and brush to avoid unnecessary sets */
