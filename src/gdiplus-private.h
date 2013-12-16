@@ -30,7 +30,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <glib.h>
-#include <freetype/tttables.h>
+#include <ft2build.h>
+#include FT_TRUETYPE_TABLES_H
 #include <pthread.h>
 #include <unistd.h>
 
