@@ -24,6 +24,7 @@
  *	Jeffrey Stedfast <fejj@novell.com>
  */
 
+#include <cairo-features.h>
 #include "gdiplus-private.h"
 #include "font-private.h"
 #include "fontcollection-private.h"
