@@ -60,7 +60,7 @@
 #define gdip_near_one(value)		((value >= 0.9999f) && (value <= 1.0001f))
 
 /* avoid integer overflows when int/float/int conversion are used (see #79643) */
-#define SAFE_FLOAT_TO_UINT32(value)	((value < 0) ? 0 : (value >= G_MAXINT32) ? G_MAXINT32 : value)
+#define SAFE_FLOAT_TO_UINT32(value)    ((value < 0) ? 0 : (value >= G_MAXINT32) ? G_MAXINT32 : (((int)value) < 0 ? G_MAXINT32 : (int)value))
 
 /* avoid fp division and multiplication that would return the same number */
 #define OPTIMIZE_CONVERSION(g)		((g->type != gtPostScript) && ((g->page_unit == UnitPixel) || (g->page_unit == UnitWorld)))
