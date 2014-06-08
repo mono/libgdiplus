@@ -136,7 +136,7 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 #if defined(PNG_iCCP_SUPPORTED)
 	{
 		png_charp	name;
-		png_bytep	profile;
+		png_charp	profile;
 		png_uint_32	proflen;
 		int		compression_type;
 
