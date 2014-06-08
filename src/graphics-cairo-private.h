@@ -42,9 +42,9 @@
 /*
  * Handling of pens with a width greater than 1 is not identical between GDI+ and Cairo
  *
- * On apple pen adjustment is not required or tons of tests senstive to this break.
+ * On cairo >= 1.12 pen adjustment is not required or tons of tests senstive to this break.
  */
-#ifdef __APPLE__
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 12, 0)
 #define gdip_cairo_pen_width_needs_adjustment(pen)	(0)
 #else
 #define gdip_cairo_pen_width_needs_adjustment(pen)	(((int)(pen->width) & 1) == 0)
