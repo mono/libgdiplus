@@ -284,6 +284,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	bit_depth = png_get_bit_depth (png_ptr, info_ptr);
 	channels = png_get_channels (png_ptr, info_ptr);
 	color_type = png_get_color_type (png_ptr, info_ptr);
+	png_get_PLTE( png_ptr, info_ptr, &png_palette, &num_palette );
 
 	/* 2bpp is a special case (promoted to 32bpp ARGB by MS GDI+) */
 	if ((bit_depth <= 8) && (bit_depth != 2) && (channels == 1) && 
@@ -328,7 +329,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			/* Copy the palette data into the GDI+ structure. */
 			colourspace_flag = ImageFlagsColorSpaceRGB;
 
-			png_get_PLTE( png_ptr, info_ptr, &png_palette, &num_palette );
 			palette_entries = num_colours;
 			if (palette_entries > num_palette) {
 				palette_entries = num_palette;
