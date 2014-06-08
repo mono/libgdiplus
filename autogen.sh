@@ -82,7 +82,7 @@ if test "$DIE" -eq 1; then
   exit 1
 fi
 
-if test -z "$*"; then
+if test x$NOCONFIGURE = x && test -z "$*"; then
   echo "**Warning**: I am going to run \`configure' with no arguments."
   echo "If you wish to pass any to it, please specify them on the"
   echo \`$0\'" command line."
@@ -99,7 +99,6 @@ if grep "^AM_PROG_LIBTOOL" configure.ac >/dev/null; then
   if test -z "$NO_LIBTOOLIZE" ; then 
     echo "Running libtoolize..."
     ${LIBTOOL}ize --force --copy
-    #${LIBTOOL}ize --copy
   fi
 fi
 
