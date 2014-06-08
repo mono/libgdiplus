@@ -22,51 +22,22 @@ PKG_CHECK_MODULES(BASE_DEPENDENCIES, glib-2.0 >= $GLIB_REQUIRED_VERSION)
 GDIPLUS_LIBS="`pkg-config --libs glib-2.0 `"
 GDIPLUS_CFLAGS="`pkg-config --cflags glib-2.0 `"
 
-# libgdiplus bundles its own cairo 1.6.4 but if the system cairo is more recent then we use it instead
-CAIRO_BUNDLED_VERSION="1.6.4"
-PKG_CHECK_MODULES(CAIRO, cairo > $CAIRO_BUNDLED_VERSION, [cairo_v=system], [cairo_v=internal])
-
 # Optional use (experimental and unsupported) of Pango's text rendering on top of Cairo
 AC_ARG_WITH(pango, [  --with-pango],[text_v=pango],[text_v=cairo])
 
-if test $cairo_v = "internal"; then
-	# force subdirectories (cairo, specifically) to build their static
-	# libraries using position independent code.
-	ac_configure_args="$ac_configure_args --with-pic=yes"
+CAIRO_DIR=""
+CAIRO_LIBS="`pkg-config --libs cairo `"
+CAIRO_CFLAGS="`pkg-config --cflags cairo `"
+cairo_info="`pkg-config --modversion cairo ` (system)"
+GDIPLUS_PKG_REQ="cairo"
 
-	# disable the PNG, PDF and SVG surface backends of Cairo (unrequired for GDI+)
-# cairo 1.6.4 bug - we can't disable PDF and keep PS backend - reported at https://bugs.freedesktop.org/show_bug.cgi?id=15532
-#	ac_configure_args="$ac_configure_args --disable-png --disable-pdf --disable-svg"
-	ac_configure_args="$ac_configure_args --disable-png --disable-svg"
-# gdiplus mac note; if we have quartz and ft fonts, quartz is the default and gdi+ assumes the latter everywhere, force it out
-# of the internal build
-	ac_configure_args="$ac_configure_args --disable-quartz-font"
-
-	AC_CONFIG_SUBDIRS([pixman cairo])
-	CAIRO_DIR="pixman cairo"
-	CAIRO_LIBS='$(top_builddir)/cairo/src/libcairo.la'
-	CAIRO_CFLAGS='-I$(top_builddir)/pixman/pixman -I$(top_srcdir)/pixman/pixman -I$(top_builddir)/cairo/src -I$(top_srcdir)/cairo/src'
-	cairo_info+="$CAIRO_BUNDLED_VERSION (internal)"
-	AC_DEFINE(USE_INCLUDED_CAIRO,1,[Use Cairo/pixman bundled in libgdiplus])
-
-	if test $text_v = "pango"; then
-		AC_MSG_ERROR("Pango text rendering is only possible with --with-cairo=system")
-	fi
-else
-	CAIRO_DIR=""
-	CAIRO_LIBS="`pkg-config --libs cairo `"
-	CAIRO_CFLAGS="`pkg-config --cflags cairo `"
-	cairo_info="`pkg-config --modversion cairo ` (system)"
-	GDIPLUS_PKG_REQ="cairo"
-
-	if test $text_v = "pango"; then
-		PANGO_REQUIRED_VERSION="1.10"
-		PKG_CHECK_MODULES(PANGO, pango >= $PANGO_REQUIRED_VERSION)
-		PANGO_LIBS="`pkg-config --libs pangocairo `"
-		PANGO_CFLAGS="`pkg-config --cflags pangocairo `"
-		AC_DEFINE(USE_PANGO_RENDERING,1,[Use Pango to measure and draw text (INCOMPLETE and UNSUPPORTED)])
-		GDIPLUS_PKG_REQ="$GDIPLUS_PKG_REQ pangocairo-1.0"
-	fi
+if test $text_v = "pango"; then
+	PANGO_REQUIRED_VERSION="1.10"
+	PKG_CHECK_MODULES(PANGO, pango >= $PANGO_REQUIRED_VERSION)
+	PANGO_LIBS="`pkg-config --libs pangocairo `"
+	PANGO_CFLAGS="`pkg-config --cflags pangocairo `"
+	AC_DEFINE(USE_PANGO_RENDERING,1,[Use Pango to measure and draw text (INCOMPLETE and UNSUPPORTED)])
+	GDIPLUS_PKG_REQ="$GDIPLUS_PKG_REQ pangocairo-1.0"
 fi
 
 GDIPLUS_LIBS="$GDIPLUS_LIBS $CAIRO_LIBS $PANGO_LIBS"
