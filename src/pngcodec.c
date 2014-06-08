@@ -347,6 +347,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			}
 		}
 
+		if (png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS))
 		{
 			png_bytep trans_alpha;
 			int num_trans;
