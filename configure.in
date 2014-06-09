@@ -19,8 +19,8 @@ fi
 GLIB_REQUIRED_VERSION="2.2.3"
 PKG_CHECK_MODULES(BASE_DEPENDENCIES, glib-2.0 >= $GLIB_REQUIRED_VERSION)
 
-GDIPLUS_LIBS="`pkg-config --libs glib-2.0 `"
-GDIPLUS_CFLAGS="`pkg-config --cflags glib-2.0 `"
+GDIPLUS_LIBS="`$PKG_CONFIG --libs glib-2.0 `"
+GDIPLUS_CFLAGS="`$PKG_CONFIG --cflags glib-2.0 `"
 
 # libgdiplus bundles its own cairo 1.6.4 but if the system cairo is more recent then we use it instead
 CAIRO_BUNDLED_VERSION="1.6.4"
@@ -54,16 +54,16 @@ if test $cairo_v = "internal"; then
 	fi
 else
 	CAIRO_DIR=""
-	CAIRO_LIBS="`pkg-config --libs cairo `"
-	CAIRO_CFLAGS="`pkg-config --cflags cairo `"
-	cairo_info="`pkg-config --modversion cairo ` (system)"
+	CAIRO_LIBS="`$PKG_CONFIG --libs cairo `"
+	CAIRO_CFLAGS="`$PKG_CONFIG --cflags cairo `"
+	cairo_info="`$PKG_CONFIG --modversion cairo ` (system)"
 	GDIPLUS_PKG_REQ="cairo"
 
 	if test $text_v = "pango"; then
 		PANGO_REQUIRED_VERSION="1.10"
 		PKG_CHECK_MODULES(PANGO, pango >= $PANGO_REQUIRED_VERSION)
-		PANGO_LIBS="`pkg-config --libs pangocairo `"
-		PANGO_CFLAGS="`pkg-config --cflags pangocairo `"
+		PANGO_LIBS="`$PKG_CONFIG --libs pangocairo `"
+		PANGO_CFLAGS="`$PKG_CONFIG --cflags pangocairo `"
 		AC_DEFINE(USE_PANGO_RENDERING,1,[Use Pango to measure and draw text (INCOMPLETE and UNSUPPORTED)])
 		GDIPLUS_PKG_REQ="$GDIPLUS_PKG_REQ pangocairo-1.0"
 	fi
@@ -148,8 +148,8 @@ esac
 
 # Add xrender here so that we don't fail to find glib if we won't have xrender.pc
 if test "x$no_x" != "xyes"; then
-   GDIPLUS_LIBS="$GDIPLUS_LIBS `pkg-config --libs xrender `"
-   GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS `pkg-config --cflags xrender `"
+   GDIPLUS_LIBS="$GDIPLUS_LIBS `$PKG_CONFIG --libs xrender `"
+   GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS `$PKG_CONFIG --cflags xrender `"
 fi
 
 # Apparently for BSD special handling needs to happen
@@ -389,17 +389,16 @@ else
 fi
 AM_CONDITIONAL(HAVE_LIBEXIF, test x$libexif_pkgconfig = xyes)
 
-dnl
-dnl Produce a diagnostic, to reduce support time
-dnl
-AC_TRY_COMPILE([#include <X11/Xlib.h>],
-			 [],[x11_failed=false],[x11_failed=true])
-if $x11_failed; then
-   AC_ERROR("Failed to compile with X11/Xlib.h include.  You must fix your compiler paths")
-fi
-
 GDIPLUS_PKG_LIBS="$GDIPLUS_LIBS"
 GDIPLUS_PKG_CFLAGS="$GDIPLUS_CFLAGS"
+
+AC_ARG_ENABLE(tests, [AC_HELP_STRING([--disable-tests],
+			  [ Disable building tests ])],
+			  [disable_tests=yes])
+if test x$disable_tests != xyes ; then
+	TESTS_DIR=tests
+	AC_SUBST(TESTS_DIR)
+fi
  
 AC_SUBST(GDIPLUS_LIBS)
 AC_SUBST(GDIPLUS_CFLAGS)
