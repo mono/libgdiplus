@@ -22,6 +22,9 @@ PKG_CHECK_MODULES(BASE_DEPENDENCIES, glib-2.0 >= $GLIB_REQUIRED_VERSION)
 GDIPLUS_LIBS="`pkg-config --libs glib-2.0 `"
 GDIPLUS_CFLAGS="`pkg-config --cflags glib-2.0 `"
 
+CAIRO_REQUIRED_VERSION="1.6.4"
+PKG_CHECK_MODULES(CAIRO, cairo >= $CAIRO_REQUIRED_VERSION)
+
 # Optional use (experimental and unsupported) of Pango's text rendering on top of Cairo
 AC_ARG_WITH(pango, [  --with-pango],[text_v=pango],[text_v=cairo])
 
