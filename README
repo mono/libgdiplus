@@ -6,10 +6,6 @@ Requirements:
 
 	This requires the libraries used by the Cairo vector graphics library
 	to build (freetype2, fontconfig, Xft2 and libpng, basically).
-	See cairo/README. Note that libpixman is included in this package already.
-
-	If the system cairo is newer than the bundled version (1.6.4) provided
-	by libgdiplus then the newer version will be used
 
 To build:
 
@@ -24,8 +20,7 @@ Optional build options [UNSUPPORTED]
 
 	--with-pango
 
-	This build libgdiplus using Pango to render (measure and draw) 
-	all of it's text. This can only be enabled if libgdiplus is built
-	with the *system* cairo and requires Pango version 1.10 (or later).
+	This builds libgdiplus using Pango to render (measure and draw) 
+	all of it's text. This requires Pango version 1.10 (or later).
 
 

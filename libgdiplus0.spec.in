@@ -1,6 +1,4 @@
 %define real_name libgdiplus
-# There may be strange bugs when using the system cairo
-%define system_cairo 0
 
 Name:           libgdiplus0
 Version:        @VERSION@
@@ -15,9 +13,8 @@ Obsoletes:      libgdiplus-devel
 Provides:       libgdiplus-devel
 Obsoletes:      libgdiplus
 Provides:       libgdiplus
-%if %system_cairo
+
 BuildRequires:  cairo-devel >= 1.6.4
-%endif
 BuildRequires:  fontconfig-devel
 BuildRequires:  freetype2-devel
 BuildRequires:  giflib-devel

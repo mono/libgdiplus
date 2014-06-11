@@ -125,30 +125,11 @@ echo "Running autoconf ..."
 autoconf || { echo "**Error**: autoconf failed."; exit 1; }
 
 CONF_OPTIONS=""
-CAIRO_AUTOGEN_REQUIRED=1
 until [ -z "$1" ]
 do
-  if [ "$1" = "--skip-cairo" ]; then
-    echo Skipping internal pixman and cairo ...
-    CAIRO_AUTOGEN_REQUIRED=0
-  fi
   CONF_OPTIONS="$CONF_OPTIONS $1"
   shift
 done
-
-if test "$CAIRO_AUTOGEN_REQUIRED" -eq 1; then
-  if test -d $srcdir/pixman; then
-    echo Running pixman/autogen.sh ...
-    (cd $srcdir/pixman ; NOCONFIGURE=1 ./autogen.sh "$@")
-    echo Done running autogen.sh in pixman...
-  fi
-  if test -d $srcdir/cairo; then
-    echo Running cairo/autogen.sh ...
-     (cd $srcdir/cairo ; NOCONFIGURE=1 ./autogen.sh "$@")
-     echo Done running autogen.sh in cairo...
-  fi
-fi
-
 
 conf_flags="--enable-maintainer-mode --enable-compile-warnings" #--enable-iso-c
 
