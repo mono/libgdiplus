@@ -47,3 +47,9 @@ EXTRA_DIST =			\
 	$(testbits_SOURCES)	\
 	$(testclip_SOURCES)	\
 	$(testreversepath_SOURCES)
+
+TESTS = \
+	testbits \
+	testclip \
+	testreversepath \
+	$(NULL)
