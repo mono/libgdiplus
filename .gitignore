@@ -17,4 +17,8 @@ autom4te.cache/
 config.status
 libtool
 stamp-h1
+test-driver
+compile
+tests/*.trs
+tests/*.log
 
