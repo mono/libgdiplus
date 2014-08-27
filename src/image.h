@@ -88,8 +88,9 @@ GpStatus GdipGetPropertyIdList (GpImage *image, UINT numOfProperty, PROPID *list
 GpStatus GdipGetPropertyItemSize (GpImage *image, PROPID propID, UINT *size);
 GpStatus GdipGetPropertyItem (GpImage *image, PROPID propID, UINT size, PropertyItem *buffer);
 GpStatus GdipGetPropertySize (GpImage *image, UINT *totalBufferSize, UINT *numProperties);
-GpStatus GdipRemoveProperyItem (GpImage *image, PROPID propID);
-GpStatus GdipSetProperyItem (GpImage *image, GDIPCONST PropertyItem *item);
+GpStatus GdipRemovePropertyItem (GpImage *image, PROPID propID);
+GpStatus GdipSetPropertyItem (GpImage *image, GDIPCONST PropertyItem *item);
+GpStatus GdipGetAllPropertyItems (GpImage *image, UINT totalBufferSize, UINT numProperties, PropertyItem *allItems);
 GpStatus GdipCloneImage(GpImage *image, GpImage **cloneImage);
 GpStatus GdipDisposeImage (GpImage *image);
 
