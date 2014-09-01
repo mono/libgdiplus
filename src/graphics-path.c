@@ -1267,15 +1267,14 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 
 /* MonoTODO - same limitations as GdipAddString */
 GpStatus
-__attribute__ ((optimize("-O0"))) GdipAddPathStringI (GpPath *path, GDIPCONST WCHAR *string, int length,
+GdipAddPathStringI (GpPath *path, GDIPCONST WCHAR *string, int length,
 	GDIPCONST GpFontFamily *family, int style, float emSize,
 	GDIPCONST GpRect *layoutRect, GDIPCONST GpStringFormat *format)
 {
 	GpRectF *r = NULL;
+	GpRectF rect;
 
 	if (layoutRect) {
-		GpRectF rect;
-
 		rect.X = layoutRect->X;
 		rect.Y = layoutRect->Y;
 		rect.Width = layoutRect->Width;
