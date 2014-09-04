@@ -1,4 +1,4 @@
-AC_INIT(libgdiplus, [3.6], 
+AC_INIT(libgdiplus, [3.8], 
 	[https://bugzilla.xamarin.com/enter_bug.cgi?product=Class%20Libraries&component=libgdiplus])
 	AC_CONFIG_SRCDIR([README])
 
