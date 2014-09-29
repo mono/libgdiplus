@@ -16,14 +16,19 @@ Provides:       libgdiplus
 
 BuildRequires:  cairo-devel >= 1.6.4
 BuildRequires:  fontconfig-devel
-BuildRequires:  freetype2-devel
 BuildRequires:  giflib-devel
 BuildRequires:  glib2-devel
 BuildRequires:  libexif-devel
 BuildRequires:  libjpeg-devel
 BuildRequires:  libpng-devel
 BuildRequires:  libtiff-devel
+%if 0%{?suse_version}
 BuildRequires:  xorg-x11-libXrender-devel
+BuildRequires:  freetype2-devel
+%else
+BuildRequires:  libXrender-devel
+BuildRequires:  freetype-devel
+%endif
 
 %description
 This is part of the Mono project. It is required when using
