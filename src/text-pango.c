@@ -312,12 +312,18 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 		break;
 	case StringTrimmingEllipsisCharacter:
 		pango_layout_set_ellipsize (layout, PANGO_ELLIPSIZE_END);
+		if (!(fmt->formatFlags & StringFormatFlagsNoWrap))
+			pango_layout_set_height (layout, FrameHeight == 0 ? G_MAXINT32 : FrameHeight * PANGO_SCALE);
 		break;
 	case StringTrimmingEllipsisWord:
 		pango_layout_set_ellipsize (layout, PANGO_ELLIPSIZE_END);
+		if (!(fmt->formatFlags & StringFormatFlagsNoWrap))
+			pango_layout_set_height (layout, FrameHeight == 0 ? G_MAXINT32 : FrameHeight * PANGO_SCALE);
 		break;
 	case StringTrimmingEllipsisPath:
 		pango_layout_set_ellipsize (layout, PANGO_ELLIPSIZE_MIDDLE);
+		if (!(fmt->formatFlags & StringFormatFlagsNoWrap))
+			pango_layout_set_height (layout, FrameHeight == 0 ? G_MAXINT32 : FrameHeight * PANGO_SCALE);
 		break;
 	}
 
