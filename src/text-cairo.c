@@ -708,26 +708,26 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 			boundingBox->Height = MaxY;
 		}
 		if (rc->Width > 0) {
-		  if (boundingBox->Width > rc->Width) {
-			boundingBox->Width = rc->Width;
-		  } else {
-		    if (format->formatFlags & StringFormatFlagsDirectionVertical) {
-		      boundingBox->Y += (rc->Width - boundingBox->Width) / 2;
-		    } else {
-		      boundingBox->X += (rc->Width - boundingBox->Width) / 2;
-		    }
-		  }
+			if (boundingBox->Width > rc->Width) {
+				boundingBox->Width = rc->Width;
+			} else {
+				if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+					boundingBox->Y += (rc->Width - boundingBox->Width) / 2;
+				} else {
+					boundingBox->X += (rc->Width - boundingBox->Width) / 2;
+				}
+			}
 		}
 		if (rc->Height > 0) {
-		  if (boundingBox->Height > rc->Height) {
-			boundingBox->Height = rc->Height;
-		  } else {
-		    if (format->formatFlags & StringFormatFlagsDirectionVertical) {
-		      boundingBox->X += (rc->Height - boundingBox->Height) / 2;
-		    } else {
-		      boundingBox->Y += (rc->Height - boundingBox->Height) / 2;
-		    }
-		  }
+			if (boundingBox->Height > rc->Height) {
+				boundingBox->Height = rc->Height;
+			} else {
+				if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+					boundingBox->X += (rc->Height - boundingBox->Height) / 2;
+				} else {
+					boundingBox->Y += (rc->Height - boundingBox->Height) / 2;
+				}
+			}
 		}
 
 		/* avoid conversion computations if possible */
@@ -760,69 +760,69 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 	}
 	
 	if (AlignHorz != StringAlignmentNear || AlignVert != StringAlignmentNear) {
-	  // Update alignment
-	  int length = 0;
-	  int current_line_length = 0;
-	  for (i = 0; i < StringLen; i++) {
-	    if (i == current_line_length) {
-	      length = StringDetails[i].LineLen;
-	      current_line_length = min (length + i, StringLen);
-	    }
-	    
-	    if ((format->formatFlags & StringFormatFlagsDirectionVertical) == 0) {
-	      switch (AlignHorz) {
-		case StringAlignmentNear:
-		  break;
-		case StringAlignmentCenter:
-		  if ((current_line_length == 1) || (StringDetails [current_line_length-1].PosX > 0)) {
-		    StringDetails[i].PosX += (rc->Width - StringDetails [current_line_length-1].PosX - 
-					  StringDetails [current_line_length-1].Width) / 2;
-		  }
-		  break;
-		case StringAlignmentFar:
-		  StringDetails[i].PosX += rc->Width - StringDetails [current_line_length-1].PosX - 
-					StringDetails [current_line_length-1].Width;
-		  break;
-	      }
-	      
-	      switch (AlignVert) {
-		case StringAlignmentNear:
-		  break;
-		case StringAlignmentCenter:
-		  StringDetails[i].PosY += (rc->Height - MaxY) / 2;
-		  break;
-		case StringAlignmentFar:
-		  StringDetails[i].PosY += rc->Height - MaxY;
-		break;
-	      }
-	    } else {
-	      switch (AlignVert) {
-		case StringAlignmentNear:
-		  break;
-		case StringAlignmentCenter:
-		  if ((current_line_length == 1) || (StringDetails [current_line_length-1].PosX > 0)) {
-		    StringDetails[i].PosX += (rc->Height - StringDetails [current_line_length-1].PosX - 
-					  StringDetails [current_line_length-1].Width) / 2;
-		  }
-		  break;
-		case StringAlignmentFar:
-		  StringDetails[i].PosX += rc->Height - StringDetails [current_line_length-1].PosX - 
-					StringDetails [current_line_length-1].Width;
-		  break;
-	      }
-	      
-	      switch (AlignHorz) {
-		case StringAlignmentNear:
-		  break;
-		case StringAlignmentCenter:
-		  StringDetails[i].PosY += (rc->Width - MaxY) / 2;
-		  break;
-		case StringAlignmentFar:
-		  StringDetails[i].PosY += rc->Width - MaxY;
-		break;
-	      }
-	    }
-	  }
+		// Update alignment
+		int length = 0;
+		int current_line_length = 0;
+		for (i = 0; i < StringLen; i++) {
+			if (i == current_line_length) {
+				length = StringDetails[i].LineLen;
+				current_line_length = min(length + i, StringLen);
+			}
+
+			if ((format->formatFlags & StringFormatFlagsDirectionVertical) == 0) {
+				switch (AlignHorz) {
+					case StringAlignmentNear:
+						break;
+					case StringAlignmentCenter:
+						if ((current_line_length == 1) || (StringDetails [current_line_length - 1].PosX > 0)) {
+							StringDetails[i].PosX += (rc->Width - StringDetails [current_line_length - 1].PosX -
+								StringDetails [current_line_length - 1].Width) / 2;
+						}
+						break;
+					case StringAlignmentFar:
+						StringDetails[i].PosX += rc->Width - StringDetails [current_line_length - 1].PosX -
+							StringDetails [current_line_length - 1].Width;
+						break;
+				}
+
+				switch (AlignVert) {
+					case StringAlignmentNear:
+						break;
+					case StringAlignmentCenter:
+						StringDetails[i].PosY += (rc->Height - MaxY) / 2;
+						break;
+					case StringAlignmentFar:
+						StringDetails[i].PosY += rc->Height - MaxY;
+						break;
+				}
+			} else {
+				switch (AlignVert) {
+					case StringAlignmentNear:
+						break;
+					case StringAlignmentCenter:
+						if ((current_line_length == 1) || (StringDetails [current_line_length - 1].PosX > 0)) {
+							StringDetails[i].PosX += (rc->Height - StringDetails [current_line_length - 1].PosX -
+								StringDetails [current_line_length - 1].Width) / 2;
+						}
+						break;
+					case StringAlignmentFar:
+						StringDetails[i].PosX += rc->Height - StringDetails [current_line_length - 1].PosX -
+							StringDetails [current_line_length - 1].Width;
+						break;
+				}
+
+				switch (AlignHorz) {
+					case StringAlignmentNear:
+						break;
+					case StringAlignmentCenter:
+						StringDetails[i].PosY += (rc->Width - MaxY) / 2;
+						break;
+					case StringAlignmentFar:
+						StringDetails[i].PosY += rc->Width - MaxY;
+						break;
+				}
+			}
+		}
 	}
 
 	/* if asked, supply extra data to be reused when drawing the same string */
@@ -1171,27 +1171,29 @@ cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 	
 	j = 0; // index in StringDetails
 	for (i = 0; i < length; i++) {
-	  switch(stringUnicode[i]) {
-	    case '\r': /* CR */
-	    case '\t': /* Tab */
-	    case '\n': /* LF */
-	    {
-	      index_matching[i] = -1; // not present in StringDetails
-	      break;
-	    }
-	    
-	    case '&': {
-	      if (format->hotkeyPrefix != HotkeyPrefixNone && (StringDetails[j].Flags & STRING_DETAIL_HOTKEY)) {
-		// Not present, because it is a hotkey
-		index_matching[i] = -1;
-		break;
-	      } // else fall through to default
-	    }
-	    
-	    default: {
-	      index_matching[i] = j++;
-	    }
-	  }
+		switch (stringUnicode[i]) {
+			case '\r': /* CR */
+			case '\t': /* Tab */
+			case '\n': /* LF */
+			{
+				index_matching[i] = -1; // not present in StringDetails
+				break;
+			}
+
+			case '&':
+			{
+				if (format->hotkeyPrefix != HotkeyPrefixNone && (StringDetails[j].Flags & STRING_DETAIL_HOTKEY)) {
+					// Not present, because it is a hotkey
+					index_matching[i] = -1;
+					break;
+				} // else fall through to default
+			}
+
+			default:
+			{
+				index_matching[i] = j++;
+			}
+		}
 	}
 
 	/* Create a region for every char range */
@@ -1219,20 +1221,8 @@ cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 
 		/* calculate the regions */
 		for (j = start; j < end; j++) {
-
-			/* the prefix char (&) always count - even if we are not actually print it as a char
-			 *TODO: So do all the other characters that get removed when cleaning the string, and so do the ones before start. */
-			//if ((StringDetails[j].Flags & STRING_DETAIL_HOTKEY) && (format->hotkeyPrefix != HotkeyPrefixNone)) {
-			//	end--; /* '&' count as invisible char */
-			//	continue;
-			//}
-			
 			if (index_matching[j] == -1)
-			  continue;
-
-			/* workaround the fact that current implementation thinks LF is on the next line */
-			//if ((j == end - 1) && (StringDetails[j].Flags & STRING_DETAIL_LF))
-			//	continue;
+				continue;
 
 			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
 				charRect.X = layoutRect->X + StringDetails [index_matching[j]].PosY;

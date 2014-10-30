@@ -598,15 +598,15 @@ gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest,
 	g_warning ("\n\t\tClrImportant: %d", lpBitsInfo->bmiHeader.biClrImportant);
 #endif
 	ms.ptr = (BYTE*)lpBitsInfo;
-        if (lpBitsInfo->bmiHeader.biCompression == 0) { // 0 == RGB 
-            // Per the spec, if compression is RGB ImageSize must be ignored (and it should be zero anyway) and calculated according to the following formula.
-            ms.size = (((lpBitsInfo->bmiHeader.biWidth * lpBitsInfo->bmiHeader.biPlanes * 
-                    lpBitsInfo->bmiHeader.biBitCount + 31) & ~31) / 8) * abs(lpBitsInfo->bmiHeader.biHeight);
-        } else {
-            ms.size = lpBitsInfo->bmiHeader.biSizeImage;
-        }
+	if (lpBitsInfo->bmiHeader.biCompression == 0) { // 0 == RGB 
+		// Per the spec, if compression is RGB ImageSize must be ignored (and it should be zero anyway) and calculated according to the following formula.
+		ms.size = (((lpBitsInfo->bmiHeader.biWidth * lpBitsInfo->bmiHeader.biPlanes * 
+			lpBitsInfo->bmiHeader.biBitCount + 31) & ~31) / 8) * abs(lpBitsInfo->bmiHeader.biHeight);
+	} else {
+		ms.size = lpBitsInfo->bmiHeader.biSizeImage;
+	}
 	ms.pos = 0;
-        status = gdip_read_bmp_image (&ms, &image, Memory);
+	status = gdip_read_bmp_image (&ms, &image, Memory);
 	if (status == Ok) {
 		status = GdipDrawImageRectRect (context->graphics, image, XDest, YDest,
 			nDestWidth, nDestHeight, XSrc, YSrc, nSrcWidth, nSrcHeight, UnitPixel, NULL, NULL, NULL);
@@ -936,8 +936,8 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 	/* metafiles always render as 32bppRgb */
 	int stride = width * 4;
 	int size = height * stride;
-        float scaleX = (float) width / (float) metafile->metafile_header.Width;
-        float scaleY = (float) height / (float) metafile->metafile_header.Height;
+	float scaleX = (float) width / (float) metafile->metafile_header.Width;
+	float scaleY = (float) height / (float) metafile->metafile_header.Height;
 
 	if (!metafile || !graphics)
 		return NULL;
@@ -961,11 +961,11 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 	context->width = width;
 	context->height = height;
 	/* and keep an adjusted copy for providing "resets" */
-        
+	
 	GdipScaleWorldTransform (graphics, scaleX, scaleY, MatrixOrderPrepend);
-        GdipTranslateWorldTransform (graphics, -metafile->metafile_header.X + x / scaleX,
-                -metafile->metafile_header.Y + y / scaleY, MatrixOrderPrepend);
-        GdipGetWorldTransform (graphics, &context->matrix);
+	GdipTranslateWorldTransform (graphics, -metafile->metafile_header.X + x / scaleX,
+		-metafile->metafile_header.Y + y / scaleY, MatrixOrderPrepend);
+	GdipGetWorldTransform (graphics, &context->matrix);
 
 	/* defaults */
 	context->fill_mode = FillModeAlternate;

@@ -360,21 +360,21 @@ gdip_metafile_play_wmf (MetafilePlayContext *context)
 				GETS(WP6), GETS(WP5), GETS(WP4), bits, bmi, GETW(WP3), GETDW(WP1));
 			break;
 		}
-                case METAFILE_RECORD_DIBSTRETCHBLT: {
-                        WMF_CHECK_PARAMS(12);
+		case METAFILE_RECORD_DIBSTRETCHBLT: {
+			WMF_CHECK_PARAMS(12);
 			BITMAPINFO *bmi = (BITMAPINFO*) (data + 13 * sizeof (WORD));
 			void* bits = (void*) (bmi + GETDW(WP11));
 			status = gdip_metafile_StretchDIBits (context, GETS(WP10), GETS(WP9), GETS(WP8), GETS(WP7), GETS(WP6), 
 				GETS(WP5), GETS(WP4), GETS(WP3), bits, bmi, 0, GETDW(WP1));
 			break;
-                }
+		}
 		default:
 			/* unprocessed records, ignore the data */
 			/* 3 for size (DWORD) == 2 * SHORT + function == 1 SHORT */
 #ifdef DEBUG_WMF
 			g_warning ("Unimplemented_%X (", func);
 			for (j = 0; j < params; j++) {
-				//g_warning (" %d", GetParam (j, data));
+				g_warning (" %d", GetParam (j, data));
 			}
 			g_warning (" )");
 #endif

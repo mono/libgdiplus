@@ -806,8 +806,8 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		 /* bit count mismatch */
 		goto error;
 	}
-        
-        status = InvalidParameter;
+	
+	status = InvalidParameter;
 
 	/* for 16bbp images we need to be more precise */
 	if (format == PixelFormat16bppRGB565) {
