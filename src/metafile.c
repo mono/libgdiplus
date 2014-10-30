@@ -33,7 +33,7 @@ GpStatus
 gdip_metafile_SaveDC (MetafilePlayContext *context)
 {
 #ifdef DEBUG_METAFILE
-	printf ("SaveDC");
+	g_warning ("SaveDC");
 #endif
 	/* TODO */
 	return Ok;
@@ -44,7 +44,7 @@ GpStatus
 gdip_metafile_SetBkMode (MetafilePlayContext *context, DWORD bkMode)
 {
 #ifdef DEBUG_METAFILE
-	printf ("SetBkMode %d", bkMode);
+	g_warning ("SetBkMode %d", bkMode);
 #endif
 	/* TODO - currently unused elsewhere */
 	context->bk_mode = bkMode;
@@ -58,7 +58,7 @@ gdip_metafile_SetMapMode (MetafilePlayContext *context, DWORD mode)
 	GpStatus status;
 	float scale;
 #ifdef DEBUG_METAFILE
-	printf ("SetMapMode %d", mode);
+	g_warning ("SetMapMode %d", mode);
 #endif
 	context->map_mode = mode;
 
@@ -99,7 +99,7 @@ gdip_metafile_SetMapMode (MetafilePlayContext *context, DWORD mode)
 	GdipSetWorldTransform (context->graphics, &context->matrix);
 	status = GdipScaleWorldTransform (context->graphics, scale, scale, MatrixOrderPrepend);
 #ifdef DEBUG_METAFILE_2
-	printf ("\n\tGdipScaleWorldTransform sx %g, sy %g (status %d)", scale, scale, status);
+	g_warning ("\n\tGdipScaleWorldTransform sx %g, sy %g (status %d)", scale, scale, status);
 #endif
 	return status;
 }
@@ -109,7 +109,7 @@ GpStatus
 gdip_metafile_SetROP2 (MetafilePlayContext *context, DWORD rop)
 {
 #ifdef DEBUG_METAFILE
-	printf ("SetROP2 %d", rop);
+	g_warning ("SetROP2 %d", rop);
 #endif
 	/* TODO */
 	return Ok;
@@ -120,7 +120,7 @@ GpStatus
 gdip_metafile_SetRelabs (MetafilePlayContext *context, DWORD mode)
 {
 #ifdef DEBUG_METAFILE
-	printf ("SetRelabs %d", mode);
+	g_warning ("SetRelabs %d", mode);
 #endif
 	/* TODO */
 	return Ok;
@@ -131,7 +131,7 @@ GpStatus
 gdip_metafile_SetPolyFillMode (MetafilePlayContext *context, DWORD fillmode)
 {
 #ifdef DEBUG_METAFILE
-	printf ("SetPolyFillMode %d", fillmode);
+	g_warning ("SetPolyFillMode %d", fillmode);
 #endif
 	switch (fillmode) {
 	case WINDING:
@@ -152,7 +152,7 @@ GpStatus
 gdip_metafile_SetStretchBltMode (MetafilePlayContext *context, int iStretchMode)
 {
 #ifdef DEBUG_METAFILE
-	printf ("SetStretchBltMode %d", iStretchMode);
+	g_warning ("SetStretchBltMode %d", iStretchMode);
 #endif
 	/* TODO */
 	return Ok;
@@ -163,7 +163,7 @@ GpStatus
 gdip_metafile_RestoreDC (MetafilePlayContext *context)
 {
 #ifdef DEBUG_METAFILE
-	printf ("RestoreDC");
+	g_warning ("RestoreDC");
 #endif
 	/* TODO */
 	return Ok;
@@ -176,7 +176,7 @@ gdip_metafile_SelectObject (MetafilePlayContext *context, DWORD slot)
 	// EMF have some stock objects that do not requires creation
 	if (slot & ENHMETA_STOCK_OBJECT) {
 #ifdef DEBUG_METAFILE
-		printf ("SelectObject stock #%X", slot);
+		g_warning ("SelectObject stock #%X", slot);
 #endif
 		switch (slot - ENHMETA_STOCK_OBJECT) {
 		case WHITE_BRUSH:
@@ -210,7 +210,7 @@ gdip_metafile_SelectObject (MetafilePlayContext *context, DWORD slot)
 	}
 
 #ifdef DEBUG_METAFILE
-	printf ("SelectObject %d (out of %d slots)", slot, context->objects_count);
+	g_warning ("SelectObject %d (out of %d slots)", slot, context->objects_count);
 #endif
 	if (slot >= context->objects_count) {
 		g_warning ("SelectObject %d, invalid slot number.", slot);
@@ -287,7 +287,7 @@ GpStatus
 gdip_metafile_SetTextAlign (MetafilePlayContext *context, DWORD textalign)
 {
 #ifdef DEBUG_METAFILE
-	printf ("SetTextAlign %d", textalign);
+	g_warning ("SetTextAlign %d", textalign);
 #endif
 	/* TODO */
 	return Ok;
@@ -319,7 +319,7 @@ gdip_metafile_DeleteObject (MetafilePlayContext *context, DWORD slot)
 	}
 
 #ifdef DEBUG_METAFILE
-	printf ("DeleteObject %d (type %d, ptr %p, status %d)", slot, obj->type, obj->ptr, status);
+	g_warning ("DeleteObject %d (type %d, ptr %p, status %d)", slot, obj->type, obj->ptr, status);
 #endif
 	obj->type = METAOBJECT_TYPE_EMPTY;
 	obj->ptr = NULL;
@@ -331,7 +331,7 @@ GpStatus
 gdip_metafile_SetBkColor (MetafilePlayContext *context, DWORD color)
 {
 #ifdef DEBUG_METAFILE
-	printf ("SetBkColor %X", color);
+	g_warning ("SetBkColor %X", color);
 #endif
 	/* TODO - currently unused elsewhere */
 	context->bk_color = color;
@@ -343,7 +343,7 @@ GpStatus
 gdip_metafile_SetWindowOrg (MetafilePlayContext *context, int x, int y)
 {
 #ifdef DEBUG_METAFILE
-	printf ("SetWindowOrg X: %d, Y: %d", x, y);
+	g_warning ("SetWindowOrg X: %d, Y: %d", x, y);
 #endif
 	/* TODO */
 	return Ok;
@@ -357,7 +357,7 @@ gdip_metafile_SetWindowExt (MetafilePlayContext *context, int height, int width)
 	float sx, sy;
 
 #ifdef DEBUG_METAFILE
-	printf ("SetWindowExt height %d, width %d", height, width);
+	g_warning ("SetWindowExt height %d, width %d", height, width);
 #endif
 	switch (context->map_mode) {
 	case MM_ISOTROPIC:
@@ -380,7 +380,7 @@ gdip_metafile_SetWindowExt (MetafilePlayContext *context, int height, int width)
 	GdipSetWorldTransform (context->graphics, &context->matrix);
 	status = GdipScaleWorldTransform (context->graphics, sx, sy, MatrixOrderPrepend);
 #ifdef DEBUG_METAFILE_2
-	printf ("\n\tGdipScaleWorldTransform sx %g, sy %g (status %d)", sx, sy, status);
+	g_warning ("\n\tGdipScaleWorldTransform sx %g, sy %g (status %d)", sx, sy, status);
 #endif
 	return status;
 }
@@ -391,7 +391,7 @@ gdip_metafile_LineTo (MetafilePlayContext *context, int x, int y)
 {
 	GpStatus status;
 #ifdef DEBUG_METAFILE
-	printf ("LineTo %s%d, %d", context->use_path ? "Path " : " ", x, y);
+	g_warning ("LineTo %s%d, %d", context->use_path ? "Path " : " ", x, y);
 #endif
 	if (context->use_path) {
 		status = GdipAddPathLine (context->path, context->current_x, context->current_y, x, y);
@@ -409,7 +409,7 @@ GpStatus
 gdip_metafile_MoveTo (MetafilePlayContext *context, int x, int y)
 {
 #ifdef DEBUG_METAFILE
-	printf ("MoveTo X: %d, Y: %d", x, y);
+	g_warning ("MoveTo X: %d, Y: %d", x, y);
 #endif
 	/* seems to always be called before Arc but, according to documentation, 
 	   Arc doesn't depend on the current cursor position */
@@ -439,7 +439,7 @@ gdip_metafile_CreatePenIndirect (MetafilePlayContext *context, DWORD style, DWOR
 	int s = style & PS_STYLE_MASK;
 
 #ifdef DEBUG_METAFILE
-	printf ("CreatePenIndirect style %d, width %d, color %X", style, width, color);
+	g_warning ("CreatePenIndirect style %d, width %d, color %X", style, width, color);
 #endif
 	if (s == PS_NULL)
 		color &= 0x00FFFFFF;
@@ -548,7 +548,7 @@ gdip_metafile_CreateBrushIndirect (MetafilePlayContext *context, DWORD style, DW
 	}
 
 #ifdef DEBUG_METAFILE
-	printf ("CreateBrushIndirect style %d, color %X, hatch %d (%p, status %d)", style, color, hatch, brush, status);
+	g_warning ("CreateBrushIndirect style %d, color %X, hatch %d (%p, status %d)", style, color, hatch, brush, status);
 #endif
 	context->created.type = METAOBJECT_TYPE_BRUSH;
 	context->created.ptr = brush;
@@ -561,11 +561,11 @@ gdip_metafile_Arc (MetafilePlayContext *context, int left, int top, int right, i
 	int xstart, int ystart, int xend, int yend)
 {
 #ifdef DEBUG_METAFILE
-	printf ("Arc left %d, top %d, right %d, bottom %d, xstart %d, ystart %d, xend %d, yend %d", 
+	g_warning ("Arc left %d, top %d, right %d, bottom %d, xstart %d, ystart %d, xend %d, yend %d", 
 		left, top, right, bottom, xstart, ystart, xend, yend);
 #endif
 	/* don't draw if the bounds are empty (width or height) */
-	if ((right - left <= 0) || (bottom = top <= 0))
+	if ((right - left <= 0) || (bottom - top <= 0))
 		return Ok;
 	return GdipDrawArc (context->graphics, gdip_metafile_GetSelectedPen (context), left, top, 
 		(right - left), (bottom - top), atan2 (ystart, xstart), atan2 (yend, xend));
@@ -582,28 +582,34 @@ gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest,
 	GpImage *image = NULL;
 	MemorySource ms;
 #ifdef DEBUG_METAFILE
-	printf ("StretchDIBits\n\t[XDest %d, YDest %d, nDestWidth %d, nDestHeight %d]", XDest, YDest, nDestWidth, nDestHeight);
-	printf ("\n\t[XSrc %d, YSrc %d, nSrcWidth %d, nSrcHeight %d]", XSrc, YSrc, nSrcWidth, nSrcHeight);
-	printf ("\n\tlpBits %p, lpBitsInfo %p, iUsage %d, dwRop %d", lpBits, lpBitsInfo, iUsage, dwRop);
-	printf ("\n\tBITMAPINFO\n\t\tSize: %d", lpBitsInfo->bmiHeader.biSize);
-	printf ("\n\t\tWidth: %d", lpBitsInfo->bmiHeader.biWidth);
-	printf ("\n\t\tHeight: %d", lpBitsInfo->bmiHeader.biHeight);
-	printf ("\n\t\tPlanes: %d", lpBitsInfo->bmiHeader.biPlanes);
-	printf ("\n\t\tBitCount: %d", lpBitsInfo->bmiHeader.biBitCount);
-	printf ("\n\t\tCompression: %d", lpBitsInfo->bmiHeader.biCompression);
-	printf ("\n\t\tSizeImage: %d", lpBitsInfo->bmiHeader.biSizeImage);
-	printf ("\n\t\tXPelsPerMeter: %d", lpBitsInfo->bmiHeader.biXPelsPerMeter);
-	printf ("\n\t\tYPelsPerMeter: %d", lpBitsInfo->bmiHeader.biXPelsPerMeter);
-	printf ("\n\t\tClrUsed: %d", lpBitsInfo->bmiHeader.biClrUsed);
-	printf ("\n\t\tClrImportant: %d", lpBitsInfo->bmiHeader.biClrImportant);
+	g_warning ("StretchDIBits\n\t[XDest %d, YDest %d, nDestWidth %d, nDestHeight %d]", XDest, YDest, nDestWidth, nDestHeight);
+	g_warning ("\n\t[XSrc %d, YSrc %d, nSrcWidth %d, nSrcHeight %d]", XSrc, YSrc, nSrcWidth, nSrcHeight);
+	g_warning ("\n\tlpBits %p, lpBitsInfo %p, iUsage %d, dwRop %d", lpBits, lpBitsInfo, iUsage, dwRop);
+	g_warning ("\n\tBITMAPINFO\n\t\tSize: %d", lpBitsInfo->bmiHeader.biSize);
+	g_warning ("\n\t\tWidth: %d", lpBitsInfo->bmiHeader.biWidth);
+	g_warning ("\n\t\tHeight: %d", lpBitsInfo->bmiHeader.biHeight);
+	g_warning ("\n\t\tPlanes: %d", lpBitsInfo->bmiHeader.biPlanes);
+	g_warning ("\n\t\tBitCount: %d", lpBitsInfo->bmiHeader.biBitCount);
+	g_warning ("\n\t\tCompression: %d", lpBitsInfo->bmiHeader.biCompression);
+	g_warning ("\n\t\tSizeImage: %d", lpBitsInfo->bmiHeader.biSizeImage);
+	g_warning ("\n\t\tXPelsPerMeter: %d", lpBitsInfo->bmiHeader.biXPelsPerMeter);
+	g_warning ("\n\t\tYPelsPerMeter: %d", lpBitsInfo->bmiHeader.biXPelsPerMeter);
+	g_warning ("\n\t\tClrUsed: %d", lpBitsInfo->bmiHeader.biClrUsed);
+	g_warning ("\n\t\tClrImportant: %d", lpBitsInfo->bmiHeader.biClrImportant);
 #endif
 	ms.ptr = (BYTE*)lpBitsInfo;
-	ms.size = lpBitsInfo->bmiHeader.biSizeImage;
+        if (lpBitsInfo->bmiHeader.biCompression == 0) { // 0 == RGB 
+            // Per the spec, if compression is RGB ImageSize must be ignored (and it should be zero anyway) and calculated according to the following formula.
+            ms.size = (((lpBitsInfo->bmiHeader.biWidth * lpBitsInfo->bmiHeader.biPlanes * 
+                    lpBitsInfo->bmiHeader.biBitCount + 31) & ~31) / 8) * abs(lpBitsInfo->bmiHeader.biHeight);
+        } else {
+            ms.size = lpBitsInfo->bmiHeader.biSizeImage;
+        }
 	ms.pos = 0;
-	status = gdip_read_bmp_image (&ms, &image, Memory);
+        status = gdip_read_bmp_image (&ms, &image, Memory);
 	if (status == Ok) {
-		status = GdipDrawImageRectRect (context->graphics, image, context->x + XDest, context->y + YDest,
-			context->width, context->height, XSrc, YSrc, nSrcWidth, nSrcHeight, UnitPixel, NULL, NULL, NULL);
+		status = GdipDrawImageRectRect (context->graphics, image, XDest, YDest,
+			nDestWidth, nDestHeight, XSrc, YSrc, nSrcWidth, nSrcHeight, UnitPixel, NULL, NULL, NULL);
 	}
 	if (image)
 		GdipDisposeImage (image);
@@ -657,7 +663,7 @@ gdip_metafile_GetSelectedPen (MetafilePlayContext *context)
 			return NULL;
 		}
 #ifdef DEBUG_METAFILE
-		printf ("\tusing pen #%d (%p)", context->selected_pen, context->objects [context->selected_pen].ptr);
+		g_warning ("\tusing pen #%d (%p)", context->selected_pen, context->objects [context->selected_pen].ptr);
 #endif
 		pen = (GpPen*) context->objects [context->selected_pen].ptr;
 	}
@@ -729,7 +735,7 @@ gdip_metafile_GetSelectedBrush (MetafilePlayContext *context)
 	}
 
 #ifdef DEBUG_METAFILE
-	printf ("\tusing brush #%d (%p)", context->selected_brush, context->objects [context->selected_brush].ptr);
+	g_warning ("\tusing brush #%d (%p)", context->selected_brush, context->objects [context->selected_brush].ptr);
 #endif
 	return (GpBrush*) context->objects [context->selected_brush].ptr;
 }
@@ -739,7 +745,7 @@ gdip_metafile_PolyBezier (MetafilePlayContext *context, GpPointF *points, int co
 {
 	GpStatus status;
 #ifdef DEBUG_METAFILE
-	printf ("PolyBezier %s count %d", context->use_path ? "Path " : " ", count);
+	g_warning ("PolyBezier %s count %d", context->use_path ? "Path " : " ", count);
 #endif
 	if (context->use_path) {
 		status = GdipAddPathBeziers (context->path, points, count);
@@ -754,7 +760,7 @@ GpStatus
 gdip_metafile_Polygon (MetafilePlayContext *context, GpPointF *points, int count)
 {
 #ifdef DEBUG_METAFILE
-	printf ("Polygon %s count %d", context->use_path ? "Path " : " ", count);
+	g_warning ("Polygon %s count %d", context->use_path ? "Path " : " ", count);
 #endif
 	GpBrush *brush = gdip_metafile_GetSelectedBrush (context);
 	GpStatus status = GdipFillPolygon (context->graphics, brush, points, count, context->fill_mode);
@@ -777,7 +783,7 @@ gdip_metafile_BeginPath (MetafilePlayContext *context)
 	context->use_path = TRUE;
 	status = GdipCreatePath (0, &context->path);
 #ifdef DEBUG_METAFILE
-	printf ("BeginPath %p", context->path);
+	g_warning ("BeginPath %p", context->path);
 #endif
 	return status;
 }
@@ -786,7 +792,7 @@ GpStatus
 gdip_metafile_EndPath (MetafilePlayContext *context)
 {
 #ifdef DEBUG_METAFILE
-	printf ("EndPath %p", context->path);
+	g_warning ("EndPath %p", context->path);
 #endif
 	context->use_path = FALSE;
 	return Ok;
@@ -796,7 +802,7 @@ GpStatus
 gdip_metafile_CloseFigure (MetafilePlayContext *context)
 {
 #ifdef DEBUG_METAFILE
-	printf ("CloseFigure %p", context->path);
+	g_warning ("CloseFigure %p", context->path);
 #endif
 	return GdipClosePathFigures (context->path);
 }
@@ -805,7 +811,7 @@ GpStatus
 gdip_metafile_FillPath (MetafilePlayContext *context)
 {
 #ifdef DEBUG_METAFILE
-	printf ("FillPath %p", context->path);
+	g_warning ("FillPath %p", context->path);
 #endif
 	GpBrush* brush = gdip_metafile_GetSelectedBrush (context);
 	/* end path if required */
@@ -818,7 +824,7 @@ GpStatus
 gdip_metafile_StrokePath (MetafilePlayContext *context)
 {
 #ifdef DEBUG_METAFILE
-	printf ("StrokePath %p", context->path);
+	g_warning ("StrokePath %p", context->path);
 #endif
 	GpPen *pen = gdip_metafile_GetSelectedPen (context);
 	/* end path if required */
@@ -833,7 +839,7 @@ gdip_metafile_StrokeAndFillPath (MetafilePlayContext *context)
 	GpBrush *brush;
 	GpStatus status;
 #ifdef DEBUG_METAFILE
-	printf ("StrokeAndFillPath %p", context->path);
+	g_warning ("StrokeAndFillPath %p", context->path);
 #endif
 	/* end path if required */
 	if (context->use_path)
@@ -930,6 +936,8 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 	/* metafiles always render as 32bppRgb */
 	int stride = width * 4;
 	int size = height * stride;
+        float scaleX = (float) width / (float) metafile->metafile_header.Width;
+        float scaleY = (float) height / (float) metafile->metafile_header.Height;
 
 	if (!metafile || !graphics)
 		return NULL;
@@ -953,8 +961,11 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 	context->width = width;
 	context->height = height;
 	/* and keep an adjusted copy for providing "resets" */
-	GdipTranslateWorldTransform (graphics, -metafile->metafile_header.X, -metafile->metafile_header.Y, MatrixOrderPrepend);
-	GdipGetWorldTransform (graphics, &context->matrix);
+        
+	GdipScaleWorldTransform (graphics, scaleX, scaleY, MatrixOrderPrepend);
+        GdipTranslateWorldTransform (graphics, -metafile->metafile_header.X + x / scaleX,
+                -metafile->metafile_header.Y + y / scaleY, MatrixOrderPrepend);
+        GdipGetWorldTransform (graphics, &context->matrix);
 
 	/* defaults */
 	context->fill_mode = FillModeAlternate;
@@ -1374,6 +1385,8 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source
 	if (adjust_emf_headers) {
 		/* if the first EMF record is an EmfHeader (or an Header inside a Comment) then we have extra data to extract */
 		status = update_emf_header (&mf->metafile_header, mf->data, mf->length);
+		if (status != Ok)
+			goto error;
 	}
 
 	*metafile = mf;

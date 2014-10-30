@@ -423,7 +423,7 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 
 		metacontext = gdip_metafile_play_setup ((GpMetafile*)image, graphics, x, y, width, height);
 
-		//cairo_translate (graphics->ct, x, y); What??? The above should be positioning it, otherwise what's the point of it having the x and y details???
+		//cairo_translate (graphics->ct, x, y); What??? The above should be positioning it surely?
 		status = gdip_metafile_play (metacontext);
 
 		gdip_metafile_play_cleanup (metacontext);
