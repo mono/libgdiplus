@@ -122,7 +122,7 @@ Polygon (MetafilePlayContext *context, BYTE *data, int len)
 		return InvalidParameter;
 
 #ifdef DEBUG_WMF
-	g_warning ("Polygon %d points", num);
+	printf ("Polygon %d points", num);
 #endif
 	points = (GpPointF*) GdipAlloc (num * sizeof (GpPointF));
 	if (!points)
@@ -135,7 +135,7 @@ Polygon (MetafilePlayContext *context, BYTE *data, int len)
 		pt->Y = GETS(WP(n));
 		n++;
 #ifdef DEBUG_WMF
-		g_warning ("\n\tpoly to %g,%g", pt->X, pt->Y);
+		printf ("\n\tpoly to %g,%g", pt->X, pt->Y);
 #endif
 	}
 
@@ -155,7 +155,7 @@ Polyline (MetafilePlayContext *context, BYTE *data)
 	SHORT num = GETS(WP1);
 
 #ifdef DEBUG_WMF
-	g_warning ("Polyline %d points", num);
+	printf ("Polyline %d points", num);
 #endif
 	SHORT x1 = GETS(WP2);
 	SHORT y1 = GETS(WP3);
@@ -166,7 +166,7 @@ Polyline (MetafilePlayContext *context, BYTE *data)
 		SHORT y2 = GETS(WP(n));
 		n++;
 #ifdef DEBUG_WMF_2
-		g_warning ("\n\tdraw from %d,%d to %d,%d", x1, y1, x2, y2);
+		printf ("\n\tdraw from %d,%d to %d,%d", x1, y1, x2, y2);
 #endif
 		GpPen *pen = gdip_metafile_GetSelectedPen (context);
 		status = GdipDrawLine (context->graphics, pen, x1, y1, x2, y2);
@@ -191,7 +191,7 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data)
 	PointFList *list = GdipAlloc (poly_num * sizeof (PointFList));
 	PointFList *current = list;
 #ifdef DEBUG_WMF
-	g_warning ("PolyPolygon has %d polygons", poly_num);
+	printf ("PolyPolygon has %d polygons", poly_num);
 #endif
 	int n = 2;
 	/* read size of each polygon and allocate the required memory */
@@ -200,7 +200,7 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data)
 		n++;
 		current->points = (GpPointF*) GdipAlloc (current->num * sizeof (GpPointF));
 #ifdef DEBUG_WMF_2
-		g_warning ("\n\tSub Polygon #%d has %d points", i, current->num);
+		printf ("\n\tSub Polygon #%d has %d points", i, current->num);
 #endif
 		current++;
 	}
@@ -216,7 +216,7 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data)
 			pt->Y = GETW(WP(n));
 			n++;
 #ifdef DEBUG_WMF_3
-			g_warning ("\n\t\tpoly to %g,%g", pt->X, pt->Y);
+			printf ("\n\t\tpoly to %g,%g", pt->X, pt->Y);
 #endif
 			pt++;
 		}
@@ -252,7 +252,7 @@ gdip_metafile_play_wmf (MetafilePlayContext *context)
 		WORD func = GETW(FUNCTION);
 		int params = size - (WMF_MIN_RECORD_SIZE / sizeof (WORD));
 #ifdef DEBUG_WMF
-		g_warning ("\n[#%d] size %d ", i++, size);
+		printf ("\n[#%d] size %d ", i++, size);
 #endif
 		/* reality check - enough data available to read all parameters ? (params is in WORD) */
 		if ((params << 1) > (end - data)) {
@@ -372,11 +372,11 @@ gdip_metafile_play_wmf (MetafilePlayContext *context)
 			/* unprocessed records, ignore the data */
 			/* 3 for size (DWORD) == 2 * SHORT + function == 1 SHORT */
 #ifdef DEBUG_WMF
-			g_warning ("Unimplemented_%X (", func);
+			printf ("Unimplemented_%X (", func);
 			for (j = 0; j < params; j++) {
-				g_warning (" %d", GetParam (j, data));
+				printf (" %d", GetParam (j, data));
 			}
-			g_warning (" )");
+			printf (" )");
 #endif
 			break;
 		}
