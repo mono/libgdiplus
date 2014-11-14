@@ -408,7 +408,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 	/* In case of pre-existing clipping, use smaller of clip rectangle or our specified height */
 	if (FrameHeight > 0) {
 		cairo_clip_extents (graphics->ct, &clipx1, &clipy1, &clipx2, &clipy2);
-		if (clipy2 > 0)
+		if (clipy2 > 0 && !(fmt->formatFlags & StringFormatFlagsNoClip))
 			clipy2 = min (clipy2, FrameHeight + FrameY);
 		else
 			clipy2 = FrameHeight + FrameY;
