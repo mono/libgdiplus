@@ -39,8 +39,10 @@ GUID gdip_gif_image_format_guid = {0xb96b3cb0U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 
 #include "gifcodec.h"
 
+#ifdef EgifOpen
 /* giflib declares this incorrectly as EgifOpen */
 extern GifFileType *EGifOpen(void *userData, OutputFunc writeFunc);
+#endif
 
 /* Data structure used for callback */
 typedef struct
