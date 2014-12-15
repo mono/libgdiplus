@@ -357,7 +357,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 
 	if (fmt->numtabStops > 0) {
 		float tabPosition;
-		tabs = pango_tab_array_new (fmt->numtabStops, TRUE);
+		tabs = pango_tab_array_new (fmt->numtabStops, FALSE);
 		tabPosition = fmt->firstTabOffset;
 		for (i = 0; i < fmt->numtabStops; i++) {
 			tabPosition += fmt->tabStops[i];
