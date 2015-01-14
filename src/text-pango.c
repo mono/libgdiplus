@@ -664,12 +664,15 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 			goto cleanup;
 		}
 
+		/* calculate the initial UTF-8 index */
+		int idxUtf8 = utf8_length_for_ucs2_string (stringUnicode, 0, start);
+
 		/* calculate the regions */
 		for (j = start; j < end; j++) {
 			PangoRectangle box;
 			GpRectF charRect;
 
-			pango_layout_index_to_pos (layout, j, &box);
+			pango_layout_index_to_pos (layout, idxUtf8, &box);
 			charRect.X = (float)box.x / PANGO_SCALE;
 			charRect.Y = (float)box.y / PANGO_SCALE;
 			charRect.Width = (float)box.width / PANGO_SCALE;
@@ -687,6 +690,9 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 			status = GdipCombineRegionRect (regions [i], &charRect, CombineModeUnion);
 			if (status != Ok)
 				break;
+
+			// update the UTF-8 index
+			idxUtf8 += utf8_length_for_ucs2_string (stringUnicode, j, 1);
 		}
 		if (status != Ok)
 			break;
@@ -695,6 +701,25 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 cleanup:
 	cairo_restore (graphics->ct);
 	return status;
+}
+
+int
+utf8_length_for_ucs2_string (GDIPCONST WCHAR *stringUnicode, int offset, int length)
+{
+	int utf8_length = 0;
+	int end = offset + length;
+	int i;
+	for (i = offset; i < end; ++i) {
+		unsigned short ch = (unsigned short)stringUnicode[i];
+		if (ch < 0x80)
+			utf8_length += 1;
+		else if (ch < 0x800)
+			utf8_length += 2;
+		else if (ch < 0xD800 || ch >= 0xE000)
+			utf8_length += 3;
+		/* ignore surrogate pairs as they are ignored in ucs2_to_utf8() */
+	}
+	return utf8_length;
 }
 
 #endif
