@@ -583,7 +583,7 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 	}
 
 	FreeExtensionMono(&global_extensions);
-	DGifCloseFile (gif);
+	DGifCloseFile (gif, NULL);
 
 	*image = result;
 	return Ok;
@@ -599,7 +599,7 @@ error:
 
 	if (gif != NULL) {
 		FreeExtensionMono (&global_extensions);
-		DGifCloseFile (gif);
+		DGifCloseFile (gif, NULL);
 	}
 
 	*image = NULL;
@@ -925,7 +925,7 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 		}
 	}
 
-	EGifCloseFile (fp);	
+	EGifCloseFile (fp, NULL);	
 	
 	return Ok;
 
