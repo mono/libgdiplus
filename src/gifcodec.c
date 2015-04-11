@@ -39,10 +39,6 @@ GUID gdip_gif_image_format_guid = {0xb96b3cb0U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 
 #include "gifcodec.h"
 
-#ifdef EgifOpen
-/* giflib declares this incorrectly as EgifOpen */
-extern GifFileType *EGifOpen(void *userData, OutputFunc writeFunc);
-#endif
 
 /* Data structure used for callback */
 typedef struct
@@ -107,7 +103,7 @@ gdip_gif_inputfunc (GifFileType *gif, GifByteType *data, int len)
 */
 
 static int
-AddExtensionBlockMono(SavedImage *New, int Len, BYTE ExtData[])
+AddExtensionBlockMono(SavedImage *New, int Function, int Len, BYTE ExtData[])
 {
 	ExtensionBlock	*ep;
 
@@ -123,15 +119,15 @@ AddExtensionBlockMono(SavedImage *New, int Len, BYTE ExtData[])
 
 	ep = &New->ExtensionBlocks[New->ExtensionBlockCount++];
 
+	ep->Function = Function;
 	ep->ByteCount=Len;
-	ep->Bytes = (char *)GdipAlloc(ep->ByteCount);
+	ep->Bytes = (GifByteType *)GdipAlloc(ep->ByteCount);
 	if (ep->Bytes == NULL) {
 		return (GIF_ERROR);
 	}
 
 	if (ExtData) {
 		memcpy(ep->Bytes, ExtData, Len);
-		ep->Function = New->Function;
 	}
 
 	return (GIF_OK);
@@ -168,6 +164,7 @@ static int
 DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 {
 	int		ImageSize;
+	int		Function;
 	GifRecordType	RecordType;
 	SavedImage	*sp;
 	GifByteType	*ExtData;
@@ -234,20 +231,19 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 			}
 
 			case EXTENSION_RECORD_TYPE: {
-				if (DGifGetExtension(GifFile, &temp_save.Function, &ExtData) == GIF_ERROR) {
+				if (DGifGetExtension(GifFile, &Function, &ExtData) == GIF_ERROR) {
 					return (GIF_ERROR);
 				}
 
 				while (ExtData != NULL) {
 					/* Create an extension block with our data */
-					if (AddExtensionBlockMono(&temp_save, ExtData[0], &ExtData[1]) == GIF_ERROR) {
+					if (AddExtensionBlockMono(&temp_save, Function, ExtData[0], &ExtData[1]) == GIF_ERROR) {
 						return (GIF_ERROR);
 					}
 
 					if (DGifGetExtensionNext(GifFile, &ExtData) == GIF_ERROR) {
 						return (GIF_ERROR);
 					}
-					temp_save.Function = 0;
 				}
 				break;
 			}
@@ -306,9 +302,17 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 	loop_counter = FALSE;
 
 	if (from_file) {
+#if GIFLIB_MAJOR >= 5
+		gif = DGifOpen(stream, &gdip_gif_fileinputfunc, NULL);
+#else
 		gif = DGifOpen(stream, &gdip_gif_fileinputfunc);
+#endif
 	} else {
+#if GIFLIB_MAJOR >= 5
+		gif = DGifOpen (stream, &gdip_gif_inputfunc, NULL);
+#else
 		gif = DGifOpen (stream, &gdip_gif_inputfunc);
+#endif
 	}
 	
 	if (gif == NULL) {
@@ -583,8 +587,11 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 	}
 
 	FreeExtensionMono(&global_extensions);
+#if (GIFLIB_MAJOR > 5) || ((GIFLIB_MAJOR == 5) && (GIFLIB_MINOR >= 1))
+	DGifCloseFile (gif, NULL);
+#else
 	DGifCloseFile (gif);
-
+#endif
 	*image = result;
 	return Ok;
 
@@ -599,7 +606,11 @@ error:
 
 	if (gif != NULL) {
 		FreeExtensionMono (&global_extensions);
+#if (GIFLIB_MAJOR > 5) || ((GIFLIB_MAJOR == 5) && (GIFLIB_MINOR >= 1))
+		DGifCloseFile (gif, NULL);
+#else
 		DGifCloseFile (gif);
+#endif
 	}
 
 	*image = NULL;
@@ -663,9 +674,17 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 	}
 
 	if (from_file) {
+#if GIFLIB_MAJOR >= 5
+		fp = EGifOpenFileName (stream, 0, NULL);
+#else
 		fp = EGifOpenFileName (stream, 0);
+#endif
 	} else {
+#if GIFLIB_MAJOR >= 5
+		fp = EGifOpen (stream, gdip_gif_outputfunc, NULL);
+#else
 		fp = EGifOpen (stream, gdip_gif_outputfunc);
+#endif
 	}
 		
 	if (!fp) {
@@ -704,8 +723,11 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 					goto error; 
 				}
 
+#if GIFLIB_MAJOR >= 5
+				cmap = GifMakeMapObject(cmap_size, 0);
+#else
 				cmap = MakeMapObject(cmap_size, 0);
-
+#endif
 				pixbuf = GdipAlloc(pixbuf_size);
 				if (pixbuf == NULL) {
 					goto error;
@@ -795,8 +817,11 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 				pixbuf = pixbuf_org;
 			} else {
 				cmap_size = 256;
+#if GIFLIB_MAJOR >= 5
+				cmap  = GifMakeMapObject (cmap_size, 0);
+#else
 				cmap  = MakeMapObject (cmap_size, 0);
-
+#endif
 				red = GdipAlloc(pixbuf_size);
 				green = GdipAlloc(pixbuf_size);
 				blue = GdipAlloc(pixbuf_size);
@@ -826,13 +851,23 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 						v += 4;
 					}
 				}
-				if (QuantizeBuffer(bitmap_data->width, bitmap_data->height, &cmap_size, 
+				if (
+#if GIFLIB_MAJOR >= 5
+				GifQuantizeBuffer(
+#else
+				QuantizeBuffer(
+#endif
+						bitmap_data->width, bitmap_data->height, &cmap_size, 
 						red,  green, blue, pixbuf, cmap->Colors) == GIF_ERROR) {
 					goto error;
 				}
 			}
 
+#if GIFLIB_MAJOR >= 5
+			cmap->BitsPerPixel = GifBitSize (cmap_size);
+#else
 			cmap->BitsPerPixel = BitSize (cmap_size);
+#endif
 			cmap->ColorCount = 1 << cmap->BitsPerPixel;
 
 			if ((frame == 0) && (k == 0)) {
@@ -850,8 +885,15 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 						Buffer[0] = 1;
 						Buffer[1] = ptr[0];
 						Buffer[2] = ptr[1];
-						EGifPutExtensionFirst(fp, APPLICATION_EXT_FUNC_CODE, 11, "NETSCAPE2.0");
-						EGifPutExtensionLast(fp, APPLICATION_EXT_FUNC_CODE, 3, Buffer);
+#if GIFLIB_MAJOR >= 5
+						EGifPutExtensionLeader(fp, APPLICATION_EXT_FUNC_CODE);
+						EGifPutExtensionBlock(fp, 11, "NETSCAPE2.0");
+						EGifPutExtensionBlock(fp, 3, Buffer);
+						EGifPutExtensionTrailer(fp);
+#else
+						EGifPutExtensionFirst(fp, APPLICATION_EXT_FUNC_CODE, 11, "NETSCAPE2.0"); 
+						EGifPutExtensionLast(fp, APPLICATION_EXT_FUNC_CODE, 3, Buffer); 
+#endif
 					}
 				}
 
@@ -903,7 +945,11 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 				pixbuf += bitmap_data->width;
 			}
 
+#if GIFLIB_MAJOR >= 5
+			GifFreeMapObject (cmap);
+#else
 			FreeMapObject (cmap);
+#endif
 			if (red != NULL) {
 				GdipFree (red);
 			}
@@ -925,13 +971,21 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 		}
 	}
 
-	EGifCloseFile (fp);	
+#if (GIFLIB_MAJOR > 5) || ((GIFLIB_MAJOR == 5) && (GIFLIB_MINOR >= 1))
+	EGifCloseFile (fp, NULL);
+#else
+	EGifCloseFile (fp);
+#endif
 	
 	return Ok;
 
 error:
 	if (cmap != NULL) {
+#if GIFLIB_MAJOR >= 5
+		GifFreeMapObject (cmap);
+#else
 		FreeMapObject (cmap);
+#endif
 	}
 
 	if (red != NULL) {
