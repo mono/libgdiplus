@@ -30,15 +30,15 @@ fi
   DIE=1
 }
 
-if [ -z "$LIBTOOL" ]; then
-  LIBTOOL=`which glibtool 2>/dev/null` 
-  if [ ! -x "$LIBTOOL" ]; then
-    LIBTOOL=`which libtool`
+if [ -z "$LIBTOOLIZE" ]; then
+  LIBTOOLIZE=`which glibtoolize 2>/dev/null`
+  if [ ! -x "$LIBTOOLIZE" ]; then
+    LIBTOOLIZE=`which libtoolize`
   fi
 fi
 
 (grep "^AM_PROG_LIBTOOL" $srcdir/configure.ac >/dev/null) && {
-  ($LIBTOOL --version) < /dev/null > /dev/null 2>&1 || {
+  ($LIBTOOLIZE --version) < /dev/null > /dev/null 2>&1 || {
     echo
     echo "**Error**: You must have \`libtool' installed to compile Mono."
     echo "Get ftp://ftp.gnu.org/pub/gnu/libtool-1.2d.tar.gz"
@@ -98,7 +98,7 @@ esac
 if grep "^AM_PROG_LIBTOOL" configure.ac >/dev/null; then
   if test -z "$NO_LIBTOOLIZE" ; then 
     echo "Running libtoolize..."
-    ${LIBTOOL}ize --force --copy
+    $LIBTOOLIZE --force --copy
   fi
 fi
 
