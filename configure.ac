@@ -223,7 +223,7 @@ AC_ARG_WITH([libjpeg],
         jpeg_ok=no)
       AC_MSG_RESULT($jpeg_ok)
       if test "$jpeg_ok" = yes; then
-        JPEG='jpeg'; LIBJPEG='-L${libjpeg_prefix}/lib -ljpeg'
+        JPEG='jpeg'; LIBJPEG="-L${libjpeg_prefix}/lib -ljpeg"
       else
         AC_MSG_WARN(*** JPEG loader will not be built (JPEG header file not found) ***)
       fi
