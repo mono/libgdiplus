@@ -52,6 +52,7 @@ typedef struct _Hatch {
 	ARGB		foreColor;
 	ARGB		backColor;
 	cairo_pattern_t	*pattern;
+	BOOL		alpha;
 } Hatch;
 
 #include "hatchbrush.h"
