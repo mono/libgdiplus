@@ -120,12 +120,6 @@ case "$host" in
 		;;
 esac
 
-# Add xrender here so that we don't fail to find glib if we won't have xrender.pc
-if test "x$no_x" != "xyes"; then
-   GDIPLUS_LIBS="$GDIPLUS_LIBS `$PKG_CONFIG --libs xrender `"
-   GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS `$PKG_CONFIG --cflags xrender `"
-fi
-
 # Apparently for BSD special handling needs to happen
 # See http://archives/neohapsis.com/archives/openbsd/2001-11/2142.html
 # by Miod Vallat <miod@online.fr>
@@ -383,6 +377,13 @@ AS_IF(
 	[test x$x11_available = xyes],
 	[AC_DEFINE([HAS_X11], [1], [Define X11 support])],
 	[AC_DEFINE([HAS_X11], [0], [Skip X11 support])])
+AM_CONDITIONAL([HAS_X11], [test x$x11_available = xyes])
+
+# Add xrender here so that we don't fail to find glib if we won't have xrender.pc
+if test "x$no_x" != "xyes" && "x$x11_available" = "xyes"; then
+   GDIPLUS_LIBS="$GDIPLUS_LIBS `$PKG_CONFIG --libs xrender `"
+   GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS `$PKG_CONFIG --cflags xrender `"
+fi
 
 dnl Test for libexif
 if test x$with_libexif != xno && test -z "$LIBEXIF"; then
