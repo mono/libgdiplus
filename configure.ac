@@ -223,7 +223,12 @@ AC_ARG_WITH([libjpeg],
         jpeg_ok=no)
       AC_MSG_RESULT($jpeg_ok)
       if test "$jpeg_ok" = yes; then
-        JPEG='jpeg'; LIBJPEG="-L${libjpeg_prefix}/lib -ljpeg"
+        JPEG='jpeg'; LIBJPEG="-ljpeg"
+
+        if test "$libjpeg_prefix" != "NONE"; then
+          LIBJPEG="$LIBJPEG -L$libjpeg_prefix"
+        fi
+
       else
         AC_MSG_WARN(*** JPEG loader will not be built (JPEG header file not found) ***)
       fi
@@ -348,6 +353,37 @@ dnl Test for libpng
 GDIPLUS_LIBS="$GDIPLUS_LIBS $LIBPNG"
 AC_DEFINE(HAVE_LIBPNG, 1, Define if png support is available. Always defined.)
 
+dnl
+dnl Test for X11. Allow compiling without x11 support using the disable-x11
+dnl flag
+dnl
+
+AC_ARG_WITH(x11, 
+	[AC_HELP_STRING([--without-x11], [Disable X11 support])],
+	[disable_x11=yes])
+
+if test x$disable_x11 != xyes; then
+  AC_MSG_CHECKING(X11 support)
+  AC_TRY_COMPILE(
+    [#include <X11/Xlib.h>],
+    [],
+    [x11_available=yes],
+    [x11_available=no])
+
+  if test "x$x11_available" != "xyes"; then
+    AC_MSG_ERROR( [ Failed to compile with X11/Xlib.h include. You must fix your compiler paths ])
+  else
+    AC_MSG_RESULT(yes)
+  fi
+else
+  x11_available=no
+fi
+
+AS_IF(
+	[test x$x11_available = xyes],
+	[AC_DEFINE([HAS_X11], [1], [Define X11 support])],
+	[AC_DEFINE([HAS_X11], [0], [Skip X11 support])])
+
 dnl Test for libexif
 if test x$with_libexif != xno && test -z "$LIBEXIF"; then
   PKG_CHECK_MODULES(LIBEXIF, libexif, [libexif_pkgconfig=yes], libexif_pkgconfig=no])
@@ -387,6 +423,7 @@ echo "   * Installation prefix = $prefix"
 echo "   * Cairo = $cairo_info"
 echo "   * Text = $text_v"
 echo "   * EXIF tags = $libexif_pkgconfig"
+echo "   * X11 = $x11_available"
 echo "   * Codecs supported:"
 echo ""
 echo "      - TIFF: $tiff_ok"

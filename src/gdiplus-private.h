@@ -64,7 +64,9 @@
 	#endif
 #endif
 
+#ifdef HAS_X11
 #include <X11/Xlib.h>
+#endif
 
 #include "win32structs.h"
 #include "gdipenums.h"

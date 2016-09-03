@@ -23,6 +23,7 @@
  *   Alexandre Pigolkine (pigolkine@gmx.de)
  *   Duncan Mak (duncan@ximian.com)
  *   Sebastien Pouliot  <sebastien@ximian.com>
+ *   Frederik Carlier <frederik.carlier@quamotion.mobi>
  */
 
 #include "graphics-private.h"
@@ -151,8 +152,10 @@ gdip_graphics_common_init (GpGraphics *graphics)
 	graphics->render_origin_y = 0;
 	graphics->dpi_x = graphics->dpi_y = 0;
 
+#if CAIRO_HAS_XLIB_SURFACE
 	graphics->display = NULL;
 	graphics->drawable = NULL;
+#endif
 
 	gdip_graphics_reset (graphics);
 }

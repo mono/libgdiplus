@@ -24,6 +24,7 @@
  *	Geoff Norton (gnorton@customerdna.com)
  *      Jonathan Gilbert (logic@deltaq.org)
  *	Sebastien Pouliot  <sebastien@ximian.com>
+ *	Frederik Carlier <frederik.carlier@quamotion.mobi>
  *
  * Copyright (C) 2003-2007 Novell, Inc (http://www.novell.com)
  */
@@ -105,8 +106,10 @@ typedef struct _Graphics {
 	cairo_t			*ct;
 	GpMatrix		*copy_of_ctm;
 	cairo_matrix_t		previous_matrix;
+#ifdef CAIRO_HAS_XLIB_SURFACE
 	Display			*display;
 	Drawable		drawable;
+#endif
 	void			*image;
 	int			type; 
 	GpPen*			last_pen;	/* caching pen and brush to avoid unnecessary sets */
