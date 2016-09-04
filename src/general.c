@@ -132,7 +132,7 @@ gdip_get_display_dpi ()
 
 		dpis = h_dpi;
 		return dpis;
-#elif CAIRO_HAS_XLIB_SURFACE
+#elif HAS_X11 && CAIRO_HAS_XLIB_SURFACE
 		char *val;
 
 		Display* display;

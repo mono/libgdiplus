@@ -51,17 +51,22 @@
 		#include "cairo-ft.h"
 	#endif
 
+        #if HAS_X11
 	#ifdef CAIRO_HAS_XLIB_SURFACE
 		#include "cairo-xlib.h"
 	#endif
+        #endif
 #else
 	#include <cairo/cairo.h>
 	#ifdef CAIRO_HAS_FT_FONT
 		#include <cairo/cairo-ft.h>
 	#endif
+
+        #if HAS_X11
 	#ifdef CAIRO_HAS_XLIB_SURFACE
 		#include <cairo/cairo-xlib.h>
 	#endif
+        #endif
 #endif
 
 #if HAS_X11

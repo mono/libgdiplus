@@ -106,9 +106,11 @@ typedef struct _Graphics {
 	cairo_t			*ct;
 	GpMatrix		*copy_of_ctm;
 	cairo_matrix_t		previous_matrix;
+#if HAS_X11
 #ifdef CAIRO_HAS_XLIB_SURFACE
 	Display			*display;
 	Drawable		drawable;
+#endif
 #endif
 	void			*image;
 	int			type; 

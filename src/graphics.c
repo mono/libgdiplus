@@ -152,7 +152,7 @@ gdip_graphics_common_init (GpGraphics *graphics)
 	graphics->render_origin_y = 0;
 	graphics->dpi_x = graphics->dpi_y = 0;
 
-#if CAIRO_HAS_XLIB_SURFACE
+#if HAS_X11 && CAIRO_HAS_XLIB_SURFACE
 	graphics->display = NULL;
 	graphics->drawable = NULL;
 #endif
@@ -219,7 +219,6 @@ GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 	cairo_surface_t *surface;
 	int x, y;
 	unsigned int w, h, border_w, depth;
-	Window root;
 
 	if (!hDC)
 		return OutOfMemory;
@@ -235,7 +234,8 @@ GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 	if (clone->type == gtMemoryBitmap)
 		return GdipGetImageGraphicsContext (clone->image, graphics);
 
-#ifdef CAIRO_HAS_XLIB_SURFACE
+#if HAS_X11 && CAIRO_HAS_XLIB_SURFACE
+	Window root;
 	XGetGeometry (clone->display, clone->drawable, &root,
 		      &x, &y, &w, &h, &border_w, &depth);
 	
@@ -295,7 +295,7 @@ GdipCreateFromContext_macosx (void *ctx, int width, int height, GpGraphics **gra
 
 #endif
 
-#ifdef CAIRO_HAS_XLIB_SURFACE
+#if HAS_X11 && CAIRO_HAS_XLIB_SURFACE
 
 // coverity[+alloc : arg-*2]
 GpStatus
@@ -332,7 +332,7 @@ GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics)
 
 #endif
 
-#ifdef CAIRO_HAS_XLIB_SURFACE
+#if HAS_X11 && CAIRO_HAS_XLIB_SURFACE
 static int
 ignore_error_handler (Display *dpy, XErrorEvent *event)
 {
@@ -363,7 +363,7 @@ GdipDeleteGraphics (GpGraphics *graphics)
 	}
 
 	if (graphics->ct) {
-#ifdef CAIRO_HAS_XLIB_SURFACE
+#if HAS_X11 && CAIRO_HAS_XLIB_SURFACE
 		int (*old_error_handler)(Display *dpy, XErrorEvent *ev) = NULL;
 		if (graphics->type == gtX11Drawable)
 			old_error_handler = XSetErrorHandler (ignore_error_handler);
@@ -372,7 +372,7 @@ GdipDeleteGraphics (GpGraphics *graphics)
 		cairo_destroy (graphics->ct);
 		graphics->ct = NULL;
 
-#ifdef CAIRO_HAS_XLIB_SURFACE
+#if HAS_X11 && CAIRO_HAS_XLIB_SURFACE
 		if (graphics->type == gtX11Drawable)
 			XSetErrorHandler (old_error_handler);
 #endif
