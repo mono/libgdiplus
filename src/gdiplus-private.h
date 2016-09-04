@@ -64,7 +64,7 @@
 	#endif
 #endif
 
-#ifdef HAS_X11
+#if HAS_X11
 #include <X11/Xlib.h>
 #endif
 
