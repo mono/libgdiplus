@@ -196,6 +196,11 @@ fi
 AC_ARG_WITH(libexif,
 	[AC_HELP_STRING([--without-libexif], [disable EXIF support])])
 
+dnl If the user doesn't force a --prefix= then assume the OS default for resolcing libtiff etc
+case $prefix in
+NONE) prefix=$ac_default_prefix ;;
+esac
+
 dnl Test for libjpeg (this needs to be checked before libtiff, since libtiff depends on libjpeg)
 AC_ARG_WITH([libjpeg],
 	AS_HELP_STRING([--with-libjpeg=PREFIX],
