@@ -225,11 +225,33 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 	{
 		int		num_text;
 		png_textp	text_ptr;
+		int		i;
+		PROPID 		prop_id;
 
 		if (png_get_text(png_ptr, info_ptr, &text_ptr, &num_text)) {
-			if (num_text > 0) {
-				gdip_bitmapdata_property_add_ASCII(bitmap_data, PropertyTagExifUserComment, (BYTE*)text_ptr[0].text);
-			}
+			for (i = 0; i < num_text; i++) {
+				prop_id = 0;
+
+				if (strcmp(text_ptr[i].key, "Author") == 0) {
+					prop_id = PropertyTagArtist;
+				} else if (strcmp(text_ptr[i].key, "Comment") == 0) {
+					prop_id = PropertyTagExifUserComment;
+				} else if (strcmp(text_ptr[i].key, "Copyright") == 0) {
+					prop_id = PropertyTagCopyright;
+				} else if (strcmp(text_ptr[i].key, "Description") == 0) {
+					prop_id = PropertyTagImageDescription;
+				} else if (strcmp(text_ptr[i].key, "Software") == 0) {
+					prop_id = PropertyTagSoftwareUsed;
+				} else if (strcmp(text_ptr[i].key, "Source") == 0) {
+					prop_id = PropertyTagEquipModel;
+				} else if (strcmp(text_ptr[i].key, "Title") == 0) {
+					prop_id = PropertyTagImageTitle;
+				}
+
+				if (prop_id != 0) {
+					gdip_bitmapdata_property_add_ASCII(bitmap_data, prop_id, (BYTE*)text_ptr[i].text);
+				}
+			}		
 		}
 	}
 #endif
