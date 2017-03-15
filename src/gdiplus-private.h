@@ -40,7 +40,7 @@
 #if HAVE_VISIBILITY_HIDDEN
 	#define GDIP_INTERNAL __attribute__((visibility ("hidden")))
 #else
-	#define GDIP_INTERNAL 
+	#define GDIP_INTERNAL
 #endif
 
 #ifdef USE_INCLUDED_CAIRO
@@ -51,22 +51,22 @@
 		#include "cairo-ft.h"
 	#endif
 
-        #if HAS_X11
+	#if HAS_X11
 	#ifdef CAIRO_HAS_XLIB_SURFACE
 		#include "cairo-xlib.h"
 	#endif
-        #endif
+	#endif
 #else
 	#include <cairo/cairo.h>
 	#ifdef CAIRO_HAS_FT_FONT
 		#include <cairo/cairo-ft.h>
 	#endif
 
-        #if HAS_X11
+	#if HAS_X11
 	#ifdef CAIRO_HAS_XLIB_SURFACE
 		#include <cairo/cairo-xlib.h>
 	#endif
-        #endif
+	#endif
 #endif
 
 #if HAS_X11
