@@ -348,7 +348,7 @@ GDIPLUS_LIBS="$GDIPLUS_LIBS $LIBPNG"
 AC_DEFINE(HAVE_LIBPNG, 1, Define if png support is available. Always defined.)
 
 dnl
-dnl Test for X11. Allow compiling without x11 support using the disable-x11
+dnl Test for X11. Allow compiling without x11 support using the without-x11
 dnl flag
 dnl
 
