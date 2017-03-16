@@ -23,6 +23,7 @@
  *   Alexandre Pigolkine(pigolkine@gmx.de)
  *   Duncan Mak (duncan@ximian.com)
  *   Sebastien Pouliot  <sebastien@ximian.com>
+ *   Frederik Carlier <frederik.carlier@quamotion.mobi>
  */
 
 #include "general-private.h"
@@ -123,7 +124,6 @@ float
 gdip_get_display_dpi ()
 {
 	static float dpis = 0;
-	Display* display;
 
 	if (dpis == 0) {
 #if __APPLE__
@@ -132,9 +132,10 @@ gdip_get_display_dpi ()
 
 		dpis = h_dpi;
 		return dpis;
-#else
+#elif HAS_X11 && CAIRO_HAS_XLIB_SURFACE
 		char *val;
 
+		Display* display;
 		display = XOpenDisplay (0);
 		/* If the display is openable lets try to read dpi from it; otherwise use a default of 96.0f */
 		if (display) {
@@ -148,6 +149,8 @@ gdip_get_display_dpi ()
 		} else {
 			dpis = 96.0f;
 		}
+#else
+		dpis = 96.0f;
 #endif
 	}
 

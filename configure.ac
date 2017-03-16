@@ -19,8 +19,8 @@ fi
 GLIB_REQUIRED_VERSION="2.2.3"
 PKG_CHECK_MODULES(BASE_DEPENDENCIES, glib-2.0 >= $GLIB_REQUIRED_VERSION)
 
-GDIPLUS_LIBS="`pkg-config --libs glib-2.0 `"
-GDIPLUS_CFLAGS="`pkg-config --cflags glib-2.0 `"
+GDIPLUS_LIBS="`$PKG_CONFIG --libs glib-2.0 `"
+GDIPLUS_CFLAGS="`$PKG_CONFIG --cflags glib-2.0 `"
 
 CAIRO_REQUIRED_VERSION="1.6.4"
 PKG_CHECK_MODULES(CAIRO, cairo >= $CAIRO_REQUIRED_VERSION)
@@ -119,12 +119,6 @@ case "$host" in
 		AC_DEFINE_UNQUOTED(OTHEROS,1,[Unknown])
 		;;
 esac
-
-# Add xrender here so that we don't fail to find glib if we won't have xrender.pc
-if test "x$no_x" != "xyes"; then
-   GDIPLUS_LIBS="$GDIPLUS_LIBS `pkg-config --libs xrender `"
-   GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS `pkg-config --cflags xrender `"
-fi
 
 # Apparently for BSD special handling needs to happen
 # See http://archives/neohapsis.com/archives/openbsd/2001-11/2142.html
@@ -228,7 +222,12 @@ AC_ARG_WITH([libjpeg],
         jpeg_ok=no)
       AC_MSG_RESULT($jpeg_ok)
       if test "$jpeg_ok" = yes; then
-        JPEG='jpeg'; LIBJPEG="-L${libjpeg_prefix}/lib -ljpeg"
+        JPEG='jpeg'; LIBJPEG="-ljpeg"
+
+        if test "$libjpeg_prefix" != "NONE"; then
+          LIBJPEG="$LIBJPEG -L$libjpeg_prefix"
+        fi
+
       else
         AC_MSG_WARN(*** JPEG loader will not be built (JPEG header file not found) ***)
       fi
@@ -353,6 +352,44 @@ dnl Test for libpng
 GDIPLUS_LIBS="$GDIPLUS_LIBS $LIBPNG"
 AC_DEFINE(HAVE_LIBPNG, 1, Define if png support is available. Always defined.)
 
+dnl
+dnl Test for X11. Allow compiling without x11 support using the without-x11
+dnl flag
+dnl
+
+AC_ARG_WITH(x11, 
+	[AC_HELP_STRING([--without-x11], [Disable X11 support])],
+	[disable_x11=yes])
+
+if test x$disable_x11 != xyes; then
+  AC_MSG_CHECKING(X11 support)
+  AC_TRY_COMPILE(
+    [#include <X11/Xlib.h>],
+    [],
+    [x11_available=yes],
+    [x11_available=no])
+
+  if test "x$x11_available" != "xyes"; then
+    AC_MSG_ERROR( [ Failed to compile with X11/Xlib.h include. You must fix your compiler paths ])
+  else
+    AC_MSG_RESULT(yes)
+  fi
+else
+  x11_available=no
+fi
+
+AS_IF(
+	[test x$x11_available = xyes],
+	[AC_DEFINE([HAS_X11], [1], [Define X11 support])],
+	[AC_DEFINE([HAS_X11], [0], [Skip X11 support])])
+AM_CONDITIONAL([HAS_X11], [test x$x11_available = xyes])
+
+# Add xrender here so that we don't fail to find glib if we won't have xrender.pc
+if test "x$no_x" != "xyes" && "x$x11_available" = "xyes"; then
+   GDIPLUS_LIBS="$GDIPLUS_LIBS `$PKG_CONFIG --libs xrender `"
+   GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS `$PKG_CONFIG --cflags xrender `"
+fi
+
 dnl Test for libexif
 if test x$with_libexif != xno && test -z "$LIBEXIF"; then
   PKG_CHECK_MODULES(LIBEXIF, libexif, [libexif_pkgconfig=yes], libexif_pkgconfig=no])
@@ -367,15 +404,6 @@ else
 	libexif_pkgconfig="No. You disabled it."
 fi
 AM_CONDITIONAL(HAVE_LIBEXIF, test x$libexif_pkgconfig = xyes)
-
-dnl
-dnl Produce a diagnostic, to reduce support time
-dnl
-AC_TRY_COMPILE([#include <X11/Xlib.h>],
-			 [],[x11_failed=false],[x11_failed=true])
-if $x11_failed; then
-   AC_ERROR("Failed to compile with X11/Xlib.h include.  You must fix your compiler paths")
-fi
 
 GDIPLUS_PKG_LIBS="$GDIPLUS_LIBS"
 GDIPLUS_PKG_CFLAGS="$GDIPLUS_CFLAGS"
@@ -401,6 +429,7 @@ echo "   * Installation prefix = $prefix"
 echo "   * Cairo = $cairo_info"
 echo "   * Text = $text_v"
 echo "   * EXIF tags = $libexif_pkgconfig"
+echo "   * X11 = $x11_available"
 echo "   * Codecs supported:"
 echo ""
 echo "      - TIFF: $tiff_ok"

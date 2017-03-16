@@ -17,13 +17,18 @@ LDADDS =					\
 	-lm
 
 noinst_PROGRAMS =			\
-	testgdi testbits testclip testreversepath
+	testbits testclip testreversepath
+
+if HAS_X11
+noinst_PROGRAMS =
+	testgdi ${noinst_PROGRAMS}
 
 testgdi_DEPENDENCIES = $(TEST_DEPS)
 testgdi_LDADD = $(LDADDS)
 
 testgdi_SOURCES =		\
 	testgdi.c
+endif HAS_X11
 
 testbits_DEPENDENCIES = $(TEST_DEPS)
 testbits_LDADD = $(LDADDS)
