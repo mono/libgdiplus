@@ -718,6 +718,7 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 
 	if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format)) {
 		png_color palette[256];
+		png_byte trans_alpha[256];
 
 		int palette_entries = image->active_bitmap->palette->Count;
 		if (image->active_bitmap->pixel_format == PixelFormat4bppIndexed) {
@@ -726,13 +727,13 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 
 		for (i=0; i < palette_entries; i++) {
 			ARGB entry = image->active_bitmap->palette->Entries[i];
-
-			int dummy;
-
-			get_pixel_bgra(entry, palette[i].blue, palette[i].green, palette[i].red, dummy);
+			get_pixel_bgra(entry, palette[i].blue, palette[i].green, palette[i].red, trans_alpha[i]);
 		}
 
 		png_set_PLTE (png_ptr, info_ptr, palette, palette_entries);
+		if ((image->active_bitmap->palette->Flags & PaletteFlagsHasAlpha) == PaletteFlagsHasAlpha) {
+			png_set_tRNS (png_ptr, info_ptr, trans_alpha, palette_entries, NULL);
+		}
 	}
 
 	png_set_filter (png_ptr, 0, PNG_NO_FILTERS);
