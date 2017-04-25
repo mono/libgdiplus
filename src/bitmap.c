@@ -1111,7 +1111,7 @@ GdipCloneBitmapArea (float x, float y, float w, float h, PixelFormat format,
 }
 
 static void
-gdip_copy_strides (void *dst, int dstStride, void *src, int srcStride, int realBytes, int height)
+gdip_copy_strides (BYTE *dst, int dstStride, BYTE *src, int srcStride, int realBytes, int height)
 {
 	int i;
 	for (i = 0; i < height; i++) {

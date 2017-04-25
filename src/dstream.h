@@ -31,7 +31,7 @@ struct _dstream {
 };
 
 dstream_t *dstream_input_new (GetBytesDelegate read, SeekDelegate seek) GDIP_INTERNAL;
-int dstream_read (dstream_t *loader, void *buffer, int size, char peek) GDIP_INTERNAL;
+int dstream_read (dstream_t *loader, BYTE *buffer, int size, char peek) GDIP_INTERNAL;
 void dstream_skip (dstream_t *loader, int nbytes) GDIP_INTERNAL;
 void dstream_free (dstream_t *loader) GDIP_INTERNAL;
 void dstream_keep_exif_buffer (dstream_t *loader) GDIP_INTERNAL;

@@ -1232,7 +1232,7 @@ gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, ImageSource
 	case ALDUS_PLACEABLE_METAFILE_KEY:
 		aldus_header.Key = key;
 		size = sizeof (WmfPlaceableFileHeader) - size;
-		if (gdip_read_wmf_data (pointer, (void*)(&aldus_header) + sizeof (DWORD), size, source) != size)
+		if (gdip_read_wmf_data(pointer, (BYTE*)(&aldus_header) + sizeof(DWORD), size, source) != size)
 			return InvalidParameter;
 #if FALSE
 g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inch %d, reserved %d, checksum %d", 
@@ -1241,7 +1241,7 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 	aldus_header.Checksum);
 #endif
 		size = sizeof (METAHEADER);
-		if (gdip_read_wmf_data (pointer, (void*)&header->WmfHeader, size, source) != size)
+		if (gdip_read_wmf_data (pointer, (BYTE*)&header->WmfHeader, size, source) != size)
 			return InvalidParameter;
 
 		WmfPlaceableFileHeaderLE (&aldus_header);
@@ -1252,7 +1252,7 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 		memcpy (&header->WmfHeader, &key, size);
 
 		size = sizeof (METAHEADER) - size;
-		if (gdip_read_wmf_data (pointer, (void*)(&header->WmfHeader) + sizeof (DWORD), size, source) != size)
+		if (gdip_read_wmf_data (pointer, (BYTE*)(&header->WmfHeader) + sizeof(DWORD), size, source) != size)
 			return InvalidParameter;
 
 		MetafileHeaderLE (header);
@@ -1262,7 +1262,7 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 		emf = &(header->EmfHeader);
 		emf->iType = key;
 		size = sizeof (ENHMETAHEADER3) - size;
-		if (gdip_read_emf_data (pointer, (void*)(&header->EmfHeader) + sizeof (DWORD), size, source) != size)
+		if (gdip_read_emf_data (pointer, (BYTE*)(&header->EmfHeader) + sizeof (DWORD), size, source) != size)
 			return InvalidParameter;
 		EnhMetaHeaderLE (&header->EmfHeader);
 #if FALSE
