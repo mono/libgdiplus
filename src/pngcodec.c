@@ -364,15 +364,18 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 				}
 
 				for (i=0; i < num_trans; i++) {
+					png_bytep alpha =
+#if (PNG_LIBPNG_VER > 10399)
+						trans_alpha[i];
+#else
+						info_ptr->trans[i];
+#endif
+
 					set_pixel_bgra(&palette->Entries[i], 0,
 							png_palette[i].blue,
 							png_palette[i].green,
 							png_palette[i].red,
-#if PNG_LIBPNG_VER > 10399
-							trans_alpha [i]); /* alpha */
-#else
-							info_ptr->trans[i]); /* alpha */
-#endif
+							alpha);
 				}
 			}
 		}
