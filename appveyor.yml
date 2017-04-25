@@ -1,0 +1,25 @@
+platform:
+  - Win32
+  - x64
+
+configuration:
+  - Debug
+  - Release
+
+environment:
+  LIBGDIPLUS_VERSION_PREFIX: 4.2
+
+before_build:
+  - cmd: choco install -y wget
+  - cmd: wget "https://dl.hexchat.net/gtk-win32/vc14/x86/gtk-Win32.7z" -O gtk-Win32.7z
+  - cmd: 7z x gtk-Win32.7z -ogtk
+  - cmd: wget "https://dl.hexchat.net/gtk-win32/vc14/x64/gtk-x64.7z" -O gtk-x64.7z
+  - cmd: 7z x gtk-x64.7z -ogtk
+  - cmd: nuget restore
+
+build:
+  project: libgdiplus.sln
+
+on_success:
+  - cmd: 7z a -tzip "libgdiplus-%LIBGDIPLUS_VERSION_PREFIX%.%APPVEYOR_BUILD_NUMBER%-windows-%PLATFORM%-%CONFIGURATION%.zip" .\%PLATFORM%\%CONFIGURATION%\*.dll
+  - cmd: appveyor PushArtifact libgdiplus-%LIBGDIPLUS_VERSION_PREFIX%.%APPVEYOR_BUILD_NUMBER%-windows-%PLATFORM%-%CONFIGURATION%.zip
