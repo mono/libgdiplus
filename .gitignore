@@ -21,4 +21,10 @@ test-driver
 compile
 tests/*.trs
 tests/*.log
-
+.vs/
+Debug/
+Release/
+*.user
+gtk/
+*.7z
+packages/
