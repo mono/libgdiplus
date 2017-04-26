@@ -43,6 +43,12 @@
 	#define GDIP_INTERNAL
 #endif
 
+#ifdef _MSC_VER
+#define WINGDIPAPI __declspec( dllexport )
+#else
+#define WINGDIPAPI
+#endif
+
 #ifdef USE_INCLUDED_CAIRO
 	#include "cairo-embed.h"
 	#include "cairo.h"

@@ -29,8 +29,8 @@ typedef struct _InterpolationColors {
 	int count;
 } InterpolationColors;
 
-GpStatus GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush); 
-GpStatus GdipDeleteBrush (GpBrush *brush);
-GpStatus GdipGetBrushType (GpBrush *brush, GpBrushType *type);
+GpStatus WINGDIPAPI GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush);
+GpStatus WINGDIPAPI GdipDeleteBrush (GpBrush *brush);
+GpStatus WINGDIPAPI GdipGetBrushType (GpBrush *brush, GpBrushType *type);
 
 #endif

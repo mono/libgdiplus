@@ -38,11 +38,11 @@ typedef struct {
 	void*	NotificationUnhook;		/* ignored in libgdiplus */
 } GdiplusStartupOutput;
 
-GpStatus GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStartupOutput *output);
-void GdiplusShutdown (ULONG_PTR token);
+GpStatus WINGDIPAPI GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStartupOutput *output);
+void WINGDIPAPI GdiplusShutdown (ULONG_PTR token);
 
 /* Memory / public API */
-void* GdipAlloc (size_t size);
-void GdipFree (void *ptr);
+WINGDIPAPI void*  GdipAlloc (size_t size);
+WINGDIPAPI void GdipFree (void *ptr);
 
 #endif

@@ -33,17 +33,17 @@
 
 /* FontFamily public API (only!) */
 
-GpStatus GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *fontCollection, GpFontFamily **FontFamily);
-GpStatus GdipCloneFontFamily (GpFontFamily *fontFamily, GpFontFamily **clonedFontFamily);
-GpStatus GdipDeleteFontFamily (GpFontFamily *fontFamily);
-GpStatus GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, guint16 *CellAscent);
-GpStatus GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, guint16 *CellDescent);
-GpStatus GdipGetGenericFontFamilySansSerif (GpFontFamily **nativeFamily);
-GpStatus GdipGetGenericFontFamilySerif (GpFontFamily **nativeFamily);
-GpStatus GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily);
-GpStatus GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, guint16 *EmHeight);
-GpStatus GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], LANGID language);
-GpStatus GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, guint16 *LineSpacing);
-GpStatus GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAvailable);
+GpStatus WINGDIPAPI GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *fontCollection, GpFontFamily **FontFamily);
+GpStatus WINGDIPAPI GdipCloneFontFamily (GpFontFamily *fontFamily, GpFontFamily **clonedFontFamily);
+GpStatus WINGDIPAPI GdipDeleteFontFamily (GpFontFamily *fontFamily);
+GpStatus WINGDIPAPI GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, guint16 *CellAscent);
+GpStatus WINGDIPAPI GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, guint16 *CellDescent);
+GpStatus WINGDIPAPI GdipGetGenericFontFamilySansSerif (GpFontFamily **nativeFamily);
+GpStatus WINGDIPAPI GdipGetGenericFontFamilySerif (GpFontFamily **nativeFamily);
+GpStatus WINGDIPAPI GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily);
+GpStatus WINGDIPAPI GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, guint16 *EmHeight);
+GpStatus WINGDIPAPI GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], LANGID language);
+GpStatus WINGDIPAPI GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, guint16 *LineSpacing);
+GpStatus WINGDIPAPI GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAvailable);
 
 #endif

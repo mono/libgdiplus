@@ -31,30 +31,30 @@
 #ifndef __BITMAP_H__
 #define __BITMAP_H__
 
-GpStatus GdipCreateBitmapFromFile (GDIPCONST WCHAR* filename, GpBitmap **bitmap);
-GpStatus GdipCreateBitmapFromFileICM (GDIPCONST WCHAR* filename, GpBitmap **bitmap);
+GpStatus WINGDIPAPI GdipCreateBitmapFromFile (GDIPCONST WCHAR* filename, GpBitmap **bitmap);
+GpStatus WINGDIPAPI GdipCreateBitmapFromFileICM (GDIPCONST WCHAR* filename, GpBitmap **bitmap);
 
-GpStatus GdipCreateBitmapFromScan0 (INT width, INT height, INT stride, PixelFormat format, BYTE* scan0, GpBitmap **bitmap);
-GpStatus GdipCreateBitmapFromGraphics (INT width, INT height, GpGraphics *target, GpBitmap **bitmap);
+GpStatus WINGDIPAPI GdipCreateBitmapFromScan0 (INT width, INT height, INT stride, PixelFormat format, BYTE* scan0, GpBitmap **bitmap);
+GpStatus WINGDIPAPI GdipCreateBitmapFromGraphics (INT width, INT height, GpGraphics *target, GpBitmap **bitmap);
 
-GpStatus GdipCreateBitmapFromHBITMAP (HBITMAP hbm, HPALETTE hpal, GpBitmap** bitmap);
-GpStatus GdipCreateHBITMAPFromBitmap (GpBitmap* bitmap, HBITMAP *hbmReturn, ARGB background);
+GpStatus WINGDIPAPI GdipCreateBitmapFromHBITMAP (HBITMAP hbm, HPALETTE hpal, GpBitmap** bitmap);
+GpStatus WINGDIPAPI GdipCreateHBITMAPFromBitmap (GpBitmap* bitmap, HBITMAP *hbmReturn, ARGB background);
 
-GpStatus GdipCreateBitmapFromHICON (HICON hicon, GpBitmap** bitmap);
-GpStatus GdipCreateHICONFromBitmap (GpBitmap* bitmap, HICON *hbmReturn);
+GpStatus WINGDIPAPI GdipCreateBitmapFromHICON (HICON hicon, GpBitmap** bitmap);
+GpStatus WINGDIPAPI GdipCreateHICONFromBitmap (GpBitmap* bitmap, HICON *hbmReturn);
 
-GpStatus GdipCreateBitmapFromResource (HINSTANCE hInstance, GDIPCONST WCHAR *lpBitmapName, GpBitmap** bitmap);
+GpStatus WINGDIPAPI GdipCreateBitmapFromResource (HINSTANCE hInstance, GDIPCONST WCHAR *lpBitmapName, GpBitmap** bitmap);
 
-GpStatus GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST Rect *rect, UINT flags, PixelFormat format, BitmapData *lockedBitmapData);
-GpStatus GdipBitmapUnlockBits (GpBitmap *bitmap, BitmapData *lockedBitmapData);
+GpStatus WINGDIPAPI GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST Rect *rect, UINT flags, PixelFormat format, BitmapData *lockedBitmapData);
+GpStatus WINGDIPAPI GdipBitmapUnlockBits (GpBitmap *bitmap, BitmapData *lockedBitmapData);
 
-GpStatus GdipBitmapSetPixel (GpBitmap *bitmap, INT x, INT y, ARGB color);
-GpStatus GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color);
+GpStatus WINGDIPAPI GdipBitmapSetPixel (GpBitmap *bitmap, INT x, INT y, ARGB color);
+GpStatus WINGDIPAPI GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color);
 
-GpStatus GdipCloneBitmapArea (REAL x, REAL y, REAL width, REAL height, PixelFormat format, GpBitmap *srcBitmap, GpBitmap **dstBitmap);
-GpStatus GdipCloneBitmapAreaI (INT x, INT y, INT width, INT height, PixelFormat format, GpBitmap *srcBitmap, GpBitmap **dstBitmap);
+GpStatus WINGDIPAPI GdipCloneBitmapArea (REAL x, REAL y, REAL width, REAL height, PixelFormat format, GpBitmap *srcBitmap, GpBitmap **dstBitmap);
+GpStatus WINGDIPAPI GdipCloneBitmapAreaI (INT x, INT y, INT width, INT height, PixelFormat format, GpBitmap *srcBitmap, GpBitmap **dstBitmap);
 
-GpStatus GdipBitmapSetResolution (GpBitmap *bitmap, REAL xdpi, REAL ydpi);
+GpStatus WINGDIPAPI GdipBitmapSetResolution (GpBitmap *bitmap, REAL xdpi, REAL ydpi);
 
 
 /* missing API

@@ -184,7 +184,7 @@ GdipCloneFontFamily (GpFontFamily *fontFamily, GpFontFamily **clonedFontFamily)
 }
 
 GpStatus 
-GdipDeleteFontFamily (GpFontFamily *fontFamily)
+WINGDIPAPI GdipDeleteFontFamily (GpFontFamily *fontFamily)
 {
 	BOOL delete = TRUE;
 	
@@ -246,7 +246,7 @@ gdip_createPrivateFontSet (GpFontCollection *font_collection)
 	font_collection->fontset = col;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetFontCollectionFamilyCount (GpFontCollection *font_collection, int *numFound)
 {
 	if (!font_collection  || !numFound)
@@ -263,7 +263,7 @@ GdipGetFontCollectionFamilyCount (GpFontCollection *font_collection, int *numFou
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, int num_sought, GpFontFamily *gpfamilies[], int *num_found)
 {
 	int i;
@@ -432,7 +432,7 @@ create_fontfamily_from_collection (char* name, GpFontCollection *font_collection
 }
 
 // coverity[+alloc : arg-*2]
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_collection, GpFontFamily **fontFamily)
 {
 	GpStatus status;
@@ -455,7 +455,7 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], int language)
 {
 	GpStatus status;
@@ -475,7 +475,7 @@ GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], int 
 }
 
 // coverity[+alloc : arg-*0]
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetGenericFontFamilySansSerif (GpFontFamily **nativeFamily)
 {
 	const WCHAR MSSansSerif[] = {'M','S',' ','S','a','n','s',' ', 'S','e','r','i','f', 0};
@@ -498,7 +498,7 @@ GdipGetGenericFontFamilySansSerif (GpFontFamily **nativeFamily)
 }
 
 // coverity[+alloc : arg-*0]
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetGenericFontFamilySerif (GpFontFamily **nativeFamily)
 {
 	const WCHAR Serif[] = {'S','e','r','i','f', 0};
@@ -521,7 +521,7 @@ GdipGetGenericFontFamilySerif (GpFontFamily **nativeFamily)
 }
 
 // coverity[+alloc : arg-*0]
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily)
 {
 	const WCHAR Monospace[] = {'C','o','u','r','i', 'e', 'r', ' ', 'N', 'e', 'w', 0};
@@ -724,7 +724,7 @@ gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 }
 #endif
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, guint16 *EmHeight)
 {
 	GpStatus status = Ok;
@@ -739,7 +739,7 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, guint16 *EmHeight)
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, guint16 *CellAscent)
 {
 	GpStatus status = Ok;
@@ -754,7 +754,7 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, guint16 *CellAscen
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, guint16 *CellDescent)
 {
 	GpStatus status = Ok;
@@ -769,7 +769,7 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, guint16 *CellDesc
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, guint16 *LineSpacing)
 {
 	GpStatus status = Ok;
@@ -784,7 +784,7 @@ GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, guint16 *LineSpac
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAvailable)
 {
 	if (!family || !IsStyleAvailable)

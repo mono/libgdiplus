@@ -37,7 +37,7 @@
 
 static BOOL startup = FALSE;
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStartupOutput *output)
 {
 	GpStatus status = Ok;
@@ -55,7 +55,7 @@ GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStart
 }
 
 void 
-GdiplusShutdown (ULONG_PTR token)
+WINGDIPAPI GdiplusShutdown (ULONG_PTR token)
 {
 	if (startup) {
 		releaseCodecList ();
@@ -69,7 +69,7 @@ GdiplusShutdown (ULONG_PTR token)
 
 
 /* Memory */
-void *
+WINGDIPAPI void *
 GdipAlloc (size_t size)
 {
 	return malloc (size);
@@ -87,7 +87,7 @@ gdip_realloc (void *org, int size)
 	return realloc (org, size);
 }
 
-void 
+WINGDIPAPI void
 GdipFree (void *ptr)
 {
 	free (ptr);

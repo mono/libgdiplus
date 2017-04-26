@@ -61,7 +61,7 @@ gdip_brush_setup (GpGraphics *graphics, GpBrush *brush)
 }
 
 /* coverity[+alloc : arg-*1] */
-GpStatus 
+GpStatus WINGDIPAPI
 GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush)
 {
 	if (!brush || !clonedBrush)
@@ -70,7 +70,7 @@ GdipCloneBrush (GpBrush *brush, GpBrush **clonedBrush)
 	return brush->vtable->clone_brush (brush, clonedBrush);
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipDeleteBrush (GpBrush *brush)
 {
 	GpStatus status;
@@ -84,7 +84,7 @@ GdipDeleteBrush (GpBrush *brush)
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetBrushType (GpBrush *brush, GpBrushType *type)
 {
 	if (!brush || !type)
