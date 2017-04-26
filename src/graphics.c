@@ -212,7 +212,7 @@ gdip_metafile_graphics_new (GpMetafile *metafile)
 }
 
 // coverity[+alloc : arg-*1]
-GpStatus 
+GpStatus WINGDIPAPI
 GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 {
 	GpGraphics *clone = (GpGraphics *) hDC;
@@ -262,7 +262,7 @@ GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
 	return NotImplemented;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateFromHWND (void *hwnd, GpGraphics **graphics)
 {
 	return NotImplemented;
@@ -340,7 +340,7 @@ ignore_error_handler (Display *dpy, XErrorEvent *event)
 }
 #endif
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipDeleteGraphics (GpGraphics *graphics)
 {
 	if (!graphics)
@@ -403,7 +403,7 @@ GdipDeleteGraphics (GpGraphics *graphics)
 	return Ok;
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipGetDC (GpGraphics *graphics, HDC *hDC)
 {
 	/* For our gdi+ the hDC is equivalent to the graphics handle */
@@ -413,7 +413,7 @@ GdipGetDC (GpGraphics *graphics, HDC *hDC)
 	return Ok;
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipReleaseDC (GpGraphics *graphics, HDC hDC)
 {
 	if (hDC != (void *)graphics) {
@@ -422,7 +422,7 @@ GdipReleaseDC (GpGraphics *graphics, HDC hDC)
 	return Ok;
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 {
 	GpState* pos_state;
@@ -469,7 +469,7 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 	return cairo_SetGraphicsClip (graphics);
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 {
 	GpState* pos_state;
@@ -515,7 +515,7 @@ GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipResetWorldTransform (GpGraphics *graphics)
 {
 	if (!graphics)
@@ -534,7 +534,7 @@ GdipResetWorldTransform (GpGraphics *graphics)
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 {
 	GpStatus status;
@@ -568,7 +568,7 @@ GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 {
 	if (!graphics || !matrix)
@@ -619,7 +619,7 @@ apply_world_to_bounds (GpGraphics *graphics)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrder order)
 {
         GpStatus s;
@@ -661,7 +661,7 @@ GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrde
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order)
 {
 	GpStatus s;
@@ -690,7 +690,7 @@ GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder order)
 {
 	GpStatus s;
@@ -719,7 +719,7 @@ GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixOrder order)
 {
 	GpStatus s;
@@ -752,7 +752,7 @@ GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixO
  * Draw operations - validate parameters and delegate to cairo/metafile backends
  */
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle, float sweepAngle)
 {
 	if (!graphics || !pen)
@@ -768,7 +768,7 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, fl
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawArcI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height, float startAngle, float sweepAngle)
 {
 	if (!graphics || !pen)
@@ -784,7 +784,7 @@ GdipDrawArcI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int hei
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipDrawBezier (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2, float x3, float y3, 
 	float x4, float y4)
 {
@@ -801,7 +801,7 @@ GdipDrawBezier (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, 
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawBezierI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
 {
 	if (!graphics || !pen)
@@ -817,7 +817,7 @@ GdipDrawBezierI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipDrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
 	if (count == 0)
@@ -836,7 +836,7 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, i
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
 	if (count == 0)
@@ -855,7 +855,7 @@ GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, i
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipDrawEllipse (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height)
 {	
 	if (!graphics || !pen)
@@ -871,7 +871,7 @@ GdipDrawEllipse (GpGraphics *graphics, GpPen *pen, float x, float y, float width
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawEllipseI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height)
 {
 	if (!graphics || !pen)
@@ -887,7 +887,7 @@ GdipDrawEllipseI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawLine (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2)
 {
 	if (!graphics || !pen)
@@ -903,7 +903,7 @@ GdipDrawLine (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, fl
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipDrawLineI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2)
 {
 	if (!graphics || !pen)
@@ -919,7 +919,7 @@ GdipDrawLineI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2)
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipDrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
 	if (!graphics || !pen || !points || count < 2)
@@ -935,7 +935,7 @@ GdipDrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
 	if (!graphics || !pen || !points || count < 2)
@@ -951,7 +951,7 @@ GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 {
 	if (!graphics || !pen || !path)
@@ -967,7 +967,7 @@ GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle, float sweepAngle)
 {
 	if (!graphics || !pen)
@@ -987,7 +987,7 @@ GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, fl
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height, float startAngle, float sweepAngle)
 {
 	if (!graphics || !pen)
@@ -1007,7 +1007,7 @@ GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int hei
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
 	if (!graphics || !pen || !points || count < 2)
@@ -1023,7 +1023,7 @@ GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, i
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
 	if (!graphics || !pen || !points || count < 2)
@@ -1039,7 +1039,7 @@ GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, i
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawRectangle (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height)
 {
 	if (!graphics || !pen)
@@ -1059,7 +1059,7 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen, float x, float y, float wid
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height)
 {
 	if (!graphics || !pen)
@@ -1079,7 +1079,7 @@ GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, i
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects, int count)
 {
 	if (!graphics || !pen || !rects || count <= 0)
@@ -1095,7 +1095,7 @@ GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects, 
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRect *rects, int count)
 {
 	if (!graphics || !pen || !rects || count <= 0)
@@ -1111,19 +1111,19 @@ GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRect *rects, 
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawClosedCurve (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
         return GdipDrawClosedCurve2 (graphics, pen, points, count, 0.5f);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
         return GdipDrawClosedCurve2I (graphics, pen, points, count, 0.5f);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count, float tension)
 {
 	/* when tension is 0, draw straight lines */
@@ -1143,7 +1143,7 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *poin
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count, float tension)
 {
 	/* when tension is 0, draw straight lines */
@@ -1163,7 +1163,7 @@ GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *poin
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count) 
 {
 	if (count == 2) {
@@ -1174,7 +1174,7 @@ GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count) 
 {
 	if (count == 2) {
@@ -1185,7 +1185,7 @@ GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, int count, float tension)
 {
 	if (count == 2) {
@@ -1196,7 +1196,7 @@ GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, in
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, int count, float tension)
 {
 	if (count == 2) {
@@ -1207,7 +1207,7 @@ GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, in
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, int count, int offset, int numOfSegments, float tension)
 {
 	/* draw lines if tension = 0 */
@@ -1234,7 +1234,7 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, in
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, int count, int offset, int numOfSegments, float tension)
 {
 	/* draw lines if tension = 0 */
@@ -1264,7 +1264,7 @@ GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, in
 /*
  * Fills
  */
-GpStatus
+GpStatus WINGDIPAPI
 GdipFillEllipse (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height)
 {
 	if (!graphics || !brush)
@@ -1280,7 +1280,7 @@ GdipFillEllipse (GpGraphics *graphics, GpBrush *brush, float x, float y, float w
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipFillEllipseI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height)
 {
 	if (!graphics || !brush)
@@ -1296,7 +1296,7 @@ GdipFillEllipseI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width,
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height)
 {
 	if (!graphics || !brush)
@@ -1316,7 +1316,7 @@ GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, float x, float y, float
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height)
 {
 	if (!graphics || !brush)
@@ -1336,7 +1336,7 @@ GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush, int x, int y, int widt
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rects, int count)
 {
 	if (!graphics || !brush || !rects || count <= 0)
@@ -1352,7 +1352,7 @@ GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rec
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect *rects, int count)
 {
 	if (!graphics || !brush || !rects || count <= 0)
@@ -1368,7 +1368,7 @@ GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect *rec
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipFillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, 
 	float startAngle, float sweepAngle)
 {
@@ -1389,7 +1389,7 @@ GdipFillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipFillPieI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, float startAngle, float sweepAngle)
 {
 	if (!graphics || !brush)
@@ -1409,7 +1409,7 @@ GdipFillPieI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 {
 	if (!graphics || !brush || !path)
@@ -1425,7 +1425,7 @@ GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, FillMode fillMode)
 {
 	if (!graphics || !brush || !points)
@@ -1441,7 +1441,7 @@ GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *point
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count, FillMode fillMode)
 {
 	if (!graphics || !brush || !points)
@@ -1457,31 +1457,31 @@ GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *point
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipFillPolygon2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count)
 {
         return GdipFillPolygon (graphics, brush, points, count, FillModeAlternate);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count)
 {
         return GdipFillPolygonI (graphics, brush, points, count, FillModeAlternate);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipFillClosedCurve (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count)
 {
         return GdipFillClosedCurve2 (graphics, brush, points, count, 0.5f);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipFillClosedCurveI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count)
 {
         return GdipFillClosedCurve2I (graphics, brush, points, count, 0.5f);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, float tension)
 {
         /* when tension is 0, the edges are straight lines */
@@ -1501,7 +1501,7 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count, float tension)
 {
         /* when tension is 0, the edges are straight lines */
@@ -1521,7 +1521,7 @@ GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 {
         if (!graphics || !brush || !region)
@@ -1537,7 +1537,7 @@ GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y)
 {
 	if (!graphics)
@@ -1556,7 +1556,7 @@ GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y)
 	}
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
 {
 	if (!graphics || !x || !y)
@@ -1567,7 +1567,7 @@ GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
 	return Ok;
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipGetDpiX (GpGraphics *graphics, float *dpi)
 {
 	if (!graphics || !dpi)
@@ -1577,7 +1577,7 @@ GdipGetDpiX (GpGraphics *graphics, float *dpi)
 	return Ok;
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipGetDpiY (GpGraphics *graphics, float *dpi)
 {
 	if (!graphics || !dpi)
@@ -1587,7 +1587,7 @@ GdipGetDpiY (GpGraphics *graphics, float *dpi)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 {
 	if (!graphics)
@@ -1603,7 +1603,7 @@ GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode interpolationMode)
 {
 	if (!graphics)
@@ -1621,7 +1621,7 @@ GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode interpolationM
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *imode)
 {
 	if (!graphics || !imode)
@@ -1631,7 +1631,7 @@ GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *imode)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetTextRenderingHint (GpGraphics *graphics, TextRenderingHint mode)
 {
 	if (!graphics)
@@ -1649,7 +1649,7 @@ GdipSetTextRenderingHint (GpGraphics *graphics, TextRenderingHint mode)
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetTextRenderingHint (GpGraphics *graphics, TextRenderingHint *mode)
 {
 	if (!graphics || !mode) 
@@ -1660,7 +1660,7 @@ GdipGetTextRenderingHint (GpGraphics *graphics, TextRenderingHint *mode)
 }
 
 /* MonoTODO - pixel offset mode isn't supported */
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode pixelOffsetMode)
 {
 	if (!graphics || (pixelOffsetMode == PixelOffsetModeInvalid))
@@ -1680,7 +1680,7 @@ GdipSetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode pixelOffsetMode)
 }
 
 /* MonoTODO - pixel offset mode isn't supported */
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode *pixelOffsetMode)
 {
 	if (!graphics || !pixelOffsetMode)
@@ -1691,7 +1691,7 @@ GdipGetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode *pixelOffsetMode)
 }
 
 /* MonoTODO - text contrast isn't supported */
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetTextContrast (GpGraphics *graphics, UINT contrast)
 {
 	/** The gamma correction value must be between 0 and 12.
@@ -1712,7 +1712,7 @@ GdipSetTextContrast (GpGraphics *graphics, UINT contrast)
 }
 
 /* MonoTODO - text contrast isn't supported */
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetTextContrast (GpGraphics *graphics, UINT *contrast)
 {
 	if (!graphics || !contrast)
@@ -1722,7 +1722,7 @@ GdipGetTextContrast (GpGraphics *graphics, UINT *contrast)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 {
 	if (!graphics)
@@ -1740,7 +1740,7 @@ GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetSmoothingMode (GpGraphics *graphics, SmoothingMode *mode)
 {
 	if (!graphics || !mode)
@@ -1751,7 +1751,7 @@ GdipGetSmoothingMode (GpGraphics *graphics, SmoothingMode *mode)
 }
 
 /* MonoTODO - dstrect, srcrect and unit support isn't implemented */
-GpStatus
+GpStatus WINGDIPAPI
 GdipBeginContainer (GpGraphics *graphics, GDIPCONST GpRectF* dstrect, GDIPCONST GpRectF *srcrect, GpUnit unit, GraphicsContainer *state)
 {
 	if (!graphics || !dstrect || !srcrect || (unit < UnitPixel) || (unit > UnitMillimeter))
@@ -1760,7 +1760,7 @@ GdipBeginContainer (GpGraphics *graphics, GDIPCONST GpRectF* dstrect, GDIPCONST 
 	return GdipBeginContainer2 (graphics, state);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipBeginContainer2 (GpGraphics *graphics, GraphicsContainer* state)
 {
 	GpStatus status;
@@ -1779,7 +1779,7 @@ GdipBeginContainer2 (GpGraphics *graphics, GraphicsContainer* state)
 }
 
 /* MonoTODO - depends on incomplete GdipBeginContainer */
-GpStatus
+GpStatus WINGDIPAPI
 GdipBeginContainerI (GpGraphics *graphics, GDIPCONST GpRect* dstrect, GDIPCONST GpRect *srcrect, GpUnit unit, GraphicsContainer *state)
 {
 	GpRectF dr, sr;
@@ -1800,7 +1800,7 @@ GdipBeginContainerI (GpGraphics *graphics, GDIPCONST GpRect* dstrect, GDIPCONST 
 	return GdipBeginContainer (graphics, &dr, &sr, unit, state);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipEndContainer (GpGraphics *graphics, GraphicsContainer state)
 {
 	if (!graphics)
@@ -1809,7 +1809,7 @@ GdipEndContainer (GpGraphics *graphics, GraphicsContainer state)
 	return GdipRestoreGraphics (graphics, state);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 {
 	cairo_surface_t* surface;
@@ -1836,7 +1836,7 @@ GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetClipGraphics (GpGraphics *graphics, GpGraphics *srcgraphics, CombineMode combineMode)
 {
 	if (!graphics || !srcgraphics)
@@ -1845,7 +1845,7 @@ GdipSetClipGraphics (GpGraphics *graphics, GpGraphics *srcgraphics, CombineMode 
 	return GdipSetClipRegion (graphics, srcgraphics->clip, combineMode);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float height, CombineMode combineMode)
 {
 	GpStatus status;
@@ -1897,13 +1897,13 @@ cleanup:
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetClipRectI (GpGraphics *graphics, int x, int y, int width, int height, CombineMode combineMode)
 {
 	return GdipSetClipRect (graphics, x, y, width, height, combineMode);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMode)
 {
 	GpStatus status;
@@ -1926,7 +1926,7 @@ GdipSetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMode)
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMode)
 {
 	GpStatus status;
@@ -1972,7 +1972,7 @@ cleanup:
 }
 
 /* Note: not exposed in System.Drawing.dll */
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetClipHrgn (GpGraphics *graphics, void *hRgn, CombineMode combineMode)
 {
 	GpStatus status;
@@ -1994,7 +1994,7 @@ GdipSetClipHrgn (GpGraphics *graphics, void *hRgn, CombineMode combineMode)
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipResetClip (GpGraphics *graphics)
 {
 	if (!graphics)
@@ -2013,7 +2013,7 @@ GdipResetClip (GpGraphics *graphics)
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipTranslateClip (GpGraphics *graphics, float dx, float dy)
 {
 	GpStatus status;
@@ -2036,13 +2036,13 @@ GdipTranslateClip (GpGraphics *graphics, float dx, float dy)
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipTranslateClipI (GpGraphics *graphics, int dx, int dy)
 {
 	return GdipTranslateClip (graphics, dx, dy);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetClip (GpGraphics *graphics, GpRegion *region)
 {
 	if (!graphics || !region)
@@ -2056,7 +2056,7 @@ GdipGetClip (GpGraphics *graphics, GpRegion *region)
 	return GdipTransformRegion (region, graphics->clip_matrix);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetClipBounds (GpGraphics *graphics, GpRectF *rect)
 {
 	GpStatus status;
@@ -2081,7 +2081,7 @@ GdipGetClipBounds (GpGraphics *graphics, GpRectF *rect)
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetClipBoundsI (GpGraphics *graphics, GpRect *rect)
 {
 	GpRectF rectF;
@@ -2103,7 +2103,7 @@ GdipGetClipBoundsI (GpGraphics *graphics, GpRect *rect)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsClipEmpty (GpGraphics *graphics, BOOL *result)
 {
 	if (!graphics)
@@ -2112,7 +2112,7 @@ GdipIsClipEmpty (GpGraphics *graphics, BOOL *result)
 	return GdipIsEmptyRegion (graphics->clip, graphics, result);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetVisibleClip_linux (GpGraphics *graphics, GpRect *rect)
 {
 	if (!graphics || !rect)
@@ -2125,7 +2125,7 @@ GdipSetVisibleClip_linux (GpGraphics *graphics, GpRect *rect)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetVisibleClipBounds (GpGraphics *graphics, GpRectF *rect)
 {
 	if (!graphics || !rect)
@@ -2153,7 +2153,7 @@ GdipGetVisibleClipBounds (GpGraphics *graphics, GpRectF *rect)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetVisibleClipBoundsI (GpGraphics *graphics, GpRect *rect)
 {
 	GpStatus status;
@@ -2174,7 +2174,7 @@ GdipGetVisibleClipBoundsI (GpGraphics *graphics, GpRect *rect)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsVisibleClipEmpty (GpGraphics *graphics, BOOL *result)
 {
 	if (!graphics || !result)
@@ -2184,7 +2184,7 @@ GdipIsVisibleClipEmpty (GpGraphics *graphics, BOOL *result)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsVisiblePoint (GpGraphics *graphics, float x, float y, BOOL *result)
 {
 	GpRectF rectF;
@@ -2202,13 +2202,13 @@ GdipIsVisiblePoint (GpGraphics *graphics, float x, float y, BOOL *result)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsVisiblePointI (GpGraphics *graphics, int x, int y, BOOL *result)
 {
 	return GdipIsVisiblePoint (graphics, x, y, result);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsVisibleRect (GpGraphics *graphics, float x, float y, float width, float height, BOOL *result)
 {
 	BOOL found = FALSE;
@@ -2247,13 +2247,13 @@ GdipIsVisibleRect (GpGraphics *graphics, float x, float y, float width, float he
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsVisibleRectI (GpGraphics *graphics, int x, int y, int width, int height, BOOL *result)
 {
 	return GdipIsVisibleRect (graphics, x, y, width, height, result);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetCompositingMode (GpGraphics *graphics, CompositingMode compositingMode)
 {
 	if (!graphics)
@@ -2271,7 +2271,7 @@ GdipSetCompositingMode (GpGraphics *graphics, CompositingMode compositingMode)
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetCompositingMode (GpGraphics *graphics, CompositingMode *compositingMode)
 {
 	if (!graphics || !compositingMode)
@@ -2281,7 +2281,7 @@ GdipGetCompositingMode (GpGraphics *graphics, CompositingMode *compositingMode)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetCompositingQuality (GpGraphics *graphics, CompositingQuality compositingQuality)
 {
 	if (!graphics)
@@ -2300,7 +2300,7 @@ GdipSetCompositingQuality (GpGraphics *graphics, CompositingQuality compositingQ
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetCompositingQuality (GpGraphics *graphics, CompositingQuality *compositingQuality)
 {
 	if (!graphics || !compositingQuality)
@@ -2310,13 +2310,13 @@ GdipGetCompositingQuality (GpGraphics *graphics, CompositingQuality *compositing
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetNearestColor (GpGraphics *graphics, ARGB *argb)
 {
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPageScale (GpGraphics *graphics, float scale)
 {
 	if (!graphics) 
@@ -2335,7 +2335,7 @@ GdipSetPageScale (GpGraphics *graphics, float scale)
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPageScale (GpGraphics *graphics, float *scale)
 {
 	if (!graphics | !scale)
@@ -2345,7 +2345,7 @@ GdipGetPageScale (GpGraphics *graphics, float *scale)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPageUnit (GpGraphics *graphics, GpUnit unit)
 {
 	if (!graphics) 
@@ -2364,7 +2364,7 @@ GdipSetPageUnit (GpGraphics *graphics, GpUnit unit)
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPageUnit (GpGraphics *graphics, GpUnit *unit)
 {
 	if (!graphics || !unit)
@@ -2374,7 +2374,7 @@ GdipGetPageUnit (GpGraphics *graphics, GpUnit *unit)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPointF *points, int count)
 {
         static int      called = 0;
@@ -2386,7 +2386,7 @@ GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordi
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipTransformPointsI (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPoint *points, int count)
 {
         static int      called = 0;

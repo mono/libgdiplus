@@ -1053,14 +1053,14 @@ GdipCreateHICONFromBitmap (GpBitmap* bitmap, HICON *hbmReturn)
 	return GdipCloneImage ((GpImage *)bitmap, (GpImage**)hbmReturn);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateBitmapFromResource (HINSTANCE hInstance, GDIPCONST WCHAR *lpBitmapName, GpBitmap** bitmap)
 {
 	return(NotImplemented);
 }
 
 /* coverity[+alloc : arg-*6] */
-GpStatus
+GpStatus WINGDIPAPI
 GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
 					  GpBitmap *original, GpBitmap **bitmap)
 {
@@ -1102,7 +1102,7 @@ fail:
 }
 
 /* coverity[+alloc : arg-*6] */
-GpStatus
+GpStatus WINGDIPAPI
 GdipCloneBitmapArea (float x, float y, float w, float h, PixelFormat format,
 					 GpBitmap *original, GpBitmap **bitmap)
 {
@@ -1947,7 +1947,7 @@ gdip_make_alpha_opaque (BitmapData *data)
 }
 #endif
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST Rect *srcRect, UINT flags, PixelFormat format, BitmapData *locked_data)
 {
 	int		dest_pixel_format_bpp;
@@ -2052,7 +2052,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST Rect *srcRect, UINT flags, Pixel
 	return status;
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipBitmapUnlockBits (GpBitmap *bitmap, BitmapData *locked_data)
 {
 	GpStatus	status;
@@ -2103,7 +2103,7 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, BitmapData *locked_data)
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipBitmapSetPixel (GpBitmap *bitmap, int x, int y, ARGB color)
 {
 	BitmapData *data;
@@ -2143,7 +2143,7 @@ GdipBitmapSetPixel (GpBitmap *bitmap, int x, int y, ARGB color)
 	return Ok;		
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 {
 	BitmapData	*data;
@@ -2202,7 +2202,7 @@ GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipBitmapSetResolution (GpBitmap *bitmap, float xdpi, float ydpi)
 {
 	if (!bitmap || !bitmap->active_bitmap || isnan(xdpi) || isnan(xdpi) || (xdpi <= 0.0f) || (ydpi <= 0.0f))

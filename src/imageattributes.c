@@ -273,7 +273,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 }
 
 /* coverity[+alloc : arg-*0] */
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateImageAttributes (GpImageAttributes **imageattr)
 {
 	GpImageAttributes *result;
@@ -300,7 +300,7 @@ GdipCreateImageAttributes (GpImageAttributes **imageattr)
 }
 
 /* coverity[+alloc : arg-*1] */
-GpStatus
+GpStatus WINGDIPAPI
 GdipCloneImageAttributes (GDIPCONST GpImageAttributes *imageattr, GpImageAttributes **cloneImageattr)
 {
 	GpImageAttributes *result;
@@ -321,7 +321,7 @@ GdipCloneImageAttributes (GDIPCONST GpImageAttributes *imageattr, GpImageAttribu
 
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDisposeImageAttributes (GpImageAttributes *imageattr)
 {
 	if (!imageattr)
@@ -337,14 +337,14 @@ GdipDisposeImageAttributes (GpImageAttributes *imageattr)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetImageAttributesThreshold ( GpImageAttributes *imageattr,  ColorAdjustType type, BOOL enableFlag, float threshold)
 {
 	return NotImplemented;
 }
 
 
-GpStatus  
+GpStatus WINGDIPAPI  
 GdipSetImageAttributesGamma (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, float gamma)
 {
 	GpImageAttribute *imgattr;
@@ -365,7 +365,7 @@ GdipSetImageAttributesGamma (GpImageAttributes *imageattr, ColorAdjustType type,
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetImageAttributesNoOp (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag)
 {	
 	GpImageAttribute *imgattr;
@@ -383,7 +383,7 @@ GdipSetImageAttributesNoOp (GpImageAttributes *imageattr, ColorAdjustType type, 
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
         ARGB colorLow, ARGB colorHigh)
 {
@@ -404,7 +404,7 @@ GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType t
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetImageAttributesOutputChannelColorProfile (GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
         GDIPCONST WCHAR *colorProfileFilename)
 {       
@@ -412,7 +412,7 @@ GdipSetImageAttributesOutputChannelColorProfile (GpImageAttributes *imageattr, C
 }
 
 
-GpStatus 
+GpStatus WINGDIPAPI 
 GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, UINT mapSize, GDIPCONST ColorMap *map)
 {
 	GpImageAttribute *imgattr;
@@ -455,7 +455,7 @@ GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType 
 	According to Microsoft documentation:
 	clamp: This parameter has no effect in Microsoft® Windows® GDI+ version 1.0
 */ 
-GpStatus 
+GpStatus WINGDIPAPI 
 GdipSetImageAttributesWrapMode (GpImageAttributes *imageattr, WrapMode wrap, ARGB argb, BOOL clamp)
 {
 	if (!imageattr)
@@ -467,13 +467,13 @@ GdipSetImageAttributesWrapMode (GpImageAttributes *imageattr, WrapMode wrap, ARG
 }
 
 
-GpStatus 
+GpStatus WINGDIPAPI 
 GdipGetImageAttributesAdjustedPalette (GpImageAttributes *imageattr, ColorPalette *colorPalette, ColorAdjustType type)
 {
 	return NotImplemented;
 }
 
-GpStatus 
+GpStatus WINGDIPAPI 
 GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, 
 	GDIPCONST ColorMatrix* colorMatrix, GDIPCONST ColorMatrix* grayMatrix, ColorMatrixFlags flags)
 {
@@ -515,7 +515,7 @@ GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType
 	return Ok;
 }
 	
-GpStatus 
+GpStatus WINGDIPAPI 
 GdipSetImageAttributesOutputChannel (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, ColorChannelFlags channelFlags)
 {
 	return NotImplemented;

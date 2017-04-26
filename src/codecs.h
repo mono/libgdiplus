@@ -64,9 +64,9 @@ typedef struct {
         const BYTE* SigMask;
 } ImageCodecInfo;
 
-GpStatus GdipGetImageDecodersSize (UINT *numDecoders, UINT *size);
-GpStatus GdipGetImageDecoders (UINT numDecoders, UINT size, ImageCodecInfo *decoders);
-GpStatus GdipGetImageEncodersSize (UINT *numEncoders, UINT *size);
-GpStatus GdipGetImageEncoders (UINT numEncoders, UINT size, ImageCodecInfo *encoders);
+GpStatus WINGDIPAPI GdipGetImageDecodersSize (UINT *numDecoders, UINT *size);
+GpStatus WINGDIPAPI GdipGetImageDecoders (UINT numDecoders, UINT size, ImageCodecInfo *decoders);
+GpStatus WINGDIPAPI GdipGetImageEncodersSize (UINT *numEncoders, UINT *size);
+GpStatus WINGDIPAPI GdipGetImageEncoders (UINT numEncoders, UINT size, ImageCodecInfo *encoders);
 
 #endif

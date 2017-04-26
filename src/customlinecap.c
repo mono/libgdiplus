@@ -288,7 +288,7 @@ gdip_linecap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *customCap,
 /* CustomLineCap functions */
 
 // coverity[+alloc : arg-*4]
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap, float baseInset, GpCustomLineCap **customCap)
 {
 	GpCustomLineCap *cap;
@@ -330,7 +330,7 @@ GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDeleteCustomLineCap (GpCustomLineCap *customCap)
 {
 	if (!customCap)
@@ -339,7 +339,7 @@ GdipDeleteCustomLineCap (GpCustomLineCap *customCap)
 	return customCap->vtable->destroy (customCap);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipCloneCustomLineCap (GpCustomLineCap *customCap, GpCustomLineCap **clonedCap)
 {
 	if (!customCap || !clonedCap)
@@ -348,7 +348,7 @@ GdipCloneCustomLineCap (GpCustomLineCap *customCap, GpCustomLineCap **clonedCap)
 	return customCap->vtable->clone_cap (customCap, clonedCap);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap startCap, GpLineCap endCap)
 {
 	if (!customCap)
@@ -360,7 +360,7 @@ GdipSetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap startCap, 
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap *startCap, GpLineCap *endCap)
 {
 	if (!customCap || !startCap || !endCap)
@@ -372,7 +372,7 @@ GdipGetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap *startCap,
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin lineJoin)
 {
 	if (!customCap)
@@ -383,7 +383,7 @@ GdipSetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin lineJoin)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin *lineJoin)
 {
 	if (!customCap || !lineJoin)
@@ -394,7 +394,7 @@ GdipGetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin *lineJoin
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap baseCap)
 {
 	if (!customCap)
@@ -405,7 +405,7 @@ GdipSetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap baseCap)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap *baseCap)
 {
 	if (!customCap || !baseCap)
@@ -416,7 +416,7 @@ GdipGetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap *baseCap)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetCustomLineCapBaseInset (GpCustomLineCap *customCap, float inset)
 {
 	if (!customCap)
@@ -427,7 +427,7 @@ GdipSetCustomLineCapBaseInset (GpCustomLineCap *customCap, float inset)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetCustomLineCapBaseInset (GpCustomLineCap *customCap, float *inset)
 {
 	if (!customCap || !inset)
@@ -438,7 +438,7 @@ GdipGetCustomLineCapBaseInset (GpCustomLineCap *customCap, float *inset)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetCustomLineCapWidthScale (GpCustomLineCap *customCap, float widthScale)
 {
 	if (!customCap)
@@ -449,7 +449,7 @@ GdipSetCustomLineCapWidthScale (GpCustomLineCap *customCap, float widthScale)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetCustomLineCapWidthScale (GpCustomLineCap *customCap, float *widthScale)
 {
 	if (!customCap || !widthScale)

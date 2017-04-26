@@ -33,27 +33,27 @@
 
 /* ImageAttributes public API (only!) */
 
-GpStatus GdipCreateImageAttributes (GpImageAttributes **imageattr);
-GpStatus GdipCloneImageAttributes (GDIPCONST GpImageAttributes *imageattr, GpImageAttributes **cloneImageattr);
-GpStatus GdipDisposeImageAttributes (GpImageAttributes *imageattr);
+GpStatus WINGDIPAPI GdipCreateImageAttributes (GpImageAttributes **imageattr);
+GpStatus WINGDIPAPI GdipCloneImageAttributes (GDIPCONST GpImageAttributes *imageattr, GpImageAttributes **cloneImageattr);
+GpStatus WINGDIPAPI GdipDisposeImageAttributes (GpImageAttributes *imageattr);
 
-GpStatus GdipGetImageAttributesAdjustedPalette(GpImageAttributes *imageattr, ColorPalette *colorPalette, 
+GpStatus WINGDIPAPI GdipGetImageAttributesAdjustedPalette(GpImageAttributes *imageattr, ColorPalette *colorPalette, 
 	ColorAdjustType colorAdjustType); 
 
-GpStatus GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, ARGB colorLow,
+GpStatus WINGDIPAPI GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, ARGB colorLow,
 	ARGB colorHigh);
-GpStatus GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, 
+GpStatus WINGDIPAPI GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, 
 	GDIPCONST ColorMatrix* colorMatrix, GDIPCONST ColorMatrix* grayMatrix, ColorMatrixFlags flags);
-GpStatus GdipSetImageAttributesGamma (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, REAL gamma);
-GpStatus GdipSetImageAttributesNoOp (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag);
-GpStatus GdipSetImageAttributesOutputChannel (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, 
+GpStatus WINGDIPAPI GdipSetImageAttributesGamma (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, REAL gamma);
+GpStatus WINGDIPAPI GdipSetImageAttributesNoOp (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag);
+GpStatus WINGDIPAPI GdipSetImageAttributesOutputChannel (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, 
 	ColorChannelFlags channelFlags);
-GpStatus GdipSetImageAttributesOutputChannelColorProfile (GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
+GpStatus WINGDIPAPI GdipSetImageAttributesOutputChannelColorProfile (GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
         GDIPCONST WCHAR *colorProfileFilename);
-GpStatus GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, UINT mapSize, 
+GpStatus WINGDIPAPI GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, UINT mapSize, 
 	GDIPCONST ColorMap *map);
-GpStatus GdipSetImageAttributesThreshold (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, REAL threshold);
-GpStatus GdipSetImageAttributesWrapMode (GpImageAttributes *imageattr, WrapMode wrap, ARGB argb, BOOL clamp); 
+GpStatus WINGDIPAPI GdipSetImageAttributesThreshold (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, REAL threshold);
+GpStatus WINGDIPAPI GdipSetImageAttributesWrapMode (GpImageAttributes *imageattr, WrapMode wrap, ARGB argb, BOOL clamp); 
 
 /* missing API
 	GdipResetImageAttributes

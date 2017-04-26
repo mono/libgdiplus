@@ -43,56 +43,56 @@ typedef int (*PutBytesDelegate) (BYTE*, int);
 typedef void (*CloseDelegate) ();
 typedef long (*SizeDelegate) ();
 
-GpStatus GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
+GpStatus WINGDIPAPI GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
 	PutBytesDelegate putBytesFunc, SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, GpImage **image);
 
-GpStatus GdipSaveImageToDelegate_linux (GpImage *image, GetBytesDelegate getBytesFunc, PutBytesDelegate putBytesFunc,
+GpStatus WINGDIPAPI GdipSaveImageToDelegate_linux (GpImage *image, GetBytesDelegate getBytesFunc, PutBytesDelegate putBytesFunc,
 	SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, GDIPCONST CLSID *encoderCLSID,
 	GDIPCONST EncoderParameters *params);
 
 
 /* GDI+ exported Image functions */
-GpStatus GdipLoadImageFromStream (void /*IStream*/ *stream, GpImage **image);
-GpStatus GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image); 
-GpStatus GdipLoadImageFromFileICM (GDIPCONST WCHAR* filename, GpImage **image);
+GpStatus WINGDIPAPI GdipLoadImageFromStream (void /*IStream*/ *stream, GpImage **image);
+GpStatus WINGDIPAPI GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image); 
+GpStatus WINGDIPAPI GdipLoadImageFromFileICM (GDIPCONST WCHAR* filename, GpImage **image);
 
-GpStatus GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *clsidEncoder, GDIPCONST EncoderParameters *encoderParams); 
-GpStatus GdipSaveImageToStream (GpImage *image, void /*IStream*/ *stream, GDIPCONST CLSID *clsidEncoder, GDIPCONST EncoderParameters *encoderParams);
-GpStatus GdipSaveAdd (GpImage *image, GDIPCONST EncoderParameters* encoderParams);
-GpStatus GdipSaveAddImage (GpImage *image, GpImage *newImage, GDIPCONST EncoderParameters *params);
+GpStatus WINGDIPAPI GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *clsidEncoder, GDIPCONST EncoderParameters *encoderParams); 
+GpStatus WINGDIPAPI GdipSaveImageToStream (GpImage *image, void /*IStream*/ *stream, GDIPCONST CLSID *clsidEncoder, GDIPCONST EncoderParameters *encoderParams);
+GpStatus WINGDIPAPI GdipSaveAdd (GpImage *image, GDIPCONST EncoderParameters* encoderParams);
+GpStatus WINGDIPAPI GdipSaveAddImage (GpImage *image, GpImage *newImage, GDIPCONST EncoderParameters *params);
 
-GpStatus GdipGetImageBounds (GpImage *image, GpRectF *srcRect, GpUnit *srcUnit);
-GpStatus GdipGetImageDimension (GpImage *image, REAL *width, REAL *height);
-GpStatus GdipGetImageType (GpImage *image, ImageType *type);
-GpStatus GdipGetImageWidth (GpImage *image, UINT *width);
-GpStatus GdipGetImageHeight (GpImage *image, UINT *heigth);
-GpStatus GdipGetImageHorizontalResolution (GpImage *image, REAL *resolution);
-GpStatus GdipGetImageVerticalResolution (GpImage *image, REAL *resolution);
-GpStatus GdipGetImageFlags (GpImage *image, UINT *flags);
-GpStatus GdipGetImageRawFormat (GpImage *image, GUID *format);
-GpStatus GdipGetImagePixelFormat (GpImage *image, PixelFormat *format);
-GpStatus GdipGetImageThumbnail (GpImage *image, UINT thumbWidth, UINT thumbHeight, GpImage **thumbImage, GetThumbnailImageAbort callback, VOID* callBackData);
-GpStatus GetEncoderParameterListSize (GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT *size);
-GpStatus GetEncoderParameterList (GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT size, EncoderParameters *buffer);
-GpStatus GdipImageGetFrameDimensionsCount (GpImage *image, UINT *count);
-GpStatus GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count);
-GpStatus GdipImageGetFrameCount (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count); 
-GpStatus GdipImageSelectActiveFrame (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT frameIndex);
-GpStatus GdipImageRotateFlip (GpImage *image, RotateFlipType rfType);
-GpStatus GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics);
-GpStatus GdipGetImagePalette (GpImage *image, ColorPalette *palette, INT size);
-GpStatus GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette);
-GpStatus GdipGetImagePaletteSize (GpImage *image, INT* size);
-GpStatus GdipGetPropertyCount (GpImage *image, UINT *numOfProperty);
-GpStatus GdipGetPropertyIdList (GpImage *image, UINT numOfProperty, PROPID *list);
-GpStatus GdipGetPropertyItemSize (GpImage *image, PROPID propID, UINT *size);
-GpStatus GdipGetPropertyItem (GpImage *image, PROPID propID, UINT size, PropertyItem *buffer);
-GpStatus GdipGetPropertySize (GpImage *image, UINT *totalBufferSize, UINT *numProperties);
-GpStatus GdipRemovePropertyItem (GpImage *image, PROPID propID);
-GpStatus GdipSetPropertyItem (GpImage *image, GDIPCONST PropertyItem *item);
-GpStatus GdipGetAllPropertyItems (GpImage *image, UINT totalBufferSize, UINT numProperties, PropertyItem *allItems);
-GpStatus GdipCloneImage(GpImage *image, GpImage **cloneImage);
-GpStatus GdipDisposeImage (GpImage *image);
+GpStatus WINGDIPAPI GdipGetImageBounds (GpImage *image, GpRectF *srcRect, GpUnit *srcUnit);
+GpStatus WINGDIPAPI GdipGetImageDimension (GpImage *image, REAL *width, REAL *height);
+GpStatus WINGDIPAPI GdipGetImageType (GpImage *image, ImageType *type);
+GpStatus WINGDIPAPI GdipGetImageWidth (GpImage *image, UINT *width);
+GpStatus WINGDIPAPI GdipGetImageHeight (GpImage *image, UINT *heigth);
+GpStatus WINGDIPAPI GdipGetImageHorizontalResolution (GpImage *image, REAL *resolution);
+GpStatus WINGDIPAPI GdipGetImageVerticalResolution (GpImage *image, REAL *resolution);
+GpStatus WINGDIPAPI GdipGetImageFlags (GpImage *image, UINT *flags);
+GpStatus WINGDIPAPI GdipGetImageRawFormat (GpImage *image, GUID *format);
+GpStatus WINGDIPAPI GdipGetImagePixelFormat (GpImage *image, PixelFormat *format);
+GpStatus WINGDIPAPI GdipGetImageThumbnail (GpImage *image, UINT thumbWidth, UINT thumbHeight, GpImage **thumbImage, GetThumbnailImageAbort callback, VOID* callBackData);
+GpStatus WINGDIPAPI GetEncoderParameterListSize (GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT *size);
+GpStatus WINGDIPAPI GetEncoderParameterList (GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT size, EncoderParameters *buffer);
+GpStatus WINGDIPAPI GdipImageGetFrameDimensionsCount (GpImage *image, UINT *count);
+GpStatus WINGDIPAPI GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count);
+GpStatus WINGDIPAPI GdipImageGetFrameCount (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count); 
+GpStatus WINGDIPAPI GdipImageSelectActiveFrame (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT frameIndex);
+GpStatus WINGDIPAPI GdipImageRotateFlip (GpImage *image, RotateFlipType rfType);
+GpStatus WINGDIPAPI GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics);
+GpStatus WINGDIPAPI GdipGetImagePalette (GpImage *image, ColorPalette *palette, INT size);
+GpStatus WINGDIPAPI GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette);
+GpStatus WINGDIPAPI GdipGetImagePaletteSize (GpImage *image, INT* size);
+GpStatus WINGDIPAPI GdipGetPropertyCount (GpImage *image, UINT *numOfProperty);
+GpStatus WINGDIPAPI GdipGetPropertyIdList (GpImage *image, UINT numOfProperty, PROPID *list);
+GpStatus WINGDIPAPI GdipGetPropertyItemSize (GpImage *image, PROPID propID, UINT *size);
+GpStatus WINGDIPAPI GdipGetPropertyItem (GpImage *image, PROPID propID, UINT size, PropertyItem *buffer);
+GpStatus WINGDIPAPI GdipGetPropertySize (GpImage *image, UINT *totalBufferSize, UINT *numProperties);
+GpStatus WINGDIPAPI GdipRemovePropertyItem (GpImage *image, PROPID propID);
+GpStatus WINGDIPAPI GdipSetPropertyItem (GpImage *image, GDIPCONST PropertyItem *item);
+GpStatus WINGDIPAPI GdipGetAllPropertyItems (GpImage *image, UINT totalBufferSize, UINT numProperties, PropertyItem *allItems);
+GpStatus WINGDIPAPI GdipCloneImage(GpImage *image, GpImage **cloneImage);
+GpStatus WINGDIPAPI GdipDisposeImage (GpImage *image);
 
 /* missing API
 	GdipLoadImageFromStreamICM
