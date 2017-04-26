@@ -279,7 +279,13 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		png_set_read_fn (png_ptr, getBytesFunc, _gdip_png_stream_read_data);
 	}
 
-	png_read_png (png_ptr, info_ptr, 0, NULL);
+	/* Pass PNG_TRANSFORM_STRIP_16, which basically reduces the color palette from 16-bits to 8-bits
+	 * for 16-bit color depths. The current implementation of libgdiplus doesn't handle bit depths > 8,
+	 * so this acts as a workaround. Net impact is that the quality of the image is slightly reduced instead
+	 * of refusing to process the image (and potentially crashing the application) altogether;
+	 * proper support would mean supporting 16-bit color channels.
+	 * Partially fixes http://bugzilla.ximian.com/show_bug.cgi?id=80693 */
+	png_read_png (png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16, NULL);
 
 	bit_depth = png_get_bit_depth (png_ptr, info_ptr);
 	channels = png_get_channels (png_ptr, info_ptr);
