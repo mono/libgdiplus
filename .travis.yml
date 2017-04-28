@@ -12,7 +12,6 @@ install:
 
 script:
 # Build libgdiplus
-- cd $HOME/build/CoreCompat/libgdiplus
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./autogen.sh --prefix=/usr/local/; fi
 - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./autogen.sh --without-x11 --prefix=/usr/local/; fi
 - make -j4
@@ -20,9 +19,9 @@ script:
 - sudo make install
 
 # Build Mono
-- cd $HOME/build/
+- cd ..
 - git clone --depth 1 https://github.com/mono/mono
-- cd $HOME/build/mono
+- cd mono
 - ./autogen.sh --prefix=/usr/local/
 - make -j4 > /dev/null
 
