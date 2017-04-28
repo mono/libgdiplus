@@ -1,24 +1,21 @@
 dist: trusty
-sudo: true
 
 matrix:
   include:
     - os: osx
-      env: TARGET=x86_64-apple-darwin RID=osx-x64
     - os: linux
-      env: TARGET=x86_64-unknown-linux-gnu RID=linux-x64
 
 install:
 - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install glib cairo libexif; fi
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y libgif-dev xvfb; fi
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y git autoconf libtool automake build-essential mono-devel gettext cmake; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y git autoconf libtool automake build-essential gettext cmake; fi
 
 script:
 # Build libgdiplus
 - cd $HOME/build/CoreCompat/libgdiplus
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./autogen.sh --prefix=/usr/; fi
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./autogen.sh --without-x11 --prefix=/usr/; fi
-- make
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./autogen.sh --prefix=/usr/local/; fi
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./autogen.sh --without-x11 --prefix=/usr/local/; fi
+- make -j4
 - make check
 - sudo make install
 
@@ -26,8 +23,8 @@ script:
 - cd $HOME/build/
 - git clone --depth 1 https://github.com/mono/mono
 - cd $HOME/build/mono
-- ./autogen.sh
-- make > /dev/null
+- ./autogen.sh --prefix=/usr/local/
+- make -j4 > /dev/null
 
 # Run the System.Drawing and System.Windows.Forms tests.
 # System.Windows.Forms test don't currently pass on macOS.
