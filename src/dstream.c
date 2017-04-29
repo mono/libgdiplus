@@ -126,7 +126,7 @@ fill_buffer (dstream_private *loader)
 }
 
 int
-dstream_read (dstream_t *st, void *buffer, int size, char peek)
+dstream_read (dstream_t *st, BYTE *buffer, int size, char peek)
 {
 	int nbytes;
 	int offset;
