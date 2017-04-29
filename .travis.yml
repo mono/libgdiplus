@@ -11,24 +11,26 @@ install:
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y git autoconf libtool automake build-essential gettext cmake; fi
 
 script:
-# Build libgdiplus
+- echo "travis_fold:start:build_libgdiplus"
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./autogen.sh --prefix=/usr/local/; fi
 - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./autogen.sh --without-x11 --prefix=/usr/local/; fi
 - make -j4
+- echo "travis_fold:end:build_libgdiplus"
 - make check
 - sudo make install
 
-# Build Mono
+- echo "travis_fold:start:build_mono"
 - cd ..
 - git clone --depth 1 https://github.com/mono/mono
 - cd mono
 - ./autogen.sh --prefix=/usr/local/
-- make -j4 > /dev/null
+- make -j4
+- make -C mcs/class/System.Drawing test
+- make -C mcs/class/System.Windows.Forms test
+- echo "travis_fold:end:build_mono"
 
 # Run the System.Drawing and System.Windows.Forms tests.
 # System.Windows.Forms test don't currently pass on macOS.
 - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/
-- cd mcs/class/System.Drawing
-- make check
-- cd ../System.Windows.Forms
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then xvfb-run make check; fi
+- make -C mcs/class/System.Drawing run-test
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then xvfb-run make -C mcs/class/System.Windows.Forms run-test; fi
