@@ -24,6 +24,10 @@
  *	Jeffrey Stedfast <fejj@novell.com>
  */
 
+#ifdef WIN32
+#include "win32_io.h"
+#endif
+
 #include <cairo-features.h>
 #include "gdiplus-private.h"
 #include "font-private.h"
@@ -1074,9 +1078,13 @@ GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memor
 	if (!memory)
 		return InvalidParameter;
 
+#ifdef WIN32
+	f = CreateTempFile (fontfile);
+#else
 	strcpy((char *) fontfile, "/tmp/ffXXXXXX");
-
 	f = mkstemp((char*)fontfile);
+#endif
+
 	if (f == -1)
 		return FileNotFound;
 

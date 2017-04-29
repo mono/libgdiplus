@@ -28,14 +28,20 @@
 #define __LIBGDIPLUS_H__
 
 #include <stdio.h>
+
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#endif
 #include <math.h>
 #include <glib.h>
 #include <ft2build.h>
 #include FT_TRUETYPE_TABLES_H
+#ifndef _MSC_VER
 #include <pthread.h>
 #include <unistd.h>
 
 #include "config.h"
+#endif
 
 #if HAVE_VISIBILITY_HIDDEN
 	#define GDIP_INTERNAL __attribute__((visibility ("hidden")))
