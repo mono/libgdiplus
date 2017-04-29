@@ -31,7 +31,7 @@ script:
 - make check
 - make install
 
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; exit 0; fi
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then exit 0; fi
 - echo "travis_fold:start:build_mono"
 - cd ..
 - git clone --depth 1 https://github.com/mono/mono
