@@ -1,0 +1,48 @@
+language: c
+dist: trusty
+sudo: false
+
+os:
+  - linux
+  - osx
+
+addons:
+  apt:
+    packages:
+    - libgif-dev
+    - xvfb
+    - autoconf
+    - libtool
+    - automake
+    - build-essential
+    - gettext
+    - cmake
+    - git
+    
+install:
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install glib cairo libexif; fi
+
+script:
+- export CFLAGS="-ggdb3 -O2"
+- echo "travis_fold:start:build_libgdiplus"
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./autogen.sh --prefix=/tmp/mono-dev; fi
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./autogen.sh --without-x11 --prefix=/tmp/mono-dev; fi
+- make -j4
+- echo "travis_fold:end:build_libgdiplus"
+- make check
+- make install
+
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then exit 0; fi
+- echo "travis_fold:start:build_mono"
+- cd ..
+- git clone --depth 1 https://github.com/mono/mono
+- cd mono
+- ./autogen.sh --prefix=/tmp/mono-dev --with-libgdiplus=/tmp/mono-dev/lib/libgdiplus.so --disable-boehm
+- make -j4
+- make -C mcs/class/System.Drawing test
+- make -C mcs/class/System.Windows.Forms test
+- echo "travis_fold:end:build_mono"
+
+# Run the System.Drawing and System.Windows.Forms tests.
+- make -C mcs/class/System.Drawing run-test
+- xvfb-run make -C mcs/class/System.Windows.Forms run-test
