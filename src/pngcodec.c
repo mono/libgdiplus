@@ -455,16 +455,12 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 				for (i = 0; i < height; i++) {
 					png_bytep rowp = row_pointers[i];
 					for (j = 0; j < width; j++) {
+						BYTE b = rowp[2];
+						BYTE g = rowp[1];
+						BYTE r = rowp[0];
 						BYTE a = rowp[3];
-						if (a == 0) {
-							set_pixel_bgra (rawptr, 0, 0, 0, 0, 0);
-						} else {
-							BYTE b = rowp[2];
-							BYTE g = rowp[1];
-							BYTE r = rowp[0];
 
-							set_pixel_bgra (rawptr, 0, b, g, r, a);
-						}
+						set_pixel_bgra (rawptr, 0, b, g, r, a);
 						rowp += 4;
 						rawptr += 4;
 					}
