@@ -17,7 +17,7 @@ LDADDS =					\
 	-lm
 
 noinst_PROGRAMS =			\
-	testbits testclip testreversepath
+	testbits testclip testreversepath testpng
 
 if HAS_X11
 noinst_PROGRAMS =
@@ -48,14 +48,22 @@ testreversepath_SOURCES =	\
 testreversepath_DEPENDENCIES = $(TEST_DEPS)
 testreversepath_LDADD = $(LDADDS)
 
+testpng_DEPENDENCIES = $(TEST_DEPS)
+testpng_LDADD = $(LDADDS)
+
+testpng_SOURCES =		\
+	testpng.c
+
 EXTRA_DIST =			\
 	$(testgdi_SOURCES)	\
 	$(testbits_SOURCES)	\
 	$(testclip_SOURCES)	\
+	$(testpng_SOURCES)	\
 	$(testreversepath_SOURCES)
 
 TESTS = \
 	testbits \
 	testclip \
 	testreversepath \
+	testpng \
 	$(NULL)
