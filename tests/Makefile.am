@@ -1,6 +1,6 @@
 ## Makefile.am for libgdiplus/tests
 
-LIBS = $(GDIPLUS_LIBS)
+LIBS = -lm $(GDIPLUS_LIBS)
 
 INCLUDES =					\
 	-I$(top_srcdir)				\
