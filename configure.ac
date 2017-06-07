@@ -112,6 +112,7 @@ case "$host" in
 		CFLAGS="-no-cpp-precomp $CFLAGS"
 		LDFLAGS="-flat_namespace -undefined suppress $LDFLAGS"
 		no_x=yes
+		no_libpng16=yes # workaround until we can upgrade the libpng used by bockbuild
 		;;
 
 	*)
@@ -312,49 +313,68 @@ else
 fi
 
 dnl Test for libpng
+    libpng_found=no
+
     AC_MSG_CHECKING(for libpng16)
-    if $PKG_CONFIG --exists libpng16 ; then
+    if test "x$no_libpng16" != "x"; then
+      AC_MSG_RESULT(skipped)
+    elif $PKG_CONFIG --exists libpng16 ; then
       AC_MSG_RESULT(yes)
       PNG='png'
       PNG_DEP_CFLAGS_PACKAGES=libpng16
       LIBPNG=`$PKG_CONFIG --libs libpng16`
+      libpng_found=yes
     else
-        AC_MSG_CHECKING(for libpng14)
-        if $PKG_CONFIG --exists libpng14 ; then
-          AC_MSG_RESULT(yes)
-          PNG='png'
-          PNG_DEP_CFLAGS_PACKAGES=libpng14
-          LIBPNG=`$PKG_CONFIG --libs libpng14`
-        else
-          AC_MSG_CHECKING(for libpng12)
-          if $PKG_CONFIG --exists libpng12 ; then
-            AC_MSG_RESULT(yes)
-            PNG='png'
-            PNG_DEP_CFLAGS_PACKAGES=libpng12
-            LIBPNG=`$PKG_CONFIG --libs libpng12`
-          else
-            AC_MSG_RESULT(no)
-            AC_CHECK_LIB(png, png_read_info,
-              [AC_CHECK_HEADER(png.h, png_ok=yes, png_ok=no)],
-              AC_MSG_ERROR(*** libpng12 not found. See http://www.libpng.org/pub/png/libpng.html.), -lz -lm)
-            if test "$png_ok" = yes; then
-              AC_MSG_CHECKING([for png_structp in png.h])
-              AC_TRY_COMPILE([#include <png.h>],
-                [png_structp pp; png_infop info; png_colorp cmap; png_create_read_struct;],
-                png_ok=yes,
-                png_ok=no)
-              AC_MSG_RESULT($png_ok)
-              if test "$png_ok" = yes; then
-                PNG='png'; LIBPNG='-lpng -lz'
-              else
-                AC_MSG_ERROR(*** libpng12 found, but it is too old. See http://www.libpng.org/pub/png/libpng.html.)
-              fi
-            else
-                AC_MSG_ERROR(*** libpng12 not found. See http://www.libpng.org/pub/png/libpng.html.)
-            fi
-          fi
-        fi
+      AC_MSG_RESULT(no)
+    fi
+
+    if test "x$libpng_found" != "xyes"; then
+      AC_MSG_CHECKING(for libpng14)
+      if $PKG_CONFIG --exists libpng14 ; then
+        AC_MSG_RESULT(yes)
+        PNG='png'
+        PNG_DEP_CFLAGS_PACKAGES=libpng14
+        LIBPNG=`$PKG_CONFIG --libs libpng14`
+        libpng_found=yes
+      else
+        AC_MSG_RESULT(no)
       fi
+    fi
+
+    if test "x$libpng_found" != "xyes"; then
+      AC_MSG_CHECKING(for libpng12)
+      if $PKG_CONFIG --exists libpng12 ; then
+        AC_MSG_RESULT(yes)
+        PNG='png'
+        PNG_DEP_CFLAGS_PACKAGES=libpng12
+        LIBPNG=`$PKG_CONFIG --libs libpng12`
+        libpng_found=yes
+      else
+        AC_MSG_RESULT(no)
+      fi
+    fi
+
+    if test "x$libpng_found" != "xyes"; then
+      AC_MSG_CHECKING(for png)
+      AC_CHECK_LIB(png, png_read_info,
+        [AC_CHECK_HEADER(png.h, png_ok=yes, png_ok=no)],
+        AC_MSG_ERROR(*** libpng12 not found. See http://www.libpng.org/pub/png/libpng.html.), -lz -lm)
+      if test "$png_ok" = yes; then
+        AC_MSG_CHECKING([for png_structp in png.h])
+        AC_TRY_COMPILE([#include <png.h>],
+          [png_structp pp; png_infop info; png_colorp cmap; png_create_read_struct;],
+          png_ok=yes,
+          png_ok=no)
+        AC_MSG_RESULT($png_ok)
+        if test "$png_ok" = yes; then
+          PNG='png'; LIBPNG='-lpng -lz'
+        else
+          AC_MSG_ERROR(*** libpng12 found, but it is too old. See http://www.libpng.org/pub/png/libpng.html.)
+        fi
+      else
+          AC_MSG_ERROR(*** libpng12 not found. See http://www.libpng.org/pub/png/libpng.html.)
+      fi
+    fi
 
 
 GDIPLUS_LIBS="$GDIPLUS_LIBS $LIBPNG"
