@@ -1075,7 +1075,7 @@ GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memor
 	FcChar8 fontfile[256];
 	int	f;
 
-	if (!memory)
+	if (!fontCollection || !memory)
 		return InvalidParameter;
 
 #ifdef WIN32
