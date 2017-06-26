@@ -42,11 +42,11 @@ testclip_SOURCES =	\
 testclip_DEPENDENCIES = $(TEST_DEPS)
 testclip_LDADD = $(LDADDS)
 
-testfonts_DEPENDENCIES = $(TEST_DEPS)
-testfonts_LDADD = $(LDADDS)
+testfont_DEPENDENCIES = $(TEST_DEPS)
+testfont_LDADD = $(LDADDS)
 
-testfonts_SOURCES =		\
-	testfonts.c
+testfont_SOURCES =		\
+	testfont.c
 
 testreversepath_SOURCES =	\
 	testreversepath.c
@@ -64,7 +64,7 @@ EXTRA_DIST =			\
 	$(testgdi_SOURCES)	\
 	$(testbits_SOURCES)	\
 	$(testclip_SOURCES)	\
-	$(testfonts_SOURCES)	\
+	$(testfont_SOURCES)	\
 	$(testpng_SOURCES)	\
 	$(testreversepath_SOURCES)
 
