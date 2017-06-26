@@ -37,6 +37,15 @@ main(int argc, char**argv)
 	
 	status = GdipDeletePrivateFontCollection(NULL);
 	assert(status == 2);
+	
+	status = GdipPrivateAddMemoryFont(collection, NULL, 1);
+	assert(status == 2);
+
+	status = GdipPrivateAddMemoryFont(collection, &memory, -1);
+	assert(status == 2);
+
+	status = GdipPrivateAddMemoryFont(collection, &memory, 0);
+	assert(status == 2);
 
 	status = GdipDeletePrivateFontCollection(&collection);
 	assert(status == 0);
