@@ -5,6 +5,7 @@ Makefile
 Makefile.in
 testbits
 testclip
+testfont
 testgdi
 testreversepath
 testpng

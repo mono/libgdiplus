@@ -17,7 +17,7 @@ LDADDS =					\
 	-lm
 
 noinst_PROGRAMS =			\
-	testbits testclip testreversepath testpng
+	testbits testclip testfont testreversepath testpng
 
 if HAS_X11
 noinst_PROGRAMS =
