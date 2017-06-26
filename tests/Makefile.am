@@ -17,7 +17,7 @@ LDADDS =					\
 	-lm
 
 noinst_PROGRAMS =			\
-	testbits testclip testreversepath testpng
+	testbits testclip testfont testreversepath testpng
 
 if HAS_X11
 noinst_PROGRAMS =
@@ -42,6 +42,12 @@ testclip_SOURCES =	\
 testclip_DEPENDENCIES = $(TEST_DEPS)
 testclip_LDADD = $(LDADDS)
 
+testfont_DEPENDENCIES = $(TEST_DEPS)
+testfont_LDADD = $(LDADDS)
+
+testfont_SOURCES =		\
+	testfont.c
+
 testreversepath_SOURCES =	\
 	testreversepath.c
 
@@ -58,12 +64,14 @@ EXTRA_DIST =			\
 	$(testgdi_SOURCES)	\
 	$(testbits_SOURCES)	\
 	$(testclip_SOURCES)	\
+	$(testfont_SOURCES)	\
 	$(testpng_SOURCES)	\
 	$(testreversepath_SOURCES)
 
 TESTS = \
 	testbits \
 	testclip \
+	testfont \
 	testreversepath \
 	testpng \
 	$(NULL)
