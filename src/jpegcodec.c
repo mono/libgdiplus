@@ -588,7 +588,7 @@ gdip_load_jpeg_image_from_file (FILE *fp, const char *filename, GpImage **image)
 	}
 
 	src->parent.init_source = _gdip_source_dummy_init;
-	src->parent.fill_input_buffer = _gdip_source_stdio_fill_input_buffer;
+	src->parent.fill_input_buffer = (boolean(*)(j_decompress_ptr))_gdip_source_stdio_fill_input_buffer;
 	src->parent.skip_input_data = _gdip_source_stdio_skip_input_data;
 	src->parent.resync_to_restart = jpeg_resync_to_restart;
 	src->parent.term_source = _gdip_source_dummy_term;
@@ -625,7 +625,7 @@ gdip_load_jpeg_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 
 
 	src->parent.init_source = _gdip_source_dummy_init;
-	src->parent.fill_input_buffer = _gdip_source_stream_fill_input_buffer;
+	src->parent.fill_input_buffer = (boolean(*)(j_decompress_ptr))_gdip_source_stream_fill_input_buffer;
 	src->parent.skip_input_data = _gdip_source_stream_skip_input_data;
 	src->parent.resync_to_restart = jpeg_resync_to_restart;
 	src->parent.term_source = _gdip_source_dummy_init;
@@ -703,7 +703,7 @@ gdip_save_jpeg_image_internal (FILE *fp, PutBytesDelegate putBytesFunc, GpImage 
 	} else {
 		dest = GdipAlloc (sizeof (struct gdip_stream_jpeg_dest_mgr));
 		dest->parent.init_destination = _gdip_dest_stream_init;
-		dest->parent.empty_output_buffer = _gdip_dest_stream_empty_output_buffer;
+		dest->parent.empty_output_buffer = (boolean(*)(j_compress_ptr))_gdip_dest_stream_empty_output_buffer;
 		dest->parent.term_destination = _gdip_dest_stream_term;
 
 		dest->putBytesFunc = putBytesFunc;
