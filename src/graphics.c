@@ -213,7 +213,7 @@ gdip_metafile_graphics_new (GpMetafile *metafile)
 
 // coverity[+alloc : arg-*1]
 GpStatus WINGDIPAPI
-GdipCreateFromHDC (void *hDC, GpGraphics **graphics)
+GdipCreateFromHDC (HDC hDC, GpGraphics **graphics)
 {
 	GpGraphics *clone = (GpGraphics *) hDC;
 	cairo_surface_t *surface;
@@ -753,7 +753,7 @@ GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixO
  */
 
 GpStatus WINGDIPAPI
-GdipDrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle, float sweepAngle)
+GdipDrawArc (GpGraphics *graphics, GpPen *pen, REAL x, REAL y, REAL width, REAL height, REAL startAngle, REAL sweepAngle)
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
@@ -769,7 +769,7 @@ GdipDrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, fl
 }
 
 GpStatus WINGDIPAPI
-GdipDrawArcI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height, float startAngle, float sweepAngle)
+GdipDrawArcI (GpGraphics *graphics, GpPen *pen, INT x, INT y, INT width, INT height, REAL startAngle, REAL sweepAngle)
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
@@ -785,8 +785,8 @@ GdipDrawArcI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int hei
 }
 
 GpStatus WINGDIPAPI
-GdipDrawBezier (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2, float x3, float y3, 
-	float x4, float y4)
+GdipDrawBezier (GpGraphics *graphics, GpPen *pen, REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3,
+	REAL x4, REAL y4)
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
@@ -802,7 +802,7 @@ GdipDrawBezier (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, 
 }
 
 GpStatus WINGDIPAPI
-GdipDrawBezierI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
+GdipDrawBezierI (GpGraphics *graphics, GpPen *pen, INT x1, INT y1, INT x2, INT y2, INT x3, INT y3, INT x4, INT y4)
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
@@ -818,7 +818,7 @@ GdipDrawBezierI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y
 }
 
 GpStatus WINGDIPAPI
-GdipDrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
+GdipDrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, INT count)
 {
 	if (count == 0)
 		return Ok;
@@ -837,7 +837,7 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, i
 }
 
 GpStatus WINGDIPAPI
-GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
+GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, INT count)
 {
 	if (count == 0)
 		return Ok;
@@ -856,7 +856,7 @@ GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, i
 }
 
 GpStatus WINGDIPAPI
-GdipDrawEllipse (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height)
+GdipDrawEllipse (GpGraphics *graphics, GpPen *pen, REAL x, REAL y, REAL width, REAL height)
 {	
 	if (!graphics || !pen)
 		return InvalidParameter;
@@ -872,7 +872,7 @@ GdipDrawEllipse (GpGraphics *graphics, GpPen *pen, float x, float y, float width
 }
 
 GpStatus WINGDIPAPI
-GdipDrawEllipseI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height)
+GdipDrawEllipseI (GpGraphics *graphics, GpPen *pen, INT x, INT y, INT width, INT height)
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
@@ -888,7 +888,7 @@ GdipDrawEllipseI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int
 }
 
 GpStatus WINGDIPAPI
-GdipDrawLine (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2)
+GdipDrawLine (GpGraphics *graphics, GpPen *pen, REAL x1, REAL y1, REAL x2, REAL y2)
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
@@ -904,7 +904,7 @@ GdipDrawLine (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, fl
 }
 
 GpStatus WINGDIPAPI
-GdipDrawLineI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2)
+GdipDrawLineI (GpGraphics *graphics, GpPen *pen, INT x1, INT y1, INT x2, INT y2)
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
@@ -920,7 +920,7 @@ GdipDrawLineI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2)
 }
 
 GpStatus WINGDIPAPI
-GdipDrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
+GdipDrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, INT count)
 {
 	if (!graphics || !pen || !points || count < 2)
 		return InvalidParameter;
@@ -936,7 +936,7 @@ GdipDrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int
 }
 
 GpStatus WINGDIPAPI
-GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
+GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, INT count)
 {
 	if (!graphics || !pen || !points || count < 2)
 		return InvalidParameter;
@@ -968,7 +968,7 @@ GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 }
 
 GpStatus WINGDIPAPI
-GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle, float sweepAngle)
+GdipDrawPie (GpGraphics *graphics, GpPen *pen, REAL x, REAL y, REAL width, REAL height, REAL startAngle, REAL sweepAngle)
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
@@ -988,7 +988,7 @@ GdipDrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, fl
 }
 
 GpStatus WINGDIPAPI
-GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height, float startAngle, float sweepAngle)
+GdipDrawPieI (GpGraphics *graphics, GpPen *pen, INT x, INT y, INT width, INT height, REAL startAngle, REAL sweepAngle)
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
@@ -1008,7 +1008,7 @@ GdipDrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int hei
 }
 
 GpStatus WINGDIPAPI
-GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
+GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, INT count)
 {
 	if (!graphics || !pen || !points || count < 2)
 		return InvalidParameter;
@@ -1024,7 +1024,7 @@ GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, i
 }
 
 GpStatus WINGDIPAPI
-GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
+GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, INT count)
 {
 	if (!graphics || !pen || !points || count < 2)
 		return InvalidParameter;
@@ -1040,7 +1040,7 @@ GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, i
 }
 
 GpStatus WINGDIPAPI
-GdipDrawRectangle (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height)
+GdipDrawRectangle (GpGraphics *graphics, GpPen *pen, REAL x, REAL y, REAL width, REAL height)
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
@@ -1060,7 +1060,7 @@ GdipDrawRectangle (GpGraphics *graphics, GpPen *pen, float x, float y, float wid
 }
 
 GpStatus WINGDIPAPI
-GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height)
+GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen, INT x, INT y, INT width, INT height)
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
@@ -1080,7 +1080,7 @@ GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, i
 }
 
 GpStatus WINGDIPAPI
-GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects, int count)
+GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects, INT count)
 {
 	if (!graphics || !pen || !rects || count <= 0)
 		return InvalidParameter;
@@ -1096,7 +1096,7 @@ GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects, 
 }
 
 GpStatus WINGDIPAPI
-GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRect *rects, int count)
+GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRect *rects, INT count)
 {
 	if (!graphics || !pen || !rects || count <= 0)
 		return InvalidParameter;
@@ -1112,19 +1112,19 @@ GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRect *rects, 
 }
 
 GpStatus WINGDIPAPI
-GdipDrawClosedCurve (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
+GdipDrawClosedCurve (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, INT count)
 {
         return GdipDrawClosedCurve2 (graphics, pen, points, count, 0.5f);
 }
 
 GpStatus WINGDIPAPI
-GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
+GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, INT count)
 {
         return GdipDrawClosedCurve2I (graphics, pen, points, count, 0.5f);
 }
 
 GpStatus WINGDIPAPI
-GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count, float tension)
+GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, INT count, REAL tension)
 {
 	/* when tension is 0, draw straight lines */
 	if (tension == 0)
@@ -1144,7 +1144,7 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *poin
 }
 
 GpStatus WINGDIPAPI
-GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count, float tension)
+GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, INT count, REAL tension)
 {
 	/* when tension is 0, draw straight lines */
 	if (tension == 0)
@@ -1164,7 +1164,7 @@ GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *poin
 }
 
 GpStatus WINGDIPAPI
-GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count) 
+GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, INT count)
 {
 	if (count == 2) {
 		return GdipDrawLines (graphics, pen, points, count);
@@ -1175,7 +1175,7 @@ GdipDrawCurve (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int
 }
 
 GpStatus WINGDIPAPI
-GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count) 
+GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, INT count)
 {
 	if (count == 2) {
 		return GdipDrawLinesI (graphics, pen, points, count);
@@ -1186,7 +1186,7 @@ GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int
 }
 
 GpStatus WINGDIPAPI
-GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, int count, float tension)
+GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, INT count, REAL tension)
 {
 	if (count == 2) {
 		return GdipDrawLines (graphics, pen, points, count);
@@ -1197,7 +1197,7 @@ GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, in
 }
 
 GpStatus WINGDIPAPI
-GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, int count, float tension)
+GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, INT count, REAL tension)
 {
 	if (count == 2) {
 		return GdipDrawLinesI (graphics, pen, points, count);
@@ -1208,7 +1208,7 @@ GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, in
 }
 
 GpStatus WINGDIPAPI
-GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, int count, int offset, int numOfSegments, float tension)
+GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, INT count, INT offset, INT numOfSegments, REAL tension)
 {
 	/* draw lines if tension = 0 */
 	if (tension == 0)
@@ -1235,7 +1235,7 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, in
 }
 
 GpStatus WINGDIPAPI
-GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, int count, int offset, int numOfSegments, float tension)
+GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, INT count, INT offset, INT numOfSegments, REAL tension)
 {
 	/* draw lines if tension = 0 */
 	if (tension == 0)
@@ -1265,7 +1265,7 @@ GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, in
  * Fills
  */
 GpStatus WINGDIPAPI
-GdipFillEllipse (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height)
+GdipFillEllipse (GpGraphics *graphics, GpBrush *brush, REAL x, REAL y, REAL width, REAL height)
 {
 	if (!graphics || !brush)
 		return InvalidParameter;
@@ -1281,7 +1281,7 @@ GdipFillEllipse (GpGraphics *graphics, GpBrush *brush, float x, float y, float w
 }
 
 GpStatus WINGDIPAPI
-GdipFillEllipseI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height)
+GdipFillEllipseI (GpGraphics *graphics, GpBrush *brush, INT x, INT y, INT width, INT height)
 {
 	if (!graphics || !brush)
 		return InvalidParameter;
@@ -1297,7 +1297,7 @@ GdipFillEllipseI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width,
 }
 
 GpStatus WINGDIPAPI
-GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height)
+GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, REAL x, REAL y, REAL width, REAL height)
 {
 	if (!graphics || !brush)
 		return InvalidParameter;
@@ -1317,7 +1317,7 @@ GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, float x, float y, float
 }
 
 GpStatus WINGDIPAPI
-GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height)
+GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush, INT x, INT y, INT width, INT height)
 {
 	if (!graphics || !brush)
 		return InvalidParameter;
@@ -1337,7 +1337,7 @@ GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush, int x, int y, int widt
 }
 
 GpStatus WINGDIPAPI
-GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rects, int count)
+GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rects, INT count)
 {
 	if (!graphics || !brush || !rects || count <= 0)
 		return InvalidParameter;
@@ -1353,7 +1353,7 @@ GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rec
 }
 
 GpStatus WINGDIPAPI
-GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect *rects, int count)
+GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect *rects, INT count)
 {
 	if (!graphics || !brush || !rects || count <= 0)
 		return InvalidParameter;
@@ -1369,8 +1369,8 @@ GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect *rec
 }
 
 GpStatus WINGDIPAPI
-GdipFillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, 
-	float startAngle, float sweepAngle)
+GdipFillPie (GpGraphics *graphics, GpBrush *brush, REAL x, REAL y, REAL width, REAL height,
+	REAL startAngle, REAL sweepAngle)
 {
 	if (!graphics || !brush)
 		return InvalidParameter;
@@ -1390,7 +1390,7 @@ GdipFillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width
 }
 
 GpStatus WINGDIPAPI
-GdipFillPieI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, float startAngle, float sweepAngle)
+GdipFillPieI (GpGraphics *graphics, GpBrush *brush, INT x, INT y, INT width, INT height, REAL startAngle, REAL sweepAngle)
 {
 	if (!graphics || !brush)
 		return InvalidParameter;
@@ -1426,7 +1426,7 @@ GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 }
 
 GpStatus WINGDIPAPI
-GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, FillMode fillMode)
+GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count, FillMode fillMode)
 {
 	if (!graphics || !brush || !points)
 		return InvalidParameter;
@@ -1442,7 +1442,7 @@ GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *point
 }
 
 GpStatus WINGDIPAPI
-GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count, FillMode fillMode)
+GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count, FillMode fillMode)
 {
 	if (!graphics || !brush || !points)
 		return InvalidParameter;
@@ -1458,31 +1458,31 @@ GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *point
 }
 
 GpStatus WINGDIPAPI
-GdipFillPolygon2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count)
+GdipFillPolygon2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count)
 {
         return GdipFillPolygon (graphics, brush, points, count, FillModeAlternate);
 }
 
 GpStatus WINGDIPAPI
-GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count)
+GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count)
 {
         return GdipFillPolygonI (graphics, brush, points, count, FillModeAlternate);
 }
 
 GpStatus WINGDIPAPI
-GdipFillClosedCurve (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count)
+GdipFillClosedCurve (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count)
 {
         return GdipFillClosedCurve2 (graphics, brush, points, count, 0.5f);
 }
 
 GpStatus WINGDIPAPI
-GdipFillClosedCurveI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count)
+GdipFillClosedCurveI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count)
 {
         return GdipFillClosedCurve2I (graphics, brush, points, count, 0.5f);
 }
 
 GpStatus WINGDIPAPI
-GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, float tension)
+GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count, REAL tension)
 {
         /* when tension is 0, the edges are straight lines */
         if (tension == 0)
@@ -1502,7 +1502,7 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *
 }
 
 GpStatus WINGDIPAPI
-GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count, float tension)
+GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count, REAL tension)
 {
         /* when tension is 0, the edges are straight lines */
         if (tension == 0)
@@ -1538,7 +1538,7 @@ GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 }
 
 GpStatus WINGDIPAPI
-GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y)
+GdipSetRenderingOrigin (GpGraphics *graphics, INT x, INT y)
 {
 	if (!graphics)
 		return InvalidParameter;
@@ -1557,7 +1557,7 @@ GdipSetRenderingOrigin (GpGraphics *graphics, int x, int y)
 }
 
 GpStatus WINGDIPAPI
-GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
+GdipGetRenderingOrigin (GpGraphics *graphics, INT *x, INT *y)
 {
 	if (!graphics || !x || !y)
 		return InvalidParameter;
@@ -1568,7 +1568,7 @@ GdipGetRenderingOrigin (GpGraphics *graphics, int *x, int *y)
 }
 
 GpStatus WINGDIPAPI
-GdipGetDpiX (GpGraphics *graphics, float *dpi)
+GdipGetDpiX (GpGraphics *graphics, REAL *dpi)
 {
 	if (!graphics || !dpi)
 		return InvalidParameter;
@@ -1578,7 +1578,7 @@ GdipGetDpiX (GpGraphics *graphics, float *dpi)
 }
 
 GpStatus WINGDIPAPI
-GdipGetDpiY (GpGraphics *graphics, float *dpi)
+GdipGetDpiY (GpGraphics *graphics, REAL *dpi)
 {
 	if (!graphics || !dpi)
 		return InvalidParameter;
@@ -1846,7 +1846,7 @@ GdipSetClipGraphics (GpGraphics *graphics, GpGraphics *srcgraphics, CombineMode 
 }
 
 GpStatus WINGDIPAPI
-GdipSetClipRect (GpGraphics *graphics, float x, float y, float width, float height, CombineMode combineMode)
+GdipSetClipRect (GpGraphics *graphics, REAL x, REAL y, REAL width, REAL height, CombineMode combineMode)
 {
 	GpStatus status;
 	GpRectF rect;
@@ -1898,7 +1898,7 @@ cleanup:
 }
 
 GpStatus WINGDIPAPI
-GdipSetClipRectI (GpGraphics *graphics, int x, int y, int width, int height, CombineMode combineMode)
+GdipSetClipRectI (GpGraphics *graphics, INT x, INT y, INT width, INT height, CombineMode combineMode)
 {
 	return GdipSetClipRect (graphics, x, y, width, height, combineMode);
 }
@@ -2014,7 +2014,7 @@ GdipResetClip (GpGraphics *graphics)
 }
 
 GpStatus WINGDIPAPI
-GdipTranslateClip (GpGraphics *graphics, float dx, float dy)
+GdipTranslateClip (GpGraphics *graphics, REAL dx, REAL dy)
 {
 	GpStatus status;
 
@@ -2185,7 +2185,7 @@ GdipIsVisibleClipEmpty (GpGraphics *graphics, BOOL *result)
 }
 
 GpStatus WINGDIPAPI
-GdipIsVisiblePoint (GpGraphics *graphics, float x, float y, BOOL *result)
+GdipIsVisiblePoint (GpGraphics *graphics, REAL x, REAL y, BOOL *result)
 {
 	GpRectF rectF;
 	
@@ -2203,13 +2203,13 @@ GdipIsVisiblePoint (GpGraphics *graphics, float x, float y, BOOL *result)
 }
 
 GpStatus WINGDIPAPI
-GdipIsVisiblePointI (GpGraphics *graphics, int x, int y, BOOL *result)
+GdipIsVisiblePointI (GpGraphics *graphics, INT x, INT y, BOOL *result)
 {
 	return GdipIsVisiblePoint (graphics, x, y, result);
 }
 
 GpStatus WINGDIPAPI
-GdipIsVisibleRect (GpGraphics *graphics, float x, float y, float width, float height, BOOL *result)
+GdipIsVisibleRect (GpGraphics *graphics, REAL x, REAL y, REAL width, REAL height, BOOL *result)
 {
 	BOOL found = FALSE;
 	float posy, posx;
@@ -2248,7 +2248,7 @@ GdipIsVisibleRect (GpGraphics *graphics, float x, float y, float width, float he
 }
 
 GpStatus WINGDIPAPI
-GdipIsVisibleRectI (GpGraphics *graphics, int x, int y, int width, int height, BOOL *result)
+GdipIsVisibleRectI (GpGraphics *graphics, INT x, INT y, INT width, INT height, BOOL *result)
 {
 	return GdipIsVisibleRect (graphics, x, y, width, height, result);
 }
@@ -2317,7 +2317,7 @@ GdipGetNearestColor (GpGraphics *graphics, ARGB *argb)
 }
 
 GpStatus WINGDIPAPI
-GdipSetPageScale (GpGraphics *graphics, float scale)
+GdipSetPageScale (GpGraphics *graphics, REAL scale)
 {
 	if (!graphics) 
 		return InvalidParameter;
@@ -2336,7 +2336,7 @@ GdipSetPageScale (GpGraphics *graphics, float scale)
 }
 
 GpStatus WINGDIPAPI
-GdipGetPageScale (GpGraphics *graphics, float *scale)
+GdipGetPageScale (GpGraphics *graphics, REAL *scale)
 {
 	if (!graphics | !scale)
 		return InvalidParameter;
@@ -2375,7 +2375,7 @@ GdipGetPageUnit (GpGraphics *graphics, GpUnit *unit)
 }
 
 GpStatus WINGDIPAPI
-GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPointF *points, int count)
+GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPointF *points, INT count)
 {
         static int      called = 0;
 
@@ -2387,7 +2387,7 @@ GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordi
 }
 
 GpStatus WINGDIPAPI
-GdipTransformPointsI (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPoint *points, int count)
+GdipTransformPointsI (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPoint *points, INT count)
 {
         static int      called = 0;
 

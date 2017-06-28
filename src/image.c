@@ -327,7 +327,7 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 }
 
 GpStatus WINGDIPAPI 
-GdipDrawImageI (GpGraphics *graphics, GpImage *image, int x, int y)
+GdipDrawImageI (GpGraphics *graphics, GpImage *image, INT x, INT y)
 {
 	if (!image)
 		return InvalidParameter;
@@ -347,7 +347,7 @@ GdipDrawImageI (GpGraphics *graphics, GpImage *image, int x, int y)
 }
 
 GpStatus WINGDIPAPI 
-GdipDrawImage (GpGraphics *graphics, GpImage *image, float x, float y)
+GdipDrawImage (GpGraphics *graphics, GpImage *image, REAL x, REAL y)
 {
 	if (!image)
 		return InvalidParameter;
@@ -367,13 +367,13 @@ GdipDrawImage (GpGraphics *graphics, GpImage *image, float x, float y)
 }
 
 GpStatus WINGDIPAPI
-GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, int x, int y, int width, int height)
+GdipDrawImageRectI (GpGraphics *graphics, GpImage *image, INT x, INT y, INT width, INT height)
 {
 	return GdipDrawImageRect (graphics, image, x, y, width, height);
 }
 
 GpStatus WINGDIPAPI
-GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float width, float height)
+GdipDrawImageRect (GpGraphics *graphics, GpImage *image, REAL x, REAL y, REAL width, REAL height)
 {
 	cairo_pattern_t *pattern;
 	cairo_pattern_t *org_pattern;
@@ -486,7 +486,7 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, float x, float y, float
 
 /* points are upper left, upper right, lower left. fourth point is extrapolated. */
 GpStatus WINGDIPAPI
-GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *dstPoints, int count)
+GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *dstPoints, INT count)
 {
 	cairo_pattern_t	*pattern;
 	cairo_pattern_t	*org_pattern;
@@ -582,7 +582,7 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 }
 
 GpStatus WINGDIPAPI
-GdipDrawImagePointsI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *dstPoints, int count)
+GdipDrawImagePointsI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *dstPoints, INT count)
 {
 	GpPointF points[3];
 	int i;
@@ -599,24 +599,24 @@ GdipDrawImagePointsI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *d
 }
 
 GpStatus WINGDIPAPI
-GdipDrawImagePointRect (GpGraphics *graphics, GpImage *image, float x, float y, float srcx, float srcy, 
-	float srcwidth, float srcheight, GpUnit srcUnit)
+GdipDrawImagePointRect (GpGraphics *graphics, GpImage *image, REAL x, REAL y, REAL srcx, REAL srcy,
+	REAL srcwidth, REAL srcheight, GpUnit srcUnit)
 {
 	return GdipDrawImageRectRect (graphics, image, x, y, srcwidth, srcheight, srcx, srcy, 
 		srcwidth, srcheight, srcUnit, NULL, NULL, NULL);
 }
 
 GpStatus WINGDIPAPI
-GdipDrawImagePointRectI (GpGraphics *graphics, GpImage *image, int x, int y, int srcx, int srcy, 
-	int srcwidth, int srcheight, GpUnit srcUnit)
+GdipDrawImagePointRectI (GpGraphics *graphics, GpImage *image, INT x, INT y, INT srcx, INT srcy,
+	INT srcwidth, INT srcheight, GpUnit srcUnit)
 {
 	return GdipDrawImagePointRect (graphics, image, x, y, srcx, srcy, srcwidth, srcheight, srcUnit);
 }
 
 GpStatus WINGDIPAPI
 GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
-                       float dstx, float dsty, float dstwidth, float dstheight,
-                       float srcx, float srcy, float srcwidth, float srcheight,
+                       REAL dstx, REAL dsty, REAL dstwidth, REAL dstheight,
+                       REAL srcx, REAL srcy, REAL srcwidth, REAL srcheight,
                        GpUnit srcUnit,
                        GDIPCONST GpImageAttributes *imageAttributes,
                        DrawImageAbort callback, void *callbackData)
@@ -946,8 +946,8 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 }
 
 GpStatus WINGDIPAPI
-GdipDrawImageRectRectI (GpGraphics *graphics, GpImage *image, int dstx, int dsty, int dstwidth, int dstheight, 
-	int srcx, int srcy, int srcwidth, int srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes,
+GdipDrawImageRectRectI (GpGraphics *graphics, GpImage *image, INT dstx, INT dsty, INT dstwidth, INT dstheight,
+	INT srcx, INT srcy, INT srcwidth, INT srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes,
 	DrawImageAbort callback, void *callbackData)
 {
 	return GdipDrawImageRectRect (graphics, image, dstx, dsty, dstwidth, dstheight,
@@ -957,8 +957,8 @@ GdipDrawImageRectRectI (GpGraphics *graphics, GpImage *image, int dstx, int dsty
 }
 
 GpStatus WINGDIPAPI
-GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *points, int count, float srcx, float srcy,
-	float srcwidth, float srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes, DrawImageAbort callback, 
+GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *points, INT count, REAL srcx, REAL srcy,
+	REAL srcwidth, REAL srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes, DrawImageAbort callback,
 	void *callbackData)
 {
 	GpRectF rect;
@@ -996,8 +996,8 @@ GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint
 }
 
 GpStatus WINGDIPAPI
-GdipDrawImagePointsRectI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *points, int count, int srcx, int srcy, 
-	int srcwidth, int srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes, DrawImageAbort callback,
+GdipDrawImagePointsRectI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *points, INT count, INT srcx, INT srcy,
+	INT srcwidth, INT srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes, DrawImageAbort callback,
 	void *callbackData)
 {
 	GpPointF pf[3];
@@ -1235,7 +1235,7 @@ GdipGetImageBounds (GpImage *image, GpRectF *rect, GpUnit *unit)
 }
 
 GpStatus WINGDIPAPI 
-GdipGetImageDimension (GpImage *image, float *width, float *height)
+GdipGetImageDimension (GpImage *image, REAL *width, REAL *height)
 {
 	if (!image || !width || !height)
 		return InvalidParameter;
@@ -1306,7 +1306,7 @@ GdipGetImageHeight (GpImage *image, UINT *height)
 }
 
 GpStatus WINGDIPAPI 
-GdipGetImageHorizontalResolution (GpImage *image, float *resolution)
+GdipGetImageHorizontalResolution (GpImage *image, REAL *resolution)
 {
 	if (!image || !resolution)
 		return InvalidParameter;
@@ -1325,7 +1325,7 @@ GdipGetImageHorizontalResolution (GpImage *image, float *resolution)
 }
 
 GpStatus WINGDIPAPI 
-GdipGetImageVerticalResolution (GpImage *image, float *resolution)
+GdipGetImageVerticalResolution (GpImage *image, REAL *resolution)
 {
 	if (!image || !resolution)
 		return InvalidParameter;
@@ -1879,7 +1879,7 @@ GdipImageRotateFlip (GpImage *image, RotateFlipType type)
 }
 
 GpStatus WINGDIPAPI 
-GdipGetImagePalette (GpImage *image, ColorPalette *palette, int size)
+GdipGetImagePalette (GpImage *image, ColorPalette *palette, INT size)
 {
 	int palette_entries;
 	int bytes_needed;
@@ -1940,7 +1940,7 @@ GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette)
 }
 
 GpStatus WINGDIPAPI 
-GdipGetImagePaletteSize (GpImage *image, int* size)
+GdipGetImagePaletteSize (GpImage *image, INT* size)
 {
         int palette_entries;
 

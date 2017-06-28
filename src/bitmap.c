@@ -1061,7 +1061,7 @@ GdipCreateBitmapFromResource (HINSTANCE hInstance, GDIPCONST WCHAR *lpBitmapName
 
 /* coverity[+alloc : arg-*6] */
 GpStatus WINGDIPAPI
-GdipCloneBitmapAreaI (int x, int y, int width, int height, PixelFormat format,
+GdipCloneBitmapAreaI (INT x, INT y, INT width, INT height, PixelFormat format,
 					  GpBitmap *original, GpBitmap **bitmap)
 {
 	GpBitmap	*result;
@@ -1106,7 +1106,7 @@ fail:
 
 /* coverity[+alloc : arg-*6] */
 GpStatus WINGDIPAPI
-GdipCloneBitmapArea (float x, float y, float w, float h, PixelFormat format,
+GdipCloneBitmapArea (REAL x, REAL y, REAL w, REAL h, PixelFormat format,
 					 GpBitmap *original, GpBitmap **bitmap)
 {
 	return GdipCloneBitmapAreaI ((int) x, (int) y, (int) w, (int) h, format,
@@ -2107,7 +2107,7 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, BitmapData *locked_data)
 }
 
 GpStatus WINGDIPAPI
-GdipBitmapSetPixel (GpBitmap *bitmap, int x, int y, ARGB color)
+GdipBitmapSetPixel (GpBitmap *bitmap, INT x, INT y, ARGB color)
 {
 	BitmapData *data;
 	BYTE *v;
@@ -2147,7 +2147,7 @@ GdipBitmapSetPixel (GpBitmap *bitmap, int x, int y, ARGB color)
 }
 
 GpStatus WINGDIPAPI
-GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
+GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color)
 {
 	BitmapData	*data;
 	
@@ -2206,7 +2206,7 @@ GdipBitmapGetPixel (GpBitmap *bitmap, int x, int y, ARGB *color)
 }
 
 GpStatus WINGDIPAPI
-GdipBitmapSetResolution (GpBitmap *bitmap, float xdpi, float ydpi)
+GdipBitmapSetResolution (GpBitmap *bitmap, REAL xdpi, REAL ydpi)
 {
 	if (!bitmap || !bitmap->active_bitmap || isnan(xdpi) || isnan(xdpi) || (xdpi <= 0.0f) || (ydpi <= 0.0f))
 		return InvalidParameter;
