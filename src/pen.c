@@ -236,7 +236,7 @@ gdip_pen_draw_custom_end_cap (GpGraphics *graphics, GpPen *pen, float x1, float 
 }
 
 // coverity[+alloc : arg-*3]
-GpStatus 
+GpStatus WINGDIPAPI
 GdipCreatePen1 (ARGB argb, float width, GpUnit unit, GpPen **pen)
 {
         GpStatus s;
@@ -269,7 +269,7 @@ GdipCreatePen1 (ARGB argb, float width, GpUnit unit, GpPen **pen)
 }
 
 // coverity[+alloc : arg-*3]
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreatePen2 (GpBrush *brush, float width, GpUnit unit, GpPen **pen)
 {
         ARGB color;
@@ -344,7 +344,7 @@ clone_dash_array (float *clone, float *array, int size)
 }
 
 // coverity[+alloc : arg-*1]
-GpStatus 
+GpStatus WINGDIPAPI
 GdipClonePen (GpPen *pen, GpPen **clonepen)
 {
         GpPen *result;
@@ -451,7 +451,7 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
         return Ok;
 }       
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipDeletePen (GpPen *pen)
 {
 	if (!pen)
@@ -488,7 +488,7 @@ GdipDeletePen (GpPen *pen)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenWidth (GpPen *pen, float width)
 {
 	if (!pen)
@@ -499,7 +499,7 @@ GdipSetPenWidth (GpPen *pen, float width)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenWidth (GpPen *pen, float *width)
 {
 	if (!pen || !width)
@@ -509,7 +509,7 @@ GdipGetPenWidth (GpPen *pen, float *width)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenBrushFill (GpPen *pen, GpBrush *brush)
 {
         GpStatus s;
@@ -543,7 +543,7 @@ GdipSetPenBrushFill (GpPen *pen, GpBrush *brush)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenBrushFill (GpPen *pen, GpBrush **brush)
 {
 	if (!pen)
@@ -552,7 +552,7 @@ GdipGetPenBrushFill (GpPen *pen, GpBrush **brush)
 	return GdipCloneBrush (pen->brush, brush);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenFillType (GpPen *pen, GpPenType *type)
 {
 	if (!pen || !type)
@@ -566,7 +566,7 @@ GdipGetPenFillType (GpPen *pen, GpPenType *type)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenColor (GpPen *pen, ARGB argb)
 {
 	if (!pen)
@@ -581,7 +581,7 @@ GdipSetPenColor (GpPen *pen, ARGB argb)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenColor (GpPen *pen, ARGB *argb)
 {
 	if (!pen || !argb)
@@ -591,7 +591,7 @@ GdipGetPenColor (GpPen *pen, ARGB *argb)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenMiterLimit (GpPen *pen, float miterLimit)
 {
 	if (!pen)
@@ -605,7 +605,7 @@ GdipSetPenMiterLimit (GpPen *pen, float miterLimit)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenMiterLimit (GpPen *pen, float *miterLimit)
 {
 	if (!pen || !miterLimit)
@@ -615,7 +615,7 @@ GdipGetPenMiterLimit (GpPen *pen, float *miterLimit)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin)
 {
 	if (!pen)
@@ -626,7 +626,7 @@ GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin)
 {
 	if (!pen || !lineJoin)
@@ -636,7 +636,7 @@ GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenLineCap197819 (GpPen *pen, GpLineCap startCap, GpLineCap endCap, GpDashCap dashCap)
 {
 	if (!pen)
@@ -660,7 +660,7 @@ GdipSetPenLineCap197819 (GpPen *pen, GpLineCap startCap, GpLineCap endCap, GpDas
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenMode (GpPen *pen, GpPenAlignment penMode)
 {
 	if (!pen)
@@ -671,7 +671,7 @@ GdipSetPenMode (GpPen *pen, GpPenAlignment penMode)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenMode (GpPen *pen, GpPenAlignment *penMode)
 {
 	if (!pen || !penMode)
@@ -681,7 +681,7 @@ GdipGetPenMode (GpPen *pen, GpPenAlignment *penMode)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenUnit (GpPen *pen, GpUnit *unit)
 {
 	if (!pen || !unit)
@@ -691,7 +691,7 @@ GdipGetPenUnit (GpPen *pen, GpUnit *unit)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenUnit (GpPen *pen, GpUnit unit)
 {
 	if (!pen)
@@ -702,7 +702,7 @@ GdipSetPenUnit (GpPen *pen, GpUnit unit)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenTransform (GpPen *pen, GpMatrix *matrix)
 {
 	GpStatus status;
@@ -721,7 +721,7 @@ GdipSetPenTransform (GpPen *pen, GpMatrix *matrix)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenTransform (GpPen *pen, GpMatrix *matrix)
 {
 	if (!pen || !matrix)
@@ -731,7 +731,7 @@ GdipGetPenTransform (GpPen *pen, GpMatrix *matrix)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipResetPenTransform (GpPen *pen)
 {
 	if (!pen)
@@ -744,7 +744,7 @@ GdipResetPenTransform (GpPen *pen)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipMultiplyPenTransform (GpPen *pen, GpMatrix *matrix, GpMatrixOrder order)
 {
 	GpStatus status;
@@ -769,7 +769,7 @@ GdipMultiplyPenTransform (GpPen *pen, GpMatrix *matrix, GpMatrixOrder order)
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipTranslatePenTransform (GpPen *pen, float dx, float dy, GpMatrixOrder order)
 {
 	GpStatus status;
@@ -785,7 +785,7 @@ GdipTranslatePenTransform (GpPen *pen, float dx, float dy, GpMatrixOrder order)
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipScalePenTransform (GpPen *pen, float sx, float sy, GpMatrixOrder order)
 {
 	GpStatus status;
@@ -801,7 +801,7 @@ GdipScalePenTransform (GpPen *pen, float sx, float sy, GpMatrixOrder order)
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipRotatePenTransform (GpPen *pen, float angle, GpMatrixOrder order)
 {
 	GpStatus status;
@@ -817,7 +817,7 @@ GdipRotatePenTransform (GpPen *pen, float angle, GpMatrixOrder order)
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenDashStyle (GpPen *pen, GpDashStyle *dashStyle)
 {
 	if (!pen || !dashStyle)
@@ -832,7 +832,7 @@ static float Dash []  = { 3.0, 1.0 };
 static float DashDot [] = { 3.0, 1.0, 1.0, 1.0 };
 static float DashDotDot [] = { 3.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
 {
 	if (!pen)
@@ -878,7 +878,7 @@ GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenDashOffset (GpPen *pen, float *offset)
 {
 	if (!pen || !offset)
@@ -888,7 +888,7 @@ GdipGetPenDashOffset (GpPen *pen, float *offset)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenDashOffset (GpPen *pen, float offset)
 {
 	if (!pen)
@@ -899,7 +899,7 @@ GdipSetPenDashOffset (GpPen *pen, float offset)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenDashCount (GpPen *pen, int *count)
 {
 	if (!pen || !count)
@@ -912,7 +912,7 @@ GdipGetPenDashCount (GpPen *pen, int *count)
 /*
  * This is the DashPattern property in Pen.
  */
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenDashArray (GpPen *pen, float *dash, int count)
 {
 	if (!pen || !dash)
@@ -927,7 +927,7 @@ GdipGetPenDashArray (GpPen *pen, float *dash, int count)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenDashArray (GpPen *pen, GDIPCONST float *dash, int count)
 {
 	float *dash_array;
@@ -958,7 +958,7 @@ GdipSetPenDashArray (GpPen *pen, GDIPCONST float *dash, int count)
 /*
  * MonoTODO: Find out what the difference is between CompoundArray and DashArray
  */
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenCompoundCount (GpPen *pen, int *count)
 {
 	if (!pen || !count)
@@ -968,7 +968,7 @@ GdipGetPenCompoundCount (GpPen *pen, int *count)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenCompoundArray (GpPen *pen, const float *compound, int count)
 {
 	float *compound_array;
@@ -993,7 +993,7 @@ GdipSetPenCompoundArray (GpPen *pen, const float *compound, int count)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenCompoundArray (GpPen *pen, float *compound, int count)
 {
 	if (!pen || !compound || (count != pen->compound_count))
@@ -1004,7 +1004,7 @@ GdipGetPenCompoundArray (GpPen *pen, float *compound, int count)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenStartCap (GpPen *pen, GpLineCap startCap)
 {
 	if (!pen)
@@ -1015,7 +1015,7 @@ GdipSetPenStartCap (GpPen *pen, GpLineCap startCap)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenStartCap (GpPen *pen, GpLineCap *startCap)
 {
 	if (!pen || !startCap)
@@ -1027,7 +1027,7 @@ GdipGetPenStartCap (GpPen *pen, GpLineCap *startCap)
 }
 
 /* MonoTODO - ignored (always same as start cap) */
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenEndCap (GpPen *pen, GpLineCap endCap)
 {
 	if (!pen)
@@ -1044,7 +1044,7 @@ GdipSetPenEndCap (GpPen *pen, GpLineCap endCap)
 }
 
 /* MonoTODO - ignored (always same as start cap) */
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenEndCap (GpPen *pen, GpLineCap *endCap)
 {
 	if (!pen || !endCap)
@@ -1056,7 +1056,7 @@ GdipGetPenEndCap (GpPen *pen, GpLineCap *endCap)
 }
 
 /* MonoTODO - ignored */
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenDashCap197819 (GpPen *pen, GpDashCap dashCap)
 {
 	if (!pen)
@@ -1067,7 +1067,7 @@ GdipSetPenDashCap197819 (GpPen *pen, GpDashCap dashCap)
 }
 
 /* MonoTODO - ignored */
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenDashCap197819 (GpPen *pen, GpDashCap *dashCap)
 {
 	if (!pen || !dashCap)
@@ -1077,7 +1077,7 @@ GdipGetPenDashCap197819 (GpPen *pen, GpDashCap *dashCap)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenCustomStartCap (GpPen *pen, GpCustomLineCap *customCap)
 {
 	if (!pen)
@@ -1086,7 +1086,7 @@ GdipSetPenCustomStartCap (GpPen *pen, GpCustomLineCap *customCap)
 	return GdipCloneCustomLineCap (customCap, &pen->custom_start_cap);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenCustomStartCap (GpPen *pen, GpCustomLineCap **customCap)
 {
 	if (!pen || !customCap)
@@ -1095,7 +1095,7 @@ GdipGetPenCustomStartCap (GpPen *pen, GpCustomLineCap **customCap)
 	return GdipCloneCustomLineCap (pen->custom_start_cap, customCap);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetPenCustomEndCap (GpPen *pen, GpCustomLineCap *customCap)
 {
 	if (!pen)
@@ -1104,7 +1104,7 @@ GdipSetPenCustomEndCap (GpPen *pen, GpCustomLineCap *customCap)
 	return GdipCloneCustomLineCap (customCap, &pen->custom_end_cap);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetPenCustomEndCap (GpPen *pen, GpCustomLineCap **customCap)
 {
 	if (!pen || !customCap)

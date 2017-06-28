@@ -31,58 +31,58 @@
 #ifndef __PEN_H__
 #define __PEN_H__
 
-GpStatus GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen);
-GpStatus GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen);
-GpStatus GdipClonePen (GpPen *pen, GpPen **clonedpen);
-GpStatus GdipDeletePen (GpPen *pen);
+GpStatus WINGDIPAPI GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen);
+GpStatus WINGDIPAPI GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen);
+GpStatus WINGDIPAPI GdipClonePen (GpPen *pen, GpPen **clonedpen);
+GpStatus WINGDIPAPI GdipDeletePen (GpPen *pen);
 
-GpStatus GdipSetPenWidth (GpPen *pen, REAL width);
-GpStatus GdipGetPenWidth (GpPen *pen, REAL *width);
+GpStatus WINGDIPAPI GdipSetPenWidth (GpPen *pen, REAL width);
+GpStatus WINGDIPAPI GdipGetPenWidth (GpPen *pen, REAL *width);
 
-GpStatus GdipSetPenBrushFill (GpPen *pen, GpBrush *brush);
-GpStatus GdipGetPenBrushFill (GpPen *pen, GpBrush **brush);
-GpStatus GdipGetPenFillType (GpPen *pen, GpPenType *penType);
-GpStatus GdipSetPenColor (GpPen *pen, ARGB color);
-GpStatus GdipGetPenColor (GpPen *pen, ARGB *color);
-GpStatus GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle);
-GpStatus GdipGetPenDashStyle (GpPen *pen, GpDashStyle *dashStyle);
-GpStatus GdipSetPenDashOffset (GpPen *pen, REAL offset);
-GpStatus GdipGetPenDashOffset (GpPen *pen, REAL *offset);
-GpStatus GdipGetPenDashCount (GpPen *pen, INT *count);
-GpStatus GdipSetPenDashArray (GpPen *pen, GDIPCONST REAL *dash, INT count);
-GpStatus GdipGetPenDashArray (GpPen *pen, REAL *dash, INT count);
-GpStatus GdipSetPenCompoundArray (GpPen *pen, GDIPCONST REAL *dash, INT count);
-GpStatus GdipGetPenCompoundArray (GpPen *pen, REAL *dash, INT count);
-GpStatus GdipGetPenCompoundCount (GpPen *pen, INT *count);
-GpStatus GdipSetPenMode (GpPen *pen, GpPenAlignment penMode);
-GpStatus GdipGetPenMode (GpPen *pen, GpPenAlignment *penMode);
-GpStatus GdipSetPenMiterLimit (GpPen *pen, REAL miterLimit);
-GpStatus GdipGetPenMiterLimit (GpPen *pen, REAL *miterLimit);
+GpStatus WINGDIPAPI GdipSetPenBrushFill (GpPen *pen, GpBrush *brush);
+GpStatus WINGDIPAPI GdipGetPenBrushFill (GpPen *pen, GpBrush **brush);
+GpStatus WINGDIPAPI GdipGetPenFillType (GpPen *pen, GpPenType *penType);
+GpStatus WINGDIPAPI GdipSetPenColor (GpPen *pen, ARGB color);
+GpStatus WINGDIPAPI GdipGetPenColor (GpPen *pen, ARGB *color);
+GpStatus WINGDIPAPI GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle);
+GpStatus WINGDIPAPI GdipGetPenDashStyle (GpPen *pen, GpDashStyle *dashStyle);
+GpStatus WINGDIPAPI GdipSetPenDashOffset (GpPen *pen, REAL offset);
+GpStatus WINGDIPAPI GdipGetPenDashOffset (GpPen *pen, REAL *offset);
+GpStatus WINGDIPAPI GdipGetPenDashCount (GpPen *pen, INT *count);
+GpStatus WINGDIPAPI GdipSetPenDashArray (GpPen *pen, GDIPCONST REAL *dash, INT count);
+GpStatus WINGDIPAPI GdipGetPenDashArray (GpPen *pen, REAL *dash, INT count);
+GpStatus WINGDIPAPI GdipSetPenCompoundArray (GpPen *pen, GDIPCONST REAL *dash, INT count);
+GpStatus WINGDIPAPI GdipGetPenCompoundArray (GpPen *pen, REAL *dash, INT count);
+GpStatus WINGDIPAPI GdipGetPenCompoundCount (GpPen *pen, INT *count);
+GpStatus WINGDIPAPI GdipSetPenMode (GpPen *pen, GpPenAlignment penMode);
+GpStatus WINGDIPAPI GdipGetPenMode (GpPen *pen, GpPenAlignment *penMode);
+GpStatus WINGDIPAPI GdipSetPenMiterLimit (GpPen *pen, REAL miterLimit);
+GpStatus WINGDIPAPI GdipGetPenMiterLimit (GpPen *pen, REAL *miterLimit);
 
-GpStatus GdipSetPenLineCap197819 (GpPen *pen, GpLineCap startCap, GpLineCap endCap, GpDashCap dashCap);
-GpStatus GdipSetPenStartCap (GpPen *pen, GpLineCap startCap);
-GpStatus GdipGetPenStartCap (GpPen *pen, GpLineCap *startCap);
-GpStatus GdipSetPenEndCap (GpPen *pen, GpLineCap endCap);
-GpStatus GdipGetPenEndCap (GpPen *pen, GpLineCap *endCap);
+GpStatus WINGDIPAPI GdipSetPenLineCap197819 (GpPen *pen, GpLineCap startCap, GpLineCap endCap, GpDashCap dashCap);
+GpStatus WINGDIPAPI GdipSetPenStartCap (GpPen *pen, GpLineCap startCap);
+GpStatus WINGDIPAPI GdipGetPenStartCap (GpPen *pen, GpLineCap *startCap);
+GpStatus WINGDIPAPI GdipSetPenEndCap (GpPen *pen, GpLineCap endCap);
+GpStatus WINGDIPAPI GdipGetPenEndCap (GpPen *pen, GpLineCap *endCap);
 
-GpStatus GdipSetPenDashCap197819 (GpPen *pen, GpDashCap dashCap);
-GpStatus GdipGetPenDashCap197819 (GpPen *pen, GpDashCap *dashCap);
+GpStatus WINGDIPAPI GdipSetPenDashCap197819 (GpPen *pen, GpDashCap dashCap);
+GpStatus WINGDIPAPI GdipGetPenDashCap197819 (GpPen *pen, GpDashCap *dashCap);
 
-GpStatus GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin);
-GpStatus GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin);
+GpStatus WINGDIPAPI GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin);
+GpStatus WINGDIPAPI GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin);
 
-GpStatus GdipSetPenCustomStartCap (GpPen *pen, GpCustomLineCap *customCap);
-GpStatus GdipGetPenCustomStartCap (GpPen *pen, GpCustomLineCap **customCap);
-GpStatus GdipSetPenCustomEndCap (GpPen *pen, GpCustomLineCap *customCap);
-GpStatus GdipGetPenCustomEndCap (GpPen *pen, GpCustomLineCap **customCap);
+GpStatus WINGDIPAPI GdipSetPenCustomStartCap (GpPen *pen, GpCustomLineCap *customCap);
+GpStatus WINGDIPAPI GdipGetPenCustomStartCap (GpPen *pen, GpCustomLineCap **customCap);
+GpStatus WINGDIPAPI GdipSetPenCustomEndCap (GpPen *pen, GpCustomLineCap *customCap);
+GpStatus WINGDIPAPI GdipGetPenCustomEndCap (GpPen *pen, GpCustomLineCap **customCap);
 
-GpStatus GdipSetPenTransform (GpPen *pen, GpMatrix *matrix);
-GpStatus GdipGetPenTransform (GpPen *pen, GpMatrix *matrix);
-GpStatus GdipResetPenTransform (GpPen *pen);
-GpStatus GdipMultiplyPenTransform (GpPen *pen, GpMatrix *matrix, GpMatrixOrder order);
-GpStatus GdipTranslatePenTransform (GpPen *pen, REAL dx, REAL dy, GpMatrixOrder order);
-GpStatus GdipScalePenTransform (GpPen *pen, REAL sx, REAL sy, GpMatrixOrder order);
-GpStatus GdipRotatePenTransform (GpPen *pen, REAL angle, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipSetPenTransform (GpPen *pen, GpMatrix *matrix);
+GpStatus WINGDIPAPI GdipGetPenTransform (GpPen *pen, GpMatrix *matrix);
+GpStatus WINGDIPAPI GdipResetPenTransform (GpPen *pen);
+GpStatus WINGDIPAPI GdipMultiplyPenTransform (GpPen *pen, GpMatrix *matrix, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipTranslatePenTransform (GpPen *pen, REAL dx, REAL dy, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipScalePenTransform (GpPen *pen, REAL sx, REAL sy, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipRotatePenTransform (GpPen *pen, REAL angle, GpMatrixOrder order);
 
 /* missing API
 	GdipGetPenUnit
