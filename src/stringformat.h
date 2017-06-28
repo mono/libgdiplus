@@ -33,35 +33,35 @@
 
 /* StringFormat public API (only!) */
 
-GpStatus GdipCreateStringFormat (INT formatAttributes, LANGID language, GpStringFormat **format);
-GpStatus GdipStringFormatGetGenericDefault (GpStringFormat **format);               
-GpStatus GdipStringFormatGetGenericTypographic (GpStringFormat **format);                                                                                              
-GpStatus GdipCloneStringFormat (GDIPCONST GpStringFormat* format, GpStringFormat** newFormat);
-GpStatus GdipDeleteStringFormat (GpStringFormat *format);
+GpStatus WINGDIPAPI GdipCreateStringFormat (INT formatAttributes, LANGID language, GpStringFormat **format);
+GpStatus WINGDIPAPI GdipStringFormatGetGenericDefault (GpStringFormat **format);
+GpStatus WINGDIPAPI GdipStringFormatGetGenericTypographic (GpStringFormat **format);
+GpStatus WINGDIPAPI GdipCloneStringFormat (GDIPCONST GpStringFormat* format, GpStringFormat** newFormat);
+GpStatus WINGDIPAPI GdipDeleteStringFormat (GpStringFormat *format);
 
-GpStatus GdipGetStringFormatAlign (GDIPCONST GpStringFormat *format, StringAlignment *align);
-GpStatus GdipSetStringFormatAlign (GpStringFormat *format, StringAlignment align);
+GpStatus WINGDIPAPI GdipGetStringFormatAlign (GDIPCONST GpStringFormat *format, StringAlignment *align);
+GpStatus WINGDIPAPI GdipSetStringFormatAlign (GpStringFormat *format, StringAlignment align);
 
-GpStatus GdipGetStringFormatDigitSubstitution (GDIPCONST GpStringFormat *format, LANGID *language, StringDigitSubstitute *substitute);
-GpStatus GdipSetStringFormatDigitSubstitution (GpStringFormat *format, LANGID language, StringDigitSubstitute substitute);
+GpStatus WINGDIPAPI GdipGetStringFormatDigitSubstitution (GDIPCONST GpStringFormat *format, LANGID *language, StringDigitSubstitute *substitute);
+GpStatus WINGDIPAPI GdipSetStringFormatDigitSubstitution (GpStringFormat *format, LANGID language, StringDigitSubstitute substitute);
 
-GpStatus GdipGetStringFormatFlags (GDIPCONST GpStringFormat *format, INT *flags);
-GpStatus GdipSetStringFormatFlags (GpStringFormat *format, INT flags);
+GpStatus WINGDIPAPI GdipGetStringFormatFlags (GDIPCONST GpStringFormat *format, INT *flags);
+GpStatus WINGDIPAPI GdipSetStringFormatFlags (GpStringFormat *format, INT flags);
 
-GpStatus GdipGetStringFormatHotkeyPrefix (GDIPCONST GpStringFormat *format, INT *hotkeyPrefix);
-GpStatus GdipSetStringFormatHotkeyPrefix (GpStringFormat *format, INT hotkeyPrefix);
+GpStatus WINGDIPAPI GdipGetStringFormatHotkeyPrefix (GDIPCONST GpStringFormat *format, INT *hotkeyPrefix);
+GpStatus WINGDIPAPI GdipSetStringFormatHotkeyPrefix (GpStringFormat *format, INT hotkeyPrefix);
 
-GpStatus GdipGetStringFormatLineAlign (GDIPCONST GpStringFormat *format, StringAlignment *align);
-GpStatus GdipSetStringFormatLineAlign (GpStringFormat *format, StringAlignment align);
+GpStatus WINGDIPAPI GdipGetStringFormatLineAlign (GDIPCONST GpStringFormat *format, StringAlignment *align);
+GpStatus WINGDIPAPI GdipSetStringFormatLineAlign (GpStringFormat *format, StringAlignment align);
 
-GpStatus GdipGetStringFormatMeasurableCharacterRangeCount (GDIPCONST GpStringFormat *format, INT *count);
-GpStatus GdipSetStringFormatMeasurableCharacterRanges (GpStringFormat *format, INT rangeCount, GDIPCONST CharacterRange *ranges);
+GpStatus WINGDIPAPI GdipGetStringFormatMeasurableCharacterRangeCount (GDIPCONST GpStringFormat *format, INT *count);
+GpStatus WINGDIPAPI GdipSetStringFormatMeasurableCharacterRanges (GpStringFormat *format, INT rangeCount, GDIPCONST CharacterRange *ranges);
 
-GpStatus GdipGetStringFormatTabStopCount (GDIPCONST GpStringFormat *format, INT *count);
-GpStatus GdipGetStringFormatTabStops (GDIPCONST GpStringFormat *format, INT count, REAL *firstTabOffset, REAL *tabStops);
-GpStatus GdipSetStringFormatTabStops (GpStringFormat *format, REAL firstTabOffset, INT count, GDIPCONST REAL *tabStops);
+GpStatus WINGDIPAPI GdipGetStringFormatTabStopCount (GDIPCONST GpStringFormat *format, INT *count);
+GpStatus WINGDIPAPI GdipGetStringFormatTabStops (GDIPCONST GpStringFormat *format, INT count, REAL *firstTabOffset, REAL *tabStops);
+GpStatus WINGDIPAPI GdipSetStringFormatTabStops (GpStringFormat *format, REAL firstTabOffset, INT count, GDIPCONST REAL *tabStops);
 
-GpStatus GdipGetStringFormatTrimming (GDIPCONST GpStringFormat *format, StringTrimming *trimming);
-GpStatus GdipSetStringFormatTrimming (GpStringFormat *format, StringTrimming trimming);
+GpStatus WINGDIPAPI GdipGetStringFormatTrimming (GDIPCONST GpStringFormat *format, StringTrimming *trimming);
+GpStatus WINGDIPAPI GdipSetStringFormatTrimming (GpStringFormat *format, StringTrimming trimming);
 
 #endif
