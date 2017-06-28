@@ -14,20 +14,20 @@
 #ifndef __TEXTUREBRUSH_H__
 #define __TEXTUREBRUSH_H__
 
-GpStatus GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture);
-GpStatus GdipCreateTexture2 (GpImage *image, GpWrapMode wrapMode, float x, float y, float width, float height, GpTexture **texture);
-GpStatus GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int width, int height, GpTexture **texture);
-GpStatus GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x, float y, float width, float height, GpTexture **texture);
-GpStatus GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x, int y, int width, int height, GpTexture **texture);
-GpStatus GdipGetTextureTransform (GpTexture *texture, GpMatrix *matrix);
-GpStatus GdipSetTextureTransform (GpTexture *texture, GDIPCONST GpMatrix *matrix);
-GpStatus GdipResetTextureTransform (GpTexture *texture);
-GpStatus GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrder order);
-GpStatus GdipTranslateTextureTransform (GpTexture *texture, float dx, float dy, GpMatrixOrder order);
-GpStatus GdipScaleTextureTransform (GpTexture *texture, float sx, float sy, GpMatrixOrder order);
-GpStatus GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order);
-GpStatus GdipSetTextureWrapMode (GpTexture *texture, GpWrapMode wrapMode);
-GpStatus GdipGetTextureWrapMode (GpTexture *texture, GpWrapMode *wrapMode);
-GpStatus GdipGetTextureImage (GpTexture *texture, GpImage **image);
+GpStatus WINGDIPAPI GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture);
+GpStatus WINGDIPAPI GdipCreateTexture2 (GpImage *image, GpWrapMode wrapMode, float x, float y, float width, float height, GpTexture **texture);
+GpStatus WINGDIPAPI GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int width, int height, GpTexture **texture);
+GpStatus WINGDIPAPI GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x, float y, float width, float height, GpTexture **texture);
+GpStatus WINGDIPAPI GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x, int y, int width, int height, GpTexture **texture);
+GpStatus WINGDIPAPI GdipGetTextureTransform (GpTexture *texture, GpMatrix *matrix);
+GpStatus WINGDIPAPI GdipSetTextureTransform (GpTexture *texture, GDIPCONST GpMatrix *matrix);
+GpStatus WINGDIPAPI GdipResetTextureTransform (GpTexture *texture);
+GpStatus WINGDIPAPI GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipTranslateTextureTransform (GpTexture *texture, float dx, float dy, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipScaleTextureTransform (GpTexture *texture, float sx, float sy, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipSetTextureWrapMode (GpTexture *texture, GpWrapMode wrapMode);
+GpStatus WINGDIPAPI GdipGetTextureWrapMode (GpTexture *texture, GpWrapMode *wrapMode);
+GpStatus WINGDIPAPI GdipGetTextureImage (GpTexture *texture, GpImage **image);
 
 #endif
