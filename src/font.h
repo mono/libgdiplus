@@ -33,14 +33,14 @@
 
 /* Font public API (only!) */
 
-GpStatus GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit unit, GpFont **font);
-GpStatus GdipCreateFontFromDC (void *hdc, GpFont **font);
-GpStatus GdipDeleteFont (GpFont* font);
-GpStatus GdipGetLogFontA (GpFont *font, GpGraphics *graphics, LOGFONTA *logfontA);
-GpStatus GdipGetLogFontW (GpFont *font, GpGraphics *graphics, LOGFONTW *logfontW);
-GpStatus GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float *height);
-GpStatus GdipGetFontHeightGivenDPI (GDIPCONST GpFont *font, float dpi, float *height);
-GpStatus GdipGetFontSize (GpFont *font, float *size);
+GpStatus WINGDIPAPI GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit unit, GpFont **font);
+GpStatus WINGDIPAPI GdipCreateFontFromDC (void *hdc, GpFont **font);
+GpStatus WINGDIPAPI GdipDeleteFont (GpFont* font);
+GpStatus WINGDIPAPI GdipGetLogFontA (GpFont *font, GpGraphics *graphics, LOGFONTA *logfontA);
+GpStatus WINGDIPAPI GdipGetLogFontW (GpFont *font, GpGraphics *graphics, LOGFONTW *logfontW);
+GpStatus WINGDIPAPI GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float *height);
+GpStatus WINGDIPAPI GdipGetFontHeightGivenDPI (GDIPCONST GpFont *font, float dpi, float *height);
+GpStatus WINGDIPAPI GdipGetFontSize (GpFont *font, float *size);
 
 /* missing API
 	GdipCreateFontFromLogfontA
@@ -52,6 +52,6 @@ GpStatus GdipGetFontSize (GpFont *font, float *size);
 */
 
 /* libgdiplus extra API (not availble in MSGDI+ but exported from libgdiplus) */
-GpStatus GdipCreateFontFromHfontA (HFONT hfont, GpFont **font, void *lf);
+GpStatus WINGDIPAPI GdipCreateFontFromHfontA (HFONT hfont, GpFont **font, void *lf);
 
 #endif
