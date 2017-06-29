@@ -663,7 +663,7 @@ gdip_texture_destroy (GpBrush *brush)
 }
 
 /* coverity[+alloc : arg-*2] */
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 {
 	cairo_surface_t *imageSurface = NULL;
@@ -717,14 +717,14 @@ failure:
 }
 
 /* coverity[+alloc : arg-*6] */
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateTexture2 (GpImage *image, GpWrapMode wrapMode, float x, float y, float width, float height, GpTexture **texture)
 {
 	return GdipCreateTexture2I (image, wrapMode, (int) x, (int) y, (int) width, (int) height, texture);
 }
 
 /* coverity[+alloc : arg-*6] */
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int width, int height, GpTexture **texture)
 {
 	int bmpWidth;
@@ -755,7 +755,7 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 }
 
 /* coverity[+alloc : arg-*6] */
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x, float y, float width, float height, GpTexture **texture)
 {
 	/* FIXME MonoTODO: Make use of ImageAttributes parameter when
@@ -765,7 +765,7 @@ GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x
 }
 
 /* coverity[+alloc : arg-*6] */
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x, int y, int width, int height, GpTexture **texture)
 {
 	/* FIXME MonoTODO: Make use of ImageAttributes parameter when
@@ -774,7 +774,7 @@ GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x,
 	return GdipCreateTexture2I (image, mode, x, y, width, height, texture);
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetTextureTransform (GpTexture *texture, GpMatrix *matrix)
 {
 	if ((texture == NULL) || (matrix == NULL)) {
@@ -785,7 +785,7 @@ GdipGetTextureTransform (GpTexture *texture, GpMatrix *matrix)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetTextureTransform (GpTexture *texture, GDIPCONST GpMatrix *matrix)
 {
 	if ((texture == NULL) || (matrix == NULL)) {
@@ -798,7 +798,7 @@ GdipSetTextureTransform (GpTexture *texture, GDIPCONST GpMatrix *matrix)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipResetTextureTransform (GpTexture *texture)
 {
 	if (texture == NULL) {
@@ -810,7 +810,7 @@ GdipResetTextureTransform (GpTexture *texture)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrder order)
 {
 	GpStatus status;
@@ -836,7 +836,7 @@ GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrde
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipTranslateTextureTransform (GpTexture *texture, float dx, float dy, GpMatrixOrder order)
 {
 	GpStatus status;
@@ -851,7 +851,7 @@ GdipTranslateTextureTransform (GpTexture *texture, float dx, float dy, GpMatrixO
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipScaleTextureTransform (GpTexture *texture, float sx, float sy, GpMatrixOrder order)
 {
 	GpStatus status;
@@ -867,7 +867,7 @@ GdipScaleTextureTransform (GpTexture *texture, float sx, float sy, GpMatrixOrder
 }
 
 /* MonoTODO - FIXME - this hack affect the public transform and doesn't work with MultiplyTransform */
-GpStatus
+GpStatus WINGDIPAPI
 GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order)
 {
 	GpStatus status;
@@ -882,7 +882,7 @@ GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order
 	return status;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetTextureWrapMode (GpTexture *texture, GpWrapMode wrapMode)
 {
 	if (texture == NULL)
@@ -898,7 +898,7 @@ GdipSetTextureWrapMode (GpTexture *texture, GpWrapMode wrapMode)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetTextureWrapMode (GpTexture *texture, GpWrapMode *wrapMode)
 {
 	if (!texture || !wrapMode)
@@ -909,7 +909,7 @@ GdipGetTextureWrapMode (GpTexture *texture, GpWrapMode *wrapMode)
 }
 
 /* coverity[+alloc : arg-*1] */
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetTextureImage (GpTexture *texture, GpImage **image)
 {
 	if (!texture || !image)
