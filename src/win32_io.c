@@ -41,5 +41,5 @@ int CreateTempFile (char *filename)
 		return FileNotFound;
 	}
 
-	return (int)fopen (filename, "w");
+	return (int)(intptr_t)fopen (filename, "w");
 }

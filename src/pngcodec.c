@@ -372,7 +372,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 				for (i=0; i < num_trans; i++) {
 					png_bytep alpha =
 #if (PNG_LIBPNG_VER > 10399)
-						trans_alpha[i];
+						(png_bytep)trans_alpha[i];
 #else
 						info_ptr->trans[i];
 #endif
@@ -381,7 +381,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 							png_palette[i].blue,
 							png_palette[i].green,
 							png_palette[i].red,
-							alpha);
+							(unsigned char)alpha);
 				}
 			}
 		}
