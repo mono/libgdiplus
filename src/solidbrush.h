@@ -26,8 +26,8 @@
 
 #include "brush.h"
 
-GpStatus GdipCreateSolidFill (ARGB color, GpSolidFill **brush);
-GpStatus GdipGetSolidFillColor (GpSolidFill *brush, ARGB *color);
-GpStatus GdipSetSolidFillColor (GpSolidFill *brush, ARGB color);
+GpStatus WINGDIPAPI GdipCreateSolidFill (ARGB color, GpSolidFill **brush);
+GpStatus WINGDIPAPI GdipGetSolidFillColor (GpSolidFill *brush, ARGB *color);
+GpStatus WINGDIPAPI GdipSetSolidFillColor (GpSolidFill *brush, ARGB color);
 
 #endif

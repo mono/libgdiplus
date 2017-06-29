@@ -129,7 +129,7 @@ gdip_solidfill_destroy (GpBrush *brush)
 }
 
 // coverity[+alloc : arg-*1]
-GpStatus 
+GpStatus WINGDIPAPI
 GdipCreateSolidFill (ARGB color, GpSolidFill **brush)
 {
 	if (!brush)
@@ -143,7 +143,7 @@ GdipCreateSolidFill (ARGB color, GpSolidFill **brush)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetSolidFillColor (GpSolidFill *brush, ARGB color)
 {
 	if (!brush)
@@ -155,7 +155,7 @@ GdipSetSolidFillColor (GpSolidFill *brush, ARGB color)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetSolidFillColor (GpSolidFill *brush, ARGB *color)
 {
 	if (!brush || !color)
