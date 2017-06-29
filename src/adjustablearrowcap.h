@@ -33,18 +33,18 @@
 
 /* AdjustableArrowCap public API (only!) */
 
-GpStatus GdipCreateAdjustableArrowCap (REAL height, REAL width, BOOL isFilled, GpAdjustableArrowCap **arrowCap);
+GpStatus WINGDIPAPI GdipCreateAdjustableArrowCap (REAL height, REAL width, BOOL isFilled, GpAdjustableArrowCap **arrowCap);
 
-GpStatus GdipGetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, REAL *height);
-GpStatus GdipSetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, REAL height);
+GpStatus WINGDIPAPI GdipGetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, REAL *height);
+GpStatus WINGDIPAPI GdipSetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, REAL height);
 
-GpStatus GdipGetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, REAL *width);
-GpStatus GdipSetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, REAL width);
+GpStatus WINGDIPAPI GdipGetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, REAL *width);
+GpStatus WINGDIPAPI GdipSetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, REAL width);
 
-GpStatus GdipGetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, REAL *middleInset);
-GpStatus GdipSetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, REAL middleInset);
+GpStatus WINGDIPAPI GdipGetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, REAL *middleInset);
+GpStatus WINGDIPAPI GdipSetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, REAL middleInset);
 
-GpStatus GdipSetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, BOOL isFilled);
-GpStatus GdipGetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, BOOL *isFilled);
+GpStatus WINGDIPAPI GdipSetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, BOOL isFilled);
+GpStatus WINGDIPAPI GdipGetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, BOOL *isFilled);
 
 #endif

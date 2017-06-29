@@ -151,8 +151,8 @@ gdip_adjust_arrowcap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *cu
 /* AdjustableArrowCap functions */
 
 // coverity[+alloc : arg-*3]
-GpStatus
-GdipCreateAdjustableArrowCap (float height, float width, BOOL isFilled, GpAdjustableArrowCap **arrowCap)
+GpStatus WINGDIPAPI
+GdipCreateAdjustableArrowCap (REAL height, REAL width, BOOL isFilled, GpAdjustableArrowCap **arrowCap)
 {
 	GpAdjustableArrowCap *cap;
 
@@ -174,8 +174,8 @@ GdipCreateAdjustableArrowCap (float height, float width, BOOL isFilled, GpAdjust
 	return Ok;
 }
 
-GpStatus
-GdipSetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, float height)
+GpStatus WINGDIPAPI
+GdipSetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, REAL height)
 {
 	if (!arrowCap)
 		return InvalidParameter;
@@ -185,8 +185,8 @@ GdipSetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, float height)
 	return Ok;
 }
 
-GpStatus
-GdipGetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, float *height)
+GpStatus WINGDIPAPI
+GdipGetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, REAL *height)
 {
 	if (!arrowCap || !height)
 		return InvalidParameter;
@@ -196,8 +196,8 @@ GdipGetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, float *height)
 	return Ok;
 }
 
-GpStatus
-GdipSetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, float width)
+GpStatus WINGDIPAPI
+GdipSetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, REAL width)
 {
 	if (!arrowCap)
 		return InvalidParameter;
@@ -207,8 +207,8 @@ GdipSetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, float width)
 	return Ok;
 }
 
-GpStatus
-GdipGetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, float *width)
+GpStatus WINGDIPAPI
+GdipGetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, REAL *width)
 {
 	if (!arrowCap || !width)
 		return InvalidParameter;
@@ -218,8 +218,8 @@ GdipGetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, float *width)
 	return Ok;
 }
 
-GpStatus
-GdipSetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, float middleInset)
+GpStatus WINGDIPAPI
+GdipSetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, REAL middleInset)
 {
 	if (!arrowCap)
 		return InvalidParameter;
@@ -229,8 +229,8 @@ GdipSetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, float midd
 	return Ok;
 }
 
-GpStatus
-GdipGetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, float *middleInset)
+GpStatus WINGDIPAPI
+GdipGetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, REAL *middleInset)
 {
 	if (!arrowCap || !middleInset)
 		return InvalidParameter;
@@ -240,7 +240,7 @@ GdipGetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, float *mid
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, BOOL isFilled)
 {
 	if (!arrowCap)
@@ -251,7 +251,7 @@ GdipSetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, BOOL isFille
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, BOOL *isFilled)
 {
 	if (!arrowCap || !isFilled)
