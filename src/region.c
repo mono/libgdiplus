@@ -407,7 +407,7 @@ gdip_createRegion (GpRegion **region, RegionType type, void *src)
 */
 
 // coverity[+alloc : arg-*0]
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateRegion (GpRegion **region)
 {
         if (!region)
@@ -417,7 +417,7 @@ GdipCreateRegion (GpRegion **region)
 }
 
 // coverity[+alloc : arg-*1]
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateRegionRect (GDIPCONST GpRectF *rect, GpRegion **region)
 {
         if (!region || !rect)
@@ -427,7 +427,7 @@ GdipCreateRegionRect (GDIPCONST GpRectF *rect, GpRegion **region)
 }
 
 // coverity[+alloc : arg-*1]
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateRegionRectI (GDIPCONST GpRect *rect, GpRegion **region)
 {
         if (!region || !rect)
@@ -437,7 +437,7 @@ GdipCreateRegionRectI (GDIPCONST GpRect *rect, GpRegion **region)
 }
 
 // coverity[+alloc : arg-*2]
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, int size, GpRegion **region)
 {
 	GpRegion *result;
@@ -493,7 +493,7 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, int size, GpRegion **region
 }
 
 // coverity[+alloc : arg-*1]
-GpStatus
+GpStatus WINGDIPAPI
 GdipCloneRegion (GpRegion *region, GpRegion **cloneRegion)
 {
         GpRegion *result;
@@ -511,7 +511,7 @@ GdipCloneRegion (GpRegion *region, GpRegion **cloneRegion)
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDeleteRegion (GpRegion *region)
 {
         if (!region)
@@ -524,7 +524,7 @@ GdipDeleteRegion (GpRegion *region)
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetInfinite (GpRegion *region)
 {
         GpRectF rect;
@@ -543,7 +543,7 @@ GdipSetInfinite (GpRegion *region)
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetEmpty (GpRegion *region)
 {
         if (!region)
@@ -971,7 +971,7 @@ gdip_combine_xor (GpRegion *region, GpRectF *recttrg, int cnttrg)
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode combineMode)
 {
         if (!region || !rect)
@@ -1030,7 +1030,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipCombineRegionRectI (GpRegion *region, GDIPCONST GpRect *recti, CombineMode combineMode)
 {
         GpRectF rect;
@@ -1081,7 +1081,7 @@ gdip_combine_exclude_from_infinite (GpRegion *region, GpPath *path)
 	return TRUE;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 {
 	GpRegionBitmap *path_bitmap, *result;
@@ -1230,7 +1230,7 @@ gdip_combine_pathbased_region (GpRegion *region1, GpRegion *region2, CombineMode
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combineMode)
 {
         if (!region || !region2)
@@ -1321,7 +1321,7 @@ GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combi
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetRegionBounds (GpRegion *region, GpGraphics *graphics, GpRectF *rect)
 {
         if (!region || !graphics || !rect)
@@ -1350,7 +1350,7 @@ GdipGetRegionBounds (GpRegion *region, GpGraphics *graphics, GpRectF *rect)
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsEmptyRegion (GpRegion *region, GpGraphics *graphics, BOOL *result)
 {
         if (!region || !graphics || !result)
@@ -1361,7 +1361,7 @@ GdipIsEmptyRegion (GpRegion *region, GpGraphics *graphics, BOOL *result)
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsInfiniteRegion (GpRegion *region, GpGraphics *graphics, BOOL *result)
 {
       if (!region || !graphics || !result)
@@ -1372,7 +1372,7 @@ GdipIsInfiniteRegion (GpRegion *region, GpGraphics *graphics, BOOL *result)
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsVisibleRegionPoint (GpRegion *region, float x, float y, GpGraphics *graphics, BOOL *result)
 {
         if (!region || !result)
@@ -1391,14 +1391,14 @@ GdipIsVisibleRegionPoint (GpRegion *region, float x, float y, GpGraphics *graphi
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsVisibleRegionPointI (GpRegion *region, int x, int y, GpGraphics *graphics, BOOL *result)
 {
         return GdipIsVisibleRegionPoint (region, x, y, graphics, result);
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsVisibleRegionRect (GpRegion *region, float x, float y, float width, float height, GpGraphics *graphics, BOOL *result)
 {
         BOOL found = FALSE;
@@ -1448,14 +1448,14 @@ GdipIsVisibleRegionRect (GpRegion *region, float x, float y, float width, float 
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsVisibleRegionRectI (GpRegion *region, int x, int y, int width, int height, GpGraphics *graphics, BOOL *result)
 {
         return GdipIsVisibleRegionRect (region, x, y, width, height, graphics, result);
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
 {
 	GpRegion *work = NULL;
@@ -1511,7 +1511,7 @@ GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matrix)
 {
 	GpRegion *work = NULL;
@@ -1568,7 +1568,7 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matr
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsEqualRegion (GpRegion *region, GpRegion *region2, GpGraphics *graphics, BOOL *result)
 {
         int i;
@@ -1620,7 +1620,7 @@ GdipIsEqualRegion (GpRegion *region, GpRegion *region2, GpGraphics *graphics, BO
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipTranslateRegion (GpRegion *region, float dx, float dy)
 {
         if (!region)
@@ -1651,7 +1651,7 @@ GdipTranslateRegion (GpRegion *region, float dx, float dy)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipTranslateRegionI (GpRegion *region, int dx, int dy)
 {
         return GdipTranslateRegion (region, dx, dy);
@@ -1678,7 +1678,7 @@ ScaleRegion (GpRegion *region, float sx, float sy)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 {
 	GpStatus status = Ok;
@@ -1739,7 +1739,7 @@ GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 }
 
 // coverity[+alloc : arg-*1]
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateRegionPath (GpPath *path, GpRegion **region)
 {
         if (!region || !path)
@@ -1787,7 +1787,7 @@ GdipCreateRegionPath (GpPath *path, GpRegion **region)
  *		byte[Size2]		branch #2
  */
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetRegionDataSize (GpRegion *region, UINT *bufferSize)
 {
 	if (!region || !bufferSize)
@@ -1809,7 +1809,7 @@ GdipGetRegionDataSize (GpRegion *region, UINT *bufferSize)
 }
 
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetRegionData (GpRegion *region, BYTE *buffer, UINT bufferSize, UINT *sizeFilled)
 {
 	GpStatus status;
@@ -1855,7 +1855,7 @@ GdipGetRegionData (GpRegion *region, BYTE *buffer, UINT bufferSize, UINT *sizeFi
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetRegionHRgn (GpRegion *region, GpGraphics *graphics, HRGN *hRgn)
 {
 	if (!region || !graphics || !hRgn)
@@ -1873,7 +1873,7 @@ GdipGetRegionHRgn (GpRegion *region, GpGraphics *graphics, HRGN *hRgn)
 }
 
 // coverity[+alloc : arg-*1]
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateRegionHrgn (HRGN hRgn, GpRegion **region)
 {
 	if (!hRgn || !region)
