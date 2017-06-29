@@ -39,7 +39,7 @@
  * Text API - validate and delegate
  */
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST RectF *layoutRect, 
 	GDIPCONST GpStringFormat *stringFormat, GpBrush *brush)
 {
@@ -69,7 +69,7 @@ GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPC
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, GDIPCONST RectF *layoutRect,
 	GDIPCONST GpStringFormat *stringFormat, RectF *boundingBox, int *codepointsFitted, int *linesFilled)
 {
@@ -117,7 +117,7 @@ GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GD
 	}
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPCONST GpFont *font, 
 	GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *stringFormat, int regionCount, GpRegion **regions)
 {
