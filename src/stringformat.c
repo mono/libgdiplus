@@ -27,7 +27,7 @@
 #include "stringformat-private.h"
 
 /* coverity[+alloc : arg-*2] */
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateStringFormat (INT formatAttributes, LANGID language, GpStringFormat **format)
 {
 	GpStringFormat *result;
@@ -57,14 +57,14 @@ GdipCreateStringFormat (INT formatAttributes, LANGID language, GpStringFormat **
 }
 
 /* coverity[+alloc : arg-*0] */
-GpStatus
+GpStatus WINGDIPAPI
 GdipStringFormatGetGenericDefault (GpStringFormat **format)
 {
 	return GdipCreateStringFormat (0, 0, format);
 }
 
 /* coverity[+alloc : arg-*0] */
-GpStatus
+GpStatus WINGDIPAPI
 GdipStringFormatGetGenericTypographic (GpStringFormat **format)
 {
 	int formatFlags = StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip;
@@ -75,7 +75,7 @@ GdipStringFormatGetGenericTypographic (GpStringFormat **format)
 }
 
 /* coverity[+alloc : arg-*1] */
-GpStatus
+GpStatus WINGDIPAPI
 GdipCloneStringFormat (GDIPCONST GpStringFormat *format,  GpStringFormat **newFormat)
 {
 	int i;
@@ -126,7 +126,7 @@ GdipCloneStringFormat (GDIPCONST GpStringFormat *format,  GpStringFormat **newFo
 	return Ok; 
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDeleteStringFormat (GpStringFormat *format)
 {
 	if (!format)
@@ -146,7 +146,7 @@ GdipDeleteStringFormat (GpStringFormat *format)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetStringFormatAlign (GpStringFormat *format, StringAlignment align)
 {
 	if (!format)
@@ -156,7 +156,7 @@ GdipSetStringFormatAlign (GpStringFormat *format, StringAlignment align)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetStringFormatAlign (GDIPCONST GpStringFormat *format, StringAlignment *align)
 {
 	if (!format || !align)
@@ -166,7 +166,7 @@ GdipGetStringFormatAlign (GDIPCONST GpStringFormat *format, StringAlignment *ali
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetStringFormatLineAlign (GpStringFormat *format, StringAlignment align)
 {
 	if (!format)
@@ -176,7 +176,7 @@ GdipSetStringFormatLineAlign (GpStringFormat *format, StringAlignment align)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetStringFormatLineAlign (GDIPCONST GpStringFormat *format, StringAlignment *align)
 {
 	if (!format || !align)
@@ -186,7 +186,7 @@ GdipGetStringFormatLineAlign (GDIPCONST GpStringFormat *format, StringAlignment 
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetStringFormatHotkeyPrefix (GpStringFormat *format, INT hotkeyPrefix)
 {
 	if (!format)
@@ -196,7 +196,7 @@ GdipSetStringFormatHotkeyPrefix (GpStringFormat *format, INT hotkeyPrefix)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetStringFormatHotkeyPrefix (GDIPCONST GpStringFormat *format, INT *hotkeyPrefix)
 {
 	if (!format || !hotkeyPrefix)
@@ -206,7 +206,7 @@ GdipGetStringFormatHotkeyPrefix (GDIPCONST GpStringFormat *format, INT *hotkeyPr
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetStringFormatFlags (GpStringFormat *format, INT flags)
 {
 	if (!format)
@@ -216,7 +216,7 @@ GdipSetStringFormatFlags (GpStringFormat *format, INT flags)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetStringFormatFlags (GDIPCONST GpStringFormat *format, INT *flags)
 {
 	if (!format || !flags)
@@ -226,7 +226,7 @@ GdipGetStringFormatFlags (GDIPCONST GpStringFormat *format, INT *flags)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetStringFormatTrimming (GpStringFormat *format,  StringTrimming trimming)
 {
 	if (!format)
@@ -236,7 +236,7 @@ GdipSetStringFormatTrimming (GpStringFormat *format,  StringTrimming trimming)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetStringFormatTrimming (GDIPCONST GpStringFormat *format, StringTrimming *trimming)
 {
 	if (!format || !trimming)
@@ -246,7 +246,7 @@ GdipGetStringFormatTrimming (GDIPCONST GpStringFormat *format, StringTrimming *t
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetStringFormatTabStops (GpStringFormat *format, float firstTabOffset, int count, GDIPCONST float *tabStops)
 {
 	int i;
@@ -279,7 +279,7 @@ GdipSetStringFormatTabStops (GpStringFormat *format, float firstTabOffset, int c
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetStringFormatDigitSubstitution (GDIPCONST GpStringFormat *format, LANGID *language, StringDigitSubstitute *substitute)
 {
 	if (!format || !substitute)
@@ -289,7 +289,7 @@ GdipGetStringFormatDigitSubstitution (GDIPCONST GpStringFormat *format, LANGID *
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetStringFormatDigitSubstitution (GpStringFormat *format, LANGID language, StringDigitSubstitute substitute)
 {
 	if (!format)
@@ -299,7 +299,7 @@ GdipSetStringFormatDigitSubstitution (GpStringFormat *format, LANGID language, S
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetStringFormatTabStopCount (GDIPCONST GpStringFormat *format, int *count)
 {
 	if (!format || !count)
@@ -310,7 +310,7 @@ GdipGetStringFormatTabStopCount (GDIPCONST GpStringFormat *format, int *count)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetStringFormatTabStops (GDIPCONST GpStringFormat *format, int count, float *firstTabOffset, float *tabStops)
 {
 	int i;
@@ -331,7 +331,7 @@ GdipGetStringFormatTabStops (GDIPCONST GpStringFormat *format, int count, float 
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipGetStringFormatMeasurableCharacterRangeCount (GDIPCONST GpStringFormat *format, int *count)
 {
 	if (! format || !count)
@@ -341,7 +341,7 @@ GdipGetStringFormatMeasurableCharacterRangeCount (GDIPCONST GpStringFormat *form
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetStringFormatMeasurableCharacterRanges (GpStringFormat *format, int rangeCount, GDIPCONST CharacterRange *ranges)
 {
 	if (!format || !ranges || (rangeCount < 0))
