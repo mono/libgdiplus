@@ -108,7 +108,7 @@ gdip_matrix_init_from_rect_3points (GpMatrix *matrix, const GpRectF *rect, const
 /* public (exported) functions */
 
 // coverity[+alloc : arg-*0]
-GpStatus 
+GpStatus WINGDIPAPI
 GdipCreateMatrix (GpMatrix **matrix)
 {
 	GpMatrix *result;
@@ -127,7 +127,7 @@ GdipCreateMatrix (GpMatrix **matrix)
 }
 
 // coverity[+alloc : arg-*6]
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float dy, GpMatrix **matrix)
 {
 	GpMatrix *result;
@@ -146,7 +146,7 @@ GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float d
 }
 
 // coverity[+alloc : arg-*2]
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matrix)
 {
 	GpMatrix *result;
@@ -169,7 +169,7 @@ GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matri
 }
 
 // coverity[+alloc : arg-*2]
-GpStatus
+GpStatus WINGDIPAPI
 GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix)
 {
 	GpRectF r;
@@ -194,7 +194,7 @@ GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix
 }
 
 // coverity[+alloc : arg-*1]
-GpStatus
+GpStatus WINGDIPAPI
 GdipCloneMatrix (GpMatrix *matrix, GpMatrix **cloneMatrix)
 {
 	GpMatrix *result;
@@ -212,7 +212,7 @@ GdipCloneMatrix (GpMatrix *matrix, GpMatrix **cloneMatrix)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipDeleteMatrix (GpMatrix *matrix)
 {
 	if (!matrix)
@@ -222,7 +222,7 @@ GdipDeleteMatrix (GpMatrix *matrix)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipSetMatrixElements (GpMatrix *matrix, float m11, float m12, float m21, float m22, float dx, float dy)
 {
 	if (!matrix)
@@ -233,7 +233,7 @@ GdipSetMatrixElements (GpMatrix *matrix, float m11, float m12, float m21, float 
 	return Ok;
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipGetMatrixElements (GpMatrix *matrix, float *matrixOut)
 {
 	if (!matrix || !matrixOut)
@@ -249,7 +249,7 @@ GdipGetMatrixElements (GpMatrix *matrix, float *matrixOut)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipMultiplyMatrix (GpMatrix *matrix, GpMatrix *matrix2, GpMatrixOrder order)
 {
 	if (!matrix || !matrix2)
@@ -265,7 +265,7 @@ GdipMultiplyMatrix (GpMatrix *matrix, GpMatrix *matrix2, GpMatrixOrder order)
 	return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipTranslateMatrix (GpMatrix *matrix, float offsetX, float offsetY, GpMatrixOrder order)
 {
         cairo_matrix_t tmp;
@@ -277,7 +277,7 @@ GdipTranslateMatrix (GpMatrix *matrix, float offsetX, float offsetY, GpMatrixOrd
         return s;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipScaleMatrix (GpMatrix *matrix, float scaleX, float scaleY, GpMatrixOrder order)
 {
         GpMatrix tmp;
@@ -289,7 +289,7 @@ GdipScaleMatrix (GpMatrix *matrix, float scaleX, float scaleY, GpMatrixOrder ord
         return s;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipRotateMatrix (GpMatrix *matrix, float angle, GpMatrixOrder order)
 {
 	cairo_matrix_t tmp;
@@ -303,7 +303,7 @@ GdipRotateMatrix (GpMatrix *matrix, float angle, GpMatrixOrder order)
         return s;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipShearMatrix (GpMatrix *matrix, float shearX, float shearY, GpMatrixOrder order)
 {
         cairo_matrix_t tmp;
@@ -315,7 +315,7 @@ GdipShearMatrix (GpMatrix *matrix, float shearX, float shearY, GpMatrixOrder ord
         return s;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipInvertMatrix (GpMatrix *matrix)
 {
 	if (!matrix)
@@ -325,7 +325,7 @@ GdipInvertMatrix (GpMatrix *matrix)
                 cairo_matrix_invert (matrix));
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
 {
         int i;
@@ -345,7 +345,7 @@ GdipTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
 {
         int i;
@@ -365,7 +365,7 @@ GdipTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipVectorTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
 {
         int i;
@@ -385,7 +385,7 @@ GdipVectorTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipVectorTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
 {
         int i;
@@ -405,7 +405,7 @@ GdipVectorTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
         return Ok;
 }
 
-GpStatus 
+GpStatus WINGDIPAPI
 GdipIsMatrixInvertible (GpMatrix *matrix, BOOL *result)
 {
 	cairo_status_t status;
@@ -421,7 +421,7 @@ GdipIsMatrixInvertible (GpMatrix *matrix, BOOL *result)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsMatrixIdentity (GpMatrix *matrix, BOOL *result)
 {
 	if (!matrix || !result)
@@ -432,7 +432,7 @@ GdipIsMatrixIdentity (GpMatrix *matrix, BOOL *result)
         return Ok;
 }
 
-GpStatus
+GpStatus WINGDIPAPI
 GdipIsMatrixEqual (GpMatrix *matrix, GpMatrix *matrix2, BOOL *result)
 {
 	if (!matrix || !matrix2 || !result)
