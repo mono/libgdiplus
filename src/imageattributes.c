@@ -338,14 +338,14 @@ GdipDisposeImageAttributes (GpImageAttributes *imageattr)
 }
 
 GpStatus WINGDIPAPI
-GdipSetImageAttributesThreshold ( GpImageAttributes *imageattr,  ColorAdjustType type, BOOL enableFlag, float threshold)
+GdipSetImageAttributesThreshold ( GpImageAttributes *imageattr,  ColorAdjustType type, BOOL enableFlag, REAL threshold)
 {
 	return NotImplemented;
 }
 
 
 GpStatus WINGDIPAPI  
-GdipSetImageAttributesGamma (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, float gamma)
+GdipSetImageAttributesGamma (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, REAL gamma)
 {
 	GpImageAttribute *imgattr;
 		

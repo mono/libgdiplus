@@ -147,7 +147,7 @@ GdipCreateMatrix2 (float m11, float m12, float m21, float m22, float dx, float d
 
 // coverity[+alloc : arg-*2]
 GpStatus WINGDIPAPI
-GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matrix)
+GdipCreateMatrix3 (GDIPCONST GpRectF *rect, GDIPCONST GpPointF *dstplg, GpMatrix **matrix)
 {
 	GpMatrix *result;
 	GpStatus status;
@@ -170,7 +170,7 @@ GdipCreateMatrix3 (const GpRectF *rect, const GpPointF *dstplg, GpMatrix **matri
 
 // coverity[+alloc : arg-*2]
 GpStatus WINGDIPAPI
-GdipCreateMatrix3I (const GpRect *rect, const GpPoint *dstplg, GpMatrix **matrix)
+GdipCreateMatrix3I (GDIPCONST GpRect *rect, GDIPCONST GpPoint *dstplg, GpMatrix **matrix)
 {
 	GpRectF r;
 	GpPointF pts[3];

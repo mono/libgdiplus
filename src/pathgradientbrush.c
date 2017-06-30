@@ -413,7 +413,7 @@ gdip_rect_expand_by (GpRectF *rect, GpPointF *point)
 
 /* coverity[+alloc : arg-*3] */
 GpStatus WINGDIPAPI
-GdipCreatePathGradient (GDIPCONST GpPointF *points, int count, GpWrapMode wrapMode, GpPathGradient **polyGradient)
+GdipCreatePathGradient (GDIPCONST GpPointF *points, INT count, GpWrapMode wrapMode, GpPathGradient **polyGradient)
 {
 	int i;
 	GpPathGradient *gp;
@@ -460,7 +460,7 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, int count, GpWrapMode wrapMo
 
 /* coverity[+alloc : arg-*3] */
 GpStatus WINGDIPAPI
-GdipCreatePathGradientI (GDIPCONST GpPoint *points, int count, GpWrapMode wrapMode, GpPathGradient **polyGradient)
+GdipCreatePathGradientI (GDIPCONST GpPoint *points, INT count, GpWrapMode wrapMode, GpPathGradient **polyGradient)
 {
 	int i;
 	GpStatus result;
@@ -545,7 +545,7 @@ GdipSetPathGradientCenterColor (GpPathGradient *brush, ARGB colors)
 }
 
 GpStatus WINGDIPAPI
-GdipGetPathGradientSurroundColorsWithCount (GpPathGradient *brush, ARGB *colors, int *count)
+GdipGetPathGradientSurroundColorsWithCount (GpPathGradient *brush, ARGB *colors, INT *count)
 {
 	int i;
 
@@ -561,7 +561,7 @@ GdipGetPathGradientSurroundColorsWithCount (GpPathGradient *brush, ARGB *colors,
 }
 
 GpStatus WINGDIPAPI
-GdipSetPathGradientSurroundColorsWithCount (GpPathGradient *brush, GDIPCONST ARGB *colors, int *count)
+GdipSetPathGradientSurroundColorsWithCount (GpPathGradient *brush, GDIPCONST ARGB *colors, INT *count)
 {
 	if (!brush || !colors || !count)
 		return InvalidParameter;
@@ -617,7 +617,7 @@ GdipGetPathGradientRect (GpPathGradient *brush, GpRectF *rect)
 }
 
 GpStatus WINGDIPAPI
-GdipGetPathGradientSurroundColorCount (GpPathGradient *brush, int *count)
+GdipGetPathGradientSurroundColorCount (GpPathGradient *brush, INT *count)
 {
 	if (!brush || !count)
 		return InvalidParameter;
@@ -627,7 +627,7 @@ GdipGetPathGradientSurroundColorCount (GpPathGradient *brush, int *count)
 }
 
 GpStatus WINGDIPAPI
-GdipGetPathGradientBlendCount (GpPathGradient *brush, int *count)
+GdipGetPathGradientBlendCount (GpPathGradient *brush, INT *count)
 {
 	if (!brush || !count)
 		return InvalidParameter;
@@ -645,7 +645,7 @@ GdipGetPathGradientBlendCount (GpPathGradient *brush, int *count)
 }
 
 GpStatus WINGDIPAPI
-GdipGetPathGradientBlend (GpPathGradient *brush, float *blend, float *positions, int count)
+GdipGetPathGradientBlend (GpPathGradient *brush, REAL *blend, REAL *positions, INT count)
 {
 	if (!brush || !blend || !positions || (brush->blend->count != count))
 		return InvalidParameter;
@@ -664,7 +664,7 @@ GdipGetPathGradientBlend (GpPathGradient *brush, float *blend, float *positions,
 }
 
 GpStatus WINGDIPAPI
-GdipSetPathGradientBlend (GpPathGradient *brush, GDIPCONST float *blend, GDIPCONST float *positions, int count)
+GdipSetPathGradientBlend (GpPathGradient *brush, GDIPCONST REAL *blend, GDIPCONST REAL *positions, INT count)
 {
 	float *blendFactors;
 	float *blendPositions;
@@ -717,7 +717,7 @@ GdipSetPathGradientBlend (GpPathGradient *brush, GDIPCONST float *blend, GDIPCON
 }
 
 GpStatus WINGDIPAPI
-GdipGetPathGradientPresetBlendCount (GpPathGradient *brush, int *count)
+GdipGetPathGradientPresetBlendCount (GpPathGradient *brush, INT *count)
 {
 	if (!brush)
 		return InvalidParameter;
@@ -727,7 +727,7 @@ GdipGetPathGradientPresetBlendCount (GpPathGradient *brush, int *count)
 }
 
 GpStatus WINGDIPAPI
-GdipGetPathGradientPresetBlend (GpPathGradient *brush, ARGB *blend, float *positions, int count)
+GdipGetPathGradientPresetBlend (GpPathGradient *brush, ARGB *blend, REAL *positions, INT count)
 {
 	if (!brush || !blend || !positions || (brush->presetColors->count != count) || (count < 2))
 		return InvalidParameter;
@@ -739,7 +739,7 @@ GdipGetPathGradientPresetBlend (GpPathGradient *brush, ARGB *blend, float *posit
 }
 
 GpStatus WINGDIPAPI
-GdipSetPathGradientPresetBlend (GpPathGradient *brush, GDIPCONST ARGB *blend, GDIPCONST float *positions, int count)
+GdipSetPathGradientPresetBlend (GpPathGradient *brush, GDIPCONST ARGB *blend, GDIPCONST REAL *positions, INT count)
 {
 	ARGB *blendColors;
 	float *blendPositions;
@@ -788,7 +788,7 @@ GdipSetPathGradientPresetBlend (GpPathGradient *brush, GDIPCONST ARGB *blend, GD
 }
 
 GpStatus WINGDIPAPI
-GdipSetPathGradientSigmaBlend (GpPathGradient *brush, float focus, float scale)
+GdipSetPathGradientSigmaBlend (GpPathGradient *brush, REAL focus, REAL scale)
 {
 	float *blends;
 	float *positions;
@@ -974,7 +974,7 @@ GdipSetPathGradientSigmaBlend (GpPathGradient *brush, float focus, float scale)
 }
 
 GpStatus WINGDIPAPI
-GdipSetPathGradientLinearBlend (GpPathGradient *brush, float focus, float scale)
+GdipSetPathGradientLinearBlend (GpPathGradient *brush, REAL focus, REAL scale)
 {
 	float *blends;
 	float *positions;
@@ -1142,7 +1142,7 @@ GdipMultiplyPathGradientTransform (GpPathGradient *brush, GDIPCONST GpMatrix *ma
 }
 
 GpStatus WINGDIPAPI
-GdipTranslatePathGradientTransform (GpPathGradient *brush, float dx, float dy, GpMatrixOrder order)
+GdipTranslatePathGradientTransform (GpPathGradient *brush, REAL dx, REAL dy, GpMatrixOrder order)
 {
 	GpStatus status;
 
@@ -1155,7 +1155,7 @@ GdipTranslatePathGradientTransform (GpPathGradient *brush, float dx, float dy, G
 }
 
 GpStatus WINGDIPAPI
-GdipScalePathGradientTransform (GpPathGradient *brush, float sx, float sy, GpMatrixOrder order)
+GdipScalePathGradientTransform (GpPathGradient *brush, REAL sx, REAL sy, GpMatrixOrder order)
 {
 	GpStatus status;
 
@@ -1168,7 +1168,7 @@ GdipScalePathGradientTransform (GpPathGradient *brush, float sx, float sy, GpMat
 }
 
 GpStatus WINGDIPAPI
-GdipRotatePathGradientTransform (GpPathGradient *brush, float angle, GpMatrixOrder order)
+GdipRotatePathGradientTransform (GpPathGradient *brush, REAL angle, GpMatrixOrder order)
 {
 	GpStatus status;
 
@@ -1181,7 +1181,7 @@ GdipRotatePathGradientTransform (GpPathGradient *brush, float angle, GpMatrixOrd
 }
 
 GpStatus WINGDIPAPI
-GdipGetPathGradientFocusScales (GpPathGradient *brush, float *xScale, float *yScale)
+GdipGetPathGradientFocusScales (GpPathGradient *brush, REAL *xScale, REAL *yScale)
 {
 	if (!brush || !xScale || !yScale)
 		return InvalidParameter;
@@ -1192,7 +1192,7 @@ GdipGetPathGradientFocusScales (GpPathGradient *brush, float *xScale, float *ySc
 }
 
 GpStatus WINGDIPAPI
-GdipSetPathGradientFocusScales (GpPathGradient *brush, float xScale, float yScale)
+GdipSetPathGradientFocusScales (GpPathGradient *brush, REAL xScale, REAL yScale)
 {
 	if (!brush)
 		return InvalidParameter;

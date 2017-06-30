@@ -247,7 +247,7 @@ GdipGetStringFormatTrimming (GDIPCONST GpStringFormat *format, StringTrimming *t
 }
 
 GpStatus WINGDIPAPI
-GdipSetStringFormatTabStops (GpStringFormat *format, float firstTabOffset, int count, GDIPCONST float *tabStops)
+GdipSetStringFormatTabStops (GpStringFormat *format, REAL firstTabOffset, INT count, GDIPCONST REAL *tabStops)
 {
 	int i;
 	float *pItemSrc = (float*) tabStops;
@@ -300,7 +300,7 @@ GdipSetStringFormatDigitSubstitution (GpStringFormat *format, LANGID language, S
 }
 
 GpStatus WINGDIPAPI
-GdipGetStringFormatTabStopCount (GDIPCONST GpStringFormat *format, int *count)
+GdipGetStringFormatTabStopCount (GDIPCONST GpStringFormat *format, INT *count)
 {
 	if (!format || !count)
 		return InvalidParameter;
@@ -311,7 +311,7 @@ GdipGetStringFormatTabStopCount (GDIPCONST GpStringFormat *format, int *count)
 }
 
 GpStatus WINGDIPAPI
-GdipGetStringFormatTabStops (GDIPCONST GpStringFormat *format, int count, float *firstTabOffset, float *tabStops)
+GdipGetStringFormatTabStops (GDIPCONST GpStringFormat *format, INT count, REAL *firstTabOffset, REAL *tabStops)
 {
 	int i;
 	float *pItemSrc;
@@ -332,7 +332,7 @@ GdipGetStringFormatTabStops (GDIPCONST GpStringFormat *format, int count, float 
 }
 
 GpStatus WINGDIPAPI
-GdipGetStringFormatMeasurableCharacterRangeCount (GDIPCONST GpStringFormat *format, int *count)
+GdipGetStringFormatMeasurableCharacterRangeCount (GDIPCONST GpStringFormat *format, INT *count)
 {
 	if (! format || !count)
 		return InvalidParameter;
@@ -342,7 +342,7 @@ GdipGetStringFormatMeasurableCharacterRangeCount (GDIPCONST GpStringFormat *form
 }
 
 GpStatus WINGDIPAPI
-GdipSetStringFormatMeasurableCharacterRanges (GpStringFormat *format, int rangeCount, GDIPCONST CharacterRange *ranges)
+GdipSetStringFormatMeasurableCharacterRanges (GpStringFormat *format, INT rangeCount, GDIPCONST CharacterRange *ranges)
 {
 	if (!format || !ranges || (rangeCount < 0))
 		return InvalidParameter;

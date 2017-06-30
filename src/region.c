@@ -438,7 +438,7 @@ GdipCreateRegionRectI (GDIPCONST GpRect *rect, GpRegion **region)
 
 // coverity[+alloc : arg-*2]
 GpStatus WINGDIPAPI
-GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, int size, GpRegion **region)
+GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region)
 {
 	GpRegion *result;
 

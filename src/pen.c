@@ -237,7 +237,7 @@ gdip_pen_draw_custom_end_cap (GpGraphics *graphics, GpPen *pen, float x1, float 
 
 // coverity[+alloc : arg-*3]
 GpStatus WINGDIPAPI
-GdipCreatePen1 (ARGB argb, float width, GpUnit unit, GpPen **pen)
+GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen)
 {
         GpStatus s;
 	GpSolidFill *solidBrush = NULL;
@@ -270,7 +270,7 @@ GdipCreatePen1 (ARGB argb, float width, GpUnit unit, GpPen **pen)
 
 // coverity[+alloc : arg-*3]
 GpStatus WINGDIPAPI
-GdipCreatePen2 (GpBrush *brush, float width, GpUnit unit, GpPen **pen)
+GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen)
 {
         ARGB color;
         GpStatus s;
@@ -489,7 +489,7 @@ GdipDeletePen (GpPen *pen)
 }
 
 GpStatus WINGDIPAPI
-GdipSetPenWidth (GpPen *pen, float width)
+GdipSetPenWidth (GpPen *pen, REAL width)
 {
 	if (!pen)
 		return InvalidParameter;
@@ -500,7 +500,7 @@ GdipSetPenWidth (GpPen *pen, float width)
 }
 
 GpStatus WINGDIPAPI
-GdipGetPenWidth (GpPen *pen, float *width)
+GdipGetPenWidth (GpPen *pen, REAL *width)
 {
 	if (!pen || !width)
 		return InvalidParameter;
@@ -592,7 +592,7 @@ GdipGetPenColor (GpPen *pen, ARGB *argb)
 }
 
 GpStatus WINGDIPAPI
-GdipSetPenMiterLimit (GpPen *pen, float miterLimit)
+GdipSetPenMiterLimit (GpPen *pen, REAL miterLimit)
 {
 	if (!pen)
 		return InvalidParameter;
@@ -606,7 +606,7 @@ GdipSetPenMiterLimit (GpPen *pen, float miterLimit)
 }
 
 GpStatus WINGDIPAPI
-GdipGetPenMiterLimit (GpPen *pen, float *miterLimit)
+GdipGetPenMiterLimit (GpPen *pen, REAL *miterLimit)
 {
 	if (!pen || !miterLimit)
 		return InvalidParameter;
@@ -770,7 +770,7 @@ GdipMultiplyPenTransform (GpPen *pen, GpMatrix *matrix, GpMatrixOrder order)
 }
 
 GpStatus WINGDIPAPI
-GdipTranslatePenTransform (GpPen *pen, float dx, float dy, GpMatrixOrder order)
+GdipTranslatePenTransform (GpPen *pen, REAL dx, REAL dy, GpMatrixOrder order)
 {
 	GpStatus status;
 
@@ -786,7 +786,7 @@ GdipTranslatePenTransform (GpPen *pen, float dx, float dy, GpMatrixOrder order)
 }
 
 GpStatus WINGDIPAPI
-GdipScalePenTransform (GpPen *pen, float sx, float sy, GpMatrixOrder order)
+GdipScalePenTransform (GpPen *pen, REAL sx, REAL sy, GpMatrixOrder order)
 {
 	GpStatus status;
 
@@ -802,7 +802,7 @@ GdipScalePenTransform (GpPen *pen, float sx, float sy, GpMatrixOrder order)
 }
 
 GpStatus WINGDIPAPI
-GdipRotatePenTransform (GpPen *pen, float angle, GpMatrixOrder order)
+GdipRotatePenTransform (GpPen *pen, REAL angle, GpMatrixOrder order)
 {
 	GpStatus status;
 
@@ -879,7 +879,7 @@ GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
 }
 
 GpStatus WINGDIPAPI
-GdipGetPenDashOffset (GpPen *pen, float *offset)
+GdipGetPenDashOffset (GpPen *pen, REAL *offset)
 {
 	if (!pen || !offset)
 		return InvalidParameter;
@@ -889,7 +889,7 @@ GdipGetPenDashOffset (GpPen *pen, float *offset)
 }
 
 GpStatus WINGDIPAPI
-GdipSetPenDashOffset (GpPen *pen, float offset)
+GdipSetPenDashOffset (GpPen *pen, REAL offset)
 {
 	if (!pen)
 		return InvalidParameter;
@@ -900,7 +900,7 @@ GdipSetPenDashOffset (GpPen *pen, float offset)
 }
 
 GpStatus WINGDIPAPI
-GdipGetPenDashCount (GpPen *pen, int *count)
+GdipGetPenDashCount (GpPen *pen, INT *count)
 {
 	if (!pen || !count)
 		return InvalidParameter;
@@ -913,7 +913,7 @@ GdipGetPenDashCount (GpPen *pen, int *count)
  * This is the DashPattern property in Pen.
  */
 GpStatus WINGDIPAPI
-GdipGetPenDashArray (GpPen *pen, float *dash, int count)
+GdipGetPenDashArray (GpPen *pen, REAL *dash, INT count)
 {
 	if (!pen || !dash)
 		return InvalidParameter;
@@ -928,7 +928,7 @@ GdipGetPenDashArray (GpPen *pen, float *dash, int count)
 }
 
 GpStatus WINGDIPAPI
-GdipSetPenDashArray (GpPen *pen, GDIPCONST float *dash, int count)
+GdipSetPenDashArray (GpPen *pen, GDIPCONST REAL *dash, INT count)
 {
 	float *dash_array;
 
@@ -959,7 +959,7 @@ GdipSetPenDashArray (GpPen *pen, GDIPCONST float *dash, int count)
  * MonoTODO: Find out what the difference is between CompoundArray and DashArray
  */
 GpStatus WINGDIPAPI
-GdipGetPenCompoundCount (GpPen *pen, int *count)
+GdipGetPenCompoundCount (GpPen *pen, INT *count)
 {
 	if (!pen || !count)
 		return InvalidParameter;
@@ -969,7 +969,7 @@ GdipGetPenCompoundCount (GpPen *pen, int *count)
 }
 
 GpStatus WINGDIPAPI
-GdipSetPenCompoundArray (GpPen *pen, const float *compound, int count)
+GdipSetPenCompoundArray (GpPen *pen, GDIPCONST REAL *compound, INT count)
 {
 	float *compound_array;
 
@@ -994,7 +994,7 @@ GdipSetPenCompoundArray (GpPen *pen, const float *compound, int count)
 }
 
 GpStatus WINGDIPAPI
-GdipGetPenCompoundArray (GpPen *pen, float *compound, int count)
+GdipGetPenCompoundArray (GpPen *pen, REAL *compound, INT count)
 {
 	if (!pen || !compound || (count != pen->compound_count))
 		return InvalidParameter;
