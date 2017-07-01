@@ -23,6 +23,7 @@
  *
  */
 
+#include "brush-private.h"
 #include "lineargradientbrush-private.h"
 #include "graphics-private.h"
 #include "matrix-private.h"

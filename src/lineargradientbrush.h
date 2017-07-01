@@ -26,8 +26,6 @@
 #ifndef __LINEAR_GRADIENT_H__
 #define __LINEAR_GRADIENT_H__
 
-#include "brush-private.h"
-
 typedef enum {
 	LinearGradientModeHorizontal		= 0,	/* angle = 0 deg    */
 	LinearGradientModeVertical		= 1,	/* angle = 90 deg   */
