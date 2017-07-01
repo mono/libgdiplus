@@ -19,13 +19,13 @@ using namespace DllExports;
 
 static void test_flush()
 {
-    gunichar2 *filePath;
-    GpStatus status;
-    GpImage *image;
+	gunichar2 *filePath;
+	GpStatus status;
+	GpImage *image;
 	GpGraphics *graphics;
-	
-    filePath = g_utf8_to_utf16("test.bmp", -1, NULL, NULL, NULL);
-    status = GdipLoadImageFromFile(filePath, &image);
+
+	filePath = g_utf8_to_utf16("test.bmp", -1, NULL, NULL, NULL);
+	status = GdipLoadImageFromFile(filePath, &image);
 	assert(status == Ok);
 
 	status = GdipGetImageGraphicsContext(image, &graphics);
@@ -40,7 +40,7 @@ static void test_flush()
 	status = GdipFlush(graphics, (FlushIntention)-1);
 	assert(status == Ok);
 
-	// Libgdiplus does not yet match this GDI+ behaviour.
+// Libgdiplus does not yet match this GDI+ behaviour.
 #if 0
 	HDC hdc;
 	status = GdipGetDC(graphics, &hdc);
