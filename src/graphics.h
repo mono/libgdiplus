@@ -120,8 +120,8 @@ GpStatus WINGDIPAPI GdipSetCompositingMode (GpGraphics *graphics, CompositingMod
 GpStatus WINGDIPAPI GdipGetCompositingMode (GpGraphics *graphics, CompositingMode *compositingMode);
 GpStatus WINGDIPAPI GdipSetCompositingQuality (GpGraphics *graphics, CompositingQuality compositingQuality);
 GpStatus WINGDIPAPI GdipGetCompositingQuality (GpGraphics *graphics, CompositingQuality *compositingQuality);
-GpStatus WINGDIPAPI GdipSetInteroplationMode (GpGraphics *graphics, InterpolationMode imode);
-GpStatus WINGDIPAPI GdipGetInteroplationMode (GpGraphics *graphics, InterpolationMode *imode);
+GpStatus WINGDIPAPI GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode imode);
+GpStatus WINGDIPAPI GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *imode);
 GpStatus WINGDIPAPI GdipSetPageScale (GpGraphics *graphics, REAL scale);
 GpStatus WINGDIPAPI GdipGetPageScale (GpGraphics *graphics, REAL *scale);
 GpStatus WINGDIPAPI GdipSetPageUnit (GpGraphics *graphics, GpUnit unit);
