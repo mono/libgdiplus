@@ -24,46 +24,49 @@ static void test_flush()
 	GpImage *image;
 	GpGraphics *graphics;
 
-	filePath = g_utf8_to_utf16("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile(filePath, &image);
-	assert(status == Ok);
+	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
+	status = GdipLoadImageFromFile (filePath, &image);
+	assert (status == Ok);
 
-	status = GdipGetImageGraphicsContext(image, &graphics);
-	assert(status == Ok);
+	status = GdipGetImageGraphicsContext (image, &graphics);
+	assert (status == Ok);
 
-	status = GdipFlush(NULL, FlushIntentionFlush);
-	assert(status == InvalidParameter);
+	status = GdipFlush (NULL, FlushIntentionFlush);
+	assert (status == InvalidParameter);
 
-	status = GdipFlush(graphics, FlushIntentionFlush);
-	assert(status == Ok);
+	status = GdipFlush (graphics, FlushIntentionFlush);
+	assert (status == Ok);
 
-	status = GdipFlush(graphics, (FlushIntention)-1);
-	assert(status == Ok);
+	status = GdipFlush (graphics, FlushIntentionSync);
+	assert (status == Ok);
+
+	status = GdipFlush (graphics, (FlushIntention)-1);
+	assert (status == Ok);
 
 // Libgdiplus does not yet match this GDI+ behaviour.
 #if 0
 	HDC hdc;
-	status = GdipGetDC(graphics, &hdc);
+	status = GdipGetDC (graphics, &hdc);
 
-	status = GdipFlush(graphics, FlushIntention::FlushIntentionSync);
-	expect(ObjectBusy, status);
+	status = GdipFlush (graphics, FlushIntention::FlushIntentionSync);
+	expect (ObjectBusy, status);
 
-	GdipReleaseDC(graphics, hdc);
+	GdipReleaseDC (graphics, hdc);
 #endif
 
-	GdipDisposeImage(image);
-	GdipDeleteGraphics(graphics);
+	GdipDisposeImage (image);
+	GdipDeleteGraphics (graphics);
 }
 
 int
-main(int argc, char**argv)
+main (int argc, char**argv)
 {
 	GdiplusStartupInput gdiplusStartupInput;
 	ULONG_PTR gdiplusToken;
-	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
 
 	test_flush();
 
-	GdiplusShutdown(gdiplusToken);
+	GdiplusShutdown (gdiplusToken);
 	return 0;
 }
