@@ -25,9 +25,7 @@
 #ifndef __PATHGRADIENTBRUSH_H__
 #define __PATHGRADIENTBRUSH_H__
 
-#include "gdiplus-private.h"
 #include "brush.h"
-
 
 GpStatus WINGDIPAPI GdipCreatePathGradient (GDIPCONST GpPointF *points, INT count, GpWrapMode wrapMode, GpPathGradient **polyGradient);
 GpStatus WINGDIPAPI GdipCreatePathGradientI (GDIPCONST GpPoint *points, INT count, GpWrapMode wrapMode, GpPathGradient **polyGradient);

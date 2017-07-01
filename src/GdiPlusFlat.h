@@ -62,6 +62,7 @@ typedef void GpImage;
 typedef void GpImageAttributes;
 typedef void GpLineGradient;
 typedef void GpMatrix;
+typedef void GpMetafile;
 typedef void GpPath;
 typedef void GpPathIterator;
 typedef void GpPathGradient;
@@ -105,15 +106,20 @@ typedef struct {
 #include "fontfamily.h"
 #include "graphics.h"
 #include "graphics-path.h"
+#include "graphics-pathiterator.h"
 #include "hatchbrush.h"
 #include "image.h"
 #include "imageattributes.h"
-#include "pen.h"
+#include "lineargradientbrush.h"
 #include "matrix.h"
+#include "metafile.h"
+#include "pathgradientbrush.h"
+#include "pen.h"
 #include "region.h"
 #include "solidbrush.h"
 #include "stringformat.h"
 #include "text.h"
+#include "texturebrush.h"
 
 #ifdef __cplusplus
 }

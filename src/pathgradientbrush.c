@@ -25,6 +25,7 @@
  */
 
 #include "pathgradientbrush-private.h"
+#include "gdiplus-private.h"
 #include "graphics-private.h"
 #include "graphics-path-private.h"
 #include "matrix-private.h"
