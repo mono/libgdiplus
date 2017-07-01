@@ -2037,7 +2037,7 @@ GdipTranslateClip (GpGraphics *graphics, REAL dx, REAL dy)
 }
 
 GpStatus WINGDIPAPI
-GdipTranslateClipI (GpGraphics *graphics, int dx, int dy)
+GdipTranslateClipI (GpGraphics *graphics, INT dx, INT dy)
 {
 	return GdipTranslateClip (graphics, dx, dy);
 }
