@@ -31,6 +31,7 @@ GpStatus WINGDIPAPI GdipBeginContainer (GpGraphics *graphics, GDIPCONST GpRectF*
 GpStatus WINGDIPAPI GdipBeginContainer2 (GpGraphics *graphics, GraphicsContainer* state);
 GpStatus WINGDIPAPI GdipBeginContainerI (GpGraphics *graphics, GDIPCONST GpRect* dstrect, GDIPCONST GpRect *srcrect, GpUnit unit, GraphicsContainer *state);
 GpStatus WINGDIPAPI GdipEndContainer (GpGraphics *graphics, GraphicsContainer state);
+GpStatus WINGDIPAPI GdipFlush (GpGraphics *graphics, GpFlushIntention intention);
 
 GpStatus WINGDIPAPI GdipCreateFromHDC (HDC hDC, GpGraphics **graphics);
 GpStatus WINGDIPAPI GdipDeleteGraphics (GpGraphics *graphics);
