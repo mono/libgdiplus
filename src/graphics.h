@@ -33,11 +33,11 @@ GpStatus WINGDIPAPI GdipBeginContainerI (GpGraphics *graphics, GDIPCONST GpRect*
 GpStatus WINGDIPAPI GdipEndContainer (GpGraphics *graphics, GraphicsContainer state);
 GpStatus WINGDIPAPI GdipFlush (GpGraphics *graphics, GpFlushIntention intention);
 
-GpStatus WINGDIPAPI GdipCreateFromHDC (HDC hDC, GpGraphics **graphics);
+GpStatus WINGDIPAPI GdipCreateFromHDC (HDC hdc, GpGraphics **graphics);
 GpStatus WINGDIPAPI GdipDeleteGraphics (GpGraphics *graphics);
 
-GpStatus WINGDIPAPI GdipGetDC (GpGraphics *graphics, HDC *hDC);
-GpStatus WINGDIPAPI GdipReleaseDC (GpGraphics *graphics, HDC hDC);
+GpStatus WINGDIPAPI GdipGetDC (GpGraphics *graphics, HDC *hdc);
+GpStatus WINGDIPAPI GdipReleaseDC (GpGraphics *graphics, HDC hdc);
 
 GpStatus WINGDIPAPI GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState);
 GpStatus WINGDIPAPI GdipSaveGraphics(GpGraphics *graphics, unsigned int * state);

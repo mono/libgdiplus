@@ -213,14 +213,14 @@ gdip_metafile_graphics_new (GpMetafile *metafile)
 
 // coverity[+alloc : arg-*1]
 GpStatus WINGDIPAPI
-GdipCreateFromHDC (HDC hDC, GpGraphics **graphics)
+GdipCreateFromHDC (HDC hdc, GpGraphics **graphics)
 {
-	GpGraphics *clone = (GpGraphics *) hDC;
+	GpGraphics *clone = (GpGraphics *)hdc;
 	cairo_surface_t *surface;
 	int x, y;
 	unsigned int w, h, border_w, depth;
 
-	if (!hDC)
+	if (!hdc)
 		return OutOfMemory;
 
 #ifdef CAIRO_HAS_PS_SURFACE
@@ -404,19 +404,19 @@ GdipDeleteGraphics (GpGraphics *graphics)
 }
 
 GpStatus WINGDIPAPI
-GdipGetDC (GpGraphics *graphics, HDC *hDC)
+GdipGetDC (GpGraphics *graphics, HDC *hdc)
 {
 	/* For our gdi+ the hDC is equivalent to the graphics handle */
-	if (hDC) {
-		*hDC = (void *)graphics;
+	if (hdc) {
+		*hdc = (void *)graphics;
 	}
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipReleaseDC (GpGraphics *graphics, HDC hDC)
+GdipReleaseDC (GpGraphics *graphics, HDC hdc)
 {
-	if (hDC != (void *)graphics) {
+	if (hdc != (void *)graphics) {
 		return InvalidParameter;
 	}
 	return Ok;
