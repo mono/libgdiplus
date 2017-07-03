@@ -12,6 +12,158 @@
 #include <math.h>
 #include <float.h>
 
+static void test_createFromHDC()
+{
+	gunichar2 *filePath;
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphicsOriginal;
+	HDC hdc;
+	GpGraphics *graphicsFromHdc;
+	TextRenderingHint textRenderingHint;
+
+	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
+	status = GdipLoadImageFromFile (filePath, &image);
+	assert (status == Ok);
+
+	status = GdipGetImageGraphicsContext (image, &graphicsOriginal);
+	assert(status == Ok);
+
+	status = GdipSetTextRenderingHint (graphicsOriginal, TextRenderingHintClearTypeGridFit);
+	assert (status == Ok);
+
+	status = GdipGetDC (graphicsOriginal, &hdc);
+	assert (status == Ok);
+
+	status = GdipCreateFromHDC (0, &graphicsFromHdc);
+	assert (status == OutOfMemory);
+
+// Libgdiplus returns OutOfMemory.
+#if 0
+	status = GdipCreateFromHDC (0, NULL);
+	assert (status == InvalidParameter);
+#endif
+
+	status = GdipCreateFromHDC (hdc, &graphicsFromHdc);
+	assert (status == Ok);
+	assert(graphicsFromHdc != NULL);
+
+	// The graphics from the HDC should not have the same values as the original graphics.
+	status = GdipGetTextRenderingHint (graphicsFromHdc, &textRenderingHint);
+	assert(status == Ok);
+	assert(textRenderingHint == TextRenderingHintSystemDefault);
+
+	// Modifying the graphics from the HDC should not modify the original graphics.
+	status = GdipSetTextRenderingHint (graphicsFromHdc, TextRenderingHintSingleBitPerPixelGridFit);
+	assert (status == Ok);
+
+	GdipReleaseDC (graphicsOriginal, hdc);
+
+	status = GdipGetTextRenderingHint (graphicsOriginal, &textRenderingHint);
+	assert(status == Ok);
+	assert(textRenderingHint == TextRenderingHintClearTypeGridFit);
+
+	GdipDisposeImage (image);
+	GdipDeleteGraphics (graphicsOriginal);
+	GdipDeleteGraphics (graphicsFromHdc);
+}
+
+static void test_createFromHDC2()
+{
+	gunichar2 *filePath;
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphicsOriginal;
+	HDC hdc;
+	GpGraphics *graphicsFromHdc;
+	TextRenderingHint textRenderingHint;
+
+	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
+	status = GdipLoadImageFromFile (filePath, &image);
+	assert (status == Ok);
+
+	status = GdipGetImageGraphicsContext (image, &graphicsOriginal);
+	assert(status == Ok);
+
+	status = GdipSetTextRenderingHint (graphicsOriginal, TextRenderingHintClearTypeGridFit);
+	assert (status == Ok);
+
+	status = GdipGetDC (graphicsOriginal, &hdc);
+	assert (status == Ok);
+
+	status = GdipCreateFromHDC2 (0, NULL, &graphicsFromHdc);
+	assert (status == OutOfMemory);
+
+// Libgdiplus returns OutOfMemory.
+#if 0
+	status = GdipCreateFromHDC2 (0, NULL, NULL);
+	assert (status == InvalidParameter);
+#endif
+
+	status = GdipCreateFromHDC2 (hdc, NULL, &graphicsFromHdc);
+	assert (status == Ok);
+	assert (graphicsFromHdc != NULL);
+
+	// The graphics from the HDC should not have the same values as the original graphics.
+	status = GdipGetTextRenderingHint (graphicsFromHdc, &textRenderingHint);
+	assert (status == Ok);
+	assert (textRenderingHint == TextRenderingHintSystemDefault);
+
+	// Modifying the graphics from the HDC should not modify the original graphics.
+	status = GdipSetTextRenderingHint (graphicsFromHdc, TextRenderingHintSingleBitPerPixelGridFit);
+	assert (status == Ok);
+
+	GdipReleaseDC (graphicsOriginal, hdc);
+
+	status = GdipGetTextRenderingHint (graphicsOriginal, &textRenderingHint);
+	assert (status == Ok);
+	assert (textRenderingHint == TextRenderingHintClearTypeGridFit);
+
+	GdipDisposeImage (image);
+	GdipDeleteGraphics (graphicsOriginal);
+	GdipDeleteGraphics (graphicsFromHdc);
+}
+
+static void test_createFromHWND()
+{
+	GpStatus status;
+	GpGraphics *graphics;
+
+	status = GdipCreateFromHWND (0, NULL);
+	assert (status == InvalidParameter);
+
+// Libgdiplus does not implement GdipCreateFromHwnd.
+#if 0
+	// HWND of zero means the current screen.
+	status = GdipCreateFromHWND (0, &graphics);
+	assert (status == Ok);
+	assert (graphics != NULL);
+#else
+  status = GdipCreateFromHWND (0, &graphics);
+	assert (status == NotImplemented);
+#endif
+}
+
+static void test_createFromHWNDICM()
+{
+	GpStatus status;
+	GpGraphics *graphics;
+
+	status = GdipCreateFromHWNDICM (0, NULL);
+	assert (status == InvalidParameter);
+
+// Libgdiplus does not implement GdipCreateFromHwndICM.
+#if 0
+	// HWND of zero means the current screen.
+	status = GdipCreateFromHWNDICM (0, &graphics);
+	assert (status == Ok);
+	assert (graphics != NULL);
+#else
+  status = GdipCreateFromHWNDICM (0, &graphics);
+	assert (status == NotImplemented);
+#endif
+}
+
 static void test_hdc ()
 {
 	gunichar2 *filePath;
@@ -925,6 +1077,10 @@ main (int argc, char**argv)
 	ULONG_PTR gdiplusToken;
 	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
 
+	test_createFromHDC ();
+	test_createFromHDC2 ();
+	test_createFromHWND ();
+	test_createFromHWNDICM ();
 	test_hdc ();
 	test_compositingMode ();
 	test_compositingQuality ();

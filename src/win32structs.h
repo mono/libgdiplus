@@ -101,6 +101,7 @@ typedef gpointer HICON;
 typedef gpointer HINSTANCE;
 typedef gpointer HMETAFILE;
 typedef gpointer HPALETTE;
+typedef gpointer HWND;
 
 /* mono/io-layer/uglify.h also has these typedefs.
  * To avoid a dependency on mono we have copied all
