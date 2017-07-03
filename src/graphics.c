@@ -263,8 +263,29 @@ GdipCreateFromHDC (HDC hdc, GpGraphics **graphics)
 }
 
 GpStatus WINGDIPAPI
-GdipCreateFromHWND (void *hwnd, GpGraphics **graphics)
+GdipCreateFromHDC2 (HDC hdc, HANDLE hDevice, GpGraphics **graphics)
 {
+	if (hDevice)
+		return NotImplemented;
+
+	return GdipCreateFromHDC (hdc, graphics);
+}
+
+GpStatus WINGDIPAPI
+GdipCreateFromHWND (HWND hwnd, GpGraphics **graphics)
+{
+	if (!graphics)
+		return InvalidParameter;
+
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipCreateFromHWNDICM (HWND hwnd, GpGraphics **graphics)
+{
+	if (!graphics)
+		return InvalidParameter;
+
 	return NotImplemented;
 }
 

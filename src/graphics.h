@@ -34,6 +34,10 @@ GpStatus WINGDIPAPI GdipEndContainer (GpGraphics *graphics, GraphicsContainer st
 GpStatus WINGDIPAPI GdipFlush (GpGraphics *graphics, GpFlushIntention intention);
 
 GpStatus WINGDIPAPI GdipCreateFromHDC (HDC hdc, GpGraphics **graphics);
+GpStatus WINGDIPAPI GdipCreateFromHDC2 (HDC hdc, HANDLE hDevice, GpGraphics **graphics);
+
+GpStatus WINGDIPAPI GdipCreateFromHWND(HWND hwnd, GpGraphics **graphics);
+GpStatus WINGDIPAPI GdipCreateFromHWNDICM(HWND hwnd, GpGraphics **graphics);
 GpStatus WINGDIPAPI GdipDeleteGraphics (GpGraphics *graphics);
 
 GpStatus WINGDIPAPI GdipGetDC (GpGraphics *graphics, HDC *hdc);
@@ -164,9 +168,6 @@ GpStatus WINGDIPAPI GdipTranslateClip (GpGraphics *graphics, REAL dx, REAL dy);
 GpStatus WINGDIPAPI GdipTranslateClipI (GpGraphics *graphics, INT dx, INT dy);
 
 /* missing API
-	GdipCreateFromHDC2
-	GdipCreateFromHWND
-	GdipCreateFromHWNDICM
 	GdipCreateHalftonePalette
 	GdipResetPageTransform
  */
