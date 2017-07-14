@@ -86,12 +86,11 @@
 typedef guint32 ARGB;
 typedef float REAL;
 
-#if defined(_WIN32)
+#if defined(WIN32)
 #define NOGDI
-#include <Windows.h>
+#include <windows.h>
 #else
 
-typedef int LANGID;
 typedef int INT;
 typedef guint16 WCHAR; /* 16-bits unicode */
 typedef guint32 UINT;
@@ -147,6 +146,8 @@ typedef gpointer HRGN;
 
 #endif 		/* to avoid conflict with uglify.h */
 
+typedef WORD LANGID;
+
 typedef struct {
 	DWORD Data1;
 	WORD  Data2;
@@ -198,7 +199,7 @@ typedef struct {
 	float eDy;
 } XFORM;
 
-#if !defined(_WIN32)
+#if !defined(WIN32)
 typedef struct {
 	LONG	x;
 	LONG	y;
@@ -219,7 +220,7 @@ typedef struct {
 	LONG		lbHatch;
 } LOGBRUSH;
 
-#if !defined(_WIN32)
+#if !defined(WIN32)
 typedef struct {
 	int	left;
 	int	top;
