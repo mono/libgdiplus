@@ -7,6 +7,7 @@ Requirements:
 	This requires the libraries used by the Cairo vector graphics library
 	to build (freetype2, fontconfig, Xft2 and libpng, basically).
 
+	On OSX you can use Homebrew to install the dependencies:
 	brew install glib cairo libexif libjpeg giflib libtiff autoconf libtool automake
 
 To build on OSX:
