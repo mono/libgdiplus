@@ -18,6 +18,10 @@ To build on Linux:
 	./autogen.sh --prefix=YOUR_PREFIX
 	make
 
+To run the unit tests:
+
+	make check
+
 To install:
 
 	make install
