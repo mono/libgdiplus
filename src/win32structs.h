@@ -83,15 +83,20 @@
 #define MWT_LEFTMULTIPLY	2
 #define MWT_RIGHTMULTIPLY	3
 
-typedef int LANGID;
+typedef guint32 ARGB;
+typedef float REAL;
+
+#if defined(WIN32)
+#define NOGDI
+#include <windows.h>
+#else
+
 typedef int INT;
 typedef guint16 WCHAR; /* 16-bits unicode */
 typedef guint32 UINT;
-typedef guint32 ARGB;
 typedef guint32 UINT32;
 typedef gint32 PROPID;
 typedef guint32 ULONG_PTR; /* not a pointer! */
-typedef float REAL;
 
 typedef gpointer HBITMAP;
 typedef gpointer HDC;
@@ -142,12 +147,15 @@ typedef gpointer HRGN;
 
 #endif 		/* to avoid conflict with uglify.h */
 
+typedef WORD LANGID;
+
 typedef struct {
 	DWORD Data1;
 	WORD  Data2;
 	WORD  Data3;
 	BYTE  Data4 [8];
 } GUID, Guid, CLSID;
+#endif
 
 typedef struct {
 	LONG lfHeight;
@@ -192,10 +200,12 @@ typedef struct {
 	float eDy;
 } XFORM;
 
+#if !defined(WIN32)
 typedef struct {
 	LONG	x;
 	LONG	y;
 } POINT;
+#endif
 
 typedef DWORD COLORREF;
 
@@ -211,6 +221,7 @@ typedef struct {
 	LONG		lbHatch;
 } LOGBRUSH;
 
+#if !defined(WIN32)
 typedef struct {
 	int	left;
 	int	top;
@@ -222,6 +233,7 @@ typedef struct {
 	int	cx;
 	int	cy; 
 } SIZE, SIZEL;
+#endif
 
 typedef struct {
 	SHORT	Left;
