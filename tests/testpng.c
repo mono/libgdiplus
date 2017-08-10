@@ -25,6 +25,8 @@ main (int argc, char **argv)
     ColorPalette *reloaded_palette;
     GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
+    PixelFormat pixel_format;
+    ARGB color;
 
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
@@ -66,6 +68,23 @@ main (int argc, char **argv)
     unlink ("test-trns-resave.png");
     free (original_palette);
     free (reloaded_palette);
+
+    // Test grayscale image with alpha channel. The image should be converted
+    // into 32-bit ARGB format and the alpha channel should be preserved.
+    unis = g_utf8_to_utf16 ("test-gsa.png", -1, NULL, NULL, NULL);
+    status = GdipCreateBitmapFromFile (unis, &bitmap);
+    CHECK_STATUS(1);
+    g_free (unis);
+    status = GdipGetImagePixelFormat (bitmap, &pixel_format);
+    CHECK_STATUS(1);
+    CHECK_ASSERT(pixel_format == PixelFormat32bppARGB);    
+    status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
+    CHECK_STATUS(1);
+    CHECK_ASSERT(color == 0xffffff);    
+    status = GdipBitmapGetPixel (bitmap, 1, 7, &color);
+    CHECK_STATUS(1);
+    CHECK_ASSERT(color == 0xe8b3b3b3);    
+    GdipDisposeImage (bitmap);
 
     return 0;
 }
