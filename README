@@ -7,9 +7,15 @@ Requirements:
 	This requires the libraries used by the Cairo vector graphics library
 	to build (freetype2, fontconfig, Xft2 and libpng, basically).
 
-To build:
+	brew install glib cairo libexif libjpeg giflib libtiff autoconf libtool automake
 
-	./configure --prefix=YOUPREFIX
+To build on OSX:
+
+	./autogen.sh --without-x11 --prefix=YOUR_PREFIX
+	make
+
+To build on Linux:
+	./autogen.sh --prefix=YOUR_PREFIX
 	make
 
 To install:
