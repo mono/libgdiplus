@@ -480,6 +480,18 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 				break;
 			}
 
+			case 2: {
+				for (i = 0; i < height; i++) {
+					png_bytep rowp = row_pointers[i];
+					for (j = 0; j < width; j++) {
+						set_pixel_bgra (rawptr, 0, rowp[0], rowp[0], rowp[0], rowp[1]);
+						rowp += 2;
+						rawptr += 4;
+					}
+				}
+				break;
+			}
+
 			case 1:
 				if (bit_depth == 2) {
 					/* Make sure transparency is respected for 2bpp images. */
