@@ -28,3 +28,8 @@ Release/
 gtk/
 *.7z
 packages/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
