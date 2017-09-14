@@ -59,6 +59,7 @@ gdip_getcodecinfo_wmf ()
 	return &wmf_codec;
 }
 
+#if DEBUG_WMF
 static WORD
 GetWORD (int position, BYTE *data)
 {
@@ -69,17 +70,7 @@ GetWORD (int position, BYTE *data)
 	return *value;
 #endif
 }
-
-static DWORD
-GetDWORD (int position, BYTE* data)
-{
-	DWORD *value = (DWORD*)(data + position);
-#if G_BYTE_ORDER != G_LITTLE_ENDIAN
-	return GUINT32_FROM_LE (*value);
-#else
-	return *value;
 #endif
-}
 
 static DWORD
 GetColor (WORD w1, WORD w2)
@@ -234,7 +225,6 @@ gdip_metafile_play_wmf (MetafilePlayContext *context)
 {
 	GpStatus status = Ok;
 	GpMetafile *metafile = context->metafile;
-	GpGraphics *graphics = context->graphics;
 	BYTE *data = metafile->data;
 	BYTE *end = data + metafile->length;
 #ifdef DEBUG_WMF

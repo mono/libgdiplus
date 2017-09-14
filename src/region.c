@@ -1190,7 +1190,6 @@ static GpStatus
 gdip_combine_pathbased_region (GpRegion *region1, GpRegion *region2, CombineMode combineMode)
 {
 	GpRegionBitmap *result;
-	GpPathTree* tmp;
 
 	/* if not available, construct the bitmaps for both regions */
 	gdip_region_bitmap_ensure (region1);
@@ -1466,7 +1465,6 @@ GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
 
 	/* apply any user supplied matrix transformation */
 	if (!gdip_is_matrix_empty (matrix)) {
-		int i;
 
 		/* the matrix doesn't affect the original region - only the result */
 		status = GdipCloneRegion (region, &work);
@@ -1522,7 +1520,6 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matr
 
 	/* apply any user supplied matrix transformation */
 	if (!gdip_is_matrix_empty (matrix)) {
-		int i;
 
 		/* the matrix doesn't affect the original region - only the result */
 		status = GdipCloneRegion (region, &work);

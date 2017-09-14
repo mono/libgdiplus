@@ -146,7 +146,6 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		for (y = 0; y <bitmap->active_bitmap->height; y++) {	
 			for (x = 0; x <bitmap->active_bitmap->width; x++) {
 				ColorMap* clrmap = colormap->colormap;
-				int found;
 				
 				GdipBitmapGetPixel (bmpdest, x, y, &color);
 				

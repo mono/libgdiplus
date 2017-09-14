@@ -350,9 +350,6 @@ gdip_bitmapdata_property_remove_id(BitmapData *bitmap_data, PROPID id)
 GpStatus
 gdip_bitmapdata_property_remove_index(BitmapData *bitmap_data, int index)
 {
-	BYTE *src;
-	BYTE *dest;
-
 	if (index >= bitmap_data->property_count) {
 		return PropertyNotFound;
 	}
@@ -626,7 +623,6 @@ gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
 {
 	GpBitmap	*result;
 	int		frame;
-	int		image;
 	GpStatus	status;
 
 	result = (GpBitmap *) GdipAlloc (sizeof (GpBitmap));
@@ -889,8 +885,10 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 		int			header_size;
 		int			bytes_needed;
 		const unsigned int	*default_palette;
+#if WORDS_BIGENDIAN
 		int			i;
-
+#endif
+        
 		palette_entries = 1 << gdip_get_pixel_format_depth(format);
 		header_size = sizeof(ColorPalette) - sizeof(ARGB);
 		bytes_needed = header_size + palette_entries * sizeof(ARGB);
@@ -1706,8 +1704,6 @@ gdip_pixel_stream_set_next (StreamingState *state, unsigned int pixel_value)
 static BOOL /* <-- TRUE if optimisation was possible and copy done, else FALSE */
 gdip_pixel_stream_copy_optimized (StreamingState *dst_state, StreamingState *src_state)
 {
-	unsigned int ret;
-
 	if (src_state == NULL) return FALSE;
 	if (dst_state == NULL) return FALSE;
 
@@ -1956,7 +1952,6 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST Rect *srcRect, UINT flags, Pixel
 	int		dest_pixel_format_bpp;
 	int		dest_stride;
 	int		dest_size;
-	BYTE		*dest_scan0;
 	Rect		destRect;
 	GpStatus	status;
 	BitmapData	*root_data;
@@ -2313,7 +2308,6 @@ gdip_convert_indexed_to_rgb (GpBitmap *indexed_bmp)
 	int		pixels_this_byte;
 	unsigned short	sample;
 	int		index;
-	int		transparent;
 	int		format;
 
 	data = indexed_bmp->active_bitmap;

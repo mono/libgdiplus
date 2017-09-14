@@ -787,7 +787,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	int		loop;
 	long		index;
 	GpStatus	status;
-	ARGB alpha_mask = 0;
 	ARGB red_mask = 0;
 	ARGB green_mask = 0;
 	ARGB blue_mask = 0;
@@ -814,7 +813,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			/* the new structure contains the ARGB masks */
 			void *p = &bmi;
 			BITMAPV4HEADER *v4 = p;
-			alpha_mask = v4->bV4AlphaMask;
 			red_mask = v4->bV4RedMask;
 			green_mask = v4->bV4GreenMask;
 			blue_mask = v4->bV4BlueMask;
@@ -899,7 +897,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 
 		result->active_bitmap->palette = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * palette_entries);
 		if (result->active_bitmap->palette == NULL) {
-			status = OutOfMemory;
 			goto error;
 		}
 		result->active_bitmap->palette->Flags = 0;
@@ -909,13 +906,11 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		size = (os2format) ? 3 /* RGBTRIPLE */ : 4 /* RGBquads */;
 		data_read = (BYTE*) GdipAlloc(size);
 		if (data_read == NULL) {
-			status = OutOfMemory;
 			goto error;
 		}
 		for (i = 0; i < colours; i++) {
 			size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 			if (size_read < size) {
-				status = InvalidParameter;
 				goto error;
 			}
 
@@ -933,12 +928,10 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	/* ensure total 'size' does not overflow an integer and fits inside our 2GB limit */
 	size *= result->active_bitmap->height;
 	if (size > G_MAXINT32) {
-		status = OutOfMemory;
 		goto error;
 	}
 	pixels = GdipAlloc (size);
 	if (pixels == NULL) {
-		status = OutOfMemory;
 		goto error;
 	}
 
@@ -983,7 +976,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 
 		data_read = (BYTE*) GdipAlloc(size);
 		if (data_read == NULL) {
-			status = OutOfMemory;
 			goto error;
 		}
 
@@ -1003,7 +995,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 					int missing_size = size - size_read;
 					memset (data_read + size_read, 0, missing_size);
 				} else {
-					status = InvalidParameter;
 					goto error;
 				}
 			}
@@ -1224,8 +1215,10 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 	gdip_bitmap_fill_info_header (image, &bmi);
 	gdip_write_bmp_data (pointer, (BYTE*) &bmi, sizeof (bmi), useFile);
 
-	if (colours) {
+    if (colours) {
+#ifdef WORDS_BIGENDIAN
 		int idx;
+#endif
 
 		palette_entries = activebmp->palette->Count;
 
@@ -1237,7 +1230,9 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 		if (entries == NULL)
 			return OutOfMemory;
 
+#ifdef WORDS_BIGENDIAN
 		idx = 0;
+#endif
 		for (i = 0; i < palette_entries; i++) {
 			color = activebmp->palette->Entries[i];
 #ifdef WORDS_BIGENDIAN

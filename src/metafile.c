@@ -298,7 +298,6 @@ GpStatus
 gdip_metafile_DeleteObject (MetafilePlayContext *context, DWORD slot)
 {
 	GpStatus status = Ok;
-	GpMetafile *metafile = context->metafile;
 	MetaObject *obj;
 
 	if (slot >= context->objects_count) {
@@ -924,12 +923,10 @@ gdip_metafile_stop_recording (GpMetafile *metafile)
 MetafilePlayContext*
 gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int y, int width, int height)
 {
-	int i, n;
+	int i;
 	MetaObject *obj;
 	MetafilePlayContext *context;
 	/* metafiles always render as 32bppRgb */
-	int stride = width * 4;
-	int size = height * stride;
 
 	if (!metafile || !graphics)
 		return NULL;
@@ -1013,8 +1010,6 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 GpStatus
 gdip_metafile_play (MetafilePlayContext *context)
 {
-	GpStatus status;
-
 	if (!context || !context->metafile)
 		return InvalidParameter;
 
@@ -1050,7 +1045,6 @@ gdip_metafile_play_cleanup (MetafilePlayContext *context)
 	context->created.ptr = NULL;
 	if (context->objects) {
 		int i;
-		GpMetafile *metafile = context->metafile;
 		MetaObject *obj = context->objects;
 		/* free each object */
 		for (i = 0; i < context->objects_count; i++) {

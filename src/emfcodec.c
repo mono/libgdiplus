@@ -266,7 +266,6 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data, BOOL compact)
 	n++;
 
 	/* total number of points (in all polygons)*/
-	int total = GETDW(DWP(n));
 	n++;
 	int i;
 	PointFList *list = GdipAlloc (poly_num * sizeof (PointFList));
@@ -319,13 +318,6 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data, BOOL compact)
 	/* all points were freed, after being drawn, so we just have to free the polygon list*/
 	GdipFree (list);
 	return status;
-}
-
-static GpStatus
-EndOfFile (MetafilePlayContext *context, DWORD value, BYTE* data)
-{
-	/* TODO - process extra stuff if any */
-	return Ok;
 }
 
 /* http://wvware.sourceforge.net/caolan/ora-wmf.html */
@@ -404,7 +396,6 @@ gdip_metafile_play_emf (MetafilePlayContext *context)
 {
 	GpStatus status = Ok;
 	GpMetafile *metafile = context->metafile;
-	GpGraphics *graphics = context->graphics;
 	BYTE *data = metafile->data;
 	BYTE *end = data + metafile->length;
 #ifdef DEBUG_EMF
@@ -620,9 +611,6 @@ gdip_metafile_play_emf (MetafilePlayContext *context)
 		data += size;
 	}
 cleanup:
-	return status;
-end_of_record:
-	/* TODO : process extra stuff residing after the records */
 	return status;
 }
 
