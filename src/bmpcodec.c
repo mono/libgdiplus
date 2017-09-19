@@ -820,14 +820,20 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			// next three DWORD are the R,G,B masks, like bmiColors in BITMAPINFO
 			int size = sizeof (RGBQUAD);
 			size_read = gdip_read_bmp_data (pointer, (void*)&red_mask, size, source);
-			if (size_read != size)
+			if (size_read != size) {
+				status = InvalidParameter;
 				goto error;
+			}
 			size_read = gdip_read_bmp_data (pointer, (void*)&green_mask, size, source);
-			if (size_read != size)
+			if (size_read != size) {
+				status = InvalidParameter;
 				goto error;
+			}
 			size_read = gdip_read_bmp_data (pointer, (void*)&blue_mask, size, source);
-			if (size_read != size)
+			if (size_read != size) {
+				status = InvalidParameter;
 				goto error;
+			}
 		}
 
 		if ((red_mask == 0x7C00) && (green_mask == 0x3E0) && (blue_mask == 0x1F)) {
@@ -879,8 +885,10 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		/* stride is a (signed) _int_ and once multiplied by 4 it should hold a value that can be allocated by GdipAlloc
 		 * this effectively limits 'width' to 536870911 pixels */
 		size *= 4;
-		if (size > G_MAXINT32)
+		if (size > G_MAXINT32) {
+			status = InvalidParameter;
 			goto error;
+		}
 		result->active_bitmap->stride = size;
 		break;
 	}
@@ -897,6 +905,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 
 		result->active_bitmap->palette = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * palette_entries);
 		if (result->active_bitmap->palette == NULL) {
+			status = OutOfMemory;		
 			goto error;
 		}
 		result->active_bitmap->palette->Flags = 0;
@@ -906,11 +915,13 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		size = (os2format) ? 3 /* RGBTRIPLE */ : 4 /* RGBquads */;
 		data_read = (BYTE*) GdipAlloc(size);
 		if (data_read == NULL) {
+			status = OutOfMemory;
 			goto error;
 		}
 		for (i = 0; i < colours; i++) {
 			size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 			if (size_read < size) {
+				status = InvalidParameter;				
 				goto error;
 			}
 
@@ -928,10 +939,12 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	/* ensure total 'size' does not overflow an integer and fits inside our 2GB limit */
 	size *= result->active_bitmap->height;
 	if (size > G_MAXINT32) {
+		status = OutOfMemory;		
 		goto error;
 	}
 	pixels = GdipAlloc (size);
 	if (pixels == NULL) {
+		status = OutOfMemory;		
 		goto error;
 	}
 
@@ -976,6 +989,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 
 		data_read = (BYTE*) GdipAlloc(size);
 		if (data_read == NULL) {
+			status = OutOfMemory;
 			goto error;
 		}
 
@@ -995,6 +1009,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 					int missing_size = size - size_read;
 					memset (data_read + size_read, 0, missing_size);
 				} else {
+					status = InvalidParameter;
 					goto error;
 				}
 			}
@@ -1064,7 +1079,7 @@ error:
 		gdip_bitmap_dispose(result);
 	}
 
-	return InvalidParameter;
+	return status;
 }
 
 /* BMP read from files have a BITMAPFILEHEADER but this isn't the case for the GDI API
@@ -1215,7 +1230,7 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 	gdip_bitmap_fill_info_header (image, &bmi);
 	gdip_write_bmp_data (pointer, (BYTE*) &bmi, sizeof (bmi), useFile);
 
-    if (colours) {
+	if (colours) {
 #ifdef WORDS_BIGENDIAN
 		int idx;
 #endif

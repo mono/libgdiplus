@@ -266,6 +266,7 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data, BOOL compact)
 	n++;
 
 	/* total number of points (in all polygons)*/
+	// int total = GETDW(DWP(n));
 	n++;
 	int i;
 	PointFList *list = GdipAlloc (poly_num * sizeof (PointFList));

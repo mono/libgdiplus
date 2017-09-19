@@ -60,6 +60,8 @@ gdip_getcodecinfo_wmf ()
 }
 
 #if DEBUG_WMF
+#define GetParam(x,y)	GetWORD((6 + ((x) << 1)), (y))
+
 static WORD
 GetWORD (int position, BYTE *data)
 {
@@ -88,9 +90,6 @@ GetColor (WORD w1, WORD w2)
 #else
 #define GETW(x)		(GUINT16_FROM_LE(*(WORD*)(data + (x))))
 #endif
-
-#define GetParam(x,y)	GetWORD((6 + ((x) << 1)), (y))
-
 
 /* http://wvware.sourceforge.net/caolan/Polygon.html */
 static GpStatus
