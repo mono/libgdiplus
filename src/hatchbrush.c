@@ -1336,6 +1336,9 @@ GdipCreateHatchBrush (GpHatchStyle hatchstyle, ARGB forecolor, ARGB backcolor, G
 	if (!brush)
 		return InvalidParameter;
 
+	if (hatchstyle < HatchStyleMin || hatchstyle > HatchStyleMax)
+		return InvalidParameter;
+
 	*brush = gdip_hatch_new ();
 	if (!*brush)
 		return OutOfMemory;
