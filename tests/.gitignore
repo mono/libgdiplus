@@ -8,6 +8,7 @@ testclip
 testfont
 testgraphics
 testgdi
-testreversepath
 testpen
 testpng
+testreversepath
+testtexturebrush

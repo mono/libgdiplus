@@ -817,9 +817,11 @@ GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrde
 	BOOL invertible = FALSE;
 	cairo_matrix_t mat;
 
-	if ((texture == NULL) || (matrix == NULL)) {
+	if (!texture)
 		return InvalidParameter;
-	}
+	
+	if (!matrix)
+		return Ok;
 
 	/* the matrix MUST be invertible to be used */
 	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
