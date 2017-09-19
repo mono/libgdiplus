@@ -905,7 +905,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 
 		result->active_bitmap->palette = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * palette_entries);
 		if (result->active_bitmap->palette == NULL) {
-			status = OutOfMemory;		
+			status = OutOfMemory;
 			goto error;
 		}
 		result->active_bitmap->palette->Flags = 0;
@@ -921,7 +921,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		for (i = 0; i < colours; i++) {
 			size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 			if (size_read < size) {
-				status = InvalidParameter;				
+				status = InvalidParameter;
 				goto error;
 			}
 
@@ -939,12 +939,12 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	/* ensure total 'size' does not overflow an integer and fits inside our 2GB limit */
 	size *= result->active_bitmap->height;
 	if (size > G_MAXINT32) {
-		status = OutOfMemory;		
+		status = OutOfMemory;
 		goto error;
 	}
 	pixels = GdipAlloc (size);
 	if (pixels == NULL) {
-		status = OutOfMemory;		
+		status = OutOfMemory;
 		goto error;
 	}
 
