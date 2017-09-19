@@ -1,6 +1,6 @@
 #include <assert.h>
-#include <math.h>
 #include <float.h>
+#include <math.h>
 
 static int floatsEqual(float v1, float v2)
 {
@@ -14,7 +14,7 @@ static void verifyMatrix (GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, 
 
     printf ("Actual:   %f, %f, %f, %f, %f, %f\n", e1, e2, e3, e4, e5, e6);
     printf ("Expected: %f, %f, %f, %f, %f, %f\n\n", elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]);
-    
+
     assert (floatsEqual(elements[0], e1));
     assert (floatsEqual(elements[1], e2));
     assert (floatsEqual(elements[2], e3));
