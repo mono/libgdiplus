@@ -806,6 +806,8 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		 /* bit count mismatch */
 		goto error;
 	}
+	
+	status = InvalidParameter;
 
 	/* for 16bbp images we need to be more precise */
 	if (format == PixelFormat16bppRGB565) {
@@ -1073,7 +1075,7 @@ error:
 		gdip_bitmap_dispose(result);
 	}
 
-	return InvalidParameter;
+	return status;
 }
 
 /* BMP read from files have a BITMAPFILEHEADER but this isn't the case for the GDI API

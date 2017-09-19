@@ -565,7 +565,7 @@ gdip_metafile_Arc (MetafilePlayContext *context, int left, int top, int right, i
 		left, top, right, bottom, xstart, ystart, xend, yend);
 #endif
 	/* don't draw if the bounds are empty (width or height) */
-	if ((right - left <= 0) || (bottom = top <= 0))
+	if ((right - left <= 0) || (bottom - top <= 0))
 		return Ok;
 	return GdipDrawArc (context->graphics, gdip_metafile_GetSelectedPen (context), left, top, 
 		(right - left), (bottom - top), atan2 (ystart, xstart), atan2 (yend, xend));
@@ -598,12 +598,18 @@ gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest,
 	printf ("\n\t\tClrImportant: %d", lpBitsInfo->bmiHeader.biClrImportant);
 #endif
 	ms.ptr = (BYTE*)lpBitsInfo;
-	ms.size = lpBitsInfo->bmiHeader.biSizeImage;
+	if (lpBitsInfo->bmiHeader.biCompression == 0) { // 0 == RGB 
+		// Per the spec, if compression is RGB ImageSize must be ignored (and it should be zero anyway) and calculated according to the following formula.
+		ms.size = (((lpBitsInfo->bmiHeader.biWidth * lpBitsInfo->bmiHeader.biPlanes * 
+			lpBitsInfo->bmiHeader.biBitCount + 31) & ~31) / 8) * abs(lpBitsInfo->bmiHeader.biHeight);
+	} else {
+		ms.size = lpBitsInfo->bmiHeader.biSizeImage;
+	}
 	ms.pos = 0;
 	status = gdip_read_bmp_image (&ms, &image, Memory);
 	if (status == Ok) {
-		status = GdipDrawImageRectRect (context->graphics, image, context->x + XDest, context->y + YDest,
-			context->width, context->height, XSrc, YSrc, nSrcWidth, nSrcHeight, UnitPixel, NULL, NULL, NULL);
+		status = GdipDrawImageRectRect (context->graphics, image, XDest, YDest,
+			nDestWidth, nDestHeight, XSrc, YSrc, nSrcWidth, nSrcHeight, UnitPixel, NULL, NULL, NULL);
 	}
 	if (image)
 		GdipDisposeImage (image);
@@ -930,6 +936,8 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 	/* metafiles always render as 32bppRgb */
 	int stride = width * 4;
 	int size = height * stride;
+	float scaleX = (float) width / (float) metafile->metafile_header.Width;
+	float scaleY = (float) height / (float) metafile->metafile_header.Height;
 
 	if (!metafile || !graphics)
 		return NULL;
@@ -953,7 +961,10 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 	context->width = width;
 	context->height = height;
 	/* and keep an adjusted copy for providing "resets" */
-	GdipTranslateWorldTransform (graphics, -metafile->metafile_header.X, -metafile->metafile_header.Y, MatrixOrderPrepend);
+	
+	GdipScaleWorldTransform (graphics, scaleX, scaleY, MatrixOrderPrepend);
+	GdipTranslateWorldTransform (graphics, -metafile->metafile_header.X + x / scaleX,
+		-metafile->metafile_header.Y + y / scaleY, MatrixOrderPrepend);
 	GdipGetWorldTransform (graphics, &context->matrix);
 
 	/* defaults */
@@ -1374,6 +1385,8 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source
 	if (adjust_emf_headers) {
 		/* if the first EMF record is an EmfHeader (or an Header inside a Comment) then we have extra data to extract */
 		status = update_emf_header (&mf->metafile_header, mf->data, mf->length);
+		if (status != Ok)
+			goto error;
 	}
 
 	*metafile = mf;

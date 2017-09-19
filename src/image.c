@@ -423,7 +423,7 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, REAL x, REAL y, REAL wi
 
 		metacontext = gdip_metafile_play_setup ((GpMetafile*)image, graphics, x, y, width, height);
 
-		cairo_translate (graphics->ct, x, y);
+		//cairo_translate (graphics->ct, x, y); What??? The above should be positioning it surely?
 		status = gdip_metafile_play (metacontext);
 
 		gdip_metafile_play_cleanup (metacontext);
