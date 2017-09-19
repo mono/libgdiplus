@@ -76,14 +76,14 @@ static void test_clone ()
     GpBrushType brushType;
     GpBrush *clone;
 
-	GpImage *image1;
-	GpImage *image2;
+    GpImage *image1;
+    GpImage *image2;
     REAL brushWidth;
     REAL brushHeight;
     GpWrapMode wrapMode;
 
     image1 = getImage ();
-    
+
     GdipCreateTexture (image1, WrapModeTile, &brush);
 
     status = GdipCloneBrush ((GpBrush *) brush, &clone);
@@ -111,11 +111,11 @@ static void test_clone ()
 static void test_createTexture ()
 {
     GpStatus status;
-	GpImage *image;
+    GpImage *image;
     GpTexture *brush;
 
-	image = getImage ();
-    
+    image = getImage ();
+
     status = GdipCreateTexture (image, WrapModeClamp, &brush);
     assert (status == Ok);
     verifyTexture (brush, WrapModeClamp, 100, 68);
@@ -141,13 +141,13 @@ static void test_createTexture2 ()
     GpStatus status;
     GpImage *image;
     GpTexture *brush;
-    
+
     image = getImage ();
 
     status = GdipCreateTexture2 (image, WrapModeTile, 0, 0, 100, 68, &brush);
     assert (status == Ok);
     verifyTexture (brush, WrapModeTile, 100, 68);
-    
+
     GdipDeleteBrush ((GpBrush *) brush);
 
     status = GdipCreateTexture2 (image, WrapModeClamp, 5, 6, 7, 8, &brush);
@@ -201,13 +201,13 @@ static void test_createTexture2I ()
     GpStatus status;
     GpImage *image;
     GpTexture *brush;
-    
+
     image = getImage ();
 
     status = GdipCreateTexture2I (image, WrapModeTile, 0, 0, 100, 68, &brush);
     assert (status == Ok);
     verifyTexture (brush, WrapModeTile, 100, 68);
-    
+
     GdipDeleteBrush ((GpBrush *) brush);
 
     status = GdipCreateTexture2I (image, WrapModeClamp, 5, 6, 7, 8, &brush);
@@ -261,13 +261,13 @@ static void test_createTextureIA ()
     GpStatus status;
     GpImage *image;
     GpTexture *brush;
-    
+
     image = getImage ();
 
     status = GdipCreateTextureIA (image, NULL, 0, 0, 100, 68, &brush);
     assert (status == Ok);
     verifyTexture (brush, WrapModeTile, 100, 68);
-    
+
     GdipDeleteBrush ((GpBrush *) brush);
 
     status = GdipCreateTextureIA (image, NULL, 5, 6, 7, 8, &brush);
@@ -315,13 +315,13 @@ static void test_createTextureIAI ()
     GpStatus status;
     GpImage *image;
     GpTexture *brush;
-    
+
     image = getImage ();
 
     status = GdipCreateTextureIAI (image, NULL, 0, 0, 100, 68, &brush);
     assert (status == Ok);
     verifyTexture (brush, WrapModeTile, 100, 68);
-    
+
     GdipDeleteBrush ((GpBrush *) brush);
 
     status = GdipCreateTextureIAI (image, NULL, 5, 6, 7, 8, &brush);
@@ -367,19 +367,19 @@ static void test_createTextureIAI ()
 static void test_getTextureImage ()
 {
     GpStatus status;
-	GpImage *image;
+    GpImage *image;
     GpTexture *brush;
     GpImage *brushImage1;
     GpImage *brushImage2;
 
-	image = getImage ();
-    
+    image = getImage ();
+
     GdipCreateTexture (image, WrapModeTile, &brush);
-    
+
     status = GdipGetTextureImage (brush, &brushImage1);
     assert (status == Ok);
     assert (brushImage1 != image && "The texture image should be a clone.");
-    
+
     status = GdipGetTextureImage (brush, &brushImage2);
     assert (status == Ok);
     assert (brushImage2 != brushImage1 && "The texture image should be a clone.");
@@ -399,12 +399,12 @@ static void test_getTextureImage ()
 static void test_getTextureWrapMode ()
 {
     GpStatus status;
-	GpImage *image;
+    GpImage *image;
     GpTexture *brush;
     GpWrapMode wrapMode;
 
-	image = getImage ();
-    
+    image = getImage ();
+
     GdipCreateTexture (image, WrapModeTile, &brush);
 
     status = GdipGetTextureWrapMode (NULL, &wrapMode);
@@ -420,12 +420,12 @@ static void test_getTextureWrapMode ()
 static void test_setTextureWrapMode ()
 {
     GpStatus status;
-	GpImage *image;
+    GpImage *image;
     GpTexture *brush;
     GpWrapMode wrapMode;
 
-	image = getImage ();
-    
+    image = getImage ();
+
     GdipCreateTexture (image, WrapModeTile, &brush);
 
     status = GdipSetTextureWrapMode (brush, WrapModeTileFlipX);
@@ -458,12 +458,12 @@ static void test_setTextureWrapMode ()
 static void test_getTextureTransform ()
 {
     GpStatus status;
-	GpImage *image;
+    GpImage *image;
     GpTexture *brush;
     GpMatrix *transform;
 
-	image = getImage ();
-    
+    image = getImage ();
+
     GdipCreateTexture (image, WrapModeTile, &brush);
     GdipCreateMatrix (&transform);
 
@@ -481,13 +481,13 @@ static void test_getTextureTransform ()
 static void test_setTextureTransform ()
 {
     GpStatus status;
-	GpImage *image;
+    GpImage *image;
     GpTexture *brush;
     GpMatrix *matrix;
     GpMatrix *transform;
 
-	image = getImage ();
-    
+    image = getImage ();
+
     GdipCreateTexture (image, WrapModeTile, &brush);
     GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
     GdipCreateMatrix (&transform);
@@ -498,7 +498,7 @@ static void test_setTextureTransform ()
     GdipGetTextureTransform (brush, transform);
     assert (transform != matrix && "Expected new matrix to be a clone.");
     verifyMatrix (transform, 1, 2, 3, 4, 5, 6);
-    
+
     // Changing the original transform should not modify the brush's transform.
     GdipSetMatrixElements (matrix, 2, 3, 4, 5, 6, 7);
     GdipGetTextureTransform (brush, transform);
@@ -520,19 +520,19 @@ static void test_setTextureTransform ()
 static void test_resetTextureTransform ()
 {
     GpStatus status;
-	GpImage *image;
+    GpImage *image;
     GpTexture *brush;
     GpMatrix *matrix;
     GpMatrix *transform;
 
-	image = getImage ();
-    
+    image = getImage ();
+
     GdipCreateTexture (image, WrapModeTile, &brush);
     GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
     GdipCreateMatrix (&transform);
 
     GdipSetTextureTransform (brush, matrix);
-    
+
     status = GdipResetTextureTransform (brush);
     assert (status == Ok);
 
@@ -550,15 +550,15 @@ static void test_resetTextureTransform ()
 static void test_multiplyTextureTransform ()
 {
     GpStatus status;
-	GpImage *image;
+    GpImage *image;
     GpTexture *brush;
     GpMatrix *originalTransform;
     GpMatrix *matrix;
     GpMatrix *nonInvertibleMatrix;
     GpMatrix *transform;
 
-	image = getImage ();
-    
+    image = getImage ();
+
     GdipCreateTexture (image, WrapModeTile, &brush);
     GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &originalTransform);
     GdipCreateMatrix2 (2, 3, 4, 5, 6, 7, &matrix);
@@ -617,13 +617,13 @@ static void test_multiplyTextureTransform ()
 static void test_translateTextureTransform ()
 {
     GpStatus status;
-	GpImage *image;
+    GpImage *image;
     GpTexture *brush;
     GpMatrix *originalTransform;
     GpMatrix *transform;
 
-	image = getImage ();
-    
+    image = getImage ();
+
     GdipCreateTexture (image, WrapModeTile, &brush);
     GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &originalTransform);
     GdipCreateMatrix (&transform);
@@ -665,13 +665,13 @@ static void test_translateTextureTransform ()
 static void test_scaleTextureTransform ()
 {
     GpStatus status;
-	GpImage *image;
+    GpImage *image;
     GpTexture *brush;
     GpMatrix *originalTransform;
     GpMatrix *transform;
 
-	image = getImage ();
-    
+    image = getImage ();
+
     GdipCreateTexture (image, WrapModeTile, &brush);
     GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &originalTransform);
     GdipCreateMatrix (&transform);
@@ -713,13 +713,13 @@ static void test_scaleTextureTransform ()
 static void test_rotateTextureTransform ()
 {
     GpStatus status;
-	GpImage *image;
+    GpImage *image;
     GpTexture *brush;
     GpMatrix *originalTransform;
     GpMatrix *transform;
 
-	image = getImage ();
-    
+    image = getImage ();
+
     GdipCreateTexture (image, WrapModeTile, &brush);
     GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &originalTransform);
     GdipCreateMatrix (&transform);
@@ -761,9 +761,9 @@ static void test_rotateTextureTransform ()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+    GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR gdiplusToken;
+    GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
 
     test_clone ();
     test_createTexture ();
@@ -782,6 +782,6 @@ main (int argc, char**argv)
     test_scaleTextureTransform ();
     test_rotateTextureTransform ();
 
-	GdiplusShutdown (gdiplusToken);
-	return 0;
+    GdiplusShutdown (gdiplusToken);
+    return 0;
 }
