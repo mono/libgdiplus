@@ -1008,7 +1008,6 @@ cairo_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int leng
 {
 	cairo_matrix_t SavedMatrix;
 	GpStringFormat *fmt;
-	BOOL hotkeys = FALSE;
 	GpStringDetailStruct *StringDetails;
 	WCHAR *CleanString;
 	GpDrawTextData data; /* avoid recomputation of stuff done while measuring */
@@ -1097,10 +1096,8 @@ cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 	int			lineHeight;
 	CharacterRange		range;
 	GpStringDetailStruct*	StringDetails;
-	RectF			boundingBox;
 	RectF			charRect;
 	RectF 			rc_coords, *layoutRect = &rc_coords;
-	float			FontSize;
 	BOOL			optimize_convert;
 	WCHAR *CleanString;
 	GpDrawTextData data; /* avoid recomputation of stuff done while measuring */

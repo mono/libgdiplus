@@ -216,9 +216,11 @@ GpStatus WINGDIPAPI
 GdipCreateFromHDC (HDC hdc, GpGraphics **graphics)
 {
 	GpGraphics *clone = (GpGraphics *)hdc;
+#if HAS_X11 && CAIRO_HAS_XLIB_SURFACE
 	cairo_surface_t *surface;
 	int x, y;
 	unsigned int w, h, border_w, depth;
+#endif
 
 	if (!hdc)
 		return OutOfMemory;

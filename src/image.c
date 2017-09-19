@@ -153,8 +153,6 @@ get_image_format (char *sig_read, size_t size_read, ImageFormat *final)
 static cairo_filter_t
 gdip_get_cairo_filter (InterpolationMode imode)
 {
-	cairo_filter_t filter;
-
 	switch (imode) {
 	case InterpolationModeHighQuality:
 	case InterpolationModeHighQualityBilinear:
@@ -2026,7 +2024,6 @@ GpStatus WINGDIPAPI
 GdipGetPropertyItem (GpImage *image, PROPID propID, UINT size, PropertyItem *buffer)
 {
 	int	index;
-	int	size_needed;
 
 	if (!image || !buffer)
 		return InvalidParameter;

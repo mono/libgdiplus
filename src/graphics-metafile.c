@@ -74,13 +74,6 @@ convert_rects (GDIPCONST GpRect *rects, int count)
         return result;
 }
 
-static BOOL
-GetARGBFromBrush (GDIPCONST GpBrush* brush, ARGB *color)
-{
-	/* if brush is a solid brush we can use (and return) it's color, otherwise it must be treated as an object */
-	return FALSE;
-}
-
 /* DrawArcs - http://www.aces.uiuc.edu/~jhtodd/Metafile/MetafileRecords/DrawArc.html */
 
 GpStatus

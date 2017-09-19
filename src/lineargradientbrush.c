@@ -283,12 +283,9 @@ create_tile_linear (GpGraphics *graphics, cairo_t *ct, GpLineGradient *linear)
 	GpStatus status;
 	cairo_pattern_t *pat;
 	cairo_matrix_t matrix;
-	GpRectF *rect;
 
 	if (!graphics || !ct || !linear)
 		return InvalidParameter;
-
-	rect = &linear->rectangle;
 
 	gdip_cairo_matrix_copy (&matrix, &linear->matrix);
 	status = GdipInvertMatrix (&matrix);
@@ -319,7 +316,6 @@ gdip_linear_gradient_setup (GpGraphics *graphics, GpBrush *brush)
 {
 	cairo_t *ct;
 	GpLineGradient *linear;
-	GpMatrix *product = NULL;
 	GpStatus status = Ok;
 
 	if (!graphics || !brush)

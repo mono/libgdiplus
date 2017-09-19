@@ -586,7 +586,7 @@ GdipClearPathMarkers (GpPath *path)
 static void
 reverse_subpath_adjust_flags (int start, int end, GByteArray *old_types, GByteArray *new_types, BOOL *prev_had_marker)
 {
-	BYTE t, prev_first, prev_last;
+	BYTE t, prev_last;
 	int i;
 	
 	/* Copy all but PathPointTypeStart */
@@ -599,7 +599,6 @@ reverse_subpath_adjust_flags (int start, int end, GByteArray *old_types, GByteAr
 	
 	g_assert (new_types->len == end + 1);
 	
-	prev_first = g_array_index (old_types, BYTE, start);
 	prev_last = g_array_index (old_types, BYTE, end);
 	
 	/* Remove potential flags from our future start point */
@@ -634,7 +633,6 @@ GpStatus WINGDIPAPI
 GdipReversePath (GpPath *path)
 {
 	int length, i;
-	GArray *points;
 	GByteArray *types;
 	int start = 0;
 	BOOL prev_had_marker = FALSE;
@@ -1162,8 +1160,6 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	cairo_surface_t *cs;
 	cairo_t *cr;
 	cairo_path_t *cp;
-	cairo_text_extents_t extents;
-	cairo_matrix_t matrix;
 	GpFont *font = NULL;
 	GpStatus status;
 	BYTE *utf8 = NULL;

@@ -787,7 +787,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	int		loop;
 	long		index;
 	GpStatus	status;
-	ARGB alpha_mask = 0;
 	ARGB red_mask = 0;
 	ARGB green_mask = 0;
 	ARGB blue_mask = 0;
@@ -814,7 +813,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			/* the new structure contains the ARGB masks */
 			void *p = &bmi;
 			BITMAPV4HEADER *v4 = p;
-			alpha_mask = v4->bV4AlphaMask;
 			red_mask = v4->bV4RedMask;
 			green_mask = v4->bV4GreenMask;
 			blue_mask = v4->bV4BlueMask;
@@ -822,14 +820,20 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			// next three DWORD are the R,G,B masks, like bmiColors in BITMAPINFO
 			int size = sizeof (RGBQUAD);
 			size_read = gdip_read_bmp_data (pointer, (void*)&red_mask, size, source);
-			if (size_read != size)
+			if (size_read != size) {
+				status = InvalidParameter;
 				goto error;
+			}
 			size_read = gdip_read_bmp_data (pointer, (void*)&green_mask, size, source);
-			if (size_read != size)
+			if (size_read != size) {
+				status = InvalidParameter;
 				goto error;
+			}
 			size_read = gdip_read_bmp_data (pointer, (void*)&blue_mask, size, source);
-			if (size_read != size)
+			if (size_read != size) {
+				status = InvalidParameter;
 				goto error;
+			}
 		}
 
 		if ((red_mask == 0x7C00) && (green_mask == 0x3E0) && (blue_mask == 0x1F)) {
@@ -881,8 +885,10 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		/* stride is a (signed) _int_ and once multiplied by 4 it should hold a value that can be allocated by GdipAlloc
 		 * this effectively limits 'width' to 536870911 pixels */
 		size *= 4;
-		if (size > G_MAXINT32)
+		if (size > G_MAXINT32) {
+			status = InvalidParameter;
 			goto error;
+		}
 		result->active_bitmap->stride = size;
 		break;
 	}
@@ -1073,7 +1079,7 @@ error:
 		gdip_bitmap_dispose(result);
 	}
 
-	return InvalidParameter;
+	return status;
 }
 
 /* BMP read from files have a BITMAPFILEHEADER but this isn't the case for the GDI API
@@ -1225,7 +1231,9 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 	gdip_write_bmp_data (pointer, (BYTE*) &bmi, sizeof (bmi), useFile);
 
 	if (colours) {
+#ifdef WORDS_BIGENDIAN
 		int idx;
+#endif
 
 		palette_entries = activebmp->palette->Count;
 
@@ -1237,7 +1245,9 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 		if (entries == NULL)
 			return OutOfMemory;
 
+#ifdef WORDS_BIGENDIAN
 		idx = 0;
+#endif
 		for (i = 0; i < palette_entries; i++) {
 			color = activebmp->palette->Entries[i];
 #ifdef WORDS_BIGENDIAN

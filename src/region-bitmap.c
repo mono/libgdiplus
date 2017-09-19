@@ -710,7 +710,7 @@ gdip_region_bitmap_shrink (GpRegionBitmap *bitmap, BOOL always_shrink)
 		/* reallocate a new bitmap buffer */
 		BYTE *new_mask = alloc_bitmap_memory (new_size, FALSE);
 		int new_width, new_height;
-		int x, y;
+		int y;
 
 		int old_width_byte, new_width_byte;
 
@@ -1217,8 +1217,6 @@ gdip_region_bitmap_xor (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 GpRegionBitmap*
 gdip_region_bitmap_combine (GpRegionBitmap *bitmap1, GpRegionBitmap* bitmap2, CombineMode combineMode)
 {
-	GpRegionBitmap *result = NULL;
-
 	if (!bitmap1 || !bitmap2)
 		return NULL;
 

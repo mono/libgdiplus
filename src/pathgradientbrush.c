@@ -303,7 +303,6 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 	if (pgbrush->base.changed || !pgbrush->pattern) {
 		cairo_pattern_t *pat;
 		float r = MIN (pgbrush->rectangle.Width / 2, pgbrush->rectangle.Height / 2);
-		int i;
 
 		/* destroy the existing pattern */
 		if (pgbrush->pattern) {
