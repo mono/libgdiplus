@@ -165,11 +165,13 @@ static void test_createLineBrushFromRect ()
 
     GpRectF rect3 = { 1, 3, 0, 1 };
     status = GdipCreateLineBrushFromRect (&rect3, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
-    assert (status == OutOfMemory);
+    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
+    assert (status == InvalidParameter);
 
     GpRectF rect4 = { 1, 3, 1, 0 };
     status = GdipCreateLineBrushFromRect (&rect4, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
-    assert (status == OutOfMemory);
+    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
+    assert (status == InvalidParameter);
 
     status = GdipCreateLineBrushFromRect (&rect1, 10, 11, (LinearGradientMode)(LinearGradientModeHorizontal - 1), WrapModeTile, &brush);
     assert (status == OutOfMemory);
@@ -223,11 +225,13 @@ static void test_createLineBrushFromRectI ()
 
     GpRect rect3 = { 1, 3, 0, 1 };
     status = GdipCreateLineBrushFromRectI (&rect3, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
-    assert (status == OutOfMemory);
+    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
+    assert (status == InvalidParameter);
 
     GpRect rect4 = { 1, 3, 1, 0 };
     status = GdipCreateLineBrushFromRectI (&rect4, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
-    assert (status == OutOfMemory);
+    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
+    assert (status == InvalidParameter);
 
     status = GdipCreateLineBrushFromRectI (&rect1, 10, 11, (LinearGradientMode)(LinearGradientModeHorizontal - 1), WrapModeTile, &brush);
     assert (status == OutOfMemory);
@@ -291,11 +295,13 @@ static void test_createLineBrushFromRectWithAngle ()
 
     GpRectF rect3 = { 1, 3, 0, 1 };
     status = GdipCreateLineBrushFromRectWithAngle (&rect3, 10, 11, 90, TRUE, WrapModeTileFlipXY, &brush);
-    assert (status == OutOfMemory);
+    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
+    assert (status == InvalidParameter);
 
     GpRectF rect4 = { 1, 3, 1, 0 };
     status = GdipCreateLineBrushFromRectWithAngle (&rect4, 10, 11, 90, TRUE, WrapModeTileFlipXY, &brush);
-    assert (status == OutOfMemory);
+    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
+    assert (status == InvalidParameter);
 
     status = GdipCreateLineBrushFromRectWithAngle (&rect1, 10, 11, 90, TRUE, WrapModeClamp, &brush);
     assert (status == InvalidParameter);
@@ -347,11 +353,13 @@ static void test_createLineBrushFromRectWithAngleI ()
 
     GpRect rect3 = { 1, 3, 0, 1 };
     status = GdipCreateLineBrushFromRectWithAngleI (&rect3, 10, 11, 90, TRUE, WrapModeTileFlipXY, &brush);
-    assert (status == OutOfMemory);
+    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
+    assert (status == InvalidParameter);
 
     GpRect rect4 = { 1, 3, 1, 0 };
     status = GdipCreateLineBrushFromRectWithAngleI (&rect4, 10, 11, 90, TRUE, WrapModeTileFlipXY, &brush);
-    assert (status == OutOfMemory);
+    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
+    assert (status == InvalidParameter);
 
     status = GdipCreateLineBrushFromRectWithAngleI (&rect1, 10, 11, 90, TRUE, WrapModeClamp, &brush);
     assert (status == InvalidParameter);
@@ -685,10 +693,10 @@ static void test_getLinePresetBlend ()
     REAL positions[2];
 
     GdipCreateLineBrushFromRect (&rect, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
-    
+
     status = GdipGetLinePresetBlend (brush, blend, positions, 2);
     assert (status == GenericError);
-    
+
     status = GdipGetLinePresetBlend (NULL, blend, positions, 1);
     assert (status == InvalidParameter);
 
