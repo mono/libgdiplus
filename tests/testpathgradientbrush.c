@@ -210,8 +210,8 @@ static void test_createPathGradientFromPath ()
 
     status = GdipCreatePathGradientFromPath (path, &brush);
     // FIXME: this fails in GDI+.
-    //assert (status == Ok);
-    //verifyPathGradientBrush (brush, 1, 2, 4, 11, 0xffffffff, 3, 7, WrapModeClamp);
+    // assert (status == Ok);
+    // verifyPathGradientBrush (brush, 1, 2, 4, 11, 0xffffffff, 3, 7, WrapModeClamp);
 
     status = GdipCreatePathGradientFromPath (NULL, &brush);
     assert (status == OutOfMemory);
@@ -804,14 +804,14 @@ static void test_getPathGradientBlend ()
     status = GdipGetPathGradientBlend (brush, blend, positions, 1);
     assert (status == Ok);
     assert (floatsEqual(blend[0], 1));
-	// FIXME: it appears that Windows 10+ versions of GDI+ don't copy anything to positions.
-	// assert (floatsEqual(positions[0], 0));
+    // FIXME: it appears that Windows 10+ versions of GDI+ don't copy anything to positions.
+    // assert (floatsEqual(positions[0], 0));
 
     status = GdipGetPathGradientBlend (brush, blend, positions, 2);
     assert (status == Ok);
     assert (floatsEqual(blend[0], 1));
-	// FIXME: it appears that Windows 10+ versions of GDI+ don't copy anything to positions.
-	// assert (floatsEqual(positions[0], 0));
+    // FIXME: it appears that Windows 10+ versions of GDI+ don't copy anything to positions.
+    // assert (floatsEqual(positions[0], 0));
 
     status = GdipSetPathGradientBlend (brush, largeBlend, largePositions, 3);
     assert (status == Ok);
@@ -1637,9 +1637,9 @@ static void test_clone ()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+    GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR gdiplusToken;
+    GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
 
     test_createPathGradient ();
     test_createPathGradientI ();
@@ -1680,6 +1680,6 @@ main (int argc, char**argv)
     test_setPathGradientFocusScales ();
     test_clone ();
 
-	GdiplusShutdown (gdiplusToken);
-	return 0;
+    GdiplusShutdown (gdiplusToken);
+    return 0;
 }
