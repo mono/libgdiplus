@@ -135,7 +135,7 @@ copy $(ProjectDir)..\gtk\$(Platform)\bin\zlib1.* $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="*.c" Exclude="test.c" />
+    <ClCompile Include="*.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="*.h" />
