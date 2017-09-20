@@ -9,6 +9,7 @@ testfont
 testgraphics
 testgdi
 testhatchbrush
+testlineargradientbrush
 testpen
 testpng
 testreversepath

@@ -17,7 +17,7 @@ LDADDS =					\
 	-lm
 
 noinst_PROGRAMS =			\
-	testbits testclip testfont testgraphics testhatchbrush testpen testpng testreversepath testsolidbrush testtexturebrush
+	testbits testclip testfont testgraphics testhatchbrush testlineargradientbrush testpen testpng testreversepath testsolidbrush testtexturebrush
 
 if HAS_X11
 noinst_PROGRAMS =
@@ -60,6 +60,12 @@ testgraphics_SOURCES =		\
 testgraphics_DEPENDENCIES = $(TEST_DEPS)
 testgraphics_LDADD = $(LDADDS)
 
+testlineargradientbrush_SOURCES =		\
+	testlineargradientbrush.c
+
+testlineargradientbrush_DEPENDENCIES = $(TEST_DEPS)
+testlineargradientbrush_LDADD = $(LDADDS)
+
 testreversepath_SOURCES =	\
 	testreversepath.c
 
@@ -97,6 +103,7 @@ EXTRA_DIST =			\
 	$(testfont_SOURCES)	\
 	$(testgraphics_SOURCES)	\
 	$(testhatchbrush_SOURCES)	\
+	$(testlineargradientbrush_SOURCES)	\
 	$(testpen_SOURCES) \
 	$(testpng_SOURCES) \
 	$(testsolidbrush_SOURCES)	\
@@ -109,6 +116,7 @@ TESTS = \
 	testfont \
 	testgraphics \
 	testhatchbrush \
+	testlineargradientbrush \
 	testpen \
 	testpng \
 	testreversepath \
