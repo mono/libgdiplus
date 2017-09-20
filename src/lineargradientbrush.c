@@ -444,7 +444,7 @@ GdipCreateLineBrushI (GDIPCONST GpPoint *point1, GDIPCONST GpPoint *point2, ARGB
 {
 	GpPointF p1, p2;
 
-	if (!point1 || !point2 || !lineGradient)
+	if (!point1 || !point2 || !lineGradient || wrapMode == WrapModeClamp)	
 		return InvalidParameter;
 
 	p1.X = point1->X;
@@ -463,7 +463,7 @@ GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARG
 	BOOL xFlipped = FALSE;
 	BOOL yFlipped = FALSE;
 
-	if (!point1 || !point2 || !lineGradient)
+	if (!point1 || !point2 || !lineGradient || wrapMode == WrapModeClamp)
 		return InvalidParameter;
 
 	linear = gdip_linear_gradient_new ();
@@ -555,23 +555,30 @@ GdipCreateLineBrushFromRectI (GDIPCONST GpRect *rect, ARGB color1, ARGB color2, 
 	if (!rect || !lineGradient)
 		return InvalidParameter;
 
+	if (mode < LinearGradientModeHorizontal || mode > LinearGradientModeBackwardDiagonal)
+		return OutOfMemory;
+
 	rectf.X = rect->X;
 	rectf.Y = rect->Y;
 	rectf.Width = rect->Width;
 	rectf.Height = rect->Height;
 
-	/* FIXME: Check whether angle has to be scalable or not in case of lineargradient mode. */
 	return GdipCreateLineBrushFromRectWithAngle (&rectf, color1, color2,
-		get_angle_from_linear_gradient_mode (mode), FALSE, wrapMode, lineGradient);
+		get_angle_from_linear_gradient_mode (mode), TRUE, wrapMode, lineGradient);
 }
 
 // coverity[+alloc : arg-*5]
 GpStatus WINGDIPAPI
 GdipCreateLineBrushFromRect (GDIPCONST GpRectF *rect, ARGB color1, ARGB color2, LinearGradientMode mode, GpWrapMode wrapMode, GpLineGradient **lineGradient)
 {
-	/* FIXME: Check whether angle has to be scalable or not in case of lineargradient mode. */
+	if (!rect || !lineGradient)
+		return InvalidParameter;
+
+	if (mode < LinearGradientModeHorizontal || mode > LinearGradientModeBackwardDiagonal)
+		return OutOfMemory;
+
 	return GdipCreateLineBrushFromRectWithAngle (rect, color1, color2,
-		get_angle_from_linear_gradient_mode (mode), FALSE, wrapMode, lineGradient);
+		get_angle_from_linear_gradient_mode (mode), TRUE, wrapMode, lineGradient);
 }
 
 // coverity[+alloc : arg-*6]
@@ -598,8 +605,11 @@ GdipCreateLineBrushFromRectWithAngle (GDIPCONST GpRectF *rect, ARGB color1, ARGB
 {
 	GpLineGradient *linear;
 
-	if (!rect || !lineGradient || rect->Width == 0.0 || rect->Height == 0.0)
+	if (!rect || !lineGradient || wrapMode == WrapModeClamp)
 		return InvalidParameter;
+
+	if (rect->Width == 0.0 || rect->Height == 0.0)
+		return OutOfMemory;
 
 	linear = gdip_linear_gradient_new ();
 
@@ -628,13 +638,6 @@ GdipGetLineBlendCount (GpLineGradient *brush, int *count)
 	if (!brush || !count)
 		return InvalidParameter;
 
-	/* If count is less than 1, we are not in a proper state 
-	 * to return blend property. By default, we have one blend
-	 * set. Therefore, count of 1 is acceptible.
-	 */
-	if (brush->blend->count < 1)
-		return WrongState;
-
 	*count = brush->blend->count;
 
 	return Ok;
@@ -647,7 +650,10 @@ GdipSetLineBlend (GpLineGradient *brush, GDIPCONST float *blend, GDIPCONST float
 	float *blendPositions;
 	int index;
 
-	if (!brush || !blend || !positions || (count < 2))
+	if (!brush || !blend || !positions || count <= 0)
+		return InvalidParameter;
+
+	if (count >= 2 && (positions[0] != 0.0f || positions[count - 1] != 1.0f))
 		return InvalidParameter;
 
 	if (brush->blend->count != count) {
@@ -693,8 +699,11 @@ GdipSetLineBlend (GpLineGradient *brush, GDIPCONST float *blend, GDIPCONST float
 GpStatus WINGDIPAPI
 GdipGetLineBlend (GpLineGradient *brush, float *blend, float *positions, int count)
 {
-	if (!brush || !blend || !positions || (brush->blend->count != count))
+	if (!brush || !blend || !positions || count <= 0)
 		return InvalidParameter;
+		
+	if (count < brush->blend->count)
+		return InsufficientBuffer;
 
 	/* If count is less than 1, we are not in a proper state 
 	 * to return blend property. By default, we have one blend
@@ -703,8 +712,8 @@ GdipGetLineBlend (GpLineGradient *brush, float *blend, float *positions, int cou
 	if (brush->blend->count < 1)
 		return WrongState;
 	
-	memcpy (blend, brush->blend->factors, count * sizeof (float));
-	memcpy (positions, brush->blend->positions, count * sizeof (float));
+	memcpy (blend, brush->blend->factors, brush->blend->count * sizeof (float));
+	memcpy (positions, brush->blend->positions, brush->blend->count * sizeof (float));
 
 	return Ok;
 }
@@ -738,12 +747,6 @@ GdipGetLinePresetBlendCount (GpLineGradient *brush, int *count)
 	if (!brush || !count)
 		return InvalidParameter;
 
-	/* If count is less than 2, we are not in a proper state 
-	 * to return presetblend property.
-	 */
-	if (brush->presetColors->count < 2)
-		return WrongState;
-
 	*count = brush->presetColors->count;
 
 	return Ok;
@@ -756,7 +759,7 @@ GdipSetLinePresetBlend (GpLineGradient *brush, GDIPCONST ARGB *blend, GDIPCONST 
 	float *blendPositions;
 	int index;
 
-	if (!brush || !blend || !positions || (count < 2))
+	if (!brush || !blend || !positions || count < 2 || positions[0] != 0.0f || positions[count - 1] != 1.0f)
 		return InvalidParameter;
 
 	if (brush->presetColors->count != count) {
@@ -801,8 +804,11 @@ GdipSetLinePresetBlend (GpLineGradient *brush, GDIPCONST ARGB *blend, GDIPCONST 
 GpStatus WINGDIPAPI
 GdipGetLinePresetBlend (GpLineGradient *brush, ARGB *blend, float *positions, int count)
 {
-	if (!brush || !blend || !positions || (brush->presetColors->count != count))
+	if (!brush || !blend || !positions || count < 2)
 		return InvalidParameter;
+
+	if (brush->presetColors->count == 0)
+		return GenericError;
 
 	/* If count is less than 2, we are not in a proper state 
 	 * to return presetblend property.
@@ -911,6 +917,9 @@ GdipSetLineWrapMode (GpLineGradient *brush, GpWrapMode wrapMode)
 	if (!brush || (wrapMode == WrapModeClamp))
 		return InvalidParameter;
 
+	if (wrapMode < WrapModeTile || wrapMode > WrapModeClamp)
+		return Ok;
+
 	brush->wrapMode = wrapMode;
 	brush->base.changed = TRUE;
 	return Ok;
@@ -923,7 +932,7 @@ GdipSetLineLinearBlend (GpLineGradient *brush, float focus, float scale)
 	float *positions;
 	int count = 3;
 
-	if (!brush)
+	if (!brush || focus < 0 || focus > 1 || scale < 0 || scale > 1)
 		return InvalidParameter;
 
 	if (focus == 0 || focus == 1) {
@@ -1009,7 +1018,7 @@ GdipSetLineSigmaBlend (GpLineGradient *brush, float focus, float scale)
 	float curve_top;
 	float curve_height;
 
-	if (!brush)
+	if (!brush || focus < 0 || focus > 1 || scale < 0 || scale > 1)
 		return InvalidParameter;
 
 	if (focus == 0 || focus == 1) {
@@ -1176,8 +1185,11 @@ GdipMultiplyLineTransform (GpLineGradient *brush, GpMatrix *matrix, GpMatrixOrde
 	GpStatus status;
 	BOOL invertible;
 
-	if (!brush || !matrix)
+	if (!brush)
 		return InvalidParameter;
+
+	if (!matrix)
+		return Ok;
 
 	/* the matrix MUST be invertible to be used */
 	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
