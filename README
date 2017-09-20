@@ -10,9 +10,14 @@ Requirements:
 	On OSX you can use Homebrew to install the dependencies:
 	brew install glib cairo libexif libjpeg giflib libtiff autoconf libtool automake
 
-To build on OSX:
+To build on OSX without X11:
 
 	./autogen.sh --without-x11 --prefix=YOUR_PREFIX
+	make
+
+To build on OSX with X11 (e.g. from XQuartz):
+
+	CFLAGS="-I/opt/X11/include" ./autogen.sh --prefix=YOUR_PREFIX
 	make
 
 To build on Linux:
