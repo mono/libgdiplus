@@ -68,6 +68,7 @@ gdip_pathgradient_init (GpPathGradient *pg)
 	pg->rectangle.Width = 0.0;
 	pg->rectangle.Height = 0.0;
 	pg->pattern = NULL;
+	pg->useGammaCorrection = FALSE;
 }
 
 static GpPathGradient*
@@ -113,6 +114,7 @@ gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	newbrush->center = pgbrush->center;
 	newbrush->centerColor = pgbrush->centerColor;
 	newbrush->wrapMode = pgbrush->wrapMode;
+	newbrush->useGammaCorrection = pgbrush->useGammaCorrection;
 	gdip_cairo_matrix_copy (&newbrush->transform, &pgbrush->transform);
 
 	newbrush->rectangle.X = pgbrush->rectangle.X;
@@ -371,17 +373,16 @@ gdip_get_center (GDIPCONST GpPointF *points, int count)
 }
 
 static BOOL
-gdip_has_non_empty_color (GDIPCONST ARGB *colors, int count)
+gdip_all_colors_equal (GDIPCONST ARGB *colors, int count)
 {
 	int i;
-	ARGB *c = (ARGB*)colors;
 
-	for (i = 0; i < count; i++, c++) {
-		if (*c)
-			return TRUE;
+	for (i = 1; i < count; i++) {
+		if (colors[i] != colors[i - 1])
+			return FALSE;
 	}
 
-	return FALSE;
+	return TRUE;
 }
 
 static void
@@ -424,11 +425,10 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, INT count, GpWrapMode wrapMo
 	if (!polyGradient)
 		return InvalidParameter;
 
-	/* this match MS GDI+ behaviour */
-	if (!points || (count < 2))
+	if (!points || count < 2 || wrapMode < WrapModeTile || wrapMode > WrapModeClamp)
 		return OutOfMemory;
 
-	status = GdipCreatePath (FillModeAlternate, /* ??? */ &gppath);
+	status = GdipCreatePath (FillModeAlternate, &gppath);
 	if (status != Ok) {
 		if (gppath)
 			GdipDeletePath (gppath);
@@ -466,11 +466,10 @@ GdipCreatePathGradientI (GDIPCONST GpPoint *points, INT count, GpWrapMode wrapMo
 	GpStatus result;
 	GpPointF *newPoints;
 
-	if (!polyGradient)
+	if (!polyGradient || !points)
 		return InvalidParameter;
 
-	/* this match MS GDI+ behaviour */
-	if (!points || (count < 2))
+	if (count < 2 || wrapMode < WrapModeTile || wrapMode > WrapModeClamp)
 		return OutOfMemory;
 
 	newPoints = GdipAlloc (sizeof (GpPointF) * count);
@@ -495,11 +494,11 @@ GdipCreatePathGradientFromPath (GDIPCONST GpPath *path, GpPathGradient **polyGra
 	GpPathGradient *gp;
 	GpPointF *points;
 
-	/* this match MS GDI+ behaviour */
-	if (!path || (path->count < 2))
-		return OutOfMemory;
 	if (!polyGradient)
 		return InvalidParameter;
+
+	if (!path || (path->count < 2))
+		return OutOfMemory;
 
 	gp = gdip_pathgradient_new ();
 	GdipClonePath ((GpPath*) path, &(gp->boundary));
@@ -549,38 +548,61 @@ GdipGetPathGradientSurroundColorsWithCount (GpPathGradient *brush, ARGB *colors,
 {
 	int i;
 
-	if (!brush || !colors || !count)
+	if (!brush || !colors || !count || *count < brush->boundary->count)
 		return InvalidParameter;
 
-	for (i = 0; i < *count && i < brush->boundaryColorsCount; i++) {
-		colors[i] = brush->boundaryColors[i];
+	for (i = 0; i < brush->boundary->count; i++) {
+		if (i < brush->boundaryColorsCount)
+			colors[i] = brush->boundaryColors[i];
+		else
+			colors[i] = brush->boundaryColors[brush->boundaryColorsCount - 1];
 	}
 
-	*count = i;
+	*count = brush->boundaryColorsCount;
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipSetPathGradientSurroundColorsWithCount (GpPathGradient *brush, GDIPCONST ARGB *colors, INT *count)
 {
+	int boundaryColorsCount;
+	int i;
+
 	if (!brush || !colors || !count)
 		return InvalidParameter;
 
 	if ((*count < 1) || (*count > brush->boundary->count))
 		return InvalidParameter;
 
-	/* at least one of the colors must be non-zero (i.e. not empty) */
-	if (!gdip_has_non_empty_color (colors, *count))
-		return Ok;
-
-	if (*count != brush->boundaryColorsCount) {
-		GdipFree (brush->boundaryColors);
-		brush->boundaryColors = (ARGB *) GdipAlloc (sizeof(ARGB) * (*count));
+	boundaryColorsCount = *count;
+	
+	/* If all the colors are equal then GDI+ collapses them into a single element array */
+	if (boundaryColorsCount > 1 && gdip_all_colors_equal(colors, boundaryColorsCount)) {
+		boundaryColorsCount = 1;
 	}
 
-	memcpy (brush->boundaryColors, colors, sizeof (ARGB) * (*count));
-	brush->boundaryColorsCount = *count;
+	if (boundaryColorsCount != brush->boundaryColorsCount) {
+		GdipFree (brush->boundaryColors);
+		brush->boundaryColors = (ARGB *) GdipAlloc (sizeof(ARGB) * boundaryColorsCount);
+	}
+
+	memcpy (brush->boundaryColors, colors, sizeof (ARGB) * boundaryColorsCount);
+	brush->boundaryColorsCount = boundaryColorsCount;
 	return Ok;
+}
+
+GpStatus WINGDIPAPI
+GdipGetPathGradientPath(GpPathGradient *brush, GpPath *path)
+{
+	// GDI+ does not implement this API.
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipSetPathGradientPath(GpPathGradient *brush, GDIPCONST GpPath *path)
+{
+	// GDI+ does not implement this API.
+	return NotImplemented;
 }
 
 GpStatus WINGDIPAPI
@@ -591,6 +613,17 @@ GdipGetPathGradientCenterPoint (GpPathGradient *brush, GpPointF *point)
 
 	point->X = brush->center.X;
 	point->Y = brush->center.Y;
+	return Ok;
+}
+
+GpStatus WINGDIPAPI
+GdipGetPathGradientCenterPointI (GpPathGradient *brush, GpPoint *point)
+{
+	if (!brush || !point)
+		return InvalidParameter;
+
+	point->X = iround(brush->center.X);
+	point->Y = iround(brush->center.Y);
 	return Ok;
 }
 
@@ -607,6 +640,18 @@ GdipSetPathGradientCenterPoint (GpPathGradient *brush, GDIPCONST GpPointF *point
 }
 
 GpStatus WINGDIPAPI
+GdipSetPathGradientCenterPointI (GpPathGradient *brush, GDIPCONST GpPoint *point)
+{
+	if (!brush || !point)
+		return InvalidParameter;
+
+	brush->center.X = (REAL)point->X;
+	brush->center.Y = (REAL)point->Y;
+	brush->base.changed = TRUE;
+	return Ok;
+}
+
+GpStatus WINGDIPAPI
 GdipGetPathGradientRect (GpPathGradient *brush, GpRectF *rect)
 {
 	if (!brush || !rect)
@@ -617,12 +662,56 @@ GdipGetPathGradientRect (GpPathGradient *brush, GpRectF *rect)
 }
 
 GpStatus WINGDIPAPI
+GdipGetPathGradientRectI (GpPathGradient *brush, GpRect *rect)
+{
+	if (!brush || !rect)
+		return InvalidParameter;
+		
+	rect->X = iround (brush->rectangle.X);
+	rect->Y = iround (brush->rectangle.Y);
+	rect->Width = iround (brush->rectangle.Width);
+	rect->Height = iround (brush->rectangle.Height);
+
+	return Ok;
+}
+
+GpStatus WINGDIPAPI
+GdipGetPathGradientPointCount (GpPathGradient *brush, INT* count)
+{
+	if (!brush || !count)
+		return InvalidParameter;
+
+	*count = brush->boundary->count;
+	return Ok;
+}
+
+GpStatus WINGDIPAPI
+GdipSetPathGradientGammaCorrection (GpPathGradient *brush, BOOL useGammaCorrection)
+{
+	if (!brush)
+		return InvalidParameter;
+
+	brush->useGammaCorrection = useGammaCorrection;
+	return Ok;
+}
+
+GpStatus WINGDIPAPI
+GdipGetPathGradientGammaCorrection(GpPathGradient *brush, BOOL *useGammaCorrection)
+{
+	if (!brush || !useGammaCorrection)
+		return InvalidParameter;
+
+	*useGammaCorrection = brush->useGammaCorrection;
+	return Ok;
+}
+
+GpStatus WINGDIPAPI
 GdipGetPathGradientSurroundColorCount (GpPathGradient *brush, INT *count)
 {
 	if (!brush || !count)
 		return InvalidParameter;
 	
-	*count = brush->boundaryColorsCount;
+	*count = brush->boundary->count;
 	return Ok;
 }
 
@@ -632,13 +721,6 @@ GdipGetPathGradientBlendCount (GpPathGradient *brush, INT *count)
 	if (!brush || !count)
 		return InvalidParameter;
 	
-	/* If count is less than 1, we are not in a proper state 
-	 * to return blend property. By default, we have one blend
-	 * set. Therefore, count of 1 is acceptible.
-	 */
-	if (brush->blend->count < 1)
-		return WrongState;
-	
 	*count = brush->blend->count;
 	
 	return Ok;
@@ -647,8 +729,11 @@ GdipGetPathGradientBlendCount (GpPathGradient *brush, INT *count)
 GpStatus WINGDIPAPI
 GdipGetPathGradientBlend (GpPathGradient *brush, REAL *blend, REAL *positions, INT count)
 {
-	if (!brush || !blend || !positions || (brush->blend->count != count))
+	if (!brush || !blend || !positions || count <= 0)
 		return InvalidParameter;
+
+	if (count < brush->blend->count)
+		return InsufficientBuffer;
 
 	/* If count is less than 1, we are not in a proper state 
 	 * to return blend property. By default, we have one blend
@@ -657,8 +742,8 @@ GdipGetPathGradientBlend (GpPathGradient *brush, REAL *blend, REAL *positions, I
 	if (brush->blend->count < 1)
 		return WrongState;
 
-	memcpy (blend, brush->blend->factors, count * sizeof (float));
-	memcpy (positions, brush->blend->positions, count * sizeof (float));
+	memcpy (blend, brush->blend->factors, brush->blend->count * sizeof (float));
+	memcpy (positions, brush->blend->positions, brush->blend->count * sizeof (float));
 
 	return Ok;
 }
@@ -670,7 +755,10 @@ GdipSetPathGradientBlend (GpPathGradient *brush, GDIPCONST REAL *blend, GDIPCONS
 	float *blendPositions;
 	int index;
 
-	if (!brush || !blend || !positions || (count < 2))
+	if (!brush || !blend || !positions || count <= 0)
+		return InvalidParameter;
+
+	if (count >= 2 && (positions[0] != 0.0f || positions[count - 1] != 1.0f))
 		return InvalidParameter;
 
 	if (brush->blend->count != count) {
@@ -719,18 +807,28 @@ GdipSetPathGradientBlend (GpPathGradient *brush, GDIPCONST REAL *blend, GDIPCONS
 GpStatus WINGDIPAPI
 GdipGetPathGradientPresetBlendCount (GpPathGradient *brush, INT *count)
 {
-	if (!brush)
+	if (!brush || !count)
 		return InvalidParameter;
 
 	*count = brush->presetColors->count;
+
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipGetPathGradientPresetBlend (GpPathGradient *brush, ARGB *blend, REAL *positions, INT count)
 {
-	if (!brush || !blend || !positions || (brush->presetColors->count != count) || (count < 2))
+	if (!brush || !blend)
 		return InvalidParameter;
+	
+	if (count < 0)
+		return OutOfMemory;
+
+	if (!positions || brush->presetColors->count != count || count < 2)
+		return InvalidParameter;
+
+	if (brush->presetColors->count == 0)
+		return GenericError;
 
 	memcpy (blend, brush->presetColors->colors, count * sizeof (ARGB));
 	memcpy (positions, brush->presetColors->positions, count * sizeof (float));
@@ -745,7 +843,7 @@ GdipSetPathGradientPresetBlend (GpPathGradient *brush, GDIPCONST ARGB *blend, GD
 	float *blendPositions;
 	int index;
 
-	if (!brush || !blend || !positions || (count < 2))
+	if (!brush || !blend || !positions || count < 2 || positions[0] != 0.0f || positions[count - 1] != 1.0f)
 		return InvalidParameter;
 
 	if (brush->presetColors->count != count) {
@@ -808,7 +906,7 @@ GdipSetPathGradientSigmaBlend (GpPathGradient *brush, REAL focus, REAL scale)
 	float curve_top;
 	float curve_height;
 
-	if (!brush)
+	if (!brush || focus < 0 || focus > 1 || scale < 0 || scale > 1)
 		return InvalidParameter;
 
 	if (focus == 0 || focus == 1) {
@@ -980,7 +1078,7 @@ GdipSetPathGradientLinearBlend (GpPathGradient *brush, REAL focus, REAL scale)
 	float *positions;
 	int count = 3;
 
-	if (!brush)
+	if (!brush || focus < 0 || focus > 1 || scale < 0 || scale > 1)
 		return InvalidParameter;
 
 	if (focus == 0 || focus == 1) {
@@ -1065,6 +1163,9 @@ GdipSetPathGradientWrapMode (GpPathGradient *brush, GpWrapMode wrapMode)
 	if (!brush)
 		return InvalidParameter;
 
+	if (wrapMode < WrapModeTile || wrapMode > WrapModeClamp)
+		return Ok;
+
 	brush->wrapMode = wrapMode;
 	brush->base.changed = TRUE;
 	return Ok;
@@ -1123,8 +1224,11 @@ GdipMultiplyPathGradientTransform (GpPathGradient *brush, GDIPCONST GpMatrix *ma
 	BOOL invertible;
 	cairo_matrix_t mat;
 
-	if (!brush || !matrix)
+	if (!brush)
 		return InvalidParameter;
+
+	if (!matrix)
+		return Ok;
 
 	/* the matrix MUST be invertible to be used */
 	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);

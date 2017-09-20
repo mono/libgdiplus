@@ -10,6 +10,7 @@ testgraphics
 testgdi
 testhatchbrush
 testlineargradientbrush
+testpathgradientbrush
 testpen
 testpng
 testreversepath

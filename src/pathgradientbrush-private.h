@@ -59,6 +59,7 @@ struct _PathGradient {
 	GpWrapMode		wrapMode;
 	cairo_matrix_t		transform;
 	cairo_pattern_t		*pattern;
+	BOOL		useGammaCorrection;
 };
 
 #include "pathgradientbrush.h"
