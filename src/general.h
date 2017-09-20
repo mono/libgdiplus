@@ -45,4 +45,7 @@ void WINGDIPAPI GdiplusShutdown (ULONG_PTR token);
 WINGDIPAPI void*  GdipAlloc (size_t size);
 WINGDIPAPI void GdipFree (void *ptr);
 
+/* libgdiplus-specific API, useful for quirking buggy behavior in older versions */
+WINGDIPAPI char* GetLibgdiplusVersion ();
+
 #endif
