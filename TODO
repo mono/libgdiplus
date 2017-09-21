@@ -7,6 +7,13 @@ have to be fixed in libgdiplus.
 
 - WMF and EMF. We have limited support metafiles.
 
+* Path
+
+-   add missing implementation for
+    -   [path gradient brush](https://bugzilla.novell.com/show_bug.cgi?id=321034)
+    -   [path widen](https://bugzilla.novell.com/show_bug.cgi?id=320856)
+    -   [path warp](https://bugzilla.novell.com/show_bug.cgi?id=400775)
+
 ---- Not implemented / partially implemented functions
 
 * Handle functions
