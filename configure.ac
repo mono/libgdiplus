@@ -1,11 +1,11 @@
 AC_INIT(libgdiplus, [5.6], 
 	[https://bugzilla.xamarin.com/enter_bug.cgi?product=Class%20Libraries&component=libgdiplus])
-	AC_CONFIG_SRCDIR([README])
+	AC_CONFIG_SRCDIR([README.md])
 
 AC_CANONICAL_SYSTEM
 AC_CANONICAL_HOST
 
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_HEADERS([config.h])
 AM_MAINTAINER_MODE
 AM_PROG_LIBTOOL
