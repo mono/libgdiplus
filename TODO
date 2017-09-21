@@ -29,7 +29,7 @@ GdipSetTextContrast		[2]
 GdipTransformPoints
 GdipTransformPointsI
 
-* Image handeling
+* Image handling
 
 GdipSetImageAttributesThreshold
 GdipSetImageAttributesOutputChannelColorProfile
@@ -40,23 +40,10 @@ GdipSaveImageToStream
 GdipSaveAdd
 GdipSaveAddImage 
 
-* Pens and brushes
-
-GdipSetPenDashCap197819		[2]
-GdipGetPenDashCap197819		[2]
-GdipSetPenCustomStartCap	[3]
-GdipGetPenCustomStartCap	[3]
-GdipSetPenCustomEndCap		[3]
-GdipGetPenCustomEndCap		[3]
-
 * Functions related to paths
 
 GdipAddString			[1]
 GdipAddStringI			[1]
-GdipIsOutlineVisiblePathPoint	[4]
-GdipIsOutlineVisiblePathPointI	[4]
-GdipIsVisiblePathPoint		[4]
-GdipIsVisiblePathPointI		[4]
 GdipWindingModeOutline
 GdipWidenPath
 GdipWarpPath

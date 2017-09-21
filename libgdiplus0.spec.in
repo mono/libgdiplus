@@ -38,7 +38,7 @@ Windows.Forms.
 %defattr(-, root, root)
 %_libdir/libgdiplus.so*
 %_libdir/pkgconfig/libgdiplus.pc
-%doc AUTHORS COPYING ChangeLog* NEWS README
+%doc AUTHORS COPYING ChangeLog* NEWS README.md
 
 %prep
 %setup -q -n %{real_name}-%{version}
