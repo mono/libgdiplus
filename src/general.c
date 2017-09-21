@@ -93,6 +93,13 @@ GdipFree (void *ptr)
 	free (ptr);
 }
 
+/* libgdiplus-specific API */
+WINGDIPAPI char*
+GetLibgdiplusVersion ()
+{
+	return g_strdup (VERSION);
+}
+
 /* Helpers */
 GpStatus 
 gdip_get_status (cairo_status_t status)

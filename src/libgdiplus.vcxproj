@@ -87,7 +87,7 @@
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\gtk\$(Platform)\include;$(ProjectDir)\..\gtk\$(Platform)\include\glib-2.0;$(ProjectDir)\..\gtk\$(Platform)\lib\glib-2.0\include;$(ProjectDir)\..\gtk\$(Platform)\include\cairo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..;$(ProjectDir)\..\gtk\$(Platform)\include;$(ProjectDir)\..\gtk\$(Platform)\include\glib-2.0;$(ProjectDir)\..\gtk\$(Platform)\lib\glib-2.0\include;$(ProjectDir)\..\gtk\$(Platform)\include\cairo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_LIBJPEG;HAVE_LIBTIFF;HAVE_LIBPNG;_WINDLL;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <!-- FIXME: To align with the GDI+ calling convention, this should be StdCall. Only relevant on x86 -->
       <CallingConvention>Cdecl</CallingConvention>
@@ -97,6 +97,9 @@
       <AdditionalDependencies>libpng16.lib;freetype.lib;fontconfig.lib;glib-2.0.lib;cairo.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\gtk\$(Platform)\lib</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command>%windir%\system32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -Command "(Get-Content $(ProjectDir)\..\winconfig.h.in) -replace '#LIBGDIPLUS_VERSION#', (Select-String -path $(ProjectDir)\..\configure.ac -pattern 'AC_INIT\(libgdiplus, \[(.*)\]').Matches[0].Groups[1].Value | Set-Content $(ProjectDir)\..\config.h" 2&gt;&amp;1</Command>
+    </PreBuildEvent>
     <PostBuildEvent>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy $(ProjectDir)..\gtk\$(Platform)\bin\cairo.* $(OutDir)
 copy $(ProjectDir)..\gtk\$(Platform)\bin\fontconfig.* $(OutDir)
@@ -139,6 +142,7 @@ copy $(ProjectDir)..\gtk\$(Platform)\bin\zlib1.* $(OutDir)</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="*.h" />
+    <ClInclude Include="..\config.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="*.inc" />

@@ -7,4 +7,4 @@ pkgconfig_DATA= libgdiplus.pc
 
 DISTCLEANFILES= libgdiplus.pc
 
-EXTRA_DIST = libgdiplus.pc.in LICENSE
+EXTRA_DIST = libgdiplus.pc.in LICENSE libgdiplus.sln winconfig.h.in
