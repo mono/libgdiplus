@@ -563,9 +563,11 @@ gdip_metafile_Arc (MetafilePlayContext *context, int left, int top, int right, i
 	printf ("Arc left %d, top %d, right %d, bottom %d, xstart %d, ystart %d, xend %d, yend %d", 
 		left, top, right, bottom, xstart, ystart, xend, yend);
 #endif
-	/* don't draw if the bounds are empty (width or height) */
-	if ((right - left <= 0) || (bottom = top <= 0))
+
+	/* Don't draw if the width or height are empty. */
+	if ((right - left <= 0) || (bottom - top <= 0))
 		return Ok;
+
 	return GdipDrawArc (context->graphics, gdip_metafile_GetSelectedPen (context), left, top, 
 		(right - left), (bottom - top), atan2 (ystart, xstart), atan2 (yend, xend));
 }
