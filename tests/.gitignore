@@ -4,6 +4,7 @@
 Makefile
 Makefile.in
 testbits
+testbrush
 testclip
 testfont
 testgraphics
