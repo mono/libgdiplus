@@ -38,10 +38,21 @@ GpStatus WINGDIPAPI GdipGetPathGradientSurroundColorCount (GpPathGradient *brush
 GpStatus WINGDIPAPI GdipGetPathGradientSurroundColorsWithCount (GpPathGradient *brush, ARGB *color, INT *count);
 GpStatus WINGDIPAPI GdipSetPathGradientSurroundColorsWithCount (GpPathGradient *brush, GDIPCONST ARGB *color, INT *count);
 
+GpStatus WINGDIPAPI GdipGetPathGradientPath (GpPathGradient *brush, GpPath *path);
+GpStatus WINGDIPAPI GdipSetPathGradientPath (GpPathGradient *brush, GDIPCONST GpPath *path);
+
 GpStatus WINGDIPAPI GdipGetPathGradientCenterPoint (GpPathGradient *brush, GpPointF *points);
+GpStatus WINGDIPAPI GdipGetPathGradientCenterPointI (GpPathGradient *brush, GpPoint* points);
 GpStatus WINGDIPAPI GdipSetPathGradientCenterPoint (GpPathGradient *brush, GDIPCONST GpPointF *points);
+GpStatus WINGDIPAPI GdipSetPathGradientCenterPointI (GpPathGradient *brush, GDIPCONST GpPoint* points);
 
 GpStatus WINGDIPAPI GdipGetPathGradientRect (GpPathGradient *brush, GpRectF *rect);
+GpStatus WINGDIPAPI GdipGetPathGradientRectI (GpPathGradient *brush, GpRect *rect);
+
+GpStatus WINGDIPAPI GdipGetPathGradientPointCount (GpPathGradient *brush, INT* count);
+
+GpStatus WINGDIPAPI GdipSetPathGradientGammaCorrection (GpPathGradient *brush, BOOL useGammaCorrection);
+GpStatus WINGDIPAPI GdipGetPathGradientGammaCorrection (GpPathGradient *brush, BOOL *useGammaCorrection);
 
 GpStatus WINGDIPAPI GdipGetPathGradientBlendCount (GpPathGradient *brush, INT *count);
 GpStatus WINGDIPAPI GdipGetPathGradientBlend (GpPathGradient *brush, REAL *blend, REAL *positions, INT count);
@@ -68,15 +79,5 @@ GpStatus WINGDIPAPI GdipRotatePathGradientTransform (GpPathGradient *brush, REAL
 
 GpStatus WINGDIPAPI GdipGetPathGradientFocusScales (GpPathGradient *brush, REAL *xScale, REAL *yScale);
 GpStatus WINGDIPAPI GdipSetPathGradientFocusScales (GpPathGradient *brush, REAL xScale, REAL yScale);
-
-/* missing API
-	GdipGetPathGradientPath
-	GdipSetPathGradientPath
-	GdipGetPathGradientCenterPointI
-	GdipSetPathGradientCenterPointI
-	GdipGetPathGradientRectI
-	GdipGetPathGradientGammaCorrection
-	GdipSetPathGradientGammaCorrection
-*/
 
 #endif
