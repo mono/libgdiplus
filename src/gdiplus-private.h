@@ -40,8 +40,9 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#include "config.h"
 #endif
+
+#include "config.h"
 
 #if HAVE_VISIBILITY_HIDDEN
 	#define GDIP_INTERNAL __attribute__((visibility ("hidden")))
