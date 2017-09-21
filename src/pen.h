@@ -39,6 +39,9 @@ GpStatus WINGDIPAPI GdipDeletePen (GpPen *pen);
 GpStatus WINGDIPAPI GdipSetPenWidth (GpPen *pen, REAL width);
 GpStatus WINGDIPAPI GdipGetPenWidth (GpPen *pen, REAL *width);
 
+GpStatus WINGDIPAPI GdipGetPenUnit (GpPen *pen, GpUnit *unit);
+GpStatus WINGDIPAPI GdipSetPenUnit (GpPen *pen, GpUnit unit);
+
 GpStatus WINGDIPAPI GdipSetPenBrushFill (GpPen *pen, GpBrush *brush);
 GpStatus WINGDIPAPI GdipGetPenBrushFill (GpPen *pen, GpBrush **brush);
 GpStatus WINGDIPAPI GdipGetPenFillType (GpPen *pen, GpPenType *penType);
@@ -83,10 +86,5 @@ GpStatus WINGDIPAPI GdipMultiplyPenTransform (GpPen *pen, GpMatrix *matrix, GpMa
 GpStatus WINGDIPAPI GdipTranslatePenTransform (GpPen *pen, REAL dx, REAL dy, GpMatrixOrder order);
 GpStatus WINGDIPAPI GdipScalePenTransform (GpPen *pen, REAL sx, REAL sy, GpMatrixOrder order);
 GpStatus WINGDIPAPI GdipRotatePenTransform (GpPen *pen, REAL angle, GpMatrixOrder order);
-
-/* missing API
-	GdipGetPenUnit
-	GdipSetPenUnit
-*/
 
 #endif
