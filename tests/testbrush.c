@@ -53,13 +53,15 @@ static void test_clone ()
 
     status = GdipCloneBrush ((GpBrush *) brush, NULL);
     assert (status == InvalidParameter);
+
+    GdipDeleteBrush ((GpBrush *) brush);
 }
 
 static void test_delete ()
 {
     GpStatus status;
     GpSolidFill *brush;
-    
+
     GdipCreateSolidFill (1, &brush);
 
     status = GdipDeleteBrush ((GpBrush *) brush);
