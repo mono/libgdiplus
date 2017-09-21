@@ -1066,7 +1066,7 @@ gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, BOOL ucs2)
 	LOGFONTA *logfont = (LOGFONTA *)lf;
 
 	if (logfont->lfHeight < 0) {
-		result->sizeInPixels = fabs (logfont->lfHeight);
+		result->sizeInPixels = abs (logfont->lfHeight);
 	} else {
 		result->sizeInPixels = logfont->lfHeight;	// Fixme - convert units
 	}
