@@ -172,7 +172,7 @@ static void test_createPen2 ()
 	GpPathGradient *pathGradientBrush;
 	GpRectF rect = {1, 2, 3, 4};
 	GpLineGradient *lineGradientBrush;
-	
+
 	GpPen *pen;
 
 	GdipCreateSolidFill (1, &solidBrush);
@@ -292,7 +292,7 @@ static void test_setPenWidth ()
 	GpStatus status;
 	GpPen *pen;
 	REAL width;
-	
+
 	GdipCreatePen1 (1, 10, UnitWorld, &pen);
 
 	status = GdipSetPenWidth (pen, -1);
@@ -330,7 +330,7 @@ static void test_setPenUnit ()
 	GpStatus status;
 	GpPen *pen;
 	Unit unit;
-	
+
 	GdipCreatePen1 (1, 10, UnitWorld, &pen);
 
 	// UnitWorld.
@@ -394,13 +394,13 @@ static void test_setPenUnit ()
 	// Negative tests.
 	status = GdipSetPenUnit (NULL, UnitWorld);
 	assert (status == InvalidParameter);
-	
+
 	status = GdipSetPenUnit (pen, (Unit)(UnitWorld -1));
 	assert (status == InvalidParameter);
-	
+
 	status = GdipSetPenUnit (pen, UnitDisplay);
 	assert (status == InvalidParameter);
-	
+
 	status = GdipSetPenUnit (pen, (Unit)(8));
 	assert (status == InvalidParameter);
 
