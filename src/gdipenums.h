@@ -150,7 +150,7 @@ typedef enum {
 	LineJoinBevel		= 1,	/* round corner */
 	LineJoinRound		= 2,	/* circular, smooth, circular arc */
 	LineJoinMiterClipped	= 3	/* miter, sharp or beveled corner */
-} GpLineJoin;
+} GpLineJoin, LineJoin;
 
 typedef enum  {
 	MatrixOrderPrepend	= 0,

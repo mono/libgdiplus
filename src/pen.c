@@ -243,7 +243,7 @@ GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen)
 	GpSolidFill *solidBrush = NULL;
 	GpPen *result;
 
-	if (!pen)
+	if (!pen || unit < UnitWorld || unit > UnitCairoPoint || unit == UnitDisplay)
 		return InvalidParameter;
 
 	*pen = result = gdip_pen_new ();
@@ -251,8 +251,8 @@ GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen)
 		return OutOfMemory;
 
 	result->color = argb;
-	/* FIXME: do unit conversion when setting width */
 	result->width = width;
+	result->unit = unit;
 
 	s = GdipCreateSolidFill (argb, &solidBrush);
 	if (s != Ok) {
@@ -284,8 +284,8 @@ GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen)
 	if (!result)
 		return OutOfMemory;
 
-        /* FIXME: do unit conversion when setting width */
-        result->width = width;
+	result->width = width;
+	result->unit = unit;
 
 	/* the user supplied brush can be disposed, we must clone it to ensure
 	 * it's valid when we need to set the pen */
@@ -587,6 +587,10 @@ GdipGetPenColor (GpPen *pen, ARGB *argb)
 	if (!pen || !argb)
 		return InvalidParameter;
 
+	if(pen->brush->vtable->type != BrushTypeSolidColor)
+		return InvalidParameter;
+		
+
         *argb = pen->color;
         return Ok;
 }
@@ -694,7 +698,7 @@ GdipGetPenUnit (GpPen *pen, GpUnit *unit)
 GpStatus WINGDIPAPI
 GdipSetPenUnit (GpPen *pen, GpUnit unit)
 {
-	if (!pen)
+	if (!pen || unit < UnitWorld || unit > UnitCairoPoint || unit == UnitDisplay)
 		return InvalidParameter;
 
         pen->unit = unit;
@@ -750,8 +754,11 @@ GdipMultiplyPenTransform (GpPen *pen, GpMatrix *matrix, GpMatrixOrder order)
 	GpStatus status;
 	BOOL invertible;
 
-	if (!pen || !matrix)
+	if (!pen)
 		return InvalidParameter;
+
+	if (!matrix)
+		return Ok;
 
 	/* the matrix MUST be invertible to be used */
 	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
