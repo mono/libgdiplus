@@ -25,8 +25,8 @@ install:
 script:
 - export CFLAGS="-ggdb3 -O2"
 - echo "travis_fold:start:build_libgdiplus"
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./autogen.sh --prefix=/tmp/mono-dev; fi
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./autogen.sh --without-x11 --prefix=/tmp/mono-dev; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./autogen.sh --prefix=/tmp/mono-dev --enable-warnaserror; fi
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./autogen.sh --without-x11 --prefix=/tmp/mono-dev --enable-warnaserror; fi
 - make -j4
 - echo "travis_fold:end:build_libgdiplus"
 - make check
