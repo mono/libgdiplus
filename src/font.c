@@ -144,13 +144,15 @@ GdipDeletePrivateFontCollection (GpFontCollection **font_collection)
 		GdipFree ((void *)*font_collection);
 	}
 
+	*font_collection = NULL;
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipPrivateAddFontFile (GpFontCollection *font_collection,  GDIPCONST WCHAR *filename)
+GdipPrivateAddFontFile (GpFontCollection *font_collection, GDIPCONST WCHAR *filename)
 {
 	BYTE *file;
+	FILE *fileHandle;
 	
 	if (!font_collection || !filename)
 		return InvalidParameter;
@@ -159,6 +161,13 @@ GdipPrivateAddFontFile (GpFontCollection *font_collection,  GDIPCONST WCHAR *fil
 	if (!file)
 		return OutOfMemory;
 
+	fileHandle = fopen ((char *)file, "r");
+	if(!fileHandle) {
+		GdipFree (file);
+		return FileNotFound;
+	}
+
+	fclose(fileHandle);
 	FcConfigAppFontAddFile (font_collection->config, file);
     
 	GdipFree (file);
@@ -290,13 +299,13 @@ GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, INT num_soug
 	if (font_collection->config)
 		gdip_createPrivateFontSet (font_collection);
 
-	for (i = 0; i < font_collection->fontset->nfont; i++) {
+	for (i = 0; i < num_sought && i < font_collection->fontset->nfont; i++) {
 		gdip_createFontFamily(&gpfamilies[i]);
 		gpfamilies[i]->pattern = font_collection->fontset->fonts[i];
 		gpfamilies[i]->allocated = FALSE;
 	}
 	
-	*num_found = font_collection->fontset->nfont;
+	*num_found = i;
 	return Ok;  
 }
 
@@ -1127,7 +1136,6 @@ GdipCreateFontFromLogfontW(void *hdc, GDIPCONST LOGFONTW *logfont, GpFont **font
 GpStatus WINGDIPAPI
 GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memory, INT length)
 {
-	FcBool result;
 	FcChar8 fontfile[256];
 	int	f;
 
@@ -1152,14 +1160,12 @@ GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memor
 	}
 	close(f);
 
-	/* FIXME - this doesn't seems to catch "bad" (e.g. invalid) font files */
-	result = FcConfigAppFontAddFile (fontCollection->config, fontfile);
-
+	FcConfigAppFontAddFile (fontCollection->config, fontfile);
 	/* FIXME - May we delete our temporary font file or does 
 	   FcConfigAppFontAddFile just reference our file?  */
 	/* unlink(fontfile); */
 
-	return result ? Ok : FileNotFound;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
