@@ -317,7 +317,6 @@ static void test_compositingQuality ()
 
 	status = GdipSetCompositingQuality(graphics, CompositingQualityAssumeLinear);
 	assert(status == InvalidParameter);
-
 }
 
 static void test_renderingOrigin ()

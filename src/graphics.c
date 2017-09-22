@@ -151,7 +151,7 @@ gdip_graphics_common_init (GpGraphics *graphics)
 	graphics->render_origin_x = 0;
 	graphics->render_origin_y = 0;
 	graphics->dpi_x = graphics->dpi_y = 0;
-	graphics->busy = FALSE;
+	graphics->state = GraphicsStateValid;
 
 #if HAS_X11 && CAIRO_HAS_XLIB_SURFACE
 	graphics->display = (Display*)NULL;
@@ -440,14 +440,14 @@ GdipDeleteGraphics (GpGraphics *graphics)
 GpStatus WINGDIPAPI
 GdipGetDC (GpGraphics *graphics, HDC *hdc)
 {
-	if (!graphics || !hdc)
+	if (!graphics || !hdc || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
 	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	*hdc = (void *)graphics;
-	graphics->busy = TRUE;
+	graphics->state = GraphicsStateBusy;
 
 	return Ok;
 }
@@ -455,13 +455,13 @@ GdipGetDC (GpGraphics *graphics, HDC *hdc)
 GpStatus WINGDIPAPI
 GdipReleaseDC (GpGraphics *graphics, HDC hdc)
 {
-	if (!graphics || !hdc || !graphics->busy)
+	if (!graphics || !hdc || graphics->state != GraphicsStateBusy)
 		return InvalidParameter;
 
 	if (hdc != (void *)graphics)
 		return InvalidParameter;
 
-	graphics->busy = FALSE;
+	graphics->state = GraphicsStateValid;
 
 	return Ok;
 }
@@ -1701,7 +1701,7 @@ GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode interpolationM
 GpStatus WINGDIPAPI
 GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *imode)
 {
-	if (!graphics || !imode || graphics->mode == GraphicsStateDeleted)
+	if (!graphics || !imode || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
 	if (graphics->state == GraphicsStateBusy)
@@ -1932,7 +1932,7 @@ GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 	if (!graphics)
 		return InvalidParameter;
 
-	if (graphics->state == GraphicsStateBusy)
+	if (graphics->state != GraphicsStateValid)
 		return ObjectBusy;
 
 	surface = cairo_get_target (graphics->ct);
@@ -2408,7 +2408,7 @@ GdipGetCompositingMode (GpGraphics *graphics, CompositingMode *compositingMode)
 GpStatus WINGDIPAPI
 GdipSetCompositingQuality (GpGraphics *graphics, CompositingQuality compositingQuality)
 {
-	if (!graphics)
+	if (!graphics || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
 	if (graphics->state == GraphicsStateBusy)
@@ -2430,7 +2430,7 @@ GdipSetCompositingQuality (GpGraphics *graphics, CompositingQuality compositingQ
 GpStatus WINGDIPAPI
 GdipGetCompositingQuality (GpGraphics *graphics, CompositingQuality *compositingQuality)
 {
-	if (!graphics || !compositingQuality)
+	if (!graphics || !compositingQuality || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
 	if (graphics->state == GraphicsStateBusy)
@@ -2449,7 +2449,7 @@ GdipGetNearestColor (GpGraphics *graphics, ARGB *argb)
 GpStatus WINGDIPAPI
 GdipSetPageScale (GpGraphics *graphics, REAL scale)
 {
-	if (!graphics || scale <= 0.0 || scale > 1000000032 || graphics->state == GraphicsStateBusy)
+	if (!graphics || scale <= 0.0 || scale > 1000000032 || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 	
 	if (graphics->state == GraphicsStateBusy)
