@@ -251,7 +251,6 @@ GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen)
 		return OutOfMemory;
 
 	result->color = argb;
-	/* FIXME: do unit conversion when setting width */
 	result->width = width;
 	result->unit = unit;
 
@@ -285,7 +284,6 @@ GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen)
 	if (!result)
 		return OutOfMemory;
 
-        /* FIXME: do unit conversion when setting width */
 	result->width = width;
 	result->unit = unit;
 
