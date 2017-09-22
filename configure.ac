@@ -392,11 +392,17 @@ AC_ARG_WITH(x11,
 
 if test x$disable_x11 != xyes; then
   AC_MSG_CHECKING(X11 support)
-  AC_TRY_COMPILE(
-    [#include <X11/Xlib.h>],
-    [],
-    [x11_available=yes],
-    [x11_available=no])
+  if $PKG_CONFIG --exists x11 ; then
+    GDIPLUS_LIBS="$GDIPLUS_LIBS `$PKG_CONFIG --libs x11`"
+    GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS `$PKG_CONFIG --cflags x11`"
+    x11_available=yes
+  else
+    AC_TRY_COMPILE(
+      [#include <X11/Xlib.h>],
+      [],
+      [x11_available=yes],
+      [x11_available=no])
+  fi
 
   if test "x$x11_available" != "xyes"; then
     AC_MSG_ERROR( [ Failed to compile with X11/Xlib.h include. You must fix your compiler paths ])
