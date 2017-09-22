@@ -20,8 +20,7 @@ noinst_PROGRAMS =			\
 	testbits testbrush testclip testfont testgraphics testhatchbrush testlineargradientbrush testpathgradientbrush testpen testpng testreversepath testsolidbrush testtexturebrush
 
 if HAS_X11
-noinst_PROGRAMS =
-	testgdi ${noinst_PROGRAMS}
+noinst_PROGRAMS += testgdi
 
 testgdi_DEPENDENCIES = $(TEST_DEPS)
 testgdi_LDADD = $(LDADDS)
@@ -139,3 +138,7 @@ TESTS = \
 	testtexturebrush \
 	testsolidbrush \
 	$(NULL)
+
+if HAS_X11
+TESTS += testgdi
+endif

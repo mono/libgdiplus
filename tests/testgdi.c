@@ -33,6 +33,8 @@ static void win_deinit(win_t *win);
 static void win_draw(win_t *win);
 static void win_handle_events(win_t *win);
 
+GpStatus GdipCreateFromXDrawable_linux(Drawable d, Display *dpy, GpGraphics **graphics);
+
 #define CHECK_GDIP_ST(st)	do { if(st != Ok) { g_print("got st: %d expected Ok", st); } } while (0)
 
 static void
@@ -146,7 +148,10 @@ int
 
 	win_draw(&win);
 
-	win_handle_events(&win);
+	if (TRUE /* during unit tests */)
+		sleep (1);
+	else
+		win_handle_events(&win);
 
 	win_deinit(&win);
 
