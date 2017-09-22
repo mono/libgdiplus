@@ -24,35 +24,20 @@
 
 #ifdef __APPLE__
 #include <Carbon/Carbon.h>
-#include <IOKit/graphics/IOGraphicsLib.h>
-
-static inline int gdip_get_int_from_dict_for_key (CFDictionaryRef dict, CFStringRef key) {
-	CFNumberRef value = CFDictionaryGetValue (dict, key);
-	int ret = 0;
-
-	if (value == NULL)
-		return 0;
-
-	CFNumberGetValue (value, kCFNumberIntType, &ret);
-
-	return ret;
-}
 
 void gdip_get_display_dpi_carbon (float *h_dpi, float *v_dpi) {
+	*h_dpi = *v_dpi = 96.0f;
+
 	if (getenv ("MONO_MWF_MAC_DETECT_DPI") != NULL) {
-		CFDictionaryRef mode_dict = CGDisplayCurrentMode (kCGDirectMainDisplay);
-		io_connect_t display_port = CGDisplayIOServicePort (kCGDirectMainDisplay);
-		CFDictionaryRef display_dict = IOCreateDisplayInfoDictionary (display_port, 0);
-		const float mmpi = 25.4;
-		float h_size = (float) gdip_get_int_from_dict_for_key (display_dict, CFSTR (kDisplayHorizontalImageSize)) / mmpi;
-		float v_size = (float) gdip_get_int_from_dict_for_key (display_dict, CFSTR (kDisplayVerticalImageSize)) / mmpi;
+		CGSize size = CGDisplayScreenSize(kCGDirectMainDisplay);
 
-		*h_dpi = (float) gdip_get_int_from_dict_for_key (mode_dict, kCGDisplayWidth) / h_size; 
-		*v_dpi = (float) gdip_get_int_from_dict_for_key (mode_dict, kCGDisplayHeight) / v_size; 
-
-		CFRelease (display_dict);
-	} else {
-		*h_dpi = *v_dpi = 96.0f;
+		if (!CGSizeEqualToSize(size, CGSizeZero)) {
+			const float mmpi = 25.4;
+			float h_size_inch = size.width / mmpi;
+			float v_size_inch = size.height / mmpi;
+			*h_dpi = CGDisplayPixelsWide (kCGDirectMainDisplay) / h_size_inch;
+			*v_dpi = CGDisplayPixelsHigh (kCGDirectMainDisplay) / v_size_inch;
+		}
 	}
 }
 #endif

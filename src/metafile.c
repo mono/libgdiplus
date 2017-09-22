@@ -1613,7 +1613,7 @@ GdipGetMetafileDownLevelRasterizationLimit (GpMetafile *metafile, UINT *metafile
 GpStatus
 GdipSetMetafileDownLevelRasterizationLimit (GpMetafile *metafile, UINT metafileRasterizationLimitDpi)
 {
-	if (!metafile || (metafileRasterizationLimitDpi < 0))
+	if (!metafile)
 		return InvalidParameter;
 
 	switch (metafile->metafile_header.Type) {

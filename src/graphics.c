@@ -153,8 +153,8 @@ gdip_graphics_common_init (GpGraphics *graphics)
 	graphics->dpi_x = graphics->dpi_y = 0;
 
 #if HAS_X11 && CAIRO_HAS_XLIB_SURFACE
-	graphics->display = NULL;
-	graphics->drawable = NULL;
+	graphics->display = (Display*)NULL;
+	graphics->drawable = (Drawable)NULL;
 #endif
 
 	gdip_graphics_reset (graphics);
@@ -1719,7 +1719,7 @@ GdipSetTextContrast (GpGraphics *graphics, UINT contrast)
 {
 	/** The gamma correction value must be between 0 and 12.
 	 * The default value is 4. */
-	if (!graphics || contrast < 0 || contrast > 12)
+	if (!graphics || contrast > 12)
 		return InvalidParameter; 
 
 	graphics->text_contrast = contrast;

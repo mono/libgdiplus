@@ -134,7 +134,11 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 #if defined(PNG_iCCP_SUPPORTED)
 	{
 		png_charp	name;
+#if (PNG_LIBPNG_VER > 10499)
+		png_bytep	profile;
+#else
 		png_charp	profile;
+#endif
 		png_uint_32	proflen;
 		int		compression_type;
 
@@ -368,9 +372,9 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 				}
 
 				for (i=0; i < num_trans; i++) {
-					png_bytep alpha =
+					png_byte alpha =
 #if (PNG_LIBPNG_VER > 10399)
-						(png_bytep)trans_alpha[i];
+						trans_alpha[i];
 #else
 						info_ptr->trans[i];
 #endif
@@ -379,7 +383,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 							png_palette[i].blue,
 							png_palette[i].green,
 							png_palette[i].red,
-							(unsigned char)alpha);
+							alpha);
 				}
 			}
 		}
