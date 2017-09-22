@@ -162,12 +162,12 @@ GdipPrivateAddFontFile (GpFontCollection *font_collection, GDIPCONST WCHAR *file
 		return OutOfMemory;
 
 	fileHandle = fopen ((char *)file, "r");
-	if(!fileHandle) {
+	if (!fileHandle) {
 		GdipFree (file);
 		return FileNotFound;
 	}
 
-	fclose(fileHandle);
+	fclose (fileHandle);
 	FcConfigAppFontAddFile (font_collection->config, file);
     
 	GdipFree (file);
