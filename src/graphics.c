@@ -153,8 +153,8 @@ gdip_graphics_common_init (GpGraphics *graphics)
 	graphics->dpi_x = graphics->dpi_y = 0;
 
 #if HAS_X11 && CAIRO_HAS_XLIB_SURFACE
-	graphics->display = NULL;
-	graphics->drawable = NULL;
+	graphics->display = (Display*)NULL;
+	graphics->drawable = (Drawable)NULL;
 #endif
 
 	gdip_graphics_reset (graphics);
