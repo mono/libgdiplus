@@ -210,6 +210,9 @@ static void test_hdc ()
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+
+	status = GdipGetDC (graphics, &hdc);
+	assert (status == InvalidParameter);
 }
 
 static void test_compositingMode ()
@@ -256,6 +259,12 @@ static void test_compositingMode ()
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+
+	status = GdipGetCompositingMode (graphics, &mode);
+	assert (status == InvalidParameter);
+
+	status = GdipSetCompositingMode (graphics, CompositingModeSourceCopy);
+	assert (status == InvalidParameter);
 }
 
 static void test_compositingQuality ()
@@ -302,6 +311,13 @@ static void test_compositingQuality ()
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+
+	status = GdipGetCompositingQuality (graphics, &quality);
+	assert (status == InvalidParameter);
+
+	status = GdipSetCompositingQuality(graphics, CompositingQualityAssumeLinear);
+	assert(status == InvalidParameter);
+
 }
 
 static void test_renderingOrigin ()
@@ -353,6 +369,12 @@ static void test_renderingOrigin ()
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+
+	status = GdipGetRenderingOrigin(graphics, &x, &y);
+	assert (status == InvalidParameter);
+
+	status = GdipSetRenderingOrigin (graphics, 1, 2);
+	assert (status == InvalidParameter);
 }
 
 static void test_textRenderingHint ()
@@ -405,6 +427,12 @@ static void test_textRenderingHint ()
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+
+	status = GdipGetTextRenderingHint(graphics, &textRenderingHint);
+	assert (status == InvalidParameter);
+
+	status = GdipSetTextRenderingHint (graphics, TextRenderingHintClearTypeGridFit);
+	assert (status == InvalidParameter);
 }
 
 static void test_textContrast ()
@@ -413,7 +441,7 @@ static void test_textContrast ()
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
-	unsigned int textContrast;
+	UINT textContrast;
 
 	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
 	status = GdipLoadImageFromFile (filePath, &image);
@@ -457,6 +485,12 @@ static void test_textContrast ()
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+
+	status = GdipGetTextContrast (graphics, &textContrast);
+	assert (status == InvalidParameter);
+
+	status = GdipSetTextContrast (graphics, 1);
+	assert (status == InvalidParameter);
 }
 
 static void test_smoothingMode ()
@@ -537,6 +571,12 @@ static void test_smoothingMode ()
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+	
+	status = GdipGetSmoothingMode (graphics, &smoothingMode);
+	assert (status == InvalidParameter);
+
+	status = GdipSetSmoothingMode (graphics, SmoothingModeHighQuality);
+	assert (status == InvalidParameter);
 }
 
 static void test_pixelOffsetMode ()
@@ -606,6 +646,12 @@ static void test_pixelOffsetMode ()
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+
+	status = GdipGetPixelOffsetMode (graphics, &pixelOffsetMode);
+	assert (status == InvalidParameter);
+
+	status = GdipSetPixelOffsetMode (graphics, PixelOffsetModeDefault);
+	assert (status == InvalidParameter);
 }
 
 static void test_interpolationMode ()
@@ -689,6 +735,12 @@ static void test_interpolationMode ()
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+
+	status = GdipGetInterpolationMode (graphics, &interpolationMode);
+	assert (status == InvalidParameter);
+
+	status = GdipSetInterpolationMode (graphics, InterpolationModeBicubic);
+	assert (status == InvalidParameter);
 }
 
 static void test_transform ()
@@ -757,6 +809,12 @@ static void test_transform ()
 	GdipDeleteMatrix (nonInvertibleMatrix);
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+
+	status = GdipGetWorldTransform (graphics, matrix);
+	assert (status == InvalidParameter);
+
+	status = GdipSetWorldTransform (graphics, matrix);
+	assert (status == InvalidParameter);
 }
 
 static void test_pageUnit ()
@@ -817,6 +875,12 @@ static void test_pageUnit ()
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+
+	status = GdipGetPageUnit (graphics, &pageUnit);
+	assert (status == InvalidParameter);
+
+	status = GdipSetPageUnit (graphics, UnitDisplay);
+	assert (status == InvalidParameter);
 }
 
 static void test_pageScale ()
@@ -825,7 +889,7 @@ static void test_pageScale ()
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
-	float pageScale;
+	REAL pageScale;
 
 	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
 	status = GdipLoadImageFromFile (filePath, &image);
@@ -843,7 +907,6 @@ static void test_pageScale ()
 	status = GdipSetPageScale (NULL, UnitDisplay);
 	assert (status == InvalidParameter);
 
-// Libgdiplus does not validate the page scale.
 	status = GdipSetPageScale (graphics, -INFINITY);
 	assert (status == InvalidParameter);
 
@@ -887,6 +950,12 @@ static void test_pageScale ()
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+
+	status = GdipGetPageScale (graphics, &pageScale);
+	assert (status == InvalidParameter);
+
+	status = GdipSetPageScale (graphics, 1);
+	assert (status == InvalidParameter);
 }
 static void test_dpiX ()
 {
@@ -923,6 +992,9 @@ static void test_dpiX ()
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+
+	status = GdipGetDpiX (graphics, &dpiX);
+	assert (status == InvalidParameter);
 }
 
 static void test_dpiY ()
@@ -931,7 +1003,7 @@ static void test_dpiY ()
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
-	float dpiY;
+	REAL dpiY;
 
 	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
 	status = GdipLoadImageFromFile (filePath, &image);
@@ -960,6 +1032,9 @@ static void test_dpiY ()
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+
+	status = GdipGetDpiY (graphics, &dpiY);
+	assert (status == InvalidParameter);
 }
 
 static void test_flush ()
@@ -1001,6 +1076,39 @@ static void test_flush ()
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
+
+	status = GdipFlush (graphics, FlushIntentionSync);
+	assert (status == ObjectBusy);
+}
+
+static void test_delete ()
+{
+	gunichar2 *filePath;
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	REAL dpiX;
+
+	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
+	GdipLoadImageFromFile (filePath, &image);
+	GdipGetImageGraphicsContext (image, &graphics);
+	
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipDeleteGraphics (graphics);
+	assert (status == ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	status = GdipDeleteGraphics (graphics);
+	assert (status == Ok);
+
+	status = GdipDeleteGraphics (graphics);
+	assert (status == ObjectBusy);
+
+	GdipDisposeImage (image);
+	GdipDeleteGraphics (graphics);
 }
 
 int
@@ -1029,6 +1137,7 @@ main (int argc, char**argv)
 	test_dpiX ();
 	test_dpiY ();
 	test_flush ();
+	test_delete ();
 
 	GdiplusShutdown (gdiplusToken);
 	return 0;

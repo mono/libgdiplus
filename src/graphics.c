@@ -376,6 +376,9 @@ GdipDeleteGraphics (GpGraphics *graphics)
 	if (!graphics)
 		return InvalidParameter;
 
+	if (graphics->state != GraphicsStateValid)
+		return ObjectBusy;
+
 	/* We don't destroy image because we did not create one. */
 	if (graphics->copy_of_ctm) {
 		GdipDeleteMatrix (graphics->copy_of_ctm);
@@ -429,6 +432,7 @@ GdipDeleteGraphics (GpGraphics *graphics)
 		graphics->saved_status = NULL;
 	}	
 
+	graphics->state = GraphicsStateDeleted;
 	GdipFree (graphics);
 	return Ok;
 }
@@ -439,7 +443,7 @@ GdipGetDC (GpGraphics *graphics, HDC *hdc)
 	if (!graphics || !hdc)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	*hdc = (void *)graphics;
@@ -580,10 +584,10 @@ GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 	GpStatus status;
 	BOOL invertible;
 
-	if (!graphics || !matrix)
+	if (!graphics || !matrix || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	/* optimization - inverting an identity matrix result in the identity matrix */
@@ -614,10 +618,10 @@ GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 GpStatus WINGDIPAPI
 GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 {
-	if (!graphics || !matrix)
+	if (!graphics || !matrix || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 	
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	/* get the effective matrix from cairo */
@@ -1586,10 +1590,10 @@ GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 GpStatus WINGDIPAPI
 GdipSetRenderingOrigin (GpGraphics *graphics, INT x, INT y)
 {
-	if (!graphics)
+	if (!graphics || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 	
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	graphics->render_origin_x = x;
@@ -1608,10 +1612,10 @@ GdipSetRenderingOrigin (GpGraphics *graphics, INT x, INT y)
 GpStatus WINGDIPAPI
 GdipGetRenderingOrigin (GpGraphics *graphics, INT *x, INT *y)
 {
-	if (!graphics || !x || !y)
+	if (!graphics || !x || !y || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	*x = graphics->render_origin_x;
@@ -1623,10 +1627,10 @@ GdipGetRenderingOrigin (GpGraphics *graphics, INT *x, INT *y)
 GpStatus WINGDIPAPI
 GdipGetDpiX (GpGraphics *graphics, REAL *dpi)
 {
-	if (!graphics || !dpi)
+	if (!graphics || !dpi || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	*dpi = graphics->dpi_x;
@@ -1636,10 +1640,10 @@ GdipGetDpiX (GpGraphics *graphics, REAL *dpi)
 GpStatus WINGDIPAPI
 GdipGetDpiY (GpGraphics *graphics, REAL *dpi)
 {
-	if (!graphics || !dpi)
+	if (!graphics || !dpi || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	*dpi = graphics->dpi_y;
@@ -1665,10 +1669,10 @@ GdipGraphicsClear (GpGraphics *graphics, ARGB color)
 GpStatus WINGDIPAPI
 GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode interpolationMode)
 {
-	if (!graphics || interpolationMode <= InterpolationModeInvalid || interpolationMode > InterpolationModeHighQualityBicubic)
+	if (!graphics || interpolationMode <= InterpolationModeInvalid || interpolationMode > InterpolationModeHighQualityBicubic || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	switch (interpolationMode) {
@@ -1697,10 +1701,10 @@ GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode interpolationM
 GpStatus WINGDIPAPI
 GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *imode)
 {
-	if (!graphics || !imode)
+	if (!graphics || !imode || graphics->mode == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	*imode = graphics->interpolation;
@@ -1710,10 +1714,10 @@ GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *imode)
 GpStatus WINGDIPAPI
 GdipSetTextRenderingHint (GpGraphics *graphics, TextRenderingHint mode)
 {
-	if (!graphics || mode < TextRenderingHintSystemDefault || mode > TextRenderingHintClearTypeGridFit)
+	if (!graphics || mode < TextRenderingHintSystemDefault || mode > TextRenderingHintClearTypeGridFit || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 	
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	graphics->text_mode = mode;
@@ -1731,10 +1735,10 @@ GdipSetTextRenderingHint (GpGraphics *graphics, TextRenderingHint mode)
 GpStatus WINGDIPAPI
 GdipGetTextRenderingHint (GpGraphics *graphics, TextRenderingHint *mode)
 {
-	if (!graphics || !mode) 
+	if (!graphics || !mode || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 	
 	*mode = graphics->text_mode;
@@ -1745,10 +1749,10 @@ GdipGetTextRenderingHint (GpGraphics *graphics, TextRenderingHint *mode)
 GpStatus WINGDIPAPI
 GdipSetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode pixelOffsetMode)
 {
-	if (!graphics || pixelOffsetMode <= PixelOffsetModeInvalid || pixelOffsetMode > PixelOffsetModeHalf)
+	if (!graphics || pixelOffsetMode <= PixelOffsetModeInvalid || pixelOffsetMode > PixelOffsetModeHalf || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 	
 	graphics->pixel_mode = pixelOffsetMode;
@@ -1768,10 +1772,10 @@ GdipSetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode pixelOffsetMode)
 GpStatus WINGDIPAPI
 GdipGetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode *pixelOffsetMode)
 {
-	if (!graphics || !pixelOffsetMode)
+	if (!graphics || !pixelOffsetMode || graphics-> state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 	
 	*pixelOffsetMode = graphics->pixel_mode;
@@ -1784,10 +1788,10 @@ GdipSetTextContrast (GpGraphics *graphics, UINT contrast)
 {
 	/** The gamma correction value must be between 0 and 12.
 	 * The default value is 4. */
-	if (!graphics || contrast > 12)
+	if (!graphics || contrast > 12 || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	graphics->text_contrast = contrast;
@@ -1806,10 +1810,10 @@ GdipSetTextContrast (GpGraphics *graphics, UINT contrast)
 GpStatus WINGDIPAPI
 GdipGetTextContrast (GpGraphics *graphics, UINT *contrast)
 {
-	if (!graphics || !contrast)
+	if (!graphics || !contrast || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	*contrast = graphics->text_contrast;
@@ -1819,10 +1823,10 @@ GdipGetTextContrast (GpGraphics *graphics, UINT *contrast)
 GpStatus WINGDIPAPI
 GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 {
-	if (!graphics || mode <= SmoothingModeInvalid || mode > SmoothingModeAntiAlias)
+	if (!graphics || mode <= SmoothingModeInvalid || mode > SmoothingModeAntiAlias || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	switch (mode) {
@@ -1851,10 +1855,10 @@ GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 GpStatus WINGDIPAPI
 GdipGetSmoothingMode (GpGraphics *graphics, SmoothingMode *mode)
 {
-	if (!graphics || !mode)
+	if (!graphics || !mode || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	*mode = graphics->draw_mode;
@@ -1928,7 +1932,7 @@ GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 	if (!graphics)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	surface = cairo_get_target (graphics->ct);
@@ -2370,10 +2374,10 @@ GdipIsVisibleRectI (GpGraphics *graphics, INT x, INT y, INT width, INT height, B
 GpStatus WINGDIPAPI
 GdipSetCompositingMode (GpGraphics *graphics, CompositingMode compositingMode)
 {
-	if (!graphics)
+	if (!graphics || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	graphics->composite_mode = compositingMode;
@@ -2391,10 +2395,10 @@ GdipSetCompositingMode (GpGraphics *graphics, CompositingMode compositingMode)
 GpStatus WINGDIPAPI
 GdipGetCompositingMode (GpGraphics *graphics, CompositingMode *compositingMode)
 {
-	if (!graphics || !compositingMode)
+	if (!graphics || !compositingMode || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	*compositingMode = graphics->composite_mode;
@@ -2407,7 +2411,7 @@ GdipSetCompositingQuality (GpGraphics *graphics, CompositingQuality compositingQ
 	if (!graphics)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	graphics->composite_quality = compositingQuality;
@@ -2429,7 +2433,7 @@ GdipGetCompositingQuality (GpGraphics *graphics, CompositingQuality *compositing
 	if (!graphics || !compositingQuality)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	*compositingQuality = graphics->composite_quality;
@@ -2445,10 +2449,10 @@ GdipGetNearestColor (GpGraphics *graphics, ARGB *argb)
 GpStatus WINGDIPAPI
 GdipSetPageScale (GpGraphics *graphics, REAL scale)
 {
-	if (!graphics || scale <= 0.0 || scale > 1000000032) 
+	if (!graphics || scale <= 0.0 || scale > 1000000032 || graphics->state == GraphicsStateBusy)
 		return InvalidParameter;
 	
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 	
 	graphics->scale = scale;	
@@ -2467,10 +2471,10 @@ GdipSetPageScale (GpGraphics *graphics, REAL scale)
 GpStatus WINGDIPAPI
 GdipGetPageScale (GpGraphics *graphics, REAL *scale)
 {
-	if (!graphics | !scale)
+	if (!graphics | !scale || graphics->state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	*scale = graphics->scale;
@@ -2480,10 +2484,10 @@ GdipGetPageScale (GpGraphics *graphics, REAL *scale)
 GpStatus WINGDIPAPI
 GdipSetPageUnit (GpGraphics *graphics, GpUnit unit)
 {
-	if (!graphics || unit <= UnitWorld || unit > UnitCairoPoint)
+	if (!graphics || unit <= UnitWorld || unit > UnitCairoPoint || graphics-> state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	graphics->page_unit = unit;
@@ -2502,10 +2506,10 @@ GdipSetPageUnit (GpGraphics *graphics, GpUnit unit)
 GpStatus WINGDIPAPI
 GdipGetPageUnit (GpGraphics *graphics, GpUnit *unit)
 {
-	if (!graphics || !unit)
+	if (!graphics || !unit || graphics-> state == GraphicsStateDeleted)
 		return InvalidParameter;
 
-	if (graphics->busy)
+	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
 	*unit = graphics->page_unit;

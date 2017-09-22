@@ -100,6 +100,12 @@ typedef struct {
 	int			text_contrast;
 } GpState;
 
+typedef enum {
+	GraphicsStateValid = 0,
+	GraphicsStateBusy = 1,
+	GraphicsStateDeleted = 2
+} GraphicsState;
+
 typedef struct _Graphics {
 	GraphicsBackEnd		backend;
 	/* cairo-specific stuff */
@@ -141,7 +147,7 @@ typedef struct _Graphics {
 	float			dpi_x;
 	float			dpi_y;
 	int			text_contrast;
-	BOOL			busy;
+	GraphicsState		state;
 #ifdef CAIRO_HAS_QUARTZ_SURFACE
 	void		*cg_context;
 #endif
