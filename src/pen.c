@@ -604,9 +604,12 @@ GdipSetPenMiterLimit (GpPen *pen, REAL miterLimit)
 	if (miterLimit < 1.0f)
 		miterLimit = 1.0f;
 
-	pen->changed = pen->changed ? TRUE : (pen->miter_limit != miterLimit);
-        pen->miter_limit = miterLimit;
-        return Ok;
+	if (pen->miter_limit != miterLimit) {
+		pen->miter_limit = miterLimit;
+		pen->changed = TRUE;
+	}
+
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -670,8 +673,11 @@ GdipSetPenMode (GpPen *pen, GpPenAlignment penMode)
 	if (!pen)
 		return InvalidParameter;
 
-	pen->changed = pen->changed ? TRUE : (penMode != pen->mode);
-	pen->mode = penMode;
+	if (pen->mode != penMode) {
+		pen->changed = TRUE;
+		pen->mode = penMode;
+	}
+	
 	return Ok;
 }
 
@@ -877,7 +883,8 @@ GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
 		break;
 
 	default:
-		return GenericError;
+		/* GDI+ does nothing if the dash style is invalid */
+		return Ok;
         }
 
 	pen->dash_style = dashStyle;
@@ -924,7 +931,7 @@ GdipGetPenDashArray (GpPen *pen, REAL *dash, INT count)
 {
 	if (!pen || !dash)
 		return InvalidParameter;
-	if (count == 0)
+	if (count <= 0)
 		return OutOfMemory;
 	if (count != pen->dash_count)
 		return InvalidParameter;
@@ -938,9 +945,21 @@ GpStatus WINGDIPAPI
 GdipSetPenDashArray (GpPen *pen, GDIPCONST REAL *dash, INT count)
 {
 	float *dash_array;
+	INT i;
+	REAL sum = 0;
 
 	if (!pen || !dash || (count <= 0))
 		return InvalidParameter;
+
+	for(i = 0; i < count; i++) {
+		sum += dash[i];
+		if(dash[i] < 0.0)
+				return InvalidParameter;
+	}
+
+	if (sum == 0.0) {
+		return InvalidParameter;
+	}
 
 	if (pen->dash_count != count || pen->own_dash_array == FALSE) {
 		dash_array = (float *) GdipAlloc (count * sizeof (float));
@@ -980,7 +999,7 @@ GdipSetPenCompoundArray (GpPen *pen, GDIPCONST REAL *compound, INT count)
 {
 	float *compound_array;
 
-	if (!pen || !compound || (count <= 0))
+	if (!pen || !compound || count < 2 || count % 2 == 1)
 		return InvalidParameter;
 
 	if (pen->compound_count != count) {
@@ -1003,7 +1022,14 @@ GdipSetPenCompoundArray (GpPen *pen, GDIPCONST REAL *compound, INT count)
 GpStatus WINGDIPAPI
 GdipGetPenCompoundArray (GpPen *pen, REAL *compound, INT count)
 {
-	if (!pen || !compound || (count != pen->compound_count))
+	if (!pen || !compound)
+		return InvalidParameter;
+
+	/* GDI+ does nothing if count <= 0. */
+	if (count <= 0)
+		return Ok;
+
+	if (count > pen->compound_count)
 		return InvalidParameter;
 
 	memcpy (compound, pen->compound_array, count * sizeof (float));
@@ -1016,6 +1042,9 @@ GdipSetPenStartCap (GpPen *pen, GpLineCap startCap)
 {
 	if (!pen)
 		return InvalidParameter;
+
+	GdipDeleteCustomLineCap (pen->custom_start_cap);
+	pen->custom_start_cap = NULL;
 
 	pen->line_cap = startCap;
 	pen->changed = TRUE;
@@ -1044,6 +1073,10 @@ GdipSetPenEndCap (GpPen *pen, GpLineCap endCap)
 	 * This is currently ignored, as Cairo does not support
 	 * having a different start and end Cap
 	 */
+
+	GdipDeleteCustomLineCap (pen->custom_end_cap);
+	pen->custom_end_cap = NULL;
+
 	pen->end_cap = endCap;
 	pen->changed = TRUE;
 
@@ -1069,7 +1102,12 @@ GdipSetPenDashCap197819 (GpPen *pen, GpDashCap dashCap)
 	if (!pen)
 		return InvalidParameter;
 
-	pen->dash_cap = dashCap;
+	/* Any invalid value is changed to DashCapFlat. */
+	if (dashCap == DashCapRound || dashCap == DashCapTriangle)
+		pen->dash_cap = dashCap;
+	else
+		pen->dash_cap = DashCapFlat;
+
 	return Ok;
 }
 
@@ -1087,10 +1125,15 @@ GdipGetPenDashCap197819 (GpPen *pen, GpDashCap *dashCap)
 GpStatus WINGDIPAPI
 GdipSetPenCustomStartCap (GpPen *pen, GpCustomLineCap *customCap)
 {
+	GpStatus status;
 	if (!pen)
 		return InvalidParameter;
 	
-	return GdipCloneCustomLineCap (customCap, &pen->custom_start_cap);
+	status = GdipCloneCustomLineCap (customCap, &pen->custom_start_cap);
+	if (status == Ok)
+		pen->line_cap = LineCapCustom;
+
+	return status;
 }
 
 GpStatus WINGDIPAPI
@@ -1099,16 +1142,27 @@ GdipGetPenCustomStartCap (GpPen *pen, GpCustomLineCap **customCap)
 	if (!pen || !customCap)
 		return InvalidParameter;
 
+	if (pen->custom_start_cap == NULL) {
+		*customCap = NULL;
+		return Ok;
+	}
+
 	return GdipCloneCustomLineCap (pen->custom_start_cap, customCap);
 }
 
 GpStatus WINGDIPAPI
 GdipSetPenCustomEndCap (GpPen *pen, GpCustomLineCap *customCap)
 {
+	GpStatus status;
+
 	if (!pen)
 		return InvalidParameter;
-	
-	return GdipCloneCustomLineCap (customCap, &pen->custom_end_cap);
+
+	status = GdipCloneCustomLineCap (customCap, &pen->custom_end_cap);
+	if (status == Ok)
+		pen->end_cap = LineCapCustom;
+
+	return status;
 }
 
 GpStatus WINGDIPAPI
@@ -1116,6 +1170,11 @@ GdipGetPenCustomEndCap (GpPen *pen, GpCustomLineCap **customCap)
 {
 	if (!pen || !customCap)
 		return InvalidParameter;
+
+	if (pen->custom_end_cap == NULL) {
+		*customCap = NULL;
+		return Ok;
+	}
 
 	return GdipCloneCustomLineCap (pen->custom_end_cap, customCap);
 }

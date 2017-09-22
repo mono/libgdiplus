@@ -111,7 +111,7 @@ typedef enum {
 	DashCapFlat		= 0,
 	DashCapRound		= 2,
 	DashCapTriangle		= 3
-} GpDashCap;
+} GpDashCap, DashCap;
 
 typedef enum {
 	DashStyleSolid		= 0,	/* solid line */
@@ -120,17 +120,17 @@ typedef enum {
 	DashStyleDashDot	= 3,	/* alt. dash-dot */
 	DashStyleDashDotDot	= 4,	/* alt. dash-dot-dot */
 	DashStyleCustom		= 5 	/* user-defined */
-} GpDashStyle;
+} GpDashStyle, DashStyle;
 
 typedef enum {
 	FillModeAlternate,
 	FillModeWinding
-} FillMode, GpFillMode;
+} GpFillMode, FillMode;
 
 typedef enum {
 	FlushIntentionFlush	= 0,
 	FlushIntentionSync	= 1
-} FlushIntention, GpFlushIntention;
+} GpFlushIntention, FlushIntention;
 
 typedef enum {
 	LineCapFlat		= 0,
@@ -143,7 +143,7 @@ typedef enum {
 	LineCapDiamondAnchor	= 0x13,
 	LineCapArrowAnchor	= 0x14,
 	LineCapCustom		= 0xff
-} GpLineCap;
+} GpLineCap, LineCap;
 
 typedef enum {
 	LineJoinMiter		= 0,	/* sharp corner */
@@ -321,7 +321,7 @@ typedef enum {
 	PenTypePathGradient	= BrushTypePathGradient,
 	PenTypeLinearGradient	= BrushTypeLinearGradient,
 	PenTypeUnknown		= -1
-} PenType, GpPenType;
+} GpPenType, PenType;
 
 /* The pixel format spec is:
  * [0-7 format index] [8-15 pixel size, bits] [16-23 flags] [24-31 reserved]
@@ -721,7 +721,7 @@ typedef enum {
 	UnitDocument	= 5,
 	UnitMillimeter	= 6,
 	UnitCairoPoint	= 7
-} Unit, GpUnit;
+} GpUnit, Unit;
 
 typedef enum {
 	WarpModePerspective	= 0,
