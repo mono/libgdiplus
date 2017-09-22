@@ -1719,7 +1719,7 @@ GdipSetTextContrast (GpGraphics *graphics, UINT contrast)
 {
 	/** The gamma correction value must be between 0 and 12.
 	 * The default value is 4. */
-	if (!graphics || contrast < 0 || contrast > 12)
+	if (!graphics || contrast > 12)
 		return InvalidParameter; 
 
 	graphics->text_contrast = contrast;
