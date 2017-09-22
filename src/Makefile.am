@@ -121,6 +121,6 @@ libgdiplus_la_SOURCES = \
 
 libgdiplus_la_LIBADD = $(GDIPLUS_LIBS)
 
-INCLUDES = $(GDIPLUS_CFLAGS) -Wall -Wno-unused -Wno-format
+AM_CPPFLAGS = $(GDIPLUS_CFLAGS) -Wall -Wno-unused -Wno-format
 
 EXTRA_DIST = libgdiplus.vcxproj packages.config

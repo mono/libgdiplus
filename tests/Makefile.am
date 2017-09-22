@@ -2,7 +2,7 @@
 
 LIBS = $(GDIPLUS_LIBS)
 
-INCLUDES =					\
+AM_CPPFLAGS =					\
 	-I$(top_srcdir)				\
 	-I$(top_builddir)/src			\
 	-I$(top_srcdir)/src			\
