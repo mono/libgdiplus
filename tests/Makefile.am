@@ -140,5 +140,5 @@ TESTS = \
 	$(NULL)
 
 if HAS_X11
-TESTS += testgdi
+# TESTS += testgdi
 endif

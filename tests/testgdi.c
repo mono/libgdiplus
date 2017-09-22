@@ -148,7 +148,7 @@ int
 
 	win_draw(&win);
 
-	if (TRUE /* during unit tests */)
+	if (FALSE /* during unit tests */)
 		sleep (1);
 	else
 		win_handle_events(&win);
