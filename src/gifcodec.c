@@ -119,7 +119,11 @@ AddExtensionBlockMono(SavedImage *New, int Function, int Len, BYTE ExtData[])
 
 	ep->Function = Function;
 	ep->ByteCount=Len;
+#if GIFLIB_MAJOR >= 5
 	ep->Bytes = (GifByteType *)GdipAlloc(ep->ByteCount);
+#else
+	ep->Bytes = (char *)GdipAlloc(ep->ByteCount);
+#endif
 	if (ep->Bytes == NULL) {
 		return (GIF_ERROR);
 	}
