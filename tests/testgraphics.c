@@ -4,7 +4,14 @@
 #endif
 #endif
 
+#if defined(USE_WINDOWS_GDIPLUS)
+#include <Windows.h>
+#include <GdiPlus.h>
+
+#pragma comment(lib, "gdiplus.lib")
+#else
 #include <GdiPlusFlat.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,11 +45,8 @@ static void test_createFromHDC()
 	status = GdipCreateFromHDC (0, &graphicsFromHdc);
 	assert (status == OutOfMemory);
 
-// Libgdiplus returns OutOfMemory.
-#if 0
 	status = GdipCreateFromHDC (0, NULL);
 	assert (status == InvalidParameter);
-#endif
 
 	status = GdipCreateFromHDC (hdc, &graphicsFromHdc);
 	assert (status == Ok);
@@ -94,11 +98,8 @@ static void test_createFromHDC2()
 	status = GdipCreateFromHDC2 (0, NULL, &graphicsFromHdc);
 	assert (status == OutOfMemory);
 
-// Libgdiplus returns OutOfMemory.
-#if 0
 	status = GdipCreateFromHDC2 (0, NULL, NULL);
 	assert (status == InvalidParameter);
-#endif
 
 	status = GdipCreateFromHDC2 (hdc, NULL, &graphicsFromHdc);
 	assert (status == Ok);
@@ -133,7 +134,7 @@ static void test_createFromHWND()
 	assert (status == InvalidParameter);
 
 // Libgdiplus does not implement GdipCreateFromHwnd.
-#if 0
+#if defined(USE_WINDOWS_GDIPLUS)
 	// HWND of zero means the current screen.
 	status = GdipCreateFromHWND (0, &graphics);
 	assert (status == Ok);
@@ -153,7 +154,7 @@ static void test_createFromHWNDICM()
 	assert (status == InvalidParameter);
 
 // Libgdiplus does not implement GdipCreateFromHwndICM.
-#if 0
+#if defined(USE_WINDOWS_GDIPLUS)
 	// HWND of zero means the current screen.
 	status = GdipCreateFromHWNDICM (0, &graphics);
 	assert (status == Ok);
@@ -179,33 +180,24 @@ static void test_hdc ()
 	status = GdipGetImageGraphicsContext (image, &graphics);
 	assert(status == Ok);
 
-// This causes libgdiplus to crash.
-#if 0
 	status = GdipGetDC (NULL, &hdc);
 	assert (status == InvalidParameter);
 
 	status = GdipGetDC (graphics, NULL);
 	assert (status == InvalidParameter);
-#endif
 
 	status = GdipGetDC (graphics, &hdc);
 	assert (status == Ok);
 	assert(hdc != 0);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
 	status = GdipGetDC (graphics, &hdc);
 	assert (status == ObjectBusy);
-#endif
 
 	status = GdipReleaseDC (NULL, hdc);
 	assert (status == InvalidParameter);
 
-// This causes libgdiplus to crash.
-#if 0
 	status = GdipReleaseDC (NULL, 0);
 	assert (status == InvalidParameter);
-#endif
 
 	status = GdipReleaseDC (graphics, 0);
 	assert (status == InvalidParameter);
@@ -213,11 +205,8 @@ static void test_hdc ()
 	status = GdipReleaseDC (graphics, hdc);
 	assert (status == Ok);
 
-// Libgdiplus does not validate that the graphics has an hdc before releasing.
-#if 0
 	status = GdipReleaseDC (graphics, hdc);
 	assert (status == InvalidParameter);	
-#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -254,8 +243,6 @@ static void test_compositingMode ()
 	assert (status == Ok);
 	assert (mode == (CompositingMode)-1);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
@@ -266,7 +253,6 @@ static void test_compositingMode ()
 	assert (status == ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
-#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -303,8 +289,6 @@ static void test_compositingQuality ()
 	assert (status == Ok);
 	assert (quality == (CompositingQuality)-1);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
@@ -315,7 +299,6 @@ static void test_compositingQuality ()
 	assert(status == ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
-#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -357,8 +340,6 @@ static void test_renderingOrigin ()
 	assert (x == 1);
 	assert (y == 2);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
@@ -369,7 +350,6 @@ static void test_renderingOrigin ()
 	assert (status == ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
-#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -399,15 +379,12 @@ static void test_textRenderingHint ()
 	status = GdipSetTextRenderingHint (NULL, TextRenderingHintAntiAlias);
 	assert (status == InvalidParameter);
 
-// Libgdiplus doesn't validate the TextRenderingHint.
-#if 0
-	status = GdipSetTextRenderingHint (graphics, (TextRenderingHint)-1);
+	status = GdipSetTextRenderingHint (graphics, (TextRenderingHint)(TextRenderingHintSystemDefault - 1));
 	assert (status == InvalidParameter);
 
-	status = GdipSetTextRenderingHint (graphics, (TextRenderingHint)6);
+	status = GdipSetTextRenderingHint (graphics, (TextRenderingHint)(TextRenderingHintClearTypeGridFit + 1));
 	assert (status == InvalidParameter);
 
-#endif
 	status = GdipSetTextRenderingHint (graphics, TextRenderingHintClearTypeGridFit);
 	assert (status == Ok);
 
@@ -415,8 +392,6 @@ static void test_textRenderingHint ()
 	assert (status == Ok);
 	assert (textRenderingHint == TextRenderingHintClearTypeGridFit);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
@@ -427,7 +402,6 @@ static void test_textRenderingHint ()
 	assert (status == ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
-#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -470,8 +444,6 @@ static void test_textContrast ()
 	assert (status == Ok);
 	assert (textContrast == 12);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
@@ -482,7 +454,6 @@ static void test_textContrast ()
 	assert (status == ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
-#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -512,20 +483,15 @@ static void test_smoothingMode ()
 	status = GdipSetSmoothingMode (NULL, SmoothingModeAntiAlias);
 	assert (status == InvalidParameter);
 
-// Libgdiplus does not validate the SmoothingMode.
-#if 0
 	status = GdipSetSmoothingMode (graphics, SmoothingModeInvalid);
 	assert (status == InvalidParameter);
 
-	status = GdipSetSmoothingMode (graphics, (SmoothingMode)-2);
+	status = GdipSetSmoothingMode (graphics, (SmoothingMode)(SmoothingModeInvalid - 1));
 	assert (status == InvalidParameter);
 
-	status = GdipSetSmoothingMode (graphics, (SmoothingMode)6);
+	status = GdipSetSmoothingMode (graphics, (SmoothingMode)(SmoothingModeAntiAlias + 1));
 	assert (status == InvalidParameter);
-#endif
 
-// Libgdiplus does not interpret quality/default/speed.
-#if 0
 	// HighQuality -> AntiAlias
 	status = GdipSetSmoothingMode (graphics, SmoothingModeHighQuality);
 	assert (status == Ok);
@@ -549,7 +515,6 @@ static void test_smoothingMode ()
 	status = GdipGetSmoothingMode(graphics, &smoothingMode);
 	assert(status == Ok);
 	assert(smoothingMode == SmoothingModeNone);
-#endif
 
 	// Other -> Other
 	status = GdipSetSmoothingMode(graphics, SmoothingModeAntiAlias);
@@ -559,8 +524,6 @@ static void test_smoothingMode ()
 	assert(status == Ok);
 	assert(smoothingMode == SmoothingModeAntiAlias);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
@@ -571,7 +534,6 @@ static void test_smoothingMode ()
 	assert (status == ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
-#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -604,14 +566,11 @@ static void test_pixelOffsetMode ()
 	status = GdipSetPixelOffsetMode (graphics, PixelOffsetModeInvalid);
 	assert (status == InvalidParameter);
 
-// Libgdiplus does not validate PixelOffsetMode.
-#if 0
-	status = GdipSetPixelOffsetMode (graphics, (PixelOffsetMode)-2);
+	status = GdipSetPixelOffsetMode (graphics, (PixelOffsetMode)(PixelOffsetModeInvalid - 1));
 	assert (status == InvalidParameter);
 
-	status = GdipSetPixelOffsetMode (graphics, (PixelOffsetMode)6);
+	status = GdipSetPixelOffsetMode (graphics, (PixelOffsetMode)(PixelOffsetModeHalf + 1));
 	assert (status == InvalidParameter);
-#endif
 
 	status = GdipSetPixelOffsetMode (graphics, PixelOffsetModeHighQuality);
 	assert (status == Ok);
@@ -634,8 +593,6 @@ static void test_pixelOffsetMode ()
 	assert(status == Ok);
 	assert(pixelOffsetMode == PixelOffsetModeHighSpeed);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
@@ -646,7 +603,6 @@ static void test_pixelOffsetMode ()
 	assert (status == ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
-#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -671,7 +627,7 @@ static void test_interpolationMode ()
 	assert (status == InvalidParameter);
 
 // This causes an access violation in GDI+.
-#if 0
+#if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipGetInterpolationMode(graphics, NULL);
 	assert (status == InvalidParameter);
 #endif
@@ -679,19 +635,15 @@ static void test_interpolationMode ()
 	status = GdipSetInterpolationMode(NULL, InterpolationModeBicubic);
 	assert(status == InvalidParameter);
 
-#if 0
 	status = GdipSetInterpolationMode (graphics, InterpolationModeInvalid);
 	assert (status == InvalidParameter);
 
-	status = GdipSetInterpolationMode (graphics, (InterpolationMode)-2);
+	status = GdipSetInterpolationMode (graphics, (InterpolationMode)(InterpolationModeInvalid - 1));
 	assert (status == InvalidParameter);
 
-	status = GdipSetInterpolationMode (graphics, (InterpolationMode)8);
+	status = GdipSetInterpolationMode (graphics, (InterpolationMode)(InterpolationModeHighQualityBicubic + 1));
 	assert (status == InvalidParameter);
-#endif
 
-// Libgdiplus does not interpret default/quality/speed.
-#if 0
 	// Default -> Bilinear
 	status = GdipSetInterpolationMode (graphics, InterpolationModeDefault);
 	assert (status == Ok);
@@ -715,7 +667,6 @@ static void test_interpolationMode ()
 	status = GdipGetInterpolationMode (graphics, &interpolationMode);
 	assert (status == Ok);
 	assert (interpolationMode == InterpolationModeBilinear);
-#endif
 
 	// Other -> Other
 	status = GdipSetInterpolationMode (graphics, InterpolationModeBicubic);
@@ -725,8 +676,6 @@ static void test_interpolationMode ()
 	assert (status == Ok);
 	assert (interpolationMode == InterpolationModeBicubic);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
@@ -737,7 +686,6 @@ static void test_interpolationMode ()
 	assert (status == ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
-#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -793,8 +741,6 @@ static void test_transform ()
 	GdipIsMatrixEqual (matrix, setMatrix, &result);
 	assert (result == 1);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
@@ -805,7 +751,6 @@ static void test_transform ()
 	assert (status == ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
-#endif
 
 	GdipDeleteMatrix (matrix);
 	GdipDeleteMatrix (setMatrix);
@@ -838,17 +783,19 @@ static void test_pageUnit ()
 	status = GdipSetPageUnit (NULL, UnitDisplay);
 	assert (status == InvalidParameter);
 
-// Libgdiplus does not validate the Unit.
-#if 0
-	status = GdipSetPageUnit (graphics, (Unit)-1);
+	status = GdipSetPageUnit (graphics, (Unit)(UnitWorld - 1));
 	assert (status == InvalidParameter);
 
-	status = GdipSetPageUnit (graphics, (Unit)7);
+#if defined(USE_WINDOWS_GDIPLUS)
+	status = GdipSetPageUnit (graphics, (Unit)(UnitMillimeter + 1));
 	assert (status == InvalidParameter);
+#else
+	status = GdipSetPageUnit (graphics, (Unit)(UnitCairoPoint + 1));
+	assert (status == InvalidParameter);
+#endif
 
 	status = GdipSetPageUnit (graphics, UnitWorld);
 	assert (status == InvalidParameter);
-#endif
 
 	status = GdipSetPageUnit (graphics, UnitMillimeter);
 	assert (status == Ok);
@@ -857,8 +804,6 @@ static void test_pageUnit ()
 	assert (status == Ok);
 	assert (pageUnit == UnitMillimeter);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
@@ -869,7 +814,6 @@ static void test_pageUnit ()
 	assert (status == ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
-#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -900,7 +844,6 @@ static void test_pageScale ()
 	assert (status == InvalidParameter);
 
 // Libgdiplus does not validate the page scale.
-#if 0
 	status = GdipSetPageScale (graphics, -INFINITY);
 	assert (status == InvalidParameter);
 
@@ -916,7 +859,6 @@ static void test_pageScale ()
 	// 1000000032 appears to be the max value accepted by GDI+.
 	status = GdipSetPageScale (graphics, (float)1000000033);
 	assert (status == InvalidParameter);
-#endif
 
 	status = GdipSetPageScale (graphics, 1);
 	assert (status == Ok);
@@ -932,8 +874,6 @@ static void test_pageScale ()
 	assert (status == Ok);
 	assert (pageScale == 1000000032);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
@@ -944,7 +884,6 @@ static void test_pageScale ()
 	assert (status == ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
-#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -974,8 +913,6 @@ static void test_dpiX ()
 	assert (status == Ok);
 	assert (dpiX > 0);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
@@ -983,7 +920,6 @@ static void test_dpiX ()
 	assert (status == ObjectBusy);
 
 	GdipReleaseDC(graphics, hdc);
-#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -1014,8 +950,6 @@ static void test_dpiY ()
 	assert (status == Ok);
 	assert (dpiY > 0);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
 	HDC hdc;
 	GdipGetDC(graphics, &hdc);
 
@@ -1023,7 +957,6 @@ static void test_dpiY ()
 	assert (status == ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
-#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -1052,19 +985,19 @@ static void test_flush ()
 	status = GdipFlush (graphics, FlushIntentionSync);
 	assert (status == Ok);
 
-	status = GdipFlush (graphics, (FlushIntention)-1);
+	status = GdipFlush (graphics, (FlushIntention)(FlushIntentionFlush - 1));
 	assert (status == Ok);
 
-// Libgdiplus does not yet match this GDI+ behaviour.
-#if 0
+	status = GdipFlush (graphics, (FlushIntention)(FlushIntentionSync + 1));
+	assert (status == Ok);
+
 	HDC hdc;
 	status = GdipGetDC (graphics, &hdc);
 
-	status = GdipFlush (graphics, FlushIntention::FlushIntentionSync);
+	status = GdipFlush (graphics, FlushIntentionSync);
 	assert (status == ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
-#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);

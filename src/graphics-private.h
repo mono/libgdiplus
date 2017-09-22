@@ -141,6 +141,7 @@ typedef struct _Graphics {
 	float			dpi_x;
 	float			dpi_y;
 	int			text_contrast;
+	BOOL			busy;
 #ifdef CAIRO_HAS_QUARTZ_SURFACE
 	void		*cg_context;
 #endif
