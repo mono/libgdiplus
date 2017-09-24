@@ -2,12 +2,12 @@
 #include <float.h>
 #include <math.h>
 
-static int floatsEqual(float v1, float v2)
+int floatsEqual(float v1, float v2)
 {
     return fabs (v1 - v2) < 0.0001;
 }
 
-static void verifyMatrix (GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5, REAL e6)
+void verifyMatrix (GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5, REAL e6)
 {
     float elements[6];
     GdipGetMatrixElements (matrix, elements);

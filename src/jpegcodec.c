@@ -335,8 +335,10 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 		result->cairo_format = CAIRO_FORMAT_ARGB32;
 		result->active_bitmap->pixel_format = PixelFormat32bppRGB;
 		size = 4;
-	} else
+	} else {
+		status = InvalidParameter;
 		goto error;
+	}
 
 	switch (cinfo.jpeg_color_space) {
 	case JCS_GRAYSCALE:
@@ -363,8 +365,10 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	size *= cinfo.image_width;
 	/* stride is a (signed) _int_ and once multiplied by 4 it should hold a value that can be allocated by GdipAlloc
 	 * this effectively limits 'width' to 536870911 pixels */
-	if (size > G_MAXINT32)
+	if (size > G_MAXINT32) {
+		status = OutOfMemory;
 		goto error;
+	}
 	stride = result->active_bitmap->stride = size;
 
 	/* Request cairo-compat output */

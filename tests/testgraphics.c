@@ -1086,7 +1086,6 @@ static void test_delete ()
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
-	REAL dpiX;
 
 	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
 	GdipLoadImageFromFile (filePath, &image);

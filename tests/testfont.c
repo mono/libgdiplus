@@ -41,6 +41,8 @@ static void *readFile (const char *fileName, int *memoryLength)
 {
 	void *buffer = NULL;
 	long length;
+	long read_length;
+
 	FILE *f = fopen (fileName, "rb");
 	assert (f && "Expected file to exist.");
 
@@ -51,7 +53,8 @@ static void *readFile (const char *fileName, int *memoryLength)
 	buffer = malloc (length);
 	assert (buffer && "Expected successful allocation of buffer.");
 
-	fread (buffer, 1, length, f);
+	read_length = fread (buffer, 1, length, f);
+	assert (read_length && "Expected successful read.");
 	fclose (f);
 
 	*memoryLength = (int) length;
