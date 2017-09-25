@@ -875,7 +875,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit un
 	GpFont *result;
 	float sizeInPixels;
 	
-	if (!family || !font || emSize <= 0 || unit == UnitDisplay || unit < UnitWorld || unit > UnitCairoPoint)
+	if (!family || !font || unit == UnitDisplay || unit < UnitWorld || unit > UnitCairoPoint)
 		return InvalidParameter;
 
 	r = FcPatternGetString (family->pattern, FC_FAMILY, 0, &str);
