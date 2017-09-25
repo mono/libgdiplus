@@ -49,13 +49,12 @@ void
 gdip_custom_linecap_init (GpCustomLineCap *cap, CapClass *vt)
 {
 	cap->vtable = vt;
-	cap->base_cap = LineCapFlat;
+	cap->base_cap = LineCapTriangle;
 	cap->start_cap = LineCapFlat;
 	cap->end_cap = LineCapFlat;
 	cap->stroke_join = LineJoinMiter;
 	cap->base_inset = 0.0;
-	/* LAMESPEC: Default value is documented as 1.0, but actually it is 0.0 */
-	cap->width_scale = 0.0;
+	cap->width_scale = 1.0;
 	cap->fill_path = NULL;
 	cap->stroke_path = NULL;
 }
@@ -346,6 +345,16 @@ GdipCloneCustomLineCap (GpCustomLineCap *customCap, GpCustomLineCap **clonedCap)
 		return InvalidParameter;
 
 	return customCap->vtable->clone_cap (customCap, clonedCap);
+}
+
+GpStatus WINGDIPAPI
+GdipGetCustomLineCapType (GpCustomLineCap* customCap, CustomLineCapType* capType)
+{
+	if (!customCap || !capType)
+		return InvalidParameter;
+
+	*capType = customCap->vtable->type;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
