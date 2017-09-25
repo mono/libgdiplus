@@ -678,9 +678,9 @@ static void test_getFontHeight ()
 	GdipCreateFont (originalFamily, 10, 10, UnitPixel, &font);
 
 	status = GdipGetFontHeight (font, NULL, &height);
-	// FIXME: this returns InvalidParameter with libgdiplus.
-#if defined(USE_WINDOWS_LIBGDIPLUS)
 	assert (status == Ok);
+	// FIXME: this returns a different value with libgdiplus.
+#if defined(USE_WINDOWS_LIBGDIPLUS)
 	assert (floatsEqual (height, 11.3183594));
 #endif
 
@@ -706,9 +706,9 @@ static void test_getFontHeightGivenDPI ()
 	GdipCreateFont (originalFamily, 10, 10, UnitPixel, &font);
 
 	status = GdipGetFontHeightGivenDPI (font, 10, &height);
-	// FIXME: this returns InvalidParameter with libgdiplus.
-#if defined(USE_WINDOWS_LIBGDIPLUS)
 	assert (status == Ok);
+	// FIXME: this returns a different value with libgdiplus.
+#if defined(USE_WINDOWS_LIBGDIPLUS)
 	assert (floatsEqual (height, 11.3183594));
 #endif
 

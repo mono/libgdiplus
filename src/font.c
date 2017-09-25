@@ -750,7 +750,7 @@ static GpStatus
 gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 {
 	GpFont *font = NULL;
-	GpStatus status = GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
+	GpStatus status = GdipCreateFont (family, 0.1f, style, UnitPoint, &font);
 
 	if ((status == Ok) && font) {
 		cairo_scaled_font_t* scaled_ft;
