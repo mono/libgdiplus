@@ -37,6 +37,14 @@ GUID gdip_gif_image_format_guid = {0xb96b3cb0U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 
 #include "gifcodec.h"
 
+#if (GIFLIB_MAJOR == 4) && (GIFLIB_MINOR >= 2) && !defined (QuantizeBuffer)
+int QuantizeBuffer (unsigned int Width, unsigned int Height, int *ColorMapSize,
+					GifByteType *RedInput, GifByteType *GreenInput, GifByteType *BlueInput,
+					GifByteType *OutputBuffer, GifColorType *OutputColorMap) {
+	g_warning ("Using giflib 4.x version without QuantizeBuffer() API, skipping quantization. Resulting image may be unexpected.");
+	return GIF_OK;
+}
+#endif
 
 /* Data structure used for callback */
 typedef struct
