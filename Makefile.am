@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = @CAIRO_DIR@ src tests
+SUBDIRS = src tests
 DIST_SUBDIRS = src tests
 
 pkgconfigdir = $(libdir)/pkgconfig

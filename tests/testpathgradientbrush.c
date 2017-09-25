@@ -925,6 +925,9 @@ static void test_setPathGradientBlend ()
     status = GdipSetPathGradientBlend (brush, blend2, invalidPositions1, 2);
     assert (status == InvalidParameter);
 
+    status = GdipSetPathGradientBlend (brush, blend2, invalidPositions2, 2);
+    assert (status == InvalidParameter);
+
     status = GdipSetPathGradientBlend (brush, blend3, positions3, 0);
     assert (status == InvalidParameter);
 
@@ -1071,6 +1074,9 @@ static void test_setPathGradientPresetBlend ()
     // assert (status == InvalidParameter);
 
     status = GdipSetPathGradientPresetBlend (brush, blend2, invalidPositions1, 2);
+    assert (status == InvalidParameter);
+
+    status = GdipSetPathGradientPresetBlend (brush, blend2, invalidPositions2, 2);
     assert (status == InvalidParameter);
 
     status = GdipSetPathGradientPresetBlend (brush, blend3, positions3, 1);
@@ -1649,6 +1655,7 @@ main (int argc, char**argv)
     test_getPathGradientSurroundColorCount ();
     test_getPathGradientSurroundColorsWithCount ();
     test_setPathGradientSurroundColorsWithCount ();
+    test_getPathGradientTransform ();
     test_getPathGradientPath ();
     test_setPathGradientPath ();
     test_getPathGradientCenterPoint ();

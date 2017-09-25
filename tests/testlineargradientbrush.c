@@ -653,6 +653,9 @@ static void test_setLineBlend ()
     status = GdipSetLineBlend (brush, blend2, invalidPositions1, 2);
     assert (status == InvalidParameter);
 
+    status = GdipSetLineBlend (brush, blend2, invalidPositions2, 2);
+    assert (status == InvalidParameter);
+
     status = GdipSetLineBlend (brush, blend3, positions3, 0);
     assert (status == InvalidParameter);
 
@@ -790,6 +793,9 @@ static void test_setLinePresetBlend ()
     assert (status == InvalidParameter);
 
     status = GdipSetLinePresetBlend (brush, blend2, invalidPositions1, 2);
+    assert (status == InvalidParameter);
+
+    status = GdipSetLinePresetBlend (brush, blend2, invalidPositions2, 2);
     assert (status == InvalidParameter);
 
     status = GdipSetLinePresetBlend (brush, blend3, positions3, 1);

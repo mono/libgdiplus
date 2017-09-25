@@ -29,7 +29,14 @@ PKG_CHECK_MODULES(CAIRO, cairo >= $CAIRO_REQUIRED_VERSION)
 # Optional use (experimental and unsupported) of Pango's text rendering on top of Cairo
 AC_ARG_WITH(pango, [  --with-pango],[text_v=pango],[text_v=cairo])
 
-CAIRO_DIR=""
+GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare"
+
+AC_ARG_ENABLE(warnaserror, AS_HELP_STRING([--enable-warnaserror],[Enable treating warnings as errors.]),[warnaserror=yes],[warnaserror=no])
+
+if test $warnaserror = "yes"; then
+  GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -Werror"
+fi
+
 CAIRO_LIBS="`pkg-config --libs cairo `"
 CAIRO_CFLAGS="`pkg-config --cflags cairo `"
 cairo_info="`pkg-config --modversion cairo ` (system)"
@@ -448,7 +455,6 @@ AC_SUBST(GDIPLUS_CFLAGS)
 AC_SUBST(GDIPLUS_PKG_LIBS)
 AC_SUBST(GDIPLUS_PKG_CFLAGS)
 AC_SUBST(GDIPLUS_PKG_REQ)
-AC_SUBST(CAIRO_DIR)
 
 AC_OUTPUT([
 Makefile
