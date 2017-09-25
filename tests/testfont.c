@@ -16,12 +16,22 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <wchar.h>
 
 #ifdef WIN32
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
+
+static HDC getEmptyHDC ()
+{
+#if defined(USE_WINDOWS_LIBGDIPLUS)
+	return CreateCompatibleDC (NULL);
+#else
+	return (HDC)1;
+#endif
+}
 
 static void assertStringEqual (WCHAR *actual, const char *expected)
 {
@@ -214,7 +224,7 @@ static void test_privateAddFontFile ()
 	status = GdipGetFamilyName (families[0], name, 0);
 	assert (status == Ok);
 	assertStringEqual (name, "Code New Roman");
-	
+
 	GdipDeletePrivateFontCollection (&collection);
 
 	// Invalid file.
@@ -230,7 +240,7 @@ static void test_privateAddFontFile ()
 	// Negative tests.
 	status = GdipPrivateAddFontFile (NULL, ttfFile);
 	assert (status == InvalidParameter);
-	
+
 	status = GdipPrivateAddFontFile (collection, NULL);
 	assert (status == InvalidParameter);
 
@@ -347,6 +357,472 @@ static void test_newInstalledFontCollection ()
 	assert (count1 == count2 && "Expected the FontCollection count to remain constant over multiple calls.");
 }
 
+static void test_createFontFromDC ()
+{
+	GpStatus status;
+	GpFont *font;
+	HDC hdc;
+
+	hdc = getEmptyHDC ();
+
+	// Negative tests.
+	status = GdipCreateFontFromDC (NULL, &font);
+	assert (status == InvalidParameter);
+
+	// This causes a null pointer dereference in GDI+.
+#if !defined(USE_WINDOWS_LIBGDIPLUS)
+	status = GdipCreateFontFromDC (hdc, NULL);
+	assert (status == InvalidParameter);
+#endif
+}
+
+
+static void test_createFontFromLogfontA ()
+{
+	GpStatus status;
+	GpFont *font;
+	LOGFONTA logfont;
+	HDC hdc;
+	INT style;
+	Unit unit;
+	GpFontFamily *family;
+
+	hdc = getEmptyHDC ();
+
+	logfont.lfHeight = 10;
+	logfont.lfWidth = 11;
+	logfont.lfEscapement = 0;
+	logfont.lfOrientation = 1;
+	logfont.lfWeight = 700;
+	logfont.lfItalic = TRUE;
+	logfont.lfUnderline = TRUE;
+	logfont.lfStrikeOut = TRUE;
+	logfont.lfCharSet = 0;
+	logfont.lfOutPrecision = 1;
+	logfont.lfClipPrecision = 2;
+	logfont.lfQuality = 4;
+	logfont.lfPitchAndFamily = 0x50;
+	strcpy (logfont.lfFaceName, "Times New Roman");
+
+	status = GdipCreateFontFromLogfontA (hdc, &logfont, &font);
+	assert (status == Ok);
+
+	GdipGetFontStyle (font, &style);
+	assert (style == 15);
+
+	GdipGetFontUnit(font, &unit);
+	assert (unit == UnitWorld);
+
+	status = GdipGetFamily (font, &family);
+	// FIXME: this fails with libgdiplus.
+#if defined(USE_WINDOWS_LIBGDIPLUS)
+	assert (status == Ok);
+	assert (family);
+#endif
+
+	// Negative tests.
+	status = GdipCreateFontFromLogfontA (NULL, &logfont, &font);
+	assert (status == InvalidParameter);
+
+	status = GdipCreateFontFromLogfontA (hdc, NULL, &font);
+	assert (status == InvalidParameter);
+
+	// This causes a null pointer dereference in GDI+.
+#if !defined(USE_WINDOWS_LIBGDIPLUS)
+	status = GdipCreateFontFromLogfontA (hdc, &logfont, NULL);
+	assert (status == InvalidParameter);
+#endif
+
+	GdipDeleteFont (font);
+#if defined(USE_WINDOWS_LIBGDIPLUS)
+	GdipDeleteFontFamily (family);
+#endif	
+}
+
+static void test_createFontFromLogfontW ()
+{
+	GpStatus status;
+	GpFont *font;
+	LOGFONTW logfont;
+	WCHAR *fontName;
+	HDC hdc;
+	INT style;
+	Unit unit;
+	GpFontFamily *family;
+
+	fontName = g_utf8_to_utf16 ("Times New Roman", -1, NULL, NULL, NULL);
+	hdc = getEmptyHDC ();
+
+	logfont.lfHeight = 10;
+	logfont.lfWidth = 11;
+	logfont.lfEscapement = 0;
+	logfont.lfOrientation = 1;
+	logfont.lfWeight = 700;
+	logfont.lfItalic = TRUE;
+	logfont.lfUnderline = TRUE;
+	logfont.lfStrikeOut = TRUE;
+	logfont.lfCharSet = 0;
+	logfont.lfOutPrecision = 1;
+	logfont.lfClipPrecision = 2;
+	logfont.lfQuality = 4;
+	logfont.lfPitchAndFamily = 0x50;
+	memcpy ((void *) logfont.lfFaceName, (void *) fontName, sizeof(WCHAR) + 15 + 1);
+
+	status = GdipCreateFontFromLogfontW (hdc, &logfont, &font);
+	assert (status == Ok);
+
+	GdipGetFontStyle (font, &style);
+	assert (style == 15);
+
+	GdipGetFontUnit(font, &unit);
+	assert (unit == UnitWorld);
+
+	status = GdipGetFamily (font, &family);
+	// FIXME: this fails with libgdiplus.
+#if defined(USE_WINDOWS_LIBGDIPLUS)
+	assert (status == Ok);
+	assert (family);
+#endif
+
+	// Negative tests.
+	status = GdipCreateFontFromLogfontW (NULL, &logfont, &font);
+	assert (status == InvalidParameter);
+
+	status = GdipCreateFontFromLogfontW (hdc, NULL, &font);
+	assert (status == InvalidParameter);
+
+	// This causes a null pointer dereference in GDI+.
+#if !defined(USE_WINDOWS_LIBGDIPLUS)
+	status = GdipCreateFontFromLogfontW (hdc, &logfont, NULL);
+	assert (status == InvalidParameter);
+#endif
+
+	GdipDeleteFont (font);
+#if defined(USE_WINDOWS_LIBGDIPLUS)
+	GdipDeleteFontFamily (family);
+#endif
+}
+
+static void test_createFont ()
+{
+	GpStatus status;
+	GpFont *font;
+	GpFontFamily *originalFamily;
+	GpFontFamily *family;
+	WCHAR originalFamilyName[32];
+	WCHAR familyName[32];
+	Unit unit;
+	INT style;
+
+	GdipGetGenericFontFamilySansSerif (&originalFamily);
+	GdipCreateFont (originalFamily, 10, 10, UnitPixel, &font);
+
+	status = GdipGetFamily (font, &family);
+	assert (status == Ok);
+	assert (family && family != originalFamily);
+
+	GdipGetFamilyName (originalFamily, originalFamilyName, 0);
+	GdipGetFamilyName (family, familyName, 0);
+	assert (!strcmp ((char *) originalFamilyName, (char *) familyName));
+
+	GdipGetFontUnit (font, &unit);
+	assert (unit == UnitPixel);
+
+	GdipGetFontStyle(font, &style);
+	assert (style == 10);
+
+	// Negative tests.
+	status = GdipCreateFont (NULL, 10, 10, UnitPixel, &font);
+	assert (status == InvalidParameter);
+
+	status = GdipCreateFont (family, 10, 10, UnitPixel, NULL);
+	assert (status == InvalidParameter);
+
+	// FIXME: there are several places that indirectly call GdipCreateFont in
+	// libgdiplus but allow negative em sizes on GDI+ because the GDI+
+	// implementation does not call GdipCreateFont. An example is GdipAddPathString.
+	// A fix for this will need to carefully account for places where this
+	// API is called.
+#if defined(USE_WINDOWS_LIBGDIPLUS)
+	status = GdipCreateFont (family, -1, 10, UnitPixel, &font);
+	assert (status == InvalidParameter);
+
+	status = GdipCreateFont (family, 0, 10, UnitPixel, &font);
+	assert (status == InvalidParameter);
+#endif
+
+	status = GdipCreateFont (family, 10, 10, UnitDisplay, &font);
+	assert (status == InvalidParameter);
+
+	status = GdipCreateFont (family, 10, 10, (Unit)(UnitWorld - 1), &font);
+	assert (status == InvalidParameter);
+
+#if defined(USE_WINDOWS_LIBGDIPLUS)
+	status = GdipCreateFont (family, 10, 10, (Unit)(UnitMillimeter + 1), &font);
+	assert (status == InvalidParameter);
+#else
+	status = GdipCreateFont (family, 10, 10, (Unit)(UnitCairoPoint + 1), &font);
+	assert (status == InvalidParameter);
+#endif
+
+	GdipDeleteFont (font);
+	GdipDeleteFontFamily (originalFamily);
+	GdipDeleteFontFamily (family);
+}
+
+static void test_deleteFont ()
+{
+	GpStatus status;
+	GpFontFamily *family;
+	GpFont *font;
+
+	GdipGetGenericFontFamilySansSerif (&family);
+
+	GdipCreateFont (family, 10, 10, UnitPixel, &font);
+
+	status = GdipDeleteFont (font);
+	assert (status == Ok);
+
+	// Negative tests.
+	status = GdipDeleteFont (NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFontFamily (family);
+}
+
+static void test_getFamily ()
+{
+	GpStatus status;
+	GpFontFamily *originalFamily;
+	GpFont *font;
+	GpFontFamily *family;
+
+	GdipGetGenericFontFamilySansSerif (&originalFamily);
+	GdipCreateFont (originalFamily, 10, 10, UnitPixel, &font);
+
+	// Negative tests.
+	status = GdipGetFamily (NULL, &family);
+	assert (status == InvalidParameter);
+
+	status = GdipGetFamily (font, NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFont (font);
+	GdipDeleteFontFamily (originalFamily);
+}
+
+static void test_getFontStyle ()
+{
+	GpStatus status;
+	GpFontFamily *originalFamily;
+	GpFont *font;
+	INT style;
+
+	GdipGetGenericFontFamilySansSerif (&originalFamily);
+	GdipCreateFont (originalFamily, 10, 10, UnitPixel, &font);
+
+	// Negative tests.
+	status = GdipGetFontStyle (NULL, &style);
+	assert (status == InvalidParameter);
+
+	status = GdipGetFontStyle (font, NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFont (font);
+	GdipDeleteFontFamily (originalFamily);
+}
+
+static void test_getFontSize ()
+{
+	GpStatus status;
+	GpFontFamily *originalFamily;
+	GpFont *font;
+	REAL size;
+
+	GdipGetGenericFontFamilySansSerif (&originalFamily);
+	GdipCreateFont (originalFamily, 10, 10, UnitPixel, &font);
+
+	status = GdipGetFontSize (font, &size);
+	assert (status == Ok);
+
+	// Negative tests.
+	status = GdipGetFontSize (NULL, &size);
+	assert (status == InvalidParameter);
+
+	status = GdipGetFontSize (font, NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFont (font);
+	GdipDeleteFontFamily (originalFamily);
+}
+
+static void test_getFontUnit ()
+{
+	GpStatus status;
+	GpFontFamily *originalFamily;
+	GpFont *font;
+	Unit unit;
+
+	GdipGetGenericFontFamilySansSerif (&originalFamily);
+	GdipCreateFont (originalFamily, 10, 10, UnitPixel, &font);
+
+	// Negative tests.
+	status = GdipGetFontUnit (NULL, &unit);
+	assert (status == InvalidParameter);
+
+	status = GdipGetFontUnit (font, NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFont (font);
+	GdipDeleteFontFamily (originalFamily);
+}
+
+static void test_getFontHeight ()
+{
+	GpStatus status;
+	GpFontFamily *originalFamily;
+	GpFont *font;
+	REAL height;
+
+	GdipGetGenericFontFamilySansSerif (&originalFamily);
+	GdipCreateFont (originalFamily, 10, 10, UnitPixel, &font);
+
+	status = GdipGetFontHeight (font, NULL, &height);
+	assert (status == Ok);
+	// FIXME: this returns a different value with libgdiplus.
+#if defined(USE_WINDOWS_LIBGDIPLUS)
+	assert (floatsEqual (height, 11.3183594));
+#endif
+
+	// Negative tests.
+	status = GdipGetFontHeight (NULL, NULL, &height);
+	assert (status == InvalidParameter);
+
+	status = GdipGetFontHeight (font, NULL, NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFont (font);
+	GdipDeleteFontFamily (originalFamily);
+}
+
+static void test_getFontHeightGivenDPI ()
+{
+	GpStatus status;
+	GpFontFamily *originalFamily;
+	GpFont *font;
+	REAL height;
+
+	GdipGetGenericFontFamilySansSerif (&originalFamily);
+	GdipCreateFont (originalFamily, 10, 10, UnitPixel, &font);
+
+	status = GdipGetFontHeightGivenDPI (font, 10, &height);
+	assert (status == Ok);
+	// FIXME: this returns a different value with libgdiplus.
+#if defined(USE_WINDOWS_LIBGDIPLUS)
+	assert (floatsEqual (height, 11.3183594));
+#endif
+
+	// Negative tests.
+	status = GdipGetFontHeightGivenDPI (NULL, 10, &height);
+	assert (status == InvalidParameter);
+
+	status = GdipGetFontHeightGivenDPI (font, 10, NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFont (font);
+	GdipDeleteFontFamily (originalFamily);
+}
+
+static void test_getLogfontA ()
+{
+	GpStatus status;
+	GpBitmap *image;
+	GpGraphics *graphics;
+	GpFontFamily *originalFamily;
+	WCHAR originalFamilyName[32];
+	GpFont *font;
+	LOGFONTA logfont;
+
+	GdipCreateBitmapFromScan0 (100, 68, 0, PixelFormat32bppRGB, NULL, &image);
+	GdipGetImageGraphicsContext (image, &graphics);
+	GdipGetGenericFontFamilySansSerif (&originalFamily);
+	GdipCreateFont (originalFamily, 10, 10, UnitPixel, &font);
+	GdipGetFamilyName (originalFamily, originalFamilyName, 0);
+
+	status = GdipGetLogFontA (font, graphics, &logfont);
+	assert (status == Ok);
+	assert (logfont.lfHeight == -10);
+	assert (logfont.lfWidth == 0);
+	assert (logfont.lfEscapement == 0);
+	assert (logfont.lfOrientation == 0);
+	assert (logfont.lfWeight == 400);
+	assert (logfont.lfCharSet == 0);
+	assert (logfont.lfOutPrecision == 0);
+	assert (logfont.lfClipPrecision == 0);
+	assert (logfont.lfQuality == 0);
+	assert (logfont.lfPitchAndFamily == 0);
+	assertStringEqual (originalFamilyName, logfont.lfFaceName);
+
+	// Negative tests.
+	status = GdipGetLogFontA (NULL, graphics, &logfont);
+	assert (status == InvalidParameter);
+
+	status = GdipGetLogFontA (font, NULL, &logfont);
+	assert (status == InvalidParameter);
+
+	status = GdipGetLogFontA (font, graphics, NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFont (font);
+	GdipDeleteFontFamily (originalFamily);
+	GdipDisposeImage ((GpImage *) image);
+}
+
+static void test_getLogfontW ()
+{
+	GpStatus status;
+	GpBitmap *image;
+	GpGraphics *graphics;
+	GpFontFamily *originalFamily;
+	WCHAR originalFamilyName[32];
+	GpFont *font;
+	LOGFONTW logfont;
+
+	GdipCreateBitmapFromScan0 (100, 68, 0, PixelFormat32bppRGB, NULL, &image);
+	GdipGetImageGraphicsContext (image, &graphics);
+	GdipGetGenericFontFamilySansSerif (&originalFamily);
+	GdipCreateFont (originalFamily, 10, 10, UnitPixel, &font);
+	GdipGetFamilyName (originalFamily, originalFamilyName, 0);
+
+	status = GdipGetLogFontW (font, graphics, &logfont);
+	assert (status == Ok);
+	assert (logfont.lfHeight == -10);
+	assert (logfont.lfWidth == 0);
+	assert (logfont.lfEscapement == 0);
+	assert (logfont.lfOrientation == 0);
+	assert (logfont.lfWeight == 400);
+	assert (logfont.lfCharSet == 0);
+	assert (logfont.lfOutPrecision == 0);
+	assert (logfont.lfClipPrecision == 0);
+	assert (logfont.lfQuality == 0);
+	assert (logfont.lfPitchAndFamily == 0);
+	assert (!strcmp ((char *) originalFamilyName, (char *) logfont.lfFaceName));
+
+	// Negative tests.
+	status = GdipGetLogFontW (NULL, graphics, &logfont);
+	assert (status == InvalidParameter);
+
+	status = GdipGetLogFontW (font, NULL, &logfont);
+	assert (status == InvalidParameter);
+
+	status = GdipGetLogFontW (font, graphics, NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFont (font);
+	GdipDeleteFontFamily (originalFamily);
+	GdipDisposeImage ((GpImage *) image);
+}
+
 int
 main(int argc, char**argv)
 {
@@ -361,6 +837,19 @@ main(int argc, char**argv)
 	test_privateAddMemoryFont ();
 	test_privateAddFontFile ();
 	test_newInstalledFontCollection ();
+	test_createFontFromDC ();
+	test_createFontFromLogfontA ();
+	test_createFontFromLogfontW ();
+	test_createFont ();
+	test_deleteFont ();
+	test_getFamily ();
+	test_getFontStyle ();
+	test_getFontSize ();
+	test_getFontUnit ();
+	test_getFontHeight ();
+	test_getFontHeightGivenDPI ();
+	test_getLogfontA ();
+	test_getLogfontW ();
 
 	GdiplusShutdown(gdiplusToken);
 	return 0;

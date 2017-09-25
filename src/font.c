@@ -750,7 +750,7 @@ static GpStatus
 gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 {
 	GpFont *font = NULL;
-	GpStatus status = GdipCreateFont (family, 0.0f, style, UnitPoint, &font);
+	GpStatus status = GdipCreateFont (family, 0.1f, style, UnitPoint, &font);
 
 	if ((status == Ok) && font) {
 		cairo_scaled_font_t* scaled_ft;
@@ -875,7 +875,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit un
 	GpFont *result;
 	float sizeInPixels;
 	
-	if (!family || !font || (unit == UnitDisplay))
+	if (!family || !font || unit == UnitDisplay || unit < UnitWorld || unit > UnitCairoPoint)
 		return InvalidParameter;
 
 	r = FcPatternGetString (family->pattern, FC_FAMILY, 0, &str);
@@ -937,9 +937,12 @@ GdipDeleteFont (GpFont* font)
 }
 
 GpStatus WINGDIPAPI
-GdipCreateFontFromDC(void *hdc, GpFont **font)
+GdipCreateFontFromDC (void *hdc, GpFont **font)
 {
-	return(NotImplemented);
+	if (!hdc || !font)
+		return InvalidParameter;
+
+	return NotImplemented;
 }
 
 static GpStatus
@@ -1071,6 +1074,9 @@ GdipGetLogFontA (GpFont *font, GpGraphics *graphics, LOGFONTA *logfontA)
 static GpStatus
 gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, BOOL ucs2)
 {
+	if (!hdc || !lf || !font)
+		return InvalidParameter;
+
 	GpFont *result = (GpFont*) GdipAlloc (sizeof (GpFont));
 	LOGFONTA *logfont = (LOGFONTA *)lf;
 
@@ -1083,7 +1089,7 @@ gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, BOOL ucs2)
 	result->family = NULL;
 	/* Fixme - this is wrong, but I don't know of a quick way to get the emSize */
 	result->emSize = result->sizeInPixels;
-	result->unit = UnitPixel;
+	result->unit = UnitWorld;
 
 	if (logfont->lfItalic) {
 		result->style |= FontStyleItalic;
@@ -1114,6 +1120,13 @@ gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, BOOL ucs2)
 		result->face[LF_FACESIZE - 1] = '\0';
 	}
 
+#ifdef USE_PANGO_RENDERING
+	result->pango = NULL;
+#else
+	result->cairofnt = NULL;
+	result->cairo = NULL;
+#endif
+
 	*font = result;
 
 	return Ok;
@@ -1123,14 +1136,14 @@ gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, BOOL ucs2)
 GpStatus
 GdipCreateFontFromLogfontA(void *hdc, GDIPCONST LOGFONTA *logfont, GpFont **font)
 {
-	return gdip_create_font_from_logfont(hdc, (void *)logfont, font, FALSE);
+	return gdip_create_font_from_logfont (hdc, (void *)logfont, font, FALSE);
 }
 
 // coverity[+alloc : arg-*2]
 GpStatus
 GdipCreateFontFromLogfontW(void *hdc, GDIPCONST LOGFONTW *logfont, GpFont **font)
 {
-	return gdip_create_font_from_logfont(hdc, (void *)logfont, font, TRUE);
+	return gdip_create_font_from_logfont (hdc, (void *)logfont, font, TRUE);
 }
 
 GpStatus WINGDIPAPI
@@ -1175,7 +1188,7 @@ GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float
 	guint16 emHeight, lineSpacing;
 	float emSize, h;
 
-	if (!font || !height || !graphics)
+	if (!font || !height)
 		return InvalidParameter;
 
 	status = GdipGetEmHeight (font->family, font->style, &emHeight);
@@ -1190,7 +1203,11 @@ GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float
 	emSize = gdip_unit_conversion (font->unit, UnitPixel, gdip_get_display_dpi (), gtMemoryBitmap, font->emSize);
 
 	h = lineSpacing * (emSize / emHeight);
-	*height = gdip_unit_conversion (UnitPixel, graphics->page_unit, gdip_get_display_dpi (), graphics->type, h);
+	if (!graphics)
+		*height = h;
+	else
+		*height = gdip_unit_conversion (UnitPixel, graphics->page_unit, gdip_get_display_dpi (), graphics->type, h);
+
 	return Ok;
 }
 
@@ -1227,3 +1244,31 @@ GdipGetFontSize (GpFont *font, float *size)
 	return Ok;
 }
 
+GpStatus WINGDIPAPI
+GdipGetFontStyle (GpFont *font, INT *style)
+{
+	if (!font || !style)
+		return InvalidParameter;
+
+	*style = font->style;
+	return Ok;
+}
+
+GpStatus WINGDIPAPI
+GdipGetFontUnit (GpFont *font, Unit *unit)
+{
+	if (!font || !unit)
+		return InvalidParameter;
+
+	*unit = font->unit;
+	return Ok;
+}
+
+GpStatus WINGDIPAPI
+GdipGetFamily (GpFont *font, GpFontFamily **family)
+{
+	if (!font || !family)
+		return InvalidParameter;
+
+	return GdipCloneFontFamily (font->family, family);
+}
