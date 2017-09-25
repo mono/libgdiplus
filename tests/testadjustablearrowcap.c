@@ -14,6 +14,7 @@
 #endif
 
 #include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,6 +24,17 @@
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
+
+static int floatsEqual (float v1, float v2)
+{
+	if (isnan (v1))
+		return isnan (v2);
+
+	if (isinf (v1))
+		return isinf (v2);
+
+	return fabs (v1 - v2) < 0.0001;
+}
 
 static void verifyArrowCap (GpAdjustableArrowCap *cap, REAL expectedHeight, REAL expectedWidth, BOOL expectedIsFilled)
 {
@@ -43,11 +55,11 @@ static void verifyArrowCap (GpAdjustableArrowCap *cap, REAL expectedHeight, REAL
 
 	status = GdipGetAdjustableArrowCapHeight (cap, &height);
 	assert (status == Ok);
-	assert (height == expectedHeight);
+	assert (floatsEqual (height, expectedHeight));
 
 	status = GdipGetAdjustableArrowCapWidth (cap, &width);
 	assert (status == Ok);
-	assert (width == expectedWidth);
+	assert (floatsEqual (width, expectedWidth));
 
 	status = GdipGetAdjustableArrowCapFillState (cap, &isFilled);
 	assert (status == Ok);
@@ -67,10 +79,10 @@ static void verifyArrowCap (GpAdjustableArrowCap *cap, REAL expectedHeight, REAL
 
 	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
 	assert (status == Ok);
-	// FIXME: GDI+ returns a value between 0 and 1. Libgdiplus always returns 0.
-#if defined(_WIN32)
-	assert (baseInset >= 0 && baseInset <= 1);
-#endif
+	if (expectedWidth == 0)
+		assert (baseInset == 0);
+	else
+		assert (floatsEqual (baseInset, (expectedHeight / expectedWidth)));
 
 	status = GdipGetCustomLineCapStrokeCaps ((GpCustomLineCap *) cap, &startCap, &endCap);
 	assert (status == Ok);
@@ -104,6 +116,22 @@ static void test_createAdjustableArrowCap ()
 	status = GdipCreateAdjustableArrowCap (-1, -2, FALSE, &cap);
 	assert (status == Ok);
 	verifyArrowCap (cap, -1, -2, FALSE);
+
+	status = GdipCreateAdjustableArrowCap (NAN, -2, FALSE, &cap);
+	assert (status == Ok);
+	verifyArrowCap (cap, NAN, -2, FALSE);
+
+	status = GdipCreateAdjustableArrowCap (1, NAN, FALSE, &cap);
+	assert (status == Ok);
+	verifyArrowCap (cap, 1, NAN, FALSE);
+
+	status = GdipCreateAdjustableArrowCap (-INFINITY, 1, FALSE, &cap);
+	assert (status == Ok);
+	verifyArrowCap (cap, -INFINITY, 1, FALSE);
+
+	status = GdipCreateAdjustableArrowCap (1, INFINITY, FALSE, &cap);
+	assert (status == Ok);
+	verifyArrowCap (cap, 1, INFINITY, FALSE);
 
 	// Negative tests.
 	status = GdipCreateAdjustableArrowCap (10, 11, TRUE, NULL);
