@@ -255,6 +255,9 @@ GdipMultiplyMatrix (GpMatrix *matrix, GpMatrix *matrix2, GpMatrixOrder order)
 	if (!matrix || !matrix2)
 		return InvalidParameter;
 
+	if (matrix == matrix2)
+		return ObjectBusy;
+
         if (order == MatrixOrderAppend)
                 cairo_matrix_multiply (matrix, matrix, matrix2);
         else if (order == MatrixOrderPrepend)
@@ -350,8 +353,11 @@ GdipTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
 {
         int i;
 
-	if (!matrix || !pts || (count < 1))
+	if (!matrix || !pts || count == 0)
 		return InvalidParameter;
+
+	if (count < 0)
+		return OutOfMemory;
         
         for (i = 0; i < count; i++, pts++) {
                 double x = pts->X;
