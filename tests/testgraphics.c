@@ -21,7 +21,6 @@
 
 static void test_createFromHDC()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphicsOriginal;
@@ -29,8 +28,7 @@ static void test_createFromHDC()
 	GpGraphics *graphicsFromHdc;
 	TextRenderingHint textRenderingHint;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext (image, &graphicsOriginal);
@@ -74,7 +72,6 @@ static void test_createFromHDC()
 
 static void test_createFromHDC2()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphicsOriginal;
@@ -82,8 +79,7 @@ static void test_createFromHDC2()
 	GpGraphics *graphicsFromHdc;
 	TextRenderingHint textRenderingHint;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext (image, &graphicsOriginal);
@@ -167,14 +163,12 @@ static void test_createFromHWNDICM()
 
 static void test_hdc ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	HDC hdc;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext (image, &graphics);
@@ -214,14 +208,12 @@ static void test_hdc ()
 
 static void test_compositingMode ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	CompositingMode mode;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext (image, &graphics);
@@ -260,14 +252,12 @@ static void test_compositingMode ()
 
 static void test_compositingQuality ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	CompositingQuality quality;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext (image, &graphics);
@@ -306,15 +296,13 @@ static void test_compositingQuality ()
 
 static void test_renderingOrigin ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	int x;
 	int y;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext(image, &graphics);
@@ -357,14 +345,12 @@ static void test_renderingOrigin ()
 
 static void test_textRenderingHint ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	TextRenderingHint textRenderingHint;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext (image, &graphics);
@@ -409,14 +395,12 @@ static void test_textRenderingHint ()
 
 static void test_textContrast ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	UINT textContrast;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext (image, &graphics);
@@ -461,14 +445,12 @@ static void test_textContrast ()
 
 static void test_smoothingMode ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	SmoothingMode smoothingMode;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext (image, &graphics);
@@ -541,14 +523,12 @@ static void test_smoothingMode ()
 
 static void test_pixelOffsetMode ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	PixelOffsetMode pixelOffsetMode;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext (image, &graphics);
@@ -610,14 +590,12 @@ static void test_pixelOffsetMode ()
 
 static void test_interpolationMode ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	InterpolationMode interpolationMode;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext(image, &graphics);
@@ -693,7 +671,6 @@ static void test_interpolationMode ()
 
 static void test_transform ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
@@ -701,8 +678,7 @@ static void test_transform ()
 	GpMatrix *setMatrix;
 	GpMatrix *nonInvertibleMatrix;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext(image, &graphics);
@@ -761,14 +737,12 @@ static void test_transform ()
 
 static void test_pageUnit ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	Unit pageUnit;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext(image, &graphics);
@@ -821,14 +795,12 @@ static void test_pageUnit ()
 
 static void test_pageScale ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	REAL pageScale;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext(image, &graphics);
@@ -889,14 +861,12 @@ static void test_pageScale ()
 }
 static void test_dpiX ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	float dpiX;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext(image, &graphics);
@@ -926,14 +896,12 @@ static void test_dpiX ()
 
 static void test_dpiY ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	REAL dpiY;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext(image, &graphics);
@@ -963,13 +931,11 @@ static void test_dpiY ()
 
 static void test_flush ()
 {
-	gunichar2 *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (L"test.bmp", &image);
 	assert (status == Ok);
 
 	status = GdipGetImageGraphicsContext (image, &graphics);
@@ -1004,12 +970,11 @@ static void test_flush ()
 
 static void test_delete ()
 {
-	gunichar2 *filePath;
+	WCHAR *filePath = L"test.bmp";
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 
-	filePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
 	GdipLoadImageFromFile (filePath, &image);
 	GdipGetImageGraphicsContext (image, &graphics);
 	

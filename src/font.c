@@ -157,7 +157,7 @@ GdipPrivateAddFontFile (GpFontCollection *font_collection, GDIPCONST WCHAR *file
 	if (!font_collection || !filename)
 		return InvalidParameter;
     
-	file = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)filename, -1);
+	file = (BYTE*) wchar_to_char (filename, -1);
 	if (!file)
 		return OutOfMemory;
 
@@ -486,7 +486,7 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 	if (!name || !fontFamily)
 		return InvalidParameter;
 
-	string = (char*)ucs2_to_utf8 ((const gunichar2 *)name, -1);
+	string = wchar_to_char (name, -1);
 	if (!string)
 		return OutOfMemory;
 
@@ -521,7 +521,7 @@ GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], LANG
 	if (status != Ok)
 		return status;
 
-	utf8_to_ucs2((const gchar *)fc_str, (gunichar2 *)name, LF_FACESIZE);
+	char_to_wchar ((const char *)fc_str, name, LF_FACESIZE);
 	return Ok;
 }
 
@@ -1032,7 +1032,7 @@ gdip_logfont_from_font (GpFont *font, GpGraphics *graphics, void *lf, BOOL ucs2)
 
 	logFont->lfPitchAndFamily = 0;
 	if (ucs2) {
-		utf8_to_ucs2((const gchar *)font->face, (gunichar2 *)logFont->lfFaceName, LF_FACESIZE);
+		char_to_wchar((const char *) font->face, (WCHAR *) logFont->lfFaceName, LF_FACESIZE);
 	} else {
 		int len = strlen ((char*)font->face);
 		memset (logFont->lfFaceName, 0, LF_FACESIZE);
@@ -1120,7 +1120,7 @@ gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, BOOL ucs2)
 	}
 
 	if (ucs2) {
-		result->face = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)logfont->lfFaceName, -1);
+		result->face = (unsigned char *) wchar_to_char ((const WCHAR *) logfont->lfFaceName, -1);
 		if (!result->face){
 			GdipFree (result);
 			return OutOfMemory;

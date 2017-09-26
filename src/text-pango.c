@@ -173,7 +173,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 	double clipy2;
 	int trimSpace;      /* whether or not to trim the space */
 
-	gchar *text = ucs2_to_utf8 (stringUnicode, length);
+	char *text = wchar_to_char (stringUnicode, length);
 	if (!text)
 		return NULL;
 	length = strlen(text);
@@ -717,7 +717,7 @@ utf8_length_for_ucs2_string (GDIPCONST WCHAR *stringUnicode, int offset, int len
 			utf8_length += 2;
 		else if (ch < 0xD800 || ch >= 0xE000)
 			utf8_length += 3;
-		/* ignore surrogate pairs as they are ignored in ucs2_to_utf8() */
+		/* ignore surrogate pairs as they are ignored in wchar_to_char () */
 	}
 	return utf8_length;
 }

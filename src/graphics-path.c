@@ -1182,7 +1182,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 		return OutOfMemory;
 	}
 
-	utf8 = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)string, -1);
+	utf8 = (BYTE*) wchar_to_char (string, -1);
 	if (!utf8) {
 		cairo_destroy (cr);
 		cairo_surface_destroy (cs);
