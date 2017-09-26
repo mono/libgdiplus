@@ -128,7 +128,7 @@ EXTRA_DIST =			\
 	$(testfont_SOURCES)	\
 	$(testgraphics_SOURCES)	\
 	$(testhatchbrush_SOURCES)	\
-	$(testlineargradientbrush_SOURCES) \
+	$(testlineargradientbrush_SOURCES)	\
 	$(testmatrix_SOURCES) \
 	$(testpathgradientbrush_SOURCES) \
 	$(testpen_SOURCES) \
