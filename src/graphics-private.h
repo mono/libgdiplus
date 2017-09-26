@@ -102,8 +102,7 @@ typedef struct {
 
 typedef enum {
 	GraphicsStateValid = 0,
-	GraphicsStateBusy = 1,
-	GraphicsStateDeleted = 2
+	GraphicsStateBusy = 1
 } GraphicsState;
 
 typedef struct _Graphics {
