@@ -116,12 +116,12 @@ testpng_SOURCES =		\
 EXTRA_DIST =			\
 	$(testgdi_SOURCES)	\
 	$(testbits_SOURCES)	\
-	$(testbrush_SOURCES) \
+	$(testbrush_SOURCES)	\
 	$(testclip_SOURCES)	\
 	$(testfont_SOURCES)	\
 	$(testgraphics_SOURCES)	\
 	$(testhatchbrush_SOURCES)	\
-	$(testlineargradientbrush_SOURCES) \
+	$(testlineargradientbrush_SOURCES)	\
 	$(testmatrix_SOURCES) \
 	$(testpathgradientbrush_SOURCES) \
 	$(testpen_SOURCES) \
