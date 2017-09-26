@@ -1370,6 +1370,8 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source
 	if (adjust_emf_headers) {
 		/* if the first EMF record is an EmfHeader (or an Header inside a Comment) then we have extra data to extract */
 		status = update_emf_header (&mf->metafile_header, mf->data, mf->length);
+		if (status != Ok)
+			goto error;
 	}
 
 	*metafile = mf;
