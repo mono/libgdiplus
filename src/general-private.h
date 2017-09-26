@@ -104,9 +104,9 @@ float gdip_get_display_dpi () GDIP_INTERNAL;
 GpStatus gdip_get_status (cairo_status_t status) GDIP_INTERNAL;
 GpStatus gdip_get_pattern_status (cairo_pattern_t *pat) GDIP_INTERNAL;
 
-gchar *ucs2_to_utf8 (const gunichar2 *ucs2, int length) GDIP_INTERNAL;
-BOOL utf8_to_ucs2 (const gchar *utf8, gunichar2 *ucs2, int ucs2_len) GDIP_INTERNAL;
-int utf8_encode_ucs2char (gunichar2 unichar, unsigned char *dest) GDIP_INTERNAL;
+char *wchar_to_char (const WCHAR *ucs2, int length) GDIP_INTERNAL;
+BOOL char_to_wchar (const char *utf8, WCHAR *ucs2, int ucs2_len) GDIP_INTERNAL;
+int utf8_encode_ucs2char (WCHAR unichar, unsigned char *dest) GDIP_INTERNAL;
 
 /* for drawing curves */
 GpPointF *convert_points (const GpPoint *points, int count) GDIP_INTERNAL;

@@ -342,14 +342,13 @@ gdip_erf (float x, float std, float mean)
  convert a ucs2 string to utf8
  length = number of characters to convert, -1 to indicate the whole string
 */
-
-gchar *
-ucs2_to_utf8(const gunichar2 *ucs2, int length) {
-	const gunichar2	*ptr;
-	const gunichar2	*end;
-	gunichar	*dest;
-	gunichar	*uni;
-	gchar		*utf8;
+char *
+wchar_to_char (const WCHAR *ucs2, int length) {
+	const WCHAR	*ptr;
+	const WCHAR	*end;
+	gunichar *dest;
+	gunichar *uni;
+	char *utf8;
 
 	/* Count length */
 	if (length == -1) {
@@ -360,7 +359,6 @@ ucs2_to_utf8(const gunichar2 *ucs2, int length) {
 			length++;
 		}
 	}
-
 
 	uni = GdipAlloc((length + 1) * sizeof(gunichar));
 	if (uni == NULL) {
@@ -380,7 +378,7 @@ ucs2_to_utf8(const gunichar2 *ucs2, int length) {
 	*dest = 0;
 	dest++;
 	
-	utf8 = (gchar *) g_ucs4_to_utf8 ((const gunichar *)uni, -1, NULL, NULL, NULL);
+	utf8 = (char *) g_ucs4_to_utf8 ((const gunichar *)uni, -1, NULL, NULL, NULL);
 
 	GdipFree(uni);
 
@@ -388,12 +386,12 @@ ucs2_to_utf8(const gunichar2 *ucs2, int length) {
 }
 
 BOOL
-utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) {
+char_to_wchar (const char *utf8, WCHAR *ucs2, int ucs2_len) {
 	int 		i;
 	glong		items_read;
 	glong		count;
 	gunichar	*ucs4;
-	gunichar2	*ptr;
+	WCHAR	*ptr;
 
 	items_read = 0;
 	count = 0;
@@ -405,10 +403,10 @@ utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) {
 		return FALSE;
 	}
 
-	ptr = (gunichar2 *)ucs2;
+	ptr = (WCHAR *)ucs2;
 	for (i = 0; (i < count) && (i < ucs2_len); i++) {
 		if (ucs4[i] < 0x10000 && !(ucs4[i] >= 0xd800 && ucs4[i] < 0xe000)) {
-			*ptr = (gunichar2)ucs4[i];
+			*ptr = (WCHAR)ucs4[i];
 			ptr++;
 		}	/* we're simply ignoring any chars that don't fit into ucs2 */
 	}
@@ -421,7 +419,7 @@ utf8_to_ucs2(const gchar *utf8, gunichar2 *ucs2, int ucs2_len) {
 }
 
 int
-utf8_encode_ucs2char(gunichar2 unichar, BYTE *dest)
+utf8_encode_ucs2char (WCHAR unichar, BYTE *dest)
 {
 	if (unichar < 0x0080) {					/* 0000-007F */
 		dest[0] = (BYTE)(unichar);
@@ -438,29 +436,6 @@ utf8_encode_ucs2char(gunichar2 unichar, BYTE *dest)
 	dest[2] = (BYTE)(0x80 | (unichar & 0x003F));
 	return (3);	
 }
-
-/* re-enabled if/when required */
-#if FALSE
-/* This function only handles UCS-2 */
-int
-utf8_decode_ucs2char (const BYTE *src, gunichar2 *uchar)
-{
-	if (src[0] <= 0x7F) {			/* 0000-007F: one byte (0xxxxxxx) */
-		*uchar = (gunichar2)src[0];
-		return (1);
-	}
-	if (src[0] <= 0xDF) {			/* 0080-07FF: two bytes (110xxxxx 10xxxxxx) */
-		*uchar = ((((gunichar2)src[0]) & 0x001F) << 6) |
-			((((gunichar2)src[1]) & 0x003F) << 0);
-		return (2);
-	}
-						/* 0800-FFFF: three bytes (1110xxxx 10xxxxxx 10xxxxxx) */
-	*uchar = ((((gunichar2)src[0]) & 0x000F) << 12) |
-		((((gunichar2)src[1]) & 0x003F) << 6) |
-		((((gunichar2)src[2]) & 0x003F) << 0);
-	return (3);
-}
-#endif
 
 GpStatus
 gdip_get_pattern_status (cairo_pattern_t *pat)

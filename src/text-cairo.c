@@ -42,7 +42,7 @@
 #undef DRAWSTRING_DEBUG
 
 static int
-CalculateStringWidths (cairo_t *ct, GDIPCONST GpFont *gdiFont, GDIPCONST gunichar2 *stringUnicode, unsigned long StringDetailElements, GpStringDetailStruct *StringDetails)
+CalculateStringWidths (cairo_t *ct, GDIPCONST GpFont *gdiFont, GDIPCONST WCHAR *stringUnicode, unsigned long StringDetailElements, GpStringDetailStruct *StringDetails)
 {
 	size_t			i;
 	cairo_text_extents_t	ext;
@@ -324,7 +324,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 	}
 	
 	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
-	String = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)CleanString, -1);
+	String = (BYTE*) wchar_to_char (CleanString, -1);
 	if (!String)
 		return OutOfMemory;
 
@@ -822,7 +822,7 @@ DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GD
 
 			if (length > StringLen - i)
 				length = StringLen - i;
-			String = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)(CleanString+i), length);
+			String = (BYTE*) wchar_to_char ((CleanString+i), length);
 #ifdef DRAWSTRING_DEBUG
 			printf("Displaying line >%s< (%d chars)\n", String, length);
 #endif

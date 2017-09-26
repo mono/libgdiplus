@@ -35,6 +35,8 @@ static HDC getEmptyHDC ()
 
 static void assertStringEqual (WCHAR *actual, const char *expected)
 {
+printf("%c%c%c%c%c%c%c%c%c%c%c%c\n", (char)actual[0], (char)actual[1], (char)actual[2], (char)actual[3], (char)actual[4], (char)actual[5], (char)actual[6], (char)actual[7], (char)actual[8], (char)actual[9], (char)actual[10], (char)actual[11]);
+printf("%c%c%c%c%c%c%c%c%c%c%c%c\n", expected[0], expected[1], expected[2], expected[3], expected[4], expected[5], expected[6], expected[7], expected[8], expected[9], expected[10], expected[11]);
 	int i = 0;
 	while (TRUE) {
 		if (expected[i] == '\0') {
@@ -128,12 +130,11 @@ static void test_getFontCollectionFamilyCount ()
 static void test_getFontCollectionFamilyList ()
 {
 	GpStatus status;
-	WCHAR *fontFile;
+	WCHAR *fontFile = L"test.ttf";
 	GpFontCollection *collection;
 	GpFontFamily *families[2] = {NULL, NULL};
 	INT numFound;
 
-	fontFile = g_utf8_to_utf16 ("test.ttf", -1, NULL, NULL, NULL);
 	GdipNewPrivateFontCollection(&collection);
 
 	//Empty list.
@@ -174,20 +175,16 @@ static void test_privateAddFontFile ()
 {
 	GpStatus status;
 	GpFontCollection *collection;
-	WCHAR *ttfFile;
-	WCHAR *otfFile;
-	WCHAR *invalidFile;
-	WCHAR *noSuchFile;
+	WCHAR *ttfFile = L"test.ttf";
+	WCHAR *otfFile = L"test.otf";
+	WCHAR *invalidFile = L"test.bmp";
+	WCHAR *noSuchFile = L"noSuchFile.ttf";
 	INT count;
 	GpFontFamily *families[1];
 	INT numFound;
 	WCHAR name[LF_FACESIZE];
 
 	GdipNewPrivateFontCollection (&collection);
-	ttfFile = g_utf8_to_utf16 ("test.ttf", -1, NULL, NULL, NULL);
-	otfFile = g_utf8_to_utf16 ("test.otf", -1, NULL, NULL, NULL);
-	invalidFile = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	noSuchFile = g_utf8_to_utf16 ("noSuchFile.ttf", -1, NULL, NULL, NULL);
 
 	// Valid TTF file.
 	status = GdipPrivateAddFontFile (collection, ttfFile);
@@ -444,13 +441,12 @@ static void test_createFontFromLogfontW ()
 	GpStatus status;
 	GpFont *font;
 	LOGFONTW logfont;
-	WCHAR *fontName;
+	WCHAR *fontName = L"Times New Roman";
 	HDC hdc;
 	INT style;
 	Unit unit;
 	GpFontFamily *family;
 
-	fontName = g_utf8_to_utf16 ("Times New Roman", -1, NULL, NULL, NULL);
 	hdc = getEmptyHDC ();
 
 	logfont.lfHeight = 10;

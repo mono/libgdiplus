@@ -43,7 +43,6 @@ win_draw(win_t *win)
 	GpGraphics *gp;
 	GpStatus st;
 	GpImage *img;
-	gunichar2 *unis;
 
 	XClearWindow(win->dpy, win->win);
 
@@ -68,59 +67,46 @@ win_draw(win_t *win)
 //		return;
 	}
 
-	
-	
-	
-	unis = g_utf8_to_utf16 ("test.jpg", -1, NULL, NULL, NULL);
-	st = GdipLoadImageFromFile (unis, &img);
+	st = GdipLoadImageFromFile (L"test.jpg", &img);
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 0, 0);
 	CHECK_GDIP_ST(st);
-	g_free (unis);
 	GdipDisposeImage (img);
 	img = NULL;
 
 	printf("jpg drawn \n");
 
-	unis = g_utf8_to_utf16 ("test.tif", -1, NULL, NULL, NULL);
-	st = GdipLoadImageFromFile (unis, &img);
+	st = GdipLoadImageFromFile (L"test.tif", &img);
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 100, 0);
 	CHECK_GDIP_ST(st);
-	g_free (unis);
 	GdipDisposeImage (img);
 	img = NULL;
 
 	printf("tif drawn \n");
 
-	unis = g_utf8_to_utf16 ("test.gif", -1, NULL, NULL, NULL);
-	st = GdipLoadImageFromFile (unis, &img);
+	st = GdipLoadImageFromFile (L"test.gif", &img);
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 200, 0);
 	CHECK_GDIP_ST(st);
-	g_free (unis);
 	GdipDisposeImage (img);
 	img = NULL;
 
 	printf("gif drawn \n");
 
-	unis = g_utf8_to_utf16 ("test.png", -1, NULL, NULL, NULL);
-	st = GdipLoadImageFromFile (unis, &img);
+	st = GdipLoadImageFromFile (L"test.png", &img);
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 0, 100);
 	CHECK_GDIP_ST(st);
-	g_free (unis);
 	GdipDisposeImage (img);
 	img = NULL;
 
 	printf("png drawn \n");
 
-	unis = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	st = GdipLoadImageFromFile (unis, &img);
+	st = GdipLoadImageFromFile (L"test.bmp", &img);
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 200, 100);
 	CHECK_GDIP_ST(st);
-	g_free (unis);
 	GdipDisposeImage (img);
 	img = NULL;
 

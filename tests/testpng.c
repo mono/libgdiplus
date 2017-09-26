@@ -16,7 +16,6 @@ int
 main (int argc, char **argv)
 {
     GpImage *img;
-    gunichar2 *unis;
     GpBitmap *bitmap;
     GpStatus status;
     int original_palette_size;
@@ -33,10 +32,8 @@ main (int argc, char **argv)
     // PNG resave should preserve the palette transparency. Let's test it
     // by loading a PNG file and its palette, then resaving it and loading
     // it again for comparison.
-    unis = g_utf8_to_utf16 ("test-trns.png", -1, NULL, NULL, NULL);
-    status = GdipLoadImageFromFile (unis, &img);
+    status = GdipLoadImageFromFile (L"test-trns.png", &img);
     CHECK_STATUS(1);
-    g_free (unis);
 
     status = GdipGetImagePaletteSize (img, &original_palette_size);
     CHECK_STATUS(1);
@@ -45,13 +42,11 @@ main (int argc, char **argv)
     GdipGetImagePalette (img, original_palette, original_palette_size);
     CHECK_STATUS(1);
 
-    unis = g_utf8_to_utf16 ("test-trns-resave.png", -1, NULL, NULL, NULL);
-    status = GdipSaveImageToFile (img, unis, &png_clsid, NULL);
+    status = GdipSaveImageToFile (img, L"test-trns-resave.png", &png_clsid, NULL);
     CHECK_STATUS(1);
     GdipDisposeImage (img);
-    status = GdipLoadImageFromFile (unis, &img);
+    status = GdipLoadImageFromFile (L"test-trns-resave.png", &img);
     CHECK_STATUS(1);
-    g_free (unis);
 
     status = GdipGetImagePaletteSize (img, &reloaded_palette_size);
     CHECK_STATUS(1);
@@ -71,10 +66,8 @@ main (int argc, char **argv)
 
     // Test grayscale image with alpha channel. The image should be converted
     // into 32-bit ARGB format and the alpha channel should be preserved.
-    unis = g_utf8_to_utf16 ("test-gsa.png", -1, NULL, NULL, NULL);
-    status = GdipCreateBitmapFromFile (unis, &bitmap);
+    status = GdipCreateBitmapFromFile (L"test-gsa.png", &bitmap);
     CHECK_STATUS(1);
-    g_free (unis);
     status = GdipGetImagePixelFormat (bitmap, &pixel_format);
     CHECK_STATUS(1);
     CHECK_ASSERT(pixel_format == PixelFormat32bppARGB);    
