@@ -794,7 +794,7 @@ gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 #endif
 
 GpStatus WINGDIPAPI
-GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, guint16 *EmHeight)
+GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, UINT16 *EmHeight)
 {
 	GpStatus status = Ok;
 
@@ -809,7 +809,7 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, guint16 *EmHeight)
 }
 
 GpStatus WINGDIPAPI
-GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, guint16 *CellAscent)
+GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellAscent)
 {
 	GpStatus status = Ok;
 
@@ -824,7 +824,7 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, guint16 *CellAscen
 }
 
 GpStatus WINGDIPAPI
-GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, guint16 *CellDescent)
+GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellDescent)
 {
 	GpStatus status = Ok;
 
@@ -839,7 +839,7 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, guint16 *CellDesc
 }
 
 GpStatus WINGDIPAPI
-GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, guint16 *LineSpacing)
+GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, UINT16 *LineSpacing)
 {
 	GpStatus status = Ok;
 
@@ -1185,7 +1185,7 @@ GpStatus WINGDIPAPI
 GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float *height)
 {
 	GpStatus status;
-	guint16 emHeight, lineSpacing;
+	UINT16 emHeight, lineSpacing;
 	float emSize, h;
 
 	if (!font || !height)
@@ -1215,7 +1215,7 @@ GpStatus WINGDIPAPI
 GdipGetFontHeightGivenDPI (GDIPCONST GpFont *font, float dpi, float *height)
 {
 	GpStatus status;
-	guint16 emHeight, lineSpacing;
+	UINT16 emHeight, lineSpacing;
 	float h;
 
 	if (!font || !height)
