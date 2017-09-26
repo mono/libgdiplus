@@ -41,10 +41,6 @@ static void verifyPathGradientBrush (GpPathGradient *brush, REAL x, REAL y, REAL
     assert (brushType == BrushTypePathGradient);
 
     status = GdipGetPathGradientRect (brush, &rect);
-    printf ("%f\n", rect.X);
-    printf ("%f\n", rect.Y);
-    printf ("%f\n", rect.Width);
-    printf ("%f\n\n", rect.Height);
     assert (status == Ok);
     assert (rect.X == x);
     assert (rect.Y == y);
@@ -57,14 +53,11 @@ static void verifyPathGradientBrush (GpPathGradient *brush, REAL x, REAL y, REAL
 
     status = GdipGetPathGradientCenterPoint (brush, &centerPoint);
     assert (status == Ok);
-    printf ("%f\n", centerPoint.X);
-    printf ("%f\n\n", centerPoint.Y);
     assert (centerPoint.X == centerX);
     assert (centerPoint.Y == centerY);
 
     status = GdipGetPathGradientWrapMode (brush, &wrapMode);
     assert (status == Ok);
-    printf ("%d\n\n\n\n", wrapMode);
     assert (wrapMode == expectedWrapMode);
 
     status = GdipGetPathGradientTransform (brush, brushTransform);
@@ -1306,14 +1299,23 @@ static void test_multiplyPathGradientTransform ()
     GdipGetPathGradientTransform (brush, transform);
     verifyMatrix (transform, 11, 16, 19, 28, 32, 46);
 
-    // Invalid MatrixOrder - this produces garbage data.
+    // Invalid MatrixOrder - negative.
     GdipSetPathGradientTransform (brush, originalTransform);
 
     status = GdipMultiplyPathGradientTransform (brush, matrix, (MatrixOrder)(MatrixOrderPrepend - 1));
     assert (status == Ok);
 
+    GdipGetPathGradientTransform (brush, transform);
+    verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
+
+    // Invalid MatrixOrder - positive.
+    GdipSetPathGradientTransform (brush, originalTransform);
+    
     status = GdipMultiplyPathGradientTransform (brush, matrix, (MatrixOrder)(MatrixOrderAppend + 1));
     assert (status == Ok);
+
+    GdipGetPathGradientTransform (brush, transform);
+    verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
 
     // Negative tests.
     status = GdipMultiplyPathGradientTransform (NULL, matrix, MatrixOrderAppend);

@@ -1196,11 +1196,10 @@ GdipMultiplyLineTransform (GpLineGradient *brush, GpMatrix *matrix, GpMatrixOrde
 	if (!invertible || (status != Ok))
 		return InvalidParameter;
 
-	/* note: error handling is different from GdipMultiplyMatrix */
-	if (order == MatrixOrderAppend)
-		cairo_matrix_multiply (&brush->matrix, &brush->matrix, matrix);
+	if (order == MatrixOrderPrepend)
+		cairo_matrix_multiply (&brush->matrix, matrix, &brush->matrix);
 	else
-		cairo_matrix_multiply (&brush->matrix, matrix, &brush->matrix);        
+		cairo_matrix_multiply (&brush->matrix, &brush->matrix, matrix);       
 
 	brush->base.changed = TRUE;
 	return Ok;
