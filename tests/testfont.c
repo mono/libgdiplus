@@ -874,14 +874,6 @@ static void test_createFontFamilyFromName ()
 	assert (status == Ok);
 	verifyFontFamily (family, "Tahoma", 2049, 423, 2472);
 
-	// FIXME: it appears that GdipCreateFontFamilyFromName fails if
-	// GdipGetFontCollectionCount is not called first.
-	// This needs to be investigated.
-#if defined(USE_WINDOWS_LIBGDIPLUS)
-	INT x;
-	GdipGetFontCollectionFamilyCount (collection, &x);
-#endif
-
 	status = GdipCreateFontFamilyFromName (CodeNewRoman, collection, &family);
 	assert (status == Ok);
 	verifyFontFamily (family, "Code New Roman", 2059, 430, 2489);
