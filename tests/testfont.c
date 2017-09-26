@@ -4,7 +4,7 @@
 #endif
 #endif
 
-#if defined(_WIN32)
+#if defined(USE_WINDOWS_LIBGDIPLUS)
 #include <Windows.h>
 #include <GdiPlus.h>
 
@@ -33,18 +33,21 @@ static HDC getEmptyHDC ()
 #endif
 }
 
-static void assertStringEqual (WCHAR *actual, const char *expected)
+static BOOL stringsEqual (WCHAR *actual, const char *expected)
 {
 	int i = 0;
 	while (TRUE) {
 		if (expected[i] == '\0') {
-			assert (actual[i] == '\0');
-			break;
+			return actual[i] == '\0';
 		}
 
-		assert (expected[i] == (char)actual[i]);
+		if (expected[i] != (char)actual[i])
+			return FALSE;
+
 		i++;
 	}
+
+	return TRUE;
 }
 
 static void *readFile (const char *fileName, int *memoryLength)
@@ -203,7 +206,7 @@ static void test_privateAddFontFile ()
 
 	status = GdipGetFamilyName (families[0], name, 0);
 	assert (status == Ok);
-	assertStringEqual (name, "Code New Roman");
+	assert (stringsEqual (name, "Code New Roman"));
 
 	GdipDeletePrivateFontCollection (&collection);
 
@@ -223,7 +226,7 @@ static void test_privateAddFontFile ()
 
 	status = GdipGetFamilyName (families[0], name, 0);
 	assert (status == Ok);
-	assertStringEqual (name, "Code New Roman");
+	assert (stringsEqual (name, "Code New Roman"));
 
 	GdipDeletePrivateFontCollection (&collection);
 
@@ -279,7 +282,7 @@ static void test_privateAddMemoryFont ()
 
 	status = GdipGetFamilyName (families[0], name, 0);
 	assert (status == Ok);
-	assertStringEqual (name, "Code New Roman");
+	assert (stringsEqual (name, "Code New Roman"));
 
 	free (memory);
 	GdipDeletePrivateFontCollection (&collection);
@@ -301,7 +304,7 @@ static void test_privateAddMemoryFont ()
 
 	status = GdipGetFamilyName (families[0], name, 0);
 	assert (status == Ok);
-	assertStringEqual (name, "Code New Roman");
+	assert (stringsEqual (name, "Code New Roman"));
 
 	free (memory);
 	GdipDeletePrivateFontCollection (&collection);
@@ -761,7 +764,7 @@ static void test_getLogfontA ()
 	assert (logfont.lfClipPrecision == 0);
 	assert (logfont.lfQuality == 0);
 	assert (logfont.lfPitchAndFamily == 0);
-	assertStringEqual (originalFamilyName, logfont.lfFaceName);
+	assert (stringsEqual (originalFamilyName, logfont.lfFaceName));
 
 	// Negative tests.
 	status = GdipGetLogFontA (NULL, graphics, &logfont);
@@ -823,6 +826,314 @@ static void test_getLogfontW ()
 	GdipDisposeImage ((GpImage *) image);
 }
 
+static const WCHAR Tahoma[] = {'T', 'a', 'h', 'o', 'm', 'a', 0};
+static const WCHAR CodeNewRoman[] = {'C', 'o', 'd', 'e', ' ', 'N', 'e', 'w', ' ', 'R', 'o', 'm', 'a', 'n', 0};
+static const WCHAR NoSuchFont[] = {'A', 'B', 'C', 0};
+
+static void verifyFontFamily (GpFontFamily *family, const char *expectedName, UINT16 expectedCellAscent, UINT16 expectedCellDescent, UINT16 expectedLineSpacing, const char *alternateExpectedName, UINT16 alternateCellAscent, UINT16 alternateCellDescent, UINT16 alternateLineSpacing)
+{
+	GpStatus status;
+	WCHAR name[LF_FACESIZE];
+	UINT16 emHeight;
+	UINT16 cellAscent;
+	UINT16 cellDescent;
+	UINT16 lineSpacing;
+
+	status = GdipGetFamilyName (family, name, 1);
+	assert (status == Ok);
+	assert (stringsEqual (name, expectedName) || stringsEqual (name, alternateExpectedName));
+
+	status = GdipGetEmHeight (family, FontStyleRegular, &emHeight);
+	assert (status == Ok);
+	assert (emHeight == 2048);
+
+	status = GdipGetCellAscent (family, FontStyleRegular, &cellAscent);
+	assert (status == Ok);
+	assert (cellAscent == expectedCellAscent || cellAscent == alternateCellAscent);
+
+	status = GdipGetCellDescent (family, FontStyleRegular, &cellDescent);
+	assert (status == Ok);
+	assert (cellDescent == expectedCellDescent || cellDescent == alternateCellDescent);
+
+	status = GdipGetLineSpacing (family, FontStyleRegular, &lineSpacing);
+	assert (status == Ok);
+	assert (lineSpacing == expectedLineSpacing || lineSpacing == alternateLineSpacing);
+
+	GdipDeleteFontFamily (family);
+}
+
+static void test_createFontFamilyFromName ()
+{
+	GpStatus status;
+	GpFontFamily *family;
+	GpFontCollection *collection;
+	WCHAR *fontName;
+
+	GdipNewPrivateFontCollection (&collection);
+	fontName = g_utf8_to_utf16 ("test.ttf", -1, NULL, NULL, NULL);
+	GdipPrivateAddFontFile (collection, fontName);
+
+	status = GdipCreateFontFamilyFromName (Tahoma, NULL, &family);
+	assert (status == Ok);
+	verifyFontFamily (family, "Tahoma", 2049, 423, 2472, "DejaVu Sans", 1901, 483, 2384);
+
+	status = GdipCreateFontFamilyFromName (CodeNewRoman, collection, &family);
+	assert (status == Ok);
+	verifyFontFamily (family, "Code New Roman", 2059, 430, 2489, "Code New Roman", 1901, 483, 2384);
+
+	// Negative tests.
+	status = GdipCreateFontFamilyFromName (NULL, collection, &family);
+	assert (status == InvalidParameter);
+
+	status = GdipCreateFontFamilyFromName (CodeNewRoman, collection, NULL);
+	assert (status == InvalidParameter);
+
+	// FIXME: Libgdiplus does not validate that the font family exists
+	// if the collection is NULL.
+#if defined(USE_WINDOWS_LIBGDIPLUS)
+	status = GdipCreateFontFamilyFromName (NoSuchFont, NULL, &family);
+	assert (status == FontFamilyNotFound);
+#endif
+
+	status = GdipCreateFontFamilyFromName (Tahoma, collection, &family);
+	assert (status == FontFamilyNotFound);
+
+	status = GdipCreateFontFamilyFromName (NoSuchFont, collection, &family);
+	assert (status == FontFamilyNotFound);
+
+	GdipDeletePrivateFontCollection (&collection);
+}
+
+static void test_cloneFontFamily ()
+{
+	GpStatus status;
+	GpFontFamily *family;
+	GpFontFamily *clonedFamily;
+
+	GdipCreateFontFamilyFromName (Tahoma, NULL, &family);
+	
+	status = GdipCloneFontFamily (family, &clonedFamily);
+	assert (status == Ok);
+	verifyFontFamily (clonedFamily, "Tahoma", 2049, 423, 2472, "DejaVu Sans", 1901, 483, 2384);
+
+	// Negative tests.
+	status = GdipCloneFontFamily (NULL, &clonedFamily);
+	assert (status == InvalidParameter);
+
+	status = GdipCloneFontFamily (family, NULL);
+	assert (status == InvalidParameter);
+	
+	GdipDeleteFontFamily (family);
+}
+
+static void test_deleteFontFamily ()
+{
+	GpStatus status;
+	GpFontFamily *family;
+
+	GdipCreateFontFamilyFromName (Tahoma, NULL, &family);
+	
+	status = GdipDeleteFontFamily (family);
+	assert (status == Ok);
+	
+	// Negative tests.
+	status = GdipDeleteFontFamily (NULL);
+	assert (status == InvalidParameter);
+}
+
+static void test_getGenericFontFamilySansSerif ()
+{
+	GpStatus status;
+	GpFontFamily *family1;
+	GpFontFamily *family2;
+
+	status = GdipGetGenericFontFamilySansSerif  (&family1);
+	assert (status == Ok);
+	assert (family1);
+
+	status = GdipGetGenericFontFamilySansSerif (&family2);
+	assert (status == Ok);
+	assert (family2 && family1 == family2);
+
+	// Negative tests.
+	status = GdipGetGenericFontFamilySansSerif (NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFontFamily (family1);
+	GdipDeleteFontFamily (family2);
+}
+
+static void test_getGenericFontFamilySerif ()
+{
+	GpStatus status;
+	GpFontFamily *family1;
+	GpFontFamily *family2;
+
+	status = GdipGetGenericFontFamilySerif  (&family1);
+	assert (status == Ok);
+	assert (family1);
+
+	status = GdipGetGenericFontFamilySerif  (&family2);
+	assert (status == Ok);
+	assert (family2 && family1 == family2);
+
+	// Negative tests.
+	status = GdipGetGenericFontFamilySerif (NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFontFamily (family1);
+	GdipDeleteFontFamily (family2);
+}
+
+static void test_getGenericFontFamilyMonospace ()
+{
+	GpStatus status;
+	GpFontFamily *family1;
+	GpFontFamily *family2;
+
+	status = GdipGetGenericFontFamilyMonospace  (&family1);
+	assert (status == Ok);
+	assert (family1);
+
+	status = GdipGetGenericFontFamilyMonospace  (&family2);
+	assert (status == Ok);
+	assert (family2 && family1 == family2);
+
+	// Negative tests.
+	status = GdipGetGenericFontFamilyMonospace (NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFontFamily (family1);
+	GdipDeleteFontFamily (family2);
+}
+
+static void test_getFamilyName ()
+{
+	GpStatus status;
+	GpFontFamily *family;
+	WCHAR name[LF_FACESIZE];
+
+	GdipCreateFontFamilyFromName (Tahoma, NULL, &family);
+
+	status = GdipGetFamilyName (family, name, 57920);
+	assert (status == Ok);
+	assert (stringsEqual(name, "Tahoma") || stringsEqual (name, "DejaVu Sans"));
+
+	// Negative tests.
+	status = GdipGetFamilyName (NULL, name, 1);
+	assert (status == InvalidParameter);
+
+	status = GdipGetFamilyName (family, NULL, 1);
+	assert (status == Ok);
+
+	status = GdipGetFamilyName (NULL, NULL, 1);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFontFamily (family);
+}
+
+static void test_isStyleAvailable ()
+{
+	GpStatus status;
+	GpFontFamily *family;
+	BOOL isStyleAvailable;
+
+	GdipCreateFontFamilyFromName (Tahoma, NULL, &family);
+
+	status = GdipIsStyleAvailable (family, FontStyleBold, &isStyleAvailable);
+	assert (status == Ok);
+	assert (isStyleAvailable == TRUE);
+
+	status = GdipIsStyleAvailable (family, -1, &isStyleAvailable);
+	assert (status == Ok);
+	assert (isStyleAvailable == TRUE);
+
+	status = GdipIsStyleAvailable (family, FontStyleStrikeout + 1, &isStyleAvailable);
+	assert (status == Ok);
+	assert (isStyleAvailable == TRUE);
+
+	// Negative tests.
+	status = GdipIsStyleAvailable (NULL, FontStyleBold, &isStyleAvailable);
+	assert (status == InvalidParameter);
+
+	status = GdipIsStyleAvailable (family, FontStyleBold, NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFontFamily (family);
+}
+
+static void test_getEmHeight ()
+{
+	GpStatus status;
+	GpFontFamily *family;
+	UINT16 emHeight;
+
+	GdipCreateFontFamilyFromName (Tahoma, NULL, &family);
+
+	// Negative tests.
+	status = GdipGetEmHeight (NULL, FontStyleBold, &emHeight);
+	assert (status == InvalidParameter);
+
+	status = GdipGetEmHeight (family, FontStyleBold, NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFontFamily (family);
+}
+
+static void test_getCellAscent ()
+{
+	GpStatus status;
+	GpFontFamily *family;
+	UINT16 cellAscent;
+
+	GdipCreateFontFamilyFromName (Tahoma, NULL, &family);
+
+	// Negative tests.
+	status = GdipGetCellAscent (NULL, FontStyleBold, &cellAscent);
+	assert (status == InvalidParameter);
+
+	status = GdipGetCellAscent (family, FontStyleBold, NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFontFamily (family);
+}
+
+static void test_getCellDescent ()
+{
+	GpStatus status;
+	GpFontFamily *family;
+	UINT16 cellDescent;
+
+	GdipCreateFontFamilyFromName (Tahoma, NULL, &family);
+
+	// Negative tests.
+	status = GdipGetCellDescent (NULL, FontStyleBold, &cellDescent);
+	assert (status == InvalidParameter);
+
+	status = GdipGetCellDescent (family, FontStyleBold, NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFontFamily (family);
+}
+
+static void test_getLineSpacing ()
+{	
+	GpStatus status;
+	GpFontFamily *family;
+	UINT16 lineSpacing;
+
+	GdipCreateFontFamilyFromName (Tahoma, NULL, &family);
+
+	// Negative tests.
+	status = GdipGetLineSpacing (NULL, FontStyleBold, &lineSpacing);
+	assert (status == InvalidParameter);
+
+	status = GdipGetLineSpacing (family, FontStyleBold, NULL);
+	assert (status == InvalidParameter);
+
+	GdipDeleteFontFamily (family);
+}
+
 int
 main(int argc, char**argv)
 {
@@ -850,6 +1161,18 @@ main(int argc, char**argv)
 	test_getFontHeightGivenDPI ();
 	test_getLogfontA ();
 	test_getLogfontW ();
+	test_createFontFamilyFromName ();
+	test_cloneFontFamily ();
+	test_deleteFontFamily ();
+	test_getGenericFontFamilySansSerif ();
+	test_getGenericFontFamilySerif ();
+	test_getGenericFontFamilyMonospace ();
+	test_getFamilyName ();
+	test_isStyleAvailable ();
+	test_getEmHeight ();
+	test_getCellAscent ();
+	test_getCellDescent ();
+	test_getLineSpacing ();
 
 	GdiplusShutdown(gdiplusToken);
 	return 0;

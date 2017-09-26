@@ -94,6 +94,7 @@ typedef float REAL;
 typedef int INT;
 typedef guint16 WCHAR; /* 16-bits unicode */
 typedef guint32 UINT;
+typedef guint16 UINT16;
 typedef guint32 UINT32;
 typedef gint32 PROPID;
 typedef guint32 ULONG_PTR; /* not a pointer! */

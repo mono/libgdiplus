@@ -491,6 +491,9 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 		return OutOfMemory;
 
 	if (font_collection) {
+		if (font_collection->config)
+			gdip_createPrivateFontSet (font_collection);
+
 		status = create_fontfamily_from_collection (string, font_collection, fontFamily);
 	} else {
 		status = create_fontfamily_from_name (string, fontFamily);
@@ -510,6 +513,9 @@ GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], LANG
 	if (!family)
 		return InvalidParameter;
 
+	if (!name)
+		return Ok;
+
 	r = FcPatternGetString (family->pattern, FC_FAMILY, 0, &fc_str);
 	status = gdip_status_from_fontconfig (r);
 	if (status != Ok)
@@ -525,6 +531,9 @@ GdipGetGenericFontFamilySansSerif (GpFontFamily **nativeFamily)
 {
 	const WCHAR MSSansSerif[] = {'M','S',' ','S','a','n','s',' ', 'S','e','r','i','f', 0};
 	GpStatus status = Ok;
+
+	if (!nativeFamily)
+		return InvalidParameter;
 	
 #if GLIB_CHECK_VERSION(2,32,0)
 	g_mutex_lock (&generic);
@@ -557,6 +566,9 @@ GdipGetGenericFontFamilySerif (GpFontFamily **nativeFamily)
 	const WCHAR Serif[] = {'S','e','r','i','f', 0};
 	GpStatus status = Ok;
 	
+	if (!nativeFamily)
+		return InvalidParameter;
+	
 #if GLIB_CHECK_VERSION(2,32,0)
 	g_mutex_lock (&generic);
 #else
@@ -587,6 +599,9 @@ GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily)
 {
 	const WCHAR Monospace[] = {'C','o','u','r','i', 'e', 'r', ' ', 'N', 'e', 'w', 0};
 	GpStatus status = Ok;
+
+	if (!nativeFamily)
+		return InvalidParameter;
 	
 #if GLIB_CHECK_VERSION(2,32,0)
 	g_mutex_lock (&generic);
@@ -794,7 +809,7 @@ gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 #endif
 
 GpStatus WINGDIPAPI
-GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, guint16 *EmHeight)
+GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, UINT16 *EmHeight)
 {
 	GpStatus status = Ok;
 
@@ -809,7 +824,7 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, guint16 *EmHeight)
 }
 
 GpStatus WINGDIPAPI
-GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, guint16 *CellAscent)
+GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellAscent)
 {
 	GpStatus status = Ok;
 
@@ -824,7 +839,7 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, guint16 *CellAscen
 }
 
 GpStatus WINGDIPAPI
-GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, guint16 *CellDescent)
+GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellDescent)
 {
 	GpStatus status = Ok;
 
@@ -839,7 +854,7 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, guint16 *CellDesc
 }
 
 GpStatus WINGDIPAPI
-GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, guint16 *LineSpacing)
+GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, UINT16 *LineSpacing)
 {
 	GpStatus status = Ok;
 
@@ -1185,7 +1200,7 @@ GpStatus WINGDIPAPI
 GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float *height)
 {
 	GpStatus status;
-	guint16 emHeight, lineSpacing;
+	UINT16 emHeight, lineSpacing;
 	float emSize, h;
 
 	if (!font || !height)
@@ -1215,7 +1230,7 @@ GpStatus WINGDIPAPI
 GdipGetFontHeightGivenDPI (GDIPCONST GpFont *font, float dpi, float *height)
 {
 	GpStatus status;
-	guint16 emHeight, lineSpacing;
+	UINT16 emHeight, lineSpacing;
 	float h;
 
 	if (!font || !height)
