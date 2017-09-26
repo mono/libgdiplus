@@ -6,11 +6,16 @@ This is part of the [Mono project](http://www.mono-project.com/).
 
 This requires the libraries used by the Cairo vector graphics library to build (freetype2, fontconfig, Xft2 and libpng).
 
-On OSX you can use [Homebrew](https://brew.sh/) to install the dependencies:
+On **OSX** you can use [Homebrew](https://brew.sh/) to install the dependencies:
 
 	brew install glib cairo libexif libjpeg giflib libtiff autoconf libtool automake
 
-On Windows you can use [Chocolatey](https://chocolatey.org) to install the dependencies. Run the following commands from the root of the repository from an admin command prompt:
+On **Linux** you can use `apt-get` to install the dependencies:
+
+	sudo apt-get update
+	sudo apt-get install libgif-dev xvfb autoconf libtool automake build-essential gettext cmake git libglib2.0-dev libcairo2-dev libtiff-dev libexif-dev
+
+On **Windows** you can use [Chocolatey](https://chocolatey.org) to install the dependencies. Run the following commands from the root of the repository from an admin command prompt:
 
 	choco install wget
 	wget "https://dl.hexchat.net/gtk-win32/vc14/x86/gtk-Win32.7z" -O gtk-Win32.7z
