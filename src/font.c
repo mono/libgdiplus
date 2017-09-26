@@ -453,10 +453,6 @@ gdip_font_clear_pattern_cache (void)
 static GpStatus
 create_fontfamily_from_collection (char* name, GpFontCollection *font_collection, GpFontFamily **fontFamily)
 {
-	/* Initialize the font set. */
-	if (font_collection->config)
-		gdip_createPrivateFontSet (font_collection);
-
 	/* note: fontset can be NULL when we supply an empty private collection */
 	if (font_collection->fontset) {
 		int i;
@@ -495,6 +491,9 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 		return OutOfMemory;
 
 	if (font_collection) {
+		if (font_collection->config)
+			gdip_createPrivateFontSet (font_collection);
+
 		status = create_fontfamily_from_collection (string, font_collection, fontFamily);
 	} else {
 		status = create_fontfamily_from_name (string, fontFamily);
