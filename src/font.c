@@ -510,6 +510,9 @@ GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], LANG
 	if (!family)
 		return InvalidParameter;
 
+	if (!name)
+		return Ok;
+
 	r = FcPatternGetString (family->pattern, FC_FAMILY, 0, &fc_str);
 	status = gdip_status_from_fontconfig (r);
 	if (status != Ok)
@@ -525,6 +528,9 @@ GdipGetGenericFontFamilySansSerif (GpFontFamily **nativeFamily)
 {
 	const WCHAR MSSansSerif[] = {'M','S',' ','S','a','n','s',' ', 'S','e','r','i','f', 0};
 	GpStatus status = Ok;
+
+	if (!nativeFamily)
+		return InvalidParameter;
 	
 #if GLIB_CHECK_VERSION(2,32,0)
 	g_mutex_lock (&generic);
@@ -557,6 +563,9 @@ GdipGetGenericFontFamilySerif (GpFontFamily **nativeFamily)
 	const WCHAR Serif[] = {'S','e','r','i','f', 0};
 	GpStatus status = Ok;
 	
+	if (!nativeFamily)
+		return InvalidParameter;
+	
 #if GLIB_CHECK_VERSION(2,32,0)
 	g_mutex_lock (&generic);
 #else
@@ -587,6 +596,9 @@ GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily)
 {
 	const WCHAR Monospace[] = {'C','o','u','r','i', 'e', 'r', ' ', 'N', 'e', 'w', 0};
 	GpStatus status = Ok;
+
+	if (!nativeFamily)
+		return InvalidParameter;
 	
 #if GLIB_CHECK_VERSION(2,32,0)
 	g_mutex_lock (&generic);
