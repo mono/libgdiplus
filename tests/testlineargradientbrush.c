@@ -165,13 +165,17 @@ static void test_createLineBrushFromRect ()
 
     GpRectF rect3 = { 1, 3, 0, 1 };
     status = GdipCreateLineBrushFromRect (&rect3, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
-    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
-    assert (status == InvalidParameter);
+    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing.
+#if defined(USE_WINDOWS_GDIPLUS)
+    assert (status == OutOfMemory);
+#endif
 
     GpRectF rect4 = { 1, 3, 1, 0 };
     status = GdipCreateLineBrushFromRect (&rect4, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
     // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
-    assert (status == InvalidParameter);
+#if defined(USE_WINDOWS_GDIPLUS)
+    assert (status == OutOfMemory);
+#endif
 
     status = GdipCreateLineBrushFromRect (&rect1, 10, 11, (LinearGradientMode)(LinearGradientModeHorizontal - 1), WrapModeTile, &brush);
     assert (status == OutOfMemory);
@@ -226,12 +230,16 @@ static void test_createLineBrushFromRectI ()
     GpRect rect3 = { 1, 3, 0, 1 };
     status = GdipCreateLineBrushFromRectI (&rect3, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
     // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
-    assert (status == InvalidParameter);
+#if defined(USE_WINDOWS_GDIPLUS)
+    assert (status == OutOfMemory);
+#endif
 
     GpRect rect4 = { 1, 3, 1, 0 };
     status = GdipCreateLineBrushFromRectI (&rect4, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
     // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
+#if defined(USE_WINDOWS_GDIPLUS)
     assert (status == InvalidParameter);
+#endif
 
     status = GdipCreateLineBrushFromRectI (&rect1, 10, 11, (LinearGradientMode)(LinearGradientModeHorizontal - 1), WrapModeTile, &brush);
     assert (status == OutOfMemory);
@@ -296,12 +304,16 @@ static void test_createLineBrushFromRectWithAngle ()
     GpRectF rect3 = { 1, 3, 0, 1 };
     status = GdipCreateLineBrushFromRectWithAngle (&rect3, 10, 11, 90, TRUE, WrapModeTileFlipXY, &brush);
     // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
-    assert (status == InvalidParameter);
+#if defined(USE_WINDOWS_GDIPLUS)
+    assert (status == OutOfMemory);
+#endif
 
     GpRectF rect4 = { 1, 3, 1, 0 };
     status = GdipCreateLineBrushFromRectWithAngle (&rect4, 10, 11, 90, TRUE, WrapModeTileFlipXY, &brush);
     // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
-    assert (status == InvalidParameter);
+#if defined(USE_WINDOWS_GDIPLUS)
+    assert (status == OutOfMemory);
+#endif
 
     status = GdipCreateLineBrushFromRectWithAngle (&rect1, 10, 11, 90, TRUE, WrapModeClamp, &brush);
     assert (status == InvalidParameter);
@@ -354,12 +366,16 @@ static void test_createLineBrushFromRectWithAngleI ()
     GpRect rect3 = { 1, 3, 0, 1 };
     status = GdipCreateLineBrushFromRectWithAngleI (&rect3, 10, 11, 90, TRUE, WrapModeTileFlipXY, &brush);
     // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
-    assert (status == InvalidParameter);
+#if defined(USE_WINDOWS_GDIPLUS)
+    assert (status == OutOfMemory);
+#endif
 
     GpRect rect4 = { 1, 3, 1, 0 };
     status = GdipCreateLineBrushFromRectWithAngleI (&rect4, 10, 11, 90, TRUE, WrapModeTileFlipXY, &brush);
     // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
-    assert (status == InvalidParameter);
+#if defined(USE_WINDOWS_GDIPLUS)
+    assert (status == OutOfMemory);
+#endif
 
     status = GdipCreateLineBrushFromRectWithAngleI (&rect1, 10, 11, 90, TRUE, WrapModeClamp, &brush);
     assert (status == InvalidParameter);
@@ -1058,14 +1074,23 @@ static void test_multiplyLineTransform ()
     GdipGetLineTransform (brush, transform);
     verifyMatrix (transform, 11, 16, 19, 28, 32, 46);
 
-    // Invalid MatrixOrder - this produces garbage data.
+    // Invalid MatrixOrder - negative.
     GdipSetLineTransform (brush, originalTransform);
 
     status = GdipMultiplyLineTransform (brush, matrix, (MatrixOrder)(MatrixOrderPrepend - 1));
     assert (status == Ok);
+    
+    GdipGetLineTransform (brush, transform);
+    verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
+
+    // Invalid MatrixOrder - positive.
+    GdipSetLineTransform (brush, originalTransform);
 
     status = GdipMultiplyLineTransform (brush, matrix, (MatrixOrder)(MatrixOrderAppend + 1));
     assert (status == Ok);
+    
+    GdipGetLineTransform (brush, transform);
+    verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
 
     // Negative tests.
     status = GdipMultiplyLineTransform (NULL, matrix, MatrixOrderAppend);

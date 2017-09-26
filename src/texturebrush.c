@@ -830,7 +830,7 @@ GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrde
 
 	if (order == MatrixOrderPrepend)
 		cairo_matrix_multiply (&mat, matrix, &texture->matrix);
-	else if (order == MatrixOrderAppend)
+	else
 		cairo_matrix_multiply (&mat, &texture->matrix, matrix);
 
 	gdip_cairo_matrix_copy (&texture->matrix, &mat);

@@ -1112,14 +1112,23 @@ static void test_multiplyPenTransform ()
     GdipGetPenTransform (pen, transform);
     verifyMatrix (transform, 11, 16, 19, 28, 32, 46);
 
-    // Invalid MatrixOrder - this produces garbage data.
+    // Invalid MatrixOrder - negative.
     GdipSetPenTransform (pen, originalTransform);
 
     status = GdipMultiplyPenTransform (pen, matrix, (MatrixOrder)(MatrixOrderPrepend - 1));
-    assert (status == Ok);
+		assert (status == Ok);
+
+    GdipGetPenTransform (pen, transform);
+    verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
+		
+    // Invalid MatrixOrder - positive.
+    GdipSetPenTransform (pen, originalTransform);
 
     status = GdipMultiplyPenTransform (pen, matrix, (MatrixOrder)(MatrixOrderAppend + 1));
     assert (status == Ok);
+
+    GdipGetPenTransform (pen, transform);
+    verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
 
     // Negative tests.
     status = GdipMultiplyPenTransform (NULL, matrix, MatrixOrderAppend);

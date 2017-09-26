@@ -1237,7 +1237,7 @@ GdipMultiplyPathGradientTransform (GpPathGradient *brush, GDIPCONST GpMatrix *ma
 
 	if (order == MatrixOrderPrepend)
 		cairo_matrix_multiply (&mat, matrix, &brush->transform);
-	else if (order == MatrixOrderAppend)
+	else
 		cairo_matrix_multiply (&mat, &brush->transform, matrix);
 
 	gdip_cairo_matrix_copy (&brush->transform, &mat);

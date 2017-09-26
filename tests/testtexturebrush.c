@@ -590,14 +590,23 @@ static void test_multiplyTextureTransform ()
     GdipGetTextureTransform (brush, transform);
     verifyMatrix (transform, 11, 16, 19, 28, 32, 46);
 
-    // Invalid MatrixOrder - this produces garbage data.
+    // Invalid MatrixOrder - negative.
     GdipSetTextureTransform (brush, originalTransform);
 
     status = GdipMultiplyTextureTransform (brush, matrix, (MatrixOrder)(MatrixOrderPrepend - 1));
     assert (status == Ok);
 
+    GdipGetTextureTransform (brush, transform);
+    verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
+
+    // Invalid MatrixOrder - positive.
+    GdipSetTextureTransform (brush, originalTransform);
+
     status = GdipMultiplyTextureTransform (brush, matrix, (MatrixOrder)(MatrixOrderAppend + 1));
     assert (status == Ok);
+
+    GdipGetTextureTransform (brush, transform);
+    verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
 
     // Negative tests.
     status = GdipMultiplyTextureTransform (NULL, matrix, MatrixOrderAppend);
