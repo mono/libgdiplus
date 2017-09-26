@@ -3,6 +3,7 @@
 .libs/
 Makefile
 Makefile.in
+testadjustablearrowcap
 testbits
 testbrush
 testclip

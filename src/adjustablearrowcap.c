@@ -169,6 +169,11 @@ GdipCreateAdjustableArrowCap (REAL height, REAL width, BOOL isFilled, GpAdjustab
 	cap->width = width;
 	cap->height = height;
 
+	if (width == 0)
+		cap->base.base_inset = 0;
+	else
+		cap->base.base_inset = height / width;
+
 	*arrowCap = cap;
 
 	return Ok;

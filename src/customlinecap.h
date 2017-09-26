@@ -14,6 +14,7 @@
 GpStatus WINGDIPAPI GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap, float baseInset, GpCustomLineCap **customCap);
 GpStatus WINGDIPAPI GdipDeleteCustomLineCap (GpCustomLineCap *customCap);
 GpStatus WINGDIPAPI GdipCloneCustomLineCap (GpCustomLineCap *customCap, GpCustomLineCap **clonedCap);
+GpStatus WINGDIPAPI GdipGetCustomLineCapType (GpCustomLineCap *customCap, CustomLineCapType *capType);
 GpStatus WINGDIPAPI GdipSetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap startCap, GpLineCap endCap);
 GpStatus WINGDIPAPI GdipGetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap *startCap, GpLineCap *endCap);
 GpStatus WINGDIPAPI GdipSetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin lineJoin);
