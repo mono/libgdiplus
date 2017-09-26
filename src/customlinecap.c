@@ -348,7 +348,7 @@ GdipCloneCustomLineCap (GpCustomLineCap *customCap, GpCustomLineCap **clonedCap)
 }
 
 GpStatus WINGDIPAPI
-GdipGetCustomLineCapType (GpCustomLineCap* customCap, CustomLineCapType* capType)
+GdipGetCustomLineCapType (GpCustomLineCap *customCap, CustomLineCapType *capType)
 {
 	if (!customCap || !capType)
 		return InvalidParameter;

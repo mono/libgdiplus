@@ -113,6 +113,14 @@ static void test_createAdjustableArrowCap ()
 	assert (status == Ok);
 	verifyArrowCap (cap, 0, 0, FALSE);
 
+	status = GdipCreateAdjustableArrowCap (2, 0, FALSE, &cap);
+	assert (status == Ok);
+	verifyArrowCap (cap, 2, 0, FALSE);
+
+	status = GdipCreateAdjustableArrowCap (0, 2, FALSE, &cap);
+	assert (status == Ok);
+	verifyArrowCap (cap, 0, 2, FALSE);
+
 	status = GdipCreateAdjustableArrowCap (-1, -2, FALSE, &cap);
 	assert (status == Ok);
 	verifyArrowCap (cap, -1, -2, FALSE);
