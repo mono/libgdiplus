@@ -11,6 +11,7 @@ testgraphics
 testgdi
 testhatchbrush
 testlineargradientbrush
+testmatrix
 testpathgradientbrush
 testpen
 testpng
