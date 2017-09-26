@@ -10,10 +10,9 @@ On **OSX** you can use [Homebrew](https://brew.sh/) to install the dependencies:
 
 	brew install glib cairo libexif libjpeg giflib libtiff autoconf libtool automake
 
-On **Linux** you can use `apt-get` to install the dependencies:
+On **Debian-based Linux distributions** you can use `apt-get` to install the dependencies:
 
-	sudo apt-get update
-	sudo apt-get install libgif-dev xvfb autoconf libtool automake build-essential gettext cmake git libglib2.0-dev libcairo2-dev libtiff-dev libexif-dev
+	sudo apt-get install libgif-dev autoconf libtool automake build-essential gettext libglib2.0-dev libcairo2-dev libtiff-dev libexif-dev
 
 On **Windows** you can use [Chocolatey](https://chocolatey.org) to install the dependencies. Run the following commands from the root of the repository from an admin command prompt:
 
