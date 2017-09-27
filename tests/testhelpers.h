@@ -2,15 +2,15 @@
 #include <float.h>
 #include <math.h>
 
-int floatsEqual(float v1, float v2)
+BOOL floatsEqual (float v1, float v2)
 {
-    if (isnan (v1))
-        return isnan (v2);
+	if (isnan (v1))
+		return isnan (v2);
 
-    if (isinf (v1))
-        return isinf (v2);
+	if (isinf (v1))
+		return isinf (v2);
 
-    return fabs (v1 - v2) < 0.0001;
+	return fabs (v1 - v2) < 0.0001;
 }
 
 void verifyMatrix (GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5, REAL e6)
@@ -40,3 +40,29 @@ void verifyMatrix (GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5
 #define createWchar(c) L ##c
 #define freeWchar(c)
 #endif
+
+#define assertEqualInt(actual, expected) assertEqualIntImpl (actual, expected, __FILE__, __LINE__)
+void assertEqualIntImpl (INT actual, INT expected, const char *file, INT line)
+{
+    if (actual != expected)
+    {
+        printf ("Assertion failed on line %d in %s\n", line, file);
+        printf ("Expected: %d\n", actual);
+        printf ("Actual:   %d\n", expected);
+
+        abort ();
+    }
+}
+
+#define assertEqualFloat(actual, expected) assertEqualFloatImpl (actual, expected, __FILE__, __LINE__)
+void assertEqualFloatImpl (REAL actual, REAL expected, const char *file, INT line)
+{
+    if (!floatsEqual (actual, expected))
+    {
+        printf ("Assertion failed on line %d in %s\n", line, file);
+        printf ("Expected: %f\n", actual);
+        printf ("Actual:   %f\n", expected);
+
+        abort ();
+    }
+}

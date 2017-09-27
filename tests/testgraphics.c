@@ -26,12 +26,12 @@ static GpGraphics *getImageGraphics (GpImage *image)
 
 	filePath = createWchar ("test.bmp");
 	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok && "Expected test.bmp to exist.");
+	assertEqualInt (status, Ok);
 
 	freeWchar (filePath);
 	
 	status = GdipGetImageGraphicsContext (image, &graphics);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	return graphics;
 }
@@ -48,35 +48,35 @@ static void test_createFromHDC()
 	graphicsOriginal = getImageGraphics (&image);
 
 	status = GdipSetTextRenderingHint (graphicsOriginal, TextRenderingHintClearTypeGridFit);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetDC (graphicsOriginal, &hdc);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipCreateFromHDC (0, &graphicsFromHdc);
-	assert (status == OutOfMemory);
+	assertEqualInt (status, OutOfMemory);
 
 	status = GdipCreateFromHDC (0, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipCreateFromHDC (hdc, &graphicsFromHdc);
-	assert (status == Ok);
-	assert(graphicsFromHdc != NULL);
+	assertEqualInt (status, Ok);
+	assert (graphicsFromHdc != NULL);
 
 	// The graphics from the HDC should not have the same values as the original graphics.
 	status = GdipGetTextRenderingHint (graphicsFromHdc, &textRenderingHint);
-	assert(status == Ok);
-	assert(textRenderingHint == TextRenderingHintSystemDefault);
+	assertEqualInt (status, Ok);
+	assertEqualInt (textRenderingHint, TextRenderingHintSystemDefault);
 
 	// Modifying the graphics from the HDC should not modify the original graphics.
 	status = GdipSetTextRenderingHint (graphicsFromHdc, TextRenderingHintSingleBitPerPixelGridFit);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	GdipReleaseDC (graphicsOriginal, hdc);
 
 	status = GdipGetTextRenderingHint (graphicsOriginal, &textRenderingHint);
-	assert(status == Ok);
-	assert(textRenderingHint == TextRenderingHintClearTypeGridFit);
+	assertEqualInt (status, Ok);
+	assertEqualInt (textRenderingHint, TextRenderingHintClearTypeGridFit);
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphicsOriginal);
@@ -95,35 +95,35 @@ static void test_createFromHDC2()
 	graphicsOriginal = getImageGraphics (&image);
 
 	status = GdipSetTextRenderingHint (graphicsOriginal, TextRenderingHintClearTypeGridFit);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetDC (graphicsOriginal, &hdc);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipCreateFromHDC2 (0, NULL, &graphicsFromHdc);
-	assert (status == OutOfMemory);
+	assertEqualInt (status, OutOfMemory);
 
 	status = GdipCreateFromHDC2 (0, NULL, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipCreateFromHDC2 (hdc, NULL, &graphicsFromHdc);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	assert (graphicsFromHdc != NULL);
 
 	// The graphics from the HDC should not have the same values as the original graphics.
 	status = GdipGetTextRenderingHint (graphicsFromHdc, &textRenderingHint);
-	assert (status == Ok);
-	assert (textRenderingHint == TextRenderingHintSystemDefault);
+	assertEqualInt (status, Ok);
+	assertEqualInt (textRenderingHint, TextRenderingHintSystemDefault);
 
 	// Modifying the graphics from the HDC should not modify the original graphics.
 	status = GdipSetTextRenderingHint (graphicsFromHdc, TextRenderingHintSingleBitPerPixelGridFit);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	GdipReleaseDC (graphicsOriginal, hdc);
 
 	status = GdipGetTextRenderingHint (graphicsOriginal, &textRenderingHint);
-	assert (status == Ok);
-	assert (textRenderingHint == TextRenderingHintClearTypeGridFit);
+	assertEqualInt (status, Ok);
+	assertEqualInt (textRenderingHint, TextRenderingHintClearTypeGridFit);
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphicsOriginal);
@@ -136,17 +136,17 @@ static void test_createFromHWND()
 	GpGraphics *graphics;
 
 	status = GdipCreateFromHWND (0, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 // Libgdiplus does not implement GdipCreateFromHwnd.
 #if defined(USE_WINDOWS_GDIPLUS)
 	// HWND of zero means the current screen.
 	status = GdipCreateFromHWND (0, &graphics);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	assert (graphics != NULL);
 #else
   status = GdipCreateFromHWND (0, &graphics);
-	assert (status == NotImplemented);
+	assertEqualInt (status, NotImplemented);
 #endif
 }
 
@@ -156,17 +156,17 @@ static void test_createFromHWNDICM()
 	GpGraphics *graphics;
 
 	status = GdipCreateFromHWNDICM (0, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 // Libgdiplus does not implement GdipCreateFromHwndICM.
 #if defined(USE_WINDOWS_GDIPLUS)
 	// HWND of zero means the current screen.
 	status = GdipCreateFromHWNDICM (0, &graphics);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	assert (graphics != NULL);
 #else
   status = GdipCreateFromHWNDICM (0, &graphics);
-	assert (status == NotImplemented);
+	assertEqualInt (status, NotImplemented);
 #endif
 }
 
@@ -180,32 +180,32 @@ static void test_hdc ()
 	graphics = getImageGraphics (&image);
 
 	status = GdipGetDC (NULL, &hdc);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetDC (graphics, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetDC (graphics, &hdc);
-	assert (status == Ok);
-	assert(hdc != 0);
+	assertEqualInt (status, Ok);
+	assert (hdc != 0);
 
 	status = GdipGetDC (graphics, &hdc);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	status = GdipReleaseDC (NULL, hdc);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipReleaseDC (NULL, 0);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipReleaseDC (graphics, 0);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipReleaseDC (graphics, hdc);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipReleaseDC (graphics, hdc);
-	assert (status == InvalidParameter);	
+	assertEqualInt (status, InvalidParameter);	
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -221,29 +221,29 @@ static void test_compositingMode ()
 	graphics = getImageGraphics (&image);
 
 	status = GdipSetCompositingMode (NULL, CompositingModeSourceCopy);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetCompositingMode (NULL, &mode);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetCompositingMode (graphics, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetCompositingMode (graphics, (CompositingMode)-1);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetCompositingMode(graphics, &mode);
-	assert (status == Ok);
-	assert (mode == (CompositingMode)-1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (mode, (CompositingMode)-1);
 
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
 	status = GdipGetCompositingMode (graphics, &mode);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	status = GdipSetCompositingMode (graphics, CompositingModeSourceCopy);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
 
@@ -261,29 +261,29 @@ static void test_compositingQuality ()
 	graphics = getImageGraphics (&image);
 
 	status = GdipGetCompositingQuality(NULL, &quality);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetCompositingQuality (graphics, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetCompositingQuality (NULL, CompositingQualityAssumeLinear);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetCompositingQuality (graphics, (CompositingQuality)-1);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetCompositingQuality (graphics, &quality);
-	assert (status == Ok);
-	assert (quality == (CompositingQuality)-1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (quality, (CompositingQuality)-1);
 
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
 	status = GdipGetCompositingQuality (graphics, &quality);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	status = GdipSetCompositingQuality(graphics, CompositingQualityAssumeLinear);
-	assert(status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
 
@@ -302,33 +302,33 @@ static void test_renderingOrigin ()
 	graphics = getImageGraphics (&image);
 
 	status = GdipGetRenderingOrigin (NULL, &x, &y);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetRenderingOrigin (graphics, NULL, &y);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetRenderingOrigin (graphics, &x, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetRenderingOrigin(NULL, 0, 0);
-	assert(status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetRenderingOrigin (graphics, 1, 2);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetRenderingOrigin (graphics, &x, &y);
-	assert (status == Ok);
-	assert (x == 1);
-	assert (y == 2);
+	assertEqualInt (status, Ok);
+	assertEqualInt (x, 1);
+	assertEqualInt (y, 2);
 
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
 	status = GdipGetRenderingOrigin(graphics, &x, &y);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	status = GdipSetRenderingOrigin (graphics, 1, 2);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
 
@@ -346,35 +346,35 @@ static void test_textRenderingHint ()
 	graphics = getImageGraphics (&image);
 
 	status = GdipGetTextRenderingHint (NULL, &textRenderingHint);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetTextRenderingHint (graphics, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetTextRenderingHint (NULL, TextRenderingHintAntiAlias);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetTextRenderingHint (graphics, (TextRenderingHint)(TextRenderingHintSystemDefault - 1));
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetTextRenderingHint (graphics, (TextRenderingHint)(TextRenderingHintClearTypeGridFit + 1));
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetTextRenderingHint (graphics, TextRenderingHintClearTypeGridFit);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetTextRenderingHint (graphics, &textRenderingHint);
-	assert (status == Ok);
-	assert (textRenderingHint == TextRenderingHintClearTypeGridFit);
+	assertEqualInt (status, Ok);
+	assertEqualInt (textRenderingHint, TextRenderingHintClearTypeGridFit);
 
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
 	status = GdipGetTextRenderingHint(graphics, &textRenderingHint);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	status = GdipSetTextRenderingHint (graphics, TextRenderingHintClearTypeGridFit);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
 
@@ -392,35 +392,35 @@ static void test_textContrast ()
 	graphics = getImageGraphics (&image);
 
 	status = GdipGetTextContrast (NULL, &textContrast);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetTextContrast (graphics, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetTextContrast(NULL, 1);
-	assert(status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetTextContrast (graphics, -1);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetTextContrast (graphics, 13);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetTextContrast (graphics, 12);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetTextContrast (graphics, &textContrast);
-	assert (status == Ok);
-	assert (textContrast == 12);
+	assertEqualInt (status, Ok);
+	assertEqualInt (textContrast, 12);
 
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
 	status = GdipGetTextContrast (graphics, &textContrast);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	status = GdipSetTextContrast (graphics, 1);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
 
@@ -438,63 +438,63 @@ static void test_smoothingMode ()
 	graphics = getImageGraphics (&image);
 
 	status = GdipGetSmoothingMode (NULL, &smoothingMode);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetSmoothingMode (graphics, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetSmoothingMode (NULL, SmoothingModeAntiAlias);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetSmoothingMode (graphics, SmoothingModeInvalid);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetSmoothingMode (graphics, (SmoothingMode)(SmoothingModeInvalid - 1));
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetSmoothingMode (graphics, (SmoothingMode)(SmoothingModeAntiAlias + 1));
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	// HighQuality -> AntiAlias
 	status = GdipSetSmoothingMode (graphics, SmoothingModeHighQuality);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetSmoothingMode (graphics, &smoothingMode);
-	assert (status == Ok);
-	assert (smoothingMode == SmoothingModeAntiAlias);
+	assertEqualInt (status, Ok);
+	assertEqualInt (smoothingMode, SmoothingModeAntiAlias);
 
 	// Default -> None
 	status = GdipSetSmoothingMode (graphics, SmoothingModeDefault);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetSmoothingMode (graphics, &smoothingMode);
-	assert (status == Ok);
-	assert (smoothingMode == SmoothingModeNone);
+	assertEqualInt (status, Ok);
+	assertEqualInt (smoothingMode, SmoothingModeNone);
 
 	// HighSpeed -> None
 	status = GdipSetSmoothingMode(graphics, SmoothingModeHighSpeed);
-	assert(status == Ok);
-
+	assertEqualInt (status, Ok);
+	
 	status = GdipGetSmoothingMode(graphics, &smoothingMode);
-	assert(status == Ok);
-	assert(smoothingMode == SmoothingModeNone);
+	assertEqualInt (status, Ok);
+	assertEqualInt (smoothingMode, SmoothingModeNone);
 
 	// Other -> Other
 	status = GdipSetSmoothingMode(graphics, SmoothingModeAntiAlias);
-	assert(status == Ok);
-
+	assertEqualInt (status, Ok);
+	
 	status = GdipGetSmoothingMode(graphics, &smoothingMode);
-	assert(status == Ok);
-	assert(smoothingMode == SmoothingModeAntiAlias);
+	assertEqualInt (status, Ok);
+	assertEqualInt (smoothingMode, SmoothingModeAntiAlias);
 
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
 	status = GdipGetSmoothingMode (graphics, &smoothingMode);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	status = GdipSetSmoothingMode (graphics, SmoothingModeHighQuality);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
 
@@ -512,52 +512,52 @@ static void test_pixelOffsetMode ()
 	graphics = getImageGraphics (&image);
 
 	status = GdipGetPixelOffsetMode (NULL, &pixelOffsetMode);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPixelOffsetMode (graphics, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPixelOffsetMode(NULL, PixelOffsetModeDefault);
-	assert(status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPixelOffsetMode (graphics, PixelOffsetModeInvalid);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPixelOffsetMode (graphics, (PixelOffsetMode)(PixelOffsetModeInvalid - 1));
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPixelOffsetMode (graphics, (PixelOffsetMode)(PixelOffsetModeHalf + 1));
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPixelOffsetMode (graphics, PixelOffsetModeHighQuality);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPixelOffsetMode (graphics, &pixelOffsetMode);
-	assert (status == Ok);
-	assert (pixelOffsetMode == PixelOffsetModeHighQuality);
+	assertEqualInt (status, Ok);
+	assertEqualInt (pixelOffsetMode, PixelOffsetModeHighQuality);
 
 	status = GdipSetPixelOffsetMode (graphics, PixelOffsetModeDefault);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPixelOffsetMode (graphics, &pixelOffsetMode);
-	assert (status == Ok);
-	assert (pixelOffsetMode == PixelOffsetModeDefault);
+	assertEqualInt (status, Ok);
+	assertEqualInt (pixelOffsetMode, PixelOffsetModeDefault);
 
 	status = GdipSetPixelOffsetMode(graphics, PixelOffsetModeHighSpeed);
-	assert(status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPixelOffsetMode(graphics, &pixelOffsetMode);
-	assert(status == Ok);
-	assert(pixelOffsetMode == PixelOffsetModeHighSpeed);
+	assertEqualInt (status, Ok);
+	assertEqualInt (pixelOffsetMode, PixelOffsetModeHighSpeed);
 
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
 	status = GdipGetPixelOffsetMode (graphics, &pixelOffsetMode);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	status = GdipSetPixelOffsetMode (graphics, PixelOffsetModeDefault);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
 
@@ -575,66 +575,66 @@ static void test_interpolationMode ()
 	graphics = getImageGraphics (&image);
 	
 	status = GdipGetInterpolationMode (NULL, &interpolationMode);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 // This causes an access violation in GDI+.
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipGetInterpolationMode(graphics, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 #endif
 
 	status = GdipSetInterpolationMode(NULL, InterpolationModeBicubic);
-	assert(status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetInterpolationMode (graphics, InterpolationModeInvalid);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetInterpolationMode (graphics, (InterpolationMode)(InterpolationModeInvalid - 1));
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetInterpolationMode (graphics, (InterpolationMode)(InterpolationModeHighQualityBicubic + 1));
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	// Default -> Bilinear
 	status = GdipSetInterpolationMode (graphics, InterpolationModeDefault);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetInterpolationMode (graphics, &interpolationMode);
-	assert (status == Ok);
-	assert (interpolationMode == InterpolationModeBilinear);
+	assertEqualInt (status, Ok);
+	assertEqualInt (interpolationMode, InterpolationModeBilinear);
 
 	// HighQuality -> HighQualityBicubic
 	status = GdipSetInterpolationMode (graphics, InterpolationModeHighQuality);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetInterpolationMode (graphics, &interpolationMode);
-	assert (status == Ok);
-	assert (interpolationMode == InterpolationModeHighQualityBicubic);
+	assertEqualInt (status, Ok);
+	assertEqualInt (interpolationMode, InterpolationModeHighQualityBicubic);
 
 	// LowQuality -> NearestNeighbor
 	status = GdipSetInterpolationMode(graphics, InterpolationModeLowQuality);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetInterpolationMode (graphics, &interpolationMode);
-	assert (status == Ok);
-	assert (interpolationMode == InterpolationModeBilinear);
+	assertEqualInt (status, Ok);
+	assertEqualInt (interpolationMode, InterpolationModeBilinear);
 
 	// Other -> Other
 	status = GdipSetInterpolationMode (graphics, InterpolationModeBicubic);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetInterpolationMode (graphics, &interpolationMode);
-	assert (status == Ok);
-	assert (interpolationMode == InterpolationModeBicubic);
+	assertEqualInt (status, Ok);
+	assertEqualInt (interpolationMode, InterpolationModeBicubic);
 
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
 	status = GdipGetInterpolationMode (graphics, &interpolationMode);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	status = GdipSetInterpolationMode (graphics, InterpolationModeBicubic);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
 
@@ -654,46 +654,46 @@ static void test_transform ()
 	graphics = getImageGraphics (&image);
 
 	status = GdipCreateMatrix2 (0, 0, 0, 0, 0, 0, &matrix);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipCreateMatrix2 (146, 66, 158, 104, 42, 150, &setMatrix);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipCreateMatrix2 (123, 24, 82, 16, 47, 30, &nonInvertibleMatrix);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetWorldTransform (NULL, matrix);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetWorldTransform (graphics, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetWorldTransform (NULL, matrix);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetWorldTransform (graphics, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetWorldTransform (graphics, nonInvertibleMatrix);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetWorldTransform (graphics, setMatrix);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetWorldTransform (graphics, matrix);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	BOOL result;
 	GdipIsMatrixEqual (matrix, setMatrix, &result);
-	assert (result == 1);
+	assertEqualInt (result, 1);
 
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
 	status = GdipGetWorldTransform (graphics, matrix);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	status = GdipSetWorldTransform (graphics, matrix);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
 
@@ -714,43 +714,43 @@ static void test_pageUnit ()
 	graphics = getImageGraphics (&image);
 
 	status = GdipGetPageUnit (NULL, &pageUnit);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPageUnit (graphics, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPageUnit (NULL, UnitDisplay);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPageUnit (graphics, (Unit)(UnitWorld - 1));
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 #if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipSetPageUnit (graphics, (Unit)(UnitMillimeter + 1));
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 #else
 	status = GdipSetPageUnit (graphics, (Unit)(UnitCairoPoint + 1));
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 #endif
 
 	status = GdipSetPageUnit (graphics, UnitWorld);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPageUnit (graphics, UnitMillimeter);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPageUnit (graphics, &pageUnit);
-	assert (status == Ok);
-	assert (pageUnit == UnitMillimeter);
+	assertEqualInt (status, Ok);
+	assertEqualInt (pageUnit, UnitMillimeter);
 
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
 	status = GdipGetPageUnit (graphics, &pageUnit);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	status = GdipSetPageUnit (graphics, UnitDisplay);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
 
@@ -768,52 +768,52 @@ static void test_pageScale ()
 	graphics = getImageGraphics (&image);
 
 	status = GdipGetPageScale (NULL, &pageScale);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPageScale (graphics, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPageScale (NULL, UnitDisplay);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPageScale (graphics, -INFINITY);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPageScale (graphics, -1);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPageScale (graphics, 0);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPageScale (graphics, FLT_MAX);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	// 1000000032 appears to be the max value accepted by GDI+.
 	status = GdipSetPageScale (graphics, (float)1000000033);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPageScale (graphics, 1);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPageScale (graphics, &pageScale);
-	assert (status == Ok);
-	assert (pageScale == 1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (pageScale, 1);
 
-	status = GdipSetPageScale (graphics, (float)1000000032);
-	assert (status == Ok);
+	status = GdipSetPageScale (graphics, (REAL) 1000000032);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPageScale (graphics, &pageScale);
-	assert (status == Ok);
-	assert (pageScale == 1000000032);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (pageScale, 1000000032);
 
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
 	status = GdipGetPageScale (graphics, &pageScale);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	status = GdipSetPageScale (graphics, 1);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
 
@@ -831,20 +831,20 @@ static void test_dpiX ()
 	graphics = getImageGraphics (&image);
 
 	status = GdipGetDpiX (NULL, &dpiX);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetDpiX (graphics, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetDpiX (graphics, &dpiX);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	assert (dpiX > 0);
 
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
 	status = GdipGetDpiX (graphics, &dpiX);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC(graphics, hdc);
 
@@ -862,20 +862,20 @@ static void test_dpiY ()
 	graphics = getImageGraphics (&image);
 
 	status = GdipGetDpiY (NULL, &dpiY);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetDpiY (graphics, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetDpiY (graphics, &dpiY);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	assert (dpiY > 0);
 
 	HDC hdc;
 	GdipGetDC(graphics, &hdc);
 
 	status = GdipGetDpiY (graphics, &dpiY);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
 
@@ -892,25 +892,25 @@ static void test_flush ()
 	graphics = getImageGraphics (&image);
 
 	status = GdipFlush (NULL, FlushIntentionFlush);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipFlush (graphics, FlushIntentionFlush);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipFlush (graphics, FlushIntentionSync);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipFlush (graphics, (FlushIntention)(FlushIntentionFlush - 1));
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipFlush (graphics, (FlushIntention)(FlushIntentionSync + 1));
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	HDC hdc;
 	status = GdipGetDC (graphics, &hdc);
 
 	status = GdipFlush (graphics, FlushIntentionSync);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
 
@@ -930,15 +930,15 @@ static void test_delete ()
 	status = GdipGetDC (graphics, &hdc);
 
 	status = GdipDeleteGraphics (graphics);
-	assert (status == ObjectBusy);
+	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
 
 	status = GdipDeleteGraphics (graphics);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipDeleteGraphics (NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDisposeImage (image);
 }

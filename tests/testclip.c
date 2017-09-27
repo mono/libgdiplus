@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#define C(func) assert(func == Ok)
+#define C(func) assert (func == Ok)
 
 #ifdef WIN32
 using namespace Gdiplus;
@@ -69,7 +69,7 @@ test_gdip_clip()
 
 	C (GdipGetClip (graphics, clip));
 	C (GdipIsInfiniteRegion(clip, graphics, &is_infinite));
-	assert(is_infinite);
+	assert (is_infinite);
 
 	// Create a path
 
@@ -96,7 +96,7 @@ test_gdip_clip()
 	C (GdipSetClipPath (graphics, path, CombineModeExclude));
 	C (GdipGetClip (graphics, clip));
 	C (GdipIsInfiniteRegion (clip, graphics, &is_infinite));
-	assert(!is_infinite);
+	assert (!is_infinite);
 
 	// Clear the clipped image (background)
 	C (GdipGraphicsClear (graphics, 0x80ff0000));
@@ -131,7 +131,7 @@ test_gdip_clip()
 		int *other_p = (int*)other_bm.data.Scan0;
 		int i;
 		for (i = 0; i < width * height; ++i)
-			assert(*p++ == *other_p++);
+			assert (*p++ == *other_p++);
 	}
 
 	C (GdipBitmapUnlockBits (bitmap, &bm.data));
