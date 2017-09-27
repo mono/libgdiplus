@@ -25,11 +25,11 @@ void verifyMatrix (GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5
         !floatsEqual (elements[4], e5) ||
         !floatsEqual (elements[5], e6)) {
 
-        printf ("Expected matrices to be equal\n");
-        printf ("Actual:   %f, %f, %f, %f, %f, %f\n", e1, e2, e3, e4, e5, e6);
-        printf ("Expected: %f, %f, %f, %f, %f, %f\n\n", elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]);
+        fprintf (stderr, "Expected matrices to be equal\n");
+        fprintf (stderr, "Actual:   %f, %f, %f, %f, %f, %f\n", e1, e2, e3, e4, e5, e6);
+        fprintf (stderr, "Expected: %f, %f, %f, %f, %f, %f\n\n", elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]);
 
-        assert (FALSE);
+        abort ();
     }
 }
 
@@ -46,9 +46,9 @@ void assertEqualIntImpl (INT actual, INT expected, const char *file, INT line)
 {
     if (actual != expected)
     {
-        printf ("Assertion failed on line %d in %s\n", line, file);
-        printf ("Expected: %d\n", actual);
-        printf ("Actual:   %d\n", expected);
+        fprintf (stderr, "Assertion failed on line %d in %s\n", line, file);
+        fprintf (stderr, "Expected: %d\n", expected);
+        fprintf (stderr, "Actual:   %d\n", actual);
 
         abort ();
     }
@@ -59,9 +59,9 @@ void assertEqualFloatImpl (REAL actual, REAL expected, const char *file, INT lin
 {
     if (!floatsEqual (actual, expected))
     {
-        printf ("Assertion failed on line %d in %s\n", line, file);
-        printf ("Expected: %f\n", actual);
-        printf ("Actual:   %f\n", expected);
+        fprintf (stderr, "Assertion failed on line %d in %s\n", line, file);
+        fprintf (stderr, "Expected: %f\n", expected);
+        fprintf (stderr, "Actual:   %f\n", actual);
 
         abort ();
     }
