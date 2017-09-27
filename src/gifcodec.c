@@ -659,7 +659,7 @@ static GpStatus
 gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 {
 	GifFileType	*fp;
-	int		i, x, y, size;
+	int		i, x, y;
 	GifByteType	*red;
 	GifByteType	*green;
 	GifByteType	*blue;

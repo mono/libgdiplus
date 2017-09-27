@@ -529,7 +529,7 @@ gdip_region_bitmap_from_path (GpPath *path)
 
 	/* here the memory is allocated for a ARGB bitmap - so 32 times bigger than our normal alpha bitmap */
 	if ((size < 1) || (size > REGION_MAX_BITMAP_SIZE << 5)) {
-		g_warning ("Path conversion requested %d bytes (%d x %d). Maximum size is %d bytes.",
+        g_warning ("Path conversion requested %lu bytes (%d x %d). Maximum size is %d bytes.",
 			size, bounds.Width, bounds.Height, REGION_MAX_BITMAP_SIZE << 5);
 		return NULL;
 	}

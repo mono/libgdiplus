@@ -278,7 +278,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	if (fp != NULL) {
 		png_init_io (png_ptr, fp);
 	} else {
-		png_set_read_fn (png_ptr, getBytesFunc, _gdip_png_stream_read_data);
+		png_set_read_fn (png_ptr, (void *) getBytesFunc, _gdip_png_stream_read_data);
 	}
 
 	/* Pass PNG_TRANSFORM_STRIP_16, which basically reduces the color palette from 16-bits to 8-bits
@@ -302,13 +302,11 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		int		source_stride;
 		int		dest_stride;
 		png_bytep	*row_pointers;
-		BYTE		*rawptr;
 		int		num_colours;
 		int		palette_entries;
 		ColorPalette	*palette;
 		ImageFlags	colourspace_flag;
 		int		i;
-		int		j;
 
 		width = png_get_image_width (png_ptr, info_ptr);
 		height = png_get_image_height (png_ptr, info_ptr);
@@ -664,7 +662,7 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 	if (fp != NULL) {
 		png_init_io (png_ptr, fp);
 	} else {
-		png_set_write_fn (png_ptr, putBytesFunc, _gdip_png_stream_write_data, _gdip_png_stream_flush_data);
+		png_set_write_fn (png_ptr, (void *) putBytesFunc, _gdip_png_stream_write_data, _gdip_png_stream_flush_data);
 	}
 
 	switch (image->active_bitmap->pixel_format) {

@@ -538,7 +538,6 @@ static void
 add_properties_from_entry (ExifEntry *entry, void *user_data)
 {
 	BitmapData *bitmap_data = (BitmapData *) user_data;
-	ULONG length;
 
 	gdip_bitmapdata_property_add (bitmap_data, entry->tag, entry->size, entry->format, entry->data);
 }
@@ -552,7 +551,6 @@ add_properties_from_content (ExifContent *content, void *user_data)
 static void
 load_exif_data (ExifData *exif_data, GpImage *image)
 {
-	int n;
 	BitmapData *bitmap;
 
 	if (exif_data == NULL)
@@ -572,9 +570,6 @@ GpStatus
 gdip_load_jpeg_image_from_file (FILE *fp, const char *filename, GpImage **image)
 {
 	GpStatus st;
-#ifdef HAVE_LIBEXIF
-	ExifData *exif_data;
-#endif
 
 	gdip_stdio_jpeg_source_mgr_ptr src;
 
@@ -659,8 +654,7 @@ gdip_save_jpeg_image_internal (FILE *fp, PutBytesDelegate putBytesFunc, GpImage 
 	struct jpeg_compress_struct	cinfo;
 	struct gdip_jpeg_error_mgr	jerr;
 	const EncoderParameter		*param;
-	GpBitmap	*bitmap = (GpBitmap *) image;
-	JOCTET		*scanline = NULL;
+    JOCTET		*scanline = NULL;
 	int		need_argb_conversion = 0;
 	GpStatus	status;
 
