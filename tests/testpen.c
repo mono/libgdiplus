@@ -28,7 +28,7 @@ static GpImage * getImage ()
     GpStatus status;
     GpBitmap *image;
     status = GdipCreateBitmapFromScan0 (100, 68, 0, PixelFormat32bppRGB, NULL, &image);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     return (GpImage *)image;
 }
@@ -60,75 +60,75 @@ static void verifyPen (GpPen *pen, REAL expectedWidth, Unit expectedUnit, PenTyp
 	GdipCreateMatrix (&transform);
 
 	status = GdipGetPenWidth (pen, &width);
-	assert (status == Ok);
-	assert (floatsEqual (width, expectedWidth));
+	assertEqualInt (status, Ok);
+	assertEqualFloat (width, expectedWidth);
 
 	status = GdipGetPenUnit (pen, &unit);
-	assert (status == Ok);
-	assert (unit == expectedUnit);
+	assertEqualInt (status, Ok);
+	assertEqualInt (unit, expectedUnit);
 
 	status = GdipGetPenFillType (pen, &type);
-	assert (status == Ok);
-	assert (type == expectedType);
+	assertEqualInt (status, Ok);
+	assertEqualInt (type, expectedType);
 
 	status = GdipGetPenLineJoin (pen, &lineJoin);
-	assert (status == Ok);
-	assert (lineJoin == LineJoinMiter);
+	assertEqualInt (status, Ok);
+	assertEqualInt (lineJoin, LineJoinMiter);
 
 	status = GdipGetPenMode (pen, &mode);
-	assert (status == Ok);
-	assert (mode == PenAlignmentCenter);
+	assertEqualInt (status, Ok);
+	assertEqualInt (mode, PenAlignmentCenter);
 
 	status = GdipGetPenBrushFill (pen, &brush);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetBrushType (brush, &brushType);
-	assert (status == Ok);
-	assert (brushType == (BrushType)expectedType);
+	assertEqualInt (status, Ok);
+	assertEqualInt (brushType, (BrushType)expectedType);
 	
 	status = GdipGetPenStartCap (pen, &startCap);
-	assert (status == Ok);
-	assert (startCap == LineCapFlat);
+	assertEqualInt (status, Ok);
+	assertEqualInt (startCap, LineCapFlat);
 
 	status = GdipGetPenEndCap (pen, &endCap);
-	assert (status == Ok);
-	assert (endCap == LineCapFlat);
+	assertEqualInt (status, Ok);
+	assertEqualInt (endCap, LineCapFlat);
 
 	status = GdipGetPenDashCap197819 (pen, &dashCap);
-	assert (status == Ok);
-	assert (dashCap == DashCapFlat);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashCap, DashCapFlat);
 
 	status = GdipGetPenDashStyle (pen, &dashStyle);
-	assert (status == Ok);
-	assert (dashStyle == DashStyleSolid);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashStyle, DashStyleSolid);
 
 	status = GdipGetPenCustomStartCap (pen, &customStartCap);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	assert (!customStartCap);
 	
 	status = GdipGetPenCustomEndCap (pen, &customEndCap);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	assert (!customEndCap);
 
 	status = GdipGetPenMiterLimit (pen, &miterLimit);
-	assert (status == Ok);
-	assert (miterLimit == 10);
+	assertEqualInt (status, Ok);
+	assertEqualInt (miterLimit, 10);
 
 	status = GdipGetPenTransform (pen, transform);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifyMatrix (transform, 1, 0, 0, 1, 0, 0);
 
 	status = GdipGetPenDashCount (pen, &dashCount);
-	assert (status == Ok);
-	assert (dashCount == 0);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashCount, 0);
 
 	status = GdipGetPenDashOffset (pen, &dashOffset);
-	assert (status == Ok);
-	assert (dashOffset == 0);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashOffset, 0);
 
 	status = GdipGetPenCompoundCount (pen, &compoundCount);
-	assert (status == Ok);
-	assert (compoundCount == 0);
+	assertEqualInt (status, Ok);
+	assertEqualInt (compoundCount, 0);
 
 	GdipDeleteMatrix (transform);
 	GdipDeleteBrush (brush);
@@ -142,8 +142,8 @@ static void verifySolidBrushPen (GpPen *pen, ARGB expectedColor, REAL expectedWi
 	verifyPen (pen, expectedWidth, expectedUnit, PenTypeSolidColor);
 
 	status = GdipGetPenColor (pen, &color);
-	assert (status == Ok);
-	assert (color == expectedColor);
+	assertEqualInt (status, Ok);
+	assertEqualInt (color, expectedColor);
 }
 
 static void verifyNonSolidBrushPen (GpPen *pen, REAL expectedWidth, Unit expectedUnit, PenType expectedType)
@@ -154,7 +154,7 @@ static void verifyNonSolidBrushPen (GpPen *pen, REAL expectedWidth, Unit expecte
 	verifyPen (pen, expectedWidth, expectedUnit, expectedType);
 
 	status = GdipGetPenColor (pen, &color);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 }
 
 static void test_createPen1 ()
@@ -163,54 +163,54 @@ static void test_createPen1 ()
 	GpPen *pen;
 
 	status = GdipCreatePen1 (1, 10, UnitWorld, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, 10, UnitWorld);
 	GdipDeletePen (pen);
 
 	status = GdipCreatePen1 (1, 0, UnitPixel, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, 0, UnitPixel);
 	GdipDeletePen (pen);
 
 	status = GdipCreatePen1 (1, -1, UnitPoint, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, -1, UnitPoint);
 	GdipDeletePen (pen);
 
 	status = GdipCreatePen1 (1, 10, UnitInch, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, 10, UnitInch);
 	GdipDeletePen (pen);
 
 	status = GdipCreatePen1 (1, 10, UnitDocument, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, 10, UnitDocument);
 	GdipDeletePen (pen);
 
 	status = GdipCreatePen1 (1, 10, UnitMillimeter, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, 10, UnitMillimeter);
 	GdipDeletePen (pen);
 
 #if !defined(_WIN32)
 	status = GdipCreatePen1 (1, 10, UnitCairoPoint, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, 10, UnitCairoPoint);
 	GdipDeletePen (pen);
 #endif
 
 	// Negative tests.
 	status = GdipCreatePen1 (1, 10, (Unit)(UnitWorld - 1), &pen);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipCreatePen1 (1, 10, UnitDisplay, &pen);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipCreatePen1 (1, 10, (Unit)(8), &pen);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipCreatePen1 (1, 10, UnitWorld, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 }
 
 static GpPointF threePoints[3] =
@@ -242,60 +242,60 @@ static void test_createPen2 ()
 
 	// SolidBrush/UnitWorld.
 	status = GdipCreatePen2 (solidBrush, 10, UnitWorld, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, 10, UnitWorld);
 	GdipDeletePen (pen);
 
 	// HatchFill/UnitPixel
 	status = GdipCreatePen2 (hatchBrush, 0, UnitPixel, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifyNonSolidBrushPen (pen, 0, UnitPixel, PenTypeHatchFill);
 	GdipDeletePen (pen);
 
 	// TextureFill/UnitPoint
 	status = GdipCreatePen2 (textureBrush, -1, UnitPoint, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifyNonSolidBrushPen (pen, -1, UnitPoint, PenTypeTextureFill);
 	GdipDeletePen (pen);
 
 	// PathGradient/UnitInch.
 	status = GdipCreatePen2 (pathGradientBrush, 10, UnitInch, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifyNonSolidBrushPen (pen, 10, UnitInch, PenTypePathGradient);
 	GdipDeletePen (pen);
 
 	// LineGradient/UnitDocument.
 	status = GdipCreatePen2 (lineGradientBrush, 10, UnitDocument, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifyNonSolidBrushPen (pen, 10, UnitDocument, PenTypeLinearGradient);
 	GdipDeletePen (pen);
 
 	// LinearGradient/UnitDocument.
 	status = GdipCreatePen2 (lineGradientBrush, 10, UnitMillimeter, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifyNonSolidBrushPen (pen, 10, UnitMillimeter, PenTypeLinearGradient);
 	GdipDeletePen (pen);
 
 #if !defined(_WIN32)
 // LinearGradient/UnitCairoPoint.
 	status = GdipCreatePen2 (lineGradientBrush, 10, UnitCairoPoint, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifyNonSolidBrushPen (pen, 10, UnitCairoPoint, PenTypeLinearGradient);
 	GdipDeletePen (pen);
 #endif
 
 	// Negative tests.
 	status = GdipCreatePen1 (1, 10, (Unit)(UnitWorld - 1), &pen);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipCreatePen1 (1, 10, UnitDisplay, &pen);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipCreatePen1 (1, 10, (Unit)(8), &pen);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipCreatePen1 (1, 10, UnitWorld, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeleteBrush ((GpBrush *) solidBrush);
 	GdipDeleteBrush ((GpBrush *) hatchBrush);
@@ -314,15 +314,15 @@ static void test_clone ()
 	GdipCreatePen1 (1, 10, UnitDocument, &pen);
 
 	status = GdipClonePen (pen, &clone);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	verifySolidBrushPen (clone, 1, 10, UnitDocument);
 
 	// Negative tests.
 	status = GdipClonePen (NULL, &clone);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipClonePen (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 	GdipDeletePen (clone);
@@ -337,10 +337,10 @@ static void test_getPenWidth ()
 	GdipCreatePen1 (1, 10, UnitWorld, &pen);
 
 	status = GdipGetPenWidth (NULL, &width);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenWidth (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -354,14 +354,14 @@ static void test_setPenWidth ()
 	GdipCreatePen1 (1, 10, UnitWorld, &pen);
 
 	status = GdipSetPenWidth (pen, -1);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenWidth (pen, &width);
-	assert (status == Ok);
-	assert (width == -1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (width, -1);
 
 	status = GdipSetPenWidth (NULL, 10);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -375,10 +375,10 @@ static void test_getPenUnit ()
 	GdipCreatePen1 (1, 10, UnitWorld, &pen);
 
 	status = GdipGetPenUnit (NULL, &unit);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenUnit (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -393,74 +393,74 @@ static void test_setPenUnit ()
 
 	// UnitWorld.
 	status = GdipSetPenUnit (pen, UnitWorld);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenUnit (pen, &unit);
-	assert (status == Ok);
-	assert (unit == UnitWorld);
+	assertEqualInt (status, Ok);
+	assertEqualInt (unit, UnitWorld);
 
 	// UnitPixel.
 	status = GdipSetPenUnit (pen, UnitPixel);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenUnit (pen, &unit);
-	assert (status == Ok);
-	assert (unit == UnitPixel);
+	assertEqualInt (status, Ok);
+	assertEqualInt (unit, UnitPixel);
 
 	// UnitPoint.
 	status = GdipSetPenUnit (pen, UnitPoint);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenUnit (pen, &unit);
-	assert (status == Ok);
-	assert (unit == UnitPoint);
+	assertEqualInt (status, Ok);
+	assertEqualInt (unit, UnitPoint);
 
 	// UnitInch.
 	status = GdipSetPenUnit (pen, UnitInch);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenUnit (pen, &unit);
-	assert (status == Ok);
-	assert (unit == UnitInch);
+	assertEqualInt (status, Ok);
+	assertEqualInt (unit, UnitInch);
 
 	// UnitDocument.
 	status = GdipSetPenUnit (pen, UnitDocument);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenUnit (pen, &unit);
-	assert (status == Ok);
-	assert (unit == UnitDocument);
+	assertEqualInt (status, Ok);
+	assertEqualInt (unit, UnitDocument);
 
 	// UnitMillimeter.
 	status = GdipSetPenUnit (pen, UnitMillimeter);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenUnit (pen, &unit);
-	assert (status == Ok);
-	assert (unit == UnitMillimeter);
+	assertEqualInt (status, Ok);
+	assertEqualInt (unit, UnitMillimeter);
 
 #if !defined(_WIN32)
 	// UnitCairoPoint.
 	status = GdipSetPenUnit (pen, UnitCairoPoint);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenUnit (pen, &unit);
-	assert (status == Ok);
-	assert (unit == UnitCairoPoint);
+	assertEqualInt (status, Ok);
+	assertEqualInt (unit, UnitCairoPoint);
 #endif
 
 	// Negative tests.
 	status = GdipSetPenUnit (NULL, UnitWorld);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenUnit (pen, (Unit)(UnitWorld -1));
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenUnit (pen, UnitDisplay);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenUnit (pen, (Unit)(8));
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -487,74 +487,74 @@ static void test_setPenLineCap197819 ()
 	status = GdipSetPenLineCap197819 (pen, LineCapArrowAnchor, LineCapDiamondAnchor, DashCapRound);
 
 	GdipGetPenStartCap (pen, &startCap);
-	assert (startCap == LineCapArrowAnchor);
+	assertEqualInt (startCap, LineCapArrowAnchor);
 
 	GdipGetPenEndCap (pen, &endCap);
-	assert (endCap == LineCapDiamondAnchor);
+	assertEqualInt (endCap, LineCapDiamondAnchor);
 
 	GdipGetPenDashCap197819 (pen, &dashCap);
-	assert (dashCap == DashCapRound);
+	assertEqualInt (dashCap, DashCapRound);
 
 	// Custom values.
 	status = GdipSetPenLineCap197819 (pen, LineCapCustom, LineCapCustom, DashCapTriangle);
 
 	GdipGetPenStartCap (pen, &startCap);
-	assert (startCap == LineCapCustom);
+	assertEqualInt (startCap, LineCapCustom);
 
 	GdipGetPenEndCap (pen, &endCap);
-	assert (endCap == LineCapCustom);
+	assertEqualInt (endCap, LineCapCustom);
 
 	GdipGetPenDashCap197819 (pen, &dashCap);
-	assert (dashCap == DashCapTriangle);
+	assertEqualInt (dashCap, DashCapTriangle);
 
 	// Invalid values - negative.
 	status = GdipSetPenLineCap197819 (pen, (LineCap)(LineCapFlat - 1), (LineCap)(LineCapFlat - 1), (DashCap)(DashCapFlat - 1));
 
 	GdipGetPenStartCap (pen, &startCap);
-	assert (startCap == (LineCap)(LineCapFlat - 1));
+	assertEqualInt (startCap, (LineCap)(LineCapFlat - 1));
 
 	GdipGetPenEndCap (pen, &endCap);
-	assert (endCap == (LineCap)(LineCapFlat - 1));
+	assertEqualInt (endCap, (LineCap)(LineCapFlat - 1));
 
 	GdipGetPenDashCap197819 (pen, &dashCap);
-	assert (dashCap == DashCapFlat);
+	assertEqualInt (dashCap, DashCapFlat);
 
 	// Invalid values - positive.
 	status = GdipSetPenLineCap197819 (pen, (LineCap)(LineCapCustom + 1), (LineCap)(LineCapCustom + 1), (DashCap)(DashCapTriangle + 1));
 
 	GdipGetPenStartCap (pen, &startCap);
-	assert (startCap == (LineCap)(LineCapCustom + 1));
+	assertEqualInt (startCap, (LineCap)(LineCapCustom + 1));
 
 	GdipGetPenEndCap (pen, &endCap);
-	assert (endCap == (LineCap)(LineCapCustom + 1));
+	assertEqualInt (endCap, (LineCap)(LineCapCustom + 1));
 
 	GdipGetPenDashCap197819 (pen, &dashCap);
-	assert (dashCap == DashCapFlat);
+	assertEqualInt (dashCap, DashCapFlat);
 
 	// Set when there is already a custom cap.
 	GdipSetPenCustomStartCap (pen, penCustomLineCap);
 	GdipSetPenCustomEndCap (pen, penCustomLineCap);
 
 	status = GdipSetPenLineCap197819 (pen, LineCapNoAnchor, LineCapFlat, DashCapRound);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenCustomStartCap (pen, &customStartCap);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetCustomLineCapBaseInset (customStartCap, &startCapBaseInset);
-	assert (status == Ok);
-	assert (startCapBaseInset == 10);
+	assertEqualInt (status, Ok);
+	assertEqualInt (startCapBaseInset, 10);
 
 	status = GdipGetPenCustomEndCap (pen, &customEndCap);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetCustomLineCapBaseInset (customEndCap, &endCapBaseInset);
-	assert (status == Ok);
-	assert (startCapBaseInset == 10);
+	assertEqualInt (status, Ok);
+	assertEqualInt (startCapBaseInset, 10);
 
 	// Negative tests.
 	status = GdipSetPenLineCap197819 (NULL, LineCapArrowAnchor, LineCapDiamondAnchor, DashCapFlat);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 	GdipDeletePath (path);
@@ -580,41 +580,41 @@ static void test_setPenStartCap ()
 	status = GdipSetPenStartCap (pen, LineCapArrowAnchor);
 
 	GdipGetPenStartCap (pen, &startCap);
-	assert (startCap == LineCapArrowAnchor);
+	assertEqualInt (startCap, LineCapArrowAnchor);
 
 	// Custom values.
 	status = GdipSetPenStartCap (pen, LineCapCustom);
 
 	GdipGetPenStartCap (pen, &startCap);
-	assert (startCap == LineCapCustom);
+	assertEqualInt (startCap, LineCapCustom);
 
 	// Set when there is already a custom cap.
 	GdipSetPenCustomStartCap (pen, penCustomLineCap);
 
 	status = GdipSetPenStartCap (pen, LineCapNoAnchor);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenCustomStartCap (pen, &customStartCap);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	assert (!customStartCap && "Expected the pen's custom start cap to be cleared.");
 
 	// Invalid values - negative.
 	status = GdipSetPenStartCap (pen, (LineCap)(LineCapFlat - 1));
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	GdipGetPenStartCap (pen, &startCap);
-	assert (startCap == (LineCap)(LineCapFlat - 1));
+	assertEqualInt (startCap, (LineCap)(LineCapFlat - 1));
 
 	// Invalid values - positive.
 	status = GdipSetPenStartCap (pen, (LineCap)(LineCapCustom + 1));
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	GdipGetPenStartCap (pen, &startCap);
-	assert (startCap == (LineCap)(LineCapCustom + 1));
+	assertEqualInt (startCap, (LineCap)(LineCapCustom + 1));
 
 	// Negative tests.
 	status = GdipSetPenStartCap (NULL, LineCapArrowAnchor);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 	GdipDeleteCustomLineCap (penCustomLineCap);
@@ -636,45 +636,45 @@ static void test_setPenEndCap ()
 
 	// Valid values.
 	status = GdipSetPenEndCap (pen, LineCapArrowAnchor);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	GdipGetPenEndCap (pen, &endCap);
-	assert (endCap == LineCapArrowAnchor);
+	assertEqualInt (endCap, LineCapArrowAnchor);
 
 	// Custom values.
 	status = GdipSetPenEndCap (pen, LineCapCustom);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	GdipGetPenEndCap (pen, &endCap);
-	assert (endCap == LineCapCustom);
+	assertEqualInt (endCap, LineCapCustom);
 
 	// Set when there is already a custom cap.
 	GdipSetPenCustomEndCap (pen, penCustomLineCap);
 
 	status = GdipSetPenEndCap (pen, LineCapNoAnchor);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenCustomEndCap (pen, &customEndCap);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	assert (!customEndCap && "Expected the pen's custom end cap to be cleared.");
 
 	// Invalid values - negative.
 	status = GdipSetPenEndCap (pen, (LineCap)(LineCapFlat - 1));
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	GdipGetPenEndCap (pen, &endCap);
-	assert (endCap == (LineCap)(LineCapFlat - 1));
+	assertEqualInt (endCap, (LineCap)(LineCapFlat - 1));
 
 	// Invalid values - positive.
 	status = GdipSetPenEndCap (pen, (LineCap)(LineCapCustom + 1));
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	GdipGetPenEndCap (pen, &endCap);
-	assert (endCap == (LineCap)(LineCapCustom + 1));
+	assertEqualInt (endCap, (LineCap)(LineCapCustom + 1));
 
 	// Negative tests.
 	status = GdipSetPenEndCap (NULL, LineCapArrowAnchor);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 	GdipDeleteCustomLineCap (penCustomLineCap);
@@ -691,42 +691,42 @@ static void tet_setPenDashCap197819 ()
 
 	// Round.
 	status = GdipSetPenDashCap197819 (pen, DashCapRound);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	GdipGetPenDashCap197819 (pen, &dashCap);
-	assert (dashCap == DashCapRound);
+	assertEqualInt (dashCap, DashCapRound);
 
 	// Triangle.
 	status = GdipSetPenDashCap197819 (pen, DashCapTriangle);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	GdipGetPenDashCap197819 (pen, &dashCap);
-	assert (dashCap == DashCapTriangle);
+	assertEqualInt (dashCap, DashCapTriangle);
 
 	// Flat.
 	status = GdipSetPenDashCap197819 (pen, DashCapFlat);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	GdipGetPenDashCap197819 (pen, &dashCap);
-	assert (dashCap == DashCapFlat);
+	assertEqualInt (dashCap, DashCapFlat);
 
 	// Invalid values - negative.
 	status = GdipSetPenDashCap197819 (pen, (DashCap)(DashCapFlat - 1));
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	GdipGetPenDashCap197819 (pen, &dashCap);
-	assert (dashCap == DashCapFlat);
+	assertEqualInt (dashCap, DashCapFlat);
 
 	// Invalid values - positive.
 	status = GdipSetPenDashCap197819 (pen, (DashCap)(DashCapTriangle + 1));
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	GdipGetPenDashCap197819 (pen, &dashCap);
-	assert (dashCap == DashCapFlat);
+	assertEqualInt (dashCap, DashCapFlat);
 
 	// Negative tests.
 	status = GdipSetPenDashCap197819 (NULL, DashCapFlat);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -741,10 +741,10 @@ static void test_getPenStartCap ()
 
 	// Negative tests.
 	status = GdipGetPenStartCap (NULL, &startCap);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenStartCap (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -759,10 +759,10 @@ static void test_getPenEndCap ()
 
 	// Negative tests.
 	status = GdipGetPenEndCap (NULL, &endCap);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenEndCap (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -777,10 +777,10 @@ static void test_getPenDashCap197819 ()
 
 	// Negative tests.
 	status = GdipGetPenDashCap197819 (NULL, &dashCap);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenDashCap197819 (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -795,31 +795,31 @@ static void test_setPenLineJoin ()
 
 	// LineJoinBevel.
 	status = GdipSetPenLineJoin (pen, LineJoinBevel);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenLineJoin (pen, &lineJoin);
-	assert (status == Ok);
-	assert (lineJoin == LineJoinBevel);
+	assertEqualInt (status, Ok);
+	assertEqualInt (lineJoin, LineJoinBevel);
 	
 	// Invalid value - negative.
 	status = GdipSetPenLineJoin (pen, (LineJoin)(LineJoinMiter - 1));
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenLineJoin (pen, &lineJoin);
-	assert (status == Ok);
-	assert (lineJoin == (LineJoin)(LineJoinMiter - 1));
+	assertEqualInt (status, Ok);
+	assertEqualInt (lineJoin, (LineJoin)(LineJoinMiter - 1));
 	
 	// Invalid value - positive.
 	status = GdipSetPenLineJoin (pen, (LineJoin)(LineJoinMiterClipped + 1));
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenLineJoin (pen, &lineJoin);
-	assert (status == Ok);
-	assert (lineJoin == (LineJoin)(LineJoinMiterClipped + 1));
+	assertEqualInt (status, Ok);
+	assertEqualInt (lineJoin, (LineJoin)(LineJoinMiterClipped + 1));
 
 	// Negative tests.
 	status = GdipSetPenLineJoin (NULL, LineJoinBevel);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -834,10 +834,10 @@ static void test_getPenLineJoin ()
 
 	// Negative tests.
 	status = GdipGetPenLineJoin (NULL, &lineJoin);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenLineJoin (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -857,26 +857,26 @@ static void test_setPenCustomStartCap ()
 	GdipCreateCustomLineCap (path, NULL, LineCapDiamondAnchor, 10, &penCustomLineCap);
 
 	status = GdipSetPenCustomStartCap (pen, penCustomLineCap);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenStartCap (pen, &startCap);
-	assert (status == Ok);
-	assert (startCap == LineCapCustom);
+	assertEqualInt (status, Ok);
+	assertEqualInt (startCap, LineCapCustom);
 
 	status = GdipGetPenCustomStartCap (pen, &customStartCap);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	assert (customStartCap && customStartCap != penCustomLineCap);
 
 	status = GdipGetCustomLineCapBaseInset (customStartCap, &baseInset);
-	assert (status == Ok);
-	assert (baseInset == 10);
+	assertEqualInt (status, Ok);
+	assertEqualInt (baseInset, 10);
 
 	// Negative tests.
 	status = GdipSetPenCustomStartCap (NULL, penCustomLineCap);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenCustomStartCap (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 	GdipDeleteCustomLineCap (penCustomLineCap);
@@ -893,10 +893,10 @@ static void test_getPenCustomStartCap ()
 
 	// Negative tests.
 	status = GdipGetPenCustomStartCap (NULL, &customStartCap);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenCustomStartCap (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -916,26 +916,26 @@ static void test_setPenCustomEndCap ()
 	GdipCreateCustomLineCap (path, NULL, LineCapDiamondAnchor, 10, &penCustomLineCap);
 
 	status = GdipSetPenCustomEndCap (pen, penCustomLineCap);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenEndCap (pen, &endCap);
-	assert (status == Ok);
-	assert (endCap == LineCapCustom);
+	assertEqualInt (status, Ok);
+	assertEqualInt (endCap, LineCapCustom);
 
 	status = GdipGetPenCustomEndCap (pen, &customEndCap);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	assert (customEndCap && customEndCap != penCustomLineCap);
 
 	status = GdipGetCustomLineCapBaseInset (customEndCap, &baseInset);
-	assert (status == Ok);
-	assert (baseInset == 10);
+	assertEqualInt (status, Ok);
+	assertEqualInt (baseInset, 10);
 
 	// Negative tests.
 	status = GdipSetPenCustomEndCap (NULL, penCustomLineCap);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenCustomEndCap (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 	GdipDeleteCustomLineCap (penCustomLineCap);
@@ -952,10 +952,10 @@ static void test_getPenCustomEndCap ()
 
 	// Negative tests.
 	status = GdipGetPenCustomEndCap (NULL, &customEndCap);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenCustomEndCap (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -970,31 +970,31 @@ static void test_setPenMiterLimit ()
 
 	// Positive.
 	status = GdipSetPenMiterLimit (pen, 100);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenMiterLimit (pen, &miterLimit);
-	assert (status == Ok);
-	assert (miterLimit == 100);
+	assertEqualInt (status, Ok);
+	assertEqualInt (miterLimit, 100);
 
 	// Zero.
 	status = GdipSetPenMiterLimit (pen, 0);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenMiterLimit (pen, &miterLimit);
-	assert (status == Ok);
-	assert (miterLimit == 1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (miterLimit, 1);
 
 	// Negative.
 	status = GdipSetPenMiterLimit (pen, -100);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenMiterLimit (pen, &miterLimit);
-	assert (status == Ok);
-	assert (miterLimit == 1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (miterLimit, 1);
 
 	// Negative tests.
 	status = GdipSetPenMiterLimit (NULL, 10);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1009,10 +1009,10 @@ static void test_getPenMiterLimit ()
 
 	// Negative tests.
 	status = GdipGetPenMiterLimit (NULL, &miterLimit);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenMiterLimit (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1028,10 +1028,10 @@ static void test_getPenTransform ()
 
 		// Negative tests.
     status = GdipGetPenTransform (NULL, transform);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipGetPenTransform (pen, NULL);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeletePen (pen);
     GdipDeleteMatrix (transform);
@@ -1049,7 +1049,7 @@ static void test_setPenTransform ()
     GdipCreateMatrix (&transform);
 
     status = GdipSetPenTransform (pen, matrix);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetPenTransform (pen, transform);
     assert (transform != matrix && "Expected new matrix to be a clone.");
@@ -1062,10 +1062,10 @@ static void test_setPenTransform ()
 
     // Negative tests.
     status = GdipSetPenTransform (NULL, transform);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipSetPenTransform (pen, NULL);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeletePen (pen);
     GdipDeleteMatrix (matrix);
@@ -1091,7 +1091,7 @@ static void test_multiplyPenTransform ()
     GdipSetPenTransform (pen, originalTransform);
 
     status = GdipMultiplyPenTransform (pen, matrix, MatrixOrderAppend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetPenTransform (pen, transform);
     verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
@@ -1100,14 +1100,14 @@ static void test_multiplyPenTransform ()
     GdipSetPenTransform (pen, originalTransform);
 
     status = GdipMultiplyPenTransform (pen, matrix, MatrixOrderPrepend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetPenTransform (pen, transform);
     verifyMatrix (transform, 11, 16, 19, 28, 32, 46);
 
     // Null matrix.
     status = GdipMultiplyPenTransform (pen, NULL, MatrixOrderAppend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetPenTransform (pen, transform);
     verifyMatrix (transform, 11, 16, 19, 28, 32, 46);
@@ -1116,7 +1116,7 @@ static void test_multiplyPenTransform ()
     GdipSetPenTransform (pen, originalTransform);
 
     status = GdipMultiplyPenTransform (pen, matrix, (MatrixOrder)(MatrixOrderPrepend - 1));
-		assert (status == Ok);
+		assertEqualInt (status, Ok);
 
     GdipGetPenTransform (pen, transform);
     verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
@@ -1125,17 +1125,17 @@ static void test_multiplyPenTransform ()
     GdipSetPenTransform (pen, originalTransform);
 
     status = GdipMultiplyPenTransform (pen, matrix, (MatrixOrder)(MatrixOrderAppend + 1));
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetPenTransform (pen, transform);
     verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
 
     // Negative tests.
     status = GdipMultiplyPenTransform (NULL, matrix, MatrixOrderAppend);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipMultiplyPenTransform (pen, nonInvertibleMatrix, MatrixOrderAppend);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeletePen (pen);
     GdipDeleteMatrix (originalTransform);
@@ -1159,7 +1159,7 @@ static void test_translatePenTransform ()
     GdipSetPenTransform (pen, originalTransform);
 
     status = GdipTranslatePenTransform (pen, 5, 6, MatrixOrderAppend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetPenTransform (pen, transform);
     verifyMatrix (transform, 1, 2, 3, 4, 10, 12);
@@ -1168,20 +1168,20 @@ static void test_translatePenTransform ()
     GdipSetPenTransform (pen, originalTransform);
 
     status = GdipTranslatePenTransform (pen, 5, 6, MatrixOrderPrepend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetPenTransform (pen, transform);
     verifyMatrix (transform, 1, 2, 3, 4, 28, 40);
 
     // Negative tests.
     status = GdipTranslatePenTransform (NULL, 1, 1, MatrixOrderAppend);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipTranslatePenTransform (pen, 1, 1, (MatrixOrder)(MatrixOrderPrepend - 1));
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipTranslatePenTransform (pen, 1, 1, (MatrixOrder)(MatrixOrderAppend + 1));
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeletePen (pen);
     GdipDeleteMatrix (originalTransform);
@@ -1203,7 +1203,7 @@ static void test_scalePenTransform ()
     GdipSetPenTransform (pen, originalTransform);
 
     status = GdipScalePenTransform (pen, 0.5, 0.75, MatrixOrderAppend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetPenTransform (pen, transform);
     verifyMatrix (transform, 0.5, 1.5, 1.5, 3, 2.5, 4.5);
@@ -1212,20 +1212,20 @@ static void test_scalePenTransform ()
     GdipSetPenTransform (pen, originalTransform);
 
     status = GdipScalePenTransform (pen, 0.5, 0.75, MatrixOrderPrepend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetPenTransform (pen, transform);
     verifyMatrix (transform, 0.5, 1, 2.25, 3, 5, 6);
 
     // Negative tests.
     status = GdipScalePenTransform (NULL, 1, 1, MatrixOrderAppend);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipScalePenTransform (pen, 1, 1, (MatrixOrder)(MatrixOrderPrepend - 1));
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipScalePenTransform (pen, 1, 1, (MatrixOrder)(MatrixOrderAppend + 1));
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeletePen (pen);
     GdipDeleteMatrix (originalTransform);
@@ -1247,7 +1247,7 @@ static void test_rotatePenTransform ()
     GdipSetPenTransform (pen, originalTransform);
 
     status = GdipRotatePenTransform (pen, 90, MatrixOrderAppend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetPenTransform (pen, transform);
     verifyMatrix (transform, -2, 1, -4, 3, -6, 5);
@@ -1256,20 +1256,20 @@ static void test_rotatePenTransform ()
     GdipSetPenTransform (pen, originalTransform);
 
     status = GdipRotatePenTransform (pen, 90, MatrixOrderPrepend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetPenTransform (pen, transform);
     verifyMatrix (transform, 3, 4, -1, -2, 5, 6);
 
     // Negative tests.
     status = GdipRotatePenTransform (NULL, 90, MatrixOrderAppend);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipRotatePenTransform (pen, 90, (MatrixOrder)(MatrixOrderPrepend - 1));
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipRotatePenTransform (pen, 90, (MatrixOrder)(MatrixOrderAppend + 1));
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeletePen (pen);
     GdipDeleteMatrix (originalTransform);
@@ -1286,31 +1286,31 @@ static void test_setPenMode ()
 
 	// PenAlignmentInset.
 	status = GdipSetPenMode (pen, PenAlignmentInset);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenMode (pen, &mode);
-	assert (status == Ok);
-	assert (mode == PenAlignmentInset);
+	assertEqualInt (status, Ok);
+	assertEqualInt (mode, PenAlignmentInset);
 	
 	// Invalid value - negative.
 	status = GdipSetPenMode (pen, (PenAlignment)(PenAlignmentCenter - 1));
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenMode (pen, &mode);
-	assert (status == Ok);
-	assert (mode == (PenAlignment)(PenAlignmentCenter - 1));
+	assertEqualInt (status, Ok);
+	assertEqualInt (mode, (PenAlignment)(PenAlignmentCenter - 1));
 	
 	// Invalid value - positive.
 	status = GdipSetPenMode (pen, (PenAlignment)(PenAlignmentInset + 1));
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenMode (pen, &mode);
-	assert (status == Ok);
-	assert (mode == (PenAlignment)(PenAlignmentInset + 1));
+	assertEqualInt (status, Ok);
+	assertEqualInt (mode, (PenAlignment)(PenAlignmentInset + 1));
 
 	// Negative tests.
 	status = GdipSetPenMode (NULL, PenAlignmentCenter);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1325,10 +1325,10 @@ static void test_getPenMode ()
 
 	// Negative tests.
 	status = GdipGetPenMode (NULL, &mode);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenMode (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1342,15 +1342,15 @@ static void test_setPenColor ()
 	GdipCreatePen1 (1, 10, UnitWorld, &pen);
 
 	status = GdipSetPenColor (pen, 100);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenColor (pen, &color);
-	assert (status == Ok);
-	assert (color == 100);
+	assertEqualInt (status, Ok);
+	assertEqualInt (color, 100);
 
 	// Negative tests.
 	status = GdipSetPenColor (NULL, 100);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1365,10 +1365,10 @@ static void test_getPenColor ()
 
 	// Negative tests.
 	status = GdipGetPenColor (NULL, &color);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenColor (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1392,39 +1392,39 @@ static void test_setPenBrushFill ()
 
 	// SolidFill.
 	status = GdipSetPenBrushFill (pen, solidBrush);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenBrushFill (pen, &brush);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	assert (brush && brush != solidBrush && "Expected new brush to be a clone.");
 	
 	status = GdipGetPenColor (pen, &penColor);
-	assert (status == Ok);
-	assert (penColor == 100);
+	assertEqualInt (status, Ok);
+	assertEqualInt (penColor, 100);
 
 	status = GdipGetSolidFillColor ((GpSolidFill *) brush, &brushColor);
-	assert (status == Ok);
-	assert (brushColor == 100);
+	assertEqualInt (status, Ok);
+	assertEqualInt (brushColor, 100);
 	GdipDeleteBrush (brush);
 
 	// Non SolidFill.
 	status = GdipSetPenBrushFill (pen, textureBrush);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenBrushFill (pen, &brush);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	assert (brush && brush != textureBrush && "Expected new brush to be a clone.");
 
 	status = GdipGetTextureWrapMode ((GpTexture *) brush, &brushWrapMode);
-	assert (status == Ok);
-	assert (brushWrapMode == WrapModeTileFlipX);
+	assertEqualInt (status, Ok);
+	assertEqualInt (brushWrapMode, WrapModeTileFlipX);
 
 	// Negative tests.
 	status = GdipSetPenBrushFill (NULL, solidBrush);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenBrushFill (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 	GdipDeleteBrush ((GpBrush *) solidBrush);
@@ -1442,10 +1442,10 @@ static void test_getPenBrushFill ()
 
 	// Negative tests.
 	status = GdipGetPenBrushFill (NULL, &brush);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenBrushFill (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1460,10 +1460,10 @@ static void test_getPenDashStyle ()
 
 	// Negative tests.
 	status = GdipGetPenDashStyle (NULL, &dashStyle);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenDashStyle (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1480,126 +1480,126 @@ static void test_setPenDashStyle ()
 
 	// DashStyleDashDot.
 	status = GdipSetPenDashStyle (pen, DashStyleDashDot);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenDashStyle (pen, &dashStyle);
-	assert (status == Ok);
-	assert (dashStyle == DashStyleDashDot);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashStyle, DashStyleDashDot);
 
 	status = GdipGetPenDashCount (pen, &dashCount);
-	assert (status == Ok);
-	assert (dashCount == 4);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashCount, 4);
 
 	status = GdipGetPenDashArray (pen, dashArray, dashCount);
-	assert (status == Ok);
-	assert (dashArray[0] == 3);
-	assert (dashArray[1] == 1);
-	assert (dashArray[2] == 1);
-	assert (dashArray[3] == 1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashArray[0], 3);
+	assertEqualInt (dashArray[1], 1);
+	assertEqualInt (dashArray[2], 1);
+	assertEqualInt (dashArray[3], 1);
 
 	// DashStyleSolid.
 	status = GdipSetPenDashStyle (pen, DashStyleSolid);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenDashStyle (pen, &dashStyle);
-	assert (status == Ok);
-	assert (dashStyle == DashStyleSolid);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashStyle, DashStyleSolid);
 
 	status = GdipGetPenDashCount (pen, &dashCount);
-	assert (status == Ok);
-	assert (dashCount == 0);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashCount, 0);
 
 	// DashStyleDashDotDot.
 	status = GdipSetPenDashStyle (pen, DashStyleDashDotDot);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenDashStyle (pen, &dashStyle);
-	assert (status == Ok);
-	assert (dashStyle == DashStyleDashDotDot);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashStyle, DashStyleDashDotDot);
 
 	status = GdipGetPenDashCount (pen, &dashCount);
-	assert (status == Ok);
-	assert (dashCount == 6);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashCount, 6);
 
 	status = GdipGetPenDashArray (pen, dashArray, dashCount);
-	assert (status == Ok);
-	assert (dashArray[0] == 3);
-	assert (dashArray[1] == 1);
-	assert (dashArray[2] == 1);
-	assert (dashArray[3] == 1);
-	assert (dashArray[4] == 1);
-	assert (dashArray[5] == 1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashArray[0], 3);
+	assertEqualInt (dashArray[1], 1);
+	assertEqualInt (dashArray[2], 1);
+	assertEqualInt (dashArray[3], 1);
+	assertEqualInt (dashArray[4], 1);
+	assertEqualInt (dashArray[5], 1);
 
 	// DashStyleDot.
 	status = GdipSetPenDashStyle (pen, DashStyleDot);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenDashStyle (pen, &dashStyle);
-	assert (status == Ok);
-	assert (dashStyle == DashStyleDot);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashStyle, DashStyleDot);
 
 	status = GdipGetPenDashCount (pen, &dashCount);
-	assert (status == Ok);
-	assert (dashCount == 2);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashCount, 2);
 
 	status = GdipGetPenDashArray (pen, dashArray, dashCount);
-	assert (status == Ok);
-	assert (dashArray[0] == 1);
-	assert (dashArray[1] == 1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashArray[0], 1);
+	assertEqualInt (dashArray[1], 1);
 
 	// DashStyleDash.
 	status = GdipSetPenDashStyle (pen, DashStyleDash);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenDashStyle (pen, &dashStyle);
-	assert (status == Ok);
-	assert (dashStyle == DashStyleDash);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashStyle, DashStyleDash);
 
 	status = GdipGetPenDashCount (pen, &dashCount);
-	assert (status == Ok);
-	assert (dashCount == 2);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashCount, 2);
 
 	status = GdipGetPenDashArray (pen, dashArray, dashCount);
-	assert (status == Ok);
-	assert (dashArray[0] == 3);
-	assert (dashArray[1] == 1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashArray[0], 3);
+	assertEqualInt (dashArray[1], 1);
 
 	// DashStyleCustom.
 	status = GdipSetPenDashStyle (pen, DashStyleCustom);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenDashStyle (pen, &dashStyle);
-	assert (status == Ok);
-	assert (dashStyle == DashStyleCustom);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashStyle, DashStyleCustom);
 
 	status = GdipGetPenDashCount (pen, &dashCount);
-	assert (status == Ok);
-	assert (dashCount == 2);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashCount, 2);
 
 	status = GdipGetPenDashArray (pen, dashArray, dashCount);
-	assert (status == Ok);
-	assert (dashArray[0] == 3);
-	assert (dashArray[1] == 1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashArray[0], 3);
+	assertEqualInt (dashArray[1], 1);
 
 	// Invalid value - negative.
 	status = GdipSetPenDashStyle (pen, (DashStyle)(DashStyleSolid - 1));
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenDashStyle (pen, &dashStyle);
-	assert (status == Ok);
-	assert (dashStyle == DashStyleCustom);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashStyle, DashStyleCustom);
 
 	// Invalid value - positive.
 	status = GdipSetPenDashStyle (pen, (DashStyle)(DashStyleCustom + 1));
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenDashStyle (pen, &dashStyle);
-	assert (status == Ok);
-	assert (dashStyle == DashStyleCustom);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashStyle, DashStyleCustom);
 
 	// Negative tests.
 	status = GdipSetPenDashStyle (NULL, DashStyleDash);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1614,10 +1614,10 @@ static void test_getPenDashOffset ()
 
 	// Negative tests.
 	status = GdipGetPenDashOffset (NULL, &dashOffset);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenDashOffset (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1632,31 +1632,31 @@ static void test_setPenDashOffset ()
 
 	// Positive.
 	status = GdipSetPenDashOffset (pen, 100);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenDashOffset (pen, &dashOffset);
-	assert (status == Ok);
-	assert (dashOffset == 100);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashOffset, 100);
 
 	// Zero.
 	status = GdipSetPenDashOffset (pen, 0);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenDashOffset (pen, &dashOffset);
-	assert (status == Ok);
-	assert (dashOffset == 0);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashOffset, 0);
 
 	// Negative.
 	status = GdipSetPenDashOffset (pen, -100);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	
 	status = GdipGetPenDashOffset (pen, &dashOffset);
-	assert (status == Ok);
-	assert (dashOffset == -100);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashOffset, -100);
 
 	// Negative tests.
 	status = GdipSetPenDashOffset (NULL, 100);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1671,10 +1671,10 @@ static void test_getPenDashCount ()
 
 	// Negative tests.
 	status = GdipGetPenDashCount (NULL, &dashCount);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenDashCount (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1693,47 +1693,47 @@ static void test_setPenDashArray ()
 
 	// One dash.
 	status = GdipSetPenDashArray (pen, twoDashes, 1);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenDashCount (pen, &dashCount);
-	assert (status == Ok);
-	assert (dashCount == 1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashCount, 1);
 
 	status = GdipGetPenDashArray (pen, dashes, dashCount);
-	assert (status == Ok);
-	assert (dashes[0] == 1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashes[0], 1);
 
 	// Two dashes.
 	status = GdipSetPenDashArray (pen, twoDashes, 2);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenDashCount (pen, &dashCount);
-	assert (status == Ok);
-	assert (dashCount == 2);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashCount, 2);
 
 	status = GdipGetPenDashArray (pen, dashes, dashCount);
-	assert (status == Ok);
-	assert (dashes[0] == 1);
-	assert (dashes[1] == 2);
+	assertEqualInt (status, Ok);
+	assertEqualInt (dashes[0], 1);
+	assertEqualInt (dashes[1], 2);
 
 	// Negative tests.
 	status = GdipSetPenDashArray (NULL, twoDashes, 2);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenDashArray (pen, NULL, 2);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenDashArray (pen, allZero, 2);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenDashArray (pen, negative, 2);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenDashArray (pen, dashes, 0);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenDashArray (pen, dashes, -1);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1748,19 +1748,19 @@ static void test_getPenDashArray ()
 
 	// Negative tests.
 	status = GdipGetPenDashArray (NULL, dashes, 2);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenDashArray (pen, NULL, 2);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenDashArray (pen, dashes, 0);
-	assert (status == OutOfMemory);
+	assertEqualInt (status, OutOfMemory);
 
 	status = GdipGetPenDashArray (pen, dashes, -1);
-	assert (status == OutOfMemory);
+	assertEqualInt (status, OutOfMemory);
 
 	status = GdipGetPenDashArray (pen, dashes, 1);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1775,10 +1775,10 @@ static void test_getPenCompoundCount ()
 
 	// Negative tests.
 	status = GdipGetPenCompoundCount (NULL, &compoundCount);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenCompoundCount (pen, NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1796,68 +1796,68 @@ static void test_setPenCompoundArray ()
 
 	// Two compounds - all 1.
 	status = GdipSetPenCompoundArray (pen, fourCompounds, 2);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenCompoundCount (pen, &compoundCount);
-	assert (status == Ok);
-	assert (compoundCount == 2);
+	assertEqualInt (status, Ok);
+	assertEqualInt (compoundCount, 2);
 
 	status = GdipGetPenCompoundArray (pen, compounds, compoundCount - 1);
-	assert (status == Ok);
-	assert (compounds[0] == 1);
-	assert (compounds[1] == 0);
+	assertEqualInt (status, Ok);
+	assertEqualInt (compounds[0], 1);
+	assertEqualInt (compounds[1], 0);
 
 	status = GdipGetPenCompoundArray (pen, compounds, compoundCount);
-	assert (status == Ok);
-	assert (compounds[0] == 1);
-	assert (compounds[1] == 1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (compounds[0], 1);
+	assertEqualInt (compounds[1], 1);
 
 	// Two compounds - all 0.
 	status = GdipSetPenCompoundArray (pen, allZero, 2);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenCompoundCount (pen, &compoundCount);
-	assert (status == Ok);
-	assert (compoundCount == 2);
+	assertEqualInt (status, Ok);
+	assertEqualInt (compoundCount, 2);
 
 	status = GdipGetPenCompoundArray (pen, compounds, compoundCount);
-	assert (status == Ok);
-	assert (compounds[0] == 0);
-	assert (compounds[1] == 0);
+	assertEqualInt (status, Ok);
+	assertEqualInt (compounds[0], 0);
+	assertEqualInt (compounds[1], 0);
 
 	// Four compounds.
 	status = GdipSetPenCompoundArray (pen, fourCompounds, 4);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenCompoundCount (pen, &compoundCount);
-	assert (status == Ok);
-	assert (compoundCount == 4);
+	assertEqualInt (status, Ok);
+	assertEqualInt (compoundCount, 4);
 
 	status = GdipGetPenCompoundArray (pen, compounds, compoundCount);
-	assert (status == Ok);
-	assert (compounds[0] == 1);
-	assert (compounds[1] == 1);
-	assert (compounds[2] == 1);
-	assert (compounds[3] == 1);
+	assertEqualInt (status, Ok);
+	assertEqualInt (compounds[0], 1);
+	assertEqualInt (compounds[1], 1);
+	assertEqualInt (compounds[2], 1);
+	assertEqualInt (compounds[3], 1);
 
 	// Negative tests.
 	status = GdipSetPenCompoundArray (NULL, fourCompounds, 2);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenCompoundArray (pen, NULL, 2);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenCompoundArray (pen, fourCompounds, 3);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenCompoundArray (pen, fourCompounds, 1);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenCompoundArray (pen, fourCompounds, 0);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPenCompoundArray (pen, fourCompounds, -1);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
 }
@@ -1873,42 +1873,42 @@ static void test_getPenCompoundArray ()
 
 	// Negative tests.
 	status = GdipGetPenCompoundArray (NULL, compounds, 2);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenCompoundArray (NULL, compounds, -1);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenCompoundArray (pen, NULL, 2);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenCompoundArray (pen, NULL, -1);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenCompoundArray (pen, compounds, 1);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	// Empty compounds.
 	status = GdipGetPenCompoundArray (pen, compounds, 1);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenCompoundArray (pen, compounds, 0);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenCompoundArray (pen, compounds, -1);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	// Non-empty compounds.
 	status = GdipSetPenCompoundArray (pen, twoCompounds, 2);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenCompoundArray (pen, compounds, 3);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenCompoundArray (pen, compounds, 0);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipGetPenCompoundArray (pen, compounds, -1);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	GdipDeletePen (pen);
 }
@@ -1919,14 +1919,14 @@ static void test_deletePen ()
 	GpPen *pen;
 
 	status = GdipCreatePen1 (1, 10, UnitWorld, &pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 
 	status = GdipDeletePen (pen);
-	assert (status == Ok);
+	assertEqualInt (status, Ok);
 	assert (pen);
 
 	status = GdipDeletePen (NULL);
-	assert (status == InvalidParameter);
+	assertEqualInt (status, InvalidParameter);
 }
 
 int

@@ -28,7 +28,7 @@ static GpImage * getImage ()
     GpStatus status;
     GpBitmap *image;
     status = GdipCreateBitmapFromScan0 (100, 68, 0, PixelFormat32bppRGB, NULL, &image);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     return (GpImage *)image;
 }
@@ -48,21 +48,21 @@ static void verifyTexture (GpTexture *brush, GpWrapMode expectedWrapMode, REAL e
     GdipCreateMatrix (&brushTransform);
 
     status = GdipGetBrushType (brush, &brushType);
-    assert (brushType == BrushTypeTextureFill);
+    assertEqualInt (brushType, BrushTypeTextureFill);
 
     status = GdipGetTextureWrapMode (brush, &wrapMode);
-    assert (status == Ok);
-    assert (wrapMode == expectedWrapMode);
+    assertEqualInt (status, Ok);
+    assertEqualInt (wrapMode, expectedWrapMode);
 
     status = GdipGetTextureImage (brush, &brushImage);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetImageDimension (brushImage, &brushWidth, &brushHeight);
-    assert (brushWidth == expectedBrushWidth);
-    assert (brushHeight == expectedBrushHeight);
+    assertEqualFloat (brushWidth, expectedBrushWidth);
+    assertEqualFloat (brushHeight, expectedBrushHeight);
 
     status = GdipGetTextureTransform (brush, brushTransform);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     verifyMatrix (brushTransform, 1, 0, 0, 1, 0, 0);
 
     GdipDisposeImage (brushImage);
@@ -87,20 +87,20 @@ static void test_clone ()
     GdipCreateTexture (image1, WrapModeTile, &brush);
 
     status = GdipCloneBrush ((GpBrush *) brush, &clone);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     assert (clone && brush != clone);
 
     GdipGetBrushType (clone, &brushType);
-    assert (brushType == BrushTypeTextureFill);
+    assertEqualInt (brushType, BrushTypeTextureFill);
 
     GdipGetTextureImage ((GpTexture *) clone, &image2);
 
     GdipGetImageDimension (image2, &brushWidth, &brushHeight);
-    assert (brushWidth == 100);
-    assert (brushHeight == 68);
+    assertEqualInt (brushWidth, 100);
+    assertEqualInt (brushHeight, 68);
 
     GdipGetTextureWrapMode ((GpTexture *) clone, &wrapMode);
-    assert (wrapMode == WrapModeTile);
+    assertEqualInt (wrapMode, WrapModeTile);
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDeleteBrush (clone);
@@ -117,20 +117,20 @@ static void test_createTexture ()
     image = getImage ();
 
     status = GdipCreateTexture (image, WrapModeClamp, &brush);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeClamp, 100, 68);
 
     status = GdipCreateTexture (NULL, WrapModeClamp, &brush);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipCreateTexture (image, (GpWrapMode)(WrapModeTile - 1), &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture (image, (GpWrapMode)(WrapModeClamp + 1), &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture (image, WrapModeClamp, NULL);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDisposeImage (image);
@@ -145,55 +145,55 @@ static void test_createTexture2 ()
     image = getImage ();
 
     status = GdipCreateTexture2 (image, WrapModeTile, 0, 0, 100, 68, &brush);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeTile, 100, 68);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
     status = GdipCreateTexture2 (image, WrapModeClamp, 5, 6, 7, 8, &brush);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeClamp, 7, 8);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
     status = GdipCreateTexture2 (NULL, WrapModeClamp, 0, 0, 1, 2, &brush);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipCreateTexture2 (image, (WrapMode)(WrapModeTile - 1), 0, 0, 1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2 (image, (WrapMode)(WrapModeClamp + 1), 0, 0, 1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2 (image, WrapModeClamp, -1, 0, 1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2 (image, WrapModeClamp, 0, -1, 1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2 (image, WrapModeClamp, 0, 0, -1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2 (image, WrapModeClamp, 0, 0, 0, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2 (image, WrapModeClamp, 0, 0, 1, 0, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2 (image, WrapModeClamp, 0, 0, 1, -1, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2 (image, WrapModeClamp, 0, 0, 101, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2 (image, WrapModeClamp, 1, 0, 100, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2 (image, WrapModeClamp, 0, 0, 100, 69, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2 (image, WrapModeClamp, 0, 1, 100, 68, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 }
 
 static void test_createTexture2I ()
@@ -205,55 +205,55 @@ static void test_createTexture2I ()
     image = getImage ();
 
     status = GdipCreateTexture2I (image, WrapModeTile, 0, 0, 100, 68, &brush);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeTile, 100, 68);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
     status = GdipCreateTexture2I (image, WrapModeClamp, 5, 6, 7, 8, &brush);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeClamp, 7, 8);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
     status = GdipCreateTexture2I (NULL, WrapModeClamp, 0, 0, 1, 2, &brush);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipCreateTexture2I (image, (WrapMode)(WrapModeTile - 1), 0, 0, 1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2I (image, (WrapMode)(WrapModeClamp + 1), 0, 0, 1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2I (image, WrapModeClamp, -1, 0, 1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2I (image, WrapModeClamp, 0, -1, 1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2I (image, WrapModeClamp, 0, 0, -1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2I (image, WrapModeClamp, 0, 0, 0, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2I (image, WrapModeClamp, 0, 0, 1, 0, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2I (image, WrapModeClamp, 0, 0, 1, -1, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2I (image, WrapModeClamp, 0, 0, 101, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2I (image, WrapModeClamp, 1, 0, 100, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2I (image, WrapModeClamp, 0, 0, 100, 69, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTexture2I (image, WrapModeClamp, 0, 1, 100, 68, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 }
 
 static void test_createTextureIA ()
@@ -265,49 +265,49 @@ static void test_createTextureIA ()
     image = getImage ();
 
     status = GdipCreateTextureIA (image, NULL, 0, 0, 100, 68, &brush);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeTile, 100, 68);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
     status = GdipCreateTextureIA (image, NULL, 5, 6, 7, 8, &brush);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeTile, 7, 8);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
     status = GdipCreateTextureIA (NULL, NULL, 0, 0, 1, 2, &brush);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipCreateTextureIA (image, NULL, -1, 0, 1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIA (image, NULL, 0, -1, 1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIA (image, NULL, 0, 0, -1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIA (image, NULL, 0, 0, 0, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIA (image, NULL, 0, 0, 1, 0, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIA (image, NULL, 0, 0, 1, -1, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIA (image, NULL, 0, 0, 101, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIA (image, NULL, 1, 0, 100, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIA (image, NULL, 0, 0, 100, 69, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIA (image, NULL, 0, 1, 100, 68, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 }
 
 static void test_createTextureIAI ()
@@ -319,49 +319,49 @@ static void test_createTextureIAI ()
     image = getImage ();
 
     status = GdipCreateTextureIAI (image, NULL, 0, 0, 100, 68, &brush);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeTile, 100, 68);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
     status = GdipCreateTextureIAI (image, NULL, 5, 6, 7, 8, &brush);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeTile, 7, 8);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
     status = GdipCreateTextureIAI (NULL, NULL, 0, 0, 1, 2, &brush);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipCreateTextureIAI (image, NULL, -1, 0, 1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIAI (image, NULL, 0, -1, 1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIAI (image, NULL, 0, 0, -1, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIAI (image, NULL, 0, 0, 0, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIAI (image, NULL, 0, 0, 1, 0, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIAI (image, NULL, 0, 0, 1, -1, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIAI (image, NULL, 0, 0, 101, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIAI (image, NULL, 1, 0, 100, 2, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIAI (image, NULL, 0, 0, 100, 69, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateTextureIAI (image, NULL, 0, 1, 100, 68, &brush);
-    assert (status == OutOfMemory);
+    assertEqualInt (status, OutOfMemory);
 }
 
 static void test_getTextureImage ()
@@ -377,18 +377,18 @@ static void test_getTextureImage ()
     GdipCreateTexture (image, WrapModeTile, &brush);
 
     status = GdipGetTextureImage (brush, &brushImage1);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     assert (brushImage1 != image && "The texture image should be a clone.");
 
     status = GdipGetTextureImage (brush, &brushImage2);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     assert (brushImage2 != brushImage1 && "The texture image should be a clone.");
 
     status = GdipGetTextureImage (NULL, &brushImage1);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipGetTextureImage (brush, NULL);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDisposeImage (image);
@@ -408,10 +408,10 @@ static void test_getTextureWrapMode ()
     GdipCreateTexture (image, WrapModeTile, &brush);
 
     status = GdipGetTextureWrapMode (NULL, &wrapMode);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipGetTextureWrapMode (brush, NULL);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDisposeImage (image);
@@ -429,27 +429,27 @@ static void test_setTextureWrapMode ()
     GdipCreateTexture (image, WrapModeTile, &brush);
 
     status = GdipSetTextureWrapMode (brush, WrapModeTileFlipX);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureWrapMode (brush, &wrapMode);
-    assert (wrapMode == WrapModeTileFlipX);
+    assertEqualInt (wrapMode, WrapModeTileFlipX);
 
     // Setting to an invalid WrapMode is a nop.
     status = GdipSetTextureWrapMode (brush, (WrapMode)(WrapModeTile - 1));
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureWrapMode (brush, &wrapMode);
-    assert (wrapMode == WrapModeTileFlipX);
+    assertEqualInt (wrapMode, WrapModeTileFlipX);
 
     status = GdipSetTextureWrapMode (brush, (WrapMode)(WrapModeClamp + 1));
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureWrapMode (brush, &wrapMode);
-    assert (wrapMode == WrapModeTileFlipX);
+    assertEqualInt (wrapMode, WrapModeTileFlipX);
 
     // Negative tests.
     status = GdipSetTextureWrapMode (NULL, wrapMode);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDisposeImage (image);
@@ -468,10 +468,10 @@ static void test_getTextureTransform ()
     GdipCreateMatrix (&transform);
 
     status = GdipGetTextureTransform (NULL, transform);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipGetTextureTransform (brush, NULL);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDisposeImage (image);
@@ -493,7 +493,7 @@ static void test_setTextureTransform ()
     GdipCreateMatrix (&transform);
 
     status = GdipSetTextureTransform (brush, matrix);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureTransform (brush, transform);
     assert (transform != matrix && "Expected new matrix to be a clone.");
@@ -506,10 +506,10 @@ static void test_setTextureTransform ()
 
     // Negative tests.
     status = GdipSetTextureTransform (NULL, transform);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipSetTextureTransform (brush, NULL);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDisposeImage (image);
@@ -534,13 +534,13 @@ static void test_resetTextureTransform ()
     GdipSetTextureTransform (brush, matrix);
 
     status = GdipResetTextureTransform (brush);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureTransform (brush, transform);
     verifyMatrix (transform, 1, 0, 0, 1, 0, 0);
 
     status = GdipResetTextureTransform (NULL);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDisposeImage (image);
@@ -569,7 +569,7 @@ static void test_multiplyTextureTransform ()
     GdipSetTextureTransform (brush, originalTransform);
 
     status = GdipMultiplyTextureTransform (brush, matrix, MatrixOrderAppend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureTransform (brush, transform);
     verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
@@ -578,14 +578,14 @@ static void test_multiplyTextureTransform ()
     GdipSetTextureTransform (brush, originalTransform);
 
     status = GdipMultiplyTextureTransform (brush, matrix, MatrixOrderPrepend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureTransform (brush, transform);
     verifyMatrix (transform, 11, 16, 19, 28, 32, 46);
 
     // Null matrix.
     status = GdipMultiplyTextureTransform (brush, NULL, MatrixOrderAppend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureTransform (brush, transform);
     verifyMatrix (transform, 11, 16, 19, 28, 32, 46);
@@ -594,7 +594,7 @@ static void test_multiplyTextureTransform ()
     GdipSetTextureTransform (brush, originalTransform);
 
     status = GdipMultiplyTextureTransform (brush, matrix, (MatrixOrder)(MatrixOrderPrepend - 1));
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureTransform (brush, transform);
     verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
@@ -603,17 +603,17 @@ static void test_multiplyTextureTransform ()
     GdipSetTextureTransform (brush, originalTransform);
 
     status = GdipMultiplyTextureTransform (brush, matrix, (MatrixOrder)(MatrixOrderAppend + 1));
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureTransform (brush, transform);
     verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
 
     // Negative tests.
     status = GdipMultiplyTextureTransform (NULL, matrix, MatrixOrderAppend);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipMultiplyTextureTransform (brush, nonInvertibleMatrix, MatrixOrderAppend);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDisposeImage (image);
@@ -641,7 +641,7 @@ static void test_translateTextureTransform ()
     GdipSetTextureTransform (brush, originalTransform);
 
     status = GdipTranslateTextureTransform (brush, 5, 6, MatrixOrderAppend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureTransform (brush, transform);
     verifyMatrix (transform, 1, 2, 3, 4, 10, 12);
@@ -650,20 +650,20 @@ static void test_translateTextureTransform ()
     GdipSetTextureTransform (brush, originalTransform);
 
     status = GdipTranslateTextureTransform (brush, 5, 6, MatrixOrderPrepend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureTransform (brush, transform);
     verifyMatrix (transform, 1, 2, 3, 4, 28, 40);
 
     // Negative tests.
     status = GdipTranslateTextureTransform (NULL, 1, 1, MatrixOrderAppend);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipTranslateTextureTransform (brush, 1, 1, (MatrixOrder)(MatrixOrderPrepend - 1));
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipTranslateTextureTransform (brush, 1, 1, (MatrixOrder)(MatrixOrderAppend + 1));
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDisposeImage (image);
@@ -689,7 +689,7 @@ static void test_scaleTextureTransform ()
     GdipSetTextureTransform (brush, originalTransform);
 
     status = GdipScaleTextureTransform (brush, 0.5, 0.75, MatrixOrderAppend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureTransform (brush, transform);
     verifyMatrix (transform, 0.5, 1.5, 1.5, 3, 2.5, 4.5);
@@ -698,20 +698,20 @@ static void test_scaleTextureTransform ()
     GdipSetTextureTransform (brush, originalTransform);
 
     status = GdipScaleTextureTransform (brush, 0.5, 0.75, MatrixOrderPrepend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureTransform (brush, transform);
     verifyMatrix (transform, 0.5, 1, 2.25, 3, 5, 6);
 
     // Negative tests.
     status = GdipScaleTextureTransform (NULL, 1, 1, MatrixOrderAppend);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipScaleTextureTransform (brush, 1, 1, (MatrixOrder)(MatrixOrderPrepend - 1));
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipScaleTextureTransform (brush, 1, 1, (MatrixOrder)(MatrixOrderAppend + 1));
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDisposeImage (image);
@@ -737,7 +737,7 @@ static void test_rotateTextureTransform ()
     GdipSetTextureTransform (brush, originalTransform);
 
     status = GdipRotateTextureTransform (brush, 90, MatrixOrderAppend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureTransform (brush, transform);
     verifyMatrix (transform, -2, 1, -4, 3, -6, 5);
@@ -746,20 +746,20 @@ static void test_rotateTextureTransform ()
     GdipSetTextureTransform (brush, originalTransform);
 
     status = GdipRotateTextureTransform (brush, 90, MatrixOrderPrepend);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetTextureTransform (brush, transform);
     verifyMatrix (transform, 3, 4, -1, -2, 5, 6);
 
     // Negative tests.
     status = GdipRotateTextureTransform (NULL, 90, MatrixOrderAppend);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipRotateTextureTransform (brush, 90, (MatrixOrder)(MatrixOrderPrepend - 1));
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipRotateTextureTransform (brush, 90, (MatrixOrder)(MatrixOrderAppend + 1));
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDisposeImage (image);

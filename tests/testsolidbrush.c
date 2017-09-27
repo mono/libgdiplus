@@ -35,14 +35,14 @@ static void test_clone ()
     GdipCreateSolidFill (1, &brush);
 
     status = GdipCloneBrush ((GpBrush *) brush, &clone);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     assert (clone && brush != clone);
 
     GdipGetBrushType (clone, &brushType);
-    assert (brushType == BrushTypeSolidColor);
+    assertEqualInt (brushType, BrushTypeSolidColor);
 
     GdipGetSolidFillColor ((GpSolidFill *) clone, &solidColor);
-    assert (solidColor == 1);
+    assertEqualInt (solidColor, 1);
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDeleteBrush (clone);
@@ -55,15 +55,15 @@ static void test_createSolidFill ()
     GpBrushType brushType;
 
     status = GdipCreateSolidFill (1, &brush);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
     assert (brush && "Expected the brush to be initialized.");
 
     status = GdipGetBrushType ((GpBrush *) brush, &brushType);
-    assert (status == Ok);
-    assert (brushType == BrushTypeSolidColor);
+    assertEqualInt (status, Ok);
+    assertEqualInt (brushType, BrushTypeSolidColor);
 
     status = GdipCreateSolidFill (1, NULL);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
 }
@@ -77,14 +77,14 @@ static void test_getSolidFillColor ()
     GdipCreateSolidFill (1, &brush);
 
     status = GdipGetSolidFillColor (brush, &color);
-    assert (status == Ok);
-    assert (color == 1);
+    assertEqualInt (status, Ok);
+    assertEqualInt (color, 1);
 
     status = GdipGetSolidFillColor (NULL, &color);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     status = GdipGetSolidFillColor (brush, NULL);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
 }
@@ -98,13 +98,13 @@ static void test_setSolidFillColor ()
     GdipCreateSolidFill (1, &brush);
 
     status = GdipSetSolidFillColor (brush, 2);
-    assert (status == Ok);
+    assertEqualInt (status, Ok);
 
     GdipGetSolidFillColor (brush, &color);
-    assert (color == 2);
+    assertEqualInt (color, 2);
 
     status = GdipSetSolidFillColor (NULL, 1);
-    assert (status == InvalidParameter);
+    assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
 }
