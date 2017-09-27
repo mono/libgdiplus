@@ -171,6 +171,7 @@ static void test_getFontCollectionFamilyList ()
 	assert (status == InvalidParameter);
 
 	GdipDeletePrivateFontCollection (&collection);
+	freeWchar (fontFile);
 }
 
 static void test_privateAddFontFile ()
@@ -251,6 +252,10 @@ static void test_privateAddFontFile ()
 	assert (status == FileNotFound);
 
 	GdipDeletePrivateFontCollection (&collection);
+	freeWchar (ttfFile);
+	freeWchar (otfFile);
+	freeWchar (invalidFile);
+	freeWchar (noSuchFile);
 }
 
 static void test_privateAddMemoryFont ()
@@ -504,6 +509,7 @@ static void test_createFontFromLogfontW ()
 #if defined(USE_WINDOWS_LIBGDIPLUS)
 	GdipDeleteFontFamily (family);
 #endif
+	freeWchar (fontName);
 }
 
 static void test_createFont ()
@@ -902,6 +908,7 @@ static void test_createFontFamilyFromName ()
 	assert (status == FontFamilyNotFound);
 
 	GdipDeletePrivateFontCollection (&collection);
+	freeWchar (fontName);
 }
 
 static void test_cloneFontFamily ()

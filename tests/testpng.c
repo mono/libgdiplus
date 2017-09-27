@@ -37,7 +37,7 @@ main (int argc, char **argv)
     unis = createWchar ("test-trns.png");
     status = GdipLoadImageFromFile (unis, &img);
     CHECK_STATUS(1);
-    g_free (unis);
+    freeWchar (unis);
 
     status = GdipGetImagePaletteSize (img, &original_palette_size);
     CHECK_STATUS(1);
@@ -52,7 +52,7 @@ main (int argc, char **argv)
     GdipDisposeImage (img);
     status = GdipLoadImageFromFile (unis, &img);
     CHECK_STATUS(1);
-    g_free (unis);
+    freeWchar (unis);
 
     status = GdipGetImagePaletteSize (img, &reloaded_palette_size);
     CHECK_STATUS(1);
@@ -75,7 +75,7 @@ main (int argc, char **argv)
     unis = createWchar ("test-gsa.png");
     status = GdipCreateBitmapFromFile (unis, &bitmap);
     CHECK_STATUS(1);
-    g_free (unis);
+    freeWchar (unis);
     status = GdipGetImagePixelFormat (bitmap, &pixel_format);
     CHECK_STATUS(1);
     CHECK_ASSERT(pixel_format == PixelFormat32bppARGB);    

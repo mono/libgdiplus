@@ -77,7 +77,7 @@ win_draw(win_t *win)
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 0, 0);
 	CHECK_GDIP_ST(st);
-	g_free (unis);
+	freeWchar (unis);
 	GdipDisposeImage (img);
 	img = NULL;
 
@@ -88,7 +88,7 @@ win_draw(win_t *win)
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 100, 0);
 	CHECK_GDIP_ST(st);
-	g_free (unis);
+	freeWchar (unis);
 	GdipDisposeImage (img);
 	img = NULL;
 
@@ -99,7 +99,7 @@ win_draw(win_t *win)
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 200, 0);
 	CHECK_GDIP_ST(st);
-	g_free (unis);
+	freeWchar (unis);
 	GdipDisposeImage (img);
 	img = NULL;
 
@@ -110,7 +110,7 @@ win_draw(win_t *win)
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 0, 100);
 	CHECK_GDIP_ST(st);
-	g_free (unis);
+	freeWchar (unis);
 	GdipDisposeImage (img);
 	img = NULL;
 
@@ -121,7 +121,7 @@ win_draw(win_t *win)
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 200, 100);
 	CHECK_GDIP_ST(st);
-	g_free (unis);
+	freeWchar (unis);
 	GdipDisposeImage (img);
 	img = NULL;
 

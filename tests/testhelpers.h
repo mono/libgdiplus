@@ -35,6 +35,8 @@ void verifyMatrix (GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5
 
 #if !defined(USE_WINDOWS_LIBGDIPLUS)
 #define createWchar(c) g_utf8_to_utf16 (c, -1, NULL, NULL, NULL);
+#define freeWchar(c) g_free(c)
 #else
 #define createWchar(c) L ##c
+#define freeWchar(c)
 #endif

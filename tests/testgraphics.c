@@ -18,9 +18,26 @@
 #include <assert.h>
 #include "testhelpers.h"
 
+static GpGraphics *getImageGraphics (GpImage *image)
+{
+	GpStatus status;
+	WCHAR *filePath;
+	GpGraphics *graphics;
+
+	filePath = createWchar ("test.bmp");
+	status = GdipLoadImageFromFile (filePath, &image);
+	assert (status == Ok && "Expected test.bmp to exist.");
+
+	freeWchar (filePath);
+	
+	status = GdipGetImageGraphicsContext (image, &graphics);
+	assert (status == Ok);
+	
+	return graphics;
+}
+
 static void test_createFromHDC()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphicsOriginal;
@@ -28,12 +45,7 @@ static void test_createFromHDC()
 	GpGraphics *graphicsFromHdc;
 	TextRenderingHint textRenderingHint;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext (image, &graphicsOriginal);
-	assert(status == Ok);
+	graphicsOriginal = getImageGraphics (&image);
 
 	status = GdipSetTextRenderingHint (graphicsOriginal, TextRenderingHintClearTypeGridFit);
 	assert (status == Ok);
@@ -73,7 +85,6 @@ static void test_createFromHDC()
 
 static void test_createFromHDC2()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphicsOriginal;
@@ -81,12 +92,7 @@ static void test_createFromHDC2()
 	GpGraphics *graphicsFromHdc;
 	TextRenderingHint textRenderingHint;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext (image, &graphicsOriginal);
-	assert(status == Ok);
+	graphicsOriginal = getImageGraphics (&image);
 
 	status = GdipSetTextRenderingHint (graphicsOriginal, TextRenderingHintClearTypeGridFit);
 	assert (status == Ok);
@@ -166,18 +172,12 @@ static void test_createFromHWNDICM()
 
 static void test_hdc ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	HDC hdc;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext (image, &graphics);
-	assert(status == Ok);
+	graphics = getImageGraphics (&image);
 
 	status = GdipGetDC (NULL, &hdc);
 	assert (status == InvalidParameter);
@@ -213,18 +213,12 @@ static void test_hdc ()
 
 static void test_compositingMode ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	CompositingMode mode;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext (image, &graphics);
-	assert(status == Ok);
+	graphics = getImageGraphics (&image);
 
 	status = GdipSetCompositingMode (NULL, CompositingModeSourceCopy);
 	assert (status == InvalidParameter);
@@ -259,18 +253,12 @@ static void test_compositingMode ()
 
 static void test_compositingQuality ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	CompositingQuality quality;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext (image, &graphics);
-	assert(status == Ok);
+	graphics = getImageGraphics (&image);
 
 	status = GdipGetCompositingQuality(NULL, &quality);
 	assert (status == InvalidParameter);
@@ -305,19 +293,13 @@ static void test_compositingQuality ()
 
 static void test_renderingOrigin ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	int x;
 	int y;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext(image, &graphics);
-	assert(status == Ok);
+	graphics = getImageGraphics (&image);
 
 	status = GdipGetRenderingOrigin (NULL, &x, &y);
 	assert (status == InvalidParameter);
@@ -356,18 +338,12 @@ static void test_renderingOrigin ()
 
 static void test_textRenderingHint ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	TextRenderingHint textRenderingHint;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext (image, &graphics);
-	assert(status == Ok);
+	graphics = getImageGraphics (&image);
 
 	status = GdipGetTextRenderingHint (NULL, &textRenderingHint);
 	assert (status == InvalidParameter);
@@ -408,18 +384,12 @@ static void test_textRenderingHint ()
 
 static void test_textContrast ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	UINT textContrast;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext (image, &graphics);
-	assert(status == Ok);
+	graphics = getImageGraphics (&image);
 
 	status = GdipGetTextContrast (NULL, &textContrast);
 	assert (status == InvalidParameter);
@@ -460,18 +430,12 @@ static void test_textContrast ()
 
 static void test_smoothingMode ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	SmoothingMode smoothingMode;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext (image, &graphics);
-	assert(status == Ok);
+	graphics = getImageGraphics (&image);
 
 	status = GdipGetSmoothingMode (NULL, &smoothingMode);
 	assert (status == InvalidParameter);
@@ -540,18 +504,12 @@ static void test_smoothingMode ()
 
 static void test_pixelOffsetMode ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	PixelOffsetMode pixelOffsetMode;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext (image, &graphics);
-	assert(status == Ok);
+	graphics = getImageGraphics (&image);
 
 	status = GdipGetPixelOffsetMode (NULL, &pixelOffsetMode);
 	assert (status == InvalidParameter);
@@ -609,18 +567,12 @@ static void test_pixelOffsetMode ()
 
 static void test_interpolationMode ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	InterpolationMode interpolationMode;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext(image, &graphics);
-	assert(status == Ok);
+	graphics = getImageGraphics (&image);
 	
 	status = GdipGetInterpolationMode (NULL, &interpolationMode);
 	assert (status == InvalidParameter);
@@ -692,7 +644,6 @@ static void test_interpolationMode ()
 
 static void test_transform ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
@@ -700,12 +651,7 @@ static void test_transform ()
 	GpMatrix *setMatrix;
 	GpMatrix *nonInvertibleMatrix;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext(image, &graphics);
-	assert(status == Ok);
+	graphics = getImageGraphics (&image);
 
 	status = GdipCreateMatrix2 (0, 0, 0, 0, 0, 0, &matrix);
 	assert (status == Ok);
@@ -760,18 +706,12 @@ static void test_transform ()
 
 static void test_pageUnit ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	Unit pageUnit;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext(image, &graphics);
-	assert(status == Ok);
+	graphics = getImageGraphics (&image);
 
 	status = GdipGetPageUnit (NULL, &pageUnit);
 	assert (status == InvalidParameter);
@@ -820,18 +760,12 @@ static void test_pageUnit ()
 
 static void test_pageScale ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	REAL pageScale;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext(image, &graphics);
-	assert(status == Ok);
+	graphics = getImageGraphics (&image);
 
 	status = GdipGetPageScale (NULL, &pageScale);
 	assert (status == InvalidParameter);
@@ -886,20 +820,15 @@ static void test_pageScale ()
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
 }
+
 static void test_dpiX ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
-	float dpiX;
+	REAL dpiX;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext(image, &graphics);
-	assert(status == Ok);
+	graphics = getImageGraphics (&image);
 
 	status = GdipGetDpiX (NULL, &dpiX);
 	assert (status == InvalidParameter);
@@ -925,18 +854,12 @@ static void test_dpiX ()
 
 static void test_dpiY ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	REAL dpiY;
 
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext(image, &graphics);
-	assert(status == Ok);
+	graphics = getImageGraphics (&image);
 
 	status = GdipGetDpiY (NULL, &dpiY);
 	assert (status == InvalidParameter);
@@ -962,17 +885,11 @@ static void test_dpiY ()
 
 static void test_flush ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
-
-	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
-	assert (status == Ok);
-
-	status = GdipGetImageGraphicsContext (image, &graphics);
-	assert (status == Ok);
+	
+	graphics = getImageGraphics (&image);
 
 	status = GdipFlush (NULL, FlushIntentionFlush);
 	assert (status == InvalidParameter);
@@ -1003,14 +920,11 @@ static void test_flush ()
 
 static void test_delete ()
 {
-	WCHAR *filePath;
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
-
-	filePath = createWchar ("test.bmp");
-	GdipLoadImageFromFile (filePath, &image);
-	GdipGetImageGraphicsContext (image, &graphics);
+	
+	graphics = getImageGraphics (&image);
 	
 	HDC hdc;
 	status = GdipGetDC (graphics, &hdc);
