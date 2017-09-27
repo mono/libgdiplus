@@ -32,3 +32,9 @@ void verifyMatrix (GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5
         assert (FALSE);
     }
 }
+
+#if !defined(USE_WINDOWS_LIBGDIPLUS)
+#define createWchar(c) g_utf8_to_utf16 (c, -1, NULL, NULL, NULL);
+#else
+#define createWchar(c) L ##c
+#endif

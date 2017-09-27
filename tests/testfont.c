@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
+#include "testhelpers.h"
 
 #ifdef WIN32
 using namespace Gdiplus;
@@ -136,7 +136,7 @@ static void test_getFontCollectionFamilyList ()
 	GpFontFamily *families[2] = {NULL, NULL};
 	INT numFound;
 
-	fontFile = g_utf8_to_utf16 ("test.ttf", -1, NULL, NULL, NULL);
+	fontFile = createWchar ("test.ttf");
 	GdipNewPrivateFontCollection(&collection);
 
 	//Empty list.
@@ -187,10 +187,10 @@ static void test_privateAddFontFile ()
 	WCHAR name[LF_FACESIZE];
 
 	GdipNewPrivateFontCollection (&collection);
-	ttfFile = g_utf8_to_utf16 ("test.ttf", -1, NULL, NULL, NULL);
-	otfFile = g_utf8_to_utf16 ("test.otf", -1, NULL, NULL, NULL);
-	invalidFile = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
-	noSuchFile = g_utf8_to_utf16 ("noSuchFile.ttf", -1, NULL, NULL, NULL);
+	ttfFile = createWchar ("test.ttf");
+	otfFile = createWchar ("test.otf");
+	invalidFile = createWchar ("test.bmp");
+	noSuchFile = createWchar ("noSuchFile.ttf");
 
 	// Valid TTF file.
 	status = GdipPrivateAddFontFile (collection, ttfFile);
@@ -453,7 +453,7 @@ static void test_createFontFromLogfontW ()
 	Unit unit;
 	GpFontFamily *family;
 
-	fontName = g_utf8_to_utf16 ("Times New Roman", -1, NULL, NULL, NULL);
+	fontName = createWchar ("Times New Roman");
 	hdc = getEmptyHDC ();
 
 	logfont.lfHeight = 10;
@@ -870,7 +870,7 @@ static void test_createFontFamilyFromName ()
 	WCHAR *fontName;
 
 	GdipNewPrivateFontCollection (&collection);
-	fontName = g_utf8_to_utf16 ("test.ttf", -1, NULL, NULL, NULL);
+	fontName = createWchar ("test.ttf");
 	GdipPrivateAddFontFile (collection, fontName);
 
 	status = GdipCreateFontFamilyFromName (Tahoma, NULL, &family);

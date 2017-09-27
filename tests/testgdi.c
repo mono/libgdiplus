@@ -17,6 +17,7 @@
 
 #include "GdiPlusFlat.h"
 #include <X11/Xlib.h>
+#include "testhelpers.h"
 
 typedef struct win {
 	Display *dpy;
@@ -71,7 +72,7 @@ win_draw(win_t *win)
 	
 	
 	
-	unis = g_utf8_to_utf16 ("test.jpg", -1, NULL, NULL, NULL);
+	unis = createWchar ("test.jpg");
 	st = GdipLoadImageFromFile (unis, &img);
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 0, 0);
@@ -82,7 +83,7 @@ win_draw(win_t *win)
 
 	printf("jpg drawn \n");
 
-	unis = g_utf8_to_utf16 ("test.tif", -1, NULL, NULL, NULL);
+	unis = createWchar ("test.tif");
 	st = GdipLoadImageFromFile (unis, &img);
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 100, 0);
@@ -93,7 +94,7 @@ win_draw(win_t *win)
 
 	printf("tif drawn \n");
 
-	unis = g_utf8_to_utf16 ("test.gif", -1, NULL, NULL, NULL);
+	unis = createWchar ("test.gif");
 	st = GdipLoadImageFromFile (unis, &img);
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 200, 0);
@@ -104,7 +105,7 @@ win_draw(win_t *win)
 
 	printf("gif drawn \n");
 
-	unis = g_utf8_to_utf16 ("test.png", -1, NULL, NULL, NULL);
+	unis = createWchar ("test.png");
 	st = GdipLoadImageFromFile (unis, &img);
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 0, 100);
@@ -115,7 +116,7 @@ win_draw(win_t *win)
 
 	printf("png drawn \n");
 
-	unis = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
+	unis = createWchar ("test.bmp");
 	st = GdipLoadImageFromFile (unis, &img);
 	CHECK_GDIP_ST(st);
 	st = GdipDrawImage (gp, img, 200, 100);
