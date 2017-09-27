@@ -18,19 +18,19 @@
 #include <assert.h>
 #include "testhelpers.h"
 
-static GpGraphics *getImageGraphics (GpImage *image)
+static GpGraphics *getImageGraphics (GpImage **image)
 {
 	GpStatus status;
 	WCHAR *filePath;
 	GpGraphics *graphics;
 
 	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, &image);
+	status = GdipLoadImageFromFile (filePath, image);
 	assertEqualInt (status, Ok);
 
 	freeWchar (filePath);
 	
-	status = GdipGetImageGraphicsContext (image, &graphics);
+	status = GdipGetImageGraphicsContext (*image, &graphics);
 	assertEqualInt (status, Ok);
 	
 	return graphics;
