@@ -26,8 +26,8 @@ void verifyMatrix (GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5
         !floatsEqual (elements[5], e6)) {
 
         fprintf (stderr, "Expected matrices to be equal\n");
-        fprintf (stderr, "Actual:   %f, %f, %f, %f, %f, %f\n", e1, e2, e3, e4, e5, e6);
-        fprintf (stderr, "Expected: %f, %f, %f, %f, %f, %f\n\n", elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]);
+        fprintf (stderr, "Expected: %f, %f, %f, %f, %f, %f\n", e1, e2, e3, e4, e5, e6);
+        fprintf (stderr, "Actual:   %f, %f, %f, %f, %f, %f\n\n", elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]);
 
         abort ();
     }
