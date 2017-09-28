@@ -264,7 +264,7 @@ GdipDisposeImage (GpImage *image)
 	case ImageTypeMetafile:
 		return gdip_metafile_dispose ((GpMetafile*)image);
 	default: /* imageUndefined */
-		g_warning ("unknown image type couldn't be disposed, ptr = %p, type %d", image, image->type);
+		g_warning ("unknown image type couldn't be disposed, ptr = %p, type %d", (void*)image, image->type);
 		return Ok;
 	}
 }

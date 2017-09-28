@@ -129,7 +129,7 @@ main (int argc, char **argv)
     CHECK_STATUS(1);
 
     for (j = 0; j < 5; j++) {
-        cptr = (unsigned char *) (d.origBitmapData.Scan0 + (j * d.origBitmapData.Stride));
+        cptr = ((unsigned char *)d.origBitmapData.Scan0) + (j * d.origBitmapData.Stride);
         printf ("%d: ", j);
         for (i = 0; i < 5; i++) {
             printf ("%02x%02x%02x ", cptr[0], cptr[1], cptr[2]);
@@ -140,7 +140,7 @@ main (int argc, char **argv)
 
     printf ("Modifying (setting to 0xaabbcc)\n");
     for (j = 0; j < 5; j++) {
-        cptr = (unsigned char *) (d.origBitmapData.Scan0 + (j * d.origBitmapData.Stride));
+        cptr = ((unsigned char *)d.origBitmapData.Scan0) + (j * d.origBitmapData.Stride);
         for (i = 0; i < 5; i++) {
             *cptr++ = 0xcc;
             *cptr++ = 0xbb;
