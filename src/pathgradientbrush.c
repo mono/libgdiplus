@@ -566,7 +566,6 @@ GpStatus WINGDIPAPI
 GdipSetPathGradientSurroundColorsWithCount (GpPathGradient *brush, GDIPCONST ARGB *colors, INT *count)
 {
 	int boundaryColorsCount;
-	int i;
 
 	if (!brush || !colors || !count)
 		return InvalidParameter;

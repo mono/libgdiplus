@@ -76,12 +76,6 @@ gdip_tiff_fileread (thandle_t clientData, tdata_t buffer, tsize_t size)
 }
 
 static tsize_t 
-gdip_tiff_fileread_none (thandle_t clientData, tdata_t buffer, tsize_t size)
-{
-	return 0;
-}
-
-static tsize_t 
 gdip_tiff_filewrite (thandle_t clientData, tdata_t buffer, tsize_t size)
 {
 	return (tsize_t)fwrite (buffer, 1, size, (FILE*)clientData);
@@ -206,7 +200,6 @@ gdip_load_tiff_properties (TIFF *tiff, BitmapData *bitmap_data)
 	uint32	i;
 	uint16	s;
 	uint16	s2;
-	char	c;
 	double	d;
 	float	f;
 	uint16	samples_per_pixel;
@@ -673,7 +666,6 @@ static GpStatus
 gdip_save_tiff_properties (TIFF *tiff, BitmapData *bitmap_data, int samples_per_pixel, int bits_per_sample)
 {
 	int		index;
-	BYTE *text;
 	guint32		i;
 	guint32		l;
 	int		j;
@@ -1080,7 +1072,6 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 	TIFFRGBAImage	tiff_image;
 	FrameData	*frame;
 	BitmapData	*bitmap_data;
-	size_t		num_of_pixels;
 	char		*pixbuf;
 	char		*pixbuf_row;
 	guint32		*pixbuf_ptr;
