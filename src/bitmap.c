@@ -801,9 +801,8 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 	}
 
 	result = gdip_bitmap_new ();
-	if (result == NULL) {
+	if (!result)
 		return OutOfMemory;
-	}
 
 	result->image_format = MEMBMP;
 	result->cairo_format = cairo_format;
@@ -954,6 +953,9 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	gdip_align_stride (stride);
 	
 	result = gdip_bitmap_new ();
+	if (!result)
+		return OutOfMemory;
+
 	result->image_format = MEMBMP;
 	result->cairo_format = CAIRO_FORMAT_ARGB32;
 

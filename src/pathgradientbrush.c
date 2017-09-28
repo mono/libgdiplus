@@ -438,6 +438,9 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, INT count, GpWrapMode wrapMo
 	GdipAddPathLine2 (gppath, points, count);
 
 	gp = gdip_pathgradient_new ();
+	if (!gp)
+		return OutOfMemory;
+
 	gp->boundary = gppath;
 	gp->wrapMode = wrapMode;
 	gp->center = gdip_get_center (points, count);
@@ -501,6 +504,9 @@ GdipCreatePathGradientFromPath (GDIPCONST GpPath *path, GpPathGradient **polyGra
 		return OutOfMemory;
 
 	gp = gdip_pathgradient_new ();
+	if (!gp)
+		return OutOfMemory;
+
 	GdipClonePath ((GpPath*) path, &(gp->boundary));
 	GdipGetPointCount ((GpPath*) path, &count);
 	points = (GpPointF*) GdipAlloc (count * sizeof (GpPointF));

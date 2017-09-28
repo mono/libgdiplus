@@ -280,7 +280,7 @@ GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen)
 	if (!brush || !pen)
 		return InvalidParameter;
 
-        *pen = result = gdip_pen_new ();
+	*pen = result = gdip_pen_new ();
 	if (!result)
 		return OutOfMemory;
 
