@@ -654,7 +654,7 @@ gdip_save_jpeg_image_internal (FILE *fp, PutBytesDelegate putBytesFunc, GpImage 
 	struct jpeg_compress_struct	cinfo;
 	struct gdip_jpeg_error_mgr	jerr;
 	const EncoderParameter		*param;
-    JOCTET		*scanline = NULL;
+	JOCTET		*scanline = NULL;
 	int		need_argb_conversion = 0;
 	GpStatus	status;
 
