@@ -44,7 +44,7 @@ struct _StringFormat {
 	StringFormatFlags	formatFlags;
 	StringTrimming		trimming;
 	StringDigitSubstitute	substitute;
-	LANGID				language;
+	LANGID			language;
 	CharacterRange		*charRanges;
 	float			firstTabOffset;
 	float			*tabStops;
