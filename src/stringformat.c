@@ -46,6 +46,7 @@ GdipCreateStringFormat (INT formatAttributes, LANGID language, GpStringFormat **
 	result->formatFlags = formatAttributes; 
 	result->trimming = StringTrimmingCharacter;
 	result->substitute = StringDigitSubstituteUser;
+	result->language = 0;
 	result->firstTabOffset = 0;
 	result->tabStops = NULL;
 	result->numtabStops = 0;
@@ -95,6 +96,7 @@ GdipCloneStringFormat (GDIPCONST GpStringFormat *format,  GpStringFormat **newFo
 	result->formatFlags = format->formatFlags; 
 	result->trimming = format->trimming;
 	result->substitute = format->substitute;
+	result->language = format->language;
 	result->firstTabOffset = format->firstTabOffset;
 	result->numtabStops = format->numtabStops;
 	result->charRangeCount = format->charRangeCount;
@@ -149,7 +151,7 @@ GdipDeleteStringFormat (GpStringFormat *format)
 GpStatus WINGDIPAPI
 GdipSetStringFormatAlign (GpStringFormat *format, StringAlignment align)
 {
-	if (!format)
+	if (!format || align < StringAlignmentNear || align > StringAlignmentFar)
 		return InvalidParameter;
 
 	format->alignment = align;
@@ -169,7 +171,7 @@ GdipGetStringFormatAlign (GDIPCONST GpStringFormat *format, StringAlignment *ali
 GpStatus WINGDIPAPI
 GdipSetStringFormatLineAlign (GpStringFormat *format, StringAlignment align)
 {
-	if (!format)
+	if (!format || align < StringAlignmentNear || align > StringAlignmentFar)
 		return InvalidParameter;
 
 	format->lineAlignment = align;
@@ -189,7 +191,7 @@ GdipGetStringFormatLineAlign (GDIPCONST GpStringFormat *format, StringAlignment 
 GpStatus WINGDIPAPI
 GdipSetStringFormatHotkeyPrefix (GpStringFormat *format, INT hotkeyPrefix)
 {
-	if (!format)
+	if (!format || hotkeyPrefix < HotkeyPrefixNone || hotkeyPrefix > HotkeyPrefixHide)
 		return InvalidParameter;
 
 	format->hotkeyPrefix = hotkeyPrefix;
@@ -229,7 +231,7 @@ GdipGetStringFormatFlags (GDIPCONST GpStringFormat *format, INT *flags)
 GpStatus WINGDIPAPI
 GdipSetStringFormatTrimming (GpStringFormat *format,  StringTrimming trimming)
 {
-	if (!format)
+	if (!format || trimming < StringTrimmingNone || trimming > StringTrimmingEllipsisPath)
 		return InvalidParameter;
 
 	format->trimming = trimming;
@@ -250,30 +252,36 @@ GpStatus WINGDIPAPI
 GdipSetStringFormatTabStops (GpStringFormat *format, REAL firstTabOffset, INT count, GDIPCONST REAL *tabStops)
 {
 	int i;
-	float *pItemSrc = (float*) tabStops;
+	float *pItemSrc1 = (float*) tabStops;
+	float *pItemSrc2 = (float*) tabStops;
 	float *pItemTrg;
 
 	if (!format || !tabStops)
 		return InvalidParameter;
 
+	if (count <= 0)
+		return Ok;
+	
+	if (firstTabOffset < 0)
+		return NotImplemented;
+
+	for (i = 0; i < count; i++, pItemSrc1++) {
+		if (*pItemSrc1 < 0)
+			return NotImplemented;
+	}
+
 	if (format->tabStops)
 		GdipFree (format->tabStops);
 
-	format->firstTabOffset = (count >= 0) ? firstTabOffset : 0.0f;
-
-	if (count <= 0) {
-		format->tabStops = NULL;
-		format->numtabStops = 0;
-		return Ok;
-	}
+	format->firstTabOffset = firstTabOffset;
 
 	pItemTrg = format->tabStops = GdipAlloc (sizeof(float) * count);
 
 	if (!pItemTrg)
 		return OutOfMemory;
 
-	for (i = 0; i < count; i++, pItemSrc++, pItemTrg++)
-		*pItemTrg = *pItemSrc;
+	for (i = 0; i < count; i++, pItemSrc2++, pItemTrg++)
+		*pItemTrg = *pItemSrc2;
 
 	format->numtabStops = count;
 	return Ok;
@@ -282,10 +290,15 @@ GdipSetStringFormatTabStops (GpStringFormat *format, REAL firstTabOffset, INT co
 GpStatus WINGDIPAPI
 GdipGetStringFormatDigitSubstitution (GDIPCONST GpStringFormat *format, LANGID *language, StringDigitSubstitute *substitute)
 {
-	if (!format || !substitute)
+	if (!format)
 		return InvalidParameter;
 
-	*substitute = format->substitute;
+	if (language)
+		*language = format->language;
+
+	if (substitute)
+		*substitute = format->substitute;
+
 	return Ok;
 }
 
@@ -295,6 +308,7 @@ GdipSetStringFormatDigitSubstitution (GpStringFormat *format, LANGID language, S
 	if (!format)
 		return InvalidParameter;
 
+	format->language = language;
 	format->substitute = substitute;
 	return Ok;
 }
@@ -318,7 +332,7 @@ GdipGetStringFormatTabStops (GDIPCONST GpStringFormat *format, INT count, REAL *
 	float *pItemTrg = tabStops;
 	int elems;
 
-	if (!format || !firstTabOffset || !tabStops)
+	if (!format || !firstTabOffset || !tabStops || count < 0)
 		return InvalidParameter;
 
 	pItemSrc = format->tabStops;
@@ -344,11 +358,11 @@ GdipGetStringFormatMeasurableCharacterRangeCount (GDIPCONST GpStringFormat *form
 GpStatus WINGDIPAPI
 GdipSetStringFormatMeasurableCharacterRanges (GpStringFormat *format, INT rangeCount, GDIPCONST CharacterRange *ranges)
 {
-	if (!format || !ranges || (rangeCount < 0))
+	if (!format || !ranges)
 		return InvalidParameter;
 
-	if (rangeCount == 0)
-		return Ok;
+	if (rangeCount < 0)
+		rangeCount = 0;
 	else if (rangeCount > 32)
 		return ValueOverflow;
 
@@ -357,13 +371,19 @@ GdipSetStringFormatMeasurableCharacterRanges (GpStringFormat *format, INT rangeC
 		format->charRanges = NULL;
 	}
 
-	if (format->charRanges == NULL) {
-		format->charRanges = (CharacterRange *) GdipAlloc (rangeCount * sizeof (CharacterRange));
-		if (format->charRanges == NULL)
-			return OutOfMemory;
+	if (rangeCount == 0) {
+		format->charRanges = NULL;
+	}
+	else {
+		if (format->charRanges == NULL) {
+			format->charRanges = (CharacterRange *) GdipAlloc (rangeCount * sizeof (CharacterRange));
+			if (format->charRanges == NULL)
+				return OutOfMemory;
+		}
+
+		memcpy (format->charRanges, ranges, rangeCount * sizeof (CharacterRange));
 	}
 
-	memcpy (format->charRanges, ranges, rangeCount * sizeof (CharacterRange));
 	format->charRangeCount = rangeCount;
 
 	return Ok;
