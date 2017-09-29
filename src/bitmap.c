@@ -603,7 +603,7 @@ gdip_bitmap_setactive(GpBitmap *bitmap, const GUID *dimension, int index)
 	for (i = 0; i < bitmap->num_of_frames; i++) {
 		if (memcmp(&bitmap->frames[i].frame_dimension, dimension, sizeof(GUID)) == 0) {
 			if (bitmap->frames[i].count <= index) {
-				return InvalidParameter;
+				return Win32Error;
 			}
 			bitmap->active_frame = i;
 			bitmap->active_bitmap_no = index;
