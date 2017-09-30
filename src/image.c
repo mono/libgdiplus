@@ -1022,12 +1022,24 @@ GdipDrawImagePointsRectI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoin
 GpStatus WINGDIPAPI
 GdipLoadImageFromStream (void *stream, GpImage **image)
 {
+	if (!stream || !image)
+		return InvalidParameter;
+
 	return NotImplemented; /* GdipLoadImageFromStream - not supported */
+}
+
+GpStatus WINGDIPAPI
+GdipLoadImageFromStreamICM (void *stream, GpImage **image)
+{
+	return GdipLoadImageFromStream (stream, image);	
 }
 
 GpStatus WINGDIPAPI
 GdipSaveImageToStream (GpImage *image, void *stream, GDIPCONST CLSID *encoderCLSID, GDIPCONST EncoderParameters *params)
 {
+	if (!stream || !image)
+		return InvalidParameter;
+
 	return NotImplemented; /* GdipSaveImageToStream - not supported */
 }
 
@@ -1447,11 +1459,11 @@ GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count
 	if (!image || !dimensionGUID)
 		return InvalidParameter;
 
-	if (count < 1)
-		return InvalidParameter;
-
 	switch (image->type) {
 	case ImageTypeBitmap: {
+		if (count < 1 || count > image->num_of_frames)
+			return Win32Error;
+
 		int i;
 		int countReturn = image->num_of_frames;
 	
@@ -1463,8 +1475,9 @@ GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count
 		break;
 	}
 	case ImageTypeMetafile:
-		if (count > 1)
+		if (count != 1)
 			return InvalidParameter;
+
 		dimensionGUID[0] = gdip_image_frameDimension_page_guid;
 		break;
 	default:
@@ -1476,11 +1489,14 @@ GdipImageGetFrameDimensionsList (GpImage *image, GUID *dimensionGUID, UINT count
 GpStatus WINGDIPAPI
 GdipImageGetFrameCount (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* count)
 {
-	if (!image || !dimensionGUID || !count)
+	if (!image)
 		return InvalidParameter;
 
 	switch (image->type) {
 	case ImageTypeBitmap: {
+		if (!dimensionGUID || !count)
+			return Win32Error;
+
 		int i;
 		for (i = 0; i < image->num_of_frames; i++){
 			if (memcmp (dimensionGUID, &(image->frames[i].frame_dimension), sizeof (CLSID)) == 0) {
@@ -1488,8 +1504,13 @@ GdipImageGetFrameCount (GpImage *image, GDIPCONST GUID *dimensionGUID, UINT* cou
 				return Ok;
 			}
 		}
+
+		return Win32Error;
 	}
 	case ImageTypeMetafile:
+		if (!count)
+			return InvalidParameter;
+
 		/* note: an empty GUID also returns 1 */
 		*count = 1;
 		return Ok;
@@ -1833,7 +1854,7 @@ GdipImageRotateFlip (GpImage *image, RotateFlipType type)
 	angle = flip_x = 0;
 
 	switch (type) {
-                case RotateNoneFlipNone:/* equivalent to Rotate180FlipXY */
+		case RotateNoneFlipNone:/* equivalent to Rotate180FlipXY */
 			return Ok;
 
 		case Rotate90FlipNone:	/* equivalent to Rotate270FlipXY */
@@ -1866,7 +1887,7 @@ GdipImageRotateFlip (GpImage *image, RotateFlipType type)
 			break;
 
 		default:
-			return NotImplemented;
+			return InvalidParameter;
 	}	
 	
 	if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format) && (gdip_get_pixel_format_depth (image->active_bitmap->pixel_format) < 8)) {
@@ -2530,15 +2551,19 @@ GdipGetEncoderParameterListSize (GpImage *image, GDIPCONST CLSID *clsidEncoder, 
 {
 	ImageFormat fmt;
 
-	if (!image || !clsidEncoder || !size)
+	if (!image || !clsidEncoder)
 		return InvalidParameter;
 
 	fmt = gdip_get_imageformat_from_codec_clsid ((CLSID *) clsidEncoder);
 
 	switch (fmt) {
 		case JPEG:
+			if (!size)
+				return InvalidParameter;
+
 			*size = gdip_get_encoder_parameter_list_size_jpeg ();
 			return Ok;
+		case BMP:
 		case TIF:
 			*size = 0;
 			return NotImplemented;
@@ -2554,15 +2579,19 @@ GdipGetEncoderParameterList (GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT
 {
 	ImageFormat fmt;
 
-	if (!image || !clsidEncoder || !buffer)
+	if (!image || !clsidEncoder)
 		return InvalidParameter;
 
 	fmt = gdip_get_imageformat_from_codec_clsid ((CLSID *) clsidEncoder);
 
 	switch (fmt) {
 		case JPEG:
+			if (!buffer)
+				return InvalidParameter;
+
 			return gdip_fill_encoder_parameter_list_jpeg (buffer, size);
 		case TIF:
+		case BMP:
 			return NotImplemented;
 		default:
 			break;
@@ -2574,6 +2603,9 @@ GdipGetEncoderParameterList (GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT
 GpStatus WINGDIPAPI
 GdipGetImageThumbnail (GpImage *image, UINT thumbWidth, UINT thumbHeight, GpImage **thumbImage, GetThumbnailImageAbort callback, VOID *callbackData)
 {
+	if (!image || !thumbImage)
+		return InvalidParameter;
+
 	/* We don't really need to implement this; we've got it handled in System.Drawing directly */
 	return NotImplemented;
 }
@@ -2617,4 +2649,13 @@ GdipSaveAddImage (GpImage *image, GpImage *imageNew, GDIPCONST EncoderParameters
 	if (!image || !imageNew || !params)
 		return InvalidParameter;
 	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipImageForceValidation (GpImage *image)
+{
+	if (!image)
+		return InvalidParameter;
+
+	return Ok;
 }

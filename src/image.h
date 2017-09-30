@@ -54,6 +54,7 @@ GpStatus WINGDIPAPI GdipSaveImageToDelegate_linux (GpImage *image, GetBytesDeleg
 /* GDI+ exported Image functions */
 GpStatus WINGDIPAPI GdipLoadImageFromStream (void /*IStream*/ *stream, GpImage **image);
 GpStatus WINGDIPAPI GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image); 
+GpStatus WINGDIPAPI GdipLoadImageFromStreamICM (void /*IStream*/ *stream, GpImage **image);
 GpStatus WINGDIPAPI GdipLoadImageFromFileICM (GDIPCONST WCHAR* filename, GpImage **image);
 
 GpStatus WINGDIPAPI GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *clsidEncoder, GDIPCONST EncoderParameters *encoderParams); 
@@ -93,9 +94,6 @@ GpStatus WINGDIPAPI GdipSetPropertyItem (GpImage *image, GDIPCONST PropertyItem 
 GpStatus WINGDIPAPI GdipGetAllPropertyItems (GpImage *image, UINT totalBufferSize, UINT numProperties, PropertyItem *allItems);
 GpStatus WINGDIPAPI GdipCloneImage(GpImage *image, GpImage **cloneImage);
 GpStatus WINGDIPAPI GdipDisposeImage (GpImage *image);
+GpStatus WINGDIPAPI GdipImageForceValidation (GpImage *image);
 
-/* missing API
-	GdipLoadImageFromStreamICM
-	GdipImageForceValidation
- */
 #endif
