@@ -308,9 +308,9 @@ typedef struct {
 	int	Width;
 	int	Height;
 	union {
-		METAHEADER	WmfHeader;
-		ENHMETAHEADER3	EmfHeader;
-	};
+		METAHEADER	Wmf;
+		ENHMETAHEADER3	Emf;
+	} Header;
 	int	EmfPlusHeaderSize;
 	int	LogicalDpiX;
 	int	LogicalDpiY;
