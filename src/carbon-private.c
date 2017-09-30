@@ -40,4 +40,10 @@ void gdip_get_display_dpi_carbon (float *h_dpi, float *v_dpi) {
 		}
 	}
 }
+#else
+#include <glib.h>
+
+void gdip_get_display_dpi_carbon (float *h_dpi, float *v_dpi) {
+	g_assert_not_reached ();
+}
 #endif

@@ -23,8 +23,6 @@
 #ifndef __CARBON_PRIVATE_H__
 #define __CARBON_PRIVATE_H__
 
-#ifdef __APPLE__
 void gdip_get_display_dpi_carbon (float *h_dpi, float *v_dpi);
-#endif
 
 #endif

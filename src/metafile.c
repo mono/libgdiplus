@@ -983,12 +983,12 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 	switch (context->metafile->metafile_header.Type) {
 	case METAFILETYPE_WMFPLACEABLE:
 	case METAFILETYPE_WMF:
-		context->objects_count = metafile->metafile_header.WmfHeader.mtNoObjects;
+		context->objects_count = metafile->metafile_header.Header.Wmf.mtNoObjects;
 		break;
 	case METAFILETYPE_EMF:
 	case METAFILETYPE_EMFPLUSONLY:
 	case METAFILETYPE_EMFPLUSDUAL:
-		context->objects_count = metafile->metafile_header.EmfHeader.nHandles + 1; /* 0 is reserved */
+		context->objects_count = metafile->metafile_header.Header.Emf.nHandles + 1; /* 0 is reserved */
 		break;
 	default:
 		GdipFree (context);
@@ -1107,13 +1107,13 @@ static void
 MetafileHeaderLE (MetafileHeader *header)
 {
 #if G_BYTE_ORDER != G_LITTLE_ENDIAN
-	header->WmfHeader.mtType = GUINT16_FROM_LE (header->WmfHeader.mtType);
-	header->WmfHeader.mtHeaderSize = GUINT16_FROM_LE (header->WmfHeader.mtHeaderSize);
-	header->WmfHeader.mtVersion = GUINT16_FROM_LE (header->WmfHeader.mtVersion);
-	header->WmfHeader.mtSize = GUINT32_FROM_LE (header->WmfHeader.mtSize);
-	header->WmfHeader.mtNoObjects = GUINT16_FROM_LE (header->WmfHeader.mtNoObjects);
-	header->WmfHeader.mtMaxRecord = GUINT32_FROM_LE (header->WmfHeader.mtMaxRecord);
-	header->WmfHeader.mtNoParameters = GUINT16_FROM_LE (header->WmfHeader.mtNoParameters);
+	header->Header.Wmf.mtType = GUINT16_FROM_LE (header->Header.Wmf.mtType);
+	header->Header.Wmf.mtHeaderSize = GUINT16_FROM_LE (header->Header.Wmf.mtHeaderSize);
+	header->Header.Wmf.mtVersion = GUINT16_FROM_LE (header->Header.Wmf.mtVersion);
+	header->Header.Wmf.mtSize = GUINT32_FROM_LE (header->Header.Wmf.mtSize);
+	header->Header.Wmf.mtNoObjects = GUINT16_FROM_LE (header->Header.Wmf.mtNoObjects);
+	header->Header.Wmf.mtMaxRecord = GUINT32_FROM_LE (header->Header.Wmf.mtMaxRecord);
+	header->Header.Wmf.mtNoParameters = GUINT16_FROM_LE (header->Header.Wmf.mtNoParameters);
 #endif
 }
 
@@ -1169,8 +1169,8 @@ combine_headers (GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, Metaf
 		header->DpiX = gdip_get_display_dpi ();
 		header->DpiY = header->DpiX;
 	}
-	header->Size = header->WmfHeader.mtSize * 2;
-	header->Version = header->WmfHeader.mtVersion;
+	header->Size = header->Header.Wmf.mtSize * 2;
+	header->Version = header->Header.Wmf.mtVersion;
 	header->EmfPlusFlags = 0;
 	header->EmfPlusHeaderSize = 0;
 	header->LogicalDpiX = 0;
@@ -1237,7 +1237,7 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 	aldus_header.Checksum);
 #endif
 		size = sizeof (METAHEADER);
-		if (gdip_read_wmf_data (pointer, (BYTE*)&header->WmfHeader, size, source) != size)
+		if (gdip_read_wmf_data (pointer, (BYTE*)&header->Header.Wmf, size, source) != size)
 			return InvalidParameter;
 
 		WmfPlaceableFileHeaderLE (&aldus_header);
@@ -1245,22 +1245,22 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 		status = combine_headers (&aldus_header, header);
 		break;
 	case WMF_TYPE_AND_HEADERSIZE_KEY:
-		memcpy (&header->WmfHeader, &key, size);
+		memcpy (&header->Header.Wmf, &key, size);
 
 		size = sizeof (METAHEADER) - size;
-		if (gdip_read_wmf_data (pointer, (BYTE*)(&header->WmfHeader) + sizeof(DWORD), size, source) != size)
+		if (gdip_read_wmf_data (pointer, (BYTE*)(&header->Header.Wmf) + sizeof(DWORD), size, source) != size)
 			return InvalidParameter;
 
 		MetafileHeaderLE (header);
 		status = combine_headers (NULL, header);
 		break;
 	case EMF_EMR_HEADER_KEY:
-		emf = &(header->EmfHeader);
+		emf = &(header->Header.Emf);
 		emf->iType = key;
 		size = sizeof (ENHMETAHEADER3) - size;
-		if (gdip_read_emf_data (pointer, (BYTE*)(&header->EmfHeader) + sizeof (DWORD), size, source) != size)
+		if (gdip_read_emf_data (pointer, (BYTE*)(&header->Header.Emf) + sizeof (DWORD), size, source) != size)
 			return InvalidParameter;
-		EnhMetaHeaderLE (&header->EmfHeader);
+		EnhMetaHeaderLE (&header->Header.Emf);
 #if FALSE
 g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame L %d, T %d, R %d, B %d, signature %X, version %d, bytes %d, records %d, handles %d, reserved %d, description %d, %d, palentries %d, device %d, %d, millimeters %d, %d", 
 	emf->iType, emf->nSize, 
@@ -1321,9 +1321,9 @@ g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame 
 
 #if FALSE
 g_warning ("METAHEADER type %d, header %d, version %d, size %d, #obj %d, max rec %d, #params %d",
-	header->WmfHeader.mtType, header->WmfHeader.mtHeaderSize, header->WmfHeader.mtVersion,
-	header->WmfHeader.mtSize, header->WmfHeader.mtNoObjects, header->WmfHeader.mtMaxRecord,
-	header->WmfHeader.mtNoParameters);
+	header->Header.Wmf.mtType, header->Header.Wmf.mtHeaderSize, header->Header.Wmf.mtVersion,
+	header->Header.Wmf.mtSize, header->Header.Wmf.mtNoObjects, header->Header.Wmf.mtMaxRecord,
+	header->Header.Wmf.mtNoParameters);
 #endif
 	return status;
 }
@@ -1347,13 +1347,13 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source
 	case METAFILETYPE_WMF:
 		mf->base.image_format = WMF;
 		/* note: mtSize is in WORD, mtSize contains the METAHEADER, mf->length is in bytes */
-		mf->length = mf->metafile_header.WmfHeader.mtSize * 2 - sizeof (METAHEADER);
+		mf->length = mf->metafile_header.Header.Wmf.mtSize * 2 - sizeof (METAHEADER);
 		break;
 	case METAFILETYPE_EMF:
 	case METAFILETYPE_EMFPLUSONLY:
 	case METAFILETYPE_EMFPLUSDUAL:
 		mf->base.image_format = EMF;
-		mf->length = mf->metafile_header.EmfHeader.nBytes - mf->metafile_header.EmfHeader.nSize;
+		mf->length = mf->metafile_header.Header.Emf.nBytes - mf->metafile_header.Header.Emf.nSize;
 		adjust_emf_headers = TRUE;
 		break;
 	}
