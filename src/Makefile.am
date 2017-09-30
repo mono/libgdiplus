@@ -92,10 +92,6 @@ libgdiplus_la_SOURCES = \
 	stringformat-private.h		\
 	text.c				\
 	text.h				\
-	text-cairo.c			\
-	text-cairo-private.h		\
-	text-pango.c			\
-	text-pango-private.h		\
 	text-metafile.c			\
 	text-metafile-private.h		\
 	texturebrush.c			\
@@ -118,6 +114,16 @@ libgdiplus_la_SOURCES = \
 	tiffcodec.c			\
 	wmfcodec.c			\
 	wmfcodec.h
+
+if USE_PANGO_RENDERING
+libgdiplus_la_SOURCES += \
+	text-pango.c			\
+	text-pango-private.h
+else
+libgdiplus_la_SOURCES += \
+	text-cairo.c			\
+	text-cairo-private.h
+endif
 
 libgdiplus_la_LIBADD = $(GDIPLUS_LIBS)
 

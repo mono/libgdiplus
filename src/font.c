@@ -708,7 +708,11 @@ gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 
 	if ((status == Ok) && font) {
 		PangoFontMap *map = pango_cairo_font_map_get_default (); /* owned by pango */
+#if PANGO_VERSION_CHECK(1,22,0)
+		PangoContext *context = pango_font_map_create_context (PANGO_FONT_MAP (map));
+#else
 		PangoContext *context = pango_cairo_font_map_create_context ((PangoCairoFontMap*)map);
+#endif
 		PangoFont *pf = pango_font_map_load_font (map, context, gdip_get_pango_font_description (font));
 
 		FT_Face face = pango_fc_font_lock_face ((PangoFcFont*)pf);

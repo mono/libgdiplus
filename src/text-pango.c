@@ -30,6 +30,24 @@
 #include "brush-private.h"
 #include "font-private.h"
 
+int
+utf8_length_for_ucs2_string (GDIPCONST WCHAR *stringUnicode, int offset, int length)
+{
+	int utf8_length = 0;
+	int end = offset + length;
+	int i;
+	for (i = offset; i < end; ++i) {
+		unsigned short ch = (unsigned short)stringUnicode[i];
+		if (ch < 0x80)
+			utf8_length += 1;
+		else if (ch < 0x800)
+			utf8_length += 2;
+		else if (ch < 0xD800 || ch >= 0xE000)
+			utf8_length += 3;
+		/* ignore surrogate pairs as they are ignored in ucs2_to_utf8() */
+	}
+	return utf8_length;
+}
 
 /*
  * NOTE: all parameter's validations are done inside text.c
@@ -701,25 +719,6 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 cleanup:
 	cairo_restore (graphics->ct);
 	return status;
-}
-
-int
-utf8_length_for_ucs2_string (GDIPCONST WCHAR *stringUnicode, int offset, int length)
-{
-	int utf8_length = 0;
-	int end = offset + length;
-	int i;
-	for (i = offset; i < end; ++i) {
-		unsigned short ch = (unsigned short)stringUnicode[i];
-		if (ch < 0x80)
-			utf8_length += 1;
-		else if (ch < 0x800)
-			utf8_length += 2;
-		else if (ch < 0xD800 || ch >= 0xE000)
-			utf8_length += 3;
-		/* ignore surrogate pairs as they are ignored in ucs2_to_utf8() */
-	}
-	return utf8_length;
 }
 
 #endif
