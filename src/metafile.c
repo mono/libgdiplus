@@ -1275,18 +1275,12 @@ g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame 
 			return InvalidParameter;
 
 		header->Type = MetafileTypeEmf;
-		/* FIXME: inclusive-inclusive, MS gets 1 to 5 pixels larger than the header */
-		if ((emf->rclFrame.left == 0) && (emf->rclFrame.top == 0)) {
-			header->X = 0;
-			header->Y = 0;
-			header->Width = emf->szlDevice.cx + 1;
-			header->Height = emf->szlDevice.cy + 1;
-		} else {
-			header->X = emf->rclBounds.left;
-			header->Y = emf->rclBounds.top;
-			header->Width = emf->rclBounds.right - emf->rclBounds.left + 1;
-			header->Height = emf->rclBounds.bottom - emf->rclBounds.top + 1;
-		}
+
+		header->X = emf->rclBounds.left;
+		header->Y = emf->rclBounds.top;
+		header->Width = emf->rclBounds.right - emf->rclBounds.left + 1;
+		header->Height = emf->rclBounds.bottom - emf->rclBounds.top + 1;
+
 		header->DpiX = MM_PER_INCH / ((float)emf->szlMillimeters.cx / emf->szlDevice.cx);
 		header->DpiY = MM_PER_INCH / ((float)emf->szlMillimeters.cy / emf->szlDevice.cy);
 		header->Size = emf->nBytes;
