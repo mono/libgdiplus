@@ -344,7 +344,7 @@ gdip_bitmapdata_property_remove_id(BitmapData *bitmap_data, PROPID id)
 		}
 	}
 
-	return PropertyNotFound;
+	return GenericError;
 }
 
 GpStatus
