@@ -1350,8 +1350,9 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source
 		mf->length = mf->metafile_header.Header.Emf.nBytes - mf->metafile_header.Header.Emf.nSize;
 		adjust_emf_headers = TRUE;
 		break;
-    default:
-        goto error;
+	default:
+		status = GenericError;
+		goto error;
 	}
 
 	mf->data = (BYTE*) GdipAlloc (mf->length);
@@ -1667,7 +1668,7 @@ GdipRecordMetafile (HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect
 	mf->metafile_header.Width = frameRect->Width;
 	mf->metafile_header.Height = frameRect->Height;
 	mf->metafile_header.Size = 0;
-	mf->metafile_header.Type = type;
+	mf->metafile_header.Type = (MetafileType)type;
 	mf->recording = TRUE;
 
 	/* TODO - more stuff here! */
