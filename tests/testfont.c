@@ -103,6 +103,8 @@ static void verifyFont (GpFont *font, GpFontFamily *originalFamily, INT expected
 	status = GdipGetFontStyle(font, &style);
 	assertEqualInt (status, Ok);
 	assertEqualInt (style, expectedStyle);
+	
+	GdipDeleteFontFamily (family);
 }
 
 static void test_newPrivateFontCollection ()
