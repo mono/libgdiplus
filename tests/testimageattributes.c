@@ -162,8 +162,11 @@ static void test_setImageAttributesColorMatrix ()
 {
 	GpStatus status;
 	GpImageAttributes *attributes;
-	ColorMatrix colorMatrix = {};
-	ColorMatrix grayMatrix = {};
+	ColorMatrix colorMatrix;
+	ColorMatrix grayMatrix;
+
+	memset ((void *) &colorMatrix, 0, sizeof(ColorMatrix));
+	memset ((void *) &grayMatrix, 0, sizeof(ColorMatrix));
 
 	GdipCreateImageAttributes (&attributes);
 	
