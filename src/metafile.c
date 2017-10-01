@@ -981,13 +981,13 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 
 	/* SelectObject | DeleteObject works on this array */
 	switch (context->metafile->metafile_header.Type) {
-	case METAFILETYPE_WMFPLACEABLE:
-	case METAFILETYPE_WMF:
+	case MetafileTypeWmfPlaceable:
+	case MetafileTypeWmf:
 		context->objects_count = metafile->metafile_header.Header.Wmf.mtNoObjects;
 		break;
-	case METAFILETYPE_EMF:
-	case METAFILETYPE_EMFPLUSONLY:
-	case METAFILETYPE_EMFPLUSDUAL:
+	case MetafileTypeEmf:
+	case MetafileTypeEmfPlusOnly:
+	case MetafileTypeEmfPlusDual:
 		context->objects_count = metafile->metafile_header.Header.Emf.nHandles + 1; /* 0 is reserved */
 		break;
 	default:
@@ -1016,13 +1016,13 @@ gdip_metafile_play (MetafilePlayContext *context)
 		return InvalidParameter;
 
 	switch (context->metafile->metafile_header.Type) {
-	case METAFILETYPE_WMFPLACEABLE:
-	case METAFILETYPE_WMF:
+	case MetafileTypeWmfPlaceable:
+	case MetafileTypeWmf:
 		return gdip_metafile_play_wmf (context);
-	case METAFILETYPE_EMF:
+	case MetafileTypeEmf:
 		return gdip_metafile_play_emf (context);
-	case METAFILETYPE_EMFPLUSONLY:
-	case METAFILETYPE_EMFPLUSDUAL:
+	case MetafileTypeEmfPlusOnly:
+	case MetafileTypeEmfPlusDual:
 		return gdip_metafile_play_emf (context);
 	default:
 		g_warning ("Invalid metafile format %d", context->metafile->metafile_header.Type);
@@ -1152,7 +1152,7 @@ static GpStatus
 combine_headers (GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, MetafileHeader *header)
 {
 	if (wmfPlaceableFileHeader) {
-		header->Type = METAFILETYPE_WMFPLACEABLE;
+		header->Type = MetafileTypeWmfPlaceable;
 		header->X = wmfPlaceableFileHeader->BoundingBox.Left;
 		header->Y = wmfPlaceableFileHeader->BoundingBox.Top;
 		header->Width = wmfPlaceableFileHeader->BoundingBox.Right - wmfPlaceableFileHeader->BoundingBox.Left;
@@ -1160,7 +1160,7 @@ combine_headers (GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, Metaf
 		header->DpiX = wmfPlaceableFileHeader->Inch;
 		header->DpiY = wmfPlaceableFileHeader->Inch;
 	} else {
-		header->Type = METAFILETYPE_WMF;
+		header->Type = MetafileTypeWmf;
 		header->X = 0;
 		header->Y = 0;
 		/* TODO: GDI+ uses screen resolution for non-placeable metafiles */
@@ -1274,19 +1274,13 @@ g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame 
 		if ((emf->iType != 1) || (emf->dSignature != 0x464D4520) || (emf->sReserved != 0))
 			return InvalidParameter;
 
-		header->Type = METAFILETYPE_EMF;
-		/* FIXME: inclusive-inclusive, MS gets 1 to 5 pixels larger than the header */
-		if ((emf->rclFrame.left == 0) && (emf->rclFrame.top == 0)) {
-			header->X = 0;
-			header->Y = 0;
-			header->Width = emf->szlDevice.cx + 1;
-			header->Height = emf->szlDevice.cy + 1;
-		} else {
-			header->X = emf->rclBounds.left;
-			header->Y = emf->rclBounds.top;
-			header->Width = emf->rclBounds.right - emf->rclBounds.left + 1;
-			header->Height = emf->rclBounds.bottom - emf->rclBounds.top + 1;
-		}
+		header->Type = MetafileTypeEmf;
+
+		header->X = emf->rclBounds.left;
+		header->Y = emf->rclBounds.top;
+		header->Width = emf->rclBounds.right - emf->rclBounds.left + 1;
+		header->Height = emf->rclBounds.bottom - emf->rclBounds.top + 1;
+
 		header->DpiX = MM_PER_INCH / ((float)emf->szlMillimeters.cx / emf->szlDevice.cx);
 		header->DpiY = MM_PER_INCH / ((float)emf->szlMillimeters.cy / emf->szlDevice.cy);
 		header->Size = emf->nBytes;
@@ -1343,19 +1337,22 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source
 		goto error;
 
 	switch (mf->metafile_header.Type) {
-	case METAFILETYPE_WMFPLACEABLE:
-	case METAFILETYPE_WMF:
+	case MetafileTypeWmfPlaceable:
+	case MetafileTypeWmf:
 		mf->base.image_format = WMF;
 		/* note: mtSize is in WORD, mtSize contains the METAHEADER, mf->length is in bytes */
 		mf->length = mf->metafile_header.Header.Wmf.mtSize * 2 - sizeof (METAHEADER);
 		break;
-	case METAFILETYPE_EMF:
-	case METAFILETYPE_EMFPLUSONLY:
-	case METAFILETYPE_EMFPLUSDUAL:
+	case MetafileTypeEmf:
+	case MetafileTypeEmfPlusOnly:
+	case MetafileTypeEmfPlusDual:
 		mf->base.image_format = EMF;
 		mf->length = mf->metafile_header.Header.Emf.nBytes - mf->metafile_header.Header.Emf.nSize;
 		adjust_emf_headers = TRUE;
 		break;
+	default:
+		status = GenericError;
+		goto error;
 	}
 
 	mf->data = (BYTE*) GdipAlloc (mf->length);
@@ -1497,13 +1494,13 @@ GdipGetMetafileHeaderFromEmf (HENHMETAFILE hEmf, MetafileHeader *header)
 		return InvalidParameter;
 
 	switch (metafile->metafile_header.Type) {
-	case METAFILETYPE_EMF:
-	case METAFILETYPE_EMFPLUSONLY:
-	case METAFILETYPE_EMFPLUSDUAL:
+	case MetafileTypeEmf:
+	case MetafileTypeEmfPlusOnly:
+	case MetafileTypeEmfPlusDual:
 		return GdipGetMetafileHeaderFromMetafile (metafile, header);
 	/* you can get a HENHMETAFILE from a WMF metafile but it seems (unit tests) that you can't use it as such */
-	case METAFILETYPE_WMFPLACEABLE:
-	case METAFILETYPE_WMF:
+	case MetafileTypeWmfPlaceable:
+	case MetafileTypeWmf:
 	default:
 		return InvalidParameter;
 	}
@@ -1527,8 +1524,8 @@ GdipGetMetafileHeaderFromFile (GDIPCONST WCHAR *filename, MetafileHeader *header
 	if (fp) {
 		status = gdip_get_metafileheader_from (fp, header, File);
 		/* if EMF check for additional header record */
-		if (header->Type == METAFILETYPE_EMF) {
-			/* look for more details, possibly upgrading the metafile to METAFILETYPE_EMFPLUSONLY or EMFPLUSDUAL */
+		if (header->Type == MetafileTypeEmf) {
+			/* look for more details, possibly upgrading the metafile to MetafileTypeEmfPlusOnly or EMFPLUSDUAL */
 			/* TODO */
 		}
 		fclose (fp);
@@ -1563,8 +1560,8 @@ GdipGetMetafileHeaderFromDelegate_linux (GetHeaderDelegate getHeaderFunc, GetByt
 	if (loader) {
 		status = gdip_get_metafileheader_from (loader, header, DStream);
 		/* if EMF check for additional header record */
-		if (header->Type == METAFILETYPE_EMF) {
-			/* look for more details, possibly upgrading the metafile to METAFILETYPE_EMFPLUSONLY or EMFPLUSDUAL */
+		if (header->Type == MetafileTypeEmf) {
+			/* look for more details, possibly upgrading the metafile to MetafileTypeEmfPlusOnly or EMFPLUSDUAL */
 			/* TODO */
 		}
 		dstream_free (loader);
@@ -1599,14 +1596,14 @@ GdipGetMetafileDownLevelRasterizationLimit (GpMetafile *metafile, UINT *metafile
 		return InvalidParameter;
 
 	switch (metafile->metafile_header.Type) {
-	case METAFILETYPE_EMF:
-	case METAFILETYPE_EMFPLUSDUAL:
+	case MetafileTypeEmf:
+	case MetafileTypeEmfPlusDual:
 		/* TODO */
 		*metafileRasterizationLimitDpi = 0;
 		return Ok;
-	case METAFILETYPE_WMFPLACEABLE:
-	case METAFILETYPE_WMF:
-	case METAFILETYPE_EMFPLUSONLY:
+	case MetafileTypeWmfPlaceable:
+	case MetafileTypeWmf:
+	case MetafileTypeEmfPlusOnly:
 	default:
 		return WrongState;
 	}
@@ -1619,16 +1616,16 @@ GdipSetMetafileDownLevelRasterizationLimit (GpMetafile *metafile, UINT metafileR
 		return InvalidParameter;
 
 	switch (metafile->metafile_header.Type) {
-	case METAFILETYPE_EMF:
-	case METAFILETYPE_EMFPLUSDUAL:
+	case MetafileTypeEmf:
+	case MetafileTypeEmfPlusDual:
 		// values less than 10 left resolution unchanged (from GDI+ documentation)
 		if (metafileRasterizationLimitDpi >= 10) {
 			/* TODO */
 		}
 		return Ok;
-	case METAFILETYPE_WMFPLACEABLE:
-	case METAFILETYPE_WMF:
-	case METAFILETYPE_EMFPLUSONLY:
+	case MetafileTypeWmfPlaceable:
+	case MetafileTypeWmf:
+	case MetafileTypeEmfPlusOnly:
 	default:
 		return WrongState;
 	}
@@ -1671,7 +1668,7 @@ GdipRecordMetafile (HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect
 	mf->metafile_header.Width = frameRect->Width;
 	mf->metafile_header.Height = frameRect->Height;
 	mf->metafile_header.Size = 0;
-	mf->metafile_header.Type = type;
+	mf->metafile_header.Type = (MetafileType)type;
 	mf->recording = TRUE;
 
 	/* TODO - more stuff here! */

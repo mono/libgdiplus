@@ -52,11 +52,9 @@ gdip_pathgradient_init (GpPathGradient *pg)
 	pg->wrapMode = WrapModeClamp;
 	cairo_matrix_init_identity (&pg->transform);
 	pg->presetColors = (InterpolationColors *) GdipAlloc (sizeof (InterpolationColors));
-	pg->presetColors->count = 1;
-	pg->presetColors->colors = (ARGB *) GdipAlloc (sizeof (ARGB));
-	pg->presetColors->positions = (float *) GdipAlloc (sizeof (float));
-	pg->presetColors->colors [0] = MAKE_ARGB_ARGB(0,0,0,0);
-	pg->presetColors->positions[0] = 0.0;
+	pg->presetColors->count = 0;
+	pg->presetColors->colors = NULL;
+	pg->presetColors->positions = NULL;
 	pg->blend = (Blend *) GdipAlloc (sizeof (Blend));
 	pg->blend->count = 1;
 	pg->blend->factors = (float *) GdipAlloc (sizeof (float));
@@ -740,13 +738,6 @@ GdipGetPathGradientBlend (GpPathGradient *brush, REAL *blend, REAL *positions, I
 	if (count < brush->blend->count)
 		return InsufficientBuffer;
 
-	/* If count is less than 1, we are not in a proper state 
-	 * to return blend property. By default, we have one blend
-	 * set. Therefore, count of 1 is acceptible.
-	 */
-	if (brush->blend->count < 1)
-		return WrongState;
-
 	memcpy (blend, brush->blend->factors, brush->blend->count * sizeof (float));
 	memcpy (positions, brush->blend->positions, brush->blend->count * sizeof (float));
 
@@ -795,15 +786,13 @@ GdipSetPathGradientBlend (GpPathGradient *brush, GDIPCONST REAL *blend, GDIPCONS
 	brush->blend->count = count;
 
 	/* we clear the preset colors when setting the blend */
-	if (brush->presetColors->count != 1) {
+	if (brush->presetColors->count != 0) {
 		GdipFree (brush->presetColors->colors);
 		GdipFree (brush->presetColors->positions);
-		brush->presetColors->count = 1;
-		brush->presetColors->colors = (ARGB *) GdipAlloc (sizeof (ARGB));
-		brush->presetColors->positions = (float *) GdipAlloc (sizeof (float));
+		brush->presetColors->count = 0;
+		brush->presetColors->colors = NULL;
+		brush->presetColors->positions = NULL;
 	}
-	brush->presetColors->colors [0] = MAKE_ARGB_ARGB(0,0,0,0);
-	brush->presetColors->positions[0] = 0.0;
 
 	brush->base.changed = TRUE;
 	return Ok;
@@ -829,11 +818,14 @@ GdipGetPathGradientPresetBlend (GpPathGradient *brush, ARGB *blend, REAL *positi
 	if (count < 0)
 		return OutOfMemory;
 
-	if (!positions || brush->presetColors->count != count || count < 2)
+	if (!positions || count < 2)
 		return InvalidParameter;
 
 	if (brush->presetColors->count == 0)
 		return GenericError;
+	
+	if (brush->presetColors->count != count)
+		return InvalidParameter;
 
 	memcpy (blend, brush->presetColors->colors, count * sizeof (ARGB));
 	memcpy (positions, brush->presetColors->positions, count * sizeof (float));

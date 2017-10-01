@@ -736,4 +736,37 @@ typedef enum {
 	WrapModeClamp		= 4
 } WrapMode, GpWrapMode;
 
+typedef enum MetafileType
+{
+	MetafileTypeInvalid,
+	MetafileTypeWmf,
+	MetafileTypeWmfPlaceable,
+	MetafileTypeEmf,
+	MetafileTypeEmfPlusOnly,
+	MetafileTypeEmfPlusDual
+} MetafileType;
+
+typedef enum {
+	EmfTypeEmfOnly        = MetafileTypeEmf,
+	EmfTypeEmfPlusOnly    = MetafileTypeEmfPlusOnly,
+	EmfTypeEmfPlusDual    = MetafileTypeEmfPlusDual
+} EmfType;
+
+typedef enum {
+	MetafileFrameUnitPixel        = UnitPixel,
+	MetafileFrameUnitPoint        = UnitPoint,
+	MetafileFrameUnitInch        = UnitInch,
+	MetafileFrameUnitDocument    = UnitDocument,
+	MetafileFrameUnitMillimeter    = UnitMillimeter,
+	MetafileFrameUnitGdi
+} MetafileFrameUnit;
+
+typedef enum {
+	EmfRecordTypeGdiComment = 70,
+	EmfPlusRecordTypeHeader = 16385,
+	EmfPlusRecordTypeEndOfFile = 16386,
+	EmfPlusRecordTypeClear = 16393,
+	EmfPlusRecordTypeFillRects = 16394,
+} EmfPlusRecordType;
+
 #endif

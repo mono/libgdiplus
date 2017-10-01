@@ -255,10 +255,7 @@ static void test_loadImageFromFileEmf ()
 {
 	GpImage *image = getImage ("test.emf");
 
-	// FIXME: libgdiplus is totally wrong with the size of this image.
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyImage (image, ImageTypeMetafile, PixelFormat32bppRGB, 0, 0, 100, 100, 1944.44f, 1888.88f, 327683, 0);
-#endif
 
 	GdipDisposeImage (image);
 }
