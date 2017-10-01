@@ -915,10 +915,15 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit un
 
 	memcpy(result->face, str, strlen((char *)str) + 1);
 
-        result->style = style;
+	result->style = style;
 	result->emSize = emSize;
 	result->unit = unit;
-	GdipCloneFontFamily ((GpFontFamily*) family, &result->family);
+	status = GdipCloneFontFamily ((GpFontFamily*) family, &result->family);
+	if (status != Ok) {
+		GdipFree (result);
+		return OutOfMemory;
+	}
+
 	result->style = style;
 #ifdef USE_PANGO_RENDERING
 	result->pango = NULL;
@@ -1092,8 +1097,9 @@ gdip_logfont_from_font (GpFont *font, GpGraphics *graphics, void *lf, BOOL ucs2)
 
 // coverity[+alloc : arg-*1]
 GpStatus WINGDIPAPI
-GdipCreateFontFromHfontA(HFONT hfont, GpFont **font, void *lf)
+GdipCreateFontFromHfontA (HFONT hfont, GpFont **font, void *lf)
 {
+	GpStatus		status;
 	GpFont			*src_font;
 	GpFont			*result;
 
@@ -1105,7 +1111,12 @@ GdipCreateFontFromHfontA(HFONT hfont, GpFont **font, void *lf)
 
 	result->sizeInPixels = src_font->sizeInPixels;
 	result->style = src_font->style;
-	GdipCloneFontFamily (src_font->family, &result->family);
+	status = GdipCloneFontFamily (src_font->family, &result->family);
+	if (!status) {
+		GdipFree (result);
+		return OutOfMemory;
+	}
+
 	result->style = src_font->style;
 	result->emSize = src_font->emSize;
 	result->unit = src_font->unit;
