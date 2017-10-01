@@ -39,6 +39,8 @@ GpStatus WINGDIPAPI GdipCreateFontFromDC (void *hdc, GpFont **font);
 GpStatus WINGDIPAPI GdipCreateFontFromLogfontA (void *hdc, GDIPCONST LOGFONTA *logfont, GpFont **font);
 GpStatus WINGDIPAPI GdipCreateFontFromLogfontW (void *hdc, GDIPCONST LOGFONTW *logfont, GpFont **font);
 
+GpStatus WINGDIPAPI GdipCloneFont (GpFont* font, GpFont** cloneFont);
+
 GpStatus WINGDIPAPI GdipDeleteFont (GpFont* font);
 GpStatus WINGDIPAPI GdipGetLogFontA (GpFont *font, GpGraphics *graphics, LOGFONTA *logfontA);
 GpStatus WINGDIPAPI GdipGetLogFontW (GpFont *font, GpGraphics *graphics, LOGFONTW *logfontW);

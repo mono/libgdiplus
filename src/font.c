@@ -932,6 +932,51 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit un
 }
 
 GpStatus WINGDIPAPI
+GdipCloneFont (GpFont* font, GpFont** cloneFont)
+{
+	GpFont *result;
+	GpStatus status;
+
+	if (!font || !cloneFont)
+		return InvalidParameter;
+		
+	result = (GpFont *) GdipAlloc (sizeof (GpFont));
+	if (!result)
+		return OutOfMemory;
+
+	result->sizeInPixels = font->sizeInPixels;
+	result->style = font->style;
+	result->emSize = font->emSize;
+	result->unit = font->unit;
+
+	result->face = GdipAlloc (strlen ((char *) font->face) + 1);
+	if (!result->face) {
+		GdipFree (result);
+		return OutOfMemory;
+	}
+
+	memcpy (result->face, font->face, strlen ((char *) font->face) + 1);
+
+	status = GdipCloneFontFamily (font->family, &result->family);
+	if (status != Ok) {
+		GdipFree (result);
+		GdipFree (result->face);
+		return OutOfMemory;
+	}
+
+#ifdef USE_PANGO_RENDERING
+	result->pango = NULL;
+#else
+	result->cairofnt = NULL;
+	result->cairo = NULL;
+	gdip_get_cairo_font_face (result);
+#endif
+
+	*cloneFont = result;
+	return Ok;
+}
+
+GpStatus WINGDIPAPI
 GdipDeleteFont (GpFont* font)
 {
 	if (!font)
