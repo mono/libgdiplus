@@ -181,8 +181,10 @@ static void test_createPathGradientFromPath ()
 
     status = GdipCreatePathGradientFromPath (path, &brush);
     // FIXME: this fails in GDI+.
-    // assertEqualInt (status, Ok);
-    // verifyPathGradientBrush (brush, 1, 2, 4, 11, 0xffffffff, 3, 7, WrapModeClamp);
+#if !defined(USE_WINDOWS_GDIPLUS)
+    assertEqualInt (status, Ok);
+    verifyPathGradientBrush (brush, 1, 2, 4, 11, 0xffffffff, 3, 7, WrapModeClamp);
+#endif
 
     status = GdipCreatePathGradientFromPath (NULL, &brush);
     assertEqualInt (status, OutOfMemory);
@@ -293,9 +295,11 @@ static void test_getPathGradientSurroundColorsWithCount ()
     status = GdipGetPathGradientSurroundColorsWithCount (brush, NULL, &count);
     assertEqualInt (status, InvalidParameter);
 
-    // FIXME: this causes GDI+ to crash.
-    // status = GdipGetPathGradientSurroundColorsWithCount (brush, colors, NULL);
-    // assertEqualInt (status, InvalidParameter);
+    // This causes GDI+ to crash.
+#if !defined(USE_WINDOWS_GDIPLUS)
+    status = GdipGetPathGradientSurroundColorsWithCount (brush, colors, NULL);
+    assertEqualInt (status, InvalidParameter);
+#endif
 
     count = 2;
     status = GdipGetPathGradientSurroundColorsWithCount (brush, colors, &count);
@@ -390,9 +394,11 @@ static void test_setPathGradientSurroundColorsWithCount ()
     status = GdipSetPathGradientSurroundColorsWithCount (brush, NULL, &count);
     assertEqualInt (status, InvalidParameter);
 
-    // FIXME: this causes GDI+ to crash.
-    // status = GdipSetPathGradientSurroundColorsWithCount (brush, colors, NULL);
-    // assertEqualInt (status, InvalidParameter);
+    // This causes GDI+ to crash.
+#if !defined(USE_WINDOWS_GDIPLUS)
+    status = GdipSetPathGradientSurroundColorsWithCount (brush, colors, NULL);
+    assertEqualInt (status, InvalidParameter);
+#endif
 
     count = 4;
     status = GdipSetPathGradientSurroundColorsWithCount (brush, colors, &count);
@@ -775,14 +781,20 @@ static void test_getPathGradientBlend ()
     status = GdipGetPathGradientBlend (brush, blend, positions, 1);
     assertEqualInt (status, Ok);
     assertEqualFloat (blend[0], 1);
-    // FIXME: it appears that Windows 10+ versions of GDI+ don't copy anything to positions.
-    // assertEqualFloat (positions[0], 0);
+    // It appears that Windows 10+ versions of GDI+ don't copy anything to positions.
+    // This is a GDI+ bug that we don't want to replicate.
+#if !defined(USE_WINDOWS_GDIPLUS)
+    assertEqualFloat (positions[0], 0);
+#endif
 
     status = GdipGetPathGradientBlend (brush, blend, positions, 2);
     assertEqualInt (status, Ok);
     assertEqualFloat (blend[0], 1);
-    // FIXME: it appears that Windows 10+ versions of GDI+ don't copy anything to positions.
-    // assertEqualFloat (positions[0], 0);
+    // It appears that Windows 10+ versions of GDI+ don't copy anything to positions.
+    // This is a GDI+ bug that we don't want to replicate.
+#if !defined(USE_WINDOWS_GDIPLUS)
+    assertEqualFloat (positions[0], 0);
+#endif
 
     status = GdipSetPathGradientBlend (brush, largeBlend, largePositions, 3);
     assertEqualInt (status, Ok);
@@ -844,8 +856,11 @@ static void test_setPathGradientBlend ()
     status = GdipGetPathGradientBlend (brush, destBlend1, destPositions1, 1);
     assertEqualInt (status, Ok);
     assertEqualInt (destBlend1[0], 3);
-    // FIXME: it appears GDI+ ignores the position value if there is a single element.
-    // assertEqualFloat(destPositions1[0], 0));
+    // It appears GDI+ ignores the position value if there is a single element.
+    // This is a GDI+ bug we don't want to replicate.
+#if !defined(USE_WINDOWS_GDIPLUS)
+    assertEqualFloat (destPositions1[0], -12);
+#endif
 
     // Count of 2.
     status = GdipSetPathGradientBlend (brush, blend2, positions2, 2);
@@ -880,8 +895,7 @@ static void test_setPathGradientBlend ()
 
     status = GdipGetPathGradientPresetBlendCount (brush, &presetBlendCount);
     assertEqualInt (status, Ok);
-    // FIXME: this returns 0 with GDI+.
-    // assertEqualInt (presetBlendCount, 0);
+    assertEqualInt (presetBlendCount, 0);
 
     // Negative tests.
     status = GdipSetPathGradientBlend (NULL, blend3, positions3, 3);
@@ -918,8 +932,7 @@ static void test_getPathGradientPresetBlendCount ()
 
     status = GdipGetPathGradientPresetBlendCount (brush, &blendCount);
     assertEqualInt (status, Ok);
-    // FIXME: this returns 0 with GDI+.
-    // assertEqualInt (blendCount, 0);
+    assertEqualInt (blendCount, 0);
 
     status = GdipGetPathGradientPresetBlendCount (NULL, &blendCount);
     assertEqualInt (status, InvalidParameter);
@@ -934,14 +947,13 @@ static void test_getPathGradientPresetBlend ()
 {
     GpStatus status;
     GpPathGradient *brush;
-    ARGB blend[1];
-    REAL positions[1];
+    ARGB blend[2];
+    REAL positions[2];
 
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
 
-    // FIXME: GDI+ has no preset colors by default.
-    // status = GdipGetPathGradientPresetBlend (brush, blend, positions, 2);
-    // assertEqualInt (status, GenericError);
+    status = GdipGetPathGradientPresetBlend (brush, blend, positions, 2);
+    assertEqualInt (status, GenericError);
 
     status = GdipGetPathGradientPresetBlend (NULL, blend, positions, 1);
     assertEqualInt (status, InvalidParameter);
@@ -988,6 +1000,9 @@ static void test_setPathGradientPresetBlend ()
     ARGB destBlend3[3];
     REAL destPositions3[3];
 
+    REAL destBlendReal[2];
+    REAL destPositionsReal[2];
+
     REAL invalidPositions1[2] = {0.5, 1};
     REAL invalidPositions2[2] = {0, 0.5};
 
@@ -1030,8 +1045,15 @@ static void test_setPathGradientPresetBlend ()
 
     status = GdipGetPathGradientBlendCount (brush, &blendCount);
     assertEqualInt (status, Ok);
-    // FIXME: this returns 2 with GDI+.
-    // assertEqualInt (blendCount, 2);
+    // GDI+ has a bug where it sets the blend and positions to NULL but incorrectly
+    // decrements blendCount, instead of setting it to zero.
+    // This causes GDI+ to crash. This is a bug we don't want to replicate.
+#if !defined(USE_WINDOWS_GDIPLUS)
+    assertEqualInt (blendCount, 0);
+
+    status = GdipGetPathGradientBlend(brush, destBlendReal, destPositionsReal, blendCount);
+    assertEqualInt(status, InvalidParameter);
+#endif
 
     // Negative tests.
     status = GdipSetPathGradientPresetBlend (NULL, blend3, positions3, 3);
@@ -1040,9 +1062,11 @@ static void test_setPathGradientPresetBlend ()
     status = GdipSetPathGradientPresetBlend (brush, NULL, positions3, 3);
     assertEqualInt (status, InvalidParameter);
 
-    // FIXME: this caused GDI+ to crash.
-    // status = GdipSetPathGradientPresetBlend (brush, blend3, NULL, 3);
-    // assertEqualInt (status, InvalidParameter);
+    // This causes GDI+ to crash.
+#if !defined(USE_WINDOWS_GDIPLUS)
+    status = GdipSetPathGradientPresetBlend (brush, blend3, NULL, 3);
+    assertEqualInt (status, InvalidParameter);
+#endif
 
     status = GdipSetPathGradientPresetBlend (brush, blend2, invalidPositions1, 2);
     assertEqualInt (status, InvalidParameter);
@@ -1310,7 +1334,7 @@ static void test_multiplyPathGradientTransform ()
 
     // Invalid MatrixOrder - positive.
     GdipSetPathGradientTransform (brush, originalTransform);
-    
+
     status = GdipMultiplyPathGradientTransform (brush, matrix, (MatrixOrder)(MatrixOrderAppend + 1));
     assertEqualInt (status, Ok);
 
