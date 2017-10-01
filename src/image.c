@@ -1910,12 +1910,17 @@ GdipGetImagePalette (GpImage *image, ColorPalette *palette, INT size)
 	if (image->type != ImageTypeBitmap)
 		return NotImplemented;
 
-	if (!image->active_bitmap->palette) {
+	if (!image->active_bitmap->palette || image->active_bitmap->palette->Count == 0) {
 		if (size >= 0 && size < sizeof(ColorPalette))
 			return InvalidParameter;
 
 		palette->Count = 0;
-		palette->Flags = 0;
+		if (image->active_bitmap->palette) {
+			palette->Flags = image->active_bitmap->palette->Flags;
+		}
+		else {
+			palette->Flags = 0;
+		}
 
 		return Ok;
 	}
