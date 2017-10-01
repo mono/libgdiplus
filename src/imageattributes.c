@@ -337,8 +337,50 @@ GdipDisposeImageAttributes (GpImageAttributes *imageattr)
 }
 
 GpStatus WINGDIPAPI
+GdipSetImageAttributesToIdentity (GpImageAttributes *imageattr, ColorAdjustType type)
+{
+	GpImageAttribute *imgattr;
+	
+	if (!imageattr)
+		return InvalidParameter;
+
+	imgattr = gdip_get_image_attribute (imageattr, type);
+
+	if (!imgattr)
+		return InvalidParameter;	
+	
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipResetImageAttributes (GpImageAttributes *imageattr, ColorAdjustType type)
+{
+	GpImageAttribute *imgattr;
+	
+	if (!imageattr)
+		return InvalidParameter;
+
+	imgattr = gdip_get_image_attribute (imageattr, type);
+
+	if (!imgattr)
+		return InvalidParameter;	
+	
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
 GdipSetImageAttributesThreshold ( GpImageAttributes *imageattr,  ColorAdjustType type, BOOL enableFlag, REAL threshold)
 {
+	GpImageAttribute *imgattr;
+
+	if (!imageattr)
+		return InvalidParameter;
+
+	imgattr = gdip_get_image_attribute (imageattr, type);
+
+	if (!imgattr)
+		return InvalidParameter;	
+
 	return NotImplemented;
 }
 
@@ -356,8 +398,12 @@ GdipSetImageAttributesGamma (GpImageAttributes *imageattr, ColorAdjustType type,
 	if (!imgattr)
 		return InvalidParameter;
 			
-	if (enableFlag)	
+	if (enableFlag) {
+		if (gamma <= 0)
+			return InvalidParameter;
+
 		imgattr->gamma_correction = gamma;
+	}
 	else
 		imgattr->gamma_correction = 0.0f;
 
@@ -406,7 +452,22 @@ GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType t
 GpStatus WINGDIPAPI
 GdipSetImageAttributesOutputChannelColorProfile (GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
         GDIPCONST WCHAR *colorProfileFilename)
-{       
+{
+	GpImageAttribute *imgattr;
+	
+	if (!imageattr)
+		return InvalidParameter;
+		
+	imgattr = gdip_get_image_attribute (imageattr, type);
+	
+	if (!imgattr)
+		return InvalidParameter;	
+
+	if (enableFlag) {
+		if (!colorProfileFilename)
+			return Win32Error;
+	}
+
 	return NotImplemented;
 }
 
@@ -416,7 +477,7 @@ GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType 
 {
 	GpImageAttribute *imgattr;
 	
-	if (!imageattr || !map)
+	if (!imageattr)
 		return InvalidParameter;
 		
 	imgattr = gdip_get_image_attribute (imageattr, type);
@@ -430,21 +491,20 @@ GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType 
 		imgattr->colormap_elem = 0;
 		return Ok;
 	}
+
+	if (mapSize == 0 || !map)
+		return InvalidParameter;
 	
 	if (imgattr->colormap) 
 		GdipFree (imgattr->colormap);
 		
 	/* Copy colormap table*/
-	if (mapSize > 0) {
-		int size = mapSize * sizeof (ColorMap);
-		imgattr->colormap = GdipAlloc (size);
-		if (!imgattr->colormap)
-			return OutOfMemory;
-		memcpy (imgattr->colormap, map, size);
-	} else {
-		imgattr->colormap = NULL;
-	}
+	int size = mapSize * sizeof (ColorMap);
+	imgattr->colormap = GdipAlloc (size);
+	if (!imgattr->colormap)
+		return OutOfMemory;
 
+	memcpy (imgattr->colormap, map, size);
 	imgattr->colormap_elem = mapSize;
 	
 	return Ok;	
@@ -465,10 +525,24 @@ GdipSetImageAttributesWrapMode (GpImageAttributes *imageattr, WrapMode wrap, ARG
 	return Ok;
 }
 
+GpStatus WINGDIPAPI
+GdipSetImageAttributesICMMode (GpImageAttributes *imageAttr, BOOL on)
+{
+	if (!imageAttr)
+		return InvalidParameter;
+
+	return NotImplemented;
+}
 
 GpStatus WINGDIPAPI 
 GdipGetImageAttributesAdjustedPalette (GpImageAttributes *imageattr, ColorPalette *colorPalette, ColorAdjustType type)
 {
+	if (!imageattr || !colorPalette || !colorPalette->Count || type == ColorAdjustTypeDefault)
+		return InvalidParameter;
+
+	if (type >= ColorAdjustTypeCount)
+		return InvalidParameter;
+
 	return NotImplemented;
 }
 
@@ -478,10 +552,7 @@ GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType
 {
 	GpImageAttribute *imgattr;
 	
-	if (!imageattr || (!colorMatrix && enableFlag) || (flags < ColorMatrixFlagsDefault))
-		return InvalidParameter;
-
-	if (flags > (grayMatrix ? ColorMatrixFlagsAltGray : ColorMatrixFlagsSkipGrays))
+	if (!imageattr)
 		return InvalidParameter;
 		
 	imgattr = gdip_get_image_attribute (imageattr, type);
@@ -489,27 +560,34 @@ GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType
 	if (!imgattr)
 		return InvalidParameter;
 
-	if (colorMatrix) {
+	if (enableFlag) {
+		if (!colorMatrix || flags < ColorMatrixFlagsDefault || flags > ColorMatrixFlagsAltGray) {
+			return InvalidParameter;
+		}
+
 		if (!imgattr->colormatrix) {
 			imgattr->colormatrix = GdipAlloc (sizeof (ColorMatrix));
 			if (!imgattr->colormatrix)
 				return OutOfMemory;
 		}
 
-		memcpy (imgattr->colormatrix, colorMatrix, sizeof (ColorMatrix));
-	}
+		if (flags == ColorMatrixFlagsAltGray) {
+			if (!grayMatrix)
+				return InvalidParameter;
 
-	if (grayMatrix) {
-		if (!imgattr->graymatrix) {
-			imgattr->graymatrix = GdipAlloc (sizeof (ColorMatrix));
-			if (!imgattr->graymatrix)
-				return OutOfMemory;
+			if (!imgattr->graymatrix) {
+				imgattr->graymatrix = GdipAlloc (sizeof (ColorMatrix));
+				if (!imgattr->graymatrix)
+					return OutOfMemory;
+			}
+
+			memcpy (imgattr->graymatrix, grayMatrix, sizeof (ColorMatrix));
 		}
 
-		memcpy (imgattr->graymatrix, grayMatrix, sizeof (ColorMatrix));
+		memcpy (imgattr->colormatrix, colorMatrix, sizeof (ColorMatrix));
+		imgattr->colormatrix_flags = flags;		
 	}
 
-	imgattr->colormatrix_flags = flags;
 	imgattr->colormatrix_enabled = enableFlag;	
 	return Ok;
 }
@@ -517,5 +595,30 @@ GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType
 GpStatus WINGDIPAPI 
 GdipSetImageAttributesOutputChannel (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, ColorChannelFlags channelFlags)
 {
+	GpImageAttribute *imgattr;
+	
+	if (!imageattr)
+		return InvalidParameter;
+		
+	imgattr = gdip_get_image_attribute (imageattr, type);
+	
+	if (!imgattr)
+		return InvalidParameter;
+
+	if (enableFlag) {
+		if (channelFlags < ColorChannelFlagsC || channelFlags >= ColorChannelFlagsLast)
+			return InvalidParameter;
+	}
+
+
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipSetImageAttributesCachedBackground (GpImageAttributes *imageattr, BOOL enableFlag)
+{
+	if (!imageattr)
+		return InvalidParameter;
+
 	return NotImplemented;
 }

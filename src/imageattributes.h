@@ -37,6 +37,9 @@ GpStatus WINGDIPAPI GdipCreateImageAttributes (GpImageAttributes **imageattr);
 GpStatus WINGDIPAPI GdipCloneImageAttributes (GDIPCONST GpImageAttributes *imageattr, GpImageAttributes **cloneImageattr);
 GpStatus WINGDIPAPI GdipDisposeImageAttributes (GpImageAttributes *imageattr);
 
+GpStatus WINGDIPAPI GdipSetImageAttributesToIdentity (GpImageAttributes *imageattr, ColorAdjustType type);
+GpStatus WINGDIPAPI GdipResetImageAttributes (GpImageAttributes *imageattr, ColorAdjustType type);
+
 GpStatus WINGDIPAPI GdipGetImageAttributesAdjustedPalette(GpImageAttributes *imageattr, ColorPalette *colorPalette, 
 	ColorAdjustType colorAdjustType); 
 
@@ -54,11 +57,7 @@ GpStatus WINGDIPAPI GdipSetImageAttributesRemapTable (GpImageAttributes *imageat
 	GDIPCONST ColorMap *map);
 GpStatus WINGDIPAPI GdipSetImageAttributesThreshold (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, REAL threshold);
 GpStatus WINGDIPAPI GdipSetImageAttributesWrapMode (GpImageAttributes *imageattr, WrapMode wrap, ARGB argb, BOOL clamp); 
-
-/* missing API
-	GdipResetImageAttributes
-	GdipSetImageAttributesICMMode
-	GdipSetImageAttributesToIdentity
-*/
+GpStatus WINGDIPAPI GdipSetImageAttributesICMMode (GpImageAttributes *imageAttr, BOOL on);
+GpStatus WINGDIPAPI GdipSetImageAttributesCachedBackground (GpImageAttributes *imageattr, BOOL enableFlag);
 
 #endif
