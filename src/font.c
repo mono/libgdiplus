@@ -955,18 +955,12 @@ GdipCloneFont (GpFont* font, GpFont** cloneFont)
 	result->emSize = font->emSize;
 	result->unit = font->unit;
 
-	result->face = GdipAlloc (strlen ((char *) font->face) + 1);
-	if (!result->face) {
-		GdipFree (result);
-		return OutOfMemory;
-	}
-
-	memcpy (result->face, font->face, strlen ((char *) font->face) + 1);
+	result->face = (unsigned char*)g_strdup ((char *)font->face);
 
 	status = GdipCloneFontFamily (font->family, &result->family);
 	if (status != Ok) {
-		GdipFree (result);
 		GdipFree (result->face);
+		GdipFree (result);
 		return OutOfMemory;
 	}
 
