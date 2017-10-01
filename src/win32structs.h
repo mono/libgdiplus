@@ -32,6 +32,7 @@
 #define __WIN32STRUCTS_H__
 
 #include "glib.h"
+#include "gdipenums.h"
 
 /* public enums and structures that GDI+ reuse from the other Windows API */
 
@@ -224,15 +225,15 @@ typedef struct {
 
 #if !defined(WIN32)
 typedef struct {
-	int	left;
-	int	top;
-	int	right;
-	int	bottom;
+	LONG	left;
+	LONG	top;
+	LONG	right;
+	LONG	bottom;
 } RECT, RECTL;
 
 typedef struct {
-	int	cx;
-	int	cy; 
+	LONG    cx;
+	LONG    cy;
 } SIZE, SIZEL;
 #endif
 
@@ -297,23 +298,23 @@ typedef struct {
 } ENHMETAHEADER3;
 
 typedef struct {
-	int	Type;
-	int	Size;
-	int	Version;
-	int	EmfPlusFlags;
-	float	DpiX;
-	float	DpiY;
-	int	X;
-	int	Y;
-	int	Width;
-	int	Height;
+	MetafileType	Type;
+	UINT	Size;
+	UINT	Version;
+	UINT	EmfPlusFlags;
+	REAL	DpiX;
+	REAL	DpiY;
+	INT	X;
+	INT	Y;
+	INT	Width;
+	INT	Height;
 	union {
 		METAHEADER	Wmf;
 		ENHMETAHEADER3	Emf;
 	} Header;
-	int	EmfPlusHeaderSize;
-	int	LogicalDpiX;
-	int	LogicalDpiY;
+	INT	EmfPlusHeaderSize;
+	INT	LogicalDpiX;
+	INT	LogicalDpiY;
 } MetafileHeader;
 
 #endif
