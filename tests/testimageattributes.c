@@ -21,6 +21,7 @@ using namespace DllExports;
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "testhelpers.h"
 
 static void test_createImageAttributes ()
