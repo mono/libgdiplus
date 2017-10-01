@@ -277,7 +277,7 @@ static void test_cloneImage ()
 	assert (clonedImage && clonedImage != bitmapImage);
 	verifyImage (clonedImage, ImageTypeBitmap, PixelFormat24bppRGB, 0, 0, 100, 68, 100, 68, 77840, 0);
 	GdipDisposeImage (clonedImage);
-	
+
 	// ImageTypeBitmap - jpg.
 	status = GdipCloneImage (jpgImage, &clonedImage);
 	assertEqualInt (status, Ok);
@@ -596,14 +596,14 @@ static void test_getEncoderParameterListSize ()
 #endif
 
 	status = GdipGetEncoderParameterListSize (image, &gifEncoderClsid, &size);
-// FIXME: this returns FileNotFound with libgdiplus.
+	// FIXME: this returns FileNotFound with libgdiplus.
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
 	assertEqualInt (size, is_32bit() ? 64 : 80);
 #endif
 
 	status = GdipGetEncoderParameterListSize (image, &pngEncoderClsid, &size);
-// FIXME: this returns FileNotFound with libgdiplus.
+	// FIXME: this returns FileNotFound with libgdiplus.
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
 	assertEqualInt (size, is_32bit() ? 32 : 40);
@@ -611,7 +611,7 @@ static void test_getEncoderParameterListSize ()
 
 	status = GdipGetEncoderParameterListSize (image, &jpegEncoderClsid, &size);
 	assertEqualInt (status, Ok);
-// FIXME: this returns 44 with libgdiplus.
+	// FIXME: this returns 44 with libgdiplus.
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (size, is_32bit() ? 172 : 200);
 #endif
@@ -693,7 +693,7 @@ static void test_getFrameDimensionsCount ()
 	// Negative tests.
 	status = GdipImageGetFrameDimensionsCount (NULL, &count);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipImageGetFrameDimensionsCount (metafileImage, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -714,13 +714,13 @@ static void test_getFrameDimensionsList ()
 	// Negative tests.
 	status = GdipImageGetFrameDimensionsList (NULL, dimensions, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipImageGetFrameDimensionsList (bitmapImage, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipImageGetFrameDimensionsList (bitmapImage, dimensions, 0);
 	assertEqualInt (status, Win32Error);
-	
+
 	status = GdipImageGetFrameDimensionsList (metafileImage, dimensions, 0);
 	assertEqualInt (status, InvalidParameter);
 
@@ -753,7 +753,7 @@ static void test_getFrameCount ()
 	status = GdipImageGetFrameCount (bitmapImage, &pageDimension, &count);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
-	
+
 	// Metafile - null dimension.
 	count = -1;
 	status = GdipImageGetFrameCount (metafileImage, NULL, &count);
@@ -769,7 +769,7 @@ static void test_getFrameCount ()
 	// Negative tests.
 	status = GdipImageGetFrameCount (NULL, &pageDimension, &count);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipImageGetFrameCount (bitmapImage, NULL, &count);
 	assertEqualInt (status, Win32Error);
 
@@ -800,11 +800,11 @@ static void test_selectActiveFrame ()
 	// Bitmap - page dimension.
 	status = GdipImageSelectActiveFrame (bitmapImage, &pageDimension, 0);
 	assertEqualInt (status, Ok);
-	
+
 	// Metafile - page dimension.
 	status = GdipImageSelectActiveFrame (metafileImage, &pageDimension, 100);
 	assertEqualInt (status, Ok);
-	
+
 	// Metafile - time dimension.
 	status = GdipImageSelectActiveFrame (metafileImage, &timeDimension, 100);
 	assertEqualInt (status, Ok);
@@ -812,16 +812,16 @@ static void test_selectActiveFrame ()
 	// Negative tests.
 	status = GdipImageSelectActiveFrame (NULL, &pageDimension, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipImageSelectActiveFrame (bitmapImage, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipImageSelectActiveFrame (metafileImage, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipImageSelectActiveFrame (bitmapImage, &pageDimension, 4);
 	assertEqualInt (status, Win32Error);
-	
+
 	status = GdipImageSelectActiveFrame (metafileImage, &pageDimension, 200);
 	assertEqualInt (status, Ok);
 
@@ -892,13 +892,13 @@ static void test_rotateFlip ()
 	// Negative tests.
 	status = GdipImageRotateFlip (NULL, RotateNoneFlipNone);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipImageRotateFlip (metafileImage, Rotate270FlipX);
 	assertEqualInt (status, NotImplemented);
-	
+
 	status = GdipImageRotateFlip (bitmapImage, (RotateFlipType)(RotateNoneFlipNone - 1));
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipImageRotateFlip (bitmapImage, (RotateFlipType)(Rotate270FlipX + 1));
 	assertEqualInt (status, InvalidParameter);
 
@@ -912,29 +912,33 @@ static void test_getImagePalette ()
 	GpImage *bitmapImage = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
 	INT size;
-	ColorPalette palette;
+	BYTE buffer1[1040];
+	ColorPalette *palette = (ColorPalette *)buffer1;
+
+	BYTE buffer2[1040];
+	ColorPalette *nonEmptyPalette = (ColorPalette *)buffer2;
 
 	GdipGetImagePaletteSize (bitmapImage, &size);
 
-	// Same size.
-	status = GdipGetImagePalette (bitmapImage, &palette, size);
+	// Empty palette - same size.
+	status = GdipGetImagePalette (bitmapImage, palette, size);
 	assertEqualInt (status, Ok);
-	assertEqualInt (palette.Count, 0);
+	assertEqualInt (palette->Count, 0);
 
-	// Larger size.
-	palette.Count = 100;
-	status = GdipGetImagePalette (bitmapImage, &palette, size + 1);
+	// Empty palette - larger size.
+	palette->Count = 100;
+	status = GdipGetImagePalette (bitmapImage, palette, size + 1);
 	assertEqualInt (status, Ok);
-	assertEqualInt (palette.Count, 0);
+	assertEqualInt (palette->Count, 0);
 
-	// Negative size.
-	palette.Count = 100;
-	status = GdipGetImagePalette (bitmapImage, &palette, -1);
+	// Empty palette - negative size.
+	palette->Count = 100;
+	status = GdipGetImagePalette (bitmapImage, palette, -1);
 	assertEqualInt (status, Ok);
-	assertEqualInt (palette.Count, 0);
+	assertEqualInt (palette->Count, 0);
 
 	// Negative tests.
-	status = GdipGetImagePalette (NULL, &palette, size);
+	status = GdipGetImagePalette (NULL, palette, size);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetImagePalette (bitmapImage, NULL, size);
@@ -943,17 +947,54 @@ static void test_getImagePalette ()
 	status = GdipGetImagePalette (metafileImage, NULL, size);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipGetImagePalette (metafileImage, &palette, size);
+	status = GdipGetImagePalette (metafileImage, palette, size);
 	assertEqualInt (status, NotImplemented);
 
-	status = GdipGetImagePalette (bitmapImage, &palette, 0);
-	assertEqualInt (status, InvalidParameter);
-
-	status = GdipGetImagePalette (bitmapImage, &palette, size - 1);
-	assertEqualInt (status, InvalidParameter);
-
-	status = GdipGetImagePalette (metafileImage, &palette, size - 1);
+	status = GdipGetImagePalette (metafileImage, palette, -1);
 	assertEqualInt (status, NotImplemented);
+
+	status = GdipGetImagePalette (bitmapImage, palette, 0);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetImagePalette (metafileImage, palette, 0);
+	assertEqualInt (status, NotImplemented);
+
+	status = GdipGetImagePalette (bitmapImage, palette, size - 1);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetImagePalette (metafileImage, palette, size - 1);
+	assertEqualInt (status, NotImplemented);
+
+	// Non empty palette - setup.
+	nonEmptyPalette->Count = 10;
+	nonEmptyPalette->Flags = 1;
+	nonEmptyPalette->Entries[0] = 2;
+	status = GdipSetImagePalette (bitmapImage, nonEmptyPalette);
+	assertEqualInt (status, Ok);
+	
+	GdipGetImagePaletteSize (bitmapImage, &size);
+
+	// Non empty palette - same size.
+	palette->Count = 100;
+	palette->Flags = 100;
+	palette->Entries[0] = 100;
+
+	status = GdipGetImagePalette (bitmapImage, palette, size);
+	assertEqualInt (status, Ok);
+	assertEqualInt (palette->Count, 10);
+	assertEqualInt (palette->Flags, 1);
+	assertEqualInt (palette->Entries[0], 2);
+	
+	// Non empty palette - larger size.
+	palette->Count = 100;
+	palette->Flags = 100;
+	palette->Entries[0] = 100;
+
+	status = GdipGetImagePalette (bitmapImage, palette, size + 1);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetImagePalette (bitmapImage, palette, size - 1);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDisposeImage (bitmapImage);
 	GdipDisposeImage (metafileImage);
@@ -965,19 +1006,17 @@ static void test_setImagePalette ()
 	GpImage *bitmapImage = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
 	INT size;
-	BYTE buffer[1040];
-	ColorPalette *palette = (ColorPalette*) buffer;
-#if !defined(USE_WINDOWS_GDIPLUS) && false
-	ColorPalette resultPalette;
-#endif
+	BYTE buffer1[1040];
+	ColorPalette *palette = (ColorPalette *)buffer1;
+	BYTE buffer2[1040];
+	ColorPalette *resultPalette = (ColorPalette *)buffer2;
 
 	GdipGetImagePaletteSize (bitmapImage, &size);
-	GdipGetImagePalette (bitmapImage, palette, size);
 
-	// It appears that GDI+ has a bug that this returns InvalidParameter.
-#if !defined(USE_WINDOWS_GDIPLUS) && false
 	// Set with positive count.
 	palette->Count = 10;
+	palette->Flags = 1;
+	palette->Entries[0] = 2;
 	status = GdipSetImagePalette (bitmapImage, palette);
 	assertEqualInt (status, Ok);
 
@@ -985,59 +1024,48 @@ static void test_setImagePalette ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (size, 48);
 
-	status = GdipGetImagePalette (bitmapImage, &resultPalette, size);
+	status = GdipGetImagePalette (bitmapImage, resultPalette, size);
 	assertEqualInt (status, Ok);
-	assertEqualInt (resultPalette.Count, 10);
-
-	// Set with zero count.
-	palette->Count = 0;
-	status = GdipSetImagePalette (bitmapImage, palette);
-	assertEqualInt (status, Ok);
-
-	status = GdipGetImagePaletteSize (bitmapImage, &size);
-	assertEqualInt (status, Ok);
-	assertEqualInt (size, 12);
-
-	status = GdipGetImagePalette (bitmapImage, &resultPalette, size);
-	assertEqualInt (status, Ok);
-	assertEqualInt (resultPalette.Count, 0);
-
-	// Set with negative count.
-	palette->Count = -1;
-	status = GdipSetImagePalette (bitmapImage, palette);
-	assertEqualInt (status, Ok);
-
-	status = GdipGetImagePaletteSize (bitmapImage, &size);
-	assertEqualInt (status, Ok);
-	assertEqualInt (size, 12);
-
-	status = GdipGetImagePalette (bitmapImage, &resultPalette, size);
-	assertEqualInt (status, Ok);
-	assertEqualInt (resultPalette.Count, 0);
+	assertEqualInt (resultPalette->Count, 10);
+	assertEqualInt (resultPalette->Flags, 1);
+	assertEqualInt (resultPalette->Entries[0], 2);
 
 	// Set with large count.
-	palette->Count = 257;
+	palette->Count = 256;
+	palette->Flags = 1;
+	palette->Entries[0] = 20;
 	status = GdipSetImagePalette (bitmapImage, palette);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetImagePaletteSize (bitmapImage, &size);
 	assertEqualInt (status, Ok);
-	assertEqualInt (size, 1036);
+	assertEqualInt (size, 1032);
 
-	status = GdipGetImagePalette (bitmapImage, &resultPalette, size);
+	status = GdipGetImagePalette (bitmapImage, resultPalette, size);
 	assertEqualInt (status, Ok);
-	assertEqualInt (resultPalette.Count, 257);
-#endif
+	assertEqualInt (resultPalette->Count, 256);
+	assertEqualInt (resultPalette->Flags, 1);
+	assertEqualInt (resultPalette->Entries[0], 20);
 
 	// Negative tests.
 	status = GdipSetImagePalette (NULL, palette);
 	assertEqualInt (status, InvalidParameter);
 
-// It appears that GDI+ has a bug that this returns InvalidParameter.
-#if !defined(USE_WINDOWS_GDIPLUS)
+	palette->Count = 10;
 	status = GdipSetImagePalette (metafileImage, palette);
 	assertEqualInt (status, NotImplemented);
-#endif
+
+	palette->Count = 0;
+	status = GdipSetImagePalette (bitmapImage, palette);
+	assertEqualInt (status, InvalidParameter);
+
+	palette->Count = -1;
+	status = GdipSetImagePalette (bitmapImage, palette);
+	assertEqualInt (status, InvalidParameter);
+
+	palette->Count = 257;
+	status = GdipSetImagePalette (bitmapImage, palette);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetImagePalette (bitmapImage, NULL);
 	assertEqualInt (status, InvalidParameter);
@@ -1070,7 +1098,7 @@ static void test_getImagePaletteSize ()
 
 	status = GdipGetImagePaletteSize (metafileImage, &size);
 	assertEqualInt (status, GenericError);
-	
+
 	status = GdipGetImagePaletteSize (metafileImage, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -1120,19 +1148,19 @@ static void test_getPropertyIdList ()
 	// Negative tests.
 	status = GdipGetPropertyIdList (NULL, 0, list);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPropertyIdList (metafileImage, 0, list);
 	assertEqualInt (status, NotImplemented);
 
 	status = GdipGetPropertyIdList (bitmapImage, 0, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPropertyIdList (metafileImage, 0, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPropertyIdList (bitmapImage, 1, list);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPropertyIdList (metafileImage, 1, list);
 	assertEqualInt (status, NotImplemented);
 
@@ -1151,7 +1179,7 @@ static void test_getPropertyItemSize ()
 	// Negative tests.
 	status = GdipGetPropertyItemSize (NULL, prop, &size);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPropertyItemSize (bitmapImage, prop, &size);
 	assertEqualInt (status, PropertyNotFound);
 
@@ -1179,7 +1207,7 @@ static void test_getPropertyItem ()
 	// Negative tests.
 	status = GdipGetPropertyItem (NULL, prop, 1, &propertyItem);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPropertyItem (bitmapImage, prop, 1, &propertyItem);
 	assertEqualInt (status, PropertyNotFound);
 
@@ -1203,7 +1231,7 @@ static void test_getPropertySize ()
 	GpImage *metafileImage = getImage ("test.wmf");
 	UINT totalBufferSize;
 	UINT numProperties;
-	
+
 	status = GdipGetPropertySize (bitmapImage, &totalBufferSize, &numProperties);
 	assertEqualInt (status, Ok);
 	assertEqualInt (totalBufferSize, 0);
@@ -1215,13 +1243,13 @@ static void test_getPropertySize ()
 
 	status = GdipGetPropertySize (metafileImage, &totalBufferSize, &numProperties);
 	assertEqualInt (status, NotImplemented);
-	
+
 	status = GdipGetPropertySize (bitmapImage, NULL, &numProperties);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPropertySize (metafileImage, NULL, &numProperties);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPropertySize (bitmapImage, &totalBufferSize, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -1242,28 +1270,28 @@ static void test_getAllPropertyItems ()
 	// Negative tests.
 	status = GdipGetAllPropertyItems (NULL, 0, 0, propertyItems);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetAllPropertyItems (bitmapImage, 0, 0, propertyItems);
 	assertEqualInt (status, GenericError);
-	
+
 	status = GdipGetAllPropertyItems (metafileImage, 0, 0, propertyItems);
 	assertEqualInt (status, NotImplemented);
-	
+
 	status = GdipGetAllPropertyItems (bitmapImage, 0, 0, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetAllPropertyItems (metafileImage, 0, 0, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetAllPropertyItems (bitmapImage, 1, 0, propertyItems);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetAllPropertyItems (metafileImage, 1, 0, propertyItems);
 	assertEqualInt (status, NotImplemented);
-	
+
 	status = GdipGetAllPropertyItems (bitmapImage, 0, 1, propertyItems);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetAllPropertyItems (metafileImage, 0, 1, propertyItems);
 	assertEqualInt (status, NotImplemented);
 
@@ -1281,7 +1309,7 @@ static void test_removePropertyItem ()
 	// Negative tests.
 	status = GdipRemovePropertyItem (NULL, prop);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipRemovePropertyItem (bitmapImage, prop);
 	assertEqualInt (status, GenericError);
 
@@ -1306,7 +1334,7 @@ static void setPropertyItemForImage (GpImage *image)
 	UINT numProperties;
 	UINT totalBufferSize;
 	PROPID propertyIds[2];
-	
+
 	// Set new property.
 	status = GdipSetPropertyItem (image, &propertyItem1);
 	assertEqualInt (status, Ok);
@@ -1340,7 +1368,7 @@ static void setPropertyItemForImage (GpImage *image)
 	// Set another new property.
 	status = GdipSetPropertyItem (image, &propertyItem2);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetPropertyItemSize (image, propertyItem2.id, &propertySize);
 	assertEqualInt (status, Ok);
 	assertEqualInt (propertySize, sizeof(PropertyItem));
@@ -1370,7 +1398,7 @@ static void setPropertyItemForImage (GpImage *image)
 	// Override an existing property.
 	status = GdipSetPropertyItem (image, &propertyItem3);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetPropertyItemSize (image, propertyItem3.id, &propertySize);
 	assertEqualInt (status, Ok);
 	assertEqualInt (propertySize, sizeof(PropertyItem));
@@ -1411,32 +1439,32 @@ static void test_setPropertyItem()
 	PropertyItem propertyItem = {10, 0, 11, NULL};
 
 	setPropertyItemForImage (bmpImage);
-	
+
 	status = GdipSetPropertyItem (tifImage, &propertyItem);
 	assertEqualInt (status, Ok);
 
 	status = GdipSetPropertyItem (gifImage, &propertyItem);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipSetPropertyItem (pngImage, &propertyItem);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipSetPropertyItem (jpgImage, &propertyItem);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipSetPropertyItem (icoImage, &propertyItem);
 	assertEqualInt (status, Ok);
 
 	// Negative tests.
 	status = GdipSetPropertyItem (NULL, &propertyItem);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipSetPropertyItem (metafileImage, &propertyItem);
 	assertEqualInt (status, NotImplemented);
-	
+
 	status = GdipSetPropertyItem (bmpImage, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipSetPropertyItem (metafileImage, NULL);
 	assertEqualInt (status, InvalidParameter);
 

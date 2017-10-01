@@ -1024,21 +1024,13 @@ GdipCreateBitmapFromHICON (HICON hicon, GpBitmap** bitmap)
 
 	status = GdipCloneImage ((GpImage *)hicon, (GpImage**)bitmap);
 	if (status == Ok) {
-		/* ColorPalette definition includes one ARGB member (ARGB Entries[1]). In reality there are 
-		 * Count entries allocated, where Count can be 0 (and required to substract the ARGB size)
-		 */
-		/* coverity[buffer_alloc] */
-		ColorPalette *palette = (ColorPalette*)GdipAlloc (sizeof (ColorPalette) - sizeof (ARGB));
-		if (!palette)
-			return OutOfMemory;
+		if ((*bitmap)->active_bitmap->palette)
+			GdipFree ((*bitmap)->active_bitmap->palette);
 
-		palette->Flags = 0;
-		palette->Count = 0;
-		status = GdipSetImagePalette ((GpImage*)*bitmap, palette);
+		(*bitmap)->active_bitmap->palette = NULL;
 		(*bitmap)->image_format = MEMBMP;
 		(*bitmap)->active_bitmap->image_flags |= ImageFlagsUndocumented;/* 0x00040000 */
 		(*bitmap)->active_bitmap->image_flags &= ~ImageFlagsHasAlpha;	/* 0x00000002 */
-		GdipFree (palette);
 	}
 	return status;
 }

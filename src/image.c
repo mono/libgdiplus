@@ -1911,13 +1911,13 @@ GdipGetImagePalette (GpImage *image, ColorPalette *palette, INT size)
 		return NotImplemented;
 
 	if (!image->active_bitmap->palette) {
-		/* ColorPalette definition includes one ARGB member (ARGB Entries[1]). In reality there are 
-		 * Count entries allocated, where Count can be 0 (and required to substract the ARGB size)
-		 */
-		/* coverity[buffer_alloc] */
-		image->active_bitmap->palette = (ColorPalette*) GdipAlloc (sizeof(ColorPalette) - sizeof(ARGB));
-		image->active_bitmap->palette->Flags = 0;
-		image->active_bitmap->palette->Count = 0;
+		if (size >= 0 && size < sizeof(ColorPalette))
+			return InvalidParameter;
+
+		palette->Count = 0;
+		palette->Flags = 0;
+
+		return Ok;
 	}
 
 	palette_entries = image->active_bitmap->palette->Count;
@@ -1925,12 +1925,8 @@ GdipGetImagePalette (GpImage *image, ColorPalette *palette, INT size)
 	if (image->active_bitmap->pixel_format == PixelFormat4bppIndexed)
 		palette_entries = 16;
 
-	if (palette_entries == 0)
-		bytes_needed = sizeof(ColorPalette);
-	else
-		bytes_needed = (palette_entries - 1) * sizeof(ARGB) + sizeof(ColorPalette);
-
-	if (size >= 0 && bytes_needed > size) {
+	bytes_needed = (palette_entries - 1) * sizeof(ARGB) + sizeof(ColorPalette);
+	if (bytes_needed != size) {
 		return InvalidParameter;
 	}
 
@@ -1943,7 +1939,7 @@ GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette)
 {
 	int size;
 
-	if (!image || !palette)
+	if (!image || !palette || palette->Count == 0 || palette->Count > 256)
 		return InvalidParameter;
 
 	/* GDI+ doesn't support this for metafiles */
