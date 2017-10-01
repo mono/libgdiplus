@@ -813,7 +813,7 @@ gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 #endif
 
 GpStatus WINGDIPAPI
-GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, UINT16 *EmHeight)
+GdipGetEmHeight (GDIPCONST GpFontFamily *family, INT style, UINT16 *EmHeight)
 {
 	GpStatus status = Ok;
 
@@ -828,7 +828,7 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, UINT16 *EmHeight)
 }
 
 GpStatus WINGDIPAPI
-GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellAscent)
+GdipGetCellAscent (GDIPCONST GpFontFamily *family, INT style, UINT16 *CellAscent)
 {
 	GpStatus status = Ok;
 
@@ -843,7 +843,7 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellAscent
 }
 
 GpStatus WINGDIPAPI
-GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellDescent)
+GdipGetCellDescent (GDIPCONST GpFontFamily *family, INT style, UINT16 *CellDescent)
 {
 	GpStatus status = Ok;
 
@@ -858,7 +858,7 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellDesce
 }
 
 GpStatus WINGDIPAPI
-GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, UINT16 *LineSpacing)
+GdipGetLineSpacing (GDIPCONST GpFontFamily *family, INT style, UINT16 *LineSpacing)
 {
 	GpStatus status = Ok;
 
@@ -873,7 +873,7 @@ GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, UINT16 *LineSpaci
 }
 
 GpStatus WINGDIPAPI
-GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAvailable)
+GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, INT style, BOOL *IsStyleAvailable)
 {
 	if (!family || !IsStyleAvailable)
 		return InvalidParameter;
@@ -886,13 +886,13 @@ GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAv
 
 // coverity[+alloc : arg-*4]
 GpStatus
-GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit unit, GpFont **font)
+GdipCreateFont (GDIPCONST GpFontFamily* family, REAL emSize, INT style, Unit unit, GpFont **font)
 {
 	GpStatus status;
 	FcChar8* str;
 	FcResult r;
 	GpFont *result;
-	float sizeInPixels;
+	REAL sizeInPixels;
 	
 	if (!family || !font || unit == UnitDisplay || unit < UnitWorld || unit > UnitCairoPoint)
 		return InvalidParameter;
@@ -932,6 +932,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit un
 	result->cairo = NULL;
 	gdip_get_cairo_font_face (result);
 #endif
+
 	*font = result;	        		
 	return Ok;
 }
@@ -1006,7 +1007,7 @@ GdipDeleteFont (GpFont* font)
 }
 
 GpStatus WINGDIPAPI
-GdipCreateFontFromDC (void *hdc, GpFont **font)
+GdipCreateFontFromDC (HDC hdc, GpFont **font)
 {
 	if (!hdc || !font)
 		return InvalidParameter;
@@ -1147,7 +1148,7 @@ GdipGetLogFontA (GpFont *font, GpGraphics *graphics, LOGFONTA *logfontA)
 }
 
 static GpStatus
-gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, BOOL ucs2)
+gdip_create_font_from_logfont (HDC hdc, void *lf, GpFont **font, BOOL ucs2)
 {
 	if (!hdc || !lf || !font)
 		return InvalidParameter;
@@ -1209,14 +1210,14 @@ gdip_create_font_from_logfont (void *hdc, void *lf, GpFont **font, BOOL ucs2)
 
 // coverity[+alloc : arg-*2]
 GpStatus
-GdipCreateFontFromLogfontA(void *hdc, GDIPCONST LOGFONTA *logfont, GpFont **font)
+GdipCreateFontFromLogfontA(HDC hdc, GDIPCONST LOGFONTA *logfont, GpFont **font)
 {
 	return gdip_create_font_from_logfont (hdc, (void *)logfont, font, FALSE);
 }
 
 // coverity[+alloc : arg-*2]
 GpStatus
-GdipCreateFontFromLogfontW(void *hdc, GDIPCONST LOGFONTW *logfont, GpFont **font)
+GdipCreateFontFromLogfontW(HDC hdc, GDIPCONST LOGFONTW *logfont, GpFont **font)
 {
 	return gdip_create_font_from_logfont (hdc, (void *)logfont, font, TRUE);
 }
@@ -1257,11 +1258,11 @@ GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memor
 }
 
 GpStatus WINGDIPAPI
-GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float *height)
+GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, REAL *height)
 {
 	GpStatus status;
 	UINT16 emHeight, lineSpacing;
-	float emSize, h;
+	REAL emSize, h;
 
 	if (!font || !height)
 		return InvalidParameter;
@@ -1287,11 +1288,11 @@ GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float
 }
 
 GpStatus WINGDIPAPI
-GdipGetFontHeightGivenDPI (GDIPCONST GpFont *font, float dpi, float *height)
+GdipGetFontHeightGivenDPI (GDIPCONST GpFont *font, REAL dpi, REAL *height)
 {
 	GpStatus status;
 	UINT16 emHeight, lineSpacing;
-	float h;
+	REAL h;
 
 	if (!font || !height)
 		return InvalidParameter;
@@ -1310,7 +1311,7 @@ GdipGetFontHeightGivenDPI (GDIPCONST GpFont *font, float dpi, float *height)
 }
 
 GpStatus WINGDIPAPI
-GdipGetFontSize (GpFont *font, float *size)
+GdipGetFontSize (GpFont *font, REAL *size)
 {
 	if (!font ||!size)
 		return InvalidParameter;
