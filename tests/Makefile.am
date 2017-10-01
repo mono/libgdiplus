@@ -17,7 +17,7 @@ LDADDS =					\
 	-lm
 
 noinst_PROGRAMS =			\
-	testadjustablearrowcap testbits testbrush testclip testcustomlinecap testfont testgpimage testgraphics testhatchbrush testlineargradientbrush testmatrix testpathgradientbrush testpen testpng testreversepath testsolidbrush teststringformat testtexturebrush
+	testadjustablearrowcap testbits testbrush testclip testcustomlinecap testfont testgpimage testgraphics testhatchbrush testimageattributes testlineargradientbrush testmatrix testpathgradientbrush testpen testpng testreversepath testsolidbrush teststringformat testtexturebrush
 
 if HAS_X11
 noinst_PROGRAMS += testgdi
@@ -82,6 +82,12 @@ testhatchbrush_SOURCES =		\
 
 testhatchbrush_DEPENDENCIES = $(TEST_DEPS)
 testhatchbrush_LDADD = $(LDADDS)
+
+testimageattributes_SOURCES =		\
+	testimageattributes.c
+
+testimageattributes_DEPENDENCIES = $(TEST_DEPS)
+testimageattributes_LDADD = $(LDADDS)
 
 testlineargradientbrush_SOURCES =		\
 	testlineargradientbrush.c
@@ -148,6 +154,7 @@ EXTRA_DIST =			\
 	$(testgpimage_SOURCES) \
 	$(testgraphics_SOURCES)	\
 	$(testhatchbrush_SOURCES)	\
+	$(testimageattributes_SOURCES) \
 	$(testlineargradientbrush_SOURCES)	\
 	$(testmatrix_SOURCES) \
 	$(testpathgradientbrush_SOURCES) \
@@ -168,6 +175,7 @@ TESTS = \
 	testgpimage \
 	testgraphics \
 	testhatchbrush \
+	testimageattributes \
 	testlineargradientbrush \
 	testmatrix \
 	testpathgradientbrush \

@@ -13,6 +13,7 @@ testgpimage
 testgraphics
 testgdi
 testhatchbrush
+testimageattributes
 testlineargradientbrush
 testmatrix
 testpathgradientbrush
