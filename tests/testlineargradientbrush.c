@@ -165,17 +165,11 @@ static void test_createLineBrushFromRect ()
 
     GpRectF rect3 = { 1, 3, 0, 1 };
     status = GdipCreateLineBrushFromRect (&rect3, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
-    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing.
-#if defined(USE_WINDOWS_GDIPLUS)
     assertEqualInt (status, OutOfMemory);
-#endif
 
     GpRectF rect4 = { 1, 3, 1, 0 };
     status = GdipCreateLineBrushFromRect (&rect4, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
-    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
-#if defined(USE_WINDOWS_GDIPLUS)
     assertEqualInt (status, OutOfMemory);
-#endif
 
     status = GdipCreateLineBrushFromRect (&rect1, 10, 11, (LinearGradientMode)(LinearGradientModeHorizontal - 1), WrapModeTile, &brush);
     assertEqualInt (status, OutOfMemory);
@@ -229,17 +223,11 @@ static void test_createLineBrushFromRectI ()
 
     GpRect rect3 = { 1, 3, 0, 1 };
     status = GdipCreateLineBrushFromRectI (&rect3, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
-    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
-#if defined(USE_WINDOWS_GDIPLUS)
     assertEqualInt (status, OutOfMemory);
-#endif
 
     GpRect rect4 = { 1, 3, 1, 0 };
     status = GdipCreateLineBrushFromRectI (&rect4, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
-    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
-#if defined(USE_WINDOWS_GDIPLUS)
-    assertEqualInt (status, InvalidParameter);
-#endif
+    assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateLineBrushFromRectI (&rect1, 10, 11, (LinearGradientMode)(LinearGradientModeHorizontal - 1), WrapModeTile, &brush);
     assertEqualInt (status, OutOfMemory);
@@ -303,17 +291,11 @@ static void test_createLineBrushFromRectWithAngle ()
 
     GpRectF rect3 = { 1, 3, 0, 1 };
     status = GdipCreateLineBrushFromRectWithAngle (&rect3, 10, 11, 90, TRUE, WrapModeTileFlipXY, &brush);
-    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
-#if defined(USE_WINDOWS_GDIPLUS)
     assertEqualInt (status, OutOfMemory);
-#endif
 
     GpRectF rect4 = { 1, 3, 1, 0 };
     status = GdipCreateLineBrushFromRectWithAngle (&rect4, 10, 11, 90, TRUE, WrapModeTileFlipXY, &brush);
-    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
-#if defined(USE_WINDOWS_GDIPLUS)
     assertEqualInt (status, OutOfMemory);
-#endif
 
     status = GdipCreateLineBrushFromRectWithAngle (&rect1, 10, 11, 90, TRUE, WrapModeClamp, &brush);
     assertEqualInt (status, InvalidParameter);
@@ -365,17 +347,11 @@ static void test_createLineBrushFromRectWithAngleI ()
 
     GpRect rect3 = { 1, 3, 0, 1 };
     status = GdipCreateLineBrushFromRectWithAngleI (&rect3, 10, 11, 90, TRUE, WrapModeTileFlipXY, &brush);
-    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
-#if defined(USE_WINDOWS_GDIPLUS)
     assertEqualInt (status, OutOfMemory);
-#endif
 
     GpRect rect4 = { 1, 3, 1, 0 };
     status = GdipCreateLineBrushFromRectWithAngleI (&rect4, 10, 11, 90, TRUE, WrapModeTileFlipXY, &brush);
-    // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
-#if defined(USE_WINDOWS_GDIPLUS)
     assertEqualInt (status, OutOfMemory);
-#endif
 
     status = GdipCreateLineBrushFromRectWithAngleI (&rect1, 10, 11, 90, TRUE, WrapModeClamp, &brush);
     assertEqualInt (status, InvalidParameter);
@@ -548,14 +524,20 @@ static void test_getLineBlend ()
     status = GdipGetLineBlend (brush, blend, positions, 1);
     assertEqualInt (status, Ok);
     assertEqualFloat (blend[0], 1);
-    // FIXME: it appears that Windows 10+ versions of GDI+ don't copy anything to positions.
-    // assertEqualFloat (positions[0], 0);
+    // It appears that Windows 10+ versions of GDI+ don't copy anything to positions.
+    // This is a GDI+ bug we don't want to replicate.
+#if !defined(USE_WINDOWS_GDIPLUS)
+    assertEqualFloat (positions[0], 0);
+#endif
 
     status = GdipGetLineBlend (brush, blend, positions, 2);
     assertEqualInt (status, Ok);
     assertEqualFloat (blend[0], 1.0);
-    // FIXME: it appears that Windows 10+ versions of GDI+ don't copy anything to positions.
-    // assertEqualFloat (positions[0], 0);
+    // It appears that Windows 10+ versions of GDI+ don't copy anything to positions.
+    // This is a GDI+ bug we don't want to replicate.
+    #if !defined(USE_WINDOWS_GDIPLUS)
+    assertEqualFloat (positions[0], 0);
+#endif
 
     status = GdipSetLineBlend (brush, largeBlend, largePositions, 3);
     assertEqualInt (status, Ok);
@@ -618,8 +600,11 @@ static void test_setLineBlend ()
     status = GdipGetLineBlend (brush, destBlend1, destPositions1, 1);
     assertEqualInt (status, Ok);
     assertEqualInt (destBlend1[0], 3);
-    // FIXME: it appears GDI+ ignores the position value if there is a single element.
-    // assertEqualFloat (destPositions1[0], 0);
+    // It appears GDI+ ignores the position value if there is a single element.
+    // This is a GDI+ bug we don't want to replicate.
+#if !defined(USE_WINDOWS_GDIPLUS)
+    assertEqualFloat (destPositions1[0], -12);
+#endif
 
     // Count of 2.
     status = GdipSetLineBlend (brush, blend2, positions2, 2);
@@ -752,6 +737,9 @@ static void test_setLinePresetBlend ()
     REAL positions3[3] = { 0, 0.5f, 1.0f };
     ARGB destBlend3[3];
     REAL destPositions3[3];
+    
+    REAL destBlendReal[2];
+    REAL destPositionsReal[2];
 
     REAL invalidPositions1[2] = { 0.5, 1 };
     REAL invalidPositions2[2] = { 0, 0.5 };
@@ -795,8 +783,15 @@ static void test_setLinePresetBlend ()
 
     status = GdipGetLineBlendCount (brush, &blendCount);
     assertEqualInt (status, Ok);
-    // FIXME: this returns 2 with GDI+.
-    // assertEqualInt (blendCount, 2);
+    // GDI+ has a bug where it sets the blend and positions to NULL but incorrectly
+    // decrements blendCount, instead of setting it to zero.
+    // This causes GDI+ to crash. This is a bug we don't want to replicate.
+#if !defined(USE_WINDOWS_GDIPLUS)
+    assertEqualInt (blendCount, 0);
+
+    status = GdipGetLineBlend(brush, destBlendReal, destPositionsReal, blendCount);
+    assertEqualInt(status, InvalidParameter);
+#endif
 
     // Negative tests.
     status = GdipSetLinePresetBlend (NULL, blend3, positions3, 3);
