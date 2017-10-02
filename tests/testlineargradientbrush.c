@@ -40,7 +40,7 @@ static void verifyLineGradientBrush (GpLineGradient *brush, REAL x, REAL y, REAL
     assertEqualInt (brushType, BrushTypeLinearGradient);
 
     status = GdipGetLineRect (brush, &rect);
-    assertEqualFloat (status, Ok);
+    assertEqualInt (status, Ok);
     assertEqualFloat (rect.X, x);
     assertEqualFloat (rect.Y, y);
     assertEqualFloat (rect.Width, width);
@@ -430,10 +430,10 @@ static void test_getLineRectI ()
     GdipCreateLineBrushFromRect (&rect, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
 
     status = GdipGetLineRectI (brush, &lineRect);
-    assertEqualInt (rect.X, 1);
-    assertEqualInt (rect.Y, 3);
-    assertEqualInt (rect.Width, 1);
-    assertEqualInt (rect.Height, 2);
+    assertEqualFloat (rect.X, 1);
+    assertEqualFloat (rect.Y, 3);
+    assertEqualFloat (rect.Width, 1);
+    assertEqualFloat (rect.Height, 2);
 
     status = GdipGetLineRectI (NULL, &lineRect);
     assertEqualInt (status, InvalidParameter);
@@ -599,7 +599,7 @@ static void test_setLineBlend ()
 
     status = GdipGetLineBlend (brush, destBlend1, destPositions1, 1);
     assertEqualInt (status, Ok);
-    assertEqualInt (destBlend1[0], 3);
+    assertEqualFloat (destBlend1[0], 3);
     // It appears GDI+ ignores the position value if there is a single element.
     // This is a GDI+ bug we don't want to replicate.
 #if !defined(USE_WINDOWS_GDIPLUS)
@@ -612,10 +612,10 @@ static void test_setLineBlend ()
 
     status = GdipGetLineBlend (brush, destBlend2, destPositions2, 2);
     assertEqualInt (status, Ok);
-    assertEqualInt (destBlend2[0], -1);
-    assertEqualInt (destBlend2[1], 0);
-    assertEqualInt (destPositions2[0], 0);
-    assertEqualInt (destPositions2[1], 1);
+    assertEqualFloat (destBlend2[0], -1);
+    assertEqualFloat (destBlend2[1], 0);
+    assertEqualFloat (destPositions2[0], 0);
+    assertEqualFloat (destPositions2[1], 1);
 
     // Count of 3.
     status = GdipSetLineBlend (brush, blend3, positions3, 3);
@@ -738,8 +738,10 @@ static void test_setLinePresetBlend ()
     ARGB destBlend3[3];
     REAL destPositions3[3];
     
+#if !defined(USE_WINDOWS_GDIPLUS)
     REAL destBlendReal[2];
     REAL destPositionsReal[2];
+#endif
 
     REAL invalidPositions1[2] = { 0.5, 1 };
     REAL invalidPositions2[2] = { 0, 0.5 };
@@ -758,8 +760,8 @@ static void test_setLinePresetBlend ()
     assertEqualInt (status, Ok);
     assertEqualInt (destBlend2[0], 1);
     assertEqualInt (destBlend2[1], 0);
-    assertEqualInt (destPositions2[0], 0);
-    assertEqualInt (destPositions2[1], 1);
+    assertEqualFloat (destPositions2[0], 0);
+    assertEqualFloat (destPositions2[1], 1);
 
     // Count of 3.
     status = GdipSetLinePresetBlend (brush, blend3, positions3, 3);
@@ -770,9 +772,9 @@ static void test_setLinePresetBlend ()
     assertEqualInt (destBlend3[0], 1);
     assertEqualInt (destBlend3[1], 2);
     assertEqualInt (destBlend3[2], 3);
-    assertEqualInt (destPositions3[0], 0);
+    assertEqualFloat (destPositions3[0], 0);
     assertEqualFloat (destPositions3[1], 0.5);
-    assertEqualInt (destPositions3[2], 1);
+    assertEqualFloat (destPositions3[2], 1);
 
     // Should clear the existing blend.
     status = GdipSetLineBlend (brush, lineBlend, linePositions, 3);
@@ -1278,19 +1280,19 @@ static void test_clone ()
     assertEqualInt (colors[1], 11);
 
     GdipGetLineRect ((GpLineGradient *) clonedBrush, &rect);
-    assertEqualInt (rect.X, 1);
-    assertEqualInt (rect.Y, 3);
-    assertEqualInt (rect.Width, 1);
-    assertEqualInt (rect.Height, 2);
+    assertEqualFloat (rect.X, 1);
+    assertEqualFloat (rect.Y, 3);
+    assertEqualFloat (rect.Width, 1);
+    assertEqualFloat (rect.Height, 2);
 
     GdipGetLineBlendCount ((GpLineGradient *) clonedBrush, &blendCount);
     assertEqualInt (blendCount, 2);
 
     GdipGetLineBlend ((GpLineGradient *) clonedBrush, blendResult, positionsResult, 2);
-    assertEqualInt (blendResult[0], 1);
-    assertEqualInt (blendResult[1], 2);
-    assertEqualInt (positionsResult[0], 0);
-    assertEqualInt (positionsResult[1], 1);
+    assertEqualFloat (blendResult[0], 1);
+    assertEqualFloat (blendResult[1], 2);
+    assertEqualFloat (positionsResult[0], 0);
+    assertEqualFloat (positionsResult[1], 1);
 
     GdipGetLineTransform ((GpLineGradient *) clonedBrush, matrix);
     verifyMatrix (matrix, 1, 2, 3, 4, 5, 6);
