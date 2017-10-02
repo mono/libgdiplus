@@ -609,7 +609,7 @@ GdipCreateLineBrushFromRectWithAngle (GDIPCONST GpRectF *rect, ARGB color1, ARGB
 		return InvalidParameter;
 
 	if (rect->Width == 0.0 || rect->Height == 0.0)
-		return InvalidParameter; // FIXME: should be OutOfMemory to match GDI+ but needs updates in Mono System.Drawing
+		return OutOfMemory;
 
 	linear = gdip_linear_gradient_new ();
 	if (!linear)
