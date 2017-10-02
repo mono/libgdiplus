@@ -13,16 +13,16 @@
 #include <GdiPlusFlat.h>
 #endif
 
+#ifdef WIN32
+using namespace Gdiplus;
+using namespace DllExports;
+#endif
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "testhelpers.h"
-
-#ifdef WIN32
-using namespace Gdiplus;
-using namespace DllExports;
-#endif
 
 static HDC getEmptyHDC ()
 {
@@ -53,8 +53,8 @@ static BOOL stringsEqual (WCHAR *actual, const char *expected)
 static void *readFile (const char *fileName, int *memoryLength)
 {
 	void *buffer = NULL;
-	long length;
-	long read_length;
+	size_t length;
+	size_t read_length;
 
 	FILE *f = fopen (fileName, "rb");
 	assert (f && "Expected file to exist.");
@@ -72,6 +72,39 @@ static void *readFile (const char *fileName, int *memoryLength)
 
 	*memoryLength = (int) length;
 	return buffer;
+}
+
+static void verifyFont (GpFont *font, GpFontFamily *originalFamily, INT expectedStyle, Unit expectedUnit)
+{
+	GpStatus status;
+	GpFontFamily *family;
+	WCHAR originalFamilyName[LF_FACESIZE];
+	WCHAR familyName[LF_FACESIZE];
+	Unit unit;
+	INT style;
+
+	assert (font && "Expected font to be initialized.");
+
+	status = GdipGetFamily (font, &family);
+	assertEqualInt (status, Ok);
+	assert (family && family != originalFamily);
+
+	status = GdipGetFamilyName (originalFamily, originalFamilyName, 0);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetFamilyName (family, familyName, 0);
+	assertEqualInt (status, Ok);
+	assert (!strcmp ((char *) originalFamilyName, (char *) familyName));
+
+	status = GdipGetFontUnit (font, &unit);
+	assertEqualInt (status, Ok);
+	assertEqualInt (unit, expectedUnit);
+
+	status = GdipGetFontStyle(font, &style);
+	assertEqualInt (status, Ok);
+	assertEqualInt (style, expectedStyle);
+	
+	GdipDeleteFontFamily (family);
 }
 
 static void test_newPrivateFontCollection ()
@@ -516,29 +549,14 @@ static void test_createFont ()
 {
 	GpStatus status;
 	GpFont *font;
-	GpFontFamily *originalFamily;
 	GpFontFamily *family;
-	WCHAR originalFamilyName[32];
-	WCHAR familyName[32];
-	Unit unit;
-	INT style;
 
-	GdipGetGenericFontFamilySansSerif (&originalFamily);
-	GdipCreateFont (originalFamily, 10, 10, UnitPixel, &font);
-
-	status = GdipGetFamily (font, &family);
+	GdipGetGenericFontFamilySansSerif (&family);
+	
+	// UnitPixel.
+	status = GdipCreateFont (family, 10, 10, UnitPixel, &font);
 	assertEqualInt (status, Ok);
-	assert (family && family != originalFamily);
-
-	GdipGetFamilyName (originalFamily, originalFamilyName, 0);
-	GdipGetFamilyName (family, familyName, 0);
-	assert (!strcmp ((char *) originalFamilyName, (char *) familyName));
-
-	GdipGetFontUnit (font, &unit);
-	assertEqualInt (unit, UnitPixel);
-
-	GdipGetFontStyle(font, &style);
-	assertEqualInt (style, 10);
+	verifyFont (font, family, 10, UnitPixel);
 
 	// Negative tests.
 	status = GdipCreateFont (NULL, 10, 10, UnitPixel, &font);
@@ -575,8 +593,33 @@ static void test_createFont ()
 #endif
 
 	GdipDeleteFont (font);
-	GdipDeleteFontFamily (originalFamily);
 	GdipDeleteFontFamily (family);
+}
+
+static void test_cloneFont ()
+{
+	GpStatus status;
+	GpFontFamily *family;
+	GpFont *font;
+	GpFont *clonedFont;
+
+	GdipGetGenericFontFamilySansSerif (&family);
+	GdipCreateFont (family, 10, 10, UnitPixel, &font);
+
+	status = GdipCloneFont (font, &clonedFont);
+	assertEqualInt (status, Ok);
+	assert (clonedFont && font != clonedFont);
+	verifyFont (clonedFont, family, 10, UnitPixel);
+
+	// Negative tests.
+	status = GdipCloneFont (NULL, &clonedFont);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipCloneFont (font, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeleteFont (font);
+	GdipDeleteFont (clonedFont);
 }
 
 static void test_deleteFont ()
@@ -700,7 +743,7 @@ static void test_getFontHeight ()
 	assertEqualInt (status, Ok);
 	// FIXME: this returns a different value with libgdiplus.
 #if defined(USE_WINDOWS_LIBGDIPLUS)
-	assertEqualFloat (height, 11.3183594);
+	assertEqualFloat (height, 11.3183594f);
 #endif
 
 	// Negative tests.
@@ -728,7 +771,7 @@ static void test_getFontHeightGivenDPI ()
 	assertEqualInt (status, Ok);
 	// FIXME: this returns a different value with libgdiplus.
 #if defined(USE_WINDOWS_LIBGDIPLUS)
-	assertEqualFloat (height, 11.3183594);
+	assertEqualFloat (height, 11.3183594f);
 #endif
 
 	// Negative tests.
@@ -1159,6 +1202,7 @@ main(int argc, char**argv)
 	test_createFontFromLogfontA ();
 	test_createFontFromLogfontW ();
 	test_createFont ();
+	test_cloneFont ();
 	test_deleteFont ();
 	test_getFamily ();
 	test_getFontStyle ();

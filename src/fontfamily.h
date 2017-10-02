@@ -36,14 +36,14 @@
 GpStatus WINGDIPAPI GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *fontCollection, GpFontFamily **FontFamily);
 GpStatus WINGDIPAPI GdipCloneFontFamily (GpFontFamily *fontFamily, GpFontFamily **clonedFontFamily);
 GpStatus WINGDIPAPI GdipDeleteFontFamily (GpFontFamily *fontFamily);
-GpStatus WINGDIPAPI GdipGetCellAscent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellAscent);
-GpStatus WINGDIPAPI GdipGetCellDescent (GDIPCONST GpFontFamily *family, int style, UINT16 *CellDescent);
+GpStatus WINGDIPAPI GdipGetCellAscent (GDIPCONST GpFontFamily *family, INT style, UINT16 *CellAscent);
+GpStatus WINGDIPAPI GdipGetCellDescent (GDIPCONST GpFontFamily *family, INT style, UINT16 *CellDescent);
 GpStatus WINGDIPAPI GdipGetGenericFontFamilySansSerif (GpFontFamily **nativeFamily);
 GpStatus WINGDIPAPI GdipGetGenericFontFamilySerif (GpFontFamily **nativeFamily);
 GpStatus WINGDIPAPI GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily);
-GpStatus WINGDIPAPI GdipGetEmHeight (GDIPCONST GpFontFamily *family, int style, UINT16 *EmHeight);
+GpStatus WINGDIPAPI GdipGetEmHeight (GDIPCONST GpFontFamily *family, INT style, UINT16 *EmHeight);
 GpStatus WINGDIPAPI GdipGetFamilyName (GDIPCONST GpFontFamily *family, WCHAR name[LF_FACESIZE], LANGID language);
-GpStatus WINGDIPAPI GdipGetLineSpacing (GDIPCONST GpFontFamily *family, int style, UINT16 *LineSpacing);
-GpStatus WINGDIPAPI GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, int style, BOOL *IsStyleAvailable);
+GpStatus WINGDIPAPI GdipGetLineSpacing (GDIPCONST GpFontFamily *family, INT style, UINT16 *LineSpacing);
+GpStatus WINGDIPAPI GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, INT style, BOOL *IsStyleAvailable);
 
 #endif

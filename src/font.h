@@ -33,25 +33,23 @@
 
 /* Font public API (only!) */
 
-GpStatus WINGDIPAPI GdipCreateFont (GDIPCONST GpFontFamily* family, float emSize, int style, Unit unit, GpFont **font);
-GpStatus WINGDIPAPI GdipCreateFontFromDC (void *hdc, GpFont **font);
+GpStatus WINGDIPAPI GdipCreateFont (GDIPCONST GpFontFamily* family, REAL emSize, INT style, Unit unit, GpFont **font);
+GpStatus WINGDIPAPI GdipCreateFontFromDC (HDC hdc, GpFont **font);
 
-GpStatus WINGDIPAPI GdipCreateFontFromLogfontA (void *hdc, GDIPCONST LOGFONTA *logfont, GpFont **font);
-GpStatus WINGDIPAPI GdipCreateFontFromLogfontW (void *hdc, GDIPCONST LOGFONTW *logfont, GpFont **font);
+GpStatus WINGDIPAPI GdipCreateFontFromLogfontA (HDC hdc, GDIPCONST LOGFONTA *logfont, GpFont **font);
+GpStatus WINGDIPAPI GdipCreateFontFromLogfontW (HDC hdc, GDIPCONST LOGFONTW *logfont, GpFont **font);
+
+GpStatus WINGDIPAPI GdipCloneFont (GpFont* font, GpFont** cloneFont);
 
 GpStatus WINGDIPAPI GdipDeleteFont (GpFont* font);
 GpStatus WINGDIPAPI GdipGetLogFontA (GpFont *font, GpGraphics *graphics, LOGFONTA *logfontA);
 GpStatus WINGDIPAPI GdipGetLogFontW (GpFont *font, GpGraphics *graphics, LOGFONTW *logfontW);
-GpStatus WINGDIPAPI GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, float *height);
-GpStatus WINGDIPAPI GdipGetFontHeightGivenDPI (GDIPCONST GpFont *font, float dpi, float *height);
-GpStatus WINGDIPAPI GdipGetFontSize (GpFont *font, float *size);
+GpStatus WINGDIPAPI GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, REAL *height);
+GpStatus WINGDIPAPI GdipGetFontHeightGivenDPI (GDIPCONST GpFont *font, REAL dpi, REAL *height);
+GpStatus WINGDIPAPI GdipGetFontSize (GpFont *font, REAL *size);
 GpStatus WINGDIPAPI GdipGetFontStyle (GpFont *font, INT *style);
 GpStatus WINGDIPAPI GdipGetFontUnit (GpFont *font, Unit *unit);
 GpStatus WINGDIPAPI GdipGetFamily (GpFont *font, GpFontFamily **family);
-
-/* missing API
-	GdipCloneFont
-*/
 
 /* libgdiplus extra API (not availble in MSGDI+ but exported from libgdiplus) */
 GpStatus WINGDIPAPI GdipCreateFontFromHfontA (HFONT hfont, GpFont **font, void *lf);
