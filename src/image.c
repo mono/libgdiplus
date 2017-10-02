@@ -1903,21 +1903,26 @@ GdipGetImagePalette (GpImage *image, ColorPalette *palette, INT size)
 	int palette_entries;
 	int bytes_needed;
 
-        if (!image || !palette)
+	if (!image || !palette)
 		return InvalidParameter;
 
 	/* GDI+ doesn't support this for metafiles */
 	if (image->type != ImageTypeBitmap)
 		return NotImplemented;
 
-	if (!image->active_bitmap->palette) {
-		/* ColorPalette definition includes one ARGB member (ARGB Entries[1]). In reality there are 
-		 * Count entries allocated, where Count can be 0 (and required to substract the ARGB size)
-		 */
-		/* coverity[buffer_alloc] */
-		image->active_bitmap->palette = (ColorPalette*) GdipAlloc (sizeof(ColorPalette) - sizeof(ARGB));
-		image->active_bitmap->palette->Flags = 0;
-		image->active_bitmap->palette->Count = 0;
+	if (!image->active_bitmap->palette || image->active_bitmap->palette->Count == 0) {
+		if (size >= 0 && size < sizeof(ColorPalette))
+			return InvalidParameter;
+
+		palette->Count = 0;
+		if (image->active_bitmap->palette) {
+			palette->Flags = image->active_bitmap->palette->Flags;
+		}
+		else {
+			palette->Flags = 0;
+		}
+
+		return Ok;
 	}
 
 	palette_entries = image->active_bitmap->palette->Count;
@@ -1926,8 +1931,7 @@ GdipGetImagePalette (GpImage *image, ColorPalette *palette, INT size)
 		palette_entries = 16;
 
 	bytes_needed = (palette_entries - 1) * sizeof(ARGB) + sizeof(ColorPalette);
-
-	if (bytes_needed > size) {
+	if (bytes_needed != size) {
 		return InvalidParameter;
 	}
 
@@ -1940,7 +1944,7 @@ GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette)
 {
 	int size;
 
-        if (!image || !palette)
+	if (!image || !palette || palette->Count == 0 || palette->Count > 256)
 		return InvalidParameter;
 
 	/* GDI+ doesn't support this for metafiles */
@@ -1975,7 +1979,11 @@ GdipGetImagePaletteSize (GpImage *image, INT* size)
         if (image->active_bitmap->pixel_format == PixelFormat4bppIndexed)
                 palette_entries = 16;
 
-	*size = (palette_entries - 1) * sizeof(ARGB) + sizeof(ColorPalette);
+	if (palette_entries == 0)
+		*size = sizeof(ColorPalette);
+	else
+		*size = (palette_entries - 1) * sizeof(ARGB) + sizeof(ColorPalette);
+
 	return Ok;
 }
 
@@ -2118,9 +2126,12 @@ GdipSetPropertyItem(GpImage *image, GDIPCONST PropertyItem *item)
 		return NotImplemented;
 
 	switch(image->image_format) {
+		case BMP:
 		case TIF:
+		case GIF:
 		case JPEG:
-		case PNG: {
+		case PNG:
+		case ICON: {
 			break;
 		}
 
@@ -2526,6 +2537,10 @@ GdipGetAllPropertyItems (GpImage *image, UINT totalBufferSize, UINT numPropertie
 
 	if (size != totalBufferSize) {
 		return InvalidParameter;
+	}
+
+	if (numProperties == 0) {
+		return GenericError;
 	}
 
 	ptr = (BYTE*)allItems;
