@@ -81,16 +81,6 @@ gdip_get_bmp_pixelformat (BITMAPINFOHEADER *bih, PixelFormat *dest)
 	int compression = bih->biCompression;
 
 	switch (compression) {
-	case BI_RLE4:
-		if (bitCount != 4)
-			return OutOfMemory;
-		*dest = PixelFormat4bppIndexed;
-		break;
-	case BI_RLE8:
-		if (bitCount != 8)
-			return OutOfMemory;
-		*dest = PixelFormat8bppIndexed;
-		break;
 	case BI_BITFIELDS:
 		if (bitCount != 16)
 			return OutOfMemory;
