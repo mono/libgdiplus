@@ -89,6 +89,9 @@ gdip_get_bmp_pixelformat (BITMAPINFOHEADER *bih, PixelFormat *dest)
 		break;
 	default:
 	        switch (bitCount) {
+		case 64:
+			*dest = PixelFormat64bppARGB;
+			break;
 	        case 32:
 	                *dest = PixelFormat32bppRGB;
 			break;
@@ -871,6 +874,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		result->active_bitmap->pixel_format = PixelFormat32bppRGB;
 		/* fall-thru */
 	case PixelFormat24bppRGB:
+	case PixelFormat64bppARGB:
 		/* stride is a (signed) _int_ and once multiplied by 4 it should hold a value that can be allocated by GdipAlloc
 		 * this effectively limits 'width' to 536870911 pixels */
 		size *= 4;

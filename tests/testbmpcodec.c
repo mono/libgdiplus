@@ -72,7 +72,14 @@ static void test_invalidHeader ()
 #if defined(USE_WINDOWS_GDIPLUS)
 	BYTE noImageData[] =             {0x42, 0x4D, 62, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0};
 #endif
-	BYTE hasImageData[] =            {0x42, 0x4D, 62, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0};
+	BYTE noImageDataBigSize[] =      {0x42, 0x4D, 62, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 0, 40, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0};
+	BYTE missingImageDataBigSize[] = {0x42, 0x4D, 70, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 0, 40, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0, 0, 0, 0, 0};
+	BYTE hasImageData1bpp[] =        {0x42, 0x4D, 62, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0};
+	BYTE hasImageData4bpp[] =       {0x42, 0x4D, 62, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0};
+	BYTE hasImageData8bpp[] =       {0x42, 0x4D, 62, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0};
+	BYTE hasImageData16bpp[] =       {0x42, 0x4D, 62, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0};
+	BYTE hasImageData32bpp[] =       {0x42, 0x4D, 62, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 32, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0};
+	BYTE hasImageData64bpp[] =       {0x42, 0x4D, 62, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 64, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0};
 	BYTE hasExtraImageData[] =       {0x42, 0x4D, 62, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0, 1, 2, 3, 4};
 	
 	BYTE planesNotOne[] =            {0x42, 0x4D, 62, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 4, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0};
@@ -105,7 +112,14 @@ static void test_invalidHeader ()
 #if defined(USE_WINDOWS_GDIPLUS)
 	createFile (noImageData, sizeof(noImageData), OutOfMemory);
 #endif
-	createFileSuccess (hasImageData, sizeof(hasImageData), PixelFormat1bppIndexed);
+	createFile (noImageDataBigSize, sizeof(noImageDataBigSize), OutOfMemory);
+	createFileSuccess (missingImageDataBigSize, sizeof(missingImageDataBigSize), PixelFormat1bppIndexed);
+	createFileSuccess (hasImageData1bpp, sizeof(hasImageData1bpp), PixelFormat1bppIndexed);
+	createFile (hasImageData4bpp, sizeof(hasImageData4bpp), OutOfMemory);
+	createFile (hasImageData8bpp, sizeof(hasImageData8bpp), OutOfMemory);
+	createFileSuccess (hasImageData16bpp, sizeof(hasImageData16bpp), PixelFormat32bppRGB);
+	createFileSuccess (hasImageData32bpp, sizeof(hasImageData32bpp), PixelFormat32bppRGB);
+	createFileSuccess (hasImageData64bpp, sizeof(hasImageData64bpp), PixelFormat64bppARGB);
 	createFileSuccess (hasExtraImageData, sizeof(hasExtraImageData), PixelFormat1bppIndexed);
 	
 	createFileSuccess (planesNotOne, sizeof(planesNotOne), PixelFormat1bppIndexed);
