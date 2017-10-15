@@ -20,7 +20,7 @@ addons:
     - git
     
 install:
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install glib cairo libexif; fi
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; brew install glib cairo libexif; fi
 
 script:
 - set -e
