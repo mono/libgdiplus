@@ -23,17 +23,22 @@ using namespace DllExports;
 #include <stdlib.h>
 #include "testhelpers.h"
 
-static WCHAR file[] = {'t', 'e', 'm', 'p', '.', 'b', 'm', 'p', 0};
+#if !defined(_WIN32)
+#include <unistd.h>
+#endif
+
+static const char *file = "temp/temp.bmp";
+static WCHAR wFile[] = {'t', 'e', 'm', 'p', '/', 't', 'e', 'm', 'p', '.', 'b', 'm', 'p', 0};
 
 static GpImage *createFile (BYTE *buffer, int length, GpStatus expectedStatus)
 {
 	GpStatus status;
 	GpImage *image;
-	FILE *f = fopen ("temp.bmp", "w+");
+	FILE *f = fopen (file, "w+");
 	fwrite ((void *) buffer, sizeof(BYTE), length, f);
 	fclose (f);
 	
-	status = GdipLoadImageFromFile (file, &image);
+	status = GdipLoadImageFromFile (wFile, &image);
 	assertEqualInt (status, expectedStatus);
 	
 	return image;
@@ -142,6 +147,12 @@ main (int argc, char**argv)
 	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
 	
 	test_invalidHeader ();
+
+#if !defined(_WIN32)
+	unlink (file);
+#else
+	DeleteFile (file);
+#endif
 	
 	GdiplusShutdown (gdiplusToken);
 	return 0;
