@@ -3,7 +3,6 @@
 .libs/
 Makefile
 Makefile.in
-temp_asset.*
 testadjustablearrowcap
 testbits
 testbmpcodec

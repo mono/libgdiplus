@@ -27,8 +27,8 @@ using namespace DllExports;
 #include <unistd.h>
 #endif
 
-static const char *file = "temp/temp.bmp";
-static WCHAR wFile[] = {'t', 'e', 'm', 'p', '/', 't', 'e', 'm', 'p', '.', 'b', 'm', 'p', 0};
+static const char *file = "temp_asset.bmp";
+static WCHAR wFile[] = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'b', 'm', 'p', 0};
 
 static GpImage *createFile (BYTE *buffer, int length, GpStatus expectedStatus)
 {
