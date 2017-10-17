@@ -2,6 +2,14 @@
 
 This is part of the [Mono project](http://www.mono-project.com/).
 
+Build status:
+
+|    |   |
+|----|---|
+| Travis (Linux/OSX) | [![Travis Build Status](https://travis-ci.org/mono/libgdiplus.svg?branch=master)](https://travis-ci.org/mono/libgdiplus)|
+| Jenkins (Linux)    | [![Jenkins Linux Build Status](https://jenkins.mono-project.com/job/test-libgdiplus-mainline/badge/icon)](https://jenkins.mono-project.com/job/test-libgdiplus-mainline) |
+| Jenkins (Windows)  | [![Jenkins Windows Build Status](https://jenkins.mono-project.com/job/test-libgdiplus-mainline-windows/badge/icon)](https://jenkins.mono-project.com/job/test-libgdiplus-mainline-windows) |
+
 ### Requirements:
 
 This requires the libraries used by the Cairo vector graphics library to build (freetype2, fontconfig, Xft2 and libpng).
