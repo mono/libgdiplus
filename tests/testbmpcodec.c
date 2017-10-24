@@ -151,7 +151,7 @@ main (int argc, char**argv)
 #if !defined(_WIN32)
 	unlink (file);
 #else
-	DeleteFile (file);
+	DeleteFileA (file);
 #endif
 	
 	GdiplusShutdown (gdiplusToken);
