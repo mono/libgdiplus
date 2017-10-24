@@ -103,7 +103,7 @@ read_ICONDIRENTRY (void *pointer, ICONDIRENTRY *entry, ImageSource source, BOOL 
 static GpStatus
 gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSource source)
 {
-	GpStatus status = InvalidParameter;
+	GpStatus status = OutOfMemory;
 	GpBitmap *result = NULL;
 	BYTE *pixels = NULL;
 	WORD w, count;
@@ -197,8 +197,7 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 	}
 
 	if (palette_entries < 0) {
-		g_warning ("Unknown icon format, bitcount = %d, compression = %d", bih.biBitCount, bih.biCompression);
-		status = InvalidParameter;
+		status = OutOfMemory;
 		goto error;
 	}
 
@@ -220,7 +219,7 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 		void *p = &color;
 
 		if (gdip_read_ico_data (pointer, p, 4, source) < 4) {
-			status = InvalidParameter;
+			status = OutOfMemory;
 			goto error;
 		}
 
@@ -256,7 +255,7 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 		goto error;
 	}
 	if (gdip_read_ico_data (pointer, xor_data, xor_size, source) < xor_size) {
-		status = InvalidParameter;
+		status = OutOfMemory;
 		goto error;
 	}
 
@@ -268,7 +267,7 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 		goto error;
 	}
 	if (gdip_read_ico_data (pointer, and_data, and_size, source) < and_size) {
-		status = InvalidParameter;
+		status = OutOfMemory;
 		goto error;
 	}
 
