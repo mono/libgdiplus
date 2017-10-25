@@ -877,6 +877,11 @@ gdip_metafile_clone (GpMetafile *metafile, GpMetafile **clonedmetafile)
 	memcpy (&mf->metafile_header, &metafile->metafile_header, sizeof (MetafileHeader));
 	if (metafile->length > 0) {
 		mf->data = GdipAlloc (metafile->length);
+		if (!mf->data) {
+			GdipFree (mf);
+			return OutOfMemory;
+		}
+
 		memcpy (mf->data, metafile->data, metafile->length);
 		mf->length = metafile->length;
 	}
