@@ -105,7 +105,8 @@ BOOL is_32bit ()
 {
     return sizeof(int *) == 4;
 }
-static void verifyImage (GpImage *image, ImageType expectedType, GUID expectedRawFormat, PixelFormat expectedPixelFormat, REAL expectedX, REAL expectedY, UINT expectedWidth, UINT expectedHeight, REAL expectedDimensionWidth, REAL expectedDimensionHeight, UINT expectedFlags, UINT expectedPropertyCount, BOOL checkFlags)
+
+void verifyImage (GpImage *image, ImageType expectedType, GUID expectedRawFormat, PixelFormat expectedPixelFormat, REAL expectedX, REAL expectedY, UINT expectedWidth, UINT expectedHeight, REAL expectedDimensionWidth, REAL expectedDimensionHeight, UINT expectedFlags, UINT expectedPropertyCount, BOOL checkFlags)
 {
     GpStatus status;
     ImageType type;
