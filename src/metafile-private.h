@@ -39,8 +39,6 @@
 #define WMF_TYPE_AND_HEADERSIZE_KEY	0x00090001
 #define EMF_EMR_HEADER_KEY		0x1
 
-/* this has to do with 25.4mm in an inch (but why is it multiplied by 100 ?) */
-#define METAFILE_DIMENSION_FACTOR	2540
 #define MM_PER_INCH			25.4f
 
 /* object types */

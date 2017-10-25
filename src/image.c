@@ -1257,8 +1257,11 @@ GdipGetImageDimension (GpImage *image, REAL *width, REAL *height)
 		break;
 	case ImageTypeMetafile: {
 		MetafileHeader *metaheader = gdip_get_metaheader(image);
-		*width = metaheader->Width * METAFILE_DIMENSION_FACTOR / metaheader->DpiX;
-		*height = metaheader->Height * METAFILE_DIMENSION_FACTOR / metaheader->DpiY;
+
+		// The width and height values are returned in 0.01 millimeter units.
+		*width = gdip_unit_conversion (UnitPixel, UnitMillimeter, metaheader->DpiX, gtMemoryBitmap, metaheader->Width) * 100;
+		*height = gdip_unit_conversion (UnitPixel, UnitMillimeter, metaheader->DpiY, gtMemoryBitmap, metaheader->Height) * 100;
+
 		break;
 	}
 	default:
