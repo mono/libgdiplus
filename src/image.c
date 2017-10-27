@@ -2185,14 +2185,14 @@ GdipCloneImage (GpImage *image, GpImage **cloneImage)
 
 	switch (image->type){
 	case ImageTypeBitmap:
-               	gdip_bitmap_clone (image, cloneImage);
+		gdip_bitmap_clone (image, cloneImage);
 		gdip_bitmap_setactive(*cloneImage, NULL, 0);
 		return Ok;
 
 	case ImageTypeMetafile:
 		return gdip_metafile_clone ((GpMetafile*)image, (GpMetafile**)cloneImage);
 
-       	case ImageTypeUnknown:
+	case ImageTypeUnknown:
 	default:
 		return Ok;
 	}

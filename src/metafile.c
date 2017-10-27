@@ -855,6 +855,8 @@ gdip_metafile_create ()
 {
 	GpMetafile* mf = (GpMetafile*) GdipAlloc (sizeof (GpMetafile));
 	if (mf) {
+		memset (&mf->base, 0, sizeof (GpImage));
+
 		mf->base.type = ImageTypeMetafile;
 		mf->delete = FALSE;
 		mf->data = NULL;
@@ -870,10 +872,13 @@ GpStatus
 gdip_metafile_clone (GpMetafile *metafile, GpMetafile **clonedmetafile)
 {
 	GpMetafile *mf = gdip_metafile_create ();
+	GpImage *base;
 	if (!mf)
 		return OutOfMemory;
 
-	memcpy (&mf->base.image_format, &metafile->base.image_format, sizeof (GUID));
+	gdip_bitmap_clone (&metafile->base, &base);
+	mf->base = *base;
+
 	memcpy (&mf->metafile_header, &metafile->metafile_header, sizeof (MetafileHeader));
 	if (metafile->length > 0) {
 		mf->data = GdipAlloc (metafile->length);
