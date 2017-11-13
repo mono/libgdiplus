@@ -877,6 +877,7 @@ gdip_metafile_clone (GpMetafile *metafile, GpMetafile **clonedmetafile)
 		return OutOfMemory;
 
 	gdip_bitmap_clone (&metafile->base, &base);
+	gdip_bitmap_setactive (base, NULL, 0);
 	mf->base = *base;
 
 	memcpy (&mf->metafile_header, &metafile->metafile_header, sizeof (MetafileHeader));
