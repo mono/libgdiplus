@@ -171,8 +171,12 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data)
 	GpStatus status = Ok;
 	/* variable number of parameters */
 	int poly_num = GETW(WP1);
-	int i;
+	int i, j;
 	PointFList *list = GdipAlloc (poly_num * sizeof (PointFList));
+	if (!list) {
+		return OutOfMemory;
+	}
+
 	PointFList *current = list;
 #ifdef DEBUG_WMF
 	printf ("PolyPolygon has %d polygons", poly_num);
@@ -183,6 +187,15 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data)
 		current->num = GETW(WP(n));
 		n++;
 		current->points = (GpPointF*) GdipAlloc (current->num * sizeof (GpPointF));
+		if (!current->points) {
+			for (j = 0; j < i; j++) {
+				GdipFree (list[j].points);
+			}
+
+			GdipFree (list);
+			return OutOfMemory;
+		}
+
 #ifdef DEBUG_WMF_2
 		printf ("\n\tSub Polygon #%d has %d points", i, current->num);
 #endif

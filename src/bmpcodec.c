@@ -1270,6 +1270,10 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 		mystride += 3;
 		mystride &= ~3;
 		current_line = (BYTE*) GdipAlloc (mystride);
+		if (!current_line) {
+			return OutOfMemory;
+		}
+
 		memset (current_line, 0, mystride); /* Zero padding at the end if needed */
 		for (i = height - 1; i >= 0; i--) {
 			BYTE *ptr;
