@@ -281,6 +281,7 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 static GpStatus 
 gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 {
+	GpStatus status;
 	GifFileType	*gif;
 	BYTE		*readptr;
 	BYTE		*writeptr;
@@ -304,6 +305,7 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 	int		screen_height;
 	GifImageDesc	*img_desc;
 
+	status = Ok;
 	disposal = 0;
 	last_disposal = 0;
 	loop_value = 0;
@@ -326,11 +328,13 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 	}
 	
 	if (gif == NULL) {
+		status = InvalidParameter;
 		goto error;
 	}
 
 	/* Read the image */
 	if (DGifSlurpMono(gif, &global_extensions) != GIF_OK) {
+		status = InvalidParameter;
 		goto error;
 	}
 
@@ -387,12 +391,26 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 	}
 
 	result = gdip_bitmap_new();
+	if (!result) {
+		status = OutOfMemory;
+		goto error;
+	}
+
 	result->type = ImageTypeBitmap;
 	frame = gdip_frame_add(result, dimension);
+	if (!frame) {
+		status = OutOfMemory;
+		goto error;
+	}
 
 	/* Copy the palette over, if there is one */
 	if (gif->SColorMap != NULL) {
 		global_palette = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * gif->SColorMap->ColorCount);
+		if (!global_palette) {
+			status = OutOfMemory;
+			goto error;
+		}
+		
 		global_palette->Flags = 0;
 		global_palette->Count = gif->SColorMap->ColorCount;
 		for (i = 0; i < gif->SColorMap->ColorCount; i++) {
@@ -401,6 +419,11 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 	} else {
 		/* Assume a grayscale image for the global palette. Individual images might still have a different one. */
 		global_palette = GdipAlloc (sizeof(ColorPalette) + 256 * sizeof(ARGB));
+		if (!global_palette) {
+			status = OutOfMemory;
+			goto error;
+		}
+
 		global_palette->Flags = PaletteFlagsGrayScale;
 		global_palette->Count = 256;
 		for (i=0; i < 256; i++) {
@@ -416,6 +439,7 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 		/* Add BitmapData to our frame */
 		bitmap_data = gdip_frame_add_bitmapdata(frame);
 		if (bitmap_data == NULL) {
+			status = OutOfMemory;
 			goto error;
 		}
 
@@ -425,6 +449,7 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 		    img_desc->Left < 0 || img_desc->Width < 0 ||
 		    (img_desc->Width + img_desc->Left) > screen_width ||
 		    (img_desc->Height + img_desc->Top) > screen_height) {
+			status = InvalidParameter;
 			goto error;
 		}
 
@@ -435,8 +460,10 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 
 				if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagExifUserComment, &index) != Ok) {
 					BYTE *bytes = (BYTE*) GdipAlloc (eb.ByteCount + 1);
-					if (bytes == NULL)
+					if (bytes == NULL) {
+						status = OutOfMemory;
 						goto error;
+					}
 
 					memcpy (bytes, eb.Bytes, eb.ByteCount);
 					bytes [eb.ByteCount] = '\0';
@@ -481,12 +508,16 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 					}
 					/* String is not null terminated */
 					text = (BYTE*)GdipAlloc(eb.ByteCount + 1);
-					if (text != NULL) {
-						memcpy(text, eb.Bytes, eb.ByteCount);
-						text[eb.ByteCount] = '\0';
-						gdip_bitmapdata_property_add_ASCII(bitmap_data, PropertyTagExifUserComment, text);
-						GdipFree(text);
+					if (!text) {
+						status = OutOfMemory;
+						goto error;
 					}
+
+					memcpy(text, eb.Bytes, eb.ByteCount);
+					text[eb.ByteCount] = '\0';
+					gdip_bitmapdata_property_add_ASCII(bitmap_data, PropertyTagExifUserComment, text);
+					GdipFree(text);
+
 					break;
 				}
 
@@ -507,6 +538,11 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 			local_palette_obj = img_desc->ColorMap;
 	
 			bitmap_data->palette = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * local_palette_obj->ColorCount);
+			if (!bitmap_data->palette) {
+				status = OutOfMemory;
+				goto error;
+			}
+
 			bitmap_data->palette->Flags = 0;
 			bitmap_data->palette->Count = local_palette_obj->ColorCount;
 			for (l = 0; l < local_palette_obj->ColorCount; l++) {
@@ -516,7 +552,10 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 			}
 		} else {
 			bitmap_data->palette = gdip_palette_clone(global_palette);
-
+			if (!bitmap_data->palette) {
+				status = OutOfMemory;
+				goto error;
+			}
 		}
 
 		if (bitmap_data->transparent < 0) {
@@ -543,6 +582,11 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 		bitmap_data->top = img_desc->Top;
 
 		bitmap_data->scan0 = GdipAlloc (bitmap_data->stride * bitmap_data->height);
+		if (!bitmap_data->scan0) {
+			status = OutOfMemory;
+			goto error;
+		}
+
 		bitmap_data->reserved = GBD_OWN_SCAN0;
 		bitmap_data->image_flags = ImageFlagsHasAlpha | ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB;
 		bitmap_data->dpi_horz = gdip_get_display_dpi ();
@@ -624,7 +668,7 @@ error:
 	}
 
 	*image = NULL;
-	return InvalidParameter;
+	return status;
 }
 
 GpStatus 
@@ -658,6 +702,7 @@ gdip_gif_outputfunc (GifFileType *gif,  const GifByteType *data, int len)
 static GpStatus 
 gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 {
+	GpStatus status;
 	GifFileType	*fp;
 	int		i, x, y;
 	GifByteType	*red;
@@ -730,6 +775,7 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 					cmap_size = 256;
 					break;
 				default:
+					status = GenericError;
 					goto error; 
 				}
 
@@ -740,6 +786,7 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 #endif
 				pixbuf = GdipAlloc(pixbuf_size);
 				if (pixbuf == NULL) {
+					status = OutOfMemory;
 					goto error;
 				}
 
@@ -837,6 +884,7 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 				blue = GdipAlloc(pixbuf_size);
 				pixbuf = GdipAlloc(pixbuf_size);
 				if ((red == NULL) || (green == NULL) || (blue == NULL) || (pixbuf == NULL)) {
+					status = OutOfMemory;
 					goto error;
 				}
 
@@ -869,6 +917,7 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 #endif
 						bitmap_data->width, bitmap_data->height, &cmap_size, 
 						red,  green, blue, pixbuf, cmap->Colors) == GIF_ERROR) {
+					status = GenericError;
 					goto error;
 				}
 			}
@@ -883,6 +932,7 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 			if ((frame == 0) && (k == 0)) {
 				/* First Image defines the global colormap */
 				if (EGifPutScreenDesc (fp, bitmap_data->width, bitmap_data->height, cmap->BitsPerPixel, 0, cmap) == GIF_ERROR) {
+					status = GenericError;
 					goto error;
 				}
 
@@ -945,11 +995,13 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 			/* Store the image description */
 			/* This call will leak GifFile->Image.ColorMap */
 			if (EGifPutImageDesc (fp, bitmap_data->left, bitmap_data->top, bitmap_data->width, bitmap_data->height, FALSE, cmap) == GIF_ERROR) {
+				status = GenericError;
 				goto error;
 			}
 
 			for (i = 0;  i < bitmap_data->height;  ++i) {
 				if (EGifPutLine (fp, pixbuf, bitmap_data->width) == GIF_ERROR) {
+					status = GenericError;
 					goto error;
 				}
 				pixbuf += bitmap_data->width;
@@ -1014,7 +1066,7 @@ error:
 		GdipFree (pixbuf_org);
 	}
 
-	return GenericError;
+	return status;
 }
 
 GpStatus 

@@ -268,8 +268,11 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data, BOOL compact)
 	/* total number of points (in all polygons)*/
 	// int total = GETDW(DWP(n));
 	n++;
-	int i;
+	int i, j;
 	PointFList *list = GdipAlloc (poly_num * sizeof (PointFList));
+	if (!list)
+		return OutOfMemory;
+
 	PointFList *current = list;
 #ifdef DEBUG_EMF
 	printf ("PolyPolygon%s bounds [%d, %d, %d, %d] with %d polygons", (compact ? "16" : ""), 
@@ -280,6 +283,15 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data, BOOL compact)
 		current->num = GETDW(DWP(n));
 		n++;
 		current->points = (GpPointF*) GdipAlloc (current->num * sizeof (GpPointF));
+		if (!current->points) {
+			for (j = 0; j < i; j++) {
+				GdipFree (list[j].points);
+			}
+
+			GdipFree (list);
+			return OutOfMemory;
+		}
+
 #ifdef DEBUG_EMF_2
 		printf ("\n\tSub Polygon #%d has %d points", i, current->num);
 #endif
