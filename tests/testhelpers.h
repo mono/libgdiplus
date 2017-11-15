@@ -54,30 +54,20 @@ WCHAR* wcharFromChar(const char *c)
 #define freeWchar(c)
 #endif
 
-#define assertEqualInt(actual, expected) assertEqualIntImpl (actual, expected, __FILE__, __LINE__)
-void assertEqualIntImpl (INT actual, INT expected, const char *file, INT line)
-{
-    if (actual != expected)
-    {
-        fprintf (stderr, "Assertion failed on line %d in %s\n", line, file);
-        fprintf (stderr, "Expected: %d\n", expected);
-        fprintf (stderr, "Actual:   %d\n", actual);
-
-        abort ();
-    }
+#define assertEqualInt(actual, expected)          \
+if (actual != expected)                           \
+{                                                 \
+    fprintf (stderr, "Expected: %d\n", expected); \
+    fprintf (stderr, "Actual:   %d\n", actual);   \
+    assert (actual == expected);                  \
 }
 
-#define assertEqualFloat(actual, expected) assertEqualFloatImpl (actual, expected, __FILE__, __LINE__)
-void assertEqualFloatImpl (REAL actual, REAL expected, const char *file, INT line)
-{
-    if (!floatsEqual (actual, expected))
-    {
-        fprintf (stderr, "Assertion failed on line %d in %s\n", line, file);
-        fprintf (stderr, "Expected: %f\n", expected);
-        fprintf (stderr, "Actual:   %f\n", actual);
-
-        abort ();
-    }
+#define assertEqualFloat(actual, expected)        \
+if (!floatsEqual (actual, expected))              \
+{                                                 \
+    fprintf (stderr, "Expected: %f\n", expected); \
+    fprintf (stderr, "Actual:   %f\n", actual);   \
+    assert (actual == expected);                  \
 }
 
 CLSID bmpEncoderClsid = { 0x557cf400, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
