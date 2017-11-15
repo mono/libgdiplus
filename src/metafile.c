@@ -871,13 +871,25 @@ gdip_metafile_create ()
 GpStatus
 gdip_metafile_clone (GpMetafile *metafile, GpMetafile **clonedmetafile)
 {
+	GpStatus status;
 	GpMetafile *mf = gdip_metafile_create ();
 	GpImage *base;
 	if (!mf)
 		return OutOfMemory;
 
-	gdip_bitmap_clone (&metafile->base, &base);
-	gdip_bitmap_setactive (base, NULL, 0);
+	status = gdip_bitmap_clone (&metafile->base, &base);
+	if (status != Ok) {
+		GdipFree (mf);
+		return status;
+	}
+
+	status = gdip_bitmap_setactive (base, NULL, 0);
+	if (status != Ok) {
+		GdipFree (mf);
+		GdipFree (base);
+		return status;
+	}
+
 	mf->base = *base;
 
 	memcpy (&mf->metafile_header, &metafile->metafile_header, sizeof (MetafileHeader));
@@ -946,6 +958,10 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 		return NULL;
 
 	context = GdipAlloc (sizeof (MetafilePlayContext));
+	if (!context) {
+		return NULL;
+	}
+
 	context->metafile = metafile;
 	context->graphics = graphics;
 	context->use_path = FALSE;

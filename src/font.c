@@ -97,10 +97,11 @@ GdipNewInstalledFontCollection (GpFontCollection **font_collection)
 		FcObjectSetDestroy (os);
     
 		system_fonts = (GpFontCollection *) GdipAlloc (sizeof (GpFontCollection));
-		if (system_fonts) {
-			system_fonts->fontset = col;
-			system_fonts->config = NULL;
-		}
+		if (!system_fonts)
+			return OutOfMemory;
+
+		system_fonts->fontset = col;
+		system_fonts->config = NULL;
 	}
 
 	*font_collection = system_fonts;
@@ -117,10 +118,12 @@ GdipNewPrivateFontCollection (GpFontCollection **font_collection)
 		return InvalidParameter;
 
 	result = (GpFontCollection *) GdipAlloc (sizeof (GpFontCollection));
-	if (result) {
-		result->fontset = NULL;
-		result->config = FcConfigCreate ();
-    	}
+	if (!result)
+		return OutOfMemory;
+
+	result->fontset = NULL;
+	result->config = FcConfigCreate ();
+
 	*font_collection = result;
 	return Ok;
 }
@@ -905,6 +908,9 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, REAL emSize, INT style, Unit uni
 	sizeInPixels = gdip_unit_conversion (unit, UnitPixel, gdip_get_display_dpi(), gtMemoryBitmap, emSize);
 		
 	result = (GpFont *) GdipAlloc (sizeof (GpFont));
+	if (!result)
+		return OutOfMemory;
+
 	result->sizeInPixels = sizeInPixels;
 
 	result->face = GdipAlloc(strlen((char *)str) + 1);
@@ -1148,6 +1154,9 @@ gdip_create_font_from_logfont (HDC hdc, void *lf, GpFont **font, BOOL ucs2)
 		return InvalidParameter;
 
 	GpFont *result = (GpFont*) GdipAlloc (sizeof (GpFont));
+	if (!result)
+		return OutOfMemory;
+
 	LOGFONTA *logfont = (LOGFONTA *)lf;
 
 	if (logfont->lfHeight < 0) {

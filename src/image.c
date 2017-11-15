@@ -201,11 +201,11 @@ gdip_flip_x (GpImage *image)
 	height = image->active_bitmap->height;
 	pixel_size = gdip_get_pixel_format_components (image->active_bitmap->pixel_format) * gdip_get_pixel_format_depth (image->active_bitmap->pixel_format) / 8;
 	line = GdipAlloc (stride);
-	src = (BYTE *) image->active_bitmap->scan0;
-
-	if (line == NULL) {
+	if (!line) {
 		return OutOfMemory;
 	}
+
+	src = (BYTE *) image->active_bitmap->scan0;
 	
 	for (i = 0; i < height; i++, src += stride) {
 		memcpy (line, src, stride);	/* Save original line */
@@ -233,13 +233,13 @@ gdip_flip_y (GpImage *image)
 	stride = image->active_bitmap->stride;
 	height = image->active_bitmap->height;
 	line = GdipAlloc (stride);
+	if (!line) {
+		return OutOfMemory;
+	}
+
 	src = (BYTE *) image->active_bitmap->scan0;
 	trg = (BYTE *) image->active_bitmap->scan0;
 	trg +=  (height-1) * stride;
-
-	if (line == NULL) {
-		return OutOfMemory;
-	}
 	
 	for (i = 0; i < (height /2); i++, src += stride, trg -= stride) {			
 		memcpy (line, trg, stride);	/* Save target line*/
@@ -1943,6 +1943,7 @@ GpStatus WINGDIPAPI
 GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette)
 {
 	int size;
+	ColorPalette *result;
 
 	if (!image || !palette || palette->Count == 0 || palette->Count > 256)
 		return InvalidParameter;
@@ -1953,9 +1954,13 @@ GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette)
 
 	size = (palette->Count - 1) * sizeof(ARGB) + sizeof(ColorPalette);
 	if (!image->active_bitmap->palette || (palette->Count != image->active_bitmap->palette->Count)) {
+		result = (ColorPalette *) GdipAlloc (size);
+		if (!result)
+			return OutOfMemory;
+
 		if (image->active_bitmap->palette)
 			GdipFree (image->active_bitmap->palette);
-		image->active_bitmap->palette = (ColorPalette*) GdipAlloc (size);
+		image->active_bitmap->palette = result;
 	}
 
 	memcpy (image->active_bitmap->palette, palette, size);

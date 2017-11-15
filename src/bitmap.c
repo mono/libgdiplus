@@ -643,6 +643,11 @@ gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
 	/* Allocate and copy frames, properties and bitmap data */
 	if (bitmap->frames != NULL) {
 		result->frames = GdipAlloc(sizeof (FrameData) * result->num_of_frames);
+		if (!result->frames) {
+			status = OutOfMemory;
+			goto fail;
+		}
+
 		for (frame = 0; frame < result->num_of_frames; frame++) {
 			result->frames[frame].count = bitmap->frames[frame].count;
 			result->frames[frame].frame_dimension = bitmap->frames[frame].frame_dimension;
