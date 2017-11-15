@@ -167,6 +167,9 @@ alloc_bitmap_memory (int size, BOOL clear)
 	}
 
 	buffer = (BYTE*) GdipAlloc (size);
+	if (!buffer)
+		return NULL;
+
 	if (clear)
 		memset (buffer, 0, size);
 
@@ -194,6 +197,9 @@ static GpRegionBitmap*
 alloc_bitmap_with_buffer (int x, int y, int width, int height, BYTE *buffer)
 {
 	GpRegionBitmap *result = (GpRegionBitmap*) GdipAlloc (sizeof (GpRegionBitmap));
+	if (!result) {
+		return NULL;
+	}
 
 	result->X = x;
 	result->Y = y;

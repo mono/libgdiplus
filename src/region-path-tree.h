@@ -39,7 +39,7 @@ typedef struct GpPathTree {
 } GpPathTree;
 
 void gdip_region_clear_tree (GpPathTree *tree) GDIP_INTERNAL;
-void gdip_region_copy_tree (GpPathTree *source, GpPathTree *dest) GDIP_INTERNAL;
+GpStatus gdip_region_copy_tree (GpPathTree *source, GpPathTree *dest) GDIP_INTERNAL;
 
 UINT gdip_region_get_tree_size (GpPathTree *tree) GDIP_INTERNAL;
 BOOL gdip_region_deserialize_tree (BYTE *data, int size, GpPathTree *tree) GDIP_INTERNAL;
