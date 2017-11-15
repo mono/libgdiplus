@@ -350,9 +350,12 @@ typedef enum {
 	PixelFormat64bppARGB		= 0x0034400d,
 	PixelFormat64bppPARGB		= 0x001c400e,
 	PixelFormat8bppIndexed		= 0x00030803,
+	PixelFormat32bppCMYK		= 0x0000200F,
 
 	PixelFormatUndefined		= 0,
-	PixelFormatDontCare		= 0
+	PixelFormatDontCare		= 0,
+
+	PixelFormatMax = 16
 } PixelFormat;
 
 typedef enum {

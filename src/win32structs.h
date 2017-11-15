@@ -244,6 +244,32 @@ typedef struct {
 	SHORT	Bottom;
 } PWMFRect16;
 
+typedef struct {
+	BYTE rgbBlue;
+	BYTE rgbGreen;
+	BYTE rgbRed;
+	BYTE rgbReserved;
+} RGBQUAD, *LPRGBQUAD;
+
+typedef struct {
+	DWORD 	biSize;
+	LONG  	biWidth;
+	LONG  	biHeight;
+	WORD 	biPlanes;
+	WORD 	biBitCount;
+	DWORD 	biCompression;
+	DWORD 	biSizeImage;
+	LONG  	biXPelsPerMeter;
+	LONG  	biYPelsPerMeter;
+	DWORD 	biClrUsed;
+	DWORD 	biClrImportant;
+} BITMAPINFOHEADER, *PBITMAPINFOHEADER, *LPBITMAPINFOHEADER;
+
+typedef struct {
+	BITMAPINFOHEADER bmiHeader;
+	RGBQUAD	bmiColors[1];
+} BITMAPINFO, *PBITMAPINFO, *LPBITMAPINFO;
+
 #ifndef __GNUC__
 	#pragma pack(2)
 #endif
