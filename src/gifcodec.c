@@ -204,6 +204,8 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 
 				sp = &GifFile->SavedImages[GifFile->ImageCount - 1];
 				ImageSize = sp->ImageDesc.Width * sp->ImageDesc.Height;
+				if (ImageSize == 0)
+					return GIF_ERROR;
 
 				sp->RasterBits = (BYTE*) GdipAlloc (ImageSize * sizeof (GifPixelType));
 				if (sp->RasterBits == NULL) {
@@ -254,6 +256,11 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 					if (DGifGetExtensionNext(GifFile, &ExtData) == GIF_ERROR) {
 						return (GIF_ERROR);
 					}
+
+					/* Graphics control blocks cannot contain any sub blocks. */
+					if (Function == 0xF9 && ExtData) {
+						return GIF_ERROR;
+					}
 				}
 				break;
 			}
@@ -267,6 +274,10 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 			}
 		}
 	} while (RecordType != TERMINATE_RECORD_TYPE);
+
+	/* The gif file must contain multiple images. */
+	if (GifFile->ImageCount == 0)
+		return GIF_ERROR;
 
 	/* In case the Gif has an extension block without an associated
 	* image we return it in TrailingExtensions, if provided */
@@ -328,13 +339,13 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 	}
 	
 	if (gif == NULL) {
-		status = InvalidParameter;
+		status = OutOfMemory;
 		goto error;
 	}
 
 	/* Read the image */
-	if (DGifSlurpMono(gif, &global_extensions) != GIF_OK) {
-		status = InvalidParameter;
+	if (DGifSlurpMono (gif, &global_extensions) != GIF_OK) {
+		status = OutOfMemory;
 		goto error;
 	}
 
@@ -449,7 +460,7 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 		    img_desc->Left < 0 || img_desc->Width < 0 ||
 		    (img_desc->Width + img_desc->Left) > screen_width ||
 		    (img_desc->Height + img_desc->Top) > screen_height) {
-			status = InvalidParameter;
+			status = OutOfMemory;
 			goto error;
 		}
 
@@ -588,7 +599,10 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 		}
 
 		bitmap_data->reserved = GBD_OWN_SCAN0;
-		bitmap_data->image_flags = ImageFlagsHasAlpha | ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB;
+		bitmap_data->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsHasRealDPI | ImageFlagsColorSpaceRGB;
+		if (bitmap_data->transparent < 0)
+			bitmap_data->image_flags |= ImageFlagsHasAlpha;
+
 		bitmap_data->dpi_horz = gdip_get_display_dpi ();
 		bitmap_data->dpi_vert = bitmap_data->dpi_horz;
 	

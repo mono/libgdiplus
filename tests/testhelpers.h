@@ -174,3 +174,15 @@ void verifyImage (GpImage *image, ImageType expectedType, GUID expectedRawFormat
     assertEqualInt (propertyCount, expectedPropertyCount);
 #endif
 }
+
+#define HEX__(n) 0x##n##LU
+#define B8__(x) ((x&0x0000000FLU)?1:0) \
++ ((x&0x000000F0LU)?2:0)               \
++ ((x&0x00000F00LU)?4:0)               \
++ ((x&0x0000F000LU)?8:0)               \
++ ((x&0x000F0000LU)?16:0)              \
++ ((x&0x00F00000LU)?32:0)              \
++ ((x&0x0F000000LU)?64:0)              \
++ ((x&0xF0000000LU)?128:0)
+
+#define B8(d) ((BYTE)B8__(HEX__(d)))
