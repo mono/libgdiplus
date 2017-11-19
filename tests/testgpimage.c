@@ -1024,7 +1024,7 @@ static void test_getImagePaletteSize ()
 
 	status = GdipGetImagePaletteSize (bitmapImage, &size);
 	assertEqualInt (status, Ok);
-	assertEqualInt (sizeof(ColorPalette), 12);
+	assertEqualInt ((int) sizeof(ColorPalette), 12);
 	assertEqualInt (size, 12);
 
 	// Negative tests.
@@ -1279,7 +1279,7 @@ static void setPropertyItemForImage (GpImage *image)
 
 	status = GdipGetPropertyItemSize (image, propertyItem1.id, &propertySize);
 	assertEqualInt (status, Ok);
-	assertEqualInt (propertySize, sizeof(PropertyItem));
+	assertEqualInt (propertySize, (int) sizeof(PropertyItem));
 
 	status = GdipGetPropertyItem (image, propertyItem1.id, propertySize, &resultPropertyItem);
 	assertEqualInt (status, Ok);
@@ -1294,7 +1294,7 @@ static void setPropertyItemForImage (GpImage *image)
 	numProperties = -1;
 	status = GdipGetPropertySize (image, &totalBufferSize, &numProperties);
 	assertEqualInt (status, Ok);
-	assertEqualInt (totalBufferSize, sizeof(PropertyItem));
+	assertEqualInt (totalBufferSize, (int) sizeof(PropertyItem));
 	assertEqualInt (numProperties, 1);
 
 	propertyIds[1] = -1;
@@ -1309,7 +1309,7 @@ static void setPropertyItemForImage (GpImage *image)
 
 	status = GdipGetPropertyItemSize (image, propertyItem2.id, &propertySize);
 	assertEqualInt (status, Ok);
-	assertEqualInt (propertySize, sizeof(PropertyItem));
+	assertEqualInt (propertySize, (int) sizeof(PropertyItem));
 
 	status = GdipGetPropertyItem (image, propertyItem2.id, propertySize, &resultPropertyItem);
 	assertEqualInt (status, Ok);
@@ -1324,7 +1324,7 @@ static void setPropertyItemForImage (GpImage *image)
 	numProperties = -1;
 	status = GdipGetPropertySize (image, &totalBufferSize, &numProperties);
 	assertEqualInt (status, Ok);
-	assertEqualInt (totalBufferSize, sizeof(PropertyItem) * 2);
+	assertEqualInt (totalBufferSize, (int) sizeof(PropertyItem) * 2);
 	assertEqualInt (numProperties, 2);
 
 	propertyIds[1] = -1;
@@ -1339,7 +1339,7 @@ static void setPropertyItemForImage (GpImage *image)
 
 	status = GdipGetPropertyItemSize (image, propertyItem3.id, &propertySize);
 	assertEqualInt (status, Ok);
-	assertEqualInt (propertySize, sizeof(PropertyItem));
+	assertEqualInt (propertySize, (int) sizeof(PropertyItem));
 
 	status = GdipGetPropertyItem (image, propertyItem3.id, propertySize, &resultPropertyItem);
 	assertEqualInt (status, Ok);
@@ -1354,7 +1354,7 @@ static void setPropertyItemForImage (GpImage *image)
 	numProperties = -1;
 	status = GdipGetPropertySize (image, &totalBufferSize, &numProperties);
 	assertEqualInt (status, Ok);
-	assertEqualInt (totalBufferSize, sizeof(PropertyItem) * 2);
+	assertEqualInt (totalBufferSize, (int) sizeof(PropertyItem) * 2);
 	assertEqualInt (numProperties, 2);
 
 	propertyIds[1] = -1;

@@ -96,8 +96,8 @@ static void test_clone ()
     GdipGetTextureImage ((GpTexture *) clone, &image2);
 
     GdipGetImageDimension (image2, &brushWidth, &brushHeight);
-    assertEqualInt (brushWidth, 100);
-    assertEqualInt (brushHeight, 68);
+    assertEqualFloat (brushWidth, 100);
+    assertEqualFloat (brushHeight, 68);
 
     GdipGetTextureWrapMode ((GpTexture *) clone, &wrapMode);
     assertEqualInt (wrapMode, WrapModeTile);

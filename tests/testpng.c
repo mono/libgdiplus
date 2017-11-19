@@ -42,7 +42,7 @@ main (int argc, char **argv)
     status = GdipGetImagePaletteSize (img, &original_palette_size);
     CHECK_STATUS(1);
     CHECK_ASSERT(original_palette_size > 0);
-    original_palette = malloc (original_palette_size);
+    original_palette = (ColorPalette *) malloc (original_palette_size);
     GdipGetImagePalette (img, original_palette, original_palette_size);
     CHECK_STATUS(1);
 
@@ -58,7 +58,7 @@ main (int argc, char **argv)
     CHECK_STATUS(1);
     CHECK_ASSERT(reloaded_palette_size > 0);
     CHECK_ASSERT(reloaded_palette_size == original_palette_size);
-    reloaded_palette = malloc (reloaded_palette_size);
+    reloaded_palette = (ColorPalette *) malloc (reloaded_palette_size);
     GdipGetImagePalette (img, reloaded_palette, reloaded_palette_size);
     CHECK_STATUS(1);
 

@@ -69,7 +69,7 @@ static void verifyStringFormat (GpStringFormat *format, INT expectedAttributes, 
 
 	status = GdipGetStringFormatTabStops (format, 0, &firstTabOffset, tabStops);
 	assertEqualInt (status, Ok);
-	assertEqualInt (firstTabOffset, 0);
+	assertEqualFloat (firstTabOffset, 0);
 
 	status = GdipGetStringFormatMeasurableCharacterRangeCount (format, &measurableCharacterRangeCount);
 	assertEqualInt (status, Ok);
@@ -365,7 +365,7 @@ static void test_setStringFormatTabStops ()
 	assertEqualInt (status, Ok);
 	
 	GdipGetStringFormatTabStops (format, 4, &firstTabOffset, formatTabStops);
-	assertEqualInt (firstTabOffset, 10);
+	assertEqualFloat (firstTabOffset, 10);
 	assertEqualFloat (formatTabStops[0], 1);
 	assertEqualFloat (formatTabStops[1], 0);
 	assertEqualFloat (formatTabStops[2], 2);
@@ -376,7 +376,7 @@ static void test_setStringFormatTabStops ()
 	assertEqualInt (status, Ok);
 	
 	GdipGetStringFormatTabStops (format, 1, &firstTabOffset, formatTabStops);
-	assertEqualInt (firstTabOffset, 0);
+	assertEqualFloat (firstTabOffset, 0);
 	assertEqualFloat (formatTabStops[0], 0);
 
 	// Count of 0.
@@ -384,7 +384,7 @@ static void test_setStringFormatTabStops ()
 	assertEqualInt (status, Ok);
 	
 	GdipGetStringFormatTabStops (format, 1, &firstTabOffset, formatTabStops);
-	assertEqualInt (firstTabOffset, 0);
+	assertEqualFloat (firstTabOffset, 0);
 	assertEqualFloat (formatTabStops[0], 0);
 
 	// Count of -1.
@@ -392,7 +392,7 @@ static void test_setStringFormatTabStops ()
 	assertEqualInt (status, Ok);
 	
 	GdipGetStringFormatTabStops (format, 1, &firstTabOffset, formatTabStops);
-	assertEqualInt (firstTabOffset, 0);
+	assertEqualFloat (firstTabOffset, 0);
 	assertEqualFloat (formatTabStops[0], 0);
 
 	// Count of 0, invalid first tab offset.
@@ -400,7 +400,7 @@ static void test_setStringFormatTabStops ()
 	assertEqualInt (status, Ok);
 	
 	GdipGetStringFormatTabStops (format, 1, &firstTabOffset, formatTabStops);
-	assertEqualInt (firstTabOffset, 0);
+	assertEqualFloat (firstTabOffset, 0);
 	assertEqualFloat (formatTabStops[0], 0);
 
 	// Negative tests,
@@ -420,8 +420,8 @@ static void test_setStringFormatTabStops ()
 
 	status = GdipGetStringFormatTabStops (format, 4, &firstTabOffset, formatTabStops);
 	assertEqualInt (status, Ok);
-	assertEqualInt (firstTabOffset, 0);
-	assertEqualInt (formatTabStops[0], 0);
+	assertEqualFloat (firstTabOffset, 0);
+	assertEqualFloat (formatTabStops[0], 0);
 
 	GdipDeleteStringFormat (format);
 }
@@ -439,14 +439,14 @@ static void test_getStringFormatTabStops ()
 	// Count of 0 - still overwrites the firstTabOffset value.
 	status = GdipGetStringFormatTabStops (format, 0, &firstTabOffset, formatTabStops);
 	assertEqualInt (status, Ok);
-	assertEqualInt (firstTabOffset, 0);
+	assertEqualFloat (firstTabOffset, 0);
 
 	// Count less than the number of tab stops.
 	GdipSetStringFormatTabStops (format, 10, 4, tabStops);
 
 	status = GdipGetStringFormatTabStops (format, 2, &firstTabOffset, formatTabStops);
 	assertEqualInt (status, Ok);
-	assertEqualInt (firstTabOffset, 10);
+	assertEqualFloat (firstTabOffset, 10);
 	assertEqualFloat (formatTabStops[0], 1);
 	assertEqualFloat (formatTabStops[1], 2);
 	assertEqualFloat (formatTabStops[2], -3);
@@ -458,7 +458,7 @@ static void test_getStringFormatTabStops ()
 
 	status = GdipGetStringFormatTabStops (format, 5, &firstTabOffset, formatTabStops);
 	assertEqualInt (status, Ok);
-	assertEqualInt (firstTabOffset, 10);
+	assertEqualFloat (firstTabOffset, 10);
 	assertEqualFloat (formatTabStops[0], 1);
 	assertEqualFloat (formatTabStops[1], 2);
 	assertEqualFloat (formatTabStops[2], 3);

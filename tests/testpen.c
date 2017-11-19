@@ -112,7 +112,7 @@ static void verifyPen (GpPen *pen, REAL expectedWidth, Unit expectedUnit, PenTyp
 
 	status = GdipGetPenMiterLimit (pen, &miterLimit);
 	assertEqualInt (status, Ok);
-	assertEqualInt (miterLimit, 10);
+	assertEqualFloat (miterLimit, 10);
 
 	status = GdipGetPenTransform (pen, transform);
 	assertEqualInt (status, Ok);
@@ -124,7 +124,7 @@ static void verifyPen (GpPen *pen, REAL expectedWidth, Unit expectedUnit, PenTyp
 
 	status = GdipGetPenDashOffset (pen, &dashOffset);
 	assertEqualInt (status, Ok);
-	assertEqualInt (dashOffset, 0);
+	assertEqualFloat (dashOffset, 0);
 
 	status = GdipGetPenCompoundCount (pen, &compoundCount);
 	assertEqualInt (status, Ok);
@@ -358,7 +358,7 @@ static void test_setPenWidth ()
 
 	status = GdipGetPenWidth (pen, &width);
 	assertEqualInt (status, Ok);
-	assertEqualInt (width, -1);
+	assertEqualFloat (width, -1);
 
 	status = GdipSetPenWidth (NULL, 10);
 	assertEqualInt (status, InvalidParameter);
@@ -543,14 +543,14 @@ static void test_setPenLineCap197819 ()
 
 	status = GdipGetCustomLineCapBaseInset (customStartCap, &startCapBaseInset);
 	assertEqualInt (status, Ok);
-	assertEqualInt (startCapBaseInset, 10);
+	assertEqualFloat (startCapBaseInset, 10);
 
 	status = GdipGetPenCustomEndCap (pen, &customEndCap);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetCustomLineCapBaseInset (customEndCap, &endCapBaseInset);
 	assertEqualInt (status, Ok);
-	assertEqualInt (startCapBaseInset, 10);
+	assertEqualFloat (startCapBaseInset, 10);
 
 	// Negative tests.
 	status = GdipSetPenLineCap197819 (NULL, LineCapArrowAnchor, LineCapDiamondAnchor, DashCapFlat);
@@ -869,7 +869,7 @@ static void test_setPenCustomStartCap ()
 
 	status = GdipGetCustomLineCapBaseInset (customStartCap, &baseInset);
 	assertEqualInt (status, Ok);
-	assertEqualInt (baseInset, 10);
+	assertEqualFloat (baseInset, 10);
 
 	// Negative tests.
 	status = GdipSetPenCustomStartCap (NULL, penCustomLineCap);
@@ -928,7 +928,7 @@ static void test_setPenCustomEndCap ()
 
 	status = GdipGetCustomLineCapBaseInset (customEndCap, &baseInset);
 	assertEqualInt (status, Ok);
-	assertEqualInt (baseInset, 10);
+	assertEqualFloat (baseInset, 10);
 
 	// Negative tests.
 	status = GdipSetPenCustomEndCap (NULL, penCustomLineCap);
@@ -974,7 +974,7 @@ static void test_setPenMiterLimit ()
 	
 	status = GdipGetPenMiterLimit (pen, &miterLimit);
 	assertEqualInt (status, Ok);
-	assertEqualInt (miterLimit, 100);
+	assertEqualFloat (miterLimit, 100);
 
 	// Zero.
 	status = GdipSetPenMiterLimit (pen, 0);
@@ -982,7 +982,7 @@ static void test_setPenMiterLimit ()
 	
 	status = GdipGetPenMiterLimit (pen, &miterLimit);
 	assertEqualInt (status, Ok);
-	assertEqualInt (miterLimit, 1);
+	assertEqualFloat (miterLimit, 1);
 
 	// Negative.
 	status = GdipSetPenMiterLimit (pen, -100);
@@ -990,7 +990,7 @@ static void test_setPenMiterLimit ()
 	
 	status = GdipGetPenMiterLimit (pen, &miterLimit);
 	assertEqualInt (status, Ok);
-	assertEqualInt (miterLimit, 1);
+	assertEqualFloat (miterLimit, 1);
 
 	// Negative tests.
 	status = GdipSetPenMiterLimit (NULL, 10);
@@ -1492,10 +1492,10 @@ static void test_setPenDashStyle ()
 
 	status = GdipGetPenDashArray (pen, dashArray, dashCount);
 	assertEqualInt (status, Ok);
-	assertEqualInt (dashArray[0], 3);
-	assertEqualInt (dashArray[1], 1);
-	assertEqualInt (dashArray[2], 1);
-	assertEqualInt (dashArray[3], 1);
+	assertEqualFloat (dashArray[0], 3);
+	assertEqualFloat (dashArray[1], 1);
+	assertEqualFloat (dashArray[2], 1);
+	assertEqualFloat (dashArray[3], 1);
 
 	// DashStyleSolid.
 	status = GdipSetPenDashStyle (pen, DashStyleSolid);
@@ -1523,12 +1523,12 @@ static void test_setPenDashStyle ()
 
 	status = GdipGetPenDashArray (pen, dashArray, dashCount);
 	assertEqualInt (status, Ok);
-	assertEqualInt (dashArray[0], 3);
-	assertEqualInt (dashArray[1], 1);
-	assertEqualInt (dashArray[2], 1);
-	assertEqualInt (dashArray[3], 1);
-	assertEqualInt (dashArray[4], 1);
-	assertEqualInt (dashArray[5], 1);
+	assertEqualFloat (dashArray[0], 3);
+	assertEqualFloat (dashArray[1], 1);
+	assertEqualFloat (dashArray[2], 1);
+	assertEqualFloat (dashArray[3], 1);
+	assertEqualFloat (dashArray[4], 1);
+	assertEqualFloat (dashArray[5], 1);
 
 	// DashStyleDot.
 	status = GdipSetPenDashStyle (pen, DashStyleDot);
@@ -1544,8 +1544,8 @@ static void test_setPenDashStyle ()
 
 	status = GdipGetPenDashArray (pen, dashArray, dashCount);
 	assertEqualInt (status, Ok);
-	assertEqualInt (dashArray[0], 1);
-	assertEqualInt (dashArray[1], 1);
+	assertEqualFloat (dashArray[0], 1);
+	assertEqualFloat (dashArray[1], 1);
 
 	// DashStyleDash.
 	status = GdipSetPenDashStyle (pen, DashStyleDash);
@@ -1561,8 +1561,8 @@ static void test_setPenDashStyle ()
 
 	status = GdipGetPenDashArray (pen, dashArray, dashCount);
 	assertEqualInt (status, Ok);
-	assertEqualInt (dashArray[0], 3);
-	assertEqualInt (dashArray[1], 1);
+	assertEqualFloat (dashArray[0], 3);
+	assertEqualFloat (dashArray[1], 1);
 
 	// DashStyleCustom.
 	status = GdipSetPenDashStyle (pen, DashStyleCustom);
@@ -1578,8 +1578,8 @@ static void test_setPenDashStyle ()
 
 	status = GdipGetPenDashArray (pen, dashArray, dashCount);
 	assertEqualInt (status, Ok);
-	assertEqualInt (dashArray[0], 3);
-	assertEqualInt (dashArray[1], 1);
+	assertEqualFloat (dashArray[0], 3);
+	assertEqualFloat (dashArray[1], 1);
 
 	// Invalid value - negative.
 	status = GdipSetPenDashStyle (pen, (DashStyle)(DashStyleSolid - 1));
@@ -1636,7 +1636,7 @@ static void test_setPenDashOffset ()
 	
 	status = GdipGetPenDashOffset (pen, &dashOffset);
 	assertEqualInt (status, Ok);
-	assertEqualInt (dashOffset, 100);
+	assertEqualFloat (dashOffset, 100);
 
 	// Zero.
 	status = GdipSetPenDashOffset (pen, 0);
@@ -1644,7 +1644,7 @@ static void test_setPenDashOffset ()
 	
 	status = GdipGetPenDashOffset (pen, &dashOffset);
 	assertEqualInt (status, Ok);
-	assertEqualInt (dashOffset, 0);
+	assertEqualFloat (dashOffset, 0);
 
 	// Negative.
 	status = GdipSetPenDashOffset (pen, -100);
@@ -1652,7 +1652,7 @@ static void test_setPenDashOffset ()
 	
 	status = GdipGetPenDashOffset (pen, &dashOffset);
 	assertEqualInt (status, Ok);
-	assertEqualInt (dashOffset, -100);
+	assertEqualFloat (dashOffset, -100);
 
 	// Negative tests.
 	status = GdipSetPenDashOffset (NULL, 100);
@@ -1701,7 +1701,7 @@ static void test_setPenDashArray ()
 
 	status = GdipGetPenDashArray (pen, dashes, dashCount);
 	assertEqualInt (status, Ok);
-	assertEqualInt (dashes[0], 1);
+	assertEqualFloat (dashes[0], 1);
 
 	// Two dashes.
 	status = GdipSetPenDashArray (pen, twoDashes, 2);
@@ -1713,8 +1713,8 @@ static void test_setPenDashArray ()
 
 	status = GdipGetPenDashArray (pen, dashes, dashCount);
 	assertEqualInt (status, Ok);
-	assertEqualInt (dashes[0], 1);
-	assertEqualInt (dashes[1], 2);
+	assertEqualFloat (dashes[0], 1);
+	assertEqualFloat (dashes[1], 2);
 
 	// Negative tests.
 	status = GdipSetPenDashArray (NULL, twoDashes, 2);
@@ -1804,13 +1804,13 @@ static void test_setPenCompoundArray ()
 
 	status = GdipGetPenCompoundArray (pen, compounds, compoundCount - 1);
 	assertEqualInt (status, Ok);
-	assertEqualInt (compounds[0], 1);
-	assertEqualInt (compounds[1], 0);
+	assertEqualFloat (compounds[0], 1);
+	assertEqualFloat (compounds[1], 0);
 
 	status = GdipGetPenCompoundArray (pen, compounds, compoundCount);
 	assertEqualInt (status, Ok);
-	assertEqualInt (compounds[0], 1);
-	assertEqualInt (compounds[1], 1);
+	assertEqualFloat (compounds[0], 1);
+	assertEqualFloat (compounds[1], 1);
 
 	// Two compounds - all 0.
 	status = GdipSetPenCompoundArray (pen, allZero, 2);
@@ -1822,8 +1822,8 @@ static void test_setPenCompoundArray ()
 
 	status = GdipGetPenCompoundArray (pen, compounds, compoundCount);
 	assertEqualInt (status, Ok);
-	assertEqualInt (compounds[0], 0);
-	assertEqualInt (compounds[1], 0);
+	assertEqualFloat (compounds[0], 0);
+	assertEqualFloat (compounds[1], 0);
 
 	// Four compounds.
 	status = GdipSetPenCompoundArray (pen, fourCompounds, 4);
@@ -1835,10 +1835,10 @@ static void test_setPenCompoundArray ()
 
 	status = GdipGetPenCompoundArray (pen, compounds, compoundCount);
 	assertEqualInt (status, Ok);
-	assertEqualInt (compounds[0], 1);
-	assertEqualInt (compounds[1], 1);
-	assertEqualInt (compounds[2], 1);
-	assertEqualInt (compounds[3], 1);
+	assertEqualFloat (compounds[0], 1);
+	assertEqualFloat (compounds[1], 1);
+	assertEqualFloat (compounds[2], 1);
+	assertEqualFloat (compounds[3], 1);
 
 	// Negative tests.
 	status = GdipSetPenCompoundArray (NULL, fourCompounds, 2);
