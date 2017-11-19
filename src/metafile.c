@@ -77,7 +77,7 @@ gdip_metafile_SetMapMode (MetafilePlayContext *context, DWORD mode)
 		break;
 	case MM_LOMETRIC:
 		/* 1 logical unit == 0.1 mm */
-		scale = 10 * gdip_get_display_dpi () / (MM_PER_INCH * 10);
+		scale = gdip_get_display_dpi () / (MM_PER_INCH * 10);
 		break;
 	case MM_TWIPS:
 		/* 1 logical point == 1/1440 inch (1/20 of a "old" printer point ;-) */
