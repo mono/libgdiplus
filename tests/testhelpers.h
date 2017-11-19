@@ -60,7 +60,7 @@ WCHAR* wcharFromChar(const char *c)
     {                                                      \
         fprintf (stderr, "Expected: %d\n", (int)expected); \
         fprintf (stderr, "Actual:   %d\n", (int)actual);   \
-        assert (actual == expected);                       \
+        assert ((int)actual == (int)expected);             \
     }                                                      \
 }
 
@@ -70,7 +70,7 @@ WCHAR* wcharFromChar(const char *c)
     {                                                        \
         fprintf (stderr, "Expected: %f\n", (float)expected); \
         fprintf (stderr, "Actual:   %f\n", (float)actual);   \
-        assert (actual == expected);                         \
+        assert ((float)actual == (float)expected);           \
     }                                                        \
 }
 
