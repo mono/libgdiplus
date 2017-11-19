@@ -275,7 +275,7 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 		}
 	} while (RecordType != TERMINATE_RECORD_TYPE);
 
-	/* The gif file must contain multiple images. */
+	/* The gif file must contain at least one image block. */
 	if (GifFile->ImageCount == 0)
 		return GIF_ERROR;
 
