@@ -4,7 +4,7 @@
 #endif
 #endif
 
-#if defined(_WIN32)
+#if defined(USE_WINDOWS_GDIPLUS)
 #include <Windows.h>
 #include <GdiPlus.h>
 
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include "testhelpers.h"
 
-#ifdef WIN32
+#ifdef USE_WINDOWS_GDIPLUS
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
@@ -594,7 +594,7 @@ static void test_setStringFormatMeasurableCharacterRanges ()
 {
 	GpStatus status;
 	GpStringFormat *format;
-	CharacterRange ranges[1];
+	CharacterRange ranges[3];
 	INT measurableCharacterRangeCount;
 	
 	GdipCreateStringFormat (10, 11, &format);
