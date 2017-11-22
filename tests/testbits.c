@@ -50,7 +50,6 @@ main (int argc, char **argv)
     IncompatibleBitmapData d, q;
     Rect r;
     int i, j;
-    unsigned long *lptr;
     unsigned char *cptr;
     BYTE *scan0 = (BYTE*) GdipAlloc(10 * 10 * 4);
     GpStatus status = GdipCreateBitmapFromScan0 (10, 10, 10 * 4, PixelFormat32bppARGB, scan0, &bitmap);
@@ -85,10 +84,10 @@ main (int argc, char **argv)
     CHECK_STATUS(1);
 
     for (j = 0; j < 5; j++) {
-        lptr = (unsigned long *) d.origBitmapData.Scan0 + j * d.origBitmapData.Stride;
+        cptr = (unsigned char *) d.origBitmapData.Scan0 + j * d.origBitmapData.Stride;
         printf ("%d: ", j);
         for (i = 0; i < 5; i++) {
-            printf ("%08lx ", *lptr++);
+            printf ("%04x ", *cptr++);
         }
         printf ("\n");
     }
@@ -109,11 +108,11 @@ main (int argc, char **argv)
     status = GdipBitmapLockBits (bitmap, &r, ImageLockModeRead, PixelFormat32bppRGB, &d.origBitmapData);
     CHECK_STATUS(1);
 
-    lptr = (unsigned long *) d.origBitmapData.Scan0;
     for (j = 0; j < 5; j++) {
+        cptr = (unsigned char *) d.origBitmapData.Scan0 + j * d.origBitmapData.Stride;
         printf ("%d: ", j);
         for (i = 0; i < 5; i++) {
-            printf ("%08lx ", *lptr++);
+            printf ("%04x ", *cptr++);
         }
         printf ("\n");
     }
