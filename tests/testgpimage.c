@@ -185,7 +185,7 @@ static void test_loadImageFromFileWmf ()
 {
 	GpImage *image = getImage ("test.wmf");
 
-	verifyImage (image, ImageTypeMetafile, wmfRawFormat, PixelFormat32bppRGB, -4008, -3378, 8016, 6756, 20360.64f, 17160.24f, 327683, 0, TRUE);
+	verifyImage (image, ImageTypeMetafile, wmfRawFormat, PixelFormat32bppRGB, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f, 327683, 0, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -194,7 +194,7 @@ static void test_loadImageFromFileEmf ()
 {
 	GpImage *image = getImage ("test.emf");
 
-	verifyImage (image, ImageTypeMetafile, emfRawFormat, PixelFormat32bppRGB, 0, 0, 100, 100, 1944.44f, 1888.88f, 327683, 0, TRUE);
+	verifyImage (image, ImageTypeMetafile, emfRawFormat, PixelFormat32bppRGB, 0, 0, 100, 100, 1944.444336f, 1888.888794f, 327683, 0, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -227,7 +227,7 @@ static void test_cloneImage ()
 	status = GdipCloneImage (metafileImage, &clonedImage);
 	assertEqualInt (status, Ok);
 	assert (clonedImage && clonedImage != metafileImage);
-	verifyImage (clonedImage, ImageTypeMetafile, wmfRawFormat, PixelFormat32bppRGB, -4008, -3378, 8016, 6756, 20360.64f, 17160.24f, 327683, 0, TRUE);
+	verifyImage (clonedImage, ImageTypeMetafile, wmfRawFormat, PixelFormat32bppRGB, -4008, -3378, 8016, 6756, 20360.638672f, 17160.238281f, 327683, 0, TRUE);
 	GdipDisposeImage (clonedImage);
 
 	// Negative tests.
