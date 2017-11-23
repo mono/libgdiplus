@@ -72,6 +72,7 @@
 #define METAFILE_RECORD_POLYPOLYGON		0x0538
 #define METAFILE_RECORD_ARC			0x0817
 #define METAFILE_RECORD_STRETCHDIBITS		0x0F43
+#define METAFILE_RECORD_DIBSTRETCHBLT		0x0B41
 
 
 #define gdip_read_wmf_data	gdip_read_bmp_data
