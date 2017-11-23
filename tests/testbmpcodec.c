@@ -35,7 +35,7 @@ static GpImage *createFile (BYTE *buffer, int length, GpStatus expectedStatus)
 	GpStatus status;
 	GpImage *image;
 	FILE *f = fopen (file, "w+");
-	fwrite ((void *) buffer, sizeof(BYTE), length, f);
+	fwrite ((void *) buffer, sizeof (BYTE), length, f);
 	fclose (f);
 	
 	status = GdipLoadImageFromFile (wFile, &image);
@@ -55,14 +55,69 @@ static void createFileSuccess (BYTE *buffer, int length, PixelFormat expectedFor
 	GdipDisposeImage (image);
 }
 
+static void test_validImage1bppOS2Header ()
+{
+	BYTE image1x1[] = {
+		'B', 'M', 36, 0, 0, 0, 0, 0, 0, 0, 0x20, 0, 0, 0,
+		12, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+		255, 0, 0, 0, 255, 0,
+		B8(10000000), B8(00000000), B8(00000000), 0
+	};
+	BYTE image24x4[] = {
+		'B', 'M', 48, 0, 0, 0, 0, 0, 0, 0, 0x20, 0, 0, 0,
+		12, 0, 0, 0, 24, 0, 4, 0, 1, 0, 1, 0,
+		255, 0, 0, 0, 255, 0,
+		B8(10000000), B8(00000000), B8(00000000), 0,
+		B8(10000000), B8(00000000), B8(00000000), 0,
+		B8(00100111), B8(00000000), B8(00000000), 0,
+		B8(11111111), B8(11111111), B8(11111111), 0
+	};
+
+	createFileSuccess (image1x1, sizeof (image1x1), PixelFormat1bppIndexed);
+	createFileSuccess (image24x4, sizeof (image24x4), PixelFormat1bppIndexed);
+}
+
+static void test_validImage1bppBitmapInfoHeader ()
+{
+	BYTE image1x1[] = {
+		'B', 'M', 66, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		255, 0, 0, 255, 0, 255, 0, 255,
+		B8(10000000), 0, 0, 0
+	};
+	BYTE image24x4CustomSizedPalette[] = {
+		'B', 'M', 82, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
+		40, 0, 0, 0, 24, 0, 0, 0, 4, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0,
+		255, 0, 0, 255, 0, 255, 0, 255, 255, 255, 255, 255,
+		B8(10000000), B8(00000000), B8(00000000), 0,
+		B8(10000000), B8(00000000), B8(00000000), 0,
+		B8(00100111), B8(00000000), B8(00000000), 0,
+		B8(11111111), B8(11111111), B8(11111111), 0
+	};
+	BYTE image1x1NegativeHeight[] = {
+		'B', 'M', 66, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 255, 255, 255, 255, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		255, 0, 0, 255, 0, 255, 0, 255,
+		B8(1000000), 0, 0, 0
+	};
+	BYTE image24x4NegativeHeight[] = {
+		'B', 'M', 82, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
+		40, 0, 0, 0, 24, 0, 0, 0, 252, 255, 255, 255, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0,
+		255, 0, 0, 255, 0, 255, 0, 255, 255, 255, 255, 255,
+		B8(10000000), B8(00000000), B8(00000000), 0,
+		B8(10000000), B8(00000000), B8(00000000), 0,
+		B8(00100111), B8(00000000), B8(00000000), 0,
+		B8(11111111), B8(11111111), B8(11111111), 0
+	};
+
+	createFileSuccess (image1x1, sizeof (image1x1), PixelFormat1bppIndexed);
+	createFileSuccess (image24x4CustomSizedPalette, sizeof (image24x4CustomSizedPalette), PixelFormat1bppIndexed);
+	createFileSuccess (image1x1NegativeHeight, sizeof (image1x1NegativeHeight), PixelFormat1bppIndexed);
+	createFileSuccess (image24x4NegativeHeight, sizeof (image24x4NegativeHeight), PixelFormat1bppIndexed);
+}
+
 static void test_validImage ()
 {
-	BYTE image1bppBitmapInfoHeader[] = {
-		'B', 'M', 62, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0,
-		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 255, 255, 255, 0,
-		128, 0, 0, 0
-	};
 	BYTE hasImageData16bpp[] = {
 		'B', 'M', 62, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0,
 		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -106,14 +161,14 @@ static void test_validImage ()
 		128, 0, 0, 0
 	};
 
-	createFileSuccess (image1bppBitmapInfoHeader, sizeof(image1bppBitmapInfoHeader), PixelFormat1bppIndexed);
-	createFileSuccess (hasImageData16bpp, sizeof(hasImageData16bpp), PixelFormat32bppRGB);
-	createFileSuccess (hasImageData32bpp, sizeof(hasImageData32bpp), PixelFormat32bppRGB);
-	createFileSuccess (hasImageData64bpp, sizeof(hasImageData64bpp), PixelFormat64bppARGB);
-	createFileSuccess (hasExtraImageData, sizeof(hasExtraImageData), PixelFormat1bppIndexed);
-	createFileSuccess (planesNotOne, sizeof(planesNotOne), PixelFormat1bppIndexed);
-	createFileSuccess (rle4Non4Bpp, sizeof(rle4Non4Bpp), PixelFormat32bppRGB);
-	createFileSuccess (rle8Non8Bpp, sizeof(rle8Non8Bpp), PixelFormat32bppRGB);
+	
+	createFileSuccess (hasImageData16bpp, sizeof (hasImageData16bpp), PixelFormat32bppRGB);
+	createFileSuccess (hasImageData32bpp, sizeof (hasImageData32bpp), PixelFormat32bppRGB);
+	createFileSuccess (hasImageData64bpp, sizeof (hasImageData64bpp), PixelFormat64bppARGB);
+	createFileSuccess (hasExtraImageData, sizeof (hasExtraImageData), PixelFormat1bppIndexed);
+	createFileSuccess (planesNotOne, sizeof (planesNotOne), PixelFormat1bppIndexed);
+	createFileSuccess (rle4Non4Bpp, sizeof (rle4Non4Bpp), PixelFormat32bppRGB);
+	createFileSuccess (rle8Non8Bpp, sizeof (rle8Non8Bpp), PixelFormat32bppRGB);
 
 }
 
@@ -129,15 +184,15 @@ static void test_invalidFileHeader ()
 	BYTE noOffset[]       = {'B', 'M', 10, 0, 0, 0, 0, 0, 0, 0};
 	BYTE shortOffset[]    = {'B', 'M', 13, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0};
 
-	createFile (shortSignature, sizeof(shortSignature), OutOfMemory);
-	createFile (noImageSize, sizeof(noImageSize), OutOfMemory);
-	createFile (shortImageSize, sizeof(shortImageSize), OutOfMemory);
-	createFile (noReserved1, sizeof(noReserved1), OutOfMemory);
-	createFile (shortReserved1, sizeof(shortReserved1), OutOfMemory);
-	createFile (noReserved2, sizeof(noReserved2), OutOfMemory);
-	createFile (shortReserved2, sizeof(shortReserved2), OutOfMemory);
-	createFile (noOffset, sizeof(noOffset), OutOfMemory);
-	createFile (shortOffset, sizeof(shortOffset), OutOfMemory);
+	createFile (shortSignature, sizeof (shortSignature), OutOfMemory);
+	createFile (noImageSize, sizeof (noImageSize), OutOfMemory);
+	createFile (shortImageSize, sizeof (shortImageSize), OutOfMemory);
+	createFile (noReserved1, sizeof (noReserved1), OutOfMemory);
+	createFile (shortReserved1, sizeof (shortReserved1), OutOfMemory);
+	createFile (noReserved2, sizeof (noReserved2), OutOfMemory);
+	createFile (shortReserved2, sizeof (shortReserved2), OutOfMemory);
+	createFile (noOffset, sizeof (noOffset), OutOfMemory);
+	createFile (shortOffset, sizeof (shortOffset), OutOfMemory);
 }
 
 static void test_invalidHeader ()
@@ -156,19 +211,19 @@ static void test_invalidHeader ()
 	BYTE noColors[]               = {'B', 'M', 46, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	BYTE noImportantColors[]      = {'B', 'M', 50, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-	createFile (noHeader, sizeof(noHeader), OutOfMemory);
-	createFile (zeroHeaderSize, sizeof(zeroHeaderSize), OutOfMemory);
-	createFile (newFormatNoWidth, sizeof(newFormatNoWidth), OutOfMemory);
-	createFile (newFormatNoHeight, sizeof(newFormatNoHeight), OutOfMemory);
-	createFile (os2FormatNoWidthHeight, sizeof(os2FormatNoWidthHeight), OutOfMemory);
-	createFile (noColorPlanes, sizeof(noColorPlanes), OutOfMemory);
-	createFile (noBitsPerPixel, sizeof(noBitsPerPixel), OutOfMemory);
-	createFile (noCompression, sizeof(noCompression), OutOfMemory);
-	createFile (noSize, sizeof(noSize), OutOfMemory);
-	createFile (noHorizontalResolution, sizeof(noHorizontalResolution), OutOfMemory);
-	createFile (noVerticalResolution, sizeof(noVerticalResolution), OutOfMemory);
-	createFile (noColors, sizeof(noColors), OutOfMemory);
-	createFile (noImportantColors, sizeof(noImportantColors), OutOfMemory);
+	createFile (noHeader, sizeof (noHeader), OutOfMemory);
+	createFile (zeroHeaderSize, sizeof (zeroHeaderSize), OutOfMemory);
+	createFile (newFormatNoWidth, sizeof (newFormatNoWidth), OutOfMemory);
+	createFile (newFormatNoHeight, sizeof (newFormatNoHeight), OutOfMemory);
+	createFile (os2FormatNoWidthHeight, sizeof (os2FormatNoWidthHeight), OutOfMemory);
+	createFile (noColorPlanes, sizeof (noColorPlanes), OutOfMemory);
+	createFile (noBitsPerPixel, sizeof (noBitsPerPixel), OutOfMemory);
+	createFile (noCompression, sizeof (noCompression), OutOfMemory);
+	createFile (noSize, sizeof (noSize), OutOfMemory);
+	createFile (noHorizontalResolution, sizeof (noHorizontalResolution), OutOfMemory);
+	createFile (noVerticalResolution, sizeof (noVerticalResolution), OutOfMemory);
+	createFile (noColors, sizeof (noColors), OutOfMemory);
+	createFile (noImportantColors, sizeof (noImportantColors), OutOfMemory);
 }
 
 static void test_invalidImageData ()
@@ -187,21 +242,21 @@ static void test_invalidImageData ()
 	BYTE bitfields16Bpp[]         = {'B', 'M', 62, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 3, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0};
 #endif
 
-	createFile (noColorEntries, sizeof(noColorEntries), OutOfMemory);
-	createFile (notEnoughColorEntries, sizeof(notEnoughColorEntries), OutOfMemory);
+	createFile (noColorEntries, sizeof (noColorEntries), OutOfMemory);
+	createFile (notEnoughColorEntries, sizeof (notEnoughColorEntries), OutOfMemory);
 	// FIXME: this should fail with OutOfMemory in libgdiplus.
 #if defined(USE_WINDOWS_GDIPLUS)
-	createFile (noImageData, sizeof(noImageData), OutOfMemory);
+	createFile (noImageData, sizeof (noImageData), OutOfMemory);
 #endif
-	createFile (noImageDataBigSize, sizeof(noImageDataBigSize), OutOfMemory);
-	createFile (hasImageData4bpp, sizeof(hasImageData4bpp), OutOfMemory);
-	createFile (hasImageData8bpp, sizeof(hasImageData8bpp), OutOfMemory);
-	createFile (invalidBitsPerPixel, sizeof(invalidBitsPerPixel), OutOfMemory);
-	createFile (bitfieldsNon16Bpp, sizeof(bitfieldsNon16Bpp), OutOfMemory);
+	createFile (noImageDataBigSize, sizeof (noImageDataBigSize), OutOfMemory);
+	createFile (hasImageData4bpp, sizeof (hasImageData4bpp), OutOfMemory);
+	createFile (hasImageData8bpp, sizeof (hasImageData8bpp), OutOfMemory);
+	createFile (invalidBitsPerPixel, sizeof (invalidBitsPerPixel), OutOfMemory);
+	createFile (bitfieldsNon16Bpp, sizeof (bitfieldsNon16Bpp), OutOfMemory);
 	
 	// FIXME: this returns Ok with libgdiplus.
 #if defined(USE_WINDOWS_GDIPLUS)
-	createFile (bitfields16Bpp, sizeof(bitfields16Bpp), OutOfMemory);
+	createFile (bitfields16Bpp, sizeof (bitfields16Bpp), OutOfMemory);
 #endif
 }
 
@@ -212,6 +267,8 @@ main (int argc, char**argv)
 	ULONG_PTR gdiplusToken;
 	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
 	
+	test_validImage1bppOS2Header ();
+	test_validImage1bppBitmapInfoHeader ();
 	test_validImage ();
 	test_invalidFileHeader ();
 	test_invalidHeader ();
