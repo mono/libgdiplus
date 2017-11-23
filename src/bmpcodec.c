@@ -717,13 +717,25 @@ gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, ImageSource so
 	bmi->biPlanes = (data_read[1]<<8 | data_read[0]); 
 	bmi->biBitCount = (data_read[3]<<8 | data_read[2]); 
 
+	/* The OS/2 format doesn't have any of these other fields */
+	if (*os2format) {
+		bmi->biCompression = 0;
+		bmi->biSizeImage = 0;
+		bmi->biXPelsPerMeter = 0;
+		bmi->biYPelsPerMeter = 0;
+		bmi->biClrUsed = 0;
+		bmi->biClrImportant = 0;
+		return Ok;
+	}
+
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
 	bmi->biCompression = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-		
-	if (bmi->biHeight < 0) { /* Negative height indicates that the bitmap is sideup*/
+
+ 	/* If the height is negative then the bitmap is sideup. */
+	if (bmi->biHeight < 0) {
 		*upsidedown = FALSE;
 		bmi->biHeight = -bmi->biHeight;
 	}
