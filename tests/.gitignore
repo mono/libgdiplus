@@ -10,6 +10,7 @@ testbrush
 testclip
 testcustomlinecap
 testfont
+testgifcodec
 testgpimage
 testgraphics
 testgdi
