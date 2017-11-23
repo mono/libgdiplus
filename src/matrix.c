@@ -190,7 +190,7 @@ GdipCreateMatrix3I (GDIPCONST GpRect *rect, GDIPCONST GpPoint *dstplg, GpMatrix 
 	pts [2].X = dstplg [2].X;
 	pts [2].Y = dstplg [2].Y;
 
-        return GdipCreateMatrix3 (&r, (GpPointF*)&pts, matrix);
+	return GdipCreateMatrix3 (&r, (GpPointF*)&pts, matrix);
 }
 
 // coverity[+alloc : arg-*1]
@@ -206,7 +206,7 @@ GdipCloneMatrix (GpMatrix *matrix, GpMatrix **cloneMatrix)
 	if (!result)
 		return OutOfMemory;
 
-        gdip_cairo_matrix_copy (result, matrix);
+	gdip_cairo_matrix_copy (result, matrix);
 	
 	*cloneMatrix = result;
 	return Ok;
@@ -219,7 +219,7 @@ GdipDeleteMatrix (GpMatrix *matrix)
 		return InvalidParameter;
 
 	GdipFree (matrix);
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -239,14 +239,14 @@ GdipGetMatrixElements (GpMatrix *matrix, float *matrixOut)
 	if (!matrix || !matrixOut)
 		return InvalidParameter;
 
-        matrixOut[0] = (float) matrix->xx;
-        matrixOut[1] = (float) matrix->yx;
-        matrixOut[2] = (float) matrix->xy;
-        matrixOut[3] = (float) matrix->yy;
-        matrixOut[4] = (float) matrix->x0;
-        matrixOut[5] = (float) matrix->y0;
+	matrixOut[0] = (float) matrix->xx;
+	matrixOut[1] = (float) matrix->yx;
+	matrixOut[2] = (float) matrix->xy;
+	matrixOut[3] = (float) matrix->yy;
+	matrixOut[4] = (float) matrix->x0;
+	matrixOut[5] = (float) matrix->y0;
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -258,12 +258,12 @@ GdipMultiplyMatrix (GpMatrix *matrix, GpMatrix *matrix2, GpMatrixOrder order)
 	if (matrix == matrix2)
 		return ObjectBusy;
 
-        if (order == MatrixOrderAppend)
-                cairo_matrix_multiply (matrix, matrix, matrix2);
-        else if (order == MatrixOrderPrepend)
-                cairo_matrix_multiply (matrix, matrix2, matrix);        
-        else
-                return InvalidParameter;
+	if (order == MatrixOrderAppend)
+		cairo_matrix_multiply (matrix, matrix, matrix2);
+	else if (order == MatrixOrderPrepend)
+		cairo_matrix_multiply (matrix, matrix2, matrix);        
+	else
+		return InvalidParameter;
 
 	return Ok;
 }
@@ -271,25 +271,25 @@ GdipMultiplyMatrix (GpMatrix *matrix, GpMatrix *matrix2, GpMatrixOrder order)
 GpStatus WINGDIPAPI
 GdipTranslateMatrix (GpMatrix *matrix, float offsetX, float offsetY, GpMatrixOrder order)
 {
-        cairo_matrix_t tmp;
+	cairo_matrix_t tmp;
 	GpStatus s;
 
-        cairo_matrix_init (&tmp, 1, 0, 0, 1, offsetX, offsetY);
+	cairo_matrix_init (&tmp, 1, 0, 0, 1, offsetX, offsetY);
 	s = GdipMultiplyMatrix (matrix, &tmp, order);
 
-        return s;
+	return s;
 }
 
 GpStatus WINGDIPAPI
 GdipScaleMatrix (GpMatrix *matrix, float scaleX, float scaleY, GpMatrixOrder order)
 {
-        GpMatrix tmp;
+	GpMatrix tmp;
 	GpStatus s;
 
-        cairo_matrix_init (&tmp, scaleX, 0, 0, scaleY, 0, 0);
+	cairo_matrix_init (&tmp, scaleX, 0, 0, scaleY, 0, 0);
 	s = GdipMultiplyMatrix (matrix, &tmp, order);        
 
-        return s;
+	return s;
 }
 
 GpStatus WINGDIPAPI
@@ -297,25 +297,25 @@ GdipRotateMatrix (GpMatrix *matrix, float angle, GpMatrixOrder order)
 {
 	cairo_matrix_t tmp;
 	GpStatus s;
-        float rad = angle * DEGTORAD;
+	float rad = angle * DEGTORAD;
 
-        cairo_matrix_init (&tmp, cos (rad), sin (rad), -sin (rad), cos (rad), 0, 0);
+	cairo_matrix_init (&tmp, cos (rad), sin (rad), -sin (rad), cos (rad), 0, 0);
 	s = GdipMultiplyMatrix (matrix, &tmp, order);
 
 
-        return s;
+	return s;
 }
 
 GpStatus WINGDIPAPI
 GdipShearMatrix (GpMatrix *matrix, float shearX, float shearY, GpMatrixOrder order)
 {
-        cairo_matrix_t tmp;
+	cairo_matrix_t tmp;
 	GpStatus s;
 
-        cairo_matrix_init (&tmp, 1, shearY, shearX, 1, 0, 0);
+	cairo_matrix_init (&tmp, 1, shearY, shearX, 1, 0, 0);
 	s = GdipMultiplyMatrix (matrix, &tmp, order);
 
-        return s;
+	return s;
 }
 
 GpStatus WINGDIPAPI
@@ -324,91 +324,91 @@ GdipInvertMatrix (GpMatrix *matrix)
 	if (!matrix)
 		return InvalidParameter;
 
-        return gdip_get_status (
-                cairo_matrix_invert (matrix));
+	return gdip_get_status (
+		cairo_matrix_invert (matrix));
 }
 
 GpStatus WINGDIPAPI
 GdipTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
 {
-        int i;
+	int i;
 
 	if (!matrix || !pts || (count < 1))
 		return InvalidParameter;
-        
-        for (i = 0; i < count; i++, pts++) {
-                double x = pts->X;
-                double y = pts->Y;
-                cairo_matrix_transform_point (matrix, &x, &y);
+	
+	for (i = 0; i < count; i++, pts++) {
+		double x = pts->X;
+		double y = pts->Y;
+		cairo_matrix_transform_point (matrix, &x, &y);
 
-                pts->X = (float) x;
-                pts->Y = (float) y;
-        }
+		pts->X = (float) x;
+		pts->Y = (float) y;
+	}
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
 {
-        int i;
+	int i;
 
 	if (!matrix || !pts || count == 0)
 		return InvalidParameter;
 
 	if (count < 0)
 		return OutOfMemory;
-        
-        for (i = 0; i < count; i++, pts++) {
-                double x = pts->X;
-                double y = pts->Y;
-                cairo_matrix_transform_point (matrix, &x, &y);
+	
+	for (i = 0; i < count; i++, pts++) {
+		double x = pts->X;
+		double y = pts->Y;
+		cairo_matrix_transform_point (matrix, &x, &y);
 
-                pts->X = (int) x;
-                pts->Y = (int) y;
-        }
+		pts->X = (int) x;
+		pts->Y = (int) y;
+	}
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipVectorTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, int count)
 {
-        int i;
+	int i;
 
 	if (!matrix || !pts || (count < 1))
 		return InvalidParameter;
 
-        for (i = 0; i < count; i++, pts++) {
-                double x = pts->X;
-                double y = pts->Y;
-                cairo_matrix_transform_distance (matrix, &x, &y);
+	for (i = 0; i < count; i++, pts++) {
+		double x = pts->X;
+		double y = pts->Y;
+		cairo_matrix_transform_distance (matrix, &x, &y);
 
-                pts->X = (float) x;
-                pts->Y = (float) y;
-        }
+		pts->X = (float) x;
+		pts->Y = (float) y;
+	}
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipVectorTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, int count)
 {
-        int i;
-        
+	int i;
+	
 	if (!matrix || !pts || (count < 1))
 		return InvalidParameter;
 
-        for (i = 0; i < count; i++, pts++) {
-                double x = pts->X;
-                double y = pts->Y;
-                cairo_matrix_transform_distance (matrix, &x, &y);
+	for (i = 0; i < count; i++, pts++) {
+		double x = pts->X;
+		double y = pts->Y;
+		cairo_matrix_transform_distance (matrix, &x, &y);
 
-                pts->X = (int) x;
-                pts->Y = (int) y;
-        }
+		pts->X = (int) x;
+		pts->Y = (int) y;
+	}
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -423,8 +423,8 @@ GdipIsMatrixInvertible (GpMatrix *matrix, BOOL *result)
 	gdip_cairo_matrix_copy (&copy, matrix);
 	status = cairo_matrix_invert (&copy);
 
-        *result = (status != CAIRO_STATUS_INVALID_MATRIX);
-        return Ok;
+	*result = (status != CAIRO_STATUS_INVALID_MATRIX);
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -434,8 +434,8 @@ GdipIsMatrixIdentity (GpMatrix *matrix, BOOL *result)
 		return InvalidParameter;
 
 	/* note: we CAN'T use GdipIsMatrixEqual - as the precision is different */
-        *result = gdip_is_matrix_empty (matrix);
-        return Ok;
+	*result = gdip_is_matrix_empty (matrix);
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -444,7 +444,7 @@ GdipIsMatrixEqual (GpMatrix *matrix, GpMatrix *matrix2, BOOL *result)
 	if (!matrix || !matrix2 || !result)
 		return InvalidParameter;
 
-        *result = ((matrix->xx == matrix2->xx) && (matrix->yx == matrix2->yx) && (matrix->xy == matrix2->xy) &&
+	*result = ((matrix->xx == matrix2->xx) && (matrix->yx == matrix2->yx) && (matrix->xy == matrix2->xy) &&
 		(matrix->yy == matrix2->yy) && (matrix->x0 == matrix2->x0) && (matrix->y0 == matrix2->y0));
-        return Ok;
+	return Ok;
 }

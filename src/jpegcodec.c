@@ -646,8 +646,8 @@ gdip_load_jpeg_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 	GdipFree (src);
 #ifdef HAVE_LIBEXIF
 	if (st == Ok){
-	    dstream_get_exif_buffer (loader, &ptr, &length);
-	    load_exif_data (exif_data_new_from_data (ptr, length), *image);
+		dstream_get_exif_buffer (loader, &ptr, &length);
+		load_exif_data (exif_data_new_from_data (ptr, length), *image);
 	}
 #endif
 
@@ -853,7 +853,7 @@ error:
 GpStatus 
 gdip_save_jpeg_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params)
 {
-    return gdip_save_jpeg_image_internal (fp, NULL, image, params);
+	return gdip_save_jpeg_image_internal (fp, NULL, image, params);
 }
 
 GpStatus
@@ -862,7 +862,7 @@ gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
                                          GDIPCONST EncoderParameters *params)
 
 {
-    return gdip_save_jpeg_image_internal (NULL, putBytesFunc, image, params);
+	return gdip_save_jpeg_image_internal (NULL, putBytesFunc, image, params);
 }
 
 #else
@@ -875,27 +875,27 @@ gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
 ImageCodecInfo *
 gdip_getcodecinfo_jpeg ()
 {
-        return NULL;
+	return NULL;
 }
 
 GpStatus
 gdip_load_jpeg_image_from_file (FILE *fp, const char *filename, GpImage **image)
 {
-    *image = NULL;
-    return UnknownImageFormat;
+	*image = NULL;
+	return UnknownImageFormat;
 }
 
 GpStatus 
 gdip_save_jpeg_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params)
 {
-    return UnknownImageFormat;
+	return UnknownImageFormat;
 }
 
 GpStatus
 gdip_load_jpeg_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 {
-    *image = NULL;
-    return UnknownImageFormat;
+	*image = NULL;
+	return UnknownImageFormat;
 }
 
 GpStatus
@@ -903,7 +903,7 @@ gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
                                          GpImage *image,
                                          GDIPCONST EncoderParameters *params)
 {
-    return UnknownImageFormat;
+	return UnknownImageFormat;
 }
 
 #endif
@@ -920,12 +920,12 @@ gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
 UINT
 gdip_get_encoder_parameter_list_size_jpeg ()
 {
-    /* We'll need:
-     *  4                              - count
-     *  + sizeof(EncoderParameter) * 1 - number of param structs
-     *  + sizeof(int) * 2              - param data (the two quality values)
+	/* We'll need:
+	 *  4                              - count
+	 *  + sizeof(EncoderParameter) * 1 - number of param structs
+	 *  + sizeof(int) * 2              - param data (the two quality values)
 	 * and make sure the whole thing is 4-byte aligned (so we can index from the end)
-     */
+	 */
 	UINT sz = 4 + sizeof(EncoderParameter) * 1 + sizeof(int) * 2;
 	return (sz + 3) & ~3;
 }

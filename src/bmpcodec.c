@@ -57,21 +57,21 @@ static const BYTE bmp_sig_mask[] = { 0xFF, 0xFF };
 ImageCodecInfo *
 gdip_getcodecinfo_bmp ()
 {
-        bmp_codec.Clsid = (CLSID) { 0x557cf400, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-        bmp_codec.FormatID = gdip_bmp_image_format_guid;
-        bmp_codec.CodecName = (const WCHAR*) bmp_codecname;            
-        bmp_codec.DllName = NULL;
-        bmp_codec.FormatDescription = (const WCHAR*) bmp_format;
-        bmp_codec.FilenameExtension = (const WCHAR*) bmp_extension;
-        bmp_codec.MimeType = (const WCHAR*) bmp_mimetype;
-        bmp_codec.Flags = ImageCodecFlagsEncoder | ImageCodecFlagsDecoder | ImageCodecFlagsSupportBitmap | ImageCodecFlagsBuiltin;
-        bmp_codec.Version = 1;
-        bmp_codec.SigCount = 1;
-        bmp_codec.SigSize = 2;
-        bmp_codec.SigPattern = bmp_sig_pattern;
-        bmp_codec.SigMask = bmp_sig_mask;
+	bmp_codec.Clsid = (CLSID) { 0x557cf400, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+	bmp_codec.FormatID = gdip_bmp_image_format_guid;
+	bmp_codec.CodecName = (const WCHAR*) bmp_codecname;            
+	bmp_codec.DllName = NULL;
+	bmp_codec.FormatDescription = (const WCHAR*) bmp_format;
+	bmp_codec.FilenameExtension = (const WCHAR*) bmp_extension;
+	bmp_codec.MimeType = (const WCHAR*) bmp_mimetype;
+	bmp_codec.Flags = ImageCodecFlagsEncoder | ImageCodecFlagsDecoder | ImageCodecFlagsSupportBitmap | ImageCodecFlagsBuiltin;
+	bmp_codec.Version = 1;
+	bmp_codec.SigCount = 1;
+	bmp_codec.SigSize = 2;
+	bmp_codec.SigPattern = bmp_sig_pattern;
+	bmp_codec.SigMask = bmp_sig_mask;
 
-        return &bmp_codec; 
+	return &bmp_codec; 
 }
 
 static GpStatus
@@ -88,32 +88,32 @@ gdip_get_bmp_pixelformat (BITMAPINFOHEADER *bih, PixelFormat *dest)
 		*dest = PixelFormat16bppRGB565;
 		break;
 	default:
-	        switch (bitCount) {
+		switch (bitCount) {
 		case 64:
 			*dest = PixelFormat64bppARGB;
 			break;
-	        case 32:
-	                *dest = PixelFormat32bppRGB;
+		case 32:
+			*dest = PixelFormat32bppRGB;
 			break;
-	        case 24:
-	                *dest = PixelFormat24bppRGB;
+		case 24:
+			*dest = PixelFormat24bppRGB;
 			break;
-	        case 16:
+		case 16:
 			/* MS produce such files (i.e. bad header) for storing ImageList bitmaps, see bug #80797 */
-	                *dest = PixelFormat16bppRGB565;
+			*dest = PixelFormat16bppRGB565;
 			break;
-	        case 8:
-	                *dest = PixelFormat8bppIndexed;
+		case 8:
+			*dest = PixelFormat8bppIndexed;
 			break;
-	        case 4:
-	                *dest = PixelFormat4bppIndexed;
+		case 4:
+			*dest = PixelFormat4bppIndexed;
 			break;
 		case 1:
 			*dest = PixelFormat1bppIndexed;
 			break;
 		default:
 			return OutOfMemory;
-	        }  
+		}  
 	}
 
 	return Ok;
@@ -1010,7 +1010,8 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			switch(bmi.biBitCount) {
 				case 1:
 				case 4:
-				case 8: memcpy(pixels + line * result->active_bitmap->stride, data_read, size);
+				case 8:
+					memcpy(pixels + line * result->active_bitmap->stride, data_read, size);
 					continue;
 
 				case 16: {
@@ -1119,7 +1120,7 @@ error:
 GpStatus 
 gdip_load_bmp_image_from_file (FILE *fp, GpImage **image)
 {
-        return gdip_read_bmp_image_from_file_stream ((void*)fp, image, File);
+	return gdip_read_bmp_image_from_file_stream ((void*)fp, image, File);
 }
 
 GpStatus 
@@ -1183,11 +1184,11 @@ static GpStatus
 gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 {
 	BITMAPFILEHEADER	bmfh;
-        BITMAPINFOHEADER	bmi;
-        int			bitmapLen;
-        int			i;
-        ARGB			color;
-        int			colours = 0;
+	BITMAPINFOHEADER	bmi;
+	int			bitmapLen;
+	int			i;
+	ARGB			color;
+	int			colours = 0;
 	BYTE			*entries;
 	int			palette_entries;
 	BitmapData		*activebmp;
@@ -1203,8 +1204,8 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 		bitmapLen *= activebmp->height;
 	}
 
-        if (activebmp->palette) {
-                colours = activebmp->palette->Count;
+	if (activebmp->palette) {
+			colours = activebmp->palette->Count;
 	}
 
 #ifdef WORDS_BIGENDIAN
@@ -1333,5 +1334,5 @@ GpStatus
 gdip_save_bmp_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
                                         GpImage *image)
 {	
-        return gdip_save_bmp_image_to_file_stream ( (void *)putBytesFunc, image, FALSE);
+	return gdip_save_bmp_image_to_file_stream ( (void *)putBytesFunc, image, FALSE);
 }

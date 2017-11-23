@@ -53,12 +53,12 @@ gdip_hatch_init (GpHatch *hatch)
 static GpHatch*
 gdip_hatch_new (void)
 {
-        GpHatch *result = (GpHatch *) GdipAlloc (sizeof (GpHatch));
+	GpHatch *result = (GpHatch *) GdipAlloc (sizeof (GpHatch));
 
 	if (result)
-	        gdip_hatch_init (result);
+		gdip_hatch_init (result);
 
-        return result;
+	return result;
 }
 
 /* helper functions */
@@ -1268,7 +1268,7 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 		}
 
 		/* create and verity the pattern created from the surface */
-	        hbr->pattern = cairo_pattern_create_for_surface (hatch);
+			hbr->pattern = cairo_pattern_create_for_surface (hatch);
 		status = cairo_pattern_status (hbr->pattern);
 		if (status != CAIRO_STATUS_SUCCESS) {
 			cairo_pattern_destroy (hbr->pattern);
@@ -1311,7 +1311,7 @@ gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush)
 	result->pattern = NULL;
 	*clonedBrush = (GpBrush *) result;
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus

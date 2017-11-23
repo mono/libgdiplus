@@ -778,7 +778,7 @@ gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 		cairo_scaled_font_t* scaled_ft;
 		FT_Face face = NULL;
 		cairo_matrix_t matrix1, matrix2;
-	        cairo_font_options_t *options = cairo_font_options_create ();
+			cairo_font_options_t *options = cairo_font_options_create ();
 		cairo_font_face_t* cairofnt = gdip_get_cairo_font_face (font);
 
 		cairo_matrix_init (&matrix1, 1, 0, 0, 1, 0, 0);

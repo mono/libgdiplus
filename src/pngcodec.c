@@ -50,21 +50,21 @@ static const BYTE png_sig_mask[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0
 ImageCodecInfo *
 gdip_getcodecinfo_png ()
 {
-        png_codec.Clsid = (CLSID) { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-        png_codec.FormatID = gdip_png_image_format_guid;
-        png_codec.CodecName = (const WCHAR*) png_codecname;
-        png_codec.DllName = NULL;
-        png_codec.FormatDescription = (const WCHAR*) png_format;
-        png_codec.FilenameExtension = (const WCHAR*) png_extension;
-        png_codec.MimeType = (const WCHAR*) png_mimetype;
-        png_codec.Flags = ImageCodecFlagsEncoder | ImageCodecFlagsDecoder | ImageCodecFlagsSupportBitmap | ImageCodecFlagsBuiltin;
-        png_codec.Version = 1;
-        png_codec.SigCount = 1;
-        png_codec.SigSize = 8;
-        png_codec.SigPattern = png_sig_pattern;
-        png_codec.SigMask = png_sig_mask;
+		png_codec.Clsid = (CLSID) { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+		png_codec.FormatID = gdip_png_image_format_guid;
+		png_codec.CodecName = (const WCHAR*) png_codecname;
+		png_codec.DllName = NULL;
+		png_codec.FormatDescription = (const WCHAR*) png_format;
+		png_codec.FilenameExtension = (const WCHAR*) png_extension;
+		png_codec.MimeType = (const WCHAR*) png_mimetype;
+		png_codec.Flags = ImageCodecFlagsEncoder | ImageCodecFlagsDecoder | ImageCodecFlagsSupportBitmap | ImageCodecFlagsBuiltin;
+		png_codec.Version = 1;
+		png_codec.SigCount = 1;
+		png_codec.SigSize = 8;
+		png_codec.SigPattern = png_sig_pattern;
+		png_codec.SigMask = png_sig_mask;
 
-        return &png_codec;
+		return &png_codec;
 }
 
 #if !defined(HAVE_SIGSETJMP) && !defined(sigsetjmp)
@@ -96,14 +96,14 @@ _gdip_png_stream_read_data (png_structp png_ptr, png_bytep data, png_size_t leng
 static void
 _gdip_png_stream_write_data (png_structp png_ptr, png_bytep data, png_size_t length)
 {
-    PutBytesDelegate putBytesFunc = (PutBytesDelegate) png_get_io_ptr (png_ptr);
-    putBytesFunc (data, length);
+	PutBytesDelegate putBytesFunc = (PutBytesDelegate) png_get_io_ptr (png_ptr);
+	putBytesFunc (data, length);
 }
 
 static void
 _gdip_png_stream_flush_data (png_structp png_ptr)
 {
-    /* nothing */
+	/* nothing */
 }
 
 static GpStatus
