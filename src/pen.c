@@ -126,13 +126,16 @@ convert_line_cap (GpPen *pen)
 static double *
 convert_dash_array (float *f, double width, int count)
 {
-        double *retval = GdipAlloc (sizeof (double) * count);
-        int i;
-        for (i = 0; i < count; i++) {
-                retval[i] = (double) f[i] * width;
-        }
+	double *retval = GdipAlloc (sizeof (double) * count);
+	if (!retval)
+		return NULL;
 
-        return retval;
+	int i;
+	for (i = 0; i < count; i++) {
+		retval[i] = (double) f[i] * width;
+	}
+
+	return retval;
 }
 
 GpStatus 
@@ -185,19 +188,22 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	}
 	cairo_set_line_width (graphics->ct, widthx);
 
-        cairo_set_miter_limit (graphics->ct, (double) pen->miter_limit);
-        cairo_set_line_join (graphics->ct, convert_line_join (pen->line_join));
-        cairo_set_line_cap (graphics->ct, convert_line_cap (pen));
+	cairo_set_miter_limit (graphics->ct, (double) pen->miter_limit);
+	cairo_set_line_join (graphics->ct, convert_line_join (pen->line_join));
+	cairo_set_line_cap (graphics->ct, convert_line_cap (pen));
 
-        if (pen->dash_count > 0) {
-                double *dash_array;
+	if (pen->dash_count > 0) {
+		double *dash_array;
 
 		/* note: pen->width may be different from what was used to 
-		   call cairo_set_line_width, e.g. 0.0 (#78742) */
-                dash_array = convert_dash_array (pen->dash_array, widthx, pen->dash_count);
-                cairo_set_dash (graphics->ct, dash_array, pen->dash_count, pen->dash_offset);
-                GdipFree (dash_array);
-        } else /* Clear the dashes, if set in previous calls */
+		call cairo_set_line_width, e.g. 0.0 (#78742) */
+		dash_array = convert_dash_array (pen->dash_array, widthx, pen->dash_count);
+		if (!dash_array)
+			return OutOfMemory;
+
+		cairo_set_dash (graphics->ct, dash_array, pen->dash_count, pen->dash_offset);
+		GdipFree (dash_array);
+	} else /* Clear the dashes, if set in previous calls */
 		cairo_set_dash (graphics->ct, NULL, 0, 0);
 
 	/* We are done with using all the changes in the pen. */

@@ -120,6 +120,9 @@ fill_buffer (dstream_private *loader)
 	/* First chunk read */
 	if (nbytes > 0 && loader->keep_exif_buffer && loader->exif_buffer == NULL) {
 		loader->exif_buffer = GdipAlloc (offset);
+		if (!loader->exif_buffer)
+			return;
+
 		loader->exif_datasize = offset;
 		memcpy (loader->exif_buffer, loader->buffer, offset);
 	}

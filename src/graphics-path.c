@@ -44,27 +44,27 @@ array_to_g_array (const GpPointF *pt, int length)
 static GpPointF *
 g_array_to_array (GArray *p)
 {
-        int length = p->len;
-        GpPointF *pts = (GpPointF *) GdipAlloc (sizeof (GpPointF) * length);
+	int length = p->len;
+	GpPointF *pts = (GpPointF *) GdipAlloc (sizeof (GpPointF) * length);
 	if (!pts)
 		return NULL;
 
-        memcpy (pts, p->data, p->len * sizeof (GpPointF));        
-        
-        return pts;
+	memcpy (pts, p->data, p->len * sizeof (GpPointF));        
+	
+    return pts;
 }
 
 static BYTE *
 g_byte_array_to_array (GByteArray *p)
 {
-        int length = p->len;
-        BYTE *types = (BYTE*) GdipAlloc (sizeof (BYTE) * length);
+	int length = p->len;
+	BYTE *types = (BYTE*) GdipAlloc (sizeof (BYTE) * length);
 	if (!types)
 		return NULL;
 
-        memcpy (types, p->data, p->len * sizeof (BYTE));
-        
-        return types;
+	memcpy (types, p->data, p->len * sizeof (BYTE));
+
+	return types;
 }
 
 static GByteArray *
@@ -205,19 +205,32 @@ append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int offs
 GpStatus WINGDIPAPI
 GdipCreatePath (FillMode fillMode, GpPath **path)
 {
+	GpPath *result;
+
 	if (!path)
 		return InvalidParameter;
 
-	*path = (GpPath *) GdipAlloc (sizeof (GpPath));
-	if (!*path)
+	result = (GpPath *) GdipAlloc (sizeof (GpPath));
+	if (!result)
 		return OutOfMemory;
 
-	(*path)->fill_mode = fillMode;
-	(*path)->points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
-	(*path)->types = g_byte_array_new ();
-	(*path)->count = 0;
-	(*path)->start_new_fig = TRUE;
+	result->fill_mode = fillMode;
+	result->points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
+	if (!result->points) {
+		GdipFree (result);
+		return OutOfMemory;
+	}
 
+	result->types = g_byte_array_new ();
+	if (!result->types) {
+		GdipFree (result);
+		return OutOfMemory;
+	}
+
+	result->count = 0;
+	result->start_new_fig = TRUE;
+
+	*path = result;
 	return Ok;
 }
 
@@ -241,17 +254,24 @@ GdipCreatePath2 (const GpPointF *points, const BYTE *types, int count, FillMode 
 		return OutOfMemory;
 
 	t = array_to_g_byte_array (types, count);
-        
-        *path = (GpPath *) GdipAlloc (sizeof (GpPath));
-	if (!*path)
+	if (!t) {
+		g_array_free (pts, TRUE);
 		return OutOfMemory;
-
-        (*path)->fill_mode = fillMode;
-        (*path)->count = count;
-        (*path)->points = pts;
-        (*path)->types = t;
+	}
         
-        return Ok;
+	*path = (GpPath *) GdipAlloc (sizeof (GpPath));
+	if (!*path) {
+		g_array_free (pts, TRUE);
+		g_byte_array_free (t, TRUE);
+		return OutOfMemory;
+	}
+
+	(*path)->fill_mode = fillMode;
+	(*path)->count = count;
+	(*path)->points = pts;
+	(*path)->types = t;
+	
+	return Ok;
 }
 
 /* coverity[+alloc : arg-*4] */
@@ -279,6 +299,7 @@ GdipCreatePath2I (const GpPoint *points, const BYTE *types, int count, FillMode 
 GpStatus WINGDIPAPI
 GdipClonePath (GpPath *path, GpPath **clonePath)
 {
+	GpPath *result;
 	int i;
 	BYTE type;
 	GpPointF point;
@@ -286,24 +307,35 @@ GdipClonePath (GpPath *path, GpPath **clonePath)
 	if (!path || !clonePath)
 		return InvalidParameter;
 
-        *clonePath = (GpPath *) GdipAlloc (sizeof (GpPath));
-	if (!*clonePath)
+	result = (GpPath *) GdipAlloc (sizeof (GpPath));
+	if (!result)
 		return OutOfMemory;
 
-        (*clonePath)->fill_mode = path->fill_mode;
-        (*clonePath)->count = path->count;
-        (*clonePath)->points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
-        (*clonePath)->types = g_byte_array_new ();
+	result->fill_mode = path->fill_mode;
+	result->count = path->count;
+	result->points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
+	if (!result->points) {
+		GdipFree (result);
+		return OutOfMemory;
+	}
+
+	result->types = g_byte_array_new ();
+	if (!result->types) {
+		GdipFree (result);
+		return OutOfMemory;
+	}
+
 	for (i = 0; i < path->count; i++) {
 		point = g_array_index (path->points, GpPointF, i);
 		type = g_array_index (path->types, BYTE, i);
-		g_array_append_val ((*clonePath)->points, point);
-		g_byte_array_append ((*clonePath)->types, &type, 1);
+		g_array_append_val (result->points, point);
+		g_byte_array_append (result->types, &type, 1);
 	}
 
-	(*clonePath)->start_new_fig = path->start_new_fig;
+	result->start_new_fig = path->start_new_fig;
 
-        return Ok;
+	*clonePath = result;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -2016,4 +2048,5 @@ GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpPen *pen, GpGraphi
 {
 	return GdipIsOutlineVisiblePathPoint (path, x, y, pen, graphics, result);
 }
+
 

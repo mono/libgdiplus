@@ -42,7 +42,7 @@ static BrushClass vtable = { BrushTypeLinearGradient,
 			     gdip_linear_gradient_clone_brush,
 			     gdip_linear_gradient_destroy };
 
-static void
+static GpStatus
 gdip_linear_gradient_init (GpLineGradient *linear)
 {
 	gdip_brush_init (&linear->base, &vtable);
@@ -53,14 +53,38 @@ gdip_linear_gradient_init (GpLineGradient *linear)
 	linear->angle = 0.0;
 	linear->isAngleScalable = FALSE;
 	linear->presetColors = (InterpolationColors *) GdipAlloc (sizeof (InterpolationColors));
+	if (!linear->presetColors) {
+		return OutOfMemory;
+	}
+
 	linear->presetColors->count = 0;
 	linear->blend = (Blend *) GdipAlloc (sizeof (Blend));
+	if (!linear->blend) {
+		GdipFree (linear->presetColors);
+		return OutOfMemory;
+	}
+
 	linear->blend->count = 1;
 	linear->blend->factors = (float *) GdipAlloc (sizeof (float));
+	if (!linear->blend->factors) {
+		GdipFree (linear->presetColors);
+		GdipFree (linear->blend);
+		return OutOfMemory;
+	}
+
 	linear->blend->positions = (float *) GdipAlloc (sizeof (float));
+	if (!linear->blend->positions) {
+		GdipFree (linear->presetColors);
+		GdipFree (linear->blend->factors);
+		GdipFree (linear->blend);
+		return OutOfMemory;
+	}
+
 	linear->blend->factors [0] = 1.0;
 	linear->blend->positions[0] = 0.0;
 	linear->pattern = NULL;
+
+	return Ok;
 }
 
 static GpLineGradient*
@@ -68,8 +92,10 @@ gdip_linear_gradient_new (void)
 {
 	GpLineGradient *result = (GpLineGradient *) GdipAlloc (sizeof (GpLineGradient));
 
-	if (result)
-		gdip_linear_gradient_init (result);
+	if (result && gdip_linear_gradient_init (result) != Ok) {
+		GdipFree (result);
+		return NULL;
+	}
 
 	return result;
 }

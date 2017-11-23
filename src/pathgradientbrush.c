@@ -39,12 +39,16 @@ static BrushClass pathgradient_vtable = { BrushTypePathGradient,
                                           gdip_pgrad_clone_brush,
                                           gdip_pgrad_destroy };
 
-static void
+static GpStatus
 gdip_pathgradient_init (GpPathGradient *pg)
 {
 	gdip_brush_init (&pg->base, &pathgradient_vtable);
 	pg->boundary = NULL;
 	pg->boundaryColors = (ARGB *) GdipAlloc (sizeof (ARGB));
+	if (!pg->boundaryColors) {
+		return OutOfMemory;
+	}
+
 	*(pg->boundaryColors) = MAKE_ARGB_ARGB(255,255,255,255); /* default boundary color is white */
 	pg->boundaryColorsCount = 1; /* one default boundary color */
 	pg->focusScales.X = 0.0f;
@@ -52,13 +56,39 @@ gdip_pathgradient_init (GpPathGradient *pg)
 	pg->wrapMode = WrapModeClamp;
 	cairo_matrix_init_identity (&pg->transform);
 	pg->presetColors = (InterpolationColors *) GdipAlloc (sizeof (InterpolationColors));
+	if (!pg->presetColors) {
+		GdipFree (pg->boundaryColors);
+		return OutOfMemory;
+	}
+
 	pg->presetColors->count = 0;
 	pg->presetColors->colors = NULL;
 	pg->presetColors->positions = NULL;
 	pg->blend = (Blend *) GdipAlloc (sizeof (Blend));
+	if (!pg->blend) {
+		GdipFree (pg->boundaryColors);
+		GdipFree (pg->presetColors);
+		return OutOfMemory;
+	}
+
 	pg->blend->count = 1;
 	pg->blend->factors = (float *) GdipAlloc (sizeof (float));
+	if (!pg->blend->factors) {
+		GdipFree (pg->boundaryColors);
+		GdipFree (pg->presetColors);
+		GdipFree (pg->blend);
+		return OutOfMemory;
+	}
+
 	pg->blend->positions = (float *) GdipAlloc (sizeof (float));
+	if (!pg->blend->positions) {
+		GdipFree (pg->boundaryColors);
+		GdipFree (pg->presetColors);
+		GdipFree (pg->blend->factors);
+		GdipFree (pg->blend);
+		return OutOfMemory;
+	}
+
 	pg->blend->factors [0] = 1.0;
 	pg->blend->positions[0] = 0.0;
 	pg->rectangle.X = 0.0;
@@ -67,6 +97,8 @@ gdip_pathgradient_init (GpPathGradient *pg)
 	pg->rectangle.Height = 0.0;
 	pg->pattern = NULL;
 	pg->useGammaCorrection = FALSE;
+
+	return Ok;
 }
 
 static GpPathGradient*
@@ -74,8 +106,10 @@ gdip_pathgradient_new (void)
 {
 	GpPathGradient *result = (GpPathGradient *) GdipAlloc (sizeof (GpPathGradient));
 
-	if (result)
-		gdip_pathgradient_init (result);
+	if (result && gdip_pathgradient_init (result) != Ok) {
+		GdipFree (result);
+		return NULL;
+	}
 
 	return result;
 }
@@ -885,8 +919,8 @@ GdipSetPathGradientPresetBlend (GpPathGradient *brush, GDIPCONST ARGB *blend, GD
 GpStatus WINGDIPAPI
 GdipSetPathGradientSigmaBlend (GpPathGradient *brush, REAL focus, REAL scale)
 {
-	float *blends;
-	float *positions;
+	float *blends, *positions, *presetPositions;
+	ARGB *presetColors;
 	float pos = 0.0;
 	int count = 511; /* total no of samples */
 	int index;
@@ -933,11 +967,21 @@ GdipSetPathGradientSigmaBlend (GpPathGradient *brush, REAL focus, REAL scale)
 
 	/* we clear the preset colors when setting the blend */
 	if (brush->presetColors->count != 1) {
+		presetColors = (ARGB *) GdipAlloc (sizeof (ARGB));
+		if (!presetColors)
+			return OutOfMemory;
+
+		presetPositions = (float *) GdipAlloc (sizeof (float));
+		if (!presetPositions) {
+			GdipFree (presetColors);
+			return OutOfMemory;
+		}
+
 		GdipFree (brush->presetColors->colors);
 		GdipFree (brush->presetColors->positions);
 		brush->presetColors->count = 1;
-		brush->presetColors->colors = (ARGB *) GdipAlloc (sizeof (ARGB));
-		brush->presetColors->positions = (float *) GdipAlloc (sizeof (float));
+		brush->presetColors->colors = presetColors;
+		brush->presetColors->positions = presetPositions;
 	}
 	brush->presetColors->colors [0] = MAKE_ARGB_ARGB(0,0,0,0);
 	brush->presetColors->positions[0] = 0.0;
@@ -1071,8 +1115,8 @@ GdipSetPathGradientSigmaBlend (GpPathGradient *brush, REAL focus, REAL scale)
 GpStatus WINGDIPAPI
 GdipSetPathGradientLinearBlend (GpPathGradient *brush, REAL focus, REAL scale)
 {
-	float *blends;
-	float *positions;
+	float *blends, *positions, *presetPositions;
+	ARGB *presetColors;
 	int count = 3;
 
 	if (!brush || focus < 0 || focus > 1 || scale < 0 || scale > 1)
@@ -1105,11 +1149,21 @@ GdipSetPathGradientLinearBlend (GpPathGradient *brush, REAL focus, REAL scale)
 
 	/* we clear the preset colors when setting the blend */
 	if (brush->presetColors->count != 1) {
+		presetColors = (ARGB *) GdipAlloc (sizeof (ARGB));
+		if (!presetColors)
+			return OutOfMemory;
+
+		presetPositions = (float *) GdipAlloc (sizeof (float));
+		if (!presetPositions) {
+			GdipFree (presetColors);
+			return OutOfMemory;
+		}
+
 		GdipFree (brush->presetColors->colors);
 		GdipFree (brush->presetColors->positions);
 		brush->presetColors->count = 1;
-		brush->presetColors->colors = (ARGB *) GdipAlloc (sizeof (ARGB));
-		brush->presetColors->positions = (float *) GdipAlloc (sizeof (float));
+		brush->presetColors->colors = presetColors;
+		brush->presetColors->positions = presetPositions;
 	}
 	brush->presetColors->colors [0] = MAKE_ARGB_ARGB(0,0,0,0);
 	brush->presetColors->positions[0] = 0.0;
