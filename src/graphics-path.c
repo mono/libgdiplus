@@ -36,9 +36,9 @@
 static GArray *
 array_to_g_array (const GpPointF *pt, int length)
 {
-        GArray *p = g_array_sized_new (FALSE, TRUE, sizeof (GpPointF), length);
-        g_array_append_vals (p, pt, length);
-        return p;
+	GArray *p = g_array_sized_new (FALSE, TRUE, sizeof (GpPointF), length);
+	g_array_append_vals (p, pt, length);
+	return p;
 }
 
 static GpPointF *
@@ -70,9 +70,9 @@ g_byte_array_to_array (GByteArray *p)
 static GByteArray *
 array_to_g_byte_array (const BYTE *types, int count)
 {
-        GByteArray *p = g_byte_array_sized_new (count);
-        g_byte_array_append (p, types, count);
-        return p;
+	GByteArray *p = g_byte_array_sized_new (count);
+	g_byte_array_append (p, types, count);
+	return p;
 }
 
 /* return TRUE if the specified path has (at least one) curves, FALSE otherwise */
@@ -115,7 +115,7 @@ gdip_get_first_point_type (GpPath *path)
 static void
 append (GpPath *path, float x, float y, PathPointType type, BOOL compress)
 {
-        BYTE t = (BYTE) type;
+	BYTE t = (BYTE) type;
 	GpPointF pt;
 
 	/* in some case we're allowed to compress identical points */
@@ -137,7 +137,7 @@ append (GpPath *path, float x, float y, PathPointType type, BOOL compress)
 		type = g_array_index (path->types, BYTE, path->count - 1);
 		if (type & PathPointTypeCloseSubpath)
 			t = PathPointTypeStart;
-        }
+	}
 
 	pt.X = x;
 	pt.Y = y;
@@ -152,15 +152,15 @@ append (GpPath *path, float x, float y, PathPointType type, BOOL compress)
 static void
 append_point (GpPath *path, GpPointF pt, PathPointType type, BOOL compress)
 {
-        append (path, pt.X, pt.Y, type, compress);
+	append (path, pt.X, pt.Y, type, compress);
 }
 
 static void
 append_bezier (GpPath *path, float x1, float y1, float x2, float y2, float x3, float y3)
 {
-        append (path, x1, y1, PathPointTypeBezier3, FALSE);
-        append (path, x2, y2, PathPointTypeBezier3, FALSE);
-        append (path, x3, y3, PathPointTypeBezier3, FALSE);
+	append (path, x1, y1, PathPointTypeBezier3, FALSE);
+	append (path, x2, y2, PathPointTypeBezier3, FALSE);
+	append (path, x3, y3, PathPointTypeBezier3, FALSE);
 }
 
 static void
@@ -183,9 +183,9 @@ append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int offs
 		double y3 = points [j].Y;
 
 		append_bezier (path, x1, y1, x2, y2, x3, y3);
-        }
+	}
 
-        if (type == CURVE_CLOSE) {
+	if (type == CURVE_CLOSE) {
 		/* complete (close) the curve using the first point */
 		double x1 = points [i].X + tangents [i].X;
 		double y1 = points [i].Y + tangents [i].Y;
@@ -258,7 +258,7 @@ GdipCreatePath2 (const GpPointF *points, const BYTE *types, int count, FillMode 
 		g_array_free (pts, TRUE);
 		return OutOfMemory;
 	}
-        
+
 	*path = (GpPath *) GdipAlloc (sizeof (GpPath));
 	if (!*path) {
 		g_array_free (pts, TRUE);
@@ -279,7 +279,7 @@ GpStatus WINGDIPAPI
 GdipCreatePath2I (const GpPoint *points, const BYTE *types, int count, FillMode fillMode, GpPath **path)
 {
 	GpPointF *pt;
-        GpStatus s;
+	GpStatus s;
 
 	if (!points || !types || !path)
 		return InvalidParameter;
@@ -290,9 +290,9 @@ GdipCreatePath2I (const GpPoint *points, const BYTE *types, int count, FillMode 
 	
 	s = GdipCreatePath2 (pt, types, count, fillMode, path);
 
-        GdipFree (pt);
+	GdipFree (pt);
 
-        return s;
+	return s;
 }
 
 /* coverity[+alloc : arg-*1] */
@@ -398,10 +398,10 @@ GdipGetPathTypes (GpPath *path, BYTE *types, int count)
 	if (count > path->count)
 		count = path->count;
 
-        for (i = 0; i < count; i++)
-                types [i] = path->types->data [i];
-        
-        return Ok;
+	for (i = 0; i < count; i++)
+		types [i] = path->types->data [i];
+	
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -415,13 +415,13 @@ GdipGetPathPoints (GpPath *path, GpPointF *points, int count)
 	if (count > path->count)
 		count = path->count;
 
-        for (i = 0; i < count; i++) {
+	for (i = 0; i < count; i++) {
 		GpPointF point = g_array_index (path->points, GpPointF, i);
-                points [i].X = point.X;
-                points [i].Y = point.Y;
+		points [i].X = point.X;
+		points [i].Y = point.Y;
 	}
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -432,13 +432,13 @@ GdipGetPathPointsI (GpPath *path, GpPoint *points, int count)
 	if (!path || !points || (count < 1))
 		return InvalidParameter;
 
-        for (i = 0; i < count; i++) {
-                GpPoint point = g_array_index (path->points, GpPoint, i);
-                points [i].X = (int) point.X;
-                points [i].Y = (int) point.Y; 
-        }
+	for (i = 0; i < count; i++) {
+		GpPoint point = g_array_index (path->points, GpPoint, i);
+		points [i].X = (int) point.X;
+		points [i].Y = (int) point.Y; 
+	}
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -447,9 +447,9 @@ GdipGetPathFillMode (GpPath *path, FillMode *fillMode)
 	if (!path || !fillMode)
 		return InvalidParameter;
 
-        *fillMode = path->fill_mode;
-        
-        return Ok;
+	*fillMode = path->fill_mode;
+
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -458,9 +458,9 @@ GdipSetPathFillMode (GpPath *path, FillMode fillMode)
 	if (!path)
 		return InvalidParameter;
 
-        path->fill_mode = fillMode;
-        
-        return Ok;
+	path->fill_mode = fillMode;
+
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -469,11 +469,11 @@ GdipGetPathData (GpPath *path, GpPathData *pathData)
 	if (!path || !pathData)
 		return InvalidParameter;
 
-        pathData->Points = g_array_to_array (path->points);
+	pathData->Points = g_array_to_array (path->points);
 	if (!pathData->Points)
 		return OutOfMemory;
 
-        pathData->Types = g_byte_array_to_array (path->types);
+	pathData->Types = g_byte_array_to_array (path->types);
 	if (!pathData->Types) {
 		GdipFree (pathData->Points);
 		pathData->Points = NULL;
@@ -481,9 +481,9 @@ GdipGetPathData (GpPath *path, GpPathData *pathData)
 	}
 
 	/* don't return the count unless we have the data */
-        pathData->Count = path->count;
-        
-        return Ok;
+	pathData->Count = path->count;
+
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -554,7 +554,7 @@ GdipClosePathFigures (GpPath *path)
 
 	g_byte_array_free (oldTypes, TRUE);
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -570,19 +570,19 @@ GdipSetPathMarker (GpPath *path)
 
 	current = g_array_index (path->types, BYTE, path->count - 1);
 
-        g_byte_array_remove_index (path->types, path->count - 1);
+	g_byte_array_remove_index (path->types, path->count - 1);
 
-        current |= PathPointTypePathMarker;
+	current |= PathPointTypePathMarker;
 
-        g_byte_array_append (path->types, &current, 1);
+	g_byte_array_append (path->types, &current, 1);
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipClearPathMarkers (GpPath *path)
 {
-        int i;
+	int i;
 	BYTE current;
 	GByteArray *cleared;
 
@@ -595,21 +595,21 @@ GdipClearPathMarkers (GpPath *path)
 
 	cleared = g_byte_array_new ();
 
-        for (i = 0; i < path->count; i++) {
-                current = g_array_index (path->types, BYTE, i);
+	for (i = 0; i < path->count; i++) {
+		current = g_array_index (path->types, BYTE, i);
 
-                /* take out the marker if there is one */
-                if (current & PathPointTypePathMarker)
-                        current &= ~PathPointTypePathMarker;
-                
-                g_byte_array_append (cleared, &current, 1);                        
-        }
+		/* take out the marker if there is one */
+		if (current & PathPointTypePathMarker)
+			current &= ~PathPointTypePathMarker;
+		
+		g_byte_array_append (cleared, &current, 1);
+	}
 
-        /* replace the existing with the cleared array */
+	/* replace the existing with the cleared array */
 	g_byte_array_free (path->types, TRUE);
-        path->types = cleared;
+	path->types = cleared;
 
-        return Ok;
+	return Ok;
 }
 
 /*
@@ -708,7 +708,7 @@ GdipReversePath (GpPath *path)
 	/* PathPoints reversal
 	 * note: if length is odd then the middle point doesn't need to switch side
 	 */
-        for (i = 0; i < (length >> 1); i++) {
+	for (i = 0; i < (length >> 1); i++) {
 		GpPointF *first = &g_array_index (path->points, GpPointF, i);
 		GpPointF *last = &g_array_index (path->points, GpPointF, length - i - 1);
 
@@ -719,9 +719,9 @@ GdipReversePath (GpPath *path)
 		first->Y = last->Y;
 		last->X = temp.X;
 		last->Y = temp.Y;
-        }
-        
-        return Ok;
+	}
+
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -759,8 +759,8 @@ GdipAddPathLine2 (GpPath *path, const GpPointF *points, int count)
 	/* only the first point can be compressed (i.e. removed if identical to previous) */
 	for (i = 0, tmp = (GpPointF*) points; i < count; i++, tmp++)
 		append (path, tmp->X, tmp->Y, PathPointTypeLine, (i == 0));
-        
-        return Ok;
+
+	return Ok;
 }
 
 static void
@@ -769,18 +769,18 @@ append_arc (GpPath *path, BOOL start, float x, float y, float width, float heigh
 	float delta, bcp;
 	double sin_alpha, sin_beta, cos_alpha, cos_beta;
 
-        float rx = width / 2;
-        float ry = height / 2;
-        
-        /* center */
-        float cx = x + rx;
-        float cy = y + ry;
+	float rx = width / 2;
+	float ry = height / 2;
 
-        /* angles in radians */        
-        float alpha = startAngle * PI / 180;
-        float beta = endAngle * PI / 180;
+	/* center */
+	float cx = x + rx;
+	float cy = y + ry;
 
-        /* adjust angles for ellipses */
+	/* angles in radians */
+	float alpha = startAngle * PI / 180;
+	float beta = endAngle * PI / 180;
+
+	/* adjust angles for ellipses */
 	alpha = atan2 (rx * sin (alpha), ry * cos (alpha));
 	beta = atan2 (rx * sin (beta), ry * cos (beta));
 
@@ -808,13 +808,13 @@ append_arc (GpPath *path, BOOL start, float x, float y, float width, float heigh
 		append (path, sx, sy, PathPointTypeLine, FALSE);
 	}
 
-        append_bezier (path, 
-                cx + rx * (cos_alpha - bcp * sin_alpha),
-                cy + ry * (sin_alpha + bcp * cos_alpha),
-                cx + rx * (cos_beta  + bcp * sin_beta),
-                cy + ry * (sin_beta  - bcp * cos_beta),
-                cx + rx *  cos_beta,
-                cy + ry *  sin_beta);
+	append_bezier (path,
+		cx + rx * (cos_alpha - bcp * sin_alpha),
+		cy + ry * (sin_alpha + bcp * cos_alpha),
+		cx + rx * (cos_beta  + bcp * sin_beta),
+		cy + ry * (sin_beta  - bcp * cos_beta),
+		cx + rx *  cos_beta,
+		cy + ry *  sin_beta);
 }
 
 static void
@@ -863,7 +863,7 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 
 GpStatus WINGDIPAPI
 GdipAddPathArc (GpPath *path, float x, float y, 
-                float width, float height, float startAngle, float sweepAngle)
+		float width, float height, float startAngle, float sweepAngle)
 {
 	if (!path)
 		return InvalidParameter;
@@ -871,21 +871,21 @@ GdipAddPathArc (GpPath *path, float x, float y,
 	/* draw the arcs */
 	append_arcs (path, x, y, width, height, startAngle, sweepAngle);
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathBezier (GpPath *path, 
-                   float x1, float y1, float x2, float y2, 
-                   float x3, float y3, float x4, float y4)
+		float x1, float y1, float x2, float y2, 
+		float x3, float y3, float x4, float y4)
 {
 	if (!path)
 		return InvalidParameter;
 
-        append (path, x1, y1, PathPointTypeLine, TRUE);
-        append_bezier (path, x2, y2, x3, y3, x4, y4);
-        
-        return Ok;
+	append (path, x1, y1, PathPointTypeLine, TRUE);
+	append_bezier (path, x2, y2, x3, y3, x4, y4);
+
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -900,26 +900,26 @@ GdipAddPathBeziers (GpPath *path, const GpPointF *points, int count)
 	/* first bezier requires 4 points, other 3 more points */
 	if ((count < 4) || ((count % 3) != 1))
 		return InvalidParameter;
-        
-        append_point (path, *tmp, PathPointTypeLine, TRUE);
-        tmp++;
 
-        for (i = 1; i < count; i++, tmp++)
-                append_point (path, *tmp, PathPointTypeBezier3, FALSE);
+	append_point (path, *tmp, PathPointTypeLine, TRUE);
+	tmp++;
 
-        return Ok;
+	for (i = 1; i < count; i++, tmp++)
+		append_point (path, *tmp, PathPointTypeBezier3, FALSE);
+
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathCurve (GpPath *path, const GpPointF *points, int count)
 {
-        return GdipAddPathCurve2 (path, points, count, 0.5);
+	return GdipAddPathCurve2 (path, points, count, 0.5);
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathCurve2 (GpPath *path, const GpPointF *points, int count, float tension)
 {
-        GpPointF *tangents;
+	GpPointF *tangents;
 
 	/* special case, here we support a curve with 2 points */
 	if (!path || !points || (count < 2))
@@ -933,14 +933,14 @@ GdipAddPathCurve2 (GpPath *path, const GpPointF *points, int count, float tensio
 
 	GdipFree (tangents);
 
-       	return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count, 
-        int offset, int numberOfSegments, float tension)
+	int offset, int numberOfSegments, float tension)
 {
-        GpPointF *tangents;
+	GpPointF *tangents;
 
 	if (!path || !points || (numberOfSegments < 1))
 		return InvalidParameter;
@@ -952,42 +952,42 @@ GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count,
 	else if (numberOfSegments >= count - offset)
 		return InvalidParameter;
 
-        tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
+	tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
 	if (!tangents)
 		return OutOfMemory;
 
-        append_curve (path, points, tangents, offset, numberOfSegments, CURVE_OPEN);
+	append_curve (path, points, tangents, offset, numberOfSegments, CURVE_OPEN);
 
-        GdipFree (tangents);
+	GdipFree (tangents);
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathClosedCurve (GpPath *path, const GpPointF *points, int count)
 {
-        return GdipAddPathClosedCurve2 (path, points, count, 0.5);
+	return GdipAddPathClosedCurve2 (path, points, count, 0.5);
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathClosedCurve2 (GpPath *path, const GpPointF *points, int count, float tension)
 {
-        GpPointF *tangents;
+	GpPointF *tangents;
 
 	if (!path || !points || (count < 3))
 		return InvalidParameter;
 
-        tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
+	tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
 	if (!tangents)
 		return OutOfMemory;
 
-        append_curve (path, points, tangents, 0, count - 1, CURVE_CLOSE);
+	append_curve (path, points, tangents, 0, count - 1, CURVE_CLOSE);
 
 	/* close the path */
 	GdipClosePathFigure (path);
 	GdipFree (tangents);
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -999,75 +999,75 @@ GdipAddPathRectangle (GpPath *path, float x, float y, float width, float height)
 	if ((width == 0.0) || (height == 0.0))
 		return Ok;
 
-        append (path, x, y, PathPointTypeStart, FALSE);
-        append (path, x + width, y, PathPointTypeLine, FALSE);
-        append (path, x + width, y + height, PathPointTypeLine, FALSE);
-        append (path, x, y + height, PathPointTypeLine | PathPointTypeCloseSubpath, FALSE);
-        
-        return Ok;
+	append (path, x, y, PathPointTypeStart, FALSE);
+	append (path, x + width, y, PathPointTypeLine, FALSE);
+	append (path, x + width, y + height, PathPointTypeLine, FALSE);
+	append (path, x, y + height, PathPointTypeLine | PathPointTypeCloseSubpath, FALSE);
+
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathRectangles (GpPath *path, const GpRectF *rects, int count)
 {
-        int i;
+	int i;
 
 	if (!path || !rects)
 		return InvalidParameter;
 
-        for (i = 0; i < count; i++) {
-                float x = rects[i].X;
-                float y = rects[i].Y;
-                float width = rects[i].Width;
-                float height = rects[i].Height;
-                GdipAddPathRectangle (path, x, y, width, height);
-        }
-        
-        return Ok;
+	for (i = 0; i < count; i++) {
+		float x = rects[i].X;
+		float y = rects[i].Y;
+		float width = rects[i].Width;
+		float height = rects[i].Height;
+		GdipAddPathRectangle (path, x, y, width, height);
+	}
+
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathEllipse (GpPath *path, float x, float y, float width, float height)
 {
-        double rx = width / 2;
-        double ry = height / 2;
-        double cx = x + rx;
-        double cy = y + ry;
+	double rx = width / 2;
+	double ry = height / 2;
+	double cx = x + rx;
+	double cy = y + ry;
 
 	if (!path)
 		return InvalidParameter;
 
-        /* origin */
-        append (path, cx + rx, cy, PathPointTypeStart, FALSE);
+	/* origin */
+	append (path, cx + rx, cy, PathPointTypeStart, FALSE);
 
-        /* quadrant I */
-        append_bezier (path, 
-                       cx + rx, cy - C1 * ry, 
-                       cx + C1 * rx, cy - ry, 
-                       cx, cy - ry);
+	/* quadrant I */
+	append_bezier (path, 
+		cx + rx, cy - C1 * ry, 
+		cx + C1 * rx, cy - ry, 
+		cx, cy - ry);
 
-        /* quadrant II */
-        append_bezier (path,
-                       cx - C1 * rx, cy - ry, 
-                       cx - rx, cy - C1 * ry, 
-                       cx - rx, cy);
+	/* quadrant II */
+	append_bezier (path,
+		cx - C1 * rx, cy - ry, 
+		cx - rx, cy - C1 * ry, 
+		cx - rx, cy);
 
-        /* quadrant III */
-        append_bezier (path,
-                       cx - rx, cy + C1 * ry, 
-                       cx - C1 * rx, cy + ry, 
-                       cx, cy + ry);
+	/* quadrant III */
+	append_bezier (path,
+		cx - rx, cy + C1 * ry, 
+		cx - C1 * rx, cy + ry, 
+		cx, cy + ry);
 
-        /* quadrant IV */
-        append_bezier (path,
-                       cx + C1 * rx, cy + ry, 
-                       cx + rx, cy + C1 * ry, 
-                       cx + rx, cy);
+	/* quadrant IV */
+	append_bezier (path,
+		cx + C1 * rx, cy + ry, 
+		cx + rx, cy + C1 * ry, 
+		cx + rx, cy);
 
 	/* close the path */
 	GdipClosePathFigure (path);
-        
-        return Ok;
+
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -1075,18 +1075,18 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
 {
 	float sin_alpha, cos_alpha;
 
-        float rx = width / 2;
-        float ry = height / 2;
+	float rx = width / 2;
+	float ry = height / 2;
 
-        /* center */
-        int cx = x + rx;
-        int cy = y + ry;	
+	/* center */
+	int cx = x + rx;
+	int cy = y + ry;	
 
-        /* angles in radians */        
-        float alpha = startAngle * PI / 180;
+	/* angles in radians */        
+	float alpha = startAngle * PI / 180;
 
-        /* adjust angle for ellipses */
-        alpha = atan2 (rx * sin (alpha), ry * cos (alpha));
+	/* adjust angle for ellipses */
+	alpha = atan2 (rx * sin (alpha), ry * cos (alpha));
 
 	sin_alpha = sin (alpha);
 	cos_alpha = cos (alpha);
@@ -1094,29 +1094,29 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
 	if (!path)
 		return InvalidParameter;
 
-        /* move to center */
-        append (path, cx, cy, PathPointTypeStart, FALSE);
+	/* move to center */
+	append (path, cx, cy, PathPointTypeStart, FALSE);
 
-        /* draw pie edge */
+	/* draw pie edge */
 	if (fabs (sweepAngle) < 360)
 		append (path, cx + rx * cos_alpha, cy + ry * sin_alpha, PathPointTypeLine, FALSE);
 
 	/* draw the arcs */
 	append_arcs (path, x, y, width, height, startAngle, sweepAngle);
-        
-        /* draw pie edge */
+
+	/* draw pie edge */
 	if (fabs (sweepAngle) < 360)
 		append (path, cx, cy, PathPointTypeLine, FALSE);
 
 	/* close the path */
-        return GdipClosePathFigure (path);
+	return GdipClosePathFigure (path);
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
 {
-        int i;
-        GpPointF *tmp = (GpPointF *) points;
+	int i;
+	GpPointF *tmp = (GpPointF *) points;
 
 	if (!path || !points || (count < 3))
 		return InvalidParameter;
@@ -1129,43 +1129,43 @@ GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
 	for (i = 1; i < count; i++, tmp++)
 		append_point (path, *tmp, PathPointTypeLine, FALSE);
 
-        /*
-         * Add a line from the last point back to the first point if
-         * they're not the same
-         */
+	/*
+	 * Add a line from the last point back to the first point if
+	 * they're not the same
+	 */
 	if (points [0].X != points [count - 1].X && points [0].Y != points [count - 1].Y)
 		append_point (path, points [0], PathPointTypeLine, FALSE);
-        
+
 	/* close the path */
-        return GdipClosePathFigure (path);
+	return GdipClosePathFigure (path);
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathPath (GpPath *path, GDIPCONST GpPath *addingPath, BOOL connect)
 {
-        int i, length;
+	int i, length;
 	PathPointType first;
-        GpPointF *pts;
-        BYTE *types;
+	GpPointF *pts;
+	BYTE *types;
 
 	if (!path || !addingPath)
 		return InvalidParameter;
 
-        length = addingPath->count;
-        if (length < 1)
-                return Ok;
-        
-        pts = gdip_calloc (sizeof (GpPointF), length);
+	length = addingPath->count;
+	if (length < 1)
+		return Ok;
+	
+	pts = gdip_calloc (sizeof (GpPointF), length);
 	if (!pts)
 		return OutOfMemory;
-        types = gdip_calloc (sizeof (BYTE), length);
+	types = gdip_calloc (sizeof (BYTE), length);
 	if (!types) {
 		GdipFree (pts);
 		return OutOfMemory;
 	}
 
-        GdipGetPathPoints ((GpPath*)addingPath, pts, length);
-        GdipGetPathTypes ((GpPath*)addingPath, types, length);
+	GdipGetPathPoints ((GpPath*)addingPath, pts, length);
+	GdipGetPathTypes ((GpPath*)addingPath, types, length);
 
 	/* We can connect only open figures. If first figure is closed
 	 * it can't be connected.
@@ -1337,7 +1337,7 @@ GdipAddPathLine2I (GpPath* path, const GpPoint *points, int count)
 GpStatus WINGDIPAPI
 GdipAddPathArcI (GpPath *path, int x, int y, int width, int height, float startAngle, float sweepAngle)
 {
-        return GdipAddPathArc (path, x, y, width, height, startAngle, sweepAngle);
+	return GdipAddPathArc (path, x, y, width, height, startAngle, sweepAngle);
 }
 
 GpStatus WINGDIPAPI
@@ -1358,15 +1358,15 @@ GdipAddPathBeziersI (GpPath *path, const GpPoint *points, int count)
 	/* first bezier requires 4 points, other 3 more points */
 	if ((count < 4) || ((count % 3) != 1))
 		return InvalidParameter;
-        
+
 	tmp = (GpPoint*) points;
-        append (path, tmp->X, tmp->Y, PathPointTypeLine, TRUE);
-        tmp++;
+	append (path, tmp->X, tmp->Y, PathPointTypeLine, TRUE);
+	tmp++;
 
-        for (i = 1; i < count; i++, tmp++)
-                append (path, tmp->X, tmp->Y, PathPointTypeBezier3, FALSE);
+	for (i = 1; i < count; i++, tmp++)
+		append (path, tmp->X, tmp->Y, PathPointTypeBezier3, FALSE);
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -1396,8 +1396,7 @@ GdipAddPathCurve2I (GpPath *path, const GpPoint *points, int count, float tensio
 }
 
 GpStatus WINGDIPAPI
-GdipAddPathCurve3I (GpPath *path, const GpPoint *points,
-                    int count, int offset, int numberOfSegments, float tension)
+GdipAddPathCurve3I (GpPath *path, const GpPoint *points, int count, int offset, int numberOfSegments, float tension)
 {
 	GpPointF *pt;
 	GpStatus s;
@@ -1418,7 +1417,7 @@ GdipAddPathCurve3I (GpPath *path, const GpPoint *points,
 GpStatus WINGDIPAPI
 GdipAddPathClosedCurveI (GpPath *path, const GpPoint *points, int count)
 {
-        return GdipAddPathClosedCurve2I (path, points, count, 0.5);
+	return GdipAddPathClosedCurve2I (path, points, count, 0.5);
 }
 
 GpStatus WINGDIPAPI
@@ -1436,53 +1435,53 @@ GdipAddPathClosedCurve2I (GpPath *path, const GpPoint *points, int count, float 
 
 	s = GdipAddPathClosedCurve2 (path, pt, count, tension);
 
-        GdipFree (pt);
+	GdipFree (pt);
 
-        return s;
+	return s;
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathRectangleI (GpPath *path, int x, int y, int width, int height)
 {
-        return GdipAddPathRectangle (path, x, y, width, height);
+	return GdipAddPathRectangle (path, x, y, width, height);
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathRectanglesI (GpPath *path, const GpRect *rects, int count)
 {
-        int i;
+	int i;
 
 	if (!path || !rects)
 		return InvalidParameter;
 
-        for (i = 0; i < count; i++) {
-                float x = (float) rects[i].X;
-                float y = (float) rects[i].Y;
-                float width =  (float) rects[i].Width;
-                float height =  (float) rects[i].Height;
-                GdipAddPathRectangle (path, x, y, width, height);
-        }
+	for (i = 0; i < count; i++) {
+		float x = (float) rects[i].X;
+		float y = (float) rects[i].Y;
+		float width =  (float) rects[i].Width;
+		float height =  (float) rects[i].Height;
+		GdipAddPathRectangle (path, x, y, width, height);
+	}
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathEllipseI (GpPath *path, int x, int y, int width, int height)
 {
-        return GdipAddPathEllipse (path, x, y, width, height);
+	return GdipAddPathEllipse (path, x, y, width, height);
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathPieI (GpPath *path, int x, int y, int width, int height, float startAngle, float sweepAngle)
 {
-        return GdipAddPathPie (path, x, y, width, height, startAngle, sweepAngle);
+	return GdipAddPathPie (path, x, y, width, height, startAngle, sweepAngle);
 }
 
 GpStatus WINGDIPAPI
 GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count)
 {
-        int i;
-        GpPoint *tmp;
+	int i;
+	GpPoint *tmp;
 
 	if (!path || !points || (count < 3))
 		return InvalidParameter;
@@ -1496,15 +1495,15 @@ GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count)
 	for (i = 1; i < count; i++, tmp++)
 		append (path, tmp->X, tmp->Y, PathPointTypeLine, FALSE);
 
-        /*
-         * Add a line from the last point back to the first point if
-         * they're not the same
-         */
+	/*
+	 * Add a line from the last point back to the first point if
+	 * they're not the same
+	 */
 	if (points [0].X != points [count - 1].X && points [0].Y != points [count - 1].Y)
 		append (path, points [0].X, points [0].Y, PathPointTypeLine, FALSE);
-        
+
 	/* close the path */
-        return GdipClosePathFigure (path);
+	return GdipClosePathFigure (path);
 }
 
 /* nr_curve_flatten comes from Sodipodi's libnr (public domain) available from http://www.sodipodi.com/ */
@@ -1779,8 +1778,8 @@ GdipWidenPath (GpPath *nativePath, GpPen *pen, GpMatrix *matrix, float flatness)
 /* MonoTODO */
 GpStatus WINGDIPAPI 
 GdipWarpPath (GpPath *path, GpMatrix *matrix, const GpPointF *points, int count, 
-              float srcx, float srcy, float srcwidth, float srcheight,
-              WarpMode warpMode, float flatness)
+		float srcx, float srcy, float srcwidth, float srcheight,
+		WarpMode warpMode, float flatness)
 {
 	static int called = 0;
 	GpStatus status;
@@ -1813,9 +1812,9 @@ GdipWarpPath (GpPath *path, GpMatrix *matrix, const GpPointF *points, int count,
 GpStatus WINGDIPAPI 
 GdipTransformPath (GpPath* path, GpMatrix *matrix)
 {
-        PointF *points;
+	PointF *points;
 	int count;
-        GpStatus s;
+	GpStatus s;
 
 	if (!path)
 		return InvalidParameter;
@@ -1834,13 +1833,13 @@ GdipTransformPath (GpPath* path, GpMatrix *matrix)
 
 	s = GdipTransformMatrixPoints (matrix, points, count);
 
-        path->points = array_to_g_array (points, count);
+	path->points = array_to_g_array (points, count);
 
-        GdipFree (points);
+	GdipFree (points);
 	if (!path->points)
 		return OutOfMemory;
 
-        return s;
+	return s;
 }
 
 GpStatus WINGDIPAPI 

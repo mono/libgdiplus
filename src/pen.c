@@ -35,12 +35,12 @@
 static void 
 gdip_pen_init (GpPen *pen)
 {
-        pen->color = 0;
-        pen->brush = 0;
+	pen->color = 0;
+	pen->brush = 0;
 	pen->own_brush = FALSE;
-        pen->width = 1;
-        pen->miter_limit = 10;
-        pen->line_join = LineJoinMiter;
+	pen->width = 1;
+	pen->miter_limit = 10;
+	pen->line_join = LineJoinMiter;
 	pen->dash_style = DashStyleSolid;
 	pen->line_cap = LineCapFlat;
 	pen->end_cap = LineCapFlat;		/* ignored, Cairo only support a single start/end line cap */
@@ -62,65 +62,65 @@ gdip_pen_init (GpPen *pen)
 static GpPen*
 gdip_pen_new (void)
 {
-        GpPen *result = (GpPen *) GdipAlloc (sizeof (GpPen));
+	GpPen *result = (GpPen *) GdipAlloc (sizeof (GpPen));
 
 	if (result)
 		gdip_pen_init (result);
 
-        return result;
+	return result;
 }
 
 static cairo_line_join_t
 convert_line_join (GpLineJoin join)
 {
-        switch (join) {
+	switch (join) {
 
-        case LineJoinMiter:
-                return CAIRO_LINE_JOIN_MITER;
+	case LineJoinMiter:
+		return CAIRO_LINE_JOIN_MITER;
 
-        case LineJoinBevel:
-                return CAIRO_LINE_JOIN_BEVEL;
+	case LineJoinBevel:
+		return CAIRO_LINE_JOIN_BEVEL;
 
-        case LineJoinRound:
-                return CAIRO_LINE_JOIN_ROUND;
+	case LineJoinRound:
+		return CAIRO_LINE_JOIN_ROUND;
  
-        case LineJoinMiterClipped:
-        default:
-                return CAIRO_LINE_JOIN_MITER;
-        }
+	case LineJoinMiterClipped:
+	default:
+		return CAIRO_LINE_JOIN_MITER;
+	}
 }
 
 static cairo_line_cap_t
 convert_line_cap (GpPen *pen)
 {
-        switch (pen->line_cap) {
+	switch (pen->line_cap) {
 
 	/* HACK - this keeps SWF (mostly) happy with results very similar to GDI+
 	 * (under those specific cases) and also keeps the pen's functionalities 
 	 * on par with GDI+
 	 */
-        case LineCapFlat:
+	case LineCapFlat:
 		if (pen->dash_array || (pen->width > 1.0))
-	                return CAIRO_LINE_CAP_BUTT;
+			return CAIRO_LINE_CAP_BUTT;
 		else
-	                return CAIRO_LINE_CAP_SQUARE;
-        
-        case LineCapSquare:
-                return CAIRO_LINE_CAP_SQUARE;
+			return CAIRO_LINE_CAP_SQUARE;
+	
+	case LineCapSquare:
+		return CAIRO_LINE_CAP_SQUARE;
 
-        case LineCapRound:
-                return CAIRO_LINE_CAP_ROUND;                
+	case LineCapRound:
+		return CAIRO_LINE_CAP_ROUND;
 
-        case LineCapTriangle:
-        case LineCapNoAnchor:
-        case LineCapSquareAnchor:
-        case LineCapRoundAnchor:
-        case LineCapDiamondAnchor:
-        case LineCapArrowAnchor:
-        case LineCapCustom:
-        default:
-                return CAIRO_LINE_CAP_BUTT;
-        }
+	case LineCapTriangle:
+	case LineCapNoAnchor:
+	case LineCapSquareAnchor:
+	case LineCapRoundAnchor:
+	case LineCapDiamondAnchor:
+	case LineCapArrowAnchor:
+	case LineCapCustom:
+	default:
+		return CAIRO_LINE_CAP_BUTT;
+	}
 }
 
 static double *
@@ -245,7 +245,7 @@ gdip_pen_draw_custom_end_cap (GpGraphics *graphics, GpPen *pen, float x1, float 
 GpStatus WINGDIPAPI
 GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen)
 {
-        GpStatus s;
+	GpStatus s;
 	GpSolidFill *solidBrush = NULL;
 	GpPen *result;
 
@@ -278,9 +278,9 @@ GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen)
 GpStatus WINGDIPAPI
 GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen)
 {
-        ARGB color;
-        GpStatus s;
-        GpBrushType type;
+	ARGB color;
+	GpStatus s;
+	GpBrushType type;
 	GpPen *result;
 
 	if (!brush || !pen)
@@ -304,58 +304,58 @@ GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen)
 
 	result->own_brush = TRUE;
 
-        s = GdipGetBrushType (brush, &type);
+	s = GdipGetBrushType (brush, &type);
 	if (s != Ok) {
 		GdipFree (result);
 		*pen = NULL;
 		return s;
 	}
 
-        switch (type) {
+	switch (type) {
 
-        case BrushTypeSolidColor:
-                s = GdipGetSolidFillColor ((GpSolidFill*) brush, &color);
+	case BrushTypeSolidColor:
+		s = GdipGetSolidFillColor ((GpSolidFill*) brush, &color);
 		if (s != Ok) {
 			GdipFree (result);
 			*pen = NULL;
 			return s;
 		}
-                result->color = color;
-		*pen = result;
-                return Ok;
-
-        case BrushTypeHatchFill:
-        case BrushTypeTextureFill:
-        case BrushTypePathGradient:
-        case BrushTypeLinearGradient:
+		result->color = color;
 		*pen = result;
 		return Ok;
 
-        default:
+	case BrushTypeHatchFill:
+	case BrushTypeTextureFill:
+	case BrushTypePathGradient:
+	case BrushTypeLinearGradient:
+		*pen = result;
+		return Ok;
+
+	default:
 		GdipFree (result);
 		*pen = NULL;
-                return GenericError;
-        }
+		return GenericError;
+	}
 }
 
 static float *
 clone_dash_array (float *clone, float *array, int size)
 {
-        int i;
+	int i;
 
-        for (i = 0; i < size; i++)
-                clone [i] = array [i];
+	for (i = 0; i < size; i++)
+		clone [i] = array [i];
 
-        return clone;
+	return clone;
 }
 
 // coverity[+alloc : arg-*1]
 GpStatus WINGDIPAPI
 GdipClonePen (GpPen *pen, GpPen **clonepen)
 {
-        GpPen *result;
-        float *dashes;                  /* copy off pen->dash_array */
-        float *compound_array = NULL;   /* copy off pen->compound_array */
+	GpPen *result;
+	float *dashes;                  /* copy off pen->dash_array */
+	float *compound_array = NULL;   /* copy off pen->compound_array */
 	GpCustomLineCap *custom_start_cap = NULL;
 	GpCustomLineCap *custom_end_cap = NULL;
 
@@ -431,16 +431,16 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 		result->brush = pen->brush;
 	}
 
-        result->own_brush = pen->own_brush;
+	result->own_brush = pen->own_brush;
 	result->color = pen->color;
-        result->width = pen->width;
-        result->miter_limit = pen->miter_limit;
-        result->line_join = pen->line_join;
+	result->width = pen->width;
+	result->miter_limit = pen->miter_limit;
+	result->line_join = pen->line_join;
 	result->dash_style = pen->dash_style;
-        result->line_cap = pen->line_cap;
+	result->line_cap = pen->line_cap;
 	result->end_cap = pen->end_cap;
 	result->mode = pen->mode;
-        result->dash_offset = pen->dash_offset;
+	result->dash_offset = pen->dash_offset;
 	result->dash_count = pen->dash_count;
 	result->own_dash_array = pen->own_dash_array;
 	result->dash_array = dashes;
@@ -452,10 +452,10 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 	result->custom_start_cap = custom_start_cap;
 	result->custom_end_cap = custom_end_cap;
 
-        *clonepen = result;
+	*clonepen = result;
 
-        return Ok;
-}       
+	return Ok;
+}
 
 GpStatus WINGDIPAPI
 GdipDeletePen (GpPen *pen)
@@ -463,8 +463,8 @@ GdipDeletePen (GpPen *pen)
 	if (!pen)
 		return InvalidParameter;
 
-        if (pen->dash_count != 0 && pen->own_dash_array) {
-                GdipFree (pen->dash_array);
+	if (pen->dash_count != 0 && pen->own_dash_array) {
+		GdipFree (pen->dash_array);
 		pen->dash_count = 0;
 		pen->dash_array = NULL;
 	}
@@ -474,8 +474,8 @@ GdipDeletePen (GpPen *pen)
 		pen->brush = NULL;
 	}
 
-        if (pen->compound_count != 0) {
-                GdipFree (pen->compound_array);
+	if (pen->compound_count != 0) {
+		GdipFree (pen->compound_array);
 		pen->compound_array = NULL;
 		pen->compound_count = 0;
 	}
@@ -490,7 +490,7 @@ GdipDeletePen (GpPen *pen)
 		pen->custom_end_cap = NULL;
 	}
 
-        GdipFree (pen);
+	GdipFree (pen);
 	return Ok;
 }
 
@@ -500,9 +500,9 @@ GdipSetPenWidth (GpPen *pen, REAL width)
 	if (!pen)
 		return InvalidParameter;
 
-        pen->width = width;
+	pen->width = width;
 	pen->changed = TRUE;
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -511,42 +511,42 @@ GdipGetPenWidth (GpPen *pen, REAL *width)
 	if (!pen || !width)
 		return InvalidParameter;
 
-        *width = pen->width;
-        return Ok;
+	*width = pen->width;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipSetPenBrushFill (GpPen *pen, GpBrush *brush)
 {
-        GpStatus s;
-        ARGB color;
-        GpBrushType type;
+	GpStatus s;
+	ARGB color;
+	GpBrushType type;
 
 	if (!pen || !brush)
 		return InvalidParameter;
 
-        s = GdipGetBrushType (brush, &type);
+	s = GdipGetBrushType (brush, &type);
 
 	if (s != Ok)
 		return s;
 
-        if (type == BrushTypeSolidColor) {
-        	s = GdipGetSolidFillColor ((GpSolidFill*) brush, &color);
-	        if (s != Ok)
-	                return s;
-        	pen->color = color;
-        }
+	if (type == BrushTypeSolidColor) {
+		s = GdipGetSolidFillColor ((GpSolidFill*) brush, &color);
+		if (s != Ok)
+			return s;
+		pen->color = color;
+	}
 	else
 		pen->color = 0;
 
 	if (pen->own_brush && pen->brush)
 		GdipDeleteBrush (pen->brush);
 
-        pen->brush = brush;
+	pen->brush = brush;
 	pen->changed = TRUE;
 	pen->own_brush = FALSE;
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -597,8 +597,8 @@ GdipGetPenColor (GpPen *pen, ARGB *argb)
 		return InvalidParameter;
 		
 
-        *argb = pen->color;
-        return Ok;
+	*argb = pen->color;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -624,8 +624,8 @@ GdipGetPenMiterLimit (GpPen *pen, REAL *miterLimit)
 	if (!pen || !miterLimit)
 		return InvalidParameter;
 
-        *miterLimit = pen->miter_limit;
-        return Ok;
+	*miterLimit = pen->miter_limit;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -635,8 +635,8 @@ GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin)
 		return InvalidParameter;
 
 	pen->changed = pen->changed ? TRUE : (pen->line_join != lineJoin);
-        pen->line_join = lineJoin;
-        return Ok;
+	pen->line_join = lineJoin;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -645,8 +645,8 @@ GdipGetPenLineJoin (GpPen *pen, GpLineJoin *lineJoin)
 	if (!pen || !lineJoin)
 		return InvalidParameter;
 
-        *lineJoin = pen->line_join;
-        return Ok;
+	*lineJoin = pen->line_join;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -670,7 +670,7 @@ GdipSetPenLineCap197819 (GpPen *pen, GpLineCap startCap, GpLineCap endCap, GpDas
 		pen->dash_cap = DashCapFlat; /* default */
 
 	pen->changed = TRUE;
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -693,8 +693,8 @@ GdipGetPenMode (GpPen *pen, GpPenAlignment *penMode)
 	if (!pen || !penMode)
 		return InvalidParameter;
 
-        *penMode = pen->mode;
-        return Ok;
+	*penMode = pen->mode;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -703,8 +703,8 @@ GdipGetPenUnit (GpPen *pen, GpUnit *unit)
 	if (!pen || !unit)
 		return InvalidParameter;
 
-        *unit = pen->unit;
-        return Ok;
+	*unit = pen->unit;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -713,9 +713,9 @@ GdipSetPenUnit (GpPen *pen, GpUnit unit)
 	if (!pen || unit < UnitWorld || unit > UnitCairoPoint || unit == UnitDisplay)
 		return InvalidParameter;
 
-        pen->unit = unit;
+	pen->unit = unit;
 	pen->changed = TRUE;
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -734,7 +734,7 @@ GdipSetPenTransform (GpPen *pen, GpMatrix *matrix)
 
 	gdip_cairo_matrix_copy (&pen->matrix, matrix);
 	pen->changed = TRUE;
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -744,7 +744,7 @@ GdipGetPenTransform (GpPen *pen, GpMatrix *matrix)
 		return InvalidParameter;
 
 	gdip_cairo_matrix_copy(matrix, &pen->matrix);
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -812,7 +812,7 @@ GdipScalePenTransform (GpPen *pen, REAL sx, REAL sy, GpMatrixOrder order)
 	if (!pen)
 		return InvalidParameter;
 
-        status = GdipScaleMatrix (&pen->matrix, sx, sy, order);
+	status = GdipScaleMatrix (&pen->matrix, sx, sy, order);
 
 	if (status == Ok)
 		pen->changed = TRUE;
@@ -842,8 +842,8 @@ GdipGetPenDashStyle (GpPen *pen, GpDashStyle *dashStyle)
 	if (!pen || !dashStyle)
 		return InvalidParameter;
 
-        *dashStyle = pen->dash_style;
-        return Ok;
+	*dashStyle = pen->dash_style;
+	return Ok;
 }
 
 static float Dot []  = { 1.0, 1.0 };
@@ -891,7 +891,7 @@ GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
 	default:
 		/* GDI+ does nothing if the dash style is invalid */
 		return Ok;
-        }
+	}
 
 	pen->dash_style = dashStyle;
 	pen->changed = TRUE;
@@ -904,8 +904,8 @@ GdipGetPenDashOffset (GpPen *pen, REAL *offset)
 	if (!pen || !offset)
 		return InvalidParameter;
 
-        *offset = pen->dash_offset;
-        return Ok;
+	*offset = pen->dash_offset;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -916,7 +916,7 @@ GdipSetPenDashOffset (GpPen *pen, REAL offset)
 
 	pen->dash_offset = offset;
 	pen->changed = TRUE;
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -925,8 +925,8 @@ GdipGetPenDashCount (GpPen *pen, INT *count)
 	if (!pen || !count)
 		return InvalidParameter;
 
-        *count = pen->dash_count;
-        return Ok;
+	*count = pen->dash_count;
+	return Ok;
 }
 
 /*

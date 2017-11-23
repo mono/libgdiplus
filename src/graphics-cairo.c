@@ -116,7 +116,7 @@ make_ellipse (GpGraphics *graphics, float x, float y, float width, float height,
 			cx + C1 * rx, cy - ry,
 			cx, cy - ry,
 			FALSE, FALSE);
-        
+
 	gdip_cairo_curve_to (graphics,
 			cx - C1 * rx, cy - ry,
 			cx - rx, cy - C1 * ry,
@@ -128,7 +128,7 @@ make_ellipse (GpGraphics *graphics, float x, float y, float width, float height,
 			cx - C1 * rx, cy + ry,
 			cx, cy + ry,
 			FALSE, FALSE);
-                
+
 	gdip_cairo_curve_to (graphics,
 			cx + C1 * rx, cy + ry,
 			cx + rx, cy + C1 * ry,

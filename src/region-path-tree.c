@@ -40,9 +40,9 @@ gdip_region_clear_tree (GpPathTree *tree)
 		tree->path = NULL;
 	} else {
 		gdip_region_clear_tree (tree->branch1);
-                GdipFree (tree->branch1);
+		GdipFree (tree->branch1);
 		gdip_region_clear_tree (tree->branch2);
-                GdipFree (tree->branch2);
+		GdipFree (tree->branch2);
 	}
 }
 

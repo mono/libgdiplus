@@ -858,8 +858,8 @@ gdip_save_jpeg_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParamet
 
 GpStatus
 gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
-                                         GpImage *image,
-                                         GDIPCONST EncoderParameters *params)
+										GpImage *image,
+										GDIPCONST EncoderParameters *params)
 
 {
 	return gdip_save_jpeg_image_internal (NULL, putBytesFunc, image, params);
@@ -900,8 +900,8 @@ gdip_load_jpeg_image_from_stream_delegate (dstream_t *loader, GpImage **image)
 
 GpStatus
 gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
-                                         GpImage *image,
-                                         GDIPCONST EncoderParameters *params)
+										GpImage *image,
+										GDIPCONST EncoderParameters *params)
 {
 	return UnknownImageFormat;
 }

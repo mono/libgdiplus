@@ -48,8 +48,8 @@ static BrushClass vtable = { BrushTypeTextureFill,
 static cairo_content_t
 from_cairoformat_to_content (cairo_format_t format)
 {
-    	switch (format) {
-    	case CAIRO_FORMAT_RGB24:
+	switch (format) {
+	case CAIRO_FORMAT_RGB24:
 		return CAIRO_CONTENT_COLOR;
 	case CAIRO_FORMAT_A8:
 		return CAIRO_CONTENT_ALPHA;
@@ -75,11 +75,11 @@ gdip_texture_init (GpTexture *texture)
 static GpTexture*
 gdip_texture_new (void)
 {
-        GpTexture *result = (GpTexture *) GdipAlloc (sizeof (GpTexture));
+	GpTexture *result = (GpTexture *) GdipAlloc (sizeof (GpTexture));
 	if (result)
-	        gdip_texture_init (result);
+		gdip_texture_init (result);
 
-        return result;
+	return result;
 }
 
 /* 
@@ -586,7 +586,7 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 		if (!gdip_is_matrix_empty (&texture->matrix)) {
 			cairo_matrix_t product;
 
-		        gdip_cairo_matrix_copy (&product, &texture->matrix);
+			gdip_cairo_matrix_copy (&product, &texture->matrix);
 			cairo_matrix_invert (&product);
 			cairo_pattern_set_matrix (pattern, &product);
 		}

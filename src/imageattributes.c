@@ -429,8 +429,7 @@ GdipSetImageAttributesNoOp (GpImageAttributes *imageattr, ColorAdjustType type, 
 
 
 GpStatus WINGDIPAPI
-GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
-        ARGB colorLow, ARGB colorHigh)
+GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag, ARGB colorLow, ARGB colorHigh)
 {
 	GpImageAttribute *imgattr;
 
@@ -450,8 +449,7 @@ GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType t
 }
 
 GpStatus WINGDIPAPI
-GdipSetImageAttributesOutputChannelColorProfile (GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag,
-        GDIPCONST WCHAR *colorProfileFilename)
+GdipSetImageAttributesOutputChannelColorProfile (GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag, GDIPCONST WCHAR *colorProfileFilename)
 {
 	GpImageAttribute *imgattr;
 	

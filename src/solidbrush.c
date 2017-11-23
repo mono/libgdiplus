@@ -112,7 +112,7 @@ gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush)
 	solid = (GpSolidFill *) brush;
 
 	result->base = solid->base;
-        result->color = solid->color;
+	result->color = solid->color;
 	result->base.changed = TRUE;
 
 	*clonedBrush = (GpBrush *) result;

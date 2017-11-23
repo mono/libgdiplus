@@ -1382,7 +1382,7 @@ GdipGetImageRawFormat (GpImage *image, GUID *format)
 		return InvalidParameter;
 	
 	switch (image->image_format) {
-	   	case BMP:
+	case BMP:
 		memcpy (format, &gdip_bmp_image_format_guid, sizeof (GUID));
 		break;
 	case TIF:
@@ -1634,9 +1634,9 @@ gdip_rotate_orthogonal_flip_x (GpImage *image, int angle, BOOL flip_x)
 	target = initial_target_offset + rotated;
 
 	for (y = 0; y < source_height;
-             y++,
-             source += source_interscan_delta,
-             target += target_interscan_delta) {
+		y++,
+		source += source_interscan_delta,
+		target += target_interscan_delta) {
 		for (x = 0; x < source_width;
 			x++,
 			source += source_pixel_delta,
@@ -2282,10 +2282,10 @@ GpStatus WINGDIPAPI
 GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 								 GetBytesDelegate getBytesFunc,
 								 PutBytesDelegate putBytesFunc,
-                                 SeekDelegate seekFunc,
+								 SeekDelegate seekFunc,
 								 CloseDelegate closeFunc,
 								 SizeDelegate sizeFunc,
-                                 GpImage **image)
+								 GpImage **image)
 {
 	GpImage *result = 0;
 	GpStatus status = 0;
@@ -2362,7 +2362,7 @@ GdipSaveImageToDelegate_linux (GpImage *image, GetBytesDelegate getBytesFunc, Pu
 	case ICON:
 	case BMP:
 		return gdip_save_bmp_image_to_stream_delegate (putBytesFunc, image);
-	   	case PNG:
+	case PNG:
 		return gdip_save_png_image_to_stream_delegate (putBytesFunc, image, params);
 	case JPEG:
 		return gdip_save_jpeg_image_to_stream_delegate (putBytesFunc, image, params);

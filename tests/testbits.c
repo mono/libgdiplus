@@ -77,12 +77,12 @@ main (int argc, char **argv)
     CHECK_STATUS(1);
 
     for (j = 0; j < 5; j++) {
-        cptr = (unsigned char *) d.origBitmapData.Scan0 + j * d.origBitmapData.Stride;
-        printf ("%d: ", j);
-        for (i = 0; i < 5; i++) {
-            printf ("%04x ", *cptr++);
-        }
-        printf ("\n");
+		cptr = (unsigned char *) d.origBitmapData.Scan0 + j * d.origBitmapData.Stride;
+		printf ("%d: ", j);
+		for (i = 0; i < 5; i++) {
+			printf ("%04x ", *cptr++);
+		}
+		printf ("\n");
     }
     printf ("Modifying (setting to 0xff)\n");
     memset (d.origBitmapData.Scan0, 0xff, d.origBitmapData.Stride * d.origBitmapData.Height);
@@ -98,12 +98,12 @@ main (int argc, char **argv)
     CHECK_STATUS(1);
 
     for (j = 0; j < 5; j++) {
-        cptr = (unsigned char *) d.origBitmapData.Scan0 + j * d.origBitmapData.Stride;
-        printf ("%d: ", j);
-        for (i = 0; i < 5; i++) {
-            printf ("%04x ", *cptr++);
-        }
-        printf ("\n");
+		cptr = (unsigned char *) d.origBitmapData.Scan0 + j * d.origBitmapData.Stride;
+		printf ("%d: ", j);
+		for (i = 0; i < 5; i++) {
+			printf ("%04x ", *cptr++);
+		}
+		printf ("\n");
     }
 
     status = GdipBitmapUnlockBits (bitmap, &d.origBitmapData);
@@ -117,23 +117,23 @@ main (int argc, char **argv)
     CHECK_STATUS(1);
 
     for (j = 0; j < 5; j++) {
-        cptr = ((unsigned char *)d.origBitmapData.Scan0) + (j * d.origBitmapData.Stride);
-        printf ("%d: ", j);
-        for (i = 0; i < 5; i++) {
-            printf ("%02x%02x%02x ", cptr[0], cptr[1], cptr[2]);
-            cptr += 3;
-        }
-        printf ("\n");
+		cptr = ((unsigned char *)d.origBitmapData.Scan0) + (j * d.origBitmapData.Stride);
+		printf ("%d: ", j);
+		for (i = 0; i < 5; i++) {
+			printf ("%02x%02x%02x ", cptr[0], cptr[1], cptr[2]);
+			cptr += 3;
+		}
+		printf ("\n");
     }
 
     printf ("Modifying (setting to 0xaabbcc)\n");
     for (j = 0; j < 5; j++) {
-        cptr = ((unsigned char *)d.origBitmapData.Scan0) + (j * d.origBitmapData.Stride);
-        for (i = 0; i < 5; i++) {
-            *cptr++ = 0xcc;
-            *cptr++ = 0xbb;
-            *cptr++ = 0xaa;
-        }
+		cptr = ((unsigned char *)d.origBitmapData.Scan0) + (j * d.origBitmapData.Stride);
+		for (i = 0; i < 5; i++) {
+			*cptr++ = 0xcc;
+			*cptr++ = 0xbb;
+			*cptr++ = 0xaa;
+		}
     }
 
     status = GdipBitmapUnlockBits (bitmap, &d.origBitmapData);

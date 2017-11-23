@@ -613,7 +613,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					if (bytes_to_run_this_scan > run_length)
 						bytes_to_run_this_scan = run_length;
 
- 					memset (scan0 + row_offset + col_offset / 2, pixel_values, bytes_to_run_this_scan);
+					memset (scan0 + row_offset + col_offset / 2, pixel_values, bytes_to_run_this_scan);
 
 					col_offset += bytes_to_run_this_scan * 2;
 					run_length -= bytes_to_run_this_scan;
@@ -697,7 +697,7 @@ gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, ImageSource so
 		if (size_read < size)
 			return OutOfMemory;
 		bmi->biHeight = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
- 	} else if (bmi->biSize == BITMAPCOREHEADER_SIZE) {
+	} else if (bmi->biSize == BITMAPCOREHEADER_SIZE) {
 		/* Old OS/2 format. Width and Height fields are WORDs instead of DWORDS */
 		dw = 0;
 		size_read = gdip_read_bmp_data (pointer, data_read, size, source);
@@ -1220,7 +1220,7 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 	bmfh.bfSize = (bmfh.bfOffBits + bitmapLen);
 #endif
 	gdip_write_bmp_data (pointer, (BYTE*) &bmfh, sizeof (bmfh), useFile);
-        
+
 	gdip_bitmap_fill_info_header (image, &bmi);
 	gdip_write_bmp_data (pointer, (BYTE*) &bmi, sizeof (bmi), useFile);
 
@@ -1331,8 +1331,7 @@ gdip_save_bmp_image_to_file (FILE *fp, GpImage *image)
 }
 
 GpStatus 
-gdip_save_bmp_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
-                                        GpImage *image)
+gdip_save_bmp_image_to_stream_delegate (PutBytesDelegate putBytesFunc, GpImage *image)
 {	
 	return gdip_save_bmp_image_to_file_stream ( (void *)putBytesFunc, image, FALSE);
 }

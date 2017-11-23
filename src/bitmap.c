@@ -75,7 +75,7 @@ gdip_is_a_supported_pixelformat (PixelFormat fmt)
 	case PixelFormat1bppIndexed:
 	case PixelFormat4bppIndexed:
 	case PixelFormat8bppIndexed:
- 	case PixelFormat24bppRGB:
+	case PixelFormat24bppRGB:
 	case PixelFormat32bppARGB:
 	case PixelFormat32bppPARGB:
 	case PixelFormat32bppRGB:
@@ -892,7 +892,7 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 #if WORDS_BIGENDIAN
 		int			i;
 #endif
-        
+
 		palette_entries = 1 << gdip_get_pixel_format_depth(format);
 		header_size = sizeof(ColorPalette) - sizeof(ARGB);
 		bytes_needed = header_size + palette_entries * sizeof(ARGB);
@@ -1440,7 +1440,7 @@ gdip_pixel_stream_has_next (StreamingState *state)
 	if (state != NULL) {
 		return (state->p >= 0)
 		    || ((state->y < (state->region.Y + state->region.Height))
-                    && (state->x < (state->region.X + state->region.Width)));
+		    && (state->x < (state->region.X + state->region.Width)));
 	} else {
 		return FALSE;
 	}

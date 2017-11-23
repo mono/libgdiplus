@@ -1243,7 +1243,7 @@ gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush)
 			break;
 
 		case HatchStyleSphere:
-		  	status = draw_sphere_hatch (hatch, hbr);
+			status = draw_sphere_hatch (hatch, hbr);
 			break;
 
 		case HatchStyleSmallCheckerBoard:
