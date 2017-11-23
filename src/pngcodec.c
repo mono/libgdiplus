@@ -115,9 +115,9 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 	bitmap_data->dpi_vert = png_get_y_pixels_per_inch(png_ptr, info_ptr);
 #elif defined(PNG_pHYs_SUPPORTED)
 	{
-		int		unit_type;
-		png_uint_32	res_x;
-		png_uint_32	res_y;
+		int		unit_type = 0;
+		png_uint_32	res_x = 0;
+		png_uint_32	res_y = 0;
 		png_get_pHYs( png_ptr, info_ptr, &res_x, &res_y, &unit_type );
 		if (unit_type == PNG_RESOLUTION_METER) {
 			bitmap_data->image_flags |= ImageFlagsHasRealDPI;
@@ -133,14 +133,14 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 
 #if defined(PNG_iCCP_SUPPORTED)
 	{
-		png_charp	name;
+		png_charp	name = NULL;
 #if (PNG_LIBPNG_VER > 10499)
-		png_bytep	profile;
+		png_bytep	profile = NULL;
 #else
-		png_charp	profile;
+		png_charp	profile = NULL;
 #endif
-		png_uint_32	proflen;
-		int		compression_type;
+		png_uint_32	proflen = 0;
+		int		compression_type = 0;
 
 		if (png_get_iCCP(png_ptr, info_ptr, &name, &compression_type, &profile, &proflen)) {
 			gdip_bitmapdata_property_add_ASCII(bitmap_data, PropertyTagICCProfileDescriptor, (BYTE*)name);
@@ -151,7 +151,7 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 
 #if defined(PNG_gAMA_SUPPORTED)
 	{
-		double	gamma;
+		double	gamma = 0;
 
 		if (png_get_gAMA(png_ptr, info_ptr, &gamma)) {
 			gdip_bitmapdata_property_add_rational(bitmap_data, PropertyTagGamma, 100000, gamma * 100000);
@@ -161,14 +161,14 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 
 #if defined(PNG_cHRM_SUPPORTED)
 	{
-		double	white_x;
-		double	white_y;
-		double	red_x;
-		double	red_y;
-		double	green_x;
-		double	green_y;
-		double	blue_x;
-		double	blue_y;
+		double	white_x = 0;
+		double	white_y = 0;
+		double	red_x = 0;
+		double	red_y = 0;
+		double	green_x = 0;
+		double	green_y = 0;
+		double	blue_x = 0;
+		double	blue_y = 0;
 
 		if (png_get_cHRM(png_ptr, info_ptr, &white_x, &white_y, &red_x, &red_y, &green_x, &green_y, &blue_x, &blue_y)) {
 			BYTE *buffer;
@@ -211,9 +211,9 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 
 #if defined(PNG_pHYs_SUPPORTED)
 	{
-		int		unit_type;
-		png_uint_32	res_x;
-		png_uint_32	res_y;
+		int		unit_type = 0;
+		png_uint_32	res_x = 0;
+		png_uint_32	res_y = 0;
 
 		if (png_get_pHYs(png_ptr, info_ptr, &res_x, &res_y, &unit_type)) {
 			gdip_bitmapdata_property_add_byte(bitmap_data, PropertyTagPixelUnit, (BYTE)unit_type);
@@ -225,8 +225,8 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 
 #if defined(PNG_TEXT_SUPPORTED)
 	{
-		int		num_text;
-		png_textp	text_ptr;
+		int		num_text = 0;
+		png_textp	text_ptr = NULL;
 
 		if (png_get_text(png_ptr, info_ptr, &text_ptr, &num_text)) {
 			if (num_text > 0) {
@@ -251,8 +251,8 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	int		bit_depth;
 	int		channels;
 	BYTE		color_type;
-	int 	num_palette;
-	png_colorp	png_palette;
+	int 	num_palette = 0;
+	png_colorp	png_palette = NULL;
 
 	png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
@@ -355,9 +355,9 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 
 		if (png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS))
 		{
-			png_bytep trans_alpha;
-			int num_trans;
-			png_color_16p trans_color;
+			png_bytep trans_alpha = NULL;
+			int num_trans = 0;
+			png_color_16p trans_color = NULL;
 
 			/* Make sure transparency is respected. */
 			png_get_tRNS( png_ptr, info_ptr, &trans_alpha, &num_trans, &trans_color );
@@ -498,7 +498,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 					memset(alpha, 0xFF, 4);	/* default to fully opaque */
 					int num_trans = 0;
 					BYTE * trans = NULL;
-					png_color_16p dummy;
+					png_color_16p dummy = NULL;
 					if (png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, &dummy)) {
 						if (num_trans > 0 && trans != NULL) {
 							memcpy(alpha, trans, MIN(num_trans, 4));
