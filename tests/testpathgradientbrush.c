@@ -80,8 +80,8 @@ static void test_createPathGradient ()
     GpPathGradient *brush;
     GpPointF points2[2] =
     {
-        {1, 2},
-        {-10, 11}
+		{1, 2},
+		{-10, 11}
     };
 
     status = GdipCreatePathGradient (points2, 2, WrapModeClamp, &brush);
@@ -123,14 +123,14 @@ static void test_createPathGradientI ()
     GpPathGradient *brush;
     GpPoint points[2] =
     {
-        {1, 2},
-        {-10, 11}
+		{1, 2},
+		{-10, 11}
     };
     GpPoint points3[3] =
     {
-        {3, 13},
-        {1, 2},
-        {5, 6}
+		{3, 13},
+		{1, 2},
+		{5, 6}
     };
 
     status = GdipCreatePathGradientI (points, 2, WrapModeClamp, &brush);
@@ -488,9 +488,9 @@ static void test_getPathGradientCenterPointI ()
     GpPoint centerPoint;
     GpPointF roundUpPoints[3] =
     {
-        {1, 2},
-        {8, 8},
-        {17, 10}
+		{1, 2},
+		{8, 8},
+		{17, 10}
     };
 
     // <= 0.5 is rounded down.
@@ -599,8 +599,8 @@ static void test_getPathGradientRect ()
     GpRectF rect;
     GpPointF points[2] =
     {
-        {1.5, 2.5},
-        {5, 7}
+		{1.5, 2.5},
+		{5, 7}
     };
 
     GdipCreatePathGradient (points, 2, WrapModeTileFlipX, &brush);
@@ -628,18 +628,18 @@ static void test_getPathGradientRectI ()
     GpRect rect;
     GpPointF points1[2] =
     {
-        {1.6f, 2.6f},
-        {5.2f, 7.2f}
+		{1.6f, 2.6f},
+		{5.2f, 7.2f}
     };
     GpPointF points2[2] =
     {
-        {1.5f, 2.5f},
-        {5, 7}
+		{1.5f, 2.5f},
+		{5, 7}
     };
     GpPointF points3[2] =
     {
-        {1.4f, 2.4f},
-        {4.8f, 6.8f}
+		{1.4f, 2.4f},
+		{4.8f, 6.8f}
     };
 
     // > 0.5 is rounded up.

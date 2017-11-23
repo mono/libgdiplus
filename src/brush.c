@@ -90,6 +90,6 @@ GdipGetBrushType (GpBrush *brush, GpBrushType *type)
 	if (!brush || !type)
 		return InvalidParameter;
 
-        *type = brush->vtable->type;
-        return Ok;
+	*type = brush->vtable->type;
+	return Ok;
 }

@@ -112,7 +112,7 @@ gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush)
 	solid = (GpSolidFill *) brush;
 
 	result->base = solid->base;
-        result->color = solid->color;
+	result->color = solid->color;
 	result->base.changed = TRUE;
 
 	*clonedBrush = (GpBrush *) result;
@@ -149,10 +149,10 @@ GdipSetSolidFillColor (GpSolidFill *brush, ARGB color)
 	if (!brush)
 		return InvalidParameter;
 
-        brush->color = color;
+	brush->color = color;
 	brush->base.changed = TRUE;
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -161,6 +161,6 @@ GdipGetSolidFillColor (GpSolidFill *brush, ARGB *color)
 	if (!brush || !color)
 		return InvalidParameter;
 
-        *color = brush->color;
-        return Ok;
+	*color = brush->color;
+	return Ok;
 }

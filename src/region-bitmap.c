@@ -508,7 +508,7 @@ gdip_region_bitmap_from_path (GpPath *path)
 	GpRect bounds;
 	GpRegionBitmap *bitmap;
 	BYTE* buffer;
-        int i, idx, stride;
+	int i, idx, stride;
 	int length = path->count;
 	unsigned long size;
 	cairo_surface_t *surface = NULL;
@@ -574,13 +574,13 @@ gdip_region_bitmap_from_path (GpPath *path)
 					pts [2].X - bounds.X, pts [2].Y - bounds.Y);
 				idx = 0;
 			}
-                        break;
-                }
+			break;
+		}
 
 		/* close the subpath */
 		if (type & PathPointTypeCloseSubpath)
 			cairo_close_path (cr);
-        }
+	}
 
 	cairo_clip (cr);
 	cairo_set_source_rgba (cr, 1, 1, 1, 1);
@@ -945,7 +945,7 @@ gdip_region_bitmap_get_scans (GpRegionBitmap *bitmap, GpRectF *rect, int count)
 		x = bitmap->X;
 		while (process_line (bitmap, y, &x, &w)) {
 			/* FIXME - we only look at the last rectangle but we could check all
-			 	rectangles in the previous line (and retain perfect rendering
+				rectangles in the previous line (and retain perfect rendering
 				with, possibly, less rectangle. We could also allow non exact
 				match for X and Width (e.g. +/- 1 pixel). MS doesn't seems to
 				return perfect rectangles for all shapes. */

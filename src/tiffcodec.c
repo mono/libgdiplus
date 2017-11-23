@@ -63,10 +63,10 @@ static const BYTE tiff_sig_mask[] = { 0xFF, 0xFF, 0xFF, 0xFF };
 System.Drawing Namespace*/
 typedef struct {
 	GetBytesDelegate getBytesFunc;
-        PutBytesDelegate putBytesFunc;
+	PutBytesDelegate putBytesFunc;
 	SeekDelegate seekFunc;
-        CloseDelegate closeFunc;
-        SizeDelegate sizeFunc;
+	CloseDelegate closeFunc;
+	SizeDelegate sizeFunc;
 } gdip_tiff_clientData;
 
 static tsize_t 
@@ -1007,7 +1007,7 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 			TIFFSetField (tiff, TIFFTAG_COMPRESSION, COMPRESSION_NONE);
 			TIFFSetField (tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
 			TIFFSetField (tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
-    			TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, bitmap_data->stride));
+			TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, bitmap_data->stride));
 			TIFFSetField (tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 
 			pixbuf = GdipAlloc (bitmap_data->width * samples_per_pixel);
@@ -1244,11 +1244,11 @@ gdip_save_tiff_image_to_file (BYTE *filename, GpImage *image, GDIPCONST EncoderP
 
 GpStatus
 gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
-                                           PutBytesDelegate putBytesFunc,
-                                           SeekDelegate seekFunc,
-					   CloseDelegate closeFunc,
-					   SizeDelegate sizeFunc,
-                                           GpImage **image)
+					PutBytesDelegate putBytesFunc,
+					SeekDelegate seekFunc,
+					CloseDelegate closeFunc,
+					SizeDelegate sizeFunc,
+					GpImage **image)
 {
 	TIFF *tif = NULL;
 	gdip_tiff_clientData clientData;
@@ -1268,12 +1268,12 @@ gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
 
 GpStatus
 gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
-					 PutBytesDelegate putBytesFunc,
-                                         SeekDelegate seekFunc,
-					 CloseDelegate closeFunc,
-					 SizeDelegate sizeFunc,
-                                         GpImage *image,
-                                         GDIPCONST EncoderParameters *params)
+					PutBytesDelegate putBytesFunc,
+					SeekDelegate seekFunc,
+					CloseDelegate closeFunc,
+					SizeDelegate sizeFunc,
+					GpImage *image,
+					GDIPCONST EncoderParameters *params)
 {
 	TIFF* tiff;
 	gdip_tiff_clientData clientData;
@@ -1314,11 +1314,11 @@ gdip_load_tiff_image_from_file (FILE *fp, GpImage **image)
 
 GpStatus
 gdip_load_tiff_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
-                                           PutBytesDelegate putBytesFunc,
-                                           SeekDelegate seekFunc,
-					   CloseDelegate closeFunc,
-					   SizeDelegate sizeFunc,
-                                           GpImage **image)
+					PutBytesDelegate putBytesFunc,
+					SeekDelegate seekFunc,
+					CloseDelegate closeFunc,
+					SizeDelegate sizeFunc,
+					GpImage **image)
 {
 	*image = NULL;
 	return UnknownImageFormat;
@@ -1332,12 +1332,12 @@ gdip_save_tiff_image_to_file (BYTE *filename, GpImage *image, GDIPCONST EncoderP
 
 GpStatus
 gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
-					 PutBytesDelegate putBytesFunc,
-                                         SeekDelegate seekFunc,
-					 CloseDelegate closeFunc,
-					 SizeDelegate sizeFunc,
-                                         GpImage *image,
-                                         GDIPCONST EncoderParameters *params)
+					PutBytesDelegate putBytesFunc,
+					SeekDelegate seekFunc,
+					CloseDelegate closeFunc,
+					SizeDelegate sizeFunc,
+					GpImage *image,
+					GDIPCONST EncoderParameters *params)
 {
     return UnknownImageFormat;
 }

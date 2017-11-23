@@ -83,7 +83,7 @@ CalculateStringWidthsUTF8 (cairo_t *ct, GDIPCONST GpFont *gdiFont, const BYTE *u
 	if (!face)
 		return 0;
 
-        cairo_get_font_matrix(ct, &matrix);	
+	cairo_get_font_matrix(ct, &matrix);	
 	cairo_matrix_scale(&matrix, gdiFont->sizeInPixels, gdiFont->sizeInPixels);
 
 	ucs4 = g_utf8_to_ucs4 ((const gchar *) utf8, (glong)-1, NULL, &NumOfGlyphs, NULL);
@@ -185,15 +185,15 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 		}
 
 		// FIXME - pick matching settings for each text mode
-    		case TextRenderingHintSingleBitPerPixelGridFit:
-    		case TextRenderingHintSingleBitPerPixel:
-    		case TextRenderingHintAntiAliasGridFit:
-    		case TextRenderingHintAntiAlias: {
+		case TextRenderingHintSingleBitPerPixelGridFit:
+		case TextRenderingHintSingleBitPerPixel:
+		case TextRenderingHintAntiAliasGridFit:
+		case TextRenderingHintAntiAlias: {
 			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_DEFAULT);
 			break;
 		}
 
-    		case TextRenderingHintClearTypeGridFit: {
+		case TextRenderingHintClearTypeGridFit: {
 			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_DEFAULT);
 			break;
 		}

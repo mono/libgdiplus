@@ -49,7 +49,7 @@ win_draw(win_t *win)
 	XClearWindow(win->dpy, win->win);
 
 	GdipCreateFromXDrawable_linux (win->win, win->dpy, &gp);
-        {	
+	{
 		GpPen *pen;
 		GpSolidFill *brush;
 		int a = 255;

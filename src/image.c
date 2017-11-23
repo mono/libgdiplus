@@ -1130,28 +1130,28 @@ gdip_get_imageformat_from_codec_clsid (CLSID *encoderCLSID)
 {
 	GpStatus status;
 	UINT numEncoders, size, cnt;
-    	ImageCodecInfo *encoders, *encoder;
+	ImageCodecInfo *encoders, *encoder;
 
 	status = GdipGetImageEncodersSize (&numEncoders, &size);
 	if ((status != Ok) ||(numEncoders == 0))
 		return INVALID;
 
-    	encoders = GdipAlloc (size);
+	encoders = GdipAlloc (size);
 
 	status = GdipGetImageEncoders (numEncoders, size, encoders);
 	if (status != Ok)
 		return INVALID;
 
-    	for (cnt = 0, encoder = encoders; cnt < numEncoders; cnt++, encoder++) {
-	       	if (memcmp (&encoder->Clsid, encoderCLSID, sizeof (GUID)) == 0) {
-			ImageFormat ifmt = gdip_image_format_for_format_guid (&encoder->FormatID);
-            		GdipFree (encoders);
-			return ifmt;
-        	}
-    	}
+	for (cnt = 0, encoder = encoders; cnt < numEncoders; cnt++, encoder++) {
+		if (memcmp (&encoder->Clsid, encoderCLSID, sizeof (GUID)) == 0) {
+		ImageFormat ifmt = gdip_image_format_for_format_guid (&encoder->FormatID);
+				GdipFree (encoders);
+		return ifmt;
+		}
+	}
 
-    	GdipFree (encoders);
-    	return INVALID;
+	GdipFree (encoders);
+	return INVALID;
 }
 
 GpStatus WINGDIPAPI
@@ -1382,7 +1382,7 @@ GdipGetImageRawFormat (GpImage *image, GUID *format)
 		return InvalidParameter;
 	
 	switch (image->image_format) {
-       	case BMP:
+	case BMP:
 		memcpy (format, &gdip_bmp_image_format_guid, sizeof (GUID));
 		break;
 	case TIF:
@@ -1414,7 +1414,7 @@ GdipGetImageRawFormat (GpImage *image, GUID *format)
 		break;
 	default:
 		return InvalidParameter;
-    	}
+		}
 	return Ok;
 }
 
@@ -1634,14 +1634,14 @@ gdip_rotate_orthogonal_flip_x (GpImage *image, int angle, BOOL flip_x)
 	target = initial_target_offset + rotated;
 
 	for (y = 0; y < source_height;
-             y++,
-             source += source_interscan_delta,
-             target += target_interscan_delta) {
+		y++,
+		source += source_interscan_delta,
+		target += target_interscan_delta) {
 		for (x = 0; x < source_width;
-                     x++,
-                     source += source_pixel_delta,
-                     target += target_pixel_delta) {
-				copy_pixel (source, target, pixel_size);
+			x++,
+			source += source_pixel_delta,
+			target += target_pixel_delta) {
+			copy_pixel (source, target, pixel_size);
 		}
 	}
 
@@ -1973,19 +1973,19 @@ GdipSetImagePalette (GpImage *image, GDIPCONST ColorPalette *palette)
 GpStatus WINGDIPAPI 
 GdipGetImagePaletteSize (GpImage *image, INT* size)
 {
-        int palette_entries;
+	int palette_entries;
 
-        if (!image || !size)
-                return InvalidParameter;
+	if (!image || !size)
+			return InvalidParameter;
 
 	/* GDI+ doesn't support this for metafiles */
 	if (image->type != ImageTypeBitmap)
 		return GenericError;
 
-        palette_entries = (image->active_bitmap->palette) ? image->active_bitmap->palette->Count : 0;
+	palette_entries = (image->active_bitmap->palette) ? image->active_bitmap->palette->Count : 0;
 
-        if (image->active_bitmap->pixel_format == PixelFormat4bppIndexed)
-                palette_entries = 16;
+	if (image->active_bitmap->pixel_format == PixelFormat4bppIndexed)
+		palette_entries = 16;
 
 	if (palette_entries == 0)
 		*size = sizeof(ColorPalette);
@@ -2282,10 +2282,10 @@ GpStatus WINGDIPAPI
 GdipLoadImageFromDelegate_linux (GetHeaderDelegate getHeaderFunc,
 								 GetBytesDelegate getBytesFunc,
 								 PutBytesDelegate putBytesFunc,
-                                 SeekDelegate seekFunc,
+								 SeekDelegate seekFunc,
 								 CloseDelegate closeFunc,
 								 SizeDelegate sizeFunc,
-                                 GpImage **image)
+								 GpImage **image)
 {
 	GpImage *result = 0;
 	GpStatus status = 0;
@@ -2355,14 +2355,14 @@ GdipSaveImageToDelegate_linux (GpImage *image, GetBytesDelegate getBytesFunc, Pu
 	SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, GDIPCONST CLSID *encoderCLSID,
 	GDIPCONST EncoderParameters *params)
 {
-    	if (!image || !encoderCLSID || (image->type != ImageTypeBitmap))
-        	return InvalidParameter;
+	if (!image || !encoderCLSID || (image->type != ImageTypeBitmap))
+		return InvalidParameter;
 
 	switch (gdip_get_imageformat_from_codec_clsid ((CLSID *)encoderCLSID)) {
 	case ICON:
 	case BMP:
 		return gdip_save_bmp_image_to_stream_delegate (putBytesFunc, image);
-       	case PNG:
+	case PNG:
 		return gdip_save_png_image_to_stream_delegate (putBytesFunc, image, params);
 	case JPEG:
 		return gdip_save_jpeg_image_to_stream_delegate (putBytesFunc, image, params);

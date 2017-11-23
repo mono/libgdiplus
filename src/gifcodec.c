@@ -1121,17 +1121,13 @@ gdip_save_gif_image_to_file (BYTE *filename, GpImage *image)
 }
 
 GpStatus
-gdip_save_gif_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
-                                         GpImage *image,
-                                         GDIPCONST EncoderParameters *params)
+gdip_save_gif_image_to_stream_delegate (PutBytesDelegate putBytesFunc, GpImage *image, GDIPCONST EncoderParameters *params)
 {
 	return UnknownImageFormat;
 }
 
 GpStatus
-gdip_load_gif_image_from_stream_delegate (GetBytesDelegate getBytesFunc,
-                                           SeekDelegate seekFunc,
-                                           GpImage **image)
+gdip_load_gif_image_from_stream_delegate (GetBytesDelegate getBytesFunc, SeekDelegate seekFunc, GpImage **image)
 {
 	*image = NULL;
 	return UnknownImageFormat;

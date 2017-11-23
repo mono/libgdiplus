@@ -35,9 +35,9 @@ static GpStatus gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush);
 static GpStatus gdip_pgrad_destroy (GpBrush *brush);
 
 static BrushClass pathgradient_vtable = { BrushTypePathGradient,
-                                          gdip_pgrad_setup,
-                                          gdip_pgrad_clone_brush,
-                                          gdip_pgrad_destroy };
+										 gdip_pgrad_setup,
+										 gdip_pgrad_clone_brush,
+										 gdip_pgrad_destroy };
 
 static GpStatus
 gdip_pathgradient_init (GpPathGradient *pg)

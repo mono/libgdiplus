@@ -104,27 +104,27 @@ GetLibgdiplusVersion ()
 GpStatus 
 gdip_get_status (cairo_status_t status)
 {
-        if (status == CAIRO_STATUS_SUCCESS)
-                return Ok;
+	if (status == CAIRO_STATUS_SUCCESS)
+			return Ok;
 
-        else {
-                switch (status) {
+	else {
+		switch (status) {
 
-                case CAIRO_STATUS_NO_MEMORY:
-                        return OutOfMemory;
+		case CAIRO_STATUS_NO_MEMORY:
+			return OutOfMemory;
 
-                case CAIRO_STATUS_INVALID_MATRIX:
-                case CAIRO_STATUS_INVALID_RESTORE:
-                case CAIRO_STATUS_INVALID_POP_GROUP:
-                        return InvalidParameter;                
+		case CAIRO_STATUS_INVALID_MATRIX:
+		case CAIRO_STATUS_INVALID_RESTORE:
+		case CAIRO_STATUS_INVALID_POP_GROUP:
+			return InvalidParameter;                
 
-                case CAIRO_STATUS_NO_CURRENT_POINT:
-                        return WrongState;
+		case CAIRO_STATUS_NO_CURRENT_POINT:
+			return WrongState;
 
-                default:
-                        return GenericError;
-                }
-        }
+		default:
+			return GenericError;
+		}
+	}
 }
 
 float
@@ -177,82 +177,82 @@ gdip_get_display_dpi ()
 GpPointF *
 convert_points (const GpPoint *point, int count)
 {
-        int i;
-        GpPointF *retval = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
+	int i;
+	GpPointF *retval = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
 	if (!retval)
 		return NULL;
 
-        for (i = 0; i < count; i++) {
-                retval [i].X = (float) point [i].X;
-                retval [i].Y = (float) point [i].Y;
-        }
+		for (i = 0; i < count; i++) {
+			retval [i].X = (float) point [i].X;
+			retval [i].Y = (float) point [i].Y;
+		}
 
-        return retval;
+		return retval;
 }
 
 GpPointF *
 gdip_open_curve_tangents (int terms, const GpPointF *points, int count, float tension)
 {
-        float coefficient = tension / 3.0;
-        int i;
+	float coefficient = tension / 3.0;
+	int i;
 
-        GpPointF *tangents = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
+	GpPointF *tangents = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
 	if (!tangents)
 		return NULL;
 
-        /* initialize everything to zero to begin with */
-        for (i = 0; i < count; i++) {
-                tangents [i].X = 0;
-                tangents [i].Y = 0;
-        }
+		/* initialize everything to zero to begin with */
+		for (i = 0; i < count; i++) {
+			tangents [i].X = 0;
+			tangents [i].Y = 0;
+		}
 
-        if (count <= 2)
-                return tangents;
+		if (count <= 2)
+			return tangents;
 
-        for (i = 0; i < count; i++) {
-                int r = i + 1;
-                int s = i - 1;
+		for (i = 0; i < count; i++) {
+			int r = i + 1;
+			int s = i - 1;
 
-                if (r >= count) r = count - 1;
-                if (s < 0) s = 0;
+			if (r >= count) r = count - 1;
+			if (s < 0) s = 0;
 
-                tangents [i].X += (coefficient * (points [r].X - points [s].X));
-                tangents [i].Y += (coefficient * (points [r].Y - points [s].Y));
-        }
+			tangents [i].X += (coefficient * (points [r].X - points [s].X));
+			tangents [i].Y += (coefficient * (points [r].Y - points [s].Y));
+		}
 
-        return tangents;        
+		return tangents;        
 }
 
 GpPointF *
 gdip_closed_curve_tangents (int terms, const GpPointF *points, int count, float tension)
 {
-        float coefficient = tension / 3.0;
-        int i;
-        GpPointF *tangents = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
+	float coefficient = tension / 3.0;
+	int i;
+	GpPointF *tangents = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
 	if (!tangents)
 		return NULL;
 
-        /* initialize everything to zero to begin with */
-        for (i = 0; i < count; i++) {
-                tangents [i].X = 0;
-                tangents [i].Y = 0;
-        }
+	/* initialize everything to zero to begin with */
+	for (i = 0; i < count; i++) {
+		tangents [i].X = 0;
+		tangents [i].Y = 0;
+	}
 
-        if (count <= 2)
-                return tangents;
+	if (count <= 2)
+		return tangents;
 
-        for (i = 0; i < count; i++) {
-                int r = i + 1;
-                int s = i - 1;
+	for (i = 0; i < count; i++) {
+		int r = i + 1;
+		int s = i - 1;
 
-                if (r >= count) r -= count;
-                if (s < 0) s += count;
-		
-                tangents [i].X += (coefficient * (points [r].X - points [s].X));
-                tangents [i].Y += (coefficient * (points [r].Y - points [s].Y));
-        }
+		if (r >= count) r -= count;
+		if (s < 0) s += count;
 
-        return tangents;
+		tangents [i].X += (coefficient * (points [r].X - points [s].X));
+		tangents [i].Y += (coefficient * (points [r].Y - points [s].Y));
+	}
+
+	return tangents;
 }
 
 /* re-enabled if/when required */
@@ -261,44 +261,44 @@ gdip_closed_curve_tangents (int terms, const GpPointF *points, int count, float 
 int
 fcmp (double x1, double x2, double epsilon)
 {
-        int exponent;
-        double delta;
-        double difference;
-  
-        /* Get exponent(max(fabs(x1), fabs(x2))) and store it in exponent. */
+	int exponent;
+	double delta;
+	double difference;
 
-        /* If neither x1 nor x2 is 0, */
-        /* this is equivalent to max(exponent(x1), exponent(x2)). */
+	/* Get exponent(max(fabs(x1), fabs(x2))) and store it in exponent. */
 
-        /* If either x1 or x2 is 0, its exponent returned by frexp would be 0, */
-        /* which is much larger than the exponents of numbers close to 0 in */
-        /* magnitude. But the exponent of 0 should be less than any number */
-        /* whose magnitude is greater than 0. */
-  
-        /* So we only want to set exponent to 0 if both x1 and */
-        /* x2 are 0. Hence, the following works for all x1 and x2. */
+	/* If neither x1 nor x2 is 0, */
+	/* this is equivalent to max(exponent(x1), exponent(x2)). */
 
-        frexp (fabs (x1) > fabs (x2) ? x1 : x2, &exponent);
+	/* If either x1 or x2 is 0, its exponent returned by frexp would be 0, */
+	/* which is much larger than the exponents of numbers close to 0 in */
+	/* magnitude. But the exponent of 0 should be less than any number */
+	/* whose magnitude is greater than 0. */
 
-        /* Do the comparison. */
+	/* So we only want to set exponent to 0 if both x1 and */
+	/* x2 are 0. Hence, the following works for all x1 and x2. */
 
-        /* delta = epsilon * pow(2, exponent) */
+	frexp (fabs (x1) > fabs (x2) ? x1 : x2, &exponent);
 
-        /* Form a neighborhood around x2 of size delta in either direction. */
-        /* If x1 is within this delta neighborhood of x2, x1 == x2. */
-        /* Otherwise x1 > x2 or x1 < x2, depending on which side of */
-        /* the neighborhood x1 is on. */
-  
-        delta = ldexp (epsilon, exponent); 
-  
-        difference = x1 - x2;
+	/* Do the comparison. */
 
-        if (difference > delta)
-                return 1; /* x1 > x2 */
-        else if (difference < -delta) 
-                return -1;  /* x1 < x2 */
-        else /* -delta <= difference <= delta */
-                return 0;  /* x1 == x2 */
+	/* delta = epsilon * pow(2, exponent) */
+
+	/* Form a neighborhood around x2 of size delta in either direction. */
+	/* If x1 is within this delta neighborhood of x2, x1 == x2. */
+	/* Otherwise x1 > x2 or x1 < x2, depending on which side of */
+	/* the neighborhood x1 is on. */
+
+	delta = ldexp (epsilon, exponent); 
+
+	difference = x1 - x2;
+
+	if (difference > delta)
+		return 1; /* x1 > x2 */
+	else if (difference < -delta) 
+		return -1;  /* x1 < x2 */
+	else /* -delta <= difference <= delta */
+		return 0;  /* x1 == x2 */
 }
 #endif
 
@@ -552,7 +552,7 @@ gdip_cairo_move_to (GpGraphics *graphics, double x, double y, BOOL convert_units
 	x = CAIRO_LIMIT (x);
 	y = CAIRO_LIMIT (y);
 
-        cairo_move_to (graphics->ct, x, y);
+	cairo_move_to (graphics->ct, x, y);
 }
 
 void
@@ -574,7 +574,7 @@ gdip_cairo_line_to (GpGraphics *graphics, double x, double y, BOOL convert_units
 	x = CAIRO_LIMIT (x);
 	y = CAIRO_LIMIT (y);
 
-        cairo_line_to (graphics->ct, x, y);
+	cairo_line_to (graphics->ct, x, y);
 }
 
 void

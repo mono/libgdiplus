@@ -60,18 +60,19 @@ GpRectArrayFitInInt16 (GDIPCONST GpRect *rects, int count)
 static GpRectF *
 convert_rects (GDIPCONST GpRect *rects, int count)
 {
-        int i;
-        GpRectF *result = (GpRectF *) GdipAlloc (sizeof (GpRectF) * count);
+	int i;
+	GpRectF *result = (GpRectF *) GdipAlloc (sizeof (GpRectF) * count);
 	if (!result)
 		return NULL;
 
-        for (i = 0; i < count; i++) {
-                result [i].X = rects [i].X;
-                result [i].Y = rects [i].Y;
-                result [i].Width = rects [i].Width;
-                result [i].Height = rects [i].Height;
-        }
-        return result;
+	for (i = 0; i < count; i++) {
+			result [i].X = rects [i].X;
+			result [i].Y = rects [i].Y;
+			result [i].Width = rects [i].Width;
+			result [i].Height = rects [i].Height;
+	}
+
+	return result;
 }
 
 /* DrawArcs - http://www.aces.uiuc.edu/~jhtodd/Metafile/MetafileRecords/DrawArc.html */
@@ -80,7 +81,7 @@ GpStatus
 metafile_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle, 
 	float sweepAngle)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -90,7 +91,7 @@ metafile_DrawArcI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, in
 	/* every rectangle must fit into a INT16 or we must use the float version */
 	if (!RectFitInInt16 (x, y, width, height))
 		return metafile_DrawArc (graphics, pen, x, y, width, height, startAngle, sweepAngle);
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -100,28 +101,28 @@ GpStatus
 metafile_DrawBezier (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2, float x3, float y3, 
 	float x4, float y4)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
 GpStatus
 metafile_DrawBezierI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
 GpStatus 
 metafile_DrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
 GpStatus
 metafile_DrawBeziersI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -132,14 +133,14 @@ metafile_DrawBeziersI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *poin
 GpStatus
 metafile_DrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count, float tension)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
 GpStatus
 metafile_DrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count, float tension)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -150,14 +151,14 @@ metafile_DrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint 
 GpStatus
 metafile_FillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, float tension)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
 GpStatus
 metafile_FillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count, float tension)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -169,7 +170,7 @@ GpStatus
 metafile_DrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, int count, int offset, int numOfSegments, 
 	float tension)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -177,7 +178,7 @@ GpStatus
 metafile_DrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, int count, int offset, int numOfSegments,
 	float tension)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -188,7 +189,7 @@ metafile_DrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *point
 GpStatus 
 metafile_DrawEllipse (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height)
 {	
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -198,7 +199,7 @@ metafile_DrawEllipseI (GpGraphics *graphics, GpPen *pen, int x, int y, int width
 	/* every rectangle must fit into a INT16 or we must use the float version */
 	if (!RectFitInInt16 (x, y, width, height))
 		return metafile_DrawEllipse (graphics, pen, x, y, width, height);
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -209,7 +210,7 @@ metafile_DrawEllipseI (GpGraphics *graphics, GpPen *pen, int x, int y, int width
 GpStatus
 metafile_FillEllipse (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -219,7 +220,7 @@ metafile_FillEllipseI (GpGraphics *graphics, GpBrush *brush, int x, int y, int w
 	/* every rectangle must fit into a INT16 or we must use the float version */
 	if (!RectFitInInt16 (x, y, width, height))
 		return metafile_FillEllipse (graphics, brush, x, y, width, height);
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -230,28 +231,28 @@ metafile_FillEllipseI (GpGraphics *graphics, GpBrush *brush, int x, int y, int w
 GpStatus
 metafile_DrawLine (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
 GpStatus
 metafile_DrawLineI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
 GpStatus 
 metafile_DrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
 GpStatus
 metafile_DrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -261,7 +262,7 @@ metafile_DrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points
 GpStatus
 metafile_DrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -272,7 +273,7 @@ metafile_DrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 GpStatus
 metafile_FillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -284,7 +285,7 @@ GpStatus
 metafile_DrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, 
 	float startAngle, float sweepAngle)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -294,7 +295,7 @@ metafile_DrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, in
 	/* every rectangle must fit into a INT16 or we must use the float version */
 	if (!RectFitInInt16 (x, y, width, height))
 		return metafile_DrawPie (graphics, pen, x, y, width, height, startAngle, sweepAngle);
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -306,7 +307,7 @@ GpStatus
 metafile_FillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, 
 	float startAngle, float sweepAngle)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -317,7 +318,7 @@ metafile_FillPieI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width
 	/* every rectangle must fit into a INT16 or we must use the float version */
 	if (!RectFitInInt16 (x, y, width, height))
 		return metafile_FillPie (graphics, brush, x, y, width, height, startAngle, sweepAngle);
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -328,14 +329,14 @@ metafile_FillPieI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width
 GpStatus
 metafile_DrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
 GpStatus
 metafile_DrawPolygonI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -346,14 +347,14 @@ metafile_DrawPolygonI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *poin
 GpStatus
 metafile_FillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, FillMode fillMode)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
 GpStatus
 metafile_FillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count, FillMode fillMode)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -364,7 +365,7 @@ metafile_FillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *
 GpStatus
 metafile_DrawRectangle (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -374,14 +375,14 @@ metafile_DrawRectangleI (GpGraphics *graphics, GpPen *pen, int x, int y, int wid
 	/* every rectangle must fit into a INT16 or we must use the float version */
 	if (!RectFitInInt16 (x, y, width, height))
 		return metafile_DrawRectangleI (graphics, pen, x, y, width, height);
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
 GpStatus
 metafile_DrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects, int count)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -399,7 +400,7 @@ metafile_DrawRectanglesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRect *re
 		GdipFree (rf);
 		return status;
 	}
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -410,7 +411,7 @@ metafile_DrawRectanglesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRect *re
 GpStatus
 metafile_FillRectangle (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -420,14 +421,14 @@ metafile_FillRectangleI (GpGraphics *graphics, GpBrush *brush, int x, int y, int
 	/* every rectangle must fit into a INT16 or we must use the float version */
 	if (!RectFitInInt16 (x, y, width, height))
 		return metafile_FillRectangle (graphics, brush, x, y, width, height);
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
 GpStatus 
 metafile_FillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rects, int count)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -445,7 +446,8 @@ metafile_FillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect
 		GdipFree (rf);
 		return status;
 	}
-/* TODO */
+
+	/* TODO */
 	return Ok;
 }
 
@@ -456,7 +458,7 @@ metafile_FillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect
 GpStatus
 metafile_FillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -467,7 +469,7 @@ metafile_FillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 GpStatus
 metafile_GraphicsClear (GpGraphics *graphics, ARGB color)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -478,7 +480,7 @@ metafile_GraphicsClear (GpGraphics *graphics, ARGB color)
 GpStatus
 metafile_SetCompositingMode (GpGraphics *graphics, CompositingMode compositingMode)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -489,7 +491,7 @@ metafile_SetCompositingMode (GpGraphics *graphics, CompositingMode compositingMo
 GpStatus
 metafile_SetCompositingQuality (GpGraphics *graphics, CompositingQuality compositingQuality)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -500,7 +502,7 @@ metafile_SetCompositingQuality (GpGraphics *graphics, CompositingQuality composi
 GpStatus
 metafile_SetInterpolationMode (GpGraphics *graphics, InterpolationMode interpolationMode)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -511,7 +513,7 @@ metafile_SetInterpolationMode (GpGraphics *graphics, InterpolationMode interpola
 GpStatus
 metafile_SetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode pixelOffsetMode)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -522,7 +524,7 @@ metafile_SetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode pixelOffsetMo
 GpStatus
 metafile_SetPageTransform (GpGraphics *graphics, GpUnit unit, float scale)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -533,7 +535,7 @@ metafile_SetPageTransform (GpGraphics *graphics, GpUnit unit, float scale)
 GpStatus 
 metafile_SetRenderingOrigin (GpGraphics *graphics, int x, int y)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -544,7 +546,7 @@ metafile_SetRenderingOrigin (GpGraphics *graphics, int x, int y)
 GpStatus
 metafile_SetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -555,7 +557,7 @@ metafile_SetSmoothingMode (GpGraphics *graphics, SmoothingMode mode)
 GpStatus
 metafile_SetTextContrast (GpGraphics *graphics, UINT contrast)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -566,7 +568,7 @@ metafile_SetTextContrast (GpGraphics *graphics, UINT contrast)
 GpStatus
 metafile_SetTextRenderingHint (GpGraphics *graphics, TextRenderingHint mode)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -577,7 +579,7 @@ metafile_SetTextRenderingHint (GpGraphics *graphics, TextRenderingHint mode)
 GpStatus
 metafile_ResetClip (GpGraphics *graphics)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -588,7 +590,7 @@ metafile_ResetClip (GpGraphics *graphics)
 GpStatus
 metafile_SetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMode)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -599,7 +601,7 @@ metafile_SetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMod
 GpStatus
 metafile_SetClipRect (GpGraphics *graphics, float x, float y, float width, float height, CombineMode combineMode)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -610,7 +612,7 @@ metafile_SetClipRect (GpGraphics *graphics, float x, float y, float width, float
 GpStatus
 metafile_SetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMode)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -621,7 +623,7 @@ metafile_SetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode comb
 GpStatus
 metafile_TranslateClip (GpGraphics *graphics, float dx, float dy)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -632,7 +634,7 @@ metafile_TranslateClip (GpGraphics *graphics, float dx, float dy)
 GpStatus
 metafile_ResetWorldTransform (GpGraphics *graphics)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -643,7 +645,7 @@ metafile_ResetWorldTransform (GpGraphics *graphics)
 GpStatus
 metafile_SetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -654,7 +656,7 @@ metafile_SetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 GpStatus
 metafile_MultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrder order)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -665,7 +667,7 @@ metafile_MultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatri
 GpStatus
 metafile_RotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -676,7 +678,7 @@ metafile_RotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder 
 GpStatus
 metafile_ScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder order)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }
 
@@ -687,6 +689,6 @@ metafile_ScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrix
 GpStatus
 metafile_TranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixOrder order)
 {
-/* TODO */
+	/* TODO */
 	return Ok;
 }

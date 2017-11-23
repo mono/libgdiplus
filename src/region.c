@@ -66,61 +66,61 @@ gdip_add_rect_to_array (GpRectF** srcarray, int* elements,  GpRectF* rect)
 static BOOL
 gdip_is_Point_in_RectF_Visible (float x, float y, GpRectF* rect)
 {
-        if ((x >= rect->X && x < (rect->X + rect->Width))
-                && (y >= rect->Y && y < (rect->Y + rect->Height)))
-                return TRUE;
-        else
-                return FALSE;
+	if ((x >= rect->X && x < (rect->X + rect->Width))
+		&& (y >= rect->Y && y < (rect->Y + rect->Height)))
+		return TRUE;
+	else
+		return FALSE;
 }
 
 static BOOL
 gdip_is_Point_in_RectFs_Visible (float x, float y, GpRectF* r, int cnt)
 {
-        GpRectF* rect = r;
-        int i;
+	GpRectF* rect = r;
+	int i;
 
-        for (i = 0; i < cnt; i++, rect++) {
-                if (gdip_is_Point_in_RectF_Visible (x, y, rect)) {
-                        return TRUE;
-                }
-        }
+	for (i = 0; i < cnt; i++, rect++) {
+		if (gdip_is_Point_in_RectF_Visible (x, y, rect)) {
+			return TRUE;
+		}
+	}
 
-        return FALSE;
+	return FALSE;
 }
 
 static void
 gdip_get_bounds (GpRectF *allrects, int allcnt, GpRectF *bound)
 {
-        float nx, ny, fx, fy;
-        int i;
-        GpRectF *rect;
+	float nx, ny, fx, fy;
+	int i;
+	GpRectF *rect;
 
-        if (allrects == NULL || allcnt == 0) {
-                bound->X = bound->Y = bound->Width =  bound->Height = 0;
-                return;
-        }
+	if (allrects == NULL || allcnt == 0) {
+		bound->X = bound->Y = bound->Width =  bound->Height = 0;
+		return;
+	}
 
-        /* Build a rect that contains all the rects inside. Smallest x,y and biggest x,y*/
-        nx = allrects->X; ny = allrects->Y;
-        fx = allrects->X + allrects->Width; fy = allrects->Y + allrects->Height;
+	/* Build a rect that contains all the rects inside. Smallest x,y and biggest x,y*/
+	nx = allrects->X; ny = allrects->Y;
+	fx = allrects->X + allrects->Width; fy = allrects->Y + allrects->Height;
 
-        for (i = 0, rect = allrects; i < allcnt; i++, rect++) {
+	for (i = 0, rect = allrects; i < allcnt; i++, rect++) {
 
-                if (rect->X < nx)
-                        nx = rect->X;
+		if (rect->X < nx)
+			nx = rect->X;
 
-                if (rect->Y < ny)
-                        ny = rect->Y;
+		if (rect->Y < ny)
+			ny = rect->Y;
 
-                if (rect->X + rect->Width  > fx)
-                        fx = rect->X + rect->Width;
+		if (rect->X + rect->Width  > fx)
+			fx = rect->X + rect->Width;
 
-                if (rect->Y + rect->Height > fy)
-                        fy = rect->Y + rect->Height;
-        }
+		if (rect->Y + rect->Height > fy)
+			fy = rect->Y + rect->Height;
+	}
 
-        bound->X = nx; bound->Y = ny;
-        bound->Width = fx - nx; bound->Height = fy - ny;
+	bound->X = nx; bound->Y = ny;
+	bound->Width = fx - nx; bound->Height = fy - ny;
 }
 
 /* This internal version doesn't require a Graphic object to work */
@@ -163,7 +163,7 @@ gdip_is_InfiniteRegion (GpRegion *region)
 	switch (region->type) {
 	case RegionTypeRectF:
 		if (region->cnt != 1)
-	              return FALSE;
+		      return FALSE;
 		return gdip_is_rect_infinite (region->rects);
 	case RegionTypePath:
 		/* FIXME: incomplete and not 100% accurate (curves) - but cover the most common case */
@@ -238,11 +238,11 @@ gdip_equals (GpRectF *rect1, GpRectF *rect2)
 BOOL
 gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect)
 {
-        if ((x >= rect->X && x <= (rect->X + rect->Width))
-                && (y >= rect->Y && y <= (rect->Y + rect->Height)))
-                return TRUE;
-        else
-                return FALSE;
+	if ((x >= rect->X && x <= (rect->X + rect->Width))
+		&& (y >= rect->Y && y <= (rect->Y + rect->Height)))
+		return TRUE;
+	else
+		return FALSE;
 }
 
 /* Finds a rect that has the lowest x and y after the src rect provided */
@@ -462,30 +462,30 @@ gdip_createRegion (GpRegion **region, RegionType type, void *src)
 GpStatus WINGDIPAPI
 GdipCreateRegion (GpRegion **region)
 {
-        if (!region)
-                return InvalidParameter;
+	if (!region)
+		return InvalidParameter;
 
-        return gdip_createRegion (region, RegionTypeEmpty, NULL);
+	return gdip_createRegion (region, RegionTypeEmpty, NULL);
 }
 
 // coverity[+alloc : arg-*1]
 GpStatus WINGDIPAPI
 GdipCreateRegionRect (GDIPCONST GpRectF *rect, GpRegion **region)
 {
-        if (!region || !rect)
-                return InvalidParameter;
+	if (!region || !rect)
+		return InvalidParameter;
 
-        return gdip_createRegion (region, RegionTypeRectF, (void*) rect);
+	return gdip_createRegion (region, RegionTypeRectF, (void*) rect);
 }
 
 // coverity[+alloc : arg-*1]
 GpStatus WINGDIPAPI
 GdipCreateRegionRectI (GDIPCONST GpRect *rect, GpRegion **region)
 {
-        if (!region || !rect)
-                return InvalidParameter;
+	if (!region || !rect)
+		return InvalidParameter;
 
-        return gdip_createRegion (region, RegionTypeRect, (void*) rect);
+	return gdip_createRegion (region, RegionTypeRect, (void*) rect);
 }
 
 // coverity[+alloc : arg-*2]
@@ -505,9 +505,9 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 
 	memcpy (&result->type, regionData, sizeof (guint32));
 	result->cnt = 0;
-        result->rects = NULL;
+	result->rects = NULL;
 	result->tree = NULL;
-        result->bitmap = NULL;
+	result->bitmap = NULL;
 
 	switch (result->type) {
 	case RegionTypeRectF: {
@@ -522,7 +522,7 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 		}
 
 		for (i = 0, rect = (GpRectF*)(regionData + 8); i < count; i++, rect++)
-	                gdip_add_rect_to_array (&result->rects, &result->cnt, rect);
+			gdip_add_rect_to_array (&result->rects, &result->cnt, rect);
 		}
 		break;
 	case RegionTypePath:
@@ -1185,14 +1185,14 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 GpStatus WINGDIPAPI
 GdipCombineRegionRectI (GpRegion *region, GDIPCONST GpRect *recti, CombineMode combineMode)
 {
-        GpRectF rect;
+	GpRectF rect;
 
-        if (!region || !recti)
-                return InvalidParameter;
+	if (!region || !recti)
+		return InvalidParameter;
 
-        gdip_from_Rect_To_RectF ((GpRect *) recti, &rect);
+	gdip_from_Rect_To_RectF ((GpRect *) recti, &rect);
 
-        return GdipCombineRegionRect (region, (GDIPCONST GpRectF *) &rect, combineMode);
+	return GdipCombineRegionRect (region, (GDIPCONST GpRectF *) &rect, combineMode);
 }
 
 /* Exclude path from infinite region */
@@ -1507,8 +1507,8 @@ GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combi
 GpStatus WINGDIPAPI
 GdipGetRegionBounds (GpRegion *region, GpGraphics *graphics, GpRectF *rect)
 {
-        if (!region || !graphics || !rect)
-                return InvalidParameter;
+	if (!region || !graphics || !rect)
+		return InvalidParameter;
 
 	if (region->type == RegionTypePath) {
 		GpRect bounds;
@@ -1526,21 +1526,21 @@ GdipGetRegionBounds (GpRegion *region, GpGraphics *graphics, GpRectF *rect)
 		rect->Width = bounds.Width;
 		rect->Height = bounds.Height;
 	} else {
-	        gdip_get_bounds (region->rects , region->cnt, rect);
+		gdip_get_bounds (region->rects , region->cnt, rect);
 	}
 
-        return Ok;
+	return Ok;
 }
 
 
 GpStatus WINGDIPAPI
 GdipIsEmptyRegion (GpRegion *region, GpGraphics *graphics, BOOL *result)
 {
-        if (!region || !graphics || !result)
-                return InvalidParameter;
+	if (!region || !graphics || !result)
+		return InvalidParameter;
 
 	*result = gdip_is_region_empty (region);
-        return Ok;
+	return Ok;
 }
 
 
@@ -1548,7 +1548,7 @@ GpStatus WINGDIPAPI
 GdipIsInfiniteRegion (GpRegion *region, GpGraphics *graphics, BOOL *result)
 {
       if (!region || !graphics || !result)
-                return InvalidParameter;
+		return InvalidParameter;
 
       *result = gdip_is_InfiniteRegion (region);
       return Ok;
@@ -1558,8 +1558,8 @@ GdipIsInfiniteRegion (GpRegion *region, GpGraphics *graphics, BOOL *result)
 GpStatus WINGDIPAPI
 GdipIsVisibleRegionPoint (GpRegion *region, float x, float y, GpGraphics *graphics, BOOL *result)
 {
-        if (!region || !result)
-                return InvalidParameter;
+	if (!region || !result)
+		return InvalidParameter;
 
 	if (region->type == RegionTypePath) {
 		gdip_region_bitmap_ensure (region);
@@ -1570,29 +1570,29 @@ GdipIsVisibleRegionPoint (GpRegion *region, float x, float y, GpGraphics *graphi
 		*result = gdip_is_Point_in_RectFs_Visible (x, y, region->rects, region->cnt);
 	}
 
-        return Ok;
+	return Ok;
 }
 
 
 GpStatus WINGDIPAPI
 GdipIsVisibleRegionPointI (GpRegion *region, int x, int y, GpGraphics *graphics, BOOL *result)
 {
-        return GdipIsVisibleRegionPoint (region, x, y, graphics, result);
+	return GdipIsVisibleRegionPoint (region, x, y, graphics, result);
 }
 
 
 GpStatus WINGDIPAPI
 GdipIsVisibleRegionRect (GpRegion *region, float x, float y, float width, float height, GpGraphics *graphics, BOOL *result)
 {
-        BOOL found = FALSE;
+	BOOL found = FALSE;
 
-        if (!region || !result)
-                return InvalidParameter;
+	if (!region || !result)
+		return InvalidParameter;
 
-        if (width ==0 || height ==0) {
-                *result = FALSE;
-                return Ok;
-        }
+	if (width ==0 || height ==0) {
+		*result = FALSE;
+		return Ok;
+	}
 
 	if (region->type == RegionTypePath) {
 		GpRect rect;
@@ -1626,15 +1626,15 @@ GdipIsVisibleRegionRect (GpRegion *region, float x, float y, float width, float 
 		}
 	}
 
-        *result = found;
-        return Ok;
+	*result = found;
+	return Ok;
 }
 
 
 GpStatus WINGDIPAPI
 GdipIsVisibleRegionRectI (GpRegion *region, int x, int y, int width, int height, GpGraphics *graphics, BOOL *result)
 {
-        return GdipIsVisibleRegionRect (region, x, y, width, height, graphics, result);
+	return GdipIsVisibleRegionRect (region, x, y, width, height, graphics, result);
 }
 
 
@@ -1644,8 +1644,8 @@ GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
 	GpRegion *work = NULL;
 	GpStatus status;
 
-        if (!region || !count)
-                return InvalidParameter;
+	if (!region || !count)
+		return InvalidParameter;
 
 	/* apply any user supplied matrix transformation */
 	if (!gdip_is_matrix_empty (matrix)) {
@@ -1691,7 +1691,7 @@ GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
 		else
 			*count = 0;
 	} else {
-	        *count = work->cnt;
+		*count = work->cnt;
 	}
 
 	/* delete the clone */
@@ -1753,8 +1753,8 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matr
 		else
 			*count = 0;
 	} else {
-	        memcpy (rects, work->rects, sizeof (GpRectF) * *count);
-	        *count = work->cnt;
+		memcpy (rects, work->rects, sizeof (GpRectF) * *count);
+		*count = work->cnt;
 	}
 
 	/* delete the clone */
@@ -1824,8 +1824,8 @@ GdipIsEqualRegion (GpRegion *region, GpRegion *region2, GpGraphics *graphics, BO
 GpStatus WINGDIPAPI
 GdipTranslateRegion (GpRegion *region, float dx, float dy)
 {
-        if (!region)
-                return InvalidParameter;
+	if (!region)
+		return InvalidParameter;
 
 	/* can't transforman infinite region to anything else than an infinite region 
 	 * (even if you scale it by half it's still infinite ;-) see unit tests
@@ -1841,21 +1841,21 @@ GdipTranslateRegion (GpRegion *region, float dx, float dy)
 			region->bitmap->Y += dy;
 		}
 	} else if ((region->type == RegionTypeRectF) && region->rects) {
-	        int i;
-	        GpRectF *rect;
-                for (i = 0, rect = region->rects ; i < region->cnt; i++, rect++) {
-                        rect->X += dx;
-                        rect->Y += dy;
-                }
-        }
+		int i;
+		GpRectF *rect;
+		for (i = 0, rect = region->rects ; i < region->cnt; i++, rect++) {
+			rect->X += dx;
+			rect->Y += dy;
+		}
+	}
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipTranslateRegionI (GpRegion *region, int dx, int dy)
 {
-        return GdipTranslateRegion (region, dx, dy);
+	return GdipTranslateRegion (region, dx, dy);
 }
 
 /* this call doesn't exists in GDI+ */
@@ -1866,17 +1866,17 @@ ScaleRegion (GpRegion *region, float sx, float sy)
 		return InvalidParameter;
 
 	if ((region->type == RegionTypeRectF) && region->rects) {
-	        int i;
-	        GpRectF *rect;
-                for (i = 0, rect = region->rects ; i < region->cnt; i++, rect++) {
-                        rect->X *= sx;
-                        rect->Y *= sy;
-                        rect->Width *= sx;
-                        rect->Height *= sy;
-                }
-        }
+		int i;
+		GpRectF *rect;
+		for (i = 0, rect = region->rects ; i < region->cnt; i++, rect++) {
+			rect->X *= sx;
+			rect->Y *= sy;
+			rect->Width *= sx;
+			rect->Height *= sy;
+		}
+	}
 
-        return Ok;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -1949,10 +1949,10 @@ GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 GpStatus WINGDIPAPI
 GdipCreateRegionPath (GpPath *path, GpRegion **region)
 {
-        if (!region || !path)
-                return InvalidParameter;
+	if (!region || !path)
+		return InvalidParameter;
 
-        return gdip_createRegion (region, RegionTypePath, (void*) path);
+	return gdip_createRegion (region, RegionTypePath, (void*) path);
 }
 
 
