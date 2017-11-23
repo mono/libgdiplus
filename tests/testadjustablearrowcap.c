@@ -57,7 +57,7 @@ static void verifyArrowCap (GpAdjustableArrowCap *cap, REAL expectedHeight, REAL
 
 	status = GdipGetAdjustableArrowCapMiddleInset (cap, &middleInset);
 	assertEqualInt (status, Ok);
-	assertEqualInt (middleInset, 0);
+	assertEqualFloat (middleInset, 0);
 
 	status = GdipGetCustomLineCapType ((GpCustomLineCap *) cap, &capType);
 	assertEqualInt (status, Ok);
@@ -69,10 +69,7 @@ static void verifyArrowCap (GpAdjustableArrowCap *cap, REAL expectedHeight, REAL
 
 	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
 	assertEqualInt (status, Ok);
-	if (expectedWidth == 0)
-		assertEqualInt (baseInset, 0);
-	else
-		assertEqualFloat (baseInset, (expectedHeight / expectedWidth));
+	assertEqualFloat (baseInset, (expectedWidth == 0 ? 0 : (expectedHeight / expectedWidth)));
 
 	status = GdipGetCustomLineCapStrokeCaps ((GpCustomLineCap *) cap, &startCap, &endCap);
 	assertEqualInt (status, Ok);
@@ -85,7 +82,7 @@ static void verifyArrowCap (GpAdjustableArrowCap *cap, REAL expectedHeight, REAL
 
 	status = GdipGetCustomLineCapWidthScale ((GpCustomLineCap *) cap, &widthScale);
 	assertEqualInt (status, Ok);
-	assertEqualInt (widthScale, 1);
+	assertEqualFloat (widthScale, 1);
 
 	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 }
@@ -188,26 +185,26 @@ static void test_setAdjustableArrowCapHeight ()
 	// Positive value.
 	status = GdipSetAdjustableArrowCapHeight (cap, 30);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetAdjustableArrowCapHeight (cap, &height);
 	assertEqualInt (status, Ok);
-	assertEqualInt (height, 30);
+	assertEqualFloat (height, 30);
 
 	// Zero.
 	status = GdipSetAdjustableArrowCapHeight (cap, 0);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetAdjustableArrowCapHeight (cap, &height);
 	assertEqualInt (status, Ok);
-	assertEqualInt (height, 0);
+	assertEqualFloat (height, 0);
 
 	// Negative value.
 	status = GdipSetAdjustableArrowCapHeight (cap, -30);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetAdjustableArrowCapHeight (cap, &height);
 	assertEqualInt (status, Ok);
-	assertEqualInt (height, -30);
+	assertEqualFloat (height, -30);
 
 	// Negative tests.
 	status = GdipSetAdjustableArrowCapHeight (NULL, 30);
@@ -245,26 +242,26 @@ static void test_setAdjustableArrowCapWidth ()
 	// Positive value.
 	status = GdipSetAdjustableArrowCapWidth (cap, 30);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetAdjustableArrowCapWidth (cap, &width);
 	assertEqualInt (status, Ok);
-	assertEqualInt (width, 30);
+	assertEqualFloat (width, 30);
 
 	// Zero.
 	status = GdipSetAdjustableArrowCapWidth (cap, 0);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetAdjustableArrowCapWidth (cap, &width);
 	assertEqualInt (status, Ok);
-	assertEqualInt (width, 0);
+	assertEqualFloat (width, 0);
 
 	// Negative value.
 	status = GdipSetAdjustableArrowCapWidth (cap, -30);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetAdjustableArrowCapWidth (cap, &width);
 	assertEqualInt (status, Ok);
-	assertEqualInt (width, -30);
+	assertEqualFloat (width, -30);
 
 	// Negative tests.
 	status = GdipSetAdjustableArrowCapWidth (NULL, 30);
@@ -302,26 +299,26 @@ static void test_setAdjustableArrowCapMiddleInset ()
 	// Positive value.
 	status = GdipSetAdjustableArrowCapMiddleInset (cap, 30);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetAdjustableArrowCapMiddleInset (cap, &middleInset);
 	assertEqualInt (status, Ok);
-	assertEqualInt (middleInset, 30);
+	assertEqualFloat (middleInset, 30);
 
 	// Zero.
 	status = GdipSetAdjustableArrowCapMiddleInset (cap, 0);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetAdjustableArrowCapMiddleInset (cap, &middleInset);
 	assertEqualInt (status, Ok);
-	assertEqualInt (middleInset, 0);
+	assertEqualFloat (middleInset, 0);
 
 	// Negative value.
 	status = GdipSetAdjustableArrowCapMiddleInset (cap, -30);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetAdjustableArrowCapMiddleInset (cap, &middleInset);
 	assertEqualInt (status, Ok);
-	assertEqualInt (middleInset, -30);
+	assertEqualFloat (middleInset, -30);
 
 	// Negative tests.
 	status = GdipSetAdjustableArrowCapMiddleInset (NULL, 30);
@@ -358,7 +355,7 @@ static void test_setAdjustableArrowCapFillState ()
 
 	status = GdipSetAdjustableArrowCapFillState (cap, FALSE);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetAdjustableArrowCapFillState (cap, &isFilled);
 	assertEqualInt (status, Ok);
 	assert (isFilled == FALSE);

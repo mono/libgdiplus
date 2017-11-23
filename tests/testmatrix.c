@@ -443,12 +443,12 @@ static void test_transformMatrixPoints ()
 
 	status = GdipTransformMatrixPoints (matrix, points, 3);
 	assertEqualInt (status, Ok);
-	assertEqualInt (points[0].X, 12);
-	assertEqualInt (points[0].Y, 16);
-	assertEqualInt (points[1].X, 20);
-	assertEqualInt (points[1].Y, 28);
-	assertEqualInt (points[2].X, 28);
-	assertEqualInt (points[2].Y, 40);
+	assertEqualFloat (points[0].X, 12);
+	assertEqualFloat (points[0].Y, 16);
+	assertEqualFloat (points[1].X, 20);
+	assertEqualFloat (points[1].Y, 28);
+	assertEqualFloat (points[2].X, 28);
+	assertEqualFloat (points[2].Y, 40);
 
 	// Negative tests.
 	status = GdipTransformMatrixPoints (NULL, points, 3);
@@ -525,12 +525,12 @@ static void test_vectorTransformMatrixPoints ()
 
 	status = GdipVectorTransformMatrixPoints (matrix, points, 3);
 	assertEqualInt (status, Ok);
-	assertEqualInt (points[0].X, 7);
-	assertEqualInt (points[0].Y, 10);
-	assertEqualInt (points[1].X, 15);
-	assertEqualInt (points[1].Y, 22);
-	assertEqualInt (points[2].X, 23);
-	assertEqualInt (points[2].Y, 34);
+	assertEqualFloat (points[0].X, 7);
+	assertEqualFloat (points[0].Y, 10);
+	assertEqualFloat (points[1].X, 15);
+	assertEqualFloat (points[1].Y, 22);
+	assertEqualFloat (points[2].X, 23);
+	assertEqualFloat (points[2].Y, 34);
 
 	// Negative tests.
 	status = GdipVectorTransformMatrixPoints (NULL, points, 3);

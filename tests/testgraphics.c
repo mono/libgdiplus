@@ -797,7 +797,7 @@ static void test_pageScale ()
 
 	status = GdipGetPageScale (graphics, &pageScale);
 	assertEqualInt (status, Ok);
-	assertEqualInt (pageScale, 1);
+	assertEqualFloat (pageScale, 1);
 
 	status = GdipSetPageScale (graphics, (REAL) 1000000032);
 	assertEqualInt (status, Ok);

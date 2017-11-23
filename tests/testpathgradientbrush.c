@@ -469,8 +469,8 @@ static void test_getPathGradientCenterPoint ()
 
     status = GdipGetPathGradientCenterPoint (brush, &centerPoint);
     assertEqualInt (status, Ok);
-    assertEqualInt (centerPoint.X, 3);
-    assertEqualInt (centerPoint.Y, 7);
+    assertEqualFloat (centerPoint.X, 3);
+    assertEqualFloat (centerPoint.Y, 7);
 
     status = GdipGetPathGradientCenterPoint (NULL, &centerPoint);
     assertEqualInt (status, InvalidParameter);
@@ -535,16 +535,16 @@ static void test_setPathGradientCenterPoint ()
     assertEqualInt (status, Ok);
 
     GdipGetPathGradientCenterPoint (brush, &centerPoint);
-    assertEqualInt (centerPoint.X, 1);
-    assertEqualInt (centerPoint.Y, 2);
+    assertEqualFloat (centerPoint.X, 1);
+    assertEqualFloat (centerPoint.Y, 2);
 
     // Set outside the bounds of the brush.
     status = GdipSetPathGradientCenterPoint (brush, &outOfBoundsPoint);
     assertEqualInt (status, Ok);
 
     GdipGetPathGradientCenterPoint (brush, &centerPoint);
-    assertEqualInt (centerPoint.X, 100);
-    assertEqualInt (centerPoint.Y, 200);
+    assertEqualFloat (centerPoint.X, 100);
+    assertEqualFloat (centerPoint.Y, 200);
 
     // Negative tests.
     status = GdipSetPathGradientCenterPoint (NULL, &point);
@@ -571,16 +571,16 @@ static void test_setPathGradientCenterPointI ()
     assertEqualInt (status, Ok);
 
     GdipGetPathGradientCenterPoint (brush, &centerPoint);
-    assertEqualInt (centerPoint.X, 1);
-    assertEqualInt (centerPoint.Y, 2);
+    assertEqualFloat (centerPoint.X, 1);
+    assertEqualFloat (centerPoint.Y, 2);
 
     // Set outside the bounds of the brush.
     status = GdipSetPathGradientCenterPointI (brush, &outOfBoundsPoint);
     assertEqualInt (status, Ok);
 
     GdipGetPathGradientCenterPoint (brush, &centerPoint);
-    assertEqualInt (centerPoint.X, 100);
-    assertEqualInt (centerPoint.Y, 200);
+    assertEqualFloat (centerPoint.X, 100);
+    assertEqualFloat (centerPoint.Y, 200);
 
     // Negative tests.
     status = GdipSetPathGradientCenterPointI (NULL, &point);
@@ -855,7 +855,7 @@ static void test_setPathGradientBlend ()
 
     status = GdipGetPathGradientBlend (brush, destBlend1, destPositions1, 1);
     assertEqualInt (status, Ok);
-    assertEqualInt (destBlend1[0], 3);
+    assertEqualFloat (destBlend1[0], 3);
     // It appears GDI+ ignores the position value if there is a single element.
     // This is a GDI+ bug we don't want to replicate.
 #if !defined(USE_WINDOWS_GDIPLUS)
@@ -868,10 +868,10 @@ static void test_setPathGradientBlend ()
 
     status = GdipGetPathGradientBlend (brush, destBlend2, destPositions2, 2);
     assertEqualInt (status, Ok);
-    assertEqualInt (destBlend2[0], -1);
-    assertEqualInt (destBlend2[1], 0);
-    assertEqualInt (destPositions2[0], 0);
-    assertEqualInt (destPositions2[1], 1);
+    assertEqualFloat (destBlend2[0], -1);
+    assertEqualFloat (destBlend2[1], 0);
+    assertEqualFloat (destPositions2[0], 0);
+    assertEqualFloat (destPositions2[1], 1);
 
     // Count of 3.
     status = GdipSetPathGradientBlend (brush, blend3, positions3, 3);
@@ -1020,8 +1020,8 @@ static void test_setPathGradientPresetBlend ()
     assertEqualInt (status, Ok);
     assertEqualInt (destBlend2[0], 1);
     assertEqualInt (destBlend2[1], 0);
-    assertEqualInt (destPositions2[0], 0);
-    assertEqualInt (destPositions2[1], 1);
+    assertEqualFloat (destPositions2[0], 0);
+    assertEqualFloat (destPositions2[1], 1);
 
     // Count of 3.
     status = GdipSetPathGradientPresetBlend (brush, blend3, positions3, 3);
@@ -1029,9 +1029,9 @@ static void test_setPathGradientPresetBlend ()
 
     status = GdipGetPathGradientPresetBlend (brush, destBlend3, destPositions3, 3);
     assertEqualInt (status, Ok);
-    assertEqualFloat (destBlend3[0], 1);
-    assertEqualFloat (destBlend3[1], 2);
-    assertEqualFloat (destBlend3[2], 3);
+    assertEqualInt (destBlend3[0], 1);
+    assertEqualInt (destBlend3[1], 2);
+    assertEqualInt (destBlend3[2], 3);
     assertEqualFloat (destPositions3[0], 0);
     assertEqualFloat (destPositions3[1], 0.5);
     assertEqualFloat (destPositions3[2], 1);
@@ -1606,14 +1606,14 @@ static void test_clone ()
     assertEqualInt (centerColor, 3);
 
     GdipGetPathGradientCenterPoint ((GpPathGradient *) clonedBrush, &centerPoint);
-    assertEqualInt (centerPoint.X, 3);
-    assertEqualInt (centerPoint.Y, 7);
+    assertEqualFloat (centerPoint.X, 3);
+    assertEqualFloat (centerPoint.Y, 7);
 
     GdipGetPathGradientRect ((GpPathGradient *) clonedBrush, &rect);
-    assertEqualInt (rect.X, 1);
-    assertEqualInt (rect.Y, 2);
-    assertEqualInt (rect.Width, 4);
-    assertEqualInt (rect.Height, 11);
+    assertEqualFloat (rect.X, 1);
+    assertEqualFloat (rect.Y, 2);
+    assertEqualFloat (rect.Width, 4);
+    assertEqualFloat (rect.Height, 11);
 
     GdipGetPathGradientPointCount ((GpPathGradient *) clonedBrush, &pointCount);
     assertEqualInt (pointCount, 3);
