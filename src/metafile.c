@@ -599,12 +599,19 @@ gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest,
 	printf ("\n\t\tClrImportant: %d", lpBitsInfo->bmiHeader.biClrImportant);
 #endif
 	ms.ptr = (BYTE*)lpBitsInfo;
-	ms.size = lpBitsInfo->bmiHeader.biSizeImage;
+	if (lpBitsInfo->bmiHeader.biCompression == 0) { // 0 == RGB 
+		// Per the spec, if compression is RGB ImageSize must be ignored (and it should be zero anyway)
+		// and calculated according to the following formula.
+		ms.size = (((lpBitsInfo->bmiHeader.biWidth * lpBitsInfo->bmiHeader.biPlanes * 
+			lpBitsInfo->bmiHeader.biBitCount + 31) & ~31) / 8) * abs(lpBitsInfo->bmiHeader.biHeight);
+	} else {
+		ms.size = lpBitsInfo->bmiHeader.biSizeImage;
+	}
 	ms.pos = 0;
 	status = gdip_read_bmp_image (&ms, &image, Memory);
 	if (status == Ok) {
-		status = GdipDrawImageRectRect (context->graphics, image, context->x + XDest, context->y + YDest,
-			context->width, context->height, XSrc, YSrc, nSrcWidth, nSrcHeight, UnitPixel, NULL, NULL, NULL);
+		status = GdipDrawImageRectRect (context->graphics, image, XDest, YDest,
+			nDestWidth, nDestHeight, XSrc, YSrc, nSrcWidth, nSrcHeight, UnitPixel, NULL, NULL, NULL);
 	}
 	if (image)
 		GdipDisposeImage (image);
@@ -952,6 +959,10 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 	int i;
 	MetaObject *obj;
 	MetafilePlayContext *context;
+	float scaleX;
+	float scaleY;
+	float translateX;
+	float translateY;
 	/* metafiles always render as 32bppRgb */
 
 	if (!metafile || !graphics)
@@ -980,7 +991,12 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 	context->width = width;
 	context->height = height;
 	/* and keep an adjusted copy for providing "resets" */
-	GdipTranslateWorldTransform (graphics, -metafile->metafile_header.X, -metafile->metafile_header.Y, MatrixOrderPrepend);
+	scaleX = (float) width / (float) metafile->metafile_header.Width;
+	scaleY = (float) height / (float) metafile->metafile_header.Height;
+	GdipScaleWorldTransform (graphics, scaleX, scaleY, MatrixOrderPrepend);
+	translateX = -metafile->metafile_header.X + x / scaleX;
+	translateY = -metafile->metafile_header.Y + y / scaleY;
+	GdipTranslateWorldTransform (graphics, translateX, translateY, MatrixOrderPrepend);
 	GdipGetWorldTransform (graphics, &context->matrix);
 
 	/* defaults */

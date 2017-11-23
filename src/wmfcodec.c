@@ -91,6 +91,12 @@ GetColor (WORD w1, WORD w2)
 #define GETW(x)		(GUINT16_FROM_LE(*(WORD*)(data + (x))))
 #endif
 
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+#define GETS(x)		(*(SHORT*)(data + (x)))
+#else
+#define GETS(x)		(GINT16_FROM_LE(*(SHORT*)(data + (x))))
+#endif
+
 /* http://wvware.sourceforge.net/caolan/Polygon.html */
 static GpStatus
 Polygon (MetafilePlayContext *context, BYTE *data, int len)
@@ -99,7 +105,7 @@ Polygon (MetafilePlayContext *context, BYTE *data, int len)
 	GpStatus status;
 	int p;
 	/* variable number of parameters */
-	SHORT num = GETW(WP1);
+	SHORT num = GETS(WP1);
 
 	/* len (in WORDs) = num (WORD) + num * (x WORD + y WORD) */
 	if (num > len + 1)
@@ -114,9 +120,9 @@ Polygon (MetafilePlayContext *context, BYTE *data, int len)
 
 	int n = 2;
 	for (p = 0, pt = points; p < num; p++, pt++) {
-		pt->X = GETW(WP(n));
+		pt->X = GETS(WP(n));
 		n++;
-		pt->Y = GETW(WP(n));
+		pt->Y = GETS(WP(n));
 		n++;
 #ifdef DEBUG_WMF
 		printf ("\n\tpoly to %g,%g", pt->X, pt->Y);
@@ -136,18 +142,18 @@ Polyline (MetafilePlayContext *context, BYTE *data)
 	GpStatus status;
 	int p;
 	/* variable number of parameters */
-	SHORT num = GETW(WP1);
+	SHORT num = GETS(WP1);
 
 #ifdef DEBUG_WMF
 	printf ("Polyline %d points", num);
 #endif
-	SHORT x1 = GETW(WP2);
-	SHORT y1 = GETW(WP3);
+	SHORT x1 = GETS(WP2);
+	SHORT y1 = GETS(WP3);
 	int n = 4;
 	for (p = 1; p < num; p++) {
-		SHORT x2 = GETW(WP(n));
+		SHORT x2 = GETS(WP(n));
 		n++;
-		SHORT y2 = GETW(WP(n));
+		SHORT y2 = GETS(WP(n));
 		n++;
 #ifdef DEBUG_WMF_2
 		printf ("\n\tdraw from %d,%d to %d,%d", x1, y1, x2, y2);
@@ -311,19 +317,19 @@ gdip_metafile_play_wmf (MetafilePlayContext *context)
 			break;
 		case METAFILE_RECORD_SETWINDOWORG:
 			WMF_CHECK_PARAMS(2);
-			status = gdip_metafile_SetWindowOrg (context, GETW(WP1), GETW(WP2));
+			status = gdip_metafile_SetWindowOrg (context, GETS(WP1), GETS(WP2));
 			break;
 		case METAFILE_RECORD_SETWINDOWEXT:
 			WMF_CHECK_PARAMS(2);
-			status = gdip_metafile_SetWindowExt (context, GETW(WP1), GETW(WP2));
+			status = gdip_metafile_SetWindowExt (context, GETS(WP1), GETS(WP2));
 			break;
 		case METAFILE_RECORD_LINETO:
 			WMF_CHECK_PARAMS(2);
-			status = gdip_metafile_LineTo (context, GETW(WP1), GETW(WP2));
+			status = gdip_metafile_LineTo (context, GETS(WP1), GETS(WP2));
 			break;
 		case METAFILE_RECORD_MOVETO:
 			WMF_CHECK_PARAMS(2);
-			status = gdip_metafile_MoveTo (context, GETW(WP1), GETW(WP2));
+			status = gdip_metafile_MoveTo (context, GETS(WP1), GETS(WP2));
 			break;
 		case METAFILE_RECORD_CREATEPENINDIRECT:
 			/* note: documented with only 4 parameters, LOGPEN use a POINT to specify width, so y (3) is unused) */
@@ -345,15 +351,23 @@ gdip_metafile_play_wmf (MetafilePlayContext *context)
 			break;
 		case METAFILE_RECORD_ARC:
 			WMF_CHECK_PARAMS(8);
-			status = gdip_metafile_Arc (context, GETW(WP1), GETW(WP2), GETW(WP3), GETW(WP4), GETW(WP5), GETW(WP6),
-				GETW(WP7), GETW(WP8));
+			status = gdip_metafile_Arc (context, GETS(WP1), GETS(WP2), GETS(WP3), GETS(WP4), GETS(WP5), GETS(WP6),
+				GETS(WP7), GETS(WP8));
 			break;
 		case METAFILE_RECORD_STRETCHDIBITS: {
 			WMF_CHECK_PARAMS(14);
 			BITMAPINFO *bmi = (BITMAPINFO*) (data + 14 * sizeof (WORD));
 			void* bits = (void*) (bmi + GETDW(WP12));
-			status = gdip_metafile_StretchDIBits (context, GETW(WP11), GETW(WP10), GETW(WP9), GETW(WP8), GETW(WP7), 
-				GETW(WP6), GETW(WP5), GETW(WP4), bits, bmi, GETW(WP3), GETDW(WP1));
+			status = gdip_metafile_StretchDIBits (context, GETS(WP11), GETS(WP10), GETS(WP9), GETS(WP8), GETS(WP7), 
+				GETS(WP6), GETS(WP5), GETS(WP4), bits, bmi, GETW(WP3), GETDW(WP1));
+			break;
+		}
+		case METAFILE_RECORD_DIBSTRETCHBLT: {
+			WMF_CHECK_PARAMS(12);
+			BITMAPINFO *bmi = (BITMAPINFO*) (data + 13 * sizeof (WORD));
+			void* bits = (void*) (bmi + GETDW(WP11));
+			status = gdip_metafile_StretchDIBits (context, GETS(WP10), GETS(WP9), GETS(WP8), GETS(WP7), GETS(WP6), 
+				GETS(WP5), GETS(WP4), GETS(WP3), bits, bmi, 0, GETDW(WP1));
 			break;
 		}
 		default:
