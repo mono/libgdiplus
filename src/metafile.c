@@ -599,11 +599,11 @@ gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest,
 	printf ("\n\t\tClrImportant: %d", lpBitsInfo->bmiHeader.biClrImportant);
 #endif
 	ms.ptr = (BYTE*)lpBitsInfo;
-	if (lpBitsInfo->bmiHeader.biCompression == 0) { // 0 == RGB 
+	if (lpBitsInfo->bmiHeader.biCompression == BI_RGB) {
 		// Per the spec, if compression is RGB ImageSize must be ignored (and it should be zero anyway)
 		// and calculated according to the following formula.
-		ms.size = (((lpBitsInfo->bmiHeader.biWidth * lpBitsInfo->bmiHeader.biPlanes * 
-			lpBitsInfo->bmiHeader.biBitCount + 31) & ~31) / 8) * abs(lpBitsInfo->bmiHeader.biHeight);
+		ms.size = (floor ((lpBitsInfo->bmiHeader.biWidth * lpBitsInfo->bmiHeader.biPlanes * 
+			lpBitsInfo->bmiHeader.biBitCount + 31) / 32) * 4) * abs (lpBitsInfo->bmiHeader.biHeight);
 	} else {
 		ms.size = lpBitsInfo->bmiHeader.biSizeImage;
 	}
