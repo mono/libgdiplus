@@ -43,28 +43,6 @@ typedef struct
 
 #define BFT_BITMAP 0x4d42
 
-
-typedef struct {
-  BYTE rgbBlue;
-  BYTE rgbGreen;
-  BYTE rgbRed;
-  BYTE rgbReserved;
-} RGBQUAD, *LPRGBQUAD;
-
-typedef struct {
-    DWORD 	biSize;
-    LONG  	biWidth;
-    LONG  	biHeight;
-    WORD 	biPlanes;
-    WORD 	biBitCount;
-    DWORD 	biCompression;
-    DWORD 	biSizeImage;
-    LONG  	biXPelsPerMeter;
-    LONG  	biYPelsPerMeter;
-    DWORD 	biClrUsed;
-    DWORD 	biClrImportant;
-} BITMAPINFOHEADER, *PBITMAPINFOHEADER, *LPBITMAPINFOHEADER;
-
 typedef long FXPT2DOT30;
 
 typedef struct {
@@ -101,11 +79,6 @@ typedef struct {
 	DWORD	bV4GammaGreen;
 	DWORD	bV4GammaBlue;
 } BITMAPV4HEADER, *PBITMAPV4HEADER;
-
-typedef struct {
-	BITMAPINFOHEADER bmiHeader;
-	RGBQUAD	bmiColors[1];
-} BITMAPINFO, *PBITMAPINFO, *LPBITMAPINFO;
 
 #include "gdiplus-private.h"
 
