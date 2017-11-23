@@ -50,7 +50,6 @@ main (int argc, char **argv)
     IncompatibleBitmapData d, q;
     Rect r;
     int i, j;
-    unsigned long *lptr;
     unsigned char *cptr;
     BYTE *scan0 = (BYTE*) GdipAlloc(10 * 10 * 4);
     GpStatus status = GdipCreateBitmapFromScan0 (10, 10, 10 * 4, PixelFormat32bppARGB, scan0, &bitmap);
@@ -70,13 +69,6 @@ main (int argc, char **argv)
     status = GdipBitmapUnlockBits (bitmap, &d.origBitmapData);
     CHECK_STATUS(1);
 
-/*    lptr = (unsigned long *) bitmap->active_bitmap->scan0;
-    for (j = 0; j < 10; j++) {
-        for (i = 0; i < 10; i++) {
-            *lptr++ = j | j << 8 | i << 16 | i << 24;
-        }
-    }
-*/
     memset (&d, 0x00, sizeof (BitmapData));
     printf ("\nHalf rectangle, no format conversion, read only\n");
     r.X = 5; r.Y = 5;
@@ -85,10 +77,10 @@ main (int argc, char **argv)
     CHECK_STATUS(1);
 
     for (j = 0; j < 5; j++) {
-        lptr = (unsigned long *) d.origBitmapData.Scan0 + j * d.origBitmapData.Stride;
+        cptr = (unsigned char *) d.origBitmapData.Scan0 + j * d.origBitmapData.Stride;
         printf ("%d: ", j);
         for (i = 0; i < 5; i++) {
-            printf ("%08lx ", *lptr++);
+            printf ("%04x ", *cptr++);
         }
         printf ("\n");
     }
@@ -97,11 +89,7 @@ main (int argc, char **argv)
     printf ("Unlocking\n");
     status = GdipBitmapUnlockBits (bitmap, &d.origBitmapData);
     CHECK_STATUS(1);
-/*    printf ("Original data after unlock (shouldn't be 0xffffffff): 0x%08x\n",
-            ((unsigned long *)(bitmap->active_bitmap->scan0))[55]);
-    if (((unsigned long *)(bitmap->active_bitmap->scan0))[55] == 0xffffffff)
-        printf ("==> FAIL!\n");
-*/
+
     memset (&d, 0x00, sizeof (BitmapData));
     printf ("\nHalf rectangle, 32bpp ARGB -> 32bpp RGB, read only\n");
     r.X = 5; r.Y = 5;
@@ -109,11 +97,11 @@ main (int argc, char **argv)
     status = GdipBitmapLockBits (bitmap, &r, ImageLockModeRead, PixelFormat32bppRGB, &d.origBitmapData);
     CHECK_STATUS(1);
 
-    lptr = (unsigned long *) d.origBitmapData.Scan0;
     for (j = 0; j < 5; j++) {
+        cptr = (unsigned char *) d.origBitmapData.Scan0 + j * d.origBitmapData.Stride;
         printf ("%d: ", j);
         for (i = 0; i < 5; i++) {
-            printf ("%08lx ", *lptr++);
+            printf ("%04x ", *cptr++);
         }
         printf ("\n");
     }
@@ -151,16 +139,6 @@ main (int argc, char **argv)
     status = GdipBitmapUnlockBits (bitmap, &d.origBitmapData);
     CHECK_STATUS(1);
 
-/*    printf ("Original data after Unlock (should be all 0xffaabbcc):\n");
-    for (j = 5; j < 10; j++) {
-        lptr = (unsigned long *) (bitmap->active_bitmap->Scan0 + j * bitmap->active_bitmap->Stride) + 5;
-        printf ("%d: ", j);
-        for (i = 5; i < 10; i++) {
-            printf ("%08x ", *lptr++);
-        }
-        printf ("\n");
-    }
-*/
     GdipFree (scan0);
     return 0;
 }
