@@ -33,29 +33,34 @@
 static void
 gdip_from_Rect_To_RectF (GpRect* rect, GpRectF* rectf)
 {
-        rectf->X = rect->X;
-        rectf->Y = rect->Y;
-        rectf->Width = rect->Width;
-        rectf->Height = rect->Height;
+	rectf->X = rect->X;
+	rectf->Y = rect->Y;
+	rectf->Width = rect->Width;
+	rectf->Height = rect->Height;
 }
 
-static void
+static GpStatus
 gdip_add_rect_to_array (GpRectF** srcarray, int* elements,  GpRectF* rect)
 {
-        GpRectF *array, *next;
+	GpRectF *array, *next;
 
-        array = GdipAlloc (sizeof (GpRectF) * (*elements + 1));
-        memcpy (array, *srcarray, sizeof (GpRectF) * (*elements));
+	array = GdipAlloc (sizeof (GpRectF) * (*elements + 1));
+	if (!array)
+		return OutOfMemory;
 
-        if (*srcarray)
-                GdipFree (*srcarray);
+	memcpy (array, *srcarray, sizeof (GpRectF) * (*elements));
 
-        next = array;
-        next += (*elements);
-        memcpy (next, rect, sizeof (GpRectF));
+	if (*srcarray)
+		GdipFree (*srcarray);
 
-        *srcarray = array;
-        *elements = *elements + 1;
+	next = array;
+	next += (*elements);
+	memcpy (next, rect, sizeof (GpRectF));
+
+	*srcarray = array;
+	*elements = *elements + 1;
+
+	return Ok;
 }
 
 static BOOL
@@ -280,14 +285,14 @@ gdip_clear_region (GpRegion *region)
 {
 	region->type = RegionTypeEmpty;
 
-        if (region->rects) {
-                GdipFree (region->rects);
+	if (region->rects) {
+		GdipFree (region->rects);
 		region->rects = NULL;
 	}
 
 	if (region->tree) {
 		gdip_region_clear_tree (region->tree);
-                GdipFree (region->tree);
+		GdipFree (region->tree);
 		region->tree = NULL;
 	}
 
@@ -299,15 +304,20 @@ gdip_clear_region (GpRegion *region)
 	region->cnt = 0;
 }
 
-void
+GpStatus
 gdip_copy_region (GpRegion *source, GpRegion *dest)
 {
+	GpStatus status;
+
 	dest->type = source->type;
 
 	if (source->rects) {
 		dest->cnt = source->cnt;
-	        dest->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * source->cnt);
-        	memcpy (dest->rects, source->rects, sizeof (GpRectF) * source->cnt);
+		dest->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * source->cnt);
+		if (!dest->rects)
+			return OutOfMemory;
+
+		memcpy (dest->rects, source->rects, sizeof (GpRectF) * source->cnt);
 	} else {
 		dest->cnt = 0;
 		dest->rects = NULL;
@@ -315,7 +325,12 @@ gdip_copy_region (GpRegion *source, GpRegion *dest)
 
 	if (source->tree) {
 		dest->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
-		gdip_region_copy_tree (source->tree, dest->tree);
+		if (!dest->tree)
+			return OutOfMemory;
+
+		status = gdip_region_copy_tree (source->tree, dest->tree);
+		if (status != Ok)
+			return status;
 	} else {
 		dest->tree = NULL;
 	}
@@ -325,23 +340,31 @@ gdip_copy_region (GpRegion *source, GpRegion *dest)
 	} else {
 		dest->bitmap = NULL;
 	}
+
+	return Ok;
 }
 
 /* convert a rectangle-based region to a path based region */
-static void 
+static GpStatus
 gdip_region_convert_to_path (GpRegion *region)
 {
 	int i;
 	GpRectF *rect;
+	GpStatus status;
 
 	/* no conversion is required for complex regions */
 	if (!region || (region->type != RegionTypeRectF))
-		return;
+		return Ok;
 
 	region->type = RegionTypePath;
 	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
+	if (!region->tree)
+		return OutOfMemory;
 
-	GdipCreatePath (FillModeAlternate, &region->tree->path);
+	status = GdipCreatePath (FillModeAlternate, &region->tree->path);
+	if (status != Ok)
+		return status;
+
 	/* all rectangles are converted into a single path */
 	for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
 		GdipAddPathRectangle (region->tree->path, rect->X, rect->Y, rect->Width, rect->Height);
@@ -351,6 +374,8 @@ gdip_region_convert_to_path (GpRegion *region)
 		GdipFree (region->rects);
 		region->rects = NULL;
 	}
+
+	return Ok;
 }
 
 /*
@@ -361,42 +386,69 @@ gdip_region_create_from_path (GpRegion *region, GpPath *path)
 {
 	region->type = RegionTypePath;
 	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
+	if (!region->tree)
+		return OutOfMemory;
+
 	return GdipClonePath (path, &region->tree->path);
 }
 
 static GpStatus
 gdip_createRegion (GpRegion **region, RegionType type, void *src)
 {
-        GpRegion *result;
-        GpRectF rect;
+	GpRegion *result;
+	GpRectF rect;
+	GpStatus status;
 
-        result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
+	result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
+	if (!result)
+		return OutOfMemory;
+
 	result->type = type;
 	result->cnt = 0;
-        result->rects = NULL;
-        result->tree = NULL;
-        result->bitmap = NULL;
+	result->rects = NULL;
+	result->tree = NULL;
+	result->bitmap = NULL;
 
-        switch (type) {
-        case RegionTypeRect:
-                gdip_from_Rect_To_RectF ((GpRect *)src, &rect);
-                gdip_add_rect_to_array (&result->rects, &result->cnt,  &rect);
+	switch (type) {
+	case RegionTypeRect:
+		gdip_from_Rect_To_RectF ((GpRect *)src, &rect);
+		status = gdip_add_rect_to_array (&result->rects, &result->cnt,  &rect);
+		if (status != Ok) {
+			GdipFree (result);
+			return status;
+		}
+
 		result->type = RegionTypeRectF;
-                break;
-        case RegionTypeRectF:
-                gdip_add_rect_to_array (&result->rects, &result->cnt,  (GpRectF *)src);
-                break;
-        case RegionTypeEmpty:
-		GdipSetInfinite (result);
-		/* note: GdipSetInfinite converts type to RegionTypeRectF */
-                break;
-	case RegionTypePath:
-		gdip_region_create_from_path (result, (GpPath*)src);
 		break;
-        default:
+	case RegionTypeRectF:
+		status = gdip_add_rect_to_array (&result->rects, &result->cnt,  (GpRectF *)src);
+		if (status != Ok) {
+			GdipFree (result);
+			return status;
+		}
+
+		break;
+	case RegionTypeEmpty:
+		status = GdipSetInfinite (result);
+		if (status != Ok) {
+			GdipFree (result);
+			return status;
+		}
+
+		/* note: GdipSetInfinite converts type to RegionTypeRectF */
+		break;
+	case RegionTypePath:
+		status = gdip_region_create_from_path (result, (GpPath*)src);
+		if (status != Ok) {
+			GdipDeleteRegion (result);
+			return status;
+		}
+
+		break;
+	default:
 		g_warning ("unknown type %d", result->type);
 		return NotImplemented;
-        }
+	}
 
 	*region = result;
 	return Ok;
@@ -448,6 +500,9 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 		return GenericError;
 
 	result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
+	if (!result)
+		return OutOfMemory;
+
 	memcpy (&result->type, regionData, sizeof (guint32));
 	result->cnt = 0;
         result->rects = NULL;
@@ -477,6 +532,11 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 		}
 
 		result->tree = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!result->tree) {
+			GdipFree (result);
+			return OutOfMemory;
+		}
+
 		if (!gdip_region_deserialize_tree ((BYTE*)(regionData + 4), (size - 4), result->tree)) {
 			GdipFree (result);
 			return InvalidParameter;
@@ -496,63 +556,67 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 GpStatus WINGDIPAPI
 GdipCloneRegion (GpRegion *region, GpRegion **cloneRegion)
 {
-        GpRegion *result;
+	GpRegion *result;
+	GpStatus status;
 
-        if (!region || !cloneRegion)
-                return InvalidParameter;
+	if (!region || !cloneRegion)
+		return InvalidParameter;
 
 	result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
 	if (!result)
 		return OutOfMemory;
 
-	gdip_copy_region (region, result);
-	*cloneRegion = result;
-        return Ok;
-}
+	status = gdip_copy_region (region, result);
+	if (status != Ok) {
+		GdipFree (result);
+		return status;
+	}
 
+	*cloneRegion = result;
+	return Ok;
+}
 
 GpStatus WINGDIPAPI
 GdipDeleteRegion (GpRegion *region)
 {
-        if (!region)
-                return InvalidParameter;
+	if (!region)
+		return InvalidParameter;
 
 	gdip_clear_region (region);
-        GdipFree (region);
+	GdipFree (region);
 
-        return Ok;
+	return Ok;
 }
 
 
 GpStatus WINGDIPAPI
 GdipSetInfinite (GpRegion *region)
 {
-        GpRectF rect;
+	GpRectF rect;
 
-        if (!region)
-                return InvalidParameter;
+	if (!region)
+		return InvalidParameter;
 
 	gdip_clear_region (region);
 	region->type = RegionTypeRectF;
 
-        rect.X = rect.Y = REGION_INFINITE_POSITION;
-        rect.Width = rect.Height = REGION_INFINITE_LENGTH;
+	rect.X = rect.Y = REGION_INFINITE_POSITION;
+	rect.Width = rect.Height = REGION_INFINITE_LENGTH;
 
-        gdip_add_rect_to_array (&region->rects, &region->cnt,  &rect);
-        return Ok;
+	return gdip_add_rect_to_array (&region->rects, &region->cnt,  &rect);
 }
 
 
 GpStatus WINGDIPAPI
 GdipSetEmpty (GpRegion *region)
 {
-        if (!region)
-                return InvalidParameter;
+	if (!region)
+		return InvalidParameter;
 
 	gdip_clear_region (region);
 	region->type = RegionTypeRectF;
 
-        return Ok;
+	return Ok;
 }
 
 /* pre-process negative width and height, without modifying the originals, see bug #383878 */
@@ -577,25 +641,41 @@ gdip_normalize_rectangle (GpRectF *rect, GpRectF *normalized)
 }
 
 /* Exclude */
-static void
+static GpStatus
 gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 {
 	GpRectF *allsrcrects = NULL, *rects = NULL;
 	GpRectF *alltrgrects = NULL, *rect, *rectop, *recttrg;
-        int allsrccnt = 0, cnt = 0, i, n, alltrgcnt = 0;
+	int allsrccnt = 0, cnt = 0, i, n, alltrgcnt = 0;
 	GpRectF current, rslt, newrect;
 	BOOL storecomplete;
+	GpStatus status;
 
 	/* Create the list of source rectangles to process, it will contain splitted ones later */
-        for (i = 0, rect = region->rects; i < region->cnt; i++, rect++)
-                gdip_add_rect_to_array (&allsrcrects, &allsrccnt, rect);
+	for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
+		status = gdip_add_rect_to_array (&allsrcrects, &allsrccnt, rect);
+		if (status != Ok) {
+			if (allsrcrects) {
+				GdipFree (allsrcrects);
+			}
+
+			return status;
+		}
+	}
 
 	/* Create the list of target rectangles to process, it will contain splitted ones later */
-        for (i = 0, rect = rtrg; i < cntt; i++, rect++) {
+	for (i = 0, rect = rtrg; i < cntt; i++, rect++) {
 		/* normalize */
 		GpRectF normal;
 		gdip_normalize_rectangle (rect, &normal);
-		gdip_add_rect_to_array (&alltrgrects, &alltrgcnt, &normal);
+		status = gdip_add_rect_to_array (&alltrgrects, &alltrgcnt, &normal);
+		if (status != Ok) {
+			if (alltrgrects) {
+				GdipFree (alltrgrects);
+			}
+
+			return status;
+		}
 	}
 
 	/* Init current with the first element in the array */
@@ -669,7 +749,13 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 			rslt.Width = current.Width;
 
 			if (rslt.Height > 0 && rslt.Width > 0) {
-				gdip_add_rect_to_array (&allsrcrects, &allsrccnt,  &rslt);
+				status = gdip_add_rect_to_array (&allsrcrects, &allsrccnt,  &rslt);
+				if (status != Ok) {
+					GdipFree (allsrcrects);
+					GdipFree (alltrgrects);
+
+					return status;
+				}
 			}
 
 			/* Special case where our rect is hit and split in two parts IIIUIII */
@@ -695,8 +781,10 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 	if (region->rects)
 		GdipFree (region->rects);
 
-        region->rects = rects;
-        region->cnt = cnt;
+	region->rects = rects;
+	region->cnt = cnt;
+
+	return Ok;
 }
 
 
@@ -704,20 +792,24 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 	Complement: the part of the second region not shared with the first region.
 	Scans the region to be combined and store the rects not present in the region
 */
-static void
+static GpStatus
 gdip_combine_complement (GpRegion *region, GpRectF *rtrg, int cntt)
 {
 	GpRegion regsrc;
 	GpRectF* trg, *rect;
 	GpRectF* allsrcrects = NULL;
-        int allsrccnt = 0, i,  trgcnt;
+	int allsrccnt = 0, i,  trgcnt;
+	GpStatus status;
 
 	/* Create the list of source rectangles to process */
-        for (i = 0, rect = rtrg; i < cntt; i++, rect++) {
+	for (i = 0, rect = rtrg; i < cntt; i++, rect++) {
 		/* normalize */
 		GpRectF normal;
 		gdip_normalize_rectangle (rect, &normal);
-		gdip_add_rect_to_array (&allsrcrects, &allsrccnt, &normal);
+		status = gdip_add_rect_to_array (&allsrcrects, &allsrccnt, &normal);
+		if (status != Ok) {
+			goto error;
+		}
 	}
 
 	regsrc.rects = allsrcrects;
@@ -725,7 +817,10 @@ gdip_combine_complement (GpRegion *region, GpRectF *rtrg, int cntt)
 	trg = region->rects;
 	trgcnt = region->cnt;
 
-	gdip_combine_exclude (&regsrc, trg, trgcnt);
+	status = gdip_combine_exclude (&regsrc, trg, trgcnt);
+	if (status != Ok) {
+		goto error;
+	}
 
 	if ((regsrc.rects != allsrcrects) || (regsrc.cnt != allsrccnt)) {
 		if (region->rects)
@@ -734,34 +829,56 @@ gdip_combine_complement (GpRegion *region, GpRectF *rtrg, int cntt)
 		region->rects = regsrc.rects;
 		region->cnt = regsrc.cnt;
 	}
+
+	return Ok;
+
+error:
+	if (allsrcrects)
+		GdipFree (allsrcrects);
+	
+	return status;
 }
 
 
 /* Union */
-static void
+static GpStatus
 gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 {
 	GpRectF *allrects = NULL, *rects = NULL;
 	GpRectF *recttrg, *rect, *rectop;
-        int allcnt = 0, cnt = 0, i, n;
+	int allcnt = 0, cnt = 0, i, n;
 	GpRectF current, rslt, newrect;
 	BOOL storecomplete, contained;
+	GpStatus status;
 
-        /* All the src and trg rects in a single array*/
-        for (i = 0, rect = region->rects; i < region->cnt; i++, rect++)
-                gdip_add_rect_to_array (&allrects, &allcnt,  rect);
+	/* All the src and trg rects in a single array*/
+	for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
+		status = gdip_add_rect_to_array (&allrects, &allcnt,  rect);
+		if (status != Ok) {
+			if (allrects)
+				GdipFree (allrects);
 
-        for (i = 0, rect = rtrg; i < cnttrg; i++, rect++) {
+			return status;
+		}
+	}
+
+	for (i = 0, rect = rtrg; i < cnttrg; i++, rect++) {
 		/* normalize */
 		GpRectF normal;
 		gdip_normalize_rectangle (rect, &normal);
-		gdip_add_rect_to_array (&allrects, &allcnt, &normal);
+		status = gdip_add_rect_to_array (&allrects, &allcnt, &normal);
+		if (status != Ok) {
+			if (allrects)
+				GdipFree (allrects);
+
+			return status;
+		}
 	}
 
-        if (allcnt == 0) {
-                GdipFree (allrects);
-                return;
-        }
+	if (allcnt == 0) {
+		GdipFree (allrects);
+		return Ok;
+	}
 
 	/* Init current with the first element in the array */
 	current.X = REGION_INFINITE_POSITION;
@@ -840,7 +957,12 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 			}
 
 			if (contained == FALSE && rslt.Height > 0 && rslt.Width > 0) {
-				gdip_add_rect_to_array (&allrects, &allcnt,  &rslt);
+				status = gdip_add_rect_to_array (&allrects, &allcnt,  &rslt);
+				if (status != Ok) {
+					GdipFree (allrects);
+					return status;
+				}
+
 				recttrg = allrects;
 			}
 
@@ -880,12 +1002,14 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 	if (region->rects)
 		GdipFree (region->rects);
 
-        region->rects = rects;
-        region->cnt = cnt;
+	region->rects = rects;
+	region->cnt = cnt;
+
+	return Ok;
 }
 
 /* Intersect */
-static void
+static GpStatus
 gdip_combine_intersect (GpRegion *region, GpRectF *rtrg, int cnttrg)
 {
 	GpRectF *rectsrc;
@@ -893,6 +1017,7 @@ gdip_combine_intersect (GpRegion *region, GpRectF *rtrg, int cnttrg)
 	GpRectF rectcur;
 	GpRegion regunion;
 	GpRectF *recttrg;
+	GpStatus status;
 
 	regunion.rects = NULL;
 	regunion.cnt = 0;
@@ -918,7 +1043,9 @@ gdip_combine_intersect (GpRegion *region, GpRectF *rtrg, int cnttrg)
 				rectsrc->Y + rectsrc->Height - rectcur.Y : normal.Y + normal.Height - rectcur.Y;
 
 			/* Combine with previous areas that intersect with rect */
-			gdip_combine_union (&regunion, &rectcur, 1);
+			status = gdip_combine_union (&regunion, &rectcur, 1);
+			if (status != Ok)
+				return status;
 		}
 	}
 
@@ -927,55 +1054,88 @@ gdip_combine_intersect (GpRegion *region, GpRectF *rtrg, int cnttrg)
 
 	region->rects = regunion.rects;
 	region->cnt = regunion.cnt;
+
+	return Ok;
 }
 
 /* Xor */
-static void
+static GpStatus
 gdip_combine_xor (GpRegion *region, GpRectF *recttrg, int cnttrg)
 {
-        GpRegion *rgnsrc;  /* All rectangles of both regions*/
-        GpRegion *rgntrg;  /* Only the ones that intersect*/
-        GpRectF *allrects = NULL, *rect;
-        int allcnt = 0, i;
+	GpRegion *rgnsrc = NULL;  /* All rectangles of both regions*/
+	GpRegion *rgntrg = NULL;  /* Only the ones that intersect*/
+	GpRectF *allrects = NULL, *rect;
+	int allcnt = 0, i;
+	GpStatus status;
 
-        /* All the src and trg rects in a single array*/
-        for (i = 0, rect = region->rects; i < region->cnt; i++, rect++)
-                gdip_add_rect_to_array (&allrects, &allcnt,  rect);
+	/* All the src and trg rects in a single array*/
+	for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
+		status = gdip_add_rect_to_array (&allrects, &allcnt,  rect);
+		if (status != Ok)
+			goto error;
+	}
 
 	for (i = 0, rect = recttrg; i < cnttrg; i++, rect++) {
 		/* normalize */
 		GpRectF normal;
 		gdip_normalize_rectangle (rect, &normal);
-		gdip_add_rect_to_array (&allrects, &allcnt, &normal);
+		status = gdip_add_rect_to_array (&allrects, &allcnt, &normal);
+		if (status != Ok)
+			goto error;
 	}
 
 	rgnsrc = (GpRegion *) GdipAlloc (sizeof (GpRegion));
+	if (!rgnsrc) {
+		status = OutOfMemory;
+		goto error;
+	}
+
 	rgnsrc->type = RegionTypeRectF;
-        rgnsrc->cnt = allcnt;
-        rgnsrc->rects = allrects;
+	rgnsrc->cnt = allcnt;
+	rgnsrc->rects = allrects;
 
-        GdipCloneRegion (region, &rgntrg);
-        gdip_combine_intersect (rgntrg, recttrg, cnttrg);
+	status = GdipCloneRegion (region, &rgntrg);
+	if (status != Ok)
+		goto error;
+
+	status = gdip_combine_intersect (rgntrg, recttrg, cnttrg);
+	if (status != Ok)
+		goto error;
+
 	/* exclude the intersecting rectangles (if any) */
-	if (rgntrg->cnt > 0)
-		gdip_combine_exclude (rgnsrc, rgntrg->rects, rgntrg->cnt);
+	if (rgntrg->cnt > 0) {
+		status = gdip_combine_exclude (rgnsrc, rgntrg->rects, rgntrg->cnt);
+		if (status != Ok)
+			goto error;
+	}
 
-        if (region->rects)
-                GdipFree (region->rects);
+	if (region->rects)
+		GdipFree (region->rects);
 
-        region->rects = rgnsrc->rects;
-        region->cnt = rgnsrc->cnt;
+	region->rects = rgnsrc->rects;
+	region->cnt = rgnsrc->cnt;
 
-        GdipFree (rgnsrc);
-        GdipDeleteRegion (rgntrg);
+	GdipFree (rgnsrc);
+	GdipDeleteRegion (rgntrg);
+
+	return Ok;
+
+error:
+	if (allrects)
+		GdipFree (allrects);
+
+	GdipFree (rgnsrc);
+	GdipDeleteRegion (rgntrg);
+
+	return status;
 }
 
 
 GpStatus WINGDIPAPI
 GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode combineMode)
 {
-        if (!region || !rect)
-                return InvalidParameter;
+	if (!region || !rect)
+		return InvalidParameter;
 
 	/* allow the current region to "revert" to a simple RegionTypeRect if possible */
 	if (combineMode == CombineModeReplace)
@@ -1003,30 +1163,22 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 	}
 
 	/* region is rectangle-based */
-        switch (combineMode) {
-        case CombineModeExclude:
-                gdip_combine_exclude (region, (GpRectF *) rect, 1);
-                break;
-        case CombineModeComplement:
-                gdip_combine_complement (region, (GpRectF *) rect, 1);
-                break;
-        case CombineModeIntersect:
-                gdip_combine_intersect (region, (GpRectF *) rect, 1);
-                break;
-        case CombineModeUnion:
-                gdip_combine_union (region, (GpRectF *) rect, 1);
-                break;
-        case CombineModeXor:
-                gdip_combine_xor (region, (GpRectF *) rect, 1);
-                break;
+	switch (combineMode) {
+	case CombineModeExclude:
+		return gdip_combine_exclude (region, (GpRectF *) rect, 1);
+	case CombineModeComplement:
+		return gdip_combine_complement (region, (GpRectF *) rect, 1);
+	case CombineModeIntersect:
+		return gdip_combine_intersect (region, (GpRectF *) rect, 1);
+	case CombineModeUnion:
+		return gdip_combine_union (region, (GpRectF *) rect, 1);
+	case CombineModeXor:
+		return gdip_combine_xor (region, (GpRectF *) rect, 1);
 	case CombineModeReplace: /* Used by Graphics clipping */
-		gdip_add_rect_to_array (&region->rects, &region->cnt, (GpRectF *)rect);
-		break;
-        default:
-               return NotImplemented;
-        }
-
-        return Ok;
+		return gdip_add_rect_to_array (&region->rects, &region->cnt, (GpRectF *)rect);
+	default:
+		return NotImplemented;
+	}
 }
 
 
@@ -1056,8 +1208,11 @@ gdip_combine_exclude_from_infinite (GpRegion *region, GpPath *path)
 	if (path->count == 0)
 		return TRUE;
 
-	if (region->type == RegionTypeRectF)
-		gdip_region_convert_to_path (region);
+	if (region->type == RegionTypeRectF) {
+		status = gdip_region_convert_to_path (region);
+		if (status != Ok)
+			return FALSE;
+	}
 	
 	g_assert (region->tree->path);
 	region_path = region->tree->path;
@@ -1085,6 +1240,7 @@ GpStatus WINGDIPAPI
 GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 {
 	GpRegionBitmap *path_bitmap, *result;
+	GpStatus status;
 
 	if (!region || !path)
 		return InvalidParameter;
@@ -1147,8 +1303,11 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 		}
 	}
 
-	if (region->type == RegionTypeRectF)
-		gdip_region_convert_to_path (region);
+	if (region->type == RegionTypeRectF) {
+		status = gdip_region_convert_to_path (region);
+		if (status != Ok)
+			return status;
+	}
 
 	/* make sure the region's bitmap is available */
 	gdip_region_bitmap_ensure (region);
@@ -1169,20 +1328,33 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 	if (region->tree->path) {
 		/* move the existing path into a new tree (branch1) ... */
 		region->tree->branch1 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!region->tree->branch1)
+			return OutOfMemory;
+
 		region->tree->branch1->path = region->tree->path;
 		region->tree->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!region->tree->branch2)
+			return OutOfMemory;
 	} else {
 		/* move the current base tree into branch1 of a new tree ... */
 		GpPathTree* tmp = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!tmp)
+			return OutOfMemory;
+
 		tmp->branch1 = region->tree;
 		tmp->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!tmp->branch2) {
+			GdipFree (tmp);
+			return OutOfMemory;
+		}
+
 		region->tree = tmp;
 	}
 	/* ... and clone the specified path into branch2 */
 	region->tree->mode = combineMode;
 	region->tree->path = NULL;
-	GdipClonePath (path, &region->tree->branch2->path);
-	return Ok;
+
+	return GdipClonePath (path, &region->tree->branch2->path);
 }
 
 
@@ -1206,13 +1378,26 @@ gdip_combine_pathbased_region (GpRegion *region1, GpRegion *region2, CombineMode
 	/* re-structure region1 to allow adding a copy of region2 inside it */
 	if (region1->tree->path) {
 		region1->tree->branch1 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!region1->tree->branch1)
+			return OutOfMemory;
+
 		region1->tree->branch1->path = region1->tree->path;
 		region1->tree->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!region1->tree->branch2)
+			return OutOfMemory;
 	} else {
 		/* move the current base tree into branch1 of a new tree ... */
 		GpPathTree* tmp = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!tmp)
+			return OutOfMemory;
+
 		tmp->branch1 = region1->tree;
 		tmp->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!tmp->branch2) {
+			GdipFree (tmp);
+			return OutOfMemory;
+		}
+
 		region1->tree = tmp;
 	}
 
@@ -1221,26 +1406,26 @@ gdip_combine_pathbased_region (GpRegion *region1, GpRegion *region2, CombineMode
 
 	/* add a copy of region2 tree into region1 tree */
 	if (region2->tree->path) {
-		GdipClonePath (region2->tree->path, &region1->tree->branch2->path);
+		return GdipClonePath (region2->tree->path, &region1->tree->branch2->path);
 	} else {
-		gdip_region_copy_tree (region2->tree, region1->tree->branch2);
+		return gdip_region_copy_tree (region2->tree, region1->tree->branch2);
 	}
-	return Ok;
 }
 
 
 GpStatus WINGDIPAPI
 GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combineMode)
 {
-        if (!region || !region2)
-                return InvalidParameter;
+	GpStatus status;
+
+	if (!region || !region2)
+		return InvalidParameter;
 
 	/* special case to deal with copying empty and infinity regions */
 	/* CombineModeReplace is used by Graphics clipping */
 	if (combineMode == CombineModeReplace) {
 		GdipSetEmpty (region);
-		gdip_copy_region (region2, region);
-		return Ok;
+		return gdip_copy_region (region2, region);
 	} else if (gdip_is_region_empty (region)) {
 		switch (combineMode) {
 		case CombineModeIntersect:
@@ -1287,37 +1472,36 @@ GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combi
 	}
 
 	if (region->type == RegionTypePath) {
-		gdip_region_convert_to_path (region2);
+		status = gdip_region_convert_to_path (region2);
+		if (status != Ok)
+			return status;
+
 		return gdip_combine_pathbased_region (region, region2, combineMode);
 	} else if (region2->type == RegionTypePath) {
-		gdip_region_convert_to_path (region);
+		status = gdip_region_convert_to_path (region);
+		if (status != Ok)
+			return status;
+
 		return gdip_combine_pathbased_region (region, region2, combineMode);
 	}
 
 	/* at this stage we are sure that BOTH region and region2 are rectangle 
 	 * based, so we can use the old rectangle-based code to combine regions
 	 */
-        switch (combineMode) {
-        case CombineModeExclude:
-                gdip_combine_exclude (region, region2->rects, region2->cnt);
-                break;
-        case CombineModeComplement:
-                gdip_combine_complement (region, region2->rects, region2->cnt);
-                break;
-        case CombineModeIntersect:
-                gdip_combine_intersect (region, region2->rects, region2->cnt);
-                break;
-        case CombineModeUnion:
-                gdip_combine_union (region, region2->rects, region2->cnt);
-                break;
-        case CombineModeXor:
-                gdip_combine_xor (region, region2->rects, region2->cnt);
-                break;
-        default:
-               return NotImplemented;
-        }
-
-        return Ok;
+	switch (combineMode) {
+	case CombineModeExclude:
+		return gdip_combine_exclude (region, region2->rects, region2->cnt);
+	case CombineModeComplement:
+		return gdip_combine_complement (region, region2->rects, region2->cnt);
+	case CombineModeIntersect:
+		return gdip_combine_intersect (region, region2->rects, region2->cnt);
+	case CombineModeUnion:
+		return gdip_combine_union (region, region2->rects, region2->cnt);
+	case CombineModeXor:
+		return gdip_combine_xor (region, region2->rects, region2->cnt);
+	default:
+		return NotImplemented;
+	}
 }
 
 GpStatus WINGDIPAPI
@@ -1475,8 +1659,15 @@ GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
 		}
 
 		/* if required convert into a path-based region */
-		if (work->type != RegionTypePath)
-			gdip_region_convert_to_path (work);
+		if (work->type != RegionTypePath) {
+			status = gdip_region_convert_to_path (work);
+			if (status != Ok) {
+				if (work)
+					GdipDeleteRegion (work);
+
+				return status;
+			}
+		}
 
 		/* transform all the paths */
 		status = gdip_region_transform_tree (work->tree, matrix);
@@ -1515,8 +1706,8 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matr
 	GpRegion *work = NULL;
 	GpStatus status;
 
-        if (!region || !rects|| !count)
-                return InvalidParameter;
+	if (!region || !rects|| !count)
+		return InvalidParameter;
 
 	/* apply any user supplied matrix transformation */
 	if (!gdip_is_matrix_empty (matrix)) {
@@ -1530,8 +1721,15 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matr
 		}
 
 		/* if required convert into a path-based region */
-		if (work->type != RegionTypePath)
-			gdip_region_convert_to_path (work);
+		if (work->type != RegionTypePath) {
+			status = gdip_region_convert_to_path (work);
+			if (status != Ok) {
+				if (work)
+					GdipDeleteRegion (work);
+
+				return status;
+			}
+		}
 
 		/* transform all the paths */
 		status = gdip_region_transform_tree (work->tree, matrix);
@@ -1568,11 +1766,12 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matr
 GpStatus WINGDIPAPI
 GdipIsEqualRegion (GpRegion *region, GpRegion *region2, GpGraphics *graphics, BOOL *result)
 {
-        int i;
-        GpRectF *rectsrc, *recttrg;
+	int i;
+	GpRectF *rectsrc, *recttrg;
+	GpStatus status;
 
-        if (!region || !region2 || !graphics || !result)
-                return InvalidParameter;
+	if (!region || !region2 || !graphics || !result)
+		return InvalidParameter;
 
 	/* quick case: same pointer == same region == equals */
 	if (region == region2) {
@@ -1582,39 +1781,44 @@ GdipIsEqualRegion (GpRegion *region, GpRegion *region2, GpGraphics *graphics, BO
 
 	if ((region->type == RegionTypePath) || (region2->type == RegionTypePath)) {
 		/* if required convert one region to a path based region */
-		if (region->type != RegionTypePath)
-			gdip_region_convert_to_path (region);
+		if (region->type != RegionTypePath) {
+			status = gdip_region_convert_to_path (region);
+			if (status != Ok)
+				return status;
+		}
+
 		gdip_region_bitmap_ensure (region);
 		g_assert (region->bitmap);
 
-		if (region2->type != RegionTypePath)
-			gdip_region_convert_to_path (region2);
+		if (region2->type != RegionTypePath) {
+			status = gdip_region_convert_to_path (region2);
+			if (status != Ok)
+				return status;
+		}
 
 		gdip_region_bitmap_ensure (region2);
 		g_assert (region2->bitmap);
 
 		*result = gdip_region_bitmap_compare (region->bitmap, region2->bitmap);
-                return Ok;
+		return Ok;
 	}
 
 	/* rectangular-based region quality test */
-        if (region->cnt != region2->cnt) {
-                *result = FALSE;
-                return Ok;
-        }
+	if (region->cnt != region2->cnt) {
+		*result = FALSE;
+		return Ok;
+	}
 
-        for (i = 0, rectsrc = region->rects, recttrg = region2->rects; i < region->cnt; i++, rectsrc++, recttrg++) {
+	for (i = 0, rectsrc = region->rects, recttrg = region2->rects; i < region->cnt; i++, rectsrc++, recttrg++) {
+		if (rectsrc->X != recttrg->X || rectsrc->Y != recttrg->Y ||
+				rectsrc->Width != recttrg->Width || rectsrc->Height != recttrg->Height) {
+			*result = FALSE;
+			return Ok;
+		}
+	}
 
-                if (rectsrc->X != recttrg->X || rectsrc->Y != recttrg->Y ||
-                        rectsrc->Width != recttrg->Width || rectsrc->Height != recttrg->Height) {
-                        *result = FALSE;
-                        return Ok;
-                }
-
-        }
-
-        *result = TRUE;
-        return Ok;
+	*result = TRUE;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -1723,8 +1927,14 @@ GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 	}
 
 	/* most matrix operations would change the rectangles into path so we always preempt this */
-	if (region->type != RegionTypePath)
-		gdip_region_convert_to_path (region);
+	if (region->type != RegionTypePath) {
+		status = gdip_region_convert_to_path (region);
+		if (status != Ok) {
+			gdip_region_bitmap_invalidate (region);
+
+			return status;
+		}
+	}
 
 	/* apply the same transformation matrix to all paths */
 	status = gdip_region_transform_tree (region->tree, matrix);
@@ -1732,7 +1942,7 @@ GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 	/* invalidate the bitmap so it will get re-created on the next gdip_region_bitmap_ensure call */
 	gdip_region_bitmap_invalidate (region);
 
-        return status;
+	return status;
 }
 
 // coverity[+alloc : arg-*1]

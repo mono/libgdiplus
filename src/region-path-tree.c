@@ -55,25 +55,43 @@ gdip_region_clear_tree (GpPathTree *tree)
  * Recursively copy (and allocate) the @source path tree into @dest.
  * If @source is present then we must have a valid @dest.
  */
-void 
+GpStatus
 gdip_region_copy_tree (GpPathTree *source, GpPathTree *dest)
 {
+	GpStatus status;
+
 	if (!source)
-		return;
+		return Ok;
 
 	g_assert (dest);
 	if (source->path) {
-		GdipClonePath (source->path, &dest->path);
+		status = GdipClonePath (source->path, &dest->path);
+		if (status != Ok)
+			return status;
+
 		dest->branch1 = NULL;
 		dest->branch2 = NULL;
 	} else {
 		dest->path = NULL;
 		dest->mode = source->mode;
 		dest->branch1 = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
-		gdip_region_copy_tree (source->branch1, dest->branch1);
+		if (!dest->branch1)
+			return OutOfMemory;
+
+		status = gdip_region_copy_tree (source->branch1, dest->branch1);
+		if (status != Ok)
+			return status;
+
 		dest->branch2 = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
-		gdip_region_copy_tree (source->branch2, dest->branch2);
+		if (!dest->branch2)
+			return OutOfMemory;
+
+		status = gdip_region_copy_tree (source->branch2, dest->branch2);
+		if (status != Ok)
+			return status;
 	}
+
+	return Ok;
 }
 
 
@@ -163,6 +181,9 @@ gdip_region_deserialize_tree (BYTE *data, int size, GpPathTree *tree)
 		size -= len;
 		/* deserialize a tree from the memory blob */
 		tree->branch1 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!tree->branch1)
+			return FALSE;
+
 		if (!gdip_region_deserialize_tree (data, branch_size, tree->branch1))
 			return FALSE;
 		data += branch_size;
@@ -172,6 +193,9 @@ gdip_region_deserialize_tree (BYTE *data, int size, GpPathTree *tree)
 		data += len;
 		size -= len;
 		tree->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!tree->branch2)
+			return FALSE;
+
 		if (!gdip_region_deserialize_tree (data, branch_size, tree->branch2))
 			return FALSE;
 		}
