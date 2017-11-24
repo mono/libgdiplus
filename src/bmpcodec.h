@@ -15,11 +15,6 @@
 //#include "codecs-private.h"
 #include "dstream.h"
 
-#define BI_RGB           0
-#define BI_RLE8          1
-#define BI_RLE4          2
-#define BI_BITFIELDS     3
-
 #define BITMAPINFOHEADER_SIZE   40
 #define BITMAPCOREHEADER_SIZE   12
 

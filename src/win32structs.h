@@ -84,6 +84,12 @@
 #define MWT_LEFTMULTIPLY	2
 #define MWT_RIGHTMULTIPLY	3
 
+/* Compression */
+#define BI_RGB           0
+#define BI_RLE8          1
+#define BI_RLE4          2
+#define BI_BITFIELDS     3
+
 typedef guint32 ARGB;
 typedef float REAL;
 

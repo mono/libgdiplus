@@ -180,3 +180,17 @@ void verifyImage (GpImage *image, ImageType expectedType, GUID expectedRawFormat
 + ((x&0xF0000000LU)?128:0)
 
 #define B8(d) ((BYTE)B8__(HEX__(d)))
+
+// A utility for dumping byte arrays to the console for debugging purposes.
+void dumpBytes (BYTE *bytes, int length)
+{
+    printf("%u\n", length);
+    for (int i = 0; i < length; i++) {
+        printf("0x%02x", bytes[i]);
+        if (i != length - 1) {
+            printf(", ");
+        }
+    }
+    
+    printf("\n\n");
+}
