@@ -3,6 +3,10 @@
 #include <math.h>
 #include <string.h>
 
+#if !defined(_WIN32)
+#include <unistd.h>
+#endif
+
 BOOL floatsEqual (float v1, float v2)
 {
     if (isnan (v1))
@@ -193,4 +197,13 @@ void dumpBytes (BYTE *bytes, int length)
     }
     
     printf("\n\n");
+}
+
+void deleteFile (const char *file)
+{
+#if !defined(_WIN32)
+    unlink (file);
+#else
+    DeleteFileA (file);
+#endif
 }

@@ -23,10 +23,6 @@ using namespace DllExports;
 #include <stdlib.h>
 #include "testhelpers.h"
 
-#if !defined(_WIN32)
-#include <unistd.h>
-#endif
-
 static const char *file = "temp_asset.gif";
 static WCHAR wFile[] = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'g', 'i', 'f', 0};
 
@@ -295,11 +291,7 @@ main (int argc, char**argv)
   test_invalidImageRecord ();
   test_invalidExtensionRecord ();
   
-#if !defined(_WIN32)
-  unlink (file);
-#else
-  DeleteFileA (file);
-#endif
+  deleteFile (file);
   
   GdiplusShutdown (gdiplusToken);
   return 0;
