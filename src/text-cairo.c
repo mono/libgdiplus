@@ -1121,10 +1121,14 @@ cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 	RectF			charRect;
 	RectF 			rc_coords, *layoutRect = &rc_coords;
 	BOOL			optimize_convert;
-	int			index_matching[length];
+	int			*index_matching;
 	WCHAR *CleanString;
 	GpDrawTextData data; /* avoid recomputation of stuff done while measuring */
 	int StringLen = length;
+
+	index_matching = (int *) malloc (sizeof (int) * length);
+	if (!index_matching)
+		return OutOfMemory;
 
 	GpStatus status = AllocStringData (&CleanString, &StringDetails, length);
 	if (status != Ok)
