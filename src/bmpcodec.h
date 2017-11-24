@@ -38,7 +38,7 @@ typedef struct
 
 #define BFT_BITMAP 0x4d42
 
-typedef long FXPT2DOT30;
+typedef LONG FXPT2DOT30;
 
 typedef struct {
 	FXPT2DOT30	ciexyzX;

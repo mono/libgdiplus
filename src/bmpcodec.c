@@ -825,17 +825,17 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			int size = sizeof (RGBQUAD);
 			size_read = gdip_read_bmp_data (pointer, (void*)&red_mask, size, source);
 			if (size_read != size) {
-				status = InvalidParameter;
+				status = OutOfMemory;
 				goto error;
 			}
 			size_read = gdip_read_bmp_data (pointer, (void*)&green_mask, size, source);
 			if (size_read != size) {
-				status = InvalidParameter;
+				status = OutOfMemory;
 				goto error;
 			}
 			size_read = gdip_read_bmp_data (pointer, (void*)&blue_mask, size, source);
 			if (size_read != size) {
-				status = InvalidParameter;
+				status = OutOfMemory;
 				goto error;
 			}
 		}
