@@ -704,10 +704,10 @@ static void test_validImage8bppRle8Compression ()
 	createFileSuccess (overflowNoTerminator, sizeof (overflowNoTerminator), expectedRle8Format);
 	createFileSuccess (overflowTerminator, sizeof (overflowTerminator), expectedRle8Format);
 
-    createFileSuccess (jump, sizeof (jump), expectedRle8Format);
-    createFileSuccess (jumpMissingDx, sizeof (jumpMissingDx), expectedRle8Format);
-    createFileSuccess (jumpMissingDy, sizeof (jumpMissingDy), expectedRle8Format);
-    createFileSuccess (jumpInvalidDx, sizeof (jumpInvalidDx), expectedRle8Format);
+	createFileSuccess (jump, sizeof (jump), expectedRle8Format);
+	createFileSuccess (jumpMissingDx, sizeof (jumpMissingDx), expectedRle8Format);
+	createFileSuccess (jumpMissingDy, sizeof (jumpMissingDy), expectedRle8Format);
+	createFileSuccess (jumpInvalidDx, sizeof (jumpInvalidDx), expectedRle8Format);
 	// FIXME: this causes a heap buffer overflow in libgdiplus.
 #if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (jumpInvalidDy, sizeof (jumpInvalidDy), expectedRle8Format);
@@ -719,7 +719,7 @@ static void test_validImage8bppRle8Compression ()
 	createFileSuccess (absoluteModeShortData, sizeof (absoluteModeShortData), expectedRle8Format);
 	createFileSuccess (absoluteModeNoPadding, sizeof (absoluteModeNoPadding), expectedRle8Format);
 
-    createFileSuccess (fullNegativeHeight, sizeof (fullNegativeHeight), expectedRle8Format);
+	createFileSuccess (fullNegativeHeight, sizeof (fullNegativeHeight), expectedRle8Format);
 	createFileSuccess (incompleteAfterLineBreak, sizeof (incompleteAfterLineBreak), expectedRle8Format);
 	createFileSuccess (noImageData, sizeof (noImageData), expectedRle8Format);
 	createFileSuccess (singleByteData, sizeof (singleByteData), expectedRle8Format);
