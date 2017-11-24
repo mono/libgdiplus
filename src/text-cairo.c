@@ -1254,6 +1254,7 @@ cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 
 cleanup:
 	/* Cleanup */
+	free (index_matching);
 	GdipFree (CleanString);
 	GdipFree (StringDetails);
 
