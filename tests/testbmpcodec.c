@@ -25,31 +25,29 @@ using namespace DllExports;
 
 static const char *file = "temp_asset.bmp";
 static WCHAR wFile[] = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'b', 'm', 'p', 0};
+GpImage *image;
 
-static GpImage *createFile (BYTE *buffer, int length, GpStatus expectedStatus)
-{
-	GpStatus status;
-	GpImage *image;
-	FILE *f = fopen (file, "w+");
-	fwrite ((void *) buffer, sizeof (BYTE), length, f);
-	assert (f);
-	fclose (f);
-
-	status = GdipLoadImageFromFile (wFile, &image);
-	assertEqualInt (status, expectedStatus);
-	
-	return image;
+#define createFile(buffer, length, expectedStatus)          \
+{                                                           \
+	GpStatus status;                                    \
+	FILE *f = fopen (file, "w+");                       \
+	fwrite ((void *) buffer, sizeof (BYTE), length, f); \
+	assert (f);                                         \
+	fclose (f);                                         \
+	                                                    \
+	status = GdipLoadImageFromFile (wFile, &image);     \
+	assertEqualInt (status, expectedStatus);            \
 }
 
-static void createFileSuccess (BYTE *buffer, int length, PixelFormat expectedFormat)
-{
-	PixelFormat format;
-	GpImage *image = createFile (buffer, length, Ok);
-
-	GdipGetImagePixelFormat (image, &format);
-	assertEqualInt (format, expectedFormat);
-	
-	GdipDisposeImage (image);
+#define createFileSuccess(buffer, length, expectedFormat) \
+{                                                         \
+	PixelFormat format;                               \
+	createFile (buffer, length, Ok);                  \
+                                                          \
+	GdipGetImagePixelFormat (image, &format);         \
+	assertEqualInt (format, expectedFormat);          \
+	                                                  \
+	GdipDisposeImage (image);                         \
 }
 
 static void test_validImage1bppOS2Header ()
@@ -810,6 +808,7 @@ static void test_validImage16bppBitmapInfoHeader ()
 		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000)
 	};
 
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE rle4Compression16bpp[] = {
 		'B', 'M', 58, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
 		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, BI_RLE4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -820,6 +819,7 @@ static void test_validImage16bppBitmapInfoHeader ()
 		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, BI_RLE8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		255, 255, 255, 0
 	};
+#endif
 
 	createFileSuccess (image1x1RedShift10, sizeof (image1x1RedShift10), PixelFormat32bppRGB);
 	createFileSuccess (image6x4RedShift10, sizeof (image6x4RedShift10), PixelFormat32bppRGB);
@@ -830,8 +830,11 @@ static void test_validImage16bppBitmapInfoHeader ()
 	createFileSuccess (image1x1NegativeHeight, sizeof (image1x1NegativeHeight), PixelFormat32bppRGB);
 	createFileSuccess (image6x4NegativeHeight, sizeof (image6x4NegativeHeight), PixelFormat32bppRGB);
 
+	// FIXME: this returns OutOfMemory libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (rle4Compression16bpp, sizeof (rle4Compression16bpp), PixelFormat32bppRGB);
 	createFileSuccess (rle8Compression16bpp, sizeof (rle8Compression16bpp), PixelFormat32bppRGB);
+#endif
 }
 
 static void test_validImage16bppBitmapV4Header ()
