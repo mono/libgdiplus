@@ -825,17 +825,17 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			int size = sizeof (RGBQUAD);
 			size_read = gdip_read_bmp_data (pointer, (void*)&red_mask, size, source);
 			if (size_read != size) {
-				status = InvalidParameter;
+				status = OutOfMemory;
 				goto error;
 			}
 			size_read = gdip_read_bmp_data (pointer, (void*)&green_mask, size, source);
 			if (size_read != size) {
-				status = InvalidParameter;
+				status = OutOfMemory;
 				goto error;
 			}
 			size_read = gdip_read_bmp_data (pointer, (void*)&blue_mask, size, source);
 			if (size_read != size) {
-				status = InvalidParameter;
+				status = OutOfMemory;
 				goto error;
 			}
 		}
@@ -953,7 +953,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		goto error;
 	}
 
-	if ((bmi.biCompression == BI_RLE4) || (bmi.biCompression == BI_RLE8)) {
+	if (gdip_is_an_indexed_pixelformat (format) && ((bmi.biCompression == BI_RLE4) || (bmi.biCompression == BI_RLE8))) {
 		switch (bmi.biCompression) {
 			case BI_RLE4:
 				gdip_read_bmp_rle_4bit (pointer, pixels, upsidedown, result->active_bitmap->stride, result->active_bitmap->width, result->active_bitmap->height, source);
