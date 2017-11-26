@@ -583,7 +583,7 @@ static void test_validImage8bppRle8Compression ()
 		0, 1
 	};
 #if defined(USE_WINDOWS_GDIPLUS)
-    BYTE jumpInvalidDy[] = {
+	BYTE jumpInvalidDy[] = {
 		'B', 'M', 74, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
 		40, 0, 0, 0, 6, 0, 0, 0, 4, 0, 0, 0, 1, 0, 8, 0, BI_RLE8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0,
 		255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255,
@@ -634,7 +634,7 @@ static void test_validImage8bppRle8Compression ()
 		6, 0, 0, 0,
 		6, 2, 0, 0,
 		6, 0, 0, 0,
-        0, 1
+		0, 1
 	};
 	BYTE incompleteAfterLineBreak[] = {
 		'B', 'M', 70, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
@@ -657,7 +657,7 @@ static void test_validImage8bppRle8Compression ()
 		'B', 'M', 67, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
 		40, 0, 0, 0, 6, 0, 0, 0, 4, 0, 0, 0, 1, 0, 8, 0, BI_RLE8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0,
 		255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255,
-        0
+		0
 	};
 	BYTE earlyTerminator[] = {
 		'B', 'M', 74, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
@@ -938,6 +938,247 @@ static void test_validImage24bppBitmapInfoHeader ()
 	createFileSuccess (rle8Compression24bpp, sizeof (rle8Compression24bpp), expectedRleFormat);
 }
 
+static void test_validImage32bppOS2Header ()
+{
+	BYTE image1x1[] = {
+		'B', 'M', 30, 0, 0, 0, 0, 0, 0, 0, 0x1A, 0, 0, 0,
+		12, 0, 0, 0, 1, 0, 1, 0, 1, 0, 32, 0,
+		0, 0, 255, 255
+	};
+	BYTE image6x4[] = {
+		'B', 'M', 122, 0, 0, 0, 0, 0, 0, 0, 0x1A, 0, 0, 0,
+		12, 0, 0, 0, 6, 0, 4, 0, 1, 0, 32, 0,
+		0, 0, 255, 255, 0, 255, 0, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 0, 255, 255, 255, 255, 255, 127,
+		0, 0, 255, 0, 255, 255, 255, 255, 0, 0, 255, 255, 0, 255, 255, 255, 255, 255, 127, 255, 0, 255, 0, 255,
+		0, 0, 255, 255, 0, 255, 0, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 0, 255, 255, 255, 255, 255, 127,
+		0, 0, 255, 0, 255, 255, 255, 255, 0, 0, 255, 255, 0, 255, 255, 255, 255, 255, 127, 255, 0, 255, 0, 255
+	};
+
+	createFileSuccess (image1x1, sizeof(image1x1), PixelFormat32bppRGB);
+	createFileSuccess (image6x4, sizeof(image6x4), PixelFormat32bppRGB);
+}
+
+static void test_validImage32bppBitmapInfoHeader ()
+{
+	BYTE image32bppBitmapInfoHeader1x1[] = {
+		'B', 'M', 59, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 255, 255
+	};
+	BYTE image32bppBitmapInfoHeader6x4[] = {
+		'B', 'M', 150, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
+		40, 0, 0, 0, 6, 0, 0, 0, 4, 0, 0, 0, 1, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 255, 255, 0, 255, 0, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 0, 255, 255, 255, 255, 255, 127,
+		0, 0, 255, 0, 255, 255, 255, 255, 0, 0, 255, 255, 0, 255, 255, 255, 255, 255, 127, 255, 0, 255, 0, 255,
+		0, 0, 255, 255, 0, 255, 0, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 0, 255, 255, 255, 255, 255, 127,
+		0, 0, 255, 0, 255, 255, 255, 255, 0, 0, 255, 255, 0, 255, 255, 255, 255, 255, 127, 255, 0, 255, 0, 255,
+	};
+	BYTE image32bppBitmapInfoHeader6x4NegativeHeight[] = {
+		'B', 'M', 150, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
+		40, 0, 0, 0, 6, 0, 0, 0, 252, 255, 255, 255, 1, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 255, 255, 0, 255, 0, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 0, 255, 255, 255, 255, 255, 127,
+		0, 0, 255, 0, 255, 255, 255, 255, 0, 0, 255, 255, 0, 255, 255, 255, 255, 255, 127, 255, 0, 255, 0, 255,
+		0, 0, 255, 255, 0, 255, 0, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 0, 255, 255, 255, 255, 255, 127,
+		0, 0, 255, 0, 255, 255, 255, 255, 0, 0, 255, 255, 0, 255, 255, 255, 255, 255, 127, 255, 0, 255, 0, 255,
+	};
+
+	BYTE planesNotZero[] = {
+		'B', 'M', 58, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 4, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 255, 255
+	};
+	BYTE rle4Compression32bpp[] = {
+		'B', 'M', 58, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 32, 0, BI_RLE4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		255, 255, 255, 0
+	};
+	BYTE rle8Compression32bpp[] = {
+		'B', 'M', 58, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 32, 0, BI_RLE8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		255, 255, 255, 0
+	};
+
+	createFileSuccess (image32bppBitmapInfoHeader1x1, sizeof (image32bppBitmapInfoHeader1x1), PixelFormat32bppRGB);
+	createFileSuccess (image32bppBitmapInfoHeader6x4, sizeof (image32bppBitmapInfoHeader6x4), PixelFormat32bppRGB);
+	createFileSuccess (image32bppBitmapInfoHeader6x4NegativeHeight, sizeof (image32bppBitmapInfoHeader6x4NegativeHeight), PixelFormat32bppRGB);
+
+	createFileSuccess (planesNotZero, sizeof (planesNotZero), PixelFormat32bppRGB);
+	createFileSuccess (rle4Compression32bpp, sizeof (rle4Compression32bpp), PixelFormat32bppRGB);
+	createFileSuccess (rle8Compression32bpp, sizeof (rle8Compression32bpp), PixelFormat32bppRGB);
+}
+
+static void test_validImage32bppBitfields ()
+{
+#if defined(USE_WINDOWS_GDIPLUS)
+	// Order: B, G, R
+	BYTE bitmapInfoHeaderBitfieldsDefault[] = {
+		'B', 'M', 98, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00,
+		40, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// -- BITMAPV2 -- //
+		0x00, 0x00, 0xFF, 0x00,
+		0x00, 0xFF, 0x00, 0x00,
+		0xFF, 0x00, 0x00, 0x00,
+		// ---- Bitmap Data ---- //
+		0xFF, 0x00, 0x00, 0x7F, 0x00, 0xFF, 0x00, 0x7F, 0x00, 0x00, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F,
+		0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+	};
+
+	// Order: R, B, G
+	BYTE bitmapInfoHeaderBitfieldsCustom[] = {
+		'B', 'M', 98, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00,
+		40, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// -- BITMAPV2 -- //
+		0xFF, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0xFF, 0x00,
+		0x00, 0xFF, 0x00, 0x00,
+		// ---- Bitmap Data ---- //
+		0xFF, 0x00, 0x00, 0x7F, 0x00, 0xFF, 0x00, 0x7F, 0x00, 0x00, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F,
+		0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+	};
+		
+	// Order: R, B, G
+	BYTE bitmapV3HeaderBitfieldsZeroAlphaMask[] = {
+		'B', 'M', 98, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x00, 0x00, 0x00,
+		56, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// -- BITMAPV2 -- //
+		0xFF, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0xFF, 0x00,
+		0x00, 0xFF, 0x00, 0x00,
+		// -- BITMAPV3 -- //
+		0x00, 0x00, 0x00, 0x00,
+		// ---- Bitmap Data ---- //
+		0xFF, 0x00, 0x00, 0x7F, 0x00, 0xFF, 0x00, 0x7F, 0x00, 0x00, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F,
+		0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+	};
+		
+	// Order: R, B, G
+	BYTE bitmapV3HeaderBitfieldsNonZeroAlphaMask[] = {
+		'B', 'M', 98, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x00, 0x00, 0x00,
+		56, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// -- BITMAPV2 -- //
+		0xFF, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0xFF, 0x00,
+		0x00, 0xFF, 0x00, 0x00,
+		// -- BITMAPV3 -- //
+		0x00, 0x00, 0x00, 0xFF,
+		// ---- Bitmap Data ---- //
+		0xFF, 0x00, 0x00, 0x7F, 0x00, 0xFF, 0x00, 0x7F, 0x00, 0x00, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F,
+		0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+	};
+		
+	// Order: R, B, G
+	BYTE bitmapV4HeaderBitfields[] = {
+		'B', 'M', 154, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7A, 0x00, 0x00, 0x00,
+		108, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// -- BITMAPV2 -- //
+		0xFF, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0xFF, 0x00,
+		0x00, 0xFF, 0x00, 0x00,
+		// -- BITMAPV3 -- //
+		0x00, 0x00, 0x00, 0xFF,
+		// -- BITMAPV4 -- //
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// ---- Bitmap Data ---- //
+		0xFF, 0x00, 0x00, 0x7F, 0x00, 0xFF, 0x00, 0x7F, 0x00, 0x00, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F,
+		0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+	};
+		
+	// Order: R, B, G
+	BYTE bitmapV5HeaderBitfields[] = {
+		'B', 'M', 154, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x8A, 0x00, 0x00, 0x00,
+		124, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// -- BITMAPV2 -- //
+		0xFF, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0xFF, 0x00,
+		0x00, 0xFF, 0x00, 0x00,
+		// -- BITMAPV3 -- //
+		0x00, 0x00, 0x00, 0xFF,
+		// -- BITMAPV4 -- //
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// -- BitmapV5 -- //
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// ---- Bitmap Data ---- //
+		0xFF, 0x00, 0x00, 0x7F, 0x00, 0xFF, 0x00, 0x7F, 0x00, 0x00, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F,
+		0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+	};
+	
+	BYTE bitmapInfoHeaderAllMasksZero[] = {
+		'B', 'M', 98, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00,
+		40, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// -- BITMAPV2 -- //
+		0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00,
+		// ---- Bitmap Data ---- //
+		0xFF, 0x00, 0x00, 0x7F, 0x00, 0xFF, 0x00, 0x7F, 0x00, 0x00, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F,
+		0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+	};
+
+	BYTE bitmapV3HeaderAllMasksZero[] = {
+		'B', 'M', 98, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46, 0x00, 0x00, 0x00,
+		56, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// -- BITMAPV2 -- //
+		0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00,
+		// -- BITMAPV3 -- //
+		0x00, 0x00, 0x00, 0x00,
+		// ---- Bitmap Data ---- //
+		0xFF, 0x00, 0x00, 0x7F, 0x00, 0xFF, 0x00, 0x7F, 0x00, 0x00, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F,
+		0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+	};
+
+	BYTE bitmapV4HeaderAllMasksZero[] = {
+		'B', 'M', 154, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7A, 0x00, 0x00, 0x00,
+		108, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// -- BITMAPV2 -- //
+		0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00,
+		// -- BITMAPV3 -- //
+		0x00, 0x00, 0x00, 0x00,
+		// -- BITMAPV4 -- //
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// ---- Bitmap Data ---- //
+		0xFF, 0x00, 0x00, 0x7F, 0x00, 0xFF, 0x00, 0x7F, 0x00, 0x00, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F,
+		0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+	};
+
+	BYTE bitmapV5HeaderAllMasksZero[] = {
+		'B', 'M', 154, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x8A, 0x00, 0x00, 0x00,
+		124, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// -- BITMAPV2 -- //
+		0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00,
+		// -- BITMAPV3 -- //
+		0x00, 0x00, 0x00, 0x00,
+		// -- BITMAPV4 -- //
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// -- BitmapV5 -- //
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// ---- Bitmap Data ---- //
+		0xFF, 0x00, 0x00, 0x7F, 0x00, 0xFF, 0x00, 0x7F, 0x00, 0x00, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F,
+		0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+	};
+#endif
+
+	// FIXME: libgdiplus can't decode these images.
+#if defined(USE_WINDOWS_GDIPLUS)
+	createFileSuccess (bitmapInfoHeaderBitfieldsDefault, sizeof (bitmapInfoHeaderBitfieldsDefault), PixelFormat32bppRGB);
+
+	createFileSuccess (bitmapInfoHeaderBitfieldsCustom, sizeof (bitmapInfoHeaderBitfieldsCustom), PixelFormat32bppRGB);
+	createFileSuccess (bitmapV3HeaderBitfieldsNonZeroAlphaMask, sizeof (bitmapV3HeaderBitfieldsNonZeroAlphaMask), PixelFormat32bppRGB);
+	createFileSuccess (bitmapV4HeaderBitfields, sizeof (bitmapV4HeaderBitfields), PixelFormat32bppRGB);
+	createFileSuccess (bitmapV5HeaderBitfields, sizeof (bitmapV5HeaderBitfields), PixelFormat32bppRGB);
+	
+	createFileSuccess (bitmapInfoHeaderAllMasksZero, sizeof (bitmapInfoHeaderAllMasksZero), PixelFormat32bppRGB);
+	createFileSuccess (bitmapV3HeaderAllMasksZero, sizeof (bitmapV3HeaderAllMasksZero), PixelFormat32bppRGB);
+	createFileSuccess (bitmapV4HeaderAllMasksZero, sizeof (bitmapV4HeaderAllMasksZero), PixelFormat32bppRGB);
+	createFileSuccess (bitmapV5HeaderAllMasksZero, sizeof (bitmapV5HeaderAllMasksZero), PixelFormat32bppRGB);
+#endif
+}
+
 static void test_invalidFileHeader ()
 {
 	BYTE shortSignature[] = {'B'};
@@ -983,42 +1224,78 @@ static void test_invalidHeader ()
 		B8(00000000), 0, 0, 0
 	};
 
-	BYTE imageNoRedMask[] = {
+	BYTE image16bppNoRedMask[] = {
 		'B', 'M', 54, 0, 0, 0, 0, 0, 0, 0, 53, 4, 0, 0,
 		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	};
-	BYTE imageShortRedMask[] = {
+	BYTE image16bppShortRedMask[] = {
 		'B', 'M', 57, 0, 0, 0, 0, 0, 0, 0, 53, 4, 0, 0,
 		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		1, 0, 0
 	};
-	BYTE imageNoGreenMask[] = {
+	BYTE image16bppNoGreenMask[] = {
 		'B', 'M', 58, 0, 0, 0, 0, 0, 0, 0, 53, 4, 0, 0,
 		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 124, 0, 0
 	};
-	BYTE imageShortGreenMask[] = {
+	BYTE image16bppShortGreenMask[] = {
 		'B', 'M', 61, 0, 0, 0, 0, 0, 0, 0, 53, 4, 0, 0,
 		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 124, 0, 0, 224, 3, 0
 	};
-	BYTE imageNoBlueMask[] = {
+	BYTE image16bppNoBlueMask[] = {
 		'B', 'M', 62, 0, 0, 0, 0, 0, 0, 0, 53, 4, 0, 0,
 		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 124, 0, 0, 224, 3, 0, 0
 	};
-	BYTE imageShortBlueMask[] = {
+	BYTE image16bppShortBlueMask[] = {
 		'B', 'M', 65, 0, 0, 0, 0, 0, 0, 0, 53, 4, 0, 0,
 		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 124, 0, 0, 224, 3, 0, 0, 3, 0, 0
 	};
-	BYTE imageNoData[] = {
+	BYTE image16bppNoData[] = {
 		'B', 'M', 66, 0, 0, 0, 0, 0, 0, 0, 53, 4, 0, 0,
 		40, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 124, 0, 0, 224, 3, 0, 0, 0x1F, 0, 0, 0
 	};
+	
+	BYTE bitfields32bppNoRedMask[] = {
+		'B', 'M', 54, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00,
+		40, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	};
+	BYTE bitfields32bppShortRedMask[] = {
+		'B', 'M', 57, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00,
+		40, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 124, 0
+	};
+	BYTE bitfields32bppNoBlueMask[] = {
+		'B', 'M', 58, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00,
+		40, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 124, 0, 0
+	};
+	BYTE bitfields32bppShortBlueMask[] = {
+		'B', 'M', 61, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00,
+		40, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 124, 0, 0, 224, 3, 0
+	};
+	BYTE bitfields32bppNoGreenMask[] = {
+		'B', 'M', 62, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00,
+		40, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 124, 0, 0, 224, 3, 0, 0
+	};
+	BYTE bitfields32bppShortGreenMask[] = {
+		'B', 'M', 65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00,
+		40, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 124, 0, 0, 224, 3, 0, 0, 0, 3, 0, 0
+	};
+	BYTE bitfields32bppNoImageData[] = {
+		'B', 'M', 66, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00,
+		40, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 124, 0, 0, 224, 3, 0, 0, 0, 3, 0, 0, 0
+	};
+
 	BYTE bitmapV2Header[] = {
-		0x42, 0x4D, 98, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00,
+		'B', 'M', 98, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00,
 		52, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 32, 0, BI_BITFIELDS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		// -- BITMAPV2 -- //
 		0xFF, 0x00, 0x00, 0x00,
@@ -1044,13 +1321,22 @@ static void test_invalidHeader ()
 	createFile (noImportantColors, sizeof (noImportantColors), OutOfMemory);
 	createFile (image2bpp, sizeof (image2bpp), OutOfMemory);
 
-	createFile (imageNoRedMask, sizeof (imageNoRedMask), OutOfMemory);
-	createFile (imageShortRedMask, sizeof (imageShortRedMask), OutOfMemory);
-	createFile (imageNoGreenMask, sizeof (imageNoGreenMask), OutOfMemory);
-	createFile (imageShortGreenMask, sizeof (imageShortGreenMask), OutOfMemory);
-	createFile (imageNoBlueMask, sizeof (imageNoBlueMask), OutOfMemory);
-	createFile (imageShortBlueMask, sizeof (imageShortBlueMask), OutOfMemory);
-	createFile (imageNoData, sizeof (imageNoData), OutOfMemory);
+	createFile (image16bppNoRedMask, sizeof (image16bppNoRedMask), OutOfMemory);
+	createFile (image16bppShortRedMask, sizeof (image16bppShortRedMask), OutOfMemory);
+	createFile (image16bppNoGreenMask, sizeof (image16bppNoGreenMask), OutOfMemory);
+	createFile (image16bppShortGreenMask, sizeof (image16bppShortGreenMask), OutOfMemory);
+	createFile (image16bppNoBlueMask, sizeof (image16bppNoBlueMask), OutOfMemory);
+	createFile (image16bppShortBlueMask, sizeof (image16bppShortBlueMask), OutOfMemory);
+	createFile (image16bppNoData, sizeof (image16bppNoData), OutOfMemory);
+
+	createFile (bitfields32bppNoRedMask, sizeof (bitfields32bppNoRedMask), OutOfMemory);
+	createFile (bitfields32bppShortRedMask, sizeof (bitfields32bppShortRedMask), OutOfMemory);
+	createFile (bitfields32bppNoBlueMask, sizeof (bitfields32bppNoBlueMask), OutOfMemory);
+	createFile (bitfields32bppShortBlueMask, sizeof (bitfields32bppShortBlueMask), OutOfMemory);
+	createFile (bitfields32bppNoGreenMask, sizeof (bitfields32bppNoGreenMask), OutOfMemory);
+	createFile (bitfields32bppShortGreenMask, sizeof (bitfields32bppShortGreenMask), OutOfMemory);
+	createFile (bitfields32bppNoImageData, sizeof (bitfields32bppNoImageData), OutOfMemory);
+
 	createFile (bitmapV2Header, sizeof (bitmapV2Header), OutOfMemory);
 }
 
@@ -1115,6 +1401,9 @@ main (int argc, char**argv)
 	test_validImage16bppBitmapV4Header ();
 	test_validImage24bppOS2Header ();
 	test_validImage24bppBitmapInfoHeader ();
+	test_validImage32bppOS2Header ();
+	test_validImage32bppBitmapInfoHeader ();
+	test_validImage32bppBitfields ();
 	test_invalidFileHeader ();
 	test_invalidHeader ();
 	test_invalidImageData ();
