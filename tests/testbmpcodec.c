@@ -863,6 +863,81 @@ static void test_validImage16bppBitmapV4Header ()
 #endif
 }
 
+static void test_validImage24bppOS2Header ()
+{
+	BYTE image1x1[] = {
+		'B', 'M', 29, 0, 0, 0, 0, 0, 0, 0, 0x1A, 0, 0, 0,
+		12, 0, 0, 0, 1, 0, 1, 0, 1, 0, 24, 0,
+		0, 0, 255, 0
+	};
+	BYTE image6x4[] = {
+		'B', 'M', 106, 0, 0, 0, 0, 0, 0, 0, 0x1A, 0, 0, 0,
+		12, 0, 0, 0, 6, 0, 4, 0, 1, 0, 24, 0,
+		0, 0, 255, 0, 255, 0, 255, 0, 0, 0, 255, 255, 255, 0, 255, 255, 255, 255, 0, 0,
+		0, 0, 255, 255, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0,
+		0, 0, 255, 0, 255, 0, 255, 0, 0, 0, 255, 255, 255, 0, 255, 255, 255, 255, 0, 0,
+		0, 0, 255, 255, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0
+	};
+
+	createFileSuccess (image1x1, sizeof (image1x1), PixelFormat24bppRGB);
+	createFileSuccess (image6x4, sizeof (image6x4), PixelFormat24bppRGB);
+}
+
+static void test_validImage24bppBitmapInfoHeader ()
+{
+	BYTE image1x1[] = {
+		'B', 'M', 58, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 255, 0
+	};
+	BYTE image6x4[] = {
+		'B', 'M', 126, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
+		40, 0, 0, 0, 6, 0, 0, 0, 4, 0, 0, 0, 1, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 255, 0, 255, 0, 255, 0, 0, 0, 255, 255, 255, 0, 255, 255, 255, 255, 0, 0,
+		0, 0, 255, 255, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0,
+		0, 0, 255, 0, 255, 0, 255, 0, 0, 0, 255, 255, 255, 0, 255, 255, 255, 255, 0, 0,
+		0, 0, 255, 255, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0
+	};
+	BYTE image1x1NegativeHeight[] = {
+		'B', 'M', 58, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 255, 255, 255, 255, 1, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 255, 0
+	};
+	BYTE image6x4NegativeHeight[] = {
+		'B', 'M', 126, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
+		40, 0, 0, 0, 6, 0, 0, 0, 252, 255, 255, 255, 1, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 255, 0, 255, 0, 255, 0, 0, 0, 255, 255, 255, 0, 255, 255, 255, 255, 0, 0,
+		0, 0, 255, 255, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0,
+		0, 0, 255, 0, 255, 0, 255, 0, 0, 0, 255, 255, 255, 0, 255, 255, 255, 255, 0, 0,
+		0, 0, 255, 255, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0
+	};
+	
+	BYTE rle4Compression24bpp[] = {
+		'B', 'M', 58, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24, 0, BI_RLE4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		255, 255, 255, 0
+	};
+	BYTE rle8Compression24bpp[] = {
+		'B', 'M', 58, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24, 0, BI_RLE8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		255, 255, 255, 0
+	};
+
+	createFileSuccess (image1x1, sizeof (image1x1), PixelFormat24bppRGB);
+	createFileSuccess (image6x4, sizeof (image6x4), PixelFormat24bppRGB);
+	createFileSuccess (image1x1NegativeHeight, sizeof (image1x1NegativeHeight), PixelFormat24bppRGB);
+	createFileSuccess (image6x4NegativeHeight, sizeof (image6x4NegativeHeight), PixelFormat24bppRGB);
+	
+	// FIXME: GDI+ converts RLE compressed 24bpp images to 32bppRGB.
+#if defined(USE_WINDOWS_GDIPLUS)
+	PixelFormat expectedRleFormat = PixelFormat32bppRGB;
+#else
+	PixelFormat expectedRleFormat = PixelFormat24bppRGB;
+#endif
+	createFileSuccess (rle4Compression24bpp, sizeof (rle4Compression24bpp), expectedRleFormat);
+	createFileSuccess (rle8Compression24bpp, sizeof (rle8Compression24bpp), expectedRleFormat);
+}
+
 static void test_invalidFileHeader ()
 {
 	BYTE shortSignature[] = {'B'};
@@ -1038,6 +1113,8 @@ main (int argc, char**argv)
 	test_validImage16bppOS2Header ();
 	test_validImage16bppBitmapInfoHeader ();
 	test_validImage16bppBitmapV4Header ();
+	test_validImage24bppOS2Header ();
+	test_validImage24bppBitmapInfoHeader ();
 	test_invalidFileHeader ();
 	test_invalidHeader ();
 	test_invalidImageData ();
