@@ -1081,7 +1081,7 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 	if (tiff == NULL) {
 		*image = NULL;
 		/* we cannot call TIFFClose(tiff); with a NULL value since it will crash - bnc #569940 */
-		return InvalidParameter;
+		return OutOfMemory;
 	}
 
 	pixbuf_row = NULL;
@@ -1095,6 +1095,9 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 
 	result->type = ImageTypeBitmap;
 	frame = gdip_frame_add(result, &gdip_image_frameDimension_page_guid);
+
+	// Avoid reading uninitialized memory if TIFFRGBAImageBegin fails.
+	memset (&tiff_image, 0, sizeof (TIFFRGBAImage));
 
 	for (page = 0; page < num_of_pages; page++) {
 		unsigned long long int size;
@@ -1110,8 +1113,7 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 
 		gdip_load_tiff_properties(tiff, bitmap_data);
 
-		if (!TIFFRGBAImageBegin(&tiff_image, tiff, 0, error_message)) {
-			/* Can we use the error message somewhere? */
+		if (!TIFFRGBAImageBegin (&tiff_image, tiff, 0, error_message)) {
 			goto error;
 		}
 
