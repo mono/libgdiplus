@@ -17,7 +17,7 @@ LDADDS =					\
 	-lm
 
 noinst_PROGRAMS =			\
-	testadjustablearrowcap testbits testbmpcodec testbrush testclip testcustomlinecap testfont testgifcodec testgpimage testgraphics testhatchbrush testicocodec testimageattributes testlineargradientbrush testmatrix testpathgradientbrush testpen testpng testreversepath testsolidbrush teststringformat testtexturebrush testtiffcodec
+	testadjustablearrowcap testbits testbmpcodec testbrush testclip testcustomlinecap testfont testgifcodec testgpimage testgraphics testhatchbrush testicocodec testimageattributes testlineargradientbrush testmatrix testmetafile testpathgradientbrush testpen testpng testreversepath testsolidbrush teststringformat testtexturebrush testtiffcodec
 
 if HAS_X11
 noinst_PROGRAMS += testgdi
@@ -119,6 +119,12 @@ testmatrix_SOURCES =		\
 testmatrix_DEPENDENCIES = $(TEST_DEPS)
 testmatrix_LDADD = $(LDADDS)
 
+testmetafile_SOURCES =		\
+	testmetafile.c
+
+testmetafile_DEPENDENCIES = $(TEST_DEPS)
+testmetafile_LDADD = $(LDADDS)
+
 testreversepath_SOURCES =	\
 	testreversepath.c
 
@@ -183,7 +189,11 @@ EXTRA_DIST =			\
 	$(testicocodec_SOURCES) \
 	$(testimageattributes_SOURCES) \
 	$(testlineargradientbrush_SOURCES)	\
+<<<<<<< HEAD
 	$(testmatrix_SOURCES) \
+=======
+	$(testmetafile_SOURCES)	\
+>>>>>>> MF tests
 	$(testpathgradientbrush_SOURCES) \
 	$(testpen_SOURCES) \
 	$(testpng_SOURCES) \
@@ -209,6 +219,7 @@ TESTS = \
 	testimageattributes \
 	testlineargradientbrush \
 	testmatrix \
+	testmetafile \
 	testpathgradientbrush \
 	testpen \
 	testpng \

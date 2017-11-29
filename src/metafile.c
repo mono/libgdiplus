@@ -1429,7 +1429,7 @@ error:
 GpStatus
 GdipCreateMetafileFromFile (GDIPCONST WCHAR *file, GpMetafile **metafile)
 {
-	FILE *fp;
+ 	FILE *fp;
 	char *file_name;
 	GpStatus status = GenericError;
 
@@ -1455,6 +1455,9 @@ GdipCreateMetafileFromFile (GDIPCONST WCHAR *file, GpMetafile **metafile)
 GpStatus
 GdipCreateMetafileFromStream (void *stream, GpMetafile **metafile)
 {
+	if (!stream || !metafile)
+		return InvalidParameter;
+
 	return NotImplemented;
 }
 /*
@@ -1584,6 +1587,9 @@ GdipGetMetafileHeaderFromFile (GDIPCONST WCHAR *filename, MetafileHeader *header
 GpStatus
 GdipGetMetafileHeaderFromStream (void *stream, MetafileHeader *header)
 {
+	if (!stream || !header)
+		return InvalidParameter;
+
 	return NotImplemented;
 }
 /*
@@ -1678,7 +1684,7 @@ GdipSetMetafileDownLevelRasterizationLimit (GpMetafile *metafile, UINT metafileR
 GpStatus
 GdipPlayMetafileRecord (GDIPCONST GpMetafile *metafile, EmfPlusRecordType recordType, UINT flags, UINT dataSize, GDIPCONST BYTE* data)
 {
-	if (!metafile)
+	if (!metafile || (dataSize && !data))
 		return InvalidParameter;
 
 	/* TODO */
