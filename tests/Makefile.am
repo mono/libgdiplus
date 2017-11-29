@@ -189,11 +189,8 @@ EXTRA_DIST =			\
 	$(testicocodec_SOURCES) \
 	$(testimageattributes_SOURCES) \
 	$(testlineargradientbrush_SOURCES)	\
-<<<<<<< HEAD
 	$(testmatrix_SOURCES) \
-=======
 	$(testmetafile_SOURCES)	\
->>>>>>> MF tests
 	$(testpathgradientbrush_SOURCES) \
 	$(testpen_SOURCES) \
 	$(testpng_SOURCES) \
