@@ -1429,7 +1429,7 @@ error:
 GpStatus
 GdipCreateMetafileFromFile (GDIPCONST WCHAR *file, GpMetafile **metafile)
 {
- 	FILE *fp;
+	FILE *fp;
 	char *file_name;
 	GpStatus status = GenericError;
 
