@@ -477,12 +477,14 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 					 * looks like BGR data. */
 					inptr -= 3;
 					outptr -= 4;
+					g_assert (outptr);
 					set_pixel_bgra(outptr, 0, inptr[2], inptr[1], inptr[0], 0xff);
 				}
 				/* keep last 2 lines in temporary variables */
 				if (width > 1) {
 					BYTE b2, g2, r2, b1, g1, r1;
 					inptr -= 3;
+					g_assert (inptr);
 					b2 = inptr[2];
 					g2 = inptr[1];
 					r2 = inptr[0];
@@ -491,6 +493,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 					g1 = inptr[1];
 					r1 = inptr[0];
 					outptr -= 4;
+					g_assert (outptr);
 					set_pixel_bgra(outptr, 0, b2, g2, r2, 0xff);
 					outptr -= 4;
 					set_pixel_bgra(outptr, 0, b1, g1, r1, 0xff);
@@ -498,6 +501,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 					/* in case the jpeg has a single line */
 					BYTE b, g, r;
 					inptr -= 3;
+					g_assert (inptr);
 					b = inptr[2];
 					g = inptr[1];
 					r = inptr[0];

@@ -257,7 +257,7 @@ gdip_metafile_play_wmf (MetafilePlayContext *context)
 		printf ("\n[#%d] size %d ", i++, size);
 #endif
 		/* reality check - enough data available to read all parameters ? (params is in WORD) */
-		if ((params << 1) > (end - data)) {
+		if ((params << 1) > (long)(end - data)) {
 			status = InvalidParameter;
 			goto cleanup;
 		}
