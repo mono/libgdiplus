@@ -477,7 +477,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 					 * looks like BGR data. */
 					inptr -= 3;
 					outptr -= 4;
-					g_assert (outptr);
+					g_assert (inptr && outptr);
 					set_pixel_bgra(outptr, 0, inptr[2], inptr[1], inptr[0], 0xff);
 				}
 				/* keep last 2 lines in temporary variables */
@@ -489,6 +489,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 					g2 = inptr[1];
 					r2 = inptr[0];
 					inptr -= 3;
+					g_assert (inptr);
 					b1 = inptr[2];
 					g1 = inptr[1];
 					r1 = inptr[0];
@@ -506,6 +507,7 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 					g = inptr[1];
 					r = inptr[0];
 					outptr -= 4;
+					g_assert (outptr);
 					set_pixel_bgra(outptr, 0, b, g, r, 0xff);
 				}
 			}

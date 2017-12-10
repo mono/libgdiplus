@@ -427,7 +427,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		png_bytep *row_pointers;
 		BYTE *rawptr;
 		int i, j;
-		BYTE	alpha[4] = {0xFF, 0xFF, 0xFF, 0xFF};	/* transparency values for 2bpp */
+		BYTE	alpha[4] = {0xFF, 0xFF, 0xFF, 0xFF};	/* Transparency values for 2bpp - default to fully opaque. */
 
 		width = png_get_image_width (png_ptr, info_ptr);
 		height = png_get_image_height (png_ptr, info_ptr);
