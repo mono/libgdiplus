@@ -101,13 +101,13 @@
       <Command>%windir%\system32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -Command "(Get-Content $(ProjectDir)\..\winconfig.h.in) -replace '#LIBGDIPLUS_VERSION#', (Select-String -path $(ProjectDir)\..\configure.ac -pattern 'AC_INIT\(libgdiplus, \[(.*)\]').Matches[0].Groups[1].Value | Set-Content $(ProjectDir)\..\config.h" 2&gt;&amp;1</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy $(ProjectDir)..\gtk\$(Platform)\bin\cairo.* $(OutDir)
-copy $(ProjectDir)..\gtk\$(Platform)\bin\fontconfig.* $(OutDir)
-copy $(ProjectDir)..\gtk\$(Platform)\bin\glib-2.0.* $(OutDir)
-copy $(ProjectDir)..\gtk\$(Platform)\bin\iconv.* $(OutDir)
-copy $(ProjectDir)..\gtk\$(Platform)\bin\libpng16.* $(OutDir)
-copy $(ProjectDir)..\gtk\$(Platform)\bin\libxml2.* $(OutDir)
-copy $(ProjectDir)..\gtk\$(Platform)\bin\zlib1.* $(OutDir)</Command>
+      <Command>copy "$(ProjectDir)..\gtk\$(Platform)\bin\cairo.*" "$(OutDir)"
+copy "$(ProjectDir)..\gtk\$(Platform)\bin\fontconfig.*" "$(OutDir)"
+copy "$(ProjectDir)..\gtk\$(Platform)\bin\glib-2.0.*" "$(OutDir)"
+copy "$(ProjectDir)..\gtk\$(Platform)\bin\iconv.*" "$(OutDir)"
+copy "$(ProjectDir)..\gtk\$(Platform)\bin\libpng16.*" "$(OutDir)"
+copy "$(ProjectDir)..\gtk\$(Platform)\bin\libxml2.*" "$(OutDir)"
+copy "$(ProjectDir)..\gtk\$(Platform)\bin\zlib1.*" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
