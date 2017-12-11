@@ -39,13 +39,13 @@ static void test_createMetafileFromFile ()
     // Create from WMF file.
     status = GdipCreateMetafileFromFile (wmfFilePath, &metafile);
     assertEqualInt (status, Ok);
-    verifyImage (metafile, ImageTypeMetafile, wmfRawFormat, PixelFormat32bppRGB, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f, 327683, 0, TRUE);
+    verifyMetafile (metafile, wmfRawFormat, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f);
     GdipDisposeImage (metafile);
 
     // Create from EMF file.
     status = GdipCreateMetafileFromFile (emfFilePath, &metafile);
     assertEqualInt (status, Ok);
-    verifyImage (metafile, ImageTypeMetafile, emfRawFormat, PixelFormat32bppRGB, 0, 0, 100, 100, 1944.444336f, 1888.888794f, 327683, 0, TRUE);
+    verifyMetafile (metafile, emfRawFormat, 0, 0, 100, 100, 1944.444336f, 1888.888794f);
     GdipDisposeImage (metafile);
 
     // Negative tests.
@@ -69,7 +69,7 @@ static void test_createMetafileFromStream ()
 #if defined(USE_WINDOWS_GDIPLUS)
     int temp = 0;
 #endif
-    
+
     // Negative tests.
     status = GdipCreateMetafileFromStream (NULL, &metafile);
     assertEqualInt (status, InvalidParameter);
@@ -78,7 +78,7 @@ static void test_createMetafileFromStream ()
 #if defined(USE_WINDOWS_GDIPLUS)
     status = GdipCreateMetafileFromStream (&temp, NULL);
     assertEqualInt (status, InvalidParameter);
-    
+
     status = GdipCreateMetafileFromStream (&temp, &metafile);
     assertEqualInt (status, NotImplemented);
 #endif
@@ -115,7 +115,7 @@ static void test_createMetafileFromEmf ()
     // Negative tests.
     status = GdipCreateMetafileFromEmf (NULL, TRUE, &metafile);
     assertEqualInt (status, InvalidParameter);
-    
+
     status = GdipCreateMetafileFromEmf (emfMetafile, TRUE, NULL);
     assertEqualInt (status, InvalidParameter);
 
@@ -138,16 +138,16 @@ static void test_createMetafileFromWmf ()
     status = GdipCreateMetafileFromWmf (wmfMetafile, TRUE, &wmfPlaceableFileHeader, &metafile);
     assertEqualInt (status, Ok);
     GdipDisposeImage (metafile);
-    
+
     status = GdipCreateMetafileFromWmf (wmfMetafile, FALSE, &wmfPlaceableFileHeader, &metafile);
     assertEqualInt (status, Ok);
     GdipDisposeImage (metafile);
-    
+
     // Create from EMF file.
     status = GdipCreateMetafileFromWmf (emfMetafile, TRUE, &wmfPlaceableFileHeader, &metafile);
     assertEqualInt (status, Ok);
     GdipDisposeImage (metafile);
-    
+
     status = GdipCreateMetafileFromWmf (emfMetafile, FALSE, &wmfPlaceableFileHeader, &metafile);
     assertEqualInt (status, Ok);
     GdipDisposeImage (metafile);
@@ -155,10 +155,10 @@ static void test_createMetafileFromWmf ()
     // Negative tests.
     status = GdipCreateMetafileFromWmf (NULL, TRUE, &wmfPlaceableFileHeader, &metafile);
     assertEqualInt (status, InvalidParameter);
-    
+
     status = GdipCreateMetafileFromWmf (wmfMetafile, TRUE, NULL, &metafile);
     assertEqualInt (status, InvalidParameter);
-    
+
     status = GdipCreateMetafileFromWmf (wmfMetafile, TRUE, &wmfPlaceableFileHeader, NULL);
     assertEqualInt (status, InvalidParameter);
 
@@ -173,7 +173,7 @@ static void test_getMetafileHeaderFromWmf ()
     GpMetafile *emfMetafile;
     WmfPlaceableFileHeader wmfPlaceableFileHeader;
     MetafileHeader header;
-    
+
     GdipCreateMetafileFromFile (wmfFilePath, &wmfMetafile);
     GdipCreateMetafileFromFile (emfFilePath, &emfMetafile);
 
@@ -194,7 +194,7 @@ static void test_getMetafileHeaderFromWmf ()
     assertEqualInt (header.Width, 0);
     assertEqualInt (header.Height, 0);
 #endif
-    
+
     // Get from EMF file.
     status = GdipGetMetafileHeaderFromWmf (emfMetafile, &wmfPlaceableFileHeader, &header);
     assertEqualInt (status, Ok);
@@ -232,7 +232,7 @@ static void test_getMetafileHeaderFromEmf ()
     GpMetafile *wmfMetafile;
     GpMetafile *emfMetafile;
     MetafileHeader header;
-    
+
     GdipCreateMetafileFromFile (wmfFilePath, &wmfMetafile);
     GdipCreateMetafileFromFile (emfFilePath, &emfMetafile);
 
@@ -250,7 +250,7 @@ static void test_getMetafileHeaderFromEmf ()
     assertEqualInt (header.Width, 100);
     assertEqualInt (header.Height, 100);
     assertEqualInt (header.EmfPlusHeaderSize, 0);
-    
+
     // Get from WMF file.
     status = GdipGetMetafileHeaderFromEmf (wmfMetafile, &header);
     assertEqualInt (status, InvalidParameter);
@@ -270,7 +270,7 @@ static void test_getMetafileHeaderFromFile ()
 {
     GpStatus status;
     MetafileHeader header;
-    
+
     // Get from WMF file.
     status = GdipGetMetafileHeaderFromFile (wmfFilePath, &header);
     assertEqualInt (status, Ok);
@@ -314,7 +314,7 @@ static void test_getMetafileHeaderFromStream ()
 #if defined(USE_WINDOWS_GDIPLUS)
     int temp = 0;
 #endif
-    
+
     // Negative tests.
     status = GdipGetMetafileHeaderFromStream (NULL, &header);
     assertEqualInt (status, InvalidParameter);
@@ -323,7 +323,7 @@ static void test_getMetafileHeaderFromStream ()
 #if defined(USE_WINDOWS_GDIPLUS)
     status = GdipGetMetafileHeaderFromStream (&temp, NULL);
     assertEqualInt (status, InvalidParameter);
-    
+
     status = GdipGetMetafileHeaderFromStream (&temp, &header);
     assertEqualInt (status, NotImplemented);
 #endif
@@ -338,7 +338,7 @@ static void test_getMetafileHeaderFromMetafile ()
 
     GdipCreateMetafileFromFile (wmfFilePath, &wmfMetafile);
     GdipCreateMetafileFromFile (emfFilePath, &emfMetafile);
-    
+
     // Get from WMF file.
     status = GdipGetMetafileHeaderFromMetafile (wmfMetafile, &header);
     assertEqualInt (status, Ok);
@@ -373,7 +373,7 @@ static void test_getMetafileHeaderFromMetafile ()
 
     status = GdipGetMetafileHeaderFromMetafile (emfMetafile, NULL);
     assertEqualInt (status, InvalidParameter);
-    
+
     GdipDisposeImage (wmfMetafile);
     GdipDisposeImage (emfMetafile);
 }
@@ -412,7 +412,7 @@ static void test_gettHemfFromMetafile ()
     // Negative tests.
     status = GdipGetHemfFromMetafile (NULL, &hemf);
     assertEqualInt (status, InvalidParameter);
-    
+
     status = GdipGetHemfFromMetafile (NULL, &hemf);
     assertEqualInt (status, InvalidParameter);
 
@@ -524,10 +524,10 @@ static void test_recordMetafile ()
     GpRectF zeroWidth = {0, 0, 0, 100};
     GpRectF zeroHeight = {0, 0, 100, 0};
     GpMetafile *metafile;
-    
+
     GdipCreateMetafileFromFile (wmfFilePath, &wmfMetafile);
     GdipCreateMetafileFromFile (emfFilePath, &emfMetafile);
-    
+
     GdipCreateBitmapFromScan0 (10, 10, 0, PixelFormat32bppRGB, NULL, &bitmap);
     GdipGetImageGraphicsContext (bitmap, &graphics);
     GdipGetDC (graphics, &hdc);

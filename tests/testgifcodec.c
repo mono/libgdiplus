@@ -37,10 +37,16 @@ GpImage *image;
 	assertEqualInt (status, expectedStatus); \
 }
 
+#define createFileSuccess(buffer, expectedWidth, expectedHeight) \
+{ \
+  createFile(buffer, Ok); \
+  verifyBitmap (image, gifRawFormat, PixelFormat8bppIndexed, 3, 5, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 0, TRUE); \
+  GdipDisposeImage (image); \
+}
+
 static void test_validData ()
 {
   GpImage *image;
-  const INT gifFlags = ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly;
 
   BYTE localColorTable89[]                     = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, ',', 0, 0, 0, 0, 3, 0, 5, 0, B8(10000000), 0, 0, 0, 255, 255, 255, 0x02, 0x06, 0x84, 0x03, 0x81, 0x9a, 0x06, 0x05, 0x00, ';'};
   BYTE globalColorTable89[]                    = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, B8(10000000), 0, 0, 0, 0, 0, 255, 255, 255, ',', 0, 0, 0, 0, 3, 0, 5, 0, 0, 0x02, 0x06, 0x84, 0x03, 0x81, 0x9a, 0x06, 0x05, 0x00, ';'};
@@ -64,85 +70,31 @@ static void test_validData ()
   BYTE applicationTextControlBlock[]           = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, '!', 0xFF, 0x0B, '1', '2', '3', '4', '5', '6', '7', '8', 1, 2, 3, 2, 'H', 'I', 0, ',', 0, 0, 0, 0, 3, 0, 5, 0, B8(10000000), 0, 0, 0, 255, 255, 255, 0x02, 0x06, 0x84, 0x03, 0x81, 0x9a, 0x06, 0x05, 0x00, ';'};
   BYTE commentControlBlock[]                   = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, '!', 0xFE, 2, 'H', 'I', 0, ',', 0, 0, 0, 0, 3, 0, 5, 0, B8(10000000), 0, 0, 0, 255, 255, 255, 0x02, 0x06, 0x84, 0x03, 0x81, 0x9a, 0x06, 0x05, 0x00, ';'};
 
-  createFile (localColorTable89, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (globalColorTable89, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (localAndGlobalColorTable89, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (localColorTable87, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (globalColorTable87, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (localAndGlobalColorTable87, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (extraData, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (noColorTables, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (emptyExtensionBlock, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (unknownExtensionBlock87, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (unknownExtensionBlock89, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (graphicsControlBlock, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
+  createFileSuccess (localColorTable89, 3, 5);
+  createFileSuccess (globalColorTable89, 3, 5);
+  createFileSuccess (localAndGlobalColorTable89, 3, 5);
+  createFileSuccess (localColorTable87, 3, 5);
+  createFileSuccess (globalColorTable87, 3, 5);
+  createFileSuccess (localAndGlobalColorTable87, 3, 5);
+  createFileSuccess (extraData, 3, 5);
+  createFileSuccess (noColorTables, 3, 5);
+  createFileSuccess (emptyExtensionBlock, 3, 5);
+  createFileSuccess (unknownExtensionBlock87, 3, 5);
+  createFileSuccess (unknownExtensionBlock89, 3, 5);
+  createFileSuccess (graphicsControlBlock, 3, 5);
 
   // FIXME: it appears that GDI+ allows a graphics control extension block without a
   // terminating 0 byte.
 #if defined(USE_WINDOWS_GDIPLUS)
-  createFile (graphicsControlBlockMissingTerminator, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
+  createFileSuccess (graphicsControlBlockMissingTerminator, 3, 5);
 #endif
 
-  createFile (severalGraphicsControlBlocks, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (misplacedGraphicsControlBlock, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (plainTextControlBlock, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (invalidTextControlBlock, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (applicationTextControlBlock, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
-
-  createFile (commentControlBlock, Ok);
-  verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
-  GdipDisposeImage (image);
+  createFileSuccess (severalGraphicsControlBlocks, 3, 5);
+  createFileSuccess (misplacedGraphicsControlBlock, 3, 5);
+  createFileSuccess (plainTextControlBlock, 3, 5);
+  createFileSuccess (invalidTextControlBlock, 3, 5);
+  createFileSuccess (applicationTextControlBlock, 3, 5);
+  createFileSuccess (commentControlBlock, 3, 5);
 }
 
 static void test_invalidHeader ()
