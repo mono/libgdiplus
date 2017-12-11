@@ -17,7 +17,7 @@ LDADDS =					\
 	-lm
 
 noinst_PROGRAMS =			\
-	testadjustablearrowcap testbits testbmpcodec testbrush testclip testcustomlinecap testfont testgifcodec testgpimage testgraphics testhatchbrush testicocodec testimageattributes testlineargradientbrush testmatrix testmetafile testpathgradientbrush testpen testpng testreversepath testsolidbrush teststringformat testtexturebrush testtiffcodec
+	testadjustablearrowcap testbits testbmpcodec testbrush testclip testcustomlinecap testfont testgifcodec testgpimage testgraphics testhatchbrush testicocodec testimageattributes testlineargradientbrush testmatrix testmetafile testpathgradientbrush testpen testpng testpngcodec testreversepath testsolidbrush teststringformat testtexturebrush testtiffcodec
 
 if HAS_X11
 noinst_PROGRAMS += testgdi
@@ -85,7 +85,7 @@ testgpimage_LDADD = $(LDADDS)
 
 testgraphics_SOURCES =		\
 	testgraphics.c
-	
+
 testgraphics_DEPENDENCIES = $(TEST_DEPS)
 testgraphics_LDADD = $(LDADDS)
 
@@ -124,6 +124,12 @@ testmetafile_SOURCES =		\
 
 testmetafile_DEPENDENCIES = $(TEST_DEPS)
 testmetafile_LDADD = $(LDADDS)
+
+testpngcodec_SOURCES =		\
+	testpngcodec.c
+
+testpngcodec_DEPENDENCIES = $(TEST_DEPS)
+testpngcodec_LDADD = $(LDADDS)
 
 testreversepath_SOURCES =	\
 	testreversepath.c
@@ -194,6 +200,7 @@ EXTRA_DIST =			\
 	$(testpathgradientbrush_SOURCES) \
 	$(testpen_SOURCES) \
 	$(testpng_SOURCES) \
+	$(testpngcodec_SOURCES) \
 	$(testreversepath_SOURCES) \
 	$(testsolidbrush_SOURCES)	\
 	$(teststringformat_SOURCES)	\
@@ -220,6 +227,7 @@ TESTS = \
 	testpathgradientbrush \
 	testpen \
 	testpng \
+	testpngcodec \
 	testreversepath \
 	testsolidbrush \
 	teststringformat \
