@@ -97,6 +97,7 @@ static void test_valid1bpp()
 
 static void test_valid2bpp ()
 {
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE grayscale2bpp1x1Interlaced[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x00, 0x01, 0x07, 0xC9, 0xB3, 0x62,
@@ -116,6 +117,7 @@ static void test_valid2bpp ()
 		/* IDAT */      0x00, 0x00, 0x00, 0x0A, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0x70, 0x00, 0x00, 0x00, 0x42, 0x00, 0x41, 0xF9, 0xFB, 0x3C, 0x49,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+#endif
 	BYTE indexed2bpp1x1PaletteFirst[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x02, 0x03, 0x00, 0x00, 0x01, 0x15, 0x7C, 0x1C, 0x8C,
@@ -123,6 +125,7 @@ static void test_valid2bpp ()
 		/* IDAT */      0x00, 0x00, 0x00, 0x0A, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0x70, 0x00, 0x00, 0x00, 0x42, 0x00, 0x41, 0xF9, 0xFB, 0x3C, 0x49,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE indexed2bpp6x4PaletteLast[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04, 0x02, 0x03, 0x00, 0x00, 0x01, 0xA7, 0x6D, 0x96, 0x46,
@@ -130,12 +133,20 @@ static void test_valid2bpp ()
 		/* PLTE */      0x00, 0x00, 0x00, 0x09, 'P', 'L', 'T', 'E', 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0xE6, 0xE6, 0xFA, 0x0D, 0xB2, 0xEB, 0x46,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+#endif
 
+	// FIXME: this causes an AV in libgdiplus when trying to convert this image to 32bpp as we assume
+	// the image has a palette.
+#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (grayscale2bpp1x1Interlaced, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	createFileSuccess (grayscale2bpp6x4NotInterlaced, PixelFormat32bppARGB, 6, 4, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	createFileSuccess (grayscale2bpp1x1WithPalette, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+#endif
 	createFileSuccess (indexed2bpp1x1PaletteFirst, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+	// FIXME: GDI+ allows indexed images with palettes last.
+#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (indexed2bpp6x4PaletteLast, PixelFormat32bppARGB, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+#endif
 }
 
 static void test_valid4bpp()
@@ -166,6 +177,7 @@ static void test_valid4bpp()
 		/* IDAT */      0x00, 0x00, 0x00, 0x0A, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0x10, 0x00, 0x00, 0x00, 0x12, 0x00, 0x11, 0x75, 0x9A, 0x0F, 0xE8,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE indexed4bpp6x4PaletteLast[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04, 0x04, 0x03, 0x00, 0x00, 0x01, 0x28, 0x2D, 0x63, 0xE6,
@@ -173,12 +185,22 @@ static void test_valid4bpp()
 		/* PLTE */      0x00, 0x00, 0x00, 0x18, 'P', 'L', 'T', 'E', 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x80, 0x00, 0xE6, 0xE6, 0xFA, 0xF5, 0xF5, 0xDC, 0xFF, 0xFF, 0xFF, 0x9A, 0xCD, 0x32, 0xEE, 0x82, 0xEE, 0xBD, 0xEB, 0xF4, 0x2B,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+#endif
 
-	createFileSuccess (grayscaleWithAlpha1x1Interlaced, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
-	createFileSuccess (grayscaleWithAlpha6x4NotInterlaced, PixelFormat32bppARGB, 6, 4, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
-	createFileSuccess (grayscaleWithAlpha1x1WithPalette, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+	// FIXME: GDI+ converts grayscale alpha 4bpp images to 32bpp.
+#if defined(USE_WINDOWS_GDIPLUS)
+	PixelFormat expectedGrayscalePixelFormat = PixelFormat32bppARGB;
+#else
+	PixelFormat expectedGrayscalePixelFormat = PixelFormat4bppIndexed;
+#endif
+	createFileSuccess (grayscaleWithAlpha1x1Interlaced, expectedGrayscalePixelFormat, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+	createFileSuccess (grayscaleWithAlpha6x4NotInterlaced, expectedGrayscalePixelFormat, 6, 4, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+	createFileSuccess (grayscaleWithAlpha1x1WithPalette, expectedGrayscalePixelFormat, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	createFileSuccess (indexed4bpp1x1PaletteFirst, PixelFormat4bppIndexed, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
+	// FIXME: GDI+ allows indexed images with palettes last.
+#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (indexed4bpp6x4PaletteLast, PixelFormat4bppIndexed, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
+#endif
 }
 
 static void test_valid8bpp ()
@@ -209,6 +231,7 @@ static void test_valid8bpp ()
 		/* IDAT */      0x00, 0x00, 0x00, 0x0A, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0x10, 0x00, 0x00, 0x00, 0x12, 0x00, 0x11, 0x75, 0x9A, 0x0F, 0xE8,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE indexed6x4PaletteLast[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04, 0x08, 0x03, 0x00, 0x00, 0x01, 0xED, 0xDD, 0x8E, 0xE7,
@@ -216,6 +239,7 @@ static void test_valid8bpp ()
 		/* PLTE */      0x00, 0x00, 0x00, 0x18, 'P', 'L', 'T', 'E', 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x80, 0x00, 0xE6, 0xE6, 0xFA, 0xF5, 0xF5, 0xDC, 0xFF, 0xFF, 0xFF, 0x9A, 0xCD, 0x32, 0xEE, 0x82, 0xEE, 0xBD, 0xEB, 0xF4, 0x2B,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+#endif
 	BYTE trueColor1x1Interlaced[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x02, 0x00, 0x00, 0x01, 0xE7, 0x70, 0x63, 0x48,
@@ -255,11 +279,20 @@ static void test_valid8bpp ()
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
 
-	createFileSuccess (grayscale1x1Interlaced, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
-	createFileSuccess (grayscale6x4NotInterlaced, PixelFormat32bppARGB, 6, 4, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
-	createFileSuccess (grayscale1x1WithPalette, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+	// FIXME: GDI+ converts grayscale 8bpp images to 32bpp.
+#if defined(USE_WINDOWS_GDIPLUS)
+	PixelFormat expectedGrayscalePixelFormat = PixelFormat32bppARGB;
+#else
+	PixelFormat expectedGrayscalePixelFormat = PixelFormat8bppIndexed;
+#endif
+	createFileSuccess (grayscale1x1Interlaced, expectedGrayscalePixelFormat, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+	createFileSuccess (grayscale6x4NotInterlaced, expectedGrayscalePixelFormat, 6, 4, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+	createFileSuccess (grayscale1x1WithPalette, expectedGrayscalePixelFormat, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	createFileSuccess (indexed1x1PaletteFirst, PixelFormat8bppIndexed, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
+	// FIXME: GDI+ allows indexed images with palettes last.
+#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (indexed6x4PaletteLast, PixelFormat8bppIndexed, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
+#endif
 	createFileSuccess (trueColor1x1Interlaced, PixelFormat24bppRGB, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
 	createFileSuccess (trueColor6x4NotInterlaced, PixelFormat24bppRGB, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
 	createFileSuccess (trueColor1x1WithPalette, PixelFormat24bppRGB, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
@@ -327,13 +360,22 @@ static void test_valid16bpp ()
 		/* IDAT */      0x00, 0x00, 0x00, 0x10, 'I', 'D', 'A', 'T', 0x18, 0x57, 0x63, 0xF8, 0xFF, 0x9F, 0x01, 0x08, 0xEA, 0xFF, 0x03, 0x00, 0x10, 0xF7, 0x03, 0x7D, 0xF1, 0xE9, 0x90, 0xF9,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+	
+	// FIXME: GDI+ converts grayscale 16bpp images to 32bpp.
+#if defined(USE_WINDOWS_GDIPLUS)
+	PixelFormat expectedGrayscalePixelFormat = PixelFormat32bppARGB;
+	PixelFormat expectedTrueColorPixelFormat = PixelFormat32bppARGB;
+#else
+	PixelFormat expectedGrayscalePixelFormat = PixelFormat8bppIndexed ;
+	PixelFormat expectedTrueColorPixelFormat = PixelFormat24bppRGB ;
+#endif
 
-	createFileSuccess (grayscale1x1Interlaced, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
-	createFileSuccess (grayscale6x4NotInterlaced, PixelFormat32bppARGB, 6, 4, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
-	createFileSuccess (grayscale1x1WithPalette, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
-	createFileSuccess (trueColor1x1Interlaced, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
-	createFileSuccess (trueColor6x4NotInterlaced, PixelFormat32bppARGB, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
-	createFileSuccess (trueColor1x1WithPalette, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+	createFileSuccess (grayscale1x1Interlaced, expectedGrayscalePixelFormat, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+	createFileSuccess (grayscale6x4NotInterlaced, expectedGrayscalePixelFormat, 6, 4, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+	createFileSuccess (grayscale1x1WithPalette, expectedGrayscalePixelFormat, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+	createFileSuccess (trueColor1x1Interlaced, expectedTrueColorPixelFormat, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+	createFileSuccess (trueColor6x4NotInterlaced, expectedTrueColorPixelFormat, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
+	createFileSuccess (trueColor1x1WithPalette, expectedTrueColorPixelFormat, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	createFileSuccess (trueColorWithAlpha1x1Interlaced, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	createFileSuccess (trueColorWithAlpha6x4NotInterlaced, PixelFormat32bppARGB, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	createFileSuccess (trueColorWithAlpha1x1WithPalette, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
@@ -341,12 +383,15 @@ static void test_valid16bpp ()
 
 static void test_valid ()
 {
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE longIhdrLength[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0E, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
 		/* IDAT */      0x00, 0x00, 0x00, 0x0A, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0x60, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0x00, 0x00, 0x00, 0x00
 	};
+#endif
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE multipleIhdrs[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04, 0x04, 0x03, 0x00, 0x00, 0x01, 0x28, 0x2D, 0x63, 0xE6,
@@ -355,6 +400,8 @@ static void test_valid ()
 		/* IDAT */      0x00, 0x00, 0x00, 0x0C, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0xC0, 0x06, 0x18, 0x18, 0x00, 0x00, 0x17, 0x00, 0x01, 0x47, 0xB7, 0x91, 0x37,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+#endif
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE multipleIdats[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x40, 0x69, 0xC9, 0xB2,
@@ -363,6 +410,8 @@ static void test_valid ()
 		/* IDAT */      0x00, 0x00, 0x00, 0x0A, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0x60, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x98, 0x63, 0x6C, 0xD7,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+#endif
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE oneEmptyIdat[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
@@ -370,6 +419,8 @@ static void test_valid ()
 		/* IDAT */      0x00, 0x00, 0x00, 0x00, 'I', 'D', 'A', 'T', 0x00, 0x00, 0x00, 0x00,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0x00, 0x00, 0x00, 0x00
 	};
+#endif
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE multiplePalettes[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04, 0x04, 0x03, 0x00, 0x00, 0x01, 0x28, 0x2D, 0x63, 0xE6,
@@ -378,24 +429,29 @@ static void test_valid ()
 		/* IDAT */      0x00, 0x00, 0x00, 0x0C, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0xC0, 0x06, 0x18, 0x18, 0x00, 0x00, 0x17, 0x00, 0x01, 0x47, 0xB7, 0x91, 0x37,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+#endif
 	BYTE noIend[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x40, 0x69, 0xC9, 0xB2,
 		/* IDAT */      0x00, 0x00, 0x00, 0x0A, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0x60, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x98, 0x63, 0x6C, 0xD7,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE invalidCrc[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
 		/* IDAT */      0x00, 0x00, 0x00, 0x0A, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0x60, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0x00, 0x00, 0x00, 0x00
 	};
+#endif
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE invalidCompression[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
 		/* IDAT */      0x00, 0x00, 0x00, 0x0A, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0x60, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0x00, 0x00, 0x00, 0x00
 	};
+#endif
 	BYTE metersPhysicalDimensionsChunk[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04, 0x04, 0x03, 0x00, 0x00, 0x01, 0x28, 0x2D, 0x63, 0xE6,
@@ -460,6 +516,7 @@ static void test_valid ()
 		/* IDAT */      0x00, 0x00, 0x00, 0x0C, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0xC0, 0x06, 0x18, 0x18, 0x00, 0x00, 0x17, 0x00, 0x01, 0x47, 0xB7, 0x91, 0x37,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE unknownChunk[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04, 0x04, 0x03, 0x00, 0x00, 0x01, 0x28, 0x2D, 0x63, 0xE6,
@@ -468,6 +525,7 @@ static void test_valid ()
 		/* IDAT */      0x00, 0x00, 0x00, 0x0C, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0xC0, 0x06, 0x18, 0x18, 0x00, 0x00, 0x17, 0x00, 0x01, 0x47, 0xB7, 0x91, 0x37,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+#endif
 	BYTE invalidSrgbChunk[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04, 0x04, 0x03, 0x00, 0x00, 0x01, 0x28, 0x2D, 0x63, 0xE6,
@@ -476,6 +534,7 @@ static void test_valid ()
 		/* IDAT */      0x00, 0x00, 0x00, 0x0C, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0xC0, 0x06, 0x18, 0x18, 0x00, 0x00, 0x17, 0x00, 0x01, 0x47, 0xB7, 0x91, 0x37,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE iendWithLength[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x40, 0x69, 0xC9, 0xB2,
@@ -483,6 +542,7 @@ static void test_valid ()
 		/* IEND */      0x00, 0x00, 0x00, 0x01, 'I', 'E', 'N', 'D', 0x00, 0xAE, 0x42, 0x60, 0x82,
 		/* sRGB */      0x00, 0x00, 0x00, 0x01, 's', 'R', 'G', 'B', 0xFF, 0xAE, 0xCE, 0x1C, 0xE9
 	};
+#endif
 	BYTE iendWithTrailingData[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x40, 0x69, 0xC9, 0xB2,
@@ -491,14 +551,35 @@ static void test_valid ()
 		/* sRGB */      0x00, 0x00, 0x00, 0x01, 's', 'R', 'G', 'B', 0xFF, 0xAE, 0xCE, 0x1C, 0xE9
 	};
 
+	// FIXME: GDI+ allows long IHDR lengths.
+#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (longIhdrLength, PixelFormat1bppIndexed, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
+#endif
+	// FIXME: GDI+ allows multiple IHDRs.
+#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (multipleIhdrs, PixelFormat4bppIndexed, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
+#endif
+	//FIXME: GDI+ allows multiple IDATs.
+#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (multipleIdats, PixelFormat1bppIndexed, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
+#endif
+	// FIXME: GDI+ allows empty IDATs.
+#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (oneEmptyIdat, PixelFormat1bppIndexed, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
+#endif
+	// FIXME: GDI+ allows multiple palettes
+#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (multiplePalettes, PixelFormat4bppIndexed, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
+#endif
 	createFileSuccess (noIend, PixelFormat1bppIndexed, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
+	// FIXME: GDI+ does not validate the CRC.
+#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (invalidCrc, PixelFormat1bppIndexed, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
+#endif
+	// FIXME: GDI+ does not validate the compression.
+#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (invalidCompression, PixelFormat1bppIndexed, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
+#endif
 	createFileSuccess (metersPhysicalDimensionsChunk, PixelFormat4bppIndexed, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasRealDPI | ImageFlagsReadOnly, 3);
 	createFileSuccess (zeroDpiXPhysicalDimensionsChunk, PixelFormat4bppIndexed, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
 	createFileSuccess (zeroDpiYPhysicalDimensionsChunk, PixelFormat4bppIndexed, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
@@ -507,9 +588,15 @@ static void test_valid ()
 	createFileSuccess (gamaChunkBeforeColors, PixelFormat4bppIndexed, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 4);
 	createFileSuccess (gamaChunkAfterColors, PixelFormat4bppIndexed, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 4);
 	createFileSuccess (srgbChunk, PixelFormat4bppIndexed, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 5);
+	// FIXME: GDI+ does not validate the CRC.
+#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (unknownChunk, PixelFormat4bppIndexed, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
+#endif
 	createFileSuccess (invalidSrgbChunk, PixelFormat4bppIndexed, 6, 4, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 5);
+	// FIXME: GDI+ does not validate the CRC.
+#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (iendWithLength, PixelFormat1bppIndexed, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
+#endif
 	createFileSuccess (iendWithTrailingData, PixelFormat1bppIndexed, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
 }
 
