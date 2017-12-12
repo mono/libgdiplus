@@ -13,31 +13,28 @@
 #include <GdiPlusFlat.h>
 #endif
 
-#ifdef USE_WINDOWS_GDIPLUS
+#if defined(USE_WINDOWS_GDIPLUS)
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
 
 #include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "testhelpers.h"
 
 static const char *file = "temp_asset.gif";
 static WCHAR wFile[] = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'g', 'i', 'f', 0};
+GpImage *image;
 
-static GpImage *createFile (BYTE *buffer, int length, GpStatus expectedStatus)
-{
-  GpStatus status;
-  GpImage *image;
-  FILE *f = fopen (file, "w+");
-  fwrite ((void *) buffer, sizeof(BYTE), length, f);
-  fclose (f);
-  
-  status = GdipLoadImageFromFile (wFile, &image);
-  assertEqualInt (status, expectedStatus);
-  
-  return image;
+#define createFile(buffer, expectedStatus) \
+{ \
+	GpStatus status; \
+	FILE *f = fopen (file, "wb+"); \
+	assert (f); \
+	fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
+	fclose (f); \
+ \
+	status = GdipLoadImageFromFile (wFile, &image); \
+	assertEqualInt (status, expectedStatus); \
 }
 
 static void test_validData ()
@@ -67,83 +64,83 @@ static void test_validData ()
   BYTE applicationTextControlBlock[]           = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, '!', 0xFF, 0x0B, '1', '2', '3', '4', '5', '6', '7', '8', 1, 2, 3, 2, 'H', 'I', 0, ',', 0, 0, 0, 0, 3, 0, 5, 0, B8(10000000), 0, 0, 0, 255, 255, 255, 0x02, 0x06, 0x84, 0x03, 0x81, 0x9a, 0x06, 0x05, 0x00, ';'};
   BYTE commentControlBlock[]                   = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, '!', 0xFE, 2, 'H', 'I', 0, ',', 0, 0, 0, 0, 3, 0, 5, 0, B8(10000000), 0, 0, 0, 255, 255, 255, 0x02, 0x06, 0x84, 0x03, 0x81, 0x9a, 0x06, 0x05, 0x00, ';'};
 
-  image = createFile (localColorTable89, sizeof(localColorTable89), Ok);
+  createFile (localColorTable89, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (globalColorTable89, sizeof(globalColorTable89), Ok);
+  createFile (globalColorTable89, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (localAndGlobalColorTable89, sizeof(localAndGlobalColorTable89), Ok);
+  createFile (localAndGlobalColorTable89, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (localColorTable87, sizeof(localColorTable87), Ok);
+  createFile (localColorTable87, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (globalColorTable87, sizeof(globalColorTable87), Ok);
+  createFile (globalColorTable87, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (localAndGlobalColorTable87, sizeof(localAndGlobalColorTable87), Ok);
+  createFile (localAndGlobalColorTable87, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (extraData, sizeof(extraData), Ok);
+  createFile (extraData, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (noColorTables, sizeof(noColorTables), Ok);
+  createFile (noColorTables, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (emptyExtensionBlock, sizeof(emptyExtensionBlock), Ok);
+  createFile (emptyExtensionBlock, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (unknownExtensionBlock87, sizeof(unknownExtensionBlock87), Ok);
+  createFile (unknownExtensionBlock87, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (unknownExtensionBlock89, sizeof(unknownExtensionBlock89), Ok);
+  createFile (unknownExtensionBlock89, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (graphicsControlBlock, sizeof(graphicsControlBlock), Ok);
+  createFile (graphicsControlBlock, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
   // FIXME: it appears that GDI+ allows a graphics control extension block without a
   // terminating 0 byte.
 #if defined(USE_WINDOWS_GDIPLUS)
-  image = createFile (graphicsControlBlockMissingTerminator, sizeof(graphicsControlBlockMissingTerminator), Ok);
+  createFile (graphicsControlBlockMissingTerminator, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 #endif
 
-  image = createFile (severalGraphicsControlBlocks, sizeof(severalGraphicsControlBlocks), Ok);
+  createFile (severalGraphicsControlBlocks, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (misplacedGraphicsControlBlock, sizeof(misplacedGraphicsControlBlock), Ok);
+  createFile (misplacedGraphicsControlBlock, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (plainTextControlBlock, sizeof(plainTextControlBlock), Ok);
+  createFile (plainTextControlBlock, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (invalidTextControlBlock, sizeof(invalidTextControlBlock), Ok);
+  createFile (invalidTextControlBlock, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (applicationTextControlBlock, sizeof(applicationTextControlBlock), Ok);
+  createFile (applicationTextControlBlock, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 
-  image = createFile (commentControlBlock, sizeof(commentControlBlock), Ok);
+  createFile (commentControlBlock, Ok);
   verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 3, 5, 3, 5, gifFlags, 0, TRUE);
   GdipDisposeImage (image);
 }
@@ -163,20 +160,20 @@ static void test_invalidHeader ()
   BYTE smallGlobalColorTable[]  = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, B8(10000000), 0, 0, 255, 255, 255};
   BYTE noRecords[]              = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0};
   BYTE unknownChunk[]           = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, '_'};
-  
-  createFile (noScreenWidth87, sizeof(noScreenWidth87), OutOfMemory);
-  createFile (noScreenWidth89, sizeof(noScreenWidth89), OutOfMemory);
-  createFile (shortScreenWidth, sizeof(shortScreenWidth), OutOfMemory);
-  createFile (noScreenHeight, sizeof(noScreenHeight), OutOfMemory);
-  createFile (shortScreenHeight, sizeof(shortScreenHeight), OutOfMemory);
-  createFile (noColorTableFlags, sizeof(noColorTableFlags), OutOfMemory);
-  createFile (noBackgroundColor, sizeof(noBackgroundColor), OutOfMemory);
-  createFile (noPixelAspectRatio, sizeof(noPixelAspectRatio), OutOfMemory);
-  createFile (noGlobalColorTable, sizeof(noGlobalColorTable), OutOfMemory);
-  createFile (shortGlobalColorTable, sizeof(shortGlobalColorTable), OutOfMemory);
-  createFile (smallGlobalColorTable, sizeof(smallGlobalColorTable), OutOfMemory);
-  createFile (noRecords, sizeof(noRecords), OutOfMemory);
-  createFile (unknownChunk, sizeof(unknownChunk), OutOfMemory);
+
+  createFile (noScreenWidth87, OutOfMemory);
+  createFile (noScreenWidth89, OutOfMemory);
+  createFile (shortScreenWidth, OutOfMemory);
+  createFile (noScreenHeight, OutOfMemory);
+  createFile (shortScreenHeight, OutOfMemory);
+  createFile (noColorTableFlags, OutOfMemory);
+  createFile (noBackgroundColor, OutOfMemory);
+  createFile (noPixelAspectRatio, OutOfMemory);
+  createFile (noGlobalColorTable, OutOfMemory);
+  createFile (shortGlobalColorTable, OutOfMemory);
+  createFile (smallGlobalColorTable, OutOfMemory);
+  createFile (noRecords, OutOfMemory);
+  createFile (unknownChunk, OutOfMemory);
 }
 
 static void test_invalidImageRecord ()
@@ -220,49 +217,49 @@ static void test_invalidImageRecord ()
   BYTE invalidImageTopHeight[]  = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, ',', 0, 0, 1, 0, 3, 0, 5, 0, B8(10000000), 0, 0, 0, 255, 255, 255, 0x02, 0x06, 0x84, 0x03, 0x81, 0x9a, 0x06, 0x05, 0x00, ';'};
 #endif
 
-  createFile (noImageLeft, sizeof(noImageLeft), OutOfMemory);
-  createFile (shortImageLeft, sizeof(shortImageLeft), OutOfMemory);
-  createFile (noImageTop, sizeof(noImageTop), OutOfMemory);
-  createFile (shortImageTop, sizeof(shortImageTop), OutOfMemory);
-  createFile (noImageWidth, sizeof(noImageWidth), OutOfMemory);
-  createFile (shortImageWidth, sizeof(shortImageWidth), OutOfMemory);
-  createFile (noImageHeight, sizeof(noImageHeight), OutOfMemory);
-  createFile (shortImageHeight, sizeof(shortImageHeight), OutOfMemory);
-  createFile (noImagePacked, sizeof(noImagePacked), OutOfMemory);
-  createFile (noLocalColorTable, sizeof(noLocalColorTable), OutOfMemory);
-  createFile (shortLocalColorTable, sizeof(shortLocalColorTable), OutOfMemory);
-  createFile (smallLocalColorTable, sizeof(smallLocalColorTable), OutOfMemory);
-  createFile (noCodeSizeWithTable, sizeof(noCodeSizeWithTable), OutOfMemory);
-  createFile (noCodeSizeNoTable, sizeof(noCodeSizeNoTable), OutOfMemory);
-  createFile (noData, sizeof(noData), OutOfMemory);
-  createFile (noColorTables, sizeof(noColorTables), OutOfMemory);
+  createFile (noImageLeft, OutOfMemory);
+  createFile (shortImageLeft, OutOfMemory);
+  createFile (noImageTop, OutOfMemory);
+  createFile (shortImageTop, OutOfMemory);
+  createFile (noImageWidth, OutOfMemory);
+  createFile (shortImageWidth, OutOfMemory);
+  createFile (noImageHeight, OutOfMemory);
+  createFile (shortImageHeight, OutOfMemory);
+  createFile (noImagePacked, OutOfMemory);
+  createFile (noLocalColorTable, OutOfMemory);
+  createFile (shortLocalColorTable, OutOfMemory);
+  createFile (smallLocalColorTable, OutOfMemory);
+  createFile (noCodeSizeWithTable, OutOfMemory);
+  createFile (noCodeSizeNoTable, OutOfMemory);
+  createFile (noData, OutOfMemory);
+  createFile (noColorTables, OutOfMemory);
 
   // This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
-  createFile (noImageDataWithTable, sizeof(noImageDataWithTable), OutOfMemory);
-  createFile (noImageDataTerminator, sizeof(noImageDataTerminator), OutOfMemory);
-  createFile (noCompressedData, sizeof(noCompressedData), OutOfMemory);
-  createFile (notEnoughImageData, sizeof(notEnoughImageData), OutOfMemory);
-  createFile (noTerminator, sizeof(noTerminator), OutOfMemory);
-  createFile (invalidCompression, sizeof(invalidCompression), OutOfMemory);
+  createFile (noImageDataWithTable, OutOfMemory);
+  createFile (noImageDataTerminator, OutOfMemory);
+  createFile (noCompressedData, OutOfMemory);
+  createFile (notEnoughImageData, OutOfMemory);
+  createFile (noTerminator, OutOfMemory);
+  createFile (invalidCompression, OutOfMemory);
 #endif
 
-  createFile (zeroHeaderWidth, sizeof(zeroHeaderWidth), OutOfMemory);
-  createFile (zeroHeaderHeight, sizeof(zeroHeaderHeight), OutOfMemory);
+  createFile (zeroHeaderWidth, OutOfMemory);
+  createFile (zeroHeaderHeight, OutOfMemory);
   // This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
-  createFile (invalidImageLeft, sizeof(invalidImageLeft), OutOfMemory);
-  createFile (invalidImageTop, sizeof(invalidImageTop), OutOfMemory);
+  createFile (invalidImageLeft, OutOfMemory);
+  createFile (invalidImageTop, OutOfMemory);
 #endif
-  createFile (zeroImageWidth, sizeof(zeroImageWidth), OutOfMemory);
-  createFile (zeroImageHeight, sizeof(zeroImageHeight), OutOfMemory);
+  createFile (zeroImageWidth, OutOfMemory);
+  createFile (zeroImageHeight, OutOfMemory);
 
   // This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
-  createFile (invalidImageWidth, sizeof(invalidImageWidth), OutOfMemory);
-  createFile (invalidImageHeight, sizeof(invalidImageHeight), OutOfMemory);
-  createFile (invalidImageLeftWidth, sizeof(invalidImageLeftWidth), OutOfMemory);
-  createFile (invalidImageTopHeight, sizeof(invalidImageTopHeight), OutOfMemory);
+  createFile (invalidImageWidth, OutOfMemory);
+  createFile (invalidImageHeight, OutOfMemory);
+  createFile (invalidImageLeftWidth, OutOfMemory);
+  createFile (invalidImageTopHeight, OutOfMemory);
 #endif
 }
 
@@ -273,10 +270,10 @@ static void test_invalidExtensionRecord ()
   BYTE noExtensionContent[]            = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, '!', 0xF9, 1, 0, ';'};
   BYTE multipleGraphicsControlBlocks[] = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, '!', 0xF9, 0x04, 0, 0, 0, 0, 0x04, 0, 0, 0, 0, 0, ',', 0, 0, 0, 0, 3, 0, 5, 0, B8(10000000), 0, 0, 0, 255, 255, 255, 0x02, 0x06, 0x84, 0x03, 0x81, 0x9a, 0x06, 0x05, 0x00, ';'};
 
-  createFile (noExtensionLabel, sizeof(noExtensionLabel), OutOfMemory);
-  createFile (noExtensionSize, sizeof(noExtensionSize), OutOfMemory);
-  createFile (noExtensionContent, sizeof(noExtensionContent), OutOfMemory);
-  createFile (multipleGraphicsControlBlocks, sizeof(multipleGraphicsControlBlocks), OutOfMemory);
+  createFile (noExtensionLabel, OutOfMemory);
+  createFile (noExtensionSize, OutOfMemory);
+  createFile (noExtensionContent, OutOfMemory);
+  createFile (multipleGraphicsControlBlocks, OutOfMemory);
 }
 
 int
@@ -285,14 +282,14 @@ main (int argc, char**argv)
   GdiplusStartupInput gdiplusStartupInput;
   ULONG_PTR gdiplusToken;
   GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
-  
+
   test_validData ();
   test_invalidHeader ();
   test_invalidImageRecord ();
   test_invalidExtensionRecord ();
-  
+
   deleteFile (file);
-  
+
   GdiplusShutdown (gdiplusToken);
   return 0;
 }

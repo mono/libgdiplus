@@ -2,6 +2,8 @@
 #include <float.h>
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #if !defined(_WIN32)
 #include <unistd.h>
@@ -195,7 +197,7 @@ void dumpBytes (BYTE *bytes, int length)
             printf(", ");
         }
     }
-    
+
     printf("\n\n");
 }
 
