@@ -545,7 +545,7 @@ gdip_load_tiff_properties (TIFF *tiff, BitmapData *bitmap_data)
 
 		if (TIFFGetField(tiff, TIFFTAG_TRANSFERFUNCTION, &sample)) {
 			gdip_bitmapdata_property_add (bitmap_data, PropertyTagTransferFunction, 
-				(1 << bits_per_sample) * sizeof(uint16), PropertyTagTypeShort, sample);
+				(1 << bits_per_sample) * (ULONG) sizeof(uint16), PropertyTagTypeShort, sample);
 		}
 	} else if (samples_per_pixel == 3) {
 		uint16	*r;
@@ -866,9 +866,9 @@ gdip_save_tiff_properties (TIFF *tiff, BitmapData *bitmap_data, int samples_per_
 			uint16	*gmap;
 			uint16	*bmap;
 
-			rmap = GdipAlloc((1 << samples_per_pixel) *  sizeof(uint16));
-			gmap = GdipAlloc((1 << samples_per_pixel) *  sizeof(uint16));
-			bmap = GdipAlloc( (1 << samples_per_pixel) *  sizeof(uint16));
+			rmap = GdipAlloc ((1 << samples_per_pixel) * (ULONG) sizeof (uint16));
+			gmap = GdipAlloc ((1 << samples_per_pixel) * (ULONG) sizeof (uint16));
+			bmap = GdipAlloc ((1 << samples_per_pixel) * (ULONG) sizeof (uint16));
 
 			if ((rmap != NULL) && (gmap != NULL) && (bmap != NULL)) {
 				for (j = 0; j < 1 << bits_per_sample; j++) {
