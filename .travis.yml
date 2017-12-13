@@ -18,7 +18,7 @@ addons:
     - gettext
     - cmake
     - git
-    
+
 install:
 - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; brew install glib cairo libexif; fi
 
@@ -30,7 +30,7 @@ script:
 - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./autogen.sh --without-x11 --prefix=/tmp/mono-dev --enable-warnaserror; fi
 - make -j4
 - echo "travis_fold:end:build_libgdiplus"
-- make check
+- /bin/sh -c 'if make check; then true; else cat ./tests/test-suite.log; exit 1; fi'
 - make install
 - set +e
 
