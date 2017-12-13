@@ -285,7 +285,7 @@ typedef struct
 	 __attribute__ ((packed))
 #endif
 {
-	WORD	mtType;			/* 1 for disk, 0 for memory */
+	WORD	mtType;			/* 1 for memory, 2 for disk */
 	WORD	mtHeaderSize;
 	WORD	mtVersion;
 	DWORD	mtSize;
