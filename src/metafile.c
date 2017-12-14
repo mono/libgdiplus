@@ -1251,7 +1251,7 @@ update_emf_header (MetafileHeader *header, BYTE* data, int length)
 	return status;
 }
 
-static GpStatus 
+static GpStatus
 gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, ImageSource source)
 {
 	int size;
@@ -1263,7 +1263,7 @@ gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, ImageSource
 	/* peek at first DWORD to select the right format */
 	size = sizeof (DWORD);
 	if (gdip_read_wmf_data (pointer, (void*)&key, size, source) != size)
-		return GenericError;
+		return OutOfMemory;
 
 #if G_BYTE_ORDER != G_LITTLE_ENDIAN
 	key = GUINT32_FROM_LE (key);
@@ -1273,7 +1273,7 @@ gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, ImageSource
 		aldus_header.Key = key;
 		size = sizeof (WmfPlaceableFileHeader) - size;
 		if (gdip_read_wmf_data(pointer, (BYTE*)(&aldus_header) + sizeof(DWORD), size, source) != size)
-			return InvalidParameter;
+			return OutOfMemory;
 #if FALSE
 g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inch %d, reserved %d, checksum %d", 
 	aldus_header.Key, aldus_header.Hmf, aldus_header.BoundingBox.Left, aldus_header.BoundingBox.Top,
@@ -1282,10 +1282,18 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 #endif
 		size = sizeof (METAHEADER);
 		if (gdip_read_wmf_data (pointer, (BYTE*)&header->Header.Wmf, size, source) != size)
-			return InvalidParameter;
+			return OutOfMemory;
 
 		WmfPlaceableFileHeaderLE (&aldus_header);
 		MetafileHeaderLE (header);
+
+		if (header->Header.Wmf.mtType != 1 && header->Header.Wmf.mtType != 2)
+			return OutOfMemory;
+		if (header->Header.Wmf.mtHeaderSize != 9)
+			return OutOfMemory;
+		if (header->Header.Wmf.mtVersion != 0x0100 && header->Header.Wmf.mtVersion != 0x0300)
+			return OutOfMemory;
+
 		status = combine_headers (&aldus_header, header);
 		break;
 	case WMF_TYPE_AND_HEADERSIZE_KEY:
@@ -1366,7 +1374,7 @@ g_warning ("METAHEADER type %d, header %d, version %d, size %d, #obj %d, max rec
 	return status;
 }
 
-GpStatus 
+GpStatus
 gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source)
 {
 	BOOL adjust_emf_headers = FALSE;
@@ -1386,6 +1394,22 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source
 		mf->base.image_format = WMF;
 		/* note: mtSize is in WORD, mtSize contains the METAHEADER, mf->length is in bytes */
 		mf->length = mf->metafile_header.Header.Wmf.mtSize * 2 - sizeof (METAHEADER);
+
+		/* The file size has to be enough for an EOF record. */
+		if (mf->length == 0)
+		{
+			if (mf->metafile_header.Header.Wmf.mtMaxRecord != 3)
+			{
+				status = OutOfMemory;
+				goto error;
+			}
+		}
+		else if (mf->length <= 4)
+		{
+			status = OutOfMemory;
+			goto error;
+		}
+
 		break;
 	case MetafileTypeEmf:
 	case MetafileTypeEmfPlusOnly:
@@ -1404,7 +1428,7 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source
 		goto error;
 	/* copy data in memory (to play it later) */
 	if (gdip_read_wmf_data (pointer, (void*)mf->data, mf->length, source) != mf->length) {
-		status = InvalidParameter;
+		status = OutOfMemory;
 		goto error;
 	}
 
