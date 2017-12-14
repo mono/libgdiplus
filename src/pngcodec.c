@@ -247,7 +247,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	png_infop	end_info_ptr = NULL;
 	BYTE		*rawdata = NULL;
 	GpImage		*result = NULL;
-	GpStatus	status = InvalidParameter;
+	GpStatus	status = OutOfMemory;
 	int		bit_depth;
 	int		channels;
 	BYTE		color_type;

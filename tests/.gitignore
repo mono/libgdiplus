@@ -23,6 +23,7 @@ testmetafile
 testpathgradientbrush
 testpen
 testpng
+testpngcodec
 testreversepath
 testsolidbrush
 teststringformat
