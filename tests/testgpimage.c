@@ -129,7 +129,7 @@ static void test_loadImageFromFileBmp ()
 	GpImage *image = getImage ("test.bmp");
 
 	// FIXME: bmp image flags are wrong in libgdiplus.
-	verifyImage (image, ImageTypeBitmap, bmpRawFormat, PixelFormat24bppRGB, 0, 0, 100, 68, 100, 68, 77840, 0, FALSE);
+	verifyBitmap (image, bmpRawFormat, PixelFormat24bppRGB, 100, 68, 77840, 0, FALSE);
 
 	GdipDisposeImage (image);
 }
@@ -138,7 +138,7 @@ static void test_loadImageFromFileTif ()
 {
 	GpImage *image = getImage ("test.tif");
 
-	verifyImage (image, ImageTypeBitmap, tifRawFormat, PixelFormat24bppRGB, 0, 0, 100, 68, 100, 68, 77840, 19, TRUE);
+	verifyBitmap (image, tifRawFormat, PixelFormat24bppRGB, 100, 68, 77840, 19, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -147,7 +147,7 @@ static void test_loadImageFromFileGif ()
 {
 	GpImage *image = getImage ("test.gif");
 
-	verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 100, 68, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 4, TRUE);
+	verifyBitmap (image, gifRawFormat, PixelFormat8bppIndexed, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 4, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -156,7 +156,7 @@ static void test_loadImageFromFilePng ()
 {
 	GpImage *image = getImage ("test.png");
 
-	verifyImage (image, ImageTypeBitmap, pngRawFormat, PixelFormat24bppRGB, 0, 0, 100, 68, 100, 68, 77840, 5, TRUE);
+	verifyBitmap (image, pngRawFormat, PixelFormat24bppRGB, 100, 68, 77840, 5, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -166,7 +166,7 @@ static void test_loadImageFromFileJpg ()
 	GpImage *image = getImage ("test.jpg");
 
 	// FIXME: jpg image flags are wrong in libgdiplus.
-	verifyImage (image, ImageTypeBitmap, jpegRawFormat, PixelFormat24bppRGB, 0, 0, 100, 68, 100, 68, 73744, 2, FALSE);
+	verifyBitmap (image, jpegRawFormat, PixelFormat24bppRGB, 100, 68, 73744, 2, FALSE);
 
 	GdipDisposeImage (image);
 }
@@ -175,7 +175,7 @@ static void test_loadImageFromFileIcon ()
 {
 	GpImage *image = getImage ("test.ico");
 
-	verifyImage (image, ImageTypeBitmap, icoRawFormat, PixelFormat32bppARGB, 0, 0, 48, 48, 48, 48, 73746, 0, TRUE);
+	verifyBitmap (image, icoRawFormat, PixelFormat32bppARGB, 48, 48, 73746, 0, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -184,7 +184,7 @@ static void test_loadImageFromFileWmf ()
 {
 	GpImage *image = getImage ("test.wmf");
 
-	verifyImage (image, ImageTypeMetafile, wmfRawFormat, PixelFormat32bppRGB, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f, 327683, 0, TRUE);
+	verifyMetafile (image, wmfRawFormat, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f);
 
 	GdipDisposeImage (image);
 }
@@ -193,7 +193,7 @@ static void test_loadImageFromFileEmf ()
 {
 	GpImage *image = getImage ("test.emf");
 
-	verifyImage (image, ImageTypeMetafile, emfRawFormat, PixelFormat32bppRGB, 0, 0, 100, 100, 1944.444336f, 1888.888794f, 327683, 0, TRUE);
+	verifyMetafile (image, emfRawFormat, 0, 0, 100, 100, 1944.444336f, 1888.888794f);
 
 	GdipDisposeImage (image);
 }
@@ -211,7 +211,7 @@ static void test_cloneImage ()
 	assertEqualInt (status, Ok);
 	assert (clonedImage && clonedImage != bitmapImage);
 	// FIXME: bmp image flags are wrong in libgdiplus.
-	verifyImage (clonedImage, ImageTypeBitmap, bmpRawFormat, PixelFormat24bppRGB, 0, 0, 100, 68, 100, 68, 77840, 0, FALSE);
+	verifyBitmap (clonedImage, bmpRawFormat, PixelFormat24bppRGB, 100, 68, 77840, 0, FALSE);
 	GdipDisposeImage (clonedImage);
 
 	// ImageTypeBitmap - jpg.
@@ -219,14 +219,14 @@ static void test_cloneImage ()
 	assertEqualInt (status, Ok);
 	assert (clonedImage && clonedImage != jpgImage);
 	// FIXME: jpg image flags are wrong in libgdiplus.
-	verifyImage (clonedImage, ImageTypeBitmap, jpegRawFormat, PixelFormat24bppRGB, 0, 0, 100, 68, 100, 68, 73744, 2, FALSE);
+	verifyBitmap (clonedImage, jpegRawFormat, PixelFormat24bppRGB, 100, 68, 73744, 2, FALSE);
 	GdipDisposeImage (clonedImage);
 
 	// ImageTypeMetafile.
 	status = GdipCloneImage (metafileImage, &clonedImage);
 	assertEqualInt (status, Ok);
 	assert (clonedImage && clonedImage != metafileImage);
-	verifyImage (clonedImage, ImageTypeMetafile, wmfRawFormat, PixelFormat32bppRGB, -4008, -3378, 8016, 6756, 20360.638672f, 17160.238281f, 327683, 0, TRUE);
+	verifyMetafile (clonedImage, wmfRawFormat, -4008, -3378, 8016, 6756, 20360.638672f, 17160.238281f);
 	GdipDisposeImage (clonedImage);
 
 	// Negative tests.
@@ -480,25 +480,25 @@ static void test_getImageThumbnail ()
 	// ImageTypeBitmap - non zero width and height.
 	status = GdipGetImageThumbnail (bitmapImage, 10, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, Ok);
-	verifyImage (thumbImage, ImageTypeBitmap, memoryBmpRawFormat, PixelFormat32bppPARGB, 0, 0, 10, 10, 10, 10, 2, 0, TRUE);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppPARGB, 10, 10, 2, 0, TRUE);
 	GdipDisposeImage (thumbImage);
 
 	// ImageTypeBitmap - zero width and height.
 	status = GdipGetImageThumbnail (bitmapImage, 0, 0, &thumbImage, NULL, NULL);
 	assertEqualInt (status, Ok);
-	verifyImage (thumbImage, ImageTypeBitmap, memoryBmpRawFormat, PixelFormat32bppPARGB, 0, 0, 120, 120, 120, 120, 2, 0, TRUE);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppPARGB, 120, 120, 2, 0, TRUE);
 	GdipDisposeImage (thumbImage);
 
 	// ImageTypeMetafile - non zero width and height.
 	status = GdipGetImageThumbnail (metafileImage, 10, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, Ok);
-	verifyImage (thumbImage, ImageTypeBitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 0, 0, 10, 10, 10, 10, 2, 0, TRUE);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 10, 10, 2, 0, TRUE);
 	GdipDisposeImage (thumbImage);
 
 	// ImageTypeMetafile - zero width and height.
 	status = GdipGetImageThumbnail (metafileImage, 0, 0, &thumbImage, NULL, NULL);
 	assertEqualInt (status, Ok);
-	verifyImage (thumbImage, ImageTypeBitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 0, 0, 120, 120, 120, 120, 2, 0, TRUE);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 120, 120, 2, 0, TRUE);
 	GdipDisposeImage (thumbImage);
 #else
 	status = GdipGetImageThumbnail (metafileImage, 0, 0, &thumbImage, NULL, NULL);
