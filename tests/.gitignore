@@ -9,6 +9,7 @@ testbmpcodec
 testbrush
 testclip
 testcustomlinecap
+testemfcodec
 testfont
 testgifcodec
 testgpimage
