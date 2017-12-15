@@ -1084,20 +1084,21 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 		return OutOfMemory;
 	}
 
+	result = NULL;
 	pixbuf_row = NULL;
 	pixbuf = NULL;
+	memset (&tiff_image, 0, sizeof (TIFFRGBAImage));
 
 	num_of_pages = TIFFNumberOfDirectories(tiff);
 
 	result = gdip_bitmap_new();
 	if (!result)
-		return OutOfMemory;
+		goto error;
 
 	result->type = ImageTypeBitmap;
 	frame = gdip_frame_add(result, &gdip_image_frameDimension_page_guid);
-
-	// Avoid reading uninitialized memory if TIFFRGBAImageBegin fails.
-	memset (&tiff_image, 0, sizeof (TIFFRGBAImage));
+	if (!frame)
+		goto error;
 
 	for (page = 0; page < num_of_pages; page++) {
 		unsigned long long int size;
