@@ -4,7 +4,7 @@
 #endif
 #endif
 
-#if defined(USE_WINDOWS_LIBGDIPLUS)
+#if defined(USE_WINDOWS_GDIPLUS)
 #include <Windows.h>
 #include <GdiPlus.h>
 
@@ -26,7 +26,7 @@ using namespace DllExports;
 
 static HDC getEmptyHDC ()
 {
-#if defined(USE_WINDOWS_LIBGDIPLUS)
+#if defined(USE_WINDOWS_GDIPLUS)
 	return CreateCompatibleDC (NULL);
 #else
 	return (HDC)1;
@@ -411,7 +411,7 @@ static void test_createFontFromDC ()
 	assertEqualInt (status, InvalidParameter);
 
 	// This causes a null pointer dereference in GDI+.
-#if !defined(USE_WINDOWS_LIBGDIPLUS)
+#if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipCreateFontFromDC (hdc, NULL);
 	assertEqualInt (status, InvalidParameter);
 #endif
@@ -456,7 +456,7 @@ static void test_createFontFromLogfontA ()
 
 	status = GdipGetFamily (font, &family);
 	// FIXME: this fails with libgdiplus.
-#if defined(USE_WINDOWS_LIBGDIPLUS)
+#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
 	assert (family);
 #endif
@@ -469,13 +469,13 @@ static void test_createFontFromLogfontA ()
 	assertEqualInt (status, InvalidParameter);
 
 	// This causes a null pointer dereference in GDI+.
-#if !defined(USE_WINDOWS_LIBGDIPLUS)
+#if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipCreateFontFromLogfontA (hdc, &logfont, NULL);
 	assertEqualInt (status, InvalidParameter);
 #endif
 
 	GdipDeleteFont (font);
-#if defined(USE_WINDOWS_LIBGDIPLUS)
+#if defined(USE_WINDOWS_GDIPLUS)
 	GdipDeleteFontFamily (family);
 #endif	
 }
@@ -520,7 +520,7 @@ static void test_createFontFromLogfontW ()
 
 	status = GdipGetFamily (font, &family);
 	// FIXME: this fails with libgdiplus.
-#if defined(USE_WINDOWS_LIBGDIPLUS)
+#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
 	assert (family);
 #endif
@@ -533,13 +533,13 @@ static void test_createFontFromLogfontW ()
 	assertEqualInt (status, InvalidParameter);
 
 	// This causes a null pointer dereference in GDI+.
-#if !defined(USE_WINDOWS_LIBGDIPLUS)
+#if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipCreateFontFromLogfontW (hdc, &logfont, NULL);
 	assertEqualInt (status, InvalidParameter);
 #endif
 
 	GdipDeleteFont (font);
-#if defined(USE_WINDOWS_LIBGDIPLUS)
+#if defined(USE_WINDOWS_GDIPLUS)
 	GdipDeleteFontFamily (family);
 #endif
 	freeWchar (fontName);
@@ -570,7 +570,7 @@ static void test_createFont ()
 	// implementation does not call GdipCreateFont. An example is GdipAddPathString.
 	// A fix for this will need to carefully account for places where this
 	// API is called.
-#if defined(USE_WINDOWS_LIBGDIPLUS)
+#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipCreateFont (family, -1, 10, UnitPixel, &font);
 	assertEqualInt (status, InvalidParameter);
 
@@ -584,7 +584,7 @@ static void test_createFont ()
 	status = GdipCreateFont (family, 10, 10, (Unit)(UnitWorld - 1), &font);
 	assertEqualInt (status, InvalidParameter);
 
-#if defined(USE_WINDOWS_LIBGDIPLUS)
+#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipCreateFont (family, 10, 10, (Unit)(UnitMillimeter + 1), &font);
 	assertEqualInt (status, InvalidParameter);
 #else
@@ -742,7 +742,7 @@ static void test_getFontHeight ()
 	status = GdipGetFontHeight (font, NULL, &height);
 	assertEqualInt (status, Ok);
 	// FIXME: this returns a different value with libgdiplus.
-#if defined(USE_WINDOWS_LIBGDIPLUS)
+#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (height, 11.3183594f);
 #endif
 
@@ -770,7 +770,7 @@ static void test_getFontHeightGivenDPI ()
 	status = GdipGetFontHeightGivenDPI (font, 10, &height);
 	assertEqualInt (status, Ok);
 	// FIXME: this returns a different value with libgdiplus.
-#if defined(USE_WINDOWS_LIBGDIPLUS)
+#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (height, 11.3183594f);
 #endif
 
@@ -939,7 +939,7 @@ static void test_createFontFamilyFromName ()
 
 	// FIXME: Libgdiplus does not validate that the font family exists
 	// if the collection is NULL.
-#if defined(USE_WINDOWS_LIBGDIPLUS)
+#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipCreateFontFamilyFromName (NoSuchFont, NULL, &family);
 	assertEqualInt (status, FontFamilyNotFound);
 #endif

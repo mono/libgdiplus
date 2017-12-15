@@ -33,8 +33,8 @@ static void test_createMetafileFromFile ()
     WCHAR *invalidFilePath;
     GpMetafile *metafile;
 
-    noSuchFilePath = g_utf8_to_utf16 ("noSuchFile.wmf", -1, NULL, NULL, NULL);
-    invalidFilePath = g_utf8_to_utf16 ("test.bmp", -1, NULL, NULL, NULL);
+    noSuchFilePath = createWchar ("noSuchFile.wmf");
+    invalidFilePath = createWchar ("test.bmp");
 
     // Create from WMF file.
     status = GdipCreateMetafileFromFile (wmfFilePath, &metafile);
@@ -66,7 +66,7 @@ static void test_createMetafileFromStream ()
 {
     GpStatus status;
     GpMetafile *metafile;
-#if defined(USE_WINDOWS_GDIPLUS)
+#if !defined(USE_WINDOWS_GDIPLUS)
     int temp = 0;
 #endif
 
@@ -75,7 +75,7 @@ static void test_createMetafileFromStream ()
     assertEqualInt (status, InvalidParameter);
 
     // Libgdiplus does not implement GdipCreateMetafileFromStream.
-#if defined(USE_WINDOWS_GDIPLUS)
+#if !defined(USE_WINDOWS_GDIPLUS)
     status = GdipCreateMetafileFromStream (&temp, NULL);
     assertEqualInt (status, InvalidParameter);
 
@@ -90,33 +90,40 @@ static void test_createMetafileFromEmf ()
     GpMetafile *wmfMetafile;
     GpMetafile *emfMetafile;
     GpMetafile *metafile;
+    HENHMETAFILE hWmfMetafile;
+    HENHMETAFILE hEmfMetafile;
 
     GdipCreateMetafileFromFile (wmfFilePath, &wmfMetafile);
     GdipCreateMetafileFromFile (emfFilePath, &emfMetafile);
+    GdipGetHemfFromMetafile (wmfMetafile, &hWmfMetafile);
+    GdipGetHemfFromMetafile (emfMetafile, &hEmfMetafile);
 
+    // The definition of HENHMETAFILE is different between libgdiplus and GDI+.
+#if !defined(USE_WINDOWS_GDIPLUS)
     // Create from a WMF file.
-    status = GdipCreateMetafileFromEmf (wmfMetafile, TRUE, &metafile);
+    status = GdipCreateMetafileFromEmf (hWmfMetafile, TRUE, &metafile);
     assertEqualInt (status, Ok);
     GdipDisposeImage (metafile);
 
-    status = GdipCreateMetafileFromEmf (wmfMetafile, FALSE, &metafile);
+    status = GdipCreateMetafileFromEmf (hWmfMetafile, FALSE, &metafile);
     assertEqualInt (status, Ok);
     GdipDisposeImage (metafile);
 
     // Create from a EMF file.
-    status = GdipCreateMetafileFromEmf (emfMetafile, TRUE, &metafile);
+    status = GdipCreateMetafileFromEmf (hEmfMetafile, TRUE, &metafile);
     assertEqualInt (status, Ok);
     GdipDisposeImage (metafile);
 
-    status = GdipCreateMetafileFromEmf (emfMetafile, FALSE, &metafile);
+    status = GdipCreateMetafileFromEmf (hEmfMetafile, FALSE, &metafile);
     assertEqualInt (status, Ok);
     GdipDisposeImage (metafile);
+#endif
 
     // Negative tests.
     status = GdipCreateMetafileFromEmf (NULL, TRUE, &metafile);
     assertEqualInt (status, InvalidParameter);
 
-    status = GdipCreateMetafileFromEmf (emfMetafile, TRUE, NULL);
+    status = GdipCreateMetafileFromEmf (hEmfMetafile, TRUE, NULL);
     assertEqualInt (status, InvalidParameter);
 
     GdipDisposeImage (wmfMetafile);
@@ -134,6 +141,8 @@ static void test_createMetafileFromWmf ()
     GdipCreateMetafileFromFile (wmfFilePath, &wmfMetafile);
     GdipCreateMetafileFromFile (emfFilePath, &emfMetafile);
 
+    // The definition of HMETAFILE is different between libgdiplus and GDI+.
+#if !defined(USE_WINDOWS_GDIPLUS)
     // Create from WMF file.
     status = GdipCreateMetafileFromWmf (wmfMetafile, TRUE, &wmfPlaceableFileHeader, &metafile);
     assertEqualInt (status, Ok);
@@ -151,16 +160,19 @@ static void test_createMetafileFromWmf ()
     status = GdipCreateMetafileFromWmf (emfMetafile, FALSE, &wmfPlaceableFileHeader, &metafile);
     assertEqualInt (status, Ok);
     GdipDisposeImage (metafile);
+#endif
 
     // Negative tests.
     status = GdipCreateMetafileFromWmf (NULL, TRUE, &wmfPlaceableFileHeader, &metafile);
     assertEqualInt (status, InvalidParameter);
 
+#if !defined(USE_WINDOWS_GDIPLUS)
     status = GdipCreateMetafileFromWmf (wmfMetafile, TRUE, NULL, &metafile);
     assertEqualInt (status, InvalidParameter);
 
     status = GdipCreateMetafileFromWmf (wmfMetafile, TRUE, &wmfPlaceableFileHeader, NULL);
     assertEqualInt (status, InvalidParameter);
+#endif
 
     GdipDisposeImage (wmfMetafile);
     GdipDisposeImage (emfMetafile);
@@ -168,6 +180,8 @@ static void test_createMetafileFromWmf ()
 
 static void test_getMetafileHeaderFromWmf ()
 {
+    // The definition of HMETAFILE is different between libgdiplus and GDI+.
+#if !defined(USE_WINDOWS_GDIPLUS)
     GpStatus status;
     GpMetafile *wmfMetafile;
     GpMetafile *emfMetafile;
@@ -224,6 +238,7 @@ static void test_getMetafileHeaderFromWmf ()
 
     GdipDisposeImage (wmfMetafile);
     GdipDisposeImage (emfMetafile);
+#endif
 }
 
 static void test_getMetafileHeaderFromEmf ()
@@ -231,13 +246,17 @@ static void test_getMetafileHeaderFromEmf ()
     GpStatus status;
     GpMetafile *wmfMetafile;
     GpMetafile *emfMetafile;
+    HENHMETAFILE hWmfMetafile;
+    HENHMETAFILE hEmfMetafile;
     MetafileHeader header;
 
     GdipCreateMetafileFromFile (wmfFilePath, &wmfMetafile);
     GdipCreateMetafileFromFile (emfFilePath, &emfMetafile);
+    GdipGetHemfFromMetafile (wmfMetafile, &hWmfMetafile);
+    GdipGetHemfFromMetafile (emfMetafile, &hEmfMetafile);
 
     // Get from EMF file.
-    status = GdipGetMetafileHeaderFromEmf (emfMetafile, &header);
+    status = GdipGetMetafileHeaderFromEmf (hEmfMetafile, &header);
     assertEqualInt (status, Ok);
     assertEqualInt (header.Type, 3);
     assertEqualInt (header.Size, 30284);
@@ -252,15 +271,18 @@ static void test_getMetafileHeaderFromEmf ()
     assertEqualInt (header.EmfPlusHeaderSize, 0);
 
     // Get from WMF file.
-    status = GdipGetMetafileHeaderFromEmf (wmfMetafile, &header);
+    status = GdipGetMetafileHeaderFromEmf (hWmfMetafile, &header);
     assertEqualInt (status, InvalidParameter);
 
     // Negative tests.
     status = GdipGetMetafileHeaderFromEmf (NULL, &header);
     assertEqualInt (status, InvalidParameter);
 
-    status = GdipGetMetafileHeaderFromEmf (wmfMetafile, NULL);
+    // This causes GDI+ to crash.
+#if !defined(USE_WINDOWS_GDIPLUS)
+    status = GdipGetMetafileHeaderFromEmf (hWmfMetafile, NULL);
     assertEqualInt (status, InvalidParameter);
+#endif
 
     GdipDisposeImage (wmfMetafile);
     GdipDisposeImage (emfMetafile);
@@ -303,15 +325,18 @@ static void test_getMetafileHeaderFromFile ()
     status = GdipGetMetafileHeaderFromFile (NULL, &header);
     assertEqualInt (status, InvalidParameter);
 
+    // This causes GDI+ to crash.
+#if !defined(USE_WINDOWS_GDIPLUS)
     status = GdipGetMetafileHeaderFromFile (wmfFilePath, NULL);
     assertEqualInt (status, InvalidParameter);
+#endif
 }
 
 static void test_getMetafileHeaderFromStream ()
 {
     GpStatus status;
     MetafileHeader header;
-#if defined(USE_WINDOWS_GDIPLUS)
+#if !defined(USE_WINDOWS_GDIPLUS)
     int temp = 0;
 #endif
 
@@ -320,7 +345,7 @@ static void test_getMetafileHeaderFromStream ()
     assertEqualInt (status, InvalidParameter);
 
     // Libgdiplus does not implement GdipGetMetafileHeaderFromStream.
-#if defined(USE_WINDOWS_GDIPLUS)
+#if !defined(USE_WINDOWS_GDIPLUS)
     status = GdipGetMetafileHeaderFromStream (&temp, NULL);
     assertEqualInt (status, InvalidParameter);
 
@@ -371,8 +396,11 @@ static void test_getMetafileHeaderFromMetafile ()
     status = GdipGetMetafileHeaderFromMetafile (NULL, &header);
     assertEqualInt (status, InvalidParameter);
 
+    // This causes GDI+ to crash.
+#if !defined(USE_WINDOWS_GDIPLUS)
     status = GdipGetMetafileHeaderFromMetafile (emfMetafile, NULL);
     assertEqualInt (status, InvalidParameter);
+#endif
 
     GdipDisposeImage (wmfMetafile);
     GdipDisposeImage (emfMetafile);
@@ -383,13 +411,17 @@ static void test_gettHemfFromMetafile ()
     GpStatus status;
     GpMetafile *wmfMetafile;
     GpMetafile *emfMetafile;
+    HENHMETAFILE hEmfMetafile;
     GpMetafile *metafileFromEmf;
     HENHMETAFILE hemf;
 
     GdipCreateMetafileFromFile (wmfFilePath, &wmfMetafile);
     GdipCreateMetafileFromFile (emfFilePath, &emfMetafile);
-    GdipCreateMetafileFromEmf (emfMetafile, FALSE, &metafileFromEmf);
+    GdipGetHemfFromMetafile (emfMetafile, &hEmfMetafile);
+    GdipCreateMetafileFromEmf (hEmfMetafile, FALSE, &metafileFromEmf);
 
+    // The definition of HENHMETAFILE is different between libgdiplus and GDI+.
+#if !defined(USE_WINDOWS_GDIPLUS)
     // Get from WMF file.
     status = GdipGetHemfFromMetafile (wmfMetafile, &hemf);
     assertEqualInt (status, Ok);
@@ -408,6 +440,7 @@ static void test_gettHemfFromMetafile ()
     status = GdipGetHemfFromMetafile (metafileFromEmf, &hemf);
     assertEqualInt (status, Ok);
     assert (hemf == metafileFromEmf);
+#endif
 
     // Negative tests.
     status = GdipGetHemfFromMetafile (NULL, &hemf);
@@ -432,9 +465,11 @@ static void test_getMetafileDownLevelRasterizationLimit ()
     GdipCreateMetafileFromFile (emfFilePath, &emfMetafile);
 
     // Get from EMF file.
+    // FIXME: GDI+ returns WrongState.
+#if defined(USE_WINDOWS_GDIPLUS)
     status = GdipGetMetafileDownLevelRasterizationLimit (emfMetafile, &metafileRasterizationLimitDpi);
-    assertEqualInt (status, Ok);
-    assertEqualInt (metafileRasterizationLimitDpi, 0);
+    assertEqualInt (status, WrongState);
+#endif
 
     // Get from WMF file.
     status = GdipGetMetafileDownLevelRasterizationLimit (wmfMetafile, &metafileRasterizationLimitDpi);
@@ -456,25 +491,19 @@ static void test_setMetafileDownLevelRasterizationLimit ()
     GpStatus status;
     GpMetafile *emfMetafile;
     GpMetafile *wmfMetafile;
-    UINT metafileRasterizationLimitDpi;
 
     GdipCreateMetafileFromFile (wmfFilePath, &wmfMetafile);
     GdipCreateMetafileFromFile (emfFilePath, &emfMetafile);
 
     // Get from EMF file.
+    // FIXME: GDI+ returns InvalidParameter/WrongState.
+#if defined(USE_WINDOWS_GDIPLUS)
     status = GdipSetMetafileDownLevelRasterizationLimit (emfMetafile, 5);
-    assertEqualInt (status, Ok);
-
-    status = GdipGetMetafileDownLevelRasterizationLimit (emfMetafile, &metafileRasterizationLimitDpi);
-    assertEqualInt (status, Ok);
-    assertEqualInt (metafileRasterizationLimitDpi, 0);
-
+    assertEqualInt (status, InvalidParameter);
+#
     status = GdipSetMetafileDownLevelRasterizationLimit (emfMetafile, 15);
-    assertEqualInt (status, Ok);
-
-    status = GdipGetMetafileDownLevelRasterizationLimit (emfMetafile, &metafileRasterizationLimitDpi);
-    assertEqualInt (status, Ok);
-    assertEqualInt (metafileRasterizationLimitDpi, 0);
+    assertEqualInt (status, WrongState);
+#endif
 
     // Get from WMF file.
     status = GdipSetMetafileDownLevelRasterizationLimit (wmfMetafile, 10);
@@ -484,8 +513,11 @@ static void test_setMetafileDownLevelRasterizationLimit ()
     status = GdipSetMetafileDownLevelRasterizationLimit (NULL, 5);
     assertEqualInt (status, InvalidParameter);
 
+    // FIXME: GDI+ returns WrongState.
+#if defined(USE_WINDOWS_GDIPLUS)
     status = GdipSetMetafileDownLevelRasterizationLimit (emfMetafile, -1);
-    assertEqualInt (status, Ok);
+    assertEqualInt (status, WrongState);
+#endif
 
     GdipDisposeImage (wmfMetafile);
     GdipDisposeImage (emfMetafile);
@@ -528,9 +560,15 @@ static void test_recordMetafile ()
     GdipCreateMetafileFromFile (wmfFilePath, &wmfMetafile);
     GdipCreateMetafileFromFile (emfFilePath, &emfMetafile);
 
-    GdipCreateBitmapFromScan0 (10, 10, 0, PixelFormat32bppRGB, NULL, &bitmap);
+    GdipCreateBitmapFromScan0 (10, 10, 0, PixelFormat32bppRGB, NULL, (GpBitmap **) &bitmap);
     GdipGetImageGraphicsContext (bitmap, &graphics);
     GdipGetDC (graphics, &hdc);
+
+    // FIXME: this returns Ok with GDI+.
+#if defined(USE_WINDOWS_GDIPLUS)
+    status = GdipRecordMetafile (hdc, EmfTypeEmfPlusDual, NULL, MetafileFrameUnitPixel, wmfFilePath, &metafile);
+    assertEqualInt (status, Ok);
+#endif
 
     // Negative tests.
     status = GdipRecordMetafile (NULL, EmfTypeEmfPlusDual, &rect, MetafileFrameUnitPixel, wmfFilePath, &metafile);
@@ -540,9 +578,6 @@ static void test_recordMetafile ()
     assertEqualInt (status, InvalidParameter);
 
     status = GdipRecordMetafile (hdc, (EmfType)(EmfTypeEmfPlusDual + 1), &rect, MetafileFrameUnitPixel, wmfFilePath, &metafile);
-    assertEqualInt (status, InvalidParameter);
-
-    status = GdipRecordMetafile (hdc, EmfTypeEmfPlusDual, NULL, MetafileFrameUnitPixel, wmfFilePath, &metafile);
     assertEqualInt (status, InvalidParameter);
 
     status = GdipRecordMetafile (hdc, EmfTypeEmfPlusDual, &rect, (MetafileFrameUnit)(MetafileFrameUnitPixel - 1), wmfFilePath, &metafile);

@@ -495,7 +495,7 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (status, InvalidParameter);
 
 	// This causes a null pointer dereference in GDI+.
-#if !defined(USE_WINDOWS_LIBGDIPLUS)
+#if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipTransformMatrixPointsI (matrix, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
 #endif
@@ -654,7 +654,7 @@ static void test_isMatrixIdentity ()
 
 	// Less close to identity.
 	// FIXME: it appears that GDI+ is less precise than GDI+.
-#if defined(USE_WINDOWS_LIBGDIPLUS)
+#if defined(USE_WINDOWS_GDIPLUS)
 	GdipSetMatrixElements (matrix, 0.9998f, -0.0001f, 0.0001f, 1.0001f, 0, 0);
 	status = GdipIsMatrixIdentity (matrix, &isIdentity);
 	assertEqualInt (status, Ok);
