@@ -1252,6 +1252,63 @@ update_emf_header (MetafileHeader *header, BYTE* data, int length)
 }
 
 static GpStatus
+gdip_read_emf_header_optionals (ENHMETAHEADER3 *header, void *pointer, ImageSource source)
+{
+	/* This algorithm is taken from the specification: https://msdn.microsoft.com/en-us/library/cc230635.aspx. */
+	const int HeaderRecordSize = sizeof (ENHMETAHEADER3);
+	const int HeaderExtension1Size = sizeof (ENHMETAHEADER3) + sizeof (HeaderExtension1);
+
+	int originalHeaderSize = header->nSize;
+	DWORD key;
+
+	/* Initialize header size to minimum. */
+	int headerSize = HeaderRecordSize;
+
+	/* Valid header record size? */
+	if (header->nSize >= HeaderRecordSize)
+	{
+		/* Set HeaderSize to header record size. */
+		headerSize = header->nSize;
+
+		/* Valid description values? If so, set HeaderSize to description offset. */
+		if (header->offDescription >= HeaderRecordSize && (header->offDescription + header->nDescription * 2) <= header->nSize)
+			headerSize = header->offDescription;
+
+		/* Header big enough to contain an extension? */
+		if (headerSize >= HeaderExtension1Size)
+		{
+			HeaderExtension1 extension;
+			if (gdip_read_emf_data (pointer, (BYTE *) &extension, sizeof (HeaderExtension1), source) != sizeof (HeaderExtension1))
+				return OutOfMemory;
+
+			/* Valid pixel format values? */
+			if (extension.offPixelFormat >= HeaderExtension1Size && (extension.offPixelFormat + extension.cbPixelFormat) <= header->nSize)
+			{
+				/* Pixel format before description? If so, set HeaderSize to pixel format offset. */
+				if (extension.offPixelFormat > header->offDescription)
+					headerSize = extension.offPixelFormat;
+			}
+		}
+	}
+	
+	int sizeToRead = originalHeaderSize - headerSize;
+	if (sizeToRead > 0) {
+		while (sizeToRead > sizeof (DWORD)) {
+			if (gdip_read_emf_data (pointer, (void*) &key, sizeof (DWORD), source) != sizeof (DWORD))
+				return OutOfMemory;
+			sizeToRead -= sizeof (DWORD);
+		}
+		if (sizeToRead > 0) {
+			if (gdip_read_emf_data (pointer, (void*) &key, sizeToRead, source) != sizeToRead)
+				return OutOfMemory;
+		}
+	}
+
+	header->nSize = headerSize;
+	return Ok;
+}
+
+static GpStatus
 gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, ImageSource source)
 {
 	int size;
@@ -1311,8 +1368,9 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 		emf->iType = key;
 		size = sizeof (ENHMETAHEADER3) - size;
 		if (gdip_read_emf_data (pointer, (BYTE*)(&header->Header.Emf) + sizeof (DWORD), size, source) != size)
-			return InvalidParameter;
+			return OutOfMemory;
 		EnhMetaHeaderLE (&header->Header.Emf);
+
 #if FALSE
 g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame L %d, T %d, R %d, B %d, signature %X, version %d, bytes %d, records %d, handles %d, reserved %d, description %d, %d, palentries %d, device %d, %d, millimeters %d, %d", 
 	emf->iType, emf->nSize, 
@@ -1322,19 +1380,39 @@ g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame 
 	emf->sReserved, emf->nDescription, emf->offDescription, emf->nPalEntries,
 	emf->szlDevice.cx, emf->szlDevice.cy, emf->szlMillimeters.cx, emf->szlMillimeters.cy);
 #endif
-		/* sanity check */
-		if ((emf->iType != 1) || (emf->dSignature != 0x464D4520) || (emf->sReserved != 0))
-			return InvalidParameter;
+		if ((emf->iType != 1) || (emf->dSignature != 0x464D4520))
+			return OutOfMemory;
+		if (emf->nRecords < 2)
+			return OutOfMemory;
+		if (emf->nHandles == 0)
+			return OutOfMemory;
+		if (emf->nBytes < emf->nSize || emf->nBytes & 3)
+			return OutOfMemory;
+		if (emf->szlDevice.cx == 0 || emf->szlDevice.cy == 0)
+			return OutOfMemory;
+		if (emf->szlMillimeters.cx == 0 || emf->szlMillimeters.cy == 0)
+			return OutOfMemory;
 
 		header->Type = MetafileTypeEmf;
 
-		header->X = emf->rclBounds.left;
-		header->Y = emf->rclBounds.top;
-		header->Width = emf->rclBounds.right - emf->rclBounds.left + 1;
-		header->Height = emf->rclBounds.bottom - emf->rclBounds.top + 1;
+		/* Convert millimetres to inches to get the DPI for each dimension. */
+		header->DpiX = emf->szlDevice.cx / (emf->szlMillimeters.cx / MM_PER_INCH);
+		header->DpiY = emf->szlDevice.cy / (emf->szlMillimeters.cy / MM_PER_INCH);
 
-		header->DpiX = MM_PER_INCH / ((float)emf->szlMillimeters.cx / emf->szlDevice.cx);
-		header->DpiY = MM_PER_INCH / ((float)emf->szlMillimeters.cy / emf->szlDevice.cy);
+		/* The bounding box of the metafile is derived from rclFrame, not rclBounds.
+		 * We need to perform some unit conversions from 100s of millimetres to pixels. */
+		REAL inchLeft = emf->rclFrame.left / (MM_PER_INCH * 100);
+		REAL inchTop = emf->rclFrame.top / (MM_PER_INCH * 100);
+		REAL inchRight = emf->rclFrame.right / (MM_PER_INCH * 100);
+		REAL inchBottom = emf->rclFrame.bottom / (MM_PER_INCH * 100);
+		
+		header->X = iround (inchLeft * header->DpiX);
+		header->Y = iround (inchTop * header->DpiY);
+
+		/* The frame is inclusive, so we need to add 1. */
+		header->Width = iround ((inchRight - inchLeft) * header->DpiX) + 1;
+		header->Height = iround ((inchBottom - inchTop) * header->DpiY) + 1;
+
 		header->Size = emf->nBytes;
 		header->Version = emf->nVersion;
 		/* We need to check for the EmfHeader record (can't be done at this stage) but some files still returns
@@ -1345,24 +1423,10 @@ g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame 
 		header->LogicalDpiX = 0;
 		header->LogicalDpiY = 0;
 
-		/* note: there can be (empty?) space between the header and the start of the metafile records */
-		size = emf->nSize - sizeof (ENHMETAHEADER3);
-		if (size > 0) {
-			while (size > sizeof (DWORD)) {
-				if (gdip_read_emf_data (pointer, (void*)(&key), sizeof (DWORD), source) != sizeof (DWORD))
-					return InvalidParameter;
-				size -= sizeof (DWORD);
-			}
-			if (size > 0) {
-				if (gdip_read_emf_data (pointer, (void*)(&key), size, source) != size)
-					return InvalidParameter;
-			}
-		}
-		status = Ok;
+		status = gdip_read_emf_header_optionals (emf, pointer, source);
 		break;
 	default:
-		g_warning ("Unknown metafile format: key %d", key);
-		status = GenericError;
+		status = OutOfMemory;
 	}
 
 #if FALSE
