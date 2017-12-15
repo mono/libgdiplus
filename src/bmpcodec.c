@@ -1068,6 +1068,8 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	result->active_bitmap->scan0 = pixels;
 	result->active_bitmap->reserved = GBD_OWN_SCAN0;
 	result->active_bitmap->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB;
+	if (bmi.biXPelsPerMeter != 0 && bmi.biYPelsPerMeter != 0)
+		result->active_bitmap->image_flags |= ImageFlagsHasRealDPI;
 
 	*image = result;
 	return Ok;

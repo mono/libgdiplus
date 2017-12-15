@@ -24,6 +24,7 @@ using namespace DllExports;
 static const char *file = "temp_asset.bmp";
 static WCHAR wFile[] = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'b', 'm', 'p', 0};
 GpImage *image;
+INT bmpFlags = ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly;
 
 #define createFile(buffer, expectedStatus) \
 { \
@@ -37,15 +38,11 @@ GpImage *image;
 	assertEqualInt (status, expectedStatus); \
 }
 
-#define createFileSuccess(buffer, expectedFormat) \
+#define createFileSuccess(buffer, expectedFormat, width, height, expectedFlags) \
 { \
-	PixelFormat format; \
 	createFile (buffer, Ok); \
- \
-	GdipGetImagePixelFormat (image, &format); \
-	assertEqualInt (format, expectedFormat); \
- \
-	GdipDisposeImage (image);  \
+	verifyBitmap (image, bmpRawFormat, expectedFormat, width, height, expectedFlags, 0, TRUE); \
+	GdipDisposeImage (image); \
 }
 
 static void test_validImage1bppOS2Header ()
@@ -66,8 +63,8 @@ static void test_validImage1bppOS2Header ()
 		B8(11111111), B8(11111111), B8(11111111), 0
 	};
 
-	createFileSuccess (image1x1, PixelFormat1bppIndexed);
-	createFileSuccess (image24x4, PixelFormat1bppIndexed);
+	createFileSuccess (image1x1, PixelFormat1bppIndexed, 1, 1, bmpFlags);
+	createFileSuccess (image24x4, PixelFormat1bppIndexed, 24, 4, bmpFlags);
 }
 
 static void test_validImage1bppBitmapInfoHeader ()
@@ -103,10 +100,10 @@ static void test_validImage1bppBitmapInfoHeader ()
 		B8(11111111), B8(11111111), B8(11111111), 0
 	};
 
-	createFileSuccess (image1x1, PixelFormat1bppIndexed);
-	createFileSuccess (image24x4CustomSizedPalette, PixelFormat1bppIndexed);
-	createFileSuccess (image1x1NegativeHeight, PixelFormat1bppIndexed);
-	createFileSuccess (image24x4NegativeHeight, PixelFormat1bppIndexed);
+	createFileSuccess (image1x1, PixelFormat1bppIndexed, 1, 1, bmpFlags);
+	createFileSuccess (image24x4CustomSizedPalette, PixelFormat1bppIndexed, 24, 4, bmpFlags);
+	createFileSuccess (image1x1NegativeHeight, PixelFormat1bppIndexed, 1, 1, bmpFlags);
+	createFileSuccess (image24x4NegativeHeight, PixelFormat1bppIndexed, 24, 4, bmpFlags);
 }
 
 static void test_validImage4bppOS2Header ()
@@ -127,8 +124,8 @@ static void test_validImage4bppOS2Header ()
 		B8(00010001), B8(00010001), B8(00010001), 0
 	};
 
-	createFileSuccess (image1x1, PixelFormat4bppIndexed);
-	createFileSuccess (image6x4, PixelFormat4bppIndexed);
+	createFileSuccess (image1x1, PixelFormat4bppIndexed, 1, 1, bmpFlags);
+	createFileSuccess (image6x4, PixelFormat4bppIndexed, 6, 4, bmpFlags);
 }
 
 static void test_validImage4bppBitmapInfoHeader ()
@@ -165,11 +162,11 @@ static void test_validImage4bppBitmapInfoHeader ()
 		B8(00010001), B8(00010001), B8(00010001), 0
 	};
 
-	createFileSuccess (image1x1, PixelFormat4bppIndexed);
-	createFileSuccess (image6x4CustomSizedPalette, PixelFormat4bppIndexed);
+	createFileSuccess (image1x1, PixelFormat4bppIndexed, 1, 1, bmpFlags);
+	createFileSuccess (image6x4CustomSizedPalette, PixelFormat4bppIndexed, 6, 4, bmpFlags);
 
-	createFileSuccess (image1x1NegativeHeight, PixelFormat4bppIndexed);
-	createFileSuccess (image6x4NegativeHeight, PixelFormat4bppIndexed);
+	createFileSuccess (image1x1NegativeHeight, PixelFormat4bppIndexed, 1, 1, bmpFlags);
+	createFileSuccess (image6x4NegativeHeight, PixelFormat4bppIndexed, 6, 4, bmpFlags);
 }
 
 static void test_validImage4bppRle4Compression ()
@@ -355,35 +352,35 @@ static void test_validImage4bppRle4Compression ()
 #else
 	PixelFormat expectedRle4Format = PixelFormat4bppIndexed;
 #endif
-	createFileSuccess (fullNoTerminator, expectedRle4Format);
-	createFileSuccess (fullTerminator, expectedRle4Format);
-	createFileSuccess (split, expectedRle4Format);
-	createFileSuccess (overflowNoTerminator, expectedRle4Format);
-	createFileSuccess (overflowTerminator, expectedRle4Format);
+	createFileSuccess (fullNoTerminator, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (fullTerminator, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (split, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (overflowNoTerminator, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (overflowTerminator, expectedRle4Format, 6, 4, bmpFlags);
 
-	createFileSuccess (jump, expectedRle4Format);
-	createFileSuccess (jumpMissingDx, expectedRle4Format);
-	createFileSuccess (jumpMissingDy, expectedRle4Format);
-	createFileSuccess (jumpInvalidDx, expectedRle4Format);
+	createFileSuccess (jump, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (jumpMissingDx, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (jumpMissingDy, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (jumpInvalidDx, expectedRle4Format, 6, 4, bmpFlags);
 	// FIXME: this causes a heap buffer overflow in libgdiplus.
 #if defined(USE_WINDOWS_GDIPLUS)
-	createFileSuccess (jumpInvalidDy, expectedRle4Format);
+	createFileSuccess (jumpInvalidDy, expectedRle4Format, 6, 4, bmpFlags);
 #endif
 
-	createFileSuccess (absoluteModeOddPixels, expectedRle4Format);
-	createFileSuccess (absoluteModeEvenPixels, expectedRle4Format);
-	createFileSuccess (absoluteModeNoData, expectedRle4Format);
-	createFileSuccess (absoluteModeShortData, expectedRle4Format);
-	createFileSuccess (absoluteModeNoPadding, expectedRle4Format);
+	createFileSuccess (absoluteModeOddPixels, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (absoluteModeEvenPixels, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (absoluteModeNoData, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (absoluteModeShortData, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (absoluteModeNoPadding, expectedRle4Format, 6, 4, bmpFlags);
 
-	createFileSuccess (fullNegativeHeight, expectedRle4Format);
-	createFileSuccess (incompleteAfterLineBreak, expectedRle4Format);
-	createFileSuccess (noImageData, expectedRle4Format);
-	createFileSuccess (singleByteData, expectedRle4Format);
-	createFileSuccess (singleEscapeCode, expectedRle4Format);
-	createFileSuccess (earlyTerminator, expectedRle4Format);
-	createFileSuccess (earlyTerminatorWithTrailingBytes, expectedRle4Format);
-	createFileSuccess (tooManyNewLines, expectedRle4Format);
+	createFileSuccess (fullNegativeHeight, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (incompleteAfterLineBreak, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (noImageData, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (singleByteData, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (singleEscapeCode, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (earlyTerminator, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (earlyTerminatorWithTrailingBytes, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccess (tooManyNewLines, expectedRle4Format, 6, 4, bmpFlags);
 }
 
 static void test_validImage8bppOS2Header ()
@@ -434,8 +431,8 @@ static void test_validImage8bppOS2Header ()
 		1, 1, 1, 1, 1, 1, 0, 0
 	};
 
-	createFileSuccess (image8bppOS2Header1x1, PixelFormat8bppIndexed);
-	createFileSuccess (image8bppOS2Header6x4, PixelFormat8bppIndexed);
+	createFileSuccess (image8bppOS2Header1x1, PixelFormat8bppIndexed, 1, 1, bmpFlags);
+	createFileSuccess (image8bppOS2Header6x4, PixelFormat8bppIndexed, 6, 4, bmpFlags);
 }
 
 static void test_validImage8bppBitmapInfoHeader ()
@@ -501,10 +498,10 @@ static void test_validImage8bppBitmapInfoHeader ()
 		1, 1, 1, 1, 1, 1, 0, 0
 	};
 
-	createFileSuccess (image1x1, PixelFormat8bppIndexed);
-	createFileSuccess (image6x4CustomSizedPalette, PixelFormat8bppIndexed);
-	createFileSuccess (image1x1NegativeHeight, PixelFormat8bppIndexed);
-	createFileSuccess (image6x4NegativeHeight, PixelFormat8bppIndexed);
+	createFileSuccess (image1x1, PixelFormat8bppIndexed, 1, 1, bmpFlags);
+	createFileSuccess (image6x4CustomSizedPalette, PixelFormat8bppIndexed, 6, 4, bmpFlags);
+	createFileSuccess (image1x1NegativeHeight, PixelFormat8bppIndexed, 1, 1, bmpFlags);
+	createFileSuccess (image6x4NegativeHeight, PixelFormat8bppIndexed, 6, 4, bmpFlags);
 }
 
 static void test_validImage8bppRle8Compression ()
@@ -690,35 +687,35 @@ static void test_validImage8bppRle8Compression ()
 #else
 	PixelFormat expectedRle8Format = PixelFormat8bppIndexed;
 #endif
-	createFileSuccess (fullNoTerminator, expectedRle8Format);
-	createFileSuccess (fullTerminator, expectedRle8Format);
-	createFileSuccess (split, expectedRle8Format);
-	createFileSuccess (overflowNoTerminator, expectedRle8Format);
-	createFileSuccess (overflowTerminator, expectedRle8Format);
+	createFileSuccess (fullNoTerminator, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (fullTerminator, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (split, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (overflowNoTerminator, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (overflowTerminator, expectedRle8Format, 6, 4, bmpFlags);
 
-	createFileSuccess (jump, expectedRle8Format);
-	createFileSuccess (jumpMissingDx, expectedRle8Format);
-	createFileSuccess (jumpMissingDy, expectedRle8Format);
-	createFileSuccess (jumpInvalidDx, expectedRle8Format);
+	createFileSuccess (jump, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (jumpMissingDx, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (jumpMissingDy, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (jumpInvalidDx, expectedRle8Format, 6, 4, bmpFlags);
 	// FIXME: this causes a heap buffer overflow in libgdiplus.
 #if defined(USE_WINDOWS_GDIPLUS)
-	createFileSuccess (jumpInvalidDy, expectedRle8Format);
+	createFileSuccess (jumpInvalidDy, expectedRle8Format, 6, 4, bmpFlags);
 #endif
 
-	createFileSuccess (absoluteModeOddPixels, expectedRle8Format);
-	createFileSuccess (absoluteModeEvenPixels, expectedRle8Format);
-	createFileSuccess (absoluteModeNoData, expectedRle8Format);
-	createFileSuccess (absoluteModeShortData, expectedRle8Format);
-	createFileSuccess (absoluteModeNoPadding, expectedRle8Format);
+	createFileSuccess (absoluteModeOddPixels, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (absoluteModeEvenPixels, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (absoluteModeNoData, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (absoluteModeShortData, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (absoluteModeNoPadding, expectedRle8Format, 6, 4, bmpFlags);
 
-	createFileSuccess (fullNegativeHeight, expectedRle8Format);
-	createFileSuccess (incompleteAfterLineBreak, expectedRle8Format);
-	createFileSuccess (noImageData, expectedRle8Format);
-	createFileSuccess (singleByteData, expectedRle8Format);
-	createFileSuccess (singleEscapeCode, expectedRle8Format);
-	createFileSuccess (earlyTerminator, expectedRle8Format);
-	createFileSuccess (earlyTerminatorWithTrailingBytes, expectedRle8Format);
-	createFileSuccess (tooManyNewLines, expectedRle8Format);
+	createFileSuccess (fullNegativeHeight, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (incompleteAfterLineBreak, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (noImageData, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (singleByteData, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (singleEscapeCode, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (earlyTerminator, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (earlyTerminatorWithTrailingBytes, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccess (tooManyNewLines, expectedRle8Format, 6, 4, bmpFlags);
 }
 
 static void test_validImage16bppOS2Header ()
@@ -739,8 +736,8 @@ static void test_validImage16bppOS2Header ()
 		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000)
 	};
 
-	createFileSuccess (image1x1, PixelFormat32bppRGB);
-	createFileSuccess (image6x4, PixelFormat32bppRGB);
+	createFileSuccess (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags);
+	createFileSuccess (image6x4, PixelFormat32bppRGB, 6, 4, bmpFlags);
 }
 
 static void test_validImage16bppBitmapInfoHeader ()
@@ -819,19 +816,19 @@ static void test_validImage16bppBitmapInfoHeader ()
 	};
 #endif
 
-	createFileSuccess (image1x1RedShift10, PixelFormat32bppRGB);
-	createFileSuccess (image6x4RedShift10, PixelFormat32bppRGB);
-	createFileSuccess (image1x1RedShift11, PixelFormat32bppRGB);
-	createFileSuccess (image6x4RedShift11, PixelFormat32bppRGB);
-	createFileSuccess (image1x1RedShiftUnknown, PixelFormat32bppRGB);
-	createFileSuccess (image6x4RedShiftUnknown, PixelFormat32bppRGB);
-	createFileSuccess (image1x1NegativeHeight, PixelFormat32bppRGB);
-	createFileSuccess (image6x4NegativeHeight, PixelFormat32bppRGB);
+	createFileSuccess (image1x1RedShift10, PixelFormat32bppRGB, 1, 1, bmpFlags);
+	createFileSuccess (image6x4RedShift10, PixelFormat32bppRGB, 6, 4, bmpFlags);
+	createFileSuccess (image1x1RedShift11, PixelFormat32bppRGB, 1, 1, bmpFlags);
+	createFileSuccess (image6x4RedShift11, PixelFormat32bppRGB, 6, 4, bmpFlags);
+	createFileSuccess (image1x1RedShiftUnknown, PixelFormat32bppRGB, 1, 1, bmpFlags);
+	createFileSuccess (image6x4RedShiftUnknown, PixelFormat32bppRGB, 6, 4, bmpFlags);
+	createFileSuccess (image1x1NegativeHeight, PixelFormat32bppRGB, 1, 1, bmpFlags);
+	createFileSuccess (image6x4NegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags);
 
 	// FIXME: this returns OutOfMemory libgdiplus.
 #if defined(USE_WINDOWS_GDIPLUS)
-	createFileSuccess (rle4Compression16bpp, PixelFormat32bppRGB);
-	createFileSuccess (rle8Compression16bpp, PixelFormat32bppRGB);
+	createFileSuccess (rle4Compression16bpp, PixelFormat32bppRGB, 1, 1, bmpFlags);
+	createFileSuccess (rle8Compression16bpp, PixelFormat32bppRGB, 1, 1, bmpFlags);
 #endif
 }
 
@@ -856,8 +853,8 @@ static void test_validImage16bppBitmapV4Header ()
 		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
 		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000)
 	};
-	createFileSuccess (image16bppBitmapV4Header1x1, PixelFormat32bppRGB);
-	createFileSuccess (image16bppBitmapV4Header6x4, PixelFormat32bppRGB);
+	createFileSuccess (image16bppBitmapV4Header1x1, PixelFormat32bppRGB, 1, 1, bmpFlags);
+	createFileSuccess (image16bppBitmapV4Header6x4, PixelFormat32bppRGB, 6, 4, bmpFlags);
 #endif
 }
 
@@ -877,8 +874,8 @@ static void test_validImage24bppOS2Header ()
 		0, 0, 255, 255, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0
 	};
 
-	createFileSuccess (image1x1, PixelFormat24bppRGB);
-	createFileSuccess (image6x4, PixelFormat24bppRGB);
+	createFileSuccess (image1x1, PixelFormat24bppRGB, 1, 1, bmpFlags);
+	createFileSuccess (image6x4, PixelFormat24bppRGB, 6, 4, bmpFlags);
 }
 
 static void test_validImage24bppBitmapInfoHeader ()
@@ -921,10 +918,10 @@ static void test_validImage24bppBitmapInfoHeader ()
 		255, 255, 255, 0
 	};
 
-	createFileSuccess (image1x1, PixelFormat24bppRGB);
-	createFileSuccess (image6x4, PixelFormat24bppRGB);
-	createFileSuccess (image1x1NegativeHeight, PixelFormat24bppRGB);
-	createFileSuccess (image6x4NegativeHeight, PixelFormat24bppRGB);
+	createFileSuccess (image1x1, PixelFormat24bppRGB, 1, 1, bmpFlags);
+	createFileSuccess (image6x4, PixelFormat24bppRGB, 6, 4, bmpFlags);
+	createFileSuccess (image1x1NegativeHeight, PixelFormat24bppRGB, 1, 1, bmpFlags);
+	createFileSuccess (image6x4NegativeHeight, PixelFormat24bppRGB, 6, 4, bmpFlags);
 
 	// FIXME: GDI+ converts RLE compressed 24bpp images to 32bppRGB.
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -932,8 +929,8 @@ static void test_validImage24bppBitmapInfoHeader ()
 #else
 	PixelFormat expectedRleFormat = PixelFormat24bppRGB;
 #endif
-	createFileSuccess (rle4Compression24bpp, expectedRleFormat);
-	createFileSuccess (rle8Compression24bpp, expectedRleFormat);
+	createFileSuccess (rle4Compression24bpp, expectedRleFormat, 1, 1, bmpFlags);
+	createFileSuccess (rle8Compression24bpp, expectedRleFormat, 1, 1, bmpFlags);
 }
 
 static void test_validImage32bppOS2Header ()
@@ -952,8 +949,8 @@ static void test_validImage32bppOS2Header ()
 		0, 0, 255, 0, 255, 255, 255, 255, 0, 0, 255, 255, 0, 255, 255, 255, 255, 255, 127, 255, 0, 255, 0, 255
 	};
 
-	createFileSuccess (image1x1, PixelFormat32bppRGB);
-	createFileSuccess (image6x4, PixelFormat32bppRGB);
+	createFileSuccess (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags);
+	createFileSuccess (image6x4, PixelFormat32bppRGB, 6, 4, bmpFlags);
 }
 
 static void test_validImage32bppBitmapInfoHeader ()
@@ -996,13 +993,13 @@ static void test_validImage32bppBitmapInfoHeader ()
 		255, 255, 255, 0
 	};
 
-	createFileSuccess (image32bppBitmapInfoHeader1x1, PixelFormat32bppRGB);
-	createFileSuccess (image32bppBitmapInfoHeader6x4, PixelFormat32bppRGB);
-	createFileSuccess (image32bppBitmapInfoHeader6x4NegativeHeight, PixelFormat32bppRGB);
+	createFileSuccess (image32bppBitmapInfoHeader1x1, PixelFormat32bppRGB, 1, 1, bmpFlags);
+	createFileSuccess (image32bppBitmapInfoHeader6x4, PixelFormat32bppRGB, 6, 4, bmpFlags);
+	createFileSuccess (image32bppBitmapInfoHeader6x4NegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags);
 
-	createFileSuccess (planesNotZero, PixelFormat32bppRGB);
-	createFileSuccess (rle4Compression32bpp, PixelFormat32bppRGB);
-	createFileSuccess (rle8Compression32bpp, PixelFormat32bppRGB);
+	createFileSuccess (planesNotZero, PixelFormat32bppRGB, 1, 1, bmpFlags);
+	createFileSuccess (rle4Compression32bpp, PixelFormat32bppRGB, 1, 1, bmpFlags);
+	createFileSuccess (rle8Compression32bpp, PixelFormat32bppRGB, 1, 1, bmpFlags);
 }
 
 static void test_validImage32bppBitfields ()
@@ -1163,18 +1160,98 @@ static void test_validImage32bppBitfields ()
 
 	// FIXME: libgdiplus can't decode these images.
 #if defined(USE_WINDOWS_GDIPLUS)
-	createFileSuccess (bitmapInfoHeaderBitfieldsDefault, PixelFormat32bppRGB);
+	createFileSuccess (bitmapInfoHeaderBitfieldsDefault, PixelFormat32bppRGB, 4, 2, bmpFlags);
 
-	createFileSuccess (bitmapInfoHeaderBitfieldsCustom, PixelFormat32bppRGB);
-	createFileSuccess (bitmapV3HeaderBitfieldsNonZeroAlphaMask, PixelFormat32bppRGB);
-	createFileSuccess (bitmapV4HeaderBitfields, PixelFormat32bppRGB);
-	createFileSuccess (bitmapV5HeaderBitfields, PixelFormat32bppRGB);
+	createFileSuccess (bitmapInfoHeaderBitfieldsCustom, PixelFormat32bppRGB, 4, 2, bmpFlags);
+	createFileSuccess (bitmapV3HeaderBitfieldsNonZeroAlphaMask, PixelFormat32bppRGB, 4, 2, bmpFlags);
+	createFileSuccess (bitmapV4HeaderBitfields, PixelFormat32bppRGB, 4, 2, bmpFlags);
+	createFileSuccess (bitmapV5HeaderBitfields, PixelFormat32bppRGB, 4, 2, bmpFlags);
 
-	createFileSuccess (bitmapInfoHeaderAllMasksZero, PixelFormat32bppRGB);
-	createFileSuccess (bitmapV3HeaderAllMasksZero, PixelFormat32bppRGB);
-	createFileSuccess (bitmapV4HeaderAllMasksZero, PixelFormat32bppRGB);
-	createFileSuccess (bitmapV5HeaderAllMasksZero, PixelFormat32bppRGB);
+	createFileSuccess (bitmapInfoHeaderAllMasksZero, PixelFormat32bppRGB, 4, 2, bmpFlags);
+	createFileSuccess (bitmapV3HeaderAllMasksZero, PixelFormat32bppRGB, 4, 2, bmpFlags);
+	createFileSuccess (bitmapV4HeaderAllMasksZero, PixelFormat32bppRGB, 4, 2, bmpFlags);
+	createFileSuccess (bitmapV5HeaderAllMasksZero, PixelFormat32bppRGB, 4, 2, bmpFlags);
 #endif
+}
+
+static void test_valid ()
+{
+	BYTE nonZeroHorizontal[] = {
+		// -- BITMAPCOREHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x42, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x3E, 0x00, 0x00, 0x00,
+		// -- BITMAPINFOHEADER
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x01, 0x00, 0x00, 0x00,
+		/* Height */           0x01, 0x00, 0x00, 0x00,
+		/* Planes */           0x01, 0x00,
+		/* Bits Count */       0x01, 0x00,
+		/* Compression */      0x00, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x01, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+		// -- Color Palette -- //
+		0xFF, 0x00, 0x00, 0xFF,
+		0x00, 0xFF, 0x00, 0xFF,
+		// -- Image Data --/
+		0x80, 0x00, 0x00, 0x00
+	};
+	BYTE nonZeroVertical[] = {
+		// -- BITMAPCOREHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x42, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x3E, 0x00, 0x00, 0x00,
+		// -- BITMAPINFOHEADER
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x01, 0x00, 0x00, 0x00,
+		/* Height */           0x01, 0x00, 0x00, 0x00,
+		/* Planes */           0x01, 0x00,
+		/* Bits Count */       0x01, 0x00,
+		/* Compression */      0x00, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x01, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+		// -- Color Palette -- //
+		0xFF, 0x00, 0x00, 0xFF,
+		0x00, 0xFF, 0x00, 0xFF,
+		// -- Image Data --/
+		0x80, 0x00, 0x00, 0x00
+	};
+	BYTE nonZeroHorizontalNonZeroVertical[] = {
+		// -- BITMAPCOREHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x42, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x3E, 0x00, 0x00, 0x00,
+		// -- BITMAPINFOHEADER
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x01, 0x00, 0x00, 0x00,
+		/* Height */           0x01, 0x00, 0x00, 0x00,
+		/* Planes */           0x01, 0x00,
+		/* Bits Count */       0x01, 0x00,
+		/* Compression */      0x00, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x01, 0x00, 0x00, 0x00,
+		/* Vertical */         0x01, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+		// -- Color Palette -- //
+		0xFF, 0x00, 0x00, 0xFF,
+		0x00, 0xFF, 0x00, 0xFF,
+		// -- Image Data --/
+		0x80, 0x00, 0x00, 0x00
+	};
+
+	createFileSuccess (nonZeroHorizontal, PixelFormat1bppIndexed, 1, 1, bmpFlags);
+	createFileSuccess (nonZeroVertical, PixelFormat1bppIndexed, 1, 1, bmpFlags);
+	createFileSuccess (nonZeroHorizontalNonZeroVertical, PixelFormat1bppIndexed, 1, 1, bmpFlags | ImageFlagsHasRealDPI);
 }
 
 static void test_invalidFileHeader ()
@@ -1402,6 +1479,7 @@ main (int argc, char**argv)
 	test_validImage32bppOS2Header ();
 	test_validImage32bppBitmapInfoHeader ();
 	test_validImage32bppBitfields ();
+	test_valid ();
 	test_invalidFileHeader ();
 	test_invalidHeader ();
 	test_invalidImageData ();

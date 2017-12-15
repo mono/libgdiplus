@@ -170,7 +170,7 @@ BOOL is_32bit ()
     assert (fabsf (dimensionHeight - expectedDimensionHeight) <= 0.05); \
  \
     /* FIXME: libgdiplus and GDI+ have different results for bitmap images. */ \
-    if (checkFlags && WINDOWS_GDIPLUS) \
+    if (checkFlags || WINDOWS_GDIPLUS) \
     { \
         status = GdipGetImageFlags (image, &flags); \
         assertEqualInt (status, Ok); \

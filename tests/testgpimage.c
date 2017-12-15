@@ -124,16 +124,6 @@ static void test_loadImageFromFileICM ()
 	freeWchar (invalidFile);
 }
 
-static void test_loadImageFromFileBmp ()
-{
-	GpImage *image = getImage ("test.bmp");
-
-	// FIXME: bmp image flags are wrong in libgdiplus.
-	verifyBitmap (image, bmpRawFormat, PixelFormat24bppRGB, 100, 68, 77840, 0, FALSE);
-
-	GdipDisposeImage (image);
-}
-
 static void test_loadImageFromFileTif ()
 {
 	GpImage *image = getImage ("test.tif");
@@ -1425,7 +1415,6 @@ main (int argc, char**argv)
 	test_loadImageFromFile ();
 	test_loadImageFromStreamICM ();
 	test_loadImageFromFileICM ();
-	test_loadImageFromFileBmp ();
 	test_loadImageFromFileTif ();
 	test_loadImageFromFileGif ();
 	test_loadImageFromFilePng ();
