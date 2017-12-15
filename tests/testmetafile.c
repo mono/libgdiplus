@@ -31,10 +31,12 @@ static void test_createMetafileFromFile ()
     GpStatus status;
     WCHAR *noSuchFilePath;
     WCHAR *invalidFilePath;
+    WCHAR *bitmapFilePath;
     GpMetafile *metafile;
 
     noSuchFilePath = createWchar ("noSuchFile.wmf");
-    invalidFilePath = createWchar ("test.bmp");
+    invalidFilePath = createWchar ("test.ttf");
+    bitmapFilePath = createWchar ("test.bmp");
 
     // Create from WMF file.
     status = GdipCreateMetafileFromFile (wmfFilePath, &metafile);
@@ -59,6 +61,9 @@ static void test_createMetafileFromFile ()
     assertEqualInt (status, GenericError);
 
     status = GdipCreateMetafileFromFile (invalidFilePath, &metafile);
+    assertEqualInt (status, GenericError);
+
+    status = GdipCreateMetafileFromFile (bitmapFilePath, &metafile);
     assertEqualInt (status, GenericError);
 }
 

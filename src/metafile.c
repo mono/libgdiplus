@@ -1519,7 +1519,7 @@ GdipCreateMetafileFromFile (GDIPCONST WCHAR *file, GpMetafile **metafile)
 {
 	FILE *fp;
 	char *file_name;
-	GpStatus status = GenericError;
+	GpStatus status;
 
 	if (!file || !metafile)
 		return InvalidParameter;
@@ -1527,13 +1527,21 @@ GdipCreateMetafileFromFile (GDIPCONST WCHAR *file, GpMetafile **metafile)
 	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)file, -1);
 	if (!file_name)
 		return InvalidParameter;
-	
+
 	fp = fopen (file_name, "rb");
-	if (fp) {
-		status = gdip_get_metafile_from (fp, metafile, File);
-		fclose (fp);
+	if (!fp) {
+		GdipFree (file_name);
+		return GenericError;
 	}
+
+	/* Match GDI+ behaviour by either returning Ok or GenericError. */
+	status = gdip_get_metafile_from (fp, metafile, File);
+	if (status != Ok)
+		status = GenericError;
+
+	fclose (fp);
 	GdipFree (file_name);
+
 	return status;
 }
 
