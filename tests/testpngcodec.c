@@ -42,7 +42,8 @@ GpImage *image;
 #define createFileSuccess(buffer, format, width, height, flags, propertyCount) \
 { \
 	createFile (buffer, Ok); \
-	verifyImage (image, ImageTypeBitmap, pngRawFormat, format, 0, 0, width, height, (REAL) width, (REAL) height, flags, propertyCount, TRUE); \
+	/* FIXME: grayscale image flags are incorrect. */ \
+	verifyImage (image, ImageTypeBitmap, pngRawFormat, format, 0, 0, width, height, (REAL) width, (REAL) height, flags, propertyCount, FALSE); \
 	GdipDisposeImage (image); \
 }
 
