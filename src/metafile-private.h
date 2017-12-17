@@ -114,6 +114,11 @@ typedef struct {
 	GpPointF *points;
 } PointFList;
 
+typedef struct {
+	DWORD	cbPixelFormat;
+	DWORD	offPixelFormat;
+	DWORD	bOpenGL;
+} HeaderExtension1;
 
 GpStatus gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source) GDIP_INTERNAL;
 GpStatus gdip_metafile_clone (GpMetafile *metafile, GpMetafile **clonedmetafile) GDIP_INTERNAL;

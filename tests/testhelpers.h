@@ -40,7 +40,7 @@ void verifyMatrix (GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5
     }
 }
 
-#if !defined(USE_WINDOWS_LIBGDIPLUS)
+#if !defined(USE_WINDOWS_GDIPLUS)
 #define createWchar(c) g_utf8_to_utf16 (c, -1, NULL, NULL, NULL);
 #define freeWchar(c) g_free(c)
 #define wcharFromChar(c) createWchar(c)

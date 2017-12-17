@@ -149,7 +149,7 @@ static void test_cloneCustomLineCap ()
 	assertEqualInt (status, InvalidParameter);
 
 	// This causes a null pointer dereference in GDI+.
-#if defined(USE_WINDOWS_LIBGDIPLUS)
+#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipCloneCustomLineCap (cap, NULL);
 	assertEqualInt (status, InvalidParameter);
 #endif
