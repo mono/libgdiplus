@@ -19,6 +19,7 @@ using namespace DllExports;
 #endif
 
 #include <assert.h>
+#include <tiffio.h>
 #include "testhelpers.h"
 
 static const char *file = "temp_asset.tif";
@@ -262,7 +263,7 @@ static void test_invalidFileDirectory ()
 		/* IFD 1 */           0x00, 0x00,
 		/* IFD 1 */           0x00, 0x00, 0x00, 0x00
 	};
-#if defined(USE_WINDOWS_GDIPLUS)
+#if TIFFLIB_VERSION >= 20150621
 	BYTE recursiveNextIFDOffset[] = {
 		/* Header */                     0x49, 0x49, 0x2A, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x80, 0x3F, 0xE0, 0x50, 0x10, 0x00,
 		/* Number of Tags */             0x0F, 0x00,
@@ -299,8 +300,8 @@ static void test_invalidFileDirectory ()
 	createFile (shortNextIFDOffsetLE, OutOfMemory);
 	createFile (shortNextIFDOffsetBE, OutOfMemory);
 	createFile (zeroNumberOfEntries, OutOfMemory);
-	// FIXME: this loops forever with libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
+	// Libtiff 4.0.4, released on June 21st 2015, fixed this bug. However, outdated platforms may not have this fix.
+#if TIFFLIB_VERSION >= 20150621
 	createFile (recursiveNextIFDOffset, OutOfMemory);
 #endif
 }

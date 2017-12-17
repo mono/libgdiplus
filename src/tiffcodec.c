@@ -1084,20 +1084,26 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 		return OutOfMemory;
 	}
 
+	result = NULL;
 	pixbuf_row = NULL;
 	pixbuf = NULL;
+	memset (&tiff_image, 0, sizeof (TIFFRGBAImage));
 
 	num_of_pages = TIFFNumberOfDirectories(tiff);
 
+	/* Handle cases where there are too many directories or there is a infinite loop in the directory structure.
+	 * This relies on libtiff returning 65535 in the error case, which has been the case since v4.0.4 released in 2015. */
+	if (num_of_pages >= 65535)
+		goto error;
+
 	result = gdip_bitmap_new();
 	if (!result)
-		return OutOfMemory;
+		goto error;
 
 	result->type = ImageTypeBitmap;
 	frame = gdip_frame_add(result, &gdip_image_frameDimension_page_guid);
-
-	// Avoid reading uninitialized memory if TIFFRGBAImageBegin fails.
-	memset (&tiff_image, 0, sizeof (TIFFRGBAImage));
+	if (!frame)
+		goto error;
 
 	for (page = 0; page < num_of_pages; page++) {
 		unsigned long long int size;
