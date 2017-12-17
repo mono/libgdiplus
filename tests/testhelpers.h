@@ -113,12 +113,12 @@ BOOL is_32bit ()
 #endif
 
 #define verifyBitmap(image, expectedRawFormat, expectedPixelFormat, expectedWidth, expectedHeight, expectedFlags, expectedPropertyCount, checkFlags) \
-    verifyImage(image, ImageTypeBitmap, expectedRawFormat, expectedPixelFormat, 0, 0, expectedWidth, expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, expectedFlags, expectedPropertyCount, checkFlags)
+    verifyImage(image, ImageTypeBitmap, expectedRawFormat, expectedPixelFormat, 0, 0, expectedWidth, expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, expectedFlags, expectedPropertyCount, checkFlags)
 
 #define verifyMetafile(image, expectedRawFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedDimensionWidth, expectedDimensionHeight) \
-    verifyImage(image, ImageTypeMetafile, expectedRawFormat, PixelFormat32bppRGB, expectedX, expectedY, expectedWidth, expectedHeight, expectedDimensionWidth, expectedDimensionHeight, 327683, 0, TRUE)
+    verifyImage(image, ImageTypeMetafile, expectedRawFormat, PixelFormat32bppRGB, expectedX, expectedY, expectedWidth, expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, expectedDimensionWidth, expectedDimensionHeight, 327683, 0, TRUE)
 
-#define verifyImage(image, expectedType, expectedRawFormat, expectedPixelFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedDimensionWidth, expectedDimensionHeight, expectedFlags, expectedPropertyCount, checkFlags) \
+#define verifyImage(image, expectedType, expectedRawFormat, expectedPixelFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedBoundsWidth, expectedBoundsHeight, expectedDimensionWidth, expectedDimensionHeight, expectedFlags, expectedPropertyCount, checkFlags) \
 { \
     GpStatus status; \
     ImageType type; \
@@ -157,8 +157,8 @@ BOOL is_32bit ()
     assertEqualInt (status, Ok); \
     assertEqualFloat (bounds.X, expectedX); \
     assertEqualFloat (bounds.Y, expectedY); \
-    assertEqualFloat (bounds.Width, (REAL)expectedWidth); \
-    assertEqualFloat (bounds.Height, (REAL)expectedHeight); \
+    assertEqualFloat (bounds.Width, expectedBoundsWidth); \
+    assertEqualFloat (bounds.Height, expectedBoundsHeight); \
     assertEqualInt (unit, UnitPixel); \
  \
     /* Libgdiplus and GDI+ have different exact degrees of accuracy. */ \
@@ -166,8 +166,10 @@ BOOL is_32bit ()
     /* This is an acceptable difference. */ \
     status = GdipGetImageDimension (image, &dimensionWidth, &dimensionHeight); \
     assertEqualInt (status, Ok); \
-    assert (fabsf (dimensionWidth - expectedDimensionWidth) <= 0.05); \
-    assert (fabsf (dimensionHeight - expectedDimensionHeight) <= 0.05); \
+    if (fabsf (dimensionWidth - expectedDimensionWidth) > 0.05) \
+		assertEqualFloat (dimensionWidth, expectedDimensionWidth); \
+    if (fabsf (dimensionHeight - expectedDimensionHeight) > 0.05) \
+		assertEqualFloat (dimensionHeight, expectedDimensionHeight); \
  \
     /* FIXME: libgdiplus and GDI+ have different results for bitmap images. */ \
     if (checkFlags || WINDOWS_GDIPLUS) \
