@@ -43,7 +43,7 @@ GpImage *image;
 { \
 	createFile (buffer, Ok); \
 	/* FIXME: grayscale image flags are incorrect. */ \
-	verifyImage (image, ImageTypeBitmap, pngRawFormat, format, 0, 0, width, height, (REAL) width, (REAL) height, flags, propertyCount, FALSE); \
+	verifyBitmap (image, pngRawFormat, format, width, height, flags, propertyCount, FALSE); \
 	GdipDisposeImage (image); \
 }
 
