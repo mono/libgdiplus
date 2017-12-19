@@ -1,3 +1,4 @@
+
 #include <assert.h>
 #include <float.h>
 #include <math.h>
@@ -10,7 +11,7 @@
 #endif
 
 #define STARTUP \
-    ULONG_PTR gdiplusToken = NULL; \
+    ULONG_PTR gdiplusToken; \
 	GdiplusStartupInput gdiplusStartupInput; \
     gdiplusStartupInput.GdiplusVersion = 1; \
     gdiplusStartupInput.DebugEventCallback = NULL; \

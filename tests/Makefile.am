@@ -17,7 +17,7 @@ LDADDS =					\
 	-lm
 
 noinst_PROGRAMS =			\
-	testadjustablearrowcap testbits testbmpcodec testbrush testclip testcustomlinecap testemfcodec testfont testgifcodec testgpimage testgraphics testhatchbrush testicocodec testimageattributes testlineargradientbrush testmatrix testmetafile testpathgradientbrush testpen testpng testpngcodec testreversepath testsolidbrush teststringformat testtexturebrush testtiffcodec testwmfcodec
+	testadjustablearrowcap testbits testbmpcodec testbrush testclip testcustomlinecap testemfcodec testfont testgeneral testgifcodec testgpimage testgraphics testhatchbrush testicocodec testimageattributes testlineargradientbrush testmatrix testmetafile testpathgradientbrush testpen testpng testpngcodec testreversepath testsolidbrush teststringformat testtexturebrush testtiffcodec testwmfcodec
 
 if HAS_X11
 noinst_PROGRAMS += testgdi
@@ -76,6 +76,12 @@ testfont_LDADD = $(LDADDS)
 
 testfont_SOURCES =		\
 	testfont.c
+
+testgeneral_SOURCES =		\
+	testgeneral.c
+
+testgeneral_DEPENDENCIES = $(TEST_DEPS)
+testgeneral_LDADD = $(LDADDS)
 
 testgifcodec_SOURCES =		\
 	testgifcodec.c
@@ -201,6 +207,7 @@ EXTRA_DIST =			\
 	$(testcustomlinecap_SOURCES)	\
 	$(testemfcodec_SOURCES)	\
 	$(testfont_SOURCES)	\
+	$(testgeneral_SOURCES) \
 	$(testgifcodec_SOURCES) \
 	$(testgpimage_SOURCES) \
 	$(testgraphics_SOURCES)	\
@@ -231,6 +238,7 @@ TESTS = \
 	testemfcodec \
 	testfont \
 	testgifcodec \
+	testgeneral \
 	testgpimage \
 	testgraphics \
 	testhatchbrush \
