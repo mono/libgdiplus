@@ -4,13 +4,18 @@
 #endif
 #endif
 
-#if defined(_WIN32)
+#if defined(USE_WINDOWS_GDIPLUS)
 #include <Windows.h>
 #include <GdiPlus.h>
 
 #pragma comment(lib, "gdiplus")
 #else
 #include <GdiPlusFlat.h>
+#endif
+
+#if defined(USE_WINDOWS_GDIPLUS)
+using namespace Gdiplus;
+using namespace DllExports;
 #endif
 
 #include <assert.h>
@@ -20,11 +25,6 @@
 #include <string.h>
 #include <wchar.h>
 #include "testhelpers.h"
-
-#ifdef WIN32
-using namespace Gdiplus;
-using namespace DllExports;
-#endif
 
 static void verifyArrowCap (GpAdjustableArrowCap *cap, REAL expectedHeight, REAL expectedWidth, BOOL expectedIsFilled)
 {
