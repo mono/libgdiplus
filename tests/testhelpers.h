@@ -9,6 +9,17 @@
 #include <unistd.h>
 #endif
 
+#define STARTUP \
+    ULONG_PTR gdiplusToken = NULL; \
+	GdiplusStartupInput gdiplusStartupInput; \
+    gdiplusStartupInput.GdiplusVersion = 1; \
+    gdiplusStartupInput.DebugEventCallback = NULL; \
+    gdiplusStartupInput.SuppressBackgroundThread = FALSE; \
+    gdiplusStartupInput.SuppressExternalCodecs = FALSE; \
+    GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL); \
+
+#define SHUTDOWN GdiplusShutdown (gdiplusToken);
+
 BOOL floatsEqual (float v1, float v2)
 {
     if (isnan (v1))

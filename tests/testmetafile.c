@@ -609,9 +609,7 @@ static void test_recordMetafile ()
 int
 main (int argc, char**argv)
 {
-    GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR gdiplusToken;
-    GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
     test_createMetafileFromFile ();
     test_createMetafileFromStream ();
@@ -628,6 +626,6 @@ main (int argc, char**argv)
     test_playMetafileRecord ();
     test_recordMetafile ();
 
-    GdiplusShutdown (gdiplusToken);
+    SHUTDOWN;
     return 0;
 }

@@ -946,9 +946,7 @@ static void test_delete ()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_createFromHDC ();
 	test_createFromHDC2 ();
@@ -971,6 +969,6 @@ main (int argc, char**argv)
 	test_flush ();
 	test_delete ();
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

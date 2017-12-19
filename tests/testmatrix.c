@@ -742,9 +742,7 @@ static void test_isMatrixEqual ()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_createMatrix ();
 	test_createMatrix2 ();
@@ -768,6 +766,6 @@ main (int argc, char**argv)
 	test_isMatrixIdentity ();
 	test_isMatrixEqual ();
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

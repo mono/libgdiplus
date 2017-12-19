@@ -1407,9 +1407,7 @@ static void test_setPropertyItem()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_loadImageFromStream ();
 	test_loadImageFromFile ();
@@ -1456,6 +1454,6 @@ main (int argc, char**argv)
 	test_removePropertyItem ();
 	test_setPropertyItem ();
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

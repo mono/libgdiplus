@@ -1309,9 +1309,7 @@ static void test_clone ()
 int
 main (int argc, char**argv)
 {
-    GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR gdiplusToken;
-    GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
     test_createLineBrush ();
     test_createLineBrushI ();
@@ -1344,6 +1342,6 @@ main (int argc, char**argv)
     test_rotateLineTransform ();
     test_clone ();
 
-    GdiplusShutdown (gdiplusToken);
+    SHUTDOWN;
     return 0;
 }

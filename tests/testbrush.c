@@ -74,14 +74,12 @@ static void test_delete ()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
     test_getBrushType ();
     test_clone ();
     test_delete ();
 
-	GdiplusShutdown (gdiplusToken);
+    SHUTDOWN;
 	return 0;
 }

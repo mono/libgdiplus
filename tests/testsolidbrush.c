@@ -112,15 +112,13 @@ static void test_setSolidFillColor ()
 int
 main (int argc, char**argv)
 {
-    GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR gdiplusToken;
-    GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
     test_clone ();
     test_createSolidFill ();
     test_getSolidFillColor ();
     test_setSolidFillColor ();
 
-    GdiplusShutdown (gdiplusToken);
+    SHUTDOWN;
     return 0;
 }

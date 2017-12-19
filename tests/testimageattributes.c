@@ -696,9 +696,7 @@ static void test_setImageAttributesCachedBackground()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_createImageAttributes ();
 	test_cloneImageAttributes ();
@@ -718,6 +716,6 @@ main (int argc, char**argv)
 	test_getImageAttributesAdjustedPalette ();
 	test_setImageAttributesCachedBackground ();
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

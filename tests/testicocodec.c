@@ -82,9 +82,7 @@ static void test_invalidImage ()
 int
 main (int argc, char**argv)
 {
-  GdiplusStartupInput gdiplusStartupInput;
-  ULONG_PTR gdiplusToken;
-  GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
   test_invalidHeader ();
   test_invalidEntry ();
@@ -92,6 +90,6 @@ main (int argc, char**argv)
 
   deleteFile (file);
 
-  GdiplusShutdown (gdiplusToken);
+  SHUTDOWN;
   return 0;
 }
