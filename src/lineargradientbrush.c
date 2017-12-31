@@ -871,11 +871,7 @@ GdipGetLineRectI (GpLineGradient *brush, GpRect *rect)
 	if (!brush || !rect)
 		return InvalidParameter;
 
-	rect->X = (int) brush->rectangle.X;
-	rect->Y = (int) brush->rectangle.Y;
-	rect->Width = (int) brush->rectangle.Width;
-	rect->Height = (int) brush->rectangle.Height;
-
+	gdip_Rect_from_RectF (&brush->rectangle, rect);
 	return Ok;
 }
 
