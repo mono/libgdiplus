@@ -611,3 +611,19 @@ gdip_cairo_curve_to (GpGraphics *graphics, double x1, double y1, double x2, doub
 
 	cairo_curve_to (graphics->ct, x1, y1, x2, y2, x3, y3);
 }
+
+void gdip_RectF_from_Rect (const GpRect* rect, GpRectF* rectf)
+{
+	rectf->X = rect->X;
+	rectf->Y = rect->Y;
+	rectf->Width = rect->Width;
+	rectf->Height = rect->Height;
+}
+
+void gdip_Rect_from_RectF (const GpRectF* rectf, GpRect* rect)
+{
+	rect->X = iround (rectf->X);
+	rect->Y = iround (rectf->Y);
+	rect->Width = iround (rectf->Width);
+	rect->Height = iround (rectf->Height);
+}
