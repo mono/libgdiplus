@@ -618,6 +618,8 @@ GdipSetPenMode (GpPen *pen, GpPenAlignment penMode)
 {
 	if (!pen)
 		return InvalidParameter;
+	if (penMode == PenAlignmentInset && pen->compound_count > 0)
+		return NotImplemented;
 
 	if (pen->mode != penMode) {
 		pen->mode = penMode;
@@ -877,15 +879,14 @@ GdipGetPenDashCount (GpPen *pen, INT *count)
 GpStatus WINGDIPAPI
 GdipGetPenDashArray (GpPen *pen, REAL *dash, INT count)
 {
-	if (!pen || !dash)
+	if (!pen || !dash || count > pen->dash_count)
 		return InvalidParameter;
-	if (count <= 0)
+	if (!pen->dash_array)
 		return OutOfMemory;
-	if (count != pen->dash_count)
-		return InvalidParameter;
+	if (count < 0)
+		return OutOfMemory;
 
 	memcpy (dash, pen->dash_array, count * sizeof (float));
-
 	return Ok;
 }
 
@@ -945,10 +946,22 @@ GdipGetPenCompoundCount (GpPen *pen, INT *count)
 GpStatus WINGDIPAPI
 GdipSetPenCompoundArray (GpPen *pen, GDIPCONST REAL *compound, INT count)
 {
+	float minValue = 0.0f;
 	float *compound_array;
 
 	if (!pen || !compound || count <= 0 || count % 2 == 1)
 		return InvalidParameter;
+	if (pen->mode == PenAlignmentInset)
+		return NotImplemented;
+
+	/* All values have to be in ascending order and be between 0 and 1. */
+	for (int i = 0; i < count; i++) {
+		float value = compound[i];
+		if (value < minValue || value > 1.0f)
+			return InvalidParameter;
+
+		minValue = value;
+	}
 
 	if (pen->compound_count != count) {
 		compound_array = (float *) GdipAlloc (count * sizeof (float));
@@ -964,7 +977,6 @@ GdipSetPenCompoundArray (GpPen *pen, GDIPCONST REAL *compound, INT count)
 	}
 
 	memcpy (pen->compound_array, compound, pen->compound_count * sizeof (float));
-
 	return Ok;
 }
 

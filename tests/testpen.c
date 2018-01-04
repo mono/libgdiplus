@@ -1359,11 +1359,15 @@ static void test_setPenMode ()
 {
 	GpStatus status;
 	GpPen *pen;
+	GpPen *compoundArrayPen;
+	REAL twoCompounds[2] = {1, 1};
 	PenAlignment mode;
 
 	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (1, 10, UnitWorld, &compoundArrayPen);
+	GdipSetPenCompoundArray (compoundArrayPen, twoCompounds, 2);
 
-	// PenAlignmentInset.
+	// Normal pen - PenAlignmentInset.
 	status = GdipSetPenMode (pen, PenAlignmentInset);
 	assertEqualInt (status, Ok);
 
@@ -1371,7 +1375,23 @@ static void test_setPenMode ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (mode, PenAlignmentInset);
 
-	// Invalid value - negative.
+	// Normal pen - same mode.
+	status = GdipSetPenMode (pen, PenAlignmentInset);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetPenMode (pen, &mode);
+	assertEqualInt (status, Ok);
+	assertEqualInt (mode, PenAlignmentInset);
+
+	// Normal pen - PenAlignmentCenter.
+	status = GdipSetPenMode (pen, PenAlignmentCenter);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetPenMode (pen, &mode);
+	assertEqualInt (status, Ok);
+	assertEqualInt (mode, PenAlignmentCenter);
+
+	// Normal pen - negative.
 	status = GdipSetPenMode (pen, (PenAlignment)(PenAlignmentCenter - 1));
 	assertEqualInt (status, Ok);
 
@@ -1379,7 +1399,7 @@ static void test_setPenMode ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (mode, (PenAlignment)(PenAlignmentCenter - 1));
 
-	// Invalid value - positive.
+	// Normal pen - positive.
 	status = GdipSetPenMode (pen, (PenAlignment)(PenAlignmentInset + 1));
 	assertEqualInt (status, Ok);
 
@@ -1387,11 +1407,47 @@ static void test_setPenMode ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (mode, (PenAlignment)(PenAlignmentInset + 1));
 
+	// Compound array pen - PenAlignmentCenter.
+	status = GdipSetPenMode (compoundArrayPen, PenAlignmentCenter);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetPenMode (compoundArrayPen, &mode);
+	assertEqualInt (status, Ok);
+	assertEqualInt (mode, PenAlignmentCenter);
+
+	// Compound array pen - same mode.
+	status = GdipSetPenMode (compoundArrayPen, PenAlignmentCenter);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetPenMode (compoundArrayPen, &mode);
+	assertEqualInt (status, Ok);
+	assertEqualInt (mode, PenAlignmentCenter);
+
+	// Compound array pen - negative.
+	status = GdipSetPenMode (compoundArrayPen, (PenAlignment)(PenAlignmentCenter - 1));
+	assertEqualInt (status, Ok);
+
+	status = GdipGetPenMode (compoundArrayPen, &mode);
+	assertEqualInt (status, Ok);
+	assertEqualInt (mode, (PenAlignment)(PenAlignmentCenter - 1));
+
+	// Compound array pen - positive.
+	status = GdipSetPenMode (compoundArrayPen, (PenAlignment)(PenAlignmentInset + 1));
+	assertEqualInt (status, Ok);
+
+	status = GdipGetPenMode (compoundArrayPen, &mode);
+	assertEqualInt (status, Ok);
+	assertEqualInt (mode, (PenAlignment)(PenAlignmentInset + 1));
+
 	// Negative tests.
 	status = GdipSetPenMode (NULL, PenAlignmentCenter);
 	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipSetPenMode (compoundArrayPen, PenAlignmentInset);
+	assertEqualInt (status, NotImplemented);
 
 	GdipDeletePen (pen);
+	GdipDeletePen (compoundArrayPen);
 }
 
 static void test_getPenMode ()
@@ -1828,28 +1884,58 @@ static void test_setPenDashArray ()
 static void test_getPenDashArray ()
 {
 	GpStatus status;
-	GpPen *pen;
-	REAL dashes[3];
+	GpPen *penWithNoDashes;
+	GpPen *penWithDashes;
+	REAL dashes[3] = {0, -1, -2};
+	REAL penDashes[2] = {1, 2};
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (1, 10, UnitWorld, &penWithNoDashes);
+	GdipCreatePen1 (1, 10, UnitWorld, &penWithDashes);
+	GdipSetPenDashArray (penWithDashes, penDashes, 2);
+	
+	// Zero count.
+	status = GdipGetPenDashArray (penWithDashes, dashes, 0);
+	assertEqualInt (status, Ok);
+	
+	// Small count.
+	status = GdipGetPenDashArray (penWithDashes, dashes, 1);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (dashes[0], 1);
+	assertEqualFloat (dashes[1], -1);
+	assertEqualFloat (dashes[2], -2);
 
 	// Negative tests.
 	status = GdipGetPenDashArray (NULL, dashes, 2);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipGetPenDashArray (pen, NULL, 2);
+	// Negative tests - no dashes.
+	status = GdipGetPenDashArray (penWithNoDashes, NULL, 2);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipGetPenDashArray (pen, dashes, 0);
+	status = GdipGetPenDashArray (penWithNoDashes, dashes, 0);
 	assertEqualInt (status, OutOfMemory);
 
-	status = GdipGetPenDashArray (pen, dashes, -1);
+	status = GdipGetPenDashArray (penWithNoDashes, dashes, -1);
 	assertEqualInt (status, OutOfMemory);
 
-	status = GdipGetPenDashArray (pen, dashes, 1);
+	status = GdipGetPenDashArray (penWithNoDashes, dashes, 1);
 	assertEqualInt (status, InvalidParameter);
 
-	GdipDeletePen (pen);
+	// Negative tests - has dashes.
+	status = GdipGetPenDashArray (NULL, dashes, 2);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetPenDashArray (penWithDashes, dashes, 3);
+	assertEqualInt (status, InvalidParameter);
+	
+	// This causes GDI+ to crash.
+#if !defined(USE_WINDOWS_GDIPLUS)
+	status = GdipGetPenDashArray (penWithDashes, dashes, -1);
+	assertEqualInt (status, OutOfMemory);
+#endif
+
+	GdipDeletePen (penWithNoDashes);
+	GdipDeletePen (penWithDashes);
 }
 
 static void test_getPenCompoundCount ()
@@ -1874,12 +1960,23 @@ static void test_setPenCompoundArray ()
 {
 	GpStatus status;
 	GpPen *pen;
+	GpPen *insetPen;
 	REAL fourCompounds[4] = {1, 1, 1, 1};
 	REAL allZero[2] = {0, 0};
 	INT compoundCount;
-	REAL compounds[4] = {0, 0, 0, 0};
+	REAL compounds[6] = {0, 0, 0, 0};
+	REAL ascendingOrderZeroToOne[6] = {0, 0.2f, 0.2f, 0.4f, 0.5f, 1};
+	REAL ascendingOrderGreaterThanZeroToLessThanOne[4] = {0.2f, 0.2f, 0.4f, 0.5f};
+	REAL firstLessThanZero[2] = {-0.01f, 0};
+	REAL firstGreaterThanOne[2] = {1.01f, 0};
+	REAL secondLessThanZero[2] = {0, -0.01f};
+	REAL secondGreaterThanOne[2] = {0, 1.01f};
+	REAL secondLessThanFirst[2] = {0.5f, 0.4f};
+	REAL thirdLessThanSecond[4] = {0.5f, 0.6f, 0.5f, 0.7f};
 
 	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (1, 10, UnitWorld, &insetPen);
+	GdipSetPenMode (insetPen, PenAlignmentInset);
 
 	// Two compounds - all 1.
 	status = GdipSetPenCompoundArray (pen, fourCompounds, 2);
@@ -1912,7 +2009,7 @@ static void test_setPenCompoundArray ()
 	assertEqualFloat (compounds[0], 0);
 	assertEqualFloat (compounds[1], 0);
 
-	// Four compounds.
+	// Four compounds - all one.
 	status = GdipSetPenCompoundArray (pen, fourCompounds, 4);
 	assertEqualInt (status, Ok);
 
@@ -1926,6 +2023,38 @@ static void test_setPenCompoundArray ()
 	assertEqualFloat (compounds[1], 1);
 	assertEqualFloat (compounds[2], 1);
 	assertEqualFloat (compounds[3], 1);
+	
+	// Ascending order from 0 to 1.
+	status = GdipSetPenCompoundArray (pen, ascendingOrderZeroToOne, 6);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetPenCompoundCount (pen, &compoundCount);
+	assertEqualInt (status, Ok);
+	assertEqualInt (compoundCount, 6);
+
+	status = GdipGetPenCompoundArray (pen, compounds, compoundCount);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (compounds[0], 0);
+	assertEqualFloat (compounds[1], 0.2f);
+	assertEqualFloat (compounds[2], 0.2f);
+	assertEqualFloat (compounds[3], 0.4f);
+	assertEqualFloat (compounds[4], 0.5f);
+	assertEqualFloat (compounds[5], 1);
+	
+	// Ascending order from greater than 0 to less than 1.
+	status = GdipSetPenCompoundArray (pen, ascendingOrderGreaterThanZeroToLessThanOne, 4);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetPenCompoundCount (pen, &compoundCount);
+	assertEqualInt (status, Ok);
+	assertEqualInt (compoundCount, 4);
+
+	status = GdipGetPenCompoundArray (pen, compounds, compoundCount);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (compounds[0], 0.2f);
+	assertEqualFloat (compounds[1], 0.2f);
+	assertEqualFloat (compounds[2], 0.4f);
+	assertEqualFloat (compounds[3], 0.5f);
 
 	// Negative tests.
 	status = GdipSetPenCompoundArray (NULL, fourCompounds, 2);
@@ -1946,7 +2075,41 @@ static void test_setPenCompoundArray ()
 	status = GdipSetPenCompoundArray (pen, fourCompounds, -1);
 	assertEqualInt (status, InvalidParameter);
 
+	status = GdipSetPenCompoundArray (pen, firstLessThanZero, 2);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetPenCompoundArray (pen, firstGreaterThanOne, 2);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetPenCompoundArray (pen, secondLessThanZero, 2);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetPenCompoundArray (pen, secondGreaterThanOne, 2);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetPenCompoundArray (pen, secondLessThanFirst, 2);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetPenCompoundArray (pen, thirdLessThanSecond, 4);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetPenCompoundArray (insetPen, fourCompounds, 2);
+	assertEqualInt (status, NotImplemented);
+
+	status = GdipSetPenCompoundArray (insetPen, firstLessThanZero, 2);
+	assertEqualInt (status, NotImplemented);
+
+	status = GdipSetPenCompoundArray (insetPen, NULL, 2);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetPenCompoundArray (insetPen, fourCompounds, 0);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetPenCompoundArray (insetPen, fourCompounds, 1);
+	assertEqualInt (status, InvalidParameter);
+
 	GdipDeletePen (pen);
+	GdipDeletePen (insetPen);
 }
 
 static void test_getPenCompoundArray ()
