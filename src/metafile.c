@@ -24,6 +24,7 @@
 #include "solidbrush-private.h"
 #include "graphics.h"
 #include "graphics-path-private.h"
+#include "hatchbrush-private.h"
 #include "pen.h"
 
 //#define DEBUG_METAFILE
@@ -529,20 +530,24 @@ GpStatus
 gdip_metafile_CreateBrushIndirect (MetafilePlayContext *context, DWORD style, DWORD color, DWORD hatch)
 {
 	GpStatus status = Ok;
-	GpSolidFill *brush;
+	GpBrush *brush;
 
 	switch (style) {
 	case BS_SOLID:
 		color |= 0xFF000000;
-		status = GdipCreateSolidFill (color, &brush);
+		status = GdipCreateSolidFill (color, (GpSolidFill **) &brush);
 		break;
 	case BS_NULL:
 		color &= 0x00FFFFFF;
-		status = GdipCreateSolidFill (color, &brush);
+		status = GdipCreateSolidFill (color, (GpSolidFill **) &brush);
+		break;
+	case BS_HATCHED:
+		color |= 0xFF000000;
+		status = GdipCreateHatchBrush (hatch, color, 0xFFFFFFFF, (GpHatch **) &brush);
 		break;
 	default:
 		g_warning ("gdip_metafile_CreateBrushIndirect unimplemented style %d", style);
-		status = GdipCreateSolidFill (color, &brush);
+		status = GdipCreateSolidFill (color, (GpSolidFill **) &brush);
 		break;
 	}
 
