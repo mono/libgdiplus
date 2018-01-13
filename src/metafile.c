@@ -1490,11 +1490,11 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source
 	mf->data = (BYTE*) GdipAlloc (mf->length);
 	if (!mf->data)
 		goto error;
-	/* copy data in memory (to play it later) */
-	if (gdip_read_wmf_data (pointer, (void*)mf->data, mf->length, source) != mf->length) {
-		status = OutOfMemory;
-		goto error;
-	}
+
+	/* Copy the data into memory for playback later. To match GDI+ behaviour, we don't validate that there is
+	 * as much data as the header says. Instead, if the data length is invalid and there is no EOF record before
+	 * we run out of space in the buffer playback will fail. */
+	mf->length = gdip_read_wmf_data (pointer, (void *) mf->data, mf->length, source);
 
 	if (adjust_emf_headers) {
 		/* if the first EMF record is an EmfHeader (or an Header inside a Comment) then we have extra data to extract */
