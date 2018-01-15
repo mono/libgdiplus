@@ -31,7 +31,7 @@
 #ifndef __CODECS_PRIVATE_H__
 #define __CODECS_PRIVATE_H__
 
-#include "gdipstructs.h"
+#include "gdiplus-private.h"
 #include "codecs.h"
 
 /* Maximum CODEC signature length, which is the minimum size we need to read from an image file to detect it's type */
@@ -58,5 +58,15 @@ const EncoderParameter *gdip_find_encoder_parameter (GDIPCONST EncoderParameters
 
 GpStatus initCodecList (void) GDIP_INTERNAL;
 void releaseCodecList (void) GDIP_INTERNAL;
+
+extern GUID GdipEncoderCompression;
+extern GUID GdipEncoderColorDepth;
+extern GUID GdipEncoderSaveFlag;
+extern GUID GdipEncoderSaveAsCMYK;
+extern GUID GdipEncoderImageItems;
+extern GUID GdipEncoderTransformation;
+extern GUID GdipEncoderQuality;
+extern GUID GdipEncoderLuminanceTable;
+extern GUID GdipEncoderChrominanceTable;
 
 #endif

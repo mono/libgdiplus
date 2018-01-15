@@ -33,7 +33,7 @@ GUID gdip_png_image_format_guid = {0xb96b3cafU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 #ifdef HAVE_LIBPNG
 
 #include <png.h>
-#include "gdiplus-private.h"
+#include "codecs-private.h"
 #include "pngcodec.h"
 #include <setjmp.h>
 
@@ -818,6 +818,7 @@ gdip_save_png_image_to_stream_delegate (PutBytesDelegate putBytesFunc, GpImage *
 
 #else
 
+#include "codecs-private.h"
 #include "pngcodec.h"
 
 GpStatus 
@@ -857,3 +858,20 @@ gdip_getcodecinfo_png ()
 }
 #endif	/* HAVE_LIBPNG */
 
+GpStatus
+gdip_fill_encoder_parameter_list_png (EncoderParameters *buffer, UINT size)
+{
+	PngEncoderParameters *pngBuffer = (PngEncoderParameters *) buffer;
+
+	if (!buffer || size != sizeof (PngEncoderParameters))
+		return InvalidParameter;
+	
+	pngBuffer->count = 1;
+
+	pngBuffer->imageItems.Guid = GdipEncoderImageItems;
+	pngBuffer->imageItems.NumberOfValues = 0;
+	pngBuffer->imageItems.Type = 9; // Undocumented type.
+	pngBuffer->imageItems.Value = NULL;
+
+	return Ok;
+}
