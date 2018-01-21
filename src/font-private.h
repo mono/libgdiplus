@@ -57,8 +57,6 @@ struct _Font {
 #endif
 };
 
-void gdip_font_clear_pattern_cache (void) GDIP_INTERNAL;
-
 #ifdef USE_PANGO_RENDERING
 
 PangoFontDescription* gdip_get_pango_font_description (GpFont *font);

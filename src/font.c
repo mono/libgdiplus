@@ -327,132 +327,6 @@ gdip_status_from_fontconfig (FcResult result)
 	}
 }
 
-/* note: MUST be executed inside a lock because FcConfig isn't thread-safe */
-static FcPattern*
-create_pattern_from_name (char* name)
-{
-	FcValue val;
-	/* FcResult must be initialized because it's changed only in error conditions */
-	FcResult rlt = FcResultMatch;
-	FcPattern *full_pattern = NULL;
-	FcPattern *name_pattern = FcPatternCreate ();
-
-	if (!name_pattern)
-		return NULL;
-		
-	/* find the family we want */
-	val.type = FcTypeString;
-	val.u.s = (BYTE*)name;
-	if (!FcPatternAdd (name_pattern, FC_FAMILY, val, TRUE)) {
-		FcPatternDestroy (name_pattern);
-		return NULL;
-	}
-
-	if (!FcConfigSubstitute (0, name_pattern, FcMatchPattern)) {
-		FcPatternDestroy (name_pattern);
-		return NULL;
-	}
-
-	FcDefaultSubstitute (name_pattern);                  
-		
-	full_pattern = FcFontMatch (0, name_pattern, &rlt);
-	if (gdip_status_from_fontconfig (rlt) == Ok) {
-		if (full_pattern == NULL) {
-			full_pattern = name_pattern;
-		} else {
-			FcPatternDestroy (name_pattern);
-		}
-	} else {
-		FcPatternDestroy (name_pattern);
-		if (full_pattern) {
-			FcPatternDestroy (full_pattern);
-			full_pattern = NULL;
-		}
-	}
-
-	return full_pattern;
-}
-
-#if GLIB_CHECK_VERSION(2,32,0)
-static GMutex patterns_mutex;
-#else
-static GStaticMutex patterns_mutex = G_STATIC_MUTEX_INIT;
-#endif
-static GHashTable *patterns_hashtable = NULL;
-
-static GpStatus
-create_fontfamily_from_name (char* name, GpFontFamily **fontFamily)
-{
-	GpStatus status = FontFamilyNotFound;
-	GpFontFamily *ff = NULL;
-	FcPattern *pat = NULL;
-
-#if GLIB_CHECK_VERSION(2,32,0)
-	g_mutex_lock (&patterns_mutex);
-#else
-	g_static_mutex_lock (&patterns_mutex);
-#endif
-
-	if (patterns_hashtable) {
-		pat = (FcPattern*) g_hash_table_lookup (patterns_hashtable, name);
-	} else {
-		patterns_hashtable = g_hash_table_new (g_str_hash, g_str_equal);
-	}
-
-	if (!pat) {
-		pat = create_pattern_from_name (name);
-		if (pat) {
-			/* create the pattern and store it for further usage */
-			g_hash_table_insert (patterns_hashtable, g_strdup (name), pat);
-		}
-	}
-
-	if (pat) {
-		gdip_createFontFamily (&ff);
-		if (ff) {
-			ff->pattern = pat;
-			ff->allocated = FALSE;
-			status = Ok;
-		} else 
-			status = OutOfMemory;
-	}
-
-	*fontFamily = ff;
-#if GLIB_CHECK_VERSION(2,32,0)
-	g_mutex_unlock (&patterns_mutex);
-#else
-	g_static_mutex_unlock (&patterns_mutex);
-#endif
-	return status;
-}
-
-static BOOL
-free_cached_pattern (gpointer key, gpointer value, gpointer user)
-{
-	g_free (key);
-	FcPatternDestroy ((FcPattern*) value);
-	return TRUE;
-}
-
-void
-gdip_font_clear_pattern_cache (void)
-{
-#if GLIB_CHECK_VERSION(2,32,0)
-	g_mutex_lock (&patterns_mutex);
-#else
-	g_static_mutex_lock (&patterns_mutex);
-#endif
-	if (patterns_hashtable) {
-		g_hash_table_foreach_remove (patterns_hashtable, free_cached_pattern, NULL);
-		g_hash_table_destroy (patterns_hashtable);
-	}
-#if GLIB_CHECK_VERSION(2,32,0)
-	g_mutex_unlock (&patterns_mutex);
-#else
-	g_static_mutex_unlock (&patterns_mutex);
-#endif
-}
-
 static GpStatus
 create_fontfamily_from_collection (char* name, GpFontCollection *font_collection, GpFontFamily **fontFamily)
 {
@@ -489,20 +363,22 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 	if (!name || !fontFamily)
 		return InvalidParameter;
 
-	string = (char*)ucs2_to_utf8 ((const gunichar2 *)name, -1);
+	string = (char *) ucs2_to_utf8 ((const gunichar2 *) name, -1);
 	if (!string)
 		return OutOfMemory;
 
-	if (font_collection) {
-		if (font_collection->config)
-			gdip_createPrivateFontSet (font_collection);
-
-		status = create_fontfamily_from_collection (string, font_collection, fontFamily);
-	} else {
-		status = create_fontfamily_from_name (string, fontFamily);
+	if (!font_collection) {
+		status = GdipNewInstalledFontCollection (&font_collection);
+		if (status != Ok)
+			return status;
 	}
 
+	if (font_collection->config)
+		gdip_createPrivateFontSet (font_collection);
+	
+	status = create_fontfamily_from_collection (string, font_collection, fontFamily);
 	GdipFree (string);
+
 	return status;
 }
 

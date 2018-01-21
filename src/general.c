@@ -59,7 +59,6 @@ WINGDIPAPI GdiplusShutdown (ULONG_PTR token)
 {
 	if (startup) {
 		releaseCodecList ();
-		gdip_font_clear_pattern_cache ();
 #if HAVE_FCFINI
 		FcFini ();
 #endif
