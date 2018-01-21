@@ -937,12 +937,8 @@ static void test_createFontFamilyFromName ()
 	status = GdipCreateFontFamilyFromName (CodeNewRoman, collection, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	// FIXME: Libgdiplus does not validate that the font family exists
-	// if the collection is NULL.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipCreateFontFamilyFromName (NoSuchFont, NULL, &family);
 	assertEqualInt (status, FontFamilyNotFound);
-#endif
 
 	status = GdipCreateFontFamilyFromName (Tahoma, collection, &family);
 	assertEqualInt (status, FontFamilyNotFound);
