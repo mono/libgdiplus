@@ -21,7 +21,7 @@
  * Authors:
  *      Duncan Mak (duncan@ximian.com)
  *      Ravindra (rkumar@novell.com)
- *	Sebastien Pouliot  <sebastien@ximian.com>
+ *	    Sebastien Pouliot  <sebastien@ximian.com>
  */
  
 #include "graphics-path-private.h"
@@ -33,46 +33,29 @@
 	#include "text-pango-private.h"
 #endif
 
-static GArray *
-array_to_g_array (const GpPointF *pt, int length)
+VOID
+gdip_path_ensure_size (GpPath *path, int size)
 {
-	GArray *p = g_array_sized_new (FALSE, TRUE, sizeof (GpPointF), length);
-	g_array_append_vals (p, pt, length);
-	return p;
+	if (path->size < size) {
+		if (size < path->size + 64)
+			size = path->size + 64;
+		path->types = gdip_realloc (path->types, size * sizeof (BYTE));
+		path->points = gdip_realloc (path->points, size * sizeof (GpPointF));
+		// TODO: Handle allocation failure
+		path->size = size;
+	}
 }
 
-static GpPointF *
-g_array_to_array (GArray *p)
+VOID
+gdip_path_compact (GpPath *path)
 {
-	int length = p->len;
-	GpPointF *pts = (GpPointF *) GdipAlloc (sizeof (GpPointF) * length);
-	if (!pts)
-		return NULL;
-
-	memcpy (pts, p->data, p->len * sizeof (GpPointF));        
-	
-    return pts;
-}
-
-static BYTE *
-g_byte_array_to_array (GByteArray *p)
-{
-	int length = p->len;
-	BYTE *types = (BYTE*) GdipAlloc (sizeof (BYTE) * length);
-	if (!types)
-		return NULL;
-
-	memcpy (types, p->data, p->len * sizeof (BYTE));
-
-	return types;
-}
-
-static GByteArray *
-array_to_g_byte_array (const BYTE *types, int count)
-{
-	GByteArray *p = g_byte_array_sized_new (count);
-	g_byte_array_append (p, types, count);
-	return p;
+	if (path->size > path->count + 64) {
+		int size = (path->count + 63) & ~63;
+		path->types = gdip_realloc (path->types, size * sizeof (BYTE));
+		path->points = gdip_realloc (path->points, size * sizeof (GpPointF));
+		// TODO: Handle allocation failure
+		path->size = size;
+	}
 }
 
 /* return TRUE if the specified path has (at least one) curves, FALSE otherwise */
@@ -85,7 +68,7 @@ gdip_path_has_curve (GpPath *path)
 		return FALSE;
 
 	for (i = 0; i < path->count; i++) {
-		if (g_array_index (path->types, BYTE, i) == PathPointTypeBezier)
+		if (path->types[i] == PathPointTypeBezier)
 			return TRUE;
 	}
 
@@ -105,7 +88,7 @@ gdip_get_first_point_type (GpPath *path)
 		return PathPointTypeStart;
 
 	/* check if the previous point is a closure */
-	type = g_array_index (path->types, BYTE, path->count - 1);
+	type = path->types[path->count - 1];
 	if (type & PathPointTypeCloseSubpath)
 		return PathPointTypeStart;
 	else
@@ -121,10 +104,10 @@ append (GpPath *path, float x, float y, PathPointType type, BOOL compress)
 	/* in some case we're allowed to compress identical points */
 	if (compress && (path->count > 0)) {
 		/* points (X, Y) must be identical */
-		GpPointF lastPoint = g_array_index (path->points, GpPointF, path->count - 1);
+		GpPointF lastPoint = path->points[path->count - 1];
 		if ((lastPoint.X == x) && (lastPoint.Y == y)) {
 			/* types need not be identical but must handle closed subpaths */
-			PathPointType last_type = g_array_index (path->types, BYTE, path->count - 1);
+			PathPointType last_type = path->types[path->count - 1];
 			if ((last_type & PathPointTypeCloseSubpath) != PathPointTypeCloseSubpath)
 				return;
 		}
@@ -134,7 +117,7 @@ append (GpPath *path, float x, float y, PathPointType type, BOOL compress)
 		t = PathPointTypeStart;
 	/* if we closed a subpath, then start new figure and append */
 	else if (path->count > 0) {
-		type = g_array_index (path->types, BYTE, path->count - 1);
+		type = path->types[path->count - 1];
 		if (type & PathPointTypeCloseSubpath)
 			t = PathPointTypeStart;
 	}
@@ -142,8 +125,9 @@ append (GpPath *path, float x, float y, PathPointType type, BOOL compress)
 	pt.X = x;
 	pt.Y = y;
 
-	g_array_append_val (path->points, pt);
-	g_byte_array_append (path->types, &t, 1);
+	gdip_path_ensure_size (path, path->count + 1);
+	path->points[path->count] = pt;
+	path->types[path->count] = t;
 	path->count++;
 
 	path->start_new_fig = FALSE;
@@ -218,14 +202,16 @@ GdipCreatePath (FillMode fillMode, GpPath **path)
 		return OutOfMemory;
 
 	result->fill_mode = fillMode;
-	result->points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
+	result->size = 64;
+	result->points = GdipAlloc (sizeof (GpPointF) * result->size);
 	if (!result->points) {
 		GdipFree (result);
 		return OutOfMemory;
 	}
 
-	result->types = g_byte_array_new ();
+	result->types = GdipAlloc (sizeof (BYTE) * result->size);
 	if (!result->types) {
+		GdipFree (result->points);
 		GdipFree (result);
 		return OutOfMemory;
 	}
@@ -241,8 +227,7 @@ GdipCreatePath (FillMode fillMode, GpPath **path)
 GpStatus WINGDIPAPI
 GdipCreatePath2 (const GpPointF *points, const BYTE *types, int count, FillMode fillMode, GpPath **path)
 {
-	GArray *pts;
-	GByteArray *t;
+	GpPath *new_path;
 
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
@@ -255,27 +240,28 @@ GdipCreatePath2 (const GpPointF *points, const BYTE *types, int count, FillMode 
 	 * invalid. Some cases are like last type being PathPointTypeStart or
 	 * PathPointTypeCloseSubpath etc.
 	 */
-	pts = array_to_g_array (points, count);
-	if (!pts)
-		return OutOfMemory;
 
-	t = array_to_g_byte_array (types, count);
-	if (!t) {
-		g_array_free (pts, TRUE);
+	new_path = (GpPath *) GdipAlloc (sizeof (GpPath));
+	if (!new_path) {
 		return OutOfMemory;
 	}
 
-	*path = (GpPath *) GdipAlloc (sizeof (GpPath));
-	if (!*path) {
-		g_array_free (pts, TRUE);
-		g_byte_array_free (t, TRUE);
+	new_path->fill_mode = fillMode;
+	new_path->count = count;
+	new_path->size = (count + 63) & ~63;
+	new_path->points = GdipAlloc (sizeof (GpPointF) * new_path->size);
+	if (!new_path->points) {
+		GdipFree (new_path);
+		return OutOfMemory;
+	}
+	new_path->types = GdipAlloc (sizeof (BYTE) * new_path->size);
+	if (!new_path->types) {
+		GdipFree (new_path->points);
+		GdipFree (new_path);
 		return OutOfMemory;
 	}
 
-	(*path)->fill_mode = fillMode;
-	(*path)->count = count;
-	(*path)->points = pts;
-	(*path)->types = t;
+	*path = new_path;
 	
 	return Ok;
 }
@@ -322,24 +308,22 @@ GdipClonePath (GpPath *path, GpPath **clonePath)
 
 	result->fill_mode = path->fill_mode;
 	result->count = path->count;
-	result->points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
+	result->size = path->size;
+	result->points = GdipAlloc (sizeof (GpPointF) * result->size);
 	if (!result->points) {
 		GdipFree (result);
 		return OutOfMemory;
 	}
 
-	result->types = g_byte_array_new ();
+	result->types = GdipAlloc (sizeof (BYTE) * result->size);
 	if (!result->types) {
+		GdipFree (result->points);
 		GdipFree (result);
 		return OutOfMemory;
 	}
 
-	for (i = 0; i < path->count; i++) {
-		point = g_array_index (path->points, GpPointF, i);
-		type = g_array_index (path->types, BYTE, i);
-		g_array_append_val (result->points, point);
-		g_byte_array_append (result->types, &type, 1);
-	}
+	memcpy (result->points, path->points, sizeof (GpPointF) * path->count);
+	memcpy (result->types, path->types, sizeof (BYTE) * path->count);
 
 	result->start_new_fig = path->start_new_fig;
 
@@ -354,11 +338,11 @@ GdipDeletePath (GpPath *path)
 		return InvalidParameter;
 
 	if (path->points != NULL)
-		g_array_free (path->points, TRUE);
+		GdipFree (path->points);
 	path->points = NULL;
 
 	if (path->types != NULL)
-		g_byte_array_free (path->types, TRUE);
+		GdipFree (path->types);
 	path->types = NULL;
 
 	GdipFree (path);
@@ -371,17 +355,10 @@ GdipResetPath (GpPath *path)
 	if (path == NULL)
 		return InvalidParameter;
 
-	if (path->points != NULL)
-		g_array_free (path->points, TRUE);
-
-	if (path->types != NULL)
-		g_byte_array_free (path->types, TRUE);
-
 	path->count = 0;
-	path->points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
-	path->types = g_byte_array_new ();
 	path->fill_mode = FillModeAlternate;
 	path->start_new_fig = TRUE;
+	gdip_path_compact(path);
 
 	return Ok;
 }
@@ -407,8 +384,7 @@ GdipGetPathTypes (GpPath *path, BYTE *types, int count)
 	if (count > path->count)
 		count = path->count;
 
-	for (i = 0; i < count; i++)
-		types [i] = path->types->data [i];
+	memcpy (types, path->types, sizeof (BYTE) * count);
 	
 	return Ok;
 }
@@ -424,11 +400,7 @@ GdipGetPathPoints (GpPath *path, GpPointF *points, int count)
 	if (count > path->count)
 		count = path->count;
 
-	for (i = 0; i < count; i++) {
-		GpPointF point = g_array_index (path->points, GpPointF, i);
-		points [i].X = point.X;
-		points [i].Y = point.Y;
-	}
+	memcpy (points, path->points, sizeof (GpPointF) * count);
 
 	return Ok;
 }
@@ -441,8 +413,11 @@ GdipGetPathPointsI (GpPath *path, GpPoint *points, int count)
 	if (!path || !points || (count < 1))
 		return InvalidParameter;
 
+	if (count > path->count)
+		count = path->count;
+
 	for (i = 0; i < count; i++) {
-		GpPoint point = g_array_index (path->points, GpPoint, i);
+		GpPointF point = path->points[i];
 		points [i].X = (int) point.X;
 		points [i].Y = (int) point.Y; 
 	}
@@ -478,19 +453,11 @@ GdipGetPathData (GpPath *path, GpPathData *pathData)
 	if (!path || !pathData)
 		return InvalidParameter;
 
-	pathData->Points = g_array_to_array (path->points);
-	if (!pathData->Points)
-		return OutOfMemory;
+	if (pathData->Count > path->count)
+		pathData->Count = path->count;
 
-	pathData->Types = g_byte_array_to_array (path->types);
-	if (!pathData->Types) {
-		GdipFree (pathData->Points);
-		pathData->Points = NULL;
-		return OutOfMemory;
-	}
-
-	/* don't return the count unless we have the data */
-	pathData->Count = path->count;
+	memcpy (pathData->Points, path->points, sizeof (GpPointF) * pathData->Count);
+	memcpy (pathData->Types, path->types, sizeof (BYTE) * pathData->Count);
 
 	return Ok;
 }
@@ -513,8 +480,7 @@ GdipClosePathFigure (GpPath *path)
 		return InvalidParameter;
 
 	if (path->count > 0) {
-		BYTE *last = &g_array_index (path->types, BYTE, path->count - 1);
-		*last |= PathPointTypeCloseSubpath;
+		path->types[path->count - 1] |= PathPointTypeCloseSubpath;
 	}
 	path->start_new_fig = TRUE;
 
@@ -525,9 +491,6 @@ GpStatus WINGDIPAPI
 GdipClosePathFigures (GpPath *path)
 {
 	int index = 0;
-	BYTE currentType;
-	BYTE lastType;
-	GByteArray *oldTypes;
 
 	if (!path)
 		return InvalidParameter;
@@ -536,32 +499,15 @@ GdipClosePathFigures (GpPath *path)
 	if (path->count <= 1)
 		return Ok;
 
-	oldTypes = path->types;
-	path->types = g_byte_array_new ();
-
-	lastType = g_array_index (oldTypes, BYTE, index);
-	index++;
-
 	for (index = 1; index < path->count; index++) {
-		currentType = g_array_index (oldTypes, BYTE, index);
-		/* we dont close on the first point */
-		if ((currentType == PathPointTypeStart) && (index > 1)) {
-			lastType |= PathPointTypeCloseSubpath;
-			g_byte_array_append (path->types, &lastType, 1);
+		if (path->types[index] == PathPointTypeStart) {
+			path->types[index - 1] |= PathPointTypeCloseSubpath;
 		}
-		else
-			g_byte_array_append (path->types, &lastType, 1);
-
-		lastType = currentType;
 	}
 
 	/* close at the end */
-	lastType |= PathPointTypeCloseSubpath;
-	g_byte_array_append (path->types, &lastType, 1);
-
+	path->types[index - 1] |= PathPointTypeCloseSubpath;
 	path->start_new_fig = TRUE;
-
-	g_byte_array_free (oldTypes, TRUE);
 
 	return Ok;
 }
@@ -569,21 +515,13 @@ GdipClosePathFigures (GpPath *path)
 GpStatus WINGDIPAPI
 GdipSetPathMarker (GpPath *path)
 {
-	BYTE current;
-
 	if (!path)
 		return InvalidParameter;
 
 	if (path->count == 0)
 		return Ok;
 
-	current = g_array_index (path->types, BYTE, path->count - 1);
-
-	g_byte_array_remove_index (path->types, path->count - 1);
-
-	current |= PathPointTypePathMarker;
-
-	g_byte_array_append (path->types, &current, 1);
+	path->types[path->count - 1] |= PathPointTypePathMarker;
 
 	return Ok;
 }
@@ -592,31 +530,13 @@ GpStatus WINGDIPAPI
 GdipClearPathMarkers (GpPath *path)
 {
 	int i;
-	BYTE current;
-	GByteArray *cleared;
 
 	if (!path)
 		return InvalidParameter;
 
-	/* shortcut to avoid allocations */
-	if (path->count == 0)
-		return Ok;
-
-	cleared = g_byte_array_new ();
-
 	for (i = 0; i < path->count; i++) {
-		current = g_array_index (path->types, BYTE, i);
-
-		/* take out the marker if there is one */
-		if (current & PathPointTypePathMarker)
-			current &= ~PathPointTypePathMarker;
-		
-		g_byte_array_append (cleared, &current, 1);
+		path->types[i] &= ~PathPointTypePathMarker;
 	}
-
-	/* replace the existing with the cleared array */
-	g_byte_array_free (path->types, TRUE);
-	path->types = cleared;
 
 	return Ok;
 }
@@ -625,47 +545,30 @@ GdipClearPathMarkers (GpPath *path)
  * Append old_types[start, end] to new_types, adjusting flags.
  */
 static void
-reverse_subpath_adjust_flags (int start, int end, GByteArray *old_types, GByteArray *new_types, BOOL *prev_had_marker)
+reverse_subpath_adjust_flags (int start, int end, BYTE *types, BOOL *prev_had_marker)
 {
 	BYTE t, prev_last;
 	int i;
 	
 	/* Copy all but PathPointTypeStart */
 	if (end != start)
-		g_byte_array_append (new_types, old_types->data + start + 1, end - start);
-	
+		memmove (types + start, types + start + 1, (end - start) * sizeof (BYTE));
+
 	/* Append PathPointTypeStart */
-	t = PathPointTypeStart;
-	g_byte_array_append (new_types, &t, 1);
-	
-	g_assert (new_types->len == end + 1);
-	
-	prev_last = g_array_index (old_types, BYTE, end);
-	
+	prev_last = types[end];
+	types[end] = PathPointTypeStart;
+
 	/* Remove potential flags from our future start point */
 	if (end != start)
-		new_types->data[end - 1] &= PathPointTypePathTypeMask;
+		types[end - 1] &= PathPointTypePathTypeMask;
 	/* Set the flags on our to-be-last point */
-	if (prev_last & PathPointTypeDashMode)
-		new_types->data[start] |= PathPointTypeDashMode;
-	if (prev_last & PathPointTypeCloseSubpath)
-		new_types->data[start] |= PathPointTypeCloseSubpath;
-	
-	/*
-	 * Swap markers
-	 */
-	for (i = start + 1; i < end; i++) {
-		if (g_array_index (old_types, BYTE, i - 1) & PathPointTypePathMarker)
-			new_types->data[i] |= PathPointTypePathMarker;
-		else
-			new_types->data[i] &= ~PathPointTypePathMarker;
-	}
-	
+	types[start] |= prev_last & (PathPointTypeDashMode | PathPointTypeCloseSubpath);
+
 	/* If the last point of the previous subpath had a marker, we inherit it */
 	if (*prev_had_marker)
-		new_types->data[start] |= PathPointTypePathMarker;
+		types[start] |= PathPointTypePathMarker;
 	else
-		new_types->data[start] &= ~PathPointTypePathMarker;
+		types[start] &= ~PathPointTypePathMarker;
 	
 	*prev_had_marker = ((prev_last & PathPointTypePathMarker) == PathPointTypePathMarker);
 }
@@ -689,37 +592,31 @@ GdipReversePath (GpPath *path)
 	/* PathTypes reversal */
 
 	/* First adjust the flags for each subpath */
-	types = g_byte_array_sized_new (length);
-	if (!types)
-		return OutOfMemory;
-
 	for (i = 1; i < length; i++) {
-		BYTE t = g_array_index (path->types, BYTE, i);
+		BYTE t = path->types[i];
 		if ((t & PathPointTypePathTypeMask) == PathPointTypeStart) {
-			reverse_subpath_adjust_flags (start, i - 1, path->types, types, &prev_had_marker);
+			reverse_subpath_adjust_flags (start, i - 1, path->types, &prev_had_marker);
 			start = i;
 		}
 	}
 	if (start < length - 1)
-		reverse_subpath_adjust_flags (start, length - 1, path->types, types, &prev_had_marker);
+		reverse_subpath_adjust_flags (start, length - 1, path->types, &prev_had_marker);
 
 	/* Then reverse the resulting array */
 	for (i = 0; i < (length >> 1); i++) {
-		BYTE *a = &g_array_index (types, BYTE, i);
-		BYTE *b = &g_array_index (types, BYTE, length - i - 1);
+		BYTE *a = path->types + i;
+		BYTE *b = path->types + length - i - 1;
 		BYTE temp = *a;
 		*a = *b;
 		*b = temp;
 	}
-	g_byte_array_free (path->types, TRUE);
-	path->types = types;
 
 	/* PathPoints reversal
 	 * note: if length is odd then the middle point doesn't need to switch side
 	 */
 	for (i = 0; i < (length >> 1); i++) {
-		GpPointF *first = &g_array_index (path->points, GpPointF, i);
-		GpPointF *last = &g_array_index (path->points, GpPointF, length - i - 1);
+		GpPointF *first = path->points + i;
+		GpPointF *last = path->points + length - i - 1;
 
 		GpPointF temp;
 		temp.X = first->X;
@@ -739,7 +636,7 @@ GdipGetPathLastPoint (GpPath *path, GpPointF *lastPoint)
 	if (!path || !lastPoint || (path->count <= 0))
 		return InvalidParameter;
 
-	*lastPoint = g_array_index (path->points, GpPointF, path->count - 1);
+	*lastPoint = path->points[path->count - 1];
 	return Ok;
 }
 
@@ -1223,7 +1120,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 		return OutOfMemory;
 	}
 
-	utf8 = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)string, -1);
+	utf8 = (BYTE*) ucs2_to_utf8 (string, -1);
 	if (!utf8) {
 		cairo_destroy (cr);
 		cairo_surface_destroy (cs);
@@ -1521,7 +1418,7 @@ GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count)
 /* nr_curve_flatten comes from Sodipodi's libnr (public domain) available from http://www.sodipodi.com/ */
 /* Mono changes: converted to float (from double), added recursion limit, use GArray */
 static BOOL
-nr_curve_flatten (float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, float flatness, int level, GArray *points)
+nr_curve_flatten (float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, float flatness, int level, GpPath *flat_path)
 {
 	float dx1_0, dy1_0, dx2_0, dy2_0, dx3_0, dy3_0, dx2_3, dy2_3, d3_0_2;
 	float s1_q, t1_q, s2_q, t2_q, v2_q;
@@ -1562,11 +1459,7 @@ nr_curve_flatten (float x0, float y0, float x1, float y1, float x2, float y2, fl
 
  nosubdivide:
 	{
-	GpPointF pt;
-
-	pt.X = x3;
-	pt.Y = y3;
-	g_array_append_val (points, pt);
+	append (flat_path, x3, y3, PathPointTypeLine, FALSE);
 	return TRUE;
 	}
  subdivide:
@@ -1585,52 +1478,36 @@ nr_curve_flatten (float x0, float y0, float x1, float y1, float x2, float y2, fl
 	xttt = (x0tt + x1tt) * 0.5;
 	yttt = (y0tt + y1tt) * 0.5;
 
-	if (!nr_curve_flatten (x0, y0, x00t, y00t, x0tt, y0tt, xttt, yttt, flatness, level+1, points)) return FALSE;
-	if (!nr_curve_flatten (xttt, yttt, x1tt, y1tt, x11t, y11t, x3, y3, flatness, level+1, points)) return FALSE;
+	if (!nr_curve_flatten (x0, y0, x00t, y00t, x0tt, y0tt, xttt, yttt, flatness, level+1, flat_path)) return FALSE;
+	if (!nr_curve_flatten (xttt, yttt, x1tt, y1tt, x11t, y11t, x3, y3, flatness, level+1, flat_path)) return FALSE;
 	return TRUE;
 }
 
 static BOOL
-gdip_convert_bezier_to_lines (GpPath *path, int index, float flatness, GArray *flat_points, GByteArray *flat_types)
+gdip_convert_bezier_to_lines (GpPath *path, int index, float flatness, GpPath *flat_path)
 {
-	GArray *points;
 	GpPointF start, first, second, end;
 	GpPointF pt;
 	BYTE type;
 	int i;
+	int points_len = 0;
+	int saved_count;
 
 	if ((index <= 0) || (index + 2 >= path->count))
 		return FALSE; /* bad path data */
 
-	start = g_array_index (path->points, GpPointF, index - 1);
-	first = g_array_index (path->points, GpPointF, index);
-	second = g_array_index (path->points, GpPointF, index + 1);
-	end = g_array_index (path->points, GpPointF, index + 2);
+	start = path->points[index - 1];
+	first = path->points[index];
+	second = path->points[index + 1];
+	end = path->points[index + 2];
 
-	/* we can't add points directly to the original list as we could end up with too much recursion */
-	points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
-	if (!nr_curve_flatten (start.X, start.Y, first.X, first.Y, second.X, second.Y, end.X, end.Y, flatness, 0, points)) {
+	saved_count = flat_path->count;
+	if (!nr_curve_flatten (start.X, start.Y, first.X, first.Y, second.X, second.Y, end.X, end.Y, flatness, 0, flat_path)) {
 		/* curved path is too complex (i.e. would result in too many points) to render as a polygon */
-		g_array_free (points, TRUE);
+		flat_path->count = saved_count;
 		return FALSE;
 	}
 
-	/* recursion was within limits, append the result to the original supplied list */
-	if (points->len > 0) {
-		g_array_append_val (flat_points, g_array_index (points, GpPointF, 0));
-		type = PathPointTypeLine;
-		g_byte_array_append (flat_types, &type, 1);
-	}
-
-	/* always PathPointTypeLine */
-	type = PathPointTypeLine;
-	for (i = 1; i < points->len; i++) {
-		pt = g_array_index (points, GpPointF, i);
-		g_array_append_val (flat_points, pt);
-		g_byte_array_append (flat_types, &type, 1);
-	}
-
-	g_array_free (points, TRUE);
 	return TRUE;
 }
 
@@ -1638,6 +1515,7 @@ GpStatus WINGDIPAPI
 GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 {
 	GpStatus status = Ok;
+	GpPath *flat_path;
 	GArray *points;
 	GByteArray *types;
 	int i;
@@ -1656,64 +1534,52 @@ GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 	if (!gdip_path_has_curve (path))
 		return status;
 
-	points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
-	types = g_byte_array_new ();
+	status = GdipCreatePath (path->fill_mode, &flat_path);
+	if (status != Ok)
+		return status;
 
 	/* Iterate the current path and replace each bezier with multiple lines */
 	for (i = 0; i < path->count; i++) {
-		GpPointF point = g_array_index (path->points, GpPointF, i);
-		BYTE type = g_array_index (path->types, BYTE, i);
+		GpPointF point = path->points[i];
+		BYTE type = path->types[i];
 
 		/* PathPointTypeBezier3 has the same value as PathPointTypeBezier */
 		if ((type & PathPointTypeBezier) == PathPointTypeBezier) {
-			if (!gdip_convert_bezier_to_lines (path, i, fabs (flatness), points, types)) {
+			if (!gdip_convert_bezier_to_lines (path, i, fabs (flatness), flat_path)) {
 				/* uho, too much recursion - do not pass go, do not collect 200$ */
 				GpPointF pt;
 
 				/* free the the partial flat */
-				g_array_free (points, TRUE);
-				g_byte_array_free (types, TRUE);
+				GdipResetPath (flat_path);
 
 				/* mimic MS behaviour when recursion becomes a problem */
 				/* note: it's not really an empty rectangle as the last point isn't closing */
-				points = g_array_new (FALSE, FALSE, sizeof (GpPointF));
-				types = g_byte_array_new ();
 
-				pt.X = pt.Y = 0;
-				type = PathPointTypeStart;
-				g_array_append_val (points, pt);
-				g_byte_array_append (types, &type, 1);
-
-				type = PathPointTypeLine;
-				g_array_append_val (points, pt);
-				g_byte_array_append (types, &type, 1);
-
-				g_array_append_val (points, pt);
-				g_byte_array_append (types, &type, 1);
-
-				g_array_append_val (points, pt);
-				g_byte_array_append (types, &type, 1);
+				append (flat_path, 0, 0, PathPointTypeStart, FALSE);
+				append (flat_path, 0, 0, PathPointTypeLine, FALSE);
+				append (flat_path, 0, 0, PathPointTypeLine, FALSE);
+				append (flat_path, 0, 0, PathPointTypeLine, FALSE);
 				break;
 			}
 			/* beziers have 4 points: the previous one, the current and the next two */
 			i += 2;
 		} else {
 			/* no change required, just copy the point */
-			g_array_append_val (points, point);
-			g_byte_array_append (types, &type, 1);
+			append_point(flat_path, point, type, FALSE);
 		}
 	}
 
 	/* free original path points and types */
 	if (path->points != NULL)
-		g_array_free (path->points, TRUE);
+		GdipFree (path->points);
 	if (path->types != NULL)
-		g_byte_array_free (path->types, TRUE);
+		GdipFree (path->types);
 
 	/* transfer new path informations */
-	path->points = points;
-	path->types = types;
-	path->count = points->len;
+	path->points = flat_path->points;
+	path->types = flat_path->types;
+	path->count = flat_path->count;
+	path->size = flat_path->size;
 
 	/* note: no error code is given for excessive recursion */
 	return Ok;
@@ -1824,34 +1690,17 @@ GdipWarpPath (GpPath *path, GpMatrix *matrix, const GpPointF *points, int count,
 GpStatus WINGDIPAPI 
 GdipTransformPath (GpPath* path, GpMatrix *matrix)
 {
-	PointF *points;
-	int count;
-	GpStatus s;
-
 	if (!path)
 		return InvalidParameter;
 
-	count = path->count;
-	if (count == 0)
+	if (path->count == 0)
 		return Ok; /* GdipTransformMatrixPoints would fail */
 
 	/* avoid allocation/free/calculation for null/identity matrix */
 	if (gdip_is_matrix_empty (matrix))
 		return Ok;
 
-	points = g_array_to_array (path->points);
-	if (!points)
-		return OutOfMemory;
-
-	s = GdipTransformMatrixPoints (matrix, points, count);
-
-	path->points = array_to_g_array (points, count);
-
-	GdipFree (points);
-	if (!path->points)
-		return OutOfMemory;
-
-	return s;
+	return GdipTransformMatrixPoints (matrix, path->points, path->count);
 }
 
 GpStatus WINGDIPAPI 
@@ -1890,7 +1739,7 @@ GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, c
 		int i;
 		GpPointF points;
 
-		points = g_array_index (workpath->points, GpPointF, 0);
+		points = workpath->points[0];
 		bounds->X = points.X;		/* keep minimum X here */
 		bounds->Y = points.Y;		/* keep minimum Y here */
 		if (workpath->count == 1) {
@@ -1905,7 +1754,7 @@ GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, c
 		bounds->Height = points.Y;	/* keep maximum Y here */
 
 		for (i = 1; i < workpath->count; i++) {
-			points = g_array_index (workpath->points, GpPointF, i);
+			points = workpath->points[i];
 			if (points.X < bounds->X)
 				bounds->X = points.X;
 			if (points.Y < bounds->Y)

@@ -425,8 +425,8 @@ gdip_plot_path (GpGraphics *graphics, GpPath *path, BOOL antialiasing)
 	int i, idx = 0;
 
 	for (i = 0; i < length; ++i) {
-		GpPointF pt = g_array_index (path->points, GpPointF, i);
-		BYTE type = g_array_index (path->types, BYTE, i);
+		GpPointF pt = path->points[i];
+		BYTE type = path->types[i];
 		GpPointF pts [3];
 
 		/* mask the bits so that we get only the type value not the other flags */

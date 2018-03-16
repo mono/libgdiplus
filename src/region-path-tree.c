@@ -240,13 +240,13 @@ gdip_region_serialize_tree (GpPathTree *tree, BYTE *buffer, UINT bufferSize, UIN
 		buffer += len;
 		*sizeFilled += len;
 		/* types */
-		len = tree->path->types->len;
-		memcpy (buffer, tree->path->types->data, len);
-		buffer += tree->path->types->len;
+		len = tree->path->count;
+		memcpy (buffer, tree->path->types, len);
+		buffer += len;
 		*sizeFilled += len;
 		/* points */
-		len = tree->path->points->len * sizeof (GpPointF);
-		memcpy (buffer, tree->path->points->data, len);
+		len = tree->path->count * sizeof (GpPointF);
+		memcpy (buffer, tree->path->points, len);
 		buffer += len;
 		*sizeFilled += len;
 	} else {
@@ -319,7 +319,7 @@ gdip_region_translate_tree (GpPathTree *tree, float dx, float dy)
 	if (tree->path) {
 		int i;
 		for (i = 0; i < tree->path->count; i++) {
-			GpPointF *point = &g_array_index (tree->path->points, GpPointF, i);
+			GpPointF *point = tree->path->points + i;
 			point->X += dx;
 			point->Y += dy;
 		}
