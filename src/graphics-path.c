@@ -1595,6 +1595,9 @@ gdip_convert_bezier_to_lines (GpPath *path, int index, float flatness, GpPath *f
 	second = path->points[index + 1];
 	end = path->points[index + 2];
 
+	if (!gdip_path_ensure_size (path, path->count + (1 << FLATTEN_RECURSION_LIMIT)))
+		return FALSE;
+
 	saved_count = flat_path->count;
 	if (!nr_curve_flatten (start.X, start.Y, first.X, first.Y, second.X, second.Y, end.X, end.Y, flatness, 0, flat_path)) {
 		/* curved path is too complex (i.e. would result in too many points) to render as a polygon */
@@ -1646,6 +1649,11 @@ GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 				/* free the the partial flat */
 				GdipResetPath (flat_path);
 
+				if (!gdip_path_ensure_size (flat_path, flat_path->count + 4)) {
+					GdipDeletePath (flat_path);					
+					return OutOfMemory;
+				}
+
 				/* mimic MS behaviour when recursion becomes a problem */
 				/* note: it's not really an empty rectangle as the last point isn't closing */
 
@@ -1658,6 +1666,11 @@ GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 			/* beziers have 4 points: the previous one, the current and the next two */
 			i += 2;
 		} else {
+			if (!gdip_path_ensure_size (flat_path, flat_path->count + 1)) {
+				GdipDeletePath (flat_path);					
+				return OutOfMemory;
+			}
+
 			/* no change required, just copy the point */
 			append_point(flat_path, point, type, FALSE);
 		}
@@ -1667,13 +1680,14 @@ GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 	if (path->points != NULL)
 		GdipFree (path->points);
 	if (path->types != NULL)
-		GdipFree (path->types);
+		GdipFree (path->types);	
 
 	/* transfer new path informations */
 	path->points = flat_path->points;
 	path->types = flat_path->types;
 	path->count = flat_path->count;
 	path->size = flat_path->size;
+	GdipFree (flat_path);
 
 	/* note: no error code is given for excessive recursion */
 	return Ok;
