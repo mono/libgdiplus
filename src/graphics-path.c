@@ -223,6 +223,7 @@ GdipCreatePath (FillMode fillMode, GpPath **path)
 
 	result->types = g_byte_array_new ();
 	if (!result->types) {
+		GdipFree (result->points);
 		GdipFree (result);
 		return OutOfMemory;
 	}
