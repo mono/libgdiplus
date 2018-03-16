@@ -33,29 +33,27 @@
 	#include "text-pango-private.h"
 #endif
 
-VOID
+BOOL
 gdip_path_ensure_size (GpPath *path, int size)
 {
+	BYTE *new_types;
+	GpPointF *new_points;
+
 	if (path->size < size) {
 		if (size < path->size + 64)
 			size = path->size + 64;
-		path->types = gdip_realloc (path->types, size * sizeof (BYTE));
-		path->points = gdip_realloc (path->points, size * sizeof (GpPointF));
-		// TODO: Handle allocation failure
+		new_types = gdip_realloc (path->types, size * sizeof (BYTE));
+		if (!new_types)
+			return FALSE;
+		path->types = new_types;
+		new_points = gdip_realloc (path->points, size * sizeof (GpPointF));
+		if (!new_points)
+			return FALSE;
+		path->points = new_points;
 		path->size = size;
 	}
-}
 
-VOID
-gdip_path_compact (GpPath *path)
-{
-	if (path->size > path->count + 64) {
-		int size = (path->count + 63) & ~63;
-		path->types = gdip_realloc (path->types, size * sizeof (BYTE));
-		path->points = gdip_realloc (path->points, size * sizeof (GpPointF));
-		// TODO: Handle allocation failure
-		path->size = size;
-	}
+	return TRUE;
 }
 
 /* return TRUE if the specified path has (at least one) curves, FALSE otherwise */
@@ -95,7 +93,7 @@ gdip_get_first_point_type (GpPath *path)
 		return PathPointTypeLine;
 }
 
-static void
+static VOID
 append (GpPath *path, float x, float y, PathPointType type, BOOL compress)
 {
 	BYTE t = (BYTE) type;
@@ -125,21 +123,23 @@ append (GpPath *path, float x, float y, PathPointType type, BOOL compress)
 	pt.X = x;
 	pt.Y = y;
 
-	gdip_path_ensure_size (path, path->count + 1);
+	/* all external APIs resize the buffers beforehand and fail gracefully */
+	if (!gdip_path_ensure_size (path, path->count + 1))
+		g_assert(FALSE);
+
 	path->points[path->count] = pt;
 	path->types[path->count] = t;
 	path->count++;
-
 	path->start_new_fig = FALSE;
 }
 
-static void
+static VOID
 append_point (GpPath *path, GpPointF pt, PathPointType type, BOOL compress)
 {
 	append (path, pt.X, pt.Y, type, compress);
 }
 
-static void
+static VOID
 append_bezier (GpPath *path, float x1, float y1, float x2, float y2, float x3, float y3)
 {
 	append (path, x1, y1, PathPointTypeBezier3, FALSE);
@@ -147,7 +147,7 @@ append_bezier (GpPath *path, float x1, float y1, float x2, float y2, float x3, f
 	append (path, x3, y3, PathPointTypeBezier3, FALSE);
 }
 
-static void
+static VOID
 append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int offset, int length, _CurveType type)
 {
 	int i;
@@ -202,20 +202,9 @@ GdipCreatePath (FillMode fillMode, GpPath **path)
 		return OutOfMemory;
 
 	result->fill_mode = fillMode;
-	result->size = 64;
-	result->points = GdipAlloc (sizeof (GpPointF) * result->size);
-	if (!result->points) {
-		GdipFree (result);
-		return OutOfMemory;
-	}
-
-	result->types = GdipAlloc (sizeof (BYTE) * result->size);
-	if (!result->types) {
-		GdipFree (result->points);
-		GdipFree (result);
-		return OutOfMemory;
-	}
-
+	result->size = 0;
+	result->points = NULL;
+	result->types = NULL;
 	result->count = 0;
 	result->start_new_fig = TRUE;
 
@@ -260,6 +249,9 @@ GdipCreatePath2 (const GpPointF *points, const BYTE *types, int count, FillMode 
 		GdipFree (new_path);
 		return OutOfMemory;
 	}
+
+	memcpy (new_path->points, points, sizeof (GpPointF) * count);
+	memcpy (new_path->types, types, sizeof (BYTE) * count);
 
 	*path = new_path;
 	
@@ -358,7 +350,13 @@ GdipResetPath (GpPath *path)
 	path->count = 0;
 	path->fill_mode = FillModeAlternate;
 	path->start_new_fig = TRUE;
-	gdip_path_compact(path);
+	path->size = 0;
+	if (path->points != NULL)
+		GdipFree (path->points);
+	if (path->types != NULL)
+		GdipFree (path->types);
+	path->points = NULL;
+	path->types = NULL;
 
 	return Ok;
 }
@@ -646,6 +644,9 @@ GdipAddPathLine (GpPath *path, float x1, float y1, float x2, float y2)
 	if (!path)
 		return InvalidParameter;
 
+	if (!gdip_path_ensure_size (path, path->count + 2))
+		return OutOfMemory;
+
 	/* only the first point can be compressed (i.e. removed if identical to previous) */
 	append (path, x1, y1, PathPointTypeLine, TRUE);
 	append (path, x2, y2, PathPointTypeLine, FALSE);
@@ -662,6 +663,9 @@ GdipAddPathLine2 (GpPath *path, const GpPointF *points, int count)
 	if (!path || !points || (count < 0))
 		return InvalidParameter;
 
+	if (!gdip_path_ensure_size (path, path->count + count))
+		return OutOfMemory;
+
 	/* only the first point can be compressed (i.e. removed if identical to previous) */
 	for (i = 0, tmp = (GpPointF*) points; i < count; i++, tmp++)
 		append (path, tmp->X, tmp->Y, PathPointTypeLine, (i == 0));
@@ -669,7 +673,7 @@ GdipAddPathLine2 (GpPath *path, const GpPointF *points, int count)
 	return Ok;
 }
 
-static void
+static VOID
 append_arc (GpPath *path, BOOL start, float x, float y, float width, float height, float startAngle, float endAngle)
 {
 	float delta, bcp;
@@ -723,7 +727,47 @@ append_arc (GpPath *path, BOOL start, float x, float y, float width, float heigh
 		cy + ry *  sin_beta);
 }
 
-static void
+static int
+count_arcs_points (GpPath *path, float x, float y, float width, float height, float startAngle, float sweepAngle)
+{
+	int i;
+	float drawn = 0;
+	int increment;
+	float endAngle;
+	int count = 1;
+
+	if (fabs (sweepAngle) >= 360)
+		return 13;
+
+	endAngle = startAngle + sweepAngle;
+	increment = (endAngle < startAngle) ? -90 : 90;
+
+	/* i is the number of sub-arcs drawn, each sub-arc can be at most 90 degrees.*/
+	/* there can be no more then 4 subarcs, ie. 90 + 90 + 90 + (something less than 90) */
+	for (i = 0; i < 4; i++) {
+		float current = startAngle + drawn;
+		float additional;
+
+		additional = endAngle - current; /* otherwise, add the remainder */
+		if (fabs (additional) > 90) {
+			additional = increment;
+		} else {
+			/* a near zero value will introduce bad artefact in the drawing (#78999) */
+			if (gdip_near_zero (additional))
+				return count;
+			count += 3;
+			return count;
+		}
+
+		count += 3;
+		drawn += additional;
+	}
+		
+	return count;
+}
+
+
+static VOID
 append_arcs (GpPath *path, float x, float y, float width, float height, float startAngle, float sweepAngle)
 {
 	int i;
@@ -771,8 +815,14 @@ GpStatus WINGDIPAPI
 GdipAddPathArc (GpPath *path, float x, float y, 
 		float width, float height, float startAngle, float sweepAngle)
 {
+	int point_count;
+
 	if (!path)
 		return InvalidParameter;
+
+	point_count = count_arcs_points (path, x, y, width, height, startAngle, sweepAngle);
+	if (!gdip_path_ensure_size (path, path->count + point_count))
+		return OutOfMemory;
 
 	/* draw the arcs */
 	append_arcs (path, x, y, width, height, startAngle, sweepAngle);
@@ -787,6 +837,9 @@ GdipAddPathBezier (GpPath *path,
 {
 	if (!path)
 		return InvalidParameter;
+
+	if (!gdip_path_ensure_size (path, path->count + 4))
+		return OutOfMemory;
 
 	append (path, x1, y1, PathPointTypeLine, TRUE);
 	append_bezier (path, x2, y2, x3, y3, x4, y4);
@@ -806,6 +859,9 @@ GdipAddPathBeziers (GpPath *path, const GpPointF *points, int count)
 	/* first bezier requires 4 points, other 3 more points */
 	if ((count < 4) || ((count % 3) != 1))
 		return InvalidParameter;
+
+	if (!gdip_path_ensure_size (path, path->count + count))
+		return OutOfMemory;
 
 	append_point (path, *tmp, PathPointTypeLine, TRUE);
 	tmp++;
@@ -835,6 +891,9 @@ GdipAddPathCurve2 (GpPath *path, const GpPointF *points, int count, float tensio
 	if (!tangents)
 		return OutOfMemory;
 
+	if (!gdip_path_ensure_size (path, path->count + (3 * (count - 1)) + 1))
+		return OutOfMemory;
+
 	append_curve (path, points, tangents, 0, count - 1, CURVE_OPEN);
 
 	GdipFree (tangents);
@@ -862,6 +921,9 @@ GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count,
 	if (!tangents)
 		return OutOfMemory;
 
+	if (!gdip_path_ensure_size (path, path->count + (3 * numberOfSegments) + 1))
+		return OutOfMemory;
+
 	append_curve (path, points, tangents, offset, numberOfSegments, CURVE_OPEN);
 
 	GdipFree (tangents);
@@ -887,6 +949,9 @@ GdipAddPathClosedCurve2 (GpPath *path, const GpPointF *points, int count, float 
 	if (!tangents)
 		return OutOfMemory;
 
+	if (!gdip_path_ensure_size (path, path->count + (3 * count) + 1))
+		return OutOfMemory;
+
 	append_curve (path, points, tangents, 0, count - 1, CURVE_CLOSE);
 
 	/* close the path */
@@ -905,6 +970,9 @@ GdipAddPathRectangle (GpPath *path, float x, float y, float width, float height)
 	if ((width == 0.0) || (height == 0.0))
 		return Ok;
 
+	if (!gdip_path_ensure_size (path, path->count + 4))
+		return OutOfMemory;
+
 	append (path, x, y, PathPointTypeStart, FALSE);
 	append (path, x + width, y, PathPointTypeLine, FALSE);
 	append (path, x + width, y + height, PathPointTypeLine, FALSE);
@@ -920,6 +988,9 @@ GdipAddPathRectangles (GpPath *path, const GpRectF *rects, int count)
 
 	if (!path || !rects)
 		return InvalidParameter;
+
+	if (!gdip_path_ensure_size (path, path->count + (4 * count)))
+		return OutOfMemory;
 
 	for (i = 0; i < count; i++) {
 		float x = rects[i].X;
@@ -942,6 +1013,9 @@ GdipAddPathEllipse (GpPath *path, float x, float y, float width, float height)
 
 	if (!path)
 		return InvalidParameter;
+
+	if (!gdip_path_ensure_size (path, path->count + 13))
+		return OutOfMemory;
 
 	/* origin */
 	append (path, cx + rx, cy, PathPointTypeStart, FALSE);
@@ -979,6 +1053,8 @@ GdipAddPathEllipse (GpPath *path, float x, float y, float width, float height)
 GpStatus WINGDIPAPI
 GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float startAngle, float sweepAngle)
 {
+	int point_count;
+
 	float sin_alpha, cos_alpha;
 
 	float rx = width / 2;
@@ -999,6 +1075,12 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
 
 	if (!path)
 		return InvalidParameter;
+
+	point_count = count_arcs_points (path, x, y, width, height, startAngle, sweepAngle) + 1;
+	if (fabs (sweepAngle) < 360)
+		point_count += 2;
+	if (!gdip_path_ensure_size (path, path->count + point_count))
+		return OutOfMemory;
 
 	/* move to center */
 	append (path, cx, cy, PathPointTypeStart, FALSE);
@@ -1026,6 +1108,9 @@ GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
 
 	if (!path || !points || (count < 3))
 		return InvalidParameter;
+
+	if (!gdip_path_ensure_size (path, path->count + count + 1))
+		return OutOfMemory;
 
 	/* note: polygon points are never compressed (i.e. removed if identical) */
 
@@ -1057,34 +1142,18 @@ GdipAddPathPath (GpPath *path, GDIPCONST GpPath *addingPath, BOOL connect)
 	if (!path || !addingPath)
 		return InvalidParameter;
 
-	length = addingPath->count;
-	if (length < 1)
-		return Ok;
-	
-	pts = gdip_calloc (sizeof (GpPointF), length);
-	if (!pts)
+	if (!gdip_path_ensure_size (path, path->count + addingPath->count))
 		return OutOfMemory;
-	types = gdip_calloc (sizeof (BYTE), length);
-	if (!types) {
-		GdipFree (pts);
-		return OutOfMemory;
-	}
 
-	GdipGetPathPoints ((GpPath*)addingPath, pts, length);
-	GdipGetPathTypes ((GpPath*)addingPath, types, length);
+	memcpy (path->types + path->count, addingPath->types, sizeof (BYTE) * addingPath->count);
+	memcpy (path->points + path->count, addingPath->points, sizeof (GpPointF) * addingPath->count);
 
 	/* We can connect only open figures. If first figure is closed
 	 * it can't be connected.
 	 */
-	first = connect ? gdip_get_first_point_type (path) : PathPointTypeStart;
-
-	append_point (path, pts [0], first, FALSE); 
-
-	for (i = 1; i < length; i++)
-		append_point (path, pts [i], types [i], FALSE);
-
-	GdipFree(pts);
-	GdipFree(types);
+	path->types[path->count] = connect ? gdip_get_first_point_type (path) : PathPointTypeStart;
+	path->start_new_fig = FALSE;
+	path->count += addingPath->count;
 
 	return Ok;
 }
@@ -1163,31 +1232,47 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 #endif
 
 	/* get the font data from the cairo path and translate it as a gdi+ path */
+	status = Ok;
 	cp = cairo_copy_path (cr);
 	if (cp) {
 		int i;
+		int count = 0;
 		for (i=0; i < cp->num_data; i += cp->data[i].header.length) {
-			PathPointType type = PathPointTypeStart;
 			cairo_path_data_t *data = &cp->data[i];
-
-			if ((i < cp->num_data - 1) && (data->header.type == CAIRO_PATH_CLOSE_PATH))
-				type |= PathPointTypeCloseSubpath;
-
 			switch (data->header.type) {
-			case CAIRO_PATH_MOVE_TO:
-				append (path, data[1].point.x, data[1].point.y, type, FALSE);
-				break;
-			case CAIRO_PATH_LINE_TO:
-				append (path, data[1].point.x, data[1].point.y, type | PathPointTypeLine, FALSE);
-				break;
-			case CAIRO_PATH_CURVE_TO:
-				append (path, data[1].point.x, data[1].point.y, PathPointTypeBezier, FALSE);
-				append (path, data[2].point.x, data[2].point.y, PathPointTypeBezier, FALSE);
-				append (path, data[3].point.x, data[3].point.y, type | PathPointTypeBezier, FALSE);
-				break;
-			case CAIRO_PATH_CLOSE_PATH:
-				break;
+			case CAIRO_PATH_MOVE_TO: count++; break;
+			case CAIRO_PATH_LINE_TO: count++; break;
+			case CAIRO_PATH_CURVE_TO: count += 3; break;
+			case CAIRO_PATH_CLOSE_PATH: break;
 			}
+		}
+
+		if (gdip_path_ensure_size (path, path->count + count)) {
+			for (i=0; i < cp->num_data; i += cp->data[i].header.length) {
+				PathPointType type = PathPointTypeStart;
+				cairo_path_data_t *data = &cp->data[i];
+
+				if ((i < cp->num_data - 1) && (data->header.type == CAIRO_PATH_CLOSE_PATH))
+					type |= PathPointTypeCloseSubpath;
+
+				switch (data->header.type) {
+				case CAIRO_PATH_MOVE_TO:
+					append (path, data[1].point.x, data[1].point.y, type, FALSE);
+					break;
+				case CAIRO_PATH_LINE_TO:
+					append (path, data[1].point.x, data[1].point.y, type | PathPointTypeLine, FALSE);
+					break;
+				case CAIRO_PATH_CURVE_TO:
+					append (path, data[1].point.x, data[1].point.y, PathPointTypeBezier, FALSE);
+					append (path, data[2].point.x, data[2].point.y, PathPointTypeBezier, FALSE);
+					append (path, data[3].point.x, data[3].point.y, type | PathPointTypeBezier, FALSE);
+					break;
+				case CAIRO_PATH_CLOSE_PATH:
+					break;
+				}
+			}
+		} else {
+			status = OutOfMemory;
 		}
 
 		cairo_path_destroy (cp);
@@ -1199,7 +1284,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	GdipFree (utf8);
 	cairo_destroy (cr);
 	cairo_surface_destroy (cs);
-	return Ok;
+	return status;
 }
 
 /* MonoTODO - same limitations as GdipAddString */
@@ -1236,6 +1321,9 @@ GdipAddPathLine2I (GpPath* path, const GpPoint *points, int count)
 	if (!path || !points || (count < 0))
 		return InvalidParameter;
 
+	if (!gdip_path_ensure_size (path, path->count + count))
+		return OutOfMemory;
+
 	/* only the first point can be compressed (i.e. removed if identical to previous) */
 	for (i = 0, tmp = (GpPoint*) points; i < count; i++, tmp++)
 		append (path, tmp->X, tmp->Y, PathPointTypeLine, (i == 0));
@@ -1267,6 +1355,9 @@ GdipAddPathBeziersI (GpPath *path, const GpPoint *points, int count)
 	/* first bezier requires 4 points, other 3 more points */
 	if ((count < 4) || ((count % 3) != 1))
 		return InvalidParameter;
+
+	if (!gdip_path_ensure_size (path, path->count + count))
+		return OutOfMemory;
 
 	tmp = (GpPoint*) points;
 	append (path, tmp->X, tmp->Y, PathPointTypeLine, TRUE);
@@ -1394,6 +1485,9 @@ GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count)
 
 	if (!path || !points || (count < 3))
 		return InvalidParameter;
+
+	if (!gdip_path_ensure_size (path, path->count + count + 1))
+		return OutOfMemory;
 
 	/* note: polygon points are never compressed (i.e. removed if identical) */
 
