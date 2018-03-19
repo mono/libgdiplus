@@ -27,7 +27,8 @@
  */
 
 #include "config.h"
-#include "gdiplus-private.h"
+#include "codecs-private.h"
+#include "gifcodec.h"
 
 GUID gdip_gif_image_format_guid = {0xb96b3cb0U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 
@@ -1134,3 +1135,27 @@ gdip_load_gif_image_from_stream_delegate (GetBytesDelegate getBytesFunc, SeekDel
 }
 
 #endif
+
+GpStatus
+gdip_fill_encoder_parameter_list_gif (EncoderParameters *buffer, UINT size)
+{
+	GifEncoderParameters *gifBuffer = (GifEncoderParameters *) buffer;
+
+	if (!buffer || size != sizeof (GifEncoderParameters))
+		return InvalidParameter;
+	
+	gifBuffer->count = 2;
+
+	gifBuffer->imageItems.Guid = GdipEncoderImageItems;
+	gifBuffer->imageItems.NumberOfValues = 0;
+	gifBuffer->imageItems.Type = 9; // Undocumented type.
+	gifBuffer->imageItems.Value = NULL;
+
+	gifBuffer->saveFlag.Guid = GdipEncoderSaveFlag;
+	gifBuffer->saveFlag.NumberOfValues = 1;
+	gifBuffer->saveFlag.Type = EncoderParameterValueTypeLong;
+	gifBuffer->saveFlagValue = EncoderValueMultiFrame;
+	gifBuffer->saveFlag.Value = &gifBuffer->saveFlagValue;
+
+	return Ok;
+}

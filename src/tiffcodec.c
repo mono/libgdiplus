@@ -29,7 +29,8 @@
  */
 
 #include "config.h"
-#include "gdiplus-private.h"
+#include "codecs-private.h"
+#include "tiffcodec.h"
 
 GUID gdip_tif_image_format_guid = {0xb96b3cb1U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 
@@ -41,8 +42,6 @@ GUID gdip_tif_image_format_guid = {0xb96b3cb1U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 #ifdef HAVE_BYTESWAP_H
 #include <byteswap.h>
 #endif
-
-#include "tiffcodec.h"
 
 #ifndef TIFFTAG_EXIFIFD
 #define	TIFFTAG_EXIFIFD	34665
@@ -1350,3 +1349,48 @@ gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
     return UnknownImageFormat;
 }
 #endif
+
+GpStatus
+gdip_fill_encoder_parameter_list_tiff (EncoderParameters *buffer, UINT size)
+{
+	TiffEncoderParameters *tiffBuffer = (TiffEncoderParameters *) buffer;
+
+	if (!buffer || size != sizeof (TiffEncoderParameters))
+		return InvalidParameter;
+
+	tiffBuffer->count = 4;
+
+	tiffBuffer->compression.Guid = GdipEncoderCompression;
+	tiffBuffer->compression.NumberOfValues = 5;
+	tiffBuffer->compression.Type = EncoderParameterValueTypeLong;
+	tiffBuffer->compressionData[0] = EncoderValueCompressionLZW;
+	tiffBuffer->compressionData[1] = EncoderValueCompressionCCITT3;
+	tiffBuffer->compressionData[2] = EncoderValueCompressionRle;
+	tiffBuffer->compressionData[3] = EncoderValueCompressionCCITT4;
+	tiffBuffer->compressionData[4] = EncoderValueCompressionNone;
+	tiffBuffer->compression.Value = &tiffBuffer->compressionData;
+
+	tiffBuffer->colorDepth.Guid = GdipEncoderColorDepth;
+	tiffBuffer->colorDepth.NumberOfValues = 5;
+	tiffBuffer->colorDepth.Type = EncoderParameterValueTypeLong;
+	tiffBuffer->colorDepthData[0] = 1;
+	tiffBuffer->colorDepthData[1] = 4;
+	tiffBuffer->colorDepthData[2] = 8;
+	tiffBuffer->colorDepthData[3] = 24;
+	tiffBuffer->colorDepthData[4] = 32;
+	tiffBuffer->colorDepth.Value = &tiffBuffer->colorDepthData;
+
+	tiffBuffer->saveFlag.Guid = GdipEncoderSaveFlag;
+	tiffBuffer->saveFlag.NumberOfValues = 1;
+	tiffBuffer->saveFlag.Type = EncoderParameterValueTypeLong;
+	tiffBuffer->saveFlagValue = EncoderValueMultiFrame;
+	tiffBuffer->saveFlag.Value = &tiffBuffer->saveFlagValue;
+
+	tiffBuffer->saveAsCYMK.Guid = GdipEncoderSaveAsCMYK;
+	tiffBuffer->saveAsCYMK.NumberOfValues = 1;
+	tiffBuffer->saveAsCYMK.Type = EncoderParameterValueTypeLong;
+	tiffBuffer->saveAsCYMKValue = 1;
+	tiffBuffer->saveAsCYMK.Value = &tiffBuffer->saveAsCYMKValue;
+
+	return Ok;
+}

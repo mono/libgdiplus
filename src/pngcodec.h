@@ -26,4 +26,12 @@ GpStatus gdip_save_png_image_to_stream_delegate (PutBytesDelegate putBytesFunc, 
 
 ImageCodecInfo *gdip_getcodecinfo_png () GDIP_INTERNAL;
 
+GpStatus gdip_fill_encoder_parameter_list_png (EncoderParameters *buffer, UINT size) GDIP_INTERNAL;
+
+typedef struct
+{
+  UINT count;
+  EncoderParameter imageItems;
+} PngEncoderParameters;
+
 #endif /* _PNGCODEC_H */
