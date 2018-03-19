@@ -572,6 +572,28 @@ gdip_metafile_Arc (MetafilePlayContext *context, int left, int top, int right, i
 		(right - left), (bottom - top), atan2 (ystart, xstart), atan2 (yend, xend));
 }
 
+/* http://wvware.sourceforge.net/caolan/Rectangle.html */
+GpStatus
+gdip_metafile_Rectangle (MetafilePlayContext *context, int bottomRect, int rightRect, int topRect, int leftRect)
+{
+	GpStatus status;
+	int x = min (leftRect, rightRect);
+	int y = min (topRect, bottomRect);
+	int width = abs (rightRect - leftRect);
+	int height = abs (bottomRect - topRect);
+
+#ifdef DEBUG_METAFILE
+	printf ("Rectangle bottom %d, right %d, top %d, left %d", 
+		bottomRect, rightRect, topRect, leftRect);
+#endif
+
+	status = GdipFillRectangleI (context->graphics, gdip_metafile_GetSelectedBrush (context), x, y, width, height);
+	if (status != Ok)
+		return status;
+
+	return GdipDrawRectangleI (context->graphics, gdip_metafile_GetSelectedPen (context), x, y, width, height);
+}
+
 
 /* http://wvware.sourceforge.net/caolan/ora-wmf.html */
 GpStatus

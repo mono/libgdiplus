@@ -103,8 +103,8 @@ GpStatus WINGDIPAPI GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, 
 GpStatus WINGDIPAPI GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count, REAL tension);
 GpStatus WINGDIPAPI GdipFillEllipse (GpGraphics *graphics, GpBrush *brush, REAL x, REAL y, REAL width, REAL height);
 GpStatus WINGDIPAPI GdipFillEllipseI (GpGraphics *graphics, GpBrush *brush, INT x, INT y, INT width, INT height);
-GpStatus WINGDIPAPI GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, REAL x1, REAL y1, REAL x2, REAL y2);
-GpStatus WINGDIPAPI GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush, INT x1, INT y1, INT x2, INT y2);
+GpStatus WINGDIPAPI GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, REAL x, REAL y, REAL width, REAL height);
+GpStatus WINGDIPAPI GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush, INT x, INT y, INT width, INT height);
 GpStatus WINGDIPAPI GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rects, INT count);
 GpStatus WINGDIPAPI GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect *rects, INT count);
 GpStatus WINGDIPAPI GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count, FillMode fillMode);

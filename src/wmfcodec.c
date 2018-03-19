@@ -354,7 +354,11 @@ gdip_metafile_play_wmf (MetafilePlayContext *context)
 			status = gdip_metafile_Arc (context, GETS(WP1), GETS(WP2), GETS(WP3), GETS(WP4), GETS(WP5), GETS(WP6),
 				GETS(WP7), GETS(WP8));
 			break;
-		case METAFILE_RECORD_STRETCHDIBITS: {
+		case METAFILE_RECORD_RECTANGLE:
+			WMF_CHECK_PARAMS (4);
+			status = gdip_metafile_Rectangle (context, GETS (WP1), GETS (WP2), GETS (WP3), GETS (WP4));
+			break;
+		case METAFILE_RECORD_STRETCHDIB: {
 			WMF_CHECK_PARAMS(14);
 			BITMAPINFO *bmi = (BITMAPINFO*) (data + 14 * sizeof (WORD));
 			void* bits = (void*) (bmi + GETDW(WP12));
