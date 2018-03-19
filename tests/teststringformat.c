@@ -353,7 +353,8 @@ static void test_setStringFormatTabStops ()
 	GpStatus status;
 	GpStringFormat *format;
 	REAL firstTabOffset;
-	REAL tabStops[4] = {1, 0, 2, 3};
+	REAL tabStops1[4] = {1, 0, 2, 3};
+	REAL tabStops2[4] = {3, 2, 0, 1};
 	REAL oneTabStop[1] = {0};
 	REAL negativeValueInTabStops[4] = {1, -1};
 	REAL formatTabStops[4];
@@ -361,7 +362,7 @@ static void test_setStringFormatTabStops ()
 	GdipCreateStringFormat (10, 11, &format);
 
 	// Count of 4.
-	status = GdipSetStringFormatTabStops (format, 10, 4, tabStops);
+	status = GdipSetStringFormatTabStops (format, 10, 4, tabStops1);
 	assertEqualInt (status, Ok);
 
 	GdipGetStringFormatTabStops (format, 4, &firstTabOffset, formatTabStops);
@@ -370,6 +371,17 @@ static void test_setStringFormatTabStops ()
 	assertEqualFloat (formatTabStops[1], 0);
 	assertEqualFloat (formatTabStops[2], 2);
 	assertEqualFloat (formatTabStops[3], 3);
+
+	// Count of 4 again.
+	status = GdipSetStringFormatTabStops (format, FLT_MAX, 4, tabStops2);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatTabStops (format, 4, &firstTabOffset, formatTabStops);
+	assertEqualFloat (firstTabOffset, FLT_MAX);
+	assertEqualFloat (formatTabStops[0], 3);
+	assertEqualFloat (formatTabStops[1], 2);
+	assertEqualFloat (formatTabStops[2], 0);
+	assertEqualFloat (formatTabStops[3], 1);
 
 	// Count of 1.
 	status = GdipSetStringFormatTabStops (format, 0, 1, oneTabStop);
@@ -600,6 +612,13 @@ static void test_setStringFormatMeasurableCharacterRanges ()
 	GdipCreateStringFormat (10, 11, &format);
 
 	// Count of 1.
+	status = GdipSetStringFormatMeasurableCharacterRanges (format, 1, ranges);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatMeasurableCharacterRangeCount (format, &measurableCharacterRangeCount);
+	assertEqualInt (measurableCharacterRangeCount, 1);
+
+	// Count of 1 again.
 	status = GdipSetStringFormatMeasurableCharacterRanges (format, 1, ranges);
 	assertEqualInt (status, Ok);
 
