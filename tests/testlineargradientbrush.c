@@ -13,7 +13,7 @@
 #include <GdiPlusFlat.h>
 #endif
 
-#ifdef WIN32
+#if defined(USE_WINDOWS_GDIPLUS)
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
@@ -196,55 +196,56 @@ static void test_createLineBrushFromRectI ()
 {
     GpStatus status;
     GpLineGradient *brush;
-    GpRect rect1 = { 1, 3, 1, 2 };
+    GpRect normalRect = { 1, 3, 1, 2 };
 
-    status = GdipCreateLineBrushFromRectI (&rect1, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
+    status = GdipCreateLineBrushFromRectI (&normalRect, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
     assertEqualInt (status, Ok);
     verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, WrapModeTile, 1, 0, 0, 1, 0, 0);
     GdipDeleteBrush ((GpBrush *) brush);
 
-    GpRect rect2 = { 1, 3, -1, -2 };
-    status = GdipCreateLineBrushFromRectI (&rect2, 10, 11, LinearGradientModeBackwardDiagonal, (WrapMode)(WrapModeTile - 1), &brush);
+    GpRect negativeRect = { 1, 3, -1, -2 };
+    status = GdipCreateLineBrushFromRectI (&negativeRect, 10, 11, LinearGradientModeBackwardDiagonal, (WrapMode)(WrapModeTile - 1), &brush);
     assertEqualInt (status, Ok);
     verifyLineGradientBrush (brush, 1, 3, -1, -2, 10, 11, (WrapMode)(WrapModeTile - 1), -1, 2, -0.5, -1, 2, 3);
     GdipDeleteBrush ((GpBrush *) brush);
 
-    status = GdipCreateLineBrushFromRectI (&rect1, 10, 11, LinearGradientModeForwardDiagonal, (WrapMode)(WrapModeClamp + 1), &brush);
+    status = GdipCreateLineBrushFromRectI (&normalRect, 10, 11, LinearGradientModeForwardDiagonal, (WrapMode)(WrapModeClamp + 1), &brush);
     assertEqualInt (status, Ok);
     verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, (WrapMode)(WrapModeClamp + 1), 1, 2, -0.5, 1, 2, -3);
     GdipDeleteBrush ((GpBrush *) brush);
 
-    status = GdipCreateLineBrushFromRectI (&rect1, 10, 11, LinearGradientModeVertical, WrapModeTileFlipX, &brush);
+    status = GdipCreateLineBrushFromRectI (&normalRect, 10, 11, LinearGradientModeVertical, WrapModeTileFlipX, &brush);
     assertEqualInt (status, Ok);
     verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, WrapModeTileFlipX, 0, 2, -0.5, 0, 3.5, 1);
 
+    // Negative tests.
     status = GdipCreateLineBrushFromRectI (NULL, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
     assertEqualInt (status, InvalidParameter);
 
-    GpRect rect3 = { 1, 3, 0, 1 };
-    status = GdipCreateLineBrushFromRectI (&rect3, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
+    GpRect zeroWidth = { 1, 3, 0, 1 };
+    status = GdipCreateLineBrushFromRectI (&zeroWidth, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
     assertEqualInt (status, OutOfMemory);
 
-    GpRect rect4 = { 1, 3, 1, 0 };
-    status = GdipCreateLineBrushFromRectI (&rect4, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
+    GpRect zeroHeight = { 1, 3, 1, 0 };
+    status = GdipCreateLineBrushFromRectI (&zeroHeight, 10, 11, LinearGradientModeBackwardDiagonal, WrapModeTileFlipXY, &brush);
     assertEqualInt (status, OutOfMemory);
 
-    status = GdipCreateLineBrushFromRectI (&rect1, 10, 11, (LinearGradientMode)(LinearGradientModeHorizontal - 1), WrapModeTile, &brush);
+    status = GdipCreateLineBrushFromRectI (&normalRect, 10, 11, (LinearGradientMode)(LinearGradientModeHorizontal - 1), WrapModeTile, &brush);
     assertEqualInt (status, OutOfMemory);
 
-    status = GdipCreateLineBrushFromRectI (&rect1, 10, 11, (LinearGradientMode)(LinearGradientModeBackwardDiagonal + 1), WrapModeTile, &brush);
+    status = GdipCreateLineBrushFromRectI (&normalRect, 10, 11, (LinearGradientMode)(LinearGradientModeBackwardDiagonal + 1), WrapModeTile, &brush);
     assertEqualInt (status, OutOfMemory);
 
     status = GdipCreateLineBrushFromRectI (NULL, 10, 11, (LinearGradientMode)(LinearGradientModeBackwardDiagonal + 1), WrapModeTile, &brush);
     assertEqualInt (status, InvalidParameter);
 
-    status = GdipCreateLineBrushFromRectI (&rect1, 10, 11, (LinearGradientMode)(LinearGradientModeBackwardDiagonal + 1), WrapModeTile, NULL);
+    status = GdipCreateLineBrushFromRectI (&normalRect, 10, 11, (LinearGradientMode)(LinearGradientModeBackwardDiagonal + 1), WrapModeTile, NULL);
     assertEqualInt (status, InvalidParameter);
 
-    status = GdipCreateLineBrushFromRectI (&rect1, 10, 11, LinearGradientModeHorizontal, WrapModeClamp, &brush);
+    status = GdipCreateLineBrushFromRectI (&normalRect, 10, 11, LinearGradientModeHorizontal, WrapModeClamp, &brush);
     assertEqualInt (status, InvalidParameter);
 
-    status = GdipCreateLineBrushFromRectI (&rect1, 10, 11, LinearGradientModeHorizontal, WrapModeTile, NULL);
+    status = GdipCreateLineBrushFromRectI (&normalRect, 10, 11, LinearGradientModeHorizontal, WrapModeTile, NULL);
     assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
@@ -424,17 +425,59 @@ static void test_getLineRectI ()
 {
     GpStatus status;
     GpLineGradient *brush;
-    GpRectF rect = { 1, 3, 1, 2 };
     GpRect lineRect;
 
-    GdipCreateLineBrushFromRect (&rect, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
+    // Whole numbers.
+    GpRectF wholeNumbers = { 1, 3, 1, 2 };
+    GdipCreateLineBrushFromRect (&wholeNumbers, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
 
     status = GdipGetLineRectI (brush, &lineRect);
-    assertEqualFloat (rect.X, 1);
-    assertEqualFloat (rect.Y, 3);
-    assertEqualFloat (rect.Width, 1);
-    assertEqualFloat (rect.Height, 2);
+    assertEqualInt (status, Ok);
+    assertEqualFloat (lineRect.X, 1);
+    assertEqualFloat (lineRect.Y, 3);
+    assertEqualFloat (lineRect.Width, 1);
+    assertEqualFloat (lineRect.Height, 2);
 
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // > 0.5 is rounded up.
+    GpRectF greaterThanPointFive = { 1.6f, 3.6f, 1.6f, 2.6f };
+    GdipCreateLineBrushFromRect (&greaterThanPointFive, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
+
+    status = GdipGetLineRectI (brush, &lineRect);
+    assertEqualInt (status, Ok);
+    assertEqualFloat (lineRect.X, 2);
+    assertEqualFloat (lineRect.Y, 4);
+    assertEqualFloat (lineRect.Width, 2);
+    assertEqualFloat (lineRect.Height, 3);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // 0.5 is rounded up.
+    GpRectF pointFive = { 1.5f, 3.5f, 1.5f, 2.5f };
+    GdipCreateLineBrushFromRect (&pointFive, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
+
+    status = GdipGetLineRectI (brush, &lineRect);
+    assertEqualInt (status, Ok);
+    assertEqualFloat (lineRect.X, 2);
+    assertEqualFloat (lineRect.Y, 4);
+    assertEqualFloat (lineRect.Width, 2);
+    assertEqualFloat (lineRect.Height, 3);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // < 0.5 is rounded down.
+    GpRectF lessThanPointFive = { 1.1f, 3.1f, 1.1f, 2.1f };
+    GdipCreateLineBrushFromRect (&lessThanPointFive, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
+
+    status = GdipGetLineRectI (brush, &lineRect);
+    assertEqualInt (status, Ok);
+    assertEqualFloat (lineRect.X, 1);
+    assertEqualFloat (lineRect.Y, 3);
+    assertEqualFloat (lineRect.Width, 1);
+    assertEqualFloat (lineRect.Height, 2);
+
+    // Negative tests.
     status = GdipGetLineRectI (NULL, &lineRect);
     assertEqualInt (status, InvalidParameter);
 
@@ -737,7 +780,7 @@ static void test_setLinePresetBlend ()
     REAL positions3[3] = { 0, 0.5f, 1.0f };
     ARGB destBlend3[3];
     REAL destPositions3[3];
-    
+
 #if !defined(USE_WINDOWS_GDIPLUS)
     REAL destBlendReal[2];
     REAL destPositionsReal[2];
@@ -1076,7 +1119,7 @@ static void test_multiplyLineTransform ()
 
     status = GdipMultiplyLineTransform (brush, matrix, (MatrixOrder)(MatrixOrderPrepend - 1));
     assertEqualInt (status, Ok);
-    
+
     GdipGetLineTransform (brush, transform);
     verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
 
@@ -1085,7 +1128,7 @@ static void test_multiplyLineTransform ()
 
     status = GdipMultiplyLineTransform (brush, matrix, (MatrixOrder)(MatrixOrderAppend + 1));
     assertEqualInt (status, Ok);
-    
+
     GdipGetLineTransform (brush, transform);
     verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
 
@@ -1309,9 +1352,7 @@ static void test_clone ()
 int
 main (int argc, char**argv)
 {
-    GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR gdiplusToken;
-    GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
     test_createLineBrush ();
     test_createLineBrushI ();
@@ -1344,6 +1385,6 @@ main (int argc, char**argv)
     test_rotateLineTransform ();
     test_clone ();
 
-    GdiplusShutdown (gdiplusToken);
+    SHUTDOWN;
     return 0;
 }

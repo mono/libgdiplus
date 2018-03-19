@@ -2206,17 +2206,12 @@ GdipGetClipBoundsI (GpGraphics *graphics, GpRect *rect)
 
 	if (!graphics || !rect)
 		return InvalidParameter;
-	
+
 	status = GdipGetRegionBounds (graphics->clip, graphics, &rectF);
-	
 	if (status != Ok)
 		return status;
 
-	rect->X = rectF.X;
-	rect->Y = rectF.Y;
-	rect->Width = rectF.Width;
-	rect->Height = rectF.Height;
-	
+	gdip_Rect_from_RectF (&rectF, rect);
 	return Ok;
 }
 
@@ -2233,8 +2228,8 @@ GpStatus WINGDIPAPI
 GdipSetVisibleClip_linux (GpGraphics *graphics, GpRect *rect)
 {
 	if (!graphics || !rect)
-		return InvalidParameter;		
-		
+		return InvalidParameter;
+
 	graphics->bounds.X = rect->X;
 	graphics->bounds.Y = rect->Y;
 	graphics->bounds.Width = rect->Width;
@@ -2275,19 +2270,15 @@ GdipGetVisibleClipBoundsI (GpGraphics *graphics, GpRect *rect)
 {
 	GpStatus status;
 	GpRectF rectF;
-	
+
 	if (!graphics || !rect)
 		return InvalidParameter;
-	
+
 	status = GdipGetVisibleClipBounds (graphics, &rectF);
 	if (status != Ok)
 		return status;
-	
-	rect->X = rectF.X;
-	rect->Y = rectF.Y;
-	rect->Width = rectF.Width;
-	rect->Height = rectF.Height;
-	
+
+	gdip_Rect_from_RectF (&rectF, rect);
 	return Ok;
 }
 
@@ -2296,7 +2287,7 @@ GdipIsVisibleClipEmpty (GpGraphics *graphics, BOOL *result)
 {
 	if (!graphics || !result)
 		return InvalidParameter;
-		
+
 	*result = (graphics->bounds.Width == 0 || graphics->bounds.Height == 0);
 	return Ok;
 }
@@ -2305,10 +2296,10 @@ GpStatus WINGDIPAPI
 GdipIsVisiblePoint (GpGraphics *graphics, REAL x, REAL y, BOOL *result)
 {
 	GpRectF rectF;
-	
+
 	if (!graphics || !result)
 		return InvalidParameter;
-		
+
 	rectF.X = graphics->bounds.X;
 	rectF.Y = graphics->bounds.Y;
 	rectF.Width = graphics->bounds.Width;

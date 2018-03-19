@@ -4,7 +4,7 @@
 #endif
 #endif
 
-#if defined(_WIN32)
+#if defined(USE_WINDOWS_GDIPLUS)
 #include <Windows.h>
 #include <GdiPlus.h>
 
@@ -13,7 +13,7 @@
 #include <GdiPlusFlat.h>
 #endif
 
-#ifdef WIN32
+#if defined(USE_WINDOWS_GDIPLUS)
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
@@ -25,12 +25,12 @@ using namespace DllExports;
 
 static GpImage * getImage ()
 {
-    GpStatus status;
-    GpBitmap *image;
-    status = GdipCreateBitmapFromScan0 (100, 68, 0, PixelFormat32bppRGB, NULL, &image);
-    assertEqualInt (status, Ok);
+	GpStatus status;
+	GpBitmap *image;
+	status = GdipCreateBitmapFromScan0 (100, 68, 0, PixelFormat32bppRGB, NULL, &image);
+	assertEqualInt (status, Ok);
 
-    return (GpImage *)image;
+	return (GpImage *)image;
 }
 
 static void verifyPen (GpPen *pen, REAL expectedWidth, Unit expectedUnit, PenType expectedType)
@@ -2182,9 +2182,7 @@ static void test_deletePen ()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_createPen1 ();
 	test_createPen2 ();
@@ -2232,6 +2230,6 @@ main (int argc, char**argv)
 	test_getPenCompoundArray ();
 	test_deletePen ();
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

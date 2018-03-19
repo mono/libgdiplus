@@ -23,23 +23,22 @@
 #include "win32_io.h"
 
 #include <windows.h>
-#include <stdio.h>
 #include "gdipenums.h"
 
-int CreateTempFile (char *filename)
+FILE *CreateTempFile (char *filename)
 {
 	TCHAR temppath[MAX_PATH];
 	DWORD ret = 0;
 	
 	ret = GetTempPath (MAX_PATH, temppath);
 	if (ret > MAX_PATH || ret == 0) {
-		return FileNotFound;
+		return NULL;
 	}
 
 	ret = GetTempFileName (temppath, "ff", 0, (LPSTR)filename);
 	if (ret == 0) {
-		return FileNotFound;
+		return NULL;
 	}
 
-	return (int)(intptr_t)fopen (filename, "w");
+	return fopen (filename, "w");
 }

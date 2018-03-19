@@ -4,13 +4,18 @@
 #endif
 #endif
 
-#if defined(_WIN32)
+#if defined(USE_WINDOWS_GDIPLUS)
 #include <Windows.h>
 #include <GdiPlus.h>
 
 #pragma comment(lib, "gdiplus")
 #else
 #include <GdiPlusFlat.h>
+#endif
+
+#if defined(USE_WINDOWS_GDIPLUS)
+using namespace Gdiplus;
+using namespace DllExports;
 #endif
 
 #include <assert.h>
@@ -20,17 +25,14 @@
 #include <string.h>
 #include "testhelpers.h"
 
-#ifdef WIN32
-using namespace Gdiplus;
-using namespace DllExports;
-#endif
-
 static void verifyCustomLineCap (GpCustomLineCap *cap, LineCap expectedBaseCap, REAL expectedBaseInset)
 {
 	assert (cap && "Expected cap to be initialized.");
 
 	GpStatus status;
+#if !defined(USE_WINDOWS_GDIPLUS)
 	LineCap baseCap;
+#endif
 	REAL baseInset;
 	LineCap startCap;
 	LineCap endCap;
@@ -39,7 +41,7 @@ static void verifyCustomLineCap (GpCustomLineCap *cap, LineCap expectedBaseCap, 
 	CustomLineCapType type;
 
 	// GDI+ returns 0 here each time. This looks like a GDI+ bug.
-#if !defined(_WIN32)
+#if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipGetCustomLineCapBaseCap (cap, &baseCap);
 	assertEqualInt (status, Ok);
 	assertEqualInt (baseCap, expectedBaseCap);
@@ -189,8 +191,10 @@ static void test_setCustomLineCapStrokeCaps ()
 	GpCustomLineCap *cap;
 	GpPath *fillPath;
 	GpPath *strokePath;
+#if !defined(USE_WINDOWS_GDIPLUS)
 	LineCap startCap;
 	LineCap endCap;
+#endif
 
 	GdipCreatePath (FillModeAlternate, &fillPath);
 	GdipCreatePath (FillModeAlternate, &strokePath);
@@ -198,7 +202,7 @@ static void test_setCustomLineCapStrokeCaps ()
 
 	// For some reason GdipSetCustomLineCapStrokeCaps always returns InvalidParameter
 	// in GDI+.
-#if !defined(_WIN32)
+#if !defined(USE_WINDOWS_GDIPLUS)
 	// Normal values.
 	status = GdipSetCustomLineCapStrokeCaps (cap, LineCapArrowAnchor, LineCapDiamondAnchor);
 	assertEqualInt (status, Ok);
@@ -341,7 +345,9 @@ static void test_setCustomLineCapBaseCap ()
 	GpCustomLineCap *cap;
 	GpPath *fillPath;
 	GpPath *strokePath;
+#if !defined(USE_WINDOWS_GDIPLUS)
 	LineCap baseCap;
+#endif
 
 	GdipCreatePath (FillModeAlternate, &fillPath);
 	GdipCreatePath (FillModeAlternate, &strokePath);
@@ -349,7 +355,7 @@ static void test_setCustomLineCapBaseCap ()
 
 	// For some reason GdipSetCustomLineCapStrokeCaps always returns InvalidParameter
 	// in GDI+.
-#if !defined(_WIN32)
+#if !defined(USE_WINDOWS_GDIPLUS)
 	// Normal value.
 	status = GdipSetCustomLineCapBaseCap (cap, LineCapArrowAnchor);
 	assertEqualInt (status, Ok);
@@ -547,9 +553,7 @@ static void test_getCustomLineCapWidthScale ()
 int
 main(int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_createCustomLineCap ();
 	test_deleteCustomLineCap ();
@@ -566,6 +570,6 @@ main(int argc, char**argv)
 	test_setCustomLineCapWidthScale ();
 	test_getCustomLineCapWidthScale ();
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

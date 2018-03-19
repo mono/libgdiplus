@@ -693,7 +693,7 @@ GdipGetPathGradientRect (GpPathGradient *brush, GpRectF *rect)
 {
 	if (!brush || !rect)
 		return InvalidParameter;
-	
+
 	memcpy (rect, &brush->rectangle, sizeof (GpRectF));
 	return Ok;
 }
@@ -703,12 +703,8 @@ GdipGetPathGradientRectI (GpPathGradient *brush, GpRect *rect)
 {
 	if (!brush || !rect)
 		return InvalidParameter;
-		
-	rect->X = iround (brush->rectangle.X);
-	rect->Y = iround (brush->rectangle.Y);
-	rect->Width = iround (brush->rectangle.Width);
-	rect->Height = iround (brush->rectangle.Height);
 
+	gdip_Rect_from_RectF (&brush->rectangle, rect);
 	return Ok;
 }
 

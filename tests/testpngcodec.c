@@ -43,7 +43,7 @@ GpImage *image;
 { \
 	createFile (buffer, Ok); \
 	/* FIXME: grayscale image flags are incorrect. */ \
-	verifyImage (image, ImageTypeBitmap, pngRawFormat, format, 0, 0, width, height, (REAL) width, (REAL) height, flags, propertyCount, FALSE); \
+	verifyBitmap (image, pngRawFormat, format, width, height, flags, propertyCount, FALSE); \
 	GdipDisposeImage (image); \
 }
 
@@ -839,9 +839,7 @@ static void test_invalidImageFormat()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_valid1bpp ();
 	test_valid2bpp ();
@@ -856,6 +854,6 @@ main (int argc, char**argv)
 
 	deleteFile (file);
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

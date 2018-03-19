@@ -13,7 +13,7 @@
 #include <GdiPlusFlat.h>
 #endif
 
-#ifdef WIN32
+#if defined(USE_WINDOWS_GDIPLUS)
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
@@ -89,7 +89,7 @@ static void test_loadImageFromStreamICM ()
 	status = GdipLoadImageFromStreamICM (NULL, &image);
 	assertEqualInt (status, InvalidParameter);
 
-#if !defined(_WIN32)
+#if !defined(USE_WINDOWS_GDIPLUS)
 	int temp = 0;
 
 	status = GdipLoadImageFromStreamICM (&temp, NULL);
@@ -1407,9 +1407,7 @@ static void test_setPropertyItem()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_loadImageFromStream ();
 	test_loadImageFromFile ();
@@ -1456,6 +1454,6 @@ main (int argc, char**argv)
 	test_removePropertyItem ();
 	test_setPropertyItem ();
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }
