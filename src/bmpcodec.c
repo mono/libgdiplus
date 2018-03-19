@@ -1150,43 +1150,35 @@ error:
 
 /* BMP read from files have a BITMAPFILEHEADER but this isn't the case for the GDI API
  * (e.g. displaying a bitmap) */
+static void
+BitmapFileHeaderFromLE (BITMAPFILEHEADER *bitmapFileHeader)
+{
+#if G_BYTE_ORDER != G_LITTLE_ENDIAN
+	bitmapFileHeader->bfType = GUINT16_FROM_LE (bitmapFileHeader->bfType);
+	bitmapFileHeader->bfSize = GUINT32_FROM_LE (bitmapFileHeader->bfSize);
+	bitmapFileHeader->bfReserved1 = GUINT16_FROM_LE (bitmapFileHeader->bfReserved1);
+	bitmapFileHeader->bfReserved2 = GUINT16_FROM_LE (bitmapFileHeader->bfReserved2);
+	bitmapFileHeader->bfOffBits = GUINT32_FROM_LE (bitmapFileHeader->bfOffBits);
+#endif
+}
+
 static GpStatus 
 gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, ImageSource source)
 {
-	GpStatus status;
 	BITMAPFILEHEADER bmfh;
 	int size_read;
-		
-	int size = sizeof (bmfh);
-	BYTE* data_read = (BYTE*) GdipAlloc (size);
 
-	if (!data_read)
+	size_read = gdip_read_bmp_data (pointer, (BYTE *) &bmfh, sizeof (bmfh), source);
+	if (size_read < sizeof (bmfh)) {
 		return OutOfMemory;
-
-	memset (data_read, 0, size);
-	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
-	if (size_read < size) {
-		status = OutOfMemory;
-		goto error;
 	}
-	
-	bmfh.bfType = ((data_read[1]<<8)|data_read[0]);
+
+	BitmapFileHeaderFromLE (&bmfh);
 	if (bmfh.bfType != BFT_BITMAP) {
-		status = UnknownImageFormat;
-		goto error;
+		return UnknownImageFormat;
 	}
-
-	bmfh.bfSize = (data_read[5]<<24 | data_read[4]<<16 | data_read[3]<<8 | data_read[2]);
-	bmfh.bfReserved1 = ((data_read[7]<<8)|data_read[6]);
-	bmfh.bfReserved1 = ((data_read[9]<<8)|data_read[8]);
-	bmfh.bfOffBits = (data_read[13]<<24 | data_read[12]<<16 | data_read[11]<<8 | data_read[10]);
-	GdipFree (data_read);
 
 	return gdip_read_bmp_image (pointer, image, source);
-error:
-	if (data_read != NULL)
-		GdipFree(data_read);
-	return status;
 }
 
 GpStatus 
@@ -1261,7 +1253,7 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 	int			i;
 	ARGB			color;
 	int			colours = 0;
-	BYTE			*entries;
+	ARGB			*entries;
 	int			palette_entries;
 	BitmapData		*activebmp;
 	BYTE			*scan0;
@@ -1280,53 +1272,36 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 			colours = activebmp->palette->Count;
 	}
 
-#ifdef WORDS_BIGENDIAN
-	bmfh.bfReserved1 = bmfh.bfReserved2 = GUINT16_FROM_LE (0);
-	bmfh.bfType = GUINT16_FROM_LE (BFT_BITMAP);
-	bmfh.bfOffBits = GUINT32_FROM_LE (14 + 40 + colours * 4);
-	bmfh.bfSize = GUINT32_FROM_LE (bmfh.bfOffBits + bitmapLen);
-#else
 	bmfh.bfReserved1 = bmfh.bfReserved2 = 0;
 	bmfh.bfType = BFT_BITMAP;
-	bmfh.bfOffBits = (14 + 40 + colours * 4);
+	bmfh.bfOffBits = sizeof (BITMAPFILEHEADER) + sizeof (BITMAPINFOHEADER) + colours * sizeof (RGBQUAD);
 	bmfh.bfSize = (bmfh.bfOffBits + bitmapLen);
-#endif
-	gdip_write_bmp_data (pointer, (BYTE*) &bmfh, sizeof (bmfh), useFile);
+	BitmapFileHeaderFromLE (&bmfh);
 
+	gdip_write_bmp_data (pointer, (BYTE *) &bmfh, sizeof (bmfh), useFile);
 	gdip_bitmap_fill_info_header (image, &bmi);
 	gdip_write_bmp_data (pointer, (BYTE*) &bmi, sizeof (bmi), useFile);
 
 	if (colours) {
-#ifdef WORDS_BIGENDIAN
-		int idx;
-#endif
-
 		palette_entries = activebmp->palette->Count;
 
 		if (activebmp->pixel_format == PixelFormat4bppIndexed) {
 			palette_entries = 16;
 		}
 
-		entries = (BYTE*) GdipAlloc (palette_entries*4);
+		entries = (ARGB *) GdipAlloc (palette_entries * sizeof (ARGB));
 		if (entries == NULL)
 			return OutOfMemory;
 
-#ifdef WORDS_BIGENDIAN
-		idx = 0;
-#endif
 		for (i = 0; i < palette_entries; i++) {
 			color = activebmp->palette->Entries[i];
-#ifdef WORDS_BIGENDIAN
-			entries [idx] =  color & 0xff;
-			entries [idx + 1] = (color >> 8) & 0xff;
-			entries [idx + 2] = (color >> 16) & 0xff;
-			entries [idx + 3] = color >> 24;
-			idx += 4;
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+			*(entries + i) = color;
 #else
-			*((guint32 *) entries + i) = color;
+			*(entries + i) = GUINT32_FROM_LE (color);
 #endif
 		}
-		gdip_write_bmp_data (pointer, entries, palette_entries * 4, useFile);
+		gdip_write_bmp_data (pointer, (BYTE *) entries, palette_entries * sizeof (ARGB), useFile);
 		GdipFree (entries);
 	}
 
