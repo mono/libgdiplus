@@ -154,9 +154,7 @@ static void test_getBackgroundColor ()
 int
 main (int argc, char**argv)
 {
-    GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR gdiplusToken;
-    GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
     test_clone ();
     test_createHatchBrush ();
@@ -164,6 +162,6 @@ main (int argc, char**argv)
     test_getForegroundColor ();
     test_getBackgroundColor ();
 
-    GdiplusShutdown (gdiplusToken);
+    SHUTDOWN;
     return 0;
 }

@@ -553,9 +553,7 @@ static void test_getCustomLineCapWidthScale ()
 int
 main(int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_createCustomLineCap ();
 	test_deleteCustomLineCap ();
@@ -572,6 +570,6 @@ main(int argc, char**argv)
 	test_setCustomLineCapWidthScale ();
 	test_getCustomLineCapWidthScale ();
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

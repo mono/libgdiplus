@@ -2347,9 +2347,7 @@ static void test_invalidImageData ()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_validImage1bppOS2Header ();
 	test_validImage1bppBitmapInfoHeader ();
@@ -2392,6 +2390,6 @@ main (int argc, char**argv)
 
 	deleteFile (file);
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

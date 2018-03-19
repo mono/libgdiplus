@@ -41,12 +41,10 @@ main (int argc, char **argv)
     int reloaded_palette_size;
     ColorPalette *original_palette;
     ColorPalette *reloaded_palette;
-    GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR gdiplusToken;
     PixelFormat pixel_format;
     ARGB color;
 
-    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+    STARTUP;
 
     // PNG resave should preserve the palette transparency. Let's test it
     // by loading a PNG file and its palette, then resaving it and loading
@@ -107,6 +105,8 @@ main (int argc, char **argv)
     CHECK_STATUS(1);
     CHECK_ASSERT(color == 0xe8b3b3b3);
     GdipDisposeImage (bitmap);
+
+    SHUTDOWN;
 
     return 0;
 }

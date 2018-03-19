@@ -409,9 +409,7 @@ static void test_invalidImageData()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_valid ();
 	test_invalidDataCorruptingGdiPlus ();
@@ -422,6 +420,6 @@ main (int argc, char**argv)
 
 	deleteFile (file);
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

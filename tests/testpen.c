@@ -1932,9 +1932,7 @@ static void test_deletePen ()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_createPen1 ();
 	test_createPen2 ();
@@ -1982,6 +1980,6 @@ main (int argc, char**argv)
 	test_getPenCompoundArray ();
 	test_deletePen ();
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

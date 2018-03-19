@@ -388,9 +388,7 @@ static void test_getAdjustableArrowCapFillState ()
 int
 main(int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_createAdjustableArrowCap ();
 	test_cloneAdjustableArrowCap ();
@@ -404,6 +402,6 @@ main(int argc, char**argv)
 	test_setAdjustableArrowCapFillState ();
 	test_getAdjustableArrowCapFillState ();
 
-	GdiplusShutdown(gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

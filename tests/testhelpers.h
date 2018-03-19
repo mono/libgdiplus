@@ -1,3 +1,4 @@
+
 #include <assert.h>
 #include <float.h>
 #include <math.h>
@@ -8,6 +9,17 @@
 #if !defined(_WIN32)
 #include <unistd.h>
 #endif
+
+#define STARTUP \
+    ULONG_PTR gdiplusToken; \
+	GdiplusStartupInput gdiplusStartupInput; \
+    gdiplusStartupInput.GdiplusVersion = 1; \
+    gdiplusStartupInput.DebugEventCallback = NULL; \
+    gdiplusStartupInput.SuppressBackgroundThread = FALSE; \
+    gdiplusStartupInput.SuppressExternalCodecs = FALSE; \
+    GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL); \
+
+#define SHUTDOWN GdiplusShutdown (gdiplusToken);
 
 BOOL floatsEqual (float v1, float v2)
 {
