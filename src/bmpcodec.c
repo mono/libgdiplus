@@ -751,7 +751,7 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
  	/* If the height is negative then the bitmap is sideup. */
 	if (bmi->bV5Height < 0) {
 		*upsidedown = FALSE;
-        bmi->bV5Height = -bmi->bV5Height;
+		bmi->bV5Height = -bmi->bV5Height;
 	}
 
 	dw = 0;
@@ -858,9 +858,9 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	if (status != Ok)
 		goto error;
 
-    colours = (bmi.bV5ClrUsed == 0 && bmi.bV5BitCount <= 8) ? (1 << bmi.bV5BitCount) : bmi.bV5ClrUsed;
+	colours = (bmi.bV5ClrUsed == 0 && bmi.bV5BitCount <= 8) ? (1 << bmi.bV5BitCount) : bmi.bV5ClrUsed;
 
-    status = gdip_get_bmp_pixelformat (&bmi, &format);
+	status = gdip_get_bmp_pixelformat (&bmi, &format);
 	if (status != Ok) {
 		 /* bit count mismatch */
 		goto error;
@@ -869,9 +869,9 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	/* for 16bbp images we need to be more precise */
 	if (format == PixelFormat16bppRGB565) {
 		/* Newer versions of BITMAPINFOHEADER contains R, G and B masks.*/
-        if (bmi.bV5Size >= sizeof (BITMAPV3HEADER)) {
+		if (bmi.bV5Size >= sizeof (BITMAPV3HEADER)) {
 			red_mask = bmi.bV5RedMask;
-            green_mask = bmi.bV5GreenMask;
+			green_mask = bmi.bV5GreenMask;
 			blue_mask = bmi.bV5BlueMask;
 		} else if (bmi.bV5Size == sizeof (BITMAPINFOHEADER)) {
 			/* The BITMAPINFOHEADER must be followed by R, G and B masks. */
@@ -923,11 +923,11 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	result->type = ImageTypeBitmap;
 	result->image_format = BMP;
 	result->active_bitmap->pixel_format = format;
-    result->active_bitmap->width = bmi.bV5Width;
-    result->active_bitmap->height = bmi.bV5Height;
+	result->active_bitmap->width = bmi.bV5Width;
+	result->active_bitmap->height = bmi.bV5Height;
 
 	/* biWidth and biHeight are LONG (32 bits signed integer) */
-    size = bmi.bV5Width;
+	size = bmi.bV5Width;
 
 	switch (result->active_bitmap->pixel_format) {
 	case PixelFormat1bppIndexed:
