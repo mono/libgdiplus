@@ -1,24 +1,24 @@
 /*
  * pen.c
- * 
+ *
  * Copyright (c) 2003 Alexandre Pigolkine
  * Copyright (C) 2006 Novell, Inc (http://www.novell.com)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
- * and associated documentation files (the "Software"), to deal in the Software without restriction, 
- * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial 
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial
  * portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT 
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- * 
+ *
  * Authors:
  *   Alexandre Pigolkine(pigolkine@gmx.de)
  *   Duncan Mak (duncan@ximian.com)
@@ -32,11 +32,11 @@
 #include "graphics-private.h"
 #include "customlinecap-private.h"
 
-static void 
+static void
 gdip_pen_init (GpPen *pen)
 {
 	pen->color = 0;
-	pen->brush = 0;
+	pen->brush = NULL;
 	pen->own_brush = FALSE;
 	pen->width = 1;
 	pen->miter_limit = 10;
@@ -83,7 +83,7 @@ convert_line_join (GpLineJoin join)
 
 	case LineJoinRound:
 		return CAIRO_LINE_JOIN_ROUND;
- 
+
 	case LineJoinMiterClipped:
 	default:
 		return CAIRO_LINE_JOIN_MITER;
@@ -96,7 +96,7 @@ convert_line_cap (GpPen *pen)
 	switch (pen->line_cap) {
 
 	/* HACK - this keeps SWF (mostly) happy with results very similar to GDI+
-	 * (under those specific cases) and also keeps the pen's functionalities 
+	 * (under those specific cases) and also keeps the pen's functionalities
 	 * on par with GDI+
 	 */
 	case LineCapFlat:
@@ -104,7 +104,7 @@ convert_line_cap (GpPen *pen)
 			return CAIRO_LINE_CAP_BUTT;
 		else
 			return CAIRO_LINE_CAP_SQUARE;
-	
+
 	case LineCapSquare:
 		return CAIRO_LINE_CAP_SQUARE;
 
@@ -138,7 +138,7 @@ convert_dash_array (float *f, double width, int count)
 	return retval;
 }
 
-GpStatus 
+GpStatus
 gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 {
 	GpStatus status;
@@ -195,7 +195,7 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	if (pen->dash_count > 0) {
 		double *dash_array;
 
-		/* note: pen->width may be different from what was used to 
+		/* note: pen->width may be different from what was used to
 		call cairo_set_line_width, e.g. 0.0 (#78742) */
 		dash_array = convert_dash_array (pen->dash_array, widthx, pen->dash_count);
 		if (!dash_array)
@@ -218,7 +218,7 @@ gdip_pen_draw_custom_start_cap (GpGraphics *graphics, GpPen *pen, float x1, floa
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
-	
+
 	if (pen->custom_start_cap) {
 		/* Draw the end cap */
 		gdip_linecap_draw (graphics, pen, pen->custom_start_cap, x1, y1, x2, y2);
@@ -232,7 +232,7 @@ gdip_pen_draw_custom_end_cap (GpGraphics *graphics, GpPen *pen, float x1, float 
 {
 	if (!graphics || !pen)
 		return InvalidParameter;
-	
+
 	if (pen->custom_end_cap) {
 		/* Draw the end cap */
 		gdip_linecap_draw (graphics, pen, pen->custom_end_cap, x1, y1, x2, y2);
@@ -245,108 +245,78 @@ gdip_pen_draw_custom_end_cap (GpGraphics *graphics, GpPen *pen, float x1, float 
 GpStatus WINGDIPAPI
 GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen)
 {
-	GpStatus s;
+	GpStatus status;
 	GpSolidFill *solidBrush = NULL;
 	GpPen *result;
 
 	if (!pen || unit < UnitWorld || unit > UnitCairoPoint || unit == UnitDisplay)
 		return InvalidParameter;
 
-	*pen = result = gdip_pen_new ();
+	result = gdip_pen_new ();
 	if (!result)
-		return OutOfMemory;
+		goto error;
 
 	result->color = argb;
 	result->width = width;
 	result->unit = unit;
-
-	s = GdipCreateSolidFill (argb, &solidBrush);
-	if (s != Ok) {
-		if (solidBrush)
-			GdipDeleteBrush ((GpBrush*) solidBrush);
-		GdipFree (result);
-		*pen = NULL;
-		return s;
-	}
-
-	result->brush = (GpBrush*) solidBrush;
 	result->own_brush = TRUE;
+
+	status = GdipCreateSolidFill (argb, (GpSolidFill **) &result->brush);
+	if (status != Ok)
+		goto error;
+
+	*pen = result;
 	return Ok;
+
+error:
+	if (result)
+		GdipDeletePen (result);
+
+	*pen = NULL;
+	return OutOfMemory;
 }
 
 // coverity[+alloc : arg-*3]
 GpStatus WINGDIPAPI
 GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen)
 {
-	ARGB color;
-	GpStatus s;
-	GpBrushType type;
 	GpPen *result;
+	GpStatus status;
+	GpBrushType type;
+	ARGB color;
 
 	if (!brush || !pen)
 		return InvalidParameter;
 
-	*pen = result = gdip_pen_new ();
+	result = gdip_pen_new ();
 	if (!result)
-		return OutOfMemory;
+		goto error;
 
 	result->width = width;
 	result->unit = unit;
-
-	/* the user supplied brush can be disposed, we must clone it to ensure
-	 * it's valid when we need to set the pen */
-	s = GdipCloneBrush (brush, &result->brush);
-	if (s != Ok) {
-		GdipFree (result);
-		*pen = NULL;
-		return s;
-	}
-
 	result->own_brush = TRUE;
 
-	s = GdipGetBrushType (brush, &type);
-	if (s != Ok) {
-		GdipFree (result);
-		*pen = NULL;
-		return s;
-	}
+	/* The user supplied brush can be disposed, we must clone it to ensure
+	 * it's valid when we need to set the pen. */
+	status = GdipCloneBrush (brush, &result->brush);
+	if (status != Ok)
+		goto error;
 
-	switch (type) {
-
-	case BrushTypeSolidColor:
-		s = GdipGetSolidFillColor ((GpSolidFill*) brush, &color);
-		if (s != Ok) {
-			GdipFree (result);
-			*pen = NULL;
-			return s;
-		}
+	GdipGetBrushType (brush, &type);
+	if (type == BrushTypeSolidColor) {
+		GdipGetSolidFillColor ((GpSolidFill *) brush, &color);
 		result->color = color;
-		*pen = result;
-		return Ok;
-
-	case BrushTypeHatchFill:
-	case BrushTypeTextureFill:
-	case BrushTypePathGradient:
-	case BrushTypeLinearGradient:
-		*pen = result;
-		return Ok;
-
-	default:
-		GdipFree (result);
-		*pen = NULL;
-		return GenericError;
 	}
-}
 
-static float *
-clone_dash_array (float *clone, float *array, int size)
-{
-	int i;
+	*pen = result;
+	return Ok;
 
-	for (i = 0; i < size; i++)
-		clone [i] = array [i];
+error:
+	if (result)
+		GdipDeletePen (result);
 
-	return clone;
+	*pen = NULL;
+	return OutOfMemory;
 }
 
 // coverity[+alloc : arg-*1]
@@ -354,82 +324,13 @@ GpStatus WINGDIPAPI
 GdipClonePen (GpPen *pen, GpPen **clonepen)
 {
 	GpPen *result;
-	float *dashes;                  /* copy off pen->dash_array */
-	float *compound_array = NULL;   /* copy off pen->compound_array */
-	GpCustomLineCap *custom_start_cap = NULL;
-	GpCustomLineCap *custom_end_cap = NULL;
 
 	if (!pen || !clonepen)
 		return InvalidParameter;
 
-	/* we make a copy of dash array only if it is owned by pen, i.e. it is not
-	 * our global array.
-	 */
-
-	if (pen->dash_count > 0 && pen->own_dash_array) {
-		dashes = (float *) GdipAlloc (pen->dash_count * sizeof (float));
-		if (!dashes)
-			return OutOfMemory;
-		clone_dash_array (dashes, pen->dash_array, pen->dash_count);
-	} else
-		dashes = pen->dash_array;
-
-	if (pen->compound_count > 0) {
-		compound_array = (float *) GdipAlloc (pen->compound_count * sizeof (float));
-		if (compound_array == NULL) {
-			if (pen->dash_count > 0)
-				GdipFree (dashes);
-			return OutOfMemory;
-		}
-		clone_dash_array (compound_array, pen->compound_array, pen->compound_count);
-	}
-
-	if (pen->custom_start_cap != NULL) {
-		GpStatus status = GdipCloneCustomLineCap (pen->custom_start_cap, &custom_start_cap);
-		if (status != Ok) {
-			if (custom_start_cap)
-				GdipDeleteCustomLineCap (custom_start_cap);
-			if (compound_array != NULL)
-				GdipFree (compound_array);
-			if (pen->dash_count > 0)
-				GdipFree (dashes);
-			return OutOfMemory;
-		}
-	}
-
-	if (pen->custom_end_cap != NULL) {
-		GpStatus status = GdipCloneCustomLineCap (pen->custom_end_cap, &custom_end_cap);
-		if (status != Ok) {
-			if (custom_end_cap)
-				GdipDeleteCustomLineCap (custom_end_cap);
-			if (custom_start_cap)
-				GdipDeleteCustomLineCap (custom_start_cap);
-			if (compound_array != NULL)
-				GdipFree (compound_array);
-			if (pen->dash_count > 0)
-				GdipFree (dashes);
-			return OutOfMemory;
-		}
-	}
-
 	result = gdip_pen_new ();
-	if (result == NULL) {
-		if (pen->dash_count > 0)
-			GdipFree (dashes);
-		if (pen->compound_count > 0)
-			GdipFree (compound_array);
-
-		return OutOfMemory;
-	}
-
-	if (pen->own_brush) {
-		GpSolidFill* solidBrush;
-		GpSolidFill* oldbrush = (GpSolidFill*)pen->brush;
-		GdipCreateSolidFill (oldbrush->color, &solidBrush);
-		result->brush = (GpBrush*) solidBrush;
-	} else {
-		result->brush = pen->brush;
-	}
+	if (!result)
+		goto error;
 
 	result->own_brush = pen->own_brush;
 	result->color = pen->color;
@@ -443,18 +344,61 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 	result->dash_offset = pen->dash_offset;
 	result->dash_count = pen->dash_count;
 	result->own_dash_array = pen->own_dash_array;
-	result->dash_array = dashes;
 	result->compound_count = pen->compound_count;
-	result->compound_array = compound_array;
 	result->unit = pen->unit;
 	gdip_cairo_matrix_copy (&result->matrix, &pen->matrix);
 	result->changed = pen->changed;
-	result->custom_start_cap = custom_start_cap;
-	result->custom_end_cap = custom_end_cap;
+
+	/* Make a copy of dash array only if it is owned by the pen - i.e. it is not
+	 * a global array. */
+	if (pen->dash_count > 0 && pen->own_dash_array) {
+		result->dash_array = (float *) GdipAlloc (pen->dash_count * sizeof (float));
+		if (!result->dash_array)
+			goto error;
+
+		memcpy (result->dash_array, pen->dash_array, pen->dash_count * sizeof (float));
+	}
+	else
+		result->dash_array = pen->dash_array;
+
+	if (pen->compound_count > 0) {
+		result->compound_array = (float *) GdipAlloc (pen->compound_count * sizeof (float));
+		if (!result->compound_array)
+			goto error;
+
+		memcpy (result->compound_array, pen->compound_array, pen->compound_count * sizeof (float));
+	}
+
+	if (pen->custom_start_cap) {
+		GpStatus status = GdipCloneCustomLineCap (pen->custom_start_cap, &result->custom_start_cap);
+		if (status != Ok)
+			goto error;
+	}
+
+	if (pen->custom_end_cap) {
+		GpStatus status = GdipCloneCustomLineCap (pen->custom_end_cap, &result->custom_end_cap);
+		if (status != Ok)
+			goto error;
+	}
+
+	if (pen->own_brush) {
+		GpSolidFill *oldBrush = (GpSolidFill *) pen->brush;
+		GpStatus status = GdipCreateSolidFill (oldBrush->color, (GpSolidFill **) &result->brush);
+		if (status != Ok)
+			goto error;
+	} else {
+		result->brush = pen->brush;
+	}
 
 	*clonepen = result;
-
 	return Ok;
+
+error:
+  if (result)
+		GdipDeletePen (result);
+
+	*clonepen = NULL;
+	return OutOfMemory;
 }
 
 GpStatus WINGDIPAPI
@@ -500,8 +444,11 @@ GdipSetPenWidth (GpPen *pen, REAL width)
 	if (!pen)
 		return InvalidParameter;
 
-	pen->width = width;
-	pen->changed = TRUE;
+	if (pen->width != width) {
+		pen->width = width;
+		pen->changed = TRUE;
+	}
+
 	return Ok;
 }
 
@@ -518,24 +465,14 @@ GdipGetPenWidth (GpPen *pen, REAL *width)
 GpStatus WINGDIPAPI
 GdipSetPenBrushFill (GpPen *pen, GpBrush *brush)
 {
-	GpStatus s;
-	ARGB color;
 	GpBrushType type;
 
 	if (!pen || !brush)
 		return InvalidParameter;
 
-	s = GdipGetBrushType (brush, &type);
-
-	if (s != Ok)
-		return s;
-
-	if (type == BrushTypeSolidColor) {
-		s = GdipGetSolidFillColor ((GpSolidFill*) brush, &color);
-		if (s != Ok)
-			return s;
-		pen->color = color;
-	}
+	GdipGetBrushType (brush, &type);
+	if (type == BrushTypeSolidColor)
+		GdipGetSolidFillColor ((GpSolidFill *) brush, &pen->color);
 	else
 		pen->color = 0;
 
@@ -564,11 +501,10 @@ GdipGetPenFillType (GpPen *pen, GpPenType *type)
 	if (!pen || !type)
 		return InvalidParameter;
 
-	if (pen->brush != NULL)
+	if (pen->brush)
 		return GdipGetBrushType (pen->brush, (GpBrushType *) type);
 
 	*type = PenTypeSolidColor;
-
 	return Ok;
 }
 
@@ -578,11 +514,13 @@ GdipSetPenColor (GpPen *pen, ARGB argb)
 	if (!pen)
 		return InvalidParameter;
 
-	pen->changed = pen->changed ? TRUE : (pen->color != argb);
-	pen->color = argb;
+	if (pen->color != argb) {
+		pen->color = argb;
+		pen->changed = TRUE;
+	}
 
 	if (pen->changed && pen->brush && (pen->brush->vtable->type == BrushTypeSolidColor))
-		return GdipSetSolidFillColor ((GpSolidFill*)pen->brush, argb);
+		return GdipSetSolidFillColor ((GpSolidFill *) pen->brush, argb);
 
 	return Ok;
 }
@@ -595,7 +533,6 @@ GdipGetPenColor (GpPen *pen, ARGB *argb)
 
 	if(pen->brush->vtable->type != BrushTypeSolidColor)
 		return InvalidParameter;
-		
 
 	*argb = pen->color;
 	return Ok;
@@ -634,8 +571,11 @@ GdipSetPenLineJoin (GpPen *pen, GpLineJoin lineJoin)
 	if (!pen)
 		return InvalidParameter;
 
-	pen->changed = pen->changed ? TRUE : (pen->line_join != lineJoin);
-	pen->line_join = lineJoin;
+	if (pen->line_join != lineJoin) {
+		pen->line_join = lineJoin;
+		pen->changed = TRUE;
+	}
+
 	return Ok;
 }
 
@@ -678,12 +618,14 @@ GdipSetPenMode (GpPen *pen, GpPenAlignment penMode)
 {
 	if (!pen)
 		return InvalidParameter;
+	if (penMode == PenAlignmentInset && pen->compound_count > 0)
+		return NotImplemented;
 
 	if (pen->mode != penMode) {
-		pen->changed = TRUE;
 		pen->mode = penMode;
+		pen->changed = TRUE;
 	}
-	
+
 	return Ok;
 }
 
@@ -713,8 +655,11 @@ GdipSetPenUnit (GpPen *pen, GpUnit unit)
 	if (!pen || unit < UnitWorld || unit > UnitCairoPoint || unit == UnitDisplay)
 		return InvalidParameter;
 
-	pen->unit = unit;
-	pen->changed = TRUE;
+	if (unit != pen->unit) {
+		pen->unit = unit;
+		pen->changed = TRUE;
+	}
+
 	return Ok;
 }
 
@@ -743,7 +688,7 @@ GdipGetPenTransform (GpPen *pen, GpMatrix *matrix)
 	if (!pen || !matrix)
 		return InvalidParameter;
 
-	gdip_cairo_matrix_copy(matrix, &pen->matrix);
+	gdip_cairo_matrix_copy (matrix, &pen->matrix);
 	return Ok;
 }
 
@@ -754,7 +699,6 @@ GdipResetPenTransform (GpPen *pen)
 		return InvalidParameter;
 
 	cairo_matrix_init_identity (&pen->matrix);
-
 	pen->changed = TRUE;
 
 	return Ok;
@@ -797,7 +741,6 @@ GdipTranslatePenTransform (GpPen *pen, REAL dx, REAL dy, GpMatrixOrder order)
 		return InvalidParameter;
 
 	status = GdipTranslateMatrix (&pen->matrix, dx, dy, order);
-
 	if (status == Ok)
 		pen->changed = TRUE;
 
@@ -813,7 +756,6 @@ GdipScalePenTransform (GpPen *pen, REAL sx, REAL sy, GpMatrixOrder order)
 		return InvalidParameter;
 
 	status = GdipScaleMatrix (&pen->matrix, sx, sy, order);
-
 	if (status == Ok)
 		pen->changed = TRUE;
 
@@ -829,7 +771,6 @@ GdipRotatePenTransform (GpPen *pen, REAL angle, GpMatrixOrder order)
 		return InvalidParameter;
 
 	status = GdipRotateMatrix (&pen->matrix, angle, order);
-
 	if (status == Ok)
 		pen->changed = TRUE;
 
@@ -914,8 +855,11 @@ GdipSetPenDashOffset (GpPen *pen, REAL offset)
 	if (!pen)
 		return InvalidParameter;
 
-	pen->dash_offset = offset;
-	pen->changed = TRUE;
+	if (pen->dash_offset != offset) {
+		pen->dash_offset = offset;
+		pen->changed = TRUE;
+	}
+
 	return Ok;
 }
 
@@ -935,15 +879,14 @@ GdipGetPenDashCount (GpPen *pen, INT *count)
 GpStatus WINGDIPAPI
 GdipGetPenDashArray (GpPen *pen, REAL *dash, INT count)
 {
-	if (!pen || !dash)
+	if (!pen || !dash || count > pen->dash_count)
 		return InvalidParameter;
-	if (count <= 0)
+	if (!pen->dash_array)
 		return OutOfMemory;
-	if (count != pen->dash_count)
-		return InvalidParameter;
+	if (count < 0)
+		return OutOfMemory;
 
 	memcpy (dash, pen->dash_array, count * sizeof (float));
-
 	return Ok;
 }
 
@@ -963,18 +906,18 @@ GdipSetPenDashArray (GpPen *pen, GDIPCONST REAL *dash, INT count)
 				return InvalidParameter;
 	}
 
-	if (sum == 0.0) {
+	if (sum == 0.0)
 		return InvalidParameter;
-	}
 
-	if (pen->dash_count != count || pen->own_dash_array == FALSE) {
+	if (pen->dash_count != count || !pen->own_dash_array) {
 		dash_array = (float *) GdipAlloc (count * sizeof (float));
 		if (!dash_array)
 			return OutOfMemory;
 
 		/* free the existing values, if we own them */
-		if (pen->dash_count != 0 && pen->own_dash_array == TRUE)
+		if (pen->dash_count != 0 && pen->own_dash_array)
 			GdipFree (pen->dash_array);
+
 		pen->dash_array = dash_array;
 		pen->dash_count = count;
 		pen->own_dash_array = TRUE;
@@ -1003,10 +946,22 @@ GdipGetPenCompoundCount (GpPen *pen, INT *count)
 GpStatus WINGDIPAPI
 GdipSetPenCompoundArray (GpPen *pen, GDIPCONST REAL *compound, INT count)
 {
+	float minValue = 0.0f;
 	float *compound_array;
 
-	if (!pen || !compound || count < 2 || count % 2 == 1)
+	if (!pen || !compound || count <= 0 || count % 2 == 1)
 		return InvalidParameter;
+	if (pen->mode == PenAlignmentInset)
+		return NotImplemented;
+
+	/* All values have to be in ascending order and be between 0 and 1. */
+	for (int i = 0; i < count; i++) {
+		float value = compound[i];
+		if (value < minValue || value > 1.0f)
+			return InvalidParameter;
+
+		minValue = value;
+	}
 
 	if (pen->compound_count != count) {
 		compound_array = (float *) GdipAlloc (count * sizeof (float));
@@ -1014,29 +969,26 @@ GdipSetPenCompoundArray (GpPen *pen, GDIPCONST REAL *compound, INT count)
 			return OutOfMemory;
 
 		/* free the existing values */
-		if (pen->compound_count != 0)
+		if (pen->compound_count)
 			GdipFree (pen->compound_array);
+
 		pen->compound_array = compound_array;
 		pen->compound_count = count;
 	}
 
 	memcpy (pen->compound_array, compound, pen->compound_count * sizeof (float));
-
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipGetPenCompoundArray (GpPen *pen, REAL *compound, INT count)
 {
-	if (!pen || !compound)
+	if (!pen || !compound || count > pen->compound_count)
 		return InvalidParameter;
 
 	/* GDI+ does nothing if count <= 0. */
 	if (count <= 0)
 		return Ok;
-
-	if (count > pen->compound_count)
-		return InvalidParameter;
 
 	memcpy (compound, pen->compound_array, count * sizeof (float));
 
@@ -1064,7 +1016,6 @@ GdipGetPenStartCap (GpPen *pen, GpLineCap *startCap)
 		return InvalidParameter;
 
 	*startCap = pen->line_cap;
-
 	return Ok;
 }
 
@@ -1097,7 +1048,6 @@ GdipGetPenEndCap (GpPen *pen, GpLineCap *endCap)
 		return InvalidParameter;
 
 	*endCap = pen->end_cap;
-
 	return Ok;
 }
 
@@ -1132,12 +1082,16 @@ GpStatus WINGDIPAPI
 GdipSetPenCustomStartCap (GpPen *pen, GpCustomLineCap *customCap)
 {
 	GpStatus status;
+	GpCustomLineCap *clonedCap;
+
 	if (!pen)
 		return InvalidParameter;
-	
-	status = GdipCloneCustomLineCap (customCap, &pen->custom_start_cap);
-	if (status == Ok)
+
+	status = GdipCloneCustomLineCap (customCap, &clonedCap);
+	if (status == Ok) {
+		pen->custom_start_cap = clonedCap;
 		pen->line_cap = LineCapCustom;
+	}
 
 	return status;
 }
@@ -1148,7 +1102,7 @@ GdipGetPenCustomStartCap (GpPen *pen, GpCustomLineCap **customCap)
 	if (!pen || !customCap)
 		return InvalidParameter;
 
-	if (pen->custom_start_cap == NULL) {
+	if (!pen->custom_start_cap) {
 		*customCap = NULL;
 		return Ok;
 	}
@@ -1160,13 +1114,16 @@ GpStatus WINGDIPAPI
 GdipSetPenCustomEndCap (GpPen *pen, GpCustomLineCap *customCap)
 {
 	GpStatus status;
+	GpCustomLineCap *clonedCap;
 
 	if (!pen)
 		return InvalidParameter;
 
-	status = GdipCloneCustomLineCap (customCap, &pen->custom_end_cap);
-	if (status == Ok)
+	status = GdipCloneCustomLineCap (customCap, &clonedCap);
+	if (status == Ok) {
+		pen->custom_end_cap = clonedCap;
 		pen->end_cap = LineCapCustom;
+	}
 
 	return status;
 }
@@ -1177,7 +1134,7 @@ GdipGetPenCustomEndCap (GpPen *pen, GpCustomLineCap **customCap)
 	if (!pen || !customCap)
 		return InvalidParameter;
 
-	if (pen->custom_end_cap == NULL) {
+	if (!pen->custom_end_cap) {
 		*customCap = NULL;
 		return Ok;
 	}
