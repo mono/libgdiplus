@@ -1197,11 +1197,12 @@ combine_headers (GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, Metaf
 {
 	if (wmfPlaceableFileHeader) {
 		header->Type = MetafileTypeWmfPlaceable;
-		header->X = wmfPlaceableFileHeader->BoundingBox.Left;
-		header->Y = wmfPlaceableFileHeader->BoundingBox.Top;
-		header->Width = wmfPlaceableFileHeader->BoundingBox.Right - wmfPlaceableFileHeader->BoundingBox.Left;
-		header->Height= wmfPlaceableFileHeader->BoundingBox.Bottom - wmfPlaceableFileHeader->BoundingBox.Top;
-		
+
+		header->X = min (wmfPlaceableFileHeader->BoundingBox.Right, wmfPlaceableFileHeader->BoundingBox.Left);
+		header->Y = min (wmfPlaceableFileHeader->BoundingBox.Top, wmfPlaceableFileHeader->BoundingBox.Bottom);
+		header->Width = abs (wmfPlaceableFileHeader->BoundingBox.Right - wmfPlaceableFileHeader->BoundingBox.Left);
+		header->Height= abs (wmfPlaceableFileHeader->BoundingBox.Bottom - wmfPlaceableFileHeader->BoundingBox.Top);
+
 		/* The units of a metafile are twips (1/20 of a point). The Inch field contains the number
 		*  of twips per inch used to represent the image. There are 1440 twips per inch by default.
 		*  Use the default if the placeable header has no twips per inch specified. */
