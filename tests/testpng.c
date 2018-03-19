@@ -1,23 +1,40 @@
+#ifdef WIN32
+#ifndef __cplusplus
+#error Please compile with a C++ compiler.
+#endif
+#endif
+
+#if defined(USE_WINDOWS_GDIPLUS)
+#include <Windows.h>
+#include <GdiPlus.h>
+
+#pragma comment(lib, "gdiplus.lib")
+#else
+#include <GdiPlusFlat.h>
+#endif
+
+#if defined(USE_WINDOWS_GDIPLUS)
+using namespace Gdiplus;
+using namespace DllExports;
+#endif
+
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-
-#include "GdiPlusFlat.h"
 #include "testhelpers.h"
 
 static int status_counter = 0;
 
 #define CHECK_STATUS(x) do { if (status != Ok) { printf ("status[%d] == %d!\n", status_counter++, status); if(x) { exit(-1); } } else { printf ("status[%d] == Ok\n", status_counter++); } } while (0)
 #define CHECK_ASSERT(x) do { if (!(x)) { printf ("check %s at %s:%d failed\n", #x, __FILE__, __LINE__); exit(-1); } else { printf("check %s at %s:%d passed\n", #x, __FILE__, __LINE__); }  } while (0)
- 
+
 CLSID png_clsid = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
 
 int
 main (int argc, char **argv)
 {
     GpImage *img;
-    gunichar2 *unis;
+    WCHAR *unis;
     GpBitmap *bitmap;
     GpStatus status;
     int original_palette_size;
@@ -66,7 +83,11 @@ main (int argc, char **argv)
 
     GdipDisposeImage (img);
     img = NULL;
+#if defined(_WIN32)
+    _unlink ("test-trns-resave.png");
+#else
     unlink ("test-trns-resave.png");
+#endif
     free (original_palette);
     free (reloaded_palette);
 
@@ -78,13 +99,13 @@ main (int argc, char **argv)
     freeWchar (unis);
     status = GdipGetImagePixelFormat (bitmap, &pixel_format);
     CHECK_STATUS(1);
-    CHECK_ASSERT(pixel_format == PixelFormat32bppARGB);    
+    CHECK_ASSERT(pixel_format == PixelFormat32bppARGB);
     status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
     CHECK_STATUS(1);
-    CHECK_ASSERT(color == 0xffffff);    
+    CHECK_ASSERT(color == 0xffffff);
     status = GdipBitmapGetPixel (bitmap, 1, 7, &color);
     CHECK_STATUS(1);
-    CHECK_ASSERT(color == 0xe8b3b3b3);    
+    CHECK_ASSERT(color == 0xe8b3b3b3);
     GdipDisposeImage (bitmap);
 
     return 0;

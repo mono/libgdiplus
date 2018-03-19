@@ -13,7 +13,7 @@
 #include <GdiPlusFlat.h>
 #endif
 
-#ifdef WIN32
+#if defined(USE_WINDOWS_GDIPLUS)
 using namespace Gdiplus;
 using namespace DllExports;
 #endif

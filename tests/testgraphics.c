@@ -13,6 +13,11 @@
 #include <GdiPlusFlat.h>
 #endif
 
+#if defined(USE_WINDOWS_GDIPLUS)
+using namespace Gdiplus;
+using namespace DllExports;
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -29,10 +34,10 @@ static GpGraphics *getImageGraphics (GpImage **image)
 	assertEqualInt (status, Ok);
 
 	freeWchar (filePath);
-	
+
 	status = GdipGetImageGraphicsContext (*image, &graphics);
 	assertEqualInt (status, Ok);
-	
+
 	return graphics;
 }
 
@@ -205,7 +210,7 @@ static void test_hdc ()
 	assertEqualInt (status, Ok);
 
 	status = GdipReleaseDC (graphics, hdc);
-	assertEqualInt (status, InvalidParameter);	
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
@@ -474,7 +479,7 @@ static void test_smoothingMode ()
 	// HighSpeed -> None
 	status = GdipSetSmoothingMode(graphics, SmoothingModeHighSpeed);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetSmoothingMode(graphics, &smoothingMode);
 	assertEqualInt (status, Ok);
 	assertEqualInt (smoothingMode, SmoothingModeNone);
@@ -482,7 +487,7 @@ static void test_smoothingMode ()
 	// Other -> Other
 	status = GdipSetSmoothingMode(graphics, SmoothingModeAntiAlias);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetSmoothingMode(graphics, &smoothingMode);
 	assertEqualInt (status, Ok);
 	assertEqualInt (smoothingMode, SmoothingModeAntiAlias);
@@ -573,7 +578,7 @@ static void test_interpolationMode ()
 	InterpolationMode interpolationMode;
 
 	graphics = getImageGraphics (&image);
-	
+
 	status = GdipGetInterpolationMode (NULL, &interpolationMode);
 	assertEqualInt (status, InvalidParameter);
 
@@ -888,7 +893,7 @@ static void test_flush ()
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
-	
+
 	graphics = getImageGraphics (&image);
 
 	status = GdipFlush (NULL, FlushIntentionFlush);
@@ -923,9 +928,9 @@ static void test_delete ()
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
-	
+
 	graphics = getImageGraphics (&image);
-	
+
 	HDC hdc;
 	status = GdipGetDC (graphics, &hdc);
 
@@ -936,7 +941,7 @@ static void test_delete ()
 
 	status = GdipDeleteGraphics (graphics);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipDeleteGraphics (NULL);
 	assertEqualInt (status, InvalidParameter);
 
