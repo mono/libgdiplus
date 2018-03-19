@@ -1366,7 +1366,7 @@ gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, ImageSource
 		size = sizeof (WmfPlaceableFileHeader) - size;
 		if (gdip_read_wmf_data(pointer, (BYTE*)(&aldus_header) + sizeof(DWORD), size, source) != size)
 			return OutOfMemory;
-#if FALSE
+#ifdef DEBUG_METAFILE
 g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inch %d, reserved %d, checksum %d", 
 	aldus_header.Key, aldus_header.Hmf, aldus_header.BoundingBox.Left, aldus_header.BoundingBox.Top,
 	aldus_header.BoundingBox.Right, aldus_header.BoundingBox.Bottom, aldus_header.Inch, aldus_header.Reserved,
@@ -1406,7 +1406,7 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 			return OutOfMemory;
 		EnhMetaHeaderLE (&header->Header.Emf);
 
-#if FALSE
+#ifdef DEBUG_METAFILE
 g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame L %d, T %d, R %d, B %d, signature %X, version %d, bytes %d, records %d, handles %d, reserved %d, description %d, %d, palentries %d, device %d, %d, millimeters %d, %d", 
 	emf->iType, emf->nSize, 
 	emf->rclBounds.left, emf->rclBounds.top, emf->rclBounds.right, emf->rclBounds.bottom,
@@ -1464,7 +1464,7 @@ g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame 
 		status = OutOfMemory;
 	}
 
-#if FALSE
+#ifdef DEBUG_METAFILE
 g_warning ("METAHEADER type %d, header %d, version %d, size %d, #obj %d, max rec %d, #params %d",
 	header->Header.Wmf.mtType, header->Header.Wmf.mtHeaderSize, header->Header.Wmf.mtVersion,
 	header->Header.Wmf.mtSize, header->Header.Wmf.mtNoObjects, header->Header.Wmf.mtMaxRecord,

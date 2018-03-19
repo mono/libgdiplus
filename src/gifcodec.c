@@ -532,13 +532,6 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 
 					break;
 				}
-
-#if 0
-				case PLAINTEXT_EXT_FUNC_CODE: {
-					printf("Do something with PLAINTEXT_EXT_FUNC_CODE?\n");
-					break;
-				}
-#endif
 			}
 		}
 

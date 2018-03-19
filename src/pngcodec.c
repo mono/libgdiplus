@@ -737,14 +737,6 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 	png_set_sRGB_gAMA_and_cHRM (png_ptr, info_ptr, PNG_sRGB_INTENT_PERCEPTUAL);
 	png_write_info (png_ptr, info_ptr);
 
-#if 0
-	if ((image->active_bitmap->pixel_format == Format24bppRGB) || (image->active_bitmap->pixel_format == Format32bppRGB)) {
-		png_set_filler (png_ptr, 0, PNG_FILLER_AFTER);
-	} else if (image->active_bitmap->pixel_format == Format8bppIndexed) {
-		png_set_filler (png_ptr, 0, PNG_FILLER_AFTER);
-	}
-#endif
-
 	png_set_bgr(png_ptr);
 
 	if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format)) {

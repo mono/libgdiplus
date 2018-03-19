@@ -638,11 +638,6 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 	}
 
 	/* We ignored it above, for shorter of calculations, also, add a bit of padding */
-#if 0
-	if ((fmt->formatFlags & StringFormatFlagsNoFitBlackBox) == 0) {
-		MaxX+=2;
-	}
-#endif
 	MaxY+=LineHeight+FontExtent.descent;
 
 #ifdef DRAWSTRING_DEBUG
@@ -681,17 +676,6 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 		}
 	}
 	AlignVert = format->lineAlignment;
-
-#if 0
-	/* Alignment sanity checks, not sure about these, might not match MS */
-	if (MaxX>rc->Width) {
-		AlignHorz=StringAlignmentNear;
-	}
-
-	if (MaxY>rc->Height) {
-		AlignVert=StringAlignmentNear;
-	}
-#endif
 
 	/*
 	   At this point we know our bounding box, what characters

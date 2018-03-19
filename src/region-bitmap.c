@@ -23,7 +23,9 @@
 #include "region-private.h"
 #include "graphics-path-private.h"
 
-#if FALSE
+// #define DEBUG_REGION
+
+#ifdef DEBUG_REGION
 
 /*
  * Debugging helpers

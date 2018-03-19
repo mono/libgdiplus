@@ -312,53 +312,6 @@ gdip_closed_curve_tangents (int terms, const GpPointF *points, int count, float 
 	return tangents;
 }
 
-/* re-enabled if/when required */
-#if FALSE
-/* this function comes from fcmp.sf.net */
-int
-fcmp (double x1, double x2, double epsilon)
-{
-	int exponent;
-	double delta;
-	double difference;
-
-	/* Get exponent(max(fabs(x1), fabs(x2))) and store it in exponent. */
-
-	/* If neither x1 nor x2 is 0, */
-	/* this is equivalent to max(exponent(x1), exponent(x2)). */
-
-	/* If either x1 or x2 is 0, its exponent returned by frexp would be 0, */
-	/* which is much larger than the exponents of numbers close to 0 in */
-	/* magnitude. But the exponent of 0 should be less than any number */
-	/* whose magnitude is greater than 0. */
-
-	/* So we only want to set exponent to 0 if both x1 and */
-	/* x2 are 0. Hence, the following works for all x1 and x2. */
-
-	frexp (fabs (x1) > fabs (x2) ? x1 : x2, &exponent);
-
-	/* Do the comparison. */
-
-	/* delta = epsilon * pow(2, exponent) */
-
-	/* Form a neighborhood around x2 of size delta in either direction. */
-	/* If x1 is within this delta neighborhood of x2, x1 == x2. */
-	/* Otherwise x1 > x2 or x1 < x2, depending on which side of */
-	/* the neighborhood x1 is on. */
-
-	delta = ldexp (epsilon, exponent); 
-
-	difference = x1 - x2;
-
-	if (difference > delta)
-		return 1; /* x1 > x2 */
-	else if (difference < -delta) 
-		return -1;  /* x1 < x2 */
-	else /* -delta <= difference <= delta */
-		return 0;  /* x1 == x2 */
-}
-#endif
-
 /* note: round[f] is C99 */
 int
 iround (float d)
@@ -495,29 +448,6 @@ utf8_encode_ucs2char(gunichar2 unichar, BYTE *dest)
 	dest[2] = (BYTE)(0x80 | (unichar & 0x003F));
 	return (3);	
 }
-
-/* re-enabled if/when required */
-#if FALSE
-/* This function only handles UCS-2 */
-int
-utf8_decode_ucs2char (const BYTE *src, gunichar2 *uchar)
-{
-	if (src[0] <= 0x7F) {			/* 0000-007F: one byte (0xxxxxxx) */
-		*uchar = (gunichar2)src[0];
-		return (1);
-	}
-	if (src[0] <= 0xDF) {			/* 0080-07FF: two bytes (110xxxxx 10xxxxxx) */
-		*uchar = ((((gunichar2)src[0]) & 0x001F) << 6) |
-			((((gunichar2)src[1]) & 0x003F) << 0);
-		return (2);
-	}
-						/* 0800-FFFF: three bytes (1110xxxx 10xxxxxx 10xxxxxx) */
-	*uchar = ((((gunichar2)src[0]) & 0x000F) << 12) |
-		((((gunichar2)src[1]) & 0x003F) << 6) |
-		((((gunichar2)src[2]) & 0x003F) << 0);
-	return (3);
-}
-#endif
 
 GpStatus
 gdip_get_pattern_status (cairo_pattern_t *pat)
