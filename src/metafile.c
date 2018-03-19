@@ -1001,10 +1001,10 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 
 	/* defaults */
 	context->fill_mode = FillModeAlternate;
-	context->map_mode = MM_TEXT;
+	gdip_metafile_SetMapMode (context, MM_TWIPS);
 	context->miter_limit = 10.0f;
-	context->selected_pen = -1;
-	context->selected_brush = -1;
+	context->selected_pen =  ENHMETA_STOCK_OBJECT + BLACK_PEN;
+	context->selected_brush = ENHMETA_STOCK_OBJECT + WHITE_BRUSH;
 	context->selected_font = -1;
 	context->selected_palette = -1;
 
