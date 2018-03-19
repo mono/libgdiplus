@@ -530,7 +530,7 @@ GpStatus
 gdip_metafile_CreateBrushIndirect (MetafilePlayContext *context, DWORD style, DWORD color, DWORD hatch)
 {
 	GpStatus status = Ok;
-	GpBrush *brush;
+	void *brush;
 
 	switch (style) {
 	case BS_SOLID:
