@@ -113,7 +113,7 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 	int i, pos;
 	BOOL upsidedown = TRUE;
 	BOOL os2format = FALSE;
-	BITMAPINFOHEADER bih;
+	BITMAPV5HEADER bih;
 	int palette_entries = -1;
 	ARGB *colors = NULL;
 	int x, y;
@@ -163,11 +163,16 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 	}
 
 	/* BITMAPINFOHEADER */
-	status = gdip_read_BITMAPINFOHEADER (pointer, &bih, source, &os2format, &upsidedown);
+	status = gdip_read_BITMAPINFOHEADER (pointer, source, &bih, &os2format, &upsidedown);
 	if (status != Ok)
 		goto error;
 	
 	result = gdip_bitmap_new_with_frame (NULL, TRUE);
+	if (!result) {
+		status = OutOfMemory;
+		goto error;
+	}
+
 	result->type = ImageTypeBitmap;
 	result->image_format = ICON;
 	result->active_bitmap->pixel_format = PixelFormat32bppARGB; /* icons are always promoted to 32 bbp */
@@ -179,19 +184,19 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 	result->active_bitmap->dpi_horz = 96.0f;
 	result->active_bitmap->dpi_vert = 96.0f;
 
-	switch (bih.biBitCount) {
+	switch (bih.bV5BitCount) {
 	case 1:
 	case 4:
 	case 8:
 		/* support 2, 16 and 256 colors icons, with palettes, no compression */
-		if (bih.biCompression == 0)
-			palette_entries = 1 << bih.biBitCount;
+		if (bih.bV5Compression == 0)
+			palette_entries = 1 << bih.bV5BitCount;
 		break;
 	case 24:
 		/* support 24bits + alpha bitmap, this is not documented anywhere but Windows accept them as valid */
 	case 32:
 		/* support 24bits + 8 bits alpha (aka "XP" icons), no palette, no compression */
-		if (bih.biCompression == 0)
+		if (bih.bV5Compression == 0)
 			palette_entries = 0;
 		break;
 	}
@@ -247,7 +252,7 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 	result->active_bitmap->reserved = GBD_OWN_SCAN0;
 	result->active_bitmap->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB | ImageFlagsHasAlpha;
 
-	line_xor_length = (((bih.biBitCount * entry.bWidth + 31) & ~31) >> 3);
+	line_xor_length = (((bih.bV5BitCount * entry.bWidth + 31) & ~31) >> 3);
 	xor_size = line_xor_length * entry.bHeight;
 	xor_data = (BYTE*) GdipAlloc (xor_size);
 	if (!xor_data) {
@@ -276,10 +281,10 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 		for (x = 0; x < entry.bWidth; x++) {
 			ARGB color;
 			if (palette_entries > 0) {
-				color = colors [get_ico_data (xor_data, x, y, bih.biBitCount, line_xor_length)];
+				color = colors [get_ico_data (xor_data, x, y, bih.bV5BitCount, line_xor_length)];
 				if (get_ico_data (and_data, x, y, 1, line_and_length) == 1)
 					color &= 0x00FFFFFF;
-			} else if (bih.biBitCount == 24) {
+			} else if (bih.bV5BitCount == 24) {
 				/* take 1bpp alpha from the and_data */
 				if (get_ico_data (and_data, x, y, 1, line_and_length) == 1) {
 					color = 0;
@@ -310,6 +315,7 @@ error:
 		GdipFree (xor_data);
 	if (and_data)
 		GdipFree (and_data);
+
 	return status;
 }
 
