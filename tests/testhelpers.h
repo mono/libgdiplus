@@ -186,6 +186,29 @@ BOOL is_32bit ()
 	} \
 }
 
+#define verifyPixels(image, pixels) \
+{ \
+	UINT width; \
+	UINT height; \
+	ARGB expected[] = pixels; \
+	GdipGetImageWidth (image, &width); \
+	GdipGetImageHeight (image, &height); \
+ \
+	for (UINT y = 0; y < height; y++) \
+	{ \
+		for (UINT x = 0; x < width; x++) \
+		{ \
+			ARGB pixel; \
+			GdipBitmapGetPixel ((GpBitmap *) image, x, y, &pixel); \
+			if (pixel != expected[x + y * height]) \
+			{ \
+				printf("Pixel [%u, %u]\n", x, y); \
+				assertEqualInt (pixel, expected[x + y * height]); \
+			} \
+		} \
+	} \
+}
+
 #define HEX__(n) 0x##n##LU
 #define B8__(x) ((x&0x0000000FLU)?1:0) \
 + ((x&0x000000F0LU)?2:0)               \
