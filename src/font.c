@@ -50,20 +50,26 @@ static int ref_familyMonospace = 0;
 
 
 /* Family and collections font functions */
-
 static void
-gdip_createFontFamily (GpFontFamily **family)
+gdip_fontfamily_init (GpFontFamily *fontFamily)
+{
+	fontFamily->height = -1;
+	fontFamily->linespacing = -1;
+	fontFamily->celldescent = -1;
+	fontFamily->cellascent = -1;
+	fontFamily->pattern = NULL;
+	fontFamily->allocated = FALSE;
+}
+
+static GpFontFamily *
+gdip_fontfamily_new ()
 {
 	GpFontFamily *result = (GpFontFamily *) GdipAlloc (sizeof (GpFontFamily));
-	if (result) {
-		result->height = -1;
-		result->linespacing = -1;
-		result->celldescent = -1;
-		result->cellascent = -1;
-		result->pattern = NULL;
-		result->allocated = FALSE;
-	}
-	*family = result;
+
+	if (result)
+		gdip_fontfamily_init (result);
+
+	return result;
 }
 
 static GpFontCollection *system_fonts = NULL;
@@ -185,7 +191,7 @@ GdipCloneFontFamily (GpFontFamily *fontFamily, GpFontFamily **clonedFontFamily)
 	if (!fontFamily || !clonedFontFamily)
 		return InvalidParameter;
 
-	gdip_createFontFamily (&result);
+	result = gdip_fontfamily_new ();
 	if (!result)
 		return OutOfMemory;
 
@@ -303,7 +309,10 @@ GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, INT num_soug
 		gdip_createPrivateFontSet (font_collection);
 
 	for (i = 0; i < num_sought && i < font_collection->fontset->nfont; i++) {
-		gdip_createFontFamily(&gpfamilies[i]);
+		gpfamilies[i] = gdip_fontfamily_new ();
+		if (!gpfamilies[i])
+			return OutOfMemory;
+
 		gpfamilies[i]->pattern = font_collection->fontset->fonts[i];
 		gpfamilies[i]->allocated = FALSE;
 	}
@@ -408,7 +417,7 @@ create_fontfamily_from_name (char* name, GpFontFamily **fontFamily)
 	}
 
 	if (pat) {
-		gdip_createFontFamily (&ff);
+		ff = gdip_fontfamily_new ();
 		if (ff) {
 			ff->pattern = pat;
 			ff->allocated = FALSE;
@@ -469,9 +478,14 @@ create_fontfamily_from_collection (char* name, GpFontCollection *font_collection
 				return status;
 
 			if (strcmp ((char *)name, (const char *)str) == 0) {
-				gdip_createFontFamily (fontFamily);
-				(*fontFamily)->pattern = *gpfam;
-				(*fontFamily)->allocated = FALSE;
+				GpFontFamily *result = gdip_fontfamily_new ();
+				if (!result)
+					return OutOfMemory;
+
+				result->pattern = *gpfam;
+				result->allocated = FALSE;
+
+				*fontFamily = result;
 				return Ok;
 			}
 		}
