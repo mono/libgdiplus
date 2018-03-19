@@ -30,14 +30,6 @@
 	Helper functions
 */
 
-static void
-gdip_from_Rect_To_RectF (GpRect* rect, GpRectF* rectf)
-{
-	rectf->X = rect->X;
-	rectf->Y = rect->Y;
-	rectf->Width = rect->Width;
-	rectf->Height = rect->Height;
-}
 
 static GpStatus
 gdip_add_rect_to_array (GpRectF** srcarray, int* elements,  GpRectF* rect)
@@ -411,7 +403,7 @@ gdip_createRegion (GpRegion **region, RegionType type, void *src)
 
 	switch (type) {
 	case RegionTypeRect:
-		gdip_from_Rect_To_RectF ((GpRect *)src, &rect);
+		gdip_RectF_from_Rect ((GpRect *) src, &rect);
 		status = gdip_add_rect_to_array (&result->rects, &result->cnt,  &rect);
 		if (status != Ok) {
 			GdipFree (result);
@@ -1190,7 +1182,7 @@ GdipCombineRegionRectI (GpRegion *region, GDIPCONST GpRect *recti, CombineMode c
 	if (!region || !recti)
 		return InvalidParameter;
 
-	gdip_from_Rect_To_RectF ((GpRect *) recti, &rect);
+	gdip_RectF_from_Rect ((GpRect *) recti, &rect);
 
 	return GdipCombineRegionRect (region, (GDIPCONST GpRectF *) &rect, combineMode);
 }

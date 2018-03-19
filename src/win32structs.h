@@ -257,6 +257,20 @@ typedef struct {
 	BYTE rgbReserved;
 } RGBQUAD, *LPRGBQUAD;
 
+typedef LONG FXPT2DOT30;
+
+typedef struct {
+	FXPT2DOT30	ciexyzX;
+	FXPT2DOT30	ciexyzY;
+	FXPT2DOT30	ciexyzZ;
+} CIEXYZ;
+
+typedef struct {
+	CIEXYZ	ciexyzRed;
+	CIEXYZ	ciexyzGreen;
+	CIEXYZ	ciexyzBlue;
+} CIEXYZTRIPLE;
+
 typedef struct {
 	DWORD 	biSize;
 	LONG  	biWidth;
@@ -270,6 +284,56 @@ typedef struct {
 	DWORD 	biClrUsed;
 	DWORD 	biClrImportant;
 } BITMAPINFOHEADER, *PBITMAPINFOHEADER, *LPBITMAPINFOHEADER;
+
+typedef struct {
+	DWORD 	bV4Size;
+	LONG  	bV4Width;
+	LONG  	bV4Height;
+	WORD 	bV4Planes;
+	WORD 	bV4BitCount;
+	DWORD 	bV4Compression;
+	DWORD 	bV4SizeImage;
+	LONG  	bV4XPelsPerMeter;
+	LONG  	bV4YPelsPerMeter;
+	DWORD 	bV4ClrUsed;
+	DWORD 	bV4ClrImportant;
+	DWORD	bV4RedMask;
+	DWORD	bV4GreenMask;
+	DWORD	bV4BlueMask;
+	DWORD	bV4AlphaMask;
+	DWORD	bV4CSType;
+	CIEXYZTRIPLE	bV4Endpoints;
+	DWORD	bV4GammaRed;
+	DWORD	bV4GammaGreen;
+	DWORD	bV4GammaBlue;
+} BITMAPV4HEADER, *PBITMAPV4HEADER;
+
+typedef struct {
+	DWORD        bV5Size;
+	LONG         bV5Width;
+	LONG         bV5Height;
+	WORD         bV5Planes;
+	WORD         bV5BitCount;
+	DWORD        bV5Compression;
+	DWORD        bV5SizeImage;
+	LONG         bV5XPelsPerMeter;
+	LONG         bV5YPelsPerMeter;
+	DWORD        bV5ClrUsed;
+	DWORD        bV5ClrImportant;
+	DWORD        bV5RedMask;
+	DWORD        bV5GreenMask;
+	DWORD        bV5BlueMask;
+	DWORD        bV5AlphaMask;
+	DWORD        bV5CSType;
+	CIEXYZTRIPLE bV5Endpoints;
+	DWORD        bV5GammaRed;
+	DWORD        bV5GammaGreen;
+	DWORD        bV5GammaBlue;
+	DWORD        bV5Intent;
+	DWORD        bV5ProfileData;
+	DWORD        bV5ProfileSize;
+	DWORD        bV5Reserved;
+} BITMAPV5HEADER, *PBITMAPV5HEADER;
 
 typedef struct {
 	BITMAPINFOHEADER bmiHeader;

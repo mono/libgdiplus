@@ -584,13 +584,8 @@ GdipCreateLineBrushFromRectI (GDIPCONST GpRect *rect, ARGB color1, ARGB color2, 
 	if (mode < LinearGradientModeHorizontal || mode > LinearGradientModeBackwardDiagonal)
 		return OutOfMemory;
 
-	rectf.X = rect->X;
-	rectf.Y = rect->Y;
-	rectf.Width = rect->Width;
-	rectf.Height = rect->Height;
-
-	return GdipCreateLineBrushFromRectWithAngle (&rectf, color1, color2,
-		get_angle_from_linear_gradient_mode (mode), TRUE, wrapMode, lineGradient);
+	gdip_RectF_from_Rect (rect, &rectf);
+	return GdipCreateLineBrushFromRect (&rectf, color1, color2, mode, wrapMode, lineGradient);
 }
 
 // coverity[+alloc : arg-*5]
@@ -616,11 +611,7 @@ GdipCreateLineBrushFromRectWithAngleI (GDIPCONST GpRect *rect, ARGB color1, ARGB
 	if (!rect || !lineGradient)
 		return InvalidParameter;
 
-	rectf.X = rect->X;
-	rectf.Y = rect->Y;
-	rectf.Width = rect->Width;
-	rectf.Height = rect->Height;
-
+	gdip_RectF_from_Rect (rect, &rectf);
 	return GdipCreateLineBrushFromRectWithAngle (&rectf, color1, color2, angle, 
 						     isAngleScalable, wrapMode, lineGradient);
 }
@@ -880,11 +871,7 @@ GdipGetLineRectI (GpLineGradient *brush, GpRect *rect)
 	if (!brush || !rect)
 		return InvalidParameter;
 
-	rect->X = (int) brush->rectangle.X;
-	rect->Y = (int) brush->rectangle.Y;
-	rect->Width = (int) brush->rectangle.Width;
-	rect->Height = (int) brush->rectangle.Height;
-
+	gdip_Rect_from_RectF (&brush->rectangle, rect);
 	return Ok;
 }
 

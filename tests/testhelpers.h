@@ -1,3 +1,4 @@
+
 #include <assert.h>
 #include <float.h>
 #include <math.h>
@@ -8,6 +9,17 @@
 #if !defined(_WIN32)
 #include <unistd.h>
 #endif
+
+#define STARTUP \
+    ULONG_PTR gdiplusToken; \
+	GdiplusStartupInput gdiplusStartupInput; \
+    gdiplusStartupInput.GdiplusVersion = 1; \
+    gdiplusStartupInput.DebugEventCallback = NULL; \
+    gdiplusStartupInput.SuppressBackgroundThread = FALSE; \
+    gdiplusStartupInput.SuppressExternalCodecs = FALSE; \
+    GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL); \
+
+#define SHUTDOWN GdiplusShutdown (gdiplusToken);
 
 BOOL floatsEqual (float v1, float v2)
 {
@@ -40,7 +52,7 @@ void verifyMatrix (GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5
     }
 }
 
-#if !defined(USE_WINDOWS_GDIPLUS)
+#if !defined(_WIN32)
 #define createWchar(c) g_utf8_to_utf16 (c, -1, NULL, NULL, NULL);
 #define freeWchar(c) g_free(c)
 #define wcharFromChar(c) createWchar(c)
@@ -113,12 +125,12 @@ BOOL is_32bit ()
 #endif
 
 #define verifyBitmap(image, expectedRawFormat, expectedPixelFormat, expectedWidth, expectedHeight, expectedFlags, expectedPropertyCount, checkFlags) \
-    verifyImage(image, ImageTypeBitmap, expectedRawFormat, expectedPixelFormat, 0, 0, expectedWidth, expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, expectedFlags, expectedPropertyCount, checkFlags)
+    verifyImage(image, ImageTypeBitmap, expectedRawFormat, expectedPixelFormat, 0, 0, expectedWidth, expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, expectedFlags, expectedPropertyCount, checkFlags)
 
 #define verifyMetafile(image, expectedRawFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedDimensionWidth, expectedDimensionHeight) \
-    verifyImage(image, ImageTypeMetafile, expectedRawFormat, PixelFormat32bppRGB, expectedX, expectedY, expectedWidth, expectedHeight, expectedDimensionWidth, expectedDimensionHeight, 327683, 0, TRUE)
+    verifyImage(image, ImageTypeMetafile, expectedRawFormat, PixelFormat32bppRGB, expectedX, expectedY, expectedWidth, expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, expectedDimensionWidth, expectedDimensionHeight, 327683, 0, TRUE)
 
-#define verifyImage(image, expectedType, expectedRawFormat, expectedPixelFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedDimensionWidth, expectedDimensionHeight, expectedFlags, expectedPropertyCount, checkFlags) \
+#define verifyImage(image, expectedType, expectedRawFormat, expectedPixelFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedBoundsWidth, expectedBoundsHeight, expectedDimensionWidth, expectedDimensionHeight, expectedFlags, expectedPropertyCount, checkFlags) \
 { \
     GpStatus status; \
     ImageType type; \
@@ -157,8 +169,8 @@ BOOL is_32bit ()
     assertEqualInt (status, Ok); \
     assertEqualFloat (bounds.X, expectedX); \
     assertEqualFloat (bounds.Y, expectedY); \
-    assertEqualFloat (bounds.Width, (REAL)expectedWidth); \
-    assertEqualFloat (bounds.Height, (REAL)expectedHeight); \
+    assertEqualFloat (bounds.Width, expectedBoundsWidth); \
+    assertEqualFloat (bounds.Height, expectedBoundsHeight); \
     assertEqualInt (unit, UnitPixel); \
  \
     /* Libgdiplus and GDI+ have different exact degrees of accuracy. */ \
@@ -166,8 +178,10 @@ BOOL is_32bit ()
     /* This is an acceptable difference. */ \
     status = GdipGetImageDimension (image, &dimensionWidth, &dimensionHeight); \
     assertEqualInt (status, Ok); \
-    assert (fabsf (dimensionWidth - expectedDimensionWidth) <= 0.05); \
-    assert (fabsf (dimensionHeight - expectedDimensionHeight) <= 0.05); \
+    if (fabsf (dimensionWidth - expectedDimensionWidth) > 0.05) \
+		assertEqualFloat (dimensionWidth, expectedDimensionWidth); \
+    if (fabsf (dimensionHeight - expectedDimensionHeight) > 0.05) \
+		assertEqualFloat (dimensionHeight, expectedDimensionHeight); \
  \
     /* FIXME: libgdiplus and GDI+ have different results for bitmap images. */ \
     if (checkFlags || WINDOWS_GDIPLUS) \
@@ -183,6 +197,29 @@ BOOL is_32bit ()
 	if (WINDOWS_GDIPLUS) \
 	{ \
 		assertEqualInt (propertyCount, expectedPropertyCount); \
+	} \
+}
+
+#define verifyPixels(image, pixels) \
+{ \
+	UINT width; \
+	UINT height; \
+	ARGB expected[] = pixels; \
+	GdipGetImageWidth (image, &width); \
+	GdipGetImageHeight (image, &height); \
+ \
+	for (UINT y = 0; y < height; y++) \
+	{ \
+		for (UINT x = 0; x < width; x++) \
+		{ \
+			ARGB pixel; \
+			GdipBitmapGetPixel ((GpBitmap *) image, x, y, &pixel); \
+			if (pixel != expected[x + y * height]) \
+			{ \
+				printf("Pixel [%u, %u]\n", x, y); \
+				assertEqualInt (pixel, expected[x + y * height]); \
+			} \
+		} \
 	} \
 }
 

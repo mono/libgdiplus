@@ -13,7 +13,7 @@
 #include <GdiPlusFlat.h>
 #endif
 
-#ifdef USE_WINDOWS_GDIPLUS
+#if defined(USE_WINDOWS_GDIPLUS)
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
@@ -659,9 +659,7 @@ static void test_setStringFormatMeasurableCharacterRanges ()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_createStringFormat ();
 	test_getGenericDefault ();
@@ -684,6 +682,6 @@ main (int argc, char**argv)
 	test_getStringFormatMeasurableCharacterRangeCount ();
 	test_setStringFormatMeasurableCharacterRanges ();
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

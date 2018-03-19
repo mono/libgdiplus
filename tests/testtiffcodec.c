@@ -699,9 +699,7 @@ static void test_invalidSpecificTag ()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_valid ();
 	test_invalidHeader ();
@@ -712,6 +710,6 @@ main (int argc, char**argv)
 
 	deleteFile (file);
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

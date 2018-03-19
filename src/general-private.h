@@ -113,6 +113,10 @@ GpPointF *convert_points (const GpPoint *points, int count) GDIP_INTERNAL;
 GpPointF *gdip_closed_curve_tangents (int terms, const GpPointF *points, int count, float tension) GDIP_INTERNAL;
 GpPointF *gdip_open_curve_tangents (int terms,  const GpPointF *points, int count, float tension) GDIP_INTERNAL;
 
+/* Conversion functions. */
+void gdip_RectF_from_Rect (const GpRect* rect, GpRectF* rectf) GDIP_INTERNAL;
+void gdip_Rect_from_RectF (const GpRectF* rectf, GpRect* rect) GDIP_INTERNAL;
+
 /* memory */
 void* gdip_realloc (void *org, int size) GDIP_INTERNAL;
 void* gdip_calloc (size_t nelem, size_t elsize) GDIP_INTERNAL; 

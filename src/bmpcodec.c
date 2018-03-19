@@ -75,10 +75,10 @@ gdip_getcodecinfo_bmp ()
 }
 
 static GpStatus
-gdip_get_bmp_pixelformat (BITMAPINFOHEADER *bih, PixelFormat *dest)
+gdip_get_bmp_pixelformat (BITMAPV5HEADER *bih, PixelFormat *dest)
 {
-	int bitCount = bih->biBitCount;
-	int compression = bih->biCompression;
+	int bitCount = bih->bV5BitCount;
+	int compression = bih->bV5Compression;
 
 	switch (compression) {
 	case BI_BITFIELDS:
@@ -675,7 +675,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 }
 
 GpStatus
-gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, ImageSource source, BOOL *os2format, BOOL *upsidedown)
+gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *bmi, BOOL *os2format, BOOL *upsidedown)
 {
 	DWORD dw = 0;
 	BYTE *data_read = (BYTE*)&dw;
@@ -684,29 +684,42 @@ gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, ImageSource so
 	if (size_read < size)
 		return OutOfMemory;
 
-	bmi->biSize = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-	if (bmi->biSize > BITMAPCOREHEADER_SIZE){   /* New Windows headers can be bigger */ 
-		dw = 0;
-		size_read = gdip_read_bmp_data (pointer, data_read, size, source);
-		if (size_read < size)
-			return OutOfMemory;
-		bmi->biWidth = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	DWORD headerSize = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	switch (headerSize) {
+	case BITMAPCOREHEADER_SIZE:
+            bmi->bV5Size = headerSize;
 
-		dw = 0;
-		size_read = gdip_read_bmp_data (pointer, data_read, size, source);
-		if (size_read < size)
-			return OutOfMemory;
-		bmi->biHeight = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-	} else if (bmi->biSize == BITMAPCOREHEADER_SIZE) {
 		/* Old OS/2 format. Width and Height fields are WORDs instead of DWORDS */
 		dw = 0;
 		size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 		if (size_read < size)
 			return OutOfMemory;
-		bmi->biWidth = (data_read[1]<<8 | data_read[0]);
-		bmi->biHeight = (data_read[3]<<8 | data_read[2]);
+		bmi->bV5Width = (data_read[1]<<8 | data_read[0]);
+		bmi->bV5Height = (data_read[3]<<8 | data_read[2]);
 		*os2format = TRUE;
-	} else {
+
+		break;
+	case sizeof (BITMAPINFOHEADER):
+	case sizeof (BITMAPV3HEADER):
+	case sizeof (BITMAPV4HEADER):
+	case sizeof (BITMAPV5HEADER):
+		bmi->bV5Size = headerSize;
+
+		dw = 0;
+		size_read = gdip_read_bmp_data (pointer, data_read, size, source);
+		if (size_read < size)
+			return OutOfMemory;
+		bmi->bV5Width = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+		dw = 0;
+		size_read = gdip_read_bmp_data (pointer, data_read, size, source);
+		if (size_read < size)
+			return OutOfMemory;
+		bmi->bV5Height = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+		break;
+	default:
+		/* This is an unknown or invalid header. */
 		return OutOfMemory;
 	}
 
@@ -714,17 +727,18 @@ gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, ImageSource so
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->biPlanes = (data_read[1]<<8 | data_read[0]); 
-	bmi->biBitCount = (data_read[3]<<8 | data_read[2]); 
+	bmi->bV5Planes = (data_read[1]<<8 | data_read[0]);
+	bmi->bV5BitCount = (data_read[3]<<8 | data_read[2]);
 
 	/* The OS/2 format doesn't have any of these other fields */
 	if (*os2format) {
-		bmi->biCompression = 0;
-		bmi->biSizeImage = 0;
-		bmi->biXPelsPerMeter = 0;
-		bmi->biYPelsPerMeter = 0;
-		bmi->biClrUsed = 0;
-		bmi->biClrImportant = 0;
+		bmi->bV5Compression = 0;
+		bmi->bV5SizeImage = 0;
+		bmi->bV5XPelsPerMeter = 0;
+		bmi->bV5YPelsPerMeter = 0;
+		bmi->bV5ClrUsed = 0;
+		bmi->bV5ClrImportant = 0;
+
 		return Ok;
 	}
 
@@ -732,52 +746,95 @@ gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, ImageSource so
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->biCompression = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5Compression = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
  	/* If the height is negative then the bitmap is sideup. */
-	if (bmi->biHeight < 0) {
+	if (bmi->bV5Height < 0) {
 		*upsidedown = FALSE;
-		bmi->biHeight = -bmi->biHeight;
+		bmi->bV5Height = -bmi->bV5Height;
 	}
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->biSizeImage = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-		
-	dw = 0;
-	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
-	if (size_read < size)
-		return OutOfMemory;
-	bmi->biXPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-	
-	dw = 0;
-	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
-	if (size_read < size)
-		return OutOfMemory;
-	bmi->biYPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-		
-	dw = 0;
-	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
-	if (size_read < size)
-		return OutOfMemory;
-	bmi->biClrUsed = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
-		
-	dw = 0;
-	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
-	if (size_read < size)
-		return OutOfMemory;
-	bmi->biClrImportant = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5SizeImage = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
-	return Ok;
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
+	if (size_read < size)
+		return OutOfMemory;
+	bmi->bV5XPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
+	if (size_read < size)
+		return OutOfMemory;
+	bmi->bV5YPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
+	if (size_read < size)
+		return OutOfMemory;
+	bmi->bV5ClrUsed = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
+	if (size_read < size)
+		return OutOfMemory;
+	bmi->bV5ClrImportant = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+	/* We've finished reading the BITMAPINFOHEADER but later versions are larger. */
+	if (bmi->bV5Size == sizeof (BITMAPINFOHEADER))
+		return Ok;
+
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
+	if (size_read < size)
+		return OutOfMemory;
+	bmi->bV5RedMask = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
+	if (size_read < size)
+		return OutOfMemory;
+	bmi->bV5GreenMask = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
+	if (size_read < size)
+		return OutOfMemory;
+	bmi->bV5BlueMask = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+	dw = 0;
+	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
+	if (size_read < size)
+		return OutOfMemory;
+	bmi->bV5AlphaMask = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+	/* We don't use any information in BITMAPV4HEADER or BITMAPV5HEADER, so there is no point going through all of
+	 * the other fields. This leaves the rest of the structure uninitialized. */
+	size = headerSize - sizeof (BITMAPV3HEADER);
+	if (size > 0) {
+		while (size > sizeof (DWORD)) {
+			if (gdip_read_bmp_data (pointer, data_read, sizeof (DWORD), source) != sizeof (DWORD))
+				return OutOfMemory;
+			size -= sizeof (DWORD);
+		}
+		if (size > 0) {
+			if (gdip_read_bmp_data (pointer, data_read, size, source) != size)
+				return OutOfMemory;
+		}
+	}
+
+    return Ok;
 }
 
 /* For use with in-memory bitmaps, where the BITMAPFILEHEADER doesn't exists */
 GpStatus 
 gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 {
-	BITMAPINFOHEADER bmi;
+	BITMAPV5HEADER bmi;
 	GpBitmap	*result = NULL;
 	BYTE		*pixels = NULL;
 	int		i;
@@ -797,14 +854,13 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	int red_shift = 0;
 	unsigned long long int size;
 
-	status = gdip_read_BITMAPINFOHEADER (pointer, &bmi, source, &os2format, &upsidedown);
+	status = gdip_read_BITMAPINFOHEADER (pointer, source, &bmi, &os2format, &upsidedown);
 	if (status != Ok)
 		goto error;
 
-	colours = (bmi.biClrUsed == 0 && bmi.biBitCount <= 8) ? (1 << bmi.biBitCount) : bmi.biClrUsed;
+	colours = (bmi.bV5ClrUsed == 0 && bmi.bV5BitCount <= 8) ? (1 << bmi.bV5BitCount) : bmi.bV5ClrUsed;
 
 	status = gdip_get_bmp_pixelformat (&bmi, &format);
-
 	if (status != Ok) {
 		 /* bit count mismatch */
 		goto error;
@@ -812,16 +868,13 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 
 	/* for 16bbp images we need to be more precise */
 	if (format == PixelFormat16bppRGB565) {
-		/* check if we're dealing with a BITMAPV4HEADER (or later) structure */
-		if (bmi.biSize >= sizeof (BITMAPV4HEADER)) {
-			/* the new structure contains the ARGB masks */
-			void *p = &bmi;
-			BITMAPV4HEADER *v4 = p;
-			red_mask = v4->bV4RedMask;
-			green_mask = v4->bV4GreenMask;
-			blue_mask = v4->bV4BlueMask;
-		} else if (bmi.biSize == sizeof (BITMAPINFOHEADER)) {
-			// next three DWORD are the R,G,B masks, like bmiColors in BITMAPINFO
+		/* Newer versions of BITMAPINFOHEADER contains R, G and B masks.*/
+		if (bmi.bV5Size >= sizeof (BITMAPV3HEADER)) {
+			red_mask = bmi.bV5RedMask;
+			green_mask = bmi.bV5GreenMask;
+			blue_mask = bmi.bV5BlueMask;
+		} else if (bmi.bV5Size == sizeof (BITMAPINFOHEADER)) {
+			/* The BITMAPINFOHEADER must be followed by R, G and B masks. */
 			int size = sizeof (RGBQUAD);
 			size_read = gdip_read_bmp_data (pointer, (void*)&red_mask, size, source);
 			if (size_read != size) {
@@ -862,14 +915,19 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	}
 
 	result = gdip_bitmap_new_with_frame (NULL, TRUE);
+	if (!result) {
+		status = OutOfMemory;
+		goto error;
+	}
+
 	result->type = ImageTypeBitmap;
 	result->image_format = BMP;
 	result->active_bitmap->pixel_format = format;
-	result->active_bitmap->width = bmi.biWidth;
-	result->active_bitmap->height = bmi.biHeight;
+	result->active_bitmap->width = bmi.bV5Width;
+	result->active_bitmap->height = bmi.bV5Height;
 
 	/* biWidth and biHeight are LONG (32 bits signed integer) */
-	size = bmi.biWidth;
+	size = bmi.bV5Width;
 
 	switch (result->active_bitmap->pixel_format) {
 	case PixelFormat1bppIndexed:
@@ -953,8 +1011,8 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		goto error;
 	}
 
-	if (gdip_is_an_indexed_pixelformat (format) && ((bmi.biCompression == BI_RLE4) || (bmi.biCompression == BI_RLE8))) {
-		switch (bmi.biCompression) {
+	if (gdip_is_an_indexed_pixelformat (format) && ((bmi.bV5Compression == BI_RLE4) || (bmi.bV5Compression == BI_RLE8))) {
+		switch (bmi.bV5Compression) {
 			case BI_RLE4:
 				gdip_read_bmp_rle_4bit (pointer, pixels, upsidedown, result->active_bitmap->stride, result->active_bitmap->width, result->active_bitmap->height, source);
 				break;
@@ -964,7 +1022,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		}
 	} else {
 		/* Size contains the size of the lines on disk */
-		switch (bmi.biBitCount) {
+		switch (bmi.bV5BitCount) {
 			case 1: {
 				size = ((result->active_bitmap->width + 31) & ~31) / 8;
 				loop = result->active_bitmap->width / 8;
@@ -974,20 +1032,20 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			}
 
 			case 4: {
-				size = ((bmi.biBitCount * result->active_bitmap->width + 31) & ~31) / 8;
+				size = ((bmi.bV5BitCount * result->active_bitmap->width + 31) & ~31) / 8;
 				loop = ((result->active_bitmap->width + 1) &~1) / 2;
 				break;
 			}
 
 			case 8: {
-				size = (((bmi.biBitCount * result->active_bitmap->width) + 31) & ~31) / 8;
+				size = (((bmi.bV5BitCount * result->active_bitmap->width) + 31) & ~31) / 8;
 				loop = result->active_bitmap->width;
 				break;
 			}
 
 			default: {
-				size = (((bmi.biBitCount * result->active_bitmap->width) + 31) & ~31) / 8;
-				loop = (bmi.biBitCount * result->active_bitmap->width) / 8; 
+				size = (((bmi.bV5BitCount * result->active_bitmap->width) + 31) & ~31) / 8;
+				loop = (bmi.bV5BitCount * result->active_bitmap->width) / 8;
 				break;
 			}
 		}
@@ -1019,7 +1077,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 				}
 			}
 
-			switch(bmi.biBitCount) {
+			switch(bmi.bV5BitCount) {
 				case 1:
 				case 4:
 				case 8:
@@ -1048,7 +1106,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 				case 32: {
 					int src = 0;
 					int dest = 0;
-					int skip = (bmi.biBitCount >> 3);
+					int skip = (bmi.bV5BitCount >> 3);
 
 					index = (line * result->active_bitmap->stride);
 					while (src < loop) {
@@ -1068,7 +1126,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	result->active_bitmap->scan0 = pixels;
 	result->active_bitmap->reserved = GBD_OWN_SCAN0;
 	result->active_bitmap->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB;
-	if (bmi.biXPelsPerMeter != 0 && bmi.biYPelsPerMeter != 0)
+	if (bmi.bV5XPelsPerMeter != 0 && bmi.bV5YPelsPerMeter != 0)
 		result->active_bitmap->image_flags |= ImageFlagsHasRealDPI;
 
 	*image = result;
@@ -1092,43 +1150,35 @@ error:
 
 /* BMP read from files have a BITMAPFILEHEADER but this isn't the case for the GDI API
  * (e.g. displaying a bitmap) */
+static void
+BitmapFileHeaderFromLE (BITMAPFILEHEADER *bitmapFileHeader)
+{
+#if G_BYTE_ORDER != G_LITTLE_ENDIAN
+	bitmapFileHeader->bfType = GUINT16_FROM_LE (bitmapFileHeader->bfType);
+	bitmapFileHeader->bfSize = GUINT32_FROM_LE (bitmapFileHeader->bfSize);
+	bitmapFileHeader->bfReserved1 = GUINT16_FROM_LE (bitmapFileHeader->bfReserved1);
+	bitmapFileHeader->bfReserved2 = GUINT16_FROM_LE (bitmapFileHeader->bfReserved2);
+	bitmapFileHeader->bfOffBits = GUINT32_FROM_LE (bitmapFileHeader->bfOffBits);
+#endif
+}
+
 static GpStatus 
 gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, ImageSource source)
 {
-	GpStatus status;
 	BITMAPFILEHEADER bmfh;
 	int size_read;
-		
-	int size = sizeof (bmfh);
-	BYTE* data_read = (BYTE*) GdipAlloc (size);
 
-	if (!data_read)
+	size_read = gdip_read_bmp_data (pointer, (BYTE *) &bmfh, sizeof (bmfh), source);
+	if (size_read < sizeof (bmfh)) {
 		return OutOfMemory;
-
-	memset (data_read, 0, size);
-	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
-	if (size_read < size) {
-		status = OutOfMemory;
-		goto error;
 	}
-	
-	bmfh.bfType = ((data_read[1]<<8)|data_read[0]);
+
+	BitmapFileHeaderFromLE (&bmfh);
 	if (bmfh.bfType != BFT_BITMAP) {
-		status = UnknownImageFormat;
-		goto error;
+		return UnknownImageFormat;
 	}
-
-	bmfh.bfSize = (data_read[5]<<24 | data_read[4]<<16 | data_read[3]<<8 | data_read[2]);
-	bmfh.bfReserved1 = ((data_read[7]<<8)|data_read[6]);
-	bmfh.bfReserved1 = ((data_read[9]<<8)|data_read[8]);
-	bmfh.bfOffBits = (data_read[13]<<24 | data_read[12]<<16 | data_read[11]<<8 | data_read[10]);
-	GdipFree (data_read);
 
 	return gdip_read_bmp_image (pointer, image, source);
-error:
-	if (data_read != NULL)
-		GdipFree(data_read);
-	return status;
 }
 
 GpStatus 
@@ -1203,7 +1253,7 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 	int			i;
 	ARGB			color;
 	int			colours = 0;
-	BYTE			*entries;
+	ARGB			*entries;
 	int			palette_entries;
 	BitmapData		*activebmp;
 	BYTE			*scan0;
@@ -1222,53 +1272,36 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 			colours = activebmp->palette->Count;
 	}
 
-#ifdef WORDS_BIGENDIAN
-	bmfh.bfReserved1 = bmfh.bfReserved2 = GUINT16_FROM_LE (0);
-	bmfh.bfType = GUINT16_FROM_LE (BFT_BITMAP);
-	bmfh.bfOffBits = GUINT32_FROM_LE (14 + 40 + colours * 4);
-	bmfh.bfSize = GUINT32_FROM_LE (bmfh.bfOffBits + bitmapLen);
-#else
 	bmfh.bfReserved1 = bmfh.bfReserved2 = 0;
 	bmfh.bfType = BFT_BITMAP;
-	bmfh.bfOffBits = (14 + 40 + colours * 4);
+	bmfh.bfOffBits = sizeof (BITMAPFILEHEADER) + sizeof (BITMAPINFOHEADER) + colours * sizeof (RGBQUAD);
 	bmfh.bfSize = (bmfh.bfOffBits + bitmapLen);
-#endif
-	gdip_write_bmp_data (pointer, (BYTE*) &bmfh, sizeof (bmfh), useFile);
+	BitmapFileHeaderFromLE (&bmfh);
 
+	gdip_write_bmp_data (pointer, (BYTE *) &bmfh, sizeof (bmfh), useFile);
 	gdip_bitmap_fill_info_header (image, &bmi);
 	gdip_write_bmp_data (pointer, (BYTE*) &bmi, sizeof (bmi), useFile);
 
 	if (colours) {
-#ifdef WORDS_BIGENDIAN
-		int idx;
-#endif
-
 		palette_entries = activebmp->palette->Count;
 
 		if (activebmp->pixel_format == PixelFormat4bppIndexed) {
 			palette_entries = 16;
 		}
 
-		entries = (BYTE*) GdipAlloc (palette_entries*4);
+		entries = (ARGB *) GdipAlloc (palette_entries * sizeof (ARGB));
 		if (entries == NULL)
 			return OutOfMemory;
 
-#ifdef WORDS_BIGENDIAN
-		idx = 0;
-#endif
 		for (i = 0; i < palette_entries; i++) {
 			color = activebmp->palette->Entries[i];
-#ifdef WORDS_BIGENDIAN
-			entries [idx] =  color & 0xff;
-			entries [idx + 1] = (color >> 8) & 0xff;
-			entries [idx + 2] = (color >> 16) & 0xff;
-			entries [idx + 3] = color >> 24;
-			idx += 4;
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+			*(entries + i) = color;
 #else
-			*((guint32 *) entries + i) = color;
+			*(entries + i) = GUINT32_FROM_LE (color);
 #endif
 		}
-		gdip_write_bmp_data (pointer, entries, palette_entries * 4, useFile);
+		gdip_write_bmp_data (pointer, (BYTE *) entries, palette_entries * sizeof (ARGB), useFile);
 		GdipFree (entries);
 	}
 
