@@ -13,7 +13,7 @@
 #include <GdiPlusFlat.h>
 #endif
 
-#ifdef WIN32
+#if defined(USE_WINDOWS_GDIPLUS)
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
@@ -1092,15 +1092,15 @@ static void test_isStyleAvailable ()
 
 	status = GdipIsStyleAvailable (family, FontStyleBold, &isStyleAvailable);
 	assertEqualInt (status, Ok);
-	assert (isStyleAvailable == TRUE);
+	assert (isStyleAvailable);
 
 	status = GdipIsStyleAvailable (family, -1, &isStyleAvailable);
 	assertEqualInt (status, Ok);
-	assert (isStyleAvailable == TRUE);
+	assert (isStyleAvailable);
 
 	status = GdipIsStyleAvailable (family, FontStyleStrikeout + 1, &isStyleAvailable);
 	assertEqualInt (status, Ok);
-	assert (isStyleAvailable == TRUE);
+	assert (isStyleAvailable);
 
 	// Negative tests.
 	status = GdipIsStyleAvailable (NULL, FontStyleBold, &isStyleAvailable);

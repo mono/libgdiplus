@@ -231,9 +231,7 @@ static void test_invalidExtensionRecord ()
 int
 main (int argc, char**argv)
 {
-  GdiplusStartupInput gdiplusStartupInput;
-  ULONG_PTR gdiplusToken;
-  GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
   test_validData ();
   test_invalidHeader ();
@@ -242,6 +240,6 @@ main (int argc, char**argv)
 
   deleteFile (file);
 
-  GdiplusShutdown (gdiplusToken);
+  SHUTDOWN;
   return 0;
 }

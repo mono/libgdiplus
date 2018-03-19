@@ -4,7 +4,7 @@
 #endif
 #endif
 
-#if defined(_WIN32)
+#if defined(USE_WINDOWS_GDIPLUS)
 #include <Windows.h>
 #include <GdiPlus.h>
 
@@ -13,7 +13,7 @@
 #include <GdiPlusFlat.h>
 #endif
 
-#ifdef WIN32
+#if defined(USE_WINDOWS_GDIPLUS)
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
@@ -418,7 +418,7 @@ static void test_invertMatrix ()
 	// Negative tests.
 	status = GdipInvertMatrix (NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipInvertMatrix (nonInvertibleMatrix);
 	assertEqualInt (status, InvalidParameter);
 
@@ -624,7 +624,7 @@ static void test_isMatrixInvertible ()
 	// Negative tests.
 	status = GdipIsMatrixInvertible (NULL, &isInvertible);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipIsMatrixInvertible (matrix, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -639,7 +639,7 @@ static void test_isMatrixIdentity ()
 	BOOL isIdentity;
 
 	GdipCreateMatrix (&matrix);
-	
+
 	// Exactly identity.
 	GdipSetMatrixElements (matrix, 1, 0, 0, 1, 0, 0);
 	status = GdipIsMatrixIdentity (matrix, &isIdentity);
@@ -647,7 +647,7 @@ static void test_isMatrixIdentity ()
 	assert (isIdentity == TRUE);
 
 	// Close to identity.
-	GdipSetMatrixElements (matrix, 0.9999f, -0.0001f, 0.0001f, 1.0001f, 0, 0);	
+	GdipSetMatrixElements (matrix, 0.9999f, -0.0001f, 0.0001f, 1.0001f, 0, 0);
 	status = GdipIsMatrixIdentity (matrix, &isIdentity);
 	assertEqualInt (status, Ok);
 	assert (isIdentity == TRUE);
@@ -670,7 +670,7 @@ static void test_isMatrixIdentity ()
 	// Negative tests.
 	status = GdipIsMatrixIdentity (NULL, &isIdentity);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipIsMatrixIdentity (matrix, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -686,7 +686,7 @@ static void test_isMatrixEqual ()
 
 	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
 	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &other);
-	
+
 	status = GdipIsMatrixEqual (matrix, other, &isEqual);
 	assertEqualInt (status, Ok);
 	assert (isEqual == TRUE);
@@ -728,10 +728,10 @@ static void test_isMatrixEqual ()
 	// Negative tests.
 	status = GdipIsMatrixEqual (NULL, other, &isEqual);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipIsMatrixEqual (matrix, NULL, &isEqual);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipIsMatrixEqual (matrix, other, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -742,9 +742,7 @@ static void test_isMatrixEqual ()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_createMatrix ();
 	test_createMatrix2 ();
@@ -768,6 +766,6 @@ main (int argc, char**argv)
 	test_isMatrixIdentity ();
 	test_isMatrixEqual ();
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

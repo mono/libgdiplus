@@ -2,24 +2,28 @@
 #ifndef __cplusplus
 #error Please compile with a C++ compiler.
 #endif
-#include <windows.h>
+#endif
+
+#if defined(USE_WINDOWS_GDIPLUS)
+#include <Windows.h>
 #include <GdiPlus.h>
+
+#pragma comment(lib, "gdiplus.lib")
 #else
 #include <GdiPlusFlat.h>
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include "testhelpers.h"
-
-#define C(func) assert (func == Ok)
-
-#ifdef WIN32
+#if defined(USE_WINDOWS_GDIPLUS)
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
 
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "testhelpers.h"
+
+#define C(func) assert (func == Ok)
 
 static void check_reverse_points(const GpPointF *p1, const GpPointF *p2, int count)
 {
@@ -145,7 +149,7 @@ test_gdip_reversepath()
 	GdipResetPath (path);
 
 
-	// Elipse and rectangle 
+	// Elipse and rectangle
 	C (GdipAddPathEllipse (path, 50, 51, 50, 100));
 	C (GdipAddPathRectangle (path, 200, 201, 60, 61));
 	C (GdipGetPointCount (path, &count));
@@ -235,11 +239,9 @@ test_gdip_reversepath()
 	assertEqualInt (reverse_types[5], (PathPointTypeLine | PathPointTypePathMarker));
 	assertEqualInt (reverse_types[6], PathPointTypeStart);
 	assertEqualInt (reverse_types[7], PathPointTypeLine);
-	
 
 	C (GdipDeletePath (path));
 }
-
 
 int
 main(int argc, char**argv)

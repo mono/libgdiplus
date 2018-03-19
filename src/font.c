@@ -1228,8 +1228,12 @@ GdipCreateFontFromLogfontW(HDC hdc, GDIPCONST LOGFONTW *logfont, GpFont **font)
 GpStatus WINGDIPAPI
 GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memory, INT length)
 {
-	FcChar8 fontfile[256];
+	FcChar8	fontfile[256];
+#ifdef WIN32
+	FILE	*f;
+#else
 	int	f;
+#endif
 
 	if (!fontCollection || !memory)
 		return InvalidParameter;
@@ -1238,19 +1242,28 @@ GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memor
 
 #ifdef WIN32
 	f = CreateTempFile (fontfile);
-#else
-	strcpy((char *) fontfile, "/tmp/ffXXXXXX");
-	f = mkstemp((char*)fontfile);
-#endif
+	if (!f)
+		return FileNotFound;
 
+	if (fwrite(memory, sizeof(BYTE), length, f) != length) {
+		fclose (f);
+		return FileNotFound;
+	}
+
+	fclose (f);
+#else
+	strcpy ((char *) fontfile, "/tmp/ffXXXXXX");
+	f = mkstemp ((char *) fontfile);
+	
 	if (f == -1)
 		return FileNotFound;
 
-	if (write(f, memory, length)!=length) {
-		close(f);
+	if (write (f, memory, length) != length) {
+		close (f);
 		return FileNotFound;
 	}
-	close(f);
+	close (f);
+#endif
 
 	FcConfigAppFontAddFile (fontCollection->config, fontfile);
 	/* FIXME - May we delete our temporary font file or does 

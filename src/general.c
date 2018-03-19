@@ -41,25 +41,44 @@
 #endif
 
 static BOOL startup = FALSE;
+static BOOL suppressBackgroundThread = FALSE;
 
 GpStatus WINGDIPAPI
 GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStartupOutput *output)
 {
-	GpStatus status = Ok;
-	/* don't initialize multiple time, e.g. for each appdomain */
-	if (!startup) {
-		startup = TRUE;
-		status = initCodecList ();
-		if (status != Ok)
-			return status;
-		FcInit ();
-		*token = 1;
-		gdip_get_display_dpi();
+	GpStatus status;
+
+	if (!token || !input)
+		return InvalidParameter;
+	if (input->SuppressBackgroundThread && !output)
+		return InvalidParameter;
+	if (input->GdiplusVersion != 1 && input->GdiplusVersion != 2)
+		return UnsupportedGdiplusVersion;
+
+	/* Don't initialize multiple time, e.g. for each appdomain. */
+	if (startup)
+		return Ok;
+
+	status = initCodecList ();
+	if (status != Ok)
+		return status;
+
+	FcInit ();
+	gdip_get_display_dpi();
+
+	if (input->SuppressBackgroundThread) {
+		output->NotificationHook = GdiplusNotificationHook;
+		output->NotificationUnhook = GdiplusNotificationUnhook;
 	}
-	return status;
+
+	*token = 1;
+	startup = TRUE;
+	suppressBackgroundThread = input->SuppressBackgroundThread;
+
+	return Ok;
 }
 
-void 
+void
 WINGDIPAPI GdiplusShutdown (ULONG_PTR token)
 {
 	if (startup) {
@@ -69,6 +88,7 @@ WINGDIPAPI GdiplusShutdown (ULONG_PTR token)
 		FcFini ();
 #endif
 		startup = FALSE; /* in case we want to restart it */
+		suppressBackgroundThread = FALSE;
 	}
 }
 
@@ -96,6 +116,26 @@ WINGDIPAPI void
 GdipFree (void *ptr)
 {
 	free (ptr);
+}
+
+GpStatus WINGDIPAPI
+GdiplusNotificationHook (ULONG_PTR *token)
+{
+	if (!suppressBackgroundThread)
+		return GenericError;
+	if (!token)
+		return InvalidParameter;
+
+	/* Initialize the token with a dummy value. */
+	*token = 1;
+
+	return Ok;
+}
+
+void WINGDIPAPI
+GdiplusNotificationUnhook (ULONG_PTR token)
+{
+	/* Does nothing in libgdiplus. */
 }
 
 /* libgdiplus-specific API */
