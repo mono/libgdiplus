@@ -94,7 +94,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libpng16.lib;freetype.lib;fontconfig.lib;glib-2.0.lib;cairo.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libpng16.lib;freetype.lib;fontconfig.lib;glib-2.0.lib;cairo.lib;shcore.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\gtk\$(Platform)\release\lib</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
