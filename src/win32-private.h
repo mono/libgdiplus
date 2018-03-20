@@ -25,3 +25,5 @@
 // Creates a temporary file. Saves the value of the temporary file in filename,
 // and returns a handle to the temp file.
 FILE *CreateTempFile (char *filename);
+
+int gdip_get_display_dpi_win32 ();

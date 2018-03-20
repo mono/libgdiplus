@@ -25,7 +25,7 @@
  */
 
 #ifdef WIN32
-#include "win32_io.h"
+#include "win32-private.h"
 #endif
 
 #include <cairo-features.h>
