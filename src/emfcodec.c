@@ -576,7 +576,7 @@ gdip_metafile_play_emf (MetafilePlayContext *context)
 			break;
 		case EMR_GDICOMMENT:
 			EMF_CHECK_PARAMS(1); /* record contains at least the size of the comment */
-			status = GdiComment (context, data, size);
+			status = gdip_metafile_GdiComment (context, data, size);
 			break;
 		case EMR_EXTSELECTCLIPRGN:
 			EMF_CHECK_PARAMS(2);
