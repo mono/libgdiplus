@@ -551,7 +551,8 @@ static void test_createFont ()
 	GpFont *font;
 	GpFontFamily *family;
 
-	GdipGetGenericFontFamilySansSerif (&family);
+	status = GdipGetGenericFontFamilySansSerif (&family);
+	assertEqualInt (status, Ok);
 	
 	// UnitPixel.
 	status = GdipCreateFont (family, 10, 10, UnitPixel, &font);

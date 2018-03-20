@@ -391,6 +391,21 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 		gdip_createPrivateFontSet (font_collection);
 	
 	status = create_fontfamily_from_collection (string, font_collection, fontFamily);
+	if (status == FontFamilyNotFound && font_collection == system_fonts) {
+		FcChar8 *name_str;
+		FcValue val;
+		FcPattern *name_pattern = FcPatternCreate ();
+		val.type = FcTypeString;
+		val.u.s = (BYTE*)string;
+		if (FcPatternAdd (name_pattern, FC_FAMILY, val, TRUE) &&
+		    FcConfigSubstitute (0, name_pattern, FcMatchPattern)) {
+			FcDefaultSubstitute (name_pattern);
+			FcPatternGetString (name_pattern, FC_FAMILY, 0, &name_str);
+			status = create_fontfamily_from_collection ((char *)name_str, font_collection, fontFamily);
+		}
+		FcPatternDestroy (name_pattern);
+	}
+
 	GdipFree (string);
 
 	return status;
