@@ -551,7 +551,8 @@ static void test_createFont ()
 	GpFont *font;
 	GpFontFamily *family;
 
-	GdipGetGenericFontFamilySansSerif (&family);
+	status = GdipGetGenericFontFamilySansSerif (&family);
+	assertEqualInt (status, Ok);
 	
 	// UnitPixel.
 	status = GdipCreateFont (family, 10, 10, UnitPixel, &font);
@@ -937,12 +938,8 @@ static void test_createFontFamilyFromName ()
 	status = GdipCreateFontFamilyFromName (CodeNewRoman, collection, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	// FIXME: Libgdiplus does not validate that the font family exists
-	// if the collection is NULL.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipCreateFontFamilyFromName (NoSuchFont, NULL, &family);
 	assertEqualInt (status, FontFamilyNotFound);
-#endif
 
 	status = GdipCreateFontFamilyFromName (Tahoma, collection, &family);
 	assertEqualInt (status, FontFamilyNotFound);
