@@ -137,7 +137,7 @@ GpStatus gdip_metafile_play_cleanup (MetafilePlayContext *context) GDIP_INTERNAL
 
 GpPen* gdip_metafile_GetSelectedPen (MetafilePlayContext *context) GDIP_INTERNAL;
 GpBrush* gdip_metafile_GetSelectedBrush (MetafilePlayContext *context) GDIP_INTERNAL;
-GpStatus GdiComment (MetafilePlayContext *context, BYTE* data, DWORD size) GDIP_INTERNAL;
+GpStatus gdip_metafile_GdiComment (MetafilePlayContext *context, BYTE* data, DWORD size) GDIP_INTERNAL;
 
 GpStatus gdip_metafile_SaveDC (MetafilePlayContext *context) GDIP_INTERNAL;
 GpStatus gdip_metafile_SetBkMode (MetafilePlayContext *context, DWORD bkMode) GDIP_INTERNAL;

@@ -94,7 +94,6 @@ typedef guint32 ARGB;
 typedef float REAL;
 
 #if defined(WIN32)
-#define NOGDI
 #include <windows.h>
 #else
 
@@ -163,7 +162,6 @@ typedef struct {
 	WORD  Data3;
 	BYTE  Data4 [8];
 } GUID, Guid, CLSID;
-#endif
 
 typedef struct {
 	LONG lfHeight;
@@ -208,12 +206,10 @@ typedef struct {
 	float eDy;
 } XFORM;
 
-#if !defined(WIN32)
 typedef struct {
 	LONG	x;
 	LONG	y;
 } POINT;
-#endif
 
 typedef DWORD COLORREF;
 
@@ -229,7 +225,6 @@ typedef struct {
 	LONG		lbHatch;
 } LOGBRUSH;
 
-#if !defined(WIN32)
 typedef struct {
 	LONG	left;
 	LONG	top;
@@ -241,14 +236,6 @@ typedef struct {
 	LONG    cx;
 	LONG    cy;
 } SIZE, SIZEL;
-#endif
-
-typedef struct {
-	SHORT	Left;
-	SHORT	Top;
-	SHORT	Right;
-	SHORT	Bottom;
-} PWMFRect16;
 
 typedef struct {
 	BYTE rgbBlue;
@@ -335,6 +322,24 @@ typedef struct {
 	DWORD        bV5Reserved;
 } BITMAPV5HEADER, *PBITMAPV5HEADER;
 
+#ifndef __GNUC__
+#pragma pack(2)
+#endif
+typedef struct
+#ifdef __GNUC__
+__attribute__((packed))
+#endif
+{
+	WORD    bfType;
+	DWORD   bfSize;
+	WORD    bfReserved1;
+	WORD    bfReserved2;
+	DWORD   bfOffBits;
+} BITMAPFILEHEADER, *PBITMAPFILEHEADER, *LPBITMAPFILEHEADER;
+#ifndef __GNUC__
+#pragma pack()
+#endif
+
 typedef struct {
 	BITMAPINFOHEADER bmiHeader;
 	RGBQUAD	bmiColors[1];
@@ -357,6 +362,15 @@ typedef struct
 	DWORD	mtMaxRecord;
 	WORD	mtNoParameters;
 } METAHEADER;
+
+#endif
+
+typedef struct {
+	SHORT	Left;
+	SHORT	Top;
+	SHORT	Right;
+	SHORT	Bottom;
+} PWMFRect16;
 
 typedef struct
 #ifdef __GNUC__
