@@ -28,6 +28,8 @@
 #ifndef __GDI32_H__
 #define __GDI32_H__
 
+#ifndef _WIN32
 BitBlt (HDC hdcDest, int nXDest, int nYDest, int nWidth, int nHeight, HDC hdcSrc, int nXSrc, int nYSrc, DWORD dwRop);
+#endif // !_WIN32
 
 #endif

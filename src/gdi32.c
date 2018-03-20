@@ -34,6 +34,7 @@
 
 #define SRCCOPY             (DWORD)0x00CC0020
 
+#ifndef _WIN32
 BOOL
 BitBlt (HDC hdcDest, int nXDest, int nYDest, int nWidth, int nHeight, HDC hdcSrc, int nXSrc, int nYSrc, DWORD dwRop)
 {
@@ -52,4 +53,4 @@ BitBlt (HDC hdcDest, int nXDest, int nYDest, int nWidth, int nHeight, HDC hdcSrc
 
 	return TRUE;
 }
-
+#endif
