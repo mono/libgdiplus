@@ -31,14 +31,12 @@
 #include "graphics-private.h"
 #include "font-private.h"
 #include "carbon-private.h"
+#ifdef WIN32
+#include "win32-private.h"
+#endif
 
 /* large table to avoid a division and three multiplications when premultiplying alpha into R, G and B */
 #include "alpha-premul-table.inc"
-
-#ifdef WIN32
-// For GetDpiForMonitor.
-#include "ShellScalingAPI.h"
-#endif
 
 static BOOL startup = FALSE;
 static BOOL suppressBackgroundThread = FALSE;
@@ -202,17 +200,7 @@ gdip_get_display_dpi ()
 			dpis = 96.0f;
 		}
 #elif WIN32
-		UINT dpiX, dpiY;
-		HMONITOR monitor;
-		HRESULT res;
-
-		/* Read the dpi from the main monitor, or use a a default of 96.0f. */
-		monitor = MonitorFromWindow (NULL, MONITOR_DEFAULTTOPRIMARY);
-		res = GetDpiForMonitor (monitor, MDT_DEFAULT, &dpiX, &dpiY);
-		if (res == S_OK)
-			dpis = dpiX;
-		else
-			dpis = 96.0f;
+		dpis = gdip_get_display_dpi_win32 ();
 #else
 		dpis = 96.0f;
 #endif

@@ -20,7 +20,7 @@
 *	Frederik Carlier <frederik.carlier@quamotion.mobi>
 */
 
-#include "win32_io.h"
+#include "win32-private.h"
 
 #include <windows.h>
 #include "gdipenums.h"
@@ -41,4 +41,14 @@ FILE *CreateTempFile (char *filename)
 	}
 
 	return fopen (filename, "w");
+}
+
+int gdip_get_display_dpi_win32 ()
+{
+	int dpis;
+	HDC dc;
+	dc = GetDC (0);
+	dpis = GetDeviceCaps (dc, LOGPIXELSX);
+	ReleaseDC (0, dc);
+	return dpis;
 }
