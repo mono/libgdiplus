@@ -18,24 +18,6 @@
 #define BITMAPINFOHEADER_SIZE   40
 #define BITMAPCOREHEADER_SIZE   12
 
-#ifndef __GNUC__
-	#pragma pack(2)
-#endif
-typedef struct
-#ifdef __GNUC__
-	 __attribute__ ((packed))
-#endif
-{
-    WORD    bfType;
-    DWORD   bfSize;
-    WORD    bfReserved1;
-    WORD    bfReserved2;
-    DWORD   bfOffBits;
-} BITMAPFILEHEADER, *PBITMAPFILEHEADER, *LPBITMAPFILEHEADER;
-#ifndef __GNUC__
-	#pragma pack()
-#endif
-
 #define BFT_BITMAP 0x4d42
 
 typedef struct {
