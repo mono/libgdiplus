@@ -1248,7 +1248,7 @@ update_emf_header (MetafileHeader *header, BYTE* data, int length)
 		/* this could be an embedded EmfPlusRecordTypeHeader */
 		context.metafile = &mf;
 		context.graphics = NULL; /* special case where we're not playing the metafile */
-		status = GdiComment (&context, data, length);
+		status = gdip_metafile_GdiComment (&context, data, length);
 		if (status == Ok) {
 			header->Type = mf.metafile_header.Type;
 			header->Version = mf.metafile_header.Version; /* GDI+ seems to report the object header */
