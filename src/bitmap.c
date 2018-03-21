@@ -190,7 +190,7 @@ gdip_property_get_short(int offset, void *value, unsigned short *result)
 {
 	BYTE *ptr = (BYTE*)value;
 
-	*result = ptr[0] + (ptr[1] << 8);
+	*result = ptr[offset] + (ptr[offset + 1] << 8);
 
 	return Ok;
 }
@@ -200,7 +200,7 @@ gdip_property_get_long(int offset, void *value, guint32 *result)
 {
 	BYTE *ptr = (BYTE*)value;
 
-	*result = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16) + (ptr[3] << 24);
+	*result = ptr[offset] + (ptr[offset + 1] << 8) + (ptr[offset + 2] << 16) + (ptr[offset + 3] << 24);
 
 	return Ok;
 }
@@ -210,8 +210,8 @@ gdip_property_get_srational(int offset, void *value, unsigned short *numerator, 
 {
 	BYTE *ptr = (BYTE*)value;
 
-	*numerator = ptr[0] + (ptr[1] << 8);
-	*denominator = ptr[2] + (ptr[3] << 8);
+	*numerator = ptr[offset] + (ptr[offset + 1] << 8);
+	*denominator = ptr[offset + 2] + (ptr[offset + 3] << 8);
 
 	return Ok;
 }
@@ -221,8 +221,8 @@ gdip_property_get_rational(int offset, void *value, guint32 *numerator, guint32 
 {
 	BYTE *ptr = (BYTE*)value;
 
-	*numerator = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16) + (ptr[3] << 24);
-	*denominator = ptr[4] + (ptr[5] << 8) + (ptr[6] << 16) + (ptr[7] << 24);
+	*numerator = ptr[offset] + (ptr[offset + 1] << 8) + (ptr[offset + 2] << 16) + (ptr[offset + 3] << 24);
+	*denominator = ptr[offset + 4] + (ptr[offset + 5] << 8) + (ptr[offset + 6] << 16) + (ptr[offset + 7] << 24);
 
 	return Ok;
 }
