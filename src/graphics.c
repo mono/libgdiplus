@@ -2024,23 +2024,47 @@ GpStatus WINGDIPAPI
 GdipSetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMode)
 {
 	GpStatus status;
+	GpPath *work;
 
 	if (!graphics || !path)
 		return InvalidParameter;
 
-	status = GdipCombineRegionPath (graphics->clip, path, combineMode);	
+	/* if the matrix is empty, avoid path cloning and transform */
+	if (gdip_is_matrix_empty (graphics->clip_matrix)) {
+		work = path;
+	} else {
+		cairo_matrix_t inverted;
+
+		gdip_cairo_matrix_copy (&inverted, graphics->clip_matrix);
+		cairo_matrix_invert (&inverted);
+
+		status = GdipClonePath (path, &work);
+		if (status != Ok)
+			return status;
+		GdipTransformPath (work, &inverted);
+	}
+
+	status = GdipCombineRegionPath (graphics->clip, work, combineMode);	
 	if (status != Ok)
-		return status;
+		goto cleanup;
 
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
 		/* adjust cairo clipping according to graphics->clip */
-		return cairo_SetGraphicsClip (graphics);
+		status = cairo_SetGraphicsClip (graphics);
+		break;
 	case GraphicsBackEndMetafile:
-		return metafile_SetClipPath (graphics, path, combineMode);
+		status = metafile_SetClipPath (graphics, path, combineMode);
+		break;
 	default:
-		return GenericError;
+		status = GenericError;
+		break;
 	}
+
+cleanup:
+	if (work != path)
+		GdipDeletePath (path);
+	return status;	
 }
 
 GpStatus WINGDIPAPI
