@@ -88,7 +88,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(ProjectDir)\..;$(ProjectDir)\..\gtk\$(Platform)\release\include;$(ProjectDir)\..\gtk\$(Platform)\release\include\glib-2.0;$(ProjectDir)\..\gtk\$(Platform)\release\lib\glib-2.0\include;$(ProjectDir)\..\gtk\$(Platform)\release\include\cairo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HAVE_LIBJPEG;HAVE_LIBTIFF;HAVE_LIBPNG;_WINDLL;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_LIBJPEG;HAVE_LIBTIFF;HAVE_LIBPNG;HAVE_FCFINI;_WINDLL;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <!-- FIXME: To align with the GDI+ calling convention, this should be StdCall. Only relevant on x86 -->
       <CallingConvention>Cdecl</CallingConvention>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
