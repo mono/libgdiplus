@@ -2,6 +2,7 @@
 
 export PATH=/usr/bin:/usr/local/bin:$PATH
 
+# NOTE: update README.md too when updating these urls
 wget "https://dl.hexchat.net/gtk/gtk-win32-2018-03-13.7z" -O gtk-Win32.7z
 wget "https://dl.hexchat.net/gtk/gtk-x64-2018-03-13.7z" -O gtk-x64.7z
 wget "https://dist.nuget.org/win-x86-commandline/v4.1.0/nuget.exe" -O nuget.exe
