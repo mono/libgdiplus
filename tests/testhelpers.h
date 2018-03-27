@@ -12,7 +12,7 @@
 
 #define STARTUP \
     ULONG_PTR gdiplusToken; \
-	GdiplusStartupInput gdiplusStartupInput; \
+    GdiplusStartupInput gdiplusStartupInput; \
     gdiplusStartupInput.GdiplusVersion = 1; \
     gdiplusStartupInput.DebugEventCallback = NULL; \
     gdiplusStartupInput.SuppressBackgroundThread = FALSE; \
@@ -61,8 +61,10 @@ WCHAR* wcharFromChar(const char *c)
 {
     size_t length = strlen (c);
 
-    WCHAR *wc = (WCHAR *)malloc((length + 1) * sizeof(WCHAR *));
-    swprintf (wc, length + 1, L"%hs", c);
+    WCHAR *wc = (WCHAR *)malloc ((length + 1) * sizeof(WCHAR));
+    for (int i = 0; i < length; i++) {
+        wc[i] = (WCHAR) c[i];
+    }
     wc[length] = 0;
 
     return wc;
@@ -179,9 +181,9 @@ BOOL is_32bit ()
     status = GdipGetImageDimension (image, &dimensionWidth, &dimensionHeight); \
     assertEqualInt (status, Ok); \
     if (fabsf (dimensionWidth - expectedDimensionWidth) > 0.05) \
-		assertEqualFloat (dimensionWidth, expectedDimensionWidth); \
+        assertEqualFloat (dimensionWidth, expectedDimensionWidth); \
     if (fabsf (dimensionHeight - expectedDimensionHeight) > 0.05) \
-		assertEqualFloat (dimensionHeight, expectedDimensionHeight); \
+        assertEqualFloat (dimensionHeight, expectedDimensionHeight); \
  \
     /* FIXME: libgdiplus and GDI+ have different results for bitmap images. */ \
     if (checkFlags || WINDOWS_GDIPLUS) \
@@ -194,33 +196,33 @@ BOOL is_32bit ()
     status = GdipGetPropertyCount (image, &propertyCount); \
     assertEqualInt (status, Ok); \
     /* FIXME: libgdiplus returns 0 for each image. */ \
-	if (WINDOWS_GDIPLUS) \
-	{ \
-		assertEqualInt (propertyCount, expectedPropertyCount); \
-	} \
+    if (WINDOWS_GDIPLUS) \
+    { \
+        assertEqualInt (propertyCount, expectedPropertyCount); \
+    } \
 }
 
 #define verifyPixels(image, pixels) \
 { \
-	UINT width; \
-	UINT height; \
-	ARGB expected[] = pixels; \
-	GdipGetImageWidth (image, &width); \
-	GdipGetImageHeight (image, &height); \
+    UINT width; \
+    UINT height; \
+    ARGB expected[] = pixels; \
+    GdipGetImageWidth (image, &width); \
+    GdipGetImageHeight (image, &height); \
  \
-	for (UINT y = 0; y < height; y++) \
-	{ \
-		for (UINT x = 0; x < width; x++) \
-		{ \
-			ARGB pixel; \
-			GdipBitmapGetPixel ((GpBitmap *) image, x, y, &pixel); \
-			if (pixel != expected[x + y * height]) \
-			{ \
-				printf("Pixel [%u, %u]\n", x, y); \
-				assertEqualInt (pixel, expected[x + y * height]); \
-			} \
-		} \
-	} \
+    for (UINT y = 0; y < height; y++) \
+    { \
+        for (UINT x = 0; x < width; x++) \
+        { \
+            ARGB pixel; \
+            GdipBitmapGetPixel ((GpBitmap *) image, x, y, &pixel); \
+            if (pixel != expected[x + y * height]) \
+            { \
+                printf("Pixel [%u, %u]\n", x, y); \
+                assertEqualInt (pixel, expected[x + y * height]); \
+            } \
+        } \
+    } \
 }
 
 #define HEX__(n) 0x##n##LU
@@ -254,6 +256,6 @@ void deleteFile (const char *file)
 #if !defined(_WIN32)
     unlink (file);
 #else
-    DeleteFileA (file);
+    remove (file);
 #endif
 }
