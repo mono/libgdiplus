@@ -705,7 +705,8 @@ PangoFontDescription*
 gdip_get_pango_font_description (GpFont *font)
 {
 	if (!font->pango) {
-		font->pango = pango_font_description_from_string ((char*)font->face);
+		font->pango = pango_font_description_new ();
+		pango_font_description_set_family (font->pango, (char *)font->face);
 		pango_font_description_set_size (font->pango, font->emSize * PANGO_SCALE);
 
 		if (font->style & FontStyleBold)
