@@ -472,7 +472,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 		} else {
 			box->X = logical.x;
 			box->Y = logical.y;
-	box->Height = logical.height;
+			box->Height = logical.height;
 			box->Width = logical.width;
 		}
 	}
@@ -717,6 +717,7 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 	}
 
 cleanup:
+	g_object_unref (layout);
 	cairo_restore (graphics->ct);
 	return status;
 }
