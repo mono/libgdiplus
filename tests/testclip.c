@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "testhelpers.h"
 
 #define C(func) assert (func == Ok)
 
@@ -147,12 +148,10 @@ test_gdip_clip()
 int
 main(int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_gdip_clip();
 
-	GdiplusShutdown(gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }
