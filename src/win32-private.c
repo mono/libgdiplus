@@ -40,7 +40,7 @@ FILE *CreateTempFile (char *filename)
 		return NULL;
 	}
 
-	return fopen (filename, "w");
+	return fopen (filename, "wb");
 }
 
 int gdip_get_display_dpi_win32 ()
