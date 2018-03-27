@@ -1187,9 +1187,7 @@ static void test_getLineSpacing ()
 int
 main(int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_newPrivateFontCollection ();
 	test_deletePrivateFontCollection ();
@@ -1225,6 +1223,6 @@ main(int argc, char**argv)
 	test_getCellDescent ();
 	test_getLineSpacing ();
 
-	GdiplusShutdown(gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }
