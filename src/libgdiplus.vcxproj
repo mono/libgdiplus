@@ -105,6 +105,7 @@
 copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\fontconfig.*" "$(OutDir)"
 copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\glib-2.0.*" "$(OutDir)"
 copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\iconv.*" "$(OutDir)"
+copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\intl.*" "$(OutDir)"
 copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\libpng16.*" "$(OutDir)"
 copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\libxml2.*" "$(OutDir)"
 copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\zlib1.*" "$(OutDir)"</Command>
