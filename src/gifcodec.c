@@ -203,7 +203,7 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 				}
 
 				ImageSize = sp->ImageDesc.Width * sp->ImageDesc.Height;
-				if (ImageSize > (SIZE_MAX / sizeof(GifPixelType))) {
+				if (ImageSize == 0 || ImageSize > (SIZE_MAX / sizeof(GifPixelType))) {
 					return GIF_ERROR;
 				}
 
