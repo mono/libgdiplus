@@ -47,7 +47,7 @@
 
 
 PangoLayout* gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *rc, RectF *box, GDIPCONST GpStringFormat *format, int **charsRemoved);
+	GDIPCONST RectF *rc, RectF *box, PointF *box_offset, GDIPCONST GpStringFormat *format, int **charsRemoved);
 
 GpStatus pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
 	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush) GDIP_INTERNAL;
