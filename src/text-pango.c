@@ -29,6 +29,8 @@
 #include "graphics-cairo-private.h"
 #include "brush-private.h"
 #include "font-private.h"
+#include "fontfamily-private.h"
+#include "fontcollection-private.h"
 
 int
 utf8_length_for_ucs2_string (GDIPCONST WCHAR *stringUnicode, int offset, int length)
@@ -220,10 +222,11 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 		fmt = (GpStringFormat *)format;
 	}
 
-	layout = pango_cairo_create_layout (graphics->ct);
+	context = pango_font_map_create_context (font->family->collection->pango_font_map);
+	pango_cairo_update_context (graphics->ct, context);
 
-	/* context is owned by Pango (i.e. not referenced counted) do not free */
-	context = pango_layout_get_context (layout);
+	layout = pango_layout_new (context);
+	g_object_unref (context);
 
 	pango_layout_set_font_description (layout, gdip_get_pango_font_description ((GpFont*) font));
 

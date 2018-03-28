@@ -40,6 +40,9 @@
 struct _FontCollection {
 	FcFontSet*	fontset;
 	FcConfig*	config;		/* Only for private collections */
+#ifdef USE_PANGO_RENDERING
+	PangoFontMap*	pango_font_map;
+#endif
 };
 
 #include "fontcollection.h"
