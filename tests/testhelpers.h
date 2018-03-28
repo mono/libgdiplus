@@ -1,4 +1,3 @@
-
 #include <assert.h>
 #include <float.h>
 #include <math.h>
@@ -21,7 +20,17 @@
 
 #define SHUTDOWN GdiplusShutdown (gdiplusToken);
 
-BOOL floatsEqual (float v1, float v2)
+#if defined(__has_attribute)
+#if __has_attribute(used)
+#define ATTRIBUTE_USED __attribute__((__used__))
+#else
+#define ATTRIBUTE_USED
+#endif
+#else
+#define ATTRIBUTE_USED
+#endif
+
+ATTRIBUTE_USED static BOOL floatsEqual(float v1, float v2)
 {
     if (isnan (v1))
         return isnan (v2);
@@ -32,7 +41,7 @@ BOOL floatsEqual (float v1, float v2)
     return fabs (v1 - v2) < 0.0001;
 }
 
-void verifyMatrix (GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5, REAL e6)
+ATTRIBUTE_USED static void verifyMatrix(GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5, REAL e6)
 {
     float elements[6];
     GdipGetMatrixElements (matrix, elements);
@@ -52,12 +61,12 @@ void verifyMatrix (GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5
     }
 }
 
-#if !defined(_WIN32)
+#if !defined(USE_WINDOWS_GDIPLUS)
 #define createWchar(c) g_utf8_to_utf16 (c, -1, NULL, NULL, NULL);
 #define freeWchar(c) g_free(c)
 #define wcharFromChar(c) createWchar(c)
 #else
-WCHAR* wcharFromChar(const char *c)
+ATTRIBUTE_USED static WCHAR* wcharFromChar(const char *c)
 {
     size_t length = strlen (c);
 
@@ -94,28 +103,28 @@ WCHAR* wcharFromChar(const char *c)
     }                                                        \
 }
 
-CLSID bmpEncoderClsid = { 0x557cf400, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-CLSID tifEncoderClsid = { 0x557cf405, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-CLSID gifEncoderClsid = { 0x557cf402, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-CLSID pngEncoderClsid = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-CLSID jpegEncoderClsid = { 0x557cf401, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-CLSID icoEncoderClsid = { 0x557cf407, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-CLSID wmfEncoderClsid = { 0x557cf404, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-CLSID emfEncoderClsid = { 0x557cf403, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+static CLSID bmpEncoderClsid = { 0x557cf400, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+static CLSID tifEncoderClsid = { 0x557cf405, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+static CLSID gifEncoderClsid = { 0x557cf402, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+static CLSID pngEncoderClsid = { 0x557cf406, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+static CLSID jpegEncoderClsid = { 0x557cf401, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+static CLSID icoEncoderClsid = { 0x557cf407, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+static CLSID wmfEncoderClsid = { 0x557cf404, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+static CLSID emfEncoderClsid = { 0x557cf403, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
 
 #if defined(USE_WINDOWS_GDIPLUS)
-GUID memoryBmpRawFormat = {0xb96b3caaU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+static GUID memoryBmpRawFormat = { 0xb96b3caaU, 0x0728U, 0x11d3U,{ 0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
 #endif
-GUID bmpRawFormat = {0xb96b3cabU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-GUID tifRawFormat = {0xb96b3cb1U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-GUID gifRawFormat = {0xb96b3cb0U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-GUID pngRawFormat = {0xb96b3cafU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-GUID jpegRawFormat = {0xb96b3caeU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-GUID icoRawFormat = {0xb96b3cb5U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-GUID wmfRawFormat = {0xb96b3cadU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-GUID emfRawFormat = {0xb96b3cacU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
+static GUID bmpRawFormat = { 0xb96b3cabU, 0x0728U, 0x11d3U,{ 0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
+static GUID tifRawFormat = { 0xb96b3cb1U, 0x0728U, 0x11d3U,{ 0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
+static GUID gifRawFormat = { 0xb96b3cb0U, 0x0728U, 0x11d3U,{ 0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
+static GUID pngRawFormat = { 0xb96b3cafU, 0x0728U, 0x11d3U,{ 0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
+static GUID jpegRawFormat = { 0xb96b3caeU, 0x0728U, 0x11d3U,{ 0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
+static GUID icoRawFormat = { 0xb96b3cb5U, 0x0728U, 0x11d3U,{ 0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
+static GUID wmfRawFormat = { 0xb96b3cadU, 0x0728U, 0x11d3U,{ 0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
+static GUID emfRawFormat = { 0xb96b3cacU, 0x0728U, 0x11d3U,{ 0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
 
-BOOL is_32bit ()
+ATTRIBUTE_USED static BOOL is_32bit()
 {
     return sizeof(int *) == 4;
 }
@@ -202,11 +211,10 @@ BOOL is_32bit ()
     } \
 }
 
-#define verifyPixels(image, pixels) \
+#define verifyPixels(image, expectedPixels) \
 { \
     UINT width; \
     UINT height; \
-    ARGB expected[] = pixels; \
     GdipGetImageWidth (image, &width); \
     GdipGetImageHeight (image, &height); \
  \
@@ -214,12 +222,15 @@ BOOL is_32bit ()
     { \
         for (UINT x = 0; x < width; x++) \
         { \
-            ARGB pixel; \
-            GdipBitmapGetPixel ((GpBitmap *) image, x, y, &pixel); \
-            if (pixel != expected[x + y * height]) \
+            ARGB expected = expectedPixels[x + y * width]; \
+            ARGB actual; \
+            GdipBitmapGetPixel ((GpBitmap *) image, x, y, &actual); \
+            if (actual != expected) \
             { \
-                printf("Pixel [%u, %u]\n", x, y); \
-                assertEqualInt (pixel, expected[x + y * height]); \
+                fprintf (stderr, "Pixel [%u, %u]\n", x, y); \
+                fprintf (stderr, "Expected: 0x%08X\n", expected); \
+                fprintf (stderr, "Actual:   0x%08X\n", actual);   \
+                assert (expected == actual); \
             } \
         } \
     } \
@@ -238,7 +249,7 @@ BOOL is_32bit ()
 #define B8(d) ((BYTE)B8__(HEX__(d)))
 
 // A utility for dumping byte arrays to the console for debugging purposes.
-void dumpBytes (BYTE *bytes, int length)
+ATTRIBUTE_USED static void dumpBytes(BYTE *bytes, int length)
 {
     printf("%u\n", length);
     for (int i = 0; i < length; i++) {
@@ -251,7 +262,36 @@ void dumpBytes (BYTE *bytes, int length)
     printf("\n\n");
 }
 
-void deleteFile (const char *file)
+// A utility for dumping pixel arrays to the console for debugging purposes.
+ATTRIBUTE_USED static void dumpPixels (GpImage *image)
+{
+	UINT width;
+	UINT height;
+	GdipGetImageWidth (image, &width);
+	GdipGetImageHeight (image, &height);
+
+	for (UINT y = 0; y < height; y++)
+	{
+		for (UINT x = 0; x < width; x++)
+		{
+			ARGB pixel;
+			GdipBitmapGetPixel ((GpBitmap *) image, x, y, &pixel);
+			printf ("0x%08X", pixel);
+			if (x != width - 1)
+			{
+				printf(", ");
+			}
+            else if (y != height - 1)
+            {
+                printf(",");
+            }
+		}
+
+		printf("\n");
+	}
+}
+
+ATTRIBUTE_USED static void deleteFile(const char *file)
 {
 #if !defined(_WIN32)
     unlink (file);
