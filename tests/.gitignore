@@ -5,6 +5,7 @@ Makefile
 Makefile.in
 testadjustablearrowcap
 testbits
+testbitmap
 testbmpcodec
 testbrush
 testclip

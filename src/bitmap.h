@@ -31,7 +31,9 @@
 #ifndef __BITMAP_H__
 #define __BITMAP_H__
 
+GpStatus WINGDIPAPI GdipCreateBitmapFromStream (void *stream, GpBitmap **bitmap);
 GpStatus WINGDIPAPI GdipCreateBitmapFromFile (GDIPCONST WCHAR* filename, GpBitmap **bitmap);
+GpStatus WINGDIPAPI GdipCreateBitmapFromStreamICM (void *stream, GpBitmap **bitmap);
 GpStatus WINGDIPAPI GdipCreateBitmapFromFileICM (GDIPCONST WCHAR* filename, GpBitmap **bitmap);
 
 GpStatus WINGDIPAPI GdipCreateBitmapFromScan0 (INT width, INT height, INT stride, PixelFormat format, BYTE* scan0, GpBitmap **bitmap);
@@ -58,7 +60,6 @@ GpStatus WINGDIPAPI GdipBitmapSetResolution (GpBitmap *bitmap, REAL xdpi, REAL y
 
 
 /* missing API
-	GdipCreateBitmapFromStream
 	GdipCreateBitmapFromDirectDrawSurface
 	GdipCreateBitmapFromGdiDib
 	GdipCreateBitmapFromGdiDib
