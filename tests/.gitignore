@@ -26,6 +26,7 @@ testpathgradientbrush
 testpen
 testpng
 testpngcodec
+testregion
 testreversepath
 testsolidbrush
 teststringformat
