@@ -2307,41 +2307,45 @@ static void test_invalidImageData ()
 {
 	BYTE noColorEntries[]         = {'B', 'M', 54, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	BYTE notEnoughColorEntries[]  = {'B', 'M', 58, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE noImageData[]            = {'B', 'M', 62, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0};
-#endif
 	BYTE noImageDataBigSize[]     = {'B', 'M', 62, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 40, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0};
 	BYTE hasImageData4bpp[]       = {'B', 'M', 62, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0};
 	BYTE hasImageData8bpp[]       = {'B', 'M', 62, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0};
 	BYTE invalidBitsPerPixel[]    = {'B', 'M', 62, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0};
 	BYTE bitfieldsNon16Bpp[]      = {'B', 'M', 62, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 32, 0, 3, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0};
-#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE bitfields16Bpp[]         = {'B', 'M', 62, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0, 40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 3, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 128, 0, 0, 0};
 	BYTE notPaddedTo4Bytes[]      = {
 		'B', 'M', 62, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0,
 		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 255, 255, 255, 0,
-		B8(1000000)
+		B8(10000000)
 	};
-#endif
+	BYTE missingNonFinalFinalLine[] = {
+		'B', 'M', 62, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 255, 255, 255, 0,
+		0x00, 0x00, 0x00, 0x00
+	};
+	BYTE missingFinalLine[] = {
+		'B', 'M', 66, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 255, 255, 255, 0,
+		0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00
+	};
 
 	createFile (noColorEntries, OutOfMemory);
 	createFile (notEnoughColorEntries, OutOfMemory);
-	// FIXME: this should fail with OutOfMemory in libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
 	createFile (noImageData, OutOfMemory);
-#endif
 	createFile (noImageDataBigSize, OutOfMemory);
 	createFile (hasImageData4bpp, OutOfMemory);
 	createFile (hasImageData8bpp, OutOfMemory);
 	createFile (invalidBitsPerPixel, OutOfMemory);
 	createFile (bitfieldsNon16Bpp, OutOfMemory);
-
-	// FIXME: this returns Ok with libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
 	createFile (bitfields16Bpp, OutOfMemory);
 	createFile (notPaddedTo4Bytes, OutOfMemory);
-#endif
+	createFile (missingNonFinalFinalLine, OutOfMemory);
+	createFile (missingFinalLine, OutOfMemory);
 }
 
 int

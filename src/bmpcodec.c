@@ -1064,17 +1064,9 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			}
 
 			size_read = gdip_read_bmp_data (pointer, data_read, size, source);
-
 			if (size_read < size) {
-				/* special case for missing data in the last line */
-				if (line == result->active_bitmap->height - 1) {
-					/* MS produce such files for storing ImageList bitmaps, see bug #80797 */
-					int missing_size = size - size_read;
-					memset (data_read + size_read, 0, missing_size);
-				} else {
-					status = OutOfMemory;
-					goto error;
-				}
+				status = OutOfMemory;
+				goto error;
 			}
 
 			switch(bmi.bV5BitCount) {
