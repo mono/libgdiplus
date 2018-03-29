@@ -358,6 +358,10 @@ gdip_metafile_play_wmf (MetafilePlayContext *context)
 			WMF_CHECK_PARAMS (4);
 			status = gdip_metafile_Rectangle (context, GETS (WP1), GETS (WP2), GETS (WP3), GETS (WP4));
 			break;
+		case METAFILE_RECORD_SETPIXEL:
+			WMF_CHECK_PARAMS (4);
+			status = gdip_metafile_SetPixel (context, GetColor (GETW (WP1), GETW (WP2)), GETW (WP4), GETW (WP3));
+			break;
 		case METAFILE_RECORD_STRETCHDIB: {
 			WMF_CHECK_PARAMS(14);
 			BITMAPINFO *bmi = (BITMAPINFO*) (data + 14 * sizeof (WORD));

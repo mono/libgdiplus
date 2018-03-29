@@ -164,6 +164,7 @@ GpStatus gdip_metafile_CreateBrushIndirect (MetafilePlayContext *context, DWORD 
 GpStatus gdip_metafile_Arc (MetafilePlayContext *context, int left, int top, int right, int bottom, 
 	int xstart, int ystart, int xend, int yend) GDIP_INTERNAL;
 GpStatus gdip_metafile_Rectangle (MetafilePlayContext *context, int bottomRect, int rightRect, int topRect, int leftRect) GDIP_INTERNAL;
+GpStatus gdip_metafile_SetPixel (MetafilePlayContext *context, DWORD color, int x, int y) GDIP_INTERNAL;
 GpStatus gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest, int nDestWidth, int nDestHeight, 
 	int XSrc, int YSrc, int nSrcWidth, int nSrcHeight, CONST void *lpBits, CONST BITMAPINFO *lpBitsInfo, 
 	UINT iUsage, DWORD dwRop) GDIP_INTERNAL;
