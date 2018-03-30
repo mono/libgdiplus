@@ -67,8 +67,20 @@ static void test_validImage1bppOS2Header ()
 		B8(11111111), B8(11111111), B8(11111111), 0
 	};
 
-	createFileSuccess (image1x1, PixelFormat1bppIndexed, 1, 1, bmpFlags);
-	createFileSuccess (image24x4, PixelFormat1bppIndexed, 24, 4, bmpFlags);
+	createFileSuccessDispose (image1x1, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
+	ARGB image1x1Pixels[] = {0xFF00FF00};
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image24x4, PixelFormat1bppIndexed, 24, 4, bmpFlags, FALSE);
+	ARGB image24x4Pixels[] = {
+		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
+		0xFF0000FF, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
+		0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
+		0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF
+	};
+	verifyPixels (image, image24x4Pixels);
+	GdipDisposeImage (image);
 }
 
 static void test_validImage1bppBitmapInfoHeader ()
@@ -92,22 +104,40 @@ static void test_validImage1bppBitmapInfoHeader ()
 		'B', 'M', 66, 0, 0, 0, 0, 0, 0, 0, 0x3E, 0, 0, 0,
 		40, 0, 0, 0, 1, 0, 0, 0, 255, 255, 255, 255, 1, 0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		255, 0, 0, 255, 0, 255, 0, 255,
-		B8(1000000), 0, 0, 0
+		B8(10000000), 0, 0, 0
 	};
 	BYTE image24x4NegativeHeight[] = {
 		'B', 'M', 82, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
 		40, 0, 0, 0, 24, 0, 0, 0, 252, 255, 255, 255, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0,
 		255, 0, 0, 255, 0, 255, 0, 255, 255, 255, 255, 255,
-		B8(10000000), B8(00000000), B8(00000000), 0,
-		B8(10000000), B8(00000000), B8(00000000), 0,
+		B8(11111111), B8(11111111), B8(11111111), 0,
 		B8(00100111), B8(00000000), B8(00000000), 0,
-		B8(11111111), B8(11111111), B8(11111111), 0
+		B8(10000000), B8(00000000), B8(00000000), 0,
+		B8(10000000), B8(00000000), B8(00000000), 0
 	};
 
-	createFileSuccess (image1x1, PixelFormat1bppIndexed, 1, 1, bmpFlags);
-	createFileSuccess (image24x4CustomSizedPalette, PixelFormat1bppIndexed, 24, 4, bmpFlags);
-	createFileSuccess (image1x1NegativeHeight, PixelFormat1bppIndexed, 1, 1, bmpFlags);
-	createFileSuccess (image24x4NegativeHeight, PixelFormat1bppIndexed, 24, 4, bmpFlags);
+	createFileSuccessDispose (image1x1, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
+	ARGB image1x1Pixels[] = {0xFF00FF00};
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image24x4CustomSizedPalette, PixelFormat1bppIndexed, 24, 4, bmpFlags, FALSE);
+	ARGB image24x4Pixels[] = {
+		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
+		0xFF0000FF, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
+		0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
+		0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF
+	};
+	verifyPixels (image, image24x4Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image1x1NegativeHeight, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image24x4NegativeHeight, PixelFormat1bppIndexed, 24, 4, bmpFlags, FALSE);
+	verifyPixels (image, image24x4Pixels);
+	GdipDisposeImage (image);
 }
 
 static void test_validImage1bppBitmapV3Header ()
@@ -143,7 +173,8 @@ static void test_validImage1bppBitmapV3Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
-	verifyPixels (image, {(ARGB) -16711936});
+	ARGB image1x1Pixels[] = {0xFF00FF00};
+	verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 }
 
@@ -186,7 +217,8 @@ static void test_validImage1bppBitmapV4Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
-	verifyPixels (image, {(ARGB) -16711936});
+	ARGB image1x1Pixels[] = {0xFF00FF00};
+	verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 }
 
@@ -233,7 +265,8 @@ static void test_validImage1bppBitmapV5Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
-	verifyPixels (image, {(ARGB) -16711936});
+	ARGB image1x1Pixels[] = {0xFF00FF00};
+	verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 }
 
@@ -255,8 +288,20 @@ static void test_validImage4bppOS2Header ()
 		B8(00010001), B8(00010001), B8(00010001), 0
 	};
 
-	createFileSuccess (image1x1, PixelFormat4bppIndexed, 1, 1, bmpFlags);
-	createFileSuccess (image6x4, PixelFormat4bppIndexed, 6, 4, bmpFlags);
+	createFileSuccessDispose (image1x1, PixelFormat4bppIndexed, 1, 1, bmpFlags, FALSE);
+	ARGB image1x1Pixels[] = {0xFFFF00FF};
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4, PixelFormat4bppIndexed, 6, 4, bmpFlags, FALSE);
+	ARGB image6x4Pixels[] = {
+		0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
+		0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
+		0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF,
+		0xFFFF00FF, 0xFFFF00FF, 0xFF0000FF, 0xFF0000FF, 0xFFFF00FF, 0xFFFF00FF
+	};
+	verifyPixels (image, image6x4Pixels);
+	GdipDisposeImage (image);
 }
 
 static void test_validImage4bppBitmapInfoHeader ()
@@ -287,17 +332,40 @@ static void test_validImage4bppBitmapInfoHeader ()
 		'B', 'M', 122, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
 		40, 0, 0, 0, 6, 0, 0, 0, 252, 255, 255, 255, 1, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0,
 		255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255,
-		B8(00010011), B8(11111111), B8(00110001), 0,
-		B8(00010011), B8(10101010), B8(00110001), 0,
+		B8(00010001), B8(00010001), B8(00010001), 0,
 		B8(00010011), B8(00110011), B8(00110001), 0,
-		B8(00010001), B8(00010001), B8(00010001), 0
+		B8(00010011), B8(10101010), B8(00110001), 0,
+		B8(00010011), B8(11111111), B8(00110001), 0
 	};
 
-	createFileSuccess (image1x1, PixelFormat4bppIndexed, 1, 1, bmpFlags);
-	createFileSuccess (image6x4CustomSizedPalette, PixelFormat4bppIndexed, 6, 4, bmpFlags);
+	createFileSuccessDispose (image1x1, PixelFormat4bppIndexed, 1, 1, bmpFlags, FALSE);
+	ARGB image1x1Pixels[] = {0xFF00FF00};
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
 
-	createFileSuccess (image1x1NegativeHeight, PixelFormat4bppIndexed, 1, 1, bmpFlags);
-	createFileSuccess (image6x4NegativeHeight, PixelFormat4bppIndexed, 6, 4, bmpFlags);
+	createFileSuccessDispose (image6x4CustomSizedPalette, PixelFormat4bppIndexed, 6, 4, bmpFlags, FALSE);
+	// FIXME: these are incorrectly decoded by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image6x4Pixels[] = {
+		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
+		0xFF00FF00, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF00FF00,
+		0xFF00FF00, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF00FF00,
+		0xFF00FF00, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF00FF00
+	};
+	verifyPixels (image, image6x4Pixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image1x1NegativeHeight, PixelFormat4bppIndexed, 1, 1, bmpFlags, FALSE);
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4NegativeHeight, PixelFormat4bppIndexed, 6, 4, bmpFlags, FALSE);
+	// FIXME: this is broken.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyPixels (image, image6x4Pixels);
+#endif
+	GdipDisposeImage (image);
 }
 
 static void test_validImage4bppBitmapV3Header ()
@@ -333,7 +401,8 @@ static void test_validImage4bppBitmapV3Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat4bppIndexed, 1, 1, bmpFlags, FALSE);
-	verifyPixels (image, {(ARGB) -16711936});
+	ARGB image1x1Pixels[] = {0xFF00FF00};
+	verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 }
 
@@ -376,7 +445,8 @@ static void test_validImage4bppBitmapV4Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat4bppIndexed, 1, 1, bmpFlags, FALSE);
-	verifyPixels (image, {(ARGB) -16711936});
+	ARGB image1x1Pixels[] = {0xFF00FF00};
+	verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 }
 
@@ -423,7 +493,8 @@ static void test_validImage4bppBitmapV5Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat4bppIndexed, 1, 1, bmpFlags, FALSE);
-	verifyPixels (image, {(ARGB) -16711936});
+	ARGB image1x1Pixels[] = {0xFF00FF00};
+	verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 }
 
@@ -610,40 +681,292 @@ static void test_validImage4bppRle4Compression ()
 #else
 	PixelFormat expectedRle4Format = PixelFormat4bppIndexed;
 #endif
-	createFileSuccess (fullNoTerminator, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (fullTerminator, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (split, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (overflowNoTerminator, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (overflowTerminator, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccessDispose (fullNoTerminator, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	ARGB fullNoTerminatorPixels[] = {
+		0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00,
+		0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00,
+		0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00,
+		0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00
+	};
+	verifyPixels (image, fullNoTerminatorPixels);
+	GdipDisposeImage(image);
 
-	createFileSuccess (jump, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (jumpMissingDx, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (jumpMissingDy, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (jumpInvalidDx, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccessDispose (fullTerminator, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	ARGB fullTerminatorPixels[] = {
+		0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00,
+		0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00,
+		0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00,
+		0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00
+	};
+	verifyPixels (image, fullTerminatorPixels);
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (split, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB splitPixels[] = {
+		0xFF0000FF, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
+		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, splitPixels);
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (overflowNoTerminator, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+    ARGB overflowNoTerminatorPixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF
+    };
+	verifyPixels (image, overflowNoTerminatorPixels);
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (overflowTerminator, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB overflowTerminatorPixels[] = {
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF
+	};
+	verifyPixels (image, overflowTerminatorPixels);
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (jump, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB jumpPixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF
+	};
+	verifyPixels (image, jumpPixels)
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (jumpMissingDx, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB jumpMissingDxPixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, jumpMissingDxPixels);
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (jumpMissingDy, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB jumpMissingDyPixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, jumpMissingDyPixels);
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (jumpInvalidDx, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB jumpInvalidDxPixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, jumpInvalidDxPixels);
+#endif
+	GdipDisposeImage(image);
+
 	// FIXME: this causes a heap buffer overflow in libgdiplus.
 #if defined(USE_WINDOWS_GDIPLUS)
-	createFileSuccess (jumpInvalidDy, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccessDispose (jumpInvalidDy, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	ARGB jumpInvalidDyPixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, jumpInvalidDyPixels);
+	GdipDisposeImage(image);
 #endif
 
-	createFileSuccess (absoluteModeOddPixels, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (absoluteModeEvenPixels, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (absoluteModeNoData, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (absoluteModeShortData, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (absoluteModeNoPadding, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccessDispose (absoluteModeOddPixels, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB absoluteModeOddPixelsPixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF00FF00, 0xFF000000, 0xFF0000FF, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, absoluteModeOddPixelsPixels);
+#endif
+	GdipDisposeImage(image);
 
-	createFileSuccess (fullNegativeHeight, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (incompleteAfterLineBreak, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (noImageData, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (singleByteData, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (singleEscapeCode, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (earlyTerminator, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (earlyTerminatorWithTrailingBytes, expectedRle4Format, 6, 4, bmpFlags);
-	createFileSuccess (tooManyNewLines, expectedRle4Format, 6, 4, bmpFlags);
+	createFileSuccessDispose (absoluteModeEvenPixels, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB absoluteModeEvenPixelsPixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF00FF00, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, absoluteModeEvenPixelsPixels);
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (absoluteModeNoData, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB absoluteModeNoDataPixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, absoluteModeNoDataPixels);
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (absoluteModeShortData, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB absoluteModeShortDataPixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, absoluteModeShortDataPixels);
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (absoluteModeNoPadding, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB absoluteModeNoPaddingPixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000, 0xFF0000FF, 0xFF000000
+	};
+	verifyPixels (image, absoluteModeNoPaddingPixels);
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (fullNegativeHeight, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	ARGB fullNegativeHeightPixels[] = {
+			0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00,
+			0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
+			0xFF0000FF, 0xFFFF0000, 0xFF0000FF, 0xFFFF0000, 0xFF0000FF, 0xFFFF0000,
+			0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF
+	};
+	verifyPixels (image, fullNegativeHeightPixels);
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (incompleteAfterLineBreak, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB incompleteAfterLineBreakPixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00
+	};
+	verifyPixels (image, incompleteAfterLineBreakPixels);
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (noImageData, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// Don't verify the pixels, as the pixel data changes every time the program is run
+	// due to a bug in GDI+.
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (singleByteData, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB singleByteDataPixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, singleByteDataPixels);
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (singleEscapeCode, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB singleEscapeCodePixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, singleEscapeCodePixels);
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (earlyTerminator, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB earlyTerminatorPixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF0000FF, 0xFF0000FF, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00
+	};
+	verifyPixels (image, earlyTerminatorPixels);
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (earlyTerminatorWithTrailingBytes, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB earlyTerminatorWithTrailingBytesPixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF0000FF, 0xFF0000FF, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00
+	};
+	verifyPixels (image, earlyTerminatorWithTrailingBytesPixels);
+#endif
+	GdipDisposeImage(image);
+
+	createFileSuccessDispose (tooManyNewLines, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle4 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB tooManyNewLinesPixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, tooManyNewLinesPixels);
+#endif
+	GdipDisposeImage(image);
 }
 
 static void test_validImage8bppOS2Header ()
 {
-	BYTE image8bppOS2Header1x1[] = {
+	BYTE image1x1[] = {
 		'B', 'M', 30, 4, 0, 0, 0, 0, 0, 0, 25, 4, 0, 0,
 		12, 0, 0, 0, 1, 0, 1, 0, 1, 0, 8, 0,
 		255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 0, 255, 255, 0, 255, 255, 255, 255, 255, 255, 0, 0, 0, 255, 8, 8, 8, 8, 255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 0, 255, 255, 0, 255, 255, 255, 255, 255, 255, 0, 0, 0, 255, 0, 0, 0, 255,
@@ -664,7 +987,7 @@ static void test_validImage8bppOS2Header ()
 		255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 0, 255, 255, 0, 255, 255, 255, 255, 255, 255, 0, 0, 0, 255, 8, 8, 8, 8, 255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 0, 255, 255, 0, 255, 255, 255, 255, 255, 255, 0, 0, 0, 255, 0, 0, 0, 255,
 		1, 0, 0, 0
 	};
-	BYTE image8bppOS2Header6x4[] = {
+	BYTE image6x4[] = {
 		'B', 'M', 48, 4, 0, 0, 0, 0, 0, 0, 25, 4, 0, 0,
 		12, 0, 0, 0, 6, 0, 4, 0, 1, 0, 8, 0,
 		255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 0, 255, 255, 0, 255, 255, 255, 255, 255, 255, 0, 0, 0, 255, 8, 8, 8, 8, 255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 0, 255, 255, 0, 255, 255, 255, 255, 255, 255, 0, 0, 0, 255, 0, 0, 0, 255,
@@ -689,8 +1012,23 @@ static void test_validImage8bppOS2Header ()
 		1, 1, 1, 1, 1, 1, 0, 0
 	};
 
-	createFileSuccess (image8bppOS2Header1x1, PixelFormat8bppIndexed, 1, 1, bmpFlags);
-	createFileSuccess (image8bppOS2Header6x4, PixelFormat8bppIndexed, 6, 4, bmpFlags);
+	createFileSuccessDispose (image1x1, PixelFormat8bppIndexed, 1, 1, bmpFlags, FALSE);
+	ARGB image1x1Pixels[] = {0xFFFF0000};
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4, PixelFormat8bppIndexed, 6, 4, bmpFlags, FALSE);
+	// FIXME: these are incorrectly decoded by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image6x4Pixels[] = {
+        0xFF0000FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF,
+        0xFF0000FF, 0xFFFF00FF, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00,
+        0xFF0000FF, 0xFFFF00FF, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00,
+        0xFFFF0000, 0xFFFF00FF, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00
+	};
+	verifyPixels (image, image6x4Pixels);
+#endif
+	GdipDisposeImage (image);
 }
 
 static void test_validImage8bppBitmapInfoHeader ()
@@ -750,16 +1088,34 @@ static void test_validImage8bppBitmapInfoHeader ()
 		'B', 'M', 98, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
 		40, 0, 0, 0, 6, 0, 0, 0, 252, 255, 255, 255, 1, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0,
 		255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 0, 255,
+		1, 1, 1, 1, 1, 1, 0, 0,
 		1, 0, 2, 0, 2, 1, 0, 0,
 		1, 0, 2, 0, 2, 1, 0, 0,
-		1, 0, 2, 0, 2, 1, 0, 0,
-		1, 1, 1, 1, 1, 1, 0, 0
+		1, 0, 2, 0, 2, 1, 0, 0
 	};
 
-	createFileSuccess (image1x1, PixelFormat8bppIndexed, 1, 1, bmpFlags);
-	createFileSuccess (image6x4CustomSizedPalette, PixelFormat8bppIndexed, 6, 4, bmpFlags);
-	createFileSuccess (image1x1NegativeHeight, PixelFormat8bppIndexed, 1, 1, bmpFlags);
-	createFileSuccess (image6x4NegativeHeight, PixelFormat8bppIndexed, 6, 4, bmpFlags);
+	createFileSuccessDispose (image1x1, PixelFormat8bppIndexed, 1, 1, bmpFlags, FALSE);
+	ARGB image1x1Pixels[] = {0xFF00FF00};
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4CustomSizedPalette, PixelFormat8bppIndexed, 6, 4, bmpFlags, FALSE);
+	ARGB image6x4CustomSizedPalettePixels[] = {
+        0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
+        0xFF00FF00, 0xFF0000FF, 0xFF000000, 0xFF0000FF, 0xFF000000, 0xFF00FF00,
+        0xFF00FF00, 0xFF0000FF, 0xFF000000, 0xFF0000FF, 0xFF000000, 0xFF00FF00,
+        0xFF00FF00, 0xFF0000FF, 0xFF000000, 0xFF0000FF, 0xFF000000, 0xFF00FF00
+	};
+	verifyPixels (image, image6x4CustomSizedPalettePixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image1x1NegativeHeight, PixelFormat8bppIndexed, 1, 1, bmpFlags, FALSE);
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4NegativeHeight, PixelFormat8bppIndexed, 6, 4, bmpFlags, FALSE);
+	verifyPixels (image, image6x4CustomSizedPalettePixels);
+	GdipDisposeImage (image);
 }
 
 static void test_validImage8bppBitmapV3Header ()
@@ -795,7 +1151,8 @@ static void test_validImage8bppBitmapV3Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat8bppIndexed, 1, 1, bmpFlags, FALSE);
-	verifyPixels (image, {(ARGB) -16711936});
+	ARGB image1x1Pixels[] = {0xFF00FF00};
+	verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 }
 
@@ -838,7 +1195,8 @@ static void test_validImage8bppBitmapV4Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat8bppIndexed, 1, 1, bmpFlags, FALSE);
-	verifyPixels (image, {(ARGB) -16711936});
+	ARGB image1x1Pixels[] = {0xFF00FF00};
+	verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 }
 
@@ -886,7 +1244,8 @@ static void test_validImage8bppBitmapV5Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat8bppIndexed, 1, 1, bmpFlags, FALSE);
-	verifyPixels (image, {(ARGB) -16711936});
+	ARGB image1x1Pixels[] = {0xFF00FF00};
+	verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 }
 
@@ -1073,35 +1432,286 @@ static void test_validImage8bppRle8Compression ()
 #else
 	PixelFormat expectedRle8Format = PixelFormat8bppIndexed;
 #endif
-	createFileSuccess (fullNoTerminator, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (fullTerminator, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (split, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (overflowNoTerminator, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (overflowTerminator, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccessDispose (fullNoTerminator, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	ARGB fullNoTerminatorPixels[] = {
+		0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
+		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00
+	};
+	verifyPixels (image, fullNoTerminatorPixels);	GdipDisposeImage (image);
 
-	createFileSuccess (jump, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (jumpMissingDx, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (jumpMissingDy, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (jumpInvalidDx, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccessDispose (fullTerminator, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	ARGB fullTerminatorPixels[] = {
+        0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
+        0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00
+	};
+	verifyPixels (image, fullTerminatorPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (split, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB splitPixels[] = {
+		0xFF0000FF, 0xFFFF0000, 0xFFFF0000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFFFF0000, 0xFFFF0000, 0xFFFF0000, 0xFFFF0000, 0xFFFF0000, 0xFF000000,
+		0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
+		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, splitPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (overflowNoTerminator, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB overflowNoTerminatorPixels[] = {
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF
+	};
+	verifyPixels (image, overflowNoTerminatorPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (overflowTerminator, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB overflowTerminatorPixels[] = {
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF
+	};
+	verifyPixels (image, overflowTerminatorPixels);	GdipDisposeImage (image);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (jump, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB jumpPixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, jumpPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (jumpMissingDx, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB jumpMissingDxPixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, jumpMissingDxPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (jumpMissingDy, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB jumpMissingDyPixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, jumpMissingDyPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (jumpInvalidDx, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB jumpInvalidDxPixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, jumpInvalidDxPixels);
+#endif
+	GdipDisposeImage (image);
+
 	// FIXME: this causes a heap buffer overflow in libgdiplus.
 #if defined(USE_WINDOWS_GDIPLUS)
-	createFileSuccess (jumpInvalidDy, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccessDispose (jumpInvalidDy, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	ARGB jumpInvalidDyPixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, jumpInvalidDyPixels);
+	GdipDisposeImage (image);
 #endif
 
-	createFileSuccess (absoluteModeOddPixels, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (absoluteModeEvenPixels, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (absoluteModeNoData, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (absoluteModeShortData, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (absoluteModeNoPadding, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccessDispose (absoluteModeOddPixels, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB absoluteModeOddPixelsPixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, absoluteModeOddPixelsPixels);
+#endif
+	GdipDisposeImage (image);
 
-	createFileSuccess (fullNegativeHeight, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (incompleteAfterLineBreak, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (noImageData, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (singleByteData, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (singleEscapeCode, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (earlyTerminator, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (earlyTerminatorWithTrailingBytes, expectedRle8Format, 6, 4, bmpFlags);
-	createFileSuccess (tooManyNewLines, expectedRle8Format, 6, 4, bmpFlags);
+	createFileSuccessDispose (absoluteModeEvenPixels, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB absoluteModeEvenPixelsPixels[] = {
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF0000FF, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, absoluteModeEvenPixelsPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (absoluteModeNoData, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB absoluteModeNoDataPixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, absoluteModeNoDataPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (absoluteModeShortData, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB absoluteModeShortDataPixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, absoluteModeShortDataPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (absoluteModeNoPadding, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB absoluteModeNoPaddingPixels[] = {
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF00FF00, 0xFFFF0000, 0xFF00FF00, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, absoluteModeNoPaddingPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (fullNegativeHeight, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	ARGB fullNegativeHeightPixels[] = {
+        0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
+        0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
+        0xFFFF0000, 0xFFFF0000, 0xFFFF0000, 0xFFFF0000, 0xFFFF0000, 0xFFFF0000,
+        0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF
+	};
+	verifyPixels (image, fullNegativeHeightPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (incompleteAfterLineBreak, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB incompleteAfterLineBreakPixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00
+	};
+	verifyPixels (image, incompleteAfterLineBreakPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (noImageData, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// Don't verify the pixels, as the pixel data changes every time the program is run
+	// due to a bug in GDI+.
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (singleByteData, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB singleByteDataPixels[] = {
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+		0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, singleByteDataPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (singleEscapeCode, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB singleEscapeCodePixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, singleEscapeCodePixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (earlyTerminator, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB earlyTerminatorPixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF0000FF, 0xFF0000FF, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00
+	};
+	verifyPixels (image, earlyTerminatorPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (earlyTerminatorWithTrailingBytes, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB earlyTerminatorWithTrailingBytesPixels[] = {
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF0000FF, 0xFF0000FF, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+        0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00
+	};
+	verifyPixels (image, earlyTerminatorWithTrailingBytesPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (tooManyNewLines, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// FIXME: rle8 encoding edgecases are not properly handled by libgdiplus.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB tooManyNewLinesPixels[] = {
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+			0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000
+	};
+	verifyPixels (image, tooManyNewLinesPixels);
+#endif
+	GdipDisposeImage (image);
 }
 
 static void test_validImage16bppOS2Header ()
@@ -1122,8 +1732,26 @@ static void test_validImage16bppOS2Header ()
 		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000)
 	};
 
-	createFileSuccess (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags);
-	createFileSuccess (image6x4, PixelFormat32bppRGB, 6, 4, bmpFlags);
+	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	// FIXME: libgdiplus decodes this differently.
+#if defined(USE_WINDOWS_GDIPLUS)
+    ARGB image1x1Pixels[] = {0xFFD6AD6B};
+    verifyPixels (image, image1x1Pixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	// FIXME: libgdiplus decodes this differently.
+#if defined(USE_WINDOWS_GDIPLUS)
+    ARGB image6x4Pixels[] = {
+		0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
+		0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6,
+        0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
+        0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6
+    };
+    verifyPixels (image, image6x4Pixels);
+#endif
+	GdipDisposeImage (image);
 }
 
 static void test_validImage16bppBitmapInfoHeader ()
@@ -1202,19 +1830,101 @@ static void test_validImage16bppBitmapInfoHeader ()
 	};
 #endif
 
-	createFileSuccess (image1x1RedShift10, PixelFormat32bppRGB, 1, 1, bmpFlags);
-	createFileSuccess (image6x4RedShift10, PixelFormat32bppRGB, 6, 4, bmpFlags);
-	createFileSuccess (image1x1RedShift11, PixelFormat32bppRGB, 1, 1, bmpFlags);
-	createFileSuccess (image6x4RedShift11, PixelFormat32bppRGB, 6, 4, bmpFlags);
-	createFileSuccess (image1x1RedShiftUnknown, PixelFormat32bppRGB, 1, 1, bmpFlags);
-	createFileSuccess (image6x4RedShiftUnknown, PixelFormat32bppRGB, 6, 4, bmpFlags);
-	createFileSuccess (image1x1NegativeHeight, PixelFormat32bppRGB, 1, 1, bmpFlags);
-	createFileSuccess (image6x4NegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags);
+	createFileSuccessDispose (image1x1RedShift10, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	// FIXME: libgdiplus decodes this differently.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image1x1RedShift10Pixels[] = {0xFFD6AD6B};
+	verifyPixels (image, image1x1RedShift10Pixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4RedShift10, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	// FIXME: libgdiplus decodes this differently.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image6x4RedShift10Pixels[] = {
+        0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
+        0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6,
+        0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
+        0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6
+    };
+    verifyPixels (image, image6x4RedShift10Pixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image1x1RedShift11, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	// FIXME: libgdiplus decodes this differently.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image1x1RedShift11Pixels[] = {0xFFAD6B6B};
+    verifyPixels (image, image1x1RedShift11Pixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4RedShift11, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	// FIXME: libgdiplus decodes this differently.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image6x4RedShift11Pixels[] = {
+        0xFFFFFFFF, 0xFFC639FF, 0xFF0039C6, 0xFFFF8439, 0xFF39FFC6, 0xFF000000,
+        0xFF8439FF, 0xFFFFFFFF, 0xFFFFC639, 0xFF0039C6, 0xFF000000, 0xFF39FFC6,
+        0xFFFFFFFF, 0xFFC639FF, 0xFF0039C6, 0xFFFF8439, 0xFF39FFC6, 0xFF000000,
+        0xFF8439FF, 0xFFFFFFFF, 0xFFFFC639, 0xFF0039C6, 0xFF000000, 0xFF39FFC6
+    };
+    verifyPixels (image, image6x4RedShift11Pixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image1x1RedShiftUnknown, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	// FIXME: libgdiplus decodes this differently.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image1x1RedShiftUnknownPixels[] = {0xFFD6AD6B};
+	verifyPixels (image, image1x1RedShiftUnknownPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4RedShiftUnknown, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	// FIXME: libgdiplus decodes this differently.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image6x4RedShiftUnknownPixels[] = {
+        0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
+        0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6,
+        0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
+        0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6
+	};
+	verifyPixels (image, image6x4RedShiftUnknownPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image1x1NegativeHeight, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	// FIXME: libgdiplus decodes this differently.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image1x1NegativeHeightPixels[] = {0xFFD6AD6B};
+	verifyPixels (image, image1x1NegativeHeightPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4NegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	// FIXME: libgdiplus decodes this differently.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image6x4NegativeHeightPixels[] = {
+		0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6,
+		0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
+		0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6,
+		0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000
+	};
+	verifyPixels (image, image6x4NegativeHeightPixels);
+#endif
+	GdipDisposeImage (image);
 
 	// FIXME: this returns OutOfMemory libgdiplus.
 #if defined(USE_WINDOWS_GDIPLUS)
-	createFileSuccess (rle4Compression16bpp, PixelFormat32bppRGB, 1, 1, bmpFlags);
-	createFileSuccess (rle8Compression16bpp, PixelFormat32bppRGB, 1, 1, bmpFlags);
+	createFileSuccessDispose (rle4Compression16bpp, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	// Don't verify the pixels, as the pixel data changes every time the program is run
+	// due to a bug in GDI+.
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (rle8Compression16bpp, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	// Don't verify the pixels, as the pixel data changes every time the program is run
+	// due to a bug in GDI+.
+	GdipDisposeImage (image);
 #endif
 }
 
@@ -1276,28 +1986,30 @@ static void test_validImage16bppBitmapV3Header ()
 	createFileSuccessDispose (image1x1RGB565, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	// FIXME: match GDI+ behaviour.
 #if defined(USE_WINDOWS_GDIPLUS)
-	verifyPixels (image, {(ARGB) -19011});
+	ARGB image1x1RGB565Pixels[] = {0xFFFFB5BD};
+	verifyPixels (image, image1x1RGB565Pixels);
 #endif
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1RGB555, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	// FIXME: match GDI+ behaviour.
 #if defined(USE_WINDOWS_GDIPLUS)
-	verifyPixels (image, {(ARGB) -19011});
+	ARGB image1x1RGB555Pixels[] = {0xFFFFB5BD};
+	verifyPixels (image, image1x1RGB555Pixels);
 #endif
 	GdipDisposeImage (image);
 }
 
 static void test_validImage16bppBitmapV4Header ()
 {
-	BYTE image16bppBitmapV4Header1x1[] = {
+	BYTE image1x1[] = {
 		'B', 'M', 126, 0, 0, 0, 0, 0, 0, 0, 0x79, 0, 0, 0,
 		108, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 124, 0, 0, 224, 3, 0, 0, 0x1F, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		B8(10101101), B8(01101010), 0, 0
 	};
-	BYTE image16bppBitmapV4Header6x4[] = {
+	BYTE image6x4[] = {
 		'B', 'M', 126, 0, 0, 0, 0, 0, 0, 0, 0x79, 0, 0, 0,
 		108, 0, 0, 0, 6, 0, 0, 0, 4, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 124, 0, 0, 224, 3, 0, 0, 0x1F, 0, 0, 0,
@@ -1308,8 +2020,26 @@ static void test_validImage16bppBitmapV4Header ()
 		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000)
 	};
 
-	createFileSuccess (image16bppBitmapV4Header1x1, PixelFormat32bppRGB, 1, 1, bmpFlags);
-	createFileSuccess (image16bppBitmapV4Header6x4, PixelFormat32bppRGB, 6, 4, bmpFlags);
+	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	// FIXME: libgdiplus decodes this differently.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image1x1Pixels[] = {0xFFD6AD6B};
+	verifyPixels (image, image1x1Pixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	// FIXME: libgdiplus decodes this differently.
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image6x4Pixels[] = {
+        0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
+        0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6,
+        0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
+        0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6
+	};
+	verifyPixels (image, image6x4Pixels);
+#endif
+	GdipDisposeImage (image);
 }
 
 static void test_validImage16bppBitmapV5Header ()
@@ -1390,14 +2120,18 @@ static void test_validImage16bppBitmapV5Header ()
 	};
 
 	createFileSuccessDispose (image1x1RGB565, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	// FIXME: libgdiplus decodes this differently.
 #if defined(USE_WINDOWS_GDIPLUS)
-	verifyPixels (image, {(ARGB) -19011});
+	ARGB image1x1RGB565Pixels[] = {0xFFFFB5BD};
+	verifyPixels (image, image1x1RGB565Pixels);
 #endif
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1RGB555, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	// FIXME: libgdiplus decodes this differently.
 #if defined(USE_WINDOWS_GDIPLUS)
-	verifyPixels (image, {(ARGB) -19011});
+	ARGB image1x1RGB555Pixels[] = {0xFFFFB5BD};
+	verifyPixels (image, image1x1RGB555Pixels);
 #endif
 	GdipDisposeImage (image);
 }
@@ -1418,8 +2152,20 @@ static void test_validImage24bppOS2Header ()
 		0, 0, 255, 255, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0
 	};
 
-	createFileSuccess (image1x1, PixelFormat24bppRGB, 1, 1, bmpFlags);
-	createFileSuccess (image6x4, PixelFormat24bppRGB, 6, 4, bmpFlags);
+	createFileSuccessDispose (image1x1, PixelFormat24bppRGB, 1, 1, bmpFlags, FALSE);
+	ARGB image1x1Pixels[] = {0xFFFF0000};
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4, PixelFormat24bppRGB, 6, 4, bmpFlags, FALSE);
+	ARGB image6x4Pixels[] = {
+        0xFFFF0000, 0xFFFFFFFF, 0xFFFF0000, 0xFFFFFF00, 0xFFFFFFFF, 0xFF00FF00,
+        0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00, 0xFFFF00FF, 0xFFFFFFFF,
+        0xFFFF0000, 0xFFFFFFFF, 0xFFFF0000, 0xFFFFFF00, 0xFFFFFFFF, 0xFF00FF00,
+        0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00, 0xFFFF00FF, 0xFFFFFFFF
+	};
+	verifyPixels (image, image6x4Pixels);
+	GdipDisposeImage (image);
 }
 
 static void test_validImage24bppBitmapInfoHeader ()
@@ -1445,10 +2191,10 @@ static void test_validImage24bppBitmapInfoHeader ()
 	BYTE image6x4NegativeHeight[] = {
 		'B', 'M', 126, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
 		40, 0, 0, 0, 6, 0, 0, 0, 252, 255, 255, 255, 1, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 255, 0, 255, 0, 255, 0, 0, 0, 255, 255, 255, 0, 255, 255, 255, 255, 0, 0,
 		0, 0, 255, 255, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0,
 		0, 0, 255, 0, 255, 0, 255, 0, 0, 0, 255, 255, 255, 0, 255, 255, 255, 255, 0, 0,
-		0, 0, 255, 255, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0
+		0, 0, 255, 255, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0,
+		0, 0, 255, 0, 255, 0, 255, 0, 0, 0, 255, 255, 255, 0, 255, 255, 255, 255, 0, 0
 	};
 
 	BYTE rle4Compression24bpp[] = {
@@ -1462,10 +2208,28 @@ static void test_validImage24bppBitmapInfoHeader ()
 		255, 255, 255, 0
 	};
 
-	createFileSuccess (image1x1, PixelFormat24bppRGB, 1, 1, bmpFlags);
-	createFileSuccess (image6x4, PixelFormat24bppRGB, 6, 4, bmpFlags);
-	createFileSuccess (image1x1NegativeHeight, PixelFormat24bppRGB, 1, 1, bmpFlags);
-	createFileSuccess (image6x4NegativeHeight, PixelFormat24bppRGB, 6, 4, bmpFlags);
+	createFileSuccessDispose (image1x1, PixelFormat24bppRGB, 1, 1, bmpFlags, FALSE);
+	ARGB image1x1Pixels[] = {0xFFFF0000};
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4, PixelFormat24bppRGB, 6, 4, bmpFlags, FALSE);
+	ARGB image6x4Pixels[] = {
+        0xFFFF0000, 0xFFFFFFFF, 0xFFFF0000, 0xFFFFFF00, 0xFFFFFFFF, 0xFF00FF00,
+        0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00, 0xFFFF00FF, 0xFFFFFFFF,
+        0xFFFF0000, 0xFFFFFFFF, 0xFFFF0000, 0xFFFFFF00, 0xFFFFFFFF, 0xFF00FF00,
+        0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00, 0xFFFF00FF, 0xFFFFFFFF
+	};
+	verifyPixels (image, image6x4Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image1x1NegativeHeight, PixelFormat24bppRGB, 1, 1, bmpFlags, FALSE);
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4NegativeHeight, PixelFormat24bppRGB, 6, 4, bmpFlags, FALSE);
+	verifyPixels (image, image6x4Pixels);
+	GdipDisposeImage (image);
 
 	// FIXME: GDI+ converts RLE compressed 24bpp images to 32bppRGB.
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -1473,8 +2237,15 @@ static void test_validImage24bppBitmapInfoHeader ()
 #else
 	PixelFormat expectedRleFormat = PixelFormat24bppRGB;
 #endif
-	createFileSuccess (rle4Compression24bpp, expectedRleFormat, 1, 1, bmpFlags);
-	createFileSuccess (rle8Compression24bpp, expectedRleFormat, 1, 1, bmpFlags);
+	createFileSuccessDispose (rle4Compression24bpp, expectedRleFormat, 1, 1, bmpFlags, FALSE);
+	// Don't verify the pixels, as the pixel data changes every time the program is run
+	// due to a bug in GDI+.
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (rle8Compression24bpp, expectedRleFormat, 1, 1, bmpFlags, FALSE);
+	// Don't verify the pixels, as the pixel data changes every time the program is run
+	// due to a bug in GDI+.
+	GdipDisposeImage (image);
 }
 
 static void test_validImage24bppBitmapV3Header ()
@@ -1507,7 +2278,8 @@ static void test_validImage24bppBitmapV3Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat24bppRGB, 1, 1, bmpFlags, FALSE);
-	verifyPixels (image, {(ARGB) -9543});
+	ARGB image1x1Pixels[] = {0xFFFFDAB9};
+	verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 }
 
@@ -1547,7 +2319,8 @@ static void test_validImage24bppBitmapV4Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat24bppRGB, 1, 1, bmpFlags, FALSE);
-	verifyPixels (image, {(ARGB) -9543});
+	ARGB image1x1Pixels[] = {0xFFFFDAB9};
+	verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 }
 
@@ -1594,7 +2367,8 @@ static void test_validImage24bppBitmapV5Header ()
 	createFileSuccessDispose (image1x1, PixelFormat24bppRGB, 1, 1, bmpFlags, FALSE);
 	// FIXME: match GDI+ behaviour.
 #if defined(USE_WINDOWS_GDIPLUS)
-	verifyPixels (image, {(ARGB) -9543});
+	ARGB image1x1Pixels[] = {0xFFFFDAB9};
+	verifyPixels (image, image1x1Pixels);
 #endif
 	GdipDisposeImage (image);
 }
@@ -1615,32 +2389,44 @@ static void test_validImage32bppOS2Header ()
 		0, 0, 255, 0, 255, 255, 255, 255, 0, 0, 255, 255, 0, 255, 255, 255, 255, 255, 127, 255, 0, 255, 0, 255
 	};
 
-	createFileSuccess (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags);
-	createFileSuccess (image6x4, PixelFormat32bppRGB, 6, 4, bmpFlags);
+	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	ARGB image1x1Pixels[] = {0xFFFF0000};
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	ARGB image6x4Pixels[] = {
+        0xFFFF0000, 0xFFFFFFFF, 0xFFFF0000, 0xFFFFFF00, 0xFF7FFFFF, 0xFF00FF00,
+        0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00, 0xFFFF00FF, 0xFFFFFFFF,
+        0xFFFF0000, 0xFFFFFFFF, 0xFFFF0000, 0xFFFFFF00, 0xFF7FFFFF, 0xFF00FF00,
+        0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00, 0xFFFF00FF, 0xFFFFFFFF
+	};
+	verifyPixels (image, image6x4Pixels);
+	GdipDisposeImage (image);
 }
 
 static void test_validImage32bppBitmapInfoHeader ()
 {
-	BYTE image32bppBitmapInfoHeader1x1[] = {
+	BYTE image1x1[] = {
 		'B', 'M', 59, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
 		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 255, 255
 	};
-	BYTE image32bppBitmapInfoHeader6x4[] = {
+	BYTE image6x4[] = {
 		'B', 'M', 150, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
 		40, 0, 0, 0, 6, 0, 0, 0, 4, 0, 0, 0, 1, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 255, 255, 0, 255, 0, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 0, 255, 255, 255, 255, 255, 127,
 		0, 0, 255, 0, 255, 255, 255, 255, 0, 0, 255, 255, 0, 255, 255, 255, 255, 255, 127, 255, 0, 255, 0, 255,
 		0, 0, 255, 255, 0, 255, 0, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 0, 255, 255, 255, 255, 255, 127,
-		0, 0, 255, 0, 255, 255, 255, 255, 0, 0, 255, 255, 0, 255, 255, 255, 255, 255, 127, 255, 0, 255, 0, 255,
+		0, 0, 255, 0, 255, 255, 255, 255, 0, 0, 255, 255, 0, 255, 255, 255, 255, 255, 127, 255, 0, 255, 0, 255
 	};
-	BYTE image32bppBitmapInfoHeader6x4NegativeHeight[] = {
+	BYTE image6x4NegativeHeight[] = {
 		'B', 'M', 150, 0, 0, 0, 0, 0, 0, 0, 0x36, 0, 0, 0,
 		40, 0, 0, 0, 6, 0, 0, 0, 252, 255, 255, 255, 1, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 255, 255, 0, 255, 0, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 0, 255, 255, 255, 255, 255, 127,
 		0, 0, 255, 0, 255, 255, 255, 255, 0, 0, 255, 255, 0, 255, 255, 255, 255, 255, 127, 255, 0, 255, 0, 255,
 		0, 0, 255, 255, 0, 255, 0, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 0, 255, 255, 255, 255, 255, 127,
 		0, 0, 255, 0, 255, 255, 255, 255, 0, 0, 255, 255, 0, 255, 255, 255, 255, 255, 127, 255, 0, 255, 0, 255,
+		0, 0, 255, 255, 0, 255, 0, 255, 255, 0, 0, 255, 0, 255, 255, 255, 255, 0, 255, 255, 255, 255, 255, 127
 	};
 
 	BYTE planesNotZero[] = {
@@ -1659,13 +2445,38 @@ static void test_validImage32bppBitmapInfoHeader ()
 		255, 255, 255, 0
 	};
 
-	createFileSuccess (image32bppBitmapInfoHeader1x1, PixelFormat32bppRGB, 1, 1, bmpFlags);
-	createFileSuccess (image32bppBitmapInfoHeader6x4, PixelFormat32bppRGB, 6, 4, bmpFlags);
-	createFileSuccess (image32bppBitmapInfoHeader6x4NegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags);
+	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	ARGB image1x1Pixels[] = {0xFFFF0000};
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
 
-	createFileSuccess (planesNotZero, PixelFormat32bppRGB, 1, 1, bmpFlags);
-	createFileSuccess (rle4Compression32bpp, PixelFormat32bppRGB, 1, 1, bmpFlags);
-	createFileSuccess (rle8Compression32bpp, PixelFormat32bppRGB, 1, 1, bmpFlags);
+	createFileSuccessDispose (image6x4, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	ARGB image6x4Pixels[] = {
+        0xFFFF0000, 0xFFFFFFFF, 0xFFFF0000, 0xFFFFFF00, 0xFF7FFFFF, 0xFF00FF00,
+        0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00, 0xFFFF00FF, 0xFFFFFFFF,
+        0xFFFF0000, 0xFFFFFFFF, 0xFFFF0000, 0xFFFFFF00, 0xFF7FFFFF, 0xFF00FF00,
+        0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00, 0xFFFF00FF, 0xFFFFFFFF
+	};
+	verifyPixels (image, image6x4Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4NegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	verifyPixels (image, image6x4Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (planesNotZero, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	verifyPixels (image, image1x1Pixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (rle4Compression32bpp, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	// Don't verify the pixels, as the pixel data changes every time the program is run
+	// due to a bug in GDI+.
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (rle8Compression32bpp, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	// Don't verify the pixels, as the pixel data changes every time the program is run
+	// due to a bug in GDI+.
+	GdipDisposeImage (image);
 }
 
 static void test_validImage32bppBitmapV3Header ()
@@ -1698,7 +2509,8 @@ static void test_validImage32bppBitmapV3Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
-	verifyPixels (image, {(ARGB) -9543});
+	ARGB image1x1Pixels[] = {0xFFFFDAB9};
+	verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 }
 
@@ -1738,7 +2550,8 @@ static void test_validImage32bppBitmapV4Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
-	verifyPixels (image, {(ARGB) -9543});
+	ARGB image1x1Pixels[] = {0xFFFFDAB9};
+	verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 }
 
@@ -1783,7 +2596,8 @@ static void test_validImage32bppBitmapV5Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
-	verifyPixels (image, {(ARGB) -9543});
+	ARGB image1x1Pixels[] = {0xFFFFDAB9};
+	verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 }
 
@@ -1945,17 +2759,53 @@ static void test_validImage32bppBitfields ()
 
 	// FIXME: libgdiplus can't decode these images.
 #if defined(USE_WINDOWS_GDIPLUS)
-	createFileSuccess (bitmapInfoHeaderBitfieldsDefault, PixelFormat32bppRGB, 4, 2, bmpFlags);
+	createFileSuccessDispose (bitmapInfoHeaderBitfieldsDefault, PixelFormat32bppRGB, 4, 2, bmpFlags, FALSE);
+	ARGB bitmapInfoHeaderBitfieldsDefaultPixels[] = {
+		0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF,
+		0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF
+	};
+	verifyPixels (image, bitmapInfoHeaderBitfieldsDefaultPixels);
+	GdipDisposeImage (image);
 
-	createFileSuccess (bitmapInfoHeaderBitfieldsCustom, PixelFormat32bppRGB, 4, 2, bmpFlags);
-	createFileSuccess (bitmapV3HeaderBitfieldsNonZeroAlphaMask, PixelFormat32bppRGB, 4, 2, bmpFlags);
-	createFileSuccess (bitmapV4HeaderBitfields, PixelFormat32bppRGB, 4, 2, bmpFlags);
-	createFileSuccess (bitmapV5HeaderBitfields, PixelFormat32bppRGB, 4, 2, bmpFlags);
+	createFileSuccessDispose (bitmapInfoHeaderBitfieldsCustom, PixelFormat32bppRGB, 4, 2, bmpFlags, FALSE);
+	ARGB customBitfieldsPixels[] = {
+        0xFFFF0000, 0xFF0000FF, 0xFF00FF00, 0xFFFFFFFF,
+        0xFFFF0000, 0xFF0000FF, 0xFF00FF00, 0xFFFFFFFF
+	};
+	verifyPixels (image, customBitfieldsPixels);
+	GdipDisposeImage (image);
 
-	createFileSuccess (bitmapInfoHeaderAllMasksZero, PixelFormat32bppRGB, 4, 2, bmpFlags);
-	createFileSuccess (bitmapV3HeaderAllMasksZero, PixelFormat32bppRGB, 4, 2, bmpFlags);
-	createFileSuccess (bitmapV4HeaderAllMasksZero, PixelFormat32bppRGB, 4, 2, bmpFlags);
-	createFileSuccess (bitmapV5HeaderAllMasksZero, PixelFormat32bppRGB, 4, 2, bmpFlags);
+	createFileSuccessDispose (bitmapV3HeaderBitfieldsNonZeroAlphaMask, PixelFormat32bppRGB, 4, 2, bmpFlags, FALSE);
+	verifyPixels (image, customBitfieldsPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (bitmapV4HeaderBitfields, PixelFormat32bppRGB, 4, 2, bmpFlags, FALSE);
+	verifyPixels (image, customBitfieldsPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (bitmapV5HeaderBitfields, PixelFormat32bppRGB, 4, 2, bmpFlags, FALSE);
+	verifyPixels (image, customBitfieldsPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (bitmapInfoHeaderAllMasksZero, PixelFormat32bppRGB, 4, 2, bmpFlags, FALSE);
+	// Don't verify the pixels, as the pixel data changes every time the program is run
+	// due to a bug in GDI+.
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (bitmapV3HeaderAllMasksZero, PixelFormat32bppRGB, 4, 2, bmpFlags, FALSE);
+	// Don't verify the pixels, as the pixel data changes every time the program is run
+	// due to a bug in GDI+.
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (bitmapV4HeaderAllMasksZero, PixelFormat32bppRGB, 4, 2, bmpFlags, FALSE);
+	// Don't verify the pixels, as the pixel data changes every time the program is run
+	// due to a bug in GDI+.
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (bitmapV5HeaderAllMasksZero, PixelFormat32bppRGB, 4, 2, bmpFlags, FALSE);
+	// Don't verify the pixels, as the pixel data changes every time the program is run
+	// due to a bug in GDI+.
+	GdipDisposeImage (image);
 #endif
 }
 
@@ -2034,9 +2884,18 @@ static void test_valid ()
 		0x80, 0x00, 0x00, 0x00
 	};
 
-	createFileSuccess (nonZeroHorizontal, PixelFormat1bppIndexed, 1, 1, bmpFlags);
-	createFileSuccess (nonZeroVertical, PixelFormat1bppIndexed, 1, 1, bmpFlags);
-	createFileSuccess (nonZeroHorizontalNonZeroVertical, PixelFormat1bppIndexed, 1, 1, bmpFlags | ImageFlagsHasRealDPI);
+	createFileSuccessDispose (nonZeroHorizontal, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
+	ARGB nonZeroHorizontalPixels[] = {0xFF00FF00};
+	verifyPixels (image, nonZeroHorizontalPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (nonZeroVertical, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
+	verifyPixels (image, nonZeroHorizontalPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (nonZeroHorizontalNonZeroVertical, PixelFormat1bppIndexed, 1, 1, bmpFlags | ImageFlagsHasRealDPI, FALSE);
+	verifyPixels (image, nonZeroHorizontalPixels);
+	GdipDisposeImage (image);
 }
 
 static void test_invalidFileHeader ()
