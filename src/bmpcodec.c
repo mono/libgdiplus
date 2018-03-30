@@ -99,7 +99,6 @@ gdip_get_bmp_pixelformat (BITMAPV5HEADER *bih, PixelFormat *dest)
 			*dest = PixelFormat24bppRGB;
 			break;
 		case 16:
-			/* MS produce such files (i.e. bad header) for storing ImageList bitmaps, see bug #80797 */
 			*dest = PixelFormat16bppRGB565;
 			break;
 		case 8:
@@ -900,7 +899,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			/* five red bits, six green bits and five blue bits (0xFFFF) */
 			red_shift = 11;
 		} else {
-			/* MS produce such files (i.e. missing masks) for storing ImageList bitmaps, see bug #80797 */
 			red_mask = 0x7C00;
 			green_mask = 0x3E0;
 			blue_mask = 0x1F;
