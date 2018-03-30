@@ -47,4 +47,5 @@ script:
 
 # Run the System.Drawing and System.Windows.Forms tests.
 - make -C mcs/class/System.Drawing run-test
+- make -C mcs/class/System.Drawing run-xunit-test
 - xvfb-run make -C mcs/class/System.Windows.Forms run-test
