@@ -302,10 +302,15 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	cinfo.do_block_smoothing = FALSE;
 
 	result = gdip_bitmap_new_with_frame (NULL, TRUE);
+	if (!result) {
+		status = OutOfMemory;
+		goto error;
+	}
+
 	result->type = ImageTypeBitmap;
 	result->active_bitmap->width = cinfo.image_width;
 	result->active_bitmap->height = cinfo.image_height;
-	result->active_bitmap->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsPartiallyScalable | ImageFlagsHasRealDPI;
+	result->active_bitmap->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize;
 
 	if (cinfo.density_unit == 1) { /* dpi */
 		result->active_bitmap->dpi_horz = cinfo.X_density;
@@ -317,6 +322,9 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 		result->active_bitmap->dpi_horz = 0;
 		result->active_bitmap->dpi_vert = 0;
 	}
+
+	if (result->active_bitmap->dpi_horz && result->active_bitmap->dpi_vert)
+		result->active_bitmap->image_flags |= ImageFlagsHasRealDPI;
 
 	if (cinfo.num_components == 1) {
 		result->cairo_format = CAIRO_FORMAT_A8;
@@ -349,19 +357,8 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 			}
 		}
 		break;
-	case JCS_RGB:
-		result->active_bitmap->image_flags |= ImageFlagsColorSpaceRGB;
-		break;
-	case JCS_YCbCr:
-		result->active_bitmap->image_flags |= ImageFlagsColorSpaceYCBCR;
-		break;
-	case JCS_YCCK:
-		result->active_bitmap->image_flags |= ImageFlagsColorSpaceYCCK;
-		break;
-	case JCS_CMYK:
-		result->active_bitmap->image_flags |= ImageFlagsColorSpaceCMYK;
-		break;
 	default:
+		result->active_bitmap->image_flags |= ImageFlagsColorSpaceRGB;
 		break;
 	}
 

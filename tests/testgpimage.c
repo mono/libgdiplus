@@ -155,8 +155,7 @@ static void test_loadImageFromFileJpg ()
 {
 	GpImage *image = getImage ("test.jpg");
 
-	// FIXME: jpg image flags are wrong in libgdiplus.
-	verifyBitmap (image, jpegRawFormat, PixelFormat24bppRGB, 100, 68, 73744, 2, FALSE);
+	verifyBitmap (image, jpegRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 2, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -165,7 +164,7 @@ static void test_loadImageFromFileIcon ()
 {
 	GpImage *image = getImage ("test.ico");
 
-	verifyBitmap (image, icoRawFormat, PixelFormat32bppARGB, 48, 48, 73746, 0, TRUE);
+	verifyBitmap (image, icoRawFormat, PixelFormat32bppARGB, 48, 48, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 0, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -207,8 +206,7 @@ static void test_cloneImage ()
 	status = GdipCloneImage (jpgImage, &clonedImage);
 	assertEqualInt (status, Ok);
 	assert (clonedImage && clonedImage != jpgImage);
-	// FIXME: jpg image flags are wrong in libgdiplus.
-	verifyBitmap (clonedImage, jpegRawFormat, PixelFormat24bppRGB, 100, 68, 73744, 2, FALSE);
+	verifyBitmap (clonedImage, jpegRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 2, TRUE);
 	GdipDisposeImage (clonedImage);
 
 	// ImageTypeMetafile.
