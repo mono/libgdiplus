@@ -1133,13 +1133,18 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 
 		if (TIFFGetField(tiff, TIFFTAG_XRESOLUTION, &dpi)) {
 			bitmap_data->dpi_horz = dpi;
-			bitmap_data->image_flags |= ImageFlagsHasRealDPI;
+		} else {
+			bitmap_data->dpi_horz = 0;
 		}
 
 		if (TIFFGetField(tiff, TIFFTAG_YRESOLUTION, &dpi)) {
 			bitmap_data->dpi_vert = dpi;
-			bitmap_data->image_flags |= ImageFlagsHasRealDPI;
+		} else {
+			bitmap_data->dpi_vert = 0;
 		}
+
+		if (bitmap_data->dpi_horz && bitmap_data->dpi_vert)
+			bitmap_data->image_flags |= ImageFlagsHasRealDPI;
 
 		/* width and height are uint32, but TIFF uses 32 bits offsets (so it's real size limit is 4GB),
 		 * however libtiff uses signed int (int32 not uint32) as offsets so we limit ourselves to 2GB */
