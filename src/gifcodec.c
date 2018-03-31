@@ -197,8 +197,7 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 
 				sp = &GifFile->SavedImages[GifFile->ImageCount - 1];
 				/* Allocate memory for the image */
-				if (sp->ImageDesc.Width < 0 && sp->ImageDesc.Height < 0 &&
-						sp->ImageDesc.Width > (INT_MAX / sp->ImageDesc.Height)) {
+				if (sp->ImageDesc.Width < 0 && sp->ImageDesc.Height < 0 && sp->ImageDesc.Width > (INT_MAX / sp->ImageDesc.Height)) {
 					return GIF_ERROR;
 				}
 
@@ -207,7 +206,7 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 					return GIF_ERROR;
 				}
 
-				sp->RasterBits = (unsigned char *) malloc(ImageSize * sizeof(GifPixelType));
+				sp->RasterBits = (BYTE *) GdipAlloc (ImageSize * sizeof(GifPixelType));
 				if (sp->RasterBits == NULL) {
 					return GIF_ERROR;
 				}
