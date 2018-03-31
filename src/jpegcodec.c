@@ -341,8 +341,13 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	switch (cinfo.jpeg_color_space) {
 	case JCS_GRAYSCALE:
 		result->active_bitmap->image_flags |= ImageFlagsColorSpaceGRAY;
-		if (cinfo.num_components == 1)
+		if (cinfo.num_components == 1) {
 			result->active_bitmap->palette = gdip_create_greyscale_palette (256);
+			if (!result->active_bitmap->palette) {				
+				status = OutOfMemory;
+				goto error;
+			}
+		}
 		break;
 	case JCS_RGB:
 		result->active_bitmap->image_flags |= ImageFlagsColorSpaceRGB;
@@ -848,8 +853,6 @@ error:
 	if (scanline != NULL && need_argb_conversion) {
 		GdipFree (scanline);
 	}
-
-	return GenericError;
 
 	return status;
 }
