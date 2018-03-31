@@ -615,21 +615,29 @@ gdip_region_bitmap_get_smallest_rect (GpRegionBitmap *bitmap, GpRect *rect)
 	int last_x = -1;			/* empty (right) columns */
 	int i = 0;
 	int original_size = SHAPE_SIZE(bitmap);
-	int old_width_byte = bitmap->Width >> 3;
 	int x = 0, y = 0;
+	int k;
 
 	while (i < original_size) {
-		if (bitmap->Mask [i++] != 0) {
-			if (x < first_x)
-				first_x = x;
-			if (x > last_x)
-				last_x = x;
-			if (y < first_y)
-				first_y = y;
-			if (y > last_y)
-				last_y = y;
+		if (bitmap->Mask [i] != 0) {
+			for (k = 0; k < 8; k++) {
+				if ((bitmap->Mask [i] & (1 << k)) != 0) {
+					if (x < first_x)
+						first_x = x;
+					if (x > last_x)
+						last_x = x;
+					if (y < first_y)
+						first_y = y;
+					if (y > last_y)
+						last_y = y;				
+				}
+				x++;
+			}
+		} else {
+			x += 8;
 		}
-		if (++x == old_width_byte) {
+		i++;		
+		if (x == bitmap->Width) {
 			x = 0;
 			y++;
 		}
@@ -640,9 +648,9 @@ gdip_region_bitmap_get_smallest_rect (GpRegionBitmap *bitmap, GpRect *rect)
 		rect->X = rect->Y = rect->Width = rect->Height = 0;
 	} else {
 		// convert to pixel values
-		rect->X = bitmap->X + (first_x << 3);
+		rect->X = bitmap->X + first_x;
 		rect->Y = bitmap->Y + first_y;
-		rect->Width = abs (((last_x + 1) << 3) - first_x);
+		rect->Width = last_x - first_x + 1;
 		rect->Height = last_y - first_y + 1;
 	}
 }
