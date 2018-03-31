@@ -39,6 +39,7 @@
 
 #ifdef USE_PANGO_RENDERING
 	#include <pango/pangofc-font.h>
+	#include <pango/pangofc-fontmap.h>
 	#include <pango/pangocairo.h>
 #endif
 
@@ -57,6 +58,7 @@ struct _Font {
 };
 
 void gdip_font_clear_pattern_cache (void) GDIP_INTERNAL;
+void gdip_delete_system_fonts (void) GDIP_INTERNAL;
 
 #ifdef USE_PANGO_RENDERING
 

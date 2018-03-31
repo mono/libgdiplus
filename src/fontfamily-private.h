@@ -38,7 +38,8 @@
 #include "gdiplus-private.h"
 
 struct _FontFamily {
-        FcPattern*	pattern;
+	struct _FontCollection *collection;
+	FcPattern*	pattern;
 	BOOL		allocated;
 	short 		height;
 	short 		linespacing;

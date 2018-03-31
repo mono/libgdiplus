@@ -74,6 +74,12 @@ gdip_fontfamily_new ()
 
 static GpFontCollection *system_fonts = NULL;
 
+void
+gdip_delete_system_fonts (void)
+{
+	GdipDeletePrivateFontCollection(&system_fonts);
+}
+
 // coverity[+alloc : arg-*0]
 GpStatus WINGDIPAPI
 GdipNewInstalledFontCollection (GpFontCollection **font_collection)
@@ -108,6 +114,10 @@ GdipNewInstalledFontCollection (GpFontCollection **font_collection)
 
 		system_fonts->fontset = col;
 		system_fonts->config = NULL;
+
+#if USE_PANGO_RENDERING
+		system_fonts->pango_font_map = pango_cairo_font_map_new_for_font_type (CAIRO_FONT_TYPE_FT);
+#endif
 	}
 
 	*font_collection = system_fonts;
@@ -130,6 +140,11 @@ GdipNewPrivateFontCollection (GpFontCollection **font_collection)
 	result->fontset = NULL;
 	result->config = FcConfigCreate ();
 
+#if USE_PANGO_RENDERING
+	result->pango_font_map = pango_cairo_font_map_new_for_font_type (CAIRO_FONT_TYPE_FT);
+	pango_fc_font_map_set_config ((PangoFcFontMap *)result->pango_font_map, result->config);
+#endif
+
 	*font_collection = result;
 	return Ok;
 }
@@ -142,6 +157,12 @@ GdipDeletePrivateFontCollection (GpFontCollection **font_collection)
 		return InvalidParameter;
 
 	if (*font_collection) {
+#if USE_PANGO_RENDERING
+		if ((*font_collection)->pango_font_map != NULL) {
+			g_object_unref ((*font_collection)->pango_font_map);
+			(*font_collection)->pango_font_map = NULL;
+		}
+#endif
 		if ((*font_collection)->fontset != NULL) {
 			FcFontSetDestroy ((*font_collection)->fontset);
 			(*font_collection)->fontset = NULL;
@@ -195,6 +216,7 @@ GdipCloneFontFamily (GpFontFamily *fontFamily, GpFontFamily **clonedFontFamily)
 	if (!result)
 		return OutOfMemory;
 
+	result->collection = fontFamily->collection;
 	result->height = fontFamily->height;
 	result->linespacing = fontFamily->linespacing;
 	result->celldescent = fontFamily->celldescent;
@@ -392,9 +414,16 @@ static GHashTable *patterns_hashtable = NULL;
 static GpStatus
 create_fontfamily_from_name (char* name, GpFontFamily **fontFamily)
 {
-	GpStatus status = FontFamilyNotFound;
+	GpStatus status;
 	GpFontFamily *ff = NULL;
 	FcPattern *pat = NULL;
+	GpFontCollection *font_collection;
+
+	status = GdipNewInstalledFontCollection (&font_collection);
+	if (status != Ok) {
+		return status;
+	}
+	status = FontFamilyNotFound;
 
 #if GLIB_CHECK_VERSION(2,32,0)
 	g_mutex_lock (&patterns_mutex);
@@ -421,6 +450,7 @@ create_fontfamily_from_name (char* name, GpFontFamily **fontFamily)
 		if (ff) {
 			ff->pattern = pat;
 			ff->allocated = FALSE;
+			ff->collection = font_collection;
 			status = Ok;
 		} else 
 			status = OutOfMemory;
@@ -484,6 +514,7 @@ create_fontfamily_from_collection (char* name, GpFontCollection *font_collection
 
 				result->pattern = *gpfam;
 				result->allocated = FALSE;
+				result->collection = font_collection;
 
 				*fontFamily = result;
 				return Ok;
@@ -725,7 +756,7 @@ gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 	GpStatus status = GdipCreateFont (family, 8.0f, style, UnitPoint, &font);
 
 	if ((status == Ok) && font) {
-		PangoFontMap *map = pango_cairo_font_map_get_default (); /* owned by pango */
+		PangoFontMap *map = family->collection->pango_font_map;
 #if PANGO_VERSION_CHECK(1,22,0)
 		PangoContext *context = pango_font_map_create_context (PANGO_FONT_MAP (map));
 #else
@@ -736,12 +767,12 @@ gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 		FT_Face face = pango_fc_font_lock_face ((PangoFcFont*)pf);
 		if (face) {
 			gdip_get_fontfamily_details_from_freetype (family, face);
-
 			pango_fc_font_unlock_face ((PangoFcFont*)pf);
 		} else {
 			status = FontFamilyNotFound;
 		}
 
+		g_object_unref (pf);
 		g_object_unref (context);
 	}
 
