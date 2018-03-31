@@ -210,7 +210,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 
 	/* TODO - Digit substitution */
 
-// g_warning ("layout >%s< (%d) [x %g, y %g, w %g, h %g] [font %s, %g points]", text, length, rc->X, rc->Y, rc->Width, FrameHeight, font->face, font->emSize);
+// g_warning ("layout >%s< (%d) [x %g, y %g, w %g, h %g] [font %s, %g points]", text, length, rc->X, rc->Y, rc->Width, rc->Height, font->face, font->emSize);
 
 	/* a NULL format is valid, it means get the generic default values (and free them later) */
 	if (!format) {
@@ -435,11 +435,15 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 	/* Also prevents drawing whole lines outside the boundaries if NoClip was specified */
 	/* In case of pre-existing clipping, use smaller of clip rectangle or our specified height */
 	if (FrameHeight > 0) {
-		cairo_clip_extents (graphics->ct, &clipx1, &clipy1, &clipx2, &clipy2);
-		if (clipy2 > 0 && !(fmt->formatFlags & StringFormatFlagsNoClip))
-			clipy2 = min (clipy2, FrameHeight + FrameY);
-		else
-			clipy2 = FrameHeight + FrameY;
+		clipy2 = FrameHeight;
+		if (!(fmt->formatFlags & StringFormatFlagsNoClip)) {
+			cairo_clip_extents (graphics->ct, &clipx1, &clipy1, &clipx2, &clipy2);
+			if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
+				clipy2 = min (clipx2 - rc->X, FrameHeight);
+			} else {
+				clipy2 = min (clipy2 - rc->Y, FrameHeight);
+			}
+		}
 		iter = pango_layout_get_iter (layout);
 		do {
 			if (iter == NULL)
@@ -447,7 +451,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 			pango_layout_iter_get_line_yrange (iter, &y0, &y1);
 			//g_warning("yrange: %d  %d  clipy2: %f", y0 / PANGO_SCALE, y1 / PANGO_SCALE, clipy2);
 			/* StringFormatFlagsLineLimit */
-			if (((fmt->formatFlags & StringFormatFlagsLineLimit) && y1 / PANGO_SCALE > clipy2) || (y0 / PANGO_SCALE > clipy2)) {
+			if (((fmt->formatFlags & StringFormatFlagsLineLimit) && y1 / PANGO_SCALE >= clipy2) || (y0 / PANGO_SCALE >= clipy2)) {
 				PangoLayoutLine *line = pango_layout_iter_get_line_readonly (iter);
 				pango_layout_set_text (layout, pango_layout_get_text (layout), line->start_index);
 				break;
@@ -588,22 +592,14 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		double max_x;
 		double max_y;
 		const char *layoutText;
-		if (boundingBox && format && (format->formatFlags & StringFormatFlagsDirectionVertical)) {
-			min_x = boundingBox->Y;
-			max_x = boundingBox->Y + boundingBox->Height;
-			max_y = boundingBox->X + boundingBox->Width;
-		} else if (boundingBox) {
-			min_x = boundingBox->X;
-			max_x = boundingBox->X + boundingBox->Width;
-			max_y = boundingBox->Y + boundingBox->Height;
-		} else if (format && (format->formatFlags & StringFormatFlagsDirectionVertical)) {
-			min_x = rc->Y;
-			max_x = rc->Y + rc->Height;
-			max_y = rc->X + rc->Width;
+		if (format && (format->formatFlags & StringFormatFlagsDirectionVertical)) {
+			min_x = 0;
+			max_x = rc->Height;
+			max_y = rc->Width;
 		} else {
-			min_x = rc->X;
-			max_x = rc->X + rc->Width;
-			max_y = rc->Y + rc->Height;
+			min_x = 0;
+			max_x = rc->Width;
+			max_y = rc->Height;
 		}
 		lastIndex = 0;
 		iter = pango_layout_get_iter (layout);

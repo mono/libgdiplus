@@ -82,14 +82,14 @@ static void test_measure_string(void)
 	set_rect_empty (&bounds);
 	status = GdipMeasureString (graphics, teststring1, 3, font, &rect, format, &bounds, &glyphs, &lines);
 	expect (Ok, status);
-	TODO expect (3, glyphs);
+	expect (3, glyphs);
 	expect (2, lines);
 
 	// ...and lastly check the correct results for adding another character past the last new line
 	set_rect_empty (&bounds);
 	status = GdipMeasureString (graphics, teststring1, 4, font, &rect, format, &bounds, &glyphs, &lines);
 	expect (Ok, status);
-	TODO expect (4, glyphs);
+	expect (4, glyphs);
 	expect (3, lines);
 
 	// Attempt to fit 3 glyphs / 2 lines into a bounding box from 2 glyphs / 1 line
@@ -97,7 +97,7 @@ static void test_measure_string(void)
 	set_rect_empty (&bounds);
 	status = GdipMeasureString (graphics, teststring1, 3, font, &rect, format, &bounds, &glyphs, &lines);
 	expect (Ok, status);
-	expect (2, glyphs);
+	TODO expect (2, glyphs);
 	TODO expect (1, lines);
 
 	GdipDeleteGraphics (graphics);
