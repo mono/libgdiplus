@@ -91,7 +91,6 @@
       <PreprocessorDefinitions>HAVE_LIBGIF;HAVE_LIBJPEG;HAVE_LIBTIFF;HAVE_LIBPNG;HAVE_FCFINI;_WINDLL;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <!-- FIXME: To align with the GDI+ calling convention, this should be StdCall. Only relevant on x86 -->
       <CallingConvention>Cdecl</CallingConvention>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libpng16.lib;freetype.lib;fontconfig.lib;glib-2.0.lib;cairo.lib;shcore.lib;%(AdditionalDependencies)</AdditionalDependencies>
