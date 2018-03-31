@@ -210,7 +210,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 
 	/* TODO - Digit substitution */
 
-// g_warning ("layout >%s< (%d) [x %g, y %g, w %g, h %g] [font %s, %g points]", text, length, rc->X, rc->Y, rc->Width, FrameHeight, font->face, font->emSize);
+// g_warning ("layout >%s< (%d) [x %g, y %g, w %g, h %g] [font %s, %g points]", text, length, rc->X, rc->Y, rc->Width, rc->Height, font->face, font->emSize);
 
 	/* a NULL format is valid, it means get the generic default values (and free them later) */
 	if (!format) {
@@ -264,7 +264,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 
 	/* with GDI+ the API not the renderer makes the direction decision */
 	pango_layout_set_auto_dir (layout, FALSE);	
-	if (!(fmt->formatFlags & StringFormatFlagsDirectionRightToLeft) != !(fmt->formatFlags & StringFormatFlagsDirectionVertical)) {
+	if (fmt->formatFlags & StringFormatFlagsDirectionRightToLeft) {
 		pango_context_set_base_dir (context, PANGO_DIRECTION_WEAK_RTL);
 		pango_layout_context_changed (layout);
 
@@ -435,11 +435,15 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 	/* Also prevents drawing whole lines outside the boundaries if NoClip was specified */
 	/* In case of pre-existing clipping, use smaller of clip rectangle or our specified height */
 	if (FrameHeight > 0) {
-		cairo_clip_extents (graphics->ct, &clipx1, &clipy1, &clipx2, &clipy2);
-		if (clipy2 > 0 && !(fmt->formatFlags & StringFormatFlagsNoClip))
-			clipy2 = min (clipy2, FrameHeight + FrameY);
-		else
-			clipy2 = FrameHeight + FrameY;
+		clipy2 = FrameHeight;
+		if (!(fmt->formatFlags & StringFormatFlagsNoClip)) {
+			cairo_clip_extents (graphics->ct, &clipx1, &clipy1, &clipx2, &clipy2);
+			if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
+				clipy2 = min (clipx2 - rc->X, FrameHeight);
+			} else {
+				clipy2 = min (clipy2 - rc->Y, FrameHeight);
+			}
+		}
 		iter = pango_layout_get_iter (layout);
 		do {
 			if (iter == NULL)
@@ -447,9 +451,10 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 			pango_layout_iter_get_line_yrange (iter, &y0, &y1);
 			//g_warning("yrange: %d  %d  clipy2: %f", y0 / PANGO_SCALE, y1 / PANGO_SCALE, clipy2);
 			/* StringFormatFlagsLineLimit */
-			if (((fmt->formatFlags & StringFormatFlagsLineLimit) && y1 / PANGO_SCALE > clipy2) || (y0 / PANGO_SCALE > clipy2)) {
+			if (((fmt->formatFlags & StringFormatFlagsLineLimit) && y1 / PANGO_SCALE >= clipy2) || (y0 / PANGO_SCALE >= clipy2)) {
 				PangoLayoutLine *line = pango_layout_iter_get_line_readonly (iter);
 				pango_layout_set_text (layout, pango_layout_get_text (layout), line->start_index);
+				
 				break;
 			}
 		} while (pango_layout_iter_next_line (iter));
@@ -481,10 +486,10 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 	case StringAlignmentNear:
 		break;
 	case StringAlignmentCenter:
-		box_offset->Y += (rc->Height - box->Height) / 2;
+		box_offset->Y += (FrameHeight - box->Height) * 0.5;
 		break;
 	case StringAlignmentFar:
-		box_offset->Y += (rc->Height - box->Height);
+		box_offset->Y += (FrameHeight - box->Height);
 		break;
 	}
 
@@ -492,14 +497,14 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 		switch (fmt->alignment) {
 		case StringAlignmentNear:
 			if (fmt->formatFlags & StringFormatFlagsDirectionRightToLeft)
-				box_offset->X += (rc->Width - box->Width);
+				box_offset->X += (FrameWidth - box->Width);
 			break;
 		case StringAlignmentCenter:
-			box->X += (rc->Width - box->Width) / 2;
+			box_offset->X += (FrameWidth - box->Width) * 0.5;
 			break;
 		case StringAlignmentFar:
 			if (!(fmt->formatFlags & StringFormatFlagsDirectionRightToLeft))
-				box_offset->X += (rc->Width - box->Width);
+				box_offset->X += (FrameWidth - box->Width);
 			break;
 		}
 	}
@@ -579,8 +584,9 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		return OutOfMemory;
 	}
 
-	if (codepointsFitted) {
+	if (codepointsFitted || linesFilled) {
 		int charsFitted;
+		int lines = 0;
 		int lastIndex;
 		int y0;
 		int y1;
@@ -588,22 +594,14 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		double max_x;
 		double max_y;
 		const char *layoutText;
-		if (boundingBox && format && (format->formatFlags & StringFormatFlagsDirectionVertical)) {
-			min_x = boundingBox->Y;
-			max_x = boundingBox->Y + boundingBox->Height;
-			max_y = boundingBox->X + boundingBox->Width;
-		} else if (boundingBox) {
-			min_x = boundingBox->X;
-			max_x = boundingBox->X + boundingBox->Width;
-			max_y = boundingBox->Y + boundingBox->Height;
-		} else if (format && (format->formatFlags & StringFormatFlagsDirectionVertical)) {
-			min_x = rc->Y;
-			max_x = rc->Y + rc->Height;
-			max_y = rc->X + rc->Width;
+		if (format && (format->formatFlags & StringFormatFlagsDirectionVertical)) {
+			min_x = 0;
+			max_x = rc->Height;
+			max_y = rc->Width;
 		} else {
-			min_x = rc->X;
-			max_x = rc->X + rc->Width;
-			max_y = rc->Y + rc->Height;
+			min_x = 0;
+			max_x = rc->Width;
+			max_y = rc->Height;
 		}
 		lastIndex = 0;
 		iter = pango_layout_get_iter (layout);
@@ -613,6 +611,7 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			pango_layout_iter_get_line_yrange (iter, &y0, &y1);
 			if (y0 / PANGO_SCALE >= max_y)
 				break;
+			lines++;
 			if (pango_layout_iter_at_last_line (iter)) {
 				do {
 					pango_layout_iter_get_char_extents (iter, &logical);
@@ -628,34 +627,35 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			}
 		} while (pango_layout_iter_next_line (iter));
 		pango_layout_iter_free (iter);
-		layoutText = pango_layout_get_text (layout);
-		/* this can happen when the string ends in a newline */
-		if (lastIndex >= strlen (layoutText))
-			lastIndex = strlen (layoutText) - 1;
-		/* Add back in any & characters removed and the final newline characters (if any) */
-		charsFitted = g_utf8_strlen (layoutText, lastIndex + 1) + charsRemoved [lastIndex];
-		//g_warning("lastIndex: %d\t\tcharsRemoved: %d", lastIndex, charsRemoved[lastIndex]);
-		/* safe because of null termination */
-		switch (layoutText [lastIndex + 1]) {
-			case '\r':
-				charsFitted++;
-				if (layoutText [lastIndex + 2] == '\n')
+
+		if (codepointsFitted) {
+			layoutText = pango_layout_get_text (layout);
+			/* this can happen when the string ends in a newline */
+			if (lastIndex >= strlen (layoutText))
+				lastIndex = strlen (layoutText) - 1;
+			/* Add back in any & characters removed and the final newline characters (if any) */
+			charsFitted = g_utf8_strlen (layoutText, lastIndex + 1) + charsRemoved [lastIndex];
+			//g_warning("lastIndex: %d\t\tcharsRemoved: %d", lastIndex, charsRemoved[lastIndex]);
+			/* safe because of null termination */
+			switch (layoutText [lastIndex + 1]) {
+				case '\r':
 					charsFitted++;
-				break;
-			case '\n':
-				charsFitted++;
-				break;
+					if (layoutText [lastIndex + 2] == '\n')
+						charsFitted++;
+					break;
+				case '\n':
+					charsFitted++;
+					break;
+			}
+			*codepointsFitted = charsFitted;
 		}
-		*codepointsFitted = charsFitted;
+
+		if (linesFilled) {
+			*linesFilled = lines;
+		}
 	}
 
 	GdipFree (charsRemoved);
-
-	if (linesFilled) {
-		*linesFilled = pango_layout_get_line_count (layout);
-// g_warning ("linesFilled %d", *linesFilled);
-	}
-// else g_warning ("linesFilled %d", pango_layout_get_line_count (layout));
 
 	g_object_unref (layout);
 	cairo_restore (graphics->ct);
