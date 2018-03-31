@@ -599,6 +599,21 @@ gdip_metafile_Rectangle (MetafilePlayContext *context, int bottomRect, int right
 	return GdipDrawRectangleI (context->graphics, gdip_metafile_GetSelectedPen (context), x, y, width, height);
 }
 
+GpStatus
+gdip_metafile_SetPixel (MetafilePlayContext *context, DWORD color, int x, int y)
+{
+	color |= 0xFF000000;
+
+	GpBrush *fill;
+	GpStatus status = GdipCreateSolidFill (color, (GpSolidFill **) &fill);
+	if (status != Ok)
+		return status;
+
+	status = GdipFillRectangle (context->graphics, fill, x, y, 1, 1);
+	GdipDeleteBrush (fill);
+	return status;
+}
+
 
 /* http://wvware.sourceforge.net/caolan/ora-wmf.html */
 GpStatus
