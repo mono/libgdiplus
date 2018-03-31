@@ -28,7 +28,6 @@ using namespace DllExports;
 #define expect(expected, got) ok((got) == (expected), "Expected %d, got %d\n", (INT)(expected), (INT)(got))
 #define expectf_(expected, got, precision) ok(fabs((expected) - (got)) <= (precision), "Expected %f, got %f\n", (expected), (got))
 #define expectf(expected, got) expectf_((expected), (got), 0.001)
-#define TODO if (0)
 #define set_rect_empty(r) (r)->X = (r)->Y = (r)->Width = (r)->Height = 0
 
 #ifdef USE_PANGO_RENDERING
@@ -97,8 +96,8 @@ static void test_measure_string(void)
 	set_rect_empty (&bounds);
 	status = GdipMeasureString (graphics, teststring1, 3, font, &rect, format, &bounds, &glyphs, &lines);
 	expect (Ok, status);
-	TODO expect (2, glyphs);
-	TODO expect (1, lines);
+	expect (2, glyphs);
+	expect (1, lines);
 
 	GdipDeleteGraphics (graphics);
 	GdipDeleteFont (font);

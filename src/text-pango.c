@@ -454,6 +454,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 			if (((fmt->formatFlags & StringFormatFlagsLineLimit) && y1 / PANGO_SCALE >= clipy2) || (y0 / PANGO_SCALE >= clipy2)) {
 				PangoLayoutLine *line = pango_layout_iter_get_line_readonly (iter);
 				pango_layout_set_text (layout, pango_layout_get_text (layout), line->start_index);
+				
 				break;
 			}
 		} while (pango_layout_iter_next_line (iter));
@@ -583,8 +584,9 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		return OutOfMemory;
 	}
 
-	if (codepointsFitted) {
+	if (codepointsFitted || linesFilled) {
 		int charsFitted;
+		int lines = 0;
 		int lastIndex;
 		int y0;
 		int y1;
@@ -609,6 +611,7 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			pango_layout_iter_get_line_yrange (iter, &y0, &y1);
 			if (y0 / PANGO_SCALE >= max_y)
 				break;
+			lines++;
 			if (pango_layout_iter_at_last_line (iter)) {
 				do {
 					pango_layout_iter_get_char_extents (iter, &logical);
@@ -624,34 +627,35 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			}
 		} while (pango_layout_iter_next_line (iter));
 		pango_layout_iter_free (iter);
-		layoutText = pango_layout_get_text (layout);
-		/* this can happen when the string ends in a newline */
-		if (lastIndex >= strlen (layoutText))
-			lastIndex = strlen (layoutText) - 1;
-		/* Add back in any & characters removed and the final newline characters (if any) */
-		charsFitted = g_utf8_strlen (layoutText, lastIndex + 1) + charsRemoved [lastIndex];
-		//g_warning("lastIndex: %d\t\tcharsRemoved: %d", lastIndex, charsRemoved[lastIndex]);
-		/* safe because of null termination */
-		switch (layoutText [lastIndex + 1]) {
-			case '\r':
-				charsFitted++;
-				if (layoutText [lastIndex + 2] == '\n')
+
+		if (codepointsFitted) {
+			layoutText = pango_layout_get_text (layout);
+			/* this can happen when the string ends in a newline */
+			if (lastIndex >= strlen (layoutText))
+				lastIndex = strlen (layoutText) - 1;
+			/* Add back in any & characters removed and the final newline characters (if any) */
+			charsFitted = g_utf8_strlen (layoutText, lastIndex + 1) + charsRemoved [lastIndex];
+			//g_warning("lastIndex: %d\t\tcharsRemoved: %d", lastIndex, charsRemoved[lastIndex]);
+			/* safe because of null termination */
+			switch (layoutText [lastIndex + 1]) {
+				case '\r':
 					charsFitted++;
-				break;
-			case '\n':
-				charsFitted++;
-				break;
+					if (layoutText [lastIndex + 2] == '\n')
+						charsFitted++;
+					break;
+				case '\n':
+					charsFitted++;
+					break;
+			}
+			*codepointsFitted = charsFitted;
 		}
-		*codepointsFitted = charsFitted;
+
+		if (linesFilled) {
+			*linesFilled = lines;
+		}
 	}
 
 	GdipFree (charsRemoved);
-
-	if (linesFilled) {
-		*linesFilled = pango_layout_get_line_count (layout);
-// g_warning ("linesFilled %d", *linesFilled);
-	}
-// else g_warning ("linesFilled %d", pango_layout_get_line_count (layout));
 
 	g_object_unref (layout);
 	cairo_restore (graphics->ct);
