@@ -495,6 +495,24 @@ gdip_metafile_CreatePenIndirect (MetafilePlayContext *context, DWORD style, DWOR
 	GdipSetPenStartCap (pen, line_cap);
 	GdipSetPenEndCap (pen, line_cap);
 
+	
+	s = (style & PS_JOIN_MASK);
+	switch (s) {
+	default:
+		g_warning ("Invalid pen join, style %d, (style & PS_JOIN_MASK) %d", style, s);
+		/* fall through */
+	case PS_JOIN_ROUND:
+		line_join = LineJoinRound;
+		break;
+	case PS_JOIN_BEVEL:
+		line_join = LineJoinBevel;
+		break;
+	case PS_JOIN_MITER:
+		line_join = LineJoinMiter;
+		break;
+	}
+	GdipSetPenLineJoin (pen, line_join);
+
 	context->created.type = METAOBJECT_TYPE_PEN;
 	context->created.ptr = pen;
 	return Ok;
