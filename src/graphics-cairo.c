@@ -1098,7 +1098,7 @@ cairo_SetGraphicsClip (GpGraphics *graphics)
 	}
 
 	switch (work->type) {
-	case RegionTypeRectF:
+	case RegionTypeRect:
 		for (i = 0, rect = work->rects; i < work->cnt; i++, rect++) {
 			gdip_cairo_rectangle (graphics, rect->X, rect->Y, rect->Width, rect->Height, FALSE);
 		}
