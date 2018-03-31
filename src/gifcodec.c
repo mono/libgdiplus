@@ -35,6 +35,7 @@ GUID gdip_gif_image_format_guid = {0xb96b3cb0U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 #ifdef HAVE_LIBGIF
 
 #include <gif_lib.h>
+#include <stdint.h>
 
 #include "gifcodec.h"
 
@@ -159,17 +160,9 @@ FreeExtensionMono(SavedImage *Image)
 	Image->ExtensionBlocks = NULL;
 }
 
-static int
-gif_read_interlace (GifFileType* GifFile, SavedImage *sp, int start, int increment)
-{
-	int line;
-	for (line = start; line < sp->ImageDesc.Height; line += increment) {
-		int index = line * sp->ImageDesc.Width * sizeof (GifPixelType);
-		if (DGifGetLine(GifFile, &sp->RasterBits[index], sp->ImageDesc.Width) == GIF_ERROR)
-			return GIF_ERROR;
-	}
-	return GIF_OK;
-}
+#ifndef SIZE_MAX
+    #define SIZE_MAX     UINTPTR_MAX
+#endif
 
 static int
 DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
@@ -198,39 +191,44 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 
 		switch (RecordType) {
 			case IMAGE_DESC_RECORD_TYPE: {
-				/* This call will leak GifFile->Image.ColorMap; there's a fixme in the DGifGetImageDesc code */
 				if (DGifGetImageDesc(GifFile) == GIF_ERROR) {
 					return (GIF_ERROR);
 				}
 
 				sp = &GifFile->SavedImages[GifFile->ImageCount - 1];
-				ImageSize = sp->ImageDesc.Width * sp->ImageDesc.Height;
-				if (ImageSize == 0)
+				/* Allocate memory for the image */
+				if (sp->ImageDesc.Width < 0 && sp->ImageDesc.Height < 0 && sp->ImageDesc.Width > (INT_MAX / sp->ImageDesc.Height)) {
 					return GIF_ERROR;
+				}
 
-				sp->RasterBits = (BYTE*) GdipAlloc (ImageSize * sizeof (GifPixelType));
+				ImageSize = sp->ImageDesc.Width * sp->ImageDesc.Height;
+				if (ImageSize == 0 || ImageSize > (SIZE_MAX / sizeof(GifPixelType))) {
+					return GIF_ERROR;
+				}
+
+				sp->RasterBits = (BYTE *) GdipAlloc (ImageSize * sizeof(GifPixelType));
 				if (sp->RasterBits == NULL) {
 					return GIF_ERROR;
 				}
 
-				if (GifFile->Image.Interlace) {
-					/* first start at line 0 and read every 8th lines */
-					if (gif_read_interlace (GifFile, sp, 0, 8) == GIF_ERROR)
-						return GIF_ERROR;
-					/* then start at line 4 and read every 8th lines */
-					if (gif_read_interlace (GifFile, sp, 4, 8) == GIF_ERROR)
-						return GIF_ERROR;
-					/* then start at line 2 and read every 4th lines */
-					if (gif_read_interlace (GifFile, sp, 2, 4) == GIF_ERROR)
-						return GIF_ERROR;
-					/* then start at line 1 and read every 2th lines */
-					if (gif_read_interlace (GifFile, sp, 1, 2) == GIF_ERROR)
-						return GIF_ERROR;
-					/* all lines are read */
-				} else {
-					if (DGifGetLine(GifFile, sp->RasterBits, ImageSize) == GIF_ERROR) {
-						return (GIF_ERROR);
+				if (sp->ImageDesc.Interlace) {
+					int i, j;
+					/* 
+					* The way an interlaced image should be read - 
+					* offsets and jumps...
+					*/
+					int InterlacedOffset[] = { 0, 4, 2, 1 };
+					int InterlacedJumps[] = { 8, 8, 4, 2 };
+					/* Need to perform 4 passes on the image */
+					for (i = 0; i < 4; i++) {
+						for (j = InterlacedOffset[i]; j < sp->ImageDesc.Height; j += InterlacedJumps[i]) {
+							if (DGifGetLine(GifFile, sp->RasterBits + j * sp->ImageDesc.Width, sp->ImageDesc.Width) == GIF_ERROR)
+								return GIF_ERROR;
+						}
 					}
+				}
+				else if (DGifGetLine(GifFile, sp->RasterBits, ImageSize) == GIF_ERROR) {
+					return (GIF_ERROR);
 				}
 
 				if (temp_save.ExtensionBlocks) {
