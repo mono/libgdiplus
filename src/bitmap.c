@@ -778,15 +778,14 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 	int		cairo_format;
 	int flags = 0;
 	
-	if (width <= 0 || height <= 0) {
+	if (width <= 0 || height <= 0 || !bitmap) {
 		return InvalidParameter;
 	}
 	
 	switch (format) {
-		case PixelFormat24bppRGB: {
+		case PixelFormat24bppRGB:
 			cairo_format = CAIRO_FORMAT_RGB24;  
 			break;
-		}
 
 		case PixelFormat32bppARGB:
 		case PixelFormat32bppPARGB:
@@ -800,27 +799,35 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 		case PixelFormat16bppRGB565:
 			/* fake them as 32bpp RGB as Cairo deprecated CAIRO_FORMAT_RGB16_565 support */
 			/* why 32bpp ? because that's the result of MS GDI+ when loading them, even if the bitmap is empty */
-			format = PixelFormat32bppRGB;
-			stride *= 2;
 			cairo_format = CAIRO_FORMAT_ARGB32;
 			break;
 
 		case PixelFormat8bppIndexed:
-		case PixelFormat4bppIndexed: {
+		case PixelFormat4bppIndexed:
+			flags = ImageFlagsHasAlpha;
 			cairo_format = CAIRO_FORMAT_A8;        
 			break;
-		}
 
-		case PixelFormat1bppIndexed: {
+		case PixelFormat1bppIndexed:
+			flags = ImageFlagsHasAlpha;
 			cairo_format = CAIRO_FORMAT_A1;
 			break;
-		}
-
-		default: {
+			
+		case PixelFormat16bppGrayScale:
+		case PixelFormat16bppARGB1555:
+		case PixelFormat48bppRGB:
+		case PixelFormat64bppARGB:
+		case PixelFormat64bppPARGB:
+		case PixelFormat32bppCMYK:
 			*bitmap = NULL;
 			return NotImplemented;
-		}
+
+		default:
+			return InvalidParameter;
 	}
+	
+	if (scan0 && (stride == 0 || stride % 4))
+		return InvalidParameter;
 
 	result = gdip_bitmap_new ();
 	if (!result)
@@ -2046,12 +2053,40 @@ GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color)
 		switch (data->pixel_format) {
 		case PixelFormat16bppGrayScale:
 			return InvalidParameter;
-		case PixelFormat24bppRGB:
 		case PixelFormat32bppARGB:
-		case PixelFormat32bppPARGB:
-		case PixelFormat32bppRGB: {
+		case PixelFormat32bppPARGB: {
 			ARGB *scan = (ARGB *)v;
 			*color = scan[x];
+			break;
+		}
+		case PixelFormat24bppRGB:
+		case PixelFormat32bppRGB: {
+			ARGB *scan = (ARGB *)v;
+			*color = scan[x] | 0xFF000000;
+			break;
+		}
+		case PixelFormat16bppARGB1555:
+		case PixelFormat16bppRGB555: {
+			WORD *scan = (WORD *) v;
+			WORD pixel = scan[x];
+
+			ARGB a = data->pixel_format == PixelFormat16bppARGB1555 ? (pixel & 0x80000000) : 0xFF000000;
+			BYTE r = (pixel >> 7 & 0xF8) | (pixel >> 12 & 0x07);
+			BYTE g = (pixel >> 2 & 0xF8) | (pixel >> 6 & 0x07);
+			BYTE b = (pixel << 3 & 0xF8) | (pixel >> 2 & 0x07);
+
+			*color = a | r << 16 | g << 8 | b;
+			break;
+		}
+		case PixelFormat16bppRGB565: {
+			WORD *scan = (WORD *) v;
+			WORD pixel = scan[x];
+
+			BYTE r = (pixel >> 8 & 0xF8) | (pixel >> 13 & 0x07);
+			BYTE g = (pixel >> 3 & 0xFC) | (pixel >> 9 & 0x03);
+			BYTE b = (pixel << 3 & 0xF8) | (pixel >> 2 & 0x07);
+
+			*color = 0xFF000000 | r << 16 | g << 8 | b;
 			break;
 		}
 		default:

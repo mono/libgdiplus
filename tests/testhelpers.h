@@ -112,9 +112,7 @@ ATTRIBUTE_USED static CLSID icoEncoderClsid = { 0x557cf407, 0x1a04, 0x11d3,{ 0x9
 ATTRIBUTE_USED static CLSID wmfEncoderClsid = { 0x557cf404, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
 ATTRIBUTE_USED static CLSID emfEncoderClsid = { 0x557cf403, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
 
-#if defined(USE_WINDOWS_GDIPLUS)
 ATTRIBUTE_USED static GUID memoryBmpRawFormat = { 0xb96b3caaU, 0x0728U, 0x11d3U,{ 0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
-#endif
 ATTRIBUTE_USED static GUID bmpRawFormat = { 0xb96b3cabU, 0x0728U, 0x11d3U,{ 0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
 ATTRIBUTE_USED static GUID tifRawFormat = { 0xb96b3cb1U, 0x0728U, 0x11d3U,{ 0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
 ATTRIBUTE_USED static GUID gifRawFormat = { 0xb96b3cb0U, 0x0728U, 0x11d3U,{ 0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
@@ -136,7 +134,7 @@ ATTRIBUTE_USED static BOOL is_32bit()
 #endif
 
 #define verifyBitmap(image, expectedRawFormat, expectedPixelFormat, expectedWidth, expectedHeight, expectedFlags, expectedPropertyCount, checkFlags) \
-    verifyImage(image, ImageTypeBitmap, expectedRawFormat, expectedPixelFormat, 0, 0, expectedWidth, expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, expectedFlags, expectedPropertyCount, checkFlags)
+    verifyImage((GpBitmap *) image, ImageTypeBitmap, expectedRawFormat, expectedPixelFormat, 0, 0, expectedWidth, expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, expectedFlags, expectedPropertyCount, checkFlags)
 
 #define verifyMetafile(image, expectedRawFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedDimensionWidth, expectedDimensionHeight) \
     verifyImage(image, ImageTypeMetafile, expectedRawFormat, PixelFormat32bppRGB, expectedX, expectedY, expectedWidth, expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, expectedDimensionWidth, expectedDimensionHeight, 327683, 0, TRUE)
@@ -215,8 +213,8 @@ ATTRIBUTE_USED static BOOL is_32bit()
 { \
     UINT width; \
     UINT height; \
-    GdipGetImageWidth (image, &width); \
-    GdipGetImageHeight (image, &height); \
+    GdipGetImageWidth ((GpBitmap *) image, &width); \
+    GdipGetImageHeight ((GpBitmap *) image, &height); \
  \
     for (UINT y = 0; y < height; y++) \
     { \

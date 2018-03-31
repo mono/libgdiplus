@@ -62,7 +62,6 @@ GpStatus WINGDIPAPI GdipBitmapSetResolution (GpBitmap *bitmap, REAL xdpi, REAL y
 /* missing API
 	GdipCreateBitmapFromDirectDrawSurface
 	GdipCreateBitmapFromGdiDib
-	GdipCreateBitmapFromGdiDib
 */
 
 #endif
