@@ -99,7 +99,6 @@ gdip_get_bmp_pixelformat (BITMAPV5HEADER *bih, PixelFormat *dest)
 			*dest = PixelFormat24bppRGB;
 			break;
 		case 16:
-			/* MS produce such files (i.e. bad header) for storing ImageList bitmaps, see bug #80797 */
 			*dest = PixelFormat16bppRGB565;
 			break;
 		case 8:
@@ -900,7 +899,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			/* five red bits, six green bits and five blue bits (0xFFFF) */
 			red_shift = 11;
 		} else {
-			/* MS produce such files (i.e. missing masks) for storing ImageList bitmaps, see bug #80797 */
 			red_mask = 0x7C00;
 			green_mask = 0x3E0;
 			blue_mask = 0x1F;
@@ -1064,17 +1062,9 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			}
 
 			size_read = gdip_read_bmp_data (pointer, data_read, size, source);
-
 			if (size_read < size) {
-				/* special case for missing data in the last line */
-				if (line == result->active_bitmap->height - 1) {
-					/* MS produce such files for storing ImageList bitmaps, see bug #80797 */
-					int missing_size = size - size_read;
-					memset (data_read + size_read, 0, missing_size);
-				} else {
-					status = OutOfMemory;
-					goto error;
-				}
+				status = OutOfMemory;
+				goto error;
 			}
 
 			switch(bmi.bV5BitCount) {
