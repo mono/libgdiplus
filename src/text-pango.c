@@ -264,7 +264,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 
 	/* with GDI+ the API not the renderer makes the direction decision */
 	pango_layout_set_auto_dir (layout, FALSE);	
-	if (!(fmt->formatFlags & StringFormatFlagsDirectionRightToLeft) != !(fmt->formatFlags & StringFormatFlagsDirectionVertical)) {
+	if (fmt->formatFlags & StringFormatFlagsDirectionRightToLeft) {
 		pango_context_set_base_dir (context, PANGO_DIRECTION_WEAK_RTL);
 		pango_layout_context_changed (layout);
 
@@ -481,10 +481,10 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 	case StringAlignmentNear:
 		break;
 	case StringAlignmentCenter:
-		box_offset->Y += (rc->Height - box->Height) / 2;
+		box_offset->Y += (FrameHeight - box->Height) * .5;
 		break;
 	case StringAlignmentFar:
-		box_offset->Y += (rc->Height - box->Height);
+		box_offset->Y += (FrameHeight - box->Height);
 		break;
 	}
 
@@ -492,14 +492,14 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 		switch (fmt->alignment) {
 		case StringAlignmentNear:
 			if (fmt->formatFlags & StringFormatFlagsDirectionRightToLeft)
-				box_offset->X += (rc->Width - box->Width);
+				box_offset->X += (FrameWidth - box->Width);
 			break;
 		case StringAlignmentCenter:
-			box->X += (rc->Width - box->Width) / 2;
+			box_offset->X += (FrameWidth - box->Width) * .5;
 			break;
 		case StringAlignmentFar:
 			if (!(fmt->formatFlags & StringFormatFlagsDirectionRightToLeft))
-				box_offset->X += (rc->Width - box->Width);
+				box_offset->X += (FrameWidth - box->Width);
 			break;
 		}
 	}
