@@ -56,7 +56,7 @@ GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GDIPC
 		}
 	}
 
-	if (!graphics || !string || !font || !layoutRect)
+	if (!graphics || !string || !font || !layoutRect || !brush)
 		return InvalidParameter;
 
 	switch (graphics->backend) {
@@ -74,6 +74,9 @@ GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *string, int length, GD
 	GDIPCONST GpStringFormat *stringFormat, RectF *boundingBox, int *codepointsFitted, int *linesFilled)
 {
 	GDIPCONST WCHAR *ptr = NULL;
+
+	if (!boundingBox)
+		return InvalidParameter;
 
 	if (length == 0) {
 		if (boundingBox) {
@@ -127,7 +130,6 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *string, int l
 
 	/* No char range or bounding rect is set for measurements */
 	if (stringFormat->charRangeCount == 0) {
-		*regions = NULL;
 		return Ok;
 	}
 

@@ -2533,13 +2533,48 @@ GdipGetPageUnit (GpGraphics *graphics, GpUnit *unit)
 GpStatus WINGDIPAPI
 GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoordinateSpace srcSpace, GpPointF *points, INT count)
 {
-	static int called = 0;
+	GpMatrix *matrix;
+	REAL scale_x, scale_y;
+	GpStatus status;
 
-	if (!called) {
-		printf("NOT IMPLEMENTED YET:GdipTransformPoints (GpGraphics *graphics, GpCoordinateSpace destSpace %d, GpCoordinateSpace srcSpace %d, GpPointF *points, int count %d)\n", destSpace, srcSpace, count);
+	if (!graphics || !points || count <= 0 || destSpace > CoordinateSpaceDevice || srcSpace > CoordinateSpaceDevice)
+		return InvalidParameter;
+
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+
+	if (srcSpace == destSpace)
+		return Ok;
+
+	status = GdipCreateMatrix (&matrix);
+	if (status != Ok)
+		return status;
+
+	scale_x = gdip_unit_conversion (graphics->page_unit, UnitPixel, graphics->dpi_x, graphics->type, 1.);
+	scale_y = gdip_unit_conversion (graphics->page_unit, UnitPixel, graphics->dpi_y, graphics->type, 1.);
+	if (graphics->page_unit != UnitDisplay) {
+		scale_x *= graphics->scale;
+		scale_y *= graphics->scale;
 	}
-	/* return NotImplemented; */
-	return Ok;
+
+	if (destSpace < srcSpace) {		
+		if (srcSpace == CoordinateSpaceDevice) // device -> page
+			GdipScaleMatrix (matrix, 1. / scale_x, 1. / scale_y, MatrixOrderAppend);		
+		if (destSpace == CoordinateSpaceWorld) // page -> world
+			GdipMultiplyMatrix (matrix, graphics->clip_matrix, MatrixOrderAppend);
+	} else {		
+		if (srcSpace == CoordinateSpaceWorld) // world -> page
+			GdipMultiplyMatrix (matrix, graphics->copy_of_ctm, MatrixOrderAppend);		
+		if (destSpace == CoordinateSpaceDevice) // page -> device
+			GdipScaleMatrix (matrix, scale_x, scale_y, MatrixOrderAppend);
+	}
+
+	if (status == Ok)
+		status = GdipTransformMatrixPoints (matrix, points, count);
+
+	GdipDeleteMatrix (matrix);
+	
+    return status;
 }
 
 GpStatus WINGDIPAPI
