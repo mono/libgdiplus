@@ -53,20 +53,34 @@
 #define MM_ANISOTROPIC		8
 
 /* CreatePenIndirect */
-#define PS_NULL			0x00000005
-#define PS_STYLE_MASK		0x0000000F
-#define PS_ENDCAP_ROUND		0x00000000
+#define PS_SOLID         0x00000000
+#define PS_DASH          0x00000001
+#define PS_DOT           0x00000002
+#define PS_DASHDOT       0x00000003
+#define PS_DASHDOTDOT    0x00000004
+#define PS_NULL          0x00000005
+#define PS_INSIDEFRAME   0x00000006
+#define PS_USERSTYLE     0x00000007
+#define PS_ALTERNATE     0x00000008
+#define PS_STYLE_MASK    0x0000000F
+
+#define PS_ENDCAP_ROUND	0x00000000
 #define PS_ENDCAP_SQUARE	0x00000100
 #define PS_ENDCAP_FLAT		0x00000200
 #define PS_ENDCAP_MASK		0x00000F00
+
 #define PS_JOIN_ROUND		0x00000000
 #define PS_JOIN_BEVEL		0x00001000
 #define PS_JOIN_MITER		0x00002000
 #define PS_JOIN_MASK		0x0000F000
 
+#define PS_COSMETIC		0x00000000
+#define PS_GEOMETRIC     	0x00010000
+#define PS_TYPE_MASK     	0x000F0000
+
 /* CreateBrushIndirect */
 #define BS_SOLID		0
-#define BS_NULL			1
+#define BS_NULL		1
 #define BS_HATCHED		2
 #define BS_PATTERN		3
 #define BS_INDEXED		4
