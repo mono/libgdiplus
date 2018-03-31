@@ -297,7 +297,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	png_get_PLTE( png_ptr, info_ptr, &png_palette, &num_palette );
 
 	/* 2bpp is a special case (promoted to 32bpp ARGB by MS GDI+) */
-	if ((bit_depth <= 8) && bit_depth != 2 && (channels == 1) && 
+	if ((bit_depth <= 8) && (bit_depth != 2) && (channels == 1) && 
 		((color_type == PNG_COLOR_TYPE_PALETTE)	|| (color_type == PNG_COLOR_TYPE_GRAY))) {
 		int		width;
 		int		height;
