@@ -127,35 +127,35 @@ static void test_measure_string_alignment(void)
 		REAL bottom_yy, bottom_y0;
 	} td[] =
 	{
-		{ 0, StringAlignmentNear, StringAlignmentNear, 0, 0, 0, 0, 1., 0, 1., 0 },
-		{ 0, StringAlignmentCenter, StringAlignmentNear, -.5, 100, 0, 0, .5, 100, 1., 0 },
-		{ 0, StringAlignmentFar, StringAlignmentNear, -1., 200, 0, 0, 0, 200, 1., 0 },
-		{ 0, StringAlignmentNear, StringAlignmentCenter, 0, 0, -.5, 50, 1., 0, .5, 50 },
-		{ 0, StringAlignmentCenter, StringAlignmentCenter, -.5, 100, -.5, 50, .5, 100, .5, 50 },
-		{ 0, StringAlignmentFar, StringAlignmentCenter, -1., 200, -.5, 50, 0, 200, .5, 50 },
-		{ 0, StringAlignmentNear, StringAlignmentFar, 0, 0, -1., 100, 1., 0, 0, 100 },
-		{ 0, StringAlignmentCenter, StringAlignmentFar, -.5, 100, -1., 100, .5, 100, 0, 100 },
-		{ 0, StringAlignmentFar, StringAlignmentFar, -1., 200, -1., 100, 0, 200, 0, 100 },
+		{ 0, StringAlignmentNear, StringAlignmentNear, 0, 0, 0, 0, -1.0, 0, -1.0, 0 },
+		{ 0, StringAlignmentCenter, StringAlignmentNear, -0.5, 100, 0, 0, 0.5, 100, -1.0, 0 },
+		{ 0, StringAlignmentFar, StringAlignmentNear, -1.0, 200, 0, 0, 0, 200, -1.0, 0 },
+		{ 0, StringAlignmentNear, StringAlignmentCenter, 0, 0, -0.5, 50, -1.0, 0, 0.5, 50 },
+		{ 0, StringAlignmentCenter, StringAlignmentCenter, -0.5, 100, -0.5, 50, 0.5, 100, 0.5, 50 },
+		{ 0, StringAlignmentFar, StringAlignmentCenter, -1.0, 200, -0.5, 50, 0, 200, 0.5, 50 },
+		{ 0, StringAlignmentNear, StringAlignmentFar, 0, 0, -1.0, 100, -1.0, 0, 0, 100 },
+		{ 0, StringAlignmentCenter, StringAlignmentFar, -0.5, 100, -1.0, 100, 0.5, 100, 0, 100 },
+		{ 0, StringAlignmentFar, StringAlignmentFar, -1.0, 200, -1.0, 100, 0, 200, 0, 100 },
 
-		{ StringFormatFlagsDirectionVertical, StringAlignmentNear, StringAlignmentNear, 0, 0, 0, 0, 1., 0, 1., 0 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentNear, StringAlignmentCenter, -.5, 100, 0, 0, .5, 100, 1., 0 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentNear, StringAlignmentFar, -1., 200, 0, 0, 0, 200, 1., 0 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentCenter, StringAlignmentNear, 0, 0, -.5, 50, 1., 0, .5, 50 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentCenter, StringAlignmentCenter, -.5, 100, -.5, 50, .5, 100, .5, 50 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentCenter, StringAlignmentFar, -1., 200, -.5, 50, 0, 200, .5, 50 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentFar, StringAlignmentNear, 0, 0, -1., 100, 1., 0, 0, 100 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentFar, StringAlignmentCenter, -.5, 100, -1., 100, .5, 100, 0, 100 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentFar, StringAlignmentFar, -1., 200, -1., 100, 0, 200, 0, 100 },
+		{ StringFormatFlagsDirectionVertical, StringAlignmentNear, StringAlignmentNear, 0, 0, 0, 0, -1.0, 0, -1.0, 0 },
+		{ StringFormatFlagsDirectionVertical, StringAlignmentNear, StringAlignmentCenter, -0.5, 100, 0, 0, 0.5, 100, -1.0, 0 },
+		{ StringFormatFlagsDirectionVertical, StringAlignmentNear, StringAlignmentFar, -1.0, 200, 0, 0, 0, 200, -1.0, 0 },
+		{ StringFormatFlagsDirectionVertical, StringAlignmentCenter, StringAlignmentNear, 0, 0, -0.5, 50, 1.0, 0, 0.5, 50 },
+		{ StringFormatFlagsDirectionVertical, StringAlignmentCenter, StringAlignmentCenter, -0.5, 100, -0.5, 50, 0.5, 100, 0.5, 50 },
+		{ StringFormatFlagsDirectionVertical, StringAlignmentCenter, StringAlignmentFar, -1.0, 200, -0.5, 50, 0, 200, 0.5, 50 },
+		{ StringFormatFlagsDirectionVertical, StringAlignmentFar, StringAlignmentNear, 0, 0, -1.0, 100, -1.0, 0, 0, 100 },
+		{ StringFormatFlagsDirectionVertical, StringAlignmentFar, StringAlignmentCenter, -0.5, 100, -1.0, 100, 0.5, 100, 0, 100 },
+		{ StringFormatFlagsDirectionVertical, StringAlignmentFar, StringAlignmentFar, -1.0, 200, -1.0, 100, 0, 200, 0, 100 },
 
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentFar, StringAlignmentNear, 0, 0, 0, 0, 1., 0, 1., 0 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentNear, -.5, 100, 0, 0, .5, 100, 1., 0 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentNear, -1., 200, 0, 0, 0, 200, 1., 0 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentFar, StringAlignmentCenter, 0, 0, -.5, 50, 1., 0, .5, 50 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentCenter, -.5, 100, -.5, 50, .5, 100, .5, 50 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentCenter, -1., 200, -.5, 50, 0, 200, .5, 50 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentFar, StringAlignmentFar, 0, 0, -1., 100, 1., 0, 0, 100 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentFar, -.5, 100, -1., 100, .5, 100, 0, 100 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentFar, -1., 200, -1., 100, 0, 200, 0, 100 },
+		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentFar, StringAlignmentNear, 0, 0, 0, 0, -1.0, 0, -1.0, 0 },
+		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentNear, -0.5, 100, 0, 0, 0.5, 100, -1.0, 0 },
+		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentNear, -1.0, 200, 0, 0, 0, 200, -1.0, 0 },
+		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentFar, StringAlignmentCenter, 0, 0, -0.5, 50, -1.0, 0, 0.5, 50 },
+		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentCenter, -0.5, 100, -0.5, 50, 0.5, 100, 0.5, 50 },
+		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentCenter, -1.0, 200, -0.5, 50, 0, 200, 0.5, 50 },
+		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentFar, StringAlignmentFar, 0, 0, -1.0, 100, -1.0, 0, 0, 100 },
+		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentFar, -0.5, 100, -1.0, 100, 0.5, 100, 0, 100 },
+		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentFar, -1.0, 200, -1.0, 100, 0, 200, 0, 100 }
 	};
 
 
@@ -183,10 +183,10 @@ static void test_measure_string_alignment(void)
 		set_rect_empty (&bounds);
 		status = GdipMeasureString (graphics, teststring1, 1, font, &rect, format, &bounds, NULL, NULL);
 		expect (Ok, status);
-		expectf_ (td[i].x_x0 + td[i].x_xx * bounds.Width + 5., bounds.X, 0.6);
-		expectf_ (td[i].y_y0 + td[i].y_yy * bounds.Height + 10., bounds.Y, 0.6);
-		expectf_ (td[i].right_x0 + td[i].right_xx * bounds.Width + 5., bounds.X + bounds.Width, 0.6);
-		expectf_ (td[i].bottom_y0 + td[i].bottom_yy * bounds.Height + 10., bounds.Y + bounds.Height, 0.6);
+		expectf_ (td[i].x_x0 + td[i].x_xx * bounds.Width + 5.0, bounds.X, 0.6);
+		expectf_ (td[i].y_y0 + td[i].y_yy * bounds.Height + 10.0, bounds.Y, 0.6);
+		expectf_ (td[i].right_x0 + td[i].right_xx * bounds.Width + 5.0, bounds.X + bounds.Width, 0.6);
+		expectf_ (td[i].bottom_y0 + td[i].bottom_yy * bounds.Height + 10.0, bounds.Y + bounds.Height, 0.6);
 	}
 
 	GdipDeleteGraphics (graphics);

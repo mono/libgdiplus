@@ -486,7 +486,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 	case StringAlignmentNear:
 		break;
 	case StringAlignmentCenter:
-		box_offset->Y += (FrameHeight - box->Height) * .5;
+		box_offset->Y += (FrameHeight - box->Height) * 0.5;
 		break;
 	case StringAlignmentFar:
 		box_offset->Y += (FrameHeight - box->Height);
@@ -500,7 +500,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 				box_offset->X += (FrameWidth - box->Width);
 			break;
 		case StringAlignmentCenter:
-			box_offset->X += (FrameWidth - box->Width) * .5;
+			box_offset->X += (FrameWidth - box->Width) * 0.5;
 			break;
 		case StringAlignmentFar:
 			if (!(fmt->formatFlags & StringFormatFlagsDirectionRightToLeft))
