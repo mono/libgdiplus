@@ -53,7 +53,6 @@ struct _Font {
 	PangoFontDescription	*pango;
 #else
 	cairo_font_face_t	*cairofnt;
-	cairo_t			*cairo;
 #endif
 };
 

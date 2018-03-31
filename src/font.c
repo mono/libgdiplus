@@ -267,7 +267,7 @@ GdipDeleteFontFamily (GpFontFamily *fontFamily)
 static void
 gdip_createPrivateFontSet (GpFontCollection *font_collection)
 {
-	FcObjectSet *os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, NULL);
+	FcObjectSet *os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, FC_FILE, NULL);
 	FcPattern *pat = FcPatternCreate ();
 	FcFontSet *col =  FcFontList (font_collection->config, pat, os);
     
@@ -756,29 +756,15 @@ cairo_font_face_t*
 gdip_get_cairo_font_face (GpFont *font)
 {
 	if (!font->cairofnt) {
-#if CAIRO_HAS_QUARTZ_FONT
 		FcPattern *pattern = FcPatternBuild (
-			NULL,
-			FC_FAMILY, FcTypeString,  font->face, 
+			FcPatternDuplicate (font->family->pattern),
 			FC_SLANT,  FcTypeInteger, ((font->style & FontStyleItalic) ? FC_SLANT_ITALIC : FC_SLANT_ROMAN), 
 			FC_WEIGHT, FcTypeInteger, ((font->style & FontStyleBold)   ? FC_WEIGHT_BOLD  : FC_WEIGHT_MEDIUM),
 			NULL);
-		
+
 		font->cairofnt = cairo_ft_font_face_create_for_pattern (pattern);
 		cairo_font_face_reference (font->cairofnt);
 		FcPatternDestroy (pattern);
-#else
-		cairo_surface_t *surface = cairo_image_surface_create_for_data ((BYTE*)NULL, CAIRO_FORMAT_ARGB32, 0, 0, 0);
-		font->cairo = cairo_create (surface);
-
-		cairo_select_font_face (font->cairo, (const char *)font->face,
-			(font->style & FontStyleItalic) ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL,
-			(font->style & FontStyleBold) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
-		font->cairofnt = cairo_get_font_face (font->cairo);
-		cairo_font_face_reference (font->cairofnt);
-		cairo_surface_destroy (surface);
-#endif
-
 	}
 	return font->cairofnt;
 }
@@ -950,7 +936,6 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, REAL emSize, INT style, Unit uni
 	result->pango = NULL;
 #else
 	result->cairofnt = NULL;
-	result->cairo = NULL;
 	gdip_get_cairo_font_face (result);
 #endif
 
@@ -989,7 +974,6 @@ GdipCloneFont (GpFont* font, GpFont** cloneFont)
 	result->pango = NULL;
 #else
 	result->cairofnt = NULL;
-	result->cairo = NULL;
 	gdip_get_cairo_font_face (result);
 #endif
 
@@ -1012,8 +996,6 @@ GdipDeleteFont (GpFont* font)
 #else
 	if (font->cairofnt)
 		cairo_font_face_destroy (font->cairofnt);
-	if (font->cairo)
-		cairo_destroy (font->cairo);
 #endif
 
 	GdipFree (font->face);
@@ -1218,7 +1200,6 @@ gdip_create_font_from_logfont (HDC hdc, void *lf, GpFont **font, BOOL ucs2)
 	result->pango = NULL;
 #else
 	result->cairofnt = NULL;
-	result->cairo = NULL;
 #endif
 
 	*font = result;
