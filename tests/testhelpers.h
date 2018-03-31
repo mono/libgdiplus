@@ -79,7 +79,7 @@ ATTRIBUTE_USED static WCHAR* wcharFromChar(const char *c)
     return wc;
 }
 
-#define createWchar(c) L ##c
+#define createWchar(c) (WCHAR *) L ##c
 #define freeWchar(c)
 #endif
 

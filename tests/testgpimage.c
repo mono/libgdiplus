@@ -128,7 +128,7 @@ static void test_loadImageFromFileTif ()
 {
 	GpImage *image = getImage ("test.tif");
 
-	verifyBitmap (image, tifRawFormat, PixelFormat24bppRGB, 100, 68, 77840, 19, TRUE);
+	verifyBitmap (image, tifRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 19, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -146,7 +146,7 @@ static void test_loadImageFromFilePng ()
 {
 	GpImage *image = getImage ("test.png");
 
-	verifyBitmap (image, pngRawFormat, PixelFormat24bppRGB, 100, 68, 77840, 5, TRUE);
+	verifyBitmap (image, pngRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 5, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -200,8 +200,7 @@ static void test_cloneImage ()
 	status = GdipCloneImage (bitmapImage, &clonedImage);
 	assertEqualInt (status, Ok);
 	assert (clonedImage && clonedImage != bitmapImage);
-	// FIXME: bmp image flags are wrong in libgdiplus.
-	verifyBitmap (clonedImage, bmpRawFormat, PixelFormat24bppRGB, 100, 68, 77840, 0, FALSE);
+	verifyBitmap (clonedImage, bmpRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 0, TRUE);
 	GdipDisposeImage (clonedImage);
 
 	// ImageTypeBitmap - jpg.

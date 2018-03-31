@@ -732,6 +732,16 @@ gdip_bitmap_dispose (GpBitmap *bitmap)
 	return Ok;
 }
 
+GpStatus
+GdipCreateBitmapFromStream (void *stream, GpBitmap **bitmap)
+{
+	if (!stream || !bitmap)
+		return InvalidParameter;
+	
+	// This will never be implemented, as 'stream' is a COM IStream.
+	return NotImplemented;
+}
+
 /* coverity[+alloc : arg-*1] */
 GpStatus
 GdipCreateBitmapFromFile (GDIPCONST WCHAR* filename, GpBitmap **bitmap)
@@ -742,8 +752,15 @@ GdipCreateBitmapFromFile (GDIPCONST WCHAR* filename, GpBitmap **bitmap)
 	return status;
 }
 
+GpStatus
+GdipCreateBitmapFromStreamICM (void *stream, GpBitmap **bitmap)
+{
+	/* ICM isn't supported */
+	return GdipCreateBitmapFromStream (stream, bitmap);
+}
+
 /* coverity[+alloc : arg-*1] */
-GpStatus 
+GpStatus
 GdipCreateBitmapFromFileICM (GDIPCONST WCHAR* filename, GpBitmap **bitmap)
 {
 	/* ICM isn't supported */
@@ -751,7 +768,7 @@ GdipCreateBitmapFromFileICM (GDIPCONST WCHAR* filename, GpBitmap **bitmap)
 }
 
 /* coverity[+alloc : arg-*5] */
-GpStatus 
+GpStatus
 GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format, BYTE *scan0, GpBitmap **bitmap)
 {
 	GpStatus	status;
