@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "testhelpers.h"
 
 #define C(func) assert (func == Ok)
 
@@ -144,15 +145,69 @@ test_gdip_clip()
 	GdipFree (scan0);
 }
 
+static void
+test_gdip_clip_transform()
+{
+	GpBitmap *bitmap = 0;
+	GpGraphics *graphics;
+	GpRegion *clip;
+	GpPath *path;
+	GpRectF bounds;
+	static const int width = 100;
+	static const int height = 100;
+	BYTE *scan0 = (BYTE*) GdipAlloc (width * height * 4);
+	BOOL is_infinite = 0;
+
+	C (GdipCreateBitmapFromScan0 (100, 100, 100 * 4, PixelFormat32bppARGB, scan0, &bitmap));
+	C (GdipGetImageGraphicsContext (bitmap, &graphics));
+
+	// Check the clipping region is infinite
+	C (GdipCreateRegion(&clip));
+	C (GdipGetClip(graphics, clip));
+	C (GdipIsInfiniteRegion(clip, graphics, &is_infinite));
+	assert (is_infinite);
+
+	// Transform the world
+	C (GdipTranslateWorldTransform(graphics, 50.f, 0.f, MatrixOrderAppend));
+
+	// Test setting clip as rectangle
+	C (GdipSetClipRect(graphics, 10, 10, 60, 60, CombineModeReplace));
+	C (GdipGetClipBounds(graphics, &bounds));
+	assert (bounds.X == 10);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 60);
+	assert (bounds.Height == 60);
+
+	// Test setting clip as path with rectangle
+	C (GdipCreatePath(FillModeWinding, &path));
+	C (GdipAddPathRectangle(path, 10, 10, 60, 60));
+	C (GdipGetPathWorldBounds(path, &bounds, NULL, NULL));
+	assert (bounds.X == 10);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 60);
+	assert (bounds.Height == 60);
+	C (GdipSetClipPath(graphics, path, CombineModeReplace));
+	C (GdipGetClipBounds(graphics, &bounds));
+	assert (bounds.X == 10);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 60);
+	assert (bounds.Height == 60);
+
+	C (GdipDeleteRegion (clip));
+	C (GdipDeleteGraphics (graphics));
+	C (GdipDisposeImage (bitmap));
+
+	GdipFree (scan0);
+}
+
 int
 main(int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_gdip_clip();
+	test_gdip_clip_transform();
 
-	GdiplusShutdown(gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

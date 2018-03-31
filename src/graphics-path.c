@@ -1231,21 +1231,24 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 		return status;
 	}
 
-	if (layoutRect)
-		cairo_move_to (cr, layoutRect->X, layoutRect->Y + font->sizeInPixels);
-
 #ifdef USE_PANGO_RENDERING
 	{
 	GpRectF box;
+	GpPointF box_offset;
 	PangoLayout* layout; 
 
 	cairo_save (cr);
-	layout = gdip_pango_setup_layout ((GpGraphics *)cr, string, length, font, layoutRect, &box, format, NULL);
+	layout = gdip_pango_setup_layout ((GpGraphics *)cr, string, length, font, layoutRect, &box, &box_offset, format, NULL);
+	if (layoutRect)
+		cairo_move_to (cr, layoutRect->X + box_offset.X, layoutRect->Y + box_offset.X);
 	pango_cairo_layout_path (cr, layout);
 	g_object_unref (layout);
 	cairo_restore (cr);
 	}
 #else
+	if (layoutRect)
+		cairo_move_to (cr, layoutRect->X, layoutRect->Y + font->sizeInPixels);
+
 	cairo_set_font_face (cr, gdip_get_cairo_font_face (font));
 	cairo_set_font_size (cr, font->sizeInPixels);
 	/* TODO - deal with layoutRect, format... ideally we would be calling a subset

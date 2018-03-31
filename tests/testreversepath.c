@@ -246,12 +246,10 @@ test_gdip_reversepath()
 int
 main(int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_gdip_reversepath();
 
-	GdiplusShutdown(gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

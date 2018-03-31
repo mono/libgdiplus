@@ -167,7 +167,7 @@ gdip_process_string (gchar *text, int length, int removeAccelerators, int trimSp
 
 PangoLayout*
 gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *rc, RectF *box, GDIPCONST GpStringFormat *format, int **charsRemoved)
+	GDIPCONST RectF *rc, RectF *box, PointF *box_offset, GDIPCONST GpStringFormat *format, int **charsRemoved)
 {
 	GpStringFormat *fmt;
 	PangoLayout *layout;
@@ -190,6 +190,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 	double clipy1;
 	double clipy2;
 	int trimSpace;      /* whether or not to trim the space */
+	BOOL use_horizontal_layout;
 
 	gchar *text = ucs2_to_utf8 (stringUnicode, length);
 	if (!text)
@@ -242,9 +243,11 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 
 	if ((FrameWidth <= 0) || (fmt->formatFlags & StringFormatFlagsNoWrap)) {
 		pango_layout_set_width (layout, -1);
+		use_horizontal_layout = FALSE;
 		//g_warning ("Setting width: %d", -1);
 	} else {
 		pango_layout_set_width (layout, FrameWidth * PANGO_SCALE);
+		use_horizontal_layout = TRUE;
 		//g_warning ("Setting width: %d", FrameWidth * PANGO_SCALE);
 	}
 
@@ -256,38 +259,42 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 		cairo_clip (graphics->ct);
 	}
 
-		/* with GDI+ the API not the renderer makes the direction decision */
-		pango_layout_set_auto_dir (layout, FALSE);
+	/* with GDI+ the API not the renderer makes the direction decision */
+	pango_layout_set_auto_dir (layout, FALSE);	
 	if (!(fmt->formatFlags & StringFormatFlagsDirectionRightToLeft) != !(fmt->formatFlags & StringFormatFlagsDirectionVertical)) {
 		pango_context_set_base_dir (context, PANGO_DIRECTION_WEAK_RTL);
 		pango_layout_context_changed (layout);
 
 		/* horizontal alignment */
-		switch (fmt->alignment) {
-		case StringAlignmentNear:
-			pango_layout_set_alignment (layout, PANGO_ALIGN_RIGHT);
-			break;
-		case StringAlignmentCenter:
-			pango_layout_set_alignment (layout, PANGO_ALIGN_CENTER);
-			break;
-		case StringAlignmentFar:
-			pango_layout_set_alignment (layout, PANGO_ALIGN_LEFT);
-			break;
+		if (use_horizontal_layout) {
+			switch (fmt->alignment) {
+			case StringAlignmentNear:
+				pango_layout_set_alignment (layout, PANGO_ALIGN_RIGHT);
+				break;
+			case StringAlignmentCenter:
+				pango_layout_set_alignment (layout, PANGO_ALIGN_CENTER);
+				break;
+			case StringAlignmentFar:
+				pango_layout_set_alignment (layout, PANGO_ALIGN_LEFT);
+				break;			
+			}
 		}
 	} else {
 		/* pango default base dir is WEAK_LTR, which is what we want */
 
 		/* horizontal alignment */
-		switch (fmt->alignment) {
-		case StringAlignmentNear:
-			pango_layout_set_alignment (layout, PANGO_ALIGN_LEFT);
-			break;
-		case StringAlignmentCenter:
-			pango_layout_set_alignment (layout, PANGO_ALIGN_CENTER);
-			break;
-		case StringAlignmentFar:
-			pango_layout_set_alignment (layout, PANGO_ALIGN_RIGHT);
-			break;
+		if (use_horizontal_layout) {
+			switch (fmt->alignment) {
+			case StringAlignmentNear:
+				pango_layout_set_alignment (layout, PANGO_ALIGN_LEFT);
+				break;
+			case StringAlignmentCenter:
+				pango_layout_set_alignment (layout, PANGO_ALIGN_CENTER);
+				break;
+			case StringAlignmentFar:
+				pango_layout_set_alignment (layout, PANGO_ALIGN_RIGHT);
+				break;
+			}
 		}
 	}
 
@@ -447,62 +454,72 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 	}
 
 	pango_layout_get_pixel_extents (layout, &ink, &logical);
-// g_warning ("\tlogical\t[x %d, y %d, w %d, h %d][x %d, y %d, w %d, h %d]", logical.x, logical.y, logical.width, logical.height, ink.x, ink.y, ink.width, ink.height);
+	//g_warning ("\tlogical\t[x %d, y %d, w %d, h %d][x %d, y %d, w %d, h %d]", logical.x, logical.y, logical.width, logical.height, ink.x, ink.y, ink.width, ink.height);
 
 	if ((fmt->formatFlags & StringFormatFlagsNoFitBlackBox) == 0) {
 		/* By default don't allow overhang - ink space may be larger than logical space */
-		if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
-			box->X = min (ink.y, logical.y);
-			box->Y = min (ink.x, logical.x);
-			box->Height = max (ink.width, logical.width);
-			box->Width = max (ink.height, logical.height);
-		} else {
-			box->X = min (ink.x, logical.x);
-			box->Y = min (ink.y, logical.y);
-			box->Height = max (ink.height, logical.height);
-			box->Width = max (ink.width, logical.width);
-		}
+		box->X = min (ink.x, logical.x);
+		box->Y = min (ink.y, logical.y);
+		box->Height = max (ink.height, logical.height);
+		box->Width = max (ink.width, logical.width);
 	} else {
 		/* Allow overhang */
-		if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
-			box->X = logical.y;
-			box->Y = logical.x;
-			box->Height = logical.width;
-			box->Width = logical.height;
-		} else {
-			box->X = logical.x;
-			box->Y = logical.y;
-			box->Height = logical.height;
-			box->Width = logical.width;
-		}
+		box->X = logical.x;
+		box->Y = logical.y;
+		box->Height = logical.height;
+		box->Width = logical.width;
 	}
-// g_warning ("\tbox\t[x %g, y %g, w %g, h %g]", box->X, box->Y, box->Width, box->Height);
+	//g_warning ("\tbox\t[x %g, y %g, w %g, h %g]", box->X, box->Y, box->Width, box->Height);
 
-	/* vertical alignment*/
-	if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
-		switch (fmt->lineAlignment) {
+	box_offset->X = 0;
+	box_offset->Y = 0;
+
+	switch (fmt->lineAlignment) {
+	case StringAlignmentNear:
+		break;
+	case StringAlignmentCenter:
+		box_offset->Y += (rc->Height - box->Height) / 2;
+		break;
+	case StringAlignmentFar:
+		box_offset->Y += (rc->Height - box->Height);
+		break;
+	}
+
+	if (!use_horizontal_layout) {
+		switch (fmt->alignment) {
 		case StringAlignmentNear:
+			if (fmt->formatFlags & StringFormatFlagsDirectionRightToLeft)
+				box_offset->X += (rc->Width - box->Width);
 			break;
 		case StringAlignmentCenter:
 			box->X += (rc->Width - box->Width) / 2;
 			break;
 		case StringAlignmentFar:
-			box->X += (rc->Width - box->Width);
+			if (!(fmt->formatFlags & StringFormatFlagsDirectionRightToLeft))
+				box_offset->X += (rc->Width - box->Width);
 			break;
 		}
-	} else {
-	switch (fmt->lineAlignment) {
-	case StringAlignmentNear:
-		break;
-	case StringAlignmentCenter:
-			box->Y += (rc->Height - box->Height) / 2;
-		break;
-	case StringAlignmentFar:
-			box->Y += (rc->Height - box->Height);
-		break;
 	}
+
+	box->X += box_offset->X;
+	box->Y += box_offset->Y;
+
+	if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
+		float tmp = box->X;
+		box->X = box->Y;
+		box->Y = tmp;
+		tmp = box->Width;
+		box->Width = box->Height;
+		box->Height = tmp;
+		tmp = box_offset->X;
+		box_offset->X = box_offset->Y;
+		box_offset->Y = tmp;
 	}
-// g_warning ("va-box\t[x %g, y %g, w %g, h %g]", box->X, box->Y, box->Width, box->Height);
+
+	box->X += rc->X;
+	box->Y += rc->Y;
+
+	//g_warning ("va-box\t[x %g, y %g, w %g, h %g]", box->X, box->Y, box->Width, box->Height);
 
 	pango_cairo_update_layout (graphics->ct, layout);
 
@@ -515,6 +532,7 @@ pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int leng
 {
 	PangoLayout *layout;
 	RectF box;
+	PointF box_offset;
 
 	/* Setup cairo */
 	if (brush) {
@@ -525,13 +543,13 @@ pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int leng
 
 	cairo_save (graphics->ct);
 
-	layout = gdip_pango_setup_layout (graphics, stringUnicode, length, font, rc, &box, format, NULL);
+	layout = gdip_pango_setup_layout (graphics, stringUnicode, length, font, rc, &box, &box_offset, format, NULL);
 	if (!layout) {
 		cairo_restore (graphics->ct);
 		return OutOfMemory;
 	}
 
-	gdip_cairo_move_to (graphics, rc->X, rc->Y, FALSE, TRUE);
+	gdip_cairo_move_to (graphics, rc->X + box_offset.X, rc->Y + box_offset.Y, FALSE, TRUE);
 	pango_cairo_show_layout (graphics->ct, layout);
 
 	g_object_unref (layout);
@@ -547,11 +565,12 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 	PangoLayoutLine *line;
 	PangoRectangle logical;
 	PangoLayoutIter *iter;
+	PointF box_offset;
 	int *charsRemoved = NULL;
 
 	cairo_save (graphics->ct);
 
-	layout = gdip_pango_setup_layout (graphics, stringUnicode, length, font, rc, boundingBox, format, &charsRemoved);
+	layout = gdip_pango_setup_layout (graphics, stringUnicode, length, font, rc, boundingBox, &box_offset, format, &charsRemoved);
 	if (!layout) {
 		cairo_restore (graphics->ct);
 		return OutOfMemory;
@@ -648,10 +667,11 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 	GpStatus status = Ok;
 	int i, j;
 	GpRectF boundingBox;
+	GpPointF box_offset;
 
 	cairo_save (graphics->ct);
 
-	layout = gdip_pango_setup_layout (graphics, stringUnicode, length, font, layoutRect, &boundingBox, format, NULL);
+	layout = gdip_pango_setup_layout (graphics, stringUnicode, length, font, layoutRect, &boundingBox, &box_offset, format, NULL);
 	if (!layout) {
 		cairo_restore (graphics->ct);
 		return OutOfMemory;
@@ -691,8 +711,8 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 			GpRectF charRect;
 
 			pango_layout_index_to_pos (layout, idxUtf8, &box);
-			charRect.X = (float)box.x / PANGO_SCALE;
-			charRect.Y = (float)box.y / PANGO_SCALE;
+			charRect.X = (float)box.x / PANGO_SCALE + box_offset.X;
+			charRect.Y = (float)box.y / PANGO_SCALE + box_offset.Y;
 			charRect.Width = (float)box.width / PANGO_SCALE;
 			charRect.Height = (float)box.height / PANGO_SCALE;
 			/* Normalize values (width/height can be negative) */

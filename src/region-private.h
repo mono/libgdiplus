@@ -45,18 +45,17 @@
 #define REGION_INFINITE_LENGTH		8388608
 
 typedef enum {
-        RegionTypeEmpty = 0,
-        RegionTypeRect  = 1,
-        RegionTypeRectF = 2,
-        RegionTypePath  = 3
+    RegionTypeRect     = 0x10000000,
+    RegionTypePath     = 0x10000001,
+    RegionTypeInfinite = 0x10000003
 } RegionType;
 
 struct _Region {
-	guint32		type;
-        int		cnt;
-        GpRectF*	rects;
-	GpPathTree*	tree;
-	GpRegionBitmap*	bitmap;
+    guint32		type;
+    int		cnt;
+    GpRectF*	rects;
+    GpPathTree*	tree;
+    GpRegionBitmap*	bitmap;
 };
 
 BOOL gdip_is_InfiniteRegion (GpRegion *region) GDIP_INTERNAL;
