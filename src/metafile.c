@@ -432,72 +432,11 @@ gdip_metafile_SetMiterLimit (MetafilePlayContext *context, float eNewLimit, floa
 GpStatus
 gdip_metafile_CreatePenIndirect (MetafilePlayContext *context, DWORD style, DWORD width, DWORD color)
 {
-	GpStatus status;
-	GpPen *pen = NULL;
-	GpLineCap line_cap = LineCapRound;
-	GpLineJoin line_join = LineJoinRound;
-	int s = style & PS_STYLE_MASK;
-
-#ifdef DEBUG_METAFILE
-	printf ("CreatePenIndirect style %d, width %d, color %X", style, width, color);
-#endif
-	if (s == PS_NULL)
-		color &= 0x00FFFFFF;
-	else
-		color |= 0xFF000000;
-
-	if (width > 1) {
-		/* style is always solid for width > 1 */
-		status = GdipCreatePen1 (color, width, UnitPixel, &pen);
-	} else {
-		/* 0 isn't a mistake, this ensure we have a "real" pixel-wide line drawn */
-		status = GdipCreatePen1 (color, 0, UnitPixel, &pen);
-
-		switch (s) {
-		default:
-			g_warning ("Invalid pen style %d, style & PS_STYLE_MASK %d", style, s);
-			/* fall through */
-		case PS_NULL:
-		case DashStyleSolid:
-			break;
-		case DashStyleDash:
-		case DashStyleDot:
-		case DashStyleDashDot:
-		case DashStyleDashDotDot:
-			if (status == Ok)
-				status = GdipSetPenDashStyle (pen, s);
-			break;
-		}
-	}
-
-	if (status != Ok) {
-		if (pen)
-			GdipDeletePen (pen);
-		return status;
-	}
-	/* at this stage we got a pen, so we won't abort drawing on it's style */
-
-	s = (style & PS_ENDCAP_MASK);
-	switch (s) {
-	default:
-		g_warning ("Invalid pen endcap, style %d, (style & PS_ENDCAP_MASK) %d", style, s);
-		/* fall through */
-	case PS_ENDCAP_ROUND:
-		line_cap = LineCapRound;
-		break;
-	case PS_ENDCAP_SQUARE:
-		line_cap = LineCapSquare;
-		break;
-	case PS_ENDCAP_FLAT:
-		line_cap = LineCapFlat;
-		break;
-	}
-	GdipSetPenStartCap (pen, line_cap);
-	GdipSetPenEndCap (pen, line_cap);
-
-	context->created.type = METAOBJECT_TYPE_PEN;
-	context->created.ptr = pen;
-	return Ok;
+	LOGBRUSH brush;
+	brush.lbStyle = 0;
+	brush.lbColor = color;
+	brush.lbHatch = 0;
+	return gdip_metafile_ExtCreatePen (context, style, width, &brush, 0, NULL);
 }
 
 GpStatus
@@ -505,7 +444,89 @@ gdip_metafile_ExtCreatePen (MetafilePlayContext *context, DWORD dwPenStyle, DWOR
 	DWORD dwStyleCount, CONST DWORD *lpStyle)
 {
 	/* TODO - there's more cases to consider */
-	return gdip_metafile_CreatePenIndirect (context, dwPenStyle, dwWidth, lplb->lbColor);
+	GpStatus status;
+	GpPen *pen = NULL;
+	GpLineCap line_cap = LineCapRound;
+	GpLineJoin line_join = LineJoinRound;
+	int s = dwPenStyle & PS_STYLE_MASK;
+	DWORD color = lplb->lbColor;
+
+#ifdef DEBUG_METAFILE
+	printf ("ExtCreatePenIndirect style %d, width %d, color %X", dwPenStyle, dwWidth, color);
+#endif
+	if (s == PS_NULL)
+		color &= 0x00FFFFFF;
+	else
+		color |= 0xFF000000;
+
+	status = GdipCreatePen1 (color, dwWidth, UnitPixel, &pen);
+	if (status != Ok)
+		return status;
+
+	/* The style is always solid for width > 1 */
+	if (dwWidth > 1) {
+		switch (s) {
+		default:
+			g_warning ("Invalid pen style %d, style & PS_STYLE_MASK %d", dwPenStyle, s);
+			/* fall through */
+		case PS_NULL:
+		case PS_SOLID:
+			break;
+		case PS_DASH:
+		case PS_DOT:
+		case PS_DASHDOT:
+		case PS_DASHDOTDOT:
+			status = GdipSetPenDashStyle (pen, s);
+			if (status != Ok) {
+				GdipDeletePen (pen);
+				return status;
+			}
+			break;
+		}
+	}
+
+	/* at this stage we got a pen, so we won't abort drawing on it's style */
+	s = (dwPenStyle & PS_TYPE_MASK);
+	if (s == PS_GEOMETRIC) {
+		s = (dwPenStyle & PS_ENDCAP_MASK);
+		switch (s) {
+		default:
+			g_warning ("Invalid pen endcap, style %d, (style & PS_ENDCAP_MASK) %d", dwPenStyle, s);
+			/* fall through */
+		case PS_ENDCAP_ROUND:
+			line_cap = LineCapRound;
+			break;
+		case PS_ENDCAP_SQUARE:
+			line_cap = LineCapSquare;
+			break;
+		case PS_ENDCAP_FLAT:
+			line_cap = LineCapFlat;
+			break;
+		}
+		GdipSetPenStartCap (pen, line_cap);
+		GdipSetPenEndCap (pen, line_cap);
+		
+		s = (dwPenStyle & PS_JOIN_MASK);
+		switch (s) {
+		default:
+			g_warning ("Invalid pen join, style %d, (style & PS_JOIN_MASK) %d", dwPenStyle, s);
+			/* fall through */
+		case PS_JOIN_ROUND:
+			line_join = LineJoinRound;
+			break;
+		case PS_JOIN_BEVEL:
+			line_join = LineJoinBevel;
+			break;
+		case PS_JOIN_MITER:
+			line_join = LineJoinMiter;
+			break;
+		}
+		GdipSetPenLineJoin (pen, line_join);
+	}
+
+	context->created.type = METAOBJECT_TYPE_PEN;
+	context->created.ptr = pen;
+	return Ok;
 }
 
 /* http://wvware.sourceforge.net/caolan/CreateBrushIndirect.html */
