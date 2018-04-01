@@ -1,5 +1,5 @@
 language: c
-dist: trusty
+group: travis_latest
 sudo: false
 
 os:
