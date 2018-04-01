@@ -108,6 +108,8 @@ static void test_measure_string(void)
 	GdipDisposeImage (image);
 }
 
+#endif
+
 static void test_measure_string_alignment(void)
 {
 	GpStringFormat *format;
@@ -189,12 +191,14 @@ static void test_measure_string_alignment(void)
 		rect.Width = 200.0;
 		rect.Height = 100.0;
 		set_rect_empty (&bounds);
+#ifdef USE_PANGO_RENDERING
 		status = GdipMeasureString (graphics, teststring1, 1, font, &rect, format, &bounds, NULL, NULL);
 		expect (Ok, status);
 		expectf_ (td[i].x_x0 + td[i].x_xx * bounds.Width + 5.0, bounds.X, 0.6);
 		expectf_ (td[i].y_y0 + td[i].y_yy * bounds.Height + 10.0, bounds.Y, 0.6);
 		expectf_ (td[i].right_x0 + td[i].right_xx * bounds.Width + 5.0, bounds.X + bounds.Width, 0.6);
 		expectf_ (td[i].bottom_y0 + td[i].bottom_yy * bounds.Height + 10.0, bounds.Y + bounds.Height, 0.6);
+#endif
 
 		status = GdipMeasureCharacterRanges (graphics, teststring1, 1, font, &rect, format, 1, &region);
 		expect (Ok, status);
@@ -214,8 +218,6 @@ static void test_measure_string_alignment(void)
 	GdipDeleteRegion (region);
 }
 
-#endif
-
 int
 main (int argc, char**argv)
 {
@@ -223,8 +225,8 @@ main (int argc, char**argv)
 
 #if defined(USE_PANGO_RENDERING) || defined(USE_WINDOWS_GDIPLUS)
 	test_measure_string ();
-	test_measure_string_alignment ();
 #endif
+	test_measure_string_alignment ();
 
 	SHUTDOWN;
 	return 0;
