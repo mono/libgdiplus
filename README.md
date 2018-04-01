@@ -65,4 +65,4 @@ Run the following command from the root of the repository:
 	--with-pango
 
 	This builds libgdiplus using Pango to render (measure and draw) 
-	all of it's text. This requires Pango version 1.10 (or later).
+	all of it's text. This requires Pango version 1.36.8 (or later).
