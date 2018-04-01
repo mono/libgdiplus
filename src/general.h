@@ -42,14 +42,14 @@ GpStatus WINGDIPAPI GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput 
 void WINGDIPAPI GdiplusShutdown (ULONG_PTR token);
 
 /* Memory / public API */
-WINGDIPAPI void*  GdipAlloc (size_t size);
-WINGDIPAPI void GdipFree (void *ptr);
+void* WINGDIPAPI GdipAlloc (size_t size);
+void WINGDIPAPI GdipFree (void *ptr);
 
 /* Notification API */
 GpStatus WINGDIPAPI GdiplusNotificationHook (ULONG_PTR *token);
 void WINGDIPAPI GdiplusNotificationUnhook (ULONG_PTR token);
 
 /* libgdiplus-specific API, useful for quirking buggy behavior in older versions */
-WINGDIPAPI char* GetLibgdiplusVersion ();
+char* WINGDIPAPI GetLibgdiplusVersion ();
 
 #endif

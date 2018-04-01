@@ -37,7 +37,9 @@ extern "C"
  * WINGDIPAPI is used to define the visibility of the GDI+ functions. If you're including GdiPlusFlat.h
  * file, you're using the public header, consuming GDI+, so the GDI+ functions are not exported in your library.
  */
+#ifndef WINGDIPAPI
 #define WINGDIPAPI
+#endif
 
 /*
  * If you ever need a workaround specific to libgdiplus then use the following define
