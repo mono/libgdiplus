@@ -28,8 +28,8 @@ GDIPLUS_CFLAGS="`$PKG_CONFIG --cflags glib-2.0 `"
 CAIRO_REQUIRED_VERSION="1.6.4"
 PKG_CHECK_MODULES(CAIRO, cairo >= $CAIRO_REQUIRED_VERSION)
 
-# Optional use (experimental and unsupported) of Pango's text rendering on top of Cairo
-AC_ARG_WITH(pango, [  --with-pango],[text_v=pango],[text_v=cairo])
+# Optional use of Pango's text rendering on top of Cairo
+AC_ARG_WITH(pango, [  --with-pango            use Pango to measure and draw text],[text_v=pango],[text_v=default])
 
 GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -std=gnu99"
 
@@ -44,12 +44,18 @@ CAIRO_CFLAGS="`pkg-config --cflags cairo `"
 cairo_info="`pkg-config --modversion cairo ` (system)"
 GDIPLUS_PKG_REQ="cairo"
 
+PANGO_REQUIRED_VERSION="1.10"
 if test $text_v = "pango"; then
-	PANGO_REQUIRED_VERSION="1.10"
-	PKG_CHECK_MODULES(PANGO, pango >= $PANGO_REQUIRED_VERSION)
+  PKG_CHECK_MODULES(PANGO, pango >= $PANGO_REQUIRED_VERSION)
+fi
+if test $text_v = "default"; then
+  PKG_CHECK_MODULES(PANGO, pango >= $PANGO_REQUIRED_VERSION,
+	  [text_v=pango], [text_v=cairo])
+fi
+if test $text_v = "pango"; then
 	PANGO_LIBS="`pkg-config --libs pangocairo `"
 	PANGO_CFLAGS="`pkg-config --cflags pangocairo `"
-	AC_DEFINE(USE_PANGO_RENDERING,1,[Use Pango to measure and draw text (INCOMPLETE and UNSUPPORTED)])
+	AC_DEFINE(USE_PANGO_RENDERING,1,[Use Pango to measure and draw text])
 	GDIPLUS_PKG_REQ="$GDIPLUS_PKG_REQ pangocairo-1.0"
 fi
 

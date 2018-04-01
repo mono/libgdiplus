@@ -60,7 +60,7 @@ Run the following command from the root of the repository:
 
 	make install
 
-### Optional build options [UNSUPPORTED]
+### Optional build options
 
 	--with-pango
 
