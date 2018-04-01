@@ -9,6 +9,7 @@ os:
 addons:
   apt:
     packages:
+    - libpango1.0-dev
     - libgif-dev
     - xvfb
     - autoconf
