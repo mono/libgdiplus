@@ -29,6 +29,7 @@
 
 #include "gdiplus-private.h"
 #include "bitmap-private.h"
+#include "graphics-private.h"
 
 
 static GpStatus gdip_bitmap_clone_data_rect (BitmapData *srcData, Rect *srcRect, BitmapData *destData, Rect *destRect);
@@ -973,49 +974,21 @@ fail:
 GpStatus
 GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBitmap **bitmap)
 {
-	GpBitmap 	*result;
-	FrameData	*frame;
-	BitmapData	*bitmap_data;
-	int 		stride;
+	GpStatus status;
+	GpBitmap *result;
 
-	stride = width * 4;
-	gdip_align_stride (stride);
-	
-	result = gdip_bitmap_new ();
-	if (!result)
-		return OutOfMemory;
+	if (!graphics || !bitmap)
+		return InvalidParameter;
 
-	result->image_format = MEMBMP;
-	result->cairo_format = CAIRO_FORMAT_ARGB32;
+	status = GdipCreateBitmapFromScan0 (width, height, 0, PixelFormat32bppPARGB, NULL, &result);
+	if (status != Ok)
+		return status;
 
-	frame = gdip_frame_add(result, &gdip_image_frameDimension_page_guid);
-	if (frame == NULL) {
-		goto fail;
-	}
-
-	bitmap_data = gdip_frame_add_bitmapdata(frame);
-	if (bitmap_data == NULL) {
-		goto fail;
-	}
-
-	bitmap_data->width = width;
-	bitmap_data->height = height;
-	bitmap_data->stride = stride;
-	bitmap_data->pixel_format = PixelFormat32bppARGB;
-	bitmap_data->reserved = GBD_OWN_SCAN0;
-	bitmap_data->scan0 = GdipAlloc(stride * height);
-	if (bitmap_data->scan0 == NULL) {
-		goto fail;
-	}
-	memset (bitmap_data->scan0, 0, stride * height);
-	gdip_bitmap_setactive(result, NULL, 0);
+	GdipGetDpiX (graphics, &result->active_bitmap->dpi_horz);
+	GdipGetDpiY (graphics, &result->active_bitmap->dpi_vert);
 
 	*bitmap = result;
 	return Ok;
-
-fail:
-	gdip_bitmap_dispose(result);
-	return OutOfMemory;
 }
 
 GpStatus

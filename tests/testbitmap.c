@@ -707,6 +707,69 @@ static void test_createBitmapFromScan0 ()
 	assertEqualInt (status, InvalidParameter);
 }
 
+static void test_createBitmapFromGraphics ()
+{
+	GpStatus status;
+	GpBitmap *source;
+	GpBitmap *sourceWithResolution;
+	GpGraphics *graphics;
+	GpGraphics *graphicsWithResolution;
+	GpBitmap *bitmap;
+	GpGraphics *bitmapGraphics;
+	REAL dpiX;
+	REAL dpiY;
+
+	GdipCreateBitmapFromScan0 (10, 10, 0, PixelFormat24bppRGB, NULL, &source);
+	GdipCreateBitmapFromScan0 (10, 10, 0, PixelFormat24bppRGB, NULL, &sourceWithResolution);
+	GdipBitmapSetResolution (sourceWithResolution, 100, 124);
+
+	GdipGetImageGraphicsContext ((GpImage *) source, &graphics);
+	GdipGetImageGraphicsContext ((GpImage *) sourceWithResolution, &graphicsWithResolution);
+
+	status = GdipCreateBitmapFromGraphics (24, 32, graphics, &bitmap);
+	assertEqualInt (status, Ok);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppPARGB, 24, 32, ImageFlagsHasAlpha, 0, TRUE);
+	GdipDisposeImage ((GpImage *) bitmap);
+
+	status = GdipCreateBitmapFromGraphics (24, 32, graphicsWithResolution, &bitmap);
+	assertEqualInt (status, Ok);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppPARGB, 24, 32, ImageFlagsHasAlpha, 0, TRUE);
+	
+	// Verify the DPI.
+	GdipGetImageGraphicsContext ((GpImage *) bitmap, &bitmapGraphics);
+	GdipGetDpiX (bitmapGraphics, &dpiX);
+	GdipGetDpiY (bitmapGraphics, &dpiY);
+	assertEqualFloat (dpiX, 100);
+	assertEqualFloat (dpiY, 124);
+
+	GdipDisposeImage ((GpImage *) bitmap);
+	GdipDeleteGraphics (bitmapGraphics);
+
+	// Negative tests.
+	status = GdipCreateBitmapFromGraphics (0, 32, graphics, &bitmap);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipCreateBitmapFromGraphics (-1, 32, graphics, &bitmap);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipCreateBitmapFromGraphics (24, 0, graphics, &bitmap);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipCreateBitmapFromGraphics (24, -1, graphics, &bitmap);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipCreateBitmapFromGraphics (24, 32, NULL, &bitmap);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipCreateBitmapFromGraphics (24, 32, graphics, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDisposeImage ((GpImage *) source);
+	GdipDisposeImage ((GpImage *) sourceWithResolution);
+	GdipDeleteGraphics (graphics);
+	GdipDeleteGraphics (graphicsWithResolution);
+}
+
 int
 main(int argc, char**argv)
 {
@@ -717,6 +780,7 @@ main(int argc, char**argv)
 	test_createBitmapFromStreamICM ();
 	test_createBitmapFromFileICM ();
 	test_createBitmapFromScan0 ();
+	test_createBitmapFromGraphics ();
 
 	SHUTDOWN;
 	return 0;
