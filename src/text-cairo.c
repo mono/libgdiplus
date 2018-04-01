@@ -705,6 +705,40 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 			boundingBox->Width = gdip_convgr_unitx (graphics, boundingBox->Width);
 			boundingBox->Height = gdip_convgr_unity (graphics, boundingBox->Height);
 		}
+
+		switch (AlignVert) {
+		case StringAlignmentCenter:
+			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+				boundingBox->X += (FrameHeight - MaxY) * 0.5;
+			} else {
+				boundingBox->Y += (FrameHeight - MaxY) * 0.5;
+			}
+			break;
+		case StringAlignmentFar:
+			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+				boundingBox->X += (FrameHeight - MaxY);
+			} else {
+				boundingBox->Y += (FrameHeight - MaxY);
+			}
+			break;
+		}
+
+		switch (AlignHorz) {
+		case StringAlignmentCenter:
+			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+				boundingBox->Y += (FrameWidth - MaxX) * 0.5;
+			} else {
+				boundingBox->X += (FrameWidth - MaxX) * 0.5;
+			}
+			break;
+		case StringAlignmentFar:
+			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+				boundingBox->Y += (FrameWidth - MaxX);
+			} else {
+				boundingBox->X += (FrameWidth - MaxX);
+			}
+			break;
+		}
 	}
 
 	if (codepointsFitted) {
