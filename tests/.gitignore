@@ -20,6 +20,7 @@ testgdi
 testhatchbrush
 testicocodec
 testimageattributes
+testjpegcodec
 testlineargradientbrush
 testmatrix
 testmetafile
