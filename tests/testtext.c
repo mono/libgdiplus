@@ -22,7 +22,9 @@ using namespace DllExports;
 #include <stdio.h>
 #include <stdlib.h>
 #include "testhelpers.h"
+#if !defined(USE_WINDOWS_GDIPLUS)
 #include "../config.h"
+#endif
 
 #define ok(expected, ...) if (!(expected)) { printf(__VA_ARGS__); assert(expected); }
 #define expect(expected, got) ok((got) == (expected), "Expected %d, got %d\n", (INT)(expected), (INT)(got))
@@ -30,7 +32,7 @@ using namespace DllExports;
 #define expectf(expected, got) expectf_((expected), (got), 0.001)
 #define set_rect_empty(r) (r)->X = (r)->Y = (r)->Width = (r)->Height = 0
 
-#ifdef USE_PANGO_RENDERING
+#if defined USE_PANGO_RENDERING || defined(USE_WINDOWS_GDIPLUS)
 
 static void test_measure_string(void)
 {
@@ -51,7 +53,7 @@ static void test_measure_string(void)
 	expect (Ok, status);
 	status = GdipCreateFont (family, 10, FontStyleRegular, UnitPixel, &font);
 	expect (Ok, status);
-	status = GdipCreateBitmapFromScan0 (400, 400, 0, PixelFormat32bppRGB, NULL, &image);
+	status = GdipCreateBitmapFromScan0 (400, 400, 0, PixelFormat32bppRGB, NULL, (GpBitmap **) &image);
 	expect (Ok, status);
 	status = GdipGetImageGraphicsContext (image, &graphics);
 	expect (Ok, status);
@@ -165,7 +167,7 @@ static void test_measure_string_alignment(void)
 	expect (Ok, status);
 	status = GdipCreateFont (family, 10, FontStyleRegular, UnitPixel, &font);
 	expect (Ok, status);
-	status = GdipCreateBitmapFromScan0 (400, 400, 0, PixelFormat32bppRGB, NULL, &image);
+	status = GdipCreateBitmapFromScan0 (400, 400, 0, PixelFormat32bppRGB, NULL, (GpBitmap **) &image);
 	expect (Ok, status);
 	status = GdipGetImageGraphicsContext (image, &graphics);
 	expect (Ok, status);
@@ -203,7 +205,7 @@ main (int argc, char**argv)
 {
 	STARTUP;
 
-#ifdef USE_PANGO_RENDERING
+#if defined(USE_PANGO_RENDERING) || defined(USE_WINDOWS_GDIPLUS)
 	test_measure_string ();
 	test_measure_string_alignment ();
 #endif
