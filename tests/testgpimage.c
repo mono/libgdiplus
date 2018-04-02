@@ -460,7 +460,8 @@ static void test_getImageThumbnail ()
 {
 	GpStatus status;
 	GpImage *bitmapImage = getImage ("test.bmp");
-	GpImage *metafileImage = getImage ("test.wmf");
+	GpImage *wmfImage = getImage ("test.wmf");
+	GpImage *emfImage = getImage ("test.emf");
 	GpImage *thumbImage;
 
 	// ImageTypeBitmap - non zero width and height.
@@ -488,19 +489,37 @@ static void test_getImageThumbnail ()
 	GdipDisposeImage (thumbImage);
 
 	// ImageTypeMetafile - non zero width and height.
-	status = GdipGetImageThumbnail (metafileImage, 10, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	status = GdipGetImageThumbnail (wmfImage, 10, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, Ok);
 	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 10, 10, ImageFlagsHasAlpha, 0, TRUE);
 	GdipDisposeImage (thumbImage);
 
 	// ImageTypeMetafile - width > height.
-	status = GdipGetImageThumbnail (metafileImage, 20, 10, &thumbImage, NULL, NULL);
+	status = GdipGetImageThumbnail (wmfImage, 20, 10, &thumbImage, NULL, NULL);
 	assertEqualInt (status, Ok);
 	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 20, 10, ImageFlagsHasAlpha, 0, TRUE);
 	GdipDisposeImage (thumbImage);
 	
 	// ImageTypeMetafile - height > width.
-	status = GdipGetImageThumbnail (metafileImage, 10, 20, &thumbImage, NULL, NULL);
+	status = GdipGetImageThumbnail (wmfImage, 10, 20, &thumbImage, NULL, NULL);
+	assertEqualInt (status, Ok);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 10, 20, ImageFlagsHasAlpha, 0, TRUE);
+	GdipDisposeImage (thumbImage);
+
+	// ImageTypeMetafile - non zero width and height.
+	status = GdipGetImageThumbnail (emfImage, 10, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, Ok);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 10, 10, ImageFlagsHasAlpha, 0, TRUE);
+	GdipDisposeImage (thumbImage);
+
+	// ImageTypeMetafile - width > height.
+	status = GdipGetImageThumbnail (emfImage, 20, 10, &thumbImage, NULL, NULL);
+	assertEqualInt (status, Ok);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 20, 10, ImageFlagsHasAlpha, 0, TRUE);
+	GdipDisposeImage (thumbImage);
+	
+	// ImageTypeMetafile - height > width.
+	status = GdipGetImageThumbnail (emfImage, 10, 20, &thumbImage, NULL, NULL);
 	assertEqualInt (status, Ok);
 	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 10, 20, ImageFlagsHasAlpha, 0, TRUE);
 	GdipDisposeImage (thumbImage);
@@ -514,6 +533,12 @@ static void test_getImageThumbnail ()
 	
 	status = GdipGetImageThumbnail (bitmapImage, 0, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, OutOfMemory);
+
+	status = GdipGetImageThumbnail (wmfImage, 0, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, OutOfMemory);
+
+	status = GdipGetImageThumbnail (emfImage, 0, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, OutOfMemory);
 	
 	status = GdipGetImageThumbnail (NULL, 0, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, InvalidParameter);
@@ -523,6 +548,12 @@ static void test_getImageThumbnail ()
 	
 	status = GdipGetImageThumbnail (bitmapImage, 10, 0, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, OutOfMemory);
+
+	status = GdipGetImageThumbnail (wmfImage, 10, 0, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, OutOfMemory);
+
+	status = GdipGetImageThumbnail (emfImage, 10, 0, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, OutOfMemory);
 	
 	status = GdipGetImageThumbnail (NULL, 10, 0, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, InvalidParameter);
@@ -531,7 +562,8 @@ static void test_getImageThumbnail ()
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDisposeImage (bitmapImage);
-	GdipDisposeImage (metafileImage);
+	GdipDisposeImage (wmfImage);
+	GdipDisposeImage (emfImage);
 }
 
 static void test_getEncoderParameterListSize ()

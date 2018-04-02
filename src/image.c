@@ -2659,14 +2659,10 @@ GdipGetImageThumbnail (GpImage *image, UINT thumbWidth, UINT thumbHeight, GpImag
 	if (!image || !thumbImage)
 		return InvalidParameter;
 
-	if ((thumbWidth && !thumbHeight) || (!thumbWidth && thumbHeight))
-		return OutOfMemory;
-
-	if (!thumbWidth || !thumbHeight)
+	if (!thumbWidth && !thumbHeight)
 		thumbWidth = thumbHeight = 120;
-
-	if (!thumbHeight)
-		thumbHeight = 120;
+	else if (!thumbWidth || !thumbHeight)
+		return OutOfMemory;
 
 	switch (image->type) {
 	case ImageTypeBitmap:
