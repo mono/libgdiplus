@@ -29,6 +29,7 @@
 
 #include "gdiplus-private.h"
 #include "bitmap-private.h"
+#include "bmpcodec.h"
 #include "graphics-private.h"
 #include "metafile-private.h"
 
@@ -2056,25 +2057,12 @@ GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color)
 		case PixelFormat16bppARGB1555:
 		case PixelFormat16bppRGB555: {
 			WORD *scan = (WORD *) v;
-			WORD pixel = scan[x];
-
-			ARGB a = data->pixel_format == PixelFormat16bppARGB1555 ? (pixel & 0x80000000) : 0xFF000000;
-			BYTE r = (pixel >> 7 & 0xF8) | (pixel >> 12 & 0x07);
-			BYTE g = (pixel >> 2 & 0xF8) | (pixel >> 6 & 0x07);
-			BYTE b = (pixel << 3 & 0xF8) | (pixel >> 2 & 0x07);
-
-			*color = a | r << 16 | g << 8 | b;
+			*color = gdip_convert_16bppRGB555_ToARGB (scan[x]);
 			break;
 		}
 		case PixelFormat16bppRGB565: {
 			WORD *scan = (WORD *) v;
-			WORD pixel = scan[x];
-
-			BYTE r = (pixel >> 8 & 0xF8) | (pixel >> 13 & 0x07);
-			BYTE g = (pixel >> 3 & 0xFC) | (pixel >> 9 & 0x03);
-			BYTE b = (pixel << 3 & 0xF8) | (pixel >> 2 & 0x07);
-
-			*color = 0xFF000000 | r << 16 | g << 8 | b;
+			*color = gdip_convert_16bppRGB565_ToARGB (scan[x]);
 			break;
 		}
 		default:

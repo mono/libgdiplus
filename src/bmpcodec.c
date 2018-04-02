@@ -84,8 +84,13 @@ gdip_get_bmp_pixelformat (BITMAPV5HEADER *bih, PixelFormat *dest)
 	case BI_BITFIELDS:
 		if (bitCount != 16)
 			return OutOfMemory;
-		/* note: incomplete at this stage */
-		*dest = PixelFormat16bppRGB565;
+
+		if ((bih->bV5RedMask == 0x7C00) && (bih->bV5GreenMask == 0x3E0) && (bih->bV5BlueMask == 0x1F))
+			*dest = PixelFormat16bppRGB555;
+		else if ((bih->bV5RedMask == 0xF800) && (bih->bV5GreenMask == 0x7E0) && (bih->bV5BlueMask == 0x1F))
+			*dest = PixelFormat16bppRGB565;
+		else
+			*dest = PixelFormat32bppRGB;
 		break;
 	default:
 		switch (bitCount) {
@@ -99,7 +104,7 @@ gdip_get_bmp_pixelformat (BITMAPV5HEADER *bih, PixelFormat *dest)
 			*dest = PixelFormat24bppRGB;
 			break;
 		case 16:
-			*dest = PixelFormat16bppRGB565;
+			*dest = PixelFormat16bppRGB555;
 			break;
 		case 8:
 			*dest = PixelFormat8bppIndexed;
@@ -311,6 +316,18 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 	}
 
 	return Ok;
+}
+
+ARGB
+gdip_convert_16bppRGB555_ToARGB (WORD pixel)
+{
+	return ((pixel & 0x1F) >> 2) | 8 * ((pixel & 0x1F) | 8 * (((((pixel >> 5) & 0x1F) | (((pixel >> 10) & 0x1C) << 8)) & 0xFFFFFFFC) | 32 * (((pixel >> 5) & 0x1F) | ((((pixel >> 10) & 0x1F) | 0xFFFFFFE0) << 8))));
+}
+
+ARGB
+gdip_convert_16bppRGB565_ToARGB (WORD pixel)
+{
+	return ((pixel & 0x1F) >> 2) | 8 * ((pixel & 0x1F) | 2 * (((((pixel >> 5) & 0x3F) | (((pixel >> 11) & 0xFFFFFFFC) << 10)) & 0xFFFFFFF0) | ((((pixel >> 5) & 0x3F) | ((((pixel >> 11)) | 0xFFFFFFE0) << 9)) << 6)));
 }
 
 static GpStatus
@@ -686,7 +703,7 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 	DWORD headerSize = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 	switch (headerSize) {
 	case BITMAPCOREHEADER_SIZE:
-            bmi->bV5Size = headerSize;
+		bmi->bV5Size = headerSize;
 
 		/* Old OS/2 format. Width and Height fields are WORDs instead of DWORDS */
 		dw = 0;
@@ -784,8 +801,11 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 	bmi->bV5ClrImportant = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	/* We've finished reading the BITMAPINFOHEADER but later versions are larger. */
-	if (bmi->bV5Size == sizeof (BITMAPINFOHEADER))
-		return Ok;
+	if (bmi->bV5Size == sizeof (BITMAPINFOHEADER)) {
+		// A 16bpp BITMAPINFOHEADER BI_BITFIELDS image is followed by a red, green and blue mask.
+		if (bmi->bV5BitCount != 16 || bmi->bV5Compression != BI_BITFIELDS)
+			return Ok;
+	}
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
@@ -804,6 +824,9 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 	if (size_read < size)
 		return OutOfMemory;
 	bmi->bV5BlueMask = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+	if (bmi->bV5Size == sizeof (BITMAPINFOHEADER))
+		return Ok;
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
@@ -846,10 +869,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	int		loop;
 	long		index;
 	GpStatus	status;
-	ARGB red_mask = 0;
-	ARGB green_mask = 0;
-	ARGB blue_mask = 0;
-	int red_shift = 0;
 	unsigned long long int size;
 
 	status = gdip_read_BITMAPINFOHEADER (pointer, source, &bmi, &os2format, &upsidedown);
@@ -869,53 +888,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	if (status != Ok) {
 		 /* bit count mismatch */
 		goto error;
-	}
-
-	/* for 16bbp images we need to be more precise */
-	if (format == PixelFormat16bppRGB565) {
-		/* Newer versions of BITMAPINFOHEADER contains R, G and B masks.*/
-		if (bmi.bV5Size >= sizeof (BITMAPV3HEADER)) {
-			red_mask = bmi.bV5RedMask;
-			green_mask = bmi.bV5GreenMask;
-			blue_mask = bmi.bV5BlueMask;
-		} else if (bmi.bV5Size == sizeof (BITMAPINFOHEADER)) {
-			/* The BITMAPINFOHEADER must be followed by R, G and B masks. */
-			int size = sizeof (RGBQUAD);
-			size_read = gdip_read_bmp_data (pointer, (void*)&red_mask, size, source);
-			if (size_read != size) {
-				status = OutOfMemory;
-				goto error;
-			}
-			size_read = gdip_read_bmp_data (pointer, (void*)&green_mask, size, source);
-			if (size_read != size) {
-				status = OutOfMemory;
-				goto error;
-			}
-			size_read = gdip_read_bmp_data (pointer, (void*)&blue_mask, size, source);
-			if (size_read != size) {
-				status = OutOfMemory;
-				goto error;
-			}
-		}
-
-		if ((red_mask == 0x7C00) && (green_mask == 0x3E0) && (blue_mask == 0x1F)) {
-			/* five red bits, five green bits and five blue bits (0x7FFF) */
-			red_shift = 10;
-		} else if ((red_mask == 63488) && (green_mask == 2016) && (blue_mask == 31)) {
-			/* five red bits, six green bits and five blue bits (0xFFFF) */
-			red_shift = 11;
-		} else {
-			red_mask = 0x7C00;
-			green_mask = 0x3E0;
-			blue_mask = 0x1F;
-			red_shift = 10;
-		}
-
-		/* note: CAIRO_FORMAT_RGB16_565 is deprecated so we're promoting the bitmap to 32RGB */
-		/* why 32bpp when 24 would be enough ? because MS GDI+ loads them as such, but can't display them (empty) */
-		format = PixelFormat32bppRGB;
-		/* 16bbp bitmap don't seems reversed like their height indicates */
-		upsidedown = FALSE;
 	}
 
 	result = gdip_bitmap_new_with_frame (NULL, TRUE);
@@ -1077,17 +1049,30 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 				case 16: {
 					int src = 0;
 					int dest = 0;
-					SHORT *pix = (SHORT*) data_read;
+					WORD *pixel = (WORD*) data_read;
 
 					index = (line * result->active_bitmap->stride);
 					while (src < loop) {
-						BYTE r = ((*pix & red_mask) >> (red_shift - 3));
-						BYTE g = ((*pix & green_mask) >> (red_shift - 8));
-						BYTE b = (*pix & blue_mask) << 3;
-						set_pixel_bgra (pixels, index + dest, b, g, r, 0xff);
+						WORD color = *pixel;
+						ARGB argb;
+
+						if (format == PixelFormat16bppRGB565) {
+							argb = gdip_convert_16bppRGB565_ToARGB (color);
+						}
+						else {
+							argb = gdip_convert_16bppRGB555_ToARGB (color);
+						}
+
+						BYTE a = (argb & 0xFF000000) >> 24;
+						BYTE r = (argb & 0x00FF0000) >> 16;
+						BYTE g = (argb & 0x0000FF00) >> 8;
+						BYTE b = (argb & 0x000000FF);
+
+						set_pixel_bgra (pixels, index + dest, b, g, r, a);
+
 						dest += 4;
 						src += 2;
-						pix++;
+						pixel++;
 					}
 					continue;
 				}

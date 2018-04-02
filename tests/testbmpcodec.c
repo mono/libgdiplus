@@ -3208,15 +3208,37 @@ static void test_validImage8bppRle8Compression ()
 static void test_validImage16bppOS2Header ()
 {
 	BYTE image1x1[] = {
-		'B', 'M', 42, 4, 0, 0, 0, 0, 0, 0, 0x26, 0, 0, 0,
-		12, 0, 0, 0, 1, 0, 1, 0, 1, 0, 16, 0,
-		0, 124, 0, 0, 224, 3, 0, 0, 0x1F, 0, 0, 0,
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x1E, 0x04, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x1A, 0x00, 0x00, 0x00,
+
+		// -- BITMAPCOREHEADER -- //
+		/* Size */     0x0C, 0x00, 0x00, 0x00,
+		/* Width */    0x01, 0x00,
+		/* Height */   0x01, 0x00,
+		/* Planes */   0x01, 0x00,
+		/* Bit Cunt */ 0x10, 0x00,
+
+		// -- Image Data -- //
 		B8(10101101), B8(01101010), 0, 0
 	};
 	BYTE image6x4[] = {
-		'B', 'M', 86, 4, 0, 0, 0, 0, 0, 0, 0x26, 0, 0, 0,
-		12, 0, 0, 0, 6, 0, 4, 0, 1, 0, 16, 0,
-		0, 124, 0, 0, 224, 3, 0, 0, 0x1F, 0, 0, 0,
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x4A, 0x04, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x1A, 0x00, 0x00, 0x00,
+
+		// -- BITMAPCOREHEADER -- //
+		/* Size */     0x0C, 0x00, 0x00, 0x00,
+		/* Width */    0x06, 0x00,
+		/* Height */   0x04, 0x00,
+		/* Planes */   0x01, 0x00,
+		/* Bit Cunt */ 0x10, 0x00,
+
+		// -- Image Data -- //
 		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
 		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000),
 		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
@@ -3224,84 +3246,470 @@ static void test_validImage16bppOS2Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
-	// FIXME: libgdiplus decodes this differently.
-#if defined(USE_WINDOWS_GDIPLUS)
-	ARGB image1x1Pixels[] = {0xFFD6AD6B};
-	verifyPixels (image, image1x1Pixels);
-#endif
+    ARGB image1x1Pixels[] = {0xFFD6AD6B};
+    verifyPixels (image, image1x1Pixels);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
-	// FIXME: libgdiplus decodes this differently.
-#if defined(USE_WINDOWS_GDIPLUS)
-	ARGB image6x4Pixels[] = {
+    ARGB image6x4Pixels[] = {
 		0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
 		0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6,
-		0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
-		0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6
-	};
-	verifyPixels (image, image6x4Pixels);
-#endif
+        0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
+        0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6
+    };
+    verifyPixels (image, image6x4Pixels);
 	GdipDisposeImage (image);
 }
 
 static void test_validImage16bppBitmapInfoHeader ()
 {
-	BYTE image1x1RedShift10[] = {
-		'B', 'M', 70, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
-		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 124, 0, 0, 224, 3, 0, 0, 0x1F, 0, 0, 0,
+	BYTE image1x1NoCompression[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x3A, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x35, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x01, 0x00, 0x00, 0x00,
+		/* Height */           0x01, 0x00, 0x00, 0x00,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x00, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Image Data -- //
 		B8(10101101), B8(01101010), 0, 0
 	};
-	BYTE image6x4RedShift10[] = {
-		'B', 'M', 114, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
-		40, 0, 0, 0, 6, 0, 0, 0, 4, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 124, 0, 0, 224, 3, 0, 0, 0x1F, 0, 0, 0,
+	BYTE image6x4NoCompression[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x66, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x35, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x06, 0x00, 0x00, 0x00,
+		/* Height */           0x04, 0x00, 0x00, 0x00,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x00, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Image Data -- //
 		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
 		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000),
 		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
 		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000)
 	};
-	BYTE image1x1RedShift11[] = {
-		'B', 'M', 70, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
-		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 248, 0, 0, 224, 7, 0, 0, 0x1F, 0, 0, 0,
-		B8(10101101), B8(01010101), 0, 0
-	};
-	BYTE image6x4RedShift11[] = {
-		'B', 'M', 114, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
-		40, 0, 0, 0, 6, 0, 0, 0, 4, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 248, 0, 0, 224, 7, 0, 0, 0x1F, 0, 0, 0,
-		B8(11111111), B8(11000000), B8(11111111), B8(11111111), B8(00000111), B8(11111111), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00011111),
-		B8(11111111), B8(11111111), B8(11111111), B8(11100000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00011111), B8(00000000), B8(00000000),
-		B8(11111111), B8(11000000), B8(11111111), B8(11111111), B8(00000111), B8(11111111), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00011111),
-		B8(11111111), B8(11111111), B8(11111111), B8(11100000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00011111), B8(00000000), B8(00000000),
-	};
-	BYTE image1x1RedShiftUnknown[] = {
-		'B', 'M', 70, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
-		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 248, 0, 0, 224, 7, 0, 0, 0x1F, 0, 0, 0,
+	BYTE image1x1NoCompressionNegativeHeight[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x3A, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x35, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x01, 0x00, 0x00, 0x00,
+		/* Height */           0xFF, 0xFF, 0xFF, 0xFF,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x00, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Image Data -- //
 		B8(10101101), B8(01101010), 0, 0
 	};
-	BYTE image6x4RedShiftUnknown[] = {
-		'B', 'M', 114, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
-		40, 0, 0, 0, 6, 0, 0, 0, 4, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+	BYTE image6x4NoCompressionNegativeHeight[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x66, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x35, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x06, 0x00, 0x00, 0x00,
+		/* Height */           0xFC, 0xFF, 0xFF, 0xFF,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x00, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Image Data -- //
 		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
 		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000),
 		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
 		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000)
 	};
-	BYTE image1x1NegativeHeight[] = {
-		'B', 'M', 70, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
-		40, 0, 0, 0, 1, 0, 0, 0, 255, 255, 255, 255, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 124, 0, 0, 224, 3, 0, 0, 0x1F, 0, 0, 0,
+	BYTE image1x1RGB555MaskBitfieldsCompression[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x46, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x42, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x01, 0x00, 0x00, 0x00,
+		/* Height */           0x01, 0x00, 0x00, 0x00,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x03, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Masks -- //
+		/* Red Mask */   0x00, 0x7C, 0x00, 0x00,
+		/* Green Mask */ 0xE0, 0x03, 0x00, 0x00,
+		/* Blue Mask */  0x1F, 0x00, 0x00, 0x00,
+
+		// -- Image Data -- //
 		B8(10101101), B8(01101010), 0, 0
 	};
-	BYTE image6x4NegativeHeight[] = {
-		'B', 'M', 114, 0, 0, 0, 0, 0, 0, 0, 0x42, 0, 0, 0,
-		40, 0, 0, 0, 6, 0, 0, 0, 252, 255, 255, 255, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 124, 0, 0, 224, 3, 0, 0, 0x1F, 0, 0, 0,
+	BYTE image6x4RGB555MaskBitfieldsCompression[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x72, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x42, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x06, 0x00, 0x00, 0x00,
+		/* Height */           0x04, 0x00, 0x00, 0x00,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x03, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Masks -- //
+		/* Red Mask */   0x00, 0x7C, 0x00, 0x00,
+		/* Green Mask */ 0xE0, 0x03, 0x00, 0x00,
+		/* Blue Mask */  0x1F, 0x00, 0x00, 0x00,
+
+		// -- Image Data -- //
+		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
+		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000),
+		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
+		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000)
+	};
+	BYTE image1x1RGB565MaskBitfieldsCompression[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x46, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x42, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x01, 0x00, 0x00, 0x00,
+		/* Height */           0x01, 0x00, 0x00, 0x00,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x03, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Masks -- //
+		/* Red Mask */   0x00, 0xF8, 0x00, 0x00,
+		/* Green Mask */ 0xE0, 0x07, 0x00, 0x00,
+		/* Blue Mask */  0x1F, 0x00, 0x00, 0x00,
+
+		// -- Image Data -- //
+		B8(10101101), B8(01101010), 0, 0
+	};
+	BYTE image6x4RGB565MaskBitfieldsCompression[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x72, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x42, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x06, 0x00, 0x00, 0x00,
+		/* Height */           0x04, 0x00, 0x00, 0x00,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x03, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Masks -- //
+		/* Red Mask */   0x00, 0xF8, 0x00, 0x00,
+		/* Green Mask */ 0xE0, 0x07, 0x00, 0x00,
+		/* Blue Mask */  0x1F, 0x00, 0x00, 0x00,
+
+		// -- Image Data -- //
+		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
+		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000),
+		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
+		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000)
+	};
+	BYTE image1x1InvalidMaskBitfieldsCompression[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x46, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x42, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x01, 0x00, 0x00, 0x00,
+		/* Height */           0x01, 0x00, 0x00, 0x00,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x03, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Masks -- //
+		/* Red Mask */   0xFF, 0x00, 0x00, 0x00,
+		/* Green Mask */ 0x00, 0x7F, 0x00, 0x00,
+		/* Blue Mask */  0x1F, 0x00, 0xFF, 0x00,
+
+		// -- Image Data -- //
+		B8(10101101), B8(01101010), 0, 0
+	};
+	BYTE image6x4InvalidMaskBitfieldsCompression[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x72, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x42, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x06, 0x00, 0x00, 0x00,
+		/* Height */           0x04, 0x00, 0x00, 0x00,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x03, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Masks -- //
+		/* Red Mask */   0xFF, 0x00, 0x00, 0x00,
+		/* Green Mask */ 0x00, 0xFF, 0x00, 0x00,
+		/* Blue Mask */  0x00, 0x00, 0xFF, 0x00,
+
+		// -- Image Data -- //
+		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
+		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000),
+		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
+		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000)
+	};
+	BYTE image1x1RGB555MaskBitfieldsCompressionNegativeHeight[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x46, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x42, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x01, 0x00, 0x00, 0x00,
+		/* Height */           0xFF, 0xFF, 0xFF, 0xFF,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x03, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Masks -- //
+		/* Red Mask */   0x00, 0x7C, 0x00, 0x00,
+		/* Green Mask */ 0xE0, 0x03, 0x00, 0x00,
+		/* Blue Mask */  0x1F, 0x00, 0x00, 0x00,
+
+		// -- Image Data -- //
+		B8(10101101), B8(01101010), 0, 0
+	};
+	BYTE image6x4RGB555MaskBitfieldsCompressionNegativeHeight[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x72, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x42, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x06, 0x00, 0x00, 0x00,
+		/* Height */           0xFC, 0xFF, 0xFF, 0xFF,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x03, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Masks -- //
+		/* Red Mask */   0x00, 0x7C, 0x00, 0x00,
+		/* Green Mask */ 0xE0, 0x03, 0x00, 0x00,
+		/* Blue Mask */  0x1F, 0x00, 0x00, 0x00,
+
+		// -- Image Data -- //
+		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
+		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000),
+		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
+		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000)
+	};
+	BYTE image1x1RGB565MaskBitfieldsCompressionNegativeHeight[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x46, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x42, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x01, 0x00, 0x00, 0x00,
+		/* Height */           0xFF, 0xFF, 0xFF, 0xFF,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x03, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Masks -- //
+		/* Red Mask */   0x00, 0xF8, 0x00, 0x00,
+		/* Green Mask */ 0xE0, 0x07, 0x00, 0x00,
+		/* Blue Mask */  0x1F, 0x00, 0x00, 0x00,
+
+		// -- Image Data -- //
+		B8(10101101), B8(01101010), 0, 0
+	};
+	BYTE image6x4RGB565MaskBitfieldsCompressionNegativeHeight[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x72, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x42, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x06, 0x00, 0x00, 0x00,
+		/* Height */           0xFC, 0xFF, 0xFF, 0xFF,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x03, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Masks -- //
+		/* Red Mask */   0x00, 0xF8, 0x00, 0x00,
+		/* Green Mask */ 0xE0, 0x07, 0x00, 0x00,
+		/* Blue Mask */  0x1F, 0x00, 0x00, 0x00,
+
+		// -- Image Data -- //
+		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
+		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000),
+		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
+		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000)
+	};
+	BYTE image1x1InvalidMaskBitfieldsCompressionNegativeHeight[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x46, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x42, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x01, 0x00, 0x00, 0x00,
+		/* Height */           0xFF, 0xFF, 0xFF, 0xFF,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x03, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+
+		// -- Masks -- //
+		/* Red Mask */   0xFF, 0x00, 0x00, 0x00,
+		/* Green Mask */ 0x00, 0xFF, 0x00, 0x00,
+		/* Blue Mask */  0x00, 0x00, 0xFF, 0x00,
+
+		// -- Image Data -- //
+		B8(10101101), B8(01101010), 0, 0
+	};
+	BYTE image6x4InvalidMaskBitfieldsCompressionNegativeHeight[] = {
+		// -- BITMAPFILEHEADER -- //
+		/* Signature */ 0x42, 0x4D,
+		/* File Size */ 0x72, 0x00, 0x00, 0x00,
+		/* Reserved */  0x00, 0x00, 0x00, 0x00,
+		/* Offset */    0x42, 0x00, 0x00, 0x00,
+
+		// -- BITMAPINFOHEADER --//
+		/* Header Size */      0x28, 0x00, 0x00, 0x00,
+		/* Width */            0x06, 0x00, 0x00, 0x00,
+		/* Height */           0xFC, 0xFF, 0xFF, 0xFF,
+		/* Planes */           0x01, 0x00,
+		/* Bit Count */        0x10, 0x00,
+		/* Compression */      0x03, 0x00, 0x00, 0x00,
+		/* Image Size */       0x00, 0x00, 0x00, 0x00,
+		/* Horizontal */       0x00, 0x00, 0x00, 0x00,
+		/* Vertical */         0x00, 0x00, 0x00, 0x00,
+		/* Colors Used */      0x00, 0x00, 0x00, 0x00,
+		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
+		
+		// -- Masks -- //
+		/* Red Mask */   0xFF, 0x00, 0x00, 0x00,
+		/* Green Mask */ 0x00, 0x7F, 0x00, 0x00,
+		/* Blue Mask */  0x1F, 0x00, 0xFF, 0x00,
+
+		// -- Image Data -- //
 		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
 		B8(11111111), B8(11111110), B8(11111111), B8(11000000), B8(11111000), B8(00000000), B8(00000111), B8(11111110), B8(11111000), B8(00111110), B8(00000000), B8(00000000),
 		B8(11111111), B8(11000000), B8(11111111), B8(11111110), B8(00000111), B8(11111110), B8(11111000), B8(00000000), B8(00000000), B8(00000000), B8(11111000), B8(00111110),
@@ -3321,87 +3729,125 @@ static void test_validImage16bppBitmapInfoHeader ()
 	};
 #endif
 
-	createFileSuccessDispose (image1x1RedShift10, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
-	// FIXME: libgdiplus decodes this differently.
-#if defined(USE_WINDOWS_GDIPLUS)
-	ARGB image1x1RedShift10Pixels[] = {0xFFD6AD6B};
-	verifyPixels (image, image1x1RedShift10Pixels);
-#endif
+	createFileSuccessDispose (image1x1NoCompression, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	ARGB image1x1NoCompressionPixels[] = {0xFFD6AD6B};
+	verifyPixels (image, image1x1NoCompressionPixels);
 	GdipDisposeImage (image);
 
-	createFileSuccessDispose (image6x4RedShift10, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
-	// FIXME: libgdiplus decodes this differently.
-#if defined(USE_WINDOWS_GDIPLUS)
-	ARGB image6x4RedShift10Pixels[] = {
-		0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
-		0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6,
-		0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
-		0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6
-	};
-	verifyPixels (image, image6x4RedShift10Pixels);
-#endif
+	createFileSuccessDispose (image6x4NoCompression, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	ARGB image6x4NoCompressionPixels[] = {
+        0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
+        0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6,
+        0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
+        0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6
+    };
+    verifyPixels (image, image6x4NoCompressionPixels);
 	GdipDisposeImage (image);
 
-	createFileSuccessDispose (image1x1RedShift11, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
-	// FIXME: libgdiplus decodes this differently.
-#if defined(USE_WINDOWS_GDIPLUS)
-	ARGB image1x1RedShift11Pixels[] = {0xFFAD6B6B};
-	verifyPixels (image, image1x1RedShift11Pixels);
-#endif
+	createFileSuccessDispose (image1x1NoCompressionNegativeHeight, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	ARGB image1x1NoCompressionNegativeHeightPixels[] = {0xFFD6AD6B};
+	verifyPixels (image, image1x1NoCompressionNegativeHeightPixels);
 	GdipDisposeImage (image);
 
-	createFileSuccessDispose (image6x4RedShift11, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
-	// FIXME: libgdiplus decodes this differently.
-#if defined(USE_WINDOWS_GDIPLUS)
-	ARGB image6x4RedShift11Pixels[] = {
-		0xFFFFFFFF, 0xFFC639FF, 0xFF0039C6, 0xFFFF8439, 0xFF39FFC6, 0xFF000000,
-		0xFF8439FF, 0xFFFFFFFF, 0xFFFFC639, 0xFF0039C6, 0xFF000000, 0xFF39FFC6,
-		0xFFFFFFFF, 0xFFC639FF, 0xFF0039C6, 0xFFFF8439, 0xFF39FFC6, 0xFF000000,
-		0xFF8439FF, 0xFFFFFFFF, 0xFFFFC639, 0xFF0039C6, 0xFF000000, 0xFF39FFC6
-	};
-	verifyPixels (image, image6x4RedShift11Pixels);
-#endif
-	GdipDisposeImage (image);
-
-	createFileSuccessDispose (image1x1RedShiftUnknown, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
-	// FIXME: libgdiplus decodes this differently.
-#if defined(USE_WINDOWS_GDIPLUS)
-	ARGB image1x1RedShiftUnknownPixels[] = {0xFFD6AD6B};
-	verifyPixels (image, image1x1RedShiftUnknownPixels);
-#endif
-	GdipDisposeImage (image);
-
-	createFileSuccessDispose (image6x4RedShiftUnknown, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
-	// FIXME: libgdiplus decodes this differently.
-#if defined(USE_WINDOWS_GDIPLUS)
-	ARGB image6x4RedShiftUnknownPixels[] = {
-		0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
-		0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6,
-		0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
-		0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6
-	};
-	verifyPixels (image, image6x4RedShiftUnknownPixels);
-#endif
-	GdipDisposeImage (image);
-
-	createFileSuccessDispose (image1x1NegativeHeight, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
-	// FIXME: libgdiplus decodes this differently.
-#if defined(USE_WINDOWS_GDIPLUS)
-	ARGB image1x1NegativeHeightPixels[] = {0xFFD6AD6B};
-	verifyPixels (image, image1x1NegativeHeightPixels);
-#endif
-	GdipDisposeImage (image);
-
-	createFileSuccessDispose (image6x4NegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
-	// FIXME: libgdiplus decodes this differently.
-#if defined(USE_WINDOWS_GDIPLUS)
-	ARGB image6x4NegativeHeightPixels[] = {
+	createFileSuccessDispose (image6x4NoCompressionNegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	ARGB image6x4NoCompressionNegativeHeightPixels[] = {
 		0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6,
 		0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
 		0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6,
 		0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000
 	};
-	verifyPixels (image, image6x4NegativeHeightPixels);
+	verifyPixels (image, image6x4NoCompressionNegativeHeightPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image1x1RGB555MaskBitfieldsCompression, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	verifyPixels (image, image1x1NoCompressionPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4RGB555MaskBitfieldsCompression, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	verifyPixels (image, image6x4NoCompressionPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image1x1RGB565MaskBitfieldsCompression, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	ARGB image1x1RGB565MaskBitfieldsPixels[] = {0xFF6B556B};
+	verifyPixels (image, image1x1RGB565MaskBitfieldsPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4RGB565MaskBitfieldsCompression, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	ARGB image6x4RGB565MaskBitfieldsPixels[] = {
+		0xFFFFDFFF, 0xFFC61CFF, 0xFF001CC6, 0xFFFFC339, 0xFF39DFC6, 0xFF000000,
+		0xFFC61CFF, 0xFFFFDFFF, 0xFFFFC339, 0xFF001CC6, 0xFF000000, 0xFF39DFC6,
+		0xFFFFDFFF, 0xFFC61CFF, 0xFF001CC6, 0xFFFFC339, 0xFF39DFC6, 0xFF000000,
+		0xFFC61CFF, 0xFFFFDFFF, 0xFFFFC339, 0xFF001CC6, 0xFF000000, 0xFF39DFC6
+	};
+	verifyPixels (image, image6x4RGB565MaskBitfieldsPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image1x1InvalidMaskBitfieldsCompression, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	// FIXME: invalid mask images are interpreted as (and not converted to) 32bpp images by GDI+.
+	// https://github.com/mono/libgdiplus/issues/158
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image1x1InvalidMaskBitfieldsCompressionPixels[] = {0xFFADD56B};
+	verifyPixels (image, image1x1InvalidMaskBitfieldsCompressionPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4InvalidMaskBitfieldsCompression, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	// FIXME: invalid mask images are interpreted as (and not converted to) 32bpp images by GDI+.
+	// https://github.com/mono/libgdiplus/issues/158
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image6x4InvalidMaskBitfieldsCompressionPixels[] = {
+		0xFFFFFE00, 0xFFFFC000, 0xFFF80000, 0xFF07FE00, 0xFFF83E00, 0xFF000000,
+		0xFFFFC000, 0xFFFFFE00, 0xFF07FE00, 0xFFF80000, 0xFF000000, 0xFFF83E00,
+		0xFFFFFE00, 0xFFFFC000, 0xFFF80000, 0xFF07FE00, 0xFFF83E00, 0xFF000000,
+		0xFFFFC000, 0xFFFFFE00, 0xFF07FE00, 0xFFF80000, 0xFF000000, 0xFFF83E00
+	};
+	verifyPixels (image, image6x4InvalidMaskBitfieldsCompressionPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image1x1RGB555MaskBitfieldsCompressionNegativeHeight, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	verifyPixels (image, image1x1NoCompressionNegativeHeightPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4RGB555MaskBitfieldsCompressionNegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	verifyPixels (image, image6x4NoCompressionNegativeHeightPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image1x1RGB565MaskBitfieldsCompressionNegativeHeight, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	ARGB image1x1RGB565MaskNegativeHeightBitfieldsPixels[] = {0xFF6B556B};
+	verifyPixels (image, image1x1RGB565MaskNegativeHeightBitfieldsPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4RGB565MaskBitfieldsCompressionNegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	ARGB image6x4RGB565MaskNegativeHeightBitfieldsPixels[] = {
+		0xFFC61CFF, 0xFFFFDFFF, 0xFFFFC339, 0xFF001CC6, 0xFF000000, 0xFF39DFC6,
+		0xFFFFDFFF, 0xFFC61CFF, 0xFF001CC6, 0xFFFFC339, 0xFF39DFC6, 0xFF000000,
+		0xFFC61CFF, 0xFFFFDFFF, 0xFFFFC339, 0xFF001CC6, 0xFF000000, 0xFF39DFC6,
+		0xFFFFDFFF, 0xFFC61CFF, 0xFF001CC6, 0xFFFFC339, 0xFF39DFC6, 0xFF000000
+	};
+	verifyPixels (image, image6x4RGB565MaskNegativeHeightBitfieldsPixels);
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image1x1InvalidMaskBitfieldsCompressionNegativeHeight, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
+	// FIXME: invalid mask images are interpreted as (and not converted to) 32bpp images by GDI+.
+	// https://github.com/mono/libgdiplus/issues/158
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image1x1InvalidMaskNegativeHeightBitfieldsPixels[] = {0xFFAD6A00};
+	verifyPixels (image, image1x1InvalidMaskNegativeHeightBitfieldsPixels);
+#endif
+	GdipDisposeImage (image);
+
+	createFileSuccessDispose (image6x4InvalidMaskBitfieldsCompressionNegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
+	// FIXME: invalid mask images are interpreted as (and not converted to) 32bpp images by GDI+.
+	// https://github.com/mono/libgdiplus/issues/158
+#if defined(USE_WINDOWS_GDIPLUS)
+	ARGB image6x4InvalidMaskBitfieldsNegativeHeightBitfieldsPixels[] = {
+		0xFFFF81FF, 0xFFFFFDFF, 0xFF07FD39, 0xFFF800C6, 0xFF000000, 0xFFF87CC6,
+		0xFFFFFDFF, 0xFFFF81FF, 0xFFF800C6, 0xFF07FD39, 0xFFF87CC6, 0xFF000000,
+		0xFFFF81FF, 0xFFFFFDFF, 0xFF07FD39, 0xFFF800C6, 0xFF000000, 0xFFF87CC6,
+		0xFFFFFDFF, 0xFFFF81FF, 0xFFF800C6, 0xFF07FD39, 0xFFF87CC6, 0xFF000000
+	};
+	verifyPixels (image, image6x4InvalidMaskBitfieldsNegativeHeightBitfieldsPixels);
 #endif
 	GdipDisposeImage (image);
 
@@ -3427,7 +3873,7 @@ static void test_validImage16bppBitmapV3Header ()
 		/* File Size */ 0x4A, 0x00, 0x00, 0x00,
 		/* Reserved */  0x00, 0x00, 0x00, 0x00,
 		/* Offset */    0x46, 0x00, 0x00, 0x00,
-		// -- BITMAPINFOHEADER
+		// -- BITMAPINFOHEADER --//
 		/* Header Size */      0x38, 0x00, 0x00, 0x00,
 		/* Width */            0x01, 0x00, 0x00, 0x00,
 		/* Height */           0x01, 0x00, 0x00, 0x00,
@@ -3475,19 +3921,13 @@ static void test_validImage16bppBitmapV3Header ()
 	};
 
 	createFileSuccessDispose (image1x1RGB565, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
-	// FIXME: match GDI+ behaviour.
-#if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image1x1RGB565Pixels[] = {0xFFFFB5BD};
 	verifyPixels (image, image1x1RGB565Pixels);
-#endif
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1RGB555, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
-	// FIXME: match GDI+ behaviour.
-#if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image1x1RGB555Pixels[] = {0xFFFFB5BD};
 	verifyPixels (image, image1x1RGB555Pixels);
-#endif
 	GdipDisposeImage (image);
 }
 
@@ -3512,16 +3952,11 @@ static void test_validImage16bppBitmapV4Header ()
 	};
 
 	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
-	// FIXME: libgdiplus decodes this differently.
-#if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image1x1Pixels[] = {0xFFD6AD6B};
 	verifyPixels (image, image1x1Pixels);
-#endif
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
-	// FIXME: libgdiplus decodes this differently.
-#if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image6x4Pixels[] = {
 		0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000,
 		0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6,
@@ -3529,7 +3964,6 @@ static void test_validImage16bppBitmapV4Header ()
 		0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6
 	};
 	verifyPixels (image, image6x4Pixels);
-#endif
 	GdipDisposeImage (image);
 }
 
@@ -3611,19 +4045,13 @@ static void test_validImage16bppBitmapV5Header ()
 	};
 
 	createFileSuccessDispose (image1x1RGB565, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
-	// FIXME: libgdiplus decodes this differently.
-#if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image1x1RGB565Pixels[] = {0xFFFFB5BD};
 	verifyPixels (image, image1x1RGB565Pixels);
-#endif
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1RGB555, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
-	// FIXME: libgdiplus decodes this differently.
-#if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image1x1RGB555Pixels[] = {0xFFFFB5BD};
 	verifyPixels (image, image1x1RGB555Pixels);
-#endif
 	GdipDisposeImage (image);
 }
 
@@ -4436,36 +4864,36 @@ static void test_invalidHeader ()
 
 	BYTE image16bppNoRedMask[] = {
 		'B', 'M', 54, 0, 0, 0, 0, 0, 0, 0, 53, 4, 0, 0,
-		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	};
 	BYTE image16bppShortRedMask[] = {
 		'B', 'M', 57, 0, 0, 0, 0, 0, 0, 0, 53, 4, 0, 0,
-		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		1, 0, 0
 	};
 	BYTE image16bppNoGreenMask[] = {
 		'B', 'M', 58, 0, 0, 0, 0, 0, 0, 0, 53, 4, 0, 0,
-		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 124, 0, 0
 	};
 	BYTE image16bppShortGreenMask[] = {
 		'B', 'M', 61, 0, 0, 0, 0, 0, 0, 0, 53, 4, 0, 0,
-		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 124, 0, 0, 224, 3, 0
 	};
 	BYTE image16bppNoBlueMask[] = {
 		'B', 'M', 62, 0, 0, 0, 0, 0, 0, 0, 53, 4, 0, 0,
-		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 124, 0, 0, 224, 3, 0, 0
 	};
 	BYTE image16bppShortBlueMask[] = {
 		'B', 'M', 65, 0, 0, 0, 0, 0, 0, 0, 53, 4, 0, 0,
-		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 124, 0, 0, 224, 3, 0, 0, 3, 0, 0
 	};
 	BYTE image16bppNoData[] = {
 		'B', 'M', 66, 0, 0, 0, 0, 0, 0, 0, 53, 4, 0, 0,
-		40, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		40, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 16, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 124, 0, 0, 224, 3, 0, 0, 0x1F, 0, 0, 0
 	};
 
