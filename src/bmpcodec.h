@@ -67,6 +67,10 @@ GpStatus gdip_save_bmp_image_to_stream_delegate (PutBytesDelegate putBytesFunc, 
 
 ImageCodecInfo *gdip_getcodecinfo_bmp () GDIP_INTERNAL;
 
+/* Conversion functions */
+ARGB gdip_convert_16bppRGB555_ToARGB (WORD pixel);
+ARGB gdip_convert_16bppRGB565_ToARGB (WORD pixel);
+
 /* helper functions / shared with ICOn codec */
 GpStatus gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *bmi, BOOL *os2format, 
 	BOOL *upsidedown) GDIP_INTERNAL;
