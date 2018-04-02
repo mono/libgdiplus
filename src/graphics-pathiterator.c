@@ -135,9 +135,9 @@ GdipPathIterCopyData (GpPathIterator *iterator, int *resultCount, GpPointF *poin
 		return Ok;
 	}
 
-	memcpy (points, iterator->path->points + startIndex, (endIndex - startIndex) * sizeof (GpPointF));
-	memcpy (types, iterator->path->types + startIndex, (endIndex - startIndex) * sizeof (BYTE));
-	*resultCount = endIndex - startIndex;
+	memcpy (points, iterator->path->points + startIndex, (endIndex - startIndex + 1) * sizeof (GpPointF));
+	memcpy (types, iterator->path->types + startIndex, (endIndex - startIndex + 1) * sizeof (BYTE));
+	*resultCount = endIndex - startIndex + 1;
 
 	return Ok;
 }
