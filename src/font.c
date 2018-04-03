@@ -332,8 +332,13 @@ GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, INT num_soug
 
 	for (i = 0; i < num_sought && i < font_collection->fontset->nfont; i++) {
 		gpfamilies[i] = gdip_fontfamily_new ();
-		if (!gpfamilies[i])
+		if (!gpfamilies[i]) {
+			while (--i >= 0) {
+				GdipFree (gpfamilies[i]);
+				gpfamilies[i] = NULL;
+			}
 			return OutOfMemory;
+		}
 
 		gpfamilies[i]->pattern = font_collection->fontset->fonts[i];
 		gpfamilies[i]->allocated = FALSE;
