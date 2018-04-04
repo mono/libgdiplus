@@ -24,8 +24,8 @@ On **Debian-based Linux distributions** you can use `apt-get` to install the dep
 
 On **Windows** you can use [Vcpkg](https://github.com/Microsoft/vcpkg) to install the dependencies. Run the following commands from the root of the repository from an admin command prompt:
 
-	vcpkg install giflib libjpeg-turbo libpng cairo glib tiff libexif glib
-	vcpkg install giflib libjpeg-turbo libpng cairo glib tiff libexif glib --triplet x64-windows
+	vcpkg install giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango
+	vcpkg install giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango --triplet x64-windows
 
 ### Build instructions
 
