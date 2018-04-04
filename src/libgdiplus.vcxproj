@@ -87,10 +87,10 @@
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>HAVE_LIBGIF;HAVE_LIBJPEG;HAVE_LIBTIFF;HAVE_LIBPNG;_WINDLL;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_LIBGIF;HAVE_LIBJPEG;HAVE_LIBTIFF;HAVE_LIBPNG;HAVE_FCFINI;_WINDLL;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <!-- FIXME: To align with the GDI+ calling convention, this should be StdCall. Only relevant on x86 -->
       <CallingConvention>Cdecl</CallingConvention>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\;%AdditionalIncludeDirectories%</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shcore.lib;%(AdditionalDependencies)</AdditionalDependencies>
