@@ -2651,11 +2651,50 @@ GdipGetEncoderParameterList (GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT
 GpStatus WINGDIPAPI
 GdipGetImageThumbnail (GpImage *image, UINT thumbWidth, UINT thumbHeight, GpImage **thumbImage, GetThumbnailImageAbort callback, VOID *callbackData)
 {
+	GpStatus status;
+	PixelFormat format;
+	GpImage *result;
+	GpGraphics *graphics;
+
 	if (!image || !thumbImage)
 		return InvalidParameter;
 
-	/* We don't really need to implement this; we've got it handled in System.Drawing directly */
-	return NotImplemented;
+	if (!thumbWidth && !thumbHeight)
+		thumbWidth = thumbHeight = 120;
+	else if (!thumbWidth || !thumbHeight)
+		return OutOfMemory;
+
+	switch (image->type) {
+	case ImageTypeBitmap:
+		format = PixelFormat32bppPARGB;
+		break;
+	case ImageTypeMetafile:
+		format = PixelFormat32bppARGB;
+		break;
+	default:
+		return InvalidParameter;
+	}
+
+	status = GdipCreateBitmapFromScan0 (thumbWidth, thumbHeight, 0, format, NULL, (GpBitmap **) &result);
+	if (status != Ok)
+		return status;
+
+	status = GdipGetImageGraphicsContext (result, &graphics);
+	if (status != Ok) {
+		GdipDisposeImage (result);
+		return status;
+	}
+
+	status = GdipDrawImageRectI (graphics, image, 0, 0, thumbWidth, thumbHeight);
+	if (status != Ok) {
+		GdipDisposeImage (result);
+		GdipDeleteGraphics (graphics);
+		return status;
+	}
+
+	GdipDeleteGraphics (graphics);
+	*thumbImage = result;
+	return Ok;
 }
 
 /* coverity[+alloc : arg-*1] */
