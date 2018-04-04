@@ -62,18 +62,12 @@ static void test_createBitmapFromFile ()
 	
 	status = GdipCreateBitmapFromFile (metafileFile, &bitmap);
 	assertEqualInt (status, Ok);
-	// FIXME: libgdiplus should convert metafiles into a thumbnail.
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyBitmap ((GpImage *) bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 770, 649, ImageFlagsHasAlpha, 0, TRUE);
-#endif
 	GdipDisposeImage ((GpImage *) bitmap);
 	
 	status = GdipCreateBitmapFromFile (enhancedMetafileFile, &bitmap);
 	assertEqualInt (status, Ok);
-	// FIXME: libgdiplus should convert metafiles into a thumbnail.
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyBitmap ((GpImage *) bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 100, 100, ImageFlagsHasAlpha, 0, TRUE);
-#endif
 	GdipDisposeImage ((GpImage *) bitmap);
 
 	// Negative tests.
@@ -133,18 +127,12 @@ static void test_createBitmapFromFileICM ()
 	
 	status = GdipCreateBitmapFromFileICM (metafileFile, &bitmap);
 	assertEqualInt (status, Ok);
-	// FIXME: libgdiplus should convert metafiles into a thumbnail.
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyBitmap ((GpImage *) bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 770, 649, ImageFlagsHasAlpha, 0, TRUE);
-#endif
 	GdipDisposeImage ((GpImage *) bitmap);
-	
+
 	status = GdipCreateBitmapFromFileICM (enhancedMetafileFile, &bitmap);
 	assertEqualInt (status, Ok);
-	// FIXME: libgdiplus should convert metafiles into a thumbnail.
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyBitmap ((GpImage *) bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 100, 100, ImageFlagsHasAlpha, 0, TRUE);
-#endif
 	GdipDisposeImage ((GpImage *) bitmap);
 
 	// Negative tests.

@@ -30,6 +30,7 @@
 #include "gdiplus-private.h"
 #include "bitmap-private.h"
 #include "graphics-private.h"
+#include "metafile-private.h"
 
 
 static GpStatus gdip_bitmap_clone_data_rect (BitmapData *srcData, Rect *srcRect, BitmapData *destData, Rect *destRect);
@@ -747,10 +748,54 @@ GdipCreateBitmapFromStream (void *stream, GpBitmap **bitmap)
 GpStatus
 GdipCreateBitmapFromFile (GDIPCONST WCHAR* filename, GpBitmap **bitmap)
 {
-	GpStatus status = GdipLoadImageFromFile (filename, (GpImage **) bitmap);
-	if (status == OutOfMemory)
-		status = InvalidParameter;
-	return status;
+	GpImage *image;
+	GpStatus status;
+
+	status = GdipLoadImageFromFile (filename, &image);
+	if (status != Ok)
+		return status == OutOfMemory ? InvalidParameter : status;
+
+	switch (image->type) {
+	case ImageTypeBitmap:
+		*bitmap = (GpBitmap *)image;
+		return Ok;
+	case ImageTypeMetafile: {
+		GpMetafile *metafile = (GpMetafile *) image;
+		GpImage *thumbnail;
+		UINT width, height;
+
+		switch (metafile->metafile_header.Type) {
+		case MetafileTypeWmfPlaceable:
+		case MetafileTypeWmf: {
+			width = iround (metafile->metafile_header.Width / 1000.0f * gdip_get_display_dpi());
+			height = iround (metafile->metafile_header.Height / 1000.0f * gdip_get_display_dpi());
+			break;
+		}
+		case MetafileTypeEmf:
+		case MetafileTypeEmfPlusOnly:
+		case MetafileTypeEmfPlusDual: {
+			width = metafile->metafile_header.Width;
+			height = metafile->metafile_header.Height;
+			break;
+		}
+		default:
+			GdipDisposeImage (image);
+			return GenericError;
+		}
+		
+		status = GdipGetImageThumbnail (image, width, height, &thumbnail, NULL, NULL);
+		if (status != Ok) {
+			GdipDisposeImage (image);
+			return status;
+		}
+		
+		GdipDisposeImage (image);
+		*bitmap = (GpBitmap *) thumbnail;
+		return Ok;
+	}
+	default:
+		return GenericError;
+	}
 }
 
 GpStatus
