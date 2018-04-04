@@ -24,7 +24,7 @@
     <RootNamespace>libgdiplus</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
@@ -87,28 +87,17 @@
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..;$(ProjectDir)\..\gtk\$(Platform)\release\include;$(ProjectDir)\..\gtk\$(Platform)\release\include\glib-2.0;$(ProjectDir)\..\gtk\$(Platform)\release\lib\glib-2.0\include;$(ProjectDir)\..\gtk\$(Platform)\release\include\cairo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_LIBGIF;HAVE_LIBJPEG;HAVE_LIBTIFF;HAVE_LIBPNG;HAVE_FCFINI;_WINDLL;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <!-- FIXME: To align with the GDI+ calling convention, this should be StdCall. Only relevant on x86 -->
       <CallingConvention>Cdecl</CallingConvention>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libpng16.lib;freetype.lib;fontconfig.lib;glib-2.0.lib;cairo.lib;shcore.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)\..\gtk\$(Platform)\release\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>shcore.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>%windir%\system32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -Command "(Get-Content \"$(ProjectDir)\..\winconfig.h.in\") -replace '#LIBGDIPLUS_VERSION#', (Select-String -path \"$(ProjectDir)\..\configure.ac\" -pattern 'AC_INIT\(libgdiplus, \[(.*)\]').Matches[0].Groups[1].Value | Set-Content \"$(ProjectDir)\..\config.h\"" 2&gt;&amp;1</Command>
     </PreBuildEvent>
-    <PostBuildEvent>
-      <Command>copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\cairo.*" "$(OutDir)"
-copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\fontconfig.*" "$(OutDir)"
-copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\glib-2.0.*" "$(OutDir)"
-copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\iconv.*" "$(OutDir)"
-copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\intl.*" "$(OutDir)"
-copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\libpng16.*" "$(OutDir)"
-copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\libxml2.*" "$(OutDir)"
-copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\zlib1.*" "$(OutDir)"</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="*.c" />
@@ -119,30 +108,6 @@ copy "$(ProjectDir)..\gtk\$(Platform)\release\bin\zlib1.*" "$(OutDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="*.inc" />
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\giflib.5.1.4\build\native\giflib.targets" Condition="Exists('..\packages\giflib.5.1.4\build\native\giflib.targets')" />
-    <Import Project="..\packages\giflib.redist.5.1.4\build\native\giflib.redist.targets" Condition="Exists('..\packages\giflib.redist.5.1.4\build\native\giflib.redist.targets')" />
-    <Import Project="..\packages\libjpeg.9.2.0.1\build\native\libjpeg.targets" Condition="Exists('..\packages\libjpeg.9.2.0.1\build\native\libjpeg.targets')" />
-    <Import Project="..\packages\libjpeg.redist.9.2.0.1\build\native\libjpeg.redist.targets" Condition="Exists('..\packages\libjpeg.redist.9.2.0.1\build\native\libjpeg.redist.targets')" />
-    <Import Project="..\packages\libtiff.4.0.6.2\build\native\libtiff.targets" Condition="Exists('..\packages\libtiff.4.0.6.2\build\native\libtiff.targets')" />
-    <Import Project="..\packages\libtiff.redist.4.0.6.2\build\native\libtiff.redist.targets" Condition="Exists('..\packages\libtiff.redist.4.0.6.2\build\native\libtiff.redist.targets')" />
-    <Import Project="..\packages\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.targets" Condition="Exists('..\packages\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.targets')" />
-    <Import Project="..\packages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.targets" Condition="Exists('..\packages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.targets')" />
-  </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\giflib.5.1.4\build\native\giflib.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\giflib.5.1.4\build\native\giflib.targets'))" />
-    <Error Condition="!Exists('..\packages\giflib.redist.5.1.4\build\native\giflib.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\giflib.redist.5.1.4\build\native\giflib.redist.targets'))" />
-    <Error Condition="!Exists('..\packages\libjpeg.9.2.0.1\build\native\libjpeg.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\libjpeg.9.2.0.1\build\native\libjpeg.targets'))" />
-    <Error Condition="!Exists('..\packages\libjpeg.redist.9.2.0.1\build\native\libjpeg.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\libjpeg.redist.9.2.0.1\build\native\libjpeg.redist.targets'))" />
-    <Error Condition="!Exists('..\packages\libtiff.4.0.6.2\build\native\libtiff.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\libtiff.4.0.6.2\build\native\libtiff.targets'))" />
-    <Error Condition="!Exists('..\packages\libtiff.redist.4.0.6.2\build\native\libtiff.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\libtiff.redist.4.0.6.2\build\native\libtiff.redist.targets'))" />
-    <Error Condition="!Exists('..\packages\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.targets'))" />
-    <Error Condition="!Exists('..\packages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.targets'))" />
-  </Target>
 </Project>

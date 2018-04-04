@@ -22,16 +22,10 @@ On **Debian-based Linux distributions** you can use `apt-get` to install the dep
 
 	sudo apt-get install libgif-dev autoconf libtool automake build-essential gettext libglib2.0-dev libcairo2-dev libtiff-dev libexif-dev
 
-On **Windows** you can use [Chocolatey](https://chocolatey.org) to install the dependencies. Run the following commands from the root of the repository from an admin command prompt:
+On **Windows** you can use [Vckpg](https://github.com/Microsoft/vcpkg) to install the dependencies. Run the following commands from the root of the repository from an admin command prompt:
 
-	choco install wget 7zip nuget.commandline
-	wget "https://dl.hexchat.net/gtk/gtk-win32-2018-03-13.7z" -O gtk-Win32.7z
-	wget "https://dl.hexchat.net/gtk/gtk-x64-2018-03-13.7z" -O gtk-x64.7z
-
-	7z x gtk-Win32.7z -ogtk
-	7z x gtk-x64.7z -ogtk
-
-	nuget restore
+	vcpkg install giflib libjpeg-turbo libpng cairo glib tiff libexif glib
+	vcpkg install giflib libjpeg-turbo libpng cairo glib tiff libexif glib --triplet x64-windows
 
 ### Build instructions
 
