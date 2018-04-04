@@ -4,7 +4,7 @@ if (-not (Test-Path vcpkg)) {
   .\bootstrap-vcpkg.bat
   .\vcpkg.exe integrate install
   # NOTE: update README.md too when updating these packages
-  .\vcpkg.exe install giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango
+  .\vcpkg.exe install giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango --triplet x86-windows
   .\vcpkg.exe install giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango --triplet x64-windows
   cd ..
 }
