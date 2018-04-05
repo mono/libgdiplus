@@ -384,35 +384,29 @@ reduce (BYTE* source, int width, int height, BYTE *dest)
 /*
  * gdip_region_bitmap_apply_alpha:
  * @bitmap: a GpBitmap (not a GpRegionBitmap!)
- * @alpha: a GpRegionBitmap
+ * @mask_bitmap: a GpRegionBitmap
  *
- * Apply the alpha bits (from @alpha) to a ARGB32 (or RGB24) @bitmap.
+ * Apply the mask bits (from @mask_bitmap) to a ARGB32/PARGB32 @bitmap using alpha channel.
  */
 void 
-gdip_region_bitmap_apply_alpha (GpBitmap *bitmap, GpRegionBitmap *alpha)
+gdip_region_bitmap_apply_alpha (GpBitmap *bitmap, GpRegionBitmap *mask_bitmap)
 {
-	int x, y, p = 0, n = 3; /* FIXME - is it endian safe ? */
+	int x, y, p = 0;
+	ULONG *scan;
 
-	for (y = 0; y < alpha->Height; y++) {
-		for (x = 0; x < alpha->Width; x += 8) {
-			// ARGB32
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x01) ? 0xFF : 0x00;
-			n += 4;
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x02) ? 0xFF : 0x00;
-			n += 4;
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x04) ? 0xFF : 0x00;
-			n += 4;
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x08) ? 0xFF : 0x00;
-			n += 4;
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x10) ? 0xFF : 0x00;
-			n += 4;
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x20) ? 0xFF : 0x00;
-			n += 4;
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x40) ? 0xFF : 0x00;
-			n += 4;
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x80) ? 0xFF : 0x00;
-			n += 4;
+	g_assert (bitmap->active_bitmap->pixel_format == PixelFormat32bppARGB || bitmap->active_bitmap->pixel_format == PixelFormat32bppPARGB);
 
+	for (y = 0; y < mask_bitmap->Height; y++) {
+		scan = (ULONG *)(bitmap->active_bitmap->scan0 + (y * bitmap->active_bitmap->stride));
+		for (x = 0; x < mask_bitmap->Width; x += 8) {
+			*(scan++) &= (mask_bitmap->Mask [p] & 0x01) ? 0xFFFFFFFF : 0x00;
+			*(scan++) &= (mask_bitmap->Mask [p] & 0x02) ? 0xFFFFFFFF : 0x00;
+			*(scan++) &= (mask_bitmap->Mask [p] & 0x04) ? 0xFFFFFFFF : 0x00;
+			*(scan++) &= (mask_bitmap->Mask [p] & 0x08) ? 0xFFFFFFFF : 0x00;
+			*(scan++) &= (mask_bitmap->Mask [p] & 0x10) ? 0xFFFFFFFF : 0x00;
+			*(scan++) &= (mask_bitmap->Mask [p] & 0x20) ? 0xFFFFFFFF : 0x00;
+			*(scan++) &= (mask_bitmap->Mask [p] & 0x40) ? 0xFFFFFFFF : 0x00;
+			*(scan++) &= (mask_bitmap->Mask [p] & 0x80) ? 0xFFFFFFFF : 0x00;
 			p++;
 		}
 	}
