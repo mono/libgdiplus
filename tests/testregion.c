@@ -83,13 +83,13 @@ static void test_createRegionRect ()
 	// Negative width.
 	status = GdipCreateRegionRect (&negativeWidthRect, &region);
 	assertEqualInt (status, Ok);
-	verifyRegion (region, 1, 2, -3, 4, FALSE, FALSE);
+	verifyRegion (region, 1, 2, -3, 4, TRUE, FALSE);
 	GdipDeleteRegion (region);
 
 	// Negative height.
 	status = GdipCreateRegionRect (&negativeHeightRect, &region);
 	assertEqualInt (status, Ok);
-	verifyRegion (region, 1, 2, 3, -4, FALSE, FALSE);
+	verifyRegion (region, 1, 2, 3, -4, TRUE, FALSE);
 	GdipDeleteRegion (region);
 
 	// Zero.
@@ -131,13 +131,13 @@ static void test_createRegionRectI ()
 	// Negative width.
 	status = GdipCreateRegionRectI (&negativeWidthRect, &region);
 	assertEqualInt (status, Ok);
-	verifyRegion (region, 1, 2, -3, 4, FALSE, FALSE);
+	verifyRegion (region, 1, 2, -3, 4, TRUE, FALSE);
 	GdipDeleteRegion (region);
 
 	// Negative height.
 	status = GdipCreateRegionRectI (&negativeHeightRect, &region);
 	assertEqualInt (status, Ok);
-	verifyRegion (region, 1, 2, 3, -4, FALSE, FALSE);
+	verifyRegion (region, 1, 2, 3, -4, TRUE, FALSE);
 	GdipDeleteRegion (region);
 
 	// Zero.

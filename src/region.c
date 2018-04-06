@@ -151,7 +151,7 @@ gdip_is_region_empty (GpRegion *region)
 			return TRUE;
 
 		gdip_get_bounds (region->rects, region->cnt, &rect);
-		return ((rect.Width == 0) || (rect.Height == 0));
+		return ((rect.Width <= 0) || (rect.Height <= 0));
 	case RegionTypePath:
 		/* check for an existing, but empty, path list */
 		if (!region->tree)
