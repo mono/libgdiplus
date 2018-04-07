@@ -191,9 +191,11 @@ static void test_createRegionPath ()
 
 	status = GdipCreateRegionPath (path, &region);
 	assertEqualInt (status, Ok);
-	// FIXME: GetRegionBounds fails with OutOfMemory.
+	// FIXME: libgdiplus does not identify this as an infinite region.
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+#else
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, FALSE);
 #endif
 	GdipDeleteRegion (region);
 	GdipDeletePath (path);
@@ -211,11 +213,13 @@ static void test_createRegionPath ()
 
 	status = GdipCreateRegionPath (path, &region);
 	assertEqualInt (status, Ok);
-	// FIXME: GetRegionBounds fails with OutOfMemory.
+	// FIXME: libgdiplus does not identify this as an infinite region.
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	GdipDeleteRegion (region);
+#else
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, FALSE);
 #endif
+	GdipDeleteRegion (region);
 	GdipDeletePath (path);
 
 	// Empty path - curve.
@@ -228,9 +232,11 @@ static void test_createRegionPath ()
 
 	status = GdipCreateRegionPath (path, &region);
 	assertEqualInt (status, Ok);
-	// FIXME: the bounds are incorrect.
+	// FIXME: libgdiplus does not identify this as an empty infinite region.
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, 10, 10, 10, 10, TRUE, FALSE);
+#else
+	verifyRegion (region, 10, 10, 10, 10, FALSE, FALSE);
 #endif
 	GdipDeleteRegion (region);
 	GdipDeletePath (path);
