@@ -1493,6 +1493,10 @@ GdipGetRegionBounds (GpRegion *region, GpGraphics *graphics, GpRectF *rect)
 	if (region->type == RegionTypePath) {
 		GpRect bounds;
 
+		/* optimisation for simple path */
+		if (region->tree->path)
+			return GdipGetPathWorldBounds (region->tree->path, rect, NULL, NULL);
+
 		gdip_region_bitmap_ensure (region);
 		if (!region->bitmap)
 			return OutOfMemory;
