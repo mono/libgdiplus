@@ -2061,10 +2061,10 @@ GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color)
 		palette_index = gdip_pixel_stream_get_next (&pixel_stream);
 
 		if (palette_index >= data->palette->Count) {
-			return InvalidParameter;
+			*color = 0xFF000000;
+		} else {
+			*color = data->palette->Entries[palette_index];
 		}
-
-		*color = data->palette->Entries[palette_index];
 	} else {
 		BYTE *v = ((BYTE*)data->scan0) + y * data->stride;
 
