@@ -1914,7 +1914,6 @@ GdipImageRotateFlip (GpImage *image, RotateFlipType type)
 GpStatus WINGDIPAPI 
 GdipGetImagePalette (GpImage *image, ColorPalette *palette, INT size)
 {
-	int palette_entries;
 	int bytes_needed;
 
 	if (!image || !palette)
@@ -1939,15 +1938,9 @@ GdipGetImagePalette (GpImage *image, ColorPalette *palette, INT size)
 		return Ok;
 	}
 
-	palette_entries = image->active_bitmap->palette->Count;
-
-	if (image->active_bitmap->pixel_format == PixelFormat4bppIndexed)
-		palette_entries = 16;
-
-	bytes_needed = (palette_entries - 1) * sizeof(ARGB) + sizeof(ColorPalette);
-	if (bytes_needed != size) {
+	GdipGetImagePaletteSize (image, &bytes_needed);
+	if (bytes_needed != size)
 		return InvalidParameter;
-	}
 
 	memcpy(palette, image->active_bitmap->palette, bytes_needed);
 	return Ok;
@@ -1987,16 +1980,13 @@ GdipGetImagePaletteSize (GpImage *image, INT* size)
 	int palette_entries;
 
 	if (!image || !size)
-			return InvalidParameter;
+		return InvalidParameter;
 
 	/* GDI+ doesn't support this for metafiles */
 	if (image->type != ImageTypeBitmap)
 		return GenericError;
 
 	palette_entries = (image->active_bitmap->palette) ? image->active_bitmap->palette->Count : 0;
-
-	if (image->active_bitmap->pixel_format == PixelFormat4bppIndexed)
-		palette_entries = 16;
 
 	if (palette_entries == 0)
 		*size = sizeof(ColorPalette);

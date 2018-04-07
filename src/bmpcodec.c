@@ -958,19 +958,13 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	gdip_align_stride (result->active_bitmap->stride);
  
 	if (colours) {
-		int palette_entries = colours;
-
-		if (result->active_bitmap->pixel_format == PixelFormat4bppIndexed) {
-			palette_entries = 256;
-		}
-
-		result->active_bitmap->palette = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * palette_entries);
+		result->active_bitmap->palette = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * colours);
 		if (result->active_bitmap->palette == NULL) {
 			status = OutOfMemory;
 			goto error;
 		}
 		result->active_bitmap->palette->Flags = 0;
-		result->active_bitmap->palette->Count = palette_entries;
+		result->active_bitmap->palette->Count = colours;
 
 		/* Read optional colour table */
 		size = (os2format) ? 3 /* RGBTRIPLE */ : 4 /* RGBquads */;
