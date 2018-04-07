@@ -272,6 +272,37 @@ ATTRIBUTE_USED static BOOL is_32bit()
     } \
 }
 
+#define verifyPalette(image, flags, entries) \
+{ \
+    GpStatus status; \
+    INT size; \
+    ColorPalette *palette; \
+ \
+    status = GdipGetImagePaletteSize (image, &size); \
+    assertEqualInt (status, Ok); \
+ \
+    palette = (ColorPalette *) GdipAlloc (size); \
+    status = GdipGetImagePalette (image, palette, size); \
+    assertEqualInt (status, Ok); \
+ \
+    assertEqualInt (palette->Flags, flags); \
+    assertEqualInt (palette->Count, (int) (sizeof (entries) / sizeof (ARGB))); \
+ \
+    for (UINT i = 0; i < palette->Count; i++) \
+    { \
+        if (palette->Entries[i] != entries[i]) \
+        { \
+            fprintf (stderr, "Index [%u]\n", i); \
+            fprintf (stderr, "Expected: 0x%08X\n", entries[i]); \
+            fprintf (stderr, "Actual:   0x%08X\n", palette->Entries[i]);   \
+            dumpPalette (palette); \
+            assert (entries[i] == palette->Entries[i]); \
+        } \
+    } \
+ \
+    GdipFree (palette); \
+}
+
 #define HEX__(n) 0x##n##LU
 #define B8__(x) ((x&0x0000000FLU)?1:0) \
 + ((x&0x000000F0LU)?2:0)               \
@@ -334,4 +365,18 @@ ATTRIBUTE_USED static void deleteFile(const char *file)
 #else
     remove (file);
 #endif
+}
+
+ATTRIBUTE_USED static void dumpPalette (ColorPalette *palette)
+{
+    for (UINT i = 0; i < palette->Count; i++)
+    {
+        printf ("0x%08X", palette->Entries[i]);
+        if (i != palette->Count - 1)
+        {
+            printf(", ");
+        }
+    }
+
+    printf("\n");
 }

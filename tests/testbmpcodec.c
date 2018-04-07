@@ -186,7 +186,7 @@ static void test_validImage1bppBitmapInfoHeader ()
 		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
 
 		// -- Color Palette -- //
-		0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+		0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 
 		// -- Image Data -- //
 		0x80, 0x00, 0x00, 0x00,
@@ -241,7 +241,7 @@ static void test_validImage1bppBitmapInfoHeader ()
 		/* Important Colors */ 0x00, 0x00, 0x00, 0x00,
 
 		// -- Color Palette -- //
-		0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+		0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 
 		// -- Image Data -- //
 		0x80, 0x00, 0x00, 0x00,
@@ -253,41 +253,48 @@ static void test_validImage1bppBitmapInfoHeader ()
 	createFileSuccessDispose (image1x1ZeroColorsUsed, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1ZeroColorsUsedPixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1ZeroColorsUsedPixels);
+	ARGB fullPalette[] = {0xFFFF00FF, 0xFF00FF00};
+	verifyPalette (image, 0, fullPalette);
 	GdipDisposeImage (image);
 	
 	createFileSuccessDispose (image1x1SmallColorsUsed, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1SmallColorsUsedPixels[] = {0xFF000000};
 	verifyPixels (image, image1x1SmallColorsUsedPixels);
+	ARGB shortPalette[] = {0xFFFF00FF};
+	verifyPalette (image, 0, shortPalette);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image24x4LargeColorsUsed, PixelFormat1bppIndexed, 24, 4, bmpFlags, FALSE);
 	// FIXME: these are incorrect: https://github.com/mono/libgdiplus/issues/302
 #if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image24x4LargeColorsUsedPixels[] = {
-		0xFF0000FF, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
-        0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
-        0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
+		0xFFFF00FF, 0xFFFF00FF, 0xFF00FF00, 0xFFFF00FF, 0xFFFF00FF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF,
+        0xFF00FF00, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF,
+        0xFF00FF00, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF,
         0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00
 	};
 	verifyPixels (image, image24x4LargeColorsUsedPixels);
+	verifyPalette (image, 0, fullPalette);
 #endif
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1NegativeHeight, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1NegativeHeightPixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1NegativeHeightPixels);
+	verifyPalette (image, 0, fullPalette);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image24x4NegativeHeight, PixelFormat1bppIndexed, 24, 4, bmpFlags, FALSE);
 	// FIXME: these are incorrect: https://github.com/mono/libgdiplus/issues/302
 #if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image24x4NegativeHeightPixels[] = {
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-        0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
-        0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF,
-        0xFF0000FF, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF
+        0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
+        0xFF00FF00, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF,
+        0xFF00FF00, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF,
+        0xFFFF00FF, 0xFFFF00FF, 0xFF00FF00, 0xFFFF00FF, 0xFFFF00FF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF
 	};
 	verifyPixels (image, image24x4NegativeHeightPixels);
+	verifyPalette (image, 0, fullPalette);
 #endif
 	GdipDisposeImage (image);
 }
@@ -330,6 +337,8 @@ static void test_validImage1bppBitmapV3Header ()
 	createFileSuccessDispose (image1x1, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1Pixels);
+	ARGB expectedPalette[] = {0xFF0000FF, 0xFF00FF00};
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 }
 
@@ -377,6 +386,8 @@ static void test_validImage1bppBitmapV4Header ()
 	createFileSuccessDispose (image1x1, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1Pixels);
+	ARGB expectedPalette[] = {0xFF0000FF, 0xFF00FF00};
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 }
 
@@ -428,6 +439,8 @@ static void test_validImage1bppBitmapV5Header ()
 	createFileSuccessDispose (image1x1, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1Pixels);
+	ARGB expectedPalette[] = {0xFF0000FF, 0xFF00FF00};
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 }
 
@@ -480,6 +493,8 @@ static void test_validImage4bppOS2Header ()
 	createFileSuccessDispose (image1x1, PixelFormat4bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFFFF00FF};
 	verifyPixels (image, image1x1Pixels);
+	ARGB expectedPalette[] = {0xFF0000FF, 0xFFFF00FF, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF, 0xFF00FFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF000000, 0xFF0808FF, 0xFFFF0808, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF, 0xFFFF00FF};
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4, PixelFormat4bppIndexed, 6, 4, bmpFlags, FALSE);
@@ -490,6 +505,7 @@ static void test_validImage4bppOS2Header ()
         0xFFFF00FF, 0xFFFFFF00, 0xFFFF00FF, 0xFFFF00FF, 0xFFFFFF00, 0xFFFF00FF
 	};
 	verifyPixels (image, image6x4Pixels);
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 }
 
@@ -639,11 +655,11 @@ static void test_validImage4bppBitmapInfoHeader ()
 	createFileSuccessDispose (image1x1ZeroColorsUsed, PixelFormat4bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1ZeroColorsUsedPixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1ZeroColorsUsedPixels);
+	ARGB fullPalette[] = {0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000};
+	verifyPalette (image, 0, fullPalette);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4SmallColorsUsed, PixelFormat4bppIndexed, 6, 4, bmpFlags, FALSE);
-	// FIXME: these are incorrect: https://github.com/mono/libgdiplus/issues/300
-#if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image6x4SmallColorsUsedPixels[] = {
 		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
 		0xFF00FF00, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF00FF00,
@@ -651,7 +667,8 @@ static void test_validImage4bppBitmapInfoHeader ()
 		0xFF00FF00, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF00FF00
 	};
 	verifyPixels (image, image6x4SmallColorsUsedPixels);
-#endif
+	ARGB smallPalette[] = {0xFF0000FF, 0xFF00FF00, 0xFFFF0000};
+	verifyPalette (image, 0, smallPalette);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4LargeColorsUsed, PixelFormat4bppIndexed, 6, 4, bmpFlags, FALSE);
@@ -664,17 +681,18 @@ static void test_validImage4bppBitmapInfoHeader ()
         0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF
 	};
 	verifyPixels (image, image6x4LargeColorsUsedPixels);
+	ARGB largePalette[] = {0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF0000FF};
+	verifyPalette (image, 0, largePalette);
 #endif
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1NegativeHeight, PixelFormat4bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1NegativeHeightPixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1NegativeHeightPixels);
+	verifyPalette (image, 0, fullPalette);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4NegativeHeight, PixelFormat4bppIndexed, 6, 4, bmpFlags, FALSE);
-	// FIXME: these are incorrect: https://github.com/mono/libgdiplus/issues/302
-#if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image6x4NegativeHeightPixels[] = {
 		0xFF00FF00, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF00FF00,
         0xFF00FF00, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF00FF00,
@@ -682,7 +700,7 @@ static void test_validImage4bppBitmapInfoHeader ()
         0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00
 	};
 	verifyPixels (image, image6x4NegativeHeightPixels);
-#endif
+	verifyPalette (image, 0, smallPalette);
 	GdipDisposeImage (image);
 }
 
@@ -724,6 +742,8 @@ static void test_validImage4bppBitmapV3Header ()
 	createFileSuccessDispose (image1x1, PixelFormat4bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1Pixels);
+	ARGB expectedPalette[] = {0xFF0000FF, 0xFF00FF00};
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 }
 
@@ -770,6 +790,8 @@ static void test_validImage4bppBitmapV4Header ()
 	createFileSuccessDispose (image1x1, PixelFormat4bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1Pixels);
+	ARGB expectedPalette[] = {0xFF0000FF, 0xFF00FF00};
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 }
 
@@ -821,6 +843,8 @@ static void test_validImage4bppBitmapV5Header ()
 	createFileSuccessDispose (image1x1, PixelFormat4bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1Pixels);
+	ARGB expectedPalette[] = {0xFF0000FF, 0xFF00FF00};
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 }
 
@@ -1847,6 +1871,8 @@ static void test_validImage8bppOS2Header ()
 	createFileSuccessDispose (image1x1, PixelFormat8bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFFFF0000};
 	verifyPixels (image, image1x1Pixels);
+	ARGB expectedPalette[] = {0xFF0000FF, 0xFFFF00FF, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF, 0xFF00FFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF000000, 0xFF0808FF, 0xFFFF0808, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF00FFFF, 0xFFFF0000, 0xFF000000, 0xFF00FFFF, 0xFF00FF00, 0xFFFF00FF, 0xFFFF0000, 0xFFFFFFFF, 0xFFFFFF00, 0xFFFFFF00, 0xFFFFFFFF, 0xFF0000FF, 0xFF08FF00, 0xFF080808, 0xFF0000FF, 0xFFFF00FF, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF, 0xFF00FFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF000000, 0xFF0000FF, 0xFFFFFF00, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF00FFFF, 0xFFFF0000, 0xFF080808, 0xFF00FF08, 0xFF00FF00, 0xFFFF00FF, 0xFFFF0000, 0xFFFFFFFF, 0xFFFFFF00, 0xFFFFFF00, 0xFFFFFFFF, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF0000FF, 0xFFFF00FF, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF, 0xFF00FFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF000000, 0xFF0808FF, 0xFFFF0808, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF00FFFF, 0xFFFF0000, 0xFF000000, 0xFF00FFFF, 0xFF00FF00, 0xFFFF00FF, 0xFFFF0000, 0xFFFFFFFF, 0xFFFFFF00, 0xFFFFFF00, 0xFFFFFFFF, 0xFF0000FF, 0xFF08FF00, 0xFF080808, 0xFF0000FF, 0xFFFF00FF, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF, 0xFF00FFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF000000, 0xFF0000FF, 0xFFFFFF00, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF00FFFF, 0xFFFF0000, 0xFF080808, 0xFF00FF08, 0xFF00FF00, 0xFFFF00FF, 0xFFFF0000, 0xFFFFFFFF, 0xFFFFFF00, 0xFFFFFF00, 0xFFFFFFFF, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF0000FF, 0xFFFF00FF, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF, 0xFF00FFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF000000, 0xFF0808FF, 0xFFFF0808, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF00FFFF, 0xFFFF0000, 0xFF000000, 0xFF00FFFF, 0xFF00FF00, 0xFFFF00FF, 0xFFFF0000, 0xFFFFFFFF, 0xFFFFFF00, 0xFFFFFF00, 0xFFFFFFFF, 0xFF0000FF, 0xFF08FF00, 0xFF080808, 0xFF0000FF, 0xFFFF00FF, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF, 0xFF00FFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF000000, 0xFF0000FF, 0xFFFFFF00, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF00FFFF, 0xFFFF0000, 0xFF080808, 0xFF00FF08, 0xFF00FF00, 0xFFFF00FF, 0xFFFF0000, 0xFFFFFFFF, 0xFFFFFF00, 0xFFFFFF00, 0xFFFFFFFF, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF0000FF, 0xFFFF00FF, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF, 0xFF00FFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF000000, 0xFF0808FF, 0xFFFF0808, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF00FFFF, 0xFFFF0000, 0xFF000000, 0xFF00FFFF, 0xFF00FF00, 0xFFFF00FF, 0xFFFF0000, 0xFFFFFFFF, 0xFFFFFF00, 0xFFFFFF00, 0xFFFFFFFF, 0xFF0000FF, 0xFF08FF00, 0xFF080808, 0xFF0000FF, 0xFFFF00FF, 0xFF00FF00, 0xFFFFFF00, 0xFF00FFFF, 0xFF00FFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF000000, 0xFF0000FF, 0xFFFFFF00, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF00FFFF, 0xFFFF0000, 0xFF080808, 0xFF00FF08, 0xFF00FF00, 0xFFFF00FF, 0xFFFF0000, 0xFFFFFFFF, 0xFFFFFF00, 0xFFFFFF00, 0xFFFFFFFF, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000};
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4, PixelFormat8bppIndexed, 6, 4, bmpFlags, FALSE);
@@ -1857,6 +1883,7 @@ static void test_validImage8bppOS2Header ()
         0xFFFF0000, 0xFF0000FF, 0xFF0000FF, 0xFFFF0000, 0xFF0000FF, 0xFFFF0000
 	};
 	verifyPixels (image, image6x4Pixels);
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 }
 
@@ -2051,6 +2078,8 @@ static void test_validImage8bppBitmapInfoHeader ()
 	createFileSuccessDispose (image1x1ZeroColorsUsed, PixelFormat8bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1ZeroColorsUsedPixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1ZeroColorsUsedPixels);
+	ARGB fullPalette[] = {0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF080808, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFFFF, 0xFF000000, 0xFF000000};
+	verifyPalette (image, 0, fullPalette);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4SmallColorsUsed, PixelFormat8bppIndexed, 6, 4, bmpFlags, FALSE);
@@ -2061,6 +2090,8 @@ static void test_validImage8bppBitmapInfoHeader ()
         0xFF000000, 0xFF0000FF, 0xFF000000, 0xFF0000FF, 0xFF000000, 0xFF00FF00
 	};
 	verifyPixels (image, image6x4SmallColorsUsedPixels);
+	ARGB smallPalette[] = {0xFF0000FF, 0xFF00FF00, 0xFF000000};
+	verifyPalette (image, 0, smallPalette);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4LargeColorsUsed, PixelFormat8bppIndexed, 6, 4, bmpFlags, FALSE);
@@ -2073,12 +2104,14 @@ static void test_validImage8bppBitmapInfoHeader ()
         0xFF000000, 0xFF0000FF, 0xFF0000FF, 0xFF000000, 0xFF0000FF, 0xFF000000
 	};
 	verifyPixels (image, image6x4LargeColorsUsedPixels);
+	verifyPalette (image, 0, fullPalette);
 #endif
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1NegativeHeight, PixelFormat8bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1NegativeHeightPixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1NegativeHeightPixels);
+	verifyPalette (image, 0, fullPalette);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4NegativeHeight, PixelFormat8bppIndexed, 6, 4, bmpFlags, FALSE);
@@ -2089,6 +2122,7 @@ static void test_validImage8bppBitmapInfoHeader ()
 		0xFF000000, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00
 	};
 	verifyPixels (image, image6x4NegativeHeightPixels);
+	verifyPalette (image, 0, smallPalette);
 	GdipDisposeImage (image);
 }
 
@@ -2130,6 +2164,8 @@ static void test_validImage8bppBitmapV3Header ()
 	createFileSuccessDispose (image1x1, PixelFormat8bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1Pixels);
+	ARGB expectedPalette[] = {0xFF0000FF, 0xFF00FF00};
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 }
 
@@ -2177,6 +2213,8 @@ static void test_validImage8bppBitmapV4Header ()
 	createFileSuccessDispose (image1x1, PixelFormat8bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1Pixels);
+	ARGB expectedPalette[] = {0xFF0000FF, 0xFF00FF00};
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 }
 
@@ -2229,6 +2267,8 @@ static void test_validImage8bppBitmapV5Header ()
 	createFileSuccessDispose (image1x1, PixelFormat8bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1Pixels);
+	ARGB expectedPalette[] = {0xFF0000FF, 0xFF00FF00};
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 }
 
