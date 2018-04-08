@@ -40,6 +40,7 @@ GpStatus WINGDIPAPI GdipCombineRegionPath(GpRegion *region, GpPath *path, Combin
 GpStatus WINGDIPAPI GdipCombineRegionRegion(GpRegion *region,  GpRegion *region2, CombineMode combineMode);
 
 GpStatus WINGDIPAPI GdipGetRegionBounds(GpRegion *region, GpGraphics *graphics, GpRectF *rect);
+GpStatus WINGDIPAPI GdipGetRegionHRgn(GpRegion *region, GpGraphics *graphics, HRGN *hRgn);
 GpStatus WINGDIPAPI GdipIsEmptyRegion(GpRegion *region, GpGraphics *graphics, BOOL *result);
 GpStatus WINGDIPAPI GdipIsInfiniteRegion(GpRegion *region, GpGraphics *graphics, BOOL *result);
 
