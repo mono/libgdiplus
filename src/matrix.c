@@ -272,50 +272,32 @@ GpStatus WINGDIPAPI
 GdipTranslateMatrix (GpMatrix *matrix, float offsetX, float offsetY, GpMatrixOrder order)
 {
 	cairo_matrix_t tmp;
-	GpStatus s;
-
-	cairo_matrix_init (&tmp, 1, 0, 0, 1, offsetX, offsetY);
-	s = GdipMultiplyMatrix (matrix, &tmp, order);
-
-	return s;
+	cairo_matrix_init_translate (&tmp, offsetX, offsetY);
+	return GdipMultiplyMatrix (matrix, &tmp, order);
 }
 
 GpStatus WINGDIPAPI
 GdipScaleMatrix (GpMatrix *matrix, float scaleX, float scaleY, GpMatrixOrder order)
 {
-	GpMatrix tmp;
-	GpStatus s;
-
-	cairo_matrix_init (&tmp, scaleX, 0, 0, scaleY, 0, 0);
-	s = GdipMultiplyMatrix (matrix, &tmp, order);        
-
-	return s;
+	cairo_matrix_t tmp;
+	cairo_matrix_init_scale (&tmp, scaleX, scaleY);
+	return GdipMultiplyMatrix (matrix, &tmp, order);        
 }
 
 GpStatus WINGDIPAPI
 GdipRotateMatrix (GpMatrix *matrix, float angle, GpMatrixOrder order)
 {
 	cairo_matrix_t tmp;
-	GpStatus s;
-	float rad = angle * DEGTORAD;
-
-	cairo_matrix_init (&tmp, cos (rad), sin (rad), -sin (rad), cos (rad), 0, 0);
-	s = GdipMultiplyMatrix (matrix, &tmp, order);
-
-
-	return s;
+	cairo_matrix_init_rotate (&tmp, angle * DEGTORAD);
+	return GdipMultiplyMatrix (matrix, &tmp, order);
 }
 
 GpStatus WINGDIPAPI
 GdipShearMatrix (GpMatrix *matrix, float shearX, float shearY, GpMatrixOrder order)
 {
 	cairo_matrix_t tmp;
-	GpStatus s;
-
 	cairo_matrix_init (&tmp, 1, shearY, shearX, 1, 0, 0);
-	s = GdipMultiplyMatrix (matrix, &tmp, order);
-
-	return s;
+	return GdipMultiplyMatrix (matrix, &tmp, order);
 }
 
 GpStatus WINGDIPAPI
