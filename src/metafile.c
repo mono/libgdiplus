@@ -1673,12 +1673,22 @@ GdipCreateMetafileFromEmf (HENHMETAFILE hEmf, BOOL deleteEmf, GpMetafile **metaf
 	if (!hEmf || !metafile)
 		return InvalidParameter;
 
-	status = gdip_metafile_clone ((GpMetafile*)hEmf, metafile);
-	if (status != Ok)
-		return status;
+	switch (((GpMetafile *) hEmf)->metafile_header.Type) {
+	case MetafileTypeEmf:
+	case MetafileTypeEmfPlusOnly:
+	case MetafileTypeEmfPlusDual:
+		status = gdip_metafile_clone ((GpMetafile*)hEmf, metafile);
+		if (status != Ok)
+			return status;
 
-	(*metafile)->delete = deleteEmf;
-	return Ok;
+		(*metafile)->delete = deleteEmf;
+		return Ok;
+	case MetafileTypeWmfPlaceable:
+	case MetafileTypeWmf:
+	default:
+		*metafile = NULL;
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -1693,14 +1703,27 @@ GdipCreateMetafileFromWmf (HMETAFILE hWmf, BOOL deleteWmf, GDIPCONST WmfPlaceabl
 	if (status != Ok)
 		return status;
 
-	status = GdipGetMetafileHeaderFromWmf (hWmf, wmfPlaceableFileHeader, &(*metafile)->metafile_header);
-	if (status != Ok) {
-		GdipFree (*metafile);
-		return status;
-	}
+	switch ((*metafile)->metafile_header.Type) {
+	case MetafileTypeWmfPlaceable:
+	case MetafileTypeWmf:
+		if (wmfPlaceableFileHeader) {
+			status = GdipGetMetafileHeaderFromWmf (hWmf, wmfPlaceableFileHeader, &(*metafile)->metafile_header);
+			if (status != Ok) {
+				GdipFree (*metafile);
+				return status;
+			}
+		}
 
-	(*metafile)->delete = deleteWmf;
-	return Ok;
+		(*metafile)->delete = deleteWmf;
+		return Ok;
+	case MetafileTypeEmf:
+	case MetafileTypeEmfPlusOnly:
+	case MetafileTypeEmfPlusDual:
+	default:
+		GdipFree (*metafile);
+		*metafile = NULL;
+		return GenericError;
+	}
 }
 
 GpStatus
