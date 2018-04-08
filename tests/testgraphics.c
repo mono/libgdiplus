@@ -457,7 +457,7 @@ static void test_smoothingMode ()
 	status = GdipSetSmoothingMode (graphics, (SmoothingMode)(SmoothingModeInvalid - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetSmoothingMode (graphics, (SmoothingMode)(SmoothingModeAntiAlias + 1));
+	status = GdipSetSmoothingMode (graphics, (SmoothingMode)6);
 	assertEqualInt (status, InvalidParameter);
 
 	// HighQuality -> AntiAlias
@@ -948,6 +948,1057 @@ static void test_delete ()
 	GdipDisposeImage (image);
 }
 
+static void test_rotateWorldTransform ()
+{	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GpRegion *clip;
+	GpRectF visibleClipBounds;
+
+	graphics = getImageGraphics (&image);
+	GpRectF rect = {0, 0, 32, 32};
+	GdipCreateRegionRect (&rect, &clip);
+
+	// With clip region.
+	GdipSetClipRegion (graphics, clip, CombineModeReplace);
+
+	status = GdipRotateWorldTransform (graphics, 90, MatrixOrderPrepend);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetVisibleClipBounds (graphics, &visibleClipBounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (0, visibleClipBounds.X);
+	assertEqualFloat (-32, visibleClipBounds.Y);
+	assertEqualFloat (32, visibleClipBounds.Width);
+	assertEqualFloat (32, visibleClipBounds.Height);
+
+	// Negative tests.
+	status = GdipRotateWorldTransform (NULL, 0, MatrixOrderAppend);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipRotateWorldTransform (graphics, 0, MatrixOrderAppend);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDeleteRegion (clip);
+	GdipDisposeImage (image);
+}
+
+static void test_resetClip ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GpRectF bounds;
+
+	graphics = getImageGraphics (&image);
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+
+	status = GdipResetClip (graphics);
+	assertEqualInt (status, Ok);
+
+	GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, -4194304);
+	assertEqualFloat (bounds.Y, -4194304);
+	assertEqualFloat (bounds.Width, 8388608);
+	assertEqualFloat (bounds.Height, 8388608);
+
+	// Negative tests.
+	status = GdipResetClip (NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipResetClip (graphics);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDisposeImage (image);
+}
+
+static void test_getClip ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GpRegion *clip;
+
+	GpRectF bounds = {1, 2, 3, 4};
+	GdipCreateRegionRect (&bounds, &clip);
+
+	graphics = getImageGraphics (&image);
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+
+	// No transform.
+	status = GdipGetClip (graphics, clip);
+	assertEqualInt (status, Ok);
+
+	GdipGetRegionBounds (clip, graphics, &bounds);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Transformed.
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+	status = GdipGetClip (graphics, clip);
+	assertEqualInt (status, Ok);
+
+	GdipGetRegionBounds (clip, graphics, &bounds);
+	assertEqualFloat (bounds.X, 20);
+	assertEqualFloat (bounds.Y, 40);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Negative tests.
+	status = GdipGetClip (NULL, clip);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetClip (graphics, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipGetClip (graphics, clip);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDisposeImage (image);
+}
+
+static void test_getClipBounds ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GpRectF bounds;
+
+	graphics = getImageGraphics (&image);
+
+	// Default clip.
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, -4194304);
+	assertEqualFloat (bounds.Y, -4194304);
+	assertEqualFloat (bounds.Width, 8388608);
+	assertEqualFloat (bounds.Height, 8388608);
+
+	// Empty clip - no transform.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 0);
+	assertEqualFloat (bounds.Y, 0);
+	assertEqualFloat (bounds.Width, 0);
+	assertEqualFloat (bounds.Height, 0);
+
+	// Empty clip - transformed.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 0);
+	assertEqualFloat (bounds.Height, 0);
+
+	// Custom clip - no transform.
+	GdipResetWorldTransform (graphics);
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Custom clip - transformed.
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 20);
+	assertEqualFloat (bounds.Y, 40);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Negative tests.
+	status = GdipGetClipBounds (NULL, &bounds);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetClipBounds (graphics, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDisposeImage (image);
+}
+
+static void test_getClipBoundsI ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GpRect bounds;
+
+	graphics = getImageGraphics (&image);
+
+	// Default clip.
+	status = GdipGetClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualInt (bounds.X, -4194304);
+	assertEqualInt (bounds.Y, -4194304);
+	assertEqualInt (bounds.Width, 8388608);
+	assertEqualInt (bounds.Height, 8388608);
+
+	// Empty clip - no transform.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+
+	status = GdipGetClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualInt (bounds.X, 0);
+	assertEqualInt (bounds.Y, 0);
+	assertEqualInt (bounds.Width, 0);
+	assertEqualInt (bounds.Height, 0);
+
+	// Empty clip - transformed.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipGetClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualInt (bounds.X, 10);
+	assertEqualInt (bounds.Y, 20);
+	assertEqualInt (bounds.Width, 0);
+	assertEqualInt (bounds.Height, 0);
+
+	// Custom clip - no transform.
+	GdipResetWorldTransform (graphics);
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+	status = GdipGetClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualInt (bounds.X, 10);
+	assertEqualInt (bounds.Y, 20);
+	assertEqualInt (bounds.Width, 30);
+	assertEqualInt (bounds.Height, 40);
+
+	// Custom clip - transformed.
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipGetClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualInt (bounds.X, 20);
+	assertEqualInt (bounds.Y, 40);
+	assertEqualInt (bounds.Width, 30);
+	assertEqualInt (bounds.Height, 40);
+
+	// Negative tests.
+	status = GdipGetClipBoundsI (NULL, &bounds);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetClipBoundsI (graphics, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipGetClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDisposeImage (image);
+}
+
+static void test_getVisibleClipBounds ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GpRectF bounds;
+
+	graphics = getImageGraphics (&image);
+
+	// Default clip.
+	status = GdipGetVisibleClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 0);
+	assertEqualFloat (bounds.Y, 0);
+	assertEqualFloat (bounds.Width, 100);
+	assertEqualFloat (bounds.Height, 68);
+
+	// Empty clip - no transform.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+
+	status = GdipGetVisibleClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 0);
+	assertEqualFloat (bounds.Y, 0);
+	assertEqualFloat (bounds.Width, 0);
+	assertEqualFloat (bounds.Height, 0);
+
+	// Empty clip - transformed.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipGetVisibleClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 0);
+	assertEqualFloat (bounds.Height, 0);
+
+	// Custom clip - no transform.
+	GdipResetWorldTransform (graphics);
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+	status = GdipGetVisibleClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Custom clip - transformed.
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipGetVisibleClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 20);
+	assertEqualFloat (bounds.Y, 40);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Custom clip - rotated.
+	GpRegion *clip;
+	GpRectF rect = {0, 0, 32, 32};
+	GdipCreateRegionRect (&rect, &clip);
+
+	GdipResetWorldTransform (graphics);
+	GdipSetClipRegion (graphics, clip, CombineModeReplace);
+
+	status = GdipGetVisibleClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	// FIXME: this is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	assertEqualFloat (bounds.X, 0);
+	assertEqualFloat (bounds.Y, 0);
+	assertEqualFloat (bounds.Width, 32);
+	assertEqualFloat (bounds.Height, 32);
+#endif
+
+	// Negative tests.
+	status = GdipGetVisibleClipBounds (NULL, &bounds);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetVisibleClipBounds (graphics, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipGetVisibleClipBounds (graphics, &bounds);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDisposeImage (image);
+}
+
+static void test_getVisibleClipBoundsI ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GpRect bounds;
+
+	graphics = getImageGraphics (&image);
+
+	// Default clip.
+	status = GdipGetVisibleClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualInt (bounds.X, 0);
+	assertEqualInt (bounds.Y, 0);
+	assertEqualInt (bounds.Width, 100);
+	assertEqualInt (bounds.Height, 68);
+
+	// Empty clip - no transform.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+
+	status = GdipGetVisibleClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualInt (bounds.X, 0);
+	assertEqualInt (bounds.Y, 0);
+	assertEqualInt (bounds.Width, 0);
+	assertEqualInt (bounds.Height, 0);
+
+	// Empty clip - transformed.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipGetVisibleClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualInt (bounds.X, 10);
+	assertEqualInt (bounds.Y, 20);
+	assertEqualInt (bounds.Width, 0);
+	assertEqualInt (bounds.Height, 0);
+
+	// Custom clip - no transform.
+	GdipResetWorldTransform (graphics);
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+	status = GdipGetVisibleClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualInt (bounds.X, 10);
+	assertEqualInt (bounds.Y, 20);
+	assertEqualInt (bounds.Width, 30);
+	assertEqualInt (bounds.Height, 40);
+
+	// Custom clip - transformed.
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipGetVisibleClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualInt (bounds.X, 20);
+	assertEqualInt (bounds.Y, 40);
+	assertEqualInt (bounds.Width, 30);
+	assertEqualInt (bounds.Height, 40);
+
+	// Custom clip - rotated.
+	GpRegion *clip;
+	GpRectF rect = {0, 0, 32, 32};
+	GdipCreateRegionRect (&rect, &clip);
+
+	GdipResetWorldTransform (graphics);
+	GdipSetClipRegion (graphics, clip, CombineModeReplace);
+
+	status = GdipGetVisibleClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	// FIXME: this is incorrect: https://github.com/mono/libgdiplus/issues/309
+#if defined(USE_WINDOWS_GDIPLUS)
+	assertEqualInt (bounds.X, 0);
+	assertEqualInt (bounds.Y, 0);
+	assertEqualInt (bounds.Width, 32);
+	assertEqualInt (bounds.Height, 32);
+#endif
+
+	// Negative tests.
+	status = GdipGetVisibleClipBoundsI (NULL, &bounds);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetVisibleClipBoundsI (graphics, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipGetVisibleClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDisposeImage (image);
+}
+
+static void test_isClipEmpty ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	BOOL isEmpty;
+
+	graphics = getImageGraphics (&image);
+
+	// Default clip.
+	status = GdipIsClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEmpty, FALSE);
+
+	// Empty clip - no transform.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+
+	status = GdipIsClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEmpty, TRUE);
+
+	// Empty width clip - no transform.
+	GdipSetClipRect (graphics, 10, 20, 0, 40, CombineModeReplace);
+
+	status = GdipIsClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEmpty, TRUE);
+
+	// Empty height clip - no transform.
+	GdipSetClipRect (graphics, 10, 20, 30, 0, CombineModeReplace);
+
+	status = GdipIsClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEmpty, TRUE);
+
+	// Empty clip - transformed.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipIsClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEmpty, TRUE);
+
+	// Custom clip - no transform.
+	GdipResetWorldTransform (graphics);
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+
+	status = GdipIsClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEmpty, FALSE);
+
+	// Custom clip - transformed.
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipIsClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEmpty, FALSE);
+
+	// Negative tests.
+	status = GdipIsClipEmpty (NULL, &isEmpty);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipIsClipEmpty (graphics, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipIsClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDisposeImage (image);
+}
+
+static void test_isVisibleClipEmpty ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	BOOL isEmpty;
+
+	graphics = getImageGraphics (&image);
+
+	// Default clip.
+	status = GdipIsVisibleClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEmpty, FALSE);
+
+	// Empty clip - no transform.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+
+	status = GdipIsVisibleClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEmpty, TRUE);
+
+	// Empty width clip - no transform.
+	GdipSetClipRect (graphics, 10, 20, 0, 40, CombineModeReplace);
+
+	status = GdipIsVisibleClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEmpty, TRUE);
+
+	// Empty height clip - no transform.
+	GdipSetClipRect (graphics, 10, 20, 30, 0, CombineModeReplace);
+
+	status = GdipIsVisibleClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEmpty, TRUE);
+
+	// Empty clip - transformed.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipIsVisibleClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEmpty, TRUE);
+
+	// Custom clip - no transform.
+	GdipResetWorldTransform (graphics);
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+
+	status = GdipIsVisibleClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEmpty, FALSE);
+
+	// Custom clip - transformed.
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipIsVisibleClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEmpty, FALSE);
+
+	// Negative tests.
+	status = GdipIsVisibleClipEmpty (NULL, &isEmpty);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipIsVisibleClipEmpty (graphics, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipIsVisibleClipEmpty (graphics, &isEmpty);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDisposeImage (image);
+}
+
+static void test_setClipGraphics ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GpGraphics *otherGraphics;
+	GpRegion *clip;
+	GpRectF bounds;
+
+	graphics = getImageGraphics (&image);
+	otherGraphics = getImageGraphics (&image);
+	GdipCreateRegion (&clip);
+
+	// No transform.
+	GdipSetClipRect (otherGraphics, 10, 20, 30, 40, CombineModeReplace);
+
+	status = GdipSetClipGraphics (graphics, otherGraphics, CombineModeReplace);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);	
+
+	// Source graphics transformed.
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipSetClipGraphics (graphics, otherGraphics, CombineModeReplace);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	// FIXME this is incorrect: https://github.com/mono/libgdiplus/issues/308
+#if defined(USE_WINDOWS_GDIPLUS)
+	assertEqualFloat (bounds.X, 20);
+	assertEqualFloat (bounds.Y, 40);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+#endif
+
+	// Target graphics transformed.
+	GdipResetWorldTransform (graphics);
+	GdipTranslateWorldTransform (otherGraphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipSetClipGraphics (graphics, otherGraphics, CombineModeReplace);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Negative tests.
+	status = GdipSetClipGraphics (NULL, otherGraphics, CombineModeReplace);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetClipGraphics (graphics, NULL, CombineModeReplace);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipSetClipGraphics (graphics, otherGraphics, CombineModeReplace);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	status = GdipGetDC (otherGraphics, &hdc);
+
+	status = GdipSetClipGraphics (graphics, otherGraphics, CombineModeReplace);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (otherGraphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDeleteGraphics (otherGraphics);
+	GdipDisposeImage (image);
+}
+
+static void test_setClipHrgn ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpRegion *region;
+	GpGraphics *graphics;
+	HRGN hrgn;
+	GpRectF bounds;
+
+	graphics = getImageGraphics (&image);
+	GpRectF rect = {10, 20, 30, 40};
+	GdipCreateRegionRect (&rect, &region);
+	GdipGetRegionHRgn (region, graphics, &hrgn);
+
+	// No transform.
+	status = GdipSetClipHrgn (graphics, hrgn, CombineModeReplace);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Target graphics transformed.
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipSetClipHrgn (graphics, hrgn, CombineModeReplace);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	// FIXME: no transformation applied.
+#if defined(USE_WINDOWS_GDIPLUS)
+	assertEqualFloat (bounds.X, 20);
+	assertEqualFloat (bounds.Y, 40);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+#endif
+
+	// Negative tests.
+	status = GdipSetClipHrgn (NULL, hrgn, CombineModeReplace);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetClipHrgn (graphics, NULL, CombineModeReplace);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipSetClipHrgn (graphics, hrgn, CombineModeReplace);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDeleteRegion (region);
+}
+
+static void test_setClipRect ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GpRectF bounds;
+
+	graphics = getImageGraphics (&image);
+
+	// No transform.
+	status = GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Target graphics transformed.
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Negative tests.
+	status = GdipSetClipRect (NULL, 10, 20, 30, 40, CombineModeReplace);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDisposeImage (image);
+}
+
+static void test_setClipRectI ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GpRectF bounds;
+
+	graphics = getImageGraphics (&image);
+
+	// No transform.
+	status = GdipSetClipRectI (graphics, 10, 20, 30, 40, CombineModeReplace);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Target graphics transformed.
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipSetClipRectI (graphics, 10, 20, 30, 40, CombineModeReplace);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Negative tests.
+	status = GdipSetClipRectI (NULL, 10, 20, 30, 40, CombineModeReplace);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipSetClipRectI (graphics, 10, 20, 30, 40, CombineModeReplace);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDisposeImage (image);
+}
+
+static void test_setClipRegion ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpRegion *region;
+	GpGraphics *graphics;
+	GpRectF bounds;
+
+	graphics = getImageGraphics (&image);
+	GpRectF rect = {10, 20, 30, 40};
+	GdipCreateRegionRect (&rect, &region);
+
+	// No transform.
+	status = GdipSetClipRegion (graphics, region, CombineModeReplace);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Target graphics transformed.
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipSetClipRegion (graphics, region, CombineModeReplace);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Negative tests.
+	status = GdipSetClipRegion (NULL, region, CombineModeReplace);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetClipRegion (graphics, NULL, CombineModeReplace);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipSetClipRegion (graphics, region, CombineModeReplace);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDeleteRegion (region);
+	GdipDisposeImage (image);
+}
+
+static void test_translateClip ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GpRectF bounds;
+
+	graphics = getImageGraphics (&image);
+
+	// Non-infinite.
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+
+	status = GdipTranslateClip (graphics, 0, 0);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Negative.
+	status = GdipTranslateClip (graphics, -10, -20);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 0);
+	assertEqualFloat (bounds.Y, 0);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Positive.
+	status = GdipTranslateClip (graphics, 10, 20);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Negative tests.
+	status = GdipTranslateClip (NULL, 10, 20);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipTranslateClip (graphics, 10, 20);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDisposeImage (image);
+}
+
+static void test_translateClipI ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GpRectF bounds;
+
+	graphics = getImageGraphics (&image);
+
+	// Non-infinite.
+	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
+
+	status = GdipTranslateClipI (graphics, 0, 0);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Negative.
+	status = GdipTranslateClipI (graphics, -10, -20);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 0);
+	assertEqualFloat (bounds.Y, 0);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Positive.
+	status = GdipTranslateClipI (graphics, 10, 20);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 30);
+	assertEqualFloat (bounds.Height, 40);
+
+	// Negative tests.
+	status = GdipTranslateClipI (NULL, 10, 20);
+	assertEqualInt (status, InvalidParameter);
+
+	HDC hdc;
+	status = GdipGetDC (graphics, &hdc);
+
+	status = GdipTranslateClipI (graphics, 10, 20);
+	assertEqualInt (status, ObjectBusy);
+
+	GdipReleaseDC (graphics, hdc);
+
+	GdipDeleteGraphics (graphics);
+	GdipDisposeImage (image);
+}
+
 int
 main (int argc, char**argv)
 {
@@ -973,6 +2024,22 @@ main (int argc, char**argv)
 	test_dpiY ();
 	test_flush ();
 	test_delete ();
+	test_rotateWorldTransform ();
+	test_resetClip ();
+	test_getClip ();
+	test_getClipBounds ();
+	test_getClipBoundsI ();
+	test_getVisibleClipBounds ();
+	test_getVisibleClipBoundsI ();
+	test_isClipEmpty ();
+	test_isVisibleClipEmpty ();
+	test_setClipGraphics ();
+	test_setClipHrgn ();
+	test_setClipRect ();
+	test_setClipRectI ();
+	test_setClipRegion ();
+	test_translateClip ();
+	test_translateClipI ();
 
 	SHUTDOWN;
 	return 0;
