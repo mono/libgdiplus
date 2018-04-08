@@ -558,11 +558,45 @@ GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 	return Ok;
 }
 
+static GpStatus
+apply_world_to_bounds (GpGraphics *graphics)
+{
+	GpStatus status;
+	GpPointF pts[2];
+
+	pts[0].X = graphics->bounds.X;
+	pts[0].Y = graphics->bounds.Y;
+	pts[1].X = graphics->bounds.X + graphics->bounds.Width;
+	pts[1].Y = graphics->bounds.Y + graphics->bounds.Height;
+	status = GdipTransformMatrixPoints (graphics->clip_matrix, (GpPointF*)&pts, 2);
+	if (status != Ok)
+		return status;
+
+	if (pts[0].X > pts[1].X) {
+		graphics->bounds.X = pts[1].X;
+		graphics->bounds.Width = iround (pts[0].X - pts[1].X);
+	} else {
+		graphics->bounds.X = pts[0].X;
+		graphics->bounds.Width = iround (pts[1].X - pts[0].X);
+	}
+	if (pts[0].Y > pts[1].Y) {
+		graphics->bounds.Y = pts[1].Y;
+		graphics->bounds.Height = iround (pts[0].Y - pts[1].Y);
+	} else {
+		graphics->bounds.Y = pts[0].Y;
+		graphics->bounds.Height = iround (pts[1].Y - pts[0].Y);
+	}
+	return Ok;
+}
+
 GpStatus WINGDIPAPI
 GdipResetWorldTransform (GpGraphics *graphics)
 {
 	if (!graphics)
 		return InvalidParameter;
+
+	GdipInvertMatrix (graphics->clip_matrix);
+	apply_world_to_bounds (graphics);
 
 	cairo_matrix_init_identity (graphics->copy_of_ctm);
 	cairo_matrix_init_identity (graphics->clip_matrix);
@@ -633,37 +667,6 @@ GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 		gdip_cairo_matrix_copy (&inverted, &graphics->previous_matrix);
 		cairo_matrix_invert (&inverted);
 		return GdipMultiplyMatrix (matrix, &inverted, MatrixOrderAppend);
-	}
-	return Ok;
-}
-
-static GpStatus
-apply_world_to_bounds (GpGraphics *graphics)
-{
-	GpStatus status;
-	GpPointF pts[2];
-
-	pts[0].X = graphics->bounds.X;
-	pts[0].Y = graphics->bounds.Y;
-	pts[1].X = graphics->bounds.X + graphics->bounds.Width;
-	pts[1].Y = graphics->bounds.Y + graphics->bounds.Height;
-	status = GdipTransformMatrixPoints (graphics->clip_matrix, (GpPointF*)&pts, 2);
-	if (status != Ok)
-		return status;
-
-	if (pts[0].X > pts[1].X) {
-		graphics->bounds.X = pts[1].X;
-		graphics->bounds.Width = iround (pts[0].X - pts[1].X);
-	} else {
-		graphics->bounds.X = pts[0].X;
-		graphics->bounds.Width = iround (pts[1].X - pts[0].X);
-	}
-	if (pts[0].Y > pts[1].Y) {
-		graphics->bounds.Y = pts[1].Y;
-		graphics->bounds.Height = iround (pts[0].Y - pts[1].Y);
-	} else {
-		graphics->bounds.Y = pts[0].Y;
-		graphics->bounds.Height = iround (pts[1].Y - pts[0].Y);
 	}
 	return Ok;
 }

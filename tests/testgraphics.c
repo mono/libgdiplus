@@ -1303,13 +1303,10 @@ static void test_getVisibleClipBounds ()
 
 	status = GdipGetVisibleClipBounds (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: this is incorrect.
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (bounds.X, 0);
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 32);
 	assertEqualFloat (bounds.Height, 32);
-#endif
 
 	// Negative tests.
 	status = GdipGetVisibleClipBounds (NULL, &bounds);
@@ -1399,13 +1396,10 @@ static void test_getVisibleClipBoundsI ()
 
 	status = GdipGetVisibleClipBoundsI (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: this is incorrect: https://github.com/mono/libgdiplus/issues/309
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (bounds.X, 0);
 	assertEqualInt (bounds.Y, 0);
 	assertEqualInt (bounds.Width, 32);
 	assertEqualInt (bounds.Height, 32);
-#endif
 
 	// Negative tests.
 	status = GdipGetVisibleClipBoundsI (NULL, &bounds);
