@@ -72,6 +72,33 @@ gdip_fontfamily_new ()
 	return result;
 }
 
+static void
+gdip_font_init (GpFont *font)
+{
+	font->sizeInPixels = 0;
+	font->style = FontStyleRegular;
+	font->face = NULL;
+	font->family = NULL;
+	font->emSize = 0;
+	font->unit = UnitPixel;
+#ifdef USE_PANGO_RENDERING
+	font->pango = NULL;
+#else
+	font->cairofnt = NULL;
+#endif
+}
+
+static GpFont *
+gdip_font_new ()
+{
+	GpFont *result = (GpFont *) GdipAlloc (sizeof (GpFont));
+
+	if (result)
+		gdip_font_init (result);
+
+	return result;
+}
+
 static GpFontCollection *system_fonts = NULL;
 
 void
@@ -944,7 +971,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, REAL emSize, INT style, Unit uni
 	
 	sizeInPixels = gdip_unit_conversion (unit, UnitPixel, gdip_get_display_dpi(), gtMemoryBitmap, emSize);
 		
-	result = (GpFont *) GdipAlloc (sizeof (GpFont));
+	result = gdip_font_new ();
 	if (!result)
 		return OutOfMemory;
 
@@ -952,7 +979,7 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, REAL emSize, INT style, Unit uni
 
 	result->face = GdipAlloc(strlen((char *)str) + 1);
 	if (!result->face) {
-		GdipFree(result);
+		GdipDeleteFont (result);
 		return OutOfMemory;
 	}
 
@@ -963,15 +990,12 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, REAL emSize, INT style, Unit uni
 	result->unit = unit;
 	status = GdipCloneFontFamily ((GpFontFamily*) family, &result->family);
 	if (status != Ok) {
-		GdipFree (result);
+		GdipDeleteFont (result);
 		return OutOfMemory;
 	}
 
 	result->style = style;
-#ifdef USE_PANGO_RENDERING
-	result->pango = NULL;
-#else
-	result->cairofnt = NULL;
+#ifndef USE_PANGO_RENDERING
 	gdip_get_cairo_font_face (result);
 #endif
 
@@ -988,7 +1012,7 @@ GdipCloneFont (GpFont* font, GpFont** cloneFont)
 	if (!font || !cloneFont)
 		return InvalidParameter;
 		
-	result = (GpFont *) GdipAlloc (sizeof (GpFont));
+	result = gdip_font_new ();
 	if (!result)
 		return OutOfMemory;
 
@@ -1001,15 +1025,11 @@ GdipCloneFont (GpFont* font, GpFont** cloneFont)
 
 	status = GdipCloneFontFamily (font->family, &result->family);
 	if (status != Ok) {
-		GdipFree (result->face);
-		GdipFree (result);
+		GdipDeleteFont (font);
 		return OutOfMemory;
 	}
 
-#ifdef USE_PANGO_RENDERING
-	result->pango = NULL;
-#else
-	result->cairofnt = NULL;
+#ifndef USE_PANGO_RENDERING
 	gdip_get_cairo_font_face (result);
 #endif
 
@@ -1027,14 +1047,22 @@ GdipDeleteFont (GpFont* font)
 		GdipDeleteFontFamily (font->family);
 
 #ifdef USE_PANGO_RENDERING
-	if (font->pango)
+	if (font->pango) {
 		pango_font_description_free (font->pango);
+		font->pango = NULL;
+	}
 #else
-	if (font->cairofnt)
+	if (font->cairofnt) {
 		cairo_font_face_destroy (font->cairofnt);
+		font->cairofnt = NULL;
+	}
 #endif
 
-	GdipFree (font->face);
+	if (font->face) {
+		GdipFree (font->face);
+		font->face = NULL;
+	}
+
 	GdipFree (font);
 	return Ok;	       
 }
@@ -1139,7 +1167,7 @@ GdipCreateFontFromHfontA (HFONT hfont, GpFont **font, void *lf)
 
 	src_font = (GpFont *)hfont;
 
-	result = (GpFont *) GdipAlloc (sizeof (GpFont));
+	result = gdip_font_new ();
 	if (!result)
 		return OutOfMemory;
 
@@ -1147,7 +1175,7 @@ GdipCreateFontFromHfontA (HFONT hfont, GpFont **font, void *lf)
 	result->style = src_font->style;
 	status = GdipCloneFontFamily (src_font->family, &result->family);
 	if (!status) {
-		GdipFree (result);
+		GdipDeleteFont (result);
 		return OutOfMemory;
 	}
 
@@ -1157,7 +1185,7 @@ GdipCreateFontFromHfontA (HFONT hfont, GpFont **font, void *lf)
 
 	result->face = GdipAlloc(strlen((char *)src_font->face) + 1);
 	if (!result->face) {
-		GdipFree(result);
+		GdipDeleteFont (result);
 		return OutOfMemory;
 	}
 
@@ -1183,10 +1211,12 @@ GdipGetLogFontA (GpFont *font, GpGraphics *graphics, LOGFONTA *logfontA)
 static GpStatus
 gdip_create_font_from_logfont (HDC hdc, void *lf, GpFont **font, BOOL ucs2)
 {
+	GpStatus status;
+
 	if (!hdc || !lf || !font)
 		return InvalidParameter;
 
-	GpFont *result = (GpFont*) GdipAlloc (sizeof (GpFont));
+	GpFont *result = gdip_font_new ();
 	if (!result)
 		return OutOfMemory;
 
@@ -1217,26 +1247,21 @@ gdip_create_font_from_logfont (HDC hdc, void *lf, GpFont **font, BOOL ucs2)
 	}
 
 	if (ucs2) {
-		result->face = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)logfont->lfFaceName, -1);
+		result->face = (BYTE*) ucs2_to_utf8 ((WCHAR *) logfont->lfFaceName, -1);
 		if (!result->face){
-			GdipFree (result);
+			GdipDeleteFont (result);
 			return OutOfMemory;
 		}
 	} else {
-		result->face = GdipAlloc(LF_FACESIZE);
+		result->face = GdipAlloc (LF_FACESIZE);
 		if (!result->face){
-			GdipFree (result);
+			GdipDeleteFont (result);
 			return OutOfMemory;
 		}
 		memcpy(result->face, logfont->lfFaceName, LF_FACESIZE);
 		result->face[LF_FACESIZE - 1] = '\0';
 	}
 
-#ifdef USE_PANGO_RENDERING
-	result->pango = NULL;
-#else
-	result->cairofnt = NULL;
-#endif
 
 	*font = result;
 
