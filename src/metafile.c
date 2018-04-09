@@ -1348,9 +1348,10 @@ gdip_read_emf_header_optionals (ENHMETAHEADER3 *header, void *pointer, ImageSour
 		/* Header big enough to contain an extension? */
 		if (headerSize >= HeaderExtension1Size)
 		{
+			/* Match GDI+ behaviour where missing header data is set to 0. */
 			HeaderExtension1 extension;
-			if (gdip_read_emf_data (pointer, (BYTE *) &extension, sizeof (HeaderExtension1), source) != sizeof (HeaderExtension1))
-				return OutOfMemory;
+			memset (&extension, 0, sizeof (HeaderExtension1));
+			gdip_read_emf_data (pointer, (BYTE *) &extension, sizeof (HeaderExtension1), source);
 
 			/* Valid pixel format values? */
 			if (extension.offPixelFormat >= HeaderExtension1Size && (extension.offPixelFormat + extension.cbPixelFormat) <= header->nSize)
@@ -1359,19 +1360,6 @@ gdip_read_emf_header_optionals (ENHMETAHEADER3 *header, void *pointer, ImageSour
 				if (extension.offPixelFormat > header->offDescription)
 					headerSize = extension.offPixelFormat;
 			}
-		}
-	}
-	
-	int sizeToRead = originalHeaderSize - headerSize;
-	if (sizeToRead > 0) {
-		while (sizeToRead > sizeof (DWORD)) {
-			if (gdip_read_emf_data (pointer, (void*) &key, sizeof (DWORD), source) != sizeof (DWORD))
-				return OutOfMemory;
-			sizeToRead -= sizeof (DWORD);
-		}
-		if (sizeToRead > 0) {
-			if (gdip_read_emf_data (pointer, (void*) &key, sizeToRead, source) != sizeToRead)
-				return OutOfMemory;
 		}
 	}
 
@@ -1435,11 +1423,14 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 		status = combine_headers (NULL, header);
 		break;
 	case EMF_EMR_HEADER_KEY:
-		emf = &(header->Header.Emf);
+		emf = &header->Header.Emf;
 		emf->iType = key;
+
+		/* Match GDI+ behaviour where missing header data is set to 0. */
 		size = sizeof (ENHMETAHEADER3) - size;
-		if (gdip_read_emf_data (pointer, (BYTE*)(&header->Header.Emf) + sizeof (DWORD), size, source) != size)
-			return OutOfMemory;
+		memset ((BYTE *) emf + sizeof (DWORD), 0, size);
+		gdip_read_emf_data (pointer, (BYTE *) emf + sizeof (DWORD), size, source);
+
 		EnhMetaHeaderLE (&header->Header.Emf);
 
 #ifdef DEBUG_METAFILE
