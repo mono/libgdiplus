@@ -68,7 +68,7 @@ int gdip_region_bitmap_get_scans (GpRegionBitmap *bitmap, GpRectF *rect) GDIP_IN
 void gdip_region_bitmap_get_smallest_rect (GpRegionBitmap *bitmap, GpRect *rect) GDIP_INTERNAL;
 void gdip_region_bitmap_shrink (GpRegionBitmap *bitmap, BOOL always_shrink) GDIP_INTERNAL;
 
-void gdip_region_bitmap_apply_alpha (GpBitmap *bitmap, GpRegionBitmap *alpha) GDIP_INTERNAL;
+cairo_surface_t *gdip_region_bitmap_to_cairo_surface (GpRegionBitmap *bitmap) GDIP_INTERNAL;
 
 GpRegionBitmap* gdip_region_bitmap_combine (GpRegionBitmap *bitmap1, GpRegionBitmap* bitmap2, CombineMode combineMode) GDIP_INTERNAL;
 

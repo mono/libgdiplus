@@ -1993,6 +1993,63 @@ static void test_translateClipI ()
 	GdipDisposeImage (image);
 }
 
+static void test_region_mask()
+{
+	ARGB color;
+	GpStatus status;
+	GpBitmap* bitmap = NULL;
+	GpGraphics* graphics = NULL;
+	GpPath* rectPath = NULL;
+	GpPath* polyPath = NULL;
+	GpRegion* region = NULL;
+	GpSolidFill* brush = NULL;
+	static GpPoint polyPoints[] = { { 100, 100 }, { 200,  75 }, { 300, 100 }, { 325, 200 }, { 300, 300 }, { 200, 325 }, { 100, 300 }, {  75, 200 } };
+
+	status = GdipCreateBitmapFromScan0 (400, 400, 0, PixelFormat32bppARGB, NULL, &bitmap);
+	assertEqualInt (status, Ok);
+	status = GdipGetImageGraphicsContext (bitmap, &graphics);
+	assertEqualInt (status, Ok);
+	GdipGraphicsClear (graphics, 0xFF808080);
+
+	status = GdipCreatePath (FillModeAlternate, &rectPath);
+	assertEqualInt (status, Ok);
+	GdipAddPathRectangleI (rectPath, 50, 50, 300, 300);
+
+	status = GdipCreatePath (FillModeAlternate, &polyPath);
+	assertEqualInt (status, Ok);
+	GdipAddPathPolygonI (polyPath, polyPoints, sizeof(polyPoints) / sizeof(polyPoints[0]));
+
+	status = GdipCreateRegion (&region);
+	assertEqualInt (status, Ok);
+	GdipSetEmpty (region);
+	GdipCombineRegionPath (region, rectPath, CombineModeUnion);
+	GdipCombineRegionPath (region, polyPath, CombineModeExclude);
+
+	status = GdipCreateSolidFill (0xFF00FF00, &brush);
+	assertEqualInt (status, Ok);
+
+	GdipFillRegion (graphics, brush, region);
+
+	status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
+	assertEqualInt(status, Ok);
+	assertEqualInt(color, 0xFF808080);
+	status = GdipBitmapGetPixel (bitmap, 50, 50, &color);
+	assertEqualInt(status, Ok);
+	assertEqualInt(color, 0xFF00FF00);
+	status = GdipBitmapGetPixel (bitmap, 200, 200, &color);
+	assertEqualInt(status, Ok);
+	assertEqualInt(color, 0xFF808080);
+
+	//GdipSaveImageToFile (bitmap, (const WCHAR*)createWchar( "test-image.png" ), &png_clsid, NULL);
+
+	GdipDeleteGraphics (graphics);
+	GdipDeletePath (rectPath);
+	GdipDeletePath (polyPath);
+	GdipDeleteRegion (region);
+	GdipDeleteBrush (brush);
+	GdipDisposeImage (bitmap);
+}
+
 int
 main (int argc, char**argv)
 {
@@ -2034,6 +2091,7 @@ main (int argc, char**argv)
 	test_setClipRegion ();
 	test_translateClip ();
 	test_translateClipI ();
+	test_region_mask ();
 
 	SHUTDOWN;
 	return 0;
