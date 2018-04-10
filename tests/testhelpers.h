@@ -409,6 +409,29 @@ ATTRIBUTE_USED static BOOL is_32bit()
     GdipFree (palette); \
 }
 
+#define verifyNoPalette(image, flags) \
+{ \
+	GpStatus status; \
+	INT size; \
+	ColorPalette *palette; \
+ \
+	status = GdipGetImagePaletteSize (image, &size); \
+	assertEqualInt (status, Ok); \
+ \
+	palette = (ColorPalette *) GdipAlloc (size); \
+	memset (palette, 0, sizeof (ColorPalette)); \
+	palette->Entries[0] = 0x123; \
+	status = GdipGetImagePalette (image, palette, size); \
+	assertEqualInt (status, Ok); \
+	assertEqualInt (size, sizeof (ColorPalette)); \
+ \
+	assertEqualInt (palette->Flags, flags); \
+	assertEqualInt (palette->Count, 0); \
+	assertEqualInt (palette->Entries[0], 0x123); \
+ \
+	GdipFree (palette); \
+}
+
 #define HEX__(n) 0x##n##LU
 #define B8__(x) ((x&0x0000000FLU)?1:0) \
 + ((x&0x000000F0LU)?2:0)               \

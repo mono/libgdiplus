@@ -98,6 +98,8 @@ static void test_validImage1bppOS2Header ()
 	createFileSuccessDispose (image1x1, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFF00FF00};
 	verifyPixels (image, image1x1Pixels);
+	ARGB expectedPalette[] = {0xFF0000FF, 0xFF00FF00};
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image24x4, PixelFormat1bppIndexed, 24, 4, bmpFlags, FALSE);
@@ -108,6 +110,7 @@ static void test_validImage1bppOS2Header ()
 		0xFF00FF00, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF
 	};
 	verifyPixels (image, image24x4Pixels);
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 }
 
@@ -2930,7 +2933,8 @@ static void test_validImage8bppRle8Compression ()
 		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
 		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00
 	};
-	verifyPixels (image, fullNoTerminatorPixels);	GdipDisposeImage (image);
+	verifyPixels (image, fullNoTerminatorPixels);
+	GdipDisposeImage (image);
 
 	createFileSuccessDispose (fullTerminator, expectedRle8Format, 6, 4, bmpFlags, FALSE);
 	ARGB fullTerminatorPixels[] = {
@@ -3248,6 +3252,7 @@ static void test_validImage16bppOS2Header ()
 	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
     ARGB image1x1Pixels[] = {0xFFD6AD6B};
     verifyPixels (image, image1x1Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
@@ -3258,6 +3263,7 @@ static void test_validImage16bppOS2Header ()
         0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6
     };
     verifyPixels (image, image6x4Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 }
 
@@ -3732,6 +3738,7 @@ static void test_validImage16bppBitmapInfoHeader ()
 	createFileSuccessDispose (image1x1NoCompression, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1NoCompressionPixels[] = {0xFFD6AD6B};
 	verifyPixels (image, image1x1NoCompressionPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4NoCompression, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
@@ -3742,11 +3749,13 @@ static void test_validImage16bppBitmapInfoHeader ()
         0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6
     };
     verifyPixels (image, image6x4NoCompressionPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1NoCompressionNegativeHeight, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1NoCompressionNegativeHeightPixels[] = {0xFFD6AD6B};
 	verifyPixels (image, image1x1NoCompressionNegativeHeightPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4NoCompressionNegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
@@ -3757,19 +3766,23 @@ static void test_validImage16bppBitmapInfoHeader ()
 		0xFFFFBDFF, 0xFF8439FF, 0xFF0039C6, 0xFFFF8439, 0xFF7BBDC6, 0xFF000000
 	};
 	verifyPixels (image, image6x4NoCompressionNegativeHeightPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1RGB555MaskBitfieldsCompression, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	verifyPixels (image, image1x1NoCompressionPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4RGB555MaskBitfieldsCompression, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
 	verifyPixels (image, image6x4NoCompressionPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1RGB565MaskBitfieldsCompression, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1RGB565MaskBitfieldsPixels[] = {0xFF6B556B};
 	verifyPixels (image, image1x1RGB565MaskBitfieldsPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4RGB565MaskBitfieldsCompression, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
@@ -3780,6 +3793,7 @@ static void test_validImage16bppBitmapInfoHeader ()
 		0xFFC61CFF, 0xFFFFDFFF, 0xFFFFC339, 0xFF001CC6, 0xFF000000, 0xFF39DFC6
 	};
 	verifyPixels (image, image6x4RGB565MaskBitfieldsPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1InvalidMaskBitfieldsCompression, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
@@ -3788,6 +3802,7 @@ static void test_validImage16bppBitmapInfoHeader ()
 #if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image1x1InvalidMaskBitfieldsCompressionPixels[] = {0xFFADD56B};
 	verifyPixels (image, image1x1InvalidMaskBitfieldsCompressionPixels);
+	verifyNoPalette (image, 0);
 #endif
 	GdipDisposeImage (image);
 
@@ -3802,20 +3817,24 @@ static void test_validImage16bppBitmapInfoHeader ()
 		0xFFFFC000, 0xFFFFFE00, 0xFF07FE00, 0xFFF80000, 0xFF000000, 0xFFF83E00
 	};
 	verifyPixels (image, image6x4InvalidMaskBitfieldsCompressionPixels);
+	verifyNoPalette (image, 0);
 #endif
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1RGB555MaskBitfieldsCompressionNegativeHeight, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	verifyPixels (image, image1x1NoCompressionNegativeHeightPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4RGB555MaskBitfieldsCompressionNegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
 	verifyPixels (image, image6x4NoCompressionNegativeHeightPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1RGB565MaskBitfieldsCompressionNegativeHeight, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1RGB565MaskNegativeHeightBitfieldsPixels[] = {0xFF6B556B};
 	verifyPixels (image, image1x1RGB565MaskNegativeHeightBitfieldsPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4RGB565MaskBitfieldsCompressionNegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
@@ -3826,6 +3845,7 @@ static void test_validImage16bppBitmapInfoHeader ()
 		0xFFFFDFFF, 0xFFC61CFF, 0xFF001CC6, 0xFFFFC339, 0xFF39DFC6, 0xFF000000
 	};
 	verifyPixels (image, image6x4RGB565MaskNegativeHeightBitfieldsPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1InvalidMaskBitfieldsCompressionNegativeHeight, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
@@ -3834,6 +3854,7 @@ static void test_validImage16bppBitmapInfoHeader ()
 #if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image1x1InvalidMaskNegativeHeightBitfieldsPixels[] = {0xFFAD6A00};
 	verifyPixels (image, image1x1InvalidMaskNegativeHeightBitfieldsPixels);
+	verifyNoPalette (image, 0);
 #endif
 	GdipDisposeImage (image);
 
@@ -3848,6 +3869,7 @@ static void test_validImage16bppBitmapInfoHeader ()
 		0xFFFFFDFF, 0xFFFF81FF, 0xFFF800C6, 0xFF07FD39, 0xFFF87CC6, 0xFF000000
 	};
 	verifyPixels (image, image6x4InvalidMaskBitfieldsNegativeHeightBitfieldsPixels);
+	verifyNoPalette (image, 0);
 #endif
 	GdipDisposeImage (image);
 
@@ -3923,11 +3945,13 @@ static void test_validImage16bppBitmapV3Header ()
 	createFileSuccessDispose (image1x1RGB565, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1RGB565Pixels[] = {0xFFFFB5BD};
 	verifyPixels (image, image1x1RGB565Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1RGB555, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1RGB555Pixels[] = {0xFFFFB5BD};
 	verifyPixels (image, image1x1RGB555Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 }
 
@@ -3954,6 +3978,7 @@ static void test_validImage16bppBitmapV4Header ()
 	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFFD6AD6B};
 	verifyPixels (image, image1x1Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
@@ -3964,6 +3989,7 @@ static void test_validImage16bppBitmapV4Header ()
 		0xFF8439FF, 0xFFFFBDFF, 0xFFFF8439, 0xFF0039C6, 0xFF000000, 0xFF7BBDC6
 	};
 	verifyPixels (image, image6x4Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 }
 
@@ -4047,11 +4073,13 @@ static void test_validImage16bppBitmapV5Header ()
 	createFileSuccessDispose (image1x1RGB565, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1RGB565Pixels[] = {0xFFFFB5BD};
 	verifyPixels (image, image1x1RGB565Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1RGB555, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1RGB555Pixels[] = {0xFFFFB5BD};
 	verifyPixels (image, image1x1RGB555Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 }
 
@@ -4074,6 +4102,7 @@ static void test_validImage24bppOS2Header ()
 	createFileSuccessDispose (image1x1, PixelFormat24bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFFFF0000};
 	verifyPixels (image, image1x1Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4, PixelFormat24bppRGB, 6, 4, bmpFlags, FALSE);
@@ -4084,6 +4113,7 @@ static void test_validImage24bppOS2Header ()
 		0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00, 0xFFFF00FF, 0xFFFFFFFF
 	};
 	verifyPixels (image, image6x4Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 }
 
@@ -4130,6 +4160,7 @@ static void test_validImage24bppBitmapInfoHeader ()
 	createFileSuccessDispose (image1x1, PixelFormat24bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFFFF0000};
 	verifyPixels (image, image1x1Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4, PixelFormat24bppRGB, 6, 4, bmpFlags, FALSE);
@@ -4140,14 +4171,17 @@ static void test_validImage24bppBitmapInfoHeader ()
 		0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00, 0xFFFF00FF, 0xFFFFFFFF
 	};
 	verifyPixels (image, image6x4Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1NegativeHeight, PixelFormat24bppRGB, 1, 1, bmpFlags, FALSE);
 	verifyPixels (image, image1x1Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4NegativeHeight, PixelFormat24bppRGB, 6, 4, bmpFlags, FALSE);
 	verifyPixels (image, image6x4Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	// FIXME: GDI+ converts RLE compressed 24bpp images to 32bppRGB.
@@ -4199,6 +4233,7 @@ static void test_validImage24bppBitmapV3Header ()
 	createFileSuccessDispose (image1x1, PixelFormat24bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFFFFDAB9};
 	verifyPixels (image, image1x1Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 }
 
@@ -4240,6 +4275,7 @@ static void test_validImage24bppBitmapV4Header ()
 	createFileSuccessDispose (image1x1, PixelFormat24bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFFFFDAB9};
 	verifyPixels (image, image1x1Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 }
 
@@ -4288,6 +4324,7 @@ static void test_validImage24bppBitmapV5Header ()
 #if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image1x1Pixels[] = {0xFFFFDAB9};
 	verifyPixels (image, image1x1Pixels);
+	verifyNoPalette (image, 0);
 #endif
 	GdipDisposeImage (image);
 }
@@ -4311,6 +4348,7 @@ static void test_validImage32bppOS2Header ()
 	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFFFF0000};
 	verifyPixels (image, image1x1Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
@@ -4321,6 +4359,7 @@ static void test_validImage32bppOS2Header ()
 		0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00, 0xFFFF00FF, 0xFFFFFFFF
 	};
 	verifyPixels (image, image6x4Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 }
 
@@ -4367,6 +4406,7 @@ static void test_validImage32bppBitmapInfoHeader ()
 	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFFFF0000};
 	verifyPixels (image, image1x1Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
@@ -4377,14 +4417,17 @@ static void test_validImage32bppBitmapInfoHeader ()
 		0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00, 0xFFFF00FF, 0xFFFFFFFF
 	};
 	verifyPixels (image, image6x4Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4NegativeHeight, PixelFormat32bppRGB, 6, 4, bmpFlags, FALSE);
 	verifyPixels (image, image6x4Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (planesNotZero, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	verifyPixels (image, image1x1Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (rle4Compression32bpp, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
@@ -4430,6 +4473,7 @@ static void test_validImage32bppBitmapV3Header ()
 	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFFFFDAB9};
 	verifyPixels (image, image1x1Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 }
 
@@ -4471,6 +4515,7 @@ static void test_validImage32bppBitmapV4Header ()
 	createFileSuccessDispose (image1x1, PixelFormat32bppRGB, 1, 1, bmpFlags, FALSE);
 	ARGB image1x1Pixels[] = {0xFFFFDAB9};
 	verifyPixels (image, image1x1Pixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 }
 
@@ -4684,6 +4729,7 @@ static void test_validImage32bppBitfields ()
 		0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF
 	};
 	verifyPixels (image, bitmapInfoHeaderBitfieldsDefaultPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (bitmapInfoHeaderBitfieldsCustom, PixelFormat32bppRGB, 4, 2, bmpFlags, FALSE);
@@ -4692,18 +4738,22 @@ static void test_validImage32bppBitfields ()
 		0xFFFF0000, 0xFF0000FF, 0xFF00FF00, 0xFFFFFFFF
 	};
 	verifyPixels (image, customBitfieldsPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (bitmapV3HeaderBitfieldsNonZeroAlphaMask, PixelFormat32bppRGB, 4, 2, bmpFlags, FALSE);
 	verifyPixels (image, customBitfieldsPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (bitmapV4HeaderBitfields, PixelFormat32bppRGB, 4, 2, bmpFlags, FALSE);
 	verifyPixels (image, customBitfieldsPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (bitmapV5HeaderBitfields, PixelFormat32bppRGB, 4, 2, bmpFlags, FALSE);
 	verifyPixels (image, customBitfieldsPixels);
+	verifyNoPalette (image, 0);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (bitmapInfoHeaderAllMasksZero, PixelFormat32bppRGB, 4, 2, bmpFlags, FALSE);
@@ -4805,15 +4855,19 @@ static void test_valid ()
 
 	createFileSuccessDispose (nonZeroHorizontal, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
 	ARGB nonZeroHorizontalPixels[] = {0xFF00FF00};
+	ARGB expectedPalette[] = {0xFF0000FF, 0xFF00FF00};
+	verifyPalette (image, 0, expectedPalette);
 	verifyPixels (image, nonZeroHorizontalPixels);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (nonZeroVertical, PixelFormat1bppIndexed, 1, 1, bmpFlags, FALSE);
 	verifyPixels (image, nonZeroHorizontalPixels);
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (nonZeroHorizontalNonZeroVertical, PixelFormat1bppIndexed, 1, 1, bmpFlags | ImageFlagsHasRealDPI, FALSE);
 	verifyPixels (image, nonZeroHorizontalPixels);
+	verifyPalette (image, 0, expectedPalette);
 	GdipDisposeImage (image);
 }
 
