@@ -729,6 +729,7 @@ cairo_FillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 	/* if this is a region with a complex path */
 	if (region->type == RegionTypePath) {
 		GpStatus status;
+		cairo_surface_t *mask_surface;
 		GpBitmap *bitmap = NULL;
 
 		/* (optimization) if if the path is empty, return immediately */
@@ -749,26 +750,21 @@ cairo_FillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 		if (!region->bitmap)
 			return OutOfMemory;
 
-		status = GdipCreateBitmapFromGraphics (region->bitmap->Width, region->bitmap->Height, graphics, &bitmap);
-		if (status == Ok) {
-			GpGraphics *bitgraph = NULL;
-			status = GdipGetImageGraphicsContext ((GpImage*)bitmap, &bitgraph);
-			if (status == Ok) {
-				/* fill the "full" rectangle using the specified brush */
-				GdipFillRectangle (bitgraph, brush, 0, 0, region->bitmap->Width, region->bitmap->Height);
+		mask_surface = gdip_region_bitmap_to_cairo_surface (region->bitmap);
+		cairo_save (graphics->ct);
+	
+		/* We do brush setup just before filling. */
+		gdip_brush_setup (graphics, brush);
 
-				/* adjust bitmap alpha (i.e. shape the brushed-rectangle like the region) */
-				gdip_region_bitmap_apply_alpha (bitmap, region->bitmap);
+		cairo_close_path (graphics->ct);
+		cairo_mask_surface (graphics->ct, mask_surface, region->bitmap->X, region->bitmap->Y);
+		cairo_fill (graphics->ct);
 
-				/* draw the region */
-				status = GdipDrawImageRect (graphics, (GpImage*)bitmap, region->bitmap->X, region->bitmap->Y,
-					region->bitmap->Width, region->bitmap->Height);
-			}
-			if (bitgraph)
-				GdipDeleteGraphics (bitgraph);
-		}
-		if (bitmap)
-			GdipDisposeImage ((GpImage*)bitmap);
+		status = gdip_get_status (cairo_status (graphics->ct));
+
+		cairo_restore (graphics->ct);
+		cairo_surface_destroy (mask_surface);
+
 		return status;
 	}
 
