@@ -834,22 +834,23 @@ gdip_region_bitmap_is_rect_visible (GpRegionBitmap *bitmap, GpRect *rect)
 		return FALSE;
 
 	/* quick intersection checks */
-	if (bitmap->X < rect->X + rect->Width)
+	if (bitmap->X >= rect->X + rect->Width)
 		return FALSE;
-	if (bitmap->X + bitmap->Width > rect->X)
+	if (bitmap->X + bitmap->Width <= rect->X)
 		return FALSE;
-	if (bitmap->Y < rect->Y + rect->Height)
+	if (bitmap->Y >= rect->Y + rect->Height)
 		return FALSE;
-	if (bitmap->Y + bitmap->Height > rect->Y)
+	if (bitmap->Y + bitmap->Height <= rect->Y)
 		return FALSE;
 
 	/* TODO - optimize */
 	for (y = rect->Y; y < rect->Y + rect->Height; y++) {
 		for (x = rect->X; x < rect->X + rect->Width; x++) {
-			if (is_point_visible (bitmap, x, y))
+			if (gdip_region_bitmap_is_point_visible (bitmap, x, y))
 				return TRUE;
 		}
 	}
+
 	return FALSE;
 }
 
