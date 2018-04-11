@@ -101,6 +101,29 @@ gdip_is_Point_in_RectFs_Visible (float x, float y, GpRectF* r, int cnt)
 	return FALSE;
 }
 
+static BOOL
+gdip_is_Rect_in_RectF_Visible (float x, float y, float width, float height, GpRectF* rect)
+{
+	if (rect->Width == 0 || rect->Height == 0)
+		return FALSE;
+
+	return x < rect->X + rect->Width && x + width > rect->X && y < rect->Y + rect->Height && y + height > rect->Y;
+}
+
+static BOOL
+gdip_is_Rect_in_RectFs_Visible (float x, float y, float width, float height, GpRectF* r, int cnt)
+{
+	GpRectF* rect = r;
+	int i;
+
+	for (i = 0; i < cnt; i++, rect++) {
+		if (gdip_is_Rect_in_RectF_Visible (x, y, width, height, rect))
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
 static void
 gdip_get_bounds (GpRectF *allrects, int allcnt, GpRectF *bound)
 {
@@ -1586,8 +1609,6 @@ GdipIsVisibleRegionPointI (GpRegion *region, int x, int y, GpGraphics *graphics,
 GpStatus WINGDIPAPI
 GdipIsVisibleRegionRect (GpRegion *region, float x, float y, float width, float height, GpGraphics *graphics, BOOL *result)
 {
-	BOOL found = FALSE;
-
 	if (!region || !result)
 		return InvalidParameter;
 
@@ -1597,24 +1618,12 @@ GdipIsVisibleRegionRect (GpRegion *region, float x, float y, float width, float 
 	}
 
 	switch (region->type) {
-	case RegionTypeRect: {
-		float posy, posx;
-		GpRectF recthit = {x, y, width, height};
-
-		/* Any point of intersection ?*/
-		for (posy = 0; posy < recthit.Height && found == FALSE; posy++) {
-			for (posx = 0; posx < recthit.Width ; posx++) {
-				if (gdip_is_Point_in_RectFs_Visible (recthit.X + posx , recthit.Y + posy, region->rects, region->cnt) == TRUE) {
-					*result = TRUE;
-					break;
-				}
-			}
-		}
+	case RegionTypeRect:
+		*result = gdip_is_Rect_in_RectFs_Visible (x, y, width, height, region->rects, region->cnt);
 		break;
-	}
 	case RegionTypePath: {
 		GpRect rect = {x, y, width, height};
-		
+
 		gdip_region_bitmap_ensure (region);
 		g_assert (region->bitmap);
 

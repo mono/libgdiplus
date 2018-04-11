@@ -305,6 +305,754 @@ static void test_createRegionPath ()
 	GdipDeletePath (path);
 }
 
+static void test_isVisibleRegionPoint ()
+{
+	GpStatus status;
+	GpPath *path;
+	GpRegion *region;
+	BOOL isVisible;
+
+	// Rect region.
+	GpRectF rect = {10, 20, 30, 40};
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipIsVisibleRegionPoint (region, 10, 20, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPoint (region, 39, 59, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPoint (region, 39, 60, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, 40, 49, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, 9, 20, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, 10, 19, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, 10, 20, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPoint (region, 10, 19, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Path region.
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 10, 20, 30, 40);
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipIsVisibleRegionPoint (region, 10, 20, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPoint (region, 39, 59, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPoint (region, 39, 60, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, 40, 49, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, 9, 20, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, 10, 19, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, 10, 20, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPoint (region, 10, 19, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	// Empty region.
+	GdipCreateRegion (&region);
+	GdipSetEmpty (region);
+
+	status = GdipIsVisibleRegionPoint (region, 0, 0, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, 10, 20, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, 0, 0, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Infinite region.
+	GdipCreateRegion (&region);
+
+	status = GdipIsVisibleRegionPoint (region, 0, 0, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPoint (region, -4194304, -4194304, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPoint (region, 4194303, 4194303, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPoint (region, -4194305, -4194304, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, -4194304, -4194305, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, 4194303, 4194304, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, 4194304, 4194303, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, 8388608, 8388608, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPoint (region, 0, 0, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPoint (region, 8388608, 8388608, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	// Negative tests.
+	status = GdipIsVisibleRegionPoint (NULL, 0, 0, graphics, &isVisible);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipIsVisibleRegionPoint (region, 0, 0, graphics, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeleteRegion (region);
+}
+
+static void test_isVisibleRegionPointI ()
+{
+	GpStatus status;
+	GpPath *path;
+	GpRegion *region;
+	BOOL isVisible;
+
+	// Rect region.
+	GpRectF rect = {10, 20, 30, 40};
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipIsVisibleRegionPointI (region, 10, 20, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPointI (region, 39, 59, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPointI (region, 39, 60, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPointI (region, 40, 49, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPointI (region, 9, 20, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPointI (region, 10, 19, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPointI (region, 10, 20, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPointI (region, 10, 19, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Path region.
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 10, 20, 30, 40);
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipIsVisibleRegionPointI (region, 10, 20, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPointI (region, 39, 59, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPointI (region, 39, 60, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPointI (region, 40, 49, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPointI (region, 9, 20, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPointI (region, 10, 19, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	// Empty region.
+	GdipCreateRegion (&region);
+	GdipSetEmpty (region);
+
+	status = GdipIsVisibleRegionPointI (region, 0, 0, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+	
+	status = GdipIsVisibleRegionPointI (region, 10, 20, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPointI (region, 0, 0, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Infinite region.
+	GdipCreateRegion (&region);
+
+	status = GdipIsVisibleRegionPointI (region, 0, 0, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPointI (region, -4194304, -4194304, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPointI (region, 4194303, 4194303, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPointI (region, -4194305, -4194304, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPointI (region, -4194304, -4194305, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPointI (region, 4194303, 4194304, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPointI (region, 4194304, 4194303, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPointI (region, 8388608, 8388608, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionPointI (region, 0, 0, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionPointI (region, 8388608, 8388608, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	// Negative tests.
+	status = GdipIsVisibleRegionPointI (NULL, 0, 0, graphics, &isVisible);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipIsVisibleRegionPointI (region, 0, 0, graphics, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeleteRegion (region);
+}
+
+static void test_isVisibleRegionRect ()
+{
+	GpStatus status;
+	GpPath *path;
+	GpRegion *region;
+	BOOL isVisible;
+
+	// Rect region.
+	GpRectF rect = {10, 20, 30, 40};
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 30, 40, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 39, 59, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 31, 40, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 30, 41, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 9, 19, 2, 2, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 9, 19, 2, 2, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 39, 60, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 40, 49, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 9, 20, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 19, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 0, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 1, 0, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 1, 1, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 1, 0, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Path region.
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 10, 20, 30, 40);
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 30, 40, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 39, 59, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 31, 40, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 30, 41, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 9, 19, 2, 2, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 9, 19, 2, 2, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 39, 60, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 40, 49, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 9, 20, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 19, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 0, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 1, 0, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 1, 1, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 1, 0, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	// Empty region.
+	GdipCreateRegion (&region);
+	GdipSetEmpty (region);
+
+	status = GdipIsVisibleRegionRect (region, 0, 0, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 10, 20, 10, 20, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 0, 0, 1, 1, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Infinite region.
+	GdipCreateRegion (&region);
+
+	status = GdipIsVisibleRegionRect (region, -4194304, -4194304, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, -4194304, -4194304, 8388608, 8388608, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 4194303, 4194303, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, -4194304, -4194304, 8388609, 8388608, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, -4194304, -4194304, 8388608, 8388609, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, -4194305, -4194305, 2, 2, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, 4194303, 4194304, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 4194304, 4194303, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 4194303, 4194304, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, 4194304, 4194303, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, -4194304, -4194304, 0, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, -4194304, -4194304, 1, 0, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRect (region, -4194304, -4194304, 1, 1, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRect (region, -4194304, -4194304, 1, 0, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	// Negative tests.
+	status = GdipIsVisibleRegionRect (NULL, 0, 0, 0, 0, graphics, &isVisible);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipIsVisibleRegionRect (region, 0, 0, 0, 0, graphics, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeleteRegion (region);
+}
+
+static void test_isVisibleRegionRectI ()
+{
+	GpStatus status;
+	GpPath *path;
+	GpRegion *region;
+	BOOL isVisible;
+
+	// Rect region.
+	GpRectF rect = {10, 20, 30, 40};
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 30, 40, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 39, 59, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 31, 40, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 30, 41, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 9, 19, 2, 2, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 9, 19, 2, 2, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 39, 60, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 40, 49, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 9, 20, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 19, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 0, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 1, 0, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 1, 1, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 1, 0, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Path region.
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 10, 20, 30, 40);
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 30, 40, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 39, 59, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 31, 40, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 30, 41, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 9, 19, 2, 2, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 9, 19, 2, 2, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 39, 60, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 40, 49, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 9, 20, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 19, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 0, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 1, 0, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 1, 1, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 1, 0, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	// Empty region.
+	GdipCreateRegion (&region);
+	GdipSetEmpty (region);
+
+	status = GdipIsVisibleRegionRectI (region, 0, 0, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 10, 20, 10, 20, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 0, 0, 1, 1, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Infinite region.
+	GdipCreateRegion (&region);
+
+	status = GdipIsVisibleRegionRectI (region, -4194304, -4194304, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, -4194304, -4194304, 8388608, 8388608, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 4194303, 4194303, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, -4194304, -4194304, 8388609, 8388608, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, -4194304, -4194304, 8388608, 8388609, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, -4194305, -4194305, 2, 2, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, 4194303, 4194304, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 4194304, 4194303, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 4194303, 4194304, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, 4194304, 4194303, 1, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, -4194304, -4194304, 0, 1, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, -4194304, -4194304, 1, 0, graphics, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	status = GdipIsVisibleRegionRectI (region, -4194304, -4194304, 1, 1, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, TRUE);
+
+	status = GdipIsVisibleRegionRectI (region, -4194304, -4194304, 1, 0, NULL, &isVisible);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isVisible, FALSE);
+
+	// Negative tests.
+	status = GdipIsVisibleRegionRectI (NULL, 0, 0, 0, 0, graphics, &isVisible);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipIsVisibleRegionRectI (region, 0, 0, 0, 0, graphics, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeleteRegion (region);
+}
+
 static void test_getRegionScansCount ()
 {
 	GpStatus status;
@@ -3675,6 +4423,10 @@ main (int argc, char**argv)
 	test_createRegionRect ();
 	test_createRegionRectI ();
 	test_createRegionPath ();
+	test_isVisibleRegionPoint ();
+	test_isVisibleRegionPointI ();
+	test_isVisibleRegionRect ();
+	test_isVisibleRegionRectI ();
 	test_getRegionScansCount ();
 	test_getRegionScans ();
 	// FIXME: implement GdipGetRegionScansI.
