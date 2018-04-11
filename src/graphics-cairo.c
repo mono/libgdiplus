@@ -1107,13 +1107,14 @@ cairo_SetGraphicsClip (GpGraphics *graphics)
 		if (work->tree && work->tree->path)
 			gdip_plot_path (graphics, work->tree->path, FALSE);
 		else {
-			int count;
+			UINT count;
 			/* I admit that's a (not so cute) hack - anyone with a better idea ? */
 			if ((GdipGetRegionScansCount (work, &count, NULL) == Ok) && (count > 0)) {
 				GpRectF *rects = (GpRectF*) GdipAlloc (count * sizeof (GpRectF));
 				if (rects) {
-					GdipGetRegionScans (work, rects, &count, NULL);
-						for (i = 0, rect = rects; i < count; i++, rect++) {
+					INT countTemp;
+					GdipGetRegionScans (work, rects, &countTemp, NULL);
+					for (i = 0, rect = rects; i < countTemp; i++, rect++) {
 						gdip_cairo_rectangle (graphics, rect->X, rect->Y, rect->Width, rect->Height, FALSE);
 					}
 					GdipFree (rects);

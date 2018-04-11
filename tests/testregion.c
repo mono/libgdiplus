@@ -267,6 +267,273 @@ static void test_createRegionPath ()
 	GdipDeletePath (path);
 }
 
+static void test_getRegionScansCount ()
+{
+	GpStatus status;
+	GpPath *path;
+	GpRegion *region;
+	GpMatrix *matrix;
+	UINT count;
+
+	GdipCreateMatrix (&matrix);
+
+	// Rect region.
+	GpRectF rect = {10, 20, 30, 40};
+	GdipCreateRegionRect (&rect, &region);
+	
+	status = GdipGetRegionScansCount (region, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 1);
+	GdipDeleteRegion (region);
+
+	// Path region.
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 10, 20, 30, 40);
+	GdipCreateRegionPath (path, &region);
+	
+	status = GdipGetRegionScansCount (region, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 1);
+	GdipDeleteRegion (region);
+	
+	// Empty region.
+	GdipCreateRegion (&region);
+	GdipSetEmpty (region);
+	
+	status = GdipGetRegionScansCount (region, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 0);
+	GdipDeleteRegion (region);
+
+	// Infinite region.
+	GdipCreateRegion (&region);
+	
+	status = GdipGetRegionScansCount (region, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 1);
+
+	// Negative tests.
+	status = GdipGetRegionScansCount (NULL, &count, matrix);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetRegionScansCount (region, NULL, matrix);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetRegionScansCount (region, &count, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeleteMatrix (matrix);
+	GdipDeleteRegion (region);
+}
+
+static void test_getRegionScans ()
+{
+	GpStatus status;
+	GpPath *path;
+	GpRegion *region;
+	GpMatrix *matrix;
+	GpRectF scans[1];
+	INT count;
+
+	GdipCreateMatrix (&matrix);
+
+	// Rect region - non null rects.
+	GpRectF rect = {10, 20, 30, 40};
+	GdipCreateRegionRect (&rect, &region);
+	
+	count = 0xFF;
+	status = GdipGetRegionScans (region, scans, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (scans[0].X, 10);
+	assertEqualFloat (scans[0].Y, 20);
+	assertEqualFloat (scans[0].Width, 30);
+	assertEqualFloat (scans[0].Height, 40);
+	assertEqualInt (count, 1);
+
+	// Rect region - null rects.
+	count = 0xFF;
+	status = GdipGetRegionScans (region, NULL, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 1);
+	GdipDeleteRegion (region);
+
+	// Path region - non null rects.
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 10, 20, 30, 40);
+	GdipCreateRegionPath (path, &region);
+	
+	count = 0xFF;
+	status = GdipGetRegionScans (region, scans, &count, matrix);
+	assertEqualInt (status, Ok);
+	// FIXME: these are incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	assertEqualFloat (scans[0].X, 10);
+	assertEqualFloat (scans[0].Y, 20);
+	assertEqualFloat (scans[0].Width, 30);
+	assertEqualFloat (scans[0].Height, 40);
+#endif
+	assertEqualInt (count, 1);
+
+	// Path region - null rects.
+	count = 0xFF;
+	status = GdipGetRegionScans (region, NULL, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 1);
+	GdipDeleteRegion (region);
+	
+	// Empty region - non null rects.
+	GdipCreateRegion (&region);
+	GdipSetEmpty (region);
+	
+	count = 0xFF;
+	status = GdipGetRegionScans (region, scans, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 0);
+
+	// Empty region - null rects.
+	count = 0xFF;
+	status = GdipGetRegionScans (region, NULL, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 0);
+	GdipDeleteRegion (region);
+
+	// Infinite region - non null rects.
+	GdipCreateRegion (&region);
+	
+	count = 0xFF;
+	status = GdipGetRegionScans (region, scans, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (scans[0].X, -4194304);
+	assertEqualFloat (scans[0].Y, -4194304);
+	assertEqualFloat (scans[0].Width, 8388608);
+	assertEqualFloat (scans[0].Height, 8388608);
+	assertEqualInt (count, 1);
+
+	// Infinite region - null rects.
+	count = 0xFF;
+	status = GdipGetRegionScans (region, NULL, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 1);
+
+	// Negative tests.
+	status = GdipGetRegionScans (NULL, scans, &count, matrix);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetRegionScans (region, scans, NULL, matrix);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetRegionScans (region, scans, &count, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeleteMatrix (matrix);
+	GdipDeleteRegion (region);
+}
+
+#if defined(USE_WINDOWS_GDIPLUS)
+static void test_getRegionScansI ()
+{
+	GpStatus status;
+	GpPath *path;
+	GpRegion *region;
+	GpMatrix *matrix;
+	GpRect scans[1];
+	INT count;
+
+	GdipCreateMatrix (&matrix);
+
+	// Rect region - non null rects.
+	GpRectF rect = {10, 20, 30, 40};
+	GdipCreateRegionRect (&rect, &region);
+	
+	count = 0xFF;
+	status = GdipGetRegionScansI (region, scans, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (scans[0].X, 10);
+	assertEqualFloat (scans[0].Y, 20);
+	assertEqualFloat (scans[0].Width, 30);
+	assertEqualFloat (scans[0].Height, 40);
+	assertEqualInt (count, 1);
+
+	// Rect region - null rects.
+	count = 0xFF;
+	status = GdipGetRegionScansI (region, NULL, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 1);
+	GdipDeleteRegion (region);
+
+	// Path region - non null rects.
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 10, 20, 30, 40);
+	GdipCreateRegionPath (path, &region);
+	
+	count = 0xFF;
+	status = GdipGetRegionScansI (region, scans, &count, matrix);
+	assertEqualInt (status, Ok);
+	// FIXME: these are incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	assertEqualFloat (scans[0].X, 10);
+	assertEqualFloat (scans[0].Y, 20);
+	assertEqualFloat (scans[0].Width, 30);
+	assertEqualFloat (scans[0].Height, 40);
+#endif
+	assertEqualInt (count, 1);
+
+	// Path region - null rects.
+	count = 0xFF;
+	status = GdipGetRegionScansI (region, NULL, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 1);
+	GdipDeleteRegion (region);
+	
+	// Empty region - non null rects.
+	GdipCreateRegion (&region);
+	GdipSetEmpty (region);
+	
+	count = 0xFF;
+	status = GdipGetRegionScansI (region, scans, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 0);
+
+	// Empty region - null rects.
+	count = 0xFF;
+	status = GdipGetRegionScansI (region, NULL, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 0);
+	GdipDeleteRegion (region);
+
+	// Infinite region - non null rects.
+	GdipCreateRegion (&region);
+	
+	count = 0xFF;
+	status = GdipGetRegionScansI (region, scans, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (scans[0].X, -4194304);
+	assertEqualFloat (scans[0].Y, -4194304);
+	assertEqualFloat (scans[0].Width, 8388608);
+	assertEqualFloat (scans[0].Height, 8388608);
+	assertEqualInt (count, 1);
+
+	// Infinite region - null rects.
+	count = 0xFF;
+	status = GdipGetRegionScansI (region, NULL, &count, matrix);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 1);
+
+	// Negative tests.
+	status = GdipGetRegionScansI (NULL, scans, &count, matrix);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetRegionScansI (region, scans, NULL, matrix);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetRegionScansI (region, scans, &count, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeleteMatrix (matrix);
+	GdipDeleteRegion (region);
+}
+#endif
+
 int
 main (int argc, char**argv)
 {
@@ -279,6 +546,12 @@ main (int argc, char**argv)
 	test_createRegionRect ();
 	test_createRegionRectI ();
 	test_createRegionPath ();
+	test_getRegionScansCount ();
+	test_getRegionScans ();
+	// FIXME: implement GdipGetRegionScansI.
+#if defined(USE_WINDOWS_GDIPLUS)
+	test_getRegionScansI ();
+#endif
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);

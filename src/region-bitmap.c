@@ -935,13 +935,12 @@ process_line (GpRegionBitmap *bitmap, int y, int *x, int *w)
  * gdip_region_bitmap_get_scans:
  * @bitmap: a GpRegionBitmap
  * @rect: a pointer to an array of GpRectF
- * @count: the number of GpRectF in the array
  *
  * Convert the scan lines of the bitmap into an array of GpRectF. The return
  * value represents the actual number of GpRectF entries that were generated.
  */
 int
-gdip_region_bitmap_get_scans (GpRegionBitmap *bitmap, GpRectF *rect, int count)
+gdip_region_bitmap_get_scans (GpRegionBitmap *bitmap, GpRectF *rect)
 {
 	if (!bitmap || !bitmap->Mask)
 		return 0;
@@ -975,7 +974,7 @@ gdip_region_bitmap_get_scans (GpRegionBitmap *bitmap, GpRectF *rect, int count)
 				actual.Width = w;
 				actual.Height = 1;
 
-				if (rect && (n < count)) {
+				if (rect) {
 					rect [n].X = actual.X;
 					rect [n].Y = actual.Y;
 					rect [n].Width = actual.Width;
