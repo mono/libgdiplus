@@ -1638,12 +1638,12 @@ GdipIsVisibleRegionRectI (GpRegion *region, int x, int y, int width, int height,
 
 
 GpStatus WINGDIPAPI
-GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
+GdipGetRegionScansCount (GpRegion *region, UINT *count, GpMatrix *matrix)
 {
 	GpRegion *work = NULL;
 	GpStatus status;
 
-	if (!region || !count)
+	if (!region || !matrix || !count)
 		return InvalidParameter;
 
 	/* apply any user supplied matrix transformation */
@@ -1687,7 +1687,7 @@ GdipGetRegionScansCount (GpRegion *region, int* count, GpMatrix* matrix)
 	case RegionTypePath:
 		/* ensure the bitmap is usable */
 		gdip_region_bitmap_ensure (work);
-		*count = gdip_region_bitmap_get_scans (work->bitmap, NULL, -1);
+		*count = gdip_region_bitmap_get_scans (work->bitmap, NULL);
 		break;
 	default:
 		g_warning ("unknown type 0x%08X", region->type);
@@ -1706,7 +1706,7 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matr
 	GpRegion *work = NULL;
 	GpStatus status;
 
-	if (!region || !rects|| !count)
+	if (!region || !count || !matrix)
 		return InvalidParameter;
 
 	/* apply any user supplied matrix transformation */
@@ -1745,13 +1745,14 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matr
 
 	switch (region->type) {
 	case RegionTypeRect:
-		memcpy (rects, work->rects, sizeof (GpRectF) * *count);
+		if (rects)
+			memcpy (rects, work->rects, sizeof (GpRectF) * work->cnt);
 		*count = work->cnt;
 		break;
 	case RegionTypePath:
 		/* ensure the bitmap is usable */
 		gdip_region_bitmap_ensure (work);
-		*count = gdip_region_bitmap_get_scans (work->bitmap, rects, *count);
+		*count = gdip_region_bitmap_get_scans (work->bitmap, rects);
 		break;
 	default:
 		g_warning ("unknown type 0x%08X", region->type);

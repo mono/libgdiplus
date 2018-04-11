@@ -49,7 +49,7 @@ GpStatus WINGDIPAPI GdipIsVisibleRegionPointI(GpRegion *region, int x, int y, Gp
 GpStatus WINGDIPAPI GdipIsVisibleRegionRect(GpRegion *region, float x, float y, float width, float height, GpGraphics *graphics, BOOL *result);
 GpStatus WINGDIPAPI GdipIsVisibleRegionRectI(GpRegion *region, int x, int y, int width, int height, GpGraphics *graphics, BOOL *result);
 
-GpStatus WINGDIPAPI GdipGetRegionScansCount(GpRegion *region, int* count, GpMatrix* matrix);
+GpStatus WINGDIPAPI GdipGetRegionScansCount(GpRegion *region, UINT *count, GpMatrix *matrix);
 GpStatus WINGDIPAPI GdipGetRegionScans(GpRegion *region, GpRectF* rects, int* count, GpMatrix* matrix);
 
 GpStatus WINGDIPAPI GdipIsEqualRegion(GpRegion *region, GpRegion *region2, GpGraphics *graphics, BOOL *result);
