@@ -28,65 +28,35 @@
 
 GpStatus metafile_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle, 
 	float sweepAngle) GDIP_INTERNAL;
-GpStatus metafile_DrawArcI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height, float startAngle, 
-	float sweepAngle) GDIP_INTERNAL;
 
-GpStatus metafile_DrawBezier (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2, float x3, float y3, 
-	float x4, float y4) GDIP_INTERNAL;
-GpStatus metafile_DrawBezierI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2, int x3, int y3, 
-	int x4, int y4) GDIP_INTERNAL;
 GpStatus metafile_DrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count) GDIP_INTERNAL;
-GpStatus metafile_DrawBeziersI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count) GDIP_INTERNAL;
 
 GpStatus metafile_DrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count, 
 	float tension) GDIP_INTERNAL;
-GpStatus metafile_DrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count, 
-	float tension) GDIP_INTERNAL;
 GpStatus metafile_FillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, 
-	float tension) GDIP_INTERNAL;
-GpStatus metafile_FillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count, 
 	float tension) GDIP_INTERNAL;
 GpStatus metafile_DrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, int count, int offset, 
 	int numOfSegments, float tension) GDIP_INTERNAL;
-GpStatus metafile_DrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, int count, int offset,
-	int numOfSegments, float tension) GDIP_INTERNAL;
 
 GpStatus metafile_DrawEllipse (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height) GDIP_INTERNAL;
-GpStatus metafile_DrawEllipseI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height) GDIP_INTERNAL;
 GpStatus metafile_FillEllipse (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height) GDIP_INTERNAL;
-GpStatus metafile_FillEllipseI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height) GDIP_INTERNAL;
 
-GpStatus metafile_DrawLine (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2) GDIP_INTERNAL;
-GpStatus metafile_DrawLineI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2) GDIP_INTERNAL;
 GpStatus metafile_DrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count) GDIP_INTERNAL;
-GpStatus metafile_DrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count) GDIP_INTERNAL;
 
-GpStatus metafile_DrawRectangle (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height) GDIP_INTERNAL;
-GpStatus metafile_DrawRectangleI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height) GDIP_INTERNAL;
 GpStatus metafile_FillRectangle (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height) GDIP_INTERNAL;
-GpStatus metafile_FillRectangleI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height) GDIP_INTERNAL;
 GpStatus metafile_DrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects, int count) GDIP_INTERNAL;
-GpStatus metafile_DrawRectanglesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRect *rects, int count) GDIP_INTERNAL;
 GpStatus metafile_FillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rects, int count) GDIP_INTERNAL;
-GpStatus metafile_FillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect *rects, int count) GDIP_INTERNAL;
 
 GpStatus metafile_DrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path) GDIP_INTERNAL;
 GpStatus metafile_FillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path) GDIP_INTERNAL;
 
 GpStatus metafile_DrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, 
 	float startAngle, float sweepAngle) GDIP_INTERNAL;
-GpStatus metafile_DrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height, 
-	float startAngle, float sweepAngle) GDIP_INTERNAL;
 GpStatus metafile_FillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, 
-	float startAngle, float sweepAngle) GDIP_INTERNAL;
-GpStatus metafile_FillPieI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, 
 	float startAngle, float sweepAngle) GDIP_INTERNAL;
 
 GpStatus metafile_DrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count) GDIP_INTERNAL;
-GpStatus metafile_DrawPolygonI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count) GDIP_INTERNAL;
 GpStatus metafile_FillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, 
-	FillMode fillMode) GDIP_INTERNAL;
-GpStatus metafile_FillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count, 
 	FillMode fillMode) GDIP_INTERNAL;
 
 GpStatus metafile_FillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region) GDIP_INTERNAL;

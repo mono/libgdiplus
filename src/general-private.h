@@ -110,6 +110,7 @@ int utf8_encode_ucs2char (gunichar2 unichar, unsigned char *dest) GDIP_INTERNAL;
 
 /* for drawing curves */
 GpPointF *convert_points (const GpPoint *points, int count) GDIP_INTERNAL;
+GpRectF *convert_rects (const GpRect *rect, int count) GDIP_INTERNAL;
 GpPointF *gdip_closed_curve_tangents (int terms, const GpPointF *points, int count, float tension) GDIP_INTERNAL;
 GpPointF *gdip_open_curve_tangents (int terms,  const GpPointF *points, int count, float tension) GDIP_INTERNAL;
 

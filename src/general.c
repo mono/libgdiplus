@@ -228,12 +228,26 @@ convert_points (const GpPoint *point, int count)
 	if (!retval)
 		return NULL;
 
-		for (i = 0; i < count; i++) {
-			retval [i].X = (float) point [i].X;
-			retval [i].Y = (float) point [i].Y;
-		}
+	for (i = 0; i < count; i++) {
+		retval [i].X = (float) point [i].X;
+		retval [i].Y = (float) point [i].Y;
+	}
 
-		return retval;
+	return retval;
+}
+
+GpRectF *
+convert_rects (const GpRect *rect, int count)
+{
+	int i;
+	GpRectF *retval = (GpRectF *) GdipAlloc (sizeof (GpRectF) * count);
+	if (!retval)
+		return NULL;
+
+	for (i = 0; i < count; i++)
+		gdip_RectF_from_Rect (&rect[i], &retval[i]);
+
+	return retval;
 }
 
 GpPointF *
