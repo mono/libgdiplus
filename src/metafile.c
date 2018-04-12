@@ -982,6 +982,32 @@ gdip_metafile_dispose (GpMetafile *metafile)
 }
 
 GpStatus
+gdip_get_bitmap_from_metafile (GpMetafile *metafile, INT width, INT height, GpImage **thumbnail)
+{
+	if (width <= 0 || height <= 0) {
+		switch (metafile->metafile_header.Type) {
+		case MetafileTypeWmfPlaceable:
+		case MetafileTypeWmf: {
+			width = iround (metafile->metafile_header.Width / 1000.0f * gdip_get_display_dpi());
+			height = iround (metafile->metafile_header.Height / 1000.0f * gdip_get_display_dpi());
+			break;
+		}
+		case MetafileTypeEmf:
+		case MetafileTypeEmfPlusOnly:
+		case MetafileTypeEmfPlusDual: {
+			width = metafile->metafile_header.Width;
+			height = metafile->metafile_header.Height;
+			break;
+		}
+		default:
+			return GenericError;
+		}
+	}
+
+	return GdipGetImageThumbnail ((GpImage *) metafile, width, height, thumbnail, NULL, NULL);
+}
+
+GpStatus
 gdip_metafile_stop_recording (GpMetafile *metafile)
 {
 	/* TODO save current stuff */

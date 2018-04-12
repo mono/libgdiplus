@@ -124,6 +124,8 @@ GpStatus gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSour
 GpStatus gdip_metafile_clone (GpMetafile *metafile, GpMetafile **clonedmetafile) GDIP_INTERNAL;
 GpStatus gdip_metafile_dispose (GpMetafile *metafile) GDIP_INTERNAL;
 
+GpStatus gdip_get_bitmap_from_metafile (GpMetafile *metafile, INT width, INT height, GpImage **thumbnail) GDIP_INTERNAL;
+
 GpStatus gdip_metafile_stop_recording (GpMetafile *metafile) GDIP_INTERNAL;
 
 GpStatus gdip_metafile_play_emf (MetafilePlayContext *context) GDIP_INTERNAL;

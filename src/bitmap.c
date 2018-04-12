@@ -759,40 +759,10 @@ GdipCreateBitmapFromFile (GDIPCONST WCHAR* filename, GpBitmap **bitmap)
 	case ImageTypeBitmap:
 		*bitmap = (GpBitmap *)image;
 		return Ok;
-	case ImageTypeMetafile: {
-		GpMetafile *metafile = (GpMetafile *) image;
-		GpImage *thumbnail;
-		UINT width, height;
-
-		switch (metafile->metafile_header.Type) {
-		case MetafileTypeWmfPlaceable:
-		case MetafileTypeWmf: {
-			width = iround (metafile->metafile_header.Width / 1000.0f * gdip_get_display_dpi());
-			height = iround (metafile->metafile_header.Height / 1000.0f * gdip_get_display_dpi());
-			break;
-		}
-		case MetafileTypeEmf:
-		case MetafileTypeEmfPlusOnly:
-		case MetafileTypeEmfPlusDual: {
-			width = metafile->metafile_header.Width;
-			height = metafile->metafile_header.Height;
-			break;
-		}
-		default:
-			GdipDisposeImage (image);
-			return GenericError;
-		}
-		
-		status = GdipGetImageThumbnail (image, width, height, &thumbnail, NULL, NULL);
-		if (status != Ok) {
-			GdipDisposeImage (image);
-			return status;
-		}
-		
+	case ImageTypeMetafile:
+		status = gdip_get_bitmap_from_metafile ((GpMetafile *) image, 0, 0, (GpImage **) bitmap);
 		GdipDisposeImage (image);
-		*bitmap = (GpBitmap *) thumbnail;
-		return Ok;
-	}
+		return status;
 	default:
 		return GenericError;
 	}

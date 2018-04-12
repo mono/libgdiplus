@@ -30,6 +30,7 @@
 #include "graphics-private.h"
 #include "bitmap-private.h"
 #include "matrix-private.h"
+#include "metafile-private.h"
 
 static GpStatus gdip_texture_setup (GpGraphics *graphics, GpBrush *brush);
 static GpStatus gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush);
@@ -662,37 +663,25 @@ gdip_texture_destroy (GpBrush *brush)
 	return Ok;
 }
 
-/* coverity[+alloc : arg-*2] */
-GpStatus WINGDIPAPI
-GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
+static GpStatus
+gdip_texture_create_from_cloned_image (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 {
+	GpTexture *result;
 	cairo_surface_t *imageSurface = NULL;
-	GpTexture	*result;
-	GpStatus status;
-
-	if (!image || !texture)
-		return InvalidParameter;
-
-	if ((wrapMode < WrapModeTile) || (wrapMode > WrapModeClamp))
-		return OutOfMemory;
-
-	if (image->type != ImageTypeBitmap)
-		return NotImplemented;
 
 	result = gdip_texture_new ();
 	if (!result)
 		return OutOfMemory;
 
-	result->image = NULL;
-	status = GdipCloneImage (image, &result->image);
-	if (status != Ok)
-		goto failure;
+	result->image = image;
 
 	/* note: we must keep the scan0 alive, so we must use the cloned image (and not the original) see bug #80971 */
 	imageSurface = cairo_image_surface_create_for_data ((BYTE*)result->image->active_bitmap->scan0,
-		image->cairo_format, image->active_bitmap->width, image->active_bitmap->height, image->active_bitmap->stride);
-	if (!imageSurface)
-		goto failure;
+		result->image->cairo_format, result->image->active_bitmap->width, result->image->active_bitmap->height, result->image->active_bitmap->stride);
+	if (!imageSurface) {
+		GdipDeleteBrush ((GpBrush *) result);
+		return OutOfMemory;
+	}
 
 	result->wrapMode = wrapMode;
 	if (result->image->surface)
@@ -700,20 +689,43 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 	result->image->surface = imageSurface;
 	result->rectangle.X = 0;
 	result->rectangle.Y = 0;
-	result->rectangle.Width = image->active_bitmap->width;
-	result->rectangle.Height = image->active_bitmap->height;
+	result->rectangle.Width = result->image->active_bitmap->width;
+	result->rectangle.Height = result->image->active_bitmap->height;
 
 	*texture = result;
 	return Ok;
+}
 
-failure:
-	if (result->image)
-		GdipDisposeImage (result->image);
-	if (imageSurface)
-		cairo_surface_destroy (imageSurface);
-	GdipFree (result);
-	*texture = NULL;
-	return status;
+/* coverity[+alloc : arg-*2] */
+GpStatus WINGDIPAPI
+GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
+{
+	GpImage *textureImage;
+	GpTexture	*result;
+	GpStatus status;
+
+	if (!image || !texture)
+		return InvalidParameter;
+
+	if (wrapMode > WrapModeClamp)
+		return OutOfMemory;
+
+	switch (image->type) {
+	case ImageTypeBitmap:
+		status = GdipCloneImage (image, &textureImage);
+		if (status != Ok)
+			return status;
+		break;
+	case ImageTypeMetafile:
+		status = gdip_get_bitmap_from_metafile ((GpMetafile *) image, 0, 0, &textureImage);
+		if (status != Ok)
+			return status;
+		break;
+	default:
+		return GenericError;
+	}
+
+	return gdip_texture_create_from_cloned_image (textureImage, wrapMode, texture);
 }
 
 /* coverity[+alloc : arg-*6] */
@@ -727,41 +739,44 @@ GdipCreateTexture2 (GpImage *image, GpWrapMode wrapMode, float x, float y, float
 GpStatus WINGDIPAPI
 GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int width, int height, GpTexture **texture)
 {
-	int bmpWidth;
-	int bmpHeight;
+	GpImage *textureImage;
 	GpStatus status;
-	GpImage *resized_image = NULL;
 
 	if (!image || !texture)
 		return InvalidParameter;
 
-	if (image->type != ImageTypeBitmap)
-		return NotImplemented;
-
-	bmpWidth = image->active_bitmap->width;
-	bmpHeight = image->active_bitmap->height;
-
-	/* MS behaves this way */
-	if ((x < 0) || (y < 0) || (width <= 0) || (height <= 0) || (bmpWidth < (x + width)) || (bmpHeight < (y + height)))
+	if (wrapMode > WrapModeClamp)
 		return OutOfMemory;
 
-	status = GdipCloneBitmapAreaI (x, y, width, height, image->active_bitmap->pixel_format, image, &resized_image);
-	if (status != Ok)
-		return status;
+	switch (image->type) {
+	case ImageTypeBitmap: {
+		INT bmpWidth = image->active_bitmap->width;
+		INT bmpHeight = image->active_bitmap->height;
+		if ((x < 0) || (y < 0) || (width <= 0) || (height <= 0) || (bmpWidth < (x + width)) || (bmpHeight < (y + height)))
+			return OutOfMemory;
 
-	status = GdipCreateTexture (resized_image, wrapMode, texture);
-	GdipDisposeImage (resized_image);
-	return status;
+		status = GdipCloneBitmapAreaI (x, y, width, height, image->active_bitmap->pixel_format, image, &textureImage);
+		if (status != Ok)
+			return status;
+		break;
+	}
+	case ImageTypeMetafile:
+		status = gdip_get_bitmap_from_metafile ((GpMetafile *) image, width, height, &textureImage);
+		if (status != Ok)
+			return status;
+		break;
+	default:
+		return GenericError;
+	}
+	
+	return gdip_texture_create_from_cloned_image (textureImage, wrapMode, texture);
 }
 
 /* coverity[+alloc : arg-*6] */
 GpStatus WINGDIPAPI
 GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x, float y, float width, float height, GpTexture **texture)
 {
-	/* FIXME MonoTODO: Make use of ImageAttributes parameter when
-	 * ImageAttributes is implemented */
-	GpWrapMode mode = imageAttributes ? WrapModeClamp : WrapModeTile;
-	return GdipCreateTexture2 (image, mode, x, y, width, height, texture);
+	return GdipCreateTextureIAI (image, imageAttributes, (int) x, (int) y, (int) width, (int) height, texture);
 }
 
 /* coverity[+alloc : arg-*6] */
@@ -770,7 +785,7 @@ GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x,
 {
 	/* FIXME MonoTODO: Make use of ImageAttributes parameter when
 	 * ImageAttributes is implemented */
-	GpWrapMode mode = imageAttributes ? WrapModeClamp : WrapModeTile;
+	GpWrapMode mode = imageAttributes ? imageAttributes->wrapmode : WrapModeTile;
 	return GdipCreateTexture2I (image, mode, x, y, width, height, texture);
 }
 
