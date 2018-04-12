@@ -5,6 +5,7 @@
             "name": "(lldb) Launch",
             "type": "cppdbg",
             "request": "launch",
+            "preLaunchTask": "Build",
             "program": "${workspaceFolder}/tests/.libs/${fileBasenameNoExtension}",
             "args": [],
             "stopAtEntry": false,

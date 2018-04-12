@@ -6,7 +6,7 @@
         {
             "label": "Build",
             "type": "shell",
-            "command": "make",
+            "command": "make -j4",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -28,7 +28,7 @@
         {
             "label": "Test",
             "type": "shell",
-            "command": "make check",
+            "command": "make check -j4",
             "dependsOn": "Build",
             "group": {
                 "kind": "test",
