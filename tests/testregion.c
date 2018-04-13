@@ -1286,6 +1286,542 @@ static void test_combineIntersect ()
 	GdipDeletePath (negativePath);
 }
 
+static void test_combineUnion ()
+{
+	GpRegion *infiniteRegion;
+	GpRegion *emptyRegion;
+	GpRegion *rectRegion;
+	GpRegion *pathRegion;
+
+	GdipCreateRegion (&infiniteRegion);
+
+	GdipCreateRegion (&emptyRegion);
+	GdipSetEmpty (emptyRegion);
+
+	RectF rect = {10, 20, 30, 40};
+	RectF superRect = {0, 10, 50, 60};
+	RectF subRect = {15, 25, 20, 30};
+	RectF intersectLeftRect = {0, 20, 30, 40};
+	RectF intersectTopRect = {10, 10, 30, 40};
+	RectF intersectRightRect = {20, 20, 30, 40};
+	RectF intersectBottomRect = {10, 30, 30, 40};
+	RectF intersectTopLeftRect = {0, 10, 30, 40};
+	RectF intersectTopRightRect = {20, 10, 30, 40};
+	RectF intersectBottomRightRect = {20, 30, 30, 40};
+	RectF intersectBottomLeftRect = {0, 30, 30, 40};
+	RectF noIntersectLeftRect = {-20, 20, 30, 40};
+	RectF noIntersectTopRect = {10, -20, 30, 40};
+	RectF noIntersectRightRect = {40, 20, 30, 40};
+	RectF noIntersectBottomRect = {10, 60, 30, 40};
+	RectF noIntersectTopLeftRect = {-20, -20, 30, 40};
+	RectF noIntersectTopRightRect = {40, -20, 30, 40};
+	RectF noIntersectBottomRightRect = {40, 60, 30, 40};
+	RectF noIntersectBottomLeftRect = {-20, 60, 30, 40};
+	RectF emptyRect = {0, 0, 0, 0};
+	RectF infiniteRect = {-4194304, -4194304, 8388608, 8388608};
+	RectF negativeRect = {20, 30, -10, -10};
+	GdipCreateRegionRect (&rect, &rectRegion);
+
+	GpPath *path = createPathFromRect (&rect);
+	GpPath *superPath = createPathFromRect (&superRect);
+	GpPath *subPath = createPathFromRect (&subRect);
+	GpPath *intersectLeftPath = createPathFromRect (&intersectLeftRect);
+	GpPath *intersectTopPath = createPathFromRect (&intersectTopRect);
+	GpPath *intersectRightPath = createPathFromRect (&intersectRightRect);
+	GpPath *intersectBottomPath = createPathFromRect (&intersectBottomRect);
+	GpPath *intersectTopLeftPath = createPathFromRect (&intersectTopLeftRect);
+	GpPath *intersectTopRightPath = createPathFromRect (&intersectTopRightRect);
+	GpPath *intersectBottomRightPath = createPathFromRect (&intersectBottomRightRect);
+	GpPath *intersectBottomLeftPath = createPathFromRect (&intersectBottomLeftRect);
+	GpPath *noIntersectLeftPath = createPathFromRect (&noIntersectLeftRect);
+	GpPath *noIntersectTopPath = createPathFromRect (&noIntersectTopRect);
+	GpPath *noIntersectRightPath = createPathFromRect (&noIntersectRightRect);
+	GpPath *noIntersectBottomPath = createPathFromRect (&noIntersectBottomRect);
+	GpPath *noIntersectTopLeftPath = createPathFromRect (&noIntersectTopLeftRect);
+	GpPath *noIntersectTopRightPath = createPathFromRect (&noIntersectTopRightRect);
+	GpPath *noIntersectBottomRightPath = createPathFromRect (&noIntersectBottomRightRect);
+	GpPath *noIntersectBottomLeftPath = createPathFromRect (&noIntersectBottomLeftRect);
+	GpPath *emptyPath = createPathFromRect (&emptyRect);
+	GpPath *infinitePath = createPathFromRect (&infiniteRect);
+	GpPath *negativePath = createPathFromRect (&negativeRect);
+
+	GdipCreateRegionPath (path, &pathRegion);
+
+	// Infinite + Infinite = Infinite
+	verifyCombineInfiniteWithRegion (infiniteRegion, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+
+	// Infinite + Empty = Infinite.
+	verifyCombineInfiniteWithRegion (emptyRegion, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+
+	// Infinite + Rect = Infinite.
+	verifyCombineInfiniteWithRect (&rect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+
+	// Infinite + Path = Infinite.
+	verifyCombineInfiniteWithPath (path, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+
+	// Empty + Infinite = Infinite.
+	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyCombineEmptyWithRegion (infiniteRegion, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+#endif
+
+	// Empty + Empty = Empty.
+	verifyCombineEmptyWithRegion (emptyRegion, CombineModeUnion, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
+
+	// Empty + Rect = Rect.
+	verifyCombineEmptyWithRect (&rect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Empty + Path = Path.
+	verifyCombineEmptyWithPath (path, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Infinite Rect + Infinite Rect = Infinite Rect.
+	verifyCombineRectWithRect (&infiniteRect, &infiniteRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+
+	// Infinite Rect + Empty Rect = Infinite Rect.
+	verifyCombineRectWithRect (&infiniteRect, &emptyRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+
+	// Infinite Rect + Rect = Infinite Rect.
+	verifyCombineRectWithRect (&infiniteRect, &rect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+
+	// Empty Rect + Infinite Rect = Infinite Rect.
+	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyCombineRectWithRect (&emptyRect, &infiniteRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+#endif
+
+	// Empty Rect + Empty Rect = Empty.
+	verifyCombineRectWithRect (&emptyRect, &emptyRect, CombineModeUnion, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
+
+	// Empty Rect + Rect = Rect.
+	verifyCombineRectWithRect (&emptyRect, &rect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Rect + Infinite = Infinite.
+	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyCombineRectWithRegion (&rect, infiniteRegion, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+#endif
+
+	// Rect + Empty = Rect.
+	verifyCombineRectWithRegion (&rect, emptyRegion, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Rect + Infinite Rect = Rect.
+	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyCombineRectWithRect (&rect, &infiniteRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+#endif
+
+	// Rect + Empty Rect = Rect.
+	verifyCombineRectWithRect (&rect, &emptyRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Rect + Negative Rect = Empty.
+	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
+#if !defined(USE_WINDOWS_GDIPLUS)
+	RectF negativeRectScan = {10, 20, 30, 40};
+	verifyCombineRectWithRect (&rect, &negativeRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
+#endif
+
+	// Rect + Equal Rect = Equal Rect.
+	verifyCombineRectWithRect (&rect, &rect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Rect + Super Rect = Super Rect.
+	verifyCombineRectWithRect (&rect, &superRect, CombineModeUnion, 0, 10, 50, 60, FALSE, FALSE, &superRect, sizeof (superRect));
+
+	// Rect + Sub Rect = Rect.
+	verifyCombineRectWithRect (&rect, &subRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Rect + Intersect Left = Calculation.
+	RectF intersectLeftScan = {0, 20, 40, 40};
+	verifyCombineRectWithRect (&rect, &intersectLeftRect, CombineModeUnion, 0, 20, 40, 40, FALSE, FALSE, &intersectLeftScan, sizeof (intersectLeftScan));
+
+	// Rect + Intersect Top = Calculation.
+	// FIXME: should be combined into a single rect: https://github.com/mono/libgdiplus/issues/340
+	RectF intersectTopScan = {10, 10, 30, 50};
+#if defined(USE_WINDOWS_GDIPLUS)
+	RectF intersectTopScansRect[] = {intersectTopScan};
+#else
+	RectF intersectTopScansRect[] = {{10, 10, 30, 40}, {10, 50, 30, 10}};
+#endif
+	verifyCombineRectWithRect (&rect, &intersectTopRect, CombineModeUnion, 10, 10, 30, 50, FALSE, FALSE, intersectTopScansRect, sizeof (intersectTopScansRect));
+	
+	// Rect + Intersect Right = Calculation.
+	RectF intersectRightScan = {10, 20, 40, 40};
+	verifyCombineRectWithRect (&rect, &intersectRightRect, CombineModeUnion, 10, 20, 40, 40, FALSE, FALSE, &intersectRightScan, sizeof (intersectRightScan));
+
+	// Rect + Intersect Bottom = Calculation.
+	// FIXME: should be combined into a single rect: https://github.com/mono/libgdiplus/issues/340
+	RectF intersectBottomScan = {10, 20, 30, 50};
+#if defined(USE_WINDOWS_GDIPLUS)
+	RectF intersectBottomScansRect[] = {intersectBottomScan};
+#else
+	RectF intersectBottomScansRect[] = {{10, 20, 30, 40}, {10, 60, 30, 10}};
+#endif
+	verifyCombineRectWithRect (&rect, &intersectBottomRect, CombineModeUnion, 10, 20, 30, 50, FALSE, FALSE, intersectBottomScansRect, sizeof (intersectBottomScansRect));
+
+	// Rect + Intersect Top Left = Calculation.
+	RectF intersectTopLeftScans[] = {
+		{0, 10, 30, 10},
+		{0, 20, 40, 30},
+		{10, 50, 30, 10}
+	};
+	verifyCombineRectWithRect (&rect, &intersectTopLeftRect, CombineModeUnion, 0, 10, 40, 50, FALSE, FALSE, intersectTopLeftScans, sizeof (intersectTopLeftScans));
+
+	// Rect + Intersect Top Right = Calculation.
+	RectF intersectTopRightScans[] = {
+		{20, 10, 30, 10},
+		{10, 20, 40, 30},
+		{10, 50, 30, 10}
+	};
+	verifyCombineRectWithRect (&rect, &intersectTopRightRect, CombineModeUnion, 10, 10, 40, 50, FALSE, FALSE, intersectTopRightScans, sizeof (intersectTopRightScans));
+
+	// Rect + Intersect Bottom Right = Calculation.
+	RectF intersectBottomRightScans[] = {
+		{10, 20, 30, 10},
+		{10, 30, 40, 30},
+		{20, 60, 30, 10}
+	};
+	verifyCombineRectWithRect (&rect, &intersectBottomRightRect, CombineModeUnion, 10, 20, 40, 50, FALSE, FALSE, intersectBottomRightScans, sizeof (intersectTopRightScans));
+
+	// Rect + Intersect Bottom Left = Calculation.
+	RectF intersectBottomLeftScans[] = {
+		{10, 20, 30, 10},
+		{0, 30, 40, 30},
+		{0, 60, 30, 10}
+	};
+	verifyCombineRectWithRect (&rect, &intersectBottomLeftRect, CombineModeUnion, 0, 20, 40, 50, FALSE, FALSE, intersectBottomLeftScans, sizeof (intersectBottomLeftScans));
+
+	// Rect + No Intersect Left = Calculation.
+	RectF noIntersectLeftScan = {-20, 20, 60, 40};
+	verifyCombineRectWithRect (&rect, &noIntersectLeftRect, CombineModeUnion, -20, 20, 60, 40, FALSE, FALSE, &noIntersectLeftScan, sizeof (noIntersectLeftScan));
+
+	// Rect + No Intersect Top = Calculation.
+	// FIXME: should be combined into a single rect: https://github.com/mono/libgdiplus/issues/340
+	RectF noIntersectTopScan = {10, -20, 30, 80};
+#if defined(USE_WINDOWS_GDIPLUS)
+	RectF noIntersectTopScansRect[] = {noIntersectTopScan};
+#else
+	RectF noIntersectTopScansRect[] = {{10, -20, 30, 40}, {10, 20, 30, 40}};
+#endif
+	verifyCombineRectWithRect (&rect, &noIntersectTopRect, CombineModeUnion, 10, -20, 30, 80, FALSE, FALSE, noIntersectTopScansRect, sizeof (noIntersectTopScansRect));
+
+	// Rect + No Intersect Right = Calculation.
+	RectF noIntersectRightScan = {10, 20, 60, 40};
+	verifyCombineRectWithRect (&rect, &noIntersectRightRect, CombineModeUnion, 10, 20, 60, 40, FALSE, FALSE, &noIntersectRightScan, sizeof (noIntersectRightScan));
+
+	// Rect + No Intersect Bottom = Calculation.
+	// FIXME: should be combined into a single rect: https://github.com/mono/libgdiplus/issues/340
+	RectF noIntersectBottomScan = {10, 20, 30, 80};
+#if defined(USE_WINDOWS_GDIPLUS)
+	RectF noIntersectBottomScansRect[] = {noIntersectBottomScan};
+#else
+	RectF noIntersectBottomScansRect[] = {{10, 20, 30, 40}, {10, 60, 30, 40}};
+#endif
+	verifyCombineRectWithRect (&rect, &noIntersectBottomRect, CombineModeUnion, 10, 20, 30, 80, FALSE, FALSE, noIntersectBottomScansRect, sizeof (noIntersectBottomScansRect));
+
+	// Rect + No Intersect Top Left = Both.
+	RectF noIntersectTopLeftScans[] = {
+		noIntersectTopLeftRect,
+		rect
+	};
+	verifyCombineRectWithRect (&rect, &noIntersectTopLeftRect, CombineModeUnion, -20, -20, 60, 80, FALSE, FALSE, noIntersectTopLeftScans, sizeof (noIntersectTopLeftScans));
+
+	// Rect + No Intersect Top Right = Both.
+	RectF noIntersectTopRightScans[] = {
+		noIntersectTopRightRect,
+		rect
+	};
+	verifyCombineRectWithRect (&rect, &noIntersectTopRightRect, CombineModeUnion, 10, -20, 60, 80, FALSE, FALSE, noIntersectTopRightScans, sizeof (noIntersectTopRightScans));
+
+	// Rect + No Intersect Bottom Right = Both.
+	RectF noIntersectBottomRightScans[] = {
+		rect,
+		noIntersectBottomRightRect
+	};
+	verifyCombineRectWithRect (&rect, &noIntersectBottomRightRect, CombineModeUnion, 10, 20, 60, 80, FALSE, FALSE, noIntersectBottomRightScans, sizeof (noIntersectBottomRightScans));
+
+	// Rect + No Intersect Bottom Left = Both.
+	RectF noIntersectBottomLeftScans[] = {
+		rect,
+		noIntersectBottomLeftRect
+	};
+	verifyCombineRectWithRect (&rect, &noIntersectBottomLeftRect, CombineModeUnion, -20, 20, 60, 80, FALSE, FALSE, noIntersectBottomLeftScans, sizeof (noIntersectBottomLeftScans));
+
+	// Rect + Infinite Path = Path.
+	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyCombineRectWithPath (&rect, infinitePath, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+#endif
+
+	// Rect + Empty Path = Empty.
+	verifyCombineRectWithPath (&rect, emptyPath, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Rect + Negative Path = Empty.
+	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
+#if !defined(USE_WINDOWS_GDIPLUS)
+	verifyCombineRectWithPath (&rect, negativePath, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
+#endif
+
+	// Rect + Equal Path = Equal Path.
+	verifyCombineRectWithPath (&rect, path, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Rect + Super Path = Super Path.
+	verifyCombineRectWithPath (&rect, superPath, CombineModeUnion, 0, 10, 50, 60, FALSE, FALSE, &superRect, sizeof (superRect));
+
+	// Rect + Sub Path = Path.
+	verifyCombineRectWithPath (&rect, subPath, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Rect + Intersect Left = Calculation.
+	verifyCombineRectWithPath (&rect, intersectLeftPath, CombineModeUnion, 0, 20, 40, 40, FALSE, FALSE, &intersectLeftScan, sizeof (intersectLeftScan));
+
+	// Rect + Intersect Top = Calculation.
+	verifyCombineRectWithPath (&rect, intersectTopPath, CombineModeUnion, 10, 10, 30, 50, FALSE, FALSE, &intersectTopScan, sizeof (intersectTopScan));
+
+	// Rect + Intersect Right = Calculation.
+	verifyCombineRectWithPath (&rect, intersectRightPath, CombineModeUnion, 10, 20, 40, 40, FALSE, FALSE, &intersectRightScan, sizeof (intersectRightScan));
+
+	// Rect + Intersect Bottom = Calculation.
+	verifyCombineRectWithPath (&rect, intersectBottomPath, CombineModeUnion, 10, 20, 30, 50, FALSE, FALSE, &intersectBottomScan, sizeof (intersectBottomScan));
+
+	// Rect + Intersect Top Left = Calculation.
+	verifyCombineRectWithPath (&rect, intersectTopLeftPath, CombineModeUnion, 0, 10, 40, 50, FALSE, FALSE, intersectTopLeftScans, sizeof (intersectTopLeftScans));
+
+	// Rect + Intersect Top Right = Calculation.
+	verifyCombineRectWithPath (&rect, intersectTopRightPath, CombineModeUnion, 10, 10, 40, 50, FALSE, FALSE, intersectTopRightScans, sizeof (intersectTopRightScans));
+
+	// Rect + Intersect Bottom Right = Calculation.
+	verifyCombineRectWithPath (&rect, intersectBottomRightPath, CombineModeUnion, 10, 20, 40, 50, FALSE, FALSE, intersectBottomRightScans, sizeof (intersectTopRightScans));
+
+	// Rect + Intersect Bottom Left = Calculation.
+	verifyCombineRectWithPath (&rect, intersectBottomLeftPath, CombineModeUnion, 0, 20, 40, 50, FALSE, FALSE, intersectBottomLeftScans, sizeof (intersectBottomLeftScans));
+
+	// Rect + No Intersect Left = Calculation.
+	verifyCombineRectWithPath (&rect, noIntersectLeftPath, CombineModeUnion, -20, 20, 60, 40, FALSE, FALSE, &noIntersectLeftScan, sizeof (noIntersectLeftScan));
+
+	// Rect + No Intersect Top = Calculation.
+	verifyCombineRectWithPath (&rect, noIntersectTopPath, CombineModeUnion, 10, -20, 30, 80, FALSE, FALSE, &noIntersectTopScan, sizeof (noIntersectTopScan));
+
+	// Rect + No Intersect Right = Calculation.
+	verifyCombineRectWithPath (&rect, noIntersectRightPath, CombineModeUnion, 10, 20, 60, 40, FALSE, FALSE, &noIntersectRightScan, sizeof (noIntersectRightScan));
+
+	// Rect + No Intersect Bottom = Calculation.
+	verifyCombineRectWithPath (&rect, noIntersectBottomPath, CombineModeUnion, 10, 20, 30, 80, FALSE, FALSE, &noIntersectBottomScan, sizeof (noIntersectBottomScan));
+
+	// Rect + No Intersect Top Left = Both.
+	verifyCombineRectWithPath (&rect, noIntersectTopLeftPath, CombineModeUnion, -20, -20, 60, 80, FALSE, FALSE, noIntersectTopLeftScans, sizeof (noIntersectTopLeftScans));
+
+	// Rect + No Intersect Top Right = Both.
+	verifyCombineRectWithPath (&rect, noIntersectTopRightPath, CombineModeUnion, 10, -20, 60, 80, FALSE, FALSE, noIntersectTopRightScans, sizeof (noIntersectTopRightScans));
+
+	// Rect + No Intersect Bottom Right = Both.
+	verifyCombineRectWithPath (&rect, noIntersectBottomRightPath, CombineModeUnion, 10, 20, 60, 80, FALSE, FALSE, noIntersectBottomRightScans, sizeof (noIntersectBottomRightScans));
+
+	// Rect + No Intersect Bottom Left = Both.
+	verifyCombineRectWithPath (&rect, noIntersectBottomLeftPath, CombineModeUnion, -20, 20, 60, 80, FALSE, FALSE, noIntersectBottomLeftScans, sizeof (noIntersectBottomLeftScans));
+
+	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338.
+#if defined(USE_WINDOWS_GDIPLUS)
+	// Infinite Path + Infinite Rect = Infinite Rect.
+	verifyCombinePathWithRect (infinitePath, &infiniteRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+
+	// Infinite Path + Empty Rect = Infinite Rect.
+	verifyCombinePathWithRect (infinitePath, &emptyRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+
+	// Infinite Path + Rect = Infinite Rect.
+	verifyCombinePathWithRect (infinitePath, &rect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+
+	// Empty Path + Infinite Rect = Infinite Rect.
+	verifyCombinePathWithRect (emptyPath, &infiniteRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+#endif
+
+	// Empty Path + Empty Rect = Empty.
+	// FIXME: this should be empty: https://github.com/mono/libgdiplus/issues/341
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyCombinePathWithRect (emptyPath, &emptyRect, CombineModeUnion, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
+#endif
+
+	// Empty Path + Rect = Rect.
+	verifyCombinePathWithRect (emptyPath, &rect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Path + Infinite = Infinite.
+	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyCombinePathWithRegion (path, infiniteRegion, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+#endif
+
+	// Path + Empty = Empty.
+	verifyCombinePathWithRegion (path, emptyRegion, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Path + Infinite Rect = Rect.
+	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyCombinePathWithRect (path, &infiniteRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+#endif
+
+	// Path + Empty Rect = Empty.
+	verifyCombinePathWithRect (path, &emptyRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Path + Negative Rect = Empty.
+	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
+#if !defined(USE_WINDOWS_GDIPLUS)
+	verifyCombinePathWithRect (path, &negativeRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
+#endif
+
+	// Path + Equal Rect = Equal Rect.
+	verifyCombinePathWithRect (path, &rect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Path + Super Rect = Super Rect.
+	verifyCombinePathWithRect (path, &superRect, CombineModeUnion, 0, 10, 50, 60, FALSE, FALSE, &superRect, sizeof (superRect));
+
+	// Path + Sub Rect = Rect.
+	verifyCombinePathWithRect (path, &subRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Path + Intersect Left = Calculation.
+	verifyCombinePathWithRect (path, &intersectLeftRect, CombineModeUnion, 0, 20, 40, 40, FALSE, FALSE, &intersectLeftScan, sizeof (intersectLeftScan));
+
+	// Path + Intersect Top = Calculation.
+	verifyCombinePathWithRect (path, &intersectTopRect, CombineModeUnion, 10, 10, 30, 50, FALSE, FALSE, &intersectTopScan, sizeof (intersectTopScan));
+	
+	// Path + Intersect Right = Calculation.
+	verifyCombinePathWithRect (path, &intersectRightRect, CombineModeUnion, 10, 20, 40, 40, FALSE, FALSE, &intersectRightScan, sizeof (intersectRightScan));
+
+	// Path + Intersect Bottom = Calculation.
+	verifyCombinePathWithRect (path, &intersectBottomRect, CombineModeUnion, 10, 20, 30, 50, FALSE, FALSE, &intersectBottomScan, sizeof (intersectBottomScan));
+
+	// Path + Intersect Top Left = Calculation.
+	verifyCombinePathWithRect (path, &intersectTopLeftRect, CombineModeUnion, 0, 10, 40, 50, FALSE, FALSE, intersectTopLeftScans, sizeof (intersectTopLeftScans));
+
+	// Path + Intersect Top Right = Calculation.
+	verifyCombinePathWithRect (path, &intersectTopRightRect, CombineModeUnion, 10, 10, 40, 50, FALSE, FALSE, intersectTopRightScans, sizeof (intersectTopRightScans));
+
+	// Path + Intersect Bottom Right = Calculation.
+	verifyCombinePathWithRect (path, &intersectBottomRightRect, CombineModeUnion, 10, 20, 40, 50, FALSE, FALSE, intersectBottomRightScans, sizeof (intersectTopRightScans));
+
+	// Path + Intersect Bottom Left = Calculation.
+	verifyCombinePathWithRect (path, &intersectBottomLeftRect, CombineModeUnion, 0, 20, 40, 50, FALSE, FALSE, intersectBottomLeftScans, sizeof (intersectBottomLeftScans));
+
+	// Path + No Intersect Left = Calculation.
+	verifyCombinePathWithRect (path, &noIntersectLeftRect, CombineModeUnion, -20, 20, 60, 40, FALSE, FALSE, &noIntersectLeftScan, sizeof (noIntersectLeftScan));
+
+	// Path + No Intersect Top = Calculation.
+	verifyCombinePathWithRect (path, &noIntersectTopRect, CombineModeUnion, 10, -20, 30, 80, FALSE, FALSE, &noIntersectTopScan, sizeof (noIntersectTopScan));
+
+	// Path + No Intersect Right = Calculation.
+	verifyCombinePathWithRect (path, &noIntersectRightRect, CombineModeUnion, 10, 20, 60, 40, FALSE, FALSE, &noIntersectRightScan, sizeof (noIntersectRightScan));
+
+	// Path + No Intersect Bottom = Calculation.
+	verifyCombinePathWithRect (path, &noIntersectBottomRect, CombineModeUnion, 10, 20, 30, 80, FALSE, FALSE, &noIntersectBottomScan, sizeof (noIntersectBottomScan));
+
+	// Path + No Intersect Top Left = Both.
+	verifyCombinePathWithRect (path, &noIntersectTopLeftRect, CombineModeUnion, -20, -20, 60, 80, FALSE, FALSE, noIntersectTopLeftScans, sizeof (noIntersectTopLeftScans));
+
+	// Path + No Intersect Top Right = Both.
+	verifyCombinePathWithRect (path, &noIntersectTopRightRect, CombineModeUnion, 10, -20, 60, 80, FALSE, FALSE, noIntersectTopRightScans, sizeof (noIntersectTopRightScans));
+
+	// Path + No Intersect Bottom Right = Both.
+	verifyCombinePathWithRect (path, &noIntersectBottomRightRect, CombineModeUnion, 10, 20, 60, 80, FALSE, FALSE, noIntersectBottomRightScans, sizeof (noIntersectBottomRightScans));
+
+	// Path + No Intersect Bottom Left = Both.
+	verifyCombinePathWithRect (path, &noIntersectBottomLeftRect, CombineModeUnion, -20, 20, 60, 80, FALSE, FALSE, noIntersectBottomLeftScans, sizeof (noIntersectBottomLeftScans));
+
+	// Path + Infinite Path = Path.
+	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyCombinePathWithPath (path, infinitePath, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+#endif
+
+	// Path + Empty Path = Empty.
+	verifyCombinePathWithPath (path, emptyPath, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Path + Negative Path = Empty.
+	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
+#if !defined(USE_WINDOWS_GDIPLUS)
+	verifyCombinePathWithPath (path, negativePath, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
+#endif
+
+	// Path + Equal Path = Equal Path.
+	verifyCombinePathWithPath (path, path, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Path + Super Path = Super Path.
+	verifyCombinePathWithPath (path, superPath, CombineModeUnion, 0, 10, 50, 60, FALSE, FALSE, &superRect, sizeof (superRect));
+
+	// Path + Sub Path = Path.
+	verifyCombinePathWithPath (path, subPath, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+
+	// Path + Intersect Left = Calculation.
+	verifyCombinePathWithPath (path, intersectLeftPath, CombineModeUnion, 0, 20, 40, 40, FALSE, FALSE, &intersectLeftScan, sizeof (intersectLeftScan));
+
+	// Path + Intersect Top = Calculation.
+	verifyCombinePathWithPath (path, intersectTopPath, CombineModeUnion, 10, 10, 30, 50, FALSE, FALSE, &intersectTopScan, sizeof (intersectTopScan));
+
+	// Path + Intersect Right = Calculation.
+	verifyCombinePathWithPath (path, intersectRightPath, CombineModeUnion, 10, 20, 40, 40, FALSE, FALSE, &intersectRightScan, sizeof (intersectRightScan));
+
+	// Path + Intersect Bottom = Calculation.
+	verifyCombinePathWithPath (path, intersectBottomPath, CombineModeUnion, 10, 20, 30, 50, FALSE, FALSE, &intersectBottomScan, sizeof (intersectBottomScan));
+
+	// Path + Intersect Top Left = Calculation.
+	verifyCombinePathWithPath (path, intersectTopLeftPath, CombineModeUnion, 0, 10, 40, 50, FALSE, FALSE, intersectTopLeftScans, sizeof (intersectTopLeftScans));
+
+	// Path + Intersect Top Right = Calculation.
+	verifyCombinePathWithPath (path, intersectTopRightPath, CombineModeUnion, 10, 10, 40, 50, FALSE, FALSE, intersectTopRightScans, sizeof (intersectTopRightScans));
+
+	// Path + Intersect Bottom Right = Calculation.
+	verifyCombinePathWithPath (path, intersectBottomRightPath, CombineModeUnion, 10, 20, 40, 50, FALSE, FALSE, intersectBottomRightScans, sizeof (intersectTopRightScans));
+
+	// Path + Intersect Bottom Left = Calculation.
+	verifyCombinePathWithPath (path, intersectBottomLeftPath, CombineModeUnion, 0, 20, 40, 50, FALSE, FALSE, intersectBottomLeftScans, sizeof (intersectBottomLeftScans));
+
+	// Path + No Intersect Left = Calculation.
+	verifyCombinePathWithPath (path, noIntersectLeftPath, CombineModeUnion, -20, 20, 60, 40, FALSE, FALSE, &noIntersectLeftScan, sizeof (noIntersectLeftScan));
+
+	// Path + No Intersect Top = Calculation.
+	verifyCombinePathWithPath (path, noIntersectTopPath, CombineModeUnion, 10, -20, 30, 80, FALSE, FALSE, &noIntersectTopScan, sizeof (noIntersectTopScan));
+
+	// Path + No Intersect Right = Calculation.
+	verifyCombinePathWithPath (path, noIntersectRightPath, CombineModeUnion, 10, 20, 60, 40, FALSE, FALSE, &noIntersectRightScan, sizeof (noIntersectRightScan));
+
+	// Path + No Intersect Bottom = Calculation.
+	verifyCombinePathWithPath (path, noIntersectBottomPath, CombineModeUnion, 10, 20, 30, 80, FALSE, FALSE, &noIntersectBottomScan, sizeof (noIntersectBottomScan));
+
+	// Path + No Intersect Top Left = Both.
+	verifyCombinePathWithPath (path, noIntersectTopLeftPath, CombineModeUnion, -20, -20, 60, 80, FALSE, FALSE, noIntersectTopLeftScans, sizeof (noIntersectTopLeftScans));
+
+	// Path + No Intersect Top Right = Both.
+	verifyCombinePathWithPath (path, noIntersectTopRightPath, CombineModeUnion, 10, -20, 60, 80, FALSE, FALSE, noIntersectTopRightScans, sizeof (noIntersectTopRightScans));
+
+	// Path + No Intersect Bottom Right = Both.
+	verifyCombinePathWithPath (path, noIntersectBottomRightPath, CombineModeUnion, 10, 20, 60, 80, FALSE, FALSE, noIntersectBottomRightScans, sizeof (noIntersectBottomRightScans));
+
+	// Path + No Intersect Bottom Left = Both.
+	verifyCombinePathWithPath (path, noIntersectBottomLeftPath, CombineModeUnion, -20, 20, 60, 80, FALSE, FALSE, noIntersectBottomLeftScans, sizeof (noIntersectBottomLeftScans));
+
+	GdipDeleteRegion (infiniteRegion);
+	GdipDeleteRegion (emptyRegion);
+	GdipDeleteRegion (rectRegion);
+	GdipDeleteRegion (pathRegion);
+	GdipDeletePath (path);
+	GdipDeletePath (superPath);
+	GdipDeletePath (subPath);
+	GdipDeletePath (intersectLeftPath);
+	GdipDeletePath (intersectTopPath);
+	GdipDeletePath (intersectRightPath);
+	GdipDeletePath (intersectBottomPath);
+	GdipDeletePath (intersectTopLeftPath);
+	GdipDeletePath (intersectTopRightPath);
+	GdipDeletePath (intersectBottomRightPath);
+	GdipDeletePath (intersectBottomLeftPath);
+	GdipDeletePath (noIntersectLeftPath);
+	GdipDeletePath (noIntersectTopPath);
+	GdipDeletePath (noIntersectRightPath);
+	GdipDeletePath (noIntersectBottomPath);
+	GdipDeletePath (noIntersectTopLeftPath);
+	GdipDeletePath (noIntersectTopRightPath);
+	GdipDeletePath (noIntersectBottomRightPath);
+	GdipDeletePath (noIntersectBottomLeftPath);
+	GdipDeletePath (emptyPath);
+	GdipDeletePath (infinitePath);
+	GdipDeletePath (negativePath);
+}
+
 int
 main (int argc, char**argv)
 {
@@ -1306,6 +1842,7 @@ main (int argc, char**argv)
 #endif
 	test_combineReplace ();
 	test_combineIntersect ();
+	test_combineUnion ();
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
