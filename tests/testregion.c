@@ -26,28 +26,66 @@ using namespace DllExports;
 GpImage *image;
 GpGraphics *graphics;
 
-#define verifyRegion(region, expectedX, expectedY, expectedWidth, expectedHeight, expectedIsEmpty, expectedIsInfinite) \
-{ \
-	GpStatus status; \
-	GpRectF bounds; \
-	BOOL isEmpty; \
-	BOOL isInfinite; \
-\
-	status = GdipGetRegionBounds (region, graphics, &bounds); \
-	assertEqualInt (status, Ok); \
-	assertEqualFloat (bounds.X, expectedX); \
-	assertEqualFloat (bounds.Y, expectedY); \
-	assertEqualFloat (bounds.Width, expectedWidth); \
-	assertEqualFloat (bounds.Height, expectedHeight); \
-\
-	status = GdipIsEmptyRegion (region, graphics, &isEmpty); \
-	assertEqualInt (status, Ok); \
-	assert (isEmpty == (BOOL) expectedIsEmpty); \
-\
-	status = GdipIsInfiniteRegion (region, graphics, &isInfinite); \
-	assertEqualInt (status, Ok); \
-	assert (isInfinite == (BOOL) expectedIsInfinite); \
+static void verifyRegionImpl(GpRegion *region, float expectedX, float expectedY, float expectedWidth, float expectedHeight, BOOL expectedIsEmpty, BOOL expectedIsInfinite, const char *file, const char *function, int line)
+{
+	GpStatus status;
+	GpRectF bounds;
+	BOOL isEmpty;
+	BOOL isInfinite;
+	RectF expectedBounds = {expectedX, expectedY, expectedWidth, expectedHeight};
+
+	status = GdipGetRegionBounds (region, graphics, &bounds);
+	assertEqualIntImpl (status, Ok, NULL, file, function, line);
+	assertEqualRectImpl (bounds, expectedBounds, "Bounds", file, function, line);
+
+	status = GdipIsEmptyRegion (region, graphics, &isEmpty);
+	assertEqualIntImpl (status, Ok, NULL, file, function, line);
+	assertEqualIntImpl (isEmpty, expectedIsEmpty, "IsEmpty", file, function, line);
+
+	status = GdipIsInfiniteRegion (region, graphics, &isInfinite);
+	assertEqualIntImpl (status, Ok, NULL, file, function, line);
+	assertEqualIntImpl (isInfinite, expectedIsInfinite, "IsInfinite", file, function, line);
 }
+
+#define verifyRegion(region, expectedX, expectedY, expectedWidth, expectedHeight, expectedIsEmpty, expectedIsInfinite) \
+	verifyRegionImpl (region, expectedX, expectedY, expectedWidth, expectedHeight, expectedIsEmpty, expectedIsInfinite, __FILE__, __func__, __LINE__)
+
+static void verifyRegionScansImpl (GpRegion *region, RectF *expectedScans, INT expectedCount, const char *file, const char *function, int line)
+{
+	GpStatus status;
+	GpMatrix *matrix;
+	INT count;
+	GpRectF *scans;
+	GdipCreateMatrix (&matrix);
+
+	status = GdipGetRegionScans (region, NULL, &count, matrix);
+	assertEqualIntImpl (status, Ok, NULL, file, function, line);
+	assertEqualIntImpl (count, expectedCount / sizeof (GpRectF), "ScansCount", file, function, line);
+	scans = (GpRectF *) malloc (count * sizeof (GpRectF));
+
+	status = GdipGetRegionScans (region, scans, &count, matrix);
+	assertEqualIntImpl (status, Ok, NULL, file, function, line);
+	for (int i = 0; i < count; i++)
+	{
+		printf("{%.0f, %.0f, %.0f, %.0f}", scans[i].X, scans[i].Y, scans[i].Width, scans[i].Height);
+		if (i != count - 1)
+			printf (",");
+
+		printf("\n");
+	}
+	printf("\n");
+
+	for (int i = 0; i < count; i++)
+	{
+		char iChar = i + '0';
+		assertEqualRectImpl (scans[i], expectedScans[i], &iChar, file, function, line);
+	}
+
+	GdipDeleteMatrix (matrix);
+}
+
+#define verifyRegionScans(region, expectedScans, expectedCount) \
+	verifyRegionScansImpl (region, expectedScans, expectedCount, __FILE__, __func__, __LINE__)
 
 static void test_createRegion ()
 {
@@ -448,10 +486,10 @@ static void test_getRegionScansI ()
 	count = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
-	assertEqualFloat (scans[0].X, 10);
-	assertEqualFloat (scans[0].Y, 20);
-	assertEqualFloat (scans[0].Width, 30);
-	assertEqualFloat (scans[0].Height, 40);
+	assertEqualInt (scans[0].X, 10);
+	assertEqualInt (scans[0].Y, 20);
+	assertEqualInt (scans[0].Width, 30);
+	assertEqualInt (scans[0].Height, 40);
 	assertEqualInt (count, 1);
 
 	// Rect region - null rects.
@@ -471,10 +509,10 @@ static void test_getRegionScansI ()
 	assertEqualInt (status, Ok);
 	// FIXME: these are incorrect.
 #if defined(USE_WINDOWS_GDIPLUS)
-	assertEqualFloat (scans[0].X, 10);
-	assertEqualFloat (scans[0].Y, 20);
-	assertEqualFloat (scans[0].Width, 30);
-	assertEqualFloat (scans[0].Height, 40);
+	assertEqualInt (scans[0].X, 10);
+	assertEqualInt (scans[0].Y, 20);
+	assertEqualInt (scans[0].Width, 30);
+	assertEqualInt (scans[0].Height, 40);
 #endif
 	assertEqualInt (count, 1);
 
@@ -507,10 +545,10 @@ static void test_getRegionScansI ()
 	count = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
-	assertEqualFloat (scans[0].X, -4194304);
-	assertEqualFloat (scans[0].Y, -4194304);
-	assertEqualFloat (scans[0].Width, 8388608);
-	assertEqualFloat (scans[0].Height, 8388608);
+	assertEqualInt (scans[0].X, -4194304);
+	assertEqualInt (scans[0].Y, -4194304);
+	assertEqualInt (scans[0].Width, 8388608);
+	assertEqualInt (scans[0].Height, 8388608);
 	assertEqualInt (count, 1);
 
 	// Infinite region - null rects.
@@ -534,6 +572,253 @@ static void test_getRegionScansI ()
 }
 #endif
 
+static GpRectF infiniteScans[] = {
+	{-4194304, -4194304, 8388608, 8388608}
+};
+
+static GpRectF *emptyScans = NULL;
+
+#define verifyCombineRegionWithRegion(region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpStatus status = GdipCombineRegionRegion (region, region2, mode); \
+	assertEqualInt (status, Ok); \
+ \
+	verifyRegion (region, x, y, width, height, isEmpty, isInfinite); \
+	verifyRegionScans (region, scans, scansCount); \
+ \
+}
+
+#define verifyCombineRegionWithRect(region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *clone; \
+	GdipCloneRegion (region, &clone); \
+ \
+	/* First test combining with a rect region. */ \
+	GpRegion *region2; \
+	GdipCreateRegionRect (rect, &region2); \
+	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region2); \
+ \
+	/* First test combining with an actual rect. */ \
+	GdipCombineRegionRect (clone, rect, mode); \
+	verifyRegion (clone, x, y, width, height, isEmpty, isInfinite); \
+	verifyRegionScans (clone, scans, scansCount); \
+	GdipDeleteRegion (clone); \
+}
+
+#define verifyCombineRegionWithPath(region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *clone; \
+	GdipCloneRegion (region, &clone); \
+ \
+	/* First test combining with a path region. */ \
+	GpRegion *region2; \
+	GdipCreateRegionPath (path, &region2); \
+	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region2); \
+ \
+	/* First test combining with an actual path. */ \
+	GdipCombineRegionPath (clone, path, mode); \
+	verifyRegion (clone, x, y, width, height, isEmpty, isInfinite); \
+	verifyRegionScans (clone, scans, scansCount); \
+	GdipDeleteRegion (clone); \
+}
+
+#define verifyCombineInfiniteWithRegion(region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+ \
+	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+} \
+
+#define verifyCombineInfiniteWithRect(rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+ \
+	verifyCombineRegionWithRect (region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+} \
+
+#define verifyCombineInfiniteWithPath(path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+ \
+	verifyCombineRegionWithPath (region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+} \
+
+#define verifyCombineEmptyWithRegion(region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+	GdipSetEmpty (region); \
+ \
+ 	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+} \
+
+#define verifyCombineEmptyWithRect(rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+	GdipSetEmpty (region); \
+ \
+ 	verifyCombineRegionWithRect (region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+} \
+
+#define verifyCombineEmptyWithPath(path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+	GdipSetEmpty (region); \
+ \
+ 	verifyCombineRegionWithPath (region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+} \
+
+#define verifyCombineRectWithRegion(rect, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionRect (rect, &region); \
+ \
+ 	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+} \
+
+#define verifyCombineRectWithRect(rect, rect2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionRect (rect, &region); \
+ \
+ 	verifyCombineRegionWithRect (region, rect2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+} \
+
+#define verifyCombineRectWithPath(rect, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionRect (rect, &region); \
+ \
+ 	verifyCombineRegionWithPath (region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+} \
+
+#define verifyCombinePathWithRegion(path, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionPath (path, &region); \
+ \
+ 	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+} \
+
+#define verifyCombinePathWithRect(path, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionPath (path, &region); \
+ \
+ 	verifyCombineRegionWithRect (region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+} \
+
+#define verifyCombinePathWithPath(path, path2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionPath (path, &region); \
+ \
+ 	verifyCombineRegionWithPath (region, path2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+} \
+
+static GpPath *createPathFromRect(RectF *rect)
+{
+	GpPath *path;
+	GdipCreatePath (FillModeAlternate, &path);
+	GdipAddPathRectangle (path, rect->X, rect->Y, rect->Width, rect->Height);
+	return path;
+}
+
+static void test_combineReplace ()
+{
+	GpRegion *infiniteRegion;
+	GpRegion *emptyRegion;
+	GpRegion *rectRegion;
+	GpRegion *pathRegion;
+
+	GdipCreateRegion (&infiniteRegion);
+
+	GdipCreateRegion (&emptyRegion);
+	GdipSetEmpty (emptyRegion);
+
+	RectF rect1 = {10, 20, 30, 40};
+	RectF rect2 = {20, 30, 40, 50};
+	GdipCreateRegionRect (&rect1, &rectRegion);
+
+	GpPath *path1 = createPathFromRect (&rect1);
+	GpPath *path2 = createPathFromRect (&rect2);
+	GdipCreateRegionPath (path1, &pathRegion);
+
+	// Infinite + Infinite = Infinite.
+	verifyCombineInfiniteWithRegion (infiniteRegion, CombineModeReplace, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+
+	// Infinite + Empty = Empty.
+	verifyCombineInfiniteWithRegion (emptyRegion, CombineModeReplace, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
+
+	// Infinite + Rect = Rect.
+	verifyCombineInfiniteWithRect (&rect1, CombineModeReplace, 10, 20, 30, 40, FALSE, FALSE, &rect1, sizeof (rect1));
+
+	// Infinite + Path = Path.
+	verifyCombineInfiniteWithPath (path1, CombineModeReplace, 10, 20, 30, 40, FALSE, FALSE, &rect1, sizeof (rect1));
+
+	// Empty + Infinite = Infinite.
+	verifyCombineEmptyWithRegion (infiniteRegion, CombineModeReplace, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+
+	// Empty + Empty = Empty.
+	verifyCombineEmptyWithRegion (emptyRegion, CombineModeReplace, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
+
+	// Empty + Rect = Rect.
+	verifyCombineEmptyWithRect (&rect1, CombineModeReplace, 10, 20, 30, 40, FALSE, FALSE, &rect1, sizeof (rect1));
+
+	// Empty + Path = Path.
+	verifyCombineEmptyWithPath (path1, CombineModeReplace, 10, 20, 30, 40, FALSE, FALSE, &rect1, sizeof (rect1));
+
+	// Rect + Infinite = Infinite.
+	verifyCombineRectWithRegion (&rect1, infiniteRegion, CombineModeReplace, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+
+	// Rect + Empty = Empty.
+	verifyCombineRectWithRegion (&rect1, emptyRegion, CombineModeReplace, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
+
+	// Rect + Other Rect = Other Rect.
+	verifyCombineRectWithRect (&rect1, &rect2, CombineModeReplace, 20, 30, 40, 50, FALSE, FALSE, &rect2, sizeof (rect2));
+
+	// Rect + Path = Path.
+	verifyCombineRectWithPath (&rect1, path2, CombineModeReplace, 20, 30, 40, 50, FALSE, FALSE, &rect2, sizeof (rect2));
+
+	// Path + Infinite = Infinite.
+	verifyCombinePathWithRegion (path1, infiniteRegion, CombineModeReplace, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+
+	// Path + Empty = Empty.
+	verifyCombinePathWithRegion (path1, emptyRegion, CombineModeReplace, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
+
+	// Path + Rect = Rect.
+	verifyCombinePathWithRect (path1, &rect2, CombineModeReplace, 20, 30, 40, 50, FALSE, FALSE, &rect2, sizeof (rect2));
+
+	// Path + Other Path = Other Path.
+	verifyCombinePathWithPath (path1, path2, CombineModeReplace, 20, 30, 40, 50, FALSE, FALSE, &rect2, sizeof (rect2));
+
+	GdipDeleteRegion (infiniteRegion);
+	GdipDeleteRegion (emptyRegion);
+	GdipDeleteRegion (rectRegion);
+	GdipDeleteRegion (pathRegion);
+	GdipDeletePath (path1);
+	GdipDeletePath (path2);
+}
+
 int
 main (int argc, char**argv)
 {
@@ -552,6 +837,7 @@ main (int argc, char**argv)
 #if defined(USE_WINDOWS_GDIPLUS)
 	test_getRegionScansI ();
 #endif
+	test_combineReplace ();
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);

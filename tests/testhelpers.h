@@ -41,26 +41,6 @@ ATTRIBUTE_USED static BOOL floatsEqual(float v1, float v2)
     return fabs (v1 - v2) < 0.0001;
 }
 
-ATTRIBUTE_USED static void verifyMatrix(GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5, REAL e6)
-{
-    float elements[6];
-    GdipGetMatrixElements (matrix, elements);
-
-    if (!floatsEqual (elements[0], e1) ||
-        !floatsEqual (elements[1], e2) ||
-        !floatsEqual (elements[2], e3) ||
-        !floatsEqual (elements[3], e4) ||
-        !floatsEqual (elements[4], e5) ||
-        !floatsEqual (elements[5], e6)) {
-
-        fprintf (stderr, "Expected matrices to be equal\n");
-        fprintf (stderr, "Expected: %f, %f, %f, %f, %f, %f\n", e1, e2, e3, e4, e5, e6);
-        fprintf (stderr, "Actual:   %f, %f, %f, %f, %f, %f\n\n", elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]);
-
-        abort ();
-    }
-}
-
 #if !defined(USE_WINDOWS_GDIPLUS)
 #define createWchar(c) g_utf8_to_utf16 (c, -1, NULL, NULL, NULL);
 #define freeWchar(c) g_free(c)
@@ -83,25 +63,80 @@ ATTRIBUTE_USED static WCHAR* wcharFromChar(const char *c)
 #define freeWchar(c)
 #endif
 
-#define assertEqualInt(actual, expected)                   \
-{                                                          \
-    if ((int)actual != (int)expected)                      \
-    {                                                      \
-        fprintf (stderr, "Expected: %d\n", (int)expected); \
-        fprintf (stderr, "Actual:   %d\n", (int)actual);   \
-        assert ((int)actual == (int)expected);             \
-    }                                                      \
+ATTRIBUTE_USED static void printFailure(const char *file, const char *function, int line)
+{
+    fprintf (stderr, "Assertion failure: file %s in %s, line %d\n", file, function, line);
 }
 
-#define assertEqualFloat(actual, expected)                   \
-{                                                            \
-    if (!floatsEqual ((float)actual, (float)expected))       \
-    {                                                        \
-        fprintf (stderr, "Expected: %f\n", (float)expected); \
-        fprintf (stderr, "Actual:   %f\n", (float)actual);   \
-        assert ((float)actual == (float)expected);           \
-    }                                                        \
+ATTRIBUTE_USED static void assertEqualIntImpl (INT actual, INT expected, const char *message, const char *file, const char *function, int line)
+{
+    if (actual != expected)
+    {
+        if (message)
+            fprintf (stderr, "%s\n", message);
+
+        printFailure (file, function, line);
+        fprintf (stderr, "Expected: %d\n", expected);
+        fprintf (stderr, "Actual:   %d\n", actual);
+        abort();
+    }
 }
+
+#define assertEqualInt(actual, expected) assertEqualIntImpl (actual, expected, NULL, __FILE__, __func__, __LINE__)
+
+ATTRIBUTE_USED static void assertEqualFloatImpl (REAL actual, REAL expected, const char *message, const char *file, const char *function, int line)
+{
+    if (!floatsEqual (actual, expected))
+    {
+        if (message)
+            fprintf (stderr, "%s\n", message);
+
+        printFailure (file, function, line);
+        fprintf (stderr, "Expected: %f\n", expected);
+        fprintf (stderr, "Actual:   %f\n", actual);
+        abort ();
+    }                                     
+}
+
+#define assertEqualFloat(actual, expected) assertEqualFloatImpl (actual, expected, NULL, __FILE__, __func__, __LINE__)
+
+ATTRIBUTE_USED static void assertEqualRectImpl (GpRectF actual, GpRectF expected, const char *message, const char *file, const char *function, int line)
+{
+    if (!floatsEqual (actual.X, expected.X) || !floatsEqual (actual.Y, expected.Y) || !floatsEqual (actual.Width, expected.Width) || !floatsEqual (actual.Height, expected.Height))
+    {
+        if (message)
+            fprintf (stderr, "%s\n", message);
+
+        printFailure (file, function, line);
+        fprintf (stderr, "Expected: {%g, %g, %g, %g}\n", expected.X, expected.Y, expected.Width, expected.Height);
+        fprintf (stderr, "Actual:   {%g, %g, %g, %g}\n", actual.X, actual.Y, actual.Width, actual.Height);
+        abort ();
+    }
+}
+
+#define assertEqualRect(actual, expected) assertEqualRectImpl (actual, expected, NULL, __FILE__, __func__, __LINE__);
+
+ATTRIBUTE_USED static void verifyMatrixImpl(GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5, REAL e6, const char *file, const char *function, int line)
+{
+    float elements[6];
+    GdipGetMatrixElements (matrix, elements);
+
+    if (!floatsEqual (elements[0], e1) ||
+        !floatsEqual (elements[1], e2) ||
+        !floatsEqual (elements[2], e3) ||
+        !floatsEqual (elements[3], e4) ||
+        !floatsEqual (elements[4], e5) ||
+        !floatsEqual (elements[5], e6)) {
+
+        printFailure (file, function, line);
+        fprintf (stderr, "Expected: %f, %f, %f, %f, %f, %f\n", e1, e2, e3, e4, e5, e6);
+        fprintf (stderr, "Actual:   %f, %f, %f, %f, %f, %f\n\n", elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]);
+
+        abort ();
+    }
+}
+
+#define verifyMatrix(matrix, e1, e2, e3, e4, e5, e6) verifyMatrixImpl (matrix, e1, e2, e3, e4, e5, e6, __FILE__, __func__, __LINE__)
 
 ATTRIBUTE_USED static CLSID bmpEncoderClsid = { 0x557cf400, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
 ATTRIBUTE_USED static CLSID tifEncoderClsid = { 0x557cf405, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
