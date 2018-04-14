@@ -883,13 +883,20 @@ GdipDrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, I
 GpStatus WINGDIPAPI
 GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, INT count)
 {
+	GpStatus status;
 	GpPointF *pointsF;
 	
 	if (!points || count < 0)
 		return InvalidParameter;
 
 	pointsF = convert_points (points, count);
-	return GdipDrawBeziers (graphics, pen, pointsF, count);
+	if (!pointsF)
+		return OutOfMemory;
+
+	status = GdipDrawBeziers (graphics, pen, pointsF, count);
+
+	GdipFree (pointsF);
+	return status;
 }
 
 GpStatus WINGDIPAPI
@@ -949,12 +956,20 @@ GdipDrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, INT
 GpStatus WINGDIPAPI
 GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, INT count)
 {
+	GpStatus status;
 	GpPointF *pointsF;
+
 	if (!points || count < 0)
 		return OutOfMemory;
 
 	pointsF = convert_points (points, count);
-	return GdipDrawLines (graphics, pen, pointsF, count);
+	if (!pointsF)
+		return OutOfMemory;
+
+	status = GdipDrawLines (graphics, pen, pointsF, count);
+
+	GdipFree (pointsF);
+	return status;
 }
 
 GpStatus WINGDIPAPI
@@ -1018,13 +1033,20 @@ GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, I
 GpStatus WINGDIPAPI
 GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, INT count)
 {
+	GpStatus status;
 	GpPointF *pointsF;
 
 	if (!points || count < 0)
 		return OutOfMemory;
 
 	pointsF = convert_points (points, count);
-	return GdipDrawPolygon (graphics, pen, pointsF, count);
+	if (!pointsF)
+		return OutOfMemory;
+
+	status = GdipDrawPolygon (graphics, pen, pointsF, count);
+
+	GdipFree (pointsF);
+	return status;
 }
 
 GpStatus WINGDIPAPI
@@ -1059,13 +1081,20 @@ GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects, 
 GpStatus WINGDIPAPI
 GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRect *rects, INT count)
 {
+	GpStatus status;
 	GpRectF *rectsF;
 
 	if (!rects || count < 0)
 		return InvalidParameter;
 	
 	rectsF = convert_rects (rects, count);
-	return GdipDrawRectangles (graphics, pen, rectsF, count);
+	if (!rectsF)
+		return OutOfMemory;
+
+	status = GdipDrawRectangles (graphics, pen, rectsF, count);
+
+	GdipFree (rectsF);
+	return status;
 }
 
 GpStatus WINGDIPAPI
@@ -1103,13 +1132,20 @@ GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *poin
 GpStatus WINGDIPAPI
 GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, INT count, REAL tension)
 {
+	GpStatus status;
 	GpPointF *pointsF;
 
 	if (!points || count < 0)
 		return OutOfMemory;
 
 	pointsF = convert_points (points, count);
-	return GdipDrawClosedCurve2 (graphics, pen, pointsF, count, tension);
+	if (!pointsF)
+		return OutOfMemory;
+
+	status = GdipDrawClosedCurve2 (graphics, pen, pointsF, count, tension);
+
+	GdipFree (pointsF);
+	return status;
 }
 
 GpStatus WINGDIPAPI
@@ -1138,14 +1174,22 @@ GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, IN
 GpStatus WINGDIPAPI
 GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, INT count, REAL tension)
 {
+	GpStatus status;
 	GpPointF *pointsF;
+
 	if (count < 0)
 		return OutOfMemory;
 	if (!points)
 		return InvalidParameter;
 
 	pointsF = convert_points (points, count);
-	return GdipDrawCurve2 (graphics, pen, pointsF, count, tension);
+	if (!pointsF)
+		return OutOfMemory;
+
+	status = GdipDrawCurve2 (graphics, pen, pointsF, count, tension);
+
+	GdipFree (pointsF);
+	return status;
 }
 
 GpStatus WINGDIPAPI
@@ -1178,13 +1222,20 @@ GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, IN
 GpStatus WINGDIPAPI
 GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, INT count, INT offset, INT numOfSegments, REAL tension)
 {
+	GpStatus status;
 	GpPointF *pointsF;
 
 	if (!points || count < 0)
 		return OutOfMemory;
 
 	pointsF = convert_points (points, count);
-	return GdipDrawCurve3 (graphics, pen, pointsF, count, offset, numOfSegments, tension);
+	if (!pointsF)
+		return OutOfMemory;
+
+	status = GdipDrawCurve3 (graphics, pen, pointsF, count, offset, numOfSegments, tension);
+
+	GdipFree (pointsF);
+	return status;
 }
 
 /*
@@ -1244,12 +1295,20 @@ GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rec
 GpStatus WINGDIPAPI
 GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect *rects, INT count)
 {
+	GpStatus status;
 	GpRectF *rectsF;
+
 	if (!rects || count < 0)
 		return OutOfMemory;
 
 	rectsF = convert_rects (rects, count);
-	return GdipFillRectangles (graphics, brush, rectsF, count);
+	if (!rectsF)
+		return OutOfMemory;
+
+	status = GdipFillRectangles (graphics, brush, rectsF, count);
+
+	GdipFree (rectsF);
+	return status;
 }
 
 GpStatus WINGDIPAPI
@@ -1314,13 +1373,20 @@ GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *point
 GpStatus WINGDIPAPI
 GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count, FillMode fillMode)
 {
+	GpStatus status;
 	GpPointF *pointsF;
 
 	if (!points || count < 0)
 		return OutOfMemory;	
 
 	pointsF = convert_points (points, count);
-	return GdipFillPolygon (graphics, brush, pointsF, count, fillMode);
+	if (!pointsF)
+		return OutOfMemory;
+
+	status = GdipFillPolygon (graphics, brush, pointsF, count, fillMode);
+
+	GdipFree (pointsF);
+	return status;
 }
 
 GpStatus WINGDIPAPI
@@ -1370,13 +1436,20 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *
 GpStatus WINGDIPAPI
 GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count, REAL tension)
 {
+	GpStatus status;
 	GpPointF *pointsF;
 
 	if (!points || count < 0)
 		return OutOfMemory;
 
 	pointsF = convert_points (points, count);
-	return GdipFillClosedCurve2 (graphics, brush, pointsF, count, tension);
+	if (!pointsF)
+		return OutOfMemory;
+
+	status = GdipFillClosedCurve2 (graphics, brush, pointsF, count, tension);
+
+	GdipFree (pointsF);
+	return status;
 }
 
 GpStatus WINGDIPAPI
