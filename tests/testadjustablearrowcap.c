@@ -179,10 +179,14 @@ static void test_setAdjustableArrowCapHeight ()
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
 	REAL height;
+	REAL baseInset;
+	LineCap baseCap;
 
-	GdipCreateAdjustableArrowCap (10, 11, TRUE, &cap);
+	GdipCreateAdjustableArrowCap (150, 3, TRUE, &cap);
 
 	// Positive value.
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
+	GdipSetCustomLineCapBaseCap ((GpCustomLineCap *) cap, LineCapRound);
 	status = GdipSetAdjustableArrowCapHeight (cap, 30);
 	assertEqualInt (status, Ok);
 
@@ -190,7 +194,31 @@ static void test_setAdjustableArrowCapHeight ()
 	assertEqualInt (status, Ok);
 	assertEqualFloat (height, 30);
 
+	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (baseInset, 10);
+
+	// Same value.
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
+	GdipSetCustomLineCapBaseCap ((GpCustomLineCap *) cap, LineCapRound);
+	status = GdipSetAdjustableArrowCapHeight (cap, 30);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetAdjustableArrowCapHeight (cap, &height);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (height, 30);
+
+	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (baseInset, 120);
+
+	status = GdipGetCustomLineCapBaseCap ((GpCustomLineCap *) cap, &baseCap);
+	assertEqualInt (status, Ok);
+	assertEqualInt (baseCap, LineCapRound);
+
 	// Zero.
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
+	GdipSetCustomLineCapBaseCap ((GpCustomLineCap *) cap, LineCapRound);
 	status = GdipSetAdjustableArrowCapHeight (cap, 0);
 	assertEqualInt (status, Ok);
 
@@ -198,13 +226,31 @@ static void test_setAdjustableArrowCapHeight ()
 	assertEqualInt (status, Ok);
 	assertEqualFloat (height, 0);
 
+	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (baseInset, 0);
+
+	status = GdipGetCustomLineCapBaseCap ((GpCustomLineCap *) cap, &baseCap);
+	assertEqualInt (status, Ok);
+	assertEqualInt (baseCap, LineCapTriangle);
+
 	// Negative value.
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
+	GdipSetCustomLineCapBaseCap ((GpCustomLineCap *) cap, LineCapRound);
 	status = GdipSetAdjustableArrowCapHeight (cap, -30);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetAdjustableArrowCapHeight (cap, &height);
 	assertEqualInt (status, Ok);
 	assertEqualFloat (height, -30);
+
+	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (baseInset, -10);
+
+	status = GdipGetCustomLineCapBaseCap ((GpCustomLineCap *) cap, &baseCap);
+	assertEqualInt (status, Ok);
+	assertEqualInt (baseCap, LineCapTriangle);
 
 	// Negative tests.
 	status = GdipSetAdjustableArrowCapHeight (NULL, 30);
@@ -236,10 +282,14 @@ static void test_setAdjustableArrowCapWidth ()
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
 	REAL width;
+	REAL baseInset;
+	LineCap baseCap;
 
-	GdipCreateAdjustableArrowCap (10, 11, TRUE, &cap);
+	GdipCreateAdjustableArrowCap (150, 3, TRUE, &cap);
 
 	// Positive value.
+	GdipSetCustomLineCapBaseCap ((GpCustomLineCap *) cap, LineCapRound);
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
 	status = GdipSetAdjustableArrowCapWidth (cap, 30);
 	assertEqualInt (status, Ok);
 
@@ -247,7 +297,35 @@ static void test_setAdjustableArrowCapWidth ()
 	assertEqualInt (status, Ok);
 	assertEqualFloat (width, 30);
 
+	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (baseInset, 5);
+
+	status = GdipGetCustomLineCapBaseCap ((GpCustomLineCap *) cap, &baseCap);
+	assertEqualInt (status, Ok);
+	assertEqualInt (baseCap, LineCapTriangle);
+
+	// Same value.
+	GdipSetCustomLineCapBaseCap ((GpCustomLineCap *) cap, LineCapRound);
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
+	status = GdipSetAdjustableArrowCapWidth (cap, 30);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetAdjustableArrowCapWidth (cap, &width);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (width, 30);
+
+	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (baseInset, 120);
+
+	status = GdipGetCustomLineCapBaseCap ((GpCustomLineCap *) cap, &baseCap);
+	assertEqualInt (status, Ok);
+	assertEqualInt (baseCap, LineCapRound);
+
 	// Zero.
+	GdipSetCustomLineCapBaseCap ((GpCustomLineCap *) cap, LineCapRound);
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
 	status = GdipSetAdjustableArrowCapWidth (cap, 0);
 	assertEqualInt (status, Ok);
 
@@ -255,13 +333,26 @@ static void test_setAdjustableArrowCapWidth ()
 	assertEqualInt (status, Ok);
 	assertEqualFloat (width, 0);
 
+	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (baseInset, 0);
+
+	status = GdipGetCustomLineCapBaseCap ((GpCustomLineCap *) cap, &baseCap);
+	assertEqualInt (status, Ok);
+	assertEqualInt (baseCap, LineCapTriangle);
+
 	// Negative value.
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
 	status = GdipSetAdjustableArrowCapWidth (cap, -30);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetAdjustableArrowCapWidth (cap, &width);
 	assertEqualInt (status, Ok);
 	assertEqualFloat (width, -30);
+
+	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (baseInset, -5);
 
 	// Negative tests.
 	status = GdipSetAdjustableArrowCapWidth (NULL, 30);
@@ -293,10 +384,14 @@ static void test_setAdjustableArrowCapMiddleInset ()
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
 	REAL middleInset;
+	REAL baseInset;
+	LineCap baseCap;
 
-	GdipCreateAdjustableArrowCap (10, 11, TRUE, &cap);
+	GdipCreateAdjustableArrowCap (150, 3, TRUE, &cap);
 
 	// Positive value.
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
+	GdipSetCustomLineCapBaseCap ((GpCustomLineCap *) cap, LineCapRound);
 	status = GdipSetAdjustableArrowCapMiddleInset (cap, 30);
 	assertEqualInt (status, Ok);
 
@@ -304,7 +399,35 @@ static void test_setAdjustableArrowCapMiddleInset ()
 	assertEqualInt (status, Ok);
 	assertEqualFloat (middleInset, 30);
 
+	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (baseInset, 50);
+
+	status = GdipGetCustomLineCapBaseCap ((GpCustomLineCap *) cap, &baseCap);
+	assertEqualInt (status, Ok);
+	assertEqualInt (baseCap, LineCapTriangle);
+
+	// Same value.
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
+	GdipSetCustomLineCapBaseCap ((GpCustomLineCap *) cap, LineCapRound);
+	status = GdipSetAdjustableArrowCapMiddleInset (cap, 30);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetAdjustableArrowCapMiddleInset (cap, &middleInset);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (middleInset, 30);
+
+	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (baseInset, 120);
+
+	status = GdipGetCustomLineCapBaseCap ((GpCustomLineCap *) cap, &baseCap);
+	assertEqualInt (status, Ok);
+	assertEqualInt (baseCap, LineCapRound);
+
 	// Zero.
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
+	GdipSetCustomLineCapBaseCap ((GpCustomLineCap *) cap, LineCapRound);
 	status = GdipSetAdjustableArrowCapMiddleInset (cap, 0);
 	assertEqualInt (status, Ok);
 
@@ -312,13 +435,31 @@ static void test_setAdjustableArrowCapMiddleInset ()
 	assertEqualInt (status, Ok);
 	assertEqualFloat (middleInset, 0);
 
+	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (baseInset, 50);
+
+	status = GdipGetCustomLineCapBaseCap ((GpCustomLineCap *) cap, &baseCap);
+	assertEqualInt (status, Ok);
+	assertEqualInt (baseCap, LineCapTriangle);
+
 	// Negative value.
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
+	GdipSetCustomLineCapBaseCap ((GpCustomLineCap *) cap, LineCapRound);
 	status = GdipSetAdjustableArrowCapMiddleInset (cap, -30);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetAdjustableArrowCapMiddleInset (cap, &middleInset);
 	assertEqualInt (status, Ok);
 	assertEqualFloat (middleInset, -30);
+
+	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (baseInset, 50);
+
+	status = GdipGetCustomLineCapBaseCap ((GpCustomLineCap *) cap, &baseCap);
+	assertEqualInt (status, Ok);
+	assertEqualInt (baseCap, LineCapTriangle);
 
 	// Negative tests.
 	status = GdipSetAdjustableArrowCapMiddleInset (NULL, 30);
@@ -350,15 +491,48 @@ static void test_setAdjustableArrowCapFillState ()
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
 	BOOL isFilled;
+	REAL baseInset;
+	LineCap baseCap;
 
 	GdipCreateAdjustableArrowCap (10, 11, TRUE, &cap);
 
+	// FALSE
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
+	GdipSetCustomLineCapBaseCap ((GpCustomLineCap *) cap, LineCapRound);
 	status = GdipSetAdjustableArrowCapFillState (cap, FALSE);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetAdjustableArrowCapFillState (cap, &isFilled);
 	assertEqualInt (status, Ok);
 	assert (isFilled == FALSE);
+
+	// TRUE
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
+	GdipSetCustomLineCapBaseCap ((GpCustomLineCap *) cap, LineCapRound);
+	status = GdipSetAdjustableArrowCapFillState (cap, TRUE);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetAdjustableArrowCapFillState (cap, &isFilled);
+	assertEqualInt (status, Ok);
+	assert (isFilled == TRUE);
+
+	// Same value
+	GdipSetCustomLineCapBaseInset ((GpCustomLineCap *) cap, 120);
+	GdipSetCustomLineCapBaseCap ((GpCustomLineCap *) cap, LineCapRound);
+	status = GdipSetAdjustableArrowCapFillState (cap, TRUE);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetAdjustableArrowCapFillState (cap, &isFilled);
+	assertEqualInt (status, Ok);
+	assert (isFilled == TRUE);
+
+	status = GdipGetCustomLineCapBaseInset ((GpCustomLineCap *) cap, &baseInset);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (baseInset, 120);
+
+	status = GdipGetCustomLineCapBaseCap ((GpCustomLineCap *) cap, &baseCap);
+	assertEqualInt (status, Ok);
+	assertEqualInt (baseCap, LineCapRound);
 
 	// Negative tests.
 	status = GdipSetAdjustableArrowCapFillState (NULL, 30);
