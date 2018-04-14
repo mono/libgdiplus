@@ -30,6 +30,8 @@
 #define ATTRIBUTE_USED
 #endif
 
+#define ARRAY_SIZE(x) sizeof (x) / sizeof (*x)
+
 ATTRIBUTE_USED static BOOL floatsEqual(float v1, float v2)
 {
     if (isnan (v1))
