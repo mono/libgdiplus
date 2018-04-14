@@ -83,6 +83,7 @@ static void test_createLineBrush ()
     assertEqualInt (status, Ok);
     verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, (WrapMode)(WrapModeClamp + 1), 1, -2, 0.8f, 0.4f, -3.2f, 5.4f);
 
+    // Negative tests.
     status = GdipCreateLineBrush (NULL, &point2, 10, 11, WrapModeTile, &brush);
     assertEqualInt (status, InvalidParameter);
 
@@ -119,6 +120,7 @@ static void test_createLineBrushI ()
     assertEqualInt (status, Ok);
     verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, (WrapMode)(WrapModeClamp + 1), 1, -2, 0.8f, 0.4f, -3.2f, 5.4f);
 
+    // Negative tests.
     status = GdipCreateLineBrushI (NULL, &point2, 10, 11, WrapModeTile, &brush);
     assertEqualInt (status, InvalidParameter);
 
@@ -160,6 +162,7 @@ static void test_createLineBrushFromRect ()
     assertEqualInt (status, Ok);
     verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, WrapModeTileFlipX, 0, 2, -0.5, 0, 3.5, 1);
 
+    // Negative tests.
     status = GdipCreateLineBrushFromRect (NULL, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
     assertEqualInt (status, InvalidParameter);
 
@@ -287,6 +290,7 @@ static void test_createLineBrushFromRectWithAngle ()
     assertEqualInt (status, Ok);
     verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, WrapModeTileFlipX, 0, 2, -0.5, 0, 3.5, 1);
 
+    // Negative tests.
     status = GdipCreateLineBrushFromRectWithAngle (NULL, 10, 11, 90, TRUE, WrapModeTile, &brush);
     assertEqualInt (status, InvalidParameter);
 
@@ -343,6 +347,7 @@ static void test_createLineBrushFromRectWithAngleI ()
     assertEqualInt (status, Ok);
     verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, WrapModeTileFlipX, 0, 2, -0.5, 0, 3.5, 1);
 
+    // Negative tests.
     status = GdipCreateLineBrushFromRectWithAngleI (NULL, 10, 11, 90, TRUE, WrapModeTile, &brush);
     assertEqualInt (status, InvalidParameter);
 
@@ -379,6 +384,7 @@ static void test_setLineColors ()
     assertEqualInt (colors[0], 1);
     assertEqualInt (colors[1], 2);
 
+    // Negative tests.
     status = GdipSetLineColors (NULL, 1, 2);
     assertEqualInt (status, InvalidParameter);
 
@@ -394,6 +400,7 @@ static void test_getLineColors ()
 
     GdipCreateLineBrushFromRect (&rect, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
 
+    // Negative tests.
     status = GdipGetLineColors (NULL, colors);
     assertEqualInt (status, InvalidParameter);
 
@@ -412,6 +419,7 @@ static void test_getLineRect ()
 
     GdipCreateLineBrushFromRect (&rect, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
 
+    // Negative tests.
     status = GdipGetLineRect (NULL, &lineRect);
     assertEqualInt (status, InvalidParameter);
 
@@ -433,10 +441,10 @@ static void test_getLineRectI ()
 
     status = GdipGetLineRectI (brush, &lineRect);
     assertEqualInt (status, Ok);
-    assertEqualFloat (lineRect.X, 1);
-    assertEqualFloat (lineRect.Y, 3);
-    assertEqualFloat (lineRect.Width, 1);
-    assertEqualFloat (lineRect.Height, 2);
+    assertEqualInt (lineRect.X, 1);
+    assertEqualInt (lineRect.Y, 3);
+    assertEqualInt (lineRect.Width, 1);
+    assertEqualInt (lineRect.Height, 2);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
@@ -446,10 +454,10 @@ static void test_getLineRectI ()
 
     status = GdipGetLineRectI (brush, &lineRect);
     assertEqualInt (status, Ok);
-    assertEqualFloat (lineRect.X, 2);
-    assertEqualFloat (lineRect.Y, 4);
-    assertEqualFloat (lineRect.Width, 2);
-    assertEqualFloat (lineRect.Height, 3);
+    assertEqualInt (lineRect.X, 2);
+    assertEqualInt (lineRect.Y, 4);
+    assertEqualInt (lineRect.Width, 2);
+    assertEqualInt (lineRect.Height, 3);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
@@ -459,10 +467,10 @@ static void test_getLineRectI ()
 
     status = GdipGetLineRectI (brush, &lineRect);
     assertEqualInt (status, Ok);
-    assertEqualFloat (lineRect.X, 2);
-    assertEqualFloat (lineRect.Y, 4);
-    assertEqualFloat (lineRect.Width, 2);
-    assertEqualFloat (lineRect.Height, 3);
+    assertEqualInt (lineRect.X, 2);
+    assertEqualInt (lineRect.Y, 4);
+    assertEqualInt (lineRect.Width, 2);
+    assertEqualInt (lineRect.Height, 3);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
@@ -472,10 +480,10 @@ static void test_getLineRectI ()
 
     status = GdipGetLineRectI (brush, &lineRect);
     assertEqualInt (status, Ok);
-    assertEqualFloat (lineRect.X, 1);
-    assertEqualFloat (lineRect.Y, 3);
-    assertEqualFloat (lineRect.Width, 1);
-    assertEqualFloat (lineRect.Height, 2);
+    assertEqualInt (lineRect.X, 1);
+    assertEqualInt (lineRect.Y, 3);
+    assertEqualInt (lineRect.Width, 1);
+    assertEqualInt (lineRect.Height, 2);
 
     // Negative tests.
     status = GdipGetLineRectI (NULL, &lineRect);
@@ -502,6 +510,7 @@ static void test_setLineGammaCorrection ()
     GdipGetLineGammaCorrection (brush, &useGammaCorrection);
     assert (useGammaCorrection == TRUE);
 
+    // Negative tests.
     status = GdipSetLineGammaCorrection (NULL, TRUE);
     assertEqualInt (status, InvalidParameter);
 
@@ -521,6 +530,7 @@ static void test_getLineGammaCorrection ()
     assertEqualInt (status, Ok);
     assert (useGammaCorrection == FALSE);
 
+    // Negative tests.
     status = GdipGetLineGammaCorrection (NULL, &useGammaCorrection);
     assertEqualInt (status, InvalidParameter);
 
@@ -543,6 +553,7 @@ static void test_getLineBlendCount ()
     assertEqualInt (status, Ok);
     assertEqualInt (blendCount, 1);
 
+    // Negative tests.
     status = GdipGetLineBlendCount (NULL, &blendCount);
     assertEqualInt (status, InvalidParameter);
 
@@ -552,39 +563,52 @@ static void test_getLineBlendCount ()
     GdipDeleteBrush ((GpBrush *) brush);
 }
 
+static void fill_array (REAL *array, INT count, REAL value)
+{
+    for (int i = 0; i < count; i++)
+        array[i] = value;
+}
+
 static void test_getLineBlend ()
 {
     GpStatus status;
     GpLineGradient *brush;
+    REAL blend[3];
+    REAL positions[3];
     GpRectF rect = { 1, 3, 1, 2 };
-    REAL blend[2];
-    REAL positions[2];
-    REAL largeBlend[3] = { 1, 2, 3 };
-    REAL largePositions[3] = { 0, 0.5, 1 };
+    REAL threeBlends[3] = {1, 2, 3};
+    REAL threePositions[3] = {0, 0.5, 1};
 
     GdipCreateLineBrushFromRect (&rect, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
 
+    // Default blend - equal count.
+    fill_array (blend, ARRAY_SIZE (blend), 123);
+    fill_array (positions, ARRAY_SIZE (positions), 123);
     status = GdipGetLineBlend (brush, blend, positions, 1);
     assertEqualInt (status, Ok);
     assertEqualFloat (blend[0], 1);
-    // It appears that Windows 10+ versions of GDI+ don't copy anything to positions.
-    // This is a GDI+ bug we don't want to replicate.
-#if !defined(USE_WINDOWS_GDIPLUS)
-    assertEqualFloat (positions[0], 0);
-#endif
+    assertEqualFloat (blend[1], 123);
+    assertEqualFloat (blend[2], 123);
+    // Positions are meaningless for blends with a count of 1 so this parameter is ignored.
+    assertEqualFloat (positions[0], 123);
+    assertEqualFloat (positions[1], 123);
+    assertEqualFloat (positions[2], 123);
 
+    // Default blend - larger count.
+    fill_array (blend, ARRAY_SIZE (blend), 123);
+    fill_array (positions, ARRAY_SIZE (positions), 123);
     status = GdipGetLineBlend (brush, blend, positions, 2);
     assertEqualInt (status, Ok);
-    assertEqualFloat (blend[0], 1.0);
-    // It appears that Windows 10+ versions of GDI+ don't copy anything to positions.
-    // This is a GDI+ bug we don't want to replicate.
-    #if !defined(USE_WINDOWS_GDIPLUS)
-    assertEqualFloat (positions[0], 0);
-#endif
+    assertEqualFloat (blend[0], 1);
+    assertEqualFloat (blend[1], 123);
+    assertEqualFloat (blend[2], 123);
+    // Positions are meaningless for blends with a count of 1 so this parameter is ignored.
+    assertEqualFloat (positions[0], 123);
+    assertEqualFloat (positions[1], 123);
+    assertEqualFloat (positions[2], 123);
 
-    status = GdipSetLineBlend (brush, largeBlend, largePositions, 3);
-    assertEqualInt (status, Ok);
-
+    // Negative tests.
+    GdipSetLineBlend (brush, threeBlends, threePositions, 3);
     status = GdipGetLineBlend (brush, blend, positions, 1);
     assertEqualInt (status, InsufficientBuffer);
 
@@ -612,72 +636,74 @@ static void test_setLineBlend ()
     GpLineGradient *brush;
     GpRectF rect = { 1, 3, 1, 2 };
 
-    REAL blend1[1] = { 3 };
-    REAL positions1[1] = { -12 };
-    REAL destBlend1[1];
-    REAL destPositions1[1];
-
-    REAL blend2[2] = { -1, 0 };
-    REAL positions2[2] = { 0, 1.0f };
-    REAL destBlend2[2];
-    REAL destPositions2[2];
-
-    REAL blend3[3] = { 1, 2, 3 };
-    REAL positions3[3] = { 0, 0.5f, 1.0f };
-    REAL destBlend3[3];
-    REAL destPositions3[3];
-
-    REAL invalidPositions1[2] = { 0.5, 1 };
-    REAL invalidPositions2[2] = { 0, 0.5 };
-
-    ARGB linePresetBlend[3] = { 1, 2, 3 };
-    REAL linePresetPositions[3] = { 0, 0.5f, 1.0f };
+    REAL blend[3]= {1, 2, 3};
+    REAL positions[3] = {0, 0.5f, 1.0f};
+    REAL twoBlends[2] = {1, 2};
+    REAL twoPositions[2] = {0, 1};
+    REAL threeBlends[3] = {1, 2, 3};
+    REAL threePositions[3] = {0, 0.5, 1};
+    REAL oneBlend[1] = {10};
+    REAL onePosition[1] = {-12};
+    ARGB pathPresetBlend[3] = {1, 2, 3};
+    REAL pathPresetPositions[3] = {0, 0.5f, 1.0f};
     INT presetBlendCount;
+
+    REAL invalidPositions1[2] = {0.5, 1};
+    REAL invalidPositions2[2] = {0, 0.5};
 
     GdipCreateLineBrushFromRect (&rect, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
 
-    // Count of 1.
-    status = GdipSetLineBlend (brush, blend1, positions1, 1);
+    
+    // Two blends - equal count.
+    status = GdipSetLineBlend (brush, twoBlends, twoPositions, 2);
     assertEqualInt (status, Ok);
 
-    status = GdipGetLineBlend (brush, destBlend1, destPositions1, 1);
+    fill_array (blend, ARRAY_SIZE (blend), 123);
+    fill_array (positions, ARRAY_SIZE (positions), 123);
+    status = GdipGetLineBlend (brush, blend, positions, 2);
     assertEqualInt (status, Ok);
-    assertEqualFloat (destBlend1[0], 3);
-    // It appears GDI+ ignores the position value if there is a single element.
-    // This is a GDI+ bug we don't want to replicate.
-#if !defined(USE_WINDOWS_GDIPLUS)
-    assertEqualFloat (destPositions1[0], -12);
-#endif
+    assertEqualFloat (blend[0], 1);
+    assertEqualFloat (blend[1], 2);
+    assertEqualFloat (blend[2], 123);
+    assertEqualFloat (positions[0], 0);
+    assertEqualFloat (positions[1], 1);
+    assertEqualFloat (positions[2], 123);
 
-    // Count of 2.
-    status = GdipSetLineBlend (brush, blend2, positions2, 2);
-    assertEqualInt (status, Ok);
-
-    status = GdipGetLineBlend (brush, destBlend2, destPositions2, 2);
-    assertEqualInt (status, Ok);
-    assertEqualFloat (destBlend2[0], -1);
-    assertEqualFloat (destBlend2[1], 0);
-    assertEqualFloat (destPositions2[0], 0);
-    assertEqualFloat (destPositions2[1], 1);
-
-    // Count of 3.
-    status = GdipSetLineBlend (brush, blend3, positions3, 3);
+    // Three blends - equal count.
+    status = GdipSetLineBlend (brush, threeBlends, threePositions, 3);
     assertEqualInt (status, Ok);
 
-    status = GdipGetLineBlend (brush, destBlend3, destPositions3, 3);
+    fill_array (blend, ARRAY_SIZE (blend), 123);
+    fill_array (positions, ARRAY_SIZE (positions), 123);
+    status = GdipGetLineBlend (brush, blend, positions, 3);
     assertEqualInt (status, Ok);
-    assertEqualFloat (destBlend3[0], 1);
-    assertEqualFloat (destBlend3[1], 2);
-    assertEqualFloat (destBlend3[2], 3);
-    assertEqualFloat (destPositions3[0], 0);
-    assertEqualFloat (destPositions3[1], 0.5);
-    assertEqualFloat (destPositions3[2], 1);
+    assertEqualFloat (blend[0], 1);
+    assertEqualFloat (blend[1], 2);
+    assertEqualFloat (blend[2], 3);
+    assertEqualFloat (positions[0], 0);
+    assertEqualFloat (positions[1], 0.5);
+    assertEqualFloat (positions[2], 1);
+
+    // One blend - equal count.
+    status = GdipSetLineBlend (brush, oneBlend, onePosition, 1);
+    assertEqualInt (status, Ok);
+
+    fill_array (blend, ARRAY_SIZE (blend), 123);
+    fill_array (positions, ARRAY_SIZE (positions), 123);
+    status = GdipGetLineBlend (brush, blend, positions, 1);
+    assertEqualInt (status, Ok);
+    assertEqualFloat (blend[0], 10);
+    assertEqualFloat (blend[1], 123);
+    assertEqualFloat (blend[2], 123);
+    assertEqualFloat (positions[0], 123);
+    assertEqualFloat (positions[1], 123);
+    assertEqualFloat (positions[2], 123);
 
     // Should clear the existing blend.
-    status = GdipSetLinePresetBlend (brush, linePresetBlend, linePresetPositions, 3);
+    status = GdipSetLinePresetBlend (brush, pathPresetBlend, pathPresetPositions, 3);
     assertEqualInt (status, Ok);
 
-    status = GdipSetLineBlend (brush, destBlend2, destPositions2, 2);
+    status = GdipSetLineBlend (brush, threeBlends, threePositions, 3);
     assertEqualInt (status, Ok);
 
     status = GdipGetLinePresetBlendCount (brush, &presetBlendCount);
@@ -685,25 +711,25 @@ static void test_setLineBlend ()
     assertEqualInt (presetBlendCount, 0);
 
     // Negative tests.
-    status = GdipSetLineBlend (NULL, blend3, positions3, 3);
+    status = GdipSetLineBlend (NULL, threeBlends, threePositions, 3);
     assertEqualInt (status, InvalidParameter);
 
-    status = GdipSetLineBlend (brush, NULL, positions3, 3);
+    status = GdipSetLineBlend (brush, NULL, threePositions, 3);
     assertEqualInt (status, InvalidParameter);
 
-    status = GdipSetLineBlend (brush, blend3, NULL, 3);
+    status = GdipSetLineBlend (brush, threeBlends, NULL, 2);
     assertEqualInt (status, InvalidParameter);
 
-    status = GdipSetLineBlend (brush, blend2, invalidPositions1, 2);
+    status = GdipSetLineBlend (brush, twoBlends, invalidPositions1, 2);
     assertEqualInt (status, InvalidParameter);
 
-    status = GdipSetLineBlend (brush, blend2, invalidPositions2, 2);
+    status = GdipSetLineBlend (brush, twoBlends, invalidPositions2, 2);
     assertEqualInt (status, InvalidParameter);
 
-    status = GdipSetLineBlend (brush, blend3, positions3, 0);
+    status = GdipSetLineBlend (brush, threeBlends, threePositions, 0);
     assertEqualInt (status, InvalidParameter);
 
-    status = GdipSetLineBlend (brush, blend3, positions3, -1);
+    status = GdipSetLineBlend (brush, threeBlends, threePositions, -1);
     assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
@@ -741,6 +767,7 @@ static void test_getLinePresetBlend ()
 
     GdipCreateLineBrushFromRect (&rect, 10, 11, LinearGradientModeHorizontal, WrapModeTile, &brush);
 
+    // Negative tests.
     status = GdipGetLinePresetBlend (brush, blend, positions, 2);
     assertEqualInt (status, GenericError);
 
@@ -760,6 +787,15 @@ static void test_getLinePresetBlend ()
     assertEqualInt (status, InvalidParameter);
 
     status = GdipGetLinePresetBlend (brush, blend, positions, -1);
+    assertEqualInt (status, InvalidParameter);
+
+    status = GdipGetLinePresetBlend (NULL, blend, positions, -1);
+    assertEqualInt (status, InvalidParameter);
+
+    status = GdipGetLinePresetBlend (brush, NULL, positions, -1);
+    assertEqualInt (status, InvalidParameter);
+
+    status = GdipGetLinePresetBlend (brush, blend, NULL, -1);
     assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
@@ -883,6 +919,7 @@ static void test_setLineSigmaBlend ()
     status = GdipSetLineSigmaBlend (brush, 1, 0);
     assertEqualInt (status, Ok);
 
+    // Negative tests.
     status = GdipSetLineSigmaBlend (NULL, 0.5f, 0.5f);
     assertEqualInt (status, InvalidParameter);
 
@@ -918,6 +955,7 @@ static void test_setLineLinearBlend ()
     status = GdipSetLineLinearBlend (brush, 1, 0);
     assertEqualInt (status, Ok);
 
+    // Negative tests.
     status = GdipSetLineLinearBlend (NULL, 0.5f, 0.5f);
     assertEqualInt (status, InvalidParameter);
 
@@ -960,6 +998,7 @@ static void test_setLineWrapMode ()
     status = GdipSetLineWrapMode (brush, (WrapMode)(WrapModeClamp + 1));
     assertEqualInt (status, Ok);
 
+    // Negative tests.
     GdipGetLineWrapMode (brush, &wrapMode);
     assertEqualInt (wrapMode, WrapModeTileFlipY);
 
@@ -981,6 +1020,7 @@ static void test_getLineWrapMode ()
 
     GdipCreateLineBrushFromRect (&rect, 10, 11, LinearGradientModeHorizontal, WrapModeTileFlipY, &brush);
 
+    // Negative tests.
     status = GdipGetLineWrapMode (NULL, &wrapMode);
     assertEqualInt (status, InvalidParameter);
 
@@ -1000,6 +1040,7 @@ static void test_getLineTransform ()
     GdipCreateLineBrushFromRect (&rect, 10, 11, LinearGradientModeHorizontal, WrapModeTileFlipY, &brush);
     GdipCreateMatrix (&transform);
 
+    // Negative tests.
     status = GdipGetLineTransform (NULL, transform);
     assertEqualInt (status, InvalidParameter);
 
@@ -1066,6 +1107,7 @@ static void test_resetLineTransform ()
     GdipGetLineTransform (brush, transform);
     verifyMatrix (transform, 1, 0, 0, 1, 0, 0);
 
+    // Negative tests.
     status = GdipResetLineTransform (NULL);
     assertEqualInt (status, InvalidParameter);
 
