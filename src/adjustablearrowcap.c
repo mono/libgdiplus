@@ -87,7 +87,6 @@ gdip_adjust_arrowcap_destroy (GpCustomLineCap *cap)
 		return InvalidParameter;
 
 	GdipFree (cap);
-
 	return Ok;
 }
 
@@ -148,6 +147,18 @@ gdip_adjust_arrowcap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *cu
 	return Ok;
 }
 
+static void
+update_adjustablearrowcap (GpAdjustableArrowCap *cap)
+{
+	if (cap->width) {
+		cap->base.base_inset = cap->height / cap->width;
+	} else {
+		cap->base.base_inset = 0;
+	}
+
+	cap->base.base_cap = LineCapTriangle;
+}
+
 /* AdjustableArrowCap functions */
 
 // coverity[+alloc : arg-*3]
@@ -168,14 +179,9 @@ GdipCreateAdjustableArrowCap (REAL height, REAL width, BOOL isFilled, GpAdjustab
 	cap->fill_state = isFilled;
 	cap->width = width;
 	cap->height = height;
-
-	if (width == 0)
-		cap->base.base_inset = 0;
-	else
-		cap->base.base_inset = height / width;
-
+	update_adjustablearrowcap (cap);
+	
 	*arrowCap = cap;
-
 	return Ok;
 }
 
@@ -185,7 +191,10 @@ GdipSetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, REAL height)
 	if (!arrowCap)
 		return InvalidParameter;
 
-	arrowCap->height = height;
+	if (height != arrowCap->height) {
+		arrowCap->height = height;
+		update_adjustablearrowcap (arrowCap);
+	}
 
 	return Ok;
 }
@@ -196,8 +205,7 @@ GdipGetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, REAL *height)
 	if (!arrowCap || !height)
 		return InvalidParameter;
 
-	*(height) = arrowCap->height;
-
+	*height = arrowCap->height;
 	return Ok;
 }
 
@@ -207,7 +215,10 @@ GdipSetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, REAL width)
 	if (!arrowCap)
 		return InvalidParameter;
 
-	arrowCap->width = width;
+	if (width != arrowCap->width) {
+		arrowCap->width = width;
+		update_adjustablearrowcap (arrowCap);
+	}
 
 	return Ok;
 }
@@ -218,8 +229,7 @@ GdipGetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, REAL *width)
 	if (!arrowCap || !width)
 		return InvalidParameter;
 
-	*(width) = arrowCap->width;
-
+	*width = arrowCap->width;
 	return Ok;
 }
 
@@ -229,7 +239,10 @@ GdipSetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, REAL middl
 	if (!arrowCap)
 		return InvalidParameter;
 
-	arrowCap->middle_inset = middleInset;
+	if (middleInset != arrowCap->middle_inset) {
+		arrowCap->middle_inset = middleInset;
+		update_adjustablearrowcap (arrowCap);
+	}
 
 	return Ok;
 }
@@ -240,8 +253,7 @@ GdipGetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, REAL *midd
 	if (!arrowCap || !middleInset)
 		return InvalidParameter;
 
-	*(middleInset) = arrowCap->middle_inset;
-
+	*middleInset = arrowCap->middle_inset;
 	return Ok;
 }
 
@@ -251,7 +263,10 @@ GdipSetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, BOOL isFille
 	if (!arrowCap)
 		return InvalidParameter;
 
-	arrowCap->fill_state = isFilled;
+	if (isFilled != arrowCap->fill_state) {
+		arrowCap->fill_state = isFilled;
+		update_adjustablearrowcap (arrowCap);
+	}
 
 	return Ok;
 }
@@ -262,7 +277,6 @@ GdipGetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, BOOL *isFill
 	if (!arrowCap || !isFilled)
 		return InvalidParameter;
 
-	*(isFilled) = arrowCap->fill_state;
-
+	*isFilled = arrowCap->fill_state;
 	return Ok;
 }
