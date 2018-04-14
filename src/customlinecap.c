@@ -290,6 +290,7 @@ gdip_linecap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *customCap,
 GpStatus WINGDIPAPI
 GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap, float baseInset, GpCustomLineCap **customCap)
 {
+	GpStatus status;
 	GpCustomLineCap *cap;
 	GpPath *fillpath_clone = NULL, *strokepath_clone = NULL;
 
@@ -301,31 +302,25 @@ GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap
 		return OutOfMemory;
 
 	if (fillPath) {
-		if (GdipClonePath (fillPath, &fillpath_clone) != Ok) {
-			if (fillpath_clone != NULL)
-				GdipFree (fillpath_clone);
-			GdipFree (cap);
-			return OutOfMemory;
+		status = GdipClonePath (fillPath, &cap->fill_path);
+		if (status != Ok) {
+			GdipDeleteCustomLineCap (cap);
+			return status;
 		}
 	}
-	cap->fill_path = fillpath_clone;
 
 	if (strokePath) {
-		if (GdipClonePath (strokePath, &strokepath_clone) != Ok) {
-			if (strokepath_clone != NULL)
-				GdipFree (strokepath_clone);
-			GdipFree (fillpath_clone);
-			GdipFree (cap);
-			return OutOfMemory;
+		status = GdipClonePath (strokePath, &cap->stroke_path);
+		if (status != Ok) {
+			GdipDeleteCustomLineCap (cap);
+			return status;
 		}
 	}
-	cap->stroke_path = strokepath_clone;
 
 	cap->base_cap = baseCap;
 	cap->base_inset = baseInset;
 
 	*customCap = cap;
-
 	return Ok;
 }
 
@@ -360,7 +355,7 @@ GdipGetCustomLineCapType (GpCustomLineCap *customCap, CustomLineCapType *capType
 GpStatus WINGDIPAPI
 GdipSetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap startCap, GpLineCap endCap)
 {
-	if (!customCap)
+	if (!customCap || startCap > LineCapTriangle || endCap > LineCapTriangle)
 		return InvalidParameter;
 
 	customCap->start_cap = startCap;
@@ -375,8 +370,8 @@ GdipGetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap *startCap,
 	if (!customCap || !startCap || !endCap)
 		return InvalidParameter;
 
-	*(startCap) = customCap->start_cap;
-	*(endCap) = customCap->end_cap;
+	*startCap = customCap->start_cap;
+	*endCap = customCap->end_cap;
 
 	return Ok;
 }
@@ -388,7 +383,6 @@ GdipSetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin lineJoin)
 		return InvalidParameter;
 
 	customCap->stroke_join = lineJoin;
-
 	return Ok;
 }
 
@@ -398,19 +392,17 @@ GdipGetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin *lineJoin
 	if (!customCap || !lineJoin)
 		return InvalidParameter;
 
-	*(lineJoin) = customCap->stroke_join;
-
+	*lineJoin = customCap->stroke_join;
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipSetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap baseCap)
 {
-	if (!customCap)
+	if (!customCap || baseCap > LineCapTriangle)
 		return InvalidParameter;
 
 	customCap->base_cap = baseCap;
-
 	return Ok;
 }
 
@@ -420,8 +412,7 @@ GdipGetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap *baseCap)
 	if (!customCap || !baseCap)
 		return InvalidParameter;
 
-	*(baseCap) = customCap->base_cap;
-
+	*baseCap = customCap->base_cap;
 	return Ok;
 }
 
@@ -432,7 +423,6 @@ GdipSetCustomLineCapBaseInset (GpCustomLineCap *customCap, float inset)
 		return InvalidParameter;
 
 	customCap->base_inset = inset;
-
 	return Ok;
 }
 
@@ -442,8 +432,7 @@ GdipGetCustomLineCapBaseInset (GpCustomLineCap *customCap, float *inset)
 	if (!customCap || !inset)
 		return InvalidParameter;
 
-	*(inset) = customCap->base_inset;
-
+	*inset = customCap->base_inset;
 	return Ok;
 }
 
@@ -454,7 +443,6 @@ GdipSetCustomLineCapWidthScale (GpCustomLineCap *customCap, float widthScale)
 		return InvalidParameter;
 
 	customCap->width_scale = widthScale;
-
 	return Ok;
 }
 
@@ -464,7 +452,6 @@ GdipGetCustomLineCapWidthScale (GpCustomLineCap *customCap, float *widthScale)
 	if (!customCap || !widthScale)
 		return InvalidParameter;
 
-	*(widthScale) = customCap->width_scale;
-
+	*widthScale = customCap->width_scale;
 	return Ok;
 }

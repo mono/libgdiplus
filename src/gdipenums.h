@@ -171,7 +171,8 @@ typedef enum {
 	LineCapRoundAnchor	= 0x12,
 	LineCapDiamondAnchor	= 0x13,
 	LineCapArrowAnchor	= 0x14,
-	LineCapCustom		= 0xff
+	LineCapCustom		= 0xff,
+	LineCapAnchorMask 	= 0xf0
 } GpLineCap, LineCap;
 
 typedef enum {
