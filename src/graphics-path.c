@@ -28,6 +28,7 @@
 #include "matrix-private.h"
 #include "font-private.h"
 #include "graphics-cairo-private.h"
+#include "fontfamily.h"
 
 #ifdef USE_PANGO_RENDERING
 	#include "text-pango-private.h"
@@ -1171,10 +1172,22 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	GpStatus status;
 	BYTE *utf8 = NULL;
 
-	if (length == 0)
-		return Ok;
-	if (length < 0)
+	if (!path || !string || length < -1 || !family || !layoutRect)
 		return InvalidParameter;
+
+	if (length == 0) {
+		return Ok;
+	} else if (length == -1) {
+		const WCHAR * ptr = string;
+		length = 0;
+		while (*ptr != 0) {
+			length++;
+			ptr++;
+		}
+	}
+
+	if (emSize == 0)
+		return GenericError;
 
 	cs = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 1, 1);
 	if (cairo_surface_status (cs) != CAIRO_STATUS_SUCCESS) {
@@ -1189,14 +1202,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 		return OutOfMemory;
 	}
 
-	utf8 = (BYTE*) ucs2_to_utf8 (string, -1);
-	if (!utf8) {
-		cairo_destroy (cr);
-		cairo_surface_destroy (cs);
-		return OutOfMemory;
-	}
-
-	status = GdipCreateFont (family, emSize, style, UnitPixel, &font);
+	status = gdip_create_font_without_validation (family, fabsf (emSize), style, UnitPixel, &font);
 	if (status != Ok) {
 		GdipFree (utf8);
 		cairo_destroy (cr);
@@ -1232,8 +1238,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	}
 
 	layout = gdip_pango_setup_layout (cr, string, length, font, layoutRect, &box, &box_offset, string_format, NULL);
-	if (layoutRect)
-		cairo_move_to (cr, layoutRect->X + box_offset.X, layoutRect->Y + box_offset.X);
+	cairo_move_to (cr, layoutRect->X + box_offset.X, layoutRect->Y + box_offset.X);
 	pango_cairo_layout_path (cr, layout);
 	g_object_unref (layout);
 	
@@ -1241,14 +1246,25 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 		GdipDeleteStringFormat (string_format);
 	}
 #else
-	if (layoutRect)
-		cairo_move_to (cr, layoutRect->X, layoutRect->Y + font->sizeInPixels);
+	{
+	BYTE *utf8 = (BYTE*) ucs2_to_utf8 (string, length);
+	if (!utf8) {
+		GdipDeleteFont (font);
+		cairo_destroy (cr);
+		cairo_surface_destroy (cs);
+		return OutOfMemory;
+	}
+
+	cairo_move_to (cr, layoutRect->X, layoutRect->Y + font->sizeInPixels);
 
 	cairo_set_font_face (cr, gdip_get_cairo_font_face (font));
 	cairo_set_font_size (cr, font->sizeInPixels);
 	/* TODO - deal with layoutRect, format... ideally we would be calling a subset
 	   of GdipDrawString that already does everything *and* preserve the whole path */
-	cairo_text_path (cr, (const char*)utf8);
+	cairo_text_path (cr, (const char *) utf8);
+
+	GdipFree (utf8);
+	}
 #endif
 
 	/* get the font data from the cairo path and translate it as a gdi+ path */
@@ -1307,23 +1323,18 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	return status;
 }
 
-/* MonoTODO - same limitations as GdipAddString */
 GpStatus WINGDIPAPI
 GdipAddPathStringI (GpPath *path, GDIPCONST WCHAR *string, int length,
 	GDIPCONST GpFontFamily *family, int style, float emSize,
 	GDIPCONST GpRect *layoutRect, GDIPCONST GpStringFormat *format)
 {
-	GpRectF *r = NULL;
 	GpRectF rect;
 
-	if (layoutRect) {
-		rect.X = layoutRect->X;
-		rect.Y = layoutRect->Y;
-		rect.Width = layoutRect->Width;
-		rect.Height = layoutRect->Height;
-		r = &rect;
-	}
-	return GdipAddPathString (path, string, length, family, style, emSize, r, format);
+	if (!layoutRect)
+		return InvalidParameter;
+
+	gdip_RectF_from_Rect (layoutRect, &rect);
+	return GdipAddPathString (path, string, length, family, style, emSize, &rect, format);
 }
 
 GpStatus WINGDIPAPI

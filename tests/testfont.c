@@ -555,18 +555,11 @@ static void test_createFont ()
 	status = GdipCreateFont (family, 10, 10, UnitPixel, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	// FIXME: there are several places that indirectly call GdipCreateFont in
-	// libgdiplus but allow negative em sizes on GDI+ because the GDI+
-	// implementation does not call GdipCreateFont. An example is GdipAddPathString.
-	// A fix for this will need to carefully account for places where this
-	// API is called.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipCreateFont (family, -1, 10, UnitPixel, &font);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipCreateFont (family, 0, 10, UnitPixel, &font);
 	assertEqualInt (status, InvalidParameter);
-#endif
 
 	status = GdipCreateFont (family, 10, 10, UnitDisplay, &font);
 	assertEqualInt (status, InvalidParameter);
