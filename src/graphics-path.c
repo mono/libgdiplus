@@ -1213,7 +1213,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	PangoLayout* layout; 
 
 	cairo_save (cr);
-	layout = gdip_pango_setup_layout ((GpGraphics *)cr, string, length, font, layoutRect, &box, &box_offset, format, NULL);
+	layout = gdip_pango_setup_layout (cr, string, length, font, layoutRect, &box, &box_offset, format, NULL);
 	if (layoutRect)
 		cairo_move_to (cr, layoutRect->X + box_offset.X, layoutRect->Y + box_offset.X);
 	pango_cairo_layout_path (cr, layout);

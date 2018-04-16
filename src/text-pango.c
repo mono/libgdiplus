@@ -168,7 +168,7 @@ gdip_process_string (gchar *text, int length, int removeAccelerators, int trimSp
 }
 
 PangoLayout*
-gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
+gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
 	GDIPCONST RectF *rc, RectF *box, PointF *box_offset, GDIPCONST GpStringFormat *format, int **charsRemoved)
 {
 	GpStringFormat *fmt;
@@ -224,7 +224,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 	}
 
 	context = pango_font_map_create_context (font->family->collection->pango_font_map);
-	pango_cairo_update_context (graphics->ct, context);
+	pango_cairo_update_context (cr, context);
 
 	layout = pango_layout_new (context);
 	g_object_unref (context);
@@ -252,14 +252,6 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 		pango_layout_set_width (layout, FrameWidth * PANGO_SCALE);
 		use_horizontal_layout = TRUE;
 		//g_warning ("Setting width: %d", FrameWidth * PANGO_SCALE);
-	}
-
-	if ((rc->Width != 0) && (rc->Height != 0) && ((fmt->formatFlags & StringFormatFlagsNoClip) == 0)) {
-// g_warning ("\tclip [%g %g %g %g]", rc->X, rc->Y, rc->Width, rc->Height);
-		/* We do not call cairo_reset_clip because we want to take previous clipping into account */
-		/* Use rc instead of frame variables because this is pre-transform */
-		gdip_cairo_rectangle (graphics, rc->X, rc->Y, rc->Width, rc->Height, TRUE);
-		cairo_clip (graphics->ct);
 	}
 
 	/* with GDI+ the API not the renderer makes the direction decision */
@@ -305,13 +297,13 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 #if PANGO_VERSION_CHECK(1,16,0)
 	if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
 		if (fmt->formatFlags & StringFormatFlagsDirectionRightToLeft) {
-			cairo_rotate (graphics->ct, M_PI/2.0);
-			cairo_translate (graphics->ct, 0, -FrameHeight);
-			pango_cairo_update_context (graphics->ct, context);
+			cairo_rotate (cr, M_PI/2.0);
+			cairo_translate (cr, 0, -FrameHeight);
+			pango_cairo_update_context (cr, context);
 		} else {
-			cairo_rotate (graphics->ct, 3.0*M_PI/2.0);
-			cairo_translate (graphics->ct, -FrameWidth, 0);
-			pango_cairo_update_context (graphics->ct, context);
+			cairo_rotate (cr, 3.0*M_PI/2.0);
+			cairo_translate (cr, -FrameWidth, 0);
+			pango_cairo_update_context (cr, context);
 		}
 		/* only since Pango 1.16 */
 		pango_context_set_base_gravity (context, PANGO_GRAVITY_AUTO);
@@ -437,7 +429,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 	if (FrameHeight > 0) {
 		clipy2 = FrameHeight;
 		if (!(fmt->formatFlags & StringFormatFlagsNoClip)) {
-			cairo_clip_extents (graphics->ct, &clipx1, &clipy1, &clipx2, &clipy2);
+			cairo_clip_extents (cr, &clipx1, &clipy1, &clipx2, &clipy2);
 			if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
 				clipy2 = min (clipx2 - rc->X, FrameHeight);
 			} else {
@@ -529,7 +521,7 @@ gdip_pango_setup_layout (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, i
 
 	//g_warning ("va-box\t[x %g, y %g, w %g, h %g]", box->X, box->Y, box->Width, box->Height);
 
-	pango_cairo_update_layout (graphics->ct, layout);
+	pango_cairo_update_layout (cr, layout);
 
 	return layout;
 }
@@ -551,10 +543,18 @@ pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int leng
 
 	cairo_save (graphics->ct);
 
-	layout = gdip_pango_setup_layout (graphics, stringUnicode, length, font, rc, &box, &box_offset, format, NULL);
+	layout = gdip_pango_setup_layout (graphics->ct, stringUnicode, length, font, rc, &box, &box_offset, format, NULL);
 	if (!layout) {
 		cairo_restore (graphics->ct);
 		return OutOfMemory;
+	}
+
+	if ((rc->Width != 0) && (rc->Height != 0) && (format == NULL || (format->formatFlags & StringFormatFlagsNoClip) == 0)) {
+// g_warning ("\tclip [%g %g %g %g]", rc->X, rc->Y, rc->Width, rc->Height);
+		/* We do not call cairo_reset_clip because we want to take previous clipping into account */
+		/* Use rc instead of frame variables because this is pre-transform */
+		gdip_cairo_rectangle (graphics, rc->X, rc->Y, rc->Width, rc->Height, TRUE);
+		cairo_clip (graphics->ct);
 	}
 
 	gdip_cairo_move_to (graphics, rc->X + box_offset.X, rc->Y + box_offset.Y, FALSE, TRUE);
@@ -578,7 +578,7 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 	cairo_save (graphics->ct);
 
-	layout = gdip_pango_setup_layout (graphics, stringUnicode, length, font, rc, boundingBox, &box_offset, format, &charsRemoved);
+	layout = gdip_pango_setup_layout (graphics->ct, stringUnicode, length, font, rc, boundingBox, &box_offset, format, &charsRemoved);
 	if (!layout) {
 		cairo_restore (graphics->ct);
 		return OutOfMemory;
@@ -674,7 +674,7 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 
 	cairo_save (graphics->ct);
 
-	layout = gdip_pango_setup_layout (graphics, stringUnicode, length, font, layoutRect, &boundingBox, &box_offset, format, NULL);
+	layout = gdip_pango_setup_layout (graphics->ct, stringUnicode, length, font, layoutRect, &boundingBox, &box_offset, format, NULL);
 	if (!layout) {
 		cairo_restore (graphics->ct);
 		return OutOfMemory;
