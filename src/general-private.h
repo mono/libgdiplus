@@ -116,6 +116,8 @@ GpPointF *gdip_open_curve_tangents (int terms,  const GpPointF *points, int coun
 /* Conversion functions. */
 void gdip_RectF_from_Rect (const GpRect* rect, GpRectF* rectf) GDIP_INTERNAL;
 void gdip_Rect_from_RectF (const GpRectF* rectf, GpRect* rect) GDIP_INTERNAL;
+void gdip_PointF_from_Point (const GpPoint* point, GpPointF* pointf) GDIP_INTERNAL;
+void gdip_Point_from_PointF (const GpPointF* pointf, GpPoint* point) GDIP_INTERNAL;
 
 /* memory */
 void* gdip_realloc (void *org, int size) GDIP_INTERNAL;

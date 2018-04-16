@@ -603,3 +603,15 @@ void gdip_Rect_from_RectF (const GpRectF* rectf, GpRect* rect)
 	rect->Width = iround (rectf->Width);
 	rect->Height = iround (rectf->Height);
 }
+
+void gdip_PointF_from_Point (const GpPoint* point, GpPointF* pointf)
+{
+	pointf->X = point->X;
+	pointf->Y = point->Y;
+}
+
+void gdip_Point_from_PointF (const GpPointF* pointf, GpPoint* point)
+{
+	point->X = iround (pointf->X);
+	point->Y = iround (pointf->Y);
+}
