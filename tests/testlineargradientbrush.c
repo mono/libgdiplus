@@ -66,22 +66,86 @@ static void test_createLineBrush ()
 {
     GpStatus status;
     GpLineGradient *brush;
-    GpPointF point1 = { 1, 5 };
-    GpPointF point2 = { 2, 3 };
+    GpPointF point1 = {1, 5};
+    GpPointF point2 = {2, 3};
+    GpPointF topLeft = {1, 2};
+    GpPointF topCenter = {3, 2};
+    GpPointF topRight = {5, 2};
+    GpPointF middleLeft = {1, 4};
+    GpPointF middleCenter = {3, 4};
+    GpPointF middleRight = {5, 4};
+    GpPointF bottomLeft = {1, 6};
+    GpPointF bottomCenter = {3, 6};
+    GpPointF bottomRight = {5, 6};
 
+    // WrapModeTile.
     status = GdipCreateLineBrush (&point1, &point2, 10, 11, WrapModeTile, &brush);
     assertEqualInt (status, Ok);
     verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, WrapModeTile, 1, -2, 0.8f, 0.4f, -3.2f, 5.4f);
     GdipDeleteBrush ((GpBrush *) brush);
 
-    status = GdipCreateLineBrush (&point2, &point1, 10, 11, (WrapMode)(WrapModeTile - 1), &brush);
+    // WrapModeTileFlipX.
+    status = GdipCreateLineBrush (&point1, &point2, 10, 11, WrapModeTileFlipX, &brush);
     assertEqualInt (status, Ok);
-    verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, (WrapMode)(WrapModeTile - 1), -1, 2, -0.8f, -0.4f, 6.2f, 2.6f);
+    verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, WrapModeTileFlipX, 1, -2, 0.8f, 0.4f, -3.2f, 5.4f);
     GdipDeleteBrush ((GpBrush *) brush);
 
+    // WrapModeTileFlipY.
+    status = GdipCreateLineBrush (&point1, &point2, 10, 11, WrapModeTileFlipY, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, WrapModeTileFlipY, 1, -2, 0.8f, 0.4f, -3.2f, 5.4f);
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // WrapModeTileFlipXY
+    status = GdipCreateLineBrush (&point1, &point2, 10, 11, WrapModeTileFlipXY, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, WrapModeTileFlipXY, 1, -2, 0.8f, 0.4f, -3.2f, 5.4f);
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Invalid WrapMode.
     status = GdipCreateLineBrush (&point1, &point2, 10, 11, (WrapMode)(WrapModeClamp + 1), &brush);
     assertEqualInt (status, Ok);
     verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, (WrapMode)(WrapModeClamp + 1), 1, -2, 0.8f, 0.4f, -3.2f, 5.4f);
+
+    // point1.X > point2.X, point1.Y == point2.Y
+    status = GdipCreateLineBrush (&middleCenter, &middleLeft, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 1, 3, 2, 2, 10, 11, WrapModeTile, -1, 0, 0, -1, 4, 8);
+
+    // point1.X > point2.X, point1.Y > point2.Y
+    status = GdipCreateLineBrush (&middleCenter, &topLeft, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 1, 2, 2, 2, 10, 11, WrapModeTile, -1, -1, 1, -1, 1, 8);
+
+    // point1.X == point2.X, point1.Y > point2.Y
+    status = GdipCreateLineBrush (&middleCenter, &topCenter, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 2, 2, 2, 2, 10, 11, WrapModeTile, 0, -1, 1, 0, 0, 6);
+
+    // point1.X < point2.X, point1.Y > point2.Y
+    status = GdipCreateLineBrush (&middleCenter, &topRight, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 3, 2, 2, 2, 10, 11, WrapModeTile, 1, -1, 1, 1, -3, 4);
+
+    // point1.X < point2.X, point1.Y == point2.Y
+    status = GdipCreateLineBrush (&middleCenter, &middleRight, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 3, 3, 2, 2, 10, 11, WrapModeTile, 1, 0, 0, 1, 0, 0);
+
+    // point1.X < point2.X, point1.Y < point2.Y
+    status = GdipCreateLineBrush (&middleCenter, &bottomRight, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 3, 4, 2, 2, 10, 11, WrapModeTile, 1, 1, -1, 1, 5, -4);
+
+    // point1.X == point2.X, point1.Y < point2.Y
+    status = GdipCreateLineBrush (&middleCenter, &bottomCenter, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 2, 4, 2, 2, 10, 11, WrapModeTile, -0, 1, -1, -0, 8, 2);
+
+    // point1.X > point2.X, point1.Y < point2.Y
+    status = GdipCreateLineBrush (&middleCenter, &bottomLeft, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 1, 4, 2, 2, 10, 11, WrapModeTile, -1, 1, -1, -1, 9, 8);
 
     // Negative tests.
     status = GdipCreateLineBrush (NULL, &point2, 10, 11, WrapModeTile, &brush);
@@ -103,22 +167,86 @@ static void test_createLineBrushI ()
 {
     GpStatus status;
     GpLineGradient *brush;
-    GpPoint point1 = { 1, 5 };
-    GpPoint point2 = { 2, 3 };
+    GpPoint point1 = {1, 5};
+    GpPoint point2 = {2, 3};
+    GpPoint topLeft = {1, 2};
+    GpPoint topCenter = {3, 2};
+    GpPoint topRight = {5, 2};
+    GpPoint middleLeft = {1, 4};
+    GpPoint middleCenter = {3, 4};
+    GpPoint middleRight = {5, 4};
+    GpPoint bottomLeft = {1, 6};
+    GpPoint bottomCenter = {3, 6};
+    GpPoint bottomRight = {5, 6};
 
+    // WrapModeTile.
     status = GdipCreateLineBrushI (&point1, &point2, 10, 11, WrapModeTile, &brush);
     assertEqualInt (status, Ok);
     verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, WrapModeTile, 1, -2, 0.8f, 0.4f, -3.2f, 5.4f);
     GdipDeleteBrush ((GpBrush *) brush);
 
-    status = GdipCreateLineBrushI (&point2, &point1, 10, 11, (WrapMode)(WrapModeTile - 1), &brush);
+    // WrapModeTileFlipX.
+    status = GdipCreateLineBrushI (&point1, &point2, 10, 11, WrapModeTileFlipX, &brush);
     assertEqualInt (status, Ok);
-    verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, (WrapMode)(WrapModeTile - 1), -1, 2, -0.8f, -0.4f, 6.2f, 2.6f);
+    verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, WrapModeTileFlipX, 1, -2, 0.8f, 0.4f, -3.2f, 5.4f);
     GdipDeleteBrush ((GpBrush *) brush);
 
+    // WrapModeTileFlipY.
+    status = GdipCreateLineBrushI (&point1, &point2, 10, 11, WrapModeTileFlipY, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, WrapModeTileFlipY, 1, -2, 0.8f, 0.4f, -3.2f, 5.4f);
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // WrapModeTileFlipXY
+    status = GdipCreateLineBrushI (&point1, &point2, 10, 11, WrapModeTileFlipXY, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, WrapModeTileFlipXY, 1, -2, 0.8f, 0.4f, -3.2f, 5.4f);
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Invalid WrapMode.
     status = GdipCreateLineBrushI (&point1, &point2, 10, 11, (WrapMode)(WrapModeClamp + 1), &brush);
     assertEqualInt (status, Ok);
     verifyLineGradientBrush (brush, 1, 3, 1, 2, 10, 11, (WrapMode)(WrapModeClamp + 1), 1, -2, 0.8f, 0.4f, -3.2f, 5.4f);
+
+    // point1.X > point2.X, point1.Y == point2.Y
+    status = GdipCreateLineBrushI (&middleCenter, &middleLeft, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 1, 3, 2, 2, 10, 11, WrapModeTile, -1, 0, 0, -1, 4, 8);
+
+    // point1.X > point2.X, point1.Y > point2.Y
+    status = GdipCreateLineBrushI (&middleCenter, &topLeft, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 1, 2, 2, 2, 10, 11, WrapModeTile, -1, -1, 1, -1, 1, 8);
+
+    // point1.X == point2.X, point1.Y > point2.Y
+    status = GdipCreateLineBrushI (&middleCenter, &topCenter, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 2, 2, 2, 2, 10, 11, WrapModeTile, 0, -1, 1, 0, 0, 6);
+
+    // point1.X < point2.X, point1.Y > point2.Y
+    status = GdipCreateLineBrushI (&middleCenter, &topRight, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 3, 2, 2, 2, 10, 11, WrapModeTile, 1, -1, 1, 1, -3, 4);
+
+    // point1.X < point2.X, point1.Y == point2.Y
+    status = GdipCreateLineBrushI (&middleCenter, &middleRight, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 3, 3, 2, 2, 10, 11, WrapModeTile, 1, 0, 0, 1, 0, 0);
+
+    // point1.X < point2.X, point1.Y < point2.Y
+    status = GdipCreateLineBrushI (&middleCenter, &bottomRight, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 3, 4, 2, 2, 10, 11, WrapModeTile, 1, 1, -1, 1, 5, -4);
+
+    // point1.X == point2.X, point1.Y < point2.Y
+    status = GdipCreateLineBrushI (&middleCenter, &bottomCenter, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 2, 4, 2, 2, 10, 11, WrapModeTile, -0, 1, -1, -0, 8, 2);
+
+    // point1.X > point2.X, point1.Y < point2.Y
+    status = GdipCreateLineBrushI (&middleCenter, &bottomLeft, 10, 11, WrapModeTile, &brush);
+    assertEqualInt (status, Ok);
+    verifyLineGradientBrush (brush, 1, 4, 2, 2, 10, 11, WrapModeTile, -1, 1, -1, -1, 9, 8);
 
     // Negative tests.
     status = GdipCreateLineBrushI (NULL, &point2, 10, 11, WrapModeTile, &brush);
@@ -983,25 +1111,42 @@ static void test_setLineWrapMode ()
 
     GdipCreateLineBrushFromRect (&rect, 10, 11, LinearGradientModeHorizontal, WrapModeTileFlipY, &brush);
 
+    // WrapModeTile.
+    status = GdipSetLineWrapMode (brush, WrapModeTile);
+    assertEqualInt (status, Ok);
+
+    GdipGetLineWrapMode (brush, &wrapMode);
+    assertEqualInt (wrapMode, WrapModeTile);
+
+    // WrapModeTileFlipX.
+    status = GdipSetLineWrapMode (brush, WrapModeTileFlipX);
+    assertEqualInt (status, Ok);
+
+    GdipGetLineWrapMode (brush, &wrapMode);
+    assertEqualInt (wrapMode, WrapModeTileFlipX);
+
+    // WrapModeTileFlipY.
     status = GdipSetLineWrapMode (brush, WrapModeTileFlipY);
     assertEqualInt (status, Ok);
 
     GdipGetLineWrapMode (brush, &wrapMode);
     assertEqualInt (wrapMode, WrapModeTileFlipY);
 
-    status = GdipSetLineWrapMode (brush, (WrapMode)(WrapModeTile - 1));
+    // WrapModeTileFlipXY.
+    status = GdipSetLineWrapMode (brush, WrapModeTileFlipXY);
     assertEqualInt (status, Ok);
 
     GdipGetLineWrapMode (brush, &wrapMode);
-    assertEqualInt (wrapMode, WrapModeTileFlipY);
+    assertEqualInt (wrapMode, WrapModeTileFlipXY);
 
+    // Invalid WrapMode - nop.
     status = GdipSetLineWrapMode (brush, (WrapMode)(WrapModeClamp + 1));
     assertEqualInt (status, Ok);
 
-    // Negative tests.
     GdipGetLineWrapMode (brush, &wrapMode);
-    assertEqualInt (wrapMode, WrapModeTileFlipY);
+    assertEqualInt (wrapMode, WrapModeTileFlipXY);
 
+    // Negative tests.
     status = GdipSetLineWrapMode (NULL, WrapModeTile);
     assertEqualInt (status, InvalidParameter);
 
@@ -1057,10 +1202,12 @@ static void test_setLineTransform ()
     GpLineGradient *brush;
     GpRectF rect = { 1, 3, 1, 2 };
     GpMatrix *matrix;
+    GpMatrix *nonInvertibleMatrix;
     GpMatrix *transform;
 
     GdipCreateLineBrushFromRect (&rect, 10, 11, LinearGradientModeHorizontal, WrapModeTileFlipY, &brush);
     GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
+    GdipCreateMatrix2 (123, 24, 82, 16, 47, 30, &nonInvertibleMatrix);
     GdipCreateMatrix (&transform);
 
     status = GdipSetLineTransform (brush, matrix);
@@ -1082,8 +1229,12 @@ static void test_setLineTransform ()
     status = GdipSetLineTransform (brush, NULL);
     assertEqualInt (status, InvalidParameter);
 
+    status = GdipSetLineTransform (brush, nonInvertibleMatrix);
+    assertEqualInt (status, InvalidParameter);
+
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDeleteMatrix (matrix);
+    GdipDeleteMatrix (nonInvertibleMatrix);
     GdipDeleteMatrix (transform);
 }
 

@@ -1313,23 +1313,47 @@ static void test_setPathGradientWrapMode ()
 
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
 
+    // WrapModeTile.
+    status = GdipSetPathGradientWrapMode (brush, WrapModeTile);
+    assertEqualInt (status, Ok);
+
+    GdipGetPathGradientWrapMode (brush, &wrapMode);
+    assertEqualInt (wrapMode, WrapModeTile);
+
+    // WrapModeTileFlipX.
+    status = GdipSetPathGradientWrapMode (brush, WrapModeTileFlipX);
+    assertEqualInt (status, Ok);
+
+    GdipGetPathGradientWrapMode (brush, &wrapMode);
+    assertEqualInt (wrapMode, WrapModeTileFlipX);
+
+    // WrapModeTileFlipX.
     status = GdipSetPathGradientWrapMode (brush, WrapModeTileFlipY);
     assertEqualInt (status, Ok);
 
     GdipGetPathGradientWrapMode (brush, &wrapMode);
     assertEqualInt (wrapMode, WrapModeTileFlipY);
 
-    status = GdipSetPathGradientWrapMode (brush, (WrapMode)(WrapModeTile - 1));
+    // WrapModeTileFlipXY.
+    status = GdipSetPathGradientWrapMode (brush, WrapModeTileFlipXY);
     assertEqualInt (status, Ok);
 
     GdipGetPathGradientWrapMode (brush, &wrapMode);
-    assertEqualInt (wrapMode, WrapModeTileFlipY);
+    assertEqualInt (wrapMode, WrapModeTileFlipXY);
 
+    // WrapModeClamp.
+    status = GdipSetPathGradientWrapMode (brush, WrapModeClamp);
+    assertEqualInt (status, Ok);
+
+    GdipGetPathGradientWrapMode (brush, &wrapMode);
+    assertEqualInt (wrapMode, WrapModeClamp);
+
+    // Invalid WrapMode - nop.
     status = GdipSetPathGradientWrapMode (brush, (WrapMode)(WrapModeClamp + 1));
     assertEqualInt (status, Ok);
 
     GdipGetPathGradientWrapMode (brush, &wrapMode);
-    assertEqualInt (wrapMode, WrapModeTileFlipY);
+    assertEqualInt (wrapMode, WrapModeClamp);
 
     // Negative tests.
     status = GdipSetPathGradientWrapMode (NULL, WrapModeTile);
@@ -1363,10 +1387,12 @@ static void test_setPathGradientTransform ()
     GpStatus status;
     GpPathGradient *brush;
     GpMatrix *matrix;
+    GpMatrix *nonInvertibleMatrix;
     GpMatrix *transform;
 
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
     GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
+    GdipCreateMatrix2 (123, 24, 82, 16, 47, 30, &nonInvertibleMatrix);
     GdipCreateMatrix (&transform);
 
     status = GdipSetPathGradientTransform (brush, matrix);
@@ -1386,6 +1412,9 @@ static void test_setPathGradientTransform ()
     assertEqualInt (status, InvalidParameter);
 
     status = GdipSetPathGradientTransform (brush, NULL);
+    assertEqualInt (status, InvalidParameter);
+
+    status = GdipSetPathGradientTransform (brush, nonInvertibleMatrix);
     assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);

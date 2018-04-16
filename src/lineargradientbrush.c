@@ -99,7 +99,7 @@ gdip_linear_gradient_new (void)
 		GdipFree (result);
 	}
 
-	return result;
+	return NULL;
 }
 
 GpStatus
@@ -548,7 +548,6 @@ GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARG
 	gdip_linear_gradient_setup_initial_matrix (linear);
 
 	*lineGradient = linear;
-
 	return Ok;
 }
 
@@ -643,7 +642,6 @@ GdipCreateLineBrushFromRectWithAngle (GDIPCONST GpRectF *rect, ARGB color1, ARGB
 	gdip_linear_gradient_setup_initial_matrix (linear);
 
 	*lineGradient = linear;
-
 	return Ok;
 }
 
@@ -654,7 +652,6 @@ GdipGetLineBlendCount (GpLineGradient *brush, int *count)
 		return InvalidParameter;
 
 	*count = brush->blend->count;
-
 	return Ok;
 }
 
@@ -707,7 +704,6 @@ GdipSetLineBlend (GpLineGradient *brush, GDIPCONST float *blend, GDIPCONST float
 	}
 
 	brush->base.changed = TRUE;
-
 	return Ok;
 }
 
@@ -927,7 +923,7 @@ GdipSetLineWrapMode (GpLineGradient *brush, GpWrapMode wrapMode)
 	if (!brush || (wrapMode == WrapModeClamp))
 		return InvalidParameter;
 
-	if (wrapMode < WrapModeTile || wrapMode > WrapModeClamp)
+	if (wrapMode > WrapModeClamp)
 		return Ok;
 
 	brush->wrapMode = wrapMode;

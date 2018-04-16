@@ -664,8 +664,7 @@ GdipGetPathGradientCenterPointI (GpPathGradient *brush, GpPoint *point)
 	if (!brush || !point)
 		return InvalidParameter;
 
-	point->X = iround(brush->center.X);
-	point->Y = iround(brush->center.Y);
+	gdip_Point_from_PointF (&brush->center, point);
 	return Ok;
 }
 
@@ -684,13 +683,13 @@ GdipSetPathGradientCenterPoint (GpPathGradient *brush, GDIPCONST GpPointF *point
 GpStatus WINGDIPAPI
 GdipSetPathGradientCenterPointI (GpPathGradient *brush, GDIPCONST GpPoint *point)
 {
+	PointF pointF;
+
 	if (!brush || !point)
 		return InvalidParameter;
 
-	brush->center.X = (REAL)point->X;
-	brush->center.Y = (REAL)point->Y;
-	brush->base.changed = TRUE;
-	return Ok;
+	gdip_PointF_from_Point (point, &pointF);
+	return GdipSetPathGradientCenterPoint (brush, &pointF);
 }
 
 GpStatus WINGDIPAPI
@@ -760,7 +759,6 @@ GdipGetPathGradientBlendCount (GpPathGradient *brush, INT *count)
 		return InvalidParameter;
 	
 	*count = brush->blend->count;
-	
 	return Ok;
 }
 
@@ -1218,7 +1216,7 @@ GdipSetPathGradientWrapMode (GpPathGradient *brush, GpWrapMode wrapMode)
 	if (!brush)
 		return InvalidParameter;
 
-	if (wrapMode < WrapModeTile || wrapMode > WrapModeClamp)
+	if (wrapMode > WrapModeClamp)
 		return Ok;
 
 	brush->wrapMode = wrapMode;
