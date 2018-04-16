@@ -431,7 +431,7 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 		if (!(fmt->formatFlags & StringFormatFlagsNoClip)) {
 			cairo_clip_extents (cr, &clipx1, &clipy1, &clipx2, &clipy2);
 			if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
-				clipy2 = min (clipx2 - rc->X, FrameHeight);
+				clipy2 = min (clipx2 - rc->X, FrameWidth);
 			} else {
 				clipy2 = min (clipy2 - rc->Y, FrameHeight);
 			}
