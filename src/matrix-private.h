@@ -46,8 +46,8 @@ typedef cairo_matrix_t GpMatrix;
 #define gdip_matrix_reverse_order(order)	((order == MatrixOrderPrepend) ? MatrixOrderAppend : MatrixOrderPrepend)
 #define gdip_cairo_matrix_copy(m1,m2)		memcpy (m1, m2, sizeof (cairo_matrix_t))
 
-BOOL gdip_is_matrix_a_translation (GpMatrix *matrix) GDIP_INTERNAL;
-BOOL gdip_is_matrix_empty (GpMatrix* matrix) GDIP_INTERNAL;
+BOOL gdip_is_matrix_a_translation (const GpMatrix *matrix) GDIP_INTERNAL;
+BOOL gdip_is_matrix_empty (const GpMatrix* matrix) GDIP_INTERNAL;
 GpStatus gdip_matrix_init_from_rect_3points (GpMatrix *matrix, const GpRectF *rect, const GpPointF *dstplg) GDIP_INTERNAL;
 
 #include "matrix.h"
