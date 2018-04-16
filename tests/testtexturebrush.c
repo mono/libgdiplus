@@ -114,40 +114,94 @@ static void test_createTexture ()
     GdipLoadImageFromFile (wmfFile, &wmfImage);
     GdipLoadImageFromFile (emfFile, &emfImage);
 
-    // Bitmap image - clamp.
-    status = GdipCreateTexture (bitmapImage, WrapModeClamp, &brush);
-    assertEqualInt (status, Ok);
-    verifyTexture (brush, WrapModeClamp, 100, 68);
-    GdipDeleteBrush ((GpBrush *) brush);
-
-    // Bitmap image - tile.
+    // Bitmap image - WrapModeTile.
     status = GdipCreateTexture (bitmapImage, WrapModeTile, &brush);
     assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeTile, 100, 68);
     GdipDeleteBrush ((GpBrush *) brush);
 
-    // Wmf image - clamp.
-    status = GdipCreateTexture (wmfImage, WrapModeClamp, &brush);
+    // Bitmap image - WrapModeTileFlipX.
+    status = GdipCreateTexture (bitmapImage, WrapModeTileFlipX, &brush);
     assertEqualInt (status, Ok);
-    verifyTexture (brush, WrapModeClamp, 770, 649);
+    verifyTexture (brush, WrapModeTileFlipX, 100, 68);
     GdipDeleteBrush ((GpBrush *) brush);
 
-    // Wmf image - clamp.
+    // Bitmap image - WrapModeTileFlipY.
+    status = GdipCreateTexture (bitmapImage, WrapModeTileFlipY, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipY, 100, 68);
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Bitmap image - WrapModeTileFlipXY.
+    status = GdipCreateTexture (bitmapImage, WrapModeTileFlipXY, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipXY, 100, 68);
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Bitmap image - WrapModeClamp.
+    status = GdipCreateTexture (bitmapImage, WrapModeClamp, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeClamp, 100, 68);
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Wmf image - WrapModeTile.
     status = GdipCreateTexture (wmfImage, WrapModeTile, &brush);
     assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeTile, 770, 649);
     GdipDeleteBrush ((GpBrush *) brush);
 
-    // Emf image - clamp.
-    status = GdipCreateTexture (emfImage, WrapModeClamp, &brush);
+    // Wmf image - WrapModeTileFlipX.
+    status = GdipCreateTexture (wmfImage, WrapModeTileFlipX, &brush);
     assertEqualInt (status, Ok);
-    verifyTexture (brush, WrapModeClamp, 100, 100);
+    verifyTexture (brush, WrapModeTileFlipX, 770, 649);
     GdipDeleteBrush ((GpBrush *) brush);
 
-    // Emf image - clamp.
+    // Wmf image - WrapModeTileFlipY.
+    status = GdipCreateTexture (wmfImage, WrapModeTileFlipY, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipY, 770, 649);
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Wmf image - WrapModeTileFlipXY.
+    status = GdipCreateTexture (wmfImage, WrapModeTileFlipXY, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipXY, 770, 649);
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Wmf image - WrapModeClamp.
+    status = GdipCreateTexture (wmfImage, WrapModeClamp, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeClamp, 770, 649);
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Emf image - WrapModeTile.
     status = GdipCreateTexture (emfImage, WrapModeTile, &brush);
     assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeTile, 100, 100);
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Emf image - WrapModeTileFlipX.
+    status = GdipCreateTexture (emfImage, WrapModeTileFlipX, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipX, 100, 100);
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Emf image - WrapModeTileFlipY.
+    status = GdipCreateTexture (emfImage, WrapModeTileFlipY, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipY, 100, 100);
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Emf image - WrapModeTileFlipXY.
+    status = GdipCreateTexture (emfImage, WrapModeTileFlipXY, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipXY, 100, 100);
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Emf image - WrapModeClamp.
+    status = GdipCreateTexture (emfImage, WrapModeClamp, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeClamp, 100, 100);
     GdipDeleteBrush ((GpBrush *) brush);
 
     // Negative tests.
@@ -189,10 +243,31 @@ static void test_createTexture2 ()
     GdipLoadImageFromFile (wmfFile, &wmfImage);
     GdipLoadImageFromFile (emfFile, &emfImage);
 
-    // Bitmap image - tile.
+    // Bitmap image - WrapModeTile.
     status = GdipCreateTexture2 (bitmapImage, WrapModeTile, 0, 0, 100, 68, &brush);
     assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeTile, 100, 68);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Bitmap image - WrapModeTileFlipX.
+    status = GdipCreateTexture2 (bitmapImage, WrapModeTileFlipX, 0, 0, 100, 68, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipX, 100, 68);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Bitmap image - WrapModeTileFlipY.
+    status = GdipCreateTexture2 (bitmapImage, WrapModeTileFlipY, 0, 0, 100, 68, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipY, 100, 68);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Bitmap image - WrapModeTileFlipXY.
+    status = GdipCreateTexture2 (bitmapImage, WrapModeTileFlipXY, 0, 0, 100, 68, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipXY, 100, 68);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
@@ -203,10 +278,31 @@ static void test_createTexture2 ()
 
     GdipDeleteBrush ((GpBrush *) brush);
 
-    // Wmf image - tile, non zero.
+    // Wmf image - WrapModeTile, non zero.
     status = GdipCreateTexture2 (wmfImage, WrapModeTile, 0, 0, 2, 2, &brush);
     assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeTile, 2, 2);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Wmf image - WrapModeTileFlipX, non zero.
+    status = GdipCreateTexture2 (wmfImage, WrapModeTileFlipX, 0, 0, 2, 2, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipX, 2, 2);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Wmf image - WrapModeTileFlipY, non zero.
+    status = GdipCreateTexture2 (wmfImage, WrapModeTileFlipY, 0, 0, 2, 2, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipY, 2, 2);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Wmf image - WrapModeTileFlipXY, non zero.
+    status = GdipCreateTexture2 (wmfImage, WrapModeTileFlipXY, 0, 0, 2, 2, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipXY, 2, 2);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
@@ -259,14 +355,35 @@ static void test_createTexture2 ()
 
     GdipDeleteBrush ((GpBrush *) brush);
 
-    // Emf image - tile, non zero.
+    // Emf image - WrapModeTile, non zero.
     status = GdipCreateTexture2 (emfImage, WrapModeTile, 0, 0, 100, 100, &brush);
     assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeTile, 100, 100);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
-    // Emf image - clamp, non zero.
+    // Emf image - WrapModeTileFlipX, non zero.
+    status = GdipCreateTexture2 (emfImage, WrapModeTileFlipX, 0, 0, 100, 100, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipX, 100, 100);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Emf image - WrapModeTileFlipY, non zero.
+    status = GdipCreateTexture2 (emfImage, WrapModeTileFlipY, 0, 0, 100, 100, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipY, 100, 100);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Emf image - WrapModeTileFlipXY, non zero.
+    status = GdipCreateTexture2 (emfImage, WrapModeTileFlipXY, 0, 0, 100, 100, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipXY, 100, 100);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Emf image - WrapModeClamp, non zero.
     status = GdipCreateTexture2 (emfImage, WrapModeClamp, 1, 1, 50, 60, &brush);
     assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeClamp, 50, 60);
@@ -375,10 +492,31 @@ static void test_createTexture2I ()
     GdipLoadImageFromFile (wmfFile, &wmfImage);
     GdipLoadImageFromFile (emfFile, &emfImage);
 
-    // Bitmap image - tile.
+    // Bitmap image - WrapModeTile.
     status = GdipCreateTexture2I (bitmapImage, WrapModeTile, 0, 0, 100, 68, &brush);
     assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeTile, 100, 68);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Bitmap image - WrapModeTileFlipX.
+    status = GdipCreateTexture2I (bitmapImage, WrapModeTileFlipX, 0, 0, 100, 68, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipX, 100, 68);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Bitmap image - WrapModeTileFlipXY.
+    status = GdipCreateTexture2I (bitmapImage, WrapModeTileFlipXY, 0, 0, 100, 68, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipXY, 100, 68);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Bitmap image - WrapModeTileFlipY.
+    status = GdipCreateTexture2I (bitmapImage, WrapModeTileFlipY, 0, 0, 100, 68, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipY, 100, 68);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
@@ -389,10 +527,31 @@ static void test_createTexture2I ()
 
     GdipDeleteBrush ((GpBrush *) brush);
 
-    // Wmf image - tile, non zero.
+    // Wmf image - WrapModeTile, non zero.
     status = GdipCreateTexture2I (wmfImage, WrapModeTile, 0, 0, 2, 2, &brush);
     assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeTile, 2, 2);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Wmf image - WrapModeTileFlipX, non zero.
+    status = GdipCreateTexture2I (wmfImage, WrapModeTileFlipX, 0, 0, 2, 2, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipX, 2, 2);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Wmf image - WrapModeTileFlipY, non zero.
+    status = GdipCreateTexture2I (wmfImage, WrapModeTileFlipY, 0, 0, 2, 2, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipY, 2, 2);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Wmf image - WrapModeTileFlipXY, non zero.
+    status = GdipCreateTexture2I (wmfImage, WrapModeTileFlipXY, 0, 0, 2, 2, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipXY, 2, 2);
 
     GdipDeleteBrush ((GpBrush *) brush);
 
@@ -445,6 +604,34 @@ static void test_createTexture2I ()
 
     GdipDeleteBrush ((GpBrush *) brush);
 
+    // Emf image - WrapModeTile, non zero.
+    status = GdipCreateTexture2I (emfImage, WrapModeTile, 0, 0, 100, 100, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTile, 100, 100);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Emf image - WrapModeTileFlipX, non zero.
+    status = GdipCreateTexture2I (emfImage, WrapModeTileFlipX, 0, 0, 100, 100, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipX, 100, 100);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Emf image - WrapModeTileFlipY, non zero.
+    status = GdipCreateTexture2I (emfImage, WrapModeTileFlipY, 0, 0, 100, 100, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipY, 100, 100);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Emf image - WrapModeTileFlipXY, non zero.
+    status = GdipCreateTexture2I (emfImage, WrapModeTileFlipXY, 0, 0, 100, 100, &brush);
+    assertEqualInt (status, Ok);
+    verifyTexture (brush, WrapModeTileFlipXY, 100, 100);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
     // Emf image - tile, non zero.
     status = GdipCreateTexture2I (emfImage, WrapModeTile, 0, 0, 100, 100, &brush);
     assertEqualInt (status, Ok);
@@ -452,7 +639,7 @@ static void test_createTexture2I ()
 
     GdipDeleteBrush ((GpBrush *) brush);
 
-    // Emf image - clamp, non zero.
+    // Emf image - WrapModeClamp, non zero.
     status = GdipCreateTexture2I (emfImage, WrapModeClamp, 1, 1, 50, 60, &brush);
     assertEqualInt (status, Ok);
     verifyTexture (brush, WrapModeClamp, 50, 60);
@@ -1141,24 +1328,40 @@ static void test_setTextureWrapMode ()
     GdipLoadImageFromFile (bitmapFile, &image);
     GdipCreateTexture (image, WrapModeTile, &brush);
 
+    // WrapModeTileFlipX.
     status = GdipSetTextureWrapMode (brush, WrapModeTileFlipX);
     assertEqualInt (status, Ok);
 
     GdipGetTextureWrapMode (brush, &wrapMode);
     assertEqualInt (wrapMode, WrapModeTileFlipX);
 
-    // Setting to an invalid WrapMode is a nop.
-    status = GdipSetTextureWrapMode (brush, (WrapMode)(WrapModeTile - 1));
+    // WrapModeTileFlipY.
+    status = GdipSetTextureWrapMode (brush, WrapModeTileFlipY);
     assertEqualInt (status, Ok);
 
     GdipGetTextureWrapMode (brush, &wrapMode);
-    assertEqualInt (wrapMode, WrapModeTileFlipX);
+    assertEqualInt (wrapMode, WrapModeTileFlipY);
 
+    // WrapModeTileFlipXY.
+    status = GdipSetTextureWrapMode (brush, WrapModeTileFlipXY);
+    assertEqualInt (status, Ok);
+
+    GdipGetTextureWrapMode (brush, &wrapMode);
+    assertEqualInt (wrapMode, WrapModeTileFlipXY);
+
+    // WrapModeClamp.
+    status = GdipSetTextureWrapMode (brush, WrapModeClamp);
+    assertEqualInt (status, Ok);
+
+    GdipGetTextureWrapMode (brush, &wrapMode);
+    assertEqualInt (wrapMode, WrapModeClamp);
+    
+    // Invalid WrapMode - nop.
     status = GdipSetTextureWrapMode (brush, (WrapMode)(WrapModeClamp + 1));
     assertEqualInt (status, Ok);
 
     GdipGetTextureWrapMode (brush, &wrapMode);
-    assertEqualInt (wrapMode, WrapModeTileFlipX);
+    assertEqualInt (wrapMode, WrapModeClamp);
 
     // Negative tests.
     status = GdipSetTextureWrapMode (NULL, wrapMode);
@@ -1197,11 +1400,13 @@ static void test_setTextureTransform ()
     GpImage *image;
     GpTexture *brush;
     GpMatrix *matrix;
+    GpMatrix *nonInvertibleMatrix;
     GpMatrix *transform;
 
     GdipLoadImageFromFile (bitmapFile, &image);
     GdipCreateTexture (image, WrapModeTile, &brush);
     GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
+    GdipCreateMatrix2 (123, 24, 82, 16, 47, 30, &nonInvertibleMatrix);
     GdipCreateMatrix (&transform);
 
     status = GdipSetTextureTransform (brush, matrix);
@@ -1223,9 +1428,13 @@ static void test_setTextureTransform ()
     status = GdipSetTextureTransform (brush, NULL);
     assertEqualInt (status, InvalidParameter);
 
+    status = GdipSetTextureTransform (brush, nonInvertibleMatrix);
+    assertEqualInt (status, InvalidParameter);
+
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDisposeImage (image);
     GdipDeleteMatrix (matrix);
+    GdipDeleteMatrix (nonInvertibleMatrix);
     GdipDeleteMatrix (transform);
 }
 
