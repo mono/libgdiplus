@@ -1850,7 +1850,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST Rect *srcRect, UINT flags, Pixel
 
 	/* Is this bitmap already locked? */
 	if (root_data->reserved & GBD_LOCKED)
-		return Win32Error;
+		return WrongState;
 
 	/* Make sure the srcRect makes sense */
 	if ((srcRect->X < 0) || (srcRect->Y < 0) || (srcRect->Width < 0) || (srcRect->Height < 0))
