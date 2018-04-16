@@ -27,7 +27,7 @@ GUID gdip_ico_image_format_guid = {0xb96b3cb5U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 
 /* Codecinfo related data*/
 static ImageCodecInfo ico_codec;
-static const WCHAR ico_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'I', 'C', 'O', 0}; /* Built-in ICO */
+static const WCHAR ico_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'I', 'C', 'O', ' ', 'C', 'o', 'd', 'e', 'c', 0}; /* Built-in ICO */
 static const WCHAR ico_extension[] = {'*','.','I', 'C', 'O', 0}; /* *.ICO */
 static const WCHAR ico_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'x', '-', 'i', 'c', 'o', 'n', 0}; /* image/x-icon */
 static const WCHAR ico_format[] = {'I', 'C', 'O', 0}; /* ICO */

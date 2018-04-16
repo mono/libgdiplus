@@ -116,7 +116,7 @@ ATTRIBUTE_USED static void assertEqualFloatImpl (REAL actual, REAL expected, con
 
 #define assertEqualFloat(actual, expected) assertEqualFloatImpl (actual, expected, NULL, __FILE__, __func__, __LINE__)
 
-ATTRIBUTE_USED static BOOL stringsEqual (WCHAR *actual, const char *expected)
+ATTRIBUTE_USED static BOOL stringsEqual (const WCHAR *actual, const char *expected)
 {
 	int i = 0;
 	while (TRUE) {
@@ -133,7 +133,7 @@ ATTRIBUTE_USED static BOOL stringsEqual (WCHAR *actual, const char *expected)
 	return TRUE;
 }
 
-ATTRIBUTE_USED static void assertEqualStringImpl(WCHAR *actual, const char * expected, const char *message, const char *file, const char *function, int line)
+ATTRIBUTE_USED static void assertEqualStringImpl(const WCHAR *actual, const char * expected, const char *message, const char *file, const char *function, int line)
 {
     if (!stringsEqual (actual, expected))
     {
@@ -167,7 +167,58 @@ ATTRIBUTE_USED static void assertEqualRectImpl (GpRectF actual, GpRectF expected
     }
 }
 
-#define assertEqualRect(actual, expected) assertEqualRectImpl (actual, expected, NULL, __FILE__, __func__, __LINE__);
+#define assertEqualRect(actual, expected) assertEqualRectImpl (actual, expected, NULL, __FILE__, __func__, __LINE__)
+
+ATTRIBUTE_USED static void dumpBytes (const BYTE *bytes, int length)
+{
+    printf ("%u\n", length);
+    for (int i = 0; i < length; i++) {
+        printf ("0x%02X", bytes[i]);
+        if (i != length - 1) {
+            printf (", ");
+        }
+    }
+
+    printf("\n\n");
+}
+
+ATTRIBUTE_USED static void assertEqualBytesImpl (const BYTE *actual, const BYTE *expected, int length, const char *message, const char *file, const char *function, int line)
+{
+    for (int i = 0; i < length; i++)
+    {
+        if (actual[i] != expected[i])
+        {
+            if (message)
+                fprintf (stderr, "%s\n", message);
+
+            printFailure (file, function, line);
+            fprintf (stderr, "Expected[%d]: 0x%02X\n", i, (BYTE) expected[i]);
+            fprintf (stderr, "Actual[%d]:   0x%02X\n", i, (BYTE) actual[i]);
+            fprintf (stderr, "-- Actual --\n");
+            dumpBytes (actual, length);
+
+            abort();
+        }
+    }
+}
+
+#define assertEqualBytes(actual, expected, length) assertEqualBytesImpl (actual, expected, length, NULL, __FILE__, __func__, __LINE__)
+
+ATTRIBUTE_USED static void assertEqualGuidImpl (GUID actual, GUID expected, const char *message, const char *file, const char *function, int line)
+{
+    if (memcmp ((void *) &actual, (void *) &expected, sizeof (GUID)) != 0)
+    {
+        if (message)
+            fprintf (stderr, "%s\n", message);
+
+        printFailure (file, function, line);
+        fprintf (stderr, "Expected: {%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX}\n", (unsigned long) expected.Data1, expected.Data2, expected.Data3, expected.Data4[0], expected.Data4[1], expected.Data4[2], expected.Data4[3], expected.Data4[4], expected.Data4[5], expected.Data4[6], expected.Data4[7]);
+		fprintf (stderr, "Actual:   {%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX}\n", (unsigned long) actual.Data1, actual.Data2, actual.Data3, actual.Data4[0], actual.Data4[1], actual.Data4[2], actual.Data4[3], actual.Data4[4], actual.Data4[5], actual.Data4[6], actual.Data4[7]);
+        abort();
+    }
+}
+
+#define assertEqualGuid(actual, expected) assertEqualGuidImpl (actual, expected, NULL, __FILE__, __func__, __LINE__)
 
 ATTRIBUTE_USED static void verifyMatrixImpl(GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5, REAL e6, const char *file, const char *function, int line)
 {
@@ -248,7 +299,7 @@ ATTRIBUTE_USED static BOOL is_32bit()
  \
     status = GdipGetImageRawFormat (image, &rawFormat); \
     assertEqualInt (status, Ok); \
-    assert (memcmp ((void *) &rawFormat, (void *) &expectedRawFormat, sizeof (GUID)) == 0); \
+    assertEqualGuid (rawFormat, expectedRawFormat); \
  \
     status = GdipGetImagePixelFormat (image, &pixelFormat); \
     assertEqualInt (status, Ok); \
@@ -367,20 +418,6 @@ ATTRIBUTE_USED static BOOL is_32bit()
 + ((x&0xF0000000LU)?128:0)
 
 #define B8(d) ((BYTE)B8__(HEX__(d)))
-
-// A utility for dumping byte arrays to the console for debugging purposes.
-ATTRIBUTE_USED static void dumpBytes(BYTE *bytes, int length)
-{
-    printf("%u\n", length);
-    for (int i = 0; i < length; i++) {
-        printf("0x%02X", bytes[i]);
-        if (i != length - 1) {
-            printf(", ");
-        }
-    }
-
-    printf("\n\n");
-}
 
 // A utility for dumping pixel arrays to the console for debugging purposes.
 ATTRIBUTE_USED static void dumpPixels (GpImage *image)

@@ -114,6 +114,9 @@ static const int nonplaceable_wmf_sig_size = 6;
 static BOOL
 signature_match (char *data, size_t data_size, int size, int count, BYTE* sig_pattern, BYTE* sig_mask)
 {
+	if (data_size < size)
+		return FALSE;
+
 	int sig;
 	for (sig = 0; sig < (size * count); sig += size) {
 		BOOL match = TRUE;
@@ -2402,11 +2405,6 @@ initCodecList (void)
 	memcpy (epos, gdip_getcodecinfo_bmp (), sizeof (ImageCodecInfo));
 	epos += sizeof (ImageCodecInfo);
 	g_encoders++;
-
-	/* ICO codec (decoder-only) - built-in */
-	memcpy (dpos, gdip_getcodecinfo_ico (), sizeof (ImageCodecInfo));
-	dpos += sizeof (ImageCodecInfo);
-	g_decoders++;
 	
 	/* JPEG codec (encoder+decoder) */
 	if (gdip_getcodecinfo_jpeg ()) {
@@ -2426,6 +2424,20 @@ initCodecList (void)
 		memcpy (epos, gdip_getcodecinfo_gif (), sizeof (ImageCodecInfo));
 		epos += sizeof (ImageCodecInfo);
 		g_encoders++;
+	}
+
+	/* EMF codec (decoder-only) */
+	if (gdip_getcodecinfo_emf ()) {
+		memcpy (dpos, gdip_getcodecinfo_emf (), sizeof (ImageCodecInfo));
+		dpos += sizeof (ImageCodecInfo);
+		g_decoders++;
+	}
+
+	/* WMF codec (decoder-only) */
+	if (gdip_getcodecinfo_wmf ()) {
+		memcpy (dpos, gdip_getcodecinfo_wmf (), sizeof (ImageCodecInfo));
+		dpos += sizeof (ImageCodecInfo);
+		g_decoders++;
 	}
 	
 	/* TIFF codec (encoder+decoder) */
@@ -2448,19 +2460,10 @@ initCodecList (void)
 		g_encoders++;
 	}
 
-	/* WMF codec (decoder-only) */
-	if (gdip_getcodecinfo_wmf ()) {
-		memcpy (dpos, gdip_getcodecinfo_wmf (), sizeof (ImageCodecInfo));
-		dpos += sizeof (ImageCodecInfo);
-		g_decoders++;
-	}
-
-	/* EMF codec (decoder-only) */
-	if (gdip_getcodecinfo_emf ()) {
-		memcpy (dpos, gdip_getcodecinfo_emf (), sizeof (ImageCodecInfo));
-		dpos += sizeof (ImageCodecInfo);
-		g_decoders++;
-	}
+	/* ICO codec (decoder-only) - built-in */
+	memcpy (dpos, gdip_getcodecinfo_ico (), sizeof (ImageCodecInfo));
+	dpos += sizeof (ImageCodecInfo);
+	g_decoders++;
 
 	return Ok;
 }
