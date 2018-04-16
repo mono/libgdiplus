@@ -21,11 +21,11 @@
  *      Duncan Mak (duncan@ximian.com)
  *      Miguel de Icaza (miguel@ximian.com)
  *      Ravindra (rkumar@novell.com)
- *  	Sanjay Gupta (gsanjay@novell.com)
- *	Vladimir Vukicevic (vladimir@pobox.com)
- *	Geoff Norton (gnorton@customerdna.com)
+ *      Sanjay Gupta (gsanjay@novell.com)
+ *      Vladimir Vukicevic (vladimir@pobox.com)
+ *      Geoff Norton (gnorton@customerdna.com)
  *      Jonathan Gilbert (logic@deltaq.org)
- *	Sebastien Pouliot  <sebastien@ximian.com>
+ *      Sebastien Pouliot  <sebastien@ximian.com>
  *
  * Copyright (C) 2003-2007 Novell, Inc (http://www.novell.com)
  */
@@ -49,19 +49,19 @@ typedef struct {
 } EncoderParameters;
 
 typedef struct {
-        CLSID Clsid;
-        GUID  FormatID;
-        const WCHAR* CodecName;
-        const WCHAR* DllName;
-        const WCHAR* FormatDescription;
-        const WCHAR* FilenameExtension;
-        const WCHAR* MimeType;
-        DWORD Flags;
-        DWORD Version;
-        DWORD SigCount;
-        DWORD SigSize;
-        const BYTE* SigPattern;
-        const BYTE* SigMask;
+	CLSID Clsid;
+	GUID  FormatID;
+	const WCHAR* CodecName;
+	const WCHAR* DllName;
+	const WCHAR* FormatDescription;
+	const WCHAR* FilenameExtension;
+	const WCHAR* MimeType;
+	DWORD Flags;
+	DWORD Version;
+	DWORD SigCount;
+	DWORD SigSize;
+	const BYTE* SigPattern;
+	const BYTE* SigMask;
 } ImageCodecInfo;
 
 GpStatus WINGDIPAPI GdipGetImageDecodersSize (UINT *numDecoders, UINT *size);

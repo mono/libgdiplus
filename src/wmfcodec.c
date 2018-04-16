@@ -25,7 +25,7 @@
 /* Codecinfo related data*/
 GUID gdip_wmf_image_format_guid = {0xb96b3cadU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
 static ImageCodecInfo wmf_codec;
-static const WCHAR wmf_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'W', 'M', 'F', 0}; /* Built-in WMF */
+static const WCHAR wmf_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'W', 'M', 'F', ' ', 'C', 'o', 'd', 'e', 'c', 0}; /* Built-in WMF Codec */
 static const WCHAR wmf_extension[] = {'*','.','W', 'M', 'F', 0}; /* *.WMF */
 static const WCHAR wmf_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'x', '-', 'w', 'm', 'f', 0}; /* image/x-wmf */
 static const WCHAR wmf_format[] = {'W', 'M', 'F', 0}; /* WMF */

@@ -47,7 +47,7 @@ GUID gdip_jpg_image_format_guid = {0xb96b3caeU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 
 /* Codecinfo related data*/
 static ImageCodecInfo jpeg_codec;
-static const WCHAR jpeg_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'J', 'P', 'E', 'G', 0}; /* Built-in JPEG */
+static const WCHAR jpeg_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'J', 'P', 'E', 'G', ' ', 'C', 'o', 'd', 'e', 'c', 0}; /* Built-in JPEG Codec */
 static const WCHAR jpeg_extension[] = {'*', '.', 'J', 'P','G', ';','*', '.', 'J','P', 'E', 'G', ';', '*',
         '.', 'J', 'P', 'E', ';', '*', '.', 'J', 'F','I','F', 0}; /* JPG;*.JPEG;*.JPE;*.JFIF */
 static const WCHAR jpeg_mimetype[] = {'i', 'm', 'a','g', 'e','/', 'j', 'p', 'e', 'g', 0}; /* image/png */

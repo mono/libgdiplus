@@ -39,7 +39,7 @@ GUID gdip_png_image_format_guid = {0xb96b3cafU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 
 /* Codecinfo related data*/
 static ImageCodecInfo png_codec;
-static const WCHAR png_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'P', 'N', 'G', 0}; /* Built-in PNG */
+static const WCHAR png_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'P', 'N', 'G', ' ', 'C', 'o', 'd', 'e', 'c', 0}; /* Built-in PNG Codec */
 static const WCHAR png_extension[] = {'*', '.', 'P', 'N', 'G', 0}; /* *.PNG */
 static const WCHAR png_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'p', 'n', 'g', 0}; /* image/png */
 static const WCHAR png_format[] = {'P', 'N', 'G', 0}; /* PNG */

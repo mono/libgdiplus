@@ -52,7 +52,7 @@ GUID gdip_emf_image_format_guid = {0xb96b3cacU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 
 /* Codecinfo related data*/
 static ImageCodecInfo emf_codec;
-static const WCHAR emf_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'E', 'M', 'F', 0}; /* Built-in EMF */
+static const WCHAR emf_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'E', 'M', 'F', ' ', 'C', 'o', 'd', 'e', 'c', 0}; /* Built-in EMF Codec */
 static const WCHAR emf_extension[] = {'*','.','E', 'M', 'F', 0}; /* *.EMF */
 static const WCHAR emf_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'x', '-', 'e', 'm', 'f', 0}; /* image/x-emf */
 static const WCHAR emf_format[] = {'E', 'M', 'F', 0}; /* EMF */

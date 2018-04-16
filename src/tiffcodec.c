@@ -50,10 +50,9 @@ GUID gdip_tif_image_format_guid = {0xb96b3cb1U, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 
 /* Codecinfo related data*/
 static ImageCodecInfo tiff_codec;
-static const WCHAR tiff_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'T', 'I', 'F', 'F',
-        0}; /* Built-in TIFF */
+static const WCHAR tiff_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'T', 'I', 'F', 'F', ' ', 'C', 'o', 'd', 'e', 'c', 0}; /* Built-in TIFF Codec */
 static const WCHAR tiff_extension[] = {'*', '.', 'T', 'I', 'F',';', '*', '.', 'T', 'I', 'F','F', 0}; /* *.TIF;*.TIFF */
-static const WCHAR tiff_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 't', 'i', 'f', 'f', 0}; /* image/gif */
+static const WCHAR tiff_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 't', 'i', 'f', 'f', 0}; /* image/tiff */
 static const WCHAR tiff_format[] = {'T', 'I', 'F', 'F', 0}; /* TIFF */
 static const BYTE tiff_sig_pattern[] = { 0x49, 0x49, 0x4D, 0x4D };
 static const BYTE tiff_sig_mask[] = { 0xFF, 0xFF, 0xFF, 0xFF };
