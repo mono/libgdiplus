@@ -477,7 +477,7 @@ draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	/* texture surface to be created */
 	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
 						rect->Width, rect->Height);
-	if (texture == NULL) {
+	if (!texture) {
 		cairo_pattern_destroy (pat);
 		return OutOfMemory;
 	}
@@ -529,9 +529,9 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 		/* Unable to create a surface for the bitmap; it is an indexed image.
 		 * Instead, it will first be converted to 32-bit RGB. */
 		img = gdip_convert_indexed_to_rgb (img);
-		if (img == NULL) {
+		if (!img)
 			return OutOfMemory;
-		}
+
 		gdip_bitmap_ensure_surface (img);
 		dispose_bitmap = TRUE;
 	} else {
@@ -542,10 +542,9 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 
 	/* We create the new pattern for brush, if the brush is changed
 	 * or if pattern has not been created yet. */
-	if (texture->base.changed || (texture->pattern == NULL)) {
-		if (texture->pattern != NULL) {
+	if (texture->base.changed || !texture->pattern) {
+		if (texture->pattern)
 			cairo_pattern_destroy (texture->pattern);
-		}
 
 		switch (texture->wrapMode) {
 			case WrapModeTile:
@@ -607,10 +606,9 @@ gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush)
 	if (!brush || !clonedBrush)
 		return InvalidParameter;
 
-	result = (GpTexture *) GdipAlloc (sizeof (GpTexture));
-	if (result == NULL) {
+	result = gdip_texture_new ();
+	if (!result)
 		return OutOfMemory;
-	}
 
 	texture = (GpTexture *) brush;
 	result->base = texture->base;
@@ -629,16 +627,14 @@ gdip_texture_clone (GpBrush *brush, GpBrush **clonedBrush)
 	result->image = NULL;
 	status = GdipCloneImage (texture->image, &result->image);
 	if (status != Ok) {
-		if (result->image)
-			GdipDisposeImage (result->image);
-		GdipFree (result);
-		result = NULL;
+		GdipDeleteBrush ((GpBrush *) result);
+		*clonedBrush = NULL;
+		return status;
 	} else {
 		cairo_surface_reference (result->image->surface);
 	}
 
 	*clonedBrush = (GpBrush *) result;
-
 	return status;
 }
 
@@ -792,22 +788,26 @@ GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x,
 GpStatus WINGDIPAPI
 GdipGetTextureTransform (GpTexture *texture, GpMatrix *matrix)
 {
-	if ((texture == NULL) || (matrix == NULL)) {
+	if (!texture || !matrix)
 		return InvalidParameter;
-	}
 
-	gdip_cairo_matrix_copy(matrix, &texture->matrix);
+	gdip_cairo_matrix_copy (matrix, &texture->matrix);
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipSetTextureTransform (GpTexture *texture, GDIPCONST GpMatrix *matrix)
 {
-	if ((texture == NULL) || (matrix == NULL)) {
-		return InvalidParameter;
-	}
+	BOOL invertible;
 
-	gdip_cairo_matrix_copy(&texture->matrix, matrix);
+	if (!texture || !matrix)
+		return InvalidParameter;
+		
+	GdipIsMatrixInvertible ((GpMatrix *) matrix, &invertible);
+	if (!invertible)
+		return InvalidParameter;
+
+	gdip_cairo_matrix_copy (&texture->matrix, matrix);
 	texture->base.changed = TRUE;
 
 	return Ok;
@@ -816,9 +816,8 @@ GdipSetTextureTransform (GpTexture *texture, GDIPCONST GpMatrix *matrix)
 GpStatus WINGDIPAPI
 GdipResetTextureTransform (GpTexture *texture)
 {
-	if (texture == NULL) {
+	if (!texture)
 		return InvalidParameter;
-	}
 
 	cairo_matrix_init_identity (&texture->matrix);
 	texture->base.changed = TRUE;
@@ -828,7 +827,6 @@ GdipResetTextureTransform (GpTexture *texture)
 GpStatus WINGDIPAPI
 GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrder order)
 {
-	GpStatus status;
 	BOOL invertible = FALSE;
 	cairo_matrix_t mat;
 
@@ -839,8 +837,8 @@ GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrde
 		return Ok;
 
 	/* the matrix MUST be invertible to be used */
-	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
-	if (!invertible || (status != Ok))
+	GdipIsMatrixInvertible ((GpMatrix *) matrix, &invertible);
+	if (!invertible)
 		return InvalidParameter;
 
 	if (order == MatrixOrderPrepend)
@@ -850,7 +848,8 @@ GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrde
 
 	gdip_cairo_matrix_copy (&texture->matrix, &mat);
 	texture->base.changed = TRUE;
-	return status;
+
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -858,13 +857,13 @@ GdipTranslateTextureTransform (GpTexture *texture, float dx, float dy, GpMatrixO
 {
 	GpStatus status;
 
-	if (texture == NULL) {
+	if (!texture)
 		return InvalidParameter;
-	}
 
 	status = GdipTranslateMatrix (&texture->matrix, dx, dy, order);
 	if (status == Ok)
 		texture->base.changed = TRUE;
+
 	return status;
 }
 
@@ -873,13 +872,13 @@ GdipScaleTextureTransform (GpTexture *texture, float sx, float sy, GpMatrixOrder
 {
 	GpStatus status;
 
-	if (texture == NULL) {
+	if (!texture)
 		return InvalidParameter;
-	}
 
 	status = GdipScaleMatrix (&texture->matrix, sx, sy, order);
 	if (status == Ok)
 		texture->base.changed = TRUE;
+
 	return status;
 }
 
@@ -889,7 +888,7 @@ GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order
 {
 	GpStatus status;
 
-	if (texture == NULL)
+	if (!texture)
 		return InvalidParameter;
 
 	status = GdipRotateMatrix (&texture->matrix, angle, order);
@@ -902,11 +901,11 @@ GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order
 GpStatus WINGDIPAPI
 GdipSetTextureWrapMode (GpTexture *texture, GpWrapMode wrapMode)
 {
-	if (texture == NULL)
+	if (!texture)
 		return InvalidParameter;
 
 	/* ignore invalid GpWrapMode value */
-	if ((wrapMode < WrapModeTile) || (wrapMode > WrapModeClamp))
+	if (wrapMode > WrapModeClamp)
 		return Ok;
 
 	texture->wrapMode = wrapMode;
