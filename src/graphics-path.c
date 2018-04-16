@@ -1234,21 +1234,29 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	GpRectF box;
 	GpPointF box_offset;
 	PangoLayout* layout; 
-	GpStringFormat *string_format = (GpStringFormat *) format;
+	GpStringFormat *string_format;
 
-	if (!(format->formatFlags & StringFormatFlagsNoClip)) {
+	if (format == NULL) {
+		status = GdipCreateStringFormat (StringFormatFlagsNoClip, 0, &string_format);
+	}
+	else if (!(format->formatFlags & StringFormatFlagsNoClip)) {
 		status = GdipCloneStringFormat (format, &string_format);
-		if (status != Ok) {
-			GdipDeleteFont (font);
-			GdipFree (utf8);
-			cairo_destroy (cr);
-			cairo_surface_destroy (cs);
-			return status;
-		}
-		string_format->formatFlags |= StringFormatFlagsNoClip;
+		if (status == Ok)
+			string_format->formatFlags |= StringFormatFlagsNoClip;
+	} else {
+		status = Ok;
+		string_format = (GpStringFormat *) format;
 	}
 
-	layout = gdip_pango_setup_layout (cr, string, length, font, layoutRect, &box, &box_offset, format, NULL);
+	if (status != Ok) {
+		GdipDeleteFont (font);
+		GdipFree (utf8);
+		cairo_destroy (cr);
+		cairo_surface_destroy (cs);
+		return status;
+	}
+
+	layout = gdip_pango_setup_layout (cr, string, length, font, layoutRect, &box, &box_offset, string_format, NULL);
 	if (layoutRect)
 		cairo_move_to (cr, layoutRect->X + box_offset.X, layoutRect->Y + box_offset.X);
 	pango_cairo_layout_path (cr, layout);
