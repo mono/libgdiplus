@@ -1,22 +1,22 @@
 /*
  * Copyright (c) 2004-2005 Ximian
  * Copyright (C) 2007 Novell, Inc (http://www.novell.com)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
- * and associated documentation files (the "Software"), to deal in the Software without restriction, 
- * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial 
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial
  * portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT 
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- * 
+ *
  * Authors:
  *	Jordi Mas i Hernandez <jordi@ximian.com>, 2004-2005
  *	Sebastien Pouliot  <sebastien@ximian.com>
@@ -29,16 +29,18 @@
 static void
 gdip_init_image_attribute (GpImageAttribute* attr)
 {
+	attr->flags = 0;
 	attr->colormap = NULL;
 	attr->colormap_elem = 0;
 	attr->gamma_correction = 0.0f;
 	attr->key_colorlow = 0;
 	attr->key_colorhigh = 0;
-	attr->key_enabled = FALSE;	
 	attr->colormatrix = NULL;
 	attr->graymatrix = NULL;
 	attr->colormatrix_flags = ColorMatrixFlagsDefault;
-	attr->colormatrix_enabled = FALSE;
+	attr->threshold = 0;
+	attr->outputchannel_flags = 0;
+	attr->colorprofile_filename = NULL;
 }
 
 static void
@@ -58,6 +60,11 @@ gdip_dispose_image_attribute (GpImageAttribute* attr)
 		GdipFree (attr->graymatrix);
 		attr->graymatrix = NULL;
 	}
+
+	if (attr->colorprofile_filename) {
+		GdipFree (attr->colorprofile_filename);
+		attr->colorprofile_filename = NULL;
+	}
 }
 
 static GpImageAttribute*
@@ -73,7 +80,7 @@ gdip_get_image_attribute (GpImageAttributes* attr, ColorAdjustType type)
 	case ColorAdjustTypePen:
 		return &attr->pen;
 	case ColorAdjustTypeText:
-		return &attr->text;	
+		return &attr->text;
 	default:
 		return NULL;
 	}
@@ -86,47 +93,47 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	GpImageAttribute *colormap, *gamma, *trans, *cmatrix;
 	GpBitmap *bmpdest;
 	int x,y, cnt;
-	ARGB color;	
+	ARGB color;
 	BYTE *color_p = (BYTE*) &color;
-	
+
 	*allocated = FALSE;
 	bmpdest = NULL;
-	
-	if (!bitmap || !dest || !attr) 
+
+	if (!bitmap || !dest || !attr)
 		return;
-	
+
 	imgattr = gdip_get_image_attribute (attr, ColorAdjustTypeBitmap);
-	
+
 	if (!imgattr)
-		return;		
+		return;
 
 	def = gdip_get_image_attribute (attr, ColorAdjustTypeDefault);
-	if (imgattr->colormap_elem) {
+	if (imgattr->flags & ImageAttributeFlagsColorRemapTableEnabled) {
 		colormap = imgattr;
 	} else {
 		colormap = def;
 	}
 
-	if (imgattr->gamma_correction) {
+	if (imgattr->flags & ImageAttributeFlagsGammaEnabled) {
 		gamma = imgattr;
 	} else {
 		gamma = def;
 	}
 
-	if (imgattr->key_enabled) {
+	if (imgattr->flags & ImageAttributeFlagsColorKeysEnabled) {
 		trans = imgattr;
 	} else {
 		trans = def;
 	}
 
-	if (imgattr->colormatrix_enabled && imgattr->colormatrix) {
+	if (imgattr->flags & ImageAttributeFlagsColorKeysEnabled && imgattr->colormatrix) {
 		cmatrix = imgattr;
 	} else {
 		cmatrix = def;
 	}
 
-	if (colormap->colormap_elem || gamma->gamma_correction || trans->key_enabled || 
-	    (cmatrix->colormatrix_enabled && cmatrix->colormatrix != NULL)) {
+	if ((colormap->flags & ImageAttributeFlagsColorRemapTableEnabled) || (gamma->flags & ImageAttributeFlagsGammaEnabled) || (trans->flags & ImageAttributeFlagsColorKeysEnabled) ||
+	    ((cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled) && cmatrix->colormatrix != NULL)) {
 		bitmap->active_bitmap->pixel_format = PixelFormat32bppARGB;
 		bmpdest = gdip_bitmap_new_with_frame(NULL, FALSE);
 		gdip_bitmapdata_clone(bitmap->active_bitmap, &bmpdest->frames[0].bitmap, 1);
@@ -135,80 +142,79 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		*dest = bmpdest->active_bitmap->scan0;
 		*allocated = TRUE;
 	}
-	
-	/* 	
-		We use get/set pixel instead of direct buffer manipulation because it's a good way of keeping the pixel 
+
+	/*
+		We use get/set pixel instead of direct buffer manipulation because it's a good way of keeping the pixel
 		logic in a single place
-	*/	
-	
+	*/
+
 	/* Color mapping */
-	if (colormap->colormap_elem) {
-		for (y = 0; y <bitmap->active_bitmap->height; y++) {	
+	if (colormap->flags & ImageAttributeFlagsColorRemapTableEnabled) {
+		for (y = 0; y <bitmap->active_bitmap->height; y++) {
 			for (x = 0; x <bitmap->active_bitmap->width; x++) {
 				ColorMap* clrmap = colormap->colormap;
-				
+
 				GdipBitmapGetPixel (bmpdest, x, y, &color);
-				
+
 				for (cnt = 0; cnt < colormap->colormap_elem; cnt++, clrmap++) {
-				  
-					if (color == clrmap->oldColor.Argb) {						
-						color = clrmap->newColor.Argb;						
+
+					if (color == clrmap->oldColor.Argb) {
+						color = clrmap->newColor.Argb;
 						GdipBitmapSetPixel (bmpdest, x, y, color);
 						break;
 					}
 				}
-			}	
-		}	
+			}
+		}
 	}
-	
+
 	/* Gamma correction */
-	if (gamma->gamma_correction) {
-		for (y = 0; y < bitmap->active_bitmap->height; y++) {	
+	if (gamma->flags & ImageAttributeFlagsGammaEnabled) {
+		for (y = 0; y < bitmap->active_bitmap->height; y++) {
 			for (x = 0; x < bitmap->active_bitmap->width; x++) {
-			
-				BYTE r,g,b,a;					
-				
-				GdipBitmapGetPixel (bmpdest, x, y, &color);		
-			
+
+				BYTE r,g,b,a;
+
+				GdipBitmapGetPixel (bmpdest, x, y, &color);
+
 				a = (color & 0xff000000) >> 24;
 				r = (color & 0x00ff0000) >> 16;
 				g = (color & 0x0000ff00) >> 8;
 				b = (color & 0x000000ff);
-				
+
 				/* FIXME: This is not the right gamma GDI + correction algorithm */
-				
+
 				/*
-				r = (int) powf (r, (1 / gamma->gamma_correction));			
-				g = (int) powf (g, (1 / gamma->gamma_correction));			
-				b = (int) powf (b, (1 / gamma->gamma_correction));			
+				r = (int) powf (r, (1 / gamma->gamma_correction));
+				g = (int) powf (g, (1 / gamma->gamma_correction));
+				b = (int) powf (b, (1 / gamma->gamma_correction));
 				a = (int) powf (a, (1 / gamma->gamma_correction));*/
-				
+
 				color = b | (g  << 8) | (r << 16) | (a << 24);
-					
+
 				GdipBitmapSetPixel (bmpdest, x, y, color);
-			}	
+			}
 		}
-		
-	}	
-	
+
+	}
+
 	/* Apply transparency range */
-	if (trans->key_enabled) {
-		for (y = 0; y < bitmap->active_bitmap->height; y++) {	
+	if (trans->flags & ImageAttributeFlagsColorKeysEnabled) {
+		for (y = 0; y < bitmap->active_bitmap->height; y++) {
 			for (x = 0; x < bitmap->active_bitmap->width; x++) {
-				
-				GdipBitmapGetPixel (bmpdest, x, y, &color);					
-				
+
+				GdipBitmapGetPixel (bmpdest, x, y, &color);
+
 				if (color >= trans->key_colorlow && color <= trans->key_colorhigh) {
 					color = color & 0x00ffffff; /* Alpha = 0 */
 					GdipBitmapSetPixel (bmpdest, x, y, color);
 				}
-			}	
+			}
 		}
-	
 	}
 
 	/* Apply Color Matrix */
-	if (cmatrix->colormatrix_enabled && cmatrix->colormatrix) {
+	if (cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled && cmatrix->colormatrix) {
 		BitmapData *data = bmpdest->active_bitmap;
 		BYTE *v = ((BYTE*)data->scan0);
 		ARGB *scan;
@@ -293,9 +299,9 @@ GdipCreateImageAttributes (GpImageAttributes **imageattr)
 	gdip_init_image_attribute (&result->text);
 	result->color = 0;
 	result->wrapmode = WrapModeClamp;
-      
+
 	*imageattr = result;
-	return Ok;        
+	return Ok;
 }
 
 /* coverity[+alloc : arg-*1] */
@@ -316,7 +322,7 @@ GdipCloneImageAttributes (GDIPCONST GpImageAttributes *imageattr, GpImageAttribu
 	memcpy (result, imageattr, sizeof (GpImageAttributes));
 
 	*cloneImageattr = result;
-	return Ok; 
+	return Ok;
 
 }
 
@@ -325,7 +331,7 @@ GdipDisposeImageAttributes (GpImageAttributes *imageattr)
 {
 	if (!imageattr)
 		return InvalidParameter;
-		
+
 	gdip_dispose_image_attribute (&imageattr->def);
 	gdip_dispose_image_attribute (&imageattr->bitmap);
 	gdip_dispose_image_attribute (&imageattr->brush);
@@ -340,36 +346,40 @@ GpStatus WINGDIPAPI
 GdipSetImageAttributesToIdentity (GpImageAttributes *imageattr, ColorAdjustType type)
 {
 	GpImageAttribute *imgattr;
-	
+
 	if (!imageattr)
 		return InvalidParameter;
 
 	imgattr = gdip_get_image_attribute (imageattr, type);
 
 	if (!imgattr)
-		return InvalidParameter;	
-	
-	return NotImplemented;
+		return InvalidParameter;
+
+	gdip_dispose_image_attribute (imgattr);
+	gdip_init_image_attribute (imgattr);
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipResetImageAttributes (GpImageAttributes *imageattr, ColorAdjustType type)
 {
 	GpImageAttribute *imgattr;
-	
+
 	if (!imageattr)
 		return InvalidParameter;
 
 	imgattr = gdip_get_image_attribute (imageattr, type);
 
 	if (!imgattr)
-		return InvalidParameter;	
-	
-	return NotImplemented;
+		return InvalidParameter;
+
+	gdip_dispose_image_attribute (imgattr);
+	gdip_init_image_attribute (imgattr);
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipSetImageAttributesThreshold ( GpImageAttributes *imageattr,  ColorAdjustType type, BOOL enableFlag, REAL threshold)
+GdipSetImageAttributesThreshold ( GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, REAL threshold)
 {
 	GpImageAttribute *imgattr;
 
@@ -379,57 +389,47 @@ GdipSetImageAttributesThreshold ( GpImageAttributes *imageattr,  ColorAdjustType
 	imgattr = gdip_get_image_attribute (imageattr, type);
 
 	if (!imgattr)
-		return InvalidParameter;	
+		return InvalidParameter;
 
-	return NotImplemented;
+	if (enableFlag) {
+		imgattr->threshold = threshold;
+		imgattr->flags |= ImageAttributeFlagsThresholdEnabled;
+	}
+	else
+		imgattr->flags |= ~ImageAttributeFlagsThresholdEnabled;
+
+	return Ok;
 }
 
 
-GpStatus WINGDIPAPI  
+GpStatus WINGDIPAPI
 GdipSetImageAttributesGamma (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, REAL gamma)
 {
 	GpImageAttribute *imgattr;
-		
+
 	if (!imageattr)
 		return InvalidParameter;
-		
+
 	imgattr = gdip_get_image_attribute (imageattr, type);
-	
+
 	if (!imgattr)
 		return InvalidParameter;
-			
+
 	if (enableFlag) {
 		if (gamma <= 0)
 			return InvalidParameter;
 
 		imgattr->gamma_correction = gamma;
+		imgattr->flags |= ImageAttributeFlagsGammaEnabled;
 	}
 	else
-		imgattr->gamma_correction = 0.0f;
+		imgattr->flags |= ~ImageAttributeFlagsGammaEnabled;
 
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipSetImageAttributesNoOp (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag)
-{	
-	GpImageAttribute *imgattr;
-		
-	if (!imageattr)
-		return InvalidParameter;
-		
-	imgattr = gdip_get_image_attribute (imageattr, type);
-	
-	if (!imgattr)
-		return InvalidParameter;	
-		
-	imgattr->no_op = enableFlag;
-	return Ok;
-}
-
-
-GpStatus WINGDIPAPI
-GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag, ARGB colorLow, ARGB colorHigh)
 {
 	GpImageAttribute *imgattr;
 
@@ -437,89 +437,133 @@ GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType t
 		return InvalidParameter;
 
 	imgattr = gdip_get_image_attribute (imageattr, type);
-	
-	if (!imgattr)
-		return InvalidParameter;	
 
-	imgattr->key_colorlow = colorLow;
-	imgattr->key_colorhigh = colorHigh;
-	imgattr->key_enabled = enableFlag;
-	
+	if (!imgattr)
+		return InvalidParameter;
+
+	if (enableFlag)
+		imgattr->flags |= ImageAttributeFlagsNoOp;
+	else
+		imgattr->flags |= ~ImageAttributeFlagsNoOp;
+
+	return Ok;
+}
+
+
+GpStatus WINGDIPAPI
+GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, ARGB colorLow, ARGB colorHigh)
+{
+	GpImageAttribute *imgattr;
+
+	if (!imageattr)
+		return InvalidParameter;
+
+	imgattr = gdip_get_image_attribute (imageattr, type);
+
+	if (!imgattr)
+		return InvalidParameter;
+
+	if (enableFlag) {
+		imgattr->key_colorlow = colorLow;
+		imgattr->key_colorhigh = colorHigh;
+		imgattr->flags|= ImageAttributeFlagsColorKeysEnabled;
+	}
+	else
+		imgattr->flags|= ~ImageAttributeFlagsColorKeysEnabled;
+
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipSetImageAttributesOutputChannelColorProfile (GpImageAttributes *imageattr, ColorAdjustType type,  BOOL enableFlag, GDIPCONST WCHAR *colorProfileFilename)
+GdipSetImageAttributesOutputChannelColorProfile (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, GDIPCONST WCHAR *colorProfileFilename)
 {
 	GpImageAttribute *imgattr;
-	
+
 	if (!imageattr)
 		return InvalidParameter;
-		
+
 	imgattr = gdip_get_image_attribute (imageattr, type);
-	
+
 	if (!imgattr)
-		return InvalidParameter;	
+		return InvalidParameter;
 
 	if (enableFlag) {
 		if (!colorProfileFilename)
 			return Win32Error;
-	}
 
-	return NotImplemented;
+		char *utf8 = ucs2_to_utf8 (colorProfileFilename, -1);
+		if (!utf8)
+			return OutOfMemory;
+
+		FILE *fileHandle = fopen (utf8, "rb");
+		if (!fileHandle) {
+			GdipFree (utf8);
+			return OutOfMemory;
+		}
+
+		fclose (fileHandle);
+
+		if (imgattr->colorprofile_filename)
+			GdipFree (imgattr->colorprofile_filename);
+
+		imgattr->colorprofile_filename = utf8;
+		imgattr->flags |= ImageAttributeFlagsOutputChannelColorProfileEnabled;
+	}
+	else
+		imgattr->flags |= ~ImageAttributeFlagsOutputChannelColorProfileEnabled;
+
+	return Ok;
 }
 
 
-GpStatus WINGDIPAPI 
+GpStatus WINGDIPAPI
 GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, UINT mapSize, GDIPCONST ColorMap *map)
 {
 	GpImageAttribute *imgattr;
-	
+
 	if (!imageattr)
 		return InvalidParameter;
-		
+
 	imgattr = gdip_get_image_attribute (imageattr, type);
-	
+
 	if (!imgattr)
-		return InvalidParameter;	
-		
-	if (!enableFlag)  {	/* Acts as clean */			
-		GdipFree (imgattr->colormap);
-		imgattr->colormap = NULL;
-		imgattr->colormap_elem = 0;
-		return Ok;
-	}
-
-	if (mapSize == 0 || !map)
 		return InvalidParameter;
-	
-	if (imgattr->colormap) 
-		GdipFree (imgattr->colormap);
-		
-	/* Copy colormap table*/
-	int size = mapSize * sizeof (ColorMap);
-	imgattr->colormap = GdipAlloc (size);
-	if (!imgattr->colormap)
-		return OutOfMemory;
 
-	memcpy (imgattr->colormap, map, size);
-	imgattr->colormap_elem = mapSize;
-	
-	return Ok;	
+	if (enableFlag) {
+		if (mapSize == 0 || !map)
+			return InvalidParameter;
+
+		/* Copy colormap table */
+		int size = mapSize * sizeof (ColorMap);
+		ColorMap *newColorMap = GdipAlloc (size);
+		if (!newColorMap)
+			return OutOfMemory;
+
+		if (imgattr->colormap)
+			GdipFree (imgattr->colormap);
+
+		imgattr->colormap = newColorMap;
+		memcpy (imgattr->colormap, map, size);
+		imgattr->colormap_elem = mapSize;
+		imgattr->flags |= ImageAttributeFlagsColorRemapTableEnabled;
+	} else
+		imgattr->flags |= ~ImageAttributeFlagsColorRemapTableEnabled;
+
+	return Ok;
 }
 
 /*
 	According to Microsoft documentation:
 	clamp: This parameter has no effect in Microsoft® Windows® GDI+ version 1.0
-*/ 
-GpStatus WINGDIPAPI 
+*/
+GpStatus WINGDIPAPI
 GdipSetImageAttributesWrapMode (GpImageAttributes *imageattr, WrapMode wrap, ARGB argb, BOOL clamp)
 {
 	if (!imageattr)
-		return InvalidParameter;	
-	
+		return InvalidParameter;
+
 	imageattr->wrapmode = wrap;
-	imageattr->color = argb;	
+	imageattr->color = argb;
 	return Ok;
 }
 
@@ -529,10 +573,11 @@ GdipSetImageAttributesICMMode (GpImageAttributes *imageAttr, BOOL on)
 	if (!imageAttr)
 		return InvalidParameter;
 
-	return NotImplemented;
+	// This has no effect in GDI+.
+	return Ok;
 }
 
-GpStatus WINGDIPAPI 
+GpStatus WINGDIPAPI
 GdipGetImageAttributesAdjustedPalette (GpImageAttributes *imageattr, ColorPalette *colorPalette, ColorAdjustType type)
 {
 	if (!imageattr || !colorPalette || !colorPalette->Count || type == ColorAdjustTypeDefault)
@@ -544,22 +589,22 @@ GdipGetImageAttributesAdjustedPalette (GpImageAttributes *imageattr, ColorPalett
 	return NotImplemented;
 }
 
-GpStatus WINGDIPAPI 
-GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, 
+GpStatus WINGDIPAPI
+GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag,
 	GDIPCONST ColorMatrix* colorMatrix, GDIPCONST ColorMatrix* grayMatrix, ColorMatrixFlags flags)
 {
 	GpImageAttribute *imgattr;
-	
+
 	if (!imageattr)
 		return InvalidParameter;
-		
+
 	imgattr = gdip_get_image_attribute (imageattr, type);
-	
+
 	if (!imgattr)
 		return InvalidParameter;
 
 	if (enableFlag) {
-		if (!colorMatrix || flags < ColorMatrixFlagsDefault || flags > ColorMatrixFlagsAltGray) {
+		if (!colorMatrix || flags > ColorMatrixFlagsAltGray) {
 			return InvalidParameter;
 		}
 
@@ -580,36 +625,42 @@ GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType
 			}
 
 			memcpy (imgattr->graymatrix, grayMatrix, sizeof (ColorMatrix));
+			imgattr->flags |= ImageAttributeFlagsGrayMatrixEnabled;
 		}
 
 		memcpy (imgattr->colormatrix, colorMatrix, sizeof (ColorMatrix));
-		imgattr->colormatrix_flags = flags;		
+		imgattr->colormatrix_flags = flags;
+		imgattr->flags |= ImageAttributeFlagsColorMatrixEnabled;
+	} else {
+		imgattr->flags |= ~(ImageAttributeFlagsColorMatrixEnabled | ImageAttributeFlagsGrayMatrixEnabled);
 	}
 
-	imgattr->colormatrix_enabled = enableFlag;	
 	return Ok;
 }
-	
-GpStatus WINGDIPAPI 
+
+GpStatus WINGDIPAPI
 GdipSetImageAttributesOutputChannel (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, ColorChannelFlags channelFlags)
 {
 	GpImageAttribute *imgattr;
-	
+
 	if (!imageattr)
 		return InvalidParameter;
-		
+
 	imgattr = gdip_get_image_attribute (imageattr, type);
-	
+
 	if (!imgattr)
 		return InvalidParameter;
 
 	if (enableFlag) {
-		if (channelFlags < ColorChannelFlagsC || channelFlags >= ColorChannelFlagsLast)
+		if (channelFlags >= ColorChannelFlagsLast)
 			return InvalidParameter;
-	}
 
+		imgattr->outputchannel_flags = channelFlags;
+		imgattr->flags |= ImageAttributeFlagsOutputChannelEnabled;
+	} else
+		imgattr->flags |= ~ImageAttributeFlagsOutputChannelEnabled;
 
-	return NotImplemented;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -618,5 +669,6 @@ GdipSetImageAttributesCachedBackground (GpImageAttributes *imageattr, BOOL enabl
 	if (!imageattr)
 		return InvalidParameter;
 
-	return NotImplemented;
+	// This has no effect in GDI+.
+	return Ok;
 }
