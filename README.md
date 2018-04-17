@@ -54,6 +54,11 @@ Run the following command from the root of the repository:
 
 	make check
 
+To run the tests with Clang sanitizers, run the following command from the root of the repository:
+
+	./autogen.sh CC=clang CFLAGS=-fsanitize=address,signed-integer-overflow,undefined LDFLAGS=-fsanitize=address,signed-integer-overflow,undefined CXX=clang++ CXXFLAGS=-fsanitize=address,signed-integer-overflow,undefined
+	make check
+
 ### Installing libgdiplus
 
 Run the following command from the root of the repository:
