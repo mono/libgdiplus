@@ -84,8 +84,6 @@ static void test_setImageAttributesToIdentity ()
 
 	GdipCreateImageAttributes (&attributes);
 
-	// FIXME: GdipSetImageAttributesToIdentity is NotImplemented.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipSetImageAttributesToIdentity (attributes, ColorAdjustTypeDefault);
 	assertEqualInt (status, Ok);
 
@@ -100,19 +98,18 @@ static void test_setImageAttributesToIdentity ()
 
 	status = GdipSetImageAttributesToIdentity (attributes, ColorAdjustTypeText);
 	assertEqualInt (status, Ok);
-#endif
 
 	// Negative tests.
 	status = GdipSetImageAttributesToIdentity (NULL, ColorAdjustTypeBitmap);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetImageAttributesToIdentity (attributes, (ColorAdjustType)(ColorAdjustTypeDefault -1));
-	assertEqualInt (status, InvalidParameter);
-
 	status = GdipSetImageAttributesToIdentity (attributes, ColorAdjustTypeCount);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetImageAttributesToIdentity (attributes, (ColorAdjustType)(ColorAdjustTypeCount + 1));
+	status = GdipSetImageAttributesToIdentity (attributes, ColorAdjustTypeAny);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetImageAttributesToIdentity (attributes, (ColorAdjustType)(ColorAdjustTypeAny + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDisposeImageAttributes (attributes);
@@ -125,8 +122,6 @@ static void test_resetImageAttributes ()
 
 	GdipCreateImageAttributes (&attributes);
 
-	// FIXME: GdipResetImageAttributes is NotImplemented.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipResetImageAttributes (attributes, ColorAdjustTypeDefault);
 	assertEqualInt (status, Ok);
 
@@ -141,19 +136,18 @@ static void test_resetImageAttributes ()
 
 	status = GdipResetImageAttributes (attributes, ColorAdjustTypeText);
 	assertEqualInt (status, Ok);
-#endif
 
 	// Negative tests.
 	status = GdipResetImageAttributes (NULL, ColorAdjustTypeBitmap);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipResetImageAttributes (attributes, (ColorAdjustType)(ColorAdjustTypeDefault -1));
-	assertEqualInt (status, InvalidParameter);
-
 	status = GdipResetImageAttributes (attributes, ColorAdjustTypeCount);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipResetImageAttributes (attributes, (ColorAdjustType)(ColorAdjustTypeCount + 1));
+	status = GdipResetImageAttributes (attributes, ColorAdjustTypeAny);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipResetImageAttributes (attributes, (ColorAdjustType)(ColorAdjustTypeAny + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDisposeImageAttributes (attributes);
@@ -171,6 +165,34 @@ static void test_setImageAttributesColorMatrix ()
 
 	GdipCreateImageAttributes (&attributes);
 
+	// Enable - ColorMatrixFlagsDefault, null gray matrix.
+	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeDefault, TRUE, &colorMatrix, NULL, ColorMatrixFlagsDefault);
+	assertEqualInt (status, Ok);
+
+	// Enable - ColorMatrixFlagsDefault, non-null gray matrix.
+	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeDefault, TRUE, &colorMatrix, &grayMatrix, ColorMatrixFlagsDefault);
+	assertEqualInt (status, Ok);
+
+	// Enable - ColorMatrixFlagsSkipGrays, null gray matrix.
+	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeDefault, TRUE, &colorMatrix, NULL, ColorMatrixFlagsSkipGrays);
+	assertEqualInt (status, Ok);
+
+	// Enable - ColorMatrixFlagsSkipGrays, non-null gray matrix.
+	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeDefault, TRUE, &colorMatrix, &grayMatrix, ColorMatrixFlagsSkipGrays);
+	assertEqualInt (status, Ok);
+
+	// Enable - ColorMatrixFlagsAltGray.
+	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeDefault, TRUE, &colorMatrix, &grayMatrix, ColorMatrixFlagsAltGray);
+	assertEqualInt (status, Ok);
+
+	// Disable.
+	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeDefault, FALSE, &colorMatrix, &grayMatrix, ColorMatrixFlagsAltGray);
+	assertEqualInt (status, Ok);
+
+	// Re-enable.
+	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeDefault, TRUE, &colorMatrix, NULL, ColorMatrixFlagsDefault);
+	assertEqualInt (status, Ok);
+
 	// Negative tests.
 	status = GdipSetImageAttributesColorMatrix (NULL, ColorAdjustTypeBitmap, TRUE, &colorMatrix, &grayMatrix, ColorMatrixFlagsSkipGrays);
 	assertEqualInt (status, InvalidParameter);
@@ -178,13 +200,16 @@ static void test_setImageAttributesColorMatrix ()
 	status = GdipSetImageAttributesColorMatrix (NULL, ColorAdjustTypeBitmap, FALSE, &colorMatrix, &grayMatrix, ColorMatrixFlagsSkipGrays);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetImageAttributesColorMatrix (attributes, (ColorAdjustType)(ColorAdjustTypeDefault - 1), TRUE, &colorMatrix, &grayMatrix, ColorMatrixFlagsSkipGrays);
-	assertEqualInt (status, InvalidParameter);
-
 	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeCount, TRUE, &colorMatrix, &grayMatrix, ColorMatrixFlagsSkipGrays);
 	assertEqualInt (status, InvalidParameter);
 
+	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeCount, FALSE, &colorMatrix, &grayMatrix, ColorMatrixFlagsSkipGrays);
+	assertEqualInt (status, InvalidParameter);
+
 	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeAny, TRUE, &colorMatrix, &grayMatrix, ColorMatrixFlagsSkipGrays);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeAny, FALSE, &colorMatrix, &grayMatrix, ColorMatrixFlagsSkipGrays);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetImageAttributesColorMatrix (attributes, (ColorAdjustType)(ColorAdjustTypeAny + 1), TRUE, &colorMatrix, &grayMatrix, ColorMatrixFlagsSkipGrays);
@@ -193,13 +218,10 @@ static void test_setImageAttributesColorMatrix ()
 	status = GdipSetImageAttributesColorMatrix (attributes, (ColorAdjustType)(ColorAdjustTypeAny + 1), FALSE, &colorMatrix, &grayMatrix, ColorMatrixFlagsSkipGrays);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeDefault, TRUE, &colorMatrix, &grayMatrix, (ColorMatrixFlags)(ColorMatrixFlagsDefault - 1));
-	assertEqualInt (status, InvalidParameter);
-
 	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeDefault, TRUE, &colorMatrix, &grayMatrix, (ColorMatrixFlags)(ColorMatrixFlagsAltGray + 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeDefault, FALSE, &colorMatrix, &grayMatrix, (ColorMatrixFlags)(ColorMatrixFlagsDefault - 1));
+	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeDefault, FALSE, &colorMatrix, &grayMatrix, (ColorMatrixFlags)(ColorMatrixFlagsAltGray + 1));
 	assertEqualInt (status, Ok);
 
 	status = GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeDefault, TRUE, NULL, &grayMatrix, ColorMatrixFlagsDefault);
@@ -230,8 +252,6 @@ static void test_setImageAttributesThreshold ()
 
 	GdipCreateImageAttributes (&attributes);
 
-	// FIXME: GdipSetImageAttributesThreshold is not implemented in libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
 	// Positive value.
 	status = GdipSetImageAttributesThreshold (attributes, ColorAdjustTypeDefault, TRUE, 100);
 	assertEqualInt (status, Ok);
@@ -247,19 +267,28 @@ static void test_setImageAttributesThreshold ()
 	// Disabled.
 	status = GdipSetImageAttributesThreshold (attributes, ColorAdjustTypeDefault, FALSE, 0);
 	assertEqualInt (status, Ok);
-#endif
+
+	// Re-enable.
+	status = GdipSetImageAttributesThreshold (attributes, ColorAdjustTypeDefault, TRUE, 100);
+	assertEqualInt (status, Ok);
 
 	// Negative tests.
 	status = GdipSetImageAttributesThreshold (NULL, ColorAdjustTypeDefault, TRUE, 1);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetImageAttributesThreshold (attributes, (ColorAdjustType)(ColorAdjustTypeDefault - 1), TRUE, 1);
+	status = GdipSetImageAttributesThreshold (NULL, ColorAdjustTypeDefault, FALSE, 1);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetImageAttributesThreshold (attributes, ColorAdjustTypeCount, TRUE, 1);
 	assertEqualInt (status, InvalidParameter);
 
+	status = GdipSetImageAttributesThreshold (attributes, ColorAdjustTypeCount, FALSE, 1);
+	assertEqualInt (status, InvalidParameter);
+
 	status = GdipSetImageAttributesThreshold (attributes, ColorAdjustTypeAny, TRUE, 1);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetImageAttributesThreshold (attributes, ColorAdjustTypeAny, FALSE, 1);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetImageAttributesThreshold (attributes, (ColorAdjustType)(ColorAdjustTypeAny + 1), TRUE, 1);
@@ -286,17 +315,27 @@ static void test_setImageAttributesGamma ()
 	status = GdipSetImageAttributesGamma (attributes, ColorAdjustTypeDefault, FALSE, 10);
 	assertEqualInt (status, Ok);
 
+	// Re-enable.
+	status = GdipSetImageAttributesGamma (attributes, ColorAdjustTypeDefault, TRUE, 100);
+	assertEqualInt (status, Ok);
+
 	// Negative tests.
 	status = GdipSetImageAttributesGamma (NULL, ColorAdjustTypeDefault, TRUE, 1);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetImageAttributesGamma (attributes, (ColorAdjustType)(ColorAdjustTypeDefault - 1), TRUE, 1);
+	status = GdipSetImageAttributesGamma (NULL, ColorAdjustTypeDefault, FALSE, 1);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetImageAttributesGamma (attributes, ColorAdjustTypeCount, TRUE, 1);
 	assertEqualInt (status, InvalidParameter);
 
+	status = GdipSetImageAttributesGamma (attributes, ColorAdjustTypeCount, FALSE, 1);
+	assertEqualInt (status, InvalidParameter);
+
 	status = GdipSetImageAttributesGamma (attributes, ColorAdjustTypeAny, TRUE, 1);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetImageAttributesGamma (attributes, ColorAdjustTypeAny, FALSE, 1);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetImageAttributesGamma (attributes, (ColorAdjustType)(ColorAdjustTypeAny + 1), TRUE, 1);
@@ -312,6 +351,9 @@ static void test_setImageAttributesGamma ()
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetImageAttributesGamma (attributes, ColorAdjustTypeDefault, FALSE, 0);
+	assertEqualInt (status, Ok);
+
+	status = GdipSetImageAttributesGamma (attributes, ColorAdjustTypeDefault, FALSE, -1);
 	assertEqualInt (status, Ok);
 
 	GdipDisposeImageAttributes (attributes);
@@ -336,16 +378,25 @@ static void test_setImageAttributesNop ()
 	status = GdipSetImageAttributesNoOp (NULL, ColorAdjustTypeDefault, TRUE);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetImageAttributesNoOp (attributes, (ColorAdjustType)(ColorAdjustTypeDefault - 1), TRUE);
+	status = GdipSetImageAttributesNoOp (NULL, ColorAdjustTypeDefault, FALSE);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetImageAttributesNoOp (attributes, ColorAdjustTypeCount, TRUE);
 	assertEqualInt (status, InvalidParameter);
 
+	status = GdipSetImageAttributesNoOp (attributes, ColorAdjustTypeCount, FALSE);
+	assertEqualInt (status, InvalidParameter);
+
 	status = GdipSetImageAttributesNoOp (attributes, ColorAdjustTypeAny, TRUE);
 	assertEqualInt (status, InvalidParameter);
 
+	status = GdipSetImageAttributesNoOp (attributes, ColorAdjustTypeAny, FALSE);
+	assertEqualInt (status, InvalidParameter);
+
 	status = GdipSetImageAttributesNoOp (attributes, (ColorAdjustType)(ColorAdjustTypeAny + 1), TRUE);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetImageAttributesNoOp (attributes, (ColorAdjustType)(ColorAdjustTypeAny + 1), FALSE);
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDisposeImageAttributes (attributes);
@@ -392,17 +443,19 @@ static void test_setImageAttributesOutputChannel ()
 
 	GdipCreateImageAttributes (&attributes);
 
-	// FIXME: GdipSetImageAttributesOutputChannel is not implemented in libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
+	// Enable - ColorChannelFlagsC.
 	status = GdipSetImageAttributesOutputChannel (attributes, ColorAdjustTypeDefault, TRUE, ColorChannelFlagsC);
 	assertEqualInt (status, Ok);
 
+	// Enable - ColorChannelFlagsM.
 	status = GdipSetImageAttributesOutputChannel (attributes, ColorAdjustTypeDefault, TRUE, ColorChannelFlagsM);
 	assertEqualInt (status, Ok);
 
+	// Enable - ColorChannelFlagsY.
 	status = GdipSetImageAttributesOutputChannel (attributes, ColorAdjustTypeDefault, TRUE, ColorChannelFlagsY);
 	assertEqualInt (status, Ok);
 
+	// Enable - ColorChannelFlagsK.
 	status = GdipSetImageAttributesOutputChannel (attributes, ColorAdjustTypeDefault, TRUE, ColorChannelFlagsK);
 	assertEqualInt (status, Ok);
 
@@ -410,7 +463,9 @@ static void test_setImageAttributesOutputChannel ()
 	status = GdipSetImageAttributesOutputChannel (attributes, ColorAdjustTypeDefault, FALSE, ColorChannelFlagsY);
 	assertEqualInt (status, Ok);
 
-#endif
+	// Re-enable.
+	status = GdipSetImageAttributesOutputChannel (attributes, ColorAdjustTypeDefault, TRUE, ColorChannelFlagsC);
+	assertEqualInt (status, Ok);
 
 	// Negative tests.
 	status = GdipSetImageAttributesOutputChannel (NULL, ColorAdjustTypeDefault, TRUE, ColorChannelFlagsK);
@@ -440,11 +495,8 @@ static void test_setImageAttributesOutputChannel ()
 	status = GdipSetImageAttributesOutputChannel (attributes, ColorAdjustTypeDefault, TRUE, (ColorChannelFlags)(ColorChannelFlagsLast + 1));
 	assertEqualInt (status, InvalidParameter);
 
-	// GdipSetImageAttributesOutputChannel is not implemented in libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipSetImageAttributesOutputChannel (attributes, ColorAdjustTypeDefault, FALSE, (ColorChannelFlags)(ColorChannelFlagsC - 1));
 	assertEqualInt (status, Ok);
-#endif
 
 	GdipDisposeImageAttributes (attributes);
 }
@@ -453,48 +505,65 @@ static void test_setImageAttributesOutputChannelColorProfile ()
 {
 	GpStatus status;
 	GpImageAttributes *attributes;
-	WCHAR *colorProfileName = createWchar ("Name");
+	WCHAR *colorProfileName = createWchar ("AdobeRGB1998.icc");
+	WCHAR *noSuchFileName = createWchar ("Name");
+	WCHAR *invalidFileName = createWchar ("test.bmp");
 
 	GdipCreateImageAttributes (&attributes);
 
-	// FIXME: GdipSetImageAttributesOutputChannelColorProfile is not implemented in libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
 	// Enabled.
 	status = GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeDefault, TRUE, colorProfileName);
-	assertEqualInt (status, OutOfMemory);
+	assertEqualInt (status, Ok);
 
 	// Disabled.
 	status = GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeDefault, FALSE, colorProfileName);
 	assertEqualInt (status, Ok);
-#endif
+
+	// Re-enable.
+	status = GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeDefault, TRUE, colorProfileName);
+	assertEqualInt (status, Ok);
 
 	// Negative tests.
 	status = GdipSetImageAttributesOutputChannelColorProfile (NULL, ColorAdjustTypeDefault, TRUE, colorProfileName);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetImageAttributesOutputChannelColorProfile (attributes, (ColorAdjustType)(ColorAdjustTypeDefault - 1), TRUE, colorProfileName);
+	status = GdipSetImageAttributesOutputChannelColorProfile (NULL, ColorAdjustTypeDefault, FALSE, colorProfileName);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeCount, TRUE, colorProfileName);
 	assertEqualInt (status, InvalidParameter);
 
+	status = GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeCount, FALSE, colorProfileName);
+	assertEqualInt (status, InvalidParameter);
+
 	status = GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeAny, TRUE, colorProfileName);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeAny, FALSE, colorProfileName);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetImageAttributesOutputChannelColorProfile (attributes, (ColorAdjustType)(ColorAdjustTypeAny + 1), TRUE, colorProfileName);
 	assertEqualInt (status, InvalidParameter);
 
+	status = GdipSetImageAttributesOutputChannelColorProfile (attributes, (ColorAdjustType)(ColorAdjustTypeAny + 1), FALSE, colorProfileName);
+	assertEqualInt (status, InvalidParameter);
+
 	status = GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeDefault, TRUE, NULL);
 	assertEqualInt (status, Win32Error);
 
-	// GdipSetImageAttributesOutputChannelColorProfile is not implemented in libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeDefault, FALSE, NULL);
 	assertEqualInt (status, Ok);
-#endif
+
+	status = GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeDefault, TRUE, noSuchFileName);
+	assertEqualInt (status, OutOfMemory);
+
+	status = GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeDefault, FALSE, noSuchFileName);
+	assertEqualInt (status, Ok);
 
 	GdipDisposeImageAttributes (attributes);
 	freeWchar (colorProfileName);
+	freeWchar (noSuchFileName);
+	freeWchar (invalidFileName);
 }
 
 static void test_setImageAttributesRemapTable ()
@@ -516,20 +585,33 @@ static void test_setImageAttributesRemapTable ()
 	status = GdipSetImageAttributesRemapTable (attributes, ColorAdjustTypeDefault, FALSE, 1, remapTable);
 	assertEqualInt (status, Ok);
 
+	// Re-enable.
+	status = GdipSetImageAttributesRemapTable (attributes, ColorAdjustTypeDefault, TRUE, 2, remapTable);
+	assertEqualInt (status, Ok);
+
 	// Negative tests.
 	status = GdipSetImageAttributesRemapTable (NULL, ColorAdjustTypeDefault, TRUE, 1, remapTable);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetImageAttributesRemapTable (attributes, (ColorAdjustType)(ColorAdjustTypeDefault - 1), TRUE, 2, remapTable);
+	status = GdipSetImageAttributesRemapTable (NULL, ColorAdjustTypeDefault, FALSE, 1, remapTable);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetImageAttributesRemapTable (attributes, ColorAdjustTypeCount, TRUE, 2, remapTable);
 	assertEqualInt (status, InvalidParameter);
 
+	status = GdipSetImageAttributesRemapTable (attributes, ColorAdjustTypeCount, FALSE, 2, remapTable);
+	assertEqualInt (status, InvalidParameter);
+
 	status = GdipSetImageAttributesRemapTable (attributes, ColorAdjustTypeAny, TRUE, 2, remapTable);
 	assertEqualInt (status, InvalidParameter);
 
+	status = GdipSetImageAttributesRemapTable (attributes, ColorAdjustTypeAny, FALSE, 2, remapTable);
+	assertEqualInt (status, InvalidParameter);
+
 	status = GdipSetImageAttributesRemapTable (attributes, (ColorAdjustType)(ColorAdjustTypeAny + 1), TRUE, 2, remapTable);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetImageAttributesRemapTable (attributes, (ColorAdjustType)(ColorAdjustTypeAny + 1), FALSE, 2, remapTable);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetImageAttributesRemapTable (attributes, ColorAdjustTypeDefault, TRUE, 0, remapTable);
@@ -595,15 +677,11 @@ static void test_setImageAttributesICMMode ()
 
 	GdipCreateImageAttributes (&attributes);
 
-
-	// FIXME: GdipSetImageAttributesICMMode is not implemented in libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipSetImageAttributesICMMode (attributes, TRUE);
 	assertEqualInt (status, Ok);
 
 	status = GdipSetImageAttributesICMMode (attributes, FALSE);
 	assertEqualInt (status, Ok);
-#endif
 
 	// Negative tests.
 	status = GdipSetImageAttributesICMMode (NULL, FALSE);
@@ -677,14 +755,11 @@ static void test_setImageAttributesCachedBackground()
 
 	GdipCreateImageAttributes (&attributes);
 
-	// FIXME: GdipSetImageAttributesCachedBackground is not implemented in libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipSetImageAttributesCachedBackground (attributes, TRUE);
 	assertEqualInt (status, Ok);
 
 	status = GdipSetImageAttributesCachedBackground (attributes, FALSE);
 	assertEqualInt (status, Ok);
-#endif
 
 	// Negative tests.
 	status = GdipSetImageAttributesCachedBackground (NULL, TRUE);
