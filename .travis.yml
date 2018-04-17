@@ -27,7 +27,7 @@ script:
 - export CFLAGS="-ggdb3 -O2"
 - echo "travis_fold:start:build_libgdiplus"
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./autogen.sh --prefix=/tmp/mono-dev --enable-warnaserror; fi
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./autogen.sh --without-x11 --prefix=/tmp/mono-dev --enable-warnaserror; fi
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./autogen.sh --without-x11 --prefix=/tmp/mono-dev --enable-warnaserror CC=clang CFLAGS=-fsanitize=address,signed-integer-overflow,undefined LDFLAGS=-fsanitize=address,signed-integer-overflow,undefined CXX=clang++ CXXFLAGS=-fsanitize=address,signed-integer-overflow,undefined; fi
 - make -j4
 - echo "travis_fold:end:build_libgdiplus"
 - /bin/sh -c 'if make check; then true; else cat ./tests/test-suite.log; exit 1; fi'
