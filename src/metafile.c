@@ -1284,6 +1284,9 @@ update_emf_header (MetafileHeader *header, BYTE* data, int length)
 	GpStatus status = Ok;
 	MetafilePlayContext context;
 	GpMetafile mf;
+	if (length < sizeof (DWORD))
+		return Ok;
+
 	DWORD *func = (DWORD*)data;
 
 	switch (*func) {
