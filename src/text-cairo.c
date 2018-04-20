@@ -237,7 +237,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 
 	/* unless specified we don't consider the trailing spaces, unless there is just one space (#80680) */
 	if ((format->formatFlags & StringFormatFlagsMeasureTrailingSpaces) == 0) {
-		while ((StringLen > 0) && (isspace ((int) ((unsigned char) *(Src + StringLen - 1)))))
+		while ((StringLen > 0) && (isspace ((int) ( *(Src + StringLen - 1)))))
 			StringLen--;
 		if (StringLen == 0)
 			StringLen = 1;
