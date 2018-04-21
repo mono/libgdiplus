@@ -246,7 +246,6 @@ GpStatus WINGDIPAPI
 GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen)
 {
 	GpStatus status;
-	GpSolidFill *solidBrush = NULL;
 	GpPen *result;
 
 	if (!pen || unit < UnitWorld || unit > UnitCairoPoint || unit == UnitDisplay)
