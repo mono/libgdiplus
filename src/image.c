@@ -446,8 +446,7 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, REAL x, REAL y, REAL wi
 	/* Create a surface for this bitmap if one doesn't exist */
 	gdip_bitmap_ensure_surface (image);
 	
-	if (graphics->type != gtMemoryBitmap &&
-		gdip_bitmap_format_needs_premultiplication (image)) {
+	if (gdip_bitmap_format_needs_premultiplication (image)) {
 		premul = gdip_bitmap_get_premultiplied_scan0 (image);
 		if (premul) {
 			BitmapData *data = image->active_bitmap;
