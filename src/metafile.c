@@ -1047,7 +1047,21 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 
 	/* defaults */
 	context->fill_mode = FillModeAlternate;
-	gdip_metafile_SetMapMode (context, MM_TWIPS);
+	switch (context->metafile->metafile_header.Type) {
+		case MetafileTypeWmfPlaceable:
+		case MetafileTypeWmf:
+			gdip_metafile_SetMapMode (context, MM_TWIPS);
+			break;
+		case MetafileTypeEmf:
+		case MetafileTypeEmfPlusOnly:
+		case MetafileTypeEmfPlusDual:
+			gdip_metafile_SetMapMode (context, MM_TEXT);
+			break;
+		default:
+			GdipFree (context);
+			return NULL;
+	}
+
 	context->miter_limit = 10.0f;
 	context->selected_pen =  ENHMETA_STOCK_OBJECT + BLACK_PEN;
 	context->selected_brush = ENHMETA_STOCK_OBJECT + WHITE_BRUSH;
