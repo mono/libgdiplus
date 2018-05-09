@@ -17,6 +17,7 @@ This requires the libraries used by the Cairo vector graphics library to build (
 On **OSX** you can use [Homebrew](https://brew.sh/) to install the dependencies:
 
 	brew install glib cairo libexif libjpeg giflib libtiff autoconf libtool automake pkg-config
+	brew link gettext --force
 
 On **Debian-based Linux distributions** you can use `apt-get` to install the dependencies:
 
