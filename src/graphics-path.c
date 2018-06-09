@@ -107,8 +107,11 @@ append (GpPath *path, float x, float y, PathPointType type, BOOL compress)
 		if ((lastPoint.X == x) && (lastPoint.Y == y)) {
 			/* types need not be identical but must handle closed subpaths */
 			PathPointType last_type = path->types[path->count - 1];
-			if ((last_type & PathPointTypeCloseSubpath) != PathPointTypeCloseSubpath)
+			if ((last_type & PathPointTypeCloseSubpath) != PathPointTypeCloseSubpath) {
+				if ((type & PathPointTypeCloseSubpath) == PathPointTypeCloseSubpath) 
+					path->types[path->count - 1] |= PathPointTypeCloseSubpath;
 				return;
+			}
 		}
 	}
 
@@ -1189,7 +1192,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	if (emSize == 0)
 		return GenericError;
 
-	cs = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 1, 1);
+	cs = cairo_recording_surface_create (CAIRO_FORMAT_ARGB32, NULL);
 	if (cairo_surface_status (cs) != CAIRO_STATUS_SUCCESS) {
 		cairo_surface_destroy (cs);
 		return OutOfMemory;
@@ -1286,9 +1289,10 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 		if (gdip_path_ensure_size (path, path->count + count)) {
 			for (i=0; i < cp->num_data; i += cp->data[i].header.length) {
 				PathPointType type = PathPointTypeStart;
+				int dataLength = cp->data[i].header.length;
 				cairo_path_data_t *data = &cp->data[i];
 
-				if ((i < cp->num_data - 1) && (data->header.type == CAIRO_PATH_CLOSE_PATH))
+				if ((i < cp->num_data - dataLength) && (cp->data[i + dataLength].header.type == CAIRO_PATH_CLOSE_PATH))
 					type |= PathPointTypeCloseSubpath;
 
 				switch (data->header.type) {
