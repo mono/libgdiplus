@@ -160,6 +160,113 @@ static void test_createRegionRectI ()
 	assertEqualInt (status, InvalidParameter);
 }
 
+static void test_createRegionPath ()
+{
+	GpStatus status;
+	GpPath *path;
+	GpRegion *region;
+
+	// Normal path.
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 10, 20, 30, 40);
+
+	status = GdipCreateRegionPath (path, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
+	GdipDeleteRegion (region);
+	GdipDeletePath (path);
+
+	// Empty path.
+	GdipCreatePath (FillModeWinding, &path);
+
+	status = GdipCreateRegionPath (path, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+	GdipDeleteRegion (region);
+	GdipDeletePath (path);
+
+	// Infinite path - rectangle.
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f);
+
+	status = GdipCreateRegionPath (path, &region);
+	assertEqualInt (status, Ok);
+	// FIXME: libgdiplus does not identify this as an infinite region.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+#else
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, FALSE);
+#endif
+	GdipDeleteRegion (region);
+	GdipDeletePath (path);
+
+	// Infinite path - polygon.
+	GdipCreatePath (FillModeWinding, &path);
+	PointF polygonPoints[] = {
+		{-4194304, -4194304},
+		{-4194304, 4194304},
+		{4194304, 4194304},
+		{4194304, -4194304},
+		{-4194304, -4194304}
+	};
+	GdipAddPathPolygon (path, polygonPoints, 5);
+
+	status = GdipCreateRegionPath (path, &region);
+	assertEqualInt (status, Ok);
+	// FIXME: libgdiplus does not identify this as an infinite region.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+#else
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, FALSE);
+#endif
+	GdipDeleteRegion (region);
+	GdipDeletePath (path);
+
+	// Empty path - curve.
+	GdipCreatePath (FillModeWinding, &path);
+	PointF emptyCurvePoints[] = {
+		{10, 10},
+		{20, 20}
+	};
+	status = GdipAddPathCurve (path, emptyCurvePoints, 2);
+
+	status = GdipCreateRegionPath (path, &region);
+	assertEqualInt (status, Ok);
+	// FIXME: libgdiplus does not identify this as an empty infinite region.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, 10, 10, 10, 10, TRUE, FALSE);
+#else
+	verifyRegion (region, 10, 10, 10, 10, FALSE, FALSE);
+#endif
+	GdipDeleteRegion (region);
+	GdipDeletePath (path);
+
+	// Not infinite path - curve.
+	GdipCreatePath (FillModeWinding, &path);
+	PointF infiniteCurvePoints[] = {
+		{-4194304.0f, -4194304.0f},
+		{4194304.0f, 4194304.0f}
+	};
+	status = GdipAddPathCurve (path, infiniteCurvePoints, 2);
+
+	status = GdipCreateRegionPath (path, &region);
+	assertEqualInt (status, Ok);
+	// FIXME: GetRegionBounds fails with OutOfMemory.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, TRUE, FALSE);
+#endif
+	GdipDeleteRegion (region);
+
+	// Negative tests.
+	status = GdipCreateRegionPath (NULL, &region);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipCreateRegionPath (path, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeletePath (path);
+}
+
 int
 main (int argc, char**argv)
 {
@@ -171,6 +278,7 @@ main (int argc, char**argv)
 	test_createRegion ();
 	test_createRegionRect ();
 	test_createRegionRectI ();
+	test_createRegionPath ();
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);

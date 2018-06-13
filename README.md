@@ -17,6 +17,7 @@ This requires the libraries used by the Cairo vector graphics library to build (
 On **OSX** you can use [Homebrew](https://brew.sh/) to install the dependencies:
 
 	brew install glib cairo libexif libjpeg giflib libtiff autoconf libtool automake pkg-config
+	brew link gettext --force
 
 On **Debian-based Linux distributions** you can use `apt-get` to install the dependencies:
 
@@ -52,6 +53,11 @@ To build on **Windows**, open `libgdiplus.sln`.
 
 Run the following command from the root of the repository:
 
+	make check
+
+To run the tests with Clang sanitizers, run the following command from the root of the repository:
+
+	./autogen.sh CC=clang CFLAGS=-fsanitize=address,signed-integer-overflow,undefined LDFLAGS=-fsanitize=address,signed-integer-overflow,undefined CXX=clang++ CXXFLAGS=-fsanitize=address,signed-integer-overflow,undefined
 	make check
 
 ### Installing libgdiplus

@@ -211,6 +211,7 @@ ATTRIBUTE_USED static BOOL is_32bit()
 
 #define verifyPixels(image, expectedPixels) \
 { \
+    GpStatus status; \
     UINT width; \
     UINT height; \
     GdipGetImageWidth ((GpBitmap *) image, &width); \
@@ -222,12 +223,14 @@ ATTRIBUTE_USED static BOOL is_32bit()
         { \
             ARGB expected = expectedPixels[x + y * width]; \
             ARGB actual; \
-            GdipBitmapGetPixel ((GpBitmap *) image, x, y, &actual); \
+            status = GdipBitmapGetPixel ((GpBitmap *) image, x, y, &actual); \
+            assertEqualInt (status, Ok); \
             if (actual != expected) \
             { \
                 fprintf (stderr, "Pixel [%u, %u]\n", x, y); \
                 fprintf (stderr, "Expected: 0x%08X\n", expected); \
                 fprintf (stderr, "Actual:   0x%08X\n", actual);   \
+                dumpPixels (image); \
                 assert (expected == actual); \
             } \
         } \
@@ -263,30 +266,30 @@ ATTRIBUTE_USED static void dumpBytes(BYTE *bytes, int length)
 // A utility for dumping pixel arrays to the console for debugging purposes.
 ATTRIBUTE_USED static void dumpPixels (GpImage *image)
 {
-	UINT width;
-	UINT height;
-	GdipGetImageWidth (image, &width);
-	GdipGetImageHeight (image, &height);
+    UINT width;
+    UINT height;
+    GdipGetImageWidth (image, &width);
+    GdipGetImageHeight (image, &height);
 
-	for (UINT y = 0; y < height; y++)
-	{
-		for (UINT x = 0; x < width; x++)
-		{
-			ARGB pixel;
-			GdipBitmapGetPixel ((GpBitmap *) image, x, y, &pixel);
-			printf ("0x%08X", pixel);
-			if (x != width - 1)
-			{
-				printf(", ");
-			}
+    for (UINT y = 0; y < height; y++)
+    {
+        for (UINT x = 0; x < width; x++)
+        {
+            ARGB pixel;
+            GdipBitmapGetPixel ((GpBitmap *) image, x, y, &pixel);
+            printf ("0x%08X", pixel);
+            if (x != width - 1)
+            {
+                printf(", ");
+            }
             else if (y != height - 1)
             {
                 printf(",");
             }
-		}
+        }
 
-		printf("\n");
-	}
+        printf("\n");
+    }
 }
 
 ATTRIBUTE_USED static void deleteFile(const char *file)

@@ -558,11 +558,45 @@ GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 	return Ok;
 }
 
+static GpStatus
+apply_world_to_bounds (GpGraphics *graphics)
+{
+	GpStatus status;
+	GpPointF pts[2];
+
+	pts[0].X = graphics->bounds.X;
+	pts[0].Y = graphics->bounds.Y;
+	pts[1].X = graphics->bounds.X + graphics->bounds.Width;
+	pts[1].Y = graphics->bounds.Y + graphics->bounds.Height;
+	status = GdipTransformMatrixPoints (graphics->clip_matrix, (GpPointF*)&pts, 2);
+	if (status != Ok)
+		return status;
+
+	if (pts[0].X > pts[1].X) {
+		graphics->bounds.X = pts[1].X;
+		graphics->bounds.Width = iround (pts[0].X - pts[1].X);
+	} else {
+		graphics->bounds.X = pts[0].X;
+		graphics->bounds.Width = iround (pts[1].X - pts[0].X);
+	}
+	if (pts[0].Y > pts[1].Y) {
+		graphics->bounds.Y = pts[1].Y;
+		graphics->bounds.Height = iround (pts[0].Y - pts[1].Y);
+	} else {
+		graphics->bounds.Y = pts[0].Y;
+		graphics->bounds.Height = iround (pts[1].Y - pts[0].Y);
+	}
+	return Ok;
+}
+
 GpStatus WINGDIPAPI
 GdipResetWorldTransform (GpGraphics *graphics)
 {
 	if (!graphics)
 		return InvalidParameter;
+
+	GdipInvertMatrix (graphics->clip_matrix);
+	apply_world_to_bounds (graphics);
 
 	cairo_matrix_init_identity (graphics->copy_of_ctm);
 	cairo_matrix_init_identity (graphics->clip_matrix);
@@ -637,37 +671,6 @@ GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 	return Ok;
 }
 
-static GpStatus
-apply_world_to_bounds (GpGraphics *graphics)
-{
-	GpStatus status;
-	GpPointF pts[2];
-
-	pts[0].X = graphics->bounds.X;
-	pts[0].Y = graphics->bounds.Y;
-	pts[1].X = graphics->bounds.X + graphics->bounds.Width;
-	pts[1].Y = graphics->bounds.Y + graphics->bounds.Height;
-	status = GdipTransformMatrixPoints (graphics->clip_matrix, (GpPointF*)&pts, 2);
-	if (status != Ok)
-		return status;
-
-	if (pts[0].X > pts[1].X) {
-		graphics->bounds.X = pts[1].X;
-		graphics->bounds.Width = iround (pts[0].X - pts[1].X);
-	} else {
-		graphics->bounds.X = pts[0].X;
-		graphics->bounds.Width = iround (pts[1].X - pts[0].X);
-	}
-	if (pts[0].Y > pts[1].Y) {
-		graphics->bounds.Y = pts[1].Y;
-		graphics->bounds.Height = iround (pts[0].Y - pts[1].Y);
-	} else {
-		graphics->bounds.Y = pts[0].Y;
-		graphics->bounds.Height = iround (pts[1].Y - pts[0].Y);
-	}
-	return Ok;
-}
-
 GpStatus WINGDIPAPI
 GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrder order)
 {
@@ -717,6 +720,9 @@ GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order
 
 	if (!graphics)
 		return InvalidParameter;
+
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
 
 	s = GdipRotateMatrix (graphics->copy_of_ctm, angle, order);
 		if (s != Ok)
@@ -1959,6 +1965,9 @@ GdipSetClipGraphics (GpGraphics *graphics, GpGraphics *srcgraphics, CombineMode 
 	if (!graphics || !srcgraphics)
 		return InvalidParameter;
 
+	if (srcgraphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+
 	return GdipSetClipRegion (graphics, srcgraphics->clip, combineMode);
 }
 
@@ -1971,6 +1980,9 @@ GdipSetClipRect (GpGraphics *graphics, REAL x, REAL y, REAL width, REAL height, 
 
 	if (!graphics)
 		return InvalidParameter;
+
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
 
 	rect.X = x;
 	rect.Y = y;
@@ -2076,6 +2088,9 @@ GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMo
 	if (!graphics || !region)
 		return InvalidParameter;
 
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+
 	/* if the matrix is empty, avoid region cloning and transform */
 	if (gdip_is_matrix_empty (graphics->clip_matrix)) {
 		work = region;
@@ -2118,21 +2133,13 @@ GdipSetClipHrgn (GpGraphics *graphics, void *hRgn, CombineMode combineMode)
 {
 	GpStatus status;
 
-	if (!graphics)
+	if (!graphics || !hRgn)
 		return InvalidParameter;
 
-	if (hRgn) {
-		status = GdipSetClipRegion (graphics, (GpRegion*)hRgn, combineMode);
-	} else {
-		/* hRng == NULL means an infinite region */
-		GpRegion *work;
-		status = GdipCreateRegion (&work);
-		if (status == Ok) {
-			status = GdipSetClipRegion (graphics, work, combineMode);
-			GdipDeleteRegion (work);
-		}
-	}
-	return status;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+		
+	return GdipSetClipRegion (graphics, (GpRegion*)hRgn, combineMode);
 }
 
 GpStatus WINGDIPAPI
@@ -2140,6 +2147,9 @@ GdipResetClip (GpGraphics *graphics)
 {
 	if (!graphics)
 		return InvalidParameter;
+
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
 
 	GdipSetInfinite (graphics->clip);
 	cairo_matrix_init_identity (graphics->clip_matrix);
@@ -2161,6 +2171,9 @@ GdipTranslateClip (GpGraphics *graphics, REAL dx, REAL dy)
 
 	if (!graphics)
 		return InvalidParameter;
+
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
 
 	status = GdipTranslateRegion (graphics->clip, dx, dy);
 	if (status != Ok)
@@ -2188,6 +2201,9 @@ GdipGetClip (GpGraphics *graphics, GpRegion *region)
 {
 	if (!graphics || !region)
 		return InvalidParameter;
+	
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
 
 	gdip_clear_region (region);
 	gdip_copy_region (graphics->clip, region);
@@ -2205,6 +2221,9 @@ GdipGetClipBounds (GpGraphics *graphics, GpRectF *rect)
 
 	if (!graphics || !rect)
 		return InvalidParameter;
+
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
 
 	/* if the matrix is empty, avoid region cloning and transform */
 	if (gdip_is_matrix_empty (graphics->clip_matrix)) {
@@ -2228,10 +2247,10 @@ GdipGetClipBoundsI (GpGraphics *graphics, GpRect *rect)
 	GpRectF rectF;
 	GpStatus status;
 
-	if (!graphics || !rect)
+	if (!rect)
 		return InvalidParameter;
 
-	status = GdipGetRegionBounds (graphics->clip, graphics, &rectF);
+	status = GdipGetClipBounds (graphics, &rectF);
 	if (status != Ok)
 		return status;
 
@@ -2244,6 +2263,9 @@ GdipIsClipEmpty (GpGraphics *graphics, BOOL *result)
 {
 	if (!graphics)
 		return InvalidParameter;
+
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
 
 	return GdipIsEmptyRegion (graphics->clip, graphics, result);
 }
@@ -2266,6 +2288,9 @@ GdipGetVisibleClipBounds (GpGraphics *graphics, GpRectF *rect)
 {
 	if (!graphics || !rect)
 		return InvalidParameter;
+
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
 
 	if (!gdip_is_InfiniteRegion (graphics->clip)) {
 		GpRectF clipbound;
@@ -2309,10 +2334,17 @@ GdipGetVisibleClipBoundsI (GpGraphics *graphics, GpRect *rect)
 GpStatus WINGDIPAPI
 GdipIsVisibleClipEmpty (GpGraphics *graphics, BOOL *result)
 {
+	GpRectF visibleClipBounds;
+
 	if (!graphics || !result)
 		return InvalidParameter;
 
-	*result = (graphics->bounds.Width == 0 || graphics->bounds.Height == 0);
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	
+	GdipGetVisibleClipBounds (graphics, &visibleClipBounds);
+
+	*result = visibleClipBounds.Width == 0 || visibleClipBounds.Height == 0;
 	return Ok;
 }
 

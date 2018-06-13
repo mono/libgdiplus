@@ -1850,7 +1850,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST Rect *srcRect, UINT flags, Pixel
 
 	/* Is this bitmap already locked? */
 	if (root_data->reserved & GBD_LOCKED)
-		return Win32Error;
+		return WrongState;
 
 	/* Make sure the srcRect makes sense */
 	if ((srcRect->X < 0) || (srcRect->Y < 0) || (srcRect->Width < 0) || (srcRect->Height < 0))
@@ -2061,10 +2061,10 @@ GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color)
 		palette_index = gdip_pixel_stream_get_next (&pixel_stream);
 
 		if (palette_index >= data->palette->Count) {
-			return InvalidParameter;
+			*color = 0xFF000000;
+		} else {
+			*color = data->palette->Entries[palette_index];
 		}
-
-		*color = data->palette->Entries[palette_index];
 	} else {
 		BYTE *v = ((BYTE*)data->scan0) + y * data->stride;
 

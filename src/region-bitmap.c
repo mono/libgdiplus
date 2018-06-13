@@ -943,6 +943,9 @@ process_line (GpRegionBitmap *bitmap, int y, int *x, int *w)
 int
 gdip_region_bitmap_get_scans (GpRegionBitmap *bitmap, GpRectF *rect, int count)
 {
+	if (!bitmap || !bitmap->Mask)
+		return 0;
+
 	GpRect actual;
 	int x, y, w;
 	int n = 0;

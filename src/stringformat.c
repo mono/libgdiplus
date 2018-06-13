@@ -264,7 +264,6 @@ GdipGetStringFormatTrimming (GDIPCONST GpStringFormat *format, StringTrimming *t
 GpStatus WINGDIPAPI
 GdipSetStringFormatTabStops (GpStringFormat *format, REAL firstTabOffset, INT count, GDIPCONST REAL *tabStops)
 {
-	int i;
 	REAL *tabStopsResult;
 
 	if (!format || !tabStops)
