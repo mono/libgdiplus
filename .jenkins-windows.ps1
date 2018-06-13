@@ -7,6 +7,7 @@ function exitonerror ($exitCode) {
 if (-not (Test-Path vcpkg)) {
   git clone https://github.com/Microsoft/vcpkg.git
   cd vcpkg
+  git checkout 6984ef0c2ce27e7905f47078e79117c4e02e5ea0 # need to use this until https://github.com/Microsoft/vcpkg/issues/3631 is fixed
 
   .\bootstrap-vcpkg.bat; exitonerror $LASTEXITCODE
   .\vcpkg.exe integrate install; exitonerror $LASTEXITCODE
