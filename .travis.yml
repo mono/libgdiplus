@@ -32,7 +32,6 @@ script:
 - echo "travis_fold:end:build_libgdiplus"
 - /bin/sh -c 'if make check; then true; else cat ./tests/test-suite.log; exit 1; fi'
 - make install
-- set +e
 
 - if [ "$TRAVIS_OS_NAME" = "osx" ]; then exit 0; fi
 - echo "travis_fold:start:build_mono"
@@ -43,6 +42,7 @@ script:
 - make -j4
 - make -C mcs/class/System.Drawing test
 - make -C mcs/class/System.Windows.Forms test
+- set +e
 - echo "travis_fold:end:build_mono"
 
 # Run the System.Drawing and System.Windows.Forms tests.
