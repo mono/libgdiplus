@@ -31,7 +31,7 @@
 #ifndef __WIN32STRUCTS_H__
 #define __WIN32STRUCTS_H__
 
-#include "glib.h"
+#include <glib.h>
 #include "gdipenums.h"
 
 /* public enums and structures that GDI+ reuse from the other Windows API */
@@ -109,7 +109,7 @@ typedef float REAL;
 
 #if defined(WIN32)
 #define NOGDI
-#include <windows.h>
+#include <Windows.h>
 #else
 
 typedef int INT;

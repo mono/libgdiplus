@@ -2,7 +2,7 @@
 #ifndef __cplusplus
 #error Please compile with a C++ compiler.
 #endif
-#include <windows.h>
+#include <Windows.h>
 #include <GdiPlus.h>
 #else
 #include <GdiPlusFlat.h>
