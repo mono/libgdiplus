@@ -1228,7 +1228,6 @@ gdip_create_font_from_logfont (HDC hdc, void *lf, GpFont **font, BOOL ucs2)
 		result->sizeInPixels = logfont->lfHeight;	// Fixme - convert units
 	}
 	result->style = 0;
-	result->family = NULL;
 	/* Fixme - this is wrong, but I don't know of a quick way to get the emSize */
 	result->emSize = result->sizeInPixels;
 	result->unit = UnitWorld;
@@ -1262,6 +1261,11 @@ gdip_create_font_from_logfont (HDC hdc, void *lf, GpFont **font, BOOL ucs2)
 		result->face[LF_FACESIZE - 1] = '\0';
 	}
 
+	status = create_fontfamily_from_name ((char *) result->face, &result->family);
+	if (status == OutOfMemory) {
+		GdipDeleteFont (result);
+		return status;
+	}
 
 	*font = result;
 

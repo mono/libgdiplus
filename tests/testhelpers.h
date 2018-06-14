@@ -42,9 +42,11 @@ ATTRIBUTE_USED static BOOL floatsEqual(float v1, float v2)
 }
 
 #if !defined(USE_WINDOWS_GDIPLUS)
-#define createWchar(c) g_utf8_to_utf16 (c, -1, NULL, NULL, NULL);
+#define createWchar(c) g_utf8_to_utf16 (c, -1, NULL, NULL, NULL)
 #define freeWchar(c) g_free(c)
 #define wcharFromChar(c) createWchar(c)
+#define charFromWchar(c) g_utf16_to_utf8 (c, -1, NULL, NULL, NULL)
+#define freeChar(c) g_free(c)
 #else
 ATTRIBUTE_USED static WCHAR* wcharFromChar(const char *c)
 {
@@ -59,8 +61,22 @@ ATTRIBUTE_USED static WCHAR* wcharFromChar(const char *c)
     return wc;
 }
 
+ATTRIBUTE_USED static char* charFromWchar(const wchar_t *wc)
+{
+    size_t length = lstrlenW (wc);
+
+    char *c = (char *)malloc ((length + 1) * sizeof(char));
+    for (int i = 0; i < length; i++) {
+        c[i] = (char) wc[i];
+    }
+    c[length] = 0;
+
+    return c;
+}
+
 #define createWchar(c) (WCHAR *) L ##c
 #define freeWchar(c)
+#define freeChar(c) free(c);
 #endif
 
 ATTRIBUTE_USED static void printFailure(const char *file, const char *function, int line)
@@ -99,6 +115,43 @@ ATTRIBUTE_USED static void assertEqualFloatImpl (REAL actual, REAL expected, con
 }
 
 #define assertEqualFloat(actual, expected) assertEqualFloatImpl (actual, expected, NULL, __FILE__, __func__, __LINE__)
+
+ATTRIBUTE_USED static BOOL stringsEqual (WCHAR *actual, const char *expected)
+{
+	int i = 0;
+	while (TRUE) {
+		if (expected[i] == '\0') {
+			return actual[i] == '\0';
+		}
+
+		if (expected[i] != (char)actual[i])
+			return FALSE;
+
+		i++;
+	}
+
+	return TRUE;
+}
+
+ATTRIBUTE_USED static void assertEqualStringImpl(WCHAR *actual, const char * expected, const char *message, const char *file, const char *function, int line)
+{
+    if (!stringsEqual (actual, expected))
+    {
+        char *actualA = charFromWchar (actual);
+
+        if (message)
+            fprintf (stderr, "%s\n", message);
+
+        printFailure (file, function, line);
+        fprintf (stderr, "Expected: %s\n", expected);
+        fprintf (stderr, "Actual:   %s\n", actualA);
+
+        freeChar (actualA);
+        abort();
+    }
+}
+
+#define assertEqualString(actual, expected) assertEqualStringImpl (actual, expected, NULL, __FILE__, __func__, __LINE__)
 
 ATTRIBUTE_USED static void assertEqualRectImpl (GpRectF actual, GpRectF expected, const char *message, const char *file, const char *function, int line)
 {

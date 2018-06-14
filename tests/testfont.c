@@ -33,23 +33,6 @@ static HDC getEmptyHDC ()
 #endif
 }
 
-static BOOL stringsEqual (WCHAR *actual, const char *expected)
-{
-	int i = 0;
-	while (TRUE) {
-		if (expected[i] == '\0') {
-			return actual[i] == '\0';
-		}
-
-		if (expected[i] != (char)actual[i])
-			return FALSE;
-
-		i++;
-	}
-
-	return TRUE;
-}
-
 static void *readFile (const char *fileName, int *memoryLength)
 {
 	void *buffer = NULL;
@@ -424,11 +407,18 @@ static void test_createFontFromLogfontA ()
 	GpFont *font;
 	LOGFONTA logfont;
 	HDC hdc;
+	GpFontFamily *nativeFamily;
+	WCHAR nativeFamilyNameW[LF_FACESIZE];
+	char *nativeFamilyNameA;
 	INT style;
 	Unit unit;
 	GpFontFamily *family;
-
+	WCHAR familyName[LF_FACESIZE];
+	
 	hdc = getEmptyHDC ();
+	GdipGetGenericFontFamilySansSerif (&nativeFamily);
+	GdipGetFamilyName (nativeFamily, nativeFamilyNameW, 0);
+	nativeFamilyNameA = charFromWchar (nativeFamilyNameW);
 
 	logfont.lfHeight = 10;
 	logfont.lfWidth = 11;
@@ -443,7 +433,7 @@ static void test_createFontFromLogfontA ()
 	logfont.lfClipPrecision = 2;
 	logfont.lfQuality = 4;
 	logfont.lfPitchAndFamily = 0x50;
-	strcpy (logfont.lfFaceName, "Times New Roman");
+	strcpy (logfont.lfFaceName, nativeFamilyNameA);
 
 	status = GdipCreateFontFromLogfontA (hdc, &logfont, &font);
 	assertEqualInt (status, Ok);
@@ -455,11 +445,9 @@ static void test_createFontFromLogfontA ()
 	assertEqualInt (unit, UnitWorld);
 
 	status = GdipGetFamily (font, &family);
-	// FIXME: this fails with libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
-	assert (family);
-#endif
+	GdipGetFamilyName (family, familyName, 0);
+	assert (stringsEqual (familyName, nativeFamilyNameA));
 
 	// Negative tests.
 	status = GdipCreateFontFromLogfontA (NULL, &logfont, &font);
@@ -475,9 +463,9 @@ static void test_createFontFromLogfontA ()
 #endif
 
 	GdipDeleteFont (font);
-#if defined(USE_WINDOWS_GDIPLUS)
 	GdipDeleteFontFamily (family);
-#endif	
+	GdipDeleteFontFamily (nativeFamily);
+	freeChar (nativeFamilyNameA);
 }
 
 static void test_createFontFromLogfontW ()
@@ -485,14 +473,19 @@ static void test_createFontFromLogfontW ()
 	GpStatus status;
 	GpFont *font;
 	LOGFONTW logfont;
-	WCHAR *fontName;
 	HDC hdc;
+	GpFontFamily *nativeFamily;
+	WCHAR nativeFamilyNameW[LF_FACESIZE];
+	char *nativeFamilyNameA;
 	INT style;
 	Unit unit;
 	GpFontFamily *family;
-
-	fontName = createWchar ("Times New Roman");
+	WCHAR familyName[LF_FACESIZE];
+	
 	hdc = getEmptyHDC ();
+	GdipGetGenericFontFamilySansSerif (&nativeFamily);
+	GdipGetFamilyName (nativeFamily, nativeFamilyNameW, 0);
+	nativeFamilyNameA = charFromWchar (nativeFamilyNameW);
 
 	logfont.lfHeight = 10;
 	logfont.lfWidth = 11;
@@ -507,7 +500,7 @@ static void test_createFontFromLogfontW ()
 	logfont.lfClipPrecision = 2;
 	logfont.lfQuality = 4;
 	logfont.lfPitchAndFamily = 0x50;
-	memcpy ((void *) logfont.lfFaceName, (void *) fontName, sizeof(WCHAR) + 15 + 1);
+	memcpy ((void *) logfont.lfFaceName, (void *) nativeFamilyNameW, LF_FACESIZE * sizeof (WCHAR));
 
 	status = GdipCreateFontFromLogfontW (hdc, &logfont, &font);
 	assertEqualInt (status, Ok);
@@ -519,11 +512,9 @@ static void test_createFontFromLogfontW ()
 	assertEqualInt (unit, UnitWorld);
 
 	status = GdipGetFamily (font, &family);
-	// FIXME: this fails with libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
-	assert (family);
-#endif
+	GdipGetFamilyName (family, familyName, 0);
+	assertEqualString (familyName, nativeFamilyNameA);
 
 	// Negative tests.
 	status = GdipCreateFontFromLogfontW (NULL, &logfont, &font);
@@ -539,10 +530,9 @@ static void test_createFontFromLogfontW ()
 #endif
 
 	GdipDeleteFont (font);
-#if defined(USE_WINDOWS_GDIPLUS)
 	GdipDeleteFontFamily (family);
-#endif
-	freeWchar (fontName);
+	GdipDeleteFontFamily (nativeFamily);
+	freeChar (nativeFamilyNameA);
 }
 
 static void test_createFont ()
