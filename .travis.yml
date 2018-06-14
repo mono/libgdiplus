@@ -36,7 +36,7 @@ script:
 - if [ "$TRAVIS_OS_NAME" = "osx" ]; then exit 0; fi
 - echo "travis_fold:start:build_mono"
 - cd ..
-- git clone --depth 1 https://github.com/mono/mono
+- git clone --depth 1 --recurse-submodules https://github.com/mono/mono
 - cd mono
 - ./autogen.sh --prefix=/tmp/mono-dev --with-libgdiplus=/tmp/mono-dev/lib/libgdiplus.so --disable-boehm
 - make -j4
