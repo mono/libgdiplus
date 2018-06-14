@@ -705,6 +705,40 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 			boundingBox->Width = gdip_convgr_unitx (graphics, boundingBox->Width);
 			boundingBox->Height = gdip_convgr_unity (graphics, boundingBox->Height);
 		}
+
+		switch (AlignVert) {
+		case StringAlignmentCenter:
+			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+				boundingBox->X += (FrameHeight - MaxY) * 0.5;
+			} else {
+				boundingBox->Y += (FrameHeight - MaxY) * 0.5;
+			}
+			break;
+		case StringAlignmentFar:
+			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+				boundingBox->X += (FrameHeight - MaxY);
+			} else {
+				boundingBox->Y += (FrameHeight - MaxY);
+			}
+			break;
+		}
+
+		switch (AlignHorz) {
+		case StringAlignmentCenter:
+			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+				boundingBox->Y += (FrameWidth - MaxX) * 0.5;
+			} else {
+				boundingBox->X += (FrameWidth - MaxX) * 0.5;
+			}
+			break;
+		case StringAlignmentFar:
+			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+				boundingBox->Y += (FrameWidth - MaxX);
+			} else {
+				boundingBox->X += (FrameWidth - MaxX);
+			}
+			break;
+		}
 	}
 
 	if (codepointsFitted) {
@@ -725,6 +759,44 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 		/* how many *complete* lines fits in our calculated boundingBox */
 		double height = (boundingBox) ? boundingBox->Height : min (MaxY, rc->Height);
 		*linesFilled = floor (height / LineHeight);
+	}
+
+	if (AlignHorz != StringAlignmentNear || AlignVert != StringAlignmentNear) {
+		// Update alignment
+		int length = 0;
+		int current_line_length = 0;
+		for (i = 0; i < StringLen; i++) {
+			if (i == current_line_length) {
+				length = StringDetails[i].LineLen;
+				current_line_length = min(length + i, StringLen);
+			}
+
+			switch (AlignHorz) {
+			case StringAlignmentNear:
+				break;
+			case StringAlignmentCenter:
+				if ((current_line_length == 1) || (StringDetails [current_line_length - 1].PosX > 0)) {
+					StringDetails[i].PosX += (FrameWidth - StringDetails [current_line_length - 1].PosX -
+						StringDetails [current_line_length - 1].Width) / 2;
+				}
+				break;
+			case StringAlignmentFar:
+				StringDetails[i].PosX += FrameWidth - StringDetails [current_line_length - 1].PosX -
+					StringDetails [current_line_length - 1].Width;
+				break;
+			}
+
+			switch (AlignVert) {
+			case StringAlignmentNear:
+				break;
+			case StringAlignmentCenter:
+				StringDetails[i].PosY += (FrameHeight - MaxY) / 2;
+				break;
+			case StringAlignmentFar:
+				StringDetails[i].PosY += FrameHeight - MaxY;
+				break;
+			}
+		}
 	}
 
 	/* if asked, supply extra data to be reused when drawing the same string */
@@ -813,55 +885,13 @@ DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GD
 
 			if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
 				CursorX = rc->X + StringDetails[i].PosX;
-				switch (AlignHorz) {
-				case StringAlignmentNear:
-					break;
-				case StringAlignmentCenter:
-					/* PosX isn't calculated if the char is out of the bounding box (#79573/#79685) */
-					if ((current_line_length == 1) || (StringDetails [current_line_length-1].PosX > 0)) {
-						CursorX += (rc->Width - StringDetails [current_line_length-1].PosX - 
-							StringDetails [current_line_length-1].Width) / 2;
-					}
-					/* which means that the line is too long so no centering is required */
-					break;
-				case StringAlignmentFar:
-					CursorX += rc->Width - StringDetails [current_line_length-1].PosX - 
-						StringDetails [current_line_length-1].Width;
-					break;
-				}
-
-				switch (AlignVert) {
-				case StringAlignmentNear: CursorY=rc->Y+StringDetails[i].PosY+LineHeight; break;
-				case StringAlignmentCenter: CursorY=rc->Y+(rc->Height-MaxY)/2+StringDetails[i].PosY+LineHeight; break;
-				case StringAlignmentFar: CursorY=rc->Y+rc->Height-MaxY+StringDetails[i].PosY+LineHeight; break;
-				}
+				CursorY = rc->Y + StringDetails[i].PosY + LineHeight;
 
 				gdip_cairo_move_to (graphics, CursorX, CursorY, FALSE, TRUE);
 				cairo_show_text (graphics->ct, (const char *) String);
 			} else {
-				CursorY = rc->Y;
-				switch (AlignHorz) {
-				case StringAlignmentNear:
-					break;
-				case StringAlignmentCenter:
-					/* PosX isn't calculated if the char is out of the bounding box (#79573/#79685) */
-					if ((current_line_length == 1) || (StringDetails [current_line_length-1].PosX > 0)) {
-						CursorY += (rc->Height - StringDetails[current_line_length-1].PosX - 
-							StringDetails [current_line_length-1].Width) / 2;
-					}
-					/* which means that the line is too long so no centering is required */
-					break;
-				case StringAlignmentFar:
-					CursorY += rc->Height - StringDetails[current_line_length-1].PosX - 
-						StringDetails [current_line_length-1].Width;
-					break;
-				}
-
-				switch (AlignVert) {
-				case StringAlignmentNear: CursorX=rc->X + StringDetails[i].PosX+StringDetails[i].PosY; break;
-				case StringAlignmentCenter: CursorX=rc->X + StringDetails[i].PosX+(rc->Width-MaxY)/2+StringDetails[i].PosY; break;
-				case StringAlignmentFar: CursorX=rc->X + StringDetails[i].PosX+rc->Width-MaxY+StringDetails[i].PosY; break;
-				}
+				CursorY = rc->Y + StringDetails[i].PosX;
+				CursorX = rc->X + StringDetails[i].PosY;
 
 				/* Rotate text for vertical drawing */
 				cairo_save (graphics->ct);
@@ -915,48 +945,23 @@ DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GD
 	if (fmt->hotkeyPrefix==HotkeyPrefixShow && data->has_hotkeys) {
 		GpStringDetailStruct *CurrentDetail = StringDetails;
 		for (i=0; i<StringLen; i++) {
-			if (CurrentDetail->Flags & STRING_DETAIL_LINESTART) {
-				if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
-					switch (AlignHorz) {
-					case StringAlignmentNear: CursorX=rc->X; break;
-					case StringAlignmentCenter: CursorX=rc->X+(rc->Width-StringDetails[i+StringDetails[i].LineLen-1].PosX-StringDetails[i+StringDetails[i].LineLen-1].Width)/2; break;
-					case StringAlignmentFar: CursorX=rc->X+rc->Width-StringDetails[i+StringDetails[i].LineLen-1].PosX-StringDetails[i+StringDetails[i].LineLen-1].Width; break;
-					}
-
-					switch (AlignVert) {
-					case StringAlignmentNear: CursorY=rc->Y+StringDetails[i].PosY+LineHeight; break;
-					case StringAlignmentCenter: CursorY=rc->Y+(rc->Height-MaxY)/2+StringDetails[i].PosY+LineHeight; break;
-					case StringAlignmentFar: CursorY=rc->Y+rc->Height-MaxY+StringDetails[i].PosY+LineHeight; break;
-					}
-				} else {
-					switch (AlignHorz) {
-					case StringAlignmentNear: CursorY=rc->Y; break;
-					case StringAlignmentCenter: CursorY=rc->Y+(rc->Height-StringDetails[i+StringDetails[i].LineLen-1].PosX-StringDetails[i+StringDetails[i].LineLen-1].Width)/2; break;
-					case StringAlignmentFar: CursorY=rc->Y+rc->Height-StringDetails[i+StringDetails[i].LineLen-1].PosX-StringDetails[i+StringDetails[i].LineLen-1].Width; break;
-					}
-
-					switch (AlignVert) {
-					case StringAlignmentNear: CursorX=rc->X+StringDetails[i].PosY; break;
-					case StringAlignmentCenter: CursorX=rc->X+(rc->Width-MaxY)/2+StringDetails[i].PosY; break;
-					case StringAlignmentFar: CursorX=rc->X+rc->Width-MaxY+StringDetails[i].PosY; break;
-					}
-				}
-			}
-
 			if (CurrentDetail->Flags & STRING_DETAIL_HOTKEY) {
 				if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
-					CursorX+=CurrentDetail->PosX;
-					cairo_set_line_width(graphics->ct, 1);
-
-					gdip_cairo_move_to (graphics, (int)(CursorX), (int)(CursorY+FontExtent.descent/2), FALSE, TRUE);
-					gdip_cairo_line_to (graphics, (int)(CursorX+CurrentDetail->Width), (int)(CursorY+FontExtent.descent/2), FALSE, TRUE);
-					cairo_stroke (graphics->ct);
-					CursorX-=CurrentDetail->PosX;
+					CursorX = rc->X + StringDetails[i].PosX;
+					CursorY = rc->Y + StringDetails[i].PosY + LineHeight;
 				} else {
-					CursorY+=CurrentDetail->PosX;
-					gdip_cairo_move_to (graphics, (int)(CursorX-FontExtent.descent/2), (int)(CursorY), FALSE, TRUE);
-					gdip_cairo_line_to (graphics, (int)(CursorX-FontExtent.descent/2), (int)(CursorY+CurrentDetail->Width), FALSE, TRUE);
-					CursorY-=CurrentDetail->PosX;
+					CursorY = rc->Y + StringDetails[i].PosX;
+					CursorX = rc->X + StringDetails[i].PosY;
+				}
+
+				if ((fmt->formatFlags & StringFormatFlagsDirectionVertical)==0) {
+					cairo_set_line_width(graphics->ct, 1);
+					gdip_cairo_move_to (graphics, (int)(CursorX), (int)(CursorY+FontExtent.descent), FALSE, TRUE);
+					gdip_cairo_line_to (graphics, (int)(CursorX+CurrentDetail->Width), (int)(CursorY+FontExtent.descent), FALSE, TRUE);
+					cairo_stroke (graphics->ct);
+				} else {
+					gdip_cairo_move_to (graphics, (int)(CursorX-FontExtent.descent), (int)(CursorY), FALSE, TRUE);
+					gdip_cairo_line_to (graphics, (int)(CursorX-FontExtent.descent), (int)(CursorY+CurrentDetail->Width), FALSE, TRUE);
 				}
 			}
 			CurrentDetail++;
@@ -1164,13 +1169,13 @@ cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 				continue;
 
 			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
-				charRect.X = StringDetails [j].PosY;
-				charRect.Y = StringDetails [j].PosX;
+				charRect.X = layoutRect->X + StringDetails [j].PosY;
+				charRect.Y = layoutRect->Y + StringDetails [j].PosX;
 				charRect.Width = lineHeight;
 				charRect.Height = StringDetails [j].Width;
 			} else {
-				charRect.X = StringDetails [j].PosX;
-				charRect.Y = StringDetails [j].PosY;
+				charRect.X = layoutRect->X + StringDetails [j].PosX;
+				charRect.Y = layoutRect->Y + StringDetails [j].PosY;
 				charRect.Width = StringDetails [j].Width;
 				charRect.Height = lineHeight;
 			}

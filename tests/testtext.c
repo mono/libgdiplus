@@ -108,6 +108,8 @@ static void test_measure_string(void)
 	GdipDisposeImage (image);
 }
 
+#endif
+
 static void test_measure_string_alignment(void)
 {
 	GpStringFormat *format;
@@ -117,8 +119,10 @@ static void test_measure_string_alignment(void)
 	GpFont *font;
 	GpStatus status;
 	GpRectF rect, bounds;
+	GpRegion *region;
 	const WCHAR teststring1[] = { 'M', 0 };
 	INT i;
+	static const CharacterRange character_range = { 0, 1 };
 	static const struct test_data
 	{
 		INT flags;
@@ -167,11 +171,15 @@ static void test_measure_string_alignment(void)
 	expect (Ok, status);
 	status = GdipCreateFont (family, 10, FontStyleRegular, UnitPixel, &font);
 	expect (Ok, status);
+	status = GdipCreateRegion (&region);
+	expect (Ok, status);
 	status = GdipCreateBitmapFromScan0 (400, 400, 0, PixelFormat32bppRGB, NULL, (GpBitmap **) &image);
 	expect (Ok, status);
 	status = GdipGetImageGraphicsContext (image, &graphics);
 	expect (Ok, status);
 	ok (graphics != NULL, "Expected graphics to be initialized\n");
+
+	GdipSetStringFormatMeasurableCharacterRanges (format, 1, &character_range);
 
 	for (i = 0; i < sizeof(td) / sizeof(td[0]); i++) {
 		GdipSetStringFormatFlags (format, td[i].flags);
@@ -189,6 +197,15 @@ static void test_measure_string_alignment(void)
 		expectf_ (td[i].y_y0 + td[i].y_yy * bounds.Height + 10.0, bounds.Y, 0.6);
 		expectf_ (td[i].right_x0 + td[i].right_xx * bounds.Width + 5.0, bounds.X + bounds.Width, 0.6);
 		expectf_ (td[i].bottom_y0 + td[i].bottom_yy * bounds.Height + 10.0, bounds.Y + bounds.Height, 0.6);
+
+		status = GdipMeasureCharacterRanges (graphics, teststring1, 1, font, &rect, format, 1, &region);
+		expect (Ok, status);
+		status = GdipGetRegionBounds (region, graphics, &bounds);
+		expect (Ok, status);
+		expectf_ (td[i].x_x0 + td[i].x_xx * bounds.Width + 5.0, bounds.X, 3.0);
+		expectf_ (td[i].y_y0 + td[i].y_yy * bounds.Height + 10.0, bounds.Y, 3.0);
+		expectf_ (td[i].right_x0 + td[i].right_xx * bounds.Width + 5.0, bounds.X + bounds.Width, 3.0);
+		expectf_ (td[i].bottom_y0 + td[i].bottom_yy * bounds.Height + 10.0, bounds.Y + bounds.Height, 3.0);
 	}
 
 	GdipDeleteGraphics (graphics);
@@ -196,9 +213,8 @@ static void test_measure_string_alignment(void)
 	GdipDeleteFontFamily (family);
 	GdipDeleteStringFormat (format);
 	GdipDisposeImage (image);
+	GdipDeleteRegion (region);
 }
-
-#endif
 
 int
 main (int argc, char**argv)
@@ -207,8 +223,8 @@ main (int argc, char**argv)
 
 #if defined(USE_PANGO_RENDERING) || defined(USE_WINDOWS_GDIPLUS)
 	test_measure_string ();
-	test_measure_string_alignment ();
 #endif
+	test_measure_string_alignment ();
 
 	SHUTDOWN;
 	return 0;

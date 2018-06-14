@@ -714,10 +714,17 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 			GpRectF charRect;
 
 			pango_layout_index_to_pos (layout, idxUtf8, &box);
-			charRect.X = (float)box.x / PANGO_SCALE + box_offset.X;
-			charRect.Y = (float)box.y / PANGO_SCALE + box_offset.Y;
-			charRect.Width = (float)box.width / PANGO_SCALE;
-			charRect.Height = (float)box.height / PANGO_SCALE;
+			if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+				charRect.X = (float)box.y / PANGO_SCALE;
+				charRect.Y = (float)box.x / PANGO_SCALE;
+				charRect.Width = (float)box.height / PANGO_SCALE;
+				charRect.Height = (float)box.width / PANGO_SCALE;
+			} else {
+				charRect.X = (float)box.x / PANGO_SCALE;
+				charRect.Y = (float)box.y / PANGO_SCALE;
+				charRect.Width = (float)box.width / PANGO_SCALE;
+				charRect.Height = (float)box.height / PANGO_SCALE;
+			}
 			/* Normalize values (width/height can be negative) */
 			if (charRect.Width < 0) {
 				charRect.Width = -charRect.Width;
@@ -727,6 +734,8 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 				charRect.Height = -charRect.Height;
 				charRect.Y -= charRect.Height;
 			}
+			charRect.X += box_offset.X + layoutRect->X;
+			charRect.Y += box_offset.Y + layoutRect->Y;
 // g_warning ("[%d] [%d : %d-%d] %c [x %g y %g w %g h %g]", i, j, start, end, (char)stringUnicode[j], charRect.X, charRect.Y, charRect.Width, charRect.Height);
 			status = GdipCombineRegionRect (regions [i], &charRect, CombineModeUnion);
 			if (status != Ok)
