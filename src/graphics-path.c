@@ -1192,7 +1192,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	if (emSize == 0)
 		return GenericError;
 
-	cs = cairo_recording_surface_create (CAIRO_FORMAT_ARGB32, NULL);
+	cs = cairo_recording_surface_create (CAIRO_CONTENT_COLOR_ALPHA, NULL);
 	if (cairo_surface_status (cs) != CAIRO_STATUS_SUCCESS) {
 		cairo_surface_destroy (cs);
 		return OutOfMemory;
