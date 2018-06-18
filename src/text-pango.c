@@ -445,7 +445,7 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 			pango_layout_iter_get_line_yrange (iter, &y0, &y1);
 			//g_warning("yrange: %d  %d  clipy2: %f", y0 / PANGO_SCALE, y1 / PANGO_SCALE, clipy2);
 			/* StringFormatFlagsLineLimit */
-			if (((fmt->formatFlags & StringFormatFlagsLineLimit) && y1 / PANGO_SCALE >= clipy2) || (y0 / PANGO_SCALE >= clipy2)) {
+			if (((fmt->formatFlags & StringFormatFlagsLineLimit) && y1 / PANGO_SCALE > clipy2) || (y0 / PANGO_SCALE >= clipy2)) {
 				PangoLayoutLine *line = pango_layout_iter_get_line_readonly (iter);
 				pango_layout_set_text (layout, pango_layout_get_text (layout), line->start_index);
 				
