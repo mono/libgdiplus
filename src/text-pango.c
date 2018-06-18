@@ -156,9 +156,11 @@ gdip_process_string (gchar *text, int length, int removeAccelerators, int trimSp
 		iter = iter2;
 	}
 	/* always ensure that at least one space is measured */
-	if (!nonws && trimSpace) {
-		g_string_append_c (res, ' ');
-		j++;
+	if (!nonws && trimSpace && length > 0) {
+		iter = text;
+		iter2 = g_utf8_next_char (iter);
+		g_string_append_len (res, iter, iter2 - iter);
+		j += iter2 - iter;
 	}
 	if (charsRemoved && *charsRemoved && j > 0) {
 		int prevj = (g_utf8_prev_char (res->str + j) - res->str);
