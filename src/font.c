@@ -54,6 +54,7 @@ static int ref_familyMonospace = 0;
 static void
 gdip_fontfamily_init (GpFontFamily *fontFamily)
 {
+	fontFamily->collection = NULL;
 	fontFamily->height = -1;
 	fontFamily->linespacing = -1;
 	fontFamily->celldescent = -1;
@@ -374,6 +375,7 @@ GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, INT num_soug
 			return OutOfMemory;
 		}
 
+		gpfamilies[i]->collection = font_collection;
 		gpfamilies[i]->pattern = font_collection->fontset->fonts[i];
 		gpfamilies[i]->allocated = FALSE;
 	}
