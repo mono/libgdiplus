@@ -780,7 +780,10 @@ gdip_get_pango_font_description (GpFont *font)
 	if (!font->pango) {
 		font->pango = pango_font_description_new ();
 		pango_font_description_set_family (font->pango, (char *)font->face);
-		pango_font_description_set_size (font->pango, font->emSize * PANGO_SCALE);
+		
+		float sizeInPoints = gdip_unit_conversion (font->unit, UnitPoint, gdip_get_display_dpi(), gtMemoryBitmap, font->emSize);
+		
+		pango_font_description_set_size (font->pango, sizeInPoints * PANGO_SCALE);
 
 		if (font->style & FontStyleBold)
 			pango_font_description_set_weight (font->pango, PANGO_WEIGHT_BOLD);
