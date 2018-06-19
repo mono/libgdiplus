@@ -29,6 +29,7 @@
 #include "pen-private.h"
 #include "solidbrush-private.h"
 #include "matrix-private.h"
+#include "general-private.h"
 #include "graphics-private.h"
 #include "customlinecap-private.h"
 
@@ -248,6 +249,9 @@ GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen)
 	GpStatus status;
 	GpPen *result;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!pen || unit < UnitWorld || unit > UnitCairoPoint || unit == UnitDisplay)
 		return InvalidParameter;
 
@@ -283,6 +287,9 @@ GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen)
 	GpStatus status;
 	GpBrushType type;
 	ARGB color;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!brush || !pen)
 		return InvalidParameter;

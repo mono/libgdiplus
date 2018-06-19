@@ -33,6 +33,7 @@
 #include "font-private.h"
 #include "fontcollection-private.h"
 #include "fontfamily-private.h"
+#include "general-private.h"
 #include "graphics-private.h"
 
 /* Generic fonts families */
@@ -157,6 +158,9 @@ GdipNewPrivateFontCollection (GpFontCollection **font_collection)
 {
 	GpFontCollection *result;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!font_collection)
 		return InvalidParameter;
 
@@ -180,6 +184,9 @@ GdipNewPrivateFontCollection (GpFontCollection **font_collection)
 GpStatus
 GdipDeletePrivateFontCollection (GpFontCollection **font_collection)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!font_collection)
 		return InvalidParameter;
 
@@ -562,6 +569,9 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 {
 	GpStatus status;
 	char *string;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 	
 	if (!name || !fontFamily)
 		return InvalidParameter;
@@ -960,6 +970,9 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, REAL emSize, INT style, Unit uni
 	FcResult r;
 	GpFont *result;
 	REAL sizeInPixels;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 	
 	if (!family || !font || unit == UnitDisplay || unit < UnitWorld || unit > UnitCairoPoint)
 		return InvalidParameter;
@@ -1070,6 +1083,9 @@ GdipDeleteFont (GpFont* font)
 GpStatus WINGDIPAPI
 GdipCreateFontFromDC (HDC hdc, GpFont **font)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!hdc || !font)
 		return InvalidParameter;
 
@@ -1165,6 +1181,9 @@ GdipCreateFontFromHfontA (HFONT hfont, GpFont **font, void *lf)
 	GpFont			*src_font;
 	GpFont			*result;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	src_font = (GpFont *)hfont;
 
 	result = gdip_font_new ();
@@ -1212,6 +1231,9 @@ static GpStatus
 gdip_create_font_from_logfont (HDC hdc, void *lf, GpFont **font, BOOL ucs2)
 {
 	GpStatus status;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!hdc || !lf || !font)
 		return InvalidParameter;
@@ -1268,7 +1290,6 @@ gdip_create_font_from_logfont (HDC hdc, void *lf, GpFont **font, BOOL ucs2)
 	}
 
 	*font = result;
-
 	return Ok;
 }
 

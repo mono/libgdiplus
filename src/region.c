@@ -24,6 +24,7 @@
  */
 
 #include "region-private.h"
+#include "general-private.h"
 #include "graphics-path-private.h"
 
 /*
@@ -443,6 +444,9 @@ GdipCreateRegion (GpRegion **region)
 	GpRegion *result;
 	GpStatus status;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!region)
 		return InvalidParameter;
 	
@@ -468,6 +472,9 @@ GdipCreateRegionRect (GDIPCONST GpRectF *rect, GpRegion **region)
 	GpRegion *result;
 	GpStatus status;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!region || !rect)
 		return InvalidParameter;
 
@@ -492,6 +499,9 @@ GdipCreateRegionRectI (GDIPCONST GpRect *rect, GpRegion **region)
 {
 	GpRectF rectF;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!region || !rect)
 		return InvalidParameter;
 	
@@ -504,6 +514,9 @@ GpStatus WINGDIPAPI
 GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region)
 {
 	GpRegion *result;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!region || !regionData)
 		return InvalidParameter;
@@ -565,6 +578,9 @@ GdipCloneRegion (GpRegion *region, GpRegion **cloneRegion)
 {
 	GpRegion *result;
 	GpStatus status;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!region || !cloneRegion)
 		return InvalidParameter;
@@ -1971,6 +1987,9 @@ GdipCreateRegionPath (GpPath *path, GpRegion **region)
 {
 	GpRegion *result;
 	GpStatus status;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!region || !path)
 		return InvalidParameter;

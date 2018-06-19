@@ -27,6 +27,7 @@
  */
 
 #include "graphics-private.h"
+#include "general-private.h"
 #include "graphics-cairo-private.h"
 #include "graphics-metafile-private.h"
 #include "region-private.h"
@@ -223,6 +224,9 @@ GdipCreateFromHDC (HDC hdc, GpGraphics **graphics)
 	unsigned int w, h, border_w, depth;
 #endif
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!graphics)
 		return InvalidParameter;
 
@@ -273,6 +277,9 @@ GdipCreateFromHDC (HDC hdc, GpGraphics **graphics)
 GpStatus WINGDIPAPI
 GdipCreateFromHDC2 (HDC hdc, HANDLE hDevice, GpGraphics **graphics)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!graphics)
 		return InvalidParameter;
 
@@ -285,6 +292,9 @@ GdipCreateFromHDC2 (HDC hdc, HANDLE hDevice, GpGraphics **graphics)
 GpStatus WINGDIPAPI
 GdipCreateFromHWND (HWND hwnd, GpGraphics **graphics)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!graphics)
 		return InvalidParameter;
 
@@ -294,10 +304,7 @@ GdipCreateFromHWND (HWND hwnd, GpGraphics **graphics)
 GpStatus WINGDIPAPI
 GdipCreateFromHWNDICM (HWND hwnd, GpGraphics **graphics)
 {
-	if (!graphics)
-		return InvalidParameter;
-
-	return NotImplemented;
+	return GdipCreateFromHWND (hwnd, graphics);
 }
 
 #ifdef CAIRO_HAS_QUARTZ_SURFACE

@@ -30,6 +30,7 @@
 #include "gdiplus-private.h"
 #include "bitmap-private.h"
 #include "bmpcodec.h"
+#include "general-private.h"
 #include "graphics-private.h"
 #include "metafile-private.h"
 
@@ -738,6 +739,9 @@ gdip_bitmap_dispose (GpBitmap *bitmap)
 GpStatus
 GdipCreateBitmapFromStream (void *stream, GpBitmap **bitmap)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!stream || !bitmap)
 		return InvalidParameter;
 	
@@ -794,6 +798,9 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 	BitmapData	*bitmap_data;
 	int		cairo_format;
 	int flags = 0;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 	
 	if (width <= 0 || height <= 0 || !bitmap) {
 		return InvalidParameter;
@@ -993,6 +1000,9 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 	GpStatus status;
 	GpBitmap *result;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!graphics || !bitmap)
 		return InvalidParameter;
 
@@ -1010,6 +1020,9 @@ GdipCreateBitmapFromGraphics (int width, int height, GpGraphics *graphics, GpBit
 GpStatus
 GdipCreateBitmapFromHBITMAP (HBITMAP hbm, HPALETTE hpal, GpBitmap** bitmap)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!bitmap || !hbm)
 		return InvalidParameter;
 
@@ -1019,6 +1032,9 @@ GdipCreateBitmapFromHBITMAP (HBITMAP hbm, HPALETTE hpal, GpBitmap** bitmap)
 GpStatus
 GdipCreateHBITMAPFromBitmap (GpBitmap* bitmap, HBITMAP *hbmReturn, ARGB background)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	/*
 	 * Note: the handle must survive disposing the bitmap. This means that there's no interoperable way to free this memory. 
 	 * For libgdiplus you must use GdipDisposeImage on the handle, while on Windows you should call the DeleteObject function.
@@ -1036,6 +1052,9 @@ GpStatus
 GdipCreateBitmapFromHICON (HICON hicon, GpBitmap** bitmap)
 {
 	GpStatus status;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!hicon || !bitmap)
 		return InvalidParameter;
@@ -1056,6 +1075,9 @@ GdipCreateBitmapFromHICON (HICON hicon, GpBitmap** bitmap)
 GpStatus
 GdipCreateHICONFromBitmap (GpBitmap* bitmap, HICON *hbmReturn)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	/*
 	 * Note: the handle must survive disposing the bitmap. This means that there's no interoperable way to free this memory. 
 	 * For libgdiplus you must use GdipDisposeImage on the handle, while on Windows you should call the DestroyIcon function.
@@ -1066,6 +1088,9 @@ GdipCreateHICONFromBitmap (GpBitmap* bitmap, HICON *hbmReturn)
 GpStatus WINGDIPAPI
 GdipCreateBitmapFromResource (HINSTANCE hInstance, GDIPCONST WCHAR *lpBitmapName, GpBitmap** bitmap)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	return(NotImplemented);
 }
 

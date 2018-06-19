@@ -25,6 +25,7 @@
 
 #include "imageattributes-private.h"
 #include "bitmap-private.h"
+#include "general-private.h"
 
 static void
 gdip_init_image_attribute (GpImageAttribute* attr)
@@ -282,6 +283,9 @@ GpStatus WINGDIPAPI
 GdipCreateImageAttributes (GpImageAttributes **imageattr)
 {
 	GpImageAttributes *result;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!imageattr)
 		return InvalidParameter;

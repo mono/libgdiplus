@@ -25,6 +25,7 @@
  */
 
 #include "stringformat-private.h"
+#include "general-private.h"
 
 static void
 gdip_string_format_init (GpStringFormat *result)
@@ -58,6 +59,9 @@ GpStatus WINGDIPAPI
 GdipCreateStringFormat (INT formatAttributes, LANGID language, GpStringFormat **format)
 {
 	GpStringFormat *result;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!format)
 		return InvalidParameter;

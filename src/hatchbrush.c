@@ -26,6 +26,7 @@
 /* FIXME - match hatchbrush use the RenderOrigin stored in graphics */
 
 #include "hatchbrush-private.h"
+#include "general-private.h"
 #include "graphics-private.h"
 
 static GpStatus gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush);
@@ -1333,6 +1334,9 @@ gdip_hatch_destroy (GpBrush *brush)
 GpStatus
 GdipCreateHatchBrush (GpHatchStyle hatchstyle, ARGB forecolor, ARGB backcolor, GpHatch **brush)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!brush)
 		return InvalidParameter;
 

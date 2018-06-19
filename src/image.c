@@ -32,6 +32,7 @@
 #include "gdiplus-private.h"
 #include "image-private.h"
 #include "imageattributes-private.h"
+#include "general-private.h"
 #include "graphics-private.h"
 #include "matrix.h"
 
@@ -1036,6 +1037,9 @@ GdipDrawImagePointsRectI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoin
 GpStatus WINGDIPAPI
 GdipLoadImageFromStream (void *stream, GpImage **image)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!stream || !image)
 		return InvalidParameter;
 
@@ -1068,6 +1072,9 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	char		*file_name = NULL;
 	char		format_peek[MAX_CODEC_SIG_LENGTH];
 	int		format_peek_sz;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 	
 	if (!image || !file)
 		return InvalidParameter;
