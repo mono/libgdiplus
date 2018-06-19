@@ -1247,6 +1247,12 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	
 	if (string_format != format)
 		GdipDeleteStringFormat (string_format);
+
+	// If our Cairo context had a current point before laying out the path, Pango will have moved us back there.
+	// We don't want that when we process the path below, so clear it if set.
+	if (cairo_has_current_point(cr))
+		cairo_new_sub_path(cr);
+
 	}
 #else
 	{
