@@ -23,6 +23,7 @@
  */
 
 #include "adjustablearrowcap-private.h"
+#include "general-private.h"
 #include "graphics-private.h"
 
 static GpStatus gdip_adjust_arrowcap_setup (GpGraphics *graphics, GpCustomLineCap *cap);
@@ -166,6 +167,9 @@ GpStatus WINGDIPAPI
 GdipCreateAdjustableArrowCap (REAL height, REAL width, BOOL isFilled, GpAdjustableArrowCap **arrowCap)
 {
 	GpAdjustableArrowCap *cap;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!arrowCap)
 		return InvalidParameter;

@@ -22,6 +22,7 @@
 
 #include "metafile-private.h"
 #include "solidbrush-private.h"
+#include "general-private.h"
 #include "graphics.h"
 #include "graphics-path-private.h"
 #include "hatchbrush-private.h"
@@ -1609,6 +1610,9 @@ GdipCreateMetafileFromFile (GDIPCONST WCHAR *file, GpMetafile **metafile)
 	char *file_name;
 	GpStatus status;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!file || !metafile)
 		return InvalidParameter;
 
@@ -1639,6 +1643,9 @@ GdipCreateMetafileFromFile (GDIPCONST WCHAR *file, GpMetafile **metafile)
 GpStatus
 GdipCreateMetafileFromStream (void *stream, GpMetafile **metafile)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!stream || !metafile)
 		return InvalidParameter;
 
@@ -1670,6 +1677,9 @@ GdipCreateMetafileFromEmf (HENHMETAFILE hEmf, BOOL deleteEmf, GpMetafile **metaf
 {
 	GpStatus status;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!hEmf || !metafile)
 		return InvalidParameter;
 
@@ -1695,6 +1705,9 @@ GpStatus
 GdipCreateMetafileFromWmf (HMETAFILE hWmf, BOOL deleteWmf, GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, GpMetafile **metafile)
 {
 	GpStatus status;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!hWmf || !metafile)
 		return InvalidParameter;
@@ -1794,6 +1807,9 @@ GdipGetMetafileHeaderFromFile (GDIPCONST WCHAR *filename, MetafileHeader *header
 GpStatus
 GdipGetMetafileHeaderFromStream (void *stream, MetafileHeader *header)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!stream || !header)
 		return InvalidParameter;
 
@@ -1904,6 +1920,9 @@ GdipRecordMetafile (HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect
 {
 	GpMetafile *mf;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!referenceHdc || !frameRect || !metafile)
 		return InvalidParameter;
 
@@ -1958,6 +1977,9 @@ GdipRecordMetafileFileName (GDIPCONST WCHAR *fileName, HDC referenceHdc, EmfType
 	GpMetafile *mf = NULL;
 	char *file_name;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!fileName)
 		return InvalidParameter;
 
@@ -2004,6 +2026,9 @@ GpStatus
 GdipRecordMetafileStream (void /* IStream */ *stream, HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect, 
 	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	return NotImplemented;
 }
 

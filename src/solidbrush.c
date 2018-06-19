@@ -25,6 +25,7 @@
  */
 
 #include "solidbrush-private.h"
+#include "general-private.h"
 #include "graphics-private.h"
 
 static GpStatus gdip_solidfill_setup (GpGraphics *graphics, GpBrush *brush);
@@ -132,6 +133,9 @@ gdip_solidfill_destroy (GpBrush *brush)
 GpStatus WINGDIPAPI
 GdipCreateSolidFill (ARGB color, GpSolidFill **brush)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!brush)
 		return InvalidParameter;
 

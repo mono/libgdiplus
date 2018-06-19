@@ -24,6 +24,7 @@
  */
  
 #include "graphics-pathiterator-private.h"
+#include "general-private.h"
 #include "graphics-path-private.h"
 #include "font.h"
 
@@ -34,6 +35,9 @@ GdipCreatePathIter (GpPathIterator **iterator, GpPath *path)
 	GpPath *clone = NULL;
 	GpPathIterator *iter;
 	GpStatus status;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!iterator)
 		return InvalidParameter;

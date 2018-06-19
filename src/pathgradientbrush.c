@@ -25,6 +25,7 @@
  */
 
 #include "pathgradientbrush-private.h"
+#include "general-private.h"
 #include "gdiplus-private.h"
 #include "graphics-private.h"
 #include "graphics-path-private.h"
@@ -452,6 +453,9 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, INT count, GpWrapMode wrapMo
 	GpStatus status;
 	GpPointF point;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!polyGradient)
 		return InvalidParameter;
 
@@ -496,6 +500,9 @@ GdipCreatePathGradientI (GDIPCONST GpPoint *points, INT count, GpWrapMode wrapMo
 	GpStatus status;
 	GpPointF *pointsF;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!points)
 		return InvalidParameter;
 	if (count < 0)
@@ -519,6 +526,9 @@ GdipCreatePathGradientFromPath (GDIPCONST GpPath *path, GpPathGradient **polyGra
 	int i, count;
 	GpPathGradient *gp;
 	GpPointF *points;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!polyGradient)
 		return InvalidParameter;
@@ -605,6 +615,9 @@ GpStatus WINGDIPAPI
 GdipSetPathGradientSurroundColorsWithCount (GpPathGradient *brush, GDIPCONST ARGB *colors, INT *count)
 {
 	int boundaryColorsCount;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!brush || !colors || !count)
 		return InvalidParameter;

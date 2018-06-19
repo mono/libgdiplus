@@ -25,6 +25,7 @@
  */
 
 #include "customlinecap-private.h"
+#include "general-private.h"
 #include "graphics-path-private.h"
 #include "graphics-private.h"
 #include "graphics-cairo-private.h"
@@ -293,6 +294,9 @@ GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap
 	GpStatus status;
 	GpCustomLineCap *cap;
 	GpPath *fillpath_clone = NULL, *strokepath_clone = NULL;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if ((!fillPath && !strokePath) || !customCap)
 		return InvalidParameter;

@@ -24,6 +24,7 @@
  **/
 
 #include "matrix-private.h"
+#include "general-private.h"
 
 /*
 	GDI+ matrix takes 6 elements arranged in 3 rows by 2 columns. The identity matrix is
@@ -113,6 +114,9 @@ GdipCreateMatrix (GpMatrix **matrix)
 {
 	GpMatrix *result;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!matrix)
 		return InvalidParameter;
 
@@ -131,6 +135,9 @@ GpStatus WINGDIPAPI
 GdipCreateMatrix2 (REAL m11, REAL m12, REAL m21, REAL m22, REAL dx, REAL dy, GpMatrix **matrix)
 {
 	GpMatrix *result;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!matrix)
 		return InvalidParameter;
@@ -151,6 +158,9 @@ GdipCreateMatrix3 (GDIPCONST GpRectF *rect, GDIPCONST GpPointF *dstplg, GpMatrix
 {
 	GpMatrix *result;
 	GpStatus status;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!rect || !dstplg || !matrix)
 		return InvalidParameter;
@@ -174,6 +184,9 @@ GdipCreateMatrix3I (GDIPCONST GpRect *rect, GDIPCONST GpPoint *dstplg, GpMatrix 
 {
 	GpRectF rectf;
 	GpPointF pts[3];
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!rect || !dstplg || !matrix)
 		return InvalidParameter;

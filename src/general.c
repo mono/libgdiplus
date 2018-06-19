@@ -38,7 +38,7 @@
 /* large table to avoid a division and three multiplications when premultiplying alpha into R, G and B */
 #include "alpha-premul-table.inc"
 
-static BOOL startup = FALSE;
+BOOL gdiplusInitialized = FALSE;
 static BOOL suppressBackgroundThread = FALSE;
 
 GpStatus WINGDIPAPI
@@ -54,8 +54,10 @@ GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStart
 		return UnsupportedGdiplusVersion;
 
 	/* Don't initialize multiple time, e.g. for each appdomain. */
-	if (startup)
+	if (gdiplusInitialized)
 		return Ok;
+	
+	gdiplusInitialized = TRUE;
 
 	status = initCodecList ();
 	if (status != Ok)
@@ -70,7 +72,6 @@ GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStart
 	}
 
 	*token = 1;
-	startup = TRUE;
 	suppressBackgroundThread = input->SuppressBackgroundThread;
 
 	return Ok;
@@ -79,14 +80,14 @@ GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStart
 void
 WINGDIPAPI GdiplusShutdown (ULONG_PTR token)
 {
-	if (startup) {
+	if (gdiplusInitialized) {
 		releaseCodecList ();
 		gdip_font_clear_pattern_cache ();
 		gdip_delete_system_fonts ();
 #if HAVE_FCFINI
 		FcFini ();
 #endif
-		startup = FALSE; /* in case we want to restart it */
+		gdiplusInitialized = FALSE; /* in case we want to restart it */
 		suppressBackgroundThread = FALSE;
 	}
 }
@@ -96,6 +97,9 @@ WINGDIPAPI GdiplusShutdown (ULONG_PTR token)
 WINGDIPAPI void *
 GdipAlloc (size_t size)
 {
+	if (!gdiplusInitialized)
+		return NULL;
+
 	return malloc (size);
 }
 

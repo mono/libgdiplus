@@ -27,6 +27,7 @@
  */
 
 #include "texturebrush-private.h"
+#include "general-private.h"
 #include "graphics-private.h"
 #include "bitmap-private.h"
 #include "matrix-private.h"
@@ -700,6 +701,9 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 	GpTexture	*result;
 	GpStatus status;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!image || !texture)
 		return InvalidParameter;
 
@@ -728,6 +732,9 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 GpStatus WINGDIPAPI
 GdipCreateTexture2 (GpImage *image, GpWrapMode wrapMode, float x, float y, float width, float height, GpTexture **texture)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	return GdipCreateTexture2I (image, wrapMode, (int) x, (int) y, (int) width, (int) height, texture);
 }
 
@@ -737,6 +744,9 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 {
 	GpImage *textureImage;
 	GpStatus status;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!image || !texture)
 		return InvalidParameter;
@@ -772,6 +782,9 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 GpStatus WINGDIPAPI
 GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x, float y, float width, float height, GpTexture **texture)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	return GdipCreateTextureIAI (image, imageAttributes, (int) x, (int) y, (int) width, (int) height, texture);
 }
 
@@ -779,6 +792,9 @@ GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x
 GpStatus WINGDIPAPI
 GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x, int y, int width, int height, GpTexture **texture)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	/* FIXME MonoTODO: Make use of ImageAttributes parameter when
 	 * ImageAttributes is implemented */
 	GpWrapMode mode = imageAttributes ? imageAttributes->wrapmode : WrapModeTile;
@@ -928,6 +944,9 @@ GdipGetTextureWrapMode (GpTexture *texture, GpWrapMode *wrapMode)
 GpStatus WINGDIPAPI
 GdipGetTextureImage (GpTexture *texture, GpImage **image)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!texture || !image)
 		return InvalidParameter;
 

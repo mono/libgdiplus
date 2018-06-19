@@ -207,6 +207,9 @@ GdipCreatePath (FillMode fillMode, GpPath **path)
 {
 	GpPath *result;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!path)
 		return InvalidParameter;
 
@@ -240,6 +243,9 @@ GdipCreatePath2 (const GpPointF *points, const BYTE *types, int count, FillMode 
 {
 	GArray *pts;
 	GByteArray *t;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!path || !points || !types || (count < 0))
 		return InvalidParameter;
@@ -280,6 +286,9 @@ GdipCreatePath2I (const GpPoint *points, const BYTE *types, int count, FillMode 
 {
 	GpPointF *pt;
 	GpStatus s;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!points || !types || !path)
 		return InvalidParameter;

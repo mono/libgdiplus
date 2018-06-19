@@ -466,6 +466,9 @@ GdipCreateLineBrushI (GDIPCONST GpPoint *point1, GDIPCONST GpPoint *point2, ARGB
 {
 	GpPointF p1, p2;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!point1 || !point2 || !lineGradient || wrapMode == WrapModeClamp)	
 		return InvalidParameter;
 
@@ -484,6 +487,9 @@ GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARG
 	GpLineGradient *linear;
 	BOOL xFlipped = FALSE;
 	BOOL yFlipped = FALSE;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!point1 || !point2 || !lineGradient || wrapMode == WrapModeClamp)
 		return InvalidParameter;
@@ -573,6 +579,9 @@ GdipCreateLineBrushFromRectI (GDIPCONST GpRect *rect, ARGB color1, ARGB color2, 
 {
 	GpRectF rectf;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!rect || !lineGradient)
 		return InvalidParameter;
 
@@ -587,6 +596,9 @@ GdipCreateLineBrushFromRectI (GDIPCONST GpRect *rect, ARGB color1, ARGB color2, 
 GpStatus WINGDIPAPI
 GdipCreateLineBrushFromRect (GDIPCONST GpRectF *rect, ARGB color1, ARGB color2, LinearGradientMode mode, GpWrapMode wrapMode, GpLineGradient **lineGradient)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!rect || !lineGradient)
 		return InvalidParameter;
 
@@ -603,6 +615,9 @@ GdipCreateLineBrushFromRectWithAngleI (GDIPCONST GpRect *rect, ARGB color1, ARGB
 {
 	GpRectF rectf;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!rect || !lineGradient)
 		return InvalidParameter;
 
@@ -616,6 +631,9 @@ GpStatus
 GdipCreateLineBrushFromRectWithAngle (GDIPCONST GpRectF *rect, ARGB color1, ARGB color2, float angle, BOOL isAngleScalable, GpWrapMode wrapMode, GpLineGradient **lineGradient)
 {
 	GpLineGradient *linear;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!rect || !lineGradient || wrapMode == WrapModeClamp)
 		return InvalidParameter;
