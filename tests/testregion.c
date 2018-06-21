@@ -4541,6 +4541,14 @@ static void test_combineUnion ()
 	};
 	verifyCombineRectWithRect (&rect, &noIntersectBottomLeftRect, CombineModeUnion, -21, 20, 61, 81, FALSE, FALSE, noIntersectBottomLeftScans, sizeof (noIntersectBottomLeftScans));
 
+	// No Intersect Top Rect + No Intersect Bottom Right = Both.
+	RectF noIntersectTopAndBottomRight[] = {
+		noIntersectTopRect,
+		noIntersectBottomRightRect
+	};
+	verifyCombineRectWithRect (&noIntersectTopRect, &noIntersectBottomRightRect, CombineModeUnion, 10, -20, 60, 120, FALSE, FALSE, noIntersectTopAndBottomRight, sizeof (noIntersectTopAndBottomRight));
+
+
 	// Rect + Infinite Path = Infinite.
 	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
 #if defined(USE_WINDOWS_GDIPLUS)
