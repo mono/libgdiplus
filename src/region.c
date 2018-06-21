@@ -247,11 +247,13 @@ gdip_is_InfiniteRegion (const GpRegion *region)
 }
 
 static BOOL
-gdip_intersects (const GpRectF *rect1, const GpRectF *rect2)
+gdip_intersects (const GpRectF *rect1, const GpRectF *rect2, BOOL includeTouching)
 {
-	if (rect1->X + rect1->Width == rect2->X) {
-		return TRUE;
-	}
+	if (includeTouching)
+		return (rect1->X <= rect2->X + rect2->Width &&
+			rect1->X + rect1->Width >= rect2->X &&
+			rect1->Y <= rect2->Y + rect2->Height &&
+			rect1->Y + rect1->Height >= rect2->Y);
 
 	return (rect1->X < rect2->X + rect2->Width &&
 		rect1->X + rect1->Width > rect2->X &&
@@ -780,7 +782,7 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 		/* Current rect with lowest y and X against the target ones */
 		for (i = 0, recttrg = alltrgrects; i < alltrgcnt; i++, recttrg++) {
 
-			if (gdip_intersects (&current, recttrg) == FALSE
+			if (gdip_intersects (&current, recttrg, FALSE) == FALSE
 				|| gdip_equals (&current, recttrg) == TRUE ||
 				recttrg->Height < 0 || recttrg->Width < 0) {
 				continue;
@@ -989,7 +991,7 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 				continue;
 			}
 
-			if (gdip_intersects (&current, recttrg) == FALSE
+			if (gdip_intersects (&current, recttrg, TRUE) == FALSE
 				|| gdip_equals (&current, recttrg) == TRUE ||
 				recttrg->Height < 0 || recttrg->Width < 0) {
 				continue;
