@@ -119,6 +119,17 @@ case "$host" in
 		CFLAGS="-pthreads $CFLAGS"
 		;;
 
+	*-*-aix*|*-*-os400)
+		AC_DEFINE_UNQUOTED(AIX,1,[AIX or PASE])
+		# Specify a 64-bit build via GCC, as Mono is always 64-bit on AIX/PASE
+		CFLAGS="-D_THREAD_SAFE -maix64 $CFLAGS"
+		LDFLAGS="-maix64 $LDFLAGS"
+		# Like mono, don't use `OBJECT_MODE=64`, but specify 64-bit mode IBM binutils
+		# explictly instead.
+		AR="/usr/bin/ar -X64"
+		NM="/usr/bin/nm -X64"
+		;;
+
 	*-*-darwin*)
 		AC_DEFINE_UNQUOTED(OSX,1,[OS X])
 		CFLAGS="-no-cpp-precomp $CFLAGS"
@@ -190,6 +201,13 @@ case "$host" in
 		case $host_os in
 		  solaris*)
 			# On solaris 10 x86, gcc prints a warning saying 'visibility attribute not supported on this configuration; ignored', but linking fails.
+			have_visibility_hidden=no
+		esac
+		;;
+	powerpc-*-*)
+		case $host_os in
+		  aix*|os400*)
+			# XCOFF doesn't have this, but somehow it appears anyways
 			have_visibility_hidden=no
 		esac
 		;;
