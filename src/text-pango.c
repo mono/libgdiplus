@@ -596,6 +596,7 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		int lastIndex;
 		int y0;
 		int y1;
+		int len;
 		double min_x;
 		double max_x;
 		double max_y;
@@ -636,11 +637,14 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 		if (codepointsFitted) {
 			layoutText = pango_layout_get_text (layout);
+
+			len = strlen (layoutText);
 			/* this can happen when the string ends in a newline */
-			if (lastIndex >= strlen (layoutText))
-				lastIndex = strlen (layoutText) - 1;
+			if (lastIndex >= len) {
+				lastIndex = g_utf8_prev_char(layoutText + len) - layoutText;
+			}
 			/* Add back in any & characters removed and the final newline characters (if any) */
-			charsFitted = g_utf8_strlen (layoutText, lastIndex + 1) + charsRemoved [lastIndex];
+			charsFitted = g_utf8_strlen (layoutText, g_utf8_next_char (layoutText + lastIndex) - layoutText) + charsRemoved [lastIndex];
 			//g_warning("lastIndex: %d\t\tcharsRemoved: %d", lastIndex, charsRemoved[lastIndex]);
 			/* safe because of null termination */
 			switch (layoutText [lastIndex + 1]) {
