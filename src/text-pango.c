@@ -77,7 +77,7 @@ gdip_set_array_values (int *array, int value, int num)
 static GString *
 gdip_process_string (gchar *text, int length, int removeAccelerators, int trimSpace, PangoAttrList *list, int **charsRemoved)
 {
-	int i, j;
+	int c, j, r;
 	int nonws = 0;
 	gchar *iter;
 	gchar *iter2;
@@ -105,15 +105,16 @@ gdip_process_string (gchar *text, int length, int removeAccelerators, int trimSp
 	}
 
 	iter = text;
-	i = 0;
-	j = 0;
+	// c: Characters handled in the inner loop, that might be removed.
+	j = 0; // Index in output
+	r = 0; // Characters removed
 	while (iter - text < length) {
 		ch = g_utf8_get_char (iter);
 		if (ch == GDIP_WINDOWS_ACCELERATOR && removeAccelerators && (iter - text < length - 1)) {
 			nonws = 1;
 			iter2 = g_utf8_next_char (iter);
-			i += iter2 - iter;
 			iter = iter2;
+			r++;
 			ch = g_utf8_get_char (iter);
 				/* add an attribute on the next character */
 			if (list && (iter - text < length) && (ch != GDIP_WINDOWS_ACCELERATOR)) {
@@ -126,35 +127,38 @@ gdip_process_string (gchar *text, int length, int removeAccelerators, int trimSp
 			nonws = 1;
 		} else if (trimSpace && ch != '\r' && ch != '\n') {
 			/* unless specified we don't consider the trailing spaces, unless there is just one space (#80680) */
+			c = 1;
 			for (iter2 = g_utf8_next_char (iter); iter2 - text < length; iter2 = g_utf8_next_char (iter2)) {
 				ch = g_utf8_get_char (iter2);
 				if (ch == '\r' || ch == '\n')
 					break;
 				if (!g_unichar_isspace (ch)) {
+					c = 0;
 					g_string_append_len (res, iter, iter2 - iter);
 					if (charsRemoved && *charsRemoved)
-						gdip_set_array_values ((*charsRemoved)+j, i - j, iter2 - iter);
+						gdip_set_array_values ((*charsRemoved)+j, r, iter2 - iter);
 					j += iter2 - iter;
 					break;
 				}
+				c++;
 			}
-			i += iter2 - iter;
+			r += c;
 			iter = iter2;
 			continue;
 		} else if ((ch == '\r' && (iter - text == length - 2) && (*g_utf8_next_char (iter) == '\n')) || (ch == '\n' && iter - text == length - 1)) {
 			/* in any case, ignore a final newline as pango will add an extra line to the measurement while gdi+ does not */
-			i = length;
+			r += length - (iter - text);
 			break;
 		}
 		iter2 = g_utf8_next_char (iter);
 		g_string_append_len (res, iter, iter2 - iter);
 		/* save these for string lengths later */
 		if (charsRemoved && *charsRemoved)
-			gdip_set_array_values ((*charsRemoved)+j, i - j, iter2 - iter);
+			gdip_set_array_values ((*charsRemoved)+j, r, iter2 - iter);
 		j += iter2 - iter;
-		i += iter2 - iter;
 		iter = iter2;
 	}
+
 	/* always ensure that at least one space is measured */
 	if (!nonws && trimSpace && length > 0) {
 		iter = text;
@@ -164,7 +168,7 @@ gdip_process_string (gchar *text, int length, int removeAccelerators, int trimSp
 	}
 	if (charsRemoved && *charsRemoved && j > 0) {
 		int prevj = (g_utf8_prev_char (res->str + j) - res->str);
-		gdip_set_array_values (*charsRemoved + prevj, i - j, j - prevj);
+		gdip_set_array_values (*charsRemoved + prevj, r, j - prevj);
 	}
 	return res;
 }
