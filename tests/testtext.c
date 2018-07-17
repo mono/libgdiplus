@@ -96,6 +96,55 @@ static void test_measure_string(void)
 	expect (4, glyphs);
 	expect (3, lines);
 
+	// Attempt to fit 2 glyphs / 1 line into a bounding box from 2 glyphs / 1 line
+	rect = saved_bounds;
+	set_rect_empty (&bounds);
+	status = GdipMeasureString (graphics, teststring1, 2, font, &rect, format, &bounds, &glyphs, &lines);
+	expect (Ok, status);
+	expect (2, glyphs);
+	expect (1, lines);
+
+	// Try again with StringFormatFlagsLineLimit set. Should still fit.
+	status = GdipSetStringFormatFlags(format, StringFormatFlagsLineLimit);
+	expect (Ok, status);
+	set_rect_empty (&bounds);
+	status = GdipMeasureString (graphics, teststring1, 2, font, &rect, format, &bounds, &glyphs, &lines);
+	expect (Ok, status);
+	expect (2, glyphs);
+	expect (1, lines);
+
+	// Try again, but use clipping to only "show" the top half of a line. Should fit even with LineLimit.
+	status = GdipSetClipRect (graphics, rect.X, rect.Y, rect.Width, rect.Height / 2, CombineModeReplace);
+	expect (Ok, status);
+	set_rect_empty (&bounds);
+	status = GdipMeasureString (graphics, teststring1, 2, font, &rect, format, &bounds, &glyphs, &lines);
+	expect (Ok, status);
+	expect (2, glyphs);
+	expect (1, lines);
+
+	// Reset the clip region
+	status = GdipResetClip (graphics);
+	expect (Ok, status);
+
+	// Now shorten the box slightly. Should not fit anything due to LineLimit.
+	rect.Height *= 0.9;
+	set_rect_empty (&bounds);
+	status = GdipMeasureString (graphics, teststring1, 2, font, &rect, format, &bounds, &glyphs, &lines);
+	expect (Ok, status);
+	expect (0, glyphs);
+	expect (1, lines);
+
+	// Clear LineLimit flag
+	status = GdipSetStringFormatFlags(format, 0);
+	expect (Ok, status);
+
+	// Without LineLimit, it should fit the line successfully.
+	set_rect_empty (&bounds);
+	status = GdipMeasureString (graphics, teststring1, 2, font, &rect, format, &bounds, &glyphs, &lines);
+	expect (Ok, status);
+	expect (2, glyphs);
+	expect (1, lines);
+
 	// Attempt to fit 3 glyphs / 2 lines into a bounding box from 2 glyphs / 1 line
 	rect = saved_bounds;
 	set_rect_empty (&bounds);
