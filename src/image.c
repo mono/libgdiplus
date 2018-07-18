@@ -553,8 +553,7 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	/* Create a surface for this bitmap if one doesn't exist */
 	gdip_bitmap_ensure_surface (image);
 
-	if (graphics->type != gtMemoryBitmap &&
-		gdip_bitmap_format_needs_premultiplication (image)) {
+	if (gdip_bitmap_format_needs_premultiplication (image)) {
 		premul = gdip_bitmap_get_premultiplied_scan0 (image);
 		if (premul) {
 			BitmapData *data = image->active_bitmap;
@@ -744,8 +743,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 			gdip_flip_x (imgflipX);	
 			gdip_bitmap_ensure_surface (imgflipX);			
 
-			if (graphics->type != gtMemoryBitmap &&
-				gdip_bitmap_format_needs_premultiplication (imgflipX)) {
+			if (gdip_bitmap_format_needs_premultiplication (imgflipX)) {
 				premulX = gdip_bitmap_get_premultiplied_scan0 (imgflipX);
 				if (premulX) {
 					BitmapData *data = imgflipX->active_bitmap;
@@ -763,8 +761,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 			gdip_flip_y (imgflipY);	
 			gdip_bitmap_ensure_surface (imgflipY);			
 			
-			if (graphics->type != gtMemoryBitmap &&
-				gdip_bitmap_format_needs_premultiplication (imgflipY)) {
+			if (gdip_bitmap_format_needs_premultiplication (imgflipY)) {
 				premulY = gdip_bitmap_get_premultiplied_scan0 (imgflipY);
 				if (premulY) {
 					BitmapData *data = imgflipY->active_bitmap;
@@ -783,8 +780,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 			gdip_flip_y (imgflipXY);	
 			gdip_bitmap_ensure_surface (imgflipXY);			
 
-			if (graphics->type != gtMemoryBitmap &&
-				gdip_bitmap_format_needs_premultiplication (imgflipXY)) {
+			if (gdip_bitmap_format_needs_premultiplication (imgflipXY)) {
 				premulXY = gdip_bitmap_get_premultiplied_scan0 (imgflipXY);
 				if (premulXY) {
 					BitmapData *data = imgflipXY->active_bitmap;
@@ -799,8 +795,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		
 		gdip_bitmap_ensure_surface (image);
 
-		if (graphics->type != gtMemoryBitmap &&
-			gdip_bitmap_format_needs_premultiplication (image)) {
+		if (gdip_bitmap_format_needs_premultiplication (image)) {
 			premul = gdip_bitmap_get_premultiplied_scan0 (image);
 			if (premul) {
 				BitmapData *data = image->active_bitmap;
@@ -895,8 +890,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 
 		gdip_bitmap_ensure_surface (image);
 
-		if (graphics->type != gtMemoryBitmap &&
-			gdip_bitmap_format_needs_premultiplication (image)) {
+		if (gdip_bitmap_format_needs_premultiplication (image)) {
 			premul = gdip_bitmap_get_premultiplied_scan0 (image);
 			if (premul) {
 				BitmapData *data = image->active_bitmap;
