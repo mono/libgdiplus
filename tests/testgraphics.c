@@ -2050,6 +2050,34 @@ static void test_region_mask()
 	GdipDisposeImage (bitmap);
 }
 
+static void test_premultiplication ()
+{
+	GpStatus status;
+	GpBitmap *bitmap;
+	GpBitmap *bitmapBackground;
+	GpGraphics *graphicsBackground;
+
+	BYTE bpp32ArgbData[] = { 0xFF, 0xFF, 0xFF, 0x80 };
+	ARGB bpp32ArgbPixels[] = { 0x80FFFFFF };
+	ARGB bpp32RgbPixels[] = { 0xFF808080 };
+
+	status = GdipCreateBitmapFromScan0 (1, 1, 4, PixelFormat32bppARGB, bpp32ArgbData, &bitmap);
+	assertEqualInt (status, Ok);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 1, 1, ImageFlagsHasAlpha, 0, TRUE);
+	verifyPixels (bitmap, bpp32ArgbPixels);
+	status = GdipCreateBitmapFromScan0 (1, 1, 4, PixelFormat32bppRGB, NULL, &bitmapBackground);
+	assertEqualInt (status, Ok);
+	status = GdipBitmapSetPixel (bitmapBackground, 0, 0, 0);
+	assertEqualInt (status, Ok);
+	GdipGetImageGraphicsContext (bitmapBackground, &graphicsBackground);
+	status = GdipDrawImage (graphicsBackground, (GpImage *)bitmap, 0, 0);
+	assertEqualInt (status, Ok);
+	GdipDeleteGraphics (graphicsBackground);
+	verifyPixels (bitmapBackground, bpp32RgbPixels);
+	GdipDisposeImage ((GpImage *) bitmapBackground);
+	GdipDisposeImage ((GpImage *) bitmap);
+}
+
 int
 main (int argc, char**argv)
 {
@@ -2092,6 +2120,7 @@ main (int argc, char**argv)
 	test_translateClip ();
 	test_translateClipI ();
 	test_region_mask ();
+	test_premultiplication ();
 
 	SHUTDOWN;
 	return 0;
