@@ -162,7 +162,7 @@ gdip_get_bounds (GpRectF *allrects, int allcnt, GpRectF *bound)
 
 /* This internal version doesn't require a Graphic object to work */
 static BOOL
-gdip_is_rect_empty (GpRectF *rect)
+gdip_is_rect_empty (const GpRectF *rect)
 {
 	return rect && (rect->Width <= 0 || rect->Height <= 0);
 }
@@ -182,6 +182,8 @@ gdip_is_region_empty (GpRegion *region)
 
 		gdip_get_bounds (region->rects, region->cnt, &rect);
 		return gdip_is_rect_empty (&rect);
+	case RegionTypeInfinite:
+		return FALSE;
 	case RegionTypePath:
 		/* check for an existing, but empty, path list */
 		if (!region->tree)
@@ -220,6 +222,8 @@ gdip_is_InfiniteRegion (GpRegion *region)
 				return gdip_is_rect_infinite (&bounds);
 		}
 		break;
+	case RegionTypeInfinite:
+		return TRUE;
 	default:
 		g_warning ("unknown type 0x%08X", region->type);
 		break;
@@ -403,7 +407,6 @@ gdip_region_convert_to_path (GpRegion *region)
 	if (!region || (region->type == RegionTypePath))
 		return Ok;
 
-	region->type = RegionTypePath;
 	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
 	if (!region->tree)
 		return OutOfMemory;
@@ -412,9 +415,18 @@ gdip_region_convert_to_path (GpRegion *region)
 	if (status != Ok)
 		return status;
 
-	/* all rectangles are converted into a single path */
-	for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
-		GdipAddPathRectangle (region->tree->path, rect->X, rect->Y, rect->Width, rect->Height);
+	switch (region->type) {
+	case RegionTypeRect:
+	case RegionTypeInfinite:
+		/* all rectangles are converted into a single path */
+		for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
+			GdipAddPathRectangle (region->tree->path, rect->X, rect->Y, rect->Width, rect->Height);
+		}
+
+		break;
+	default:
+		g_warning ("unknown type 0x%08X", region->type);
+		return NotImplemented;
 	}
 
 	if (region->rects) {
@@ -422,6 +434,7 @@ gdip_region_convert_to_path (GpRegion *region)
 		region->rects = NULL;
 	}
 
+	region->type = RegionTypePath;
 	return Ok;
 }
 
@@ -593,7 +606,7 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 		break;
 	}
 	case RegionDataInfiniteRect: {
-		result->type = RegionTypeRect;
+		result->type = RegionTypeInfinite;
 
 		GpRectF rect = {REGION_INFINITE_POSITION, REGION_INFINITE_POSITION, REGION_INFINITE_LENGTH, REGION_INFINITE_LENGTH};
 		gdip_add_rect_to_array (&result->rects, &result->cnt, &rect);
@@ -659,7 +672,7 @@ GdipSetInfinite (GpRegion *region)
 		return InvalidParameter;
 
 	gdip_clear_region (region);
-	region->type = RegionTypeRect;
+	region->type = RegionTypeInfinite;
 
 	rect.X = rect.Y = REGION_INFINITE_POSITION;
 	rect.Width = rect.Height = REGION_INFINITE_LENGTH;
@@ -1191,23 +1204,84 @@ error:
 	return status;
 }
 
-
 GpStatus WINGDIPAPI
 GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode combineMode)
 {
 	if (!region || !rect)
 		return InvalidParameter;
 
-	/* allow the current region to "revert" to a simple RegionTypeRect if possible */
-	if (combineMode == CombineModeReplace)
+	if (combineMode == CombineModeReplace) {
 		GdipSetEmpty (region);
+		return gdip_add_rect_to_array (&region->rects, &region->cnt, (GpRectF *)rect);
+	}
 
-	/* Union with infinity is a no-op (still an infinite region) */
-	if ((combineMode == CombineModeUnion) && gdip_is_InfiniteRegion (region))
-		return Ok;
+	BOOL infinite = gdip_is_InfiniteRegion (region);
+	BOOL empty = gdip_is_region_empty (region);
+	BOOL rectEmpty = gdip_is_rect_empty (rect);
+
+	if (rectEmpty) {
+		switch (combineMode) {
+		case CombineModeUnion:
+		case CombineModeXor:
+		case CombineModeExclude:
+			/* The union of the empty region and X is X */
+			/* The xor of the empty region and X is X */
+			/* Everything is outside the empty region */
+			if (empty)
+				return GdipSetEmpty (region);
+			if (infinite)
+				return GdipSetInfinite (region);
+
+			return Ok;
+		case CombineModeIntersect:
+		case CombineModeComplement:
+			/* The empty region does not intersect with anything */
+			/* Nothing is inside the empty region */
+			return GdipSetEmpty (region);
+		default:
+			break;
+		}
+	}
+
+	if (infinite) {
+		switch (combineMode) {
+		case CombineModeIntersect:
+			/* The intersection of the infinite region with X is X */
+			GdipSetEmpty (region);
+			return gdip_add_rect_to_array (&region->rects, &region->cnt, (GpRectF *)rect);
+		case CombineModeUnion:
+			/* The union of the infinite region and X is the infinite region */
+			return GdipSetInfinite (region);
+		case CombineModeComplement:
+			/* Nothing is outside the infinite region */
+			return GdipSetEmpty (region);
+		default:
+			break;
+		}
+	} else if (empty) {
+		switch (combineMode) {
+		case CombineModeIntersect:
+		case CombineModeExclude:
+			/* The empty region does not intersect with anything */
+			/* Nothing to exclude */
+			return GdipSetEmpty (region);
+		case CombineModeUnion:
+		case CombineModeXor:
+		case CombineModeComplement:
+			/* The union of the empty region and X is X */
+			/* The XOR of the empty region and X is X */
+			/* Everything is outside the empty region */
+			GdipSetEmpty (region);
+			return gdip_add_rect_to_array (&region->rects, &region->cnt, (GpRectF *)rect);
+		default:
+			break;
+		}
+	}
 
 	switch (region->type) {
-	case RegionTypeRect: {
+	case RegionTypeRect:
+	case RegionTypeInfinite: {
+		region->type = RegionTypeRect;
 		switch (combineMode) {
 		case CombineModeExclude:
 			return gdip_combine_exclude (region, (GpRectF *) rect, 1);
@@ -1307,60 +1381,73 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 	if (!region || !path)
 		return InvalidParameter;
 
-	/* special case #1 - replace */
 	if (combineMode == CombineModeReplace) {
 		gdip_clear_region (region);
-		gdip_region_create_from_path (region, path);
-		return Ok;
+		return gdip_region_create_from_path (region, path);
 	}
+	
+	BOOL infinite = gdip_is_InfiniteRegion (region);
+	BOOL empty = gdip_is_region_empty (region);
+	BOOL pathEmpty = path->count == 0;
 
-	/* special case #2 - the region is empty */
-	if (gdip_is_region_empty (region)) {
+	if (pathEmpty) {
 		switch (combineMode) {
-		case CombineModeComplement:
 		case CombineModeUnion:
 		case CombineModeXor:
-			/* this is like "adding" the path */
-			gdip_clear_region (region);
-			gdip_region_create_from_path (region, path);
-			break;
-		default:
-			/* Intersect and Exclude are no-op on an empty region */
-			break;
-		}
-		return Ok;
-	}
+		case CombineModeExclude:
+			/* The union of the empty region and X is X */
+			/* The xor of the empty region and X is X */
+			/* Everything is outside the empty region */
+			if (empty)
+				return GdipSetEmpty (region);
 
-	/* special case #3 - the region is infinite */
-	if (gdip_is_InfiniteRegion (region)) {
-		/* additional shortcuts are possible if path is empty */
-		BOOL empty = (path->count == 0);
-
-		switch (combineMode) {
-		case CombineModeUnion:
-			/* Union with infinity is a no-op (still an infinite region) */
-			return Ok;
-		case CombineModeComplement:
-			/* Complement of infinity is empty - whatever the path is */
-			gdip_clear_region (region);
-			region->type = RegionTypeRect;
 			return Ok;
 		case CombineModeIntersect:
-			/* Intersection with infinity is the path itself */
-			gdip_clear_region (region);
-			if (empty)
-				region->type = RegionTypeRect;
-			else
-				gdip_region_create_from_path (region, path);
-			return Ok;
+		case CombineModeComplement:
+			/* The empty region does not intersect with anything */
+			/* Nothing is inside the empty region */
+			return GdipSetEmpty (region);
+		default:
+			break;
+		}
+	}
+
+	if (infinite) {
+		switch (combineMode) {
+		case CombineModeIntersect:
+			/* The intersection of the infinite region with X is X */
+			GdipSetEmpty (region);
+			return gdip_region_create_from_path (region, path);
+		case CombineModeUnion:
+			/* The union of the infinite region and X is the infinite region */
+			return GdipSetInfinite (region);
+		case CombineModeComplement:
+			/* Nothing is outside the infinite region */
+			return GdipSetEmpty (region);
 		case CombineModeExclude:
 			if (gdip_combine_exclude_from_infinite (region, path))
 				return Ok;
+
 			break;
 		default:
-			/* Xor must be treated as a "normal" case unless the path is empty */
-			if (empty)
-				return Ok;
+			break;
+		}
+	} else if (empty) {
+		switch (combineMode) {
+		case CombineModeIntersect:
+		case CombineModeExclude:
+			/* The empty region does not intersect with anything */
+			/* Nothing to exclude */
+			return GdipSetEmpty (region);
+		case CombineModeUnion:
+		case CombineModeXor:
+		case CombineModeComplement:
+			/* The union of the empty region and X is X */
+			/* The XOR of the empty region and X is X */
+			/* Everything is outside the empty region */
+			GdipSetEmpty (region);
+			return gdip_region_create_from_path (region, path);
+		default:
 			break;
 		}
 	}
@@ -1476,61 +1563,114 @@ gdip_combine_pathbased_region (GpRegion *region1, GpRegion *region2, CombineMode
 
 
 GpStatus WINGDIPAPI
-GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combineMode)
+GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combineMode)
 {
 	GpStatus status;
 
 	if (!region || !region2)
 		return InvalidParameter;
 
-	/* special case to deal with copying empty and infinity regions */
-	/* CombineModeReplace is used by Graphics clipping */
 	if (combineMode == CombineModeReplace) {
 		GdipSetEmpty (region);
 		return gdip_copy_region (region2, region);
-	} else if (gdip_is_region_empty (region)) {
-		switch (combineMode) {
-		case CombineModeIntersect:
-		case CombineModeExclude:
-			/* Intersect and Exclude are no-op on an empty region */
-			return Ok;
-		default:
-			/* for Complement, Union and Xor this is normal processing */
-			break;
-		}
-	} else if (gdip_is_InfiniteRegion (region)) {
-		/* additional shortcuts are possible if path is empty */
-		BOOL empty = gdip_is_region_empty (region2);
+	}
 
-		switch (combineMode) {
-		case CombineModeUnion:
-			/* Union with infinity is a no-op (still an infinite region) */
+	BOOL region1Empty = gdip_is_region_empty (region);
+	BOOL region1Infinite = gdip_is_InfiniteRegion (region);
+	BOOL region2Empty = gdip_is_region_empty (region2);
+	BOOL region2Infinite = gdip_is_InfiniteRegion (region2);
+
+	switch (combineMode) {
+	case CombineModeUnion:
+		if (region1Infinite || region2Infinite) {
+			/* The union of X with the infinite region is infinite */
+			return GdipSetInfinite (region);
+		}
+		if (region1Empty) {
+			/* The union of the empty region and X is X */
+			GdipSetEmpty (region);
+			if (!region2Empty)
+				return gdip_copy_region (region2, region);
+			
 			return Ok;
-		case CombineModeComplement:
-			/* Complement of infinity is empty - whatever the path is */
-			gdip_clear_region (region);
-			region->type = RegionTypeRect;
+		}
+		if (region2Empty) {
+			/* The union of the empty region and X is X */
 			return Ok;
-		case CombineModeIntersect:
-			/* Intersection with infinity is the path itself (like an Union with Empty) */
-			gdip_clear_region (region);
-			region->type = RegionTypeRect;
-			if (empty)
-				return Ok;
-			combineMode = CombineModeUnion; 
-			break;
-		case CombineModeExclude:
-			if (empty)
-				return Ok;
+		}
+		
+		break;
+	case CombineModeIntersect:
+		if (region1Empty || region2Empty) {
+			/* Nothing intersects with the empty region */
+			return GdipSetEmpty (region);
+		}
+		if (region1Infinite) {
+			/* Everything intersects with the infinite region */
+			GdipSetEmpty (region);
+			return gdip_copy_region (region2, region);
+		}
+		if (region2Infinite) {
+			/* Everything intersects with the infinite region */
+			return Ok;
+		}
+
+		break;
+	case CombineModeExclude:
+		if (region1Empty) {
+			/* Nothing is outside the empty region */
+			return GdipSetEmpty (region);
+		}
+		if (region2Empty) {
+			/* Everything is outside the empty region */
+			return Ok;
+		}
+		if (region1Infinite) {
 			if ((region2->type == RegionTypePath) && region2->tree && region2->tree->path &&
 				gdip_combine_exclude_from_infinite (region, region2->tree->path))
 				return Ok;
-			break;
-		default:
-			/* Xor must be treated as a "normal" case unless the path is empty */
-			if (empty)
-				return Ok;
 		}
+
+		break;
+	case CombineModeXor:
+		if (region2Empty) {
+			/* The XOR of the empty region and X is X */
+			if (region1Empty) {
+				return GdipSetEmpty (region);
+			}
+
+			return Ok;
+		}
+		if (region1Empty) {
+			/* The XOR of the empty region and X is X */
+			GdipSetEmpty (region);
+			return gdip_copy_region (region2, region);
+		}
+		if (region1Infinite && region2Infinite) {
+			/* The XOR of the infinite region and the infinite region is X */
+			return GdipSetEmpty (region);
+		}
+
+		break;
+	case CombineModeComplement:
+		if (region1Infinite || region2Empty) {
+			/* Nothing is outside the infinite region */
+			/* Nothing is inside the empty region */
+			return GdipSetEmpty (region);
+		}
+		if (region1Empty) {
+			/* Anything is outside of the empty region */
+			if (region2Infinite) {
+				return GdipSetInfinite (region);
+			}
+
+			GdipSetEmpty (region);
+			return gdip_copy_region (region2, region);
+		}
+
+		break;
+	default:
+		break;
 	}
 
 	if (region->type == RegionTypePath) {
@@ -1550,6 +1690,7 @@ GdipCombineRegionRegion (GpRegion *region,  GpRegion *region2, CombineMode combi
 	/* at this stage we are sure that BOTH region and region2 are rectangle 
 	 * based, so we can use the old rectangle-based code to combine regions
 	 */
+	region->type = RegionTypeRect;
 	switch (combineMode) {
 	case CombineModeExclude:
 		return gdip_combine_exclude (region, region2->rects, region2->cnt);
@@ -1574,6 +1715,7 @@ GdipGetRegionBounds (GpRegion *region, GpGraphics *graphics, GpRectF *rect)
 
 	switch (region->type) {
 	case RegionTypeRect:
+	case RegionTypeInfinite:
 		gdip_get_bounds (region->rects , region->cnt, rect);
 		break;
 	case RegionTypePath: {
@@ -1636,6 +1778,7 @@ GdipIsVisibleRegionPoint (GpRegion *region, float x, float y, GpGraphics *graphi
 
 	switch (region->type) {
 	case RegionTypeRect:
+	case RegionTypeInfinite:
 		*result = gdip_is_Point_in_RectFs_Visible (x, y, region->rects, region->cnt);
 		break;
 	case RegionTypePath:
@@ -1673,6 +1816,7 @@ GdipIsVisibleRegionRect (GpRegion *region, float x, float y, float width, float 
 
 	switch (region->type) {
 	case RegionTypeRect:
+	case RegionTypeInfinite:
 		*result = gdip_is_Rect_in_RectFs_Visible (x, y, width, height, region->rects, region->cnt);
 		break;
 	case RegionTypePath: {
@@ -1748,6 +1892,7 @@ GdipGetRegionScansCount (GpRegion *region, UINT *count, GpMatrix *matrix)
 	} else {
 		switch (work->type) {
 		case RegionTypeRect:
+		case RegionTypeInfinite:
 			*count = work->cnt;
 			break;
 		case RegionTypePath:
@@ -1815,6 +1960,7 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matr
 	} else {
 		switch (region->type) {
 		case RegionTypeRect:
+		case RegionTypeInfinite:
 			if (rects)
 				memcpy (rects, work->rects, sizeof (GpRectF) * work->cnt);
 			*count = work->cnt;
@@ -1919,7 +2065,6 @@ GdipTranslateRegion (GpRegion *region, float dx, float dy)
 	}
 	case RegionTypePath:
 		gdip_region_translate_tree (region->tree, dx, dy);
-		/* any existing bitmap is still valid _if_ we update it's origin */
 		if (region->bitmap) {
 			region->bitmap->X += dx;
 			region->bitmap->Y += dy;
@@ -2068,9 +2213,7 @@ GdipCreateRegionPath (GpPath *path, GpRegion **region)
  *	GpPathTree tree
  *
  * Type 3 (RegionTypeInfinite)
- *	Note: There is no type 3. RegionTypeInfinite are converted into 
- *	RegionTypeRect (type 1) when a region is created.
- *
+ *	guint32 RegionType	Always 0x10000003.
  *
  * where GpPathTree is
  *	guint32 Tag		1 = Path, 2 = Tree
@@ -2105,6 +2248,10 @@ GdipGetRegionDataSize (GpRegion *region, UINT *bufferSize)
 	case RegionTypePath:
 		/* regiontype, tree */
 		*bufferSize += sizeof (DWORD) + gdip_region_get_tree_size (region->tree);
+		break;
+	case RegionTypeInfinite:
+		// Only one DWORD.
+		*bufferSize += sizeof (DWORD);
 		break;
 	default:
 		g_warning ("unknown type 0x%08X", region->type);
@@ -2162,6 +2309,12 @@ GdipGetRegionData (GpRegion *region, BYTE *buffer, UINT bufferSize, UINT *sizeFi
 
 		if (!gdip_region_serialize_tree (region->tree, buffer + filled, bufferSize - filled, &filled))
 			return InsufficientBuffer;
+		break;
+	}
+	case RegionTypeInfinite: {
+		DWORD type = RegionDataInfiniteRect;
+		memcpy (buffer + filled, &type, sizeof (DWORD));
+		filled += sizeof (DWORD);
 		break;
 	}
 	default:
