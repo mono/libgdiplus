@@ -245,7 +245,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				}
 
 				a_new = (r * cm->m[0][3] + g * cm->m[1][3] + b * cm->m[2][3] + a * cm->m[3][3] + (255 * cm->m[4][3]));
-				if (a_new == 0) {
+				if (a_new == 0 && bmpdest_is_premultiplied) {
 					/* 100% transparency, don't waste time computing other values (pre-mul will always be 0) */
 					*scan++ = 0;
 				} else {
@@ -253,16 +253,26 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 					g_new = (r * cm->m[0][1] + g * cm->m[1][1] + b * cm->m[2][1] + a * cm->m[3][1] + (255 * cm->m[4][1]));
 					b_new = (r * cm->m[0][2] + g * cm->m[1][2] + b * cm->m[2][2] + a * cm->m[3][2] + (255 * cm->m[4][2]));
 
+					if (bmpdest_is_premultiplied && a != (BYTE) a_new && a < 0xff && a != 0) {
+						/* reverse previous pre-multiplication if necessary */
+						r_new = r_new * 255 / a;
+						g_new = g_new * 255 / a;
+						b_new = b_new * 255 / a;
+					}
+
 					r = (r_new > 0xff) ? 0xff : (BYTE) r_new;
 					g = (g_new > 0xff) ? 0xff : (BYTE) g_new;
 					b = (b_new > 0xff) ? 0xff : (BYTE) b_new;
 
 					/* remember that Cairo use pre-multiplied alpha, e.g. 50% red == 0x80800000 not 0x80ff0000 */
-					a = (BYTE) a_new;
-					if (a < 0xff && bmpdest_is_premultiplied) {
+					if (bmpdest_is_premultiplied && a != (BYTE) a_new && a_new < 0xff) {
+						/* apply new pre-multiplication */
+						a = (BYTE) a_new;
 						r = pre_multiplied_table [r][a];
 						g = pre_multiplied_table [g][a];
 						b = pre_multiplied_table [b][a];
+					} else {
+						a = (BYTE) a_new;
 					}
 
 					set_pixel_bgra (color_p, 0, b, g, r, a);
