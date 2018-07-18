@@ -65,12 +65,10 @@ static void test_createPath ()
 int
 main (int argc, char**argv)
 {
-  GdiplusStartupInput gdiplusStartupInput;
-  ULONG_PTR gdiplusToken;
-  GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
   test_createPath ();
 
-  GdiplusShutdown (gdiplusToken);
+  SHUTDOWN;
   return 0;
 }
