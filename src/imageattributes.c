@@ -221,6 +221,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		ARGB *scan;
 		ColorMatrixFlags flags = cmatrix->colormatrix_flags;
 		ColorMatrix *cm;
+		BOOL bmpdest_is_premultiplied = !gdip_bitmap_format_needs_premultiplication (bmpdest);
 
 		for (y = 0; y < data->height; y++) {
 			scan = (ARGB*) v;
@@ -258,7 +259,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 					/* remember that Cairo use pre-multiplied alpha, e.g. 50% red == 0x80800000 not 0x80ff0000 */
 					a = (BYTE) a_new;
-					if (a < 0xff) {
+					if (a < 0xff && bmpdest_is_premultiplied) {
 						r = pre_multiplied_table [r][a];
 						g = pre_multiplied_table [g][a];
 						b = pre_multiplied_table [b][a];
