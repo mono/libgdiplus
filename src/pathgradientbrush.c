@@ -479,12 +479,12 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, INT count, GpWrapMode wrapMo
 	gp->centerColor = MAKE_ARGB_ARGB(255,0,0,0); /* black center color */
     
 	/* set the bounding rectangle */
-	point = g_array_index (gp->boundary->points, GpPointF, 0);
+	point = gp->boundary->points[0];
 	/* set the first point as the edge of the rectangle */
 	gp->rectangle.X = point.X;
 	gp->rectangle.Y = point.Y;
 	for (i = 1; i < gp->boundary->count; i++) {
-		point = g_array_index (gp->boundary->points, GpPointF, i);
+		point = gp->boundary->points[i];
 		gdip_rect_expand_by (&gp->rectangle, &point);
 	}
 

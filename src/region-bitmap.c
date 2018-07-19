@@ -22,6 +22,7 @@
 
 #include "region-private.h"
 #include "graphics-path-private.h"
+#include "graphics-cairo-private.h"
 
 // #define DEBUG_REGION
 
@@ -489,8 +490,8 @@ gdip_region_bitmap_from_path (GpPath *path)
 
 	idx = 0;
 	for (i = 0; i < length; ++i) {
-		GpPointF pt = g_array_index (path->points, GpPointF, i);
-		BYTE type = g_array_index (path->types, BYTE, i);
+		GpPointF pt = path->points[i];
+		BYTE type = path->types[i];
 		GpPointF pts [3];
 		/* mask the bits so that we get only the type value not the other flags */
 		switch (type & PathPointTypePathTypeMask) {

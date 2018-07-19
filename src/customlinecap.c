@@ -212,8 +212,8 @@ gdip_custom_linecap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *cus
 
 		for (i = 0; i < points; i++) {
 			/* Adapted from gdip_plot_path() */
-			GpPointF point = g_array_index (path->points, GpPointF, i);
-			BYTE type = g_array_index (path->types, BYTE, i);
+			GpPointF point = path->points[i];
+			BYTE type = path->types[i];
 			GpPointF pts [3];
 
 			/* mask the bits so that we get only the type value not the other flags */
