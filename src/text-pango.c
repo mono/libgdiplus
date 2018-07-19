@@ -194,10 +194,6 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 	int FrameY;         /* rc->Y (or rc->X if vertical) */
 	int y0;             /* y0,y1,clipNN used for checking line positions vs. clip rectangle */
 	int y1;
-	double clipx1;
-	double clipx2;
-	double clipy1;
-	double clipy2;
 	int trimSpace;      /* whether or not to trim the space */
 	BOOL use_horizontal_layout;
 
@@ -434,23 +430,14 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 	/* Also prevents drawing whole lines outside the boundaries if NoClip was specified */
 	/* In case of pre-existing clipping, use smaller of clip rectangle or our specified height */
 	if (FrameHeight > 0) {
-		clipy2 = FrameHeight;
-		if (!(fmt->formatFlags & StringFormatFlagsNoClip)) {
-			cairo_clip_extents (cr, &clipx1, &clipy1, &clipx2, &clipy2);
-			if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
-				clipy2 = min (clipx2 - rc->X, FrameWidth);
-			} else {
-				clipy2 = min (clipy2 - rc->Y, FrameHeight);
-			}
-		}
 		iter = pango_layout_get_iter (layout);
 		do {
 			if (iter == NULL)
 				break;
 			pango_layout_iter_get_line_yrange (iter, &y0, &y1);
-			//g_warning("yrange: %d  %d  clipy2: %f", y0 / PANGO_SCALE, y1 / PANGO_SCALE, clipy2);
+			//g_warning("yrange: %d  %d  FrameHeight: %f", y0 / PANGO_SCALE, y1 / PANGO_SCALE, FrameHeight);
 			/* StringFormatFlagsLineLimit */
-			if (((fmt->formatFlags & StringFormatFlagsLineLimit) && y1 / PANGO_SCALE > FrameHeight) || (y0 / PANGO_SCALE >= clipy2)) {
+			if (((fmt->formatFlags & StringFormatFlagsLineLimit) && y1 / PANGO_SCALE > FrameHeight) || (y0 / PANGO_SCALE >= FrameHeight)) {
 				PangoLayoutLine *line = pango_layout_iter_get_line_readonly (iter);
 				pango_layout_set_text (layout, pango_layout_get_text (layout), line->start_index);
 				
