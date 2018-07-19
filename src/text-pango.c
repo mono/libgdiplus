@@ -165,6 +165,7 @@ gdip_process_string (gchar *text, int length, int removeAccelerators, int trimSp
 		iter2 = g_utf8_next_char (iter);
 		g_string_append_len (res, iter, iter2 - iter);
 		j += iter2 - iter;
+		r--;
 	}
 	if (charsRemoved && *charsRemoved && j > 0) {
 		int prevj = (g_utf8_prev_char (res->str + j) - res->str);
