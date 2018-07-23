@@ -961,21 +961,14 @@ GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, INT style, BOOL *IsStyleAv
 
 /* Font functions */
 
-// coverity[+alloc : arg-*4]
 GpStatus
-GdipCreateFont (GDIPCONST GpFontFamily* family, REAL emSize, INT style, Unit unit, GpFont **font)
+gdip_create_font_without_validation (GDIPCONST GpFontFamily *family, REAL emSize, INT style, Unit unit, GpFont **font)
 {
 	GpStatus status;
 	FcChar8* str;
 	FcResult r;
 	GpFont *result;
 	REAL sizeInPixels;
-
-	if (!gdiplusInitialized)
-		return GdiplusNotInitialized;
-	
-	if (!family || !font || unit == UnitDisplay || unit < UnitWorld || unit > UnitCairoPoint)
-		return InvalidParameter;
 
 	r = FcPatternGetString (family->pattern, FC_FAMILY, 0, &str);
 	status = gdip_status_from_fontconfig (r);
@@ -1012,8 +1005,20 @@ GdipCreateFont (GDIPCONST GpFontFamily* family, REAL emSize, INT style, Unit uni
 	gdip_get_cairo_font_face (result);
 #endif
 
-	*font = result;	        		
+	*font = result;
 	return Ok;
+}
+// coverity[+alloc : arg-*4]
+GpStatus
+GdipCreateFont (GDIPCONST GpFontFamily* family, REAL emSize, INT style, Unit unit, GpFont **font)
+{
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
+	if (!family || !font || unit == UnitDisplay || unit < UnitWorld || unit > UnitCairoPoint || emSize <= 0)
+		return InvalidParameter;
+
+	return gdip_create_font_without_validation (family, emSize, style, unit, font);
 }
 
 GpStatus WINGDIPAPI

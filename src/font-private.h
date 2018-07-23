@@ -57,6 +57,7 @@ struct _Font {
 #endif
 };
 
+GpStatus gdip_create_font_without_validation (GDIPCONST GpFontFamily *family, REAL emSize, INT style, Unit unit, GpFont **font);
 void gdip_font_clear_pattern_cache (void) GDIP_INTERNAL;
 void gdip_delete_system_fonts (void) GDIP_INTERNAL;
 
