@@ -123,7 +123,10 @@ void gdip_Point_from_PointF (const GpPointF* pointf, GpPoint* point) GDIP_INTERN
 
 /* memory */
 void* gdip_realloc (void *org, int size) GDIP_INTERNAL;
-void* gdip_calloc (size_t nelem, size_t elsize) GDIP_INTERNAL; 
+void* gdip_calloc (size_t nelem, size_t elsize) GDIP_INTERNAL;
+
+/* checksums */
+DWORD gdip_crc32 (const BYTE *buf, size_t size) GDIP_INTERNAL;
 
 #include "general.h"
 
