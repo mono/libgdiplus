@@ -1,5 +1,5 @@
 language: c
-dist: trusty
+group: travis_latest
 sudo: false
 
 os:
@@ -9,6 +9,7 @@ os:
 addons:
   apt:
     packages:
+    - libpango1.0-dev
     - libgif-dev
     - xvfb
     - autoconf
@@ -20,7 +21,7 @@ addons:
     - git
 
 install:
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; brew install glib cairo libexif; fi
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; brew install glib cairo pango libexif; fi
 
 script:
 - set -e
