@@ -45,10 +45,24 @@
 #define REGION_INFINITE_LENGTH		8388608
 
 typedef enum {
-    RegionTypeRect     = 0x10000000,
-    RegionTypePath     = 0x10000001,
-    RegionTypeInfinite = 0x10000003
+    RegionTypeRect,
+    RegionTypePath,
+    RegionTypeInfinite
 } RegionType;
+
+typedef enum {
+    RegionDataRect          = 0x10000000,
+    RegionDataPath          = 0x10000001,
+    RegionDataEmptyRect     = 0x10000002,
+    RegionDataInfiniteRect  = 0x10000003
+} RegionDataType;
+
+typedef struct {
+    DWORD size;
+    DWORD checksum;
+    DWORD magic;
+    DWORD combiningOps;
+} RegionHeader;
 
 struct _Region {
     guint32		type;

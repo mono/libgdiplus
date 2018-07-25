@@ -162,6 +162,12 @@ gdip_get_bounds (GpRectF *allrects, int allcnt, GpRectF *bound)
 
 /* This internal version doesn't require a Graphic object to work */
 static BOOL
+gdip_is_rect_empty (GpRectF *rect)
+{
+	return rect && (rect->Width <= 0 || rect->Height <= 0);
+}
+
+static BOOL
 gdip_is_region_empty (GpRegion *region)
 {
 	GpRectF rect;
@@ -175,7 +181,7 @@ gdip_is_region_empty (GpRegion *region)
 			return TRUE;
 
 		gdip_get_bounds (region->rects, region->cnt, &rect);
-		return ((rect.Width <= 0) || (rect.Height <= 0));
+		return gdip_is_rect_empty (&rect);
 	case RegionTypePath:
 		/* check for an existing, but empty, path list */
 		if (!region->tree)
@@ -514,38 +520,57 @@ GpStatus WINGDIPAPI
 GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region)
 {
 	GpRegion *result;
+	RegionHeader header;
+	DWORD type;
 
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
 
-	if (!region || !regionData)
+	if (!region || !regionData || size < 0)
 		return InvalidParameter;
-	if (size < 8)
+	
+	/* Read and validate the region data header. */
+	if (size < sizeof (RegionHeader))
 		return GenericError;
 
+	memcpy (&header, regionData, sizeof (RegionHeader));
+	if (header.size < 8 || header.checksum != gdip_crc32 (regionData + 8, size - 8) || (header.magic & 0xfffff000) != 0xdbc01000) {
+		return GenericError;
+	}
+
+	regionData += sizeof (RegionHeader);
+	size -= sizeof (RegionHeader);
+	
+	/* Now read the rest of the data. */
 	result = gdip_region_new ();
 	if (!result)
 		return OutOfMemory;
 
-	memcpy (&result->type, regionData, sizeof (guint32));
+	result->cnt = 0;
+	result->rects = NULL;
+	result->tree = NULL;
+	result->bitmap = NULL;
 
-	switch (result->type) {
-	case RegionTypeRect: {
-		guint32 count;
-		GpRectF *rect;
-		int i;
+	// Read the type.
+	memcpy (&type, regionData, sizeof (DWORD));
+	regionData += sizeof (DWORD);
+	size -= sizeof (DWORD);
 
-		memcpy (&count, regionData + 4, sizeof (guint32));
-		if (count != (size - 8) / sizeof (GpRectF)) {
+	switch (type) {
+	case RegionDataRect:
+		result->type = RegionTypeRect;
+		if (header.size < sizeof (DWORD) * 3 + sizeof (GpRectF)) {
 			GdipFree (result);
-			return InvalidParameter;
+			return GenericError;
 		}
 
-		for (i = 0, rect = (GpRectF*)(regionData + 8); i < count; i++, rect++)
-			gdip_add_rect_to_array (&result->rects, &result->cnt, rect);
-		}
+		GpRectF rect;
+		memcpy (&rect, regionData, sizeof (GpRectF));
+		gdip_add_rect_to_array (&result->rects, &result->cnt, &rect);
+
 		break;
-	case RegionTypePath:
+	case RegionDataPath:
+		result->type = RegionTypePath;
 		if (size < 16) {
 			GdipFree (result);
 			return InvalidParameter;
@@ -557,11 +582,24 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 			return OutOfMemory;
 		}
 
-		if (!gdip_region_deserialize_tree ((BYTE*)(regionData + 4), (size - 4), result->tree)) {
+		if (!gdip_region_deserialize_tree ((BYTE *) regionData, size, result->tree)) {
 			GdipFree (result);
 			return InvalidParameter;
 		}
 		break;
+	case RegionDataEmptyRect: {
+		result->type = RegionTypeRect;
+		
+		break;
+	}
+	case RegionDataInfiniteRect: {
+		result->type = RegionTypeRect;
+
+		GpRectF rect = {REGION_INFINITE_POSITION, REGION_INFINITE_POSITION, REGION_INFINITE_LENGTH, REGION_INFINITE_LENGTH};
+		gdip_add_rect_to_array (&result->rects, &result->cnt, &rect);
+		
+		break;
+	}
 	default:
 		g_warning ("unknown type 0x%08X", result->type);
 		GdipFree (result);
@@ -1705,18 +1743,22 @@ GdipGetRegionScansCount (GpRegion *region, UINT *count, GpMatrix *matrix)
 		work = region;
 	}
 
-	switch (work->type) {
-	case RegionTypeRect:
-		*count = work->cnt;
-		break;
-	case RegionTypePath:
-		/* ensure the bitmap is usable */
-		gdip_region_bitmap_ensure (work);
-		*count = gdip_region_bitmap_get_scans (work->bitmap, NULL);
-		break;
-	default:
-		g_warning ("unknown type 0x%08X", region->type);
-		return NotImplemented;
+	if (gdip_is_region_empty (work)) {
+		*count = 0;
+	} else {
+		switch (work->type) {
+		case RegionTypeRect:
+			*count = work->cnt;
+			break;
+		case RegionTypePath:
+			/* ensure the bitmap is usable */
+			gdip_region_bitmap_ensure (work);
+			*count = gdip_region_bitmap_get_scans (work->bitmap, NULL);
+			break;
+		default:
+			g_warning ("unknown type 0x%08X", region->type);
+			return NotImplemented;
+		}
 	}
 
 	/* delete the clone */
@@ -1768,20 +1810,24 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matr
 		work = region;
 	}
 
-	switch (region->type) {
-	case RegionTypeRect:
-		if (rects)
-			memcpy (rects, work->rects, sizeof (GpRectF) * work->cnt);
-		*count = work->cnt;
-		break;
-	case RegionTypePath:
-		/* ensure the bitmap is usable */
-		gdip_region_bitmap_ensure (work);
-		*count = gdip_region_bitmap_get_scans (work->bitmap, rects);
-		break;
-	default:
-		g_warning ("unknown type 0x%08X", region->type);
-		return NotImplemented;
+	if (gdip_is_region_empty (work)) {
+		*count = 0;
+	} else {
+		switch (region->type) {
+		case RegionTypeRect:
+			if (rects)
+				memcpy (rects, work->rects, sizeof (GpRectF) * work->cnt);
+			*count = work->cnt;
+			break;
+		case RegionTypePath:
+			/* ensure the bitmap is usable */
+			gdip_region_bitmap_ensure (work);
+			*count = gdip_region_bitmap_get_scans (work->bitmap, rects);
+			break;
+		default:
+			g_warning ("unknown type 0x%08X", region->type);
+			return NotImplemented;
+		}
 	}
 
 	/* delete the clone */
@@ -2050,13 +2096,15 @@ GdipGetRegionDataSize (GpRegion *region, UINT *bufferSize)
 	if (!region || !bufferSize)
 		return InvalidParameter;
 
+	*bufferSize = sizeof (RegionHeader);
+
 	switch (region->type) {
 	case RegionTypeRect:
-		*bufferSize = (sizeof (guint32) * 2) + (region->cnt * sizeof (GpRectF));
+		*bufferSize += sizeof (DWORD) + region->cnt * sizeof (GpRectF);
 		break;
 	case RegionTypePath:
 		/* regiontype, tree */
-		*bufferSize = sizeof (guint32) + gdip_region_get_tree_size (region->tree);
+		*bufferSize += sizeof (DWORD) + gdip_region_get_tree_size (region->tree);
 		break;
 	default:
 		g_warning ("unknown type 0x%08X", region->type);
@@ -2071,9 +2119,11 @@ GdipGetRegionData (GpRegion *region, BYTE *buffer, UINT bufferSize, UINT *sizeFi
 {
 	GpStatus status;
 	UINT size;
-	int len;
+	UINT filled = 0;
+	RegionHeader header;
+	header.combiningOps = 0;
 
-	if (!region || !buffer || !sizeFilled)
+	if (!region || !buffer || !bufferSize)
 		return InvalidParameter;
 
 	status = GdipGetRegionDataSize (region, &size);
@@ -2082,32 +2132,55 @@ GdipGetRegionData (GpRegion *region, BYTE *buffer, UINT bufferSize, UINT *sizeFi
 	if (size > bufferSize)
 		return InsufficientBuffer;
 
-	/* type of region */
-	len = sizeof (guint32);
-	memcpy (buffer, &region->type, len);
-	buffer += len;
-	*sizeFilled += len;
+	/* Write the region header at the end, as we need to calculate a checksum based off all the data. */
+	filled += sizeof (RegionHeader);
 
 	switch (region->type) {
-	case RegionTypeRect:
-		/* count (# rectangles) */
-		memcpy (buffer, &region->cnt, len);
-		buffer += len;
-		*sizeFilled += len;
-		/* rectangles */
-		len = sizeof (GpRectF) * (region->cnt);
-		memcpy (buffer, region->rects, len);
-		*sizeFilled += len;
+	case RegionTypeRect: {
+		DWORD type;
+
+		if (region->cnt) {
+			type = RegionDataRect;
+			memcpy (buffer + filled, &type, sizeof (DWORD));
+			filled += sizeof (DWORD);
+
+			memcpy (buffer + filled, region->rects, region->cnt * sizeof (GpRectF));
+			filled += region->cnt * sizeof (GpRectF);
+		} else {
+			type = RegionDataEmptyRect;
+			memcpy (buffer + filled, &type, sizeof (DWORD));
+
+			filled += sizeof (DWORD);
+		}
+
 		break;
-	case RegionTypePath:
-		bufferSize -= len;
-		if (!gdip_region_serialize_tree (region->tree, buffer, bufferSize, sizeFilled))
+	}
+	case RegionTypePath: {
+		DWORD type = RegionDataPath;
+		memcpy (buffer + filled, &type, sizeof (DWORD));
+		filled += sizeof (DWORD);
+
+		if (!gdip_region_serialize_tree (region->tree, buffer + filled, bufferSize - filled, &filled))
 			return InsufficientBuffer;
 		break;
+	}
 	default:
 		g_warning ("unknown type 0x%08X", region->type);
 		return NotImplemented;
 	}
+
+	/* Write the header at the start of the buffer. */
+	header.size = filled - 8;
+	header.magic = 0xdbc01002;
+	header.combiningOps = 0;
+	memcpy (buffer, &header, sizeof (RegionHeader));
+
+	/* Finally, write the checksum. */
+	header.checksum = gdip_crc32 (buffer + 8, filled - 8);
+	memcpy (buffer + 4, &header.checksum, sizeof (DWORD));
+
+	if (sizeFilled)
+		*sizeFilled = filled;
 
 	return Ok;
 }
