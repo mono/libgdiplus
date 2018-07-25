@@ -604,7 +604,7 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			if (iter == NULL)
 				break;
 			pango_layout_iter_get_line_yrange (iter, &y0, &y1);
-			if (y0 / PANGO_SCALE >= max_y)
+			if ((format && (format->formatFlags & StringFormatFlagsLineLimit) && y1 / PANGO_SCALE > max_y) || y0 / PANGO_SCALE >= max_y)
 				break;
 			lines++;
 			if (pango_layout_iter_at_last_line (iter)) {
