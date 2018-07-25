@@ -132,7 +132,7 @@ static void test_measure_string(void)
 	status = GdipMeasureString (graphics, teststring1, 2, font, &rect, format, &bounds, &glyphs, &lines);
 	expect (Ok, status);
 	expect (0, glyphs);
-	expect (1, lines);
+	expect (0, lines);
 
 	// Clear LineLimit flag
 	status = GdipSetStringFormatFlags(format, 0);
