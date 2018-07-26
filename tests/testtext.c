@@ -168,7 +168,7 @@ static void test_measure_string(void)
 	expect (Ok, status);
 	expect (3, glyphs); // Should be reported despite being trimmed
 	expect (1, lines);
-	expectf_(fontSize / 4.0, bounds.Width, fontSize / 8.0); // neither the expected value nor the precision is particularly accurate, but should be OK.
+	expectf_(fontSize * 0.4, bounds.Width, fontSize * 0.3); // neither the expected value nor the precision is particularly accurate, but should be OK.
 
 	// Check measuring a string with only whitespace, that starts with non-space whitespace
 	set_rect_empty (&bounds);
