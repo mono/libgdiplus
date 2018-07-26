@@ -120,7 +120,7 @@ ATTRIBUTE_USED static void assertEqualFloatImpl (REAL actual, REAL expected, con
 
 ATTRIBUTE_USED static void assertSimilarFloatImpl (REAL actual, REAL expected, REAL tolerance, const char *message, const char *file, const char *function, int line)
 {
-    if (abs(actual - expected) > abs(tolerance)) {
+    if (fabs(actual - expected) > fabs(tolerance)) {
         if (message)
             fprintf (stderr, "%s\n", message);
 
