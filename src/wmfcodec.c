@@ -267,102 +267,102 @@ gdip_metafile_play_wmf (MetafilePlayContext *context)
 		 * - sometimes there are extra (undocumented?, buggy?) parameters for some functions
 		 */
 		switch (func) {
-		case METAFILE_RECORD_SAVEDC:
+		case META_SAVEDC:
 			WMF_CHECK_PARAMS(0);
 			status = gdip_metafile_SaveDC (context);
 			break;
-		case METAFILE_RECORD_SETBKMODE:
+		case META_SETBKMODE:
 			WMF_CHECK_PARAMS(1);
 			status = gdip_metafile_SetBkMode (context, GETW(WP1));
 			break;
-		case METAFILE_RECORD_SETMAPMODE:
+		case META_SETMAPMODE:
 			WMF_CHECK_PARAMS(1);
 			status = gdip_metafile_SetMapMode (context, GETW(WP1));
 			break;
-		case METAFILE_RECORD_SETROP2:
+		case META_SETROP2:
 			WMF_CHECK_PARAMS(1);
 			status = gdip_metafile_SetROP2 (context, GETW(WP1));
 			break;
-		case METAFILE_RECORD_SETRELABS:
+		case META_SETRELABS:
 			WMF_CHECK_PARAMS(1);
 			status = gdip_metafile_SetRelabs (context, GETW(WP1));
 			break;
-		case METAFILE_RECORD_SETPOLYFILLMODE:
+		case META_SETPOLYFILLMODE:
 			WMF_CHECK_PARAMS(1);
 			status = gdip_metafile_SetPolyFillMode (context, GETW(WP1));
 			break;
-		case METAFILE_RECORD_SETSTRETCHBLTMODE:
+		case META_SETSTRETCHBLTMODE:
 			WMF_CHECK_PARAMS(1); /* 2 but second is unused (32bits?) */
 			status = gdip_metafile_SetStretchBltMode (context, GETW(WP1));
 			break;
-		case METAFILE_RECORD_RESTOREDC:
+		case META_RESTOREDC:
 			WMF_CHECK_PARAMS(0);
 			status = gdip_metafile_RestoreDC (context);
 			break;
-		case METAFILE_RECORD_SELECTOBJECT:
+		case META_SELECTOBJECT:
 			WMF_CHECK_PARAMS(1);
 			status = gdip_metafile_SelectObject (context, GETW(WP1));
 			break;
-		case METAFILE_RECORD_SETTEXTALIGN:
+		case META_SETTEXTALIGN:
 			WMF_CHECK_PARAMS(1);
 			status = gdip_metafile_SetTextAlign (context, GETW(WP1));
 			break;
-		case METAFILE_RECORD_DELETEOBJECT:
+		case META_DELETEOBJECT:
 			WMF_CHECK_PARAMS(1);
 			status = gdip_metafile_DeleteObject (context, GETW(WP1));
 			break;
-		case METAFILE_RECORD_SETBKCOLOR:
+		case META_SETBKCOLOR:
 			WMF_CHECK_PARAMS(2);
 			status = gdip_metafile_SetBkColor (context, GetColor (GETW(WP1), GETW(WP2)));
 			break;
-		case METAFILE_RECORD_SETWINDOWORG:
+		case META_SETWINDOWORG:
 			WMF_CHECK_PARAMS(2);
 			status = gdip_metafile_SetWindowOrg (context, GETS(WP1), GETS(WP2));
 			break;
-		case METAFILE_RECORD_SETWINDOWEXT:
+		case META_SETWINDOWEXT:
 			WMF_CHECK_PARAMS(2);
 			status = gdip_metafile_SetWindowExt (context, GETS(WP1), GETS(WP2));
 			break;
-		case METAFILE_RECORD_LINETO:
+		case META_LINETO:
 			WMF_CHECK_PARAMS(2);
 			status = gdip_metafile_LineTo (context, GETS(WP1), GETS(WP2));
 			break;
-		case METAFILE_RECORD_MOVETO:
+		case META_MOVETO:
 			WMF_CHECK_PARAMS(2);
 			status = gdip_metafile_MoveTo (context, GETS(WP1), GETS(WP2));
 			break;
-		case METAFILE_RECORD_CREATEPENINDIRECT:
+		case META_CREATEPENINDIRECT:
 			/* note: documented with only 4 parameters, LOGPEN use a POINT to specify width, so y (3) is unused) */
 			WMF_CHECK_PARAMS(5);
 			status = gdip_metafile_CreatePenIndirect (context, GETW(WP1), GETW(WP2), GetColor (GETW(WP4), GETW(WP5)));
 			break;
-		case METAFILE_RECORD_CREATEBRUSHINDIRECT:
+		case META_CREATEBRUSHINDIRECT:
 			WMF_CHECK_PARAMS(4);
 			status = gdip_metafile_CreateBrushIndirect (context, GETW(WP1), GetColor (GETW(WP2), GETW(WP3)), GETW(WP4));
 			break;
-		case METAFILE_RECORD_POLYGON:
+		case META_POLYGON:
 			status = Polygon (context, data, params);
 			break;
-		case METAFILE_RECORD_POLYLINE:
+		case META_POLYLINE:
 			status = Polyline (context, data);
 			break;
-		case METAFILE_RECORD_POLYPOLYGON:
+		case META_POLYPOLYGON:
 			status = PolyPolygon (context, data);
 			break;
-		case METAFILE_RECORD_ARC:
+		case META_ARC:
 			WMF_CHECK_PARAMS(8);
 			status = gdip_metafile_Arc (context, GETS(WP1), GETS(WP2), GETS(WP3), GETS(WP4), GETS(WP5), GETS(WP6),
 				GETS(WP7), GETS(WP8));
 			break;
-		case METAFILE_RECORD_RECTANGLE:
+		case META_RECTANGLE:
 			WMF_CHECK_PARAMS (4);
 			status = gdip_metafile_Rectangle (context, GETS (WP1), GETS (WP2), GETS (WP3), GETS (WP4));
 			break;
-		case METAFILE_RECORD_SETPIXEL:
+		case META_SETPIXEL:
 			WMF_CHECK_PARAMS (4);
 			status = gdip_metafile_SetPixel (context, GetColor (GETW (WP1), GETW (WP2)), GETW (WP4), GETW (WP3));
 			break;
-		case METAFILE_RECORD_STRETCHDIB: {
+		case META_STRETCHDIB: {
 			WMF_CHECK_PARAMS(14);
 			BITMAPINFO *bmi = (BITMAPINFO*) (data + 14 * sizeof (WORD));
 			void* bits = (void*) (bmi + GETDW(WP12));
@@ -370,7 +370,7 @@ gdip_metafile_play_wmf (MetafilePlayContext *context)
 				GETS(WP6), GETS(WP5), GETS(WP4), bits, bmi, GETW(WP3), GETDW(WP1));
 			break;
 		}
-		case METAFILE_RECORD_DIBSTRETCHBLT: {
+		case META_DIBSTRETCHBLT: {
 			WMF_CHECK_PARAMS(12);
 			BITMAPINFO *bmi = (BITMAPINFO*) (data + 13 * sizeof (WORD));
 			void* bits = (void*) (bmi + GETDW(WP11));

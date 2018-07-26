@@ -46,8 +46,6 @@
 #define METAOBJECT_TYPE_PEN	1
 #define METAOBJECT_TYPE_BRUSH	2
 
-#define GDIP_EMFPLUS_RECORD_BASE	16384
-
 #define gdip_get_metaheader(image)	(&((GpMetafile*)image)->metafile_header)
 
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN

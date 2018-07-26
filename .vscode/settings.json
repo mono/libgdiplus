@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "metafile-private.h": "c"
+        "metafile-private.h": "c",
+        "win32-private.h": "c"
     }
 }

@@ -31,6 +31,8 @@
 #ifndef __GDIPENUMS_H__
 #define __GDIPENUMS_H__
 
+#include "win32structs.h"
+
 typedef enum {
 	ColorAdjustTypeDefault,
 	ColorAdjustTypeBitmap,
@@ -92,32 +94,32 @@ typedef enum {
 } EncoderParameterValueType;
 
 typedef enum {
-    EncoderValueColorTypeCMYK = 0,
-    EncoderValueColorTypeYCCK = 1,
-    EncoderValueCompressionLZW = 2,
-    EncoderValueCompressionCCITT3 = 3,
-    EncoderValueCompressionCCITT4 = 4,
-    EncoderValueCompressionRle = 5,
-    EncoderValueCompressionNone = 6,
-    EncoderValueScanMethodInterlaced = 7,
-    EncoderValueScanMethodNonInterlaced = 8,
-    EncoderValueVersionGif87 = 9,
-    EncoderValueVersionGif89 = 10,
-    EncoderValueRenderProgressive = 11,
-    EncoderValueRenderNonProgressive = 12,
-    EncoderValueTransformRotate90 = 13,
-    EncoderValueTransformRotate180 = 14,
-    EncoderValueTransformRotate270 = 15,
-    EncoderValueTransformFlipHorizontal = 16,
-    EncoderValueTransformFlipVertical = 17,
-    EncoderValueMultiFrame = 18,
-    EncoderValueLastFrame = 19,
-    EncoderValueFlush = 20,
-    EncoderValueFrameDimensionTime = 21,
-    EncoderValueFrameDimensionResolution = 22,
-    EncoderValueFrameDimensionPage = 23,
-    EncoderValueColorTypeGray = 24,
-    EncoderValueColorTypeRGB = 25
+	EncoderValueColorTypeCMYK = 0,
+	EncoderValueColorTypeYCCK = 1,
+	EncoderValueCompressionLZW = 2,
+	EncoderValueCompressionCCITT3 = 3,
+	EncoderValueCompressionCCITT4 = 4,
+	EncoderValueCompressionRle = 5,
+	EncoderValueCompressionNone = 6,
+	EncoderValueScanMethodInterlaced = 7,
+	EncoderValueScanMethodNonInterlaced = 8,
+	EncoderValueVersionGif87 = 9,
+	EncoderValueVersionGif89 = 10,
+	EncoderValueRenderProgressive = 11,
+	EncoderValueRenderNonProgressive = 12,
+	EncoderValueTransformRotate90 = 13,
+	EncoderValueTransformRotate180 = 14,
+	EncoderValueTransformRotate270 = 15,
+	EncoderValueTransformFlipHorizontal = 16,
+	EncoderValueTransformFlipVertical = 17,
+	EncoderValueMultiFrame = 18,
+	EncoderValueLastFrame = 19,
+	EncoderValueFlush = 20,
+	EncoderValueFrameDimensionTime = 21,
+	EncoderValueFrameDimensionResolution = 22,
+	EncoderValueFrameDimensionPage = 23,
+	EncoderValueColorTypeGray = 24,
+	EncoderValueColorTypeRGB = 25
 } EncoderValue;
 
 typedef enum {
@@ -769,16 +771,6 @@ typedef enum {
 	WrapModeClamp		= 4
 } WrapMode, GpWrapMode;
 
-typedef enum MetafileType
-{
-	MetafileTypeInvalid,
-	MetafileTypeWmf,
-	MetafileTypeWmfPlaceable,
-	MetafileTypeEmf,
-	MetafileTypeEmfPlusOnly,
-	MetafileTypeEmfPlusDual
-} MetafileType;
-
 typedef enum {
 	EmfTypeEmfOnly        = MetafileTypeEmf,
 	EmfTypeEmfPlusOnly    = MetafileTypeEmfPlusOnly,
@@ -794,12 +786,304 @@ typedef enum {
 	MetafileFrameUnitGdi
 } MetafileFrameUnit;
 
+#define GDIP_EMFPLUS_RECORD_BASE        0x00004000
+#define GDIP_WMF_RECORD_BASE            0x00010000
+#define GDIP_WMF_RECORD_TO_EMFPLUS(n)   ((n) | GDIP_WMF_RECORD_BASE)
+#define GDIP_EMFPLUS_RECORD_TO_WMF(n)   ((n) & (~GDIP_WMF_RECORD_BASE))
+#define GDIP_IS_WMF_RECORDTYPE(n)       (((n) & GDIP_WMF_RECORD_BASE) != 0)
+
 typedef enum {
-	EmfRecordTypeGdiComment = 70,
-	EmfPlusRecordTypeHeader = 16385,
-	EmfPlusRecordTypeEndOfFile = 16386,
-	EmfPlusRecordTypeClear = 16393,
-	EmfPlusRecordTypeFillRects = 16394,
+	WmfRecordTypeSetBkColor              = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETBKCOLOR),
+	WmfRecordTypeSetBkMode               = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETBKMODE),
+	WmfRecordTypeSetMapMode              = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETMAPMODE),
+	WmfRecordTypeSetROP2                 = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETROP2),
+	WmfRecordTypeSetRelAbs               = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETRELABS),
+	WmfRecordTypeSetPolyFillMode         = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETPOLYFILLMODE),
+	WmfRecordTypeSetStretchBltMode       = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETSTRETCHBLTMODE),
+	WmfRecordTypeSetTextCharExtra        = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETTEXTCHAREXTRA),
+	WmfRecordTypeSetTextColor            = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETTEXTCOLOR),
+	WmfRecordTypeSetTextJustification    = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETTEXTJUSTIFICATION),
+	WmfRecordTypeSetWindowOrg            = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETWINDOWORG),
+	WmfRecordTypeSetWindowExt            = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETWINDOWEXT),
+	WmfRecordTypeSetViewportOrg          = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETVIEWPORTORG),
+	WmfRecordTypeSetViewportExt          = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETVIEWPORTEXT),
+	WmfRecordTypeOffsetWindowOrg         = GDIP_WMF_RECORD_TO_EMFPLUS(META_OFFSETWINDOWORG),
+	WmfRecordTypeScaleWindowExt          = GDIP_WMF_RECORD_TO_EMFPLUS(META_SCALEWINDOWEXT),
+	WmfRecordTypeOffsetViewportOrg       = GDIP_WMF_RECORD_TO_EMFPLUS(META_OFFSETVIEWPORTORG),
+	WmfRecordTypeScaleViewportExt        = GDIP_WMF_RECORD_TO_EMFPLUS(META_SCALEVIEWPORTEXT),
+	WmfRecordTypeLineTo                  = GDIP_WMF_RECORD_TO_EMFPLUS(META_LINETO),
+	WmfRecordTypeMoveTo                  = GDIP_WMF_RECORD_TO_EMFPLUS(META_MOVETO),
+	WmfRecordTypeExcludeClipRect         = GDIP_WMF_RECORD_TO_EMFPLUS(META_EXCLUDECLIPRECT),
+	WmfRecordTypeIntersectClipRect       = GDIP_WMF_RECORD_TO_EMFPLUS(META_INTERSECTCLIPRECT),
+	WmfRecordTypeArc                     = GDIP_WMF_RECORD_TO_EMFPLUS(META_ARC),
+	WmfRecordTypeEllipse                 = GDIP_WMF_RECORD_TO_EMFPLUS(META_ELLIPSE),
+	WmfRecordTypeFloodFill               = GDIP_WMF_RECORD_TO_EMFPLUS(META_FLOODFILL),
+	WmfRecordTypePie                     = GDIP_WMF_RECORD_TO_EMFPLUS(META_PIE),
+	WmfRecordTypeRectangle               = GDIP_WMF_RECORD_TO_EMFPLUS(META_RECTANGLE),
+	WmfRecordTypeRoundRect               = GDIP_WMF_RECORD_TO_EMFPLUS(META_ROUNDRECT),
+	WmfRecordTypePatBlt                  = GDIP_WMF_RECORD_TO_EMFPLUS(META_PATBLT),
+	WmfRecordTypeSaveDC                  = GDIP_WMF_RECORD_TO_EMFPLUS(META_SAVEDC),
+	WmfRecordTypeSetPixel                = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETPIXEL),
+	WmfRecordTypeOffsetClipRgn           = GDIP_WMF_RECORD_TO_EMFPLUS(META_OFFSETCLIPRGN),
+	WmfRecordTypeTextOut                 = GDIP_WMF_RECORD_TO_EMFPLUS(META_TEXTOUT),
+	WmfRecordTypeBitBlt                  = GDIP_WMF_RECORD_TO_EMFPLUS(META_BITBLT),
+	WmfRecordTypeStretchBlt              = GDIP_WMF_RECORD_TO_EMFPLUS(META_STRETCHBLT),
+	WmfRecordTypePolygon                 = GDIP_WMF_RECORD_TO_EMFPLUS(META_POLYGON),
+	WmfRecordTypePolyline                = GDIP_WMF_RECORD_TO_EMFPLUS(META_POLYLINE),
+	WmfRecordTypeEscape                  = GDIP_WMF_RECORD_TO_EMFPLUS(META_ESCAPE),
+	WmfRecordTypeRestoreDC               = GDIP_WMF_RECORD_TO_EMFPLUS(META_RESTOREDC),
+	WmfRecordTypeFillRegion              = GDIP_WMF_RECORD_TO_EMFPLUS(META_FILLREGION),
+	WmfRecordTypeFrameRegion             = GDIP_WMF_RECORD_TO_EMFPLUS(META_FRAMEREGION),
+	WmfRecordTypeInvertRegion            = GDIP_WMF_RECORD_TO_EMFPLUS(META_INVERTREGION),
+	WmfRecordTypePaintRegion             = GDIP_WMF_RECORD_TO_EMFPLUS(META_PAINTREGION),
+	WmfRecordTypeSelectClipRegion        = GDIP_WMF_RECORD_TO_EMFPLUS(META_SELECTCLIPREGION),
+	WmfRecordTypeSelectObject            = GDIP_WMF_RECORD_TO_EMFPLUS(META_SELECTOBJECT),
+	WmfRecordTypeSetTextAlign            = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETTEXTALIGN),
+	WmfRecordTypeDrawText                = GDIP_WMF_RECORD_TO_EMFPLUS(0x062F),  // META_DRAWTEXT
+	WmfRecordTypeChord                   = GDIP_WMF_RECORD_TO_EMFPLUS(META_CHORD),
+	WmfRecordTypeSetMapperFlags          = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETMAPPERFLAGS),
+	WmfRecordTypeExtTextOut              = GDIP_WMF_RECORD_TO_EMFPLUS(META_EXTTEXTOUT),
+	WmfRecordTypeSetDIBToDev             = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETDIBTODEV),
+	WmfRecordTypeSelectPalette           = GDIP_WMF_RECORD_TO_EMFPLUS(META_SELECTPALETTE),
+	WmfRecordTypeRealizePalette          = GDIP_WMF_RECORD_TO_EMFPLUS(META_REALIZEPALETTE),
+	WmfRecordTypeAnimatePalette          = GDIP_WMF_RECORD_TO_EMFPLUS(META_ANIMATEPALETTE),
+	WmfRecordTypeSetPalEntries           = GDIP_WMF_RECORD_TO_EMFPLUS(META_SETPALENTRIES),
+	WmfRecordTypePolyPolygon             = GDIP_WMF_RECORD_TO_EMFPLUS(META_POLYPOLYGON),
+	WmfRecordTypeResizePalette           = GDIP_WMF_RECORD_TO_EMFPLUS(META_RESIZEPALETTE),
+	WmfRecordTypeDIBBitBlt               = GDIP_WMF_RECORD_TO_EMFPLUS(META_DIBBITBLT),
+	WmfRecordTypeDIBStretchBlt           = GDIP_WMF_RECORD_TO_EMFPLUS(META_DIBSTRETCHBLT),
+	WmfRecordTypeDIBCreatePatternBrush   = GDIP_WMF_RECORD_TO_EMFPLUS(META_DIBCREATEPATTERNBRUSH),
+	WmfRecordTypeStretchDIB              = GDIP_WMF_RECORD_TO_EMFPLUS(META_STRETCHDIB),
+	WmfRecordTypeExtFloodFill            = GDIP_WMF_RECORD_TO_EMFPLUS(META_EXTFLOODFILL),
+	WmfRecordTypeSetLayout               = GDIP_WMF_RECORD_TO_EMFPLUS(0x0149),  // META_SETLAYOUT
+	WmfRecordTypeResetDC                 = GDIP_WMF_RECORD_TO_EMFPLUS(0x014C),  // META_RESETDC
+	WmfRecordTypeStartDoc                = GDIP_WMF_RECORD_TO_EMFPLUS(0x014D),  // META_STARTDOC
+	WmfRecordTypeStartPage               = GDIP_WMF_RECORD_TO_EMFPLUS(0x004F),  // META_STARTPAGE
+	WmfRecordTypeEndPage                 = GDIP_WMF_RECORD_TO_EMFPLUS(0x0050),  // META_ENDPAGE
+	WmfRecordTypeAbortDoc                = GDIP_WMF_RECORD_TO_EMFPLUS(0x0052),  // META_ABORTDOC
+	WmfRecordTypeEndDoc                  = GDIP_WMF_RECORD_TO_EMFPLUS(0x005E),  // META_ENDDOC
+	WmfRecordTypeDeleteObject            = GDIP_WMF_RECORD_TO_EMFPLUS(META_DELETEOBJECT),
+	WmfRecordTypeCreatePalette           = GDIP_WMF_RECORD_TO_EMFPLUS(META_CREATEPALETTE),
+	WmfRecordTypeCreateBrush             = GDIP_WMF_RECORD_TO_EMFPLUS(0x00F8),  // META_CREATEBRUSH
+	WmfRecordTypeCreatePatternBrush      = GDIP_WMF_RECORD_TO_EMFPLUS(META_CREATEPATTERNBRUSH),
+	WmfRecordTypeCreatePenIndirect       = GDIP_WMF_RECORD_TO_EMFPLUS(META_CREATEPENINDIRECT),
+	WmfRecordTypeCreateFontIndirect      = GDIP_WMF_RECORD_TO_EMFPLUS(META_CREATEFONTINDIRECT),
+	WmfRecordTypeCreateBrushIndirect     = GDIP_WMF_RECORD_TO_EMFPLUS(META_CREATEBRUSHINDIRECT),
+	WmfRecordTypeCreateBitmapIndirect    = GDIP_WMF_RECORD_TO_EMFPLUS(0x02FD),  // META_CREATEBITMAPINDIRECT
+	WmfRecordTypeCreateBitmap            = GDIP_WMF_RECORD_TO_EMFPLUS(0x06FE),  // META_CREATEBITMAP
+	WmfRecordTypeCreateRegion            = GDIP_WMF_RECORD_TO_EMFPLUS(META_CREATEREGION),
+
+	EmfRecordTypeHeader                  = EMR_HEADER,
+	EmfRecordTypePolyBezier              = EMR_POLYBEZIER,
+	EmfRecordTypePolygon                 = EMR_POLYGON,
+	EmfRecordTypePolyline                = EMR_POLYLINE,
+	EmfRecordTypePolyBezierTo            = EMR_POLYBEZIERTO,
+	EmfRecordTypePolyLineTo              = EMR_POLYLINETO,
+	EmfRecordTypePolyPolyline            = EMR_POLYPOLYLINE,
+	EmfRecordTypePolyPolygon             = EMR_POLYPOLYGON,
+	EmfRecordTypeSetWindowExtEx          = EMR_SETWINDOWEXTEX,
+	EmfRecordTypeSetWindowOrgEx          = EMR_SETWINDOWORGEX,
+	EmfRecordTypeSetViewportExtEx        = EMR_SETVIEWPORTEXTEX,
+	EmfRecordTypeSetViewportOrgEx        = EMR_SETVIEWPORTORGEX,
+	EmfRecordTypeSetBrushOrgEx           = EMR_SETBRUSHORGEX,
+	EmfRecordTypeEOF                     = EMR_EOF,
+	EmfRecordTypeSetPixelV               = EMR_SETPIXELV,
+	EmfRecordTypeSetMapperFlags          = EMR_SETMAPPERFLAGS,
+	EmfRecordTypeSetMapMode              = EMR_SETMAPMODE,
+	EmfRecordTypeSetBkMode               = EMR_SETBKMODE,
+	EmfRecordTypeSetPolyFillMode         = EMR_SETPOLYFILLMODE,
+	EmfRecordTypeSetROP2                 = EMR_SETROP2,
+	EmfRecordTypeSetStretchBltMode       = EMR_SETSTRETCHBLTMODE,
+	EmfRecordTypeSetTextAlign            = EMR_SETTEXTALIGN,
+	EmfRecordTypeSetColorAdjustment      = EMR_SETCOLORADJUSTMENT,
+	EmfRecordTypeSetTextColor            = EMR_SETTEXTCOLOR,
+	EmfRecordTypeSetBkColor              = EMR_SETBKCOLOR,
+	EmfRecordTypeOffsetClipRgn           = EMR_OFFSETCLIPRGN,
+	EmfRecordTypeMoveToEx                = EMR_MOVETOEX,
+	EmfRecordTypeSetMetaRgn              = EMR_SETMETARGN,
+	EmfRecordTypeExcludeClipRect         = EMR_EXCLUDECLIPRECT,
+	EmfRecordTypeIntersectClipRect       = EMR_INTERSECTCLIPRECT,
+	EmfRecordTypeScaleViewportExtEx      = EMR_SCALEVIEWPORTEXTEX,
+	EmfRecordTypeScaleWindowExtEx        = EMR_SCALEWINDOWEXTEX,
+	EmfRecordTypeSaveDC                  = EMR_SAVEDC,
+	EmfRecordTypeRestoreDC               = EMR_RESTOREDC,
+	EmfRecordTypeSetWorldTransform       = EMR_SETWORLDTRANSFORM,
+	EmfRecordTypeModifyWorldTransform    = EMR_MODIFYWORLDTRANSFORM,
+	EmfRecordTypeSelectObject            = EMR_SELECTOBJECT,
+	EmfRecordTypeCreatePen               = EMR_CREATEPEN,
+	EmfRecordTypeCreateBrushIndirect     = EMR_CREATEBRUSHINDIRECT,
+	EmfRecordTypeDeleteObject            = EMR_DELETEOBJECT,
+	EmfRecordTypeAngleArc                = EMR_ANGLEARC,
+	EmfRecordTypeEllipse                 = EMR_ELLIPSE,
+	EmfRecordTypeRectangle               = EMR_RECTANGLE,
+	EmfRecordTypeRoundRect               = EMR_ROUNDRECT,
+	EmfRecordTypeArc                     = EMR_ARC,
+	EmfRecordTypeChord                   = EMR_CHORD,
+	EmfRecordTypePie                     = EMR_PIE,
+	EmfRecordTypeSelectPalette           = EMR_SELECTPALETTE,
+	EmfRecordTypeCreatePalette           = EMR_CREATEPALETTE,
+	EmfRecordTypeSetPaletteEntries       = EMR_SETPALETTEENTRIES,
+	EmfRecordTypeResizePalette           = EMR_RESIZEPALETTE,
+	EmfRecordTypeRealizePalette          = EMR_REALIZEPALETTE,
+	EmfRecordTypeExtFloodFill            = EMR_EXTFLOODFILL,
+	EmfRecordTypeLineTo                  = EMR_LINETO,
+	EmfRecordTypeArcTo                   = EMR_ARCTO,
+	EmfRecordTypePolyDraw                = EMR_POLYDRAW,
+	EmfRecordTypeSetArcDirection         = EMR_SETARCDIRECTION,
+	EmfRecordTypeSetMiterLimit           = EMR_SETMITERLIMIT,
+	EmfRecordTypeBeginPath               = EMR_BEGINPATH,
+	EmfRecordTypeEndPath                 = EMR_ENDPATH,
+	EmfRecordTypeCloseFigure             = EMR_CLOSEFIGURE,
+	EmfRecordTypeFillPath                = EMR_FILLPATH,
+	EmfRecordTypeStrokeAndFillPath       = EMR_STROKEANDFILLPATH,
+	EmfRecordTypeStrokePath              = EMR_STROKEPATH,
+	EmfRecordTypeFlattenPath             = EMR_FLATTENPATH,
+	EmfRecordTypeWidenPath               = EMR_WIDENPATH,
+	EmfRecordTypeSelectClipPath          = EMR_SELECTCLIPPATH,
+	EmfRecordTypeAbortPath               = EMR_ABORTPATH,
+	EmfRecordTypeReserved_069            = 69,  // Not Used
+	EmfRecordTypeGdiComment              = EMR_GDICOMMENT,
+	EmfRecordTypeFillRgn                 = EMR_FILLRGN,
+	EmfRecordTypeFrameRgn                = EMR_FRAMERGN,
+	EmfRecordTypeInvertRgn               = EMR_INVERTRGN,
+	EmfRecordTypePaintRgn                = EMR_PAINTRGN,
+	EmfRecordTypeExtSelectClipRgn        = EMR_EXTSELECTCLIPRGN,
+	EmfRecordTypeBitBlt                  = EMR_BITBLT,
+	EmfRecordTypeStretchBlt              = EMR_STRETCHBLT,
+	EmfRecordTypeMaskBlt                 = EMR_MASKBLT,
+	EmfRecordTypePlgBlt                  = EMR_PLGBLT,
+	EmfRecordTypeSetDIBitsToDevice       = EMR_SETDIBITSTODEVICE,
+	EmfRecordTypeStretchDIBits           = EMR_STRETCHDIBITS,
+	EmfRecordTypeExtCreateFontIndirect   = EMR_EXTCREATEFONTINDIRECTW,
+	EmfRecordTypeExtTextOutA             = EMR_EXTTEXTOUTA,
+	EmfRecordTypeExtTextOutW             = EMR_EXTTEXTOUTW,
+	EmfRecordTypePolyBezier16            = EMR_POLYBEZIER16,
+	EmfRecordTypePolygon16               = EMR_POLYGON16,
+	EmfRecordTypePolyline16              = EMR_POLYLINE16,
+	EmfRecordTypePolyBezierTo16          = EMR_POLYBEZIERTO16,
+	EmfRecordTypePolylineTo16            = EMR_POLYLINETO16,
+	EmfRecordTypePolyPolyline16          = EMR_POLYPOLYLINE16,
+	EmfRecordTypePolyPolygon16           = EMR_POLYPOLYGON16,
+	EmfRecordTypePolyDraw16              = EMR_POLYDRAW16,
+	EmfRecordTypeCreateMonoBrush         = EMR_CREATEMONOBRUSH,
+	EmfRecordTypeCreateDIBPatternBrushPt = EMR_CREATEDIBPATTERNBRUSHPT,
+	EmfRecordTypeExtCreatePen            = EMR_EXTCREATEPEN,
+	EmfRecordTypePolyTextOutA            = EMR_POLYTEXTOUTA,
+	EmfRecordTypePolyTextOutW            = EMR_POLYTEXTOUTW,
+	EmfRecordTypeSetICMMode              = 98,  // EMR_SETICMMODE,
+	EmfRecordTypeCreateColorSpace        = 99,  // EMR_CREATECOLORSPACE,
+	EmfRecordTypeSetColorSpace           = 100, // EMR_SETCOLORSPACE,
+	EmfRecordTypeDeleteColorSpace        = 101, // EMR_DELETECOLORSPACE,
+	EmfRecordTypeGLSRecord               = 102, // EMR_GLSRECORD,
+	EmfRecordTypeGLSBoundedRecord        = 103, // EMR_GLSBOUNDEDRECORD,
+	EmfRecordTypePixelFormat             = 104, // EMR_PIXELFORMAT,
+	EmfRecordTypeDrawEscape              = 105, // EMR_RESERVED_105,
+	EmfRecordTypeExtEscape               = 106, // EMR_RESERVED_106,
+	EmfRecordTypeStartDoc                = 107, // EMR_RESERVED_107,
+	EmfRecordTypeSmallTextOut            = 108, // EMR_RESERVED_108,
+	EmfRecordTypeForceUFIMapping         = 109, // EMR_RESERVED_109,
+	EmfRecordTypeNamedEscape             = 110, // EMR_RESERVED_110,
+	EmfRecordTypeColorCorrectPalette     = 111, // EMR_COLORCORRECTPALETTE,
+	EmfRecordTypeSetICMProfileA          = 112, // EMR_SETICMPROFILEA,
+	EmfRecordTypeSetICMProfileW          = 113, // EMR_SETICMPROFILEW,
+	EmfRecordTypeAlphaBlend              = 114, // EMR_ALPHABLEND,
+	EmfRecordTypeSetLayout               = 115, // EMR_SETLAYOUT,
+	EmfRecordTypeTransparentBlt          = 116, // EMR_TRANSPARENTBLT,
+	EmfRecordTypeReserved_117            = 117, // Not Used
+	EmfRecordTypeGradientFill            = 118, // EMR_GRADIENTFILL,
+	EmfRecordTypeSetLinkedUFIs           = 119, // EMR_RESERVED_119,
+	EmfRecordTypeSetTextJustification    = 120, // EMR_RESERVED_120,
+	EmfRecordTypeColorMatchToTargetW     = 121, // EMR_COLORMATCHTOTARGETW,
+	EmfRecordTypeCreateColorSpaceW       = 122, // EMR_CREATECOLORSPACEW,
+	EmfRecordTypeMax                     = 122,
+	EmfRecordTypeMin                     = 1,
+
+	// That is the END of the GDI EMF records.
+
+	// Now we start the list of EMF+ records.  We leave quite
+	// a bit of room here for the addition of any new GDI
+	// records that may be added later.
+
+	EmfPlusRecordTypeInvalid = GDIP_EMFPLUS_RECORD_BASE,
+	EmfPlusRecordTypeHeader,
+	EmfPlusRecordTypeEndOfFile,
+
+	EmfPlusRecordTypeComment,
+
+	EmfPlusRecordTypeGetDC,
+
+	EmfPlusRecordTypeMultiFormatStart,
+	EmfPlusRecordTypeMultiFormatSection,
+	EmfPlusRecordTypeMultiFormatEnd,
+
+	// For all persistent objects
+	
+	EmfPlusRecordTypeObject,
+
+	// Drawing Records
+	
+	EmfPlusRecordTypeClear,
+	EmfPlusRecordTypeFillRects,
+	EmfPlusRecordTypeDrawRects,
+	EmfPlusRecordTypeFillPolygon,
+	EmfPlusRecordTypeDrawLines,
+	EmfPlusRecordTypeFillEllipse,
+	EmfPlusRecordTypeDrawEllipse,
+	EmfPlusRecordTypeFillPie,
+	EmfPlusRecordTypeDrawPie,
+	EmfPlusRecordTypeDrawArc,
+	EmfPlusRecordTypeFillRegion,
+	EmfPlusRecordTypeFillPath,
+	EmfPlusRecordTypeDrawPath,
+	EmfPlusRecordTypeFillClosedCurve,
+	EmfPlusRecordTypeDrawClosedCurve,
+	EmfPlusRecordTypeDrawCurve,
+	EmfPlusRecordTypeDrawBeziers,
+	EmfPlusRecordTypeDrawImage,
+	EmfPlusRecordTypeDrawImagePoints,
+	EmfPlusRecordTypeDrawString,
+
+	// Graphics State Records
+	
+	EmfPlusRecordTypeSetRenderingOrigin,
+	EmfPlusRecordTypeSetAntiAliasMode,
+	EmfPlusRecordTypeSetTextRenderingHint,
+	EmfPlusRecordTypeSetTextContrast,
+	EmfPlusRecordTypeSetInterpolationMode,
+	EmfPlusRecordTypeSetPixelOffsetMode,
+	EmfPlusRecordTypeSetCompositingMode,
+	EmfPlusRecordTypeSetCompositingQuality,
+	EmfPlusRecordTypeSave,
+	EmfPlusRecordTypeRestore,
+	EmfPlusRecordTypeBeginContainer,
+	EmfPlusRecordTypeBeginContainerNoParams,
+	EmfPlusRecordTypeEndContainer,
+	EmfPlusRecordTypeSetWorldTransform,
+	EmfPlusRecordTypeResetWorldTransform,
+	EmfPlusRecordTypeMultiplyWorldTransform,
+	EmfPlusRecordTypeTranslateWorldTransform,
+	EmfPlusRecordTypeScaleWorldTransform,
+	EmfPlusRecordTypeRotateWorldTransform,
+	EmfPlusRecordTypeSetPageTransform,
+	EmfPlusRecordTypeResetClip,
+	EmfPlusRecordTypeSetClipRect,
+	EmfPlusRecordTypeSetClipPath,
+	EmfPlusRecordTypeSetClipRegion,
+	EmfPlusRecordTypeOffsetClip,
+
+	EmfPlusRecordTypeDrawDriverString,
+#if (GDIPVER >= 0x0110)
+	EmfPlusRecordTypeStrokeFillPath,
+	EmfPlusRecordTypeSerializableObject,
+
+	EmfPlusRecordTypeSetTSGraphics,
+	EmfPlusRecordTypeSetTSClip,
+#endif
+
+	EmfPlusRecordTotal,
+
+	EmfPlusRecordTypeMax = EmfPlusRecordTotal-1,
+	EmfPlusRecordTypeMin = EmfPlusRecordTypeHeader
 } EmfPlusRecordType;
 
 #endif
