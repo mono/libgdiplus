@@ -271,6 +271,7 @@ static void test_addPathString ()
 
   GdipDeletePath (path);
   
+#if defined USE_PANGO_RENDERING || defined(USE_WINDOWS_GDIPLUS)
   // Set up Graphics stuff to use MeasureString (copied from testtext.c)
   status = GdipCreateFont (family, fontSize, FontStyleRegular, UnitPixel, &font);
   assertEqualInt (status, Ok);
@@ -299,6 +300,7 @@ static void test_addPathString ()
   GdipDeleteGraphics (graphics);
   GdipDeleteFont (font);
   GdipDisposeImage (image);  
+#endif
   
   GdipDeleteFontFamily (family);
   GdipDeleteStringFormat (format);
