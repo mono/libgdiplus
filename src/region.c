@@ -162,13 +162,19 @@ gdip_get_bounds (GpRectF *allrects, int allcnt, GpRectF *bound)
 
 /* This internal version doesn't require a Graphic object to work */
 static BOOL
-gdip_is_rect_empty (const GpRectF *rect)
+gdip_is_rect_empty (const GpRectF *rect, BOOL allowNegative)
 {
-	return rect && (rect->Width <= 0 || rect->Height <= 0);
+	if (!rect)
+		return FALSE;
+
+	if (rect->Width == 0 || rect->Height == 0)
+		return TRUE;
+
+	return allowNegative && (rect->Width < 0 || rect->Height < 0);
 }
 
 static BOOL
-gdip_is_region_empty (GpRegion *region)
+gdip_is_region_empty (const GpRegion *region, BOOL allowNegative)
 {
 	GpRectF rect;
 
@@ -181,7 +187,7 @@ gdip_is_region_empty (GpRegion *region)
 			return TRUE;
 
 		gdip_get_bounds (region->rects, region->cnt, &rect);
-		return gdip_is_rect_empty (&rect);
+		return gdip_is_rect_empty (&rect, allowNegative);
 	case RegionTypeInfinite:
 		return FALSE;
 	case RegionTypePath:
@@ -198,7 +204,7 @@ gdip_is_region_empty (GpRegion *region)
 }
 
 static BOOL
-gdip_is_rect_infinite (GpRectF *rect)
+gdip_is_rect_infinite (const GpRectF *rect)
 {
 	return (rect && (rect->X == REGION_INFINITE_POSITION) && 
 		(rect->Y == REGION_INFINITE_POSITION) &&
@@ -207,7 +213,7 @@ gdip_is_rect_infinite (GpRectF *rect)
 }
 
 BOOL
-gdip_is_InfiniteRegion (GpRegion *region)
+gdip_is_InfiniteRegion (const GpRegion *region)
 {
 	switch (region->type) {
 	case RegionTypeRect:
@@ -232,7 +238,7 @@ gdip_is_InfiniteRegion (GpRegion *region)
 }
 
 static BOOL
-gdip_intersects (GpRectF *rect1, GpRectF *rect2)
+gdip_intersects (const GpRectF *rect1, const GpRectF *rect2)
 {
 	if (rect1->X + rect1->Width == rect2->X) {
 		return TRUE;
@@ -695,7 +701,7 @@ GdipSetEmpty (GpRegion *region)
 
 /* pre-process negative width and height, without modifying the originals, see bug #383878 */
 static void
-gdip_normalize_rectangle (GpRectF *rect, GpRectF *normalized)
+gdip_normalize_rectangle (const GpRectF *rect, GpRectF *normalized)
 {
 	if (rect->Width < 0) {
 		normalized->X = rect->X + rect->Width;
@@ -1216,8 +1222,8 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 	}
 
 	BOOL infinite = gdip_is_InfiniteRegion (region);
-	BOOL empty = gdip_is_region_empty (region);
-	BOOL rectEmpty = gdip_is_rect_empty (rect);
+	BOOL empty = gdip_is_region_empty (region, /* allowNegative */ TRUE);
+	BOOL rectEmpty = gdip_is_rect_empty (rect, /* allowNegative */ FALSE);
 
 	if (rectEmpty) {
 		switch (combineMode) {
@@ -1245,10 +1251,13 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 
 	if (infinite) {
 		switch (combineMode) {
-		case CombineModeIntersect:
+		case CombineModeIntersect: {
 			/* The intersection of the infinite region with X is X */
 			GdipSetEmpty (region);
-			return gdip_add_rect_to_array (&region->rects, &region->cnt, (GpRectF *)rect);
+			GpRectF normalized;
+			gdip_normalize_rectangle (rect, &normalized);
+			return gdip_add_rect_to_array (&region->rects, &region->cnt, &normalized);
+		}
 		case CombineModeUnion:
 			/* The union of the infinite region and X is the infinite region */
 			return GdipSetInfinite (region);
@@ -1387,7 +1396,7 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 	}
 	
 	BOOL infinite = gdip_is_InfiniteRegion (region);
-	BOOL empty = gdip_is_region_empty (region);
+	BOOL empty = gdip_is_region_empty (region, /* allowNegative */ TRUE);
 	BOOL pathEmpty = path->count == 0;
 
 	if (pathEmpty) {
@@ -1575,9 +1584,9 @@ GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combin
 		return gdip_copy_region (region2, region);
 	}
 
-	BOOL region1Empty = gdip_is_region_empty (region);
+	BOOL region1Empty = gdip_is_region_empty (region, /* allowNegative */ TRUE);
 	BOOL region1Infinite = gdip_is_InfiniteRegion (region);
-	BOOL region2Empty = gdip_is_region_empty (region2);
+	BOOL region2Empty = gdip_is_region_empty (region2, /* allowNegative */ combineMode != CombineModeIntersect || region->type != RegionTypeInfinite);
 	BOOL region2Infinite = gdip_is_InfiniteRegion (region2);
 
 	switch (combineMode) {
@@ -1754,7 +1763,7 @@ GdipIsEmptyRegion (GpRegion *region, GpGraphics *graphics, BOOL *result)
 	if (!region || !graphics || !result)
 		return InvalidParameter;
 
-	*result = gdip_is_region_empty (region);
+	*result = gdip_is_region_empty (region, /* allowNegative */ TRUE);
 	return Ok;
 }
 
@@ -1887,7 +1896,7 @@ GdipGetRegionScansCount (GpRegion *region, UINT *count, GpMatrix *matrix)
 		work = region;
 	}
 
-	if (gdip_is_region_empty (work)) {
+	if (gdip_is_region_empty (work, /* allowNegative */ TRUE)) {
 		*count = 0;
 	} else {
 		switch (work->type) {
@@ -1955,7 +1964,7 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matr
 		work = region;
 	}
 
-	if (gdip_is_region_empty (work)) {
+	if (gdip_is_region_empty (work, /* allowNegative */ TRUE)) {
 		*count = 0;
 	} else {
 		switch (region->type) {

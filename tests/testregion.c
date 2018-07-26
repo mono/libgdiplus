@@ -3175,53 +3175,59 @@ static void test_getRegionScansI ()
 }
 #endif
 
+static void verifyCombineRegionWithRegionImpl (GpRegion *region, GpRegion *region2, CombineMode mode, float x, float y, float width, float height, BOOL isEmpty, BOOL isInfinite, RectF * scans, INT scansCount, const char *file, const char *function, int line)
+{
+	GpStatus status = GdipCombineRegionRegion (region, region2, mode);
+	assertEqualInt (status, Ok);
+
+	verifyRegionImpl (region, x, y, width, height, isEmpty, isInfinite, file, function, line);
+	verifyRegionScansImpl (region, scans, scansCount, file, function, line);
+}
+
 #define verifyCombineRegionWithRegion(region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpStatus status = GdipCombineRegionRegion (region, region2, mode); \
-	assertEqualInt (status, Ok); \
- \
-	verifyRegion (region, x, y, width, height, isEmpty, isInfinite); \
-	verifyRegionScans (region, scans, scansCount); \
- \
+	verifyCombineRegionWithRegionImpl (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount, __FILE__, __func__, __LINE__)
+
+static void verifyCombineRegionWithRectImpl (GpRegion *region, RectF *rect, CombineMode mode, float x, float y, float width, float height, BOOL isEmpty, BOOL isInfinite, RectF *scans, INT scansCount, const char *file, const char *function, int line)
+{
+	GpRegion *clone;
+	GdipCloneRegion (region, &clone);
+
+	/* First, test combining with a rect region. */
+	GpRegion *region2;
+	GdipCreateRegionRect (rect, &region2);
+	verifyCombineRegionWithRegionImpl (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount, file, function, line);
+	GdipDeleteRegion (region2);
+
+	/* Second, test combining with an actual rect. */
+	GdipCombineRegionRect (clone, rect, mode);
+	verifyRegionImpl (clone, x, y, width, height, isEmpty, isInfinite, file, function, line);
+	verifyRegionScansImpl (clone, scans, scansCount, file, function, line);
+	GdipDeleteRegion (clone);
 }
 
 #define verifyCombineRegionWithRect(region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *clone; \
-	GdipCloneRegion (region, &clone); \
- \
-	/* First test combining with a rect region. */ \
-	GpRegion *region2; \
-	printf("1\n"); \
-	GdipCreateRegionRect (rect, &region2); \
-	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region2); \
- \
-	/* First test combining with an actual rect. */ \
-	printf("2\n"); \
-	GdipCombineRegionRect (clone, rect, mode); \
-	verifyRegion (clone, x, y, width, height, isEmpty, isInfinite); \
-	verifyRegionScans (clone, scans, scansCount); \
-	GdipDeleteRegion (clone); \
+	verifyCombineRegionWithRectImpl (region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount, __FILE__, __func__, __LINE__)
+
+static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, CombineMode mode, float x, float y, float width, float height, BOOL isEmpty, BOOL isInfinite, RectF *scans, INT scansCount, const char *file, const char *function, int line)
+{
+	GpRegion *clone;
+	GdipCloneRegion (region, &clone);
+
+	/* First, test combining with a path region. */
+	GpRegion *region2;
+	GdipCreateRegionPath (path, &region2);
+	verifyCombineRegionWithRegionImpl (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount, file, function, line);
+	GdipDeleteRegion (region2);
+
+	/* Second, test combining with an actual path. */
+	GdipCombineRegionPath (clone, path, mode);
+	verifyRegionImpl (clone, x, y, width, height, isEmpty, isInfinite, file, function, line);
+	verifyRegionScansImpl (clone, scans, scansCount, file, function, line);
+	GdipDeleteRegion (clone);
 }
 
 #define verifyCombineRegionWithPath(region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *clone; \
-	GdipCloneRegion (region, &clone); \
- \
-	/* First test combining with a path region. */ \
-	GpRegion *region2; \
-	GdipCreateRegionPath (path, &region2); \
-	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region2); \
- \
-	/* First test combining with an actual path. */ \
-	GdipCombineRegionPath (clone, path, mode); \
-	verifyRegion (clone, x, y, width, height, isEmpty, isInfinite); \
-	verifyRegionScans (clone, scans, scansCount); \
-	GdipDeleteRegion (clone); \
-}
+	verifyCombineRegionWithPathImpl (region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount, __FILE__, __func__, __LINE__)
 
 #define verifyCombineInfiniteWithRegion(region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 { \
@@ -3487,6 +3493,27 @@ static void test_combineIntersect ()
 
 	// Infinite + Rect = Rect.
 	verifyCombineInfiniteWithRect (&rect, CombineModeIntersect, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+	
+	// Infinite + Negative Rect = Rect.
+	{
+		GpRegion *region;
+		GdipCreateRegion (&region);
+		GpRegion *clone;
+		GdipCloneRegion (region, &clone);
+
+		/* First, test combining with a rect region. */
+		GpRegion *region2;
+		GdipCreateRegionRect (&negativeRect, &region2);
+		verifyCombineRegionWithRegion (region, region2, CombineModeIntersect, 20, 30, -10, -10, TRUE, FALSE, emptyScans, 0);
+		GdipDeleteRegion (region2);
+
+		/* Second, test combining with an actual rect. */
+		RectF negativeRectScan = {10, 20, 10, 10};
+		GdipCombineRegionRect (clone, &negativeRect, CombineModeIntersect);
+		verifyRegion (clone, 10, 20, 10, 10, FALSE, FALSE);
+		verifyRegionScans (clone, &negativeRectScan, sizeof (negativeRectScan));
+		GdipDeleteRegion (clone);
+	}
 
 	// Infinite + Path = Path.
 	verifyCombineInfiniteWithPath (path, CombineModeIntersect, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
@@ -3534,11 +3561,25 @@ static void test_combineIntersect ()
 	verifyCombineRectWithRect (&rect, &emptyRect, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Rect + Negative Rect = Empty.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if 0
-	RectF negativeRectScan = {10, 20, 10, 10};
-	verifyCombineRectWithRect (&rect, &negativeRect, CombineModeIntersect, 10, 20, 10, 10, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
-#endif
+	{
+		GpRegion *region;
+		GdipCreateRegionRect (&rect, &region);
+		GpRegion *clone;
+		GdipCloneRegion (region, &clone);
+
+		/* First, test combining with a rect region. */
+		GpRegion *region2;
+		GdipCreateRegionRect (&negativeRect, &region2);
+		verifyCombineRegionWithRegion (region, region2, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
+		GdipDeleteRegion (region2);
+
+		/* Second, test combining with an actual rect. */
+		RectF negativeRectScan = {10, 20, 10, 10};
+		GdipCombineRegionRect (clone, &negativeRect, CombineModeIntersect);
+		verifyRegion (clone, 10, 20, 10, 10, FALSE, FALSE);
+		verifyRegionScans (clone, &negativeRectScan, sizeof (negativeRectScan));
+		GdipDeleteRegion (clone);
+	}
 
 	// Rect + Equal Rect = Equal Rect.
 	verifyCombineRectWithRect (&rect, &rect, CombineModeIntersect, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
@@ -3701,10 +3742,25 @@ static void test_combineIntersect ()
 	verifyCombinePathWithRect (path, &emptyRect, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Path + Negative Rect = Empty.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if 0
-	verifyCombinePathWithRect (path, &negativeRect, CombineModeIntersect, 10, 20, 10, 10, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
-#endif
+	{
+		GpRegion *region;
+		GdipCreateRegionPath (path, &region);
+		GpRegion *clone;
+		GdipCloneRegion (region, &clone);
+
+		/* First, test combining with a rect region. */
+		GpRegion *region2;
+		GdipCreateRegionRect (&negativeRect, &region2);
+		verifyCombineRegionWithRegion (region, region2, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
+		GdipDeleteRegion (region2);
+
+		/* Second, test combining with an actual rect. */
+		RectF negativeRectScan = {10, 20, 10, 10};
+		GdipCombineRegionRect (clone, &negativeRect, CombineModeIntersect);
+		verifyRegion (clone, 10, 20, 10, 10, FALSE, FALSE);
+		verifyRegionScans (clone, &negativeRectScan, sizeof (negativeRectScan));
+		GdipDeleteRegion (clone);
+	}
 
 	// Path + Equal Rect = Equal Rect.
 	verifyCombinePathWithRect (path, &rect, CombineModeIntersect, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
@@ -3933,6 +3989,9 @@ static void test_combineUnion ()
 
 	// Infinite + Rect = Infinite.
 	verifyCombineInfiniteWithRect (&rect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+	
+	// Infinite + Negative Rect = Infinite.
+	verifyCombineInfiniteWithRect (&negativeRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
 	// Infinite + Path = Infinite.
 	verifyCombineInfiniteWithPath (path, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
@@ -3983,11 +4042,7 @@ static void test_combineUnion ()
 	verifyCombineRectWithRect (&rect, &emptyRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Rect + Negative Rect = Empty.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if !defined(USE_WINDOWS_GDIPLUS)
-	RectF negativeRectScan = {10, 20, 30, 40};
-	verifyCombineRectWithRect (&rect, &negativeRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
-#endif
+	verifyCombineRectWithRect (&rect, &negativeRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Rect + Equal Rect = Equal Rect.
 	verifyCombineRectWithRect (&rect, &rect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
@@ -4123,11 +4178,8 @@ static void test_combineUnion ()
 	// Rect + Empty Path = Empty.
 	verifyCombineRectWithPath (&rect, emptyPath, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-	// Rect + Negative Path = Empty.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if !defined(USE_WINDOWS_GDIPLUS)
-	verifyCombineRectWithPath (&rect, negativePath, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
-#endif
+	// Rect + Negative Path = Rect.
+	verifyCombineRectWithPath (&rect, negativePath, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Rect + Equal Path = Equal Path.
 	verifyCombineRectWithPath (&rect, path, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
@@ -4222,11 +4274,8 @@ static void test_combineUnion ()
 	// Path + Empty Rect = Empty.
 	verifyCombinePathWithRect (path, &emptyRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-	// Path + Negative Rect = Empty.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if !defined(USE_WINDOWS_GDIPLUS)
-	verifyCombinePathWithRect (path, &negativeRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
-#endif
+	// Path + Negative Rect = Rect.
+	verifyCombinePathWithRect (path, &negativeRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Path + Equal Rect = Equal Rect.
 	verifyCombinePathWithRect (path, &rect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
@@ -4294,11 +4343,8 @@ static void test_combineUnion ()
 	// Path + Empty Path = Empty.
 	verifyCombinePathWithPath (path, emptyPath, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-	// Path + Negative Path = Empty.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if !defined(USE_WINDOWS_GDIPLUS)
-	verifyCombinePathWithPath (path, negativePath, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
-#endif
+	// Path + Negative Path = Path.
+	verifyCombinePathWithPath (path, negativePath, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Path + Equal Path = Equal Path.
 	verifyCombinePathWithPath (path, path, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
@@ -4460,6 +4506,32 @@ static void test_combineXor ()
 		{-4194304, 60, 8388608, 4194244}
 	};
 	verifyCombineInfiniteWithRect (&rect, CombineModeXor, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, infiniteWithRectScans, sizeof (infiniteWithRectScans));
+	
+	// Infinite + Negative Rect = Infinite.
+	{
+		GpRegion *region;
+		GdipCreateRegion (&region);
+		GpRegion *clone;
+		GdipCloneRegion (region, &clone);
+
+		/* First, test combining with a rect region. */
+		GpRegion *region2;
+		GdipCreateRegionRect (&negativeRect, &region2);
+		verifyCombineRegionWithRegion (region, region2, CombineModeXor, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+		GdipDeleteRegion (region2);
+
+		/* Second, test combining with an actual rect. */
+		RectF infiniteWithNegativeRectScans[] = {
+			{-4194304, -4194304, 8388608, 4194324},
+			{-4194304, 20, 4194314, 10},
+			{20, 20, 4194284, 10},
+			{-4194304, 30, 8388608, 4194274}
+		};
+		GdipCombineRegionRect (clone, &negativeRect, CombineModeXor);
+		verifyRegion (clone, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE);
+		verifyRegionScans (clone, infiniteWithNegativeRectScans, sizeof (infiniteWithNegativeRectScans));
+		GdipDeleteRegion (clone);
+	}
 
 	// Infinite + Path = Not Path.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
@@ -4512,12 +4584,30 @@ static void test_combineXor ()
 	// Rect + Empty Rect = Rect.
 	verifyCombineRectWithRect (&rect, &emptyRect, CombineModeXor, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-	// Rect + Negative Rect = Empty.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if !defined(USE_WINDOWS_GDIPLUS)
-	RectF negativeRectScan = {10, 20, 30, 40};
-	verifyCombineRectWithRect (&rect, &negativeRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
-#endif
+	// Rect + Negative Rect = Rect.
+	{
+		GpRegion *region;
+		GdipCreateRegionRect (&rect, &region);
+		GpRegion *clone;
+		GdipCloneRegion (region, &clone);
+
+		/* First, test combining with a rect region. */
+		GpRegion *region2;
+		GdipCreateRegionRect (&negativeRect, &region2);
+		RectF negativeRectScan = {10, 20, 30, 40};
+		verifyCombineRegionWithRegion (region, region2, CombineModeXor, 10, 20, 30, 40, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
+		GdipDeleteRegion (region2);
+
+		/* Second, test combining with an actual rect. */
+		RectF rectWithNegativeRectScans[] = {
+			{20, 20, 20, 10},
+			{10, 30, 30, 30}
+		};
+		GdipCombineRegionRect (clone, &negativeRect, CombineModeXor);
+		verifyRegion (clone, 10, 20, 30, 40, FALSE, FALSE);
+		verifyRegionScans (clone, rectWithNegativeRectScans, sizeof (rectWithNegativeRectScans));
+		GdipDeleteRegion (clone);
+	}
 
 	// Rect + Equal Rect = Empty Rect.
 	verifyCombineRectWithRect (&rect, &rect, CombineModeXor, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
@@ -4732,11 +4822,8 @@ static void test_combineXor ()
 	// Rect + Empty Path = Path.
 	verifyCombineRectWithPath (&rect, emptyPath, CombineModeXor, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-	// Rect + Negative Path = Empty.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if !defined(USE_WINDOWS_GDIPLUS)
-	verifyCombineRectWithPath (&rect, negativePath, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
-#endif
+	// Rect + Negative Path = Rect.
+	verifyCombineRectWithPath (&rect, emptyPath, CombineModeXor, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Rect + Equal Path = Empty.
 	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
@@ -4838,11 +4925,30 @@ static void test_combineXor ()
 	// Path + Empty Rect = Path.
 	verifyCombinePathWithRect (path, &emptyRect, CombineModeXor, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-	// Path + Negative Rect = Empty.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if !defined(USE_WINDOWS_GDIPLUS)
-	verifyCombinePathWithRect (path, &negativeRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
-#endif
+	// Path + Negative Rect = Path.
+	{
+		GpRegion *region;
+		GdipCreateRegionPath (path, &region);
+		GpRegion *clone;
+		GdipCloneRegion (region, &clone);
+
+		/* First, test combining with a rect region. */
+		GpRegion *region2;
+		GdipCreateRegionRect (&negativeRect, &region2);
+		RectF negativeRectScan = {10, 20, 30, 40};
+		verifyCombineRegionWithRegion (region, region2, CombineModeXor, 10, 20, 30, 40, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
+		GdipDeleteRegion (region2);
+
+		/* Second, test combining with an actual rect. */
+		RectF rectWithNegativePathScans[] = {
+			{20, 20, 20, 10},
+			{10, 30, 30, 30}
+		};
+		GdipCombineRegionRect (clone, &negativeRect, CombineModeXor);
+		verifyRegion (clone, 10, 20, 30, 40, FALSE, FALSE);
+		verifyRegionScans (clone, rectWithNegativePathScans, sizeof (rectWithNegativePathScans));
+		GdipDeleteRegion (clone);
+	}
 
 	// Path + Equal Rect = Empty.
 	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/348
@@ -4946,10 +5052,10 @@ static void test_combineXor ()
 	// Path + Empty Path = Path.
 	verifyCombinePathWithPath (path, emptyPath, CombineModeXor, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-	// Path + Negative Path = Empty.
+	// Path + Negative Path = Path.
 	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if !defined(USE_WINDOWS_GDIPLUS)
-	verifyCombinePathWithPath (path, negativePath, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &negativeRectScan, sizeof (negativeRectScan));
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyCombinePathWithPath (path, negativePath, CombineModeXor, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 #endif
 
 	// Path + Equal Path = Empty.
@@ -5116,6 +5222,34 @@ static void test_combineExclude ()
 		{-4194304, 60, 8388608, 4194244}
 	};
 	verifyCombineInfiniteWithRect (&rect, CombineModeExclude, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, infiniteWithRectScans, sizeof (infiniteWithRectScans));
+	
+	// Infinite + Negative Rect = Infinite.
+	{
+		GpRegion *region;
+		GdipCreateRegion (&region);
+		GpRegion *clone;
+		GdipCloneRegion (region, &clone);
+
+		/* First, test combining with a rect region. */
+		GpRegion *region2;
+		GdipCreateRegionRect (&negativeRect, &region2);
+		verifyCombineRegionWithRegion (region, region2, CombineModeExclude, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+		GdipDeleteRegion (region2);
+
+		/* Second, test combining with an actual rect. */
+		RectF infiniteWithNegativeRectScans[] = {
+			{-4194304, -4194304, 8388608, 4194324},
+			{-4194304, 20, 4194314, 10},
+			{20, 20, 4194284, 10},
+			{-4194304, 30, 8388608, 4194274}
+		};
+		GdipCombineRegionRect (clone, &negativeRect, CombineModeExclude);
+		verifyRegion (clone, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE);
+		verifyRegionScans (clone, infiniteWithNegativeRectScans, sizeof (infiniteWithNegativeRectScans));
+		GdipDeleteRegion (clone);
+	}
+
+	//verifyCombineInfiniteWithRect (&negativeRect, CombineModeExclude, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
 	// Infinite + Path = Not Path.
 	// FIXME: incorrect scans: https://github.com/mono/libgdiplus/issues/349
@@ -5144,6 +5278,32 @@ static void test_combineExclude ()
 	// Infinite Rect + Rect = Not Rect.
 	verifyCombineRectWithRect (&infiniteRect, &rect, CombineModeExclude, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, infiniteWithRectScans, sizeof (infiniteWithRectScans));
 
+	// Infinite Rect + Negative Rect = Infinite.
+	{
+		GpRegion *region;
+		GdipCreateRegionRect (&infiniteRect, &region);
+		GpRegion *clone;
+		GdipCloneRegion (region, &clone);
+
+		/* First, test combining with a rect region. */
+		GpRegion *region2;
+		GdipCreateRegionRect (&negativeRect, &region2);
+		verifyCombineRegionWithRegion (region, region2, CombineModeExclude, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
+		GdipDeleteRegion (region2);
+
+		/* Second, test combining with an actual rect. */
+		RectF infiniteWithNegativeRectScans[] = {
+			{-4194304, -4194304, 8388608, 4194324},
+			{-4194304, 20, 4194314, 10},
+			{20, 20, 4194284, 10},
+			{-4194304, 30, 8388608, 4194274}
+		};
+		GdipCombineRegionRect (clone, &negativeRect, CombineModeExclude);
+		verifyRegion (clone, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE);
+		verifyRegionScans (clone, infiniteWithNegativeRectScans, sizeof (infiniteWithNegativeRectScans));
+		GdipDeleteRegion (clone);
+	}
+
 	// Empty Rect + Infinite Rect = Empty.
 	verifyCombineRectWithRect (&emptyRect, &infiniteRect, CombineModeExclude, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
@@ -5166,14 +5326,28 @@ static void test_combineExclude ()
 	verifyCombineRectWithRect (&rect, &emptyRect, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Rect + Negative Rect = Rect.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if 0
-	RectF negativeRectScans[] = {
-		{20, 20, 20, 10},
-		{10, 30, 30, 30}
-	};
-	verifyCombineRectWithRect (&rect, &negativeRect, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, negativeRectScans, sizeof (negativeRectScans));
-#endif
+	{
+		GpRegion *region;
+		GdipCreateRegionRect (&rect, &region);
+		GpRegion *clone;
+		GdipCloneRegion (region, &clone);
+
+		/* First, test combining with a rect region. */
+		GpRegion *region2;
+		GdipCreateRegionRect (&negativeRect, &region2);
+		verifyCombineRegionWithRegion (region, region2, CombineModeXor, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+		GdipDeleteRegion (region2);
+
+		/* Second, test combining with an actual rect. */
+		RectF rectWithNegativeRectScans[] = {
+			{20, 20, 20, 10},
+			{10, 30, 30, 30}
+		};
+		GdipCombineRegionRect (clone, &negativeRect, CombineModeXor);
+		verifyRegion (clone, 10, 20, 30, 40, FALSE, FALSE);
+		verifyRegionScans (clone, rectWithNegativeRectScans, sizeof (rectWithNegativeRectScans));
+		GdipDeleteRegion (clone);
+	}
 
 	// Rect + Equal Rect = Empty.
 	verifyCombineRectWithRect (&rect, &rect, CombineModeExclude, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
@@ -5300,11 +5474,29 @@ static void test_combineExclude ()
 	// Rect + Empty Path = Rect.
 	verifyCombineRectWithPath (&rect, emptyPath, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-	// Rect + Negative Path = Empty.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if 0
-	verifyCombineRectWithPath (&rect, negativePath, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, negativeRectScans, sizeof (negativeRectScans));
-#endif
+	// Rect + Negative Path = Rect.
+	{
+		GpRegion *region;
+		GdipCreateRegionRect (&rect, &region);
+		GpRegion *clone;
+		GdipCloneRegion (region, &clone);
+
+		/* First, test combining with a path region. */
+		GpRegion *region2;
+		GdipCreateRegionRect (&negativeRect, &region2);
+		verifyCombineRegionWithRegion (region, region2, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+		GdipDeleteRegion (region2);
+
+		/* Second, test combining with an actual path. */
+		RectF rectWithNegativePathScans[] = {
+			{20, 20, 20, 10},
+			{10, 30, 30, 30}
+		};
+		GdipCombineRegionRect (clone, &negativeRect, CombineModeExclude);
+		verifyRegion (clone, 10, 20, 30, 40, FALSE, FALSE);
+		verifyRegionScans (clone, rectWithNegativePathScans, sizeof (rectWithNegativePathScans));
+		GdipDeleteRegion (clone);
+	}
 
 	// Rect + Equal Path = Empty.
 	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
@@ -5407,11 +5599,29 @@ static void test_combineExclude ()
 	// Path + Empty Rect = Path.
 	verifyCombinePathWithRect (path, &emptyRect, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-	// Path + Negative Rect = Empty.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if 0
-	verifyCombinePathWithRect (path, &negativeRect, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, negativeRectScans, sizeof (negativeRectScans));
-#endif
+	// Path + Negative Rect = Path.
+	{
+		GpRegion *region;
+		GdipCreateRegionPath (path, &region);
+		GpRegion *clone;
+		GdipCloneRegion (region, &clone);
+
+		/* First, test combining with a rect region. */
+		GpRegion *region2;
+		GdipCreateRegionRect (&negativeRect, &region2);
+		verifyCombineRegionWithRegion (region, region2, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
+		GdipDeleteRegion (region2);
+
+		/* Second, test combining with an actual rect. */
+		RectF rectWithNegativeRectScans[] = {
+			{20, 20, 20, 10},
+			{10, 30, 30, 30}
+		};
+		GdipCombineRegionRect (clone, &negativeRect, CombineModeExclude);
+		verifyRegion (clone, 10, 20, 30, 40, FALSE, FALSE);
+		verifyRegionScans (clone, rectWithNegativeRectScans, sizeof (rectWithNegativeRectScans));
+		GdipDeleteRegion (clone);
+	}
 
 	// Path + Equal Rect = Empty.
 	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
@@ -5514,10 +5724,10 @@ static void test_combineExclude ()
 	// Path + Empty Path = Path.
 	verifyCombinePathWithPath (path, emptyPath, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-	// Path + Negative Path = Empty.
+	// Path + Negative Path = Path.
 	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if 0
-	verifyCombinePathWithPath (path, negativePath, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, negativeRectScans, sizeof (negativeRectScans));
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyCombinePathWithPath (path, negativePath, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 #endif
 
 	// Path + Equal Path = Empty.
@@ -5679,6 +5889,9 @@ static void test_combineComplement ()
 
 	// Infinite + Rect = Empty.
 	verifyCombineInfiniteWithRect (&rect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
+
+	// Infinite + Negative Rect = Empty.
+	verifyCombineInfiniteWithRect (&negativeRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Infinite + Path = Empty
 	verifyCombineInfiniteWithPath (path, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
@@ -5941,7 +6154,6 @@ static void test_combineComplement ()
 	// Empty Path + Infinite Rect = Infinite.
 	verifyCombinePathWithRect (emptyPath, &infiniteRect, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
-
 	// Empty Path + Empty Rect = Empty.
 	verifyCombinePathWithRect (emptyPath, &emptyRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
@@ -5979,7 +6191,10 @@ static void test_combineComplement ()
 	verifyCombinePathWithRect (path, &emptyRect, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Path + Negative Rect = Empty.
+	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
+#if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithRect (path, &negativeRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
+#endif
 
 	// Path + Equal Rect = Empty.
 	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336

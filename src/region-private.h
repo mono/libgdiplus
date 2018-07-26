@@ -72,7 +72,7 @@ struct _Region {
     GpRegionBitmap*	bitmap;
 };
 
-BOOL gdip_is_InfiniteRegion (GpRegion *region) GDIP_INTERNAL;
+BOOL gdip_is_InfiniteRegion (const GpRegion *region) GDIP_INTERNAL;
 BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect) GDIP_INTERNAL;
 
 void gdip_clear_region (GpRegion *region) GDIP_INTERNAL;
