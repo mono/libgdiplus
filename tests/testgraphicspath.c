@@ -93,13 +93,20 @@ static void test_createPath ()
 
 static void test_addPathString ()
 {
+  GpImage *image;
+  GpGraphics *graphics;
   GpStatus status;
   GpPath *path;
   const WCHAR string[] = {'H', 'e', 'l', 'l', 'o', '\0'};
+  const WCHAR longString[] = {'H', 'e', 'l', 'l', 'o', ' ', 't', 'h', 'e', 'r', 'e', ',', ' ', 't', 'h', 'i', 's', ' ', 'i', 's', ' ', 'a', ' ', 'l', 'o', 'n', 'g', ' ', 's', 't', 'r', 'i', 'n', 'g', '.', '\0'};
   const WCHAR emptyString[] = {'\0'};
+  const int fontSize = 20;
   GpFontFamily *family;
+  GpFont *font;
   GpStringFormat *format;
   RectF layoutRect = {10, 20, 236, 226};
+  RectF longLayoutRect = {30, 40, 700, 100};
+  RectF rect1, rect2;
 
   GdipGetGenericFontFamilySerif (&family);
   GdipCreateStringFormat (0, 0, &format);
@@ -263,6 +270,36 @@ static void test_addPathString ()
   assertEqualInt (status, InvalidParameter);
 
   GdipDeletePath (path);
+  
+  // Set up Graphics stuff to use MeasureString (copied from testtext.c)
+  status = GdipCreateFont (family, fontSize, FontStyleRegular, UnitPixel, &font);
+  assertEqualInt (status, Ok);
+  status = GdipCreateBitmapFromScan0 (2000, 100, 0, PixelFormat32bppRGB, NULL, (GpBitmap **) &image);
+  assertEqualInt (status, Ok);
+  status = GdipGetImageGraphicsContext (image, &graphics);
+  assertEqualInt (status, Ok);
+  
+  // Check the path bounds
+  GdipSetStringFormatAlign (format, StringAlignmentFar);
+  GdipSetStringFormatLineAlign (format, StringAlignmentFar);
+  GdipCreatePath (FillModeAlternate, &path);
+  status = GdipAddPathString (path, longString, -1, family, 0, fontSize, &longLayoutRect, format);
+  assertEqualInt (status, Ok);
+  status = GdipGetPathWorldBounds (path, &rect1, NULL, NULL);
+  assertEqualInt (status, Ok);
+  status = GdipMeasureString (graphics, longString, -1, font, &longLayoutRect, format, &rect2, NULL, NULL);
+  assertEqualInt (status, Ok);
+  assertSimilarFloat (rect1.X, rect2.X, 10.0);
+  assertSimilarFloat (rect1.Y, rect2.Y, 10.0);
+  assertSimilarFloat (rect1.X + rect1.Width, rect2.X + rect2.Width, 5.0);
+  assertSimilarFloat (rect1.Y + rect1.Height, rect2.Y + rect2.Height, 5.0);
+  GdipDeletePath (path);
+  
+  // Dispose the Graphics stuff
+  GdipDeleteGraphics (graphics);
+  GdipDeleteFont (font);
+  GdipDisposeImage (image);  
+  
   GdipDeleteFontFamily (family);
   GdipDeleteStringFormat (format);
 }
