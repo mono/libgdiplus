@@ -93,20 +93,13 @@ static void test_createPath ()
 
 static void test_addPathString ()
 {
-  GpImage *image;
-  GpGraphics *graphics;
   GpStatus status;
   GpPath *path;
   const WCHAR string[] = {'H', 'e', 'l', 'l', 'o', '\0'};
-  const WCHAR longString[] = {'H', 'e', 'l', 'l', 'o', ' ', 't', 'h', 'e', 'r', 'e', ',', ' ', 't', 'h', 'i', 's', ' ', 'i', 's', ' ', 'a', ' ', 'l', 'o', 'n', 'g', ' ', 's', 't', 'r', 'i', 'n', 'g', '.', '\0'};
   const WCHAR emptyString[] = {'\0'};
-  const int fontSize = 20;
   GpFontFamily *family;
-  GpFont *font;
   GpStringFormat *format;
   RectF layoutRect = {10, 20, 236, 226};
-  RectF longLayoutRect = {30, 40, 700, 100};
-  RectF rect1, rect2;
 
   GdipGetGenericFontFamilySerif (&family);
   GdipCreateStringFormat (0, 0, &format);
@@ -272,6 +265,14 @@ static void test_addPathString ()
   GdipDeletePath (path);
   
 #if defined USE_PANGO_RENDERING || defined(USE_WINDOWS_GDIPLUS)
+  const WCHAR longString[] = {'H', 'e', 'l', 'l', 'o', ' ', 't', 'h', 'e', 'r', 'e', ',', ' ', 't', 'h', 'i', 's', ' ', 'i', 's', ' ', 'a', ' ', 'l', 'o', 'n', 'g', ' ', 's', 't', 'r', 'i', 'n', 'g', '.', '\0'};
+  const int fontSize = 20;
+  GpImage *image;
+  GpGraphics *graphics;
+  GpFont *font;
+  RectF longLayoutRect = {30, 40, 700, 100};
+  RectF rect1, rect2;
+
   // Set up Graphics stuff to use MeasureString (copied from testtext.c)
   status = GdipCreateFont (family, fontSize, FontStyleRegular, UnitPixel, &font);
   assertEqualInt (status, Ok);
