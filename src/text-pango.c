@@ -637,20 +637,20 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 				/* Add back in any & characters removed and the final newline characters (if any) */
 				charsFitted = g_utf8_strlen (layoutText, g_utf8_next_char (layoutText + lastIndex) - layoutText) + charsRemoved [lastIndex];
 				//g_warning("lastIndex: %d\t\tcharsRemoved: %d", lastIndex, charsRemoved[lastIndex]);
+				/* safe because of null termination */
+				switch (layoutText [lastIndex + 1]) {
+					case '\r':
+						charsFitted++;
+						if (layoutText [lastIndex + 2] == '\n')
+							charsFitted++;
+						break;
+					case '\n':
+						charsFitted++;
+						break;
+				}
 			} else {
 				// Nothing was fitted. Most likely either the input length was zero or LineLimit prevented fitting any lines (the height of the first line is greater than the height of the bounding box).
 				charsFitted = 0;
-			}
-			/* safe because of null termination */
-			switch (layoutText [lastIndex + 1]) {
-				case '\r':
-					charsFitted++;
-					if (layoutText [lastIndex + 2] == '\n')
-						charsFitted++;
-					break;
-				case '\n':
-					charsFitted++;
-					break;
 			}
 			*codepointsFitted = charsFitted;
 		}
