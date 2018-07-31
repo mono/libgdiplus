@@ -247,18 +247,21 @@ gdip_is_InfiniteRegion (const GpRegion *region)
 }
 
 static BOOL
-gdip_intersects (const GpRectF *rect1, const GpRectF *rect2, BOOL includeTouching)
+gdip_intersects (const GpRectF *rect1, const GpRectF *rect2)
 {
-	if (includeTouching)
-		return (rect1->X <= rect2->X + rect2->Width &&
-			rect1->X + rect1->Width >= rect2->X &&
-			rect1->Y <= rect2->Y + rect2->Height &&
-			rect1->Y + rect1->Height >= rect2->Y);
-
 	return (rect1->X < rect2->X + rect2->Width &&
 		rect1->X + rect1->Width > rect2->X &&
 		rect1->Y < rect2->Y + rect2->Height &&
 		rect1->Y + rect1->Height > rect2->Y);
+}
+
+static BOOL
+gdip_intersects_or_touches (GpRectF *rect1, GpRectF *rect2)
+{
+	return (rect1->X <= rect2->X + rect2->Width &&
+		rect1->X + rect1->Width >= rect2->X &&
+		rect1->Y <= rect2->Y + rect2->Height &&
+		rect1->Y + rect1->Height >= rect2->Y);
 }
 
 /* Is source contained in target ? */
@@ -782,7 +785,7 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 		/* Current rect with lowest y and X against the target ones */
 		for (i = 0, recttrg = alltrgrects; i < alltrgcnt; i++, recttrg++) {
 
-			if (gdip_intersects (&current, recttrg, FALSE) == FALSE
+			if (gdip_intersects (&current, recttrg) == FALSE
 				|| gdip_equals (&current, recttrg) == TRUE ||
 				recttrg->Height < 0 || recttrg->Width < 0) {
 				continue;
@@ -991,7 +994,7 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 				continue;
 			}
 
-			if (gdip_intersects (&current, recttrg, TRUE) == FALSE
+			if (gdip_intersects_or_touches (&current, recttrg) == FALSE
 				|| gdip_equals (&current, recttrg) == TRUE ||
 				recttrg->Height < 0 || recttrg->Width < 0) {
 				continue;
