@@ -1444,6 +1444,544 @@ static void test_createPath2I ()
 	assertEqualInt (status, InvalidParameter);
 }
 
+static void test_getPointCount ()
+{
+	GpStatus status;
+	GpPath *emptyPath;
+	GpPath *path;
+	PointF points[] = {
+		{1, 2},
+		{4, 2},
+		{4, 6},
+		{1, 6},
+	};
+	BYTE types[] = {
+		PathPointTypeStart,
+		PathPointTypeLine,
+		PathPointTypeLine,
+		PathPointTypeLine | PathPointTypeCloseSubpath,
+	};
+	INT count;
+	
+	GdipCreatePath (FillModeWinding, &emptyPath);
+	GdipCreatePath2 (points, types, 4, FillModeWinding, &path);
+
+	// Empty.
+	status = GdipGetPointCount (emptyPath, &count);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 0);
+
+	// Non Empty.
+	GdipCreatePath2 (points, types, 4, FillModeWinding, &path);
+	status = GdipGetPointCount (path, &count);
+	assertEqualInt (status, Ok);
+	assertEqualInt (count, 4);
+
+	// Negative tests.
+	status = GdipGetPointCount (NULL, &count);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetPointCount (path, NULL);
+	assertEqualInt (status, InvalidParameter);
+	
+	GdipDeletePath (emptyPath);
+	GdipDeletePath (path);
+}
+
+static void test_getPathTypes ()
+{
+	GpStatus status;
+	GpPath *emptyPath;
+	GpPath *path;
+	PointF points[] = {
+		{1, 2},
+		{4, 2},
+		{4, 6},
+		{1, 6},
+	};
+	BYTE types[] = {
+		PathPointTypeStart,
+		PathPointTypeLine,
+		PathPointTypeLine,
+		PathPointTypeLine | PathPointTypeCloseSubpath,
+	};
+	BYTE buffer[] = {0, 0, 0, 0, 0, 0};
+	
+	GdipCreatePath (FillModeWinding, &emptyPath);
+	GdipCreatePath2 (points, types, 4, FillModeWinding, &path);
+	
+	// Empty - greater than.
+	status = GdipGetPathTypes (emptyPath, buffer, 1);
+	assertEqualInt (status, Ok);
+	BYTE emptyExpected[] = {0, 0, 0, 0, 0, 0};
+	assertEqualBytes (buffer, emptyExpected, sizeof (emptyExpected));
+
+	// Non empty - exact.
+	status = GdipGetPathTypes (path, buffer, 4);
+	assertEqualInt (status, Ok);
+	BYTE nonEmptyExpected[] = {
+		PathPointTypeStart,
+		PathPointTypeLine,
+		PathPointTypeLine,
+		PathPointTypeLine | PathPointTypeCloseSubpath,
+		0,
+		0
+	};
+	assertEqualBytes (buffer, nonEmptyExpected, sizeof (nonEmptyExpected));
+	
+	// Non empty - greater.
+	status = GdipGetPathTypes (path, buffer, 10);
+	assertEqualInt (status, Ok);
+	assertEqualBytes (buffer, nonEmptyExpected, sizeof (nonEmptyExpected));
+
+	// Negative tests.
+	status = GdipGetPathTypes (NULL, buffer, 4);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathTypes (NULL, buffer, 3);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathTypes (path, NULL, 4);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathTypes (path, NULL, 3);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathTypes (emptyPath, buffer, 0);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathTypes (emptyPath, buffer, -1);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathTypes (path, buffer, 3);
+	assertEqualInt (status, InsufficientBuffer);
+	
+	status = GdipGetPathTypes (path, buffer, 0);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathTypes (path, buffer, -1);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeletePath (emptyPath);
+	GdipDeletePath (path);
+}
+
+static void test_getPathPoints ()
+{
+	GpStatus status;
+	GpPath *emptyPath;
+	GpPath *path;
+	PointF points[] = {
+		{1, 2},
+		{4, 2},
+		{4, 6},
+		{1, 6}
+	};
+	BYTE types[] = {
+		PathPointTypeStart,
+		PathPointTypeLine,
+		PathPointTypeLine,
+		PathPointTypeLine | PathPointTypeCloseSubpath,
+	};
+	PointF buffer[] = {
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0}
+	};
+	
+	GdipCreatePath (FillModeWinding, &emptyPath);
+	GdipCreatePath2 (points, types, 4, FillModeWinding, &path);
+	
+	// Empty - greater than.
+	status = GdipGetPathPoints (emptyPath, buffer, 1);
+	assertEqualInt (status, Ok);
+	PointF emptyExpected[] = {
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0}
+	};
+	assertEqualPointsF (buffer, emptyExpected, sizeof (emptyExpected) / sizeof (PointF));
+
+	// Non empty - exact.
+	status = GdipGetPathPoints (path, buffer, 4);
+	assertEqualInt (status, Ok);
+	PointF nonEmptyExpected[] = {
+		{1, 2},
+		{4, 2},
+		{4, 6},
+		{1, 6},
+		{0, 0},
+		{0, 0}
+	};
+	assertEqualPointsF (buffer, nonEmptyExpected, sizeof (nonEmptyExpected) / sizeof (PointF));
+	
+	// Non empty - greater.
+	status = GdipGetPathPoints (path, buffer, 10);
+	assertEqualInt (status, Ok);
+	assertEqualPointsF (buffer, nonEmptyExpected, sizeof (nonEmptyExpected) / sizeof (PointF));
+
+	// Negative tests.
+	status = GdipGetPathPoints (NULL, buffer, 4);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathPoints (NULL, buffer, 3);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathPoints (path, NULL, 4);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathPoints (path, NULL, 3);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathPoints (emptyPath, buffer, 0);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathPoints (emptyPath, buffer, -1);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathPoints (path, buffer, 3);
+	assertEqualInt (status, InsufficientBuffer);
+	
+	status = GdipGetPathPoints (path, buffer, 0);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathPoints (path, buffer, -1);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeletePath (emptyPath);
+	GdipDeletePath (path);
+}
+
+static void test_getPathPointsI ()
+{
+	GpStatus status;
+	GpPath *emptyPath;
+	GpPath *path;
+	PointF pointsZero[] = {
+		{1, 2},
+		{4, 2},
+		{4, 6},
+		{1, 6}
+	};
+	PointF pointsLessThanPointFive[] = {
+		{1.4f, 2.4f},
+		{4.4f, 2.4f},
+		{4.4f, 6.4f},
+		{1.4f, 6.4f}
+	};
+	PointF pointsPointFive[] = {
+		{1.5f, 2.5f},
+		{4.5f, 2.5f},
+		{4.5f, 6.5f},
+		{1.5f, 6.5f}
+	};
+	PointF pointsGreaterThanPointFive[] = {
+		{1.6f, 2.6f},
+		{4.6f, 2.6f},
+		{4.6f, 6.6f},
+		{1.6f, 6.6f}
+	};
+	BYTE types[] = {
+		PathPointTypeStart,
+		PathPointTypeLine,
+		PathPointTypeLine,
+		PathPointTypeLine | PathPointTypeCloseSubpath,
+	};
+	Point buffer[] = {
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0}
+	};
+	
+	GdipCreatePath (FillModeWinding, &emptyPath);
+	GdipCreatePath2 (pointsZero, types, 4, FillModeWinding, &path);
+	
+	// Empty - greater than.
+	// Causes an overflow in GDI+.
+#if !defined(USE_WINDOWS_GDIPLUS)
+	status = GdipGetPathPointsI (emptyPath, buffer, 1);
+	assertEqualInt (status, Ok);
+	Point emptyExpected[] = {
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0}
+	};
+	assertEqualPoints (buffer, emptyExpected, sizeof (emptyExpected) / sizeof (Point));
+#endif
+
+	// Non empty - exact.
+	status = GdipGetPathPointsI (path, buffer, 4);
+	assertEqualInt (status, Ok);
+	Point nonEmptyExpected[] = {
+		{1, 2},
+		{4, 2},
+		{4, 6},
+		{1, 6},
+		{0, 0},
+		{0, 0}
+	};
+	assertEqualPoints (buffer, nonEmptyExpected, sizeof (nonEmptyExpected) / sizeof (Point));
+	
+	// Non empty - greater.
+	// Causes an overflow in GDI+.
+#if !defined(USE_WINDOWS_GDIPLUS)
+	status = GdipGetPathPointsI (path, buffer, 10);
+	assertEqualInt (status, Ok);
+	assertEqualPoints (buffer, nonEmptyExpected, sizeof (nonEmptyExpected) / sizeof (Point));
+#endif
+	GdipDeletePath (path);
+	
+	// Non empty < 0.5.
+	GdipCreatePath2 (pointsLessThanPointFive, types, 4, FillModeWinding, &path);
+	status = GdipGetPathPointsI (path, buffer, 4);
+	assertEqualInt (status, Ok);
+	Point lessThanPointFiveExpected[] = {
+		{1, 2},
+		{4, 2},
+		{4, 6},
+		{1, 6},
+		{0, 0},
+		{0, 0}
+	};
+	assertEqualPoints (buffer, lessThanPointFiveExpected, sizeof (lessThanPointFiveExpected) / sizeof (Point));
+	GdipDeletePath (path);
+
+	// Non empty = 0.5.
+	GdipCreatePath2 (pointsPointFive, types, 4, FillModeWinding, &path);
+	status = GdipGetPathPointsI (path, buffer, 4);
+	assertEqualInt (status, Ok);
+	Point pointFiveExpected[] = {
+		{2, 3},
+		{5, 3},
+		{5, 7},
+		{2, 7},
+		{0, 0},
+		{0, 0}
+	};
+	assertEqualPoints (buffer, pointFiveExpected, sizeof (pointFiveExpected) / sizeof (Point));
+	GdipDeletePath (path);
+	
+	// Non empty < 0.5.
+	GdipCreatePath2 (pointsGreaterThanPointFive, types, 4, FillModeWinding, &path);
+	status = GdipGetPathPointsI (path, buffer, 4);
+	assertEqualInt (status, Ok);
+	Point pointsGreaterThanPointFiveExpected[] = {
+		{2, 3},
+		{5, 3},
+		{5, 7},
+		{2, 7},
+		{0, 0},
+		{0, 0}
+	};
+	assertEqualPoints (buffer, pointsGreaterThanPointFiveExpected, sizeof (pointsGreaterThanPointFiveExpected) / sizeof (Point));
+
+	// Negative tests.
+	status = GdipGetPathPointsI (NULL, buffer, 4);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathPointsI (NULL, buffer, 3);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathPointsI (path, NULL, 4);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathPointsI (path, NULL, 3);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathPointsI (emptyPath, buffer, 0);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathPointsI (emptyPath, buffer, -1);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathPointsI (path, buffer, 3);
+	assertEqualInt (status, InsufficientBuffer);
+	
+	status = GdipGetPathPointsI (path, buffer, 0);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathPointsI (path, buffer, -1);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeletePath (emptyPath);
+	GdipDeletePath (path);
+}
+
+static void test_getPathData ()
+{
+	GpStatus status;
+	GpPath *emptyPath;
+	GpPath *path;
+	PointF points[] = {
+		{1, 2},
+		{4, 2},
+		{4, 6},
+		{1, 6},
+	};
+	BYTE types[] = {
+		PathPointTypeStart,
+		PathPointTypeLine,
+		PathPointTypeLine,
+		PathPointTypeLine | PathPointTypeCloseSubpath,
+	};
+	GpPathData data;
+
+	GdipCreatePath (FillModeWinding, &emptyPath);
+	GdipCreatePath2 (points, types, 4, FillModeWinding, &path);
+	
+	// Empty - equal.
+	data.Count = 0;
+	data.Points = (PointF *) calloc (6, sizeof (PointF));
+	data.Types = (BYTE *) calloc (6, sizeof (BYTE));
+
+	status = GdipGetPathData (emptyPath, &data);
+	assertEqualInt (status, Ok);
+	PointF emptyExpectedPoints[] = {
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0}
+	};
+	BYTE emptyExpectedTypes[] = {0, 0, 0, 0, 0, 0};
+	assertEqualInt (0, data.Count);
+	assertEqualPointsF (data.Points, emptyExpectedPoints, sizeof (emptyExpectedPoints) / sizeof (PointF));
+	assertEqualBytes (data.Types, emptyExpectedTypes, sizeof (emptyExpectedTypes));
+	free (data.Points);
+	free (data.Types);
+
+	// Empty - greater than.
+	data.Count = 10;
+	data.Points = (PointF *) calloc (6, sizeof (PointF));
+	data.Types = (BYTE *) calloc (6, sizeof (BYTE));
+	status = GdipGetPathData (emptyPath, &data);
+	assertEqualInt (status, Ok);
+	assertEqualInt (0, data.Count);
+	assertEqualPointsF (data.Points, emptyExpectedPoints, sizeof (emptyExpectedPoints) / sizeof (PointF));
+	assertEqualBytes (data.Types, emptyExpectedTypes, sizeof (emptyExpectedTypes));
+	free (data.Points);
+	free (data.Types);
+
+	// Non empty - exact.
+	data.Count = 4;
+	data.Points = (PointF *) calloc (6, sizeof (PointF));
+	data.Types = (BYTE *) calloc (6, sizeof (BYTE));
+	status = GdipGetPathData (path, &data);
+	assertEqualInt (status, Ok);
+	PointF nonEmptyExpectedPoints[] = {
+		{1, 2},
+		{4, 2},
+		{4, 6},
+		{1, 6},
+		{0, 0},
+		{0, 0}
+	};
+	BYTE nonEmptyExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeLine,
+		PathPointTypeLine,
+		PathPointTypeLine | PathPointTypeCloseSubpath,
+		0,
+		0
+	};
+	assertEqualInt (4, data.Count);
+	assertEqualPointsF (data.Points, nonEmptyExpectedPoints, sizeof (nonEmptyExpectedPoints) / sizeof (PointF));
+	assertEqualBytes (data.Types, nonEmptyExpectedTypes, sizeof (nonEmptyExpectedTypes));
+	free (data.Points);
+	free (data.Types);
+	
+	// Non empty - greater.
+	data.Count = 10;
+	data.Points = (PointF *) calloc (6, sizeof (PointF));
+	data.Types = (BYTE *) calloc (6, sizeof (BYTE));
+	status = GdipGetPathData (path, &data);
+	assertEqualInt (status, Ok);
+	assertEqualInt (4, data.Count);
+	assertEqualPointsF (data.Points, nonEmptyExpectedPoints, sizeof (nonEmptyExpectedPoints) / sizeof (PointF));
+	assertEqualBytes (data.Types, nonEmptyExpectedTypes, sizeof (nonEmptyExpectedTypes));
+	free (data.Points);
+	free (data.Types);
+
+	// Negative tests.
+	status = GdipGetPathData (NULL, &data);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetPathData (path, NULL);
+	assertEqualInt (status, InvalidParameter);
+	
+	data.Count = 10;
+	data.Points = NULL;
+	data.Types = (BYTE *) calloc (6, sizeof (BYTE));
+
+	status = GdipGetPathData (path, &data);
+	assertEqualInt (status, InvalidParameter);
+
+	free (data.Types);
+	
+	data.Count = 10;
+	data.Points = (PointF *) calloc (6, sizeof (PointF));
+	data.Types = NULL;
+
+	status = GdipGetPathData (emptyPath, &data);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathData (path, &data);
+	assertEqualInt (status, InvalidParameter);
+
+	free (data.Points);
+	
+	data.Count = 1;
+	data.Points = (PointF *) calloc (6, sizeof (PointF));
+	data.Types = (BYTE *) calloc (6, sizeof (BYTE));
+	
+	status = GdipGetPathData (path, &data);
+	assertEqualInt (status, OutOfMemory);
+
+	free (data.Points);
+	free (data.Types);
+
+	data.Count = 0;
+	data.Points = (PointF *) calloc (6, sizeof (PointF));
+	data.Types = (BYTE *) calloc (6, sizeof (BYTE));
+	
+	status = GdipGetPathData (path, &data);
+	assertEqualInt (status, OutOfMemory);
+
+	free (data.Points);
+	free (data.Types);
+	
+	data.Count = -1;
+	data.Points = (PointF *) calloc (6, sizeof (PointF));
+	data.Types = (BYTE *) calloc (6, sizeof (BYTE));
+	
+	status = GdipGetPathData (emptyPath, &data);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetPathData (path, &data);
+	assertEqualInt (status, InvalidParameter);
+
+#if !defined(USE_WINDOWS_GDIPLUS)
+	free (data.Points);
+	free (data.Types);
+#endif
+
+	GdipDeletePath (emptyPath);
+	GdipDeletePath (path);
+}
+
 static void test_addPathString ()
 {
 	GpStatus status;
@@ -1831,6 +2369,11 @@ main (int argc, char**argv)
 	test_createPath ();
 	test_createPath2 ();
 	test_createPath2I ();
+	test_getPointCount ();
+	test_getPathTypes ();
+	test_getPathPoints ();
+	test_getPathPointsI ();
+	test_getPathData ();
 	test_addPathString ();
 	test_addPathStringI ();
 
