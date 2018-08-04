@@ -74,6 +74,17 @@ gdip_path_has_curve (GpPath *path)
 	return FALSE;
 }
 
+BOOL
+gdip_path_closed (GpPath *path)
+{
+	if (path->count < 1) {
+		return FALSE;
+	}
+
+	PathPointType last_type = path->types[path->count - 1];
+	return (last_type & PathPointTypeCloseSubpath) == PathPointTypeCloseSubpath;
+}
+
 /*
  * Return the correct point type when adding a new shape to the path.
  */
@@ -106,8 +117,7 @@ append (GpPath *path, float x, float y, PathPointType type, BOOL compress)
 		GpPointF lastPoint = path->points[path->count - 1];
 		if ((lastPoint.X == x) && (lastPoint.Y == y)) {
 			/* types need not be identical but must handle closed subpaths */
-			PathPointType last_type = path->types[path->count - 1];
-			if ((last_type & PathPointTypeCloseSubpath) != PathPointTypeCloseSubpath)
+			if (!gdip_path_closed (path))
 				return;
 		}
 	}
@@ -2047,5 +2057,3 @@ GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpPen *pen, GpGraphi
 {
 	return GdipIsOutlineVisiblePathPoint (path, x, y, pen, graphics, result);
 }
-
-

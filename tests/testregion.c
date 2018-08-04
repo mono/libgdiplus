@@ -278,12 +278,7 @@ static void test_createRegionPath ()
 
 	status = GdipCreateRegionPath (path, &region);
 	assertEqualInt (status, Ok);
-	// FIXME: libgdiplus does not identify this as an infinite region.
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-#else
-	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, FALSE);
-#endif
 	GdipDeleteRegion (region);
 	GdipDeletePath (path);
 
@@ -319,12 +314,7 @@ static void test_createRegionPath ()
 
 	status = GdipCreateRegionPath (path, &region);
 	assertEqualInt (status, Ok);
-	// FIXME: libgdiplus does not identify this as an empty infinite region.
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, 10, 10, 10, 10, TRUE, FALSE);
-#else
-	verifyRegion (region, 10, 10, 10, 10, FALSE, FALSE);
-#endif
 	GdipDeleteRegion (region);
 	GdipDeletePath (path);
 
@@ -338,10 +328,7 @@ static void test_createRegionPath ()
 
 	status = GdipCreateRegionPath (path, &region);
 	assertEqualInt (status, Ok);
-	// FIXME: GetRegionBounds fails with OutOfMemory.
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, TRUE, FALSE);
-#endif
 	GdipDeleteRegion (region);
 
 	// Negative tests.
@@ -4032,7 +4019,7 @@ static void test_combineUnion ()
 	// Rect + Empty = Rect.
 	verifyCombineRectWithRegion (&rect, emptyRegion, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-	// Rect + Infinite Rect = Rect.
+	// Rect + Infinite Rect = Infinite.
 	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombineRectWithRect (&rect, &infiniteRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
@@ -4169,7 +4156,7 @@ static void test_combineUnion ()
 	};
 	verifyCombineRectWithRect (&rect, &noIntersectBottomLeftRect, CombineModeUnion, -20, 20, 60, 80, FALSE, FALSE, noIntersectBottomLeftScans, sizeof (noIntersectBottomLeftScans));
 
-	// Rect + Infinite Path = Path.
+	// Rect + Infinite Path = Infinite.
 	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombineRectWithPath (&rect, infinitePath, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
@@ -4238,17 +4225,14 @@ static void test_combineUnion ()
 	// Rect + No Intersect Bottom Left = Both.
 	verifyCombineRectWithPath (&rect, noIntersectBottomLeftPath, CombineModeUnion, -20, 20, 60, 80, FALSE, FALSE, noIntersectBottomLeftScans, sizeof (noIntersectBottomLeftScans));
 
-	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338.
-#if defined(USE_WINDOWS_GDIPLUS)
-	// Infinite Path + Infinite Rect = Infinite Rect.
+	// Infinite Path + Infinite Rect = Infinite.
 	verifyCombinePathWithRect (infinitePath, &infiniteRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
-	// Infinite Path + Empty Rect = Infinite Rect.
+	// Infinite Path + Empty Rect = Infinite.
 	verifyCombinePathWithRect (infinitePath, &emptyRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
-	// Infinite Path + Rect = Infinite Rect.
+	// Infinite Path + Rect = Infinite.
 	verifyCombinePathWithRect (infinitePath, &rect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
-#endif
 
 	// Empty Path + Infinite Rect = Infinite Rect.
 	verifyCombinePathWithRect (emptyPath, &infiniteRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
@@ -4265,7 +4249,7 @@ static void test_combineUnion ()
 	// Path + Empty = Empty.
 	verifyCombinePathWithRegion (path, emptyRegion, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-	// Path + Infinite Rect = Rect.
+	// Path + Infinite Rect = Infinite.
 	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithRect (path, &infiniteRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
@@ -4334,7 +4318,7 @@ static void test_combineUnion ()
 	// Path + No Intersect Bottom Left = Both.
 	verifyCombinePathWithRect (path, &noIntersectBottomLeftRect, CombineModeUnion, -20, 20, 60, 80, FALSE, FALSE, noIntersectBottomLeftScans, sizeof (noIntersectBottomLeftScans));
 
-	// Path + Infinite Path = Path.
+	// Path + Infinite Path = Infinite.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338.
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithPath (path, infinitePath, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
@@ -6054,7 +6038,7 @@ static void test_combineComplement ()
 	// Empty Rect + Path = Rect.
 	verifyCombineRectWithPath (&emptyRect, path, CombineModeComplement, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-    // Rect + Infinite Path = Empty.
+    // Rect + Infinite Path = Infinite.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombineRectWithPath (&rect, infinitePath, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
@@ -6127,7 +6111,7 @@ static void test_combineComplement ()
 	// Rect + No Intersect Bottom Left = No Intersect Bottom Left.
 	verifyCombineRectWithPath (&rect, noIntersectBottomLeftPath, CombineModeComplement, -20, 60, 30, 40, FALSE, FALSE, &noIntersectBottomLeftRect, sizeof (noIntersectBottomLeftRect));
 		
-	// Path + Infinite = Empty.
+	// Path + Infinite = Infinite.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithRegion (path, infiniteRegion, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
@@ -6136,20 +6120,14 @@ static void test_combineComplement ()
 	// Path + Empty = Rect.
 	verifyCombinePathWithRegion (path, emptyRegion, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
 
-	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
-#if defined(USE_WINDOWS_GDIPLUS)
 	// Infinite Path + Infinite Rect = Empty.
 	verifyCombinePathWithRect (infinitePath, &infiniteRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-#endif
 
 	// Infinite Path + Empty Rect = Empty.
 	verifyCombinePathWithRect (infinitePath, &emptyRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
-	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
-#if defined(USE_WINDOWS_GDIPLUS)
 	// Infinite Path + Rect = Empty.
 	verifyCombinePathWithRect (infinitePath, &rect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-#endif
 
 	// Empty Path + Infinite Rect = Infinite.
 	verifyCombinePathWithRect (emptyPath, &infiniteRect, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
@@ -6161,8 +6139,6 @@ static void test_combineComplement ()
 	verifyCombinePathWithRect (emptyPath, &rect, CombineModeComplement, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 		
 	// Infinite Path + Infinite Rect = Empty.
-	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithRect (infinitePath, &infiniteRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Infinite Path + Empty Rect = Empty.
@@ -6170,7 +6146,6 @@ static void test_combineComplement ()
 
 	// Infinite Path + Rect = Empty.
 	verifyCombinePathWithRect (infinitePath, &rect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-#endif
 
 	// Empty Path + Infinite Rect = Infinite.
 	verifyCombinePathWithRect (emptyPath, &infiniteRect, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
@@ -6258,8 +6233,6 @@ static void test_combineComplement ()
 	// Path + No Intersect Bottom Left = No Intersect Bottom Left.
 	verifyCombinePathWithRect (path, &noIntersectBottomLeftRect, CombineModeComplement, -20, 60, 30, 40, FALSE, FALSE, &noIntersectBottomLeftRect, sizeof (noIntersectBottomLeftRect));
 
-	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
-#if defined(USE_WINDOWS_GDIPLUS)
 	// Infinite Path + Infinite Path = Empty.
 	verifyCombinePathWithPath (infinitePath, infinitePath, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
@@ -6269,20 +6242,19 @@ static void test_combineComplement ()
 	// Infinite Path + Path = Empty.
 	verifyCombinePathWithPath (infinitePath, path, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
+	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
+#if defined(USE_WINDOWS_GDIPLUS)
 	// Empty Path + Infinite Path = Infinite.
 	verifyCombinePathWithPath (emptyPath, infinitePath, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 #endif
 
 	// Empty Path + Empty Path = Empty.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithPath (emptyPath, emptyPath, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-#endif
 
 	// Empty Path + Path = Rect.
 	verifyCombinePathWithPath (emptyPath, path, CombineModeComplement, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-    // Path + Infinite Path = Empty.
+    // Path + Infinite Path = Calculate.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithPath (path, infinitePath, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));

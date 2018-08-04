@@ -191,11 +191,17 @@ gdip_is_region_empty (const GpRegion *region, BOOL allowNegative)
 	case RegionTypeInfinite:
 		return FALSE;
 	case RegionTypePath:
-		/* check for an existing, but empty, path list */
 		if (!region->tree)
 			return TRUE;
-		if (region->tree->path)
-			return (region->tree->path->count == 0);
+		if (region->tree->path) {
+			if (region->tree->path->count == 0)
+				return TRUE;
+			
+			// Open paths are empty.
+			if ((region->tree->path->types[region->tree->path->count - 1] & PathPointTypeCloseSubpath) == 0)
+				return TRUE;
+		}
+
 		return FALSE;
 	default:
 		g_warning ("unknown type 0x%08X", region->type);
@@ -222,9 +228,12 @@ gdip_is_InfiniteRegion (const GpRegion *region)
 		return gdip_is_rect_infinite (region->rects);
 	case RegionTypePath:
 		/* FIXME: incomplete and not 100% accurate (curves) - but cover the most common case */
-		if (region->tree && region->tree->path && (region->tree->path->count == 4)) {
+		if (!region->tree || !region->tree->path)
+			return FALSE;
+
+		if (gdip_path_closed (region->tree->path) && region->tree->path->count == 4) {
 			GpRectF bounds;
-			if (GdipGetPathWorldBounds (region->tree->path, &bounds, NULL, NULL) != Ok)
+			if (GdipGetPathWorldBounds (region->tree->path, &bounds, NULL, NULL) == Ok)
 				return gdip_is_rect_infinite (&bounds);
 		}
 		break;

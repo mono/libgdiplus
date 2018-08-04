@@ -50,7 +50,7 @@ typedef struct _Path {
 
 BOOL gdip_path_has_curve (GpPath *path) GDIP_INTERNAL;
 BOOL gdip_path_ensure_size (GpPath *path, int size) GDIP_INTERNAL;
-
+BOOL gdip_path_closed (GpPath *path) GDIP_INTERNAL;
 
 #include "graphics-path.h"
 
