@@ -48,7 +48,7 @@ GpStatus WINGDIPAPI GdipClosePathFigure (GpPath *path);
 GpStatus WINGDIPAPI GdipClosePathFigures (GpPath *path);
 
 GpStatus WINGDIPAPI GdipSetPathMarker (GpPath *path);
-GpStatus WINGDIPAPI GdipClearPathMarker (GpPath *path);
+GpStatus WINGDIPAPI GdipClearPathMarkers (GpPath *path);
 
 GpStatus WINGDIPAPI GdipReversePath (GpPath *path);
 GpStatus WINGDIPAPI GdipGetPathLastPoint (GpPath *path, GpPointF *lastPoint);

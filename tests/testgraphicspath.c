@@ -34,7 +34,6 @@ static void verifyPathImpl (GpPath *path, FillMode expectedFillMode, float expec
 	pathData.Points = (PointF *) malloc (sizeof (PointF) * 16);
 	pathData.Types = (BYTE *) malloc (sizeof (BYTE) * 16);
 
-
 	status = GdipGetPathFillMode (path, &fillMode);
 	assertEqualIntImpl (status, Ok, message, file, function, line);
 	assertEqualIntImpl (fillMode, expectedFillMode, message, file, function, line);
@@ -1982,6 +1981,589 @@ static void test_getPathData ()
 	GdipDeletePath (path);
 }
 
+static void test_startPathFigure ()
+{
+	GpStatus status;
+	GpPath *path;
+	PointF singlePoints[] = {
+		{1, 2}
+	};
+	BYTE singleTypes[] = {
+		PathPointTypeStart
+	};
+
+	// Empty.
+	GdipCreatePath (FillModeAlternate, &path);
+	
+	status = GdipStartPathFigure (path);
+	assertEqualInt (status, Ok);
+	PointF emptyExpectedPoints[] = {
+		{1, 2},
+		{4, 2}
+	};
+	BYTE emptyExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeLine
+	};
+	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, emptyExpectedPoints, emptyExpectedTypes, 0);
+
+	GdipAddPathLine (path, 1, 2, 4, 2);
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 0, emptyExpectedPoints, emptyExpectedTypes, 2);
+
+	GdipDeletePath (path);
+	
+	// Single.
+	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeAlternate, &path);
+
+	status = GdipStartPathFigure (path);
+	assertEqualInt (status, Ok);
+	PointF singleExpectedPoints[] = {
+		{1, 2},
+		{1, 2},
+		{4, 2}
+	};
+	BYTE singleExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeStart,
+		PathPointTypeLine
+	};
+	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, singleExpectedPoints, singleExpectedTypes, 1);
+
+	GdipAddPathLine (path, 1, 2, 4, 2);
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 0, singleExpectedPoints, singleExpectedTypes, 3);
+
+	GdipDeletePath (path);
+
+	// Non Empty.
+	GdipCreatePath (FillModeAlternate, &path);
+	GdipAddPathLine (path, 1, 2, 4, 2);
+
+	status = GdipStartPathFigure (path);
+	assertEqualInt (status, Ok);
+	PointF nonEmptyExpectedPoints[] = {
+		{1, 2},
+		{4, 2},
+		{4, 2},
+		{4, 6}
+	};
+	BYTE nonEmptyExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeLine,
+		PathPointTypeStart,
+		PathPointTypeLine
+	};
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 0, nonEmptyExpectedPoints, nonEmptyExpectedTypes, 2);
+
+	GdipAddPathLine (path, 4, 2, 4, 6);
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 4, nonEmptyExpectedPoints, nonEmptyExpectedTypes, 4);
+
+	GdipDeletePath (path);
+
+	// Negative tests.
+	status = GdipStartPathFigure (NULL);
+	assertEqualInt (status, InvalidParameter);
+}
+
+static void test_closePathFigure ()
+{
+	GpStatus status;
+	GpPath *path;
+	PointF singlePoints[] = {
+		{1, 2}
+	};
+	BYTE singleTypes[] = {
+		PathPointTypeStart
+	};
+
+	// Empty.
+	GdipCreatePath (FillModeAlternate, &path);
+	
+	status = GdipClosePathFigure (path);
+	assertEqualInt (status, Ok);
+	PointF emptyExpectedPoints[] = {
+		{1, 2},
+		{4, 2}
+	};
+	BYTE emptyExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeLine
+	};
+	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, emptyExpectedPoints, emptyExpectedTypes, 0);
+
+	GdipAddPathLine (path, 1, 2, 4, 2);
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 0, emptyExpectedPoints, emptyExpectedTypes, 2);
+
+	GdipDeletePath (path);
+
+	// Single.
+	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeAlternate, &path);
+
+	status = GdipClosePathFigure (path);
+	assertEqualInt (status, Ok);
+	PointF singleExpectedPoints[] = {
+		{1, 2},
+		{1, 2},
+		{4, 2}
+	};
+	BYTE singleExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeStart,
+		PathPointTypeLine
+	};
+	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, singleExpectedPoints, singleExpectedTypes, 1);
+
+	GdipAddPathLine (path, 1, 2, 4, 2);
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 0, singleExpectedPoints, singleExpectedTypes, 3);
+
+	GdipDeletePath (path);
+
+	// Non Empty - single open.
+	GdipCreatePath (FillModeAlternate, &path);
+	GdipAddPathLine (path, 1, 2, 4, 2);
+
+	status = GdipClosePathFigure (path);
+	assertEqualInt (status, Ok);
+	PointF nonEmptyExpectedPoints[] = {
+		{1, 2},
+		{4, 2},
+		{4, 2},
+		{4, 6}
+	};
+	BYTE nonEmptyExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeLine | PathPointTypeCloseSubpath,
+		PathPointTypeStart,
+		PathPointTypeLine
+	};
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 0, nonEmptyExpectedPoints, nonEmptyExpectedTypes, 2);
+
+	GdipAddPathLine (path, 4, 2, 4, 6);
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 4, nonEmptyExpectedPoints, nonEmptyExpectedTypes, 4);
+
+	GdipDeletePath (path);
+
+	// Non Empty - several open.
+	GdipCreatePath (FillModeAlternate, &path);
+	GdipAddPathLine (path, 1, 2, 4, 2);
+	GdipStartPathFigure (path);
+	GdipAddPathLine (path, 4, 2, 4, 6);
+	GdipStartPathFigure (path);
+	GdipAddPathLine (path, 4, 6, 1, 6);
+
+	status = GdipClosePathFigure (path);
+	assertEqualInt (status, Ok);
+	PointF severalNonEmptyExpectedPoints[] = {
+		{1, 2},
+		{4, 2},
+		{4, 2},
+		{4, 6},
+		{4, 6},
+		{1, 6},
+	};
+	BYTE severalNonEmptyExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeLine,
+		PathPointTypeStart,
+		PathPointTypeLine,
+		PathPointTypeStart,
+		PathPointTypeLine | PathPointTypeCloseSubpath
+	};
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 4, severalNonEmptyExpectedPoints, severalNonEmptyExpectedTypes, 6);
+
+	GdipDeletePath (path);
+
+	// Negative tests.
+	status = GdipClosePathFigure (NULL);
+	assertEqualInt (status, InvalidParameter);
+}
+
+static void test_closePathFigures ()
+{
+	GpStatus status;
+	GpPath *path;
+	PointF singlePoints[] = {
+		{1, 2}
+	};
+	BYTE singleTypes[] = {
+		PathPointTypeStart
+	};
+
+	// Empty.
+	GdipCreatePath (FillModeAlternate, &path);
+	
+	status = GdipClosePathFigures (path);
+	assertEqualInt (status, Ok);
+	PointF emptyExpectedPoints[] = {
+		{1, 2},
+		{4, 2}
+	};
+	BYTE emptyExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeLine
+	};
+	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, emptyExpectedPoints, emptyExpectedTypes, 0);
+
+	GdipAddPathLine (path, 1, 2, 4, 2);
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 0, emptyExpectedPoints, emptyExpectedTypes, 2);
+
+	GdipDeletePath (path);
+
+	// Single.
+	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeAlternate, &path);
+
+	status = GdipClosePathFigures (path);
+	assertEqualInt (status, Ok);
+	PointF singleExpectedPoints[] = {
+		{1, 2},
+		{1, 2},
+		{4, 2}
+	};
+	BYTE singleExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeStart,
+		PathPointTypeLine
+	};
+	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, singleExpectedPoints, singleExpectedTypes, 1);
+
+	GdipAddPathLine (path, 1, 2, 4, 2);
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 0, singleExpectedPoints, singleExpectedTypes, 3);
+
+	GdipDeletePath (path);
+
+	// Non Empty - single open
+	GdipCreatePath (FillModeAlternate, &path);
+	GdipAddPathLine (path, 1, 2, 4, 2);
+
+	status = GdipClosePathFigures (path);
+	assertEqualInt (status, Ok);
+	PointF nonEmptyExpectedPoints[] = {
+		{1, 2},
+		{4, 2},
+		{4, 2},
+		{4, 6}
+	};
+	BYTE nonEmptyExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeLine | PathPointTypeCloseSubpath,
+		PathPointTypeStart,
+		PathPointTypeLine
+	};
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 0, nonEmptyExpectedPoints, nonEmptyExpectedTypes, 2);
+
+	GdipAddPathLine (path, 4, 2, 4, 6);
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 4, nonEmptyExpectedPoints, nonEmptyExpectedTypes, 4);
+
+	GdipDeletePath (path);
+
+	// Non Empty - several open.
+	GdipCreatePath (FillModeAlternate, &path);
+	GdipAddPathLine (path, 1, 2, 4, 2);
+	GdipStartPathFigure (path);
+	GdipAddPathLine (path, 4, 2, 4, 6);
+	GdipStartPathFigure (path);
+	GdipAddPathLine (path, 4, 6, 1, 6);
+
+	status = GdipClosePathFigures (path);
+	assertEqualInt (status, Ok);
+	PointF severalNonEmptyExpectedPoints[] = {
+		{1, 2},
+		{4, 2},
+		{4, 2},
+		{4, 6},
+		{4, 6},
+		{1, 6},
+	};
+	BYTE severalNonEmptyExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeLine | PathPointTypeCloseSubpath,
+		PathPointTypeStart,
+		PathPointTypeLine | PathPointTypeCloseSubpath,
+		PathPointTypeStart,
+		PathPointTypeLine | PathPointTypeCloseSubpath
+	};
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 4, severalNonEmptyExpectedPoints, severalNonEmptyExpectedTypes, 6);
+
+	GdipDeletePath (path);
+
+	// Negative tests.
+	status = GdipClosePathFigures (NULL);
+	assertEqualInt (status, InvalidParameter);
+}
+
+static void test_setPathMarker ()
+{
+	GpStatus status;
+	GpPath *path;
+	PointF singlePoints[] = {
+		{1, 2}
+	};
+	BYTE singleTypes[] = {
+		PathPointTypeStart
+	};
+
+	// Empty.
+	GdipCreatePath (FillModeAlternate, &path);
+	
+	status = GdipSetPathMarker (path);
+	assertEqualInt (status, Ok);
+	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
+
+	GdipDeletePath (path);
+	
+	// Single.
+	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeAlternate, &path);
+
+	status = GdipSetPathMarker (path);
+	assertEqualInt (status, Ok);
+	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, singlePoints, singleTypes, 1);
+
+	GdipDeletePath (path);
+
+	// Non Empty.
+	GdipCreatePath (FillModeAlternate, &path);
+	GdipAddPathLine (path, 1, 2, 4, 2);
+
+	status = GdipSetPathMarker (path);
+	assertEqualInt (status, Ok);
+	PointF nonEmptyExpectedPoints[] = {
+		{1, 2},
+		{4, 2}
+	};
+	BYTE nonEmptyExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeLine | PathPointTypePathMarker
+	};
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 0, nonEmptyExpectedPoints, nonEmptyExpectedTypes, 2);
+
+	GdipDeletePath (path);
+
+	// Negative tests.
+	status = GdipSetPathMarker (NULL);
+	assertEqualInt (status, InvalidParameter);
+}
+
+static void test_clearPathMarkers ()
+{
+	GpStatus status;
+	GpPath *path;
+	PointF singlePoints[] = {
+		{1, 2}
+	};
+	BYTE singleTypes[] = {
+		PathPointTypeStart
+	};
+
+	// Empty.
+	GdipCreatePath (FillModeAlternate, &path);
+	
+	status = GdipClearPathMarkers (path);
+	assertEqualInt (status, Ok);
+	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
+
+	GdipDeletePath (path);
+	
+	// Single.
+	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeAlternate, &path);
+
+	status = GdipClearPathMarkers (path);
+	assertEqualInt (status, Ok);
+	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, singlePoints, singleTypes, 1);
+
+	GdipDeletePath (path);
+
+	// Non Empty - none.
+	GdipCreatePath (FillModeAlternate, &path);
+	GdipAddPathLine (path, 1, 2, 4, 2);
+	GdipAddPathLine (path, 4, 2, 4, 6);
+
+	status = GdipClearPathMarkers (path);
+	assertEqualInt (status, Ok);
+	PointF nonEmptyExpectedPoints[] = {
+		{1, 2},
+		{4, 2},
+		{4, 6}
+	};
+	BYTE nonEmptyExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeLine,
+		PathPointTypeLine
+	};
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 4, nonEmptyExpectedPoints, nonEmptyExpectedTypes, 3);
+
+	GdipDeletePath (path);
+	
+	// Non Empty - several.
+	GdipCreatePath (FillModeAlternate, &path);
+	GdipAddPathLine (path, 1, 2, 4, 2);
+	GdipSetPathMarker (path);
+	GdipAddPathLine (path, 4, 2, 4, 6);
+	GdipSetPathMarker (path);
+
+	status = GdipClearPathMarkers (path);
+	assertEqualInt (status, Ok);
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 4, nonEmptyExpectedPoints, nonEmptyExpectedTypes, 3);
+
+	GdipDeletePath (path);
+
+	// Negative tests.
+	status = GdipClearPathMarkers (NULL);
+	assertEqualInt (status, InvalidParameter);
+}
+
+static void test_reversePath ()
+{
+	GpStatus status;
+	GpPath *path;
+	PointF singlePoints[] = {
+		{1, 2}
+	};
+	BYTE singleTypes[] = {
+		PathPointTypeStart
+	};
+	PointF simplePoints[] = {
+		{1, 2},
+		{4, 2},
+		{4, 6},
+		{1, 6}
+	};
+	BYTE simpleTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeLine,
+		PathPointTypeLine,
+		PathPointTypeLine | PathPointTypeCloseSubpath,
+	};
+	PointF nonEmptyPoints[] = {
+		{1, 2},
+		{4, 2},
+		{4, 6},
+		{1, 6},
+		{11, 2},
+		{14, 2},
+		{14, 6},
+		{11, 6},
+		{21, 2},
+		{22, 4},
+		{23, 6},
+		{24, 8},
+		{31, 2},
+		{32, 4},
+		{33, 6},
+		{34, 8},
+	};
+	BYTE nonEmptyTypes[] = {
+		PathPointTypeStart | PathPointTypeDashMode,
+		PathPointTypeLine,
+		PathPointTypeLine | PathPointTypePathMarker,
+		PathPointTypeLine | PathPointTypePathMarker | PathPointTypeCloseSubpath,
+		PathPointTypeStart | PathPointTypeDashMode,
+		PathPointTypeLine,
+		PathPointTypeLine | PathPointTypePathMarker,
+		PathPointTypeLine | PathPointTypeDashMode,
+		PathPointTypeStart,
+		PathPointTypeBezier | PathPointTypePathMarker,
+		PathPointTypeBezier | PathPointTypePathMarker,
+		PathPointTypeBezier | PathPointTypeCloseSubpath,
+		PathPointTypeStart,
+		PathPointTypeBezier | PathPointTypeDashMode,
+		PathPointTypeBezier | PathPointTypePathMarker,
+		PathPointTypeBezier | PathPointTypePathMarker,
+	};
+
+	// Empty.
+	GdipCreatePath (FillModeAlternate, &path);
+	
+	status = GdipReversePath (path);
+	assertEqualInt (status, Ok);
+	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
+
+	GdipDeletePath (path);
+	
+	// Single.
+	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeAlternate, &path);
+
+	status = GdipReversePath (path);
+	assertEqualInt (status, Ok);
+	PointF singleExpectedPoints[] = {
+		{1, 2}
+	};
+	BYTE singleExpectedTypes[] = {
+		PathPointTypeStart,
+	};
+	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, singleExpectedPoints, singleExpectedTypes, 1);
+
+	GdipDeletePath (path);
+
+	// Empty - closed simple.
+	GdipCreatePath2 (simplePoints, simpleTypes, 4, FillModeAlternate, &path);
+	status = GdipReversePath (path);
+	assertEqualInt (status, Ok);
+	PointF simpleExpectedPoints[] = {
+		{1, 6},
+		{4, 6},
+		{4, 2},
+		{1, 2},
+	};
+	BYTE simpleExpectedTypes[] = {
+		PathPointTypeStart,
+		PathPointTypeLine,
+		PathPointTypeLine,
+		PathPointTypeLine | PathPointTypeCloseSubpath
+	};
+	verifyPath (path, FillModeAlternate, 1, 2, 3, 4, simpleExpectedPoints, simpleExpectedTypes, 4);
+
+	GdipDeletePath (path);
+
+	// Non Empty - advanced.
+	GdipCreatePath2 (nonEmptyPoints, nonEmptyTypes, 16, FillModeAlternate, &path);
+
+	status = GdipReversePath (path);
+	assertEqualInt (status, Ok);
+#if defined(USE_WINDOWS_GDIPLUS)
+	PointF nonEmptyExpectedPoints[] = {
+		{34, 8},
+		{33, 6},
+		{32, 4},
+		{31, 2},
+		{24, 8},
+		{23, 6},
+		{22, 4},
+		{21, 2},
+		{11, 6},
+		{14, 6},
+		{14, 2},
+		{11, 2},
+		{1, 6},
+		{4, 6},
+		{4, 2},
+		{1, 2},
+	};
+	BYTE nonEmptyExpectedTypes[] = {
+		PathPointTypeStart | PathPointTypePathMarker,
+		PathPointTypeBezier,
+		PathPointTypeBezier,
+		PathPointTypeBezier,
+		PathPointTypeStart | PathPointTypePathMarker,
+		PathPointTypeBezier | PathPointTypePathMarker,
+		PathPointTypeBezier,
+		PathPointTypeBezier | PathPointTypeCloseSubpath,
+		PathPointTypeStart | PathPointTypeDashMode | PathPointTypePathMarker,
+		PathPointTypeLine | PathPointTypeDashMode,
+		PathPointTypeLine,
+		PathPointTypeLine | PathPointTypeDashMode | PathPointTypePathMarker,
+		PathPointTypeStart | PathPointTypePathMarker,
+		PathPointTypeLine,
+		PathPointTypeLine,
+		PathPointTypeLine | PathPointTypeCloseSubpath
+	};
+	verifyPath (path, FillModeAlternate, 1, 2, 33, 6, nonEmptyExpectedPoints, nonEmptyExpectedTypes, 16);
+#endif
+	GdipDeletePath (path);
+
+	// Negative tests.
+	status = GdipReversePath (NULL);
+	assertEqualInt (status, InvalidParameter);
+}
+
 static void test_addPathString ()
 {
 	GpStatus status;
@@ -2374,6 +2956,12 @@ main (int argc, char**argv)
 	test_getPathPoints ();
 	test_getPathPointsI ();
 	test_getPathData ();
+	test_startPathFigure ();
+	test_closePathFigure ();
+	test_closePathFigures ();
+	test_setPathMarker ();
+	test_clearPathMarkers ();
+	test_reversePath ();
 	test_addPathString ();
 	test_addPathStringI ();
 
