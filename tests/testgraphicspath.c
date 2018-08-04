@@ -175,7 +175,6 @@ static void test_addPathString ()
   status = GdipAddPathString (path, string, 5, family, 0, -72, &largeLayoutRect, format);
   assertEqualInt (status, Ok);
 
-  dumpPath (path);
   GdipDeletePath (path);
 
   // Negative emSize - empty string.
