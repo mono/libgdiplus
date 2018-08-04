@@ -186,6 +186,63 @@ append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int offs
 	}
 }
 
+static BOOL
+gdip_validate_path_types (const BYTE *types, INT count)
+{
+	const BYTE *currentType = types;
+	INT remaining = count;
+
+	if (count == 1)
+		return TRUE;
+
+	while (TRUE) {
+		remaining -= 1;
+		currentType += 1;
+
+		// No more.
+		if (remaining == 0)
+			return FALSE;
+
+		// Already started.
+		if ((*currentType & PathPointTypePathTypeMask) == PathPointTypeStart)
+			return FALSE;
+
+		do {
+			if ((*currentType & PathPointTypePathTypeMask) == PathPointTypeLine) {
+				// No validation needed for lines. Move to the next type.
+			} else if ((*currentType & PathPointTypePathTypeMask) == PathPointTypeBezier) {
+				// A bezier path requires a start point (already handled) followed by 3 bezier
+				// points.
+				remaining -= 1;
+				currentType++;
+				if (remaining == 0 || (*currentType & PathPointTypePathTypeMask) != PathPointTypeBezier)
+					return FALSE;
+
+				remaining -= 1;
+				currentType++;
+				if (remaining == 0 || (*currentType & PathPointTypePathTypeMask) != PathPointTypeBezier)
+					return FALSE;
+			} else {
+				// Unknown type.
+				return FALSE;
+			}
+
+			BOOL endOfPath = (*currentType & PathPointTypeCloseSubpath) != 0;
+			remaining--;
+			currentType++;
+
+			// End of an open path. There are no more subpaths.
+			if (remaining == 0)
+				return TRUE;
+			// End of a closed path. There may be additional subpaths.
+			if (endOfPath)
+				break;
+		} while ((*currentType & PathPointTypePathTypeMask) != PathPointTypeStart);
+	}
+
+	return TRUE;
+}
+
 /* coverity[+alloc : arg-*1] */
 GpStatus WINGDIPAPI
 GdipCreatePath (FillMode fillMode, GpPath **path)
@@ -215,53 +272,55 @@ GdipCreatePath (FillMode fillMode, GpPath **path)
 
 /* coverity[+alloc : arg-*4] */
 GpStatus WINGDIPAPI
-GdipCreatePath2 (const GpPointF *points, const BYTE *types, int count, FillMode fillMode, GpPath **path)
+GdipCreatePath2 (GDIPCONST GpPointF *points, GDIPCONST BYTE *types, INT count, FillMode fillMode, GpPath **path)
 {
-	GpPath *new_path;
+	GpPath *result;
 
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
 
-	if (!path || !points || !types || (count < 0))
+	if (!path || !points || !types)
 		return InvalidParameter;
+	if (count <= 0 || fillMode > FillModeWinding)
+		return OutOfMemory;
 
-	/* FIXME: Check whether path types are valid before adding them. MS does
-	 * some checking and does not use the points passed in, if they look
-	 * invalid. Some cases are like last type being PathPointTypeStart or
-	 * PathPointTypeCloseSubpath etc.
-	 */
+	// Match GDI+ behaviour and set the path to empty if it is invalid.
+	if (!gdip_validate_path_types (types, count))
+		return GdipCreatePath (fillMode, path);
 
-	new_path = (GpPath *) GdipAlloc (sizeof (GpPath));
-	if (!new_path) {
+	result = (GpPath *) GdipAlloc (sizeof (GpPath));
+	if (!result)
+		return OutOfMemory;
+
+	result->fill_mode = fillMode;
+	result->count = count;
+	result->size = (count + 63) & ~63;
+	result->points = GdipAlloc (sizeof (GpPointF) * result->size);
+	if (!result->points) {
+		GdipFree (result);
 		return OutOfMemory;
 	}
 
-	new_path->fill_mode = fillMode;
-	new_path->count = count;
-	new_path->size = (count + 63) & ~63;
-	new_path->points = GdipAlloc (sizeof (GpPointF) * new_path->size);
-	if (!new_path->points) {
-		GdipFree (new_path);
-		return OutOfMemory;
-	}
-	new_path->types = GdipAlloc (sizeof (BYTE) * new_path->size);
-	if (!new_path->types) {
-		GdipFree (new_path->points);
-		GdipFree (new_path);
+	result->types = GdipAlloc (sizeof (BYTE) * result->size);
+	if (!result->types) {
+		GdipFree (result->points);
+		GdipFree (result);
 		return OutOfMemory;
 	}
 
-	memcpy (new_path->points, points, sizeof (GpPointF) * count);
-	memcpy (new_path->types, types, sizeof (BYTE) * count);
+	memcpy (result->points, points, sizeof (GpPointF) * count);
+	memcpy (result->types, types, sizeof (BYTE) * count);
 
-	*path = new_path;
-	
+	// Match GDI+ behaviour by normalizing the start of the type array.
+	result->types[0] = PathPointTypeStart;
+
+	*path = result;
 	return Ok;
 }
 
 /* coverity[+alloc : arg-*4] */
 GpStatus WINGDIPAPI
-GdipCreatePath2I (const GpPoint *points, const BYTE *types, int count, FillMode fillMode, GpPath **path)
+GdipCreatePath2I (GDIPCONST GpPoint *points, GDIPCONST BYTE *types, INT count, FillMode fillMode, GpPath **path)
 {
 	GpPointF *pt;
 	GpStatus s;
@@ -271,6 +330,8 @@ GdipCreatePath2I (const GpPoint *points, const BYTE *types, int count, FillMode 
 
 	if (!points || !types || !path)
 		return InvalidParameter;
+	if (count < 0)
+		return OutOfMemory;
 
 	pt = convert_points (points, count);
 	if (!pt)
@@ -1846,13 +1907,14 @@ GpStatus WINGDIPAPI
 GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
 	GpStatus status;
-	GpPath *workpath = NULL;
+	GpPath *workpath;
+	GpPointF points;
 
 	if (!path || !bounds)
 		return InvalidParameter;
 
-	if (path->count < 1) {
-		/* special case #1 - Empty */
+	// Paths with zero or one points are empty.
+	if (path->count <= 1) {
 		bounds->X = 0.0f;
 		bounds->Y = 0.0f;
 		bounds->Width = 0.0f;
@@ -1861,11 +1923,8 @@ GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, c
 	}
 
 	status = GdipClonePath (path, &workpath);
-	if (status != Ok) {
-		if (workpath)
-			GdipDeletePath (workpath);
+	if (status != Ok)
 		return status;
-	}
 
 	/* We don't need a very precise flat value to get the bounds (GDI+ isn't, big time) -
 	 * however flattening helps by removing curves, making the rest of the algorithm a 
@@ -1874,53 +1933,54 @@ GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, c
 
 	/* note: only the matrix is applied if no curves are present in the path */
 	status = GdipFlattenPath (workpath, (GpMatrix*)matrix, 25.0f);
-	if (status == Ok) {
-		int i;
-		GpPointF points;
-
-		points = workpath->points[0];
-		bounds->X = points.X;		/* keep minimum X here */
-		bounds->Y = points.Y;		/* keep minimum Y here */
-		if (workpath->count == 1) {
-			/* special case #2 - Only one element */
-			bounds->Width = 0.0f;
-			bounds->Height = 0.0f;
-			GdipDeletePath (workpath);
-			return Ok;
-		}
-
-		bounds->Width = points.X;	/* keep maximum X here */
-		bounds->Height = points.Y;	/* keep maximum Y here */
-
-		for (i = 1; i < workpath->count; i++) {
-			points = workpath->points[i];
-			if (points.X < bounds->X)
-				bounds->X = points.X;
-			if (points.Y < bounds->Y)
-				bounds->Y = points.Y;
-			if (points.X > bounds->Width)
-				bounds->Width = points.X;
-			if (points.Y > bounds->Height)
-				bounds->Height = points.Y;
-		}
-
-		/* convert maximum values (width/height) as length */
-		bounds->Width -= bounds->X;
-		bounds->Height -= bounds->Y;
-
-		if (pen) {
-			/* in calculation the pen's width is at least 1.0 */
-			float width = (pen->width < 1.0f) ? 1.0f : pen->width;
-			float halfw = (width / 2);
-			
-			bounds->X -= halfw;
-			bounds->Y -= halfw;
-			bounds->Width += width;
-			bounds->Height += width;
-		}
+	if (status != Ok) {
+		GdipDeletePath (workpath);
+		return status;
 	}
+
+	points = workpath->points[0];
+	bounds->X = points.X;		/* keep minimum X here */
+	bounds->Y = points.Y;		/* keep minimum Y here */
+	if (workpath->count == 1) {
+		/* special case #2 - Only one element */
+		bounds->Width = 0.0f;
+		bounds->Height = 0.0f;
+		GdipDeletePath (workpath);
+		return Ok;
+	}
+
+	bounds->Width = points.X;	/* keep maximum X here */
+	bounds->Height = points.Y;	/* keep maximum Y here */
+
+	for (int i = 1; i < workpath->count; i++) {
+		points = workpath->points[i];
+		if (points.X < bounds->X)
+			bounds->X = points.X;
+		if (points.Y < bounds->Y)
+			bounds->Y = points.Y;
+		if (points.X > bounds->Width)
+			bounds->Width = points.X;
+		if (points.Y > bounds->Height)
+			bounds->Height = points.Y;
+	}
+
+	/* convert maximum values (width/height) as length */
+	bounds->Width -= bounds->X;
+	bounds->Height -= bounds->Y;
+
+	if (pen) {
+		/* in calculation the pen's width is at least 1.0 */
+		float width = (pen->width < 1.0f) ? 1.0f : pen->width;
+		float halfw = (width / 2);
+		
+		bounds->X -= halfw;
+		bounds->Y -= halfw;
+		bounds->Width += width;
+		bounds->Height += width;
+	}
+
 	GdipDeletePath (workpath);
-	return status;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI 

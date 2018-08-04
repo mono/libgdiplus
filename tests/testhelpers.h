@@ -171,6 +171,60 @@ ATTRIBUTE_USED static void assertEqualRectImpl (GpRectF actual, GpRectF expected
 
 #define assertEqualRect(actual, expected) assertEqualRectImpl (actual, expected, NULL, __FILE__, __func__, __LINE__)
 
+ATTRIBUTE_USED static void assertEqualPointImpl (Point actual, Point expected, const char *message, const char *file, const char *function, int line)
+{
+	if (actual.X != expected.X || actual.X != expected.X)
+	{
+		if (message)
+			fprintf(stderr, "%s\n", message);
+
+		printFailure(file, function, line);
+		fprintf(stderr, "Expected: {%d, %d}\n", expected.X, expected.Y);
+		fprintf(stderr, "Actual:   {%d, %d}\n", actual.X, actual.Y);
+		abort();
+	}
+}
+
+#define assertEqualPoint(actual, expected) assertEqualPointImpl (actual, expected, NULL, __FILE__, __func__, __LINE__)
+
+ATTRIBUTE_USED static void assertEqualPointsImpl (const Point *actual, const Point *expected, INT count, const char *file, const char *function, int line)
+{
+	for (int i = 0; i < count; i++)
+	{
+		char iChar = i + '0';
+		assertEqualPointImpl (actual[i], expected[i], &iChar, file, function, line);
+	}
+}
+
+#define assertEqualPoints(actual, expected, count) assertEqualPointsImpl (actual, expected, count, __FILE__, __func__, __LINE__)
+
+ATTRIBUTE_USED static void assertEqualPointFImpl (PointF actual, PointF expected, const char *message, const char *file, const char *function, int line)
+{
+	if (!floatsEqual(actual.X, expected.X) || !floatsEqual(actual.Y, expected.Y))
+	{
+		if (message)
+			fprintf(stderr, "%s\n", message);
+
+		printFailure(file, function, line);
+		fprintf(stderr, "Expected: {%g, %g}\n", expected.X, expected.Y);
+		fprintf(stderr, "Actual:   {%g, %g}\n", actual.X, actual.Y);
+		abort();
+	}
+}
+
+#define assertEqualPointF(actual, expected) assertEqualPointFImpl (actual, expected, NULL, __FILE__, __func__, __LINE__)
+
+ATTRIBUTE_USED static void assertEqualPointsFImpl (const PointF *actual, const PointF *expected, INT count, const char *file, const char *function, int line)
+{
+	for (int i = 0; i < count; i++)
+	{
+		char iChar = i + '0';
+		assertEqualPointFImpl (actual[i], expected[i], &iChar, file, function, line);
+	}
+}
+
+#define assertEqualPointsF(actual, expected, count) assertEqualPointsFImpl (actual, expected, count, __FILE__, __func__, __LINE__)
+
 ATTRIBUTE_USED static void dumpBytes (const BYTE *bytes, int length)
 {
     printf ("%u\n", length);
