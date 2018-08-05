@@ -1478,7 +1478,8 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 
 	/* make sure the region's bitmap is available */
 	gdip_region_bitmap_ensure (region);
-	g_assert (region->bitmap);
+	if (!region->bitmap)
+		return OutOfMemory;
 
 	/* create a bitmap for the path to combine into the region */
 	path_bitmap = gdip_region_bitmap_from_path (path);
