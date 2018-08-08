@@ -44,14 +44,17 @@ static void test_measure_string(void)
 	GpStatus status;
 	GpRectF rect, bounds, saved_bounds;
 	const WCHAR teststring1[] = { 'M', '\n', '\n', 'M', 0 };
+	const WCHAR teststring2[] = { ' ', L'\u2003', ' ', 0 }; // Space, em space, space
+	const WCHAR teststring3[] = { L'\u2003', L'\u2003', L'\u2003', 0 }; // em spaces
 	int glyphs;
 	int lines;
+	const SHORT fontSize = 10;
 
 	status = GdipCreateStringFormat (0, 0, &format);
 	expect (Ok, status);
 	status = GdipGetGenericFontFamilySansSerif (&family);
 	expect (Ok, status);
-	status = GdipCreateFont (family, 10, FontStyleRegular, UnitPixel, &font);
+	status = GdipCreateFont (family, fontSize, FontStyleRegular, UnitPixel, &font);
 	expect (Ok, status);
 	status = GdipCreateBitmapFromScan0 (400, 400, 0, PixelFormat32bppRGB, NULL, (GpBitmap **) &image);
 	expect (Ok, status);
@@ -93,6 +96,55 @@ static void test_measure_string(void)
 	expect (4, glyphs);
 	expect (3, lines);
 
+	// Attempt to fit 2 glyphs / 1 line into a bounding box from 2 glyphs / 1 line
+	rect = saved_bounds;
+	set_rect_empty (&bounds);
+	status = GdipMeasureString (graphics, teststring1, 2, font, &rect, format, &bounds, &glyphs, &lines);
+	expect (Ok, status);
+	expect (2, glyphs);
+	expect (1, lines);
+
+	// Try again with StringFormatFlagsLineLimit set. Should still fit.
+	status = GdipSetStringFormatFlags(format, StringFormatFlagsLineLimit);
+	expect (Ok, status);
+	set_rect_empty (&bounds);
+	status = GdipMeasureString (graphics, teststring1, 2, font, &rect, format, &bounds, &glyphs, &lines);
+	expect (Ok, status);
+	expect (2, glyphs);
+	expect (1, lines);
+
+	// Try again, but use clipping to only "show" the top half of a line. Should fit even with LineLimit.
+	status = GdipSetClipRect (graphics, rect.X, rect.Y, rect.Width, rect.Height / 2, CombineModeReplace);
+	expect (Ok, status);
+	set_rect_empty (&bounds);
+	status = GdipMeasureString (graphics, teststring1, 2, font, &rect, format, &bounds, &glyphs, &lines);
+	expect (Ok, status);
+	expect (2, glyphs);
+	expect (1, lines);
+
+	// Reset the clip region
+	status = GdipResetClip (graphics);
+	expect (Ok, status);
+
+	// Now shorten the box slightly. Should not fit anything due to LineLimit.
+	rect.Height *= 0.9;
+	set_rect_empty (&bounds);
+	status = GdipMeasureString (graphics, teststring1, 2, font, &rect, format, &bounds, &glyphs, &lines);
+	expect (Ok, status);
+	expect (0, glyphs);
+	expect (0, lines);
+
+	// Clear LineLimit flag
+	status = GdipSetStringFormatFlags(format, 0);
+	expect (Ok, status);
+
+	// Without LineLimit, it should fit the line successfully.
+	set_rect_empty (&bounds);
+	status = GdipMeasureString (graphics, teststring1, 2, font, &rect, format, &bounds, &glyphs, &lines);
+	expect (Ok, status);
+	expect (2, glyphs);
+	expect (1, lines);
+
 	// Attempt to fit 3 glyphs / 2 lines into a bounding box from 2 glyphs / 1 line
 	rect = saved_bounds;
 	set_rect_empty (&bounds);
@@ -100,6 +152,31 @@ static void test_measure_string(void)
 	expect (Ok, status);
 	expect (2, glyphs);
 	expect (1, lines);
+
+	// Set rect large again.
+	rect.Width = 200.0;
+	rect.Height = 200.0;
+
+	// Use the Generic Typographic string format for below, to prevent Windows adding extra space.
+	GdipDeleteStringFormat (format);
+	status = GdipStringFormatGetGenericTypographic (&format);
+	expect (Ok, status);
+
+	// Check measuring a string with only whitespace
+	set_rect_empty (&bounds);
+	status = GdipMeasureString (graphics, teststring2, 3, font, &rect, format, &bounds, &glyphs, &lines);
+	expect (Ok, status);
+	expect (3, glyphs); // Should be reported despite being trimmed
+	expect (1, lines);
+	expectf_(fontSize * 0.4, bounds.Width, fontSize * 0.3); // neither the expected value nor the precision is particularly accurate, but should be OK.
+
+	// Check measuring a string with only whitespace, that starts with non-space whitespace
+	set_rect_empty (&bounds);
+	status = GdipMeasureString (graphics, teststring3, 3, font, &rect, format, &bounds, &glyphs, &lines);
+	expect (Ok, status);
+	expect (3, glyphs); // Should be reported despite being trimmed
+	expect (1, lines);
+	expectf ((double)fontSize, bounds.Width); // An em-space should be the same width as the font size.
 
 	GdipDeleteGraphics (graphics);
 	GdipDeleteFont (font);
