@@ -54,6 +54,7 @@ static int ref_familyMonospace = 0;
 static void
 gdip_fontfamily_init (GpFontFamily *fontFamily)
 {
+	fontFamily->collection = NULL;
 	fontFamily->height = -1;
 	fontFamily->linespacing = -1;
 	fontFamily->celldescent = -1;
@@ -374,6 +375,7 @@ GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, INT num_soug
 			return OutOfMemory;
 		}
 
+		gpfamilies[i]->collection = font_collection;
 		gpfamilies[i]->pattern = font_collection->fontset->fonts[i];
 		gpfamilies[i]->allocated = FALSE;
 	}
@@ -780,7 +782,10 @@ gdip_get_pango_font_description (GpFont *font)
 	if (!font->pango) {
 		font->pango = pango_font_description_new ();
 		pango_font_description_set_family (font->pango, (char *)font->face);
-		pango_font_description_set_size (font->pango, font->emSize * PANGO_SCALE);
+		
+		float sizeInPoints = gdip_unit_conversion (font->unit, UnitPoint, gdip_get_display_dpi(), gtMemoryBitmap, font->emSize);
+		
+		pango_font_description_set_size (font->pango, sizeInPoints * PANGO_SCALE);
 
 		if (font->style & FontStyleBold)
 			pango_font_description_set_weight (font->pango, PANGO_WEIGHT_BOLD);
