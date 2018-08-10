@@ -775,7 +775,7 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 		result->type = RegionTypeInfinite;
 
 		GpRectF rect = {REGION_INFINITE_POSITION, REGION_INFINITE_POSITION, REGION_INFINITE_LENGTH, REGION_INFINITE_LENGTH};
-		gdip_add_rect_to_array (&result->rects, &result->cnt, &rect);
+		gdip_add_rect_to_array (&result->rects, &result->cnt, NULL, &rect);
 		
 		break;
 	}
@@ -1391,7 +1391,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 
 	if (combineMode == CombineModeReplace) {
 		GdipSetEmpty (region);
-		return gdip_add_rect_to_array (&region->rects, &region->cnt, (GpRectF *)rect);
+		return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, (GpRectF *)rect);
 	}
 
 	BOOL infinite = gdip_is_InfiniteRegion (region);
@@ -1429,7 +1429,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 			GdipSetEmpty (region);
 			GpRectF normalized;
 			gdip_normalize_rectangle (rect, &normalized);
-			return gdip_add_rect_to_array (&region->rects, &region->cnt, &normalized);
+			return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, &normalized);
 		}
 		case CombineModeUnion:
 			/* The union of the infinite region and X is the infinite region */
@@ -1454,7 +1454,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 			/* The XOR of the empty region and X is X */
 			/* Everything is outside the empty region */
 			GdipSetEmpty (region);
-			return gdip_add_rect_to_array (&region->rects, &region->cnt, (GpRectF *)rect);
+			return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, (GpRectF *)rect);
 		default:
 			break;
 		}
