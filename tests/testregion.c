@@ -4219,6 +4219,10 @@ static void test_combineUnion ()
 	RectF intersectRightTallerRect = {20, 20, 30, 60};
 	RectF intersectRightShorterRect = {20, 20, 30, 20};
 	RectF tallerRect = {10, 20, 30, 70};
+	RectF tallerNarrowRect = {10, 20, 10, 70};
+	RectF widerRect = {10, 20, 60, 40};
+	RectF widerShorterRect = {10, 20, 60, 20};
+	RectF largerRect = {10, 20, 60, 70};
 	RectF crossingRect = {0, 30, 50, 20};
 	RectF emptyRect = {0, 0, 0, 0};
 	RectF infiniteRect = {-4194304, -4194304, 8388608, 8388608};
@@ -4569,6 +4573,28 @@ static void test_combineUnion ()
 	// Rect + Taller = Calculation.
 	RectF tallerScan = tallerRect;
 	verifyCombineRectWithRect (&rect, &tallerRect, CombineModeUnion, 10, 20, 30, 70, FALSE, FALSE, &tallerScan, sizeof (tallerScan));
+
+	// Rect + Taller Narrow = Calculation.
+	RectF tallerNarrowScans[] = {
+		{10, 20, 30, 40},
+		{10, 60, 10, 30},
+	};
+	verifyCombineRectWithRect (&rect, &tallerNarrowRect, CombineModeUnion, 10, 20, 30, 70, FALSE, FALSE, tallerNarrowScans, sizeof (tallerNarrowScans));
+
+	// Rect + Wider = Calculation.
+	RectF widerScan = widerRect;
+	verifyCombineRectWithRect (&rect, &widerRect, CombineModeUnion, 10, 20, 60, 40, FALSE, FALSE, &widerScan, sizeof (widerScan));
+
+	// Rect + Wider Shorter = Calculation.
+	RectF widerShorterScans[] = {
+		{10, 20, 60, 20},
+		{10, 40, 30, 20},
+	};
+	verifyCombineRectWithRect (&rect, &widerShorterRect, CombineModeUnion, 10, 20, 60, 40, FALSE, FALSE, widerShorterScans, sizeof (widerShorterScans));
+
+	// Rect + Larger = Calculation.
+	RectF largerScan = largerRect;
+	verifyCombineRectWithRect (&rect, &largerRect, CombineModeUnion, 10, 20, 60, 70, FALSE, FALSE, &largerScan, sizeof (largerScan));
 
 	// Rect + Overlap Taller Narrow = Calculation.
 	RectF crossingScans[] = {
