@@ -1178,10 +1178,13 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 				newrect.X = current.X;
 				newrect.Width = current.Width;
 				newrect.Height = recttrg->Y - current.Y;
+			}
 
-				/* If it's contained inside, get the > height */
-				if (recttrg->X >= current.X && recttrg->X + recttrg->Width <= current.X + current.Width)
-					newrect.Height = MAX (current.Height, recttrg->Height);
+			/* If it's contained inside, get the > height */
+			if (recttrg->X == current.X && recttrg->Width == current.Width) {
+				newrect.Height = MAX (current.Height, recttrg->Y + recttrg->Height - current.Y);
+			} else if (recttrg->X >= current.X && recttrg->X + recttrg->Width <= current.X + current.Width) {
+				newrect.Height = MAX (current.Height, newrect.Height);
 			}
 
 			gdip_add_rect_to_array_notcontained (&rects, &cnt, &cap, &newrect);
