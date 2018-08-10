@@ -54,24 +54,70 @@ gdip_region_new ()
 }
 
 static GpStatus
-gdip_add_rect_to_array (GpRectF** srcarray, int* elements, const GpRectF* rect)
-{
-	GpRectF *array, *next;
+gdip_extend_rect_array (GpRectF** srcarray, int* elements, int* capacity) {
+	GpRectF *array;
+	int newCapacity = -1;
 
-	array = GdipAlloc (sizeof (GpRectF) * (*elements + 1));
+	if (capacity) {
+		if (*srcarray == NULL) {
+			if (*capacity < 1)
+				*capacity = 5; // starting capacity if we're given a size of zero
+			newCapacity = *capacity;
+		} else if (*elements == *capacity) {
+			newCapacity = *elements * 2;
+		}
+	} else {
+		newCapacity = *elements + 1;
+	}
+
+	if (newCapacity > 0) {
+		array = GdipAlloc (sizeof (GpRectF) * newCapacity);
+		if (!array)
+			return OutOfMemory;
+
+		memcpy (array, *srcarray, sizeof (GpRectF) * (*elements));
+
+		if (*srcarray)
+			GdipFree (*srcarray);
+
+		*srcarray = array;
+		if (capacity)
+			*capacity = newCapacity;
+	}
+	return Ok;
+}
+
+static GpStatus
+gdip_trim_rect_array (GpRectF** srcarray, int elements) {
+	GpRectF *array;
+
+	array = GdipAlloc (sizeof (GpRectF) * elements);
 	if (!array)
 		return OutOfMemory;
 
-	memcpy (array, *srcarray, sizeof (GpRectF) * (*elements));
+	memcpy (array, *srcarray, sizeof (GpRectF) * elements);
 
 	if (*srcarray)
 		GdipFree (*srcarray);
 
-	next = array;
+	*srcarray = array;
+	return Ok;
+}
+
+static GpStatus
+gdip_add_rect_to_array (GpRectF** srcarray, int* elements, int* capacity, const GpRectF* rect)
+{
+	GpRectF *next;
+	GpStatus status;
+
+	status = gdip_extend_rect_array (srcarray, elements, capacity);
+	if (status != Ok)
+		return status;
+
+	next = *srcarray;
 	next += (*elements);
 	memcpy (next, rect, sizeof (GpRectF));
 
-	*srcarray = array;
 	*elements = *elements + 1;
 
 	return Ok;
@@ -275,7 +321,7 @@ gdip_contains (GpRectF *rect1, GpRectF *rect2)
 }
 
 static BOOL
-gdip_add_rect_to_array_notcontained (GpRectF** srcarray, int* elements,  GpRectF* rect)
+gdip_add_rect_to_array_notcontained (GpRectF** srcarray, int* elements, int* capacity,  GpRectF* rect)
 {
 	int i;
 	GpRectF* rectarray = *srcarray;
@@ -289,7 +335,7 @@ gdip_add_rect_to_array_notcontained (GpRectF** srcarray, int* elements,  GpRectF
 		}
 	}
 
-	gdip_add_rect_to_array (srcarray, elements, rect);
+	gdip_add_rect_to_array (srcarray, elements, capacity, rect);
 	return TRUE;
 }
 
@@ -522,7 +568,7 @@ GdipCreateRegionRect (GDIPCONST GpRectF *rect, GpRegion **region)
 		return OutOfMemory;
 
 	result->type = RegionTypeRect;
-	status = gdip_add_rect_to_array (&result->rects, &result->cnt, rect);
+	status = gdip_add_rect_to_array (&result->rects, &result->cnt, NULL, rect);
 	if (status != Ok) {
 		GdipDeleteRegion (result);
 		return status;
@@ -599,7 +645,7 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 
 		GpRectF rect;
 		memcpy (&rect, regionData, sizeof (GpRectF));
-		gdip_add_rect_to_array (&result->rects, &result->cnt, &rect);
+		gdip_add_rect_to_array (&result->rects, &result->cnt, NULL, &rect);
 
 		break;
 	case RegionDataPath:
@@ -697,7 +743,7 @@ GdipSetInfinite (GpRegion *region)
 	rect.X = rect.Y = REGION_INFINITE_POSITION;
 	rect.Width = rect.Height = REGION_INFINITE_LENGTH;
 
-	return gdip_add_rect_to_array (&region->rects, &region->cnt,  &rect);
+	return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, &rect);
 }
 
 
@@ -740,14 +786,16 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 {
 	GpRectF *allsrcrects = NULL, *rects = NULL;
 	GpRectF *alltrgrects = NULL, *rect, *rectop, *recttrg;
-	int allsrccnt = 0, cnt = 0, i, n, alltrgcnt = 0;
+	int allsrccnt = 0, allsrccap, cnt = 0, cap, i, n, alltrgcnt = 0, alltrgcap;
 	GpRectF current, rslt, newrect;
 	BOOL storecomplete;
 	GpStatus status;
 
 	/* Create the list of source rectangles to process, it will contain splitted ones later */
+	allsrccap = region->cnt * 2;
+	cap = allsrccap;
 	for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
-		status = gdip_add_rect_to_array (&allsrcrects, &allsrccnt, rect);
+		status = gdip_add_rect_to_array (&allsrcrects, &allsrccnt, &allsrccap, rect);
 		if (status != Ok) {
 			if (allsrcrects) {
 				GdipFree (allsrcrects);
@@ -758,11 +806,12 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 	}
 
 	/* Create the list of target rectangles to process, it will contain splitted ones later */
+	alltrgcap = cntt;
 	for (i = 0, rect = rtrg; i < cntt; i++, rect++) {
 		/* normalize */
 		GpRectF normal;
 		gdip_normalize_rectangle (rect, &normal);
-		status = gdip_add_rect_to_array (&alltrgrects, &alltrgcnt, &normal);
+		status = gdip_add_rect_to_array (&alltrgrects, &alltrgcnt, &alltrgcap, &normal);
 		if (status != Ok) {
 			if (alltrgrects) {
 				GdipFree (alltrgrects);
@@ -822,7 +871,7 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 				newrect.Width = current.Width;
 			}
 
-			gdip_add_rect_to_array_notcontained (&rects, &cnt, &newrect);
+			gdip_add_rect_to_array_notcontained (&rects, &cnt, &cap, &newrect);
 
 			/* What's left to process from the source region */
 			if (current.Y >= recttrg->Y) {  /* Our rect intersects in the upper part with another rect */
@@ -843,7 +892,7 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 			rslt.Width = current.Width;
 
 			if (rslt.Height > 0 && rslt.Width > 0) {
-				status = gdip_add_rect_to_array (&allsrcrects, &allsrccnt,  &rslt);
+				status = gdip_add_rect_to_array (&allsrcrects, &allsrccnt, &allsrccap, &rslt);
 				if (status != Ok) {
 					GdipFree (allsrcrects);
 					GdipFree (alltrgrects);
@@ -857,7 +906,7 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 				/* Generate extra right rect, keep previous values of Y and Height */
 				newrect.Width = current.X + current.Width - (recttrg->X + recttrg->Width);
 				newrect.X = recttrg->X + recttrg->Width;
-				gdip_add_rect_to_array_notcontained (&rects, &cnt, &newrect);
+				gdip_add_rect_to_array_notcontained (&rects, &cnt, &cap, &newrect);
 			}
 
 			storecomplete = FALSE;
@@ -866,9 +915,11 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 
 		/* don't include a rectangle identical to the excluded one! */
 		if (storecomplete && !gdip_equals (rtrg, &current)) {
-			gdip_add_rect_to_array_notcontained (&rects, &cnt,  &current);
+			gdip_add_rect_to_array_notcontained (&rects, &cnt, &cap, &current);
 		}
 	}
+
+	gdip_trim_rect_array (&rects, cnt);
 
 	GdipFree (allsrcrects);
 	GdipFree (alltrgrects);
@@ -892,15 +943,16 @@ gdip_combine_complement (GpRegion *region, GpRectF *rtrg, int cntt)
 	GpRegion regsrc;
 	GpRectF* trg, *rect;
 	GpRectF* allsrcrects = NULL;
-	int allsrccnt = 0, i,  trgcnt;
+	int allsrccnt = 0, i,  trgcnt, allsrccap;
 	GpStatus status;
 
 	/* Create the list of source rectangles to process */
+	allsrccap = cntt;
 	for (i = 0, rect = rtrg; i < cntt; i++, rect++) {
 		/* normalize */
 		GpRectF normal;
 		gdip_normalize_rectangle (rect, &normal);
-		status = gdip_add_rect_to_array (&allsrcrects, &allsrccnt, &normal);
+		status = gdip_add_rect_to_array (&allsrcrects, &allsrccnt, &allsrccap, &normal);
 		if (status != Ok) {
 			goto error;
 		}
@@ -940,14 +992,16 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 {
 	GpRectF *allrects = NULL, *rects = NULL;
 	GpRectF *recttrg, *rect, *rectop;
-	int allcnt = 0, cnt = 0, i, n;
+	int allcnt = 0, allcap, cnt = 0, cap = 0, currentIndex = 0, i, n;
 	GpRectF current, rslt, newrect;
 	BOOL storecomplete, contained;
 	GpStatus status;
 
 	/* All the src and trg rects in a single array*/
+	allcap = (region->cnt + cnttrg) * 2;
+	cap = allcap;
 	for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
-		status = gdip_add_rect_to_array (&allrects, &allcnt,  rect);
+		status = gdip_add_rect_to_array (&allrects, &allcnt, &allcap, rect);
 		if (status != Ok) {
 			if (allrects)
 				GdipFree (allrects);
@@ -960,13 +1014,7 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 		/* normalize */
 		GpRectF normal;
 		gdip_normalize_rectangle (rect, &normal);
-		status = gdip_add_rect_to_array (&allrects, &allcnt, &normal);
-		if (status != Ok) {
-			if (allrects)
-				GdipFree (allrects);
-
-			return status;
-		}
+		gdip_add_rect_to_array (&allrects, &allcnt, &allcap, &normal);
 	}
 
 	if (allcnt == 0) {
@@ -1030,7 +1078,7 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 					newrect.Height = MAX (current.Height, recttrg->Height);
 			}
 
-			gdip_add_rect_to_array_notcontained (&rects, &cnt, &newrect);
+			gdip_add_rect_to_array_notcontained (&rects, &cnt, &cap, &newrect);
 
 			/* Push what's left from the current the rect in the list of rects to process
 			 if it's already not contained in other rects except the current (we just split from there) */
@@ -1051,7 +1099,7 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 			}
 
 			if (contained == FALSE && rslt.Height > 0 && rslt.Width > 0) {
-				status = gdip_add_rect_to_array (&allrects, &allcnt,  &rslt);
+					status = gdip_add_rect_to_array (&allrects, &allcnt, &allcap,  &rslt);
 				if (status != Ok) {
 					GdipFree (allrects);
 					return status;
@@ -1087,7 +1135,7 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 		}
 
 		if (storecomplete) {
-			gdip_add_rect_to_array_notcontained (&rects, &cnt,  &current);
+			gdip_add_rect_to_array_notcontained (&rects, &cnt, &cap, &current);
 		}
 
 	}
@@ -1096,6 +1144,7 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 	if (region->rects)
 		GdipFree (region->rects);
 
+	gdip_trim_rect_array (&rects, cnt);
 	region->rects = rects;
 	region->cnt = cnt;
 
@@ -1159,12 +1208,13 @@ gdip_combine_xor (GpRegion *region, GpRectF *recttrg, int cnttrg)
 	GpRegion *rgnsrc = NULL;  /* All rectangles of both regions*/
 	GpRegion *rgntrg = NULL;  /* Only the ones that intersect*/
 	GpRectF *allrects = NULL, *rect;
-	int allcnt = 0, i;
+	int allcnt = 0, allcap, i;
 	GpStatus status;
 
 	/* All the src and trg rects in a single array*/
+	allcap = region->cnt + cnttrg;
 	for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
-		status = gdip_add_rect_to_array (&allrects, &allcnt,  rect);
+		status = gdip_add_rect_to_array (&allrects, &allcnt, &allcap, rect);
 		if (status != Ok)
 			goto error;
 	}
@@ -1173,9 +1223,7 @@ gdip_combine_xor (GpRegion *region, GpRectF *recttrg, int cnttrg)
 		/* normalize */
 		GpRectF normal;
 		gdip_normalize_rectangle (rect, &normal);
-		status = gdip_add_rect_to_array (&allrects, &allcnt, &normal);
-		if (status != Ok)
-			goto error;
+		gdip_add_rect_to_array (&allrects, &allcnt, &allcap, &normal);
 	}
 
 	rgnsrc = (GpRegion *) GdipAlloc (sizeof (GpRegion));
@@ -1317,7 +1365,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 		case CombineModeXor:
 			return gdip_combine_xor (region, (GpRectF *) rect, 1);
 		case CombineModeReplace: /* Used by Graphics clipping */
-			return gdip_add_rect_to_array (&region->rects, &region->cnt, (GpRectF *)rect);
+			return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, (GpRectF *)rect);
 		default:
 			return NotImplemented;
 		}
