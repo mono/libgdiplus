@@ -470,22 +470,20 @@ gdip_getlowestrect (GpRectF *rects, int cnt, GpRectF* src, GpRectF* rslt)
 	return TRUE;
 }
 
-/* Finds a rect that has the lowest x and y after the src rect provided */
+/* Finds the non-empty rect that has the lowest x and y after the current index */
 static BOOL
-gdip_getlowestrect_sorted (GpRectF *rects, int cnt, int* index, GpRectF* src, GpRectF* rslt)
+gdip_getlowestrect_sorted (GpRectF *rects, int cnt, int* index, GpRectF* rslt)
 {
 	GpRectF *current;
 	BOOL found = FALSE;
 
+	(*index)++;
 	for (current = rects + *index; *index < cnt; (*index)++, current++) {
 		if (current->Width <= 0 || current->Height <= 0)
 			continue;
 
-		if (current->Y > src->Y ||
-			(current->Y == src->Y && current->X > src->X)) {
-			found = TRUE;
-			break;
-		}
+		found = TRUE;
+		break;
 	}
 
 	if (found == FALSE) {
@@ -1092,7 +1090,7 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 {
 	GpRectF *allrects = NULL, *rects = NULL;
 	GpRectF *recttrg, *rect, *rectop;
-	int allcnt = 0, allcap, cnt = 0, cap = 0, currentIndex = 0, i, n;
+	int allcnt = 0, allcap, cnt = 0, cap = 0, currentIndex = -1, i, n;
 	GpRectF current, rslt, newrect;
 	BOOL storecomplete, contained, needsort;
 	GpStatus status;
@@ -1124,12 +1122,7 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 
 	gdip_sort_rect_array(allrects, allcnt);
 
-	/* Init current with the first element in the array */
-	current.X = REGION_INFINITE_POSITION;
-	current.Y = REGION_INFINITE_POSITION;
-	current.Width = 0; current.Height = 0;
-
-	while (gdip_getlowestrect_sorted (allrects, allcnt, &currentIndex, &current, &rslt)) {
+	while (gdip_getlowestrect_sorted (allrects, allcnt, &currentIndex, &rslt)) {
 
 		current.X = rslt.X; current.Y = rslt.Y;
 		current.Width = rslt.Width; current.Height = rslt.Height;
