@@ -53,6 +53,38 @@ gdip_region_new ()
 	return result;
 }
 
+static int
+gdip_compare_rectf (const void *a, const void *b) {
+	const GpRectF *r1 = (GpRectF*)a;
+	const GpRectF *r2 = (GpRectF*)b;
+	if (r1->Y == r2->Y && r1->X == r2->X)
+		return 0;
+	if (r1->Y > r2->Y || (r1->Y == r2->Y && r1->X > r2->X))
+		return 1;
+	return -1;
+}
+
+static void
+gdip_sort_rect_array (GpRectF* array, int length) {
+	qsort (array, length, sizeof (GpRectF), gdip_compare_rectf);
+}
+
+// Not a mistake in the name, it is for re-sorting nearly-sorted data.
+// Insertion sort.
+static void
+gdip_sort_rect_array_sorted (GpRectF* array, int length) {
+	GpRectF rect;
+	GpRectF *i, *j;
+
+	for (i = array + 1; i < array + length; i++) {
+		rect = *i;
+		for (j = i - 1; j >= array && gdip_compare_rectf (j, &rect) > 0; j--) {
+			*(j + 1) = *j;
+		}
+		*(j + 1) = rect;
+	}
+}
+
 static GpStatus
 gdip_extend_rect_array (GpRectF** srcarray, int* elements, int* capacity) {
 	GpRectF *array;
@@ -116,6 +148,47 @@ gdip_add_rect_to_array (GpRectF** srcarray, int* elements, int* capacity, const 
 
 	next = *srcarray;
 	next += (*elements);
+	memcpy (next, rect, sizeof (GpRectF));
+
+	*elements = *elements + 1;
+
+	return Ok;
+}
+
+static GpRectF*
+gdip_binsearch_rect_array (GpRectF* array, int elements, const GpRectF* search, int* index)
+{
+	GpRectF *next;
+	int upper = elements, lower = 0, mid;
+
+	while (upper > lower) {
+		mid = (upper + lower) / 2;
+		next = array + mid;
+		if (gdip_compare_rectf (search, next) > 0) {
+			lower = mid + 1;
+		} else {
+			upper = mid;
+		}
+	}
+	next = array + lower;
+	if (index)
+		*index = lower;
+	return next;
+}
+
+static GpStatus
+gdip_add_rect_to_array_sorted (GpRectF** srcarray, int* elements, int* capacity, const GpRectF* rect)
+{
+	GpRectF *next;
+	GpStatus status;
+	int insertAt;
+
+	status = gdip_extend_rect_array (srcarray, elements, capacity);
+	if (status != Ok)
+		return status;
+
+	next = gdip_binsearch_rect_array (*srcarray, *elements, rect, &insertAt);
+	memmove (next + 1, next, sizeof (GpRectF) * (*elements - insertAt));
 	memcpy (next, rect, sizeof (GpRectF));
 
 	*elements = *elements + 1;
@@ -394,6 +467,33 @@ gdip_getlowestrect (GpRectF *rects, int cnt, GpRectF* src, GpRectF* rslt)
 
 	rslt->X = lowest->X; rslt->Y = lowest->Y;
 	rslt->Width = lowest->Width; rslt->Height = lowest->Height;
+	return TRUE;
+}
+
+/* Finds a rect that has the lowest x and y after the src rect provided */
+static BOOL
+gdip_getlowestrect_sorted (GpRectF *rects, int cnt, int* index, GpRectF* src, GpRectF* rslt)
+{
+	GpRectF *current;
+	BOOL found = FALSE;
+
+	for (current = rects + *index; *index < cnt; (*index)++, current++) {
+		if (current->Width <= 0 || current->Height <= 0)
+			continue;
+
+		if (current->Y > src->Y ||
+			(current->Y == src->Y && current->X > src->X)) {
+			found = TRUE;
+			break;
+		}
+	}
+
+	if (found == FALSE) {
+		return FALSE;
+	}
+
+	rslt->X = current->X; rslt->Y = current->Y;
+	rslt->Width = current->Width; rslt->Height = current->Height;
 	return TRUE;
 }
 
