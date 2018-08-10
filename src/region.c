@@ -1162,22 +1162,23 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 
 			/* Our rect intersects in the lower part with another rect */
 			newrect.Y = current.Y;
+			newrect.X = current.X;
 			if (current.Y == recttrg->Y) {
-				newrect.X = MIN (current.X, recttrg->X);
 				newrect.Width = MAX (current.X + current.Width, recttrg->X + recttrg->Width) - newrect.X;
 				newrect.Height = MIN (current.Height, recttrg->Height);
 			}
 			else {
-				newrect.X = current.X;
 				newrect.Width = current.Width;
 				newrect.Height = recttrg->Y - current.Y;
 			}
 
 			/* If it's contained inside, get the > height */
-			if (recttrg->X == current.X && recttrg->Width == current.Width) {
-				newrect.Height = MAX (current.Height, recttrg->Y + recttrg->Height - current.Y);
+			if (recttrg->X == current.X && (recttrg->Width == current.Width ||
+				(recttrg->Y == current.Y && recttrg->Width > current.Width))) {
+
+				newrect.Height = recttrg->Y + recttrg->Height - current.Y;
 			} else if (recttrg->X >= current.X && recttrg->X + recttrg->Width <= current.X + current.Width) {
-				newrect.Height = MAX (current.Height, newrect.Height);
+				newrect.Height = current.Height;
 			}
 
 			gdip_add_rect_to_array_notcontained (&rects, &cnt, &cap, &newrect);
