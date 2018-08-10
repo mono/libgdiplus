@@ -1209,8 +1209,7 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 				}
 
 				if (contained == FALSE) {
-					status = gdip_add_rect_to_array (&allrects, &allcnt, &allcap,  &rslt);
-					needsort = TRUE;
+					status = gdip_add_rect_to_array_sorted (&allrects, &allcnt, &allcap,  &rslt);
 					if (status != Ok) {
 						GdipFree (allrects);
 						return status;
