@@ -198,7 +198,7 @@ gdip_is_region_empty (const GpRegion *region, BOOL allowNegative)
 				return TRUE;
 			
 			// Open paths are empty.
-			if ((region->tree->path->types[region->tree->path->count - 1] & PathPointTypeCloseSubpath) == 0)
+			if (!gdip_path_closed (region->tree->path))
 				return TRUE;
 		}
 

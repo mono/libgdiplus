@@ -77,7 +77,7 @@ gdip_set_array_values (int *array, int value, int num)
 static GString *
 gdip_process_string (gchar *text, int length, int removeAccelerators, int trimSpace, PangoAttrList *list, int **charsRemoved)
 {
-	int i, j;
+	int c, j, r;
 	int nonws = 0;
 	gchar *iter;
 	gchar *iter2;
@@ -105,15 +105,16 @@ gdip_process_string (gchar *text, int length, int removeAccelerators, int trimSp
 	}
 
 	iter = text;
-	i = 0;
-	j = 0;
+	// c: Characters handled in the inner loop, that might be removed.
+	j = 0; // Index in output
+	r = 0; // Characters removed
 	while (iter - text < length) {
 		ch = g_utf8_get_char (iter);
 		if (ch == GDIP_WINDOWS_ACCELERATOR && removeAccelerators && (iter - text < length - 1)) {
 			nonws = 1;
 			iter2 = g_utf8_next_char (iter);
-			i += iter2 - iter;
 			iter = iter2;
+			r++;
 			ch = g_utf8_get_char (iter);
 				/* add an attribute on the next character */
 			if (list && (iter - text < length) && (ch != GDIP_WINDOWS_ACCELERATOR)) {
@@ -126,43 +127,49 @@ gdip_process_string (gchar *text, int length, int removeAccelerators, int trimSp
 			nonws = 1;
 		} else if (trimSpace && ch != '\r' && ch != '\n') {
 			/* unless specified we don't consider the trailing spaces, unless there is just one space (#80680) */
+			c = 1;
 			for (iter2 = g_utf8_next_char (iter); iter2 - text < length; iter2 = g_utf8_next_char (iter2)) {
 				ch = g_utf8_get_char (iter2);
 				if (ch == '\r' || ch == '\n')
 					break;
 				if (!g_unichar_isspace (ch)) {
+					c = 0;
 					g_string_append_len (res, iter, iter2 - iter);
 					if (charsRemoved && *charsRemoved)
-						gdip_set_array_values ((*charsRemoved)+j, i - j, iter2 - iter);
+						gdip_set_array_values ((*charsRemoved)+j, r, iter2 - iter);
 					j += iter2 - iter;
 					break;
 				}
+				c++;
 			}
-			i += iter2 - iter;
+			r += c;
 			iter = iter2;
 			continue;
 		} else if ((ch == '\r' && (iter - text == length - 2) && (*g_utf8_next_char (iter) == '\n')) || (ch == '\n' && iter - text == length - 1)) {
 			/* in any case, ignore a final newline as pango will add an extra line to the measurement while gdi+ does not */
-			i = length;
+			r += length - (iter - text);
 			break;
 		}
 		iter2 = g_utf8_next_char (iter);
 		g_string_append_len (res, iter, iter2 - iter);
 		/* save these for string lengths later */
 		if (charsRemoved && *charsRemoved)
-			gdip_set_array_values ((*charsRemoved)+j, i - j, iter2 - iter);
+			gdip_set_array_values ((*charsRemoved)+j, r, iter2 - iter);
 		j += iter2 - iter;
-		i += iter2 - iter;
 		iter = iter2;
 	}
+
 	/* always ensure that at least one space is measured */
-	if (!nonws && trimSpace) {
-		g_string_append_c (res, ' ');
-		j++;
+	if (!nonws && trimSpace && length > 0) {
+		iter = text;
+		iter2 = g_utf8_next_char (iter);
+		g_string_append_len (res, iter, iter2 - iter);
+		j += iter2 - iter;
+		r--;
 	}
 	if (charsRemoved && *charsRemoved && j > 0) {
 		int prevj = (g_utf8_prev_char (res->str + j) - res->str);
-		gdip_set_array_values (*charsRemoved + prevj, i - j, j - prevj);
+		gdip_set_array_values (*charsRemoved + prevj, r, j - prevj);
 	}
 	return res;
 }
@@ -187,10 +194,6 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 	int FrameY;         /* rc->Y (or rc->X if vertical) */
 	int y0;             /* y0,y1,clipNN used for checking line positions vs. clip rectangle */
 	int y1;
-	double clipx1;
-	double clipx2;
-	double clipy1;
-	double clipy2;
 	int trimSpace;      /* whether or not to trim the space */
 	BOOL use_horizontal_layout;
 
@@ -427,23 +430,14 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 	/* Also prevents drawing whole lines outside the boundaries if NoClip was specified */
 	/* In case of pre-existing clipping, use smaller of clip rectangle or our specified height */
 	if (FrameHeight > 0) {
-		clipy2 = FrameHeight;
-		if (!(fmt->formatFlags & StringFormatFlagsNoClip)) {
-			cairo_clip_extents (cr, &clipx1, &clipy1, &clipx2, &clipy2);
-			if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
-				clipy2 = min (clipx2 - rc->X, FrameWidth);
-			} else {
-				clipy2 = min (clipy2 - rc->Y, FrameHeight);
-			}
-		}
 		iter = pango_layout_get_iter (layout);
 		do {
 			if (iter == NULL)
 				break;
 			pango_layout_iter_get_line_yrange (iter, &y0, &y1);
-			//g_warning("yrange: %d  %d  clipy2: %f", y0 / PANGO_SCALE, y1 / PANGO_SCALE, clipy2);
+			//g_warning("yrange: %d  %d  FrameHeight: %f", y0 / PANGO_SCALE, y1 / PANGO_SCALE, FrameHeight);
 			/* StringFormatFlagsLineLimit */
-			if (((fmt->formatFlags & StringFormatFlagsLineLimit) && y1 / PANGO_SCALE >= clipy2) || (y0 / PANGO_SCALE >= clipy2)) {
+			if (((fmt->formatFlags & StringFormatFlagsLineLimit) && y1 / PANGO_SCALE > FrameHeight) || (y0 / PANGO_SCALE >= FrameHeight)) {
 				PangoLayoutLine *line = pango_layout_iter_get_line_readonly (iter);
 				pango_layout_set_text (layout, pango_layout_get_text (layout), line->start_index);
 				
@@ -590,6 +584,7 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 		int lastIndex;
 		int y0;
 		int y1;
+		int len;
 		double min_x;
 		double max_x;
 		double max_y;
@@ -609,7 +604,7 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 			if (iter == NULL)
 				break;
 			pango_layout_iter_get_line_yrange (iter, &y0, &y1);
-			if (y0 / PANGO_SCALE >= max_y)
+			if ((format && (format->formatFlags & StringFormatFlagsLineLimit) && y1 / PANGO_SCALE > max_y) || y0 / PANGO_SCALE >= max_y)
 				break;
 			lines++;
 			if (pango_layout_iter_at_last_line (iter)) {
@@ -630,22 +625,32 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 
 		if (codepointsFitted) {
 			layoutText = pango_layout_get_text (layout);
-			/* this can happen when the string ends in a newline */
-			if (lastIndex >= strlen (layoutText))
-				lastIndex = strlen (layoutText) - 1;
-			/* Add back in any & characters removed and the final newline characters (if any) */
-			charsFitted = g_utf8_strlen (layoutText, lastIndex + 1) + charsRemoved [lastIndex];
-			//g_warning("lastIndex: %d\t\tcharsRemoved: %d", lastIndex, charsRemoved[lastIndex]);
-			/* safe because of null termination */
-			switch (layoutText [lastIndex + 1]) {
-				case '\r':
-					charsFitted++;
-					if (layoutText [lastIndex + 2] == '\n')
+
+			if (lines > 0)
+				len = strlen (layoutText);
+
+			if (lines > 0 && len > 0) {
+				/* this can happen when the string ends in a newline */
+				if (lastIndex >= len) {
+					lastIndex = g_utf8_prev_char(layoutText + len) - layoutText;
+				}
+				/* Add back in any & characters removed and the final newline characters (if any) */
+				charsFitted = g_utf8_strlen (layoutText, g_utf8_next_char (layoutText + lastIndex) - layoutText) + charsRemoved [lastIndex];
+				//g_warning("lastIndex: %d\t\tcharsRemoved: %d", lastIndex, charsRemoved[lastIndex]);
+				/* safe because of null termination */
+				switch (layoutText [lastIndex + 1]) {
+					case '\r':
 						charsFitted++;
-					break;
-				case '\n':
-					charsFitted++;
-					break;
+						if (layoutText [lastIndex + 2] == '\n')
+							charsFitted++;
+						break;
+					case '\n':
+						charsFitted++;
+						break;
+				}
+			} else {
+				// Nothing was fitted. Most likely either the input length was zero or LineLimit prevented fitting any lines (the height of the first line is greater than the height of the bounding box).
+				charsFitted = 0;
 			}
 			*codepointsFitted = charsFitted;
 		}

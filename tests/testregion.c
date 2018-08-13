@@ -7019,7 +7019,7 @@ static void test_combineComplement ()
 	// Rect + No Intersect Bottom Left = No Intersect Bottom Left.
 	verifyCombineRectWithRect (&rect, &noIntersectBottomLeftRect, CombineModeComplement, -21, 61, 30, 40, FALSE, FALSE, &noIntersectBottomLeftRect, sizeof (noIntersectBottomLeftRect));
 
-    // Rect + Infinite Path = Infinite.
+  // Rect + Infinite Path = Infinite.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombineRectWithPath (&rect, infinitePath, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
@@ -7176,7 +7176,7 @@ static void test_combineComplement ()
 	// Empty Path + Path = Path.
 	verifyCombinePathWithPath (emptyPath, path, CombineModeComplement, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-    // Path + Infinite Rect = Empty.
+  // Path + Infinite Rect = Empty.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithRect (path, &infiniteRect, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
@@ -7277,7 +7277,7 @@ static void test_combineComplement ()
 	// Path + No Intersect Bottom Left = No Intersect Bottom Left.
 	verifyCombinePathWithRect (path, &noIntersectBottomLeftRect, CombineModeComplement, -21, 61, 30, 40, FALSE, FALSE, &noIntersectBottomLeftRect, sizeof (noIntersectBottomLeftRect));
 
-    // Path + Infinite Path = Calculate.
+  // Path + Infinite Path = Calculate.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithPath (path, infinitePath, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));

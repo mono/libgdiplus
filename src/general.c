@@ -264,27 +264,27 @@ gdip_open_curve_tangents (int terms, const GpPointF *points, int count, float te
 	if (!tangents)
 		return NULL;
 
-		/* initialize everything to zero to begin with */
-		for (i = 0; i < count; i++) {
-			tangents [i].X = 0;
-			tangents [i].Y = 0;
-		}
+	/* initialize everything to zero to begin with */
+	for (i = 0; i < count; i++) {
+		tangents [i].X = 0;
+		tangents [i].Y = 0;
+	}
 
-		if (count <= 2)
-			return tangents;
+	if (count <= 2)
+		return tangents;
 
-		for (i = 0; i < count; i++) {
-			int r = i + 1;
-			int s = i - 1;
+	for (i = 0; i < count; i++) {
+		int r = i + 1;
+		int s = i - 1;
 
-			if (r >= count) r = count - 1;
-			if (s < 0) s = 0;
+		if (r >= count) r = count - 1;
+		if (s < 0) s = 0;
 
-			tangents [i].X += (coefficient * (points [r].X - points [s].X));
-			tangents [i].Y += (coefficient * (points [r].Y - points [s].Y));
-		}
+		tangents [i].X += (coefficient * (points [r].X - points [s].X));
+		tangents [i].Y += (coefficient * (points [r].Y - points [s].Y));
+	}
 
-		return tangents;        
+	return tangents;
 }
 
 GpPointF *
