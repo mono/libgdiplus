@@ -470,31 +470,6 @@ gdip_getlowestrect (GpRectF *rects, int cnt, GpRectF* src, GpRectF* rslt)
 	return TRUE;
 }
 
-/* Finds the non-empty rect that has the lowest x and y after the current index */
-static BOOL
-gdip_getlowestrect_sorted (GpRectF *rects, int cnt, int* index, GpRectF* rslt)
-{
-	GpRectF *current;
-	BOOL found = FALSE;
-
-	(*index)++;
-	for (current = rects + *index; *index < cnt; (*index)++, current++) {
-		if (current->Width <= 0 || current->Height <= 0)
-			continue;
-
-		found = TRUE;
-		break;
-	}
-
-	if (found == FALSE) {
-		return FALSE;
-	}
-
-	rslt->X = current->X; rslt->Y = current->Y;
-	rslt->Width = current->Width; rslt->Height = current->Height;
-	return TRUE;
-}
-
 void 
 gdip_clear_region (GpRegion *region)
 {
@@ -1089,9 +1064,9 @@ static GpStatus
 gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 {
 	GpRectF *allrects = NULL, *rects = NULL;
-	GpRectF *recttrg, *rect, *rectop;
+	GpRectF *recttrg, *rect, *rectop, *current;
 	int allcnt = 0, allcap, cnt = 0, cap = 0, currentIndex = -1, i, n;
-	GpRectF current, rslt, newrect;
+	GpRectF rslt, newrect;
 	BOOL storecomplete, contained, needsort;
 	GpStatus status;
 
@@ -1122,10 +1097,13 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 
 	gdip_sort_rect_array(allrects, allcnt);
 
-	while (gdip_getlowestrect_sorted (allrects, allcnt, &currentIndex, &rslt)) {
+	for (currentIndex = 0; currentIndex < allcnt; currentIndex++) {
+		current = allrects + currentIndex;
 
-		current.X = rslt.X; current.Y = rslt.Y;
-		current.Width = rslt.Width; current.Height = rslt.Height;
+		if (current->Width <= 0 || current->Height <= 0) {
+			continue;
+		}
+
 		storecomplete = TRUE;
 
 		/* Current rect with lowest y and X againt the stored ones */
@@ -1135,60 +1113,56 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 			needsort = FALSE;
 
 			// If it is positioned after the bottom-right corner of current, no useful rectangles can be found (due to sorting).
-			if (recttrg->Y > current.Y + current.Height ||
-				(recttrg->Y == current.Y + current.Height && recttrg->X > current.X + current.Width)) {
+			if (recttrg->Y > current->Y + current->Height ||
+				(recttrg->Y == current->Y + current->Height && recttrg->X > current->X + current->Width)) {
 				break;
 			}
 
 			/* If it has lower coordinates or negative / zero size it has been already processed */
 			if (recttrg->Height <= 0 || recttrg->Width <= 0 ||
-				current.Y > recttrg->Y ||
-				(current.Y == recttrg->Y && current.X > recttrg->X)) {
+				current->Y > recttrg->Y ||
+				(current->Y == recttrg->Y && current->X > recttrg->X)) {
 				continue;
 			}
 
-			if (gdip_intersects_or_touches (&current, recttrg) == FALSE
-				|| gdip_equals (&current, recttrg) == TRUE) {
+			if (gdip_intersects_or_touches (current, recttrg) == FALSE
+				|| gdip_equals (current, recttrg) == TRUE) {
 				continue;
 			}
 
-			if (gdip_contains  (recttrg, &current) == TRUE) {
+			if (gdip_contains  (recttrg, current) == TRUE) {
 				continue;
 			}
-
-			/* Once a rect is splitted, we do not want to take into account anymore */
-			rectop = allrects + currentIndex;
-			rectop->Width = 0; rectop->Height = 0;
 
 			/* Our rect intersects in the lower part with another rect */
-			newrect.Y = current.Y;
-			newrect.X = current.X;
-			if (current.Y == recttrg->Y) {
-				newrect.Width = MAX (current.X + current.Width, recttrg->X + recttrg->Width) - newrect.X;
-				newrect.Height = MIN (current.Height, recttrg->Height);
+			newrect.Y = current->Y;
+			newrect.X = current->X;
+			if (current->Y == recttrg->Y) {
+				newrect.Width = MAX (current->X + current->Width, recttrg->X + recttrg->Width) - newrect.X;
+				newrect.Height = MIN (current->Height, recttrg->Height);
 			}
 			else {
-				newrect.Width = current.Width;
-				newrect.Height = recttrg->Y - current.Y;
+				newrect.Width = current->Width;
+				newrect.Height = recttrg->Y - current->Y;
 			}
 
 			/* If it's contained inside, get the > height */
-			if (recttrg->X == current.X && (recttrg->Width == current.Width ||
-				(recttrg->Y == current.Y && recttrg->Width > current.Width))) {
+			if (recttrg->X == current->X && (recttrg->Width == current->Width ||
+				(recttrg->Y == current->Y && recttrg->Width > current->Width))) {
 
-				newrect.Height = recttrg->Y + recttrg->Height - current.Y;
-			} else if (recttrg->X >= current.X && recttrg->X + recttrg->Width <= current.X + current.Width) {
-				newrect.Height = current.Height;
+				newrect.Height = recttrg->Y + recttrg->Height - current->Y;
+			} else if (recttrg->X >= current->X && recttrg->X + recttrg->Width <= current->X + current->Width) {
+				newrect.Height = current->Height;
 			}
 
 			gdip_add_rect_to_array_notcontained (&rects, &cnt, &cap, &newrect);
 
 			/* Push what's left from the current the rect in the list of rects to process
 			 if it's already not contained in other rects except the current (we just split from there) */
-			rslt.X = current.X;
+			rslt.X = current->X;
 			rslt.Y = newrect.Y + newrect.Height;
-			rslt.Width = current.Width;
-			rslt.Height = current.Height - newrect.Height;
+			rslt.Width = current->Width;
+			rslt.Height = current->Height - newrect.Height;
 
 			if (rslt.Height > 0 && rslt.Width > 0) {
 				contained = FALSE;
@@ -1216,13 +1190,13 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 
 			/* If both we at the same Y when take into account the X also to process the following
 			   that exceeds the X also */
-			if (recttrg->Y == current.Y) {
+			if (recttrg->Y == current->Y) {
 				recttrg->Height -= newrect.Height;
 				if (recttrg->Height > 0) {
 					recttrg->Y += newrect.Height;
 					needsort = TRUE; // Modified Y, re-sort.
 				}
-			} else if (recttrg->X >= current.X && recttrg->X + recttrg->Width <= current.X + current.Width) {
+			} else if (recttrg->X >= current->X && recttrg->X + recttrg->Width <= current->X + current->Width) {
 				/* If it's contained inside, get the > height  */
 				recttrg->Height = recttrg->Y + recttrg->Height - (newrect.Y + newrect.Height);
 				if (recttrg->Height > 0) {
@@ -1239,9 +1213,8 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 		}
 
 		if (storecomplete) {
-			gdip_add_rect_to_array_notcontained (&rects, &cnt, &cap, &current);
+			gdip_add_rect_to_array_notcontained (&rects, &cnt, &cap, current);
 		}
-
 	}
 
 	GdipFree (allrects);
