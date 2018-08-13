@@ -227,15 +227,15 @@ gdip_get_display_dpi ()
 GpPointF *
 convert_points (const GpPoint *point, int count)
 {
-	int i;
+	if (!point || count < 0)
+		return NULL;
+
 	GpPointF *retval = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
 	if (!retval)
 		return NULL;
 
-	for (i = 0; i < count; i++) {
-		retval [i].X = (float) point [i].X;
-		retval [i].Y = (float) point [i].Y;
-	}
+	for (int i = 0; i < count; i++)
+		gdip_PointF_from_Point (&point[i], &retval[i]);
 
 	return retval;
 }
@@ -243,12 +243,14 @@ convert_points (const GpPoint *point, int count)
 GpRectF *
 convert_rects (const GpRect *rect, int count)
 {
-	int i;
+	if (!rect || count < 0)
+		return NULL;
+
 	GpRectF *retval = (GpRectF *) GdipAlloc (sizeof (GpRectF) * count);
 	if (!retval)
 		return NULL;
 
-	for (i = 0; i < count; i++)
+	for (int i = 0; i < count; i++)
 		gdip_RectF_from_Rect (&rect[i], &retval[i]);
 
 	return retval;
