@@ -274,7 +274,7 @@ cairo_DrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points,
 	/* We use graphics->copy_of_ctm matrix for path creation. We should have it set already. */
 	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, TRUE);
 
-	for (i = 0, j = 1, k = 2; i < count - 3; i += 3, j += 3, k += 3) {
+	for (i = 1, j = 2, k = 3; k < count; i += 3, j += 3, k += 3) {
 	gdip_cairo_curve_to (graphics, points [i].X, points [i].Y, points [j].X, points [j].Y,
 		points [k].X, points [k].Y, TRUE, TRUE);
 	}
