@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "metafile-private.h": "c",
-        "win32-private.h": "c"
+        "win32-private.h": "c",
+        "__locale": "c"
     }
 }

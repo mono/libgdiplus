@@ -1614,9 +1614,49 @@ static void test_addPathString ()
 	status = GdipAddPathString (path, string, 5, family, 0, 72, NULL, format);
 	assertEqualInt (status, InvalidParameter);
 
-	GdipDeletePath (path);
-	GdipDeleteFontFamily (family);
-	GdipDeleteStringFormat (format);
+  GdipDeletePath (path);
+  
+#if defined USE_PANGO_RENDERING || defined(USE_WINDOWS_GDIPLUS)
+  const WCHAR longString[] = {'H', 'e', 'l', 'l', 'o', ' ', 't', 'h', 'e', 'r', 'e', ',', ' ', 't', 'h', 'i', 's', ' ', 'i', 's', ' ', 'a', ' ', 'l', 'o', 'n', 'g', ' ', 's', 't', 'r', 'i', 'n', 'g', '.', '\0'};
+  const int fontSize = 20;
+  GpImage *image;
+  GpGraphics *graphics;
+  GpFont *font;
+  RectF longLayoutRect = {30, 40, 700, 100};
+  RectF rect1, rect2;
+
+  // Set up Graphics stuff to use MeasureString (copied from testtext.c)
+  status = GdipCreateFont (family, fontSize, FontStyleRegular, UnitPixel, &font);
+  assertEqualInt (status, Ok);
+  status = GdipCreateBitmapFromScan0 (2000, 100, 0, PixelFormat32bppRGB, NULL, (GpBitmap **) &image);
+  assertEqualInt (status, Ok);
+  status = GdipGetImageGraphicsContext (image, &graphics);
+  assertEqualInt (status, Ok);
+  
+  // Check the path bounds
+  GdipSetStringFormatAlign (format, StringAlignmentFar);
+  GdipSetStringFormatLineAlign (format, StringAlignmentFar);
+  GdipCreatePath (FillModeAlternate, &path);
+  status = GdipAddPathString (path, longString, -1, family, 0, fontSize, &longLayoutRect, format);
+  assertEqualInt (status, Ok);
+  status = GdipGetPathWorldBounds (path, &rect1, NULL, NULL);
+  assertEqualInt (status, Ok);
+  status = GdipMeasureString (graphics, longString, -1, font, &longLayoutRect, format, &rect2, NULL, NULL);
+  assertEqualInt (status, Ok);
+  assertSimilarFloat (rect1.X, rect2.X, 10.0);
+  assertSimilarFloat (rect1.Y, rect2.Y, 10.0);
+  assertSimilarFloat (rect1.X + rect1.Width, rect2.X + rect2.Width, 5.0);
+  assertSimilarFloat (rect1.Y + rect1.Height, rect2.Y + rect2.Height, 5.0);
+  GdipDeletePath (path);
+  
+  // Dispose the Graphics stuff
+  GdipDeleteGraphics (graphics);
+  GdipDeleteFont (font);
+  GdipDisposeImage (image);  
+#endif
+  
+  GdipDeleteFontFamily (family);
+  GdipDeleteStringFormat (format);
 }
 
 static void test_addPathStringI ()

@@ -118,6 +118,21 @@ ATTRIBUTE_USED static void assertEqualFloatImpl (REAL actual, REAL expected, con
 
 #define assertEqualFloat(actual, expected) assertEqualFloatImpl (actual, expected, NULL, __FILE__, __func__, __LINE__)
 
+ATTRIBUTE_USED static void assertSimilarFloatImpl (REAL actual, REAL expected, REAL tolerance, const char *message, const char *file, const char *function, int line)
+{
+    if (fabs(actual - expected) > fabs(tolerance)) {
+        if (message)
+            fprintf (stderr, "%s\n", message);
+
+        printFailure (file, function, line);
+        fprintf (stderr, "Expected %f +/- %f\n", expected, tolerance);
+        fprintf (stderr, "Actual:   %f\n", actual);
+        abort ();
+    }
+}
+
+#define assertSimilarFloat(actual, expected, tolerance) assertSimilarFloatImpl (actual, expected, tolerance, NULL, __FILE__, __func__, __LINE__)
+
 ATTRIBUTE_USED static BOOL stringsEqual (const WCHAR *actual, const char *expected)
 {
 	int i = 0;
