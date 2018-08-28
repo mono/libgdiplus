@@ -2078,6 +2078,70 @@ static void test_premultiplication ()
 	GdipDisposeImage ((GpImage *) bitmap);
 }
 
+static void test_world_transform_in_container ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GraphicsContainer state;
+	GpMatrix *matrix;
+	GpMatrix *setMatrix;
+
+	graphics = getImageGraphics (&image);
+
+	status = GdipCreateMatrix2 (0, 0, 0, 0, 0, 0, &matrix);
+	assertEqualInt (status, Ok);
+
+	status = GdipCreateMatrix2 (2, 0, 0, 2, 10, 20, &setMatrix);
+	assertEqualInt (status, Ok);
+
+	status = GdipSetWorldTransform (graphics, setMatrix);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetWorldTransform (graphics, matrix);
+	assertEqualInt (status, Ok);
+	BOOL result;
+	GdipIsMatrixEqual (matrix, setMatrix, &result);
+	assertEqualInt (result, 1);
+
+	status = GdipBeginContainer2 (graphics, &state);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetWorldTransform (graphics, matrix);
+	assertEqualInt (status, Ok);
+	GdipIsMatrixIdentity (matrix, &result);
+	assertEqualInt (result, 1);
+
+	status = GdipSetWorldTransform (graphics, setMatrix);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetWorldTransform (graphics, matrix);
+	assertEqualInt (status, Ok);
+	GdipIsMatrixEqual (matrix, setMatrix, &result);
+	assertEqualInt (result, 1);
+
+	status = GdipResetWorldTransform (graphics);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetWorldTransform (graphics, matrix);
+	assertEqualInt (status, Ok);
+	GdipIsMatrixIdentity (matrix, &result);
+	assertEqualInt (result, 1);
+
+	status = GdipEndContainer (graphics, state);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetWorldTransform (graphics, matrix);
+	assertEqualInt (status, Ok);
+	GdipIsMatrixEqual (matrix, setMatrix, &result);
+	assertEqualInt (result, 1);
+
+	GdipDeleteMatrix (matrix);
+	GdipDeleteMatrix (setMatrix);
+	GdipDisposeImage (image);
+	GdipDeleteGraphics (graphics);
+}
+
 int
 main (int argc, char**argv)
 {
@@ -2121,6 +2185,7 @@ main (int argc, char**argv)
 	test_translateClipI ();
 	test_region_mask ();
 	test_premultiplication ();
+	test_world_transform_in_container ();
 
 	SHUTDOWN;
 	return 0;
