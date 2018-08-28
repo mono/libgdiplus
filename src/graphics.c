@@ -614,11 +614,15 @@ GdipResetWorldTransform (GpGraphics *graphics)
 	if (!graphics)
 		return InvalidParameter;
 
-	GdipInvertMatrix (graphics->clip_matrix);
-	apply_world_to_bounds (graphics);
-
-	cairo_matrix_init_identity (graphics->copy_of_ctm);
-	cairo_matrix_init_identity (graphics->clip_matrix);
+	if (!gdip_is_matrix_empty (&graphics->previous_matrix)) {
+		/* inside a container only reset to the previous transform */
+		gdip_cairo_matrix_copy (graphics->copy_of_ctm, &graphics->previous_matrix);
+		gdip_cairo_matrix_copy (graphics->clip_matrix, &graphics->previous_matrix);
+		GdipInvertMatrix (graphics->clip_matrix);
+	} else {
+		cairo_matrix_init_identity (graphics->copy_of_ctm);
+		cairo_matrix_init_identity (graphics->clip_matrix);
+	}
 
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
@@ -651,17 +655,25 @@ GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 	if (!invertible || (status != Ok))
 		return InvalidParameter;
 
-	gdip_cairo_matrix_copy (graphics->copy_of_ctm, matrix);
-	gdip_cairo_matrix_copy (graphics->clip_matrix, matrix);
-
+	GpMatrix matrixCopy;
+	gdip_cairo_matrix_copy (&matrixCopy, matrix);
+	
+	if (!gdip_is_matrix_empty (&graphics->previous_matrix)) {
+		/* inside a container the transform is appended to the previous transform */
+		GdipMultiplyMatrix (&matrixCopy, &graphics->previous_matrix, MatrixOrderAppend);
+	}
+	
+	gdip_cairo_matrix_copy (graphics->copy_of_ctm, &matrixCopy);
+	gdip_cairo_matrix_copy (graphics->clip_matrix, &matrixCopy);
+	
 	/* we already know it's invertible */
 	GdipInvertMatrix (graphics->clip_matrix);
 
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
-		return cairo_SetWorldTransform (graphics, matrix);
+		return cairo_SetWorldTransform (graphics, &matrixCopy);
 	case GraphicsBackEndMetafile:
-		return metafile_SetWorldTransform (graphics, matrix);
+		return metafile_SetWorldTransform (graphics, &matrixCopy);
 	default:
 		return GenericError;
 	}
