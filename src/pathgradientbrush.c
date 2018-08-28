@@ -354,7 +354,12 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 		if (status != Ok)
 			return status;
 
-		cairo_pattern_set_matrix (pat, &pgbrush->transform);
+		GpMatrix matrix;
+		gdip_cairo_matrix_copy (&matrix, &pgbrush->transform);
+		status = GdipInvertMatrix (&matrix);
+		if (status != Ok)
+			return status;
+		cairo_pattern_set_matrix (pat, &matrix);
 
 		if ((pgbrush->blend->count > 1) && (pgbrush->boundaryColorsCount > 0)) {
 			/* FIXME: blending done using the a radial shape (not the path shape) */
