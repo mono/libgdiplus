@@ -209,8 +209,8 @@ gdip_validate_path_types (const BYTE *types, INT count)
 		return TRUE;
 
 	while (TRUE) {
-		remaining -= 1;
-		currentType += 1;
+		remaining--;
+		currentType++;
 
 		// No more.
 		if (remaining == 0)
@@ -226,12 +226,12 @@ gdip_validate_path_types (const BYTE *types, INT count)
 			} else if ((*currentType & PathPointTypePathTypeMask) == PathPointTypeBezier) {
 				// A bezier path requires a start point (already handled) followed by 3 bezier
 				// points.
-				remaining -= 1;
+				remaining--;
 				currentType++;
 				if (remaining == 0 || (*currentType & PathPointTypePathTypeMask) != PathPointTypeBezier)
 					return FALSE;
 
-				remaining -= 1;
+				remaining--;
 				currentType++;
 				if (remaining == 0 || (*currentType & PathPointTypePathTypeMask) != PathPointTypeBezier)
 					return FALSE;
