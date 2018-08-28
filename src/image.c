@@ -329,6 +329,8 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 	gfx->dpi_y = image->active_bitmap->dpi_vert <= 0 ? gdip_get_display_dpi () : image->active_bitmap->dpi_vert;
 	gfx->bounds.Width = image->active_bitmap->width;
 	gfx->bounds.Height = image->active_bitmap->height;
+	gfx->orig_bounds.Width = image->active_bitmap->width;
+	gfx->orig_bounds.Height = image->active_bitmap->height;
 	cairo_surface_destroy (surface);
 
 	gfx->image = image;

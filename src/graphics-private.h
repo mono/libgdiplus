@@ -131,6 +131,7 @@ typedef struct _Graphics {
 	GpRegion*		clip;
 	GpMatrix*		clip_matrix;
 	GpRect			bounds;
+	GpRect			orig_bounds;
 	GpUnit			page_unit;
 	float			scale;
 	InterpolationMode	interpolation;

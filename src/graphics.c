@@ -145,6 +145,7 @@ gdip_graphics_common_init (GpGraphics *graphics)
 	GdipCreateRegion (&graphics->clip);
 	GdipCreateMatrix (&graphics->clip_matrix);
 	graphics->bounds.X = graphics->bounds.Y = graphics->bounds.Width = graphics->bounds.Height = 0;
+	graphics->orig_bounds.X = graphics->orig_bounds.Y = graphics->orig_bounds.Width = graphics->orig_bounds.Height = 0;
 	graphics->last_pen = NULL;
 	graphics->last_brush = NULL;
 	graphics->saved_status = NULL;
@@ -330,6 +331,8 @@ GdipCreateFromContext_macosx (void *ctx, int width, int height, GpGraphics **gra
 	
 	(*graphics)->bounds.Width = width;
 	(*graphics)->bounds.Height = height;
+	(*graphics)->orig_bounds.Width = width;
+	(*graphics)->orig_bounds.Height = height;
 
 	(*graphics)->type = gtOSXDrawable;
 	(*graphics)->cg_context = ctx;
@@ -583,10 +586,10 @@ apply_world_to_bounds (GpGraphics *graphics)
 	GpStatus status;
 	GpPointF pts[2];
 
-	pts[0].X = graphics->bounds.X;
-	pts[0].Y = graphics->bounds.Y;
-	pts[1].X = graphics->bounds.X + graphics->bounds.Width;
-	pts[1].Y = graphics->bounds.Y + graphics->bounds.Height;
+	pts[0].X = graphics->orig_bounds.X;
+	pts[0].Y = graphics->orig_bounds.Y;
+	pts[1].X = graphics->orig_bounds.X + graphics->orig_bounds.Width;
+	pts[1].Y = graphics->orig_bounds.Y + graphics->orig_bounds.Height;
 	status = GdipTransformMatrixPoints (graphics->clip_matrix, (GpPointF*)&pts, 2);
 	if (status != Ok)
 		return status;
@@ -623,6 +626,8 @@ GdipResetWorldTransform (GpGraphics *graphics)
 		cairo_matrix_init_identity (graphics->copy_of_ctm);
 		cairo_matrix_init_identity (graphics->clip_matrix);
 	}
+
+	apply_world_to_bounds (graphics);
 
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
@@ -668,6 +673,8 @@ GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 	
 	/* we already know it's invertible */
 	GdipInvertMatrix (graphics->clip_matrix);
+
+	apply_world_to_bounds (graphics);
 
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
@@ -1836,8 +1843,8 @@ GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 	
 		rect.origin.x = 0;
 		rect.origin.y = 0;
-		rect.size.width = graphics->bounds.Width;
-		rect.size.height = graphics->bounds.Height;
+		rect.size.width = graphics->orig_bounds.Width;
+		rect.size.height = graphics->orig_bounds.Height;
 		void *image = CGBitmapContextCreateImage (cairo_quartz_surface_get_cg_context (surface));
 		CGContextDrawImage (graphics->cg_context, rect, image);
 		CGImageRelease (image);
@@ -2163,6 +2170,10 @@ GdipSetVisibleClip_linux (GpGraphics *graphics, GpRect *rect)
 	if (!graphics || !rect)
 		return InvalidParameter;
 
+	graphics->orig_bounds.X = rect->X;
+	graphics->orig_bounds.Y = rect->Y;
+	graphics->orig_bounds.Width = rect->Width;
+	graphics->orig_bounds.Height = rect->Height;
 	graphics->bounds.X = rect->X;
 	graphics->bounds.Y = rect->Y;
 	graphics->bounds.Width = rect->Width;
