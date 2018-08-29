@@ -17,6 +17,7 @@ testgeneral
 testgifcodec
 testgpimage
 testgraphics
+testgraphicsdraw
 testgraphicspath
 testgdi
 testhatchbrush
