@@ -1863,116 +1863,74 @@ GdipIsVisibleRegionRectI (GpRegion *region, int x, int y, int width, int height,
 }
 
 
-GpStatus WINGDIPAPI
-GdipGetRegionScansCount (GpRegion *region, UINT *count, GpMatrix *matrix)
+static GpStatus
+get_transformed_region (GpRegion *region, GpMatrix *matrix, GpRegion **result)
 {
-	GpRegion *work = NULL;
 	GpStatus status;
+	GpRegion *work;
 
-	if (!region || !matrix || !count)
-		return InvalidParameter;
+	if (gdip_is_matrix_empty (matrix)) {
+		*result = region;
+		return Ok;
+	}
 
-	/* apply any user supplied matrix transformation */
-	if (!gdip_is_matrix_empty (matrix)) {
+	/* The matrix doesn't affect the original region - only the result */
+	status = GdipCloneRegion (region, &work);
+	if (status != Ok)
+		return status;
 
-		/* the matrix doesn't affect the original region - only the result */
-		status = GdipCloneRegion (region, &work);
-		if (status != Ok) {
-			if (work)
-				GdipDeleteRegion (work);
-			return status;
-		}
-
-		/* if required convert into a path-based region */
-		if (work->type != RegionTypePath) {
-			status = gdip_region_convert_to_path (work);
-			if (status != Ok) {
-				if (work)
-					GdipDeleteRegion (work);
-
-				return status;
-			}
-		}
-
-		/* transform all the paths */
-		status = gdip_region_transform_tree (work->tree, matrix);
+	/* If required convert into a path-based region */
+	if (work->type != RegionTypePath) {
+		status = gdip_region_convert_to_path (work);
 		if (status != Ok) {
 			GdipDeleteRegion (work);
 			return status;
 		}
-		/* note: any existing bitmap has been invalidated */
-		gdip_region_bitmap_invalidate (work);
-	} else {
-		work = region;
 	}
 
-	if (gdip_is_region_empty (work, /* allowNegative */ TRUE)) {
-		*count = 0;
-	} else {
-		switch (work->type) {
-		case RegionTypeRect:
-		case RegionTypeInfinite:
-			*count = work->cnt;
-			break;
-		case RegionTypePath:
-			/* ensure the bitmap is usable */
-			gdip_region_bitmap_ensure (work);
-			*count = gdip_region_bitmap_get_scans (work->bitmap, NULL);
-			break;
-		default:
-			g_warning ("unknown type 0x%08X", region->type);
-			return NotImplemented;
-		}
-	}
-
-	/* delete the clone */
-	if (work != region)
+	/* Transform all the paths */
+	status = gdip_region_transform_tree (work->tree, matrix);
+	if (status != Ok) {
 		GdipDeleteRegion (work);
+		return status;
+	}
+
+	/* Any existing bitmap has been invalidated */
+	gdip_region_bitmap_invalidate (work);
+
+	*result = work;
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matrix)
+GdipGetRegionScansCount (GpRegion *region, UINT *count, GpMatrix *matrix)
 {
-	GpRegion *work = NULL;
 	GpStatus status;
+	INT countResult;
 
-	if (!region || !count || !matrix)
+	if (!region || !matrix || !count)
+		return InvalidParameter;
+	
+	status = GdipGetRegionScans (region, NULL, &countResult, matrix);
+	if (status != Ok)
+		return status;
+
+	*count = countResult;
+	return Ok;
+}
+
+GpStatus WINGDIPAPI
+GdipGetRegionScans (GpRegion *region, GpRectF* rects, INT* count, GpMatrix* matrix)
+{
+	GpStatus status;
+	GpRegion *work;
+
+	if (!region || !matrix || !count)
 		return InvalidParameter;
 
-	/* apply any user supplied matrix transformation */
-	if (!gdip_is_matrix_empty (matrix)) {
-
-		/* the matrix doesn't affect the original region - only the result */
-		status = GdipCloneRegion (region, &work);
-		if (status != Ok) {
-			if (work)
-				GdipDeleteRegion (work);
-			return status;
-		}
-
-		/* if required convert into a path-based region */
-		if (work->type != RegionTypePath) {
-			status = gdip_region_convert_to_path (work);
-			if (status != Ok) {
-				if (work)
-					GdipDeleteRegion (work);
-
-				return status;
-			}
-		}
-
-		/* transform all the paths */
-		status = gdip_region_transform_tree (work->tree, matrix);
-		if (status != Ok) {
-			GdipDeleteRegion (work);
-			return status;
-		}
-		/* note: any existing bitmap has been invalidated */
-		gdip_region_bitmap_invalidate (work);
-	} else {
-		work = region;
-	}
+	status = get_transformed_region (region, matrix, &work);
+	if (status != Ok)
+		return status;
 
 	if (gdip_is_region_empty (work, /* allowNegative */ TRUE)) {
 		*count = 0;
@@ -1991,11 +1949,14 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, int* count, GpMatrix* matr
 			break;
 		default:
 			g_warning ("unknown type 0x%08X", region->type);
+			if (work != region)
+				GdipDeleteRegion (work);
+
 			return NotImplemented;
 		}
 	}
 
-	/* delete the clone */
+	/* Delete the clone */
 	if (work != region)
 		GdipDeleteRegion (work);
 	return Ok;
