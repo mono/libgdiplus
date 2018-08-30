@@ -114,6 +114,14 @@ static void verifyRegionDataImpl (GpRegion *region, BYTE *expected, INT expected
 #define verifyRegionData(region, expectedData) \
 	verifyRegionDataImpl (region, expectedData, sizeof (expectedData), __FILE__, __func__, __LINE__)
 
+static GpPath *createPathFromRect(RectF *rect)
+{
+	GpPath *path;
+	GdipCreatePath (FillModeAlternate, &path);
+	GdipAddPathRectangle (path, rect->X, rect->Y, rect->Width, rect->Height);
+	return path;
+}
+
 static BYTE infiniteRegionData[] = {
 	/* --RegionHeader-- */
 	/* Size */          0x0C, 0x00, 0x00, 0x00,
@@ -4111,14 +4119,6 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
 	GdipDeleteRegion (region); \
 } \
 
-static GpPath *createPathFromRect(RectF *rect)
-{
-	GpPath *path;
-	GdipCreatePath (FillModeAlternate, &path);
-	GdipAddPathRectangle (path, rect->X, rect->Y, rect->Width, rect->Height);
-	return path;
-}
-
 static void test_combineReplace ()
 {
 	GpRegion *infiniteRegion;
@@ -4516,6 +4516,7 @@ static void test_combineIntersect ()
 
 	// Rect + No Intersect Bottom Left = Empty.
 	verifyCombineRectWithRect (&rect, &noIntersectBottomLeftRect, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
+
 	// Rect + Infinite Path = Path.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -4526,10 +4527,7 @@ static void test_combineIntersect ()
 	verifyCombineRectWithPath (&rect, emptyPath, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Rect + Negative Path = Empty.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombineRectWithPath (&rect, negativePath, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-#endif
 
 	// Rect + Equal Path = Equal Path.
 	verifyCombineRectWithPath (&rect, path, CombineModeIntersect, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
@@ -6673,10 +6671,7 @@ static void test_combineXor ()
 	verifyCombinePathWithPath (path, emptyPath, CombineModeXor, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Path + Negative Path = Path.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithPath (path, negativePath, CombineModeXor, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
-#endif
 
 	// Path + Equal Path = Empty.
 	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
@@ -7498,10 +7493,7 @@ static void test_combineExclude ()
 	verifyCombinePathWithPath (path, emptyPath, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Path + Negative Path = Path.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithPath (path, negativePath, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
-#endif
 
 	// Path + Equal Path = Empty.
 	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
@@ -7938,7 +7930,6 @@ static void test_combineComplement ()
 	// Rect + No Intersect Bottom Left = No Intersect Bottom Left.
 	verifyCombineRectWithRect (&rect, &noIntersectBottomLeftRect, CombineModeComplement, -21, 61, 30, 40, FALSE, FALSE, &noIntersectBottomLeftRect, sizeof (noIntersectBottomLeftRect));
 
-  // Rect + Infinite Path = Infinite.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombineRectWithPath (&rect, infinitePath, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
@@ -8105,10 +8096,7 @@ static void test_combineComplement ()
 	verifyCombinePathWithRect (path, &emptyRect, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Path + Negative Rect = Empty.
-	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithRect (path, &negativeRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-#endif
 
 	// Path + Equal Rect = Empty.
 	// FIXME: this should set to empty: https://github.com/mono/libgdiplus/issues/336
