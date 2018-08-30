@@ -320,6 +320,8 @@ gdip_is_region_empty (const GpRegion *region, BOOL allowNegative)
 			if (!gdip_path_closed (region->tree->path))
 				return TRUE;
 		}
+		if (region->bitmap && (region->bitmap->Width == 0 || region->bitmap->Height == 0))
+			return TRUE;
 
 		return FALSE;
 	default:
@@ -1421,7 +1423,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 			/* The XOR of the empty region and X is X */
 			/* Everything is outside the empty region */
 			GdipSetEmpty (region);
-			return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, &normalized;
+			return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, &normalized);
 		default:
 			break;
 		}
