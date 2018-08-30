@@ -1936,10 +1936,38 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, INT* count, GpMatrix* matr
 		*count = 0;
 	} else {
 		switch (region->type) {
-		case RegionTypeRect:
 		case RegionTypeInfinite:
-			if (rects)
-				memcpy (rects, work->rects, sizeof (GpRectF) * work->cnt);
+			if (rects) {
+				rects->X = REGION_INFINITE_POSITION;
+				rects->Y = REGION_INFINITE_POSITION;
+				rects->Width = REGION_INFINITE_LENGTH;
+				rects->Height = REGION_INFINITE_LENGTH;
+			}
+
+			*count = 1;
+		break;
+		case RegionTypeRect:
+			if (rects) {
+				for (int i = 0; i < work->cnt; i++) {
+					GpRectF rect = work->rects[i];
+
+					INT origX = iround ((rect.X * 16.0f));
+					INT origY = iround ((rect.Y * 16.0f));
+					INT origMaxX = iround (((rect.Width + rect.X) * 16.0f));
+					INT origMaxY = iround (((rect.Height + rect.Y) * 16.0f));
+
+					INT x = (origX + 15) >> 4;
+					INT y = (origY + 15) >> 4;
+					INT maxX = (origMaxX + 15) >> 4;
+					INT maxY = (origMaxY + 15) >> 4;
+
+					rects[i].X = x;
+					rects[i].Y = y;
+					rects[i].Width = maxX - x;
+					rects[i].Height = maxY - y;
+				}
+			}
+
 			*count = work->cnt;
 			break;
 		case RegionTypePath:
@@ -1961,6 +1989,41 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, INT* count, GpMatrix* matr
 		GdipDeleteRegion (work);
 	return Ok;
 }
+
+GpStatus WINGDIPAPI
+GdipGetRegionScansI (GpRegion *region, GpRect *rects, INT *count, GpMatrix *matrix)
+{
+	GpStatus status;
+	GpRectF *rectsF;
+	UINT scansCount;
+
+	if (!region || !count || !matrix)
+		return InvalidParameter;
+
+	if (rects) {
+		status = GdipGetRegionScansCount (region, &scansCount, matrix);
+		if (status != Ok)
+			return status;
+
+		rectsF = malloc (scansCount * sizeof (GpRectF));
+		if (!rectsF)
+			return OutOfMemory;
+	} else {
+		rectsF = NULL;
+	}
+
+	status = GdipGetRegionScans (region, rectsF, count, matrix);
+	if (status != Ok)
+		return status;
+		
+	if (rects) {
+		for (int i = 0; i < scansCount; i++)
+			gdip_Rect_from_RectF (&rectsF[i], &rects[i]);
+	}
+
+	return Ok;
+}
+
 
 GpStatus WINGDIPAPI
 GdipIsEqualRegion (GpRegion *region, GpRegion *region2, GpGraphics *graphics, BOOL *result)
