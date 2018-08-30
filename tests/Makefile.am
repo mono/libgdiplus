@@ -30,6 +30,7 @@ noinst_PROGRAMS =			\
 	testgpimage \
 	testgraphics \
 	testgraphicsdraw \
+	testgraphicsfill \
 	testgraphicspath \
 	testhatchbrush \
 	testicocodec \
@@ -142,6 +143,12 @@ testgraphicsdraw_SOURCES =		\
 
 testgraphicsdraw_DEPENDENCIES = $(TEST_DEPS)
 testgraphicsdraw_LDADD = $(LDADDS)
+
+testgraphicsfill_SOURCES =		\
+	testgraphicsfill.c
+
+testgraphicsfill_DEPENDENCIES = $(TEST_DEPS)
+testgraphicsfill_LDADD = $(LDADDS)
 
 testgraphicspath_SOURCES =		\
 	testgraphicspath.c
@@ -280,6 +287,7 @@ EXTRA_DIST =			\
 	$(testgpimage_SOURCES) \
 	$(testgraphics_SOURCES)	\
 	$(testgraphicsdraw_SOURCES)	\
+	$(testgraphicsfill_SOURCES)	\
 	$(testgraphicspath_SOURCES) \
 	$(testhatchbrush_SOURCES)	\
 	$(testicocodec_SOURCES) \
@@ -317,6 +325,7 @@ TESTS = \
 	testgpimage \
 	testgraphics \
 	testgraphicsdraw \
+	testgraphicsfill \
 	testgraphicspath \
 	testhatchbrush \
 	testicocodec \

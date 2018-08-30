@@ -338,7 +338,7 @@ cairo_DrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *po
 }
 
 GpStatus
-cairo_FillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, float tension)
+cairo_FillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, float tension, GpFillMode fillMode)
 {
 	GpStatus status;
 	GpPointF *tangents = gdip_closed_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
@@ -346,6 +346,7 @@ cairo_FillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF
 		return OutOfMemory;
 
 	make_curve (graphics, points, tangents, 0, count - 1, CURVE_CLOSE, FALSE);
+	cairo_set_fill_rule (graphics->ct, gdip_convert_fill_mode (fillMode));
 	status = fill_graphics_with_brush (graphics, brush, FALSE);
 
 	GdipFree (tangents);
