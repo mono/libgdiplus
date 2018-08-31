@@ -677,7 +677,11 @@ typedef enum {
 	SmoothingModeHighSpeed		= QualityModeLow,
 	SmoothingModeHighQuality	= QualityModeHigh,
 	SmoothingModeNone,
-	SmoothingModeAntiAlias
+	SmoothingModeAntiAlias,
+#if (GDIPVER >= 0x0110)
+	SmoothingModeAntiAlias8x4	= SmoothingModeAntiAlias,
+	SmoothingModeAntiAlias8x8
+#endif //(GDIPVER >= 0x0110) 
 } SmoothingMode;
 
 typedef enum {
