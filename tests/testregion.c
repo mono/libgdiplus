@@ -4682,10 +4682,10 @@ static void test_combineUnion ()
 
 	// No Intersect Top Rect + No Intersect Bottom Right = Both.
 	RectF noIntersectTopAndBottomRight[] = {
-		noIntersectTopRect,
-		noIntersectBottomRightRect
+		touchingTopRect,
+		touchingBottomRightRect
 	};
-	verifyCombineRectWithRect (&noIntersectTopRect, &noIntersectBottomRightRect, CombineModeUnion, 10, -20, 60, 120, FALSE, FALSE, noIntersectTopAndBottomRight, sizeof (noIntersectTopAndBottomRight));
+	verifyCombineRectWithRect (&touchingTopRect, &touchingBottomRightRect, CombineModeUnion, 10, -20, 60, 120, FALSE, FALSE, noIntersectTopAndBottomRight, sizeof (noIntersectTopAndBottomRight));
 
 
 	// Rect + Infinite Path = Infinite.
