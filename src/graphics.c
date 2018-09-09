@@ -1237,12 +1237,10 @@ GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, INT
 GpStatus WINGDIPAPI
 GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, INT count, REAL tension)
 {
-	if (count == 2) {
+	if (count == 2)
 		return GdipDrawLines (graphics, pen, points, count);
-	} else {
-		int segments = (count > 3) ? (count - 1) : (count - 2);
-		return GdipDrawCurve3 (graphics, pen, points, count, 0, segments, tension);
-	}
+
+	return GdipDrawCurve3 (graphics, pen, points, count, 0, count - 1, tension);
 }
 
 GpStatus WINGDIPAPI
