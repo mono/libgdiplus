@@ -26,116 +26,6 @@ using namespace DllExports;
 GpImage *image;
 GpGraphics *graphics;
 
-static void verifyRegionImpl(GpRegion *region, float expectedX, float expectedY, float expectedWidth, float expectedHeight, BOOL expectedIsEmpty, BOOL expectedIsInfinite, const char *file, const char *function, int line)
-{
-	GpStatus status;
-	GpRectF bounds;
-	BOOL isEmpty;
-	BOOL isInfinite;
-	RectF expectedBounds = {expectedX, expectedY, expectedWidth, expectedHeight};
-
-	status = GdipGetRegionBounds (region, graphics, &bounds);
-	assertEqualIntImpl (status, Ok, NULL, file, function, line);
-	assertEqualRectImpl (bounds, expectedBounds, "Bounds", file, function, line);
-
-	status = GdipIsEmptyRegion (region, graphics, &isEmpty);
-	assertEqualIntImpl (status, Ok, NULL, file, function, line);
-	assertEqualIntImpl (isEmpty, expectedIsEmpty, "IsEmpty", file, function, line);
-
-	status = GdipIsInfiniteRegion (region, graphics, &isInfinite);
-	assertEqualIntImpl (status, Ok, NULL, file, function, line);
-	assertEqualIntImpl (isInfinite, expectedIsInfinite, "IsInfinite", file, function, line);
-}
-
-#define verifyRegion(region, expectedX, expectedY, expectedWidth, expectedHeight, expectedIsEmpty, expectedIsInfinite) \
-	verifyRegionImpl (region, expectedX, expectedY, expectedWidth, expectedHeight, expectedIsEmpty, expectedIsInfinite, __FILE__, __func__, __LINE__)
-
-static void verifyRegionScansImpl (GpRegion *region, RectF *expectedScans, INT expectedCount, const char *file, const char *function, int line)
-{
-	GpStatus status;
-	GpMatrix *matrix;
-	INT count;
-	GpRectF *scans;
-	GdipCreateMatrix (&matrix);
-
-	status = GdipGetRegionScans (region, NULL, &count, matrix);
-	assertEqualIntImpl (status, Ok, NULL, file, function, line);
-	assertEqualIntImpl (count, expectedCount / sizeof (GpRectF), "ScansCount", file, function, line);
-	scans = (GpRectF *) malloc (count * sizeof (GpRectF));
-
-	status = GdipGetRegionScans (region, scans, &count, matrix);
-	assertEqualIntImpl (status, Ok, NULL, file, function, line);
-#if 0
-	for (int i = 0; i < count; i++)
-	{
-		printf("{%.0f, %.0f, %.0f, %.0f}", scans[i].X, scans[i].Y, scans[i].Width, scans[i].Height);
-		if (i != count - 1)
-			printf (",");
-
-		printf("\n");
-	}
-	printf("\n");
-#endif
-	for (int i = 0; i < count; i++)
-	{
-		char iChar[2] = { i  + '0', 0 };
-		assertEqualRectImpl (scans[i], expectedScans[i], iChar, file, function, line);
-	}
-
-	GdipDeleteMatrix (matrix);
-}
-
-#define verifyRegionScans(region, expectedScans, expectedCount) \
-	verifyRegionScansImpl (region, expectedScans, expectedCount, __FILE__, __func__, __LINE__)
-
-static GpRectF infiniteScans[] = {
-	{-4194304, -4194304, 8388608, 8388608}
-};
-
-static GpRectF *emptyScans = NULL;
-
-static void verifyRegionDataImpl (GpRegion *region, BYTE *expected, INT expectedCount, const char *file, const char *function, int line)
-{
-	BYTE buffer[1024];
-
-	GpStatus status;
-	UINT dataSize;
-	UINT sizeFilled;
-	status = GdipGetRegionDataSize (region, &dataSize);
-	assertEqualIntImpl (status, Ok, NULL, file, function, line);
-	assertEqualIntImpl (dataSize, expectedCount, NULL, file, function, line);
-
-	status = GdipGetRegionData (region, buffer, dataSize, &sizeFilled);
-	assertEqualIntImpl (status, Ok, NULL, file, function, line);
-	assertEqualBytesImpl (buffer, expected, expectedCount, NULL, file, function, line);
-	assertEqualIntImpl (sizeFilled, expectedCount, NULL, file, function, line);
-}
-
-#define verifyRegionData(region, expectedData) \
-	verifyRegionDataImpl (region, expectedData, sizeof (expectedData), __FILE__, __func__, __LINE__)
-
-static BYTE infiniteRegionData[] = {
-	/* --RegionHeader-- */
-	/* Size */          0x0C, 0x00, 0x00, 0x00,
-	/* Checksum */      0x9B, 0x34, 0x22, 0xA3,
-	/* Magic */         0x02, 0x10, 0xC0, 0xDB,
-	/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-
-	/* -- Entry -- */
-	/* Type */ 0x03, 0x00, 0x00, 0x10
-};
-
-static BYTE emptyRegionData[] = {
-	/* --RegionHeader-- */
-	/* Size */          0x0C, 0x00, 0x00, 0x00,
-	/* Checksum */      0xFE, 0x53, 0x9E, 0x1B,
-	/* Magic */         0x02, 0x10, 0xC0, 0xDB,
-	/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
-	/* -- Entry -- */
-	/* Type */ 0x02, 0x00, 0x00, 0x10
-};
-
 static void test_createRegion ()
 {
 	GpStatus status;
@@ -143,7 +33,7 @@ static void test_createRegion ()
 
 	status = GdipCreateRegion (&region);
 	assertEqualInt (status, Ok);
-	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+	verifyInfiniteRegion (region);
 	GdipDeleteRegion (region);
 
 	// Negative tests.
@@ -183,12 +73,14 @@ static void test_createRegionRect ()
 	status = GdipCreateRegionRect (&zeroRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
 	GdipDeleteRegion (region);
 
 	// Infinite.
 	status = GdipCreateRegionRect (&infiniteRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
 
 	// Negative tests.
@@ -231,12 +123,14 @@ static void test_createRegionRectI ()
 	status = GdipCreateRegionRectI (&zeroRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
 	GdipDeleteRegion (region);
 
 	// Infinite.
 	status = GdipCreateRegionRectI (&infiniteRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
 
 	// Negative tests.
@@ -1444,8 +1338,8 @@ static void test_setInfinite ()
 	GdipCreateRegionRect (&rect, &region);
 	
 	status = GdipSetInfinite (region);
-	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
 	assertEqualInt (status, Ok);
+	verifyInfiniteRegion (region);
 	GdipDeleteRegion (region);
 
 	// Path region.

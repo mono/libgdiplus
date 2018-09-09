@@ -639,6 +639,43 @@ void gdip_Point_from_PointF (const GpPointF* pointf, GpPoint* point)
 	point->Y = iround (pointf->Y);
 }
 
+/* Pre-process negative width and height, without modifying the originals */
+void
+gdip_normalize_rectangle (const GpRectF *rect, GpRectF *normalized)
+{
+	float width = rect->Width;
+	float height = rect->Height;
+
+	if (width < 0) {
+		normalized->X = rect->X + width;
+		normalized->Width = fabs (width);
+	} else {
+		normalized->X = rect->X;
+		normalized->Width = width;
+	}
+
+	if (rect->Height < 0) {
+		normalized->Y = rect->Y + height;
+		normalized->Height = fabs (height);
+	} else {
+		normalized->Y = rect->Y;
+		normalized->Height = height;
+	}
+}
+
+BOOL
+gdip_is_rectF_empty (const GpRectF *rect, BOOL allowNegative)
+{
+	if (!rect)
+		return FALSE;
+
+	if (rect->Width == 0 || rect->Height == 0)
+		return TRUE;
+
+	return allowNegative && (rect->Width < 0 || rect->Height < 0);
+}
+
+
 static DWORD crc32_tab[] = {
 	0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
 	0xe963a535, 0x9e6495a3,	0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988,
