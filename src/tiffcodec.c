@@ -192,7 +192,7 @@ gdip_getcodecinfo_tiff ()
 }
 
 static GpStatus
-gdip_load_tiff_properties (TIFF *tiff, BitmapData *bitmap_data)
+gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 {
 	BYTE *text;
 	uint32	i;
@@ -661,7 +661,7 @@ gdip_load_tiff_properties (TIFF *tiff, BitmapData *bitmap_data)
 }
 
 static GpStatus
-gdip_save_tiff_properties (TIFF *tiff, BitmapData *bitmap_data, int samples_per_pixel, int bits_per_sample)
+gdip_save_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data, int samples_per_pixel, int bits_per_sample)
 {
 	int		index;
 	guint32		i;
@@ -955,7 +955,7 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 	int		i;
 	int		num_of_pages;
 	int		page;
-	BitmapData	*bitmap_data;
+	ActiveBitmapData	*bitmap_data;
 	BYTE		*pixbuf;
 	int		samples_per_pixel;
 	int		bits_per_sample;
@@ -1069,7 +1069,7 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 	int		page;
 	TIFFRGBAImage	tiff_image;
 	FrameData	*frame;
-	BitmapData	*bitmap_data;
+	ActiveBitmapData	*bitmap_data;
 	char		*pixbuf;
 	char		*pixbuf_row;
 	guint32		*pixbuf_ptr;

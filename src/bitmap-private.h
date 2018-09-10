@@ -95,11 +95,11 @@ typedef struct {
 	unsigned int	y;			/* LockBits: top coordinate of locked rectangle */
 
 	int		transparent;		/* Index of transparent color (<24bit only) */
-} BitmapData;
+} ActiveBitmapData;
 
 typedef struct {
 	int		count;			/* Number of bitmaps contained in this frame */
-	BitmapData	*bitmap;		/* Bitmaps for this frame */
+	ActiveBitmapData	*bitmap;		/* Bitmaps for this frame */
 	GUID		frame_dimension;	/* GUID describing the frame type */
 } FrameData;
 
@@ -113,7 +113,7 @@ typedef struct _Image {
 	/* Tracking of active image */
 	int		active_frame;		/* Index of frame currently used */
 	int		active_bitmap_no;	/* Index of active bitmap in current frame */
-	BitmapData	*active_bitmap;		/* Pointer to active frame/bitmap; DO NOT free() */
+	ActiveBitmapData	*active_bitmap;		/* Pointer to active frame/bitmap; DO NOT free() */
 	/* Internal fields */
         int             cairo_format;
 	cairo_surface_t *surface;
@@ -125,26 +125,26 @@ void gdip_bitmap_init (GpBitmap *bitmap) GDIP_INTERNAL;
 GpBitmap *gdip_bitmap_new (void) GDIP_INTERNAL;
 GpBitmap *gdip_bitmap_new_with_frame (const GUID *dimension, BOOL add_bitmapdata) GDIP_INTERNAL;
 FrameData *gdip_frame_add(GpBitmap *bitmap, const GUID *dimension) GDIP_INTERNAL;
-BitmapData *gdip_frame_add_bitmapdata(FrameData *frame) GDIP_INTERNAL;
+ActiveBitmapData *gdip_frame_add_bitmapdata(FrameData *frame) GDIP_INTERNAL;
 GpStatus gdip_bitmap_dispose (GpBitmap *bitmap) GDIP_INTERNAL;
 GpStatus gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap) GDIP_INTERNAL;
 GpStatus gdip_bitmap_setactive (GpBitmap *bitmap, const GUID *dimension, int index) GDIP_INTERNAL;
-GpStatus gdip_bitmapdata_clone (BitmapData *src, BitmapData **dest, int count) GDIP_INTERNAL;
+GpStatus gdip_bitmapdata_clone (ActiveBitmapData *src, ActiveBitmapData **dest, int count) GDIP_INTERNAL;
 ColorPalette *gdip_palette_clone(ColorPalette *original) GDIP_INTERNAL;
 GpStatus gdip_property_get_short (int offset, void *value, unsigned short *result) GDIP_INTERNAL;
 GpStatus gdip_property_get_long (int offset, void *value, guint32 *result) GDIP_INTERNAL;
 GpStatus gdip_property_get_srational (int offset, void *value, unsigned short *numerator, unsigned short *denominator) GDIP_INTERNAL;
 GpStatus gdip_property_get_rational (int offset, void *value, guint32 *numerator, guint32 *denominator) GDIP_INTERNAL;
-GpStatus gdip_bitmapdata_property_add (BitmapData *bitmap_data, PROPID id, ULONG length, WORD type, VOID *value) GDIP_INTERNAL;
-GpStatus gdip_bitmapdata_property_add_byte (BitmapData *bitmap_data, PROPID id, BYTE value) GDIP_INTERNAL;
-GpStatus gdip_bitmapdata_property_add_short (BitmapData *bitmap_data, PROPID id, unsigned short value) GDIP_INTERNAL;
-GpStatus gdip_bitmapdata_property_add_long (BitmapData *bitmap_data, PROPID id, guint32 value) GDIP_INTERNAL;
-GpStatus gdip_bitmapdata_property_add_ASCII (BitmapData *bitmap_data, PROPID id, unsigned char *value) GDIP_INTERNAL;
-GpStatus gdip_bitmapdata_property_add_rational (BitmapData *bitmap_data, PROPID id, guint32 numerator, guint32 denominator) GDIP_INTERNAL;
-GpStatus gdip_bitmapdata_property_add_srational (BitmapData *bitmap_data, PROPID id, unsigned short numerator, unsigned short denominator) GDIP_INTERNAL;
-GpStatus gdip_bitmapdata_property_remove_id (BitmapData *bitmap_data, PROPID id) GDIP_INTERNAL;
-GpStatus gdip_bitmapdata_property_remove_index (BitmapData *bitmap_data, int index) GDIP_INTERNAL;
-GpStatus gdip_bitmapdata_property_find_id (BitmapData *bitmap_data, PROPID id, int *index) GDIP_INTERNAL;
+GpStatus gdip_bitmapdata_property_add (ActiveBitmapData *bitmap_data, PROPID id, ULONG length, WORD type, VOID *value) GDIP_INTERNAL;
+GpStatus gdip_bitmapdata_property_add_byte (ActiveBitmapData *bitmap_data, PROPID id, BYTE value) GDIP_INTERNAL;
+GpStatus gdip_bitmapdata_property_add_short (ActiveBitmapData *bitmap_data, PROPID id, unsigned short value) GDIP_INTERNAL;
+GpStatus gdip_bitmapdata_property_add_long (ActiveBitmapData *bitmap_data, PROPID id, guint32 value) GDIP_INTERNAL;
+GpStatus gdip_bitmapdata_property_add_ASCII (ActiveBitmapData *bitmap_data, PROPID id, unsigned char *value) GDIP_INTERNAL;
+GpStatus gdip_bitmapdata_property_add_rational (ActiveBitmapData *bitmap_data, PROPID id, guint32 numerator, guint32 denominator) GDIP_INTERNAL;
+GpStatus gdip_bitmapdata_property_add_srational (ActiveBitmapData *bitmap_data, PROPID id, unsigned short numerator, unsigned short denominator) GDIP_INTERNAL;
+GpStatus gdip_bitmapdata_property_remove_id (ActiveBitmapData *bitmap_data, PROPID id) GDIP_INTERNAL;
+GpStatus gdip_bitmapdata_property_remove_index (ActiveBitmapData *bitmap_data, int index) GDIP_INTERNAL;
+GpStatus gdip_bitmapdata_property_find_id (ActiveBitmapData *bitmap_data, PROPID id, int *index) GDIP_INTERNAL;
 
 cairo_surface_t* gdip_bitmap_ensure_surface (GpBitmap *bitmap) GDIP_INTERNAL;
 GpBitmap* gdip_convert_indexed_to_rgb (GpBitmap *bitmap) GDIP_INTERNAL;
@@ -164,11 +164,11 @@ typedef struct {
 	int		one_pixel_mask;
 	int		one_pixel_shift;
 	int		pixels_per_byte;	/* a negative value is used to indicate a count of bytes per pixel for depths of more than 8 bits */
-	BitmapData	*data;
+	ActiveBitmapData	*data;
 	BYTE		*scan;
 } StreamingState;
 
-GpStatus gdip_init_pixel_stream (StreamingState *state, BitmapData *data, int x, int y, int w, int h) GDIP_INTERNAL;
+GpStatus gdip_init_pixel_stream (StreamingState *state, ActiveBitmapData *data, int x, int y, int w, int h) GDIP_INTERNAL;
 unsigned int gdip_pixel_stream_get_next (StreamingState *state) GDIP_INTERNAL;
 
 #include "bitmap.h"

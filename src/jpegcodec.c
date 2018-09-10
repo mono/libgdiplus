@@ -543,7 +543,7 @@ error:
 static void
 add_properties_from_entry (ExifEntry *entry, void *user_data)
 {
-	BitmapData *bitmap_data = (BitmapData *) user_data;
+	ActiveBitmapData *bitmap_data = (ActiveBitmapData *) user_data;
 
 	gdip_bitmapdata_property_add (bitmap_data, entry->tag, entry->size, entry->format, entry->data);
 }
@@ -557,7 +557,7 @@ add_properties_from_content (ExifContent *content, void *user_data)
 static void
 load_exif_data (ExifData *exif_data, GpImage *image)
 {
-	BitmapData *bitmap;
+	ActiveBitmapData *bitmap;
 
 	if (exif_data == NULL)
 		return;

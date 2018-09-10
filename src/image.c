@@ -350,7 +350,7 @@ GdipDrawImageI (GpGraphics *graphics, GpImage *image, INT x, INT y)
 
 	switch (image->type) {
 	case ImageTypeBitmap: {
-		BitmapData *data = image->active_bitmap;
+		ActiveBitmapData *data = image->active_bitmap;
 		return GdipDrawImageRect (graphics, image, x, y, data->width, data->height);
 	}
 	case ImageTypeMetafile: {
@@ -370,7 +370,7 @@ GdipDrawImage (GpGraphics *graphics, GpImage *image, REAL x, REAL y)
 
 	switch (image->type) {
 	case ImageTypeBitmap: {
-		BitmapData *data = image->active_bitmap;
+		ActiveBitmapData *data = image->active_bitmap;
 		return GdipDrawImageRect (graphics, image, x, y, data->width, data->height);
 	}
 	case ImageTypeMetafile: {
@@ -451,7 +451,7 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, REAL x, REAL y, REAL wi
 	if (gdip_bitmap_format_needs_premultiplication (image)) {
 		premul = gdip_bitmap_get_premultiplied_scan0 (image);
 		if (premul) {
-			BitmapData *data = image->active_bitmap;
+			ActiveBitmapData *data = image->active_bitmap;
 			original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32,
 															data->width, data->height, data->stride);
 		}
@@ -558,7 +558,7 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	if (gdip_bitmap_format_needs_premultiplication (image)) {
 		premul = gdip_bitmap_get_premultiplied_scan0 (image);
 		if (premul) {
-			BitmapData *data = image->active_bitmap;
+			ActiveBitmapData *data = image->active_bitmap;
 			original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32,
 															data->width, data->height, data->stride);
 		}
@@ -748,7 +748,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 			if (gdip_bitmap_format_needs_premultiplication (imgflipX)) {
 				premulX = gdip_bitmap_get_premultiplied_scan0 (imgflipX);
 				if (premulX) {
-					BitmapData *data = imgflipX->active_bitmap;
+					ActiveBitmapData *data = imgflipX->active_bitmap;
 					originalX = cairo_image_surface_create_for_data (premulX, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
 				}
 			}
@@ -766,7 +766,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 			if (gdip_bitmap_format_needs_premultiplication (imgflipY)) {
 				premulY = gdip_bitmap_get_premultiplied_scan0 (imgflipY);
 				if (premulY) {
-					BitmapData *data = imgflipY->active_bitmap;
+					ActiveBitmapData *data = imgflipY->active_bitmap;
 					originalY = cairo_image_surface_create_for_data (premulY, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
 				}
 			}
@@ -785,7 +785,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 			if (gdip_bitmap_format_needs_premultiplication (imgflipXY)) {
 				premulXY = gdip_bitmap_get_premultiplied_scan0 (imgflipXY);
 				if (premulXY) {
-					BitmapData *data = imgflipXY->active_bitmap;
+					ActiveBitmapData *data = imgflipXY->active_bitmap;
 					originalXY = cairo_image_surface_create_for_data (premulXY, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
 				}
 			}
@@ -800,7 +800,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		if (gdip_bitmap_format_needs_premultiplication (image)) {
 			premul = gdip_bitmap_get_premultiplied_scan0 (image);
 			if (premul) {
-				BitmapData *data = image->active_bitmap;
+				ActiveBitmapData *data = image->active_bitmap;
 				original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
 			}
 		}
@@ -895,7 +895,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		if (gdip_bitmap_format_needs_premultiplication (image)) {
 			premul = gdip_bitmap_get_premultiplied_scan0 (image);
 			if (premul) {
-				BitmapData *data = image->active_bitmap;
+				ActiveBitmapData *data = image->active_bitmap;
 				original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
 			}
 		}

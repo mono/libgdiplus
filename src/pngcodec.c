@@ -107,7 +107,7 @@ _gdip_png_stream_flush_data (png_structp png_ptr)
 }
 
 static GpStatus
-gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end_ptr, BitmapData *bitmap_data)
+gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end_ptr, ActiveBitmapData *bitmap_data)
 {
 #if defined(PNG_INCH_CONVERSIONS) && defined(PNG_FLOATING_POINT_SUPPORTED)
 	bitmap_data->image_flags |= ImageFlagsHasRealDPI;

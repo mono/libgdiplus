@@ -216,7 +216,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	/* Apply Color Matrix */
 	if (cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled && cmatrix->colormatrix) {
-		BitmapData *data = bmpdest->active_bitmap;
+		ActiveBitmapData *data = bmpdest->active_bitmap;
 		BYTE *v = ((BYTE*)data->scan0);
 		ARGB *scan;
 		ColorMatrixFlags flags = cmatrix->colormatrix_flags;

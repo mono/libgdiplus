@@ -24,7 +24,7 @@ using namespace DllExports;
 struct bm 
 {
 	BitmapData data;
-	char spoil1[128]; // Space eaten at by the real BitmapData ...
+	char spoil1[128]; // Space eaten at by the real ActiveBitmapData ...
 };
 
 
