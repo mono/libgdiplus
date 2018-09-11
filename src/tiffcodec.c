@@ -542,7 +542,7 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 		uint16	*sample;
 
 		if (TIFFGetField(tiff, TIFFTAG_TRANSFERFUNCTION, &sample)) {
-			gdip_bitmapdata_property_add (bitmap_data, PropertyTagTransferFunction, 
+			gdip_bitmapdata_property_add (bitmap_data, PropertyTagTransferFuncition, 
 				(1 << bits_per_sample) * (ULONG) sizeof(uint16), PropertyTagTypeShort, sample);
 		}
 	} else if (samples_per_pixel == 3) {
@@ -563,7 +563,7 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 					ptr[i + 1] = g[i];
 					ptr[i + 2] = b[i];
 				}
-				gdip_bitmapdata_property_add (bitmap_data, PropertyTagTransferFunction, 
+				gdip_bitmapdata_property_add (bitmap_data, PropertyTagTransferFuncition, 
 					3 * (1 << samples_per_pixel) * sizeof(uint16), PropertyTagTypeShort, buffer);
 				GdipFree(buffer);
 			}
@@ -587,7 +587,7 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 				ptr[2] = whitepoints[1] * 1000000;
 				ptr[3] = 1000000;
 
-				gdip_bitmapdata_property_add (bitmap_data, PropertyTagTransferFunction, 
+				gdip_bitmapdata_property_add (bitmap_data, PropertyTagTransferFuncition, 
 					2 * (sizeof(uint32) + sizeof(uint32)), PropertyTagTypeRational, buffer);
 				GdipFree(buffer);
 			}
@@ -855,11 +855,11 @@ gdip_save_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data, int sample
 
 
 	if (samples_per_pixel == 1) {
-		if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagTransferFunction, &index) == Ok) {
+		if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagTransferFuncition, &index) == Ok) {
 			TIFFSetField(tiff, TIFFTAG_TRANSFERFUNCTION, bitmap_data->property[index].value);
 		}
 	} else if (samples_per_pixel == 3) {
-		if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagTransferFunction, &index) == Ok) {
+		if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagTransferFuncition, &index) == Ok) {
 			uint16	*rmap;
 			uint16	*gmap;
 			uint16	*bmap;

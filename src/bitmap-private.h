@@ -79,7 +79,7 @@ typedef struct {
 	int		stride;
 	int		pixel_format;
 	BYTE 		*scan0;
-	unsigned int	reserved;
+	UINT_PTR	reserved;
 	/* the rest of the structure isn't part of MS GDI+ definition */
 	ColorPalette	*palette;
 	int		property_count;		/* Number of properties */

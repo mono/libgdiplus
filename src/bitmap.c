@@ -1894,7 +1894,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST GpRect *rect, UINT flags, PixelF
 	dest_data->pixel_format = format;
 	dest_data->palette = NULL;
 
-	if (format == src_data->pixel_format && (flags & ImageLockModeUserInputBuf) == 0) {
+	if (format != PixelFormat24bppRGB && format == src_data->pixel_format && (flags & ImageLockModeUserInputBuf) == 0) {
 		// No conversion needed, just read the bits directly.
 		dest_data->stride = src_data->stride;
 		dest_data->scan0 = src_data->scan0;

@@ -56,12 +56,6 @@ typedef struct {
 } ColorMatrix;
 
 typedef struct {
-	UINT Flags;
-	UINT Count;
-	ARGB Entries[1];
-} ColorPalette;
-
-typedef struct {
         int X, Y;
 } Point, GpPoint;
 
@@ -74,13 +68,6 @@ typedef struct {
         PointF *Points;
         BYTE *Types;
 } PathData, GpPathData;
-
-typedef struct {
-	PROPID	id;
-	ULONG	length;
-	WORD	type;
-	VOID*	value;
-} PropertyItem;
 
 typedef struct {
 	int X, Y, Width, Height;

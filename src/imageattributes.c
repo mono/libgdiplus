@@ -191,8 +191,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				b = (int) powf (b, (1 / gamma->gamma_correction));
 				a = (int) powf (a, (1 / gamma->gamma_correction));*/
 
-				color = b | (g  << 8) | (r << 16) | (a << 24);
-
+				color = (a << 24) | (r << 16) | (g  << 8) | b;
 				GdipBitmapSetPixel (bmpdest, x, y, color);
 			}
 		}
