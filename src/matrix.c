@@ -170,11 +170,12 @@ GdipCreateMatrix3 (GDIPCONST GpRectF *rect, GDIPCONST GpPointF *dstplg, GpMatrix
 		return OutOfMemory;
 
 	status = gdip_matrix_init_from_rect_3points (result, rect, dstplg);
-	if (status == Ok)
-		*matrix = result;
-	else
-		GdipFree (result);
-
+	if (status != Ok) {
+		*matrix = NULL;
+		return status;
+	}
+	
+	*matrix = result;
 	return status;
 }
 

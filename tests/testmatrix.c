@@ -47,12 +47,11 @@ static void test_createMatrix2 ()
 	status = GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 1, 2, 3, 4, 5, 6);
+	GdipDeleteMatrix (matrix);
 
 	// Negative tests.
 	status = GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, NULL);
 	assertEqualInt (status, InvalidParameter);
-
-	GdipDeleteMatrix (matrix);
 }
 
 static void test_createMatrix3 ()
@@ -60,30 +59,73 @@ static void test_createMatrix3 ()
 	GpStatus status;
 	GpMatrix *matrix;
 	GpRectF rect = {5, 6, 8, 10};
-	GpPointF points[3];
-
-	points[0].X = 12;
-	points[0].Y = 14;
-	points[1].X = -10;
-	points[1].Y = 20;
-	points[2].X = 8;
-	points[2].Y = 0;
+	GpRectF negativeRect = {-5, -6, -8, -10};
+	GpRectF zeroWidthRect = {1, 2, 0, 4};
+	GpRectF zeroHeightRect = {1, 2, 3, 0};
+	GpPointF points[3] = {
+		{12, 14},
+		{-10, 20},
+		{8, 0}
+	};
+	GpPointF rectPoints[3] = {
+		{5, 6},
+		{13, 6},
+		{5, 16},
+	};
+	GpPointF zeroPoints[3] = {
+		{0, 0},
+		{0, 0},
+		{0, 0}
+	};
 
 	status = GdipCreateMatrix3 (&rect, points, &matrix);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, -2.75f, 0.75f, -0.4f, -1.4f, 28.15f, 18.65f);
+	GdipDeleteMatrix (matrix);
+
+	status = GdipCreateMatrix3 (&rect, rectPoints, &matrix);
+	assertEqualInt (status, Ok);
+	verifyMatrix (matrix, 1, 0, 0, 1, 0, 0);
+	GdipDeleteMatrix (matrix);
+
+	status = GdipCreateMatrix3 (&rect, zeroPoints, &matrix);
+	assertEqualInt (status, Ok);
+	verifyMatrix (matrix, 0, 0, 0, 0, 0, 0);
+	GdipDeleteMatrix (matrix);
+
+	status = GdipCreateMatrix3 (&negativeRect, points, &matrix);
+	assertEqualInt (status, Ok);
+	verifyMatrix (matrix, 2.75f, -0.75f, 0.4f, 1.4f, 28.15f, 18.65f);
+	GdipDeleteMatrix (matrix);
+
+	status = GdipCreateMatrix3 (&negativeRect, zeroPoints, &matrix);
+	assertEqualInt (status, Ok);
+	verifyMatrix (matrix, 0, 0, 0, 0, 0, 0);
+	GdipDeleteMatrix (matrix);
 
 	// Negative tests.
+	matrix = (GpMatrix *) 0xCC;
 	status = GdipCreateMatrix3 (NULL, points, &matrix);
 	assertEqualInt (status, InvalidParameter);
+	assert (matrix == (GpMatrix *) 0xCC);
 
+	matrix = (GpMatrix *) 0xCC;
 	status = GdipCreateMatrix3 (&rect, NULL, &matrix);
 	assertEqualInt (status, InvalidParameter);
+	assert (matrix == (GpMatrix *) 0xCC);
 
 	status = GdipCreateMatrix3 (&rect, points, NULL);
 	assertEqualInt (status, InvalidParameter);
-
-	GdipDeleteMatrix (matrix);
+	
+	matrix = (GpMatrix *) 0xCC;
+	status = GdipCreateMatrix3 (&zeroWidthRect, points, &matrix);
+	assertEqualInt (status, OutOfMemory);
+	assert (!matrix);
+	
+	matrix = (GpMatrix *) 0xCC;
+	status = GdipCreateMatrix3 (&zeroHeightRect, points, &matrix);
+	assertEqualInt (status, OutOfMemory);
+	assert (!matrix);
 }
 
 static void test_createMatrix3I ()
@@ -91,30 +133,73 @@ static void test_createMatrix3I ()
 	GpStatus status;
 	GpMatrix *matrix;
 	GpRect rect = {5, 6, 8, 10};
-	GpPoint points[3];
-
-	points[0].X = 12;
-	points[0].Y = 14;
-	points[1].X = -10;
-	points[1].Y = 20;
-	points[2].X = 8;
-	points[2].Y = 0;
+	GpRect negativeRect = {-5, -6, -8, -10};
+	GpRect zeroWidthRect = {1, 2, 0, 4};
+	GpRect zeroHeightRect = {1, 2, 3, 0};
+	GpPoint points[3] = {
+		{12, 14},
+		{-10, 20},
+		{8, 0}
+	};
+	GpPoint rectPoints[3] = {
+		{5, 6},
+		{13, 6},
+		{5, 16},
+	};
+	GpPoint zeroPoints[3] = {
+		{0, 0},
+		{0, 0},
+		{0, 0}
+	};
 
 	status = GdipCreateMatrix3I (&rect, points, &matrix);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, -2.75f, 0.75f, -0.4f, -1.4f, 28.15f, 18.65f);
+	GdipDeleteMatrix (matrix);
+
+	status = GdipCreateMatrix3I (&rect, rectPoints, &matrix);
+	assertEqualInt (status, Ok);
+	verifyMatrix (matrix, 1, 0, 0, 1, 0, 0);
+	GdipDeleteMatrix (matrix);
+
+	status = GdipCreateMatrix3I (&rect, zeroPoints, &matrix);
+	assertEqualInt (status, Ok);
+	verifyMatrix (matrix, 0, 0, 0, 0, 0, 0);
+	GdipDeleteMatrix (matrix);
+
+	status = GdipCreateMatrix3I (&negativeRect, points, &matrix);
+	assertEqualInt (status, Ok);
+	verifyMatrix (matrix, 2.75f, -0.75f, 0.4f, 1.4f, 28.15f, 18.65f);
+	GdipDeleteMatrix (matrix);
+
+	status = GdipCreateMatrix3I (&negativeRect, zeroPoints, &matrix);
+	assertEqualInt (status, Ok);
+	verifyMatrix (matrix, 0, 0, 0, 0, 0, 0);
+	GdipDeleteMatrix (matrix);
 
 	// Negative tests.
+	matrix = (GpMatrix *) 0xCC;
 	status = GdipCreateMatrix3I (NULL, points, &matrix);
 	assertEqualInt (status, InvalidParameter);
+	assert (matrix == (GpMatrix *) 0xCC);
 
+	matrix = (GpMatrix *) 0xCC;
 	status = GdipCreateMatrix3I (&rect, NULL, &matrix);
 	assertEqualInt (status, InvalidParameter);
+	assert (matrix == (GpMatrix *) 0xCC);
 
 	status = GdipCreateMatrix3I (&rect, points, NULL);
 	assertEqualInt (status, InvalidParameter);
-
-	GdipDeleteMatrix (matrix);
+	
+	matrix = (GpMatrix *) 0xCC;
+	status = GdipCreateMatrix3I (&zeroWidthRect, points, &matrix);
+	assertEqualInt (status, OutOfMemory);
+	assert (!matrix);
+	
+	matrix = (GpMatrix *) 0xCC;
+	status = GdipCreateMatrix3I (&zeroHeightRect, points, &matrix);
+	assertEqualInt (status, OutOfMemory);
+	assert (!matrix);
 }
 
 static void test_cloneMatrix ()
@@ -129,16 +214,18 @@ static void test_cloneMatrix ()
 	assertEqualInt (status, Ok);
 	assert (clonedMatrix && clonedMatrix != matrix);
 	verifyMatrix (clonedMatrix, 1, 2, 3, 4, 5, 6);
+	GdipDeleteMatrix (clonedMatrix);
 
 	// Negative tests.
+	clonedMatrix = (GpMatrix *) 0xCC;
 	status = GdipCloneMatrix (NULL, &clonedMatrix);
 	assertEqualInt (status, InvalidParameter);
+	assert (clonedMatrix == (GpMatrix *) 0xCC);
 
 	status = GdipCloneMatrix (matrix, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeleteMatrix (matrix);
-	GdipDeleteMatrix (clonedMatrix);
 }
 
 static void test_deleteMatrix ()
