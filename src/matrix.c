@@ -249,12 +249,12 @@ GdipGetMatrixElements (GDIPCONST GpMatrix *matrix, REAL *matrixOut)
 	if (!matrix || !matrixOut)
 		return InvalidParameter;
 
-	matrixOut[0] = (float) matrix->xx;
-	matrixOut[1] = (float) matrix->yx;
-	matrixOut[2] = (float) matrix->xy;
-	matrixOut[3] = (float) matrix->yy;
-	matrixOut[4] = (float) matrix->x0;
-	matrixOut[5] = (float) matrix->y0;
+	matrixOut[0] = (REAL) matrix->xx;
+	matrixOut[1] = (REAL) matrix->yx;
+	matrixOut[2] = (REAL) matrix->xy;
+	matrixOut[3] = (REAL) matrix->yy;
+	matrixOut[4] = (REAL) matrix->x0;
+	matrixOut[5] = (REAL) matrix->y0;
 
 	return Ok;
 }
@@ -326,18 +326,16 @@ GdipInvertMatrix (GpMatrix *matrix)
 GpStatus WINGDIPAPI
 GdipTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, INT count)
 {
-	int i;
-
-	if (!matrix || !pts || (count < 1))
+	if (!matrix || !pts || count <= 0)
 		return InvalidParameter;
 
-	for (i = 0; i < count; i++, pts++) {
+	for (int i = 0; i < count; i++, pts++) {
 		double x = pts->X;
 		double y = pts->Y;
 		cairo_matrix_transform_point (matrix, &x, &y);
 
-		pts->X = (float) x;
-		pts->Y = (float) y;
+		pts->X = (REAL) x;
+		pts->Y = (REAL) y;
 	}
 
 	return Ok;
@@ -346,21 +344,18 @@ GdipTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, INT count)
 GpStatus WINGDIPAPI
 GdipTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, INT count)
 {
-	int i;
-
+	if (count < 0)
+		return OutOfMemory;
 	if (!matrix || !pts || count == 0)
 		return InvalidParameter;
 
-	if (count < 0)
-		return OutOfMemory;
-
-	for (i = 0; i < count; i++, pts++) {
+	for (int i = 0; i < count; i++, pts++) {
 		double x = pts->X;
 		double y = pts->Y;
 		cairo_matrix_transform_point (matrix, &x, &y);
 
-		pts->X = (int) x;
-		pts->Y = (int) y;
+		pts->X = iround (x);
+		pts->Y = iround (y);
 	}
 
 	return Ok;
@@ -369,18 +364,16 @@ GdipTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, INT count)
 GpStatus WINGDIPAPI
 GdipVectorTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, INT count)
 {
-	int i;
-
-	if (!matrix || !pts || (count < 1))
+	if (!matrix || !pts || count <= 0)
 		return InvalidParameter;
 
-	for (i = 0; i < count; i++, pts++) {
+	for (int i = 0; i < count; i++, pts++) {
 		double x = pts->X;
 		double y = pts->Y;
 		cairo_matrix_transform_distance (matrix, &x, &y);
 
-		pts->X = (float) x;
-		pts->Y = (float) y;
+		pts->X = (REAL) x;
+		pts->Y = (REAL) y;
 	}
 
 	return Ok;
@@ -389,18 +382,16 @@ GdipVectorTransformMatrixPoints (GpMatrix *matrix, GpPointF *pts, INT count)
 GpStatus WINGDIPAPI
 GdipVectorTransformMatrixPointsI (GpMatrix *matrix, GpPoint *pts, INT count)
 {
-	int i;
-
-	if (!matrix || !pts || (count < 1))
+	if (!matrix || !pts || count <= 0)
 		return InvalidParameter;
 
-	for (i = 0; i < count; i++, pts++) {
+	for (int i = 0; i < count; i++, pts++) {
 		double x = pts->X;
 		double y = pts->Y;
 		cairo_matrix_transform_distance (matrix, &x, &y);
 
-		pts->X = (int) x;
-		pts->Y = (int) y;
+		pts->X = iround (x);
+		pts->Y = iround (y);
 	}
 
 	return Ok;
@@ -428,7 +419,7 @@ GdipIsMatrixIdentity (GDIPCONST GpMatrix *matrix, BOOL *result)
 	if (!matrix || !result)
 		return InvalidParameter;
 
-	/* note: we CAN'T use GdipIsMatrixEqual - as the precision is different */
+	// We can't use GdipIsMatrixEqual as the precision is different.
 	*result = gdip_is_matrix_empty (matrix);
 	return Ok;
 }
