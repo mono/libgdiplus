@@ -740,13 +740,10 @@ static void test_isMatrixIdentity ()
 	assert (isIdentity == TRUE);
 
 	// Less close to identity.
-	// FIXME: it appears that GDI+ is less precise than GDI+.
-#if defined(USE_WINDOWS_GDIPLUS)
 	GdipSetMatrixElements (matrix, 0.9998f, -0.0001f, 0.0001f, 1.0001f, 0, 0);
 	status = GdipIsMatrixIdentity (matrix, &isIdentity);
 	assertEqualInt (status, Ok);
 	assert (isIdentity == TRUE);
-#endif
 
 	// Not identity.
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
