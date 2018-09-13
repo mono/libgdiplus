@@ -584,8 +584,10 @@ GdipCreateLineBrushFromRectI (GDIPCONST GpRect *rect, ARGB color1, ARGB color2, 
 	if (!rect || !lineGradient)
 		return InvalidParameter;
 
-	if (mode < LinearGradientModeHorizontal || mode > LinearGradientModeBackwardDiagonal)
+	if (mode < LinearGradientModeHorizontal || mode > LinearGradientModeBackwardDiagonal) {
+		*lineGradient = NULL;
 		return OutOfMemory;
+	}
 
 	gdip_RectF_from_Rect (rect, &rectf);
 	return GdipCreateLineBrushFromRect (&rectf, color1, color2, mode, wrapMode, lineGradient);
@@ -601,8 +603,10 @@ GdipCreateLineBrushFromRect (GDIPCONST GpRectF *rect, ARGB color1, ARGB color2, 
 	if (!rect || !lineGradient)
 		return InvalidParameter;
 
-	if (mode < LinearGradientModeHorizontal || mode > LinearGradientModeBackwardDiagonal)
+	if (mode < LinearGradientModeHorizontal || mode > LinearGradientModeBackwardDiagonal) {
+		*lineGradient = NULL;
 		return OutOfMemory;
+	}
 
 	return GdipCreateLineBrushFromRectWithAngle (rect, color1, color2,
 		get_angle_from_linear_gradient_mode (mode), TRUE, wrapMode, lineGradient);
@@ -637,8 +641,10 @@ GdipCreateLineBrushFromRectWithAngle (GDIPCONST GpRectF *rect, ARGB color1, ARGB
 	if (!rect || !lineGradient || wrapMode == WrapModeClamp)
 		return InvalidParameter;
 
-	if (rect->Width == 0.0 || rect->Height == 0.0)
+	if (rect->Width == 0.0 || rect->Height == 0.0) {
+		*lineGradient = NULL;
 		return OutOfMemory;
+	}
 
 	linear = gdip_linear_gradient_new ();
 	if (!linear)
