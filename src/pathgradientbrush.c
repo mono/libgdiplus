@@ -467,8 +467,10 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, INT count, GpWrapMode wrapMo
 	if (!polyGradient)
 		return InvalidParameter;
 
-	if (!points || count < 2 || wrapMode < WrapModeTile || wrapMode > WrapModeClamp)
+	if (!points || count < 2 || wrapMode < WrapModeTile || wrapMode > WrapModeClamp) {
+		*polyGradient = NULL;
 		return OutOfMemory;
+	}
 
 	gp = gdip_pathgradient_new ();
 	if (!gp)
@@ -500,6 +502,11 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, INT count, GpWrapMode wrapMo
 		gdip_rect_expand_by (&gp->rectangle, &point);
 	}
 
+	if (gp->rectangle.Width == 0 || gp->rectangle.Height == 0) {
+		GdipDeleteBrush ((GpBrush *) gp);
+		*polyGradient = NULL;
+		return OutOfMemory;
+	}
 
 	*polyGradient = gp;
 	return Ok;
@@ -543,8 +550,10 @@ GdipCreatePathGradientFromPath (GDIPCONST GpPath *path, GpPathGradient **polyGra
 	if (!polyGradient)
 		return InvalidParameter;
 
-	if (!path || (path->count < 2))
+	if (!path || (path->count < 2)) {
+		*polyGradient = NULL;
 		return OutOfMemory;
+	}
 
 	gp = gdip_pathgradient_new ();
 	if (!gp)
@@ -1237,12 +1246,6 @@ GdipGetPathGradientTransform (GpPathGradient *brush, GpMatrix *matrix)
 {
 	if (!brush || !matrix)
 		return InvalidParameter;
-
-	/* If presetcolors are set, we are not in a proper state 
-	 * to return transform property.
-	 */
-	if (brush->presetColors->count >= 2)
-		return WrongState;
 
 	gdip_cairo_matrix_copy (matrix, &brush->transform);
 	return Ok;

@@ -78,73 +78,156 @@ static void test_createPathGradient ()
 {
     GpStatus status;
     GpPathGradient *brush;
-    GpPointF points[2] =
-    {
-		{1, 2},
-		{-10, 11}
+    GpPointF points[2] = {
+        {1, 2},
+        {-10, 11}
     };
-    GpPointF points3[3] =
-    {
-		{3, 13},
-		{1, 2},
-		{5, 6}
+    GpPointF points3[3] = {
+        {3, 13},
+        {1, 2},
+        {5, 6}
+    };
+    GpPointF zeroWidthPoints[3] = {
+        {1, 2},
+        {1, 4},
+        {1, 6}
+    };
+    GpPointF zeroHeightPoints[3] = {
+        {2, 1},
+        {4, 1},
+        {6, 1}
     };
 
     // WrapModeClamp.
     status = GdipCreatePathGradient (points, 2, WrapModeClamp, &brush);
     assertEqualInt (status, Ok);
     verifyPathGradientBrush (brush, -10, 2, 11, 9, 0xff000000, -4.5, 6.5, WrapModeClamp);
+    GdipDeleteBrush ((GpBrush *) brush);
 
     // WrapModeTileFlipXY.
     status = GdipCreatePathGradient (points, 2, WrapModeTileFlipX, &brush);
     assertEqualInt (status, Ok);
     verifyPathGradientBrush (brush, -10, 2, 11, 9, 0xff000000, -4.5, 6.5, WrapModeTileFlipX);
+    GdipDeleteBrush ((GpBrush *) brush);
 
     // WrapModeTileFlipY.
     status = GdipCreatePathGradient (points, 2, WrapModeTileFlipY, &brush);
     assertEqualInt (status, Ok);
     verifyPathGradientBrush (brush, -10, 2, 11, 9, 0xff000000, -4.5, 6.5, WrapModeTileFlipY);
+    GdipDeleteBrush ((GpBrush *) brush);
 
     // WrapModeTileFlipX.
     status = GdipCreatePathGradient (points, 2, WrapModeTileFlipX, &brush);
     assertEqualInt (status, Ok);
     verifyPathGradientBrush (brush, -10, 2, 11, 9, 0xff000000, -4.5, 6.5, WrapModeTileFlipX);
+    GdipDeleteBrush ((GpBrush *) brush);
 
     // WrapModeTile.
     status = GdipCreatePathGradient (points3, 3, WrapModeTile, &brush);
     assertEqualInt (status, Ok);
     verifyPathGradientBrush (brush, 1, 2, 4, 11, 0xff000000, 3, 7, WrapModeTile);
+    GdipDeleteBrush ((GpBrush *) brush);
 
     // Negative tests.
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradient (NULL, 2, WrapModeClamp, &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradient (NULL, 1, WrapModeClamp, &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradient (NULL, 0, WrapModeClamp, &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradient (NULL, -1, WrapModeClamp, &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradient (NULL, 2, WrapModeClamp, NULL);
     assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpPathGradient *) 0xCC);
 
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradient (zeroWidthPoints, 3, WrapModeTile, &brush);
+    assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradient (zeroWidthPoints, 0, WrapModeTile, &brush);
+    assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradient (zeroWidthPoints, -1, WrapModeTile, &brush);
+    assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradient (zeroWidthPoints, 3, (WrapMode)(WrapModeClamp + 1), NULL);
+    assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpPathGradient *) 0xCC);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradient (zeroWidthPoints, 3, WrapModeTile, NULL);
+    assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpPathGradient *) 0xCC);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradient (zeroHeightPoints, 3, WrapModeTile, &brush);
+    assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradient (zeroHeightPoints, 0, WrapModeTile, &brush);
+    assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradient (zeroHeightPoints, -1, WrapModeTile, &brush);
+    assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradient (zeroHeightPoints, 3, (WrapMode)(WrapModeClamp + 1), NULL);
+    assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpPathGradient *) 0xCC);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradient (zeroHeightPoints, 3, WrapModeTile, NULL);
+    assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpPathGradient *) 0xCC);
+
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradient (points, 1, WrapModeClamp, &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradient (points, 0, WrapModeClamp, &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradient (points, -1, WrapModeClamp, &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradient (points, 2, (WrapMode)(WrapModeTile - 1), &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradient (points, 2, (WrapMode)(WrapModeClamp + 1), &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
 
     status = GdipCreatePathGradient (points, 2, WrapModeClamp, NULL);
     assertEqualInt (status, InvalidParameter);
@@ -160,45 +243,55 @@ static void test_createPathGradient ()
 
     status = GdipCreatePathGradient (points, 2, (WrapMode)(WrapModeClamp + 1), NULL);
     assertEqualInt (status, InvalidParameter);
-
-    GdipDeleteBrush ((GpBrush *) brush);
 }
 
 static void test_createPathGradientI ()
 {
     GpStatus status;
     GpPathGradient *brush;
-    GpPoint points[2] =
-    {
-		{1, 2},
-		{-10, 11}
+    GpPoint points[2] = {
+        {1, 2},
+        {-10, 11}
     };
-    GpPoint points3[3] =
-    {
-		{3, 13},
-		{1, 2},
-		{5, 6}
+    GpPoint points3[3] = {
+        {3, 13},
+        {1, 2},
+        {5, 6}
+    };
+    GpPoint zeroWidthPoints[3] = {
+        {1, 2},
+        {1, 4},
+        {1, 6}
+    };
+    GpPoint zeroHeightPoints[3] = {
+        {2, 1},
+        {4, 1},
+        {6, 1}
     };
 
     // WrapModeClamp.
     status = GdipCreatePathGradientI (points, 2, WrapModeClamp, &brush);
     assertEqualInt (status, Ok);
     verifyPathGradientBrush (brush, -10, 2, 11, 9, 0xFF000000, -4.5, 6.5, WrapModeClamp);
+    GdipDeleteBrush (brush);
 
     // WrapModeTileFlipXY.
     status = GdipCreatePathGradientI (points, 2, WrapModeTileFlipX, &brush);
     assertEqualInt (status, Ok);
     verifyPathGradientBrush (brush, -10, 2, 11, 9, 0xFF000000, -4.5, 6.5, WrapModeTileFlipX);
+    GdipDeleteBrush (brush);
 
     // WrapModeTileFlipY.
     status = GdipCreatePathGradientI (points, 2, WrapModeTileFlipY, &brush);
     assertEqualInt (status, Ok);
     verifyPathGradientBrush (brush, -10, 2, 11, 9, 0xFF000000, -4.5, 6.5, WrapModeTileFlipY);
+    GdipDeleteBrush (brush);
 
     // WrapModeTileFlipX.
     status = GdipCreatePathGradientI (points, 2, WrapModeTileFlipX, &brush);
     assertEqualInt (status, Ok);
     verifyPathGradientBrush (brush, -10, 2, 11, 9, 0xFF000000, -4.5, 6.5, WrapModeTileFlipX);
+    GdipDeleteBrush (brush);
 
     // WrapModeTile.
     status = GdipCreatePathGradientI (points3, 3, WrapModeTile, &brush);
@@ -206,35 +299,105 @@ static void test_createPathGradientI ()
     verifyPathGradientBrush (brush, 1, 2, 4, 11, 0xFF000000, 3, 7, WrapModeTile);
 
     // Negative tests.
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradientI (NULL, 2, WrapModeClamp, &brush);
     assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpPathGradient *) 0xCC);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradientI (NULL, 1, WrapModeClamp, &brush);
     assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpPathGradient *) 0xCC);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradientI (NULL, 0, WrapModeClamp, &brush);
     assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpPathGradient *) 0xCC);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradientI (NULL, -1, WrapModeClamp, &brush);
     assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpPathGradient *) 0xCC);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradientI (NULL, 2, WrapModeClamp, NULL);
     assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpPathGradient *) 0xCC);
 
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradientI (zeroWidthPoints, 3, WrapModeTile, &brush);
+    assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradientI (zeroWidthPoints, 0, WrapModeTile, &brush);
+    assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradientI (zeroWidthPoints, -1, WrapModeTile, &brush);
+    assertEqualInt (status, OutOfMemory);
+    assert (brush == (GpPathGradient *) 0xCC);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradientI (zeroWidthPoints, 3, (WrapMode)(WrapModeClamp + 1), NULL);
+    assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpPathGradient *) 0xCC);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradientI (zeroWidthPoints, 3, WrapModeTile, NULL);
+    assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpPathGradient *) 0xCC);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradientI (zeroHeightPoints, 3, WrapModeTile, &brush);
+    assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradientI (zeroHeightPoints, 0, WrapModeTile, &brush);
+    assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradientI (zeroHeightPoints, -1, WrapModeTile, &brush);
+    assertEqualInt (status, OutOfMemory);
+    assert (brush == (GpPathGradient *) 0xCC);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradientI (zeroHeightPoints, 3, (WrapMode)(WrapModeClamp + 1), NULL);
+    assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpPathGradient *) 0xCC);
+
+    brush = (GpPathGradient *) 0xCC;
+    status = GdipCreatePathGradientI (zeroHeightPoints, 3, WrapModeTile, NULL);
+    assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpPathGradient *) 0xCC);
+
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradientI (points, 1, WrapModeClamp, &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradientI (points, 0, WrapModeClamp, &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradientI (points, -1, WrapModeClamp, &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == (GpPathGradient *) 0xCC);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradientI (points, 2, (WrapMode)(WrapModeTile - 1), &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradientI (points, 2, (WrapMode)(WrapModeClamp + 1), &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
 
     status = GdipCreatePathGradientI (points, 2, WrapModeClamp, NULL);
     assertEqualInt (status, InvalidParameter);
@@ -250,8 +413,6 @@ static void test_createPathGradientI ()
 
     status = GdipCreatePathGradientI (points, 2, (WrapMode)(WrapModeClamp + 1), NULL);
     assertEqualInt (status, InvalidParameter);
-
-    GdipDeleteBrush ((GpBrush *) brush);
 }
 
 static void test_createPathGradientFromPath ()
@@ -260,30 +421,25 @@ static void test_createPathGradientFromPath ()
     GpPathGradient *brush;
     GpPath *linePath;
     GpPath *emptyPath;
-    BYTE types[3] = {1, 2, 3};
-    GpPath *invalidPath;
 
     GdipCreatePath (FillModeWinding, &linePath);
     GdipAddPathRectangle (linePath, 10, 20, 30, 40);
-    GdipCreatePath (FillModeWinding, &emptyPath);    
-    GdipCreatePath2 (threePoints, types, 3, FillModeAlternate, &invalidPath);
+    GdipCreatePath (FillModeWinding, &emptyPath);
 
     status = GdipCreatePathGradientFromPath (linePath, &brush);
     assertEqualInt (status, Ok);
     verifyPathGradientBrush (brush, 10, 20, 30, 40, 0xFFFFFFFF, 25, 40, WrapModeClamp);
 
     // Negative tests.
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradientFromPath (NULL, &brush);
     assertEqualInt (status, OutOfMemory);
+    assert (brush == NULL);
 
+    brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradientFromPath (emptyPath, &brush);
     assertEqualInt (status, OutOfMemory);
-
-    // FIXME: GDI+ performs some validation on the path.
-#if defined(USE_WINDOWS_GDIPLUS)
-    status = GdipCreatePathGradientFromPath (invalidPath, &brush);
-    assertEqualInt (status, OutOfMemory);
-#endif
+    assert (brush == NULL);
 
     status = GdipCreatePathGradientFromPath (NULL, NULL);
     assertEqualInt (status, InvalidParameter);
@@ -291,10 +447,12 @@ static void test_createPathGradientFromPath ()
     status = GdipCreatePathGradientFromPath (linePath, NULL);
     assertEqualInt (status, InvalidParameter);
 
+    status = GdipCreatePathGradientFromPath (emptyPath, NULL);
+    assertEqualInt (status, InvalidParameter);
+
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDeletePath (linePath);
     GdipDeletePath (emptyPath);
-    GdipDeletePath (invalidPath);
 }
 
 static void test_getPathGradientCenterColor ()
@@ -323,14 +481,14 @@ static void test_setPathGradientCenterColor ()
 
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
 
-    status = GdipSetPathGradientCenterColor (brush, 2);
+    status = GdipSetPathGradientCenterColor (brush, 0x01020304);
     assertEqualInt (status, Ok);
 
     GdipGetPathGradientCenterColor (brush, &centerColor);
-    assertEqualInt (centerColor, 2);
+    assertEqualInt (centerColor, 0x01020304);
 
     // Negative tests.
-    status = GdipSetPathGradientCenterColor (NULL, 1);
+    status = GdipSetPathGradientCenterColor (NULL, 0x01020304);
     assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
@@ -339,23 +497,37 @@ static void test_setPathGradientCenterColor ()
 static void test_getPathGradientSurroundColorCount ()
 {
     GpStatus status;
+    GpPath *path;
     GpPathGradient *brush;
     INT count;
 
-    // Three points.
+    GdipCreatePath (FillModeWinding, &path);
+    GdipAddPathRectangle (path, 1, 2, 3, 4);
+
+    // From three points.
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
 
     status = GdipGetPathGradientSurroundColorCount (brush, &count);
     assertEqualInt (status, Ok);
     assertEqualInt (count, 3);
+
     GdipDeleteBrush ((GpBrush *) brush);
 
-    // Two points.
+    // From two points.
     GdipCreatePathGradient (threePoints, 2, WrapModeTileFlipXY, &brush);
 
     status = GdipGetPathGradientSurroundColorCount (brush, &count);
     assertEqualInt (status, Ok);
     assertEqualInt (count, 2);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // From path.
+    GdipCreatePathGradientFromPath (path, &brush);
+
+    status = GdipGetPathGradientSurroundColorCount (brush, &count);
+    assertEqualInt (status, Ok);
+    assertEqualInt (count, 4);
 
     // Negative tests
     status = GdipGetPathGradientSurroundColorCount (NULL, &count);
@@ -365,16 +537,21 @@ static void test_getPathGradientSurroundColorCount ()
     assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
+    GdipDeletePath (path);
 }
 
 static void test_getPathGradientSurroundColorsWithCount ()
 {
     GpStatus status;
+    GpPath *path;
     GpPathGradient *brush;
-    ARGB colors[3] = {0, 0, 0};
+    ARGB colors[5] = {0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000};
     INT count = 3;
 
-    // Three points.
+    GdipCreatePath (FillModeWinding, &path);
+    GdipAddPathRectangle (path, 1, 2, 3, 4);
+
+    // From points.
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
 
     status = GdipGetPathGradientSurroundColorsWithCount (brush, colors, &count);
@@ -383,6 +560,27 @@ static void test_getPathGradientSurroundColorsWithCount ()
     assertEqualInt (colors[0], 0xFFFFFFFF);
     assertEqualInt (colors[1], 0xFFFFFFFF);
     assertEqualInt (colors[2], 0xFFFFFFFF);
+    assertEqualInt (colors[3], 0x00000000);
+    assertEqualInt (colors[4], 0x00000000);
+
+    colors[0] = 0x00000000;
+    colors[1] = 0x00000000;
+    colors[2] = 0x00000000;
+    colors[3] = 0x00000000;
+    colors[4] = 0x00000000;
+
+    // From path.
+    GdipCreatePathGradientFromPath (path, &brush);
+
+    count = 100;
+    status = GdipGetPathGradientSurroundColorsWithCount (brush, colors, &count);
+    assertEqualInt (status, Ok);
+    assertEqualInt (count, 1);
+    assertEqualInt (colors[0], 0xFFFFFFFF);
+    assertEqualInt (colors[1], 0xFFFFFFFF);
+    assertEqualInt (colors[2], 0xFFFFFFFF);
+    assertEqualInt (colors[3], 0xFFFFFFFF);
+    assertEqualInt (colors[4], 0x00000000);
 
     // Negative tests
     status = GdipGetPathGradientSurroundColorsWithCount (NULL, colors, &count);
@@ -414,18 +612,22 @@ static void test_getPathGradientSurroundColorsWithCount ()
     assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
+    GdipDeletePath (path);
 }
 
 static void test_setPathGradientSurroundColorsWithCount ()
 {
     GpStatus status;
+    GpPath *path;
     GpPathGradient *brush;
-    ARGB threeSurroundColors[3] = {1, 2, 3};
-    ARGB threeEmptyColors[3] = {0, 0, 0};
-    ARGB twoSameColors[2] = {1, 1};
-    ARGB colors[3];
+    ARGB threeSurroundColors[3] = {0x0000001, 0x0000002, 0x0000003};
+    ARGB threeEmptyColors[3] = {0x00000000, 0x00000000, 0x00000000};
+    ARGB twoSameColors[2] = {0x0000001, 0x0000001};
+    ARGB colors[4] = {0x00000000, 0x00000000, 0x00000000, 0x00000000};
     INT count = 3;
 
+    GdipCreatePath (FillModeWinding, &path);
+    GdipAddPathRectangle (path, 1, 2, 3, 4);
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
 
     // Three surround colors.
@@ -440,9 +642,37 @@ static void test_setPathGradientSurroundColorsWithCount ()
     status = GdipGetPathGradientSurroundColorsWithCount (brush, colors, &count);
     assertEqualInt (status, Ok);
     assertEqualInt (count, 3);
-    assertEqualInt (colors[0], 1);
-    assertEqualInt (colors[1], 2);
-    assertEqualInt (colors[2], 3);
+    assertEqualInt (colors[0], 0x000000001);
+    assertEqualInt (colors[1], 0x000000002);
+    assertEqualInt (colors[2], 0x000000003);
+    assertEqualInt (colors[3], 0x000000000);
+
+    colors[0] = 0x00000000;
+    colors[1] = 0x00000000;
+    colors[2] = 0x00000000;
+    colors[3] = 0x00000000;
+
+    // Same.
+    status = GdipSetPathGradientSurroundColorsWithCount (brush, threeSurroundColors, &count);
+    assertEqualInt (status, Ok);
+    assertEqualInt (count, 3);
+
+    count = 0xFF;
+    status = GdipGetPathGradientSurroundColorCount (brush, &count);
+    assertEqualInt (count, 3);
+
+    status = GdipGetPathGradientSurroundColorsWithCount (brush, colors, &count);
+    assertEqualInt (status, Ok);
+    assertEqualInt (count, 3);
+    assertEqualInt (colors[0], 0x000000001);
+    assertEqualInt (colors[1], 0x000000002);
+    assertEqualInt (colors[2], 0x000000003);
+    assertEqualInt (colors[3], 0x000000000);
+
+    colors[0] = 0x00000000;
+    colors[1] = 0x00000000;
+    colors[2] = 0x00000000;
+    colors[3] = 0x00000000;
 
     // Two empty colors.
     count = 2;
@@ -458,9 +688,15 @@ static void test_setPathGradientSurroundColorsWithCount ()
     status = GdipGetPathGradientSurroundColorsWithCount (brush, colors, &count);
     assertEqualInt (status, Ok);
     assertEqualInt (count, 1);
-    assertEqualInt (colors[0], 0);
-    assertEqualInt (colors[1], 0);
-    assertEqualInt (colors[2], 0);
+    assertEqualInt (colors[0], 0x000000000);
+    assertEqualInt (colors[1], 0x000000000);
+    assertEqualInt (colors[2], 0x000000000);
+    assertEqualInt (colors[3], 0x000000000);
+
+    colors[0] = 0x00000000;
+    colors[1] = 0x00000000;
+    colors[2] = 0x00000000;
+    colors[3] = 0x00000000;
 
     // Two same colors.
     count = 2;
@@ -476,9 +712,15 @@ static void test_setPathGradientSurroundColorsWithCount ()
     status = GdipGetPathGradientSurroundColorsWithCount (brush, colors, &count);
     assertEqualInt (status, Ok);
     assertEqualInt (count, 1);
-    assertEqualInt (colors[0], 1);
-    assertEqualInt (colors[1], 1);
-    assertEqualInt (colors[2], 1);
+    assertEqualInt (colors[0], 0x00000001);
+    assertEqualInt (colors[1], 0x00000001);
+    assertEqualInt (colors[2], 0x00000001);
+    assertEqualInt (colors[3], 0x00000000);
+
+    colors[0] = 0x00000000;
+    colors[1] = 0x00000000;
+    colors[2] = 0x00000000;
+    colors[3] = 0x00000000;
 
     // One surround color.
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
@@ -495,11 +737,47 @@ static void test_setPathGradientSurroundColorsWithCount ()
     status = GdipGetPathGradientSurroundColorsWithCount (brush, colors, &count);
     assertEqualInt (status, Ok);
     assertEqualInt (count, 1);
-    assertEqualInt (colors[0], 1);
-    assertEqualInt (colors[1], 1);
-    assertEqualInt (colors[2], 1);
+    assertEqualInt (colors[0], 0x00000001);
+    assertEqualInt (colors[1], 0x00000001);
+    assertEqualInt (colors[2], 0x00000001);
+    assertEqualInt (colors[3], 0x00000000);
 
-    // Negative tests
+    colors[0] = 0x00000000;
+    colors[1] = 0x00000000;
+    colors[2] = 0x00000000;
+    colors[3] = 0x00000000;
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // From path.
+    GdipCreatePathGradientFromPath (path, &brush);
+
+    status = GdipSetPathGradientSurroundColorsWithCount (brush, threeSurroundColors, &count);
+    assertEqualInt (status, Ok);
+    assertEqualInt (count, 1);
+
+    count = 0xFF;
+    status = GdipGetPathGradientSurroundColorCount (brush, &count);
+    assertEqualInt (count, 4);
+
+    status = GdipGetPathGradientSurroundColorsWithCount (brush, colors, &count);
+    assertEqualInt (status, Ok);
+    assertEqualInt (count, 1);
+    assertEqualInt (colors[0], 0x00000001);
+    assertEqualInt (colors[1], 0x00000001);
+    assertEqualInt (colors[2], 0x00000001);
+    assertEqualInt (colors[3], 0x00000001);
+
+    colors[0] = 0x00000000;
+    colors[1] = 0x00000000;
+    colors[2] = 0x00000000;
+    colors[3] = 0x00000000;
+
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // Negative tests.
+    GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
+
     status = GdipSetPathGradientSurroundColorsWithCount (NULL, colors, &count);
     assertEqualInt (status, InvalidParameter);
 
@@ -525,6 +803,7 @@ static void test_setPathGradientSurroundColorsWithCount ()
     assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
+    GdipDeletePath (path);
 }
 
 static void test_getPathGradientPath ()
@@ -598,11 +877,10 @@ static void test_getPathGradientCenterPointI ()
     GpStatus status;
     GpPathGradient *brush;
     GpPoint centerPoint;
-    GpPointF roundUpPoints[3] =
-    {
-		{1, 2},
-		{8, 8},
-		{17, 10}
+    GpPointF roundUpPoints[3] = {
+        {1, 2},
+        {8, 8},
+        {17, 10}
     };
 
     // <= 0.5 is rounded down.
@@ -650,6 +928,14 @@ static void test_setPathGradientCenterPoint ()
     assertEqualFloat (centerPoint.X, 1);
     assertEqualFloat (centerPoint.Y, 2);
 
+    // Set same.
+    status = GdipSetPathGradientCenterPoint (brush, &point);
+    assertEqualInt (status, Ok);
+
+    GdipGetPathGradientCenterPoint (brush, &centerPoint);
+    assertEqualFloat (centerPoint.X, 1);
+    assertEqualFloat (centerPoint.Y, 2);
+
     // Set outside the bounds of the brush.
     status = GdipSetPathGradientCenterPoint (brush, &outOfBoundsPoint);
     assertEqualInt (status, Ok);
@@ -686,6 +972,14 @@ static void test_setPathGradientCenterPointI ()
     assertEqualFloat (centerPoint.X, 1);
     assertEqualFloat (centerPoint.Y, 2);
 
+    // Set same.
+    status = GdipSetPathGradientCenterPointI (brush, &point);
+    assertEqualInt (status, Ok);
+
+    GdipGetPathGradientCenterPoint (brush, &centerPoint);
+    assertEqualFloat (centerPoint.X, 1);
+    assertEqualFloat (centerPoint.Y, 2);
+
     // Set outside the bounds of the brush.
     status = GdipSetPathGradientCenterPointI (brush, &outOfBoundsPoint);
     assertEqualInt (status, Ok);
@@ -709,10 +1003,9 @@ static void test_getPathGradientRect ()
     GpStatus status;
     GpPathGradient *brush;
     GpRectF rect;
-    GpPointF points[2] =
-    {
-		{1.5, 2.5},
-		{5, 7}
+    GpPointF points[2] = {
+        {1.5, 2.5},
+        {5, 7}
     };
 
     GdipCreatePathGradient (points, 2, WrapModeTileFlipX, &brush);
@@ -724,6 +1017,7 @@ static void test_getPathGradientRect ()
     assertEqualFloat (rect.Width, 3.5);
     assertEqualFloat (rect.Height, 4.5);
 
+    // Negative tests.
     status = GdipGetPathGradientRect (NULL, &rect);
     assertEqualInt (status, InvalidParameter);
 
@@ -738,20 +1032,17 @@ static void test_getPathGradientRectI ()
     GpStatus status;
     GpPathGradient *brush;
     GpRect rect;
-    GpPointF points1[2] =
-    {
-		{1.6f, 2.6f},
-		{5.2f, 7.2f}
+    GpPointF points1[2] = {
+        {1.6f, 2.6f},
+        {5.2f, 7.2f}
     };
-    GpPointF points2[2] =
-    {
-		{1.5f, 2.5f},
-		{5, 7}
+    GpPointF points2[2] = {
+        {1.5f, 2.5f},
+        {5, 7}
     };
-    GpPointF points3[2] =
-    {
-		{1.4f, 2.4f},
-		{4.8f, 6.8f}
+    GpPointF points3[2] = {
+        {1.4f, 2.4f},
+        {4.8f, 6.8f}
     };
 
     // > 0.5 is rounded up.
@@ -803,13 +1094,28 @@ static void test_getPathGradientPointCount ()
     GpStatus status;
     GpPathGradient *brush;
     INT pointCount;
+    GpPath *path;
 
+    GdipCreatePath (FillModeWinding, &path);
+    GdipAddPathRectangle (path, 1, 2, 3, 4);
+
+    // From points.
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
 
     status = GdipGetPathGradientPointCount (brush, &pointCount);
     assertEqualInt (status, Ok);
     assertEqualInt (pointCount, 3);
 
+    GdipDeleteBrush ((GpBrush *) brush);
+
+    // From path.
+    GdipCreatePathGradientFromPath (path, &brush);
+
+    status = GdipGetPathGradientPointCount (brush, &pointCount);
+    assertEqualInt (status, Ok);
+    assertEqualInt (pointCount, 4);
+
+    // Negative tests.
     status = GdipGetPathGradientPointCount (NULL, &pointCount);
     assertEqualInt (status, InvalidParameter);
 
@@ -817,6 +1123,7 @@ static void test_getPathGradientPointCount ()
     assertEqualInt (status, InvalidParameter);
 
     GdipDeleteBrush ((GpBrush *) brush);
+    GdipDeletePath (path);
 }
 
 static void test_setPathGradientGammaCorrection ()
@@ -827,12 +1134,28 @@ static void test_setPathGradientGammaCorrection ()
 
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
 
+    // Set true.
     status = GdipSetPathGradientGammaCorrection (brush, TRUE);
     assertEqualInt (status, Ok);
 
     GdipGetPathGradientGammaCorrection (brush, &useGammaCorrection);
     assert (useGammaCorrection == TRUE);
 
+    // Set same.
+    status = GdipSetPathGradientGammaCorrection (brush, TRUE);
+    assertEqualInt (status, Ok);
+
+    GdipGetPathGradientGammaCorrection (brush, &useGammaCorrection);
+    assert (useGammaCorrection == TRUE);
+
+    // Set false.
+    status = GdipSetPathGradientGammaCorrection (brush, FALSE);
+    assertEqualInt (status, Ok);
+
+    GdipGetPathGradientGammaCorrection (brush, &useGammaCorrection);
+    assert (useGammaCorrection == FALSE);
+
+    // Negative tests.
     status = GdipSetPathGradientGammaCorrection (NULL, TRUE);
     assertEqualInt (status, InvalidParameter);
 
@@ -850,6 +1173,7 @@ static void test_getPathGradientGammaCorrection ()
     status = GdipGetPathGradientGammaCorrection (brush, &useGammaCorrection);
     assert (useGammaCorrection == FALSE);
 
+    // Negative tests.
     status = GdipGetPathGradientGammaCorrection (NULL, &useGammaCorrection);
     assertEqualInt (status, InvalidParameter);
 
@@ -969,6 +1293,21 @@ static void test_setPathGradientBlend ()
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
 
     // Two blends - equal count.
+    status = GdipSetPathGradientBlend (brush, twoBlends, twoPositions, 2);
+    assertEqualInt (status, Ok);
+
+    fill_array (blend, ARRAY_SIZE (blend), 123);
+    fill_array (positions, ARRAY_SIZE (positions), 123);
+    status = GdipGetPathGradientBlend (brush, blend, positions, 2);
+    assertEqualInt (status, Ok);
+    assertEqualFloat (blend[0], 1);
+    assertEqualFloat (blend[1], 2);
+    assertEqualFloat (blend[2], 123);
+    assertEqualFloat (positions[0], 0);
+    assertEqualFloat (positions[1], 1);
+    assertEqualFloat (positions[2], 123);
+
+    // Set same.
     status = GdipSetPathGradientBlend (brush, twoBlends, twoPositions, 2);
     assertEqualInt (status, Ok);
 
@@ -1154,6 +1493,17 @@ static void test_setPathGradientPresetBlend ()
     assertEqualFloat (destPositions2[0], 0);
     assertEqualFloat (destPositions2[1], 1);
 
+    // Same.
+    status = GdipSetPathGradientPresetBlend (brush, blend2, positions2, 2);
+    assertEqualInt (status, Ok);
+
+    status = GdipGetPathGradientPresetBlend (brush, destBlend2, destPositions2, 2);
+    assertEqualInt (status, Ok);
+    assertEqualInt (destBlend2[0], 1);
+    assertEqualInt (destBlend2[1], 0);
+    assertEqualFloat (destPositions2[0], 0);
+    assertEqualFloat (destPositions2[1], 1);
+
     // Count of 3.
     status = GdipSetPathGradientPresetBlend (brush, blend3, positions3, 3);
     assertEqualInt (status, Ok);
@@ -1320,6 +1670,13 @@ static void test_setPathGradientWrapMode ()
     GdipGetPathGradientWrapMode (brush, &wrapMode);
     assertEqualInt (wrapMode, WrapModeTile);
 
+    // Same.
+    status = GdipSetPathGradientWrapMode (brush, WrapModeTile);
+    assertEqualInt (status, Ok);
+
+    GdipGetPathGradientWrapMode (brush, &wrapMode);
+    assertEqualInt (wrapMode, WrapModeTile);
+
     // WrapModeTileFlipX.
     status = GdipSetPathGradientWrapMode (brush, WrapModeTileFlipX);
     assertEqualInt (status, Ok);
@@ -1367,9 +1724,22 @@ static void test_getPathGradientTransform ()
     GpStatus status;
     GpPathGradient *brush;
     GpMatrix *transform;
+    ARGB blend[2] = {1, 0};
+    REAL positions[2] = {0, 1.0f};
 
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
     GdipCreateMatrix (&transform);
+
+    // With no preset blend.
+    status = GdipGetPathGradientTransform (brush, transform);
+    assertEqualInt (status, Ok);
+    verifyMatrix (transform, 1, 0, 0, 1, 0, 0);
+
+    // With preset blend.
+    GdipSetPathGradientPresetBlend (brush, blend, positions, 2);
+    status = GdipGetPathGradientTransform (brush, transform);
+    assertEqualInt (status, Ok);
+    verifyMatrix (transform, 1, 0, 0, 1, 0, 0);
 
     // Negative tests.
     status = GdipGetPathGradientTransform (NULL, transform);
@@ -1389,12 +1759,23 @@ static void test_setPathGradientTransform ()
     GpMatrix *matrix;
     GpMatrix *nonInvertibleMatrix;
     GpMatrix *transform;
+    ARGB blend[2] = {1, 0};
+    REAL positions[2] = {0, 1.0f};
 
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
     GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
     GdipCreateMatrix2 (123, 24, 82, 16, 47, 30, &nonInvertibleMatrix);
     GdipCreateMatrix (&transform);
 
+    // With no preset blend.
+    status = GdipSetPathGradientTransform (brush, matrix);
+    assertEqualInt (status, Ok);
+
+    GdipGetPathGradientTransform (brush, transform);
+    assert (transform != matrix && "Expected new matrix to be a clone.");
+    verifyMatrix (transform, 1, 2, 3, 4, 5, 6);
+
+    // Same.
     status = GdipSetPathGradientTransform (brush, matrix);
     assertEqualInt (status, Ok);
 
@@ -1406,6 +1787,15 @@ static void test_setPathGradientTransform ()
     GdipSetMatrixElements (matrix, 2, 3, 4, 5, 6, 7);
     GdipGetPathGradientTransform (brush, transform);
     verifyMatrix (transform, 1, 2, 3, 4, 5, 6);
+
+    // With preset blend.
+    GdipSetPathGradientPresetBlend (brush, blend, positions, 2);
+    status = GdipSetPathGradientTransform (brush, matrix);
+    assertEqualInt (status, Ok);
+
+    GdipGetPathGradientTransform (brush, transform);
+    assert (transform != matrix && "Expected new matrix to be a clone.");
+    verifyMatrix (transform, 2, 3, 4, 5, 6, 7);
 
     // Negative tests.
     status = GdipSetPathGradientTransform (NULL, transform);
@@ -1692,6 +2082,7 @@ static void test_setPathGradientFocusScales ()
 
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
 
+    // Positive.
     status = GdipSetPathGradientFocusScales (brush, 1, 2);
     assertEqualInt (status, Ok);
 
@@ -1699,19 +2090,29 @@ static void test_setPathGradientFocusScales ()
     assertEqualFloat (xScale, 1);
     assertEqualFloat (yScale, 2);
 
-    status = GdipSetPathGradientFocusScales (brush, -1, -2);
+    // Same.
+    status = GdipSetPathGradientFocusScales (brush, 1, 2);
     assertEqualInt (status, Ok);
 
     GdipGetPathGradientFocusScales (brush, &xScale, &yScale);
-    assertEqualFloat (xScale, -1);
-    assertEqualFloat (yScale, -2);
+    assertEqualFloat (xScale, 1);
+    assertEqualFloat (yScale, 2);
 
+    // Zero.
     status = GdipSetPathGradientFocusScales (brush, 0, 0);
     assertEqualInt (status, Ok);
 
     GdipGetPathGradientFocusScales (brush, &xScale, &yScale);
     assertEqualFloat (xScale, 0);
     assertEqualFloat (yScale, 0);
+
+    // Negative,
+    status = GdipSetPathGradientFocusScales (brush, -1, -2);
+    assertEqualInt (status, Ok);
+
+    GdipGetPathGradientFocusScales (brush, &xScale, &yScale);
+    assertEqualFloat (xScale, -1);
+    assertEqualFloat (yScale, -2);
 
     // Negative tests.
     status = GdipSetPathGradientFocusScales (NULL, 0, 0);
@@ -1720,7 +2121,7 @@ static void test_setPathGradientFocusScales ()
     GdipDeleteBrush ((GpBrush *) brush);
 }
 
-static void test_clone ()
+static void test_cloneWithPoints ()
 {
     GpStatus status;
     GpPathGradient *brush;
@@ -1746,62 +2147,89 @@ static void test_clone ()
     ARGB surroundColors[3] = {1, 2, 3};
     ARGB surroundColorsResult[3];
 
-    GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
-    GdipSetPathGradientFocusScales (brush, 1, 2);
-    GdipSetPathGradientCenterColor (brush, 3);
-    GdipSetPathGradientBlend (brush, blend, positions, 2);
-    GdipSetPathGradientGammaCorrection (brush, TRUE);
     GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &transform);
     GdipCreateMatrix (&matrix);
-    GdipSetPathGradientTransform (brush, transform);
-    GdipSetPathGradientSurroundColorsWithCount (brush, surroundColors, &surroundColorsCount);
+    GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
+
+    status = GdipSetPathGradientFocusScales (brush, 1, 2);
+    assertEqualInt (status, Ok);
+
+    status = GdipSetPathGradientCenterColor (brush, 3);
+    assertEqualInt (status, Ok);
+
+    status = GdipSetPathGradientBlend (brush, blend, positions, 2);
+    assertEqualInt (status, Ok);
+
+    status = GdipSetPathGradientGammaCorrection (brush, TRUE);
+    assertEqualInt (status, Ok);
+
+    status = GdipSetPathGradientTransform (brush, transform);
+    assertEqualInt (status, Ok);
+
+    status = GdipSetPathGradientSurroundColorsWithCount (brush, surroundColors, &surroundColorsCount);
+    assertEqualInt (status, Ok);
 
     status = GdipCloneBrush ((GpBrush *) brush, &clonedBrush);
     assertEqualInt (status, Ok);
     assert (clonedBrush && clonedBrush != brush);
 
-    GdipGetBrushType (clonedBrush, &brushType);
+    status = GdipGetBrushType (clonedBrush, &brushType);
+    assertEqualInt (status, Ok);
     assertEqualInt (brushType, BrushTypePathGradient);
 
-    GdipGetPathGradientWrapMode ((GpPathGradient *) clonedBrush, &wrapMode);
+    status = GdipGetPathGradientWrapMode ((GpPathGradient *) clonedBrush, &wrapMode);
+    assertEqualInt (status, Ok);
     assertEqualInt (wrapMode, WrapModeTileFlipX);
 
-    GdipGetPathGradientFocusScales ((GpPathGradient *) clonedBrush, &xScale, &yScale);
+    status = GdipGetPathGradientFocusScales ((GpPathGradient *) clonedBrush, &xScale, &yScale);
+    assertEqualInt (status, Ok);
     assertEqualFloat (xScale, 1);
     assertEqualFloat (yScale, 2);
 
-    GdipGetPathGradientCenterColor ((GpPathGradient *) clonedBrush, &centerColor);
+    status = GdipGetPathGradientCenterColor ((GpPathGradient *) clonedBrush, &centerColor);
+    assertEqualInt (status, Ok);
     assertEqualInt (centerColor, 3);
 
-    GdipGetPathGradientCenterPoint ((GpPathGradient *) clonedBrush, &centerPoint);
+    status = GdipGetPathGradientCenterPoint ((GpPathGradient *) clonedBrush, &centerPoint);
+    assertEqualInt (status, Ok);
     assertEqualFloat (centerPoint.X, 3);
     assertEqualFloat (centerPoint.Y, 7);
 
-    GdipGetPathGradientRect ((GpPathGradient *) clonedBrush, &rect);
+    status = GdipGetPathGradientRect ((GpPathGradient *) clonedBrush, &rect);
+    assertEqualInt (status, Ok);
     assertEqualFloat (rect.X, 1);
     assertEqualFloat (rect.Y, 2);
     assertEqualFloat (rect.Width, 4);
     assertEqualFloat (rect.Height, 11);
 
-    GdipGetPathGradientPointCount ((GpPathGradient *) clonedBrush, &pointCount);
+    status = GdipGetPathGradientPointCount ((GpPathGradient *) clonedBrush, &pointCount);
     assertEqualInt (pointCount, 3);
 
-    GdipGetPathGradientBlendCount ((GpPathGradient *) clonedBrush, &blendCount);
+    status = GdipGetPathGradientBlendCount ((GpPathGradient *) clonedBrush, &blendCount);
+    assertEqualInt (status, Ok);
     assertEqualInt (blendCount, 2);
 
-    GdipGetPathGradientBlend ((GpPathGradient *) clonedBrush, blendResult, positionsResult, 2);
+    status = GdipGetPathGradientBlend ((GpPathGradient *) clonedBrush, blendResult, positionsResult, 2);
+    assertEqualInt (status, Ok);
     assertEqualFloat (blendResult[0], 1);
     assertEqualFloat (blendResult[1], 2);
     assertEqualFloat (positionsResult[0], 0);
     assertEqualFloat (positionsResult[1], 1);
 
-    GdipGetPathGradientGammaCorrection ((GpPathGradient *) clonedBrush, &useGammaCorrection);
+    status = GdipGetPathGradientGammaCorrection ((GpPathGradient *) clonedBrush, &useGammaCorrection);
+    assertEqualInt (status, Ok);
     assert (useGammaCorrection == TRUE);
 
-    GdipGetPathGradientTransform ((GpPathGradient *) clonedBrush, matrix);
+    status = GdipGetPathGradientTransform ((GpPathGradient *) clonedBrush, matrix);
+    assertEqualInt (status, Ok);
     verifyMatrix (matrix, 1, 2, 3, 4, 5, 6);
 
-    GdipGetPathGradientSurroundColorsWithCount (brush, surroundColorsResult, &surroundColorsCount);
+    status = GdipGetPathGradientSurroundColorCount (brush, &surroundColorsCount);
+    assertEqualInt (status, Ok);
+    assertEqualInt (surroundColorsCount, 3);
+
+    status = GdipGetPathGradientSurroundColorsWithCount (brush, surroundColorsResult, &surroundColorsCount);
+    assertEqualInt (status, Ok);
     assertEqualInt (surroundColorsResult[0], 1);
     assertEqualInt (surroundColorsResult[1], 2);
     assertEqualInt (surroundColorsResult[2], 3);
@@ -1812,10 +2240,145 @@ static void test_clone ()
     GdipDeleteMatrix (matrix);
 }
 
+static void test_cloneWithPath ()
+{
+    GpStatus status;
+    GpPathGradient *brush;
+    GpBrush *clonedBrush;
+
+    GpBrushType brushType;
+    GpWrapMode wrapMode;
+    REAL xScale;
+    REAL yScale;
+    ARGB centerColor;
+    GpPointF centerPoint;
+    GpRectF rect;
+    INT pointCount;
+    REAL blend[2] = {1, 2};
+    REAL positions[2] = {0, 1};
+    INT blendCount;
+    REAL blendResult[2];
+    REAL positionsResult[2];
+    BOOL useGammaCorrection;
+    GpMatrix *transform;
+    GpMatrix *matrix;
+    INT surroundColorsCount = 4;
+    ARGB surroundColors[4] = {1, 2, 3, 4};
+    ARGB surroundColorsResult[4];
+    GpPath *path;
+
+    GdipCreatePath (FillModeWinding, &path);
+    GdipAddPathRectangle (path, 1, 2, 4, 11);
+    GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &transform);
+    GdipCreateMatrix (&matrix);
+    GdipCreatePathGradientFromPath (path, &brush);
+
+    status = GdipSetPathGradientFocusScales (brush, 1, 2);
+    assertEqualInt (status, Ok);
+
+    status = GdipSetPathGradientCenterColor (brush, 3);
+    assertEqualInt (status, Ok);
+
+    status = GdipSetPathGradientBlend (brush, blend, positions, 2);
+    assertEqualInt (status, Ok);
+
+    status = GdipSetPathGradientGammaCorrection (brush, TRUE);
+    assertEqualInt (status, Ok);
+
+    status = GdipSetPathGradientTransform (brush, transform);
+    assertEqualInt (status, Ok);
+
+    status = GdipSetPathGradientSurroundColorsWithCount (brush, surroundColors, &surroundColorsCount);
+    assertEqualInt (status, Ok);
+
+    status = GdipCloneBrush ((GpBrush *) brush, &clonedBrush);
+    assertEqualInt (status, Ok);
+    assert (clonedBrush && clonedBrush != brush);
+
+    status = GdipGetBrushType (clonedBrush, &brushType);
+    assertEqualInt (status, Ok);
+    assertEqualInt (brushType, BrushTypePathGradient);
+
+    status = GdipGetPathGradientWrapMode ((GpPathGradient *) clonedBrush, &wrapMode);
+    assertEqualInt (status, Ok);
+    assertEqualInt (wrapMode, WrapModeClamp);
+
+    status = GdipGetPathGradientFocusScales ((GpPathGradient *) clonedBrush, &xScale, &yScale);
+    assertEqualInt (status, Ok);
+    assertEqualFloat (xScale, 1);
+    assertEqualFloat (yScale, 2);
+
+    status = GdipGetPathGradientCenterColor ((GpPathGradient *) clonedBrush, &centerColor);
+    assertEqualInt (status, Ok);
+    assertEqualInt (centerColor, 3);
+
+    status = GdipGetPathGradientCenterPoint ((GpPathGradient *) clonedBrush, &centerPoint);
+    assertEqualInt (status, Ok);
+    assertEqualFloat (centerPoint.X, 3);
+    assertEqualFloat (centerPoint.Y, 7.5);
+
+    status = GdipGetPathGradientRect ((GpPathGradient *) clonedBrush, &rect);
+    assertEqualInt (status, Ok);
+    assertEqualFloat (rect.X, 1);
+    assertEqualFloat (rect.Y, 2);
+    assertEqualFloat (rect.Width, 4);
+    assertEqualFloat (rect.Height, 11);
+
+    status = GdipGetPathGradientPointCount ((GpPathGradient *) clonedBrush, &pointCount);
+    assertEqualInt (status, Ok);
+    assertEqualInt (pointCount, 4);
+
+    status = GdipGetPathGradientBlendCount ((GpPathGradient *) clonedBrush, &blendCount);
+    assertEqualInt (status, Ok);
+    assertEqualInt (blendCount, 2);
+
+    status = GdipGetPathGradientBlend ((GpPathGradient *) clonedBrush, blendResult, positionsResult, 2);
+    assertEqualInt (status, Ok);
+    assertEqualFloat (blendResult[0], 1);
+    assertEqualFloat (blendResult[1], 2);
+    assertEqualFloat (positionsResult[0], 0);
+    assertEqualFloat (positionsResult[1], 1);
+
+    status = GdipGetPathGradientGammaCorrection ((GpPathGradient *) clonedBrush, &useGammaCorrection);
+    assertEqualInt (status, Ok);
+    assert (useGammaCorrection == TRUE);
+
+    status = GdipGetPathGradientTransform ((GpPathGradient *) clonedBrush, matrix);
+    assertEqualInt (status, Ok);
+    verifyMatrix (matrix, 1, 2, 3, 4, 5, 6);
+
+    status = GdipGetPathGradientSurroundColorCount (brush, &surroundColorsCount);
+    assertEqualInt (status, Ok);
+    assertEqualInt (surroundColorsCount, 4);
+
+    status = GdipGetPathGradientSurroundColorsWithCount (brush, surroundColorsResult, &surroundColorsCount);
+    assertEqualInt (status, Ok);
+    assertEqualInt (surroundColorsResult[0], 1);
+    assertEqualInt (surroundColorsResult[1], 2);
+    assertEqualInt (surroundColorsResult[2], 3);
+    assertEqualInt (surroundColorsResult[3], 4);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+    GdipDeleteBrush ((GpBrush *) clonedBrush);
+    GdipDeleteMatrix (transform);
+    GdipDeleteMatrix (matrix);
+}
+
+static void test_delete ()
+{
+    GpStatus status;
+    GpPathGradient *brush;
+
+    GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
+
+    status = GdipDeleteBrush ((GpBrush *) brush);
+    assertEqualInt (status, Ok);
+}
+
 int
 main (int argc, char**argv)
 {
-	STARTUP;
+    STARTUP;
 
     test_createPathGradient ();
     test_createPathGradientI ();
@@ -1855,7 +2418,9 @@ main (int argc, char**argv)
     test_rotatePathGradientTransform ();
     test_getPathGradientFocusScales ();
     test_setPathGradientFocusScales ();
-    test_clone ();
+    test_cloneWithPoints ();
+    test_cloneWithPath ();
+    test_delete ();
 
     SHUTDOWN;
     return 0;
