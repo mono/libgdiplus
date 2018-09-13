@@ -252,12 +252,12 @@ GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen)
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
 
-	if (!pen || unit < UnitWorld || unit > UnitCairoPoint || unit == UnitDisplay)
+	if (!pen || unit > UnitCairoPoint || unit == UnitDisplay)
 		return InvalidParameter;
 
 	result = gdip_pen_new ();
 	if (!result)
-		goto error;
+		return OutOfMemory;
 
 	result->color = argb;
 	result->width = width;
@@ -265,18 +265,13 @@ GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen)
 	result->own_brush = TRUE;
 
 	status = GdipCreateSolidFill (argb, (GpSolidFill **) &result->brush);
-	if (status != Ok)
-		goto error;
+	if (status != Ok) {
+		GdipDeletePen (result);
+		return status;
+	}
 
 	*pen = result;
 	return Ok;
-
-error:
-	if (result)
-		GdipDeletePen (result);
-
-	*pen = NULL;
-	return OutOfMemory;
 }
 
 // coverity[+alloc : arg-*3]
@@ -296,7 +291,7 @@ GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen)
 
 	result = gdip_pen_new ();
 	if (!result)
-		goto error;
+		return OutOfMemory;
 
 	result->width = width;
 	result->unit = unit;
@@ -305,8 +300,10 @@ GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen)
 	/* The user supplied brush can be disposed, we must clone it to ensure
 	 * it's valid when we need to set the pen. */
 	status = GdipCloneBrush (brush, &result->brush);
-	if (status != Ok)
-		goto error;
+	if (status != Ok) {
+		GdipDeletePen (result);
+		return status;
+	}
 
 	GdipGetBrushType (brush, &type);
 	if (type == BrushTypeSolidColor) {
@@ -316,13 +313,6 @@ GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen)
 
 	*pen = result;
 	return Ok;
-
-error:
-	if (result)
-		GdipDeletePen (result);
-
-	*pen = NULL;
-	return OutOfMemory;
 }
 
 // coverity[+alloc : arg-*1]
@@ -672,15 +662,14 @@ GdipSetPenUnit (GpPen *pen, GpUnit unit)
 GpStatus WINGDIPAPI
 GdipSetPenTransform (GpPen *pen, GpMatrix *matrix)
 {
-	GpStatus status;
 	BOOL invertible;
 
 	if (!pen || !matrix)
 		return InvalidParameter;
 
 	/* the matrix MUST be invertible to be used */
-	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
-	if (!invertible || (status != Ok))
+	GdipIsMatrixInvertible (matrix, &invertible);
+	if (!invertible)
 		return InvalidParameter;
 
 	gdip_cairo_matrix_copy (&pen->matrix, matrix);
@@ -713,7 +702,6 @@ GdipResetPenTransform (GpPen *pen)
 GpStatus WINGDIPAPI
 GdipMultiplyPenTransform (GpPen *pen, GpMatrix *matrix, GpMatrixOrder order)
 {
-	GpStatus status;
 	BOOL invertible;
 
 	if (!pen)
@@ -723,19 +711,17 @@ GdipMultiplyPenTransform (GpPen *pen, GpMatrix *matrix, GpMatrixOrder order)
 		return Ok;
 
 	/* the matrix MUST be invertible to be used */
-	status = GdipIsMatrixInvertible ((GpMatrix*) matrix, &invertible);
-	if (!invertible || (status != Ok))
+	GdipIsMatrixInvertible (matrix, &invertible);
+	if (!invertible)
 		return InvalidParameter;
 
-	/* invalid GpMatrixOrder values are computed as MatrixOrderAppend (i.e. no error) */
-	if (order != MatrixOrderPrepend)
-		order = MatrixOrderAppend;
+	if (order == MatrixOrderPrepend)
+		cairo_matrix_multiply (&pen->matrix, matrix, &pen->matrix);
+	else
+		cairo_matrix_multiply (&pen->matrix, &pen->matrix, matrix);
 
-	status = GdipMultiplyMatrix (&pen->matrix, matrix, order);
-	if (status == Ok)
-		pen->changed = TRUE;
-
-	return status;
+	pen->changed = TRUE;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -747,10 +733,11 @@ GdipTranslatePenTransform (GpPen *pen, REAL dx, REAL dy, GpMatrixOrder order)
 		return InvalidParameter;
 
 	status = GdipTranslateMatrix (&pen->matrix, dx, dy, order);
-	if (status == Ok)
-		pen->changed = TRUE;
+	if (status != Ok)
+		return status;
 
-	return status;
+	pen->changed = TRUE;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -762,10 +749,11 @@ GdipScalePenTransform (GpPen *pen, REAL sx, REAL sy, GpMatrixOrder order)
 		return InvalidParameter;
 
 	status = GdipScaleMatrix (&pen->matrix, sx, sy, order);
-	if (status == Ok)
-		pen->changed = TRUE;
+	if (status != Ok)
+		return status;
 
-	return status;
+	pen->changed = TRUE;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -777,19 +765,20 @@ GdipRotatePenTransform (GpPen *pen, REAL angle, GpMatrixOrder order)
 		return InvalidParameter;
 
 	status = GdipRotateMatrix (&pen->matrix, angle, order);
-	if (status == Ok)
-		pen->changed = TRUE;
+	if (status != Ok)
+		return status;
 
-	return status;
+	pen->changed = TRUE;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipGetPenDashStyle (GpPen *pen, GpDashStyle *dashStyle)
+GdipGetPenDashStyle (GpPen *pen, GpDashStyle *dashstyle)
 {
-	if (!pen || !dashStyle)
+	if (!pen || !dashstyle)
 		return InvalidParameter;
 
-	*dashStyle = pen->dash_style;
+	*dashstyle = pen->dash_style;
 	return Ok;
 }
 
@@ -799,12 +788,12 @@ static float DashDot [] = { 3.0, 1.0, 1.0, 1.0 };
 static float DashDotDot [] = { 3.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
 GpStatus WINGDIPAPI
-GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
+GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashstyle)
 {
 	if (!pen)
 		return InvalidParameter;
 
-	switch (dashStyle) {
+	switch (dashstyle) {
 	case DashStyleSolid:
 		pen->dash_array = NULL;
 		pen->dash_count = 0;
@@ -840,7 +829,7 @@ GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashStyle)
 		return Ok;
 	}
 
-	pen->dash_style = dashStyle;
+	pen->dash_style = dashstyle;
 	pen->changed = TRUE;
 	return Ok;
 }
@@ -879,9 +868,6 @@ GdipGetPenDashCount (GpPen *pen, INT *count)
 	return Ok;
 }
 
-/*
- * This is the DashPattern property in Pen.
- */
 GpStatus WINGDIPAPI
 GdipGetPenDashArray (GpPen *pen, REAL *dash, INT count)
 {
@@ -900,16 +886,15 @@ GpStatus WINGDIPAPI
 GdipSetPenDashArray (GpPen *pen, GDIPCONST REAL *dash, INT count)
 {
 	float *dash_array;
-	INT i;
 	REAL sum = 0;
 
 	if (!pen || !dash || (count <= 0))
 		return InvalidParameter;
 
-	for(i = 0; i < count; i++) {
+	for(int i = 0; i < count; i++) {
 		sum += dash[i];
 		if(dash[i] < 0.0)
-				return InvalidParameter;
+			return InvalidParameter;
 	}
 
 	if (sum == 0.0)
