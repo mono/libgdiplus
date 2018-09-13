@@ -162,62 +162,77 @@ static void test_createPen1 ()
 	GpStatus status;
 	GpPen *pen;
 
-	status = GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	status = GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, 10, UnitWorld);
 	GdipDeletePen (pen);
 
-	status = GdipCreatePen1 (1, 0, UnitPixel, &pen);
+	status = GdipCreatePen1 (0x00000001, 0, UnitPixel, &pen);
 	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, 0, UnitPixel);
 	GdipDeletePen (pen);
 
-	status = GdipCreatePen1 (1, -1, UnitPoint, &pen);
+	status = GdipCreatePen1 (0x00000001, -1, UnitPoint, &pen);
 	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, -1, UnitPoint);
 	GdipDeletePen (pen);
 
-	status = GdipCreatePen1 (1, 10, UnitInch, &pen);
+	status = GdipCreatePen1 (0x00000001, 10, UnitInch, &pen);
 	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, 10, UnitInch);
 	GdipDeletePen (pen);
 
-	status = GdipCreatePen1 (1, 10, UnitDocument, &pen);
+	status = GdipCreatePen1 (0x00000001, 10, UnitDocument, &pen);
 	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, 10, UnitDocument);
 	GdipDeletePen (pen);
 
-	status = GdipCreatePen1 (1, 10, UnitMillimeter, &pen);
+	status = GdipCreatePen1 (0x00000001, 10, UnitMillimeter, &pen);
 	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, 10, UnitMillimeter);
 	GdipDeletePen (pen);
 
-#if !defined(_WIN32)
-	status = GdipCreatePen1 (1, 10, UnitCairoPoint, &pen);
+#if !defined(USE_WINDOWS_GDIPLUS)
+	status = GdipCreatePen1 (0x00000001, 10, UnitCairoPoint, &pen);
 	assertEqualInt (status, Ok);
 	verifySolidBrushPen (pen, 1, 10, UnitCairoPoint);
 	GdipDeletePen (pen);
 #endif
 
 	// Negative tests.
-	status = GdipCreatePen1 (1, 10, (Unit)(UnitWorld - 1), &pen);
+	pen = (GpPen *) 0xCC;
+	status = GdipCreatePen1 (0x00000001, 10, (Unit)(UnitWorld - 1), &pen);
 	assertEqualInt (status, InvalidParameter);
+	assert (pen == (GpPen *) 0xCC);
 
-	status = GdipCreatePen1 (1, 10, UnitDisplay, &pen);
+	pen = (GpPen *) 0xCC;
+	status = GdipCreatePen1 (0x00000001, 10, UnitDisplay, &pen);
 	assertEqualInt (status, InvalidParameter);
+	assert (pen == (GpPen *) 0xCC);
 
-	status = GdipCreatePen1 (1, 10, (Unit)(8), &pen);
+#if defined(USE_WINDOWS_GDIPLUS)
+	pen = (GpPen *) 0xCC;
+	status = GdipCreatePen1 (0x00000001, 10, (Unit)(UnitMillimeter + 1), &pen);
 	assertEqualInt (status, InvalidParameter);
+	assert (pen == (GpPen *) 0xCC);
+#else
+	pen = (GpPen *) 0xCC;
+	status = GdipCreatePen1 (0x00000001, 10, (Unit)(UnitCairoPoint + 1), &pen);
+	assertEqualInt (status, InvalidParameter);
+	assert (pen == (GpPen *) 0xCC);
+#endif
 
-	status = GdipCreatePen1 (1, 10, UnitWorld, NULL);
+	pen = (GpPen *) 0xCC;
+	status = GdipCreatePen1 (0x00000001, 10, UnitWorld, NULL);
 	assertEqualInt (status, InvalidParameter);
+	assert (pen == (GpPen *) 0xCC);
 }
 
 static GpPointF threePoints[3] =
 {
-    {3, 13},
-    {1, 2},
-    {5, 6}
+	{3, 13},
+	{1, 2},
+	{5, 6}
 };
 
 static void test_createPen2 ()
@@ -276,8 +291,8 @@ static void test_createPen2 ()
 	verifyNonSolidBrushPen (pen, 10, UnitMillimeter, PenTypeLinearGradient);
 	GdipDeletePen (pen);
 
-#if !defined(_WIN32)
-// LinearGradient/UnitCairoPoint.
+#if !defined(USE_WINDOWS_GDIPLUS)
+	// LinearGradient/UnitCairoPoint.
 	status = GdipCreatePen2 (lineGradientBrush, 10, UnitCairoPoint, &pen);
 	assertEqualInt (status, Ok);
 	verifyNonSolidBrushPen (pen, 10, UnitCairoPoint, PenTypeLinearGradient);
@@ -285,16 +300,21 @@ static void test_createPen2 ()
 #endif
 
 	// Negative tests.
-	status = GdipCreatePen1 (1, 10, (Unit)(UnitWorld - 1), &pen);
+	status = GdipCreatePen2 (NULL, 10, UnitPixel, &pen);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipCreatePen1 (1, 10, UnitDisplay, &pen);
+	status = GdipCreatePen2 (solidBrush, 10, UnitDisplay, &pen);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipCreatePen1 (1, 10, (Unit)(8), &pen);
+#if defined(USE_WINDOWS_GDIPLUS)
+	status = GdipCreatePen2 (solidBrush, 10, (Unit)(UnitMillimeter + 1), &pen);
 	assertEqualInt (status, InvalidParameter);
+#else
+	status = GdipCreatePen2 (solidBrush, 10, (Unit)(UnitCairoPoint + 1), &pen);
+	assertEqualInt (status, InvalidParameter);
+#endif
 
-	status = GdipCreatePen1 (1, 10, UnitWorld, NULL);
+	status = GdipCreatePen2 (solidBrush, 10, UnitPixel, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeleteBrush ((GpBrush *) solidBrush);
@@ -311,7 +331,7 @@ static void test_clone ()
 	GpPen *pen;
 	GpPen *clone;
 
-	GdipCreatePen1 (1, 10, UnitDocument, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitDocument, &pen);
 
 	status = GdipClonePen (pen, &clone);
 	assertEqualInt (status, Ok);
@@ -334,8 +354,9 @@ static void test_getPenWidth ()
 	GpPen *pen;
 	REAL width;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
+	// Negative tests.
 	status = GdipGetPenWidth (NULL, &width);
 	assertEqualInt (status, InvalidParameter);
 
@@ -351,7 +372,7 @@ static void test_setPenWidth ()
 	GpPen *pen;
 	REAL width;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Positive value.
 	status = GdipSetPenWidth (pen, 10);
@@ -398,7 +419,7 @@ static void test_getPenUnit ()
 	GpPen *pen;
 	Unit unit;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenUnit (NULL, &unit);
@@ -416,7 +437,7 @@ static void test_setPenUnit ()
 	GpPen *pen;
 	Unit unit;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// UnitWorld.
 	status = GdipSetPenUnit (pen, UnitWorld);
@@ -474,7 +495,7 @@ static void test_setPenUnit ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (unit, UnitMillimeter);
 
-#if !defined(_WIN32)
+#if !defined(USE_WINDOWS_GDIPLUS)
 	// UnitCairoPoint.
 	status = GdipSetPenUnit (pen, UnitCairoPoint);
 	assertEqualInt (status, Ok);
@@ -494,8 +515,13 @@ static void test_setPenUnit ()
 	status = GdipSetPenUnit (pen, UnitDisplay);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetPenUnit (pen, (Unit)(8));
+#if defined(USE_WINDOWS_GDIPLUS)
+	status = GdipSetPenUnit (pen, (Unit)(UnitMillimeter + 1));
 	assertEqualInt (status, InvalidParameter);
+#else
+	status = GdipSetPenUnit (pen, (Unit)(UnitCairoPoint + 1));
+	assertEqualInt (status, InvalidParameter);
+#endif
 
 	GdipDeletePen (pen);
 }
@@ -514,7 +540,7 @@ static void test_setPenLineCap197819 ()
 	GpCustomLineCap *customEndCap;
 	REAL endCapBaseInset;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 	GdipCreatePath (FillModeAlternate, &path);
 	GdipCreateCustomLineCap (path, NULL, LineCapDiamondAnchor, 10, &penCustomLineCap);
 
@@ -570,6 +596,19 @@ static void test_setPenLineCap197819 ()
 	GdipGetPenDashCap197819 (pen, &dashCap);
 	assertEqualInt (dashCap, DashCapFlat);
 
+	// Invalid values - one.
+	status = GdipSetPenLineCap197819 (pen, (LineCap)(LineCapCustom + 1), (LineCap)(LineCapCustom + 1), (DashCap)(1));
+	assertEqualInt (status, Ok);
+
+	GdipGetPenStartCap (pen, &startCap);
+	assertEqualInt (startCap, (LineCap)(LineCapCustom + 1));
+
+	GdipGetPenEndCap (pen, &endCap);
+	assertEqualInt (endCap, (LineCap)(LineCapCustom + 1));
+
+	GdipGetPenDashCap197819 (pen, &dashCap);
+	assertEqualInt (dashCap, DashCapFlat);
+
 	// Set when there is already a custom cap.
 	GdipSetPenCustomStartCap (pen, penCustomLineCap);
 	GdipSetPenCustomEndCap (pen, penCustomLineCap);
@@ -611,7 +650,7 @@ static void test_setPenStartCap ()
 	GpCustomLineCap *penCustomLineCap;
 	GpCustomLineCap *customStartCap;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 	GdipCreatePath (FillModeAlternate, &path);
 	GdipCreateCustomLineCap (path, NULL, LineCapDiamondAnchor, 10, &penCustomLineCap);
 
@@ -679,7 +718,7 @@ static void test_setPenEndCap ()
 	GpCustomLineCap *penCustomLineCap;
 	GpCustomLineCap *customEndCap;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 	GdipCreatePath (FillModeAlternate, &path);
 	GdipCreateCustomLineCap (path, NULL, LineCapDiamondAnchor, 10, &penCustomLineCap);
 
@@ -737,13 +776,13 @@ static void test_setPenEndCap ()
 	GdipDeleteCustomLineCap (customEndCap);
 }
 
-static void tet_setPenDashCap197819 ()
+static void test_setPenDashCap197819 ()
 {
 	GpStatus status;
 	GpPen *pen;
 	DashCap dashCap;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Round.
 	status = GdipSetPenDashCap197819 (pen, DashCapRound);
@@ -787,6 +826,13 @@ static void tet_setPenDashCap197819 ()
 	GdipGetPenDashCap197819 (pen, &dashCap);
 	assertEqualInt (dashCap, DashCapFlat);
 
+	// Invalid values - one.
+	status = GdipSetPenDashCap197819 (pen, (DashCap)(1));
+	assertEqualInt (status, Ok);
+
+	GdipGetPenDashCap197819 (pen, &dashCap);
+	assertEqualInt (dashCap, DashCapFlat);
+
 	// Negative tests.
 	status = GdipSetPenDashCap197819 (NULL, DashCapFlat);
 	assertEqualInt (status, InvalidParameter);
@@ -800,7 +846,7 @@ static void test_getPenStartCap ()
 	GpPen *pen;
 	LineCap startCap;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenStartCap (NULL, &startCap);
@@ -818,7 +864,7 @@ static void test_getPenEndCap ()
 	GpPen *pen;
 	LineCap endCap;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenEndCap (NULL, &endCap);
@@ -836,7 +882,7 @@ static void test_getPenDashCap197819 ()
 	GpPen *pen;
 	DashCap dashCap;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenDashCap197819 (NULL, &dashCap);
@@ -854,7 +900,7 @@ static void test_setPenLineJoin ()
 	GpPen *pen;
 	LineJoin lineJoin;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// LineJoinBevel.
 	status = GdipSetPenLineJoin (pen, LineJoinBevel);
@@ -901,7 +947,7 @@ static void test_getPenLineJoin ()
 	GpPen *pen;
 	LineJoin lineJoin;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenLineJoin (NULL, &lineJoin);
@@ -923,7 +969,7 @@ static void test_setPenCustomStartCap ()
 	REAL baseInset;
 	LineCap startCap;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 	GdipCreatePath (FillModeAlternate, &path);
 	GdipCreateCustomLineCap (path, NULL, LineCapDiamondAnchor, 10, &penCustomLineCap);
 
@@ -960,7 +1006,7 @@ static void test_getPenCustomStartCap ()
 	GpPen *pen;
 	GpCustomLineCap *customStartCap;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenCustomStartCap (NULL, &customStartCap);
@@ -982,7 +1028,7 @@ static void test_setPenCustomEndCap ()
 	REAL baseInset;
 	LineCap endCap;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 	GdipCreatePath (FillModeAlternate, &path);
 	GdipCreateCustomLineCap (path, NULL, LineCapDiamondAnchor, 10, &penCustomLineCap);
 
@@ -1019,7 +1065,7 @@ static void test_getPenCustomEndCap ()
 	GpPen *pen;
 	GpCustomLineCap *customEndCap;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenCustomEndCap (NULL, &customEndCap);
@@ -1037,7 +1083,7 @@ static void test_setPenMiterLimit ()
 	GpPen *pen;
 	REAL miterLimit;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Positive.
 	status = GdipSetPenMiterLimit (pen, 100);
@@ -1084,7 +1130,7 @@ static void test_getPenMiterLimit ()
 	GpPen *pen;
 	REAL miterLimit;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenMiterLimit (NULL, &miterLimit);
@@ -1098,261 +1144,261 @@ static void test_getPenMiterLimit ()
 
 static void test_getPenTransform ()
 {
-    GpStatus status;
-    GpPen *pen;
-    GpMatrix *transform;
+	GpStatus status;
+	GpPen *pen;
+	GpMatrix *transform;
 
-		GdipCreatePen1 (1, 10, UnitWorld, &pen);
-    GdipCreateMatrix (&transform);
+		GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
+	GdipCreateMatrix (&transform);
 
 		// Negative tests.
-    status = GdipGetPenTransform (NULL, transform);
-    assertEqualInt (status, InvalidParameter);
+	status = GdipGetPenTransform (NULL, transform);
+	assertEqualInt (status, InvalidParameter);
 
-    status = GdipGetPenTransform (pen, NULL);
-    assertEqualInt (status, InvalidParameter);
+	status = GdipGetPenTransform (pen, NULL);
+	assertEqualInt (status, InvalidParameter);
 
-    GdipDeletePen (pen);
-    GdipDeleteMatrix (transform);
+	GdipDeletePen (pen);
+	GdipDeleteMatrix (transform);
 }
 
 static void test_setPenTransform ()
 {
-    GpStatus status;
-    GpPen *pen;
-    GpMatrix *matrix;
-    GpMatrix *transform;
+	GpStatus status;
+	GpPen *pen;
+	GpMatrix *matrix;
+	GpMatrix *transform;
 
-		GdipCreatePen1 (1, 10, UnitWorld, &pen);
-    GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
-    GdipCreateMatrix (&transform);
+		GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
+	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
+	GdipCreateMatrix (&transform);
 
-    status = GdipSetPenTransform (pen, matrix);
-    assertEqualInt (status, Ok);
+	status = GdipSetPenTransform (pen, matrix);
+	assertEqualInt (status, Ok);
 
-    GdipGetPenTransform (pen, transform);
-    assert (transform != matrix && "Expected new matrix to be a clone.");
-    verifyMatrix (transform, 1, 2, 3, 4, 5, 6);
+	GdipGetPenTransform (pen, transform);
+	assert (transform != matrix && "Expected new matrix to be a clone.");
+	verifyMatrix (transform, 1, 2, 3, 4, 5, 6);
 
-    // Changing the original transform should not modify the pen's transform.
-    GdipSetMatrixElements (matrix, 2, 3, 4, 5, 6, 7);
-    GdipGetPenTransform (pen, transform);
-    verifyMatrix (transform, 1, 2, 3, 4, 5, 6);
+	// Changing the original transform should not modify the pen's transform.
+	GdipSetMatrixElements (matrix, 2, 3, 4, 5, 6, 7);
+	GdipGetPenTransform (pen, transform);
+	verifyMatrix (transform, 1, 2, 3, 4, 5, 6);
 
-    // Negative tests.
-    status = GdipSetPenTransform (NULL, transform);
-    assertEqualInt (status, InvalidParameter);
+	// Negative tests.
+	status = GdipSetPenTransform (NULL, transform);
+	assertEqualInt (status, InvalidParameter);
 
-    status = GdipSetPenTransform (pen, NULL);
-    assertEqualInt (status, InvalidParameter);
+	status = GdipSetPenTransform (pen, NULL);
+	assertEqualInt (status, InvalidParameter);
 
-    GdipDeletePen (pen);
-    GdipDeleteMatrix (matrix);
-    GdipDeleteMatrix (transform);
+	GdipDeletePen (pen);
+	GdipDeleteMatrix (matrix);
+	GdipDeleteMatrix (transform);
 }
 
 static void test_multiplyPenTransform ()
 {
-    GpStatus status;
-    GpPen *pen;
-    GpMatrix *originalTransform;
-    GpMatrix *matrix;
-    GpMatrix *nonInvertibleMatrix;
-    GpMatrix *transform;
+	GpStatus status;
+	GpPen *pen;
+	GpMatrix *originalTransform;
+	GpMatrix *matrix;
+	GpMatrix *nonInvertibleMatrix;
+	GpMatrix *transform;
 
-    GdipCreatePen1 (1, 10, UnitWorld, &pen);
-    GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &originalTransform);
-    GdipCreateMatrix2 (2, 3, 4, 5, 6, 7, &matrix);
-    GdipCreateMatrix2 (123, 24, 82, 16, 47, 30, &nonInvertibleMatrix);
-    GdipCreateMatrix (&transform);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
+	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &originalTransform);
+	GdipCreateMatrix2 (2, 3, 4, 5, 6, 7, &matrix);
+	GdipCreateMatrix2 (123, 24, 82, 16, 47, 30, &nonInvertibleMatrix);
+	GdipCreateMatrix (&transform);
 
-    // MatrixOrderAppend.
-    GdipSetPenTransform (pen, originalTransform);
+	// MatrixOrderAppend.
+	GdipSetPenTransform (pen, originalTransform);
 
-    status = GdipMultiplyPenTransform (pen, matrix, MatrixOrderAppend);
-    assertEqualInt (status, Ok);
+	status = GdipMultiplyPenTransform (pen, matrix, MatrixOrderAppend);
+	assertEqualInt (status, Ok);
 
-    GdipGetPenTransform (pen, transform);
-    verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
+	GdipGetPenTransform (pen, transform);
+	verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
 
-    // MatrixOrderPrepend.
-    GdipSetPenTransform (pen, originalTransform);
+	// MatrixOrderPrepend.
+	GdipSetPenTransform (pen, originalTransform);
 
-    status = GdipMultiplyPenTransform (pen, matrix, MatrixOrderPrepend);
-    assertEqualInt (status, Ok);
+	status = GdipMultiplyPenTransform (pen, matrix, MatrixOrderPrepend);
+	assertEqualInt (status, Ok);
 
-    GdipGetPenTransform (pen, transform);
-    verifyMatrix (transform, 11, 16, 19, 28, 32, 46);
+	GdipGetPenTransform (pen, transform);
+	verifyMatrix (transform, 11, 16, 19, 28, 32, 46);
 
-    // Null matrix.
-    status = GdipMultiplyPenTransform (pen, NULL, MatrixOrderAppend);
-    assertEqualInt (status, Ok);
+	// Null matrix.
+	status = GdipMultiplyPenTransform (pen, NULL, MatrixOrderAppend);
+	assertEqualInt (status, Ok);
 
-    GdipGetPenTransform (pen, transform);
-    verifyMatrix (transform, 11, 16, 19, 28, 32, 46);
+	GdipGetPenTransform (pen, transform);
+	verifyMatrix (transform, 11, 16, 19, 28, 32, 46);
 
-    // Invalid MatrixOrder - negative.
-    GdipSetPenTransform (pen, originalTransform);
+	// Invalid MatrixOrder - negative.
+	GdipSetPenTransform (pen, originalTransform);
 
-    status = GdipMultiplyPenTransform (pen, matrix, (MatrixOrder)(MatrixOrderPrepend - 1));
+	status = GdipMultiplyPenTransform (pen, matrix, (MatrixOrder)(MatrixOrderPrepend - 1));
 		assertEqualInt (status, Ok);
 
-    GdipGetPenTransform (pen, transform);
-    verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
+	GdipGetPenTransform (pen, transform);
+	verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
 
-    // Invalid MatrixOrder - positive.
-    GdipSetPenTransform (pen, originalTransform);
+	// Invalid MatrixOrder - positive.
+	GdipSetPenTransform (pen, originalTransform);
 
-    status = GdipMultiplyPenTransform (pen, matrix, (MatrixOrder)(MatrixOrderAppend + 1));
-    assertEqualInt (status, Ok);
+	status = GdipMultiplyPenTransform (pen, matrix, (MatrixOrder)(MatrixOrderAppend + 1));
+	assertEqualInt (status, Ok);
 
-    GdipGetPenTransform (pen, transform);
-    verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
+	GdipGetPenTransform (pen, transform);
+	verifyMatrix (transform, 10, 13, 22, 29, 40, 52);
 
-    // Negative tests.
-    status = GdipMultiplyPenTransform (NULL, matrix, MatrixOrderAppend);
-    assertEqualInt (status, InvalidParameter);
+	// Negative tests.
+	status = GdipMultiplyPenTransform (NULL, matrix, MatrixOrderAppend);
+	assertEqualInt (status, InvalidParameter);
 
-    status = GdipMultiplyPenTransform (pen, nonInvertibleMatrix, MatrixOrderAppend);
-    assertEqualInt (status, InvalidParameter);
+	status = GdipMultiplyPenTransform (pen, nonInvertibleMatrix, MatrixOrderAppend);
+	assertEqualInt (status, InvalidParameter);
 
-    GdipDeletePen (pen);
-    GdipDeleteMatrix (originalTransform);
-    GdipDeleteMatrix (matrix);
-    GdipDeleteMatrix (nonInvertibleMatrix);
-    GdipDeleteMatrix (transform);
+	GdipDeletePen (pen);
+	GdipDeleteMatrix (originalTransform);
+	GdipDeleteMatrix (matrix);
+	GdipDeleteMatrix (nonInvertibleMatrix);
+	GdipDeleteMatrix (transform);
 }
 
 static void test_translatePenTransform ()
 {
-    GpStatus status;
-    GpPen *pen;
-    GpMatrix *originalTransform;
-    GpMatrix *transform;
+	GpStatus status;
+	GpPen *pen;
+	GpMatrix *originalTransform;
+	GpMatrix *transform;
 
-    GdipCreatePen1 (1, 10, UnitWorld, &pen);
-    GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &originalTransform);
-    GdipCreateMatrix (&transform);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
+	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &originalTransform);
+	GdipCreateMatrix (&transform);
 
-    // MatrixOrderAppend.
-    GdipSetPenTransform (pen, originalTransform);
+	// MatrixOrderAppend.
+	GdipSetPenTransform (pen, originalTransform);
 
-    status = GdipTranslatePenTransform (pen, 5, 6, MatrixOrderAppend);
-    assertEqualInt (status, Ok);
+	status = GdipTranslatePenTransform (pen, 5, 6, MatrixOrderAppend);
+	assertEqualInt (status, Ok);
 
-    GdipGetPenTransform (pen, transform);
-    verifyMatrix (transform, 1, 2, 3, 4, 10, 12);
+	GdipGetPenTransform (pen, transform);
+	verifyMatrix (transform, 1, 2, 3, 4, 10, 12);
 
-    // MatrixOrderPrepend.
-    GdipSetPenTransform (pen, originalTransform);
+	// MatrixOrderPrepend.
+	GdipSetPenTransform (pen, originalTransform);
 
-    status = GdipTranslatePenTransform (pen, 5, 6, MatrixOrderPrepend);
-    assertEqualInt (status, Ok);
+	status = GdipTranslatePenTransform (pen, 5, 6, MatrixOrderPrepend);
+	assertEqualInt (status, Ok);
 
-    GdipGetPenTransform (pen, transform);
-    verifyMatrix (transform, 1, 2, 3, 4, 28, 40);
+	GdipGetPenTransform (pen, transform);
+	verifyMatrix (transform, 1, 2, 3, 4, 28, 40);
 
-    // Negative tests.
-    status = GdipTranslatePenTransform (NULL, 1, 1, MatrixOrderAppend);
-    assertEqualInt (status, InvalidParameter);
+	// Negative tests.
+	status = GdipTranslatePenTransform (NULL, 1, 1, MatrixOrderAppend);
+	assertEqualInt (status, InvalidParameter);
 
-    status = GdipTranslatePenTransform (pen, 1, 1, (MatrixOrder)(MatrixOrderPrepend - 1));
-    assertEqualInt (status, InvalidParameter);
+	status = GdipTranslatePenTransform (pen, 1, 1, (MatrixOrder)(MatrixOrderPrepend - 1));
+	assertEqualInt (status, InvalidParameter);
 
-    status = GdipTranslatePenTransform (pen, 1, 1, (MatrixOrder)(MatrixOrderAppend + 1));
-    assertEqualInt (status, InvalidParameter);
+	status = GdipTranslatePenTransform (pen, 1, 1, (MatrixOrder)(MatrixOrderAppend + 1));
+	assertEqualInt (status, InvalidParameter);
 
-    GdipDeletePen (pen);
-    GdipDeleteMatrix (originalTransform);
-    GdipDeleteMatrix (transform);
+	GdipDeletePen (pen);
+	GdipDeleteMatrix (originalTransform);
+	GdipDeleteMatrix (transform);
 }
 
 static void test_scalePenTransform ()
 {
-    GpStatus status;
-    GpPen *pen;
-    GpMatrix *originalTransform;
-    GpMatrix *transform;
+	GpStatus status;
+	GpPen *pen;
+	GpMatrix *originalTransform;
+	GpMatrix *transform;
 
-    GdipCreatePen1 (1, 10, UnitWorld, &pen);
-    GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &originalTransform);
-    GdipCreateMatrix (&transform);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
+	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &originalTransform);
+	GdipCreateMatrix (&transform);
 
-    // MatrixOrderAppend.
-    GdipSetPenTransform (pen, originalTransform);
+	// MatrixOrderAppend.
+	GdipSetPenTransform (pen, originalTransform);
 
-    status = GdipScalePenTransform (pen, 0.5, 0.75, MatrixOrderAppend);
-    assertEqualInt (status, Ok);
+	status = GdipScalePenTransform (pen, 0.5, 0.75, MatrixOrderAppend);
+	assertEqualInt (status, Ok);
 
-    GdipGetPenTransform (pen, transform);
-    verifyMatrix (transform, 0.5, 1.5, 1.5, 3, 2.5, 4.5);
+	GdipGetPenTransform (pen, transform);
+	verifyMatrix (transform, 0.5, 1.5, 1.5, 3, 2.5, 4.5);
 
-    // MatrixOrderPrepend.
-    GdipSetPenTransform (pen, originalTransform);
+	// MatrixOrderPrepend.
+	GdipSetPenTransform (pen, originalTransform);
 
-    status = GdipScalePenTransform (pen, 0.5, 0.75, MatrixOrderPrepend);
-    assertEqualInt (status, Ok);
+	status = GdipScalePenTransform (pen, 0.5, 0.75, MatrixOrderPrepend);
+	assertEqualInt (status, Ok);
 
-    GdipGetPenTransform (pen, transform);
-    verifyMatrix (transform, 0.5, 1, 2.25, 3, 5, 6);
+	GdipGetPenTransform (pen, transform);
+	verifyMatrix (transform, 0.5, 1, 2.25, 3, 5, 6);
 
-    // Negative tests.
-    status = GdipScalePenTransform (NULL, 1, 1, MatrixOrderAppend);
-    assertEqualInt (status, InvalidParameter);
+	// Negative tests.
+	status = GdipScalePenTransform (NULL, 1, 1, MatrixOrderAppend);
+	assertEqualInt (status, InvalidParameter);
 
-    status = GdipScalePenTransform (pen, 1, 1, (MatrixOrder)(MatrixOrderPrepend - 1));
-    assertEqualInt (status, InvalidParameter);
+	status = GdipScalePenTransform (pen, 1, 1, (MatrixOrder)(MatrixOrderPrepend - 1));
+	assertEqualInt (status, InvalidParameter);
 
-    status = GdipScalePenTransform (pen, 1, 1, (MatrixOrder)(MatrixOrderAppend + 1));
-    assertEqualInt (status, InvalidParameter);
+	status = GdipScalePenTransform (pen, 1, 1, (MatrixOrder)(MatrixOrderAppend + 1));
+	assertEqualInt (status, InvalidParameter);
 
-    GdipDeletePen (pen);
-    GdipDeleteMatrix (originalTransform);
-    GdipDeleteMatrix (transform);
+	GdipDeletePen (pen);
+	GdipDeleteMatrix (originalTransform);
+	GdipDeleteMatrix (transform);
 }
 
 static void test_rotatePenTransform ()
 {
-    GpStatus status;
-    GpPen *pen;
-    GpMatrix *originalTransform;
-    GpMatrix *transform;
+	GpStatus status;
+	GpPen *pen;
+	GpMatrix *originalTransform;
+	GpMatrix *transform;
 
-    GdipCreatePen1 (1, 10, UnitWorld, &pen);
-    GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &originalTransform);
-    GdipCreateMatrix (&transform);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
+	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &originalTransform);
+	GdipCreateMatrix (&transform);
 
-    // MatrixOrderAppend.
-    GdipSetPenTransform (pen, originalTransform);
+	// MatrixOrderAppend.
+	GdipSetPenTransform (pen, originalTransform);
 
-    status = GdipRotatePenTransform (pen, 90, MatrixOrderAppend);
-    assertEqualInt (status, Ok);
+	status = GdipRotatePenTransform (pen, 90, MatrixOrderAppend);
+	assertEqualInt (status, Ok);
 
-    GdipGetPenTransform (pen, transform);
-    verifyMatrix (transform, -2, 1, -4, 3, -6, 5);
+	GdipGetPenTransform (pen, transform);
+	verifyMatrix (transform, -2, 1, -4, 3, -6, 5);
 
-    // MatrixOrderPrepend.
-    GdipSetPenTransform (pen, originalTransform);
+	// MatrixOrderPrepend.
+	GdipSetPenTransform (pen, originalTransform);
 
-    status = GdipRotatePenTransform (pen, 90, MatrixOrderPrepend);
-    assertEqualInt (status, Ok);
+	status = GdipRotatePenTransform (pen, 90, MatrixOrderPrepend);
+	assertEqualInt (status, Ok);
 
-    GdipGetPenTransform (pen, transform);
-    verifyMatrix (transform, 3, 4, -1, -2, 5, 6);
+	GdipGetPenTransform (pen, transform);
+	verifyMatrix (transform, 3, 4, -1, -2, 5, 6);
 
-    // Negative tests.
-    status = GdipRotatePenTransform (NULL, 90, MatrixOrderAppend);
-    assertEqualInt (status, InvalidParameter);
+	// Negative tests.
+	status = GdipRotatePenTransform (NULL, 90, MatrixOrderAppend);
+	assertEqualInt (status, InvalidParameter);
 
-    status = GdipRotatePenTransform (pen, 90, (MatrixOrder)(MatrixOrderPrepend - 1));
-    assertEqualInt (status, InvalidParameter);
+	status = GdipRotatePenTransform (pen, 90, (MatrixOrder)(MatrixOrderPrepend - 1));
+	assertEqualInt (status, InvalidParameter);
 
-    status = GdipRotatePenTransform (pen, 90, (MatrixOrder)(MatrixOrderAppend + 1));
-    assertEqualInt (status, InvalidParameter);
+	status = GdipRotatePenTransform (pen, 90, (MatrixOrder)(MatrixOrderAppend + 1));
+	assertEqualInt (status, InvalidParameter);
 
-    GdipDeletePen (pen);
-    GdipDeleteMatrix (originalTransform);
-    GdipDeleteMatrix (transform);
+	GdipDeletePen (pen);
+	GdipDeleteMatrix (originalTransform);
+	GdipDeleteMatrix (transform);
 }
 
 static void test_setPenMode ()
@@ -1363,8 +1409,8 @@ static void test_setPenMode ()
 	REAL twoCompounds[2] = {1, 1};
 	PenAlignment mode;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
-	GdipCreatePen1 (1, 10, UnitWorld, &compoundArrayPen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &compoundArrayPen);
 	GdipSetPenCompoundArray (compoundArrayPen, twoCompounds, 2);
 
 	// Normal pen - PenAlignmentInset.
@@ -1442,7 +1488,7 @@ static void test_setPenMode ()
 	// Negative tests.
 	status = GdipSetPenMode (NULL, PenAlignmentCenter);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipSetPenMode (compoundArrayPen, PenAlignmentInset);
 	assertEqualInt (status, NotImplemented);
 
@@ -1456,7 +1502,7 @@ static void test_getPenMode ()
 	GpPen *pen;
 	PenAlignment mode;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenMode (NULL, &mode);
@@ -1473,21 +1519,130 @@ static void test_setPenColor ()
 	GpStatus status;
 	GpPen *pen;
 	ARGB color;
+	GpBrush *brush;
+	GpBrushType brushType;
+	GpBrush *hatchBrush;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
+	GdipCreateHatchBrush (HatchStyle05Percent, 0x00000011, 0x00000022, (GpHatch **) &hatchBrush);
 
-	status = GdipSetPenColor (pen, 100);
+	// Solid fill.
+	status = GdipSetPenColor (pen, 0x01020304);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetPenColor (pen, &color);
 	assertEqualInt (status, Ok);
-	assertEqualInt (color, 100);
+	assertEqualInt (color, 0x01020304);
+
+	status = GdipGetPenBrushFill (pen, &brush);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetBrushType (brush, &brushType);
+	assertEqualInt (status, Ok);
+	assertEqualInt (brushType, BrushTypeSolidColor);
+
+	status = GdipGetSolidFillColor ((GpSolidFill *) brush, &color);
+	assertEqualInt (status, Ok);
+	assertEqualInt (color, 0x01020304);
+
+	GdipDeleteBrush (brush);
+
+	// Same color.
+	status = GdipSetPenColor (pen, 0x01020304);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetPenColor (pen, &color);
+	assertEqualInt (status, Ok);
+	assertEqualInt (color, 0x01020304);
+
+	status = GdipGetPenBrushFill (pen, &brush);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetBrushType (brush, &brushType);
+	assertEqualInt (status, Ok);
+	assertEqualInt (brushType, BrushTypeSolidColor);
+
+	status = GdipGetSolidFillColor ((GpSolidFill *) brush, &color);
+	assertEqualInt (status, Ok);
+	assertEqualInt (color, 0x01020304);
+
+	GdipDeleteBrush (brush);
+
+	// Different color.
+	status = GdipSetPenColor (pen, 0x12345678);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetPenColor (pen, &color);
+	assertEqualInt (status, Ok);
+	assertEqualInt (color, 0x12345678);
+
+	status = GdipGetPenBrushFill (pen, &brush);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetBrushType (brush, &brushType);
+	assertEqualInt (status, Ok);
+	assertEqualInt (brushType, BrushTypeSolidColor);
+
+	status = GdipGetSolidFillColor ((GpSolidFill *) brush, &color);
+	assertEqualInt (status, Ok);
+	assertEqualInt (color, 0x12345678);
+
+	GdipDeleteBrush (brush);
+
+	// Custom brush - different color.
+	status = GdipSetPenBrushFill (pen, hatchBrush);
+	assertEqualInt (status, Ok);
+
+	status = GdipSetPenColor (pen, 0x12345678);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetPenColor (pen, &color);
+	assertEqualInt (status, Ok);
+	assertEqualInt (color, 0x12345678);
+
+	status = GdipGetPenBrushFill (pen, &brush);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetBrushType (brush, &brushType);
+	assertEqualInt (status, Ok);
+	assertEqualInt (brushType, BrushTypeSolidColor);
+
+	status = GdipGetSolidFillColor ((GpSolidFill *) brush, &color);
+	assertEqualInt (status, Ok);
+	assertEqualInt (color, 0x12345678);
+
+	GdipDeleteBrush (brush);
+
+	// Custom brush - same color.
+	status = GdipSetPenBrushFill (pen, hatchBrush);
+	assertEqualInt (status, Ok);
+
+	status = GdipSetPenColor (pen, 0x00000011);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetPenColor (pen, &color);
+	assertEqualInt (status, Ok);
+	assertEqualInt (color, 0x00000011);
+
+	status = GdipGetPenBrushFill (pen, &brush);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetBrushType (brush, &brushType);
+	assertEqualInt (status, Ok);
+	assertEqualInt (brushType, BrushTypeSolidColor);
+
+	status = GdipGetSolidFillColor ((GpSolidFill *) brush, &color);
+	assertEqualInt (status, Ok);
+	assertEqualInt (color, 0x00000011);
+
+	GdipDeleteBrush (brush);
 
 	// Negative tests.
-	status = GdipSetPenColor (NULL, 100);
+	status = GdipSetPenColor (NULL, 0x01020304);
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
+	GdipDeleteBrush ((GpBrush *) hatchBrush);
 }
 
 static void test_getPenColor ()
@@ -1496,13 +1651,31 @@ static void test_getPenColor ()
 	GpPen *pen;
 	ARGB color;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenColor (NULL, &color);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenColor (pen, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeletePen (pen);
+}
+
+static void test_getPenFillType ()
+{
+	GpStatus status;
+	GpPen *pen;
+	PenType type;
+
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
+
+	// Negative tests.
+	status = GdipGetPenFillType (NULL, &type);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetPenFillType (pen, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
@@ -1521,7 +1694,7 @@ static void test_setPenBrushFill ()
 	WrapMode brushWrapMode;
 
 	image = getImage ();
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 	GdipCreateSolidFill (100, &solidBrush);
 	GdipCreateTexture (image, WrapModeTileFlipX, &textureBrush);
 
@@ -1573,7 +1746,7 @@ static void test_getPenBrushFill ()
 	GpPen *pen;
 	GpBrush *brush;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenBrushFill (NULL, &brush);
@@ -1591,7 +1764,7 @@ static void test_getPenDashStyle ()
 	GpPen *pen;
 	DashStyle dashStyle;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenDashStyle (NULL, &dashStyle);
@@ -1611,7 +1784,7 @@ static void test_setPenDashStyle ()
 	REAL dashArray[6];
 	INT dashCount;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// DashStyleDashDot.
 	status = GdipSetPenDashStyle (pen, DashStyleDashDot);
@@ -1745,7 +1918,7 @@ static void test_getPenDashOffset ()
 	GpPen *pen;
 	REAL dashOffset;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenDashOffset (NULL, &dashOffset);
@@ -1763,7 +1936,7 @@ static void test_setPenDashOffset ()
 	GpPen *pen;
 	REAL dashOffset;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Positive.
 	status = GdipSetPenDashOffset (pen, 100);
@@ -1810,7 +1983,7 @@ static void test_getPenDashCount ()
 	GpPen *pen;
 	INT dashCount;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenDashCount (NULL, &dashCount);
@@ -1832,7 +2005,7 @@ static void test_setPenDashArray ()
 	INT dashCount;
 	REAL dashes[3];
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// One dash.
 	status = GdipSetPenDashArray (pen, twoDashes, 1);
@@ -1889,14 +2062,14 @@ static void test_getPenDashArray ()
 	REAL dashes[3] = {0, -1, -2};
 	REAL penDashes[2] = {1, 2};
 
-	GdipCreatePen1 (1, 10, UnitWorld, &penWithNoDashes);
-	GdipCreatePen1 (1, 10, UnitWorld, &penWithDashes);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &penWithNoDashes);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &penWithDashes);
 	GdipSetPenDashArray (penWithDashes, penDashes, 2);
-	
+
 	// Zero count.
 	status = GdipGetPenDashArray (penWithDashes, dashes, 0);
 	assertEqualInt (status, Ok);
-	
+
 	// Small count.
 	status = GdipGetPenDashArray (penWithDashes, dashes, 1);
 	assertEqualInt (status, Ok);
@@ -1910,6 +2083,12 @@ static void test_getPenDashArray ()
 
 	// Negative tests - no dashes.
 	status = GdipGetPenDashArray (penWithNoDashes, NULL, 2);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetPenDashArray (penWithNoDashes, NULL, 0);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetPenDashArray (penWithNoDashes, NULL, -1);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetPenDashArray (penWithNoDashes, dashes, 0);
@@ -1927,7 +2106,7 @@ static void test_getPenDashArray ()
 
 	status = GdipGetPenDashArray (penWithDashes, dashes, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipGetPenDashArray (penWithDashes, dashes, -1);
@@ -1944,7 +2123,7 @@ static void test_getPenCompoundCount ()
 	GpPen *pen;
 	INT compoundCount;
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Negative tests.
 	status = GdipGetPenCompoundCount (NULL, &compoundCount);
@@ -1974,8 +2153,8 @@ static void test_setPenCompoundArray ()
 	REAL secondLessThanFirst[2] = {0.5f, 0.4f};
 	REAL thirdLessThanSecond[4] = {0.5f, 0.6f, 0.5f, 0.7f};
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
-	GdipCreatePen1 (1, 10, UnitWorld, &insetPen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &insetPen);
 	GdipSetPenMode (insetPen, PenAlignmentInset);
 
 	// Two compounds - all 1.
@@ -2023,7 +2202,7 @@ static void test_setPenCompoundArray ()
 	assertEqualFloat (compounds[1], 1);
 	assertEqualFloat (compounds[2], 1);
 	assertEqualFloat (compounds[3], 1);
-	
+
 	// Ascending order from 0 to 1.
 	status = GdipSetPenCompoundArray (pen, ascendingOrderZeroToOne, 6);
 	assertEqualInt (status, Ok);
@@ -2040,7 +2219,7 @@ static void test_setPenCompoundArray ()
 	assertEqualFloat (compounds[3], 0.4f);
 	assertEqualFloat (compounds[4], 0.5f);
 	assertEqualFloat (compounds[5], 1);
-	
+
 	// Ascending order from greater than 0 to less than 1.
 	status = GdipSetPenCompoundArray (pen, ascendingOrderGreaterThanZeroToLessThanOne, 4);
 	assertEqualInt (status, Ok);
@@ -2119,23 +2298,7 @@ static void test_getPenCompoundArray ()
 	REAL compounds[3];
 	REAL twoCompounds[2] = {1, 1};
 
-	GdipCreatePen1 (1, 10, UnitWorld, &pen);
-
-	// Negative tests.
-	status = GdipGetPenCompoundArray (NULL, compounds, 2);
-	assertEqualInt (status, InvalidParameter);
-
-	status = GdipGetPenCompoundArray (NULL, compounds, -1);
-	assertEqualInt (status, InvalidParameter);
-
-	status = GdipGetPenCompoundArray (pen, NULL, 2);
-	assertEqualInt (status, InvalidParameter);
-
-	status = GdipGetPenCompoundArray (pen, NULL, -1);
-	assertEqualInt (status, InvalidParameter);
-
-	status = GdipGetPenCompoundArray (pen, compounds, 1);
-	assertEqualInt (status, InvalidParameter);
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 
 	// Empty compounds.
 	status = GdipGetPenCompoundArray (pen, compounds, 1);
@@ -2161,6 +2324,24 @@ static void test_getPenCompoundArray ()
 	assertEqualInt (status, Ok);
 
 	GdipDeletePen (pen);
+
+	// Negative tests.
+	GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
+
+	status = GdipGetPenCompoundArray (NULL, compounds, 2);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetPenCompoundArray (NULL, compounds, -1);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetPenCompoundArray (pen, NULL, 2);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetPenCompoundArray (pen, NULL, -1);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetPenCompoundArray (pen, compounds, 1);
+	assertEqualInt (status, InvalidParameter);
 }
 
 static void test_deletePen ()
@@ -2168,13 +2349,14 @@ static void test_deletePen ()
 	GpStatus status;
 	GpPen *pen;
 
-	status = GdipCreatePen1 (1, 10, UnitWorld, &pen);
+	status = GdipCreatePen1 (0x00000001, 10, UnitWorld, &pen);
 	assertEqualInt (status, Ok);
 
 	status = GdipDeletePen (pen);
 	assertEqualInt (status, Ok);
 	assert (pen);
 
+	// Negative tests.
 	status = GdipDeletePen (NULL);
 	assertEqualInt (status, InvalidParameter);
 }
@@ -2194,7 +2376,7 @@ main (int argc, char**argv)
 	test_setPenLineCap197819 ();
 	test_setPenStartCap ();
 	test_setPenEndCap ();
-	tet_setPenDashCap197819 ();
+	test_setPenDashCap197819 ();
 	test_getPenStartCap ();
 	test_getPenEndCap ();
 	test_getPenDashCap197819 ();
@@ -2216,6 +2398,7 @@ main (int argc, char**argv)
 	test_rotatePenTransform ();
 	test_setPenColor ();
 	test_getPenColor ();
+	test_getPenFillType ();
 	test_setPenBrushFill ();
 	test_getPenBrushFill ();
 	test_getPenDashStyle ();

@@ -286,7 +286,7 @@ GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen)
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
 
-	if (!brush || !pen)
+	if (!brush || !pen || unit > UnitCairoPoint || unit == UnitDisplay)
 		return InvalidParameter;
 
 	result = gdip_pen_new ();
@@ -507,16 +507,31 @@ GdipGetPenFillType (GpPen *pen, GpPenType *type)
 GpStatus WINGDIPAPI
 GdipSetPenColor (GpPen *pen, ARGB argb)
 {
+	GpStatus status;
+	GpSolidFill *brush;
+	GpBrushType type;
+
 	if (!pen)
 		return InvalidParameter;
 
-	if (pen->color != argb) {
-		pen->color = argb;
-		pen->changed = TRUE;
+	GdipGetBrushType (pen->brush, &type);
+	if (type == BrushTypeSolidColor) {
+		ARGB brushColor;
+		GdipGetSolidFillColor ((GpSolidFill *) pen->brush, &brushColor);
+
+		// Nothing to do.
+		if (brushColor == argb)
+			return Ok;
 	}
 
-	if (pen->changed && pen->brush && (pen->brush->vtable->type == BrushTypeSolidColor))
-		return GdipSetSolidFillColor ((GpSolidFill *) pen->brush, argb);
+	// Override the brush and set it to a solid fill.
+	status = GdipCreateSolidFill (argb, &brush);
+	if (status != Ok)
+		return status;
+
+	pen->color = argb;
+	pen->brush = (GpBrush *) brush;
+	pen->changed = TRUE;
 
 	return Ok;
 }
