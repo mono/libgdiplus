@@ -708,6 +708,7 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapmode, GpTexture **texture)
 		return InvalidParameter;
 
 	if (wrapmode > WrapModeClamp) {
+		*texture = NULL;
 		return OutOfMemory;
 	}
 
@@ -753,6 +754,7 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapmode, INT x, INT y, INT widt
 		return InvalidParameter;
 
 	if (wrapmode > WrapModeClamp) {
+		*texture = NULL;
 		return OutOfMemory;
 	}
 
@@ -760,8 +762,10 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapmode, INT x, INT y, INT widt
 	case ImageTypeBitmap: {
 		INT bmpWidth = image->active_bitmap->width;
 		INT bmpHeight = image->active_bitmap->height;
-		if ((x < 0) || (y < 0) || (width <= 0) || (height <= 0) || (bmpWidth < (x + width)) || (bmpHeight < (y + height)))
+		if ((x < 0) || (y < 0) || (width <= 0) || (height <= 0) || (bmpWidth < (x + width)) || (bmpHeight < (y + height))) {
+			*texture = NULL;
 			return OutOfMemory;
+		}
 
 		status = GdipCloneBitmapAreaI (x, y, width, height, image->active_bitmap->pixel_format, image, &textureImage);
 		if (status != Ok)
