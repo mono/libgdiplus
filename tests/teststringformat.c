@@ -107,11 +107,29 @@ static void test_createStringFormat ()
 static void test_getGenericDefault ()
 {
 	GpStatus status;
-	GpStringFormat *format;
+	GpStringFormat *format1;
+	GpStringFormat *format2;
 
-	status = GdipStringFormatGetGenericDefault (&format);
+	// Should be a singleton.
+	status = GdipStringFormatGetGenericDefault (&format1);
 	assertEqualInt (status, Ok);
-	verifyStringFormat (format, 0, StringTrimmingCharacter);
+	assert (format1);
+	verifyStringFormat (format1, 0, StringTrimmingCharacter);
+
+	status = GdipStringFormatGetGenericDefault (&format2);
+	assertEqualInt (status, Ok);
+	assert (format2);
+	verifyStringFormat (format2, 0, StringTrimmingCharacter);
+	assert (format1 == format2);
+
+	// Should not be deleted.
+	status = GdipDeleteStringFormat (format2);
+	assertEqualInt (status, Ok);
+
+	status = GdipStringFormatGetGenericDefault (&format2);
+	assertEqualInt (status, Ok);
+	verifyStringFormat (format2, 0, StringTrimmingCharacter);
+	assert (format1 == format2);
 
 	// Negative tests.
 	status = GdipStringFormatGetGenericDefault (NULL);
@@ -121,11 +139,27 @@ static void test_getGenericDefault ()
 static void test_getGenericTypographic ()
 {
 	GpStatus status;
-	GpStringFormat *format;
+	GpStringFormat *format1;
+	GpStringFormat *format2;
 
-	status = GdipStringFormatGetGenericTypographic (&format);
+	// Should be a singleton.
+	status = GdipStringFormatGetGenericTypographic (&format1);
 	assertEqualInt (status, Ok);
-	verifyStringFormat (format, StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip, StringTrimmingNone);
+	verifyStringFormat (format1, StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip, StringTrimmingNone);
+
+	status = GdipStringFormatGetGenericTypographic (&format2);
+	assertEqualInt (status, Ok);
+	verifyStringFormat (format2, StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip, StringTrimmingNone);
+	assert (format1 == format2);
+
+	// Should not be deleted.
+	status = GdipDeleteStringFormat (format2);
+	assertEqualInt (status, Ok);
+
+	status = GdipStringFormatGetGenericTypographic (&format2);
+	assertEqualInt (status, Ok);
+	verifyStringFormat (format2, StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip, StringTrimmingNone);
+	assert (format1 == format2);
 
 	// Negative tests.
 	status = GdipStringFormatGetGenericTypographic (NULL);

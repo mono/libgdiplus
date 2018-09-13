@@ -27,6 +27,30 @@
 #include "stringformat-private.h"
 #include "general-private.h"
 
+/* Generic string formats */
+#if GLIB_CHECK_VERSION(2,32,0)
+static GMutex generic;
+#else
+static GStaticMutex generic = G_STATIC_MUTEX_INIT;
+#endif
+
+static GpStringFormat *stringFormatDefault = NULL;
+static GpStringFormat *stringFormatTypographic = NULL;
+
+void
+gdip_delete_generic_stringformats ()
+{
+	if (stringFormatDefault) {
+		GdipDeleteStringFormat (stringFormatDefault);
+		stringFormatDefault = NULL;
+	}
+
+	if (stringFormatTypographic) {
+		GdipDeleteStringFormat (stringFormatTypographic);
+		stringFormatTypographic = NULL;
+	}
+}
+
 static void
 gdip_string_format_init (GpStringFormat *result)
 {
@@ -82,18 +106,71 @@ GdipCreateStringFormat (INT formatAttributes, LANGID language, GpStringFormat **
 GpStatus WINGDIPAPI
 GdipStringFormatGetGenericDefault (GpStringFormat **format)
 {
-	return GdipCreateStringFormat (0, 0, format);
+	GpStatus status;
+
+	if (!format)
+		return InvalidParameter;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
+#if GLIB_CHECK_VERSION(2,32,0)
+	g_mutex_lock (&generic);
+#else
+	g_static_mutex_lock (&generic);
+#endif
+
+	if (!stringFormatDefault) {
+		status = GdipCreateStringFormat (0, 0, &stringFormatDefault);
+		if (status != Ok)
+			return status;
+	}
+
+#if GLIB_CHECK_VERSION(2,32,0)
+	g_mutex_unlock (&generic);
+#else
+	g_static_mutex_unlock (&generic);
+#endif
+
+	*format = stringFormatDefault;
+	return Ok;
 }
 
 /* coverity[+alloc : arg-*0] */
 GpStatus WINGDIPAPI
 GdipStringFormatGetGenericTypographic (GpStringFormat **format)
 {
+	GpStatus status;
 	const int formatFlags = StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip;
-	GpStatus status = GdipCreateStringFormat (formatFlags, 0, format);
-	if (status == Ok)
-		(*format)->trimming = StringTrimmingNone;
-	return status;
+
+	if (!format)
+		return InvalidParameter;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
+#if GLIB_CHECK_VERSION(2,32,0)
+	g_mutex_lock (&generic);
+#else
+	g_static_mutex_lock (&generic);
+#endif
+
+	if (!stringFormatTypographic) {
+		status = GdipCreateStringFormat (formatFlags, 0, &stringFormatTypographic);
+		if (status != Ok)
+			return status;
+
+		stringFormatTypographic->trimming = StringTrimmingNone;
+	}
+
+#if GLIB_CHECK_VERSION(2,32,0)
+	g_mutex_unlock (&generic);
+#else
+	g_static_mutex_unlock (&generic);
+#endif
+
+	*format = stringFormatTypographic;
+	return Ok;
 }
 
 /* coverity[+alloc : arg-*1] */
@@ -150,6 +227,10 @@ GdipDeleteStringFormat (GpStringFormat *format)
 {
 	if (!format)
 		return InvalidParameter;
+
+	// These are singletons deleted on shutdown.
+	if (format == stringFormatDefault || format == stringFormatTypographic)
+		return Ok;
 
 	if (format->tabStops) {
 		GdipFree (format->tabStops);

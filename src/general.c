@@ -30,6 +30,7 @@
 #include "codecs-private.h"
 #include "graphics-private.h"
 #include "font-private.h"
+#include "stringformat-private.h"
 #include "carbon-private.h"
 #ifdef WIN32
 #include "win32-private.h"
@@ -84,6 +85,7 @@ WINGDIPAPI GdiplusShutdown (ULONG_PTR token)
 		releaseCodecList ();
 		gdip_font_clear_pattern_cache ();
 		gdip_delete_system_fonts ();
+		gdip_delete_generic_stringformats ();
 #if HAVE_FCFINI
 		FcFini ();
 #endif
