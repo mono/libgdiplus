@@ -27,38 +27,20 @@
 #include "stringformat-private.h"
 #include "general-private.h"
 
-static GpStringFormat *stringFormatDefault = NULL;
-static GpStringFormat *stringFormatTypographic = NULL;
+static GpStringFormat stringFormatDefault;
+static GpStringFormat stringFormatTypographic;
 
-GpStatus
-gdip_create_generic_stringformats ()
+static void
+gdip_string_format_clear (GpStringFormat *format)
 {
-	GpStatus status;
-	const int typographicFlags = StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip;
-
-	status = GdipCreateStringFormat (0, 0, &stringFormatDefault);
-	if (status != Ok)
-		return status;
-	
-	status = GdipCreateStringFormat (typographicFlags, 0, &stringFormatTypographic);
-	if (status != Ok)
-		return status;
-
-	stringFormatTypographic->trimming = StringTrimmingNone;
-	return Ok;
-}
-
-void
-gdip_delete_generic_stringformats ()
-{
-	if (stringFormatDefault) {
-		GdipDeleteStringFormat (stringFormatDefault);
-		stringFormatDefault = NULL;
+	if (format->tabStops) {
+		GdipFree (format->tabStops);
+		format->tabStops = NULL;
 	}
 
-	if (stringFormatTypographic) {
-		GdipDeleteStringFormat (stringFormatTypographic);
-		stringFormatTypographic = NULL;
+	if (format->charRanges) {
+		GdipFree (format->charRanges);
+		format->charRanges = NULL;
 	}
 }
 
@@ -77,6 +59,23 @@ gdip_string_format_init (GpStringFormat *result)
 	result->numtabStops = 0;
 	result->charRanges = NULL;
 	result->charRangeCount = 0;
+}
+
+void
+gdip_create_generic_stringformats ()
+{
+	gdip_string_format_init (&stringFormatDefault);
+
+	gdip_string_format_init (&stringFormatTypographic);
+	stringFormatTypographic.formatFlags = StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip;
+	stringFormatTypographic.trimming = StringTrimmingNone;
+}
+
+void
+gdip_delete_generic_stringformats ()
+{
+	gdip_string_format_clear (&stringFormatDefault);
+	gdip_string_format_clear (&stringFormatTypographic);
 }
 
 static GpStringFormat *
@@ -123,7 +122,7 @@ GdipStringFormatGetGenericDefault (GpStringFormat **format)
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
 
-	*format = stringFormatDefault;
+	*format = &stringFormatDefault;
 	return Ok;
 }
 
@@ -137,7 +136,7 @@ GdipStringFormatGetGenericTypographic (GpStringFormat **format)
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
 
-	*format = stringFormatTypographic;
+	*format = &stringFormatTypographic;
 	return Ok;
 }
 
@@ -196,19 +195,11 @@ GdipDeleteStringFormat (GpStringFormat *format)
 	if (!format)
 		return InvalidParameter;
 
-	// These are singletons deleted on shutdown.
-	if (format == stringFormatDefault || format == stringFormatTypographic)
+	// These are singletons cleared on shutdown.
+	if (format == &stringFormatDefault || format == &stringFormatTypographic)
 		return Ok;
 
-	if (format->tabStops) {
-		GdipFree (format->tabStops);
-		format->tabStops = NULL;
-	}
-
-	if (format->charRanges) {
-		GdipFree (format->charRanges);
-		format->charRanges = NULL;
-	}
+	gdip_string_format_clear (format);
 
 	GdipFree (format);
 	return Ok;

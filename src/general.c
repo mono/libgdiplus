@@ -64,14 +64,9 @@ GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStart
 	if (status != Ok)
 		return status;
 
-	status = gdip_create_generic_stringformats ();
-	if (status != Ok) {
-		releaseCodecList ();
-		return status;
-	}
-
 	FcInit ();
 	gdip_get_display_dpi();
+	gdip_create_generic_stringformats ();
 
 	if (input->SuppressBackgroundThread) {
 		output->NotificationHook = GdiplusNotificationHook;
