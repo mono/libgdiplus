@@ -25,11 +25,9 @@
 
 /* Graphics public API (only!) */
 
-typedef unsigned int GraphicsContainer;
-
-GpStatus WINGDIPAPI GdipBeginContainer (GpGraphics *graphics, GDIPCONST GpRectF* dstrect, GDIPCONST GpRectF *srcrect, GpUnit unit, GraphicsContainer *state);
-GpStatus WINGDIPAPI GdipBeginContainer2 (GpGraphics *graphics, GraphicsContainer* state);
-GpStatus WINGDIPAPI GdipBeginContainerI (GpGraphics *graphics, GDIPCONST GpRect* dstrect, GDIPCONST GpRect *srcrect, GpUnit unit, GraphicsContainer *state);
+GpStatus WINGDIPAPI GdipBeginContainer (GpGraphics *graphics, GDIPCONST GpRectF *dstrect, GDIPCONST GpRectF *srcrect, GpUnit unit, GraphicsContainer *state);
+GpStatus WINGDIPAPI GdipBeginContainer2 (GpGraphics *graphics, GraphicsContainer *state);
+GpStatus WINGDIPAPI GdipBeginContainerI (GpGraphics *graphics, GDIPCONST GpRect *dstrect, GDIPCONST GpRect *srcrect, GpUnit unit, GraphicsContainer *state);
 GpStatus WINGDIPAPI GdipEndContainer (GpGraphics *graphics, GraphicsContainer state);
 GpStatus WINGDIPAPI GdipFlush (GpGraphics *graphics, GpFlushIntention intention);
 
@@ -43,8 +41,8 @@ GpStatus WINGDIPAPI GdipDeleteGraphics (GpGraphics *graphics);
 GpStatus WINGDIPAPI GdipGetDC (GpGraphics *graphics, HDC *hdc);
 GpStatus WINGDIPAPI GdipReleaseDC (GpGraphics *graphics, HDC hdc);
 
-GpStatus WINGDIPAPI GdipRestoreGraphics (GpGraphics *graphics, UINT graphicsState);
-GpStatus WINGDIPAPI GdipSaveGraphics(GpGraphics *graphics, UINT *state);
+GpStatus WINGDIPAPI GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state);
+GpStatus WINGDIPAPI GdipSaveGraphics (GpGraphics *graphics, GraphicsState *state);
 
 GpStatus WINGDIPAPI GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix);
 GpStatus WINGDIPAPI GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix);

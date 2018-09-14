@@ -488,7 +488,7 @@ GdipReleaseDC (GpGraphics *graphics, HDC hdc)
 }
 
 GpStatus WINGDIPAPI
-GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
+GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state)
 {
 	GpState* pos_state;
 
@@ -497,11 +497,11 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 	
 	//printf("[%s %d] GdipRestoreGraphics called\n", __FILE__, __LINE__);
 
-	if (graphicsState >= MAX_GRAPHICS_STATE_STACK || graphicsState > graphics->saved_status_pos)
+	if (state >= MAX_GRAPHICS_STATE_STACK || state > graphics->saved_status_pos)
 		return InvalidParameter;
 
 	pos_state = graphics->saved_status;
-	pos_state += graphicsState;	
+	pos_state += state;	
 
 	/* Save from GpState to Graphics  */
 	gdip_cairo_matrix_copy (graphics->copy_of_ctm, &pos_state->matrix);
@@ -524,7 +524,7 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 	graphics->pixel_mode = pos_state->pixel_mode;
 	graphics->text_contrast = pos_state->text_contrast;
 
-	graphics->saved_status_pos = graphicsState;
+	graphics->saved_status_pos = state;
 
 	/* re-adjust clipping (region and matrix) */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
@@ -535,7 +535,7 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 }
 
 GpStatus WINGDIPAPI
-GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
+GdipSaveGraphics (GpGraphics *graphics, GraphicsState *state)
 {
 	GpState* pos_state;
 
@@ -785,7 +785,7 @@ GdipRotateWorldTransform (GpGraphics *graphics, REAL angle, GpMatrixOrder order)
 }
 
 GpStatus WINGDIPAPI
-GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder order)
+GdipScaleWorldTransform (GpGraphics *graphics, REAL sx, REAL sy, GpMatrixOrder order)
 {
 	GpStatus s;
 
@@ -814,7 +814,7 @@ GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder
 }
 
 GpStatus WINGDIPAPI
-GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixOrder order)
+GdipTranslateWorldTransform (GpGraphics *graphics, REAL dx, REAL dy, GpMatrixOrder order)
 {
 	GpStatus s;
 
