@@ -87,10 +87,10 @@ gdip_get_image_attribute (GpImageAttributes* attr, ColorAdjustType type)
 	}
 }
 
-void
+GpStatus
 gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, BOOL *allocated)
 {
-	GpStatus;
+	GpStatus status;
 	GpImageAttribute *imgattr, *def;
 	GpImageAttribute *colormap, *gamma, *trans, *cmatrix;
 	GpBitmap *bmpdest;
@@ -101,13 +101,9 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	bmpdest = NULL;
 
 	if (!bitmap || !dest || !attr)
-		return;
+		return Ok;
 
 	imgattr = gdip_get_image_attribute (attr, ColorAdjustTypeBitmap);
-
-	if (!imgattr)
-		return;
-
 	def = gdip_get_image_attribute (attr, ColorAdjustTypeDefault);
 	if (imgattr->flags & ImageAttributeFlagsColorRemapTableEnabled) {
 		colormap = imgattr;
@@ -137,17 +133,19 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	    ((cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled) && cmatrix->colormatrix != NULL)) {
 		bmpdest = gdip_bitmap_new_with_frame (NULL, FALSE);
 		if (!bmpdest)
-			return;
+			return OutOfMemory;
 
+		PixelFormat oldFormat = bitmap->active_bitmap->pixel_format;
 		bitmap->active_bitmap->pixel_format = PixelFormat32bppARGB;
-		status = gdip_bitmapdata_clone (bitmap->active_bitmap, &bmpdest->frames[0].bitmap, 1)
+		status = gdip_bitmapdata_clone (bitmap->active_bitmap, &bmpdest->frames[0].bitmap, 1);
 		if (status != Ok) {
+			bitmap->active_bitmap->pixel_format = oldFormat;
 			gdip_bitmap_dispose (bmpdest);
-			return;
+			return OutOfMemory;
 		}
 
 		bmpdest->frames[0].count = 1;
-		gdip_bitmap_setactive(bmpdest, NULL, 0);
+		gdip_bitmap_setactive (bmpdest, NULL, 0);
 		*dest = bmpdest->active_bitmap->scan0;
 		*allocated = TRUE;
 	}
@@ -295,6 +293,8 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		bmpdest->active_bitmap->scan0 = NULL;
 		gdip_bitmap_dispose (bmpdest);
 	}
+
+	return Ok;
 }
 
 /* coverity[+alloc : arg-*0] */
