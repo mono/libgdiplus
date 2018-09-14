@@ -605,7 +605,6 @@ apply_world_to_bounds (GpGraphics *graphics)
 		graphics->bounds.Y = pts[0].Y;
 		graphics->bounds.Height = iround (pts[1].Y - pts[0].Y);
 	}
-	return Ok;
 }
 
 GpStatus WINGDIPAPI
