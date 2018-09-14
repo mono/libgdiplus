@@ -90,10 +90,10 @@ gdip_get_image_attribute (GpImageAttributes* attr, ColorAdjustType type)
 void
 gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, BOOL *allocated)
 {
+	GpStatus;
 	GpImageAttribute *imgattr, *def;
 	GpImageAttribute *colormap, *gamma, *trans, *cmatrix;
 	GpBitmap *bmpdest;
-	int x,y, cnt;
 	ARGB color;
 	BYTE *color_p = (BYTE*) &color;
 
@@ -135,9 +135,17 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	if ((colormap->flags & ImageAttributeFlagsColorRemapTableEnabled) || (gamma->flags & ImageAttributeFlagsGammaEnabled) || (trans->flags & ImageAttributeFlagsColorKeysEnabled) ||
 	    ((cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled) && cmatrix->colormatrix != NULL)) {
+		bmpdest = gdip_bitmap_new_with_frame (NULL, FALSE);
+		if (!bmpdest)
+			return;
+
 		bitmap->active_bitmap->pixel_format = PixelFormat32bppARGB;
-		bmpdest = gdip_bitmap_new_with_frame(NULL, FALSE);
-		gdip_bitmapdata_clone(bitmap->active_bitmap, &bmpdest->frames[0].bitmap, 1);
+		status = gdip_bitmapdata_clone (bitmap->active_bitmap, &bmpdest->frames[0].bitmap, 1)
+		if (status != Ok) {
+			gdip_bitmap_dispose (bmpdest);
+			return;
+		}
+
 		bmpdest->frames[0].count = 1;
 		gdip_bitmap_setactive(bmpdest, NULL, 0);
 		*dest = bmpdest->active_bitmap->scan0;
@@ -151,13 +159,13 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	/* Color mapping */
 	if (colormap->flags & ImageAttributeFlagsColorRemapTableEnabled) {
-		for (y = 0; y <bitmap->active_bitmap->height; y++) {
-			for (x = 0; x <bitmap->active_bitmap->width; x++) {
+		for (int y = 0; y <bitmap->active_bitmap->height; y++) {
+			for (int x = 0; x <bitmap->active_bitmap->width; x++) {
 				ColorMap* clrmap = colormap->colormap;
 
 				GdipBitmapGetPixel (bmpdest, x, y, &color);
 
-				for (cnt = 0; cnt < colormap->colormap_elem; cnt++, clrmap++) {
+				for (int cnt = 0; cnt < colormap->colormap_elem; cnt++, clrmap++) {
 
 					if (color == clrmap->oldColor.Argb) {
 						color = clrmap->newColor.Argb;
@@ -171,8 +179,8 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	/* Gamma correction */
 	if (gamma->flags & ImageAttributeFlagsGammaEnabled) {
-		for (y = 0; y < bitmap->active_bitmap->height; y++) {
-			for (x = 0; x < bitmap->active_bitmap->width; x++) {
+		for (int y = 0; y < bitmap->active_bitmap->height; y++) {
+			for (int x = 0; x < bitmap->active_bitmap->width; x++) {
 
 				BYTE r,g,b,a;
 
@@ -201,8 +209,8 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	/* Apply transparency range */
 	if (trans->flags & ImageAttributeFlagsColorKeysEnabled) {
-		for (y = 0; y < bitmap->active_bitmap->height; y++) {
-			for (x = 0; x < bitmap->active_bitmap->width; x++) {
+		for (int y = 0; y < bitmap->active_bitmap->height; y++) {
+			for (int x = 0; x < bitmap->active_bitmap->width; x++) {
 
 				GdipBitmapGetPixel (bmpdest, x, y, &color);
 
@@ -223,9 +231,9 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		ColorMatrix *cm;
 		BOOL bmpdest_is_premultiplied = !gdip_bitmap_format_needs_premultiplication (bmpdest);
 
-		for (y = 0; y < data->height; y++) {
+		for (int y = 0; y < data->height; y++) {
 			scan = (ARGB*) v;
-			for (x = 0; x < data->width; x++) {
+			for (int x = 0; x < data->width; x++) {
 				BYTE r,g,b,a;
 				int r_new,g_new,b_new,a_new;
 
@@ -285,7 +293,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	if (bmpdest != NULL) {
 		bmpdest->active_bitmap->scan0 = NULL;
-		gdip_bitmap_dispose(bmpdest);
+		gdip_bitmap_dispose (bmpdest);
 	}
 }
 
@@ -312,7 +320,7 @@ GdipCreateImageAttributes (GpImageAttributes **imageattr)
 	gdip_init_image_attribute (&result->brush);
 	gdip_init_image_attribute (&result->pen);
 	gdip_init_image_attribute (&result->text);
-	result->color = 0;
+	result->color = 0x00000000;
 	result->wrapmode = WrapModeClamp;
 
 	*imageattr = result;
@@ -479,6 +487,17 @@ GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType t
 		return InvalidParameter;
 
 	if (enableFlag) {
+		BYTE rLow = (colorLow >> 16) & 0xFF;
+		BYTE gLow = (colorLow >> 8) & 0xFF;
+		BYTE bLow = colorLow & 0xFF;
+
+		BYTE rHigh = (colorHigh >> 16) & 0xFF;
+		BYTE gHigh = (colorHigh >> 8) & 0xFF;
+		BYTE bHigh = colorHigh & 0xFF;
+
+		if (rLow > rHigh || gLow > gHigh || bLow > bHigh)
+			return InvalidParameter;
+
 		imgattr->key_colorlow = colorLow;
 		imgattr->key_colorhigh = colorHigh;
 		imgattr->flags|= ImageAttributeFlagsColorKeysEnabled;
