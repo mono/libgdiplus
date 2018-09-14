@@ -580,19 +580,16 @@ GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 	return Ok;
 }
 
-static GpStatus
+static void
 apply_world_to_bounds (GpGraphics *graphics)
 {
-	GpStatus status;
 	GpPointF pts[2];
 
 	pts[0].X = graphics->orig_bounds.X;
 	pts[0].Y = graphics->orig_bounds.Y;
 	pts[1].X = graphics->orig_bounds.X + graphics->orig_bounds.Width;
 	pts[1].Y = graphics->orig_bounds.Y + graphics->orig_bounds.Height;
-	status = GdipTransformMatrixPoints (graphics->clip_matrix, (GpPointF*)&pts, 2);
-	if (status != Ok)
-		return status;
+	GdipTransformMatrixPoints (graphics->clip_matrix, pts, 2);
 
 	if (pts[0].X > pts[1].X) {
 		graphics->bounds.X = pts[1].X;
