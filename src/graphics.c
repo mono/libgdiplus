@@ -490,12 +490,11 @@ GdipReleaseDC (GpGraphics *graphics, HDC hdc)
 GpStatus WINGDIPAPI
 GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state)
 {
-	GpState* pos_state;
+	GpStatus status;
+	GpState *pos_state;
 
 	if (!graphics)
 		return InvalidParameter;
-	
-	//printf("[%s %d] GdipRestoreGraphics called\n", __FILE__, __LINE__);
 
 	if (state >= MAX_GRAPHICS_STATE_STACK || state > graphics->saved_status_pos)
 		return InvalidParameter;
@@ -511,7 +510,10 @@ GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state)
 
 	if (graphics->clip)
 		GdipDeleteRegion (graphics->clip);
-	GdipCloneRegion (pos_state->clip, &graphics->clip);
+	status = GdipCloneRegion (pos_state->clip, &graphics->clip);
+	if (status != Ok)
+		return status;
+
 	gdip_cairo_matrix_copy (graphics->clip_matrix, &pos_state->clip_matrix);
 
 	graphics->composite_mode = pos_state->composite_mode;
@@ -537,14 +539,17 @@ GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state)
 GpStatus WINGDIPAPI
 GdipSaveGraphics (GpGraphics *graphics, GraphicsState *state)
 {
+	GpStatus status;
 	GpState* pos_state;
 
 	if (!graphics || !state)
 		return InvalidParameter;
 
-	//printf("[%s %d] GdipSaveGraphics called\n", __FILE__, __LINE__);
-	if (graphics->saved_status == NULL) {
+	if (!graphics->saved_status) {
 		graphics->saved_status = gdip_calloc (MAX_GRAPHICS_STATE_STACK, sizeof (GpState));
+		if (!graphics->saved_status)
+			return OutOfMemory;
+
 		graphics->saved_status_pos = 0;
 	}
 
@@ -562,7 +567,10 @@ GdipSaveGraphics (GpGraphics *graphics, GraphicsState *state)
 
 	if (pos_state->clip)
 		GdipDeleteRegion (pos_state->clip);
-	GdipCloneRegion (graphics->clip, &pos_state->clip);
+	status = GdipCloneRegion (graphics->clip, &pos_state->clip);
+	if (status != Ok)
+		return status;
+
 	gdip_cairo_matrix_copy (&pos_state->clip_matrix, graphics->clip_matrix);
 
 	pos_state->composite_mode = graphics->composite_mode;
