@@ -52,6 +52,7 @@ struct _StringFormat {
 	int			charRangeCount;
 };
 
+GpStatus gdip_create_generic_stringformats () GDIP_INTERNAL;
 void gdip_delete_generic_stringformats () GDIP_INTERNAL;
 
 #include "stringformat.h"

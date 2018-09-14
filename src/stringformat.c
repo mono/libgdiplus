@@ -27,15 +27,26 @@
 #include "stringformat-private.h"
 #include "general-private.h"
 
-/* Generic string formats */
-#if GLIB_CHECK_VERSION(2,32,0)
-static GMutex generic;
-#else
-static GStaticMutex generic = G_STATIC_MUTEX_INIT;
-#endif
-
 static GpStringFormat *stringFormatDefault = NULL;
 static GpStringFormat *stringFormatTypographic = NULL;
+
+GpStatus
+gdip_create_generic_stringformats ()
+{
+	GpStatus status;
+	const int typographicFlags = StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip;
+
+	status = GdipCreateStringFormat (0, 0, &stringFormatDefault);
+	if (status != Ok)
+		return status;
+	
+	status = GdipCreateStringFormat (typographicFlags, 0, &stringFormatTypographic);
+	if (status != Ok)
+		return status;
+
+	stringFormatTypographic->trimming = StringTrimmingNone;
+	return Ok;
+}
 
 void
 gdip_delete_generic_stringformats ()
@@ -106,31 +117,11 @@ GdipCreateStringFormat (INT formatAttributes, LANGID language, GpStringFormat **
 GpStatus WINGDIPAPI
 GdipStringFormatGetGenericDefault (GpStringFormat **format)
 {
-	GpStatus status;
-
 	if (!format)
 		return InvalidParameter;
 
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
-
-#if GLIB_CHECK_VERSION(2,32,0)
-	g_mutex_lock (&generic);
-#else
-	g_static_mutex_lock (&generic);
-#endif
-
-	if (!stringFormatDefault) {
-		status = GdipCreateStringFormat (0, 0, &stringFormatDefault);
-		if (status != Ok)
-			return status;
-	}
-
-#if GLIB_CHECK_VERSION(2,32,0)
-	g_mutex_unlock (&generic);
-#else
-	g_static_mutex_unlock (&generic);
-#endif
 
 	*format = stringFormatDefault;
 	return Ok;
@@ -140,34 +131,11 @@ GdipStringFormatGetGenericDefault (GpStringFormat **format)
 GpStatus WINGDIPAPI
 GdipStringFormatGetGenericTypographic (GpStringFormat **format)
 {
-	GpStatus status;
-	const int formatFlags = StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip;
-
 	if (!format)
 		return InvalidParameter;
 
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
-
-#if GLIB_CHECK_VERSION(2,32,0)
-	g_mutex_lock (&generic);
-#else
-	g_static_mutex_lock (&generic);
-#endif
-
-	if (!stringFormatTypographic) {
-		status = GdipCreateStringFormat (formatFlags, 0, &stringFormatTypographic);
-		if (status != Ok)
-			return status;
-
-		stringFormatTypographic->trimming = StringTrimmingNone;
-	}
-
-#if GLIB_CHECK_VERSION(2,32,0)
-	g_mutex_unlock (&generic);
-#else
-	g_static_mutex_unlock (&generic);
-#endif
 
 	*format = stringFormatTypographic;
 	return Ok;
