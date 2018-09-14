@@ -171,6 +171,7 @@ GdipCreateMatrix3 (GDIPCONST GpRectF *rect, GDIPCONST GpPointF *dstplg, GpMatrix
 
 	status = gdip_matrix_init_from_rect_3points (result, rect, dstplg);
 	if (status != Ok) {
+		GdipFree (result);
 		*matrix = NULL;
 		return status;
 	}
