@@ -109,6 +109,7 @@ static void test_getGenericDefault ()
 	GpStatus status;
 	GpStringFormat *format1;
 	GpStringFormat *format2;
+	StringAlignment lineAlign;
 
 	// Should be a singleton.
 	status = GdipStringFormatGetGenericDefault (&format1);
@@ -131,6 +132,21 @@ static void test_getGenericDefault ()
 	verifyStringFormat (format2, 0, StringTrimmingCharacter);
 	assert (format1 == format2);
 
+	// Should be mutable.
+	status = GdipSetStringFormatLineAlign (format1, StringAlignmentFar);
+	assertEqualInt (status, Ok);
+
+	status = GdipSetStringFormatLineAlign (format1, StringAlignmentFar);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetStringFormatLineAlign (format1, &lineAlign);
+	assertEqualInt (status, Ok);
+	assertEqualInt (lineAlign, StringAlignmentFar);
+
+	// Set back to the default.
+	status = GdipSetStringFormatLineAlign (format1, StringAlignmentNear);
+	assertEqualInt (status, Ok);
+
 	// Negative tests.
 	status = GdipStringFormatGetGenericDefault (NULL);
 	assertEqualInt (status, InvalidParameter);
@@ -141,6 +157,7 @@ static void test_getGenericTypographic ()
 	GpStatus status;
 	GpStringFormat *format1;
 	GpStringFormat *format2;
+	StringAlignment lineAlign;
 
 	// Should be a singleton.
 	status = GdipStringFormatGetGenericTypographic (&format1);
@@ -160,6 +177,18 @@ static void test_getGenericTypographic ()
 	assertEqualInt (status, Ok);
 	verifyStringFormat (format2, StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip, StringTrimmingNone);
 	assert (format1 == format2);
+
+	// Should be mutable.
+	status = GdipSetStringFormatLineAlign (format1, StringAlignmentFar);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetStringFormatLineAlign (format1, &lineAlign);
+	assertEqualInt (status, Ok);
+	assertEqualInt (lineAlign, StringAlignmentFar);
+
+	// Set back to the default.
+	status = GdipSetStringFormatLineAlign (format1, StringAlignmentNear);
+	assertEqualInt (status, Ok);
 
 	// Negative tests.
 	status = GdipStringFormatGetGenericTypographic (NULL);
