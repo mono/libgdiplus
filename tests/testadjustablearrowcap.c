@@ -83,8 +83,6 @@ static void verifyArrowCap (GpAdjustableArrowCap *cap, REAL expectedHeight, REAL
 	status = GdipGetCustomLineCapWidthScale ((GpCustomLineCap *) cap, &widthScale);
 	assertEqualInt (status, Ok);
 	assertEqualFloat (widthScale, 1);
-
-	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 }
 
 static void test_createAdjustableArrowCap ()
@@ -95,38 +93,47 @@ static void test_createAdjustableArrowCap ()
 	status = GdipCreateAdjustableArrowCap (10, 11, TRUE, &cap);
 	assertEqualInt (status, Ok);
 	verifyArrowCap (cap, 10, 11, TRUE);
+	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 
 	status = GdipCreateAdjustableArrowCap (0, 0, FALSE, &cap);
 	assertEqualInt (status, Ok);
 	verifyArrowCap (cap, 0, 0, FALSE);
+	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 
 	status = GdipCreateAdjustableArrowCap (2, 0, FALSE, &cap);
 	assertEqualInt (status, Ok);
 	verifyArrowCap (cap, 2, 0, FALSE);
+	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 
 	status = GdipCreateAdjustableArrowCap (0, 2, FALSE, &cap);
 	assertEqualInt (status, Ok);
 	verifyArrowCap (cap, 0, 2, FALSE);
+	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 
 	status = GdipCreateAdjustableArrowCap (-1, -2, FALSE, &cap);
 	assertEqualInt (status, Ok);
 	verifyArrowCap (cap, -1, -2, FALSE);
+	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 
 	status = GdipCreateAdjustableArrowCap (NAN, -2, FALSE, &cap);
 	assertEqualInt (status, Ok);
 	verifyArrowCap (cap, NAN, -2, FALSE);
+	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 
 	status = GdipCreateAdjustableArrowCap (1, NAN, FALSE, &cap);
 	assertEqualInt (status, Ok);
 	verifyArrowCap (cap, 1, NAN, FALSE);
+	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 
 	status = GdipCreateAdjustableArrowCap (-INFINITY, 1, FALSE, &cap);
 	assertEqualInt (status, Ok);
 	verifyArrowCap (cap, -INFINITY, 1, FALSE);
+	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 
 	status = GdipCreateAdjustableArrowCap (1, INFINITY, FALSE, &cap);
 	assertEqualInt (status, Ok);
 	verifyArrowCap (cap, 1, INFINITY, FALSE);
+	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 
 	// Negative tests.
 	status = GdipCreateAdjustableArrowCap (10, 11, TRUE, NULL);
@@ -145,6 +152,7 @@ static void test_cloneAdjustableArrowCap ()
 	assertEqualInt (status, Ok);
 	assert (clonedCap && clonedCap != cap);
 	verifyArrowCap ((GpAdjustableArrowCap *) clonedCap, 10, 11, TRUE);
+	GdipDeleteCustomLineCap ((GpCustomLineCap *) clonedCap);
 
 	// Negative tests.
 	status = GdipCloneCustomLineCap (NULL, &clonedCap);
