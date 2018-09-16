@@ -115,7 +115,7 @@ typedef struct _Image {
 	int		active_bitmap_no;	/* Index of active bitmap in current frame */
 	BitmapData	*active_bitmap;		/* Pointer to active frame/bitmap; DO NOT free() */
 	/* Internal fields */
-        int             cairo_format;
+	int             cairo_format;
 	cairo_surface_t *surface;
 } GpBitmap;
 

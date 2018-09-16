@@ -44,9 +44,9 @@
 #endif
 
 struct _Font {
-        float			sizeInPixels;
-        FontStyle		style;
-        unsigned char*		face;
+	float			sizeInPixels;
+	FontStyle		style;
+	unsigned char*		face;
 	GpFontFamily		*family;
 	float			emSize;
 	GpUnit			unit;

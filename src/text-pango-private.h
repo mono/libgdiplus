@@ -46,18 +46,18 @@
 #define text_MeasureCharacterRanges	pango_MeasureCharacterRanges
 
 
-PangoLayout* gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *rc, RectF *box, PointF *box_offset, GDIPCONST GpStringFormat *format, int **charsRemoved);
+PangoLayout* gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font,
+	GDIPCONST RectF *rc, RectF *box, PointF *box_offset, GDIPCONST GpStringFormat *format, INT **charsRemoved);
 
-GpStatus pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
+GpStatus pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font,
 	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush) GDIP_INTERNAL;
 
-GpStatus pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, RectF *boundingBox, int *codepointsFitted, int *linesFilled)
+GpStatus pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font,
+	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, RectF *boundingBox, INT *codepointsFitted, INT *linesFilled)
 	GDIP_INTERNAL;
 
-GpStatus pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
-	GDIPCONST GpRectF *layout, GDIPCONST GpStringFormat *format, int regionCount, GpRegion **regions) GDIP_INTERNAL;
+GpStatus pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font,
+	GDIPCONST GpRectF *layout, GDIPCONST GpStringFormat *format, INT regionCount, GpRegion **regions) GDIP_INTERNAL;
 
 #endif
 
