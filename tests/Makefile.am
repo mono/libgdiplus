@@ -44,7 +44,7 @@ noinst_PROGRAMS =			\
 	testtiffcodec \
 	testwmfcodec
 
-if HAS_X11
+if HAVE_X11
 noinst_PROGRAMS += testgdi
 
 testgdi_DEPENDENCIES = $(TEST_DEPS)
@@ -52,7 +52,7 @@ testgdi_LDADD = $(LDADDS)
 
 testgdi_SOURCES =		\
 	testgdi.c
-endif HAS_X11
+endif HAVE_X11
 
 testadjustablearrowcap_SOURCES =		\
 	testadjustablearrowcap.c
@@ -348,6 +348,6 @@ TESTS = \
 	testwmfcodec \
 	$(NULL)
 
-if HAS_X11
+if HAVE_X11
 # TESTS += testgdi
 endif

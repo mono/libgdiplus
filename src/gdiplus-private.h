@@ -61,13 +61,13 @@
 	#include <cairo/cairo-ft.h>
 #endif
 
-#if HAS_X11
+#if defined(HAVE_X11)
 #ifdef CAIRO_HAS_XLIB_SURFACE
 	#include <cairo/cairo-xlib.h>
 #endif
 #endif
 
-#if HAS_X11
+#if defined(HAVE_X11)
 #include <X11/Xlib.h>
 #endif
 
