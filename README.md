@@ -60,6 +60,21 @@ To run the tests with Clang sanitizers, run the following command from the root 
 	./autogen.sh --enable-asan
 	make check
 
+### Code coverage
+
+Code coverage stats are generated with `lcov`. You can use [Homebrew](https://brew.sh/) on **OSX** to install the dependencies:
+
+	brew install lcov
+
+To run the tests with code coverage, run the following commands from the root of the repository:
+
+	./autogen.sh --enable-coverage
+	make check
+	lcov --capture --directory src --output-file coverage.info
+	genhtml coverage.info --output-directory coverage
+
+To view the coverage report, navigate to the `coverage` directory in the root of the repository and open `index.html`.
+
 ### Installing libgdiplus
 
 Run the following command from the root of the repository:
