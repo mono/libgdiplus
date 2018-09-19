@@ -139,6 +139,164 @@ static void test_setSolidFillColor ()
     GdipDeleteBrush ((GpBrush *) brush);
 }
 
+static void test_fill ()
+{
+    GpStatus status;
+    GpSolidFill *brush;
+    GpBitmap *bitmap;
+    GpGraphics *graphics;
+    ARGB color;
+
+    status = GdipCreateBitmapFromScan0 (256, 256, 0, PixelFormat32bppARGB, NULL, &bitmap);
+    assertEqualInt (status, Ok);
+
+    status = GdipGetImageGraphicsContext ((GpImage *) bitmap, &graphics);
+    assertEqualInt (status, Ok);
+
+    status = GdipCreateSolidFill (0xDDA03040, &brush);
+    assertEqualInt (status, Ok);
+
+    status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
+    assertEqualInt (status, Ok);
+
+    GdipSetCompositingQuality (graphics, CompositingQualityAssumeLinear);
+
+    // Fill with brush - CompositingModeSourceOver.
+    status = GdipFillRectangle (graphics, brush, 0, 0, 1, 1);
+    assertEqualInt (status, Ok);
+
+    status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
+    assertEqualInt (status, Ok);
+#if defined(USE_WINDOWS_GDIPLUS)
+    assertEqualARGB (color, 0xDDA0303F);
+#else
+    assertEqualARGB (color, 0xDD8B2937);
+#endif
+
+    status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
+    assertEqualInt (status, Ok);
+
+    // Fill with brush - unchanged, CompositingModeSourceOver.
+    status = GdipFillRectangle (graphics, brush, 0, 0, 1, 1);
+    assertEqualInt (status, Ok);
+
+    status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
+    assertEqualInt (status, Ok);
+#if defined(USE_WINDOWS_GDIPLUS)
+    assertEqualARGB (color, 0xDDA0303F);
+#else
+    assertEqualARGB (color, 0xDD8B2937);
+#endif
+
+    status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
+    assertEqualInt (status, Ok);
+
+    // Fill with brush - changed, CompositingModeSourceOver.
+    status = GdipSetSolidFillColor (brush, 0xAABBCCDD);
+    assertEqualInt (status, Ok);
+
+    status = GdipFillRectangle (graphics, brush, 0, 0, 1, 1);
+    assertEqualInt (status, Ok);
+
+    status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
+    assertEqualInt (status, Ok);
+#if defined(USE_WINDOWS_GDIPLUS)
+    assertEqualARGB (color, 0xAABBCCDC);
+#else
+    assertEqualARGB (color, 0xAA7D8893);
+#endif
+
+    status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
+    assertEqualInt (status, Ok);
+
+    // Fill with brush - zero alpha, CompositingModeSourceOver.
+    status = GdipSetSolidFillColor (brush, 0x00BBCCDD);
+    assertEqualInt (status, Ok);
+
+    status = GdipFillRectangle (graphics, brush, 0, 0, 1, 1);
+    assertEqualInt (status, Ok);
+
+    status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
+    assertEqualInt (status, Ok);
+    assertEqualARGB (color, 0x00000000);
+
+    status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
+    assertEqualInt (status, Ok);
+
+    // Fill with brush - CompositingModeSourceCopy.
+    status = GdipSetSolidFillColor (brush, 0xDDA03040);
+    assertEqualInt (status, Ok);
+
+    status = GdipSetCompositingMode (graphics, CompositingModeSourceCopy);
+    assertEqualInt (status, Ok);
+
+    status = GdipFillRectangle (graphics, brush, 0, 0, 1, 1);
+    assertEqualInt (status, Ok);
+
+    status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
+    assertEqualInt (status, Ok);
+#if defined(USE_WINDOWS_GDIPLUS)
+    assertEqualARGB (color, 0xDDA0303F);
+#else
+    assertEqualARGB (color, 0xDD8B2937);
+#endif
+
+    status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
+    assertEqualInt (status, Ok);
+
+    // Fill with brush - unchanged, CompositingModeSourceCopy.
+    status = GdipFillRectangle (graphics, brush, 0, 0, 1, 1);
+    assertEqualInt (status, Ok);
+
+    status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
+    assertEqualInt (status, Ok);
+#if defined(USE_WINDOWS_GDIPLUS)
+    assertEqualARGB (color, 0xDDA0303F);
+#else
+    assertEqualARGB (color, 0xDD8B2937);
+#endif
+
+    status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
+    assertEqualInt (status, Ok);
+
+    // Fill with brush - changed, CompositingModeSourceCopy.
+    status = GdipSetSolidFillColor (brush, 0xAABBCCDD);
+    assertEqualInt (status, Ok);
+
+    status = GdipFillRectangle (graphics, brush, 0, 0, 1, 1);
+    assertEqualInt (status, Ok);
+
+    status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
+    assertEqualInt (status, Ok);
+#if defined(USE_WINDOWS_GDIPLUS)
+    assertEqualARGB (color, 0xAABBCCDC);
+#else
+    assertEqualARGB (color, 0xAA7D8893);
+#endif
+
+    status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
+    assertEqualInt (status, Ok);
+
+    // Fill with brush - zero alpha, CompositingModeSourceCopy.
+    status = GdipSetSolidFillColor (brush, 0x00BBCCDD);
+    assertEqualInt (status, Ok);
+
+    status = GdipFillRectangle (graphics, brush, 0, 0, 1, 1);
+    assertEqualInt (status, Ok);
+
+    status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
+    assertEqualInt (status, Ok);
+    assertEqualARGB (color, 0x00000000);
+
+    // Negative tests.
+    status = GdipSetSolidFillColor (NULL, 0x010203040);
+    assertEqualInt (status, InvalidParameter);
+
+    GdipDeleteBrush ((GpBrush *) brush);
+    GdipDeleteGraphics (graphics);
+    GdipDisposeImage ((GpImage *) bitmap);
+}
+
 int
 main (int argc, char**argv)
 {

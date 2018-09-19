@@ -64,7 +64,6 @@ GpStatus
 gdip_solidfill_setup (GpGraphics *graphics, GpBrush *brush)
 {
 	GpSolidFill *solid;
-	int A, R, G, B;
 
 	if (!graphics || !brush)
 		return InvalidParameter;
@@ -75,26 +74,26 @@ gdip_solidfill_setup (GpGraphics *graphics, GpBrush *brush)
 	 * brush is changed.
 	 */
 	if (solid->base.changed) {
-		A = (solid->color & 0xFF000000) >> 24;
-		R = (solid->color & 0x00FF0000) >> 16;
-		G = (solid->color & 0x0000FF00) >> 8;
-		B = (solid->color & 0x000000FF);
+		BYTE a = (solid->color & 0xFF000000) >> 24;
+		BYTE r = (solid->color & 0x00FF0000) >> 16;
+		BYTE g = (solid->color & 0x0000FF00) >> 8;
+		BYTE b = (solid->color & 0x000000FF);
 
-		solid->A = (double) A / 255.0;
-		solid->R = (double) R / 255.0;
-		solid->G = (double) G / 255.0;
-		solid->B = (double) B / 255.0;
+		if (a == 0) {
+			solid->A = 0;
+			solid->R = 0;
+			solid->G = 0;
+			solid->B = 0;
+		}
+		else {
+			solid->A = (double) a / 255.0;
+			solid->R = (double) r / 255.0;
+			solid->G = (double) g / 255.0;
+			solid->B = (double) b / 255.0;
+		}
 	}
 
-	/*
-	 * Controls whether to use the alpha component in the color
-	 * or not.
-	 */
-	if (graphics->composite_mode == CompositingModeSourceOver)
-	  cairo_set_source_rgba (graphics->ct, solid->R, solid->G, solid->B, solid->A);
-	else
-	  cairo_set_source_rgb (graphics->ct, solid->R, solid->G, solid->B);
-	  
+	cairo_set_source_rgba (graphics->ct, solid->R, solid->G, solid->B, solid->A);
 	return Ok;
 }
 
