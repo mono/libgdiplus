@@ -46,11 +46,11 @@ static void
 gdip_solidfill_init (GpSolidFill *brush)
 {
 	gdip_brush_init (&brush->base, &vtable);
-	brush->color = 0;
+	brush->color = 0x00000000;
 }
 
 static GpSolidFill*
-gdip_solidfill_new (void)
+gdip_solidfill_new ()
 {
 	GpSolidFill *result = (GpSolidFill *) GdipAlloc (sizeof (GpSolidFill));
 	
@@ -104,9 +104,7 @@ gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush)
 	GpSolidFill *result;
 	GpSolidFill *solid;
 
-	/* the NULL checks for brush and clonedBrush are done by the caller, GdipCloneBrush */
-
-	result = (GpSolidFill *) GdipAlloc (sizeof (GpSolidFill));
+	result = gdip_solidfill_new ();
 	if (!result)
 		return OutOfMemory;
 
@@ -117,15 +115,12 @@ gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush)
 	result->base.changed = TRUE;
 
 	*clonedBrush = (GpBrush *) result;
-
 	return Ok;
 }
 
 GpStatus
 gdip_solidfill_destroy (GpBrush *brush)
 {
-	/* a. the NULL check for brush is done by the caller, GdipDeleteBrush */
-	/* b. brush itself is freed by the caller */
 	return Ok;
 }
 
@@ -133,17 +128,21 @@ gdip_solidfill_destroy (GpBrush *brush)
 GpStatus WINGDIPAPI
 GdipCreateSolidFill (ARGB color, GpSolidFill **brush)
 {
+	GpSolidFill *result;
+
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
 
 	if (!brush)
 		return InvalidParameter;
 
-	*brush = gdip_solidfill_new ();
-	if (!*brush)
+	result = gdip_solidfill_new ();
+	if (!result)
 		return OutOfMemory;
 
-	(*brush)->color = color;
+	result->color = color;
+	
+	*brush = result;
 	return Ok;
 }
 
