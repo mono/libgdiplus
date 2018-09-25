@@ -256,8 +256,10 @@ GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen)
 		return InvalidParameter;
 
 	result = gdip_pen_new ();
-	if (!result)
+	if (!result) {
+		*pen = NULL;
 		return OutOfMemory;
+	}
 
 	result->color = argb;
 	result->width = width;
@@ -267,6 +269,7 @@ GdipCreatePen1 (ARGB argb, REAL width, GpUnit unit, GpPen **pen)
 	status = GdipCreateSolidFill (argb, (GpSolidFill **) &result->brush);
 	if (status != Ok) {
 		GdipDeletePen (result);
+		*pen = NULL;
 		return status;
 	}
 
@@ -290,8 +293,10 @@ GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen)
 		return InvalidParameter;
 
 	result = gdip_pen_new ();
-	if (!result)
+	if (!result) {
+		*pen = NULL;
 		return OutOfMemory;
+	}
 
 	result->width = width;
 	result->unit = unit;
@@ -302,6 +307,7 @@ GdipCreatePen2 (GpBrush *brush, REAL width, GpUnit unit, GpPen **pen)
 	status = GdipCloneBrush (brush, &result->brush);
 	if (status != Ok) {
 		GdipDeletePen (result);
+		*pen = NULL;
 		return status;
 	}
 
@@ -325,8 +331,10 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 		return InvalidParameter;
 
 	result = gdip_pen_new ();
-	if (!result)
-		goto error;
+	if (!result) {
+		*clonepen = NULL;
+		return OutOfMemory;
+	}
 
 	result->own_brush = pen->own_brush;
 	result->color = pen->color;
@@ -390,9 +398,7 @@ GdipClonePen (GpPen *pen, GpPen **clonepen)
 	return Ok;
 
 error:
-  if (result)
-		GdipDeletePen (result);
-
+	GdipDeletePen (result);
 	*clonepen = NULL;
 	return OutOfMemory;
 }
