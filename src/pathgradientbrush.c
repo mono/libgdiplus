@@ -348,13 +348,20 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 		 * Right now we have radial gradient which can be used, in some cases, to get the right effect.
 		 */
 
-		pat = cairo_pattern_create_radial (pgbrush->center.X, pgbrush->center.Y, 0.0f,
-			pgbrush->center.X, pgbrush->center.Y, r);
+		/* Set the start radius as r and the end radius as 0 so that the center is the end "circle".
+		 * That way interpolation and blend positions go the right direction (edge to center).*/
+		pat = cairo_pattern_create_radial (pgbrush->center.X, pgbrush->center.Y, r,
+			pgbrush->center.X, pgbrush->center.Y, 0.0f);
 		status = gdip_get_pattern_status (pat);
 		if (status != Ok)
 			return status;
 
-		cairo_pattern_set_matrix (pat, &pgbrush->transform);
+		GpMatrix matrix;
+		gdip_cairo_matrix_copy (&matrix, &pgbrush->transform);
+		status = GdipInvertMatrix (&matrix);
+		if (status != Ok)
+			return status;
+		cairo_pattern_set_matrix (pat, &matrix);
 
 		if ((pgbrush->blend->count > 1) && (pgbrush->boundaryColorsCount > 0)) {
 			/* FIXME: blending done using the a radial shape (not the path shape) */
@@ -363,7 +370,7 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 			/* FIXME: copied from lineargradiantbrush, most probably not right */
 			add_color_stops_from_interpolation_colors (pat, pgbrush->presetColors);
 		} else {
-			cairo_pattern_add_color_stop_rgba (pat, 0.0f,
+			cairo_pattern_add_color_stop_rgba (pat, 1.0f,
 				ARGB_RED_N (pgbrush->centerColor),
 				ARGB_GREEN_N (pgbrush->centerColor),
 				ARGB_BLUE_N (pgbrush->centerColor),
@@ -372,7 +379,7 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 			/* if a single other boundary color is present, then we can do the a real radial */
 			if (pgbrush->boundaryColorsCount == 1) {
 				ARGB c = pgbrush->boundaryColors[0];
-				cairo_pattern_add_color_stop_rgba (pat, 1.0f,
+				cairo_pattern_add_color_stop_rgba (pat, 0.0f,
 					ARGB_RED_N (c), ARGB_GREEN_N (c), ARGB_BLUE_N (c), ARGB_ALPHA_N (c));
 			} else {
 				/* FIXME: otherwise we (solid-)fill with the centerColor */
