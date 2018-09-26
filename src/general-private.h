@@ -61,8 +61,8 @@
 #endif
 
 /* avoid direct floating point comparison */
-#define gdip_near_zero(value)		((value >= -0.0001f) && (value <= 0.0001f))
-#define gdip_near_one(value)		((value >= 0.9999f) && (value <= 1.0001f))
+#define gdip_near_zero(value)		((value >= -0.00059604645f) && (value <= 0.00059604645f))
+#define gdip_near_one(value)		gdip_near_zero (value - 1.0f)
 
 /* avoid integer overflows when int/float/int conversion are used (see #79643) */
 #define SAFE_FLOAT_TO_UINT32(value)    ((value < 0) ? 0 : (value >= G_MAXINT32) ? G_MAXINT32 : (((int)value) < 0 ? G_MAXINT32 : (int)value))
