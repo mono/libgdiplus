@@ -3291,6 +3291,18 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
 	GdipDeleteRegion (region); \
 } \
 
+#define verifyCombineRects(rects, rectsCount, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionRect (rects, &region); \
+	int _c = rectsCount / sizeof (GpRectF); \
+ \
+	for (int _i = 1; _i < _c - 1; _i++) \
+		GdipCombineRegionRect (region, &rects[_i], mode); \
+	verifyCombineRegionWithRect (region, &rects[_c - 1], mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+} \
+
 #define verifyCombineRectWithPath(rect, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 { \
 	GpRegion *region; \
@@ -4199,6 +4211,19 @@ static void test_combineUnion ()
 	RectF noIntersectTopRightRect = {41, -21, 30, 40};
 	RectF noIntersectBottomRightRect = {41, 61, 30, 40};
 	RectF noIntersectBottomLeftRect = {-21, 61, 30, 40};
+	RectF intersectLeftNarrowRect = {-30, 30, 60, 10};
+	RectF intersectTopNarrowRect = {20, -20, 10, 60};
+	RectF intersectRightNarrowRect = {20, 30, 60, 10};
+	RectF intersectBottomNarrowRect = {20, 40, 10, 60};
+	RectF touchesTopIntersectBottomNarrowRect = {20, 20, 10, 60};
+	RectF intersectRightTallerRect = {20, 20, 30, 60};
+	RectF intersectRightShorterRect = {20, 20, 30, 20};
+	RectF tallerRect = {10, 20, 30, 70};
+	RectF tallerNarrowRect = {10, 20, 10, 70};
+	RectF widerRect = {10, 20, 60, 40};
+	RectF widerShorterRect = {10, 20, 60, 20};
+	RectF largerRect = {10, 20, 60, 70};
+	RectF crossingRect = {0, 30, 50, 20};
 	RectF emptyRect = {0, 0, 0, 0};
 	RectF infiniteRect = {-4194304, -4194304, 8388608, 8388608};
 	RectF negativeRect = {20, 30, -10, -10};
@@ -4374,13 +4399,8 @@ static void test_combineUnion ()
 	verifyCombineRectWithRect (&rect, &intersectLeftRect, CombineModeUnion, 0, 20, 40, 40, FALSE, FALSE, &intersectLeftScan, sizeof (intersectLeftScan));
 
 	// Rect + Intersect Top = Calculation.
-	// FIXME: should be combined into a single rect: https://github.com/mono/libgdiplus/issues/340
 	RectF intersectTopScan = {10, 10, 30, 50};
-#if defined(USE_WINDOWS_GDIPLUS)
 	RectF intersectTopScansRect[] = {intersectTopScan};
-#else
-	RectF intersectTopScansRect[] = {{10, 10, 30, 40}, {10, 50, 30, 10}};
-#endif
 	verifyCombineRectWithRect (&rect, &intersectTopRect, CombineModeUnion, 10, 10, 30, 50, FALSE, FALSE, intersectTopScansRect, sizeof (intersectTopScansRect));
 	
 	// Rect + Intersect Right = Calculation.
@@ -4388,13 +4408,8 @@ static void test_combineUnion ()
 	verifyCombineRectWithRect (&rect, &intersectRightRect, CombineModeUnion, 10, 20, 40, 40, FALSE, FALSE, &intersectRightScan, sizeof (intersectRightScan));
 
 	// Rect + Intersect Bottom = Calculation.
-	// FIXME: should be combined into a single rect: https://github.com/mono/libgdiplus/issues/340
 	RectF intersectBottomScan = {10, 20, 30, 50};
-#if defined(USE_WINDOWS_GDIPLUS)
 	RectF intersectBottomScansRect[] = {intersectBottomScan};
-#else
-	RectF intersectBottomScansRect[] = {{10, 20, 30, 40}, {10, 60, 30, 10}};
-#endif
 	verifyCombineRectWithRect (&rect, &intersectBottomRect, CombineModeUnion, 10, 20, 30, 50, FALSE, FALSE, intersectBottomScansRect, sizeof (intersectBottomScansRect));
 
 	// Rect + Intersect Top Left = Calculation.
@@ -4434,13 +4449,8 @@ static void test_combineUnion ()
 	verifyCombineRectWithRect (&rect, &touchingLeftRect, CombineModeUnion, -20, 20, 60, 40, FALSE, FALSE, &touchingLeftScan, sizeof (touchingLeftScan));
 
 	// Rect + Touching Top = Calculation.
-	// FIXME: should be combined into a single rect: https://github.com/mono/libgdiplus/issues/340
 	RectF touchingTopScan = {10, -20, 30, 80};
-#if defined(USE_WINDOWS_GDIPLUS)
 	RectF touchingTopScansRect[] = {touchingTopScan};
-#else
-	RectF touchingTopScansRect[] = {{10, -20, 30, 40}, {10, 20, 30, 40}};
-#endif
 	verifyCombineRectWithRect (&rect, &touchingTopRect, CombineModeUnion, 10, -20, 30, 80, FALSE, FALSE, touchingTopScansRect, sizeof (touchingTopScansRect));
 
 	// Rect + Touching Right = Calculation.
@@ -4448,13 +4458,8 @@ static void test_combineUnion ()
 	verifyCombineRectWithRect (&rect, &touchingRightRect, CombineModeUnion, 10, 20, 60, 40, FALSE, FALSE, &touchingRightScan, sizeof (touchingRightScan));
 
 	// Rect + Touching Bottom = Calculation.
-	// FIXME: should be combined into a single rect: https://github.com/mono/libgdiplus/issues/340
 	RectF touchingBottomScan = {10, 20, 30, 80};
-#if defined(USE_WINDOWS_GDIPLUS)
 	RectF touchingBottomScansRect[] = {touchingBottomScan};
-#else
-	RectF touchingBottomScansRect[] = {{10, 20, 30, 40}, {10, 60, 30, 40}};
-#endif
 	verifyCombineRectWithRect (&rect, &touchingBottomRect, CombineModeUnion, 10, 20, 30, 80, FALSE, FALSE, touchingBottomScansRect, sizeof (touchingBottomScansRect));
 
 	// Rect + Touching Top Left = Both.
@@ -4512,6 +4517,140 @@ static void test_combineUnion ()
 		noIntersectBottomRect
 	};
 	verifyCombineRectWithRect (&rect, &noIntersectBottomRect, CombineModeUnion, 10, 20, 30, 81, FALSE, FALSE, noIntersectBottomScans, sizeof (noIntersectBottomScans));
+	
+	// Rect + Intersect Left Narrow = Calculation.
+	RectF intersectLeftNarrowScans[] = {
+		{10, 20, 30, 10},
+		{-30, 30, 70, 10},
+		{10, 40, 30, 20},
+	};
+	verifyCombineRectWithRect (&rect, &intersectLeftNarrowRect, CombineModeUnion, -30, 20, 70, 40, FALSE, FALSE, intersectLeftNarrowScans, sizeof (intersectLeftNarrowScans));
+
+	// RectF intersectTopNarrowRect = {20, -20, 10, 60};
+	// Rect + Intersect Top Narrow = Calculation.
+	RectF intersectTopNarrowScans[] = {
+		{20, -20, 10, 40},
+		{10, 20, 30, 40},
+	};
+	verifyCombineRectWithRect (&rect, &intersectTopNarrowRect, CombineModeUnion, 10, -20, 30, 80, FALSE, FALSE, intersectTopNarrowScans, sizeof (intersectTopNarrowScans));
+
+	// Rect + Intersect Right Narrow = Calculation.
+	RectF intersectRightNarrowScans[] = {
+		{10, 20, 30, 10},
+		{10, 30, 70, 10},
+		{10, 40, 30, 20},
+	};
+	verifyCombineRectWithRect (&rect, &intersectRightNarrowRect, CombineModeUnion, 10, 20, 70, 40, FALSE, FALSE, intersectRightNarrowScans, sizeof (intersectRightNarrowScans));
+
+	// Rect + Intersect Bottom Narrow = Calculation.
+	RectF intersectBottomNarrowScans[] = {
+		{10, 20, 30, 40},
+		{20, 60, 10, 40}
+	};
+	verifyCombineRectWithRect (&rect, &intersectBottomNarrowRect, CombineModeUnion, 10, 20, 30, 80, FALSE, FALSE, intersectBottomNarrowScans, sizeof (intersectBottomNarrowScans));
+
+	// Rect + Touches Top Intersect Bottom Narrow = Calculation.
+	RectF touchesTopIntersectBottomNarrowScans[] = {
+		{10, 20, 30, 40},
+		{20, 60, 10, 20}
+	};
+	verifyCombineRectWithRect (&rect, &touchesTopIntersectBottomNarrowRect, CombineModeUnion, 10, 20, 30, 60, FALSE, FALSE, touchesTopIntersectBottomNarrowScans, sizeof (touchesTopIntersectBottomNarrowScans));
+
+	// Rect + Intersect Right Taller = Calculation.
+	RectF intersectRightTallerScans[] = {
+		{10, 20, 40, 40},
+		{20, 60, 30, 20},
+	};
+	verifyCombineRectWithRect (&rect, &intersectRightTallerRect, CombineModeUnion, 10, 20, 40, 60, FALSE, FALSE, intersectRightTallerScans, sizeof (intersectRightTallerScans));
+
+	// Rect + Intersect Right Shorter = Calculation.
+	RectF intersectRightShorterScans[] = {
+		{10, 20, 40, 20},
+		{10, 40, 30, 20},
+	};
+	verifyCombineRectWithRect (&rect, &intersectRightShorterRect, CombineModeUnion, 10, 20, 40, 40, FALSE, FALSE, intersectRightShorterScans, sizeof (intersectRightShorterScans));
+
+	// Rect + Taller = Calculation.
+	RectF tallerScan = tallerRect;
+	verifyCombineRectWithRect (&rect, &tallerRect, CombineModeUnion, 10, 20, 30, 70, FALSE, FALSE, &tallerScan, sizeof (tallerScan));
+
+	// Rect + Taller Narrow = Calculation.
+	RectF tallerNarrowScans[] = {
+		{10, 20, 30, 40},
+		{10, 60, 10, 30},
+	};
+	verifyCombineRectWithRect (&rect, &tallerNarrowRect, CombineModeUnion, 10, 20, 30, 70, FALSE, FALSE, tallerNarrowScans, sizeof (tallerNarrowScans));
+
+	// Rect + Wider = Calculation.
+	RectF widerScan = widerRect;
+	verifyCombineRectWithRect (&rect, &widerRect, CombineModeUnion, 10, 20, 60, 40, FALSE, FALSE, &widerScan, sizeof (widerScan));
+
+	// Rect + Wider Shorter = Calculation.
+	RectF widerShorterScans[] = {
+		{10, 20, 60, 20},
+		{10, 40, 30, 20},
+	};
+	verifyCombineRectWithRect (&rect, &widerShorterRect, CombineModeUnion, 10, 20, 60, 40, FALSE, FALSE, widerShorterScans, sizeof (widerShorterScans));
+
+	// Rect + Larger = Calculation.
+	RectF largerScan = largerRect;
+	verifyCombineRectWithRect (&rect, &largerRect, CombineModeUnion, 10, 20, 60, 70, FALSE, FALSE, &largerScan, sizeof (largerScan));
+
+	// Rect + Overlap Taller Narrow = Calculation.
+	RectF crossingScans[] = {
+		{10, 20, 30, 10},
+		{0, 30, 50, 20},
+		{10, 50, 30, 10},
+	};
+	verifyCombineRectWithRect (&rect, &crossingRect, CombineModeUnion, 0, 20, 50, 40, FALSE, FALSE, crossingScans, sizeof (crossingScans));
+
+	// Ported from mono/external/corefx/src/System.Drawing.Common/tests/RegionTests.cs:1813
+	RectF intersectThreeRects[] = {
+		{20, 180, 40, 50},
+		{50, 190, 40, 50},
+		{70, 210, 30, 50}
+	};
+	RectF intersectThreeRectsScans[] = {
+		{20, 180, 40, 10},
+		{20, 190, 70, 20},
+		{20, 210, 80, 20},
+		{50, 230, 50, 10},
+		{70, 240, 30, 20}
+	};
+	verifyCombineRects (intersectThreeRects, sizeof (intersectThreeRects), CombineModeUnion, 20, 180, 80, 80, FALSE, FALSE, intersectThreeRectsScans, sizeof (intersectThreeRectsScans));
+
+	// Ported from mono/external/corefx/src/System.Drawing.Common/tests/RegionTests.cs:1831
+	RectF intersectFourRects[] = {
+		{20, 330, 40, 50},
+		{50, 340, 40, 50},
+		{70, 360, 30, 50},
+		{80, 400, 30, 10}
+	};
+	RectF intersectFourRectsScans[] = {
+		{20, 330, 40, 10},
+		{20, 340, 70, 20},
+		{20, 360, 80, 20},
+		{50, 380, 50, 10},
+		{70, 390, 30, 10},
+		{70, 400, 40, 10}
+	};
+	verifyCombineRects (intersectFourRects, sizeof (intersectFourRects), CombineModeUnion, 20, 330, 90, 80, FALSE, FALSE, intersectFourRectsScans, sizeof (intersectFourRectsScans));
+
+	// Ported from mono/external/corefx/src/System.Drawing.Common/tests/RegionTests.cs:1918
+	// Has two regions separated by 0 pixels.
+	RectF fourPartialIntersectRects[] = {
+		{30, 30, 80, 80},
+		{45, 45, 200, 200},
+		{160, 260, 10, 10},
+		{170, 260, 10, 10}
+	};
+	RectF fourPartialIntersectRectsScans[] = {
+		{30, 30, 80, 15},
+		{30, 45, 215, 65},
+		{45, 110, 200, 135},
+		{160, 260, 20, 10}
+	};
+	verifyCombineRects (fourPartialIntersectRects, sizeof (fourPartialIntersectRects), CombineModeUnion, 30, 30, 215, 240, FALSE, FALSE, fourPartialIntersectRectsScans, sizeof (fourPartialIntersectRectsScans));
 
 	// Rect + No Intersect Top Left = Both.
 	RectF noIntersectTopLeftScans[] = {
@@ -4540,6 +4679,14 @@ static void test_combineUnion ()
 		noIntersectBottomLeftRect
 	};
 	verifyCombineRectWithRect (&rect, &noIntersectBottomLeftRect, CombineModeUnion, -21, 20, 61, 81, FALSE, FALSE, noIntersectBottomLeftScans, sizeof (noIntersectBottomLeftScans));
+
+	// No Intersect Top Rect + No Intersect Bottom Right = Both.
+	RectF noIntersectTopAndBottomRight[] = {
+		touchingTopRect,
+		touchingBottomRightRect
+	};
+	verifyCombineRectWithRect (&touchingTopRect, &touchingBottomRightRect, CombineModeUnion, 10, -20, 60, 120, FALSE, FALSE, noIntersectTopAndBottomRight, sizeof (noIntersectTopAndBottomRight));
+
 
 	// Rect + Infinite Path = Infinite.
 	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
