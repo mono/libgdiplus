@@ -39,6 +39,20 @@ if test $warnaserror = "yes"; then
   GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -Werror"
 fi
 
+AC_ARG_ENABLE(asan, AS_HELP_STRING([--enable-asan],[Enable address sanitizer.]),[asan=yes],[asan=no])
+
+if test $asan = "yes"; then
+  GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -fsanitize=address,signed-integer-overflow,undefined -g -O1"
+  LDFLAGS="$LDFLAGS -fsanitize=address,signed-integer-overflow,undefined"
+fi
+
+AC_ARG_ENABLE(coverage, AS_HELP_STRING([--enable-coverage],[Enable code coverage.]),[coverage=yes],[coverage=no])
+
+if test $coverage = "yes"; then
+  GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS --coverage -g"
+  LDFLAGS="$LDFLAGS --coverage"
+fi
+
 CAIRO_LIBS="`pkg-config --libs cairo `"
 CAIRO_CFLAGS="`pkg-config --cflags cairo `"
 cairo_info="`pkg-config --modversion cairo ` (system)"

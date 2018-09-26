@@ -86,3 +86,11 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# gcc coverage testing tool files
+*.gcno
+*.gcda
+*.gcov
+coverage.info
+/coverage
+
