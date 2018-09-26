@@ -1,19 +1,19 @@
 /*
  * adjustablearrowcap.c
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
- * and associated documentation files (the "Software"), to deal in the Software without restriction, 
- * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial 
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial
  * portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT 
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * Author:
@@ -71,7 +71,7 @@ gdip_adjust_arrowcap_clone_cap (GpCustomLineCap *cap, GpCustomLineCap **clonedCa
 	if (!cap || !clonedCap)
 		return InvalidParameter;
 
-	newcap = (GpAdjustableArrowCap *) GdipAlloc (sizeof (GpAdjustableArrowCap));
+	newcap = gdip_adjust_arrowcap_new ();
 	if (!newcap)
 		return OutOfMemory;
 
@@ -164,123 +164,123 @@ update_adjustablearrowcap (GpAdjustableArrowCap *cap)
 
 // coverity[+alloc : arg-*3]
 GpStatus WINGDIPAPI
-GdipCreateAdjustableArrowCap (REAL height, REAL width, BOOL isFilled, GpAdjustableArrowCap **arrowCap)
+GdipCreateAdjustableArrowCap (REAL height, REAL width, BOOL isFilled, GpAdjustableArrowCap **cap)
 {
-	GpAdjustableArrowCap *cap;
+	GpAdjustableArrowCap *result;
 
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
 
-	if (!arrowCap)
+	if (!cap)
 		return InvalidParameter;
 
-	cap = gdip_adjust_arrowcap_new ();
-	if (!cap) {
-		*arrowCap = NULL;
+	result = gdip_adjust_arrowcap_new ();
+	if (!result) {
+		*cap = NULL;
 		return OutOfMemory;
 	}
 
-	cap->fill_state = isFilled;
-	cap->width = width;
-	cap->height = height;
-	update_adjustablearrowcap (cap);
-	
-	*arrowCap = cap;
+	result->fill_state = isFilled;
+	result->width = width;
+	result->height = height;
+	update_adjustablearrowcap (result);
+
+	*cap = result;
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipSetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, REAL height)
+GdipSetAdjustableArrowCapHeight (GpAdjustableArrowCap *cap, REAL height)
 {
-	if (!arrowCap)
+	if (!cap)
 		return InvalidParameter;
 
-	if (height != arrowCap->height) {
-		arrowCap->height = height;
-		update_adjustablearrowcap (arrowCap);
+	if (height != cap->height) {
+		cap->height = height;
+		update_adjustablearrowcap (cap);
 	}
 
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipGetAdjustableArrowCapHeight (GpAdjustableArrowCap *arrowCap, REAL *height)
+GdipGetAdjustableArrowCapHeight (GpAdjustableArrowCap *cap, REAL *height)
 {
-	if (!arrowCap || !height)
+	if (!cap || !height)
 		return InvalidParameter;
 
-	*height = arrowCap->height;
+	*height = cap->height;
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipSetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, REAL width)
+GdipSetAdjustableArrowCapWidth (GpAdjustableArrowCap *cap, REAL width)
 {
-	if (!arrowCap)
+	if (!cap)
 		return InvalidParameter;
 
-	if (width != arrowCap->width) {
-		arrowCap->width = width;
-		update_adjustablearrowcap (arrowCap);
+	if (width != cap->width) {
+		cap->width = width;
+		update_adjustablearrowcap (cap);
 	}
 
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipGetAdjustableArrowCapWidth (GpAdjustableArrowCap *arrowCap, REAL *width)
+GdipGetAdjustableArrowCapWidth (GpAdjustableArrowCap *cap, REAL *width)
 {
-	if (!arrowCap || !width)
+	if (!cap || !width)
 		return InvalidParameter;
 
-	*width = arrowCap->width;
+	*width = cap->width;
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipSetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, REAL middleInset)
+GdipSetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *cap, REAL middleInset)
 {
-	if (!arrowCap)
+	if (!cap)
 		return InvalidParameter;
 
-	if (middleInset != arrowCap->middle_inset) {
-		arrowCap->middle_inset = middleInset;
-		update_adjustablearrowcap (arrowCap);
+	if (middleInset != cap->middle_inset) {
+		cap->middle_inset = middleInset;
+		update_adjustablearrowcap (cap);
 	}
 
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipGetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *arrowCap, REAL *middleInset)
+GdipGetAdjustableArrowCapMiddleInset (GpAdjustableArrowCap *cap, REAL *middleInset)
 {
-	if (!arrowCap || !middleInset)
+	if (!cap || !middleInset)
 		return InvalidParameter;
 
-	*middleInset = arrowCap->middle_inset;
+	*middleInset = cap->middle_inset;
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipSetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, BOOL isFilled)
+GdipSetAdjustableArrowCapFillState (GpAdjustableArrowCap *cap, BOOL isFilled)
 {
-	if (!arrowCap)
+	if (!cap)
 		return InvalidParameter;
 
-	if (isFilled != arrowCap->fill_state) {
-		arrowCap->fill_state = isFilled;
-		update_adjustablearrowcap (arrowCap);
+	if (isFilled != cap->fill_state) {
+		cap->fill_state = isFilled;
+		update_adjustablearrowcap (cap);
 	}
 
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipGetAdjustableArrowCapFillState (GpAdjustableArrowCap *arrowCap, BOOL *isFilled)
+GdipGetAdjustableArrowCapFillState (GpAdjustableArrowCap *cap, BOOL *isFilled)
 {
-	if (!arrowCap || !isFilled)
+	if (!cap || !isFilled)
 		return InvalidParameter;
 
-	*isFilled = arrowCap->fill_state;
+	*isFilled = cap->fill_state;
 	return Ok;
 }
