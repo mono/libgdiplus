@@ -695,7 +695,7 @@ gdip_texture_create_from_cloned_image (GpImage *image, GpWrapMode wrapMode, GpTe
 
 /* coverity[+alloc : arg-*2] */
 GpStatus WINGDIPAPI
-GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
+GdipCreateTexture (GpImage *image, GpWrapMode wrapmode, GpTexture **texture)
 {
 	GpImage *textureImage;
 	GpTexture	*result;
@@ -707,8 +707,10 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 	if (!image || !texture)
 		return InvalidParameter;
 
-	if (wrapMode > WrapModeClamp)
+	if (wrapmode > WrapModeClamp) {
+		*texture = NULL;
 		return OutOfMemory;
+	}
 
 	switch (image->type) {
 	case ImageTypeBitmap:
@@ -725,22 +727,22 @@ GdipCreateTexture (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 		return GenericError;
 	}
 
-	return gdip_texture_create_from_cloned_image (textureImage, wrapMode, texture);
+	return gdip_texture_create_from_cloned_image (textureImage, wrapmode, texture);
 }
 
 /* coverity[+alloc : arg-*6] */
 GpStatus WINGDIPAPI
-GdipCreateTexture2 (GpImage *image, GpWrapMode wrapMode, float x, float y, float width, float height, GpTexture **texture)
+GdipCreateTexture2 (GpImage *image, GpWrapMode wrapmode, REAL x, REAL y, REAL width, REAL height, GpTexture **texture)
 {
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
 
-	return GdipCreateTexture2I (image, wrapMode, (int) x, (int) y, (int) width, (int) height, texture);
+	return GdipCreateTexture2I (image, wrapmode, (INT) x, (INT) y, (INT) width, (INT) height, texture);
 }
 
 /* coverity[+alloc : arg-*6] */
 GpStatus WINGDIPAPI
-GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int width, int height, GpTexture **texture)
+GdipCreateTexture2I (GpImage *image, GpWrapMode wrapmode, INT x, INT y, INT width, INT height, GpTexture **texture)
 {
 	GpImage *textureImage;
 	GpStatus status;
@@ -751,15 +753,19 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 	if (!image || !texture)
 		return InvalidParameter;
 
-	if (wrapMode > WrapModeClamp)
+	if (wrapmode > WrapModeClamp) {
+		*texture = NULL;
 		return OutOfMemory;
+	}
 
 	switch (image->type) {
 	case ImageTypeBitmap: {
 		INT bmpWidth = image->active_bitmap->width;
 		INT bmpHeight = image->active_bitmap->height;
-		if ((x < 0) || (y < 0) || (width <= 0) || (height <= 0) || (bmpWidth < (x + width)) || (bmpHeight < (y + height)))
+		if ((x < 0) || (y < 0) || (width <= 0) || (height <= 0) || (bmpWidth < (x + width)) || (bmpHeight < (y + height))) {
+			*texture = NULL;
 			return OutOfMemory;
+		}
 
 		status = GdipCloneBitmapAreaI (x, y, width, height, image->active_bitmap->pixel_format, image, &textureImage);
 		if (status != Ok)
@@ -775,22 +781,22 @@ GdipCreateTexture2I (GpImage *image, GpWrapMode wrapMode, int x, int y, int widt
 		return GenericError;
 	}
 	
-	return gdip_texture_create_from_cloned_image (textureImage, wrapMode, texture);
+	return gdip_texture_create_from_cloned_image (textureImage, wrapmode, texture);
 }
 
 /* coverity[+alloc : arg-*6] */
 GpStatus WINGDIPAPI
-GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, float x, float y, float width, float height, GpTexture **texture)
+GdipCreateTextureIA (GpImage *image, GpImageAttributes *imageAttributes, REAL x, REAL y, REAL width, REAL height, GpTexture **texture)
 {
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
 
-	return GdipCreateTextureIAI (image, imageAttributes, (int) x, (int) y, (int) width, (int) height, texture);
+	return GdipCreateTextureIAI (image, imageAttributes, (INT) x, (INT) y, (INT) width, (INT) height, texture);
 }
 
 /* coverity[+alloc : arg-*6] */
 GpStatus WINGDIPAPI
-GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, int x, int y, int width, int height, GpTexture **texture)
+GdipCreateTextureIAI (GpImage *image, GpImageAttributes *imageAttributes, INT x, INT y, INT width, INT height, GpTexture **texture)
 {
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
@@ -843,8 +849,7 @@ GdipResetTextureTransform (GpTexture *texture)
 GpStatus WINGDIPAPI
 GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrder order)
 {
-	BOOL invertible = FALSE;
-	cairo_matrix_t mat;
+	BOOL invertible;
 
 	if (!texture)
 		return InvalidParameter;
@@ -853,23 +858,21 @@ GdipMultiplyTextureTransform (GpTexture *texture, GpMatrix *matrix, GpMatrixOrde
 		return Ok;
 
 	/* the matrix MUST be invertible to be used */
-	GdipIsMatrixInvertible ((GpMatrix *) matrix, &invertible);
+	GdipIsMatrixInvertible (matrix, &invertible);
 	if (!invertible)
 		return InvalidParameter;
 
 	if (order == MatrixOrderPrepend)
-		cairo_matrix_multiply (&mat, matrix, &texture->matrix);
+		cairo_matrix_multiply (&texture->matrix, matrix, &texture->matrix);
 	else
-		cairo_matrix_multiply (&mat, &texture->matrix, matrix);
+		cairo_matrix_multiply (&texture->matrix, &texture->matrix, matrix);
 
-	gdip_cairo_matrix_copy (&texture->matrix, &mat);
 	texture->base.changed = TRUE;
-
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipTranslateTextureTransform (GpTexture *texture, float dx, float dy, GpMatrixOrder order)
+GdipTranslateTextureTransform (GpTexture *texture, REAL dx, REAL dy, GpMatrixOrder order)
 {
 	GpStatus status;
 
@@ -877,14 +880,15 @@ GdipTranslateTextureTransform (GpTexture *texture, float dx, float dy, GpMatrixO
 		return InvalidParameter;
 
 	status = GdipTranslateMatrix (&texture->matrix, dx, dy, order);
-	if (status == Ok)
-		texture->base.changed = TRUE;
-
-	return status;
+	if (status != Ok)
+		return status;
+	
+	texture->base.changed = TRUE;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipScaleTextureTransform (GpTexture *texture, float sx, float sy, GpMatrixOrder order)
+GdipScaleTextureTransform (GpTexture *texture, REAL sx, REAL sy, GpMatrixOrder order)
 {
 	GpStatus status;
 
@@ -892,15 +896,15 @@ GdipScaleTextureTransform (GpTexture *texture, float sx, float sy, GpMatrixOrder
 		return InvalidParameter;
 
 	status = GdipScaleMatrix (&texture->matrix, sx, sy, order);
-	if (status == Ok)
-		texture->base.changed = TRUE;
+	if (status != Ok)
+		return status;
 
-	return status;
+	texture->base.changed = TRUE;
+	return Ok;
 }
 
-/* MonoTODO - FIXME - this hack affect the public transform and doesn't work with MultiplyTransform */
 GpStatus WINGDIPAPI
-GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order)
+GdipRotateTextureTransform (GpTexture *texture, REAL angle, GpMatrixOrder order)
 {
 	GpStatus status;
 
@@ -908,10 +912,11 @@ GdipRotateTextureTransform (GpTexture *texture, float angle, GpMatrixOrder order
 		return InvalidParameter;
 
 	status = GdipRotateMatrix (&texture->matrix, angle, order);
-	if (status == Ok)
-		texture->base.changed = TRUE;
+	if (status != Ok)
+		return status;
 
-	return status;
+	texture->base.changed = TRUE;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
