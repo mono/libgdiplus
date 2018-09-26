@@ -42,9 +42,9 @@ static GMutex generic;
 #else
 static GStaticMutex generic = G_STATIC_MUTEX_INIT;
 #endif
-static GpFontFamily* familySerif = NULL;
-static GpFontFamily* familySansSerif = NULL;
-static GpFontFamily* familyMonospace = NULL;
+static GpFontFamily *familySerif = NULL;
+static GpFontFamily *familySansSerif = NULL;
+static GpFontFamily *familyMonospace = NULL;
 static int ref_familySerif = 0;
 static int ref_familySansSerif = 0;
 static int ref_familyMonospace = 0;
@@ -111,9 +111,9 @@ gdip_delete_system_fonts (void)
 
 // coverity[+alloc : arg-*0]
 GpStatus WINGDIPAPI
-GdipNewInstalledFontCollection (GpFontCollection **font_collection)
+GdipNewInstalledFontCollection (GpFontCollection **fontCollection)
 {	
-	if (!font_collection)
+	if (!fontCollection)
 		return InvalidParameter;
 
 	/*
@@ -149,20 +149,20 @@ GdipNewInstalledFontCollection (GpFontCollection **font_collection)
 #endif
 	}
 
-	*font_collection = system_fonts;
+	*fontCollection = system_fonts;
 	return Ok;
 }
 
 // coverity[+alloc : arg-*0]
 GpStatus WINGDIPAPI
-GdipNewPrivateFontCollection (GpFontCollection **font_collection)
+GdipNewPrivateFontCollection (GpFontCollection **fontCollection)
 {
 	GpFontCollection *result;
 
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
 
-	if (!font_collection)
+	if (!fontCollection)
 		return InvalidParameter;
 
 	result = (GpFontCollection *) GdipAlloc (sizeof (GpFontCollection));
@@ -177,49 +177,49 @@ GdipNewPrivateFontCollection (GpFontCollection **font_collection)
 	pango_fc_font_map_set_config ((PangoFcFontMap *)result->pango_font_map, result->config);
 #endif
 
-	*font_collection = result;
+	*fontCollection = result;
 	return Ok;
 }
 
 // coverity[+free : arg-0]
 GpStatus
-GdipDeletePrivateFontCollection (GpFontCollection **font_collection)
+GdipDeletePrivateFontCollection (GpFontCollection **fontCollection)
 {
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
 
-	if (!font_collection)
+	if (!fontCollection)
 		return InvalidParameter;
 
-	if (*font_collection) {
+	if (*fontCollection) {
 #if USE_PANGO_RENDERING
-		if ((*font_collection)->pango_font_map != NULL) {
-			g_object_unref ((*font_collection)->pango_font_map);
-			(*font_collection)->pango_font_map = NULL;
+		if ((*fontCollection)->pango_font_map != NULL) {
+			g_object_unref ((*fontCollection)->pango_font_map);
+			(*fontCollection)->pango_font_map = NULL;
 		}
 #endif
-		if ((*font_collection)->fontset != NULL) {
-			FcFontSetDestroy ((*font_collection)->fontset);
-			(*font_collection)->fontset = NULL;
+		if ((*fontCollection)->fontset != NULL) {
+			FcFontSetDestroy ((*fontCollection)->fontset);
+			(*fontCollection)->fontset = NULL;
 		}
-		if ((*font_collection)->config != NULL) {
-			FcConfigDestroy ((*font_collection)->config);
-			(*font_collection)->config = NULL;
+		if ((*fontCollection)->config != NULL) {
+			FcConfigDestroy ((*fontCollection)->config);
+			(*fontCollection)->config = NULL;
 		}
-		GdipFree ((void *)*font_collection);
+		GdipFree (*fontCollection);
 	}
 
-	*font_collection = NULL;
+	*fontCollection = NULL;
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
-GdipPrivateAddFontFile (GpFontCollection *font_collection, GDIPCONST WCHAR *filename)
+GdipPrivateAddFontFile (GpFontCollection *fontCollection, GDIPCONST WCHAR *filename)
 {
 	BYTE *file;
 	FILE *fileHandle;
 	
-	if (!font_collection || !filename)
+	if (!fontCollection || !filename)
 		return InvalidParameter;
     
 	file = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)filename, -1);
@@ -233,7 +233,7 @@ GdipPrivateAddFontFile (GpFontCollection *font_collection, GDIPCONST WCHAR *file
 	}
 
 	fclose (fileHandle);
-	FcConfigAppFontAddFile (font_collection->config, file);
+	FcConfigAppFontAddFile (fontCollection->config, file);
     
 	GdipFree (file);
 	return Ok;
@@ -338,16 +338,16 @@ gdip_createPrivateFontSet (GpFontCollection *font_collection)
 }
 
 GpStatus WINGDIPAPI
-GdipGetFontCollectionFamilyCount (GpFontCollection *font_collection, INT *numFound)
+GdipGetFontCollectionFamilyCount (GpFontCollection *fontCollection, INT *numFound)
 {
-	if (!font_collection  || !numFound)
+	if (!fontCollection  || !numFound)
 		return InvalidParameter;
 
-	if (font_collection->config)
-		gdip_createPrivateFontSet (font_collection);
+	if (fontCollection->config)
+		gdip_createPrivateFontSet (fontCollection);
 
-	if (font_collection->fontset)
-		*numFound = font_collection->fontset->nfont;
+	if (fontCollection->fontset)
+		*numFound = fontCollection->fontset->nfont;
 	else
 		*numFound = 0;
 
@@ -355,17 +355,17 @@ GdipGetFontCollectionFamilyCount (GpFontCollection *font_collection, INT *numFou
 }
 
 GpStatus WINGDIPAPI
-GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, INT num_sought, GpFontFamily *gpfamilies[], INT *num_found)
+GdipGetFontCollectionFamilyList (GpFontCollection *fontCollection, INT numSought, GpFontFamily *gpfamilies[], INT *numFound)
 {
 	int i;
 
-	if (!font_collection || !gpfamilies || !num_found)
+	if (!fontCollection || !gpfamilies || !numFound)
 		return InvalidParameter;
 
-	if (font_collection->config)
-		gdip_createPrivateFontSet (font_collection);
+	if (fontCollection->config)
+		gdip_createPrivateFontSet (fontCollection);
 
-	for (i = 0; i < num_sought && i < font_collection->fontset->nfont; i++) {
+	for (i = 0; i < numSought && i < fontCollection->fontset->nfont; i++) {
 		gpfamilies[i] = gdip_fontfamily_new ();
 		if (!gpfamilies[i]) {
 			while (--i >= 0) {
@@ -375,12 +375,12 @@ GdipGetFontCollectionFamilyList (GpFontCollection *font_collection, INT num_soug
 			return OutOfMemory;
 		}
 
-		gpfamilies[i]->collection = font_collection;
-		gpfamilies[i]->pattern = font_collection->fontset->fonts[i];
+		gpfamilies[i]->collection = fontCollection;
+		gpfamilies[i]->pattern = fontCollection->fontset->fonts[i];
 		gpfamilies[i]->allocated = FALSE;
 	}
 	
-	*num_found = i;
+	*numFound = i;
 	return Ok;  
 }
 
@@ -799,32 +799,31 @@ gdip_get_pango_font_description (GpFont *font)
 static GpStatus
 gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 {
-	GpFont *font = NULL;
+	GpFont *font;
 	GpStatus status = GdipCreateFont (family, 8.0f, style, UnitPoint, &font);
+	if (status != Ok)
+		return status;
 
-	if ((status == Ok) && font) {
-		PangoFontMap *map = family->collection->pango_font_map;
+	PangoFontMap *map = family->collection->pango_font_map;
 #if PANGO_VERSION_CHECK(1,22,0)
-		PangoContext *context = pango_font_map_create_context (PANGO_FONT_MAP (map));
+	PangoContext *context = pango_font_map_create_context (PANGO_FONT_MAP (map));
 #else
-		PangoContext *context = pango_cairo_font_map_create_context ((PangoCairoFontMap*)map);
+	PangoContext *context = pango_cairo_font_map_create_context ((PangoCairoFontMap*)map);
 #endif
-		PangoFont *pf = pango_font_map_load_font (map, context, gdip_get_pango_font_description (font));
+	PangoFont *pf = pango_font_map_load_font (map, context, gdip_get_pango_font_description (font));
 
-		FT_Face face = pango_fc_font_lock_face ((PangoFcFont*)pf);
-		if (face) {
-			gdip_get_fontfamily_details_from_freetype (family, face);
-			pango_fc_font_unlock_face ((PangoFcFont*)pf);
-		} else {
-			status = FontFamilyNotFound;
-		}
-
-		g_object_unref (pf);
-		g_object_unref (context);
+	FT_Face face = pango_fc_font_lock_face ((PangoFcFont*)pf);
+	if (face) {
+		gdip_get_fontfamily_details_from_freetype (family, face);
+		pango_fc_font_unlock_face ((PangoFcFont*)pf);
+	} else {
+		status = FontFamilyNotFound;
 	}
 
-	if (font)
-		GdipDeleteFont (font);
+	g_object_unref (pf);
+	g_object_unref (context);
+
+	GdipDeleteFont (font);
 	return status;
 }
 
@@ -850,46 +849,45 @@ gdip_get_cairo_font_face (GpFont *font)
 static GpStatus
 gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 {
-	GpFont *font = NULL;
+	GpFont *font;
 	GpStatus status = GdipCreateFont (family, 0.1f, style, UnitPoint, &font);
+	if (status != Ok)
+		return status;
 
-	if ((status == Ok) && font) {
-		cairo_scaled_font_t* scaled_ft;
-		FT_Face face = NULL;
-		cairo_matrix_t matrix1, matrix2;
-			cairo_font_options_t *options = cairo_font_options_create ();
-		cairo_font_face_t* cairofnt = gdip_get_cairo_font_face (font);
+	cairo_scaled_font_t* scaled_ft;
+	FT_Face face = NULL;
+	cairo_matrix_t matrix1, matrix2;
+	cairo_font_options_t *options = cairo_font_options_create ();
+	cairo_font_face_t* cairofnt = gdip_get_cairo_font_face (font);
 
-		cairo_matrix_init (&matrix1, 1, 0, 0, 1, 0, 0);
-		cairo_matrix_init (&matrix2, 1, 0, 0, 1, 0, 0);
-		scaled_ft = cairo_scaled_font_create (cairofnt, &matrix1, &matrix2, options);
-		/* a missing fonts.conf will resuls in a NULL *scaled_ft (#78237) */
-		if (!scaled_ft) {
-			static int flag = 0;
-			if (flag == 0) {
-				g_warning ("couldn't lock the font face. this may be due to a missing fonts.conf on the system.");
-				flag = 1;
-			}
-			status = FontFamilyNotFound;
+	cairo_matrix_init (&matrix1, 1, 0, 0, 1, 0, 0);
+	cairo_matrix_init (&matrix2, 1, 0, 0, 1, 0, 0);
+	scaled_ft = cairo_scaled_font_create (cairofnt, &matrix1, &matrix2, options);
+	/* a missing fonts.conf will resuls in a NULL *scaled_ft (#78237) */
+	if (!scaled_ft) {
+		static int flag = 0;
+		if (flag == 0) {
+			g_warning ("couldn't lock the font face. this may be due to a missing fonts.conf on the system.");
+			flag = 1;
 		}
-
-		if (status == Ok)
-			face = cairo_ft_scaled_font_lock_face (scaled_ft);
-
-		cairo_font_options_destroy (options);
-
-		if (face) {
-			gdip_get_fontfamily_details_from_freetype (family, face);
-
-			cairo_ft_scaled_font_unlock_face (scaled_ft);
-			cairo_scaled_font_destroy (scaled_ft);
-		} else {
-			status = FontFamilyNotFound;
-		}
+		status = FontFamilyNotFound;
 	}
 
-	if (font)
-		GdipDeleteFont (font);
+	if (status == Ok)
+		face = cairo_ft_scaled_font_lock_face (scaled_ft);
+
+	cairo_font_options_destroy (options);
+
+	if (face) {
+		gdip_get_fontfamily_details_from_freetype (family, face);
+
+		cairo_ft_scaled_font_unlock_face (scaled_ft);
+		cairo_scaled_font_destroy (scaled_ft);
+	} else {
+		status = FontFamilyNotFound;
+	}
+
+	GdipDeleteFont (font);
 	return status;
 }
 #endif
@@ -897,61 +895,73 @@ gdip_get_fontfamily_details (GpFontFamily *family, FontStyle style)
 GpStatus WINGDIPAPI
 GdipGetEmHeight (GDIPCONST GpFontFamily *family, INT style, UINT16 *EmHeight)
 {
-	GpStatus status = Ok;
+	GpStatus status;
 
 	if (!family || !EmHeight)
 		return InvalidParameter;
 
-	if (family->height == -1)
-		status = gdip_get_fontfamily_details ((GpFontFamily*)family, style);
+	if (family->height == -1) {
+		status = gdip_get_fontfamily_details ((GpFontFamily *) family, style);
+		if (status != Ok)
+			return status;
+	}
 
 	*EmHeight = family->height;
-	return status;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipGetCellAscent (GDIPCONST GpFontFamily *family, INT style, UINT16 *CellAscent)
 {
-	GpStatus status = Ok;
+	GpStatus status;
 
 	if (!family || !CellAscent)
 		return InvalidParameter;
 
-	if (family->cellascent == -1)
-		status = gdip_get_fontfamily_details ((GpFontFamily*)family, style);
+	if (family->cellascent == -1) {
+		status = gdip_get_fontfamily_details ((GpFontFamily *) family, style);
+		if (status != Ok)
+			return status;
+	}
 
 	*CellAscent = family->cellascent;
-	return status;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipGetCellDescent (GDIPCONST GpFontFamily *family, INT style, UINT16 *CellDescent)
 {
-	GpStatus status = Ok;
+	GpStatus status;
 
 	if (!family || !CellDescent)
 		return InvalidParameter;
 
-	if (family->celldescent == -1)
-		status = gdip_get_fontfamily_details ((GpFontFamily*)family, style);
+	if (family->celldescent == -1) {
+		status = gdip_get_fontfamily_details ((GpFontFamily *) family, style);
+		if (status != Ok)
+			return status;
+	}
 
 	*CellDescent = family->celldescent;
-	return status;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipGetLineSpacing (GDIPCONST GpFontFamily *family, INT style, UINT16 *LineSpacing)
 {
-	GpStatus status = Ok;
+	GpStatus status;
 
 	if (!family || !LineSpacing)
 		return InvalidParameter;
 
-	if (family->linespacing == -1)
-		status = gdip_get_fontfamily_details ((GpFontFamily*)family, style);
+	if (family->linespacing == -1) {
+		status = gdip_get_fontfamily_details ((GpFontFamily *) family, style);
+		if (status != Ok)
+			return status;
+	}
 
 	*LineSpacing = family->linespacing;
-	return status;
+	return Ok;
 }
 
 GpStatus WINGDIPAPI
@@ -988,18 +998,18 @@ gdip_create_font_without_validation (GDIPCONST GpFontFamily *family, REAL emSize
 
 	result->sizeInPixels = sizeInPixels;
 
-	result->face = GdipAlloc(strlen((char *)str) + 1);
+	result->face = GdipAlloc (strlen ((char *) str) + 1);
 	if (!result->face) {
 		GdipDeleteFont (result);
 		return OutOfMemory;
 	}
 
-	memcpy(result->face, str, strlen((char *)str) + 1);
+	memcpy (result->face, str, strlen ((char *) str) + 1);
 
 	result->style = style;
 	result->emSize = emSize;
 	result->unit = unit;
-	status = GdipCloneFontFamily ((GpFontFamily*) family, &result->family);
+	status = GdipCloneFontFamily ((GpFontFamily *) family, &result->family);
 	if (status != Ok) {
 		GdipDeleteFont (result);
 		return OutOfMemory;
@@ -1013,9 +1023,10 @@ gdip_create_font_without_validation (GDIPCONST GpFontFamily *family, REAL emSize
 	*font = result;
 	return Ok;
 }
+
 // coverity[+alloc : arg-*4]
 GpStatus
-GdipCreateFont (GDIPCONST GpFontFamily* family, REAL emSize, INT style, Unit unit, GpFont **font)
+GdipCreateFont (GDIPCONST GpFontFamily *family, REAL emSize, INT style, Unit unit, GpFont **font)
 {
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
@@ -1044,11 +1055,15 @@ GdipCloneFont (GpFont* font, GpFont** cloneFont)
 	result->emSize = font->emSize;
 	result->unit = font->unit;
 
-	result->face = (unsigned char*)g_strdup ((char *)font->face);
+	result->face = (unsigned char *) g_strdup ((char *)font->face);
+	if (!result->face) {
+		GdipDeleteFont (result);
+		return OutOfMemory;
+	}
 
 	status = GdipCloneFontFamily (font->family, &result->family);
 	if (status != Ok) {
-		GdipDeleteFont (font);
+		GdipDeleteFont (result);
 		return OutOfMemory;
 	}
 
@@ -1066,8 +1081,10 @@ GdipDeleteFont (GpFont* font)
 	if (!font)
 		return InvalidParameter;
 
-	if (font->family)
+	if (font->family) {
 		GdipDeleteFontFamily (font->family);
+		font->family = NULL;
+	}
 
 #ifdef USE_PANGO_RENDERING
 	if (font->pango) {
@@ -1174,9 +1191,9 @@ gdip_logfont_from_font (GpFont *font, GpGraphics *graphics, void *lf, BOOL ucs2)
 
 	logFont->lfPitchAndFamily = 0;
 	if (ucs2) {
-		utf8_to_ucs2((const gchar *)font->face, (gunichar2 *)logFont->lfFaceName, LF_FACESIZE);
+		utf8_to_ucs2 ((const gchar *) font->face, (gunichar2 *) logFont->lfFaceName, LF_FACESIZE);
 	} else {
-		int len = strlen ((char*)font->face);
+		int len = strlen ((char *) font->face);
 		memset (logFont->lfFaceName, 0, LF_FACESIZE);
 		memcpy (logFont->lfFaceName, font->face, len < LF_FACESIZE ? len : LF_FACESIZE - 1);
 	}
@@ -1212,7 +1229,7 @@ GdipCreateFontFromHfontA (HFONT hfont, GpFont **font, void *lf)
 	result->emSize = src_font->emSize;
 	result->unit = src_font->unit;
 
-	result->face = GdipAlloc(strlen((char *)src_font->face) + 1);
+	result->face = GdipAlloc(strlen ((char *) src_font->face) + 1);
 	if (!result->face) {
 		GdipDeleteFont (result);
 		return OutOfMemory;
@@ -1221,7 +1238,6 @@ GdipCreateFontFromHfontA (HFONT hfont, GpFont **font, void *lf)
 	memcpy(result->face, src_font->face, strlen((char *)src_font->face) + 1);
 
 	*font = result;
-
 	return gdip_logfont_from_font (result, NULL, lf, FALSE);
 }
 

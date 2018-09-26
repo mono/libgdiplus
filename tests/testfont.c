@@ -86,7 +86,7 @@ static void verifyFont (GpFont *font, GpFontFamily *originalFamily, INT expected
 	status = GdipGetFontStyle(font, &style);
 	assertEqualInt (status, Ok);
 	assertEqualInt (style, expectedStyle);
-	
+
 	GdipDeleteFontFamily (family);
 }
 
@@ -414,7 +414,7 @@ static void test_createFontFromLogfontA ()
 	Unit unit;
 	GpFontFamily *family;
 	WCHAR familyName[LF_FACESIZE];
-	
+
 	hdc = getEmptyHDC ();
 	GdipGetGenericFontFamilySansSerif (&nativeFamily);
 	GdipGetFamilyName (nativeFamily, nativeFamilyNameW, 0);
@@ -481,7 +481,7 @@ static void test_createFontFromLogfontW ()
 	Unit unit;
 	GpFontFamily *family;
 	WCHAR familyName[LF_FACESIZE];
-	
+
 	hdc = getEmptyHDC ();
 	GdipGetGenericFontFamilySansSerif (&nativeFamily);
 	GdipGetFamilyName (nativeFamily, nativeFamilyNameW, 0);
@@ -542,7 +542,7 @@ static void test_createFont ()
 	GpFontFamily *family;
 
 	GdipGetGenericFontFamilySansSerif (&family);
-	
+
 	// UnitPixel.
 	status = GdipCreateFont (family, 10, 10, UnitPixel, &font);
 	assertEqualInt (status, Ok);
@@ -944,7 +944,7 @@ static void test_cloneFontFamily ()
 	GpFontFamily *clonedFamily;
 
 	GdipCreateFontFamilyFromName (Tahoma, NULL, &family);
-	
+
 	status = GdipCloneFontFamily (family, &clonedFamily);
 	assertEqualInt (status, Ok);
 	verifyFontFamily (clonedFamily, "Tahoma", 2049, 423, 2472, "DejaVu Sans", 1901, 483, 2384);
@@ -955,7 +955,7 @@ static void test_cloneFontFamily ()
 
 	status = GdipCloneFontFamily (family, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	GdipDeleteFontFamily (family);
 }
 
@@ -965,10 +965,10 @@ static void test_deleteFontFamily ()
 	GpFontFamily *family;
 
 	GdipCreateFontFamilyFromName (Tahoma, NULL, &family);
-	
+
 	status = GdipDeleteFontFamily (family);
 	assertEqualInt (status, Ok);
-	
+
 	// Negative tests.
 	status = GdipDeleteFontFamily (NULL);
 	assertEqualInt (status, InvalidParameter);
@@ -1150,7 +1150,7 @@ static void test_getCellDescent ()
 }
 
 static void test_getLineSpacing ()
-{	
+{
 	GpStatus status;
 	GpFontFamily *family;
 	UINT16 lineSpacing;

@@ -33,7 +33,7 @@
 
 /* FontFamily public API (only!) */
 
-GpStatus WINGDIPAPI GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *fontCollection, GpFontFamily **FontFamily);
+GpStatus WINGDIPAPI GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *fontCollection, GpFontFamily **fontFamily);
 GpStatus WINGDIPAPI GdipCloneFontFamily (GpFontFamily *fontFamily, GpFontFamily **clonedFontFamily);
 GpStatus WINGDIPAPI GdipDeleteFontFamily (GpFontFamily *fontFamily);
 GpStatus WINGDIPAPI GdipGetCellAscent (GDIPCONST GpFontFamily *family, INT style, UINT16 *CellAscent);
