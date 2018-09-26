@@ -55,7 +55,7 @@ ATTRIBUTE_USED static WCHAR* wcharFromChar(const char *c)
     size_t length = strlen (c);
 
     WCHAR *wc = (WCHAR *)malloc ((length + 1) * sizeof(WCHAR));
-    for (int i = 0; i < length; i++) {
+    for (size_t i = 0; i < length; i++) {
         wc[i] = (WCHAR) c[i];
     }
     wc[length] = 0;
@@ -68,7 +68,7 @@ ATTRIBUTE_USED static char* charFromWchar(const wchar_t *wc)
     size_t length = lstrlenW (wc);
 
     char *c = (char *)malloc ((length + 1) * sizeof(char));
-    for (int i = 0; i < length; i++) {
+    for (size_t i = 0; i < length; i++) {
         c[i] = (char) wc[i];
     }
     c[length] = 0;
