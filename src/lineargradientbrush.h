@@ -38,16 +38,16 @@ GpStatus WINGDIPAPI GdipCreateLineBrushI (GDIPCONST GpPoint *point1, GDIPCONST G
 GpStatus WINGDIPAPI GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARGB color1, ARGB color2, GpWrapMode wrapMode, GpLineGradient **lineGradient);
 GpStatus WINGDIPAPI GdipCreateLineBrushFromRectI (GDIPCONST GpRect *rect, ARGB color1, ARGB color2, LinearGradientMode mode, GpWrapMode wrapMode, GpLineGradient **lineGradient);
 GpStatus WINGDIPAPI GdipCreateLineBrushFromRect (GDIPCONST GpRectF *rect, ARGB color1, ARGB color2, LinearGradientMode mode, GpWrapMode wrapMode, GpLineGradient **lineGradient);
-GpStatus WINGDIPAPI GdipCreateLineBrushFromRectWithAngleI (GDIPCONST GpRect *rect, ARGB color1, ARGB color2, float angle, BOOL isAngleScalable, GpWrapMode wrapMode, GpLineGradient **lineGradient);
-GpStatus WINGDIPAPI GdipCreateLineBrushFromRectWithAngle (GDIPCONST GpRectF *rect, ARGB color1, ARGB color2, float angle, BOOL isAngleScalable, GpWrapMode wrapMode, GpLineGradient **lineGradient);
-GpStatus WINGDIPAPI GdipGetLineBlendCount (GpLineGradient *brush, int *count);
-GpStatus WINGDIPAPI GdipSetLineBlend (GpLineGradient *brush, GDIPCONST float *blend, GDIPCONST float *positions, int count);
-GpStatus WINGDIPAPI GdipGetLineBlend (GpLineGradient *brush, float *blend, float *positions, int count);
+GpStatus WINGDIPAPI GdipCreateLineBrushFromRectWithAngleI (GDIPCONST GpRect *rect, ARGB color1, ARGB color2, REAL angle, BOOL isAngleScalable, GpWrapMode wrapMode, GpLineGradient **lineGradient);
+GpStatus WINGDIPAPI GdipCreateLineBrushFromRectWithAngle (GDIPCONST GpRectF *rect, ARGB color1, ARGB color2, REAL angle, BOOL isAngleScalable, GpWrapMode wrapMode, GpLineGradient **lineGradient);
+GpStatus WINGDIPAPI GdipGetLineBlendCount (GpLineGradient *brush, INT *count);
+GpStatus WINGDIPAPI GdipSetLineBlend (GpLineGradient *brush, GDIPCONST REAL *blend, GDIPCONST REAL *positions, INT count);
+GpStatus WINGDIPAPI GdipGetLineBlend (GpLineGradient *brush, REAL *blend, REAL *positions, INT count);
 GpStatus WINGDIPAPI GdipSetLineGammaCorrection (GpLineGradient *brush, BOOL useGammaCorrection);
 GpStatus WINGDIPAPI GdipGetLineGammaCorrection (GpLineGradient *brush, BOOL *useGammaCorrection);
-GpStatus WINGDIPAPI GdipGetLinePresetBlendCount (GpLineGradient *brush, int *count);
-GpStatus WINGDIPAPI GdipSetLinePresetBlend (GpLineGradient *brush, GDIPCONST ARGB *blend, GDIPCONST float *positions, int count);
-GpStatus WINGDIPAPI GdipGetLinePresetBlend (GpLineGradient *brush, ARGB *blend, float *positions, int count);
+GpStatus WINGDIPAPI GdipGetLinePresetBlendCount (GpLineGradient *brush, INT *count);
+GpStatus WINGDIPAPI GdipSetLinePresetBlend (GpLineGradient *brush, GDIPCONST ARGB *blend, GDIPCONST REAL *positions, INT count);
+GpStatus WINGDIPAPI GdipGetLinePresetBlend (GpLineGradient *brush, ARGB *blend, REAL *positions, INT count);
 GpStatus WINGDIPAPI GdipSetLineColors (GpLineGradient *brush, ARGB color1, ARGB color2);
 GpStatus WINGDIPAPI GdipGetLineColors (GpLineGradient *brush, ARGB *colors);
 GpStatus WINGDIPAPI GdipGetLineRectI (GpLineGradient *brush, GpRect *rect);
@@ -56,12 +56,12 @@ GpStatus WINGDIPAPI GdipSetLineTransform (GpLineGradient *brush, GDIPCONST GpMat
 GpStatus WINGDIPAPI GdipGetLineTransform (GpLineGradient *brush, GpMatrix *matrix);
 GpStatus WINGDIPAPI GdipSetLineWrapMode (GpLineGradient *brush, GpWrapMode wrapMode);
 GpStatus WINGDIPAPI GdipGetLineWrapMode (GpLineGradient *brush, GpWrapMode *wrapMode);
-GpStatus WINGDIPAPI GdipSetLineLinearBlend (GpLineGradient *brush, float focus, float scale);
-GpStatus WINGDIPAPI GdipSetLineSigmaBlend (GpLineGradient *brush, float focus, float scale);
+GpStatus WINGDIPAPI GdipSetLineLinearBlend (GpLineGradient *brush, REAL focus, REAL scale);
+GpStatus WINGDIPAPI GdipSetLineSigmaBlend (GpLineGradient *brush, REAL focus, REAL scale);
 GpStatus WINGDIPAPI GdipMultiplyLineTransform (GpLineGradient *brush, GpMatrix *matrix, GpMatrixOrder order);
 GpStatus WINGDIPAPI GdipResetLineTransform (GpLineGradient *brush);
-GpStatus WINGDIPAPI GdipRotateLineTransform (GpLineGradient *brush, float angle, GpMatrixOrder order);
-GpStatus WINGDIPAPI GdipScaleLineTransform (GpLineGradient *brush, float sx, float sy, GpMatrixOrder order);
-GpStatus WINGDIPAPI GdipTranslateLineTransform (GpLineGradient *brush, float dx, float dy, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipRotateLineTransform (GpLineGradient *brush, REAL angle, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipScaleLineTransform (GpLineGradient *brush, REAL sx, REAL sy, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipTranslateLineTransform (GpLineGradient *brush, REAL dx, REAL dy, GpMatrixOrder order);
 
 #endif
