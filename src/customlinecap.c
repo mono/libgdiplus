@@ -1,21 +1,21 @@
 /*
  * customlinecap.c
- * 
+ *
  * Copyright (C) Novell, Inc. 2003-2004.
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
- * and associated documentation files (the "Software"), to deal in the Software without restriction, 
- * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or substantial 
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial
  * portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT 
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * Author:
@@ -101,7 +101,7 @@ gdip_custom_linecap_clone_cap (GpCustomLineCap *cap, GpCustomLineCap **clonedCap
 		}
 	}
 	newcap->fill_path = fillpath;
-	
+
 	if (cap->stroke_path) {
 		if (GdipClonePath (cap->stroke_path, &strokepath) != Ok) {
 			if (strokepath != NULL)
@@ -152,7 +152,7 @@ gdip_custom_linecap_angle (float x, float y, float otherend_x, float otherend_y)
 {
 	float slope;
 	double angle;
-	
+
 	if (x == otherend_x) {
 		slope = 0;
 		if (y < otherend_y) {
@@ -180,7 +180,7 @@ gdip_custom_linecap_angle (float x, float y, float otherend_x, float otherend_y)
 			angle = 0;
 		}
 	}
-	
+
 	angle += atan (slope);
 
 	return angle;
@@ -193,7 +193,7 @@ gdip_custom_linecap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *cus
 	int points;
 	int i, idx = 0;
 	float penwidth;
-	
+
 	if (!graphics || !pen || !customCap)
 		return InvalidParameter;
 
@@ -281,7 +281,7 @@ gdip_linecap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *customCap,
 {
 	if (!graphics || !pen || !customCap)
 		return InvalidParameter;
-	
+
 	return customCap->vtable->draw (graphics, pen, customCap, x, y, otherend_x, otherend_y);
 }
 
@@ -289,11 +289,10 @@ gdip_linecap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *customCap,
 
 // coverity[+alloc : arg-*4]
 GpStatus WINGDIPAPI
-GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap, float baseInset, GpCustomLineCap **customCap)
+GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap, REAL baseInset, GpCustomLineCap **customCap)
 {
 	GpStatus status;
-	GpCustomLineCap *cap;
-	GpPath *fillpath_clone = NULL, *strokepath_clone = NULL;
+	GpCustomLineCap *result;
 
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
@@ -301,30 +300,30 @@ GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap
 	if ((!fillPath && !strokePath) || !customCap)
 		return InvalidParameter;
 
-	cap = gdip_custom_linecap_new ();
-	if (!cap)
+	result = gdip_custom_linecap_new ();
+	if (!result)
 		return OutOfMemory;
 
 	if (fillPath) {
-		status = GdipClonePath (fillPath, &cap->fill_path);
+		status = GdipClonePath (fillPath, &result->fill_path);
 		if (status != Ok) {
-			GdipDeleteCustomLineCap (cap);
+			GdipDeleteCustomLineCap (result);
 			return status;
 		}
 	}
 
 	if (strokePath) {
-		status = GdipClonePath (strokePath, &cap->stroke_path);
+		status = GdipClonePath (strokePath, &result->stroke_path);
 		if (status != Ok) {
-			GdipDeleteCustomLineCap (cap);
+			GdipDeleteCustomLineCap (result);
 			return status;
 		}
 	}
 
-	cap->base_cap = baseCap;
-	cap->base_inset = baseInset;
+	result->base_cap = baseCap;
+	result->base_inset = baseInset;
 
-	*customCap = cap;
+	*customCap = result;
 	return Ok;
 }
 
@@ -421,7 +420,7 @@ GdipGetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap *baseCap)
 }
 
 GpStatus WINGDIPAPI
-GdipSetCustomLineCapBaseInset (GpCustomLineCap *customCap, float inset)
+GdipSetCustomLineCapBaseInset (GpCustomLineCap *customCap, REAL inset)
 {
 	if (!customCap)
 		return InvalidParameter;
@@ -431,7 +430,7 @@ GdipSetCustomLineCapBaseInset (GpCustomLineCap *customCap, float inset)
 }
 
 GpStatus WINGDIPAPI
-GdipGetCustomLineCapBaseInset (GpCustomLineCap *customCap, float *inset)
+GdipGetCustomLineCapBaseInset (GpCustomLineCap *customCap, REAL *inset)
 {
 	if (!customCap || !inset)
 		return InvalidParameter;
@@ -441,7 +440,7 @@ GdipGetCustomLineCapBaseInset (GpCustomLineCap *customCap, float *inset)
 }
 
 GpStatus WINGDIPAPI
-GdipSetCustomLineCapWidthScale (GpCustomLineCap *customCap, float widthScale)
+GdipSetCustomLineCapWidthScale (GpCustomLineCap *customCap, REAL widthScale)
 {
 	if (!customCap)
 		return InvalidParameter;
@@ -451,7 +450,7 @@ GdipSetCustomLineCapWidthScale (GpCustomLineCap *customCap, float widthScale)
 }
 
 GpStatus WINGDIPAPI
-GdipGetCustomLineCapWidthScale (GpCustomLineCap *customCap, float *widthScale)
+GdipGetCustomLineCapWidthScale (GpCustomLineCap *customCap, REAL *widthScale)
 {
 	if (!customCap || !widthScale)
 		return InvalidParameter;
