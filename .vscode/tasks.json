@@ -6,12 +6,15 @@
         {
             "label": "Build",
             "type": "shell",
-            "command": "make -j4",
+            "command": "make",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "args": ["QUIET=0"],
+            "args": [
+                "-j4",
+                "QUIET=0"
+            ],
             "problemMatcher": {
                 "owner": "cpp",
                 "fileLocation": ["absolute"],
@@ -28,12 +31,16 @@
         {
             "label": "Test",
             "type": "shell",
-            "command": "make check -j4",
+            "command": "make",
+            "args": [
+                "check",
+                "-j4"
+            ],
             "dependsOn": "Build",
             "group": {
                 "kind": "test",
                 "isDefault": true
-            }
+            },
         }
     ]
 }
