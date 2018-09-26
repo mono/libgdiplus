@@ -43,16 +43,16 @@ GpStatus WINGDIPAPI GdipDeleteGraphics (GpGraphics *graphics);
 GpStatus WINGDIPAPI GdipGetDC (GpGraphics *graphics, HDC *hdc);
 GpStatus WINGDIPAPI GdipReleaseDC (GpGraphics *graphics, HDC hdc);
 
-GpStatus WINGDIPAPI GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState);
-GpStatus WINGDIPAPI GdipSaveGraphics(GpGraphics *graphics, unsigned int * state);
+GpStatus WINGDIPAPI GdipRestoreGraphics (GpGraphics *graphics, UINT graphicsState);
+GpStatus WINGDIPAPI GdipSaveGraphics(GpGraphics *graphics, UINT *state);
 
 GpStatus WINGDIPAPI GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix);
 GpStatus WINGDIPAPI GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix);
 GpStatus WINGDIPAPI GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrder order);
 GpStatus WINGDIPAPI GdipResetWorldTransform (GpGraphics *graphics);
-GpStatus WINGDIPAPI GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder order);
-GpStatus WINGDIPAPI GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order);
-GpStatus WINGDIPAPI GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipScaleWorldTransform (GpGraphics *graphics, REAL sx, REAL sy, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipRotateWorldTransform (GpGraphics *graphics, REAL angle, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipTranslateWorldTransform (GpGraphics *graphics, REAL dx, REAL dy, GpMatrixOrder order);
 
 GpStatus WINGDIPAPI GdipDrawArc (GpGraphics *graphics, GpPen *pen, REAL x, REAL y, REAL width, REAL height, REAL startAngle, REAL sweepAngle);
 GpStatus WINGDIPAPI GdipDrawArcI (GpGraphics *graphics, GpPen *pen, INT x, INT y, INT width, INT height, REAL startAngle, REAL sweepAngle);
@@ -125,8 +125,8 @@ GpStatus WINGDIPAPI GdipSetCompositingMode (GpGraphics *graphics, CompositingMod
 GpStatus WINGDIPAPI GdipGetCompositingMode (GpGraphics *graphics, CompositingMode *compositingMode);
 GpStatus WINGDIPAPI GdipSetCompositingQuality (GpGraphics *graphics, CompositingQuality compositingQuality);
 GpStatus WINGDIPAPI GdipGetCompositingQuality (GpGraphics *graphics, CompositingQuality *compositingQuality);
-GpStatus WINGDIPAPI GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode imode);
-GpStatus WINGDIPAPI GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *imode);
+GpStatus WINGDIPAPI GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode interpolationMode);
+GpStatus WINGDIPAPI GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *interpolationMode);
 GpStatus WINGDIPAPI GdipSetPageScale (GpGraphics *graphics, REAL scale);
 GpStatus WINGDIPAPI GdipGetPageScale (GpGraphics *graphics, REAL *scale);
 GpStatus WINGDIPAPI GdipSetPageUnit (GpGraphics *graphics, GpUnit unit);
@@ -135,8 +135,8 @@ GpStatus WINGDIPAPI GdipSetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMod
 GpStatus WINGDIPAPI GdipGetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode *pixelOffsetMode);
 GpStatus WINGDIPAPI GdipSetRenderingOrigin (GpGraphics *graphics, INT x, INT y);
 GpStatus WINGDIPAPI GdipGetRenderingOrigin (GpGraphics *graphics, INT *x, INT *y);
-GpStatus WINGDIPAPI GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode);
-GpStatus WINGDIPAPI GdipGetSmoothingMode (GpGraphics *graphics, SmoothingMode *mode);
+GpStatus WINGDIPAPI GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode smoothingMode);
+GpStatus WINGDIPAPI GdipGetSmoothingMode (GpGraphics *graphics, SmoothingMode *smoothingMode);
 GpStatus WINGDIPAPI GdipSetTextContrast (GpGraphics *graphics, UINT contrast);
 GpStatus WINGDIPAPI GdipGetTextContrast (GpGraphics *graphics, UINT *contrast);
 GpStatus WINGDIPAPI GdipSetTextRenderingHint (GpGraphics *graphics, TextRenderingHint mode);

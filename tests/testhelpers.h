@@ -113,7 +113,7 @@ ATTRIBUTE_USED static void assertEqualFloatImpl (REAL actual, REAL expected, con
         fprintf (stderr, "Expected: %f\n", expected);
         fprintf (stderr, "Actual:   %f\n", actual);
         abort ();
-    }                                     
+    }
 }
 
 #define assertEqualFloat(actual, expected) assertEqualFloatImpl (actual, expected, NULL, __FILE__, __func__, __LINE__)
@@ -135,19 +135,19 @@ ATTRIBUTE_USED static void assertSimilarFloatImpl (REAL actual, REAL expected, R
 
 ATTRIBUTE_USED static BOOL stringsEqual (const WCHAR *actual, const char *expected)
 {
-	int i = 0;
-	while (TRUE) {
-		if (expected[i] == '\0') {
-			return actual[i] == '\0';
-		}
+    int i = 0;
+    while (TRUE) {
+        if (expected[i] == '\0') {
+            return actual[i] == '\0';
+        }
 
-		if (expected[i] != (char)actual[i])
-			return FALSE;
+        if (expected[i] != (char)actual[i])
+            return FALSE;
 
-		i++;
-	}
+        i++;
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 ATTRIBUTE_USED static void assertEqualStringImpl(const WCHAR *actual, const char * expected, const char *message, const char *file, const char *function, int line)
@@ -284,7 +284,7 @@ ATTRIBUTE_USED static void assertEqualGuidImpl (GUID actual, GUID expected, cons
 
         printFailure (file, function, line);
         fprintf (stderr, "Expected: {%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX}\n", (unsigned long) expected.Data1, expected.Data2, expected.Data3, expected.Data4[0], expected.Data4[1], expected.Data4[2], expected.Data4[3], expected.Data4[4], expected.Data4[5], expected.Data4[6], expected.Data4[7]);
-		fprintf (stderr, "Actual:   {%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX}\n", (unsigned long) actual.Data1, actual.Data2, actual.Data3, actual.Data4[0], actual.Data4[1], actual.Data4[2], actual.Data4[3], actual.Data4[4], actual.Data4[5], actual.Data4[6], actual.Data4[7]);
+        fprintf (stderr, "Actual:   {%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX}\n", (unsigned long) actual.Data1, actual.Data2, actual.Data3, actual.Data4[0], actual.Data4[1], actual.Data4[2], actual.Data4[3], actual.Data4[4], actual.Data4[5], actual.Data4[6], actual.Data4[7]);
         abort();
     }
 }
@@ -293,8 +293,11 @@ ATTRIBUTE_USED static void assertEqualGuidImpl (GUID actual, GUID expected, cons
 
 ATTRIBUTE_USED static void verifyMatrixImpl(GpMatrix *matrix, REAL e1, REAL e2, REAL e3, REAL e4, REAL e5, REAL e6, const char *file, const char *function, int line)
 {
-    float elements[6];
-    GdipGetMatrixElements (matrix, elements);
+    GpStatus status;
+    REAL elements[6];
+
+    status = GdipGetMatrixElements(matrix, elements);
+    assertEqualInt (status, Ok);
 
     if (!floatsEqual (elements[0], e1) ||
         !floatsEqual (elements[1], e2) ||
@@ -480,25 +483,25 @@ ATTRIBUTE_USED static BOOL is_32bit()
 
 #define verifyNoPalette(image, flags) \
 { \
-	GpStatus status; \
-	INT size; \
-	ColorPalette *palette; \
+    GpStatus status; \
+    INT size; \
+    ColorPalette *palette; \
  \
-	status = GdipGetImagePaletteSize (image, &size); \
-	assertEqualInt (status, Ok); \
+    status = GdipGetImagePaletteSize (image, &size); \
+    assertEqualInt (status, Ok); \
  \
-	palette = (ColorPalette *) GdipAlloc (size); \
-	memset (palette, 0, sizeof (ColorPalette)); \
-	palette->Entries[0] = 0x123; \
-	status = GdipGetImagePalette (image, palette, size); \
-	assertEqualInt (status, Ok); \
-	assertEqualInt (size, sizeof (ColorPalette)); \
+    palette = (ColorPalette *) GdipAlloc (size); \
+    memset (palette, 0, sizeof (ColorPalette)); \
+    palette->Entries[0] = 0x123; \
+    status = GdipGetImagePalette (image, palette, size); \
+    assertEqualInt (status, Ok); \
+    assertEqualInt (size, sizeof (ColorPalette)); \
  \
-	assertEqualInt (palette->Flags, flags); \
-	assertEqualInt (palette->Count, 0); \
-	assertEqualInt (palette->Entries[0], 0x123); \
+    assertEqualInt (palette->Flags, flags); \
+    assertEqualInt (palette->Count, 0); \
+    assertEqualInt (palette->Entries[0], 0x123); \
  \
-	GdipFree (palette); \
+    GdipFree (palette); \
 }
 
 #define HEX__(n) 0x##n##LU
