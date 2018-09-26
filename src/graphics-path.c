@@ -447,53 +447,39 @@ GdipGetPointCount (GpPath *path, int *count)
 }
 
 GpStatus WINGDIPAPI
-GdipGetPathTypes (GpPath *path, BYTE *types, int count)
+GdipGetPathTypes (GpPath *path, BYTE *types, INT count)
 {
-	int i;
-
-	if (!path || !types || (count < 1))
+	if (!path || !types || count <= 0)
 		return InvalidParameter;
+	if (count < path->count)
+		return InsufficientBuffer;
 
-	if (count > path->count)
-		count = path->count;
-
-	memcpy (types, path->types, sizeof (BYTE) * count);
-	
+	memcpy (types, path->types, path->count * sizeof (BYTE));
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipGetPathPoints (GpPath *path, GpPointF *points, int count)
 {
-	int i;
-
-	if (!path || !points || (count < 1))
+	if (!path || !points || count <= 0)
 		return InvalidParameter;
+	if (count < path->count)
+		return InsufficientBuffer;
 
-	if (count > path->count)
-		count = path->count;
-
-	memcpy (points, path->points, sizeof (GpPointF) * count);
-
+	memcpy (points, path->points, path->count * sizeof (GpPointF));
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipGetPathPointsI (GpPath *path, GpPoint *points, int count)
 {
-	int i;
-
-	if (!path || !points || (count < 1))
+	if (!path || !points || count <= 0)
 		return InvalidParameter;
+	if (count < path->count)
+		return InsufficientBuffer;
 
-	if (count > path->count)
-		count = path->count;
-
-	for (i = 0; i < count; i++) {
-		GpPointF point = path->points[i];
-		points [i].X = (int) point.X;
-		points [i].Y = (int) point.Y; 
-	}
+	for (int i = 0; i < path->count; i++)
+		gdip_Point_from_PointF (path->points + i, points + i);
 
 	return Ok;
 }
@@ -523,14 +509,14 @@ GdipSetPathFillMode (GpPath *path, FillMode fillMode)
 GpStatus WINGDIPAPI
 GdipGetPathData (GpPath *path, GpPathData *pathData)
 {
-	if (!path || !pathData)
+	if (!path || !pathData || !pathData->Points || !pathData->Types || pathData->Count < 0)
 		return InvalidParameter;
+	if (pathData->Count < path->count)
+		return OutOfMemory;
 
-	if (pathData->Count > path->count)
-		pathData->Count = path->count;
-
-	memcpy (pathData->Points, path->points, sizeof (GpPointF) * pathData->Count);
-	memcpy (pathData->Types, path->types, sizeof (BYTE) * pathData->Count);
+	memcpy (pathData->Points, path->points, path->count * sizeof (GpPointF));
+	memcpy (pathData->Types, path->types, path->count * sizeof (BYTE));
+	pathData->Count = path->count;
 
 	return Ok;
 }
