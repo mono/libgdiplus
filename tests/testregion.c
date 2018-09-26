@@ -1576,12 +1576,26 @@ static void test_isEqualRegion ()
 	GpRegion *infiniteRectRegion2;
 	GpRegion *emptyRectRegion1;
 	GpRegion *emptyRectRegion2;
+	GpRegion *zeroWidthRectRegion1;
+	GpRegion *zeroWidthRectRegion2;
+	GpRegion *zeroHeightRectRegion1;
+	GpRegion *zeroHeightRectRegion2;
+	GpRegion *negativeWidthRectRegion1;
+	GpRegion *negativeWidthRectRegion2;
+	GpRegion *negativeHeightRectRegion1;
+	GpRegion *negativeHeightRectRegion2;
 	GpRegion *rectRegion1;
 	GpRegion *rectRegion2;
 	GpRegion *rectRegion3;
 	GpRegion *rectRegion4;
 	GpRegion *rectRegion5;
 	GpRegion *rectRegion6;
+	GpRegion *multiRectRegion1;
+	GpRegion *multiRectRegion2;
+	GpRegion *multiRectRegion3;
+	GpRegion *multiRectRegion4;
+	GpRegion *multiRectRegion5;
+	GpRegion *multiRectRegion6;
 	GpRegion *emptyPathRegion1;
 	GpRegion *emptyPathRegion2;
 	GpRegion *infinitePathRegion1;
@@ -1614,6 +1628,26 @@ static void test_isEqualRegion ()
 	GdipCreateRegionRect (&emptyRect, &emptyRectRegion1);
 	
 	GdipCreateRegionRect (&emptyRect, &emptyRectRegion2);
+	
+	GpRectF zeroWidthRect = {1, 2, 0, 4};
+	GdipCreateRegionRect (&zeroWidthRect, &zeroWidthRectRegion1);
+
+	GdipCreateRegionRect (&zeroWidthRect, &zeroWidthRectRegion2);
+	
+	GpRectF zeroHeightRect = {1, 2, 3, 0};
+	GdipCreateRegionRect (&zeroHeightRect, &zeroHeightRectRegion1);
+	
+	GdipCreateRegionRect (&zeroHeightRect, &zeroHeightRectRegion2);
+	
+	GpRectF negativeWidthRect = {1, 2, -1, 4};
+	GdipCreateRegionRect (&negativeWidthRect, &negativeWidthRectRegion1);
+	
+	GdipCreateRegionRect (&negativeWidthRect, &negativeWidthRectRegion2);
+	
+	GpRectF negativeHeightRect = {1, 2, 3, -1};
+	GdipCreateRegionRect (&negativeHeightRect, &negativeHeightRectRegion1);
+	
+	GdipCreateRegionRect (&negativeHeightRect, &negativeHeightRectRegion2);
 
 	GpRectF rect1 = {1, 2, 3, 4};
 	GdipCreateRegionRect (&rect1, &rectRegion1);
@@ -1632,6 +1666,36 @@ static void test_isEqualRegion ()
 
 	GpRectF rect6 = {1, 2, 3, 5};
 	GdipCreateRegionRect (&rect6, &rectRegion6);
+
+	GpRectF multiRect1_1 = {1, 2, 3, 4};
+	GpRectF multiRect1_2 = {6, 7, 8, 9};
+	GdipCreateRegionRect (&multiRect1_1, &multiRectRegion1);
+	GdipCombineRegionRect (multiRectRegion1, &multiRect1_2, CombineModeUnion);
+	
+	GpRectF multiRect2_1 = {1, 2, 3, 4};
+	GpRectF multiRect2_2 = {6, 7, 8, 9};
+	GdipCreateRegionRect (&multiRect2_1, &multiRectRegion2);
+	GdipCombineRegionRect (multiRectRegion2, &multiRect2_2, CombineModeUnion);
+	
+	GpRectF multiRect3_1 = {1, 2, 3, 4};
+	GpRectF multiRect3_2 = {7, 7, 8, 9};
+	GdipCreateRegionRect (&multiRect3_1, &multiRectRegion3);
+	GdipCombineRegionRect (multiRectRegion3, &multiRect3_2, CombineModeUnion);
+	
+	GpRectF multiRect4_1 = {1, 2, 3, 4};
+	GpRectF multiRect4_2 = {6, 8, 8, 9};
+	GdipCreateRegionRect (&multiRect4_1, &multiRectRegion4);
+	GdipCombineRegionRect (multiRectRegion4, &multiRect4_2, CombineModeUnion);
+	
+	GpRectF multiRect5_1 = {1, 2, 3, 4};
+	GpRectF multiRect5_2 = {6, 7, 9, 9};
+	GdipCreateRegionRect (&multiRect5_1, &multiRectRegion5);
+	GdipCombineRegionRect (multiRectRegion5, &multiRect5_2, CombineModeUnion);
+	
+	GpRectF multiRect6_1 = {1, 2, 3, 4};
+	GpRectF multiRect6_2 = {6, 7, 8, 10};
+	GdipCreateRegionRect (&multiRect6_1, &multiRectRegion6);
+	GdipCombineRegionRect (multiRectRegion6, &multiRect6_2, CombineModeUnion);
 	
 	GpPath *emptyPath;
 	GdipCreatePath (FillModeAlternate, &emptyPath);
@@ -1648,32 +1712,32 @@ static void test_isEqualRegion ()
 	
 	GpPath *path1;
 	GdipCreatePath (FillModeAlternate, &path1);
-	GdipAddPathRectangle (path1, 10, 20, 30, 40);
+	GdipAddPathRectangle (path1, 1, 2, 3, 4);
 	GdipCreateRegionPath (path1, &pathRegion1);
 	
 	GpPath *path2;
 	GdipCreatePath (FillModeAlternate, &path2);
-	GdipAddPathRectangle (path2, 10, 20, 30, 40);
+	GdipAddPathRectangle (path2, 1, 2, 3, 4);
 	GdipCreateRegionPath (path2, &pathRegion2);
 	
 	GpPath *path3;
 	GdipCreatePath (FillModeAlternate, &path3);
-	GdipAddPathRectangle (path3, 11, 20, 30, 40);
+	GdipAddPathRectangle (path3, 2, 2, 3, 4);
 	GdipCreateRegionPath (path3, &pathRegion3);
 	
 	GpPath *path4;
 	GdipCreatePath (FillModeAlternate, &path4);
-	GdipAddPathRectangle (path4, 10, 21, 30, 40);
+	GdipAddPathRectangle (path4, 1, 3, 3, 4);
 	GdipCreateRegionPath (path4, &pathRegion4);
 	
 	GpPath *path5;
 	GdipCreatePath (FillModeAlternate, &path5);
-	GdipAddPathRectangle (path5, 10, 20, 31, 40);
+	GdipAddPathRectangle (path5, 1, 2, 4, 4);
 	GdipCreateRegionPath (path5, &pathRegion5);
 	
 	GpPath *path6;
 	GdipCreatePath (FillModeAlternate, &path6);
-	GdipAddPathRectangle (path6, 10, 20, 30, 31);
+	GdipAddPathRectangle (path6, 1, 2, 3, 5);
 	GdipCreateRegionPath (path6, &pathRegion6);
 
 	// Infinite region.
@@ -1689,12 +1753,9 @@ static void test_isEqualRegion ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
 
-// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipIsEqualRegion (infiniteRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-#endif
 
 	status = GdipIsEqualRegion (infiniteRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
@@ -1704,23 +1765,37 @@ static void test_isEqualRegion ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
 	
+	status = GdipIsEqualRegion (infiniteRegion1, zeroWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (infiniteRegion1, zeroHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (infiniteRegion1, negativeWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (infiniteRegion1, negativeHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
 	status = GdipIsEqualRegion (infiniteRegion1, rectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
 	
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
+	status = GdipIsEqualRegion (infiniteRegion1, multiRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
 	status = GdipIsEqualRegion (infiniteRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-#endif
 
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipIsEqualRegion (infiniteRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-#endif
 
 	// Empty region.
 	status = GdipIsEqualRegion (emptyRegion1, emptyRegion1, graphics, &isEqual);
@@ -1730,20 +1805,30 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (emptyRegion1, emptyRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
-	// FIXME: this returns false.
-#if defined(USE_WINDOWS_GDIPLUS)
+
 	status = GdipIsEqualRegion (emptyRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-#endif
-	
-	// FIXME: this returns false.
-#if defined(USE_WINDOWS_GDIPLUS)
+
+	status = GdipIsEqualRegion (emptyRegion1, zeroWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (emptyRegion1, zeroHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (emptyRegion1, negativeWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (emptyRegion1, negativeHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
 	status = GdipIsEqualRegion (emptyRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-#endif
 
 	status = GdipIsEqualRegion (emptyRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
@@ -1753,14 +1838,15 @@ static void test_isEqualRegion ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
 	
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipIsEqualRegion (emptyRegion1, infinitePathRegion1, graphics, &isEqual);
+	status = GdipIsEqualRegion (emptyRegion1, rectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-#endif
 	
-	status = GdipIsEqualRegion (emptyRegion1, rectRegion1, graphics, &isEqual);
+	status = GdipIsEqualRegion (emptyRegion1, multiRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (emptyRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
 
@@ -1769,6 +1855,10 @@ static void test_isEqualRegion ()
 	assertEqualInt (isEqual, FALSE);
 
 	// Rectangular region - infinite.
+	status = GdipIsEqualRegion (infiniteRectRegion1, infiniteRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
 	status = GdipIsEqualRegion (infiniteRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -1776,48 +1866,56 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (infiniteRectRegion1, infiniteRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
-	status = GdipIsEqualRegion (infiniteRectRegion1, infiniteRegion1, graphics, &isEqual);
-	assertEqualInt (status, Ok);
-	assertEqualInt (isEqual, TRUE);
-	
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
+
 	status = GdipIsEqualRegion (infiniteRectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-#endif
 
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipIsEqualRegion (infiniteRectRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-#endif
 
 	status = GdipIsEqualRegion (infiniteRectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
 
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipIsEqualRegion (infiniteRectRegion1, emptyPathRegion1, graphics, &isEqual);
+	status = GdipIsEqualRegion (infiniteRectRegion1, zeroWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-#endif
+
+	status = GdipIsEqualRegion (infiniteRectRegion1, zeroHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (infiniteRectRegion1, negativeWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (infiniteRectRegion1, negativeHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
 
 	status = GdipIsEqualRegion (infiniteRectRegion1, rectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
 
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
+	status = GdipIsEqualRegion (infiniteRectRegion1, multiRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (infiniteRectRegion1, emptyPathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
 	status = GdipIsEqualRegion (infiniteRectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-#endif
 
 	// Rectangular region - empty.
+	status = GdipIsEqualRegion (emptyRectRegion1, emptyRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
 	status = GdipIsEqualRegion (emptyRectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -1825,20 +1923,26 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (emptyRectRegion1, emptyRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
-	// FIXME: this returns false.
-#if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipIsEqualRegion (emptyRectRegion1, emptyRegion1, graphics, &isEqual);
+
+	status = GdipIsEqualRegion (emptyRectRegion1, zeroWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-#endif
 
-	// FIXME: this returns false.
-#if defined(USE_WINDOWS_GDIPLUS)
+	status = GdipIsEqualRegion (emptyRectRegion1, zeroHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (emptyRectRegion1, negativeWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (emptyRectRegion1, negativeHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
 	status = GdipIsEqualRegion (emptyRectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-#endif
 	
 	status = GdipIsEqualRegion (emptyRectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
@@ -1848,14 +1952,15 @@ static void test_isEqualRegion ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
 
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipIsEqualRegion (emptyRectRegion1, infinitePathRegion1, graphics, &isEqual);
+	status = GdipIsEqualRegion (emptyRectRegion1, rectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-#endif
 
-	status = GdipIsEqualRegion (emptyRectRegion1, rectRegion1, graphics, &isEqual);
+	status = GdipIsEqualRegion (emptyRectRegion1, multiRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (emptyRectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
 	
@@ -1863,6 +1968,250 @@ static void test_isEqualRegion ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
 	
+	// Rectangular region - zero width.
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, emptyRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, emptyRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+	
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, emptyRectRegion2, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, zeroWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, zeroWidthRectRegion2, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, zeroHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, negativeWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, negativeHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, emptyPathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+	
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, infiniteRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, infiniteRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, rectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, multiRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, infinitePathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (zeroWidthRectRegion1, pathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	// Rectangular region - zero height.
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, emptyRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, emptyRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+	
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, emptyRectRegion2, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, zeroWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, zeroHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, zeroHeightRectRegion2, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, negativeWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, negativeHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, emptyPathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+	
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, infiniteRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, infiniteRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, rectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, multiRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, infinitePathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (zeroHeightRectRegion1, pathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	// Rectangular region - negative width.
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, emptyRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, emptyRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+	
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, emptyRectRegion2, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, zeroWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, zeroHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, negativeWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, negativeWidthRectRegion2, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, negativeHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, emptyPathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+	
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, infiniteRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, infiniteRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, rectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, multiRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, infinitePathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (negativeWidthRectRegion1, pathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	// Rectangular region - negative height.
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, emptyRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, emptyRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+	
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, emptyRectRegion2, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, zeroWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, zeroHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, negativeWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, negativeWidthRectRegion2, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, negativeHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, emptyPathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+	
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, infiniteRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, infiniteRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, rectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, multiRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, infinitePathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (negativeHeightRectRegion1, pathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
 	// Rectangular region - normal.
 	status = GdipIsEqualRegion (rectRegion1, rectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
@@ -1871,6 +2220,42 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (rectRegion1, rectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
+	
+	status = GdipIsEqualRegion (rectRegion1, pathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+	
+	status = GdipIsEqualRegion (rectRegion1, infiniteRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (rectRegion1, emptyRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (rectRegion1, infiniteRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (rectRegion1, emptyRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (rectRegion1, zeroWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (rectRegion1, zeroHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (rectRegion1, negativeWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (rectRegion1, negativeHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
 	
 	status = GdipIsEqualRegion (rectRegion1, rectRegion3, graphics, &isEqual);
 	assertEqualInt (status, Ok);
@@ -1887,143 +2272,215 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (rectRegion1, rectRegion6, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
-	status = GdipIsEqualRegion (rectRegion1, infiniteRegion1, graphics, &isEqual);
-	assertEqualInt (status, Ok);
-	assertEqualInt (isEqual, FALSE);
-	
-	status = GdipIsEqualRegion (rectRegion1, infiniteRectRegion1, graphics, &isEqual);
-	assertEqualInt (status, Ok);
-	assertEqualInt (isEqual, FALSE);
-	
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipIsEqualRegion (rectRegion1, infinitePathRegion1, graphics, &isEqual);
-	assertEqualInt (status, Ok);
-	assertEqualInt (isEqual, FALSE);
-#endif
 
-	status = GdipIsEqualRegion (rectRegion1, emptyRegion1, graphics, &isEqual);
+	status = GdipIsEqualRegion (rectRegion1, multiRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
 	
-	status = GdipIsEqualRegion (rectRegion1, emptyRectRegion1, graphics, &isEqual);
+	status = GdipIsEqualRegion (rectRegion1, pathRegion3, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (rectRegion1, pathRegion4, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (rectRegion1, pathRegion5, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (rectRegion1, pathRegion6, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (rectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
 	
 	status = GdipIsEqualRegion (rectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
+
+	// Rectangular region - multiple.
+	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion2, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, infiniteRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, emptyRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, infiniteRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, emptyRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, zeroWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, zeroHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, negativeWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, negativeHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, rectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion3, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion4, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion5, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion6, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, infinitePathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, emptyPathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (multiRectRegion1, pathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
 	
 	// Path region - infinite.
-	status = GdipIsEqualRegion (infinitePathRegion1, infinitePathRegion1, graphics, &isEqual);
-	assertEqualInt (status, Ok);
-	assertEqualInt (isEqual, TRUE);
-	
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipIsEqualRegion (infinitePathRegion1, infinitePathRegion2, graphics, &isEqual);
-	assertEqualInt (status, Ok);
-	assertEqualInt (isEqual, TRUE);
-#endif
-	
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipIsEqualRegion (infinitePathRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-#endif
-	
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
+
+	status = GdipIsEqualRegion (infinitePathRegion1, infinitePathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (infinitePathRegion1, infinitePathRegion2, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
 	status = GdipIsEqualRegion (infinitePathRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-#endif
-	
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
+
 	status = GdipIsEqualRegion (infinitePathRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-#endif
-	
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
+
 	status = GdipIsEqualRegion (infinitePathRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-#endif
-	
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipIsEqualRegion (infinitePathRegion1, emptyPathRegion1, graphics, &isEqual);
+
+	status = GdipIsEqualRegion (infinitePathRegion1, zeroWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-#endif
 
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
+	status = GdipIsEqualRegion (infinitePathRegion1, zeroHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (infinitePathRegion1, negativeWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (infinitePathRegion1, negativeHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
 	status = GdipIsEqualRegion (infinitePathRegion1, rectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-#endif
-	
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
+
+	status = GdipIsEqualRegion (infinitePathRegion1, multiRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (infinitePathRegion1, emptyPathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
 	status = GdipIsEqualRegion (infinitePathRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-#endif
 
 	// Path region - empty.
+	status = GdipIsEqualRegion (emptyPathRegion1, emptyRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
 	status = GdipIsEqualRegion (emptyPathRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
 
 	status = GdipIsEqualRegion (emptyPathRegion1, emptyPathRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
-	// FIXME: this returns false.
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (isEqual, TRUE);
-#endif
-
-	status = GdipIsEqualRegion (emptyPathRegion1, emptyRegion1, graphics, &isEqual);
-	assertEqualInt (status, Ok);
-	// FIXME: this returns false.
-#if defined(USE_WINDOWS_GDIPLUS)
-	assertEqualInt (isEqual, TRUE);
-#endif
 
 	status = GdipIsEqualRegion (emptyPathRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
-	// FIXME: this returns false.
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (isEqual, TRUE);
-#endif
 
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
+	status = GdipIsEqualRegion (emptyPathRegion1, zeroWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (emptyPathRegion1, zeroHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (emptyPathRegion1, negativeWidthRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
+	status = GdipIsEqualRegion (emptyPathRegion1, negativeHeightRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
 	status = GdipIsEqualRegion (emptyPathRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-#endif
 
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipIsEqualRegion (emptyPathRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-#endif
-
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipIsEqualRegion (emptyPathRegion1, infinitePathRegion1, graphics, &isEqual);
-	assertEqualInt (status, Ok);
-	assertEqualInt (isEqual, FALSE);
-#endif
 
 	status = GdipIsEqualRegion (emptyPathRegion1, rectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (emptyPathRegion1, multiRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (emptyPathRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
 	
@@ -2031,7 +2488,11 @@ static void test_isEqualRegion ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
 
-	// Rectangular region - normal.
+	// Path region - normal.
+	status = GdipIsEqualRegion (pathRegion1, rectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, TRUE);
+
 	status = GdipIsEqualRegion (pathRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -2039,6 +2500,50 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (pathRegion1, pathRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
+	
+	status = GdipIsEqualRegion (pathRegion1, infiniteRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (pathRegion1, emptyRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (pathRegion1, infiniteRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (pathRegion1, emptyRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (pathRegion1, rectRegion3, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (pathRegion1, rectRegion4, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (pathRegion1, rectRegion5, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+	
+	status = GdipIsEqualRegion (pathRegion1, rectRegion6, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (pathRegion1, multiRectRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (pathRegion1, emptyPathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
+
+	status = GdipIsEqualRegion (pathRegion1, infinitePathRegion1, graphics, &isEqual);
+	assertEqualInt (status, Ok);
+	assertEqualInt (isEqual, FALSE);
 	
 	status = GdipIsEqualRegion (pathRegion1, pathRegion3, graphics, &isEqual);
 	assertEqualInt (status, Ok);
@@ -2053,39 +2558,6 @@ static void test_isEqualRegion ()
 	assertEqualInt (isEqual, FALSE);
 	
 	status = GdipIsEqualRegion (pathRegion1, pathRegion6, graphics, &isEqual);
-	assertEqualInt (status, Ok);
-	assertEqualInt (isEqual, FALSE);
-
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipIsEqualRegion (pathRegion1, infiniteRegion1, graphics, &isEqual);
-	assertEqualInt (status, Ok);
-	assertEqualInt (isEqual, FALSE);
-#endif
-
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipIsEqualRegion (pathRegion1, infiniteRectRegion1, graphics, &isEqual);
-	assertEqualInt (status, Ok);
-	assertEqualInt (isEqual, FALSE);
-#endif
-
-	// FIXME: this causes libgdiplus to crash.
-#if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipIsEqualRegion (pathRegion1, infinitePathRegion1, graphics, &isEqual);
-	assertEqualInt (status, Ok);
-	assertEqualInt (isEqual, FALSE);
-#endif
-
-	status = GdipIsEqualRegion (pathRegion1, emptyRegion1, graphics, &isEqual);
-	assertEqualInt (status, Ok);
-	assertEqualInt (isEqual, FALSE);
-
-	status = GdipIsEqualRegion (pathRegion1, emptyRectRegion1, graphics, &isEqual);
-	assertEqualInt (status, Ok);
-	assertEqualInt (isEqual, FALSE);
-
-	status = GdipIsEqualRegion (pathRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
 

@@ -2170,6 +2170,20 @@ GdipIsEqualRegion (GpRegion *region, GpRegion *region2, GpGraphics *graphics, BO
 		*result = TRUE;
 		return Ok;
 	}
+	
+	BOOL region1Infinite = gdip_is_InfiniteRegion (region);
+	BOOL region1Empty = gdip_is_region_empty (region, /* allowNegative */ TRUE);
+	BOOL region2Infinite = gdip_is_InfiniteRegion (region2);
+	BOOL region2Empty = gdip_is_region_empty (region2, /* allowNegative */ TRUE);
+
+	if (region1Infinite || region2Infinite) {
+		*result = region1Infinite == region2Infinite;
+		return Ok;
+	}
+	if (region1Empty || region2Empty) {
+		*result = region1Empty == region2Empty;
+		return Ok;
+	}
 
 	if ((region->type == RegionTypePath) || (region2->type == RegionTypePath)) {
 		/* if required convert one region to a path based region */
