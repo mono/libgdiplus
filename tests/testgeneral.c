@@ -282,10 +282,10 @@ static void test_notInitialized ()
 
 	status = GdipCreateBitmapFromScan0 (0, 0, 0, PixelFormat32bppARGB, NULL, NULL);
 	assertEqualInt (status, GdiplusNotInitialized);
-	
+
 	status = GdipCreateBitmapFromStream (NULL, NULL);
 	assertEqualInt (status, GdiplusNotInitialized);
-	
+
 	status = GdipCreateBitmapFromStreamICM (NULL, NULL);
 	assertEqualInt (status, GdiplusNotInitialized);
 
@@ -303,6 +303,15 @@ static void test_notInitialized ()
 
 	status = GdipCreateFontFamilyFromName (NULL, NULL, NULL);
 	assertEqualInt (status, GdiplusNotInitialized);
+
+	status = GdipGetGenericFontFamilySansSerif (NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetGenericFontFamilySerif (NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetGenericFontFamilyMonospace (NULL);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipCreateFontFromDC (NULL, NULL);
 	assertEqualInt (status, GdiplusNotInitialized);
@@ -411,13 +420,13 @@ static void test_notInitialized ()
 
 	status = GdipCreatePen2 (NULL, 0, UnitPixel, NULL);
 	assertEqualInt (status, GdiplusNotInitialized);
-	
+
 	status = GdipCreateRegion (NULL);
 	assertEqualInt (status, GdiplusNotInitialized);
-	
+
 	status = GdipCreateRegionPath (NULL, NULL);
 	assertEqualInt (status, GdiplusNotInitialized);
-	
+
 	status = GdipCreateRegionRect (NULL, NULL);
 	assertEqualInt (status, GdiplusNotInitialized);
 
@@ -432,6 +441,12 @@ static void test_notInitialized ()
 
 	status = GdipCreateStringFormat (0, 0, NULL);
 	assertEqualInt (status, GdiplusNotInitialized);
+
+	status = GdipStringFormatGetGenericDefault (NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipStringFormatGetGenericTypographic (NULL);
+	assertEqualInt (status, InvalidParameter);
 
 	status = GdipCreateTexture (NULL, WrapModeClamp, NULL);
 	assertEqualInt (status, GdiplusNotInitialized);

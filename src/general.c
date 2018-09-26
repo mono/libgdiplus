@@ -30,6 +30,7 @@
 #include "codecs-private.h"
 #include "graphics-private.h"
 #include "font-private.h"
+#include "stringformat-private.h"
 #include "carbon-private.h"
 #ifdef WIN32
 #include "win32-private.h"
@@ -65,6 +66,7 @@ GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStart
 
 	FcInit ();
 	gdip_get_display_dpi();
+	gdip_create_generic_stringformats ();
 
 	if (input->SuppressBackgroundThread) {
 		output->NotificationHook = GdiplusNotificationHook;
@@ -84,6 +86,7 @@ WINGDIPAPI GdiplusShutdown (ULONG_PTR token)
 		releaseCodecList ();
 		gdip_font_clear_pattern_cache ();
 		gdip_delete_system_fonts ();
+		gdip_delete_generic_stringformats ();
 #if HAVE_FCFINI
 		FcFini ();
 #endif
