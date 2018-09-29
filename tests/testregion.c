@@ -8335,33 +8335,152 @@ static void test_translateRegion ()
 	GpStatus status;
 	GpPath *path;
 	GpRegion *region;
+	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
+	GpRectF emptyRect = {0, 0, 0, 0};
+	GpRectF rect = {10, 20, 30, 40};
+	
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 10, 20, 30, 40);
+	
+	// Infinite rect region - zero, zero
+	GdipCreateRegionRect (&infiniteRect, &region);
+	
+	status = GdipTranslateRegion (region, 0, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE);
+
+	GdipDeleteRegion (region);
+
+	// Infinite rect region - positive, zero.
+	GdipCreateRegionRect (&infiniteRect, &region);
+	status = GdipTranslateRegion (region, 10, 0);
+	assertEqualInt (status, Ok);
+	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, -4194294, -4194304, 8388608, 8388608, FALSE, TRUE);
+#endif
+
+	GdipDeleteRegion (region);
+
+	// Infinite rect region - zero, positive.
+	GdipCreateRegionRect (&infiniteRect, &region);
+	status = GdipTranslateRegion (region, 0, 20);
+	assertEqualInt (status, Ok);
+	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, -4194304, -4194284, 8388608, 8388608, FALSE, TRUE);
+#endif
+
+	GdipDeleteRegion (region);
+
+	// Infinite rect region - positive, positive.
+	GdipCreateRegionRect (&infiniteRect, &region);
+	status = GdipTranslateRegion (region, 10, 20);
+	assertEqualInt (status, Ok);
+	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, -4194294, -4194284, 8388608, 8388608, FALSE, TRUE);
+#endif
+
+	GdipDeleteRegion (region);
+
+	// Infinite rect region - negative, negative.
+	GdipCreateRegionRect (&infiniteRect, &region);
+	status = GdipTranslateRegion (region, -20, -40);
+	assertEqualInt (status, Ok);
+	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, -4194324, -4194344, 8388608, 8388608, FALSE, TRUE);
+#endif
+
+	GdipDeleteRegion (region);
+	
+	// Empty rect region - zero, zero
+	GdipCreateRegionRect (&emptyRect, &region);
+	
+	status = GdipTranslateRegion (region, 0, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Empty rect region - positive, zero.
+	GdipCreateRegionRect (&emptyRect, &region);
+	status = GdipTranslateRegion (region, 10, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 10, 0, 0, 0, TRUE, FALSE);
+	
+	GdipDeleteRegion (region);
+
+	// Empty rect region - zero, positive.
+	GdipCreateRegionRect (&emptyRect, &region);
+	status = GdipTranslateRegion (region, 0, 20);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 0, 20, 0, 0, TRUE, FALSE);
+	
+	GdipDeleteRegion (region);
+
+	// Empty rect region - positive, positive.
+	GdipCreateRegionRect (&emptyRect, &region);
+	status = GdipTranslateRegion (region, 10, 20);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 10, 20, 0, 0, TRUE, FALSE);
+	
+	GdipDeleteRegion (region);
+
+	// Empty rect region - negative, negative.
+	GdipCreateRegionRect (&emptyRect, &region);
+	status = GdipTranslateRegion (region, -20, -40);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, -20, -40, 0, 0, TRUE, FALSE);
+
+	GdipDeleteRegion (region);
 
 	// Rect region.
-	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
 	
 	status = GdipTranslateRegion (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
-
-	status = GdipTranslateRegion (region, 10, 20);
+	
+	status = GdipTranslateRegion (region, 10, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 20, 20, 30, 40, FALSE, FALSE);
+	
+	status = GdipTranslateRegion (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 20, 40, 30, 40, FALSE, FALSE);
 
-	status = GdipTranslateRegion (region, -10, -20);
+	status = GdipTranslateRegion (region, 10, 20);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 30, 60, 30, 40, FALSE, FALSE);
+
+	status = GdipTranslateRegion (region, -20, -40);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
 
 	// Path region.
-	GdipCreatePath (FillModeWinding, &path);
-	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
 	
 	status = GdipTranslateRegion (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
+	
+	status = GdipTranslateRegion (region, 10, 0);
+	assertEqualInt (status, Ok);
+#if defined(USE_WINDOWS_GDIPLUS)
+	// FIXME: translating a path region should not affect the bounds.
+	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
+#endif
+	
+	status = GdipTranslateRegion (region, 0, 20);
+	assertEqualInt (status, Ok);
+#if defined(USE_WINDOWS_GDIPLUS)
+	// FIXME: translating a path region should not affect the bounds.
+	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
+#endif
 
 	status = GdipTranslateRegion (region, 10, 20);
 	assertEqualInt (status, Ok);
@@ -8370,18 +8489,25 @@ static void test_translateRegion ()
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 #endif
 
-	status = GdipTranslateRegion (region, -10, -20);
+	status = GdipTranslateRegion (region, -20, -40);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	GdipDeletePath (path);
 	
 	// Empty region.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
 
 	status = GdipTranslateRegion (region, 0, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+
+	status = GdipTranslateRegion (region, 10, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+
+	status = GdipTranslateRegion (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
 
@@ -8399,6 +8525,14 @@ static void test_translateRegion ()
 	GdipCreateRegion (&region);
 	
 	status = GdipTranslateRegion (region, 0, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+	
+	status = GdipTranslateRegion (region, 10, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+	
+	status = GdipTranslateRegion (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
 
@@ -8415,6 +8549,8 @@ static void test_translateRegion ()
 	// Negative tests.
 	status = GdipTranslateRegion (NULL, 0, 0);
 	assertEqualInt (status, InvalidParameter);
+	
+	GdipDeletePath (path);
 }
 
 static void test_translateRegionI ()
@@ -8422,33 +8558,151 @@ static void test_translateRegionI ()
 	GpStatus status;
 	GpPath *path;
 	GpRegion *region;
+	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
+	GpRectF emptyRect = {0, 0, 0, 0};
+	GpRectF rect = {10, 20, 30, 40};
+	
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 10, 20, 30, 40);
+	
+	// Infinite rect region - zero, zero
+	GdipCreateRegionRect (&infiniteRect, &region);
+	
+	status = GdipTranslateRegionI (region, 0, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE);
+
+	GdipDeleteRegion (region);
+
+	// Infinite rect region - positive, zero.
+	GdipCreateRegionRect (&infiniteRect, &region);
+	status = GdipTranslateRegionI (region, 10, 0);
+	assertEqualInt (status, Ok);
+	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, -4194294, -4194304, 8388608, 8388608, FALSE, TRUE);
+#endif
+	GdipDeleteRegion (region);
+
+	// Infinite rect region - zero, positive.
+	GdipCreateRegionRect (&infiniteRect, &region);
+	status = GdipTranslateRegionI (region, 0, 20);
+	assertEqualInt (status, Ok);
+	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, -4194304, -4194284, 8388608, 8388608, FALSE, TRUE);
+#endif
+
+	GdipDeleteRegion (region);
+
+	// Infinite rect region - positive, positive.
+	GdipCreateRegionRect (&infiniteRect, &region);
+	status = GdipTranslateRegionI (region, 10, 20);
+	assertEqualInt (status, Ok);
+	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, -4194294, -4194284, 8388608, 8388608, FALSE, TRUE);
+#endif
+
+	GdipDeleteRegion (region);
+
+	// Infinite rect region - negative, negative.
+	GdipCreateRegionRect (&infiniteRect, &region);
+	status = GdipTranslateRegionI (region, -20, -40);
+	assertEqualInt (status, Ok);
+	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, -4194324, -4194344, 8388608, 8388608, FALSE, TRUE);
+#endif
+
+	GdipDeleteRegion (region);
+	
+	// Empty rect region - zero, zero
+	GdipCreateRegionRect (&emptyRect, &region);
+	
+	status = GdipTranslateRegionI (region, 0, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Empty rect region - positive, zero.
+	GdipCreateRegionRect (&emptyRect, &region);
+	status = GdipTranslateRegionI (region, 10, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 10, 0, 0, 0, TRUE, FALSE);
+	
+	GdipDeleteRegion (region);
+
+	// Empty rect region - zero, positive.
+	GdipCreateRegionRect (&emptyRect, &region);
+	status = GdipTranslateRegionI (region, 0, 20);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 0, 20, 0, 0, TRUE, FALSE);
+	
+	GdipDeleteRegion (region);
+
+	// Empty rect region - positive, positive.
+	GdipCreateRegionRect (&emptyRect, &region);
+	status = GdipTranslateRegionI (region, 10, 20);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 10, 20, 0, 0, TRUE, FALSE);
+	
+	GdipDeleteRegion (region);
+
+	// Empty rect region - negative, negative.
+	GdipCreateRegionRect (&emptyRect, &region);
+	status = GdipTranslateRegionI (region, -20, -40);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, -20, -40, 0, 0, TRUE, FALSE);
+
+	GdipDeleteRegion (region);
 
 	// Rect region.
-	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
 	
 	status = GdipTranslateRegionI (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
-
-	status = GdipTranslateRegionI (region, 10, 20);
+	
+	status = GdipTranslateRegionI (region, 10, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 20, 20, 30, 40, FALSE, FALSE);
+	
+	status = GdipTranslateRegionI (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 20, 40, 30, 40, FALSE, FALSE);
 
-	status = GdipTranslateRegionI (region, -10, -20);
+	status = GdipTranslateRegionI (region, 10, 20);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 30, 60, 30, 40, FALSE, FALSE);
+
+	status = GdipTranslateRegionI (region, -20, -40);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
 
 	// Path region.
-	GdipCreatePath (FillModeWinding, &path);
-	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
 	
 	status = GdipTranslateRegionI (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
+	
+	status = GdipTranslateRegionI (region, 10, 0);
+	assertEqualInt (status, Ok);
+#if defined(USE_WINDOWS_GDIPLUS)
+	// FIXME: translating a path region should not affect the bounds.
+	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
+#endif
+	
+	status = GdipTranslateRegionI (region, 0, 20);
+	assertEqualInt (status, Ok);
+#if defined(USE_WINDOWS_GDIPLUS)
+	// FIXME: translating a path region should not affect the bounds.
+	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
+#endif
 
 	status = GdipTranslateRegionI (region, 10, 20);
 	assertEqualInt (status, Ok);
@@ -8457,18 +8711,25 @@ static void test_translateRegionI ()
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 #endif
 
-	status = GdipTranslateRegionI (region, -10, -20);
+	status = GdipTranslateRegionI (region, -20, -40);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	GdipDeletePath (path);
 	
 	// Empty region.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
 
 	status = GdipTranslateRegionI (region, 0, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+
+	status = GdipTranslateRegionI (region, 10, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+
+	status = GdipTranslateRegionI (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
 
@@ -8486,6 +8747,14 @@ static void test_translateRegionI ()
 	GdipCreateRegion (&region);
 	
 	status = GdipTranslateRegionI (region, 0, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+	
+	status = GdipTranslateRegionI (region, 10, 0);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+	
+	status = GdipTranslateRegionI (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
 
@@ -8502,6 +8771,8 @@ static void test_translateRegionI ()
 	// Negative tests.
 	status = GdipTranslateRegionI (NULL, 0, 0);
 	assertEqualInt (status, InvalidParameter);
+	
+	GdipDeletePath (path);
 }
 
 static void test_transformRegion ()
@@ -8510,18 +8781,311 @@ static void test_transformRegion ()
 	GpPath *path;
 	GpRegion *region;
 	GpMatrix *emptyMatrix;
+	GpMatrix *translateXMatrix;
+	GpMatrix *translateXScaleXMatrix;
+	GpMatrix *translateXScaleYMatrix;
+	GpMatrix *translateXScaleXYMatrix;
+	GpMatrix *translateYMatrix;
+	GpMatrix *translateYScaleXMatrix;
+	GpMatrix *translateYScaleYMatrix;
+	GpMatrix *translateYScaleXYMatrix;
+	GpMatrix *translateXYMatrix;
+	GpMatrix *translateXYScaleXMatrix;
+	GpMatrix *translateXYScaleYMatrix;
+	GpMatrix *translateXYScaleXYMatrix;
+	GpMatrix *scaleXMatrix;
+	GpMatrix *scaleYMatrix;
+	GpMatrix *scaleXYMatrix;
 	GpMatrix *matrix;
+	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
+	GpRectF emptyRect = {0, 0, 0, 0};
+	GpRectF negativeWidthAndHeightRect = {10, 20, -30, -40};
+	GpRectF rect = {10, 20, 30, 40};
+	
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 10, 20, 30, 40);
 
 	GdipCreateMatrix (&emptyMatrix);
+
+	GdipCreateMatrix (&translateXMatrix);
+	GdipCreateMatrix (&translateYMatrix);
+	GdipCreateMatrix (&translateXYMatrix);
+
+	GdipCreateMatrix (&scaleXMatrix);
+	GdipScaleMatrix (scaleXMatrix, 20, 1, MatrixOrderAppend);
+	GdipCreateMatrix (&scaleYMatrix);
+	GdipScaleMatrix (scaleYMatrix, 1, 20, MatrixOrderAppend);
+	GdipCreateMatrix (&scaleXYMatrix);
+	GdipScaleMatrix (scaleXYMatrix, 20, 20, MatrixOrderAppend);
+
+	GdipTranslateMatrix (translateXMatrix, 10, 0, MatrixOrderAppend);
+	GdipCreateMatrix (&translateXScaleXMatrix);
+	GdipTranslateMatrix (translateXScaleXMatrix, 10, 0, MatrixOrderAppend);
+	GdipScaleMatrix (translateXScaleXMatrix, 20, 1, MatrixOrderAppend);
+	GdipCreateMatrix (&translateXScaleYMatrix);
+	GdipTranslateMatrix (translateXScaleYMatrix, 10, 0, MatrixOrderAppend);
+	GdipScaleMatrix (translateXScaleYMatrix, 1, 20, MatrixOrderAppend);
+	GdipCreateMatrix (&translateXScaleXYMatrix);
+	GdipTranslateMatrix (translateXScaleXYMatrix, 10, 0, MatrixOrderAppend);
+	GdipScaleMatrix (translateXScaleXYMatrix, 20, 20, MatrixOrderAppend);
+	
+	GdipTranslateMatrix (translateYMatrix, 0, 10, MatrixOrderAppend);
+	GdipCreateMatrix (&translateYScaleXMatrix);
+	GdipTranslateMatrix (translateYScaleXMatrix, 0, 10, MatrixOrderAppend);
+	GdipScaleMatrix (translateYScaleXMatrix, 20, 1, MatrixOrderAppend);
+	GdipCreateMatrix (&translateYScaleYMatrix);
+	GdipTranslateMatrix (translateYScaleYMatrix, 0, 10, MatrixOrderAppend);
+	GdipScaleMatrix (translateYScaleYMatrix, 1, 20, MatrixOrderAppend);
+	GdipCreateMatrix (&translateYScaleXYMatrix);
+	GdipTranslateMatrix (translateYScaleXYMatrix, 0, 10, MatrixOrderAppend);
+	GdipScaleMatrix (translateYScaleXYMatrix, 20, 20, MatrixOrderAppend);
+	
+	GdipTranslateMatrix (translateXYMatrix, 10, 10, MatrixOrderAppend);
+	GdipCreateMatrix (&translateXYScaleXMatrix);
+	GdipTranslateMatrix (translateXYScaleXMatrix, 10, 10, MatrixOrderAppend);
+	GdipScaleMatrix (translateXYScaleXMatrix, 20, 1, MatrixOrderAppend);
+	GdipCreateMatrix (&translateXYScaleYMatrix);
+	GdipTranslateMatrix (translateXYScaleYMatrix, 10, 10, MatrixOrderAppend);
+	GdipScaleMatrix (translateXYScaleYMatrix, 1, 20, MatrixOrderAppend);
+	GdipCreateMatrix (&translateXYScaleXYMatrix);
+	GdipTranslateMatrix (translateXYScaleXYMatrix, 10, 10, MatrixOrderAppend);
+	GdipScaleMatrix (translateXYScaleXYMatrix, 20, 20, MatrixOrderAppend);
+
 	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
 
-	// Rect region.
-	GpRectF rect = {10, 20, 30, 40};
+	// Infinite rect region - empty.
+	GdipCreateRegionRect (&infiniteRect, &region);
+	
+	status = GdipTransformRegion (region, emptyMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+
+	GdipDeleteRegion (region);
+
+	// Infinite rect region - translate transform.
+	GdipCreateRegionRect (&infiniteRect, &region);
+	
+	status = GdipTransformRegion (region, translateXYMatrix);
+	assertEqualInt (status, Ok);
+	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, -4194294.0f, -4194294.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+#endif
+
+	GdipDeleteRegion (region);
+
+	// Empty rect region - empty.
+	GdipCreateRegionRect (&emptyRect, &region);
+	
+	status = GdipTransformRegion (region, emptyMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Empty rect region - translate transform.
+	GdipCreateRegionRect (&emptyRect, &region);
+
+	status = GdipTransformRegion (region, translateXYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 10, 10, 0, 0, TRUE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Empty rect region - complex transform.
+	GdipCreateRegionRect (&emptyRect, &region);
+	
+	status = GdipTransformRegion (region, matrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Negative rect region - empty.
+	GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
+	
+	status = GdipTransformRegion (region, emptyMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 10, 20, -30, -40, TRUE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Negative rect region - translate transform.
+	GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
+	
+	status = GdipTransformRegion (region, translateXYMatrix);
+	assertEqualInt (status, Ok);
+	// FIXME: libgdiplus doesn't normalize.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, -10, -10, 30, 40, FALSE, FALSE);
+#endif
+
+	GdipDeleteRegion (region);
+
+	// Negative rect region - complex transform.
+	GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
+	
+	status = GdipTransformRegion (region, matrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, -75, -114, 150, 220, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Rect region - empty transform.
 	GdipCreateRegionRect (&rect, &region);
 	
 	status = GdipTransformRegion (region, emptyMatrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
+	
+	GdipDeleteRegion (region);
+	
+	// Rect region - translate x transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, translateXMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 20, 20, 30, 40, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+	
+	// Rect region - translate y transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, translateYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 10, 30, 30, 40, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+	
+	// Rect region - translate x and y transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, translateXYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 20, 30, 30, 40, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+	
+	// Rect region - scale x transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, scaleXMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 200, 20, 600, 40, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+	
+	// Rect region - scale y transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, scaleYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 10, 400, 30, 800, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+	
+	// Rect region - scale x and y transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, scaleXYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 200, 400, 600, 800, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+	
+	// Rect region - translate x, scale x transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, translateXScaleXMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 400, 20, 600, 40, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+	
+	// Rect region - translate x, scale y transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, translateXScaleYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 20, 400, 30, 800, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+	
+	// Rect region - translate x, scale x and y transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, translateXScaleXYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 400, 400, 600, 800, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+	
+	// Rect region - translate y, scale x transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, translateYScaleXMatrix);
+	assertEqualInt (status, Ok);
+	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, 200, 30, 600, 40, FALSE, FALSE);
+#endif
+
+	GdipDeleteRegion (region);
+	
+	// Rect region - translate y, scale y transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, translateYScaleYMatrix);
+	assertEqualInt (status, Ok);
+	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, 10, 600, 30, 800, FALSE, FALSE);
+#endif
+
+	GdipDeleteRegion (region);
+	
+	// Rect region - translate y, scale x and y transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, translateYScaleXYMatrix);
+	assertEqualInt (status, Ok);
+	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, 200, 600, 600, 800, FALSE, FALSE);
+#endif
+
+	GdipDeleteRegion (region);
+	
+	// Rect region - translate x and y, scale x transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, translateXYScaleXMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 400, 30, 600, 40, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+	
+	// Rect region - translate x and y, scale y transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, translateXYScaleYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 20, 600, 30, 800, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+	
+	// Rect region - translate x and y, scale x and y transform.
+	GdipCreateRegionRect (&rect, &region);
+
+	status = GdipTransformRegion (region, translateXYScaleXYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 400, 600, 600, 800, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Rect region - complex transform.
+	GdipCreateRegionRect (&rect, &region);
 
 	status = GdipTransformRegion (region, matrix);
 	assertEqualInt (status, Ok);
@@ -8529,23 +9093,178 @@ static void test_transformRegion ()
 
 	GdipDeleteRegion (region);
 
-	// Path region.
-	GdipCreatePath (FillModeWinding, &path);
-	GdipAddPathRectangle (path, 10, 20, 30, 40);
+	// Path region - empty transform.
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipTransformRegion (region, emptyMatrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 
+	GdipDeleteRegion (region);
+
+	// Path region - translate x transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, translateXMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 20, 20, 30, 40, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+	
+	// Path region - translate y transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, translateYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 10, 30, 30, 40, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+	
+	// Path region - translate x and y transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, translateXYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 20, 30, 30, 40, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+	
+	// Path region - scale x transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, scaleXMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 200, 20, 600, 40, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Path region - scale y transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, scaleYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 10, 400, 30, 800, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Path region - scale x and y transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, scaleXYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 200, 400, 600, 800, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Path region - translate x, scale x transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, translateXScaleXMatrix);
+	assertEqualInt (status, Ok);
+	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, 400, 20, 600, 40, FALSE, FALSE);
+#endif
+
+	GdipDeleteRegion (region);
+
+	// Path region - translate x, scale y transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, translateXScaleYMatrix);
+	assertEqualInt (status, Ok);
+	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, 20, 400, 30, 800, FALSE, FALSE);
+#endif
+
+	GdipDeleteRegion (region);
+
+	// Path region - translate x, scale x and y transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, translateXScaleXYMatrix);
+	assertEqualInt (status, Ok);
+	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, 400, 400, 600, 800, FALSE, FALSE);
+#endif
+
+	GdipDeleteRegion (region);
+
+	// Path region - translate y, scale x transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, translateYScaleXMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 200, 30, 600, 40, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Path region - translate y, scale y transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, translateYScaleYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 10, 600, 30, 800, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Path region - translate y, scale x and y transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, translateYScaleXYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 200, 600, 600, 800, FALSE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Path region - translate x and y, scale x transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, translateXYScaleXMatrix);
+	assertEqualInt (status, Ok);
+	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, 400, 30, 600, 40, FALSE, FALSE);
+#endif
+
+	GdipDeleteRegion (region);
+
+	// Path region - translate x and y, scale y transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, translateXYScaleYMatrix);
+	assertEqualInt (status, Ok);
+	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, 20, 600, 30, 800, FALSE, FALSE);
+#endif
+
+	GdipDeleteRegion (region);
+	
+	// Path region - translate x and y, scale x and y transform.
+	GdipCreateRegionPath (path, &region);
+
+	status = GdipTransformRegion (region, translateXYScaleXYMatrix);
+	assertEqualInt (status, Ok);
+	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegion (region, 400, 600, 600, 800, FALSE, FALSE);
+#endif
+
+	GdipDeleteRegion (region);
+
+	// Path region - complex transform.
+	GdipCreateRegionPath (path, &region);
+
 	status = GdipTransformRegion (region, matrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 75, 106, 150, 220, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	GdipDeletePath (path);
-	
-	// Empty region.
+
+	// Empty region - empty transform.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
 
@@ -8553,18 +9272,48 @@ static void test_transformRegion ()
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
 
+	GdipDeleteRegion (region);
+
+	// Empty region - translate transform.
+	GdipCreateRegion (&region);
+	GdipSetEmpty (region);
+
+	status = GdipTransformRegion (region, translateXYMatrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+
+	GdipDeleteRegion (region);
+
+	// Empty region - complex transform.
+	GdipCreateRegion (&region);
+	GdipSetEmpty (region);
+
 	status = GdipTransformRegion (region, matrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
 
 	GdipDeleteRegion (region);
 
-	// Infinite region.
+	// Infinite region - empty transform.
 	GdipCreateRegion (&region);
-	
+
 	status = GdipTransformRegion (region, emptyMatrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+
+	GdipDeleteRegion (region);
+	
+	// Infinite region - translate transform.
+	GdipCreateRegion (&region);
+
+	status = GdipTransformRegion (region, matrix);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+
+	GdipDeleteRegion (region);
+	
+	// Infinite region - complex transform.
+	GdipCreateRegion (&region);
 
 	status = GdipTransformRegion (region, matrix);
 	assertEqualInt (status, Ok);
@@ -8579,6 +9328,22 @@ static void test_transformRegion ()
 	status = GdipTransformRegion (region, NULL);
 	assertEqualInt (status, InvalidParameter);
 
+	GdipDeletePath (path);
+	GdipDeleteMatrix (translateXMatrix);
+	GdipDeleteMatrix (translateYMatrix);
+	GdipDeleteMatrix (translateXYMatrix);
+	GdipDeleteMatrix (scaleXMatrix);
+	GdipDeleteMatrix (scaleYMatrix);
+	GdipDeleteMatrix (scaleXYMatrix);
+	GdipDeleteMatrix (translateXScaleXMatrix);
+	GdipDeleteMatrix (translateXScaleYMatrix);
+	GdipDeleteMatrix (translateXScaleXYMatrix);
+	GdipDeleteMatrix (translateYScaleXMatrix);
+	GdipDeleteMatrix (translateYScaleYMatrix);
+	GdipDeleteMatrix (translateYScaleXYMatrix);
+	GdipDeleteMatrix (translateXYScaleXMatrix);
+	GdipDeleteMatrix (translateXYScaleYMatrix);
+	GdipDeleteMatrix (translateXYScaleXYMatrix);
 	GdipDeleteMatrix (emptyMatrix);
 	GdipDeleteMatrix (matrix);
 }
