@@ -33,6 +33,9 @@
 
 #include "win32structs.h"
 
+typedef UINT GraphicsContainer;
+typedef UINT GraphicsState;
+
 typedef enum {
 	ColorAdjustTypeDefault,
 	ColorAdjustTypeBitmap,

@@ -103,7 +103,7 @@ typedef struct {
 typedef enum {
 	GraphicsStateValid = 0,
 	GraphicsStateBusy = 1
-} GraphicsState;
+} GraphicsInternalState;
 
 typedef struct _Graphics {
 	GraphicsBackEnd		backend;
@@ -147,7 +147,7 @@ typedef struct _Graphics {
 	float			dpi_x;
 	float			dpi_y;
 	int			text_contrast;
-	GraphicsState		state;
+	GraphicsInternalState		state;
 #ifdef CAIRO_HAS_QUARTZ_SURFACE
 	void		*cg_context;
 #endif

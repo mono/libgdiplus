@@ -488,20 +488,19 @@ GdipReleaseDC (GpGraphics *graphics, HDC hdc)
 }
 
 GpStatus WINGDIPAPI
-GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
+GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state)
 {
-	GpState* pos_state;
+	GpStatus status;
+	GpState *pos_state;
 
 	if (!graphics)
 		return InvalidParameter;
-	
-	//printf("[%s %d] GdipRestoreGraphics called\n", __FILE__, __LINE__);
 
-	if (graphicsState >= MAX_GRAPHICS_STATE_STACK || graphicsState > graphics->saved_status_pos)
+	if (state >= MAX_GRAPHICS_STATE_STACK || state > graphics->saved_status_pos)
 		return InvalidParameter;
 
 	pos_state = graphics->saved_status;
-	pos_state += graphicsState;	
+	pos_state += state;	
 
 	/* Save from GpState to Graphics  */
 	gdip_cairo_matrix_copy (graphics->copy_of_ctm, &pos_state->matrix);
@@ -511,7 +510,10 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 
 	if (graphics->clip)
 		GdipDeleteRegion (graphics->clip);
-	GdipCloneRegion (pos_state->clip, &graphics->clip);
+	status = GdipCloneRegion (pos_state->clip, &graphics->clip);
+	if (status != Ok)
+		return status;
+
 	gdip_cairo_matrix_copy (graphics->clip_matrix, &pos_state->clip_matrix);
 
 	graphics->composite_mode = pos_state->composite_mode;
@@ -524,7 +526,7 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 	graphics->pixel_mode = pos_state->pixel_mode;
 	graphics->text_contrast = pos_state->text_contrast;
 
-	graphics->saved_status_pos = graphicsState;
+	graphics->saved_status_pos = state;
 
 	/* re-adjust clipping (region and matrix) */
 	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
@@ -535,16 +537,19 @@ GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState)
 }
 
 GpStatus WINGDIPAPI
-GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
+GdipSaveGraphics (GpGraphics *graphics, GraphicsState *state)
 {
+	GpStatus status;
 	GpState* pos_state;
 
 	if (!graphics || !state)
 		return InvalidParameter;
 
-	//printf("[%s %d] GdipSaveGraphics called\n", __FILE__, __LINE__);
-	if (graphics->saved_status == NULL) {
+	if (!graphics->saved_status) {
 		graphics->saved_status = gdip_calloc (MAX_GRAPHICS_STATE_STACK, sizeof (GpState));
+		if (!graphics->saved_status)
+			return OutOfMemory;
+
 		graphics->saved_status_pos = 0;
 	}
 
@@ -562,7 +567,10 @@ GdipSaveGraphics (GpGraphics *graphics, unsigned int *state)
 
 	if (pos_state->clip)
 		GdipDeleteRegion (pos_state->clip);
-	GdipCloneRegion (graphics->clip, &pos_state->clip);
+	status = GdipCloneRegion (graphics->clip, &pos_state->clip);
+	if (status != Ok)
+		return status;
+
 	gdip_cairo_matrix_copy (&pos_state->clip_matrix, graphics->clip_matrix);
 
 	pos_state->composite_mode = graphics->composite_mode;
@@ -781,7 +789,7 @@ GdipRotateWorldTransform (GpGraphics *graphics, REAL angle, GpMatrixOrder order)
 }
 
 GpStatus WINGDIPAPI
-GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder order)
+GdipScaleWorldTransform (GpGraphics *graphics, REAL sx, REAL sy, GpMatrixOrder order)
 {
 	GpStatus s;
 
@@ -810,7 +818,7 @@ GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder
 }
 
 GpStatus WINGDIPAPI
-GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixOrder order)
+GdipTranslateWorldTransform (GpGraphics *graphics, REAL dx, REAL dy, GpMatrixOrder order)
 {
 	GpStatus s;
 
