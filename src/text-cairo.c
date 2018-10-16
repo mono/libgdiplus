@@ -992,7 +992,7 @@ AllocStringData (WCHAR **clean_string, GpStringDetailStruct **details, int lengt
 }
 
 GpStatus
-cairo_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, GDIPCONST RectF *rc, 
+cairo_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font, GDIPCONST RectF *rc, 
 	GDIPCONST GpStringFormat *format, GpBrush *brush)
 {
 	cairo_matrix_t SavedMatrix;
@@ -1036,8 +1036,8 @@ cairo_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int leng
 }
 
 GpStatus
-cairo_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, GDIPCONST RectF *rc,
-	GDIPCONST GpStringFormat *format,  RectF *boundingBox, int *codepointsFitted, int *linesFilled)
+cairo_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font, GDIPCONST RectF *rc,
+	GDIPCONST GpStringFormat *format,  RectF *boundingBox, INT *codepointsFitted, INT *linesFilled)
 {
 	cairo_matrix_t SavedMatrix;
 	GpStringFormat *fmt;
@@ -1078,8 +1078,8 @@ cairo_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int l
 }
 
 GpStatus
-cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
-	GDIPCONST GpRectF *layout, GDIPCONST GpStringFormat *format, int regionCount, GpRegion **regions)
+cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font, 
+	GDIPCONST GpRectF *layout, GDIPCONST GpStringFormat *format, INT regionCount, GpRegion **regions)
 {
 	int			i, j, start, end;
 	int			lineHeight;

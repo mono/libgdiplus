@@ -31,7 +31,7 @@
  */
 
 GpStatus
-metafile_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font, 
+metafile_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font, 
 	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush)
 {
 	/* TODO */

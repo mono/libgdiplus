@@ -2399,6 +2399,12 @@ GdipGetNearestColor (GpGraphics *graphics, ARGB *argb)
 }
 
 GpStatus WINGDIPAPI
+GdipResetPageTransform (GpGraphics *graphics)
+{
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
 GdipSetPageScale (GpGraphics *graphics, REAL scale)
 {
 	if (!graphics)
@@ -2492,4 +2498,94 @@ GdipTransformPointsI (GpGraphics *graphics, GpCoordinateSpace destSpace, GpCoord
 	}
 	/* return NotImplemented; */
 	return Ok;
+}
+
+GpStatus WINGDIPAPI
+GdipEnumerateMetafileDestPoint (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST PointF *destPoint,
+	EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes)
+{
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipEnumerateMetafileDestPointI (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST Point *destPoint,
+	EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes)
+{
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipEnumerateMetafileDestRect (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST RectF *destRect,
+	EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes)
+{
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipEnumerateMetafileDestRectI (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST Rect *destRect,
+	EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes )
+{
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipEnumerateMetafileDestPoints (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST PointF *destPoints, INT count,
+    EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes)
+{
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipEnumerateMetafileDestPointsI (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST Point *destPoints, INT count,
+	EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes )
+{
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipEnumerateMetafileSrcRectDestPoint (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST PointF *destPoint, GDIPCONST RectF *srcRect,
+    Unit srcUnit, EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes * imageAttributes)
+{
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipEnumerateMetafileSrcRectDestPointI (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST Point *destPoint, GDIPCONST Rect *srcRect,
+    Unit srcUnit, EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes)
+{
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipEnumerateMetafileSrcRectDestRect (GpGraphics * graphics, GDIPCONST GpMetafile *metafile, GDIPCONST RectF *destRect, GDIPCONST RectF *srcRect,
+	Unit srcUnit, EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes)
+{
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipEnumerateMetafileSrcRectDestRectI (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST Rect *destRect, GDIPCONST Rect *srcRect,
+	Unit srcUnit, EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes)
+{
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipEnumerateMetafileSrcRectDestPoints (GpGraphics *graphics, GDIPCONST GpMetafile * metafile, GDIPCONST PointF *destPoints, INT count, GDIPCONST RectF *srcRect,
+	Unit srcUnit, EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes)
+{
+	return NotImplemented;
+}
+
+GpStatus WINGDIPAPI
+GdipEnumerateMetafileSrcRectDestPointsI (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST Point *destPoints, INT count, GDIPCONST Rect *srcRect,
+	Unit srcUnit, EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes)
+{
+	return NotImplemented;
+}
+
+HPALETTE WINGDIPAPI
+GdipCreateHalftonePalette()
+{
+	return NULL;
 }
