@@ -1021,7 +1021,7 @@ GdipAddPathRectangle (GpPath *path, float x, float y, float width, float height)
 	if (!path)
 		return InvalidParameter;
 
-	if ((width == 0.0) || (height == 0.0))
+	if ((width <= 0.0) || (height <= 0.0))
 		return Ok;
 
 	if (!gdip_path_ensure_size (path, path->count + 4))
