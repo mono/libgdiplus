@@ -73,6 +73,8 @@
 
 #include "win32structs.h"
 #include "gdipenums.h"
+#include "gdipluspixelformats.h"
+#include "gdiplusimaging.h"
 #include "gdipstructs.h"
 #include "general-private.h"
 

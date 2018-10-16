@@ -219,7 +219,7 @@ GdipPathIterNextMarker (GpPathIterator *iterator, int *resultCount, int *startIn
 
 	*startIndex = iterator->markerPosition;
 	*endIndex = index - 1;
-	*resultCount =  (*endIndex) - (*startIndex) + 1;;
+	*resultCount =  (*endIndex) - (*startIndex) + 1;
 
 	iterator->markerPosition = index;
 

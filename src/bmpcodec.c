@@ -1230,7 +1230,7 @@ gdip_save_bmp_image_to_file_stream (void *pointer, GpImage *image, BOOL useFile)
 	int			colours = 0;
 	ARGB			*entries;
 	int			palette_entries;
-	BitmapData		*activebmp;
+	ActiveBitmapData		*activebmp;
 	BYTE			*scan0;
 
 	activebmp = image->active_bitmap;

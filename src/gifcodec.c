@@ -302,7 +302,7 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 	const GUID	*dimension;
 	FrameData	*frame;
 	GpBitmap	*result;
-	BitmapData	*bitmap_data;
+	ActiveBitmapData	*bitmap_data;
 	SavedImage	si;
 	SavedImage	global_extensions;
 	ColorPalette	*global_palette;
@@ -446,7 +446,7 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 	/* create our bitmaps */
 	for (i = 0; i < num_of_images; i++) {
 
-		/* Add BitmapData to our frame */
+		/* Add ActiveBitmapData to our frame */
 		bitmap_data = gdip_frame_add_bitmapdata(frame);
 		if (bitmap_data == NULL) {
 			status = OutOfMemory;
@@ -612,7 +612,7 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 					readptr += img_desc->Width;
 				} else {
 					int ridx, widx;
-					BitmapData *last_bitmap;
+					ActiveBitmapData *last_bitmap;
 
 					last_bitmap = &frame->bitmap [i - 1];
 					if (l == img_desc->Top) {
@@ -727,7 +727,7 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 	int		index;
 	BOOL		animated;
 	int		frame;
-	BitmapData	*bitmap_data;
+	ActiveBitmapData	*bitmap_data;
 	int		pixbuf_size;
 
 	if (!stream) {

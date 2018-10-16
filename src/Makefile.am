@@ -33,6 +33,8 @@ libgdiplus_la_SOURCES = \
 	gdiplus-private.h		\
 	gdip.h				\
 	gdipenums.h			\
+	gdiplusimaging.h			\
+	gdipluspixelformats.h			\
 	gdipstructs.h			\
 	general.c			\
 	general.h			\

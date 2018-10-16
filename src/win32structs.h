@@ -334,7 +334,6 @@
 #define BI_RLE4          2
 #define BI_BITFIELDS     3
 
-typedef guint32 ARGB;
 typedef float REAL;
 
 #if defined(WIN32)
@@ -373,6 +372,7 @@ typedef guint8 BYTE;
 typedef guint8 *LPBYTE;
 typedef guint16 WORD;
 typedef guint32 DWORD;
+typedef guint64  DWORDLONG;
 typedef gpointer PVOID;
 typedef gpointer LPVOID;
 typedef gboolean BOOL;
@@ -382,6 +382,7 @@ typedef gint32 LONG;
 typedef guint32 ULONG;
 typedef gint32 *PLONG;
 typedef guint64 LONGLONG;
+typedef guint64 UINT_PTR;
 typedef gunichar2 TCHAR;
 typedef size_t SIZE_T;
 

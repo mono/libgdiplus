@@ -1,4 +1,4 @@
-#ifdef WIN32
+#ifdef USE_WINDOWS_GDIPLUS
 #ifndef __cplusplus
 #error Please compile with a C++ compiler.
 #endif
@@ -15,18 +15,10 @@
 
 #define C(func) assert (func == Ok)
 
-#ifdef WIN32
+#ifdef USE_WINDOWS_GDIPLUS
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
-
-
-struct bm 
-{
-	BitmapData data;
-	char spoil1[128]; // Space eaten at by the real BitmapData ...
-};
-
 
 static void
 test_gdip_clip()
@@ -44,8 +36,10 @@ test_gdip_clip()
 	GpRectF rect;
 	GpRect recti;
 
-	struct bm bm;
-	struct bm other_bm;
+	BitmapData bm;
+	BitmapData other_bm;
+	memset (&bm, 0, sizeof (bm));
+	memset (&other_bm, 0, sizeof (other_bm));
 
 	rect.X = 0.;
 	rect.Y = 0.;
@@ -122,21 +116,20 @@ test_gdip_clip()
 	C (GdipGraphicsClear (graphics, 0x80ff0000));
 
 	// Compare the two images
-	C (GdipBitmapLockBits (bitmap, &recti, ImageLockModeRead, PixelFormat32bppARGB, &bm.data));
-	C (GdipBitmapLockBits (other_bitmap, &recti, ImageLockModeRead, PixelFormat32bppARGB, &other_bm.data));
+	C (GdipBitmapLockBits (bitmap, &recti, ImageLockModeRead, PixelFormat32bppARGB, &bm));
+	C (GdipBitmapLockBits (other_bitmap, &recti, ImageLockModeRead, PixelFormat32bppARGB, &other_bm));
 
-	assert (bm.data.Width == other_bm.data.Width);
-	assert (bm.data.Height == other_bm.data.Height);
+	assert (bm.Width == other_bm.Width);
+	assert (bm.Height == other_bm.Height);
 	{
-		int *p = (int*)bm.data.Scan0;
-		int *other_p = (int*)other_bm.data.Scan0;
-		int i;
-		for (i = 0; i < width * height; ++i)
+		ARGB *p = (ARGB *) bm.Scan0;
+		ARGB *other_p = (ARGB *) other_bm.Scan0;
+		for (int i = 0; i < width * height; ++i)
 			assert (*p++ == *other_p++);
 	}
 
-	C (GdipBitmapUnlockBits (bitmap, &bm.data));
-	C (GdipBitmapUnlockBits (other_bitmap, &other_bm.data));
+	C (GdipBitmapUnlockBits (bitmap, &bm));
+	C (GdipBitmapUnlockBits (other_bitmap, &other_bm));
 
 	C (GdipDeleteRegion (clip));
 	C (GdipDeleteGraphics (graphics));

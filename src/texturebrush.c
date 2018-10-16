@@ -106,7 +106,7 @@ draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	if (gdip_bitmap_format_needs_premultiplication (bitmap)) {
 		premul = gdip_bitmap_get_premultiplied_scan0 (bitmap);
 		if (premul) {
-			BitmapData *data = bitmap->active_bitmap;
+			ActiveBitmapData *data = bitmap->active_bitmap;
 			original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32, 
 				data->width, data->height, data->stride);
 		}
@@ -178,7 +178,7 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	if (gdip_bitmap_format_needs_premultiplication (bitmap)) {
 		premul = gdip_bitmap_get_premultiplied_scan0 (bitmap);
 		if (premul) {
-			BitmapData *data = bitmap->active_bitmap;
+			ActiveBitmapData *data = bitmap->active_bitmap;
 			original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32, 
 				data->width, data->height, data->stride);
 		}
@@ -264,7 +264,7 @@ draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	if (gdip_bitmap_format_needs_premultiplication (bitmap)) {
 		premul = gdip_bitmap_get_premultiplied_scan0 (bitmap);
 		if (premul) {
-			BitmapData *data = bitmap->active_bitmap;
+			ActiveBitmapData *data = bitmap->active_bitmap;
 			original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32, 
 				data->width, data->height, data->stride);
 		}
@@ -354,7 +354,7 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	if (gdip_bitmap_format_needs_premultiplication (bitmap)) {
 		premul = gdip_bitmap_get_premultiplied_scan0 (bitmap);
 		if (premul) {
-			BitmapData *data = bitmap->active_bitmap;
+			ActiveBitmapData *data = bitmap->active_bitmap;
 			original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32, 
 				data->width, data->height, data->stride);
 		}
