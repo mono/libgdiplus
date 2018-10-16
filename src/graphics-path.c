@@ -111,24 +111,24 @@ append (GpPath *path, float x, float y, PathPointType type, BOOL compress)
 	BYTE t = (BYTE) type;
 	GpPointF pt;
 
-	/* in some case we're allowed to compress identical points */
-	if (compress && (path->count > 0)) {
-		/* points (X, Y) must be identical */
-		GpPointF lastPoint = path->points[path->count - 1];
-		if ((lastPoint.X == x) && (lastPoint.Y == y)) {
-			/* types need not be identical but must handle closed subpaths */
-			if (!gdip_path_closed (path)) {
-				if ((type & PathPointTypeCloseSubpath) == PathPointTypeCloseSubpath) 
-					path->types[path->count - 1] |= PathPointTypeCloseSubpath;
-				return;
+	if (path->start_new_fig) {
+		t = PathPointTypeStart;
+	} else if (path->count > 0) {
+		/* in some case we're allowed to compress identical points */
+		if (compress) {
+			/* points (X, Y) must be identical */
+			GpPointF lastPoint = path->points[path->count - 1];
+			if ((lastPoint.X == x) && (lastPoint.Y == y)) {
+				/* types need not be identical but must handle closed subpaths */
+				if (!gdip_path_closed (path)) {
+					if ((type & PathPointTypeCloseSubpath) == PathPointTypeCloseSubpath) 
+						path->types[path->count - 1] |= PathPointTypeCloseSubpath;
+					return;
+				}
 			}
 		}
-	}
 
-	if (path->start_new_fig)
-		t = PathPointTypeStart;
-	/* if we closed a subpath, then start new figure and append */
-	else if (path->count > 0) {
+		/* if we closed a subpath, then start new figure and append */
 		type = path->types[path->count - 1];
 		if (type & PathPointTypeCloseSubpath)
 			t = PathPointTypeStart;
@@ -528,7 +528,6 @@ GdipStartPathFigure (GpPath *path)
 		return InvalidParameter;
 
 	path->start_new_fig = TRUE;
-
 	return Ok;
 }
 
@@ -538,36 +537,35 @@ GdipClosePathFigure (GpPath *path)
 	if (!path)
 		return InvalidParameter;
 
-	if (path->count > 0) {
+	// Close the last figure.
+	if (path->count > 1)
 		path->types[path->count - 1] |= PathPointTypeCloseSubpath;
-	}
-	path->start_new_fig = TRUE;
 
+	// Start a new figure.
+	path->start_new_fig = TRUE;
 	return Ok;
 }
 
 GpStatus WINGDIPAPI
 GdipClosePathFigures (GpPath *path)
 {
-	int index = 0;
-
 	if (!path)
 		return InvalidParameter;
 
-	/* first point is not closed */
-	if (path->count <= 1)
-		return Ok;
+	if (path->count > 1) {
+		// Close the last figure.
+		path->types[path->count - 1] |= PathPointTypeCloseSubpath;
 
-	for (index = 1; index < path->count; index++) {
-		if (path->types[index] == PathPointTypeStart) {
-			path->types[index - 1] |= PathPointTypeCloseSubpath;
+		// Close each open figure.
+		for (int index = 1; index < path->count; index++) {
+			if (path->types[index] == PathPointTypeStart) {
+				path->types[index - 1] |= PathPointTypeCloseSubpath;
+			}
 		}
 	}
 
-	/* close at the end */
-	path->types[index - 1] |= PathPointTypeCloseSubpath;
+	// Start a new figure.
 	path->start_new_fig = TRUE;
-
 	return Ok;
 }
 
@@ -577,10 +575,8 @@ GdipSetPathMarker (GpPath *path)
 	if (!path)
 		return InvalidParameter;
 
-	if (path->count == 0)
-		return Ok;
-
-	path->types[path->count - 1] |= PathPointTypePathMarker;
+	if (path->count > 1)
+		path->types[path->count - 1] |= PathPointTypePathMarker;
 
 	return Ok;
 }
@@ -588,14 +584,11 @@ GdipSetPathMarker (GpPath *path)
 GpStatus WINGDIPAPI
 GdipClearPathMarkers (GpPath *path)
 {
-	int i;
-
 	if (!path)
 		return InvalidParameter;
 
-	for (i = 0; i < path->count; i++) {
+	for (int i = 0; i < path->count; i++)
 		path->types[i] &= ~PathPointTypePathMarker;
-	}
 
 	return Ok;
 }
