@@ -634,6 +634,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
                        GDIPCONST GpImageAttributes *imageAttributes,
                        DrawImageAbort callback, void *callbackData)
 {
+	GpStatus status;
 	cairo_pattern_t	*pattern;
 	cairo_pattern_t	*orig;
 	cairo_matrix_t	mat;
@@ -665,15 +666,15 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 
 	if (image->type == ImageTypeBitmap) {
 		if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format)) {
-			GpStatus status = OutOfMemory;
 			GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb (image);
-			if (rgb_bitmap) {
-				status = GdipDrawImageRectRect (graphics, rgb_bitmap,
-					dstx, dsty, dstwidth, dstheight,
-					srcx, srcy, srcwidth, srcheight,
-					srcUnit, imageAttributes, callback, callbackData);
-				GdipDisposeImage (rgb_bitmap);
-			}
+			if (!rgb_bitmap)
+				return OutOfMemory;
+
+			status = GdipDrawImageRectRect (graphics, rgb_bitmap,
+				dstx, dsty, dstwidth, dstheight,
+				srcx, srcy, srcwidth, srcheight,
+				srcUnit, imageAttributes, callback, callbackData);
+			GdipDisposeImage (rgb_bitmap);
 
 			return status;
 		}
@@ -696,7 +697,9 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 
 	org = dest = image->active_bitmap->scan0; 
 	org_format = image->active_bitmap->pixel_format;
-	gdip_process_bitmap_attributes (image, &dest, (GpImageAttributes *) imageAttributes, &allocated);
+	status = gdip_process_bitmap_attributes (image, &dest, (GpImageAttributes *) imageAttributes, &allocated);
+	if (status != Ok)
+		return status;
 
 	/*  If allocated is true we have a newly allocated and altered Scan0 in dest */
 	if (allocated) {
@@ -741,8 +744,16 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		if (flipXOn) {			
 			/* We're ok just cloning the bitmap, we don't need the image data
 			 * and we destroy it before we leave this function */
-			gdip_bitmap_clone (image, &imgflipX);
-			gdip_flip_x (imgflipX);	
+			status = gdip_bitmap_clone (image, &imgflipX);
+			if (status != Ok)
+				return status;
+
+			status = gdip_flip_x (imgflipX);
+			if (status != Ok) {
+				gdip_bitmap_dispose (imgflipX);
+				return status;
+			}
+
 			gdip_bitmap_ensure_surface (imgflipX);			
 
 			if (gdip_bitmap_format_needs_premultiplication (imgflipX)) {
@@ -759,8 +770,16 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		}
 		
 		if (flipYOn) {			
-			gdip_bitmap_clone (image, &imgflipY);
-			gdip_flip_y (imgflipY);	
+			status = gdip_bitmap_clone (image, &imgflipY);
+			if (status != Ok)
+				return status;
+
+			status = gdip_flip_y (imgflipY);
+			if (status != Ok) {
+				gdip_bitmap_dispose (imgflipY);
+				return status;
+			}
+
 			gdip_bitmap_ensure_surface (imgflipY);			
 			
 			if (gdip_bitmap_format_needs_premultiplication (imgflipY)) {
@@ -777,9 +796,22 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		}
 		
 		if (flipXOn && flipYOn) {			
-			gdip_bitmap_clone (image, &imgflipXY);
-			gdip_flip_x (imgflipXY);	
-			gdip_flip_y (imgflipXY);	
+			status = gdip_bitmap_clone (image, &imgflipXY);
+			if (status != Ok)
+				return status;
+
+			status = gdip_flip_x (imgflipXY);
+			if (status != Ok) {
+				gdip_bitmap_dispose (imgflipXY);
+				return status;
+			}
+
+			status = gdip_flip_y (imgflipXY);
+			if (status != Ok) {
+				gdip_bitmap_dispose (imgflipXY);
+				return Ok;
+			}
+
 			gdip_bitmap_ensure_surface (imgflipXY);			
 
 			if (gdip_bitmap_format_needs_premultiplication (imgflipXY)) {
@@ -991,15 +1023,18 @@ GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint
 	}
 
 	status = GdipCreateMatrix3 (&rect, points, &matrix);
-	if (status == Ok) {
-		cairo_get_matrix (graphics->ct, &orig_matrix);
-		cairo_set_matrix (graphics->ct, matrix);
-		status = GdipDrawImageRectRect (graphics, image, rect.X, rect.Y, rect.Width, rect.Height, srcx, srcy, 
-			srcwidth, srcheight, srcUnit, imageAttributes, callback, callbackData);
-		cairo_set_matrix (graphics->ct, &orig_matrix);
-	}
-	if (matrix)
+	if (status != Ok) {
 		GdipDeleteMatrix (matrix);
+		return status;
+	}
+
+	cairo_get_matrix (graphics->ct, &orig_matrix);
+	cairo_set_matrix (graphics->ct, matrix);
+	status = GdipDrawImageRectRect (graphics, image, rect.X, rect.Y, rect.Width, rect.Height, srcx, srcy, 
+		srcwidth, srcheight, srcUnit, imageAttributes, callback, callbackData);
+	cairo_set_matrix (graphics->ct, &orig_matrix);
+	
+	GdipDeleteMatrix (matrix);
 	return status;
 }
 
