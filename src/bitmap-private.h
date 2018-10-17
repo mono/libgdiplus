@@ -77,7 +77,7 @@ typedef struct {
 	unsigned int	width;
 	unsigned int	height;
 	int		stride;
-	int		pixel_format;
+	PixelFormat		pixel_format;
 	BYTE 		*scan0;
 	UINT_PTR	reserved;
 	/* the rest of the structure isn't part of MS GDI+ definition */

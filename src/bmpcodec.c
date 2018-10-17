@@ -967,22 +967,97 @@ gdip_readbmp_palette (void *pointer, ImageSource source, const BITMAPV5HEADER *b
 	return Ok;
 }
 
+static GpStatus
+gdip_read_bmp_scans (void *pointer, BYTE *pixels, BOOL upsidedown, PixelFormat format, INT srcStride, INT destStride, INT width, INT height, ImageSource source)
+{
+	BYTE *scan = (BYTE *) GdipAlloc (srcStride);
+	if (!scan)
+		return OutOfMemory;
+
+	for (int y = 0; y < height; y++) {
+		int currentLine = upsidedown ? height - y - 1 : y;
+		int size_read = gdip_read_bmp_data (pointer, scan, srcStride, source);
+		if (size_read < srcStride) {
+			GdipFree (scan);
+			return OutOfMemory;
+		}
+
+		BYTE *destScan = pixels + currentLine * destStride;
+		switch (format) {
+			case PixelFormat1bppIndexed:
+			case PixelFormat4bppIndexed:
+			case PixelFormat8bppIndexed:
+				memcpy (destScan, scan, srcStride);
+				continue;
+			case PixelFormat16bppRGB555: {
+				for (int x = 0; x < width; x++) {
+					ARGB argb = gdip_getpixel_16bppRGB555 (scan, x);
+
+					BYTE a = (argb & 0xFF000000) >> 24;
+					BYTE r = (argb & 0x00FF0000) >> 16;
+					BYTE g = (argb & 0x0000FF00) >> 8;
+					BYTE b = (argb & 0x000000FF);
+					gdip_setpixel_32bppARGB (destScan, x, a, r, g, b);
+				}
+				continue;
+			}
+			case PixelFormat16bppRGB565: {
+				for (int x = 0; x < width; x++) {
+					ARGB argb = gdip_getpixel_16bppRGB565 (scan, x);
+
+					BYTE a = (argb & 0xFF000000) >> 24;
+					BYTE r = (argb & 0x00FF0000) >> 16;
+					BYTE g = (argb & 0x0000FF00) >> 8;
+					BYTE b = (argb & 0x000000FF);
+					gdip_setpixel_32bppARGB (destScan, x, a, r, g, b);
+				}
+				continue;
+			}
+			case PixelFormat24bppRGB: {
+				for (int x = 0; x < width; x++) {
+					gdip_setpixel_32bppARGB (destScan, x, 0xFF, scan[x * 3 + 2], scan[x * 3 + 1], scan[x * 3]);
+				}
+				continue;
+			}
+			case PixelFormat32bppRGB: {
+				for (int x = 0; x < width; x++) {
+					gdip_setpixel_32bppARGB (destScan, x, 0xFF, scan[x * 4 + 2], scan[x * 4 + 1], scan[x * 4]);
+				}
+				continue;
+			}
+			default:
+				GdipFree(scan);
+				return NotImplemented;
+		}
+	}
+
+	GdipFree(scan);
+	return Ok;
+}
+
+static GpStatus
+gdip_read_bmp_indexed (void *pointer, BYTE *pixels, BOOL upsidedown, PixelFormat format, INT stride, INT width, INT height, ImageSource source)
+{
+	if (upsidedown)
+		return gdip_read_bmp_scans (pointer, pixels, upsidedown, format, stride, stride, width, height, source);
+
+	int size_read = gdip_read_bmp_data (pointer, pixels, stride * height, source);
+	if (size_read < stride)
+		return OutOfMemory;
+
+	return Ok;
+}
+
 /* For use with in-memory bitmaps, where the BITMAPFILEHEADER doesn't exists */
 GpStatus 
 gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 {
 	BITMAPV5HEADER bmi;
-	GpBitmap	*result = NULL;
-	BYTE		*pixels = NULL;
-	int		i;
-	PixelFormat	format;
-	BOOL		os2format = FALSE;
+	GpBitmap	*result;
+	BYTE		*pixels;
+	PixelFormat	originalFormat;
+	INT	originalStride;
 	BOOL		upsidedown = TRUE;
-	int		size_read;
-	BYTE		*data_read = NULL;
-	int		line;
-	int		loop;
-	long		index;
 	GpStatus	status;
 	unsigned long long int size;
 
@@ -1031,126 +1106,29 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	}
 
 	pixels = GdipAlloc (size);
-	if (pixels == NULL) {
-		status = OutOfMemory;
-		goto error;
+	if (!pixels) {
+		gdip_bitmap_dispose (result);
+		return OutOfMemory;
 	}
 
-	if (gdip_is_an_indexed_pixelformat (format) && ((bmi.bV5Compression == BI_RLE4) || (bmi.bV5Compression == BI_RLE8))) {
-		switch (bmi.bV5Compression) {
-			case BI_RLE4:
-				gdip_read_bmp_rle_4bit (pointer, pixels, upsidedown, result->active_bitmap->stride, result->active_bitmap->width, result->active_bitmap->height, source);
-				break;
-			case BI_RLE8:
-				gdip_read_bmp_rle_8bit (pointer, pixels, upsidedown, result->active_bitmap->stride, result->active_bitmap->width, result->active_bitmap->height, source);
-				break;
+	if (gdip_is_an_indexed_pixelformat (result->active_bitmap->pixel_format)) {
+		if (bmi.bV5Compression == BI_RLE4)
+			gdip_read_bmp_rle_4bit (pointer, pixels, upsidedown, result->active_bitmap->stride, result->active_bitmap->width, result->active_bitmap->height, source);
+		else if (bmi.bV5Compression == BI_RLE8)
+			gdip_read_bmp_rle_8bit (pointer, pixels, upsidedown, result->active_bitmap->stride, result->active_bitmap->width, result->active_bitmap->height, source);
+		else {
+			status = gdip_read_bmp_indexed (pointer, pixels, upsidedown, originalFormat, originalStride, result->active_bitmap->width, result->active_bitmap->height, source);
+			if (status != Ok) {
+				gdip_bitmap_dispose (result);
+				return status;
+			}
 		}
 	} else {
-		/* Size contains the size of the lines on disk */
-		switch (bmi.bV5BitCount) {
-			case 1: {
-				size = ((result->active_bitmap->width + 31) & ~31) / 8;
-				loop = result->active_bitmap->width / 8;
-				/* we assume 0s for 1 bit, only setting 1s */
-				memset(pixels, 0, result->active_bitmap->stride * result->active_bitmap->height);
-				break;
-			}
-
-			case 4: {
-				size = ((bmi.bV5BitCount * result->active_bitmap->width + 31) & ~31) / 8;
-				loop = ((result->active_bitmap->width + 1) &~1) / 2;
-				break;
-			}
-
-			case 8: {
-				size = (((bmi.bV5BitCount * result->active_bitmap->width) + 31) & ~31) / 8;
-				loop = result->active_bitmap->width;
-				break;
-			}
-
-			default: {
-				size = (((bmi.bV5BitCount * result->active_bitmap->width) + 31) & ~31) / 8;
-				loop = (bmi.bV5BitCount * result->active_bitmap->width) / 8;
-				break;
-			}
+		status = gdip_read_bmp_scans (pointer, pixels, upsidedown, originalFormat, originalStride, result->active_bitmap->stride, result->active_bitmap->width, result->active_bitmap->height, source);
+		if (status != Ok) {
+			gdip_bitmap_dispose (result);
+			return status;
 		}
-
-		data_read = (BYTE*) GdipAlloc(size);
-		if (data_read == NULL) {
-			status = OutOfMemory;
-			goto error;
-		}
-
-		for (i = 0; i < result->active_bitmap->height; i++){ 
-			if (upsidedown) {
-				line = result->active_bitmap->height - i - 1;
-			} else {
-				line = i;
-			}
-
-			size_read = gdip_read_bmp_data (pointer, data_read, size, source);
-			if (size_read < size) {
-				status = OutOfMemory;
-				goto error;
-			}
-
-			switch(bmi.bV5BitCount) {
-				case 1:
-				case 4:
-				case 8:
-					memcpy(pixels + line * result->active_bitmap->stride, data_read, size);
-					continue;
-
-				case 16: {
-					int src = 0;
-					int dest = 0;
-					WORD *pixel = (WORD*) data_read;
-
-					index = (line * result->active_bitmap->stride);
-					while (src < loop) {
-						WORD color = *pixel;
-						ARGB argb;
-
-						if (format == PixelFormat16bppRGB565) {
-							argb = gdip_convert_16bppRGB565_ToARGB (color);
-						}
-						else {
-							argb = gdip_convert_16bppRGB555_ToARGB (color);
-						}
-
-						BYTE a = (argb & 0xFF000000) >> 24;
-						BYTE r = (argb & 0x00FF0000) >> 16;
-						BYTE g = (argb & 0x0000FF00) >> 8;
-						BYTE b = (argb & 0x000000FF);
-
-						set_pixel_bgra (pixels, index + dest, b, g, r, a);
-
-						dest += 4;
-						src += 2;
-						pixel++;
-					}
-					continue;
-				}
-
-				case 24:
-				case 32: {
-					int src = 0;
-					int dest = 0;
-					int skip = (bmi.bV5BitCount >> 3);
-
-					index = (line * result->active_bitmap->stride);
-					while (src < loop) {
-						set_pixel_bgra(pixels, index + dest, data_read[src+0], data_read[src+1], data_read[src+2], 0xff);
-						dest += 4;
-						src += skip;
-					}
-					continue;
-				}
-			}
-		}
-
-		GdipFree(data_read);
-		data_read = NULL;
 	}
 
 	result->active_bitmap->scan0 = pixels;
@@ -1161,21 +1139,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 
 	*image = result;
 	return Ok;
-
-error:
-	if (data_read != NULL) {
-		GdipFree(data_read);
-	}
-
-	if (pixels != NULL) {
-		GdipFree(pixels);
-	}
-
-	if (result != NULL) {
-		gdip_bitmap_dispose(result);
-	}
-
-	return status;
 }
 
 /* BMP read from files have a BITMAPFILEHEADER but this isn't the case for the GDI API
