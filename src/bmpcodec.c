@@ -709,7 +709,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 }
 
 GpStatus
-gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *bmi, BOOL *os2format, BOOL *upsidedown)
+gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *bmi, BOOL *upsidedown)
 {
 	DWORD dw = 0;
 	BYTE *data_read = (BYTE*)&dw;
@@ -730,7 +730,6 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 			return OutOfMemory;
 		bmi->bV5Width = (data_read[1]<<8 | data_read[0]);
 		bmi->bV5Height = (data_read[3]<<8 | data_read[2]);
-		*os2format = TRUE;
 
 		break;
 	case sizeof (BITMAPINFOHEADER):
@@ -765,7 +764,7 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 	bmi->bV5BitCount = (data_read[3]<<8 | data_read[2]);
 
 	/* The OS/2 format doesn't have any of these other fields */
-	if (*os2format) {
+	if (bmi->bV5Size == BITMAPCOREHEADER_SIZE) {
 		bmi->bV5Compression = 0;
 		bmi->bV5SizeImage = 0;
 		bmi->bV5XPelsPerMeter = 0;
@@ -889,9 +888,9 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	GpStatus	status;
 	unsigned long long int size;
 
-	status = gdip_read_BITMAPINFOHEADER (pointer, source, &bmi, &os2format, &upsidedown);
+	status = gdip_read_BITMAPINFOHEADER (pointer, source, &bmi, &upsidedown);
 	if (status != Ok)
-		goto error;
+		return status;
 
 	if (bmi.bV5BitCount <= 8) {
 		int default_colors = 1 << bmi.bV5BitCount;

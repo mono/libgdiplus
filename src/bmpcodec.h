@@ -76,7 +76,7 @@ ARGB gdip_getpixel_16bppRGB555 (BYTE *scan, INT x) GDIP_INTERNAL;
 ARGB gdip_getpixel_16bppRGB565 (BYTE *scan, INT x) GDIP_INTERNAL;
 
 /* helper functions / shared with ICOn codec */
-GpStatus gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *bmi, BOOL *os2format, 
+GpStatus gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *bmi, 
 	BOOL *upsidedown) GDIP_INTERNAL;
 int gdip_read_bmp_data (void *pointer, BYTE *data, int size, ImageSource source) GDIP_INTERNAL;
 
