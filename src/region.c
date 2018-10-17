@@ -320,8 +320,6 @@ gdip_is_region_empty (const GpRegion *region, BOOL allowNegative)
 			if (!gdip_path_closed (region->tree->path))
 				return TRUE;
 		}
-		if (region->bitmap && (region->bitmap->Width == 0 || region->bitmap->Height == 0))
-			return TRUE;
 
 		return FALSE;
 	default:
@@ -1362,12 +1360,9 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 		return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, (GpRectF *)rect);
 	}
 
-	GpRectF normalized;
-	gdip_normalize_rectangle (rect, &normalized);
-
 	BOOL infinite = gdip_is_InfiniteRegion (region);
 	BOOL empty = gdip_is_region_empty (region, /* allowNegative */ TRUE);
-	BOOL rectEmpty = gdip_is_rect_empty (&normalized, /* allowNegative */ FALSE);
+	BOOL rectEmpty = gdip_is_rect_empty (rect, /* allowNegative */ FALSE);
 
 	if (rectEmpty) {
 		switch (combineMode) {
@@ -1398,6 +1393,8 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 		case CombineModeIntersect: {
 			/* The intersection of the infinite region with X is X */
 			GdipSetEmpty (region);
+			GpRectF normalized;
+			gdip_normalize_rectangle (rect, &normalized);
 			return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, &normalized);
 		}
 		case CombineModeUnion:
@@ -1423,7 +1420,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 			/* The XOR of the empty region and X is X */
 			/* Everything is outside the empty region */
 			GdipSetEmpty (region);
-			return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, &normalized);
+			return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, (GpRectF *)rect);
 		default:
 			break;
 		}
@@ -1435,35 +1432,30 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 		region->type = RegionTypeRect;
 		switch (combineMode) {
 		case CombineModeExclude:
-			return gdip_combine_exclude (region, &normalized, 1);
+			return gdip_combine_exclude (region, (GpRectF *) rect, 1);
 		case CombineModeComplement:
-			return gdip_combine_complement (region, &normalized, 1);
+			return gdip_combine_complement (region, (GpRectF *) rect, 1);
 		case CombineModeIntersect:
-			return gdip_combine_intersect (region, &normalized, 1);
+			return gdip_combine_intersect (region, (GpRectF *) rect, 1);
 		case CombineModeUnion:
-			return gdip_combine_union (region, &normalized, 1);
+			return gdip_combine_union (region, (GpRectF *) rect, 1);
 		case CombineModeXor:
-			return gdip_combine_xor (region, &normalized, 1);
+			return gdip_combine_xor (region, (GpRectF *) rect, 1);
 		case CombineModeReplace: /* Used by Graphics clipping */
-			return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, &normalized);
+			return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, (GpRectF *)rect);
 		default:
 			return NotImplemented;
 		}
 	}
 	case RegionTypePath: {
 		/* Convert GpRectF to GpPath and use GdipCombineRegionPath */
-		GpPath *path;
+		GpPath *path = NULL;
 		GpStatus status = GdipCreatePath (FillModeAlternate, &path);
-		if (status != Ok)
-			return status;
-
-		status = GdipAddPathRectangle (path, normalized.X, normalized.Y, normalized.Width, normalized.Height);
-		if (status != Ok) {
-			GdipDeletePath (path);
-			return status;
+		if (status == Ok) {
+			GdipAddPathRectangle (path, rect->X, rect->Y, rect->Width, rect->Height);
+			status = GdipCombineRegionPath (region, path, combineMode);
 		}
 
-		status = GdipCombineRegionPath (region, path, combineMode);
 		GdipDeletePath (path);
 		return status;
 	}
