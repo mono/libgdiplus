@@ -75,51 +75,108 @@ gdip_getcodecinfo_bmp ()
 }
 
 static GpStatus
-gdip_get_bmp_pixelformat (BITMAPV5HEADER *bih, PixelFormat *dest)
+gdip_get_bmp_stride (PixelFormat format, INT width, INT *strideResult, BOOL cairoHacks)
 {
-	int bitCount = bih->bV5BitCount;
-	int compression = bih->bV5Compression;
+	INT stride;
+	/* stride is a (signed) _int_ and once multiplied by 4 it should hold a value that can be allocated by GdipAlloc
+		* this effectively limits 'width' to 536870911 pixels */
+	unsigned long long int widthBuff = width;
 
-	switch (compression) {
-	case BI_BITFIELDS:
-		if (bitCount != 16)
+	switch (format) {
+	case PixelFormat1bppIndexed:
+		stride = (width + 7) / 8;
+		break;
+	case PixelFormat4bppIndexed:
+		stride = (width + 1) / 2;
+		break;
+	case PixelFormat8bppIndexed:
+		stride = width;
+		break;
+	case PixelFormat16bppRGB555:
+	case PixelFormat16bppRGB565:
+		widthBuff *= 2;
+		if (widthBuff > G_MAXINT32)
+			return InvalidParameter;
+		
+		stride = widthBuff;
+		break;
+	case PixelFormat24bppRGB:
+		widthBuff *= cairoHacks ? 4 : 3;
+		if (widthBuff > G_MAXINT32)
+			return InvalidParameter;
+		
+		stride = widthBuff;
+		break;
+	default:
+		widthBuff *= 4;
+		if (widthBuff > G_MAXINT32)
+			return InvalidParameter;
+
+		stride = widthBuff;
+		break;
+	}
+
+	/* Ensure 32bits alignment */
+	gdip_align_stride (stride);
+	*strideResult = stride;
+	return Ok;
+}
+
+static GpStatus
+gdip_get_bmp_pixelformat (const BITMAPV5HEADER *bih, PixelFormat *sourceFormatResult, PixelFormat *conversionFormatResult)
+{
+	PixelFormat sourceFormat;
+	PixelFormat conversionFormat;
+
+	if (bih->bV5Compression == BI_BITFIELDS) {
+		if (bih->bV5BitCount != 16)
 			return OutOfMemory;
 
 		if ((bih->bV5RedMask == 0x7C00) && (bih->bV5GreenMask == 0x3E0) && (bih->bV5BlueMask == 0x1F))
-			*dest = PixelFormat16bppRGB555;
+			sourceFormat = PixelFormat16bppRGB555;
 		else if ((bih->bV5RedMask == 0xF800) && (bih->bV5GreenMask == 0x7E0) && (bih->bV5BlueMask == 0x1F))
-			*dest = PixelFormat16bppRGB565;
+			sourceFormat = PixelFormat16bppRGB565;
 		else
-			*dest = PixelFormat32bppRGB;
-		break;
-	default:
-		switch (bitCount) {
+			sourceFormat = PixelFormat16bppRGB555;
+
+		conversionFormat = PixelFormat32bppRGB;
+	} else {
+		switch (bih->bV5BitCount) {
 		case 64:
-			*dest = PixelFormat64bppARGB;
+			sourceFormat = PixelFormat64bppARGB;
+			conversionFormat = sourceFormat;
 			break;
 		case 32:
-			*dest = PixelFormat32bppRGB;
+			sourceFormat = PixelFormat32bppRGB;
+			conversionFormat = sourceFormat;
 			break;
 		case 24:
-			*dest = PixelFormat24bppRGB;
+			sourceFormat = PixelFormat24bppRGB;
+			conversionFormat = sourceFormat;
 			break;
 		case 16:
-			*dest = PixelFormat16bppRGB555;
+			sourceFormat = PixelFormat16bppRGB555;
+			conversionFormat = PixelFormat32bppRGB;
 			break;
 		case 8:
-			*dest = PixelFormat8bppIndexed;
+			sourceFormat = PixelFormat8bppIndexed;
+			conversionFormat = sourceFormat;
 			break;
 		case 4:
-			*dest = PixelFormat4bppIndexed;
+			sourceFormat = PixelFormat4bppIndexed;
+			conversionFormat = sourceFormat;
 			break;
 		case 1:
-			*dest = PixelFormat1bppIndexed;
+			sourceFormat = PixelFormat1bppIndexed;
+			conversionFormat = sourceFormat;
 			break;
 		default:
 			return OutOfMemory;
-		}  
+		}
 	}
 
+	*sourceFormatResult = sourceFormat;
+	*conversionFormatResult = conversionFormat;
 	return Ok;
 }
 
@@ -933,56 +990,32 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	if (status != Ok)
 		return status;
 
-	status = gdip_get_bmp_pixelformat (&bmi, &format);
+	result = gdip_bitmap_new_with_frame (NULL, TRUE);
+	if (!result)
+		return OutOfMemory;
+
+	status = gdip_get_bmp_pixelformat (&bmi, &originalFormat, &result->active_bitmap->pixel_format);
 	if (status != Ok) {
-		 /* bit count mismatch */
-		goto error;
+		gdip_bitmap_dispose (result);
+		return status;
 	}
 
-	result = gdip_bitmap_new_with_frame (NULL, TRUE);
-	if (!result) {
-		status = OutOfMemory;
-		goto error;
+	status = gdip_get_bmp_stride (result->active_bitmap->pixel_format, bmi.bV5Width, &result->active_bitmap->stride, /* cairoHacks */ TRUE);
+	if (status != Ok) {
+		gdip_bitmap_dispose (result);
+		return status;
+	}
+
+	status = gdip_get_bmp_stride (originalFormat, bmi.bV5Width, &originalStride, /* cairoHacks */ FALSE);
+	if (status != Ok) {
+		gdip_bitmap_dispose (result);
+		return status;
 	}
 
 	result->type = ImageTypeBitmap;
 	result->image_format = BMP;
-	result->active_bitmap->pixel_format = format;
 	result->active_bitmap->width = bmi.bV5Width;
 	result->active_bitmap->height = bmi.bV5Height;
-
-	/* biWidth and biHeight are LONG (32 bits signed integer) */
-	size = bmi.bV5Width;
-
-	switch (result->active_bitmap->pixel_format) {
-	case PixelFormat1bppIndexed:
-		result->active_bitmap->stride = (size + 7) / 8;
-		break;
-	case PixelFormat4bppIndexed:
-		result->active_bitmap->stride = (size + 1) / 2;
-		break;
-	case PixelFormat8bppIndexed:
-		result->active_bitmap->stride = size;
-		break;
-	default:
-		/* For other types, we assume 32 bit and translate into 32 bit from source format */
-		result->active_bitmap->pixel_format = PixelFormat32bppRGB;
-		/* fall-thru */
-	case PixelFormat24bppRGB:
-	case PixelFormat64bppARGB:
-		/* stride is a (signed) _int_ and once multiplied by 4 it should hold a value that can be allocated by GdipAlloc
-		 * this effectively limits 'width' to 536870911 pixels */
-		size *= 4;
-		if (size > G_MAXINT32) {
-			status = InvalidParameter;
-			goto error;
-		}
-		result->active_bitmap->stride = size;
-		break;
-	}
-
-	/* Ensure 32bits alignment */
-	gdip_align_stride (result->active_bitmap->stride);
  
  	status = gdip_readbmp_palette (pointer, source, &bmi, &result->active_bitmap->palette);
 	if (status != Ok) {
@@ -990,13 +1023,13 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		return status;
 	}
 
-	size = result->active_bitmap->stride;
 	/* ensure total 'size' does not overflow an integer and fits inside our 2GB limit */
-	size *= result->active_bitmap->height;
+	size = result->active_bitmap->stride * result->active_bitmap->height;
 	if (size > G_MAXINT32) {
-		status = OutOfMemory;
-		goto error;
+		gdip_bitmap_dispose (result);
+		return OutOfMemory;
 	}
+
 	pixels = GdipAlloc (size);
 	if (pixels == NULL) {
 		status = OutOfMemory;
