@@ -318,15 +318,33 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 	return Ok;
 }
 
+// PixelFormat32bppARGB.
 ARGB
-gdip_convert_16bppRGB555_ToARGB (WORD pixel)
+gdip_getpixel_32bppARGB (BYTE *scan, INT x)
 {
+	ARGB pixel = ((ARGB *) scan)[x];
+	return pixel;
+}
+
+void
+gdip_setpixel_32bppARGB (BYTE *scan, INT x, BYTE a, BYTE r, BYTE g, BYTE b)
+{
+	set_pixel_bgra (scan, x * 4, b, g, r, a);
+}
+
+// PixelFormat16bppRGB555.
+ARGB
+gdip_getpixel_16bppRGB555 (BYTE *scan, INT x)
+{
+	WORD pixel = ((WORD *) scan)[x];
 	return ((pixel & 0x1F) >> 2) | 8 * ((pixel & 0x1F) | 8 * (((((pixel >> 5) & 0x1F) | (((pixel >> 10) & 0x1C) << 8)) & 0xFFFFFFFC) | 32 * (((pixel >> 5) & 0x1F) | ((((pixel >> 10) & 0x1F) | 0xFFFFFFE0) << 8))));
 }
 
+// PixelFormat16bppRGB565.
 ARGB
-gdip_convert_16bppRGB565_ToARGB (WORD pixel)
+gdip_getpixel_16bppRGB565 (BYTE *scan, INT x)
 {
+	WORD pixel = ((WORD *) scan)[x];
 	return ((pixel & 0x1F) >> 2) | 8 * ((pixel & 0x1F) | 2 * (((((pixel >> 5) & 0x3F) | (((pixel >> 11) & 0xFFFFFFFC) << 10)) & 0xFFFFFFF0) | ((((pixel >> 5) & 0x3F) | ((((pixel >> 11)) | 0xFFFFFFE0) << 9)) << 6)));
 }
 
