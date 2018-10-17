@@ -279,19 +279,6 @@ gdip_get_bounds (GpRectF *allrects, int allcnt, GpRectF *bound)
 	bound->Width = fx - nx; bound->Height = fy - ny;
 }
 
-/* This internal version doesn't require a Graphic object to work */
-static BOOL
-gdip_is_rect_empty (const GpRectF *rect, BOOL allowNegative)
-{
-	if (!rect)
-		return FALSE;
-
-	if (rect->Width == 0 || rect->Height == 0)
-		return TRUE;
-
-	return allowNegative && (rect->Width < 0 || rect->Height < 0);
-}
-
 static BOOL
 gdip_is_region_empty (const GpRegion *region, BOOL allowNegative)
 {
@@ -306,7 +293,7 @@ gdip_is_region_empty (const GpRegion *region, BOOL allowNegative)
 			return TRUE;
 
 		gdip_get_bounds (region->rects, region->cnt, &rect);
-		return gdip_is_rect_empty (&rect, allowNegative);
+		return gdip_is_rectF_empty (&rect, allowNegative);
 	case RegionTypeInfinite:
 		return FALSE;
 	case RegionTypePath:
@@ -832,27 +819,6 @@ GdipSetEmpty (GpRegion *region)
 	return Ok;
 }
 
-/* pre-process negative width and height, without modifying the originals, see bug #383878 */
-static void
-gdip_normalize_rectangle (const GpRectF *rect, GpRectF *normalized)
-{
-	if (rect->Width < 0) {
-		normalized->X = rect->X + rect->Width;
-		normalized->Width = fabs (rect->Width);
-	} else {
-		normalized->X = rect->X;
-		normalized->Width = rect->Width;
-	}
-
-	if (rect->Height < 0) {
-		normalized->Y = rect->Y + rect->Height;
-		normalized->Height = fabs (rect->Height);
-	} else {
-		normalized->Y = rect->Y;
-		normalized->Height = rect->Height;
-	}
-}
-
 /* Exclude */
 static GpStatus
 gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
@@ -1362,7 +1328,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 
 	BOOL infinite = gdip_is_InfiniteRegion (region);
 	BOOL empty = gdip_is_region_empty (region, /* allowNegative */ TRUE);
-	BOOL rectEmpty = gdip_is_rect_empty (rect, /* allowNegative */ FALSE);
+	BOOL rectEmpty = gdip_is_rectF_empty (rect, /* allowNegative */ FALSE);
 
 	if (rectEmpty) {
 		switch (combineMode) {

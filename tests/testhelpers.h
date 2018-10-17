@@ -316,6 +316,142 @@ ATTRIBUTE_USED static void verifyMatrixImpl(GpMatrix *matrix, REAL e1, REAL e2, 
 
 #define verifyMatrix(matrix, e1, e2, e3, e4, e5, e6) verifyMatrixImpl (matrix, e1, e2, e3, e4, e5, e6, __FILE__, __func__, __LINE__)
 
+ATTRIBUTE_USED static void verifyRegionImpl(GpRegion *region, float expectedX, float expectedY, float expectedWidth, float expectedHeight, BOOL expectedIsEmpty, BOOL expectedIsInfinite, const char *file, const char *function, int line)
+{
+    GpImage *image;
+    GpGraphics *graphics;
+    GpStatus status;
+    GpRectF bounds;
+    BOOL isEmpty;
+    BOOL isInfinite;
+    RectF expectedBounds = {expectedX, expectedY, expectedWidth, expectedHeight};
+
+	GdipCreateBitmapFromScan0 (10, 10, 0, PixelFormat32bppRGB, NULL, (GpBitmap **) &image);
+	GdipGetImageGraphicsContext (image, &graphics);
+
+    status = GdipGetRegionBounds (region, graphics, &bounds);
+    assertEqualIntImpl (status, Ok, NULL, file, function, line);
+    assertEqualRectImpl (bounds, expectedBounds, "Bounds", file, function, line);
+
+    status = GdipIsEmptyRegion (region, graphics, &isEmpty);
+    assertEqualIntImpl (status, Ok, NULL, file, function, line);
+    assertEqualIntImpl (isEmpty, expectedIsEmpty, "IsEmpty", file, function, line);
+
+    status = GdipIsInfiniteRegion (region, graphics, &isInfinite);
+    assertEqualIntImpl (status, Ok, NULL, file, function, line);
+    assertEqualIntImpl (isInfinite, expectedIsInfinite, "IsInfinite", file, function, line);
+
+	GdipDisposeImage (image);
+	GdipDeleteGraphics (graphics);
+}
+
+#define verifyRegion(region, expectedX, expectedY, expectedWidth, expectedHeight, expectedIsEmpty, expectedIsInfinite) \
+	verifyRegionImpl (region, expectedX, expectedY, expectedWidth, expectedHeight, expectedIsEmpty, expectedIsInfinite, __FILE__, __func__, __LINE__)
+
+ATTRIBUTE_USED static GpRectF infiniteScans[] = {{-4194304, -4194304, 8388608, 8388608}};
+
+ATTRIBUTE_USED static GpRectF *emptyScans = NULL;
+
+ATTRIBUTE_USED static void verifyRegionScansImpl (GpRegion *region, RectF *expectedScans, INT expectedCount, const char *file, const char *function, int line)
+{
+	GpStatus status;
+	GpMatrix *matrix;
+	INT count;
+	GpRectF *scans;
+	GdipCreateMatrix (&matrix);
+
+	status = GdipGetRegionScans (region, NULL, &count, matrix);
+	assertEqualIntImpl (status, Ok, NULL, file, function, line);
+	assertEqualIntImpl (count, expectedCount / sizeof (GpRectF), "ScansCount", file, function, line);
+	scans = (GpRectF *) malloc (count * sizeof (GpRectF));
+
+	status = GdipGetRegionScans (region, scans, &count, matrix);
+	assertEqualIntImpl (status, Ok, NULL, file, function, line);
+#if 0
+	for (int i = 0; i < count; i++)
+	{
+		printf("{%.0f, %.0f, %.0f, %.0f}", scans[i].X, scans[i].Y, scans[i].Width, scans[i].Height);
+		if (i != count - 1)
+			printf (",");
+
+		printf("\n");
+	}
+	printf("\n");
+#endif
+	for (int i = 0; i < count; i++)
+	{
+		char iChar[] = {'S', 'c', 'a', 'n', ' ', (char) (i + '0'), 0};
+		assertEqualRectImpl (scans[i], expectedScans[i], iChar, file, function, line);
+	}
+
+	GdipDeleteMatrix (matrix);
+}
+
+#define verifyRegionScans(region, expectedScans, expectedCount) \
+	verifyRegionScansImpl (region, expectedScans, expectedCount, __FILE__, __func__, __LINE__)
+
+ATTRIBUTE_USED static BYTE infiniteRegionData[] = {
+	/* --RegionHeader-- */
+	/* Size */          0x0C, 0x00, 0x00, 0x00,
+	/* Checksum */      0x9B, 0x34, 0x22, 0xA3,
+	/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+	/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+	/* -- Entry -- */
+	/* Type */ 0x03, 0x00, 0x00, 0x10
+};
+
+ATTRIBUTE_USED static BYTE emptyRegionData[] = {
+	/* --RegionHeader-- */
+	/* Size */          0x0C, 0x00, 0x00, 0x00,
+	/* Checksum */      0xFE, 0x53, 0x9E, 0x1B,
+	/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+	/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+		
+	/* -- Entry -- */
+	/* Type */ 0x02, 0x00, 0x00, 0x10
+};
+
+ATTRIBUTE_USED static void verifyRegionDataImpl (GpRegion *region, BYTE *expected, INT expectedCount, const char *file, const char *function, int line)
+{
+	BYTE buffer[1024];
+
+	GpStatus status;
+	UINT dataSize;
+	UINT sizeFilled;
+	status = GdipGetRegionDataSize (region, &dataSize);
+	assertEqualIntImpl (status, Ok, NULL, file, function, line);
+	assertEqualIntImpl (dataSize, expectedCount, "Region Data Count", file, function, line);
+
+	status = GdipGetRegionData (region, buffer, dataSize, &sizeFilled);
+	assertEqualIntImpl (status, Ok, NULL, file, function, line);
+	assertEqualBytesImpl (buffer, expected, expectedCount, "Region Data", file, function, line);
+	assertEqualIntImpl (sizeFilled, expectedCount, "Region Data Size Filled", file, function, line);
+}
+
+#define verifyRegionData(region, expectedData) \
+	verifyRegionDataImpl (region, expectedData, sizeof (expectedData), __FILE__, __func__, __LINE__)
+
+ATTRIBUTE_USED static void verifyEmptyRegionImpl (GpRegion *region, const char *file, const char *function, int line)
+{
+    verifyRegionImpl (region, 0, 0, 0, 0, TRUE, FALSE, file, function, line);
+    verifyRegionScansImpl (region, emptyScans, sizeof (emptyScans), file, function, line);
+	verifyRegionDataImpl (region, emptyRegionData, sizeof (emptyRegionData), file, function, line);
+}
+
+#define verifyEmptyRegion(region) \
+	verifyEmptyRegionImpl (region, __FILE__, __func__, __LINE__)
+
+ATTRIBUTE_USED static void verifyInfiniteRegionImpl (GpRegion *region, const char *file, const char *function, int line)
+{
+    verifyRegionImpl (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE, file, function, line);
+    verifyRegionScansImpl (region, infiniteScans, sizeof (infiniteScans), file, function, line);
+	verifyRegionDataImpl (region, infiniteRegionData, sizeof (infiniteRegionData), file, function, line);
+}
+
+#define verifyInfiniteRegion(region) \
+	verifyInfiniteRegionImpl (region, __FILE__, __func__, __LINE__)
+
 ATTRIBUTE_USED static CLSID bmpEncoderClsid = { 0x557cf400, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
 ATTRIBUTE_USED static CLSID tifEncoderClsid = { 0x557cf405, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
 ATTRIBUTE_USED static CLSID gifEncoderClsid = { 0x557cf402, 0x1a04, 0x11d3,{ 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
