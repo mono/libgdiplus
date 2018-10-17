@@ -527,7 +527,6 @@ gdip_copy_region (GpRegion *source, GpRegion *dest)
 static GpStatus
 gdip_region_convert_to_path (GpRegion *region)
 {
-	int i;
 	GpRectF *rect;
 	GpStatus status;
 
@@ -545,13 +544,16 @@ gdip_region_convert_to_path (GpRegion *region)
 
 	switch (region->type) {
 	case RegionTypeRect:
-	case RegionTypeInfinite:
+	case RegionTypeInfinite: {
 		/* all rectangles are converted into a single path */
-		for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
-			GdipAddPathRectangle (region->tree->path, rect->X, rect->Y, rect->Width, rect->Height);
+		for (int i = 0; i < region->cnt; i++) {
+			RectF normalized;
+			gdip_normalize_rectangle (&region->rects[i], &normalized);
+			GdipAddPathRectangle (region->tree->path, normalized.X, normalized.Y, normalized.Width, normalized.Height);
 		}
 
 		break;
+	}
 	default:
 		g_warning ("unknown type 0x%08X", region->type);
 		return NotImplemented;
