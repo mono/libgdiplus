@@ -362,9 +362,6 @@ GpStatus WINGDIPAPI
 GdipClonePath (GpPath *path, GpPath **clonePath)
 {
 	GpPath *result;
-	int i;
-	BYTE type;
-	GpPointF point;
 
 	if (!path || !clonePath)
 		return InvalidParameter;
@@ -599,8 +596,7 @@ GdipClearPathMarkers (GpPath *path)
 static void
 reverse_subpath_adjust_flags (int start, int end, BYTE *types, BOOL *prev_had_marker)
 {
-	BYTE t, prev_last;
-	int i;
+	BYTE prev_last;
 	
 	/* Copy all but PathPointTypeStart */
 	if (end != start)
@@ -629,7 +625,6 @@ GpStatus WINGDIPAPI
 GdipReversePath (GpPath *path)
 {
 	int length, i;
-	GByteArray *types;
 	int start = 0;
 	BOOL prev_had_marker = FALSE;
 
@@ -1188,11 +1183,6 @@ GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
 GpStatus WINGDIPAPI
 GdipAddPathPath (GpPath *path, GDIPCONST GpPath *addingPath, BOOL connect)
 {
-	int i, length;
-	PathPointType first;
-	GpPointF *pts;
-	BYTE *types;
-
 	if (!path || !addingPath)
 		return InvalidParameter;
 
@@ -1672,10 +1662,6 @@ static BOOL
 gdip_convert_bezier_to_lines (GpPath *path, int index, float flatness, GpPath *flat_path)
 {
 	GpPointF start, first, second, end;
-	GpPointF pt;
-	BYTE type;
-	int i;
-	int points_len = 0;
 	int saved_count;
 
 	if ((index <= 0) || (index + 2 >= path->count))
@@ -1704,8 +1690,6 @@ GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 {
 	GpStatus status = Ok;
 	GpPath *flat_path;
-	GArray *points;
-	GByteArray *types;
 	int i;
 
 	if (!path)
@@ -1735,7 +1719,6 @@ GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 		if ((type & PathPointTypeBezier) == PathPointTypeBezier) {
 			if (!gdip_convert_bezier_to_lines (path, i, fabs (flatness), flat_path)) {
 				/* uho, too much recursion - do not pass go, do not collect 200$ */
-				GpPointF pt;
 
 				/* free the the partial flat */
 				GdipResetPath (flat_path);

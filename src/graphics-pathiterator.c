@@ -124,8 +124,6 @@ GdipDeletePathIter (GpPathIterator *iterator)
 GpStatus
 GdipPathIterCopyData (GpPathIterator *iterator, int *resultCount, GpPointF *points, BYTE *types, int startIndex, int endIndex)
 {
-	int i, j;
-
 	if (!iterator || !resultCount || !points || !types)
 		return InvalidParameter;
 
