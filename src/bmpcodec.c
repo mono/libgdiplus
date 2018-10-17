@@ -869,6 +869,47 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
     return Ok;
 }
 
+static GpStatus
+gdip_readbmp_palette (void *pointer, ImageSource source, const BITMAPV5HEADER *bmi, ColorPalette **result)
+{
+	int numberOfColors = bmi->bV5ClrUsed;
+	if (bmi->bV5BitCount <= 8) {
+		int defaultNumberOfColors = 1 << bmi->bV5BitCount;
+		// A color count of 0 means use the default. Also use the default color count
+		// if the bitmap has specified an unsupported number of colors (i.e. greater
+		// than the default).
+		if (bmi->bV5ClrUsed == 0 || bmi->bV5ClrUsed > defaultNumberOfColors)
+			numberOfColors = defaultNumberOfColors;
+	}
+
+	// Nothing to do.
+	if (numberOfColors == 0)
+		return Ok;
+
+	BYTE buffer[4];
+	INT colorEntrySize = bmi->bV5Size == BITMAPCOREHEADER_SIZE ? 3 : 4;
+
+	ColorPalette *palette = GdipAlloc (sizeof (ColorPalette) + sizeof (ARGB) * numberOfColors);
+	if (!palette)
+		return OutOfMemory;
+	
+	palette->Flags = 0;
+	palette->Count = numberOfColors;
+
+	for (int i = 0; i < palette->Count; i++) {
+		int size_read = gdip_read_bmp_data (pointer, buffer, colorEntrySize, source);
+		if (size_read < colorEntrySize) {
+			GdipFree (palette);
+			return OutOfMemory;
+		}
+
+		set_pixel_bgra (palette->Entries, i * 4, buffer[0], buffer[1], buffer[2], 0xFF);
+	}
+
+	*result = palette;
+	return Ok;
+}
+
 /* For use with in-memory bitmaps, where the BITMAPFILEHEADER doesn't exists */
 GpStatus 
 gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
@@ -891,15 +932,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	status = gdip_read_BITMAPINFOHEADER (pointer, source, &bmi, &upsidedown);
 	if (status != Ok)
 		return status;
-
-	if (bmi.bV5BitCount <= 8) {
-		int default_colors = 1 << bmi.bV5BitCount;
-		// A color count of 0 means use the default. Also use the default color count
-		// if the bitmap has specified an unsupported number of colors (i.e. greater
-		// than the default).
-		if (bmi.bV5ClrUsed == 0 || bmi.bV5ClrUsed > default_colors)
-			bmi.bV5ClrUsed = default_colors;
-	}
 
 	status = gdip_get_bmp_pixelformat (&bmi, &format);
 	if (status != Ok) {
@@ -952,37 +984,10 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	/* Ensure 32bits alignment */
 	gdip_align_stride (result->active_bitmap->stride);
  
-	if (bmi.bV5ClrUsed) {
-		result->active_bitmap->palette = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * bmi.bV5ClrUsed);
-		if (result->active_bitmap->palette == NULL) {
-			status = OutOfMemory;
-			goto error;
-		}
-		result->active_bitmap->palette->Flags = 0;
-		result->active_bitmap->palette->Count = bmi.bV5ClrUsed;
-
-		/* Read optional colour table */
-		size = (os2format) ? 3 /* RGBTRIPLE */ : 4 /* RGBquads */;
-		data_read = (BYTE*) GdipAlloc(size);
-		if (data_read == NULL) {
-			status = OutOfMemory;
-			goto error;
-		}
-		for (i = 0; i < bmi.bV5ClrUsed; i++) {
-			size_read = gdip_read_bmp_data (pointer, data_read, size, source);
-			if (size_read < size) {
-				status = OutOfMemory;
-				goto error;
-			}
-
-			set_pixel_bgra (result->active_bitmap->palette->Entries, i * 4,
-				(data_read[0] & 0xFF),		/* B */
-				(data_read[1] & 0xFF),		/* G */
-				(data_read[2] & 0xFF),		/* R */
-				0xFF);				/* Alpha */
-		}
-		GdipFree(data_read);
-		data_read = NULL;
+ 	status = gdip_readbmp_palette (pointer, source, &bmi, &result->active_bitmap->palette);
+	if (status != Ok) {
+		gdip_bitmap_dispose (result);
+		return status;
 	}
 
 	size = result->active_bitmap->stride;
