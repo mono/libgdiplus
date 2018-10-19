@@ -34,7 +34,7 @@ GpStatus metafile_DrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoi
 GpStatus metafile_DrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count, 
 	float tension) GDIP_INTERNAL;
 GpStatus metafile_FillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, 
-	float tension) GDIP_INTERNAL;
+	float tension, GpFillMode fillMode) GDIP_INTERNAL;
 GpStatus metafile_DrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, int count, int offset, 
 	int numOfSegments, float tension) GDIP_INTERNAL;
 

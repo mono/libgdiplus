@@ -853,7 +853,11 @@ GdipTranslateWorldTransform (GpGraphics *graphics, REAL dx, REAL dy, GpMatrixOrd
 GpStatus WINGDIPAPI
 GdipDrawArc (GpGraphics *graphics, GpPen *pen, REAL x, REAL y, REAL width, REAL height, REAL startAngle, REAL sweepAngle)
 {
-	if (!graphics || !pen)
+	if (!graphics)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!pen || width <= 0 || height <= 0)
 		return InvalidParameter;
 
 	switch (graphics->backend) {
@@ -895,11 +899,16 @@ GdipDrawBezierI (GpGraphics *graphics, GpPen *pen, INT x1, INT y1, INT x2, INT y
 GpStatus WINGDIPAPI
 GdipDrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, INT count)
 {
-	if (count == 0)
-		return Ok;
-
-	if (!graphics || !pen || !points)
+	if (!graphics || !points || count <= 0 || (count > 3 && (count % 3) != 1))
 		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!pen)
+		return InvalidParameter;
+
+	// Nop if the count is too small to fit any bezier paths.
+	if (count < 3)
+		return Ok;
 
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
@@ -933,9 +942,13 @@ GdipDrawBeziersI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, I
 GpStatus WINGDIPAPI
 GdipDrawEllipse (GpGraphics *graphics, GpPen *pen, REAL x, REAL y, REAL width, REAL height)
 {	
-	if (!graphics || !pen)
+	if (!graphics)
 		return InvalidParameter;
-	
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!pen)
+		return InvalidParameter;
+
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
 		return cairo_DrawEllipse (graphics, pen, x, y, width, height);
@@ -971,7 +984,11 @@ GdipDrawLineI (GpGraphics *graphics, GpPen *pen, INT x1, INT y1, INT x2, INT y2)
 GpStatus WINGDIPAPI
 GdipDrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, INT count)
 {
-	if (!graphics || !pen || !points || count < 2)
+	if (!graphics || !points || count <= 0)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!pen || count < 2)
 		return InvalidParameter;
 
 	switch (graphics->backend) {
@@ -990,8 +1007,10 @@ GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, INT
 	GpStatus status;
 	GpPointF *pointsF;
 
-	if (!points || count < 0)
+	if (count < 0)
 		return OutOfMemory;
+	if (!points)
+		return InvalidParameter;
 
 	pointsF = convert_points (points, count);
 	if (!pointsF)
@@ -1006,7 +1025,11 @@ GdipDrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, INT
 GpStatus WINGDIPAPI
 GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 {
-	if (!graphics || !pen || !path)
+	if (!graphics)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!pen || !path)
 		return InvalidParameter;
 
 	switch (graphics->backend) {
@@ -1022,7 +1045,11 @@ GdipDrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 GpStatus WINGDIPAPI
 GdipDrawPie (GpGraphics *graphics, GpPen *pen, REAL x, REAL y, REAL width, REAL height, REAL startAngle, REAL sweepAngle)
 {
-	if (!graphics || !pen)
+	if (!graphics)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!pen || width <= 0 || height <= 0)
 		return InvalidParameter;
 
 	/* We don't do anything, if sweep angle is zero. */
@@ -1048,7 +1075,11 @@ GdipDrawPieI (GpGraphics *graphics, GpPen *pen, INT x, INT y, INT width, INT hei
 GpStatus WINGDIPAPI
 GdipDrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, INT count)
 {
-	if (!graphics || !pen || !points || count < 2)
+	if (!graphics || !points || count <= 0)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!pen || count < 2)
 		return InvalidParameter;
 
 	switch (graphics->backend) {
@@ -1067,8 +1098,10 @@ GdipDrawPolygonI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, I
 	GpStatus status;
 	GpPointF *pointsF;
 
-	if (!points || count < 0)
+	if (count < 0)
 		return OutOfMemory;
+	if (!points)
+		return InvalidParameter;
 
 	pointsF = convert_points (points, count);
 	if (!pointsF)
@@ -1096,7 +1129,11 @@ GdipDrawRectangleI (GpGraphics *graphics, GpPen *pen, INT x, INT y, INT width, I
 GpStatus WINGDIPAPI
 GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects, INT count)
 {
-	if (!graphics || !pen || !rects || count <= 0)
+	if (!graphics || !rects || count <= 0)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!pen)
 		return InvalidParameter;
 	
 	switch (graphics->backend) {
@@ -1143,12 +1180,16 @@ GdipDrawClosedCurveI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *point
 GpStatus WINGDIPAPI
 GdipDrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, INT count, REAL tension)
 {
+	if (!graphics || !points || count <= 0)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!pen || count < 3)
+		return InvalidParameter;
+
 	/* when tension is 0, draw straight lines */
 	if (tension == 0)
 		return GdipDrawPolygon (graphics, pen, points, count);
-
-	if (!graphics || !pen || !points || count <= 2)
-		return InvalidParameter;
 
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
@@ -1166,8 +1207,10 @@ GdipDrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *poin
 	GpStatus status;
 	GpPointF *pointsF;
 
-	if (!points || count < 0)
+	if (count < 0)
 		return OutOfMemory;
+	if (!points)
+		return InvalidParameter;
 
 	pointsF = convert_points (points, count);
 	if (!pointsF)
@@ -1194,12 +1237,10 @@ GdipDrawCurveI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, INT
 GpStatus WINGDIPAPI
 GdipDrawCurve2 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, INT count, REAL tension)
 {
-	if (count == 2) {
+	if (count == 2)
 		return GdipDrawLines (graphics, pen, points, count);
-	} else {
-		int segments = (count > 3) ? (count - 1) : (count - 2);
-		return GdipDrawCurve3 (graphics, pen, points, count, 0, segments, tension);
-	}
+
+	return GdipDrawCurve3 (graphics, pen, points, count, 0, count - 1, tension);
 }
 
 GpStatus WINGDIPAPI
@@ -1226,19 +1267,18 @@ GdipDrawCurve2I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, IN
 GpStatus WINGDIPAPI
 GdipDrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, INT count, INT offset, INT numOfSegments, REAL tension)
 {
+	if (!graphics || !points || count <= 0)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!pen || count < 2 || offset < 0 || offset >= count)
+		return InvalidParameter;
+	if (numOfSegments < 1 || numOfSegments >= count - offset)
+		return InvalidParameter;
+
 	/* draw lines if tension = 0 */
 	if (tension == 0)
 		return GdipDrawLines (graphics, pen, points, count);
-
-	if (!graphics || !pen || !points || numOfSegments < 1)
-		return InvalidParameter;
-
-	/* we need 3 points for the first curve, 2 more for each curves */
-	/* and it's possible to use a point prior to the offset (to calculate) */
-	if ((offset == 0) && (numOfSegments == 1) && (count < 3))
-		return InvalidParameter;
-	else if (numOfSegments >= count - offset)
-		return InvalidParameter;
 
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
@@ -1256,8 +1296,10 @@ GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, IN
 	GpStatus status;
 	GpPointF *pointsF;
 
-	if (!points || count < 0)
+	if (count < 0)
 		return OutOfMemory;
+	if (!points)
+		return InvalidParameter;
 
 	pointsF = convert_points (points, count);
 	if (!pointsF)
@@ -1275,7 +1317,11 @@ GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, IN
 GpStatus WINGDIPAPI
 GdipFillEllipse (GpGraphics *graphics, GpBrush *brush, REAL x, REAL y, REAL width, REAL height)
 {
-	if (!graphics || !brush)
+	if (!graphics)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!brush)
 		return InvalidParameter;
 
 	switch (graphics->backend) {
@@ -1310,7 +1356,11 @@ GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush, INT x, INT y, INT widt
 GpStatus WINGDIPAPI
 GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rects, INT count)
 {
-	if (!graphics || !brush || !rects || count <= 0)
+	if (!graphics || !rects || count <= 0)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!brush)
 		return InvalidParameter;
 
 	switch (graphics->backend) {
@@ -1329,8 +1379,10 @@ GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect *rec
 	GpStatus status;
 	GpRectF *rectsF;
 
-	if (!rects || count < 0)
+	if (count < 0)
 		return OutOfMemory;
+	if (!rects)
+		return InvalidParameter;
 
 	rectsF = convert_rects (rects, count);
 	if (!rectsF)
@@ -1346,10 +1398,14 @@ GpStatus WINGDIPAPI
 GdipFillPie (GpGraphics *graphics, GpBrush *brush, REAL x, REAL y, REAL width, REAL height,
 	REAL startAngle, REAL sweepAngle)
 {
-	if (!graphics || !brush)
+	if (!graphics)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!brush || width <= 0 || height <= 0)
 		return InvalidParameter;
 
-	/* We don't do anything, if sweep angle is zero. */
+	// Don't do anything if sweep angle is zero.
 	if (sweepAngle == 0)
 		return Ok;
 
@@ -1372,7 +1428,11 @@ GdipFillPieI (GpGraphics *graphics, GpBrush *brush, INT x, INT y, INT width, INT
 GpStatus WINGDIPAPI
 GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 {
-	if (!graphics || !brush || !path)
+	if (!graphics)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!brush || !path)
 		return InvalidParameter;
 
 	switch (graphics->backend) {
@@ -1386,10 +1446,18 @@ GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 }
 
 GpStatus WINGDIPAPI
-GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count, FillMode fillMode)
+GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count, GpFillMode fillMode)
 {
-	if (!graphics || !brush || !points)
+	if (!graphics || !points || count <= 0)
 		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!brush || fillMode > FillModeWinding)
+		return InvalidParameter;
+
+	// Don't do anything if sweep angle is zero.
+	if (count < 2)
+		return Ok;
 
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
@@ -1402,13 +1470,15 @@ GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *point
 }
 
 GpStatus WINGDIPAPI
-GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count, FillMode fillMode)
+GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count, GpFillMode fillMode)
 {
 	GpStatus status;
 	GpPointF *pointsF;
 
-	if (!points || count < 0)
-		return OutOfMemory;	
+	if (count < 0)
+		return OutOfMemory;
+	if (!points)
+		return InvalidParameter;
 
 	pointsF = convert_points (points, count);
 	if (!pointsF)
@@ -1435,18 +1505,29 @@ GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *poin
 GpStatus WINGDIPAPI
 GdipFillClosedCurve (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count)
 {
-	return GdipFillClosedCurve2 (graphics, brush, points, count, 0.5f);
+	return GdipFillClosedCurve2 (graphics, brush, points, count, 0.5f, FillModeAlternate);
 }
 
 GpStatus WINGDIPAPI
 GdipFillClosedCurveI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count)
 {
-	return GdipFillClosedCurve2I (graphics, brush, points, count, 0.5f);
+	return GdipFillClosedCurve2I (graphics, brush, points, count, 0.5f, FillModeAlternate);
 }
 
 GpStatus WINGDIPAPI
-GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count, REAL tension)
+GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count, REAL tension, GpFillMode fillMode)
 {
+	if (!graphics || !points || count <= 0)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!brush || fillMode > FillModeWinding)
+		return InvalidParameter;
+	
+	// Nop if the count is too small.
+	if (count < 3)
+		return Ok;
+
 	/* when tension is 0, the edges are straight lines */
 	if (tension == 0)
 		return GdipFillPolygon2 (graphics, brush, points, count);
@@ -1456,28 +1537,30 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *
 
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
-		return cairo_FillClosedCurve2 (graphics, brush, points, count, tension);
+		return cairo_FillClosedCurve2 (graphics, brush, points, count, tension, fillMode);
 	case GraphicsBackEndMetafile:
-		return metafile_FillClosedCurve2 (graphics, brush, points, count, tension);
+		return metafile_FillClosedCurve2 (graphics, brush, points, count, tension, fillMode);
 	default:
 		return GenericError;
 	}
 }
 
 GpStatus WINGDIPAPI
-GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count, REAL tension)
+GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count, REAL tension, GpFillMode fillMode)
 {
 	GpStatus status;
 	GpPointF *pointsF;
 
-	if (!points || count < 0)
+	if (count < 0)
 		return OutOfMemory;
+	if (!points)
+		return InvalidParameter;
 
 	pointsF = convert_points (points, count);
 	if (!pointsF)
 		return OutOfMemory;
 
-	status = GdipFillClosedCurve2 (graphics, brush, pointsF, count, tension);
+	status = GdipFillClosedCurve2 (graphics, brush, pointsF, count, tension, fillMode);
 
 	GdipFree (pointsF);
 	return status;

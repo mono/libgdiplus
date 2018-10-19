@@ -17,7 +17,32 @@ LDADDS =					\
 	-lm
 
 noinst_PROGRAMS =			\
-	testadjustablearrowcap testbitmap testbits testbmpcodec testbrush testclip testcodecs testcustomlinecap testemfcodec testfont testgeneral testgifcodec testgpimage testgraphics testgraphicspath testhatchbrush testicocodec testimageattributes testjpegcodec testlineargradientbrush testmatrix testmetafile testpathgradientbrush testpen testpng testpngcodec testregion testreversepath testsolidbrush teststringformat testtext testtexturebrush testtiffcodec testwmfcodec
+	testadjustablearrowcap \
+	testbitmap \
+	testbits \
+	testbmpcodec \
+	testbrush \
+	testclip \
+	testcodecs \
+	testcustomlinecap \
+	testemfcodec testfont testgeneral \
+	testgifcodec \
+	testgpimage \
+	testgraphics \
+	testgraphicsdraw \
+	testgraphicsfill \
+	testgraphicspath \
+	testhatchbrush \
+	testicocodec \
+	testimageattributes \
+	testjpegcodec testlineargradientbrush \
+	testmatrix testmetafile testpathgradientbrush \
+	testpen testpng testpngcodec testregion testreversepath testsolidbrush \
+	teststringformat \
+	testtext \
+	testtexturebrush \
+	testtiffcodec \
+	testwmfcodec
 
 if HAS_X11
 noinst_PROGRAMS += testgdi
@@ -112,6 +137,18 @@ testgraphics_SOURCES =		\
 
 testgraphics_DEPENDENCIES = $(TEST_DEPS)
 testgraphics_LDADD = $(LDADDS)
+
+testgraphicsdraw_SOURCES =		\
+	testgraphicsdraw.c
+
+testgraphicsdraw_DEPENDENCIES = $(TEST_DEPS)
+testgraphicsdraw_LDADD = $(LDADDS)
+
+testgraphicsfill_SOURCES =		\
+	testgraphicsfill.c
+
+testgraphicsfill_DEPENDENCIES = $(TEST_DEPS)
+testgraphicsfill_LDADD = $(LDADDS)
 
 testgraphicspath_SOURCES =		\
 	testgraphicspath.c
@@ -249,6 +286,8 @@ EXTRA_DIST =			\
 	$(testgifcodec_SOURCES) \
 	$(testgpimage_SOURCES) \
 	$(testgraphics_SOURCES)	\
+	$(testgraphicsdraw_SOURCES)	\
+	$(testgraphicsfill_SOURCES)	\
 	$(testgraphicspath_SOURCES) \
 	$(testhatchbrush_SOURCES)	\
 	$(testicocodec_SOURCES) \
@@ -285,6 +324,8 @@ TESTS = \
 	testgeneral \
 	testgpimage \
 	testgraphics \
+	testgraphicsdraw \
+	testgraphicsfill \
 	testgraphicspath \
 	testhatchbrush \
 	testicocodec \

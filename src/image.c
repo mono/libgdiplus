@@ -345,26 +345,16 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 GpStatus WINGDIPAPI 
 GdipDrawImageI (GpGraphics *graphics, GpImage *image, INT x, INT y)
 {
-	if (!image)
-		return InvalidParameter;
-
-	switch (image->type) {
-	case ImageTypeBitmap: {
-		ActiveBitmapData *data = image->active_bitmap;
-		return GdipDrawImageRect (graphics, image, x, y, data->width, data->height);
-	}
-	case ImageTypeMetafile: {
-		MetafileHeader *metaheader = &((GpMetafile*)image)->metafile_header;
-		return GdipDrawImageRect (graphics, image, x, y, metaheader->Width, metaheader->Height);
-	}
-	default:
-		return InvalidParameter;
-	}
+	return GdipDrawImage (graphics, image, x, y);
 }
 
 GpStatus WINGDIPAPI 
 GdipDrawImage (GpGraphics *graphics, GpImage *image, REAL x, REAL y)
 {
+	if (!graphics)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
 	if (!image)
 		return InvalidParameter;
 
@@ -400,11 +390,12 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, REAL x, REAL y, REAL wi
 	BYTE *premul = NULL;
 	cairo_surface_t *original = NULL;
 
-	if (!graphics || !image)
+	if (!graphics)
 		return InvalidParameter;
-
-	if ((width <= 0) || (height <= 0))
-		return Ok;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!image)
+		return InvalidParameter;
 			
 	if (image->type == ImageTypeBitmap) {
 		/* check does not apply to metafiles, and it's better be done before converting the image */
@@ -422,6 +413,9 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, REAL x, REAL y, REAL wi
 			return status;
 		}
 	}
+
+	if ((width == 0) || (height == 0))
+		return Ok;
 
 	/* conversion must be done after the recursive call to GdipDrawImageRect to remove the indexed bitmap */
 	if (!OPTIMIZE_CONVERSION (graphics)) {
@@ -510,9 +504,15 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	MetafilePlayContext *metacontext = NULL;
 	BYTE *premul = NULL;
 	cairo_surface_t *original = NULL;
-	
-	if (!graphics || !image || !dstPoints || (count != 3))
+
+	if (!graphics || !dstPoints || count <= 0)
 		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!image || (count != 3 && count != 4))
+		return InvalidParameter;
+	if (count == 4)
+		return NotImplemented;
 
 	cairo_new_path (graphics->ct);
 
@@ -597,18 +597,20 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 GpStatus WINGDIPAPI
 GdipDrawImagePointsI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *dstPoints, INT count)
 {
-	GpPointF points[3];
-	int i;
-	
-	if (!dstPoints || (count != 3))
+	GpStatus status;
+	GpPointF *pointsF;
+
+	if (!dstPoints || count < 0)
 		return InvalidParameter;
 
-	for (i = 0; i < 3; i++) {
-		points[i].X = dstPoints[i].X;
-		points[i].Y = dstPoints[i].Y;
-	}
-	
-	return GdipDrawImagePoints (graphics, image, points, 3);
+	pointsF = convert_points (dstPoints, count);
+	if (!pointsF)
+		return OutOfMemory;
+
+	status = GdipDrawImagePoints (graphics, image, pointsF, count);
+
+	GdipFree (pointsF);
+	return status;
 }
 
 GpStatus WINGDIPAPI
@@ -645,7 +647,11 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	BYTE			*premul = NULL;
 	cairo_surface_t	*original = NULL;
 	
-	if (!graphics || !image)
+	if (!graphics)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!image)
 		return InvalidParameter;
 
 	switch (srcUnit) {
@@ -684,7 +690,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	}
 
 	/* see OPTIMIZE_CONVERSION in general.h */
-	if ((srcUnit != UnitPixel) && (srcUnit != UnitWorld) && ((srcUnit != UnitDisplay) || (graphics->type != gtPostScript))) {
+	if (srcUnit != UnitPixel && graphics->type != gtPostScript) {
 		dstx = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->dpi_x, graphics->type, dstx);
 		dsty = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->dpi_y, graphics->type, dsty);
 		dstwidth = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->dpi_x, graphics->type, dstwidth);
@@ -1006,9 +1012,30 @@ GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint
 	GpMatrix *matrix = NULL;
 	cairo_matrix_t orig_matrix;
 
-	if (!graphics || !image || !points || (count < 3))
+	if (!graphics || !points || count <= 0)
 		return InvalidParameter;
-	if (count > 3)
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!image || (count != 3 && count != 4))
+		return InvalidParameter;
+
+	switch (srcUnit) {
+	case UnitPixel:
+		break;
+	case UnitPoint:
+	case UnitInch:
+	case UnitDocument:
+	case UnitMillimeter:
+		if (graphics->type != gtPostScript)
+			return NotImplemented; /* GDI+ returns the same */
+		break;
+	case UnitWorld:
+	case UnitDisplay:
+	default:
+		return InvalidParameter;
+	}
+
+	if (count == 4)
 		return NotImplemented;
 
 	rect.X = 0; 
@@ -1043,21 +1070,16 @@ GdipDrawImagePointsRectI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoin
 	INT srcwidth, INT srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes, DrawImageAbort callback,
 	void *callbackData)
 {
-	GpPointF pf[3];
+	GpPointF *pointsF;
 
-	if (!points || (count < 3))
+	if (!points || count < 0)
 		return InvalidParameter;
-	if (count > 3)
-		return NotImplemented;
 
-	pf[0].X = points[0].X;
-	pf[0].Y = points[0].Y;
-	pf[1].X = points[1].X;
-	pf[1].Y = points[1].Y;
-	pf[2].X = points[2].X;
-	pf[2].Y = points[2].Y;
+	pointsF = convert_points (points, count);
+	if (!pointsF)
+		return OutOfMemory;
 
-	return GdipDrawImagePointsRect (graphics, image, (GDIPCONST GpPointF*)&pf, count, srcx, srcy, srcwidth, srcheight, 
+	return GdipDrawImagePointsRect (graphics, image, pointsF, count, srcx, srcy, srcwidth, srcheight, 
 		srcUnit, imageAttributes, callback, callbackData);
 }
 

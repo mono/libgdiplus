@@ -703,3 +703,13 @@ ATTRIBUTE_USED static void dumpPalette (ColorPalette *palette)
 
     printf("\n");
 }
+
+// A utility for dumping an image and displaying it for debugging purposes.
+ATTRIBUTE_USED static void dumpImage (GpImage *image)
+{
+	const WCHAR *wImage = createWchar("test-image.png");
+	GpStatus status = GdipSaveImageToFile (image, wImage, &pngEncoderClsid, NULL);
+	assertEqualInt (status, Ok);
+	int systemResult = system ("test-image.png");
+	(void) systemResult;
+}
