@@ -1896,6 +1896,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST GpRect *rect, UINT flags, PixelF
 
 	if (format != PixelFormat24bppRGB && format == src_data->pixel_format && (flags & ImageLockModeUserInputBuf) == 0) {
 		// No conversion needed, just read the bits directly.
+		dest_data->reserved &= ~GBD_OWN_SCAN0;
 		dest_data->stride = src_data->stride;
 		dest_data->scan0 = src_data->scan0;
 	}
@@ -1923,6 +1924,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST GpRect *rect, UINT flags, PixelF
 			if (!dest_data->scan0)
 				return OutOfMemory;
 		} else {
+			dest_data->reserved &= ~GBD_OWN_SCAN0;
 			/* User is supposed to have provided the buffer */
 			if (!dest_data->scan0)
 				return InvalidParameter;
@@ -1934,9 +1936,10 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST GpRect *rect, UINT flags, PixelF
 		Rect dest_rect = {0, 0, src_rect.Width, src_rect.Height};
 		status = gdip_bitmap_change_rect_pixel_format (src_data, &src_rect, dest_data, &dest_rect);
 		if (status != Ok) {
-			if ((flags & ImageLockModeUserInputBuf) == 0) {
+			if ((dest_data->reserved & GBD_OWN_SCAN0) != 0) {
 				GdipFree (dest_data->scan0);
 				dest_data->scan0 = NULL;
+				dest_data->reserved &= ~GBD_OWN_SCAN0;
 			}
 				
 			return status;
