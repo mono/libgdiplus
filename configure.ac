@@ -469,7 +469,7 @@ AS_IF(
 AM_CONDITIONAL([HAS_X11], [test x$x11_available = xyes])
 
 # Add xrender here so that we don't fail to find glib if we won't have xrender.pc
-if test "x$no_x" != "xyes" && "x$x11_available" = "xyes"; then
+if test "x$no_x" != "xyes" && test "x$x11_available" = "xyes"; then
    GDIPLUS_LIBS="$GDIPLUS_LIBS `$PKG_CONFIG --libs xrender `"
    GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS `$PKG_CONFIG --cflags xrender `"
 fi
