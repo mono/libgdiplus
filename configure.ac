@@ -154,7 +154,6 @@ case "$host" in
 		AC_DEFINE_UNQUOTED(OSX,1,[OS X])
 		CFLAGS="-no-cpp-precomp $CFLAGS"
 		LDFLAGS="-flat_namespace -undefined suppress $LDFLAGS"
-		no_x=yes
 		no_libpng16=yes # workaround until we can upgrade the libpng used by bockbuild
 		;;
 
@@ -467,12 +466,6 @@ AS_IF(
 	[AC_DEFINE([HAS_X11], [1], [Define X11 support])],
 	[AC_DEFINE([HAS_X11], [0], [Skip X11 support])])
 AM_CONDITIONAL([HAS_X11], [test x$x11_available = xyes])
-
-# Add xrender here so that we don't fail to find glib if we won't have xrender.pc
-if test "x$no_x" != "xyes" && "x$x11_available" = "xyes"; then
-   GDIPLUS_LIBS="$GDIPLUS_LIBS `$PKG_CONFIG --libs xrender `"
-   GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS `$PKG_CONFIG --cflags xrender `"
-fi
 
 dnl Test for libexif
 if test x$with_libexif != xno && test -z "$LIBEXIF"; then
