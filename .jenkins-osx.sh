@@ -9,9 +9,12 @@ if [[ ${label} == *'osx-i386'* ]]; then
 else	
 	EXTRA_CFLAGS="$EXTRA_CFLAGS -m64 -arch x86_64 -mmacosx-version-min=10.9"
 	EXTRA_LDFLAGS="$EXTRA_LDFLAGS -m64 -arch x86_64" 
+	EXTRA_CONF_FLAGS="--host=x86_64-apple-darwin13.0.0 --build=x86_64-apple-darwin13.0.0"
 fi
 
-PKG_CONFIG_PATH=/opt/X11/lib/pkgconfig ./autogen.sh --enable-warnaserror CFLAGS="$CFLAGS $EXTRA_CFLAGS" LDFLAGS="$LDFLAGS $EXTRA_LDFLAGS" $EXTRA_CONF_FLAGS
+export CFLAGS="$CFLAGS $EXTRA_CFLAGS"
+export LDFLAGS="$LDFLAGS $EXTRA_LDFLAGS"
+PKG_CONFIG_PATH=/opt/X11/lib/pkgconfig ./autogen.sh --enable-warnaserror $EXTRA_CONF_FLAGS
 make -w
 make check -k -w && result=0 || result=$?
 
