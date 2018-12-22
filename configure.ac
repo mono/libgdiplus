@@ -464,7 +464,7 @@ fi
 if test x$x11_available = xyes; then
 	AC_DEFINE(HAVE_X11, 1, Define if x11 is available.)
 fi
-AM_CONDITIONAL(HAVE_X11, test x$libexif_pkgconfig = xyes)
+AM_CONDITIONAL(HAVE_X11, test x$x11_available = xyes)
 
 dnl Test for libexif
 if test x$with_libexif != xno && test -z "$LIBEXIF"; then
