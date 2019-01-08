@@ -461,11 +461,10 @@ else
   x11_available=no
 fi
 
-AS_IF(
-	[test x$x11_available = xyes],
-	[AC_DEFINE([HAS_X11], [1], [Define X11 support])],
-	[AC_DEFINE([HAS_X11], [0], [Skip X11 support])])
-AM_CONDITIONAL([HAS_X11], [test x$x11_available = xyes])
+if test x$x11_available = xyes; then
+	AC_DEFINE(HAVE_X11, 1, Define if x11 is available.)
+fi
+AM_CONDITIONAL(HAVE_X11, test x$x11_available = xyes)
 
 dnl Test for libexif
 if test x$with_libexif != xno && test -z "$LIBEXIF"; then
