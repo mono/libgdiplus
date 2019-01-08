@@ -527,7 +527,6 @@ gdip_copy_region (GpRegion *source, GpRegion *dest)
 static GpStatus
 gdip_region_convert_to_path (GpRegion *region)
 {
-	GpRectF *rect;
 	GpStatus status;
 
 	/* no conversion is required for complex regions */

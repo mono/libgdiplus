@@ -137,6 +137,8 @@ PolyBezier (MetafilePlayContext *context, BYTE *data, int len, BOOL compact)
 #ifdef DEBUG_EMF
 	printf ("PolyBezier%s bounds [%d, %d, %d, %d] with %d points", (compact ? "16" : ""), 
 		bounds.left, bounds.top, bounds.right, bounds.bottom, num);
+#else
+	(void) bounds; // Avoid an unused variable warning.
 #endif
 
 	/* we need to supply the current x,y position */
@@ -215,6 +217,8 @@ Polygon (MetafilePlayContext *context, BYTE *data, int len, BOOL compact)
 #ifdef DEBUG_EMF
 	printf ("Polygon%s bounds [%d, %d, %d, %d] with %d points", (compact ? "16" : ""), 
 		bounds.left, bounds.top, bounds.right, bounds.bottom, num);
+#else
+	(void) bounds; // Avoid an unused variable warning.
 #endif
 
 	points = (GpPointF*) GdipAlloc (num * sizeof (GpPointF));
@@ -277,7 +281,10 @@ PolyPolygon (MetafilePlayContext *context, BYTE *data, BOOL compact)
 #ifdef DEBUG_EMF
 	printf ("PolyPolygon%s bounds [%d, %d, %d, %d] with %d polygons", (compact ? "16" : ""), 
 		bounds.left, bounds.top, bounds.right, bounds.bottom, poly_num);
+#else
+	(void) bounds; // Avoid an unused variable warning.
 #endif
+
 	/* read size of each polygon and allocate the required memory */
 	for (i = 0; i < poly_num; i++) {
 		current->num = GETDW(DWP(n));

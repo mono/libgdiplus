@@ -445,7 +445,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		int		height;
 		BYTE		bit_depth;
 		int		stride;
-		int		interlace;
 		png_bytep *row_pointers;
 		BYTE *rawptr;
 		int i, j;
@@ -461,8 +460,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			status = UnknownImageFormat;
 			goto error;
 		}
-
-		interlace = png_get_interlace_type (png_ptr, info_ptr);
 
 		stride = (width * 4);
 		gdip_align_stride (stride);
