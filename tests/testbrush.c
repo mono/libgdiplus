@@ -31,6 +31,7 @@ static void test_getBrushType ()
 
     GdipCreateSolidFill (1, &brush);
 
+    // Negative tests.
     status = GdipGetBrushType (NULL, &brushType);
     assertEqualInt (status, InvalidParameter);
 
@@ -48,6 +49,7 @@ static void test_clone ()
 
     GdipCreateSolidFill (1, &brush);
 
+    // Negative tests.
     status = GdipCloneBrush (NULL, &clone);
     assertEqualInt (status, InvalidParameter);
 
@@ -67,6 +69,7 @@ static void test_delete ()
     status = GdipDeleteBrush ((GpBrush *) brush);
     assertEqualInt (status, Ok);
 
+    // Negative tests.
     status = GdipDeleteBrush (NULL);
     assertEqualInt (status, InvalidParameter);
 }
@@ -74,12 +77,12 @@ static void test_delete ()
 int
 main (int argc, char**argv)
 {
-	STARTUP;
+    STARTUP;
 
     test_getBrushType ();
     test_clone ();
     test_delete ();
 
     SHUTDOWN;
-	return 0;
+    return 0;
 }

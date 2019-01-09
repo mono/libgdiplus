@@ -558,6 +558,23 @@ ATTRIBUTE_USED static BOOL is_32bit()
     } \
 }
 
+
+ATTRIBUTE_USED static void assertEqualARGBImpl (ARGB actual, ARGB expected, const char *message, const char *file, const char *function, int line)
+{
+    if (actual != expected)
+    {
+        if (message)
+            fprintf (stderr, "%s\n", message);
+
+        printFailure (file, function, line);
+        fprintf (stderr, "Expected: 0x%08X\n", expected);
+        fprintf (stderr, "Actual:   0x%08X\n", actual);
+        abort();
+    }
+}
+
+#define assertEqualARGB(actual, expected) assertEqualARGBImpl (actual, expected, NULL, __FILE__, __func__, __LINE__)
+
 #define verifyPixels(image, expectedPixels) \
 { \
     GpStatus status; \
