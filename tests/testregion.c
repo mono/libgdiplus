@@ -8178,10 +8178,7 @@ static void test_translateRegion ()
 	GdipCreateRegionRect (&infiniteRect, &region);
 	status = GdipTranslateRegion (region, 10, 0);
 	assertEqualInt (status, Ok);
-	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, -4194294, -4194304, 8388608, 8388608, FALSE, TRUE);
-#endif
 
 	GdipDeleteRegion (region);
 
@@ -8189,10 +8186,7 @@ static void test_translateRegion ()
 	GdipCreateRegionRect (&infiniteRect, &region);
 	status = GdipTranslateRegion (region, 0, 20);
 	assertEqualInt (status, Ok);
-	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, -4194304, -4194284, 8388608, 8388608, FALSE, TRUE);
-#endif
 
 	GdipDeleteRegion (region);
 
@@ -8200,10 +8194,7 @@ static void test_translateRegion ()
 	GdipCreateRegionRect (&infiniteRect, &region);
 	status = GdipTranslateRegion (region, 10, 20);
 	assertEqualInt (status, Ok);
-	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, -4194294, -4194284, 8388608, 8388608, FALSE, TRUE);
-#endif
 
 	GdipDeleteRegion (region);
 
@@ -8211,10 +8202,7 @@ static void test_translateRegion ()
 	GdipCreateRegionRect (&infiniteRect, &region);
 	status = GdipTranslateRegion (region, -20, -40);
 	assertEqualInt (status, Ok);
-	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, -4194324, -4194344, 8388608, 8388608, FALSE, TRUE);
-#endif
 
 	GdipDeleteRegion (region);
 	
@@ -8401,20 +8389,15 @@ static void test_translateRegionI ()
 	GdipCreateRegionRect (&infiniteRect, &region);
 	status = GdipTranslateRegionI (region, 10, 0);
 	assertEqualInt (status, Ok);
-	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, -4194294, -4194304, 8388608, 8388608, FALSE, TRUE);
-#endif
+
 	GdipDeleteRegion (region);
 
 	// Infinite rect region - zero, positive.
 	GdipCreateRegionRect (&infiniteRect, &region);
 	status = GdipTranslateRegionI (region, 0, 20);
 	assertEqualInt (status, Ok);
-	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, -4194304, -4194284, 8388608, 8388608, FALSE, TRUE);
-#endif
 
 	GdipDeleteRegion (region);
 
@@ -8422,10 +8405,7 @@ static void test_translateRegionI ()
 	GdipCreateRegionRect (&infiniteRect, &region);
 	status = GdipTranslateRegionI (region, 10, 20);
 	assertEqualInt (status, Ok);
-	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, -4194294, -4194284, 8388608, 8388608, FALSE, TRUE);
-#endif
 
 	GdipDeleteRegion (region);
 
@@ -8433,10 +8413,7 @@ static void test_translateRegionI ()
 	GdipCreateRegionRect (&infiniteRect, &region);
 	status = GdipTranslateRegionI (region, -20, -40);
 	assertEqualInt (status, Ok);
-	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, -4194324, -4194344, 8388608, 8388608, FALSE, TRUE);
-#endif
 
 	GdipDeleteRegion (region);
 	
@@ -8690,10 +8667,7 @@ static void test_transformRegion ()
 	
 	status = GdipTransformRegion (region, translateXYMatrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should be translated: https://github.com/mono/libgdiplus/issues/507
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, -4194294.0f, -4194294.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-#endif
 
 	GdipDeleteRegion (region);
 
@@ -8849,10 +8823,7 @@ static void test_transformRegion ()
 
 	status = GdipTransformRegion (region, translateYScaleXMatrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, 200, 30, 600, 40, FALSE, FALSE);
-#endif
 
 	GdipDeleteRegion (region);
 	
@@ -8861,10 +8832,7 @@ static void test_transformRegion ()
 
 	status = GdipTransformRegion (region, translateYScaleYMatrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, 10, 600, 30, 800, FALSE, FALSE);
-#endif
 
 	GdipDeleteRegion (region);
 	
@@ -8873,10 +8841,7 @@ static void test_transformRegion ()
 
 	status = GdipTransformRegion (region, translateYScaleXYMatrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, 200, 600, 600, 800, FALSE, FALSE);
-#endif
 
 	GdipDeleteRegion (region);
 	
@@ -8984,10 +8949,7 @@ static void test_transformRegion ()
 
 	status = GdipTransformRegion (region, translateXScaleXMatrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, 400, 20, 600, 40, FALSE, FALSE);
-#endif
 
 	GdipDeleteRegion (region);
 
@@ -8996,10 +8958,7 @@ static void test_transformRegion ()
 
 	status = GdipTransformRegion (region, translateXScaleYMatrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, 20, 400, 30, 800, FALSE, FALSE);
-#endif
 
 	GdipDeleteRegion (region);
 
@@ -9008,10 +8967,7 @@ static void test_transformRegion ()
 
 	status = GdipTransformRegion (region, translateXScaleXYMatrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, 400, 400, 600, 800, FALSE, FALSE);
-#endif
 
 	GdipDeleteRegion (region);
 
@@ -9047,10 +9003,7 @@ static void test_transformRegion ()
 
 	status = GdipTransformRegion (region, translateXYScaleXMatrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, 400, 30, 600, 40, FALSE, FALSE);
-#endif
 
 	GdipDeleteRegion (region);
 
@@ -9059,10 +9012,7 @@ static void test_transformRegion ()
 
 	status = GdipTransformRegion (region, translateXYScaleYMatrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, 20, 600, 30, 800, FALSE, FALSE);
-#endif
 
 	GdipDeleteRegion (region);
 	
@@ -9071,10 +9021,7 @@ static void test_transformRegion ()
 
 	status = GdipTransformRegion (region, translateXYScaleXYMatrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should translate: https://github.com/mono/libgdiplus/issues/438
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegion (region, 400, 600, 600, 800, FALSE, FALSE);
-#endif
 
 	GdipDeleteRegion (region);
 
