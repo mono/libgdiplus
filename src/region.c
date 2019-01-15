@@ -322,6 +322,9 @@ gdip_is_rect_infinite (const GpRectF *rect)
 {
 	if (!rect)
 		return FALSE;
+		
+	if (gdip_is_rectF_empty (rect, /* allowNegative */ TRUE))
+		return FALSE;
 
 	if (rect->Width >= REGION_INFINITE_LENGTH || rect->Height >= REGION_INFINITE_LENGTH)
 		return TRUE;
@@ -2043,18 +2046,17 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, INT* count, GpMatrix* matr
 
 	if (gdip_is_region_empty (work, /* allowNegative */ TRUE)) {
 		*count = 0;
+	} else if (gdip_is_InfiniteRegion (work)) {
+		if (rects) {
+			rects->X = REGION_INFINITE_POSITION;
+			rects->Y = REGION_INFINITE_POSITION;
+			rects->Width = REGION_INFINITE_LENGTH;
+			rects->Height = REGION_INFINITE_LENGTH;
+		}
+
+		*count = 1;
 	} else {
 		switch (region->type) {
-		case RegionTypeInfinite:
-			if (rects) {
-				rects->X = REGION_INFINITE_POSITION;
-				rects->Y = REGION_INFINITE_POSITION;
-				rects->Width = REGION_INFINITE_LENGTH;
-				rects->Height = REGION_INFINITE_LENGTH;
-			}
-
-			*count = 1;
-		break;
 		case RegionTypeRect:
 			if (rects) {
 				for (int i = 0; i < work->cnt; i++) {

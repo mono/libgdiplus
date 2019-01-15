@@ -45,42 +45,205 @@ static void test_createRegionRect ()
 {
 	GpStatus status;
 	GpRectF normalRect = {1, 2, 3, 4};
-	GpRectF negativeWidthRect = {1, 2, -3, 4};
-	GpRectF negativeHeightRect = {1, 2, 3, -4};
-	GpRectF zeroRect = {0, 0, 0, 0};
-	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
 	GpRegion *region;
 
-	// Normal.
+	// Positive width, positive height.
 	status = GdipCreateRegionRect (&normalRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
+	verifyRegionScans (region, &normalRect, sizeof (normalRect));
+	GdipDeleteRegion (region);
+	
+	// > Infinite width, > infinite height.
+	GpRectF greaterThanInfiniteGreaterThanInfiniteHeightRect = {1, 2, 8388609.0f, 8388609.0f};
+	status = GdipCreateRegionRect (&greaterThanInfiniteGreaterThanInfiniteHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 8388609.0f, 8388609.0f, FALSE, TRUE);
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
+	GdipDeleteRegion (region);
+	
+	// > Infinite width, infinite height.
+	GpRectF greaterThanInfiniteInfiniteHeightRect = {1, 2, 8388609.0f, 8388608.0f};
+	status = GdipCreateRegionRect (&greaterThanInfiniteInfiniteHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 8388609.0f, 8388608.0f, FALSE, TRUE);
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
+	GdipDeleteRegion (region);
+	
+	// > Infinite width, positive height.
+	GpRectF greaterThanInfinitePositiveHeightRect = {1, 2, 8388609.0f, 4};
+	status = GdipCreateRegionRect (&greaterThanInfinitePositiveHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 8388609.0f, 4, FALSE, TRUE);
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
+	GdipDeleteRegion (region);
+	
+	// > Infinite width, zero height.
+	GpRectF greaterThanInfiniteZeroHeightRect = {1, 2, 8388609.0f, 0};
+	status = GdipCreateRegionRect (&greaterThanInfiniteZeroHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 8388609.0f, 0, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
+	GdipDeleteRegion (region);
+	
+	// > Infinite width, negative height.
+	GpRectF greaterThanInfiniteNegativeHeightRect = {1, 2, 8388609.0f, -4};
+	status = GdipCreateRegionRect (&greaterThanInfiniteNegativeHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 8388609.0f, -4, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
+	GdipDeleteRegion (region);
+	
+	// Infinite width, > infinite height.
+	GpRectF infiniteWidthGreaterThanInfiniteHeightRect = {1, 2, 8388608.0f, 8388609.0f};
+	status = GdipCreateRegionRect (&infiniteWidthGreaterThanInfiniteHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 8388608.0f, 8388609.0f, FALSE, TRUE);
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
+	GdipDeleteRegion (region);
+	
+	// Infinite width, infinite height.
+	GpRectF infiniteWidthInfiniteHeightRect = {1, 2, 8388608.0f, 8388608.0f};
+	status = GdipCreateRegionRect (&infiniteWidthInfiniteHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 8388608.0f, 8388608.0f, FALSE, TRUE);
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
+	GdipDeleteRegion (region);
+	
+	// Infinite width, positive height.
+	GpRectF infiniteWidthPositiveHeightRect = {1, 2, 8388608.0f, 4};
+	status = GdipCreateRegionRect (&infiniteWidthPositiveHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 8388608.0f, 4, FALSE, TRUE);
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
+	GdipDeleteRegion (region);
+	
+	// Infinite width, zero height.
+	GpRectF infiniteWidthZeroHeightRect = {1, 2, 8388608.0f, 0};
+	status = GdipCreateRegionRect (&infiniteWidthZeroHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 8388608.0f, 0, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
+	GdipDeleteRegion (region);
+	
+	// Infinite width, negative height.
+	GpRectF infiniteWidthNegativeHeightRect = {1, 2, 8388608.0f, -4};
+	status = GdipCreateRegionRect (&infiniteWidthNegativeHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 8388608.0f, -4, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
+	GdipDeleteRegion (region);
+	
+	// Positive width, > infinite height.
+	GpRectF positiveWidthGreaterThanInfiniteHeightRect = {1, 2, 3, 8388609.0f};
+	status = GdipCreateRegionRect (&positiveWidthGreaterThanInfiniteHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 3, 8388609.0f, FALSE, TRUE);
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
+	GdipDeleteRegion (region);
+	
+	// Positive width, infinite height.
+	GpRectF positiveWidthInfiniteHeightRect = {1, 2, 3, 8388608.0f};
+	status = GdipCreateRegionRect (&positiveWidthInfiniteHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 3, 8388608.0f, FALSE, TRUE);
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
 
-	// Negative width.
-	status = GdipCreateRegionRect (&negativeWidthRect, &region);
+	// Positive width, zero height.
+	GpRectF positiveWidthZeroHeightRect = {1, 2, 3, 0};
+	status = GdipCreateRegionRect (&positiveWidthZeroHeightRect, &region);
 	assertEqualInt (status, Ok);
-	verifyRegion (region, 1, 2, -3, 4, TRUE, FALSE);
-	GdipDeleteRegion (region);
-
-	// Negative height.
-	status = GdipCreateRegionRect (&negativeHeightRect, &region);
-	assertEqualInt (status, Ok);
-	verifyRegion (region, 1, 2, 3, -4, TRUE, FALSE);
-	GdipDeleteRegion (region);
-
-	// Zero.
-	status = GdipCreateRegionRect (&zeroRect, &region);
-	assertEqualInt (status, Ok);
-	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+	verifyRegion (region, 1, 2, 3, 0, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
 	GdipDeleteRegion (region);
 
-	// Infinite.
-	status = GdipCreateRegionRect (&infiniteRect, &region);
+	// Positive width, negative height.
+	GpRectF positiveWidthNegativeHeightRect = {1, 2, 3, -4};
+	status = GdipCreateRegionRect (&positiveWidthNegativeHeightRect, &region);
 	assertEqualInt (status, Ok);
-	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
+	verifyRegion (region, 1, 2, 3, -4, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
+	GdipDeleteRegion (region);
+
+	// Zero width, > infinite height.
+	GpRectF zeroWidthGreaterThanInfiniteHeightRect = {1, 2, 0, 8388609.0f};
+	status = GdipCreateRegionRect (&zeroWidthGreaterThanInfiniteHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 0, 8388609.0f, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
+	GdipDeleteRegion (region);
+
+	// Zero width, infinite height.
+	GpRectF zeroWidthInfiniteHeightRect = {1, 2, 0, 8388608.0f};
+	status = GdipCreateRegionRect (&zeroWidthInfiniteHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 0, 8388608.0f, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
+	GdipDeleteRegion (region);
+
+	// Zero width, positive height.
+	GpRectF zeroWidthPositiveHeightRect = {1, 2, 0, 4};
+	status = GdipCreateRegionRect (&zeroWidthPositiveHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 0, 4, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
+	GdipDeleteRegion (region);
+
+	// Zero width, zero height.
+	GpRectF zeroWidthZeroHeightRect = {1, 2, 0, 0};
+	status = GdipCreateRegionRect (&zeroWidthZeroHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 0, 0, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
+	GdipDeleteRegion (region);
+
+	// Zero width, Negative height.
+	GpRectF zeroWidthNegativeHeightRect = {1, 2, 0, -4};
+	status = GdipCreateRegionRect (&zeroWidthNegativeHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 0, -4, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
+	GdipDeleteRegion (region);
+
+	// Negative width, > infinite height.
+	GpRectF negativeWidthGreaterThanInfiniteHeightRect = {1, 2, -3, 8388609.0f};
+	status = GdipCreateRegionRect (&negativeWidthGreaterThanInfiniteHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, -3, 8388609.0f, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
+	GdipDeleteRegion (region);
+
+	// Negative width, infinite height.
+	GpRectF negativeWidthInfiniteHeightRect = {1, 2, -3, 8388608.0f};
+	status = GdipCreateRegionRect (&negativeWidthInfiniteHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, -3, 8388608.0f, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
+	GdipDeleteRegion (region);
+
+	// Negative width, positive height.
+	GpRectF negativeWidthPositiveHeightRect = {1, 2, -3, 4};
+	status = GdipCreateRegionRect (&negativeWidthPositiveHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, -3, 4, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
+	GdipDeleteRegion (region);
+
+	// Negative width, zero height.
+	GpRectF negativeWidthZeroHeightRect = {1, 2, -3, 0};
+	status = GdipCreateRegionRect (&negativeWidthZeroHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, -3, 0, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
+	GdipDeleteRegion (region);
+
+	// Negative width, negative height.
+	GpRectF negativeWidthNegativeHeightRect = {1, 2, -3, -4};
+	status = GdipCreateRegionRect (&negativeWidthNegativeHeightRect, &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, -3, -4, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
 	GdipDeleteRegion (region);
 
 	// Negative tests.
@@ -451,7 +614,7 @@ static void test_createRegionRgnData ()
 	// Rect.
 	status = GdipCreateRegionRgnData (rectMagicNumber2, sizeof (rectMagicNumber2), &region);
 	assertEqualInt (status, Ok);
-	RectF expectedRect = { 1, 2, 3, 4 };
+	GpRectF expectedRect = { 1, 2, 3, 4 };
 	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
 	verifyRegionScans(region, &expectedRect, sizeof (expectedRect));
 	GdipDeleteRegion (region);
