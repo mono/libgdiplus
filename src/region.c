@@ -320,10 +320,16 @@ gdip_is_region_empty (const GpRegion *region, BOOL allowNegative)
 static BOOL
 gdip_is_rect_infinite (const GpRectF *rect)
 {
-	return (rect && (rect->X == REGION_INFINITE_POSITION) && 
-		(rect->Y == REGION_INFINITE_POSITION) &&
-		(rect->Width == REGION_INFINITE_LENGTH) && 
-		(rect->Height == REGION_INFINITE_LENGTH));
+	if (!rect)
+		return FALSE;
+		
+	if (gdip_is_rectF_empty (rect, /* allowNegative */ TRUE))
+		return FALSE;
+
+	if (rect->Width >= REGION_INFINITE_LENGTH || rect->Height >= REGION_INFINITE_LENGTH)
+		return TRUE;
+
+	return FALSE;
 }
 
 BOOL
@@ -2039,18 +2045,17 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, INT* count, GpMatrix* matr
 
 	if (gdip_is_region_empty (work, /* allowNegative */ TRUE)) {
 		*count = 0;
+	} else if (gdip_is_InfiniteRegion (work)) {
+		if (rects) {
+			rects->X = REGION_INFINITE_POSITION;
+			rects->Y = REGION_INFINITE_POSITION;
+			rects->Width = REGION_INFINITE_LENGTH;
+			rects->Height = REGION_INFINITE_LENGTH;
+		}
+
+		*count = 1;
 	} else {
 		switch (region->type) {
-		case RegionTypeInfinite:
-			if (rects) {
-				rects->X = REGION_INFINITE_POSITION;
-				rects->Y = REGION_INFINITE_POSITION;
-				rects->Width = REGION_INFINITE_LENGTH;
-				rects->Height = REGION_INFINITE_LENGTH;
-			}
-
-			*count = 1;
-		break;
 		case RegionTypeRect:
 			if (rects) {
 				for (int i = 0; i < work->cnt; i++) {
@@ -2208,10 +2213,8 @@ GdipTranslateRegion (GpRegion *region, float dx, float dy)
 	if (!region)
 		return InvalidParameter;
 
-	/* can't transforman infinite region to anything else than an infinite region 
-	 * (even if you scale it by half it's still infinite ;-) see unit tests
-	 */
-	if (gdip_is_InfiniteRegion (region))
+	// Infinite regions cannot be transformed.
+	if (region->type == RegionTypeInfinite)
 		return Ok;
 
 	switch (region->type) {
@@ -2251,18 +2254,14 @@ GdipTranslateRegionI (GpRegion *region, int dx, int dy)
 static GpStatus
 ScaleRegion (GpRegion *region, float sx, float sy)
 {
-	if (!region)
-		return InvalidParameter;
+	g_assert (region);
+	g_assert (region->type == RegionTypeRect && region->rects);
 
-	if ((region->type == RegionTypeRect) && region->rects) {
-		int i;
-		GpRectF *rect;
-		for (i = 0, rect = region->rects ; i < region->cnt; i++, rect++) {
-			rect->X *= sx;
-			rect->Y *= sy;
-			rect->Width *= sx;
-			rect->Height *= sy;
-		}
+	for (int i = 0; i < region->cnt; i++) {
+		region->rects[i].X *= sx;
+		region->rects[i].Y *= sy;
+		region->rects[i].Width *= sx;
+		region->rects[i].Height *= sy;
 	}
 
 	return Ok;
@@ -2276,19 +2275,17 @@ GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 	if (!region || !matrix)
 		return InvalidParameter;
 
-	/* no transformation to do on an empty region */
-	if ((region->cnt == 0) && (region->type == RegionTypeRect))
+	// Infinite and empty regions cannot be transformed.
+	if (region->type == RegionTypeInfinite || ((region->cnt == 0) && (region->type == RegionTypeRect)))
 		return Ok;
 
-	/* don't (possibly) convert to a bitmap if the matrix is empty (a no-op) */
+	// Nothing to do.
 	if (gdip_is_matrix_empty (matrix))
 		return Ok;
 
-	/* can't transforman infinite region to anything else than an infinite region 
-	 * (even if you scale it by half it's still infinite ;-) see unit tests
-	 */
-	if (gdip_is_InfiniteRegion (region))
-		return Ok;
+	BOOL isSimpleMatrix = (matrix->xy == 0) && (matrix->yx == 0);
+	BOOL matrixHasTranslate = (matrix->x0 != 0) || (matrix->y0 != 0);
+	BOOL matrixHasScale = (matrix->xx != 1) || (matrix->yy != 1);
 
 	/* try to avoid heavy stuff (e.g. conversion to path, invalidating 
 	 * bitmap...) if the transform is:
@@ -2296,23 +2293,18 @@ GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 	 * - only to do a scale operation (for a rectangle based region)
 	 * - only to do a simple translation (for both rectangular and bitmap based regions)
 	 */
-	if ((matrix->xy == 0.0f) && (matrix->yx == 0.0f)) {
-		BOOL s = (((matrix->xx != 1.0f) || (matrix->yy != 1.0f)) && (region->type == RegionTypeRect));
-		BOOL t = ((matrix->x0 != 0.0f) || (matrix->yx != 0.0f));
-		if (s) {
-			status = ScaleRegion (region, 
-				gdip_matrix_get_x_scale (matrix), 
-				gdip_matrix_get_y_scale (matrix));
-		}
-		if (t && (status == Ok)) {
-			status = GdipTranslateRegion (region, 
-				gdip_matrix_get_x_translation (matrix), 
-				gdip_matrix_get_y_translation (matrix));
-		}
+	if (region->type == RegionTypeRect) {
+		if (isSimpleMatrix) {
+			if (matrixHasScale)
+				ScaleRegion (region, matrix->xx, matrix->yy);
+			if (matrixHasTranslate)
+				GdipTranslateRegion (region, matrix->x0, matrix->y0);
 
-		/* return now if we could optimize the transform (to avoid bitmaps) */
-		if (t || s)
-			return status;
+			return Ok;
+		}
+	} else if (isSimpleMatrix && !matrixHasScale) {
+		GdipTranslateRegion (region, matrix->x0, matrix->y0);
+		return Ok;
 	}
 
 	/* most matrix operations would change the rectangles into path so we always preempt this */
