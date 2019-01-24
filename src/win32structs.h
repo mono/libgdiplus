@@ -378,6 +378,7 @@ typedef gpointer LPVOID;
 typedef gboolean BOOL;
 typedef guint32 *LPDWORD;
 typedef gint16 SHORT;
+typedef guint16 USHORT;
 typedef gint32 LONG;
 typedef guint32 ULONG;
 typedef gint32 *PLONG;

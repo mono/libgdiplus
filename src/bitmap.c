@@ -2097,16 +2097,12 @@ GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color)
 			break;
 		}
 		case PixelFormat16bppARGB1555:
-		case PixelFormat16bppRGB555: {
-			WORD *scan = (WORD *) v;
-			*color = gdip_convert_16bppRGB555_ToARGB (scan[x]);
+		case PixelFormat16bppRGB555:
+			*color = gdip_getpixel_16bppRGB555 (v, x);
 			break;
-		}
-		case PixelFormat16bppRGB565: {
-			WORD *scan = (WORD *) v;
-			*color = gdip_convert_16bppRGB565_ToARGB (scan[x]);
+		case PixelFormat16bppRGB565:
+			*color = gdip_getpixel_16bppRGB565 (v, x);
 			break;
-		}
 		default:
 			return NotImplemented;
 		}

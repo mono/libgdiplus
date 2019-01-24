@@ -112,7 +112,6 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 	ICONDIRENTRY entry;
 	int i, pos;
 	BOOL upsidedown = TRUE;
-	BOOL os2format = FALSE;
 	BITMAPV5HEADER bih;
 	int palette_entries = -1;
 	ARGB *colors = NULL;
@@ -163,7 +162,7 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 	}
 
 	/* BITMAPINFOHEADER */
-	status = gdip_read_BITMAPINFOHEADER (pointer, source, &bih, &os2format, &upsidedown);
+	status = gdip_read_BITMAPINFOHEADER (pointer, source, &bih, &upsidedown);
 	if (status != Ok)
 		goto error;
 	
