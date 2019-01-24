@@ -646,7 +646,6 @@ GdipResetWorldTransform (GpGraphics *graphics)
 GpStatus WINGDIPAPI
 GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 {
-	GpStatus status;
 	BOOL invertible;
 
 	if (!graphics)
@@ -2128,8 +2127,6 @@ cleanup:
 GpStatus WINGDIPAPI
 GdipSetClipHrgn (GpGraphics *graphics, void *hRgn, CombineMode combineMode)
 {
-	GpStatus status;
-
 	if (!graphics)
 		return InvalidParameter;
 	if (graphics->state == GraphicsStateBusy)

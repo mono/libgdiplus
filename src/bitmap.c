@@ -2001,16 +2001,6 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, BitmapData *lockedBitmapData)
 	return status;
 }
 
-static void gdip_setpixel_32bppARGB (BYTE *scan, INT x, BYTE a, BYTE r, BYTE g, BYTE b)
-{
-	set_pixel_bgra (scan, x, a, r, g, b);
-}
-
-static void gdip_setpixel_32bppRGB (BYTE *scan, INT x, BYTE a, BYTE r, BYTE g, BYTE b)
-{
-	set_pixel_bgra (scan, x, a, r, g, b);
-}
-
 GpStatus WINGDIPAPI
 GdipBitmapSetPixel (GpBitmap *bitmap, INT x, INT y, ARGB color)
 {

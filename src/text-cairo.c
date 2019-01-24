@@ -821,10 +821,7 @@ DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GD
 	int StringLen = length;
 	BOOL SetClipping = FALSE;
 	unsigned long	i, j;
-	int AlignHorz = data->align_horz;
-	int AlignVert = data->align_vert;
 	int LineHeight = data->line_height;
-	int MaxY = data->max_y;
 	cairo_font_extents_t FontExtent;
 	RectF rect, *rc = &rect;
 
@@ -865,7 +862,6 @@ DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GD
 		if (StringDetails[i].Flags & STRING_DETAIL_LINESTART) {
 			BYTE *String;
 			int length = StringDetails[i].LineLen;
-			int current_line_length = min (length + i, StringLen);
 
 			/* To support the LineLimit flag */
 			if ((StringDetails[i].Flags & STRING_DETAIL_HIDDEN)!=0){

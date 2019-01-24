@@ -1356,9 +1356,6 @@ gdip_read_emf_header_optionals (ENHMETAHEADER3 *header, void *pointer, ImageSour
 	const int HeaderRecordSize = sizeof (ENHMETAHEADER3);
 	const int HeaderExtension1Size = sizeof (ENHMETAHEADER3) + sizeof (HeaderExtension1);
 
-	int originalHeaderSize = header->nSize;
-	DWORD key;
-
 	/* Initialize header size to minimum. */
 	int headerSize = HeaderRecordSize;
 

@@ -33,19 +33,19 @@
 #define EMFPLUS_FLAGS_USE_INT16		0x4000
 #define EMFPLUS_FLAGS_USE_ARGB		0x8000
 
-static BOOL
+ATTRIBUTE_USED static BOOL
 RectFitInInt16 (int x, int y, int width, int height)
 {
 	return (FIT_IN_INT16(x) && FIT_IN_INT16(y) && FIT_IN_INT16(width) && FIT_IN_INT16(height));
 }
 
-static BOOL
+ATTRIBUTE_USED static BOOL
 GpRectFitInInt16 (GDIPCONST GpRect *rect)
 {
 	return (FIT_IN_INT16(rect->X) && FIT_IN_INT16(rect->Y) && FIT_IN_INT16(rect->Width) && FIT_IN_INT16(rect->Height));
 }
 
-static BOOL
+ATTRIBUTE_USED static BOOL
 GpRectArrayFitInInt16 (GDIPCONST GpRect *rects, int count)
 {
 	GpRect *r = (GpRect*) rects;

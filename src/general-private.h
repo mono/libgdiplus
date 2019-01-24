@@ -60,6 +60,16 @@
 #define max(a,b)			(a > b ? a : b)
 #endif
 
+#if !defined(__has_attribute)
+#define __has_attribute(x) 0
+#endif
+
+#if __has_attribute(used) || defined(__GNUC__)
+#define ATTRIBUTE_USED __attribute__((used))
+#else
+#define ATTRIBUTE_USED
+#endif
+
 /* avoid direct floating point comparison */
 #define gdip_near_zero(value)		((value >= -0.00059604645f) && (value <= 0.00059604645f))
 #define gdip_near_one(value)		gdip_near_zero (value - 1.0f)

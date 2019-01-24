@@ -621,28 +621,6 @@ make_polygon (GpGraphics *graphics, GDIPCONST GpPointF *points, int count, BOOL 
 	cairo_close_path (graphics->ct);
 }
 
-static void
-make_polygon_from_integers (GpGraphics *graphics, GDIPCONST GpPoint *points, int count, BOOL antialiasing)
-{
-	int i;
-
-	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, antialiasing);
-
-	for (i = 0; i < count; i++) {
-		gdip_cairo_line_to (graphics, points [i].X, points [i].Y, TRUE, antialiasing);
-	}
-
-	/*
-	* Draw a line from the last point back to the first point if
-	* they're not the same
-	*/
-	if (points [0].X != points [count-1].X && points [0].Y != points [count-1].Y) {
-		gdip_cairo_line_to (graphics, points [0].X, points [0].Y, TRUE, antialiasing);
-	}
-
-	cairo_close_path (graphics->ct);
-}
-
 GpStatus
 cairo_DrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
@@ -731,7 +709,6 @@ cairo_FillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 	if (region->type == RegionTypePath) {
 		GpStatus status;
 		cairo_surface_t *mask_surface;
-		GpBitmap *bitmap = NULL;
 
 		/* (optimization) if if the path is empty, return immediately */
 		if (!region->tree)

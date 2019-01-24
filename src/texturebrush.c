@@ -698,7 +698,6 @@ GpStatus WINGDIPAPI
 GdipCreateTexture (GpImage *image, GpWrapMode wrapmode, GpTexture **texture)
 {
 	GpImage *textureImage;
-	GpTexture	*result;
 	GpStatus status;
 
 	if (!gdiplusInitialized)
