@@ -1979,42 +1979,23 @@ GdipSetClipRect (GpGraphics *graphics, REAL x, REAL y, REAL width, REAL height, 
 	rect.Y = y;
 	rect.Width = width;
 	rect.Height = height;
+	gdip_normalize_rectangle (&rect, &rect);
 
-	status = GdipCreateRegionRect (&rect, &region);
-	if (status != Ok)
-		goto cleanup;
-
-	/* if the matrix is empty, avoid region transformation */
-	if (!gdip_is_matrix_empty (graphics->clip_matrix)) {
-		cairo_matrix_t inverted;
-
-		gdip_cairo_matrix_copy (&inverted, graphics->clip_matrix);
-		cairo_matrix_invert (&inverted);
-
-		GdipTransformRegion (region, &inverted);
+	// Match GDI+ behaviour by setting empty rects to an empty region.
+	if (gdip_is_rectF_empty (&rect, /* allowNegative */ FALSE)) {
+		status = GdipCreateRegion (&region);
+		if (status != Ok)
+			return status;
+		
+		GdipSetEmpty (region);
+	}
+	else {		
+		status = GdipCreateRegionRect (&rect, &region);
+		if (status != Ok)
+			return status;
 	}
 
-	status = GdipCombineRegionRegion (graphics->clip, region, combineMode);	
-	if (status != Ok)
-		goto cleanup;
-
-	switch (graphics->backend) {
-	case GraphicsBackEndCairo:
-		/* adjust cairo clipping according to graphics->clip */
-		status = cairo_SetGraphicsClip (graphics);
-		break;
-	case GraphicsBackEndMetafile:
-		status = metafile_SetClipRect (graphics, x, y, width, height, combineMode);
-		break;
-	default:
-		status = GenericError;
-		break;
-	}
-
-cleanup:
-	if (region)
-		GdipDeleteRegion (region);
-	return status;
+	return GdipSetClipRegion (graphics, region, combineMode);
 }
 
 GpStatus WINGDIPAPI
@@ -2212,13 +2193,26 @@ GpStatus WINGDIPAPI
 GdipGetClipBounds (GpGraphics *graphics, GpRectF *rect)
 {
 	GpStatus status;
+	BOOL empty;
 	GpRegion *work;
 
 	if (!graphics || !rect)
 		return InvalidParameter;
-
 	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
+
+	// The clip bounds for empty bounds should be translated.
+	GdipIsEmptyRegion (graphics->clip, graphics, &empty);
+	if (empty) {
+		status = GdipGetRegionBounds (graphics->clip, graphics, rect);
+		if (status != Ok)
+			return status;
+
+		rect->X += graphics->clip_matrix->x0;
+		rect->Y += graphics->clip_matrix->y0;
+
+		return Ok;
+	}
 
 	/* if the matrix is empty, avoid region cloning and transform */
 	if (gdip_is_matrix_empty (graphics->clip_matrix)) {

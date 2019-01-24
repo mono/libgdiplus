@@ -1640,11 +1640,8 @@ static void test_getClip ()
 	assertEqualInt (status, Ok);
 
 	GdipGetRegionBounds (clip, graphics, &bounds);
-	// FIXME: should not be transformed: https://github.com/mono/libgdiplus/issues/504
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (bounds.X, 0);
 	assertEqualFloat (bounds.Y, 0);
-#endif
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
 
@@ -1730,10 +1727,14 @@ static void test_getClipBounds ()
 	GpImage *image;
 	GpGraphics *graphics;
 	GpMatrix *transform;
+	GpRegion *emptyRegion;
 	GpRectF bounds;
 
 	graphics = getImageGraphics (&image);
 	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &transform);
+
+	GdipCreateRegion (&emptyRegion);
+	GdipSetEmpty (emptyRegion);
 
 	// Default get - no transform.
 	status = GdipGetClipBounds (graphics, &bounds);
@@ -1772,7 +1773,7 @@ static void test_getClipBounds ()
 	GdipResetWorldTransform (graphics);
 
 	// Empty clip - no transform.
-	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	GdipSetClipRegion (graphics, emptyRegion, CombineModeReplace);
 	status = GdipGetClipBounds (graphics, &bounds);
 	assertEqualInt (status, Ok);
 	assertEqualFloat (bounds.X, 0);
@@ -1781,7 +1782,7 @@ static void test_getClipBounds ()
 	assertEqualFloat (bounds.Height, 0);
 
 	// Empty clip - translate transform.
-	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	GdipSetClipRegion (graphics, emptyRegion, CombineModeReplace);
 	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
 
 	status = GdipGetClipBounds (graphics, &bounds);
@@ -1794,16 +1795,48 @@ static void test_getClipBounds ()
 	GdipResetWorldTransform (graphics);
 
 	// Empty clip - complex transform.
+	GdipSetClipRegion (graphics, emptyRegion, CombineModeReplace);
+	GdipSetWorldTransform (graphics, transform);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 1);
+	assertEqualFloat (bounds.Y, -2);
+	assertEqualFloat (bounds.Width, 0);
+	assertEqualFloat (bounds.Height, 0);
+	
+	GdipResetWorldTransform (graphics);
+
+	// Empty clip rect - no transform.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 0);
+	assertEqualFloat (bounds.Y, 0);
+	assertEqualFloat (bounds.Width, 0);
+	assertEqualFloat (bounds.Height, 0);
+
+	// Empty clip rect - translate transform.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipGetClipBounds (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualFloat (bounds.X, 10);
+	assertEqualFloat (bounds.Y, 20);
+	assertEqualFloat (bounds.Width, 0);
+	assertEqualFloat (bounds.Height, 0);
+	
+	GdipResetWorldTransform (graphics);
+
+	// Empty clip rect - complex transform.
 	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
 	GdipSetWorldTransform (graphics, transform);
 
 	status = GdipGetClipBounds (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: should be transformed: https://github.com/mono/libgdiplus/issues/505
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (bounds.X, 1);
 	assertEqualFloat (bounds.Y, -2);
-#endif
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
 	
@@ -1832,7 +1865,7 @@ static void test_getClipBounds ()
 
 	GdipResetWorldTransform (graphics);
 
-	// Custom clip - translate transform.
+	// Custom clip - complex transform.
 	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
 	GdipSetWorldTransform (graphics, transform);
 
@@ -1864,6 +1897,7 @@ static void test_getClipBounds ()
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 	GdipDeleteMatrix (transform);
+	GdipDeleteRegion (emptyRegion);
 }
 
 static void test_getClipBoundsI ()
@@ -1872,10 +1906,14 @@ static void test_getClipBoundsI ()
 	GpImage *image;
 	GpGraphics *graphics;
 	GpMatrix *transform;
+	GpRegion *emptyRegion;
 	GpRect bounds;
 
 	graphics = getImageGraphics (&image);
 	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &transform);
+	
+	GdipCreateRegion (&emptyRegion);
+	GdipSetEmpty (emptyRegion);
 
 	// Default get - no transform.
 	status = GdipGetClipBoundsI (graphics, &bounds);
@@ -1914,7 +1952,7 @@ static void test_getClipBoundsI ()
 	GdipResetWorldTransform (graphics);
 
 	// Empty clip - no transform.
-	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	GdipSetClipRegion (graphics, emptyRegion, CombineModeReplace);
 	status = GdipGetClipBoundsI (graphics, &bounds);
 	assertEqualInt (status, Ok);
 	assertEqualInt (bounds.X, 0);
@@ -1923,7 +1961,7 @@ static void test_getClipBoundsI ()
 	assertEqualInt (bounds.Height, 0);
 
 	// Empty clip - translate transform.
-	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	GdipSetClipRegion (graphics, emptyRegion, CombineModeReplace);
 	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
 
 	status = GdipGetClipBoundsI (graphics, &bounds);
@@ -1936,16 +1974,48 @@ static void test_getClipBoundsI ()
 	GdipResetWorldTransform (graphics);
 
 	// Empty clip - complex transform.
+	GdipSetClipRegion (graphics, emptyRegion, CombineModeReplace);
+	GdipSetWorldTransform (graphics, transform);
+
+	status = GdipGetClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualInt (bounds.X, 1);
+	assertEqualInt (bounds.Y, -2);
+	assertEqualInt (bounds.Width, 0);
+	assertEqualInt (bounds.Height, 0);
+	
+	GdipResetWorldTransform (graphics);
+
+	// Empty clip rect - no transform.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	status = GdipGetClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualInt (bounds.X, 0);
+	assertEqualInt (bounds.Y, 0);
+	assertEqualInt (bounds.Width, 0);
+	assertEqualInt (bounds.Height, 0);
+
+	// Empty clip rect - translate transform.
+	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
+	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
+
+	status = GdipGetClipBoundsI (graphics, &bounds);
+	assertEqualInt (status, Ok);
+	assertEqualInt (bounds.X, 10);
+	assertEqualInt (bounds.Y, 20);
+	assertEqualInt (bounds.Width, 0);
+	assertEqualInt (bounds.Height, 0);
+	
+	GdipResetWorldTransform (graphics);
+
+	// Empty clip rect - complex transform.
 	GdipSetClipRect (graphics, 0, 0, 0, 0, CombineModeReplace);
 	GdipSetWorldTransform (graphics, transform);
 
 	status = GdipGetClipBoundsI (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: should be transformed: https://github.com/mono/libgdiplus/issues/505
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (bounds.X, 1);
 	assertEqualInt (bounds.Y, -2);
-#endif
 	assertEqualInt (bounds.Width, 0);
 	assertEqualInt (bounds.Height, 0);
 	
@@ -1974,7 +2044,7 @@ static void test_getClipBoundsI ()
 
 	GdipResetWorldTransform (graphics);
 
-	// Custom clip - translate transform.
+	// Custom clip - complex transform.
 	GdipSetClipRect (graphics, 10, 20, 30, 40, CombineModeReplace);
 	GdipSetWorldTransform (graphics, transform);
 
@@ -2006,6 +2076,7 @@ static void test_getClipBoundsI ()
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 	GdipDeleteMatrix (transform);
+	GdipDeleteRegion (emptyRegion);
 }
 
 static void test_getVisibleClipBounds ()
@@ -2081,11 +2152,8 @@ static void test_getVisibleClipBounds ()
 
 	status = GdipGetVisibleClipBounds (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: should be transformed: https://github.com/mono/libgdiplus/issues/309
-#if defined(USE_WINDOWS_GDIPLUS)
-	assertEqualFloat (bounds.X, -1);
+	assertEqualFloat (bounds.X, 1);
 	assertEqualFloat (bounds.Y, -2);
-#endif
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
 
@@ -2224,11 +2292,8 @@ static void test_getVisibleClipBoundsI ()
 
 	status = GdipGetVisibleClipBoundsI (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: should be transformed: https://github.com/mono/libgdiplus/issues/309
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (bounds.X, 1);
 	assertEqualInt (bounds.Y, -2);
-#endif
 	assertEqualInt (bounds.Width, 0);
 	assertEqualInt (bounds.Height, 0);
 	
@@ -2660,13 +2725,10 @@ static void test_setClipRect ()
 
 	status = GdipGetClipBounds (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/440
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (bounds.X, 0);
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-#endif
 
 	// Positive width, negative height.
 	status = GdipSetClipRect (graphics, 10, 20, 30, -40, CombineModeReplace);
@@ -2677,8 +2739,6 @@ static void test_setClipRect ()
 	
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should normalize: https://github.com/mono/libgdiplus/issues/439
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (scansCount, 1);
 
 	status = GdipGetClipBounds (graphics, &bounds);
@@ -2687,7 +2747,6 @@ static void test_setClipRect ()
 	assertEqualFloat (bounds.Y, -20);
 	assertEqualFloat (bounds.Width, 30);
 	assertEqualFloat (bounds.Height, 40);
-#endif
 	
 	// Zero width, positive height.
 	status = GdipSetClipRect (graphics, 10, 20, 0, 40, CombineModeReplace);
@@ -2702,13 +2761,10 @@ static void test_setClipRect ()
 
 	status = GdipGetClipBounds (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/440
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (bounds.X, 0);
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-#endif
 	
 	// Zero width, zero height.
 	status = GdipSetClipRect (graphics, 10, 20, 0, 0, CombineModeReplace);
@@ -2723,11 +2779,8 @@ static void test_setClipRect ()
 
 	status = GdipGetClipBounds (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/440
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (bounds.X, 0);
 	assertEqualFloat (bounds.Y, 0);
-#endif
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
 	
@@ -2744,13 +2797,10 @@ static void test_setClipRect ()
 
 	status = GdipGetClipBounds (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/440
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (bounds.X, 0);
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-#endif
 	
 	// Negative width, positive height.
 	status = GdipSetClipRect (graphics, 10, 20, -30, 40, CombineModeReplace);
@@ -2761,8 +2811,6 @@ static void test_setClipRect ()
 	
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should normalize: https://github.com/mono/libgdiplus/issues/439
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (scansCount, 1);
 
 	status = GdipGetClipBounds (graphics, &bounds);
@@ -2771,7 +2819,6 @@ static void test_setClipRect ()
 	assertEqualFloat (bounds.Y, 20);
 	assertEqualFloat (bounds.Width, 30);
 	assertEqualFloat (bounds.Height, 40);
-#endif
 
 	// Negative width, zero height.
 	status = GdipSetClipRect (graphics, 10, 20, -30, 0, CombineModeReplace);
@@ -2786,13 +2833,10 @@ static void test_setClipRect ()
 
 	status = GdipGetClipBounds (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/440
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (bounds.X, 0);
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-#endif
 
 	// Negative width, negative height.
 	status = GdipSetClipRect (graphics, 10, 20, -30, -40, CombineModeReplace);
@@ -2803,8 +2847,6 @@ static void test_setClipRect ()
 	
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should normalize: https://github.com/mono/libgdiplus/issues/439
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (scansCount, 1);
 
 	status = GdipGetClipBounds (graphics, &bounds);
@@ -2813,7 +2855,6 @@ static void test_setClipRect ()
 	assertEqualFloat (bounds.Y, -20);
 	assertEqualFloat (bounds.Width, 30);
 	assertEqualFloat (bounds.Height, 40);
-#endif
 
 	// Target graphics transformed.
 	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
@@ -2890,13 +2931,10 @@ static void test_setClipRectI ()
 
 	status = GdipGetClipBounds (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/440
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (bounds.X, 0);
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-#endif
 
 	// Positive width, negative height.
 	status = GdipSetClipRectI (graphics, 10, 20, 30, -40, CombineModeReplace);
@@ -2907,8 +2945,6 @@ static void test_setClipRectI ()
 	
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should normalize: https://github.com/mono/libgdiplus/issues/439
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (scansCount, 1);
 
 	status = GdipGetClipBounds (graphics, &bounds);
@@ -2917,7 +2953,6 @@ static void test_setClipRectI ()
 	assertEqualFloat (bounds.Y, -20);
 	assertEqualFloat (bounds.Width, 30);
 	assertEqualFloat (bounds.Height, 40);
-#endif
 	
 	// Zero width, positive height.
 	status = GdipSetClipRectI (graphics, 10, 20, 0, 40, CombineModeReplace);
@@ -2932,13 +2967,10 @@ static void test_setClipRectI ()
 
 	status = GdipGetClipBounds (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/440
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (bounds.X, 0);
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-#endif
 	
 	// Zero width, zero height.
 	status = GdipSetClipRectI (graphics, 10, 20, 0, 0, CombineModeReplace);
@@ -2953,13 +2985,10 @@ static void test_setClipRectI ()
 
 	status = GdipGetClipBounds (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/440
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (bounds.X, 0);
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-#endif
 	
 	// Zero width, negative height.
 	status = GdipSetClipRectI (graphics, 10, 20, 0, -40, CombineModeReplace);
@@ -2974,13 +3003,10 @@ static void test_setClipRectI ()
 
 	status = GdipGetClipBounds (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/440
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (bounds.X, 0);
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-#endif
 	
 	// Negative width, positive height.
 	status = GdipSetClipRectI (graphics, 10, 20, -30, 40, CombineModeReplace);
@@ -2991,8 +3017,6 @@ static void test_setClipRectI ()
 	
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should normalize: https://github.com/mono/libgdiplus/issues/439
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (scansCount, 1);
 
 	status = GdipGetClipBounds (graphics, &bounds);
@@ -3001,7 +3025,6 @@ static void test_setClipRectI ()
 	assertEqualFloat (bounds.Y, 20);
 	assertEqualFloat (bounds.Width, 30);
 	assertEqualFloat (bounds.Height, 40);
-#endif
 
 	// Negative width, zero height.
 	status = GdipSetClipRectI (graphics, 10, 20, -30, 0, CombineModeReplace);
@@ -3016,13 +3039,10 @@ static void test_setClipRectI ()
 
 	status = GdipGetClipBounds (graphics, &bounds);
 	assertEqualInt (status, Ok);
-	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/440
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualFloat (bounds.X, 0);
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-#endif
 
 	// Negative width, negative height.
 	status = GdipSetClipRectI (graphics, 10, 20, -30, -40, CombineModeReplace);
@@ -3033,8 +3053,6 @@ static void test_setClipRectI ()
 	
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
-	// FIXME: should normalize: https://github.com/mono/libgdiplus/issues/439
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (scansCount, 1);
 
 	status = GdipGetClipBounds (graphics, &bounds);
@@ -3043,7 +3061,6 @@ static void test_setClipRectI ()
 	assertEqualFloat (bounds.Y, -20);
 	assertEqualFloat (bounds.Width, 30);
 	assertEqualFloat (bounds.Height, 40);
-#endif
 
 	// Target graphics transformed.
 	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
