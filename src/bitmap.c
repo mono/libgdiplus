@@ -204,7 +204,7 @@ gdip_property_get_long(int offset, void *value, guint32 *result)
 {
 	BYTE *ptr = (BYTE*)value;
 
-	*result = ptr[offset] + (ptr[offset + 1] << 8) + (ptr[offset + 2] << 16) + (ptr[offset + 3] << 24);
+	*result = ptr[offset] + (ptr[offset + 1] << 8) + (ptr[offset + 2] << 16) + ((guint32)ptr[offset + 3] << 24);
 
 	return Ok;
 }
@@ -225,8 +225,8 @@ gdip_property_get_rational(int offset, void *value, guint32 *numerator, guint32 
 {
 	BYTE *ptr = (BYTE*)value;
 
-	*numerator = ptr[offset] + (ptr[offset + 1] << 8) + (ptr[offset + 2] << 16) + (ptr[offset + 3] << 24);
-	*denominator = ptr[offset + 4] + (ptr[offset + 5] << 8) + (ptr[offset + 6] << 16) + (ptr[offset + 7] << 24);
+	*numerator = ptr[offset] + (ptr[offset + 1] << 8) + (ptr[offset + 2] << 16) + ((guint32)ptr[offset + 3] << 24);
+	*denominator = ptr[offset + 4] + (ptr[offset + 5] << 8) + (ptr[offset + 6] << 16) + ((guint32)ptr[offset + 7] << 24);
 
 	return Ok;
 }
@@ -1498,7 +1498,7 @@ gdip_pixel_stream_get_next (StreamingState *state)
 		 */
 		if (state->pixels_per_byte == -4) {
 #if WORDS_BIGENDIAN
-			ret = state->scan [0] | (state->scan [1] << 8) | (state->scan [2] << 16) | (state->scan [3] << 24);
+			ret = state->scan [0] | (state->scan [1] << 8) | (state->scan [2] << 16) | ((guint32)state->scan [3] << 24);
 #else
 			ret = *(unsigned int *)state->scan;
 #endif

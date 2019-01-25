@@ -775,7 +775,7 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 	if (size_read < size)
 		return OutOfMemory;
 
-	DWORD headerSize = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	DWORD headerSize = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 	switch (headerSize) {
 	case BITMAPCOREHEADER_SIZE:
 		bmi->bV5Size = headerSize;
@@ -799,13 +799,13 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 		size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 		if (size_read < size)
 			return OutOfMemory;
-		bmi->bV5Width = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+		bmi->bV5Width = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 		dw = 0;
 		size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 		if (size_read < size)
 			return OutOfMemory;
-		bmi->bV5Height = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+		bmi->bV5Height = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 		break;
 	default:
@@ -836,7 +836,7 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5Compression = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5Compression = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
  	/* If the height is negative then the bitmap is sideup. */
 	if (bmi->bV5Height < 0) {
@@ -848,31 +848,31 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5SizeImage = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5SizeImage = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5XPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5XPelsPerMeter = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5YPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5YPelsPerMeter = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5ClrUsed = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5ClrUsed = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5ClrImportant = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5ClrImportant = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	/* We've finished reading the BITMAPINFOHEADER but later versions are larger. */
 	if (bmi->bV5Size == sizeof (BITMAPINFOHEADER)) {
@@ -885,19 +885,19 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5RedMask = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5RedMask = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5GreenMask = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5GreenMask = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5BlueMask = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5BlueMask = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	if (bmi->bV5Size == sizeof (BITMAPINFOHEADER))
 		return Ok;
@@ -906,7 +906,7 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5AlphaMask = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5AlphaMask = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	/* We don't use any information in BITMAPV4HEADER or BITMAPV5HEADER, so there is no point going through all of
 	 * the other fields. This leaves the rest of the structure uninitialized. */
