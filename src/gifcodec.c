@@ -566,6 +566,12 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 
 			bitmap_data->palette->Flags |= PaletteFlagsHasAlpha;
 			transparent_index = (bitmap_data->transparent + 1) * -1;
+
+			if (transparent_index >= bitmap_data->palette->Count) {
+				status = OutOfMemory;
+				goto error;
+			}
+
 			v = (BYTE*)&bitmap_data->palette->Entries [transparent_index];
 #ifdef WORDS_BIGENDIAN
 			v[0] = 0x00;
