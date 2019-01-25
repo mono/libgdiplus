@@ -170,10 +170,13 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 	int bytes_read;
 
 	int col_offset = 0;
-	int row_offset = (upsidedown ? (scanCount - 1) * stride : 0);
-	int row_delta = (upsidedown ? -stride : +stride);
+	int row_offset = (scanCount - 1) * stride;
+	int row_delta = -stride;
 	int rows_remaining = scanCount;
 	BOOL new_row = FALSE;
+
+	if (!upsidedown)
+		return InvalidParameter; /* top to bottom images can't be compressed */
 
 	if (scanWidth > stride)
 		return InvalidParameter;
@@ -329,10 +332,13 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 	int bytes_read;
 
 	int col_offset = 0;
-	int row_offset = (upsidedown ? (scanCount - 1) * stride : 0);
-	int row_delta = (upsidedown ? -stride : +stride);
+	int row_offset = (scanCount - 1) * stride;
+	int row_delta = -stride;
 	int rows_remaining = scanCount;
 	BOOL new_row = FALSE;
+
+	if (!upsidedown)
+		return InvalidParameter; /* top to bottom images can't be compressed */
 
 	if ((scanWidth & 1) != 0)
 		scanWidth++;
