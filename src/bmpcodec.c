@@ -226,6 +226,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 	int row_offset = (scanCount - 1) * stride;
 	int row_delta = -stride;
 	int rows_remaining = scanCount;
+	int size = scanCount * stride;
 	BOOL new_row = FALSE;
 
 	if (!upsidedown)
@@ -299,9 +300,14 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 						if (bytes_to_read_this_scan > bytes_to_read)
 							bytes_to_read_this_scan = bytes_to_read;
 
+						int pixel_index = row_offset + col_offset;
+
+						if (pixel_index < 0 || pixel_index >= size)
+							return;
+
 						bytes_read = gdip_read_bmp_data (
 							pointer,
-							&scan0[row_offset + col_offset],
+							&scan0[pixel_index],
 							bytes_to_read_this_scan,
 							source);
 
@@ -353,7 +359,12 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 				if (bytes_to_run_this_scan > run_length)
 					bytes_to_run_this_scan = run_length;
 
-				memset (scan0 + row_offset + col_offset, pixel_value, bytes_to_run_this_scan);
+				int pixel_index = row_offset + col_offset;
+
+				if (pixel_index < 0 || pixel_index >= size)
+					return;
+
+				memset (scan0 + pixel_index, pixel_value, bytes_to_run_this_scan);
 
 				col_offset += bytes_to_run_this_scan;
 				run_length -= bytes_to_run_this_scan;
@@ -418,6 +429,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 	int row_offset = (scanCount - 1) * stride;
 	int row_delta = -stride;
 	int rows_remaining = scanCount;
+	int size = scanCount * stride;
 	BOOL new_row = FALSE;
 
 	if (!upsidedown)
@@ -496,6 +508,10 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 						if ((scanWidth - col_offset) == 1) {
 							/* special case: a pair of pixels is split across two rows. */
 							BYTE pixels, same_row_pixel, next_row_pixel;
+							int pixel_index = row_offset + col_offset / 2;
+
+							if (pixel_index < 0 || pixel_index >= size)
+								return;
 
 							bytes_read = gdip_read_bmp_data (pointer, &pixels, 1, source);
 
@@ -506,17 +522,20 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 							next_row_pixel =  pixels       & 0x0F;
 
 							if ((col_offset & 1) != 0) {
-								BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
-								scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | same_row_pixel;
+								BYTE old_pixel = 0xF0 & scan0[pixel_index];
+								scan0[pixel_index] = (old_pixel & 0xF0) | same_row_pixel;
 							}
 							else
-								scan0[row_offset + col_offset / 2] = same_row_pixel << 4;
+								scan0[pixel_index] = same_row_pixel << 4;
 
 							col_offset = 1;
 							row_offset += row_delta;
 							rows_remaining--;
 
 							if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
+								return;
+
+							if (row_offset < 0 || row_offset >= size)
 								return;
 
 							scan0[row_offset] = next_row_pixel << 4;
@@ -536,9 +555,14 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 							if (bytes_to_read_this_scan > bytes_to_read)
 								bytes_to_read_this_scan = bytes_to_read;
 
+							int pixel_index = row_offset + col_offset / 2;
+
+							if (pixel_index < 0 || pixel_index >= size)
+								return;
+
 							bytes_read = gdip_read_bmp_data (
 								pointer,
-								&scan0[row_offset + col_offset / 2],
+								&scan0[pixel_index],
 								bytes_to_read_this_scan,
 								source);
 
@@ -552,7 +576,12 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 						}
 						else {
 							/* bad alignment; nybble-swapping will be required */
-							BYTE last_high_nybble = 0xF0 & scan0[row_offset + col_offset / 2];
+							int pixel_index = row_offset + col_offset / 2;
+
+							if (pixel_index < 0 || pixel_index >= size)
+								return;
+
+							BYTE last_high_nybble = 0xF0 & scan0[pixel_index];
 
 							int bytes_to_read_this_scan = (scanWidth - col_offset) / 2;
 
@@ -567,7 +596,12 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 								if (bytes_read < 1)
 									return; /* TODO?: Add an "unexpected end of file" error code */
 
-								scan0[row_offset + col_offset / 2] = last_high_nybble | (pixels >> 4);
+								pixel_index = row_offset + col_offset / 2;
+
+								if (pixel_index < 0 || pixel_index >= size)
+									return;
+
+								scan0[pixel_index] = last_high_nybble | (pixels >> 4);
 
 								last_high_nybble = (pixels << 4) & 0xF0;
 
@@ -593,6 +627,10 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					if ((pixels_to_read & 1) != 0) {
 						/* half of a byte remains to be inserted into the correct nybble */
 						BYTE pixel;
+						int pixel_index = row_offset + col_offset / 2;
+
+						if (pixel_index < 0 || pixel_index >= size)
+							return;
 
 						bytes_read = gdip_read_bmp_data (pointer, &pixel, 1, source);
 
@@ -602,11 +640,11 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 						pixel >>= 4; /* the last pixel is in the high nybble */
 
 						if ((col_offset & 1) != 0) {
-							BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
-							scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | pixel;
+							BYTE old_pixel = 0xF0 & scan0[pixel_index];
+							scan0[pixel_index] = (old_pixel & 0xF0) | pixel;
 						}
 						else
-							scan0[row_offset + col_offset / 2] = pixel << 4;
+							scan0[pixel_index] = pixel << 4;
 
 						col_offset++;
 
@@ -667,18 +705,26 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					BYTE same_row_pixel = (pixel_values >> 4) & 0x0F;
 					BYTE next_row_pixel =  pixel_values       & 0x0F;
 
+					int pixel_index = row_offset + col_offset / 2;
+
+					if (pixel_index < 0 || pixel_index >= size)
+						return;
+
 					if ((col_offset & 1) != 0) {
-						BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
-						scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | same_row_pixel;
+						BYTE old_pixel = 0xF0 & scan0[pixel_index];
+						scan0[pixel_index] = (old_pixel & 0xF0) | same_row_pixel;
 					}
 					else
-						scan0[row_offset + col_offset / 2] = same_row_pixel << 4;
+						scan0[pixel_index] = same_row_pixel << 4;
 
 					col_offset = 1;
 					row_offset += row_delta;
 					rows_remaining--;
 
 					if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
+						return;
+
+					if (row_offset < 0 || row_offset >= size)
 						return;
 
 					scan0[row_offset] = next_row_pixel << 4;
@@ -696,11 +742,15 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 				}
 				else {
 					int bytes_to_run_this_scan;
+					int pixel_index = row_offset + col_offset / 2;
+
+					if (pixel_index < 0 || pixel_index >= size)
+						return;
 
 					/* make sure we're byte-aligned; if we're not, we need to store a nybble first */
 					if ((col_offset & 1) != 0) {
-						BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
-						scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | (pixel_values & 0x0F);
+						BYTE old_pixel = 0xF0 & scan0[pixel_index];
+						scan0[pixel_index] = (old_pixel & 0xF0) | (pixel_values & 0x0F);
 
 						col_offset++;
 					}
@@ -710,7 +760,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					if (bytes_to_run_this_scan > run_length)
 						bytes_to_run_this_scan = run_length;
 
-					memset (scan0 + row_offset + col_offset / 2, pixel_values, bytes_to_run_this_scan);
+					memset (scan0 + pixel_index, pixel_values, bytes_to_run_this_scan);
 
 					col_offset += bytes_to_run_this_scan * 2;
 					run_length -= bytes_to_run_this_scan;
@@ -742,13 +792,17 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 			if ((run_pixels & 1) != 0) {
 				/* half of a byte remains to be inserted into the correct nybble */
 				BYTE pixel = pixel_values >> 4; /* the last pixel is in the high nybble */
+				int pixel_index = row_offset + col_offset / 2;
+
+				if (pixel_index < 0 || pixel_index >= size)
+					return;
 
 				if ((col_offset & 1) != 0) {
-					BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
-					scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | pixel;
+					BYTE old_pixel = 0xF0 & scan0[pixel_index];
+					scan0[pixel_index] = (old_pixel & 0xF0) | pixel;
 				}
 				else
-					scan0[row_offset + col_offset / 2] = pixel << 4;
+					scan0[pixel_index] = pixel << 4;
 
 				col_offset++;
 
