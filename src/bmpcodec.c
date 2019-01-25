@@ -801,6 +801,10 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 			return OutOfMemory;
 		bmi->bV5Width = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
+		// Width can't be negative (as opposed to Height where that indicates a top-down image)
+		if (bmi->bV5Width <= 0)
+			return OutOfMemory;
+
 		dw = 0;
 		size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 		if (size_read < size)
