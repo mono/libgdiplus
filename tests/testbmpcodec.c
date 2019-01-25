@@ -2089,8 +2089,6 @@ static void test_validImage8bppBitmapInfoHeader ()
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4LargeColorsUsed, PixelFormat8bppIndexed, 6, 4, bmpFlags, FALSE);
-	// FIXME: these are incorrect: https://github.com/mono/libgdiplus/issues/302
-#if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image6x4LargeColorsUsedPixels[] = {
 		0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF000000, 0xFF0000FF, 0xFF0000FF,
 		0xFF000000, 0xFF0000FF, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
@@ -2099,7 +2097,6 @@ static void test_validImage8bppBitmapInfoHeader ()
 	};
 	verifyPixels (image, image6x4LargeColorsUsedPixels);
 	verifyPalette (image, 0, fullPalette);
-#endif
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1NegativeHeight, PixelFormat8bppIndexed, 1, 1, bmpFlags, FALSE);
