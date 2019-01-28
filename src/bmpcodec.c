@@ -811,6 +811,9 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 			return OutOfMemory;
 		bmi->bV5Height = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
+		if (bmi->bV5Height == 0)
+			return OutOfMemory;
+
 		break;
 	default:
 		/* This is an unknown or invalid header. */
