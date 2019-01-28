@@ -163,7 +163,7 @@ gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 #endif
 }                                                           
 
-static GpStatus
+static void
 gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride, int scanWidth, int scanCount, ImageSource source)
 {
 	BYTE code;
@@ -176,23 +176,23 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 	BOOL new_row = FALSE;
 
 	if (!upsidedown)
-		return InvalidParameter; /* top to bottom images can't be compressed */
+		return; /* top to bottom images can't be compressed */
 
 	if (scanWidth > stride)
-		return InvalidParameter;
+		return;
 
 	while ((rows_remaining > 0)
 	    || ((row_offset == 0) && (col_offset < scanWidth))) {
 		bytes_read = gdip_read_bmp_data (pointer, &code, 1, source);
 
 		if (bytes_read < 1)
-			return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+			return; /* TODO?: Add an "unexpected end of file" error code */
 
 		if (code == 0) { /* RLE escape code */
 			bytes_read = gdip_read_bmp_data (pointer, &code, 1, source);
 
 			if (bytes_read < 1)
-				return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+				return; /* TODO?: Add an "unexpected end of file" error code */
 
 			switch (code)
 			{
@@ -209,7 +209,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 				}
 				case 1: /* skip remainder of image -- in other words, we're finished :-) */
 				{
-					return Ok;
+					return;
 				}
 				case 2: /* jump forward (dx, dy) coordinates */
 				{
@@ -219,7 +219,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					bytes_read += gdip_read_bmp_data (pointer, &dy, 1, source);
 
 					if (bytes_read < 2)
-						return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+						return; /* TODO?: Add an "unexpected end of file" error code */
 
 					/* not really sure how to handle the case where the X delta goes
 					 * past the end of the scan. in the interest of not crashing,
@@ -253,7 +253,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 							source);
 
 						if (bytes_read < bytes_to_read_this_scan)
-							return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+							return; /* TODO?: Add an "unexpected end of file" error code */
 
 						col_offset += bytes_read;
 						bytes_to_read -= bytes_read;
@@ -265,7 +265,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 							rows_remaining--;
 
 							if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-								return Ok;
+								return;
 
 							new_row = TRUE;
 						}
@@ -277,7 +277,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 						bytes_read = gdip_read_bmp_data(pointer, &code, 1, source);
 
 						if (bytes_read < 1)
-							return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+							return; /* TODO?: Add an "unexpected end of file" error code */
 					}
 
 					break;
@@ -292,7 +292,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 			bytes_read = gdip_read_bmp_data(pointer, &pixel_value, 1, source);
 
 			if (bytes_read < 1)
-				return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+				return; /* TODO?: Add an "unexpected end of file" error code */
 
 			while (run_length > 0) {
 				int bytes_to_run_this_scan = scanWidth - col_offset;
@@ -312,7 +312,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					rows_remaining--;
 
 					if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-						return Ok;
+						return;
 
 					new_row = TRUE;
 				}
@@ -322,10 +322,10 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 		}
 	}
 
-	return Ok;
+	return;
 }
 
-static GpStatus
+static void
 gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride, int scanWidth, int scanCount, ImageSource source)
 {
 	BYTE code;
@@ -338,25 +338,25 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 	BOOL new_row = FALSE;
 
 	if (!upsidedown)
-		return InvalidParameter; /* top to bottom images can't be compressed */
+		return; /* top to bottom images can't be compressed */
 
 	if ((scanWidth & 1) != 0)
 		scanWidth++;
 
 	if (scanWidth > stride * 2)
-		return InvalidParameter;
+		return;
 
 	while (rows_remaining > 0) {
 		bytes_read = gdip_read_bmp_data (pointer, &code, 1, source);
 
 		if (bytes_read < 1)
-			return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+			return; /* TODO?: Add an "unexpected end of file" error code */
 
 		if (code == 0) { /* RLE escape code */
 			bytes_read = gdip_read_bmp_data (pointer, &code, 1, source);
 
 			if (bytes_read < 1)
-				return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+				return; /* TODO?: Add an "unexpected end of file" error code */
 
 			switch (code)
 			{
@@ -373,7 +373,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 				}
 				case 1: /* skip remainder of image -- in other words, we're finished :-) */
 				{
-					return Ok;
+					return;
 				}
 				case 2: /* jump forward (dx, dy) coordinates */
 				{
@@ -383,7 +383,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					bytes_read += gdip_read_bmp_data (pointer, &dy, 1, source);
 
 					if (bytes_read < 2)
-						return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+						return; /* TODO?: Add an "unexpected end of file" error code */
 
 					/* not really sure how to handle the case where the X delta goes
 					 * past the end of the scan. in the interest of not crashing,
@@ -417,7 +417,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 							bytes_read = gdip_read_bmp_data (pointer, &pixels, 1, source);
 
 							if (bytes_read < 1)
-								return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+								return; /* TODO?: Add an "unexpected end of file" error code */
 
 							same_row_pixel = (pixels >> 4) & 0x0F;
 							next_row_pixel =  pixels       & 0x0F;
@@ -434,7 +434,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 							rows_remaining--;
 
 							if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-								return Ok;
+								return;
 
 							scan0[row_offset] = next_row_pixel << 4;
 
@@ -460,7 +460,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 								source);
 
 							if (bytes_read < bytes_to_read_this_scan)
-								return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+								return; /* TODO?: Add an "unexpected end of file" error code */
 
 							col_offset += bytes_read * 2;
 							bytes_to_read -= bytes_read;
@@ -482,7 +482,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 								bytes_read = gdip_read_bmp_data (pointer, &pixels, 1, source);
 
 								if (bytes_read < 1)
-									return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+									return; /* TODO?: Add an "unexpected end of file" error code */
 
 								scan0[row_offset + col_offset / 2] = last_high_nybble | (pixels >> 4);
 
@@ -501,7 +501,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 							rows_remaining--;
 
 							if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-								return Ok;
+								return;
 
 							new_row = TRUE;
 						}
@@ -514,7 +514,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 						bytes_read = gdip_read_bmp_data (pointer, &pixel, 1, source);
 
 						if (bytes_read < 1)
-							return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+							return; /* TODO?: Add an "unexpected end of file" error code */
 
 						pixel >>= 4; /* the last pixel is in the high nybble */
 
@@ -533,7 +533,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 							rows_remaining--;
 
 							if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-								return Ok;
+								return;
 
 							new_row = TRUE;
 						}
@@ -545,7 +545,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 						bytes_read = gdip_read_bmp_data(pointer, &code, 1, source);
 
 						if (bytes_read < 1)
-							return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+							return; /* TODO?: Add an "unexpected end of file" error code */
 					}
 
 					break;
@@ -568,7 +568,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 			bytes_read = gdip_read_bmp_data(pointer, &pixel_values, 1, source);
 
 			if (bytes_read < 1)
-				return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+				return; /* TODO?: Add an "unexpected end of file" error code */
 
 			inverted_pixel_values = ((pixel_values & 0x0F) << 4) | ((pixel_values & 0xF0) >> 4);
 
@@ -596,7 +596,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					rows_remaining--;
 
 					if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-						return Ok;
+						return;
 
 					scan0[row_offset] = next_row_pixel << 4;
 
@@ -638,7 +638,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 						rows_remaining--;
 
 						if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-							return Ok;
+							return;
 
 						new_row = TRUE;
 
@@ -675,7 +675,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					rows_remaining--;
 
 					if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-						return Ok;
+						return;
 
 					new_row = TRUE;
 				}
@@ -685,7 +685,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 		}
 	}
 
-	return Ok;
+	return;
 }
 
 GpStatus
