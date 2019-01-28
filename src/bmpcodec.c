@@ -709,6 +709,9 @@ gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, ImageSource so
 		if (size_read < size)
 			return InvalidParameter;
 		bmi->biHeight = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+		if (bmi->biHeight == 0)
+			return OutOfMemory;
  	} else if (bmi->biSize == BITMAPCOREHEADER_SIZE) {
 		/* Old OS/2 format. Width and Height fields are WORDs instead of DWORDS */
 		dw = 0;
