@@ -1231,7 +1231,7 @@ gdip_read_bmp_data (void *pointer, BYTE *data, int size, ImageSource source)
 			memcpy (data, ms->ptr + ms->pos, len);
 			ms->pos += len;
 		}
-		return size;
+		return len;
 	}
 	default:
 		return -1;
