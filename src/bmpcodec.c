@@ -996,7 +996,7 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 static GpStatus
 gdip_readbmp_palette (void *pointer, ImageSource source, const BITMAPV5HEADER *bmi, ColorPalette **result)
 {
-	int numberOfColors = bmi->bV5ClrUsed;
+	UINT numberOfColors = bmi->bV5ClrUsed;
 	if (bmi->bV5BitCount <= 8) {
 		int defaultNumberOfColors = 1 << bmi->bV5BitCount;
 		// A color count of 0 means use the default. Also use the default color count
@@ -1012,8 +1012,14 @@ gdip_readbmp_palette (void *pointer, ImageSource source, const BITMAPV5HEADER *b
 
 	BYTE buffer[4];
 	INT colorEntrySize = bmi->bV5Size == BITMAPCOREHEADER_SIZE ? 3 : 4;
+	unsigned long long int palette_size = (unsigned long long int)sizeof (ColorPalette) + sizeof (ARGB) * numberOfColors;
 
-	ColorPalette *palette = GdipAlloc (sizeof (ColorPalette) + sizeof (ARGB) * numberOfColors);
+	/* ensure total 'palette_size' does not overflow an integer and fits inside our 2GB limit */
+	if (palette_size > G_MAXINT32) {
+		return OutOfMemory;
+	}
+
+	ColorPalette *palette = GdipAlloc (palette_size);
 	if (!palette)
 		return OutOfMemory;
 	
@@ -1166,7 +1172,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	}
 
 	/* ensure total 'size' does not overflow an integer and fits inside our 2GB limit */
-	size = result->active_bitmap->stride * result->active_bitmap->height;
+	size = (unsigned long long int)result->active_bitmap->stride * result->active_bitmap->height;
 	if (size > G_MAXINT32) {
 		gdip_bitmap_dispose (result);
 		return OutOfMemory;
