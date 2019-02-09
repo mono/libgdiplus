@@ -692,19 +692,19 @@ gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, ImageSource so
 	if (size_read < size)
 		return InvalidParameter;
 
-	bmi->biSize = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->biSize = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 	if (bmi->biSize > BITMAPCOREHEADER_SIZE){   /* New Windows headers can be bigger */ 
 		dw = 0;
 		size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 		if (size_read < size)
 			return InvalidParameter;
-		bmi->biWidth = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+		bmi->biWidth = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 		dw = 0;
 		size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 		if (size_read < size)
 			return InvalidParameter;
-		bmi->biHeight = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+		bmi->biHeight = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
  	} else if (bmi->biSize == BITMAPCOREHEADER_SIZE) {
 		/* Old OS/2 format. Width and Height fields are WORDs instead of DWORDS */
 		dw = 0;
@@ -729,7 +729,7 @@ gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, ImageSource so
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return InvalidParameter;
-	bmi->biCompression = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->biCompression = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 		
 	if (bmi->biHeight < 0) { /* Negative height indicates that the bitmap is sideup*/
 		*upsidedown = FALSE;
@@ -740,31 +740,31 @@ gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, ImageSource so
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return InvalidParameter;
-	bmi->biSizeImage = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->biSizeImage = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 		
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return InvalidParameter;
-	bmi->biXPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->biXPelsPerMeter = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 	
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return InvalidParameter;
-	bmi->biYPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->biYPelsPerMeter = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 		
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return InvalidParameter;
-	bmi->biClrUsed = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->biClrUsed = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 		
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return InvalidParameter;
-	bmi->biClrImportant = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->biClrImportant = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	return Ok;
 }
@@ -1104,10 +1104,10 @@ gdip_read_bmp_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 		goto error;
 	}
 
-	bmfh.bfSize = (data_read[5]<<24 | data_read[4]<<16 | data_read[3]<<8 | data_read[2]);
+	bmfh.bfSize = ((guint32)data_read[5]<<24 | data_read[4]<<16 | data_read[3]<<8 | data_read[2]);
 	bmfh.bfReserved1 = ((data_read[7]<<8)|data_read[6]);
 	bmfh.bfReserved1 = ((data_read[9]<<8)|data_read[8]);
-	bmfh.bfOffBits = (data_read[13]<<24 | data_read[12]<<16 | data_read[11]<<8 | data_read[10]);
+	bmfh.bfOffBits = ((guint32)data_read[13]<<24 | data_read[12]<<16 | data_read[11]<<8 | data_read[10]);
 	GdipFree (data_read);
 
 	return gdip_read_bmp_image (pointer, image, source);
