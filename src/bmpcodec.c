@@ -845,7 +845,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	BYTE		*pixels = NULL;
 	int		i;
 	PixelFormat	format;
-	int		colours;
 	BOOL		os2format = FALSE;
 	BOOL		upsidedown = TRUE;
 	int		size_read;
@@ -864,8 +863,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	status = gdip_read_BITMAPINFOHEADER (pointer, &bmi, source, &os2format, &upsidedown);
 	if (status != Ok)
 		goto error;
-
-	colours = (bmi.biClrUsed == 0 && bmi.biBitCount <= 8) ? (1 << bmi.biBitCount) : bmi.biClrUsed;
 
 	status = gdip_get_bmp_pixelformat (&bmi, &format);
 
@@ -957,20 +954,31 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	/* Ensure 32bits alignment */
 	gdip_align_stride (result->active_bitmap->stride);
  
-	if (colours) {
-		int palette_entries = colours;
+ 	UINT numberOfColors = bmi.biClrUsed;
+	if (bmi.biBitCount <= 8) {
+		int defaultNumberOfColors = 1 << bmi.biBitCount;
+		// A color count of 0 means use the default. Also use the default color count
+		// if the bitmap has specified an unsupported number of colors (i.e. greater
+		// than the default).
+		if (bmi.biClrUsed == 0 || bmi.biClrUsed > defaultNumberOfColors)
+			numberOfColors = defaultNumberOfColors;
+	}
 
-		if (result->active_bitmap->pixel_format == PixelFormat4bppIndexed) {
-			palette_entries = 256;
+	if (numberOfColors != 0) {
+		unsigned long long int palette_size = (unsigned long long int)sizeof (ColorPalette) + sizeof (ARGB) * numberOfColors;
+
+		/* ensure total 'palette_size' does not overflow an integer and fits inside our 2GB limit */
+		if (palette_size > G_MAXINT32) {
+			return OutOfMemory;
 		}
 
-		result->active_bitmap->palette = GdipAlloc (sizeof(ColorPalette) + sizeof(ARGB) * palette_entries);
+		result->active_bitmap->palette = GdipAlloc (palette_size);
 		if (result->active_bitmap->palette == NULL) {
 			status = OutOfMemory;
 			goto error;
 		}
 		result->active_bitmap->palette->Flags = 0;
-		result->active_bitmap->palette->Count = palette_entries;
+		result->active_bitmap->palette->Count = numberOfColors;
 
 		/* Read optional colour table */
 		size = (os2format) ? 3 /* RGBTRIPLE */ : 4 /* RGBquads */;
@@ -979,7 +987,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			status = OutOfMemory;
 			goto error;
 		}
-		for (i = 0; i < colours; i++) {
+		for (i = 0; i < numberOfColors; i++) {
 			size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 			if (size_read < size) {
 				status = InvalidParameter;
@@ -996,9 +1004,8 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		data_read = NULL;
 	}
 
-	size = result->active_bitmap->stride;
 	/* ensure total 'size' does not overflow an integer and fits inside our 2GB limit */
-	size *= result->active_bitmap->height;
+	size = (unsigned long long int)result->active_bitmap->stride * result->active_bitmap->height;
 	if (size > G_MAXINT32) {
 		status = OutOfMemory;
 		goto error;
