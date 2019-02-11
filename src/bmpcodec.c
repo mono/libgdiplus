@@ -355,7 +355,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 	if ((scanWidth & 1) != 0)
 		scanWidth++;
 
-	if (scanWidth > stride * 2)
+	if (scanWidth <= 0 || scanWidth > stride * 2)
 		return;
 
 	while (rows_remaining > 0) {
