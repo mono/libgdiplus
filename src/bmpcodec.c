@@ -1055,6 +1055,11 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			}
 		}
 
+		if (size <= 0) {
+			status = OutOfMemory;
+			goto error;
+		}
+
 		data_read = (BYTE*) GdipAlloc(size);
 		if (data_read == NULL) {
 			status = OutOfMemory;
