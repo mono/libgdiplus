@@ -364,6 +364,9 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 				if (pixel_index < 0 || pixel_index >= size)
 					return;
 
+				if (bytes_to_run_this_scan < 0 || pixel_index + bytes_to_run_this_scan > size)
+					return;
+
 				memset (scan0 + pixel_index, pixel_value, bytes_to_run_this_scan);
 
 				col_offset += bytes_to_run_this_scan;
@@ -759,6 +762,9 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 
 					if (bytes_to_run_this_scan > run_length)
 						bytes_to_run_this_scan = run_length;
+
+					if (bytes_to_run_this_scan < 0 || pixel_index + bytes_to_run_this_scan > size)
+						return;
 
 					memset (scan0 + pixel_index, pixel_values, bytes_to_run_this_scan);
 
