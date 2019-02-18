@@ -1384,7 +1384,7 @@ gdip_init_pixel_stream (StreamingState *state, ActiveBitmapData *data, int x, in
 			state->scan += ((x * 3) >> 3);	/* x * 3 / 8 */
 			break;
 		}
-		/* else continue (don't break) */
+		/* fall through */
 	case PixelFormat32bppRGB:
 	default:
 		/* indicate full RGB processing */

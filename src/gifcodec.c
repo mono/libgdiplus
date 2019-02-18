@@ -833,13 +833,13 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 
 							w = *v;
 
-							switch (bitmap_data->width & 7) {/* every 'case' here flows into the next */
-								case 7: pixbuf[6] = ((w & 0x02) != 0);
-								case 6: pixbuf[5] = ((w & 0x04) != 0);
-								case 5: pixbuf[4] = ((w & 0x08) != 0);
-								case 4: pixbuf[3] = ((w & 0x10) != 0);
-								case 3: pixbuf[2] = ((w & 0x20) != 0);
-								case 2: pixbuf[1] = ((w & 0x40) != 0);
+							switch (bitmap_data->width & 7) {
+								case 7: pixbuf[6] = ((w & 0x02) != 0); /* fall through */
+								case 6: pixbuf[5] = ((w & 0x04) != 0); /* fall through */
+								case 5: pixbuf[4] = ((w & 0x08) != 0); /* fall through */
+								case 4: pixbuf[3] = ((w & 0x10) != 0); /* fall through */
+								case 3: pixbuf[2] = ((w & 0x20) != 0); /* fall through */
+								case 2: pixbuf[1] = ((w & 0x40) != 0); /* fall through */
 								case 1: pixbuf[0] = ((w & 0x80) != 0);
 							}
 

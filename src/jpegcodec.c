@@ -387,7 +387,8 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 			cinfo.out_color_components = 1;
 			break;
 		}
-		/* else treat as RGB */
+		/* else treat as RGB and */
+		/* fall through */
 	case JCS_RGB:
 	case JCS_YCbCr:
 		cinfo.out_color_space = JCS_RGB;

@@ -290,9 +290,8 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 				if (((format->formatFlags & StringFormatFlagsNoWrap)==0) || ((format->trimming != StringTrimmingCharacter) && (format->trimming != StringTrimmingNone))) {
 					break;
 				}
-				/* Fall through */
 			}
-
+			/* fall through */
 			case ' ':
 			case '.':
 			{
