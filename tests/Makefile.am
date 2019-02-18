@@ -351,3 +351,19 @@ TESTS = \
 if HAVE_X11
 # TESTS += testgdi
 endif
+
+EXTRA_DIST = \
+	AdobeRGB1998.icc \
+	test-gsa.png \
+	test-trns.png \
+	test.bmp \
+	test.emf \
+	test.gif \
+	test.ico \
+	test.jpg \
+	test.otf \
+	test.png \
+	test.tif \
+	test.ttf \
+	test.wmf \
+	testhelpers.h
