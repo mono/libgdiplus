@@ -152,8 +152,6 @@ case "$host" in
 
 	*-*-darwin*)
 		AC_DEFINE_UNQUOTED(OSX,1,[OS X])
-		CFLAGS="-no-cpp-precomp $CFLAGS"
-		LDFLAGS="-flat_namespace -undefined suppress $LDFLAGS"
 		no_libpng16=yes # workaround until we can upgrade the libpng used by bockbuild
 		;;
 
