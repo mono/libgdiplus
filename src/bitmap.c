@@ -172,6 +172,7 @@ gdip_propertyitems_dispose(PropertyItem *property, int count)
 	for (i = 0; i < count; i++) {
 		if (property[i].value != NULL) {
 			GdipFree(property[i].value);
+			property[i].value = NULL;
 		}
 	}
 	GdipFree(property);
@@ -362,6 +363,7 @@ gdip_bitmapdata_property_remove_index(ActiveBitmapData *bitmap_data, int index)
 	if ((index + 1) < bitmap_data->property_count) {
 		if (bitmap_data->property[index].value != NULL) {
 			GdipFree(bitmap_data->property[index].value);
+			bitmap_data->property[index].value = NULL;
 		}
 		memmove(&bitmap_data->property[index], &bitmap_data->property[index + 1], (bitmap_data->property_count - index - 1) * sizeof(PropertyItem));
 	}
@@ -471,10 +473,12 @@ gdip_bitmapdata_dispose(ActiveBitmapData *bitmap, int count)
 	for (index = 0; index < count; index++) {
 		if ((bitmap[index].scan0 != NULL) && ((bitmap[index].reserved & GBD_OWN_SCAN0) != 0)) {
 			GdipFree(bitmap[index].scan0);
+			bitmap[index].scan0 = NULL;
 		}
 
 		if (bitmap[index].palette != NULL) {
 			GdipFree(bitmap[index].palette);
+			bitmap[index].palette = NULL;
 		}
 
 		gdip_propertyitems_dispose(bitmap[index].property, bitmap[index].property_count);
@@ -725,10 +729,13 @@ gdip_bitmap_dispose (GpBitmap *bitmap)
 			gdip_bitmapdata_dispose (bitmap->frames[frame].bitmap, bitmap->frames[frame].count);
 		}
 		GdipFree (bitmap->frames);
+		bitmap->frames = NULL;
 	}
 
-	if (bitmap->surface)
+	if (bitmap->surface) {
 		cairo_surface_destroy (bitmap->surface);
+		bitmap->surface = NULL;
+	}
 
 	GdipFree (bitmap);
 	return Ok;
@@ -788,9 +795,8 @@ GdipCreateBitmapFromFileICM (GDIPCONST WCHAR* filename, GpBitmap **bitmap)
 
 /* coverity[+alloc : arg-*5] */
 GpStatus
-GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format, BYTE *scan0, GpBitmap **bitmap)
+GdipCreateBitmapFromScan0 (INT width, INT height, INT stride, PixelFormat format, BYTE *scan0, GpBitmap **bitmap)
 {
-	GpStatus	status;
 	FrameData	*frame;
 	GpBitmap	*result;
 	ActiveBitmapData	*bitmap_data;
@@ -800,9 +806,8 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
 	
-	if (width <= 0 || height <= 0 || !bitmap) {
+	if (width <= 0 || height <= 0 || !bitmap)
 		return InvalidParameter;
-	}
 	
 	switch (format) {
 		case PixelFormat24bppRGB:
@@ -865,16 +870,16 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 	result->active_bitmap = NULL;
 
 	/* Create single 'page' frame, with single bitmap */
-	frame = gdip_frame_add(result, &gdip_image_frameDimension_page_guid);
-	if (frame == NULL) {
-		status = OutOfMemory;
-		goto fail;
+	frame = gdip_frame_add (result, &gdip_image_frameDimension_page_guid);
+	if (!frame) {
+		gdip_bitmap_dispose (result);
+		return OutOfMemory;
 	}
 
-	bitmap_data = gdip_frame_add_bitmapdata(frame);
-	if (bitmap_data == NULL) {
-		status = OutOfMemory;
-		goto fail;
+	bitmap_data = gdip_frame_add_bitmapdata (frame);
+	if (!bitmap_data) {
+		gdip_bitmap_dispose (result);
+		return OutOfMemory;
 	}
 
 	/* populate first bitmap in first frame */
@@ -895,11 +900,11 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 	}
 	bitmap_data->stride = stride;
 
-	if (scan0 == NULL) {
+	if (!scan0) {
 		scan0 = GdipAlloc (stride * height);
-		if (scan0 == NULL) {
-			status = OutOfMemory;
-			goto fail;
+		if (!scan0) {
+			gdip_bitmap_dispose (result);
+			return OutOfMemory;
 		}
 
 		if ((gdip_get_pixel_format_bpp(format) < 16) || gdip_is_an_alpha_pixelformat(format)) {
@@ -911,18 +916,10 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 			 * the alpha channel, which the user code doesn't think exists but
 			 * Cairo is still paying attention to, to 0xFF.
 			 */
-			int	x;
-			int	y;
-			ARGB	solid_black;
-			ARGB	*scan;
-
-			/* Make sure the alpha channel is at the right end of the word. */
-			set_pixel_bgra (&solid_black, 0, 0, 0, 0, 0xFF);
-
-			for (y=0; y < height; y++) {
-				scan = (ARGB *)((char *)scan0 + y * stride);
-				for (x=0; x < width; x++) {
-					scan[x] = solid_black;
+			for (int y = 0; y < height; y++) {
+				ARGB *scan = (ARGB *) (scan0 + y * stride);
+				for (int x = 0; x < width; x++) {
+					scan[x] = 0xFF000000;
 				}
 			}
 		}
@@ -946,10 +943,9 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 		bytes_needed = header_size + palette_entries * sizeof(ARGB);
 
 		bitmap_data->palette = GdipAlloc (bytes_needed);
-
-		if (bitmap_data->palette == NULL) {
-			status = OutOfMemory;
-			goto fail;
+		if (!bitmap_data->palette) {
+			gdip_bitmap_dispose (result);
+			return OutOfMemory;
 		}
 
 		bitmap_data->palette->Count = palette_entries;
@@ -987,10 +983,6 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 	gdip_bitmap_setactive(result, NULL, 0);
 	*bitmap = result;
 	return Ok;
-
-fail:
-	gdip_bitmap_dispose(result);
-	return status;
 }
 
 /* coverity[+alloc : arg-*3] */
@@ -1052,6 +1044,7 @@ GpStatus
 GdipCreateBitmapFromHICON (HICON hicon, GpBitmap** bitmap)
 {
 	GpStatus status;
+	GpImage *result;
 
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
@@ -1059,17 +1052,21 @@ GdipCreateBitmapFromHICON (HICON hicon, GpBitmap** bitmap)
 	if (!hicon || !bitmap)
 		return InvalidParameter;
 
-	status = GdipCloneImage ((GpImage *)hicon, (GpImage**)bitmap);
-	if (status == Ok) {
-		if ((*bitmap)->active_bitmap->palette)
-			GdipFree ((*bitmap)->active_bitmap->palette);
+	status = GdipCloneImage ((GpImage *)hicon, &result);
+	if (status != Ok)
+		return status;
 
-		(*bitmap)->active_bitmap->palette = NULL;
-		(*bitmap)->image_format = MEMBMP;
-		(*bitmap)->active_bitmap->image_flags |= ImageFlagsUndocumented;/* 0x00040000 */
-		(*bitmap)->active_bitmap->image_flags &= ~ImageFlagsHasAlpha;	/* 0x00000002 */
+	if (result->active_bitmap->palette) {
+		GdipFree (result->active_bitmap->palette);
+		result->active_bitmap->palette = NULL;
 	}
-	return status;
+
+	result->image_format = MEMBMP;
+	result->active_bitmap->image_flags |= ImageFlagsUndocumented;/* 0x00040000 */
+	result->active_bitmap->image_flags &= ~ImageFlagsHasAlpha;	/* 0x00000002 */
+
+	*bitmap = (GpBitmap *) result;
+	return Ok;
 }
 
 GpStatus
@@ -1905,7 +1902,8 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST GpRect *rect, UINT flags, PixelF
 
 		switch (format) {
 		case PixelFormat24bppRGB:
-			/* workaround a hack we have (because Cairo use 32bits in this case) */
+			// Cairo uses 32bpp to represent 24bpp images so this is read as 32bpp.
+			// https://github.com/mono/libgdiplus/issues/448.
 			dest_pixel_format_bpp = 24;
 			dest_data->reserved |= GBD_TRUE24BPP;
 			break;
@@ -2007,9 +2005,8 @@ GdipBitmapSetPixel (GpBitmap *bitmap, INT x, INT y, ARGB color)
 	BYTE *v;
 	ActiveBitmapData *data;
 	
-	if ((bitmap == NULL) || (bitmap->active_bitmap == NULL)) {
+	if (!bitmap || !bitmap->active_bitmap)
 		return InvalidParameter;
-	}
 	
 	data = bitmap->active_bitmap;
 
@@ -2045,31 +2042,26 @@ GpStatus WINGDIPAPI
 GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color)
 {
 	ActiveBitmapData	*data;
-	
-	if ((bitmap == NULL) || (bitmap->active_bitmap == NULL) || (color == NULL)) {
+
+	if (!bitmap || !bitmap->active_bitmap || !color)
 		return InvalidParameter;
-	}
 
 	data = bitmap->active_bitmap;
 
-	if ((x < 0) || (x >= data->width) || (y < 0) || (y >= data->height) || (data->reserved & GBD_LOCKED)) {
+	if (x < 0 || x >= data->width || y < 0 || y >= data->height || (data->reserved & GBD_LOCKED) != 0)
 		return InvalidParameter;
-	}
 
 	if (gdip_is_an_indexed_pixelformat (data->pixel_format)) {
 		StreamingState	pixel_stream;
 		GpStatus	status;
 		unsigned int	palette_index;
 
-		if (data->palette == NULL) {
+		if (!data->palette)
 			return InvalidParameter;
-		}
 
 		status = gdip_init_pixel_stream (&pixel_stream, data, x, y, 1, 1);
-
-		if (status != Ok) {
+		if (status != Ok)
 			return status;
-		}
 
 		palette_index = gdip_pixel_stream_get_next (&pixel_stream);
 
