@@ -1848,7 +1848,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST GpRect *rect, UINT flags, PixelF
 		return WrongState;
 
 	if (rect) {
-		if ((rect->X < 0) || (rect->Y < 0) || (rect->Width < 0) || (rect->Height < 0))
+		if ((rect->X < 0) || (rect->Y < 0) || (rect->Width <= 0) || (rect->Height <= 0))
 			return InvalidParameter;
 
 		if (((rect->X + rect->Width) > src_data->width) || ((rect->Y + rect->Height) > src_data->height))
@@ -1870,7 +1870,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST GpRect *rect, UINT flags, PixelF
 	}
 
 	if (!gdip_is_a_supported_pixelformat (format))
-		return NotImplemented;
+		return InvalidParameter;
 
 	/* Common stuff */
 	if ((flags & ImageLockModeWrite) != 0) {
