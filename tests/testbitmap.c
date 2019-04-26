@@ -758,6 +758,25 @@ static void test_createBitmapFromGraphics ()
 	GdipDeleteGraphics (graphicsWithResolution);
 }
 
+static void test_cloneBitmap()
+{
+	GpStatus status;
+	GpBitmap *bitmap;
+	GpBitmap *clone;
+	
+	status = GdipCreateBitmapFromScan0(1, 1, 0, PixelFormat4bppIndexed, NULL, &bitmap);
+	assertEqualInt(status, Ok);
+
+	status = GdipCloneBitmapAreaI(0, 0, 1, 1, PixelFormat4bppIndexed, bitmap, &clone);
+	assertEqualInt(status, Ok);
+
+	PixelFormat actual;
+	status = GdipGetImagePixelFormat(clone, &actual);
+	assertEqualInt(status, Ok);
+
+	assertEqualInt(actual, PixelFormat4bppIndexed);
+}
+
 int
 main(int argc, char**argv)
 {
@@ -769,6 +788,7 @@ main(int argc, char**argv)
 	test_createBitmapFromFileICM ();
 	test_createBitmapFromScan0 ();
 	test_createBitmapFromGraphics ();
+	test_cloneBitmap ();
 
 	SHUTDOWN;
 	return 0;
