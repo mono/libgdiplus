@@ -1118,6 +1118,7 @@ GdipCloneBitmapAreaI (INT x, INT y, INT width, INT height, PixelFormat format,
 	}
 
 	result->image_format = original->image_format;
+	result->active_bitmap->pixel_format = format;
 
 	status = gdip_bitmap_clone_data_rect (original->active_bitmap, &sr, result->active_bitmap, &dr);
 	if (status != Ok) {
@@ -1183,7 +1184,6 @@ gdip_bitmap_clone_data_rect (ActiveBitmapData *srcData, Rect *srcRect, ActiveBit
 	if (destData->scan0 == NULL) {
 		dest_components = gdip_get_pixel_format_components (srcData->pixel_format);
 		dest_depth = gdip_get_pixel_format_depth (srcData->pixel_format);
-		destData->pixel_format = srcData->pixel_format;
 
 		destData->stride = ((destRect->Width * dest_components * dest_depth) >> 3);
 		gdip_align_stride (destData->stride);
@@ -1195,7 +1195,6 @@ gdip_bitmap_clone_data_rect (ActiveBitmapData *srcData, Rect *srcRect, ActiveBit
 		
 		destData->width = destRect->Width;
 		destData->height = destRect->Height;
-		destData->pixel_format = srcData->pixel_format;
 		destData->reserved = GBD_OWN_SCAN0;
 
 		if (srcData->palette) {
