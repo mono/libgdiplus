@@ -2013,7 +2013,7 @@ GdipBitmapSetPixel (GpBitmap *bitmap, INT x, INT y, ARGB color)
 	
 	data = bitmap->active_bitmap;
 
-	if ((x < 0) || (x > data->width) || (y < 0) || (y > data->height) || (data->reserved & GBD_LOCKED)) {
+	if ((UINT)x >= data->width || (UINT) y >= data->height || data->reserved & GBD_LOCKED) {
 		return InvalidParameter;
 	}
 
@@ -2052,7 +2052,7 @@ GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color)
 
 	data = bitmap->active_bitmap;
 
-	if ((x < 0) || (x >= data->width) || (y < 0) || (y >= data->height) || (data->reserved & GBD_LOCKED)) {
+	if ((UINT)x >= data->width || (UINT)y >= data->height || data->reserved & GBD_LOCKED) {
 		return InvalidParameter;
 	}
 
