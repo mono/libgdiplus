@@ -396,6 +396,10 @@ ucs2_to_utf8(const gunichar2 *ucs2, int length) {
 		if (*ptr < 0xd800 || *ptr >= 0xe000) {
 			*dest = *ptr;
 			dest++;
+		} else if (ptr + 1 != end && ptr[1] < 0xe000 && ptr[1] >= 0xdc00) {
+			/* UTF-16 support: Convert high and low surrogate to 32-bit code. */
+			*dest++ = ((gunichar)ptr[0] - 0xd800) * 0x400 + ((gunichar)ptr[1] - 0xdc00) + 0x10000;
+			ptr++;
 		}
 		ptr++;
 	}
