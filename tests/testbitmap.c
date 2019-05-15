@@ -760,21 +760,59 @@ static void test_createBitmapFromGraphics ()
 
 static void test_cloneBitmap()
 {
-	GpStatus status;
-	GpBitmap *bitmap;
-	GpBitmap *clone;
+	GpStatus    status;
+	GpBitmap    *bitmap;
+	GpBitmap    *clone;
+	PixelFormat actualFormat;
+	ARGB        color;
+
+	BYTE bpp32ArgbData[] = {
+		0xFF, 0x00, 0x00, 0xFF,
+		0x00, 0x00, 0xFF, 0xFF
+	};
 	
-	status = GdipCreateBitmapFromScan0(1, 1, 0, PixelFormat32bppARGB, NULL, &bitmap);
+	status = GdipCreateBitmapFromScan0 (1, 2, 4, PixelFormat32bppARGB, bpp32ArgbData, &bitmap);
+	assertEqualInt (status, Ok);
+	
+	status = GdipCloneBitmapAreaI (0, 0, 1, 2, PixelFormat24bppRGB, bitmap, &clone);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetImagePixelFormat (clone, &actualFormat);
+	assertEqualInt (status, Ok);
+
+	assertEqualInt (actualFormat, PixelFormat24bppRGB);
+	verifyBitmap (clone, memoryBmpRawFormat, PixelFormat24bppRGB, 1, 2, 0, 0, TRUE);
+	
+	status = GdipBitmapGetPixel (clone, 0, 0, &color);
+	assertEqualInt (status, Ok);
+	assertEqualARGB (color, 0xFF0000FF);
+
+	status = GdipBitmapGetPixel(clone, 0, 1, &color);
+	assertEqualInt (status, Ok);
+	assertEqualARGB (color, 0xFFFF0000);
+
+	GdipDisposeImage ((GpImage *) clone);
+
+	status = GdipCloneBitmapAreaI(0, 0, 1, 2, PixelFormat4bppIndexed, bitmap, &clone);
 	assertEqualInt(status, Ok);
 
-	status = GdipCloneBitmapAreaI(0, 0, 1, 1, PixelFormat4bppIndexed, bitmap, &clone);
+	status = GdipGetImagePixelFormat(clone, &actualFormat);
 	assertEqualInt(status, Ok);
 
-	PixelFormat actual;
-	status = GdipGetImagePixelFormat(clone, &actual);
-	assertEqualInt(status, Ok);
+	assertEqualInt(actualFormat, PixelFormat4bppIndexed);
+	verifyBitmap(clone, memoryBmpRawFormat, PixelFormat4bppIndexed, 1, 2, 0, 0, TRUE);
 
-	assertEqualInt(actual, PixelFormat4bppIndexed);
+	status = GdipBitmapGetPixel(clone, 0, 0, &color);
+	assertEqualInt(status, Ok);
+	assertEqualARGB(color, 0xFF0000FF);
+
+	status = GdipBitmapGetPixel(clone, 0, 1, &color);
+	assertEqualInt(status, Ok);
+	assertEqualARGB(color, 0xFFFF0000);
+
+	GdipDisposeImage((GpImage*)clone);
+
+	GdipDisposeImage ((GpImage *) bitmap);
 }
 
 int
