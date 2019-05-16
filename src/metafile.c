@@ -1613,7 +1613,7 @@ GdipCreateMetafileFromFile (GDIPCONST WCHAR *file, GpMetafile **metafile)
 	if (!file || !metafile)
 		return InvalidParameter;
 
-	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)file, -1);
+	file_name = (char *) utf16_to_utf8 ((const gunichar2 *)file, -1);
 	if (!file_name)
 		return InvalidParameter;
 
@@ -1780,7 +1780,7 @@ GdipGetMetafileHeaderFromFile (GDIPCONST WCHAR *filename, MetafileHeader *header
 	if (!filename || !header)
 		return InvalidParameter;
 
-	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)filename, -1);
+	file_name = (char *) utf16_to_utf8 ((const gunichar2 *)filename, -1);
 	if (!file_name)
 		return InvalidParameter;
 	
@@ -1980,7 +1980,7 @@ GdipRecordMetafileFileName (GDIPCONST WCHAR *fileName, HDC referenceHdc, EmfType
 	if (!fileName)
 		return InvalidParameter;
 
-	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)fileName, -1);
+	file_name = (char *) utf16_to_utf8 ((const gunichar2 *)fileName, -1);
 	if (!file_name) {
 		*metafile = NULL;
 		return InvalidParameter;

@@ -1296,7 +1296,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	}
 #else
 	{
-	BYTE *utf8 = (BYTE*) ucs2_to_utf8 (string, length);
+	BYTE *utf8 = (BYTE*) utf16_to_utf8 (string, length);
 	if (!utf8) {
 		GdipDeleteFont (font);
 		cairo_destroy (cr);
