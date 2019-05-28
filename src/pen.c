@@ -168,7 +168,7 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 		/* *both* X and Y are affected if either is 0 */
 		product.xx = product.yy = 0.0001f;
 	}
-	cairo_set_matrix (graphics->ct, &product);
+	gdip_cairo_set_matrix (graphics, &product);
 
 	/* Don't need to setup, if pen is the same as the cached pen and
 	 * it is not changed. Just comparing pointers may not be sufficient

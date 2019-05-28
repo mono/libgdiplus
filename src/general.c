@@ -611,6 +611,32 @@ gdip_cairo_curve_to (GpGraphics *graphics, double x1, double y1, double x2, doub
 	cairo_curve_to (graphics->ct, x1, y1, x2, y2, x3, y3);
 }
 
+void
+gdip_cairo_set_matrix (GpGraphics *graphics, GpMatrix *matrixPageUnits)
+{
+	float x0 = matrixPageUnits->x0;
+	float y0 = matrixPageUnits->y0;
+
+	/* avoid unit conversion whenever possible */
+	if (!OPTIMIZE_CONVERSION (graphics)) {
+		x0 = gdip_unitx_convgr (graphics, x0);
+		y0 = gdip_unity_convgr (graphics, y0);
+	}
+
+	/* do not apply antialiasing trick to transformation matrix */
+
+	/* put everything between cairo limits */
+	x0 = CAIRO_LIMIT (x0);
+	y0 = CAIRO_LIMIT (y0);
+
+	GpMatrix matrixCopy;
+	gdip_cairo_matrix_copy (&matrixCopy, matrixPageUnits);
+	matrixCopy.x0 = x0;
+	matrixCopy.y0 = y0;
+
+	cairo_set_matrix (graphics->ct, &matrixCopy);
+}
+
 void gdip_RectF_from_Rect (const GpRect* rect, GpRectF* rectf)
 {
 	rectf->X = rect->X;
