@@ -211,7 +211,7 @@ test_gdip_clip_path ()
 	{
 		C (GdipAddPathRectangle (path, rc.X, rc.Y, rc.Width, rc.Height));
 
-	    // This rectangle should be overlapped by the black rectangle
+		// This rectangle should be overlapped by the black rectangle
 		GpSolidFill *pathBrush;
 		C (GdipCreateSolidFill (0xFF00FF00, &pathBrush));
 		C (GdipFillPath (graphics, pathBrush, path));
