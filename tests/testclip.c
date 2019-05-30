@@ -193,6 +193,68 @@ test_gdip_clip_transform()
 	GdipFree (scan0);
 }
 
+static void
+test_gdip_clip_path ()
+{
+	GpBitmap *bitmap = 0;
+	GpGraphics *graphics;
+
+	C (GdipCreateBitmapFromScan0 (612, 792, 0, PixelFormat32bppARGB, NULL, &bitmap));
+	C (GdipBitmapSetResolution (bitmap, 72, 72));
+	C (GdipGetImageGraphicsContext (bitmap, &graphics));
+
+	C (GdipSetClipRect (graphics, 0, 0, 612, 792, CombineModeIntersect));
+
+	GpRectF rc = { 100, 100, 50, 50 };
+	GpPath *path;
+	C (GdipCreatePath (FillModeAlternate, &path));
+	{
+		C (GdipAddPathRectangle (path, rc.X, rc.Y, rc.Width, rc.Height));
+
+	    // This rectangle should be overlapped by the black rectangle
+		GpSolidFill *pathBrush;
+		C (GdipCreateSolidFill (0xFF00FF00, &pathBrush));
+		C (GdipFillPath (graphics, pathBrush, path));
+		C (GdipDeleteBrush (pathBrush));
+
+		// Test clipping by GdipSetClipPath (issue #552)
+		C (GdipSetClipPath (graphics, path, CombineModeIntersect));
+
+		// Also test clipping by GdipSetClipRegion (issue #547)
+		GpRegion *rgn;
+		C (GdipCreateRegionPath (path, &rgn));
+		C (GdipSetClipRegion (graphics, rgn, CombineModeIntersect));
+		C (GdipDeleteRegion (rgn));
+	}
+	C (GdipDeletePath (path));
+
+	const ARGB expectedColor = 0xFF000000;
+	GpSolidFill *brush;
+	C (GdipCreateSolidFill (expectedColor, &brush));
+	C (GdipFillRectangleI (graphics, brush, rc.X, rc.Y, rc.Width, rc.Height));
+	C (GdipDeleteBrush (brush));
+
+	//CLSID png_clsid = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+	//WCHAR *filePath = createWchar ("test_gdip_clip_path.png");
+	//C (GdipSaveImageToFile (bitmap, filePath, &png_clsid, NULL));
+
+	GpPoint points[] = {
+		{ rc.X, rc.Y },
+		{ rc.X + rc.Width / 2, rc.Y + rc.Height / 2 },
+		{ rc.X + rc.Width - 1, rc.Y + rc.Height - 1 }
+	};
+	for (int i = 0; i < sizeof (points) / sizeof (points[0]); i += 2) {
+		GpPoint *pt = &points[i];
+
+		ARGB color;
+		C (GdipBitmapGetPixel (bitmap, pt->X, pt->Y, &color));
+		assertEqualInt (color, expectedColor);
+	}
+
+	C (GdipDeleteGraphics (graphics));
+	C (GdipDisposeImage (bitmap));
+}
+
 int
 main(int argc, char**argv)
 {
@@ -200,6 +262,7 @@ main(int argc, char**argv)
 
 	test_gdip_clip();
 	test_gdip_clip_transform();
+	test_gdip_clip_path ();
 
 	SHUTDOWN;
 	return 0;
