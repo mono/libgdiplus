@@ -234,6 +234,13 @@ GdipCreateFromHDC (HDC hdc, GpGraphics **graphics)
 	if (!hdc)
 		return OutOfMemory;
 
+#if defined(WIN32)
+	// HDC returns to a device context. The remainer of this function assumes that hdc really
+	// is a GpGrahpics, but that's almost guaranteed to be not the case on Windows. Just fail
+	// quickly instead of segfauling.
+	return NotImplemented;
+#endif
+
 #ifdef CAIRO_HAS_PS_SURFACE
 
 	if (clone->type == gtPostScript) {
