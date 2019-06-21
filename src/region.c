@@ -566,6 +566,7 @@ gdip_region_convert_to_path (GpRegion *region)
 
 	if (region->rects) {
 		GdipFree (region->rects);
+		region->cnt = 0;
 		region->rects = NULL;
 	}
 
@@ -2055,7 +2056,7 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, INT* count, GpMatrix* matr
 
 		*count = 1;
 	} else {
-		switch (region->type) {
+		switch (work->type) {
 		case RegionTypeRect:
 			if (rects) {
 				for (int i = 0; i < work->cnt; i++) {
