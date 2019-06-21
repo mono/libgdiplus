@@ -6,10 +6,11 @@ AC_CONFIG_MACRO_DIRS([m4])
 AC_CANONICAL_SYSTEM
 AC_CANONICAL_HOST
 
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_HEADERS([config.h])
 AM_MAINTAINER_MODE
 AM_PROG_LIBTOOL
+AC_PROG_CXX
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
@@ -23,7 +24,7 @@ GLIB_REQUIRED_VERSION="2.2.3"
 PKG_CHECK_MODULES(BASE_DEPENDENCIES, glib-2.0 >= $GLIB_REQUIRED_VERSION)
 
 GDIPLUS_LIBS="`$PKG_CONFIG --libs glib-2.0 `"
-GDIPLUS_CFLAGS="`$PKG_CONFIG --cflags glib-2.0 `"
+GDIPLUS_CPPFLAGS="`$PKG_CONFIG --cflags glib-2.0 `"
 
 CAIRO_REQUIRED_VERSION="1.6.4"
 PKG_CHECK_MODULES(CAIRO, cairo >= $CAIRO_REQUIRED_VERSION)
@@ -54,7 +55,7 @@ if test $coverage = "yes"; then
 fi
 
 CAIRO_LIBS="`pkg-config --libs cairo `"
-CAIRO_CFLAGS="`pkg-config --cflags cairo `"
+CAIRO_CPPFLAGS="`pkg-config --cflags cairo `"
 cairo_info="`pkg-config --modversion cairo ` (system)"
 GDIPLUS_PKG_REQ="cairo"
 
@@ -68,7 +69,7 @@ if test $text_v = "default"; then
 fi
 if test $text_v = "pango"; then
 	PANGO_LIBS="`pkg-config --libs pangocairo `"
-	PANGO_CFLAGS="`pkg-config --cflags pangocairo `"
+	PANGO_CPPFLAGS="`pkg-config --cflags pangocairo `"
 	AC_DEFINE(USE_PANGO_RENDERING,1,[Use Pango to measure and draw text])
 	GDIPLUS_PKG_REQ="$GDIPLUS_PKG_REQ pangocairo-1.0"
 fi
@@ -76,7 +77,7 @@ fi
 AM_CONDITIONAL(USE_PANGO_RENDERING, [test $text_v = "pango"])
 
 GDIPLUS_LIBS="$GDIPLUS_LIBS $CAIRO_LIBS $PANGO_LIBS"
-GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS $CAIRO_CFLAGS $PANGO_CFLAGS"
+GDIPLUS_CPPFLAGS="$GDIPLUS_CPPFLAGS $CAIRO_CPPFLAGS $PANGO_CPPFLAGS"
 
 # Fall back to using fontconfig/freetype-config if their .pc is not found
 PKG_CHECK_MODULES(FONTCONFIG, fontconfig,
@@ -84,7 +85,7 @@ PKG_CHECK_MODULES(FONTCONFIG, fontconfig,
 if test "x$FONTCONFIG" = "xno"; then
 	AC_PATH_PROG(FONTCONFIG_CONFIG, fontconfig-config, no)
 	if test "x$FONTCONFIG_CONFIG" = "xyes"; then
-		FONTCONFIG_CFLAGS="`fontconfig-config --cflags`"
+		FONTCONFIG_CPPFLAGS="`fontconfig-config --cflags`"
 		FONTCONFIG_LIBS="`fontconfig-config --libs`"
 	fi
 fi
@@ -96,13 +97,13 @@ PKG_CHECK_MODULES(FREETYPE2, freetype2,
 if test "x$FREETYPE2" = "xno"; then
 	AC_PATH_PROG(FREETYPE_CONFIG, freetype-config, no)
 	if test "x$FREETYPE_CONFIG" = "xyes"; then
-		FREETYPE2_CFLAGS="`freetype-config --cflags`"
+		FREETYPE2_CPPFLAGS="`freetype-config --cflags`"
 		FREETYPE2_LIBS="`freetype-config --libs`"
 	fi
 fi
 
 GDIPLUS_LIBS="$GDIPLUS_LIBS $FONTCONFIG_LIBS $FREETYPE2_LIBS"
-GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS $FONTCONFIG_CFLAGS $FREETYPE2_CFLAGS"
+GDIPLUS_CPPFLAGS="$GDIPLUS_CPPFLAGS $FONTCONFIG_CPPFLAGS $FREETYPE2_CPPFLAGS"
 
 AC_CHECK_HEADERS(byteswap.h)
 
@@ -486,6 +487,7 @@ GDIPLUS_PKG_CFLAGS="$GDIPLUS_CFLAGS"
  
 AC_SUBST(GDIPLUS_LIBS)
 AC_SUBST(GDIPLUS_CFLAGS)
+AC_SUBST(GDIPLUS_CPPFLAGS)
 AC_SUBST(GDIPLUS_PKG_LIBS)
 AC_SUBST(GDIPLUS_PKG_CFLAGS)
 AC_SUBST(GDIPLUS_PKG_REQ)
@@ -495,7 +497,8 @@ Makefile
 libgdiplus.pc
 libgdiplus0.spec
 src/Makefile
-tests/Makefile])
+tests/Makefile
+gtests/Makefile])
 
 echo "---"
 echo "Configuration summary"

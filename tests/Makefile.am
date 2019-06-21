@@ -6,7 +6,8 @@ AM_CPPFLAGS =					\
 	-I$(top_srcdir)				\
 	-I$(top_builddir)/src			\
 	-I$(top_srcdir)/src			\
-	$(GDIPLUS_CFLAGS)
+	$(GDIPLUS_CFLAGS)			\
+	$(GDIPLUS_CPPFLAGS)
 
 DEPS =						\
 	$(top_builddir)/src/libgdiplus.la

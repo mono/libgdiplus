@@ -129,6 +129,6 @@ endif
 
 libgdiplus_la_LIBADD = $(GDIPLUS_LIBS)
 
-AM_CPPFLAGS = $(GDIPLUS_CFLAGS)
+AM_CPPFLAGS = $(GDIPLUS_CFLAGS) $(GDIPLUS_CPPFLAGS)
 
 EXTRA_DIST = libgdiplus.vcxproj

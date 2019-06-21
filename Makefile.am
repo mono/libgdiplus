@@ -1,11 +1,11 @@
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src tests
-DIST_SUBDIRS = src tests
+SUBDIRS = src tests gtests
+DIST_SUBDIRS = src tests gtests
 
 pkgconfigdir = $(libdir)/pkgconfig
 
-pkgconfig_DATA= libgdiplus.pc 
+pkgconfig_DATA= libgdiplus.pc
 
 DISTCLEANFILES= libgdiplus.pc
 
