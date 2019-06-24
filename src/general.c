@@ -64,7 +64,49 @@ GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStart
 	if (status != Ok)
 		return status;
 
-	FcInit ();
+	FcInit();
+
+	/* A fontconfig instance which didn't find a configfile is unbelievably
+		cranky, so let's just write out a small xml file and make fontconfig
+		happy */
+	if (FcConfigFilename(0) == NULL)
+	{
+		/* Newer versions of font-config have FcConfigParseAndLoadFromMemory,
+		   which we could use to avoid generating a temporary file. But meanwhile,
+		   we are stuck with this workaround. */
+		char namebuf[512];
+		tmpnam(namebuf);
+		FILE* fi = fopen(namebuf, "wb");
+
+		fprintf(fi, "<?xml version=\"1.0\"?>\n");
+		fprintf(fi, "<fontconfig>\n");
+#if defined(WIN32)
+		fprintf(fi, "<dir>WINDOWSFONTDIR</dir>\n");
+#elif defined(_APPLE_) && defined(_MACH_)
+		fprintf(fi, "<dir>/System/Library/Fonts</dir>\n");
+#else
+		fprintf(fi, "<dir>~/.fonts</dir>\n");
+#endif
+
+#ifdef WIN32
+		fprintf(fi, "<cachedir>WINDOWSTEMPDIR_FONTCONFIG_CACHE</cachedir>\n");
+#else
+		fprintf(fi, "<cachedir>~/.fontconfig</cachedir>\n");
+#endif
+		fprintf(fi, "</fontconfig>\n");
+		fclose(fi);
+
+		FcConfig* c = FcConfigCreate();
+		FcConfigParseAndLoad(c, (FcChar8*)namebuf, 1);
+		remove(namebuf);
+
+		FcConfigBuildFonts(c);
+		FcConfigSetCurrent(c);
+
+		// FcConfig is reference-counted, so it's OK to call destroy here.
+		FcConfigDestroy(c);
+	}
+
 	gdip_get_display_dpi();
 	gdip_create_generic_stringformats ();
 
