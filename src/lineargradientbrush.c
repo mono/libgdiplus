@@ -493,6 +493,10 @@ GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARG
 	if (!point1 || !point2 || !lineGradient || wrapMode == WrapModeClamp)
 		return InvalidParameter;
 
+	// For GDI+ compat. A zero-length gradient isn't well-defined.
+	if (point1->X == point2->X && point1->Y == point2->Y)
+		return OutOfMemory;
+
 	linear = gdip_linear_gradient_new ();
 	if (!linear)
 		return OutOfMemory;
