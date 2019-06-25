@@ -20,6 +20,7 @@
  * Authors:
  *	Jordi Mas i Hernandez <jordi@ximian.com>, 2004-2005
  *	Sebastien Pouliot  <sebastien@ximian.com>
+ *	Frederik Carlier  <frederik.carlier@quamotion.mobi>
  *
  */
 
@@ -92,7 +93,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 {
 	GpStatus status;
 	GpImageAttribute *imgattr, *def;
-	GpImageAttribute *colormap, *gamma, *trans, *cmatrix, *treshold;
+	GpImageAttribute *colormap, *gamma, *trans, *cmatrix, *treshold, *cmyk;
 	GpBitmap *bmpdest;
 	ARGB color;
 	BYTE *color_p = (BYTE*) &color;
@@ -135,11 +136,19 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		cmatrix = def;
 	}
 
+	if (imgattr->flags & ImageAttributeFlagsOutputChannelEnabled) {
+		cmyk = imgattr;
+	}
+	else {
+		cmyk = def;
+	}
+
 	if (!(colormap->flags & ImageAttributeFlagsNoOp) && (colormap->flags & ImageAttributeFlagsColorRemapTableEnabled)
 		|| !(gamma->flags & ImageAttributeFlagsNoOp) && (gamma->flags & ImageAttributeFlagsGammaEnabled)
 		|| !(trans->flags & ImageAttributeFlagsNoOp) && (trans->flags & ImageAttributeFlagsColorKeysEnabled)
 		|| !(cmatrix->flags & ImageAttributeFlagsNoOp) && (cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled) && cmatrix->colormatrix != NULL
-		|| !(treshold->flags & ImageAttributeFlagsNoOp) && (treshold->flags & ImageAttributeFlagsThresholdEnabled)) {
+		|| !(treshold->flags & ImageAttributeFlagsNoOp) && (treshold->flags & ImageAttributeFlagsThresholdEnabled)
+		|| !(cmyk->flags & ImageAttributeFlagsNoOp) && (cmyk->flags & ImageAttributeFlagsOutputChannelEnabled)) {
 		bmpdest = gdip_bitmap_new_with_frame (NULL, FALSE);
 		if (!bmpdest)
 			return OutOfMemory;
@@ -233,10 +242,58 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				GdipBitmapSetPixel(bmpdest, x, y, color);
 			}
 		}
+	}
 
+	/* CMYK calculation */
+	if (!(cmyk->flags & ImageAttributeFlagsNoOp) && cmyk->flags & ImageAttributeFlagsOutputChannelEnabled) {
+		for (int y = 0; y < bitmap->active_bitmap->height; y++) {
+			for (int x = 0; x < bitmap->active_bitmap->width; x++) {
+
+				BYTE r, g, b, a, C, M, Y, K;
+
+				GdipBitmapGetPixel(bmpdest, x, y, &color);
+
+				a = (color & 0xff000000) >> 24;
+				r = (color & 0x00ff0000) >> 16;
+				g = (color & 0x0000ff00) >> 8;
+				b = (color & 0x000000ff);
+
+				C = 255 - r;
+				M = 255 - g;
+				Y = 255 - b;
+				K = min(min(C, M), Y);
+				
+				/* correct complementary color lever based on k */
+				C -= K;
+				M -= K;
+				Y -= K;
+
+				switch (cmyk->outputchannel_flags) {
+				case ColorChannelFlagsC:
+					r = g = b = C;
+					break;
+				case ColorChannelFlagsM:
+					r = g = b = M;
+					break;
+				case ColorChannelFlagsY:
+					r = g = b = Y;
+					break;
+				case ColorChannelFlagsK:
+					r = g = b = K;
+					break;
+				}
+
+				color = ((guint32)a << 24) | (r << 16) | (g << 8) | b;
+				GdipBitmapSetPixel(bmpdest, x, y, color);
+			}
+		}
 	}
 
 	/* Apply transparency range */
+	/* FIXME: This will convert pixels which have a color in [key_colorlow, key_colorhey] to transparent pixels.
+	          However, GdipDrawImageRectRect in image.c uses cairo_fill to draw these transparent pixels onto
+			  the target surface. This method will not copy the transparency value; rather, it will ignore
+			  transparent values. */
 	if (!(trans->flags & ImageAttributeFlagsNoOp) && trans->flags & ImageAttributeFlagsColorKeysEnabled) {
 		for (int y = 0; y < bitmap->active_bitmap->height; y++) {
 			for (int x = 0; x < bitmap->active_bitmap->width; x++) {
@@ -245,7 +302,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				color &= ~ALPHA_MASK;
 				
 				if (color >= trans->key_colorlow && color <= trans->key_colorhigh) {
-					GdipBitmapSetPixel (bmpdest, x, y, 0 /* transparent white */);
+					GdipBitmapSetPixel (bmpdest, x, y, 0x00FFFFFF /* transparent white */);
 				}
 			}
 		}
