@@ -92,7 +92,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 {
 	GpStatus status;
 	GpImageAttribute *imgattr, *def;
-	GpImageAttribute *colormap, *gamma, *trans, *cmatrix;
+	GpImageAttribute *colormap, *gamma, *trans, *cmatrix, *treshold;
 	GpBitmap *bmpdest;
 	ARGB color;
 	BYTE *color_p = (BYTE*) &color;
@@ -117,6 +117,12 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		gamma = def;
 	}
 
+	if (imgattr->flags & ImageAttributeFlagsThresholdEnabled) {
+		treshold = imgattr;
+	} else {
+		treshold = def;
+	}
+
 	if (imgattr->flags & ImageAttributeFlagsColorKeysEnabled) {
 		trans = imgattr;
 	} else {
@@ -129,8 +135,11 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		cmatrix = def;
 	}
 
-	if ((colormap->flags & ImageAttributeFlagsColorRemapTableEnabled) || (gamma->flags & ImageAttributeFlagsGammaEnabled) || (trans->flags & ImageAttributeFlagsColorKeysEnabled) ||
-	    ((cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled) && cmatrix->colormatrix != NULL)) {
+	if (!(colormap->flags & ImageAttributeFlagsNoOp) && (colormap->flags & ImageAttributeFlagsColorRemapTableEnabled)
+		|| !(gamma->flags & ImageAttributeFlagsNoOp) && (gamma->flags & ImageAttributeFlagsGammaEnabled)
+		|| !(trans->flags & ImageAttributeFlagsNoOp) && (trans->flags & ImageAttributeFlagsColorKeysEnabled)
+		|| !(cmatrix->flags & ImageAttributeFlagsNoOp) && (cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled) && cmatrix->colormatrix != NULL
+		|| !(treshold->flags & ImageAttributeFlagsNoOp) && (treshold->flags & ImageAttributeFlagsThresholdEnabled)) {
 		bmpdest = gdip_bitmap_new_with_frame (NULL, FALSE);
 		if (!bmpdest)
 			return OutOfMemory;
@@ -156,7 +165,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	*/
 
 	/* Color mapping */
-	if (colormap->flags & ImageAttributeFlagsColorRemapTableEnabled) {
+	if (!(colormap->flags & ImageAttributeFlagsNoOp) && colormap->flags & ImageAttributeFlagsColorRemapTableEnabled) {
 		for (int y = 0; y <bitmap->active_bitmap->height; y++) {
 			for (int x = 0; x <bitmap->active_bitmap->width; x++) {
 				ColorMap* clrmap = colormap->colormap;
@@ -176,7 +185,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	}
 
 	/* Gamma correction */
-	if (gamma->flags & ImageAttributeFlagsGammaEnabled) {
+	if (!(gamma->flags & ImageAttributeFlagsNoOp) && gamma->flags & ImageAttributeFlagsGammaEnabled) {
 		for (int y = 0; y < bitmap->active_bitmap->height; y++) {
 			for (int x = 0; x < bitmap->active_bitmap->width; x++) {
 
@@ -189,13 +198,9 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				g = (color & 0x0000ff00) >> 8;
 				b = (color & 0x000000ff);
 
-				/* FIXME: This is not the right gamma GDI + correction algorithm */
-
-				/*
-				r = (int) powf (r, (1 / gamma->gamma_correction));
-				g = (int) powf (g, (1 / gamma->gamma_correction));
-				b = (int) powf (b, (1 / gamma->gamma_correction));
-				a = (int) powf (a, (1 / gamma->gamma_correction));*/
+				r = (int) roundf(powf(r / 255.0, gamma->gamma_correction) * 255.0);
+				g = (int) roundf(powf(g / 255.0, gamma->gamma_correction) * 255.0);
+				b = (int) roundf(powf(b / 255.0, gamma->gamma_correction) * 255.0);
 
 				color = ((guint32)a << 24) | (r << 16) | (g  << 8) | b;
 				GdipBitmapSetPixel (bmpdest, x, y, color);
@@ -204,23 +209,50 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	}
 
+	/* Treshold correction */
+	if (!(treshold->flags & ImageAttributeFlagsNoOp) && treshold->flags & ImageAttributeFlagsThresholdEnabled) {
+		BYTE cutoff = (BYTE)round(treshold->threshold * 255.0);
+
+		for (int y = 0; y < bitmap->active_bitmap->height; y++) {
+			for (int x = 0; x < bitmap->active_bitmap->width; x++) {
+
+				BYTE r, g, b, a;
+
+				GdipBitmapGetPixel(bmpdest, x, y, &color);
+
+				a = (color & 0xff000000) >> 24;
+				r = (color & 0x00ff0000) >> 16;
+				g = (color & 0x0000ff00) >> 8;
+				b = (color & 0x000000ff);
+
+				r = r > cutoff ? 255 : 0;
+				g = g > cutoff ? 255 : 0;
+				b = b > cutoff ? 255 : 0;
+
+				color = ((guint32)a << 24) | (r << 16) | (g << 8) | b;
+				GdipBitmapSetPixel(bmpdest, x, y, color);
+			}
+		}
+
+	}
+
 	/* Apply transparency range */
-	if (trans->flags & ImageAttributeFlagsColorKeysEnabled) {
+	if (!(trans->flags & ImageAttributeFlagsNoOp) && trans->flags & ImageAttributeFlagsColorKeysEnabled) {
 		for (int y = 0; y < bitmap->active_bitmap->height; y++) {
 			for (int x = 0; x < bitmap->active_bitmap->width; x++) {
 
 				GdipBitmapGetPixel (bmpdest, x, y, &color);
-
+				color &= ~ALPHA_MASK;
+				
 				if (color >= trans->key_colorlow && color <= trans->key_colorhigh) {
-					color = color & 0x00ffffff; /* Alpha = 0 */
-					GdipBitmapSetPixel (bmpdest, x, y, color);
+					GdipBitmapSetPixel (bmpdest, x, y, 0 /* transparent white */);
 				}
 			}
 		}
 	}
 
 	/* Apply Color Matrix */
-	if (cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled && cmatrix->colormatrix) {
+	if (!(cmatrix->flags & ImageAttributeFlagsNoOp) && cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled && cmatrix->colormatrix) {
 		ActiveBitmapData *data = bmpdest->active_bitmap;
 		BYTE *v = ((BYTE*)data->scan0);
 		ARGB *scan;
@@ -418,7 +450,7 @@ GdipSetImageAttributesThreshold ( GpImageAttributes *imageattr, ColorAdjustType 
 		imgattr->flags |= ImageAttributeFlagsThresholdEnabled;
 	}
 	else
-		imgattr->flags |= ~ImageAttributeFlagsThresholdEnabled;
+		imgattr->flags &= ~ImageAttributeFlagsThresholdEnabled;
 
 	return Ok;
 }
@@ -445,7 +477,7 @@ GdipSetImageAttributesGamma (GpImageAttributes *imageattr, ColorAdjustType type,
 		imgattr->flags |= ImageAttributeFlagsGammaEnabled;
 	}
 	else
-		imgattr->flags |= ~ImageAttributeFlagsGammaEnabled;
+		imgattr->flags &= ~ImageAttributeFlagsGammaEnabled;
 
 	return Ok;
 }
@@ -466,7 +498,7 @@ GdipSetImageAttributesNoOp (GpImageAttributes *imageattr, ColorAdjustType type, 
 	if (enableFlag)
 		imgattr->flags |= ImageAttributeFlagsNoOp;
 	else
-		imgattr->flags |= ~ImageAttributeFlagsNoOp;
+		imgattr->flags &= ~ImageAttributeFlagsNoOp;
 
 	return Ok;
 }
@@ -499,10 +531,10 @@ GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType t
 
 		imgattr->key_colorlow = colorLow;
 		imgattr->key_colorhigh = colorHigh;
-		imgattr->flags|= ImageAttributeFlagsColorKeysEnabled;
+		imgattr->flags |= ImageAttributeFlagsColorKeysEnabled;
 	}
 	else
-		imgattr->flags|= ~ImageAttributeFlagsColorKeysEnabled;
+		imgattr->flags &= ~ImageAttributeFlagsColorKeysEnabled;
 
 	return Ok;
 }
@@ -543,7 +575,7 @@ GdipSetImageAttributesOutputChannelColorProfile (GpImageAttributes *imageattr, C
 		imgattr->flags |= ImageAttributeFlagsOutputChannelColorProfileEnabled;
 	}
 	else
-		imgattr->flags |= ~ImageAttributeFlagsOutputChannelColorProfileEnabled;
+		imgattr->flags &= ~ImageAttributeFlagsOutputChannelColorProfileEnabled;
 
 	return Ok;
 }
@@ -580,7 +612,7 @@ GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType 
 		imgattr->colormap_elem = mapSize;
 		imgattr->flags |= ImageAttributeFlagsColorRemapTableEnabled;
 	} else
-		imgattr->flags |= ~ImageAttributeFlagsColorRemapTableEnabled;
+		imgattr->flags &= ~ImageAttributeFlagsColorRemapTableEnabled;
 
 	return Ok;
 }
@@ -637,7 +669,7 @@ GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType
 		return InvalidParameter;
 
 	if (enableFlag) {
-		if (!colorMatrix || flags > ColorMatrixFlagsAltGray) {
+		if (!colorMatrix || flags > ColorMatrixFlagsAltGray || flags < ColorMatrixFlagsDefault) {
 			return InvalidParameter;
 		}
 
@@ -665,7 +697,7 @@ GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType
 		imgattr->colormatrix_flags = flags;
 		imgattr->flags |= ImageAttributeFlagsColorMatrixEnabled;
 	} else {
-		imgattr->flags |= ~(ImageAttributeFlagsColorMatrixEnabled | ImageAttributeFlagsGrayMatrixEnabled);
+		imgattr->flags &= ~(ImageAttributeFlagsColorMatrixEnabled | ImageAttributeFlagsGrayMatrixEnabled);
 	}
 
 	return Ok;
@@ -691,7 +723,7 @@ GdipSetImageAttributesOutputChannel (GpImageAttributes *imageattr, ColorAdjustTy
 		imgattr->outputchannel_flags = channelFlags;
 		imgattr->flags |= ImageAttributeFlagsOutputChannelEnabled;
 	} else
-		imgattr->flags |= ~ImageAttributeFlagsOutputChannelEnabled;
+		imgattr->flags &= ~ImageAttributeFlagsOutputChannelEnabled;
 
 	return Ok;
 }
