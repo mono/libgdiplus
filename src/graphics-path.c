@@ -869,6 +869,9 @@ GdipAddPathArc (GpPath *path, float x, float y,
 	if (!path)
 		return InvalidParameter;
 
+	if (width == 0 || height == 0)
+		return InvalidParameter;
+
 	point_count = count_arcs_points (path, x, y, width, height, startAngle, sweepAngle);
 	if (!gdip_path_ensure_size (path, path->count + point_count))
 		return OutOfMemory;
@@ -1105,6 +1108,9 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
 	int point_count;
 
 	float sin_alpha, cos_alpha;
+
+	if (width == 0 || height == 0)
+		return InvalidParameter;
 
 	float rx = width / 2;
 	float ry = height / 2;
