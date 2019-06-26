@@ -82,13 +82,13 @@ GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStart
 		fprintf(fi, "<fontconfig>\n");
 #if defined(WIN32)
 		fprintf(fi, "<dir>WINDOWSFONTDIR</dir>\n");
-#elif defined(_APPLE_) && defined(_MACH_)
+#elif defined(__APPLE__)
 		fprintf(fi, "<dir>/System/Library/Fonts</dir>\n");
 #else
 		fprintf(fi, "<dir>~/.fonts</dir>\n");
 #endif
 
-#ifdef WIN32
+#if defined(WIN32)
 		fprintf(fi, "<cachedir>WINDOWSTEMPDIR_FONTCONFIG_CACHE</cachedir>\n");
 #else
 		fprintf(fi, "<cachedir>~/.fontconfig</cachedir>\n");
