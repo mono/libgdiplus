@@ -143,12 +143,12 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		cmyk = def;
 	}
 
-	if (!(colormap->flags & ImageAttributeFlagsNoOp) && (colormap->flags & ImageAttributeFlagsColorRemapTableEnabled)
-		|| !(gamma->flags & ImageAttributeFlagsNoOp) && (gamma->flags & ImageAttributeFlagsGammaEnabled)
-		|| !(trans->flags & ImageAttributeFlagsNoOp) && (trans->flags & ImageAttributeFlagsColorKeysEnabled)
-		|| !(cmatrix->flags & ImageAttributeFlagsNoOp) && (cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled) && cmatrix->colormatrix != NULL
-		|| !(treshold->flags & ImageAttributeFlagsNoOp) && (treshold->flags & ImageAttributeFlagsThresholdEnabled)
-		|| !(cmyk->flags & ImageAttributeFlagsNoOp) && (cmyk->flags & ImageAttributeFlagsOutputChannelEnabled)) {
+	if ((!(colormap->flags & ImageAttributeFlagsNoOp) && (colormap->flags & ImageAttributeFlagsColorRemapTableEnabled))
+		|| (!(gamma->flags & ImageAttributeFlagsNoOp) && (gamma->flags & ImageAttributeFlagsGammaEnabled))
+		|| (!(trans->flags & ImageAttributeFlagsNoOp) && (trans->flags & ImageAttributeFlagsColorKeysEnabled))
+		|| (!(cmatrix->flags & ImageAttributeFlagsNoOp) && (cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled) && cmatrix->colormatrix != NULL)
+		|| (!(treshold->flags & ImageAttributeFlagsNoOp) && (treshold->flags & ImageAttributeFlagsThresholdEnabled))
+		|| (!(cmyk->flags & ImageAttributeFlagsNoOp) && (cmyk->flags & ImageAttributeFlagsOutputChannelEnabled))) {
 		bmpdest = gdip_bitmap_new_with_frame (NULL, FALSE);
 		if (!bmpdest)
 			return OutOfMemory;
@@ -281,6 +281,8 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				case ColorChannelFlagsK:
 					r = g = b = K;
 					break;
+				default:
+					return InvalidParameter;
 				}
 
 				color = ((guint32)a << 24) | (r << 16) | (g << 8) | b;
