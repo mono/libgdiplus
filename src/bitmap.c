@@ -2052,7 +2052,7 @@ GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color)
 
 	data = bitmap->active_bitmap;
 
-	if (x < 0 || y < 0 || x >= data->width || y >= data->height || data->reserved & GBD_LOCKED) {
+	if (x < 0 || y < 0 || x >= data->width || y >= data->height || data->reserved & GBD_LOCKED)
 		return InvalidParameter;
 
 	if (gdip_is_an_indexed_pixelformat (data->pixel_format)) {
