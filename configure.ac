@@ -36,7 +36,7 @@ GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -Wall -Wextra -Wno-unused-parameter -Wno-sign-co
 AC_ARG_ENABLE(warnaserror, AS_HELP_STRING([--enable-warnaserror],[Enable treating warnings as errors.]),[warnaserror=yes],[warnaserror=no])
 
 if test $warnaserror = "yes"; then
-  GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -Werror -Wno-clobbered"
+  GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -Werror -Wno-unknown-warning-option -Wno-clobbered -Wno-typedef-redefinition"
 fi
 
 AC_ARG_ENABLE(asan, AS_HELP_STRING([--enable-asan],[Enable address sanitizer.]),[asan=yes],[asan=no])
