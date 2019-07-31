@@ -184,17 +184,34 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 			break;
 		}
 
-		// FIXME - pick matching settings for each text mode
-		case TextRenderingHintSingleBitPerPixelGridFit:
-		case TextRenderingHintSingleBitPerPixel:
-		case TextRenderingHintAntiAliasGridFit:
-		case TextRenderingHintAntiAlias: {
-			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_DEFAULT);
+		case TextRenderingHintSingleBitPerPixelGridFit: {
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_NONE);
+			cairo_font_options_set_hint_style(FontOptions, CAIRO_HINT_STYLE_MEDIUM);
+			cairo_font_options_set_hint_metrics(FontOptions, CAIRO_HINT_METRICS_ON);
 			break;
 		}
-
+		case TextRenderingHintSingleBitPerPixel: {
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_NONE);
+			cairo_font_options_set_hint_style(FontOptions, CAIRO_HINT_STYLE_NONE);
+			cairo_font_options_set_hint_metrics(FontOptions, CAIRO_HINT_METRICS_OFF);
+			break;
+		}
+		case TextRenderingHintAntiAliasGridFit: {
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_GRAY);
+			cairo_font_options_set_hint_style(FontOptions, CAIRO_HINT_STYLE_MEDIUM);
+			cairo_font_options_set_hint_metrics(FontOptions, CAIRO_HINT_METRICS_ON);
+			break;
+		}
+		case TextRenderingHintAntiAlias: {
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_GRAY);
+			cairo_font_options_set_hint_style(FontOptions, CAIRO_HINT_STYLE_NONE);
+			cairo_font_options_set_hint_metrics(FontOptions, CAIRO_HINT_METRICS_OFF);
+			break;
+		}
 		case TextRenderingHintClearTypeGridFit: {
-			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_DEFAULT);
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_SUBPIXEL);
+			cairo_font_options_set_hint_style(FontOptions, CAIRO_HINT_STYLE_MEDIUM);
+			cairo_font_options_set_hint_metrics(FontOptions, CAIRO_HINT_METRICS_ON);
 			break;
 		}
 	}
