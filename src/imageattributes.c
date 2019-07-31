@@ -69,6 +69,58 @@ gdip_dispose_image_attribute (GpImageAttribute* attr)
 	}
 }
 
+static GpStatus
+gdip_clone_image_attribute(const GpImageAttribute* attr, GpImageAttribute* clone)
+{
+	if (attr->colormap && attr->colormap_elem > 0) {
+		clone->colormap = GdipAlloc(sizeof(ColorMap) * attr->colormap_elem);
+
+		if (!clone->colormap)
+		{
+			gdip_dispose_image_attribute(clone);
+			return OutOfMemory;
+		}
+
+		memcpy(clone->colormap, attr->colormap, sizeof(ColorMap) * attr->colormap_elem);
+	}
+
+	if (attr->colormatrix) {
+		clone->colormatrix = GdipAlloc(sizeof(ColorMatrix));
+
+		if (!clone->colormatrix)
+		{
+			gdip_dispose_image_attribute(clone);
+			return OutOfMemory;
+		}
+
+		memcpy(clone->colormatrix, attr->colormatrix, sizeof(ColorMatrix));
+	}
+
+	if (attr->graymatrix) {
+		clone->graymatrix = GdipAlloc(sizeof(ColorMatrix));
+
+		if (!clone->graymatrix)
+		{
+			gdip_dispose_image_attribute(clone);
+			return OutOfMemory;
+		}
+
+		memcpy(clone->graymatrix, attr->graymatrix, sizeof(ColorMatrix));
+	}
+
+	if (attr->colorprofile_filename) {
+		strcpy(clone->colorprofile_filename, attr->colorprofile_filename);
+
+		if (!clone->colorprofile_filename)
+		{
+			gdip_dispose_image_attribute(clone);
+			return OutOfMemory;
+		}
+	}
+
+	return Ok;
+}
+
 static GpImageAttribute*
 gdip_get_image_attribute (GpImageAttributes* attr, ColorAdjustType type)
 {
@@ -433,6 +485,42 @@ GdipCloneImageAttributes (GDIPCONST GpImageAttributes *imageattr, GpImageAttribu
 	}
 
 	memcpy (result, imageattr, sizeof (GpImageAttributes));
+
+	GpStatus ret = Ok;
+	ret = gdip_clone_image_attribute(&imageattr->def, &result->def);
+
+	if (ret) {
+		GdipDisposeImageAttributes(result);
+		return ret;
+	}
+
+	ret = gdip_clone_image_attribute(&imageattr->bitmap, &result->bitmap);
+
+	if (ret) {
+		GdipDisposeImageAttributes(result);
+		return ret;
+	}
+
+	ret = gdip_clone_image_attribute(&imageattr->brush, &result->brush);
+
+	if (ret) {
+		GdipDisposeImageAttributes(result);
+		return ret;
+	}
+
+	ret = gdip_clone_image_attribute(&imageattr->pen, &result->pen);
+
+	if (ret) {
+		GdipDisposeImageAttributes(result);
+		return ret;
+	}
+
+	ret = gdip_clone_image_attribute(&imageattr->text, &result->text);
+
+	if (ret) {
+		GdipDisposeImageAttributes(result);
+		return ret;
+	}
 
 	*cloneImageattr = result;
 	return Ok;
