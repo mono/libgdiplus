@@ -106,6 +106,8 @@ GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS $FONTCONFIG_CFLAGS $FREETYPE2_CFLAGS"
 
 AC_CHECK_HEADERS(byteswap.h)
 
+AC_SEARCH_LIBS(sqrt, m)
+
 AC_MSG_CHECKING([host threading settings])
 case "$host" in
 	*-*-mingw*|*-*-cygwin*)
