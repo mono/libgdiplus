@@ -31,9 +31,9 @@ fi
 }
 
 if [ -z "$LIBTOOLIZE" ]; then
-  LIBTOOLIZE=`which glibtoolize 2>/dev/null`
+  LIBTOOLIZE=`command -v glibtoolize 2>/dev/null`
   if [ ! -x "$LIBTOOLIZE" ]; then
-    LIBTOOLIZE=`which libtoolize`
+    LIBTOOLIZE=`command -v libtoolize`
   fi
 fi
 
