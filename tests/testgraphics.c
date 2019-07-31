@@ -3498,6 +3498,130 @@ static void test_world_transform_in_container ()
 	GdipDeleteGraphics (graphics);
 }
 
+static void test_world_transform_respects_page_unit_document ()
+{
+	GpStatus status;
+	GpBitmap *bitmap;
+	GpGraphics *graphics;
+	GpMatrix *matrix;
+	GpSolidFill *brush;
+
+	// Test Graphics with UnitDocument and 72 dpi
+	status = GdipCreateBitmapFromScan0 (612, 792, 0, PixelFormat32bppARGB, NULL, &bitmap);
+	assertEqualInt (status, Ok);
+
+	status = GdipBitmapSetResolution (bitmap, 72, 72);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetImageGraphicsContext (bitmap, &graphics);
+	assertEqualInt (status, Ok);
+
+	status = GdipSetPageUnit (graphics, UnitDocument);
+	assertEqualInt (status, Ok);
+
+	const ARGB FillColor = 0xFF000000;
+	status = GdipCreateSolidFill (FillColor, &brush);
+	assertEqualInt (status, Ok);
+
+	int rectX = 360;
+	int rectY = 111;
+	GdipCreateMatrix2 (1, 0, 0, 1, rectX, rectY, &matrix);
+	status = GdipSetWorldTransform (graphics, matrix);
+	assertEqualInt (status, Ok);
+
+	int rectWidth = 74;
+	int rectHeight = 72;
+	status = GdipFillRectangleI (graphics, brush, 0, 0, rectWidth, rectHeight);
+	assertEqualInt (status, Ok);
+
+	//CLSID png_clsid = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+	//WCHAR *filePath = createWchar ("test_world_transform_respects_page_unit_document.png");
+	//status = GdipSaveImageToFile (bitmap, filePath, &png_clsid, NULL);
+
+	int points[] = {
+		rectX + 2,
+		rectY + 2,
+		rectX + rectWidth / 2,
+		rectY + rectHeight / 2,
+		rectX + rectWidth - 1,
+		rectY + rectHeight - 1
+	};
+	for (int i = 0; i < sizeof (points) / sizeof (points[0]); i += 2) {
+		ARGB color;
+		status = GdipBitmapGetPixel (bitmap, (int)(points[i] * 72 / 300.0f), (int)(points[i + 1] * 72 / 300.0f), &color);
+		assertEqualInt (status, Ok);
+		assertEqualInt (color, FillColor);
+	}
+
+	GdipDisposeImage ((GpImage *)bitmap);
+	GdipDeleteGraphics (graphics);
+	GdipDeleteBrush (brush);
+}
+
+static void test_world_transform_respects_page_unit_point ()
+{
+	GpStatus status;
+	GpBitmap *bitmap;
+	GpGraphics *graphics;
+	GpSolidFill *brush;
+	const float TargetResolution = 300;
+	double scaleFactor = TargetResolution / 72;
+
+	// Test Graphics with UnitPoint and 72 dpi
+	status = GdipCreateBitmapFromScan0 ((int)(612 * scaleFactor), (int)(792 * scaleFactor), 0, PixelFormat32bppARGB, NULL, &bitmap);
+	assertEqualInt (status, Ok);
+
+	status = GdipBitmapSetResolution (bitmap, TargetResolution, TargetResolution);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetImageGraphicsContext (bitmap, &graphics);
+	assertEqualInt (status, Ok);
+
+	status = GdipSetPageUnit (graphics, UnitPoint);
+	assertEqualInt (status, Ok);
+
+	const ARGB FillColor = 0xFF000000;
+	status = GdipCreateSolidFill (FillColor, &brush);
+	assertEqualInt (status, Ok);
+
+	int rectX = 360;
+	int rectY = 111;
+	int rectWidth = 74;
+	int rectHeight = 72;
+	status = GdipTranslateWorldTransform (graphics, rectX, rectY, MatrixOrderPrepend);
+	assertEqualInt (status, Ok);
+
+	status = GdipFillRectangleI (graphics, brush, 0, 0, rectWidth, rectHeight);
+	assertEqualInt (status, Ok);
+
+	//CLSID png_clsid = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+	//WCHAR *filePath = createWchar ("test_world_transform_respects_page_unit_point.png");
+	//status = GdipSaveImageToFile (bitmap, filePath, &png_clsid, NULL);
+
+	int points[] = {
+		rectX,
+		rectY,
+		rectX + rectWidth / 2,
+		rectY + rectHeight / 2,
+		rectX + rectWidth - 1,
+		rectY + rectHeight - 1
+	};
+	for (int i = 0; i < sizeof (points) / sizeof (points[0]); i += 2) {
+		ARGB color;
+		status = GdipBitmapGetPixel (bitmap, points[i], points[i + 1], &color);
+		assertEqualInt (status, Ok);
+		assertEqualInt (color, 0);
+
+		status = GdipBitmapGetPixel (bitmap, (int)(points[i] * scaleFactor) + 1, (int)(points[i + 1] * scaleFactor) + 1, &color);
+		assertEqualInt (status, Ok);
+		assertEqualInt (color, FillColor);
+	}
+
+	GdipDisposeImage ((GpImage *)bitmap);
+	GdipDeleteGraphics (graphics);
+	GdipDeleteBrush (brush);
+}
+
 int
 main (int argc, char**argv)
 {
@@ -3562,6 +3686,8 @@ main (int argc, char**argv)
 	test_region_mask ();
 	test_premultiplication ();
 	test_world_transform_in_container ();
+	test_world_transform_respects_page_unit_document ();
+	test_world_transform_respects_page_unit_point ();
 
 #if defined(USE_WINDOWS_GDIPLUS)
 	DestroyWindow (hwnd);

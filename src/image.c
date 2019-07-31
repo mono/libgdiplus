@@ -544,7 +544,7 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 		metacontext = gdip_metafile_play_setup ((GpMetafile*)image, graphics, tRect.X, tRect.Y, tRect.Width, tRect.Height);
 
 		cairo_get_matrix (graphics->ct, &orig_matrix);
-		cairo_set_matrix (graphics->ct, matrix);
+		gdip_cairo_set_matrix (graphics, matrix);
 		status = gdip_metafile_play (metacontext);
 		GdipDeleteMatrix (matrix);
 
@@ -575,7 +575,7 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	cairo_pattern_reference(org_pattern);
 	
 	cairo_get_matrix(graphics->ct, &orig_matrix);
-	cairo_set_matrix (graphics->ct, matrix);
+	gdip_cairo_set_matrix (graphics, matrix);
 	cairo_set_source_surface (graphics->ct, image->surface, 0, 0);
 	
 	cairo_paint (graphics->ct);	
@@ -1056,7 +1056,7 @@ GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint
 	}
 
 	cairo_get_matrix (graphics->ct, &orig_matrix);
-	cairo_set_matrix (graphics->ct, matrix);
+	gdip_cairo_set_matrix (graphics, matrix);
 	status = GdipDrawImageRectRect (graphics, image, rect.X, rect.Y, rect.Width, rect.Height, srcx, srcy, 
 		srcwidth, srcheight, srcUnit, imageAttributes, callback, callbackData);
 	cairo_set_matrix (graphics->ct, &orig_matrix);

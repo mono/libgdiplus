@@ -253,7 +253,7 @@ gdip_custom_linecap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *cus
 
 		gdip_pen_setup (graphics, pen);
 		cairo_stroke (graphics->ct);
-		cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+		gdip_cairo_set_matrix (graphics, graphics->copy_of_ctm);
 	}
 
 	/* FIXME: handle fill_path */

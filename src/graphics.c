@@ -529,7 +529,7 @@ GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state)
 	graphics->saved_status_pos = state;
 
 	/* re-adjust clipping (region and matrix) */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+	gdip_cairo_set_matrix (graphics, graphics->copy_of_ctm);
 
 	/* GdipCloneRegion was called, but for some reason, not registred as an allocation */
 	/* coverity[freed_arg] */

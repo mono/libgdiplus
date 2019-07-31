@@ -54,7 +54,7 @@ fill_graphics_with_brush (GpGraphics *graphics, GpBrush *brush, BOOL stroke)
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by brush setup.
 	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+	gdip_cairo_set_matrix (graphics, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -69,7 +69,7 @@ stroke_graphics_with_pen (GpGraphics *graphics, GpPen *pen)
 	/* Set the matrix back to graphics->copy_of_ctm for other functions.
 	 * This overwrites the matrix set by pen setup.
 	 */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+	gdip_cairo_set_matrix (graphics, graphics->copy_of_ctm);
 
 	return gdip_get_status (cairo_status (graphics->ct));
 }
@@ -853,12 +853,14 @@ cairo_SetGraphicsClip (GpGraphics *graphics)
 			gdip_plot_path (graphics, work->tree->path, FALSE);
 		else {
 			UINT count;
+			GpMatrix matrix;
+			cairo_matrix_init_identity (&matrix);
 			/* I admit that's a (not so cute) hack - anyone with a better idea ? */
-			if ((GdipGetRegionScansCount (work, &count, NULL) == Ok) && (count > 0)) {
+			if ((GdipGetRegionScansCount (work, &count, &matrix) == Ok) && (count > 0)) {
 				GpRectF *rects = (GpRectF*) GdipAlloc (count * sizeof (GpRectF));
 				if (rects) {
 					INT countTemp;
-					GdipGetRegionScans (work, rects, &countTemp, NULL);
+					GdipGetRegionScans (work, rects, &countTemp, &matrix);
 					for (i = 0, rect = rects; i < countTemp; i++, rect++) {
 						gdip_cairo_rectangle (graphics, rect->X, rect->Y, rect->Width, rect->Height, FALSE);
 					}
@@ -895,7 +897,7 @@ cairo_ResetClip (GpGraphics *graphics)
 GpStatus
 cairo_ResetWorldTransform (GpGraphics *graphics)
 {
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+	gdip_cairo_set_matrix (graphics, graphics->copy_of_ctm);
 	cairo_reset_clip (graphics->ct);
 	cairo_SetGraphicsClip (graphics);
 	return gdip_get_status (cairo_status (graphics->ct));
@@ -904,7 +906,7 @@ cairo_ResetWorldTransform (GpGraphics *graphics)
 GpStatus
 cairo_SetWorldTransform (GpGraphics *graphics, GpMatrix *matrix)
 {
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+	gdip_cairo_set_matrix (graphics, matrix);
 	cairo_SetGraphicsClip (graphics);
 	return gdip_get_status (cairo_status (graphics->ct));
 }
