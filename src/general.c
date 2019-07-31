@@ -75,9 +75,15 @@ GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStart
 		   which we could use to avoid generating a temporary file. But meanwhile,
 		   we are stuck with this workaround. */
 		char namebuf[512];
-		if (tmpnam(namebuf) != NULL) {
-			FILE* fi = fopen(namebuf, "wb");
+#ifdef WIN32
+		FILE *fi = CreateTempFile (namebuf);
+#else
+		strcpy ((char *) namebuf, "/tmp/ffXXXXXX");
+		int fd = mkstemp ((char *) namebuf);
+		FILE *fi = fdopen (fd, "wb");
+#endif
 
+		if (fi) {
 			fprintf(fi, "<?xml version=\"1.0\"?>\n");
 			fprintf(fi, "<fontconfig>\n");
 #if defined(WIN32)
