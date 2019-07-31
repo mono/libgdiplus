@@ -50,7 +50,7 @@
 #endif
 
 #define MAKE_ARGB_RGB(r,g,b)		(((r&0xff) << 16) | ((g&0xff) <<  8) | (b&0xff))
-#define MAKE_ARGB_ARGB(a,r,g,b)		(((a&0xff) << 24) | ((r&0xff) << 16) | ((g&0xff) << 8) | (b&0xff))
+#define MAKE_ARGB_ARGB(a,r,g,b)		(((guint32)(a&0xff) << 24) | ((r&0xff) << 16) | ((g&0xff) << 8) | (b&0xff))
 
 #if !defined(min)
 #define min(a,b)			(a < b ? a : b)
@@ -115,7 +115,7 @@ float gdip_get_display_dpi () GDIP_INTERNAL;
 GpStatus gdip_get_status (cairo_status_t status) GDIP_INTERNAL;
 GpStatus gdip_get_pattern_status (cairo_pattern_t *pat) GDIP_INTERNAL;
 
-gchar *ucs2_to_utf8 (const gunichar2 *ucs2, int length) GDIP_INTERNAL;
+gchar *utf16_to_utf8 (const gunichar2 *ucs2, int length) GDIP_INTERNAL;
 BOOL utf8_to_ucs2 (const gchar *utf8, gunichar2 *ucs2, int ucs2_len) GDIP_INTERNAL;
 int utf8_encode_ucs2char (gunichar2 unichar, unsigned char *dest) GDIP_INTERNAL;
 

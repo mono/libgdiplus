@@ -1,4 +1,4 @@
-AC_INIT(libgdiplus, [5.23], 
+AC_INIT(libgdiplus, [5.8],
 	[https://bugzilla.xamarin.com/enter_bug.cgi?product=Class%20Libraries&component=libgdiplus])
 
 AC_CONFIG_SRCDIR([README.md])
@@ -36,7 +36,7 @@ GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -Wall -Wextra -Wno-unused-parameter -Wno-sign-co
 AC_ARG_ENABLE(warnaserror, AS_HELP_STRING([--enable-warnaserror],[Enable treating warnings as errors.]),[warnaserror=yes],[warnaserror=no])
 
 if test $warnaserror = "yes"; then
-  GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -Werror"
+  GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -Werror -Wno-unknown-warning-option -Wno-clobbered -Wno-typedef-redefinition"
 fi
 
 AC_ARG_ENABLE(asan, AS_HELP_STRING([--enable-asan],[Enable address sanitizer.]),[asan=yes],[asan=no])
@@ -106,6 +106,8 @@ GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS $FONTCONFIG_CFLAGS $FREETYPE2_CFLAGS"
 
 AC_CHECK_HEADERS(byteswap.h)
 
+AC_SEARCH_LIBS(sqrt, m)
+
 AC_MSG_CHECKING([host threading settings])
 case "$host" in
 	*-*-mingw*|*-*-cygwin*)
@@ -152,8 +154,6 @@ case "$host" in
 
 	*-*-darwin*)
 		AC_DEFINE_UNQUOTED(OSX,1,[OS X])
-		CFLAGS="-no-cpp-precomp $CFLAGS"
-		LDFLAGS="-flat_namespace -undefined suppress $LDFLAGS"
 		no_libpng16=yes # workaround until we can upgrade the libpng used by bockbuild
 		;;
 

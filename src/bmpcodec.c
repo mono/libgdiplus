@@ -216,33 +216,37 @@ gdip_bitmap_fill_info_header (GpBitmap *bitmap, PBITMAPINFOHEADER bmi)
 #endif
 }                                                           
 
-static GpStatus
+static void
 gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride, int scanWidth, int scanCount, ImageSource source)
 {
 	BYTE code;
 	int bytes_read;
 
 	int col_offset = 0;
-	int row_offset = (upsidedown ? (scanCount - 1) * stride : 0);
-	int row_delta = (upsidedown ? -stride : +stride);
+	int row_offset = (scanCount - 1) * stride;
+	int row_delta = -stride;
 	int rows_remaining = scanCount;
+	int size = scanCount * stride;
 	BOOL new_row = FALSE;
 
+	if (!upsidedown)
+		return; /* top to bottom images can't be compressed */
+
 	if (scanWidth > stride)
-		return InvalidParameter;
+		return;
 
 	while ((rows_remaining > 0)
 	    || ((row_offset == 0) && (col_offset < scanWidth))) {
 		bytes_read = gdip_read_bmp_data (pointer, &code, 1, source);
 
 		if (bytes_read < 1)
-			return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+			return; /* TODO?: Add an "unexpected end of file" error code */
 
 		if (code == 0) { /* RLE escape code */
 			bytes_read = gdip_read_bmp_data (pointer, &code, 1, source);
 
 			if (bytes_read < 1)
-				return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+				return; /* TODO?: Add an "unexpected end of file" error code */
 
 			switch (code)
 			{
@@ -259,7 +263,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 				}
 				case 1: /* skip remainder of image -- in other words, we're finished :-) */
 				{
-					return Ok;
+					return;
 				}
 				case 2: /* jump forward (dx, dy) coordinates */
 				{
@@ -269,7 +273,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					bytes_read += gdip_read_bmp_data (pointer, &dy, 1, source);
 
 					if (bytes_read < 2)
-						return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+						return; /* TODO?: Add an "unexpected end of file" error code */
 
 					/* not really sure how to handle the case where the X delta goes
 					 * past the end of the scan. in the interest of not crashing,
@@ -296,14 +300,19 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 						if (bytes_to_read_this_scan > bytes_to_read)
 							bytes_to_read_this_scan = bytes_to_read;
 
+						int pixel_index = row_offset + col_offset;
+
+						if (pixel_index < 0 || pixel_index >= size)
+							return;
+
 						bytes_read = gdip_read_bmp_data (
 							pointer,
-							&scan0[row_offset + col_offset],
+							&scan0[pixel_index],
 							bytes_to_read_this_scan,
 							source);
 
 						if (bytes_read < bytes_to_read_this_scan)
-							return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+							return; /* TODO?: Add an "unexpected end of file" error code */
 
 						col_offset += bytes_read;
 						bytes_to_read -= bytes_read;
@@ -315,7 +324,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 							rows_remaining--;
 
 							if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-								return Ok;
+								return;
 
 							new_row = TRUE;
 						}
@@ -327,7 +336,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 						bytes_read = gdip_read_bmp_data(pointer, &code, 1, source);
 
 						if (bytes_read < 1)
-							return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+							return; /* TODO?: Add an "unexpected end of file" error code */
 					}
 
 					break;
@@ -342,7 +351,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 			bytes_read = gdip_read_bmp_data(pointer, &pixel_value, 1, source);
 
 			if (bytes_read < 1)
-				return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+				return; /* TODO?: Add an "unexpected end of file" error code */
 
 			while (run_length > 0) {
 				int bytes_to_run_this_scan = scanWidth - col_offset;
@@ -350,7 +359,15 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 				if (bytes_to_run_this_scan > run_length)
 					bytes_to_run_this_scan = run_length;
 
-				memset (scan0 + row_offset + col_offset, pixel_value, bytes_to_run_this_scan);
+				int pixel_index = row_offset + col_offset;
+
+				if (pixel_index < 0 || pixel_index >= size)
+					return;
+
+				if (bytes_to_run_this_scan < 0 || pixel_index + bytes_to_run_this_scan > size)
+					return;
+
+				memset (scan0 + pixel_index, pixel_value, bytes_to_run_this_scan);
 
 				col_offset += bytes_to_run_this_scan;
 				run_length -= bytes_to_run_this_scan;
@@ -362,7 +379,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					rows_remaining--;
 
 					if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-						return Ok;
+						return;
 
 					new_row = TRUE;
 				}
@@ -372,7 +389,7 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 		}
 	}
 
-	return Ok;
+	return;
 }
 
 // PixelFormat32bppARGB.
@@ -405,35 +422,39 @@ gdip_getpixel_16bppRGB565 (BYTE *scan, INT x)
 	return ((pixel & 0x1F) >> 2) | 8 * ((pixel & 0x1F) | 2 * (((((pixel >> 5) & 0x3F) | (((pixel >> 11) & 0xFFFFFFFC) << 10)) & 0xFFFFFFF0) | ((((pixel >> 5) & 0x3F) | ((((pixel >> 11)) | 0xFFFFFFE0) << 9)) << 6)));
 }
 
-static GpStatus
+static void
 gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride, int scanWidth, int scanCount, ImageSource source)
 {
 	BYTE code;
 	int bytes_read;
 
 	int col_offset = 0;
-	int row_offset = (upsidedown ? (scanCount - 1) * stride : 0);
-	int row_delta = (upsidedown ? -stride : +stride);
+	int row_offset = (scanCount - 1) * stride;
+	int row_delta = -stride;
 	int rows_remaining = scanCount;
+	int size = scanCount * stride;
 	BOOL new_row = FALSE;
+
+	if (!upsidedown)
+		return; /* top to bottom images can't be compressed */
 
 	if ((scanWidth & 1) != 0)
 		scanWidth++;
 
 	if (scanWidth > stride * 2)
-		return InvalidParameter;
+		return;
 
 	while (rows_remaining > 0) {
 		bytes_read = gdip_read_bmp_data (pointer, &code, 1, source);
 
 		if (bytes_read < 1)
-			return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+			return; /* TODO?: Add an "unexpected end of file" error code */
 
 		if (code == 0) { /* RLE escape code */
 			bytes_read = gdip_read_bmp_data (pointer, &code, 1, source);
 
 			if (bytes_read < 1)
-				return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+				return; /* TODO?: Add an "unexpected end of file" error code */
 
 			switch (code)
 			{
@@ -450,7 +471,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 				}
 				case 1: /* skip remainder of image -- in other words, we're finished :-) */
 				{
-					return Ok;
+					return;
 				}
 				case 2: /* jump forward (dx, dy) coordinates */
 				{
@@ -460,7 +481,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					bytes_read += gdip_read_bmp_data (pointer, &dy, 1, source);
 
 					if (bytes_read < 2)
-						return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+						return; /* TODO?: Add an "unexpected end of file" error code */
 
 					/* not really sure how to handle the case where the X delta goes
 					 * past the end of the scan. in the interest of not crashing,
@@ -490,28 +511,35 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 						if ((scanWidth - col_offset) == 1) {
 							/* special case: a pair of pixels is split across two rows. */
 							BYTE pixels, same_row_pixel, next_row_pixel;
+							int pixel_index = row_offset + col_offset / 2;
+
+							if (pixel_index < 0 || pixel_index >= size)
+								return;
 
 							bytes_read = gdip_read_bmp_data (pointer, &pixels, 1, source);
 
 							if (bytes_read < 1)
-								return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+								return; /* TODO?: Add an "unexpected end of file" error code */
 
 							same_row_pixel = (pixels >> 4) & 0x0F;
 							next_row_pixel =  pixels       & 0x0F;
 
 							if ((col_offset & 1) != 0) {
-								BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
-								scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | same_row_pixel;
+								BYTE old_pixel = 0xF0 & scan0[pixel_index];
+								scan0[pixel_index] = (old_pixel & 0xF0) | same_row_pixel;
 							}
 							else
-								scan0[row_offset + col_offset / 2] = same_row_pixel << 4;
+								scan0[pixel_index] = same_row_pixel << 4;
 
 							col_offset = 1;
 							row_offset += row_delta;
 							rows_remaining--;
 
 							if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-								return Ok;
+								return;
+
+							if (row_offset < 0 || row_offset >= size)
+								return;
 
 							scan0[row_offset] = next_row_pixel << 4;
 
@@ -530,14 +558,19 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 							if (bytes_to_read_this_scan > bytes_to_read)
 								bytes_to_read_this_scan = bytes_to_read;
 
+							int pixel_index = row_offset + col_offset / 2;
+
+							if (pixel_index < 0 || pixel_index >= size)
+								return;
+
 							bytes_read = gdip_read_bmp_data (
 								pointer,
-								&scan0[row_offset + col_offset / 2],
+								&scan0[pixel_index],
 								bytes_to_read_this_scan,
 								source);
 
 							if (bytes_read < bytes_to_read_this_scan)
-								return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+								return; /* TODO?: Add an "unexpected end of file" error code */
 
 							col_offset += bytes_read * 2;
 							bytes_to_read -= bytes_read;
@@ -546,7 +579,12 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 						}
 						else {
 							/* bad alignment; nybble-swapping will be required */
-							BYTE last_high_nybble = 0xF0 & scan0[row_offset + col_offset / 2];
+							int pixel_index = row_offset + col_offset / 2;
+
+							if (pixel_index < 0 || pixel_index >= size)
+								return;
+
+							BYTE last_high_nybble = 0xF0 & scan0[pixel_index];
 
 							int bytes_to_read_this_scan = (scanWidth - col_offset) / 2;
 
@@ -559,9 +597,14 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 								bytes_read = gdip_read_bmp_data (pointer, &pixels, 1, source);
 
 								if (bytes_read < 1)
-									return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+									return; /* TODO?: Add an "unexpected end of file" error code */
 
-								scan0[row_offset + col_offset / 2] = last_high_nybble | (pixels >> 4);
+								pixel_index = row_offset + col_offset / 2;
+
+								if (pixel_index < 0 || pixel_index >= size)
+									return;
+
+								scan0[pixel_index] = last_high_nybble | (pixels >> 4);
 
 								last_high_nybble = (pixels << 4) & 0xF0;
 
@@ -578,7 +621,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 							rows_remaining--;
 
 							if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-								return Ok;
+								return;
 
 							new_row = TRUE;
 						}
@@ -587,20 +630,24 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					if ((pixels_to_read & 1) != 0) {
 						/* half of a byte remains to be inserted into the correct nybble */
 						BYTE pixel;
+						int pixel_index = row_offset + col_offset / 2;
+
+						if (pixel_index < 0 || pixel_index >= size)
+							return;
 
 						bytes_read = gdip_read_bmp_data (pointer, &pixel, 1, source);
 
 						if (bytes_read < 1)
-							return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+							return; /* TODO?: Add an "unexpected end of file" error code */
 
 						pixel >>= 4; /* the last pixel is in the high nybble */
 
 						if ((col_offset & 1) != 0) {
-							BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
-							scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | pixel;
+							BYTE old_pixel = 0xF0 & scan0[pixel_index];
+							scan0[pixel_index] = (old_pixel & 0xF0) | pixel;
 						}
 						else
-							scan0[row_offset + col_offset / 2] = pixel << 4;
+							scan0[pixel_index] = pixel << 4;
 
 						col_offset++;
 
@@ -610,7 +657,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 							rows_remaining--;
 
 							if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-								return Ok;
+								return;
 
 							new_row = TRUE;
 						}
@@ -622,7 +669,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 						bytes_read = gdip_read_bmp_data(pointer, &code, 1, source);
 
 						if (bytes_read < 1)
-							return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+							return; /* TODO?: Add an "unexpected end of file" error code */
 					}
 
 					break;
@@ -645,7 +692,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 			bytes_read = gdip_read_bmp_data(pointer, &pixel_values, 1, source);
 
 			if (bytes_read < 1)
-				return GenericError; /* TODO?: Add an "unexpected end of file" error code */
+				return; /* TODO?: Add an "unexpected end of file" error code */
 
 			inverted_pixel_values = ((pixel_values & 0x0F) << 4) | ((pixel_values & 0xF0) >> 4);
 
@@ -661,19 +708,27 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					BYTE same_row_pixel = (pixel_values >> 4) & 0x0F;
 					BYTE next_row_pixel =  pixel_values       & 0x0F;
 
+					int pixel_index = row_offset + col_offset / 2;
+
+					if (pixel_index < 0 || pixel_index >= size)
+						return;
+
 					if ((col_offset & 1) != 0) {
-						BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
-						scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | same_row_pixel;
+						BYTE old_pixel = 0xF0 & scan0[pixel_index];
+						scan0[pixel_index] = (old_pixel & 0xF0) | same_row_pixel;
 					}
 					else
-						scan0[row_offset + col_offset / 2] = same_row_pixel << 4;
+						scan0[pixel_index] = same_row_pixel << 4;
 
 					col_offset = 1;
 					row_offset += row_delta;
 					rows_remaining--;
 
 					if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-						return Ok;
+						return;
+
+					if (row_offset < 0 || row_offset >= size)
+						return;
 
 					scan0[row_offset] = next_row_pixel << 4;
 
@@ -690,11 +745,15 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 				}
 				else {
 					int bytes_to_run_this_scan;
+					int pixel_index = row_offset + col_offset / 2;
+
+					if (pixel_index < 0 || pixel_index >= size)
+						return;
 
 					/* make sure we're byte-aligned; if we're not, we need to store a nybble first */
 					if ((col_offset & 1) != 0) {
-						BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
-						scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | (pixel_values & 0x0F);
+						BYTE old_pixel = 0xF0 & scan0[pixel_index];
+						scan0[pixel_index] = (old_pixel & 0xF0) | (pixel_values & 0x0F);
 
 						col_offset++;
 					}
@@ -704,7 +763,10 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					if (bytes_to_run_this_scan > run_length)
 						bytes_to_run_this_scan = run_length;
 
-					memset (scan0 + row_offset + col_offset / 2, pixel_values, bytes_to_run_this_scan);
+					if (bytes_to_run_this_scan < 0 || pixel_index + bytes_to_run_this_scan > size)
+						return;
+
+					memset (scan0 + pixel_index, pixel_values, bytes_to_run_this_scan);
 
 					col_offset += bytes_to_run_this_scan * 2;
 					run_length -= bytes_to_run_this_scan;
@@ -715,7 +777,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 						rows_remaining--;
 
 						if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-							return Ok;
+							return;
 
 						new_row = TRUE;
 
@@ -736,13 +798,17 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 			if ((run_pixels & 1) != 0) {
 				/* half of a byte remains to be inserted into the correct nybble */
 				BYTE pixel = pixel_values >> 4; /* the last pixel is in the high nybble */
+				int pixel_index = row_offset + col_offset / 2;
+
+				if (pixel_index < 0 || pixel_index >= size)
+					return;
 
 				if ((col_offset & 1) != 0) {
-					BYTE old_pixel = 0xF0 & scan0[row_offset + col_offset / 2];
-					scan0[row_offset + col_offset / 2] = (old_pixel & 0xF0) | pixel;
+					BYTE old_pixel = 0xF0 & scan0[pixel_index];
+					scan0[pixel_index] = (old_pixel & 0xF0) | pixel;
 				}
 				else
-					scan0[row_offset + col_offset / 2] = pixel << 4;
+					scan0[pixel_index] = pixel << 4;
 
 				col_offset++;
 
@@ -752,7 +818,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 					rows_remaining--;
 
 					if (rows_remaining <= 0) /* more data than expected -- let's not make this a fatal error */
-						return Ok;
+						return;
 
 					new_row = TRUE;
 				}
@@ -762,7 +828,7 @@ gdip_read_bmp_rle_4bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 		}
 	}
 
-	return Ok;
+	return;
 }
 
 GpStatus
@@ -775,7 +841,7 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 	if (size_read < size)
 		return OutOfMemory;
 
-	DWORD headerSize = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	DWORD headerSize = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 	switch (headerSize) {
 	case BITMAPCOREHEADER_SIZE:
 		bmi->bV5Size = headerSize;
@@ -799,13 +865,20 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 		size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 		if (size_read < size)
 			return OutOfMemory;
-		bmi->bV5Width = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+		bmi->bV5Width = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+		// Width can't be negative (as opposed to Height where that indicates a top-down image)
+		if (bmi->bV5Width <= 0)
+			return OutOfMemory;
 
 		dw = 0;
 		size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 		if (size_read < size)
 			return OutOfMemory;
-		bmi->bV5Height = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+		bmi->bV5Height = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+
+		if (bmi->bV5Height == 0)
+			return OutOfMemory;
 
 		break;
 	default:
@@ -836,7 +909,7 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5Compression = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5Compression = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
  	/* If the height is negative then the bitmap is sideup. */
 	if (bmi->bV5Height < 0) {
@@ -848,31 +921,31 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5SizeImage = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5SizeImage = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5XPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5XPelsPerMeter = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5YPelsPerMeter = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5YPelsPerMeter = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5ClrUsed = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5ClrUsed = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5ClrImportant = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5ClrImportant = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	/* We've finished reading the BITMAPINFOHEADER but later versions are larger. */
 	if (bmi->bV5Size == sizeof (BITMAPINFOHEADER)) {
@@ -885,19 +958,19 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5RedMask = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5RedMask = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5GreenMask = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5GreenMask = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	dw = 0;
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5BlueMask = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5BlueMask = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	if (bmi->bV5Size == sizeof (BITMAPINFOHEADER))
 		return Ok;
@@ -906,7 +979,7 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 	size_read = gdip_read_bmp_data (pointer, data_read, size, source);
 	if (size_read < size)
 		return OutOfMemory;
-	bmi->bV5AlphaMask = (data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
+	bmi->bV5AlphaMask = ((guint32)data_read[3]<<24 | data_read[2]<<16 | data_read[1]<<8 | data_read[0]);
 
 	/* We don't use any information in BITMAPV4HEADER or BITMAPV5HEADER, so there is no point going through all of
 	 * the other fields. This leaves the rest of the structure uninitialized. */
@@ -929,7 +1002,7 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 static GpStatus
 gdip_readbmp_palette (void *pointer, ImageSource source, const BITMAPV5HEADER *bmi, ColorPalette **result)
 {
-	int numberOfColors = bmi->bV5ClrUsed;
+	UINT numberOfColors = bmi->bV5ClrUsed;
 	if (bmi->bV5BitCount <= 8) {
 		int defaultNumberOfColors = 1 << bmi->bV5BitCount;
 		// A color count of 0 means use the default. Also use the default color count
@@ -945,8 +1018,14 @@ gdip_readbmp_palette (void *pointer, ImageSource source, const BITMAPV5HEADER *b
 
 	BYTE buffer[4];
 	INT colorEntrySize = bmi->bV5Size == BITMAPCOREHEADER_SIZE ? 3 : 4;
+	unsigned long long int palette_size = (unsigned long long int)sizeof (ColorPalette) + sizeof (ARGB) * numberOfColors;
 
-	ColorPalette *palette = GdipAlloc (sizeof (ColorPalette) + sizeof (ARGB) * numberOfColors);
+	/* ensure total 'palette_size' does not overflow an integer and fits inside our 2GB limit */
+	if (palette_size > G_MAXINT32) {
+		return OutOfMemory;
+	}
+
+	ColorPalette *palette = GdipAlloc (palette_size);
 	if (!palette)
 		return OutOfMemory;
 	
@@ -1099,7 +1178,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 	}
 
 	/* ensure total 'size' does not overflow an integer and fits inside our 2GB limit */
-	size = result->active_bitmap->stride * result->active_bitmap->height;
+	size = (unsigned long long int)result->active_bitmap->stride * result->active_bitmap->height;
 	if (size > G_MAXINT32) {
 		gdip_bitmap_dispose (result);
 		return OutOfMemory;
@@ -1221,7 +1300,7 @@ gdip_read_bmp_data (void *pointer, BYTE *data, int size, ImageSource source)
 			memcpy (data, ms->ptr + ms->pos, len);
 			ms->pos += len;
 		}
-		return size;
+		return len;
 	}
 	default:
 		return -1;

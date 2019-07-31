@@ -234,6 +234,13 @@ GdipCreateFromHDC (HDC hdc, GpGraphics **graphics)
 	if (!hdc)
 		return OutOfMemory;
 
+#if defined(WIN32)
+	// HDC returns to a device context. The remainer of this function assumes that hdc really
+	// is a GpGrahpics, but that's almost guaranteed to be not the case on Windows. Just fail
+	// quickly instead of segfauling.
+	return NotImplemented;
+#endif
+
 #ifdef CAIRO_HAS_PS_SURFACE
 
 	if (clone->type == gtPostScript) {
@@ -529,7 +536,7 @@ GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state)
 	graphics->saved_status_pos = state;
 
 	/* re-adjust clipping (region and matrix) */
-	cairo_set_matrix (graphics->ct, graphics->copy_of_ctm);
+	gdip_cairo_set_matrix (graphics, graphics->copy_of_ctm);
 
 	/* GdipCloneRegion was called, but for some reason, not registred as an allocation */
 	/* coverity[freed_arg] */

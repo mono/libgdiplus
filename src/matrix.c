@@ -68,6 +68,30 @@ gdip_is_matrix_empty (const GpMatrix* matrix)
 		gdip_near_zero (matrix->x0) && gdip_near_zero (matrix->y0));
 }
 
+/* GDI+ is more restrictive with matrices which contain boundary values (NaN, Infinity) than
+   cairo. This helper function helps you detect these special cases. */
+BOOL
+gdip_is_matrix_with_boundary_values(const GpMatrix* matrix)
+{
+	if (!matrix)
+		return TRUE;
+
+	return isnan(matrix->xx) || isnan(matrix->xy) || isnan(matrix->yx) || isnan(matrix->yy) || isnan(matrix->x0) || isnan(matrix->y0)
+		|| isinf(matrix->xx) || isinf(matrix->xy) || isinf(matrix->yx) || isinf(matrix->yy) || isinf(matrix->x0) || isinf(matrix->y0);
+}
+
+/* GDI+ maps values between [ FLT_MAX, Infinity [ to FLT_MAX, instead of Infinity */
+REAL
+gdip_double_to_float(double value)
+{
+	if (value != INFINITY && value > FLT_MAX)
+		return (REAL)FLT_MAX;
+
+	if (value != -INFINITY && value < -FLT_MAX)
+		return (REAL)-FLT_MAX;
+
+	return (REAL)value;
+}
 
 BOOL
 gdip_is_matrix_a_translation (const GpMatrix *matrix)
@@ -250,12 +274,12 @@ GdipGetMatrixElements (GDIPCONST GpMatrix *matrix, REAL *matrixOut)
 	if (!matrix || !matrixOut)
 		return InvalidParameter;
 
-	matrixOut[0] = (REAL) matrix->xx;
-	matrixOut[1] = (REAL) matrix->yx;
-	matrixOut[2] = (REAL) matrix->xy;
-	matrixOut[3] = (REAL) matrix->yy;
-	matrixOut[4] = (REAL) matrix->x0;
-	matrixOut[5] = (REAL) matrix->y0;
+	matrixOut[0] = gdip_double_to_float (matrix->xx);
+	matrixOut[1] = gdip_double_to_float (matrix->yx);
+	matrixOut[2] = gdip_double_to_float (matrix->xy);
+	matrixOut[3] = gdip_double_to_float (matrix->yy);
+	matrixOut[4] = gdip_double_to_float (matrix->x0);
+	matrixOut[5] = gdip_double_to_float (matrix->y0);
 
 	return Ok;
 }
@@ -318,7 +342,7 @@ GdipShearMatrix (GpMatrix *matrix, REAL shearX, REAL shearY, GpMatrixOrder order
 GpStatus WINGDIPAPI
 GdipInvertMatrix (GpMatrix *matrix)
 {
-	if (!matrix)
+	if (!matrix || gdip_is_matrix_with_boundary_values(matrix))
 		return InvalidParameter;
 
 	return gdip_get_status (cairo_matrix_invert (matrix));
@@ -407,10 +431,16 @@ GdipIsMatrixInvertible (GDIPCONST GpMatrix *matrix, BOOL *result)
 	if (!matrix || !result)
 		return InvalidParameter;
 
+	if (gdip_is_matrix_with_boundary_values (matrix))
+	{
+		*result = FALSE;
+		return Ok;
+	}
+
 	gdip_cairo_matrix_copy (&copy, matrix);
 	status = cairo_matrix_invert (&copy);
 
-	*result = (status != CAIRO_STATUS_INVALID_MATRIX);
+	*result = (status == CAIRO_STATUS_SUCCESS);
 	return Ok;
 }
 

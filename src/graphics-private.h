@@ -169,6 +169,8 @@ void gdip_cairo_line_to (GpGraphics *graphics, double x, double y, BOOL convert_
 void gdip_cairo_curve_to (GpGraphics *graphics, double x1, double y1, double x2, double y2, double x3, double y3, 
 	BOOL convert_units, BOOL antialiasing) GDIP_INTERNAL;
 
+void gdip_cairo_set_matrix (GpGraphics *graphics, GpMatrix *matrixPageUnits) GDIP_INTERNAL;
+
 #ifdef CAIRO_HAS_QUARTZ_SURFACE
 
 #if __i386__

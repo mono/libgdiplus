@@ -92,9 +92,9 @@ read_ICONDIRENTRY (void *pointer, ICONDIRENTRY *entry, ImageSource source, BOOL 
 		b = (BYTE*)&entry->wBitCount;
 		entry->wBitCount = (b[1] << 8) | b[0];
 		b = (BYTE*)&entry->dwBytesInRes;
-		entry->dwBytesInRes = (b[3] << 24) | (b[2] << 16) | (b[1] << 8) | b[0];
+		entry->dwBytesInRes = ((guint32)b[3] << 24) | (b[2] << 16) | (b[1] << 8) | b[0];
 		b = (BYTE*)&entry->dwImageOffset;
-		entry->dwImageOffset = (b[3] << 24) | (b[2] << 16) | (b[1] << 8) | b[0];
+		entry->dwImageOffset = ((guint32)b[3] << 24) | (b[2] << 16) | (b[1] << 8) | b[0];
 	}
 #endif
 	return TRUE;
@@ -294,7 +294,7 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 			} else {
 				BYTE *line_data = xor_data + y * line_xor_length + x * 4;
 				/* ARGB to BRGA */
-				color = (line_data [0] | line_data [1] << 8 | line_data [2] << 16 | line_data [3] << 24);
+				color = (line_data [0] | line_data [1] << 8 | line_data [2] << 16 | (guint32)line_data [3] << 24);
 			}
 			/* image is reversed (y) */
 			GdipBitmapSetPixel (result, x, entry.bHeight - y - 1, color);

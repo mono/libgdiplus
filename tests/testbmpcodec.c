@@ -1693,6 +1693,9 @@ static void test_validImage4bppRle4Compression ()
 	GdipDisposeImage(image);
 
 	createFileSuccessDispose (fullNegativeHeight, expectedRle4Format, 6, 4, bmpFlags, FALSE);
+	// according to the docs (https://docs.microsoft.com/en-us/windows/desktop/gdi/bitmap-header-types) negative height (top-down bitmap)
+	// isn't supported for RLE compression but GDI+ still accepts it
+#if defined(USE_WINDOWS_GDIPLUS)
 	ARGB fullNegativeHeightPixels[] = {
 		0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00,
 		0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00, 0xFF0000FF, 0xFF00FF00,
@@ -1700,6 +1703,7 @@ static void test_validImage4bppRle4Compression ()
 		0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF
 	};
 	verifyPixels (image, fullNegativeHeightPixels);
+#endif
 	GdipDisposeImage(image);
 
 	createFileSuccessDispose (incompleteAfterLineBreak, expectedRle4Format, 6, 4, bmpFlags, FALSE);
@@ -2089,8 +2093,6 @@ static void test_validImage8bppBitmapInfoHeader ()
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image6x4LargeColorsUsed, PixelFormat8bppIndexed, 6, 4, bmpFlags, FALSE);
-	// FIXME: these are incorrect: https://github.com/mono/libgdiplus/issues/302
-#if defined(USE_WINDOWS_GDIPLUS)
 	ARGB image6x4LargeColorsUsedPixels[] = {
 		0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF000000, 0xFF0000FF, 0xFF0000FF,
 		0xFF000000, 0xFF0000FF, 0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
@@ -2099,7 +2101,6 @@ static void test_validImage8bppBitmapInfoHeader ()
 	};
 	verifyPixels (image, image6x4LargeColorsUsedPixels);
 	verifyPalette (image, 0, fullPalette);
-#endif
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (image1x1NegativeHeight, PixelFormat8bppIndexed, 1, 1, bmpFlags, FALSE);
@@ -3116,6 +3117,9 @@ static void test_validImage8bppRle8Compression ()
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (fullNegativeHeight, expectedRle8Format, 6, 4, bmpFlags, FALSE);
+	// according to the docs (https://docs.microsoft.com/en-us/windows/desktop/gdi/bitmap-header-types) negative height (top-down bitmap)
+	// isn't supported for RLE compression but GDI+ still accepts it
+#if defined(USE_WINDOWS_GDIPLUS)
 	ARGB fullNegativeHeightPixels[] = {
 		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
 		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
@@ -3123,6 +3127,7 @@ static void test_validImage8bppRle8Compression ()
 		0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF, 0xFF0000FF
 	};
 	verifyPixels (image, fullNegativeHeightPixels);
+#endif
 	GdipDisposeImage (image);
 
 	createFileSuccessDispose (incompleteAfterLineBreak, expectedRle8Format, 6, 4, bmpFlags, FALSE);

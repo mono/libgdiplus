@@ -131,4 +131,4 @@ libgdiplus_la_LIBADD = $(GDIPLUS_LIBS)
 
 AM_CPPFLAGS = $(GDIPLUS_CFLAGS)
 
-EXTRA_DIST = libgdiplus.vcxproj packages.config
+EXTRA_DIST = libgdiplus.vcxproj

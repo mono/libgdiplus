@@ -222,7 +222,7 @@ GdipPrivateAddFontFile (GpFontCollection *fontCollection, GDIPCONST WCHAR *filen
 	if (!fontCollection || !filename)
 		return InvalidParameter;
     
-	file = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)filename, -1);
+	file = (BYTE*) utf16_to_utf8 ((const gunichar2 *)filename, -1);
 	if (!file)
 		return OutOfMemory;
 
@@ -578,7 +578,7 @@ GdipCreateFontFamilyFromName (GDIPCONST WCHAR *name, GpFontCollection *font_coll
 	if (!name || !fontFamily)
 		return InvalidParameter;
 
-	string = (char*)ucs2_to_utf8 ((const gunichar2 *)name, -1);
+	string = (char*)utf16_to_utf8 ((const gunichar2 *)name, -1);
 	if (!string)
 		return OutOfMemory;
 
@@ -1294,7 +1294,7 @@ gdip_create_font_from_logfont (HDC hdc, void *lf, GpFont **font, BOOL ucs2)
 	}
 
 	if (ucs2) {
-		result->face = (BYTE*) ucs2_to_utf8 ((WCHAR *) logfont->lfFaceName, -1);
+		result->face = (BYTE*) utf16_to_utf8 ((WCHAR *) logfont->lfFaceName, -1);
 		if (!result->face){
 			GdipDeleteFont (result);
 			return OutOfMemory;

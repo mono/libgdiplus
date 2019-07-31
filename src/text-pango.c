@@ -33,7 +33,7 @@
 #include "fontcollection-private.h"
 
 int
-utf8_length_for_ucs2_string (GDIPCONST WCHAR *stringUnicode, int offset, int length)
+utf8_length_for_utf16_string (GDIPCONST WCHAR *stringUnicode, int offset, int length)
 {
 	int utf8_length = 0;
 	int end = offset + length;
@@ -46,7 +46,8 @@ utf8_length_for_ucs2_string (GDIPCONST WCHAR *stringUnicode, int offset, int len
 			utf8_length += 2;
 		else if (ch < 0xD800 || ch >= 0xE000)
 			utf8_length += 3;
-		/* ignore surrogate pairs as they are ignored in ucs2_to_utf8() */
+		else
+			utf8_length += 4;
 	}
 	return utf8_length;
 }
@@ -190,14 +191,14 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 	int i;
 	int FrameWidth;     /* rc->Width (or rc->Height if vertical) */
 	int FrameHeight;    /* rc->Height (or rc->Width if vertical) */
-	int FrameX;         /* rc->X (or rc->Y if vertical) */
-	int FrameY;         /* rc->Y (or rc->X if vertical) */
+	//int FrameX;         /* rc->X (or rc->Y if vertical) */
+	//int FrameY;         /* rc->Y (or rc->X if vertical) */
 	int y0;             /* y0,y1,clipNN used for checking line positions vs. clip rectangle */
 	int y1;
 	int trimSpace;      /* whether or not to trim the space */
 	BOOL use_horizontal_layout;
 
-	gchar *text = ucs2_to_utf8 (stringUnicode, length);
+	gchar *text = utf16_to_utf8 (stringUnicode, length);
 	if (!text)
 		return NULL;
 	length = strlen(text);
@@ -237,13 +238,13 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 	if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
 		FrameWidth = MAKE_SAFE_FOR_PANGO (SAFE_FLOAT_TO_UINT32 (rc->Height));
 		FrameHeight = MAKE_SAFE_FOR_PANGO (SAFE_FLOAT_TO_UINT32 (rc->Width));
-		FrameX = SAFE_FLOAT_TO_UINT32 (rc->Y);
-		FrameY = SAFE_FLOAT_TO_UINT32 (rc->X);
+		//FrameX = SAFE_FLOAT_TO_UINT32 (rc->Y);
+		//FrameY = SAFE_FLOAT_TO_UINT32 (rc->X);
 	} else {
 		FrameWidth = MAKE_SAFE_FOR_PANGO (SAFE_FLOAT_TO_UINT32 (rc->Width));
 		FrameHeight = MAKE_SAFE_FOR_PANGO (SAFE_FLOAT_TO_UINT32 (rc->Height));
-		FrameX = SAFE_FLOAT_TO_UINT32 (rc->X);
-		FrameY = SAFE_FLOAT_TO_UINT32 (rc->Y);
+		//FrameX = SAFE_FLOAT_TO_UINT32 (rc->X);
+		//FrameY = SAFE_FLOAT_TO_UINT32 (rc->Y);
 	}
 	//g_warning("FW: %d\tFH: %d", FrameWidth, FrameHeight);
 
@@ -711,7 +712,7 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 		}
 
 		/* calculate the initial UTF-8 index */
-		int idxUtf8 = utf8_length_for_ucs2_string (stringUnicode, 0, start);
+		int idxUtf8 = utf8_length_for_utf16_string (stringUnicode, 0, start);
 
 		/* calculate the regions */
 		for (j = start; j < end; j++) {
@@ -747,7 +748,7 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 				break;
 
 			// update the UTF-8 index
-			idxUtf8 += utf8_length_for_ucs2_string (stringUnicode, j, 1);
+			idxUtf8 += utf8_length_for_utf16_string (stringUnicode, j, 1);
 		}
 		if (status != Ok)
 			break;

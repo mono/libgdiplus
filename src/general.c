@@ -361,12 +361,12 @@ gdip_erf (float x, float std, float mean)
 }
 
 /*
- convert a ucs2 string to utf8
+ convert a utf16 string to utf8
  length = number of characters to convert, -1 to indicate the whole string
 */
 
 gchar *
-ucs2_to_utf8(const gunichar2 *ucs2, int length) {
+utf16_to_utf8(const gunichar2 *ucs2, int length) {
 	const gunichar2	*ptr;
 	const gunichar2	*end;
 	gunichar	*dest;
@@ -396,6 +396,10 @@ ucs2_to_utf8(const gunichar2 *ucs2, int length) {
 		if (*ptr < 0xd800 || *ptr >= 0xe000) {
 			*dest = *ptr;
 			dest++;
+		} else if (ptr + 1 != end && ptr[1] < 0xe000 && ptr[1] >= 0xdc00) {
+			/* UTF-16 support: Convert high and low surrogate to 32-bit code. */
+			*dest++ = ((gunichar)ptr[0] - 0xd800) * 0x400 + ((gunichar)ptr[1] - 0xdc00) + 0x10000;
+			ptr++;
 		}
 		ptr++;
 	}
@@ -609,6 +613,32 @@ gdip_cairo_curve_to (GpGraphics *graphics, double x1, double y1, double x2, doub
 	y3 = CAIRO_LIMIT (y3);
 
 	cairo_curve_to (graphics->ct, x1, y1, x2, y2, x3, y3);
+}
+
+void
+gdip_cairo_set_matrix (GpGraphics *graphics, GpMatrix *matrixPageUnits)
+{
+	float x0 = matrixPageUnits->x0;
+	float y0 = matrixPageUnits->y0;
+
+	/* avoid unit conversion whenever possible */
+	if (!OPTIMIZE_CONVERSION (graphics)) {
+		x0 = gdip_unitx_convgr (graphics, x0);
+		y0 = gdip_unity_convgr (graphics, y0);
+	}
+
+	/* do not apply antialiasing trick to transformation matrix */
+
+	/* put everything between cairo limits */
+	x0 = CAIRO_LIMIT (x0);
+	y0 = CAIRO_LIMIT (y0);
+
+	GpMatrix matrixCopy;
+	gdip_cairo_matrix_copy (&matrixCopy, matrixPageUnits);
+	matrixCopy.x0 = x0;
+	matrixCopy.y0 = y0;
+
+	cairo_set_matrix (graphics->ct, &matrixCopy);
 }
 
 void gdip_RectF_from_Rect (const GpRect* rect, GpRectF* rectf)

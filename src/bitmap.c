@@ -205,7 +205,7 @@ gdip_property_get_long(int offset, void *value, guint32 *result)
 {
 	BYTE *ptr = (BYTE*)value;
 
-	*result = ptr[offset] + (ptr[offset + 1] << 8) + (ptr[offset + 2] << 16) + (ptr[offset + 3] << 24);
+	*result = ptr[offset] + (ptr[offset + 1] << 8) + (ptr[offset + 2] << 16) + ((guint32)ptr[offset + 3] << 24);
 
 	return Ok;
 }
@@ -226,8 +226,8 @@ gdip_property_get_rational(int offset, void *value, guint32 *numerator, guint32 
 {
 	BYTE *ptr = (BYTE*)value;
 
-	*numerator = ptr[offset] + (ptr[offset + 1] << 8) + (ptr[offset + 2] << 16) + (ptr[offset + 3] << 24);
-	*denominator = ptr[offset + 4] + (ptr[offset + 5] << 8) + (ptr[offset + 6] << 16) + (ptr[offset + 7] << 24);
+	*numerator = ptr[offset] + (ptr[offset + 1] << 8) + (ptr[offset + 2] << 16) + ((guint32)ptr[offset + 3] << 24);
+	*denominator = ptr[offset + 4] + (ptr[offset + 5] << 8) + (ptr[offset + 6] << 16) + ((guint32)ptr[offset + 7] << 24);
 
 	return Ok;
 }
@@ -907,14 +907,14 @@ GdipCreateBitmapFromScan0 (INT width, INT height, INT stride, PixelFormat format
 			return OutOfMemory;
 		}
 
-		if ((gdip_get_pixel_format_bpp(format) < 16) || gdip_is_an_alpha_pixelformat(format)) {
+		if ((gdip_get_pixel_format_bpp(format) < 32) || gdip_is_an_alpha_pixelformat(format)) {
 			memset (scan0, 0, stride * height);
 		} else {
 			/* Since the pixel format is not an alpha pixel format (i.e., it is
-			 * either PixelFormat24bppRGB or PixelFormat32bppRGB), the image should be
-			 * initially black, not initially transparent. Thus, we need to set
-			 * the alpha channel, which the user code doesn't think exists but
-			 * Cairo is still paying attention to, to 0xFF.
+			 * PixelFormat32bppRGB), the image should be initially black, not
+			 * initially transparent. Thus, we need to set the alpha channel,
+			 * which the user code doesn't think exists but Cairo is still paying
+			 * attention to, to 0xFF.
 			 */
 			for (int y = 0; y < height; y++) {
 				ARGB *scan = (ARGB *) (scan0 + y * stride);
@@ -1051,6 +1051,10 @@ GdipCreateBitmapFromHICON (HICON hicon, GpBitmap** bitmap)
 
 	if (!hicon || !bitmap)
 		return InvalidParameter;
+
+#if defined(WIN32)
+		return NotImplemented;
+#endif
 
 	status = GdipCloneImage ((GpImage *)hicon, &result);
 	if (status != Ok)
@@ -1381,7 +1385,7 @@ gdip_init_pixel_stream (StreamingState *state, ActiveBitmapData *data, int x, in
 			state->scan += ((x * 3) >> 3);	/* x * 3 / 8 */
 			break;
 		}
-		/* else continue (don't break) */
+		/* fall through */
 	case PixelFormat32bppRGB:
 	default:
 		/* indicate full RGB processing */
@@ -1495,7 +1499,7 @@ gdip_pixel_stream_get_next (StreamingState *state)
 		 */
 		if (state->pixels_per_byte == -4) {
 #if WORDS_BIGENDIAN
-			ret = state->scan [0] | (state->scan [1] << 8) | (state->scan [2] << 16) | (state->scan [3] << 24);
+			ret = state->scan [0] | (state->scan [1] << 8) | (state->scan [2] << 16) | ((guint32)state->scan [3] << 24);
 #else
 			ret = *(unsigned int *)state->scan;
 #endif
@@ -1845,7 +1849,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST GpRect *rect, UINT flags, PixelF
 		return WrongState;
 
 	if (rect) {
-		if ((rect->X < 0) || (rect->Y < 0) || (rect->Width < 0) || (rect->Height < 0))
+		if ((rect->X < 0) || (rect->Y < 0) || (rect->Width <= 0) || (rect->Height <= 0))
 			return InvalidParameter;
 
 		if (((rect->X + rect->Width) > src_data->width) || ((rect->Y + rect->Height) > src_data->height))
@@ -1867,7 +1871,7 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST GpRect *rect, UINT flags, PixelF
 	}
 
 	if (!gdip_is_a_supported_pixelformat (format))
-		return NotImplemented;
+		return InvalidParameter;
 
 	/* Common stuff */
 	if ((flags & ImageLockModeWrite) != 0) {
@@ -2010,7 +2014,7 @@ GdipBitmapSetPixel (GpBitmap *bitmap, INT x, INT y, ARGB color)
 	
 	data = bitmap->active_bitmap;
 
-	if ((x < 0) || (x > data->width) || (y < 0) || (y > data->height) || (data->reserved & GBD_LOCKED)) {
+	if (x < 0 || y < 0 || x >= data->width || y >= data->height || data->reserved & GBD_LOCKED) {
 		return InvalidParameter;
 	}
 
@@ -2048,7 +2052,7 @@ GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color)
 
 	data = bitmap->active_bitmap;
 
-	if (x < 0 || x >= data->width || y < 0 || y >= data->height || (data->reserved & GBD_LOCKED) != 0)
+	if (x < 0 || y < 0 || x >= data->width || y >= data->height || data->reserved & GBD_LOCKED) {
 		return InvalidParameter;
 
 	if (gdip_is_an_indexed_pixelformat (data->pixel_format)) {

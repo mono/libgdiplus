@@ -184,17 +184,34 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 			break;
 		}
 
-		// FIXME - pick matching settings for each text mode
-		case TextRenderingHintSingleBitPerPixelGridFit:
-		case TextRenderingHintSingleBitPerPixel:
-		case TextRenderingHintAntiAliasGridFit:
-		case TextRenderingHintAntiAlias: {
-			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_DEFAULT);
+		case TextRenderingHintSingleBitPerPixelGridFit: {
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_NONE);
+			cairo_font_options_set_hint_style(FontOptions, CAIRO_HINT_STYLE_MEDIUM);
+			cairo_font_options_set_hint_metrics(FontOptions, CAIRO_HINT_METRICS_ON);
 			break;
 		}
-
+		case TextRenderingHintSingleBitPerPixel: {
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_NONE);
+			cairo_font_options_set_hint_style(FontOptions, CAIRO_HINT_STYLE_NONE);
+			cairo_font_options_set_hint_metrics(FontOptions, CAIRO_HINT_METRICS_OFF);
+			break;
+		}
+		case TextRenderingHintAntiAliasGridFit: {
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_GRAY);
+			cairo_font_options_set_hint_style(FontOptions, CAIRO_HINT_STYLE_MEDIUM);
+			cairo_font_options_set_hint_metrics(FontOptions, CAIRO_HINT_METRICS_ON);
+			break;
+		}
+		case TextRenderingHintAntiAlias: {
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_GRAY);
+			cairo_font_options_set_hint_style(FontOptions, CAIRO_HINT_STYLE_NONE);
+			cairo_font_options_set_hint_metrics(FontOptions, CAIRO_HINT_METRICS_OFF);
+			break;
+		}
 		case TextRenderingHintClearTypeGridFit: {
-			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_DEFAULT);
+			cairo_font_options_set_antialias(FontOptions, CAIRO_ANTIALIAS_SUBPIXEL);
+			cairo_font_options_set_hint_style(FontOptions, CAIRO_HINT_STYLE_MEDIUM);
+			cairo_font_options_set_hint_metrics(FontOptions, CAIRO_HINT_METRICS_ON);
 			break;
 		}
 	}
@@ -290,9 +307,8 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 				if (((format->formatFlags & StringFormatFlagsNoWrap)==0) || ((format->trimming != StringTrimmingCharacter) && (format->trimming != StringTrimmingNone))) {
 					break;
 				}
-				/* Fall through */
 			}
-
+			/* fall through */
 			case ' ':
 			case '.':
 			{
@@ -324,7 +340,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 	}
 	
 	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
-	String = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)CleanString, -1);
+	String = (BYTE*) utf16_to_utf8 ((const gunichar2 *)CleanString, -1);
 	if (!String)
 		return OutOfMemory;
 
@@ -874,7 +890,7 @@ DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GD
 
 			if (length > StringLen - i)
 				length = StringLen - i;
-			String = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)(CleanString+i), length);
+			String = (BYTE*) utf16_to_utf8 ((const gunichar2 *)(CleanString+i), length);
 #ifdef DRAWSTRING_DEBUG
 			printf("Displaying line >%s< (%d chars)\n", String, length);
 #endif
