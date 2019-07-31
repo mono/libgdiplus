@@ -9,6 +9,8 @@ addons:
     packages:
     - libpango1.0-dev
     - libgif-dev
+    - libjpeg-dev
+    - libtiff-dev
     - xvfb
     - autoconf
     - libtool

@@ -190,8 +190,8 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 	int i;
 	int FrameWidth;     /* rc->Width (or rc->Height if vertical) */
 	int FrameHeight;    /* rc->Height (or rc->Width if vertical) */
-	int FrameX;         /* rc->X (or rc->Y if vertical) */
-	int FrameY;         /* rc->Y (or rc->X if vertical) */
+	//int FrameX;         /* rc->X (or rc->Y if vertical) */
+	//int FrameY;         /* rc->Y (or rc->X if vertical) */
 	int y0;             /* y0,y1,clipNN used for checking line positions vs. clip rectangle */
 	int y1;
 	int trimSpace;      /* whether or not to trim the space */
@@ -237,13 +237,13 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 	if (fmt->formatFlags & StringFormatFlagsDirectionVertical) {
 		FrameWidth = MAKE_SAFE_FOR_PANGO (SAFE_FLOAT_TO_UINT32 (rc->Height));
 		FrameHeight = MAKE_SAFE_FOR_PANGO (SAFE_FLOAT_TO_UINT32 (rc->Width));
-		FrameX = SAFE_FLOAT_TO_UINT32 (rc->Y);
-		FrameY = SAFE_FLOAT_TO_UINT32 (rc->X);
+		//FrameX = SAFE_FLOAT_TO_UINT32 (rc->Y);
+		//FrameY = SAFE_FLOAT_TO_UINT32 (rc->X);
 	} else {
 		FrameWidth = MAKE_SAFE_FOR_PANGO (SAFE_FLOAT_TO_UINT32 (rc->Width));
 		FrameHeight = MAKE_SAFE_FOR_PANGO (SAFE_FLOAT_TO_UINT32 (rc->Height));
-		FrameX = SAFE_FLOAT_TO_UINT32 (rc->X);
-		FrameY = SAFE_FLOAT_TO_UINT32 (rc->Y);
+		//FrameX = SAFE_FLOAT_TO_UINT32 (rc->X);
+		//FrameY = SAFE_FLOAT_TO_UINT32 (rc->Y);
 	}
 	//g_warning("FW: %d\tFH: %d", FrameWidth, FrameHeight);
 
