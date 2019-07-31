@@ -1059,6 +1059,10 @@ GdipCreateBitmapFromHICON (HICON hicon, GpBitmap** bitmap)
 	if (!hicon || !bitmap)
 		return InvalidParameter;
 
+#if defined(WIN32)
+	return NotImplemented;
+#endif
+
 	status = GdipCloneImage ((GpImage *)hicon, (GpImage**)bitmap);
 	if (status == Ok) {
 		if ((*bitmap)->active_bitmap->palette)
