@@ -902,14 +902,14 @@ GdipCreateBitmapFromScan0 (int width, int height, int stride, PixelFormat format
 			goto fail;
 		}
 
-		if ((gdip_get_pixel_format_bpp(format) < 16) || gdip_is_an_alpha_pixelformat(format)) {
+		if ((gdip_get_pixel_format_bpp(format) < 32) || gdip_is_an_alpha_pixelformat(format)) {
 			memset (scan0, 0, stride * height);
 		} else {
 			/* Since the pixel format is not an alpha pixel format (i.e., it is
-			 * either PixelFormat24bppRGB or PixelFormat32bppRGB), the image should be
-			 * initially black, not initially transparent. Thus, we need to set
-			 * the alpha channel, which the user code doesn't think exists but
-			 * Cairo is still paying attention to, to 0xFF.
+			 * PixelFormat32bppRGB), the image should be initially black, not
+			 * initially transparent. Thus, we need to set the alpha channel,
+			 * which the user code doesn't think exists but Cairo is still paying
+			 * attention to, to 0xFF.
 			 */
 			int	x;
 			int	y;
