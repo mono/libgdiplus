@@ -615,7 +615,7 @@ GdipSetImageAttributesOutputChannelColorProfile (GpImageAttributes *imageattr, C
 		if (!colorProfileFilename)
 			return Win32Error;
 
-		char *utf8 = ucs2_to_utf8 (colorProfileFilename, -1);
+		char *utf8 = utf16_to_utf8 (colorProfileFilename, -1);
 		if (!utf8)
 			return OutOfMemory;
 

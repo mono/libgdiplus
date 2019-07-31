@@ -361,12 +361,12 @@ gdip_erf (float x, float std, float mean)
 }
 
 /*
- convert a ucs2 string to utf8
+ convert a utf16 string to utf8
  length = number of characters to convert, -1 to indicate the whole string
 */
 
 gchar *
-ucs2_to_utf8(const gunichar2 *ucs2, int length) {
+utf16_to_utf8(const gunichar2 *ucs2, int length) {
 	const gunichar2	*ptr;
 	const gunichar2	*end;
 	gunichar	*dest;
@@ -396,6 +396,10 @@ ucs2_to_utf8(const gunichar2 *ucs2, int length) {
 		if (*ptr < 0xd800 || *ptr >= 0xe000) {
 			*dest = *ptr;
 			dest++;
+		} else if (ptr + 1 != end && ptr[1] < 0xe000 && ptr[1] >= 0xdc00) {
+			/* UTF-16 support: Convert high and low surrogate to 32-bit code. */
+			*dest++ = ((gunichar)ptr[0] - 0xd800) * 0x400 + ((gunichar)ptr[1] - 0xdc00) + 0x10000;
+			ptr++;
 		}
 		ptr++;
 	}

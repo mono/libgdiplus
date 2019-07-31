@@ -323,7 +323,7 @@ MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int *length
 	}
 	
 	/* Convert string from Gdiplus format to UTF8, suitable for cairo */
-	String = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)CleanString, -1);
+	String = (BYTE*) utf16_to_utf8 ((const gunichar2 *)CleanString, -1);
 	if (!String)
 		return OutOfMemory;
 
@@ -873,7 +873,7 @@ DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, int length, GD
 
 			if (length > StringLen - i)
 				length = StringLen - i;
-			String = (BYTE*) ucs2_to_utf8 ((const gunichar2 *)(CleanString+i), length);
+			String = (BYTE*) utf16_to_utf8 ((const gunichar2 *)(CleanString+i), length);
 #ifdef DRAWSTRING_DEBUG
 			printf("Displaying line >%s< (%d chars)\n", String, length);
 #endif
