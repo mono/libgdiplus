@@ -320,7 +320,12 @@ GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap
 		}
 	}
 
-	result->base_cap = baseCap;
+	if (baseCap >= LineCapFlat && baseCap <= LineCapTriangle) {
+		result->base_cap = baseCap;
+	} else {
+		result->base_cap = LineCapFlat;
+	}
+
 	result->base_inset = baseInset;
 
 	*customCap = result;
@@ -358,7 +363,7 @@ GdipGetCustomLineCapType (GpCustomLineCap *customCap, CustomLineCapType *capType
 GpStatus WINGDIPAPI
 GdipSetCustomLineCapStrokeCaps (GpCustomLineCap *customCap, GpLineCap startCap, GpLineCap endCap)
 {
-	if (!customCap || startCap > LineCapTriangle || endCap > LineCapTriangle)
+	if (!customCap || startCap < LineCapFlat || startCap > LineCapTriangle || endCap < LineCapFlat || endCap > LineCapTriangle)
 		return InvalidParameter;
 
 	customCap->start_cap = startCap;
