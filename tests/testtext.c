@@ -189,7 +189,7 @@ static void test_measure_string(void)
 	rect.Height = 10000;
 	status = GdipMeasureString (graphics, teststringdots, sizeof(teststringdots) / sizeof(teststringdots[0]), font, &rect, format, &bounds, &glyphs, &lines);
 	expect (Ok, status);
-	ok (bounds.Width <= 80, "GdipMeasureString is overstepping boundaries");
+	ok (bounds.Width <= 80, "GdipMeasureString is overstepping boundaries (%f <= 80)\n", bounds.Width);
 
 	GdipDeleteGraphics (graphics);
 	GdipDeleteFont (font);
