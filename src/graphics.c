@@ -496,7 +496,7 @@ GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state)
 	if (!graphics)
 		return InvalidParameter;
 
-	if ((state - 1) >= MAX_GRAPHICS_STATE_STACK || (state - 1) > graphics->saved_status_pos)
+	if (state <= 0 || (state - 1) >= MAX_GRAPHICS_STATE_STACK || (state - 1) > graphics->saved_status_pos)
 		return InvalidParameter;
 
 	pos_state = graphics->saved_status;
