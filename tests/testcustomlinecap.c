@@ -30,9 +30,7 @@ static void verifyCustomLineCap (GpCustomLineCap *cap, LineCap expectedBaseCap, 
 	assert (cap && "Expected cap to be initialized.");
 
 	GpStatus status;
-#if !defined(USE_WINDOWS_GDIPLUS)
 	LineCap baseCap;
-#endif
 	REAL baseInset;
 	LineCap startCap;
 	LineCap endCap;
@@ -40,12 +38,9 @@ static void verifyCustomLineCap (GpCustomLineCap *cap, LineCap expectedBaseCap, 
 	REAL widthScale;
 	CustomLineCapType type;
 
-	// GDI+ returns 0 here each time. This looks like a GDI+ bug.
-#if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipGetCustomLineCapBaseCap (cap, &baseCap);
 	assertEqualInt (status, Ok);
 	assertEqualInt (baseCap, expectedBaseCap);
-#endif
 
 	status = GdipGetCustomLineCapBaseInset (cap, &baseInset);
 	assertEqualInt (status, Ok);
@@ -81,22 +76,22 @@ static void test_createCustomLineCap ()
 
 	status = GdipCreateCustomLineCap (fillPath, strokePath, LineCapDiamondAnchor, 10, &cap);
 	assertEqualInt (status, Ok);
-	verifyCustomLineCap (cap, LineCapDiamondAnchor, 10);
+	verifyCustomLineCap (cap, LineCapFlat, 10);
 	GdipDeleteCustomLineCap (cap);
 
 	status = GdipCreateCustomLineCap (NULL, strokePath, LineCapCustom, 0, &cap);
 	assertEqualInt (status, Ok);
-	verifyCustomLineCap (cap, LineCapCustom, 0);
+	verifyCustomLineCap (cap, LineCapFlat, 0);
 	GdipDeleteCustomLineCap (cap);
 
 	status = GdipCreateCustomLineCap (fillPath, NULL, (LineCap)(LineCapFlat - 1), -1, &cap);
 	assertEqualInt (status, Ok);
-	verifyCustomLineCap (cap, (LineCap)(LineCapFlat - 1), -1);
+	verifyCustomLineCap (cap, LineCapFlat, -1);
 	GdipDeleteCustomLineCap (cap);
 
 	status = GdipCreateCustomLineCap (fillPath, strokePath, (LineCap)(LineCapCustom + 1), 100, &cap);
 	assertEqualInt (status, Ok);
-	verifyCustomLineCap (cap, (LineCap)(LineCapCustom + 1), 100);
+	verifyCustomLineCap (cap, LineCapFlat, 100);
 	GdipDeleteCustomLineCap (cap);
 
 	// Negative tests.
@@ -148,7 +143,7 @@ static void test_cloneCustomLineCap ()
 
 	status = GdipCloneCustomLineCap (cap, &clonedCap);
 	assertEqualInt (status, Ok);
-	verifyCustomLineCap (clonedCap, LineCapDiamondAnchor, 10);
+	verifyCustomLineCap (clonedCap, LineCapFlat, 10);
 	GdipDeleteCustomLineCap (clonedCap);
 
 	// Negative tests.
