@@ -678,6 +678,13 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 	GpRectF boundingBox;
 	GpPointF box_offset;
 
+	if (layoutRect->Width <= 0.0 && layoutRect->Height < 0.0) {
+		/* special case only if BOTH values are negative */
+		for (i = 0; i < format->charRangeCount; i++)
+			GdipSetInfinite (regions [i]);
+		return Ok;
+	}
+
 	cairo_save (graphics->ct);
 
 	layout = gdip_pango_setup_layout (graphics->ct, stringUnicode, length, font, layoutRect, &boundingBox, &box_offset, format, NULL);

@@ -1127,7 +1127,8 @@ cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 			/* special case only if BOTH values are negative */
 			for (i = 0; i < format->charRangeCount; i++)
 				GdipSetInfinite (regions [i]);
-			return Ok;
+			status = Ok;
+			goto cleanup;
 		} else {
 			layoutRect->Width = REGION_INFINITE_LENGTH;
 		}
