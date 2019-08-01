@@ -46,6 +46,7 @@ static void test_measure_string(void)
 	const WCHAR teststring1[] = { 'M', '\n', '\n', 'M', 0 };
 	const WCHAR teststring2[] = { ' ', L'\u2003', ' ', 0 }; // Space, em space, space
 	const WCHAR teststring3[] = { L'\u2003', L'\u2003', L'\u2003', 0 }; // em spaces
+	const WCHAR teststringdots[] = { 't','h','i','s',' ','i','s',' ','r','e','a','l','l','y',' ','l','o','n','g',' ','t','e','x','t','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.',' ','w','i','t','h',' ','a',' ','l','o','t',' ','o',' ','p','e','r','i','o','d','s','.' };
 	int glyphs;
 	int lines;
 	const SHORT fontSize = 10;
@@ -177,6 +178,18 @@ static void test_measure_string(void)
 	expect (3, glyphs); // Should be reported despite being trimmed
 	expect (1, lines);
 	expectf ((double)fontSize, bounds.Width); // An em-space should be the same width as the font size.
+
+	// MonoTests.System.Drawing.GraphicsTest.MeasureString_Wrapping_Dots
+	GdipDeleteStringFormat (format);
+	status = GdipCreateStringFormat (0, 0, &format);
+	expect (Ok, status);
+	GdipSetStringFormatAlign (format, StringAlignmentCenter);
+	set_rect_empty (&rect);
+	rect.Width = 80;
+	rect.Height = 10000;
+	status = GdipMeasureString (graphics, teststringdots, sizeof(teststringdots) / sizeof(teststringdots[0]), font, &rect, format, &bounds, &glyphs, &lines);
+	expect (Ok, status);
+	ok (bounds.Width <= 80, "GdipMeasureString is overstepping boundaries (%f <= 80)\n", bounds.Width);
 
 	GdipDeleteGraphics (graphics);
 	GdipDeleteFont (font);
