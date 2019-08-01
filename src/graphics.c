@@ -503,11 +503,11 @@ GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state)
 	if (!graphics)
 		return InvalidParameter;
 
-	if (state >= MAX_GRAPHICS_STATE_STACK || state > graphics->saved_status_pos)
+	if (state <= 0 || (state - 1) >= MAX_GRAPHICS_STATE_STACK || (state - 1) > graphics->saved_status_pos)
 		return InvalidParameter;
 
 	pos_state = graphics->saved_status;
-	pos_state += state;	
+	pos_state += (state - 1);	
 
 	/* Save from GpState to Graphics  */
 	gdip_cairo_matrix_copy (graphics->copy_of_ctm, &pos_state->matrix);
@@ -590,7 +590,7 @@ GdipSaveGraphics (GpGraphics *graphics, GraphicsState *state)
 	pos_state->pixel_mode = graphics->pixel_mode;
 	pos_state->text_contrast = graphics->text_contrast;
 	
-	*state = graphics->saved_status_pos;
+	*state = graphics->saved_status_pos + 1; // make sure GraphicsState is non-zero for compat with GDI+
 	graphics->saved_status_pos++;
 	return Ok;
 }
