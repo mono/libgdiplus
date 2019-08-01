@@ -64,12 +64,12 @@ GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStart
 	if (status != Ok)
 		return status;
 
-	FcInit();
+	FcInit ();
 
 	/* A fontconfig instance which didn't find a configfile is unbelievably
 		cranky, so let's just write out a small xml file and make fontconfig
 		happy */
-	if (FcConfigFilename(0) == NULL)
+	if (FcConfigFilename (0) == NULL)
 	{
 		/* Newer versions of font-config have FcConfigParseAndLoadFromMemory,
 		   which we could use to avoid generating a temporary file. But meanwhile,
@@ -84,33 +84,33 @@ GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStart
 #endif
 
 		if (fi) {
-			fprintf(fi, "<?xml version=\"1.0\"?>\n");
-			fprintf(fi, "<fontconfig>\n");
+			fprintf (fi, "<?xml version=\"1.0\"?>\n");
+			fprintf (fi, "<fontconfig>\n");
 #if defined(WIN32)
-			fprintf(fi, "<dir>WINDOWSFONTDIR</dir>\n");
+			fprintf (fi, "<dir>WINDOWSFONTDIR</dir>\n");
 #elif defined(__APPLE__)
-			fprintf(fi, "<dir>/System/Library/Fonts</dir>\n");
+			fprintf (fi, "<dir>/System/Library/Fonts</dir>\n");
 #else
-			fprintf(fi, "<dir>~/.fonts</dir>\n");
+			fprintf (fi, "<dir>~/.fonts</dir>\n");
 #endif
 
 #if defined(WIN32)
-			fprintf(fi, "<cachedir>WINDOWSTEMPDIR_FONTCONFIG_CACHE</cachedir>\n");
+			fprintf (fi, "<cachedir>WINDOWSTEMPDIR_FONTCONFIG_CACHE</cachedir>\n");
 #else
-			fprintf(fi, "<cachedir>~/.fontconfig</cachedir>\n");
+			fprintf (fi, "<cachedir>~/.fontconfig</cachedir>\n");
 #endif
-			fprintf(fi, "</fontconfig>\n");
-			fclose(fi);
+			fprintf (fi, "</fontconfig>\n");
+			fclose (fi);
 
-			FcConfig* c = FcConfigCreate();
-			FcConfigParseAndLoad(c, (FcChar8*)namebuf, 1);
-			remove(namebuf);
+			FcConfig* c = FcConfigCreate ();
+			FcConfigParseAndLoad (c, (FcChar8*)namebuf, 1);
+			remove (namebuf);
 
-			FcConfigBuildFonts(c);
-			FcConfigSetCurrent(c);
+			FcConfigBuildFonts (c);
+			FcConfigSetCurrent (c);
 
 			// FcConfig is reference-counted, so it's OK to call destroy here.
-			FcConfigDestroy(c);
+			FcConfigDestroy (c);
 		}
 	}
 
