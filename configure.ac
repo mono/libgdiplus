@@ -1,5 +1,5 @@
-AC_INIT(libgdiplus, [5.8],
-	[https://bugzilla.xamarin.com/enter_bug.cgi?product=Class%20Libraries&component=libgdiplus])
+AC_INIT(libgdiplus, [6.0],
+	[https://github.com/mono/mono/issues/new])
 
 AC_CONFIG_SRCDIR([README.md])
 AC_CONFIG_MACRO_DIRS([m4])
