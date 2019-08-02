@@ -990,10 +990,8 @@ gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *b
 				return OutOfMemory;
 			size -= sizeof (DWORD);
 		}
-		if (size > 0) {
-			if (gdip_read_bmp_data (pointer, data_read, size, source) != size)
-				return OutOfMemory;
-		}
+		if (gdip_read_bmp_data (pointer, data_read, size, source) != size)
+			return OutOfMemory;
 	}
 
     return Ok;

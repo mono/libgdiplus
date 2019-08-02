@@ -1538,7 +1538,7 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *
 	if (tension == 0)
 		return GdipFillPolygon2 (graphics, brush, points, count);
 
-	if (!graphics || !brush || !points || count <= 0)
+	if (!graphics || !brush || !points)
 		return InvalidParameter;
 
 	switch (graphics->backend) {
