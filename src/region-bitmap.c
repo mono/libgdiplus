@@ -454,7 +454,7 @@ gdip_region_bitmap_from_path (GpPath *path)
 	GpRegionBitmap *bitmap;
 	int i, idx;
 	int length = path->count;
-	unsigned long size;
+	unsigned long long int size;
 	cairo_surface_t *surface = NULL;
 	cairo_t *cr = NULL;
 
@@ -474,9 +474,9 @@ gdip_region_bitmap_from_path (GpPath *path)
 		return alloc_bitmap_with_buffer (bounds.X, bounds.Y, bounds.Width, bounds.Height, NULL);
 
 	/* replay the path list and the operations to reconstruct the bitmap */
-	size = (bounds.Width >> 3) * bounds.Height;
+	size = (unsigned long long int)(bounds.Width >> 3) * bounds.Height;
 	if ((size < 1) || (size > REGION_MAX_BITMAP_SIZE)) {
-		g_warning ("Path conversion requested %lu bytes (%d x %d). Maximum size is %d bytes.",
+		g_warning ("Path conversion requested %llu bytes (%d x %d). Maximum size is %d bytes.",
 			size, bounds.Width, bounds.Height, REGION_MAX_BITMAP_SIZE);
 		return NULL;
 	}

@@ -320,7 +320,13 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		/* Copy image data. */
 		row_pointers = png_get_rows (png_ptr, info_ptr);
 
-		rawdata = GdipAlloc(dest_stride * height);
+		unsigned long long int size = (unsigned long long int)dest_stride * height;
+		if (size > G_MAXINT32) {
+			status = OutOfMemory;
+			goto error;
+		}
+
+		rawdata = GdipAlloc(size);
 		if (!rawdata) {
 			status = OutOfMemory;
 			goto error;
@@ -466,7 +472,13 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 
 		row_pointers = png_get_rows (png_ptr, info_ptr);
 
-		rawdata = GdipAlloc (stride * height);
+		unsigned long long int size = (unsigned long long int)stride * height;
+		if (size > G_MAXINT32) {
+			status = OutOfMemory;
+			goto error;
+		}
+
+		rawdata = GdipAlloc (size);
 		if (!rawdata) {
 			status = OutOfMemory;
 			goto error;

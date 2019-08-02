@@ -959,6 +959,7 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 	BYTE		*pixbuf;
 	int		samples_per_pixel;
 	int		bits_per_sample;
+	unsigned long long int size;
 
 	if (tiff == NULL) {
 		return InvalidParameter;
@@ -1008,7 +1009,12 @@ gdip_save_tiff_image (TIFF* tiff, GpImage *image, GDIPCONST EncoderParameters *p
 			TIFFSetField (tiff, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize (tiff, bitmap_data->stride));
 			TIFFSetField (tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 
-			pixbuf = GdipAlloc (bitmap_data->width * samples_per_pixel);
+			size = (unsigned long long int)bitmap_data->width * samples_per_pixel;
+			if (size > G_MAXINT32) {
+				goto error;
+			}
+
+			pixbuf = GdipAlloc (size);
 			if (pixbuf == NULL) {
 				goto error;
 			}
