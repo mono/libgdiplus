@@ -2,7 +2,7 @@ AC_INIT(libgdiplus, [6.1],
 	[https://github.com/mono/mono/issues/new])
 
 AC_CONFIG_SRCDIR([README.md])
-AC_CONFIG_MACRO_DIRS([m4])
+AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_SYSTEM
 AC_CANONICAL_HOST
 
