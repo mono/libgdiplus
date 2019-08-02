@@ -44,15 +44,15 @@ noinst_PROGRAMS =			\
 	testtiffcodec \
 	testwmfcodec
 
-if HAVE_X11
-noinst_PROGRAMS += testgdi
-
-testgdi_DEPENDENCIES = $(TEST_DEPS)
-testgdi_LDADD = $(LDADDS)
-
-testgdi_SOURCES =		\
-	testgdi.c
-endif HAVE_X11
+#if HAVE_X11
+#noinst_PROGRAMS += testgdi
+#
+#testgdi_DEPENDENCIES = $(TEST_DEPS)
+#testgdi_LDADD = $(LDADDS)
+#
+#testgdi_SOURCES =		\
+#	testgdi.c
+#endif HAVE_X11
 
 testadjustablearrowcap_SOURCES =		\
 	testadjustablearrowcap.c
@@ -271,7 +271,6 @@ testwmfcodec_DEPENDENCIES = $(TEST_DEPS)
 testwmfcodec_LDADD = $(LDADDS)
 
 EXTRA_DIST =			\
-	$(testgdi_SOURCES)	\
 	$(testadjustablearrowcap_SOURCES) \
 	$(testbitmap_SOURCES) \
 	$(testbits_SOURCES)	\
@@ -308,6 +307,8 @@ EXTRA_DIST =			\
 	$(testtext_SOURCES)	\
 	$(testtiffcodec_SOURCES) \
 	$(testwmfcodec_SOURCES)
+
+#	$(testgdi_SOURCES)
 
 TESTS = \
 	testadjustablearrowcap \
